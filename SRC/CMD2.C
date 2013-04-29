@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -41,12 +47,12 @@ bool do_cmd_test(int y, int x, int action)
 
 	f_ptr = &f_info[feat];
 
-        act=NULL;
+	act=NULL;
 
 	switch (action)
 	{
-                case FS_SECRET: break;
-		case FS_OPEN: act=" to open"; break;	
+		case FS_SECRET: break;
+		case FS_OPEN: act=" to open"; break;    
 		case FS_CLOSE: act=" to close"; break;
 		case FS_BASH: act=" to bash"; break;
 		case FS_DISARM: act=" to disarm"; break;
@@ -72,7 +78,7 @@ bool do_cmd_test(int y, int x, int action)
 	}
 
 	else if (action < FS_FLAGS3)
-	{	
+	{       
 		flag = bitzero << (action - FS_FLAGS2);
 		if (!(f_ptr->flags2 & flag))
 		{
@@ -82,7 +88,7 @@ bool do_cmd_test(int y, int x, int action)
 	}
 	
 	else if (action < FS_FLAGS_END)
-	{	
+	{       
 		flag = bitzero << (action - FS_FLAGS3);
 		if (!(f_ptr->flags2 & flag))
 		{
@@ -91,9 +97,10 @@ bool do_cmd_test(int y, int x, int action)
 		}
 	}
 
-	return (TRUE);	
+	return (TRUE);  
 
 }
+
 
 
 
@@ -123,7 +130,7 @@ void do_cmd_go_up(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of up staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
@@ -155,7 +162,7 @@ void do_cmd_go_down(void)
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	msg_print("You enter a maze of down staircases.");
+	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
 	/* Create a way back */
 	p_ptr->create_up_stair = TRUE;
@@ -470,7 +477,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 			/* We may continue repeating */
 			more = TRUE;
 			if (flush_failure) flush();
-			msg_print("You failed to pick the lock.");
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 		}
 	}
 
@@ -576,8 +583,12 @@ static int count_feats(int *y, int *x, int action)
 {
 	int d, count;
 
-	u32b bitzero = 0x01;
-	u32b flag;
+	int feat;
+
+	feature_type *f_ptr;
+
+	u32b flag, bitzero = 0x000000001L;
+
 
 	/* Count how many matches */
 	count = 0;
@@ -589,36 +600,33 @@ static int count_feats(int *y, int *x, int action)
 		int yy = p_ptr->py + ddy_ddd[d];
 		int xx = p_ptr->px + ddx_ddd[d];
 
-		int feat;
-                feature_type *f_ptr;
-
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
 
-                /* Get the feature */
-                feat = cave_feat[yy][xx];
+		/* Get the feature */
+		feat = cave_feat[yy][xx];
 
 		/* Get the mimiced feature */
-                feat = f_info[feat].mimic;
+		feat = f_info[feat].mimic;
 
 		f_ptr = &f_info[feat];
 
 		if (action < FS_FLAGS2)
 		{
 			flag = bitzero << (action - FS_FLAGS1);
-			if (!(f_ptr->flags1 & flag)) continue;			
+			if (!(f_ptr->flags1 & flag)) continue;                  
 		}
 
 		else if (action < FS_FLAGS3)
-		{	
+		{       
 			flag = bitzero << (action - FS_FLAGS2);
-			if (!(f_ptr->flags2 & flag)) continue;			
+			if (!(f_ptr->flags2 & flag)) continue;                  
 		}
 	
 		else if (action < FS_FLAGS_END)
-		{	
+		{       
 			flag = bitzero << (action - FS_FLAGS3);
-			if (!(f_ptr->flags2 & flag)) continue;			
+			if (!(f_ptr->flags2 & flag)) continue;                  
 		}
 
 		/* Count it */
@@ -632,6 +640,7 @@ static int count_feats(int *y, int *x, int action)
 	/* All done */
 	return count;
 }
+
 
 /*
  * Return the number of chests around (or under) the character.
@@ -696,8 +705,6 @@ static int coords_to_dir(int y, int x)
 #endif /* ALLOW_EASY_OPEN */
 
 
-
-
 /*
  * Perform the basic "open" command on doors
  *
@@ -711,27 +718,36 @@ static bool do_cmd_open_aux(int y, int x)
 
 	bool more = FALSE;
 
+
+	/* Verify legality */
+	if (!do_cmd_test(y, x,FS_OPEN)) return (FALSE);
+
+
 	/* Verify legality */
 	if (!do_cmd_test(y, x, FS_OPEN)) return (FALSE);
 
-	/* Secrets on door/permanent doors */
-	if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
-		(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
-	{
-		/* Stuck */
-		find_secret(y,x);
-
-		/* Hit discovered traps */
-		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-		{
-			hit_trap(y,x);
-		}
-	}
-
 	/* Trapped door */
-	else if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+        if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
 	{
 		hit_trap(y,x);
+
+                /* Update the visuals */
+                p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	}
+
+
+	/* Secrets on door/permanent doors */
+        else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+		(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
+	{
+
+		/* Stuck */
+                find_secret(y,x);
+
+                /* Update the visuals */
+                p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 	}
 
 	/* Locked door */
@@ -745,7 +761,7 @@ static bool do_cmd_open_aux(int y, int x)
 		if (p_ptr->confused || p_ptr->image) i = i / 10;
 
 		/* Extract the lock power */
-		j = f_info[cave_feat[y][x]].power;
+		j = cave_feat[y][x] - FEAT_DOOR_HEAD;
 
 		/* Extract the difficulty XXX XXX XXX */
 		j = i - (j * 4);
@@ -757,16 +773,13 @@ static bool do_cmd_open_aux(int y, int x)
 		if (rand_int(100) < j)
 		{
 			/* Message */
-			msg_print("You have picked the lock.");
+			message(MSG_OPENDOOR, 0, "You have picked the lock.");
 
 			/* Open the door */
-                        cave_alter_feat(y, x, FS_OPEN);
+			cave_alter_feat(y, x, FS_OPEN);
 
 			/* Update the visuals */
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-			/* Sound */
-			sound(SOUND_OPENDOOR);
 
 			/* Experience */
 			gain_exp(1);
@@ -779,7 +792,7 @@ static bool do_cmd_open_aux(int y, int x)
 			if (flush_failure) flush();
 
 			/* Message */
-			msg_print("You failed to pick the lock.");
+			message(MSG_LOCKPICK_FAIL, 0, "You failed to pick the lock.");
 
 			/* We may keep trying */
 			more = TRUE;
@@ -790,10 +803,13 @@ static bool do_cmd_open_aux(int y, int x)
 	else
 	{
 		/* Open the door */
-                cave_alter_feat(y, x, FS_OPEN);
+		cave_alter_feat(y, x, FS_OPEN);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Sound */
-		sound(SOUND_OPENDOOR);
+		sound(MSG_OPENDOOR);
 	}
 
 	/* Result */
@@ -810,7 +826,7 @@ static bool do_cmd_open_aux(int y, int x)
 void do_cmd_open(void)
 {
 	int py = p_ptr->py;
-        int px = p_ptr->px;     
+	int px = p_ptr->px;
 
 	int y, x, dir;
 
@@ -920,34 +936,38 @@ static bool do_cmd_close_aux(int y, int x)
 	/* Verify legality */
 	if (!do_cmd_test(y, x,FS_CLOSE)) return (FALSE);
 
+	/* Trapped door */
+        if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+	{
+		hit_trap(y,x);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	}
+
 	/* Secrets on door/permanent doors */
-	if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+        else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 		(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 	{
 		/* Stuck */
-		find_secret(y,x);
+                find_secret(y,x);
 
-		/* Hit discovered traps */
-		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-		{
-			hit_trap(y,x);
-		}
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	}
 
-	/* Trapped door */
-	else if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-	{
-		hit_trap(y,x);
-	}
-
-	/* Open door */
+	/* Close door */
 	else
 	{
 		/* Close the door */
 		cave_alter_feat(y, x, FS_CLOSE);
 
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 		/* Sound */
-		sound(SOUND_SHUTDOOR);
+		sound(MSG_SHUTDOOR);
 	}
 
 	/* Result */
@@ -1045,12 +1065,15 @@ void do_cmd_close(void)
 
 
 
+
+
+
 /*
  * Perform the basic "tunnel" command
  *
  * Assumes that no monster is blocking the destination
  *
- * Uses "twall" (above) to do all "terrain feature changing".
+ * Do not use twall anymore --- ANDY
  *
  * Returns TRUE if repeated commands may continue
  */
@@ -1071,29 +1094,31 @@ static bool do_cmd_tunnel_aux(int y, int x)
 
 	i = p_ptr->skill_dig;
 
-	j = f_info[cave_feat[y][x]].power;	
+	j = f_info[cave_feat[y][x]].power;      
 
 	/* Hack - bump up power for doors */
 	if (f_info[cave_feat[y][x]].flags1 & (FF1_DOOR)) j = 30;
 
+	/* Trapped door */
+        if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+	{
+		hit_trap(y,x);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	}
+
 	/* Permanent doors/rock */
-	if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT))
+        else if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT))
 
 	{
 		/* Stuck */
-		find_secret(y,x);
+                find_secret(y,x);
 
-		/* Hit discovered traps */
-		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-		{
-			hit_trap(y,x);
-		}
-	}
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
-	/* Trapped door */
-	else if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-	{
-		hit_trap(y,x);
 	}
 
 	/* Dig or tunnel */
@@ -1111,10 +1136,14 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Get the name */
 			name = (f_name + f_info[feat].name);
 
-			/* Give the message */			
+			/* Give the message */                  
 			msg_format("You have removed the %s.",name);
 			
 			cave_alter_feat(y,x,FS_TUNNEL);
+
+                        /* Update the visuals */
+                        p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 		}
 
 		/* Keep trying */
@@ -1148,10 +1177,14 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			/* Get the name */
 			name = (f_name + f_info[feat].name);
 
-			/* Give the message */			
+			/* Give the message */                  
 			msg_print("You have finished the tunnel.");
 			
 			cave_alter_feat(y,x,FS_TUNNEL);
+
+                        /* Update the visuals */
+                        p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 		}
 
 		/* Keep trying */
@@ -1174,7 +1207,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	return (more);
 }
 
-
 /*
  * Tunnel through "walls" (including rubble and secret doors)
  *
@@ -1189,7 +1221,6 @@ void do_cmd_tunnel(void)
 	int y, x, dir;
 
 	bool more = FALSE;
-
 
 #ifdef ALLOW_EASY_OPEN
 
@@ -1216,8 +1247,9 @@ void do_cmd_tunnel(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+
 	/* Oops */
-        if (!do_cmd_test(y, x, FS_TUNNEL)) return;
+	if (!do_cmd_test(y, x, FS_TUNNEL)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1265,8 +1297,6 @@ void do_cmd_tunnel(void)
 	if (!more) disturb(0, 0);
 }
 
-
-
 /*
  * Perform the basic "disarm" command
  *
@@ -1282,6 +1312,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 	bool more = FALSE;
 
+
 	/* Verify legality */
 	if (!do_cmd_test(y, x, FS_DISARM)) return (FALSE);
 
@@ -1296,8 +1327,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 	if (p_ptr->blind || no_lite()) i = i / 10;
 	if (p_ptr->confused || p_ptr->image) i = i / 10;
 
+	/* XXX XXX XXX Variable power? */
+
 	/* Extract trap "power" */
-	power = f_info[cave_feat[y][x]].power;
+	power = 5;
 
 	/* Extract the difficulty */
 	j = i - power;
@@ -1314,11 +1347,12 @@ static bool do_cmd_disarm_aux(int y, int x)
 		/* Reward */
 		gain_exp(power);
 
-		/* Forget the trap */
-		cave_info[y][x] &= ~(CAVE_MARK);
-
 		/* Remove the trap */
 		cave_alter_feat(y, x, FS_DISARM);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 	}
 
 	/* Failure -- Keep trying */
@@ -1332,6 +1366,8 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 		/* We may keep trying */
 		more = TRUE;
+
+
 	}
 
 	/* Failure -- Set off the trap */
@@ -1342,6 +1378,10 @@ static bool do_cmd_disarm_aux(int y, int x)
 
 		/* Hit the trap */
 		hit_trap(y, x);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 	}
 
 	/* Result */
@@ -1390,7 +1430,8 @@ void do_cmd_disarm(void)
 
 
 	/* Verify legality */
-        if (!o_idx && !do_cmd_test(y, x, FS_DISARM)) return;
+	if (!o_idx && !do_cmd_test(y, x, FS_DISARM)) return;
+
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1448,6 +1489,8 @@ void do_cmd_disarm(void)
 	if (!more) disturb(0, 0);
 }
 
+
+
 /*
  * Perform the basic "bash" command
  *
@@ -1459,11 +1502,11 @@ static bool do_cmd_bash_aux(int y, int x)
 {
 	int bash, temp;
 
+	int feat;
+
+	cptr name;
+
 	bool more = FALSE;
-
-	byte feat;
-
-	cptr name; 
 
 	/* Verify legality */
 	if (!do_cmd_test(y, x,FS_BASH)) return (FALSE);
@@ -1477,33 +1520,35 @@ static bool do_cmd_bash_aux(int y, int x)
 	/* Message */
 	msg_format("You smash into the %s!",name);
 
+	/* Trapped door */
+        if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+	{
+		hit_trap(y,x);
+
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	}
+
+
 	/* Secrets on door/permanent doors */
-	if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+        else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 		(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 	{
 		/* Stuck */
-		find_secret(y,x);
+                find_secret(y,x);
 
-		/* Hit discovered traps */
-		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-		{
-			hit_trap(y,x);
-		}
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 	}
-
-	/* Trapped door */
-	else if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-	{
-		hit_trap(y,x);
-	}
-
 
 	/* Hack -- Bash power based on strength */
 	/* (Ranges from 3 to 20 to 100 to 200) */
 	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
 
 	/* Extract door power */
-	temp = f_info[cave_feat[y][x]].power;
+        temp = f_info[cave_feat[y][x]].power;
 
 	/* Compare bash power to door power XXX XXX XXX */
 	temp = (bash - (temp * 10));
@@ -1529,6 +1574,9 @@ static bool do_cmd_bash_aux(int y, int x)
 			cave_alter_feat(y, x, FS_OPEN);
 		}
 
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 		/* Sound */
 		sound(SOUND_OPENDOOR);
 
@@ -1536,7 +1584,7 @@ static bool do_cmd_bash_aux(int y, int x)
 
 	/* Saving throw against stun */
 	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+		 p_ptr->lev)
 	{
 		/* Message */
 		msg_format("The %s holds firm.",name);
@@ -1563,10 +1611,6 @@ static bool do_cmd_bash_aux(int y, int x)
 /*
  * Bash open a door, success based on character strength
  *
- * For a closed door, pval is positive if locked; negative if stuck.
- *
- * For an open door, pval is positive for a broken door.
- *
  * A closed door can be opened - harder if locked. Any door might be
  * bashed open (and thereby broken). Bashing a door is (potentially)
  * faster! You move into the door way. To open a stuck door, it must
@@ -1581,22 +1625,19 @@ void do_cmd_bash(void)
 
 	int y, x, dir;
 
-	bool more = FALSE;
-
 #ifdef ALLOW_EASY_OPEN
 
 	/* Easy Bash */
 	if (easy_open)
 	{
 		/* Handle a single visible trap or trapped chest */
-		if (count_feats(&y, &x, FS_BASH))
+                if (count_feats(&y, &x, FS_BASH)==1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 
 #endif /* ALLOW_EASY_OPEN */
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1643,20 +1684,18 @@ void do_cmd_bash(void)
 
 		/* Attack */
 		py_attack(y, x);
-
-		/* Done */
-		return;
 	}
 
 	/* Door */
 	else
 	{
 		/* Bash the door */
-		more = do_cmd_bash_aux(y, x);
+		if (!do_cmd_bash_aux(y, x))
+		{
+			/* Cancel repeat */
+			disturb(0, 0);
+		}
 	}
-
-	/* Cancel repeat unless told not to */
-	if (!more) disturb(0, 0);
 }
 
 
@@ -1731,7 +1770,6 @@ void do_cmd_alter(void)
 		py_attack(y, x);
 	}
 
-
 	/* Disarm traps */
 	else if (f_info[feat].flags1 & (FF1_DISARM))
 	{
@@ -1745,21 +1783,20 @@ void do_cmd_alter(void)
 		/* Tunnel */
 		more = do_cmd_open_aux(y, x);
 	}
-
+#if 0
 	/* Bash jammed doors */
 	else if (f_info[feat].flags1 & (FF1_BASH))
 	{
 		/* Tunnel */
 		more = do_cmd_bash_aux(y, x);
 	}
-
+#endif
 	/* Tunnel through walls */
 	else if (f_info[feat].flags1 & (FF1_TUNNEL))
 	{
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
 	}
-
 
 #if 0
 
@@ -1816,6 +1853,7 @@ static bool get_spike(int *ip)
 	return (FALSE);
 }
 
+
 /*
  * Jam a closed door with a spike
  *
@@ -1839,6 +1877,19 @@ void do_cmd_spike(void)
 		return;
 	}
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Easy Bash */
+	if (easy_open)
+	{
+		/* Handle a single visible trap or trapped chest */
+                if (count_feats(&y, &x, FS_SPIKE)==1)
+		{
+			p_ptr->command_dir = coords_to_dir(y, x);
+		}
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -1880,34 +1931,40 @@ void do_cmd_spike(void)
 		/* Verify legality */
 		if (!do_cmd_test(y, x, FS_SPIKE)) return;
 
-		/* Successful jamming */
-		msg_print("You jam the door with a spike.");
+
+		/* Trapped door */
+                if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+		{
+			hit_trap(y,x);
+
+                        /* Update the visuals */
+                        p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+		}
+
 
 		/* Secrets on door/permanent doors */
-		if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+                else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 			(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 		{
 			/* Stuck */
-			find_secret(y,x);
+                        find_secret(y,x);
 
-			/* Hit discovered traps */
-			if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-			{
-				hit_trap(y,x);
-			}
-		}
+                        /* Update the visuals */
+                        p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
-		/* Trapped door */
-		else if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
-		{
-			hit_trap(y,x);
 		}
 
 		/* Spike the door */
 		else 
 		{
 			cave_alter_feat(y,x,FS_SPIKE);
+
+                        /* Update the visuals */
+                        p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
 		}
+
 
 		/* Use up, and describe, a single spike, from the bottom */
 		inven_item_increase(item, -1);
@@ -1917,21 +1974,17 @@ void do_cmd_spike(void)
 }
 
 
-
-/*
- * Determine if a given grid may be "walked"
- */
 static bool do_cmd_walk_test(int y, int x)
 {
 	byte feat;
 
 	cptr name; 
 
-        /* Get feature */
-        feat = cave_feat[y][x];
+	/* Get feature */
+	feat = cave_feat[y][x];
 
 	/* Get mimiced feature */
-        feat = f_info[feat].mimic;
+	feat = f_info[feat].mimic;
 
 	/* Get the name */
 	name = (f_name + f_info[feat].name);
@@ -1939,26 +1992,26 @@ static bool do_cmd_walk_test(int y, int x)
 	/* Hack -- walking obtains knowledge XXX XXX */
 	if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
 
-        /* Hack -- walking allows attacking XXX XXX */
-        if (cave_m_idx[y][x] >0) return (TRUE);
+	/* Hack -- walking allows attacking XXX XXX */
+	if (cave_m_idx[y][x] >0) return (TRUE);
 
 
 	/* Require open space */
-        if (!(f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) ||
-                (f_info[cave_feat[y][x]].flags2 & (FF2_FILLED)))
+	if (!(f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) ||
+		(f_info[cave_feat[y][x]].flags2 & (FF2_FILLED)))
 	{
 #ifdef ALLOW_EASY_ALTER
 
 		if (easy_alter) {
 
-                        if (f_info[feat].flags1 & (FF1_BASH)) return(TRUE);
-                        if (f_info[feat].flags1 & (FF1_OPEN)) return(TRUE);
+			if (f_info[feat].flags1 & (FF1_BASH)) return(TRUE);
+			if (f_info[feat].flags1 & (FF1_OPEN)) return(TRUE);
 		}
 
 #endif /* ALLOW_EASY_ALTER */
 
 		/* Message */
-                msg_format("There is a %s in the way.",name);
+		msg_format("There is a %s in the way.",name);
 
 		/* Nope */
 		return (FALSE);
@@ -1987,6 +2040,7 @@ static void do_cmd_walk_or_jump(int jumping)
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
+
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
@@ -2023,7 +2077,6 @@ static void do_cmd_walk_or_jump(int jumping)
 
 	/* Move the player */
 	move_player(dir, jumping);
-
 }
 
 
@@ -2128,7 +2181,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	py_pickup(pickup);
 
 	/* Hack -- enter a store if we are on one */
-        if (f_info[cave_feat[py][px]].flags1 & (FF1_ENTER))
+	if (f_info[cave_feat[py][px]].flags1 & (FF1_ENTER))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -2247,6 +2300,7 @@ static int breakage_chance(object_type *o_ptr)
 	{
 		/* Always break */
 		case TV_FLASK:
+		case TV_SPELL:
 		case TV_POTION:
 		case TV_BOTTLE:
 		case TV_FOOD:
@@ -2299,17 +2353,13 @@ static int breakage_chance(object_type *o_ptr)
  *
  * Objects are more likely to break if they "attempt" to hit a monster.
  *
- * Rangers (with Bows) and Anyone (with "Extra Shots") get extra shots.
+ * Note styles now benefit player.
  *
  * The "extra shot" code works by decreasing the amount of energy
  * required to make each shot, spreading the shots out over time.
  *
  * Note that when firing missiles, the launcher multiplier is applied
  * after all the bonuses are added in, making multipliers very useful.
- *
- * Note that we don't do this any more... we apply the multipliers just
- * like melee weapons, but unlike melee weapons, we don't reduce the
- * damage by the armour type.
  *
  * Note that Bows of "Extra Might" get extra range and an extra bonus
  * for the damage multiplier.
@@ -2326,6 +2376,11 @@ void do_cmd_fire(void)
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
 
+        int style_hit=0;
+        int style_dam=0;
+        int style_crit=0;
+	u32b shoot_style;
+
 	object_type *o_ptr;
 	object_type *j_ptr;
 
@@ -2339,7 +2394,7 @@ void do_cmd_fire(void)
 
 	char o_name[80];
 
-	int path_n = 0;
+	int path_n;
 	u16b path_g[256];
 
 	cptr q, s;
@@ -2407,7 +2462,7 @@ void do_cmd_fire(void)
 
 
 	/* Sound */
-	sound(SOUND_SHOOT);
+	sound(MSG_SHOOT);
 
 
 	/* Describe the object */
@@ -2417,18 +2472,50 @@ void do_cmd_fire(void)
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
 
+	/* Check shooting styles only */
+	shoot_style = p_ptr->cur_style & (WS_SHOOT_FLAGS);
+
+	/*** Handle styles ***/
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
+
+		/* Check for styles */
+                if (w_info[i].styles & (shoot_style))
+		{
+			switch (w_info[i].benefit)
+			{
+
+				case WB_HIT:
+                                        style_hit += (p_ptr->lev - w_info[i].level) /2;
+					break;
+
+				case WB_DAM:
+                                        style_dam += (p_ptr->lev - w_info[i].level) /2;
+					break;
+
+				case WB_CRITICAL:
+					style_crit++;
+					break;
+                        }
+		}
+
+	}
+
+
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
-	/* Use a base distance */
-	tdis = 10;
-
-	/* Base damage from thrown object plus launcher bonus */
+	/* Base damage from thrown object */
 	tdam = damroll(i_ptr->dd, i_ptr->ds);
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
+	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h + style_hit);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2560,10 +2647,10 @@ void do_cmd_fire(void)
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
 
 				/* Apply critical damage */
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+				tdam = critical_shot(i_ptr->weight, (i_ptr->to_h + style_crit *30), tdam);
 
 				/* Apply launcher and missile bonus */
-				tdam += i_ptr->to_d + j_ptr->to_d;
+				tdam += i_ptr->to_d + j_ptr->to_d + style_dam;
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2572,7 +2659,7 @@ void do_cmd_fire(void)
 				if (p_ptr->wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 				}
 
 				/* Hit the monster, check for death */
@@ -2592,14 +2679,12 @@ void do_cmd_fire(void)
 					{
 						char m_name[80];
 
-						/* Sound */
-						sound(SOUND_FLEE);
-
 						/* Get the monster name (or "it") */
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						message_format(MSG_FLEE, m_ptr->r_idx,
+							       "%^s flees in terror!", m_name);
 					}
 				}
 			}
@@ -2649,7 +2734,7 @@ void do_cmd_throw(void)
 
 	char o_name[80];
 
-	int path_n = 0;
+	int path_n;
 	u16b path_g[256];
 
 	cptr q, s;
@@ -2723,7 +2808,7 @@ void do_cmd_throw(void)
 	if (tdis > 10) tdis = 10;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(i_ptr->dd, i_ptr->ds) + i_ptr->to_d;
+	tdam = damroll(i_ptr->dd, i_ptr->ds);
 
 	/* Chance of hitting */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
@@ -2846,7 +2931,12 @@ void do_cmd_throw(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+
+				/* Apply critical damage */
 				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+
+				/* Apply launcher and missile bonus */
+				tdam += i_ptr->to_d;
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2855,7 +2945,7 @@ void do_cmd_throw(void)
 				if (p_ptr->wizard)
 				{
 					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
+						   tdam, m_ptr->hp);
 				}
 
 				/* Hit the monster, check for death */
@@ -2875,14 +2965,12 @@ void do_cmd_throw(void)
 					{
 						char m_name[80];
 
-						/* Sound */
-						sound(SOUND_FLEE);
-
 						/* Get the monster name (or "it") */
 						monster_desc(m_name, m_ptr, 0);
 
 						/* Message */
-						msg_format("%^s flees in terror!", m_name);
+						message_format(MSG_FLEE, m_ptr->r_idx,
+							       "%^s flees in terror!", m_name);
 					}
 				}
 			}

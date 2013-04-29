@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.9.0   **   The Pits of Angband   **
+              **   UnAngband 0.1.9 ** Unnamed Angband Varient **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -13,9 +13,10 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
-                     Angband 2.9.0 by Robert Ruehlmann
+                     Angband 2.9.1 by Robert Ruehlmann
+		UnAngband 0.1.0 - 0.4.0 by Andrew Doull
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+        Send comments, bug reports, and patches, to "andrewdoull@hotmail.com"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
@@ -24,7 +25,95 @@
 
 === General Info ===
 
-This is the README file for Angband 2.9.0 (27th March 2000).
+16-7-2001 UnAngband 0.4.0 "Mystery Release" aka "War against the Angels"
+aka "Angry Young Man"
+
+This is the README file for Unnamed Angband 0.4.0 for 14 July, 2001.
+
+Unnamed Angband adds over 100 class/style combinations to Angband,
+130 new spells, 60 new spell books and spell related objects, over
+500 new monsters, 196 features, 230 room descriptions and slightly
+modifies combat and monster spell casting.
+
+There is a context sensitive help feature you are invited to
+contribute to.
+
+Classes added include bards, archers, thieves and druids. Bards use
+a new type of spell book (Song books), and continue to sing their
+spells after initially casting them, letting them simultaneously
+perform other actions. Archers are the missile weapon equivelent
+of warriors. Thieves are the only class to improve in stealth from
+level to level. Druids can cast both mage and priest spells. The
+c_info.txt file can be used to create new classes and reconfigure
+existing ones. There are a number of internally hard-coded limits
+on classes that probably prevent more than 26 total class types.
+All class specific abilities are now defined in info files.
+
+More significantly, all classes are now able to specialise in various
+spell books, fighting styles or objects, depending on which class
+they are a member of. The class gains additional benefits of various
+types when using their specialisation. This is detailled in the
+w_info.txt file which can also be modified and expanded. There is
+a maximum of 32 different styles, for each class, some of which
+are not useful for a particular class. Various hard coded
+limits probably prevent more than 26 possible styles plus spellbook
+substyles per class.
+
+There is a (hack) pretty name function that keeps sub-class names
+interesting for the player.
+
+There are 130 new spells of various types, including spells that 
+create temporary objects, modify existing objects, modify terrain
+and so forth. A number of the new spells are duplicates of existing
+spells for other classes. A character can learn up to 64 total spells.
+
+In order to support the new spells, there are 60 new spell books
+and spell book related objects. Spellbooks are used by bards for their
+spells, but may also be used by priest and mage-type spell casters
+although there are many illegible spells in each book for those
+casters. Instruments may be used by the bard to improve those spells
+he sings for long durations. Temporary spell objects are wielded by
+the spell caster as enchanted objects.
+
+Over 500 monsters have been added, with the intention of ensuring
+variety in the dungeon, and to make feature-ful levels interesting.
+
+Features added to the dungeon include new traps, water, ice, lava,
+mud and chasms. These are detailled in f_info.txt and
+defined using additional fields and flags documented in the same
+file. Monsters should be able to traverse various terrain types
+depending on additional flags in r_info.txt. Lakes and rivers
+will be generated through some dungeon levels.
+
+Room descriptions have been added. These are displayed when a 
+player lites up or enters a room. Room descriptions can also add
+extra monsters, objects and features. See d_info.txt for details.
+
+Monsters can now cast spells out of line of sight of the player,
+including summon spells. You will be warned in some circumstances
+when this is happening. Confused monsters will attack and breath
+against other monsters.
+
+Combat has been modified slightly so that melee attacks against
+monsters are reduced by the monster AC, much in the same way as
+melee attacks against the player are reduced. To compensate,
+monster hit points are scaled down by the same factor (Internally),
+depending on their armour class. It has the added benefit of making
+spell attacks against heavily armoured monsters more powerful.
+
+If a monster is killed and the player has blows remaining, the player
+only uses the appropriate fraction of the full energy use for the
+round.
+
+Missile weapons now use the same algorithm as melee weapons. Note
+that missile weapons do not have their damage reduced by AC,
+so they should remain (approximately) as effective.
+
+You can contact the author (Andrew Doull) at andrewdoull@hotmail.com,
+or check his home page at http://promisedpoems.editthispage.com/.
+
+
+==== Information from the Angband Readme file ====
 
 Angband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,

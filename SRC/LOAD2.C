@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -888,6 +894,7 @@ static void rd_lore(int r_idx)
 	byte tmp8u;
 
 	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 
 	/* Pre-2.7.7 */
@@ -897,29 +904,29 @@ static void rd_lore(int r_idx)
 		strip_bytes(20);
 
 		/* Kills during this life */
-		rd_s16b(&r_ptr->r_pkills);
+		rd_s16b(&l_ptr->r_pkills);
 
 		/* Strip something */
 		strip_bytes(2);
 
 		/* Count observations of attacks */
-		rd_byte(&r_ptr->r_blows[0]);
-		rd_byte(&r_ptr->r_blows[1]);
-		rd_byte(&r_ptr->r_blows[2]);
-		rd_byte(&r_ptr->r_blows[3]);
+		rd_byte(&l_ptr->r_blows[0]);
+		rd_byte(&l_ptr->r_blows[1]);
+		rd_byte(&l_ptr->r_blows[2]);
+		rd_byte(&l_ptr->r_blows[3]);
 
 		/* Count some other stuff */
-		rd_byte(&r_ptr->r_wake);
-		rd_byte(&r_ptr->r_ignore);
+		rd_byte(&l_ptr->r_wake);
+		rd_byte(&l_ptr->r_ignore);
 
 		/* Strip something */
 		strip_bytes(2);
 
 		/* Count kills by player */
-		rd_s16b(&r_ptr->r_tkills);
+		rd_s16b(&l_ptr->r_tkills);
 
 		/* Count deaths of player */
-		rd_s16b(&r_ptr->r_deaths);
+		rd_s16b(&l_ptr->r_deaths);
 
 		/* Read the "Racial" monster limit per level */
 		rd_byte(&r_ptr->max_num);
@@ -928,47 +935,47 @@ static void rd_lore(int r_idx)
 		strip_bytes(1);
 
 		/* Hack -- guess at "sights" */
-		r_ptr->r_sights = MAX(r_ptr->r_tkills, r_ptr->r_deaths);
+		l_ptr->r_sights = MAX(l_ptr->r_tkills, l_ptr->r_deaths);
 	}
 
 	/* Current */
 	else
 	{
 		/* Count sights/deaths/kills */
-		rd_s16b(&r_ptr->r_sights);
-		rd_s16b(&r_ptr->r_deaths);
-		rd_s16b(&r_ptr->r_pkills);
-		rd_s16b(&r_ptr->r_tkills);
+		rd_s16b(&l_ptr->r_sights);
+		rd_s16b(&l_ptr->r_deaths);
+		rd_s16b(&l_ptr->r_pkills);
+		rd_s16b(&l_ptr->r_tkills);
 
 		/* Count wakes and ignores */
-		rd_byte(&r_ptr->r_wake);
-		rd_byte(&r_ptr->r_ignore);
+		rd_byte(&l_ptr->r_wake);
+		rd_byte(&l_ptr->r_ignore);
 
 		/* Extra stuff */
-		rd_byte(&r_ptr->r_xtra1);
-		rd_byte(&r_ptr->r_xtra2);
+		rd_byte(&l_ptr->r_xtra1);
+		rd_byte(&l_ptr->r_xtra2);
 
 		/* Count drops */
-		rd_byte(&r_ptr->r_drop_gold);
-		rd_byte(&r_ptr->r_drop_item);
+		rd_byte(&l_ptr->r_drop_gold);
+		rd_byte(&l_ptr->r_drop_item);
 
 		/* Count spells */
-		rd_byte(&r_ptr->r_cast_inate);
-		rd_byte(&r_ptr->r_cast_spell);
+		rd_byte(&l_ptr->r_cast_inate);
+		rd_byte(&l_ptr->r_cast_spell);
 
 		/* Count blows of each type */
-		rd_byte(&r_ptr->r_blows[0]);
-		rd_byte(&r_ptr->r_blows[1]);
-		rd_byte(&r_ptr->r_blows[2]);
-		rd_byte(&r_ptr->r_blows[3]);
+		rd_byte(&l_ptr->r_blows[0]);
+		rd_byte(&l_ptr->r_blows[1]);
+		rd_byte(&l_ptr->r_blows[2]);
+		rd_byte(&l_ptr->r_blows[3]);
 
 		/* Memorize flags */
-		rd_u32b(&r_ptr->r_flags1);
-		rd_u32b(&r_ptr->r_flags2);
-		rd_u32b(&r_ptr->r_flags3);
-		rd_u32b(&r_ptr->r_flags4);
-		rd_u32b(&r_ptr->r_flags5);
-		rd_u32b(&r_ptr->r_flags6);
+		rd_u32b(&l_ptr->r_flags1);
+		rd_u32b(&l_ptr->r_flags2);
+		rd_u32b(&l_ptr->r_flags3);
+		rd_u32b(&l_ptr->r_flags4);
+		rd_u32b(&l_ptr->r_flags5);
+		rd_u32b(&l_ptr->r_flags6);
 
 
 		/* Read the "Racial" monster limit per level */
@@ -981,12 +988,12 @@ static void rd_lore(int r_idx)
 	}
 
 	/* Repair the lore flags */
-	r_ptr->r_flags1 &= r_ptr->flags1;
-	r_ptr->r_flags2 &= r_ptr->flags2;
-	r_ptr->r_flags3 &= r_ptr->flags3;
-	r_ptr->r_flags4 &= r_ptr->flags4;
-	r_ptr->r_flags5 &= r_ptr->flags5;
-	r_ptr->r_flags6 &= r_ptr->flags6;
+	l_ptr->r_flags1 &= r_ptr->flags1;
+	l_ptr->r_flags2 &= r_ptr->flags2;
+	l_ptr->r_flags3 &= r_ptr->flags3;
+	l_ptr->r_flags4 &= r_ptr->flags4;
+	l_ptr->r_flags5 &= r_ptr->flags5;
+	l_ptr->r_flags6 &= r_ptr->flags6;
 }
 
 
@@ -1257,7 +1264,10 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
-	rd_byte(&tmp8u);	/* oops */
+        rd_byte(&tmp8u); /* Oops */
+
+	/* Ignore old redundant info */
+        if (!older_than(2,9,1)) p_ptr->pstyle=tmp8u;
 
 	/* Repair psex (2.8.1 beta) */
 	if (p_ptr->psex > MAX_SEXES - 1) p_ptr->psex = MAX_SEXES - 1;
@@ -1275,7 +1285,7 @@ static errr rd_extra(void)
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
 
-	strip_bytes(24);	/* oops */
+	strip_bytes(24);
 
 	rd_s32b(&p_ptr->au);
 
@@ -1303,7 +1313,38 @@ static errr rd_extra(void)
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
 	/* More info */
-	strip_bytes(8);
+	/* Hack --- Get psval information. */
+        rd_byte(&tmp8u); /* Oops */
+
+	/* Ignore old redundant info */
+        if (!older_than(2, 9, 1)) p_ptr->psval=tmp8u;
+
+	/* Hack -- set styles for vanilla characters */
+        /* Note we meaninglessly set psval */
+	if ((!p_ptr->pstyle) && (!p_ptr->psval))
+	{
+		switch(p_ptr->pclass)
+		{
+			case 2: /* CLASS_PRIEST */
+				p_ptr->pstyle = WS_HAFTED;
+				break;
+			case 4: /* CLASS_RANGER */
+				p_ptr->pstyle = WS_BOW;
+				break;
+			default:
+				p_ptr->psval = 1;
+                                break;
+		}
+	}
+
+
+	/* Hack --- Get held_song information. */
+        rd_byte(&tmp8u); /* Oops */
+
+	/* Ignore old redundant info */
+        if (!older_than(2, 9, 1)) p_ptr->held_song=tmp8u;
+
+	strip_bytes(6); /* Was strip bytes(8) */
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 
@@ -1368,10 +1409,25 @@ static errr rd_extra(void)
 	/* Skip the flags */
 	strip_bytes(12);
 
-	/* Initialize random artifacts */
-	if (adult_rand_artifacts)
-	{
 
+	/* Hack -- the two "special seeds" */
+	rd_u32b(&seed_flavor);
+	rd_u32b(&seed_town);
+
+
+	/* Special stuff */
+	rd_u16b(&p_ptr->panic_save);
+	rd_u16b(&p_ptr->total_winner);
+	rd_u16b(&p_ptr->noscore);
+
+
+	/* Read "death" */
+	rd_byte(&tmp8u);
+	p_ptr->is_dead = tmp8u;
+
+	/* Initialize random artifacts */
+	if (adult_rand_artifacts && !(p_ptr->is_dead))
+	{
 #ifdef GJW_RANDART
 
 		/*
@@ -1402,22 +1458,6 @@ static errr rd_extra(void)
 #endif /* GJW_RANDART */
 
 	}
-
-
-	/* Hack -- the two "special seeds" */
-	rd_u32b(&seed_flavor);
-	rd_u32b(&seed_town);
-
-
-	/* Special stuff */
-	rd_u16b(&p_ptr->panic_save);
-	rd_u16b(&p_ptr->total_winner);
-	rd_u16b(&p_ptr->noscore);
-
-
-	/* Read "death" */
-	rd_byte(&tmp8u);
-	p_ptr->is_dead = tmp8u;
 
 	/* Read "feeling" */
 	rd_byte(&tmp8u);
@@ -1455,7 +1495,7 @@ static errr rd_extra(void)
 	rd_u32b(&p_ptr->spell_forgotten1);
 	rd_u32b(&p_ptr->spell_forgotten2);
 
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
@@ -1569,6 +1609,7 @@ static void rd_messages(void)
 {
 	int i;
 	char buf[128];
+	u16b tmp16u;
 
 	s16b num;
 
@@ -1581,8 +1622,14 @@ static void rd_messages(void)
 		/* Read the message */
 		rd_string(buf, 128);
 
+		/* Read the message type */
+		if (!older_than(2, 9, 1))
+			rd_u16b(&tmp16u);
+		else
+			tmp16u = MSG_GENERIC;
+
 		/* Save the message */
-		message_add(buf);
+		message_add(buf, tmp16u);
 	}
 }
 
@@ -1782,7 +1829,20 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			cave_info[y][x] = info;
 
 			/* Save the feat */
-			cave_set_feat(y, x, feat);
+                        cave_feat[y][x] = feat;
+
+                        /* Check for bit 5 set*/
+                        if (feat & (FEAT_DOOR_HEAD))
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
+                        }
+
+                        /* Handle "floor"/etc grids */
+                        else
+                        {
+                                cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
 
 			/* Advance/Wrap */
 			if (++x >= DUNGEON_WID)
@@ -2122,7 +2182,20 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			if (invis) feat = FEAT_INVIS;
 
 			/* Set new bits */
-			cave_set_feat(y, x, feat);
+                        cave_feat[y][x] = feat;
+
+                        /* Check for bit 5 set*/
+                        if (feat & (FEAT_DOOR_HEAD))
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
+                        }
+
+                        /* Handle "floor"/etc grids */
+                        else
+                        {
+                                cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
 
 			/* Skip it */
 			continue;
@@ -2136,8 +2209,20 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			if ((cave_feat[y][x] == FEAT_QUARTZ) ||
 			    (cave_feat[y][x] == FEAT_MAGMA))
 			{
-				/* Add known treasure */
-				cave_set_feat(y, x, cave_feat[y][x] + 0x04);
+                                /* Save the feat */
+                                cave_feat[y][x] += 0x04;
+
+                                /* Check for bit 5 set*/
+                                if (cave_feat[y][x] & (FEAT_DOOR_HEAD))
+                                {
+                                        cave_info[y][x] |= (CAVE_WALL);
+                                }
+
+                                /* Handle "floor"/etc grids */
+                                else
+                                {
+                                        cave_info[y][x] &= ~(CAVE_WALL);
+                                }
 
 				/* Done */
 				continue;
@@ -2190,7 +2275,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		if (n_ptr->r_idx <= 0) continue;
 
 		/* Hack -- ignore "player ghosts" */
-		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
+		if (n_ptr->r_idx >= z_info->r_max-1) continue;
 
 
 		/* Place monster in dungeon */
@@ -2268,7 +2353,7 @@ static errr rd_dungeon(void)
 	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
 		return (0);
 	}
 
@@ -2276,7 +2361,7 @@ static errr rd_dungeon(void)
 	if ((px < 0) || (px >= DUNGEON_WID) ||
 	    (py < 0) || (py >= DUNGEON_HGT))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", px, py));
+		note(format("Ignoring illegal player location (%d,%d).", py, px));
 		return (1);
 	}
 
@@ -2328,8 +2413,22 @@ static errr rd_dungeon(void)
 		/* Apply the RLE info */
 		for (i = count; i > 0; i--)
 		{
-			/* Extract "feat" */
-			cave_set_feat(y, x, tmp8u);
+			/* Save the feat */
+                        cave_feat[y][x] = tmp8u;
+
+                        /* Check for bit 5 set*/
+                        if (tmp8u & (FEAT_DOOR_HEAD))
+                        {
+                                cave_info[y][x] |= (CAVE_WALL);
+                        }
+
+                        /* Handle "floor"/etc grids */
+                        else
+                        {
+                                cave_info[y][x] &= ~(CAVE_WALL);
+                        }
+
+
 
 			/* Advance/Wrap */
 			if (++x >= DUNGEON_WID)
@@ -2363,7 +2462,7 @@ static errr rd_dungeon(void)
 	rd_u16b(&limit);
 
 	/* Verify maximum */
-	if (limit >= MAX_O_IDX)
+	if (limit >= z_info->o_max)
 	{
 		note(format("Too many (%d) object entries!", limit));
 		return (151);
@@ -2426,7 +2525,7 @@ static errr rd_dungeon(void)
 	rd_u16b(&limit);
 
 	/* Hack -- verify */
-	if (limit >= MAX_M_IDX)
+	if (limit >= z_info->m_max)
 	{
 		note(format("Too many (%d) monster entries!", limit));
 		return (161);
@@ -2576,7 +2675,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_R_IDX)
+	if (tmp16u > z_info->r_max)
 	{
 		note(format("Too many (%u) monster races!", tmp16u));
 		return (21);
@@ -2586,34 +2685,36 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		monster_race *r_ptr;
+		monster_lore *l_ptr;
 
 		/* Read the lore */
 		rd_lore(i);
 
 		/* Get the monster race */
 		r_ptr = &r_info[i];
+		l_ptr = &l_list[i];
 
 		/* XXX XXX Hack -- repair old savefiles */
 		if (older_than(2, 7, 6))
 		{
 			/* Assume no kills */
-			r_ptr->r_pkills = 0;
+			l_ptr->r_pkills = 0;
 
 			/* Hack -- no previous lives */
 			if (sf_lives == 0)
 			{
 				/* All kills by this life */
-				r_ptr->r_pkills = r_ptr->r_tkills;
+				l_ptr->r_pkills = l_ptr->r_tkills;
 			}
 
 			/* Hack -- handle uniques */
 			if (r_ptr->flags1 & (RF1_UNIQUE))
 			{
 				/* Assume no kills */
-				r_ptr->r_pkills = 0;
+				l_ptr->r_pkills = 0;
 
 				/* Handle dead uniques */
-				if (r_ptr->max_num == 0) r_ptr->r_pkills = 1;
+				if (r_ptr->max_num == 0) l_ptr->r_pkills = 1;
 			}
 		}
 	}
@@ -2624,7 +2725,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_K_IDX)
+	if (tmp16u > z_info->k_max)
 	{
 		note(format("Too many (%u) object kinds!", tmp16u));
 		return (22);
@@ -2671,7 +2772,7 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_A_IDX)
+	if (tmp16u > z_info->a_max)
 	{
 		note(format("Too many (%u) artifacts!", tmp16u));
 		return (24);
@@ -2698,12 +2799,8 @@ static errr rd_savefile_new_aux(void)
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
-	cp_ptr = &class_info[p_ptr->pclass];
-
-	/* Important -- Initialize the magic */
-	mp_ptr = &magic_info[p_ptr->pclass];
-
+	rp_ptr = &p_info[p_ptr->prace];
+	cp_ptr = &c_info[p_ptr->pclass];
 
 	/* Read the inventory */
 	if (rd_inventory())
@@ -2773,7 +2870,7 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	r_info[z_info->r_max-1].max_num = 0;
 
 
 	/* Success */

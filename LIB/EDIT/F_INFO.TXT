@@ -15,8 +15,57 @@
 
 # Note that terrain feature zero contains the "darkness" picture.
 
-# Feature flags
-# -------------
+
+# === Understanding f_info.txt ===
+
+# N : serial number : terrain name
+# G : symbol : color
+# M : feature to mimic
+# W : level : rarity : priority : edge with feature
+# K : change on this action : change to feature
+# T : trap effect : damage
+# S : trap spell
+# F : flags
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
+
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
+
+# 'W' is for where the feature appears, its rarity, the priority number used
+# when viewing the condensed map, and the index of a feature that surrounds
+# this feature when it is generated on a level.
+
+# 'K' is for state changes, where the feature changes when it has action
+# applied to it. This works with various flags to handle state changes to
+# an object. Note that we can apply state under some circumstances even when
+# a feature does not support that flag. So it is important to have a DEFAULT
+# type in many instances. Features support up to 4 state changes, plus a DEFAULT
+# change.
+
+# 'M' is the index of a feature to mimic.
+
+# 'T' is for trap effects. These may be any effect and damge from attack that
+# a monster may use, but a feature only has one possible trap effect per feature.
+
+# 'S' is for trap spells, which are selected from monster spells. Each feature
+# may only have one spell.
+
+# 'F' is for flags. These are fairly self-explanatory, but clarified below. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'D' is for description. As many D: lines may be used as are needed
+# to describe the feature. Note that lines may need spaces at their
+# ends to prevent words from running together in the monster memory.
+
+# ==== Feature flags ====
 
 # Features now have flags, which are broken up into 2 sets of 32 flags, plus 2
 # dummy flags (LOS and POWER_X). Feature flags simplify handling of transition
@@ -36,253 +85,276 @@
 # Vanilla flags.
 
 # LOS:          LOS allowed through this location. DUMMY FLAG.
-# POWER_X:	Power of bash/open/tunnel resistance. DUMMY FLAG.
+# POWER_X:      Power of bash/open/tunnel resistance. DUMMY FLAG.
 
-# PROJECT:	Project allowed through this location.
-# MOVE:		Normal movement allowed through this location.
-# PLACE:	Place monsters at this location.
-# DROP:		Drop items in this location.
-# SECRET:	Replace with another feature when found/walked over.
-# NOTICE:	Notice this feature while running.
-# REMEMBER:	Remember this feature.
-# OPEN:		Can open this feature.
-# CLOSE:	Can close this feature.
-# BASH:		Can bash this feature.
-# SPIKE:	Can spike this feature.
-# DISARM:	Can disarm this feature.
-# ENTER:	Can enter this feature (shop)
-# TUNNEL:	Can tunnel this feature.
-# STREAMER:	Place as streamer through dungeon.
-# HAS_ITEM:	Feature has item.
-# HAS_GOLD:	Feature has gold.
-# DOOR:		Detected by detect doors/destroyed by destroy doors. Tunnel power of 20.
-# TRAP:		Detected by detect traps/destroyed by destroy traps.
+# PROJECT:      Project allowed through this location.
+# MOVE:         Normal movement allowed through this location.
+# PLACE:        Place monsters at this location.
+# DROP:         Drop items in this location.
+# SECRET:       Replace with another feature when found/walked over.
+# NOTICE:       Notice this feature while running.
+# REMEMBER:     Remember this feature.
+# OPEN:         Can open this feature
+# CLOSE:        Can close this feature.
+# BASH:         Can bash this feature.
+# SPIKE:        Can spike this feature.
+# DISARM:       Can disarm this feature.
+# ENTER:        Can enter this feature (shop)
+# TUNNEL:       Can tunnel this feature.
+# STREAMER:     Place as streamer through dungeon.
+# HAS_ITEM:     Feature has item.
+# HAS_GOLD:     Feature has gold.
+# DOOR:         Detected by detect doors/destroyed by destroy doors. Tunnel
+# power of 20.
+# TRAP:         Detected by detect traps/destroyed by destroy traps.
 # STAIRS:       Detected by detect doors/destroyed by destroy stairs.
-# GLYPH:	Destroyed by powerful creatures.
+# GLYPH:        Destroyed by powerful creatures.
 # LESS:         Not allowed in town.
-# MORE:		Not allowed on quest levels.
-# RUN:		Can run over.
-# FLOOR:	Can create floors, traps, doors here.
-# WALL:		Blocks flow and treated as WALL by magic mapping/enlightenment.
-# PERMANENT:	Never destroy/modify this location.
-# INNER:	Inner wall of room - don't overwrite with corridor.
-# OUTER:	Outer wall of room - OK to overwrite with corridor/turn to door.
-# SOLID:	Outer wall of room - not OK to overwrite with corridor/turn to door.
-# HIT_TRAP:	Apply blow/spell only when first moved onto.
-# ATTR_LITE:	Attribute is modified by torchlight/blindness/not seen.
+# MORE:         Not allowed on quest levels.
+# RUN:          Can run over.
+# FLOOR:        Can create floors, traps, doors here.
+# WALL:         Blocks flow and treated as WALL by magic mapping/
+# enlightenment.
+# PERMANENT:    Never destroy/modify this location.
+# INNER:        Inner wall of room - don't overwrite with corridor.
+# OUTER:        Outer wall of room - OK to overwrite with corridor/turn to
+# door.
+# SOLID:        Outer wall of room - not OK to overwrite with corridor/turn to
+# door.
+# HIT_TRAP:     Apply blow/spell only when first moved onto.
+# ATTR_LITE:    Attribute is modified by torchlight/blindness/not seen.
 
 # Non-vanilla flags
 
-# BRIDGE:	Bridge this feature when generating a corridor here.
-# RIVER:	Place as river through dungeon.
-# LAKE:		Place as lake in dungeon.
-# GLOW:		Lights itself and adjacent locations.
-# BRIDGED:	Take blows from mimiced feature, unless choose to go swimming/burrowing.
-# COVERED:	Take blows from mimiced feature, unless choose to go swimming/burrowing, then no LOS.
-# WATER:	Never generate on ice, acid, oil or lava level. Mark as water level.
-# LAVA:		Never generate on water, acid, oil or ice level. Mark as lava level.
-# SHALLOW:	Double weight of load. Chance of sinking in feature and losing move.
-# DEEP:		Triple weight of load. Chance of sinking in feature and losing move.
-# FILLED:	Quadruple weight of load. Chance of sinking in feature and losing move.
-# HURT_ROCK:    Destroyed by transmute rock to mud/rock remover.
-# HURT_FIRE:	Destroyed by fire balls/bolts/breath.
-# HURT_COLD:	Destroyed by frost balls/bolts/breath.
-# HURT_ACID:	Destroyed by acid balls/bolts/breath.
-# ICE:		Never generate on water, acid, oil or lava level. Mark as acid level.
-# ACID:		Never generate on ice, water, oil or lava level. Mark as acid level.
-# OIL:		Never generate on ice, acid, water or lava level. Mark as oil level.
-# CHASM:	Replace with chasm if surrounded by CHASMs or chasm edge if adjacent to non-CHASM, non-BRIDGED. 
+# BRIDGE:       Bridge this feature when generating a corridor here.
+# RIVER:        Place as river through dungeon.
+# LAKE:         Place as lake in dungeon.
+# GLOW:         Lights itself and adjacent locations.
+# BRIDGED:      Take blows from mimiced feature instead, unless choose to go
+# swimming/burrowing.
+# COVERED:      Take blows from mimiced feature instead, unless choose to go
+# swimming/burrowing, then no LOS.
+# WATER:        Never generate on ice, acid, oil or lava level. Mark level as
+# water level.
+# LAVA:         Never generate on water, acid, oil or ice level. Mark level as
+# lava level.
+# SHALLOW:      Double weight of load. Chance of sinking in feature and losing
+# move.
+# DEEP:         Triple weight of load. Chance of sinking in feature and losing
+# move.
+# FILLED:       Quadruple weight of load. Chance of sinking in feature and
+# losing move.
+# HURT_ROCK | CAN_CLIMB:    Destroyed by transmute rock to mud/rock remover.
+# HURT_FIRE:    Destroyed by fire balls/bolts/breath.
+# HURT_COLD:    Destroyed by frost balls/bolts/breath.
+# HURT_ACID:    Destroyed by acid balls/bolts/breath.
+# ICE:          Never generate on water, acid, oil or lava level. Mark level
+# as water level.
+# ACID:         Never generate on ice, water, oil or lava level. Mark level as
+# acid level.
+# OIL:          Never generate on ice, acid, water or lava level. Mark level
+# as oil level.
+# CHASM:        Replace with chasm if surrounded by CHASMs or chasm edge if
+# adjacent to non-CHASM, non-BRIDGED.
 # CAN_CLIMB:    Adjacent CAN_CLIMB creatures treated as CAN_FLY.
-# CAN_FLY:	Creatures with CAN_FLY/MUST_FLY may enter and treated as flying.
-# CAN_SWIM:	Creatures with CAN_SWIM/MUST_SWIM may enter, treated as swimming and ignore WATER blows.
+# CAN_FLY:      Creatures with CAN_FLY/MUST_FLY may enter and treated as
+# flying.
+# CAN_SWIM:     Creatures with CAN_SWIM/MUST_SWIM may enter, treated as
+# swimming and ignore WATER blows.
 # CAN_PASS:     Creatures with PASS_WALL may enter.
-# CAN_TINY:	Creatures with TINY may enter.
-# CAN_DIG:	Creatures with CAN_DIG may enter, treated as burrowing and ignore WATER blows.
-# HIDE_ITEM:	Objects in this location only memorised if detected/walked on.
-# HIDE_DEEP:	Creatures in this location only seen/projectable if flying.
-# HIDE_SWIM:	Creatures in this location only seen/projectable if not swimming/adjacent.
-# HIDE_DIG:	Creatures in this location only seen/projectable if not burrowing/adjacent.
-# KILL_HUGE:	Destroyed by powerful attacks.
-# KILL_MOVE:	Destroy feature if any creature walks/burrows onto it.
+# CAN_TINY:     Creatures with TINY may enter.
+# CAN_DIG:      Creatures with CAN_DIG may enter, treated as burrowing and
+# ignore WATER blows.
+# HIDE_ITEM:    Objects in this location only memorised if detected/walked on.
+# HIDE_DEEP:    Creatures in this location only seen/projectable if flying/
+# climbing and resistant to location damage, or immediately after having
+# attacked or cast a spell.
+# HIDE_DIG:     Creatures in this location only seen/projectable if not
+# burrowing or immediately after having attacked or cast a spell.
+# HIDE_DIG:     Creatures in this location only seen/projectable if not
+# swimming or immediately after having attacked or cast a spell.
+# KILL_HUGE:    Destroyed by powerful attacks or if huge creature moves on it.
+# KILL_MOVE:    Destroy feature if any creature walks/burrows onto it.
 
-# New feature fields
-# ------------------
-
-# K:DEFAULT:NEW_FEATURE
-# K:ACTION:NEW_FEATURE
-# Change the feature to NEW_FEATURE if ACTION applied to it, and use DEFAULT if action not listed.
-
-# This works with various flags to handle state changes to an object. Note that we can apply state
-# changes under some circumstances (such as BASHing features, which 50% of the time are OPENed instead)
-# even when a feature does not support that flag. So it is important to have a DEFAULT type in many
-# instances.
-
-# We only support up to 4 state changes, so DEFAULT is needed to handle many features because of this.
-
-# W:LEVEL:RARITY:PRIORITY:EDGE
-# Level indicates level that item should be first encountered (Unless out of depth), rarity
-# is a comparitive rarity of the item, priority is priority for generating map views, and
-# edge indicates what feature is generated adjacent to the feature when it is placed.
-
-# We use the same distribution code as objects so that features can be expected (Roughly) to be encountered
-# with similar frequency as objects of the same rarity. However, this gets skewed heavily, by various flags.
-
-# T:EFFECT:DICEdSIDES
-# Trap effects applied continuously or as a trap. Traps are applied as blows, with the implicit blow method
-# oF RBM_TRAP and blows now use code in common with projection code. This allows for many more blow and trap
-# types than previously.
-
-# S:SPELL
-# Spell effect applied continuously or as a trap (With HIT_TRAP)
-
-# Additional features
-# -------------------
+# ==== Additional features ====
 
 # Additional features include the following:
 
 # 1 replacement feature to handle case of unknown jammed door.
 
-# 2 new features to correctly handle case of rubble with hidden items, and rubble with known items.
+# 2 new features to correctly handle case of rubble with hidden items, and
+# rubble with known items.
 
-# 39 new traps, including 4 new types (magic symbol, stone visage, eldritch sign and trip wire) and expanded
-# previous types (deep pits, summoning runes of various flavours).
+# 39 new traps, including 4 new types (magic symbol, stone visage, eldritch
+# sign and trip wire) and expanded previous types (deep pits, summoning
+# runes of various flavours).
 
-# 13 trapped doors, including unknown trapped doors. We replace a trapped door with the trap type whenever it
-# is triggered to save having a door trap for each floor trap. They are treated as locked doors otherwise.
+# 13 trapped doors, including unknown trapped doors. We replace a trapped door
+# with the trap type whenever it is triggered to save having a door trap for
+# each floor trap. They are treated as locked doors otherwise.
 
 # 1 new streamer (SANDSTONE) which never has hidden or known treasure.
 
 # The remaining new features are treated as terrain features.
 
-# Terrain features
-# ----------------
+# ==== Feature generation ====
 
-# Terrain features are generated as lakes or rivers, or as a possible replacement for a lake or
-# river or when two different terrain types overwrite each other. Zero, one or more terrain features
-# are generated per level. Terrain features are generated before placement of rooms or corridors.
+# Terrain features are generated as lakes or rivers, or as a possible
+# replacement for a lake or river or when two different terrain types
+# overwrite each other. Zero, one or more terrain features are generated per
+# level. Terrain features are generated before placement of rooms or
+# corridors.
 
-# A terrain feature with a LAKE flag generates a lake when selected. A terrain feature with a RIVER flag
-# generates a RIVER when selected. A terrain feature with both flags generates both types when selected.
+# A terrain feature with a LAKE flag generates a lake when selected. A
+# terrain feature with a RIVER flag generates a RIVER when selected. A
+# terrain feature with both flags generates both types when selected.
 
-# A river grid is surrounded by grids containing the feature's edge terrain. A river grid is always placed
-# adjacent to a previous river grid. A river tends to travel in one direction in the dungeon and stops when
-# it reaches the edge of the dungeon.
+# A river grid is surrounded by grids containing the feature's edge terrain.
+# A river grid is always placed adjacent to a previous river grid. A river
+# tends to travel in one direction in the dungeon and stops when it reaches
+# the edge of the dungeon.
 
-# A lake grid is surrounded by lake grids, which are edged by grids containing the feature's edge terrain.
-# Lake grids are scattered through the dungeon, adjacent to each other, until the maximum number of lake grids
-# are placed on non-lake grids. Lake grids may be randomly replaced by the edge terrain, which means
-# that a lake grid is not guaranteed to be reachable. XXX XXX XXX
+# A lake grid is surrounded by lake grids, which are edged by grids containing
+# the feature's edge terrain. Lake grids are scattered through the dungeon,
+# adjacent to each other, until the maximum number of lake grids are placed
+# on non-lake grids. Lake grids may be randomly replaced by the edge terrain,
+# which means that a lake grid is not guaranteed to be reachable. XXX XXX XXX
 
-# Rivers and regular lakes are guaranteed to be intersected by at least one corridor, and prevent rooms being
-# placed in the same 11x11 location. Big lakes, which occur more frequently lower in the dungeon, may be have
-# rooms placed over them, and may have parts of the lake cut off by room placement so that they become
-# unreachable. XXX XXX XXX
+# Rivers and regular lakes are guaranteed to be intersected by at least one
+# corridor, and prevent rooms being placed in the same 11x11 location. Big
+# lakes, which occur more frequently lower in the dungeon, may be have rooms
+# placed over them, and may have parts of the lake cut off by room placement
+# so that they become unreachable. XXX XXX XXX
 
-# Corridors bridge terrain that has BRIDGE flags and tunnel through terrain that has TUNNEL flags. This is
-# done to guarantee that there is always a safe path from room to room, even if that safe path requires
-# walking through shallow acid. Terrain that is neither bridged or tunnelled through must otherwise be
-# crossable.
+# Corridors bridge terrain that has BRIDGE flags and tunnel through terrain
+# that has TUNNEL flags. This is # done to guarantee that there is always a
+# safe path from room to room, even if that safe path requires walking
+# through shallow acid. Terrain that is neither bridged or tunnelled through
+# must otherwise be crossable. XXX
 
-# Deep terrain comes in two varieties, hidden deep terrain and known deep terrain. Known deep terrain is crossed
-# by stone or ice bridges. Hidden deep terrain is crossed by paths of shallow terrain. Hidden deep terrain
-# should always be detectable as a secret, so that the paths of shallow terrain may be located and navigated
-# across. Great care should be made to never mix known deep and either shallow or hidden deep terrain so that
+# Deep terrain comes in two varieties, hidden deep terrain and known deep
+# terrain. Known deep terrain is crossed by stone or ice bridges. Hidden
+# deep terrain is crossed by paths of shallow terrain. Hidden deep terrain
+# should always be detectable as a secret, so that the paths of shallow
+# terrain may be located and navigated across. Great care should be made to
+# never mix known deep and either shallow or hidden deep terrain so that
 # we don't get 'breaks' in bridges.
 
-# The base of falls are an exception. They are known deep terrain, that we never bridge. They should be
-# uncommon, even when generated, because the majority of their terrain will be hidden deep terrain. They are
-# surrounded by shallow terrain, so can always be navigated around.
+# The base of falls are an exception. They are known deep terrain, that we
+# never bridge. They should be uncommon, even when generated, because the
+# majority of the terrain they appear in will be hidden deep terrain. They
+# are surrounded by shallow terrain, so can always be navigated around.
 
-# Some terrain types overwrite other terrain types with intermediate terrain types. This is determined in
-# generate.c but should be replaced with a smart algorithm because there are O(n^2) combinations of terrain.
+# Some terrain types overwrite other terrain types with intermediate terrain
+# types. This is determined in generate.c but should be replaced in the 
+# future with a smart algorithm because there are O(n^2) possible
+# combinations of terrain to have to deal with.
 
-# Some terrain types replace themselves with different terrain when placed. This is determined in generate.c.
+# Some terrain types replace themselves with different terrain when placed.
+# This is determined in generate.c, and is to break up the monotony of one
+# type of terrain.
 
-# Trails may be made through terrain of various sort by the player and monsters crossing that terrain. This
-# may provide indirect evidence of invisible monsters, and movement of out of line of sight monsters.
+# Trails may be made through terrain of various sort by the player and
+# monsters crossing that terrain. This may provide indirect evidence of
+# invisible monsters, and movement of out of line of sight monsters. XXX
 
-# Covered and deep terrain of various types can hide monsters. They can pop-up or bash up from this terrain
-# to cast spells and attack the player, and remain visible until they move again.
+# Covered and deep terrain of various types can hide monsters. They can
+# pop-up or bash up from this terrain to cast spells and attack the player,
+# and remain visible until they move again.
 
-# We do not have any terrain that only causes nuisance damage, because this would allow the player to
-# take unnecessary advantage of such terrain, either by harassing monsters from it, or weakening or killing
-# monsters through exploiting the movement algorithms.
+# We do not have any terrain that only causes nuisance damage, because this
+# would allow the player to take unnecessary advantage of such terrain,
+# either by harassing monsters from it, or weakening or killing
+# monsters through exploiting the movement algorithms. As it is, any terrain
+# a monster moves over should will not damage it at all, except for traps.
 
-# We don't make ice floors and geothermal floors damage the player. However, we do need to distinguish when
-# there exists a terrain that a monster may be hidden under, and retain these terrain types for this
-# possibility.
+# We don't make ice floors and geothermal floors damage the player. However,
+# we do need to distinguish when there exists a terrain that a monster may be
+# hidden under, and retain these terrain types for this possibility.
 
-# We need to have a 1:1 cave type or we generate lava at low levels. We use granite for this.
+# We need to have a level 1, rarity 1 cave type or we generate lava at low
+# levels. We use granite for this.
 
-# We generate magma, quartz and sandstone cave types without treasure to add some variety to dungeon streamers.
+# We generate magma, quartz and sandstone cave types without treasure to add
+# some variety to dungeon streamers.
 
-# Limestone is actually a cave type with floor space in it, and rarely occuring limestone formations, which
-# can be tunnelled easily.
+# Limestone is actually a cave type with floor space in it, and rarely
+# occuring limestone formations, which can be tunnelled easily.
 
-# Oil and coal catch fire when hit with fire attacks. We need some way of spreading this fire, creating smoke
-# and so forth. Currently we don't support deep oil. XXX XXX XXX
+# Oil and coal catch fire when hit with fire attacks. We need some way of
+# spreading this fire, creating smoke and so forth. Currently we don't
+# support deep oil. XXX XXX XXX
 
-# Ice is transparent walls of various types. However, we allow the player to block line of sight
-# through ice to save them from distant monsters casting LOS spells at them. This is possible by huge ball
-# spells of various sorts, which cause enough damage to crack the ice.
+# Ice is transparent walls of various types. However, we allow the player to
+# block line of sight through ice to save them from distant monsters casting
+# LOS spells at them. This is possible by huge ball spells of various sorts,
+# which cause enough damage to crack the ice.
 
 # Chasms use the CHASM flag to considerably neaten themselves up.
 
-# Note that even shallow lava is dangerous (and bridged) and there is no shallow BOILING MUD/WATER.
+# Note that even shallow lava is dangerous (and bridged) and there is no
+# shallow BOILING MUD/WATER.
 
-# Note that we use WATER | LAVA | ICE | ACID | OIL to mark a level as such, and prevent
-# features marked with other types, being generated on the same level. Note that various WATER types are
-# actually marked as LAVA or ICE types instead, to force generation of boiling or icy water only on the
+# Note that we use WATER | LAVA | ICE | ACID | OIL to mark a level as such,
+# and prevent features marked with other types, being generated on the same
+# level. Note that various WATER types are actually marked as LAVA or ICE
+# types instead, to force generation of boiling or icy water only on the
 # particular levels.
 
-# Note that we use WATER | LAVA | ICE | ACID | CHASM to favour generation of creatures suitable
-# for that level, ahead of those that are not. This is a hack. XXX XXX
+# Note that we use WATER | LAVA | ICE | ACID | CHASM to favour generation of
+# creatures suitable for that level, ahead of those that are not. This is a
+# hack. XXX XXX
 
-# Note that we have to prevent monsters flowing whenever there is terrain that they cannot flow over within
-# the flow space. We use flow_can_fly etc. flags to do this with. We also allow more monsters to move on
-# terrain than are technically immune to the damage. We allow IM_FIRE & CAN_SWIM monsters on BWATER blows,
-# IM_FIRE and CAN_DIG monsters on BMUD blows. There is no ICE damage that can be caused by floor terrain
-# currently. We allow IM_FIRE and BR_FIRE monsters on LAVA. Otherwise we would have to check monsters for
-# elemental type and prefix, which adds expense to the flow computation.
+# Note that we have to prevent monsters flowing whenever there is terrain that
+# they cannot flow over within the flow space. We also allow more monsters to
+# move on terrain than are technically immune to the damage. We allow IM_FIRE
+# & CAN_SWIM monsters on BWATER blows, IM_FIRE and CAN_DIG monsters on BMUD
+# blows. There is no ICE damage that can be caused by floor terrain
+# currently. We allow BR_FIRE monsters on LAVA. Otherwise we would have to
+# check monsters for elemental type and prefix, which adds expense to the
+# movement computation.
 
-# In order to allow this, we must make sure we never damage a monster that can flow through a particular
-# terrain type. We make HIT_TRAPs an exception, because most monsters can DISARM or destroy the traps. 
+# In order to allow this, we must make sure we never damage a monster that
+# can flow through a particular terrain type. We make HIT_TRAPs an exception,
+# because most monsters can DISARM or destroy the traps. 
 
-# If a terrain has BLOWS and is not HIT_TRAP then the terrain does damage when moved onto
-# and every (dungeon) turn (Actually 10 turns).
+# If a terrain has BLOWS and is not HIT_TRAP then the terrain does damage
+# when moved onto and every (dungeon) turn (Actually 10 turns).
 
 # Note that the graphics have expanded but consistant meaning, so that
 # "%" is a mineral vein/cracks, ":" is a known deep feature (with rubble 
-# being 'deep' open floor), ">" is a chasm/fall/stairs and "<" is stairs/base of falls.
-# "#" is consistently a wall feature, passable by CAN_SWIM/CAN_DIG/CAN_PASS only (unlike other
-# varients). ";" is either glyph or vent, ''' is an open door or bridge.
+# being 'deep' open floor), ">" is a chasm/fall/stairs and "<" is stairs/base
+# of falls. "#" is consistently a wall feature, passable by CAN_SWIM/CAN_DIG
+# /CAN_PASS only (unlike other varients). ";" is either glyph or vent or
+# dangerous shallow floor, ''' is an open door or bridge.
 
-# Note that the colours of various features are regularised, although in many instances
-# different from creatures. It should provide pretty dungeon pictures though.
+# Note that the colours of various features are regularised, although in many
+# instances different from creatures. It should provide pretty dungeon
+# pictures though.
 
-# 'w' is used for granite/quartz, 'W' is used for limestone/steam, 'y' for sand/sand stone,
-# 'D' for oil/coal, 'b' for water, 'B' for ice,  'g' for acid, 'G' for gas,
-# 'R' for lava, 'o' for boiling mud/burning oil, 'v' for boiling water/geothermal
-# 's' for broken/missing floor/magma.
+# 'w' is used for granite/quartz, 'W' is used for limestone/steam, 'y' for
+# sand/sand stone, 'D' for oil/coal, 'b' for water, 'B' for ice,  'g' for
+# acid, 'G' for gas, 'R' for lava, 'o' for boiling mud/burning oil, 'v' for
+# boiling water/geothermal, 's' for broken/missing floor/magma.
 
-# Note that 'r' is not used as it is very hard to distinguish from 'R' (lava) particularly for
-# '.' and ':' graphics. Note however that lava is the only feature that GLOWs so should be
-# much more easily recognisable.
+# Note that 'R' is not used as it is very hard to distinguish from 'r' (lava)
+# particularly for '.', ';' and ':' graphics. Note however that lava GLOWs so
+# should be much more easily recognisable.
 
-# Note we also use 'o' to mark trails of various sorts through sand/mud/earth. This doesn't
-# confuse the borg because of a couple of minor graphical switches (burning oil always 'looks'
-# deep).
+# Note we also use 'o' to mark trails of various sorts through sand/mud/
+# earth. This doesn't confuse the borg because of a couple of minor graphical
+# switches (burning oil always 'looks' deep).
 
-# All the traps/trapped doors of a particular appearance have the same colour. We don't
-# want to have traps in 'U' because trapped doors will be indistinguishable from the plain
-# type.
+# All the traps/trapped doors of a particular appearance have the same colour.
+# We don't want to have traps in 'U' because trapped doors will be
+# indistinguishable from the plain type.
 
-# We don't mimic traps so that particular users can mark traps with a particular style,
-# to indicate 'deadly' traps if required.
+# We don't mimic traps so that particular users can mark traps with a
+# particular style, to indicate 'deadly' traps if required.
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 # 0x00 --> nothing
@@ -297,7 +369,7 @@ G:.:w
 W:24:10:15:0
 K:DEFAULT:1
 F:LOS | MOVE | PROJECT | PLACE | DROP | LAKE |
-F:CAN_CLIMB | CAN_FLY | FLOOR
+F:CAN_CLIMB | CAN_FLY | FLOOR | RUN
 
 # 0x02 --> invisible trap (drawn as open floor)
 
@@ -308,7 +380,7 @@ W:1:1:5:0
 D:You have found a trap.
 K:DEFAULT:1
 F:TRAP | SECRET | LOS | MOVE | PROJECT |
-F:CAN_CLIMB | CAN_FLY
+F:CAN_CLIMB | CAN_FLY | RUN | HIT_TRAP
 
 # 0x03 --> glyph of warding
 N:3:glyph of warding
@@ -324,21 +396,19 @@ W:1:1:15:0
 K:DEFAULT:1
 K:CLOSE:32
 K:BASH:5
-F:DOOR | CAN_CLIMB |  LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | BASH | PLACE
+F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
+F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH
 
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
 W:1:1:15:0
 K:DEFAULT:1
 K:CLOSE:5
 D:The door appears broken.
-F:DOOR | CAN_CLIMB |  LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_FIRE |
-F:HURT_ACID | CLOSE | BASH | PLACE | DROP
-
-#Should really have a known broken door (G:':u) feature.
+F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_FIRE |
+F:HURT_ACID | CLOSE | PLACE | DROP
 
 # 0x06 --> up stairs (perm)
 
@@ -637,7 +707,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:40
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_0
 
 # 0x2x --> locked door (power 1)
@@ -652,7 +722,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:41
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_1
 
 # 0x2x --> locked door (power 2)
@@ -667,7 +737,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:42
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_2 |
 
 # 0x2x --> locked door (power 3)
@@ -682,7 +752,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:43
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_3
 
 # 0x2x --> locked door (power 4)
@@ -697,7 +767,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:44
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_4
 
 
@@ -713,7 +783,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:45
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_5
 
 
@@ -729,7 +799,7 @@ K:BASH:5
 K:TUNNEL:5
 K:SPIKE:46
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_6
 
 # 0x2x --> locked door (power 7)
@@ -741,7 +811,7 @@ M:32
 K:DEFAULT:1
 K:OPEN:4:K:BASH:5K:TUNNEL:5:SPIKE:47
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_7
 
 # Note the changes here. We now use N:40 jammed door to indicate unknown stuck doors
@@ -761,7 +831,7 @@ K:BASH:5
 K:SECRET:41
 K:OPEN:41
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB
 
 # 0x2x --> jammed door (power 1)
 
@@ -773,7 +843,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_1
 
 # 0x2x --> jammed door (power 2)
@@ -786,7 +856,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_2
 
 # 0x2x --> jammed door (power 3)
@@ -799,7 +869,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_3
 
 # 0x2x --> jammed door (power 4)
@@ -812,7 +882,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_4
 
 # 0x2x --> jammed door (power 5)
@@ -825,7 +895,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_5
 
 # 0x2x --> jammed door (power 6)
@@ -838,7 +908,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_6
 
 # 0x2x --> jammed door (power 7)
@@ -851,7 +921,7 @@ K:BASH:5
 K:TUNNEL:5
 K:OPEN:4
 F:BASH | SPIKE | DOOR | REMEMBER | NOTICE |
-F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK |
+F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_7
 
 # 0x30 --> secret door
@@ -864,7 +934,7 @@ K:DEFAULT:1
 K:TUNNEL:48
 K:SECRET:32
 D:You have found a secret door.
-F:TUNNEL | DOOR | SECRET | CAN_PASS | HURT_ROCK | REMEMBER | NOTICE
+F:TUNNEL | DOOR | SECRET | CAN_PASS | HURT_ROCK | CAN_CLIMB | REMEMBER
 
 
 # 0x31 --> pile of rubble
@@ -874,7 +944,7 @@ G:::w
 W:1:1:13:0
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG |
-F:REMEMBER | HURT_ROCK | POWER_10
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | POWER_10
 
 # 0x32 --> magma vein
 
@@ -883,7 +953,7 @@ W:15:8:12:0
 G:%:s
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | STREAMER | LAKE |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_20
 
 
@@ -894,7 +964,7 @@ W:4:6:11:0
 G:%:w
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | STREAMER |
-F:REMEMBER | HURT_ROCK | LAKE |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | LAKE |
 F:POWER_30
 
 
@@ -907,7 +977,7 @@ M:50
 K:DEFAULT:1
 K:SECRET:54
 F:TUNNEL | HAS_GOLD | WALL | CAN_PASS | SECRET |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_20
 
 # 0x35 --> quartz vein + treasure
@@ -919,7 +989,7 @@ M:51
 K:DEFAULT:1
 K:SECRET:55
 F:TUNNEL | HAS_GOLD | WALL | CAN_PASS | SECRET |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_30
 
 
@@ -930,7 +1000,7 @@ W:5:1:19:0
 G:*:o
 K:DEFAULT:1
 F:TUNNEL | HAS_GOLD | WALL | CAN_PASS |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_20
 
 # 0x37 --> quartz vein + known treasure
@@ -940,7 +1010,7 @@ W:1:1:19:0
 G:*:o
 K:DEFAULT:1
 F:TUNNEL | HAS_GOLD | WALL | CAN_PASS |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_30
 
 
@@ -951,7 +1021,7 @@ W:1:1:10:0
 G:#:w
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | LAKE |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
 
 # 0x39 --> granite wall -- inner
@@ -962,7 +1032,7 @@ G:#:w
 M:56
 K:DEFAULT:1
 F:TUNNEL | WALL | INNER | CAN_PASS |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
 
 
@@ -975,7 +1045,7 @@ G:#:w
 M:56
 K:DEFAULT:1
 F:TUNNEL | WALL | OUTER | CAN_PASS |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
 
 
@@ -988,7 +1058,7 @@ G:#:w
 M:56
 K:DEFAULT:1
 F:TUNNEL | WALL | SOLID | CAN_PASS |
-F:REMEMBER | HURT_ROCK |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
 
 
@@ -997,8 +1067,9 @@ F:POWER_40
 N:60:permanent wall
 W:0:1:10:0
 G:#:w
+M:56
 D:This seems to be permanent rock.
-F:TUNNEL | WALL | PERMANENT | REMEMBER | SECRET
+F:TUNNEL | WALL | PERMANENT | REMEMBER | CAN_CLIMB
 
 
 # 0x3D --> permanent wall -- inner (perm)
@@ -1006,9 +1077,9 @@ F:TUNNEL | WALL | PERMANENT | REMEMBER | SECRET
 N:61:permanent wall
 G:#:w
 W:0:1:10:0
-M:60
+M:56
 D:This seems to be permanent rock.
-F:TUNNEL | WALL | INNER | PERMANENT | REMEMBER | SECRET
+F:TUNNEL | WALL | INNER | PERMANENT | REMEMBER | CAN_CLIMB
 
 
 # 0x3E --> permanent wall -- outer (perm)
@@ -1016,18 +1087,18 @@ F:TUNNEL | WALL | INNER | PERMANENT | REMEMBER | SECRET
 N:62:permanent wall
 W:0:1:10:0
 G:#:w
-M:60
+M:56
 D:This seems to be permanent rock.
-F:TUNNEL | WALL | PERMANENT | OUTER | REMEMBER | SECRET
+F:TUNNEL | WALL | PERMANENT | OUTER | REMEMBER | CAN_CLIMB
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
 W:0:1:10:0
-M:60
+M:56
 D:This seems to be permanent rock.
-F:TUNNEL | WALL | PERMANENT | SOLID | REMEMBER | SECRET
+F:TUNNEL | WALL | PERMANENT | SOLID | REMEMBER | CAN_CLIMB
 
 N:64:pit
 G:^:s
@@ -1426,7 +1497,7 @@ M:49
 K:DEFAULT:1
 K:SECRET:97
 F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG |
-F:REMEMBER | HURT_ROCK | HIDE_ITEM | POWER_10 | HAS_ITEM | SECRET
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM | SECRET
 
 # 0xxx --> pile of rubble (known item)
 
@@ -1436,126 +1507,166 @@ W:1:9:13:0
 G:&:w
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG |
-F:REMEMBER | HURT_ROCK | HIDE_ITEM | POWER_10 | HAS_ITEM 
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM 
 
 # trapped door (undetected) - treat as closed door
 
 N:98:trapped door
 G:+:U
-W:11:9:17:0
+W:11:3:17:0
 M:32
+D:You have found a trap.
 K:DEFAULT:1
-K:SECRET:97
+K:OPEN:4
+K:BASH:5
+K:SPIKE:40
+K:SECRET:98
 F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:99:trapped door (trap door)
 G:+:w
 W:15:9:20:0
 K:DEFAULT:1
+K:HIT_TRAP:99
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM | TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:100:trapped door (pit)
 G:+:s
-W:11:9:20:0
+W:11:3:20:0
 K:DEFAULT:1
+K:HIT_TRAP:100
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:101:trapped door (strange rune)
 G:+:o
-W:16:9:20:0
+W:16:3:20:0
 K:DEFAULT:1
+K:HIT_TRAP:101
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:102:trapped door (stone visage)
 G:+:W
 W:22:10:20:0
 K:DEFAULT:1
+K:HIT_TRAP:102
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:103:trapped door (tripwire)
 G:+:B
 W:13:10:20:0
 K:DEFAULT:1
+K:HIT_TRAP:103
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:104:trapped door (magic symbol)
 G:+:B
 W:14:11:20:0
 K:DEFAULT:1
+K:HIT_TRAP:104
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:105:trapped door (eldritch sign)
 G:+:G
 W:18:11:20:0
 K:DEFAULT:1
+K:HIT_TRAP:105
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:106:trapped door (arrow trap)
 G:+:R
 W:12:9:20:0
 K:DEFAULT:1
+K:HIT_TRAP:106
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:107:trapped door (loose rock)
 G:+:v
 W:13:9:20:0
 K:DEFAULT:1
+K:HIT_TRAP:107
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:108:trapped door (discoloured spot)
 G:+:u
 W:12:9:20:0
 K:DEFAULT:1
+K:HIT_TRAP:108
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:109:trapped door (dart trap)
 G:+:r
-W:11:9:20:0
+W:11:1:20:0
 K:DEFAULT:1
+K:HIT_TRAP:109
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:110:trapped door (gas trap)
 G:+:g
 W:13:9:20:0
 K:DEFAULT:1
+K:HIT_TRAP:110
+K:BASH:5
+K:SPIKE:40
 K:DISARM:4
-F:OPEN | BASH | SPIKE | DISARM | SECRET | TRAP | CAN_PASS | DOOR |
-F:TUNNEL | HURT_ROCK | REMEMBER | NOTICE |
+F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
+F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:111:limestone features
@@ -1563,30 +1674,30 @@ G:%:W
 W:3:8:11:0
 K:DEFAULT:1
 F:WALL | STREAMER | CAN_CLIMB | TUNNEL | CAN_PASS | LAKE | WATER |
-F:REMEMBER | HURT_ROCK | BRIDGE | POWER_8
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | POWER_8
 
 N:112:sandstone
 G:%:y
 W:3:4:11:0
 K:DEFAULT:1
 F:WALL | STREAMER | CAN_CLIMB | TUNNEL | CAN_PASS | 
-F:REMEMBER | HURT_ROCK | BRIDGE | LAKE | POWER_16
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | LAKE | POWER_16
 
 N:113:granite cracks
 G:%:s
 W:3:12:12:0
 K:DEFAULT:1
 F:WALL | CAN_TINY | STREAMER | CAN_PASS |
-F:HURT_ROCK | TUNNEL | CAN_CLIMB  | BRIDGE | LAKE
-F:NOTICE | REMEMBER |
+F:HURT_ROCK | CAN_CLIMB | TUNNEL | CAN_CLIMB  | BRIDGE | LAKE
+F:REMEMBER |
 F:POWER_24
 
 N:114:earth
-G:#:U
+G:#:u
 W:1:3:12:0
 K:DEFAULT:135
 F:WALL | TUNNEL | CAN_PASS | CAN_DIG | LAKE |
-F:NOTICE | REMEMBER | HURT_ROCK | BRIDGE |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE |
 F:POWER_5
 
 N:115:ice cracks
@@ -1596,7 +1707,7 @@ T:ICE:4d4
 K:DEFAULT:145
 F:WALL | CAN_TINY | STREAMER | CAN_PASS |
 F:TUNNEL |
-F:NOTICE | REMEMBER | ICE | HIT_TRAP |
+F:REMEMBER | ICE | HIT_TRAP |
 F:POWER_16
 
 N:116:ice cracks over geothermal floor
@@ -1606,7 +1717,7 @@ W:30:4:12:0
 K:DEFAULT:209
 K:SECRET:117
 T:ICE:4d4
-F:WALL | STREAMER | TUNNEL | REMEMBER | NOTICE | CAN_PASS |
+F:WALL | STREAMER | TUNNEL | REMEMBER | CAN_PASS |
 F:BRIDGE | ICE | SECRET | CAN_TINY | HIT_TRAP |
 F:POWER_16
 
@@ -1616,45 +1727,45 @@ W:30:1:12:0
 M:116
 K:DEFAULT:209
 T:ICE:2d4
-F:WALL | TUNNEL | REMEMBER | NOTICE | CAN_PASS | ICE | CAN_TINY | HIT_TRAP |
+F:WALL | TUNNEL | REMEMBER | CAN_PASS | ICE | CAN_TINY | HIT_TRAP |
 F:POWER_16
 
 N:118:water under ice cracks
 G:%:B
-T:WATER:4d6
+T:WATER_WEAK:4d6
 W:60:6:12:0
 M:115
 K:TUNNEL:155
 K:BRIDGE:153
 K:SECRET:119
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS |
-F:HIDE_ITEM | HIDE_SWIM | BRIDGE | SECRET |
-F:NOTICE | REMEMBER | PLACE | ICE |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET |
+F:REMEMBER | PLACE | ICE |
 F:POWER_16
 
 N:119:water under ice cracks
 G:%:b
-T:WATER:4d6
+T:WATER_WEAK:4d6
 W:60:6:13:0
 K:TUNNEL:155
 K:BRIDGE:153
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS |
-F:HIDE_ITEM | HIDE_SWIM | BRIDGE | SECRET | DROP | HIDE_ITEM |
-F:NOTICE | REMEMBER | PLACE | ICE |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP | HIDE_ITEM |
+F:REMEMBER | PLACE | ICE |
 F:POWER_36
 
 N:120:underwater
 G:#:b
 M:56
 W:60:3:13:0
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:DEFAULT:155
 K:BRIDGE:154
 K:SECRET:121
 K:HURT_COLD:150
 F:FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | SECRET | PLACE | DROP | HIDE_ITEM |
-F:NOTICE | REMEMBER | WATER | HURT_COLD |
+F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP | HIDE_ITEM |
+F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
 
 N:121:underwater
@@ -1663,21 +1774,20 @@ W:60:3:13:0
 K:DEFAULT:155
 K:BRIDGE:154
 K:HURT_COLD:150
-T:WATER:4d6
+T:WATER_WEAK:4d6
 F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | HIDE_ITEM |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | PLACE |
-F:NOTICE | REMEMBER | WATER | HURT_COLD |
+F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | PLACE |
+F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
 
 N:122:oil shale
 G:%:s
 W:10:6:12:0
 K:DEFAULT:219
-F:TUNNEL | CAN_PASS | CAN_SWIM | LAKE |
-F:HIDE_ITEM  | HIDE_SWIM | HURT_ROCK |
+F:TUNNEL | CAN_PASS | LAKE |
+F:HIDE_ITEM  | HIDE_SWIM | HIDE_DEEP | HURT_ROCK | CAN_CLIMB |
 F:REMEMBER | OIL | WALL |
 F:POWER_32
-
 
 N:123:coal
 G:%:D
@@ -1686,7 +1796,7 @@ K:DEFAULT:222
 K:HURT_FIRE:124
 K:HURT_ROCK:1
 F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_FIRE | LAKE |
-F:REMEMBER | NOTICE | HURT_ROCK | BRIDGE | OIL |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | OIL |
 F:POWER_16
 
 
@@ -1696,35 +1806,35 @@ W:10:6:13:0
 K:DEFAULT:223
 K:HURT_ROCK:1
 T:FIRE:8d6
-F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_ROCK |
-F:REMEMBER | NOTICE |
+F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_ROCK | CAN_CLIMB |
+F:REMEMBER |
 F:POWER_16
 
-N:125:ice falls
+N:125:ice fall
 G:<:B
 W:41:1:13:145
 T:ICE:4d4
 K:DEFAULT:145
-F:CAN_FLY | MORE | TUNNEL | HIT_TRAP |
-F:NOTICE | REMEMBER | LOS | ICE | BRIDGE | LAKE |
+F:CAN_FLY | LESS | TUNNEL | HIT_TRAP | 
+F:REMEMBER | LOS | ICE | BRIDGE | LAKE |
 F:POWER_16
 
-N:126:water falls
+N:126:falling water
 G:<:b
 W:41:1:13:153
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:DEFAULT:126
 K:HURT_COLD:125
-F:CAN_FLY | MORE | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
-F:NOTICE | REMEMBER | LOS | WATER | HURT_COLD |
+F:CAN_FLY | LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
+F:REMEMBER | LOS | WATER | HURT_COLD | HIDE_SWIM
 
-N:127:acid falls
+N:127:falling acid
 G:<:g
 W:79:3:13:157
 T:ACID:6d6
 K:DEFAULT:127
-F:CAN_FLY | MORE | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
-F:NOTICE | REMEMBER | LOS | ACID
+F:CAN_FLY | LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
+F:REMEMBER | LOS | ACID | HIDE_SWIM
 
 N:128:loose rock
 G:^:v
@@ -1775,65 +1885,69 @@ G:^:g
 W:4:1:20:0
 K:DEFAULT:1
 K:HIT_TRAP:132
-T:ICE:4d6
+T:COLD:4d6
 D:You are surrounded by a freezing gas!
 F:TRAP | HIT_TRAP | DISARM |
 F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:133:open floor (over tunnel)
-G:.:w
-W:12:9:5:0
-M:1
-K:DEFAULT:137
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE |
-F:COVERED | KILL_HUGE | FLOOR |
-F:RIVER |
-F:CAN_CLIMB | CAN_FLY
+N:133:ice over deep water
+G:::B
+M:145
+W:36:6:7:148
+K:DEFAULT:155
+K:BRIDGE:147
+K:HURT_FIRE:154
+T:WATER_WEAK:4d6
+F:BASH | COVERED | CAN_SWIM | HIDE_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE |
+F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | WATER | REMEMBER | HURT_FIRE
 
 N:134:open floor (dusty)
 G:.:w
 W:15:10:7:0
 M:1
-K:DEFAULT:134
+D:The floor is thick with dust.
+K:DEFAULT:1
 K:KILL_MOVE:137
+K:BRIDGE:137
 K:TUNNEL:136
 F:LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:PLACE | DROP | KILL_MOVE | FLOOR |
+F:PLACE | DROP | KILL_MOVE | FLOOR | RUN | BRIDGE |
 F:CAN_CLIMB | CAN_FLY | LAKE
 
 N:135:earth floor
-G:.:U
+G:.:u
 W:6:6:7:114
 K:DEFAULT:135
 K:KILL_HUGE:138
 K:TUNNEL:138
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG |
-F:KILL_HUGE | LAKE |
+F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | HIDE_DIG |
+F:KILL_HUGE | LAKE | RUN | CAN_CLIMB |
 F:CAN_FLY
 
 N:136:broken floor
 G:.:s
 W:15:6:7:50
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG |
+F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | HIDE_DIG |
 F:FLOOR |
 F:CAN_CLIMB | CAN_FLY | LAKE
 
 N:137:dusty trail
-G:.:w
+G:.:W
 W:12:54:6:0
 K:DEFAULT:137
-K:KILL_MOVE:134
 K:TUNNEL:136
-F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | KILL_MOVE | FLOOR |
+F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
 F:CAN_CLIMB | CAN_FLY
 
 N:138:pile of earth
 W:3:54:6:114
 G:::U
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
-F:CAN_FLY | HIDE_DIG
+F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | HIDE_ITEM |
+F:CAN_FLY | HIDE_DIG | CAN_CLIMB
+
+# Note the following is not a floor.
 
 N:139:open floor (over chasm)
 G:.:w
@@ -1841,8 +1955,8 @@ W:72:3:5:0
 M:1
 K:DEFAULT:142
 K:BRIDGE:139
-F:DROP | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | FLOOR |
-F:KILL_HUGE | CAN_FLY | CAN_CLIMB
+F:DROP | LOS | MOVE | PROJECT | REMEMBER | PLACE |
+F:KILL_HUGE | CAN_FLY | CAN_CLIMB | LAKE | RIVER | RUN | CHASM
 
 #stone bridge (over chasm)
 
@@ -1851,8 +1965,8 @@ G:':w
 W:66:1:8:0
 K:DEFAULT:141
 K:BRIDGE:140
-F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | BRIDGED |
-F:CAN_FLY | CAN_CLIMB | HURT_ROCK | BRIDGE
+F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | BRIDGED |
+F:CAN_FLY | CAN_CLIMB | BRIDGE | RUN
 
 #Chasm center
 
@@ -1862,9 +1976,8 @@ W:40:1:1:142
 K:DEFAULT:141
 K:BRIDGE:140
 T:FALL_MORE:10d6
-F:BRIDGE | LAKE | RIVER | MORE | MOVE |
-F:CAN_FLY | LOS | PROJECT | REMEMBER | PLACE | NOTICE | CHASM
-
+F:BRIDGE | MORE | MOVE |
+F:CAN_FLY | LOS | PROJECT | REMEMBER | PLACE | CHASM
 
 #Chasm edge
 
@@ -1874,26 +1987,29 @@ W:40:1:13:139
 K:DEFAULT:141
 K:BRIDGE:140
 T:FALL_MORE:10d6
-F:CAN_FLY | MORE |  BRIDGE | MOVE |
+F:CAN_FLY | MORE |  BRIDGE | MOVE | LAKE | RIVER |
 F:LOS | PROJECT | PLACE | CHASM |
-F:NOTICE | REMEMBER
+F:REMEMBER
 
-N:143:ice bridge (over chasm)
-G:':B
-W:42:3:7:148
+#Ice floor (over chasm)
+
+N:143:ice floor
+G:.:B
+M:145
+W:66:6:7:148
 K:DEFAULT:144
-K:BRIDGE:143
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | BRIDGE |
-F:CAN_FLY | KILL_HUGE | BRIDGE | LAKE | RIVER | ICE | HURT_FIRE
+F:DROP | LOS | MOVE | PROJECT | PLACE | HURT_FIRE | KILL_HUGE |
+F:FLOOR | LAKE | RIVER | ICE | REMEMBER | LAKE | RIVER |
+F:CAN_FLY
 
-N:144:ice fall
+N:144:ice chasm
 G:>:B
-W:66:3:13:0
+W:66:3:13:148
 T:FALL_MORE:10d6
 K:DEFAULT:144
-K:BRIDGE:143
-F:CAN_FLY | MORE | MOVE |
-F:NOTICE | REMEMBER | LOS | PROJECT | PLACE | ICE | CHASM | BRIDGE
+K:BRIDGE:140
+F:CAN_FLY | MORE | MOVE | LAKE | RIVER |
+F:REMEMBER | LOS | PROJECT | PLACE | ICE | CHASM | BRIDGE
 
 N:145:ice floor
 G:.:B
@@ -1907,43 +2023,43 @@ N:146:ice floor (over water)
 G:.:B
 M:145
 W:36:6:7:148
-K:DEFAULT:150
+K:DEFAULT:155
 K:BRIDGE:145
 K:HURT_FIRE:154
-T:WATER:4d6
-F:BASH | COVERED | CAN_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE |
-F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | REMEMBER | HURT_FIRE
+T:WATER_WEAK:4d6
+F:BASH | COVERED | CAN_SWIM | HIDE_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE |
+F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | REMEMBER | HURT_FIRE | WATER
 
-#Ice bridge (over deep water)
+#Stone bridge (over ice over deep water)
 
-N:147:ice bridge
+N:147:stone bridge
 G:':B
-M:143
+M:140
 W:36:1:8:0
-K:DEFAULT:150
+K:DEFAULT:133
 K:BRIDGE:147
-T:WATER:6d6
-F:CAN_FLY |  CAN_SWIM | HURT_FIRE | BRIDGE | ICE |
-F:KILL_HUGE | HIDE_SWIM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
-F:NOTICE | BRIDGED | HURT_FIRE
+T:WATER_WEAK:6d6
+F:CAN_FLY | CAN_SWIM | HURT_FIRE | BRIDGE | ICE | WATER | 
+F:KILL_HUGE | HIDE_SWIM | HIDE_DEEP | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
+F:BRIDGED | CAN_CLIMB | HURT_FIRE | RUN
 
-N:148:ice
+N:148:ice wall
 G:#:B
 W:30:4:12:0
 K:DEFAULT:145
 K:KILL_HUGE:115
 T:ICE:4d4
-F:WALL | STREAMER | LAKE | TUNNEL | REMEMBER | NOTICE | CAN_PASS | HIT_TRAP |
+F:WALL | STREAMER | LAKE | TUNNEL | REMEMBER | CAN_PASS | HIT_TRAP |
 F:BRIDGE | ICE | KILL_HUGE |
 F:POWER_40
 
-N:149:ice over geothermal floor
+N:149:ice wall over geothermal floor
 G:#:v
 W:30:1:12:0
 K:DEFAULT:209
 K:KILL_HUGE:118
 T:ICE:4d4
-F:WALL | TUNNEL | REMEMBER | NOTICE | CAN_PASS | ICE | HIT_TRAP | KILL_HUGE |
+F:WALL | TUNNEL | REMEMBER | CAN_PASS | ICE | HIT_TRAP | KILL_HUGE |
 F:POWER_36
 
 N:150:water under ice
@@ -1954,8 +2070,8 @@ K:DEFAULT:155
 K:BRIDGE:153
 K:KILL_HUGE:119
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | LAKE | RIVER | HIT_TRAP |
-F:HIDE_ITEM | HIDE_SWIM | BRIDGE | SECRET | DROP | HIDE_ITEM |
-F:NOTICE | REMEMBER | PLACE | ICE | KILL_HUGE |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP | HIDE_ITEM |
+F:REMEMBER | PLACE | ICE | KILL_HUGE |
 F:POWER_36
 
 N:151:waterfall
@@ -1965,8 +2081,8 @@ T:FALL_MORE:10d6
 K:DEFAULT:151
 K:BRIDGE:140
 F:WATER | DEEP | MOVE |
-F:BRIDGE |
-F:CAN_FLY | MORE | LOS | PROJECT | REMEMBER | NOTICE | PLACE |
+F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
+F:CAN_FLY | MORE | LOS | PROJECT | REMEMBER | PLACE |
 F:WATER | CHASM
 
 N:152:stone bridge (over deep water)
@@ -1975,16 +2091,16 @@ W:27:1:8:0
 M:140
 K:DEFAULT:155
 K:BRIDGE:152
-F:CAN_FLY | CAN_CLIMB |  CAN_SWIM | BRIDGED | BRIDGE |
-F:HURT_ROCK | LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | HIDE_SWIM |
-F:WATER
+F:CAN_FLY | CAN_CLIMB | CAN_SWIM | BRIDGED | CAN_CLIMB | BRIDGE |
+F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | HIDE_SWIM | HIDE_DEEP |
+F:WATER | RUN
 
 N:153:water
 G:.:b
 W:18:3:7:0
 K:HURT_COLD:145
-F:BRIDGE | WATER | SHALLOW | RIVER | LAKE |  
-F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:BRIDGE | WATER | SHALLOW | RIVER | LAKE | HIDE_SWIM |
+F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | DROP | HURT_COLD |
 F:WATER
 
@@ -1992,27 +2108,27 @@ N:154:deep water
 G:.:b
 W:27:2:7:0
 M:153
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:DEFAULT:154
 K:BRIDGE:153
 K:SECRET:155
 K:HURT_COLD:146
 D:The water is deeper than it looks.
 F:WATER | DEEP | RIVER | LAKE | DROP |
-F:BRIDGE | CAN_SWIM | HIDE_SWIM | SECRET |
-F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | SECRET |
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:WATER | HURT_COLD
 
 N:155:deep water
 G:::b
 W:45:4:12:0
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:DEFAULT:155
 K:BRIDGE:152
 K:HURT_COLD:146
 F:WATER | DEEP |
-F:BRIDGE | CAN_SWIM | HIDE_SWIM | DROP |
-F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:WATER | HURT_COLD
 
 N:156:stone bridge (over deep acid)
@@ -2022,21 +2138,21 @@ M:140
 T:ACID:4d6
 K:DEFAULT:159
 K:BRIDGE:156
-F:CAN_FLY | CAN_CLIMB | HURT_ROCK |
-F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | BRIDGED | CAN_SWIM | HIDE_SWIM |
-F:ACID | BRIDGE
+F:CAN_FLY | CAN_CLIMB |
+F:LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | BRIDGED | CAN_CLIMB | CAN_SWIM | HIDE_SWIM | HIDE_DEEP |
+F:ACID | BRIDGE | RUN
 
 N:157:acid
-G:.:g
+G:;:g
 W:75:3:13:51
 T:ACID:2d6
-F:SHALLOW | NOTICE | RIVER | LAKE |
-F:CAN_FLY | CAN_SWIM | DROP |
-F:HIDE_ITEM  | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:SHALLOW | RIVER | LAKE |
+F:CAN_FLY | CAN_SWIM | DROP | HIDE_SWIM |
+F:HIDE_ITEM  | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:ACID
 
 N:158:deep acid
-G:.:g
+G:;:g
 W:78:3:13:51
 M:158
 K:DEFAULT:158
@@ -2044,9 +2160,9 @@ K:BRIDGE:157
 K:SECRET:159
 T:ACID:4d6
 D:The acid is deeper than it looks.
-F:DEEP | NOTICE | RIVER | LAKE | SECRET |
-F:BRIDGE | CAN_SWIM | HIDE_SWIM | DROP |
-F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:DEEP | RIVER | LAKE | SECRET |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:ACID
 
 N:159:deep acid
@@ -2055,31 +2171,31 @@ W:81:6:14:51
 K:DEFAULT:159
 K:BRIDGE:156
 T:ACID:4d6
-F:DEEP | NOTICE | RIVER | LAKE |
-F:BRIDGE | CAN_SWIM | HIDE_SWIM | DROP | 
-F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:DEEP | RIVER | LAKE |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP | 
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:ACID
 
 # HACK --- We retain the LOS flag by inserting the next set of non-LOS features here.
 
-N:160:boiling water falls
+N:160:falling boiling water
 G:<:v
 W:82:3:14:136
 K:DEFAULT:160
 T:BWATER:6d6
-F:LAVA | DEEP | LAKE |
-F:HIDE_ITEM | DROP |
-F:GLOW | LOS | MOVE | REMEMBER | NOTICE | PLACE
+F:LAVA | DEEP | LAKE | LESS |
+F:HIDE_ITEM | DROP | HIDE_SWIM | HIDE_DEEP |
+F:GLOW | LOS | MOVE | REMEMBER | PLACE
 
-N:161:lava falls
-G:<:R
+N:161:falling lava
+G:<:r
 W:91:1:14:136
 K:DEFAULT:161
 K:BRIDGE:210
 T:LAVA:24d10
-F:LAVA | DEEP | LAKE |
-F:HIDE_ITEM | BRIDGE | 
-F:GLOW | LOS | MOVE | REMEMBER | NOTICE | PLACE
+F:LAVA | DEEP | LAKE | LESS |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP |
+F:GLOW | LOS | MOVE | REMEMBER | PLACE
 
 # Place holders - should never be generated.
 
@@ -2179,8 +2295,8 @@ W:16:12:7:0
 K:DEFAULT:192
 K:KILL_MOVE:194
 K:BRIDGE:194
-F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | KILL_MOVE |
-F:LAKE |
+F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | KILL_MOVE |
+F:LAKE | BRIDGE | 
 F:CAN_CLIMB | CAN_FLY
 
 #Note - 'deep' sand is only partially deep (can hide monsters/but not sink).
@@ -2192,16 +2308,15 @@ M:192
 K:DEFAULT:193
 K:KILL_MOVE:195
 K:BRIDGE:195
-F:HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | KILL_MOVE |
-F:LAKE |
+F:HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | KILL_MOVE |
+F:LAKE | BRIDGE |
 F:CAN_CLIMB | CAN_FLY
 
 N:194:sandy trail
 G:.:o
 W:6:2:6:0
 K:DEFAULT:194
-K:KILL_MOVE:192
-F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | KILL_MOVE |
+F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
 F:CAN_CLIMB | CAN_FLY
 
 N:195:deep sandy trail
@@ -2209,8 +2324,7 @@ G:.:o
 W:12:2:6:0
 M:194
 K:DEFAULT:195
-K:KILL_MOVE:193
-F:HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | KILL_MOVE |
+F:HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
 F:CAN_CLIMB | CAN_FLY
 
 # quicksand (SECRET)
@@ -2219,21 +2333,24 @@ N:196:quicksand
 G:.:y
 W:30:16:7:0
 M:192
-T:WATER:4d6
-K:DEFAULT:196
+T:WATER_WEAK:4d6
+K:DEFAULT:192
 K:SECRET:197
 K:KILL_MOVE:197
 D:The sand is more dangerous than it looks.
-F:WATER | DEEP | HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE |
-F:STREAMER | SECRET | LAKE |
+F:WATER | DEEP | HIDE_DIG | HIDE_DEEP |
+F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
+F:STREAMER | SECRET | LAKE | BRIDGE |
 F:CAN_CLIMB | CAN_FLY
 
 N:197:quicksand
 G:::y
 W:20:6:13:0
-T:WATER:4d6
-F:WATER | DEEP | HIDE_DIG | HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE |
-F:STREAMER | 
+T:WATER_WEAK:4d6
+K:DEFAULT:192
+F:WATER | DEEP | HIDE_DIG | HIDE_DEEP |
+F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
+F:STREAMER | BRIDGE |
 F:CAN_CLIMB | CAN_FLY
 
 N:198:stone bridge (over deep mud)
@@ -2242,35 +2359,35 @@ W:48:1:8:0
 M:140
 K:DEFAULT:201
 K:BRIDGE:198
-F:HURT_ROCK |  LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE |
-F:CAN_FLY | CAN_CLIMB | BRIDGED | BRIDGE | CAN_DIG | HIDE_DIG |
-F:NOTICE | REMEMBER | NOTICE
+F:HURT_ROCK | CAN_CLIMB |  LOS | MOVE | PROJECT | REMEMBER |  DROP | PLACE |
+F:CAN_FLY | CAN_CLIMB | BRIDGED | BRIDGE | CAN_DIG | HIDE_DIG | HIDE_DEEP |
+F:REMEMBER | RUN
 
 N:199:mud
-G:.:u
+G:;:u
 W:21:12:7:0
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:KILL_MOVE:202
+K:BRIDGE:202
 K:HURT_COLD:135
 F:WATER | SHALLOW | LAKE | KILL_MOVE | CAN_DIG |
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
-F:HIDE_ITEM  | SECRET | DROP | HURT_COLD |
-F:NOTICE | REMEMBER | NOTICE 
+F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
+F:HIDE_ITEM | SECRET | DROP | HURT_COLD | BRIDGE |
+F:REMEMBER
 
 N:200:deep mud
-G:.:u
+G:;:u
 W:48:12:7:0
 M:199
-T:WATER:4d6
-K:BRIDGE:199
+T:WATER_WEAK:4d6
+K:BRIDGE:202
 K:KILL_MOVE:203
 K:SECRET:201
 K:HURT_COLD:135
 D:The mud is deeper than it looks.
-F:WATER | DEEP | LAKE | HIDE_DIG | KILL_MOVE | DROP |
-F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | 
-F:CAN_FLY | HIDE_ITEM | SECRET | CAN_DIG | HURT_COLD |
-F:NOTICE | REMEMBER | NOTICE
+F:WATER | DEEP | LAKE | HIDE_DIG | HIDE_DEEP | KILL_MOVE | DROP |
+F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
+F:CAN_FLY | HIDE_ITEM | SECRET | CAN_DIG | HURT_COLD
 
 # Note - we don't trail through known deep mud. This could otherwise cause confusion
 # with burning oil/boiling mud.
@@ -2278,36 +2395,31 @@ F:NOTICE | REMEMBER | NOTICE
 N:201:deep mud
 G:::u
 W:54:12:13:0
-T:WATER:4d6
+T:WATER_WEAK:4d6
 K:DEFAULT:201
 K:BRIDGE:198
 K:HURT_COLD:135
-F:WATER | DEEP | LAKE | HIDE_DIG | DROP |
-F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | 
+F:WATER | DEEP | LAKE | HIDE_DIG | HIDE_DEEP | DROP |
+F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
 F:CAN_FLY | HIDE_ITEM | CAN_DIG | HURT_COLD
-F:NOTICE | REMEMBER | NOTICE
 
 N:202:muddy trail
-G:.:o
+G:;:o
 W:21:1:6:0
-K:KILL_MOVE:199
 K:HURT_COLD:135
-F:WATER | SHALLOW | KILL_MOVE | DROP | HURT_COLD |
-F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:WATER | SHALLOW | DROP | HURT_COLD |
+F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM  | CAN_DIG |
-F:NOTICE | REMEMBER | NOTICE 
 
 N:203:deep muddy trail
-G:.:o
+G:;:o
 W:48:1:6:0
-M:202
-T:WATER:4d6
-K:KILL_MOVE:201
+T:WATER_WEAK:4d6
 K:HURT_COLD:135
-F:WATER | DEEP | HIDE_DIG | KILL_MOVE | DROP |
-F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | 
-F:CAN_FLY | HIDE_ITEM | SECRET | CAN_DIG |
-F:NOTICE | REMEMBER | NOTICE | HURT_COLD
+F:WATER | DEEP | HIDE_DIG | HIDE_DEEP | DROP |
+F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
+F:CAN_FLY | HIDE_ITEM | CAN_DIG |
+F:HURT_COLD
 
 N:204:stone bridge (over boiling mud)
 G:':w
@@ -2316,9 +2428,9 @@ M:140
 T:BMUD:6d6
 K:DEFAULT:205
 K:BRIDGE:204
-F:CAN_FLY | CAN_CLIMB | HURT_ROCK | BRIDGE | CAN_DIG | DROP | BRIDGED |
-F:NOTICE | REMEMBER | NOTICE | LOS | MOVE | PROJECT | DROP | PLACE |
-F:LAVA | WATER
+F:CAN_FLY | CAN_CLIMB | BRIDGE | CAN_DIG | DROP | BRIDGED |
+F:REMEMBER | LOS | MOVE | PROJECT | DROP | PLACE | HIDE_DIG | HIDE_DEEP |
+F:LAVA | WATER | RUN
 
 N:205:boiling mud
 G:::o
@@ -2326,9 +2438,9 @@ W:60:4:13:0
 T:BMUD:6d6
 K:DEFAULT:205
 K:BRIDGE:204
-F:DEEP | BRIDGE | HIDE_DIG | CAN_DIG |
+F:DEEP | BRIDGE | HIDE_DIG | HIDE_DEEP | CAN_DIG |
 F:CAN_FLY | HIDE_ITEM  | LAKE | LAVA | DROP |
-F:NOTICE | REMEMBER | NOTICE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE
+F:REMEMBER | LOS | MOVE | PROJECT | REMEMBER | PLACE
 
 N:206:boiling water geyser
 G:;:v
@@ -2338,7 +2450,7 @@ K:DEFAULT:206
 K:BRIDGE:204
 F:DEEP | BRIDGE |
 F:CAN_FLY | HIDE_ITEM | DROP |
-F:NOTICE | REMEMBER | NOTICE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:REMEMBER | NOTICE | LOS | MOVE | PROJECT | PLACE |
 F:LAVA
 
 N:207:stone bridge (over boiling water)
@@ -2349,9 +2461,9 @@ T:BWATER:6d6
 K:DEFAULT:208
 K:DEFAULT:207
 F:CAN_FLY | CAN_CLIMB | HURT_ROCK | BRIDGE |
-F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE |
-F:CAN_SWIM | HIDE_SWIM | BRIDGED |
-F:LAVA
+F:LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE |
+F:CAN_SWIM | HIDE_SWIM | HIDE_DEEP | BRIDGED |
+F:LAVA | RUN
 
 N:208:boiling water
 G:::v
@@ -2360,13 +2472,14 @@ T:BWATER:6d6
 K:DEFAULT:208
 K:BRIDGE:207
 F:DEEP | BRIDGE | CAN_SWIM | HIDE_ITEM | LAKE | DROP |
-F:CAN_FLY | HIDE_ITEM | HIDE_SWIM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:CAN_FLY | HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | LOS | MOVE |
+F:PROJECT | REMEMBER | PLACE |
 F:LAVA
 
 N:209:geothermal floor
 G:.:v
 W:51:2:7:0
-F:HIDE_ITEM | LAKE | DROP | LOS | MOVE | PROJECT | PLACE | 
+F:HIDE_ITEM | LAKE | DROP | LOS | MOVE | PROJECT | PLACE | CAN_CLIMB |
 F:LAKE | FLOOR | REMEMBER
 
 N:210:geothermal floor (over lava)
@@ -2387,7 +2500,7 @@ K:BRIDGE:209
 D:You are surrounded by a burning green gas!
 T:POISON:4d6
 F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
-F:NOTICE | REMEMBER 
+F:NOTICE | REMEMBER | TRAP | POWER_20
 
 N:212:steam vent
 G:;:W
@@ -2395,7 +2508,7 @@ W:51:1:13:0
 K:BRIDGE:209
 T:BWATER:4d6
 F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
-F:NOTICE | REMEMBER | NOTICE
+F:NOTICE | REMEMBER | TRAP | POWER_20
 
 N:213:lava vent
 G:;:R
@@ -2404,18 +2517,17 @@ K:DEFAULT:216
 K:BRIDGE:209
 T:FIRE:12d6
 F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP |
-F:NOTICE | REMEMBER | NOTICE | BRIDGE | GLOW
+F:NOTICE | REMEMBER | BRIDGE | GLOW | TRAP | POWER_20
 
 N:214:lava fall
-G:>:R
+G:>:r
 W:84:1:14:0
 T:FALL_MORE:24d10
 K:DEFAULT:214
 K:BRIDGE:140
-F:LAVA | DEEP | LOS | PROJECT | REMEMBER | NOTICE | PLACE | 
+F:LAVA | DEEP | LOS | PROJECT | REMEMBER | PLACE | 
 F:BRIDGE | CHASM | MOVE |
-F:CAN_FLY | MORE |  GLOW |
-F:NOTICE | REMEMBER | NOTICE
+F:CAN_FLY | MORE | GLOW
 
 N:215:stone bridge (over deep lava)
 G:':w
@@ -2426,23 +2538,23 @@ K:BRIDGE:215
 K:DEFAULT:217
 M:140
 F:CAN_FLY | CAN_CLIMB | BRIDGED |
-F:HURT_ROCK | BRIDGE | LAVA | MOVE | PLACE | DROP |
-F:NOTICE | REMEMBER
+F:BRIDGE | LAVA | MOVE | PLACE | DROP |
+F:REMEMBER
 
 N:216:lava
-G:.:R
+G:;:r
 W:87:1:14:50
 T:LAVA:24d10
 K:DEFAULT:216
 K:BRIDGE:210
 F:LAVA | SHALLOW | STREAMER | RIVER | LAKE | RIVER |
 F:BRIDGE | HIDE_ITEM |
-F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE
+F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER | PLACE
 
 # deep lava - SECRET
 
 N:217:deep lava
-G:.:R
+G:;:r
 W:90:1:14:50
 M:216
 K:DEFAULT:217
@@ -2450,21 +2562,19 @@ K:BRIDGE:210
 K:SECRET:218
 T:LAVA:24d10
 D:The lava is deeper than it looks.
-F:LAVA | DEEP | STREAMER | LAKE | RIVER |
+F:LAVA | DEEP | STREAMER | LAKE | RIVER | PLACE |
 F:BRIDGE | HIDE_ITEM | SECRET |
-F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
-F:NOTICE | REMEMBER | NOTICE
+F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER
 
 N:218:deep lava
-G:::R
+G:::r
 W:84:1:14:50
 K:DEFAULT:218
 K:BRIDGE:215
 T:LAVA:24d10
 F:LAVA | DEEP | STREAMER | LAKE | RIVER |
-F:BRIDGE | HIDE_ITEM | 
-F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
-F:NOTICE | REMEMBER | NOTICE
+F:BRIDGE | HIDE_ITEM | PLACE | 
+F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER
 
 # Hack - slightly out of order for oil because we don't support deep oil with only 256 features.
 
@@ -2473,7 +2583,7 @@ G:.:D
 W:20:1:13:0
 K:DEFAULT:219
 K:HURT_FIRE:220
-F:LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+F:LOS | MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
 F:CAN_FLY | HURT_FIRE | OIL | DROP
 
 # Hack - Note we 'pretend' burning oil/coal dust is deep, just to avoid confusion with trails
@@ -2482,7 +2592,7 @@ N:220:burning oil
 G:::o
 W:20:1:14:0
 T:FIRE:4d6
-F:LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+F:LOS | MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
 F:CAN_FLY | HURT_FIRE | GLOW | DROP
 
 N:221:coal dust
@@ -2491,7 +2601,8 @@ W:20:1:7:0
 K:DEFAULT:221
 K:HURT_FIRE:223
 K:KILL_MOVE:222
-F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+K:BRIDGE:222
+F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM | BRIDGE |
 F:CAN_FLY | HURT_FIRE |  OIL | DROP
 
 N:222:coal dust trail
@@ -2499,15 +2610,14 @@ G:.:o
 W:20:1:6:0
 K:DEFAULT:222
 K:HURT_FIRE:223
-K:KILL_MOVE:221
-F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
-F:CAN_FLY | HURT_FIRE |  KILL_MOVE | OIL | DROP
+F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
+F:CAN_FLY | HURT_FIRE | OIL | DROP
 
 N:223:burning coal dust
 G:::o
 W:20:1:13:0
 T:FIRE:4d6
-F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
 F:CAN_FLY | GLOW | DROP
 
 #128 LOS features, 66 non-LOS features, 33 place holders

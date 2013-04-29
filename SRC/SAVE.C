@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -311,21 +317,21 @@ static errr wr_savefile(void)
 	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
-	/* Dump the messages (oldest first!) */
+	/* Dump the messages and types (oldest first!) */
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str(i));
+		wr_u16b(message_type(i));
 	}
 
-
 	/* Dump the monster lore */
-	tmp16u = MAX_R_IDX;
+	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
 
 	/* Dump the object memory */
-	tmp16u = MAX_K_IDX;
+	tmp16u = z_info->k_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
@@ -342,7 +348,7 @@ static errr wr_savefile(void)
 	}
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = MAX_A_IDX;
+	tmp16u = z_info->a_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -768,42 +774,43 @@ static void wr_monster(monster_type *m_ptr)
 static void wr_lore(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
 	/* Count sights/deaths/kills */
-	wr_s16b(r_ptr->r_sights);
-	wr_s16b(r_ptr->r_deaths);
-	wr_s16b(r_ptr->r_pkills);
-	wr_s16b(r_ptr->r_tkills);
+	wr_s16b(l_ptr->r_sights);
+	wr_s16b(l_ptr->r_deaths);
+	wr_s16b(l_ptr->r_pkills);
+	wr_s16b(l_ptr->r_tkills);
 
 	/* Count wakes and ignores */
-	wr_byte(r_ptr->r_wake);
-	wr_byte(r_ptr->r_ignore);
+	wr_byte(l_ptr->r_wake);
+	wr_byte(l_ptr->r_ignore);
 
 	/* Extra stuff */
-	wr_byte(r_ptr->r_xtra1);
-	wr_byte(r_ptr->r_xtra2);
+	wr_byte(l_ptr->r_xtra1);
+	wr_byte(l_ptr->r_xtra2);
 
 	/* Count drops */
-	wr_byte(r_ptr->r_drop_gold);
-	wr_byte(r_ptr->r_drop_item);
+	wr_byte(l_ptr->r_drop_gold);
+	wr_byte(l_ptr->r_drop_item);
 
 	/* Count spells */
-	wr_byte(r_ptr->r_cast_inate);
-	wr_byte(r_ptr->r_cast_spell);
+	wr_byte(l_ptr->r_cast_inate);
+	wr_byte(l_ptr->r_cast_spell);
 
 	/* Count blows of each type */
-	wr_byte(r_ptr->r_blows[0]);
-	wr_byte(r_ptr->r_blows[1]);
-	wr_byte(r_ptr->r_blows[2]);
-	wr_byte(r_ptr->r_blows[3]);
+	wr_byte(l_ptr->r_blows[0]);
+	wr_byte(l_ptr->r_blows[1]);
+	wr_byte(l_ptr->r_blows[2]);
+	wr_byte(l_ptr->r_blows[3]);
 
 	/* Memorize flags */
-	wr_u32b(r_ptr->r_flags1);
-	wr_u32b(r_ptr->r_flags2);
-	wr_u32b(r_ptr->r_flags3);
-	wr_u32b(r_ptr->r_flags4);
-	wr_u32b(r_ptr->r_flags5);
-	wr_u32b(r_ptr->r_flags6);
+	wr_u32b(l_ptr->r_flags1);
+	wr_u32b(l_ptr->r_flags2);
+	wr_u32b(l_ptr->r_flags3);
+	wr_u32b(l_ptr->r_flags4);
+	wr_u32b(l_ptr->r_flags5);
+	wr_u32b(l_ptr->r_flags6);
 
 
 	/* Monster limit per level */
@@ -1018,7 +1025,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->pstyle);	/* Was oops */
 
 	wr_byte(p_ptr->hitdie);
 	wr_byte(p_ptr->expfact);
@@ -1030,6 +1037,7 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -1054,7 +1062,13 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
-	wr_s16b(0);	/* oops */
+
+	/* Hack --- save psval here. Was wr_16b(0)  Oops */
+	wr_byte(p_ptr->psval);
+
+	/* Hack --- save held_song here. Was wr_16b(0)  Oops */
+	wr_byte(p_ptr->held_song);
+
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
@@ -1375,17 +1389,18 @@ static bool wr_savefile_new(void)
 	for (i = tmp16u - 1; i >= 0; i--)
 	{
 		wr_string(message_str((s16b)i));
+		wr_u16b(message_type((s16b)i));
 	}
 
 
 	/* Dump the monster lore */
-	tmp16u = MAX_R_IDX;
+	tmp16u = z_info->r_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_lore(i);
 
 
 	/* Dump the object memory */
-	tmp16u = MAX_K_IDX;
+	tmp16u = z_info->k_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
@@ -1402,7 +1417,7 @@ static bool wr_savefile_new(void)
 	}
 
 	/* Hack -- Dump the artifacts */
-	tmp16u = MAX_A_IDX;
+	tmp16u = z_info->a_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
@@ -1505,7 +1520,7 @@ static bool save_player_aux(char *name)
 {
 	bool ok = FALSE;
 
-	int fd = -1;
+	int fd;
 
 	int mode = 0644;
 

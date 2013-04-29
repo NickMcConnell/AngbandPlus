@@ -7,8 +7,11 @@ they attack you.  Some creatures can also cast spells from a distance, and
 others can use various breath weapons (such as fire) on you from a distance.
 
 Creatures in walls can not be attacked by wands or other magic attacks
-normally stopped by walls.  Tunneling into the wall (using the "tunnel"
-or "alter" command) will allow you to attack any creature in the wall.
+normally stopped by walls, nor can they be shot at with bows and arrows.
+Tunnelling into the wall (using the "tunnel" or "alter" command) will allow 
+you to attack any creature in the wall. This applies to creatures which 
+"pass through" walls: if they "bore through" walls, the wall is no longer
+there, and the creature can be targetted normally.
 
 If you are wielding a weapon, the damage for the weapon is used when you hit
 a creature.  Otherwise you get a single punch which does minimal damage.
@@ -17,7 +20,8 @@ You may wield both a primary weapon for melee combat, and a bow or other
 missile launcher for launching missiles at the same time (along with a
 light, an amulet, two rings, a helmet, boots, gloves, a shield, a cloak, and
 body armor).  Be sure not to try and kill a dragon with a shovel, it makes
-you look silly and probably won't work...
+you look silly and probably won't work. (Note that "probably" is used 
+advisedly: it has actually been done...)
  
 Firing a missile (while wielding the appropriate launcher) is the only way to
 get the "full" power out of the missile.  You may of course throw an arrow at
@@ -26,7 +30,7 @@ you had hoped.
 
 Hits and misses are determined by ability to hit versus armor class.  A hit
 is a strike that does some damage; a miss may in fact reach a target, but
-fails to do any  damage.  Higher armor classes make it harder to do damage,
+fails to do any damage.  Higher armor classes make it harder to do damage,
 and so lead to more misses; they also reduce the damage from a strike that
 actually occurs.
  
@@ -90,7 +94,11 @@ weapon before the displayed values reflect the real values used.
 
 Finally, some rare weapons have special abilities.  These are called ego
 weapons, and are feared by great and meek.  An ego weapon must be wielded
-to receive the benefit of its abilities.
+to receive the benefit of its abilities. It should be noted that some of 
+these items are considerably more powerful than others, and generally the 
+most powerful items are the rarest. Also important is the fact that not all
+ego-items are nice... some have good and bad points, others are totally 
+worthless and dangerous to the player's health.
 
 Ego weapons are denoted by the following "names":  
 
@@ -114,87 +122,98 @@ Ego weapons are denoted by the following "names":
      and can be wielded by priests with no penalty. These weapons, like 
      (Defender) weapons, also will sustain one random stat.
 
-(Blessed Blade)
+(Blessed)
      A blessed blade will increase your wisdom.  If you are a priest,
      wielding a non-blessed sword or polearm causes a small penalty while
      attacking and may infuriate your god, decreasing the chances that he
-     will accept your prayers.  It is rumored that these blades may also
-     possess other properties.
+     will accept your prayers: a blessed blade may be wielded without 
+     this penalty.  Blessed blades also have one extra, random, power.
 
-Weapon of Westernesse
+Weapon of Westernesse.
      A Weapon of Westernesse is one of the more powerful weapons.  It slays
      orcs, trolls, and giants, while increasing your strength, dexterity, 
      and constitution.  It also lets you see invisible creatures and protects 
      from paralyzation and some slowing attacks.  These blades were made by 
      the Dunedain.
 
+Weapon of Gondolin.
+     A weapon of this kind, from the last kingdom of the High Elves to 
+     fall under Morgoth's yoke, provides power against all his living 
+     servants - orcs, trolls, demons and dragons. It also gives off light
+     when there are enemies around (which, in Angband, is all the time), 
+     and provides resistance to darkness, the ability to see invisible
+     monsters, and one extra random power. These weapons are powerful
+     but rare.
+
 Weapon of Extra Attacks.
      A weapon of extra attacks will allow the wielder to deliver extra
      attacks during each round.
 
+Weapon of Fury.
+     This weapon is a gift for all those whose sole wish is to smash their
+     enemies to an unreconizable pulp. It provides bonuses to-hit, to-dam
+     and to extra attacks. However, the wielder will be driven into such a 
+     berserk fury that his shouts and yells will awaken and aggravate every
+     monster within earshot.
+
 Elemental Branded Weapons.
      Each of the four elemental attacks has a corresponding weapon which 
-     will do treble damage against creatures not resistant to that element.
-     These weapons are labelled "of Melting", "of Shocking", "of Burning",
-     and "of Freezing", corresponding to acid, lightning, fire, and cold.
+     will do treble its base damage to creatures not resistant to that 
+     element. (It should be noted that the magical damage bonus is not
+     affected by this: a weapon of Flame (2d6) (+5,+6) does 6d6+6 damage 
+     per hit, not 6d6+18, against creatures which are not fire-resistant.)
+     There are weapons of Flame, Frost, Lightning and Acid elemental brands.
 
-Weapon of Slay Dragon.
-     A Slay Dragon weapon is a special purpose weapon whose sole intent is
-     to destroy dragon-kind.  Therefore, when used against a dragon, the
-     amount of damage done is three times the normal amount.  Some powerful
-     weapons of this type will do _five_ times the normal damage as well as
-     boosting the wielder's constitution.
+Weapons of Slaying enemies.
+     These weapons do extra damage against creatures of a vulnerable type.
+     Weapons of Slay Evil and Slay Animal do double the base damage, while
+     weapons of Slay Orc, Troll, Giant, Dragon, Demon and Undead do triple
+     the base damage. As with elemental branded weapons, the magical damage
+     bonus is not affected.
 
-Weapon of Slay Evil.
-     A Slay Evil weapon is a special purpose weapon whose sole intent is to
-     destroy all forms of evil.  When used against an evil creature, either
-     alive or undead, the damage done is twice the normal amount.  Some of
-     these weapons are also Blessed Blades and will boost your wisdom.
-
-Weapon of Slay Animal.
-     A Slay Animal weapon is a special purpose weapon whose sole intent is
-     to destroy all the dangerous animals in the world.  An animal is any
-     creature natural to the world.  Therefore an orc would not be an
-     animal, but a giant snake would be.  This will inflict twice the
-     normal amount of damage when used against an animal.  Some very 
-     powerful weapons of this type will also provide regeneration and 
-     an intelligence boost.
-
-Weapon of Slay Undead.
-     A Slay Undead weapon is a special purpose weapon whose sole intent is
-     to destroy all forms of undead.  These weapons are hated and feared by
-     the intelligent undead, for a single blow from this weapon will inflict
-     three times the normal amount of damage.  Some extra powerful weapons 
-     of this type will boost the wielder's wisdom and allow the wielder to
-     see invisible creatures, all the better to track down the undead!
-
-Weapon of Slay Orc.
-     A Slay Orc weapon does treble damage against anything of orcish-kind.
-     Often these are elvish blades.  Some powerful weapons of this type will
-     boost the wielder's dexterity.
-
-Weapon of Slay Troll.
-     A Slay Troll weapon does treble damage against anything of troll-kind.
-     Often these are elvish blades.  Some powerful weapons of this type will
-     boost the wielder's strength.
-
-Weapon of Slay Giant.
-     A Slay Giant weapon does treble damage against anything of
-     giant-humanoidal form.  Some powerful weapons of this type will
-     boost the wielder's strength.
-
-Weapon of Slay Demon.
-     A Slay Demon weapon does treble damage against anything of Hellish
-     nature such as the Minor and Major Demons.  Some powerful weapons of 
-     this type will boost the wielder's intelligence.
+Weapons of *Slaying* enemies.
+     These weapons, in addition to doing extra damage to your enemies, have
+     extra powers as well. Weapons of *Slay Animal* will give a bonus to
+     intelligence (which is what sets the sentient races apart from the 
+     animals), and provide slow digestion so that the player does not need
+     to eat so often. Weapons of *Slay Evil* provide a bonus to wisdom and
+     are blessed, so that priests may use them even if they are sharp: and 
+     they have a bonus power, as other Blessed weapons do. Weapons of *Slay
+     *Undead* will allow you to see into the invisible world of ghosts and 
+     wraiths, and provide a wisdom bonus: weapons of *Slay Demon* provide 
+     resistance to fire, the chief weapon of many demons, and grant 
+     intelligence: and weapons of *Slay Dragon* do five times their base
+     damage, provide a constitution bonus, and resistance to fear. Weapons 
+     of *Slay Orc* will increase and sustain the character's dexterity, 
+     weapons of *Slay Giant* will grant the wielder the strength of a giant
+     and sustain it, and weapons of *Slay Troll* will impart the strength of 
+     a Troll and give the trollish ability of regeneration.
 
 Weapon of Morgul.
      These blades are so foully cursed with evil, it is rumored that it is
-     impossible to remove them.  BEWARE!
+     nearly impossible to remove them without a special curse-removing spell,
+     much stronger than normal Remove Curse. However, they can be powerful 
+     in the right hands - for they are weapons of the undead, and will thus 
+     give a certain amount of power over all things undead. The character will
+     see invisible, and be protected against the forces of the netherworld and
+     attempts by other creatures to drain his life force: on the other hand, 
+     the weapon itself will drain the character's life, and nearby monsters
+     will know that this weapon is in the wrong hands and will come to recover
+     it - no monster will remain asleep when the character wields a weapon of 
+     Morgul.
 
 Shovels of Digging.
-     These powerful diggers are branded with acid, all the better for 
-     digging through the walls of the dungeon.
+     These powerful diggers will dig through granite as if it were mere wood, 
+     and mineral veins as if they were butter. Permanent rock is still an 
+     impassable obstacle.
+
+Shovels of Earthquakes.
+     These powerful but unpredictable items are magically enchanted to dig
+     even faster than shovels of Digging: moreover, they possess a fair
+     bonus to-hit and to-damage, and thus might actually be useful when used
+     as a melee weapon. They increase the wielder's strength as well. 
+     They do, however, have a downside: the weapon will periodically cause
+     a mighty earthquake when it hits a monster.
 
 Ego Missile Launchers and Ammo:
 -------------------------------
@@ -212,25 +231,56 @@ Launchers of Extra Shots.
 
 Launchers of Extra Might.
     These launchers have a higher base damage than normally made launchers 
-    of their type.
-
-Ammo of Hurt Animal.
-    This ammo does double damage against natural denizens of the dungeon.
-
-Ammo of Hurt Evil.
-    This ammo does double damage against evil creatures in the dungeon.
-
-Ammo of Hurt Dragon.
-    This ammo does treble damage against dragons.
-
-Ammo of Flame.
-    This ammo does treble damage against creature not resistant to fire.
-
-Ammo of Frost.
-    This ammo does treble damage against creature not resistant to cold.
+    of their type. For instance, a Long Bow of Extra Might (x3)(+X,+Y)(+2)
+    is really a Long Bow (x5)(+X,+Y) where (+X,+Y) is the standard to-hit 
+    and to-dam. As the damage multiplier with the bow affects *everything*
+    - the base arrow damage, the magical damage bonus on both the bow and
+    the arrow, and any bonuses for slaying or elemental-branded arrows - 
+    this makes it a powerful weapon.
 
 Ammo of Wounding.
-    This ammo boosts the to-hit and to-dam numbers of the shooter.
+    This ammunition - whether it be pebbles, iron shots, arrows, bolts, 
+    seeker arrows or seeker bolts - has big bonuses to-hit and to-damage.
+
+Ammo of Elemental Brands, and Ammo of Slaying.
+    This works in the same way as melee weapons of the same type: double
+    damage for slay evil and slay animal, triple damage for all other 
+    slays and for all elemental brands. Unlike melee weapons, the slays 
+    and elemental brands *do* affect the magical damage bonus for ammo.
+
+Slings of Buckland.
+    These slings were made especially in the Shire by the most expert of 
+    Hobbit slingers. They deliver their missiles - admittedly, the missiles
+    in question are mere pebbles and iron shots - with extra force, and at 
+    extra speed, and provide greater accuracy thanks to increased dexterity.
+
+Bows of Lothlorien.
+    These bows belong to the highly secretive elves of the Golden Wood, all
+    of them excellent archers. They allow the wielder to shoot with much 
+    greater power than normal (extra might), and increased accuracy (higher 
+    dexterity), and cannot be destroyed on the ground by acid and fire.
+
+Crossbows of the Haradrim.
+    These mighty catapults are much faster to reload, and more powerfully 
+    sprung, than normal crossbows. The end result of this is that the 
+    character may shoot faster and with greater power than normal.
+
+Ammo of Holy Might.
+    This can only be heavy ammo - seeker arrows and bolts, and iron shots.
+    It is very rare, but is blessed and does extra damage to demons, undead
+    and evil creatures, and is branded with holy fire. It also cannot be 
+    damaged on the ground or in the player's inventory by fire or acid.
+
+Launcher of the Nazgul.
+    This cursed bow belongs to the Wraith-lords, and will drain the life 
+    experience from living beings that wield it. It does, however, allow 
+    the player to see into the wraith-world of invisibility.
+
+Ammo of Backbiting.
+    This cursed ammunition will never hit what it is aimed at. Rumour has
+    it that it will curve round and hit the person who shot it in the 
+    back: but so far, this rumour has proved unfounded, and is believed
+    to be false.
 
 Apart from these there are some very rare and well made blades in the
 dungeon with not necessarily any special abilities. These include Blades
@@ -238,16 +288,11 @@ of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
 ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
 
-There are rumors of incredibly rare "artifact" weapons which are even
-more powerful than ego weapons.
-
-
 === Your Armor Class ===
 
 Your armor class (or AC) is a number that describes the amount and the
 quality of armor being worn. Armor class will generally run from about 0 to
-150, but could become negative or greater than 150 with rarer armour or by
-magical means.
+150, though exceptionally good armor can improve even on the latter figure.
  
 The larger your armor class, the more protective it is.  A negative armor
 class would actually help get you hit.  Armor protects you in three manners.
@@ -277,44 +322,53 @@ names:
 
 Ego Armors and Shields:
 -----------------------
-of Resist Acid.
-     A character using such an object will take only one third normal damage
-     from any acid thrown upon him.  In addition, armor so enchanted will
-     resist the acid's effects and not be damaged by it.
- 
-of Resist Lightning.
-     A character using a resist lightning object will take only one third
-     damage from electrical attacks.
- 
-of Resist Fire.
-     A character using a resist fire object will take only one third damage
-     from heat and fire.
- 
-of Resist Cold.
-     A character using a resist cold object will take only one third damage
-     from frost and cold.
+of Resist Acid, Lightning, Fire or Cold.
+     A character wearing armor or a shield with one such resistance will
+     take only 1/3 of normal damage from attacks involving the relevant 
+     element of acid, lightning, fire or cold. Note that multiple 
+     permanent sources of resistance are NOT cumulative: wearing two is 
+     no better than wearing one. However, armor which provides resistance
+     to acid cannot itself be damaged by acid, and this is a good reason 
+     to wear more than one such piece of armor.
  
 of Resistance.
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
+
+Dwarven Armor.
+     This is invariably heavy metal armor, and cannot be damaged by either 
+     acid or fire. It will impart to its wearer the strength and constitution
+     of the Dwarven race, and the ability to see in the dark and never be 
+     paralyzed.
  
-of Elvenkind.
-     This is the same as Resistance armour, only generally better enchanted.
-     It will make you more stealthy.  This armor can also possess extra 
-     resistances beyond the four basic elemental ones.
+Armor of Elvenkind.
+     This is the same as Resistance armor, only generally better enchanted.
+     It will make you more stealthy.  This armor also possesses an extra 
+     resistance, at random from the following list: poison, light, dark, 
+     blindness, confusion, nexus, fear, nether, chaos, disenchantment,
+     sound and shards.
  
 Robes of Permanence.
      These robes are designed especially for wizards.  Just like Elvenkind
      armor, they provide resistance to fire, cold, acid, and electricity and
      cannot be damaged by acid.  They sustain all of your stats and protect
      you from a good deal of all experience draining.  Also like Elvenkind
-     armor, they can have additional special resistances.  These robes are
-     so good that their owners are rarely killed, perhaps explaining the
-     incredible rarity.
+     armor, they have one random resistance.
+
+Shields of Preservation.
+     These rare shields will preserve the character's physical body, soul  
+     and magical enchantments: in addition to a large bonus to armor class, 
+     they sustain the character's strength, constitution and dexterity, and
+     provide resistance to all disenchantment and most experience draining.
+     It also provides one extra resistance.
+
+Armor and Shields of Vulnerability.
+     This severely cursed armor appears to be powerful, but in fact lets 
+     through the full force of every attack directed at it.
 
 Dragon Scale Mails.
      These extremely rare pieces of armour come in many different colors,
-     each protecting you against the relevent dragons.  Naturally they are
+     each protecting you against the relevant dragons.  Naturally they are
      all resistant to acid damage.  They also occasionally allow you to
      breathe as a dragon would!
 
@@ -327,58 +381,95 @@ Stat Boosting Helms.
      the relevant stat these helms will also prevent that stat from being 
      drained.
 
-Helm of the Magi.
-     This is the great helm of the wizards.  The wearer will have an
+Crown of the Magi.
+     This is the great crown of the wizards.  The wearer will have an
      increased (and sustained) intelligence, and will also be given 
      resistance against fire, frost, acid, and lightning.  These valuable
-     helms may also have additional properties.
+     helms also have an additional random power.
 
-Helm of Might.
-     This is the great helm of the warriors.  The wearer will have an
+Crown of Might.
+     This is the crown of the warriors.  The wearer will have an
      increased and sustained strength, dexterity, and constitution, 
      and will also be immune to any foe's attempt to slow or paralyze 
      him or her.
 
-Helm of Lordliness.
-     This is the great helm of the priests.  The wearer will have an
-     increased and sustained wisdom and charisma.
+Crown of Lordliness.
+     This is the great crown of the priests.  The wearer will have an
+     increased and sustained wisdom and charisma, and will never be 
+     afraid.
 
-Helm of Seeing.
-     This is the great helm of the rogues.  The wearer will be able to see
-     even invisible creatures, and will have an increased ability to locate
-     traps and secret doors.  It is also rumored that the wearer of such a
-     helm will not be able to be blinded.
+Helm/Crown of Seeing.
+     This is the great helmet or crown of the rogues.  The wearer will be 
+     able to see invisible creatures, and will have an increased ability to 
+     locate traps and secret doors.  It is also rumored that the wearer of 
+     such a helm will not be able to be blinded, and will be able to see in 
+     the dark by seeing heat.
 
-Helm of Infravision.
-     This helm grants the wearer increased infravision, as the name implies.
+Helm/Crown of Serenity.
+     This item allows the wearer to remain clear-headed: he will not be 
+     affected by confusion or sound, nor will he ever be terrified out of 
+     his wits.
 
 Helm of Light.
      In addition to providing a permanent light source for the wearer, this 
      helm also provides resistance against light-based attacks.
 
-Helm of Telepathy.
-     This helm grants the wearer the power of telepathy.
+Helm/Crown of Telepathy.
+     This helm or crown grants the wearer the power of telepathy.
 
 Helm of Regeneration.
      This helm will help you regenerate hit points and mana more quickly
      than normal, allowing you to fight longer before needing to rest.  You
      will use food faster than normal while wearing this helm because of
      the regenerative effects.
+
+Crown of Night and Day.
+     This special crown gives its wearer power over all things to do with 
+     light and darkness: attacks of these types will be resisted by the 
+     player, and the player will always have enough light to see.
+
+Helms of Teleportation.
+     This cursed helm will always keep the player on the hop, never sure
+     where he is and never able to stay in one place.
+
+Crowns of Sickliness.
+     Ruling is such a drain on one's health... This crown will debilitate
+     its wearer, reducing his strength, dexterity and constitution.
+
+Helms/Crowns of Dullness.
+     You wonder why you didn't notice the huge "D" written on the front 
+     of this thing before you put it on... this dunce's headwear reduces
+     intelligence and wisdom, and also charisma because nobody likes an 
+     idiot.
  
 Ego Cloaks:
 -----------
 Cloak of Protection.
      This finely made cloak will come with an unnaturally high enchantment
-     and is not affected by elemental based attacks.
+     and is not affected by elemental based attacks. It is also made of an 
+     exceptionally thick and durable material, which protects the wearer 
+     from blasts of crystal shards.
 
 Cloak of Stealth.
      This cloak will increase the wearer's stealth, making the wearer less
      likely to wake up sleeping monsters.
 
+Cloak of the Magi.
+     This cloak increases and sustains intelligence, and allows its wearer
+     to remain hidden from monsters, all the better to surprise them by 
+     casting a spell on them.
+
 Cloak of Aman.
-     These exceptionally rare cloaks combine the properties of Cloaks of
-     Protection and Cloaks of Stealth, and are rumored to have properties
-     beyond even those!
+     These exceptionally rare cloaks provide great stealth, have a very 
+     high enchantment, and one random resistance.
+
+Cloak of Enveloping.
+     This cloak gets in the way of everything you try to do. You can't seem 
+     to hit monsters without having to shove aside several folds of cloth,
+     and yet more layers cushion the blow and reduce the damage you do.
+
+Cloak of Irritation.
+     This cloak not only envelops its wearer but aggravates all who see it.
 
 Ego Gloves:
 -----------
@@ -397,9 +488,22 @@ Gloves of Agility.
      special nature of these gloves, magic users may wear these gloves 
      without incurring a mana penalty.   
 
-Gloves of Power.
-     These gloves will boost the wearer's strength as well as the wearer's
-     to-hit and to-dam numbers.
+Gauntlets of Combat.
+     These spiked gauntlets will boost the wearer's strength as well as the 
+     wearer's  to-hit and to-dam numbers. They can only be gauntlets and 
+     cesti, not leather gloves.
+
+Gloves of Thievery.
+     These gloves will boost the wearer's dexterity and provide free action,
+     so they can be worn by people who cast mage spells without penalty. 
+     They also provide a bonus to-hit. They can only be thin leather gloves,
+     not gauntlets or cesti.
+
+Gauntlets of Weakness.
+     These gauntlets sap your strength.
+
+Gauntlets of Clumsiness.
+     These gauntlets make you fumble.
 
 Ego Boots:
 ----------
@@ -413,15 +517,33 @@ Boots of Free Action.
      The wearer of these boots will find himself resistant to paralyzing
      attacks as well as some slowing attacks.
 
-Boots of Speed.
-     The wearer of these boots will become unnaturally quick!
+Boots of Stability.
+     The wearer of these boots will have a tendency to stay in one place 
+     should he wish to: a nexus attack will be resisted, and will not 
+     teleport the player or affect his stats. They also provide feather
+     falling.
 
-Apart from these there are some very rare, and well made armours in the
+Boots of Speed.
+     The wearer of these boots will become unnaturally fast.
+
+Boots of Noise.
+     The wearer of these boots will make great echoing stamps as he walks 
+     around the dungeon, waking up and aggravating all monsters.
+
+Boots of Slowness.
+     They seem to be stuck to the ground, and you can hardly move at all 
+     while wearing these things.
+
+Apart from these there are some very rare and well-made armours in the
 dungeon with not necessarily any special abilities. These include Shields of
 Deflection, Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain Mail,
 and Shadow Cloaks.  The first four cannot be damaged by acid because of the
 quality metals they contain.
 
-There are rumors of incredibly rare "artifact" armor which are even
-more powerful than ego armor.
+There are rumors of unique "artifact" items in the dungeon - weapons and armor 
+of all types. Many of these are more powerful than even the greatest ego-items:
+some are weak and have little more than a name to recommend them. In all cases, 
+and indeed if the player desires to find out the powers of an ego-item with
+random powers, use of a scroll of *Identify* will reveal all the powers of any
+given item.
 

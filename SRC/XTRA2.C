@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -1643,6 +1649,81 @@ bool set_food(int v)
 }
 
 
+/*
+ * Array of stat "descriptions"
+ */
+static cptr desc_stat_imp[] =
+{
+	"stronger",
+	"smarter",
+	"wiser",
+	"more dextrous",
+	"healthier",
+	"cuter"
+};
+
+
+/*
+ * Improve one stat, preferring lowest stats
+ * Note hack to always improve the maximal value of a stat.
+ */
+static void improve_stat(void)
+{
+        int k, stat, i;
+
+        int tmp = 0;
+
+	int table[7];
+
+	cptr p="";
+
+        /* Start table */
+	table[0]=0;
+
+	/* Build probability table */
+	for (i = 0;i <=A_CHR;i++)
+	{
+		k = (18 + 100) - p_ptr->stat_cur[i];
+
+		if (k> 0) table[i+1] = table[i]+k;
+		else table[i+1]=table[i];
+	}
+
+	/* Choice */
+	if (table[6]) k = rand_int(table[6]);
+
+	/* Nothing to improve */
+	else return;
+
+	/* Pick entry from table */
+	for (stat = 0;stat <=A_CHR;stat++)
+	{
+                if (k< table[stat+1]) break;
+	}
+
+	/* Display */
+        if (p_ptr->stat_cur[stat]<p_ptr->stat_max[stat])
+        {
+                /* Set description */
+                p = "you could be ";
+
+                /* Hack --- store stat */
+                tmp = p_ptr->stat_cur[stat];
+                p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+        }
+
+	/* Attempt to increase */
+	if (inc_stat(stat))
+	{
+		/* Message */
+		msg_format("You feel %s%s.",p,desc_stat_imp[stat]);
+
+	}
+
+	/* Hack --- restore stat */
+        if (tmp) p_ptr->stat_cur[stat] = tmp;
+
+}
 
 
 
@@ -1651,13 +1732,6 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
-	int i;
-
-
-	/* Note current level */
-	i = p_ptr->lev;
-
-
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
 
@@ -1684,7 +1758,7 @@ void check_experience(void)
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
 	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
-	                      p_ptr->expfact / 100L)))
+			      p_ptr->expfact / 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -1706,19 +1780,19 @@ void check_experience(void)
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] *
-	                       p_ptr->expfact / 100L)))
+			       p_ptr->expfact / 100L)))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
 
+		/* Improve a stat */
+		if (p_ptr->lev > p_ptr->max_lev) improve_stat();
+
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
 
-		/* Sound */
-		sound(SOUND_LEVEL);
-
 		/* Message */
-		msg_format("Welcome to level %d.", p_ptr->lev);
+		message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", p_ptr->lev);
 
 		/* Update some stuff */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
@@ -2079,6 +2153,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 	s32b div, new_exp, new_exp_frac;
 
 
@@ -2100,34 +2176,31 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		/* Make a sound */
-		sound(SOUND_KILL);
-
 		/* Death by Missile/Spell attack */
 		if (note)
 		{
-			msg_format("%^s%s", m_name, note);
+			message_format(MSG_KILL, m_ptr->r_idx, "%^s%s", m_name, note);
 		}
 
 		/* Death by physical attack -- invisible monster */
 		else if (!m_ptr->ml)
 		{
-			msg_format("You have killed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have killed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- non-living monster */
 		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+			 (r_ptr->flags2 & (RF2_STUPID)) ||
+			 (strchr("Evg", r_ptr->d_char)))
 		{
-			msg_format("You have destroyed %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
 
 		/* Death by Physical attack -- living monster */
 		else
 		{
-			msg_format("You have slain %s.", m_name);
+			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
 		/* Maximum player level */
@@ -2138,7 +2211,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Handle fractional experience */
 		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
+				* 0x10000L / div) + p_ptr->exp_frac;
 
 		/* Keep track of experience */
 		if (new_exp_frac >= 0x10000L)
@@ -2164,10 +2237,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (r_ptr->r_pkills < MAX_SHORT) r_ptr->r_pkills++;
+			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
 
 			/* Count kills in all lives */
-			if (r_ptr->r_tkills < MAX_SHORT) r_ptr->r_tkills++;
+			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -2229,8 +2302,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 			/* Hack -- Add some timed fear */
 			m_ptr->monfear = (randint(10) +
-			                  (((dam >= m_ptr->hp) && (percentage > 7)) ?
-			                   20 : ((11 - percentage) * 5)));
+					  (((dam >= m_ptr->hp) && (percentage > 7)) ?
+					   20 : ((11 - percentage) * 5)));
 		}
 	}
 
@@ -2241,151 +2314,330 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	return (FALSE);
 }
 
+
 /*
- * Handle a request to change the current panel
+ * Modify the current panel to the given coordinates, adjusting only to
+ * ensure the coordinates are legal, and return TRUE if anything done.
  *
- * Return TRUE if the panel was changed.
+ * Hack -- The town should never be scrolled around.
+ *
+ * Note that monsters are no longer affected in any way by panel changes.
+ *
+ * As a total hack, whenever the current panel changes, we assume that
+ * the "overhead view" window should be updated.
  */
-static bool change_panel(int dir)
+bool modify_panel(int wy, int wx)
 {
-	int y = p_ptr->wy + ddy[dir] * PANEL_HGT;
-	int x = p_ptr->wx + ddx[dir] * PANEL_WID;
+	/* Verify wy, adjust if needed */
+	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
+	else if (wy < 0) wy = 0;
 
-	/* Verify the row */
-	if (y < 0) y = 0;
-	if (y > DUNGEON_HGT - SCREEN_HGT) y = DUNGEON_HGT - SCREEN_HGT;
+	/* Verify wx, adjust if needed */
+	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
+	else if (wx < 0) wx = 0;
 
-	/* Verify the col */
-	if (x < 0) x = 0;
-	if (x > DUNGEON_WID - SCREEN_WID) x = DUNGEON_WID - SCREEN_WID;
-
-	/* Handle "changes" */
-	if ((p_ptr->wy != y) || (p_ptr->wx != x))
+	/* React to changes */
+	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
 	{
-		/* Update panel */
-		p_ptr->wy = y;
-		p_ptr->wx = x;
-
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
+		/* Save wy, wx */
+		p_ptr->wy = wy;
+		p_ptr->wx = wx;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
 
-		/* Handle stuff */
-		handle_stuff();
+		/* Hack -- Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
 
-		/* Success */
-		return TRUE;
+		/* Changed */
+		return (TRUE);
 	}
 
 	/* No change */
-	return FALSE;
+	return (FALSE);
 }
 
 
+/*
+ * Perform the minimum "whole panel" adjustment to ensure that the given
+ * location is contained inside the current panel, and return TRUE if any
+ * such adjustment was performed.
+ */
+bool adjust_panel(int y, int x)
+{
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
+
+	/* Adjust as needed */
+	while (y >= wy + SCREEN_HGT) wy += SCREEN_HGT;
+	while (y < wy) wy -= SCREEN_HGT;
+
+	/* Adjust as needed */
+	while (x >= wx + SCREEN_WID) wx += SCREEN_WID;
+	while (x < wx) wx -= SCREEN_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
+
+
+/*
+ * Change the current panel to the panel lying in the given direction.
+ *
+ * Return TRUE if the panel was changed.
+ */
+bool change_panel(int dir)
+{
+	int wy = p_ptr->wy + ddy[dir] * PANEL_HGT;
+	int wx = p_ptr->wx + ddx[dir] * PANEL_WID;
+
+	/* Use "modify_panel" */
+	return (modify_panel(wy, wx));
+}
+
+#ifdef ALLOW_ROOMDESC
+/*
+ * Hack -- Display the "name" of a given room
+ */
+static void room_info_top(int room)
+{
+	char first[2];
+
+	/* Clear the top line */
+	Term_erase(0, 0, 255);
+
+	/* Reset the cursor */
+	Term_gotoxy(0, 0);
+
+	/* Hack - set first character to upper */
+	first[0] = room_info[room].name[0]-32;
+	first[1] = '\0';
+
+	/* Dump the name */
+	Term_addstr(-1, TERM_WHITE, first);
+
+	/* Dump the name */
+	Term_addstr(-1, TERM_WHITE, (room_info[room].name+1));
+
+}
+
+/*
+ * Hack -- describe the given room at the top of the screen
+ */
+void screen_room_info(int room)
+{
+	/* Flush messages */
+	msg_print(NULL);
+
+	/* Begin recall */
+	Term_erase(0, 1, 255);
+
+	/* Describe room */
+	if (room_info[room].text_visible)
+	{
+		/* Recall monster */
+		roff(room_info[room].text_visible);
+
+		if (room_info[room].text_always)
+		{
+			roff("  ");
+                        roff(room_info[room].text_always);
+		}
+
+	}
+	else if (room_info[room].text_always)
+	{
+		roff(room_info[room].text_always);
+	}
+	else
+	{
+		roff("There is nothing remarkable about it.");
+	}
+
+	/* Describe room */
+	room_info_top(room);
+}
+
+
+/*
+ * Hack -- describe the given room info in the current "term" window
+ */
+void display_room_info(int room)
+{
+	int y;
+
+	/* Erase the window */
+	for (y = 0; y < Term->hgt; y++)
+	{
+		/* Erase the line */
+		Term_erase(0, y, 255);
+	}
+
+	/* Begin recall */
+	Term_gotoxy(0, 1);
+
+	/* Describe room */
+	if (room_info[room].text_visible)
+	{
+		/* Recall monster */
+		roff(room_info[room].text_visible);
+
+		if (room_info[room].text_always)
+		{
+			roff("  ");
+			roff(room_info[room].text_always);
+		}
+
+	}
+	else if (room_info[room].text_always)
+	{
+		roff(room_info[room].text_always);
+	}
+	else
+	{
+		roff("There is nothing remarkable about it.");
+	}
+
+	/* Describe room */
+	room_info_top(room);
+}
+
+/*
+ * Hack -- describe players current location.
+ */
+void describe_room(void)
+{
+
+	int by = p_ptr->py / BLOCK_HGT;
+        int bx = p_ptr->px / BLOCK_WID;
+	int room = dun_room[by][bx];
+
+        if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
+         && ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
+               !(p_ptr->depth)))
+	{
+		if (room_info[room].seen)
+		{
+			msg_format("You have entered %s %s.",
+				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
+					room_info[room].name);
+		}
+		else if ((room_info[room].text_visible) && (room_info[room].text_always))
+		{
+			/* Message */
+			msg_format("You have entered %s %s. %s %s",
+				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
+					room_info[room].name,
+				           room_info[room].text_visible,
+					   room_info[room].text_always);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else if (room_info[room].text_visible)
+		{
+			/* Message */
+			msg_format("You have entered %s %s. %s",
+				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
+					room_info[room].name,
+				           room_info[room].text_visible);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else if (room_info[room].text_always)
+		{
+			/* Message */
+			msg_format("You have entered %s %s. %s",
+				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
+					room_info[room].name,
+				           room_info[room].text_always);
+
+			/* Now seen */
+			room_info[room].seen = TRUE;
+		}
+		else
+		{
+			/* Message */
+			msg_format("You have entered %s %s. There is nothing remarkable about it.",
+				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
+					room_info[room].name);
+		}
+	}
+        else if ((room_info[room].text_always) &&
+          ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
+          !(p_ptr->depth)))
+	{
+		/* Message */
+		msg_format("%s", room_info[room].text_always);
+	}
+
+	/* Window stuff */
+	p_ptr->window |= (PW_ROOM_INFO);
+
+}
+
+#endif
 
 
 
 /*
- * Check for, and react to, the player leaving the panel
+ * Verify the current panel (relative to the player location).
  *
- * When the player gets too close to the edge of a panel, the
- * map scrolls one panel in that direction so that the player
+ * By default, when the player gets "too close" to the edge of the current
+ * panel, the map scrolls one panel in that direction so that the player
  * is no longer so close to the edge.
+ *
+ * The "center_player" option allows the current panel to always be centered
+ * around the player, which is very expensive, and also has some interesting
+ * gameplay ramifications.
  */
 void verify_panel(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i;
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
 
-	bool scroll = FALSE;
 
-
-	/* Initial row */
-	i = p_ptr->wy;
-
-	/* Scroll screen when off-center */
+	/* Scroll screen vertically when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (py != p_ptr->wy + SCREEN_HGT / 2))
+	    (py != wy + SCREEN_HGT / 2))
 	{
-		i = py - SCREEN_HGT / 2;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+		wy = py - SCREEN_HGT / 2;
 	}
 
-	/* Scroll screen when 2 grids from top/bottom edge */
-	else if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy + SCREEN_HGT - 2))
+	/* Scroll screen vertically when 2 grids from top/bottom edge */
+	else if ((py < wy + 2) || (py >= wy + SCREEN_HGT - 2))
 	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
-	}
-
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
-
-	/* New panel row */
-	if (p_ptr->wy != i)
-	{
-		/* Update panel */
-		p_ptr->wy = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 	}
 
 
-	/* Initial col */
-	i = p_ptr->wx;
-
-	/* Scroll screen when off-center */
+	/* Scroll screen horizontally when off-center */
 	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (px != p_ptr->wx + SCREEN_WID / 2))
+	    (px != wx + SCREEN_WID / 2))
 	{
-		i = px - SCREEN_WID / 2;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		wx = px - SCREEN_WID / 2;
 	}
 
-	/* Scroll screen when 4 grids from left/right edge */
-	else if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx + SCREEN_WID - 4))
+	/* Scroll screen horizontally when 4 grids from left/right edge */
+	else if ((px < wx + 4) || (px >= wx + SCREEN_WID - 4))
 	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
-		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
-	}
-
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
-
-	/* New panel col */
-	if (p_ptr->wx != i)
-	{
-		/* Update panel */
-		p_ptr->wx = i;
-
-		/* Scroll */
-		scroll = TRUE;
+		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 	}
 
 
-	/* Scroll */
-	if (scroll)
+	/* Scroll if needed */
+	if (modify_panel(wy, wx))
 	{
 		/* Optional disturb on "panel change" */
 		if (disturb_panel && !center_player) disturb(0, 0);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
 	}
 }
-
 
 
 /*
@@ -2884,7 +3136,7 @@ static bool target_set_interactive_accept(int y, int x)
 	}
 
 	/* Interesting memorized features */
-	if ((cave_info[y][x] & (CAVE_MARK)) && (f_info[cave_info[y][x]].flags1 & (FF1_NOTICE)))
+        if ((cave_info[y][x] & (CAVE_MARK)) && (f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)))
 	{
 		return (TRUE);
 	}
@@ -2907,9 +3159,9 @@ static void target_set_interactive_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+        for (y = p_ptr->wy; ((y < p_ptr->wy + SCREEN_HGT) && (temp_n<TEMP_MAX)); y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+                for (x = p_ptr->wx; ((x < p_ptr->wx + SCREEN_WID)&&(temp_n<TEMP_MAX)); x++)
 		{
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
@@ -2924,13 +3176,14 @@ static void target_set_interactive_prepare(int mode)
 				if (!(cave_m_idx[y][x] > 0)) continue;
 
 				/* Must be a targettable monster */
-			 	if (!target_able(cave_m_idx[y][x])) continue;
+				if (!target_able(cave_m_idx[y][x])) continue;
 			}
 
 			/* Save the location */
 			temp_x[temp_n] = x;
 			temp_y[temp_n] = y;
 			temp_n++;
+
 		}
 	}
 
@@ -3042,7 +3295,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Not boring */
 				boring = FALSE;
 
-				/* Get the monster name ("a kobold") */
+				/* Get the monster name ("a goblin") */
 				monster_desc(m_name, m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
@@ -3081,7 +3334,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					{
 						/* Describe, and prompt for recall */
 						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+							s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -3153,8 +3406,16 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 #endif
 
-				/* Use a preposition */
-				s2 = "on ";
+                                /* Use a preposition */
+                                if (m_ptr->mflag && (MFLAG_OVER))
+                                {
+                                        s2 = "above ";
+                                }
+                                else
+                                {
+                                        /* Use a preposition */
+                                        s2 = "on ";
+                                }
 			}
 		}
 
@@ -3303,35 +3564,38 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-                        if (*s2 && ((f_info[feat].flags1 & (FF1_DOOR)) ||
-                            (f_info[feat].flags1 & (FF1_TRAP)) ||
-                            (f_info[feat].flags1 & (FF1_STAIRS)) ||
-                            (f_info[feat].flags1 & (FF1_FLOOR))))
-                        {
-                                s2 = "on ";
-                        }
+                        if ((*s2) && ((f_info[feat].flags1 & (FF1_DOOR)) ||
+			    (f_info[feat].flags1 & (FF1_TRAP)) ||
+			    (f_info[feat].flags1 & (FF1_STAIRS)) ||
+			    (f_info[feat].flags1 & (FF1_FLOOR)) ||
+			    (f_info[feat].flags2 & (FF2_BRIDGED))))
+			{
+				s2 = "on ";
+			}
 
-                        else
-                        {
-                                s2 = "in ";
-                        }
+                        else if (*s2)
+			{
+				s2 = "in ";
+			}
 
 			/* Pick proper indefinite article */
-                        if ((f_info[feat].flags1 & (FF1_DOOR)) ||
-                            (f_info[feat].flags1 & (FF1_TRAP)) ||
-                            (f_info[feat].flags1 & (FF1_STAIRS)) ||
-                            (f_info[feat].flags1 & (FF1_FLOOR)) ||
-                            (f_info[feat].flags1 & (FF1_WALL)))
-                        {
-                                s3 = (is_a_vowel(name[0])) ? "an " : "a ";
-                        }
-                        else
-                        {
-                                s3 = "";
-                        }
+			if ((f_info[feat].flags1 & (FF1_DOOR)) ||
+			    (f_info[feat].flags1 & (FF1_TRAP)) ||
+			    (f_info[feat].flags1 & (FF1_STAIRS)) ||
+			    (f_info[feat].flags1 & (FF1_FLOOR)) ||
+			    (f_info[feat].flags1 & (FF1_WALL)) ||
+			    (f_info[feat].flags2 & (FF2_BRIDGED)) ||
+			    (f_info[feat].flags2 & (FF2_CHASM)))
+			{
+				s3 = (is_a_vowel(name[0]) ? "an " : "a ");
+			}
+			else
+			{
+				s3 = "";
+			}
 
-                        /* Hack -- special introduction for filled areas */
-                        if (*s2 && (f_info[feat].flags1 & (FF2_FILLED))) s2 = "";
+			/* Hack -- special introduction for filled areas */
+                        if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "";
 
 			/* Hack -- special introduction for store doors */
 			if (f_info[feat].flags1 & (FF1_ENTER))
@@ -3347,7 +3611,93 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			/* Stop on everything but "return"/"space" */
 			if ((query != '\n') && (query != '\r') && (query != ' ')) break;
+
+			/* Change the intro */
+			s1 = "It is ";
 		}
+
+#ifdef ALLOW_ROOMDESC
+		/* Room description if needed */
+                if ((cave_info[y][x] & (CAVE_MARK)) &&
+                        (cave_info[y][x] & (CAVE_ROOM)) &&
+                        (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
+                         ( dun_room[y/BLOCK_HGT][x/BLOCK_WID]!= dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID])) )
+		{
+                        int i;
+                        bool edge = FALSE;
+			bool recall = FALSE;
+
+			/* Get room location */
+			int by = y/BLOCK_HGT;
+			int bx = x/BLOCK_HGT;
+
+			int room = dun_room[by][bx];
+			
+			/* Always in rooms */
+			s2 = "in ";
+
+                        /* Hack --- edges of rooms */
+                        for (i = 0;i<8;i++)
+                        {
+                                int yy = y+ddy[i];
+                                int xx = x+ddx[i];
+
+                                if (!(cave_info[yy][xx] & (CAVE_ROOM))) edge = TRUE;
+                        }
+
+                        if (edge) s2 = "outside ";
+
+			/* Pick proper indefinite article */
+			s3 = (is_a_vowel(room_info[room].name[0])) ? "an " : "a ";
+
+
+                        /* Interact */
+
+                        while (1)
+                        {
+                                /* Recall */
+                                if (recall)
+                                {
+                                        /* Save screen */
+                                        screen_save();
+
+                                        /* Recall on screen */
+                                        screen_room_info(room);
+
+                                        /* Hack -- Complete the prompt (again) */
+                                        Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+
+                                        /* Command */
+                                        query = inkey();
+
+                                        /* Load screen */
+                                        screen_load();
+                                }
+
+                                /* Normal */
+                                else
+                                {
+                                        /* Describe, and prompt for recall */
+                                        sprintf(out_val, "%s%s%s%s [r,%s]",
+                                                s1, s2, s3, room_info[room].name, info);
+                                                prt(out_val, 0, 0);
+
+                                        /* Place cursor */
+                                        move_cursor_relative(y, x);
+
+                                        /* Command */
+                                        query = inkey();
+                                }
+
+                                /* Normal commands */
+                                if (query != 'r') break;
+
+                                /* Toggle recall */
+                                recall = !recall;
+                       }
+		}
+
+#endif
 
 		/* Stop on everything but "return" */
 		if ((query != '\n') && (query != '\r')) break;
@@ -3365,11 +3715,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel.  XXX XXX XXX
- *
- * Perhaps consider the possibility of "auto-scrolling" the screen
- * while the cursor moves around.  This may require dynamic updating
- * of the "temp" grid set.  XXX XXX XXX
+ * All locations must be on the current panel, unless the "scroll_target"
+ * option is used, which allows changing the current panel during "look"
+ * and "target" commands.  Currently, when "flag" is true, that is, when
+ * "interesting" grids are being used, and a directional key is used, we
+ * only scroll by a single panel, in the direction requested, and check
+ * for any interesting grids on that panel.  The "correct" solution would
+ * actually involve scanning a larger set of grids, including ones in
+ * panels which are adjacent to the one currently scanned, but this is
+ * overkill for this function.  XXX XXX
  *
  * Hack -- targetting/observing an "outer border grid" may induce
  * problems, so this is not currently allowed.
@@ -3496,28 +3850,14 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-
-#ifdef ALLOW_SCROLL_TARGET
-
 					if (scroll_target)
 					{
-						/* Recenter the map around the player */
+						/* Recenter around player */
 						verify_panel();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
 						handle_stuff();
 					}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 					y = py;
 					x = px;
@@ -3569,93 +3909,41 @@ bool target_set_interactive(int mode)
 			/* Hack -- move around */
 			if (d)
 			{
-
-#ifdef ALLOW_SCROLL_TARGET
-
-				int y2 = p_ptr->wy;
-				int x2 = p_ptr->wx;
-
-#endif /* ALLOW_SCROLL_TARGET */
+				int old_y = temp_y[m];
+				int old_x = temp_x[m];
 
 				/* Find a new monster */
-				i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
+				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
-#ifdef ALLOW_SCROLL_TARGET
-
-				/* Request to target past last interesting grid */
-				while (scroll_target && flag && (i < 0))
+				/* Scroll to find interesting grid */
+				if (scroll_target && (i < 0))
 				{
-					/* Note the change */
+					int old_wy = p_ptr->wy;
+					int old_wx = p_ptr->wx;
+
+					/* Change if legal */
 					if (change_panel(d))
 					{
-						int v = temp_y[m];
-						int u = temp_x[m];
-
 						/* Recalculate interesting grids */
 						target_set_interactive_prepare(mode);
 
-						/* Look at interesting grids */
-						flag = TRUE;
-
 						/* Find a new monster */
-						i = target_pick(v, u, ddy[d], ddx[d]);
+						i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
-						/* Use that grid */
-						if (i >= 0) m = i;
-					}
+						/* Restore panel if needed */
+						if ((i < 0) && modify_panel(old_wy, old_wx))
+						{
 
-					/* Nothing interesting */
-					else
-					{
-						/* Restore previous position */
-						p_ptr->wy = y2;
-						p_ptr->wx = x2;
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
+							/* Recalculate interesting grids */
+							target_set_interactive_prepare(mode);
+						}
 
 						/* Handle stuff */
 						handle_stuff();
-
-						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
-
-						/* Look at boring grids */
-						flag = FALSE;
-
-						/* Move */
-						x += ddx[d];
-						y += ddy[d];
-
-						/* Apply the motion */
-						if ((y >= p_ptr->wy + SCREEN_HGT) || (y < p_ptr->wy) ||
-						    (x >= p_ptr->wx + SCREEN_WID) || (x < p_ptr->wx))
-						{
-							if (change_panel(d))
-							{
-								target_set_interactive_prepare(mode);
-							}
-						}
-
-						/* Slide into legality */
-						if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
-						else if (x <= 0) x = 1;
-
-						/* Slide into legality */
-						if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
-						else if (y <= 0) y = 1;
 					}
 				}
 
-#endif /* ALLOW_SCROLL_TARGET */
-
-				/* Use that grid */
+				/* Use interesting grid if found */
 				if (i >= 0) m = i;
 			}
 		}
@@ -3695,28 +3983,14 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-
-#ifdef ALLOW_SCROLL_TARGET
-
 					if (scroll_target)
 					{
-						/* Recenter the map around the player */
+						/* Recenter around player */
 						verify_panel();
-
-						/* Update stuff */
-						p_ptr->update |= (PU_MONSTERS);
-
-						/* Redraw map */
-						p_ptr->redraw |= (PR_MAP);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_OVERHEAD);
 
 						/* Handle stuff */
 						handle_stuff();
 					}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 					y = py;
 					x = px;
@@ -3782,23 +4056,37 @@ bool target_set_interactive(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				/* Apply the motion */
-				if ((y >= p_ptr->wy + SCREEN_HGT) || (y < p_ptr->wy) ||
-				    (x >= p_ptr->wx + SCREEN_WID) || (x < p_ptr->wx))
+				if (scroll_target)
 				{
-					if (change_panel(d))
+					/* Slide into legality */
+					if (x >= DUNGEON_WID - 1) x--;
+					else if (x <= 0) x++;
+
+					/* Slide into legality */
+					if (y >= DUNGEON_HGT - 1) y--;
+					else if (y <= 0) y++;
+
+					/* Adjust panel if needed */
+					if (adjust_panel(y, x))
 					{
+						/* Handle stuff */
+						handle_stuff();
+
+						/* Recalculate interesting grids */
 						target_set_interactive_prepare(mode);
 					}
 				}
 
-				/* Slide into legality */
-				if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
-				else if (x <= 0) x = 1;
+				else
+				{
+					/* Slide into legality */
+					if (x >= p_ptr->wx + SCREEN_WID) x--;
+					else if (x < p_ptr->wx) x++;
 
-				/* Slide into legality */
-				if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
-				else if (y <= 0) y = 1;
+					/* Slide into legality */
+					if (y >= p_ptr->wy + SCREEN_HGT) y--;
+					else if (y < p_ptr->wy) y++;
+				}
 			}
 		}
 	}
@@ -3809,27 +4097,14 @@ bool target_set_interactive(int mode)
 	/* Clear the top line */
 	prt("", 0, 0);
 
-#ifdef ALLOW_SCROLL_TARGET
-
 	if (scroll_target)
 	{
-		/* Recenter the map around the player */
+		/* Recenter around player */
 		verify_panel();
-
-		/* Update stuff */
-		p_ptr->update |= (PU_MONSTERS);
-
-		/* Redraw map */
-		p_ptr->redraw |= (PR_MAP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
 
 		/* Handle stuff */
 		handle_stuff();
 	}
-
-#endif /* ALLOW_SCROLL_TARGET */
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);

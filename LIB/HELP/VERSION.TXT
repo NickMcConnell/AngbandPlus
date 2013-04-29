@@ -1,12 +1,12 @@
 === Version Information ===
 
-This file was last updated for Angband 2.9.0.
+This file was last updated for Angband 2.9.1.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
 most up to date information about Angband.
 
-Angband 2.9.0 has an incredibly complex history, and is the result of a
+Angband 2.9.1 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.
@@ -114,7 +114,6 @@ The Official Angband Home Page ("http://thangorodrim.angband.org/") serves
 not only as the most up to date description of Angband, but also lists
 changes made between versions, and changes planned for upcoming versions,
 and lists various email addresses and web sites related to Angband.
-
 
 === Some of the changes between Angband 2.6.1 and Angband 2.7.8 ===
 
@@ -439,6 +438,8 @@ Angband Version 2.7   : 01/01/95  Ben Harrison
 
 Angband Version 2.8   : 01/01/97  Ben Harrison
 
+Angband Version 2.9.1 : July 2000 Robert Ruehlmann
+
 
 
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -454,4 +455,15 @@ the current distribution, since parts of the source are still only
 available under the old Moria/Angband license.  Until all parts of
 Angband are distributed under the GPL the only valid license remains
 the original Moria/Angband license.
+
+
+=== Contributors (incomplete) ===
+
+Peter Berger, "Prfnoff", Arcum Dagsson, Ed Cogburn, Matthias Kurzke,
+Ben Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer,
+Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
+Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
+Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
+Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra
+
 

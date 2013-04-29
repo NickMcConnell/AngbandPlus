@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -322,7 +328,7 @@ static void spoil_obj_desc(cptr fname)
 		}
 
 		/* Get legal item types */
-		for (k = 1; k < MAX_K_IDX; k++)
+		for (k = 1; k < z_info->k_max; k++)
 		{
 			object_kind *k_ptr = &k_info[k];
 
@@ -389,6 +395,7 @@ static grouper group_artifact[] =
 	{ TV_POLEARM,	"Polearms" },
 	{ TV_HAFTED,	"Hafted Weapons" },
 	{ TV_BOW,		"Bows" },
+	{ TV_DIGGING,	"Diggers" },
 
 	{ TV_SOFT_ARMOR,	"Body Armor" },
 	{ TV_HARD_ARMOR,	  NULL },
@@ -486,6 +493,7 @@ static flag_desc slay_flags_desc[] =
  */
 static flag_desc brand_flags_desc[] =
 {
+	{ TR1_BRAND_POIS,         "Poison Brand" },
 	{ TR1_BRAND_ACID,         "Acid Brand" },
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
@@ -1220,7 +1228,7 @@ static void spoil_artifact(cptr fname)
 		}
 
 		/* Now search through all of the artifacts */
-		for (j = 1; j < MAX_A_IDX; ++j)
+		for (j = 1; j < z_info->a_max; ++j)
 		{
 			artifact_type *a_ptr = &a_info[j];
 
@@ -1266,8 +1274,6 @@ static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
 
-	s16b who[MAX_R_IDX];
-
 	char buf[1024];
 
 	char nam[80];
@@ -1277,6 +1283,9 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
+
+	u16b *who;
+	u16b why = 2;
 
 
 	/* Build the filename */
@@ -1307,8 +1316,11 @@ static void spoil_mon_desc(cptr fname)
 	        "----", "---", "---", "---", "--", "--", "-----------");
 
 
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, u16b);
+
 	/* Scan the monsters (except the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
 
@@ -1316,6 +1328,12 @@ static void spoil_mon_desc(cptr fname)
 		if (r_ptr->name) who[n++] = i;
 	}
 
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, n);
 
 	/* Scan again */
 	for (i = 0; i < n; i++)
@@ -1382,6 +1400,9 @@ static void spoil_mon_desc(cptr fname)
 
 	/* End it */
 	fprintf(fff, "\n");
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, u16b);
 
 
 	/* Check for errors */
@@ -1493,6 +1514,9 @@ static void spoil_mon_info(cptr fname)
 	cptr p, q;
 	cptr vp[64];
 	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u16b why = 2;
+	s16b *who;
+	int count = 0;
 
 
 	/* Build the filename */
@@ -1518,12 +1542,31 @@ static void spoil_mon_info(cptr fname)
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, s16b);
+
+	/* Scan the monsters */
+	for (i = 1; i < z_info->r_max; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+
+		/* Use that monster */
+		if (r_ptr->name) who[count++] = i;
+	}
+
+	/* Select the sort method */
+	ang_sort_comp = ang_sort_comp_hook;
+	ang_sort_swap = ang_sort_swap_hook;
+
+	/* Sort the array by dungeon depth of monsters */
+	ang_sort(who, &why, count);
+
 	/*
 	 * List all monsters in order (except the ghost).
 	 */
-	for (n = 1; n < MAX_R_IDX - 1; n++)
+	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[n];
+		monster_race *r_ptr = &r_info[who[n]];
 
 		/* Extract the flags */
 		flags1 = r_ptr->flags1;
@@ -1572,7 +1615,7 @@ static void spoil_mon_info(cptr fname)
 		spoil_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", n);
+		sprintf(buf, "Num:%d  ", who[n]);
 		spoil_out(buf);
 
 		/* Level */
@@ -1691,13 +1734,13 @@ static void spoil_mon_info(cptr fname)
 		/* Collect inate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-                if (flags4 & (RF4_SPORE)) vp[vn++] = "release spores";
-                if (flags4 & (RF4_GAZE)) vp[vn++] = "gaze at you";
-                if (flags4 & (RF4_WAIL)) vp[vn++] = "wail at you";
-                if (flags4 & (RF4_SPIT)) vp[vn++] = "spit at you";
-                if (flags4 & (RF4_SHOOT)) vp[vn++] = "shoot at you";
-                if (flags4 & (RF4_XXX1)) vp[vn++] = "do something";
-                if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
+		if (flags4 & (RF4_SPORE)) vp[vn++] = "release spores";
+		if (flags4 & (RF4_GAZE)) vp[vn++] = "gaze";
+		if (flags4 & (RF4_WAIL)) vp[vn++] = "wail";
+		if (flags4 & (RF4_SPIT)) vp[vn++] = "spit something";
+		if (flags4 & (RF4_SHOOT)) vp[vn++] = "shoot something";
+		if (flags4 & (RF4_XXX1)) vp[vn++] = "fire missiles";
+		if (flags4 & (RF4_XXX2)) vp[vn++] = "fire missiles";
 
 		if (vn)
 		{
@@ -1734,7 +1777,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
+		if (flags4 & (RF4_BR_FEAR)) vp[vn++] = "fear";
 		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
@@ -1852,7 +1895,6 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect special abilities. */
 		vn = 0;
-		if (flags2 & (RF2_HAS_LITE)) vp[vn++] = "illuminate the dungeon";
 		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
 		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -2114,6 +2156,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BEG:	p = "beg"; break;
 				case RBM_INSULT:	p = "insult"; break;
 				case RBM_MOAN:	p = "moan"; break;
+				case RBM_XXX5:	break;
 			}
 
 
@@ -2124,7 +2167,7 @@ static void spoil_mon_info(cptr fname)
 			switch (r_ptr->blow[j].effect)
 			{
 				case GF_HURT:	q = "attack"; break;
-                                case GF_POIS: q = "poison"; break;
+				case GF_POIS:	q = "poison"; break;
 				case GF_UN_BONUS:	q = "disenchant"; break;
 				case GF_UN_POWER:	q = "drain charges"; break;
 				case GF_EAT_GOLD:	q = "steal gold"; break;
@@ -2136,7 +2179,7 @@ static void spoil_mon_info(cptr fname)
 				case GF_FIRE:	q = "burn"; break;
 				case GF_COLD:	q = "freeze"; break;
 				case GF_BLIND:	q = "blind"; break;
-                                case GF_CONFUSION:        q = "confuse"; break;
+				case GF_CONFUSION:	q = "confuse"; break;
 				case GF_TERRIFY:	q = "terrify"; break;
 				case GF_PARALYZE:	q = "paralyze"; break;
 				case GF_LOSE_STR:	q = "reduce strength"; break;
@@ -2203,6 +2246,9 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out(NULL);
 	}
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, s16b);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))

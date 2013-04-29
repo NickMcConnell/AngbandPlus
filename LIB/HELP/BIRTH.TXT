@@ -36,28 +36,27 @@ which will be mentioned as they come up.
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
 by the sex and race of the character.  In general, these attributes are only
-used to provide "flavor" to the character, to assist in the roll playing, but
+used to provide "flavor" to the character, to assist in the role playing, but
 they do have a few minor effects on the game.  For example, background history
-affects social class, which affects the amount of money the character will
-start with.
+affects social class, which affects the starting money. (Not a lot, in the case
+of some races: for instance, Half-Trolls are always going to be the scum of 
+society, even if their father was the Clan Chief.) 
 
 Each character also has six primary "stats", strength, intelligence, wisdom,
 dexterity, constitution, and charisma, which modify the abilities of the
 character in a variety of ways.  Every stat has a numerical value, ranging
 from a minimum of 3, up to a normal maximum of 18, and even higher, into
-the "percentile" range, represented as "18/01" through "18/100".  Actually,
-every stat can be raised even above 18/100 by magical means, up to a pure
-maximum of 18/220, which is represented as "18/***".  Traditionally, a
-percentile stat such as "18/50" has been though of as representing a value
-part way between 18 and 19, and this is one way to think of them.  However,
-often, the best way to view the "bonus" values after the "18/" is as "tenth"
-points, since it often takes the same magic to raise a stat from, say, 4 to 5,
-or 16 to 17, as it does from, say, 18/40 to 18/50.  The important thing to
-remember is that almost all internal calculations "ignore" the final digit
-of any "bonus", so that, for example, "18/40" and "18/49" are always have
-the same effects.  During character generation, each stat is rolled out as
-a number from 8 to 17, with a normal distribution, and is then immediately
-modified based on the race and class of the character.
+the "percentile" range, represented as "18/01" through "18/100": this is the
+maximum that can be achieved intrinsically, for any given stat. If the 
+character is started with the option of "maximize effect of race/class 
+bonuses" (from the Birth Options menu, and this is set as "on" by default), 
+the maximum figure of 18/100 is further adjusted by the adjustments for 
+race and class - for instance, a Half-Troll Warrior will max out at 18/190 
+strength, but only 18/40 intelligence, whereas a Hobbit Mage will be able 
+to reach 18/150 intelligence but only 18/30 strength. Equipment may add 
+bonuses or penalties to this, and raise the player's stats beyond the normal
+intrinsic limits: the stats may go as high as they like, with the right choice
+of equipment, but the effects of having higher stats largely stop at 18/200.
 
 Each character also has several primary "skills", disarming, magic devices,
 saving throws, stealth, searching ability, searching frequency, fighting skill,
@@ -85,13 +84,19 @@ in the town, and which can be obtained not only from selling items to the
 shops, but also by taking it from dead monsters and by finding it hidden in
 the dungeon.  Each character starts out with some gold, the amount of which
 is based on the characters social class (higher is better), charisma (higher
-is better), sex (female characters start with more gold), and other stats
-(less powerful characters start with more gold).  Each character also starts
-out with a few useful items, which may be kept, or sold to a shop-keeper for
-more gold.
+is better), and other stats (less powerful characters start with more gold).  
+Each character also starts out with a few useful items, which may be kept, 
+or sold to a shop-keeper for more gold. However, especially valuable items
+will never sell for the full price, as each shopkeeper has a maximum that 
+he is prepared to pay for any item. The more generous shopkeepers may buy 
+your items for up to 30,000 gold pieces: but some are really stingy, and 
+will pay no more than 5,000.
 
 Each character has an armor class, representing how well the character can
-avoid damage.  The armor class is affected by dexterity and the equipment.
+avoid damage.  The armor class is affected by dexterity and the equipment. 
+Armor class on equipment is always denoted in [square brackets], usually as 
+a figure of [X,+Y] where X is the intrinsic AC of the armor in question, and 
+Y is the magical bonus to armor class provided by that item.
 
 Each character has hit points, representing how much damage the character can
 sustain before he dies.  The maximum number of hit points is derived from your
@@ -104,6 +109,7 @@ Each character has spell points, or mana, which represents how many spells
 points is derived from your class, level, and intelligence (for spells) or
 wisdom (for prayers), and you can never have more spell points than the
 maximum.  Spell points may be regained by resting, or by magical means.
+Warriors never have any spell points.
 
 
 === Races ===
@@ -132,9 +138,10 @@ have intrinsic abilities.
                fighting.  They tend to be smarter and faster than either
                humans or half-elves and also have better wisdom.  Elves
                are better at searching, disarming, perception, stealth, bows,
-               and magic, but they are not as good at hand weapons.  Elves
-               may choose any class except Paladin.  They resist light
-               effects intrinsically.
+               and magic, but they are not as good at hand weapons.  Elves 
+               are creatures more of magic than religion, and may thus not 
+               be priests or paladins: and they are resistant to attacks 
+               involving bright light.
  
           Hobbits
                Hobbits, or Halflings, are very good at bows, throwing,  and
@@ -143,8 +150,8 @@ have intrinsic abilities.
                lent rogues, but prefer to be called burglars.  They will be
                much weaker than humans, and no good at melee fighting.
                Halflings have fair infravision, so they can detect warm
-               creatures at a distance.  Hobbits can choose between being a
-               warrior, mage, or rogue.  They have their dexterity sustained.
+               creatures at a distance.  Hobbits may be warriors, rogues or
+               rangers.
  
           Gnome
                Gnomes are smaller than dwarves but larger than halflings.
@@ -161,8 +168,9 @@ have intrinsic abilities.
           Dwarf
                Dwarves are the headstrong miners and fighters of legend.
                Since dungeons are the natural home of a dwarf, they are
-               excellent choices for a warrior or priest.  Dwarves tend to
-               be stronger and tougher but slower and less intelligent than
+               excellent choices for a warrior or priest - or indeed, that
+               combination of the two, the paladin.  Dwarves tend to be
+               stronger and tougher but slower and less intelligent than
                humans.  Because they are so headstrong and are somewhat wise,
                they resist spells which are cast on them.  Dwarves also have
                very good infra-vision because they live underground.  They
@@ -200,21 +208,42 @@ have intrinsic abilities.
                play all classes.  Their constitution cannot be reduced.
  
           High-Elf
-               High-elves are a race of immortal beings dating from the
-               beginning of time.  Levels are even harder for them to gain 
-               than to Dunedain.  They are masters of all skills, and are
-               strong and intelligent, although their wisdom is sometimes
-               suspect.  They can play all classes except Paladin, and very
-               well at that.  High-elves begin their lives able to see the
-               unseen, and resist light effects just like regular elves.
+               High-Elves are descended from those among the Elves who heard 
+               and answered the call from the gods at the very beginning of 
+               time, before the sun and moon were made, and lived in the 
+               Blessed Realm for many thousands of years before returning to 
+               mortal lands. Because of this, they are far superior in terms 
+               of abilities when compared to their lesser Elven kindred, and 
+               are able to be priests as well as all the other classes that 
+               normal Elves can be. They can also see into the invisible
+               world of ghosts and wraiths. However, they find new experience
+               even harder to come by than Dunedain: and their wisdom is 
+               still a little suspect. And like normal Elves, they resist
+               attacks involving bright light.
  
- 
-=== Classes (outdated) ===
+          Kobold
+               Kobolds are a race of small humanoids that dwell underground.
+               They can see in the dark better than almost any other race, 
+               and are intrinsically resistant to poisons of all kinds. They 
+               are also stronger than anything that size has any right to be,
+               and are pretty hard both to hit (thanks to a good dexterity) 
+               and to kill (thanks to a good constitution). However, their 
+               strength is only relative - no greater than that of humans - 
+               and they are not noted for intelligence. Furthermore, the 
+               generally evil nature of most kobolds means that those few 
+               who are aligned to Good - and generally outcasts from their
+               tribes because of this - are mistrusted in town. And while 
+               their constitution makes them tough, it still cannot prevent
+               the fact that they are not the biggest of creatures, and 
+               have few hit points. They can be warriors, rangers, rogues
+               or priests.
+
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  For the first few adventures
+          classes  are not recommended for certain races, for instance, a
+          Half-Troll should not become a Paladin.  For the first few games 
           it  is  suggested that you run a warrior or rogue.  Spell casting
           generally requires a more experienced  player  that  is  familiar
           with survival techniques.
@@ -248,9 +277,11 @@ have intrinsic abilities.
                spells they will learn.  They are familiar with magical dev-
                ices, preferring to call them instruments of  god,  but  are
                not  as good as a mage in their use.  Priests have good sav-
-               ing throws,  and  make  decent  fighters,  preferring  blunt
-               weapons  over  edged  ones.  Wisdom  and  Charisma  are  the
-               priest's primary stats.
+               ing throws,  and  make  decent  fighters. They are limited
+               in their ability to use blood-letting weapons, and are
+               penalized when wielding weapons that are not specifically
+               sanctioned (blessed) by their god. Wisdom and Charisma are
+               the priest's primary stats.
  
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
@@ -261,8 +292,8 @@ have intrinsic abilities.
                or sneak up and get the first blow.  A rogue's perception is
                higher than any other class, and many times he will notice a
                trap  or  secret  door  before having to search.  A rogue is
-               better than warriors or paladins with magical  devices,  but
-               still  can  not  rely on their performance.  Rogues can also
+               superior to all other  classes than mages  for their magical
+               item skills and should rely on them heavily. Rogues can also
                learn a few spells, but not the  powerful  offensive  spells
                magi  can use.  A rogue's primary stats are Intelligence and
                Dexterity.
@@ -291,6 +322,319 @@ have intrinsic abilities.
                are Strength and Charisma.
  
 
+          Thief
+                A thief is the non-magic using counter-part to the rogue.
+                The thief has the highest stealth of any class, and is the
+                only class to have their stealth improve over the levels.
+                He is as good a fighter as a rogue, but does not have the
+                magical item skills or spells that a rogue may use to get
+                out of tight spots. Instead, he must rely on his cunning
+                and skill, avoiding tougher monsters and hoping to steal
+                the treasure from under their noses. Dexterity is the prime
+                attribute for thieves, followed by a good Strength.
+
+          Archer
+                The archer is to missile weapons, what the warrior is to
+                melee. The archer has the highest missile weapon skills of
+                any class, and must rely in this skill to scoot and shoot
+                to engage enemies, as their melee skills are inadequate
+                for hand to hand fighting. Because the archer does not have
+                magical abilities, they do not require much experience to
+                advance in levels. Dexterity is a key requirement for archers
+                and they need a good strength to use the more powerful
+                hitting of the missile weapons.
+
+          Druid
+                The druid is a multi-class Priest/Mage, capable of casting
+                from both prayer and magic books. Because of their highly
+                magical bent, they do not tend to have as many skills as
+                either the priest or mage class, and do not tend to get spells
+                from either class as quickly, except for elemental attack
+                and creature summoning type spells, which they are the equal
+                or superior of the other magic-users. Druids require both
+                a high Intelligence and Wisdom, Wisdom being their prime
+                requisite for determining mana and spell failure, as they
+                are primarily nature worshippers. Unlike Priests, Druids do
+                not have restrictions against spilling blood, but are
+                penalized for wearing gloves on all spells, like Mages and
+                other magic using classes.
+
+        Bard
+                The Bard is a special spellcaster, who uses songs and musical
+                instruments to cast magical spells. The Bard keeps their
+                spells in song books, but are capable of reading both Magic
+                and Prayer books, but may not find all spells (Even similar
+                to their songs) legible in these books. Similarly, Mages,
+                Priests and other spell casting classes may be able to read
+                and cast some spells from Bardic song books. Bards may also
+                wield musical instruments of a variety of types to improve
+                the power of particular songs. It is believed that there is
+                one effective musical instrument in the dungeon for each type
+                of bardic song book. Bards primary attribute is Charisma,
+                which determines their mana and spell failure. They are only
+                average to middling fighters and archers, but their magic
+                may help in a number of sticky situations.
+
+
+=== Styles ===
+
+        Each classes may choose to specialise in a particular style for a
+        10% additional experience penalty. Some classes, notably Rangers
+        and Priests are less powerful that the Vanilla Angband characters
+        but may choose to regain their former abilities through particular
+        choices of styles. To compensate, non-specialised Rangers and Priests
+        have less of an experience penalty than their Vanilla counterparts.
+
+        The styles confer a number of different benefits as explained below.
+        More importantly, each class style suggests a particular sub-class
+        type listed in brackets, that can be used to further distinguish
+        different characters. The styles effectively expand the number of
+        player classes from 9 to over 100.
+
+        Warrior Styles
+
+        Unarmed (Martial Artist)
+
+                The Martial Artist has an un-equalled unarmed fighting prowess.
+                When fighting with their bare hands (No weapon or shield
+                worn), they gain to hit and damage bonuses, improved armour
+                class and at higher levels, attack with multiple blows and
+                additional critical damage.
+
+        One-Handed (Swashbuckler)
+
+                The Swashbuckler is a flashy fighter, capable of targetting
+                their attacks with precision. When not using a shield,
+                a Swashbuckler gets additional to hit bonuses, improved
+                natural armour class and can cause additional critical damage
+                at higher levels.
+
+        Two-Handed (Samurai)
+
+                The Samurai is a honorable and deadly warrior, with a strict
+                Bushido code. When not using a shield, a Samurai gets
+                additional to hit and damage with their weapon, and gains
+                additional blows in melee at higher levels.
+
+        Two-Weapon (Gladiator)
+
+                The Gladiator is a savage and brutal warrior, capable of
+                using a large number of weapons for the entertainment of
+                others. When wielding two weapons at a time, a Gladiator
+                can use the 2nd weapon to provide additional armour class
+                and at higher levels, attack with it in addition to their
+                primary weapon.
+
+        Weapon and Shield (Knight)
+
+                The Knight is a valiant defender of the weak and vigilant
+                upholder of chivalry and smiter of evil. The Knight prefers
+                to use a weapon and shield, with which they gain additional
+                armour class and can gain additional blows at higher levels.
+
+        Hafted/Sword/Polearm (Weaponmaster)
+
+                The Weaponmaster specialises in a particular style of weapons
+                preferring them to all others. With their preferred weapon
+                type (Either hafted or polearm weapons or swords), they
+                may gain an advantage to hit and damage and additional blows
+                at higher levels.
+
+        Slay Orc/Giant/Troll/Dragon (Dragonkiller, Giantkiller etc.)
+
+                The killer has devoted a life long training regime to
+                the fighting styles required to defeat a particular creation
+                of Morgoth. Dwarves in particular prefer to learn the ways
+                to combat other races. When fighting their hated type of
+                creature, killers gain to hit and damage bonuses and can
+                cause additional critical damage at higher levels.
+
+        Mage Styles
+
+        Magic Book (Wizard/Illusionist/Enchanter etc.)
+
+                Many mages devote an themselves to the indepth pursuit
+                of a particular magical type. Styling themselves Geomancers,
+                Necromancers, Illusionists or otherwise, they have
+                a deep understanding of a particular style of magic. Each
+                spell book contains the creations of the greatest mages in
+                the particular field.
+
+                Wizards can cast spells from 1 spell book at roughly
+                twice the effective power of a non-specialised mage.
+
+        Priest Styles
+
+        Hafted (Templar)
+
+                Many priests forgo a life of monastic study and take up arms
+                against the enemies of their god. In return, the church
+                and higher powers grant them a lessening of the restriction
+                on blood-letting, to symbolically allow them to use blunt
+                weapons. Though a mace may smash open a skull as effectively
+                as an axe, the Templar priests are free to use hafted weapons
+                without needing a special benediction from their god.
+
+        Unarmed (Warrior Monk)
+
+                Other priests prefer to forsake weapons entirely, and fight
+                the enemies of their god with their bare hands. These
+                Warrior Monks fight without weapon or shield, and through
+                their skill and devotion, gain to hit and damage bonuses,
+                improved armour class and at higher levels, attack with
+                multiple blows and additional critical damage.
+
+        Slay Undead/Slay Demon (Exorcist)
+
+                Exorcists cast out the demons and the unliving from this
+                world, through two seperate branches, the Ordo Maleficarum
+                and the Ordo Necros. The Hexen Hammer specialise
+                in combating demons or undead and gain to hit and damage
+                bonuses when fighting these foes.
+
+        Slay Evil (Inquisitor)
+
+                Inquisitors hunt down the evil and impure in the living and
+                burn it out with holy fire. Through their superior knowledge
+                of human anatomy and behaviour, they can cause additional
+                critical damage at higher levels.
+
+        Rogue Styles
+
+        Potion (Chemist)
+
+                Chemists have a sound understanding of the physical and
+                magical principles behind the reagents required for magic
+                potions. They may identify simple potions as they encounter
+                them, and slowly improve in the complexity of potions
+                identified at higher levels.
+
+        Scrolls (Scholar)
+
+                Scholars have a deep knowledge of ancient and modern magical
+                writings and how they relate to the underlying spell
+                processes. They may identify simple scrolls as they see
+                them, and slowly improve in the range of magical scrolls
+                identified at higher levels.
+
+        Rings (Jeweler)
+
+                Jewelers have a refined knowledge of the interactions of
+                metals, minerals and settings required for magical jewelery
+                such as rings. Jewelers may identify simple rings, improving
+                in the number of types identified at higher levels.
+
+        Amulets (Merchant)
+
+        Wands (Magician)
+
+        Staves (Wizard)
+
+        Ranger Styles
+
+        One-Handed (Outlaw)
+
+                The Outlaw is a deft and cunning fighter, capable of
+		targetting their attacks with precision. When not using a
+		shield, a Outlaw can cause additional critical damage at
+                higher levels.
+
+        Two-Weapon (Bounty Hunter)
+
+                The Bounty Hunter is an unorthodox and cunning fighter,
+		skilled in using a large number of weapons for their own
+		survival. When wielding two weapons at a time, a Bounty
+		Hunter can use the 2nd weapon at higher levels, attacking
+		with it in addition to their primary weapon.
+
+        Bows (Huntsman)
+
+                The Huntsman is a skilled archer, and can fire additional
+                shots at higher levels.
+
+        Slay Orc/Giant/Troll/Dragon (Dragonslayer, Giantslayer etc.)
+
+                The slayer has devoted a life long training regime to
+                the fighting styles required to defeat a particular creation
+                of Morgoth. Dwarves in particular prefer to learn the ways
+                to combat other races. When fighting their hated type of
+                creature, slayers can cause additional critical damage at
+                higher levels.
+
+        Slay Animal (Tracker)
+
+                Through their long experience tracking and hunting animals,
+                the Tracker can cause additional critical damage against
+                animals at higher levels.
+
+	Paladin Styles
+
+	Prayer Book (Knight of the Order)
+
+		Knights of various religious orders have sworn secret oaths
+		and pacts, and have a code of honour and pledges known only
+		to themselves. In return they are privy to hidden knowledge
+		with which they arm themselves against enemies of their
+		order.
+
+                Knights of the Order can cast spells from 1 prayer book at
+		roughly twice the effective power of a non-specialised
+                priest.
+
+
+        Thief Styles
+
+        Unarmed (Acrobat)
+
+        Backstab (Assassin)
+
+        Archer Styles
+
+        Sling (Slinger)
+
+        Bow (Longbowman)
+
+        Crossbow (Crossbowman)
+
+        Druid Styles
+
+        Unarmed (Mystic)
+
+                Many druids forsake all material possesions and learn to
+                fend for themselves using on their hands and feet. These
+                Mystics fight without weapon or shield, and through
+                their skill and devotion, gain to hit and damage bonuses,
+                improved armour class and at higher levels, attack with
+                multiple blows and additional critical damage.
+
+        Magic Book/Priest Book (Cultist)
+
+                Many druids worship gods with old dark powers, seething
+                with a magic of a particular sort. These Cultists have
+                a knowledge of old magics superior to modern Priest and
+                Mages and can see the underlying connections to this
+                forgotten magic in the spells and prayers of this
+                generation.
+
+                Cultists can cast spells from 1 spell book at roughly
+                twice the effective power of a non-specialised mage or
+                priest.
+
+        Bard Styles
+
+	Unarmed (Acrobat)
+
+	Thrown (Juggler)
+
+	Instrument (Musician)
+
+                Those bards not choosing to specialise in the Instrumental
+                style do not gain any benefit from wielding particular
+                musical instruments. In return, they do not have to pay
+                the additional 10% experience penalty that their more
+                learned cousins must endure.
+
+
 === Stats ===
 
           Strength
@@ -298,7 +642,7 @@ have intrinsic abilities.
                combat.  A high strength can improve your chances of hitting
                as well as the amount of damage done with each hit.  Char-
                acters with low strengths may receive penalties.  Strength
-               is also useful in tunneling and in carrying heavy items.
+               is also useful in tunnelling and in carrying heavy items.
  
           Intelligence
                Intelligence affects the spellcasting abilities of mage-like
@@ -327,7 +671,9 @@ have intrinsic abilities.
                will increase his chances of hitting with any weapon and
                dodging blows from enemies.  Dexterity is also useful in
                picking locks, disarming traps, and protecting yourself from
-               some of the thieves that inhabit the dungeons.
+               some of the thieves that inhabit the dungeons. Indeed, if 
+               the character has a high enough dexterity, thieves will
+               never be successful in stealing from the player.
  
           Constitution
                Constitution is a character's ability to resist damage to his
@@ -339,8 +685,7 @@ have intrinsic abilities.
                Charisma represents a character's personality and physical
                appearance.  A character with a high charisma will receive
                better prices from store owners, whereas a character with a
-               very low charisma may be robbed blind.  A high charisma will
-               also mean more starting money for the character.
+               very low charisma may be robbed blind. 
  
 
 === Abilities (outdated) ===
@@ -421,15 +766,15 @@ have intrinsic abilities.
 
           Human         Yes      Yes      Yes      Yes      Yes      Yes
           Half-Elf      Yes      Yes      Yes      Yes      Yes      Yes
-          Elf           Yes      Yes      Yes      Yes      Yes      No
-          Hobbit        Yes      Yes      No       Yes      No       No
+          Elf           Yes      Yes      No       Yes      Yes      No
+          Hobbit        Yes      No       No       Yes      Yes      No
           Gnome         Yes      Yes      Yes      Yes      No       No
-          Dwarf         Yes      No       Yes      No       No       No
+          Dwarf         Yes      No       Yes      No       No       Yes
           Half-Orc      Yes      No       Yes      Yes      No       No
           Half-Troll    Yes      No       Yes      No       No       No
           Dunadan       Yes      Yes      Yes      Yes      Yes      Yes
           High-Elf      Yes      Yes      Yes      Yes      Yes      No 
-
+	    Kobold		Yes      No	      Yes      Yes      Yes      No
 
 
 === Miscellaneous (outdated) ===
@@ -437,14 +782,14 @@ have intrinsic abilities.
 
           Infra-vision
                Infra-vision is the ability to see heat sources. Since  most
-               of  the  dungeon is cool or cold, infra-vision will not allow
+               of the dungeon is cool or cold, infra-vision will not allow
                the player to see walls and objects.  Infra-vision will allow
                a  character  to see any warm-blooded creatures up to a cer-
                tain distance.  This ability works equally well with or with
-               out  a  light source.  The majority of Angband's creatures are
+               out a light source.  However, many of Angband's creatures are
                cold-blooded, and will not be detected unless lit  up  by  a
                light  source.  All non human races have innate  infra-vision
-               ability.  Human can gain infra-vision only if it is magically
+               ability.  Humans can gain infra-vision only if it is magically
                enhanced.
  
  
@@ -464,6 +809,7 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
+	     Kobold	      0   -1    0   +2   +1   -4	   7		 +15%
 
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -490,6 +836,7 @@ are listed in the following table.
            Half-Troll    1      1      1       1    10     1    1  30 feet
            Dunadan       9      8      7       8     7     8    7  None
            High-Elf      9      8      8       9     7    10   10  40 feet
+	     Kobold 	 5      6      9       6     5     5    5  50 feet
  
 
                              Save  Stea-        Magic                 Extra

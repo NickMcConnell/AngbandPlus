@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -91,7 +97,24 @@ void warding_glyph(void)
 	cave_set_feat(py, px, FEAT_GLYPH);
 }
 
+/*
+ * Leave a "trap" which affects those moving on it
+ */
+void warding_trap(int feat, int dir)
+{
+	int ty = p_ptr->py + ddy[dir];
+	int tx = p_ptr->px + ddx[dir];
 
+	/* XXX XXX XXX */
+	if (!cave_clean_bold(ty, tx))
+	{
+		msg_print("The object resists the spell.");
+		return;
+	}
+
+	/* Create a trap */
+	cave_set_feat(ty, tx, feat);
+}
 
 
 /*
@@ -745,6 +768,11 @@ void self_knowledge(void)
 	if (o_ptr->k_idx)
 	{
 		/* Special "Attack Bonuses" */
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your weapon poisons your foes.";
+		}
+		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
@@ -941,25 +969,23 @@ void set_recall(void)
 }
 
 
-
 /*
  * Detect all traps on current panel
  */
-bool detect_traps(void)
+bool detect_feat_flags(u32b flags1, u32b flags2)
 {
 	int y, x;
 
 	bool detect = FALSE;
-
 
 	/* Scan the current panel */
 	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
 		{
-
-			/* Detect traps */
-			if (f_info[cave_feat[y][x]].flags1 & (FF1_TRAP))
+			/* Detect flags */
+			if ((f_info[cave_feat[y][x]].flags1 & (flags1)) ||
+				(f_info[cave_feat[y][x]].flags2 & (flags2)))
 			{
 				/* Detect secrets */
 				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
@@ -968,7 +994,7 @@ bool detect_traps(void)
 					/*Find secrets*/
                                         cave_alter_feat(y,x,FS_SECRET);
 				}
-	
+
 				/* Hack -- Memorize */
 				cave_info[y][x] |= (CAVE_MARK);
 
@@ -981,10 +1007,25 @@ bool detect_traps(void)
 		}
 	}
 
+	/* Result */
+	return (detect);
+}
+
+
+/*
+ * Detect all traps on current panel
+ */
+bool detect_traps(void)
+{
+
+	bool detect = FALSE;
+
 	/* Describe */
-	if (detect)
+	if (detect_feat_flags(FF1_TRAP,0x00))
 	{
 		msg_print("You sense the presence of traps!");
+
+		detect = TRUE;
 	}
 
 	/* Result */
@@ -998,46 +1039,16 @@ bool detect_traps(void)
  */
 bool detect_doors(void)
 {
-	int y, x;
 
 	bool detect = FALSE;
 
 
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-
-			/* Detect doors */
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_DOOR))
-			{
-
-				/* Detect secrets */
-				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
-				{
-
-					/*Find secrets*/
-                                        cave_alter_feat(y,x,FS_SECRET);
-				}
-
-
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
 	/* Describe */
-	if (detect)
+	if (detect_feat_flags(FF1_DOOR,0x00))
 	{
 		msg_print("You sense the presence of doors!");
+
+		detect = TRUE;
 	}
 
 	/* Result */
@@ -1050,48 +1061,41 @@ bool detect_doors(void)
  */
 bool detect_stairs(void)
 {
-	int y, x;
 
 	bool detect = FALSE;
 
-
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect stairs */
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_STAIRS))
-			{
-
-				/* Detect secrets */
-				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
-				{
-					/*Find secrets*/
-                                        cave_alter_feat(y,x,FS_SECRET);
-				}
-
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Obvious */
-				detect = TRUE;
-			}
-		}
-	}
-
 	/* Describe */
-	if (detect)
+	if (detect_feat_flags(FF1_STAIRS,0x00))
 	{
 		msg_print("You sense the presence of stairs!");
+
+		detect = TRUE;
 	}
 
 	/* Result */
 	return (detect);
 }
+
+/*
+ * Detect all (running) water on current panel
+ */
+bool detect_water(void)
+{
+
+	bool detect = FALSE;
+
+	/* Describe */
+	if (detect_feat_flags(0x00,FF2_WATER))
+	{
+		msg_print("You sense the presence of running water!");
+
+		detect = TRUE;
+	}
+
+	/* Result */
+	return (detect);
+}
+
 
 
 /*
@@ -1099,48 +1103,43 @@ bool detect_stairs(void)
  */
 bool detect_treasure(void)
 {
-	int y, x;
 
 	bool detect = FALSE;
 
 
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect stairs */
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_HAS_GOLD))
-			{
-				/* Detect secrets */
-				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
-				{
-					/*Find secrets*/
-                                        cave_alter_feat(y,x,FS_SECRET);
-				}
-
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Detect */
-				detect = TRUE;
-			}
-		}
-	}
-
 	/* Describe */
-	if (detect)
+	if (detect_feat_flags(FF1_HAS_GOLD,0x00))
 	{
 		msg_print("You sense the presence of buried treasure!");
+
+		detect = TRUE;
+
 	}
 
 	/* Result */
 	return (detect);
 }
 
+/*
+ * Detect any treasure on the current panel
+ */
+bool detect_objects_buried(void)
+{
+
+	bool detect = FALSE;
+
+	/* Describe */
+	if (detect_feat_flags(FF1_HAS_ITEM,0x00))
+	{
+		msg_print("You sense the presence of buried objects!");
+
+		detect = TRUE;
+
+	}
+
+	/* Result */
+	return (detect);
+}
 
 
 /*
@@ -1189,54 +1188,6 @@ bool detect_objects_gold(void)
 	if (detect)
 	{
 		msg_print("You sense the presence of treasure!");
-	}
-
-	/* Result */
-	return (detect);
-}
-
-
-/*
- * Detect any treasure on the current panel
- */
-bool detect_buriedobjects(void)
-{
-	int y, x;
-
-	bool detect = FALSE;
-
-
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
-	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
-		{
-			/* Detect stairs */
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_HAS_ITEM))
-			{
-				/* Detect secrets */
-				if (f_info[cave_feat[y][x]].flags1 & (FF1_SECRET))
-				{
-					/*Find secrets*/
-                                        cave_alter_feat(y,x,FS_SECRET);
-				}
-
-				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
-
-				/* Redraw */
-				lite_spot(y, x);
-
-				/* Detect */
-				detect = TRUE;
-			}
-		}
-	}
-
-	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of buried items!");
 	}
 
 	/* Result */
@@ -1304,7 +1255,11 @@ bool detect_objects_normal(void)
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
  * and "enchanted" items of the "good" variety.
  *
+ * Should probably marked objects detected as cursed when appropriate.
+ *
  * It can probably be argued that this function is now too powerful.
+ *
+ * Now also senses all magical objects in the inventory.
  */
 bool detect_objects_magic(void)
 {
@@ -1353,6 +1308,77 @@ bool detect_objects_magic(void)
 		}
 	}
 
+
+	/* Sense inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		int feel = INSCRIP_AVERAGE;
+
+                object_type *o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* It already has a discount or special inscription */
+		if (o_ptr->discount > 0) continue;
+
+		/* It has already been sensed, do not sense it again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Artifacts */
+		if (artifact_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+
+			/* Normal */
+			feel = INSCRIP_SPECIAL;
+		}
+
+		/* Ego-Items */
+		else if (ego_item_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+
+			/* Normal */
+			feel = INSCRIP_EXCELLENT;
+		}
+
+		/* Cursed items */
+		else if (cursed_p(o_ptr)) continue;
+
+		/* Broken items */
+		else if (broken_p(o_ptr)) continue;
+
+		/* Good "armor" bonus */
+		else if (o_ptr->to_a > 0) feel = INSCRIP_GOOD;
+
+		/* Good "weapon" bonus */
+		else if (o_ptr->to_h + o_ptr->to_d > 0)	feel = INSCRIP_GOOD;
+
+		/* Ignore if average */
+		if (feel == INSCRIP_AVERAGE) continue;
+
+		/* Detected */
+		detect = TRUE;
+
+		/* Sense the object */
+		o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+
 	/* Describe */
 	if (detect)
 	{
@@ -1362,6 +1388,130 @@ bool detect_objects_magic(void)
 	/* Return result */
 	return (detect);
 }
+
+/*
+ * Detect all "cursed" objects on the current panel.
+ *
+ * This will light up all spaces with "cursed" items, including artifacts,
+ * ego-items, and "enchanted" items of the cursed or broken variety.
+ *
+ * Should probably marked objects detected as cursed when appropriate.
+ *
+ * Now also senses all cursed objects in the inventory.
+ */
+bool detect_objects_cursed(void)
+{
+	int i, y, x;
+
+	bool detect = FALSE;
+
+
+	/* Scan all objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y, x)) continue;
+
+		/* Cursed items */
+                if (cursed_p(o_ptr) || broken_p(o_ptr))
+		{
+			/* Memorize the item */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Sense inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		int feel = INSCRIP_AVERAGE;
+
+                object_type *o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* It already has a discount or special inscription */
+		if (o_ptr->discount > 0) continue;
+
+		/* It has already been sensed, do not sense it again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Artifacts */
+		if (artifact_p(o_ptr))
+		{
+			/* Normal */
+			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+
+			/* Cursed */
+			feel = INSCRIP_TERRIBLE;
+		}
+
+		/* Ego-Items */
+		else if (ego_item_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+
+			/* Normal */
+			feel = INSCRIP_WORTHLESS;
+		}
+
+		/* Cursed items */
+		else if (cursed_p(o_ptr)) feel = INSCRIP_CURSED;
+
+		/* Broken items */
+		else if (broken_p(o_ptr)) feel = INSCRIP_BROKEN;
+
+		/* Ignore if average */
+		if (feel == INSCRIP_AVERAGE) continue;
+
+		/* Detected */
+		detect = TRUE;
+
+		/* Sense the object */
+		o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of cursed objects!");
+	}
+
+	/* Return result */
+	return (detect);
+}
+
 
 
 /*
@@ -1434,6 +1584,7 @@ bool detect_monsters_invis(void)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1449,7 +1600,7 @@ bool detect_monsters_invis(void)
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
 			/* Take note that they are invisible */
-			r_ptr->r_flags2 |= (RF2_INVISIBLE);
+			l_ptr->r_flags2 |= (RF2_INVISIBLE);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1458,7 +1609,7 @@ bool detect_monsters_invis(void)
 				p_ptr->window |= (PW_MONSTER);
 			}
 
-                        /* Optimize -- Repair flags */                  
+			/* Optimize -- Repair flags */
 			repair_mflag_mark = repair_mflag_show = TRUE;
 
 			/* Hack -- Detect the monster */
@@ -1500,6 +1651,7 @@ bool detect_monsters_evil(void)
 	{
 		monster_type *m_ptr = &m_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1515,7 +1667,7 @@ bool detect_monsters_evil(void)
 		if (r_ptr->flags3 & (RF3_EVIL))
 		{
 			/* Take note that they are evil */
-			r_ptr->r_flags3 |= (RF3_EVIL);
+			l_ptr->r_flags3 |= (RF3_EVIL);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -1549,6 +1701,136 @@ bool detect_monsters_evil(void)
 	return (flag);
 }
 
+/*
+ * Detect all "undead" monsters on current panel
+ */
+bool detect_monsters_undead(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect evil monsters */
+		if (r_ptr->flags3 & (RF3_UNDEAD))
+		{
+			/* Take note that they are evil */
+			l_ptr->r_flags3 |= (RF3_UNDEAD);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of undead creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+/*
+ * Detect all "animal" monsters on current panel
+ */
+bool detect_monsters_animal(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect evil monsters */
+		if (r_ptr->flags3 & (RF3_ANIMAL))
+		{
+			/* Take note that they are evil */
+			l_ptr->r_flags3 |= (RF3_ANIMAL);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of natural creatures!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
 
 
 /*
@@ -1559,10 +1841,11 @@ bool detect_all(void)
 	bool detect = FALSE;
 
 	/* Detect everything */
-	if (detect_traps()) detect = TRUE;
 	if (detect_doors()) detect = TRUE;
+	if (detect_traps()) detect = TRUE;
 	if (detect_stairs()) detect = TRUE;
 	if (detect_treasure()) detect = TRUE;
+	if (detect_objects_buried()) detect = TRUE;
 	if (detect_objects_gold()) detect = TRUE;
 	if (detect_objects_normal()) detect = TRUE;
 	if (detect_monsters_invis()) detect = TRUE;
@@ -1662,6 +1945,35 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	return (FALSE);
 }
 
+static int unknown_tval;
+
+static bool item_tester_unknown_tval(object_type *o_ptr)
+{
+	if(o_ptr->tval != unknown_tval) return FALSE;
+
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+static bool item_tester_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+static bool item_tester_unknown_star(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
+}
 
 
 /*
@@ -1898,9 +2210,93 @@ bool ident_spell(void)
 	cptr q, s;
 
 
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown;
+
 	/* Get an item */
 	q = "Identify which item? ";
 	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+
+	/* Identify it fully */
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Describe */
+	if (item >= INVEN_WIELD)
+	{
+		msg_format("%^s: %s (%c).",
+		           describe_use(item), o_name, index_to_label(item));
+	}
+	else if (item >= 0)
+	{
+		msg_format("In your pack: %s (%c).",
+		           o_name, index_to_label(item));
+	}
+	else
+	{
+		msg_format("On the ground: %s.",
+		           o_name);
+	}
+
+	/* Something happened */
+	return (TRUE);
+}
+
+
+
+/*
+ * Identify an object in the inventory (or on the floor)
+ * of a specified tval only.
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+bool ident_spell_tval(int tval)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+
+	/* Restrict items */
+	unknown_tval = tval;
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown_tval;
+
+	/* Get an item */
+	q = "Identify which item? ";
+	s = "You have nothing to identify.";
+
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -1970,6 +2366,9 @@ bool identify_fully(void)
 
 	cptr q, s;
 
+
+	/* Only un-*id*'ed items */
+	item_tester_hook = item_tester_unknown_star;
 
 	/* Get an item */
 	q = "Identify which item? ";
@@ -2276,6 +2675,22 @@ bool slow_monsters(void)
 bool sleep_monsters(void)
 {
 	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
+}
+
+/*
+ * Confuse monsters
+ */
+bool confuse_monsters(void)
+{
+	return (project_hack(GF_OLD_CONF, p_ptr->lev));
+}
+
+/*
+ * Fear monsters
+ */
+bool fear_monsters(void)
+{
+	return (project_hack(GF_TURN_ALL, p_ptr->lev));
 }
 
 
@@ -2845,7 +3260,7 @@ void earthquake(int cy, int cx, int r)
 							if (!cave_empty_bold(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
-							if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) continue;
+							if (cave_feat[y][x] == FEAT_GLYPH) continue;
 
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
@@ -2995,8 +3410,11 @@ void earthquake(int cy, int cx, int r)
  * Also, process all affected monsters.
  *
  * SMART monsters always wake up when illuminated
- * NORMAL monsters wake up 1/4 the time when illuminated
- * STUPID monsters wake up 1/10 the time when illuminated
+ * NORMAL monsters wake up 3/4 the time when illuminated
+ * STUPID monsters wake up 3/10 the time when illuminated
+ *
+ * Percentages were adjusted up, to make a greater change
+ * of waking up monsters.
  */
 static void cave_temp_room_lite(void)
 {
@@ -3033,13 +3451,13 @@ static void cave_temp_room_lite(void)
 		/* Process affected monsters */
 		if (cave_m_idx[y][x] > 0)
 		{
-			int chance = 25;
+			int chance = 75;
 
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Stupid monsters rarely wake up */
-			if (r_ptr->flags2 & (RF2_STUPID)) chance = 10;
+			if (r_ptr->flags2 & (RF2_STUPID)) chance = 30;
 
 			/* Smart monsters always wake up */
 			if (r_ptr->flags2 & (RF2_SMART)) chance = 100;
@@ -3082,7 +3500,7 @@ static void cave_temp_room_lite(void)
  */
 static void cave_temp_room_unlite(void)
 {
-	int i;
+        int i,ii;
 
 	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
@@ -3094,10 +3512,32 @@ static void cave_temp_room_unlite(void)
 		cave_info[y][x] &= ~(CAVE_TEMP);
 
 		/* Darken the grid */
-		cave_info[y][x] &= ~(CAVE_GLOW);
+                if (!(f_info[cave_feat[y][x]].flags2 & (FF2_GLOW)))
+		{
+			cave_info[y][x] &= ~(CAVE_GLOW);
+		}
+
+		/* Check to see if not illuminated by innately glowing grids */
+                for (ii = 0; ii < 8; ii++)
+		{
+                        int yy = y + ddy_ddd[ii];
+                        int xx = x + ddx_ddd[ii];
+
+			/* Ignore annoying locations */
+			if (!in_bounds_fully(yy, xx)) continue;
+
+                        if (f_info[cave_feat[yy][xx]].flags2 & (FF2_GLOW))
+                        {
+				/* Illuminate the grid */
+				cave_info[y][x] |= (CAVE_GLOW);
+
+			}
+
+		}
 
 		/* Hack -- Forget "boring" grids */
-		if (!(f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER)))
+		if (!(cave_info[y][x] & (CAVE_GLOW)) && 
+			!(f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER)))
 		{
 			/* Forget the grid */
 			cave_info[y][x] &= ~(CAVE_MARK);
@@ -3148,6 +3588,8 @@ static void cave_temp_room_aux(int y, int x)
 	temp_y[temp_n] = y;
 	temp_x[temp_n] = x;
 	temp_n++;
+
+
 }
 
 
@@ -3164,7 +3606,7 @@ void lite_room(int y1, int x1)
 	cave_temp_room_aux(y1, x1);
 
 	/* While grids are in the queue, add their neighbors */
-	for (i = 0; i < temp_n; i++)
+        for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
@@ -3186,6 +3628,17 @@ void lite_room(int y1, int x1)
 
 	/* Now, lite them all up at once */
 	cave_temp_room_lite();
+
+#ifdef ALLOW_ROOMDESC
+        /* Hack --- Have we seen this room before? */
+        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].seen))
+        {
+                p_ptr->update |= (PU_ROOM_INFO);
+                p_ptr->window |= (PW_ROOM_INFO);
+        }
+#endif
+
+
 }
 
 
@@ -3200,7 +3653,7 @@ void unlite_room(int y1, int x1)
 	cave_temp_room_aux(y1, x1);
 
 	/* Spread, breadth first */
-	for (i = 0; i < temp_n; i++)
+        for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
@@ -3224,6 +3677,42 @@ void unlite_room(int y1, int x1)
 	cave_temp_room_unlite();
 }
 
+
+/*
+ * Hack -- lower water around the player to none (earth/geothermal floor)
+ * Affect all water monsters in the projection radius
+ */
+bool lower_water(int dam, int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_HIDE;
+
+	/* Hook into the "project()" function */
+	(void)project(-1, rad, py, px, dam, GF_SHALLOW, flg);
+
+	/* Assume seen */
+	return (TRUE);
+}
+
+/*
+ * Hack -- raise water around the player to deep
+ * Affect all water monsters in the projection radius
+ */
+bool raise_water(int dam, int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_HIDE;
+
+	/* Hook into the "project()" function */
+	(void)project(-1, rad, py, px, dam, GF_DEEP, flg);
+
+	/* Assume seen */
+	return (TRUE);
+}
 
 
 /*
@@ -3384,6 +3873,32 @@ bool fire_bolt_or_beam(int prob, int typ, int dir, int dam)
 
 
 /*
+ * Cast a blast spell
+ * A blast spell is a radius 1 ball spell that only fires to adjacent
+ * squares. Used for a couple of alchemy spells.
+ */
+bool fire_blast(int typ, int dir, int dam)
+{
+	int ty = p_ptr->py+ddy[dir];
+	int tx = p_ptr->px+ddx[dir];
+
+	int flg = PROJECT_KILL | PROJECT_GRID | PROJECT_ITEM;
+	return (project(-1, 1, ty, tx, dam, typ, flg));
+
+}
+
+/*
+ * Affect an adjacent monster with an attack 
+ */
+bool fire_touch(int typ, int dir, int dam)
+{
+	int ty = p_ptr->py +ddy[dir];
+	int tx = p_ptr->px +ddx[dir];
+
+	return (project_m(-1, 0, ty, tx, dam, typ));
+}
+
+/*
  * Some of the old functions
  */
 
@@ -3393,11 +3908,25 @@ bool lite_line(int dir)
 	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
 }
 
+bool raise_bridge(int dir)
+{
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+        return (project_hook(GF_BRIDGE, dir, 1, flg));
+}
+
+
 bool drain_life(int dir, int dam)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
 }
+
+bool water_to_air(int dir)
+{
+	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+        return (project_hook(GF_SHALLOW, dir, 20 + randint(30), flg));
+}
+
 
 bool wall_to_mud(int dir)
 {

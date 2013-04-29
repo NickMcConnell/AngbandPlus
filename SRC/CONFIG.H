@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 
@@ -225,6 +231,12 @@
 #define ALLOW_TEMPLATES
 
 /*
+ * OPTION: Allow parsing and creation of room descriptions.
+ */
+#define ALLOW_ROOMDESC
+
+
+/*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
@@ -253,18 +265,6 @@
  */
 #define ALLOW_EASY_FLOOR
 
-
-/*
- * OPTION: Allow scrolling while targetting.
- */
-#define ALLOW_SCROLL_TARGET
-
-
-/*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-/*#define DELAY_LOAD_F_TEXT*/
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
@@ -328,13 +328,6 @@
 
 
 /*
- * OPTION: Allow the monsters to illuminate the hallways with either
- * innate lite sources (light hounds, etc) or torches (mages, paladins, etc)
- */
-#define MONSTER_LITE
-
-
-/*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
 #define MONSTER_FLOW_DEPTH 32
@@ -368,6 +361,18 @@
 
 
 /*
+ * OPTION: Gamma correct colours (with X11)
+ */
+#define SUPPORT_GAMMA
+
+
+/*
+ * OPTION: Check the modification time of *_info.raw files
+ */
+#define CHECK_MODIFICATION_TIME
+
+
+/*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
  * They let monsters make more "intelligent" choices about attacks
  * (including spell attacks) based on their observations of the
@@ -383,7 +388,7 @@
 
 
 /*
- * OPTION: Allow the use of random artifacts (see "init3.c").
+ * OPTION: Allow the use of random artifacts (see "randart.c").
  */
 #define GJW_RANDART
 
@@ -397,6 +402,12 @@
  * OPTION: Allow the use of "graphics" in various places
  */
 #define USE_GRAPHICS
+
+
+/*
+ * OPTION: Allow the use of 'pretty' character names for various class + style combinations
+ */
+#define USE_CLASS_PRETTY_NAMES
 
 
 /*
@@ -468,7 +479,7 @@
  * WARNING - This may allow bypassing of some of the "security"
  * compilation options and may be a security risk!
  */
-/* #define ALLOW_PREF_IN_HOME */
+#define ALLOW_PREF_IN_HOME
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -493,13 +504,14 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"andrewdoull@hotmail.com"
 
 
 /*
  * OPTION: Default font (when using X11).
  */
 #define DEFAULT_X11_FONT		"9x15"
+
 
 /*
  * OPTION: Default fonts (when using X11)
@@ -549,6 +561,7 @@
 # undef ALLOW_TEMPLATES
 # undef MONSTER_AI
 # undef DELAY_LOAD_R_TEXT
+# undef USE_CLASS_PRETTY_NAMES
 # define DELAY_LOAD_R_TEXT
 #endif
 

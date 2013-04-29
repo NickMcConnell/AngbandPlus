@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -451,8 +457,9 @@ void do_cmd_destroy(void)
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-		/* Sense the object if allowed */
-		if (o_ptr->discount == 0) o_ptr->discount = feel;
+		/* Sense the object if allowed, don't sense ID'ed stuff */
+		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
+			o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -518,15 +525,6 @@ void do_cmd_observe(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
-	{
-		msg_print("You have no special knowledge about that item.");
-		return;
-	}
-
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1057,20 +1055,20 @@ void do_cmd_locate(void)
 static cptr ident_info[] =
 {
 	" :A dark grid",
-	"!:A potion (or oil)",
+	"!:A potion (or fountain)",
 	"\":An amulet (or necklace)",
 	"#:A wall (or secret door)",
 	"$:Treasure (gold or gems)",
-	"%:A vein (magma or quartz)",
+	"%:A vein (or crack)",
 	/* "&:unused", */
-	"':An open door",
+	"':An open door (or bridge)",
 	"(:Soft armor",
 	"):A shield",
 	"*:A vein with treasure",
-	"+:A closed door",
+	"+:A closed/trapped door",
 	",:Food (or mushroom patch)",
 	"-:A wand (or rod)",
-	".:Floor",
+	".:Floor (or shallow water/oil)",
 	"/:A polearm (Axe/Pike/etc)",
 	/* "0:unused", */
 	"1:Entrance to General Store",
@@ -1082,30 +1080,30 @@ static cptr ident_info[] =
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
 	/* "9:unused", */
-	"::Rubble",
-	";:A glyph of warding",
-	"<:An up staircase",
+	"::Rubble (or deep water/lava/acid etc)",
+	";:A glyph (or shallow lava/acid/mud)",
+	"<:An up staircase (or falls)",
 	"=:A ring",
-	">:A down staircase",
+	">:A down staircase (or chasm)",
 	"?:A scroll",
 	"@:You",
-	"A:Angel",
+	"A:Ancient Dragon/Wyrm",
 	"B:Bird",
 	"C:Canine",
-	"D:Ancient Dragon/Wyrm",
+	"D:mature Dragons",
 	"E:Elemental",
-	"F:Dragon Fly",
+	"F:Fish",
 	"G:Ghost",
 	"H:Hybrid",
 	"I:Insect",
 	"J:Snake",
 	"K:Killer Beetle",
-	"L:Lich",
-	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"L:ghouls/Liches",
+	"M:Maiar",
+	"N:Nightsbane",
 	"O:Ogre",
 	"P:Giant Humanoid",
-	"Q:Quylthulg (Pulsing Flesh Mound)",
+	"Q:Quadrepeds",
 	"R:Reptile/Amphibian",
 	"S:Spider/Scorpion/Tick",
 	"T:Troll",
@@ -1113,7 +1111,7 @@ static cptr ident_info[] =
 	"V:Vampire",
 	"W:Wight/Wraith/etc",
 	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
+	"Y:apes/Yeti",
 	"Z:Zephyr Hound",
 	"[:Hard armor",
 	"\\:A hafted weapon (mace/whip/etc)",
@@ -1124,20 +1122,20 @@ static cptr ident_info[] =
 	"a:Ant",
 	"b:Bat",
 	"c:Centipede",
-	"d:Dragon",
+	"d:young Dragon",
 	"e:Floating Eye",
 	"f:Feline",
 	"g:Golem",
 	"h:Hobbit/Elf/Dwarf",
 	"i:Icky Thing",
 	"j:Jelly",
-	"k:Kobold",
-	"l:Louse",
+	"k:Goblin",
+	"l:Elf",
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
 	"p:Person/Human",
-	"q:Quadruped",
+	"q:Person (Spellcasters)",
 	"r:Rodent",
 	"s:Skeleton",
 	"t:Townsperson",
@@ -1145,7 +1143,7 @@ static cptr ident_info[] =
 	"v:Vortex",
 	"w:Worm/Worm-Mass",
 	/* "x:unused", */
-	"y:Yeek",
+	"y:Hydra",
 	"z:Zombie/Mummy",
 	"{:A missile (arrow/bolt/shot)",
 	"|:An edged weapon (sword/dagger/etc)",
@@ -1162,7 +1160,7 @@ static cptr ident_info[] =
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform on "u".
  */
-static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
+bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1178,8 +1176,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 4)
 	{
 		/* Extract player kills */
-		z1 = r_info[w1].r_pkills;
-		z2 = r_info[w2].r_pkills;
+		z1 = l_list[w1].r_pkills;
+		z2 = l_list[w2].r_pkills;
 
 		/* Compare player kills */
 		if (z1 < z2) return (TRUE);
@@ -1191,8 +1189,8 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 	if (*why >= 3)
 	{
 		/* Extract total kills */
-		z1 = r_info[w1].r_tkills;
-		z2 = r_info[w2].r_tkills;
+		z1 = l_list[w1].r_tkills;
+		z2 = l_list[w2].r_tkills;
 
 		/* Compare total kills */
 		if (z1 < z2) return (TRUE);
@@ -1237,7 +1235,7 @@ static bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
+void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	u16b *who = (u16b*)(u);
 
@@ -1323,7 +1321,7 @@ void do_cmd_query_symbol(void)
 	bool recall = FALSE;
 
 	u16b why = 0;
-	u16b who[MAX_R_IDX];
+	u16b *who;
 
 
 	/* Get a character, or abort */
@@ -1364,13 +1362,17 @@ void do_cmd_query_symbol(void)
 	prt(buf, 0, 0);
 
 
+	/* Allocate the "who" array */
+	C_MAKE(who, z_info->r_max, u16b);
+
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < MAX_R_IDX-1; i++)
+	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
-		if (!cheat_know && !r_ptr->r_sights) continue;
+		if (!cheat_know && !l_ptr->r_sights) continue;
 
 		/* Require non-unique monsters if needed */
 		if (norm && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
@@ -1383,7 +1385,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Nothing to recall */
-	if (!n) return;
+	if (!n)
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, z_info->r_max, u16b);
+
+		return;
+	}
 
 
 	/* Prompt */
@@ -1411,8 +1419,13 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Catch "escape" */
-	if (query != 'y') return;
+	if (query != 'y')
+	{
+		/* XXX XXX Free the "who" array */
+		C_KILL(who, z_info->r_max, u16b);
 
+		return;
+	}
 
 	/* Sort if needed */
 	if (why)
@@ -1507,6 +1520,7 @@ void do_cmd_query_symbol(void)
 
 	/* Re-display the identity */
 	prt(buf, 0, 0);
+
+	/* Free the "who" array */
+	C_KILL(who, z_info->r_max, u16b);
 }
-
-

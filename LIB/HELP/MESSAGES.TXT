@@ -1,0 +1,72 @@
+Welcome to the UnAngband Online Help System.
+
+Please choose one of the following online help files:
+
+    (1) General Information        (general.txt)
+    (2) Creating a Character       (birth.txt)
+    (3) Exploring the Dungeon      (dungeon.txt)
+    (4) Attacking Monsters         (attack.txt)
+    (5) Playing the Game           (playing.txt)
+    (6) Command Descriptions       (command.txt)
+    (7) Option Descriptions        (option.txt)
+    (8) Version Information        (version.txt)
+    (9) Spoiler Menu (if any)      (spoiler.hlp)
+    (0) User Menu (if any)         (user.hlp)
+
+***** [1] general.txt
+***** [2] birth.txt
+***** [3] dungeon.txt
+***** [4] attack.txt
+***** [5] playing.txt
+***** [6] command.txt
+***** [7] option.txt
+***** [8] version.txt
+***** [9] spoiler.hlp
+***** [0] user.hlp
+
+
+Hint: This is context sensitive help. Hit space bar
+to see an explanation of some messages you might
+see appearing in the game.
+
+Message: You hit it.
+Message: You have killed it.
+Message: It hits you.
+
+You have encountered an unseen creature.
+
+If you are blind, or without a source of light in the dungeon
+or at night, you will not be able to see any creatures. Try
+'w'ielding a torch or lantern, or 'q'uaffing a potion to cure
+your blindness.
+
+The dungeon of UnAngband has a large number of creatures that
+are hard to see in some way.
+
+Invisible warm-blooded creatures will be seen if you have
+infravision and they are within range.
+
+Invisible cold-blooded creatures are only visible if you have
+the ability to see invisible creatures. You can get this
+ability temporarily from a potion or spell, or while you are
+wielding or wearing an item that grants the ability to see
+invisible creatures.
+
+Hidden monsters are protected from your line of sight, so that
+many spell attacks are useless against them.
+
+Swimming monsters are hidden by deep water, and burrowing
+monsters are hidden by deep sand and earth.
+
+Various detection items and spells will allow you to very
+briefly see hidden and invisible monsters.
+
+------
+End of the message help file.
+
+You can set up help for novice players by editting this file.
+
+Just create an entry like the ones above, with the message
+preceded by the keyword "Message: ". If the user presses '?'
+after a message, context-sensitive help will automatically
+open this file at the entry you create.

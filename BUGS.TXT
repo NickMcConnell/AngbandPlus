@@ -1,18 +1,58 @@
-09-11-2000
-- Running is broken
-- We can bash into open broken doors
+Note that these are play balance bugs only, there are no known stability
+bugs (Fingers crossed). 
+
+12-07-2001
+- Death and high scores do not record styles and sub-styles.
+- Updated birth.txt is incomplete.
+- Should add kobolds from JLE's patch.
+- Not all the monsters from the future.txt file are created yet. Also the
+Zangband monsters imported still need massaging to fit.
+- Summon spells don't summon anything... this will be waiting on the next
+feature release as there is no(t much) point summoning a monster if all it
+does is attack you.
+- Room descriptions are not saved. This is currently by design...
+- Come to mention it, flow code is broken for fleeing monsters. We should
+choose a path that doesn't lead to dead ends. Fleeing monsters currently
+have no preference in this regard.
+- Need to notify the player they are singing/playing and when they are using
+their preferred style.
+- Spells that create bridges, raise and lower water should be temporary,
+to prevent unreachable areas and getting monsters stuck on terrain (Which is
+not handled well).
+- Wall spells should create walls. However only temporary ones. (See
+previous bug). This can be achieved (maybe) through smart use of spell
+objects, especially with a NEVER_GET flag.
+- Travelling over shallow and deep terrain is still not handled well enough.
+- We cannot swim underwater yet. (Or climb for that matter).
+- Increasing number of objects and monsters has rendered the much-needed save
+file import compatibility with Angband gone. But RR has broken this by saving
+artifacts with the new version. I haven't decided how to resolve this. Save
+file compatibility between versions of UnAngband will take a hammering.
+Sorry. But its OK, because I only release a new version every 6 months.  ;-)
+- (Style bug) Don't try reading code for monster movement now. Its damn hard
+to understand.
+- We are (again) 2 point releases behind the Angband code state of the play.
+Does anyone have a list of patches in order to get the code up to 2.9.3.
+- Its a shame because it would look good, but monster lite code is not in
+this version. Because I think its a nasty hack.
+- Two-weapon style is available, but we can't wield two weapons yet.
+- Need to implement options so that we can play as close to the Vanilla game
+as possible, so that people can test the various settings.
+- Need to update Dragon armors.
+- Have said that ego items can use tvals other than their wield slot. This
+is not implemented in the code yet.
 
 04-11-2000
-- Looking is badly broken.
-- Running is probably broken, despite changes, so will need to be thoroughly tested.
-- Monsters do not correctly move over different terrain types still.
-- Monsters are not correctly summoned/created on terrain type which is not floor.
-- Monsters do not flow at all correctly. Consider disabling as this is a big can of worms. Note that in vanilla flowing is still broken for KILL_WALL/PASS_WALL monsters and permanent rock which we could consider a sub-problem of the whole flow over different terrain types issue. So perhaps a different pathing algorithm / flow lists by monster might be used.
-- Traps that cast spells are broken now.
-- Some new feature functionality not implemented yet or not working correctly eg DEEP, SHALLOW.
-- MF_HIDE flags are not correctly working and will cause monsters to disappear intermittently when on, walking off terrain that they can hide under.
-- Thieves do not teleport once they steal anymore. This may be a feature, not a bug. (See todo.txt)
-- We can generate unconnected spaces as part of lake generation. Should always
-ensure that points generated in a lake are all connected, if even only diagonally.
-- We can generated unconnected spaces as a part of big lake generation, followed by
-room placement. Should always ensure that room placement does not block lake segments.
+- Monsters are not correctly summoned/created on terrain type which is not
+floor.
+- Monsters do not flow at all correctly. Consider disabling as this is a big
+can of worms. Note that in vanilla flowing is still broken for KILL_WALL/
+PASS_WALL monsters and permanent rock which we could consider a sub-problem
+of the whole flow over different terrain types issue. So perhaps a different
+pathing algorithm / flow lists by monster might be used.
+- We can generate unconnected spaces as part of lake generation. Should
+always ensure that points generated in a lake are all connected, if even
+only diagonally.
+- We can generated unconnected spaces as a part of big lake generation,
+followed by room placement. Should always ensure that room placement does
+not block lake segments.

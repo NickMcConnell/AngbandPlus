@@ -6,9 +6,17 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
+
+
 
 /*
  * Critical blow.  All hits that do 95% of total possible damage,
@@ -25,6 +33,7 @@ static int monster_critical(int dice, int sides, int dam)
 
 	/* Weak blows rarely work */
 	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
+
 	/* Perfect damage */
 	if (dam == total) max++;
 
@@ -105,10 +114,6 @@ static cptr desc_moan[] =
 	"mumbles something about mushrooms."
 };
 
-/*
- * Hit the player with a physical attack
- */
-
 
 /*
  * Attack the player via physical attacks.
@@ -116,15 +121,13 @@ static cptr desc_moan[] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int ap_cnt;
 
-        int tmp, ac, rlev;
+	int tmp, ac, rlev;
 	int do_cut, do_stun;
-
-
 
 	char m_name[80];
 
@@ -147,7 +150,7 @@ bool make_attack_normal(int m_idx)
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
-	/* Get the "died from" information (i.e. "a kobold") */
+	/* Get the "died from" information (i.e. "a goblin") */
 	monster_desc(ddesc, m_ptr, 0x88);
 
 
@@ -179,17 +182,15 @@ bool make_attack_normal(int m_idx)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-                /* Skip 'tricky' attacks */
-                if ((method == RBM_SHOOT) ||
-                       (method == RBM_TRAP) ||
-                       (method == RBM_AURA)) continue;
-
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-        /* Extract visibility from carrying lite */
-        if (r_ptr->flags2 & RF2_HAS_LITE) visible = TRUE;
+                /* Skip 'tricky' attacks */
+                if ((method == RBM_SHOOT) ||
+                       (method == RBM_TRAP) ||
+                       (method == RBM_AURA) ||
+			(method == RBM_EXPLODE)) continue;
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -222,7 +223,10 @@ bool make_attack_normal(int m_idx)
 			case GF_EXP_20:	power =  5; break;
 			case GF_EXP_40:	power =  5; break;
 			case GF_EXP_80:	power =  5; break;
+
+			/* Need to add extra flavours in here */
 		}
+
 
 
 		/* Monster hits player */
@@ -241,7 +245,7 @@ bool make_attack_normal(int m_idx)
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
 				/* Message */
@@ -403,6 +407,11 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				case RBM_XXX5:
+				{
+					act = "XXX5's you.";
+					break;
+				}
 			}
 
 			/* Message */
@@ -417,6 +426,7 @@ bool make_attack_normal(int m_idx)
 
                         /* New result routine */
                         project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
+
 
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)
@@ -523,12 +533,12 @@ bool make_attack_normal(int m_idx)
 		if (visible)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (r_ptr->r_blows[ap_cnt] > 10))
+			if (obvious || damage || (l_ptr->r_blows[ap_cnt] > 10))
 			{
 				/* Count attacks of this type */
-				if (r_ptr->r_blows[ap_cnt] < MAX_UCHAR)
+				if (l_ptr->r_blows[ap_cnt] < MAX_UCHAR)
 				{
-					r_ptr->r_blows[ap_cnt]++;
+					l_ptr->r_blows[ap_cnt]++;
 				}
 			}
 		}
@@ -544,9 +554,9 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (r_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->r_deaths < MAX_SHORT))
 	{
-		r_ptr->r_deaths++;
+		l_ptr->r_deaths++;
 	}
 
 

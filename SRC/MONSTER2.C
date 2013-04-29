@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -297,7 +303,7 @@ s16b m_pop(void)
 
 
 	/* Normal allocation */
-	if (m_max < MAX_M_IDX)
+	if (m_max < z_info->m_max)
 	{
 		/* Get the next hole */
 		i = m_max;
@@ -395,19 +401,10 @@ errr get_mon_num_prep(void)
  *
  * Note that if no monsters are "appropriate", then this function will
  * fail, and return zero, but this should *almost* never happen.
- *
- * Note that on a water level, we favour monsters with CAN_SWIM/
- * MUST_SWIM, on lava level, IM_FIRE, etc. We should require this to
- * simplify cases where we must flow over terrain where monsters may be
- * hurt, however, this causes problems with boiling water, where there
- * are not that many monsters that CAN_SWIM and IM_FIRE, and other
- * terrain that has combined requirements. XXX XXX XXX
- * 
- *
  */
 s16b get_mon_num(int level)
 {
-        int i, j, p;
+	int i, j, p;
 
 	int r_idx;
 
@@ -450,7 +447,7 @@ s16b get_mon_num(int level)
 	for (i = 0; i < alloc_race_size; i++)
 	{
 		/* Monsters are sorted by depth */
-		if (table[i].level > level) break;
+                if (table[i].level > level) break;
 
 		/* Default */
 		table[i].prob3 = 0;
@@ -478,39 +475,37 @@ s16b get_mon_num(int level)
 		}
 
 		/* Accept */
-                table[i].prob3 = table[i].prob2;
+		table[i].prob3 = table[i].prob2;
 
-                /* Don't like monsters that don't 'suit' a particular level */
-                /* Currently we don't do this quite right because we should
-                   favour monsters that qualify for place_monster_on. XXX XXX */
-		if (r_ptr->flags2 & (RF2_CAN_FLY))
-		{
-			/* Nothing - always avoid terrain underneath */
-		}
-		else if ((water_level) || (lava_level) || (ice_level) || (acid_level) || (chasm_level))
-		{
-			if (water_level)
-			{
-                                if (!(r_ptr->flags2 & (RF2_CAN_SWIM))) table[i].prob3 /=3;
-			}
-			if (lava_level)
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=3;
-			}
-			if (ice_level)
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=3;
-			}
-			if (acid_level)
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=3;
-			}
-			if (chasm_level)
-			{
-                                if (!(r_ptr->flags2 & (RF2_CAN_CLIMB))) table[i].prob3 /=3;
-			}
-		}
 
+		/* Don't like monsters that don't 'suit' a particular level */
+		/* Currently we don't do this quite right because we should
+		   favour monsters that qualify for place_monster_here. XXX XXX */
+		if (level_flag & (LF1_WATER | LF1_LAVA | LF1_ICE | LF1_ACID | LF1_CHASM))
+		{
+			if (level_flag & (LF1_WATER))
+			{
+				if (!(r_ptr->flags2 & (RF2_CAN_SWIM))) table[i].prob3 /=3;
+			}
+			if (level_flag & (LF1_LAVA))
+			{
+				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=3;
+				if (!(r_ptr->flags4 & (RF4_BR_FIRE))) table[i].prob3 /=2;
+			}
+			if (level_flag & (LF1_ICE))
+			{
+				if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=3;
+			}
+			if (level_flag & (LF1_ACID))
+			{
+				if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=3;
+			}
+			if (level_flag & (LF1_CHASM))
+			{
+				if (!(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
+					!(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=3;
+			}
+		}
 
 		/* Total */
 		total += table[i].prob3;
@@ -518,7 +513,6 @@ s16b get_mon_num(int level)
 
 	/* No legal monsters */
 	if (total <= 0) return (0);
-
 
 	/* Pick a monster */
 	value = rand_int(total);
@@ -625,17 +619,17 @@ s16b get_mon_num(int level)
  *   0x01 --> Objective (or Reflexive)
  *   0x02 --> Possessive (or Reflexive)
  *   0x04 --> Use indefinites for hidden monsters ("something")
- *   0x08 --> Use indefinites for visible monsters ("a kobold")
+ *   0x08 --> Use indefinites for visible monsters ("a goblin")
  *   0x10 --> Pronominalize hidden monsters
  *   0x20 --> Pronominalize visible monsters
  *   0x40 --> Assume the monster is hidden
  *   0x80 --> Assume the monster is visible
  *
  * Useful Modes:
- *   0x00 --> Full nominative name ("the kobold") or "it"
- *   0x04 --> Full nominative name ("the kobold") or "something"
- *   0x80 --> Genocide resistance name ("the kobold")
- *   0x88 --> Killing name ("a kobold")
+ *   0x00 --> Full nominative name ("the goblin") or "it"
+ *   0x04 --> Full nominative name ("the goblin") or "something"
+ *   0x80 --> Genocide resistance name ("the goblin")
+ *   0x88 --> Killing name ("a goblin")
  *   0x22 --> Possessive, genderized if visable ("his") or "its"
  *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
@@ -778,13 +772,14 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 void lore_do_probe(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 
 	/* Hack -- Memorize some flags */
-	r_ptr->r_flags1 = r_ptr->flags1;
-	r_ptr->r_flags2 = r_ptr->flags2;
-	r_ptr->r_flags3 = r_ptr->flags3;
+	l_ptr->r_flags1 = r_ptr->flags1;
+	l_ptr->r_flags2 = r_ptr->flags2;
+	l_ptr->r_flags3 = r_ptr->flags3;
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -811,16 +806,17 @@ void lore_do_probe(int m_idx)
 void lore_treasure(int m_idx, int num_item, int num_gold)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
 
 	/* Note the number of things dropped */
-	if (num_item > r_ptr->r_drop_item) r_ptr->r_drop_item = num_item;
-	if (num_gold > r_ptr->r_drop_gold) r_ptr->r_drop_gold = num_gold;
+	if (num_item > l_ptr->r_drop_item) l_ptr->r_drop_item = num_item;
+	if (num_gold > l_ptr->r_drop_gold) l_ptr->r_drop_gold = num_gold;
 
 	/* Hack -- memorize the good/great flags */
-	if (r_ptr->flags1 & (RF1_DROP_GOOD)) r_ptr->r_flags1 |= (RF1_DROP_GOOD);
-	if (r_ptr->flags1 & (RF1_DROP_GREAT)) r_ptr->r_flags1 |= (RF1_DROP_GREAT);
+	if (r_ptr->flags1 & (RF1_DROP_GOOD)) l_ptr->r_flags1 |= (RF1_DROP_GOOD);
+	if (r_ptr->flags1 & (RF1_DROP_GREAT)) l_ptr->r_flags1 |= (RF1_DROP_GREAT);
 
 	/* Update monster recall window */
 	if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -879,7 +875,8 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * telepathy, or (3) it is close to the player, and in line of sight
  * of the player, and it is "illuminated" by some combination of
  * infravision, torch light, or permanent light (invisible monsters
- * are only affected by "light" if the player can see invisible).
+ * are only affected by "light" if the player can see invisible), and
+ * it is not hidden in a feature somehow.
  *
  * Monsters which are not on the current panel may be "visible" to
  * the player, and their descriptions will include an "offscreen"
@@ -896,6 +893,8 @@ void update_mon(int m_idx, bool full)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	int d;
 
@@ -952,7 +951,7 @@ void update_mon(int m_idx, bool full)
 			if (r_ptr->flags2 & (RF2_EMPTY_MIND))
 			{
 				/* Memorize flags */
-				r_ptr->r_flags2 |= (RF2_EMPTY_MIND);
+				l_ptr->r_flags2 |= (RF2_EMPTY_MIND);
 			}
 
 			/* Weird mind, occasional telepathy */
@@ -965,11 +964,11 @@ void update_mon(int m_idx, bool full)
 					flag = TRUE;
 
 					/* Memorize flags */
-					r_ptr->r_flags2 |= (RF2_WEIRD_MIND);
+					l_ptr->r_flags2 |= (RF2_WEIRD_MIND);
 
 					/* Hack -- Memorize mental flags */
-					if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-					if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+					if (r_ptr->flags2 & (RF2_SMART)) l_ptr->r_flags2 |= (RF2_SMART);
+					if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->r_flags2 |= (RF2_STUPID);
 				}
 			}
 
@@ -980,8 +979,8 @@ void update_mon(int m_idx, bool full)
 				flag = TRUE;
 
 				/* Hack -- Memorize mental flags */
-				if (r_ptr->flags2 & (RF2_SMART)) r_ptr->r_flags2 |= (RF2_SMART);
-				if (r_ptr->flags2 & (RF2_STUPID)) r_ptr->r_flags2 |= (RF2_STUPID);
+				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->r_flags2 |= (RF2_SMART);
+				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->r_flags2 |= (RF2_STUPID);
 			}
 		}
 
@@ -991,12 +990,11 @@ void update_mon(int m_idx, bool full)
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
 
-			/* Don't see hidden monsters */
+			/* Hidden */
 			if (m_ptr->mflag & (MFLAG_HIDE))
-			{				
+			{
 
 			}
-
 			/* Use "infravision" */
 			else if (d <= p_ptr->see_infra)
 			{
@@ -1015,16 +1013,18 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
-            /* Use "lite carriers" */
-            if (r_ptr->flags2 & (RF2_HAS_LITE)) easy=flag=TRUE;
-
-
-
 			/* Use "illumination" */
-			else if (player_can_see_bold(fy, fx))
+			if (player_can_see_bold(fy, fx))
 			{
+
+				/* Hidden */
+				if (m_ptr->mflag & (MFLAG_HIDE))
+				{
+
+				}
+
 				/* Handle "invisible" monsters */
-				if (r_ptr->flags2 & (RF2_INVISIBLE))
+				else if (r_ptr->flags2 & (RF2_INVISIBLE))
 				{
 					/* Take note */
 					do_invisible = TRUE;
@@ -1049,8 +1049,8 @@ void update_mon(int m_idx, bool full)
 			if (flag)
 			{
 				/* Memorize flags */
-				if (do_invisible) r_ptr->r_flags2 |= (RF2_INVISIBLE);
-				if (do_cold_blood) r_ptr->r_flags2 |= (RF2_COLD_BLOOD);
+				if (do_invisible) l_ptr->r_flags2 |= (RF2_INVISIBLE);
+				if (do_cold_blood) l_ptr->r_flags2 |= (RF2_COLD_BLOOD);
 			}
 		}
 	}
@@ -1072,11 +1072,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Hack -- Count "fresh" sightings */
-			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
-
-
-			 /* Player knows if it has light */
-                         if (r_ptr->flags2 & RF2_HAS_LITE) r_ptr->r_flags2 |= RF2_HAS_LITE;
+			if (l_ptr->r_sights < MAX_SHORT) l_ptr->r_sights++;
 
 			/* Disturb on appearance */
 			if (disturb_move) disturb(1, 0);
@@ -1236,6 +1232,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 {
 	int m1, m2;
 
+#ifdef ALLOW_ROOMDESC
+	int by1 = y1/BLOCK_HGT;
+        int bx1 = x1/BLOCK_WID;
+	int by2 = y2/BLOCK_HGT;
+        int bx2 = x2/BLOCK_WID;
+#endif
+
 	monster_type *m_ptr;
 
 
@@ -1281,9 +1284,19 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
-		/* XXX XXX Update bonuses */
-                p_ptr->update |= (PU_BONUS);
-
+#ifdef ALLOW_ROOMDESC
+		/* Update room description (if needed) */
+                /* Line 1 -- we are entering a room */
+                /* Line 2 -- which is different from the last room */
+                /* Line 3 -- or we were not in a room */
+                if ((cave_info[y2][x2] & (CAVE_ROOM)) &&
+                 ((dun_room[by1][bx1] != dun_room[by2][bx2]) ||
+                        !(cave_info[y1][x1] & (CAVE_ROOM))))
+		{
+                        p_ptr->window |= (PW_ROOM_INFO);
+                        p_ptr->update |= (PU_ROOM_INFO);
+		}
+#endif
 	}
 
 	/* Monster 2 */
@@ -1318,10 +1331,20 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
-		/* XXX XXX Update bonuses */
-                p_ptr->update |= (PU_BONUS);
+#ifdef ALLOW_ROOMDESC
+		/* Update room description (if needed) */
+                /* Line 1 -- we are entering a room */
+                /* Line 2 -- which is different from the last room */
+                /* Line 3 -- or we were not in a room */
+                if ((cave_info[y1][x1] & (CAVE_ROOM)) &&
+                 ((dun_room[by1][bx1] != dun_room[by2][bx2]) ||
+                        !(cave_info[y2][x2] & (CAVE_ROOM))))
+		{
+                        p_ptr->window |= (PW_ROOM_INFO);
+                        p_ptr->update |= (PU_ROOM_INFO);
+		}
 
-
+#endif
 	}
 
 
@@ -1351,6 +1374,319 @@ s16b player_place(int y, int x)
 	return (-1);
 }
 
+/* XXX XXX Checking by blow method is broken currently, because we
+ * historically damage monsters even when they are immune to fire etc. So we
+ * should have an advanced flow by threat level for monsters. The borg does this
+ * effectively, but is somewhat computationally expensive and still isn't
+ * perfect. Besides, implementing borg code for monsters is Angband 3.0.0 work.
+ *
+ * Instead, we rely on marking the level whenever a particular
+ * terrain type is generated on that level. Then we prefer to generate monsters
+ * on that level that have immunity to that particular terrain type(s). Even
+ * that is a bit broken because some immunities rely on knowing the prefix
+ * to a monster flag, a) we don't want to restrict monster types too heavily.
+ * ie water and lava, require "magma" and "water" elementals to have correct
+ * immunity and b) checking for a prefix all the time would add to the CPU
+ * flow cost.
+ *
+ * So we give monsters 'fake' immunity.
+ * All swimming monsters and digging monsters, while swimming or digging are
+ * IM_WATER.
+ * All IM_FIRE swimming monsters are IM_BWATER.
+ * All IM_FIRE digging monsters are IM_BMUD.
+ * All BR_FIRE monsters are IM_LAVA.
+ * All NEVER_MOVE monsters ignore falling damage from pits (But not trap doors
+ * /falls).
+ * All NONLIVING monsters are IM_WATER.
+ * All NONLIVING IM_FIRE monsters are IM_BWATER and IM_BMUD.
+ *
+ * Note the difference between NONLIVING and CAN_SWIM/CAN_DIG monsters is that
+ * non-living monsters are unable to 'pop-up' and attack or cast spells while
+ * in deep terrain. They are instead silently 'pushed over'.
+ *
+ * We must make sure that we never apply blows to monsters from terrain
+ * that qualify for fake immunity unless we need to (Say from a trap).
+ *
+ * This has the downside that we can allow a player to manipulate how monsters
+ * are generated and move through judicious use of the flow options. This has
+ * always been the case however. To minimise the risk of outright manipulation
+ * we should confuse a monster whenever it is stuck in terrain it can't seem to
+ * move out of. This is better than any attempt to use a flow algorithm that
+ * is not sufficiently smart.
+ *
+ * By not sufficiently smart, we mean not taking in account of a case such as
+ * being smartest to flow across lava to get to water which we can swim in
+ * to attack the player in cases for creatures that are both capable and not
+ * capable of traversing both, one or neither type of terrain.
+ *
+ * And don't use this an argument against terrain, because we fail to handle
+ * exactly the same type of cases for doors and/or permanent features in
+ * vanilla Angband. Witness the grief caused by vaults on levels with Morgoth
+ * and numerous player exploits possible under this scenario.
+ *
+ * We then stop monsters flowing that can't flow through all non-wall terrain
+ * on the level. This is currently unimplemented.
+ *
+ * XXX We should risk traps based on monster hp.
+ */
+
+bool mon_resist_feat(int feat, int r_idx)
+{
+	feature_type *f_ptr;
+	monster_race *r_ptr;
+
+	bool nonliving = FALSE;
+
+	/* Get feature info */
+	f_ptr= &f_info[feat];
+	
+	/* Paranoia */
+	if (!r_idx) return (FALSE);
+
+	/* Race */
+	r_ptr = &r_info[r_idx];
+
+	/* Death by Physical attack -- non-living monster */
+	if ((r_ptr->flags3 & (RF3_DEMON)) ||
+			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+			 (strchr("Evg", r_ptr->d_char)))
+	{
+		nonliving = TRUE;
+	}
+
+        /* Always risk traps if stupid */
+        if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
+            (r_ptr->flags2 & (RF2_STUPID))) return (TRUE);
+
+	/* Always fail for spells */
+	if (f_ptr->spell) return (FALSE);
+
+        /* Sometimes risk traps if not smart */
+        if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
+            !(r_ptr->flags2 & (RF2_SMART)) &&
+            (rand_int(100)<30)) return (TRUE);
+
+	if (f_ptr->blow.method)
+	{
+		switch (f_ptr->blow.effect)
+		{
+
+			case GF_ICE:
+			case GF_HURT:
+			case GF_UN_BONUS:
+			case GF_UN_POWER:
+			case GF_EAT_GOLD:
+			case GF_EAT_ITEM:
+			case GF_EAT_FOOD:
+			case GF_EAT_LITE:
+			return ((f_ptr->blow.d_dice * f_ptr->blow.d_side)==0);
+			break;
+
+			case GF_POIS:
+			if (!(r_ptr->flags3 & (RF3_IM_POIS))) return (FALSE);
+			break;
+
+			case GF_ACID:
+			if (!(r_ptr->flags3 & (RF3_IM_ACID))) return (FALSE);
+			break;
+
+			case GF_ELEC:
+			if (!(r_ptr->flags3 & (RF3_IM_ELEC))) return (FALSE);
+			break;
+
+			case GF_FIRE:
+			if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
+			break;
+
+			case GF_LAVA:
+			if (!(r_ptr->flags4 & (RF4_BR_FIRE))) return (FALSE);
+			break;
+
+			case GF_WATER_WEAK:
+			case GF_WATER:
+			if (nonliving) return (TRUE);
+			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
+			{
+
+			}
+			else if ((r_ptr->flags2 & (RF2_CAN_DIG)) && (f_ptr->flags2 & (FF2_CAN_DIG)))
+			{
+
+			}
+			else
+			{
+				return (FALSE);
+			}
+
+			break;
+
+			case GF_BWATER:
+			if (nonliving && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
+			{
+				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
+			}
+			else
+			{
+				return(FALSE);
+			}
+			break;
+
+			case GF_BMUD:
+			if (nonliving && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags2 & (RF2_CAN_DIG)) && (f_ptr->flags2 & (FF2_CAN_DIG)))
+			{
+				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
+			}
+			else
+			{
+				return(FALSE);
+			}
+			break;
+
+			case GF_COLD:
+			if (!(r_ptr->flags3 & (RF3_IM_COLD))) return (FALSE);
+			break;
+
+			case GF_BLIND:
+			case GF_CONFUSION:
+			if (!(r_ptr->flags3 & (RF3_NO_CONF))) return (FALSE);
+			break;
+
+			case GF_TERRIFY:
+			if (!(r_ptr->flags3 & (RF3_NO_FEAR))) return (FALSE);
+			break;
+
+			case GF_PARALYZE:
+			if (!(r_ptr->flags3 & (RF3_NO_SLEEP))) return (FALSE);
+			break;
+
+			case GF_LOSE_STR:
+			case GF_LOSE_INT:
+			case GF_LOSE_WIS:
+			case GF_LOSE_DEX:
+			case GF_LOSE_CON:
+			case GF_LOSE_CHR:
+			case GF_LOSE_ALL:
+			case GF_EXP_10:
+			case GF_EXP_20:
+			case GF_EXP_40:
+			case GF_EXP_80:
+			if (!(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
+			break;
+
+			case GF_SHATTER:
+			return (FALSE);
+			break;
+
+			case GF_NOTHING:
+			break;
+
+			case GF_FALL_MORE:
+			if (!(r_ptr->flags2 & (RF2_CAN_FLY))) return (FALSE);
+			break;
+
+			case GF_FALL:
+			case GF_FALL_SPIKE:
+			case GF_FALL_POIS:
+			if (!(r_ptr->flags1 & (RF1_NEVER_MOVE))) return (FALSE);
+			break;
+
+
+			default:
+			return (FALSE);
+			break;
+		}
+
+	}
+
+
+	return(TRUE);
+}
+
+/* ANDY - The routine we use to determine if we can place a monster
+ * on a particular terrain type. This returns an integer defining
+ * what mode of movement the monster is using (climbing, swimming etc.)
+ * or a FALSE result if the monster cannot move on this terrain.
+ */
+int place_monster_here(int y, int x, int r_idx)
+{
+	int feat;
+
+	feature_type *f_ptr;
+	monster_race *r_ptr;
+
+	/* Get feature */
+	feat = cave_feat[y][x];
+
+	/* Get feature info */
+	f_ptr= &f_info[cave_feat[y][x]];
+	
+	/* Paranoia */
+	if (!r_idx) return (MM_FAIL);
+
+	/* Race */
+	r_ptr = &r_info[r_idx];
+
+	/* Hack -- check for swimming */
+	if ((mon_resist_feat(feat,r_idx)) &&
+		(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
+		(f_ptr->flags2 & (FF2_CAN_SWIM)))
+	{
+		return(MM_SWIM);
+	}
+	else if (r_ptr->flags2 & (RF2_MUST_SWIM))
+	{
+		return(MM_FAIL);
+	}
+
+	/* Hack -- check for digging */
+	if ((mon_resist_feat(feat,r_idx)) &&
+		(r_ptr->flags2 & (RF2_CAN_DIG)) &&
+		(f_ptr->flags2 & (FF2_CAN_DIG)))
+	{
+		return(MM_DIG);
+	}
+
+	/* Hack -- check for flying. */
+	if ((f_ptr->flags2 & (FF2_CAN_FLY)) &&
+		(r_ptr->flags2 & (RF2_CAN_FLY)))
+	{
+		return(MM_FLY);
+	}
+
+	else if (r_ptr->flags2 & (RF2_MUST_FLY))
+	{
+		return(MM_FAIL);
+	}
+
+	/* Hack -- check for climbing. */
+	if ((r_ptr->flags2 & (RF2_CAN_CLIMB)) && 
+		((f_ptr->flags2 & (FF2_CAN_FLY))))
+	{
+		int i;
+
+		for (i=0;i<8;i++)
+		{
+			int d,yi,xi;
+			
+			d = ddd[i];
+			yi = ddy[d];
+			xi = ddx[d];
+
+			if (f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) return(MM_CLIMB);
+		}
+
+	}
+
+	/* XXX XXX Make monsters smarter about what they walk on */
+	if (mon_resist_feat(f_ptr->mimic,r_idx)) return(MM_WALK);
+
+	return(MM_FAIL);
+
+}
+
+
 
 /*
  * Place a copy of a monster in the dungeon XXX XXX
@@ -1362,6 +1698,7 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	monster_type *m_ptr;
 	monster_race *r_ptr;
 
+	int mmove;
 
 	/* Paranoia XXX XXX */
 	if (cave_m_idx[y][x] != 0) return (0);
@@ -1386,6 +1723,55 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		m_ptr->fy = y;
 		m_ptr->fx = x;
 
+		/* Clear flags */
+		m_ptr->mflag &= ~(MFLAG_OVER | MFLAG_HIDE);
+
+		/* Place as hidden if appropriate */
+		mmove = place_monster_here(y,x,m_ptr->r_idx);
+
+		/* Update flags */
+		if (((mmove == MM_FLY) || (mmove == MM_CLIMB)) && (m_ptr->mflag & (MFLAG_OVER)))
+		{
+			m_ptr->mflag |= (MFLAG_OVER);
+		}
+		else
+		{
+			m_ptr->mflag &= ~(MFLAG_OVER);
+		}
+
+		/* Set hide flag if passing through floor/ceiling (phasing) */
+		if ((f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) && (mmove == MM_PASS))
+		{
+			m_ptr->mflag |=(MFLAG_HIDE);
+		}
+
+		/* Set hide flag if digging and HIDE_DIG */
+		if ((f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_DIG)) && (mmove == MM_DIG))
+		{
+			m_ptr->mflag |=(MFLAG_HIDE);
+		}
+		/* Set hide flag if swimming and HIDE_SWIM */
+		else if ((f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_SWIM)) && (mmove == MM_SWIM))
+		{
+			m_ptr->mflag |=(MFLAG_HIDE);
+		}
+		/* Set hide flag if HIDE_DEEP and resistant, with conditions */
+		else if ((f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_DEEP))
+			&& (mon_resist_feat(cave_feat[y][x],m_ptr->r_idx)))
+		{
+			if (f_info[cave_feat[y][x]].flags2 & (FF2_COVERED))
+			{
+			}
+			/* Covered/bridged features are special */
+			else if (f_info[cave_feat[y][x]].flags2 & (FF2_BRIDGED))
+			{
+			}
+			else
+			{
+				m_ptr->mflag |=(MFLAG_HIDE);
+			}
+		}
+
 		/* Update the monster */
 		update_mon(m_idx, TRUE);
 
@@ -1406,201 +1792,8 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 	return (m_idx);
 }
 
-/* ANDY - The routine we use to determine if we can place a monster
- * on a particular terrain type. We should also allow this for determining
- * monster movement.
- */
-bool place_monster_on(int feat, int r_idx)
-{
-        bool can_dig;
-        bool can_swim;
 
-	feature_type *f_ptr;
-	monster_race *r_ptr;
 
-	/* Get feature info */
-	f_ptr= &f_info[feat];
-	
-	/* Paranoia */
-	if (!r_idx) return (FALSE);
-
-	/* Race */
-	r_ptr = &r_info[r_idx];
-
-/* XXX XXX Checking by blow method is broken currently, because we
- * historically damage monsters even when they are immune to fire etc. So we
- * should have an advanced flow by threat level for monsters. The borg does this
- * effectively, but is somewhat computationally expensive and still isn't
- * perfect. Besides, implementing borg code for monsters is Angband 3.0.0 work.
- *
- * Instead, we rely on marking the level whenever a particular
- * terrain type is generated on that level. Then we prefer to generate monsters
- * on that level that have immunity to that particular terrain type(s). Even
- * that is a bit broken because some immunities rely on knowing the prefix
- * to a monster flag, a) we don't want to restrict monster types too heavily.
- * ie water and lava, require "magma" and "water" elementals to have correct
- * immunity and b) checking for a prefix all the time would add to the CPU
- * flow cost.
- *
- * So we give monsters 'fake' immunity.
- * All swimming monsters and digging monsters, while swimming or digging are
- * IM_WATER.
- * All IM_FIRE swimming monsters are IM_BWATER.
- * All IM_FIRE digging monsters are IM_BMUD.
- * All BR_FIRE monsters are IM_LAVA.
- *
- * We must make sure that we never apply blows to monsters from terrain
- * that qualify for fake immunity unless we need to (Say from a trap).
- *
- * This has the downside that we can allow a player to manipulate how monsters
- * are generated and move through judicious use of the flow options. This has
- * always been the case however. To minimise the risk of outright manipulation
- * we should confuse a monster whenever it is stuck in terrain it can't seem to
- * move out of. This is better than any attempt to use a flow algorithm that
- * is not sufficiently smart.
- *
- * By not sufficiently smart, we mean not taking in account of a case such as
- * being smartest to flow across lava to get to water which we can swim in
- * to attack the player in cases for creatures that are both capable and not
- * capable of traversing both, one or neither type of terrain.
- *
- * And don't use this an argument against terrain, because we fail to handle
- * exactly the same type of cases for doors and/or permanent features in
- * vanilla Angband. Witness the grief caused by vaults on levels with Morgoth
- * and numerous player exploits possible under this scenario.
- *
- * We then stop monsters flowing that can't flow through all non-wall terrain
- * on the level. This is currently unimplemented.
- */
-
-/* And as a result of the above discussion */
-
-        /* Set flags */
-        can_dig = FALSE;
-        can_swim = FALSE;
-
-	/* Hack -- check for flying. */
-        if ((f_info[feat].flags2 & (FF2_CAN_FLY)) &&
-                (r_ptr->flags2 & (RF2_CAN_FLY)))
-	{
-                return(TRUE);
-	}
-
-	else if (r_ptr->flags2 & (RF2_MUST_FLY))
-	{
-		return(FALSE);
-	}
-
-	/* Hack -- check for swimming */
-        if ((r_ptr->flags2 & (RF2_CAN_SWIM)) &&
-                (f_info[feat].flags2 & (FF2_CAN_SWIM)))
-	{
-
-                can_swim = TRUE;
-	}
-	else if (r_ptr->flags2 & (RF2_MUST_SWIM))
-	{
-		return(FALSE);
-	}
-
-	/* Hack -- check for digging */
-        if ((r_ptr->flags2 & (RF2_CAN_DIG)) &&
-                (f_info[feat].flags2 & (FF2_CAN_DIG)))
-	{
-
-                can_dig = TRUE;
-	}
-
-        if (f_ptr->blow.method)
-	{
-		switch (f_ptr->blow.effect)
-		{
-
-			case GF_HURT:
-			return(FALSE);
-			break;
-
-	                case GF_POIS:
-			if (!(r_ptr->flags3 & (RF3_IM_POIS))) return (FALSE);
-			break;
-
-	                case GF_UN_BONUS:
-       	        	case GF_UN_POWER:
-        	        case GF_EAT_GOLD:
-                	case GF_EAT_ITEM:
-	                case GF_EAT_FOOD:
-        	        case GF_EAT_LITE:
-			return (TRUE);
-			break;
-
-	                case GF_ACID:
-			if (!(r_ptr->flags3 & (RF3_IM_ACID))) return (FALSE);
-			break;
-
-	                case GF_ELEC:
-			if (!(r_ptr->flags3 & (RF3_IM_ELEC))) return (FALSE);
-			break;
-
-	                case GF_FIRE:
-			if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
-			break;
-
-                        case GF_LAVA:
-                        if (!(r_ptr->flags4 & (RF4_BR_FIRE))) return (FALSE);
-                        break;
-
-                        case GF_WATER:
-                        if (!(can_dig) && !(can_swim)) return (FALSE);
-                        break;
-
-                        case GF_BWATER:
-                        if (!(can_swim) || !(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
-                        break;
-
-			case GF_BMUD:
-                        if (!(can_swim) || !(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
-                        break;
-
-                        case GF_ICE:
-	                case GF_COLD:
-			if (!(r_ptr->flags3 & (RF3_IM_COLD))) return (FALSE);
-			break;
-
-	                case GF_BLIND:
-                        case GF_CONFUSION:
-			if (!(r_ptr->flags3 & (RF3_NO_CONF))) return (FALSE);
-			break;
-
-	                case GF_TERRIFY:
-			if (!(r_ptr->flags3 & (RF3_NO_FEAR))) return (FALSE);
-			break;		
-
-	                case GF_PARALYZE:
-       	         	case GF_LOSE_STR:
-                	case GF_LOSE_INT:
-                	case GF_LOSE_WIS:
-                	case GF_LOSE_DEX:
-                	case GF_LOSE_CON:
-                	case GF_LOSE_CHR:
-                	case GF_LOSE_ALL:
-                	case GF_SHATTER:
-                	case GF_EXP_10:
-                	case GF_EXP_20:
-                	case GF_EXP_40:
-                	case GF_EXP_80:
-			return (FALSE);
-			break;
-
-			default:
-			break;
-		}
-
-	}
-
-        if (f_ptr->spell) return (FALSE);
-
-        return(TRUE);
-}
 
 /*
  * Attempt to place a monster of the given race at the given location.
@@ -1632,29 +1825,23 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 	cptr name;
 
-	bool climbing;
-	bool flying;
-	bool swimming;
-	bool digging;
-
-
-	/* ANDY - Set climbing etc. */
-	climbing = FALSE;
-	flying = FALSE;
-	swimming = FALSE;
-	digging = FALSE;
 
 	/* Paranoia */
 	if (!in_bounds(y, x)) return (FALSE);
 
 	/* Require empty space */
-/*        if (!cave_empty_bold(y, x)) return (FALSE);*/
-
-        /* Require to be free of monsters*/
-        if (cave_m_idx[y][x]) return(FALSE);        
+	if (!cave_empty_bold(y, x))
+	{
+		return (FALSE);
+	}
+	/* Require monster can survive on terrain */
+	if (!place_monster_here(y, x, r_idx))
+	{
+		return (FALSE);
+	}
 
 	/* Hack -- no creation on glyph of warding */
-        if (!(f_info[cave_feat[y][x]].flags1 & (FF1_PLACE))) return (FALSE);
+	if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -1682,67 +1869,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		/* Cannot create */
 		return (FALSE);
-	}
-
-	/* Hack -- check for climbing. */
-	if ((r_ptr->flags2 & (RF2_CAN_CLIMB)) && 
-		((f_info[cave_feat[y][x]].flags2 & (FF2_CAN_FLY))))
-	{
-		int ii;
-
-		for (ii=0;ii<8;ii++)
-		{
-			int dd,yii,xii;
-			
-			dd = ddd[ii];
-                        yii = ddy[dd];
-                        xii = ddx[dd];
-
-                        if ( f_info[cave_feat[yii][xii]].flags2 & (FF2_CAN_CLIMB)) climbing=TRUE;
-		}
-	}
-
-	/* Hack -- check for flying. */
-	if ((f_info[cave_feat[y][x]].flags2 & (FF2_CAN_FLY)) &&
-                (r_ptr->flags2 & (RF2_CAN_FLY)))
-	{
-		flying = TRUE;
-	}
-
-	else if (r_ptr->flags2 & (RF2_MUST_FLY))
-	{
-		return(FALSE);
-	}
-
-	/* Hack -- check for swimming */
-	if ((place_monster_on(cave_feat[y][x],r_idx)) &&
-		(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
-		(f_info[cave_feat[y][x]].flags2 & (FF2_CAN_SWIM)))
-	{
-
-		swimming = TRUE;
-	}
-	else if (r_ptr->flags2 & (RF2_MUST_SWIM))
-	{
-		return(FALSE);
-	}
-
-	/* Hack -- check for digging */
-	if ((place_monster_on(cave_feat[y][x],r_idx)) &&
-		(r_ptr->flags2 & (RF2_CAN_DIG)) &&
-		(f_info[cave_feat[y][x]].flags2 & (FF2_CAN_DIG)))
-	{
-
-		digging = TRUE;
-	}
-
-	/* Hack -- check to see if can stand on terrain */
-	if ((!climbing && !swimming && !flying && !digging) &&
-		(!(place_monster_on(f_info[cave_feat[y][x]].mimic,r_idx))))
-	{
-
-		return (FALSE);
-
 	}
 
 
@@ -1842,22 +1968,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Optimize -- Repair flags */
 	repair_mflag_born = TRUE;
 
-	/* Set fly flags */
-	if (flying || climbing)
-	{
-		n_ptr->mflag |= (MFLAG_OVER);
-	}
-	else
-	{
-		/* Set hide flag if digging */
-		if (digging) n_ptr->mflag |= (MFLAG_HIDE);
-
-		/* Set hide flag if HIDE_DEEP */
-	        if (f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_DEEP))  n_ptr->mflag |= (MFLAG_HIDE);
-
-		/* Set hide flag if swimming and HIDE_SWIM */
-	        if ((f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_SWIM))&& (swimming)) n_ptr->mflag |= (MFLAG_HIDE);
-	}
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
@@ -1868,10 +1978,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 
 
 /*
- * Maximum size of a group of monsters. This has changed from 32.
+ * Maximum size of a group of monsters
  */
-#define GROUP_MAX       8
-
+#define GROUP_MAX       32
 
 
 /*
@@ -1882,9 +1991,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	int old, n, i;
-	int total = 0, extra = 0;
+	int total, extra = 0;
 
-	int hack_n = 0;
+	int hack_n;
 
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];
@@ -1943,6 +2052,9 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 
 			/* Walls and Monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;
+
+			/* Hostile terrain will block flow */
+			if (!place_monster_here(my, mx, r_idx)) continue;
 
 			/* Attempt to place another monster */
 			if (place_monster_one(my, mx, r_idx, slp))
@@ -2050,10 +2162,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
-
 			/* Set the escort index */
 			place_monster_idx = r_idx;
-
 
 			/* Set the escort hook */
 			get_mon_num_hook = place_monster_okay;
@@ -2240,71 +2350,71 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_ANT:
 		{
 			okay = ((r_ptr->d_char == 'a') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_SPIDER:
 		{
 			okay = ((r_ptr->d_char == 'S') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_HOUND:
 		{
 			okay = (((r_ptr->d_char == 'C') || (r_ptr->d_char == 'Z')) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_HYDRA:
 		{
 			okay = ((r_ptr->d_char == 'M') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_ANGEL:
 		{
 			okay = ((r_ptr->d_char == 'A') &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_DEMON:
 		{
 			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_UNDEAD:
 		{
 			okay = ((r_ptr->flags3 & (RF3_UNDEAD)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_DRAGON:
 		{
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_KIN:
 		{
 			okay = ((r_ptr->d_char == summon_kin_type) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_HI_UNDEAD:
 		{
 			okay = ((r_ptr->d_char == 'L') ||
-			        (r_ptr->d_char == 'V') ||
-			        (r_ptr->d_char == 'W'));
+				(r_ptr->d_char == 'V') ||
+				(r_ptr->d_char == 'W'));
 			break;
 		}
 
@@ -2323,7 +2433,7 @@ static bool summon_specific_okay(int r_idx)
 		case SUMMON_WRAITH:
 		{
 			okay = ((r_ptr->d_char == 'W') &&
-			        (r_ptr->flags1 & (RF1_UNIQUE)));
+				(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
@@ -2380,8 +2490,8 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		/* Require "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
 
-		/* Hack -- no summon on glyph of warding */
-		if (cave_feat[y][x] == FEAT_GLYPH) continue;
+		/* Hack -- no summoning on glyph of warding */
+		if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) return (FALSE);
 
 		/* Okay */
 		break;
@@ -2451,6 +2561,9 @@ bool multiply_monster(int m_idx)
 		/* Require an "empty" floor grid */
 		if (!cave_empty_bold(y, x)) continue;
 
+		/* Require monster can survive on terrain */
+		if (!place_monster_here(y, x, m_ptr->r_idx)) return (FALSE);             
+
 		/* Create a new monster (awake, no groups) */
 		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE);
 
@@ -2499,8 +2612,8 @@ void message_pain(int m_idx, int dam)
 	percentage = (int)(tmp);
 
 
-	/* Jelly's, Mold's, Vortex's, Quthl's, Eye's --- ANDY */
-	if (strchr("ejmvQ", r_ptr->d_char))
+	/* Jelly's, Mold's, Vortex's, Quthl's */
+	if (strchr("jmvQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);

@@ -1,511 +1,78 @@
-SAVE FILE INDEPENDENCE
-Multiple streams within save files.
-Additional options supported/ignored if unimplemented.
-Additional entries within each stream supported/ignored if unimplemented.
-Vanilla/varient import/export filters.
-Multiple levels in save file.
-Monsters/items/ego items etc indexed by name/global type rather than order.
-Support loading multiple e_info/k_info/r_info files from multiple directories or
-selecting different info files at birth.
-Security preventing *_info files being modified after birth. 
+HANDS
 
-NEW CLASSES
+Prevent a player wielding a weapon, shield, light source and missile
+weapon at the same time. Only allow 2 out of 4 of these slots to be
+filled at anyone time.
 
-Use cr_info.txt and cc_info.txt to implement multiple races/classes. This should include
-H: lines for history, skill/hit point advancement, shots/blows, attribute modifiers, and 
-special attributes gained (eg RES_FEAR) at various levels.
-	
-Supporting many more special attributes in cr_info that allow more monster races
-to be translated to cr_info.txt (eg HURT_LITE, HURT_FIRE, RES_NEXUS etc.)
+Also allow a 2nd weapon to be wielded in the shield slot provided:
+i.	The player gets multiple blows.
+ii.	The second weapon is equal to or lighter than the 1st weapon.
+Every 2nd blow is taken by the second weapon. They are swapped as per
+rings.
 
-New classes must be introduced to Angband to expand variety of styles of
-play, not unnecessarily. 
-
-THIEF
-Thieves should be effective fighters and archers, with the best stealth. They are an
-alternate non-spell casting class to the warrior. They are the only class to improve in
-stealth and perception and have an excellent pseudo id.
-
-An increased chance of critical hits against sleeping/fleeing monsters should
-also not be too imbalancing for thieves (Backstab attack).
-
-A lot of varients attempt to incorporate these changes into rogues. I have them as a seperate
-class to test for play balance. To differentiate them, rogues should have improved magic item use.
-
-ARCHER
-
-I have a lot of support for the Archer class, if simply because giving
-multiple shots to a Ranger is a big hack. There should be a multiple shots
-routine set up just as there is a multiple blows routine, but only up to
-4 shots maximum, or things start to get out of hand (Especially with extra
-shot artifacts. That and seeker bolts of slay evil=1600+ dam).
-Archers should be first on this list, then Warriors and Rangers,
-then Mages and Rogues, then Priests (Crossbows were to the medieval clergy
-on par with what edged weapons have been traditionally perceived to be).
-
-Archers then become the limited resource attack from a distance style of
-play that many people want mages to be.  (ie Shoot multiple times, then
-teleport away). They as bad HtH fighters as priests to give
-this incentive. Besides which, they can always use their bows rather
-than fight in melee. Again, they have a hard early game (Care to run out
-of shots, again), although their starting items might benefit (Short bow,
-arrows). However they would have the strongest end game except for the GOI.
-
-WARRIOR MAGES
-
-I believe WARRIOR MAGES may be looked at as an effective MAGE equivelent to the PALADIN,
-with spell casting from the first level. They are not nearly as good in other skills as
-rangers however.
+If a character is not carrying anything in their hands (no weapon,
+shield, missile weapon or light source), they may swim or climb, 
+allowing them to ignore water damage or falling into terrain. This
+requires a skill test as well for swim or climbing skill as
+appropriate, and is heavily penalised by armour.
 
 LIGHTING
 
-Allow monsters, objects, feature to light their location and adjacent locations.
+Allow monsters, objects, feature to light their location and adjacent
+locations.
 
-Have a routine unlit_grid(x,y) that iterates from x-2,y-2 to x+2,y+2, determining if there is an object, monster or terrain adjacent that can light the locations ajacent to x,y. Complications due to multiple objects in a stack, in particular, how do we determine which object, monster or feature we are removing (Maybe seperate routine for each)
+Have a routine unlit_grid(x,y) that iterates from x-2,y-2 to x+2,y+2,
+determining if there is an object, monster or terrain adjacent that can
+light the locations ajacent to x,y. Complications due to multiple
+objects in a stack, in particular, how do we determine which object,
+monster or feature we are removing (Maybe seperate routine for each)
 so that it does not get included in the unlit_grid routine. Or do we
 remove the item first.
 
-If we drop a torch or lantern from when we are wielding it, we consider it lit. Should we consider permalit artifacts to always be lit, or only be lit when we wield them?
+If we drop a torch or lantern from when we are wielding it, we consider
+it lit. Should we consider permalit artifacts to always be lit, or only
+be lit when we wield them?
 
-Monsters that are GLOWS are always lit. Monsters that are HAVE_LIT have a radius 1 light. To prevent problems "dragging" light into a room
+Monsters that are GLOWS are always lit. Monsters that are HAVE_LIT have
+a radius 1 light. To prevent problems "dragging" light into a room
 
 FOG OF WAR
 
-Make detection spells work on a less than 100% basis. eg 80%-90%. This way, there can be no way of being exactly sure of whether or not a secret door is found or trap etc. These can still be detected safely by using indirect methods, such as a monster opening the door or hitting the trap.
+Make detection spells work on a less than 100% basis. eg 80%-90%. This
+way, there can be no way of being exactly sure of whether or not a
+secret door is found or trap etc. These can still be detected safely by
+using indirect methods, such as a monster opening the door or hitting
+the trap.
 
-
-Maybe do the same for telepathy. Have anti-detection rooms and anti-telepathy rooms. Also perma-dark rooms, anti-magic rooms etc.
-
-
-
-
-
-
+Maybe do the same for telepathy. Have anti-detection rooms and anti-
+telepathy rooms. Also perma-dark rooms, anti-magic rooms etc.
 
 NEW SPELL BOOKS/SPELLS
 
-Defined spells with s_info file including area of effect/range/damage progression.
-Generic routine for determining blow/spell attacks rather than seperate blows and 
-spells.
+Defined spells with s_info file including area of effect/range/damage
+progression.
 
-In particular, we need generate create an object spells, generate create a feature spells,
-generate bolt/beam/ball/wall (Line running perpendicular to direction chosen)/shield (All
-adjacent locations)/flood (Square area) spells. We should also have temporary object
-spells which create a wielded object, that may not be unwielded/sold and which is destroyed when
-the time out field drops to zero. This allows various temporary blade spells, Continual Light/Mage Light,
-Psychic Crown (Telepathy) and other effects to be generated.
+In particular, we need generate create an object spells, generate
+create a feature spells, generate bolt/beam/ball/wall (Line running
+perpendicular to direction chosen)/shield (All adjacent locations)/
+flood (Square area) spells. We should also have temporary object spells
+which create a wielded object, that may not be unwielded/sold and which
+is destroyed when the time out field drops to zero. This allows various
+temporary blade spells, Continual Light/Mage Light, Psychic Crown
+(Telepathy) and other effects to be generated.
 
-Note all summoned/charmed creatures are set to Betray the caster at the earliest
-moment.
+Note all summoned/charmed creatures are set to Betray the caster at the
+earliest moment.
 
-Note sleep/slow/confuse/scare spells should be improved in effectiveness against uniques and
-other monsters.
+Note sleep/slow/confuse/scare spells should be improved in
+effectiveness against uniques and other monsters.
 
-Reorganise those goddamn spell books. There are lots of good spell ideas
-screaming to get in, (Wizard Lock etc.), too many ego books, and not
-enough classes able to take advantage of them, so it becomes yet another
-cash money item on the dungeon floor when we have enough.
-
-I'd like to see more spells that a character can ever study, if only for some
-varied tactics in the mid to end game. This is more organic than the idea
-of schools of magic that some varients employ. Either we reduce the number of half-spells
-that high level characters can know or provide more books than can be learnt from.
-I suggest the latter, with a maximum of 9 books per character to prevent too much diversification. Even this
-may be an artificial limit, because books limit the inventory space and somone with too many books can't carry
-much else.
-
-Spell books are generated on a theme, such as Magic Book of Fire Spells, or Prayer Book
-of Battle Hymns. Books can be generated as (Fireproof) or (Waterproof) or (Theftproof)
-which gives the book immunity to damage/loss from that particular sort or (*Special*) which gives immunity to all of the above.
-
-MORE PRAYER BOOKS (14 total including 4 basic)
-Since only 9 books can be learnt the character must forgo 5 spell books.
-
-Blessings (Instead of Beginners Handbook)
-Mantras (Instead of Words of Wisdom)
-Chants (Instead of Chants and Blessings)
-Excorcisms (Instead of Exorcism and Dispelling)
-
-Battle Hymns
-------------
-Bless
-Chant
-Sanctuary
-Prayer
-Shield
-Hero's Prayer (Heroism)
-Righteous Fury (Beserk + bless)
-Armour of God (GOI)
-
-Holy Wrath
-----------
-Spiritual Hammer (Slay Evil object)
-Ray of Light
-Orb of Draining
-Flame Strike
-Hexen Hammer (Slay Demon object)
-Summon Angel
-Earthquake
-Holy Word
-
-the Eye of God
---------------
-Call Light
-Detect Monsters
-Find Traps
-Detect Doors/Stairs
-Detection
-Perception
-Probing
-Clairvoyance
-
-Spiritual Medium
-----------------
-Detect Undead
-Scare Monster
-Sense Invisible
-Turn Undead
-Dispel Undead
-Summon Ghost
-Raise Dead
-Restoration
-Rememberance
-
-Abjurations
------------
-Detect Evil
-Remove Fear
-Detect Curse
-Remove Curse
-Protection From Evil
-Dispel Evil
-Banishment
-Glyph of Warding
-
-Laying of Hands
----------------
-Cure Light Wounds
-Slow Poison
-Cure Moderate Wounds
-Neutralise Poison
-Cure Serious Wounds
-Satisfy Hunger
-Cure Critical Wounds
-Cure Mortal Wounds
-Heal
-
-the Way of God
---------------
-Blink
-Portal
-Teleport Self
-Teleport Other
-Teleport Level
-Word of Recall
-Alter Reality
-
-Relics
-------
-Unbarring Ways
-Recharging
-Dispel Curse
-Enchant Weapon To-Hit
-Enchant Weapon To-Damage
-Enchant Armour
-Enchant Armour To-Resist
-Bless Weapon
-Elemental Brand
-
-Saints
-------
-Resist Blindness
-Resist Heat and Cold
-Resist Poison
-Resist Lightening
-Resistance
-
-Accursed Ways
--------------
-Cause Light Wounds
-Animate Skeleton
-Cause Serious Wounds
-Animate Zombie
-Summon Ghoul
-Cause Critical Wounds
-Finger of Death
-Annihilation
-
-
-MORE MAGIC BOOKS (22 total including 4 basic)
-Since only 9 books can be studied from, the mage is forced to forgo 13 books of spells.
-
-Cantrips (Instead of Magic for Beginners)
-Conjuring (Instead of Conjuring and Tricks)
-Incantations (Instead of Incantations and Illusions)
-Sorcery (Instead of Sorcery and Invocatins)
-
-Fire Magic
-----------
-Burning Hands (Range 1)
-Flame Blade (Fire Brand object)
-Fire Trap
-Resist Fire
-Fire Bolt
-Flame Shield
-Fire Ball
-Fire Bolt II
-Wall of Fire
-Fire Bolt III
-Fire Storm
-Hellfire
-
-Acid Magic
------------
-Melting Hands (Range 1)
-Acid Blade (Acid Brand object)
-Acid Trap
-Resist Acid
-Acid Bolt
-Acid Shield
-Acid Ball
-Acid Bolt II
-Wall of Acid
-Acid Bolt III
-Acid Storm
-Ultimate Solvent
-
-Lightening Magic
-----------------
-Shocking Hands (Range 1)
-Storm Blade (Elec Brand object)
-Lightening Trap
-Resist Electricity
-Lightening Bolt
-Storm Shield
-Lightening Ball
-Lightening Bolt II
-Wall of Lightening
-Lightening Bolt III
-Lightening Storm
-Chain Lightening
-
-Frost Magic
------------
-Freezing Hands (Range 1)
-Ice Blade (Frost Brand object)
-Frost Trap
-Resist Cold
-Frost Bolt
-Ice Shield
-Frost Ball
-Frost Bolt II
-Wall of Ice
-Frost Bolt III
-Ice Storm
-Absolute Zero
-
-Celestial Magic
----------------
-Light Area
-Continual Light (Permalight object)
-Light Blade (Light Brand object)
-Spear of Light
-Starlight
-Sunburst
-Shooting Star (Meteor bolt)
-Meteor Storm
-Supernova
-
-Water Magic
------------
-Waterwalking
-Breathe Water
-Lower Water
-Water Bolt
-Water Shield
-Water Ball
-Water Bolt II
-Wall of Water
-Water Bolt III
-Flood
-
-Earth Magic
------------
-Treasure Detection
-Turn Stone to Mud
-Stone Skin
-Stone Bridge
-Shard Bolt
-Stone Shield
-Earthquake
-Shatter Hammer
-Shard Ball
-Wall of Stone
-Shard Storm
-Volcanic Blast
-
-Air Magic
----------
-Wall of Fog
-Stinking Cloud
-Breathe Water
-Turn Water to Air
-Fly
-Frost Cloud
-Acid Cloud
-Fire Cloud
-Storm Cloud
-Cloud Kill
-Death Fog
-
-Transformations
----------------
-Polymorph Other
-Heroism
-Shield
-Beserker
-Haste Self
-Resistance
-Globe of Invulneribility
-
-Words of Power
---------------
-Word of Opening
-Power Word Sleep
-Power Word Stun
-Symbol of Pain
-Power Word Blind
-Word of Recall
-Power Word Kill
-Word of Destruction
-Glyph of Warding
-
-Illusions
----------
-Scare Monster
-Confuse Monster
-Sleep I
-Charm Person
-Charisma
-Sleep II
-Sleep III
-Slow Monster
-Charm Monster
-Mass Sleep
-Mass Confusion
-Mass Fear
-Mass Charm
-
-Divinations
------------
-Detect Monsters
-Detect Evil
-Read Magic (Identify Scroll)
-Object Detection
-Find Hidden Traps/Doors
-Identify
-Detect Enchantment
-*Identify*
-
-Life Magic
-----------
-Cure Light Wounds
-Cure Poison
-Satisfy Hunger
-Resist Poison
-Cure Serious Wounds
-Cure Critical Wounds
-Genocide
-Mass Genocide
-
-Escapes
--------
-Phase Door
-Door Creation
-Stair Creation
-Levitation
-Teleport Self
-Teleport Other
-Teleport Level
-Earthquake
-Recall
-Instant Recall
-
-Enchantments
-------------
-Wizard Lock
-Trap/Door Destruction
-Recharge Item I
-Recharge Item II
-Recharge Item III
-Enchant Scroll
-Enchant Wand
-Enchant Staff
-Enchant Rod
-
-Alchemy
--------
-Analyze Magic (Identify Potion)
-Dust of Sneezing (Confusion)
-Balm of Heat and Cold
-Healing Salve
-Blasting Powder
-Philter of Heroism (Hero)
-Pill of Perception (Clairvoyance)
-Strength Serum (Beserk)
-Essence of Speed
-Enchant Potion
-Create Gold
-
-Magic Missiles
---------------
-Magic Missile
-Magic Missile II
-Magic Missile III
-Magic Missile V
-Mana Shield
-Mana Bolt
-Magic Missile X
-Mana Ball
-Mana Bolt II
-Mana Bolt III
-Mana Storm
-
-Necromancy
-----------
-Animate Skeleton
-Scare Monster
-Animate Zombie
-Turn Undead
-Animate Mummy
-Summon Ghoul
-Dispel Undead
-Summon Ghost
-Summon Demon
-Banishment
-Summon Greater Demon
-
-Animal Magic
-------------
-Detect Animals
-Detect Monsters
-Summon Animal
-Charm Person or Animal
-Find Familiar
-Dispel Animals
-Dispel Dragons
-Summon Dragon
-Dragonbreath
-Summon Greater Dragon
 
 MONSTER REVISIONS
 
-Rebalance monster list/experience value/rarity algorithmically with uniques
-appearing earlier than the algorithm would place a non-unique. 
-Allow unlimited monster races/uniques.
 Template for each monster genus/kind/race.
-Monster races associated with a particular genus/kind (ie Bats, red dragons) to allow
- "proper" pits/summon_same, using rg_idx/rk_idx.
+Monster races associated with a particular genus/kind (ie Bats, red
+dragons) to allow "proper" pits/summon_same, using rg_idx/rk_idx.
 Have centralised maintenance for rg_idx/rk_idx list if needed.
 Monster r_list editor with attribute inherietence.
 Valid flags listed at start of r_info file to confirm parsing.
@@ -513,20 +80,13 @@ Unimplemented flags ignored.
 Template for monster variables specified at start of r_info file.
 Unimplemented variables ignored.
 
-Allow monsters to attack with objects they carry if they hit, and use objects they
-carry if they cast spells. 
+Allow monsters to attack with objects they carry if they hit, and use
+objects they carry if they cast spells. 
 Allow monsters to have all spells from s_info file.
-Allow monsters to cast summon/heal/speed while out of sight centred on monster.
-Allow monsters to target ball spells next to you/not shoot friends with bolts.
-Monsters have IS_LITE, HAS_LITE_1, HAS_LITE_2 flags and NEED_LITE flags, but this
-is only used if the option Monsters carry lights is selected.
-Monsters have CAN_FLY, CAN_CLIMB, CAN_SWIM, AQUATIC attributes that only have effect
-if features that require CAN_FLY, CAN_CLIMB, CAN_SWIM are in the f_info.txt.
-Monsters GAZES, SPORES, WAILS flag for monsters to make these blows at a distance.
-if the option Monsters can make some blows at a distance is selected.
-
-
-
+Allow monsters to target ball spells next to you/not shoot friends with
+bolts.
+Monsters have IS_LITE, HAS_LITE_1, HAS_LITE_2 flags and NEED_LITE flags,
+but this is only used if the option Monsters carry lights is selected.
 
 NEW MONSTERS
 ,
@@ -1673,6 +1233,8 @@ of Venom (Poison, no resistance)
 of Ice (Cut, Cold, Resist Cold)
 of Confusion (Conf, Res Conf)
 of Thunder (Stun, Electricity, Resist Sound)
+(Acid Wit) (Acid, Resist Acid, Cut, Wisdom)
+(Thunder Head) (Elec, Resist Elec, Stun, Intelligence)
 (Flame Tongue) (Fire, Resist Fire, Cut, Charisma)
 (Frost Heart) (Cold, Resist Cold, Stun, Constitution)
 (Enchanted) (Intelligence, High Resist)
@@ -1704,6 +1266,72 @@ of Resist various high resists
 Rings
 of Resist various high resists
 
+EGO OBJECTS:
+
+Have rings/wands/staves/wands/potions defined by a base type, with various
+flavours for enchanted objects. Magical objects have an activation value
+associated with them for magical effects, and are defined just like ego
+items for magical weapons/armour. The base type defines the basic value of
+the non-magical item, and the activations modify the values, just like ego
+weapons.
+
+ie	gold ring	ornate gold ring
+			runed gold ring
+			plain gold ring
+
+
+47 gold rings is a treasure, and is useful for its innate value. 1 ornate
+gold ring is a magical item.
+
+The activations are define for all possible magical items. Each particular
+type defines how the activation is used (ie quaff a potion/read a scroll
+etc.). The flavours are seeded differently for each item so that for
+instance an ornate gold ring has a different ego value from an ornate
+silver ring. However, all ornate gold rings have the same ego type (See
+ego flavours below).
+
+Stacking is possible, per ego ammunition.
+
+TREASURE:
+
+All money is defined as an object, rather than abstracted. Copper, silver,
+gold, platinum, mithril coins etc. are all denominations used. In addition
+there are uncut gems of various types (all mined), nuggets of various
+types (All mined), cut gems, jewelry (toe rings, earrings, anklets, ankhs,
+amulets, braclets, crowns, etc.), ingots, etc.
+
+The coins of the realm (copper half-pennies and pennies, silver shillings,
+gold half-crowns and crowns, pound sterling and pound aurum notes) are
+worth more than unknown coins and have a set (old) gold piece value.
+
+			Weight (1/100ths of pound)
+half-penny	1 gp		1
+penny		2 gp		2
+farthing	6 gp		2
+shilling	12 gp		4
+half-crown	144 gp		3
+crown		288 gp		5
+pound sterling	300 gp		1
+pound aurum	5760 gp		1
+
+The character has a purse, which can contain coins/notes of the realm only
+ie it has 8 slots, reserved for each type of coin/note. The purse is accessed
+with the $ key while in inventory/equipment or the 'p' key (Old prayer key)
+while not in inventory/equipment. The AU value represents the total (set)
+value of the purse. It is possible in this system to carry 576,000 gp in one
+pound of pound aurum notes (Redeemable for a pound of gold crowns).
+
+Therefore store owners will only trade objects for other objects. If an
+object a store owner receives is not sold in their store, they will not
+display it as wares, and value it less.  Treasure of various types (eg gold
+coins, gold nuggets, diamonds, etc.) will never be sold in a store.
+
+Store owners will offer change in addition to objects, in coins of the realm.
+
+Under this system, haggling is the process of offering additional objects to
+reach the agreed value.
+
+
 EGO FLAVOURS:
 
 leather gloves
@@ -1718,87 +1346,185 @@ iron helm
 steel helm
 cloak
 
-fabrics: mink, feather, silk, ermine, cotton, wool, filthy rag, dyed, bloodstained, spidersilk,
+fabrics: mink, feather, silk, ermine, cotton, wool, filthy rag, dyed,
+bloodstained, spidersilk,
 
-leather: horse leather, tassled, dyed, skin, catskin, leopard skin, lion skin, bloodstained, studded, riveted, polished, enameled, dragonhide, mammoth hide, elephant hide,
+leather: horse leather, tassled, dyed, skin, catskin, leopard skin,
+lion skin, bloodstained, studded, riveted, polished, enameled,
+dragonhide, mammoth hide, elephant hide,
 
-metals: silver, silverplated, goldplated, mithrilplated, jewelled, bronze, fine steel,
-cold iron, rusty, polished steel, broken, dull iron, black steel, enamelled, bloodstained,
-meteroic iron, dwarven, elven, glassteel, tarnished, 
+metals: silver, silver-plated, gold-plated, mithril-plated, jewelled,
+bronze, fine steel, cold iron, rusty, polished steel, broken, dull iron,
+black steel, enamelled, bloodstained, meteroic iron, dwarven, elven,
+glassteel, tarnished, orcish,
 
-steels/irons: fine, goldplated, adamite, meteoric, dull, rusty, polished, dented, enamel,
-bloodstained, silverplated, dwarven, elven, broken, barbed, riveted, studded, ribbed, tarnished, 
+steels/irons: fine, goldplated, adamite, meteoric, dull, rusty,
+polished, dented, enamel, bloodstained, silverplated, dwarven, elven,
+broken, barbed, riveted, studded, ribbed, tarnished, runed, orcish,
 
 OBJECT MEMORY:
 
-Spot if attacked that you have fire/cold/confusion resistance etc. and make best
-"guess" as to object providing this ability. eg Ring of Resist Fire? 
-Spot if attacking that you have SLAY_ORC/BRAND_FIRE ability if you know enough about monster. 
+Spot if attacked that you have fire/cold/confusion resistance etc. and
+make best "guess" as to object providing this ability. eg Ring of Resist Fire? 
+Spot if attacking that you have SLAY_ORC/BRAND_FIRE ability if you know
+enough about monster. 
 Spot if you have permalight.
-Support multiple types of object per flavour and guess the object based on whether
-object flavour has been found eg Potion of Cure Blindness? rather than always known. 
-Guess at object flavour if you gain partial benefit rather than never know. eg
-Potion of Cure Light Wounds? if no more than light wounds healed.
+Support multiple types of object per flavour and guess the object based
+on whether object flavour has been found eg Potion of Cure Blindness
+rather than always known. 
+Guess at object flavour if you gain partial benefit rather than never
+know. eg Potion of Cure Light Wounds? if no more than light wounds healed.
 
 Object memory should allow the following:
 
-1. You have wielded 6 items and lose strength from an normally resistable attack. This clearly means none of these items sustain strength.
+1. You have wielded 6 items and lose strength from an normally
+resistable attack. This clearly means none of these items sustain strength.
 
-2. You have wielded 6 items and notice that you sustain strength. You take off each item in turn, testing that you still possess this ability, until you notice that you lose this ability after removing an item. This item clearly provides this ability.
+2. You have wielded 6 items and notice that you sustain strength. You
+take off each item in turn, testing that you still possess this ability,
+until you notice that you lose this ability after removing an item. This
+item clearly provides this ability.
 
-3. You have wielded 3 new items over the course of a period of adventuring. You then notice that you sustain strength, which you previously did not do. Then clearly, one or more items may sustain strength (In fact, at least 1 of these three must do).
+3. You have wielded 3 new items over the course of a period of
+adventuring. You then notice that you sustain strength, which you
+previously did not do. Then clearly, one or more items may sustain
+strength (In fact, at least 1 of these three must do).
 
-4. This should also apply to attacks which deliver known elemental damage, which either exceeded 1/3 of maximum damage (no resistance) or deliver less than 1/3 of minimum damage (resistance).
+4. This should also apply to attacks which deliver known elemental
+damage, which either exceeded 1/3 of maximum damage (no resistance) or
+deliver less than 1/3 of minimum damage (resistance).
 
-5. This should also apply to feather fall, regeneration (after a number of turns of damage), free action, see invisible etc.
+5. This should also apply to feather fall, regeneration (after a number
+ of turns of damage), free action, see invisible etc.
 
-For 6 & 7, we assume we can determine the damage done by the weapon. Either because we are assumed 'good' enough, or because we have killed enough creatures, or because we have killed enough creatures and the monster health bar is affected appropriately. If we make the third assumption, then in order for 7 to apply, we have to kill a creature in less than the minimum number of blows normally required. This is hard to track. I prefer option 2 because it allows for fast detects while fighting with the weapon against known creatures.
+For 6 & 7, we assume we can determine the damage done by the weapon.
+Either because we are assumed 'good' enough, or because we have killed
+enough creatures, or because we have killed enough creatures and the
+monster health bar is affected appropriately. If we make the third
+assumption, then in order for 7 to apply, we have to kill a creature in
+less than the minimum number of blows normally required. This is hard to
+track. I prefer option 2 because it allows for fast detects while
+fighting with the weapon against known creatures.
 
-6. For attacks, if we deliver low damage (less than 3x minimum damage) we know that the weapon does NOT_ have slays for the type of creature, and NOT_ brands for anything that creature is hurt by. This requires we know the weapon is not cursed, and so don't include bonus damage in the expected minimum damage, or that we have identified the weapon and can include bonuses. If we are wearing cursed items, we don't know minimums (as our stats may be reduced) and so can't perform this step.
+6. For attacks, if we deliver low damage (less than 3x minimum damage)
+we know that the weapon does NOT_ have slays for the type of creature,
+and NOT_ brands for anything that creature is hurt by. This requires we
+know the weapon is not cursed, and so don't include bonus damage in the
+expected minimum damage, or that we have identified the weapon and can
+include bonuses. If we are wearing cursed items, we don't know minimums
+(as our stats may be reduced) and so can't perform this step.
 
-7. When you deliver very high (exceeds maximum) damage and attempt to guess from what you know of the creature you are fighting, what the source of the high damage might be. This means an item MAY_ slay a particular race (depending on what races an creature belongs to) and MAY_ brand a particular element (depending on what resistances/hurts a creature has). We can limit this to Execute Dragon and the brands for which we know a creature is hurt by if we deliver greater than 3 times damage. We include the highest allowed strength in our maximum damage calculation, because we don't know our real strength, and require that the weapon is at least identified (Otherwise we don't know its damage bonus), along with our rings and gauntlets. If all items we wear are identified and HAS_ strength bonus, or NOT_ strength bonus, then we can use our real strength in this calculation.
-If we restrict the possible brands by a creature being IMMUNE to all the brands except for those the weapon does NOT possess, and restrict the slays so that there is only one the creature belongs to except for those that the weapon does NOT possess, then clearly the weapon HAS that slay.
-Similiarly, if the weapon does NOT slay the races to which the creature belongs, and the creature is IMMUNE to all brands except for one other than those the weapon does NOT possess, then clearly the weapon the weapon HAS the excepted brand.
-Similiarly, if the creature is a dragon and > 3x max damage is delivered, and the creature is IMMUNE to all the brands except those that the weapon does NOT have, then the weapon is EXECUTE dragon.
-Similiarly, if the creature is not a dragon and > 3x max damage is delivered, and the creature is IMMUNE to all brands except one and those that the weapon does NOT have, then the weapon HAS that one brand.
+7. When you deliver very high (exceeds maximum) damage and attempt to
+guess from what you know of the creature you are fighting, what the
+source of the high damage might be. This means an item MAY_ slay a
+particular race (depending on what races an creature belongs to) and
+MAY_ brand a particular element (depending on what resistances/hurts a
+creature has). We can limit this to Execute Dragon and the brands for
+which we know a creature is hurt by if we deliver greater than 3 times
+damage. We include the highest allowed strength in our maximum damage
+calculation, because we don't know our real strength, and require that
+the weapon is at least identified (Otherwise we don't know its damage
+bonus), along with our rings and gauntlets. If all items we wear are
+identified and HAS_ strength bonus, or NOT_ strength bonus, then we can
+use our real strength in this calculation. If we restrict the possible
+brands by a creature being IMMUNE to all the brands except for those the
+weapon does NOT possess, and restrict the slays so that there is only
+one the creature belongs to except for those that the weapon does NOT
+possess, then clearly the weapon HAS that slay.
+Similiarly, if the weapon does NOT slay the races to which the creature
+belongs, and the creature is IMMUNE to all brands except for one other
+than those the weapon does NOT possess, then clearly the weapon the
+weapon HAS the excepted brand.
+Similiarly, if the creature is a dragon and > 3x max damage is
+delivered, and the creature is IMMUNE to all the brands except those
+that the weapon does NOT have, then the weapon is EXECUTE dragon.
+Similiarly, if the creature is not a dragon and > 3x max damage is
+delivered, and the creature is IMMUNE to all brands except one and
+those that the weapon does NOT have, then the weapon HAS that one brand.
 
-8. Trivially permanent light, extra blows/attacks, cursed should be noticed and memorised.
+8. Trivially permanent light, extra blows/attacks, cursed should be
+noticed and memorised.
 
 
 The following rules are useful:
-When wielded, object is marked with NOT_CURSED, NOT_HEAVY_CURSED etc. unless cursed. Then, mark with HAS_CURSED. If {average} or identified non-ego/non-artifact item, memorise KIDX with NOT_ if not cursed, unless MAY or HAS in which case memorise with MAY_. Similarly for cursed items, identified ego items and identified artifacts.
+When wielded, object is marked with NOT_CURSED, NOT_HEAVY_CURSED etc.
+unless cursed. Then, mark with HAS_CURSED. If {average} or identified
+non-ego/non-artifact item, memorise KIDX with NOT_ if not cursed,
+unless MAY or HAS in which case memorise with MAY_. Similarly for
+cursed items, identified ego items and identified artifacts.
 
-When notices does not have ability, all objects wielded are marked with NOT_ flag and this is memorised for K_IDX (or flavour if flavoured and unidentified) and identified ARTIFACT items. Identified EGO items are memorised with NOT_ unless they are already memorised with HAS_ or MAY_ in which case this is replaced by MAY_.
+When notices does not have ability, all objects wielded are marked with
+NOT_ flag and this is memorised for K_IDX (or flavour if flavoured and
+unidentified) and identified ARTIFACT items. Identified EGO items are
+memorised with NOT_ unless they are already memorised with HAS_ or MAY_
+in which case this is replaced by MAY_.
 
-When notices has ability, all objects wielded marked with MAY_ flag, unless an {average} or identified non-ego/non-artifact KIDX (or flavour if flavoured and unidentified) marked with NOT_ flag, or identified artifact marked with NOT_ flag. If this leaves only one item, then item is marked with HAS_ flag instead, which marks an identified artifact with HAS_ if the KIDX (or flavour if flavoured and unidentified) is marked with NOT_, or marks an identified non-ego/non-artifact or {average} KIDX (or flavour if flavoured and unidentified) marked with HAS_ flag, or marks an identified ego item or artifact with HAS_ if the KIDX (or flavour if flavoured and unidentified) is marked with NOT_, unless the identified ego item is NOT_ or MAY_ in which case it is rememorised with MAY_ and marked with HAS_.
+When notices has ability, all objects wielded marked with MAY_ flag,
+unless an {average} or identified non-ego/non-artifact KIDX (or flavour
+if flavoured and unidentified) marked with NOT_ flag, or identified
+artifact marked with NOT_ flag. If this leaves only one item, then item
+is marked with HAS_ flag instead, which marks an identified artifact
+with HAS_ if the KIDX (or flavour if flavoured and unidentified) is
+marked with NOT_, or marks an identified non-ego/non-artifact or
+{average} KIDX (or flavour if flavoured and unidentified) marked with
+HAS_ flag, or marks an identified ego item or artifact with HAS_ if the
+KIDX (or flavour if flavoured and unidentified) is marked with NOT_,
+unless the identified ego item is NOT_ or MAY_ in which case it is
+rememorised with MAY_ and marked with HAS_.
 
-When identified, if non-ego/non-artifact, KIDX is memorised with HAS_ if object (or flavour) is marked with HAS_. If artifact and marked with HAS_, and KIDX is memorised with NOT_, then memorise artifact with HAS_. If ego item and marked with HAS_, and KIDX is memorised with NOT_ then memorise ego item with HAS_ unless ego item is memorised with NOT_ or MAY_. In this case, memorise as MAY_.
+When identified, if non-ego/non-artifact, KIDX is memorised with HAS_
+if object (or flavour) is marked with HAS_. If artifact and marked with
+HAS_, and KIDX is memorised with NOT_, then memorise artifact with HAS_.
+If ego item and marked with HAS_, and KIDX is memorised with NOT_ then
+memorise ego item with HAS_ unless ego item is memorised with NOT_ or
+MAY_. In this case, memorise as MAY_.
 
-Memorise what MAY_ flags have been learned until an object is wielded or taken off. If an object is wielded, forget learned or put aside MAY_ flags, except MAY_ flags where object is identified or {average} has matching KIDX NOT_ flags, or object is identified artifact with matching KIDX NOT_ flags and artifact NOT_ flags. If object is taken off, put aside MAY flags_ that are learned and mark object as put-aside. If a second object is taken off, get rid of this put aside information. However, if put-aside MAY_ flags exist, and it is noticed that the ability is no longer present, mark the put-aside object with a HAS_ flag instead.
-If a wielded or put aside item is identified and learned or put-aside flags exist, remove those objects from contention on the learned or put aside list, if it then becomes known that the object does NOT_ have the property, via KIDX and/or artifact as appropriate. Then if there exists only 1 remaining object that can contend (either the put aside object or a wielded object) for a flag on the list, then mark that object as HAS_ that ability.
+Memorise what MAY_ flags have been learned until an object is wielded
+or taken off. If an object is wielded, forget learned or put aside MAY_
+flags, except MAY_ flags where object is identified or {average} has
+matching KIDX NOT_ flags, or object is identified artifact with
+matching KIDX NOT_ flags and artifact NOT_ flags. If object is taken
+off, put aside MAY flags_ that are learned and mark object as put-aside.
+If a second object is taken off, get rid of this put aside information.
+However, if put-aside MAY_ flags exist, and it is noticed that the
+ability is no longer present, mark the put-aside object with a HAS_ flag
+instead.
+If a wielded or put aside item is identified and learned or put-aside
+flags exist, remove those objects from contention on the learned or put
+aside list, if it then becomes known that the object does NOT_ have the
+property, via KIDX and/or artifact as appropriate. Then if there exists
+only 1 remaining object that can contend (either the put aside object or
+a wielded object) for a flag on the list, then mark that object as HAS_
+that ability.
 
-When marked with HAS_ flag or MAY_, attempts to match an object to an EGO item or ARTIFACT in memory, guessing as to which item matches most closely for flags, and ending guess with '?' (or '??' with MAY_), and marking flavour_guess with the item if the item is flavoured.
+When marked with HAS_ flag or MAY_, attempts to match an object to an
+EGO item or ARTIFACT in memory, guessing as to which item matches most
+closely for flags, and ending guess with '?' (or '??' with MAY_), and
+marking flavour_guess with the item if the item is flavoured.
 
-Flavours are unmemorised at death. All KIDX, ego and artifacts memory is persistant.
+Flavours are unmemorised at death. All KIDX, ego and artifacts memory
+is persistant.
 
-With wands, potions, scrolls, rods, staves, attempt to guess item if not determined by effects applied from partial effects applied. ie if 8 damage healed, will guess Cure Light Wounds? unless Cure Light Wounds flavour already known in which case guess Cure Serious Wounds? etc. If effect not determined, guess ('??') from those items that have unknown effects based on the result ie aimed at wall, not monster, and no obvious result, guess Wand of Slow Monster?? unless Slow Monster flavour already known etc. Guess {empty/charging} if all Wand/Rod/Staff KIDX are known this game. Must have KIDX in memory, and effects result from successful usage also in memory. Because of Wands of Wonder, any effect that potentially could be a Wand of Wonder is also guessed. ie Wand of Transmute Rock to Mud?
+With wands, potions, scrolls, rods, staves, attempt to guess item if
+not determined by effects applied from partial effects applied. ie if 8
+damage healed, will guess Cure Light Wounds? unless Cure Light Wounds
+flavour already known in which case guess Cure Serious Wounds? etc. If
+effect not determined, guess ('??') from those items that have unknown
+effects based on the result ie aimed at wall, not monster, and no
+obvious result, guess Wand of Slow Monster?? unless Slow Monster flavour
+already known etc. Guess {empty/charging} if all Wand/Rod/Staff KIDX are
+known this game. Must have KIDX in memory, and effects result from
+successful usage also in memory. Because of Wands of Wonder, any effect
+that potentially could be a Wand of Wonder is also guessed. ie Wand of
+Transmute Rock to Mud?
 
-Also get {good}/{cursed} feelings about scrolls, wands, potions, staves, rods if mage, priest, rogue.
+Also get {good}/{cursed} feelings about scrolls, wands, potions, staves,
+rods if mage, priest, rogue.
 
-Once object memory is working, we may modify *IDENTIFY*'s powers somewhat, may be to provide an additional *LEGEND LORE* item, with the old identify's powers, and let *IDENTIFY* only pick 1 ability, or make Identify itself a lot less available.
-
-ALGORITHMIC MONSTER LEVEL:
-
-We determine the resistances/powers held from objects available at a particular depth. 
-This allows us to compute MAX_DAMAGE, which is maximum damage applied in a single player action (ie highest of MAX_MELEE DAMAGE * SPEED and MAX_SPELL_DAMAGE * SPEED / CHANCE and MAX_SPELL_DAMAGE), AVG_DAMAGE, which is the average damage applied per round (ie ((MAX_MELEE DAMAGE * SPEED * CHANCE-1)  + MAX_SPELL DAMAGE * SPEED) / CHANCE).
-
-Therefore what is important is two things: MAX_DAMAGE which is determines the minimum player hit points required to encounter the monster, and AVG_DAMAGE * TKK which is the player hit points required to kill the monster.
-
-In addition, special abilities have a minimum level assigned to them, based on the level at which objects appear providing resistance to the effect in question.
-
-We then give a rough estimate of player hit points, damage, speed, tactics, and monster friends. This allows us to determine how quickly a player may kill a monster (ie speed -10 + tactics + no friends + low level == very easily) which times its AVG_DAMAGE gives the minimum player hit points required at the level to allow that monster. Note that we assume healing capacity as well (ie Cure Light Wounds etc.) which adds to player hit points when available, and Teleportation, which doubles player hit points when available.
-
-We also use MAX_DAMAGE as a threat assessment. If a player can be dropped below 50% hit points by MAX_DAMAGE the monster needs to be made deeper, or 80% with friends.
+Once object memory is working, we may modify *IDENTIFY*'s powers
+somewhat, may be to provide an additional *LEGEND LORE* item, with the
+old identify's powers, and let *IDENTIFY* only pick 1 ability, or make
+Identify itself a lot less available.
 
 
 FRIENDLY MONSTERS/UNIQUES:
@@ -1807,76 +1533,141 @@ Monsters fight other monsters under the following conditions:
 
 * hostile fights you.
 * friendly fight hostile --> hostile fights friendly.
-* anybody fights multipy if not the same race and if there are too many multiply creatures --> if there are too many multiply creatures, multiply creatures fight those not of the same race
+* anybody fights multipy if not the same race and if there are too many
+multiply creatures --> if there are too many multiply creatures,
+multiply creatures fight those not of the same race
 * mindless fight anything not of the same race
-* kill_body fights anything that is not the same race --> anybody flees kill_body if not of the same race or fight if cornered, unless friendly when they always fight
-* undead fight living if not summon undead --> living if not summon undead flee undead or fight if cornered, unless friendly, when they always fight
+* kill_body fights anything that is not the same race --> anybody flees
+kill_body if not of the same race or fight if cornered, unless friendly
+when they always fight
 * good fights evil --> evil fights good
-* betrayal monsters fight weak hostile monsters --> weak hostile monsters fight betrayal monsters
-* demons fight animals --> animals flee demons or fight if cornered, unless friendly when they always fight
+* betrayal monsters fight weak hostile monsters --> weak hostile
+monsters fight betrayal monsters
 
-Good monsters are neutral towards you unless marked friendly. Evil monsters are always hostile, unless marked betrayal. Demonic monsters are almost always betrayal unless summoned. Neither good nor evil monsters are suspicious. Monsters that surrender because they cannot flee, become betrayal monsters, as are those marked BETRAYAL. Summoned monsters are always hostile if summoned by hostile, or BETRAYAL if summoned by you (Except familiars, which are friendly).
+And possibly:
+* demons fight animals --> animals flee demons or fight if cornered,
+unless friendly when they always fight
+* undead fight living if not summon undead --> living, if not summon
+undead, flee undead or fight if cornered, unless friendly, when they
+always fight
 
-You forget the id of items that a neutral, suspicious or hostile monster is carrying. However they use the id flag to mark if they know what the item they are carrying is. This enables them to use/value items if they are selling them to you.
+Good monsters are neutral towards you unless marked friendly. Evil
+monsters are always hostile, unless marked betrayal. Demonic monsters
+are almost always betrayal unless summoned by hostiles. Neither good
+nor evil monsters are suspicious. Monsters that surrender because they
+cannot flee, become betrayal monsters, as are those marked BETRAYAL.
+Summoned monsters are always hostile if summoned by hostile, or BETRAYAL
+if summoned by you (Except familiars, which are friendly).
+
+You forget the id of items that a neutral, suspicious or hostile
+monster is carrying. However they use the id flag to mark if they know
+what the item they are carrying is. This enables them to use/value
+items if they are selling them to you.
 
 Friendly uniques (Not pets):
 
-Pippin, Samwise, Frodo Baggins, Bilbo Baggins, Mary, Gandalf, Aragorn, Gimlee, Legolas etc.
+Pippin, Samwise, Frodo Baggins, Bilbo Baggins, Mary, Gandalf, Aragorn,
+Gimlee, Legolas etc.
 
-Friendly monsters will give you useful objects that they carry. Friendly monsters will tell you information about unfriendly monsters that you encounter. ('Gandalf says "The pseudodragon can breath light."') Friendly monsters can tell you about monsters that are common on this level or occur deeper in the dungeon ('Gandalf tells you about the Dracolich. He says "It can breath nether.") Friendly monsters will warn you about out of depth monsters that are present on the level. ('Gandalf warns you about the Ancient Multi-Hued Dragon on this level. He says "It can breath poison."') Monsters that are not smart will warn you about out of depth monsters, but not be able to tell you what the monster is, just a general description of it. ('The goblin warns you about a dangerous monster on this level. He says "It is undead and can breath nether."').
+Friendly monsters will give you useful objects that they carry.
+Friendly monsters will tell you information about unfriendly monsters
+that you encounter. ('Gandalf says "The pseudodragon can breath
+light."') Friendly monsters can tell you about monsters that are common
+on this level or occur deeper in the dungeon ('Gandalf tells you about
+the Dracolich. He says "It can breath nether.") Friendly monsters will
+warn you about out of depth monsters that are present on the level.
+('Gandalf warns you about the Ancient Multi-Hued Dragon on this level.
+He says "It can breath poison."') Monsters that are not smart will warn
+you about out of depth monsters, but not be able to tell you what the
+monster is, just a general description of it. ('The goblin warns you
+about a dangerous monster on this level. He says "It is undead and can
+breath nether."').
 
-Friendly monsters tell you about items that you have ('Gandalf says "The Phial of Gladriel activates to call light.") or out of depth items or artifacts that occur on this level that you have not found ('Gandalf tells you about the Power dragon scale mail on this level. He says "It can resist nether.").
+Friendly monsters tell you about items that you have ('Gandalf says
+"The Phial of Gladriel activates to call light.") or out of depth items
+or artifacts that occur on this level that you have not found ('Gandalf
+tells you about the Power dragon scale mail on this level. He says "It
+can resist nether.").
 
-Friendly monsters have useful spells at their disposal ('Gandalf identifies the silver rod. He says "It is a rod of teleportation."', 'Gandalf heals you', 'Gandalf is surrounded in bright light.' 'Gandalf casts a spell of monster detection. You sense the presence of monsters.'). Friendly monsters are never invisible unless you have betrayed them.
+Friendly monsters have useful spells at their disposal ('Gandalf
+identifies the silver rod. He says "It is a rod of teleportation."',
+'Gandalf heals you', 'Gandalf is surrounded in bright light.' 'Gandalf
+casts a spell of monster detection. You sense the presence of
+monsters.'). Friendly monsters are never invisible unless you have
+betrayed them.
 
-Friendly monsters fight hostile monsters and help other friendly monsters. When you leave a level, friendly monsters perform one last action and then depart. Friendly uniques are marked with "You have encountered..." rather than "You have killed..." when they depart. This requires that you have seen them on the level first. Friendly uniques that have become hostile will attempt to leave rather than fight you, such as by teleporting away, climbing up or down stairs or fleeing.
+Friendly monsters fight hostile monsters and help other friendly
+monsters. When you leave a level, friendly monsters perform one last
+action and then depart. Friendly uniques are marked with "You have
+encountered..." rather than "You have killed..." when they depart. This
+requires that you have seen them on the level first. Friendly uniques
+that have become hostile will attempt to leave rather than fight you,
+such as by teleporting away, climbing up or down stairs or fleeing.
 
-If you attack a friendly monster or hit it with spells, it becomes suspicious.
+If you attack a friendly monster or hit it with spells, it becomes
+suspicious. It will become hostile if you continue to do so.
 
-Neutral monsters will talk to you to determine your intentions. Neutral monsters do their own thing. ('The novice mage identifies the silver rod.'). They may offer to sell you items that they are carrying or offer you services in return for items or money. If you give them stuff, they may temporarily help you, but as a rule become suspicious of you after a while. Neutral monsters fight other monsters if necessary.
+Neutral monsters will talk to you to determine your intentions. Neutral
+monsters do their own thing. ('The novice mage identifies the silver
+rod.'). They may offer to sell you items that they are carrying or
+offer you services in return for items or money. If you give them
+stuff, they may temporarily help you, but as a rule become suspicious
+of you after a while. Neutral monsters fight other monsters if necessary.
 
-Suspicious monsters that are marked friendly may forgive you after a while. Suspicious monsters try to avoid you by staying out of melee range (> adjacent).  If you attack, corner or hit neutral / suspicious monster with spells, it becomes hostile.
+Suspicious monsters that are marked friendly may forgive you after a
+while. Suspicious monsters try to avoid you by staying out of melee
+range (> adjacent).  If you attack, corner or hit neutral / suspicious
+monster with spells, it becomes hostile.
 
-Betrayal monsters appear as friendly but they never give you useful information, help you with magic or give you items, except trivially ('Smeagol tells you about the white worm mass. He says "It crawlsss to poison".') They will try to rip you off selling you stuff and so on.
-Bill Ferny, Wormtongue, Smeagol etc. are typical betrayal monsters. Typically betrayal monsters use a shortened name (up to the comma) until they betray you, at which point they use their long name. eg Wormtongue only becomes the Agent of Saruman after he betrays you.
+Betrayal monsters appear as friendly but they never give you useful
+information, help you with magic or give you items, except trivially
+('Smeagol tells you about the white worm mass. He says "It crawlsss to
+poison".') They will try to rip you off selling you stuff and so on.
+Bill Ferny, Wormtongue, Smeagol etc. are typical betrayal monsters.
+Typically betrayal monsters use a shortened name (up to the comma) until
+they betray you, at which point they use their long name. eg Wormtongue
+only becomes the Agent of Saruman after he betrays you.
 
-Betrayal monsters will fight weak monsters, but will betray you once they have determined your weaknesses or in the presence of tougher monsters. If attacked, they immediately become hostile.
+Betrayal monsters will fight weak monsters, but will betray you once
+they have determined your weaknesses or in the presence of tougher
+monsters. If attacked, they immediately become hostile.
+
+Guardian monsters act neutral, but become hostile if you try to 
+get or open anything in their line of sight.
+
+Stalking monsters flee in line of sight and 
 
 MONSTER SPEECH
 
-Hostile monsters communicate information about you amongst themselves ('The mage says "The human warrior can resist fire.'), and wake others up, if afraid or attacking you ('The mage yells out in fear.' 'The mage screams in anger.' 'The mage yells out a warning.') Creatures say, cry out, yell or scream depending on how much of a threat you are. Some creatures whisper (undead), moan (undead), howl (dogs), wail (undead), gibber and so forth.
+Hostile monsters communicate information about you amongst themselves
+('The mage says "The human warrior can resist fire.'), and wake others
+up, if afraid or attacking you ('The mage yells out in fear.' 'The mage
+screams in anger.' 'The mage yells out a warning.') Creatures say, cry
+out, yell or scream depending on how much of a threat you are. Some
+creatures whisper (undead), moan (undead), howl (dogs), wail (undead),
+gibber and so forth.
 
-h,p,t,y,o,etc.	UNDEAD		B		C		F		J,R
-says		whispers	chirps		growls		purrs		hisses
-yells out	gibbers		whistles	barks		miaows		hisses
-cries out	moans		caws		bays		hisses		hisses
-screams		wails		screeches	howls		catawauls	hisses
+h,p,t,y,o,etc.	UNDEAD		B		C		F
+says		whispers	chirps		growls		purrs
+yells out	gibbers		whistles	barks		miaows
+cries out	moans		caws		bays		hisses
+screams		wails		screeches	howls		catawauls
 
-If you don't understand the language (eg animals/undead) the string is replaced by 'something' and you are warned you don't understand it. ('The master lich whispers something. You don't understand it.')
+J,R	R (frogs)	a,I
+hisses	croaks		chitters
 
-L: is language transformation. Strings of form 'before' are transformed to ->'after' when spoken by the creature. A space after may also be punctuation.
-V: Gives special strings said by the creature, such as part of an attack or at random. These are already transformed.
 
-eg Smeagol.
-L:"s "->"sss "
-V:Where'sss my preciousss?
-V:It hurtsss me.
+If you don't understand the language (eg animals/undead) the string is
+replaced by 'something' and you are warned you don't understand it.
+('The master lich whispers something. You don't understand it.')
 
-eg sibillance
-L:"str"->"thw":"st"->"thw":"s"->"th"
-V:The human warrior can thuthwain thwength.
-V:Thay it aint tho.
-V:Thuppothedly, he thaid that Thammy thingth thwell.
-
-eg bad European accent.
-L:" wha"->" vo":" wh"->" v":" w"->" v":"ve "->"ff ":"ing "->"ink ":" s"->" z":" zt"->" st"
-V:Vot are you doink?
-V:Ve haff vays of makink you talk.
-V:Hogan!!!!!
-V:Do you haff the strength to do this?
-
-Creatures do not have to speak to be able to use special strings eg.
+Monsters may have particular speech strings. Creatures do not have to
+speak to be able to use special strings eg.
 V:Miaow!
 V:Purrr...
 becomes:
 The scruffy cat says "Miaow!".
+
+V:Gol-lummm.
+V:Where's my preciousss?
+V:It hurtsss me!

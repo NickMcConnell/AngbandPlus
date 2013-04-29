@@ -1,0 +1,218 @@
+# === Understanding c_info.txt ===
+
+#N:num:name
+#S:str:int:wis:dex:con:chr
+#C:dis:dev:sav:stl:srh:fos:thn:thb (start values)
+#I:dis:dev:sav:stl:srh:fos:thn:thb (increase values)
+#X:hitdie:expbase
+#M:spellstat:highpower:firstlevel:minweight
+#B:max blows:mul:min weight
+#T:Titles
+#P:turns:plev squared?:plev+x:heavy or light
+#O:tval:sval:tval:sval:tval:sval
+
+# Version stamp (required)
+
+V:2.9.1
+
+
+
+N:0:Warrior
+S:5:-2:-2:2:2:-1
+C:25:18:18:1:14:2:70:55
+I:10:7:10:0:0:0:45:45
+X:9:0
+M:0:0:99:0
+B:6:5:30
+P:9000:1:40:1
+T:Rookie
+T:Soldier
+T:Mercenary
+T:Veteran
+T:Swordsman
+T:Champion
+T:Hero
+T:Baron
+T:Duke
+T:Lord
+O:75:33:23:16:37:4
+
+N:1:Mage
+S:-5:3:0:1:-2:1
+C:30:36:30:2:16:20:34:20
+I:7:13:9:0:0:0:15:15
+X:0:30
+M:1:1:1:300
+B:4:2:40
+P:240000:0:5:0
+T:Novice
+T:Apprentice
+T:Trickster
+T:Illusionist
+T:Spellbinder
+T:Evoker
+T:Conjurer
+T:Warlock
+T:Sorcerer
+T:Mage Lord
+O:90:0:23:4:70:11
+
+N:2:Priest
+S:-1:-3:3:-1:0:2
+C:25:30:32:2:16:8:48:35
+I:7:10:12:0:0:0:20:20
+X:2:10
+M:2:1:1:350
+B:5:3:35
+P:10000:1:40:0
+T:Believer
+T:Acolyte
+T:Adept
+T:Curate
+T:Canon
+T:Lama
+T:Patriarch
+T:Priest
+T:High Priest
+T:Priest Lord
+O:91:0:21:5:75:37
+
+N:3:Rogue
+S:2:1:-2:3:1:-1
+C:45:32:28:5:32:24:60:66
+I:15:13:10:0:0:0:40:30
+X:6:25
+M:1:0:5:350
+B:5:3:30
+P:20000:1:40:1
+T:Vagrant
+T:Grifter
+T:Tinker
+T:Charmer
+T:Enchanter
+T:Alchemist
+T:Hedge Wizard
+T:Wizard
+T:High Wizard
+T:Wizard Lord
+O:90:0:23:8:36:4
+
+N:4:Ranger
+S:2:2:0:1:1:1
+C:30:32:28:3:24:16:56:72
+I:8:10:10:0:0:0:30:45
+X:4:20
+M:1:0:3:400
+B:5:4:35
+P:120000:0:5:0
+T:Runner
+T:Strider
+T:Scout
+T:Courser
+T:Tracker
+T:Guide
+T:Pathfinder
+T:Low Ranger
+T:High Ranger
+T:Ranger Lord
+O:90:0:23:16:19:13
+
+N:5:Paladin
+S:3:-3:1:0:2:2
+C:20:24:25:1:12:2:68:40
+I:7:10:11:0:0:0:35:30
+X:6:35
+M:2:0:1:400
+B:5:4:30
+P:80000:1:40:1
+T:Gallant
+T:Keeper
+T:Protector
+T:Defender
+T:Warder
+T:Knight
+T:Guardian
+T:Low Paladin
+T:High Paladin
+T:Paladin Lord
+O:91:0:23:16:70:37
+
+N:6:Thief
+S:3:-1:-4:4:2:-2
+C:55:24:18:1:32:24:60:66
+I:15:8:10:1:0:0:40:30
+X:6:5
+M:0:0:99:0
+B:5:4:30
+P:5000:1:40:1
+T:Vagabond
+T:Cutpurse
+T:Robber
+T:Burglar
+T:Filcher
+T:Sharper
+T:Low Thief
+T:High Thief
+T:Master Thief
+T:Assassin
+O:23:16:36:4:70:9
+
+N:7:Archer
+S:2:-2:-2:4:2:-1
+C:25:18:18:1:14:2:48:80
+I:10:7:10:0:0:0:20:50
+X:7:10
+M:0:0:99:0
+B:5:3:30
+P:15000:1:40:1
+T:Footman
+T:Slinger
+T:Shortbowman
+T:Longbowman
+T:Crossbowman
+T:Sharpshooter
+T:Archer Hero
+T:Archer Baron
+T:Archer Duke
+T:Archer Lord
+O:23:8:19:13:17:2
+
+N:8:Druid
+S:-3:2:3:0:-1:2
+C:25:30:30:2:16:8:34:20
+I:7:10:9:0:0:0:15:15
+X:0:35
+M:2:1:1:300
+B:4:2:40
+P:300000:0:5:0
+T:Aspirant
+T:Petitioner
+T:Practiser
+T:Hierophant
+T:Mystic
+T:Master Mystic
+T:Elder
+T:Druid
+T:High Druid
+T:Druid Lord
+O:90:0:91:0:21:3
+
+N:9:Bard
+S:0:1:-2:2:1:3
+C:25:24:24:1:32:24:60:35
+I:7:11:10:0:0:0:40:20
+X:6:10
+M:5:0:1:350
+B:5:3:35
+P:20000:1:40:1
+T:Busker
+T:Minstrel
+T:Troubador
+T:Musician
+T:Soloist
+T:Harper
+T:Bard
+T:Lauriet
+T:Lorekeeper
+T:Loremaster
+O:92:0:23:8:24:0

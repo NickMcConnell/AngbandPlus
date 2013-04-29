@@ -7,6 +7,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -91,6 +97,10 @@ void init_file_paths(char *path)
 	string_free(ANGBAND_DIR_SAVE);
 	string_free(ANGBAND_DIR_USER);
 	string_free(ANGBAND_DIR_XTRA);
+
+        /* Hack --- nowhere else to put it */
+        strcpy(context_help_file,"");
+        strcpy(context_help_match,"");
 
 
 	/*** Prepare the "path" ***/
@@ -220,17 +230,9 @@ s16b error_line;
 
 
 /*
- * Hack -- help initialize the fake "name" and "text" arrays when
- * parsing an "ascii" template file.
- */
-u16b fake_name_size;
-u16b fake_text_size;
-
-
-/*
  * Standard error message text
  */
-static cptr err_str[8] =
+static cptr err_str[PARSE_ERROR_MAX] =
 {
 	NULL,
 	"parse error",
@@ -239,15 +241,230 @@ static cptr err_str[8] =
 	"non-sequential records",
 	"invalid flag specification",
 	"undefined directive",
-	"out of memory"
+	"out of memory",
+	"value out of bounds",
+	"too few arguments",
+	"too many arguments",
 };
 
 
-#endif
+#endif /* ALLOW_TEMPLATES */
 
 
 
 /*** Initialize from binary image files ***/
+
+
+/*
+ * Initialize the "z_info" array, by parsing a binary "image" file
+ */
+static errr init_z_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != z_head->v_major) ||
+	    (test.v_minor != z_head->v_minor) ||
+	    (test.v_patch != z_head->v_patch) ||
+	    (test.v_extra != z_head->v_extra) ||
+	    (test.info_num != z_head->info_num) ||
+	    (test.info_len != z_head->info_len) ||
+	    (test.head_size != z_head->head_size) ||
+	    (test.info_size != z_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*z_head) = test;
+
+
+	/* Allocate the "z_info" array */
+	C_MAKE(z_info, z_head->info_num, maxima);
+
+	/* Read the "z_info" array */
+	fd_read(fd, (char*)(z_info), z_head->info_size);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "z_info" array
+ */
+static errr init_z_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(z_head, header);
+
+	/* Save the "version" */
+	z_head->v_major = VERSION_MAJOR;
+	z_head->v_minor = VERSION_MINOR;
+	z_head->v_patch = VERSION_PATCH;
+	z_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	z_head->info_num = 1;
+	z_head->info_len = sizeof(maxima);
+
+	/* Save the size of "z_head" and "z_info" */
+	z_head->head_size = sizeof(header);
+	z_head->info_size = z_head->info_num * z_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "z_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_z_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "z_info" array */
+	C_MAKE(z_info, z_head->info_num, maxima);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "z_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'z_info.txt' file.");
+
+	/* Parse the file */
+	err = init_z_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'z_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'z_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(z_head), z_head->head_size);
+
+		/* Dump the "z_info" array */
+		fd_write(fd, (char*)(z_info), z_head->info_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "z_info" array */
+	C_KILL(z_info, z_head->info_num, maxima);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "z_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'z_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_z_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'z_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -291,17 +508,11 @@ static errr init_f_info_raw(int fd)
 	/* Read the "f_name" array */
 	fd_read(fd, (char*)(f_name), f_head->name_size);
 
-
-#ifndef DELAY_LOAD_F_TEXT
-
 	/* Allocate the "f_text" array */
 	C_MAKE(f_text, f_head->text_size, char);
 
 	/* Read the "f_text" array */
 	fd_read(fd, (char*)(f_text), f_head->text_size);
-
-#endif
-
 
 	/* Success */
 	return (0);
@@ -321,7 +532,7 @@ static errr init_f_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -341,7 +552,7 @@ static errr init_f_info(void)
 	f_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	f_head->info_num = MAX_F_IDX;
+	f_head->info_num = z_info->f_max;
 	f_head->info_len = sizeof(feature_type);
 
 	/* Save the size of "f_head" and "f_info" */
@@ -362,33 +573,32 @@ static errr init_f_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "f_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_f_info_raw(fd);
+		if (!err)
+			err = init_f_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "f_name" and "f_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "f_info" array */
 	C_MAKE(f_info, f_head->info_num, feature_type);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(f_name, fake_name_size, char);
-	C_MAKE(f_text, fake_text_size, char);
+	C_MAKE(f_name, z_info->fake_name_size, char);
+	C_MAKE(f_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -467,14 +677,10 @@ static errr init_f_info(void)
 	C_KILL(f_info, f_head->info_num, feature_type);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(f_name, fake_name_size, char);
-	C_KILL(f_text, fake_text_size, char);
+	C_KILL(f_name, z_info->fake_name_size, char);
+	C_KILL(f_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -500,8 +706,246 @@ static errr init_f_info(void)
 	/* Success */
 	return (0);
 }
+#ifdef ALLOW_ROOMDESC
+/*
+ * Initialize the "d_info" array, by parsing a binary "image" file
+ */
+static errr init_d_info_raw(int fd)
+{
+	header test;
 
 
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != d_head->v_major) ||
+            (test.v_minor != d_head->v_minor) ||
+            (test.v_patch != d_head->v_patch) ||
+            (test.v_extra != d_head->v_extra) ||
+            (test.info_num != d_head->info_num) ||
+            (test.info_len != d_head->info_len) ||
+            (test.head_size != d_head->head_size) ||
+            (test.info_size != d_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*d_head) = test;
+
+        /* Allocate the "d_info" array */
+	C_MAKE(d_info, d_head->info_num, desc_type);
+
+	/* Read the "d_info" array */
+	fd_read(fd, (char*)(d_info), d_head->info_size);
+
+	/* Allocate the "d_name" array */
+	C_MAKE(d_name, d_head->name_size, char);
+
+	/* Read the "d_name" array */
+	fd_read(fd, (char*)(d_name), d_head->name_size);
+
+        /* Allocate the "d_text" array */
+        C_MAKE(d_text, d_head->text_size, char);
+
+        /* Read the "d_text" array */
+        fd_read(fd, (char*)(d_text), d_head->text_size);
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "d_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_d_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(d_head, header);
+
+	/* Save the "version" */
+	d_head->v_major = VERSION_MAJOR;
+	d_head->v_minor = VERSION_MINOR;
+	d_head->v_patch = VERSION_PATCH;
+	d_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	d_head->info_num = z_info->d_max;
+	d_head->info_len = sizeof(desc_type);
+
+	/* Save the size of "d_head" and "d_info" */
+	d_head->head_size = sizeof(header);
+	d_head->info_size = d_head->info_num * d_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "d_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_d_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "d_info" array */
+	C_MAKE(d_info, d_head->info_num, desc_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(d_name, z_info->fake_name_size, char);
+	C_MAKE(d_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "d_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'd_info.txt' file.");
+
+	/* Parse the file */
+	err = init_d_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'd_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'd_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(d_head), d_head->head_size);
+
+		/* Dump the "d_info" array */
+		fd_write(fd, (char*)(d_info), d_head->info_size);
+
+		/* Dump the "d_name" array */
+		fd_write(fd, (char*)(d_name), d_head->name_size);
+
+		/* Dump the "d_text" array */
+		fd_write(fd, (char*)(d_text), d_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "d_info" array */
+	C_KILL(d_info, d_head->info_num, desc_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(d_name, z_info->fake_name_size, char);
+	C_KILL(d_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "d_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'd_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_d_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'd_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+#endif
 
 /*
  * Initialize the "k_info" array, by parsing a binary "image" file
@@ -574,7 +1018,7 @@ static errr init_k_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -594,7 +1038,7 @@ static errr init_k_info(void)
 	k_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	k_head->info_num = MAX_K_IDX;
+	k_head->info_num = z_info->k_max;
 	k_head->info_len = sizeof(object_kind);
 
 	/* Save the size of "k_head" and "k_info" */
@@ -615,33 +1059,32 @@ static errr init_k_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "k_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_k_info_raw(fd);
+		if (!err)
+			err = init_k_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "k_name" and "k_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "k_info" array */
 	C_MAKE(k_info, k_head->info_num, object_kind);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(k_name, fake_name_size, char);
-	C_MAKE(k_text, fake_text_size, char);
+	C_MAKE(k_name, z_info->fake_name_size, char);
+	C_MAKE(k_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -720,14 +1163,10 @@ static errr init_k_info(void)
 	C_KILL(k_info, k_head->info_num, object_kind);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(k_name, fake_name_size, char);
-	C_KILL(k_text, fake_text_size, char);
+	C_KILL(k_name, z_info->fake_name_size, char);
+	C_KILL(k_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -827,7 +1266,7 @@ static errr init_a_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -847,7 +1286,7 @@ static errr init_a_info(void)
 	a_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	a_head->info_num = MAX_A_IDX;
+	a_head->info_num = z_info->a_max;
 	a_head->info_len = sizeof(artifact_type);
 
 	/* Save the size of "a_head" and "a_info" */
@@ -868,33 +1307,32 @@ static errr init_a_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "a_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_a_info_raw(fd);
+		if (!err)
+			err = init_a_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "a_name" and "a_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "a_info" array */
 	C_MAKE(a_info, a_head->info_num, artifact_type);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(a_name, fake_name_size, char);
-	C_MAKE(a_text, fake_text_size, char);
+	C_MAKE(a_name, z_info->fake_name_size, char);
+	C_MAKE(a_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -973,14 +1411,11 @@ static errr init_a_info(void)
 	C_KILL(a_info, a_head->info_num, artifact_type);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(a_name, fake_name_size, char);
-	C_KILL(a_text, fake_text_size, char);
+	C_KILL(a_name, z_info->fake_name_size, char);
+	C_KILL(a_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1080,7 +1515,7 @@ static errr init_e_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -1100,7 +1535,7 @@ static errr init_e_info(void)
 	e_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	e_head->info_num = MAX_E_IDX;
+	e_head->info_num = z_info->e_max;
 	e_head->info_len = sizeof(ego_item_type);
 
 	/* Save the size of "e_head" and "e_info" */
@@ -1121,33 +1556,32 @@ static errr init_e_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "e_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_e_info_raw(fd);
+		if (!err)
+			err = init_e_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "e_name" and "e_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "e_info" array */
 	C_MAKE(e_info, e_head->info_num, ego_item_type);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(e_name, fake_name_size, char);
-	C_MAKE(e_text, fake_text_size, char);
+	C_MAKE(e_name, z_info->fake_name_size, char);
+	C_MAKE(e_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -1226,14 +1660,10 @@ static errr init_e_info(void)
 	C_KILL(e_info, e_head->info_num, ego_item_type);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(e_name, fake_name_size, char);
-	C_KILL(e_text, fake_text_size, char);
+	C_KILL(e_name, z_info->fake_name_size, char);
+	C_KILL(e_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1269,7 +1699,6 @@ static errr init_r_info_raw(int fd)
 {
 	header test;
 
-
 	/* Read and Verify the header */
 	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
 	    (test.v_major != r_head->v_major) ||
@@ -1285,17 +1714,14 @@ static errr init_r_info_raw(int fd)
 		return (-1);
 	}
 
-
-	/* Accept the header */
+        /* Accept the header */
 	(*r_head) = test;
-
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
 
 	/* Read the "r_info" array */
-	fd_read(fd, (char*)(r_info), r_head->info_size);
-
+        fd_read(fd, (char*)(r_info), r_head->info_size);
 
 	/* Allocate the "r_name" array */
 	C_MAKE(r_name, r_head->name_size, char);
@@ -1333,7 +1759,7 @@ static errr init_r_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -1353,7 +1779,7 @@ static errr init_r_info(void)
 	r_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	r_head->info_num = MAX_R_IDX;
+	r_head->info_num = z_info->r_max;
 	r_head->info_len = sizeof(monster_race);
 
 	/* Save the size of "r_head" and "r_info" */
@@ -1374,33 +1800,32 @@ static errr init_r_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "r_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_r_info_raw(fd);
+		if (!err)
+			err = init_r_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Assume the size of "r_name" and "r_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(r_name, fake_name_size, char);
-	C_MAKE(r_text, fake_text_size, char);
+	C_MAKE(r_name, z_info->fake_name_size, char);
+	C_MAKE(r_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -1479,14 +1904,10 @@ static errr init_r_info(void)
 	C_KILL(r_info, r_head->info_num, monster_race);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(r_name, fake_name_size, char);
-	C_KILL(r_text, fake_text_size, char);
+	C_KILL(r_name, z_info->fake_name_size, char);
+	C_KILL(r_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
-
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1585,7 +2006,7 @@ static errr init_v_info(void)
 
 	int mode = 0644;
 
-	errr err;
+	errr err = 0;
 
 	FILE *fp;
 
@@ -1605,7 +2026,7 @@ static errr init_v_info(void)
 	v_head->v_extra = VERSION_EXTRA;
 
 	/* Save the "record" information */
-	v_head->info_num = MAX_V_IDX;
+	v_head->info_num = z_info->v_max;
 	v_head->info_len = sizeof(vault_type);
 
 	/* Save the size of "v_head" and "v_info" */
@@ -1626,33 +2047,32 @@ static errr init_v_info(void)
 	/* Process existing "raw" file */
 	if (fd >= 0)
 	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "v_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
 		/* Attempt to parse the "raw" file */
-		err = init_v_info_raw(fd);
+		if (!err)
+			err = init_v_info_raw(fd);
 
 		/* Close it */
 		fd_close(fd);
 
 		/* Success */
 		if (!err) return (0);
-
-		/* Information */
-		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
-		msg_print(NULL);
 	}
 
 
 	/*** Make the fake arrays ***/
 
-	/* Fake the size of "v_name" and "v_text" */
-	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
-
 	/* Allocate the "k_info" array */
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
 	/* Hack -- make "fake" arrays */
-	C_MAKE(v_name, fake_name_size, char);
-	C_MAKE(v_text, fake_text_size, char);
+	C_MAKE(v_name, z_info->fake_name_size, char);
+	C_MAKE(v_text, z_info->fake_text_size, char);
 
 
 	/*** Load the ascii template file ***/
@@ -1731,14 +2151,11 @@ static errr init_v_info(void)
 	C_KILL(v_info, v_head->info_num, vault_type);
 
 	/* Hack -- Free the "fake" arrays */
-	C_KILL(v_name, fake_name_size, char);
-	C_KILL(v_text, fake_text_size, char);
+	C_KILL(v_name, z_info->fake_name_size, char);
+	C_KILL(v_text, z_info->fake_text_size, char);
 
-	/* Forget the array sizes */
-	fake_name_size = 0;
-	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif  /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1760,6 +2177,1627 @@ static errr init_v_info(void)
 
 	/* Error */
 	if (err) quit("Cannot parse 'v_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "p_info" array, by parsing a binary "image" file
+ */
+static errr init_p_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != p_head->v_major) ||
+	    (test.v_minor != p_head->v_minor) ||
+	    (test.v_patch != p_head->v_patch) ||
+	    (test.v_extra != p_head->v_extra) ||
+	    (test.info_num != p_head->info_num) ||
+	    (test.info_len != p_head->info_len) ||
+	    (test.head_size != p_head->head_size) ||
+	    (test.info_size != p_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*p_head) = test;
+
+
+	/* Allocate the "p_info" array */
+	C_MAKE(p_info, p_head->info_num, player_race);
+
+	/* Read the "p_info" array */
+	fd_read(fd, (char*)(p_info), p_head->info_size);
+
+
+	/* Allocate the "p_name" array */
+	C_MAKE(p_name, p_head->name_size, char);
+
+	/* Read the "p_name" array */
+	fd_read(fd, (char*)(p_name), p_head->name_size);
+
+
+#ifndef DELAY_LOAD_P_TEXT
+
+	/* Allocate the "p_text" array */
+	C_MAKE(p_text, p_head->text_size, char);
+
+	/* Read the "p_text" array */
+	fd_read(fd, (char*)(p_text), p_head->text_size);
+
+#endif
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "p_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_p_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(p_head, header);
+
+	/* Save the "version" */
+	p_head->v_major = VERSION_MAJOR;
+	p_head->v_minor = VERSION_MINOR;
+	p_head->v_patch = VERSION_PATCH;
+	p_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	p_head->info_num = z_info->p_max;
+	p_head->info_len = sizeof(player_race);
+
+	/* Save the size of "p_head" and "p_info" */
+	p_head->head_size = sizeof(header);
+	p_head->info_size = p_head->info_num * p_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "p_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_p_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "p_info" array */
+	C_MAKE(p_info, p_head->info_num, player_race);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(p_name, z_info->fake_name_size, char);
+	C_MAKE(p_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "p_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'p_info.txt' file.");
+
+	/* Parse the file */
+	err = init_p_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'p_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'p_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(p_head), p_head->head_size);
+
+		/* Dump the "p_info" array */
+		fd_write(fd, (char*)(p_info), p_head->info_size);
+
+		/* Dump the "p_name" array */
+		fd_write(fd, (char*)(p_name), p_head->name_size);
+
+		/* Dump the "p_text" array */
+		fd_write(fd, (char*)(p_text), p_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "p_info" array */
+	C_KILL(p_info, p_head->info_num, player_race);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(p_name, z_info->fake_name_size, char);
+	C_KILL(p_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "p_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'p_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_p_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'p_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "c_info" array, by parsing a binary "image" file
+ */
+static errr init_c_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != c_head->v_major) ||
+	    (test.v_minor != c_head->v_minor) ||
+	    (test.v_patch != c_head->v_patch) ||
+	    (test.v_extra != c_head->v_extra) ||
+	    (test.info_num != c_head->info_num) ||
+	    (test.info_len != c_head->info_len) ||
+	    (test.head_size != c_head->head_size) ||
+	    (test.info_size != c_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*c_head) = test;
+
+	/* Allocate the "c_info" array */
+	C_MAKE(c_info, c_head->info_num, player_class);
+
+	/* Read the "c_info" array */
+	fd_read(fd, (char*)(c_info), c_head->info_size);
+
+	/* Allocate the "c_name" array */
+	C_MAKE(c_name, c_head->name_size, char);
+
+	/* Read the "c_name" array */
+	fd_read(fd, (char*)(c_name), c_head->name_size);
+
+#ifndef DELAY_LOAD_C_TEXT
+
+	/* Allocate the "c_text" array */
+	C_MAKE(c_text, c_head->text_size, char);
+
+	/* Read the "c_text" array */
+	fd_read(fd, (char*)(c_text), c_head->text_size);
+
+#endif
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "c_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_c_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(c_head, header);
+
+	/* Save the "version" */
+	c_head->v_major = VERSION_MAJOR;
+	c_head->v_minor = VERSION_MINOR;
+	c_head->v_patch = VERSION_PATCH;
+	c_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	c_head->info_num = z_info->c_max;
+	c_head->info_len = sizeof(player_class);
+
+	/* Save the size of "c_head" and "c_info" */
+	c_head->head_size = sizeof(header);
+	c_head->info_size = c_head->info_num * c_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "c_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_c_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "c_info" array */
+	C_MAKE(c_info, c_head->info_num, player_class);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(c_name, z_info->fake_name_size, char);
+	C_MAKE(c_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "c_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'c_info.txt' file.");
+
+	/* Parse the file */
+	err = init_c_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'c_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'c_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(c_head), c_head->head_size);
+
+		/* Dump the "c_info" array */
+		fd_write(fd, (char*)(c_info), c_head->info_size);
+
+		/* Dump the "c_name" array */
+		fd_write(fd, (char*)(c_name), c_head->name_size);
+
+		/* Dump the "c_text" array */
+		fd_write(fd, (char*)(c_text), c_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "c_info" array */
+	C_KILL(c_info, c_head->info_num, player_class);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(c_name, z_info->fake_name_size, char);
+	C_KILL(c_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "c_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'c_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_c_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'c_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "w_info" array, by parsing a binary "image" file
+ */
+static errr init_w_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != w_head->v_major) ||
+	    (test.v_minor != w_head->v_minor) ||
+	    (test.v_patch != w_head->v_patch) ||
+	    (test.v_extra != w_head->v_extra) ||
+	    (test.info_num != w_head->info_num) ||
+	    (test.info_len != w_head->info_len) ||
+	    (test.head_size != w_head->head_size) ||
+	    (test.info_size != w_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*w_head) = test;
+
+
+	/* Allocate the "w_info" array */
+	C_MAKE(w_info, w_head->info_num, weapon_style);
+
+	/* Read the "w_info" array */
+	fd_read(fd, (char*)(w_info), w_head->info_size);
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "w_info" array
+ *
+ */
+static errr init_w_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(w_head, header);
+
+	/* Save the "version" */
+	w_head->v_major = VERSION_MAJOR;
+	w_head->v_minor = VERSION_MINOR;
+	w_head->v_patch = VERSION_PATCH;
+	w_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	w_head->info_num = z_info->w_max;
+	w_head->info_len = sizeof(weapon_style);
+
+	/* Save the size of "w_head" and "w_info" */
+	w_head->head_size = sizeof(header);
+	w_head->info_size = w_head->info_num * w_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "w_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "w_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_w_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "w_info" array */
+	C_MAKE(w_info, w_head->info_num, weapon_style);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "w_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'w_info.txt' file.");
+
+	/* Parse the file */
+	err = init_w_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'w_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'w_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "w_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(w_head), w_head->head_size);
+
+		/* Dump the "w_info" array */
+		fd_write(fd, (char*)(w_info), w_head->info_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "w_info" array */
+	C_KILL(w_info, w_head->info_num, weapon_style);
+
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "w_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 'w_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_w_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'w_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "s_info" array, by parsing a binary "image" file
+ */
+static errr init_s_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != s_head->v_major) ||
+	    (test.v_minor != s_head->v_minor) ||
+	    (test.v_patch != s_head->v_patch) ||
+	    (test.v_extra != s_head->v_extra) ||
+	    (test.info_num != s_head->info_num) ||
+	    (test.info_len != s_head->info_len) ||
+	    (test.head_size != s_head->head_size) ||
+	    (test.info_size != s_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*s_head) = test;
+
+
+	/* Allocate the "s_info" array */
+	C_MAKE(s_info, s_head->info_num, spell_type);
+
+	/* Read the "s_info" array */
+	fd_read(fd, (char*)(s_info), s_head->info_size);
+
+
+	/* Allocate the "s_name" array */
+	C_MAKE(s_name, s_head->name_size, char);
+
+	/* Read the "s_name" array */
+	fd_read(fd, (char*)(s_name), s_head->name_size);
+
+#ifndef DELAY_LOAD_S_TEXT
+
+	/* Allocate the "s_text" array */
+	C_MAKE(s_text, s_head->text_size, char);
+
+	/* Read the "s_text" array */
+	fd_read(fd, (char*)(s_text), s_head->text_size);
+
+#endif
+
+        /* Success */
+	return (0);
+}
+
+
+
+
+/*
+ * Initialize the "s_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_s_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the "header" ***/
+
+	/* Allocate the "header" */
+	MAKE(s_head, header);
+
+	/* Save the "version" */
+	s_head->v_major = VERSION_MAJOR;
+	s_head->v_minor = VERSION_MINOR;
+	s_head->v_patch = VERSION_PATCH;
+	s_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	s_head->info_num = z_info->s_max;
+	s_head->info_len = sizeof(spell_type);
+
+	/* Save the size of "s_head" and "s_info" */
+	s_head->head_size = sizeof(header);
+	s_head->info_size = s_head->info_num * s_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "s_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_s_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "s_info" array */
+	C_MAKE(s_info, s_head->info_num, spell_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(s_name, z_info->fake_name_size, char);
+	C_MAKE(s_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "s_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 's_info.txt' file.");
+
+	/* Parse the file */
+	err = init_s_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 's_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 's_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(s_head), s_head->head_size);
+
+		/* Dump the "s_info" array */
+		fd_write(fd, (char*)(s_info), s_head->info_size);
+
+		/* Dump the "s_name" array */
+		fd_write(fd, (char*)(s_name), s_head->name_size);
+
+		/* Dump the "s_text" array */
+		fd_write(fd, (char*)(s_text), s_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "s_info" array */
+	C_KILL(s_info, s_head->info_num, spell_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(s_name, z_info->fake_name_size, char);
+	C_KILL(s_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "s_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot open 's_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_s_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 's_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+
+
+
+
+/*
+ * Initialize the "h_info" array, by parsing a binary "image" file
+ */
+static errr init_h_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != h_head->v_major) ||
+	    (test.v_minor != h_head->v_minor) ||
+	    (test.v_patch != h_head->v_patch) ||
+	    (test.v_extra != h_head->v_extra) ||
+	    (test.info_num != h_head->info_num) ||
+	    (test.info_len != h_head->info_len) ||
+	    (test.head_size != h_head->head_size) ||
+	    (test.info_size != h_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*h_head) = test;
+
+
+	/* Allocate the "h_info" array */
+	C_MAKE(h_info, h_head->info_num, hist_type);
+
+	/* Read the "h_info" array */
+	fd_read(fd, (char*)(h_info), h_head->info_size);
+
+
+	/* Allocate the "h_text" array */
+	C_MAKE(h_text, h_head->text_size, char);
+
+	/* Read the "h_text" array */
+	fd_read(fd, (char*)(h_text), h_head->text_size);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "h_info" array
+ */
+static errr init_h_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(h_head, header);
+
+	/* Save the "version" */
+	h_head->v_major = VERSION_MAJOR;
+	h_head->v_minor = VERSION_MINOR;
+	h_head->v_patch = VERSION_PATCH;
+	h_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	h_head->info_num = z_info->h_max;
+	h_head->info_len = sizeof(hist_type);
+
+	/* Save the size of "h_head" and "h_info" */
+	h_head->head_size = sizeof(header);
+	h_head->info_size = h_head->info_num * h_head->info_len;
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "h_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_h_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "h_info" array */
+	C_MAKE(h_info, h_head->info_num, hist_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(h_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "h_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'h_info.txt' file.");
+
+	/* Parse the file */
+	err = init_h_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'h_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'h_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(h_head), h_head->head_size);
+
+		/* Dump the "h_info" array */
+		fd_write(fd, (char*)(h_info), h_head->info_size);
+
+		/* Dump the "h_text" array */
+		fd_write(fd, (char*)(h_text), h_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "h_info" array */
+	C_KILL(h_info, h_head->info_num, hist_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(h_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "h_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'h_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_h_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'h_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "b_info" array, by parsing a binary "image" file
+ */
+static errr init_b_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != b_head->v_major) ||
+	    (test.v_minor != b_head->v_minor) ||
+	    (test.v_patch != b_head->v_patch) ||
+	    (test.v_extra != b_head->v_extra) ||
+	    (test.info_num != b_head->info_num) ||
+	    (test.info_len != b_head->info_len) ||
+	    (test.head_size != b_head->head_size) ||
+	    (test.info_size != b_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*b_head) = test;
+
+
+	/* Allocate the "b_info" array */
+	C_MAKE(b_info, b_head->info_num, owner_type);
+
+	/* Read the "b_info" array */
+	fd_read(fd, (char*)(b_info), b_head->info_size);
+
+
+	/* Allocate the "b_name" array */
+	C_MAKE(b_name, b_head->name_size, char);
+
+	/* Read the "b_name" array */
+	fd_read(fd, (char*)(b_name), b_head->name_size);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "b_info" array
+ */
+static errr init_b_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(b_head, header);
+
+	/* Save the "version" */
+	b_head->v_major = VERSION_MAJOR;
+	b_head->v_minor = VERSION_MINOR;
+	b_head->v_patch = VERSION_PATCH;
+	b_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	b_head->info_num = MAX_STORES * z_info->b_max;
+	b_head->info_len = sizeof(owner_type);
+
+	/* Save the size of "b_head" and "b_info" */
+	b_head->head_size = sizeof(header);
+	b_head->info_size = b_head->info_num * b_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "b_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_b_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "b_info" array */
+	C_MAKE(b_info, b_head->info_num, owner_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(b_name, z_info->fake_name_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "b_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'b_info.txt' file.");
+
+	/* Parse the file */
+	err = init_b_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'b_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'b_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(b_head), b_head->head_size);
+
+		/* Dump the "b_info" array */
+		fd_write(fd, (char*)(b_info), b_head->info_size);
+
+		/* Dump the "b_name" array */
+		fd_write(fd, (char*)(b_name), b_head->name_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "b_info" array */
+	C_KILL(b_info, b_head->info_num, owner_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(b_name, z_info->fake_name_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "b_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'b_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_b_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'b_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
+
+/*
+ * Initialize the "g_info" array, by parsing a binary "image" file
+ */
+static errr init_g_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+	    (test.v_major != g_head->v_major) ||
+	    (test.v_minor != g_head->v_minor) ||
+	    (test.v_patch != g_head->v_patch) ||
+	    (test.v_extra != g_head->v_extra) ||
+	    (test.info_num != g_head->info_num) ||
+	    (test.info_len != g_head->info_len) ||
+	    (test.head_size != g_head->head_size) ||
+	    (test.info_size != g_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+	(*g_head) = test;
+
+
+	/* Allocate the "g_info" array */
+	C_MAKE(g_info, g_head->info_num, byte);
+
+	/* Read the "g_info" array */
+	fd_read(fd, (char*)(g_info), g_head->info_size);
+
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Initialize the "g_info" array
+ */
+static errr init_g_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(g_head, header);
+
+	/* Save the "version" */
+	g_head->v_major = VERSION_MAJOR;
+	g_head->v_minor = VERSION_MINOR;
+	g_head->v_patch = VERSION_PATCH;
+	g_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	g_head->info_num = (z_info->c_max * z_info->c_max);
+	g_head->info_len = sizeof(byte);
+
+	/* Save the size of "g_head" and "g_info" */
+	g_head->head_size = sizeof(header);
+	g_head->info_size = g_head->info_num * g_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "g_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_g_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/* Allocate the "g_info" array */
+	C_MAKE(g_info, g_head->info_num, byte);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "g_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 'g_info.txt' file.");
+
+	/* Parse the file */
+	err = init_g_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 'g_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 'g_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(g_head), g_head->head_size);
+
+		/* Dump the "g_info" array */
+		fd_write(fd, (char*)(g_info), g_head->info_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+
+
+	/*** Kill the fake arrays ***/
+
+	/* Free the "g_info" array */
+	C_KILL(g_info, g_head->info_num, byte);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "g_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 'g_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_g_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 'g_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1943,10 +3981,10 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_DETECT_MAGIC },
+		{ TV_SCROLL, SV_SCROLL_DETECT_MAGIC },
+                { TV_SCROLL, SV_SCROLL_READ_MAGIC },
+                { TV_SCROLL, SV_SCROLL_ANALYZE_MAGIC },
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
 
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
@@ -2004,8 +4042,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_DETECT_EVIL },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
 		{ TV_STAFF, SV_STAFF_TELEPORTATION },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
-		{ TV_STAFF, SV_STAFF_IDENTIFY },
+                { TV_STAFF, SV_STAFF_DETECT_CURSE },
+                { TV_STAFF, SV_STAFF_DETECT_CURSE },
 
 		{ TV_MAGIC_BOOK, 0 },
 		{ TV_MAGIC_BOOK, 0 },
@@ -2039,7 +4077,6 @@ static errr init_other(void)
 	/* Initialize the "message" package */
 	(void)message_init();
 
-
 	/*** Prepare grid arrays ***/
 
 	/* Array of grids */
@@ -2065,10 +4102,13 @@ static errr init_other(void)
 	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
 	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
 
+#ifdef MONSTER_FLOW
+
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
 
+#endif /* MONSTER_FLOW */
 
 	/*** Prepare "vinfo" array ***/
 
@@ -2079,10 +4119,16 @@ static errr init_other(void)
 	/*** Prepare entity arrays ***/
 
 	/* Objects */
-	C_MAKE(o_list, MAX_O_IDX, object_type);
+	C_MAKE(o_list, z_info->o_max, object_type);
 
 	/* Monsters */
-	C_MAKE(m_list, MAX_M_IDX, monster_type);
+	C_MAKE(m_list, z_info->m_max, monster_type);
+
+
+	/*** Prepare lore array ***/
+
+	/* Lore */
+	C_MAKE(l_list, z_info->r_max, monster_lore);
 
 
 	/*** Prepare quest array ***/
@@ -2133,7 +4179,7 @@ static errr init_other(void)
 			int sv = store_table[i][k][1];
 
 			/* Look for it */
-			for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
+			for (k_idx = 1; k_idx < z_info->k_max; k_idx++)
 			{
 				object_kind *k_ptr = &k_info[k_idx];
 
@@ -2142,13 +4188,12 @@ static errr init_other(void)
 			}
 
 			/* Catch errors */
-			if (k_idx == MAX_K_IDX) continue;
+			if (k_idx == z_info->k_max) continue;
 
 			/* Add that item index to the table */
 			st_ptr->table[st_ptr->table_num++] = k_idx;
 		}
 	}
-
 
 
 	/*** Prepare the options ***/
@@ -2189,9 +4234,11 @@ static errr init_alloc(void)
 
 	object_kind *k_ptr;
 
+	feature_type *f_ptr;
+
 	monster_race *r_ptr;
 
-        feature_type *f_ptr;
+	ego_item_type *e_ptr;
 
 	alloc_entry *table;
 
@@ -2212,7 +4259,7 @@ static errr init_alloc(void)
 	alloc_kind_size = 0;
 
 	/* Scan the objects */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -2251,7 +4298,7 @@ static errr init_alloc(void)
 	table = alloc_kind_table;
 
 	/* Scan the objects */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		k_ptr = &k_info[i];
 
@@ -2288,6 +4335,7 @@ static errr init_alloc(void)
 		}
 	}
 
+
 	/*** Analyze feature allocation info ***/
 
 	/* Clear the "aux" array */
@@ -2300,19 +4348,19 @@ static errr init_alloc(void)
 	alloc_feat_size = 0;
 
 	/* Scan the features */
-	for (i = 1; i < MAX_F_IDX; i++)
+	for (i = 1; i < z_info->f_max; i++)
 	{
 		/* Get the i'th race */
 		f_ptr = &f_info[i];
 
-                /* Legal features */
+		/* Legal features */
 		if (f_ptr->rarity)
 		{
 			/* Count the entries */
-                        alloc_feat_size++;
+			alloc_feat_size++;
 
 			/* Group by level */
-                        num[f_ptr->level]++;
+			num[f_ptr->level]++;
 		}
 	}
 
@@ -2336,7 +4384,7 @@ static errr init_alloc(void)
 	table = alloc_feat_table;
 
 	/* Scan the features */
-	for (i = 1; i < MAX_F_IDX; i++)
+	for (i = 1; i < z_info->f_max; i++)
 	{
 		/* Get the i'th feature */
 		f_ptr = &f_info[i];
@@ -2370,10 +4418,6 @@ static errr init_alloc(void)
 		}
 	}
 
-
-
-
-
 	/*** Analyze monster allocation info ***/
 
 	/* Clear the "aux" array */
@@ -2386,7 +4430,7 @@ static errr init_alloc(void)
 	alloc_race_size = 0;
 
 	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2397,7 +4441,7 @@ static errr init_alloc(void)
 			/* Count the entries */
 			alloc_race_size++;
 
-			/* Group by level */
+                        /* Group by level */
 			num[r_ptr->level]++;
 		}
 	}
@@ -2422,7 +4466,7 @@ static errr init_alloc(void)
 	table = alloc_race_table;
 
 	/* Scan the monsters (not the ghost) */
-	for (i = 1; i < MAX_R_IDX - 1; i++)
+	for (i = 1; i < z_info->r_max - 1; i++)
 	{
 		/* Get the i'th race */
 		r_ptr = &r_info[i];
@@ -2453,6 +4497,85 @@ static errr init_alloc(void)
 
 			/* Another entry complete for this locale */
 			aux[x]++;
+
+		}
+	}
+
+	/*** Analyze ego_item allocation info ***/
+
+	/* Clear the "aux" array */
+	(void)C_WIPE(&aux, MAX_DEPTH, s16b);
+
+	/* Clear the "num" array */
+	(void)C_WIPE(&num, MAX_DEPTH, s16b);
+
+	/* Size of "alloc_ego_table" */
+	alloc_ego_size = 0;
+
+	/* Scan the ego items */
+	for (i = 1; i < z_info->e_max; i++)
+	{
+		/* Get the i'th ego item */
+		e_ptr = &e_info[i];
+
+		/* Legal items */
+		if (e_ptr->rarity)
+		{
+			/* Count the entries */
+			alloc_ego_size++;
+
+			/* Group by level */
+			num[e_ptr->level]++;
+		}
+	}
+
+	/* Collect the level indexes */
+	for (i = 1; i < MAX_DEPTH; i++)
+	{
+		/* Group by level */
+		num[i] += num[i-1];
+	}
+
+	/*** Initialize ego-item allocation info ***/
+
+	/* Allocate the alloc_ego_table */
+	C_MAKE(alloc_ego_table, alloc_ego_size, alloc_entry);
+
+	/* Get the table entry */
+	table = alloc_ego_table;
+
+	/* Scan the ego-items */
+	for (i = 1; i < z_info->e_max; i++)
+	{
+		/* Get the i'th ego item */
+		e_ptr = &e_info[i];
+
+		/* Count valid pairs */
+		if (e_ptr->rarity)
+		{
+			int p, x, y, z;
+
+			/* Extract the base level */
+			x = e_ptr->level;
+
+			/* Extract the base probability */
+			p = (100 / e_ptr->rarity);
+
+			/* Skip entries preceding our locale */
+			y = (x > 0) ? num[x-1] : 0;
+
+			/* Skip previous entries at this locale */
+			z = y + aux[x];
+
+			/* Load the entry */
+			table[z].index = i;
+			table[z].level = x;
+			table[z].prob1 = p;
+			table[z].prob2 = p;
+			table[z].prob3 = p;
+
+			/* Another entry complete for this locale */
+			aux[x]++;
 		}
 	}
 
@@ -2460,7 +4583,6 @@ static errr init_alloc(void)
 	/* Success */
 	return (0);
 }
-
 
 
 /*
@@ -2550,7 +4672,7 @@ static void init_angband_aux(cptr why)
  */
 void init_angband(void)
 {
-	int fd = -1;
+	int fd;
 
 	int mode = 0644;
 
@@ -2650,10 +4772,19 @@ void init_angband(void)
 
 	/*** Initialize some arrays ***/
 
+
+	/* Initialize size info */
+	note("[Initializing array sizes...]");
+	if (init_z_info()) quit("Cannot initialize sizes");
+
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
-
+#ifdef ALLOW_ROOMDESC
+	/* Initialize room description info */
+	note("[Initializing arrays... (room descriptions)]");
+	if (init_d_info()) quit("Cannot initialize room descriptions");
+#endif
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
@@ -2674,6 +4805,34 @@ void init_angband(void)
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
+	/* Initialize history info */
+	note("[Initializing arrays... (histories)]");
+	if (init_h_info()) quit("Cannot initialize histories");
+
+	/* Initialize race info */
+	note("[Initializing arrays... (races)]");
+	if (init_p_info()) quit("Cannot initialize races");
+
+	/* Initialize class info */
+	note("[Initializing arrays... (classes)]");
+	if (init_c_info()) quit("Cannot initialize classes");
+
+	/* Initialize weapon style info */
+	note("[Initializing arrays... (weapon styles)]");
+	if (init_w_info()) quit("Cannot initialize weapon styles");
+
+	/* Initialize spell info */
+	note("[Initializing arrays... (spells)]");
+	if (init_s_info()) quit("Cannot initialize spells");
+
+	/* Initialize owner info */
+	note("[Initializing arrays... (owners)]");
+	if (init_b_info()) quit("Cannot initialize owners");
+
+	/* Initialize price info */
+	note("[Initializing arrays... (prices)]");
+	if (init_g_info()) quit("Cannot initialize prices");
+
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
@@ -2681,7 +4840,6 @@ void init_angband(void)
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
-
 
 	/*** Load default user pref files ***/
 
@@ -2694,5 +4852,3 @@ void init_angband(void)
 	/* Done */
 	note("[Initialization complete]");
 }
-
-

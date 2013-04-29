@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -39,209 +45,6 @@ struct birther
  * The last character displayed
  */
 static birther prev;
-
-
-
-/*
- * Forward declare
- */
-typedef struct hist_type hist_type;
-
-/*
- * Player background information
- */
-struct hist_type
-{
-	cptr info;			    /* Textual History */
-
-	byte roll;			    /* Frequency of this entry */
-	byte chart;			    /* Chart index */
-	byte next;			    /* Next chart index */
-	byte bonus;			    /* Social Class Bonus + 50 */
-};
-
-
-/*
- * Background information (see below)
- *
- * Chart progression by race:
- *   Human/Dunadan -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Half-Elf      -->  4 -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Elf/High-Elf  -->  7 -->  8 -->  9 --> 54 --> 55 --> 56
- *   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
- *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
- *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
- *
- * XXX XXX XXX This table *must* be correct or drastic errors may occur!
- */
-static hist_type bg[] =
-{
-	{"You are the illegitimate and unacknowledged child ", 10, 1, 2, 25},
-	{"You are the illegitimate but acknowledged child ", 20, 1, 2, 35},
-	{"You are one of several children ", 95, 1, 2, 45},
-	{"You are the first child ", 100, 1, 2, 50},
-
-	{"of a Serf.  ", 40, 2, 3, 65},
-	{"of a Yeoman.  ", 65, 2, 3, 80},
-	{"of a Townsman.  ", 80, 2, 3, 90},
-	{"of a Guildsman.  ", 90, 2, 3, 105},
-	{"of a Landed Knight.  ", 96, 2, 3, 120},
-	{"of a Titled Noble.  ", 99, 2, 3, 130},
-	{"of a Royal Blood Line.  ", 100, 2, 3, 140},
-
-	{"You are the black sheep of the family.  ", 20, 3, 50, 20},
-	{"You are a credit to the family.  ", 80, 3, 50, 55},
-	{"You are a well liked child.  ", 100, 3, 50, 60},
-
-	{"Your mother was of the Teleri.  ", 40, 4, 1, 50},
-	{"Your father was of the Teleri.  ", 75, 4, 1, 55},
-	{"Your mother was of the Noldor.  ", 90, 4, 1, 55},
-	{"Your father was of the Noldor.  ", 95, 4, 1, 60},
-	{"Your mother was of the Vanyar.  ", 98, 4, 1, 65},
-	{"Your father was of the Vanyar.  ", 100, 4, 1, 70},
-
-	{"You are one of several children ", 60, 7, 8, 50},
-	{"You are the only child ", 100, 7, 8, 55},
-
-	{"of a Teleri ", 75, 8, 9, 50},
-	{"of a Noldor ", 95, 8, 9, 55},
-	{"of a Vanyar ", 100, 8, 9, 60},
-
-	{"Ranger.  ", 40, 9, 54, 80},
-	{"Archer.  ", 70, 9, 54, 90},
-	{"Warrior.  ", 87, 9, 54, 110},
-	{"Mage.  ", 95, 9, 54, 125},
-	{"Prince.  ", 99, 9, 54, 140},
-	{"King.  ", 100, 9, 54, 145},
-
-	{"You are one of several children of a Hobbit ", 85, 10, 11, 45},
-	{"You are the only child of a Hobbit ", 100, 10, 11, 55},
-
-	{"Bum.  ", 20, 11, 3, 55},
-	{"Tavern Owner.  ", 30, 11, 3, 80},
-	{"Miller.  ", 40, 11, 3, 90},
-	{"Home Owner.  ", 50, 11, 3, 100},
-	{"Burglar.  ", 80, 11, 3, 110},
-	{"Warrior.  ", 95, 11, 3, 115},
-	{"Mage.  ", 99, 11, 3, 125},
-	{"Clan Elder.  ", 100, 11, 3, 140},
-
-	{"You are one of several children of a Gnome ", 85, 13, 14, 45},
-	{"You are the only child of a Gnome ", 100, 13, 14, 55},
-
-	{"Beggar.  ", 20, 14, 3, 55},
-	{"Braggart.  ", 50, 14, 3, 70},
-	{"Prankster.  ", 75, 14, 3, 85},
-	{"Warrior.  ", 95, 14, 3, 100},
-	{"Mage.  ", 100, 14, 3, 125},
-
-	{"You are one of two children of a Dwarven ", 25, 16, 17, 40},
-	{"You are the only child of a Dwarven ", 100, 16, 17, 50},
-
-	{"Thief.  ", 10, 17, 18, 60},
-	{"Prison Guard.  ", 25, 17, 18, 75},
-	{"Miner.  ", 75, 17, 18, 90},
-	{"Warrior.  ", 90, 17, 18, 110},
-	{"Priest.  ", 99, 17, 18, 130},
-	{"King.  ", 100, 17, 18, 150},
-
-	{"You are the black sheep of the family.  ", 15, 18, 57, 10},
-	{"You are a credit to the family.  ", 85, 18, 57, 50},
-	{"You are a well liked child.  ", 100, 18, 57, 55},
-
-	{"Your mother was an Orc, but it is unacknowledged.  ", 25, 19, 20, 25},
-	{"Your father was an Orc, but it is unacknowledged.  ",	100, 19, 20, 25},
-
-	{"You are the adopted child ", 100, 20, 2, 50},
-
-	{"Your mother was a Cave-Troll ", 30, 22, 23, 20},
-	{"Your father was a Cave-Troll ", 60, 22, 23, 25},
-	{"Your mother was a Hill-Troll ", 75, 22, 23, 30},
-	{"Your father was a Hill-Troll ", 90, 22, 23, 35},
-	{"Your mother was a Water-Troll ", 95, 22, 23, 40},
-	{"Your father was a Water-Troll ", 100, 22, 23, 45},
-
-	{"Cook.  ", 5, 23, 62, 60},
-	{"Warrior.  ", 95, 23, 62, 55},
-	{"Shaman.  ", 99, 23, 62, 65},
-	{"Clan Chief.  ", 100, 23, 62, 80},
-
-	{"You have dark brown eyes, ", 20, 50, 51, 50},
-	{"You have brown eyes, ", 60, 50, 51, 50},
-	{"You have hazel eyes, ", 70, 50, 51, 50},
-	{"You have green eyes, ", 80, 50, 51, 50},
-	{"You have blue eyes, ", 90, 50, 51, 50},
-	{"You have blue-gray eyes, ", 100, 50, 51, 50},
-
-	{"straight ", 70, 51, 52, 50},
-	{"wavy ", 90, 51, 52, 50},
-	{"curly ", 100, 51, 52, 50},
-
-	{"black hair, ", 30, 52, 53, 50},
-	{"brown hair, ", 70, 52, 53, 50},
-	{"auburn hair, ", 80, 52, 53, 50},
-	{"red hair, ", 90, 52, 53, 50},
-	{"blond hair, ", 100, 52, 53, 50},
-
-	{"and a very dark complexion.", 10, 53, 0, 50},
-	{"and a dark complexion.", 30, 53, 0, 50},
-	{"and an average complexion.", 80, 53, 0, 50},
-	{"and a fair complexion.", 90, 53, 0, 50},
-	{"and a very fair complexion.", 100, 53, 0, 50},
-
-	{"You have light grey eyes, ", 85, 54, 55, 50},
-	{"You have light blue eyes, ", 95, 54, 55, 50},
-	{"You have light green eyes, ", 100, 54, 55, 50},
-
-	{"straight ", 75, 55, 56, 50},
-	{"wavy ", 100, 55, 56, 50},
-
-	{"black hair, and a fair complexion.", 75, 56, 0, 50},
-	{"brown hair, and a fair complexion.", 85, 56, 0, 50},
-	{"blond hair, and a fair complexion.", 95, 56, 0, 50},
-	{"silver hair, and a fair complexion.", 100, 56, 0, 50},
-
-	{"You have dark brown eyes, ", 99, 57, 58, 50},
-	{"You have glowing red eyes, ", 100, 57, 58, 60},
-
-	{"straight ", 90, 58, 59, 50},
-	{"wavy ", 100, 58, 59, 50},
-
-	{"black hair, ", 75, 59, 60, 50},
-	{"brown hair, ", 100, 59, 60, 50},
-
-	{"a one foot beard, ", 25, 60, 61, 50},
-	{"a two foot beard, ", 60, 60, 61, 51},
-	{"a three foot beard, ", 90, 60, 61, 53},
-	{"a four foot beard, ", 100, 60, 61, 55},
-
-	{"and a dark complexion.", 100, 61, 0, 50},
-
-	{"You have slime green eyes, ", 60, 62, 63, 50},
-	{"You have puke yellow eyes, ", 85, 62, 63, 50},
-	{"You have blue-bloodshot eyes, ", 99, 62, 63, 50},
-	{"You have glowing red eyes, ", 100, 62, 63, 55},
-
-	{"dirty ", 33, 63, 64, 50},
-	{"mangy ", 66, 63, 64, 50},
-	{"oily ", 100, 63, 64, 50},
-
-	{"sea-weed green hair, ", 33, 64, 65, 50},
-	{"bright red hair, ", 66, 64, 65, 50},
-	{"dark purple hair, ", 100, 64, 65, 50},
-
-	{"and green ", 25, 65, 66, 50},
-	{"and blue ", 50, 65, 66, 50},
-	{"and white ", 75, 65, 66, 50},
-	{"and black ", 100, 65, 66, 50},
-
-	{"ulcerous skin.", 33, 66, 0, 50},
-	{"scabby skin.", 66, 66, 0, 50},
-	{"leprous skin.", 100, 66, 0, 50}
-};
-
 
 
 /*
@@ -494,7 +297,7 @@ static void get_extra(void)
 	p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + ((p_ptr->pstyle)?10:0);
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -559,64 +362,7 @@ static void get_history(void)
 	social_class = randint(4);
 
 	/* Starting place */
-	switch (p_ptr->prace)
-	{
-		case RACE_HUMAN:
-		case RACE_DUNADAN:
-		{
-			chart = 1;
-			break;
-		}
-
-		case RACE_HALF_ELF:
-		{
-			chart = 4;
-			break;
-		}
-
-		case RACE_ELF:
-		case RACE_HIGH_ELF:
-		{
-			chart = 7;
-			break;
-		}
-
-		case RACE_HOBBIT:
-		{
-			chart = 10;
-			break;
-		}
-
-		case RACE_GNOME:
-		{
-			chart = 13;
-			break;
-		}
-
-		case RACE_DWARF:
-		{
-			chart = 16;
-			break;
-		}
-
-		case RACE_HALF_ORC:
-		{
-			chart = 19;
-			break;
-		}
-
-		case RACE_HALF_TROLL:
-		{
-			chart = 22;
-			break;
-		}
-
-		default:
-		{
-			chart = 0;
-			break;
-		}
-	}
+	chart = rp_ptr->hist;
 
 
 	/* Process the history */
@@ -629,16 +375,16 @@ static void get_history(void)
 		roll = randint(100);
 
 		/* Get the proper entry in the table */
-		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
+		while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
 
 		/* Get the textual history */
-		strcat(buf, bg[i].info);
+		strcat(buf, (h_text + h_info[i].text));
 
 		/* Add in the social class */
-		social_class += (int)(bg[i].bonus) - 50;
+		social_class += (int)(h_info[i].bonus) - 50;
 
 		/* Enter the next chart */
-		chart = bg[i].next;
+		chart = h_info[i].next;
 	}
 
 
@@ -775,7 +521,7 @@ static void player_wipe(void)
 
 
 	/* Start with no artifacts made yet */
-	for (i = 0; i < MAX_A_IDX; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
 		a_ptr->cur_num = 0;
@@ -796,7 +542,7 @@ static void player_wipe(void)
 
 
 	/* Reset the "objects" */
-	for (i = 1; i < MAX_K_IDX; i++)
+	for (i = 1; i < z_info->k_max; i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -809,9 +555,10 @@ static void player_wipe(void)
 
 
 	/* Reset the "monsters" */
-	for (i = 1; i < MAX_R_IDX; i++)
+	for (i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		monster_lore *l_ptr = &l_list[i];
 
 		/* Hack -- Reset the counter */
 		r_ptr->cur_num = 0;
@@ -823,12 +570,12 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
-		r_ptr->r_pkills = 0;
+		l_ptr->r_pkills = 0;
 	}
 
 
 	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	r_info[z_info->r_max-1].max_num = 0;
 
 
 	/* Hack -- Well fed player */
@@ -836,61 +583,9 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 0;
 }
 
-
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
-};
 
 
 
@@ -901,7 +596,7 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
+	int i,tv,sv;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -933,8 +628,8 @@ static void player_outfit(void)
 	for (i = 0; i < 3; i++)
 	{
 		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
+		tv = c_info[p_ptr->pclass].outfit[i*2+0];
+		sv = c_info[p_ptr->pclass].outfit[i*2+1];
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -947,6 +642,46 @@ static void player_outfit(void)
 	}
 }
 
+/*
+ * Names of various styles
+ */
+
+static cptr w_name_style[] =
+{
+	"(None)",
+	"Unarmed",
+	"One-handed",
+	"Two-handed",
+	"Weapon & shield",
+	"Two-weapon",
+	"Hafted weapons",
+	"Swords",
+	"Polearms",
+	"Thrown weapons",
+	"Slings",
+	"Bows",
+	"Cross-bows",
+        "Backstab",
+        "Magic books",
+        "Prayer books",
+        "Song books",
+        "Instruments",
+	"Potions",
+	"Scrolls",
+	"Amulets",
+	"Rings",
+        "Wands/Rods",
+	"Staves",
+	"Slay Orcs",
+	"Slay Trolls",
+	"Slay Giants",
+	"Slay Dragons",
+	"Slay Evil",
+	"Slay Undead",
+	"Slay Animals",
+	"Slay Demons"
+};
+
 
 /*
  * Helper function for 'player_birth()'.
@@ -957,6 +692,20 @@ static void player_outfit(void)
 static bool player_birth_aux_1(void)
 {
 	int k, n, i;
+
+	int offset;
+
+	u32b style;
+
+	int style_list[MAX_WEAP_STYLES];
+        int book_list[26];
+
+#ifdef USE_CLASS_PRETTY_NAMES
+        char name[60];
+#endif				
+
+
+	int num;
 
 	cptr str;
 
@@ -1005,6 +754,10 @@ static bool player_birth_aux_1(void)
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 	}
 
+        /* Hack --- context sensitive help */
+        strcpy(context_help_file,"birth.txt");
+        strcpy(context_help_match,"=== creating");
+
 	/* Choose */
 	while (1)
 	{
@@ -1040,43 +793,57 @@ static bool player_birth_aux_1(void)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 	            "Your 'race' determines various intrinsic factors and bonuses.");
 
-	/* Dump races */
-	for (n = 0; n < MAX_RACES; n++)
-	{
-		/* Analyze */
-		p_ptr->prace = n;
-		rp_ptr = &race_info[p_ptr->prace];
-		str = rp_ptr->title;
+	/* Display first 15 races */
+	offset = 0;
 
-		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-	}
+        /* Hack --- context sensitive help */
+        strcpy(context_help_file,"birth.txt");
+        strcpy(context_help_match,"=== races");
 
 	/* Choose */
 	while (1)
 	{
-		sprintf(buf, "Choose a race (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+                /* Clean up */
+                clear_from(20);
+
+		/* Dump races */
+		for (n = offset; n < (z_info->p_max>offset+15?offset+15:z_info->p_max); n++)
+		{
+			/* Analyze */
+			p_ptr->prace = n;
+			rp_ptr = &p_info[p_ptr->prace];
+			str = p_name + rp_ptr->name;
+
+			/* Display */
+			sprintf(buf, "%c%c %s", I2A(n), p2, str);
+			put_str(buf, 21 + ((n-offset)/5), 2 + 15 * ((n-offset)%5));
+		}
+
+                sprintf(buf, "Choose a race (%c-%c, or * for random%s%s): ",
+                        I2A(0), I2A(z_info->p_max-1),(n>offset+15?",+ next":""),(offset>0?",- prev":""));
 		put_str(buf, 20, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
+                if ((ch == '+') && (z_info->p_max >= offset +15)) offset+=15;
+                if ((ch == ' ') && (z_info->p_max >= offset +15)) offset+=15;
+		if ((ch == '-') && (offset > 0)) offset-=15;
+                if ((ch == '+') || (ch == ' ') || (ch == '-')) continue;
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_RACES);
-		if ((k >= 0) && (k < n)) break;
+		if (ch == '*') k = rand_int(z_info->p_max);
+                if ((k >= 0) && (k < z_info->p_max)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal race!");
 	}
 
 	/* Set race */
 	p_ptr->prace = k;
-	rp_ptr = &race_info[p_ptr->prace];
+	rp_ptr = &p_info[p_ptr->prace];
 
 	/* Race */
 	put_str("Race", 4, 1);
-	c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 8);
+	c_put_str(TERM_L_BLUE, p_name + rp_ptr->name, 4, 8);
 
 	/* Clean up */
 	clear_from(15);
@@ -1090,53 +857,273 @@ static bool player_birth_aux_1(void)
 	Term_putstr(5, 16, -1, TERM_WHITE,
 	            "Any entries with a (*) should only be used by advanced players.");
 
-	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
-	{
-		cptr mod = "";
+        /* Hack --- context sensitive help */
+        strcpy(context_help_file,"birth.txt");
+        strcpy(context_help_match,"=== classes");
 
-		/* Analyze */
-		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
-
-		/* Verify legality */
-		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
-
-		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
-	}
+	/* Display first 9 classes */
+	offset = 0;
 
 	/* Get a class */
 	while (1)
 	{
-		sprintf(buf, "Choose a class (%c-%c, or * for random): ",
-		        I2A(0), I2A(n-1));
+                /* Clean up */
+                clear_from(20);
+
+		/* Dump classes */
+		for (n = offset; n < (z_info->c_max>offset+15?offset+15:z_info->c_max); n++)
+		{
+			cptr mod = "";
+
+
+			/* Analyze */
+			p_ptr->pclass = n;
+	                cp_ptr = &c_info[p_ptr->pclass];
+	                str = c_name + cp_ptr->name;
+
+			/* Verify legality */
+			if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+
+			/* Display */
+			sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+			put_str(buf, 21 + ((n-offset)/3), 2 + 20 * ((n-offset)%3));
+		}
+
+                sprintf(buf, "Choose a class (%c-%c, or * for random%s%s): ",
+                        I2A(0), I2A(z_info->c_max-1),(n>offset+9?",+ next":""),(offset>0?",- prev":""));
 		put_str(buf, 20, 2);
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
+                if ((ch == '+') && (z_info->c_max >= offset +9)) offset+=9;
+                if ((ch == ' ') && (z_info->c_max >= offset +9)) offset+=9;
+                if ((ch == '-') && (offset > 0)) offset-=9;
+                if ((ch == '+') || (ch == ' ') || (ch == '-')) continue;
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
-		if ((k >= 0) && (k < n)) break;
+		if (ch == '*') k = rand_int(z_info->c_max);
+                if ((k >= 0) && (k < z_info->c_max)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
 	}
 
 	/* Set class */
 	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+	cp_ptr = &c_info[p_ptr->pclass];
 
 	/* Class */
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE,  c_name + cp_ptr->name, 5, 8);
 
 	/* Clean up */
 	clear_from(15);
+
+
+	/*** Player weapon speciality ***/
+
+	num = 0;
+
+        style = (1L<<WS_NONE);
+
+	/* Collect styles */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		style |= w_info[i].styles;
+
+	}
+
+	/* Defaults no style */
+	p_ptr->pstyle = 0;
+
+
+	/* Analyse styles */
+	for (i = 0;i<MAX_WEAP_STYLES;i++)
+	{
+		if (style & (1L<<i)) style_list[num++]=i;
+
+	}
+
+
+	if (num > 1)
+	{
+
+                /* Hack --- context sensitive help */
+                strcpy(context_help_file,"birth.txt");
+                strcpy(context_help_match,"=== styles");
+
+		/* Display first 6 specialities */
+		offset = 0;	
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+		            "Your 'style' determines under what circumstances you get more benefits.");
+
+		/* Choose */
+		while (1)
+		{
+
+                        /* Clean up */
+                        clear_from(20);
+
+			/* Dump styles */
+			for (n = offset; n < (num>offset+6?offset+6:num); n++)
+			{
+				/* Analyze */
+                                str = w_name_style[style_list[n]];
+#ifdef USE_CLASS_PRETTY_NAMES
+                                lookup_prettyname(name,style_list[n],-1,FALSE,FALSE);
+                                if (strlen(name)) str = name;
+
+#endif
+
+				/* Display */
+				sprintf(buf, "%c%c %s", I2A(n), p2, str);
+				put_str(buf, 21 + ((n-offset)/2), 2 + 40 * ((n-offset)%2));
+			}
+
+                        sprintf(buf, "Choose a style (%c-%c, or * for random%s%s): ",
+                                I2A(0), I2A(num-1),(num>offset+6?",+ next":""),(offset>0?",- prev":""));
+			put_str(buf, 20, 2);
+			ch = inkey();
+			if (ch == 'Q') quit(NULL);
+			if (ch == 'S') return (FALSE);
+                        if ((ch == '+') && (num >= offset +6)) offset+=6;
+                        if ((ch == ' ') && (num >= offset +6)) offset+=6;
+			if ((ch == '-') && (offset > 0)) offset-=6;
+                        if ((ch == '+') || (ch == ' ') || (ch == '-')) continue;
+			k = (islower(ch) ? A2I(ch) : -1);
+			if (ch == ESCAPE) ch = '*';
+			if (ch == '*') k = rand_int(num);
+                        if ((k >= 0) && (k < num)) break;
+			if (ch == '?') do_cmd_help();
+			else bell("Illegal style!");
+		}
+
+		/* Set race */
+                p_ptr->pstyle = style_list[k];
+
+		/* Clean up */
+		clear_from(15);
+
+	}
+	else
+	{
+		/* Only one style */
+		p_ptr->pstyle = style_list[0];
+	}	
+
+#ifdef USE_CLASS_PRETTY_NAMES
+        lookup_prettyname(name,p_ptr->pstyle,0,FALSE,TRUE);
+        if(strlen(name)) c_put_str(TERM_L_BLUE,  name, 5, 8);
+#endif				
+
+
+	/*** Player book ***/
+
+
+	/* Defaults - 1st book */
+	p_ptr->psval = 0;
+
+	if ((p_ptr->pstyle == WS_MAGIC_BOOK) || (p_ptr->pstyle == WS_PRAYER_BOOK) || (p_ptr->pstyle == WS_SONG_BOOK) )
+	{
+
+		object_kind *k_ptr;
+
+                int t=0;
+
+                switch (p_ptr->pstyle)
+		{
+			case WS_MAGIC_BOOK:
+				t = TV_MAGIC_BOOK;
+				break;
+
+			case WS_PRAYER_BOOK:
+				t = TV_PRAYER_BOOK;
+				break;
+
+			case WS_SONG_BOOK:
+				t = TV_SONG_BOOK;
+				break;
+		}
+
+		num = 0;
+
+		/* Analyse styles */
+		for (i = 0;i<z_info->k_max;i++)
+		{
+			k_ptr = &k_info[i];
+
+                        if (k_ptr->tval == t) book_list[num++]=i;
+
+		}
+
+
+                /* Display first 6 books */
+		offset = 0;	
+
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
+		            "Your 'style' determines under what circumstances you get more benefits.");
+
+		/* Choose */
+		while (1)
+		{
+
+                        /* Hack --- context sensitive help */
+                        strcpy(context_help_file,"birth.txt");
+                        strcpy(context_help_match,"=== styles");
+
+                        /* Clean up */
+                        clear_from(20);
+
+			/* Dump styles */
+                        for (n = offset; n < (num>offset+6?offset+6:num); n++)
+			{
+				/* Analyze */
+                                k_ptr = &k_info[book_list[n]];
+                                str = k_name + k_ptr->name;
+#ifdef USE_CLASS_PRETTY_NAMES
+                                lookup_prettyname(name,p_ptr->pstyle,n,FALSE,FALSE);
+                                if (strlen(name)) str = name;
+#endif				
+				/* Display */
+				sprintf(buf, "%c%c %s", I2A(n), p2, str);
+                                put_str(buf, 21 + ((n-offset)/2), 2 + 40 * ((n-offset)%2));
+			}
+
+                        sprintf(buf, "Choose a style (%c-%c, or * for random%s%s): ",
+                                I2A(0), I2A(num-1),(num>offset+6?",+ next":""),(offset>0?",- prev":""));
+			put_str(buf, 20, 2);
+			ch = inkey();
+			if (ch == 'Q') quit(NULL);
+			if (ch == 'S') return (FALSE);
+                        if ((ch == '+') && (num > offset +6)) offset+=6;
+                        if ((ch == ' ') && (num > offset +6)) offset+=6;
+                        if ((ch == '-') && (offset > 0)) offset-=6;
+                        if ((ch == ' ') || (ch == '+') || (ch == '-')) continue;
+			k = (islower(ch) ? A2I(ch) : -1);
+			if (ch == ESCAPE) ch = '*';
+			if (ch == '*') k = rand_int(num);
+                        if ((k >= 0) && (k < num)) break;
+			if (ch == '?') do_cmd_help();
+			else bell("Illegal style!");
+		}
+
+		/* Set sub-style */
+                p_ptr->psval = k;
+
+		/* Clean up */
+		clear_from(15);
+
+	}
+
+#ifdef USE_CLASS_PRETTY_NAMES
+        lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,TRUE,FALSE);
+        if(strlen(name)) c_put_str(TERM_L_BLUE,  name, 5, 8);
+#endif				
+
 
 
 	/*** Birth options ***/
@@ -1146,6 +1133,11 @@ static bool player_birth_aux_1(void)
 	            "You can change your options at any time, but the 'Birth' options");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 	            "must be changed now to affect the birth of this character.");
+
+        /* Hack --- context sensitive help */
+        strcpy(context_help_file,"options.txt");
+        strcpy(context_help_match,"-- birth");
+
 
 	/* Verify birth options */
 	while (1)
@@ -1174,8 +1166,18 @@ static bool player_birth_aux_1(void)
 		op_ptr->opt[OPT_ADULT + (i - OPT_BIRTH)] = op_ptr->opt[i];
 	}
 
+	/* Reset score options from cheat options */
+	for (i = OPT_CHEAT; i < OPT_ADULT; i++)
+	{
+		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
+	}
+
 	/* Clean up */
 	clear_from(10);
+
+        /* Hack --- context sensitive help */
+        strcpy(context_help_file,"general.txt");
+        strcpy(context_help_match,"=== a quick demonstration");
 
 	/* Done */
 	return (TRUE);
@@ -1794,11 +1796,11 @@ void player_birth(void)
 
 
 	/* Note player birth in the message recall */
-	message_add(" ");
-	message_add("  ");
-	message_add("====================");
-	message_add("  ");
-	message_add(" ");
+	message_add(" ", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add("====================", MSG_GENERIC);
+	message_add("  ", MSG_GENERIC);
+	message_add(" ", MSG_GENERIC);
 
 
 	/* Hack -- outfit the player */

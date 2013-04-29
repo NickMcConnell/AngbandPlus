@@ -11,7 +11,7 @@ SRCS = \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
-  generate.c dungeon.c init1.c init2.c init3.c \
+  generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
 
 OBJS = \
@@ -23,12 +23,12 @@ OBJS = \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
-  generate.o dungeon.o init1.o init2.o init3.o \
+  generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
 
 CC = gcc
 
-CFLAGS = -Wall -D"USE_LSL"
+CFLAGS = -O2 -fno-strength-reduce -Wall -D"USE_LSL"
 
 LIBS = -lz -lvgagl -lvga
 
@@ -86,7 +86,7 @@ files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
-init3.o: init3.c $(INCS)
+randart.o: randart.c $(INCS)
 load1.o: load1.c $(INCS)
 load2.o: load2.c $(INCS)
 main-cap.o: main-cap.c $(INCS)

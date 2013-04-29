@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -65,7 +71,7 @@
  * a special option to enable "non-aligned" room generation.
  *
  * Note that the dungeon generation routines are much different (2.7.5)
- * and perhaps "DUN_ROOMS" should be less than 50.
+ * and perhaps "MAX_DUN_ROOMS" should be less than 50.
  *
  * XXX XXX XXX Note that it is possible to create a room which is only
  * connected to itself, because the "tunnel generation" code allows a
@@ -103,90 +109,80 @@
 /*
  * Dungeon generation values
  */
-#define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	30	/* 1/chance of having a destroyed level */
+/* DUN_ROOMS now defined in defines.h */
+#define DUN_UNUSUAL     200     /* Level/chance of unusual room */
+#define DUN_DEST        30      /* 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND	10	/* Chance of random direction */
-#define DUN_TUN_CHG	30	/* Chance of changing direction */
-#define DUN_TUN_CON	15	/* Chance of extra tunneling */
-#define DUN_TUN_PEN	25	/* Chance of doors at room entrances */
-#define DUN_TUN_JCT	90	/* Chance of doors at tunnel junctions */
-
+#define DUN_TUN_RND     10      /* Chance of random direction */
+#define DUN_TUN_CHG     30      /* Chance of changing direction */
+#define DUN_TUN_CON     15      /* Chance of extra tunneling */
+#define DUN_TUN_PEN     25      /* Chance of doors at room entrances */
+#define DUN_TUN_JCT     90      /* Chance of doors at tunnel junctions */
 
 /*
  * Dungeon streamer generation values
  */
-#define DUN_STR_DEN	5	/* Density of streamers */
-#define DUN_STR_RNG	2	/* Width of streamers */
+#define DUN_STR_DEN     5       /* Density of streamers */
+#define DUN_STR_RNG     2       /* Width of streamers */
 #define DUN_STR_MAG     3       /* Number of magma streamers */
-#define DUN_STR_MC	90	/* 1/chance of treasure per magma */
-#define DUN_STR_QUA	2	/* Number of quartz streamers */
-#define DUN_STR_QC	40	/* 1/chance of treasure per quartz */
+#define DUN_STR_MC      90      /* 1/chance of treasure per magma */
+#define DUN_STR_QUA     2       /* Number of quartz streamers */
+#define DUN_STR_QC      40      /* 1/chance of treasure per quartz */
 #define DUN_STR_SAN     2       /* Number of sandstone streamers */
 #define DUN_STR_SLV     40      /* Deepest level sandstone occurs instead of magma */
-#define DUN_STR_SC      250     /* 1/chance of treasure per sandstone */
 #define DUN_STR_GOL     20      /* 1/chance of rich mineral vein */
 #define DUN_STR_GC      2       /* 1/chance of treasure per rich mineral vein */
 #define DUN_STR_CRA     8       /* 1/chance of cracks through dungeon */
 #define DUN_STR_CC      0       /* 1/chance of treasure per crack */
 
-
-
 /*
  * Dungeon feature values
  */
-#define DUN_FEAT_OILC	10	/* 1/chance of oil/coal feature level */
-#define DUN_FEAT        60      /* Chance in 100 of having features */
+#define DUN_FEAT_OILC   10      /* 1/chance of oil/coal feature level */
+#define DUN_FEAT        40      /* Chance in 100 of having features */
+#define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
+
 /*
- * Dungeon treausre allocation values
+ * Dungeon treasure allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
+#define DUN_AMT_ROOM    9       /* Amount of objects for rooms */
+#define DUN_AMT_ITEM    3       /* Amount of objects for rooms/corridors */
+#define DUN_AMT_GOLD    3       /* Amount of treasure for rooms/corridors */
 
 /*
  * Hack -- Dungeon allocation "places"
  */
-#define ALLOC_SET_CORR		1	/* Hallway */
-#define ALLOC_SET_ROOM		2	/* Room */
-#define ALLOC_SET_BOTH		3	/* Anywhere */
+#define ALLOC_SET_CORR          1       /* Hallway */
+#define ALLOC_SET_ROOM          2       /* Room */
+#define ALLOC_SET_BOTH          3       /* Anywhere */
 
 /*
  * Hack -- Dungeon allocation "types"
  */
-#define ALLOC_TYP_RUBBLE	1	/* Rubble */
+#define ALLOC_TYP_RUBBLE        1       /* Rubble */
 #define ALLOC_TYP_TRAP          3       /* Trap */
-#define ALLOC_TYP_GOLD		4	/* Gold */
-#define ALLOC_TYP_OBJECT	5	/* Object */
-
-
-
-/*
- * Maximum numbers of rooms along each axis (currently 6x18)
- */
-#define MAX_ROOMS_ROW	(DUNGEON_HGT / BLOCK_HGT)
-#define MAX_ROOMS_COL	(DUNGEON_WID / BLOCK_WID)
+#define ALLOC_TYP_GOLD          4       /* Gold */
+#define ALLOC_TYP_OBJECT        5       /* Object */
 
 
 /*
  * Bounds on some arrays used in the "dun_data" structure.
  * These bounds are checked, though usually this is a formality.
  */
-#define CENT_MAX	100
-#define DOOR_MAX	200
-#define WALL_MAX	500
-#define TUNN_MAX	900
+#define CENT_MAX        100
+#define DOOR_MAX        200
+#define WALL_MAX        500
+#define TUNN_MAX        900
 
 
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX        9
 
 
 
@@ -248,7 +244,7 @@ struct dun_data
 	int col_rooms;
 
 	/* Array of which blocks are used */
-        bool room_map[MAX_ROOMS_ROW][MAX_ROOMS_COL];
+	bool room_map[MAX_ROOMS_ROW][MAX_ROOMS_COL];
 
 	/* Hack -- there is a pit/nest on this level */
 	bool crowded;
@@ -266,15 +262,15 @@ static dun_data *dun;
  */
 static room_data room[ROOM_MAX] =
 {
-	{ 0, 0, 0, 0, 0 },		/* 0 = Nothing */
-	{ 0, 0, -1, 1, 1 },		/* 1 = Simple (33x11) */
-	{ 0, 0, -1, 1, 1 },		/* 2 = Overlapping (33x11) */
-	{ 0, 0, -1, 1, 3 },		/* 3 = Crossed (33x11) */
-	{ 0, 0, -1, 1, 3 },		/* 4 = Large (33x11) */
-	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
-	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
-	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ 0, 0, 0, 0, 0 },              /* 0 = Nothing */
+	{ 0, 0, -1, 1, 1 },             /* 1 = Simple (33x11) */
+	{ 0, 0, -1, 1, 1 },             /* 2 = Overlapping (33x11) */
+	{ 0, 0, -1, 1, 3 },             /* 3 = Crossed (33x11) */
+	{ 0, 0, -1, 1, 3 },             /* 4 = Large (33x11) */
+	{ 0, 0, -1, 1, 5 },             /* 5 = Monster nest (33x11) */
+	{ 0, 0, -1, 1, 5 },             /* 6 = Monster pit (33x11) */
+	{ 0, 1, -1, 1, 5 },             /* 7 = Lesser vault (33x22) */
+	{ -1, 2, -2, 3, 10 }    /* 8 = Greater vault (66x44) */
 };
 
 
@@ -572,7 +568,7 @@ static void alloc_object(int set, int typ, int num)
  * XXX XXX These huge case statements should be cut down by using WALL, FLOOR,
  * etc. flags to take out the common cases and ensuring we never overwrite a
  * center square with an edge square. But the resulting code might be less
- * efficient.bg
+ * efficient.
  */ 
 
 /*
@@ -582,7 +578,7 @@ static void alloc_object(int set, int typ, int num)
 static void build_terrain(int y, int x, int feat)
 {
 	int oldfeat, newfeat;
-        int k;
+	int k;
 
 	/* Get the feature */
 	oldfeat = cave_feat[y][x];
@@ -590,298 +586,228 @@ static void build_terrain(int y, int x, int feat)
 	/* Set the new feature */
 	newfeat = oldfeat;
 
-        if ((oldfeat == FEAT_WALL_EXTRA) || (oldfeat == FEAT_WALL_C))
+	if ((oldfeat == FEAT_WALL_EXTRA) || (oldfeat == FEAT_WALL_C))
 	{
 		newfeat = feat;
 	}
-        else if ((oldfeat == FEAT_LIMESTONE) || (oldfeat == FEAT_MAGMA) ||
-                 (oldfeat == FEAT_QUARTZ) || (oldfeat == FEAT_SANDSTONE))
+	else if ((oldfeat == FEAT_LIMESTONE) || (oldfeat == FEAT_MAGMA) ||
+		 (oldfeat == FEAT_QUARTZ) || (oldfeat == FEAT_SANDSTONE))
 	{
 		newfeat = feat;
 	}
-        else if ((oldfeat == FEAT_FLOOR ) || (oldfeat == FEAT_FLOOR_DUST)
-                 || (oldfeat == FEAT_FLOOR_DUST_T) || (oldfeat == FEAT_FLOOR_DIG) ||
-                   (oldfeat == FEAT_FLOOR_RUBBLE))
+	else if ((oldfeat == FEAT_FLOOR ) || (oldfeat == FEAT_FLOOR_DUST)
+		 || (oldfeat == FEAT_FLOOR_DUST_T) || (oldfeat == FEAT_FLOOR_RUBBLE))
 	{
-                switch(feat) {
-                        case FEAT_EARTH:
-                        newfeat = FEAT_FLOOR_EARTH;
-                        break;
+		switch(feat) {
+			case FEAT_EARTH:
+			newfeat = FEAT_FLOOR_EARTH;
+			break;
 
-                        case FEAT_UNDER_WATER_H:
-                        case FEAT_UNDER_WATER_K:
-                        newfeat = FEAT_WATER;
-                        break;
+			case FEAT_UNDER_WATER_H:
+			case FEAT_UNDER_WATER_K:
+			newfeat = FEAT_WATER;
+			break;
 
-                        case FEAT_UNDER_ICE_HC:
-                        case FEAT_UNDER_ICE_KC:
-                        case FEAT_UNDER_ICE:
-                        newfeat = FEAT_ICYW;
-                        break;
+			case FEAT_UNDER_ICE_HC:
+			case FEAT_UNDER_ICE_KC:
+			case FEAT_UNDER_ICE:
+			newfeat = FEAT_ICE_WATER_K;
+			break;
 
-                        case FEAT_ICE:
-                        case FEAT_ICE_C:
-                        newfeat = FEAT_FLOOR_ICE;
-                        break;
+			case FEAT_ICE:
+			case FEAT_ICE_C:
+			newfeat = FEAT_FLOOR_ICE;
+			break;
 
-                        case FEAT_ICE_GEOTH_HC:
-                        case FEAT_ICE_GEOTH_KC:
-                        case FEAT_ICE_GEOTH:
-                        newfeat = FEAT_GEOTH;
-                        break;
+			case FEAT_ICE_GEOTH_HC:
+			case FEAT_ICE_GEOTH_KC:
+			case FEAT_ICE_GEOTH:
+			newfeat = FEAT_GEOTH;
+			break;
 
-                        case FEAT_MAGMA:
-                        newfeat = FEAT_FLOOR_RUBBLE;
-                        break;
+			case FEAT_MAGMA:
+			newfeat = FEAT_FLOOR_RUBBLE;
+			break;
 
-                        default:
-                        newfeat = feat;
-                        break;
-                }
+			default:
+			newfeat = feat;
+			break;
+		}
 	}
 	else
 	{
-                switch (feat)
-                {
-                        
-                        case FEAT_LIMESTONE:
-                        case FEAT_MAGMA:
-                        case FEAT_SANDSTONE:
-                        case FEAT_QUARTZ:
-                        case FEAT_SAND:
-                        case FEAT_EARTH:
+		switch (feat)
+		{
+			
+			case FEAT_LIMESTONE:
+			case FEAT_MAGMA:
+			case FEAT_SANDSTONE:
+			case FEAT_QUARTZ:
+			case FEAT_SAND:
+			case FEAT_EARTH:
 			break;
 
-                        case FEAT_QSAND_H:
-                        case FEAT_SAND_H:
-                        if (oldfeat == FEAT_WATER) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_ICYW) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_WATER_H) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_ICYW_H) newfeat = FEAT_QSAND_H;
-                        break;
+			case FEAT_QSAND_H:
+			case FEAT_SAND_H:
+			if (oldfeat == FEAT_WATER) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_QSAND_H;
+			break;
 
-                        case FEAT_FLOOR:
-                        case FEAT_FLOOR_DUST:
-                        case FEAT_FLOOR_EARTH:
-                        if (oldfeat == FEAT_ICE) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
+			case FEAT_FLOOR:
+			case FEAT_FLOOR_DUST:
+			case FEAT_FLOOR_EARTH:
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_WATER_H;
 			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_WATER_K;
-                        if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = FEAT_ICYW_H;
-                        if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = FEAT_ICYW_K;
-                        if (oldfeat == FEAT_UNDER_ICE) newfeat = FEAT_ICYW_K;
+			if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = FEAT_ICE_WATER_K;
+			if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = FEAT_ICE_WATER_K;
+			if (oldfeat == FEAT_UNDER_ICE) newfeat = FEAT_ICE_WATER_K;
 			if (oldfeat == FEAT_EARTH) newfeat = FEAT_FLOOR_EARTH;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_FLOOR_CHASM;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_FLOOR_CHASM;
 			break;
 
-                        case FEAT_ICE_C:
-                        case FEAT_ICE:
-			if (oldfeat == FEAT_WATER) newfeat = FEAT_ICYW;
-			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_ICYW_H;
-			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_UNDER_ICYW_H;
-			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_UNDER_ICYW_K;
+			case FEAT_ICE_C:
+			case FEAT_ICE:
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_ICE_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_GEOTH) newfeat = FEAT_ICE_GEOTH;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_SAND) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_SAND_T) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_MUD) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_MUD_T) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_MUD_H) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_MUD_K) newfeat = FEAT_FLOOR_ICE;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_SAND) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_SAND_H) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_SAND_T) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_QSAND_H) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_MUD) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_MUD_T) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_FLOOR_ICE;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_ICE_FALL;
 			break;
 
-                        case FEAT_ICE_CHASM:
-                        case FEAT_FLOOR_ICE:
-                        if (oldfeat == FEAT_ICE) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_GEOTH) newfeat = FEAT_GEOTH;
-                        if (oldfeat == FEAT_ICE_GEOTH_HC) newfeat = FEAT_GEOTH;
-                        if (oldfeat == FEAT_WATER) newfeat = feat;
-                        if (oldfeat == FEAT_WATER_H) newfeat = FEAT_FLOOR_ICYW;
-                        if (oldfeat == FEAT_WATER_K) newfeat = FEAT_FLOOR_ICYW;
-			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_FLOOR_ICYW;
-			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_FLOOR_ICYW;
-			if (oldfeat == FEAT_ICYW_H) newfeat = FEAT_FLOOR_ICYW;
-			if (oldfeat == FEAT_ICYW_K) newfeat = FEAT_FLOOR_ICYW;
-                        if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = FEAT_FLOOR_ICYW;
-                        if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = FEAT_FLOOR_ICYW;
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
-                        if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
-			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
-			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
-			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
-			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
-			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
-			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_ICE_FALL;
-			break;
-
-/*                        case FEAT_ICYW:
-			if (oldfeat == FEAT_WATER) newfeat = FEAT_ICYW;
-			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_ICYW_H;
-			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_UNDER_ICYW_H;
-			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_UNDER_ICYW_K;
+			case FEAT_ICE_CHASM:
+			case FEAT_FLOOR_ICE:
 			if (oldfeat == FEAT_ICE) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat;
+			if (oldfeat == FEAT_ICE_C) newfeat = feat;
+			if (oldfeat == FEAT_ICE_GEOTH) newfeat = FEAT_GEOTH;
+			if (oldfeat == FEAT_ICE_GEOTH_HC) newfeat = FEAT_GEOTH;
+			if (oldfeat == FEAT_WATER) newfeat = feat;
+			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_ICE_WATER_H;
+			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_ICE_WATER_K;
+			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_ICE_WATER_H;
+			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_ICE_WATER_K;
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
-			if (oldfeat == FEAT_EARTH) newfeat = FEAT_MUD;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_MUD;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_MUD;
+			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
-			break;
-
-			case FEAT_ICYW_H:
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
-			if (oldfeat == FEAT_WATER) newfeat = FEAT_ICYW;
-			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_ICYW_H;
-			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_UNDER_ICYW_H;
-			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_UNDER_ICYW_K;
-			if (oldfeat == FEAT_ICE) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;			
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
-			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
-			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
-                        if (oldfeat == FEAT_EARTH) newfeat = FEAT_MUD_H;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_MUD_H;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_MUD_H;
-			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = feat;
+			if (oldfeat == FEAT_MUD_HT) newfeat = feat;
+			if (oldfeat == FEAT_MUD_K) newfeat = feat;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_ICE_FALL;
 			break;
 
-                        case FEAT_ICYW_K: */
-                        case FEAT_FLOOR_ICYW:
-                        if (oldfeat == FEAT_ICYW) newfeat = feat;
-                        if (oldfeat == FEAT_ICYW_H) newfeat = feat;
-                        if (oldfeat == FEAT_WATER) newfeat = feat;
-                        if (oldfeat == FEAT_WATER_H) newfeat = feat;
-                        if (oldfeat == FEAT_WATER_K) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_WATER_H) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_WATER_K) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = feat;
-                        if (oldfeat == FEAT_ICE) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;			
+			case FEAT_ICE_WATER_K:
+			case FEAT_ICE_WATER_H:
+			if (oldfeat == FEAT_WATER) newfeat = feat;
+			if (oldfeat == FEAT_WATER_H) newfeat = feat;
+			if (oldfeat == FEAT_WATER_K) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = feat;
+			if (oldfeat == FEAT_ICE) newfeat = feat;
+			if (oldfeat == FEAT_ICE_C) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = feat;                       
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = feat;
+			if (oldfeat == FEAT_MUD_HT) newfeat = feat;
+			if (oldfeat == FEAT_MUD_K) newfeat = feat;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
-                        case FEAT_UNDER_ICE:
-                        case FEAT_UNDER_ICE_HC:
-                        case FEAT_UNDER_ICE_KC:
-			if (oldfeat == FEAT_WATER) newfeat = FEAT_ICYW;
-			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_ICYW_H;
-			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_UNDER_ICYW_H;
-			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_UNDER_ICYW_K;
-                        if (oldfeat == FEAT_ICE) newfeat = feat;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;
+			case FEAT_UNDER_ICE:
+			case FEAT_UNDER_ICE_HC:
+			case FEAT_UNDER_ICE_KC:
+			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = feat;
+			if (oldfeat == FEAT_ICE) newfeat = feat;
+			if (oldfeat == FEAT_ICE_C) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_ICE_WATER_K;
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = feat;
+			if (oldfeat == FEAT_MUD_HT) newfeat = feat;
+			if (oldfeat == FEAT_MUD_K) newfeat = feat;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
-                        case FEAT_WATER:
-			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICYW;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICYW;
+			case FEAT_WATER:
+			if (oldfeat == FEAT_ICE) newfeat = feat;
+			if (oldfeat == FEAT_ICE_C) newfeat = feat;
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_EARTH) newfeat = FEAT_MUD;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
-                        case FEAT_WATER_H:
-                        if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
-			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICYW_H;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICYW_H;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;			
+			case FEAT_WATER_H:
+			if (oldfeat == FEAT_SAND_H) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_ICE) newfeat = feat;
+			if (oldfeat == FEAT_ICE_C) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_ICE_WATER_H;                       
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
@@ -891,118 +817,111 @@ static void build_terrain(int y, int x, int feat)
 			if (oldfeat == FEAT_MUD) newfeat = feat;
 			if (oldfeat == FEAT_MUD_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
 			case FEAT_WATER_K:
-			if (oldfeat == FEAT_ICYW) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_ICYW_H) newfeat = FEAT_ICYW_K;
 			if (oldfeat == FEAT_WATER) newfeat = FEAT_WATER_K;
 			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_WATER_K;
-			if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = FEAT_ICYW_K;
+			if (oldfeat == FEAT_UNDER_ICE) newfeat = FEAT_WATER_K;
+			if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = FEAT_WATER_K;
+			if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = FEAT_WATER_K;
 			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_WATER_K;
 			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_WATER_K;
-			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICYW_K;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICYW_K;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;			
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_WATER_K;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_WATER_K;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_ICE_WATER_K;                       
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = feat;
+			if (oldfeat == FEAT_MUD_HT) newfeat = feat;
+			if (oldfeat == FEAT_MUD_K) newfeat = feat;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
-                       
+		       
 			case FEAT_UNDER_WATER_K:
-                        case FEAT_UNDER_WATER_H:
-			if (oldfeat == FEAT_ICE) newfeat = feat-(FEAT_UNDER_WATER_H)+FEAT_UNDER_ICYW_H;
-                        if (oldfeat == FEAT_ICE_C) newfeat = feat-(FEAT_UNDER_WATER_H)+FEAT_UNDER_ICYW_H;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_FLOOR_ICYW;
+			case FEAT_UNDER_WATER_H:
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = feat-(FEAT_UNDER_WATER_H)+(FEAT_ICE_WATER_H);
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_K) newfeat = feat;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = feat;
+			if (oldfeat == FEAT_MUD_HT) newfeat = feat;
+			if (oldfeat == FEAT_MUD_K) newfeat = feat;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
-                        case FEAT_BMUD:
-                        case FEAT_BWATER:
-                        if (oldfeat == FEAT_WATER) newfeat = feat;
-                        if (oldfeat == FEAT_WATER_H) newfeat = feat;
-                        if (oldfeat == FEAT_WATER_K) newfeat = feat;
-                        if (oldfeat == FEAT_ICYW) newfeat = feat;
-                        if (oldfeat == FEAT_ICYW_H) newfeat = feat;
-                        if (oldfeat == FEAT_ICYW_K) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_WATER_H) newfeat = feat;
-                        if (oldfeat == FEAT_UNDER_WATER_K) newfeat = feat;
-                        if (oldfeat == FEAT_ICE) newfeat = FEAT_GEOTH;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_GEOTH;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH;			
+			case FEAT_BMUD:
+			case FEAT_BWATER:
+			if (oldfeat == FEAT_WATER) newfeat = feat;
+			if (oldfeat == FEAT_WATER_H) newfeat = feat;
+			if (oldfeat == FEAT_WATER_K) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = feat;
+			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = feat;
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_GEOTH;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_GEOTH;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH;                    
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = feat;
 			if (oldfeat == FEAT_LAVA_K) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
 			if (oldfeat == FEAT_MUD) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_T) newfeat = feat;
-                        if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_T) newfeat = feat;
+			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_EARTH) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_WATER_FALL;
 			break;
 
-                        case FEAT_GEOTH_LAVA:
-                        case FEAT_LAVA:
-                        case FEAT_LAVA_H:
+			case FEAT_GEOTH_LAVA:
+			case FEAT_LAVA:
+			case FEAT_LAVA_H:
 			case FEAT_LAVA_K:
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_GEOTH;
-                        if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH_LAVA;
-                        if (oldfeat == FEAT_FLOOR_ICYW) newfeat = FEAT_GEOTH_LAVA;
-			if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = FEAT_BWATER;
-			if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = FEAT_BWATER;
-                        if (oldfeat == FEAT_ICYW) newfeat = FEAT_GEOTH_LAVA;
-			if (oldfeat == FEAT_ICYW_H) newfeat = FEAT_BWATER;
-			if (oldfeat == FEAT_ICYW_K) newfeat = FEAT_BWATER;
-                        if (oldfeat == FEAT_WATER) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_GEOTH;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_ICE_WATER_H) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_ICE_WATER_K) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_UNDER_ICE) newfeat = FEAT_BWATER;
+			if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = FEAT_BWATER;
+			if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = FEAT_BWATER;
+			if (oldfeat == FEAT_WATER) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_BWATER;
 			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_BWATER;
@@ -1010,139 +929,141 @@ static void build_terrain(int y, int x, int feat)
 			if (oldfeat == FEAT_WATER_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_ACID_FALLS) newfeat = FEAT_MAGMA;
 			if (oldfeat == FEAT_ICE_FALLS) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_SAND) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_T) newfeat = feat;
-                        if (oldfeat == FEAT_SAND_HT) newfeat = feat;
+			if (oldfeat == FEAT_SAND_T) newfeat = feat;
+			if (oldfeat == FEAT_SAND_HT) newfeat = feat;
 			if (oldfeat == FEAT_SAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_QSAND_H) newfeat = feat;
-                        if (oldfeat == FEAT_VENT_LAVA) newfeat = feat;
-                        if (oldfeat == FEAT_MUD) newfeat = FEAT_GEOTH_LAVA;
-                        if (oldfeat == FEAT_MUD_T) newfeat = FEAT_GEOTH_LAVA;
-                        if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_LAVA_FALL;
-                        if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_LAVA_FALL;
+			if (oldfeat == FEAT_QSAND_H) newfeat = feat;
+			if (oldfeat == FEAT_VENT_LAVA) newfeat = feat;
+			if (oldfeat == FEAT_MUD) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_MUD_T) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_LAVA_FALL;
+			if (oldfeat == FEAT_FLOOR_CHASM) newfeat = FEAT_LAVA_FALL;
 			break;
 
-                        case FEAT_GEOTH:
+			case FEAT_GEOTH:
 			newfeat = feat;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
-                        if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
 			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
-                        if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
+			if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_LAVA_FALLS;
 			break;
 
-                        case FEAT_ACID:
-                        case FEAT_ACID_H:
+			case FEAT_ACID:
+			case FEAT_ACID_H:
 			case FEAT_ACID_K:
 			newfeat = feat;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
-                        if (oldfeat == FEAT_GEOTH_LAVA) newfeat = FEAT_GEOTH_LAVA;
+			if (oldfeat == FEAT_GEOTH_LAVA) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
 			if ((oldfeat == FEAT_ACID_H) && (feat == FEAT_ACID_K)) feat = FEAT_ACID_K;
 			if (oldfeat == FEAT_ICE_FALLS) newfeat = FEAT_ICE_FALLS;
-                        if (oldfeat == FEAT_WATER_FALLS) newfeat = FEAT_WATER_FALLS;
+			if (oldfeat == FEAT_WATER_FALLS) newfeat = FEAT_WATER_FALLS;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			break;
 
-                        case FEAT_MUD:
+			case FEAT_MUD:
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_GEOTH_LAVA;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_GEOTH_LAVA;
-                        if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			break;
 
 			case FEAT_MUD_H:
-                        case FEAT_MUD_K:
+			case FEAT_MUD_K:
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
-                        if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH) newfeat = feat;
+			if (oldfeat == FEAT_FLOOR_EARTH_T) newfeat = feat;
 			if (oldfeat == FEAT_LAVA_FALLS) newfeat = FEAT_MAGMA;
 			break;
 
-                        case FEAT_WATER_FALLS:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        break;
+			case FEAT_WATER_FALLS:
+			newfeat = feat;
+			if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			break;
 
-                        case FEAT_ICE_FALLS:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_ICE_FALL;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
-                        break;
+			case FEAT_ICE_FALLS:
+			newfeat = feat;
+			if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_ICE_FALL;
+			break;
 
-                        case FEAT_ACID_FALLS:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
-                        break;
+			case FEAT_ACID_FALLS:
+			newfeat = feat;
+			if (oldfeat == FEAT_LAVA) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_LAVA_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_CHASM_E;
+			break;
 
-                        case FEAT_BWATER_FALLS:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
-                        break;
+			case FEAT_BWATER_FALLS:
+			newfeat = feat;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_WATER_FALL;
+			break;
 
-                        case FEAT_LAVA_FALLS:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_ICE) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_WATER_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_WATER_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_ACID_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_ACID_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_MUD_H) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_MUD_K) newfeat = FEAT_MAGMA;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_LAVA_FALL;
-                        if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_LAVA_FALL;
-                        break;
+			case FEAT_LAVA_FALLS:
+			newfeat = feat;
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_WATER_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_ACID_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_ACID_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_MAGMA;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_LAVA_FALL;
+			if (oldfeat == FEAT_CHASM_E) newfeat = FEAT_LAVA_FALL;
+			break;
 
-                        case FEAT_CHASM:
+			case FEAT_CHASM:
 			newfeat = feat;
 			break;
 
-                        case FEAT_CHASM_E:
-                        case FEAT_FLOOR_CHASM:
-                        newfeat = feat;
-                        if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
+                        case FEAT_LAVA_FALL:
+                        case FEAT_WATER_FALL:
+                        case FEAT_ICE_FALL:
+			case FEAT_CHASM_E:
+			case FEAT_FLOOR_CHASM:
+			newfeat = feat;
+			if (oldfeat == FEAT_CHASM) newfeat = FEAT_CHASM;
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_FALL;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_FALL;
-                        if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_ICE_FALL;
-			if (oldfeat == FEAT_FLOOR_ICYW) newfeat = FEAT_WATER_FALL;
-			if (oldfeat == FEAT_UNDER_ICYW_H) newfeat = FEAT_WATER_FALL;
-			if (oldfeat == FEAT_UNDER_ICYW_K) newfeat = FEAT_WATER_FALL;
-			if (oldfeat == FEAT_ICYW) newfeat = FEAT_WATER_FALL;
-			if (oldfeat == FEAT_ICYW_H) newfeat = FEAT_WATER_FALL;
-			if (oldfeat == FEAT_ICYW_K) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_ICE_FALL;
+			if (oldfeat == FEAT_ICE_WATER_H) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_ICE_WATER_K) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_UNDER_ICE_HC) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_UNDER_ICE_KC) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_UNDER_ICE) newfeat = FEAT_WATER_FALL;			
 			if (oldfeat == FEAT_ICE_FALLS) newfeat= FEAT_ICE_FALL;
 			if (oldfeat == FEAT_WATER) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_WATER_FALL;
@@ -1150,9 +1071,9 @@ static void build_terrain(int y, int x, int feat)
 			if (oldfeat == FEAT_UNDER_WATER_H) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_UNDER_WATER_K) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_WATER_FALLS) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_BWATER) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_BWATER) newfeat = FEAT_WATER_FALL;
-                        if (oldfeat == FEAT_BMUD) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_BWATER) newfeat = FEAT_WATER_FALL;
+			if (oldfeat == FEAT_BMUD) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_ACID) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_ACID_H) newfeat = FEAT_WATER_FALL;
 			if (oldfeat == FEAT_ACID_K) newfeat = FEAT_WATER_FALL;
@@ -1165,143 +1086,103 @@ static void build_terrain(int y, int x, int feat)
 			break;
 
 			default:
-                        newfeat = oldfeat;
+			newfeat = oldfeat;
 			break;
 		}
-        }
+	}
 
-        k = randint(100);
-                                                                               
-        switch (newfeat) {
-                case FEAT_FLOOR_EARTH:
-                if (k <= 5) newfeat = FEAT_MUD;
-                if ((k > 5) && (k <= 15)) newfeat = FEAT_FLOOR_EARTH_T;
-                break;
+	k = randint(100);
+									       
+	switch (newfeat) {
 
-                case FEAT_FLOOR_DIG:
-                if (k <= 15) newfeat = FEAT_FLOOR_RUBBLE;
-                break;
+		case FEAT_LIMESTONE:
+		if (k<40) newfeat = FEAT_FLOOR;
+		if ((k > 40) && (k <= 60)) newfeat = FEAT_WATER;
+		break;
 
-                case FEAT_LIMESTONE:
-                if (k<40) newfeat = FEAT_FLOOR;
-                if ((k > 40) && (k <= 60)) newfeat = FEAT_WATER;
-                break;
+		case FEAT_ICE:
+		if (k <= 10) newfeat = FEAT_ICE_C;
+		break;
 
-                case FEAT_FLOOR_DUST:
-                if (k <= 5) newfeat = FEAT_FLOOR_DUST_T;
-                if ((k > 5) && (k <= 15)) newfeat = FEAT_FLOOR;
-                break;
+		case FEAT_ICE_GEOTH:
+		if (k <= 10) newfeat = FEAT_ICE_GEOTH_HC;
+		break;
 
-                case FEAT_FLOOR_ICE:
-                if (k <= 5) newfeat = FEAT_ICYW;
-                break;
+		case FEAT_ICE_WATER_K:
+		if (k<= 15) newfeat = FEAT_WATER_K;
+		break;
 
-/*                case FEAT_ICYW:
-                if (k <= 10) newfeat = FEAT_FLOOR_ICE;
-                break;
-*/
-                case FEAT_ICE:
-                if (k <= 10) newfeat = FEAT_ICE_C;
-                break;
+		case FEAT_ICE_CHASM:
+		if (k <= 80) newfeat = FEAT_FLOOR_ICE;
+		if ((k > 80) && (k<90)) newfeat = FEAT_CHASM_E;
+		break;
 
-                case FEAT_ICE_GEOTH:
-                if (k <= 10) newfeat = FEAT_ICE_GEOTH_HC;
-                break;
-
-/*                case FEAT_ICYW_K:
-                case FEAT_ICYW_H:
-                if (k <= 10) newfeat = FEAT_FLOOR_ICYW;
-                break;
-*/
-                case FEAT_FLOOR_ICYW:
-                if (k<= 5) newfeat = FEAT_ICYW_H;
-                break;
-
-                case FEAT_ICE_CHASM:
-                if (k <= 80) newfeat = FEAT_FLOOR_ICE;
-                if ((k > 80) && (k<90)) newfeat = FEAT_CHASM_E;
-                break;
-
-                case FEAT_ICE_FALLS:
-                if (k <= 40) newfeat = FEAT_FLOOR_ICE;
-                if (k <= 60) newfeat = FEAT_ICE_CHASM;
-                if ((k > 60) && (k<70)) newfeat = FEAT_ICE_FALL;
-                break;
-
+		case FEAT_ICE_FALLS:
+		if (k <= 40) newfeat = FEAT_FLOOR_ICE;
+		if (k <= 60) newfeat = FEAT_ICE_CHASM;
+		if ((k > 60) && (k<80)) newfeat = FEAT_ICE_FALL;
+		break;
 
 		case FEAT_WATER_FALLS:
-                if (k <= 60) newfeat = FEAT_WATER_H;
-                if ((k > 60) && (k<70)) newfeat = FEAT_WATER;
-                break;
+		if (k <= 60) newfeat = FEAT_WATER_H;
+		if ((k > 60) && (k<80)) newfeat = FEAT_WATER;
+		break;
 
 		case FEAT_ACID_FALLS:
-                if (k <= 60) newfeat = FEAT_ACID_H;
-                if ((k > 60) && (k<70)) newfeat = FEAT_ACID;
-                break;
+		if (k <= 60) newfeat = FEAT_ACID_H;
+		if ((k > 60) && (k<80)) newfeat = FEAT_ACID;
+		break;
 
-                case FEAT_MUD:
-                if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
-                if ((k> 10) && (k <= 15)) newfeat = FEAT_MUD_T;
-                if ((k> 25) && (k <= 25)) newfeat = FEAT_WATER;
-                break;
+		case FEAT_MUD:
+		if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
+		if ((k> 10) && (k <= 13)) newfeat = FEAT_WATER;
+		break;
 
-                case FEAT_MUD_H:
-                if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
-                if ((k> 10) && (k <= 15)) newfeat = FEAT_MUD_HT;
-                if ((k> 15) && (k <= 25)) newfeat = FEAT_WATER_H;
-                break;
+		case FEAT_MUD_H:
+		if (k <= 10) newfeat = FEAT_FLOOR_EARTH;
+		if ((k> 10) && (k <= 23)) newfeat = FEAT_WATER_H;
+		break;
 
-                case FEAT_MUD_K:
-                if (k <= 10) newfeat = FEAT_WATER_K;
-                break;
+		case FEAT_MUD_K:
+		if (k <= 5) newfeat = FEAT_WATER_K;
+		break;
 
-                case FEAT_SAND:
-                if (k <= 5) newfeat = FEAT_SAND_T;
-                break;
-
-                case FEAT_SAND_H:
-                if (k <= 5) newfeat = FEAT_SAND;
-                if ((k> 5) && (k <= 10)) newfeat = FEAT_SAND_HT;
-                break;
-
-                case FEAT_QSAND_H:
-                if (k <= 25) newfeat = FEAT_SAND_H;
-                if ((k> 25) && (k <= 28)) newfeat = FEAT_WATER;
-                break;
+		case FEAT_QSAND_H:
+		if (k <= 25) newfeat = FEAT_SAND_H;
+		if ((k> 25) && (k <= 28)) newfeat = FEAT_WATER;
+		break;
 
 		case FEAT_BWATER_FALLS:
-                if (k <= 60) newfeat = FEAT_BWATER;
-                if ((k > 60) && (k<70)) newfeat = FEAT_FLOOR_RUBBLE;
-                break;
+		if (k <= 60) newfeat = FEAT_BWATER;
+		if ((k > 60) && (k<80)) newfeat = FEAT_FLOOR_RUBBLE;
+		break;
+
+		case FEAT_BMUD:
+		if (k <= 10) newfeat = FEAT_BWATER;
+		if ((k> 10) && (k <= 13)) newfeat = FEAT_VENT_BWATER;
+		break;
+
+		case FEAT_GEOTH:
+		if (k <= 5) newfeat = FEAT_VENT_STEAM;
+		if ((k> 5) && (k <= 10)) newfeat = FEAT_VENT_GAS;
+		break;
+
+		case FEAT_GEOTH_LAVA:
+		if (k <= 5) newfeat = FEAT_LAVA_H;
+		if ((k> 5) && (k <= 10)) newfeat = FEAT_LAVA;
+		if ((k> 10) && (k <= 13)) newfeat = FEAT_VENT_LAVA;
+		break;
+
+		case FEAT_LAVA_FALLS:
+		if (k <= 60) newfeat = FEAT_LAVA_H;
+		if ((k > 60) && (k<80)) newfeat = FEAT_FLOOR_RUBBLE;
+		break;
 
 
-                case FEAT_BMUD:
-                if (k <= 10) newfeat = FEAT_BWATER;
-                if ((k> 10) && (k <= 15)) newfeat = FEAT_MUD_K;
-                if ((k> 15) && (k <= 25)) newfeat = FEAT_VENT_BWATER;
-                break;
-
-                case FEAT_GEOTH:
-                if (k <= 10) newfeat = FEAT_VENT_STEAM;
-                if ((k> 10) && (k <= 20)) newfeat = FEAT_VENT_GAS;
-                break;
-
-                case FEAT_GEOTH_LAVA:
-                if (k <= 5) newfeat = FEAT_LAVA_H;
-                if ((k> 5) && (k <= 10)) newfeat = FEAT_LAVA;
-                if ((k> 10) && (k <= 20)) newfeat = FEAT_VENT_LAVA;
-                break;
-
-                case FEAT_LAVA_FALLS:
-                if (k <= 60) newfeat = FEAT_LAVA_H;
-                if ((k > 60) && (k<70)) newfeat = FEAT_FLOOR_RUBBLE;
-                break;
-
-
-        }
+	}
 
 	/* Set the feature if we have a change */
-        if (newfeat != oldfeat) cave_set_feat(y,x,newfeat);
+	if (newfeat != oldfeat) cave_set_feat(y,x,newfeat);
 
 }
 
@@ -1311,150 +1192,150 @@ static void build_terrain(int y, int x, int feat)
  */
 static void build_feature(int feat1, int feat2, bool do_big_lake)
 {
-        int i,dir;
-        int y, x, ty, tx,yi,xi;
-        int by,bx;
+	int i,dir;
+	int y, x, ty, tx,yi,xi;
+	int by,bx;
 
 
-        int lake_width,lake_length;
+	int lake_width,lake_length;
 
 	/* Hack -- Choose starting point */
 	y = rand_spread(DUNGEON_HGT / 2, 10);
 	x = rand_spread(DUNGEON_WID / 2, 15);
 
-        /* Hack -- Save the room location */
-        if (!(f_info[feat1].flags1 & (FF1_WALL)) && (f_info[feat1].flags2 & (FF2_RIVER))
-               && (dun->cent_n < CENT_MAX))
+	/* Hack -- Save the room location */
+	if (!(f_info[feat1].flags1 & (FF1_WALL)) && (f_info[feat1].flags2 & (FF2_RIVER))
+	       && (dun->cent_n < CENT_MAX))
 	{
 		dun->cent[dun->cent_n].y = y;
 		dun->cent[dun->cent_n].x = x;
 		dun->cent_n++;
 	}
 
-        if (f_info[feat1].flags2 & (FF2_LAKE))
-        {
-                lake_width = DUN_FEAT_RNG;
-                lake_length = 15+randint(p_ptr->depth/4);
-
-                if (do_big_lake)
-                {
-                        lake_width = DUN_FEAT_RNG+1;
-                        lake_length = 200;
-                }
-        /* Place lake into dungeon */
-        for (i = 0; i<lake_length; i++)
+	if (f_info[feat1].flags2 & (FF2_LAKE))
 	{
-                /* Pick a nearby grids */
-                ty = y + rand_int(2* lake_width+1)- lake_width;
-                tx = x + rand_int(2* lake_width+1)- lake_width;
-                if (!in_bounds(ty, tx)) continue;
-                
-                y = ty;
-                x = tx;
+		lake_width = DUN_FEAT_RNG;
+		lake_length = 15+randint(p_ptr->depth/4);
 
-                /* Make sure we keep writing */
-                while (cave_feat[y][x] == feat1)
-                {
-                        y = y + rand_int(2* lake_width+1)- lake_width;
-                        x = x + rand_int(2* lake_width+1)- lake_width;
-                        if (!in_bounds(y, x)) continue;
-                }
+		if (do_big_lake)
+		{
+			lake_width = DUN_FEAT_RNG+1;
+			lake_length = 200;
+		}
+	/* Place lake into dungeon */
+	for (i = 0; i<lake_length; i++)
+	{
+		/* Pick a nearby grids */
+		ty = y + rand_int(2* lake_width+1)- lake_width;
+		tx = x + rand_int(2* lake_width+1)- lake_width;
+		if (!in_bounds(ty, tx)) continue;
+		
+		y = ty;
+		x = tx;
 
-                if (!(f_info[feat1].flags1 & (FF1_WALL)) && (!do_big_lake))
-                {
-                        /* Don't allow rooms here */
-                        by = y/BLOCK_HGT;
-                        bx = x/BLOCK_HGT;
+		/* Make sure we keep writing */
+		while (cave_feat[y][x] == feat1)
+		{
+			y = y + rand_int(2* lake_width+1)- lake_width;
+			x = x + rand_int(2* lake_width+1)- lake_width;
+			if (!in_bounds(y, x)) continue;
+		}
 
-                        dun->room_map[by][bx] = TRUE;
-                }
+		if (!(f_info[feat1].flags1 & (FF1_WALL)) && (!do_big_lake))
+		{
+			/* Don't allow rooms here */
+			by = y/BLOCK_HGT;
+			bx = x/BLOCK_HGT;
 
-                for (yi=y-lake_width;yi<=y+lake_width;yi++)
-                {
-                        for (xi=x-lake_width;xi<=x+lake_width;xi++)
-                        {
+			dun->room_map[by][bx] = TRUE;
+		}
 
-                                if ((yi==y-lake_width)||
-                                    (yi==y+lake_width)||
-                                    (xi==x-lake_width)||
-                                    (xi==x+lake_width))
-                                {
-                                        if ((in_bounds(yi,xi)) && (feat2)) build_terrain(yi,xi,feat2);
+		for (yi=y-lake_width;yi<=y+lake_width;yi++)
+		{
+			for (xi=x-lake_width;xi<=x+lake_width;xi++)
+			{
 
-                                }
-                                else
-                                {
-                                        if ((in_bounds(yi,xi)) && (randint(100)<(do_big_lake? 40:20)))
-                                        {
-                                                if (feat2) build_terrain(yi,xi,feat2);
-                                        }
-                                        else if (in_bounds(yi,xi))
-                                        {
-                                                build_terrain(yi,xi,feat1);
-                                        }
-                                }
-                        }
-                }
+				if ((yi==y-lake_width)||
+				    (yi==y+lake_width)||
+				    (xi==x-lake_width)||
+				    (xi==x+lake_width))
+				{
+					if ((in_bounds(yi,xi)) && (feat2)) build_terrain(yi,xi,feat2);
+
+				}
+				else
+				{
+					if ((in_bounds(yi,xi)) && (randint(100)<(do_big_lake? 40:20)))
+					{
+						if (feat2) build_terrain(yi,xi,feat2);
+					}
+					else if (in_bounds(yi,xi))
+					{
+						build_terrain(yi,xi,feat1);
+					}
+				}
+			}
+		}
 	}
 
-        }
+	}
 
-        if (f_info[feat1].flags2 & (FF2_RIVER))
-        {
+	if (f_info[feat1].flags2 & (FF2_RIVER))
+	{
 
 	/* Choose a random compass direction */
-        dir = ddd[rand_int(4)];
+	dir = ddd[rand_int(4)];
 
-        /* Place river into dungeon */
+	/* Place river into dungeon */
 	while (TRUE)
 	{
 		/* Stop at dungeon edge */
-                if (!in_bounds(y, x)) break;
+		if (!in_bounds(y, x)) break;
 
-                if (!(f_info[feat1].flags1 & (FF1_WALL)))
-                {
-                        /* Don't allow rooms here */
-                        by = y/BLOCK_HGT;
-                        bx = x/BLOCK_HGT;
+		if (!(f_info[feat1].flags1 & (FF1_WALL)))
+		{
+			/* Don't allow rooms here */
+			by = y/BLOCK_HGT;
+			bx = x/BLOCK_HGT;
 
-                        dun->room_map[by][bx] = TRUE;
-                }
+			dun->room_map[by][bx] = TRUE;
+		}
 
-                /*Add terrain*/
-                build_terrain(y,x,feat1);
+		/*Add terrain*/
+		build_terrain(y,x,feat1);
 
-                if (feat2) {
-                        for (i=0;i<8;i++)
-                        {
-                                int di = ddd[i];
-                                int yi = y+ddy[di];
-                                int xi = x+ddx[di];
+		if (feat2) {
+			for (i=0;i<8;i++)
+			{
+				int di = ddd[i];
+				int yi = y+ddy[di];
+				int xi = x+ddx[di];
 
-                                if (!in_bounds(yi, xi)) continue;
+				if (!in_bounds(yi, xi)) continue;
 
-                                build_terrain(yi,xi,feat2);
-                        }
-                }
+				build_terrain(yi,xi,feat2);
+			}
+		}
 
-                /*Stagger the river*/
-                if (rand_int(100)<50)
-                {
-                        int dir2 = ddd[rand_int(4)];
+		/*Stagger the river*/
+		if (rand_int(100)<50)
+		{
+			int dir2 = ddd[rand_int(4)];
 
-                        y += ddy[dir2];
-                        x += ddx[dir2];
-                }
+			y += ddy[dir2];
+			x += ddx[dir2];
+		}
 		/* Advance the streamer */
-                else
-                {
-                        y += ddy[dir];
-                        x += ddx[dir];
-                }
-        }
+		else
+		{
+			y += ddy[dir];
+			x += ddx[dir];
+		}
+	}
 
 	}
 }
-                                
+				
 
 
 /*
@@ -1495,15 +1376,15 @@ static void build_streamer(int feat, int chance)
 				break;
 			}
 
-                        /* Only convert "granite" walls */
-                        if (cave_feat[ty][tx] < FEAT_WALL_EXTRA) continue;
-                        if (cave_feat[ty][tx] > FEAT_WALL_SOLID) continue;
+			/* Only convert "granite" walls */
+			if (cave_feat[ty][tx] < FEAT_WALL_EXTRA) continue;
+			if (cave_feat[ty][tx] > FEAT_WALL_SOLID) continue;
 
 			/* Clear previous contents, add proper vein type */
 			cave_set_feat(ty, tx, feat);
 
 			/* Hack -- Add some (known) treasure */
-                        if (chance && (rand_int(chance) == 0)) cave_feat[ty][tx] += 0x04;
+                        if ((chance) &&(rand_int(chance) == 0)) cave_feat[ty][tx] += 0x04;
 		}
 
 		/* Advance the streamer */
@@ -1595,6 +1476,78 @@ static void destroy_level(void)
 					cave_info[y][x] &= ~(CAVE_GLOW);
 				}
 			}
+		}
+	}
+}
+
+
+/*
+ * Create up to "num" gold near the given coordinates
+ * Only really called by the room_info routines
+ */
+static void vault_treasure(int y, int x, int num)
+{
+	int i, j, k;
+
+	/* Attempt to place 'num' objects */
+	for (; num > 0; --num)
+	{
+		/* Try up to 11 spots looking for empty space */
+		for (i = 0; i < 11; ++i)
+		{
+			/* Pick a random location */
+			while (1)
+			{
+				j = rand_spread(y, 2);
+				k = rand_spread(x, 3);
+				if (!in_bounds(j, k)) continue;
+				break;
+			}
+
+			/* Require "clean" floor space */
+			if (!cave_clean_bold(j, k)) continue;
+
+			/* Place gold */
+                        place_gold(j, k);
+
+			/* Placement accomplished */
+			break;
+		}
+	}
+}
+
+
+/*
+ * Create up to "num" objects excluding gold near the given coordinates
+ * Only really called by the room_info routines
+ */
+static void vault_items(int y, int x, int num)
+{
+	int i, j, k;
+
+	/* Attempt to place 'num' objects */
+	for (; num > 0; --num)
+	{
+		/* Try up to 11 spots looking for empty space */
+		for (i = 0; i < 11; ++i)
+		{
+			/* Pick a random location */
+			while (1)
+			{
+				j = rand_spread(y, 2);
+				k = rand_spread(x, 3);
+				if (!in_bounds(j, k)) continue;
+				break;
+			}
+
+			/* Require "clean" floor space */
+			if (!cave_clean_bold(j, k)) continue;
+
+			/* Place gold */
+                        place_object(j, k, FALSE,FALSE);
+
+			/* Placement accomplished */
+			break;
 		}
 	}
 }
@@ -1858,6 +1811,256 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 	}
 }
 
+#ifdef ALLOW_ROOMDESC
+
+/*
+ * Hack -- flags type for "vault_aux_room_info()"
+ */
+static int room_info_mon_flag;
+
+
+/*
+ * Hack -- char type for "vault_aux_room_info()"
+ */
+static byte room_info_mon_char;
+
+
+/*
+ * Helper function for room info
+ */
+static bool room_info_mon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Hack -- Require matching graphic if set  */
+	if ((room_info_mon_char) &&
+		(room_info_mon_char != r_ptr->d_char)) return (FALSE);
+
+        /* Require matching flag if set */
+        if (room_info_mon_flag < 0) return (TRUE);
+
+	if ((room_info_mon_flag < 32) && 
+		!(r_ptr->flags1 & (1L << room_info_mon_flag))) return (FALSE);
+
+	if ((room_info_mon_flag >= 32) && 
+		(room_info_mon_flag < 64) && 
+		!(r_ptr->flags2 & (1L << (room_info_mon_flag -32)))) return (FALSE);
+
+	if ((room_info_mon_flag >= 64) && 
+		(room_info_mon_flag < 96) && 
+		!(r_ptr->flags3 & (1L << (room_info_mon_flag -64)))) return (FALSE);
+
+        if ((room_info_mon_flag >= 96) && 
+                (room_info_mon_flag < 128) && 
+                !(r_ptr->flags4 & (1L << (room_info_mon_flag -96)))) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+/*
+ * Hack -- flags type for "vault_aux_room_info()"
+ */
+static int room_info_kind_tval;
+
+/*
+ *
+ */
+static bool room_info_kind(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+
+	if (k_ptr->tval == room_info_kind_tval) return (TRUE);
+
+	return(FALSE);
+
+}
+
+/*
+ * Get the room description, and place stuff accordingly.
+ */
+static void get_room_info(int y, int x)
+{
+	int i, n, chart, roll;
+
+        int room = dun->cent_n+1;
+	char *s;
+
+	char buf_text1[240];
+	char buf_text2[240];
+        char buf_name1[16];
+        char buf_name2[16];
+
+	/* Clear the history text */
+	buf_text1[0] = '\0';
+	buf_text2[0] = '\0';
+
+	/* Clear the name1 text */
+	buf_name1[0] = '\0';
+
+	/* Clear the name2 text */
+	buf_name2[0] = '\0';
+
+	/* Initialise chart */
+	chart = 1;
+
+	/* Process the description */
+	while (chart)
+	{
+		/* Start over */
+		i = 0;
+
+		/* Roll for line */
+		roll = randint(100);
+
+		/* Get the proper entry in the table */
+		while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
+
+		/* If not allowed on this level, drop to maximum result */
+		if ((p_ptr->depth < d_info[i].level) || (d_info[i].l_flag != (d_info[i].l_flag & (level_flag))))
+		{
+			while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
+		}
+
+		/* Visible description or always present? */
+		if (d_info[i].seen)
+		{
+			/* Get the textual history */
+			strcat(buf_text1, (d_text + d_info[i].text));
+		}
+		else
+		{
+			/* Get the textual history */
+			strcat(buf_text2, (d_text + d_info[i].text));
+		}
+
+		/* Get the name1 text if needed */
+                if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[i].name1));
+
+		/* Get the name2 text if needed */
+                if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[i].name2));
+
+		/* Place monster if needed */
+		if ((d_info[i].r_flag) || (d_info[i].r_char))
+		{
+			room_info_mon_flag = d_info[i].r_flag -1;
+
+			room_info_mon_char = d_info[i].r_char;
+
+			get_mon_num_hook = room_info_mon;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
+
+			/* Place the monsters */
+			vault_monsters(y,x,randint(6));
+
+			get_mon_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
+		}
+
+                /* Hack --- make treasure */
+                if (d_info[i].tval == TV_GOLD)
+                {
+			/* Place the monsters */
+                        vault_treasure(y,x,randint(6));
+
+                }
+		/* Place objects if needed */
+                else if (d_info[i].tval)
+		{
+			room_info_kind_tval = d_info[i].tval;
+
+			get_obj_num_hook = room_info_kind;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+                        /* Place the items */
+                        vault_items(y,x,randint(6));
+
+			get_obj_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+		
+		}
+			
+		/* Place features if needed */
+		if (d_info[i].feat)
+		{
+
+			int ii, y1, x1;
+
+			/* Try nine locations */
+                        for (ii = 0; ii < 9; ii++)
+			{
+                                int d = 3;
+
+				/* Pick a nearby location */
+				scatter(&y1, &x1, y, x, d, 0);
+
+				/* Require "empty" grid */
+				if (!cave_empty_bold(y1, x1)) continue;
+
+				cave_set_feat(y1,x1,d_info[i].feat);
+			}
+	
+		}
+
+		/* Enter the next chart */
+		chart = d_info[i].next;
+	}
+
+	/* Skip leading spaces */
+	for (s = buf_text1; *s == ' '; s++) /* loop */;
+
+	/* Get apparent length */
+	n = strlen(s);
+
+	/* Kill trailing spaces */
+	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+	/* Set the visible description */
+        strcpy(room_info[room].text_visible, s);
+
+	/* Skip leading spaces */
+	for (s = buf_text2; *s == ' '; s++) /* loop */;
+
+	/* Get apparent length */
+	n = strlen(s);
+
+	/* Kill trailing spaces */
+	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+	/* Set the visible description */
+        strcpy(room_info[room].text_always, s);
+
+	/* Set room name */
+        if (strlen(buf_name1)) strcpy(room_info[room].name, buf_name1);
+
+	/* And add second room name if necessary */
+        if (strlen(buf_name2))
+	{
+                if (strlen(buf_name1))
+		{
+                        strcat(room_info[room].name," ");
+                        strcat(room_info[room].name,buf_name2);
+		}
+		else
+		{
+                        strcpy(room_info[room].name, buf_name2);
+		}
+
+	}
+
+        room_info[room].seen = FALSE;
+
+}
+
+#endif
 
 /*
  * Room building routines.
@@ -1934,6 +2137,14 @@ static void build_type1(int y0, int x0)
 			cave_set_feat(y2, x, FEAT_WALL_INNER);
 		}
 	}
+
+#ifdef ALLOW_ROOMDESC
+
+	/* Pretty description and maybe more monsters/objects/traps*/
+	get_room_info(y0,x0);
+
+#endif
+
 }
 
 
@@ -1983,6 +2194,13 @@ static void build_type2(int y0, int x0)
 
 	/* Generate inner floors (b) */
 	generate_fill(y1b, x1b, y2b, x2b, FEAT_FLOOR);
+
+#ifdef ALLOW_ROOMDESC
+
+	/* Pretty description and maybe more monsters/objects/traps*/
+	get_room_info(y0,x0);
+
+#endif
 }
 
 
@@ -2055,7 +2273,7 @@ static void build_type3(int y0, int x0)
 
 
 	/* Special features */
-	switch (rand_int(4))
+	switch (randint(4))
 	{
 		/* Nothing */
 		case 1:
@@ -2137,6 +2355,11 @@ static void build_type3(int y0, int x0)
 			break;
 		}
 	}
+
+#ifdef ALLOW_ROOMDESC
+	/* Pretty description and maybe more monsters/objects/traps*/
+	get_room_info(y0,x0);
+#endif
 }
 
 
@@ -2144,11 +2367,11 @@ static void build_type3(int y0, int x0)
  * Type 4 -- Large room with an inner room
  *
  * Possible sub-types:
- *	1 - An inner room
- *	2 - An inner room with a small inner room
- *	3 - An inner room with a pillar or pillars
- *	4 - An inner room with a checkerboard
- *	5 - An inner room with four compartments
+ *      1 - An inner room
+ *      2 - An inner room with a small inner room
+ *      3 - An inner room with a pillar or pillars
+ *      4 - An inner room with a checkerboard
+ *      5 - An inner room with four compartments
  */
 static void build_type4(int y0, int x0)
 {
@@ -2363,6 +2586,10 @@ static void build_type4(int y0, int x0)
 			break;
 		}
 	}
+#ifdef ALLOW_ROOMDESC
+	/* Pretty description and maybe more monsters/objects/traps*/
+	get_room_info(y0,x0);
+#endif
 }
 
 
@@ -2446,7 +2673,7 @@ static bool vault_aux_orc(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "o" monsters */
+	/* Hack -- Require orcs */
 	if (!strchr("o", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -2464,7 +2691,7 @@ static bool vault_aux_troll(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "T" monsters */
+	/* Hack -- Require trolls monster */
 	if (!strchr("T", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -2482,7 +2709,7 @@ static bool vault_aux_giant(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "P" monsters */
+	/* Hack -- Require giants */
 	if (!strchr("P", r_ptr->d_char)) return (FALSE);
 
 	/* Okay */
@@ -2506,8 +2733,8 @@ static bool vault_aux_dragon(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "d" or "D" monsters */
-	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
+	/* Hack -- Require dragons (note that this includes "A" now)  */
+	if (!strchr("ADd", r_ptr->d_char)) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
 	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
@@ -2670,8 +2897,14 @@ static void build_type5(int y0, int x0)
 		/* Room type */
 		msg_format("Monster nest (%s)", name);
 	}
-
-
+#ifdef ALLOW_ROOMDESC
+	/* Initialise room description */
+	strcpy(room_info[0].name, name);
+	strcat(room_info[0].name, " monster nest");
+	strcpy(room_info[0].text_visible, "Morgoth lures monsters of a particular type here with powerful magic to trap the unware adventurer.");
+	strcpy(room_info[0].text_always, "");
+	room_info[0].seen = FALSE;
+#endif
 	/* Increase the level rating */
 	rating += 10;
 
@@ -2705,11 +2938,11 @@ static void build_type5(int y0, int x0)
  * a "collection" of monsters of a given type organized in the room.
  *
  * Monster types in the pit
- *   orc pit	(Dungeon Level 5 and deeper)
- *   troll pit	(Dungeon Level 20 and deeper)
- *   giant pit	(Dungeon Level 40 and deeper)
- *   dragon pit	(Dungeon Level 60 and deeper)
- *   demon pit	(Dungeon Level 80 and deeper)
+ *   orc pit    (Dungeon Level 5 and deeper)
+ *   troll pit  (Dungeon Level 20 and deeper)
+ *   giant pit  (Dungeon Level 40 and deeper)
+ *   dragon pit (Dungeon Level 60 and deeper)
+ *   demon pit  (Dungeon Level 80 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -2751,7 +2984,7 @@ static void build_type6(int y0, int x0)
 
 	int light = FALSE;
 
-	cptr name;
+	cptr name ="monster";
 
 
 	/* Large room */
@@ -2820,38 +3053,9 @@ static void build_type6(int y0, int x0)
 	/* Dragon pit */
 	else if (tmp < 80)
 	{
-                if (lava_level || ice_level || acid_level)
-                {
-                        if (lava_level)
-                        {
-				/* Message */
-				name = "fire dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_FIRE;
-                        }
-                        else if (ice_level)
-                        {
-				/* Message */
-				name = "cold dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_COLD;
-                        }
-                        else
-                        {
-				/* Message */
-				name = "acid dragon";
-
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = RF4_BR_ACID;
-
-                        }
-                }
 		/* Pick dragon type */
-                else
-                {
-                switch (rand_int(6))
+		/* Now include metallic dragons */
+		switch (rand_int(11))
 		{
 			/* Black */
 			case 0:
@@ -2919,20 +3123,86 @@ static void build_type6(int y0, int x0)
 			}
 
 			/* Multi-hued */
-			default:
+			case 5:
 			{
 				/* Message */
 				name = "multi-hued dragon";
 
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-				                          RF4_BR_FIRE | RF4_BR_COLD |
-				                          RF4_BR_POIS);
+							  RF4_BR_FIRE | RF4_BR_COLD |
+							  RF4_BR_POIS);
 
 				/* Done */
 				break;
 			}
-                }
+
+			/* Brass */
+			case 6:
+			{
+				/* Message */
+				name = "brass dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_DISE);
+
+				/* Done */
+				break;
+			}
+
+
+			/* Copper */
+			case 7:
+			{
+				/* Message */
+				name = "copper dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_ELEC | RF4_BR_NEXU);
+
+				/* Done */
+				break;
+			}
+
+			/* Bronze */
+			case 8:
+			{
+				/* Message */
+				name = "bronze dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_FIRE | RF4_BR_CONF);
+
+				/* Done */
+				break;
+			}
+
+			/* Silver */
+			case 9:
+			{
+				/* Message */
+				name = "silver dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_COLD | RF4_BR_NEXU);
+
+				/* Done */
+				break;
+			}
+
+			/* Gold */
+			case 10:
+			{
+				/* Message */
+				name = "gold dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_COLD | RF4_BR_SOUN);
+
+				/* Done */
+				break;
+			}
+
 		}
 
 		/* Restrict monster selection */
@@ -3011,8 +3281,16 @@ static void build_type6(int y0, int x0)
 		/* Room type */
 		msg_format("Monster pit (%s)", name);
 	}
-
-
+#ifdef ALLOW_ROOMDESC
+	/* Initialise room description */
+	strcpy(room_info[0].name, name);
+	strcat(room_info[0].name, " pit");
+	
+	strcpy(room_info[0].text_visible, "Morgoth breeds his most evil creatures in great pits deep beneath the earth. ");
+	strcpy(room_info[0].text_visible, "You fear you have stumbled across one such place.");
+	strcpy(room_info[0].text_always, "");
+	room_info[0].seen = FALSE;
+#endif
 	/* Increase the level rating */
 	rating += 10;
 
@@ -3142,10 +3420,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-				/* Secret doors */
+                                /* Now trapped/locked doors */
 				case '+':
 				{
-					place_secret_door(y, x);
+                                        place_trapped_door(y, x);
 					break;
 				}
 
@@ -3252,7 +3530,7 @@ static void build_type7(int y0, int x0)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(MAX_V_IDX)];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
@@ -3260,6 +3538,15 @@ static void build_type7(int y0, int x0)
 
 	/* Message */
 	if (cheat_room) msg_print("Lesser Vault");
+
+#ifdef ALLOW_ROOMDESC
+	/* Initialise room description */
+	strcpy(room_info[0].name, "lesser vault");
+	strcpy(room_info[0].text_visible, "This vault is larger than most you have seen and contains more than ");
+	strcat(room_info[0].text_visible, "its share of monsters and treasure.");
+	strcpy(room_info[0].text_always, "");
+	room_info[0].seen = FALSE;
+#endif
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3288,7 +3575,7 @@ static void build_type8(int y0, int x0)
 	while (TRUE)
 	{
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(MAX_V_IDX)];
+		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
@@ -3297,6 +3584,14 @@ static void build_type8(int y0, int x0)
 	/* Message */
 	if (cheat_room) msg_print("Greater Vault");
 
+#ifdef ALLOW_ROOMDESC
+	/* Initialise room description */
+	strcpy(room_info[0].name, "greater vault");
+	strcpy(room_info[0].text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+	strcat(room_info[0].text_visible, "deadly monsters and rich treasure.");
+	strcpy(room_info[0].text_always, "Beware!");
+	room_info[0].seen = FALSE;
+#endif
 	/* Boost the rating */
 	rating += v_ptr->rat;
 
@@ -3376,14 +3671,14 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Mega-Hack -- Paranoia -- prevent infinite loops */
 		if (main_loop_count++ > 2000) break;
 
-                /* Allow bends in the tunnel */
-                if (rand_int(100) < DUN_TUN_CHG)
+		/* Allow bends in the tunnel */
+		if (rand_int(100) < DUN_TUN_CHG)
 		{
 			/* Get the correct direction */
 			correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
 
 			/* Random direction */
-                        if (rand_int(100) < DUN_TUN_RND)
+			if (rand_int(100) < DUN_TUN_RND)
 			{
 				rand_dir(&row_dir, &col_dir);
 			}
@@ -3471,9 +3766,9 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			col1 = tmp_col;
 		}
 
-		/* Tunnel through all other walls */
-                else if ((f_info[cave_feat[tmp_row][tmp_col]].flags1 & (FF1_TUNNEL)) ||
-                (f_info[cave_feat[tmp_row][tmp_col]].flags2 & (FF2_BRIDGE)))
+		/* Tunnel through all other walls and bridge features */
+		else if ((f_info[cave_feat[tmp_row][tmp_col]].flags1 & (FF1_TUNNEL)) ||
+		(f_info[cave_feat[tmp_row][tmp_col]].flags2 & (FF2_BRIDGE)))
 		{
 			/* Accept this location */
 			row1 = tmp_row;
@@ -3538,16 +3833,18 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		y = dun->tunn[i].y;
 		x = dun->tunn[i].x;
 
-                if (f_info[cave_feat[y][x]].flags2 & (FF2_BRIDGE))
-                {
-                        /* Clear previous contents, bridge it */
-                        cave_alter_feat(y, x, FS_BRIDGE);
-                }
-                else
-                {
-                        /* Clear previous contents, bridge it */
-                        cave_alter_feat(y, x, FS_TUNNEL);
-                }
+
+		if (f_info[cave_feat[y][x]].flags2 & (FF2_BRIDGE))
+		{
+			/* Clear previous contents, bridge it */
+			cave_alter_feat(y, x, FS_BRIDGE);
+		}
+		else
+		{
+			/* Clear previous contents, bridge it */
+			cave_alter_feat(y, x, FS_TUNNEL);
+		}
+
 	}
 
 
@@ -3665,9 +3962,6 @@ static void try_door(int y, int x)
 	}
 }
 
-
-
-
 /*
  * Attempt to build a room of the given type at the given block
  *
@@ -3744,6 +4038,11 @@ static bool room_build(int by0, int bx0, int typ)
 		for (bx = bx1; bx <= bx2; bx++)
 		{
 			dun->room_map[by][bx] = TRUE;
+
+#ifdef ALLOW_ROOMDESC
+                        dun_room[by][bx] = dun->cent_n;
+#endif
+
 		}
 	}
 
@@ -3759,40 +4058,40 @@ bool cave_feat_lake(int f_idx)
 {
 	feature_type *f_ptr = &f_info[f_idx];
 
-        /* Require lake or river */
-        if (!(f_ptr->flags2 & (FF2_RIVER)))
-        {
-                if (!(f_ptr->flags2 & (FF2_LAKE)))
-                {
-                        return (FALSE);
-                }
-        }
+	/* Require lake or river */
+	if (!(f_ptr->flags2 & (FF2_RIVER)))
+	{
+		if (!(f_ptr->flags2 & (FF2_LAKE)))
+		{
+			return (FALSE);
+		}
+	}
 
-        if (water_level || lava_level || ice_level || acid_level || oil_level)
-        {
+	if (level_flag)
+	{
 
-                if (!(water_level) && (f_ptr->flags2 & (FF2_WATER)))
-                {
-                        return (FALSE);
-                }
-                if (!(lava_level) && (f_ptr->flags2 & (FF2_LAVA)))
-                {
-                        return (FALSE);
-                }
-                if (!(ice_level) && (f_ptr->flags2 & (FF2_ICE)))
-                {
-                        return (FALSE);
-                }
-                if (!(acid_level) && (f_ptr->flags2 & (FF2_ACID)))
-                {
-                        return (FALSE);
-                }
-                if (!(oil_level) && (f_ptr->flags2 & (FF2_OIL)))
-                {
-                        return (FALSE);
-                }
+		if (!(level_flag & (LF1_WATER)) && (f_ptr->flags2 & (FF2_WATER)))
+		{
+			return (FALSE);
+		}
+		if (!(level_flag & (LF1_LAVA)) && (f_ptr->flags2 & (FF2_LAVA)))
+		{
+			return (FALSE);
+		}
+		if (!(level_flag & (LF1_ICE)) && (f_ptr->flags2 & (FF2_ICE)))
+		{
+			return (FALSE);
+		}
+		if (!(level_flag & (LF1_ACID)) && (f_ptr->flags2 & (FF2_ACID)))
+		{
+			return (FALSE);
+		}
+		if (!(level_flag & (LF1_OIL)) && (f_ptr->flags2 & (FF2_OIL)))
+		{
+			return (FALSE);
+		}
 
-        }
+	}
 
 	/* Okay */
 	return (TRUE);
@@ -3807,25 +4106,20 @@ bool cave_feat_lake(int f_idx)
 static void cave_gen(void)
 {
 	int i, k, y, x, y1, x1;
-        int feat;
 
 	int by, bx;
 
-        bool destroyed = FALSE;
+	bool destroyed = FALSE;
+
+	char *name;
+
 	dun_data dun_body;
 
-        cptr name;
 
 	/* Global data */
 	dun = &dun_body;
 
-        water_level = FALSE;
-        lava_level = FALSE;
-        ice_level = FALSE;
-        acid_level = FALSE;
-        oil_level = FALSE;
-	chasm_level = FALSE;
-
+	level_flag = 0x00;
 
 
 	/* Hack -- Start with basic granite */
@@ -3845,6 +4139,7 @@ static void cave_gen(void)
 	/* Hack -- No destroyed "quest" levels */
 	if (is_quest(p_ptr->depth)) destroyed = FALSE;
 
+
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
 	dun->col_rooms = DUNGEON_WID / BLOCK_WID;
@@ -3855,6 +4150,9 @@ static void cave_gen(void)
 		for (bx = 0; bx < dun->col_rooms; bx++)
 		{
 			dun->room_map[by][bx] = FALSE;
+#ifdef ALLOW_ROOMDESC
+			dun_room[by][bx] = 0;
+#endif
 		}
 	}
 
@@ -3862,27 +4160,36 @@ static void cave_gen(void)
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
 
+
 	/* No rooms yet */
 	dun->cent_n = 0;
 
 	/* No features on destroyed level */
-        if (!destroyed)
-        {
-                bool big = FALSE;
+	if (!destroyed)
+	{
+		bool big = FALSE;
 		bool done_big = FALSE;
 
-                /* Allocate some lakes and rivers*/
-                while (randint(100)<DUN_FEAT)
+                int feat;
+                int count=0;
+
+		/* Allocate some lakes and rivers*/
+		while (randint(100)<DUN_FEAT)
 		{
-                        
-                        get_feat_num_hook = cave_feat_lake;
+                        /* Increase count */
+                        count++;
 
-                        get_feat_num_prep();
+                        /* No more than 3 features */
+                        if (count > DUN_MAX_LAKES) break;
 
-                        feat = get_feat_num(p_ptr->depth);
+			get_feat_num_hook = cave_feat_lake;
 
-                        if (feat)
-                        {                             
+			get_feat_num_prep();
+
+			feat = get_feat_num(p_ptr->depth);
+
+			if (feat)
+			{                             
 				if (!done_big)
 				{
 					big = randint(150) < p_ptr->depth;
@@ -3894,34 +4201,37 @@ static void cave_gen(void)
 					big = FALSE;
 				}
 
-                                /* Room type */
-                                if (cheat_room)
-                                {
+				/* Room type */
+				if (cheat_room)
+				{
 
-                                        name = (f_name + f_info[feat].name);
+					name = (f_name + f_info[feat].name);
 
-                                        msg_format ("Building %s%s", (big?"big ":""),name);
+					if (f_info[feat].edge)
+					{
+                                                cptr edge;
 
-                                        if (f_info[feat].edge)
+                                                edge = (f_name + f_info[f_info[feat].edge].name);
+                                                msg_format("Building %s%s surrounded by %s.", (big?"big ":""),name,edge);
+					}
+                                        else
                                         {
-                                                name = (f_name + f_info[f_info[feat].edge].name);
-                                                msg_format("surrounded by %s", name);
+                                        msg_format ("Building %s%s.", (big?"big ":""),name);
                                         }
-                                }
+				}
 
-                                build_feature(feat,f_info[feat].edge,big);
+				build_feature(feat,f_info[feat].edge,big);
 
-                                if (f_info[feat].flags2 & (FF2_WATER)) water_level = TRUE;
-                                if (f_info[feat].flags2 & (FF2_LAVA)) lava_level = TRUE;
-                                if (f_info[feat].flags2 & (FF2_ICE)) ice_level = TRUE;
-                                if (f_info[feat].flags2 & (FF2_ACID)) acid_level = TRUE;
-                                if (f_info[feat].flags2 & (FF2_OIL)) oil_level = TRUE;
-                                if (f_info[feat].flags2 & (FF2_CHASM)) chasm_level = TRUE;
+                                if (f_info[feat].flags2 & (FF2_WATER)) level_flag |= (LF1_WATER);
+                                if (f_info[feat].flags2 & (FF2_LAVA)) level_flag |= (LF1_LAVA);
+                                if (f_info[feat].flags2 & (FF2_ICE)) level_flag |= (LF1_ICE);
+                                if (f_info[feat].flags2 & (FF2_ACID)) level_flag |= (LF1_ACID);
+                                if (f_info[feat].flags2 & (FF2_OIL)) level_flag |= (LF1_OIL);
+                                if (f_info[feat].flags2 & (FF2_CHASM)) level_flag |= (LF1_CHASM);
 
+			}
 
-                        }
-
-                        get_feat_num_hook = NULL;
+			get_feat_num_hook = NULL;
 
 		}
 
@@ -3955,19 +4265,19 @@ static void cave_gen(void)
 		}
 
 		/* Attempt an "unusual" room */
-                if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 		{
 			/* Roll for room type */
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-                        if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
+			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
 				/* Type 8 -- Greater vault (10%) */
-                                if ((k < 10) && room_build(by, bx, 8)) continue;
+				if ((k < 10) && room_build(by, bx, 8)) continue;
 
 				/* Type 7 -- Lesser vault (15%) */
-                                if ((k < 25) && room_build(by, bx, 7)) continue;
+				if ((k < 25) && room_build(by, bx, 7)) continue;
 
 				/* Type 6 -- Monster pit (15%) */
 				if ((k < 40) && room_build(by, bx, 6)) continue;
@@ -4044,24 +4354,20 @@ static void cave_gen(void)
 	/* Start with no tunnel doors */
 	dun->door_n = 0;
 
-        /* Paranoia - require some rooms */
-        if (dun->cent_n)
-        {
-                /* Hack -- connect the first room to the last room */
-                y = dun->cent[dun->cent_n-1].y;
-                x = dun->cent[dun->cent_n-1].x;
+	/* Hack -- connect the first room to the last room */
+	y = dun->cent[dun->cent_n-1].y;
+	x = dun->cent[dun->cent_n-1].x;
 
-                /* Connect all the rooms together */
-                for (i = 0; i < dun->cent_n; i++)
-                {
-                        /* Connect the room to the previous room */
-                        build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
+	/* Connect all the rooms together */
+	for (i = 0; i < dun->cent_n; i++)
+	{
+		/* Connect the room to the previous room */
+		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
 
-                        /* Remember the "previous" room */
-                        y = dun->cent[i].y;
-                        x = dun->cent[i].x;
-                }
-        }
+		/* Remember the "previous" room */
+		y = dun->cent[i].y;
+		x = dun->cent[i].x;
+	}
 
 	/* Place intersection doors */
 	for (i = 0; i < dun->door_n; i++)
@@ -4077,27 +4383,27 @@ static void cave_gen(void)
 		try_door(y + 1, x);
 	}
 
-        /* Hack -- Sandstone streamers are shallow */
-        if (rand_int(DUN_STR_SLV) > p_ptr->depth)
-        {
+	/* Hack -- Sandstone streamers are shallow */
+	if (rand_int(DUN_STR_SLV) > p_ptr->depth)
+	{
 
-                /* Hack -- Add some sandstone streamers */
-                for (i = 0; i < DUN_STR_SAN; i++)
-                {
-                        build_streamer(FEAT_SANDSTONE, DUN_STR_SC);
-                }
-        }
+		/* Hack -- Add some sandstone streamers */
+		for (i = 0; i < DUN_STR_SAN; i++)
+		{
+                        build_streamer(FEAT_SANDSTONE, 0);
+		}
+	}
 
-        else
-        {
+	else
+	{
 
-                /* Hack -- Add some magma streamers */
-                for (i = 0; i < DUN_STR_MAG; i++)
-                {
-                        build_streamer(FEAT_MAGMA, DUN_STR_MC);
-                }
+		/* Hack -- Add some magma streamers */
+		for (i = 0; i < DUN_STR_MAG; i++)
+		{
+			build_streamer(FEAT_MAGMA, DUN_STR_MC);
+		}
 
-        }
+	}
 
 	/* Hack -- Add some quartz streamers */
 	for (i = 0; i < DUN_STR_QUA; i++)
@@ -4105,18 +4411,17 @@ static void cave_gen(void)
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
 
-        /* Hack -- Add a rich mineral vein very rarely */
-        if (!rand_int(DUN_STR_GOL))
-        {
-                build_streamer(FEAT_QUARTZ, DUN_STR_GC);
-        }
+	/* Hack -- Add a rich mineral vein very rarely */
+	if (!rand_int(DUN_STR_GOL))
+	{
+		build_streamer(FEAT_QUARTZ, DUN_STR_GC);
+	}
 
-        /* Hack -- Add cracks through the dungeon occasionally */
-        if (!rand_int(DUN_STR_CRA))
-        {
-                build_streamer(FEAT_WALL_C, DUN_STR_CC);
-        }
-
+	/* Hack -- Add cracks through the dungeon occasionally */
+	if (!rand_int(DUN_STR_CRA))
+	{
+		build_streamer(FEAT_WALL_C, DUN_STR_CC);
+	}
 
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
@@ -4129,15 +4434,19 @@ static void cave_gen(void)
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
 
 
-	/* Determine the character location */
-	new_player_spot();
-
-
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
 
+	/* Put some rubble in corridors */
+	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+
+	/* Place some traps in the dungeon */
+	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+
+	/* Determine the character location */
+	new_player_spot();
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -4152,7 +4461,7 @@ static void cave_gen(void)
 	if (is_quest(p_ptr->depth))
 	{
 		/* Ensure quest monsters */
-		for (i = 1; i < MAX_R_IDX; i++)
+		for (i = 1; i < z_info->r_max; i++)
 		{
 			monster_race *r_ptr = &r_info[i];
 
@@ -4178,12 +4487,6 @@ static void cave_gen(void)
 		}
 	}
 
-
-	/* Place some traps in the dungeon */
-	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
-
-	/* Put some rubble in corridors */
-	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
 
 	/* Put some objects in rooms */
 	alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
@@ -4335,13 +4638,6 @@ static void town_gen_hack(void)
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));
 
-	/* Flash a message */
-        prt("Building store...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
-
 			/* Build that store at the proper location */
 			build_store(rooms[k], y, x);
 
@@ -4350,11 +4646,6 @@ static void town_gen_hack(void)
 		}
 	}
 
-	/* Flash a message */
-        prt("Place stairs...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
 
 	/* Place the stairs */
 	while (TRUE)
@@ -4367,21 +4658,8 @@ static void town_gen_hack(void)
 		if (cave_naked_bold(y, x)) break;
 	}
 
-	/* Flash a message */
-        prt("Setting stairs...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
-
 	/* Clear previous contents, add down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
-
-	/* Flash a message */
-        prt("Placing player...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
 
 
 	/* Place the player */
@@ -4390,6 +4668,7 @@ static void town_gen_hack(void)
 
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
+
 }
 
 
@@ -4423,13 +4702,6 @@ static void town_gen(void)
 	bool daytime;
 
 
-	/* Flash a message */
-        prt("Start of town...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
-
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
 	{
@@ -4450,12 +4722,6 @@ static void town_gen(void)
 		residents = MIN_M_ALLOC_TN;
 	}
 
-	/* Flash a message */
-        prt("Solid walls...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
 	/* Start with solid walls */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
@@ -4465,13 +4731,6 @@ static void town_gen(void)
 			cave_set_feat(y, x, FEAT_PERM_SOLID);
 		}
 	}
-
-	/* Flash a message */
-        prt("Floors...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
 
 	/* Then place some floors */
 	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
@@ -4483,31 +4742,11 @@ static void town_gen(void)
 		}
 	}
 
-	/* Flash a message */
-        prt("Buildings...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
 	/* Build stuff */
 	town_gen_hack();
 
-	/* Flash a message */
-        prt("Illumination...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
-
 	/* Apply illumination */
 	town_illuminate(daytime);
-
-	/* Flash a message */
-        prt("Residents...", 0, 0);
-
-        /* Flush the message */
-	Term_fresh();
-
 
 	/* Make some residents */
 	for (i = 0; i < residents; i++)
@@ -4547,7 +4786,6 @@ void generate_cave(void)
 		/* Reset */
 		o_max = 1;
 		m_max = 1;
-
 
 		/* Start with a blank cave */
 		for (y = 0; y < DUNGEON_HGT; y++)
@@ -4635,7 +4873,7 @@ void generate_cave(void)
 
 
 		/* Prevent object over-flow */
-		if (o_max >= MAX_O_IDX)
+		if (o_max >= z_info->o_max)
 		{
 			/* Message */
 			why = "too many objects";
@@ -4645,7 +4883,7 @@ void generate_cave(void)
 		}
 
 		/* Prevent monster over-flow */
-		if (m_max >= MAX_M_IDX)
+		if (m_max >= z_info->m_max)
 		{
 			/* Message */
 			why = "too many monsters";

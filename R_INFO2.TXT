@@ -1,0 +1,4950 @@
+# Note that the monster list has undergone another reorganisation,
+# mostly to balance the number of monsters in each category, so adding
+# large numbers of new monsters isn't too unbalancing.
+
+# The kobolds (k) were renamed goblins, and the high-level yeeks (y)
+# merged with them. The multi-headed hydras (M) became the hydras (y).
+# The angels (A) were renamed and become the Maear (M), with one high
+# level unique added from another category, with the ability to summon
+# his fellows.
+# The Quylthulgs (Q) merged with the icky things. The quadrepeds (q)
+# became quadrepeds (Q). The spellcasting people (p) were moved to
+# spellcasters (q). The lice (l) are added to the insects (I), and the
+# elves (l) split from the demihumans (h). The flies (F) are added to
+# the insects, and fish (F) becomes a new category. The Ancient
+# dragons (D) become Ancient dragons (A) and mature dragons and drakes
+# (D) are split from the young dragons (d). The Nightsbane (N) split
+# from the wights and wraiths.
+
+# Enough of yer whining.
+
+# This results in the following:
+
+# a - ants		A - Ancient dragons
+# b - bats		B - Birds
+# c - centipedes	C - Canines
+# d - young dragons	D - mature Dragons/drakes
+# e - eyes		E - Elementals
+# f - felines		F - Fish
+# g - golems		G - Ghosts
+# h - demihumans	H - Hybrids
+# i - icky things	I - Insects
+# j - jellies		J - snakes
+# k - goblins		K - beetles
+# l - elves		L - ghouls/Liches
+# m - molds		M - Maear
+# n - naga		N - Nightsbane
+# o - orcs		O - Ogres
+# p - people		P - giants
+# q - people (spellcasters) Q - Quadrepeds
+# r - rodents		R - reptiles
+# s - skeletons		S - Spiders/ticks
+# t - townspeople	T - trolls
+# u - minor demons	U - major demons
+# v - vortices		V - vampires
+# w - worms		W - Wights/Wraiths
+# x - unused		X - Xorn
+# y - hydra		Y - apes/Yeti
+# z - zombies/mummies	Z - Zephyr hounds
+
+# The "people" (p & q), get a revised "color scheme" to account for the
+# splitting of spell casters from non-spell casters. In particular, we
+# try and split the mage and priest categories up somewhat.
+
+# ('w' = Paladin/High Ranger, 's' = Knight/Druid, 'o' = Mystic/Martial
+# Artist, 'r' = Mage/High Assassin, 'g' = High Priest/Archer, 'b' =
+# Thief/High Wizard, 'u' = Warrior/High psionic, 'D' = Death knight/High
+# Druid, 'W' = Ranger/High Paladin, 'v' = Sorcerer/Beserker, 'y' =
+# Ninja/Illusionist, 'R' = High Mage/Assassin, 'G' = Priest/High Archer,
+# 'B' = High Thief/Wizard, 'U' = High Warrior/Psionic).
+
+# ==== Other changes ====
+
+# Spirit nagas should be worth 160.
+
+N:xx:Pink mushroom patch
+G:,:R
+I:110:1d2:2:1:0
+W:5:5:0:1
+B:SPORE:LOSE_STR:1d4
+F:NEVER_MOVE | MULTIPLY |
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Brown mushroom patch
+G:,:u
+I:110:1d1:2:1:0
+W:4:10:0:15
+B:SPORE:LOSE_CHA:1d2
+B:SPORE:LOSE_CHA:1d2
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Green mushroom patch
+G:,:g
+I:110:1d1:2:1:0
+W:7:8:0:15
+B:SPORE:LOSE_WIS:1d3
+B:SPORE:LOSE_WIS:1d3
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Black mushroom patch
+G:,:D
+I:110:1d1:2:1:0
+W:8:8:0:15
+B:SPORE:LOSE_INT:1d2
+B:SPORE:LOSE_INT:1d2
+B:SPORE:LOSE_INT:1d2
+B:SPORE:LOSE_INT:1d2
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:White mushroom patch
+G:,:w
+I:110:1d2:2:1:0
+W:6:8:0:15
+B:SPORE:COLD:1d4
+B:SPORE:COLD:1d4
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | IM_COLD |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Blue mushroom patch
+G:,:b
+I:110:1d2:2:1:0
+W:7:10:0:15
+B:SPORE:ELEC:1d4
+B:SPORE:ELEC:1d4
+F:NEVER_MOVE | IM_ELEC |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Red mushroom patch
+G:,:r
+I:110:1d2:2:1:0
+W:9:8:0:15
+B:SPORE:FIRE:1d4
+B:SPORE:FIRE:1d4
+B:SPORE:FIRE:1d4
+F:NEVER_MOVE | IM_FIRE |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:Explodestool
+G:,:o
+I:110:1d2:2:1:0
+W:10:8:0:15
+B:SPORE:EXPLODE:3d4
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:88:Copper mushroom patch
+G:,:u
+I:110:1d2:2:1:0
+W:9:10:0:15
+B:SPORE:LOSE_DEX:1d2
+B:SPORE:LOSE_DEX:1d2
+B:SPORE:LOSE_DEX:1d2
+F:NEVER_MOVE | ATTR_GLIT |
+F:STUPID | EMPTY_MIND | IM_ACID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:88:Silver mushroom patch
+G:,:w
+I:110:1d2:2:1:0
+W:6:8:0:15
+B:SPORE:HURT_LITE:1d1
+B:SPORE:HURT_LITE:1d1
+B:SPORE:HURT_LITE:1d1
+F:NEVER_MOVE | ATTR_GLIT |
+F:STUPID | EMPTY_MIND | IM_COLD |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:88:Wrinkled mushroom patch
+G:,:y
+I:110:1d3:2:1:0
+W:14:10:0:15
+B:SPORE:LOSE_ALL:1d3
+B:SPORE:LOSE_ALL:1d3
+B:SPORE:LOSE_ALL:1d3
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:88:Rotting mushroom patch
+G:,:G
+I:110:1d3:2:1:0
+W:12:8:0:15
+B:SPORE:EXP_20:1d3
+B:SPORE:EXP_20:1d3
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:88:Slimy mushroom patch
+G:,:s
+I:110:1d3:2:1:0
+W:10:10:0:15
+B:SPORE:ACID:1d3
+B:SPORE:ACID:1d3
+B:SPORE:ACID:1d3
+F:NEVER_MOVE | IM_ACID |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SPORES
+D:Yum!  It looks quite tasty.
+
+N:xx:White slime
+G:,:w
+I:120:2d4:4:1:0
+W:15:10:0:4
+B:TOUCH:HURT:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | IM_ACID | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Green slime
+G:,:g
+I:120:2d4:4:1:0
+W:16:8:0:5
+B:TOUCH:POISON:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | IM_ACID | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Yellow slime
+G:,:y
+I:120:3d4:4:1:0
+W:17:12:0:6
+B:TOUCH:EAT_FOOD:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | IM_ACID | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Silver slime
+G:,:W
+I:120:3d4:4:1:0
+W:18:12:0:7
+B:TOUCH:EAT_LITE:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | IM_ACID | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Clear slime
+G:,:w
+I:120:4d4:4:1:0
+W:19:12:0:8
+B:TOUCH:HURT:1d4
+F:RAND_25 | INVISIBLE | ATTR_CLEAR |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Purple slime
+G:,:v
+I:120:4d4:4:1:0
+W:20:10:0:9
+B:TOUCH:LOSE_CON:1d4
+B:TOUCH:LOSE_CON:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Pink slime
+G:,:w
+I:120:5d4:4:1:0
+W:21:8:0:10
+B:TOUCH:LOSE_STR:1d4
+B:TOUCH:LOSE_STR:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Blue slime
+G:,:b
+I:120:5d4:4:1:0
+W:23:12:0:12
+B:TOUCH:UNBONUS:1d4
+B:TOUCH:UNBONUS:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:xx:Black slime
+G:,:D
+I:120:6d4:4:1:0
+W:25:20:0:15
+B:TOUCH:LOSE_ALL:1d4
+B:TOUCH:LOSE_ALL:1d4
+F:RAND_50 | RAND_25 |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | FRIENDS |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:Ugh! It quickly creeps alone the dungeon floor.
+
+N:332:Many-eyed moss
+G:,:o
+I:110:1d2:30:1:5
+W:16:12:0:40
+B:HIT:BLIND:1d4
+B:HIT:BLIND:1d4
+F:FORCE_SLEEP | NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:HOLD
+D:A mass of green vegetation. Its many eyes follow your every
+D:movement.
+
+N:332:Moross moss
+G:,:y
+I:110:1d2:30:1:5
+W:12:15:0:15
+B:HIT:LOSE_DEX:1d4
+B:HIT:LOSE_DEX:1d4
+F:FORCE_SLEEP | NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:SLOW
+D:A mass of green vegetation. You feel apathetic looking at
+D:its sluggish fronds.
+
+N:332:Mischevious moss
+G:,:B
+I:120:1d2:30:1:5
+W:20:15:0:80
+B:HIT:CONFUSE:1d4
+B:HIT:CONFUSE:1d4
+F:FORCE_SLEEP | NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:BLINK | SLOW | SCARE | DARKNESS
+D:A mass of green vegetation. It wiggles its tiny fronds
+D:in mischevious anticipation.
+
+N:332:Machievallean moss
+G:,:u
+I:110:1d2:30:1:5
+W:24:18:0:80
+B:HIT:LOSE_INT:1d4
+B:HIT:LOST_INT:1d4
+F:FORCE_SLEEP | NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:HEAL | TRAPS | BO_COLD | BA_POIS
+D:A mass of green vegetation. Its fronds move cloyingly
+D:towards you, then dart away.
+
+N:332:Maggoty moss
+G:,:G
+I:110:1d2:30:1:5
+W:28:18:0:110
+B:HIT:EXP_10:1d4
+B:HIT:EXP_10:1d4
+F:FORCE_SLEEP | NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:S_UNDEAD
+D:A mass of brown vegetation. Maggots writhe among its
+D:long dead fronds.
+
+N:xx:Worker ant
+G:a:s
+I:110:4d5:10:3:10
+W:3:2:0:3
+B:BITE:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:A large ant with powerful mandibles.
+
+N:xx:Guardian ant
+G:a:D
+I:110:8d5:10:3:10
+W:6:2:0:3
+B:BITE:HURT:2d4
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:A large ant with powerful mandibles.
+
+N:xx:Giant green ant
+G:a:g
+I:110:4d6:8:16:80
+W:5:4:0:7
+B:BITE:POISON:1d6
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about three feet long and has poisonous pincers.
+
+N:xx:Giant copper ant
+G:a:u
+I:110:8d8:12:34:60
+W:15:8:0:22
+B:BITE:HURT:2d4
+B:STING:ELEC:2d4
+F:WEIRD_MIND | BASH_DOOR | ATTR_GLIT | IM_ACID |
+F:ANIMAL
+D:It is large and has a dangerous sting.
+
+N:xx:Giant silver ant
+G:a:w
+I:110:7d8:12:34:60
+W:11:8:0:22
+B:BITE:HURT:1d5
+B:STING:EAT_LITE:1d5
+F:WEIRD_MIND | BASH_DOOR | ATTR_GLIT | IM_COLD |
+F:ANIMAL
+D:It is large and has a dangerous sting.
+
+N:xx:Giant gold ant
+G:a:y
+I:110:12d8:12:34:60
+W:18:10:0:22
+B:BITE:HURT:1d5
+B:STING:HURT:6d2
+F:WEIRD_MIND | BASH_DOOR | ATTR_GLIT | IM_POIS |
+F:ANIMAL
+D:It is large and has a dangerous sting.
+
+N:xx:Giant bronze ant
+G:a:U
+I:110:10d8:12:34:60
+W:14:12:0:22
+B:BITE:HURT:1d8
+B:STING:CONFUSE:1d8
+F:WEIRD_MIND | BASH_DOOR | ATTR_GLIT | IM_FIRE |
+F:ANIMAL
+D:It is large and has a dangerous sting.
+
+N:xx:Giant brass ant
+G:a:o
+I:110:10d8:12:34:60
+W:14:10:0:22
+B:BITE:HURT:1d8
+B:STING:UN_BONUS:1d8
+F:WEIRD_MIND | BASH_DOOR | ATTR_GLIT | IM_ELEC |
+F:ANIMAL
+D:It is large and has a dangerous sting.
+
+N:xx:Giant driver ant
+G:a:B
+I:120:14d6:10:40:40
+W:27:6:0:90
+B:BITE:HURT:2d8
+F:RAND_25 | KILL_BODY | FRIENDS | MULTIPLY |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:An armoured form moving with purpose.  Powerful on its own, flee when 
+D:hordes of them march.
+
+N:302:The Forgotten
+G:M:o
+I:110:30d10:30:60:255
+W:26:6:0:220
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_2D2 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | 
+F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLIND | CONF | SCARE | FORGET
+D:One of the Maear who never took up the original song and wanders, 
+D:lonely and unknowing. He is disturbed by the harsh strains of reality 
+D:around him and seeks to return it to its primal discordance.
+
+N:327:The Lost
+G:M:B
+I:110:40d10:30:68:255
+W:29:6:0:400
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_2D2 | 
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | 
+F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:HEAL | HASTE | BLIND | CONF | SCARE
+D:A Maear who strayed early from the song and never heard 
+D:the evil strains that Melkor imposed on the world. He is angry at the 
+D:twisting of magic but like an unknowing child, lashes out at all around him.
+
+N:364:The Bewitched
+G:M:G
+I:120:45d10:30:68:255
+W:33:6:0:400
+B:HIT:HURT:4d3
+B:HIT:HURT:3d8
+B:HIT:HURT:4d3
+B:HIT:HURT:3d8
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
+S:S_MONSTERS 
+D:A Maear who succumbed to the early beautious riffs Melkor 
+D:perpetuated and believes the sweet refrains to be the new truth of the world. 
+D:He strikes out angrily at the ugliness around him, not realising the source 
+D:of its anguish
+
+N:432:The Betrayed
+G:M:r
+I:120:50d10:30:68:255
+W:38:6:0:1800
+B:HIT:HURT:4d6
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_11 | 
+S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS | 
+S:S_MONSTERS | S_ANGEL | MIND_BLAST
+D:Betrayed by Melkor when the battle was lost, and his false beauty turned in 
+D:on itself and was consumed, this Maear sees nothing but bitterness 
+D:and an ugly reality, and takes out his all consuming anger on everything 
+D:around him.
+
+N:470:The Fallen
+G:M:y
+I:130:100d35:30:140:255
+W:41:6:0:15000
+B:GAZE:TERRIFY:4d4
+B:GAZE:TERRIFY:4d4
+B:HIT:HURT:8d6
+B:HIT:HURT:8d6
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+S:1_IN_3 | 
+S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
+S:S_ANGEL 
+D:This Maear sided with Melkor during the battles at the start of the world 
+D:and was cast out and fell with him. Abandoned by Melkor after the fall, 
+D:he exacts his retribution on everything that falls in his path.
+
+N:xx:Giant white bat
+G:b:w
+I:130:4d8:10:15:30
+W:7:4:0:10
+B:BITE:HURT:1d4
+F:RAND_50 | IM_COLD | FRIENDS |
+F:ANIMAL
+D:It screeches as it attacks.
+
+N:xx:Giant grey bat
+G:b:s
+I:130:5d8:10:15:30
+W:8:3:0:10
+B:BITE:HURT:1d5
+F:RAND_50 | FRIENDS |
+F:ANIMAL
+D:It screeches as it attacks.
+
+N:xx:Giant black bat
+G:b:D
+I:130:7d8:10:15:30
+W:10:2:0:10
+B:BITE:HURT:1d6
+F:RAND_50 | FRIENDS |
+F:ANIMAL
+D:It screeches as it attacks.
+
+N:xx:White dragon bat
+G:b:w
+I:130:3d8:12:28:50
+W:23:3:0:60
+B:BITE:COLD:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS |
+F:BASH_DOOR | 
+F:ANIMAL | IM_COLD
+S:1_IN_4 | 
+S:BR_COLD
+D:It is a sharp-tailed bat, clouded in frost.
+
+N:xx:Black dragon bat
+G:b:w
+I:130:3d8:12:28:50
+W:23:3:0:60
+B:BITE:ACID:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS |
+F:BASH_DOOR | 
+F:ANIMAL | IM_ACID
+S:1_IN_4 | 
+S:BR_ACID
+D:It is a sharp-tailed bat, dripping in acid.
+
+N:xx:Copper dragon bat
+G:b:u
+I:130:3d8:12:28:50
+W:23:4:0:60
+B:BITE:ELEC:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS | ATTR_GLIT |
+F:BASH_DOOR | 
+F:ANIMAL | IM_ELEC
+S:1_IN_4 | 
+S:BR_ELEC | BR_NEXU
+D:It is a sharp-tailed bat, crackling with electricity.
+
+N:xx:Brass dragon bat
+G:b:o
+I:130:3d8:12:28:50
+W:23:4:0:60
+B:BITE:ACID:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS | ATTR_GLIT |
+F:BASH_DOOR
+F:ANIMAL | IM_ACID
+S:1_IN_4 |
+S:BR_ACID | BR_DISE 
+D:It is a sharp-tailed bat, dripping in acid.
+
+N:xx:Silver dragon bat
+G:b:w
+I:130:3d8:12:28:50
+W:23:4:0:60
+B:BITE:COLD:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS | ATTR_GLIT |
+F:BASH_DOOR | 
+F:ANIMAL | IM_COLD | NO_FEAR
+S:1_IN_4 | 
+S:BR_COLD | BR_FEAR
+D:It is a sharp-tailed bat, clouded in frost.
+
+N:xx:Gold dragon bat
+G:b:y
+I:130:3d8:12:28:50
+W:23:5:0:60
+B:BITE:ACID:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS | ATTR_GLIT |
+F:BASH_DOOR | 
+F:ANIMAL | IM_POIS
+S:1_IN_4 | 
+S:BR_POIS | BR_SOUND
+D:It is a sharp-tailed bat, fuming with poison.
+
+N:xx:Bronze dragon bat
+G:b:U
+I:130:3d8:12:28:5
+W:23:5:0:60
+B:BITE:FIRE:1d3
+F:FORCE_SLEEP | RAND_50 | FRIENDS | ATTR_GLIT |
+F:BASH_DOOR
+F:ANIMAL | IM_ELEC
+S:1_IN_4 |
+S:BR_FIRE | BR_CONF 
+D:It is a sharp-tailed bat, wreathed in fire.
+
+N:272:Giant vampire bat
+G:b:v
+I:120:36d10:12:40:50
+W:34:8:0:150
+B:BITE:EXP_80:3d4
+B:BITE:EXP_80:3d4
+F:RAND_50 | COLD_BLOOD | REGENERATE | FRIENDS |
+F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:An gargantuan undead bat that flies at you. It could bite your head off!
+
+N:xx:Were bat
+G:b:B
+I:130:20d8:5:15:100
+W:20:6:0:50
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+B:BITE:HURT:1d10
+F:RAND_50 | FRIENDS | OPEN_DOOR |
+F:ANIMAL | EVIL | TAKE_ITEM
+D:It is a huge black bat with eyes that glow with intelligence.
+
+N:xx:Doombat
+G:b:D
+I:130:30d8:7:25:50
+W:30:6:0:100
+B:BITE:HURT:2d6
+B:BITE:HURT:2d6
+B:BITE:HURT:2d10
+F:RAND_50 | FRIENDS | OPEN_DOOR |
+F:ANIMAL | EVIL |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a huge ugly bat that strikes terror into your heart.
+
+N:xx:Hell bat
+G:b:r
+I:130:30d8:8:40:10
+W:44:10:0:300
+B:BITE:FIRE:3d12
+B:BITE:FIRE:3d12
+B:BITE:FIRE:3d12
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:RAND_50 | FRIENDS |
+F:BASH_DOOR | MOVE_BODY | 
+F:ANIMAL | EVIL | IM_FIRE
+S:1_IN_5 | 
+S:BR_FIRE
+D:It is a giant bat that glows with heat. Flames shoot from its wings.
+
+N:xx:Giant white centipede
+G:c:w
+I:110:3d5:7:10:40
+W:1:4:0:2
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:RAND_50 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Giant grey centipede
+G:c:s
+I:110:3d6:7:10:40
+W:3:4:0:4
+B:BITE:HURT:1d3
+B:STING:HURT:1d3
+F:RAND_50 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Giant black centipede
+G:c:D
+I:110:3d7:7:10:40
+W:5:4:0:6
+B:BITE:HURT:1d3
+B:STING:POISON:1d4
+F:RAND_50 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Giant brown centipede
+G:c:u
+I:110:3d8:7:10:40
+W:7:3:0:7
+B:BITE:HURT:2d3
+B:STING:HURT:1d4
+F:RAND_25 | FRIENDS |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Giant yellow centipede
+G:c:y
+I:110:4d8:7:10:40
+W:10:3:0:9
+B:BITE:HURT:2d4
+B:STING:LOSE_DEX:1d4
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Giant pink centipede
+G:c:R
+I:110:5d8:7:10:40
+W:13:3:0:11
+B:BITE:HURT:2d3
+B:STING:LOSE_STR:2d4
+F:RAND_25 | FRIENDS |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about four feet long and carnivorous.
+
+N:xx:Cave crawler
+G:c:D
+I:110:8d8:15:40:10
+W:15:4:0:20
+B:STING:BLIND:2d4
+B:STING:BLIND:2d4
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | FRIEND |
+F:ANIMAL | IM_POIS
+D:An ugly centipede damp with moisture and with wriggling tentacles around its 
+D:head.
+
+N:xx:Dungeon crawler
+G:c:W
+I:110:12d10:15:40:10
+W:18:4:0:40
+B:STING:LOSE_DEX:2d5
+B:STING:LOSE_DEX:2d5
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | FRIEND |
+F:ANIMAL | IM_POIS
+D:A deformed centipede wet with secretions and with barbed tentacles around its 
+D:head.
+
+N:xx:Muck crawler
+G:c:u
+I:110:12d10:15:40:10
+W:21:4:0:45
+B:STING:BLIND:2d5
+B:STING:BLIND:2d5
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | FRIEND |
+F:ANIMAL | IM_POIS
+D:A monstrous centipede slick with filth and with ropy tentacles around its 
+D:head.
+
+N:xx:Hell crawler
+G:c:r
+I:110:40d10:15:40:10
+W:42:4:0:300
+B:STING:FIRE:3d12
+B:STING:FIRE:3d12
+B:STING:FIRE:3d12
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | FRIENDS |
+F:ANIMAL | IM_POIS | IM_FIRE | EVIL
+S:1_IN_6 |
+S:BR_FIRE
+D:A monstrous centipede coated with fire and with flaming tentacles around its 
+D:head.
+
+N:XXX:Wild dog
+G:C:U
+I:115:3d5:20:16:5
+W:3:3:0:10
+B:BITE:HURT:1d3
+F:FRIENDS | 
+F:ANIMAL
+D:It is a snarling hungry dog, dangerous when in a pack.
+
+N:XXX:Guard dog
+G:C:U
+I:120:5d5:30:30:0
+W:6:3:0:20
+B:BITE:HURT:1d4 
+F:RAND_25 | 
+F:BASH_DOOR | 
+F:ANIMAL
+D:A rather vicious dog.  It thinks you are 
+D:a thief.
+
+N:XXX:Giant jackal
+G:C:U
+I:120:8d6:32:18:15
+W:12:4:0:35
+B:BITE:HURT:1d7
+F:FRIENDS | 
+F:ANIMAL
+D:It is a giant version of that yapping pest.
+
+N:147:Grey wolf
+G:C:s
+I:120:9d9:30:30:20
+W:14:3:0:35
+B:BITE:HURT:1d5
+B:BITE:HURT:1d5
+F:RAND_25 | 
+F:FRIENDS | 
+F:BASH_DOOR | IM_POIS |
+F:ANIMAL
+D:A huge and sineous wolf from the fecund swamps. Its breath is rank with
+D:poison.
+
+N:156:Black wolf
+G:C:D
+I:120:12d12:30:30:20
+W:16:3:0:45
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:RAND_25 | 
+F:FRIENDS | 
+F:BASH_DOOR | 
+F:ANIMAL | IM_ACID
+D:A large and muscled wolf from the eastern wastes.  Its saliva drips
+D:caustically and its fur is bileous with acid. 
+
+N:147:Dire wolf
+G:C:o
+I:115:11d11:25:30:30
+W:13:3:0:70
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:RAND_25 | 
+F:FRIENDS | 
+F:BASH_DOOR | 
+F:ANIMAL
+D:It is a huge wolf with eyes that glow red with cunning.
+
+N:147:Mirkwood wolf
+G:C:g
+I:115:16d16:20:30:50
+W:16:3:0:110
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+B:BITE:HURT:1d6
+F:RAND_25 | 
+F:FRIENDS | 
+F:BASH_DOOR | 
+F:ANIMAL
+D:It is a huge wolf hailing from Mirkwood with eyes that glow with evil intelligence.
+
+N:131:Baby copper dragon
+G:d:u
+I:110:10d10:20:30:70
+W:9:2:0:35
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d5
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_ELEC
+S:1_IN_12 | 
+S:BR_ELEC | BR_NEXU
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a pale copper.
+
+N:XXX:Baby silver dragon
+G:d:W
+I:110:10d10:20:30:70
+W:9:2:0:35
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d5
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_COLD | NO_FEAR
+S:1_IN_12 | 
+S:BR_NEXUS | BR_FEAR
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a pale silver.
+
+N:XXX:Baby brass dragon
+G:d:o
+I:110:10d10:20:30:70
+W:9:10:0:35
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d5
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_ACID
+S:1_IN_12 | 
+S:BR_ACID | BR_DISE
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a pale brass.
+
+N:XXX:Baby amethyst dragon
+G:d:v
+I:110:13d10:20:30:70
+W:11:12:0:45
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:ATTR_MULTI | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ACID |
+F:EVIL | DRAGON
+S:1_IN_10 | 
+S:BR_TIME | BR_ACID
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a clear amethyst.
+
+N:XXX:Baby diamond dragon
+G:d:w
+I:110:13d10:20:30:70
+W:11:14:0:45
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:ATTR_MULTI | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_COLD |
+F:EVIL | DRAGON | ATTR_CLEAR
+S:1_IN_10 | 
+S:BR_MANA | BR_COLD
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a clear hue.
+
+N:XXX:Baby emerald dragon
+G:d:G
+I:110:13d10:20:30:70
+W:11:16:0:45
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:ATTR_MULTI | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_POIS |
+F:EVIL | DRAGON
+S:1_IN_10 | 
+S:BR_WALL | BR_POIS
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a clear emerald.
+
+N:XXX:Baby sapphire dragon
+G:d:B
+I:110:13d10:20:30:70
+W:11:18:0:45
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:ATTR_MULTI | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ELEC |
+F:EVIL | DRAGON
+S:1_IN_10 | 
+S:BR_GRAV | BR_ELEC
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a clear sapphire.
+
+N:XXX:Baby topaz dragon
+G:d:y
+I:110:13d10:20:30:70
+W:11:20:0:45
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:HURT:1d6
+F:ATTR_MULTI | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_FIRE |
+F:EVIL | DRAGON
+S:1_IN_10 | 
+S:BR_INER | BR_FIRE
+D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
+D:its scales a clear topaz.
+
+N:390:Young copper dragon
+G:d:u
+I:110:25d10:20:60:50
+W:35:10:0:620
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+B:BITE:HURT:2d8
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_60 | DROP_90 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_ELEC
+S:1_IN_10 | 
+S:SCARE | 
+S:BR_ELEC | BR_NEXU
+D:It has a form that legends are made of.  Its still-tender scales are a 
+D:shiny copper hue.  The air twists around it strangely.
+
+N:390:Young silver dragon
+G:d:W
+I:110:25d10:20:60:50
+W:35:12:0:620
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+B:BITE:HURT:2d8
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_60 | DROP_90 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_COLD | NO_FEAR
+S:1_IN_10 | 
+S:SCARE | 
+S:BR_COLD | BR_FEAR
+D:It has a form that legends are made of.  Its still-tender scales are a 
+D:liquid silver hue.  The air recoils from it fearfully.
+
+N:390:Young brass dragon
+G:d:o
+I:110:25d10:20:60:50
+W:35:14:0:620
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+B:BITE:HURT:2d8
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_60 | DROP_90 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | IM_ACID
+S:1_IN_10 | 
+S:SCARE | 
+S:BR_ACID | BR_DISE
+D:It has a form that legends are made of.  Its still-tender scales are a 
+D:gleaming brass hue.  The air feels drained of magic.
+
+N:402:Young amethyst dragon
+G:d:v
+I:110:32d10:20:60:50
+W:36:16:0:1320
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:ATTR_MULTI | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ACID |
+F:EVIL | DRAGON |
+F:NO_CONF | NO_SLEEP
+S:1_IN_8 | 
+S:SCARE | 
+S:BR_TIME | BR_ACID
+D:It has a form that legends are made of.  Beautiful scales of brilliant 
+D:amethyst cover it.
+
+N:XXX:Young diamond dragon
+G:d:w
+I:110:32d10:20:60:50
+W:36:18:0:1320
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:ATTR_MULTI | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_COLD |
+F:EVIL | DRAGON |
+F:NO_CONF | NO_SLEEP | ATTR_CLEAR
+S:1_IN_8 | 
+S:SCARE | 
+S:BR_MANA | BR_COLD
+D:It has a form that legends are made of.  Beautiful scales of brilliant 
+D:diamond cover it.
+
+N:402:Young emerald dragon
+G:d:G
+I:110:32d10:20:60:50
+W:36:20:0:1320
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:ATTR_MULTI | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_POIS |
+F:EVIL | DRAGON |
+F:NO_CONF | NO_SLEEP
+S:1_IN_8 | 
+S:SCARE | 
+S:BR_WALL | BR_POIS
+D:It has a form that legends are made of.  Beautiful scales of brilliant 
+D:emerald cover it.
+
+N:402:Young sapphire dragon
+G:d:B
+I:110:32d10:20:60:50
+W:36:22:0:1320
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:ATTR_MULTI | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ELEC |
+F:EVIL | DRAGON |
+F:NO_CONF | NO_SLEEP
+S:1_IN_8 | 
+S:SCARE | 
+S:BR_GRAV | BR_ELEC
+D:It has a form that legends are made of.  Beautiful scales of brilliant 
+D:sapphire cover it.
+
+N:402:Young topaz dragon
+G:d:y
+I:110:32d10:20:60:50
+W:36:24:0:1320
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:ATTR_MULTI | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_FIRE |
+F:EVIL | DRAGON |
+F:NO_CONF | NO_SLEEP
+S:1_IN_8 | 
+S:SCARE | 
+S:BR_INER | BR_FIRE 
+D:It has a form that legends are made of.  Beautiful scales of brilliant 
+D:topaz cover it.
+
+N:402:Guard dragon
+G:D:s
+I:110:32d10:20:60:20
+W:34:6:0:420
+B:CLAW:HURT:2d8
+B:CLAW:HURT:2d8
+B:BITE:HURT:3d8
+F:FORCE_MAXHP | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON |
+F:IM_FIRE | NO_CONF | NO_SLEEP
+D:A fierce looking red dragon, with a studded iron collar and huge fangs. Smoke pours
+D:from its mouth, but the fire beneath is choked out.
+
+N:355:Star drake
+G:D:B
+I:110:30d10:25:50:30
+W:33:10:0:700
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:HURT:3d6
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:IM_FIRE | IM_COLD
+S:1_IN_6 | 
+S:BLINK | SCARE | DARKNESS | BLIND | BR_METE | BR_DARK
+D:It is a dragon-like form wrapped in starlight.  Glowing blue eyes shine out in 
+D:the dark, and it is surrounded by the cold of deep space.
+
+N:355:Sun drake
+G:D:y
+I:110:30d10:25:50:30
+W:33:10:0:700
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:HURT3d6
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:IM_FIRE | IM_ELEC
+S:1_IN_6 | 
+S:SLOW | CONF | SCARE | BR_PLAS | BR_LITE
+D:It is a dragon-like form wrapped in the fire of the sun. White hot eyes peer
+D:from the light, and it is surrounded by the burning heat of the corona.
+
+N:355:Land drake
+G:D:u
+I:110:30d10:25:50:30
+W:33:9:0:700
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:EXP_10:3d6
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:IM_FIRE | IM_ACID | CAN_DIG
+S:1_IN_6 | 
+S:SCARE | BR_FIRE | BR_ACID
+D:It is a wingless dragon with short clumsy legs shaped like shovels.
+D:Fire and acidic fumes belch from its mouth.
+
+N:355:Sea drake
+G:D:v
+I:110:30d10:25:50:30
+W:33:9:0:700
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:HURT:3d6
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:IM_ACID | IM_POIS | CAN_SWIM 
+S:1_IN_6 | 
+S:SCARE | BR_ACID | BR_POIS
+D:It is a sinous serpent-like dragon with flippers instead of legs.
+D:Acidic and poisonous fumes spill from its mouth.
+
+N:355:War drake
+G:D:s
+I:110:30d10:25:50:30
+W:33:9:0:700
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:EXP_10:3d6
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | PASS_WALL | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP |
+F:IM_FIRE | IM_POIS
+S:1_IN_6 | 
+S:SCARE | BR_FIRE | BR_POIS
+D:It is a bat-winged dragon saddled and ready to fight.
+D:Fire and poisonous fumes roll from its mouth.
+
+N:423:Mature copper dragon
+G:D:u
+I:110:48d10:20:80:30
+W:37:10:0:1400
+B:CLAW:HURT:2d10
+B:CLAW:HURT:2d10
+B:BITE:HURT:4d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:BASH_DOOR | 
+F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
+S:1_IN_9 | 
+S:CONF | SCARE | 
+S:BR_ELEC | BR_NEXU
+D:A large dragon, scales tinted deep copper.
+
+N:423:Mature silver dragon
+G:D:u
+I:110:48d10:20:80:30
+W:37:12:0:1400
+B:CLAW:HURT:2d10
+B:CLAW:HURT:2d10
+B:BITE:HURT:4d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:BASH_DOOR | 
+F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_9 | 
+S:CONF | SCARE | 
+S:BR_FEAR | BR_COLD
+D:A large dragon, scales tinted deep silver.
+
+N:423:Mature brass dragon
+G:D:o
+I:110:48d10:20:80:30
+W:37:14:0:1400
+B:CLAW:HURT:2d10
+B:CLAW:HURT:2d10
+B:BITE:HURT:4d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | DROP_4D2 | 
+F:BASH_DOOR | 
+F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
+S:1_IN_9 | 
+S:CONF | SCARE | 
+S:BR_ACID | BR_DISE
+D:A large dragon, scales tinted deep brass.
+
+N:426:Mature amethyst dragon
+G:D:v
+I:110:64d10:20:65:50
+W:38:16:0:1700
+B:CLAW:HURT:2d12
+B:CLAW:HURT:2d12
+B:BITE:HURT:4d12
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ACID |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | SCARE | 
+S:BR_TIME | BR_ACID
+D:A large dragon, scales gleaming a deep amethyst.
+
+N:426:Mature diamond dragon
+G:D:w
+I:110:64d10:20:65:50
+W:38:18:0:1700
+B:CLAW:HURT:2d12
+B:CLAW:HURT:2d12
+B:BITE:HURT:4d12
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | ATTR_CLEAR | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | SCARE | 
+S:BR_MANA | BR_COLD
+D:A large dragon, scales gleaming a clear diamond.
+
+N:426:Mature emerald dragon
+G:D:G
+I:110:64d10:20:65:50
+W:38:20:0:1700
+B:CLAW:HURT:2d12
+B:CLAW:HURT:2d12
+B:BITE:HURT:4d12
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_POIS |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | SCARE | 
+S:BR_WALL | BR_POIS
+D:A large dragon, scales gleaming a deep emerald.
+
+N:426:Mature sapphire dragon
+G:D:B
+I:110:64d10:20:65:50
+W:38:22:0:1700
+B:CLAW:HURT:2d12
+B:CLAW:HURT:2d12
+B:BITE:HURT:4d12
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_ELEC |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | SCARE | 
+S:BR_GRAV | BR_ELEC
+D:A large dragon, scales gleaming a deep sapphire.
+
+N:426:Mature topaz dragon
+G:D:B
+I:110:64d10:20:65:50
+W:38:24:0:1700
+B:CLAW:HURT:2d12
+B:CLAW:HURT:2d12
+B:BITE:HURT:4d12
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | IM_FIRE |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | SCARE | 
+S:BR_INER | BR_FIRE
+D:A large dragon, scales gleaming a deep topaz.
+
+N:423:Watch dragon
+G:D:s
+I:110:48d10:20:80:10
+W:37:10:0:1000
+B:CLAW:HURT:2d10
+B:CLAW:HURT:2d10
+B:BITE:HURT:4d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_1D2 | 
+F:BASH_DOOR | 
+F:EVIL | DRAGON | IM_ACID | NO_CONF | NO_SLEEP
+S:1_IN_9 | 
+S:CONF | SCARE
+D:A large dragon, scales tinted stony grey to blend to its surroundings.
+
+N:460:Ancient copper dragon
+G:A:u
+I:120:10d100:20:100:70
+W:40:12:0:2750
+B:CLAW:HURT:4d9
+B:CLAW:HURT:4d9
+B:BITE:CHAOS:7d9
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:EVIL | DRAGON | IM_ELEC | NO_CONF | NO_SLEEP
+S:1_IN_6 | 
+S:BLIND | CONF | SCARE | 
+S:BR_ELEC | BR_NEXU
+D:A huge draconic form.  Space twists and weaves around its wings
+D:and the place you thought it was a moment ago is empty.
+
+N:460:Ancient silver dragon
+G:A:W
+I:120:10d100:20:100:70
+W:40:14:0:2750
+B:CLAW:HURT:4d9
+B:CLAW:HURT:4d9
+B:BITE:NEXUS:7d9
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:BLIND | CONF | SCARE | 
+S:BR_COLD | BR_FEAR
+D:A huge draconic form.  Fear grips your very soul and you
+D:cring away from its terrifying visage.
+
+N:460:Ancient brass dragon
+G:A:o
+I:120:10d100:20:100:70
+W:40:16:0:2750
+B:CLAW:HURT:4d9
+B:CLAW:HURT:4d9
+B:BITE:DISENCHANT:7d9
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_3D2 | DROP_4D2 | 
+F:SMART | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:EVIL | DRAGON | IM_COLD | NO_CONF | NO_SLEEP
+S:1_IN_6 | 
+S:BLIND | CONF | SCARE | 
+S:BR_ACID | BR_DISE
+D:A huge draconic form.  Magic drains from around its shape 
+D:and there is a static feeling in the air.
+
+N:476:Ancient amethyst dragon
+G:A:v
+I:120:21d100:20:100:70
+W:43:18:0:13000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | IM_ACID |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | SCARE | 
+S:BR_TIME | BR_ACID
+D:A huge draconic form.  It seems simultaneously old and young 
+D:while you feel the weight of years press down on you.
+
+N:476:Ancient diamond dragon
+G:A:w
+I:120:21d100:20:100:70
+W:43:20:0:13000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | SCARE | 
+S:BR_MANA | BR_COLD
+D:A huge draconic form.  The awesome power of its magic 
+D:lights the dungon around you with crackles and sparks.
+
+N:476:Ancient emerald dragon
+G:A:G
+I:120:21d100:20:100:70
+W:43:22:0:13000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | IM_POIS
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | SCARE | 
+S:BR_WALL | BR_POIS
+D:A huge draconic form.  The air hums with powerful elemental 
+D:force and you feel stunned just looking at it.
+
+N:476:Ancient sapphire dragon
+G:A:B
+I:120:21d100:20:100:70
+W:43:24:0:13000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | IM_ELEC
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | SCARE | 
+S:BR_GRAV | BR_ELEC
+D:A huge draconic form.  The weight of your armour drags you 
+D:down as its oppressive gravity overwhelms you.
+
+N:476:Ancient topaz dragon
+G:A:y
+I:120:21d100:20:100:70
+W:43:26:0:13000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | IM_FIRE |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | SCARE | 
+S:BR_INER | BR_FIRE
+D:A huge draconic form.  You... feel... yourself... 
+D:moving... slower...
+
+N:488:Sun dragon
+G:A:y
+I:120:21d100:25:100:15
+W:45:28:0:10000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:POWERFUL | MOVE_BODY | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | 
+S:BR_PLAS | BR_LITE
+D:A huge dragon emanating from the solar corona, this terrible dragon is 
+D:a master of the sun's energies.  Its form is too bright as it burns
+D:out your retinae.
+
+N:488:Star dragon
+G:A:B
+I:120:21d100:25:100:15
+W:45:30:0:10000
+B:CLAW:HURT:4d10
+B:CLAW:HURT:4d10
+B:BITE:HURT:7d10
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
+F:POWERFUL | MOVE_BODY | 
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLIND | CONF | 
+S:BR_METE | BR_DARK
+D:A huge dragon emanating from the outer depths of space, this terrible dragon is 
+D:a master of the stars.  Its form is of infinite void speckled with bright 
+D:burning stars.
+
+N:537:Great Wyrm of the Nexus
+G:A:u
+I:120:30d100:30:150:80
+W:63:32:0:20000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:NEXUS:6d14
+B:BITE:NEXUS:6d14
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_ELEC |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_NEXU | BR_ELEC
+D:A dragon of great size and power. Its polished copper scales reflect the 
+D:light in twisted and shifting shapes, and you find it hard to stay in 
+D:one place as you battle to save yourself.
+
+N:537:Great Terror Wyrm
+G:A:W
+I:120:30d100:30:150:80
+W:63:34:0:20000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:TERRIFY:6d14
+B:BITE:TERRIFY:6d14
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_FEAR | BR_COLD
+D:A dragon of great size and power. Its polished silver scales reflect the 
+D:terror in your eyes, and you find it hard not to throw down your weapon
+D:and flee screaming from certain death.
+
+N:537:Great Brass Wyrm
+G:A:o
+I:120:30d100:30:150:80
+W:63:24:0:20000
+B:CLAW:HURT:4d12
+B:CLAW:HURT:4d12
+B:BITE:UNBONUS:6d14
+B:BITE:UNBONUS:6d14
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_ACID |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_ACID | BR_DISE
+D:A dragon of great size and power. Its polished brass scales drain magic
+D:from the surrounding air, and you find it hard to find anything to
+D:sustain you in this deadly melee.
+
+N:572:Great Wyrm of Time and Space
+G:A:v
+I:120:50d100:40:170:255
+W:79:26:0:31000
+B:CLAW:HURT:5d12
+B:CLAW:HURT:5d12
+B:BITE:HURT:7d12
+B:BITE:HURT:7d14 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_ACID | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_TIME | BR_ACID | BR_NEXU | BR_DARK |
+S:S_DRAGON | S_HI_DRAGON
+D:A massive dragon, one of the mightiest of dragonkind.  It is thousands of 
+D:years old and newly hatched simultaneously. It has travelled through all
+D:of time to destroy you.
+
+N:572:Great Wyrm of Magic
+G:A:w
+I:120:50d100:40:170:255
+W:79:28:0:31000
+B:CLAW:HURT:5d12
+B:CLAW:HURT:5d12
+B:BITE:HURT:7d12
+B:BITE:HURT:7d14 
+F:FORCE_SLEEP | FORCE_MAXHP | ATTR_CLEAR |
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_MANA | BR_COLD | BR_DISE |
+S:S_DRAGON | S_HI_DRAGON
+D:A massive dragon, one of the mightiest of dragonkind.  It has undisputed
+D:mastery of the magic around you. It has travelled through the great
+D:mana flows beyond space to destroy you.
+
+N:572:Great Wyrm of Elements
+G:A:G
+I:120:50d100:40:170:255
+W:79:30:0:31000
+B:CLAW:HURT:5d12
+B:CLAW:HURT:5d12
+B:BITE:HURT:7d12
+B:BITE:HURT:7d14 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_POIS | IM_FIRE | IM_ACID | IM_ELEC | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_POIS | BR_WALL | BR_FIRE | BR_SHAR | BR_WATE |
+S:S_DRAGON | S_HI_DRAGON
+D:A massive dragon, one of the mightiest of dragonkind.  It has powerful
+D:understanding of the flow of elemental forces.  It has travelled from the
+D:elemental planes to destroy you.
+
+N:572:Great Wyrm of the Galaxy
+G:A:B
+I:120:50d100:40:170:255
+W:79:32:0:31000
+B:CLAW:HURT:5d12
+B:CLAW:HURT:5d12
+B:BITE:HURT:7d12
+B:BITE:HURT:7d14 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_ELEC | IM_FIRE | IM_COLD |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_GRAV | BR_ELEC | BR_METE | BR_PLAS |
+S:S_DRAGON | S_HI_DRAGON
+D:A massive dragon, one of the mightiest of dragonkind.  It can crush
+D:worlds in its might grip of gravity. It has travelled from the event horizon of
+D:blackhole to destroy you.
+
+N:572:Great Wyrm of Stastis
+G:A:y
+I:120:50d100:40:170:255
+W:79:34:0:31000
+B:CLAW:HURT:5d12
+B:CLAW:HURT:5d12
+B:BITE:HURT:7d12
+B:BITE:HURT:7d14 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:BASH_DOOR | POWERFUL | MOVE_BODY | IM_FIRE |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | CONF | SCARE | 
+S:BR_INER | BR_FIRE | BR_TIME |
+S:S_DRAGON | S_HI_DRAGON
+D:A massive dragon, one of the mightiest of dragonkind.  Time has
+D:stopped around it. It has travelled from between the space of seconds
+D:to destroy you.
+
+N:27:Crawling eye
+G:e:o
+I:100:4d6:2:6:10
+W:5:6:0:10
+B:GAZE:PARALYZE
+F:HURT_LITE | NO_FEAR
+S:1_IN_9 | GAZE
+D:A disembodied eye, that slowly crawls its way around the dungeon.
+
+N:27:Rolling eye
+G:e:o
+I:110:5d6:2:6:10
+W:7:8:0:25
+B:GAZE:PARALYZE
+F:HURT_LITE | NO_FEAR
+S:1_IN_9 | GAZE
+D:A disembodied eye, that quickly rolls its away around the dungeon.
+
+N:27:Blinking eye
+G:e:o
+I:110:5d6:2:6:10
+W:3:6:0:4
+B:GAZE:PARALYZE
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | GAZE | BLINK
+D:A disembodied eye, that blinks occasionally.
+
+N:101:Blind eye
+G:e:w
+I:110:7d8:2:6:10
+W:9:6:0:50
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | FORGET
+D:A strange eye, milky white with blindness.
+
+N:101:Discharger eye
+G:e:U
+I:110:10d8:2:6:10
+W:11:9:0:35
+B:GAZE:UNPOWER:4d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, charged with power.
+
+N:101:Eye sore
+G:e:u
+I:110:13d8:2:6:10
+W:13:9:0:42
+B:GAZE:LOSE_CHA:1d6
+B:GAZE:LOSE_CHA:1d6
+B:GAZE:LOSE_CHA:1d6
+B:GAZE:LOSE_CHA:1d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, hideously ugly.
+
+N:101:Nexus eye
+G:e:R
+I:110:15d8:2:6:10
+W:15:9:0:60
+B:GAZE:NEXUS:5d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, warped inside out.
+
+N:101:Eyeful
+G:e:y
+I:110:13d8:2:6:10
+W:15:9:0:75
+B:GAZE:INERTIA:6d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, bloated and weeping.
+
+N:101:Nether eye
+G:e:G
+I:110:20d8:2:6:10
+W:19:12:0:90
+B:GAZE:NETHER:6d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, sucking life from the world.
+
+N:101:Eye of the hurricane
+G:e:b
+I:110:25d8:2:6:10
+W:23:12:0:180
+B:GAZE:HURT:2d6
+B:GAZE:HURT:2d6
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+F:NEVER_MOVE | 
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_3 | 
+S:DRAIN_MANA | GAZE | BO_ELEC
+D:A disembodied eye, surrounded by furiously blasting winds. You have difficulty
+D:walking upright.
+
+N:xxx:Evil eye
+G:e:g
+I:110:28d8:2:6:10
+W:27:9:0:270
+G:GAZE:LOSE_WIS:8d6
+F:NEVER_MOVE | EVIL |
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_3 | 
+S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
+D:A disembodied eye, gazing at you with malice.
+
+N:xxx:Wizard eye
+G:e:B
+I:110:30d8:2:6:10
+W:27:9:0:360
+G:GAZE:LOSE_INT:9d6
+F:NEVER_MOVE |
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_3 | 
+S:DRAIN_MANA | BLINK | BLIND | CONF | CAUSE_2 | DARKNESS | 
+S:BO_COLD | BO_FIRE | BO_ACID
+D:A disembodied eye, crackling with magical energy.
+
+N:xxx:Undead eye
+G:e:G
+I:110:33d8:2:6:10
+W:29:12:0:420
+B:GAZE:EXP_20:10d6
+F:NEVER_MOVE | EVIL | COLD_BLOOD |
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE | S_UNDEAD
+D:A disembodied eye, with a dead stare.
+
+N:101:Eye of chaos
+G:e:v
+I:110:35d8:2:6:10
+W:31:12:0:500
+B:GAZE:CHAOS:11d6
+F:NEVER_MOVE | ATTR_MULTI | EVIL |
+F:HURT_LITE | NO_FEAR | MUST_FLY | CAN_FLY
+S:1_IN_7 | 
+S:DRAIN_MANA | GAZE
+D:A disembodied eye, surrounded by chaotic energies.
+
+Gazer
+Watcher
+Voyeur
+Spectator
+Nighteye
+
+N:367:Unseen servant
+G:E:y
+I:110:9d8:12:28:40
+W:17:4:0:58
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:RAND_50 | 
+F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
+F:OPEN_DOOR | 
+F:EVIL | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is impossible to define its form but it impends your progress.
+
+N:367:Hidden tracker
+G:E:y
+I:120:14d10:16:37:30
+W:25:4:0:179
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:RAND_50 | 
+F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
+F:OPEN_DOOR | BASH_DOOR |  
+F:EVIL | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is impossible to define its form but it hunts you fearlessly.
+
+N:367:Silent killer
+G:E:y
+I:140:100d14:24:55:10
+W:43:5:0:480
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:RAND_50 | 
+F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
+F:EVIL | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is impossible to define its form but its violence is legendary.
+
+N:226:Magma spirit
+G:E:o
+I:120:14d9:15:40:40
+W:20:3:0:105
+B:HIT:FIRE:2d6
+B:HIT:HURT:3d5
+B:HIT:FIRE:2d6
+F:RAND_25 | 
+F:EMPTY_MIND | BASH_DOOR | PASS_WALL | KILL_BODY |
+F:EVIL | IM_FIRE | IM_POIS | IM_ELEC |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A whirlwind of sentient magma.
+
+N:168:Smoke spirit
+G:E:R
+I:130:4d16:10:60:40
+W:16:3:0:40
+B:HIT:HURT:2d3 
+F:EMPTY_MIND | BASH_DOOR | 
+F:EVIL | IM_POIS | IM_FIRE | IM_COLD | IM_ELEC |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A whirlwind of sentient smoke.
+
+N:224:Ooze spirit
+G:E:u
+I:130:7d8:10:55:50
+W:17:3:0:50
+B:TOUCH:ACID:1d6
+B:TOUCH:ACID:1d6
+F:RAND_25 | 
+F:EMPTY_MIND | COLD_BLOOD | 
+F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |  
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A whirling form of sentient ooze.
+
+N:222:Ice spirit
+G:E:w
+I:120:14d10:10:42:60
+W:19:3:0:100
+B:TOUCH:COLD:1d3
+B:HIT:HURT:3d4
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:EVIL | IM_POIS | IM_COLD | IM_ELEC |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A whirlpool of sentient ice.
+
+N:237:Giant copper dragon fly
+G:I:U
+I:120:3d8:12:20:50
+W:19:6:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ELEC
+S:1_IN_9 | 
+S:BR_NEXU
+D:This gleaming copper dragonfly is never in the same place twice.
+
+N:237:Giant silver dragon fly
+G:I:W
+I:120:3d8:12:20:50
+W:19:8:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_COLD | NO_FEAR
+S:1_IN_9 | 
+S:BR_FEAR
+D:This gleaming silver dragonfly has wings which hum a terrifying dirge.
+
+N:237:Giant brass dragon fly
+G:I:o
+I:120:3d8:12:20:50
+W:19:10:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ACID
+S:1_IN_9 | 
+S:BR_DISE
+D:This gleaming brass dragonfly has wings which leave a static feeling in the air.
+
+N:237:Giant amethyst dragon fly
+G:I:v
+I:120:3d8:12:20:50
+W:19:12:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ACID
+S:1_IN_9 | 
+S:BR_TIME
+D:This glistening amethyst dragonfly seems to dart back and forth in time.
+
+N:237:Giant diamond dragon fly
+G:I:w
+I:120:3d8:12:20:50
+W:19:14:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | ATTR_CLEAR |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_COLD
+S:1_IN_9 | 
+S:BR_MANA
+D:This clear diamond dragonfly has wings which glow with magical energy.
+
+N:237:Giant emerald dragon fly
+G:I:G
+I:120:3d8:12:20:50
+W:19:16:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_POIS
+S:1_IN_9 | 
+S:BR_WALL
+D:This glistening emerald dragonfly has wings beat with powerful force.
+
+N:237:Giant sapphire dragonfly
+G:I:B
+I:120:3d8:12:20:50
+W:19:18:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_COLD | NO_FEAR
+S:1_IN_9 | 
+S:BR_GRAV
+D:This glistening sapphire dragonfly has wings that ride on gravity.
+
+N:237:Giant topaz dragon fly
+G:I:y
+I:120:3d8:12:20:50
+W:19:20:0:78
+B:BITE:HURT:1d3
+F:FORCE_SLEEP | 
+F:RAND_50 | RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_COLD | NO_FEAR
+S:1_IN_9 | 
+S:BR_INER
+D:This glistening topaz dragon fly doesn't seem to move at all.
+
+N:264:Bronze golem
+G:g:U
+I:110:80d11:12:80:10
+W:26:5:0:280
+B:HIT:HURT:2d10
+B:HIT:HURT:2d10
+F:FORCE_SLEEP | 
+F:DROP_1D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 | 
+S:CONFUSE
+D:It is a massive bronze statue that moves steadily towards you.
+
+N:264:Steel golem
+G:g:w
+I:110:80d14:12:90:10
+W:26:6:0:330
+B:HIT:HURT:2d10
+B:HIT:HURT:2d10
+B:HIT:HURT:2d10
+F:FORCE_SLEEP | 
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a massive steel statue that moves steadily towards you.
+
+N:264:Copper golem
+G:g:U
+I:110:80d8:12:80:10
+W:23:6:0:170
+B:HIT:HURT:2d7
+B:HIT:ELEC:2d4
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_1D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 | 
+S:BO_ELEC
+D:It is a massive copper statue that moves steadily towards you.
+
+N:264:Brass golem
+G:g:o
+I:110:80d11:12:80:10
+W:26:4:0:300
+B:HIT:HURT:2d12
+B:HIT:ACID:2d4
+F:FORCE_SLEEP | 
+F:DROP_1D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 | 
+S:BO_ACID | BA_ACID
+D:It is a massive brass statue that moves steadily towards you.
+
+N:264:Silver golem
+G:g:W
+I:110:80d9:12:80:10
+W:24:6:0:180
+B:HIT:HURT:2d8
+B:HIT:EAT_LITE:2d6
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_1D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 | 
+S:DARKNESS
+D:It is a massive silver statue that moves steadily towards you.
+
+N:264:Gold golem
+G:g:y
+I:110:80d10:12:80:10
+W:25:4:0:250
+B:HIT:HURT:2d10
+B:HIT:HURT:6d2
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_2D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a massive gold statue that moves steadily towards you.
+
+N:264:Coal golem
+G:g:R
+I:110:80d12:12:80:10
+W:26:4:0:300
+B:HIT:HURT:1d12
+B:HIT:HURT:1d12
+F:FORCE_SLEEP | 
+F:DROP_1D2 |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 | 
+S:DARKNESS | BA_FIRE
+D:It is a massive coal-powered statue that moves steadily towards you.
+
+N:209:Brass monkey
+G:g:U
+I:110:14d8:12:30:10
+W:20:4:0:100
+B:HIT:HURT:1d8
+B:HIT:ACID:2d4
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
+F:HURT_ROCK | FRIENDS | CAN_CLIMB |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_7 |
+S:SHRIEK
+D:It is a large brass statue cast in the shape of a monkey.
+
+N:410:Ice golem
+G:g:B
+I:120:70d8:10:60:10
+W:33:4:0:500
+B:HIT:HURT:4d6
+B:TOUCH:COLD:4d3
+F:FORCE_SLEEP | 
+F:EMPTY_MIND | COLD_BLOOD | 
+F:BASH_DOOR | 
+F:EVIL | IM_COLD | IM_ELEC |
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_9 | 
+S:BO_ICEE | BA_COLD
+D:It is a massive ice statue that moves steadily towards you.
+
+N:54:Shiver
+G:G:y
+I:120:4d5:10:17:10
+W:7:4:0:16
+B:TOUCH:TERRIFY:1d5
+F:RAND_50 | RAND_25 |  
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:SCARE
+D:It is a transparent, ghostly form.
+
+N:54:Chill
+G:G:b
+I:120:6d6:12:19:10
+W:11:4:0:32
+B:TOUCH:TERRIFY
+B:CLAW:COLD:1d4
+B:GLAW:COLD:1d4
+F:RAND_50 |
+F:DROP_60 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:BO_COLD
+D:It is a chilling, ghostly form.
+
+N:54:Spook
+G:G:G
+I:120:8d6:14:21:10
+W:15:4:0:64
+B:TOUCH:TERRIFY:1d6
+B:TOUCH:TERRIFY:1d6
+F:RAND_50 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:SCARE | DRAIN_MANA
+D:It is a spooky, ghostly form.
+
+N:54:Haunt
+G:G:s
+I:120:9d7:16:24:10
+W:19:4:0:64
+B:TOUCH:LOSE_INT:1d6
+B:TOUCH:LOSE_WIS:1d6
+F:RAND_50 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:HOLD | BLIND | CONF
+D:It is a haunting, ghostly form.
+
+N:54:Fright
+G:G:v
+I:120:11d7:17:26:10
+W:22:4:0:96
+B:TOUCH:TERRIFY:1d6
+B:TOUCH:EXP_20:1d6
+F:RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:DRAIN_MANA | TELE_TO | SCARE
+D:It is a terrifying, ghostly form.
+
+N:54:Idolan
+G:G:v
+I:120:11d7:18:28:10
+W:25:5:0:190
+B:TOUCH:BLIND:1d7
+B:TOUCH:EXP_20:1d7
+F:RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | ATTR_MULTI |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:DARKNESS | CONF | BLINK | TPORT
+D:It is a shimmering, ghostly form.
+
+N:54:Reflection
+G:G:W
+I:120:12d8:19:29:10
+W:28:5:0:270
+B:TOUCH:EXP_20:2d4
+B:TOUCH:EXP_20:2d4
+F:RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL |
+F:EVIL | UNDEAD | 
+F:IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:S_KIND | DRAIN_MANA | CONF
+D:It is a twisted, ghostly form.
+
+N:326:Apparition
+G:G:g
+I:120:13d14:20:30:10
+W:32:5:0:350
+B:WAIL:TERRIFY
+B:TOUCH:EXP_40
+B:CLAW:LOSE_INT:4d4
+F:FORCE_SLEEP | RAND_25 | DROP_2D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | 
+F:IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:BLIND | HOLD | DRAIN_MANA | CONF | WAIL
+D:It looks real but appearances are deceiving.
+
+N:347:Premonition
+G:G:u
+I:120:20d20:20:30:10
+W:34:6:0:475
+B:CLAW:LOSE_CON:5d5
+B:CLAW:LOSE_CON:5d5
+F:FORCE_SLEEP | RAND_25 | 
+F:ONLY_ITEM | DROP_60 | DROP_2D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_15 | 
+S:BLIND | HOLD | DRAIN_MANA | DARKNESS
+D:A premonition of death. Its claws reach out to fulfill its dark purpose.
+
+N:378:Phantasm
+G:G:R
+I:120:18d42:28:45:18
+W:38:6:0:800
+B:TOUCH:EXP_80
+B:HIT:HURT:4d6
+B:CLAW:LOSE_INT:2d10
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_6 | 
+S:BLIND | CAUSE_3 | TELE_TO
+D:An unholy creature from beyond, half-real and half-nightmare. You are
+D:caught in the fever of dreams.
+
+N:378:Vision
+G:G:r
+I:120:16d60:25:60:15
+W:40:6:0:1600
+B:HIT:HURT:4d6
+B:HIT:POISON:5d7
+B:CLAW:HURT:2d10
+B:BITE:EXP_40:2d10
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_6 | 
+S:FORGET | BLIND | CAUSE_3 | DRAIN_MANA | TPORT
+D:A creature of the darkest terrors of night, all claws and fangs and chains
+D:and knives.
+
+N:378:Delerium
+G:G:v
+I:120:14d80:22:80:12
+W:40:6:0:3600
+B:HIT:HURT:5d6
+B:HIT:HURT:5d6
+B:CLAW:CHAOS:2d4
+B:BITE:CHAOS:3d4
+F:FORCE_SLEEP | ATTR_MULTI |
+F:ONLY_ITEM | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_8 | 
+S:BLIND | HOLD | SCARE | MIND_BLAST | BRAIN_SMASH | FORGET | GAZE
+D:You have not dreamed such a dark and terrible evil, boiling forth with images
+D:of hideous destruction.
+
+N:471:Minor Death
+G:G:D
+I:120:24d100:20:140:10
+W:50:12:0:16000
+B:HIT:HURT:18d6
+B:TOUCH:EXP_80
+B:TOUCH:LOSE_ALL
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | 
+F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:TELE_LEVEL | CAUSE_4 | DRAIN_MANA | TELE_TO | MIND_BLAST | BRAIN_SMASH
+D:It is implacable, inescapable, and yet only a shadow of its true master.
+
+N:XXX:Forgotten soul
+G:G:o
+I:110:2d9:12:10:12
+W:7:6:0:18
+B:HIT:HURT:2d3
+B:TOUCH:FORGET
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | DRAIN_MANA | FORGET
+D:It is almost insubstantial.
+
+N:XXX:Hungry soul
+G:G:R
+I:110:3d10:12:10:12
+W:14:6:0:24
+B:HIT:HURT:2d2
+B:TOUCH:EAT_FOOD
+B:TOUCH:HUNGER
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_12 | 
+S:TPORT | DRAIN_MANA
+D:It is thin and insubstantial.
+
+N:XXX:Bitter soul
+G:G:b
+I:110:6d10:12:10:12
+W:15:6:0:30
+B:HIT:HURT:2d4
+B:TOUCH:COLD:2d4
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_12 | 
+S:TPORT | DRAIN_MANA
+D:It chills you bitter cold.
+
+N:XXX:Bloodthirsty soul
+G:G:r
+I:110:8d10:12:10:12
+W:16:6:0:50
+B:BITE:HURT:5d2
+B:BITE:EXP_10
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_10 | 
+S:TPORT | DRAIN_MANA
+D:It drains your blood from you.
+
+N:XXX:Ghoulish soul
+G:G:g
+I:110:9d10:12:10:11
+W:17:6:0:60
+B:HIT:HURT:2d3
+B:TOUCH:PARALYZE
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_12 | 
+S:TPORT | DRAIN_MANA
+D:It is almost insubstantial.
+
+N:XXX:Unborn soul
+G:G:B
+I:110:10d10:12:10:11
+W:19:6:0:75
+B:HIT:HURT:2d3
+B:TOUCH:TIME:2d4
+F:RAND_50 | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_12 | 
+S:TPORT | DRAIN_MANA | FORGET
+D:It takes you back a while.
+
+N:XXX:Ghastly soul
+G:G:G
+I:110:9d10:12:10:11
+W:20:6:0:90
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+B:TOUCH:PARALYZE
+F:RAND_50 | DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | 
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_12 | 
+S:TPORT | DRAIN_MANA | SCARE | S_MONSTER
+D:It is ugly to behold.
+
+N:XXX:Gaunt soul
+G:G:y
+I:120:12d13:16:20:11
+W:22:6:0:110
+B:HIT:HUNGER:2d4
+B:HIT:HUNGER:2d4
+B:TOUCH:HUNGER:2d4
+F:RAND_25 | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | IM_POIS |
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | DRAIN_MANA
+D:It is starved away to nothing.
+
+N:XXX:Hateful soul
+G:G:D
+I:120:12d13:16:20:11
+W:22:6:0:110
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:HIT:LOSE_INT:1d3
+F:RAND_25 | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | IM_POIS |
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | DRAIN_MANA | BLIND | CONF | SLOW
+D:It hates you with a malice.
+
+N:XXX:Dreadful soul
+G:G:o
+I:120:14d15:16:20:11
+W:24:6:0:120
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:LOSE_STR:2d2
+F:RAND_25 | DROP_60 | DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | TAKE_ITEM | PASS_WALL | 
+F:EVIL | UNDEAD | IM_POIS |
+F:IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | DRAIN_MANA | BLIND | HOLD | CONF
+D:It is hideous and barely there.
+
+N:167:Crying spirit
+G:G:v
+I:120:5d8:14:20:10
+W:10:6:0:14
+B:TOUCH:TERRIFY
+F:FORCE_SLEEP | RAND_25 |
+F:DROP_60 |
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | SCARE
+D:A ghostly apparition that cries horribly.
+
+N:167:Wailing spirit
+G:G:s
+I:120:5d8:14:20:10
+W:12:6:0:44
+B:WAIL:TERRIFY
+B:TOUCH:LOSE_DEX:1d8
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_13 | 
+S:TPORT | WAIL
+D:A ghostly apparition that wails horribly.
+
+N:xx:Cackling spirit
+G:G:D
+I:120:6d8:14:20:10
+W:13:8:0:52
+B:TOUCH:LOSE_DEX:1d8
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_11 | 
+S:TPORT | TRAPS
+D:A ghostly apparition that cackles horribly.
+
+N:167:Cursing spirit
+G:G:U
+I:120:8d8:14:20:10
+W:14:8:0:60
+B:TOUCH:LOSE_WIS:1d9
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_11 | 
+S:TPORT | CAUSE_1 | CAUSE_2
+D:A ghostly apparition that curses horribly.
+
+N:167:Shrieking spirit
+G:G:w
+I:120:10d8:14:20:10
+W:15:8:0:68
+B:TOUCH:LOSE_CON:1d9
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_11 | 
+S:TPORT | SHRIEK
+D:A ghostly apparition that shrieks horribly.
+
+N:167:Mumbling spirit
+G:G:y
+I:120:12d8:14:20:10
+W:16:8:0:76
+B:TOUCH:LOSE_INT:1d10
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 |
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_7 | 
+S:TPORT | SCARE | BLIND | MISSILE | CONF
+D:A ghostly apparition that mumbles horribly.
+
+N:xx:Commanding spirit
+G:G:W
+I:120:14d8:14:20:10
+W:17:8:0:84
+B:TOUCH:LOSE_STR:1d6
+B:TOUCH:LOSE_STR:1d6
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_60 | DROP_90 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_9 | 
+S:TPORT | TELE_TO
+D:A ghostly apparition that commands horribly.
+
+N:167:Chanting spirit
+G:G:R
+I:120:16d8:14:20:10
+W:18:8:0:92
+B:TOUCH:LOSE_INT:1d7
+B:TOUCH:LOSE_INT:1d7
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_9 | 
+S:TPORT | S_MONSTER
+D:A ghostly apparition that chants horribly.
+
+N:167:Incanting spirit
+G:G:b
+I:120:18d8:14:20:10
+W:20:8:0:100
+B:TOUCH:LOSE_WIS:1d8
+B:TOUCH:LOSE_WIS:1d8
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_9 | 
+S:TPORT | CAUSE_3
+D:A ghostly apparition that mumbles horribly.
+
+N:167:Screaming spirit
+G:G:r
+I:120:20d8:14:20:10
+W:21:8:0:110
+B:TOUCH:LOSE_DEX:1d8
+B:TOUCH:LOSE_DEX:1d8
+B:TOUCH:EXP_10:1d6
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_1D2 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_9 | 
+S:TPORT | CAUSE_4
+D:A ghostly apparition that screams horribly.
+
+N:167:Howling spirit
+G:G:B
+I:120:22d8:14:20:10
+W:22:8:0:125
+B:TOUCH:LOSE_STR:1d8
+B:TOUCH:LOSE_STR:1d8
+B:BITE:HURT:2d6
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_1D3 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_9 | 
+S:TPORT | S_HOUND
+D:A ghostly apparition that howls horribly.
+
+N:167:Whispering spirit
+G:G:s
+I:120:24d8:14:20:10
+W:23:8:0:140
+B:TOUCH:EXP_20:1d8
+B:TOUCH:EXP_20:1d8
+F:FORCE_SLEEP | RAND_25 | 
+F:DROP_1D3 | 
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
+S:1_IN_7 | 
+S:TPORT | S_UNDEAD
+D:A ghostly apparition that whispers horribly.
+
+N:61:Crafty looking gnome
+G:h:r
+I:110:4d6:16:12:10
+W:3:3:0:6
+B:HIT:HURT:1d5
+F:MALE | 
+F:DROP_60 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+S:1_IN_9 |
+S:SLOW | CONF
+D:A sly fellow of short stature. He appears to be looking for a quick profit.
+
+N:61:Surly looking dwarf
+G:h:u
+I:110:10d4:16:20:10
+W:3:3:0:7
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+F:MALE | 
+F:DROP_60 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+D:A scowling short chap with a two-foot beard. He appears to be looking for a good smithy 
+D:to sharpen his axe.
+
+N:61:Haughty looking elf
+G:l:W
+I:110:6d6:18:16:10
+W:3:4:0:10
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+B:SHOOT:ARROW:2d6
+F:MALE | 
+F:DROP_60 | FORCE_SLEEP |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+S:1_IN_11 |
+S:SHOOT
+D:An arrogant elf with an air of disdain. He appears to be looking for somewhere a little more 
+D:sophisticated.
+
+N:35:Gnome warrior
+G:h:u
+I:110:10d8:18:30:10
+W:10:4:0:30
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | 
+F:DROP_1d2 |
+F:OPEN_DOOR | BASH_DOOR | EVIL
+D:A warrior of short stature.
+
+N:154:Gnome rogue
+G:h:b
+I:110:9d8:18:28:10
+W:10:5:0:35
+B:HIT:HURT:2d4
+B:TOUCH:EAT_GOLD
+F:MALE | 
+F:DROP_1D2 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+S:1_IN_9 |
+S:BLINK | CONF | SLOW
+D:A thief of short stature.
+
+N:154:Gnome priest
+G:h:g
+I:110:8d8:18:24:10
+W:10:6:0:36
+B:HIT:HURT:2d4
+F:MALE | 
+F:DROP_1D2 | FORCE_SLEEP |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+S:1_IN_4 |
+S:HEAL | CAUSE_2 | S_MONSTER
+D:A priest of short stature.
+
+N:181:Gnome illusionist
+G:h:y
+I:110:7d8:20:10:10
+W:11:5:0:50
+B:HIT:HURT:1d5
+F:MALE | 
+F:FORCE_SLEEP | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+S:1_IN_5 | 
+S:HASTE | BLINK | BLIND | SLOW | CONF | DARKNESS
+D:An illusionist of short stature.
+
+N:310:Gnome wizard
+G:h:B
+I:110:25d8:20:40:30
+W:24:8:0:280
+B:HIT:HURT:3d6
+F:FORCE_SLEEP | 
+F:DROP_1D3 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+S:1_IN_4 | 
+S:HEAL | HOLD | TRAPS | SCARE | BA_COLD | BO_FIRE | 
+S:S_MONSTER
+D:A wizard of short stature.
+
+N:142:Dark elven ranger
+G:l:W
+I:115:10d10:20:16:20
+W:10:5:0:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_POIS | HURT_LITE
+S:1_IN_5 | 
+S:BLIND | MISSILE | DARKNESS | SHOOT
+D:A dark elven figure, with sword and bow quick to hand.
+
+N:35:Dwarven warrior
+G:h:u
+I:110:10d10:18:30:10
+W:10:4:0:32
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | 
+F:DROP_1d2 |
+F:OPEN_DOOR | BASH_DOOR
+D:A dwarven warrior with a three-foot beard.
+
+N:142:Dwarven ranger
+G:h:W
+I:115:10d10:20:24:20
+W:10:5:0:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:MISSILE | SHOOT | BLIND
+D:A dwarven ranger with a three-foot beard, and sword and bow quick to hand.
+
+N:154:Dwarven priest
+G:h:g
+I:110:8d10:18:28:10
+W:10:6:0:38
+B:HIT:HURT:2d4
+F:MALE | 
+F:DROP_1D2 | FORCE_SLEEP |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+S:1_IN_4 |
+S:HEAL | BLIND | CAUSE_2 | SCARE
+D:A dwarven priest with a three-foot beard, and hammer swung devoutly to his cause.
+
+N:253:Dwarven lord
+G:h:u
+I:120:18d20:20:50:30
+W:20:8:0:200
+B:HIT:HURT:3d8
+B:HIT:HURT:3d5
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+D:A dwarven lord, with a four-foot beard, come to reclaim the halls of his elders.
+
+N:142:Elven mage
+G:l:r
+I:120:7d10:20:16:20
+W:10:5:0:50
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:BLIND | CONF | MISSILE | BO_ELEC | TPORT
+D:A elf, dressed all in grey, hurling spells at you.
+
+N:143:Elven warrior
+G:l:u
+I:110:10d11:20:16:20
+W:10:5:0:50
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | 
+F:DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+D:An elf in armour and ready with his sword.
+
+N:142:Elven ranger
+G:l:W
+I:115:10d10:20:16:20
+W:10:5:0:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:MISSILE | SHOOT | SLOW | CONF
+D:A elven ranger, with sword and bow quick to hand.
+
+N:167:Elven priest
+G:l:g
+I:120:7d10:20:30:30
+W:12:6:0:50
+B:HIT:HURT:1d9
+B:HIT:HURT:1d10
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:HEAL | BLIND | CONF | CAUSE_2
+D:A elven figure, dressed all in grey, summoning the powers of his cause.
+
+N:299:Hairy horror
+G:H:u
+I:115:21d20:12:45:10
+W:23:4:0:130
+B:CLAW:HURT:1d7
+B:BITE:HURT:1d5
+B:STING:HURT:1d5
+B:CRUSH:HURT:2d3
+F:BASH_DOOR | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:fur and hair.
+
+N:299:Scaly horror
+G:H:G
+I:115:23d20:12:75:10
+W:24:4:0:140
+B:CLAW:HURT:1d8
+B:BITE:HURT:1d6
+B:STING:HURT:1d6
+B:CRUSH:HURT:2d4
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:scales and fins.
+
+N:299:Clear horror
+G:H:w
+I:115:25d20:12:55:10
+W:25:6:0:150
+B:CLAW:HURT:1d8
+B:BITE:HURT:1d6
+B:STING:HURT:1d6
+B:CRUSH:HURT:2d4
+F:ATTR_CLEAR | CAN_SWIM | ANIMAL |
+F:BASH_DOOR | INVISIBLE
+D:You can't quite see what hybrid of creatures make up this horrofic thing and you
+D:don't think you want to.
+
+N:299:Hooked horror
+G:H:g
+I:115:27d20:12:60:10
+W:26:6:0:170
+B:CLAW:HURT:2d9
+B:BITE:HURT:1d7
+B:STING:POISON:1d7
+B:CRUSH:HURT:2d5
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:hooks and barbs.
+
+N:299:Tentacled horror
+G:H:y
+I:115:29d20:12:65:10
+W:27:6:0:190
+B:CLAW:HURT:1d10
+B:BITE:HURT:1d8
+B:STING:LOSE_STR:1d8
+B:CRUSH:HURT:6d6
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:tentacles and suckers.
+
+N:299:Fanged horror
+G:H:r
+I:115:31d20:12:70:10
+W:28:6:0:210
+B:CLAW:HURT:1d11
+B:BITE:HURT:4d9
+B:STING:HURT:1d9
+B:CRUSH:HURT:2d7
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:teeth and fangs.
+
+N:299:Clawed horror
+G:H:R
+I:115:33d20:12:75:10
+W:29:6:0:230
+B:CLAW:HURT:3d12
+B:BITE:HURT:1d10
+B:STING:HURT:1d10
+B:CRUSH:HURT:2d8
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those with
+D:claws and talons.
+
+N:299:Hunting horror
+G:H:W
+I:115:35d20:12:80:10
+W:30:6:0:300
+B:CLAW:HURT:2d13
+B:BITE:HURT:2d11
+B:STING:HURT:2d11
+B:CRUSH:HURT:4d9
+F:BASH_DOOR | CAN_SWIM | ANIMAL
+D:A ghastly hybrid of all things that walk, crawl and swim, but mostly those that
+D:hunt and rend.
+
+N:105:Yellow icky thing
+G:i:y
+I:110:5d8:14:12:20
+W:7:6:0:18
+B:TOUCH:POISON:3d5
+F:RAND_50 | 
+F:EMPTY_MIND |
+F:IM_POIS
+D:It is a smallish, slimy, icky, poisonous creature.
+
+N:105:Pink icky thing
+G:i:R
+I:110:6d8:14:14:20
+W:8:6:0:18
+B:TOUCH:LOSE_STR:2d5
+F:RAND_50 | 
+F:EMPTY_MIND
+D:It is a smallish, slimy, icky, pestilent creature.
+
+N:105:Brown icky thing
+G:i:u
+I:110:6d8:14:14:20
+W:8:6:0:18
+B:TOUCH:LOSE_CON:2d5
+F:RAND_50 | 
+F:EMPTY_MIND
+D:It is a smallish, slimy, icky, diseased creature.
+
+N:183:Orange icky thing
+G:i:o
+I:100:10d6:15:20:20
+W:11:9:0:20
+B:CRAWL:POISON:1d4
+B:CRAWL:EAT_LITE
+B:HIT:HURT:1d4
+B:HIT:HURT:1d4
+F:FORCE_SLEEP | 
+F:RAND_50 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_POIS
+S:1_IN_8 | 
+S:BLIND | CONF | SCARE
+D:It is a strange, slimy, icky creature, with rudimentary intelligence, 
+D:but evil cunning.  It hungers for food, and you look tasty.
+
+
+N:187:Giant brown locust
+G:I:u
+I:120:2d4:6:7:10
+W:15:1:0:4
+B:BITE:HURT:1d2
+B:BITE:EAT_FOOD
+F:RAND_50 | 
+F:WEIRD_MIND | MULTIPLY | CAN_FLY |
+F:ANIMAL | TINY
+D:It voraciously eats and breeds leaving nothing in its wake.
+
+N:187:Giant green locust
+G:I:g
+I:120:2d5:6:7:10
+W:16:1:0:5
+B:BITE:POISON:1d2
+B:BITE:EAT_FOOD
+F:RAND_50 | 
+F:WEIRD_MIND | MULTIPLY | CAN_FLY |
+F:ANIMAL | TINY | IM_POIS
+D:It voraciously eats and breeds leaving nothing in its wake.
+
+N:187:Giant yellow locust
+G:I:y
+I:120:2d7:6:7:10
+W:17:1:0:6
+B:BITE:POISON:1d3
+B:BITE:EAT_FOOD
+F:RAND_50 | 
+F:WEIRD_MIND | MULTIPLY | CAN_FLY |
+F:ANIMAL | TINY | IM_POIS | IM_FIRE
+D:It voraciously eats and breeds leaving nothing in its wake.
+
+N:21:Giant grub
+G:I:U
+I:110:3d3:8:6:20
+W:6:1:0:2
+B:BITE:HURT:1d2
+F:RAND_50 | 
+F:MULTIPLY | 
+F:ANIMAL
+D:It is about three feet long with large teeth and wriggles.
+
+N:21:Giant maggot
+G:I:W
+I:110:5d3:8:8:20
+W:9:1:0:3
+B:BITE:HURT:1d2
+F:RAND_50 | 
+F:MULTIPLY | 
+F:ANIMAL
+D:It is about four feet long with large teeth and wriggles.
+
+N:103:Clear jelly
+G:j:w
+I:110:24d8:2:1:99
+W:6:6:0:26
+B:TOUCH:POISON:1d4
+F:NEVER_MOVE | ATTR_CLEAR | INVISIBLE
+F:STUPID | EMPTY_MIND | 
+F:HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_11 | 
+S:DRAIN_MANA
+D:It is a large pulsating mound of clear flesh.
+
+N:103:Brown jelly
+G:j:u
+I:110:31d8:2:1:99
+W:8:6:0:32
+B:TOUCH:LOSE_CHA:1d4
+B:TOUCH:LOSE_CHA:1d4
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a large pulsating mound of brown flesh.
+
+N:103:Red jelly
+G:j:r
+I:110:36d8:2:1:99
+W:9:6:0:38
+B:TOUCH:FIRE:1d8
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a large pulsating mound of red flesh.
+
+N:103:Bright blue jelly
+G:j:B
+I:110:41d8:2:1:99
+W:10:8:0:44
+B:TOUCH:COLD:1d6
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_9 |
+S:DRAIN_MANA | S_KIN | BLINK
+D:It is smarter than your average jelly.
+
+N:103:Bright green jelly
+G:j:G
+I:120:46d8:2:1:99
+W:11:8:0:50
+B:TOUCH:ACID:1d2
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_9 |
+S:DRAIN_MANA | S_MONSTER | TPORT
+D:It is smarter than your average jelly.
+
+N:157:Black jelly
+G:j:D
+I:110:50d8:2:1:99
+W:14:14:0:70
+B:TOUCH:LOSE_ALL
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_11 | 
+S:DRAIN_MANA
+D:It is a pulsing mound of black flesh.
+
+N:398:Clear pudding
+G:j:w
+I:110:42d10:12:20:1
+W:38:10:0:45
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+F:FORCE_MAXHP | 
+F:FRIENDS | 
+F:DROP_60 | DROP_90 | DROP_1D2 | ATTR_CLEAR | INVISIBLE |
+F:STUPID | EMPTY_MIND | COLD_BLOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A lump of rotting clear flesh that slurrrrrrrps across the dungeon floor.
+
+N:398:Brown pudding
+G:j:u
+I:110:45d10:12:22:1
+W:39:10:0:50
+B:TOUCH:ACID:2d10
+B:TOUCH:ACID:2d10
+B:TOUCH:LOSE_CHA:1d6
+B:TOUCH:LOSE_CHA:1d6
+F:FORCE_MAXHP | 
+F:FRIENDS | 
+F:DROP_60 | DROP_90 | DROP_1D2 |
+F:STUPID | EMPTY_MIND | COLD_BLOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A lump of rotting brown flesh that slurrrrrrrps across the dungeon floor.
+
+N:398:White pudding
+G:j:w
+I:110:50d10:12:22:1
+W:40:10:0:55
+B:TOUCH:ACID:1d10
+B:TOUCH:ACID:1d10
+B:TOUCH:COLD:1d10
+B:TOUCH:COLD:1d10
+F:FORCE_MAXHP | 
+F:FRIENDS | 
+F:DROP_60 | DROP_90 | DROP_1D2 |
+F:STUPID | EMPTY_MIND | COLD_BLOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A lump of rotting white flesh that slurrrrrrrps across the dungeon floor.
+
+N:260:Red ooze
+G:j:r
+I:110:5d4:8:16:80
+W:5:6:0:5
+B:CRAWL:FIRE:2d4
+F:RAND_50 | RAND_25 | DROP_90 | 
+F:STUPID | EMPTY_MIND | 
+F:IM_FIRE | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | TINY
+D:It's red and it's oozing.
+
+N:260:Pink ooze
+G:j:R
+I:120:6d4:8:16:80
+W:6:6:0:6
+B:TOUCH:LOSE_STR:1d4
+F:RAND_50 | RAND_25 | DROP_90 | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | TINY
+D:It's pink and it's oozing.
+
+N:260:Purple ooze
+G:j:v
+I:120:6d4:8:16:80
+W:6:6:0:6
+B:TOUCH:LOSE_CON:1d4
+F:RAND_50 | RAND_25 | DROP_90 | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | TINY
+D:It's purple and it's oozing.
+
+N:260:Brown ooze
+G:j:u
+I:120:5d4:8:16:80
+W:3:6:0:4
+B:TOUCH:LOSE_CHA:1d3
+F:RAND_50 | RAND_25 | DROP_90 | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | TINY
+D:It's brown and it's oozing.
+
+N:260:Grey ooze
+G:j:s
+I:110:10d8:10:6:1
+W:21:1:0:10
+B:TOUCH:ACID:2d6
+F:RAND_50 | DROP_90 | 
+F:STUPID | EMPTY_MIND |
+F:OPEN_DOOR | BASH_DOOR | 
+F:IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP
+S:1_IN_11 | 
+S:DRAIN_MANA | MIND_BLAST
+D:It's grey and it's oozing.
+
+N:49:Small green snake
+G:J:g
+I:100:1d6:5:39:60
+W:1:3:0:3
+B:BITE:POISON:1d5
+F:RAND_25 | 
+F:TINY | IM_POIS |
+F:ANIMAL
+D:It is about two feet long.
+
+N:49:Small copper snake
+G:J:U
+I:110:2d6:5:15:50
+W:2:3:0:10
+B:BITE:POISON:2d3
+F:RAND_25 | 
+F:TINY | IM_POIS |
+F:ANIMAL
+D:It is about three feet long.
+
+N:49:Large black snake
+G:J:D
+I:100:4d8:5:39:60
+W:3:4:0:11
+B:BITE:POISON:1d5
+F:RAND_25 | 
+F:BASH_DOOR | 
+F:ANIMAL
+D:It is about six feet long.
+
+N:49:Boa constrictor
+G:J:R
+I:100:10d8:5:45:30
+W:7:4:0:18
+B:BITE:HURT:1d5
+B:CRUSH:HURT:2d6
+F:RAND_25 | 
+F:BASH_DOOR | 
+F:ANIMAL
+D:It is about sixteen feet long.
+
+N:155:Sea snake
+G:J:b
+I:110:10d8:10:32:1
+W:10:3:0:25
+B:BITE:POISON:3d4
+F:RAND_50 | 
+F:BASH_DOOR | CAN_SWIM |
+F:ANIMAL | IM_POIS
+D:It has glistening blue skin, a sinuous body and venomous fangs.
+
+N:49:Sea serpent
+G:J:B
+I:110:12d10:5:45:30
+W:14:4:0:50
+B:BITE:POISON:2d4
+B:CRUSH:HURT:4d6
+F:RAND_25 | 
+F:BASH_DOOR | CAN_SWIM |
+F:ANIMAL | IM_POIS
+D:It is about thirty six feet long.
+
+N:24:Small goblin
+G:k:y
+I:110:3d8:20:16:10
+W:1:1:0:5
+B:HIT:HURT:1d5
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+D:It is a squat and ugly humanoid figure.
+
+N:25:Goblin
+G:k:G
+I:110:4d8:20:20:10
+W:2:1:0:7
+B:HIT:HURT:1d7
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+D:It is an ugly humanoid figure.
+
+N:82:Large goblin
+G:k:b
+I:110:6d8:20:26:30
+W:4:1:0:12
+B:HIT:HURT:1d8
+F:DROP_90 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+D:It a man-sized figure with the all too ugly face of a goblin.
+
+N:96:Cave goblin
+G:k:U
+I:110:8d8:20:32:30
+W:6:1:0:15
+B:HIT:HURT:1d8
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+D:He is one of the many weaker 'slave' orcs, also known as a snaga.
+
+N:96:Green goblin
+G:k:g
+I:110:9d8:20:32:30
+W:7:1:0:20
+B:HIT:HURT:1d8
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+S:1_IN_9 |
+S:SHOOT
+D:He is an ugly, green skinned humanoid armed with a bow.
+
+N:96:Night goblin
+G:k:b
+I:110:10d8:20:32:30
+W:8:1:0:24
+B:HIT:HURT:1d8
+B:HIT:POISON:2d5
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+D:He is an ugly, night black skinned humanoid armed with a wicked looking knife.
+
+N:96:Mirkwood goblin
+G:k:u
+I:110:11d8:20:32:30
+W:9:1:0:30
+B:HIT:HURT:1d8
+B:HIT:POISON:2d5
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+D:He is an ugly, brown skinned humanoid armed with a variety of dangerous weapons.
+
+N:96:Forest goblin
+G:k:G
+I:110:8d8:20:32:30
+W:5:1:0:18
+B:HIT:HURT:1d5
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+D:He is an ugly, green skinned primative looking humanoid.
+
+N:96:River goblin
+G:k:B
+I:110:8d8:20:32:30
+W:7:1:0:23
+B:HIT:HURT:2d4
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:EVIL | ORC
+D:He is an ugly, piratical looking humanoid armed with a hook.
+
+N:160:Goblin wizard
+G:y:B
+I:110:12d9:18:24:10
+W:12:2:0:28
+B:HIT:HURT:1d8
+F:FORCE_SLEEP | 
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:ORC | EVIL
+S:1_IN_4 | 
+S:BLINK | TPORT | BLIND | SLOW | BA_POIS | 
+S:S_MONSTER
+D:An ugly humanoid that radiates some power.
+
+N:172:Killer dung beetle
+G:K:D
+I:110:16d8:10:45:30
+W:17:2:0:58
+B:BITE:HURT:4d4
+F:RAND_25 |
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is a vicious insect with a tough carapace.
+
+N:265:Killer grey beetle
+G:K:s
+I:110:20d8:14:55:30
+W:23:1:0:85
+B:BITE:HURT:4d6
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is looking for prey.
+
+N:265:Killer black beetle
+G:K:D
+I:110:20d8:14:55:30
+W:23:1:0:85
+B:BITE:HURT:4d7
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is looking for prey.
+
+N:265:Killer brass beetle
+G:K:o
+I:110:20d8:14:55:30
+W:26:1:0:85
+B:BITE:HURT:3d4
+B:SPIT:ACID:4d4
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ACID
+S:1_IN_9 | SPIT
+D:It is a giant beetle with a shiny brass carapace.
+
+N:291:Killer bronze beetle
+G:K:U
+I:110:20d8:14:45:30
+W:28:1:0:95
+B:BITE:CONF:4d5
+F:WEIRD_MIND | BASH_DOOR | HAS_LITE | 
+F:ANIMAL | IM_FIRE | NO_CONF
+D:It is a giant beetle of scintillating appearance.
+
+N:291:Killer gold beetle
+G:K:y
+I:110:20d8:14:45:30
+W:28:1:0:95
+B:BITE:HURT:3d4
+B:CRUSH:SOUND:4d4
+F:WEIRD_MIND | BASH_DOOR | HAS_LITE | 
+F:ANIMAL | IM_POIS
+D:It is a giant beetle humming with noise.
+
+N:325:Killer scarab beetle
+G:K:B
+I:110:23d10:14:85:30
+W:31:2:0:200
+B:BITE:HURT:4d6
+B:BITE:HURT:4d6
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL |
+F:IM_FIRE | IM_POIS | IM_ELEC
+D:It is a beetle with sharp mandibles and a steely carapace.
+
+N:325:Killer borer beetle
+G:K:W
+I:110:24d10:14:70:30
+W:33:2:0:200
+B:BITE:HURT:4d6
+B:BITE:HURT:4d6
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_ACID
+S:1_IN_7 |
+S:BR_ACID
+D:It is a beetle with sharp mandibles and an explosive attack.
+
+N:325:Killer deathwatch beetle
+G:K:G
+I:110:25d10:14:75:30
+W:35:2:0:200
+B:BITE:HURT:4d6
+B:BITE:HURT:4d6
+B:WAIL:EXP_40
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+S:1_IN_9 |
+S:WAIL
+D:It is a beetle with a deaths head on its back.
+
+Boggle
+Pookah
+Leprachaun
+Gremlin
+Jermalaine
+Faerie
+Sprite
+Brownie
+Pixie
+Pukelman
+Nixie
+Dryad
+Maenad
+Sylph
+Sirine
+Mermaid
+Merman
+Selkie
+
+N:356:Grave lich
+G:L:u
+I:110:20d25:20:63:60
+W:35:9:0:1600
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d9
+B:TOUCH:LOSE_DEX:2d9
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_2D2 | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:356:Crypt lich
+G:L:U
+I:110:20d35:20:66:60
+W:36:9:0:2400
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d10
+B:TOUCH:LOSE_DEX:2d10
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_3D2 | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SLOW | SCARE | 
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:356:Pit lich
+G:L:g
+I:110:20d45:20:69:60
+W:37:9:0:3200
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d11
+B:TOUCH:LOSE_DEX:2d11
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_4D2 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SCARE | 
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:356:Spirit lich
+G:L:W
+I:110:20d55:20:72:60
+W:38:9:0:4000
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d8
+B:TOUCH:LOSE_DEX:2d8
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_3D2 | INVISIBLE |
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_TO | BLIND | HOLD | SLOW | SCARE | 
+S:CAUSE_3 | DRAIN_MANA | MIND_BLAST | BRAIN_SMASH
+D:It is an insubstantial skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:356:Guardian lich
+G:L:B
+I:110:20d65:20:75:60
+W:39:9:0:4800
+B:TOUCH:EXP_40
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d12
+B:TOUCH:LOSE_DEX:2d12
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_AWAY | BLIND | HOLD | CONF | SCARE | 
+S:CAUSE_3 | DRAIN_MANA | BRAIN_SMASH | DARKNESS
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:356:Black lich
+G:L:D
+I:110:30d75:20:78:60
+W:40:9:0:6400
+B:TOUCH:EXP_80
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d12
+B:TOUCH:LOSE_DEX:2d12
+F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2 | DROP_1D2 |
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLINK | TELE_TO | TELE_AWAY | BLIND | HOLD | SCARE | 
+S:CAUSE_3 | CAUSE_4 | DRAIN_MANA | BRAIN_SMASH
+D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
+
+N:451:Night lich
+G:L:b
+I:120:22d100:20:83:50
+W:42:9:0:11000
+B:TOUCH:EXP_80
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d13
+B:TOUCH:LOSE_DEX:2d13
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
+S:DRAIN_MANA | BRAIN_SMASH | DARKNESS |
+S:S_UNDEAD
+D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful magic crackles along its bony 
+D:fingers.
+
+N:451:Death lich
+G:L:s
+I:120:26d100:20:86:50
+W:44:2:0:12000
+B:TOUCH:EXP_80
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d14
+B:TOUCH:LOSE_DEX:2d14
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
+S:DRAIN_MANA | BRAIN_SMASH | DARKNESS |
+S:S_UNDEAD
+D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful magic crackles along its bony 
+D:fingers.
+
+N:451:Nether lich
+G:L:G
+I:120:30d100:20:90:50
+W:46:2:0:13000
+B:TOUCH:EXP_80
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d15
+B:TOUCH:LOSE_DEX:2d15
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
+S:DRAIN_MANA | BRAIN_SMASH | DARKNESS | BO_NETH |
+S:S_UNDEAD
+D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful magic crackles along its bony 
+D:fingers.
+
+N:451:Emporer lich
+G:L:v
+I:120:35d100:20:95:50
+W:48:2:0:15000
+B:TOUCH:EXP_80
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:2d16
+B:TOUCH:LOSE_DEX:2d16
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
+S:DRAIN_MANA | BRAIN_SMASH | DARKNESS | BO_NETH |
+S:S_UNDEAD | S_KIN
+D:A skeletal form wrapped in robes and ancient reliqury.  Powerful magic crackles along its bony 
+D:fingers.
+
+N:524:Grey reaver
+G:L:s
+I:120:35d100:20:170:50
+W:71:9:0:23000
+B:HIT:UN_BONUS:6d8
+B:HIT:UN_BONUS:6d8
+B:HIT:LOSE_STR:4d6
+B:HIT:LOSE_STR:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | KILL_WALL
+S:1_IN_3 | 
+S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
+S:BRAIN_SMASH | BA_MANA | BA_NETH | 
+S:S_UNDEAD
+D:A humanoid form,  black as night, advancing steadily and unstoppably.  
+D:Flee!
+
+N:524:Night reaver
+G:L:b
+I:120:35d100:20:170:50
+W:71:9:0:23000
+B:HIT:UN_BONUS:6d8
+B:HIT:UN_BONUS:6d8
+B:HIT:LOSE_STR:4d6
+B:HIT:LOSE_STR:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | KILL_WALL
+S:1_IN_3 | 
+S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
+S:BRAIN_SMASH | BA_MANA | BA_NETH | 
+S:S_UNDEAD
+D:A humanoid form,  black as night, advancing steadily and unstoppably.  
+D:Flee!
+
+N:524:Gaunt reaver
+G:L:g
+I:120:35d100:20:170:50
+W:71:9:0:23000
+B:HIT:UN_BONUS:6d8
+B:HIT:UN_BONUS:6d8
+B:HIT:HUNGER:4d6
+B:HIT:HUNGER:4d6
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | KILL_WALL
+S:1_IN_3 | 
+S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
+S:BRAIN_SMASH | BA_MANA | BA_NETH | 
+S:S_UNDEAD
+D:A humanoid form,  black as night, advancing steadily and unstoppably.  
+D:Flee!
+
+N:147:Black mold
+G:m:D
+I:110:16d8:2:20:70
+W:10:6:0:40
+B:TOUCH:POISON:6d6
+F:NEVER_MOVE | ATTR_MULTI | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a strange black growth on the dungeon floor.
+
+N:96:White mold
+G:m:w
+I:110:15d8:2:12:99
+W:6:6:0:20
+B:HIT:POISON:2d6
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A strange brown growth on the dungeon floor.
+
+N:96:Blue mold
+G:m:b
+I:110:15d8:2:12:99
+W:6:6:0:20
+B:TOUCH:COLD:1d6
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | IM_COLD | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:A strange blue growth on the dungeon floor.
+
+N:304:Wrinkled mold
+G:m:s
+I:110:32d8:2:24:70
+W:26:12:0:140
+B:TOUCH:LOSE_ALL:3d4
+B:TOUCH:LOSE_ALL:3d4
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a strange wrinkled growth on the dungeon floor.
+
+N:146:Slimy mold
+G:m:y
+I:110:15d8:2:15:70
+W:10:6:0:34
+B:HIT:ACID:1d3
+B:HIT:ACID:1d3
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_POIS | IM_ACID |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a strange slimy growth on the dungeon floor.
+
+N:116:Warty mold
+G:m:u
+I:110:21d8:2:14:75
+W:8:4:0:28
+B:HIT:LOSE_CHA:1d4
+F:NEVER_MOVE | 
+F:STUPID | EMPTY_MIND | 
+F:IM_ACID | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a strange warty growth on the dungeon floor.
+
+N:XX:6-headed hydra
+G:y:W
+I:120:100d9:20:85:20
+W:34:6:0:1175
+B:BITE:POISON:3d7
+B:BITE:POISON:3d7
+B:BITE:POISON:3d7
+B:SPIT:LOSE_STR:1d2
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_1D2 | DROP_4D2 | 
+F:BASH_DOOR | MOVE_BODY | 
+F:ANIMAL | IM_POIS
+S:1_IN_5 | 
+S:SCARE | BA_POIS
+D:A strange reptilian hybrid with six heads dripping venom.
+
+N:XX:8-headed hydra
+G:y:D
+I:120:100d11:20:92:20
+W:39:6:0:2500
+B:BITE:ACID:3d8
+B:BITE:ACID:3d8
+B:SPIT:ACID:3d4
+B:SPIT:ACID:3d4
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
+F:BASH_DOOR | MOVE_BODY | 
+F:ANIMAL | IM_ACID 
+S:1_IN_5 | 
+S:SCARE | BA_ACID | 
+S:BR_ACID
+D:A strange reptilian hybrid with eight heads spewing acid.
+
+N:xx:10-headed hydra
+G:y:v
+I:120:100d15:20:97:20
+W:42:6:0:4500
+B:BITE:FIRE:3d9
+B:BITE:ACID:3d9
+B:BITE:ELEC:3d9
+B:BITE:COLD:3d9
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | ATTR_MULTI |
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:ANIMAL | IM_FIRE | IM_ACID | IM_ELEC | IM_COLD
+S:1_IN_4 | 
+S:SCARE |
+S:BR_FIRE | BR_ACID | BR_ELEC | BR_COLD
+D:A strange reptilian hybrid with ten multicoloured heads.
+
+N:XX:12-headed hydra
+G:y:u
+I:120:100d27:20:110:20
+W:47:6:0:10000
+B:BITE:FIRE:4d12
+B:BITE:FIRE:4d12
+B:BITE:POIS:4d12
+B:BITE:POIS:4d12
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_2D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:ANIMAL | IM_FIRE | IM_POIS
+S:1_IN_4 | 
+S:SCARE | BO_FIRE | BO_POIS | BA_FIRE | BA_POIS |
+S:BR_FIRE | BR_POIS
+D:A strange reptilian hybrid with eleven smouldering heads.
+
+N:XX:13-headed hydra
+G:y:w
+I:120:100d36:20:120:20
+W:51:6:0:15000
+B:BITE:POISON:8d6
+B:BITE:POISON:8d6
+B:BITE:FIRE:12d6
+B:BITE:FIRE:12d6
+F:UNIQUE | 
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
+F:ONLY_GOLD | DROP_3D2 | DROP_4D2 | 
+F:OPEN_DOOR | BASH_DOOR | KILL_BODY | POWERFUL | 
+F:ANIMAL | IM_FIRE | IM_POIS | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:SCARE | 
+S:BO_FIRE | BO_PLAS | BA_FIRE | BA_POIS | 
+S:BR_FIRE | BR_POIS | 
+S:S_HYDRA
+D:A strange reptilian hybrid with thirteen deadly heads.
+
+N:57:White naga
+G:n:w
+I:110:8d8:17:40:120
+W:4:4:0:25
+B:CRUSH:HURT:1d8
+B:STING:POISON:1d6
+F:FEMALE | 
+F:RAND_25 | DROP_60 | 
+F:BASH_DOOR | 
+F:EVIL | CAN_SWIM | IM_POIS
+D:A large white serpent's body with a female torso.
+
+N:78:Grey naga
+G:n:s
+I:110:10d8:19:40:120
+W:6:4:0:35
+B:CRUSH:HURT:1d8
+B:SPIT:POISON:2d8
+F:FEMALE | 
+F:RAND_25 | TAKE_ITEM | DROP_60 | 
+F:BASH_DOOR | 
+F:EVIL | IM_POIS | CAN_SWIM
+S:1_IN_9 | SPIT
+D:A large grey serpent with a female's torso.  Her grey skin glistens with 
+D:poison.
+
+N:102:Yellow naga
+G:n:y
+I:110:13d8:21:40:120
+W:8:8:0:45
+B:CRUSH:HURT:1d10
+B:BITE:LOSE_DEX:1d6
+F:FEMALE | 
+F:RAND_25 | DROP_60 | 
+F:TAKE_ITEM | BASH_DOOR | CAN_SWIM
+F:EVIL
+D:A large yellow snake with a woman's torso.
+
+N:102:Blue naga
+G:n:b
+I:110:15d8:22:40:120
+W:9:8:0:50
+B:CRUSH:COLD:1d12
+B:SPIT:POISON:1d8
+F:FEMALE | 
+F:RAND_25 | DROP_60 | 
+F:TAKE_ITEM | BASH_DOOR | 
+F:EVIL | IM_COLD | IM_POIS | CAN_SWIM
+S:1_IN_9 |
+S:SPIT
+D:A large blue snake with a woman's torso.
+
+N:102:Water naga
+G:n:g
+I:110:18d8:23:45:120
+W:10:8:0:55
+B:CRUSH:HURT:1d12
+B:SPIT:POISON:1d10
+F:FEMALE | 
+F:RAND_25 | DROP_60 | 
+F:TAKE_ITEM | BASH_DOOR | 
+F:EVIL | IM_POIS | CAN_SWIM
+S:1_IN_9 |
+S:SPIT
+D:A large snake with a woman's torso and fins.
+
+N:102:Sea naga
+G:n:G
+I:110:20d8:23:50:120
+W:11:8:0:55
+B:CRUSH:HURT:1d12
+B:BITE:HURT:1d6
+B:STING:POISON:1d10
+F:FEMALE | 
+F:RAND_25 | DROP_60 | 
+F:TAKE_ITEM | BASH_DOOR | 
+F:EVIL | IM_COLD | IM_POIS | CAN_SWIM
+D:A large snake with a woman's torso and fins.
+
+N:192:Emporer naga
+G:n:U
+I:110:27d13:20:65:120
+W:22:10:0:120
+B:CRUSH:HURT:2d8
+B:BITE:HURT:1d8
+B:BITE:HURT:1d8
+B:SPIT:POISON:2d8
+F:FEMALE | 
+F:RAND_25 | DROP_60 | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL
+S:1_IN_7 |
+S:S_KIN | SPIT | HEAL
+D:A lordly snake-like figure with a woman's torso.
+
+N:484:Nightworm
+G:N:g
+I:120:45d15:20:100:10
+W:48:12:0:3000
+B:TOUCH:ACID:2d5
+B:TOUCH:ACID:2d5
+B:CRAWL:UN_BONUS:4d6
+B:CRAWL:UN_BONUS:4d6
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | SCARE | 
+S:BO_NETH | BR_NETH | 
+S:S_UNDEAD
+D:It has escaped from the blackest pits of night, squirming its way up 
+D:on a fecund trail of noxious slime. Dark, undead eyes gleam from a distended 
+D:shapeless mass whose uppermost tip paradies a mockery of a face, twisted 
+D:in unlife. Death awaits you.
+
+N:484:Nightcreeper
+G:N:w
+I:120:75d45:20:140:10
+W:52:12:0:7000
+B:BITE:POISON:5d7
+B:BITE:POISON:5d7
+B:CRUSH:EXP_40:8d9
+B:CRUSH:EXP_40:8d9
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | INVISIBLE | ATTR_CLEAR |
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | SCARE | BRAIN_SMASH | 
+S:BO_MANA | BO_NETH | BA_NETH |
+S:S_UNDEAD
+D:The shadows gather thicker and stronger, and an intense feeling of evil 
+D:crowds the air. Something slips from the shadows, a half formed serpertine 
+D:being, black as death, hissing and spitting a toxic night that leaves 
+D:you numb and worthless.
+
+Nightslither
+Nightstealer
+Nightshadow
+Nightswimmer
+
+N:512:Nightrunner
+G:N:u
+I:130:70d65:20:160:10
+W:61:12:0:17000
+B:CLAW:UN_BONUS:11d11
+B:CLAW:UN_BONUS:11d11
+B:BITE:EXP_80:8d8
+B:BITE:EXP_80:8d8
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | SCARE | HASTE | BRAIN_SMASH | 
+S:BO_MANA | BO_NETH | BA_NETH | 
+S:S_UNDEAD
+D:Swift as night, this four-legged monstrosity in death runs in massive
+D:leaps and bounds towards you, shaking the dungeon with the force of its 
+D:footsteps. Its iron hard teeth and claws nash furiously, and then it 
+D:unleashes a dreadful howl, cutting through the flesh of your trembling 
+D:body to pierce your very soul.
+
+N:512:Nighthunter
+G:N:U
+I:130:80d70:20:180:5
+W:63:12:0:20000
+B:CLAW:UN_BONUS:12d12
+B:CLAW:UN_BONUS:12d12
+B:BITE:UNPOWER:9d9
+B:BITE:UNPOWER:9d9
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_4 | 
+S:BLIND | SCARE | BRAIN_SMASH | 
+S:BO_MANA | BO_NETH | BA_NETH | BA_DARK |
+S:S_UNDEAD
+D:Patient as death, this felinoid terror pads silently towards you, carving
+D:the air with its sleek and terrible strides. Its steely teeth and claws
+D:flex and retract with a deadly beauty, but the dreadful and unliving 
+D:force with which it hunts you will end only with your extermination.
+
+Nighttracker
+Nightstalker
+Nighthand
+Nightblade
+Nightfist
+Nightslayer
+
+
+N:101:Orc sergeant
+G:o:y
+I:110:15d10:20:46:26
+W:13:1:0:50
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:MALE | 
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+D:A large orc who barks commands to his fellows.
+
+N:232:Orc captain
+G:o:o
+I:110:20d10:20:59:20
+W:18:3:0:80
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:MALE | ESCORT | DROP_90 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_POIS
+D:An armoured orc with an air of authority.
+
+N:232:Orc chieftain
+G:o:r
+I:110:30d10:20:72:14
+W:23:3:0:110
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+F:MALE | ESCORT | DROP_1 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_POIS
+D:A heavily armoured orc with the mantle of leadership.
+
+N:232:Orc king
+G:o:r
+I:110:40d10:20:85:14
+W:33:3:0:110
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+F:MALE | ESCORT | ESCORTS | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_POIS
+D:A heavily armoured orc ruler who dominates his kin with his powerful blows.
+
+N:292:Orc priest
+G:o:G
+I:110:12d10:20:36:30
+W:17:3:0:70
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLINK | SCARE | CAUSE_1 
+D:An orc who is so bright he knows how to cast spells.
+
+N:292:Orc mage
+G:o:R
+I:110:12d10:20:36:30
+W:17:3:0:70
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BLINK | BLIND | CONFUSE | MISSILE 
+D:An orc who is so bright he knows how to cast spells.
+
+N:183:Green orc
+G:o:g
+I:110:14d10:20:36:20
+W:14:2:0:55
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+S:1_IN_5 |
+S:SHOOT
+D:He is a large orc with powerful arms and oily green skin.
+
+N:183:Night orc
+G:o:b
+I:110:14d10:20:36:20
+W:15:2:0:60
+B:HIT:HURT:3d4
+B:HIT:POISON:3d6
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+S:1_IN_9 |
+S:DARKNESS
+D:He is a large orc with powerful arms and night black skin.
+
+N:183:Mirkwood orc
+G:o:u
+I:110:16d10:20:40:20
+W:16:2:0:65
+B:HIT:HURT:3d4
+B:HIT:POISON:3d6
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+S:1_IN_5 |
+S:SHOOT
+D:He is a large orc with powerful arms and brown barklike skin.
+
+N:101:Mountain orc
+G:o:U
+I:110:11d9:20:32:32
+W:8:1:0:20
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+B:THROW:STONE:2d3
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | CAN_CLIMB |
+F:EVIL | ORC | HURT_LITE
+S:1_IN_7 |
+S:THROW
+D:An agile but primitive orc with large dangerous claws.
+
+N:101:Forest orc
+G:o:G
+I:110:11d10:20:32:45
+W:8:1:0:25
+B:HIT:HURT:1d5
+B:BITE:HURT:1d4
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | ORC
+D:A primitive forest-dwelling orc.
+
+N:101:River orc
+G:o:b
+I:110:11d9:20:32:30
+W:8:1:0:25
+B:HIT:HURT:1d8
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:EVIL | ORC | HURT_LITE
+D:A river dwelling orc with a piratical bent.
+
+N:101:Grey orc
+G:o:s
+I:110:12d9:20:34:35
+W:12:3:0:25
+B:HIT:HURT:2d5
+F:MALE | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | HURT_LITE
+D:He is a vicious orc with a pale grey face.
+
+O
+Green ogre
+Mountain ogre
+Grey ogre
+Forest ogre
+Mirkwood ogre
+Swamp ogre
+Night ogre
+Ogre witchdoctor
+Ogre warrior
+Ogre captain
+Ogre chieftan
+Ogre priest
+Ogre archer
+Half ogre
+
+p
+Archer
+Mercenary
+Soldier
+Rogue
+Novice thief
+Master archer
+Seedy looking human
+King
+Baron
+Count
+Bishop
+Black bishop
+Black baron
+Dark knight
+Grey knight
+Green knight
+Red knight
+Blue knight
+
+
+P
+Mountain giant
+Water giant
+Forest giant
+Swamp giant
+River giant
+Green giant
+Grey giant
+Black giant
+Sea giant
+Red giant
+Blue giant
+Night giant
+Firbolg
+Formian
+Two-headed giant
+Cyclops
+Half giant
+
+q
+
+
+
+Novice druid
+Chronomancer
+Pyromancer
+Hydromancer
+Geomancer
+Jade mystic
+Pearl mystic
+
+Q
+Giant weasel
+Giant stoat
+Giant otter
+Bear cub
+Bear
+Black bear
+Grizzly bear
+Polar bear
+Werebear
+Wild horse
+Werehorse
+Sea horse
+Giant seahorse
+Black mare
+Death mare
+Grey mare
+
+
+r
+Giant brown mouse
+Giant field mouse
+Giant grey mouse
+Giant black mouse
+Giant ship rat
+Giant black rat
+Giant pink rat
+
+R
+Giant blue frog
+Giant yellow frog
+Giant brown frog
+Giant black frog
+Giant grey frog
+Giant pink toad
+Giant green toad
+Giant yellow toad
+Giant brown toad
+Giant black toad
+Black lizard
+Werelizard
+Lizardman
+Lizardman witchdoctor
+Lizardman shaman
+Lizardman warrior
+Lizardman chieftan
+Troglodyte
+Troglodyte witchdoctor
+Troglodyte shaman
+Troglodyte warrior
+Troglodyte chieftan
+
+s
+Floating claw
+Floating hand
+Floating head
+Floating skull
+Floating mouth
+Floating body
+Crawling claw
+Crawling hand
+Crawling body
+Headless body
+Headless horseman
+
+N:83:Skeleton goblin
+G:s:w
+I:110:5d8:20:26:40
+W:5:1:0:12
+B:HIT:HURT:1d6
+F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a animated goblin skeleton.
+
+Skeleton centipede
+Skeleton goblin
+Skeleton snake
+Skeleton elf
+Skeleton gnome
+Skeleton dwarf
+Skeleton ogre
+Skeleton horse
+Skeleton bear
+Skeleton dinosaur
+Skeleton dragon
+Skeleton wolf
+Skeleton cat
+Skeleton hydra
+Skeleton naga
+Skeleton lizard
+Skeleton lizardman
+Skeleton troglodyte
+Skeleton frog
+Skeleton ape
+Skeleton giant
+
+S
+Stone spider
+River spider
+Rock spider
+Water spider
+Swamp spider
+Forest spider
+Giant pink tick
+Giant black tick
+Giant grey tick
+Giant yellow tick
+Giant green tick
+Giant black scorpion
+Giant white scorpion
+Giant green scorpion
+
+t
+Town crier
+Watchman
+Guard
+Constable
+Sheriff
+Merry goodwife
+Friendly child
+Rustic farmer
+Starving wretch
+
+N:11:Wide-eyed tourist
+G:t:y
+I:110:3d3:10:5:10
+W:0:5:0:0
+B:BEG
+F:MALE | 
+F:ONLY_GOLD | DROP_60 | DROP_90 | HAS_LITE |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+D:This shill seems a little out of place and down on his luck.
+
+N:37:Bumbling priest
+G:t:g
+I:110:5d4:20:10:10
+W:0:5:0:0
+B:HIT:HURT:1d5
+F:MALE | 
+F:FORCE_SLEEP | RAND_25 |
+F:DROP_60 | HAS_LITE |
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_12 | 
+S:HEAL | SCARE
+D:He is bumbling and ineffectual at the best of times.
+
+N:38:Cross-eyed mage
+G:t:r
+I:110:4d4:20:6:5
+W:0:5:0:0
+B:HIT:HURT:1d3
+F:MALE | RAND_50 |
+F:FORCE_SLEEP | 
+F:DROP_60 | HAS_LITE |
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_12 | 
+S:BLINK | CONF
+D:He can't see straight, let alone cast spells straight.
+
+T
+River troll
+Rock troll
+Mountain troll
+Swamp troll
+Pit troll
+Mirkwood troll
+Green troll
+Night troll
+Black troll
+Grey troll
+Hill troll
+Sea troll
+Bog troll
+Guardian troll
+Giant troll
+Giant 2-headed troll
+Troll shaman
+Troll witchdoctor
+Troll warrior
+Troll captain
+
+u
+Night hag
+Green hag
+Black hag
+Cave hag
+Blue hag
+Water hag
+Mountain hag
+Bog hag
+Sea hag
+Gargoyle
+Margoyle
+Kaocinth
+Bird demon
+Snake demon
+Lizard demon
+Frog demon
+Crab demon
+Bee demon
+Fly demon
+Cat demon
+Dog demon
+Pig demon
+Bear demon
+Horse demon
+Goat demon
+Fish demon
+
+U
+Mountain demon
+River demon
+Hill demon
+Ice daemon
+Fire demon
+Lightening demon
+Tunnel demon
+Grave demon
+Pit demon
+Bog demon
+Stone demon
+Forest demon
+Cave demon
+Sea demon
+Swamp demon
+Half demon
+Night demon
+Horned demon
+Wrinkled demon
+Scaly demon
+Toothed demon
+Hooked demon
+Spiny demon
+Fanged demon
+Hairy demon
+Tentacled demon
+Rotting demon
+Warty demon
+Slimy demon
+
+v
+
+V
+Orc vampire
+Troll vampire
+Elf vampire
+Gnome vampire
+Dwarf vampire
+Ogre vampire
+Goblin vampire
+Cave vampire
+Drowned vampire
+Bog vampire
+Crypt vampire
+Mountain vampire
+Mirkwood vampire
+Cairn vampire
+Tunnel vampire
+Pit vampire
+
+w
+Slimy worm mass
+Rotting worm mass
+Warty worm mass
+Wrinkled worm mass (LOSE_ALL)
+Undead worm mass
+Giant black worm
+Giant earth worm
+Giant red worm
+Giant blue worm
+Giant white worm
+Giant grey worm
+Giant yellow worm
+Giant green worm
+Giant nether worm
+Giant disenchanter worm
+Giant water worm
+Giant sea worm
+Leech
+Giant leech
+Giant black slug
+Giant grey slug
+Giant brown slug
+Giant white slug
+Giant black snail
+Giant grey snail
+Giant white snail
+Giant blue snail
+Giant iridescent snail
+Giant red snail
+Giant green snail
+Giant brown snail
+
+W
+Night wight
+Cave wight
+Black wight
+Green wight
+Drowned wight
+Red wight
+Grey wight
+Bog wight
+Crypt wight
+Mountain wight
+Mirkwood wight
+River wight
+Cairn wight
+Dark wight
+Tunnel wight
+Pit wight
+Green wraith
+Bog wraith
+Red wraith
+Death wraith
+Night wraith
+Cave wraith
+Crypt wraith
+Dark wraith
+Dragon wight
+
+X
+Xerna
+
+y
+
+Y
+Baboon
+Gorilla
+Green monkey
+Brown monkey
+Black monkey
+Winged monkey
+White monkey
+White ape
+Black ape
+Green ape
+Brown ape
+
+z
+N:106:Zombified goblin
+G:z:s
+I:110:6d8:20:14:30
+W:7:1:0:14
+B:HIT:HURT:1d2
+B:HIT:HURT:1d2
+F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is an animated goblin corpse.  Flesh falls off in large chunks as it 
+D:shambles forward.
+
+Zombie snake
+Zombie elf
+Zombie gnome
+Zombie dwarf
+Zombie ogre
+Zombie horse
+Zombie bear
+Zombie dragon
+Zombie wolf
+Zombie cat
+Zombie hydra
+Zombie naga
+Zombie lizardman
+Zombie troglodyte
+Zombie lizard
+Zombie frog
+Zombie ape
+Zombie giant
+Mummified kobold
+Mummified goblin
+Mummified snake
+Mummified elf
+Mummified gnome
+Mummified dwarf
+Mummified ogre
+Mummified horse
+Mummified bear
+Mummified dragon
+Mummified wolf
+Mummified cat
+Mummified hydra
+Mummified naga
+Mummified lizard
+Mummified lizardman
+Mummified troglodyte
+Mummified frog
+Mummified ape
+Mummified giant
+
+Z
+
+
+Ghoul
+Night ghoul
+Death ghoul
+Nether ghoul
+Black ghoul
+Grave ghoul
+Pit ghoul
+Crypt ghoul
+Emporer ghoul
+Guardian ghoul
+Spirit ghoul
+Master ghoul
+Forest ghoul
+Mountain ghoul
+Bog ghoul
+River ghoul
+Tunnel ghoul
+Ghast
+Night ghast
+Death ghast
+Nether ghast
+Black ghast
+Grave ghast
+Crypt ghast
+Pit ghast
+Gaunt
+Night gaunt
+Death gaunt
+Nether gaunt
+Black gaunt
+Grave gaunt
+Crypt gaunt
+Pit gaunt
+Gaurdian gaunt
+Spirit gaunt
