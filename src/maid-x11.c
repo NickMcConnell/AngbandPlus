@@ -22,46 +22,19 @@
  * which will have already "included" several relevant header files.
  */
 
+#include "angband.h"
 
+#if defined(USE_X11) || defined(USE_XAW) || defined(USE_XPJ) || defined(USE_GTK)
 
-#ifndef IsModifierKey
+#ifndef __MAKEDEPEND__
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <X11/keysymdef.h>
+#endif /* __MAKEDEPEND__ */
 
-/*
- * Keysym macros, used on Keysyms to test for classes of symbols
- * These were stolen from one of the X11 header files
- *
- * Also appears in "main-x11.c".
- */
-
-#define IsKeypadKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_Space) && ((unsigned)(keysym) <= XK_KP_Equal))
-
-#define IsCursorKey(keysym) \
-  (((unsigned)(keysym) >= XK_Home)     && ((unsigned)(keysym) <  XK_Select))
-
-#define IsPFKey(keysym) \
-  (((unsigned)(keysym) >= XK_KP_F1)     && ((unsigned)(keysym) <= XK_KP_F4))
-
-#define IsFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_F1)       && ((unsigned)(keysym) <= XK_F35))
-
-#define IsMiscFunctionKey(keysym) \
-  (((unsigned)(keysym) >= XK_Select)   && ((unsigned)(keysym) <  XK_KP_Space))
-
-#define IsModifierKey(keysym) \
-  (((unsigned)(keysym) >= XK_Shift_L)  && ((unsigned)(keysym) <= XK_Hyper_R))
-
-#endif /* IsModifierKey */
-
-
-/*
- * Checks if the keysym is a special key or a normal key
- * Assume that XK_MISCELLANY keysyms are special
- *
- * Also appears in "main-x11.c".
- */
-#define IsSpecialKey(keysym) \
-  ((unsigned)(keysym) >= 0xFF00)
+/* Include our headers */
+#include "maid-x11.h"
 
 
 #ifdef SUPPORT_GAMMA
@@ -73,17 +46,13 @@ static int gamma_val = 0;
 /*
  * Hack -- Convert an RGB value to an X11 Pixel, or die.
  */
-static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
+u32b create_pixel(Display *dpy, byte red, byte green, byte blue)
 {
 	Colormap cmap = DefaultColormapOfScreen(DefaultScreenOfDisplay(dpy));
-
-	char cname[8];
 
 	XColor xcolour;
 
 #ifdef SUPPORT_GAMMA
-
-	
 
 	if (!gamma_table_ready)
 	{
@@ -116,12 +85,86 @@ static unsigned long create_pixel(Display *dpy, byte red, byte green, byte blue)
 	/* Attempt to Allocate the Parsed color */
 	if (!(XAllocColor(dpy, cmap, &xcolour)))
 	{
-		quit_fmt("Couldn't allocate bitmap color '%s'\n", cname);
+		quit_fmt("Couldn't allocate bitmap color #%04x%04x%04x\n",
+		         xcolour.red, xcolour.green, xcolour.blue);
 	}
 
 	return (xcolour.pixel);
 }
 
+
+/*
+ * Get the name of the default font to use for the term.
+ */
+cptr get_default_font(int term_num)
+{
+	cptr font;
+
+	char buf[80];
+
+	/* Window specific font name */
+	strnfmt(buf, sizeof(buf), "ANGBAND_X11_FONT_%d", term_num);
+
+	/* Check environment for that font */
+	font = getenv(buf);
+
+	/* Check environment for "base" font */
+	if (!font) font = getenv("ANGBAND_X11_FONT");
+
+	/* No environment variables, use default font */
+	if (!font)
+	{
+		switch (term_num)
+		{
+			case 0:
+			{
+				font = DEFAULT_X11_FONT_0;
+			}
+			break;
+			case 1:
+			{
+				font = DEFAULT_X11_FONT_1;
+			}
+			break;
+			case 2:
+			{
+				font = DEFAULT_X11_FONT_2;
+			}
+			break;
+			case 3:
+			{
+				font = DEFAULT_X11_FONT_3;
+			}
+			break;
+			case 4:
+			{
+				font = DEFAULT_X11_FONT_4;
+			}
+			break;
+			case 5:
+			{
+				font = DEFAULT_X11_FONT_5;
+			}
+			break;
+			case 6:
+			{
+				font = DEFAULT_X11_FONT_6;
+			}
+			break;
+			case 7:
+			{
+				font = DEFAULT_X11_FONT_7;
+			}
+			break;
+			default:
+			{
+				font = DEFAULT_X11_FONT;
+			}
+		}
+	}
+
+	return (font);
+}
 
 
 #ifdef USE_GRAPHICS
@@ -203,7 +246,7 @@ static void rd_u32b(FILE *fff, u32b *ip)
  * Assumes that the bitmap has a size such that no padding is needed in
  * various places.  Currently only handles bitmaps with 3 to 256 colors.
  */
-static XImage *ReadBMP(Display *dpy, char *Name)
+XImage *ReadBMP(Display *dpy, char *Name)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
 
@@ -224,7 +267,7 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	int i, j;
 
-	u16b x, y;
+	u32b x, y;
 
 	unsigned long clr_pixels[256];
 
@@ -297,19 +340,19 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 	Res = XCreateImage(dpy, visual, depth, ZPixmap, 0 /*offset*/,
 	                   Data, infoheader.biWidth, infoheader.biHeight,
-	                   8 /*bitmap_pad*/, 0 /*bytes_per_line*/);
+	                   32 /*bitmap_pad*/, 0 /*bytes_per_line*/);
 
 	/* Failure */
 	if (Res == NULL)
 	{
-		C_KILL(Data, total, char);
+		KILL(Data);
 		fclose(f);
 		return (NULL);
 	}
 
 	for (y = 0; y < infoheader.biHeight; y++)
 	{
-		int y2 = infoheader.biHeight - y - 1;
+		u32b y2 = infoheader.biHeight - y - 1;
 
 		for (x = 0; x < infoheader.biWidth; x++)
 		{
@@ -320,8 +363,12 @@ static XImage *ReadBMP(Display *dpy, char *Name)
 
 			if (infoheader.biBitCount == 24)
 			{
-				int c2 = getc(f);
-				int c3 = getc(f);
+				int c3, c2 = getc(f);
+
+				/* Verify not at end of file XXX XXX */
+				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
+
+				c3 = getc(f);
 
 				/* Verify not at end of file XXX XXX */
 				if (feof(f)) quit_fmt("Unexpected end of file in %s", Name);
@@ -373,7 +420,7 @@ static int redShift, greenShift, blueShift;
 /*
  * Use smooth rescaling?
  */
-static bool smoothRescaling = TRUE;
+bool smoothRescaling = TRUE;
 
 
 /*
@@ -553,8 +600,8 @@ static void PutRGBScan(XImage *Im, int x, int y, int w, int div,
  * vertical directions (eg. shrink horizontal, grow vertical).
  */
 static void ScaleIcon(XImage *ImIn, XImage *ImOut,
-    	    	      int x1, int y1, int x2, int y2,
-		      int ix, int iy, int ox, int oy)
+                      int x1, int y1, int x2, int y2,
+                      int ix, int iy, int ox, int oy)
 {
 	int div;
 	int xi, yi, si, sifrac, ci, cifrac, addWhole, addFrac;
@@ -597,13 +644,17 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 		iy--;
 		oy--;
 		div *= oy;
+
 		/* get first row: */
 		GetScaledRow(ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+
 		/* si and sifrac give the subsampling position: */
 		si = y1;
 		sifrac = 0;
+
 		/* getNextRow tells us, that we need the next row */
 		getNextRow = TRUE;
+
 		for (yi = 0; yi <= oy; yi++)
 		{
 			if (getNextRow)
@@ -614,6 +665,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 					prevGreen[xi] = nextGreen[xi];
 					prevBlue[xi]  = nextBlue[xi];
 				}
+
 				if (yi < oy)
 				{
 					/* only get next row if in same icon */
@@ -650,31 +702,36 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 			{
 				getNextRow = FALSE;
 			}
-
 		}
 	}
 	else
 	{
 		/* scaling by averaging (shrink) */
 		div *= iy;
+
 		/* height of a output row in input rows: */
 		addWhole = iy / oy;
 		addFrac = iy % oy;
+
 		/* start position of the first output row: */
 		si = y1;
 		sifrac = 0;
+
 		/* get first input row: */
 		GetScaledRow(ImIn, x1, y1, ix, ox, nextRed, nextGreen, nextBlue);
+
 		for (yi = 0; yi < oy; yi++)
 		{
 			/* find endpoint of the current output row: */
 			ci = si + addWhole;
 			cifrac = sifrac + addFrac;
+
 			if (cifrac >= oy)
 			{
 				ci++;
 				cifrac -= oy;
 			}
+
 			/* take fraction of current input row (starting segment): */
 			for (xi = 0; xi < ox; xi++)
 			{
@@ -682,12 +739,15 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				tempGreen[xi] = nextGreen[xi] * (oy - sifrac);
 				tempBlue[xi]  = nextBlue[xi]  * (oy - sifrac);
 			}
+
 			si++;
+
 			/* add values for whole pixels: */
 			while (si < ci)
 			{
 				GetScaledRow(ImIn, x1, si, ix, ox,
 				             nextRed, nextGreen, nextBlue);
+
 				for (xi = 0; xi < ox; xi++)
 				{
 					tempRed[xi]   += nextRed[xi]   * oy;
@@ -696,6 +756,7 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				}
 				si++;
 			}
+
 			/* add fraction of current input row (ending segment): */
 			if (yi < oy - 1)
 			{
@@ -703,13 +764,16 @@ static void ScaleIcon(XImage *ImIn, XImage *ImOut,
 				GetScaledRow(ImIn, x1, si, ix, ox,
 				             nextRed, nextGreen, nextBlue);
 			}
+
 			sifrac = cifrac;
+
 			for (xi = 0; xi < ox; xi++)
 			{
 				tempRed[xi]   += nextRed[xi]   * sifrac;
 				tempGreen[xi] += nextGreen[xi] * sifrac;
 				tempBlue[xi]  += nextBlue[xi]  * sifrac;
 			}
+
 			/* write row to output image: */
 			PutRGBScan(ImOut, x2, y2 + yi, ox, div,
 			           tempRed, tempGreen, tempBlue);
@@ -746,24 +810,29 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 	/* compute values for decomposing pixel into color values: */
 	redMask = Im->red_mask;
 	redShift = 0;
+
 	while ((redMask & 1) == 0)
 	{
-	    redShift++;
-	    redMask >>= 1;
+		redShift++;
+		redMask >>= 1;
 	}
+
 	greenMask = Im->green_mask;
 	greenShift = 0;
+
 	while ((greenMask & 1) == 0)
 	{
-	    greenShift++;
-	    greenMask >>= 1;
+		greenShift++;
+		greenMask >>= 1;
 	}
+
 	blueMask = Im->blue_mask;
 	blueShift = 0;
+
 	while ((blueMask & 1) == 0)
 	{
-	    blueShift++;
-	    blueMask >>= 1;
+		blueShift++;
+		blueMask >>= 1;
 	}
 
 	/* scale each icon: */
@@ -783,7 +852,7 @@ static XImage *ResizeImageSmooth(Display *dpy, XImage *Im,
 /*
  * Resize an image.
  */
-static XImage *ResizeImage(Display *dpy, XImage *Im,
+XImage *ResizeImage(Display *dpy, XImage *Im,
                            int ix, int iy, int ox, int oy)
 {
 	Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
@@ -798,9 +867,9 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 	char *Data;
 
 	if (smoothRescaling && (ix != ox || iy != oy) &&
-	    visual->class == TrueColor)
+	    (visual->class == TrueColor))
 	{
-	    return ResizeImageSmooth(dpy, Im, ix, iy, ox, oy);
+		return ResizeImageSmooth(dpy, Im, ix, iy, ox, oy);
 	}
 
 	width1 = Im->width;
@@ -880,4 +949,5 @@ static XImage *ResizeImage(Display *dpy, XImage *Im,
 
 #endif /* USE_GRAPHICS */
 
+#endif /* USE_X11 || USE_XAW || USE_XPJ || USE_GTK */
 

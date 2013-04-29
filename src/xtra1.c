@@ -175,7 +175,7 @@ static void prt_title(void)
   /* Normal */
   else
     {
-      p = cp_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+      p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
     }
   
   prt_field(p, ROW_TITLE, COL_TITLE);
@@ -443,151 +443,94 @@ static void prt_depth(void)
   else
     c_prt(attr, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
 
+  /* Record the column this display starts */
+  depth_start = Term->wid - (small_screen ? 9 : 22);
 }
 
+/* ------------------------------------------------------------------------
+ * Status line display functions
+ * ------------------------------------------------------------------------ */
 
+/* Simple macro to initialise structs */
+#define S(s)		s, sizeof(s)
+
+/*
+ * Struct to describe different timed effects
+ */
+struct state_info
+{
+  int value;
+  const char *str;
+  size_t len;
+  byte attr;
+};
+
+/* p_ptr->hunger descriptions */
+static const struct state_info hunger_data[] =
+{
+  { PY_FOOD_FAINT, S("Faint"),    TERM_RED },
+  { PY_FOOD_WEAK,  S("Weak"),     TERM_ORANGE },
+  { PY_FOOD_ALERT, S("Hungry"),   TERM_YELLOW },
+  { PY_FOOD_FULL,  S(""),         TERM_L_GREEN },
+  { PY_FOOD_MAX,   S("Full"),     TERM_L_GREEN },
+  { PY_FOOD_UPPER, S("Gorged"),   TERM_GREEN },
+};
+
+#define PRINT_STATE(sym, data, index, row, col) \
+{ \
+	size_t i; \
+	\
+	for (i = 0; i < N_ELEMENTS(data); i++) \
+	{ \
+		if (index sym data[i].value) \
+		{ \
+			if (data[i].str[0]) \
+			{ \
+				c_put_str(data[i].attr, data[i].str, row, col); \
+				return data[i].len; \
+			} \
+			else \
+			{ \
+				return 0; \
+			} \
+		} \
+	} \
+}
 
 
 /*
  * Prints status of hunger
  */
-static void prt_hunger(void)
+static size_t prt_hunger(int row, int col)
 {
-  /* Fainting / Starving */
-  if (p_ptr->food < PY_FOOD_FAINT)
-    {
-      c_put_str(TERM_RED, "Weak  ", Term->hgt - 1, COL_HUNGRY);
-    }
-  
-  /* Weak */
-  else if (p_ptr->food < PY_FOOD_WEAK)
-    {
-      c_put_str(TERM_ORANGE, "Weak  ", Term->hgt - 1, COL_HUNGRY);
-    }
-  
-  /* Hungry */
-  else if (p_ptr->food < PY_FOOD_ALERT)
-    {
-      c_put_str(TERM_YELLOW, "Hungry", Term->hgt - 1, COL_HUNGRY);
-    }
-  
-  /* Normal */
-  else if (p_ptr->food < PY_FOOD_FULL)
-    {
-      if ((mouse_buttons) && (!bottom_status) && (Term->hgt - 1 == ROW_ESCAPE))
-	c_put_str(TERM_L_DARK, "[ESC] ", Term->hgt - 1, COL_HUNGRY);
-      else
-	c_put_str(TERM_L_GREEN, "      ", Term->hgt - 1, COL_HUNGRY);
-    }
-  
-  /* Full */
-  else if (p_ptr->food < PY_FOOD_MAX)
-    {
-      c_put_str(TERM_L_GREEN, "Full  ", Term->hgt - 1, COL_HUNGRY);
-    }
-  
-  /* Gorged */
-  else
-    {
-      c_put_str(TERM_GREEN, "Gorged", Term->hgt - 1, COL_HUNGRY);
-	}
+  PRINT_STATE(<, hunger_data, p_ptr->food, row, col);
+  return 0;
 }
 
 
-/*
- * Prints Blind status
- */
-static void prt_blind(void)
-{
-  if (p_ptr->blind)
-    {
-      c_put_str(TERM_ORANGE, "Blnd", Term->hgt - 1, COL_BLIND);
-    }
-  else
-    {
-      put_str("    ", Term->hgt - 1, COL_BLIND);
-    }
-}
-
 
 /*
- * Prints Confusion status
- */
-static void prt_confused(void)
-{
-  if (p_ptr->confused)
-    {
-      c_put_str(TERM_ORANGE, "Cnf", Term->hgt - 1, COL_CONFUSED);
-    }
-  else
-    {
-      put_str("   ", Term->hgt - 1, COL_CONFUSED);
-    }
-}
-
-
-/*
- * Prints Fear status
- */
-static void prt_afraid(void)
-{
-  if (p_ptr->afraid)
-    {
-      c_put_str(TERM_ORANGE, (small_screen ? "Afr" : "Afraid"), Term->hgt - 1, COL_AFRAID);
-    }
-  else
-    {
-      put_str((small_screen ? "   " : "      "), Term->hgt - 1, COL_AFRAID);
-    }
-}
-
-
-/*
- * Prints Poisoned status
- */
-static void prt_poisoned(void)
-{
-  if (p_ptr->poisoned)
-    {
-      c_put_str(TERM_ORANGE, "Psn", Term->hgt - 1, COL_POISONED);
-    }
-  else
-    {
-      put_str("   ", Term->hgt - 1, COL_POISONED);
-    }
-}
-
-
-/*
- * Prints Searching, Resting, Paralysis, or 'count' status
+ * Prints Searching, Resting, or 'count' status
  * Display is always exactly 10 characters wide (see below)
  *
  * This function was a major bottleneck when resting, so a lot of
  * the text formatting code was optimized in place below.
  */
-static void prt_state(void)
+static size_t prt_state(int row, int col)
 {
   byte attr = TERM_WHITE;
   
-  char text[16];
+  char text[16] = "";
   
-  
-  /* Paralysis */
-  if (p_ptr->paralyzed)
-    {
-      attr = TERM_RED;
-      
-      strcpy(text, (small_screen ? "Prlz!" : "Paralyzed!"));
-    }
   
   /* Resting */
-  else if (p_ptr->resting)
+  if (p_ptr->resting)
     {
       int i;
       int n = p_ptr->resting;
       
       /* Start with "Rest" */
-      strcpy(text, (small_screen ? "Rest " : "Rest      "));
+      my_strcpy(text, "Rest      ", sizeof(text));
       
       /* Extensive (timed) rest */
       if (n >= 1000)
@@ -637,51 +580,40 @@ static void prt_state(void)
 	{
 	  text[5] = text[6] = text[7] = text[8] = text[9] = '*';
 	}
-      
+
       /* Rest until done */
       else if (n == -2)
 	{
 	  text[5] = text[6] = text[7] = text[8] = text[9] = '&';
 	}
-
-      /* Kill for small screen */
-      if (small_screen) text[5] = '\0';
     }
   
   /* Repeating */
   else if (p_ptr->command_rep)
     {
       if (p_ptr->command_rep > 999)
-	{
-	  sprintf(text, (small_screen ? "Rep. " : "Rep. %3d00"), p_ptr->command_rep / 100);
-	}
+	strnfmt(text, sizeof(text), "Rep. %3d00", p_ptr->command_rep / 100);
       else
-	{
-	  sprintf(text, (small_screen ? "Rp%3d" : "Repeat %3d"), p_ptr->command_rep);
-	}
+	strnfmt(text, sizeof(text), "Repeat %3d", p_ptr->command_rep);
     }
   
   /* Searching */
   else if (p_ptr->searching)
     {
-      strcpy(text, (small_screen ? "Srch " : "Searching "));
-    }
-  
-  /* Nothing interesting */
-  else
-    {
-      strcpy(text, (small_screen ? "     " : "          "));
+      my_strcpy(text, "Searching ", sizeof(text));
     }
   
   /* Display the info (or blanks) */
-  c_put_str(attr, text, Term->hgt - 1, COL_STATE);
+  c_put_str(attr, text, row, col);
+  
+  return strlen(text);
 }
 
 
 /*
  * Prints the speed of a character.  		-CJS-
  */
-static void prt_speed(void)
+static size_t prt_speed(int row, int col)
 {
   int i = p_ptr->pspeed;
   
@@ -695,70 +627,188 @@ static void prt_speed(void)
   if (i > 110)
     {
       attr = TERM_L_GREEN;
-      sprintf(buf, "Fast +%d", (i - 110));
+      sprintf(buf, "Fast (+%d)", (i - 110));
     }
   
   /* Slow */
   else if (i < 110)
     {
       attr = TERM_L_UMBER;
-      sprintf(buf, "Slow -%d", (110 - i));
+      sprintf(buf, "Slow (-%d)", (110 - i));
     }
   
   /* Display the speed */
-  c_put_str((byte)attr, format("%-9s", buf), Term->hgt - 1, COL_SPEED);
+  c_put_str((byte)attr, format("%-9s", buf), row, col);
+
+  return strlen(buf);
 }
 
-
-static void prt_dtrap(void)
+/*
+ * Prints trap detection status
+ */
+static size_t prt_dtrap(int row, int col)
 {
   byte info = cave_info2[p_ptr->py][p_ptr->px];
   
   /* The player is in a trap-detected grid */
   if (info & (CAVE2_DTRAP))
     {
-      c_put_str(TERM_YELLOW, (small_screen ? "DT" : "DTrap"), Term->hgt - 1, COL_DTRAP);
+      c_put_str(TERM_GREEN, "DTrap", row, col);
+      return 5;
     }
   
-  /* Not in a trap-detected grid */
-  else
-    {
-      c_put_str(TERM_YELLOW, (small_screen ? "  " : "     "), Term->hgt - 1, COL_DTRAP);
-    }
+  return 0;
 }
 
 
-static void prt_study(void)
+
+/*
+ * Print whether a character is studying or not.
+ */
+static size_t prt_study(int row, int col)
 {
-  if (p_ptr->new_specialties > 0)
+  if (p_ptr->new_spells)
     {
-      c_put_str(TERM_VIOLET, "Spec.", Term->hgt - 1, COL_STUDY);
+      char *text = format("Study (%d)", p_ptr->new_spells);
+      put_str(text, row, col);
+      return strlen(text) + 1;
     }
-  else if (p_ptr->new_spells)
-    {
-      put_str("Study", Term->hgt - 1, COL_STUDY);
-    }
-  else
-    {
-      put_str("     ", Term->hgt - 1, COL_STUDY);
-    }
+  
+  return 0;
 }
 
-static void prt_buttons(void)
+/*
+ * Print whether a character is due a specialty or not.
+ */
+static size_t prt_spec(int row, int col)
 {
-  if (bottom_status)
+  if (p_ptr->new_specialties)
     {
-      c_put_str(TERM_L_DARK, "[Stnd]", ROW_STAND, COL_CUT);
-      c_put_str(TERM_L_DARK, "[Rept]", ROW_REPEAT, COL_CUT);
-      c_put_str(TERM_L_DARK, "[Retn]", ROW_RETURN, COL_CUT);
-      c_put_str(TERM_L_DARK, "[ESC]", ROW_ESCAPE, COL_CUT);
+      char *text = format("Spec. (%d)", p_ptr->new_specialties);
+      c_put_str(TERM_VIOLET, text, row, col);
+      return strlen(text) + 1;
     }
-  else
+  
+  return 0;
+}
+
+
+/*
+ * Print blind.
+ */
+static size_t prt_blind(int row, int col)
+{
+  if (p_ptr->blind)
     {
-      c_put_str(TERM_L_DARK, "[Stand]", ROW_STAND, COL_CUT);
-      c_put_str(TERM_L_DARK, "[ESC]", ROW_ESCAPE, COL_CUT);
-    }    
-}    
+      c_put_str(TERM_ORANGE, "Blind", row, col);
+      return 5;
+    }
+  return 0;
+}
+
+/*
+ * Print confused.
+ */
+static size_t prt_confused(int row, int col)
+{
+  if (p_ptr->confused)
+    {
+      c_put_str(TERM_ORANGE, "Confused", row, col);
+      return 8;
+    }
+  return 0;
+}
+
+/*
+ * Print afraid.
+ */
+static size_t prt_afraid(int row, int col)
+{
+  if (p_ptr->afraid)
+    {
+      c_put_str(TERM_ORANGE, "Afraid", row, col);
+      return 6;
+    }
+  return 0;
+}
+
+/*
+ * Print paralyzed.
+ */
+static size_t prt_paralyzed(int row, int col)
+{
+  if (p_ptr->paralyzed)
+    {
+      c_put_str(TERM_RED, "Paralyzed!", row, col);
+      return 10;
+    }
+  return 0;
+}
+
+/*
+ * Print poisoned.
+ */
+static size_t prt_poisoned(int row, int col)
+{
+  if (p_ptr->poisoned)
+    {
+      c_put_str(TERM_ORANGE, "Poisoned", row, col);
+      return 8;
+    }
+  return 0;
+}
+
+
+/* Useful typedef */
+typedef size_t status_f(int row, int col);
+
+status_f *status_handlers[] =
+{ prt_state, prt_hunger, prt_study, prt_spec, prt_blind, prt_confused, 
+  prt_afraid, prt_paralyzed, prt_poisoned, prt_dtrap };
+
+
+/*
+ * Print the status line.
+ */
+extern void update_statusline(void)
+{
+  errr bad;
+  int x, y;
+  int row = Term->hgt - 1;
+  int col = 0;
+  int button_end = (normal_screen ? depth_start : Term->wid - 2);
+  size_t i;
+  int j;
+  
+  /* Save the cursor position */
+  bad = Term_locate(&x, &y);
+
+  if (normal_screen)
+    {
+      /* Clear the remainder of the line */
+      prt("", row, col);
+      
+      /* Display those which need redrawing */
+      for (i = 0; i < N_ELEMENTS(status_handlers); i++)
+	col += status_handlers[i](row, col);
+      
+      /* Print speed, record where the status info ends */
+      status_end = col + prt_speed(row, col);
+      
+      /* Redo the location info */
+      prt_depth();
+    }
+
+  /* Print the mouse buttons */
+  if (mouse_buttons)
+    for (j = 0; j < num_buttons; j++)
+      c_put_str(TERM_SLATE, mse_button[j].label, row, 
+		button_end - mse_button[j].left);
+
+  /* Reposition the cursor */
+  if (!bad) (void)Term_gotoxy(x, y);
+}
+
 
 static void prt_cut(void)
 {
@@ -799,10 +849,10 @@ static void prt_cut(void)
       c_put_str(TERM_YELLOW, (bottom_status ? "Graze  " : "Graze       "), 
 		ROW_CUT, COL_CUT);
     }
-  else if ((mouse_buttons) && (!bottom_status))
-    {
-      c_put_str(TERM_L_DARK, "[Repeat]", ROW_CUT, COL_CUT);
-    }
+  //else if ((mouse_buttons) && (!bottom_status))
+  //{
+  //  c_put_str(TERM_L_DARK, "[Repeat]", ROW_CUT, COL_CUT);
+  //}
   else
     {
       put_str((bottom_status ? "       " : "            "), ROW_CUT, COL_CUT);
@@ -830,10 +880,10 @@ static void prt_stun(void)
       c_put_str(TERM_ORANGE, (bottom_status ? "Stun   " : "Stun        "), 
 		ROW_STUN, COL_STUN);
     }
-  else if ((mouse_buttons) && (!bottom_status))
-    {
-      c_put_str(TERM_L_DARK, "[Return]", ROW_STUN, COL_STUN);
-    }
+  //else if ((mouse_buttons) && (!bottom_status))
+  //{
+  //  c_put_str(TERM_L_DARK, "[Return]", ROW_STUN, COL_STUN);
+  //}
   else
     {
       put_str((bottom_status ? "       " : "            "), ROW_STUN, COL_STUN);
@@ -852,7 +902,7 @@ static void prt_blank(void)
     {
       for (i = 23; i < (Term->hgt - 1 - j); i++)
 	{
-	  if ((!mouse_buttons) || (i != ROW_ESCAPE))
+	  //if ((!mouse_buttons) || (i != ROW_ESCAPE))
 	    put_str("            ", i, 0);
 	}
     }
@@ -1359,8 +1409,8 @@ static void prt_frame_basic(void)
   int i;
   
   /* Race and Class */
-  prt_field(rp_name + rp_ptr->name, ROW_RACE, COL_RACE);
-  prt_field(cp_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
+  prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
+  prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
   
   /* Title */
   prt_title();
@@ -1404,35 +1454,38 @@ static void prt_frame_basic(void)
 static void prt_frame_extra(void)
 {
   /* Mouse buttons */
-  if (mouse_buttons) prt_buttons();
+  //if (mouse_buttons) prt_buttons();
 
   /* Cut/Stun */
   prt_cut();
   prt_stun();
   
+  /* Replaces a raft of others */
+  update_statusline();
+
   /* Food */
-  prt_hunger();
+  //prt_hunger();
   
   /* Various */
-  prt_blind();
-  prt_confused();
-  prt_afraid();
-  prt_poisoned();
+  //prt_blind();
+  //prt_confused();
+  //prt_afraid();
+  //prt_poisoned();
   
   /* Blank spaces in bigscreen mode */
   prt_blank();
   
   /* State */
-  prt_state();
+  //prt_state();
   
   /* Speed */
-  prt_speed();
+  //prt_speed();
   
   /* Study spells */
-  prt_dtrap();
+  //prt_dtrap();
   
   /* Study spells */
-  prt_study();
+  //prt_study();
   
   /* Status */
   prt_status();
@@ -2553,8 +2606,7 @@ sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 /*
  * Paranoid bounds checking on player resistance arrays.
  *
- * MIN and MAX should be at least 10 away from the hard limit of the
- * extract_resistance array.
+ * These now represent what percentage of damage the player takes -NRM-
  */
 static void resistance_limits(void)
 {
@@ -2573,6 +2625,15 @@ static void resistance_limits(void)
 	p_ptr->dis_res_list[i] = RES_LEVEL_MIN;
     }
 }
+
+/*
+ * Apply a percentage resistance to the existing player resistance level.
+ */
+void apply_resist(int *player_resist, int item_resist)
+{
+  *player_resist = (int) (*player_resist * item_resist)/100;
+} 
+
 
 
 /* Applies vital statistic changes from a shapeshift 
@@ -2759,15 +2820,15 @@ static void shape_change_main(void)
       }
     case SHAPE_ENT:
       {
-	p_ptr->res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-	p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-	p_ptr->res_list[P_RES_POIS] += RES_BOOST_NORMAL;
-	p_ptr->dis_res_list[P_RES_POIS] += RES_BOOST_NORMAL;
-	p_ptr->res_list[P_RES_FIRE] -= RES_BOOST_MINOR;
-	p_ptr->dis_res_list[P_RES_FIRE] -= RES_BOOST_MINOR;
-	if (p_ptr->res_list[P_RES_FIRE] > RES_CAP_MODERATE) 
+	apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->dis_res_list[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->res_list[P_RES_POIS], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->dis_res_list[P_RES_POIS], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_CUT_MINOR);
+	apply_resist(&p_ptr->dis_res_list[P_RES_FIRE], RES_CUT_MINOR);
+	if (p_ptr->res_list[P_RES_FIRE] < RES_CAP_MODERATE) 
 	  p_ptr->res_list[P_RES_FIRE] = RES_CAP_MODERATE;
-	if (p_ptr->dis_res_list[P_RES_FIRE] > RES_CAP_MODERATE) 
+	if (p_ptr->dis_res_list[P_RES_FIRE] < RES_CAP_MODERATE) 
 	  p_ptr->dis_res_list[P_RES_FIRE] = RES_CAP_MODERATE;
 	p_ptr->no_fear = TRUE;
 	p_ptr->see_inv = TRUE;
@@ -2817,13 +2878,13 @@ static void shape_change_main(void)
 	if (p_ptr->cur_lite >= 3) p_ptr->cur_lite = 2;
 	p_ptr->see_inv = TRUE;
 	p_ptr->hold_life = TRUE;
-	p_ptr->res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-	p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-	p_ptr->res_list[P_RES_LITE] -= RES_BOOST_MINOR;
-	p_ptr->dis_res_list[P_RES_LITE] -= RES_BOOST_MINOR;
-	if (p_ptr->res_list[P_RES_LITE] > RES_CAP_EXTREME) 
+	apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->dis_res_list[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&p_ptr->res_list[P_RES_LITE], RES_CUT_MINOR);
+	apply_resist(&p_ptr->dis_res_list[P_RES_LITE], RES_CUT_MINOR);
+	if (p_ptr->res_list[P_RES_LITE] < RES_CAP_EXTREME) 
 	  p_ptr->res_list[P_RES_LITE] = RES_CAP_EXTREME;
-	if (p_ptr->dis_res_list[P_RES_LITE] > RES_CAP_EXTREME) 
+	if (p_ptr->dis_res_list[P_RES_LITE] < RES_CAP_EXTREME) 
 	  p_ptr->dis_res_list[P_RES_LITE] = RES_CAP_EXTREME;
 	p_ptr->regenerate = TRUE;
 	p_ptr->to_a += 5;
@@ -2859,28 +2920,33 @@ static void shape_change_main(void)
 	    /* Elemental DSM -> immunity */
 	    if (o_ptr->sval == SV_DRAGON_BLACK)
 	      {
-		p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
-		p_ptr->dis_res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
+		apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_IMMUNE);
+		apply_resist(&p_ptr->dis_res_list[P_RES_ACID], 
+			     RES_BOOST_IMMUNE);
 	      }
 	    else if (o_ptr->sval == SV_DRAGON_BLUE) 
 	      {
-		p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
-		p_ptr->dis_res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
+		apply_resist(&p_ptr->res_list[P_RES_ELEC], RES_BOOST_IMMUNE);
+		apply_resist(&p_ptr->dis_res_list[P_RES_ELEC], 
+			     RES_BOOST_IMMUNE);
 	      }
 	    else if (o_ptr->sval == SV_DRAGON_WHITE) 
 	      {
-		p_ptr->res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
-		p_ptr->dis_res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
+		apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_IMMUNE);
+		apply_resist(&p_ptr->dis_res_list[P_RES_COLD], 
+			     RES_BOOST_IMMUNE);
 	      }
 	    else if (o_ptr->sval == SV_DRAGON_RED) 
 	      {
-		p_ptr->res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
-		p_ptr->dis_res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
+		apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_BOOST_IMMUNE);
+		apply_resist(&p_ptr->dis_res_list[P_RES_FIRE], 
+			     RES_BOOST_IMMUNE);
 	      }
 	    else if (o_ptr->sval == SV_DRAGON_GREEN) 
 	      {
-		p_ptr->res_list[P_RES_POIS] += RES_BOOST_IMMUNE;
-		p_ptr->dis_res_list[P_RES_POIS] += RES_BOOST_IMMUNE;
+		apply_resist(&p_ptr->res_list[P_RES_POIS], RES_BOOST_IMMUNE);
+		apply_resist(&p_ptr->dis_res_list[P_RES_POIS], 
+			     RES_BOOST_IMMUNE);
 	      }
 	    
 	    /* Shining DSM -> SI */
@@ -3149,36 +3215,52 @@ extern void calc_bonuses(bool inspect)
   if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
   
   /* Status protection flags */
-  if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
-  if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
+  //if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
+  //if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
+  if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
+  if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
   
   /* Resistance flags */
-  if (f2 & (TR2_IM_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
+  if (f2 & (TR2_IM_ACID)) 
+    apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_IMMUNE);
   else if (f2 & (TR2_RES_ACID)) 
-    p_ptr->res_list[P_RES_ACID] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_IM_ELEC)) p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
+    apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_NORMAL);
+  if (f2 & (TR2_IM_ELEC)) 
+    apply_resist(&p_ptr->res_list[P_RES_ELEC], RES_BOOST_IMMUNE);
   else if (f2 & (TR2_RES_ELEC)) 
-    p_ptr->res_list[P_RES_ELEC] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_IM_FIRE)) p_ptr->res_list[P_RES_FIRE] += RES_BOOST_IMMUNE;
+    apply_resist(&p_ptr->res_list[P_RES_ELEC], RES_BOOST_NORMAL);
+  if (f2 & (TR2_IM_FIRE)) 
+    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_BOOST_IMMUNE);
   else if (f2 & (TR2_RES_FIRE)) 
-    p_ptr->res_list[P_RES_FIRE] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_IM_COLD)) p_ptr->res_list[P_RES_COLD] += RES_BOOST_IMMUNE;
+    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_BOOST_NORMAL);
+  if (f2 & (TR2_IM_COLD)) 
+    apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_IMMUNE);
   else if (f2 & (TR2_RES_COLD)) 
-    p_ptr->res_list[P_RES_COLD] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_POIS)) p_ptr->res_list[P_RES_POIS] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_LITE)) p_ptr->res_list[P_RES_LITE] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_DARK)) p_ptr->res_list[P_RES_DARK] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_CONFU)) p_ptr->res_list[P_RES_CONFU] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_SOUND)) p_ptr->res_list[P_RES_SOUND] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_SHARD)) p_ptr->res_list[P_RES_SHARD] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_NEXUS)) p_ptr->res_list[P_RES_NEXUS] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_NETHR)) p_ptr->res_list[P_RES_NETHR] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_CHAOS)) p_ptr->res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
-  if (f2 & (TR2_RES_DISEN)) p_ptr->res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
+    apply_resist(&p_ptr->res_list[P_RES_COLD], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_POIS)) 
+    apply_resist(&p_ptr->res_list[P_RES_POIS], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_LITE)) 
+    apply_resist(&p_ptr->res_list[P_RES_LITE], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_DARK)) 
+    apply_resist(&p_ptr->res_list[P_RES_DARK], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_CONFU)) 
+    apply_resist(&p_ptr->res_list[P_RES_CONFU], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_SOUND)) 
+    apply_resist(&p_ptr->res_list[P_RES_SOUND], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_SHARD)) 
+    apply_resist(&p_ptr->res_list[P_RES_SHARD], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_NEXUS)) 
+    apply_resist(&p_ptr->res_list[P_RES_NEXUS], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_NETHR)) 
+    apply_resist(&p_ptr->res_list[P_RES_NETHR], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_CHAOS)) 
+    apply_resist(&p_ptr->res_list[P_RES_CHAOS], RES_BOOST_NORMAL);
+  if (f2 & (TR2_RES_DISEN)) 
+    apply_resist(&p_ptr->res_list[P_RES_DISEN], RES_BOOST_NORMAL);
   
   /* Hack - Direct vulnerabilites from player races */
-  if (check_ability(SP_WOODEN)) p_ptr->res_list[P_RES_FIRE] -= RES_BOOST_MINOR;
-  if (check_ability(SP_SHADOW)) p_ptr->res_list[P_RES_LITE] -= RES_BOOST_MINOR;
+  if (check_ability(SP_WOODEN)) 
+    apply_resist(&p_ptr->res_list[P_RES_FIRE], RES_CUT_MINOR);
 
   /* All inherent bonuses should be known */
   for (i = 0; i < MAX_P_RES; i++)
@@ -3292,11 +3374,14 @@ extern void calc_bonuses(bool inspect)
       if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
       
       /* Status protection flags */
-      if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
-      if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
+      //if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
+      //if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
+      if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
+      if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
       
-      /* Resistance and immunity flags */
-      if (f2 & (TR2_IM_ACID)) p_ptr->res_list[P_RES_ACID] += RES_BOOST_IMMUNE;
+      /* Resistance and immunity flags - now in the object_type 
+      if (f2 & (TR2_IM_ACID)) 
+	apply_resist(&p_ptr->res_list[P_RES_ACID], RES_BOOST_IMMUNE);
       else if (f2 & (TR2_RES_ACID)) 
 	p_ptr->res_list[P_RES_ACID] += RES_BOOST_NORMAL;
       if (f2 & (TR2_IM_ELEC)) p_ptr->res_list[P_RES_ELEC] += RES_BOOST_IMMUNE;
@@ -3326,10 +3411,15 @@ extern void calc_bonuses(bool inspect)
 	p_ptr->res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
       if (f2 & (TR2_RES_DISEN)) 
 	p_ptr->res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
+      */
+
+      for (j = 0; j < MAX_P_RES; j++)
+	apply_resist(&p_ptr->res_list[j], o_ptr->percent_res[j]);
       
       /* Known resistance and immunity flags */
       if (object_known_p(o_ptr))
 	{
+	  /*
 	  u32b ff1, ff2, ff3;
 	  object_flags_known(o_ptr, &ff1, &ff2, &ff3);
 	  
@@ -3369,6 +3459,12 @@ extern void calc_bonuses(bool inspect)
 	    p_ptr->dis_res_list[P_RES_CHAOS] += RES_BOOST_NORMAL;
 	  if (ff2 & (TR2_RES_DISEN)) 
 	    p_ptr->dis_res_list[P_RES_DISEN] += RES_BOOST_NORMAL;
+	  */
+
+
+	  for (j = 0; j < MAX_P_RES; j++)
+	    apply_resist(&p_ptr->dis_res_list[j], o_ptr->percent_res[j]);
+      
 	}
       
       /* End item resistances; do bounds check on resistance levels */
@@ -3430,7 +3526,7 @@ extern void calc_bonuses(bool inspect)
   
   /* Hack -- clear a few flags for certain races. */
   
-  /* The Shadow Fairy's saving grace */
+  /* The dark elf's saving grace */
   if ((check_ability(SP_SHADOW)) && (p_ptr->aggravate)) 
     {
       p_ptr->skill_stl -= 3;
@@ -3475,23 +3571,10 @@ extern void calc_bonuses(bool inspect)
       p_ptr->pspeed += (p_ptr->speed_boost + 5) / 10;
     }
   
-  /* Speed boost in forest for elven druids and rangers */
+  /* Speed boost in trees for elven druids and rangers */
   if ((check_ability(SP_WOODSMAN)) && (check_ability(SP_ELVEN)) && 
-      ((stage_map[p_ptr->stage][STAGE_TYPE] == FOREST) ||
-      (stage_map[p_ptr->stage][STAGE_TYPE] == VALLEY)))
+      (cave_feat[p_ptr->py][p_ptr->px] == FEAT_TREE))
     p_ptr->pspeed += 3;
-
-  /* To-hit bonuses for "humans" */
-  if (((check_ability(SP_PLAINSMAN)) && 
-       (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
-      ((check_ability(SP_EDAIN)) && 
-       (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST)) ||
-      ((check_ability(SP_EDAIN)) && 
-       (stage_map[p_ptr->stage][STAGE_TYPE] == VALLEY)))
-    {
-      p_ptr->dis_to_h += 5;
-      p_ptr->to_h += 5;
-    }
 
   /* Superstealth for ents in forest */
   if ((check_ability(SP_WOODEN)) && 
@@ -3549,7 +3632,11 @@ extern void calc_bonuses(bool inspect)
   /* Evasion AC boost */
   if (check_ability(SP_EVASION) ||
       ((check_ability(SP_DWARVEN)) && 
-       (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)))
+       (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) ||
+      ((check_ability(SP_PLAINSMAN)) && 
+       (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
+      ((check_ability(SP_EDAIN)) && 
+       (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST)))
     {
       int cur_wgt = 0;
       int evasion_wgt;
@@ -3591,33 +3678,38 @@ extern void calc_bonuses(bool inspect)
   /* Temporary resists */
   if (p_ptr->oppose_acid)
     {
-      int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
-      p_ptr->res_list[P_RES_ACID] += bonus;
-      p_ptr->dis_res_list[P_RES_ACID] += bonus;
+      int bonus = RES_BOOST_GREAT;
+      if (enhance) apply_resist(&bonus, RES_BOOST_MINOR);
+      apply_resist(&p_ptr->res_list[P_RES_ACID], bonus);
+      apply_resist(&p_ptr->dis_res_list[P_RES_ACID], bonus);
     }
   if (p_ptr->oppose_fire)
     {
-      int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
-      p_ptr->res_list[P_RES_FIRE] += bonus;
-      p_ptr->dis_res_list[P_RES_FIRE] += bonus;
+      int bonus = RES_BOOST_GREAT;
+      if (enhance) apply_resist(&bonus, RES_BOOST_MINOR);
+      apply_resist(&p_ptr->res_list[P_RES_FIRE], bonus);
+      apply_resist(&p_ptr->dis_res_list[P_RES_FIRE], bonus);
     }
   if (p_ptr->oppose_cold)
     {
-      int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
-      p_ptr->res_list[P_RES_COLD] += bonus;
-      p_ptr->dis_res_list[P_RES_COLD] += bonus;
+      int bonus = RES_BOOST_GREAT;
+      if (enhance) apply_resist(&bonus, RES_BOOST_MINOR);
+      apply_resist(&p_ptr->res_list[P_RES_COLD], bonus);
+      apply_resist(&p_ptr->dis_res_list[P_RES_COLD], bonus);
     }
   if (p_ptr->oppose_elec)
     {
-      int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
-      p_ptr->res_list[P_RES_ELEC] += bonus;
-      p_ptr->dis_res_list[P_RES_ELEC] += bonus;
+      int bonus = RES_BOOST_GREAT;
+      if (enhance) apply_resist(&bonus, RES_BOOST_MINOR);
+      apply_resist(&p_ptr->res_list[P_RES_ELEC], bonus);
+      apply_resist(&p_ptr->dis_res_list[P_RES_ELEC], bonus);
     }
   if (p_ptr->oppose_pois)
     {
-      int bonus = RES_BOOST_GREAT + (enhance ? RES_BOOST_MINOR : 0);
-      p_ptr->res_list[P_RES_POIS] += bonus;
-      p_ptr->dis_res_list[P_RES_POIS] += bonus;
+      int bonus = RES_BOOST_GREAT;
+      if (enhance) apply_resist(&bonus, RES_BOOST_MINOR);
+      apply_resist(&p_ptr->res_list[P_RES_POIS], bonus);
+      apply_resist(&p_ptr->dis_res_list[P_RES_POIS], bonus);
     }
   
   /* Apply temporary "stun".  */
@@ -3644,8 +3736,8 @@ extern void calc_bonuses(bool inspect)
       p_ptr->to_a += bonus;
       p_ptr->dis_to_a += bonus;
       
-      p_ptr->res_list[P_RES_CONFU] += RES_BOOST_NORMAL;
-      p_ptr->dis_res_list[P_RES_CONFU] += RES_BOOST_NORMAL;
+      apply_resist(&p_ptr->res_list[P_RES_CONFU], RES_BOOST_NORMAL);
+      apply_resist(&p_ptr->dis_res_list[P_RES_CONFU], RES_BOOST_NORMAL);
       p_ptr->no_blind = TRUE;
     }
   
@@ -4349,6 +4441,21 @@ void notice_stuff(void)
   if (!p_ptr->notice) return;
   
   
+  /* Deal with autoinscribe stuff */
+  if (p_ptr->notice & PN_AUTOINSCRIBE)
+    {
+      p_ptr->notice &= ~(PN_AUTOINSCRIBE);
+      autoinscribe_pack();
+      autoinscribe_ground();
+    }
+  
+  /* Deal with squelch stuff */
+  if (p_ptr->notice & PN_SQUELCH)
+    {
+      p_ptr->notice &= ~(PN_SQUELCH);
+      if (hide_squelchable) squelch_drop();
+    }
+
   /* Combine the pack */
   if (p_ptr->notice & (PN_COMBINE))
     {
@@ -4497,8 +4604,8 @@ void redraw_stuff(void)
   if (p_ptr->redraw & (PR_MISC))
     {
       p_ptr->redraw &= ~(PR_MISC);
-      prt_field(rp_name + rp_ptr->name, ROW_RACE, COL_RACE);
-      prt_field(cp_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
+      prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
+      prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
     }
   
   if (p_ptr->redraw & (PR_TITLE))
@@ -4618,55 +4725,81 @@ void redraw_stuff(void)
   if (p_ptr->redraw & (PR_HUNGER))
     {
       p_ptr->redraw &= ~(PR_HUNGER);
-      prt_hunger();
+      /* temp hack */
+      update_statusline();
+      //prt_hunger();
     }
   
   if (p_ptr->redraw & (PR_BLIND))
     {
       p_ptr->redraw &= ~(PR_BLIND);
-      prt_blind();
+      /* temp hack */
+      update_statusline();
+      //prt_blind();
     }
   
   if (p_ptr->redraw & (PR_CONFUSED))
     {
       p_ptr->redraw &= ~(PR_CONFUSED);
-      prt_confused();
+      /* temp hack */
+      update_statusline();
+      //prt_confused();
     }
   
   if (p_ptr->redraw & (PR_AFRAID))
     {
       p_ptr->redraw &= ~(PR_AFRAID);
-      prt_afraid();
+      /* temp hack */
+      update_statusline();
+      //prt_afraid();
     }
   
   if (p_ptr->redraw & (PR_POISONED))
     {
       p_ptr->redraw &= ~(PR_POISONED);
-      prt_poisoned();
+      /* temp hack */
+      update_statusline();
+      //prt_poisoned();
     }
   
   if (p_ptr->redraw & (PR_STATE))
     {
       p_ptr->redraw &= ~(PR_STATE);
-      prt_state();
+      /* temp hack */
+      update_statusline();
+      //prt_state();
     }
   
   if (p_ptr->redraw & (PR_SPEED))
     {
       p_ptr->redraw &= ~(PR_SPEED);
-      prt_speed();
+      /* temp hack */
+      update_statusline();
+      //prt_speed();
     }
   
   if (p_ptr->redraw & (PR_DTRAP))
     {
       p_ptr->redraw &= ~(PR_DTRAP);
-      prt_dtrap();
+      /* temp hack */
+      update_statusline();
+      //prt_dtrap();
     }
   
   if (p_ptr->redraw & (PR_STUDY))
     {
       p_ptr->redraw &= ~(PR_STUDY);
-      prt_study();
+      /* temp hack */
+      update_statusline();
+      //prt_study();
+    }
+  
+  if (p_ptr->redraw & (PR_BUTTONS))
+    {
+      p_ptr->redraw &= ~(PR_BUTTONS);
+
+      /* temp hack */
+      update_statusline();
     }
   
   if (p_ptr->redraw & (PR_STATUS))
@@ -4743,7 +4876,7 @@ void window_stuff(void)
       fix_player_1();
     }
   
-  /* Display overhead view */
+  /* Display message */
   if (p_ptr->window & (PW_MESSAGE))
     {
       p_ptr->window &= ~(PW_MESSAGE);

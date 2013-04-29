@@ -89,7 +89,7 @@ s32b turn;			/* Current game turn */
 s32b do_feeling;		/* Hack -- Level feeling indicator */
 
 bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
+int use_graphics;		/* "graphics" mode */
 bool use_graphics_nice;	        /* The 'nice' "graphics" mode is enabled */
 bool use_trptile = FALSE;       /* The triple tile mode is enabled */
 bool use_dbltile = FALSE;       /* The double tile mode is enabled */
@@ -98,6 +98,7 @@ bool small_screen = FALSE;      /* Small screen mode for portables */
 bool use_transparency = FALSE;  /* Use transparent tiles */
 char notes_fname[1024];         /* Buffer to hold current notes file name */
 FILE *notes_file;               /* Notes file */
+char notes_start[80];           /* Opening line of notes */
 
 int image_count;  		/* Grids until next random image    */
                   		/* Optimizes the hallucination code */
@@ -112,7 +113,7 @@ bool inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */
-
+bool magic_throw;               /* Hack -- for magical throw spell */
 bool opening_chest;		/* Hack -- prevent chest generation */
 
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
@@ -259,6 +260,16 @@ char angband_term_name[TERM_WIN_MAX][16] =
   "Term-6",
   "Term-7"
 };
+
+
+
+int max_macrotrigger = 0;
+cptr macro_template = NULL;
+cptr macro_modifier_chr;
+cptr macro_modifier_name[MAX_MACRO_MOD];
+cptr macro_trigger_name[MAX_MACRO_TRIGGER];
+cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
+
 
 
 /*
@@ -447,14 +458,14 @@ monster_type *m_list;
 monster_lore *l_list;
 
 /*
- * Array[MAX_K_IDX] of object squelch values (Grrr)
- */
-bool *sq_info;
-
-/*
  * Hack -- Array[MAX_Q_IDX] of quests
  */
 quest *q_list;
+
+/*
+ * Hack -- Array[NOTES_MAX_LINES] of note records
+ */
+note_info *notes;
 
 
 /*
@@ -575,9 +586,13 @@ int add_wakeup_chance = 0;
 u32b total_wakeup_chance = 0;
 
 /*
+ * Structure (not array) of size limits
+ */
+maxima *z_info;
+
+/*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -585,7 +600,6 @@ char *v_text;
 /*
  * The themed level generation arrays. -LM-
  */
-header *t_head;
 vault_type *t_info;
 char *t_name;
 char *t_text;
@@ -593,7 +607,6 @@ char *t_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -601,7 +614,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -609,7 +621,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -617,7 +628,6 @@ char *a_text;
 /*
  * The set item arrays
  */
-header *s_head;
 set_type *s_info;
 char *s_name;
 char *s_text;
@@ -625,7 +635,6 @@ char *s_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
@@ -633,7 +642,6 @@ char *e_text;
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -641,46 +649,40 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *rp_head;
-player_race *rp_info;
-char *rp_name;
-char *rp_text;
+player_race *p_info;
+char *p_name;
+char *p_text;
 
 
 /*
  * The player class arrays
  */
-header *cp_head;
-player_class *cp_info;
-char *cp_name;
-char *cp_text;
+player_class *c_info;
+char *c_name;
+char *c_text;
 
 
 /*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
 
 
 /*
  * The object flavor arrays
  */
-header *flavor_head;
 flavor_type *flavor_info;
 char *flavor_name;
 char *flavor_text;
@@ -821,6 +823,63 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 /*
+ * Hack - the destination file for text_out_to_file.
+ */
+FILE *text_out_file = NULL;
+
+
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str);
+
+
+/*
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ */
+int text_out_wrap = 0;
+
+
+/*
+ * Hack -- Indentation for the text when using text_out().
+ */
+int text_out_indent = 0;
+
+
+/*
+ * Hack - the destination row for dump_line_screen.
+ */
+int dump_row = 0;
+
+/*
+ * Hack - the destination file for dump_line_file.
+ */
+FILE *dump_out_file = NULL;
+
+/*
+ * Hack - the destination address for  dump_line_mem.
+ */
+char_attr *dump_ptr = NULL;
+
+/*
+ * Hack -- function hook for new line dump functions.
+ */
+void (*dump_line_hook)(char_attr *this_line);
+
+/* 
+ * Array for character screen/dump
+ */
+char_attr_line *dumpline;
+
+/* 
+ * Arrays for display player subwindows
+ */
+char_attr_line *pline0;
+char_attr_line *pline1;
+
+/*
  * The "highscore" file descriptor, if available.
  */
 int highscore_fd = -1;
@@ -901,3 +960,34 @@ bool angband_keymap_flag = TRUE;
  */
 char pf_result[MAX_PF_LENGTH];
 int pf_result_index;
+
+/*
+ * Sound hook (for playing FX).
+ */
+void (*sound_hook)(int sound);
+
+
+/*
+ * For autoinscriptions.
+ */
+autoinscription *inscriptions = 0;
+u16b inscriptions_count = 0;
+
+
+/* 
+ * Mouse button handling variables
+ */
+mouse_button *mse_button;
+mouse_button *backup_button;
+int status_end    = 0;
+int depth_start   = 0;
+int button_length = 0;
+int num_buttons   = 0;
+int prompt_end = 0;
+bool normal_screen = TRUE;
+
+/* 
+ * Hooks for making and unmaking buttons
+ */
+int (*add_button_hook)(char *label, unsigned char keypress);
+int (*kill_button_hook)(unsigned char keypress);

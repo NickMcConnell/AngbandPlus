@@ -80,9 +80,9 @@ Nick McConnell
 === See also oangdesc.txt for OAngband Copyright Information ===
 === See also angdesc.txt for Angband Copyright Information ===
 
-FAangband Version 0.2.0:  Nick McConnell
+FAangband Version 0.3.0:  Nick McConnell
 
-Copyright (c) 2005      Nick McConnell, Bahman Rabii, Leon Marrick, 
+Copyright (c) 2005-2007 Nick McConnell, Bahman Rabii, Leon Marrick, 
                         Robert Ruehlmann, Ben Harrison, James E. Wilson, 
                         Robert A. Koeneke
 
@@ -96,3 +96,6 @@ distribution, since parts of the source are still only available under
 the old Moria/Angband/Oangband/FAangband license.  Until all parts of Angband
 are distributed under the GPL the only valid license remains the
 original Moria/Angband license.
+
+Note, though, that current efforts to release Angband and its variants under
+the GPL are close to complete, so future versions of FAangband may be GPLd.

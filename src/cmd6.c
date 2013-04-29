@@ -191,7 +191,7 @@ void do_cmd_eat_food(void)
       
     case SV_FOOD_CONFUSION:
       {
-	if (!p_resist_pos(P_RES_CONFU))
+	if (!p_resist_good(P_RES_CONFU))
 	  {
 	    if (set_confused(p_ptr->confused + rand_int(10) + 10))
 	      {
@@ -203,7 +203,7 @@ void do_cmd_eat_food(void)
       
     case SV_FOOD_HALLUCINATION:
       {
-	if (!p_resist_pos(P_RES_CHAOS))
+	if (!p_resist_good(P_RES_CHAOS))
 	  {
 	    if (set_image(p_ptr->image + rand_int(250) + 250))
 	      {
@@ -529,7 +529,7 @@ void do_cmd_quaff_potion(void)
       
     case SV_POTION_CONFUSION:
       {
-	if (!p_resist_pos(P_RES_CONFU))
+	if (!p_resist_good(P_RES_CONFU))
 	  {
 	    if (set_confused(p_ptr->confused + rand_int(20) + 15))
 	      {
@@ -991,7 +991,7 @@ void do_cmd_quaff_potion(void)
 	(void)detect_objects_gold(DETECT_RAD_DEFAULT, FALSE);
 	(void)detect_objects_normal(DETECT_RAD_DEFAULT, FALSE);
 	identify_pack();
-	self_knowledge();
+	self_knowledge(TRUE);
 	ident = TRUE;
 	break;
       }
@@ -1000,7 +1000,7 @@ void do_cmd_quaff_potion(void)
       {
 	msg_print("You begin to know yourself a little better...");
 	msg_print(NULL);
-	self_knowledge();
+	self_knowledge(TRUE);
 	ident = TRUE;
 	break;
       }
@@ -1538,6 +1538,34 @@ void do_cmd_read_scroll(void)
 	
 	break;
       }
+    case SV_SCROLL_ACID_PROOF:
+      {
+	if (!el_proof(ACID_PROOF)) used_up = FALSE;
+	ident = TRUE;
+	break;
+      }
+
+    case SV_SCROLL_ELEC_PROOF:
+      {
+	if (!el_proof(ELEC_PROOF)) used_up = FALSE;
+	ident = TRUE;
+	break;
+      }
+
+    case SV_SCROLL_FIRE_PROOF:
+      {
+	if (!el_proof(FIRE_PROOF)) used_up = FALSE;
+	ident = TRUE;
+	break;
+      }
+
+    case SV_SCROLL_COLD_PROOF:
+      {
+	if (!el_proof(COLD_PROOF)) used_up = FALSE;
+	ident = TRUE;
+	break;
+      }
+
     }
   
   

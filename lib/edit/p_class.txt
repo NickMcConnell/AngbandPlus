@@ -34,8 +34,8 @@
 
 # 'X' is for the skill modifiers - disarming, magic devices, saving
 # throws, stealth, searching ability, searching frequency, to hit
-# (normal), to hit (bows).  The modifiers are added to the base skill
-# every ten levels.
+# (normal), to hit (bows).  The modifiers/50 are added to the base skill
+# every level.
 
 # 'I' is for extra info - max. hitpoints gained per level, base chance
 # for pseudo-id (smaller is better)
@@ -58,7 +58,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 
 N:0:Warrior
@@ -196,7 +196,7 @@ E:75:32:1:1
 U:STRONG_BASHES | PSEUDO_ID_HEAVY | HOLY | BLESS_WEAPON
 L:ARMOR_MAST | ARMSMAN | ATHLETICS | FAST_ATTACK | FURY
 L:REGENERATION | SHIELD_MAST | ENHANCE_MAGIC | MAGIC_RESIST | HOLY_LIGHT |
-L:HARMONY
+L:HARMONY | MARTIAL_ARTS
 T:Gallant
 T:Keeper
 T:Protector
@@ -212,7 +212,7 @@ N:6:Druid
 S:-2:-2:3:1:0:1
 C:22:26:30:4:24:16:12:21
 X:40:45:60:0:0:0:30:40
-I:0:360000
+I:2:360000
 A:50:120:33:30:0:0
 E:92:0:1:1
 E:75:27:1:1
@@ -220,7 +220,7 @@ E:75:37:1:1
 U:UNARMED_COMBAT | WOODSMAN | STRONG_MAGIC | CHARM
 L:ARMOR_PROFICIENCY | BEGUILE | CLARITY | FAST_CAST | MEDITATION
 L:ENHANCE_MAGIC | REGENERATION | HARMONY | POWER_STRIKE | HEIGHTEN_MAGIC |
-L:CHANNELING
+L:CHANNELING | TRAP 
 T:Wanderer
 T:Tamer
 T:Nurturer
@@ -269,7 +269,7 @@ E:16:1:25:25
 U:ASSASSINATE | STRONG_SHOOT | EVIL | PSEUDO_ID_HEAVY
 L:ARMSMAN | ATHLETICS | EVASION | FAST_ATTACK | MARKSMAN
 L:PIERCE_SHOT | REGENERATION | MIGHTY_THROW | UNLIGHT | FURY |
-L:MANA_BURN
+L:MANA_BURN | MARTIAL_ARTS
 T:Trainee
 T:Myrmidon
 T:Initiate

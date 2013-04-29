@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -94,15 +94,15 @@ M:11
 N:13:web
 G:%:y
 
-# 0x0E --> shop -- black market (old)
+# 0x0E --> special feature -- void
 
 N:14:empty space
 G: :D
 
 # 0x0F --> shop -- home (old)
 
-N:15:Home
-G:8:y
+#N:15:Home
+#G:8:y
 
 # 0x10 --> visible trap -- trap door.  Level 2 and below.
 # This location is hard-coded, to prevent trap doors on quest levels.
@@ -157,33 +157,33 @@ G:^:W
 
 # 0x1A --> visible trap -- unused
 
-N:26:????
-G:^:r
+#N:26:????
+#G:^:r
 
 # 0x1B --> visible trap -- unused
 
-N:27:????
-G:^:r
+#N:27:????
+#G:^:r
 
 # 0x1C --> visible trap -- unused
 
-N:28:????
-G:^:g
+#N:28:????
+#G:^:g
 
 # 0x1D --> visible trap -- unused
 
-N:29:????
-G:^:g
+#N:29:????
+#G:^:g
 
 # 0x1E --> visible trap -- unused
 
-N:30:????
-G:^:g
+#N:30:????
+#G:^:g
 
 # 0x1F --> visible trap -- unused
 
-N:31:????
-G:^:g
+#N:31:????
+#G:^:g
 
 # 0x20 --> locked door (power 0)
 
@@ -487,18 +487,18 @@ G:^:y
 
 # 0x5D --> monster trap -- unused
 
-N:93:monster trap
-G:^:y
+#N:93:monster trap
+#G:^:y
 
 # 0x5E --> monster trap -- unused
 
-N:94:monster trap
-G:^:y
+#N:94:monster trap
+#G:^:y
 
 # 0x5F --> monster trap -- unused
 
-N:95:monster trap
-G:^:y
+#N:95:monster trap
+#G:^:y
 
 # 0x60  --> easy path north
 

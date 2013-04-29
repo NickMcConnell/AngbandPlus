@@ -54,6 +54,7 @@
 
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_XXX

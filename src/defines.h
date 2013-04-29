@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.2.3"
+#define VERSION_STRING	"0.3.0"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
-#define VERSION_MINOR	2
-#define VERSION_PATCH	3
+#define VERSION_MINOR	3
+#define VERSION_PATCH	0
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -132,6 +132,18 @@
  */
 #define DETECT_RAD_DEFAULT      30
 #define DETECT_RAD_MAP          255
+
+/* 
+ * Hard line maxima for char_attr lines 
+ */
+#define MAX_C_A_LEN 80
+#define MAX_C_A_SML 48
+
+/*
+ * Maximum amount of Angband windows.
+ */
+#define ANGBAND_TERM_MAX 8
+
 
 /*
  * Total number of towns 
@@ -213,21 +225,6 @@
  */
 #define CLASS_SPECIALTIES      15
 
-/*
- * Maximum array bounds for template based arrays
- */
-#define MAX_F_IDX	104	/* Max size for "f_info[]" */
-#define MAX_K_IDX	755	/* Max size for "k_info[]" */
-#define MAX_A_IDX	250	/* Max size for "a_info[]" */
-#define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	800	/* Max size for "r_info[]" */
-#define MAX_V_IDX	300	/* Max size for "v_info[]" */
-#define MAX_H_IDX	223	/* Max size for "h_info[]" */
-#define MAX_B_IDX	14	/* Max size for "b_info[]" */
-#define MAX_P_IDX	14	/* Max size for "p_info[]" */
-#define MAX_S_IDX	7	/* Max size for "s_info[]" */
-#define MAX_FL_IDX      401     /* Max size for "flavor_info[]" */
-
 
 
 #define MAX_TITLES     60	/* Used with scrolls (min 48) */
@@ -254,12 +251,6 @@
  */
 #define ART_MIN_NORMAL		23
 #define ART_MIN_RANDOM		210
-
-/*
- * Maximum array bounds for entity list arrays
- */
-#define MAX_O_IDX	1024	/* Max size for "o_list[]" */
-#define MAX_M_IDX	1024	/* Max size for "m_list[]" */
 
 /*
  * Number of tval/min-sval/max-sval slots per ego_item
@@ -338,6 +329,11 @@
 #define QUARK_MAX	512
 
 /*
+ * OPTION: Maximum number of autoinscriptions(see "object1.c")
+ */
+#define AUTOINSCRIPTIONS_MAX 216
+
+/*
  * OPTION: Maximum number of messages to remember (see "io.c")
  * Default: assume maximal memorization of 2048 total messages
  */
@@ -351,7 +347,7 @@
 #define MESSAGE_BUF	32768
 
 /*
- * Defines for graphics mode - mostly unused -NRM-
+ * Defines for graphics mode
  */
 
 #define GRAPHICS_NONE           0
@@ -359,6 +355,14 @@
 #define GRAPHICS_ADAM_BOLT      2
 #define GRAPHICS_DAVID_GERVAIS  3
 #define GRAPHICS_PSEUDO         4
+
+
+/*
+ * List of commands that will be auto-repeated
+ *
+ * ToDo: This string should be user-configurable.
+ */
+#define AUTO_REPEAT_COMMANDS "TBDoc+"
 
 
 /* 
@@ -524,6 +528,7 @@
 /*
  * Player "food" crucial values
  */
+#define PY_FOOD_UPPER   20000   /* Upper limit on food counter */
 #define PY_FOOD_MAX	15000	/* Food value (Bloated) */
 #define PY_FOOD_FULL	10000	/* Food value (Normal) */
 #define PY_FOOD_ALERT	2000	/* Food value (Hungry) */
@@ -608,6 +613,15 @@
  */
 #define MAX_STACK_SIZE	100
 
+
+
+/*
+ * Maximum number of objects allowed in a single dungeon grid.
+ *
+ * The main-screen has a minimum size of 24 rows, so we can always
+ * display 23 objects + 1 header line.
+ */
+#define MAX_FLOOR_STACK			23
 
 
 /*
@@ -782,33 +796,38 @@
 #define MAX_P_RES		14
 
 /*
- * Offset zero for incremental resistance points.
+ * Resistance limits - the number really means percentage damage taken -NRM-.
  */
-#define RES_LEVEL_BASE		20
-#define RES_LEVEL_MAX		49
-#define RES_LEVEL_MIN		10
+#define RES_LEVEL_BASE		100
+#define RES_LEVEL_MAX		200
+#define RES_LEVEL_MIN		0
 
 /*
  * Incremental resistance modifiers and caps.
  */
-#define RES_BOOST_NORMAL	2
-#define RES_BOOST_GREAT		4
-#define RES_BOOST_IMMUNE	10
-#define RES_BOOST_MINOR		1
-#define RES_CAP_EXTREME		(RES_LEVEL_BASE + 1)
-#define RES_CAP_MODERATE	(RES_LEVEL_BASE + 3)
+#define RES_BOOST_NORMAL	60
+#define RES_BOOST_GREAT		45
+#define RES_BOOST_IMMUNE	0
+#define RES_BOOST_MINOR		75
+#define RES_CUT_MINOR           130
+#define RES_CUT_NORMAL          150
+#define RES_CUT_GREAT           180
+#define RES_CAP_EXTREME		75
+#define RES_CAP_MODERATE	40
 
 /*
  * Some qualitative checks.
  */
 #define p_resist_pos(X) \
-   (extract_resistance[p_ptr->res_list[X]] > 0)
+   (p_ptr->res_list[X] < 100)
+#define p_resist_good(X) \
+   (p_ptr->res_list[X] <= 80)
 #define p_resist_strong(X) \
-   (extract_resistance[p_ptr->res_list[X]] >= 80)
+   (p_ptr->res_list[X] <= 20)
 #define p_immune(X) \
-   (extract_resistance[p_ptr->res_list[X]] >= 100)
+   (p_ptr->res_list[X] == 0)
 #define p_vulnerable(X) \
-   (extract_resistance[p_ptr->res_list[X]] < 0)
+   (p_ptr->res_list[X] > 100)
 
 /*
  * Spell types used by project(), and related functions.
@@ -887,7 +906,7 @@
 #define GF_OLD_CONF	79
 #define GF_OLD_SLEEP	80
 #define GF_OLD_DRAIN	81
-#define GF_XXX8		82
+#define GF_NATURE	82
 
 /*
  * Some constants for the "learn" code.  These generalized from the
@@ -1000,6 +1019,7 @@
  * Nother one. -NRM-
  */
 #define FEAT_SHOP_HEAD 0x40
+#define FEAT_SHOP_HOME 0x47
 #define FEAT_SHOP_TAIL 0x49
 
 /* Specials trap that only effects monsters.  Created only by rogues. -LM- */
@@ -1789,6 +1809,10 @@
 #define SV_AMULET_BOROMIR		13
 #define SV_AMULET_ELESSAR		14
 #define SV_AMULET_LION		        15
+#define SV_AMULET_ARTIFACT_0            16
+#define SV_AMULET_ARTIFACT_1            17
+#define SV_AMULET_ARTIFACT_2            18
+#define SV_AMULET_ARTIFACT_3            19
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE			0
@@ -1829,6 +1853,12 @@
 /* xxx */
 #define SV_RING_EREGION			40
 #define SV_RING_WARFARE			41
+#define SV_RING_ARTIFACT_0              42
+#define SV_RING_ARTIFACT_1              43
+#define SV_RING_ARTIFACT_2              44
+#define SV_RING_ARTIFACT_3              45
+#define SV_RING_ARTIFACT_4              46
+#define SV_RING_ARTIFACT_5              47
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0
@@ -2002,6 +2032,10 @@
 #define SV_SCROLL_ACQUIREMENT			        46
 #define SV_SCROLL_STAR_ACQUIREMENT		        47
 #define SV_SCROLL_ELE_ATTACKS			        48
+#define SV_SCROLL_ACID_PROOF			        49
+#define SV_SCROLL_ELEC_PROOF			        50
+#define SV_SCROLL_FIRE_PROOF			        51
+#define SV_SCROLL_COLD_PROOF			        52
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER				0
@@ -2163,8 +2197,16 @@
 
 
 
+/*** Squelch stuff ***/
+
+/* Number of bytes used in squelch sub-quality array */
+#define SQUELCH_BYTES    6
+
+
 /*** Monster blow constants ***/
 
+
+#define MONSTER_BLOW_MAX 4
 
 /*
  * New monster blow methods
@@ -2320,6 +2362,9 @@
  */
 #define PN_COMBINE	0x00000001L	/* Combine the pack */
 #define PN_REORDER	0x00000002L	/* Reorder the pack */
+#define PN_AUTOINSCRIBE	0x00000004L	/* Autoinscribe items */
+#define PN_PICKUP       0x00000008L	/* Pick stuff up */
+#define PN_SQUELCH      0x00000010L	/* Squelch stuff */
 /* xxx (many) */
 
 
@@ -2375,6 +2420,7 @@
 #define PR_MON_MANA	0x04000000L	/* Display Mana Bar */
 #define PR_MAP		0x08000000L	/* Display Map */
 #define PR_WIPE         0x10000000L     /* Hack -- Total Redraw */
+#define PR_BUTTONS      0x20000000L     /* Display mouse buttons */
 /* xxx (many) */
 #define PR_STATUS	0x80000000L /* Display extra status messages */
 
@@ -2399,6 +2445,7 @@
 #define PW_BORG_1	0x00004000L	/* Display borg messages */
 #define PW_BORG_2	0x00008000L	/* Display borg status */
 
+#define PW_MAX_FLAGS		16
 
 /*
  * Bit flags for the "p_ptr->special_attack" variable. -LM-
@@ -2593,7 +2640,7 @@
 #define TR1_SLAY_TROLL		0x00200000L	/* Weapon slays troll */
 #define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
-#define TR1_SLAY_KILL		0x02000000L     /* Weapon has strong slays  */
+#define TR1_SLAY_KILL		0x01000000L     /* Weapon has strong slays  */
 #define TR1_THROWING		0x02000000L     /* Weapon can be thrown. */
 #define TR1_PERFECT_BALANCE	0x04000000L     /* Weapon perfectly balanced */
 #define TR1_BRAND_POIS		0x08000000L     /* Weapon has poison brand */
@@ -2610,10 +2657,10 @@
 #define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
 #define TR2_XXX1		0x00000040L	/* (reserved) */
 #define TR2_XXX2		0x00000080L	/* (reserved) */
-#define TR2_XXX3		0x00001000L	/* (reserved) */
-#define TR2_XXX4		0x00002000L	/* (reserved) */
-#define TR2_XXX5		0x00004000L	/* (reserved) */
-#define TR2_XXX6		0x00008000L	/* (reserved) */
+#define TR2_RAND_RES_NEG	0x00000100L	/* Random vulnerabilities */
+#define TR2_RAND_RES_SML	0x00000200L	/* Random small resistances */
+#define TR2_RAND_RES		0x00000400L	/* Random resistances */
+#define TR2_RAND_RES_XTRA	0x00000800L	/* Random extra resistances */
 #define TR2_IM_ACID		0x00001000L	/* Immunity to acid */
 #define TR2_IM_ELEC		0x00002000L	/* Immunity to elec */
 #define TR2_IM_FIRE		0x00004000L	/* Immunity to fire */
@@ -2623,10 +2670,12 @@
 #define TR2_RES_FIRE		0x00040000L	/* Resist fire */
 #define TR2_RES_COLD		0x00080000L	/* Resist cold */
 #define TR2_RES_POIS		0x00100000L	/* Resist poison */
-#define TR2_RES_FEAR		0x00200000L     /* Resist fear */
+//#define TR2_RES_FEAR		0x00200000L     /* Resist fear */
+#define TR2_XXX3  	        0x00200000L     /* Was resist fear */
 #define TR2_RES_LITE		0x00400000L	/* Resist lite */
 #define TR2_RES_DARK		0x00800000L	/* Resist dark */
-#define TR2_RES_BLIND		0x01000000L	/* Resist blind */
+//#define TR2_RES_BLIND		0x01000000L	/* Resist blind */
+#define TR2_XXX4		0x01000000L	/* Was resist blind */
 #define TR2_RES_CONFU		0x02000000L	/* Resist confusion */
 #define TR2_RES_SOUND		0x04000000L	/* Resist sound */
 #define TR2_RES_SHARD		0x08000000L	/* Resist shards */
@@ -2643,8 +2692,8 @@
 #define TR3_SEE_INVIS		0x00000020L	/* See Invis */
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
-#define TR3_XXX1		0x00000100L
-#define TR3_XXX2		0x00000200L
+#define TR3_SEEING		0x00000100L     /* Old RBlind */
+#define TR3_FEARLESS		0x00000200L     /* Old RFear */
 #define TR3_XXX3		0x00000400L
 #define TR3_NO_ORDER		0x00000800L     /* Item cannot be ordered */
 #define TR3_IMPACT		0x00001000L	/* Earthquake blows */
@@ -2680,6 +2729,14 @@
          TR1_CON | TR1_CHR | TR1_XXX1 | TR1_MAGIC_MASTERY | \
          TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
          TR1_SPEED)
+/*
+ * Element-proofing flags
+ */
+#define ACID_PROOF              0x01
+#define ELEC_PROOF              0x02
+#define FIRE_PROOF              0x04
+#define COLD_PROOF              0x08
+
 
 
 /*
@@ -2716,7 +2773,8 @@
  */
 #define OBJECT_XTRA_SIZE_SUSTAIN	6
 #define OBJECT_XTRA_SIZE_RESIST		12
-#define OBJECT_XTRA_SIZE_POWER		8
+//#define OBJECT_XTRA_SIZE_POWER		8
+#define OBJECT_XTRA_SIZE_POWER		10
 #define OBJECT_XTRA_SIZE_BALANCE	1
 
 
@@ -2786,9 +2844,10 @@
 						 * telepathy */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
-#define RF2_XXX1		0x00000400	/* (?) */
-#define RF2_NO_PLACE		0x00000800      /* Monster can never be placed,
+#define RF2_NO_PLACE		0x00000400      /* Monster can never be placed,
                                                    only shapechanged into */
+#define RF2_ANGBAND		0x00000400	/* Monster only appears in
+                                                   Angband */
 #define RF2_RUDH		0x00001000	/* Monster only appears 
 						 * in Amon Rudh */
 #define RF2_NARGOTHROND		0x00002000	/* Monster only appears 
@@ -2830,7 +2889,7 @@
 #define RF3_UNDEAD		0x00000020	/* Undead */
 #define RF3_EVIL		0x00000040	/* Evil */
 #define RF3_ANIMAL		0x00000080	/* Animal */
-#define RF3_XXX1		0x00000100	/* (?) */
+#define RF3_TERRITORIAL		0x00000100	/* Territorial */
 #define RF3_XXX2		0x00000200	/* (?) */
 #define RF3_XXX3		0x00000400	/* Non-Vocal (?) */
 #define RF3_XXX4		0x00000800	/* Non-Living (?) */
@@ -3112,6 +3171,7 @@
 
 /*** Option Definitions ***/
 
+#define OPT_NONE		       255
 #define OPT_MAX	                       256
 #define OPT_PAGE_MAX                     6
 #define OPT_PAGE_PER                    20
@@ -3135,7 +3195,7 @@
 #define OPT_use_old_target		4
 #define OPT_always_pickup		5
 #define OPT_always_repeat		6
-#define OPT_depth_in_feet		7
+#define OPT_squelch_worthless		7
 #define OPT_stack_force_notes		8
 #define OPT_stack_force_costs		9
 #define OPT_show_labels			10
@@ -3202,6 +3262,8 @@
 #define OPT_show_detect                 69 /*This is really quite out of order -BR-*/
 #define OPT_disturb_trap_detect         70 /*This is really quite out of order -BR-*/
 #define OPT_show_lists                  71
+#define OPT_hide_squelchable		72
+#define OPT_auto_squelch		73
 
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
@@ -3243,7 +3305,7 @@
 #define use_old_target			op_ptr->opt[OPT_use_old_target]
 #define always_pickup			op_ptr->opt[OPT_always_pickup]
 #define always_repeat			op_ptr->opt[OPT_always_repeat]
-#define depth_in_feet			op_ptr->opt[OPT_depth_in_feet]
+#define squelch_worthless		op_ptr->opt[OPT_squelch_worthless]
 #define stack_force_notes		op_ptr->opt[OPT_stack_force_notes]
 #define stack_force_costs		op_ptr->opt[OPT_stack_force_costs]
 #define show_labels			op_ptr->opt[OPT_show_labels]
@@ -3254,6 +3316,8 @@
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
 #define hp_changes_colour               op_ptr->opt[OPT_hp_changes_colour]
 #define show_detect    		        op_ptr->opt[OPT_show_detect]
+#define hide_squelchable		op_ptr->opt[OPT_hide_squelchable]
+#define auto_squelch			op_ptr->opt[OPT_auto_squelch]
 
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
@@ -3699,32 +3763,6 @@ extern int PlayerUID;
 
 
 
-/*** Color constants ***/
-
-
-/*
- * Angband "attributes" (with symbols, and base (R,G,B) codes)
- *
- * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,
- * and should "gamma corrected" on most (non-Macintosh) machines.
- */
-#define TERM_DARK	0	/* 'd' */	/* 0,0,0 */
-#define TERM_WHITE	1	/* 'w' */	/* 4,4,4 */
-#define TERM_SLATE	2	/* 's' */	/* 2,2,2 */
-#define TERM_ORANGE	3	/* 'o' */	/* 4,2,0 */
-#define TERM_RED	4	/* 'r' */	/* 3,0,0 */
-#define TERM_GREEN	5	/* 'g' */	/* 0,2,1 */
-#define TERM_BLUE	6	/* 'b' */	/* 0,0,4 */
-#define TERM_UMBER	7	/* 'u' */	/* 2,1,0 */
-#define TERM_L_DARK	8	/* 'D' */	/* 1,1,1 */
-#define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
-#define TERM_VIOLET	10	/* 'v' */	/* 4,0,4 */
-#define TERM_YELLOW	11	/* 'y' */	/* 4,4,0 */
-#define TERM_L_RED	12	/* 'R' */	/* 4,0,0 */
-#define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
-#define TERM_L_BLUE	14	/* 'B' */	/* 0,4,4 */
-#define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
-
 /* Color code identifiers for messages */
 #define MSG_GENERIC          0
 #define MSG_HIT              1
@@ -3799,6 +3837,13 @@ extern int PlayerUID;
 
 /*** Hack ***/
 
+/*
+ * Maximum number of macro trigger names
+ */
+#define MAX_MACRO_TRIGGER 200
+#define MAX_MACRO_MOD 12
+
+
 
 /*
  * Hack -- attempt to reduce various values
@@ -3813,21 +3858,6 @@ extern int PlayerUID;
 # undef MESSAGE_BUF
 # define MESSAGE_BUF	4096
 #endif
-
-/*
- * Parse errors
- */
-#define PARSE_ERROR_GENERIC                  1
-#define PARSE_ERROR_OBSOLETE_FILE            2
-#define PARSE_ERROR_MISSING_RECORD_HEADER    3
-#define PARSE_ERROR_NON_SEQUENTIAL_RECORDS   4
-#define PARSE_ERROR_INVALID_FLAG             5
-#define PARSE_ERROR_UNDEFINED_DIRECTIVE      6
-#define PARSE_ERROR_OUT_OF_MEMORY            7
-#define PARSE_ERROR_OUT_OF_BOUNDS            8
-#define PARSE_ERROR_TOO_FEW_ARGUMENTS        9
-#define PARSE_ERROR_TOO_MANY_ARGUMENTS      10
-#define PARSE_ERROR_MAX                     11
 
 /*
  * Total number of specialties -CN-
@@ -3954,6 +3984,27 @@ extern int PlayerUID;
  * Max number of terminal windows -CN-
  */
 #define TERM_WIN_MAX 8
+
+/*
+ * Max number of lines of notes
+ */
+#define DUMP_MAX_LINES 500
+
+/*
+ * Max number of lines of notes
+ */
+#define NOTES_MAX_LINES 300
+
+/* 
+ * Notes types - defined to be the colour they appear for efficiency
+ */
+#define NOTE_ARTIFACT   TERM_L_BLUE
+#define NOTE_MOVE       TERM_BLUE
+#define NOTE_LEVEL      TERM_YELLOW
+#define NOTE_SPECIALTY  TERM_RED
+#define NOTE_UNIQUE     TERM_UMBER
+#define NOTE_PLAYER     TERM_WHITE
+#define NOTE_DEATH      TERM_VIOLET
 
 /*
  * Special note used to mark the end of the notes section in the savefile
@@ -4094,3 +4145,14 @@ extern int PlayerUID;
 #define MOUSE_REPEAT 10
 #define MOUSE_RETURN 11
 #define MOUSE_ESCAPE 12
+
+/* 
+ * Maximum number of mouse buttons 
+ */
+#define MAX_MOUSE_BUTTONS  20
+
+/* 
+ * Maximum length of mouse button label 
+ */
+#define MAX_MOUSE_LABEL  10
+

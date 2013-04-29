@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -1739,7 +1739,7 @@ G:=:d
 I:45:1:0
 W:5:0:2:100
 A:5/2
-F:RES_FEAR | AGGRAVATE | EASY_KNOW
+F:FEARLESS | AGGRAVATE | EASY_KNOW
 D:that fills you and the monsters with the urge to fight.
 
 N:262:Weakness
@@ -1861,6 +1861,7 @@ G:=:d
 I:45:16:0
 W:14:0:2:500
 A:14/1
+F:RAND_RES_SML
 D:that magically effects your armour.
 
 N:277:Acid
@@ -2090,7 +2091,7 @@ I:40:8:0
 W:75:0:3:25000
 A:75/8
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | RES_BLIND | RES_CONFU
+F:FREE_ACT | SEE_INVIS | SEEING | RES_CONFU | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:that bears powerful enchantments to see the unseen, and to render you clear 
 D:of mind and eye against even the most powerful of dark magics.
@@ -2111,7 +2112,15 @@ A:80/5
 F:ACTIVATE | EASY_KNOW
 D:that can turn you into the king of beasts.
 
-## XXX 313 XXX ##
+N:313:Sustenance
+G:":d
+I:40:9:0
+W:60:0:3:17500
+A:60/6
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
+F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+D:that sustains your life and stats.
 
 ## XXX 314 XXX ##
 
@@ -2436,7 +2445,7 @@ D:that withers all undead within line of sight.
 N:364:Genocide
 G:?:d
 I:70:44:0
-W:45:0:5:750
+W:50:0:5:750
 A:50/4
 D:that banishes all monsters of a give type from the level.  Unique 
 D:foes are immune, as are those in protected areas.
@@ -2470,13 +2479,33 @@ W:40:0:5:700
 A:40/2
 D:that infuses your blows with elemental power.
 
-## XXX 369 XXX ##
+N:369:Acidproofing
+G:?:d
+I:70:49:0
+W:45:0:5:1000
+A:70/4
+D:that makes one object immune to acid attacks.
 
-## XXX 370 XXX ##
+N:370:Electroproofing
+G:?:d
+I:70:50:0
+W:45:0:5:1000
+A:70/4
+D:that makes one object immune to electric attacks.
 
-## XXX 371 XXX ##
+N:371:Fireproofing
+G:?:d
+I:70:51:0
+W:45:0:5:1000
+A:70/4
+D:that makes one object immune to fire attacks.
 
-## XXX 372 XXX ##
+N:372:Coldproofing
+G:?:d
+I:70:52:0
+W:45:0:5:1000
+A:70/4
+D:that makes one object immune to cold attacks.
 
 ## XXX 373 XXX ##
 
@@ -4900,28 +4929,72 @@ I:39:15:0
 W:70:0:15:20000
 F:INSTA_ART
 
+# Placeholders for random artifact amulets
+
+N:744:& Amulet~
+G:":d
+I:40:16:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:745:& Amulet~
+G:":d
+I:40:17:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:746:& Amulet~
+G:":d
+I:40:18:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:747:& Amulet~
+G:":d
+I:40:19:0
+W:70:0:15:20000
+F:INSTA_ART
+
+# Placeholder for random artifact rings
+
+N:748:& Ring~
+G:=:d
+I:45:42:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:749:& Ring~
+G:=:d
+I:45:43:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:750:& Ring~
+G:=:d
+I:45:44:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:751:& Ring~
+G:=:d
+I:45:45:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:752:& Ring~
+G:=:d
+I:45:46:0
+W:70:0:15:20000
+F:INSTA_ART
+
+N:753:& Ring~
+G:=:d
+I:45:47:0
+W:70:0:15:20000
+F:INSTA_ART
+
 ##### Reserved locations for future special artifacts #####
 
-
-## XXX 744 XXX ##
-
-## XXX 745 XXX ##
-
-## XXX 746 XXX ##
-
-## XXX 747 XXX ##
-
-## XXX 748 XXX ##
-
-## XXX 749 XXX ##
-
-## XXX 750 XXX ##
-
-## XXX 751 XXX ##
-
-## XXX 752 XXX ##
-
-## XXX 753 XXX ##
 
 ## XXX 754 XXX ##
 

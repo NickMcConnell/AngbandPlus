@@ -34,6 +34,7 @@ what can you expect from a system designed for the Vax... :-)
 
 
 #include "angband.h"
+#include "main.h"
 
 #if defined(USE_VME) || defined(VM)
 
@@ -334,6 +335,8 @@ static errr Term_xtra_vm(int n, int v)
 	return (1);
 }
 
+const char help_vme[] =
+"VME (VAX/ESA)";
 
 /*
  * Initialize the VM/CNSconsole.

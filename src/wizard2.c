@@ -10,7 +10,7 @@
  */
 
 #include "angband.h"
-
+#include "cmds.h"
 
 
 #ifdef ALLOW_DEBUG
@@ -766,7 +766,7 @@ static int wiz_create_itemtype(bool artifact)
 	      ch = head[num/20] + (num%20);
 	      
 	      /* Acquire the "name" of object "i" */
-	      strip_name(buf, i);
+	      strip_name(buf, i, TRUE);
 	      
 	      /* Print it */
 	      prt(format("[%c] %s", ch, buf), row, col);
@@ -1585,6 +1585,7 @@ static void wiz_create_artifact(void)
 {
   object_type object_type_body;
   object_type *o_ptr;
+  int i;
   int a_idx;
   int o_idx;
   artifact_type *a_ptr;
@@ -1629,6 +1630,10 @@ static void wiz_create_artifact(void)
   o_ptr->to_h = a_ptr->to_h;
   o_ptr->to_d = a_ptr->to_d;
   o_ptr->weight = a_ptr->weight;
+  for (i = 0; i < MAX_P_RES; i++)
+    o_ptr->percent_res[i] = a_ptr->percent_res[i];
+  o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
+      
   
   /* Transfer the activation information. */
   if (a_ptr->activation)
@@ -1798,11 +1803,6 @@ extern void do_cmd_spoilers(void);
 
 
 
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
-
 
 
 /*
@@ -1931,7 +1931,7 @@ void do_cmd_debug(void)
       /* Self-Knowledge */
     case 'k':
       {
-	self_knowledge();
+	self_knowledge(TRUE);
 	break;
       }
       

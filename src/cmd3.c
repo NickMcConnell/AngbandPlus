@@ -16,9 +16,20 @@
 
 
 /*
- * Display inventory
+ * Display inventory - new - will anyone notice?
  */
 void do_cmd_inven(void)
+{
+  show_obj();
+}
+
+
+
+
+/*
+ * Display inventory
+ */
+void do_cmd_inven_old(void)
 {
   char string[80];
   
@@ -476,8 +487,14 @@ void do_cmd_wield(void)
       /* Warn the player */
       msg_print("Oops! It feels deathly cold!");
       
+      /* Sense the object */
+      o_ptr->feel = FEEL_CURSED;
+
       /* Note the curse */
       o_ptr->ident |= (IDENT_SENSE);
+
+      /* Set squelched status */
+      p_ptr->notice |= PN_SQUELCH;
     }
   
   /* Recalculate bonuses */
@@ -671,10 +688,10 @@ void do_cmd_destroy(void)
 	return;
     }
   
-  /* Try to destroy all items marked SQUELCH */
+  /* Deal with squelched items */
   if (item == ALL_SQUELCHED)
     {
-      (void)(destroy_squelched_items());
+      squelch_items();
       return;
     }
   
@@ -752,7 +769,6 @@ void do_cmd_destroy(void)
 	      
 	      /*set to squelch*/
 	      k_ptr->squelch = TRUE;
-	      sq_info[o_ptr->k_idx] = TRUE;
 
 	      /* Message - no good routine for extracting the plain name*/
 	      msg_format("All %^s will always be squelched.", o_name2);
@@ -839,226 +855,45 @@ void do_cmd_destroy(void)
  *
  * Boolean value "in_store" only takes effect if player is in some store.
  */
-void do_cmd_observe(object_type *o_ptr, bool in_store)
+void do_cmd_observe(void)
 {
   int item;
-  int y, x;
-  int i;
-  
-  bool aware, known, known_effects, mental;
-  
-  object_kind *k_ptr;
-  
-  char o_name[120];
-  
-  char info_text[2048];
-  char *object_kind_info;
-  
-  u32b f1, f2, f3;
+
+  object_type *o_ptr;  
+
   cptr q, s;
-  
-  /* Initialize object description. */
-  strcpy(info_text, "");
-  
-  /* If not called in a store, we must get an object to inspect. */
-  if (!o_ptr)
-    {
-      /* Do we have an item? */
-      if (p_ptr->command_item) 
-	{
-	  item = handle_item();
-	  if (!get_item_allow(item)) return;
-	}
 
-      /* Get an item */
-      else
-	{
-	  q = "Examine which item? ";
-	  s = "You have nothing to examine.";
-	  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
-	    return;
-	}
-      
-      /* Get the item (in the pack) */
-      if (item >= 0)
-	{
-	  o_ptr = &inventory[item];
-	}
-      
-      /* Get the item (on the floor) */
-      else
-	{
-	  o_ptr = &o_list[0 - item];
-	}
-    }
-  
-  
-  /* Get the object kind. */
-  k_ptr = &k_info[o_ptr->k_idx];
-  
-  
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
-  /* Create and output a status message (hack - not in stores). */
-  if (!in_store)
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
     {
-      object_desc(o_name, o_ptr, TRUE, 3);
-      msg_format("Examining %s...", o_name);
+      item = handle_item();
+      if (!get_item_allow(item)) return;
     }
   
-  
-  /* What is our level of knowledge about the object? */
-  aware = object_aware_p(o_ptr);
-  known = (object_known_p(o_ptr) || in_store);
-  known_effects = k_ptr->known_effect;
-  mental = o_ptr->ident & (IDENT_MENTAL);
-  
-  /* Hack - Avoid giving away too much info in normal stores about objects 
-   * other than weapons and armour (no sneaky learning about wand damages!).
-   */
-  if ((in_store) && ((!k_ptr->known_effect) && 
-		     ((o_ptr->tval < TV_SHOT) || 
-		      (o_ptr->tval > TV_DRAG_ARMOR))))
-    {
-      known = TRUE;
-      mental = FALSE;
-    }
-  
-  /* Object is fully known - give maximal information. */
-  if (mental)
-    {
-      /* Get the specific object type's information. */
-      object_info(info_text, o_ptr, in_store);
-      
-      /* No object kind info. */
-      object_kind_info = "";
-    }
-  
-  /* Object or object type is identified - show all basic information. */
-  else if ((known) || (aware))
-    {
-      /* Get the specific object type's information, if any. */
-      object_info(info_text, o_ptr, in_store);
-    }
-  
-  
-  /* Save screen */
-  screen_save();
-  
-  /* Erase the screen */
-  Term_clear();
-  
-  
-  /* Label the information. */
-  roff("Item Information:", 3, 0);
-  for (i = 0; i < 3; i++) roff("\n", 0, 0);
-  
-  /* Object type or artifact information. */
-  c_roff(TERM_L_BLUE, info_text, 3, 77);
-  
-  /* 
-   * If it is a set item, describe it as such.
-   */
-  if ((known) && (o_ptr->name1))
-    {
-      artifact_type *a_ptr = &a_info[o_ptr->name1];
-      
-      /* Is it a set item? */
-      if (a_ptr->set_no)
-	{
-	  
-	  /* Advance a line */
-	  for (i = 0; i < 2; i++) roff("\n", 0, 0);
-	  
-	  /* Set notification */
-	  c_roff(TERM_GREEN,"Set Item: ",3,77);
-	  
-	  /* Fully ID description? */
-	  if (mental) 
-	    {
-	      set_type *s_ptr = &s_info[a_ptr->set_no];
-	      strcpy(info_text, s_text + s_ptr->text);
-	      c_roff(TERM_GREEN,info_text,3,77);
-	    }
-	  
-	  /* Generic describtion */
-	  else 
-	    c_roff(TERM_GREEN,
-		   "It gains power when combined with matching items",3,77);
-	  
-	  /* End sentence */
-	  c_roff(TERM_GREEN,".",3,77);
-	}
-    }
-  
-  /* Fully identified objects. */
-  if (mental)
-    {
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
-      
-      /* Fully describe the object flags and attributes. */
-      identify_fully_aux(o_ptr);
-      
-      /* Print melee damage info */
-      if ((k_ptr->tval == TV_SWORD) || (k_ptr->tval == TV_POLEARM) ||
-	  (k_ptr->tval == TV_HAFTED) || (k_ptr->tval == TV_DIGGING))
-	display_weapon_damage(o_ptr);
-
-      /* Print range damage info */
-      if ((is_missile(o_ptr)) || (f1 & TR1_THROWING))
-	display_ammo_damage(o_ptr);
-
-      /* Obtain the cursor location */
-      (void)Term_locate(&x, &y);
-      
-      /* Hack -- attempt to stay on screen. */
-      for (i = y; i < Term->hgt; i++)
-	{
-	  /* No more space! */
-	  if (i > Term->hgt - 2) break;
-	  
-	  /* Advance one line. */
-	  roff("\n", 0, 0);
-	  
-	  /* Enough clear space.  Done. */
-	  if (i == (y + 2)) break;
-	}
-    }
+  /* Get an item */
   else
     {
-      /* Spacing. */
-      for (i = 0; i < 5; i++) roff("\n", 0, 0);
-      
-      /* Print damage info */
-      if ((k_ptr->tval == TV_SWORD) || (k_ptr->tval == TV_POLEARM) ||
-	  (k_ptr->tval == TV_HAFTED) || (k_ptr->tval == TV_DIGGING))
-	display_weapon_damage(o_ptr); 
-
-      /* Print range damage info */
-      if ((is_missile(o_ptr)) || (f1 & TR1_THROWING))
-	display_ammo_damage(o_ptr);
-
-      /* Get information about the general object kind. */
-      object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
-
-      /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
-
-      /* Object kind information. */
-      roff(object_kind_info, 3, 77);
-
-      /* Spacing */
-      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+      q = "Examine which item? ";
+      s = "You have nothing to examine.";
+      if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+	return;
     }
   
-  /* The exit sign. */
-  roff("(Press any key to continue.)", 25, 0);
-  (void)inkey_ex();
+  /* Get the item (in the pack) */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
   
-  /* Load screen */
-  screen_load();
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
   
+  /* Describe */
+  object_info_screen(o_ptr);
+
 }
 
 
@@ -1118,7 +953,7 @@ void do_cmd_uninscribe(void)
   o_ptr->note = 0;
   
   /* Combine the pack (or the quiver) */
-  p_ptr->notice |= (PN_COMBINE);
+  p_ptr->notice |= (PN_COMBINE | PN_SQUELCH);
   
   /* Window stuff */
   p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1192,7 +1027,7 @@ void do_cmd_inscribe(void)
       o_ptr->note = quark_add(tmp);
       
       /* Combine the pack (or the quiver) */
-      p_ptr->notice |= (PN_COMBINE);
+      p_ptr->notice |= (PN_COMBINE | PN_SQUELCH);
       
       /* Window stuff */
       p_ptr->window |= (PW_INVEN | PW_EQUIP);
@@ -1550,7 +1385,7 @@ void do_cmd_locate(void)
       /* Get a direction */
       while (!dir)
 	{
-	  key_event ke;
+	  event_type ke;
 	  
 	  /* Get a command (or Cancel) */
 	  if (!get_com_ex(out_val, &ke)) break;
@@ -1871,7 +1706,8 @@ void do_cmd_query_symbol(void)
 {
   int i, j, n, r_idx;
   int start = 0, last_level = 0;
-  char sym, query;
+  char sym;
+  event_type query;
   char search_str[60] = "";
   char monster_name[80];
   char buf[128];
@@ -1972,31 +1808,51 @@ void do_cmd_query_symbol(void)
   
   /* Prompt */
   put_str("Recall details? (k/p/y/n): ", 0, 40);
+  backup_buttons();
+  kill_all_buttons();
+  add_button("[ESC]", ESCAPE);
+  add_button("[k]", 'k');
+  add_button("[p]", 'p');
+  add_button("[y]", 'y');
+  add_button("[n]", 'n');
+  update_statusline();
   
   /* Query */
-  query = inkey();
+  query = inkey_ex();
   
   /* Restore */
   prt(buf, 0, 0);
   
 
   /* Sort by kills (and level) */
-  if (query == 'k')
+  if (query.key == 'k')
     {
       why = 4;
-      query = 'y';
+      query.key = 'y';
     }
   
   /* Sort by level */
-  if (query == 'p')
+  if (query.key == 'p')
     {
       why = 2;
-      query = 'y';
+      query.key = 'y';
     }
   
   /* Catch "escape" */
-  if (query != 'y') return;
-  
+  if (query.key != 'y') 
+    {
+      kill_all_buttons();
+      restore_buttons();
+      update_statusline();
+      return;
+    }
+  else
+    {
+      kill_button('k');
+      kill_button('p');
+      kill_button('y');
+      add_button("[r]", 'r');
+    }
   
   /* Sort if needed */
   if (why)
@@ -2067,9 +1923,12 @@ void do_cmd_query_symbol(void)
 	      prt(format("(#%d of %d)", i + 1, n), 0 , 65);
 	      
 	    }
+
+	  add_button("[-]", '-');
+	  update_statusline();
 	  
 	  /* Command */
-	  query = inkey();
+	  query = inkey_ex();
 	  
 	  /* Unrecall */
 	  if (recall)
@@ -2079,17 +1938,17 @@ void do_cmd_query_symbol(void)
 	    }
 	  
 	  /* Normal commands */
-	  if (query != 'r') break;
+	  if (query.key != 'r') break;
 	  
 	  /* Toggle recall */
 	  recall = !recall;
 	}
       
       /* Stop scanning */
-      if (query == ESCAPE) break;
+      if (query.key == ESCAPE) break;
       
       /* Move to "prev" monster */
-      if (query == '-')
+      if (query.key == '-')
 	{
 	  if (i-- == 0)
 	    {
@@ -2110,6 +1969,10 @@ void do_cmd_query_symbol(void)
   
   /* Re-display the identity */
   prt(buf, 0, 0);
+
+  kill_all_buttons();
+  restore_buttons();
+  update_statusline();
 }
 
 
@@ -2374,159 +2237,131 @@ void py_set_trap(int y, int x)
   num_trap_on_level++;
 }
 
-/*
- * Choose advanced monster trap type
- */
-bool choose_mtrap(byte *choice)
-{
-  int j, num, temp=0, tile_hgt;
-  
-  char c;
-  key_event ke;
-  
-  bool done=FALSE;
-  bool chosen=FALSE;
-  
-  /* Save screen */
-  screen_save();
+/* Trap coordinates */
+static int trap_y = 0;
+static int trap_x = 0;
 
-  if (small_screen)
-    prt("Choose an advanced monster trap (ESC to cancel):", 1, 0);
-  else
-    prt("        Choose an advanced monster trap (ESC to cancel):", 1, 8);
+static char *trap_type[] = 
+{
+  "Sturdy Trap      (less likely to break)",
+  "Netted Trap      (effective versus flyers)",
+  "Confusion Trap   (confuses monsters)",
+  "Poison Gas Trap  (creates a toxic cloud)",
+  "Spirit Trap      (effective versus spirits)",
+  "Lightning Trap   (shoots a lightning bolt)",
+  "Explosive Trap   (causes area damage)",
+  "Portal Trap      (teleports monsters)",
+  "Stasis Trap      (freezes time for a monster)",
+  "Drain Life Trap  (hurts living monsters)",
+  "Unmagic Trap     (damages and reduces mana)",
+  "Dispelling Trap  (hurts all monsters in sight)"
+};
+
+static char trap_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the sval menu
+ */
+void trap_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  const u16b *choice = menu->menu_data;
+  int idx = choice[oid];
+
+  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
   
   
+  /* Print it */
+  c_put_str(attr, format("%s", trap_type[idx]), row, col);
+}
+
+/*
+ * Deal with events on the trap menu
+ */
+bool trap_action(char cmd, void *db, int oid)
+{
+  u16b *choice = db;
+  
+  int idx = choice[oid];
+  cave_set_feat(trap_y, trap_x, FEAT_MTRAP_BASE + 1 + idx);
+  
+  return TRUE;
+}
+
+
+/*
+ * Display list of monster traps.
+ */
+bool trap_menu(void)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, trap_tag, 0, trap_display, trap_action };
+  region area = { (small_screen ? 0 : 15), 1, 48, -1 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0;
+  
+  int num = 0;
+  size_t i;
+  
+  u16b *choice;
+  
+  /* See how many traps available */
   if (check_ability(SP_EXTRA_TRAP)) num = 1 + (p_ptr->lev / 4);
   else num = 1 + (p_ptr->lev / 6);
   
-  if (small_screen)
+  /* Create the array */
+  choice = C_ZNEW(num, u16b);
+  
+  /* Obvious */
+  for (i = 0; i < num; i++)
     {
-      prt("a) Sturdy Trap      (less likely to break)", 2, 0);
-      if (num >= 2) 
-	prt("b) Netted Trap      (effective versus flyers)", 3, 0);
-      if (num >= 3) 
-	prt("c) Confusion Trap   (confuses monsters)", 4, 0);
-      if (num >= 4) 
-	prt("d) Poison Gas Trap  (creates a toxic cloud)", 5, 0);
-      if (num >= 5) 
-	prt("e) Spirit Trap      (effective versus spirits)", 6, 0);
-      if (num >= 6) 
-	prt("f) Lightning Trap   (shoots a lightning bolt)", 7, 0);
-      if (num >= 7) 
-	prt("g) Explosive Trap   (causes area damage)", 8, 0);
-      if (num >= 8) 
-	prt("h) Portal Trap      (teleports monsters)", 9, 0);
-      if (num >= 9) 
-	prt("i) Stasis Trap      (freezes time for a monster)", 10, 0);
-      if (num >= 10) 
-	prt("j) Drain Life Trap  (hurts living monsters)", 11, 0);
-      if (num >= 11) 
-	prt("k) Unmagic Trap     (damages and reduces mana)", 12, 0);
-      if (num >= 12) 
-	prt("l) Dispelling Trap  (hurts all monsters in sight)", 13, 0);
-    }
-  else
-    {
-      prt("        a) Sturdy Trap      (less likely to break)", 2, 8);
-      if (num >= 2) 
-	prt("        b) Netted Trap      (effective versus flyers)", 3, 8);
-      if (num >= 3) 
-	prt("        c) Confusion Trap   (confuses monsters)", 4, 8);
-      if (num >= 4) 
-	prt("        d) Poison Gas Trap  (creates a toxic cloud)", 5, 8);
-      if (num >= 5) 
-	prt("        e) Spirit Trap      (effective versus insubstantial monsters)", 6, 8);
-      if (num >= 6) 
-	prt("        f) Lightning Trap   (shoots a lightning bolt)", 7, 8);
-      if (num >= 7) 
-	prt("        g) Explosive Trap   (causes area damage)", 8, 8);
-      if (num >= 8) 
-	prt("        h) Portal Trap      (teleports monsters)", 9, 8);
-      if (num >= 9) 
-	prt("        i) Stasis Trap      (freezes time for a monster)", 10, 8);
-      if (num >= 10) 
-	prt("        j) Drain Life Trap  (hurts living monsters)", 11, 8);
-      if (num >= 11) 
-	prt("        k) Unmagic Trap     (deals damage and reduces mana)", 12, 8);
-      if (num >= 12) 
-	prt("        l) Dispelling Trap  (hurts all monsters in sight)", 13, 8);
+      choice[i] = i;
     }
 
-  /* Hack - delete exact graphics rows */
-  if (use_trptile || use_dbltile)
-    { 
-      j = num + 1;
-      tile_hgt = (use_trptile ? 3 : 2);
-      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
-	prt("", ++j, small_screen ? 0 : 8);
-    }
-
-  while (!done)
+  /* Clear space */
+  area.page_rows = num + 2;
+  
+  /* Return here if there are no traps */
+  if (!num)
     {
-      ke = inkey_ex();
-      c = ke.key;
-      
-      /* Letters are used for selection */
-      if (isalpha(c))
-	{
-	  if (islower(c))
-	    {
-	      temp = A2I(c);
-	    }
-	  else
-	    {
-	      temp = c - 'A' + 26;
-	    }
-	  
-	  /* Validate input */
-	  if ((temp > -1) && (temp < num))
-	    {
-	      done = TRUE;
-	      *choice = (byte) temp;
-	      chosen = TRUE;
-	    }
-	  
-	  else
-	    {
-	      bell("Illegal response to question!");
-	    }
-	}
-
-      /* Mouse selection */
-      else if ((c == '\xff') && (ke.mousey > 1) && (ke.mousey - 2 < num))
-	{
-	  done = TRUE;
-	  *choice = (byte) ke.mousey - 2;
-	  chosen = TRUE;
-	}
-      
-      /* Allow user to exit the fuction */
-      else if ((c == ESCAPE) || ((ke.mousey == 1) && 
-				 (ke.mousex > (small_screen ? 31 : 48)) &&
-				 (ke.mousex < 62)))
-	{
-	  *choice = 0;
-	  done = TRUE;
-	}
-      
-      /* Invalid input */
-      else bell("Illegal response to question!");
+      FREE(choice);
+      return FALSE;
     }
+  
+  
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Help text */
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.title = "Choose an advanced monster trap (ESC to cancel):";
+  menu.cmd_keys = " \n\r";
+  menu.count = num;
+  menu.menu_data = choice;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+  
+  /* Select an entry */
+  evt = menu_select(&menu, &cursor, 0);
+  
+  /* Free memory */
+  FREE(choice);
   
   /* Load screen */
   screen_load();
-  
-  /* Return */
-  return (chosen);
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
+
 
 /* 
  * Turn a basic monster trap into an advanced one -BR-
  */
 void py_modify_trap(int y, int x)
 {
-  byte choice;
-  
   if (p_ptr->blind || no_lite())
     {
       msg_print("You can not see to modify your trap.");
@@ -2547,12 +2382,12 @@ void py_modify_trap(int y, int x)
       return;
     }
   
+  trap_y = y;
+  trap_x = x;
+
   /* get choice */
-  if (choose_mtrap(&choice))
+  if (trap_menu())
     {
-      /* Set the trap, and draw it. */
-      cave_set_feat(y, x, FEAT_MTRAP_BASE + 1 + choice);
-      
       /* Notify the player. */
       msg_print("You modify the monster trap.");
     }

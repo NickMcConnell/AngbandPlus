@@ -12,7 +12,7 @@
  */
 
 #include "angband.h"
-
+#include "cmds.h"
 
 #ifdef ALLOW_SPOILERS
 
@@ -423,10 +423,10 @@ static const flag_desc resist_flags_desc[] =
   { TR2_RES_FIRE,   "Fire" },
   { TR2_RES_COLD,   "Cold" },
   { TR2_RES_POIS,   "Poison" },
-  { TR2_RES_FEAR,   "Fear" },
+  //{ TR2_RES_FEAR,   "Fear" },
   { TR2_RES_LITE,   "Light" },
   { TR2_RES_DARK,   "Dark" },
-  { TR2_RES_BLIND,  "Blindness" },
+  //  { TR2_RES_BLIND,  "Blindness" },
   { TR2_RES_CONFU,  "Confusion" },
   { TR2_RES_SOUND,  "Sound" },
   { TR2_RES_SHARD,  "Shards" },
@@ -479,6 +479,8 @@ static const flag_desc misc_flags3_desc[] =
   { TR3_SEE_INVIS,	  "See Invisible" },
   { TR3_FREE_ACT,	  "Free Action" },
   { TR3_HOLD_LIFE,	  "Hold Life" },
+  { TR3_FEARLESS,	  "Fearlessness" },
+  { TR3_SEEING,	          "Blindness resistance" },
   { TR3_BLESSED,	  "Blessed Blade" },
   { TR3_IMPACT,		  "Earthquake impact on hit" },
   { TR3_TELEPORT,	  "Induces random teleportation" },
@@ -1086,7 +1088,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 /*
  * Hack -- Create a "forged" artifact
  */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
+bool make_fake_artifact(object_type *o_ptr, int name1)
 {
   int i;
   
@@ -1647,7 +1649,7 @@ static void spoil_mon_desc(cptr fname)
   fprintf(fff, "\n");
 
   /* Free the "who" array */
-  C_KILL(who, MAX_R_IDX, u16b);
+  FREE(who);
   
   /* Check for errors */
   if (ferror(fff) || my_fclose(fff))

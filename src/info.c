@@ -474,7 +474,7 @@ cptr spell_tips[255] =
   "Breaks ordinary curses.",
   "Fires a bolt or beam of acid.",
   "Teleports a line of monsters away.",
-  "Fires a bolt or beam of poison.",
+  "Fires a bolt or beam of gravity.",
   "Temporary opposition to poison.  Cumulative with equipment resistances.",
   "Shakes the nearby area, randomly changing terrain.",	/* 150 - earthquake */
   "Temporary opposition to fire and cold.  Cumulative with equipment resistances.",
@@ -514,10 +514,10 @@ cptr spell_tips[255] =
   "Restores your experience.",
   "Dispels evil monsters, heals you, blesses you, and removes fear, poisoning, stunning, and cuts.",
   "Low-level probing spell that lets you learn about racial type and basic resistances.",
-  "",
-  "",
-  "",	/* 190 - (none) */
-  "",
+  "Hurts any monster on grass or near trees.  Animals take less damage.",
+  "Encourages trees and grass grow in your line of sight.",
+  "Makes one object proof against acid and fire attacks.",	/* 190 - song of preservation */
+  "Creates a small, targetable earthquake.",
   "Fires a mana bolt.",
   "Detects all nearby evil monsters, even invisible ones.",
   "Increases the range at which you can see warm-blooded creatures by 3.",
@@ -603,7 +603,7 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
   "Gives you a stronger barehanded attack.",
   "Gives you a powerful unarmed attack.",
   "Allows you to burn monster mana in melee.  Mana burned adds to melee damage.",
-  "Trades some shooting accuracy for faster shooting, even faster with increasing dexterity.",
+  "Trades some shooting accuracy for faster shooting with a short or long bow, even faster with increasing dexterity.",
   "","","","","","","","","","","",
   "Enhances your power to slow, sleep, confuse, or turn your enemies.",
   "Increases the effects and durations of beneficial magical effects.",
@@ -1427,7 +1427,200 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
     }
 }
 
+/*
+ * Place an item description on the screen.
+ */
+void object_info_screen(object_type *o_ptr)
+{
+  int y, x;
+  int i;
+  
+  bool aware, known, known_effects, mental;
+  bool in_store = ((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
+		   (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL) &&
+		   (cave_feat[p_ptr->py][p_ptr->px] != FEAT_SHOP_HOME));
 
+  object_kind *k_ptr;
+  char o_name[120];
+  
+  char info_text[2048];
+  char *object_kind_info;
+  
+  u32b f1, f2, f3;
+  
+  /* Initialize object description. */
+  strcpy(info_text, "");
+  
+  /* Get the object kind. */
+  k_ptr = &k_info[o_ptr->k_idx];
+  
+  
+  /* Extract the flags */
+  object_flags(o_ptr, &f1, &f2, &f3);
+  
+  /* Create and output a status message (hack - not in stores). */
+  if (!in_store)
+    {
+      object_desc(o_name, o_ptr, TRUE, 3);
+      msg_format("Examining %s...", o_name);
+    }
+  
+  
+  /* What is our level of knowledge about the object? */
+  aware = object_aware_p(o_ptr);
+  known = (object_known_p(o_ptr) || in_store);
+  known_effects = k_ptr->known_effect;
+  mental = o_ptr->ident & (IDENT_MENTAL);
+  
+  /* Hack - Avoid giving away too much info in normal stores about objects 
+   * other than weapons and armour (no sneaky learning about wand damages!).
+   */
+  if ((in_store) && ((!k_ptr->known_effect) && 
+		     ((o_ptr->tval < TV_SHOT) || 
+		      (o_ptr->tval > TV_DRAG_ARMOR))))
+    {
+      known = TRUE;
+      mental = FALSE;
+    }
+  
+  /* Object is fully known - give maximal information. */
+  if (mental)
+    {
+      /* Get the specific object type's information. */
+      object_info(info_text, o_ptr, in_store);
+      
+      /* No object kind info. */
+      object_kind_info = "";
+    }
+  
+  /* Object or object type is identified - show all basic information. */
+  else if ((known) || (aware))
+    {
+      /* Get the specific object type's information, if any. */
+      object_info(info_text, o_ptr, in_store);
+    }
+  
+  /* Save screen */
+  screen_save();
+  
+  /* Erase the screen */
+  Term_clear();
+  
+  
+  /* Label the information. */
+  roff("Item Information:", 3, 0);
+  for (i = 0; i < 3; i++) roff("\n", 0, 0);
+  
+  /* Object type or artifact information. */
+  c_roff(TERM_L_BLUE, info_text, 3, 77);
+  
+  /* 
+   * If it is a set item, describe it as such.
+   */
+  if ((known) && (o_ptr->name1))
+    {
+      artifact_type *a_ptr = &a_info[o_ptr->name1];
+      
+      /* Is it a set item? */
+      if (a_ptr->set_no)
+	{
+	  
+	  /* Advance a line */
+	  for (i = 0; i < 2; i++) roff("\n", 0, 0);
+	  
+	  /* Set notification */
+	  c_roff(TERM_GREEN,"Set Item: ",3,77);
+	  
+	  /* Fully ID description? */
+	  if (mental) 
+	    {
+	      set_type *s_ptr = &s_info[a_ptr->set_no];
+	      strcpy(info_text, s_text + s_ptr->text);
+	      c_roff(TERM_GREEN,info_text,3,77);
+	    }
+	  
+	  /* Generic describtion */
+	  else 
+	    c_roff(TERM_GREEN,
+		   "It gains power when combined with matching items",3,77);
+	  
+	  /* End sentence */
+	  c_roff(TERM_GREEN,".",3,77);
+	}
+    }
+  
+  /* Fully identified objects. */
+  if (mental)
+    {
+      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+      
+      /* Fully describe the object flags and attributes. */
+      identify_fully_aux(o_ptr);
+      
+      /* Print melee damage info */
+      if ((k_ptr->tval == TV_SWORD) || (k_ptr->tval == TV_POLEARM) ||
+	  (k_ptr->tval == TV_HAFTED) || (k_ptr->tval == TV_DIGGING))
+	display_weapon_damage(o_ptr);
+
+      /* Print range damage info */
+      if ((is_missile(o_ptr)) || (f1 & TR1_THROWING))
+	display_ammo_damage(o_ptr);
+
+      /* Obtain the cursor location */
+      (void)Term_locate(&x, &y);
+      
+      /* Hack -- attempt to stay on screen. */
+      for (i = y; i < Term->hgt; i++)
+	{
+	  /* No more space! */
+	  if (i > Term->hgt - 2) break;
+	  
+	  /* Advance one line. */
+	  roff("\n", 0, 0);
+	  
+	  /* Enough clear space.  Done. */
+	  if (i == (y + 2)) break;
+	}
+    }
+  else
+    {
+      /* Spacing. */
+      for (i = 0; i < 5; i++) roff("\n", 0, 0);
+      
+      /* Display everything for known non-artifacts */
+      if ((known) && !(o_ptr->name1))
+	identify_fully_aux(o_ptr);
+
+      /* Print damage info */
+      if ((k_ptr->tval == TV_SWORD) || (k_ptr->tval == TV_POLEARM) ||
+	  (k_ptr->tval == TV_HAFTED) || (k_ptr->tval == TV_DIGGING))
+	display_weapon_damage(o_ptr); 
+
+      /* Print range damage info */
+      if ((is_missile(o_ptr)) || (f1 & TR1_THROWING))
+	display_ammo_damage(o_ptr);
+
+      /* Get information about the general object kind. */
+      object_kind_info = format("%s", obj_class_info[o_ptr->tval]);
+
+      /* Spacing */
+      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+
+      /* Object kind information. */
+      roff(object_kind_info, 3, 77);
+
+      /* Spacing */
+      for (i = 0; i < 3; i++) roff("\n", 0, 0);
+    }
+  
+  /* The exit sign. */
+  roff("(Press any key to continue.)", 25, 0);
+  (void)inkey_ex();
+  
+  /* Load screen */
+  screen_load();
+  
+}
 
 /*
  * Describe the "Activation" (if any) for an object or artifact.
@@ -2071,12 +2264,17 @@ void identify_fully_aux(object_type *o_ptr)
   
   int attr_listed = 0;
   int attr_num = 0;
+
+  bool res = FALSE, vul = FALSE;
+
+  char buf[10] = "";
   
   /* Extract the flags */
   object_flags(o_ptr, &f1, &f2, &f3);
   
-  /* Describe activation, if present. */
-  if (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
+  /* Describe activation, if present and fully known. */
+  if ((o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION) && 
+      (o_ptr->ident & IDENT_MENTAL))
     {
       roff(format("Activation: %s\n", item_activation(o_ptr)), 3, 77);
     }
@@ -2098,6 +2296,11 @@ void identify_fully_aux(object_type *o_ptr)
 	  roff("It provides light (radius 1) when fueled.\n", 3, 77);
 	}
     }
+
+  /* Hack - magic devices */
+  if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD) || 
+      (o_ptr->tval == TV_STAFF))
+    roff(extra_data(o_ptr), 3, 77);
   
   
   /* And then describe it fully */
@@ -2520,55 +2723,77 @@ void identify_fully_aux(object_type *o_ptr)
       roff(". \n", 3, 77);
     }
   
+  /* Check for resists and vulnerabilities */
+  for (j = 0; j < MAX_P_RES; j++)
+    {
+      if ((j != P_RES_CONFU) && (o_ptr->percent_res[j] < 100) && 
+	  (o_ptr->percent_res[j] > 0))
+	res = TRUE;
+      else if ((j != P_RES_CONFU) && (o_ptr->percent_res[j] > 100))
+	vul = TRUE;
+    }
+
   
   /* Resistances. */
-  if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
-      (f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
-      (f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
-      (f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
-      (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
-      (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
-      (f2 & (TR2_RES_DISEN)))
+  //if ((f2 & (TR2_RES_ACID)) || (f2 & (TR2_RES_ELEC)) || 
+  //  (f2 & (TR2_RES_FIRE)) || (f2 & (TR2_RES_COLD)) || 
+  //  (f2 & (TR2_RES_POIS)) || (f2 & (TR2_RES_LITE)) || 
+  //  (f2 & (TR2_RES_DARK)) || (f2 & (TR2_RES_SOUND)) || 
+  //  (f2 & (TR2_RES_SHARD)) || (f2 & (TR2_RES_NEXUS)) || 
+  //  (f2 & (TR2_RES_NETHR)) || (f2 & (TR2_RES_CHAOS)) || 
+  //  (f2 & (TR2_RES_DISEN)))
+  if (res)
     {
       /* Clear number of items to list, and items listed. */
       attr_num = 0;
       attr_listed = 0;
       
+      for (j = 0; j < MAX_P_RES; j++)
+	{
+	  if ((j != P_RES_CONFU) && (o_ptr->percent_res[j] < 100) && 
+	      (o_ptr->percent_res[j] > 0))
+	    attr_num++;
+	}
+
       /* How many attributes need to be listed? */
-      if (f2 & (TR2_RES_ACID)) attr_num++;
-      if (f2 & (TR2_RES_ELEC)) attr_num++;
-      if (f2 & (TR2_RES_FIRE)) attr_num++;
-      if (f2 & (TR2_RES_COLD)) attr_num++;
-      if (f2 & (TR2_RES_POIS)) attr_num++;
-      if (f2 & (TR2_RES_LITE)) attr_num++;
-      if (f2 & (TR2_RES_DARK)) attr_num++;
-      if (f2 & (TR2_RES_SOUND)) attr_num++;
-      if (f2 & (TR2_RES_SHARD)) attr_num++;
-      if (f2 & (TR2_RES_NEXUS)) attr_num++;
-      if (f2 & (TR2_RES_NETHR)) attr_num++;
-      if (f2 & (TR2_RES_CHAOS)) attr_num++;
-      if (f2 & (TR2_RES_DISEN)) attr_num++;
+      //if (f2 & (TR2_RES_ACID)) attr_num++;
+      //if (f2 & (TR2_RES_ELEC)) attr_num++;
+      //if (f2 & (TR2_RES_FIRE)) attr_num++;
+      //if (f2 & (TR2_RES_COLD)) attr_num++;
+      //if (f2 & (TR2_RES_POIS)) attr_num++;
+      //if (f2 & (TR2_RES_LITE)) attr_num++;
+      //if (f2 & (TR2_RES_DARK)) attr_num++;
+      //if (f2 & (TR2_RES_SOUND)) attr_num++;
+      //if (f2 & (TR2_RES_SHARD)) attr_num++;
+      //if (f2 & (TR2_RES_NEXUS)) attr_num++;
+      //if (f2 & (TR2_RES_NETHR)) attr_num++;
+      //if (f2 & (TR2_RES_CHAOS)) attr_num++;
+      //if (f2 & (TR2_RES_DISEN)) attr_num++;
       
       roff("It provides resistance to", 3, 77);
       
       /* Loop for number of attributes in this group. */
-      for (j = 0; j < 13; j++)
+      for (j = 0; j < MAX_P_RES; j++)
 	{
 	  bool list_ok = FALSE;
 	  
-	  if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
-	  if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
-	  if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
-	  if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
-	  if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
-	  if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
-	  if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
-	  if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
-	  if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
-	  if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
-	  if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
-	  if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
-	  if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
+	  if (j == P_RES_CONFU) continue;
+
+	  if ((o_ptr->percent_res[j] < 100) && (o_ptr->percent_res[j] > 0))
+	    list_ok = TRUE;
+	  //if ((j ==  0) && (f2 & (TR2_RES_ACID)))  list_ok = TRUE;
+	  //if ((j ==  1) && (f2 & (TR2_RES_ELEC)))  list_ok = TRUE;
+	  //if ((j ==  2) && (f2 & (TR2_RES_FIRE)))  list_ok = TRUE;
+	  //if ((j ==  3) && (f2 & (TR2_RES_COLD)))  list_ok = TRUE;
+	  //if ((j ==  4) && (f2 & (TR2_RES_POIS)))  list_ok = TRUE;
+	  //if ((j ==  5) && (f2 & (TR2_RES_LITE)))  list_ok = TRUE;
+	  //if ((j ==  6) && (f2 & (TR2_RES_DARK)))  list_ok = TRUE;
+	  //if ((j ==  7) && (f2 & (TR2_RES_SOUND))) list_ok = TRUE;
+	  //if ((j ==  8) && (f2 & (TR2_RES_SHARD))) list_ok = TRUE;
+	  //if ((j ==  9) && (f2 & (TR2_RES_NEXUS))) list_ok = TRUE;
+	  //if ((j == 10) && (f2 & (TR2_RES_NETHR))) list_ok = TRUE;
+	  //if ((j == 11) && (f2 & (TR2_RES_CHAOS))) list_ok = TRUE;
+	  //if ((j == 12) && (f2 & (TR2_RES_DISEN))) list_ok = TRUE;
 	  
 	  if (!list_ok) continue;
 	  
@@ -2585,19 +2810,85 @@ void identify_fully_aux(object_type *o_ptr)
 	    }
 	  
 	  /* List the attribute description, in its proper place. */
-	  if (j ==  0) roff(" acid", 3, 77);
-	  if (j ==  1) roff(" electricity", 3, 77);
-	  if (j ==  2) roff(" fire", 3, 77);
-	  if (j ==  3) roff(" frost", 3, 77);
-	  if (j ==  4) roff(" poison", 3, 77);
-	  if (j ==  5) roff(" light", 3, 77);
-	  if (j ==  6) roff(" darkness", 3, 77);
-	  if (j ==  7) roff(" sound", 3, 77);
-	  if (j ==  8) roff(" shards", 3, 77);
-	  if (j ==  9) roff(" nexus", 3, 77);
-	  if (j == 10) roff(" nether", 3, 77);
-	  if (j == 11) roff(" chaos", 3, 77);
-	  if (j == 12) roff(" disenchantment", 3, 77);
+	  if (j == P_RES_ACID) roff(" acid", 3, 77);
+	  if (j == P_RES_ELEC) roff(" electricity", 3, 77);
+	  if (j == P_RES_FIRE) roff(" fire", 3, 77);
+	  if (j == P_RES_COLD) roff(" frost", 3, 77);
+	  if (j == P_RES_POIS) roff(" poison", 3, 77);
+	  if (j == P_RES_LITE) roff(" light", 3, 77);
+	  if (j == P_RES_DARK) roff(" darkness", 3, 77);
+	  if (j == P_RES_SOUND) roff(" sound", 3, 77);
+	  if (j == P_RES_SHARD) roff(" shards", 3, 77);
+	  if (j == P_RES_NEXUS) roff(" nexus", 3, 77);
+	  if (j == P_RES_NETHR) roff(" nether", 3, 77);
+	  if (j == P_RES_CHAOS) roff(" chaos", 3, 77);
+	  if (j == P_RES_DISEN) roff(" disenchantment", 3, 77);
+
+	  sprintf(buf, "(%d%%)", 100 - o_ptr->percent_res[j]);
+	  roff(buf, 3, 77);
+	}
+      
+      /* End sentence.  Go to next line. */
+      roff(". \n", 3, 77);
+    }
+  
+  
+  /* Vulnerabilities. */
+  if (vul)
+    {
+      /* Clear number of items to list, and items listed. */
+      attr_num = 0;
+      attr_listed = 0;
+      
+      for (j = 0; j < MAX_P_RES; j++)
+	{
+	  if ((j != P_RES_CONFU) && (o_ptr->percent_res[j] > 100))
+	    attr_num++;
+	}
+
+      roff("It makes you vulnerable to", 3, 77);
+      
+      /* Loop for number of attributes in this group. */
+      for (j = 0; j < MAX_P_RES; j++)
+	{
+	  bool list_ok = FALSE;
+	  
+	  if (j == P_RES_CONFU) continue;
+
+	  if (o_ptr->percent_res[j] > 100)
+	    list_ok = TRUE;
+	  
+	  if (!list_ok) continue;
+	  
+	  /* Listing another attribute. */
+	  attr_listed++;
+	  
+	  /* Commas separate members of a list of more than two. */
+	  if ((attr_num > 2) && (attr_listed > 1)) roff(",", 3, 77);
+	  
+	  /* "and" before final member of a list of more than one. */
+	  if ((attr_num > 1) && (j != 0))
+	    {
+	      if (attr_num == attr_listed) roff(" and", 3, 77);
+	    }
+	  
+	  /* List the attribute description, in its proper place. */
+	  if (j == P_RES_ACID) roff(" acid", 3, 77);
+	  if (j == P_RES_ELEC) roff(" electricity", 3, 77);
+	  if (j == P_RES_FIRE) roff(" fire", 3, 77);
+	  if (j == P_RES_COLD) roff(" frost", 3, 77);
+	  if (j == P_RES_POIS) roff(" poison", 3, 77);
+	  if (j == P_RES_LITE) roff(" light", 3, 77);
+	  if (j == P_RES_DARK) roff(" darkness", 3, 77);
+	  if (j == P_RES_SOUND) roff(" sound", 3, 77);
+	  if (j == P_RES_SHARD) roff(" shards", 3, 77);
+	  if (j == P_RES_NEXUS) roff(" nexus", 3, 77);
+	  if (j == P_RES_NETHR) roff(" nether", 3, 77);
+	  if (j == P_RES_CHAOS) roff(" chaos", 3, 77);
+	  if (j == P_RES_DISEN) roff(" disenchantment", 3, 77);
+
+	  sprintf(buf, "(%d%%)", o_ptr->percent_res[j] - 100);
+	  roff(buf, 3, 77);
 	}
       
       /* End sentence.  Go to next line. */
@@ -2609,33 +2900,51 @@ void identify_fully_aux(object_type *o_ptr)
   attr_num = 0;
   
   /* Special processing for the three "survival resists" */
-  if (f2 & (TR2_RES_FEAR)) attr_num++;
-  if (f2 & (TR2_RES_BLIND)) attr_num++;
-  if (f2 & (TR2_RES_CONFU)) attr_num++;
+  //if (f2 & (TR2_RES_FEAR)) attr_num++;
+  //if (f2 & (TR2_RES_BLIND)) attr_num++;
+  if (f3 & (TR3_FEARLESS)) attr_num++;
+  if (f3 & (TR3_SEEING)) attr_num++;
+  if (o_ptr->percent_res[P_RES_CONFU] != 100) attr_num++;
   
-  if (f2 & (TR2_RES_FEAR))
+  //if (f2 & (TR2_RES_FEAR))
+  if (f3 & (TR3_FEARLESS))
     {
       roff("It renders you fearless", 3, 77);
       if (attr_num == 1) roff(". \n", 3, 77);
       else roff(", and", 3, 77);
     }
   
-  if (f2 & (TR2_RES_BLIND))
+  //if (f2 & (TR2_RES_BLIND))
+  if (f3 & (TR3_SEEING))
     {
-      if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+      //if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+      if ((attr_num > 1) && (f3 & (TR3_FEARLESS))) 
 	roff(" provides resistance to blindness", 3, 77);
       else roff("It provides resistance to blindness", 3, 77);
       
-      if (f2 & (TR2_RES_CONFU)) roff(" and", 3, 77);
+      if (o_ptr->percent_res[P_RES_CONFU] != 100) roff(" and", 3, 77);
       else roff(". \n", 3, 77);
     }
   
-  if (f2 & (TR2_RES_CONFU))
+  if ((o_ptr->percent_res[P_RES_CONFU] < 100) && 
+      (o_ptr->percent_res[P_RES_CONFU] > 0))
     {
-      if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
-	roff(" provides resistance to confusion.\n", 3, 77);
-      else if (attr_num > 1) roff(" confusion.\n", 3, 77);
-      else roff("It provides resistance to confusion.\n", 3, 77);
+      //if ((attr_num > 1) && (!(f2 & (TR2_RES_BLIND))))
+      if ((attr_num > 1) && (!(f3 & (TR3_SEEING))))
+	roff(" provides resistance to confusion", 3, 77);
+      else if (attr_num > 1) roff(" confusion", 3, 77);
+      else roff("It provides resistance to confusion", 3, 77);
+      sprintf(buf, "(%d%%)", 100 - o_ptr->percent_res[P_RES_CONFU]);
+      roff(buf, 3, 77);
+      roff(".\n", 3, 77);
+    }
+  else if (o_ptr->percent_res[P_RES_CONFU] > 100)
+    {
+      if (attr_num > 1) roff(" makes you vulnerable to confusion", 3, 77);
+      else roff("It makes you vulnerable to confusion", 3, 77);
+      sprintf(buf, "(%d%%)", o_ptr->percent_res[P_RES_CONFU] - 100);
+      roff(buf, 3, 77);
+      roff(".\n", 3, 77);
     }
   
   
@@ -2790,18 +3099,17 @@ void identify_fully_aux(object_type *o_ptr)
   
   
   /* Ignore various elements. */
-  if ((f3 & (TR3_IGNORE_ACID)) || (f3 & (TR3_IGNORE_ELEC)) || 
-      (f3 & (TR3_IGNORE_FIRE)) || (f3 & (TR3_IGNORE_COLD)))
+  if (o_ptr->el_proof)
     {
       /* Clear number of items to list, and items listed. */
       attr_num = 0;
       attr_listed = 0;
       
       /* How many attributes need to be listed? */
-      if (f3 & (TR3_IGNORE_ACID)) attr_num++;
-      if (f3 & (TR3_IGNORE_ELEC)) attr_num++;
-      if (f3 & (TR3_IGNORE_FIRE)) attr_num++;
-      if (f3 & (TR3_IGNORE_COLD)) attr_num++;
+      if (o_ptr->el_proof & (ACID_PROOF)) attr_num++;
+      if (o_ptr->el_proof & (ELEC_PROOF)) attr_num++;
+      if (o_ptr->el_proof & (FIRE_PROOF)) attr_num++;
+      if (o_ptr->el_proof & (COLD_PROOF)) attr_num++;
       
       roff("It cannot be damaged by", 3, 77);
       
@@ -2810,10 +3118,10 @@ void identify_fully_aux(object_type *o_ptr)
 	{
 	  bool list_ok = FALSE;
 	  
-	  if ((j == 0) && (f3 & (TR3_IGNORE_ACID))) list_ok = TRUE;
-	  if ((j == 1) && (f3 & (TR3_IGNORE_ELEC))) list_ok = TRUE;
-	  if ((j == 2) && (f3 & (TR3_IGNORE_FIRE))) list_ok = TRUE;
-	  if ((j == 3) && (f3 & (TR3_IGNORE_COLD))) list_ok = TRUE;
+	  if ((j == 0) && (o_ptr->el_proof & (ACID_PROOF))) list_ok = TRUE;
+	  if ((j == 1) && (o_ptr->el_proof & (ELEC_PROOF))) list_ok = TRUE;
+	  if ((j == 2) && (o_ptr->el_proof & (FIRE_PROOF))) list_ok = TRUE;
+	  if ((j == 3) && (o_ptr->el_proof & (COLD_PROOF))) list_ok = TRUE;
 	  
 	  if (!list_ok) continue;
 	  
@@ -2854,7 +3162,7 @@ void identify_fully_aux(object_type *o_ptr)
  *
  * Use the "show_file()" method, perhaps.  XXX XXX XXX
  */
-void self_knowledge(void)
+void self_knowledge(bool spoil)
 {
   int i = 0, j, k;
   
@@ -2876,7 +3184,10 @@ void self_knowledge(void)
       if (!o_ptr->k_idx) continue;
       
       /* Extract the flags */
-      object_flags(o_ptr, &t1, &t2, &t3);
+      if (spoil)
+	object_flags(o_ptr, &t1, &t2, &t3);
+      else 
+	object_flags_known(o_ptr, &t1, &t2, &t3);
       
       /* Extract flags */
       f1 |= t1;
@@ -3040,60 +3351,72 @@ void self_knowledge(void)
   if (p_immune(P_RES_ACID)) info[i++] = "You are immune to acid.";
   else if (p_resist_strong(P_RES_ACID)) 
     info[i++] = "You resist acid exceptionally well.";
-  else if (p_resist_pos(P_RES_ACID)) info[i++] = "You resist acid.";
+  else if (p_resist_good(P_RES_ACID)) info[i++] = "You resist acid.";
+  else if (p_resist_pos(P_RES_ACID)) info[i++] = "You resist acid slightly.";
   else if (p_vulnerable(P_RES_ACID)) info[i++] = "You are vulnerable to acid.";
   
   if (p_immune(P_RES_ELEC)) info[i++] = "You are immune to lightning.";
   else if (p_resist_strong(P_RES_ELEC)) 
     info[i++] = "You resist lightning exceptionally well.";
-  else if (p_resist_pos(P_RES_ELEC)) info[i++] = "You resist lightning.";
+  else if (p_resist_good(P_RES_ELEC)) info[i++] = "You resist lightning.";
+  else if (p_resist_pos(P_RES_ELEC)) 
+    info[i++] = "You resist lightning slightly.";
   else if (p_vulnerable(P_RES_ELEC)) 
     info[i++] = "You are vulnerable to lightning.";
   
   if (p_immune(P_RES_FIRE)) info[i++] = "You are immune to fire.";
   else if (p_resist_strong(P_RES_FIRE)) 
     info[i++] = "You resist fire exceptionally well.";
-  else if (p_resist_pos(P_RES_FIRE)) info[i++] = "You resist fire.";
+  else if (p_resist_good(P_RES_FIRE)) info[i++] = "You resist fire.";
+  else if (p_resist_pos(P_RES_FIRE)) info[i++] = "You resist fire slightly.";
   else if (p_vulnerable(P_RES_FIRE)) info[i++] = "You are vulnerable to fire.";
   
   if (p_immune(P_RES_COLD)) info[i++] = "You are immune to cold.";
   else if (p_resist_strong(P_RES_COLD)) 
     info[i++] = "You resist cold exceptionally well.";
-  else if (p_resist_pos(P_RES_COLD)) info[i++] = "You resist cold.";
+  else if (p_resist_good(P_RES_COLD)) info[i++] = "You resist cold.";
+  else if (p_resist_pos(P_RES_COLD)) info[i++] = "You resist cold slightly.";
   else if (p_vulnerable(P_RES_COLD)) info[i++] = "You are vulnerable to cold.";
   
   if (p_immune(P_RES_POIS)) info[i++] = "You are immune to poison.";
   else if (p_resist_strong(P_RES_POIS)) 
     info[i++] = "You resist poison exceptionally well.";
-  else if (p_resist_pos(P_RES_POIS)) info[i++] = "You resist poison.";
+  else if (p_resist_good(P_RES_POIS)) info[i++] = "You resist poison.";
+  else if (p_resist_pos(P_RES_POIS)) info[i++] = "You resist poison slightly.";
   else if (p_vulnerable(P_RES_POIS)) 
     info[i++] = "You are vulnerable to poison.";
   
   if (p_immune(P_RES_LITE)) info[i++] = "You are immune to light.";
   else if (p_resist_strong(P_RES_LITE)) 
     info[i++] = "You resist light exceptionally well.";
-  else if (p_resist_pos(P_RES_LITE)) info[i++] = "You resist light.";
+  else if (p_resist_good(P_RES_LITE)) info[i++] = "You resist light.";
+  else if (p_resist_pos(P_RES_LITE)) info[i++] = "You resist light slightly.";
   else if (p_vulnerable(P_RES_LITE)) 
     info[i++] = "You are vulnerable to light.";
   
   if (p_immune(P_RES_DARK)) info[i++] = "You are immune to darkness.";
   else if (p_resist_strong(P_RES_DARK)) 
     info[i++] = "You resist darkness exceptionally well.";
-  else if (p_resist_pos(P_RES_DARK)) info[i++] = "You resist darkness.";
+  else if (p_resist_good(P_RES_DARK)) info[i++] = "You resist darkness.";
+  else if (p_resist_pos(P_RES_DARK)) 
+    info[i++] = "You resist darkness slightly.";
   else if (p_vulnerable(P_RES_DARK)) 
     info[i++] = "You are vulnerable to darkness.";
   
   if (p_immune(P_RES_CONFU)) info[i++] = "You are immune to confusion.";
   else if (p_resist_strong(P_RES_CONFU)) 
     info[i++] = "You resist confusion exceptionally well.";
-  else if (p_resist_pos(P_RES_CONFU)) info[i++] = "You resist confusion.";
+  else if (p_resist_good(P_RES_CONFU)) info[i++] = "You resist confusion.";
+  else if (p_resist_pos(P_RES_CONFU)) 
+    info[i++] = "You resist confusion slightly.";
   else if (p_vulnerable(P_RES_CONFU)) 
     info[i++] = "You are vulnerable to confusion.";
   
   if (p_immune(P_RES_SOUND)) info[i++] = "You are immune to sound.";
   else if (p_resist_strong(P_RES_SOUND)) 
     info[i++] = "You resist sound exceptionally well.";
-  else if (p_resist_pos(P_RES_SOUND)) info[i++] = "You resist sound.";
+  else if (p_resist_good(P_RES_SOUND)) info[i++] = "You resist sound.";
+  else if (p_resist_pos(P_RES_SOUND)) info[i++] = "You resist sound slightly.";
   else if (p_vulnerable(P_RES_SOUND)) 
     info[i++] = "You are vulnerable to sound.";
   
@@ -3102,34 +3425,44 @@ void self_knowledge(void)
     info[i++] = "You resist blasts of shards exceptionally well.";
   else if (p_resist_pos(P_RES_SHARD)) 
     info[i++] = "You resist blasts of shards.";
+  else if (p_resist_good(P_RES_SHARD)) 
+    info[i++] = "You slightly resist blasts of shards.";
   else if (p_vulnerable(P_RES_SHARD)) 
     info[i++] = "You are vulnerable to blasts of shards.";
   
   if (p_immune(P_RES_NEXUS)) info[i++] = "You are immune to nexus attacks.";
   else if (p_resist_strong(P_RES_NEXUS)) 
     info[i++] = "You resist nexus attacks exceptionally well.";
-  else if (p_resist_pos(P_RES_NEXUS)) info[i++] = "You resist nexus attacks.";
+  else if (p_resist_good(P_RES_NEXUS)) info[i++] = "You resist nexus attacks.";
+  else if (p_resist_pos(P_RES_NEXUS)) 
+    info[i++] = "You resist nexus attacks slightly.";
   else if (p_vulnerable(P_RES_NEXUS)) 
     info[i++] = "You are vulnerable to nexus attacks.";
   
   if (p_immune(P_RES_NETHR)) info[i++] = "You are immune to nether forces.";
   else if (p_resist_strong(P_RES_NETHR)) 
     info[i++] = "You resist nether forces exceptionally well.";
-  else if (p_resist_pos(P_RES_NETHR)) info[i++] = "You resist nether forces.";
+  else if (p_resist_good(P_RES_NETHR)) info[i++] = "You resist nether forces.";
+  else if (p_resist_pos(P_RES_NETHR)) 
+    info[i++] = "You resist nether forces slightly.";
   else if (p_vulnerable(P_RES_NETHR)) 
     info[i++] = "You are vulnerable to nether forces.";
   
   if (p_immune(P_RES_CHAOS)) info[i++] = "You are immune to chaos.";
   else if (p_resist_strong(P_RES_CHAOS)) 
     info[i++] = "You resist chaos exceptionally well.";
-  else if (p_resist_pos(P_RES_CHAOS)) info[i++] = "You resist chaos.";
+  else if (p_resist_good(P_RES_CHAOS)) info[i++] = "You resist chaos.";
+  else if (p_resist_pos(P_RES_CHAOS)) info[i++] = "You resist chaos slightly.";
   else if (p_vulnerable(P_RES_CHAOS)) 
     info[i++] = "You are vulnerable to chaos.";
   
   if (p_immune(P_RES_DISEN)) info[i++] = "You are immune to disenchantment.";
   else if (p_resist_strong(P_RES_DISEN)) 
     info[i++] = "You resist disenchantment exceptionally well.";
-  else if (p_resist_pos(P_RES_DISEN)) info[i++] = "You resist disenchantment.";
+  else if (p_resist_good(P_RES_DISEN)) 
+    info[i++] = "You resist disenchantment.";
+  else if (p_resist_pos(P_RES_DISEN)) 
+    info[i++] = "You resist disenchantment slightly.";
   else if (p_vulnerable(P_RES_DISEN)) 
     info[i++] = "You are vulnerable to disenchantment.";
 
@@ -4000,19 +4333,24 @@ static cptr view_abilities_aux(char *desc)
 	attr_num = 0;
 	
 	/* Special processing for the three "survival resists" */
-	if (f2 & (TR2_RES_FEAR)) attr_num++;
-	if (f2 & (TR2_RES_BLIND)) attr_num++;
+	//if (f2 & (TR2_RES_FEAR)) attr_num++;
+	//if (f2 & (TR2_RES_BLIND)) attr_num++;
+	if (f3 & (TR3_FEARLESS)) attr_num++;
+	if (f3 & (TR3_SEEING)) attr_num++;
 	
-	if (f2 & (TR2_RES_FEAR))
+	//if (f2 & (TR2_RES_FEAR))
+	if (f3 & (TR3_FEARLESS))
 	  {
 	    strcat(desc, "You are fearless");
 	    if (attr_num == 1) strcat(desc, ".  ");
 	    else strcat(desc, ", and");
 	  }
 	
-	if (f2 & (TR2_RES_BLIND))
+	//if (f2 & (TR2_RES_BLIND))
+	if (f3 & (TR3_SEEING))
 	  {
-	    if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+	    //if ((attr_num > 1) && (f2 & (TR2_RES_FEAR))) 
+	    if ((attr_num > 1) && (f3 & (TR3_FEARLESS))) 
 	      strcat(desc, " can not be blinded.  ");
 	    else strcat(desc, "You can not be blinded.  ");
 	  }
@@ -4096,7 +4434,7 @@ void do_cmd_view_abilities(void)
   int total_known = 0;
   int race_start, class_start, race_other_start;
   char c;
-  key_event ke;
+  event_type ke;
   int hgt;
   byte racial_list[32];
   byte class_list[32];
@@ -4160,6 +4498,9 @@ void do_cmd_view_abilities(void)
   
   Term_putstr(5, 0, 66, TERM_WHITE, buf);
   
+  /* Buttons */
+  normal_screen = FALSE;
+  update_statusline();
   
   /* View choices until user exits */
   done = FALSE;
@@ -4335,6 +4676,10 @@ void do_cmd_view_abilities(void)
   
   /* Load screen */
   screen_load();
+  
+  /* Buttons */
+  normal_screen = TRUE;
+  update_statusline();
   
   /* exit */
   return;

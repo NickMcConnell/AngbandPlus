@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.2.3
+V:0.3.0
 
 
 #N: monster index: name
@@ -9401,7 +9401,7 @@ D:flame and awesome fiery breath he saved his master from Ungoliant's rage.
 N:772:Wolf-Sauron
 G:C:v1
 I:140:68d100:100:64:0
-W:90:1:202:50000
+W:85:1:202:50000
 B:BITE:POISON:6d10
 B:BITE:POISON:6d10
 B:CLAW:CONFUSE:4d8
@@ -9421,7 +9421,7 @@ D:Sauron's form as the mightiest wolf that had yet walked the world.
 N:773:Serpent-Sauron
 G:J:v1
 I:130:68d100:100:64:0
-W:90:1:202:50000
+W:85:1:202:50000
 B:BITE:POISON:7d12
 B:BITE:POISON:7d12
 B:CRUSH:HURT:8d12
@@ -9443,7 +9443,7 @@ D:crush you in its mighty coils.
 N:774:Vampire-Sauron
 G:V:v1
 I:130:68d100:100:64:0
-W:90:1:202:50000
+W:85:1:202:50000
 B:BITE:EXP_80:6d12
 B:CLAW:TERRIFY:8d12
 B:TOUCH:UN_POWER

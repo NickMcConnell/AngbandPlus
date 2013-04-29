@@ -109,6 +109,7 @@
 #include <sys/video.h>
 
 #include "angband.h"
+#include "main.h"
 
 
 /*
@@ -330,6 +331,10 @@ static void Term_init_pipe_emx(term *t);
 static void Term_nuke_pipe_emx(term *t);
 static FILE *initPipe(const char *name);
 static void initPipeTerm(termPipe *pipe, const char *name, term **term);
+
+
+const char help_emx[] = 
+"";
 
 /*
  * Main initialization function

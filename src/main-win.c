@@ -74,6 +74,8 @@
 
 #ifdef WINDOWS
 
+#define HAS_CLEANUP
+
 
 /*
  * Use HTML-Help.
@@ -279,6 +281,7 @@
 #endif /* USE_SOUND */
 
 #include <commdlg.h>
+#include <shellapi.h>
 
 /*
  * HTML-Help requires htmlhelp.h and htmlhelp.lib from Microsoft's
@@ -360,8 +363,8 @@ unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
  */
 typedef struct _term_data term_data;
 
-static int yOldPos = 0;
-static int xOldPos = 0;
+//static int yOldPos = 0;
+//static int xOldPos = 0;
 static bool term_initialised = FALSE;
 
 /*
@@ -511,14 +514,11 @@ static bool change_tilesize = FALSE;
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
 
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
-
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1344,7 +1344,7 @@ static int new_palette(void)
 	if (!paletted) return (TRUE);
 
 	/* No bitmap */
-	lppeSize = 0;
+	//lppeSize = 0;
 	lppe = NULL;
 	nEntries = 0;
 
@@ -1356,8 +1356,10 @@ static int new_palette(void)
 	/* Use the bitmap */
 	if (hBmPal)
 	{
-		lppeSize = 256 * sizeof(PALETTEENTRY);
-		lppe = (LPPALETTEENTRY)ralloc(lppeSize);
+	  //lppeSize = 256 * sizeof(PALETTEENTRY);
+	  //lppe = (LPPALETTEENTRY)ralloc(lppeSize);
+	  //lppe = mem_alloc(256 * sizeof(PALETTEENTRY));
+	  lppe = ralloc(256 * sizeof(PALETTEENTRY));
 		nEntries = GetPaletteEntries(hBmPal, 0, 255, lppe);
 		if ((nEntries == 0) || (nEntries > 220))
 		{
@@ -1365,7 +1367,9 @@ static int new_palette(void)
 			plog("Please switch to high- or true-color mode.");
 
 			/* Cleanup */
-			rnfree(lppe, lppeSize);
+			//rnfree(lppe, lppeSize);
+			//mem_free(lppe);
+			free(lppe);
 
 			/* Fail */
 			return (FALSE);
@@ -1378,6 +1382,7 @@ static int new_palette(void)
 	pLogPalSize = sizeof(LOGPALETTE) + (nEntries + 16) * sizeof(PALETTEENTRY);
 
 	/* Allocate palette */
+	//pLogPal = (LPLOGPALETTE)mem_alloc(pLogPalSize);
 	pLogPal = (LPLOGPALETTE)ralloc(pLogPalSize);
 
 	/* Version */
@@ -1421,14 +1426,18 @@ static int new_palette(void)
 	}
 
 	/* Free something */
-	if (lppe) rnfree(lppe, lppeSize);
+	//if (lppe) rnfree(lppe, lppeSize);
+	//if (lppe) mem_free(lppe);
+	if (lppe) free(lppe);
 
 	/* Create a new palette, or fail */
 	hNewPal = CreatePalette(pLogPal);
 	if (!hNewPal) quit("Cannot create palette!");
 
 	/* Free the palette */
-	rnfree(pLogPal, pLogPalSize);
+	//rnfree(pLogPal, pLogPalSize);
+	//mem_free(pLogPal);
+	free(pLogPal);
 
 	/* Main window */
 	td = &data[0];
@@ -1517,8 +1526,6 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-#ifdef USE_TRANSPARENCY
-
 		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
 			/* Access the mask file */
@@ -1543,8 +1550,6 @@ static bool init_graphics(void)
 				return (FALSE);
 			}
 		}
-
-#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -1980,7 +1985,7 @@ static errr Term_xtra_win_react(void)
 		/* Change setting */
 		use_graphics = arg_graphics;
 
-		Term->always_draw = FALSE;
+		//Term->always_draw = FALSE;
 		
 		if (use_graphics_nice)
 		{
@@ -2240,7 +2245,7 @@ static int Term_xtra_win_grids(int v)
 
 	td->grid_display = v;
 
-	Term->always_draw = FALSE;
+	//Term->always_draw = FALSE;
 	
 
 	/* Success */
@@ -2304,10 +2309,10 @@ static errr Term_xtra_win(int n, int v)
 		}
 
 		/* Notice screen save / load */
-		case TERM_XTRA_GRIDS:
-		{
-			return (Term_xtra_win_grids(v));
-		}
+		//case TERM_XTRA_GRIDS:
+		//{
+		//return (Term_xtra_win_grids(v));
+		//}
 	}
 
 	/* Oops */
@@ -2532,11 +2537,7 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -2546,13 +2547,9 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2, th2;
 
-# ifdef USE_TRANSPARENCY
-
 	int x3, y3;
 
 	HDC hdcMask;
-
-# endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2613,8 +2610,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = (HBITMAP)SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
-
 	if ((arg_graphics == GRAPHICS_ADAM_BOLT)|| 
 	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 	{
@@ -2626,8 +2621,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		hdcMask = NULL;
 	}
 
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 #if 0
@@ -2645,8 +2638,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		/* Location of bitmap cell */
 		x1 = col * w1;
 		y1 = row * h1;
-
-# ifdef USE_TRANSPARENCY
 
 		if ((arg_graphics == GRAPHICS_ADAM_BOLT) || 
 		    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
@@ -2693,9 +2684,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 			}
 		}
 		else
-
-# endif /* USE_TRANSPARENCY */
-
 		{
 			/* Perfect size */
 			if ((w1 == tw2) && (h1 == th2))
@@ -2720,8 +2708,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
-
 	if ((arg_graphics == GRAPHICS_ADAM_BOLT) || 
 	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
 	{
@@ -2729,8 +2715,6 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		SelectObject(hdcMask, hbmSrcOld);
 		DeleteDC(hdcMask);
 	}
-
-# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -2755,10 +2739,8 @@ static void windows_map_aux(void)
 	int x, min_x, max_x;
 	int y, min_y, max_y;
 
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
 	s16b py = p_ptr->py;
 	s16b px = p_ptr->px;
@@ -2801,20 +2783,12 @@ static void windows_map_aux(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-#ifdef USE_TRANSPARENCY
 			map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
 				Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-				Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
-#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -2830,7 +2804,7 @@ static void windows_map_aux(void)
 static void windows_map(void)
 {
 	term_data *td = &data[0];
-	key_event ke;
+	event_type ke;
 
 	int old_display = td->grid_display;
 
@@ -2903,7 +2877,7 @@ static void term_data_link(term_data *td)
 	t->pict_hook = Term_pict_win;
 
 	/* Notice when grid display changes */
-	t->notice_grid = TRUE;
+	//t->notice_grid = TRUE;
 
 	/* Remember where we came from */
 	t->data = (vptr)(td);
@@ -3499,7 +3473,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			else
 			{
@@ -3570,7 +3544,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			quit(NULL);
 			break;
@@ -4283,7 +4257,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			quit(NULL);
 			return 0;
@@ -4810,7 +4784,7 @@ static void hook_plog(cptr str)
  */
 static void hook_quit(cptr str)
 {
-	int i;
+	int i, j;
 
 
 	/* Give a warning */
@@ -4841,12 +4815,23 @@ static void hook_quit(cptr str)
 	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
 	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
 
-#ifdef USE_TRANSPARENCY
 	if (infMask.hPalette) DeleteObject(infMask.hPalette);
 	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
+
+#ifdef USE_SOUND
+	/* Free the sound names */
+	for (i = 0; i < MSG_MAX; i++)
+	{
+		for (j = 0; j < SAMPLE_MAX; j++)
+		{
+			if (!sound_file[i][j]) break;
+
+			string_free(sound_file[i][j]);
+		}
+	}
+#endif /* USE_SOUND */
 
 	/*** Free some other stuff ***/
 
@@ -4857,6 +4842,18 @@ static void hook_quit(cptr str)
 	UnregisterClass(AppName, hInstance);
 
 	if (hIcon) DestroyIcon(hIcon);
+
+	/* Free strings */
+	string_free(ini_file);
+	string_free(argv0);
+	string_free(ANGBAND_DIR_XTRA_FONT);
+	string_free(ANGBAND_DIR_XTRA_GRAF);
+	string_free(ANGBAND_DIR_XTRA_SOUND);
+	string_free(ANGBAND_DIR_XTRA_HELP);
+
+#ifdef HAS_CLEANUP
+	cleanup_angband();
+#endif /* HAS_CLEANUP */
 
 	exit(0);
 }
@@ -5053,7 +5050,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Temporary hooks */
 	plog_aux = hack_plog;
 	quit_aux = hack_quit;
-	core_aux = hack_quit;
 
 	/* Prepare the filepaths */
 	init_stuff();
@@ -5093,7 +5089,6 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Activate hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_quit;
 
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";

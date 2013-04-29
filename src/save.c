@@ -551,6 +551,8 @@ static void wr_string(cptr str)
  */
 static void wr_item(object_type *o_ptr)
 {
+  int i;
+
   wr_s16b(o_ptr->k_idx);
   
   /* Location */
@@ -580,9 +582,11 @@ static void wr_item(object_type *o_ptr)
   
   wr_byte(o_ptr->marked);
   
-  /* Old flags */
-  wr_u32b(0L);
-  wr_u32b(0L);
+  /* New percentage resists -NRM- */
+  for (i = 0; i < MAX_P_RES; i++)
+    wr_byte(o_ptr->percent_res[i]);
+
+  wr_byte(o_ptr->el_proof);
   
   /* Where found */
   wr_u32b(o_ptr->found);
@@ -716,8 +720,12 @@ static void wr_xtra(int k_idx)
   if (k_ptr->aware) tmp8u |= 0x01;
   if (k_ptr->tried) tmp8u |= 0x02;
   if (k_ptr->known_effect) tmp8u |= 0x04;
-  if (k_ptr->squelch && sq_info[k_idx]) tmp8u |= 0x08;
+  if (k_ptr->squelch) tmp8u |= 0x08;
   
+  wr_byte(tmp8u);
+
+  tmp8u = 0;
+  if (k_ptr->everseen) tmp8u |= 0x01;
   wr_byte(tmp8u);
 }
 
@@ -910,6 +918,43 @@ static void wr_ghost(void)
 
 
 /*
+ * Write autoinscribe & squelch item-quality submenu to the savefile
+ */
+static void wr_squelch(void)
+{
+	int i;
+
+	/* Write number of squelch bytes */
+	wr_byte(SQUELCH_BYTES);
+	for (i = 0; i < SQUELCH_BYTES; i++)
+		wr_byte(squelch_level[i]);
+
+	/* Write ego-item squelch bits */
+	wr_u16b(z_info->e_max);
+	for (i = 0; i < z_info->e_max; i++)
+	{
+		byte flags = 0;
+
+		/* Figure out and write the everseen flag */
+		if (e_info[i].everseen) flags |= 0x02;
+		wr_byte(flags);
+	}
+
+	/* Write the current number of auto-inscriptions */
+	wr_u16b(inscriptions_count);
+
+	/* Write the autoinscriptions array */
+	for (i = 0; i < inscriptions_count; i++)
+	{
+		wr_s16b(inscriptions[i].kind_idx);
+		wr_string(quark_str(inscriptions[i].inscription_idx));
+	}
+
+	return;
+}
+
+
+/*
  * Write some "extra" info
  */
 static void wr_extra(void)
@@ -1037,8 +1082,7 @@ static void wr_extra(void)
   wr_u32b(p_ptr->themed_level_appeared);
   
   /* Squelch */
-  for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
-  for (i = 0; i < 15; i++) wr_byte(0);
+  wr_squelch();
   
   /* Specialty abilties */
   for (i = 0; i < 10; i++) wr_byte(p_ptr->specialty_order[i]);
@@ -1076,44 +1120,25 @@ static void wr_extra(void)
  */
 static void wr_notes(void)
 {
-  char end_note[80];
-  
-  /* Paranoia */
-  if (adult_take_notes && notes_file)
+  int i = 0;
+
+  wr_string(notes_start);
+
+  /* Count the entries */
+  while (notes[i].turn) i++;
+  wr_s32b(i);
+
+  /* Write the entries */
+  i = 0;
+  while (notes[i].turn)
     {
-      char tmpstr[100];
-      
-      my_fclose(notes_file);
-      
-      /* Re-open for readding */
-      notes_file = my_fopen(notes_fname, "r");
-      
-      while (TRUE)
-    	{
-	  /* Read the note from the tempfile */
-	  if (my_fgets(notes_file, tmpstr, sizeof(tmpstr)))
-	    {
-	      /* Found the end */
-	      break;
-	    }
-	  
-	  /* Paranoia */
-	  if (strcmp(tmpstr, NOTES_MARK) == 0) continue;
-	  
-	  /* Write it into the savefile */
-	  wr_string(tmpstr);
-    	}
-      
-      my_fclose(notes_file);
-      
-      /* Re-open for appending */
-      notes_file = my_fopen(notes_fname, "a");
+      wr_s32b(notes[i].turn);
+      wr_s32b(notes[i].place);
+      wr_s32b(notes[i].level);
+      wr_byte(notes[i].type);
+      wr_string(notes[i].note);
+      i++;
     }
-  
-  my_strcpy(end_note, NOTES_MARK, sizeof(end_note));
-  
-  /* Always write NOTES_MARK */
-  wr_string(end_note);
 }
 
 
@@ -1310,7 +1335,7 @@ static void wr_dungeon(void)
  */
 static bool wr_savefile_new(void)
 {
-  int i;
+  int i, j;
   
   u32b now;
   
@@ -1396,13 +1421,13 @@ static bool wr_savefile_new(void)
   
   
   /* Dump the monster lore */
-  tmp16u = MAX_R_IDX;
+  tmp16u = z_info->r_max;
   wr_u16b(tmp16u);
   for (i = 0; i < tmp16u; i++) wr_lore(i);
   
   
   /* Dump the object memory */
-  tmp16u = MAX_K_IDX;
+  tmp16u = z_info->k_max;
   wr_u16b(tmp16u);
   for (i = 0; i < tmp16u; i++) wr_xtra(i);
   
@@ -1419,11 +1444,11 @@ static bool wr_savefile_new(void)
   
   
   /* Record the total number of artifacts. */
-  tmp16u = MAX_A_IDX;
+  tmp16u = z_info->a_max;
   wr_u16b(tmp16u);
   
   /* Record the number of random artifacts. */
-  tmp16u = MAX_A_IDX - ART_MIN_RANDOM;
+  tmp16u = z_info->a_max - ART_MIN_RANDOM;
   wr_u16b(tmp16u);
   
   
@@ -1432,7 +1457,7 @@ static bool wr_savefile_new(void)
    * = 1760 extra bytes in the savefile, which does not seem unreasonable.
    */
   /* Write the artifact info. */
-  for (i = 0; i < MAX_A_IDX; i++)
+  for (i = 0; i < z_info->a_max; i++)
     {
       artifact_type *a_ptr = &a_info[i];
       
@@ -1472,6 +1497,10 @@ static bool wr_savefile_new(void)
 	  
 	  wr_s32b(a_ptr->creat_turn);
 	  wr_byte(a_ptr->activation);
+
+	  /* New percentage resists -NRM- */
+	  for (j = 0; j < MAX_P_RES; j++)
+	    wr_byte(a_ptr->percent_res[j]);
 	  
 	  /* Add some filler space for later expansion. */
 	  wr_u32b(0);
@@ -1481,10 +1510,10 @@ static bool wr_savefile_new(void)
   /* Note down how many random artifacts have names.  In Oangband 0.5.0 
    * there are 40 random artifact names.
    */
-  wr_u16b(MAX_A_IDX - ART_MIN_RANDOM);
+  wr_u16b(z_info->a_max - ART_MIN_RANDOM);
   
   /* Write the list of random artifact names. */
-  for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
+  for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
     {
       artifact_type *a_ptr = &a_info[i];
       wr_string(format("%s", a_name + a_ptr->name));
@@ -1518,7 +1547,7 @@ static bool wr_savefile_new(void)
       wr_byte(p_ptr->spell_order[i]);
     }
   
-  /* Copy the notes file into the savefile*/
+  /* Write the notes */
   wr_notes();
   
   /* Write the inventory */

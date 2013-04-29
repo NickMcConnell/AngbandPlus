@@ -59,7 +59,7 @@
  * setenv ANGBAND_X11_FONT_2 8x13
  * setenv ANGBAND_X11_AT_X_2 635
  * setenv ANGBAND_X11_AT_Y_2 182
- * setenv ANGBAND_X11_ROWS_3 23
+ * setenv ANGBAND_X11_ROWS_2 23
  *
  * # Equipment window
  * setenv ANGBAND_X11_FONT_3 8x13
@@ -95,6 +95,7 @@
 
 
 #include "angband.h"
+#include "main.h"
 
 
 #ifdef USE_X11
@@ -111,7 +112,7 @@
 /*
  * Include some helpful X11 code.
  */
-#include "maid-x11.c"
+#include "maid-x11.h"
 
 
 /*
@@ -223,6 +224,7 @@ struct metadpy
  *	- The current Input Event Mask
  *
  *	- The location of the window
+ *	- The saved (startup) location of the window
  *	- The width, height of the window
  *	- The border width of this window
  *
@@ -247,6 +249,7 @@ struct infowin
 	s16b ox, oy;
 
 	s16b x, y;
+	s16b x_save, y_save;
 	s16b w, h;
 	u16b b;
 
@@ -328,6 +331,38 @@ struct infofnt
 	uint nuke:1;
 };
 
+
+
+/*
+ * Forward declare
+ */
+typedef struct term_data term_data;
+
+/*
+ * A structure for each "term"
+ */
+struct term_data
+{
+	term t;
+
+	infofnt *fnt;
+
+	infowin *win;
+
+#ifdef USE_GRAPHICS
+
+	XImage *tiles;
+
+	/* Temporary storage for overlaying tiles. */
+	XImage *TmpImage;
+
+#endif /* USE_GRAPHICS */
+
+	/* Pointers to allocated data, needed to clear up memory */
+	XClassHint *classh;
+	XSizeHints *sizeh;
+
+};
 
 
 
@@ -515,8 +550,6 @@ static errr Metadpy_init_2(Display *dpy, cptr name)
 }
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke the current metadpy
  */
@@ -541,8 +574,6 @@ static errr Metadpy_nuke(void)
 	/* Return Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -607,6 +638,8 @@ static errr Infowin_set_icon_name(cptr name)
 	return (0);
 }
 
+#endif /* IGNORE_UNUSED_FUNCTIONS */
+
 
 /*
  * Nuke Infowin
@@ -625,8 +658,6 @@ static errr Infowin_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -650,6 +681,8 @@ static errr Infowin_prepare(Window xid)
 	/* Apply the above info */
 	iwin->x = x;
 	iwin->y = y;
+	iwin->x_save = x;
+	iwin->y_save = y;
 	iwin->w = w;
 	iwin->h = h;
 	iwin->b = b;
@@ -1041,6 +1074,8 @@ static errr Infoclr_init_1(GC gc)
 	return (0);
 }
 
+#endif /* IGNORE_UNUSED_FUNCTIONS */
+
 
 /*
  * Nuke an old 'infoclr'.
@@ -1062,8 +1097,6 @@ static errr Infoclr_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1175,8 +1208,6 @@ static errr Infoclr_change_fg(Pixell fg)
 
 
 
-#ifndef IGNORE_UNUSED_FUNCTIONS
-
 /*
  * Nuke an old 'infofnt'.
  */
@@ -1201,8 +1232,6 @@ static errr Infofnt_nuke(void)
 	/* Success */
 	return (0);
 }
-
-#endif /* IGNORE_UNUSED_FUNCTIONS */
 
 
 /*
@@ -1360,7 +1389,7 @@ static errr Infofnt_text_std(int x, int y, cptr str, int len)
 		}
 	}
 
-	/* Assume monoospaced font */
+	/* Assume monospaced font */
 	else
 	{
 		/* Note that the Infoclr is set up to contain the Infofnt */
@@ -1441,37 +1470,6 @@ static infoclr *clr[256];
 static byte color_table[256][4];
 
 /*
- * Forward declare
- */
-typedef struct term_data term_data;
-
-/*
- * A structure for each "term"
- */
-struct term_data
-{
-	term t;
-
-	infofnt *fnt;
-
-	infowin *win;
-
-#ifdef USE_GRAPHICS
-
-	XImage *tiles;
-
-#ifdef USE_TRANSPARENCY
-
-	/* Tempory storage for overlaying tiles. */
-	XImage *TmpImage;
-
-#endif
-
-#endif
-
-};
-
-/*
  * Stretch factor for double and triple tile -NRM-
  */
 
@@ -1488,9 +1486,22 @@ static int stretch = 1;
  */
 static term_data data[MAX_TERM_DATA];
 
+
+/*
+ * Path to the X11 settings file
+ */
+char settings[1024];
+
+
 /* Use short names for the most commonly used elements of various structures. */
 #define DPY (Metadpy->dpy)
 #define WIN (Infowin->win)
+
+
+/*
+ * Remember the number of terminal windows open
+ */
+static int term_windows_open;
 
 
 /* Describe a set of co-ordinates. */
@@ -1518,8 +1529,7 @@ struct x11_selection_type
 	Time time; /* The time at which the selection was finalised. */
 };
 
-static x11_selection_type x11_selection[1];
-
+//static x11_selection_type x11_selection[1];
 
 
 
@@ -1528,13 +1538,11 @@ static x11_selection_type x11_selection[1];
  *
  * Also appears in "main-xaw.c".
  */
-static void react_keypress(XKeyEvent *xev)
+static void react_keypress(XKeyEvent *ev)
 {
 	int i, n, mc, ms, mo, mx;
 
 	uint ks1;
-
-	XKeyEvent *ev = (XKeyEvent*)(xev);
 
 	KeySym ks;
 
@@ -1650,34 +1658,34 @@ static void pixel_to_square(int * const x, int * const y,
 /*
  * Find the pixel at the top-left corner of a square.
  */
-static void square_to_pixel(int * const x, int * const y,
-                            const int ox, const int oy)
-{
-	(*x) = ox * Infofnt->wid + Infowin->ox;
-	(*y) = oy * Infofnt->hgt + Infowin->oy;
-}
+//static void square_to_pixel(int * const x, int * const y,
+//                     const int ox, const int oy)
+     //{
+//(*x) = ox * Infofnt->wid + Infowin->ox;
+//(*y) = oy * Infofnt->hgt + Infowin->oy;
+//}
 
 
 /*
  * Convert co-ordinates from starting corner/opposite corner to minimum/maximum.
  */
-static void sort_co_ord(co_ord *min, co_ord *max,
-                        const co_ord *b, const co_ord *a)
-{
-	min->x = MIN(a->x, b->x);
-	min->y = MIN(a->y, b->y);
-	max->x = MAX(a->x, b->x);
-	max->y = MAX(a->y, b->y);
-}
+//static void sort_co_ord(co_ord *min, co_ord *max,
+//                      const co_ord *b, const co_ord *a)
+//{
+//min->x = MIN(a->x, b->x);
+//min->y = MIN(a->y, b->y);
+//max->x = MAX(a->x, b->x);
+//max->y = MAX(a->y, b->y);
+//}
 
 
 /*
  * Remove the selection by redrawing it.
  */
-static void mark_selection_clear(int x1, int y1, int x2, int y2)
-{
-	Term_redraw_section(x1, y1, x2, y2);
-}
+//static void mark_selection_clear(int x1, int y1, int x2, int y2)
+//{
+//Term_redraw_section(x1, y1, x2, y2);
+//}
 
 
 /*
@@ -1685,104 +1693,104 @@ static void mark_selection_clear(int x1, int y1, int x2, int y2)
  * NB. These two functions can cause flicker as the selection is modified,
  * as the game redraws the entire marked section.
  */
-static void mark_selection_mark(int x1, int y1, int x2, int y2)
-{
-	square_to_pixel(&x1, &y1, x1, y1);
-	square_to_pixel(&x2, &y2, x2, y2);
-	XDrawRectangle(Metadpy->dpy, Infowin->win, clr[2]->gc, x1, y1,
-		x2-x1+Infofnt->wid - 1, y2-y1+Infofnt->hgt - 1);
-}
+//static void mark_selection_mark(int x1, int y1, int x2, int y2)
+//{
+//square_to_pixel(&x1, &y1, x1, y1);
+//square_to_pixel(&x2, &y2, x2, y2);
+//XDrawRectangle(Metadpy->dpy, Infowin->win, clr[2]->gc, x1, y1,
+//	x2-x1+Infofnt->wid - 1, y2-y1+Infofnt->hgt - 1);
+//}
 
 
 /*
  * Mark a selection by drawing boxes around it (for now).
  */
-static void mark_selection(void)
-{
-	co_ord min, max;
-	term *old = Term;
-	bool draw = x11_selection->select;
-	bool clear = x11_selection->drawn;
-
-	/* Open the correct term if necessary. */
-	if (x11_selection->t != old) Term_activate(x11_selection->t);
-
-	if (clear)
-	{
-		sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->old);
-		mark_selection_clear(min.x, min.y, max.x, max.y);
-	}
-
-	if (draw)
-	{
-		sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->cur);
-		mark_selection_mark(min.x, min.y, max.x, max.y);
-	}
-
-	/* Finish on the current term. */
-	if (x11_selection->t != old) Term_activate(old);
-
-	x11_selection->old.x = x11_selection->cur.x;
-	x11_selection->old.y = x11_selection->cur.y;
-	x11_selection->drawn = x11_selection->select;
-}
+//static void mark_selection(void)
+//{
+//	co_ord min, max;
+//term *old = Term;
+//bool draw = x11_selection->select;
+//bool clear = x11_selection->drawn;
+//
+///* Open the correct term if necessary. */
+//if (x11_selection->t != old) Term_activate(x11_selection->t);
+//
+//if (clear)
+//{
+//	sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->old);
+//	mark_selection_clear(min.x, min.y, max.x, max.y);
+//}
+//
+//if (draw)
+//{
+//	sort_co_ord(&min, &max, &x11_selection->init, &x11_selection->cur);
+//	mark_selection_mark(min.x, min.y, max.x, max.y);
+//}
+//
+///* Finish on the current term. */
+//if (x11_selection->t != old) Term_activate(old);
+//
+//x11_selection->old.x = x11_selection->cur.x;
+//x11_selection->old.y = x11_selection->cur.y;
+//x11_selection->drawn = x11_selection->select;
+//}
 
 
 /*
  * Forget a selection for one reason or another.
  */
-static void copy_x11_release(void)
-{
-	/* Deselect the current selection. */
-	x11_selection->select = FALSE;
-
-	/* Remove its graphical represesntation. */
-	mark_selection();
-}
+//static void copy_x11_release(void)
+//{
+///* Deselect the current selection. */
+//x11_selection->select = FALSE;
+//
+///* Remove its graphical represesntation. */
+//mark_selection();
+//}
 
 
 /*
  * Start to select some text on the screen.
  */
-static void copy_x11_start(int x, int y)
-{
-	if (x11_selection->select) copy_x11_release();
-
-	/* Remember where the selection started. */
-	x11_selection->t = Term;
-	x11_selection->init.x = x11_selection->cur.x = x11_selection->old.x = x;
-	x11_selection->init.y = x11_selection->cur.y = x11_selection->old.y = y;
-}
+//static void copy_x11_start(int x, int y)
+//{
+//if (x11_selection->select) copy_x11_release();
+//
+///* Remember where the selection started. */
+//x11_selection->t = Term;
+//x11_selection->init.x = x11_selection->cur.x = x11_selection->old.x = x;
+//x11_selection->init.y = x11_selection->cur.y = x11_selection->old.y = y;
+//}
 
 
 /*
  * Respond to movement of the mouse when selecting text.
  */
-static void copy_x11_cont(int x, int y, unsigned int buttons)
-{
-	/* Use the nearest square within bounds if the mouse is outside. */
-	x = MIN(MAX(x, 0), Term->wid-1);
-	y = MIN(MAX(y, 0), Term->hgt-1);
-
-	/* The left mouse button isn't pressed. */
-	if (~buttons & Button1Mask) return;
-
-	/* Not a selection in this window. */
-	if (x11_selection->t != Term) return;
-
-	/* Not enough movement. */
-	if ((x == x11_selection->old.x) && (y == x11_selection->old.y) && x11_selection->select) return;
-
-	/* Something is being selected. */
-	x11_selection->select = TRUE;
-
-	/* Track the selection. */
-	x11_selection->cur.x = x;
-	x11_selection->cur.y = y;
-
-	/* Hack - display it inefficiently. */
-	mark_selection();
-}
+//static void copy_x11_cont(int x, int y, unsigned int buttons)
+//{
+///* Use the nearest square within bounds if the mouse is outside. */
+//x = MIN(MAX(x, 0), Term->wid-1);
+//y = MIN(MAX(y, 0), Term->hgt-1);
+//
+///* The left mouse button isn't pressed. */
+//if (~buttons & Button1Mask) return;
+//
+///* Not a selection in this window. */
+//if (x11_selection->t != Term) return;
+//
+///* Not enough movement. */
+//if ((x == x11_selection->old.x) && (y == x11_selection->old.y) && x11_selection->select) return;
+//
+///* Something is being selected. */
+//x11_selection->select = TRUE;
+//
+///* Track the selection. */
+//x11_selection->cur.x = x;
+//x11_selection->cur.y = y;
+//
+///* Hack - display it inefficiently. */
+//mark_selection();
+//}
 
 
 
@@ -1894,13 +1902,13 @@ static errr CheckEvent(bool wait)
 			/* Where is the mouse */
 			x = xev->xmotion.x;
 			y = xev->xmotion.y;
-			unsigned int z = xev->xmotion.state;
+			//		unsigned int z = xev->xmotion.state;
 
 			/* Convert to co-ordinates Angband understands. */
 			pixel_to_square(&x, &y, x, y);
 
 			/* Alter the selection if appropriate. */
-			copy_x11_cont(x, y, z);
+			//copy_x11_cont(x, y, z);
 
 
 			break;
@@ -2206,134 +2214,179 @@ static errr Term_text_x11(int x, int y, int n, byte a, cptr s)
 /*
  * Draw some graphical characters.
  */
-# ifdef USE_TRANSPARENCY
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
 {
-  int i;
-  int x1 = 0, y1 = 0;
-  
-  byte a;
-  char c;
-  
-  
-#ifdef USE_TRANSPARENCY
-  byte ta;
-  char tc;
-  
-  int x2, y2;
-  int k,l;
-  
-  unsigned long pixel, blank;
-#endif /* USE_TRANSPARENCY */
-  
-  term_data *td = (term_data*)(Term->data);
-  
-  /* Paranoia */
-  if (!use_graphics)
-    {
-      /* Erase the grids */
-      return (Term_wipe_x11(x, y, n));
-    }
+	int i;
+	int x1 = 0, y1 = 0;
 
-  y *= Infofnt->hgt;
-  x *= Infofnt->wid;
-  
-  
-  /* Add in affect of window boundaries */
-  y += Infowin->oy;
-  x += Infowin->ox;
-  
-  for (i = 0; i < n; ++i)
+	byte a;
+	char c;
+
+	byte ta;
+	char tc;
+
+	int x2, y2;
+	int k,l;
+
+	unsigned long pixel, blank;
+
+	term_data *td = (term_data*)(Term->data);
+
+  /* Paranoia */
+	if (!use_graphics)
+	{
+		/* Erase the grids */
+		return (Term_wipe_x11(x, y, n));
+	}
+
+	y *= Infofnt->hgt;
+	x *= Infofnt->wid;
+
+
+	/* Add in affect of window boundaries */
+	y += Infowin->oy;
+	x += Infowin->ox;
+
+	for (i = 0; i < n; ++i)
 #if 0
-    for (i = n-1; i >= 0; i--)
+	for (i = n-1; i >= 0; i--)
 #endif
-    {
-      a = *ap++;
-      c = *cp++;
-      
-      /* For extra speed - cache these values */
-      x1 = (c&0x7F) * td->fnt->twid * stretch;
-      y1 = (a&0x7F) * td->fnt->hgt * stretch;
-      
-#ifdef USE_TRANSPARENCY
-      
-      ta = *tap++;
-      tc = *tcp++;
-      
-      /* For extra speed - cache these values */
-      x2 = (tc&0x7F) * td->fnt->twid * stretch;
-      y2 = (ta&0x7F) * td->fnt->hgt * stretch;
-      
-      /* Optimise the common case */
-      if (((x1 == x2) && (y1 == y2)) ||
-	  !(((byte)ta & 0x80) && ((byte)tc & 0x80)))
-	
 	{
-	  /* Draw object / terrain */
-	  XPutImage(Metadpy->dpy, td->win->win,
-		    clr[0]->gc,
-		    td->tiles,
-		    x1, y1,
-		    x, y,
-		    td->fnt->twid * stretch, td->fnt->hgt * stretch);
-	}
-      else
-	{
-	  
-	  /* Mega Hack^2 - assume the top left corner is "black" */
-	  blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6 * stretch);
-	  
-	  for (k = 0; k < td->fnt->twid * stretch; k++)
-	    {
-	      for (l = 0; l < td->fnt->hgt * stretch; l++)
+		a = *ap++;
+		c = *cp++;
+
+		/* For extra speed - cache these values */
+		x1 = (c&0x7F) * td->fnt->twid * stretch;
+		y1 = (a&0x7F) * td->fnt->hgt * stretch;
+      
+		ta = *tap++;
+		tc = *tcp++;
+      
+		/* For extra speed - cache these values */
+		x2 = (tc&0x7F) * td->fnt->twid * stretch;
+		y2 = (ta&0x7F) * td->fnt->hgt * stretch;
+
+		/* Optimise the common case */
+		if (((x1 == x2) && (y1 == y2)) ||
+		    !(((byte)ta & 0x80) && ((byte)tc & 0x80)))
 		{
-		  /* If mask set... */
-		  if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
-		    {
-		      /* Output from the terrain */
-		      pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
-		      
-		      if (pixel == blank)
-			pixel = 0L;
-		    }
-		  
-		  /* Store into the temp storage. */
-		  XPutPixel(td->TmpImage, k, l, pixel);
+			/* Draw object / terrain */
+			XPutImage(Metadpy->dpy, td->win->win,
+				  clr[0]->gc,
+				  td->tiles,
+				  x1, y1,
+				  x, y,
+				  td->fnt->twid * stretch, td->fnt->hgt * stretch);
 		}
-	    }
+		else
+		{
 	  
-	  
-	  /* Draw to screen */
-	  XPutImage(Metadpy->dpy, td->win->win,
-		    clr[0]->gc,
-		    td->TmpImage,
-		    0, 0, x, y,
-		    td->fnt->twid * stretch, td->fnt->hgt * stretch);
+			/* Mega Hack^2 - assume the top left corner is "black" */
+			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6 * stretch);
+
+			for (k = 0; k < td->fnt->twid * stretch; k++)
+			{
+				for (l = 0; l < td->fnt->hgt * stretch; l++)
+				{
+					/* If mask set... */
+					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
+					{
+						/* Output from the terrain */
+						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
+
+						if (pixel == blank)
+							pixel = 0L;
+					}
+
+					/* Store into the temp storage. */
+					XPutPixel(td->TmpImage, k, l, pixel);
+				}
+			}
+
+
+			/* Draw to screen */
+			XPutImage(Metadpy->dpy, td->win->win,
+				  clr[0]->gc,
+				  td->TmpImage,
+				  0, 0, x, y,
+				  td->fnt->twid * stretch, td->fnt->hgt * stretch);
+		}
+
+		x -= td->fnt->wid * stretch;
 	}
-      
-#else /* USE_TRANSPARENCY */
-      
-      /* Draw object / terrain */
-      XPutImage(Metadpy->dpy, td->win->win,
-		clr[0]->gc,
-		td->tiles,
-		x1, y1,
-		x, y,
-		td->fnt->wid * stretch, td->fnt->hgt * stretch);
-      
-#endif /* USE_TRANSPARENCY */
-      x -= td->fnt->wid * stretch;
-    }
-  
-  /* Success */
-  return (0);
+
+	/* Success */
+	return (0);
 }
 
 #endif /* USE_GRAPHICS */
 
+
+static void save_prefs(void)
+{
+	FILE *fff;
+	int i;
+
+	/* Open the settings file */
+	fff = my_fopen(settings, "w");
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Header */
+	fprintf(fff, "# %s X11 settings\n\n", VERSION_NAME);
+
+	/* Number of term windows to open */
+	fprintf(fff, "TERM_WINS=%d\n\n", term_windows_open);
+
+	/* Save window prefs */
+	for (i = 0; i < MAX_TERM_DATA; i++)
+	{
+		term_data *td = &data[i];
+
+		if (!td->t.mapped_flag) continue;
+
+		/* Header */
+		fprintf(fff, "# Term %d\n", i);
+
+		/*
+		 * This doesn't seem to work under various WMs
+		 * since the decoration messes the position up
+		 *
+		 * Hack -- Use saved window positions.
+		 * This means that we won't remember ingame repositioned
+		 * windows, but also means that WMs won't screw predefined
+		 * positions up. -CJN-
+		 */
+
+		/* Window specific location (x) */
+		fprintf(fff, "AT_X_%d=%d\n", i, td->win->x_save);
+
+		/* Window specific location (y) */
+		fprintf(fff, "AT_Y_%d=%d\n", i, td->win->y_save);
+
+		/* Window specific cols */
+		fprintf(fff, "COLS_%d=%d\n", i, td->t.wid);
+
+		/* Window specific rows */
+		fprintf(fff, "ROWS_%d=%d\n", i, td->t.hgt);
+
+		/* Window specific inner border offset (ox) */
+		fprintf(fff, "IBOX_%d=%d\n", i, td->win->ox);
+
+		/* Window specific inner border offset (oy) */
+		fprintf(fff, "IBOY_%d=%d\n", i, td->win->oy);
+
+		/* Window specific font name */
+		fprintf(fff, "FONT_%d=%s\n", i, td->fnt->name);
+
+		/* Footer */
+		fprintf(fff, "\n");
+	}
+
+	/* Close */
+	(void)my_fclose(fff);
+}
 
 
 /*
@@ -2358,8 +2411,6 @@ static errr term_data_init(term_data *td, int i)
 
 	int wid, hgt, num;
 
-	char buf[80];
-
 	cptr str;
 
 	int val;
@@ -2370,6 +2421,15 @@ static errr term_data_init(term_data *td, int i)
 	char res_class[20];
 
 	XSizeHints *sh;
+
+	FILE *fff;
+
+	char buf[1024];
+	char cmd[40];
+	char font_name[256];
+
+	int line = 0;
+
 
 	cols = (small_screen ? 48 : 80);
 
@@ -2434,15 +2494,129 @@ static errr term_data_init(term_data *td, int i)
 		}
 	}
 
+
+	/* Build the filename */
+	path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+
+	/* Open the file */
+	fff = my_fopen(settings, "r");
+
+	/* File exists */
+	if (fff)
+	{
+		/* Process the file */
+		while (0 == my_fgets(fff, buf, sizeof(buf)))
+		{
+			/* Count lines */
+			line++;
+
+			/* Skip "empty" lines */
+			if (!buf[0]) continue;
+
+			/* Skip "blank" lines */
+			if (isspace((unsigned char)buf[0])) continue;
+
+			/* Skip comments */
+			if (buf[0] == '#') continue;
+
+			/* Window specific location (x) */
+			sprintf(cmd, "AT_X_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				x = (str != NULL) ? atoi(str + 1) : -1;
+				continue;
+			}
+
+			/* Window specific location (y) */
+			sprintf(cmd, "AT_Y_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				y = (str != NULL) ? atoi(str + 1) : -1;
+				continue;
+			}
+
+			/* Window specific cols */
+			sprintf(cmd, "COLS_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) cols = val;
+				continue;
+			}
+
+			/* Window specific rows */
+			sprintf(cmd, "ROWS_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) rows = val;
+				continue;
+			}
+
+			/* Window specific inner border offset (ox) */
+			sprintf(cmd, "IBOX_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) ox = val;
+				continue;
+			}
+
+			/* Window specific inner border offset (oy) */
+			sprintf(cmd, "IBOY_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) oy = val;
+				continue;
+			}
+
+			/* Window specific font name */
+			sprintf(cmd, "FONT_%d", i);
+
+			if (prefix(buf, cmd))
+			{
+				str = strstr(buf, "=");
+				if (str != NULL)
+				{
+					my_strcpy(font_name, str + 1, sizeof(font_name));
+					font = font_name;
+				}
+				continue;
+			}
+		}
+
+		/* Close */
+		my_fclose(fff);
+	}
+
+	/*
+	 * Env-vars overwrite the settings in the settings file
+	 */
+
 	/* Window specific location (x) */
 	sprintf(buf, "ANGBAND_X11_AT_X_%d", i);
 	str = getenv(buf);
-	x = (str != NULL) ? atoi(str) : -1;
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) x = val;
 
 	/* Window specific location (y) */
 	sprintf(buf, "ANGBAND_X11_AT_Y_%d", i);
 	str = getenv(buf);
-	y = (str != NULL) ? atoi(str) : -1;
+	val = (str != NULL) ? atoi(str) : -1;
+	if (val > 0) y = val;
 
 	/* Window specific cols */
 	sprintf(buf, "ANGBAND_X11_COLS_%d", i);
@@ -2480,7 +2654,7 @@ static errr term_data_init(term_data *td, int i)
 	/* Prepare the standard font */
 	MAKE(td->fnt, infofnt);
 	Infofnt_set(td->fnt);
-	Infofnt_init_data(font);
+	if (Infofnt_init_data(font)) quit_fmt("Couldn't load the requested font. (%s)", font);
 
 	/* Hack -- key buffer size */
 	num = ((i == 0) ? 1024 : 16);
@@ -2512,7 +2686,7 @@ static errr term_data_init(term_data *td, int i)
 	if (ch == NULL) quit("XAllocClassHint failed");
 
 	strcpy(res_name, name);
-	res_name[0] = FORCELOWER(res_name[0]);
+	res_name[0] = tolower(res_name[0]);
 	ch->res_name = res_name;
 
 	strcpy(res_class, "Angband");
@@ -2565,6 +2739,9 @@ static errr term_data_init(term_data *td, int i)
 	/* Map the window */
 	Infowin_map();
 
+	/* Set pointers to allocated data */
+	td->sizeh = sh;
+	td->classh = ch;
 
 	/* Move the window to requested location */
 	if ((x >= 0) && (y >= 0)) Infowin_impell(x, y);
@@ -2598,6 +2775,65 @@ static errr term_data_init(term_data *td, int i)
 }
 
 
+const char help_x11[] = "Basic X11, subopts -d<display> -n<windows>"
+#ifdef USE_GRAPHICS
+" -s(moothRescale)"
+"\n           -b(Bigtile) -o(original) -a(AdamBolt) -g(David Gervais)"
+#endif
+                        ;
+
+static void hook_quit(cptr str)
+{
+	int i;
+
+	/* Unused */
+	(void)str;
+
+	save_prefs();
+
+	/* Free allocated data */
+	for (i = 0; i < term_windows_open; i++)
+	{
+		term_data *td = &data[i];
+		term *t = &td->t;
+
+		/* Free size hints */
+		XFree(td->sizeh);
+
+		/* Free class hints */
+		XFree(td->classh);
+
+		/* Free fonts */
+		Infofnt_set(td->fnt);
+		(void)Infofnt_nuke();
+		KILL(td->fnt);
+
+		/* Free window */
+		Infowin_set(td->win);
+		(void)Infowin_nuke();
+		KILL(td->win);
+
+		/* Free term */
+		(void)term_nuke(t);
+	}
+
+	/* Free colors */
+	Infoclr_set(xor);
+	(void)Infoclr_nuke();
+	KILL(xor);
+
+	for (i = 0; i < 256; ++i)
+	{
+		Infoclr_set(clr[i]);
+		(void)Infoclr_nuke();
+		KILL(clr[i]);
+	}
+
+	/* Close link to display */
+	(void)Metadpy_nuke();
+}
+
+
 /*
  * Initialization function for an "X11" module to Angband
  */
@@ -2609,21 +2845,68 @@ errr init_x11(int argc, char *argv[])
 
 	int num_term = 1;
 
+	FILE *fff;
+
+	char buf[1024];
+	cptr str;
+	int val;
+	int line = 0;
+
 #ifdef USE_GRAPHICS
 
-	cptr bitmap_file;
+	cptr bitmap_file = NULL;
 	char filename[1024];
 
 	int pict_wid = 0;
 	int pict_hgt = 0;
 
-#ifdef USE_TRANSPARENCY
-
 	char *TmpData;
-#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
+
+	/*
+	 * Check x11-settings for the number of windows before handling
+	 * command line options to allow for easy override
+	 */
+
+	/* Build the filename */
+	(void)path_build(settings, sizeof(settings), ANGBAND_DIR_USER, "x11-settings.prf");
+
+	/* Open the file */
+	fff = my_fopen(settings, "r");
+
+	/* File exists */
+	if (fff)
+	{
+		/* Process the file */
+		while (0 == my_fgets(fff, buf, sizeof(buf)))
+		{
+			/* Count lines */
+			line++;
+
+			/* Skip "empty" lines */
+			if (!buf[0]) continue;
+
+			/* Skip "blank" lines */
+			if (isspace((unsigned char)buf[0])) continue;
+
+			/* Skip comments */
+			if (buf[0] == '#') continue;
+
+			/* Number of terminal windows */
+			if (prefix(buf, "TERM_WINS"))
+			{
+				str = strstr(buf, "=");
+				val = (str != NULL) ? atoi(str + 1) : -1;
+				if (val > 0) num_term = val;
+				continue;
+			}
+		}
+
+		/* Close */
+		(void)my_fclose(fff);
+	}
 
 	/* Parse args */
 	for (i = 1; i < argc; i++)
@@ -2698,6 +2981,8 @@ errr init_x11(int argc, char *argv[])
 	/* Init the Metadpy if possible */
 	if (Metadpy_init_name(dpy_name)) return (-1);
 
+	/* Remember the number of terminal windows */
+	term_windows_open = num_term;
 
 	/* Prepare cursor color */
 	MAKE(xor, infoclr);
@@ -2762,176 +3047,168 @@ errr init_x11(int argc, char *argv[])
 
 	/* Try graphics */
 	switch (arg_graphics)
-	  {
-	  case GRAPHICS_ADAM_BOLT:
-	    {
-	      /* Use tile graphics of Adam Bolt */
-	      bitmap_file = "16x16.bmp";
-	      
-	      /* Try the "16x16.bmp" file */
-	      path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
-			 format("graf/%s", bitmap_file));
-	      
-	      /* Use the "16x16.bmp" file if it exists */
-	      if (0 == fd_close(fd_open(filename, O_RDONLY)))
+	{
+	case GRAPHICS_ADAM_BOLT:
+		/* Use tile graphics of Adam Bolt */
+		bitmap_file = "16x16.bmp";
+
+		/* Try the "16x16.bmp" file */
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+			   format("graf/%s", bitmap_file));
+
+		/* Use the "16x16.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
-		  /* Use graphics */
-		  use_graphics = TRUE;
-		  use_transparency = TRUE;
-		  
-		  pict_wid = pict_hgt = 16;
-		  
-		  ANGBAND_GRAF = "new";
-		  
-		  break;
+			/* Use graphics */
+			use_graphics = TRUE;
+			use_transparency = TRUE;
+
+			pict_wid = pict_hgt = 16;
+
+			ANGBAND_GRAF = "new";
+
+			break;
 		}
-	      /* Fall through */
-	    }
-	  case GRAPHICS_ORIGINAL:
-	    {
-	      /* Use original tile graphics */
-	      bitmap_file = "8x8.bmp";
-	      
-	      /* Try the "8x8.bmp" file */
-	      path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
-			 format("graf/%s", bitmap_file));
-	    
-	      /* Use the "8x8.bmp" file if it exists */
-	      if (0 == fd_close(fd_open(filename, O_RDONLY)))
+		/* Fall through */
+
+	case GRAPHICS_ORIGINAL:
+		/* Use original tile graphics */
+		bitmap_file = "8x8.bmp";
+
+		/* Try the "8x8.bmp" file */
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+				   format("graf/%s", bitmap_file));
+
+		/* Use the "8x8.bmp" file if it exists */
+		if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
-		  /* Use graphics */
-		  use_graphics = TRUE;
-		  
-		  pict_wid = pict_hgt = 8;
-		  
-		  ANGBAND_GRAF = "old";
-		  break;
+			/* Use graphics */
+			use_graphics = TRUE;
+
+			pict_wid = pict_hgt = 8;
+
+			ANGBAND_GRAF = "old";
+			break;
 		}
-	      break;
-	    }
-	    
-	  case GRAPHICS_DAVID_GERVAIS:
-	    {
-	      /* Use tile graphics of David Gervais */
-	      bitmap_file = "32x32.bmp";
-	      
-	      /* Use graphics */
-	      use_graphics = TRUE;
-	      use_transparency = TRUE;
-	      
-	      pict_wid = pict_hgt = 32;
-	      
-	      ANGBAND_GRAF = "david";
-	      break;
-	    }
-	  }
-	
+		break;
+
+	case GRAPHICS_DAVID_GERVAIS:
+		/* Use tile graphics of David Gervais */
+		bitmap_file = "32x32.bmp";
+
+		/* Use graphics */
+		use_graphics = TRUE;
+		use_transparency = TRUE;
+
+		pict_wid = pict_hgt = 32;
+
+		ANGBAND_GRAF = "david";
+		break;
+	}
+
 	/* Load graphics */
 	if (use_graphics)
-	  {
-	    Display *dpy = Metadpy->dpy;
-	    
-	    XImage *tiles_raw;
-	    
-	    /* Initialize */
-	    for (i = 0; i < num_term; i++)
-	      {
-		term_data *td = &data[i];
-		td->tiles = NULL;
-	      }
-	    
-	    path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
-		       format("graf/%s", bitmap_file));
-	    
-	    /* Load the graphical tiles */
-	    tiles_raw = ReadBMP(dpy, filename);
-	    
-	    /* Initialize the windows */
-	    for (i = 0; i < num_term; i++)
-	      {
-		int j;
-		bool same = FALSE;
+	{
+		Display *dpy = Metadpy->dpy;
 
-		term_data *td = &data[i];
-		term_data *o_td = NULL;
+		XImage *tiles_raw;
+
+		/* Initialize */
+		for (i = 0; i < num_term; i++)
+		{
+			term_data *td = &data[i];
+			td->tiles = NULL;
+		}
+
+		path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+			   format("graf/%s", bitmap_file));
+
+		/* Load the graphical tiles */
+		tiles_raw = ReadBMP(dpy, filename);
+	    
+		/* Initialize the windows */
+		for (i = 0; i < num_term; i++)
+		{
+			int j;
+			bool same = FALSE;
+
+			term_data *td = &data[i];
+			term_data *o_td = NULL;
 		
-		term *t = &td->t;
+			term *t = &td->t;
 		
-		/* Graphics hook */
-		t->pict_hook = Term_pict_x11;
+			/* Graphics hook */
+			t->pict_hook = Term_pict_x11;
 		
-		/* Use graphics sometimes */
-		t->higher_pict = TRUE;
+			/* Use graphics sometimes */
+			t->higher_pict = TRUE;
 		
-		/* Look for another term with same font size */
-		for (j = 0; j < i; j++)
-		  {
-		    o_td = &data[j];
+			/* Look for another term with same font size */
+			for (j = 0; j < i; j++)
+			{
+				o_td = &data[j];
 		    
-		    if ((td->fnt->twid == o_td->fnt->twid) && 
-			(td->fnt->hgt == o_td->fnt->hgt))
-		      {
-			same = TRUE;
-			break;
-		      }
-		  }
+				if ((td->fnt->twid == o_td->fnt->twid) && 
+				    (td->fnt->hgt == o_td->fnt->hgt))
+				{
+					same = TRUE;
+					break;
+				}
+			}
 		
-		if (!same)
-		  {
-		    /* Resize tiles */
-		    td->tiles = ResizeImage(dpy, tiles_raw,
-					    pict_wid, pict_hgt,
-					    td->fnt->twid * stretch, 
-					    td->fnt->hgt * stretch);
-		  }
-		else
-		  {
-		    /* Use same graphics */
-		    td->tiles = o_td->tiles;
-		  }
-	      }
-	    
-	    
-	    
-#ifdef USE_TRANSPARENCY
-	    /* Initialize the transparency masks */
-	    for (i = 0; i < num_term; i++)
-	      {
-		term_data *td = &data[i];
-		int ii, jj;
-		int depth = DefaultDepth(dpy, DefaultScreen(dpy));
-		Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
-		int total;
+			if (!same)
+			{
+				/* Resize tiles */
+				td->tiles = ResizeImage(dpy, tiles_raw,
+							pict_wid, pict_hgt,
+							td->fnt->twid * stretch, 
+							td->fnt->hgt * stretch);
+			}
+			else
+			{
+				/* Use same graphics */
+				td->tiles = o_td->tiles;
+			}
+		}
+
+
+		/* Initialize the transparency masks */
+		for (i = 0; i < num_term; i++)
+		{
+			term_data *td = &data[i];
+			int ii, jj;
+			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
+			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
+			int total;
+
+
+			/* Determine total bytes needed for image */
+			ii = 1;
+			jj = (depth - 1) >> 2;
+			while (jj >>= 1) ii <<= 1;
+			total = td->fnt->twid * stretch * td->fnt->hgt * stretch * ii;
+
+
+			TmpData = (char *)malloc(total);
 		
-		/* Determine total bytes needed for image */
-		ii = 1;
-		jj = (depth - 1) >> 2;
-		while (jj >>= 1) ii <<= 1;
-		total = td->fnt->twid * stretch * td->fnt->hgt * stretch * ii;
+			td->TmpImage = XCreateImage(dpy,visual,depth,
+						    ZPixmap, 0, TmpData,
+						    td->fnt->twid * stretch, 
+						    td->fnt->hgt * stretch, 32, 0);
 		
-		
-		TmpData = (char *)malloc(total);
-		
-		td->TmpImage = XCreateImage(dpy,visual,depth,
-					    ZPixmap, 0, TmpData,
-					    td->fnt->twid * stretch, 
-					    td->fnt->hgt * stretch, 32, 0);
-		
-	      }
-#endif /* USE_TRANSPARENCY */
-	    
-	    /* Free tiles_raw */
-	    FREE(tiles_raw, XImage);
-	  
-	    
-	  }
-	
+		}
+
+		/* Free tiles_raw */
+		FREE(tiles_raw);
+	}
+
 #endif /* USE_GRAPHICS */
-	
-	
+
+	/* Activate hook */
+	quit_aux = hook_quit;
+
 	/* Success */
 	return (0);
 }
 
 #endif /* USE_X11 */
-

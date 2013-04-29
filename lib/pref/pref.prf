@@ -25,11 +25,11 @@
 
 ##### Original Keyset Mappings #####
 
-# Stay still
+# Stay still (numerical)
 A:,
 C:0:5
 
-# Movement
+# Movement (numerical)
 A:;1
 C:0:1
 A:;2
@@ -47,42 +47,26 @@ C:0:8
 A:;9
 C:0:9
 
-# Hack -- Return
-A:\r
-C:0:^J
-
-# Hack -- Commit suicide
-A:Q
-C:0:^K
-
 # Hack -- Commit suicide
 A:Q
 C:0:^C
 
-# Hack -- swap equipment
+# Hack -- Swap equipment
 A:w0
 C:0:X
 
-# Hack -- Oangband convenience
-A:R*\r
-C:0:x
+# Original keymap: Repeat last command
+A:^V
+C:0:n
 
 
 ##### Roguelike Keyset Mappings #####
 
-# Run
-A:.
-C:1:,
-
-# Stay still
-A:,
-C:1:.
-
-# Stay still
+# Stay still (numerical)
 A:,
 C:1:5
 
-# Movement
+# Movement (numerical)
 A:;1
 C:1:1
 A:;2
@@ -99,6 +83,14 @@ A:;8
 C:1:8
 A:;9
 C:1:9
+
+# Run
+A:.
+C:1:,
+
+# Stay still
+A:,
+C:1:.
 
 # Movement (rogue keys)
 A:;1
@@ -206,52 +198,41 @@ C:1:z
 A:z
 C:1:a
 
-# Move house (Buy a new house...)
-A:H
-C:1:$
-
 # Hack -- Commit suicide
 A:Q
 C:1:^C
 
-# Hack -- swap equipment
+# Hack -- Swap equipment
 A:w0
 C:1:X
 
-# Time of day
-A:^T
+# Roguelike keymap: Repeat last command
+A:^V
 C:1:'
 
-# Repeat last command
-A:n
-C:1:[
 
 # Message colors
 %:message.prf
 
+
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
 %:pref-x11.prf
 
-?:[EQU $SYS gcu]
+?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS cap] [EQU $SYS vcs] [EQU $SYS sla]]
 %:pref-gcu.prf
-
-?:[EQU $SYS ami]
-%:pref-ami.prf
 
 ?:[EQU $SYS mac]
 %:pref-mac.prf
 
-?:[IOR [EQU $SYS win] [EQU $SYS dos] [EQU $SYS ibm]]
+?:[EQU $SYS win]
 %:pref-win.prf
-
-?:[EQU $SYS emx]
-%:pref-emx.prf
 
 ?:[EQU $SYS acn]
 %:pref-acn.prf
 
+?:[EQU $SYS sdl]
+%:pref-sdl.prf
+
 ?:1
-
-

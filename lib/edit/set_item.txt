@@ -8,7 +8,7 @@
 
 # Version stamp required
 
-V:0.2.3
+V:0.3.0
 
 #N: set index:name
 #C: number of items to gain bonus
@@ -23,7 +23,7 @@ C:2
 D:It is part of a set of items infused with holy fire
 # The Amulet of Carlammas
 P:4:0
-F:WIS | IM_FIRE | RES_FEAR
+F:WIS | IM_FIRE | FEARLESS
 # The Morning Star 'Firestar'
 P:162:4
 F:STR | SLAY_EVIL | SLAY_UNDEAD
@@ -36,7 +36,7 @@ C:2
 D:It is one of the Shadow Ward items
 # The Soft Leather Armour 'Hithlomir'
 P:37:0
-F:SEARCH | RES_BLIND
+F:SEARCH | SEEING
 # The Set of Leather Gloves 'Cammithrim'
 P:78:2
 F:DEX | MAGIC_MASTERY | SUST_DEX
@@ -49,7 +49,7 @@ C:3
 D:It is part of the armor left by Turgon for the messenger of Ulmo
 # The Full Plate Armor of Nevrast
 P:27:1
-F:RES_DISEN
+F:RES_DISEN_40
 # The Large Metal Shield of the Swan
 P:46:2
 F:WIS | CHR
@@ -68,7 +68,7 @@ P:56:0
 F:IM_FIRE
 # The Two-Handed Sword 'Gurthang'
 P:110:0
-F:RES_POIS
+F:RES_POIS_50
 # The Chain Mail (Dwarven) of the Mormegil
 P:31:0
 F:SUST_STR | SUST_DEX | SUST_CON
@@ -80,10 +80,10 @@ C:2
 D:It is one of Gil-Galad's items
 # The Shield of Deflection of Gil-Galad
 P:48:0
-F:RES_FIRE | RES_POIS | SUST_DEX
+F:RES_FIRE_35 | RES_POIS_35 | SUST_DEX
 # The Spear 'Aeglos'
 P:137:0
-F:SLAY_DEMON | RES_DARK
+F:SLAY_DEMON | RES_DARK_35
 
 
 # Beren's Set
@@ -93,7 +93,7 @@ C:2
 D:It was borne by Beren One-Hand in Tol-In-Gaurhoth and Angband
 # The Ring of Barahir
 P:9:0
-F:RES_NETHR
+F:RES_NETHR_50
 #:The Dagger 'Angrist'
 P:98:0
 F:SLAY_UNDEAD

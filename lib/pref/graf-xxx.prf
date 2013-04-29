@@ -940,6 +940,18 @@ K:367:0x86/0x82
 # Elemental Attacks
 K:368:0x86/0x82
 
+# Acidproofing
+K:369:0x86/0x82
+
+# Electroproofing
+K:370:0x86/0x82
+
+# Fireproofing
+K:371:0x86/0x82
+
+# Coldproofing
+K:372:0x86/0x82
+
 
 
 # & Small wooden chest~

@@ -68,17 +68,17 @@ void do_cmd_move_house(void)
       msg_print("Your home will be here when you return.");
 
       /* Write a note */
-      if (adult_take_notes)
-	{
-	  char buf[120];
+      //if (adult_take_notes)
+      //{
+      //char buf[120];
 	  
-	  /* Moved house */
-	  sprintf(buf, "Moved house to %s.", town);
-	  
-	  /* Write message */
-	  do_cmd_note(buf,  p_ptr->stage);
-	  
-	}
+      /* Moved house */
+      sprintf(buf, "Moved house to %s.", town);
+      
+      /* Write message */
+      make_note(buf,  p_ptr->stage, NOTE_MOVE);
+      
+      //}
       
     }
   else
@@ -1090,6 +1090,9 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
       
       /* Let the Chest drop items */
       chest_death(FALSE, y, x, o_idx);
+
+      /* Squelch chest if autosquelch calls for it */
+      p_ptr->notice |= PN_SQUELCH;
     }
   
   /* Result */
@@ -1891,7 +1894,8 @@ static bool do_cmd_tunnel_aux(int y, int x)
 	      place_object(y, x, FALSE, FALSE, FALSE);
 	      
 	      /* Observe new object */
-	      if (player_can_see_bold(y, x))
+	      if (!squelch_hide_item(&o_list[cave_o_idx[y][x]]) &&
+		  player_can_see_bold(y, x))
 		{
 		  msg_print("You have found something!");
 		}
@@ -3148,6 +3152,8 @@ void do_cmd_pickup(void)
  */
 void do_cmd_rest(void)
 {
+  bool got_string;
+
   /* Prompt for time if needed */
   if (p_ptr->command_arg <= 0)
     {
@@ -3161,9 +3167,21 @@ void do_cmd_rest(void)
       
       /* Default */
       strcpy(out_val, "&");
+
+      /* Buttons */
+      add_button("[*]", '*');
+      add_button("[&]", '&');
+      add_button("[$]", '$');
       
       /* Ask for duration */
-      if (!get_string(p, out_val, 5)) return;
+      got_string = get_string(p, out_val, 5); 
+	
+      kill_button('*');
+      kill_button('&');
+      kill_button('$');
+	
+      if (!got_string) return;
+	
       
       /* Rest until done */
       if (out_val[0] == '&')

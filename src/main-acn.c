@@ -281,53 +281,9 @@ static void quit_hook(cptr str)
 	exit(0);
 }
 
-/*
- * Hook to tell the user something, and then crash
- */
-static void core_hook(cptr str)
-{
-	wimp_error_box_selection sel;
-	os_error e;
-	const static char *apology="Sorry, Angband has suffered an internal error and "
-	"must close down immediately. I will attempt to save "
-	"your game.";
-
-	e.errnum=1;
-
-	if (wimpver >= 322)
-	{
-		e.errnum=1;
-		strcpy(e.errmess, apology);
-		sel=wimp_report_error_by_category(&e,
-		                                  wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
-		                                  "Angband", "!angband", wimpspriteop_AREA, str?"Quit,Describe":"Quit");
-		if (sel==4) /* User pressed Describe */
-		{
-			e.errnum=1;
-			strcpy(e.errmess, str);
-
-			wimp_report_error_by_category(&e,
-			                              wimp_ERROR_BOX_CATEGORY_PROGRAM << wimp_ERROR_BOX_CATEGORY_SHIFT,
-			                              "Angband", "!angband", wimpspriteop_AREA, "Quit");
-		}
-	}
-	else
-	{
-		e.errnum=1;
-		strcpy(e.errmess, str);
-		wimp_report_error(&e, wimp_ERROR_BOX_CANCEL_ICON, "Angband");
-	}
-
-	if (game_in_progress && character_generated)
-		save_player();
-
-	/* Just quit */
-	quit(NULL);
-}
-
 static void oserror_handler(int sig)
 {
-	core(_kernel_last_oserror()->errmess);
+	quit(_kernel_last_oserror()->errmess);
 }
 
 static int error_handler(bits event_code, toolbox_action *event,
@@ -771,7 +727,7 @@ static int save_handler(bits event_code, toolbox_action *event,
 
 	msg_flag=FALSE;
 
-	do_cmd_save_game(FALSE);
+	do_cmd_save_game();
 
 	saveas_file_save_completed(1, id->this_obj, save->file_name);
 
@@ -785,7 +741,7 @@ static int defaultsave_handler(bits event_code, toolbox_action *event,
 {
 	msg_flag=FALSE;
 
-	do_cmd_save_game(FALSE);
+	do_cmd_save_game();
 
 	return 1;
 }
@@ -1175,7 +1131,7 @@ static int quitmenu_handler(bits event_code, toolbox_action *event,
 		msg_flag = FALSE;
 
 		/* Save the game */
-		do_cmd_save_game(FALSE);
+		do_cmd_save_game();
 	}
 
 	/* Quit */
@@ -1782,7 +1738,6 @@ int main(int argc, char *argv[])
 
 	quit_aux = quit_hook;
 	plog_aux = plog_hook;
-	core_aux = core_hook;
 
 	/* XXX XXX XXX Not ready yet */
 	/* askforfile_aux = askforfile_hook; */

@@ -10,7 +10,6 @@
  */
 
 #ifdef _WIN32_WCE
-# define USE_TRANSPARENCY
 # ifndef WINDOWS
 #  define WINDOWS 1
 # endif
@@ -32,6 +31,7 @@
 #include "z-form.h"
 #include "z-rand.h"
 #include "z-term.h"
+#include "z-file.h"
 
 /*
  * Include the high-level includes.
@@ -40,7 +40,9 @@
 #include "defines.h"
 #include "types.h"
 #include "externs.h"
-
+#include "cmds.h"
+#include "ui.h"
+#include "z-type.h"
 
 
 /***** Some older copyright messages follow below *****/

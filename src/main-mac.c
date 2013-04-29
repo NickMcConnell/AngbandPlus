@@ -3023,7 +3023,7 @@ static void menu(long mc)
 					msg_flag = FALSE;
 
 					/* Hack -- Save the game */
-					do_cmd_save_game(FALSE);
+					do_cmd_save_game();
 
 					break;
 				}
@@ -3066,7 +3066,7 @@ static void menu(long mc)
 						msg_flag = FALSE;
 
 						/* Save the game */
-						do_cmd_save_game(FALSE);
+						do_cmd_save_game();
 					}
 
 					/* Quit */
@@ -4073,28 +4073,6 @@ static void hook_quit(cptr str)
 	ExitToShell();
 }
 
-/*
- * Hook to tell the user something, and then crash
- */
-static void hook_core(cptr str)
-{
-	/* XXX Use the debugger */
-	/* DebugStr(str); */
-
-	/* Warning */
-	if (str) mac_warning(str);
-
-	/* Warn, then save player */
-	mac_warning("Fatal error.\rI will now attempt to save and quit.");
-
-	/* Attempt to save */
-	if (!save_player()) mac_warning("Warning -- save failed!");
-
-	/* Quit */
-	quit(NULL);
-}
-
-
 
 /*** Main program ***/
 
@@ -4362,8 +4340,6 @@ int main(void)
 	/* Hooks in some "z-util.c" hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_core;
-
 
 
 	/* Show the "watch" cursor */

@@ -285,7 +285,7 @@ static void compact_objects_aux(int i1, int i2)
   
   
   /* Hack -- move object */
-  COPY(&o_list[i2], &o_list[i1], object_type);
+  (void)COPY(&o_list[i2], &o_list[i1], object_type);
   
   /* Hack -- wipe hole */
   object_wipe(o_ptr);
@@ -331,6 +331,19 @@ void compact_objects(int size)
     }
   
   
+  /* First do gold */
+  for (i = 1; (i < o_max) && (size); i++)
+    {
+      object_type *o_ptr = &o_list[i];
+      
+      /* Nuke gold or squelched items */
+      if (o_ptr->tval == TV_GOLD || squelch_item_ok(o_ptr))
+	{
+	  delete_object_idx(i);
+	  size--;
+	}
+    }
+
   /* Compact at least 'size' objects */
   for (num = 0, cnt = 1; num < size; cnt++)
     {
@@ -367,7 +380,7 @@ void compact_objects(int size)
 	    }
 	  
 	  /* Hack -- High level objects start out "immune" */
-	  if (k_ptr->level > cur_lev) continue;
+	  if (k_ptr->level > cur_lev && !k_ptr->squelch) continue;
 	  
 	  /* Monster */
 	  if (o_ptr->held_m_idx)
@@ -382,7 +395,7 @@ void compact_objects(int size)
 	      x = m_ptr->fx;
 	      
 	      /* Monsters protect their objects */
-	      if (rand_int(100) < 90) continue;
+	      if ((rand_int(100) < 90) && !k_ptr->squelch) continue;
 	    }
 	  
 	  /* Dungeon */
@@ -394,7 +407,8 @@ void compact_objects(int size)
 	    }
 	  
 	  /* Nearby objects start out "immune" */
-	  if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis)) continue;
+	  if ((cur_dis > 0) && (distance(py, px, y, x) < cur_dis) && 
+	      !k_ptr->squelch) continue;
 	  
 	  /* Saving throw */
 	  chance = 90;
@@ -454,16 +468,13 @@ void wipe_o_list(void)
       /* Skip dead objects */
       if (!o_ptr->k_idx) continue;
       
-      /* Mega-Hack -- preserve artifacts */
-      if (!character_dungeon || adult_preserve)
+      /* Hack -- Preserve unknown artifacts */
+      if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 	{
-	  /* Hack -- Preserve unknown artifacts */
-	  if (artifact_p(o_ptr) && !object_known_p(o_ptr))
-	    {
-	      /* Mega-Hack -- Preserve the artifact */
-	      a_info[o_ptr->name1].creat_turn = 0;
-	    }
+	  /* Mega-Hack -- Preserve the artifact */
+	  a_info[o_ptr->name1].creat_turn = 0;
 	}
+	
       
       /* Monster */
       if (o_ptr->held_m_idx)
@@ -512,7 +523,7 @@ s16b o_pop(void)
   
   
   /* Initial allocation */
-  if (o_max < MAX_O_IDX)
+  if (o_max < z_info->o_max)
     {
       /* Get next space */
       i = o_max;
@@ -1300,12 +1311,16 @@ s32b object_value(object_type *o_ptr)
  */
 bool object_similar(object_type *o_ptr, object_type *j_ptr)
 {
+  int i;
   int total = o_ptr->number + j_ptr->number;
   
   
   /* Require identical object types */
   if (o_ptr->k_idx != j_ptr->k_idx) return (0);
   
+  /* Require identical resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    if (o_ptr->percent_res[i] != j_ptr->percent_res[i]) return (0);
   
   /* Analyze the items */
   switch (o_ptr->tval)
@@ -1599,7 +1614,7 @@ void object_wipe(object_type *o_ptr)
 void object_copy(object_type *o_ptr, object_type *j_ptr)
 {
   /* Copy the structure */
-  COPY(o_ptr, j_ptr, object_type);
+  (void)COPY(o_ptr, j_ptr, object_type);
 }
 
 
@@ -1608,6 +1623,8 @@ void object_copy(object_type *o_ptr, object_type *j_ptr)
  */
 void object_prep(object_type *o_ptr, int k_idx)
 {
+  int i;
+
   object_kind *k_ptr = &k_info[k_idx];
   
   /* Clear the record */
@@ -1638,6 +1655,10 @@ void object_prep(object_type *o_ptr, int k_idx)
   o_ptr->ac = k_ptr->ac;
   o_ptr->dd = k_ptr->dd;
   o_ptr->ds = k_ptr->ds;
+
+  /* Default resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    o_ptr->percent_res[i] = RES_LEVEL_BASE;
   
   /* Not found anywhere yet */
   o_ptr->found = 0;
@@ -2313,8 +2334,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	    /* Ring of Warfare */
 	  case SV_RING_WARFARE:
 	    {
-	      /* Speed (1 to 7) */
-	      o_ptr->pval = randint(3) + m_bonus(4, level);
+	      /* Speed (1 to 10) */
+	      o_ptr->pval = randint(5) + m_bonus(5, level);
 	      
 	      /* Bonus to both Deadliness and to Skill */
 	      o_ptr->to_d = 3 + randint(2) + m_bonus(5, level);
@@ -2693,7 +2714,128 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
     }
 }
 
+/*
+ * Apply slightly randomised percentage resistances -NRM-
+ * Also add element proofing flags where appropriate
+ */
+extern void apply_resistances(object_type *o_ptr, int lev)
+{
+  int i, res, roll = 0;
 
+  u32b f1, f2, f3;
+      
+  /* Extract the flags */
+  object_flags(o_ptr, &f1, &f2, &f3);
+
+  /* Element proof flags */
+  o_ptr->el_proof = 0;
+  if (f3 & (TR3_IGNORE_ACID)) o_ptr->el_proof |= ACID_PROOF;
+  if (f3 & (TR3_IGNORE_ELEC)) o_ptr->el_proof |= ELEC_PROOF;
+  if (f3 & (TR3_IGNORE_FIRE)) o_ptr->el_proof |= FIRE_PROOF;
+  if (f3 & (TR3_IGNORE_COLD)) o_ptr->el_proof |= COLD_PROOF;
+      
+  /* Get the type resists */  
+  if (o_ptr->name2)
+    {
+      ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+      for (i = 0; i < MAX_P_RES; i++)
+	{
+	  /* Get the resistance value */
+	  o_ptr->percent_res[i] = e_ptr->percent_res[i];
+	  
+	  /* Paranoia */
+	  if ((f2 & (resist_to_flag[i])) && 
+	      (o_ptr->percent_res[i] == RES_LEVEL_BASE))
+	    o_ptr->percent_res[i] = RES_BOOST_NORMAL;
+	}
+    }
+  else
+    {
+      object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+      for (i = 0; i < MAX_P_RES; i++)
+	{
+	  /* Get the resistance value */
+	  o_ptr->percent_res[i] = k_ptr->percent_res[i];
+	
+	  /* Paranoia */
+	  if ((f2 & (resist_to_flag[i])) && 
+	      (o_ptr->percent_res[i] == RES_LEVEL_BASE))
+	    o_ptr->percent_res[i] = RES_BOOST_NORMAL;
+	}
+    }
+  
+  /* Add extra resists */
+  
+  /* This gets done more often as we go deeper */
+  while (roll < 2)
+    {
+      /* Low resists more likely at low levels */
+      int k = rand_int(100);
+      bool low = (k < (100 - lev));
+
+      /* Vulnerability */
+      if (f2 & (TR2_RAND_RES_NEG))
+	{
+	  k = (low ? rand_int(4) : rand_int(10) + 4);
+	  o_ptr->percent_res[k] += 10 + rand_int(5) + m_bonus(30, lev);
+	}
+      /* Rings of Protection, etc */
+      if (f2 & (TR2_RAND_RES_SML))
+	{
+	  /* Twice as many of these */
+	  k = (low ? rand_int(4) : rand_int(10) + 4);
+	  o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
+	  k = (low ? rand_int(4) : rand_int(10) + 4);
+	  o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
+	}
+      /* Armour of Resistance */
+      if (f2 & (TR2_RAND_RES))
+	{
+	  k = (low ? rand_int(4) : rand_int(10) + 4);
+	  o_ptr->percent_res[k] -= 20 + rand_int(5) + m_bonus(20, lev);
+	}
+      /* Former one high resist objects */
+      if (f2 & (TR2_RAND_RES_XTRA))
+	{
+	  /* Low resists less likely here */
+	  k = ((rand_int(10) == 0) ? rand_int(4) : rand_int(10) + 4);
+	  o_ptr->percent_res[k] -= 30 + rand_int(5) + m_bonus(20, lev);
+	}
+
+      /* Try again? */
+      k = 10 - (lev/40);
+      roll = rand_int(k);
+    }
+
+  /* Randomise a bit */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      res = 100 - o_ptr->percent_res[i];
+      
+      /* Only randomise proper resistances */
+      if ((res > 0) && (res < 100))
+	{
+	  if (rand_int(2) == 0) 
+	    o_ptr->percent_res[i] -= rand_int(res >> 2);
+	  else 
+	    o_ptr->percent_res[i] += rand_int(res >> 2);
+	}
+
+      /* Enforce bounds */
+      if (o_ptr->percent_res[i] < RES_LEVEL_MIN)
+	o_ptr->percent_res[i] = RES_LEVEL_MIN;
+      if (o_ptr->percent_res[i] > RES_LEVEL_MAX)
+	o_ptr->percent_res[i] = RES_LEVEL_MAX;
+    }
+
+  /* Low resist means object is proof against that element */
+  if (o_ptr->percent_res[P_RES_ACID] < 100) o_ptr->el_proof |= ACID_PROOF;
+  if (o_ptr->percent_res[P_RES_ELEC] < 100) o_ptr->el_proof |= ELEC_PROOF;
+  if (o_ptr->percent_res[P_RES_FIRE] < 100) o_ptr->el_proof |= FIRE_PROOF;
+  if (o_ptr->percent_res[P_RES_COLD] < 100) o_ptr->el_proof |= COLD_PROOF;
+}
 
 /*
  * Complete the "creation" of an object by applying "magic" to the item
@@ -2810,6 +2952,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       o_ptr->to_h = a_ptr->to_h;
       o_ptr->to_d = a_ptr->to_d;
       o_ptr->weight = a_ptr->weight;
+      for (i = 0; i < MAX_P_RES; i++)
+	o_ptr->percent_res[i] = a_ptr->percent_res[i];
+      o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
       
       /* Mark where it was found */
       o_ptr->found = p_ptr->stage;
@@ -3101,7 +3246,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	      
 	    case OBJECT_XTRA_TYPE_RESIST:
 	      {
+		/* Hack - avoid RBlind and RFear */
 		o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
+		while ((o_ptr->xtra2 == 5) || (o_ptr->xtra2 == 8))
+		  o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
 		break;
 	      }
 	      
@@ -3113,6 +3261,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	    }
 	}
       
+      /* Add resistances */
+      apply_resistances(o_ptr, lev);
+
       /* Hack -- acquire "broken" flag */
       if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
       
@@ -3165,6 +3316,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
     {
       object_kind *k_ptr = &k_info[o_ptr->k_idx];
       
+      /* Add resistances */
+      apply_resistances(o_ptr, lev);
+
+      /* Hack - reverse resists for cursed objects */
+      if (power < 0)
+	for (i = 0; i < MAX_P_RES; i++)
+	  o_ptr->percent_res[i] = 200 - o_ptr->percent_res[i];
+
       /* Hack -- acquire "broken" flag */
       if (!k_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
       
@@ -3683,7 +3842,7 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
  */
 void drop_near(object_type *j_ptr, int chance, int y, int x)
 {
-  int i, k, d, s;
+  int i, k, n, d, s;
   
   int bs, bn;
   int by, bx;
@@ -3772,6 +3931,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	  
 	  /* No objects */
 	  k = 0;
+	  n = 0;
 	  
 	  /* Scan objects in that grid */
 	  for (this_o_idx = cave_o_idx[ty][tx]; this_o_idx; 
@@ -3789,14 +3949,20 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	      if (object_similar(o_ptr, j_ptr)) comb = TRUE;
 	      
 	      /* Count objects */
-	      k++;
+	      if (!squelch_hide_item(o_ptr))
+		k++;
+	      else
+		n++;
 	    }
 	  
 	  /* Add new object */
 	  if (!comb) k++;
 	  
+	  /* Paranoia? */
+	  if ((k + n) > MAX_FLOOR_STACK) continue;
+
 	  /* Paranoia */
-	  if (k > 99) continue;
+	  //if (k > 99) continue;
 	  
 	  /* Calculate goodness of location, given distance from source of 
 	   * drop and number of objects.  Hack - If the player is dropping 
@@ -4410,7 +4576,7 @@ void inven_item_optimize(int item)
       for (i = item; i < INVEN_PACK; i++)
 	{
 	  /* Hack -- slide object */
-	  COPY(&inventory[i], &inventory[i+1], object_type);
+	  (void)COPY(&inventory[i], &inventory[i+1], object_type);
 	}
       
       /* Hack -- wipe hole */
@@ -5246,7 +5412,7 @@ int process_quiver(int num_new, object_type *o_ptr)
 	      for (k = i; k < INVEN_Q9; k++)
 		{
 		  /* Hack -- slide object */
-		  COPY(&inventory[k], &inventory[k+1], object_type);
+		  (void)COPY(&inventory[k], &inventory[k+1], object_type);
 		}
 	      
 	      /* Hack -- wipe hole */

@@ -91,7 +91,7 @@ reliance on high ranged weapon skill for criticals.  Available to Warriors,
 Assassins, Rogues, and Rangers.
 
 Martial Arts: Gives a powerful unarmed attack (similar to a druid with the
-Power Strike specialty).  Available to only Warriors.
+Power Strike specialty).  Available to Warriors, Paladins and Assassins.
 
 Meditation: Increased mana regeneration.  Combines well with regeneration
 items (such as Defender weapons).  Available to Mages, Priests, Necromancers,
@@ -115,6 +115,9 @@ only to Mages.
 Power Strike: Gives an empty handed druid a chance of an unusually strong
 attack followed by an attempt to confuse the target.  Available only to Druids.
 
+Rapid Fire: Allows faster arrow-shooting skill at the expense of some accuracy.
+Available only to Rangers.
+
 Regeneration: Increased HP regeneration.  Combines well with the regeneration
 items (such as Defender weapons).  Available to Warriors, Rogues, Paladins,
 Assassins, Rangers, and Druids.
@@ -129,7 +132,7 @@ Necromancers.
 
 Trap Setting: Grants the ability to set monster traps similar to those set by
 all Rogues.  Note that trap damage does depend on disarming skill.  Available
-to Warriors and Rangers.
+to Warriors, Rangers and Druids.
 
 Unlight: Increases stealth, provides resist darkness, and gives a vision radius
 of 2 when no light is wielded.  In dark areas provides protection from damage. 
@@ -158,17 +161,18 @@ Harmony          No    No    Yes   No    No    Yes   Yes   No    No
 Heighten Magic   No    Yes   Yes   No    No    No    Yes   Yes   No
 Holy Light       No    No    Yes   No    No    Yes   No    No    No
 Magic Resistance No    Yes   No    No    No    Yes   No    Yes   No
-Mana Burn        No    No    No    Yes   No    No    No    No    No
+Mana Burn        No    No    No    Yes   No    No    No    No    Yes
 Marksmanship     Yes   No    No    Yes   Yes   No    No    No    Yes
-Martial Arts     Yes   No    No    No    No    No    No    No    No
+Martial Arts     Yes   No    No    No    No    Yes   No    No    Yes
 Meditation       No    Yes   Yes   No    No    No    Yes   Yes   No
 Mighty Throw     Yes   No    No    Yes   Yes   No    No    No    Yes
 Phasewalking     No    Yes   Yes   Yes   No    No    No    No    No
 Piercing Shot    Yes   No    No    No    Yes   No    No    No    Yes
 Power Siphon     No    Yes   No    No    No    No    No    No    No
 Power Strike     No    No    No    No    No    No    Yes   No    No
+Rapid Fire       No    No    No    No    Yes   No    No    No    No
 Regeneration     Yes   No    No    Yes   Yes   Yes   Yes   No    Yes
 Shield Mastery   Yes   No    No    No    Yes   Yes   No    No    No
 Soul Siphon      No    No    No    No    No    No    No    Yes   No
-Trap Setting     Yes   No    No    No    Yes   No    No    No    No
+Trap Setting     Yes   No    No    No    Yes   No    Yes   No    No
 Unlight          No    No    No    Yes   No    No    No    Yes   Yes

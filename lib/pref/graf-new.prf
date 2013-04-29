@@ -932,6 +932,18 @@ K:367:0x83/0x9C
 # Scroll of Elemental Attacks
 K:368:0x83/0x9C
 
+# Scroll of Acidproofing
+K:369:0x83/0x9C
+
+# Scroll of Electroproofing
+K:370:0x83/0x9C
+
+# Scroll of Fireproofing
+K:371:0x83/0x9C
+
+# Scroll of Coldproofing
+K:372:0x83/0x9C
+
 # Small wooden chest
 K:616:0x84/0x99
 

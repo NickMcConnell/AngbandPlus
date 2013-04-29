@@ -8,7 +8,7 @@ offers a little list of useful places on the Web for people with questions about
 Angband, Oangband or FAangband.
 
 
-=== How to use the On-line Help System ===
+=== How to use the In-game Help System ===
 
 You can press Question Mark (?) at any time to leave the online help.
 
@@ -30,17 +30,15 @@ You can press Slash (/) [or Equals (=)] to search for [or highlight] a string
 
 === Learning More About Yourself:  The Character Screen ===
 
-     Your character has many attributes that are not shown on the main window.  
+     Your character has many attributes that are not shown on the main window. 
 Type 'C' to see the character screen, and you will discover:
 -how good and how deadly you are with melee weapons and missile launchers,
 -your approximate abilities in various special skills, such as disarming,
 -yow much exp you need to attain the next experience level, and plenty more.
 
-Once in the character screen, type 'c' to change the name of your character, 'h' 
-to reveal first your character background and then a detailed account of stat 
-modifications and object attributes (read the last section of the help file 
-"abilattr" whenever you want to find out more about these), and 'f' to dump your 
-character information to a file in the "lib/user" directory.
+Once in the character screen, type 'c' to change the name of your character,  
+and 'f' to dump your character information to a file in the "lib/user" 
+directory.
 
 
 === Learning More About Monsters:  Your Monster Memory ===
@@ -96,24 +94,23 @@ around.
      If you have questions, you cannot do better than to ask them of people 
 who've been in the same boat as you.  Here are some resources:
 
+http://angband.oook.cz/ : The Angband ladder site.  Post your character dumps
+and screenshots, read and post to the forums, browse the newsgroup...
+
 news:rec.games.roguelike.angband  :  The Angband Newsgroup.  It also covers 
 all her variants, including Oangband and FAangband.  Lots of friendly people.  
 You may post character dumps there and ask for and offer advice.  Please put a 
 "[FA]" before FAangband-specific posts.
 
+http://rephial.org/ : The official Angband website.  Find out the latest about
+Vanilla Angband, check out the status of the GPL project, even get involved in 
+development.
+
+
 http://www.oangband.com/  :  The Oangband website.  Get the latest 
-version, report bugs and neat ideas to Bahman Rabii, download some spoilers 
-and Oangband tips.
+version, download some spoilers and Oangband tips.
 
 http://www.thangorodrim.net/  :  The largest clearinghouse of Angband 
-and Angband variant information on the Internet.  The official Angband site.  
-Has more than enough links to keep you busy.
+and Angband variant information on the Internet.  The old official Angband 
+site.  Has more than enough links to keep you busy.
 
-http://wkweb5.cableinet.co.uk/bablos/angband/  :  Links to, and clear 
-information about, most Angband variants.
-
-http://www.skoardy.demon.co.uk/rlnews/index.html  :  The place where people 
-find out what's happening where in the roguelike world.
-
-http://www.fragment.com/~jl8e/angband/faq.txt  :  Concise information about 
-virtually every Angband variant in existence, new and old.

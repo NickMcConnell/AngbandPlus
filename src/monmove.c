@@ -302,22 +302,22 @@ static void update_smart_cheat(int m_idx)
   if (p_resist_strong(P_RES_POIS)) m_ptr->smart |= (SM_RES_STRONG_POIS);
   
   /* Know resistances */
-  if (p_resist_pos(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
-  if (p_resist_pos(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
-  if (p_resist_pos(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
-  if (p_resist_pos(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
-  if (p_resist_pos(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
+  if (p_resist_good(P_RES_ACID)) m_ptr->smart |= (SM_RES_ACID);
+  if (p_resist_good(P_RES_ELEC)) m_ptr->smart |= (SM_RES_ELEC);
+  if (p_resist_good(P_RES_FIRE)) m_ptr->smart |= (SM_RES_FIRE);
+  if (p_resist_good(P_RES_COLD)) m_ptr->smart |= (SM_RES_COLD);
+  if (p_resist_good(P_RES_POIS)) m_ptr->smart |= (SM_RES_POIS);
   if (p_ptr->no_fear) m_ptr->smart |= (SM_RES_FEAR);
-  if (p_resist_pos(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
-  if (p_resist_pos(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
+  if (p_resist_good(P_RES_LITE)) m_ptr->smart |= (SM_RES_LITE);
+  if (p_resist_good(P_RES_DARK)) m_ptr->smart |= (SM_RES_DARK);
   if (p_ptr->no_blind) m_ptr->smart |= (SM_RES_BLIND);
-  if (p_resist_pos(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
-  if (p_resist_pos(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
-  if (p_resist_pos(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
-  if (p_resist_pos(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
-  if (p_resist_pos(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
-  if (p_resist_pos(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
-  if (p_resist_pos(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
+  if (p_resist_good(P_RES_CONFU)) m_ptr->smart |= (SM_RES_CONFU);
+  if (p_resist_good(P_RES_SOUND)) m_ptr->smart |= (SM_RES_SOUND);
+  if (p_resist_good(P_RES_SHARD)) m_ptr->smart |= (SM_RES_SHARD);
+  if (p_resist_good(P_RES_NEXUS)) m_ptr->smart |= (SM_RES_NEXUS);
+  if (p_resist_good(P_RES_NETHR)) m_ptr->smart |= (SM_RES_NETHR);
+  if (p_resist_good(P_RES_CHAOS)) m_ptr->smart |= (SM_RES_CHAOS);
+  if (p_resist_good(P_RES_DISEN)) m_ptr->smart |= (SM_RES_DISEN);
   
   return;
 }
@@ -1313,7 +1313,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	    return (MIN(75, move_chance));
 	  
 	  /* Undead are slowed a little more (a la Ringwraiths) */
-	  if (strchr("GLMVz", r_ptr->d_char)) return (MIN(50, move_chance));
+	  if (strchr("GLMVWz", r_ptr->d_char)) return (MIN(50, move_chance));
 	  
 	  /* Everything else has no problems crossing water */
 	  return (move_chance);
@@ -2067,6 +2067,8 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
       if ((player_has_los_bold(m_ptr->fy, m_ptr->fx)) &&
 	  (m_ptr->cdis < TURN_RANGE))
 	{
+	  byte fear = m_ptr->monfear;
+
 	  /* Turn and fight */
 	  m_ptr->monfear = 0;
 	  
@@ -2074,7 +2076,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 	  m_ptr->min_range = 0;
 	  
 	  /* Visible */
-	  if (m_ptr->ml)
+	  if ((m_ptr->ml) && fear)
 	    {
 	      char m_name[80];
 	      
@@ -2089,7 +2091,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 	  *ty = p_ptr->py;
 	  *tx = p_ptr->px;
 	  return (TRUE);
-		}
+	}
     }
   
   /* Move directly away from character. */
@@ -3055,7 +3057,7 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear,
 	  
 	  /* XXX XXX -- Sometimes attempt to break glyphs. */
 	  if ((cave_feat[ny][nx] == FEAT_GLYPH) && (!fear) && 
-	      (rand_int(5) == 0)) 
+	      ((rand_int(5) == 0) || (cave_m_idx[ny][nx] < 0))) 
 	    {
 	      break;
 	    }
@@ -3997,7 +3999,8 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		      did_take_item = TRUE;
 		      
 		      /* Describe observable situations */
-		      if (m_ptr->ml && player_has_los_bold(ny, nx))
+		      if (m_ptr->ml && player_has_los_bold(ny, nx) && 
+			  !squelch_hide_item(o_ptr))
 			{
 			  /* Dump a message */
 			  msg_format("%^s tries to pick up %s, but fails.",
@@ -4016,7 +4019,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		  did_take_item = TRUE;
 		  
 		  /* Describe observable situations */
-		  if (player_has_los_bold(ny, nx))
+		  if (player_has_los_bold(ny, nx) && !squelch_hide_item(o_ptr))
 		    {
 		      /* Dump a message */
 		      msg_format("%^s picks up %s.", m_name, o_name);
@@ -4042,7 +4045,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 		  did_kill_item = TRUE;
 		  
 		  /* Describe observable situations */
-		  if (player_has_los_bold(ny, nx))
+		  if (player_has_los_bold(ny, nx) && !squelch_hide_item(o_ptr))
 		    {
 		      /* Dump a message */
 		      msg_format("%^s crushes %s.", m_name, o_name);
@@ -4109,7 +4112,7 @@ static void process_monster(monster_type *m_ptr)
   int shape_rate = 0;
   int old_shape = m_ptr->orig_idx;
   int dir;
-  bool fear;
+  bool fear = FALSE;
   
   bool bash;
   
@@ -4233,8 +4236,8 @@ static void process_monster(monster_type *m_ptr)
       /* Default name */
       else strcpy(m_name, "It");
       
-      get_rnd_line("bravado.txt", bravado);
-      msg_format("%^s %s", m_name, bravado);
+      if (!get_rnd_line("bravado.txt", bravado))
+	msg_format("%^s %s", m_name, bravado);
     }
   
   /* Player ghosts may have a unique message they can say. */
