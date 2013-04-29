@@ -7,7 +7,6 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  */
-
 #include "angband.h"
 #include "randname.h"
 
@@ -24,8 +23,6 @@ static char hexify(int i)
 {
 	return (hexsym[i % 16]);
 }
-
-
 
 /*
  * Convert a hexidecimal-digit into a decimal
@@ -280,6 +277,7 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 	*s = '\0';
 }
 
+
 /*
  * Transform macro trigger key code ('^_O_64\r' or etc..) 
  * into macro trigger name ('\[alt-D]' etc..)
@@ -490,24 +488,19 @@ int macro_find_exact(cptr pat)
 {
 	int i;
 
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+        /* Nothing possible */
+        if (!macro__use[(byte)(pat[0])])
+                return -1;
 
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		/* Skip macros which do not match the pattern */
-		if (!streq(macro__pat[i], pat)) continue;
+        /* Scan the macros */
+        for (i = 0; i < macro__num; ++i)
+        {
+                if (streq(macro__pat[i], pat))
+                        return i;
+        }
 
-		/* Found one */
-		return (i);
-	}
-
-	/* No matches */
-	return (-1);
+        /* No matches */
+        return -1;
 }
 
 
@@ -518,26 +511,20 @@ static int macro_find_check(cptr pat)
 {
 	int i;
 
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+        /* Nothing possible */
+        if (!macro__use[(byte)(pat[0])])
+                return -1;
 
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		/* Skip macros which do not contain the pattern */
-		if (!prefix(macro__pat[i], pat)) continue;
+        /* Scan the macros */
+        for (i = 0; i < macro__num; ++i)
+        {
+                if (prefix(macro__pat[i], pat))
+                        return i;
+        }
 
-		/* Found one */
-		return (i);
-	}
-
-	/* Nothing */
-	return (-1);
+        /* Nothing */
+        return -1;
 }
-
 
 
 /*
@@ -547,28 +534,21 @@ static int macro_find_maybe(cptr pat)
 {
 	int i;
 
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+        /* Nothing possible */
+        if (!macro__use[(byte)(pat[0])])
+                return -1;
 
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
-	{
-		/* Skip macros which do not contain the pattern */
-		if (!prefix(macro__pat[i], pat)) continue;
+        /* Scan the macros */
+        for (i = 0; i < macro__num; ++i)
+        {
+                if (prefix(macro__pat[i], pat) && !streq(macro__pat[i], pat))
+                        return i;
+        }
 
-		/* Skip macros which exactly match the pattern XXX XXX */
-		if (streq(macro__pat[i], pat)) continue;
-
-		/* Found one */
-		return (i);
-	}
-
-	/* Nothing */
-	return (-1);
+        /* Nothing */
+        return -1;
 }
+
 
 
 /*
@@ -578,14 +558,12 @@ static int macro_find_ready(cptr pat)
 {
 	int i, t, n = -1, s = -1;
 
-	/* Nothing possible */
-	if (!macro__use[(byte)(pat[0])])
-	{
-		return (-1);
-	}
+        /* Nothing possible */
+        if (!macro__use[(byte)(pat[0])])
+                return -1;
 
-	/* Scan the macros */
-	for (i = 0; i < macro__num; ++i)
+        /* Scan the macros */
+        for (i = 0; i < macro__num; ++i)
 	{
 		/* Skip macros which are not contained by the pattern */
 		if (!prefix(pat, macro__pat[i])) continue;
@@ -599,10 +577,10 @@ static int macro_find_ready(cptr pat)
 		/* Track the entry */
 		n = i;
 		s = t;
-	}
+        }
 
-	/* Result */
-	return (n);
+        /* Result */
+        return n;
 }
 
 
@@ -622,33 +600,28 @@ static int macro_find_ready(cptr pat)
  */
 errr macro_add(cptr pat, cptr act)
 {
-	int n;
+        int n;
 
-
-	/* Paranoia -- require data */
-	if (!pat || !act) return (-1);
+        if (!pat || !act) return (-1);
 
 
 	/* Look for any existing macro */
 	n = macro_find_exact(pat);
 
-	/* Replace existing macro */
-	if (n >= 0)
-	{
-		/* Free the old macro action */
-		string_free(macro__act[n]);
-	}
+        /* Replace existing macro */
+        if (n >= 0)
+        {
+                string_free(macro__act[n]);
+        }
 
 	/* Create a new macro */
 	else
-	{
-		/* Get a new index */
-		n = macro__num++;
+        {
+                /* Get a new index */
+                n = macro__num++;
+                if (macro__num >= MACRO_MAX) quit("Too many macros!");
 
-		/* Boundary check */
-		if (macro__num >= MACRO_MAX) quit("Too many macros!");
-
-		/* Save the pattern */
+                /* Save the pattern */
 		macro__pat[n] = string_make(pat);
 	}
 
@@ -669,14 +642,14 @@ errr macro_add(cptr pat, cptr act)
  */
 errr macro_init(void)
 {
-	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
+        /* Macro patterns */
+        macro__pat = C_ZNEW(MACRO_MAX, cptr);
 
-	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
+        /* Macro actions */
+        macro__act = C_ZNEW(MACRO_MAX, cptr);
 
-	/* Success */
-	return (0);
+        /* Success */
+        return (0);
 }
 
 
@@ -685,25 +658,26 @@ errr macro_init(void)
  */
 errr macro_free(void)
 {
-	int i, j;
+        int i;
+        size_t j;
 
-	/* Free the macros */
-	for (i = 0; i < macro__num; ++i)
+        /* Free the macros */
+        for (i = 0; i < macro__num; ++i)
 	{
 		string_free(macro__pat[i]);
-		string_free(macro__act[i]);
-	}
+                string_free(macro__act[i]);
+        }
 
-	FREE((void*)macro__pat);
-	FREE((void*)macro__act);
+        FREE(macro__pat);
+        FREE(macro__act);
 
-	/* Free the keymaps */
-	for (i = 0; i < KEYMAP_MODES; ++i)
-	{
-		for (j = 0; j < (int)N_ELEMENTS(keymap_act[i]); ++j)
-		{
-			string_free(keymap_act[i][j]);
-			keymap_act[i][j] = NULL;
+        /* Free the keymaps */
+        for (i = 0; i < KEYMAP_MODES; ++i)
+        {
+                for (j = 0; j < N_ELEMENTS(keymap_act[i]); ++j)
+                {
+                        string_free(keymap_act[i][j]);
+                        keymap_act[i][j] = NULL;
 		}
 	}
 
@@ -741,18 +715,15 @@ errr macro_trigger_free(void)
 		/* Count modifier-characters */
 		num = strlen(macro_modifier_chr);
 
-		/* Free modifier names */
-		for (i = 0; i < num; i++)
-		{
-			string_free(macro_modifier_name[i]);
-		}
+                /* Free modifier names */
+                for (i = 0; i < num; i++)
+                        string_free(macro_modifier_name[i]);
 
-		/* Free modifier chars */
-		string_free(macro_modifier_chr);
-		macro_modifier_chr = NULL;
-	}
+                /* Free modifier chars */
+                string_free(macro_modifier_chr);
+        }
 
-	/* Success */
+        /* Success */
 	return (0);
 }
 
@@ -982,7 +953,7 @@ void kill_all_buttons(void)
  * macro trigger, 500 milliseconds must pass before the key sequence is
  * known not to be that macro trigger.  XXX XXX XXX
  */
-static event_type inkey_aux(void)
+static event_type inkey_aux(int scan_cutoff)
 {
   int k = 0, n, p = 0, w = 0;
   
@@ -990,145 +961,171 @@ static event_type inkey_aux(void)
   char ch;
   
   cptr pat, act;
-  
+	
   char buf[1024];
   
   /* Initialize the no return */
-  ke0.type = EVT_KBRD;
+        ke0.type = EVT_NONE;
   ke0.key = 0;
   ke0.index = 0; /* To fix GCC warnings on X11 */
   ke0.mousey = 0;
   ke0.mousex = 0;
   
   /* Wait for a keypress */
+        if (scan_cutoff == SCAN_OFF)
+        {
   (void)(Term_inkey(&ke, TRUE, TRUE));
   ch = ke.key;
+        }
+        else
+        {
+                w = 0;
+
+                /* Wait only as long as macro activation would wait*/
+                while (Term_inkey(&ke, FALSE, TRUE) != 0)
+                {
+                        /* Increase "wait" */
+                        w++;
+
+                        /* Excessive delay */
+                        if (w >= scan_cutoff)
+                        {
+                                ke0.type = EVT_KBRD;
+                                return ke0;
+                        }
+
+                        /* Delay */
+                        Term_xtra(TERM_XTRA_DELAY, 10);
+                }
+                ch = ke.key;
+        }
+
   
   /* End "macro action" */
   if ((ch == 30) || (ch == '\xff'))
-    {
-      parse_macro = FALSE;
-      return (ke);
-    }
-  
-  /* Inside "macro action" */
-  if (parse_macro) return (ke);
-  
-  /* Inside "macro trigger" */
-  if (parse_under) return (ke);
-  
-  
-  /* Save the first key, advance */
-  buf[p++] = ch;
-  buf[p] = '\0';
-  
-  
-  /* Check for possible macro */
-  k = macro_find_check(buf);
-  
-  /* No macro pending */
-  if (k < 0) return (ke);
-  
-  
-  /* Wait for a macro, or a timeout */
-  while (TRUE)
-    {
-      /* Check for pending macro */
-      k = macro_find_maybe(buf);
-      
-      /* No macro pending */
-      if (k < 0) break;
-      
-      /* Check for (and remove) a pending key */
-      if (0 == Term_inkey(&ke, FALSE, TRUE))
 	{
-	  /* Append the key */
-	  buf[p++] = ke.key;
-	  buf[p] = '\0';
-	  
-	  /* Restart wait */
-	  w = 0;
+		parse_macro = FALSE;
+		return (ke);
 	}
-      
-      /* No key ready */
+	
+	/* Inside "macro action" */
+	if (parse_macro) return (ke);
+	
+	/* Inside "macro trigger" */
+	if (parse_under) return (ke);
+	
+
+	/* Save the first key, advance */
+	buf[p++] = ch;
+	buf[p] = '\0';
+	
+	
+	/* Check for possible macro */
+	k = macro_find_check(buf);
+	
+	/* No macro pending */
+	if (k < 0) return (ke);
+	
+	
+	/* Wait for a macro, or a timeout */
+	while (TRUE)
+	{
+		/* Check for pending macro */
+		k = macro_find_maybe(buf);
+		
+		/* No macro pending */
+		if (k < 0) break;
+		
+		/* Check for (and remove) a pending key */
+		if (0 == Term_inkey(&ke, FALSE, TRUE))
+		{
+			/* Append the key */
+			buf[p++] = ke.key;
+			buf[p] = '\0';
+		
+			/* Restart wait */
+			w = 0;
+		}
+		
+		/* No key ready */
       else
+        {
+          /* Increase "wait" */
+                        w ++;
+          
+          /* Excessive delay */
+                        if (w >= SCAN_MACRO) break;
+          
+          /* Delay */
+                        Term_xtra(TERM_XTRA_DELAY, 10);
+        }
+    }
+  
+	
+	/* Check for available macro */
+	k = macro_find_ready(buf);
+
+	/* No macro available */
+	if (k < 0)
 	{
-	  /* Increase "wait" */
-	  w += 10;
-	  
-	  /* Excessive delay */
-	  if (w >= 100) break;
-	  
-	  /* Delay */
-	  Term_xtra(TERM_XTRA_DELAY, w);
+		/* Push all the "keys" back on the queue */
+		/* The most recent event may not be a keypress. */
+		if(p)
+		{
+			if(Term_event_push(&ke)) return (ke0);
+			p--;
+		}
+		while (p > 0)
+		{
+			/* Push the key, notice over-flow */
+			if (Term_key_push(buf[--p])) return (ke0);
+		}
+		
+		/* Wait for (and remove) a pending key */
+		(void)Term_inkey(&ke, TRUE, TRUE);
+		
+		/* Return the key */
+		return (ke);
 	}
-    }
-  
-  
-  /* Check for available macro */
-  k = macro_find_ready(buf);
-  
-  /* No macro available */
-  if (k < 0)
-    {
-      /* Push all the "keys" back on the queue */
-      /* The most recent event may not be a keypress. */
-      if (p)
+	
+	
+	/* Get the pattern */
+	pat = macro__pat[k];
+	
+	/* Get the length of the pattern */
+	n = strlen(pat);
+	
+	/* Push the "extra" keys back on the queue */
+	while (p > n)
 	{
-	  if(Term_event_push(&ke)) return (ke0);
-	  p--;
+		/* Push the key, notice over-flow */
+		if (Term_key_push(buf[--p])) return (ke0);
 	}
-      while (p > 0)
+	
+	
+	/* Begin "macro action" */
+	parse_macro = TRUE;
+	
+	/* Push the "end of macro action" key */
+	if (Term_key_push(30)) return (ke0);
+	
+	
+	/* Access the macro action */
+	act = macro__act[k];
+	
+	/* Get the length of the action */
+	n = strlen(act);
+	
+	/* Push the macro "action" onto the key queue */
+	while (n > 0)
 	{
-	  /* Push the key, notice over-flow */
-	  if (Term_key_push(buf[--p])) return (ke0);
+		/* Push the key, notice over-flow */
+		if (Term_key_push(act[--n])) return (ke0);
 	}
-      
-      /* Wait for (and remove) a pending key */
-      (void)Term_inkey(&ke, TRUE, TRUE);
-      
-      /* Return the key */
-      return (ke);
-    }
-  
-  
-  /* Get the pattern */
-  pat = macro__pat[k];
-  
-  /* Get the length of the pattern */
-  n = strlen(pat);
-  
-  /* Push the "extra" keys back on the queue */
-  while (p > n)
-    {
-      /* Push the key, notice over-flow */
-      if (Term_key_push(buf[--p])) return (ke0);
-    }
-  
-  
-  /* Begin "macro action" */
-  parse_macro = TRUE;
-  
-  /* Push the "end of macro action" key */
-  if (Term_key_push(30)) return (ke0);
-  
-  
-  /* Access the macro action */
-  act = macro__act[k];
-  
-  /* Get the length of the action */
-  n = strlen(act);
-  
-  /* Push the macro "action" onto the key queue */
-  while (n > 0)
-    {
-      /* Push the key, notice over-flow */
-      if (Term_key_push(act[--n])) return (ke0);
-    }
-  
-  
-  /* Hack -- Force "inkey()" to call us again */
-  return (ke0);
+	
+	
+	/* Hack -- Force "inkey()" to call us again */
+	return (ke0);
 }
 
 
@@ -1229,27 +1226,27 @@ event_type inkey_ex(void)
   
   term *old = Term;
   
-  
   /* Initialise keypress */
   ke.key = 0;
-  ke.type = EVT_KBRD;
+        ke.type = EVT_NONE;
   
   /* Hack -- Use the "inkey_next" pointer */
   if (inkey_next && *inkey_next && !inkey_xtra)
     {
       /* Get next character, and advance */
       ke.key = *inkey_next++;
+                ke.type = EVT_KBRD;
       
       /* Cancel the various "global parameters" */
-      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+                inkey_base = inkey_xtra = inkey_flag = FALSE;
+                inkey_scan = 0;
       
       /* Accept result */
       return (ke);
-    }
-  
+	}
+
   /* Forget pointer */
   inkey_next = NULL;
-  
   
 #ifdef ALLOW_BORG
   
@@ -1257,223 +1254,228 @@ event_type inkey_ex(void)
   if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
     {
       /* Cancel the various "global parameters" */
-      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+                inkey_base = inkey_xtra = inkey_flag = FALSE;
+                inkey_scan = 0;
       ke.type = EVT_KBRD;
       
       /* Accept result */
-      return (ke);
-    }
+		return (ke);
+	}
   
 #endif /* ALLOW_BORG */
-  
   
   /* Hack -- handle delayed "flush()" */
   if (inkey_xtra)
     {
       /* End "macro action" */
       parse_macro = FALSE;
-      ke.type = EVT_KBRD;
       
       /* End "macro trigger" */
       parse_under = FALSE;
-      
-      /* Forget old keypresses */
-      Term_flush();
-    }
-  
-  
-  /* Get the cursor state */
-  (void)Term_get_cursor(&cursor_state);
-  
-  /* Show the cursor if waiting, except sometimes in "command" mode */
-  if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
-    {
-      /* Show the cursor */
-      (void)Term_set_cursor(TRUE);
-    }
-  
-  
-  /* Hack -- Activate main screen */
-  Term_activate(term_screen);
+
+		/* Forget old keypresses */
+		Term_flush();
+	}
+
+
+	/* Get the cursor state */
+	(void)Term_get_cursor(&cursor_state);
+
+	/* Show the cursor if waiting, except sometimes in "command" mode */
+	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	{
+		/* Show the cursor */
+		(void)Term_set_cursor(TRUE);
+	}
+
+
+	/* Hack -- Activate main screen */
+	Term_activate(term_screen);
   
   
   /* Get a key */
-  while (!ke.key)
+        while (ke.type == EVT_NONE)
     {
-      /* Hack -- Handle "inkey_scan" */
-      if (!inkey_base && inkey_scan &&
-	  (0 != Term_inkey(&kk, FALSE, FALSE)))
-	{
-	  break;
-	}
+                /* Hack -- Handle "inkey_scan == SCAN_INSTANT */
+                if (!inkey_base && inkey_scan == SCAN_INSTANT &&
+          (0 != Term_inkey(&kk, FALSE, FALSE)))
+        {
+                        ke.type = EVT_KBRD;
+          break;
+        }
       
-      
-      /* Hack -- Flush output once when no key ready */
-      if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
-	{
-	  
-	  /* Hack -- activate proper term */
-	  Term_activate(old);
-	  
-	  /* Flush output */
-	  Term_fresh();
-	  
-	  /* Hack -- activate main screen */
-	  Term_activate(term_screen);
-	  
-	  /* Mega-Hack -- reset saved flag */
-	  character_saved = FALSE;
-	  
-	  /* Mega-Hack -- reset signal counter */
-	  signal_count = 0;
-	  
-	  /* Only once */
-	  done = TRUE;
-	}
-      
-      
-      /* Hack -- Handle "inkey_base" */
-      if (inkey_base)
-	{
-	  int w = 0;
-	  
-	  /* Wait forever */
-	  if (!inkey_scan)
-	    {
-	      /* Wait for (and remove) a pending key */
-	      if (0 == Term_inkey(&ke, TRUE, TRUE))
+
+		/* Hack -- Flush output once when no key ready */
+		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
 		{
-		  /* Done */
-		  break;
+
+			/* Hack -- activate proper term */
+			Term_activate(old);
+
+			/* Flush output */
+			Term_fresh();
+
+			/* Hack -- activate main screen */
+			Term_activate(term_screen);
+
+			/* Mega-Hack -- reset saved flag */
+			character_saved = FALSE;
+
+			/* Mega-Hack -- reset signal counter */
+			signal_count = 0;
+
+			/* Only once */
+			done = TRUE;
 		}
-	      
-	      /* Oops */
-	      break;
-	    }
-	  
-	  /* Wait only as long as macro activation would wait*/
-	  while (TRUE)
-	    {
-	      /* Check for (and remove) a pending key */
-	      if (0 == Term_inkey(&ke, FALSE, TRUE))
+
+
+		/* Hack -- Handle "inkey_base" */
+		if (inkey_base)
 		{
-		  /* Done */
-		  break;
-		}
-	      
-	      /* No key ready */
-	      else
-		{
-		  /* Increase "wait" */
-		  w += 10;
-		  
-		  /* Excessive delay */
-		  if (w >= 100) break;
-		  
-		  /* Delay */
-		  Term_xtra(TERM_XTRA_DELAY, w);
-		  
-		}
-	    }
-	  
-	  /* Done */
-	  ke.type = EVT_KBRD;
-	  break;
-	}
+			int w = 0;
+
+			/* Wait forever */
+			if (!inkey_scan)
+			{
+				/* Wait for (and remove) a pending key */
+                                if (0 == Term_inkey(&ke, TRUE, TRUE))
+                                {
+                                        /* Done */
+                                        ke.type = EVT_KBRD;
+                                        break;
+                                }
+
+				/* Oops */
+				break;
+			}
+
+			/* Wait only as long as macro activation would wait*/
+			while (TRUE)
+			{
+				/* Check for (and remove) a pending key */
+                                if (0 == Term_inkey(&ke, FALSE, TRUE))
+                                {
+                                        /* Done */
+                                        ke.type = EVT_KBRD;
+                                        break;
+                                }
+
+				/* No key ready */
+              else
+                {
+                  /* Increase "wait" */
+                                        w ++;
+                  
+                  /* Excessive delay */
+                                        if (w >= SCAN_MACRO) break;
+                  
+                  /* Delay */
+                                        Term_xtra(TERM_XTRA_DELAY, 10);
+                  
+                }
+            }
+
+			/* Done */
+			ke.type = EVT_KBRD;
+          break;
+        }
       
       
       /* Get a key (see above) */
-      ke = inkey_aux();
+      ke = inkey_aux(inkey_scan);
 
       /* Handle mouse buttons */
       if ((ke.type == EVT_MOUSE) && (mouse_buttons))
-	{
-	  int i;
-	  int button_end = (normal_screen ? depth_start : Term->wid - 2);
+        {
+          int i;
+          int button_end = (normal_screen ? depth_start : Term->wid - 2);
 
-	  /* Check to see if we've hit a button */
-	  /* Assuming text buttons here for now - this would have to
-	   * change for GUI buttons */
-	  for (i = 0; i < num_buttons; i++)
-	    if ((ke.mousey == Term->hgt - 1) &&
-		(ke.mousex >= button_end - mse_button[i].left) &&
-		(ke.mousex <= button_end - mse_button[i].right))
-	      {
-		/* Rewrite the event */
-		ke.type = EVT_KBRD;
-		ke.key = mse_button[i].key;
-		ke.index = 0;
-		ke.mousey = 0;
-		ke.mousex = 0;
-	    
-		/* Done */
-		break;
-	      }
-	}
-      
+          /* Check to see if we've hit a button */
+          /* Assuming text buttons here for now - this would have to
+           * change for GUI buttons */
+          for (i = 0; i < num_buttons; i++)
+            if ((ke.mousey == Term->hgt - 1) &&
+                (ke.mousex >= button_end - mse_button[i].left) &&
+                (ke.mousex <= button_end - mse_button[i].right))
+              {
+                /* Rewrite the event */
+                ke.type = EVT_KBRD;
+                ke.key = mse_button[i].key;
+                ke.index = 0;
+                ke.mousey = 0;
+                ke.mousex = 0;
+				  
+				  /* Done */
+				  break;
+              }
+        }
       
       /* Handle "control-right-bracket" */
       if (ke.key == 29)
-	{
-	  /* Strip this key */
-	  ke.key = 0;
-	  
-	  /* Continue */
-	  continue;
-	}
-      
-      
-      /* Treat back-quote as escape */
-      if (ke.key == '`') ke.key = ESCAPE;
+        {
+          /* Strip this key */
+                        ke.type = EVT_NONE;
+          
+          /* Continue */
+          continue;
+		}
+
+
+		/* Treat back-quote as escape */
+		if (ke.key == '`') ke.key = ESCAPE;
       
       
       /* End "macro trigger" */
-      if (parse_under && (ke.key <= 32))
-	{
-	  /* Strip this key */
-	  ke.key = 0;
-	  
-	  /* End "macro trigger" */
-	  parse_under = FALSE;
-	}
-      
-      /* Handle "control-caret" */
-      if (ke.key == 30)
-	{
-	  /* Strip this key */
-	  ke.key = 0;
-	}
-      
-      /* Handle "control-underscore" */
-      else if (ke.key == 31)
-	{
-	  /* Strip this key */
-	  ke.key = 0;
-	  
-	  /* Begin "macro trigger" */
-	  parse_under = TRUE;
-	}
-      
-      /* Inside "macro trigger" */
-      else if (parse_under)
-	{
-	  /* Strip this key */
-	  ke.key = 0;
-	}
-    }
-  
-  
-  /* Hack -- restore the term */
-  Term_activate(old);
-  
-  
-  /* Restore the cursor */
-  Term_set_cursor(cursor_state);
+                if (parse_under && (ke.key >=0 && ke.key <= 32))
+        {
+          /* Strip this key */
+                        ke.type = EVT_NONE;
+          ke.key = 0;
+          
+          /* End "macro trigger" */
+			parse_under = FALSE;
+		}
+
+		/* Handle "control-caret" */
+                if (ke.key == 30)
+                {
+                        /* Strip this key */
+                        ke.type = EVT_NONE;
+                        ke.key = 0;
+                }
+
+		/* Handle "control-underscore" */
+                else if (ke.key == 31)
+                {
+                        /* Strip this key */
+                        ke.type = EVT_NONE;
+                        ke.key = 0;
+
+                        /* Begin "macro trigger" */
+			parse_under = TRUE;
+		}
+
+		/* Inside "macro trigger" */
+        else if (parse_under)
+                {
+                        /* Strip this key */
+                        ke.type = EVT_NONE;
+                        ke.key = 0;
+                }
+        }
+
+
+	/* Hack -- restore the term */
+	Term_activate(old);
+
+
+	/* Restore the cursor */
+	Term_set_cursor(cursor_state);
   
   
   /* Cancel the various "global parameters" */
-  inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-  
+        inkey_base = inkey_xtra = inkey_flag = FALSE;
+        inkey_scan = 0;
   
   /* Return the keypress */
   return (ke);
@@ -1501,17 +1503,17 @@ char anykey(void)
  */
 char inkey(void)
 {
-	event_type ke = EVENT_EMPTY;
+        event_type ke = EVENT_EMPTY;
 
-	/* Only accept a keypress */
-	do
-	{
-		ke = inkey_ex();
-	} while ((ke.type != EVT_KBRD) && (ke.type != EVT_ESCAPE));
-	/* Paranoia */
-	if(ke.type == EVT_ESCAPE) ke.key = ESCAPE;
+        /* Only accept a keypress */
+        do
+        {
+                ke = inkey_ex();
+        } while ((ke.type != EVT_KBRD) && (ke.type != EVT_ESCAPE));
+        /* Paranoia */
+        if(ke.type == EVT_ESCAPE) ke.key = ESCAPE;
 
-	return ke.key;
+        return ke.key;
 }
 
 
@@ -1528,21 +1530,21 @@ static bool must_more = FALSE;
 void bell(cptr reason)
 {
 	/* Mega-Hack -- Flush the output */
-	Term_fresh();
+        Term_fresh();
 
-	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason && !must_more)
-	{
-		message_add(reason, MSG_BELL);
+        /* Hack -- memorize the reason if possible */
+        if (character_generated && reason && !must_more)
+        {
+                message_add(reason, MSG_BELL);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_MESSAGE);
+                /* Window stuff */
+                p_ptr->window |= (PW_MESSAGE);
 
-		/* Force window redraw */
-		window_stuff();
-	}
+                /* Force window redraw */
+                window_stuff();
+        }
 
-	/* Make a bell noise (if allowed) */
+        /* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
@@ -1556,12 +1558,12 @@ void bell(cptr reason)
  */
 void sound(int val)
 {
-	/* No sound */
-	if (!use_sound) return;
+        /* No sound */
+        if (!use_sound) return;
 
-	/* Make a noise */
-	if (sound_hook)
-		sound_hook(val);
+        /* Make a noise */
+        if (sound_hook)
+                sound_hook(val);
 }
 
 
@@ -1606,26 +1608,26 @@ static cptr *quark__str;
  */
 s16b quark_add(cptr str)
 {
-	int i;
+        int i;
 
-	/* Look for an existing quark */
-	for (i = 1; i < quark__num; i++)
-	{
-		/* Check for equality */
-		if (streq(quark__str[i], str)) return (i);
-	}
+        /* Look for an existing quark */
+        for (i = 1; i < quark__num; i++)
+        {
+                /* Check for equality */
+                if (streq(quark__str[i], str)) return (i);
+        }
 
-	/* Hack -- Require room XXX XXX XXX */
-	if (quark__num == QUARK_MAX) return (0);
+        /* Hack -- Require room XXX XXX XXX */
+        if (quark__num == QUARK_MAX) return (0);
 
-	/* New quark */
-	i = quark__num++;
+        /* New quark */
+        i = quark__num++;
 
-	/* Add a new quark */
-	quark__str[i] = string_make(str);
+        /* Add a new quark */
+        quark__str[i] = string_make(str);
 
-	/* Return the index */
-	return (i);
+        /* Return the index */
+        return (i);
 }
 
 
@@ -1634,16 +1636,16 @@ s16b quark_add(cptr str)
  */
 cptr quark_str(s16b i)
 {
-	cptr q;
+        cptr q;
 
-	/* Verify */
-	if ((i < 0) || (i >= quark__num)) i = 0;
+        /* Verify */
+        if ((i < 0) || (i >= quark__num)) i = 0;
 
-	/* Get the quark */
-	q = quark__str[i];
+        /* Get the quark */
+        q = quark__str[i];
 
-	/* Return the quark */
-	return (q);
+        /* Return the quark */
+        return (q);
 }
 
 
@@ -1652,11 +1654,11 @@ cptr quark_str(s16b i)
  */
 errr quarks_init(void)
 {
-	/* Quark variables */
-	C_MAKE(quark__str, QUARK_MAX, cptr);
+        /* Quark variables */
+        C_MAKE(quark__str, QUARK_MAX, cptr);
 
-	/* Success */
-	return (0);
+        /* Success */
+        return (0);
 }
 
 
@@ -1665,19 +1667,19 @@ errr quarks_init(void)
  */
 errr quarks_free(void)
 {
-	int i;
+        int i;
 
-	/* Free the "quarks" */
-	for (i = 1; i < quark__num; i++)
-	{
-		string_free(quark__str[i]);
-	}
+        /* Free the "quarks" */
+        for (i = 1; i < quark__num; i++)
+        {
+                string_free(quark__str[i]);
+        }
 
-	/* Free the list of "quarks" */
-	FREE(quark__str);
+        /* Free the list of "quarks" */
+        FREE(quark__str);
 
-	/* Success */
-	return (0);
+        /* Success */
+        return (0);
 }
 
 
@@ -1779,7 +1781,7 @@ static byte message__color[MSG_MAX];
  */
 static s16b message_age2idx(int age)
 {
-	return ((message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX);
+        return ((message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX);
 }
 
 
@@ -1788,8 +1790,8 @@ static s16b message_age2idx(int age)
  */
 s16b message_num(void)
 {
-	/* Determine how many messages are "available" */
-	return (message_age2idx(message__last - 1));
+        /* Determine how many messages are "available" */
+        return (message_age2idx(message__last - 1));
 }
 
 
@@ -1799,32 +1801,32 @@ s16b message_num(void)
  */
 cptr message_str(s16b age)
 {
-	static char buf[1024];
-	s16b x;
-	u16b o;
-	cptr s;
+        static char buf[1024];
+        s16b x;
+        u16b o;
+        cptr s;
 
-	/* Forgotten messages have no text */
-	if ((age < 0) || (age >= message_num())) return ("");
+        /* Forgotten messages have no text */
+        if ((age < 0) || (age >= message_num())) return ("");
 
-	/* Get the "logical" index */
-	x = message_age2idx(age);
+        /* Get the "logical" index */
+        x = message_age2idx(age);
 
-	/* Get the "offset" for the message */
-	o = message__ptr[x];
+        /* Get the "offset" for the message */
+        o = message__ptr[x];
 
-	/* Get the message text */
-	s = &message__buf[o];
+        /* Get the message text */
+        s = &message__buf[o];
 
-	/* HACK - Handle repeated messages */
-	if (message__count[x] > 1)
-	{
-		strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
-		s = buf;
-	}
+        /* HACK - Handle repeated messages */
+        if (message__count[x] > 1)
+        {
+                strnfmt(buf, sizeof(buf), "%s <%dx>", s, message__count[x]);
+                s = buf;
+        }
 
-	/* Return the message text */
-	return (s);
+        /* Return the message text */
+        return (s);
 }
 
 
@@ -1833,19 +1835,19 @@ cptr message_str(s16b age)
  */
 u16b message_type(s16b age)
 {
-	s16b x;
+        s16b x;
 
-	/* Paranoia */
-	if (!message__type) return (MSG_GENERIC);
+        /* Paranoia */
+        if (!message__type) return (MSG_GENERIC);
 
-	/* Forgotten messages are generic */
-	if ((age < 0) || (age >= message_num())) return (MSG_GENERIC);
+        /* Forgotten messages are generic */
+        if ((age < 0) || (age >= message_num())) return (MSG_GENERIC);
 
-	/* Get the "logical" index */
-	x = message_age2idx(age);
+        /* Get the "logical" index */
+        x = message_age2idx(age);
 
-	/* Return the message type */
-	return (message__type[x]);
+        /* Return the message type */
+        return (message__type[x]);
 }
 
 
@@ -1854,11 +1856,11 @@ u16b message_type(s16b age)
  */
 static byte message_type_color(u16b type)
 {
-	byte color = message__color[type];
+        byte color = message__color[type];
 
-	if (color == TERM_DARK) color = TERM_WHITE;
+        if (color == TERM_DARK) color = TERM_WHITE;
 
-	return (color);
+        return (color);
 }
 
 
@@ -1867,20 +1869,20 @@ static byte message_type_color(u16b type)
  */
 byte message_color(s16b age)
 {
-	return message_type_color(message_type(age));
+        return message_type_color(message_type(age));
 }
 
 
 errr message_color_define(u16b type, byte color)
 {
-	/* Ignore illegal types */
-	if (type >= MSG_MAX) return (1);
+        /* Ignore illegal types */
+        if (type >= MSG_MAX) return (1);
 
-	/* Store the color */
-	message__color[type] = color;
+        /* Store the color */
+        message__color[type] = color;
 
-	/* Success */
-	return (0);
+        /* Success */
+        return (0);
 }
 
 
@@ -1897,236 +1899,236 @@ errr message_color_define(u16b type, byte color)
  */
 void message_add(cptr str, u16b type)
 {
-	int k, i, x, o;
-	size_t n;
+        int k, i, x, o;
+        size_t n;
 
-	cptr s;
+        cptr s;
 
-	cptr u;
-	char *v;
-
-
-	/*** Step 1 -- Analyze the message ***/
-
-	/* Hack -- Ignore "non-messages" */
-	if (!str) return;
-
-	/* Message length */
-	n = strlen(str);
-
-	/* Hack -- Ignore "long" messages */
-	if (n >= MESSAGE_BUF / 4) return;
+        cptr u;
+        char *v;
 
 
-	/*** Step 2 -- Attempt to optimize ***/
+        /*** Step 1 -- Analyze the message ***/
 
-	/* Get the "logical" last index */
-	x = message_age2idx(0);
+        /* Hack -- Ignore "non-messages" */
+        if (!str) return;
 
-	/* Get the "offset" for the last message */
-	o = message__ptr[x];
+        /* Message length */
+        n = strlen(str);
 
-	/* Get the message text */
-	s = &message__buf[o];
-
-	/* Last message repeated? */
-	if (streq(str, s))
-	{
-		/* Increase the message count */
-		message__count[x]++;
-
-		/* Success */
-		return;
-	}
-
-	/*** Step 3 -- Attempt to optimize ***/
-
-	/* Limit number of messages to check */
-	k = message_num() / 4;
-
-	/* Limit number of messages to check */
-	if (k > 32) k = 32;
-
-	/* Start just after the most recent message */
-	i = message__next;
-
-	/* Check the last few messages for duplication */
-	for ( ; k; k--)
-	{
-		u16b q;
-
-		cptr old;
-
-		/* Back up, wrap if needed */
-		if (i-- == 0) i = MESSAGE_MAX - 1;
-
-		/* Stop before oldest message */
-		if (i == message__last) break;
-
-		/* Index */
-		o = message__ptr[i];
-
-		/* Extract "distance" from "head" */
-		q = (message__head + MESSAGE_BUF - o) % MESSAGE_BUF;
-
-		/* Do not optimize over large distances */
-		if (q >= MESSAGE_BUF / 4) continue;
-
-		/* Get the old string */
-		old = &message__buf[o];
-
-		/* Continue if not equal */
-		if (!streq(str, old)) continue;
-
-		/* Get the next available message index */
-		x = message__next;
-
-		/* Advance 'message__next', wrap if needed */
-		if (++message__next == MESSAGE_MAX) message__next = 0;
-
-		/* Kill last message if needed */
-		if (message__next == message__last)
-		{
-			/* Update the 'message__easy', wrap if needed */
-			if ((message__last == message__easy) && 
-			    (++message__last == MESSAGE_MAX)) 
-			  message__easy = 0;
-			
-			/* Advance 'message__last', wrap if needed */
-			if (++message__last == MESSAGE_MAX) message__last = 0;
-		}
-
-		/* Assign the starting address */
-		message__ptr[x] = message__ptr[i];
-
-		/* Store the message type */
-		message__type[x] = type;
-
-		/* Store the message count */
-		message__count[x] = 1;
-
-		/* Success */
-		return;
-	}
-
-	/*** Step 4 -- Ensure space before end of buffer ***/
-
-	/* Kill messages, and wrap, if needed */
-	if (message__head + (n + 1) >= MESSAGE_BUF)
-	{
-		bool update_easy = FALSE;
-		
-		/* Kill all "dead" messages */
-		for (i = message__last; TRUE; i++)
-		{
-			/* Wrap if needed */
-			if (i == MESSAGE_MAX) i = 0;
-
-			/* Stop before the new message */
-			if (i == message__next) break;
-
-			/* Update message__easy if required */
-			if (i == message__easy) update_easy = TRUE;
-
-			/* Get offset */
-			o = message__ptr[i];
-
-			/* Kill "dead" messages */
-			if (o >= message__head)
-			{
-				/* Track oldest message */
-				message__last = i + 1;
-				
-				/* Update easy if required */
-				if (update_easy) message__easy = i + 1;
-			}
-		}
-
-		/* Wrap "tail" if needed */
-		if (message__tail >= message__head) message__tail = 0;
-
-		/* Start over */
-		message__head = 0;
-	}
+        /* Hack -- Ignore "long" messages */
+        if (n >= MESSAGE_BUF / 4) return;
 
 
-	/*** Step 5 -- Ensure space for actual characters ***/
+        /*** Step 2 -- Attempt to optimize ***/
 
-	/* Kill messages, if needed */
-	if (message__head + (n + 1) > message__tail)
-	{
-		bool update_easy = FALSE;
-		
-		/* Advance to new "tail" location */
-		message__tail += (MESSAGE_BUF / 4);
+        /* Get the "logical" last index */
+        x = message_age2idx(0);
 
-		/* Kill all "dead" messages */
-		for (i = message__last; TRUE; i++)
-		{
-			/* Wrap if needed */
-			if (i == MESSAGE_MAX) i = 0;
+        /* Get the "offset" for the last message */
+        o = message__ptr[x];
 
-			/* Stop before the new message */
-			if (i == message__next) break;
+        /* Get the message text */
+        s = &message__buf[o];
 
-			/* Update message__easy if required */
-			if (i == message__easy) update_easy = TRUE;
+        /* Last message repeated? */
+        if (streq(str, s))
+        {
+                /* Increase the message count */
+                message__count[x]++;
 
-			/* Get offset */
-			o = message__ptr[i];
+                /* Success */
+                return;
+        }
 
-			/* Kill "dead" messages */
-			if ((o >= message__head) && (o < message__tail))
-			{
-				/* Track oldest message */
-				message__last = i + 1;
-				
-				/* Update easy if required */
-				if (update_easy) message__easy = i + 1;
-			}
-		}
-	}
+        /*** Step 3 -- Attempt to optimize ***/
+
+        /* Limit number of messages to check */
+        k = message_num() / 4;
+
+        /* Limit number of messages to check */
+        if (k > 32) k = 32;
+
+        /* Start just after the most recent message */
+        i = message__next;
+
+        /* Check the last few messages for duplication */
+        for ( ; k; k--)
+        {
+                u16b q;
+
+                cptr old;
+
+                /* Back up, wrap if needed */
+                if (i-- == 0) i = MESSAGE_MAX - 1;
+
+                /* Stop before oldest message */
+                if (i == message__last) break;
+
+                /* Index */
+                o = message__ptr[i];
+
+                /* Extract "distance" from "head" */
+                q = (message__head + MESSAGE_BUF - o) % MESSAGE_BUF;
+
+                /* Do not optimize over large distances */
+                if (q >= MESSAGE_BUF / 4) continue;
+
+                /* Get the old string */
+                old = &message__buf[o];
+
+                /* Continue if not equal */
+                if (!streq(str, old)) continue;
+
+                /* Get the next available message index */
+                x = message__next;
+
+                /* Advance 'message__next', wrap if needed */
+                if (++message__next == MESSAGE_MAX) message__next = 0;
+
+                /* Kill last message if needed */
+                if (message__next == message__last)
+                {
+                        /* Update the 'message__easy', wrap if needed */
+                        if ((message__last == message__easy) && 
+                            (++message__last == MESSAGE_MAX)) 
+                          message__easy = 0;
+                        
+                        /* Advance 'message__last', wrap if needed */
+                        if (++message__last == MESSAGE_MAX) message__last = 0;
+                }
+
+                /* Assign the starting address */
+                message__ptr[x] = message__ptr[i];
+
+                /* Store the message type */
+                message__type[x] = type;
+
+                /* Store the message count */
+                message__count[x] = 1;
+
+                /* Success */
+                return;
+        }
+
+        /*** Step 4 -- Ensure space before end of buffer ***/
+
+        /* Kill messages, and wrap, if needed */
+        if (message__head + (n + 1) >= MESSAGE_BUF)
+        {
+                bool update_easy = FALSE;
+                
+                /* Kill all "dead" messages */
+                for (i = message__last; TRUE; i++)
+                {
+                        /* Wrap if needed */
+                        if (i == MESSAGE_MAX) i = 0;
+
+                        /* Stop before the new message */
+                        if (i == message__next) break;
+
+                        /* Update message__easy if required */
+                        if (i == message__easy) update_easy = TRUE;
+
+                        /* Get offset */
+                        o = message__ptr[i];
+
+                        /* Kill "dead" messages */
+                        if (o >= message__head)
+                        {
+                                /* Track oldest message */
+                                message__last = i + 1;
+                                
+                                /* Update easy if required */
+                                if (update_easy) message__easy = i + 1;
+                        }
+                }
+
+                /* Wrap "tail" if needed */
+                if (message__tail >= message__head) message__tail = 0;
+
+                /* Start over */
+                message__head = 0;
+        }
 
 
-	/*** Step 6 -- Grab a new message index ***/
+        /*** Step 5 -- Ensure space for actual characters ***/
 
-	/* Get the next available message index */
-	x = message__next;
+        /* Kill messages, if needed */
+        if (message__head + (n + 1) > message__tail)
+        {
+                bool update_easy = FALSE;
+                
+                /* Advance to new "tail" location */
+                message__tail += (MESSAGE_BUF / 4);
 
-	/* Advance 'message__next', wrap if needed */
-	if (++message__next == MESSAGE_MAX) message__next = 0;
+                /* Kill all "dead" messages */
+                for (i = message__last; TRUE; i++)
+                {
+                        /* Wrap if needed */
+                        if (i == MESSAGE_MAX) i = 0;
 
-	/* Kill last message if needed */
-	if (message__next == message__last)
-	{
-		/* Update the 'message__easy', wrap if needed */
-		if ((message__last == message__easy) && 
-		    (++message__last == MESSAGE_MAX)) 
-		  message__easy = 0;
-		
-		/* Advance 'message__last', wrap if needed */
-		if (++message__last == MESSAGE_MAX) message__last = 0;
-	}
+                        /* Stop before the new message */
+                        if (i == message__next) break;
+
+                        /* Update message__easy if required */
+                        if (i == message__easy) update_easy = TRUE;
+
+                        /* Get offset */
+                        o = message__ptr[i];
+
+                        /* Kill "dead" messages */
+                        if ((o >= message__head) && (o < message__tail))
+                        {
+                                /* Track oldest message */
+                                message__last = i + 1;
+                                
+                                /* Update easy if required */
+                                if (update_easy) message__easy = i + 1;
+                        }
+                }
+        }
 
 
-	/*** Step 7 -- Insert the message text ***/
+        /*** Step 6 -- Grab a new message index ***/
 
-	/* Assign the starting address */
-	message__ptr[x] = message__head;
+        /* Get the next available message index */
+        x = message__next;
 
-	/* Inline 'strcpy(message__buf + message__head, str)' */
-	v = message__buf + message__head;
-	for (u = str; *u; ) *v++ = *u++;
-	*v = '\0';
+        /* Advance 'message__next', wrap if needed */
+        if (++message__next == MESSAGE_MAX) message__next = 0;
 
-	/* Advance the "head" pointer */
-	message__head += (n + 1);
+        /* Kill last message if needed */
+        if (message__next == message__last)
+        {
+                /* Update the 'message__easy', wrap if needed */
+                if ((message__last == message__easy) && 
+                    (++message__last == MESSAGE_MAX)) 
+                  message__easy = 0;
+                
+                /* Advance 'message__last', wrap if needed */
+                if (++message__last == MESSAGE_MAX) message__last = 0;
+        }
 
-	/* Store the message type */
-	message__type[x] = type;
 
-	/* Store the message count */
-	message__count[x] = 1;
+        /*** Step 7 -- Insert the message text ***/
+
+        /* Assign the starting address */
+        message__ptr[x] = message__head;
+
+        /* Inline 'strcpy(message__buf + message__head, str)' */
+        v = message__buf + message__head;
+        for (u = str; *u; ) *v++ = *u++;
+        *v = '\0';
+
+        /* Advance the "head" pointer */
+        message__head += (n + 1);
+
+        /* Store the message type */
+        message__type[x] = type;
+
+        /* Store the message count */
+        message__count[x] = 1;
 }
 
 
@@ -2206,14 +2208,14 @@ void messages_easy(bool command)
       bool long_line = FALSE;
       
       if ((x) && (x + n) > (w))
-	{
-	  /* Go to next row if required */
-	  x = 0;
-	  y++;
-	  prt("", y, 0);
-	}
+        {
+          /* Go to next row if required */
+          x = 0;
+          y++;
+          prt("", y, 0);
+        }
       
-      /* Improve legibility of long entries */		
+      /* Improve legibility of long entries */          
       if (n > (w - 8)) long_line = TRUE;
       
       /* Copy it */
@@ -2225,52 +2227,52 @@ void messages_easy(bool command)
       
       /* Split message */
       while (n > (w - 1))
-	{
-	  char oops;
-	  
-	  int check, split;
-	  
-	  /* Default split */
-	  split = (w - 1);
-	  
-	  /* Find the "best" split point */
-	  for (check = (w / 2); check < (w - 1); check++)
-	    {
-	      /* Found a valid split point */
-	      if (t[check] == ' ') split = check;
-	    }
-	  
-	  /* Save the split character */
-	  oops = t[split];
-	  
-	  /* Split the message */
-	  t[split] = '\0';
-	  
-	  /* Display part of the message */
-	  Term_putstr(x, y, split, color, t);
-	  
-	  /* Erase to end of line to improve legibility */
-	  if (long_line)
-	    {
-	      /* Clear top line */
-	      Term_erase(x + split, y, 255);			
-	    }
-	  else
-	    {
-	      /* Add a space for legibility */
-	      Term_putstr(x + split, y, -1, TERM_WHITE, " ");
-	    }
-	  
-	  /* Restore the split character */
-	  t[split] = oops;
-	  
-	  /* Prepare to recurse on the rest of "buf" */
-	  t += split; n -= split;
-	  
-	  /* Reset column and line */
-	  x = 0;
-	  y++;
-	}
+        {
+          char oops;
+          
+          int check, split;
+          
+          /* Default split */
+          split = (w - 1);
+          
+          /* Find the "best" split point */
+          for (check = (w / 2); check < (w - 1); check++)
+            {
+              /* Found a valid split point */
+              if (t[check] == ' ') split = check;
+            }
+          
+          /* Save the split character */
+          oops = t[split];
+          
+          /* Split the message */
+          t[split] = '\0';
+          
+          /* Display part of the message */
+          Term_putstr(x, y, split, color, t);
+          
+          /* Erase to end of line to improve legibility */
+          if (long_line)
+            {
+              /* Clear top line */
+              Term_erase(x + split, y, 255);                    
+            }
+          else
+            {
+              /* Add a space for legibility */
+              Term_putstr(x + split, y, -1, TERM_WHITE, " ");
+            }
+          
+          /* Restore the split character */
+          t[split] = oops;
+          
+          /* Prepare to recurse on the rest of "buf" */
+          t += split; n -= split;
+          
+          /* Reset column and line */
+          x = 0;
+          y++;
+        }
       
       /* Display the tail of the message */
       Term_putstr(x, y, n, color, t);
@@ -2286,53 +2288,53 @@ void messages_easy(bool command)
       
       /* Display more prompt if reached near end of page */
       if ((y >= (h < 12 ? h - (bottom_status ? 2 : 3) : 
-		 (h > 23 ? (h / 2) - (bottom_status ? 1 : 2) : 11 - 
-		  (bottom_status ? 2 : 3))))
-	  /* Display more prompt if out of messages */
-	  || (message__easy == message__next))
-	{
-	  /* Pause for response */
-	  prt("", y + 1, 0);
-	  Term_putstr(0, y + 1, -1, a, message__easy == message__next ? 
-		      "-end-" : "-more-");
-	  
-	  /* Get an acceptable keypress. */
-	  while (1)
-	    {
-	      ke = inkey_ex();
-#if 0	
-	      if ((ke.key == '\xff') && !(ke.mousebutton))
-		{
-		  int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
-		  int x = KEY_GRID_X(p_ptr->command_cmd_ex);
-		  int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
-		  
-		  if (in_bounds_fully(y, x)) target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
-		  
-		  continue;
-		}
-	      
-	      if ((p_ptr->chp < warning) && (ke.key != 'c')) { bell("Press c to continue."); continue; }
+                 (h > 23 ? (h / 2) - (bottom_status ? 1 : 2) : 11 - 
+                  (bottom_status ? 2 : 3))))
+          /* Display more prompt if out of messages */
+          || (message__easy == message__next))
+        {
+          /* Pause for response */
+          prt("", y + 1, 0);
+          Term_putstr(0, y + 1, -1, a, message__easy == message__next ? 
+                      "-end-" : "-more-");
+          
+          /* Get an acceptable keypress. */
+          while (1)
+            {
+              ke = inkey_ex();
+#if 0   
+              if ((ke.key == '\xff') && !(ke.mousebutton))
+                {
+                  int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
+                  int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+                  int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
+                  
+                  if (in_bounds_fully(y, x)) target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+                  
+                  continue;
+                }
+              
+              if ((p_ptr->chp < warning) && (ke.key != 'c')) { bell("Press c to continue."); continue; }
 #endif
-	      if (quick_messages) break;
-	      if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
-	      if ((ke.key == '\n') || (ke.key == '\r')) break;
-	      if ((ke.key == '\xff') && (ke.type == EVT_MOUSE)) break;
-	      bell("Illegal response to a 'more' prompt!");
-	    }
-	  
-	  /* Refresh screen */
-	  screen_load();
-	  
-	  /* Tried a command - avoid rest of messages */
-	  if (ke.key != ' ') break;
-	  
-	  if (message__easy != message__next) screen_save();
-	  
-	  /* Start at top left hand side */
-	  y = 0;
-	  x = 0;
-	}
+              if (quick_messages) break;
+              if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
+              if ((ke.key == '\n') || (ke.key == '\r')) break;
+              if ((ke.key == '\xff') && (ke.type == EVT_MOUSE)) break;
+              bell("Illegal response to a 'more' prompt!");
+            }
+          
+          /* Refresh screen */
+          screen_load();
+          
+          /* Tried a command - avoid rest of messages */
+          if (ke.key != ' ') break;
+          
+          if (message__easy != message__next) screen_save();
+          
+          /* Start at top left hand side */
+          y = 0;
+          x = 0;
+        }
     }
   
   /* Allow 1 line messages again */
@@ -2354,14 +2356,14 @@ void messages_easy(bool command)
       
       /* Hack -- Process "Escape"/"Spacebar"/"Return" */
       if ((p_ptr->command_new == ESCAPE) ||
-	  (p_ptr->command_new == ' ') ||
-	  (p_ptr->command_new == '\r') ||
-	  (p_ptr->command_new == '\n') ||
-	  (p_ptr->command_new == '\xff'))
-	{
-	  /* Reset stuff */
-	  p_ptr->command_new = 0;
-	}
+          (p_ptr->command_new == ' ') ||
+          (p_ptr->command_new == '\r') ||
+          (p_ptr->command_new == '\n') ||
+          (p_ptr->command_new == '\xff'))
+        {
+          /* Reset stuff */
+          p_ptr->command_new = 0;
+        }
     }
 }
 
@@ -2371,23 +2373,23 @@ void messages_easy(bool command)
  */
 errr messages_init(void)
 {
-	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-	C_MAKE(message__buf, MESSAGE_BUF, char);
-	C_MAKE(message__type, MESSAGE_MAX, u16b);
-	C_MAKE(message__count, MESSAGE_MAX, u16b);
+        /* Message variables */
+        C_MAKE(message__ptr, MESSAGE_MAX, u16b);
+        C_MAKE(message__buf, MESSAGE_BUF, char);
+        C_MAKE(message__type, MESSAGE_MAX, u16b);
+        C_MAKE(message__count, MESSAGE_MAX, u16b);
 
-	/* Init the message colors to white */
-	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
+        /* Init the message colors to white */
+        (void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
 
-	/* Hack -- No messages yet */
-	message__tail = MESSAGE_BUF;
+        /* Hack -- No messages yet */
+        message__tail = MESSAGE_BUF;
 
-	/* Hack -- No messages for easy_more */
-	message__easy = MESSAGE_BUF;
-	
-	/* Success */
-	return (0);
+        /* Hack -- No messages for easy_more */
+        message__easy = MESSAGE_BUF;
+        
+        /* Success */
+        return (0);
 }
 
 
@@ -2396,11 +2398,11 @@ errr messages_init(void)
  */
 void messages_free(void)
 {
-	/* Free the messages */
-	FREE(message__ptr);
-	FREE(message__buf);
-	FREE(message__type);
-	FREE(message__count);
+        /* Free the messages */
+        FREE(message__ptr);
+        FREE(message__buf);
+        FREE(message__type);
+        FREE(message__count);
 }
 
 
@@ -2455,13 +2457,13 @@ void messages_free(void)
  */
 bool check_for_inscrip(const object_type *o_ptr, const char *inscrip)
 {
-	if (o_ptr->note)
-	{
-		const char *s = strstr(quark_str(o_ptr->note), inscrip);
-		if (s) return TRUE;
-	}
-	
-	return FALSE;
+        if (o_ptr->note)
+        {
+                const char *s = strstr(quark_str(o_ptr->note), inscrip);
+                if (s) return TRUE;
+        }
+        
+        return FALSE;
 }
 
 
@@ -2471,31 +2473,31 @@ bool check_for_inscrip(const object_type *o_ptr, const char *inscrip)
  */
 static void msg_flush(int x)
 {
-	byte a = TERM_L_BLUE;
+        byte a = TERM_L_BLUE;
 
-	/* Handle easy_more */
-	if (easy_more) return;	
-	
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
+        /* Handle easy_more */
+        if (easy_more) return;  
+        
+        /* Pause for response */
+        Term_putstr(x, 0, -1, a, "-more-");
 
-	if (!auto_more)
-	{
-		/* Get an acceptable keypress */
-		while (1)
-		{
-			event_type ke;
-			ke = inkey_ex();
-			if (quick_messages) break;
-			if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
-			if ((ke.key == '\n') || (ke.key == '\r')) break;
-			if (ke.key == '\xff') break;
-			bell("Illegal response to a 'more' prompt!");
-		}
-	}
+        if (!auto_more)
+        {
+                /* Get an acceptable keypress */
+                while (1)
+                {
+                        event_type ke;
+                        ke = inkey_ex();
+                        if (quick_messages) break;
+                        if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
+                        if ((ke.key == '\n') || (ke.key == '\r')) break;
+                        if (ke.key == '\xff') break;
+                        bell("Illegal response to a 'more' prompt!");
+                }
+        }
 
-	/* Clear the line */
-	Term_erase(0, 0, 255);
+        /* Clear the line */
+        Term_erase(0, 0, 255);
 }
 
 
@@ -2529,86 +2531,86 @@ static int message_column = 0;
  */
 static void msg_print_aux(u16b type, cptr msg)
 {
-	int n;
-	char *t;
-	char buf[1024];
-	byte color;
-	int w, h;
+        int n;
+        char *t;
+        char buf[1024];
+        byte color;
+        int w, h;
 
 
-	/* Obtain the size */
-	(void)Term_get_size(&w, &h);
+        /* Obtain the size */
+        (void)Term_get_size(&w, &h);
 
-	/* Hack -- Reset */
-	if (!msg_flag) message_column = 0;
+        /* Hack -- Reset */
+        if (!msg_flag) message_column = 0;
 
-	/* Message Length */
-	n = (msg ? strlen(msg) : 0);
+        /* Message Length */
+        n = (msg ? strlen(msg) : 0);
 
-	/* Hack -- flush when requested or needed */
-	if ((message_column || easy_more) && 
-	    (!msg || ((message_column + n) > (w - 8))))
-	{
-		bool hack_use_first_line = (easy_more && !must_more && 
-					    !message_column && msg);
-		bool hack_flush = (easy_more && message_column && 
-				   ((message_column + n) <= (w)) && 
-				   !must_more && !msg);
-		
-		/* Handle easy_more */
-		if (easy_more && msg && !must_more)
-		{
-			/* Display messages from this point onwards */
-			message__easy = message__next;
+        /* Hack -- flush when requested or needed */
+        if ((message_column || easy_more) && 
+            (!msg || ((message_column + n) > (w - 8))))
+        {
+                bool hack_use_first_line = (easy_more && !must_more && 
+                                            !message_column && msg);
+                bool hack_flush = (easy_more && message_column && 
+                                   ((message_column + n) <= (w)) && 
+                                   !must_more && !msg);
+                
+                /* Handle easy_more */
+                if (easy_more && msg && !must_more)
+                {
+                        /* Display messages from this point onwards */
+                        message__easy = message__next;
 
-			/* Delay displaying remaining messages */
-			must_more = TRUE;
-		}
-		
-		/* Hack -- allow single line '-more-' */
-		if (hack_flush) easy_more = FALSE;
-		
-		/* Flush */
-		msg_flush(message_column);
+                        /* Delay displaying remaining messages */
+                        must_more = TRUE;
+                }
+                
+                /* Hack -- allow single line '-more-' */
+                if (hack_flush) easy_more = FALSE;
+                
+                /* Flush */
+                msg_flush(message_column);
 
-		/* Hack -- allow single line '-more-' */
-		if (hack_flush) easy_more = TRUE;
+                /* Hack -- allow single line '-more-' */
+                if (hack_flush) easy_more = TRUE;
 
-		/* Forget it */
-		msg_flag = hack_use_first_line;
+                /* Forget it */
+                msg_flag = hack_use_first_line;
 
-		/* Reset */
-		message_column = 0;
-	}
-
-
-	/* No message */
-	if (!msg) return;
-
-	/* Paranoia */
-	if (n > 1000) return;
+                /* Reset */
+                message_column = 0;
+        }
 
 
-	/* Memorize the message (if legal) */
-	if (character_generated && !(p_ptr->is_dead))
-		message_add(msg, type);
+        /* No message */
+        if (!msg) return;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE);
-
-	/* Handle "auto_more"/"must_more" */
-	if (auto_more || must_more)
-	{
-		/* Force window update */
-		window_stuff();
-
-		/* Done */
-		return;
-	}
+        /* Paranoia */
+        if (n > 1000) return;
 
 
-	/* Copy it */
-	my_strcpy(buf, msg, sizeof(buf));
+        /* Memorize the message (if legal) */
+        if (character_generated && !(p_ptr->is_dead))
+                message_add(msg, type);
+
+        /* Window stuff */
+        p_ptr->window |= (PW_MESSAGE);
+
+        /* Handle "auto_more"/"must_more" */
+        if (auto_more || must_more)
+        {
+                /* Force window update */
+                window_stuff();
+
+                /* Done */
+                return;
+        }
+
+
+        /* Copy it */
+        my_strcpy(buf, msg, sizeof(buf));
 
 	/* Analyze the buffer */
 	t = buf;
@@ -2813,11 +2815,11 @@ void c_put_str(byte attr, cptr str, int row, int col)
 
   my_strcpy(buf, str, sizeof(buf));
 
- 	/* Translate it to 7-bit ASCII or system-specific format */
- 	xstr_trans(buf, LATIN1);
+        /* Translate it to 7-bit ASCII or system-specific format */
+        xstr_trans(buf, LATIN1);
 
-	/* Position cursor, Dump the attr/text */
-	Term_putstr(col, row, -1, attr, buf);
+        /* Position cursor, Dump the attr/text */
+        Term_putstr(col, row, -1, attr, buf);
 }
 
 
@@ -2855,14 +2857,14 @@ void c_prt(byte attr, cptr str, int row, int col)
 
   my_strcpy(buf, str, sizeof(buf));
 
- 	/* Translate it to 7-bit ASCII or system-specific format */
- 	xstr_trans(buf, LATIN1);
+        /* Translate it to 7-bit ASCII or system-specific format */
+        xstr_trans(buf, LATIN1);
 
-	/* Clear line, position cursor */
-	Term_erase(col, row, 255);
+        /* Clear line, position cursor */
+        Term_erase(col, row, 255);
 
-	/* Dump the attr/text */
-	Term_addstr(-1, attr, buf);
+        /* Dump the attr/text */
+        Term_addstr(-1, attr, buf);
 }
 
 
@@ -2942,13 +2944,13 @@ void text_out_to_screen(byte a, cptr str)
 			Term_erase(x, y, 255);
 
 			continue;
-		}
+                }
 
-		/* Clean up the char */
-		ch = (my_isprint((unsigned char)*s) ? *s : ' ');
+                /* Clean up the char */
+                ch = (my_isprint((unsigned char)*s) ? *s : ' ');
 
-		/* Wrap words as needed */
-		if ((x >= wrap - 1) && (ch != ' '))
+                /* Wrap words as needed */
+                if ((x >= wrap - 1) && (ch != ' '))
 		{
 			int i, n = 0;
 
@@ -2994,15 +2996,15 @@ void text_out_to_screen(byte a, cptr str)
 				/* Advance (no wrap) */
 				if (++x > wrap) x = wrap;
 			}
-		}
+                }
 
-		/* Dump */
-		if (Term->xchar_hook)
-		  Term_addch(a, Term->xchar_hook(ch));
-		else
-		  Term_addch(a, ch);
+                /* Dump */
+                if (Term->xchar_hook)
+                  Term_addch(a, Term->xchar_hook(ch));
+                else
+                  Term_addch(a, ch);
 
-		/* Advance */
+                /* Advance */
 		if (++x > wrap) x = wrap;
 	}
 }
@@ -3023,33 +3025,33 @@ void text_out_to_screen(byte a, cptr str)
  */
 void text_out_to_file(byte a, cptr str)
 {
-	cptr s;
- 	char buf[1024];
+        cptr s;
+        char buf[1024];
 
-	/* Current position on the line */
-	static int pos = 0;
+        /* Current position on the line */
+        static int pos = 0;
 
-	/* Wrap width */
-	int wrap = (text_out_wrap ? text_out_wrap : 75);
+        /* Wrap width */
+        int wrap = (text_out_wrap ? text_out_wrap : 75);
 
-	/* We use either ascii or system-specific encoding */
- 	int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
+        /* We use either ascii or system-specific encoding */
+        int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
-	/* Unused parameter */
-	(void)a;
+        /* Unused parameter */
+        (void)a;
 
-	/* Copy to a rewriteable string */
- 	my_strcpy(buf, str, 1024);
+        /* Copy to a rewriteable string */
+        my_strcpy(buf, str, 1024);
 
- 	/* Translate it to 7-bit ASCII or system-specific format */
- 	xstr_trans(buf, encoding);
+        /* Translate it to 7-bit ASCII or system-specific format */
+        xstr_trans(buf, encoding);
 
- 	/* Current location within "buf" */
- 	s = buf;
+        /* Current location within "buf" */
+        s = buf;
 
-	/* Process the string */
-	while (*s)
-	{
+        /* Process the string */
+        while (*s)
+        {
 		char ch;
 		int n = 0;
 		int len = wrap - pos;
@@ -3060,13 +3062,13 @@ void text_out_to_file(byte a, cptr str)
 		{
 			int i;
 
-			/* Output the indent */
-			for (i = 0; i < text_out_indent; i++)
-			{
-				fputc(' ', text_out_file);
-				pos++;
-			}
-		}
+                        /* Output the indent */
+                        for (i = 0; i < text_out_indent; i++)
+                        {
+                                fputc(' ', text_out_file);
+                                pos++;
+                        }
+                }
 
 		/* Find length of line up to next newline or end-of-string */
 		while ((n < len) && !((s[n] == '\n') || (s[n] == '\0')))
@@ -3090,17 +3092,17 @@ void text_out_to_file(byte a, cptr str)
 			else if ((s[0] == ' ') || (s[0] == ',') || (s[0] == '.'))
 			{
 				len = 1;
-			}
-			else
-			{
-				/* Skip newlines -DG- */
-				if (s[0] == '\n') s++;
+                        }
+                        else
+                        {
+                                /* Skip newlines -DG- */
+                                if (s[0] == '\n') s++;
 
-				/* Begin a new line */
-				fputc('\n', text_out_file);
+                                /* Begin a new line */
+                                fputc('\n', text_out_file);
 
-				/* Reset */
-				pos = 0;
+                                /* Reset */
+                                pos = 0;
 
 				continue;
 			}
@@ -3115,40 +3117,41 @@ void text_out_to_file(byte a, cptr str)
 		}
 
 		/* Write that line to file */
-		for (n = 0; n < len; n++)
-		{
-			/* Ensure the character is printable */
-		  ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
+                for (n = 0; n < len; n++)
+                {
+                        /* Ensure the character is printable */
+                  ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
 
-			/* Write out the character */
-			fputc(ch, text_out_file);
+                        /* Write out the character */
+                        fputc(ch, text_out_file);
 
-			/* Increment */
-			pos++;
+                        /* Increment */
+                        pos++;
 		}
 
-		/* Move 's' past the stuff we've written */
-		s += len;
+                /* Move 's' past the stuff we've written */
+                s += len;
 
-		/* Skip whitespace -DG- */
-		while (*s == ' ') s++;
+                /* Skip whitespace -DG- */
+                while (*s == ' ') s++;
 
-		/* If we are at the end of the string, end */
-		if (*s == '\0') return;
+                /* If we are at the end of the string, end */
+                if (*s == '\0') return;
 
 		/* Skip newlines */
-		if (*s == '\n') s++;
+                if (*s == '\n') s++;
 
-		/* Begin a new line */
-		fputc('\n', text_out_file);
+                /* Begin a new line */
+                fputc('\n', text_out_file);
 
-		/* Reset */
-		pos = 0;
-	}
+                /* Reset */
+                pos = 0;
+        }
 
-	/* We are done */
+        /* We are done */
 	return;
 }
+
 
 /*
  * Output text to the screen or to a file depending on the selected
@@ -3156,7 +3159,7 @@ void text_out_to_file(byte a, cptr str)
  */
 void text_out(cptr str)
 {
-	text_out_c(TERM_WHITE, str);
+        text_out_c(TERM_WHITE, str);
 }
 
 
@@ -3166,7 +3169,7 @@ void text_out(cptr str)
  */
 void text_out_c(byte a, cptr str)
 {
-	text_out_hook(a, str);
+        text_out_hook(a, str);
 }
 
 
@@ -3175,14 +3178,14 @@ void text_out_c(byte a, cptr str)
  */
 void clear_from(int row)
 {
-	int y;
+        int y;
 
-	/* Erase requested rows */
-	for (y = row; y < Term->hgt; y++)
-	{
-		/* Erase part of the screen */
-		Term_erase(0, y, 255);
-	}
+        /* Erase requested rows */
+        for (y = row; y < Term->hgt; y++)
+        {
+                /* Erase part of the screen */
+                Term_erase(0, y, 255);
+        }
 }
 
 /*
@@ -3209,10 +3212,10 @@ void dump_put_str(byte attr, const char *str, int col)
     {
       if (dump_ptr[i].pchar == '\0') finished = TRUE;
       if (finished) 
-	{
-	  dump_ptr[i].pchar = ' ';
-	  dump_ptr[i].pattr = TERM_WHITE;
-	}
+        {
+          dump_ptr[i].pchar = ' ';
+          dump_ptr[i].pattr = TERM_WHITE;
+        }
       i++;
     }
   
@@ -3367,116 +3370,117 @@ void dump_line(char_attr *this_line)
  * the press of RETURN).
  */
 bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, 
-			 char keypress, bool firsttime)
+                         char keypress, bool firsttime)
 {
   switch (keypress)
     {
-    case ESCAPE:
-      {
-	*curs = 0;
-	return TRUE;
-	break;
-      }
-      
-    case '\n':
-    case '\r':
-      {
-	*curs = *len;
-	return TRUE;
-	break;
-      }
-      
-    case ARROW_LEFT:
-      {
-	if (firsttime) *curs = 0;
-	if (*curs > 0) (*curs)--;
-	break;
-      }
-      
-    case ARROW_RIGHT:
-      {
-	if (firsttime) *curs = *len - 1;
-	if (*curs < *len) (*curs)++;
-	break;
-      }
-      
-    case 0x7F:
-    case '\010':
-      {
-	/* If this is the first time round, backspace means "delete all" */
-	if (firsttime)
-	  {
-	    buf[0] = '\0';
-	    *curs = 0;
-	    *len = 0;
-	    
-	    break;
-	  }
-	
-	/* Refuse to backspace into oblivion */
-	if (*curs == 0) break;
-	
-	/* Move the string from k to nul along to the left by 1 */
-	memmove(&buf[*curs - 1], &buf[*curs], *len - *curs);
-	
-	/* Decrement */
-	(*curs)--;
-	(*len)--;
-	
-	/* Terminate */
-	buf[*len] = '\0';
-	
-	break;
-      }
-      
-    default:
-      {
-	bool atnull = (buf[*curs] == 0);
-	
-	
-	if (!isprint((unsigned char)keypress))
-	  {
-	    bell("Illegal edit key!");
-	    break;
-	  }
-	
-	/* Clear the buffer if this is the first time round */
-	if (firsttime)
-	  {
-	    buf[0] = '\0';
-	    *curs = 0;
-	    *len = 0;
-	    atnull = 1;
-	  }
-	
-	if (atnull)
-	  {
-	    /* Make sure we have enough room for a new character */
-	    if ((*curs + 1) >= buflen) break;
-	  }
-	else
-	  {
-	    /* Make sure we have enough room to add a new character */
-	    if ((*len + 1) >= buflen) break;
-	    
-	    /* Move the rest of the buffer along to make room */
-	    memmove(&buf[*curs+1], &buf[*curs], *len - *curs);
-	  }
-	
-	/* Insert the character */
-	buf[(*curs)++] = keypress;
-	(*len)++;
-	
-	/* Terminate */
-	buf[*len] = '\0';
-	
-	break;
-      }
-    }
-  
-  /* By default, we aren't done. */
-  return FALSE;
+		case ESCAPE:
+		{
+			*curs = 0;
+			return TRUE;
+			break;
+		}
+		
+		case '\n':
+		case '\r':
+		{
+			*curs = *len;
+			return TRUE;
+			break;
+		}
+		
+		case ARROW_LEFT:
+		{
+			if (firsttime) *curs = 0;
+			if (*curs > 0) (*curs)--;
+			break;
+		}
+		
+		case ARROW_RIGHT:
+		{
+			if (firsttime) *curs = *len - 1;
+			if (*curs < *len) (*curs)++;
+			break;
+		}
+		
+		case 0x7F:
+		case '\010':
+		{
+			/* If this is the first time round, backspace means "delete all" */
+			if (firsttime)
+			{
+				buf[0] = '\0';
+				*curs = 0;
+				*len = 0;
+
+				break;
+			}
+
+			/* Refuse to backspace into oblivion */
+			if (*curs == 0) break;
+
+			/* Move the string from k to nul along to the left by 1 */
+			memmove(&buf[*curs - 1], &buf[*curs], *len - *curs);
+
+			/* Decrement */
+			(*curs)--;
+			(*len)--;
+
+			/* Terminate */
+			buf[*len] = '\0';
+
+			break;
+		}
+		
+		default:
+		{
+			bool atnull = (buf[*curs] == 0);
+
+
+			if (!isprint((unsigned char)keypress))
+			{
+				bell("Illegal edit key!");
+				break;
+			}
+
+			/* Clear the buffer if this is the first time round */
+			if (firsttime)
+			{
+				buf[0] = '\0';
+				*curs = 0;
+				*len = 0;
+				atnull = 1;
+			}
+
+			if (atnull)
+			{
+				/* Make sure we have enough room for a new character */
+				if ((*curs + 1) >= buflen) break;
+			}
+			else
+			{
+				/* Make sure we have enough room to add a new character */
+				if ((*len + 1) >= buflen) break;
+
+				/* Move the rest of the buffer along to make room */
+				memmove(&buf[*curs+1], &buf[*curs], *len - *curs);
+			}
+
+			/* Insert the character */
+			buf[(*curs)++] = keypress;
+			(*len)++;
+
+			/* Terminate */
+			buf[*len] = '\0';
+
+			break;
+		}
+	}
+
+	/* By default, we aren't done. */
+	return FALSE;
 }
+
 
 /*
  * Get some input at the cursor location.
@@ -3501,50 +3505,49 @@ bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len,
  * 'keypress_h') for an example.
  */
 bool askfor_aux(char *buf, size_t len, 
-		bool keypress_h(char *, size_t, size_t *, 
-				size_t *, char, bool))
+                bool keypress_h(char *, size_t, size_t *, 
+                                size_t *, char, bool))
 {
 
   int y, x;
   
-  size_t k = 0;		/* Cursor position */
-  size_t nul = 0;		/* Position of the null byte in the string */
+  size_t k = 0;         /* Cursor position */
+  size_t nul = 0;               /* Position of the null byte in the string */
 
   event_type ke = EVENT_EMPTY;  
   
   bool done = FALSE;
   bool firsttime = TRUE;
-  
-  if (keypress_h == NULL)
-    {
-      keypress_h = askfor_aux_keypress;
-    }
-  
-  /* Locate the cursor */
-  Term_locate(&x, &y);
-  
-  
-  /* Paranoia */
-  if ((x < 0) || (x >= 80)) x = 0;
-  
-  
-  /* Restrict the length */
-  if (x + len > 80) len = 80 - x;
-  
-  /* Truncate the default entry */
-  buf[len-1] = '\0';
-  
-  /* Get the position of the null byte */
-  nul = strlen(buf);
-  
-  /* Display the default answer */
-  Term_erase(x, y, (int)len);
-  Term_putstr(x, y, -1, TERM_YELLOW, buf);
-  
-  /* Process input */
-  while (!done)
-    {
-      /* Place cursor */
+	if (keypress_h == NULL)
+	{
+		keypress_h = askfor_aux_keypress;
+	}
+
+	/* Locate the cursor */
+	Term_locate(&x, &y);
+
+
+	/* Paranoia */
+	if ((x < 0) || (x >= 80)) x = 0;
+
+
+	/* Restrict the length */
+	if (x + len > 80) len = 80 - x;
+
+	/* Truncate the default entry */
+	buf[len-1] = '\0';
+
+	/* Get the position of the null byte */
+	nul = strlen(buf);
+
+	/* Display the default answer */
+	Term_erase(x, y, (int)len);
+	Term_putstr(x, y, -1, TERM_YELLOW, buf);
+
+	/* Process input */
+	while (!done)
+	{
+		/* Place cursor */
       Term_gotoxy(x + k, y);
       
       /* Get a key */
@@ -3556,10 +3559,10 @@ bool askfor_aux(char *buf, size_t len,
       
       /* Update the entry */
       Term_erase(x, y, (int)len);
-      Term_putstr(x, y, -1, TERM_WHITE, buf);
-      
-      /* Not the first time round anymore */
-      firsttime = FALSE;
+		Term_putstr(x, y, -1, TERM_WHITE, buf);
+
+		/* Not the first time round anymore */
+		firsttime = FALSE;
     }
   
   /* Done */
@@ -3572,7 +3575,7 @@ bool askfor_aux(char *buf, size_t len,
  * through to the default "editing" handler.
  */
 bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len, 
-		       char keypress, bool firsttime)
+                       char keypress, bool firsttime)
 {
   bool result;
   
@@ -3590,12 +3593,12 @@ bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len,
       
     default:
       {
-	result = askfor_aux_keypress(buf, buflen, curs, len, keypress, 
-				     firsttime);
-	break;
+        result = askfor_aux_keypress(buf, buflen, curs, len, keypress, 
+                                     firsttime);
+        break;
       }
     }
-  
+
   return result;
 }
 
@@ -3679,8 +3682,8 @@ bool get_num(char *prompt, int max, int amt)
   if (!prompt)
     {
       /* Build a prompt */
-      strnfmt(tmp, sizeof(tmp),	
-	      "Quantity (0-%d, +=incr, -=decr, *=all): ", max);
+      strnfmt(tmp, sizeof(tmp), 
+              "Quantity (0-%d, +=incr, -=decr, *=all): ", max);
       
       /* Use that prompt */
       prompt = tmp;
@@ -3731,90 +3734,90 @@ bool get_num(char *prompt, int max, int amt)
       
       /* Analyze the key */
       switch (ke.key)
-	{
-	case ESCAPE:
-	  {
-	    k = 0;
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case '\n':
-	case '\r':
-	  {
-	    k = strlen(buf);
-	    done = TRUE;
-	    break;
-	  }
-	  
-	case 0x7F:
-	case '\010':
-	  {
-	    if (k > 0) k--;
-	    break;
-	  }
-	case '*':
-	  {
-	    sprintf(buf, "%d", max);
-	    k = strlen(buf);
-	    done = TRUE;
-	    break;
-	  }
-	case '+':
-	  {
-	    bool writing = FALSE;
-	    
-	    k = 0;
-	    amt++;
-	    if (amt > max) amt = 0;
-	    for(j = 100000; j >= 1; j /= 10)
-	      {
-		if ((amt >= j) || (writing))
-		  {
-		    writing = TRUE;
-		    d = amt / j;
-		    amt -= d * j;
-		    buf[k++] = I2D(d);
-		  }
-	      }
-	    buf[k] = '\0';
-	    break;
-	  }
-	case '-':
-	  {
-	    bool writing = FALSE;
-	    
-	    k = 0;
-	    amt--;
-	    if (amt < 0) amt = max;
-	    for(j = 100000; j >= 1; j /= 10)
-	      {
-		if ((amt >= j) || (writing))
-		  {
-		    writing = TRUE;
-		    d = amt / j;
-		    amt -= d * j;
-		    buf[k++] = I2D(d);
-		  }
-	      }
-	    buf[k] = '\0';
-	    break;
-	  }
-	      
-	default:
-	  {
-	    if ((k < 5) && (isdigit(ke.key)))
-	      {
-		buf[k++] = ke.key;
-	      }
-	    else
-	      {
-		bell("Illegal edit key!");
-	      }
-	    break;
-	  }
+        {
+        case ESCAPE:
+          {
+            k = 0;
+            done = TRUE;
+            break;
+          }
+          
+        case '\n':
+        case '\r':
+          {
+            k = strlen(buf);
+            done = TRUE;
+            break;
+          }
+          
+        case 0x7F:
+        case '\010':
+          {
+            if (k > 0) k--;
+            break;
+          }
+        case '*':
+          {
+            sprintf(buf, "%d", max);
+            k = strlen(buf);
+            done = TRUE;
+            break;
+          }
+        case '+':
+          {
+            bool writing = FALSE;
+            
+            k = 0;
+            amt++;
+            if (amt > max) amt = 0;
+            for(j = 100000; j >= 1; j /= 10)
+              {
+                if ((amt >= j) || (writing))
+                  {
+                    writing = TRUE;
+                    d = amt / j;
+                    amt -= d * j;
+                    buf[k++] = I2D(d);
+                  }
+              }
+            buf[k] = '\0';
+            break;
+          }
+        case '-':
+          {
+            bool writing = FALSE;
+            
+            k = 0;
+            amt--;
+            if (amt < 0) amt = max;
+            for(j = 100000; j >= 1; j /= 10)
+              {
+                if ((amt >= j) || (writing))
+                  {
+                    writing = TRUE;
+                    d = amt / j;
+                    amt -= d * j;
+                    buf[k++] = I2D(d);
+                  }
+              }
+            buf[k] = '\0';
+            break;
+          }
+              
+        default:
+          {
+            if ((k < 5) && (isdigit(ke.key)))
+              {
+                buf[k++] = ke.key;
+              }
+            else
+              {
+                bell("Illegal edit key!");
+              }
+            break;
+          }
       
-	}
+        }
       
       /* Terminate */
       buf[k] = '\0';
@@ -3852,14 +3855,14 @@ bool get_num(char *prompt, int max, int amt)
  */
 bool get_string(cptr prompt, char *buf, size_t len)
 {
-  bool res;
-  
-  /* Paranoia XXX XXX XXX */
-  message_flush();
-  
-  /* Display prompt */
-  prt(prompt, 0, 0);
-  
+	bool res;
+
+	/* Paranoia XXX XXX XXX */
+	message_flush();
+
+	/* Display prompt */
+	prt(prompt, 0, 0);
+
   /* Ask the user for a string */
   res = askfor_aux(buf, len, NULL);
   
@@ -3869,8 +3872,8 @@ bool get_string(cptr prompt, char *buf, size_t len)
   /* Clear prompt */
   prt("", 0, 0);
   
-  /* Result */
-  return (res);
+	/* Result */
+	return (res);
 }
 
 
@@ -3882,25 +3885,25 @@ bool get_string(cptr prompt, char *buf, size_t len)
  */
 s16b get_quantity(cptr prompt, int max)
 {
-  int amt = 1;
-  
-  
-  /* Use "command_arg" */
-  if (p_ptr->command_arg)
-    {
-      /* Extract a number */
-      amt = p_ptr->command_arg;
-      
-      /* Clear "command_arg" */
-      p_ptr->command_arg = 0;
-    }
-  
-  /* Get the item index */
-  else if ((max != 1) && repeat_pull(&amt))
-    {
-      /* nothing */
-    }
-  
+	int amt = 1;
+
+
+	/* Use "command_arg" */
+	if (p_ptr->command_arg)
+	{
+		/* Extract a number */
+		amt = p_ptr->command_arg;
+
+		/* Clear "command_arg" */
+		p_ptr->command_arg = 0;
+	}
+
+	/* Get the item index */
+	else if ((max != 1) && repeat_pull(&amt))
+	{
+		/* nothing */
+	}
+
   /* Prompt if needed */
   else if ((max != 1))
     {
@@ -3909,14 +3912,14 @@ s16b get_quantity(cptr prompt, int max)
     }
   
   /* Enforce the maximum */
-  if (amt > max) amt = max;
-  
-  /* Enforce the minimum */
-  if (amt < 0) amt = 0;
-  
-  if (amt) repeat_push(amt);
+	if (amt > max) amt = max;
 
-  /* Return the result */
+	/* Enforce the minimum */
+	if (amt < 0) amt = 0;
+
+	if (amt) repeat_push(amt);
+
+	/* Return the result */
   return (amt);
 }
 
@@ -3945,7 +3948,7 @@ int get_check_other(cptr prompt, char other)
   
   /* Flush easy_more messages */
   if (easy_more) messages_easy(FALSE);
-	
+        
   /* Paranoia XXX XXX XXX */
   else message_flush();
   
@@ -4031,7 +4034,7 @@ bool get_check(cptr prompt)
   
   /* Flush easy_more messages */
   if (easy_more) messages_easy(FALSE);
-	
+        
   /* Paranoia XXX XXX XXX */
   else message_flush();
   
@@ -4048,8 +4051,8 @@ bool get_check(cptr prompt)
   
   /* Prompt for it */
   prt(buf, 0, 0);
-  
-  /* Get an acceptable answer */
+
+	/* Get an acceptable answer */
   while (TRUE)
     {
       ke = inkey_ex();
@@ -4057,10 +4060,10 @@ bool get_check(cptr prompt)
       if (strchr("YyNn", ke.key)) break;
       /* Hack of the century */
       if ((ke.key == '\r') && (f_ptr->flags & TF_SHOP))
-	{
-	  ke.key = 'y';
-	  break;
-	}
+        {
+          ke.key = 'y';
+          break;
+        }
 
       if (quick_messages) break;
       bell("Illegal response to a 'yes/no' question!");
@@ -4077,12 +4080,12 @@ bool get_check(cptr prompt)
   
   /* Erase the prompt */
   prt("", 0, 0);
-  
-  /* Normal negation */
-  if ((ke.key != 'Y') && (ke.key != 'y')) return (FALSE);
-  
-  /* Success */
-  return (TRUE);
+
+	/* Normal negation */
+	if ((ke.key != 'Y') && (ke.key != 'y')) return (FALSE);
+
+	/* Success */
+	return (TRUE);
 }
 
 
@@ -4095,21 +4098,21 @@ bool get_check(cptr prompt)
  */
 bool get_com(cptr prompt, char *command)
 {
-	event_type ke;
-	bool result;
+        event_type ke;
+        bool result;
 
-	result = get_com_ex(prompt, &ke);
+        result = get_com_ex(prompt, &ke);
 	*command = ke.key;
 
-	return result;
+        return result;
 }
 
 bool get_com_ex(cptr prompt, event_type *command)
 {
-	event_type ke;
+        event_type ke;
 
-	/* Paranoia XXX XXX XXX */
-	message_flush();
+        /* Paranoia XXX XXX XXX */
+        message_flush();
 
 	/* Display a prompt */
 	prt(prompt, 0, 0);
@@ -4209,213 +4212,213 @@ void request_command(void)
   
   /* Get command */
   while (1)
-    {
-      /* Hack -- auto-commands */
-      if (p_ptr->command_new)
 	{
-	  /* Flush messages */
-	  message_flush();
-	  
-	  /* Use auto-command */
-	  ke.key = (char)p_ptr->command_new;
-	  
-	  /* Forget it */
-	  p_ptr->command_new = 0;
-	}
-      
-      /* Get a keypress in "command" mode */
-      else
-	{
-	  /* Hack -- no flush needed */
-	  msg_flag = FALSE;
-	  
-	  /* Activate "command mode" */
-	  inkey_flag = TRUE;
-	  
-	  /* Get a command */
-	  ke = inkey_ex();
-	}
-      
-      /* Clear top line */
-      prt("", 0, 0);
-      
-      
-      /* Resize events XXX XXX */
-      if (ke.type == EVT_RESIZE)
-	{
-	  p_ptr->command_cmd_ex = ke;
-	  p_ptr->command_new = ' ';
-	}
-      
-      
-      /* Command Count */
-      if (ke.key == '0')
-	{
-	  int old_arg = p_ptr->command_arg;
-	  
-	  /* Reset */
-	  p_ptr->command_arg = 0;
-	  
-	  /* Begin the input */
-	  prt("Count: ", 0, 0);
-	  
-	  /* Get a command count */
-	  while (1)
-	    {
-	      /* Get a new keypress */
-	      ke.key = inkey();
-	      
-	      /* Simple editing (delete or backspace) */
-	      if ((ke.key == 0x7F) || (ke.key == KTRL('H')))
+		/* Hack -- auto-commands */
+		if (p_ptr->command_new)
 		{
-		  /* Delete a digit */
-		  p_ptr->command_arg = p_ptr->command_arg / 10;
-		  
-		  /* Show current count */
-		  prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+			/* Flush messages */
+			message_flush();
+
+                        /* Use auto-command */
+                        ke.key = (char)p_ptr->command_new;
+
+                        /* Forget it */
+                        p_ptr->command_new = 0;
 		}
-	      
-	      /* Actual numeric data */
-	      else if (isdigit((unsigned char)ke.key))
+
+		/* Get a keypress in "command" mode */
+		else
 		{
-		  /* Stop count at 9999 */
-		  if (p_ptr->command_arg >= 1000)
-		    {
-		      /* Warn */
-		      bell("Invalid repeat count!");
-		      
-		      /* Limit */
-		      p_ptr->command_arg = 9999;
-		    }
-		  
-		  /* Increase count */
-		  else
-		    {
-		      /* Incorporate that digit */
-		      p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ke.key);
-		    }
-		  
-		  /* Show current count */
-		  prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+			/* Hack -- no flush needed */
+			msg_flag = FALSE;
+
+			/* Activate "command mode" */
+			inkey_flag = TRUE;
+
+			/* Get a command */
+			ke = inkey_ex();
 		}
-	      
-	      /* Exit on "unusable" input */
-	      else
+
+		/* Clear top line */
+		prt("", 0, 0);
+
+
+		/* Resize events XXX XXX */
+		if (ke.type == EVT_RESIZE)
 		{
-		  break;
+			p_ptr->command_cmd_ex = ke;
+			p_ptr->command_new = ' ';
 		}
-	    }
-	  
-	  /* Hack -- Handle "zero" */
-	  if (p_ptr->command_arg == 0)
-	    {
-	      /* Default to 99 */
-	      p_ptr->command_arg = 99;
-	      
-	      /* Show current count */
-	      prt(format("Count: %d", p_ptr->command_arg), 0, 0);
-	    }
-	  
-	  /* Hack -- Handle "old_arg" */
-	  if (old_arg != 0)
-	    {
-	      /* Restore old_arg */
-	      p_ptr->command_arg = old_arg;
-	      
-	      /* Show current count */
-	      prt(format("Count: %d", p_ptr->command_arg), 0, 0);
-	    }
-	  
-	  /* Hack -- white-space means "enter command now" */
-	  if ((ke.key == ' ') || (ke.key == '\n') || (ke.key == '\r'))
-	    {
-	      /* Get a real command */
-	      if (!get_com("Command: ", &ke.key))
+
+
+		/* Command Count */
+		if (ke.key == '0')
 		{
-		  /* Clear count */
-		  p_ptr->command_arg = 0;
-		  
-		  /* Continue */
-		  continue;
-		}
-	    }
-	}
+			int old_arg = p_ptr->command_arg;
+
+			/* Reset */
+			p_ptr->command_arg = 0;
+
+			/* Begin the input */
+			prt("Count: ", 0, 0);
+
+			/* Get a command count */
+			while (1)
+			{
+				/* Get a new keypress */
+				ke.key = inkey();
+
+				/* Simple editing (delete or backspace) */
+				if ((ke.key == 0x7F) || (ke.key == KTRL('H')))
+				{
+					/* Delete a digit */
+					p_ptr->command_arg = p_ptr->command_arg / 10;
+
+					/* Show current count */
+					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				}
+
+				/* Actual numeric data */
+				else if (isdigit((unsigned char)ke.key))
+				{
+					/* Stop count at 9999 */
+					if (p_ptr->command_arg >= 1000)
+					{
+						/* Warn */
+						bell("Invalid repeat count!");
+
+						/* Limit */
+						p_ptr->command_arg = 9999;
+					}
+
+					/* Increase count */
+					else
+					{
+						/* Incorporate that digit */
+						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ke.key);
+					}
+
+					/* Show current count */
+					prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+				}
+
+				/* Exit on "unusable" input */
+				else
+				{
+					break;
+				}
+			}
+
+			/* Hack -- Handle "zero" */
+			if (p_ptr->command_arg == 0)
+			{
+				/* Default to 99 */
+				p_ptr->command_arg = 99;
+
+				/* Show current count */
+				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+			}
+
+			/* Hack -- Handle "old_arg" */
+			if (old_arg != 0)
+			{
+				/* Restore old_arg */
+				p_ptr->command_arg = old_arg;
+
+				/* Show current count */
+				prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+			}
+
+			/* Hack -- white-space means "enter command now" */
+			if ((ke.key == ' ') || (ke.key == '\n') || (ke.key == '\r'))
+			{
+				/* Get a real command */
+				if (!get_com("Command: ", &ke.key))
+				{
+					/* Clear count */
+					p_ptr->command_arg = 0;
+
+					/* Continue */
+					continue;
+				}
+            }
+        }
       
       
       /* Special case for the arrow keys */
       if (isarrow(ke.key))
-	{
-	  switch (ke.key)
-	    {
-	    case ARROW_DOWN:    ke.key = '2'; break;
-	    case ARROW_LEFT:    ke.key = '4'; break;
-	    case ARROW_RIGHT:   ke.key = '6'; break;
-	    case ARROW_UP:      ke.key = '8'; break;
-	    }
-	}
+        {
+			switch (ke.key)
+			{
+				case ARROW_DOWN:    ke.key = '2'; break;
+				case ARROW_LEFT:    ke.key = '4'; break;
+				case ARROW_RIGHT:   ke.key = '6'; break;
+				case ARROW_UP:      ke.key = '8'; break;
+            }
+        }
       
       
       /* Allow "keymaps" to be bypassed */
       if (ke.key == '\\')
-	{
-	  /* Get a real command */
-	  (void)get_com("Command: ", &ke.key);
-	  
-	  /* Hack -- bypass keymaps */
-	  if (!inkey_next) inkey_next = "";
+        {
+			/* Get a real command */
+			(void)get_com("Command: ", &ke.key);
+
+			/* Hack -- bypass keymaps */
+			if (!inkey_next) inkey_next = "";
+		}
+
+
+		/* Allow "control chars" to be entered */
+		if (ke.key == '^')
+		{
+			/* Get a new command and controlify it */
+			if (get_com("Control: ", &ke.key)) ke.key = KTRL(ke.key);
+                }
+
+
+                /* Look up applicable keymap */
+                        act = keymap_act[mode][(byte)(ke.key)];
+
+                /* Apply keymap if not inside a keymap already */
+		if (act && !inkey_next)
+		{
+			/* Install the keymap */
+			my_strcpy(request_command_buffer, act,
+			          sizeof(request_command_buffer));
+
+			/* Start using the buffer */
+			inkey_next = request_command_buffer;
+
+			/* Continue */
+			continue;
+		}
+
+
+		/* Paranoia */
+		if (ke.key == '\0') continue;
+
+
+		/* Use command */
+		p_ptr->command_cmd = ke.key;
+		p_ptr->command_cmd_ex = ke;
+
+		/* Done */
+		break;
 	}
-      
-      
-      /* Allow "control chars" to be entered */
-      if (ke.key == '^')
+
+	/* Hack -- Auto-repeat certain commands */
+	if (p_ptr->command_arg <= 0)
 	{
-	  /* Get a new command and controlify it */
-	  if (get_com("Control: ", &ke.key)) ke.key = KTRL(ke.key);
+		/* Hack -- auto repeat certain commands */
+		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
+		{
+			/* Repeat 99 times */
+			p_ptr->command_arg = 99;
+		}
 	}
-      
-      
-      /* Look up applicable keymap */
-      act = keymap_act[mode][(byte)(ke.key)];
-      
-      /* Apply keymap if not inside a keymap already */
-      if (act && !inkey_next)
-	{
-	  /* Install the keymap */
-	  my_strcpy(request_command_buffer, act,
-		    sizeof(request_command_buffer));
-	  
-	  /* Start using the buffer */
-	  inkey_next = request_command_buffer;
-	  
-	  /* Continue */
-	  continue;
-	}
-      
-      
-      /* Paranoia */
-      if (ke.key == '\0') continue;
-      
-      
-      /* Use command */
-      p_ptr->command_cmd = ke.key;
-      p_ptr->command_cmd_ex = ke;
-      
-      /* Done */
-      break;
-    }
-  
-  /* Hack -- Auto-repeat certain commands */
-  if (p_ptr->command_arg <= 0)
-    {
-      /* Hack -- auto repeat certain commands */
-      if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
-	{
-	  /* Repeat 99 times */
-	  p_ptr->command_arg = 99;
-	}
-    }
-  
-  
+
+
   /* Hack -- Scan equipment */
   for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
     {
@@ -4434,21 +4437,21 @@ void request_command(void)
       
       /* Process preventions */
       while (s)
-	{
-	  /* Check the "restriction" character */
-	  if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
-	    {
-	      /* Hack -- Verify command */
-	      if (!get_check("Are you sure? "))
-		{
-		  /* Hack -- Use "newline" */
-		  p_ptr->command_cmd = '\n';
-		}
-	    }
-	  
-	  /* Find another '^' */
-	  s = strchr(s + 1, '^');
-	}
+        {
+          /* Check the "restriction" character */
+          if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+            {
+              /* Hack -- Verify command */
+              if (!get_check("Are you sure? "))
+                {
+                  /* Hack -- Use "newline" */
+                  p_ptr->command_cmd = '\n';
+                }
+            }
+          
+          /* Find another '^' */
+          s = strchr(s + 1, '^');
+        }
     }
   
   
@@ -4467,19 +4470,19 @@ void request_command(void)
  */
 int damroll(int num, int sides)
 {
-	int i;
-	int sum = 0;
+        int i;
+        int sum = 0;
 
 
-	/* HACK - prevent undefined behaviour */
-	if (sides <= 0) return (0);
+        /* HACK - prevent undefined behaviour */
+        if (sides <= 0) return (0);
 
-	for (i = 0; i < num; i++)
-	{
-		sum += rand_die(sides);
-	}
+        for (i = 0; i < num; i++)
+        {
+                sum += rand_die(sides);
+        }
 
-	return (sum);
+        return (sum);
 }
 
 
@@ -4488,7 +4491,7 @@ int damroll(int num, int sides)
  */
 int maxroll(int num, int sides)
 {
-	return (num * sides);
+        return (num * sides);
 }
 
 
@@ -4498,22 +4501,22 @@ int maxroll(int num, int sides)
  */
 bool is_a_vowel(int ch)
 {
-	switch (ch)
-	{
-		case 'a':
-		case 'e':
-		case 'i':
-		case 'o':
-		case 'u':
-		case 'A':
-		case 'E':
-		case 'I':
-		case 'O':
-		case 'U':
-		return (TRUE);
-	}
+        switch (ch)
+        {
+                case 'a':
+                case 'e':
+                case 'i':
+                case 'o':
+                case 'u':
+                case 'A':
+                case 'E':
+                case 'I':
+                case 'O':
+                case 'U':
+                return (TRUE);
+        }
 
-	return (FALSE);
+        return (FALSE);
 }
 
 
@@ -4523,8 +4526,8 @@ bool is_a_vowel(int ch)
  */
 extern int color_char_to_attr(char c)
 {
-	switch (c)
-	{
+        switch (c)
+        {
 		case 'd': return (TERM_DARK);
 		case 'w': return (TERM_WHITE);
 		case 's': return (TERM_SLATE);
@@ -4563,46 +4566,46 @@ extern int color_char_to_attr(char c)
  */
 static bool insert_str(char *buf, cptr target, cptr insert)
 {
-	int i, len;
-	int b_len, t_len, i_len;
+        int i, len;
+        int b_len, t_len, i_len;
 
-	/* Attempt to find the target (modify "buf") */
-	buf = strstr(buf, target);
+        /* Attempt to find the target (modify "buf") */
+        buf = strstr(buf, target);
 
-	/* No target found */
-	if (!buf) return (FALSE);
+        /* No target found */
+        if (!buf) return (FALSE);
 
-	/* Be sure we have an insertion string */
-	if (!insert) insert = "";
+        /* Be sure we have an insertion string */
+        if (!insert) insert = "";
 
-	/* Extract some lengths */
-	t_len = strlen(target);
-	i_len = strlen(insert);
-	b_len = strlen(buf);
+        /* Extract some lengths */
+        t_len = strlen(target);
+        i_len = strlen(insert);
+        b_len = strlen(buf);
 
-	/* How much "movement" do we need? */
-	len = i_len - t_len;
+        /* How much "movement" do we need? */
+        len = i_len - t_len;
 
-	/* We need less space (for insert) */
-	if (len < 0)
-	{
-		for (i = t_len; i < b_len; ++i) buf[i+len] = buf[i];
-	}
+        /* We need less space (for insert) */
+        if (len < 0)
+        {
+                for (i = t_len; i < b_len; ++i) buf[i+len] = buf[i];
+        }
 
-	/* We need more space (for insert) */
-	else if (len > 0)
-	{
-		for (i = b_len-1; i >= t_len; --i) buf[i+len] = buf[i];
-	}
+        /* We need more space (for insert) */
+        else if (len > 0)
+        {
+                for (i = b_len-1; i >= t_len; --i) buf[i+len] = buf[i];
+        }
 
-	/* If movement occured, we need a new terminator */
-	if (len) buf[b_len+len] = '\0';
+        /* If movement occured, we need a new terminator */
+        if (len) buf[b_len+len] = '\0';
 
-	/* Now copy the insertion string */
-	for (i = 0; i < i_len; ++i) buf[i] = insert[i];
+        /* Now copy the insertion string */
+        for (i = 0; i < i_len; ++i) buf[i] = insert[i];
 
-	/* Successful operation */
-	return (TRUE);
+        /* Successful operation */
+        return (TRUE);
 }
 
 
@@ -4658,6 +4661,7 @@ void repeat_clear(void)
 	/* Start over from the failed pull */
 	if (repeat__idx)
 		repeat__cnt = --repeat__idx;
+
 	/* Paranoia */
 	else
 		repeat__cnt = repeat__idx;
@@ -4931,7 +4935,7 @@ cptr get_ext_color_name(byte ext_color)
   if (GET_SHADE(ext_color) > 0)
     {
       strnfmt(buf, sizeof(buf), "%s%d", color_names[GET_BASE_COLOR(ext_color)],
-	      GET_SHADE(ext_color));
+              GET_SHADE(ext_color));
     }
   else
     {
@@ -4994,10 +4998,10 @@ int color_text_to_attr(cptr name)
   if (!len_names[0])
     {
       for (base = 0; base < MAX_BASE_COLORS; base++)
-    	{
-	  /* Store the length of each color name */
-	  len_names[base] = (byte)strlen(color_names[base & 0x0F]);
-    	}
+        {
+          /* Store the length of each color name */
+          len_names[base] = (byte)strlen(color_names[base & 0x0F]);
+        }
     }
   
   /* Find the name */
@@ -5008,10 +5012,10 @@ int color_text_to_attr(cptr name)
       
       /* Compare only the found name */
       if (my_strnicmp(name, color_names[base & 0x0F], len) == 0)
-    	{
-	  /* Build the extended color */
-	  return (MAKE_EXTENDED_COLOR(base, shade));
-    	}
+        {
+          /* Build the extended color */
+          return (MAKE_EXTENDED_COLOR(base, shade));
+        }
     }
   
   /* We can not find it */
@@ -5108,14 +5112,14 @@ static void fill_terrain_info(void)
 
   ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1, DUNGEON_WID);
   ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1, DUNGEON_HGT);
-	
+        
   for (i = 0; i < MAX_PF_RADIUS * MAX_PF_RADIUS; i++)
     terrain[0][i] = -1;
 
   for (j = oy; j < ey; j++)
     for (i = ox; i < ex; i++)
       if (is_valid_pf(j, i))
-	terrain[j - oy][i - ox] = MAX_PF_LENGTH;
+        terrain[j - oy][i - ox] = MAX_PF_LENGTH;
   
   terrain[p_ptr->py - oy][p_ptr->px - ox] = 1;
 }
@@ -5137,14 +5141,14 @@ bool findpath(int y, int x)
   if ((x >= ox) && (x < ex) && (y >= oy) && (y < ey))
     {
       if ((cave_m_idx[y][x] > 0) && (m_list[cave_m_idx[y][x]].ml))
-	{
-	  terrain[y - oy][x - ox] = MAX_PF_LENGTH;
-	}
+        {
+          terrain[y - oy][x - ox] = MAX_PF_LENGTH;
+        }
       /* else if (terrain[y - oy][x - ox] != MAX_PF_LENGTH)
-	{
-	bell("Target blocked");
-	return (FALSE);
-	}*/
+        {
+        bell("Target blocked");
+        return (FALSE);
+        }*/
       terrain[y - oy][x - ox] = MAX_PF_LENGTH;
     }
   else
@@ -5168,21 +5172,21 @@ bool findpath(int y, int x)
     {
       try_again = (FALSE);
       for (j = oy + 1; j < ey - 1; j++)
-	for (i = ox + 1; i < ex - 1; i++)
-	  {
-	    cur_distance = terrain[j - oy][i - ox] + 1;
-	    if ((cur_distance > 0) && (cur_distance < MAX_PF_LENGTH))
-	      {
-		for (dir = 1; dir < 10; dir++)
-		  {
-		    if (dir == 5) dir++;
-		    MARK_DISTANCE(terrain[j - oy + ddy[dir]][i - ox +ddx[dir]],
-				  cur_distance);
-		  } 
-	      } 
-	  } 
+        for (i = ox + 1; i < ex - 1; i++)
+          {
+            cur_distance = terrain[j - oy][i - ox] + 1;
+            if ((cur_distance > 0) && (cur_distance < MAX_PF_LENGTH))
+              {
+                for (dir = 1; dir < 10; dir++)
+                  {
+                    if (dir == 5) dir++;
+                    MARK_DISTANCE(terrain[j - oy + ddy[dir]][i - ox +ddx[dir]],
+                                  cur_distance);
+                  } 
+              } 
+          } 
       if (terrain[y - oy][x - ox] < MAX_PF_LENGTH)
-	try_again = (FALSE);
+        try_again = (FALSE);
     } while (try_again);
   
   /* Failure */
@@ -5214,36 +5218,36 @@ bool findpath(int y, int x)
       else starty = 0;
 
       for (dir = 1; dir < 10; dir++)
-	if ((ddx[dir] == startx) && (ddy[dir] == starty)) break;
+        if ((ddx[dir] == startx) && (ddy[dir] == starty)) break;
 
       /* Should never happend */
       if ((dir % 5) == 0)
-	{
-	  bell("Wtf ?");
-	  return (FALSE);
-	}
+        {
+          bell("Wtf ?");
+          return (FALSE);
+        }
       
       for (start_index = 0; findir[start_index % 8] != dir; start_index++) 
-	;
+        ;
 
       for (k = 0; k < 5; k++)
-	{
-	  dir = findir[(start_index + k) % 8];
-	  if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
-	      == cur_distance)
-	    break; 
-	  dir = findir[(8 + start_index - k) % 8];
-	  if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
-	      == cur_distance)
-	    break; 
-	}
+        {
+          dir = findir[(start_index + k) % 8];
+          if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
+              == cur_distance)
+            break; 
+          dir = findir[(8 + start_index - k) % 8];
+          if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
+              == cur_distance)
+            break; 
+        }
 
       /* Should never happend */
       if (k == 5)
-	{
-	  bell("Heyyy !");
-	  return (FALSE);
-	}
+        {
+          bell("Heyyy !");
+          return (FALSE);
+        }
       
       pf_result[pf_result_index++] = '0' + (char)(10 - dir);
       i += ddx[dir];

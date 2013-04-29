@@ -1537,6 +1537,7 @@ void do_cmd_read_scroll(void)
 	if (k == 2) set_ele_attack(ATTACK_FIRE, 400);
 	if (k == 3) set_ele_attack(ATTACK_COLD, 400);
 	if (k == 4) set_ele_attack(ATTACK_POIS, 400);
+	ident = TRUE;
 	
 	break;
       }
@@ -1895,8 +1896,11 @@ void do_cmd_use_staff(void)
       
     case SV_STAFF_BANISHMENT:
       {
-	if (banish_evil(80)) ident = TRUE;
-	msg_print("A mighty force drives away evil!");
+	if (banish_evil(80)) 
+	  {
+	    ident = TRUE;
+	    msg_print("A mighty force drives away evil!");
+	  }
 	break;
       }
       

@@ -3393,10 +3393,13 @@ static void do_cmd_macro_aux(char *buf)
   char ch;
   
   int n = 0;
+  int curs_x, curs_y;
   
-  char tmp[1024];
+  char tmp[1024] = "";
   
-  
+  /* Get cursor position */
+  Term_locate(&curs_x, &curs_y);
+
   /* Flush */
   flush();
   
@@ -3407,26 +3410,32 @@ static void do_cmd_macro_aux(char *buf)
   /* First key */
   ch = inkey();
   
-  text_out_hook = text_out_to_screen;
+  //text_out_hook = text_out_to_screen;
   
   /* Read the pattern */
-  while (ch != ESCAPE && ch != '\xff')
+  //while (ch != ESCAPE && ch != '\xff')
+  while (ch != 0 && ch != '\xff')
     {
       /* Save the key */
       buf[n++] = ch;
       buf[n] = 0;
       
       /* echo */
-      ascii_to_text(tmp, sizeof(tmp), buf+n-1);
-      text_out(tmp);
-      flush();
-      
-      
+      //ascii_to_text(tmp, sizeof(tmp), buf+n-1);
+      ascii_to_text(tmp, sizeof(tmp), buf);
+      //text_out(tmp);
+      //flush();
+	
+	/* Echo it after the prompt */
+      Term_erase(curs_x, curs_y, 80);
+      Term_gotoxy(curs_x, curs_y);
+      Term_addstr(-1, TERM_WHITE, tmp);
+		
       /* Do not process macros */
       inkey_base = TRUE;
       
       /* Do not wait for keys */
-      inkey_scan = TRUE;
+      inkey_scan = SCAN_INSTANT;
       
       /* Attempt to read a key */
       ch = inkey();

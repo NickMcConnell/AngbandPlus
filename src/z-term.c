@@ -14,7 +14,6 @@
 
 #include "z-virt.h"
 
-
 /*
  * This file provides a generic, efficient, terminal window package,
  * which can be used not only on standard terminal environments such
@@ -288,24 +287,24 @@ term *Term = NULL;
  */
 static errr term_win_nuke(term_win *s)
 {
-        /* Free the window access arrays */
-        KILL(s->a);
-        KILL(s->c);
-
-        /* Free the window content arrays */
-        KILL(s->va);
-        KILL(s->vc);
-
-        /* Free the terrain access arrays */
-        KILL(s->ta);
-        KILL(s->tc);
-
-        /* Free the terrain content arrays */
-        KILL(s->vta);
-        KILL(s->vtc);
-
-        /* Success */
-        return (0);
+  /* Free the window access arrays */
+  KILL(s->a);
+  KILL(s->c);
+  
+  /* Free the window content arrays */
+  KILL(s->va);
+  KILL(s->vc);
+  
+  /* Free the terrain access arrays */
+  KILL(s->ta);
+  KILL(s->tc);
+  
+  /* Free the terrain content arrays */
+  KILL(s->vta);
+  KILL(s->vtc);
+  
+  /* Success */
+  return (0);
 }
 
 
@@ -334,13 +333,13 @@ static errr term_win_init(term_win *s, int w, int h)
   
   /* Prepare the window access arrays */
   for (y = 0; y < h; y++)
-        {
-	  s->a[y] = s->va + w * y;
-	  s->c[y] = s->vc + w * y;
-	  
-	  s->ta[y] = s->vta + w * y;
-	  s->tc[y] = s->vtc + w * y;
-	}
+    {
+      s->a[y] = s->va + w * y;
+      s->c[y] = s->vc + w * y;
+      
+      s->ta[y] = s->vta + w * y;
+      s->tc[y] = s->vtc + w * y;
+    }
   
   /* Success */
   return (0);
@@ -464,8 +463,8 @@ static errr Term_text_hack(int x, int y, int n, byte a, const char *cp)
  */
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
 {
-        /* Compiler silliness */
-        if (x || y || n || ap || cp || tap || tcp) return (-2);
+  /* Compiler silliness */
+  if (x || y || n || ap || cp || tap || tcp) return (-2);
   
   /* Oops */
   return (-1);
@@ -480,22 +479,22 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
  */
 const char seven_bit_translation[128] =
 {
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
- 	'A', 'A', 'A', 'A', 'A', 'A', ' ', 'C',
- 	'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I',
- 	'D', 'N', 'O', 'O', 'O', 'O', 'O', ' ',
- 	'O', 'U', 'U', 'U', 'U', 'Y', ' ', ' ',
- 	'a', 'a', 'a', 'a', 'a', 'a', ' ', 'c',
- 	'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
- 	'o', 'n', 'o', 'o', 'o', 'o', 'o', ' ',
-	'o', 'u', 'u', 'u', 'u', 'y', ' ', 'y'
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+  'A', 'A', 'A', 'A', 'A', 'A', ' ', 'C',
+  'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I',
+  'D', 'N', 'O', 'O', 'O', 'O', 'O', ' ',
+  'O', 'U', 'U', 'U', 'U', 'Y', ' ', ' ',
+  'a', 'a', 'a', 'a', 'a', 'a', ' ', 'c',
+  'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
+  'o', 'n', 'o', 'o', 'o', 'o', 'o', ' ',
+  'o', 'u', 'u', 'u', 'u', 'y', ' ', 'y'
 };
 
 
@@ -506,19 +505,19 @@ const char seven_bit_translation[128] =
  */
 char xchar_trans(byte c)
 {
- 	char s;
-
- 	/* Use the hook, if available */
- 	if (Term->xchar_hook) return ((char)(Term->xchar_hook)(c));
-
- 	/* 7-bit characters are not translated */
- 	if (c < 128) return (c);
-
- 	/* Translate to 7-bit (strip accent or convert to space) */
- 	s = seven_bit_translation[c - 128];
-
- 	if (s == 0) return (c);
- 	else return (s);
+  char s;
+  
+  /* Use the hook, if available */
+  if (Term->xchar_hook) return ((char)(Term->xchar_hook)(c));
+  
+  /* 7-bit characters are not translated */
+  if (c < 128) return (c);
+  
+  /* Translate to 7-bit (strip accent or convert to space) */
+  s = seven_bit_translation[c - 128];
+  
+  if (s == 0) return (c);
+  else return (s);
 }
 
 
@@ -685,30 +684,30 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
       otc = old_tcc[x];
       
       nta = scr_taa[x];
-                ntc = scr_tcc[x];
-
-                /* Handle unchanged grids */
-                if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
-                {
-                        /* Flush */
-                        if (fn)
-                        {
-                                /* Draw pending attr/char pairs */
-                                (void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx],
-                                                          &scr_taa[fx], &scr_tcc[fx]));
-
-                                /* Forget */
-		fn = 0;
-	      }
-	    
-                        /* Skip */
-                        continue;
-                }
-                
-                /* Save new contents */
-                old_aa[x] = na;
-                old_cc[x] = nc;
-
+      ntc = scr_tcc[x];
+      
+      /* Handle unchanged grids */
+      if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+	{
+	  /* Flush */
+	  if (fn)
+	    {
+	      /* Draw pending attr/char pairs */
+	      (void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx],
+					&scr_taa[fx], &scr_tcc[fx]));
+	      
+	      /* Forget */
+	      fn = 0;
+	    }
+	  
+	  /* Skip */
+	  continue;
+	}
+      
+      /* Save new contents */
+      old_aa[x] = na;
+      old_cc[x] = nc;
+      
       old_taa[x] = nta;
       old_tcc[x] = ntc;
       
@@ -785,46 +784,46 @@ static void Term_fresh_row_both(int y, int x1, int x2)
       otc = old_tcc[x];
       
       nta = scr_taa[x];
-                ntc = scr_tcc[x];
-
-                /* Handle unchanged grids */
-                if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
-                {
-                        /* Flush */
-                        if (fn)
-	      {
-		/* Draw pending chars (normal) */
-		if (fa || always_text)
-		  {
-		    (void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
-		  }
-		
-		/* Draw pending chars (black) */
-		else
-		  {
-		    (void)((*Term->wipe_hook)(fx, y, fn));
-		  }
-		
-		/* Forget */
-		fn = 0;
-	      }
-	    
-	    /* Skip */
-	    continue;
-	  }
+      ntc = scr_tcc[x];
       
-                /* Save new contents */
-                old_aa[x] = na;
-                old_cc[x] = nc;
-                old_taa[x] = nta;
-                old_tcc[x] = ntc;
-
-                /* Handle high-bit attr/chars */
-                if ((na & 0x80) && (nc & 0x80))
-                {
-                        /* Flush */
-                        if (fn)
-                        {
+      /* Handle unchanged grids */
+      if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+	{
+	  /* Flush */
+	  if (fn)
+	    {
+	      /* Draw pending chars (normal) */
+	      if (fa || always_text)
+		{
+		  (void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
+		}
+	      
+	      /* Draw pending chars (black) */
+	      else
+		{
+		  (void)((*Term->wipe_hook)(fx, y, fn));
+		}
+	      
+	      /* Forget */
+	      fn = 0;
+	    }
+	  
+	  /* Skip */
+	  continue;
+	}
+      
+      /* Save new contents */
+      old_aa[x] = na;
+      old_cc[x] = nc;
+      old_taa[x] = nta;
+      old_tcc[x] = ntc;
+      
+      /* Handle high-bit attr/chars */
+      if ((na & 0x80) && (nc & 0x80))
+	{
+	  /* Flush */
+	  if (fn)
+	    {
 	      /* Draw pending chars (normal) */
 	      if (fa || always_text)
 		{
@@ -843,7 +842,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
           
           /* 2nd byte of bigtile */
           if ((na == 255) && (nc == -1)) continue;
-
+	  
           /* Hack -- Draw the special attr/char pair */
           (void)((*Term->pict_hook)(x, y, 1, &na, &nc, &nta, &ntc));
           
@@ -1183,20 +1182,20 @@ errr Term_fresh(void)
       char nc = Term->char_blank;
       
       /* Physically erase the entire window */
-                Term_xtra(TERM_XTRA_CLEAR, 0);
-
-                /* Hack -- clear all "cursor" data */
-                old->cv = old->cu = FALSE;
-                old->cx = old->cy = 0;
-
-                /* Wipe each row */
-                for (y = 0; y < h; y++)
-                {
-                        byte *aa = old->a[y];
-                        char *cc = old->c[y];
-                        byte *taa = old->ta[y];
-                        char *tcc = old->tc[y];
-
+      Term_xtra(TERM_XTRA_CLEAR, 0);
+      
+      /* Hack -- clear all "cursor" data */
+      old->cv = old->cu = FALSE;
+      old->cx = old->cy = 0;
+      
+      /* Wipe each row */
+      for (y = 0; y < h; y++)
+	{
+	  byte *aa = old->a[y];
+	  char *cc = old->c[y];
+	  byte *taa = old->ta[y];
+	  char *tcc = old->tc[y];
+	  
 	  /* Wipe each column */
 	  for (x = 0; x < w; x++)
 	    {
@@ -1632,14 +1631,14 @@ errr Term_erase(int x, int y, int n)
   int w = Term->wid;
   /* int h = Term->hgt; */
   
-        int x1 = -1;
-        int x2 = -1;
-
-        byte na = Term->attr_blank;
-        char nc = Term->char_blank;
-
-        byte *scr_aa;
-        char *scr_cc;
+  int x1 = -1;
+  int x2 = -1;
+  
+  byte na = Term->attr_blank;
+  char nc = Term->char_blank;
+  
+  byte *scr_aa;
+  char *scr_cc;
   
   byte *scr_taa;
   char *scr_tcc;
@@ -1654,35 +1653,35 @@ errr Term_erase(int x, int y, int n)
   scr_aa = Term->scr->a[y];
   scr_cc = Term->scr->c[y];
   
-        scr_taa = Term->scr->ta[y];
-        scr_tcc = Term->scr->tc[y];
-
-        if ((n > 0) && (scr_cc[x] == (char) -1) && (scr_aa[x] == 255))
-        {
-                x--;
-                n++;
-	}
-
-        /* Scan every column */
-        for (i = 0; i < n; i++, x++)
-        {
-                byte oa = scr_aa[x];
-                char oc = scr_cc[x];
-
-                /* Hack -- Ignore "non-changes" */
-                if ((oa == na) && (oc == nc)) continue;
+  scr_taa = Term->scr->ta[y];
+  scr_tcc = Term->scr->tc[y];
+  
+  if ((n > 0) && (scr_cc[x] == (char) -1) && (scr_aa[x] == 255))
+    {
+      x--;
+      n++;
+    }
+  
+  /* Scan every column */
+  for (i = 0; i < n; i++, x++)
+    {
+      byte oa = scr_aa[x];
+      char oc = scr_cc[x];
+      
+      /* Hack -- Ignore "non-changes" */
+      if ((oa == na) && (oc == nc)) continue;
       
       /* Save the "literal" information */
       scr_aa[x] = na;
       scr_cc[x] = nc;
       
-                scr_taa[x] = 0;
-                scr_tcc[x] = 0;
-
-                /* Track minumum changed column */
-                if (x1 < 0) x1 = x;
-
-                /* Track maximum changed column */
+      scr_taa[x] = 0;
+      scr_tcc[x] = 0;
+      
+      /* Track minumum changed column */
+      if (x1 < 0) x1 = x;
+      
+      /* Track maximum changed column */
       x2 = x;
     }
   
@@ -1800,9 +1799,9 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
   /* Set the x limits */
   for (i = Term->y1; i <= Term->y2; i++)
     {
-		if ((x1 > 0) && (Term->old->a[i][x1] == 255))
-			x1--;
-
+      if ((x1 > 0) && (Term->old->a[i][x1] == 255))
+	x1--;
+      
       Term->x1[i] = x1;
       Term->x2[i] = x2;
       
@@ -1833,8 +1832,8 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
  */
 errr Term_get_cursor(bool *v)
 {
-        /* Extract visibility */
-        (*v) = Term->scr->cv;
+  /* Extract visibility */
+  (*v) = Term->scr->cv;
   
   /* Success */
   return (0);
@@ -1846,7 +1845,7 @@ errr Term_get_cursor(bool *v)
  */
 errr Term_get_size(int *w, int *h)
 {
-  /* Access the cursor */
+  /* Access the dimensions */
   (*w) = Term->wid;
   (*h) = Term->hgt;
   
@@ -1975,39 +1974,39 @@ errr Term_mousepress(int x, int y, char button)
  */
 errr Term_key_push(int k)
 {
-	event_type ke;
-
-	if (!k) return (-1);
-
-	ke.type = EVT_KBRD;
-	ke.index = 0;
-	ke.key = k;
-
-        return Term_event_push(&ke);
+  event_type ke;
+  
+  if (!k) return (-1);
+  
+  ke.type = EVT_KBRD;
+  ke.index = 0;
+  ke.key = k;
+  
+  return Term_event_push(&ke);
 }
 
 errr Term_event_push(const event_type *ke)
 {
-        /* Hack -- Refuse to enqueue non-keys */
-	if (!ke) return (-1);
-
-	/* Hack -- Overflow may induce circular queue */
-	if (Term->key_tail == 0) Term->key_tail = Term->key_size;
-
-	/* Back up, Store the char */
-	/* Store the char, advance the queue */
-	Term->key_queue[--Term->key_tail] = *ke;
-
-	/* Success (unless overflow) */
-	if (Term->key_head != Term->key_tail) return (0);
-
+  /* Hack -- Refuse to enqueue non-keys */
+  if (!ke) return (-1);
+  
+  /* Hack -- Overflow may induce circular queue */
+  if (Term->key_tail == 0) Term->key_tail = Term->key_size;
+  
+  /* Back up, Store the char */
+  /* Store the char, advance the queue */
+  Term->key_queue[--Term->key_tail] = *ke;
+  
+  /* Success (unless overflow) */
+  if (Term->key_head != Term->key_tail) return (0);
+  
 #if 0
-	/* Hack -- Forget the oldest key */
-	if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
+  /* Hack -- Forget the oldest key */
+  if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
 #endif
-
-	/* Problem */
-	return (1);
+  
+  /* Problem */
+  return (1);
 }
 
 
@@ -2035,7 +2034,7 @@ errr Term_inkey(event_type *ch, bool wait, bool take)
       /* Process random events */
       Term_xtra(TERM_XTRA_BORED, 0);
     }
-  
+
   /* Wait */
   if (wait)
     {
@@ -2083,26 +2082,26 @@ errr Term_inkey(event_type *ch, bool wait, bool take)
  */
 errr Term_save(void)
 {
-        int w = Term->wid;
-        int h = Term->hgt;
-
-        term_win *mem;
-
-        /* Allocate window */
-        MAKE(mem, term_win);
-
-        /* Initialize window */
-        term_win_init(mem, w, h);
-
-        /* Grab */
-        term_win_copy(mem, Term->scr, w, h);
-
-        /* Front of the queue */
-        mem->next = Term->mem;
-        Term->mem = mem;
-
-        /* Success */
-        return (0);
+  int w = Term->wid;
+  int h = Term->hgt;
+  
+  term_win *mem;
+  
+  /* Allocate window */
+  MAKE(mem, term_win);
+  
+  /* Initialize window */
+  term_win_init(mem, w, h);
+  
+  /* Grab */
+  term_win_copy(mem, Term->scr, w, h);
+  
+  /* Front of the queue */
+  mem->next = Term->mem;
+  Term->mem = mem;
+  
+  /* Success */
+  return (0);
 }
 
 
@@ -2115,29 +2114,29 @@ errr Term_load(void)
 {
   int y;
   
-        int w = Term->wid;
-        int h = Term->hgt;
-
-        term_win *tmp;
-
-        /* Pop off window from the list */
-        if (Term->mem)
-        {
-                /* Save pointer to old mem */
-                tmp = Term->mem;
-
-                /* Forget it */
-                Term->mem = Term->mem->next;
-
-                /* Load */
-                term_win_copy(Term->scr, tmp, w, h);
-
-                /* Free the old window */
-                (void)term_win_nuke(tmp);
-        }
-
-        /* Assume change */
-        for (y = 0; y < h; y++)
+  int w = Term->wid;
+  int h = Term->hgt;
+  
+  term_win *tmp;
+  
+  /* Pop off window from the list */
+  if (Term->mem)
+    {
+      /* Save pointer to old mem */
+      tmp = Term->mem;
+      
+      /* Forget it */
+      Term->mem = Term->mem->next;
+      
+      /* Load */
+      term_win_copy(Term->scr, tmp, w, h);
+      
+      /* Free the old window */
+      (void)term_win_nuke(tmp);
+    }
+  
+  /* Assume change */
+  for (y = 0; y < h; y++)
     {
       /* Assume change */
       Term->x1[y] = 0;
@@ -2254,53 +2253,53 @@ errr Term_resize(int w, int h)
   
   /* Free some arrays */
   FREE(hold_x1);
-        FREE(hold_x2);
-
-        /* Nuke */
-        term_win_nuke(hold_old);
-
-        /* Kill */
-        FREE(hold_old);
-
-        /* Illegal cursor */
-        if (Term->old->cx >= w) Term->old->cu = 1;
-        if (Term->old->cy >= h) Term->old->cu = 1;
-
-        /* Nuke */
-        term_win_nuke(hold_scr);
-
-        /* Kill */
-        FREE(hold_scr);
-
-        /* Illegal cursor */
-        if (Term->scr->cx >= w) Term->scr->cu = 1;
+  FREE(hold_x2);
+  
+  /* Nuke */
+  term_win_nuke(hold_old);
+  
+  /* Kill */
+  FREE(hold_old);
+  
+  /* Illegal cursor */
+  if (Term->old->cx >= w) Term->old->cu = 1;
+  if (Term->old->cy >= h) Term->old->cu = 1;
+  
+  /* Nuke */
+  term_win_nuke(hold_scr);
+  
+  /* Kill */
+  FREE(hold_scr);
+  
+  /* Illegal cursor */
+  if (Term->scr->cx >= w) Term->scr->cu = 1;
   if (Term->scr->cy >= h) Term->scr->cu = 1;
   
   /* If needed */
-        if (hold_mem)
-        {
-                /* Nuke */
-                term_win_nuke(hold_mem);
-
-                /* Kill */
-                FREE(hold_mem);
-
-                /* Illegal cursor */
-                if (Term->mem->cx >= w) Term->mem->cu = 1;
+  if (hold_mem)
+    {
+      /* Nuke */
+      term_win_nuke(hold_mem);
+      
+      /* Kill */
+      FREE(hold_mem);
+      
+      /* Illegal cursor */
+      if (Term->mem->cx >= w) Term->mem->cu = 1;
       if (Term->mem->cy >= h) Term->mem->cu = 1;
     }
   
   /* If needed */
-        if (hold_tmp)
-        {
-                /* Nuke */
-                term_win_nuke(hold_tmp);
-
-                /* Kill */
-                FREE(hold_tmp);
-
-                /* Illegal cursor */
-                if (Term->tmp->cx >= w) Term->tmp->cu = 1;
+  if (hold_tmp)
+    {
+      /* Nuke */
+      term_win_nuke(hold_tmp);
+      
+      /* Kill */
+      FREE(hold_tmp);
+      
+      /* Illegal cursor */
+      if (Term->tmp->cx >= w) Term->tmp->cu = 1;
       if (Term->tmp->cy >= h) Term->tmp->cu = 1;
     }
   
@@ -2345,7 +2344,7 @@ errr Term_activate(term *t)
 {
   /* Hack -- already done */
   if (Term == t) return (1);
-  
+
   /* Deactivate the old Term */
   if (Term) Term_xtra(TERM_XTRA_LEVEL, 0);
   
@@ -2393,47 +2392,47 @@ errr term_nuke(term *t)
     }
 
 
-        /* Nuke "displayed" */
-        term_win_nuke(t->old);
-
-        /* Kill "displayed" */
-        KILL(t->old);
-
-        /* Nuke "requested" */
-        term_win_nuke(t->scr);
-
-        /* Kill "requested" */
-        KILL(t->scr);
+  /* Nuke "displayed" */
+  term_win_nuke(t->old);
+  
+  /* Kill "displayed" */
+  KILL(t->old);
+  
+  /* Nuke "requested" */
+  term_win_nuke(t->scr);
+  
+  /* Kill "requested" */
+  KILL(t->scr);
   
   /* If needed */
-        if (t->mem)
-        {
-                /* Nuke "memorized" */
-                term_win_nuke(t->mem);
-
-                /* Kill "memorized" */
-                KILL(t->mem);
+  if (t->mem)
+    {
+      /* Nuke "memorized" */
+      term_win_nuke(t->mem);
+      
+      /* Kill "memorized" */
+      KILL(t->mem);
     }
   
   /* If needed */
-        if (t->tmp)
-        {
-                /* Nuke "temporary" */
-                term_win_nuke(t->tmp);
-
-                /* Kill "temporary" */
-                KILL(t->tmp);
-        }
-
-        /* Free some arrays */
-        KILL(t->x1);
-        KILL(t->x2);
-
-        /* Free the input queue */
-        KILL(t->key_queue);
-
-        /* Success */
-        return (0);
+  if (t->tmp)
+    {
+      /* Nuke "temporary" */
+      term_win_nuke(t->tmp);
+      
+      /* Kill "temporary" */
+      KILL(t->tmp);
+    }
+  
+  /* Free some arrays */
+  KILL(t->x1);
+  KILL(t->x2);
+  
+  /* Free the input queue */
+  KILL(t->key_queue);
+  
+  /* Success */
+  return (0);
 }
 
 

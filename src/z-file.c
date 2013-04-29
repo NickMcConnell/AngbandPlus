@@ -15,6 +15,14 @@
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
  */
+#ifdef NDS
+# include <fat.h>
+# include <unistd.h>
+# include <reent.h>
+# include <sys/iosupport.h>
+# include <errno.h>
+#endif
+
 #include "angband.h"
 #include "z-file.h"
 
@@ -33,8 +41,6 @@
 # include <io.h>
 #endif
 #endif
-
-
 
 /*
  * Drop permissions
@@ -614,10 +620,8 @@ errr fd_move(cptr file, cptr what)
   return (0);
 
 #else
-
-	/* Rename, return 0 on success, non-zero on failure */
-	return (rename(buf, aux));
-
+  /* Rename, return 0 on success, non-zero on failure */
+  return (rename(buf, aux));
 #endif
 }
 
@@ -1112,8 +1116,7 @@ bool file_move(const char *fname, const char *newname)
   return (0);
 
 #else
-
-	return (rename(buf, aux) == 0);
+  return (rename(buf, aux) == 0);
 #endif
 }
 

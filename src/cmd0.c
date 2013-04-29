@@ -86,7 +86,7 @@ static command_type cmd_action[] =
 /* Item use commands */
 static command_type cmd_item_use[] =
 {
-  { "Handle an item (automatic)", 'h', do_cmd_handle},
+  //{ "Handle an item (automatic)", 'h', do_cmd_handle},
   { "Fire your missile weapon",   'f', do_cmd_fire },
   { "Throw an item",              'v', do_cmd_throw },
   { "Read a scroll",              'r', do_cmd_read_scroll },
@@ -1955,6 +1955,9 @@ static void do_cmd_menu(void)
   event_type evt;
   int cursor = 0;
   command_type chosen_command = { NULL, 0, NULL };
+
+  /* Check the option */
+  if (!show_menus) return;
   
   /* Set up the menu */
   WIPE(&menu, menu);

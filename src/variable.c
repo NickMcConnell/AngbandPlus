@@ -86,6 +86,7 @@ s16b monster_level;		/* Current monster creation level */
 char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;			/* Current game turn */
+bool is_daylight;               /* If there is natural light */
 
 s32b do_feeling;		/* Hack -- Level feeling indicator */
 
@@ -108,7 +109,7 @@ bool msg_flag;			/* Player has pending message */
 
 bool inkey_base;		/* See the "inkey()" function */
 bool inkey_xtra;		/* See the "inkey()" function */
-bool inkey_scan;		/* See the "inkey()" function */
+u32b inkey_scan;		/* See the "inkey()" function */
 bool inkey_flag;		/* See the "inkey()" function */
 
 s16b coin_type;			/* Hack -- force coin type */

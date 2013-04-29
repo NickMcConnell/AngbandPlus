@@ -2702,7 +2702,7 @@ cptr option_text[OPT_MAX] =
     "strong_squelch",                   /* OPT_strong_squelch */
     "bottom_status",                    /* OPT_bottom_status */
     "mouse_buttons",                    /* OPT_mouse_buttons */
-    NULL,
+    "show_menus",                       /* OPT_show_menus */
     "xchars_to_file",                   /* OPT_xchars_to_file */
     "smart_cheat",			/* OPT_smart_cheat */
     "view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2856,7 +2856,7 @@ cptr option_desc[OPT_MAX] =
     "Auto-squelched items are immediately destroyed", /*OPT_strong_squelch */
     "Status is shown at the bottom of the screen", /* OPT_bottom_status */
     "Buttons for common mouse commands are shown", /* OPT_mouse_buttons */
-    NULL,
+    "Enter key brings up command menu",     /* OPT_show_menus */
     "Allow accents in output files",        /* OPT_xchars_to_file */
     "Monsters exploit players weaknesses",  /* OPT_smart_cheat */
     "Reduce light radius when running",	    /* OPT_view_reduce_lite */
@@ -3010,7 +3010,7 @@ bool option_norm[OPT_MAX] =
     FALSE,              /* OPT_strong_squelch */
     FALSE,              /* OPT_bottom_status */
     TRUE,               /* OPT_mouse_buttons */
-    FALSE,
+    TRUE,               /* OPT_show_menus */
     FALSE,              /* OPT_xchars_to_file */
     FALSE,		/* OPT_smart_cheat */
     FALSE,		/* OPT_view_reduce_lite */
@@ -3123,8 +3123,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_floor_query_flag,
       OPT_carry_query_flag,
       OPT_use_old_target,
-      OPT_always_pickup,
-      OPT_always_repeat,
       OPT_show_labels,
       OPT_show_weights,
       OPT_show_choices,
@@ -3132,12 +3130,14 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_show_lists,
       OPT_show_flavors,
       OPT_show_detect,
+      OPT_show_menus,
       OPT_hp_changes_colour,
       OPT_mouse_buttons,
       OPT_bottom_status,
       OPT_squelch_worthless,
       OPT_hide_squelchable,
-      OPT_xchars_to_file
+      OPT_xchars_to_file,
+      OPT_NONE
     },
 
     /*** Disturbance ***/
@@ -3179,9 +3179,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_dungeon_stair,
       OPT_stack_force_notes,
       OPT_stack_force_costs,
+      OPT_always_pickup,
+      OPT_always_repeat,
       OPT_smart_cheat,
-      OPT_NONE,
-      OPT_NONE,
       OPT_NONE,
       OPT_NONE,
       OPT_NONE,

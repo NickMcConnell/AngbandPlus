@@ -3949,9 +3949,12 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	}
       
       /* Possible disturb */
-      else if (m_ptr->ml && (disturb_move || 
-			     (m_ptr->mflag & (MFLAG_VIEW) && disturb_near) || 
-			     (r_ptr->flags2 & (RF2_PASS_WALL|RF2_KILL_WALL))))
+      else if (m_ptr->ml && 
+	       (disturb_move || 
+		(disturb_near && 
+		 ((m_ptr->mflag & (MFLAG_VIEW)) ||
+		  ((r_ptr->flags2 & (RF2_PASS_WALL|RF2_KILL_WALL)) && 
+		   (m_ptr->cdis <= 2))))))
 	{
 	  /* Disturb */
 	  disturb(0, 0);

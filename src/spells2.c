@@ -4805,6 +4805,9 @@ static void cave_temp_room_unlite(void)
  */
 static void cave_temp_room_aux(int y, int x)
 {
+  /* Check in bounds - thanks George */
+  if (!in_bounds(y, x)) return;
+
   /* Avoid infinite recursion */
   if (cave_info[y][x] & (CAVE_TEMP)) return;
   

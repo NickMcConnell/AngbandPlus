@@ -211,7 +211,8 @@
  */
 #if !defined(MACINTOSH) && !defined(WINDOWS) && \
     !defined(MSDOS) && !defined(USE_EMX) && \
-    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
+    !defined(AMIGA) && !defined(ACORN) && \
+    !defined(VM) && !defined(NDS)
 # define SET_UID
 #endif
 

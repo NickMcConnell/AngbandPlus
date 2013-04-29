@@ -483,6 +483,12 @@ static void process_world(void)
   
   /*** Handle the "outside" (stores and sunshine) ***/
   
+  /* Determine daylight */
+  is_daylight = (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
+		 (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+		 (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
+		 ((p_ptr->stage < 151) || (p_ptr->stage > 153)));
+    
   /* While not in cave, including cave towns */
   if ((stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
       (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
@@ -990,7 +996,7 @@ static void process_world(void)
     }
   
   /*** Process Light ***/
-  
+
   /* Check for light being wielded */
   o_ptr = &inventory[INVEN_LITE];
   
@@ -998,7 +1004,8 @@ static void process_world(void)
   if (o_ptr->tval == TV_LITE)
     {
       /* Hack -- Use some fuel (except on artifacts) */
-      if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+      if (!artifact_p(o_ptr) && (o_ptr->pval > 0) && (!is_daylight))
+	  
         {
           /* Decrease life-span */
           o_ptr->pval--;
@@ -1329,8 +1336,8 @@ static void process_player_aux(void)
   
   
   /* Tracking a monster */
-	if (p_ptr->monster_race_idx)
-	{
+  if (p_ptr->monster_race_idx)
+    {
       /* Get the monster lore */
       monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
       
@@ -1373,9 +1380,9 @@ static void process_player_aux(void)
           /* Window stuff */
           p_ptr->window |= (PW_MONSTER);
 
-			/* Window stuff */
-			window_stuff();
-		}
+	  /* Window stuff */
+	  window_stuff();
+	}
     }
 }
 
@@ -1454,6 +1461,7 @@ static void process_player(void)
   int temp_wakeup_chance;
   
   byte feat = cave_feat[p_ptr->py][p_ptr->px];
+  feature_type *f_ptr = &f_info[feat];
 
   /*** Check for interupts ***/
   
@@ -1520,7 +1528,7 @@ static void process_player(void)
           (p_ptr->resting && !((turn * 10) % 0x0F)))
         {
           /* Do not wait */
-          inkey_scan = TRUE;
+          inkey_scan = SCAN_INSTANT;
           
           /* Check for a key */
           if (anykey())
@@ -1539,12 +1547,12 @@ static void process_player(void)
   
   /* Add context-sensitive mouse buttons */
   
-  if ((feat == FEAT_LESS) || ((feat >= FEAT_LESS_NORTH) && (!(feat % 2))))
+  if ((f_ptr->flags & TF_STAIR) && !(feat % 2))
     add_button("<", '<');
   else 
     kill_button('<');
   
-  if ((feat == FEAT_MORE) || ((feat >= FEAT_LESS_NORTH) && (feat % 2)))
+  if ((f_ptr->flags & TF_STAIR) && (feat % 2))
     add_button(">", '>');
   else
     kill_button('>');
@@ -1882,6 +1890,8 @@ static void dungeon(void)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
+
+  bool just_arrived = TRUE;
   
   /* Not leaving */
   p_ptr->leaving = FALSE;
@@ -2101,12 +2111,23 @@ static void dungeon(void)
       /* Give the player some energy */
       p_ptr->energy += extract_energy[p_ptr->pspeed];
       
+      /* Give the player the first move in a new level */
+      if (just_arrived)
+	{ 
+	  just_arrived = FALSE;
+	  if (!p_ptr->leaving)
+	    {
+	      /* Process the player */
+	      process_player();
+	    }
+	}
+
       /* Can the player move? */
       while (p_ptr->energy >= 100 && !p_ptr->leaving)
         {
-          /* process monster with even more energy first */
-          process_monsters((byte)(p_ptr->energy + 1));
-
+          /* Process monster with even more energy first */
+	  process_monsters((byte)(p_ptr->energy + 1));
+	  
 	  /* if still alive */
 	  if (!p_ptr->leaving)
 	    {

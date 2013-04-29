@@ -139,6 +139,7 @@ extern s16b object_level;
 extern s16b monster_level;
 extern char summon_kin_type;
 extern s32b turn;
+extern bool is_daylight;
 extern s32b old_turn;
 extern bool use_sound;
 extern int use_graphics;
@@ -156,7 +157,7 @@ extern s16b signal_count;
 extern bool msg_flag;
 extern bool inkey_base;
 extern bool inkey_xtra;
-extern bool inkey_scan;
+extern u32b inkey_scan;
 extern bool inkey_flag;
 extern s16b coin_type;
 extern bool magic_throw;
@@ -988,6 +989,11 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 /* main-win.c */
 /* extern int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, ...); */
 #endif
+
+#ifdef NDS
+extern void debug_a(void);
+#endif
+
 
 #ifdef ALLOW_DEBUG
 /* wizard2.c */
