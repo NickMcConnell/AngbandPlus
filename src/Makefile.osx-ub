@@ -54,6 +54,8 @@ OBJS = \
 
 CFLAGS = \
 	-Wall -std=gnu99 $(OPT) -DMACH_O_CARBON -DUSE_TRANSPARENCY \
+	-DHAVE_MKSTEMP -DPRIVATE_USER_PATH=\"~/Library/Preferences\" \
+	-DUSE_PRIVATE_PATHS \
 	-isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch ppc \
 	-arch i386
 LDFLAGS = -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk \

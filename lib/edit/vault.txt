@@ -10,7 +10,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 #N: vault index: name
 #X: vault type: increase in level feeling: height of description: 
@@ -1587,11 +1587,142 @@ D:%..........XX.....XX............%
 D:%...............................%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+# A couple of favorites from Angband for FAangband 0.2.3
 
-## Space for more Lesser vaults ##
+N:108:Lesser vault ("Workaround")
+X:8:14:19:21:0:0
+D:%%%%%%%%%%%%%%%%%%%%%
+D:%...................%
+D:%.XX..XXXXXXXXX..XX.%
+D:%.X..XX*******XX..X.%
+D:%...XX,,@XXX@,,XX...%
+D:%...X..&XX9XX&..X...%
+D:%..XX..XX,9,XX..XX..%
+D:%..X..XX,,,,,XX..X..%
+D:%..X.XXXXX&XXXXX.X..%
+D:%..#.^^^+&X&+^^^.#..%
+D:%..X.XXXXX&XXXXX.X..%
+D:%..X..XX,,,,,XX..X..%
+D:%..XX..XX,9,XX..XX..%
+D:%...X..&XX9XX&..X...%
+D:%...XX,,@XXX@,,XX...%
+D:%.X..XX*******XX..X.%
+D:%.XX..XXXXXXXXX..XX.%
+D:%...................%
+D:%%%%%%%%%%%%%%%%%%%%%
+
+
+N:109:Lesser vault ("Miniature Cell")
+X:8:5:5:5:30:0
+D:%%%%%
+D:%#9#%
+D:%999%
+D:%#9#%
+D:%%%%%
+
+
+## No space for more Lesser vaults! - probably should make some ##
 
 
 ### Greater vaults (type 9) ###
+
+# Vaults 110-119 from Angband 3.0.7 for FAangband 0.2.3
+N:112:Greater vault ("Hourglass")
+X:9:24:37:27:35:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.........................%
+D:%.......XXXXX+XXXXX.......%
+D:%...XXXXX...^^^...XXXXX...%
+D:%..XX,,,&.XXX+XXX.&,,,XX..%
+D:%...XXXXXXX.^^^.XXXXXXX...%
+D:%...XX**...@X^X@...**XX...%
+D:%....X**XXXXX^XXXXX**X....%
+D:%...XXX,X.........X,XXX...%
+D:%...X9X9X..*X+X*..X9X9X...%
+D:%...X9XXX.*XX^XX*.XXX9X...%
+D:%..XX.*X9@XX...XX@9X*.XX..%
+D:%..X..*XX@XXX^XXX@XX*..X..%
+D:%..X..**X8X9X+X9X8X**..X..%
+D:%..X..**XXX.^^^.XXX**..X..%
+D:%.XX.XXX9X9.XXX.9X9XXX.XX.%
+D:%.X..X9X8XX.^X^.XX8X9X..X.%
+D:%.X+XX9XXXXXX^XXXXXX9XX+X.%
+D:%.X.^^X^^.........^^X^^.X.%
+D:%.X+XX9XXXXXX^XXXXXX9XX+X.%
+D:%.X..X9X8XX.^X^.XX8X9X..X.%
+D:%.XX.XXX9X9.XXX.9X9XXX.XX.%
+D:%..X..**XXX.^^^.XXX**..X..%
+D:%..X..**X8X9X+X9X8X**..X..%
+D:%..X..*XX@XXX^XXX@XX*..X..%
+D:%..XX.*X9@XX&.&XX@9X*.XX..%
+D:%...X9XXX.*XX^XX*.XXX9X...%
+D:%...X9X9X..*X+X*..X9X9X...%
+D:%...XXX,X.........X,XXX...%
+D:%....X**XXXXX^XXXXX**X....%
+D:%...XX**...@X^X@...**XX...%
+D:%...XXXXXXX.^^^.XXXXXXX...%
+D:%..XX,,,&.XXX+XXX.&,,,XX..%
+D:%...XXXXX...^^^...XXXXX...%
+D:%.......XXXXX+XXXXX.......%
+D:%.........................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+N:114:Divisi
+X:9:35:31:55:45:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.....................................................%
+D:%.#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#.%
+D:%.X,XX@@@&&,,,,,,,,,,,,,,,X8X,,,,,,,,,,,,,,,&&@@@XX,X.%
+D:%.X,,XXX@&&XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX&&@XXX,,X.%
+D:%.XX,,,XXX^^^XXX#8#8#8#8X^X@X^X8#8#8#8#XXX^^^XXX,,,XX.%
+D:%.XXXX,,,XXX^^^XXX######X^X&X^X######XXX^^^XXX,,,XXXX.%
+D:%.X@@XXX,,,XXX^^^XXX#8#8X^X,X^X8#8#XXX^^^XXX,,,XXX@@X.%
+D:%.X&&&&XXX,,,XXX^^^XX###X^X,X^X###XX^^^XXX,,,XXX&&&&X.%
+D:%.X^XX..#XXX,,,XXX^^^XXXX^X,X^XXXX^^^XXX,,,XXX#..XX^X.%
+D:%.X^.XXX#@@XXX,,,XXX^^^XX^X,X^XX^^^XXX,,,XXX@@#XXX.^X.%
+D:%.X^&&&XXX&&&XXX,,,XXX^^^^X,X^^^^XXX,,,XXX&&&XXX&&&^X.%
+D:%.X^XX&&&XXX^^^XXX,,,XXX^^X,X^^XXX,,,XXX^^^XXX&&&XX^X.%
+D:%.X,,XXX&@@XXX^^^XXX,,,XXX#,#XXX,,,XXX^^^XXX@@&XXX,,X.%
+D:%.X,,##XXX@##XXX^^^XXX,,,XX#XX,,,XXX^^^XXX##@XXX##,,X.%
+D:%.XXXX888XXX999XXX^^^###,#888#,###^^^XXX999XXX888XXXX.%
+D:%.X,,##XXX@##XXX^^^XXX,,,XX#XX,,,XXX^^^XXX##@XXX##,,X.%
+D:%.X,,XXX&@@XXX^^^XXX,,,XXX#,#XXX,,,XXX^^^XXX@@&XXX,,X.%
+D:%.X^XX&&&XXX^^^XXX,,,XXX^^X,X^^XXX,,,XXX^^^XXX&&&XX^X.%
+D:%.X^&&&XXX&&&XXX,,,XXX^^^^X,X^^^^XXX,,,XXX&&&XXX&&&^X.%
+D:%.X^.XXX#@@XXX,,,XXX^^^XX^X,X^XX^^^XXX,,,XXX@@#XXX.^X.%
+D:%.X^XX..#XXX,,,XXX^^^XXXX^X,X^XXXX^^^XXX,,,XXX#..XX^X.%
+D:%.X&&&&XXX,,,XXX^^^XX###X^X,X^X###XX^^^XXX,,,XXX&&&&X.%
+D:%.X@@XXX,,,XXX^^^XXX#8#8X^X,X^X8#8#XXX^^^XXX,,,XXX@@X.%
+D:%.XXXX,,,XXX^^^XXX######X^X&X^X######XXX^^^XXX,,,XXXX.%
+D:%.XX,,,XXX^^^XXX#8#8#8#8X^X@X^X8#8#8#8#XXX^^^XXX,,,XX.%
+D:%.X,,XXX@&&XXXXXXXXXXXXXX^X9X^XXXXXXXXXXXXXX&&@XXX,,X.%
+D:%.X,XX@@@&&,,,,,,,,,,,,,,,X8X,,,,,,,,,,,,,,,&&@@@XX,X.%
+D:%.#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#.%
+D:%.....................................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:119:Greater vault ("The Reward is Worth It")
+X:9:20:16:63:50:0
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXX##XXXXXXXXXXXXX#XXXXXXXXXXXXX##XXXXXXXXXXXXXXX%
+D:%X@@@@@@@@@@@.XX99XX.......,,,X^X,,,.......XX99XX.@@@@@@@@@@@X%
+D:%X@XXXXXXXXXX..XXXX...XXXX.,,,X^X,,,.XXXX...XXXX..XXXXXXXXXX@X%
+D:%X@X8888888XXX..XX...XXX@XX,,,X^X,,,XX@XXX...XX..XXX8888888X@X%
+D:%X@X88899999XXX.....XXX@@@X..&X^X&..X@@@XXX.....XXX99999888X@X%
+D:%X@X8899.....XXX...XXX@@@@@..&X^X&..@@@@@XXX...XXX.....9988X@X%
+D:%X@X899.......XXX...XXX......&X^X&......XXX...XXX.......998X@X%
+D:%X+XXX...XXX&&&XXX^^^XXX.....&X^X&.....XXX^^^XXX&&&XXX...XXX+X%
+D:%X@@XXX.XXXX&&&&XXX^^^XXX....&X^X&....XXX^^^XXX&&&&XXXX.XXX@@X%
+D:%X^^^^XXX88X^^^^^^XXX^^^XXX..&X^X&..XXX^^^XXX^^^^^^X88XXX^^^^X%
+D:%X&&&&&&&&XX^^^^^^^^XXX...XXX&X^X&XXX...XXX^^^^^^^^XX&&&&&&&&X%
+D:%X,,,,,,,XX,,,,,,,,,,,XXX&&&XXX^XXX&&&XXX,,,,,,,,,,,XX,,,,,,,X%
+D:%X,,,,,,X#@@@@@@@@@@@@@@XXX&&&&&&&&&XXX@@@@@@@@@@@@@@#X,,,,,,X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ## The legendary Great Checkerboard Vault
 N:120:Greater vault (huge)

@@ -1,6 +1,6 @@
                                                 
     ****************************************    
-    * FAangband 0.2.2 ** First Age Angband *    
+    * FAangband 0.2.3 ** First Age Angband *    
     ****************************************    
                                                                                
 Based on: Moria     : Robert Alan Koeneke       
@@ -13,7 +13,7 @@ Oangband 0.5.0-1.1.0: Bahman Rabii
 NPPangband 0.4.1    : Jeff Greene and           
                       Diego Gonzalez            
                                                 
-FAangband 0.1.0-0.2.2: Copyright (c) 2005-2007  
+FAangband 0.1.0-0.2.3: Copyright (c) 2005-2007  
                            Nick McConnell       
                                                 
 Send comments, etc. to nckmccnnll@yahoo.com.au  

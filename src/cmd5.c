@@ -286,7 +286,7 @@ static void choose_ele_attack(void)
   choice = ke.key;
   
   /* Mouse input */
-  if ((choice = '\xff') && (ke.mousey - 2 < num))
+  if ((choice == '\xff') && (ke.mousey - 2 < num))
     choice = ke.mousey - 2 + 'a';
 
   if ((choice == 'a') || (choice == 'A')) 
@@ -2847,7 +2847,7 @@ void do_cmd_cast_or_pray(void)
 	  }
 	case 227: /* poison ammo - for assassins only */
 	  {
-	    (void)brand_missile(0, EGO_POISON);
+	    if (!brand_missile(0, EGO_POISON)) return;
 	    break;
 	  }
 	case 228: /* resist acid and cold */

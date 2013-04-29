@@ -189,7 +189,7 @@ void user_name(char *buf, int id)
 #else /* ACORN */
 
 
-#ifdef SET_UID
+#if defined (SET_UID) || defined(USE_PRIVATE_PATHS)
 
 /*
  * Extract a "parsed" path from an initial filename
@@ -3527,9 +3527,9 @@ bool get_check(cptr prompt)
   
   /* Hack -- Build a "useful" prompt */
   if (small_screen)
-    strnfmt(buf, 48, "%.38s ['y'/'n']", prompt);
+    strnfmt(buf, 48, "%.33s ['y'/'n']", prompt);
   else
-    strnfmt(buf, 78, "%.70s ['y'/'n']", prompt);
+    strnfmt(buf, 78, "%.65s ['y'/'n']", prompt);
   
   /* Prompt for it */
   prt(buf, 0, 0);
@@ -3548,6 +3548,16 @@ bool get_check(cptr prompt)
 	}
       if (ke.key == ESCAPE) break;
       if (strchr("YyNn", ke.key)) break;
+
+      /* Hack of the century */
+      if ((ke.key == '\r') && 
+	  (cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
+	  (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
+	{
+	  ke.key = 'y';
+	  break;
+	}
+
       if (quick_messages) break;
       bell("Illegal response to a 'yes/no' question!");
     }

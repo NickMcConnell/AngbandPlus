@@ -3715,10 +3715,9 @@ static void init_paths(void)
 	{
 		quit("unable to find 'lib' dir");
 	}
-#ifdef PRIVATE_USER_PATHS
+
 	/* Create directories for the users files */
 	create_user_dirs();
-#endif
 
 	/* Prepare the paths */
 	init_file_paths(path);

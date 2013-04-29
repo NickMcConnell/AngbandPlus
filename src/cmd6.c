@@ -1300,7 +1300,7 @@ void do_cmd_read_scroll(void)
     case SV_SCROLL_BRANDING:
       {
 	ident = TRUE;
-	(void)brand_missile(0, 0);
+	if (!brand_missile(0, 0)) used_up = FALSE;
 	break;
       }
       

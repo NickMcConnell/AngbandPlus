@@ -1694,6 +1694,7 @@ static errr rd_savefile_new_aux(void)
   byte tmp8u;
   u16b num, tmp16u;
   u32b tmp32u;
+  s32b tmp32s;
   
   
 #ifdef VERIFY_CHECKSUMS
@@ -1872,11 +1873,10 @@ static errr rd_savefile_new_aux(void)
        */
       if (i < ART_MIN_RANDOM)
 	{
-	  rd_byte(&tmp8u);
-	  a_info[i].creat_stat = tmp8u;
-	  rd_byte(&tmp8u);
-	  rd_byte(&tmp8u);
-	  rd_byte(&tmp8u);
+	  rd_s32b(&tmp32s);
+
+	  /* This is a silly turn if the savefile is older than 0.2.3 */
+	  a_info[i].creat_turn = tmp32s;
 	}
       
       
@@ -1929,8 +1929,16 @@ static errr rd_savefile_new_aux(void)
 	  a_info[j].level = tmp8u;
 	  rd_byte(&tmp8u);
 	  a_info[j].rarity = tmp8u;
-	  rd_byte(&tmp8u);
-	  a_info[j].creat_stat = tmp8u;
+	  if (older_than(0, 2, 3))
+	    {
+	      rd_byte(&tmp8u);
+	      a_info[j].creat_turn = tmp8u; //silly turn
+	    }
+	  else
+	    {
+	      rd_s32b(&tmp32s);
+	      a_info[j].creat_turn = tmp32s;
+	    }
 	  rd_byte(&tmp8u);
 	  a_info[j].activation = tmp8u;
 	  

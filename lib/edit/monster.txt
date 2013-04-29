@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.2.2
+V:0.2.3
 
 
 #N: monster index: name
@@ -5187,7 +5187,7 @@ F:ANIMAL | IM_POIS
 D:A hideous centipede covered in slime, with glowing tentacles around its 
 D:head.
 
-N:453:Intermittent Software Bug
+N:453:Gnawing Bug
 G:I:r
 I:120:1d4:20:1:0
 W:42:9:45:16
@@ -5198,8 +5198,7 @@ F:ANIMAL
 S:1_IN_3 | POW_0 | 
 S:TPORT | BLINK 
 D:AAAAHHHH!  They're everywhere!  You feel a rising sense of panic as 
-D:you desperately try to hunt the last bug down.  Maybe it's time to 
-D:play checkers?
+D:you desperately try to hunt the last bug down.
 
 N:454:Earth elemental
 G:E:u1

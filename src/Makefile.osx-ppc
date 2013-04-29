@@ -53,7 +53,9 @@ OBJS = \
 
 
 CFLAGS = \
-	-Wall -std=gnu99 $(OPT) -DMACH_O_CARBON -DUSE_TRANSPARENCY
+	-Wall -std=gnu99 $(OPT) -DMACH_O_CARBON -DUSE_TRANSPARENCY \
+	-DHAVE_MKSTEMP 	-DPRIVATE_USER_PATH=\"~/Library/Preferences\" \
+	-DUSE_PRIVATE_PATHS
 	
 LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
 

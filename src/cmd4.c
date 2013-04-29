@@ -4845,7 +4845,7 @@ static int collect_artifacts(int grp_cur, int object_idx[])
       if (a_ptr->tval + a_ptr->sval == 0) continue;
       
       /* Skip "uncreated" artifacts */
-      if (!a_ptr->creat_stat) continue;
+      if (!a_ptr->creat_turn) continue;
       
       /*assume all created artifacts are good at this point*/
       okay[i] = TRUE;

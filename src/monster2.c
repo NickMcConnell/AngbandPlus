@@ -577,7 +577,7 @@ s16b get_mon_num(int level)
 	    {
 	      if (r_ptr->d_char == 'R') 
 		table[i].prob3 /= 2;
-	      else if (r_ptr->flags3 & RF3_ANIMAL)
+	      else if ((r_ptr->flags3 & RF3_ANIMAL) && (r_ptr->d_char != 'Z'))
 		table[i].prob3 *=2;
 	    }
 	  

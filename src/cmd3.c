@@ -445,7 +445,7 @@ void do_cmd_wield(void)
   /* Message */
   msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
   
-  /* Set item handling -GS- */
+  /* Set item handling -GS- and checking turn found for artifacts -NRM- */
   if (o_ptr->name1) 
     {
       
@@ -462,7 +462,12 @@ void do_cmd_wield(void)
 	      /* add bonuses */
 	      apply_set(a_ptr->set_no);
 	    }
-	}				
+	}
+
+      /* Have we registered this as found before ? */
+      if (a_info[o_ptr->name1].creat_turn < 2)
+	a_info[o_ptr->name1].creat_turn = turn;
+
     }
   
   /* Cursed! */

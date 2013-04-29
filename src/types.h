@@ -263,8 +263,7 @@ struct artifact_type
   byte level;		/* Artifact level */
   byte rarity;		/* Artifact rarity */
   
-  byte creat_stat;	/* Was cur_num.  0 or 1.  
-			 * Possible future expanded functionality. */
+  s32b creat_turn;	/* Turn the artifact was found */
   byte activation;	/* Temporary activation index. -LM- */
   
   byte set_no;		/* Stores the set number of the artifact. 

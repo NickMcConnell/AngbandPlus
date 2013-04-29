@@ -7307,7 +7307,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
       bool good_place = TRUE;
 
       /* Greater "vault" ? */
-      if (rand_int(100 - p_ptr->depth) < 2) wild_type += 1;
+      if (rand_int(100 - p_ptr->depth) < 9) wild_type += 1;
 
       /* Examine each "vault" */
       for (n = 0; n < MAX_V_IDX; n++)
@@ -7563,10 +7563,10 @@ static void plain_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   
   /* Pick a base number of monsters */
@@ -7926,10 +7926,10 @@ static void mtn_gen(void)
   
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -8217,7 +8217,7 @@ static void mtntop_gen(void)
   
   
   /* Basic "amount" */
-  k = p_ptr->depth * 2;
+  k = p_ptr->depth;
 
   /* Build the monster probability table. */
   monster_level = p_ptr->depth;
@@ -8442,10 +8442,10 @@ static void forest_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -8649,10 +8649,10 @@ static void swamp_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -8927,10 +8927,10 @@ static void desert_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -9204,10 +9204,10 @@ static void river_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
+  k = (p_ptr->depth / 2);
 
   /* Gets hairy north of the mountains */
-  if (p_ptr->depth > 40) k += 20;
+  if (p_ptr->depth > 40) k += 10;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -9497,8 +9497,8 @@ static void valley_gen(void)
     }
   
   /* Basic "amount" */
-  k = (p_ptr->depth * 2 + 10);
-  if (k > 100) k = 100;
+  k = (p_ptr->depth / 2);
+  if (k > 30) k = 30;
   
   /* Pick a base number of monsters */
   i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -9539,7 +9539,7 @@ static void valley_gen(void)
   alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
   
   /* Place some webs */
-  for (i = 0; i < damroll(k/40, 4); i++)
+  for (i = 0; i < damroll(k/20, 4); i++)
     place_web(11);
 
   if (rand_int(2) == 0)
