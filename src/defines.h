@@ -61,10 +61,10 @@
 /**
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING "1.2.4"
+#define VERSION_STRING "1.2.5"
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.2.4 (" BUILD_ID ")"
+#define VERSION_STRING	"1.2.5 (" BUILD_ID ")"
 #endif
 */
 
@@ -73,7 +73,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	2
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 #define VERSION_EXTRA	0
 
 /**
@@ -543,7 +543,6 @@ typedef enum
 #define PY_MAX_LEVEL	50		/* Maximum level */
 #define PY_MAX_SPELLS   64              /* Maximum number of spells */
 #define PY_MAX_BOOKS    11              /* Maximum number of spellbooks */
-#define SPELLS_PER_BOOK 12              /* Maximum number of spells per book */
 
 
 /*

@@ -194,6 +194,10 @@ C:1:f
 A:l
 C:1:x
 
+# Time of day
+A:^T
+C:1:'
+
 # Aim a wand (Zap)
 A:a
 C:1:z
@@ -211,8 +215,8 @@ A:w0
 C:1:X
 
 # Roguelike keymap: Repeat last command
-A:^V
-C:1:'
+#A:^V
+#C:1:'
 
 
 # Roguelike keymap: handle (generic use)
@@ -225,7 +229,7 @@ C:1:^G
 
 ##### System Specific Subfiles #####
 
-?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj] [EQU $SYS gtk]]
+?:[IOR [EQU $SYS xaw] [EQU $SYS x11] [EQU $SYS xpj]
 %:pref-x11.prf
 
 ?:[IOR [EQU $SYS gcu] [EQU $SYS lsl] [EQU $SYS cap] [EQU $SYS vcs] [EQU $SYS sla]]

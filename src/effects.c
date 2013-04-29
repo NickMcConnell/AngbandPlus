@@ -1185,20 +1185,22 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
 
     case EF_REMOVE_CURSE:
 	{
+	    bool used = FALSE;
 	    if (remove_curse()) {
-		msg_print("You feel as if someone is watching over you.");
+		used = TRUE;
 	    }
 	    *ident = TRUE;
-	    return TRUE;
+	    return used;
 	}
 
     case EF_REM_CURSE_GOOD:
 	{
+	    bool used = FALSE;
 	    if (remove_curse_good()) {
-		msg_print("You feel as if someone is watching over you.");
+		used = TRUE;
 	    }
 	    *ident = TRUE;
-	    return TRUE;
+	    return used;
 	}
 
     case EF_ENCHANT_ARMOR1:
@@ -1470,6 +1472,7 @@ bool effect_do(effect_type effect, bool * ident, bool aware, int dir)
     case EF_COLD_PROOF:
 	{
 	    bitflag proof_flag[OF_SIZE];
+	    of_wipe(proof_flag);
 	    of_on(proof_flag, OF_COLD_PROOF);
 	    *ident = TRUE;
 	    if (!el_proof(proof_flag))

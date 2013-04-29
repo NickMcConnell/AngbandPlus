@@ -812,7 +812,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 
 	/* Check for trap detection boundaries */
 	if (g->trapborder && tf_has(f_ptr->flags, TF_FLOOR) && 
-	    !(g->trap < trap_max) && 
+	    !((int) g->trap < trap_max) && 
 	    (use_graphics == GRAPHICS_NONE || use_graphics == GRAPHICS_PSEUDO))
 	    a = TERM_L_GREEN;
 
@@ -833,7 +833,7 @@ void grid_data_as_text(grid_data *g, byte *ap, char *cp, byte *tap, char *tcp)
 
 
 	/* There is a trap in this grid, and we are not hallucinating */
-	if ((g->trap < trap_max) && (!g->hallucinate))
+	if (((int) g->trap < trap_max) && (!g->hallucinate))
 	{
 	    /* Change graphics to indicate a trap (if visible) */
 	    if (get_trap_graphics(g->trap, &a, &c, TRUE))
@@ -3732,6 +3732,7 @@ void map_area(int y, int x, bool extended)
     /* Scan the maximal area of mapping */
     for (y = y_c - rad; y <= y_c + rad; y++) {
 	for (x = x_c - rad; x <= x_c + rad; x++) {
+	    feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 	    /* Ignore "illegal" locations */
 	    if (!in_bounds(y, x))
@@ -3741,11 +3742,11 @@ void map_area(int y, int x, bool extended)
 	    if (distance(y_c, x_c, y, x) > rad)
 		continue;
 
-	    /* All non-walls, trees, and rubble are "checked" */
-	    if (!cave_has(cave_info[y][x], CAVE_WALL)) {
+	    /* All non-walls, trees, dunes and rubble are "checked" */
+	    if (tf_has(f_ptr->flags, TF_PASSABLE)) {
 		/* Memorize normal features */
-		if (!tf_has(f_info[cave_feat[y][x]].flags, TF_FLOOR) ||
-		    tf_has(f_info[cave_feat[y][x]].flags, TF_INTERESTING)) {
+		if (!tf_has(f_ptr->flags, TF_FLOOR) ||
+		    tf_has(f_ptr->flags, TF_INTERESTING)) {
 		    /* Memorize the object */
 		    cave_on(cave_info[y][x], CAVE_MARK);
 		}
@@ -4483,9 +4484,6 @@ void disturb(int stop_search, int unused_flag)
     /* Cancel repeated commands */
     cmd_cancel_repeat();
 
-    /* Cancel automatic movement */
-    if (player_is_crossing) cancel_crossing = TRUE;
-    
     /* Cancel Resting */
     if (p_ptr->resting) {
 	/* Cancel */

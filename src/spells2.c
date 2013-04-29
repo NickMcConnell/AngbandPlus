@@ -38,7 +38,7 @@
 #include "ui-menu.h"
 
 /* Element to be proofed against in element-proofing */
-static bitflag *el_to_proof = NULL;
+static bitflag el_to_proof[OF_SIZE];
 
 /**
  * Alter player's shape.  Taken from Sangband.
@@ -1108,7 +1108,7 @@ static bool remove_curse_aux(int good)
 		    floor_item_describe(0 - item);
 		    floor_item_optimize(0 - item);
 		}
-		return (FALSE);
+		return (TRUE);
 	    }
 
 	    /* Try once */
@@ -1177,8 +1177,12 @@ static bool remove_curse_aux(int good)
     /* Redraw stuff */
     p_ptr->redraw |= (PR_EQUIP | PR_INVEN);
 
-    /* Return "something uncursed" */
-    return (cf_is_empty(curses) ? FALSE : TRUE);
+    /* Something uncursed */
+    if (cf_is_empty(curses))
+	msg_print("You feel as if someone is watching over you.");
+
+    /* Return scroll used/spell cast */
+    return (TRUE);
 }
 
 
@@ -2944,6 +2948,7 @@ bool el_proof(bitflag *flag)
     cptr q, s;
 
     /* Set the element */
+    of_wipe(el_to_proof);
     of_copy(el_to_proof, flag);
 
     /* Only unproofed items */
@@ -3494,9 +3499,6 @@ bool recharge(int power)
 	    /* Hack - Artifacts have a maximum # of charges. */
 	    if (artifact_p(o_ptr) && (o_ptr->pval > k_ptr->pval.base))
 		o_ptr->pval = k_ptr->pval.base;
-
-	    /* Hack -- we no longer "know" the item */
-	    o_ptr->ident &= ~(IDENT_KNOWN);
 
 	    /* Hack -- we no longer think the item is empty */
 	    o_ptr->ident &= ~(IDENT_EMPTY);

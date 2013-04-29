@@ -950,7 +950,7 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
     int book = args[0].item;
     object_type *o_ptr = object_from_item_idx(book);
 
-    int spell = -1;
+    int total_spells, spell = -1;
     int i, k = 0;
 
     /* Check the player can study at all atm */
@@ -964,13 +964,16 @@ void do_cmd_study_book(cmd_code code, cmd_arg args[])
     }
 
     /* Extract spells */
-    for (i = 0; i < SPELLS_PER_BOOK; i++) {
+    total_spells = spell_book_count_spells(o_ptr, spell_okay_to_browse);
+    for (i = 0; i < total_spells; i++) {
 	int s = get_spell_index(o_ptr, i);
 
 	/* Skip non-OK spells */
 	if (s == -1)
 	    continue;
 	if (!spell_okay_to_study(s))
+	    continue;
+	if (!spell_in_book(s, book))
 	    continue;
 
 	/* Apply the randomizer */
