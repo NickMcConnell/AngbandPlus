@@ -1220,6 +1220,9 @@ void hit_trap(int y, int x)
                           f_ptr->blow.effect);
         }
 
+        /* Get feature */
+        f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
         if (f_ptr->flags1 & (FF1_HIT_TRAP))
         {
                 /* Modify the location hit by the trap */

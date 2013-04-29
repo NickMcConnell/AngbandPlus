@@ -808,6 +808,8 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
                 /* Apply the spell effect */
                 process_spell(spell,plev,&abort);
 
+                if (strlen(s_text+s_ptr->text)) msg_format("%s",s_text+s_ptr->text);
+
                 /* Did we cancel? */
                 if (abort) return;
 

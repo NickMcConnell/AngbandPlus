@@ -3646,8 +3646,6 @@ void redraw_stuff(void)
 
 	if (p_ptr->redraw & (PR_STATS))
 	{
-                msg_print("Stats");
-
 		p_ptr->redraw &= ~(PR_STATS);
 		prt_stat(A_STR);
 		prt_stat(A_INT);

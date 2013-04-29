@@ -1,3 +1,27 @@
+13-01-2001 Unangband 0.4.8f Bugfix release
+
+- Fixed a problem where monsters would get stuck
+inside unknown jammed doors.
+- Removed some debugging code.
+- Fixed bug where spear/ray of light and wall spells
+would not correctly affect grid/items in grid.
+- Fixed bug where stinking cloud would not do enough
+damage.
+- Fixed bug where detect magic/detect curse were
+providing wrong information.
+- Fixed bug where thorny bushes would injure you
+while standing in them as well as moving through them.
+- Fixed bugs where objects and monsters would be
+placed in trees and rubble.
+- Fixed bug preventing you crossing trees/rubble.
+- Reorganised human monsters, so that 'p's are now
+priests (including paladins), 'q's are now mages
+(including rangers), 't's are now thieves and
+warriors, and ensuring that all human monsters
+and uniques are distinguished (Since there are so
+many). Regularised 'h', 'l', 'o', 'O', and 'T'
+monsters to match.
+
 12-01-2001 Unangband 0.4.8e Bugfix release
 
 - Removed apple tree and crab apple tree monsters,

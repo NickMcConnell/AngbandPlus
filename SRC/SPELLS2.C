@@ -2296,7 +2296,7 @@ bool detect_objects_magic(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-		feel = value_check_aux4(o_ptr);
+                feel = value_check_aux3(o_ptr);
 
 		/* Sense something */
 		if (!feel) continue;
@@ -2388,7 +2388,7 @@ bool detect_objects_cursed(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-		feel = value_check_aux3(o_ptr);
+                feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
 		if (!feel) continue;
@@ -2421,7 +2421,7 @@ bool detect_objects_cursed(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-		feel = value_check_aux3(o_ptr);
+                feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
 		if (!feel) continue;
@@ -5336,7 +5336,7 @@ bool fire_bolt(int typ, int dir, int dam)
  */
 bool fire_beam(int typ, int dir, int dam)
 {
-	int flg = PROJECT_BEAM | PROJECT_KILL;
+        int flg = PROJECT_BEAM | PROJECT_KILL;
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -6605,14 +6605,15 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                         }
                         case RBM_WALL:
                         {
+					int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+
                                 /* Allow direction to be cancelled for free */
                                 if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
 
                                 /* Hack - scale damage */
                                 if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-                                
-                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
 
+					if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
                                 break;
                         }
                         case RBM_BALL:
@@ -6631,6 +6632,9 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                                 /* Allow direction to be cancelled for free */
                                 if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
 
+                                /* Hack - scale damage */
+                                damage += level / 2;
+                                
                                 if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
 
                                 break;
@@ -6670,11 +6674,13 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                         }
                         case RBM_LINE:
                         {
+
+					int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+
                                 /* Allow direction to be cancelled for free */
                                 if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
 
-                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
-
+					if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
                                 break;
                         }
                         case RBM_AIM:

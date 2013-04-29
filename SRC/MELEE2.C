@@ -3574,13 +3574,13 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			if (who > 0)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
-				else if (known) msg_format("%^s magically summons ants.", m_name);
-				else msg_print("You hear distant chittering.");
+                                else if (known) msg_format("%^s magically summons animals.", m_name);
+                                else msg_print("You hear distant chanting.");
 
                                 /* Hack -- prevent summoning for a short while */
                                 m_ptr->summoned = 20;
 			}
-			for (k = 0; k < 6; k++)
+                        for (k = 0; k < 3; k++)
 			{
                                 count += summon_specific(y, x, rlev, SUMMON_ANIMAL);
 			}
@@ -4431,13 +4431,10 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		}
 
                 /* Monster can open doors */
-                if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) && (feat == FEAT_SECRET))
+                if (f_info[feat].flags1 & (FF1_SECRET))
                 {
-                                /*
-                                 * It usually takes two turns to open a door 
-                                 * and move into the doorway.
-                                 */
-                                return (MIN(50, move_chance));
+				/* Discover the secret (temporarily) */
+				feat = feat_state(feat,FS_SECRET);
                 }
 
                 /* Monster can open doors */
@@ -6571,8 +6568,12 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
                 /* Doors */
 		if ((f_info[feat].flags1 & (FF1_BASH)) || (f_info[feat].flags1 & (FF1_OPEN)) ||
-		          (feat == FEAT_SECRET))
+		          (f_info[feat].flags1 & (FF1_SECRET)))
 		{
+
+			/* Hack --- monsters find secrets */
+                        if (f_info[feat].flags1 & (FF1_SECRET)) cave_alter_feat(ny,nx,FS_SECRET);
+
 			/* Monster bashes the door down */
                         if ((bash) & (f_info[feat].flags1 & (FF1_BASH)))
 			{

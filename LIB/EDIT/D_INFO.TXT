@@ -204,7 +204,7 @@ A:
 B:library
 D:Crowded bookshelves line 
 K:91
-G:q
+G:p
 S:SEEN
 
 N:1:2:22:4
@@ -220,7 +220,7 @@ A:
 B:weapons room
 D:Weapon racks line 
 K:21
-G:p
+G:t
 S:SEEN
 
 N:1:2:24:7
@@ -228,7 +228,7 @@ A:
 B:weapons room
 D:Weapon racks line 
 K:22
-G:p
+G:t
 S:SEEN
 
 N:1:2:25:4
@@ -236,7 +236,7 @@ A:
 B:weapons room
 D:Weapon racks line 
 K:23
-G:p
+G:t
 S:SEEN
 
 N:1:2:26:1
@@ -344,7 +344,7 @@ N:1:2:41:5
 A:
 B:
 D:Ancient statues line 
-G:p
+G:t
 S:SEEN
 K:11
 
@@ -609,7 +609,7 @@ N:4:5:9:45
 A:
 B:throneroom
 D:An iron throne 
-G:p
+G:t
 K:33
 S:SEEN
 
@@ -722,7 +722,7 @@ N:4:5:25:30
 A:
 B:chapel
 F:373
-G:q
+G:p
 D:A wooden altar 
 S:SEEN
 
@@ -730,7 +730,7 @@ N:4:5:26:20
 A:
 B:temple
 F:374
-G:q
+G:p
 D:A stone altar 
 S:SEEN
 
@@ -738,7 +738,7 @@ N:4:5:27:20
 A:unholy
 B:temple
 F:375
-G:q
+G:p
 R:EVIL
 D:A blood-stained altar 
 S:SEEN
@@ -1209,7 +1209,7 @@ N:8:9:74:4
 A:
 B:
 D:smokey with incense.  
-G:q
+G:p
 
 N:8:9:75:9
 A:

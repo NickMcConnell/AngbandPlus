@@ -1939,7 +1939,6 @@ int place_monster_here(int y, int x, int r_idx)
         if (mon_resist_feat(feat,r_idx))
 	{
 		if (f_ptr->flags1 & (FF1_MOVE)) return (MM_WALK);
-		
 		if (f_ptr->flags3 & (FF3_EASY_CLIMB)) return (MM_CLIMB);
 	}
 

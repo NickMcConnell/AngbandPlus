@@ -1780,9 +1780,11 @@ static bool do_cmd_walk_test(int y, int x)
 	if (cave_m_idx[y][x] >0) return (TRUE);
 
 
-	/* Require open space */
-	if (!(f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) ||
-		(f_info[cave_feat[y][x]].flags2 & (FF2_FILLED)))
+	/* Player can not walk through "walls" */
+        /* Also cannot climb over unknown "trees/rubble" */
+        if (!(f_info[feat].flags1 & (FF1_MOVE))
+                && (!(f_info[feat].flags3 & (FF3_EASY_CLIMB))
+                        || !(cave_info[y][x] & (CAVE_MARK))))
 	{
 #ifdef ALLOW_EASY_ALTER
 
