@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.1.0"
+#define VERSION_STRING	"1.1.1"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	1
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -2635,6 +2635,7 @@
 #define TF_M_TRAP       0x04000000L  /* Is a monster trap */
 #define TF_STAIR        0x08000000L  /* Is a stair or path */
 #define TF_RUNE         0x10000000L  /* Is a rune */
+#define TF_DOOR_JAMMED  0x20000000L  /* Is a jammed door */
 /* xxx (many) */
 
 
@@ -3362,7 +3363,7 @@
 #define OPT_verify_special		29
 #define OPT_ring_bell			30
 #define OPT_verify_destroy_junk		31
-
+#define OPT_pickup_inven		32
 #define OPT_auto_scum			33
 #define OPT_easy_open			34
 #define OPT_easy_disarm 		35
@@ -3487,7 +3488,7 @@
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define ring_bell			op_ptr->opt[OPT_ring_bell]
 #define verify_destroy_junk		op_ptr->opt[OPT_verify_destroy_junk]
-
+#define pickup_inven			op_ptr->opt[OPT_pickup_inven]
 #define auto_scum			op_ptr->opt[OPT_auto_scum]
 #define easy_open			op_ptr->opt[OPT_easy_open]  /* TNB */
 #define easy_disarm			op_ptr->opt[OPT_easy_disarm]  /* TNB */

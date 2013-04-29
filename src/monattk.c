@@ -747,7 +747,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		    /* Apply disenchantment */
 		    if (apply_disenchant(0)) obvious = TRUE;
 		  }
-		else notice_other(IF_RES_DISEN, 0, NULL);		
+		else notice_other(IF_RES_DISEN, 0);		
 
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_DISEN);
@@ -1250,7 +1250,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			  }
 		      }
 		  }
-		else notice_other(IF_RES_CONFU, 0, NULL);
+		else notice_other(IF_RES_CONFU, 0);
 		
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_CONFU);
@@ -3614,7 +3614,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_resist_good(P_RES_NEXUS))
 	  {
 	    msg_print("You are unaffected!");
-	    notice_other(IF_RES_NEXUS, 0, NULL);
+	    notice_other(IF_RES_NEXUS, 0);
 	  }
 	else if (check_save(100))
 	  {
@@ -3786,7 +3786,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 	    take_hit(damroll(8, 8), ddesc);
 	  }
 	break;
@@ -3822,7 +3822,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 	    if (!p_ptr->free_act)
 	      {
 		(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
@@ -4052,7 +4052,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_resist_good(P_RES_CONFU))
 	  {
 	    msg_print("You disbelieve the feeble spell.");
-	    notice_other(IF_RES_CONFU, 0, NULL);
+	    notice_other(IF_RES_CONFU, 0);
 	  }
 	else if (check_save(100))
 	  {

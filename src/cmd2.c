@@ -466,9 +466,8 @@ void do_cmd_go_down(void)
   /* Set the depth */
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
   
-  /* Check for quests */
-  if ((adult_dungeon) && is_quest(p_ptr->stage) && 
-      !stage_map[p_ptr->stage][DOWN] && (p_ptr->depth < 100))
+  /* Check for avoidable quests */
+  if ((adult_dungeon) && is_quest(p_ptr->stage) && (p_ptr->depth < 100))
     {
       int i;
       monster_race *r_ptr = NULL;
@@ -486,7 +485,11 @@ void do_cmd_go_down(void)
       msg_format("This level is home to %s.", r_name + r_ptr->name);
       strnfmt(buf, sizeof(buf), "Do you wish to be able to avoid fighting %s?",
 	      (r_ptr->flags1 & RF1_FEMALE ? "her" : "him"));
-      if (get_check(buf)) stage_map[p_ptr->stage][DOWN] = p_ptr->stage + 1;
+      if (get_check(buf)) 
+	{
+	  for (i = 0; i < 5; i++)
+	    if (q_list[i].stage == p_ptr->stage) q_list[i].stage = 0;
+	}
     }
 
   /* Leaving */
@@ -2732,10 +2735,10 @@ void do_cmd_alter(void)
   
   int feat;
   
-  bool did_nothing = TRUE;
   bool more = FALSE;
   
   monster_type *m_ptr;
+  feature_type *f_ptr;
   
   /* Get a direction */
   if (!get_rep_dir(&dir)) return;
@@ -2747,13 +2750,11 @@ void do_cmd_alter(void)
   
   /* Original feature */
   feat = cave_feat[y][x];
+  f_ptr = &f_info[feat];
   
   /* Must have knowledge to know feature XXX XXX */
   if (!(cave_info[y][x] & (CAVE_MARK))) feat = FEAT_NONE;
   
-  
-  /* Take a turn */
-  p_ptr->energy_use = 100;
   
   /* Apply confusion */
   if (confuse_dir(&dir))
@@ -2789,7 +2790,6 @@ void do_cmd_alter(void)
 	  else py_attack(y, x);
 	}
       else py_attack(y, x);
-      did_nothing = FALSE;
     }
 
   /*
@@ -2797,58 +2797,60 @@ void do_cmd_alter(void)
    */
   else if ((check_ability(SP_TRAP)) && (cave_trappable_bold(y, x)))
     {
-      py_set_trap(y, x);
-      did_nothing = FALSE;
+      if (!py_set_trap(y, x)) return;
     }
   
   /* Disarm advanced monster traps */
-  else if (feat > FEAT_MTRAP_HEAD)
+  else if (f_ptr->flags & TF_M_TRAP)
     {
-      /* Disarm */
-      more = do_cmd_disarm_aux(y, x);
-    }
-  
-  /* Modify basic monster traps */
-  else if (feat == FEAT_MTRAP_HEAD)
-    {
-      /* Modify */
-      py_modify_trap(y, x);
+      if (feat == FEAT_MTRAP_HEAD)
+	{
+	  /* Modify */
+	  if (!py_modify_trap(y, x)) return;
+	}      
+      else
+	{
+	  /* Disarm */
+	  more = do_cmd_disarm_aux(y, x);
+	}
     }
   
   /* Tunnel through walls */
-  else if (feat >= FEAT_SECRET)
+  else if (f_ptr->flags & TF_ROCK)
     {
       /* Tunnel */
       more = do_cmd_tunnel_aux(y, x);
     }
   
   /* Bash jammed doors */
-  else if (feat >= FEAT_DOOR_HEAD + 0x08)
+  else if (f_ptr->flags & TF_DOOR_JAMMED)
     {
       /* Bash */
       more = do_cmd_bash_aux(y, x);
     }
   
   /* Open closed doors */
-  else if (feat >= FEAT_DOOR_HEAD)
+  else if (f_ptr->flags & TF_DOOR_CLOSED)
     {
       /* Close */
       more = do_cmd_open_aux(y, x);
     }
   
   /* Disarm traps */
-  else if (feat >= FEAT_TRAP_HEAD)
+  else if (f_ptr->flags & TF_TRAP)
     {
       /* Disarm */
       more = do_cmd_disarm_aux(y, x);
     }
   
   /* Oops */
-  else if (did_nothing)
-    {
+  else     {
       /* Oops */
-      msg_print("You spin around.");
+      return;
     }
+  
+  /* Take a turn */
+  p_ptr->energy_use = 100;
   
   /* Cancel repetition unless we can continue */
   if (!more) disturb(0, 0);

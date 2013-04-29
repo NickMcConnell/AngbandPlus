@@ -1379,7 +1379,7 @@ static errr rd_inventory(void)
 	  if (older_than(1, 1, 0)) inventory[n].ident |= IDENT_WORN;
 
 	  /* Notice dice and other obvious stuff */
-	  notice_other(IF_DD_DS, n + 1, NULL);
+	  notice_other(IF_DD_DS, n + 1);
 	  inventory[n].id_obj |= ((inventory[n].flags_obj) & OF_OBVIOUS_MASK);
 	}
       
@@ -1409,7 +1409,7 @@ static errr rd_inventory(void)
 	  p_ptr->inven_cnt++;
 
 	  /* Notice dice and other obvious stuff */
-	  notice_other(IF_DD_DS, n + 1, NULL);
+	  notice_other(IF_DD_DS, n + 1);
 	  inventory[n].id_obj |= ((inventory[n].flags_obj) & OF_OBVIOUS_MASK);
 	}
     }

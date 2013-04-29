@@ -2087,7 +2087,7 @@ extern int make_dump(char_attr_line *line, int mode)
   current_line += 2;
 
   /* Dump options */
-  for (i = OPT_adult_start + 5; i < OPT_adult_end; i++)
+  for (i = OPT_adult_start + 4; i < OPT_adult_end; i++)
     {
       if (option_desc[i])
 	{

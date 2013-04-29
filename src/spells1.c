@@ -1488,7 +1488,7 @@ int resist_damage(int dam, byte resist, byte rand_factor)
     }
 
   /* Notice equipment resistance */
-  notice_other((OBJECT_ID_BASE_RESIST << resist), 0, NULL);
+  notice_other((OBJECT_ID_BASE_RESIST << resist), 0);
   
   /* Return damage reduction */
   return (((dam * resist_percentage) + 99) / 100);
@@ -2777,7 +2777,7 @@ static void apply_chaos(void)
   /* Always confuse (if no resist) and hallucinate ... */
   if (!p_resist_good(P_RES_CONFU)) 
     (void)set_confused(p_ptr->confused + rand_int(20) + 10);
-  else notice_other(IF_RES_CONFU, 0, NULL);
+  else notice_other(IF_RES_CONFU, 0);
   (void)set_image(p_ptr->image + randint(10));
   
   while (!safe_now)
@@ -2813,7 +2813,7 @@ static void apply_chaos(void)
 		    lose_exp(2000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 		  }
 	      }
-	    else notice_other(IF_RES_NETHR, 0, NULL);
+	    else notice_other(IF_RES_NETHR, 0);
 	    break;
 	  }
 	  /* Shapechange */
@@ -6563,7 +6563,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	    
 	    /* Hallucination */
 	    if (p_resist_good(P_RES_CHAOS))
-	      notice_other(IF_RES_CHAOS, 0, NULL);
+	      notice_other(IF_RES_CHAOS, 0);
 	    else if (!check_save(dam / 2 + 20))
 	      {
 		(void)set_image(p_ptr->image + rand_int(17) + 16);
@@ -6609,12 +6609,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	      {
 		(void)set_image(p_ptr->image + rand_int(101) + 100);
 	      }
-	    else notice_other(IF_RES_CHAOS, 0, NULL);
+	    else notice_other(IF_RES_CHAOS, 0);
 	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(31) + 30);
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 	  }
 	
 	break;
@@ -6632,12 +6632,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  {
 	    (void)set_cut(p_ptr->cut + damroll(5, 8));
 	  }
-	else notice_other(IF_RES_SHARD, 0, NULL);
+	else notice_other(IF_RES_SHARD, 0);
 	if (!p_resist_good(P_RES_SOUND))
 	  {
 	    (void)set_stun(p_ptr->stun + randint(15));
 	  }
-	else notice_other(IF_RES_SOUND, 0, NULL);
+	else notice_other(IF_RES_SOUND, 0);
 	break;
       }
       
@@ -6775,7 +6775,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		msg_print("You feel a force attacking the magic around you.");
 		(void)apply_disenchant(0);
 	      }
-	    else notice_other(IF_RES_DISEN, 0, NULL);
+	    else notice_other(IF_RES_DISEN, 0);
 	    
 	    /* Use up some of the power. */
 	    k = 2 * k / 3;
@@ -6857,7 +6857,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		k = (randint((dam > 400) ? 21 : (1 + dam / 20)));
 		(void)set_confused(p_ptr->confused + k);
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 	    
 	    /* Stun the player. */
 	    k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
@@ -6945,7 +6945,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	    int k = (randint((dam > 90) ? 35 : (dam / 5 + 5)));
 	    (void)set_stun(p_ptr->stun + k);
 	  }
-	else notice_other(IF_RES_SOUND, 0, NULL);
+	else notice_other(IF_RES_SOUND, 0);
 
 	take_hit(dam, killer);
 	
@@ -6968,7 +6968,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  {
 	    (void)set_stun(p_ptr->stun + randint(20));
 	  }
-	else notice_other(IF_RES_SOUND, 0, NULL);
+	else notice_other(IF_RES_SOUND, 0);
 
 	take_hit(dam, killer);
 	
@@ -6989,13 +6989,13 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  {
 	    (void)set_stun(p_ptr->stun + randint(5 + dam / 10));
 	  }
-	else notice_other(IF_RES_SOUND, 0, NULL);
+	else notice_other(IF_RES_SOUND, 0);
 
 	if ((!p_resist_good(P_RES_CONFU)) && (rand_int(2) == 0))
 	  {
 	    (void)set_confused(p_ptr->confused + rand_int(4) + 3);
 	  }
-	else notice_other(IF_RES_CONFU, 0, NULL);
+	else notice_other(IF_RES_CONFU, 0);
 
 	take_hit(dam, killer);
 	break;
@@ -7044,7 +7044,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  {
 	    (void)set_confused(p_ptr->confused + 5 + randint(dam / 3));
 	  }
-	else notice_other(IF_RES_CONFU, 0, NULL);
+	else notice_other(IF_RES_CONFU, 0);
 	
 	/* Mark grid for later processing. */
 	cave_info[y][x] |= (CAVE_TEMP);

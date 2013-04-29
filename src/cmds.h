@@ -52,8 +52,8 @@ extern void do_cmd_query_symbol(void);
 extern bool ang_sort_comp_hook(vptr u, vptr v, int a, int b);
 extern void ang_sort_swap_hook(vptr u, vptr v, int a, int b);
 extern void py_steal(int y, int x);
-extern void py_set_trap(int y, int x);
-extern void py_modify_trap(int y, int x);
+extern bool py_set_trap(int y, int x);
+extern bool py_modify_trap(int y, int x);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);

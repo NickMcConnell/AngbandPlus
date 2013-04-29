@@ -5757,16 +5757,10 @@ void display_itemlist(void)
   int counts[MAX_ITEMLIST];
   unsigned counter = 0;
   
-  int dungeon_hgt = p_ptr->depth == 0 ? DUNGEON_HGT / 3 : DUNGEON_HGT;
-  int dungeon_wid = p_ptr->depth == 0 ? DUNGEON_WID / 3 : DUNGEON_WID;
-  
   byte attr;
   char buf[80];
   
   int floor_list[MAX_FLOOR_STACK];
-  
-  /* Set major town flag if necessary */
-  if (p_ptr->stage > 150) dungeon_wid /= 2;
   
   /* Clear the term if in a subwindow, set x otherwise */
   if (Term != angband_term[0])
@@ -5781,9 +5775,9 @@ void display_itemlist(void)
     }
   
   /* Look at each square of the dungeon for items */
-  for (my = 0; my < dungeon_hgt; my++)
+  for (my = 0; my < DUNGEON_HGT; my++)
     {
-      for (mx = 0; mx < dungeon_wid; mx++)
+      for (mx = 0; mx < DUNGEON_WID; mx++)
 	{
 	  (void) scan_floor(floor_list, &num, my, mx, 0x02);
 	  

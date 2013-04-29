@@ -330,11 +330,28 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 
 
 /*
- * Return TRUE if the given object is inscribed with "=g".
+ * Return TRUE if the given object can be automatically picked up
  */
 static bool auto_pickup_okay(object_type *o_ptr)
 {
   cptr s;
+  int j;
+
+  /* Can't pick up if no room */
+  if (!inven_carry_okay(o_ptr)) return FALSE;
+
+  /* Pickup things that match the inventory */
+  if (pickup_inven) 
+    for (j = 0; j < INVEN_PACK - p_ptr->pack_size_reduce; j++)
+      {
+	object_type *j_ptr = &inventory[j];
+	
+	/* Skip non-objects */
+	if (!j_ptr->k_idx) continue;
+	
+	/* Check if the two items can be combined */
+	if (object_similar(j_ptr, o_ptr)) return (TRUE);
+      }
   
   /* No inscription */
   if (!o_ptr->note)
@@ -420,15 +437,12 @@ extern void py_pickup_aux(int o_idx)
     }
 
   /* Notice dice and other obvious stuff */
-  notice_other(IF_DD_DS, slot + 1, NULL);
+  notice_other(IF_DD_DS, slot + 1);
   o_ptr->id_obj |= ((o_ptr->flags_obj) & OF_OBVIOUS_MASK);
 
   /* Average things are average */
-  if (o_ptr->feel == FEEL_AVERAGE)
-    {
-      if (is_weapon(o_ptr)) notice_other((IF_TO_H | IF_TO_D), slot + 1, NULL);
-      if (is_armour(o_ptr)) notice_other((IF_AC | IF_TO_A), slot + 1, NULL);
-    }
+  if ((o_ptr->feel == FEEL_AVERAGE) && (is_weapon(o_ptr) || is_armour(o_ptr)))
+    notice_other((IF_AC | IF_TO_A | IF_TO_H | IF_TO_D), slot + 1);
 
   /* Recalculate the bonuses */
   p_ptr->update |= (PU_BONUS);
@@ -1298,7 +1312,7 @@ void hit_trap(int y, int x)
 		
 		Rand_quick = TRUE;
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 	  }
 	
 	/* poisoning trap. */
@@ -1601,13 +1615,13 @@ void hit_trap(int y, int x)
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 	      }
-	    else notice_other(IF_RES_CONFU, 0, NULL);
+	    else notice_other(IF_RES_CONFU, 0);
 
 	    if (!p_resist_good(P_RES_CHAOS))
 	      {
 		(void)set_image(p_ptr->image + randint(40));
 	      }
-	    else notice_other(IF_RES_CHAOS, 0, NULL);
+	    else notice_other(IF_RES_CHAOS, 0);
 	    
 	    /* XXX (hard coded) summon 3-6 bugs. */
 	    k = randint(4) + 2;

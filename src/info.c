@@ -711,7 +711,6 @@ extern void display_weapon_damage(object_type *o_ptr)
   int i, j;
   
   bool first = TRUE;
-  bool full = TRUE;
   int show_m_tohit;
   int brand[MAX_P_BRAND], slay[MAX_P_SLAY];
   
@@ -719,15 +718,13 @@ extern void display_weapon_damage(object_type *o_ptr)
 			   "orcs", "trolls", "giants", "dragons" };
   const char *brandee[] = { "acid", "lightning", "fire", "cold", "poison"  };
   
-  /* Is the object known? */
-  if (!object_known_p(o_ptr))
-    full = FALSE;
-  
   /* Extract the slays and brands */
   for (j = 0; j < MAX_P_SLAY; j++)
-    slay[j] = (full ? o_ptr->multiple_slay[j] : MULTIPLE_BASE);
+    slay[j] = (o_ptr->id_other & (OBJECT_ID_BASE_SLAY << j)) 
+      ? o_ptr->multiple_slay[j] : MULTIPLE_BASE;
   for (j = 0; j < MAX_P_BRAND; j++)
-    brand[j] = (full ? o_ptr->multiple_brand[j] : MULTIPLE_BASE);
+    brand[j] = (o_ptr->id_other & (OBJECT_ID_BASE_BRAND << j)) 
+      ? o_ptr->multiple_brand[j] : MULTIPLE_BASE;
 
   /* Check rings for additional brands (slays) */
   for (i = 0; i < 2; i++)
@@ -737,15 +734,15 @@ extern void display_weapon_damage(object_type *o_ptr)
       /* If wearing a ring */
       if (i_ptr->k_idx)
 	{
-	  full = object_known_p(i_ptr);
-	  
 	  /* Pick up any brands (and slays!) */
 	  for (j = 0; j < MAX_P_SLAY; j++)
 	    slay[j] = MAX(slay[j],
-			  (full ? i_ptr->multiple_slay[j] : MULTIPLE_BASE));
+			  (i_ptr->id_other & (OBJECT_ID_BASE_SLAY << j)) 
+			  ? i_ptr->multiple_slay[j] : MULTIPLE_BASE);
 	  for (j = 0; j < MAX_P_BRAND; j++)
 	    brand[j] = MAX(brand[j], 
-			   (full ? i_ptr->multiple_brand[j] : MULTIPLE_BASE));
+			   (i_ptr->id_other & (OBJECT_ID_BASE_BRAND << j)) 
+			   ? i_ptr->multiple_brand[j] : MULTIPLE_BASE);
 	}
     }
   
@@ -754,7 +751,7 @@ extern void display_weapon_damage(object_type *o_ptr)
   object_copy(&inventory[INVEN_WIELD], o_ptr);
   calc_bonuses(TRUE);
   show_m_tohit = p_ptr->dis_to_h;
-  if (object_known_p(o_ptr)) show_m_tohit += o_ptr->to_h;
+  if (o_ptr->id_other & IF_TO_H) show_m_tohit += o_ptr->to_h;
   
   text_out_to_screen(TERM_WHITE, "\nWielding it you would have ");
   text_out_to_screen(TERM_L_GREEN, format("%d ", p_ptr->num_blow));
@@ -866,7 +863,7 @@ extern void display_ammo_damage(object_type *o_ptr)
   object_type *i_ptr;
 
   bool first = TRUE;
-  bool full = TRUE, perfect;
+  bool perfect;
   
   int brand[MAX_P_BRAND], slay[MAX_P_SLAY];
   
@@ -874,18 +871,16 @@ extern void display_ammo_damage(object_type *o_ptr)
 			   "orcs", "trolls", "giants", "dragons" };
   const char *brandee[] = { "acid", "lightning", "fire", "cold", "poison"  };
   
-  /* Is the object known? */
-  if (!object_known_p(o_ptr))
-    full = FALSE;
-  
   /* Extract the slays and brands */
   for (i = 0; i < MAX_P_SLAY; i++)
-    slay[i] = (full ? o_ptr->multiple_slay[i] : MULTIPLE_BASE);
+    slay[i] = (o_ptr->id_other & (OBJECT_ID_BASE_SLAY << i)) 
+      ? o_ptr->multiple_slay[i] : MULTIPLE_BASE;
   for (i = 0; i < MAX_P_BRAND; i++)
-    brand[i] = (full ? o_ptr->multiple_brand[i] : MULTIPLE_BASE);
+    brand[i] = (o_ptr->id_other & (OBJECT_ID_BASE_BRAND << i)) 
+      ? o_ptr->multiple_brand[i] : MULTIPLE_BASE;
   
   /* Check for well-balanced throwing weapons */
-  perfect = (full && (o_ptr->flags_obj & OF_PERFECT_BALANCE));
+  perfect = (o_ptr->id_obj & OF_PERFECT_BALANCE);
   
   if (o_ptr->tval > TV_BOLT)
     {
@@ -917,15 +912,15 @@ extern void display_ammo_damage(object_type *o_ptr)
       /* If wielding a launcher - sanity check */
       if (i_ptr->k_idx)
 	{
-	  full = object_known_p(i_ptr);
-	  
 	  /* Pick up any brands (and slays!) */
 	  for (i = 0; i < MAX_P_SLAY; i++)
 	    slay[i] = MAX(slay[i],
-			  (full ? i_ptr->multiple_slay[i] : MULTIPLE_BASE));
+			  (i_ptr->id_other & (OBJECT_ID_BASE_SLAY << i)) 
+			  ? i_ptr->multiple_slay[i] : MULTIPLE_BASE);
 	  for (i = 0; i < MAX_P_BRAND; i++)
 	    brand[i] = MAX(brand[i], 
-			   (full ? i_ptr->multiple_brand[i] : MULTIPLE_BASE));
+			  (i_ptr->id_other & (OBJECT_ID_BASE_BRAND << i)) 
+			  ? i_ptr->multiple_brand[i] : MULTIPLE_BASE);
 	}
       
       text_out_to_screen(TERM_WHITE, "\nUsing it with your current launcher you would do an average damage per shot of ");
@@ -2100,8 +2095,9 @@ void object_info_detail(object_type *o_ptr)
 	    text_out_to_screen(TERM_WHITE, "You know all about this object.");
 	  
 	  /* Some unknown curses */
-	  else text_out_to_screen(TERM_WHITE, 
-				  "You know all the enchantments on this object. ");
+	  else 
+	    text_out_to_screen(TERM_WHITE, 
+			       "You know all the enchantments on this object. ");
 	}
       
       /* Curses known */

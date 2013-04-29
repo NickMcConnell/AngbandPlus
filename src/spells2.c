@@ -423,8 +423,9 @@ void identify_object(object_type *o_ptr)
   /* Identify it fully */
   object_aware(o_ptr);
   object_known(o_ptr);
-  o_ptr->id_obj = o_ptr->flags_obj;
-  notice_other(0xffffffff, 0, o_ptr);
+
+  /* Now we know about any ego-item type */
+  if (o_ptr->name2) e_info[o_ptr->name2].everseen = TRUE;
 
   /* Get sensation ID (id_other is already done by the notice_other call) */
   if ((o_ptr == &inventory[INVEN_LEFT]) || 
@@ -4282,7 +4283,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 	}
       else 
 	{
-	  notice_other(IF_RES_LITE, 0, NULL);
+	  notice_other(IF_RES_LITE, 0);
 	  notice_obj(OF_SEEING, 0);
 	}
     }

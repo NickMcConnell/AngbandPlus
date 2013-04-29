@@ -5,7 +5,7 @@
 #define DEFAULT_PATH "/usr/local/share/faangband/"
 
 /* Define to 1 if you have the `can_change_color' function. */
-/* #undef HAVE_CAN_CHANGE_COLOR */
+#define HAVE_CAN_CHANGE_COLOR 1
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
@@ -64,6 +64,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
+/* Define to 1 if you have the `use_default_colors' function. */
+#define HAVE_USE_DEFAULT_COLORS 1
+
 /* Define to 1 if the system has the type `_Bool'. */
 #define HAVE__BOOL 1
 
@@ -77,13 +80,16 @@
 #define PACKAGE_NAME "FAangband"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "FAangband 1.0.x"
+#define PACKAGE_STRING "FAangband 1.1.x"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "faangband"
 
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
+
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.0.x"
+#define PACKAGE_VERSION "1.1.x"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
@@ -101,7 +107,7 @@
 #define USE_GCU 1
 
 /* Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found. */
-#define USE_GTK 1
+/* #undef USE_GTK */
 
 /* Define to 1 if NCurses is found. */
 #define USE_NCURSES 1
@@ -116,7 +122,7 @@
 #define USE_X11 1
 
 /* Version number of package */
-#define VERSION "1.0.x"
+#define VERSION "1.1.x"
 
 /* Define to 1 if the X Window System is missing or not being used. */
 /* #undef X_DISPLAY_MISSING */

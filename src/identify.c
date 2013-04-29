@@ -158,7 +158,7 @@ bool has_ego_properties(object_type *o_ptr)
   /* ID'd items are known */
   if (o_ptr->ident & IDENT_KNOWN) return TRUE;
 
-  /* Has to have been seen */
+  /* This ego type has to have been seen */
   if (!e_ptr->everseen) return FALSE;
 
   /* A curse matches */
@@ -231,7 +231,7 @@ void label_as_ego(object_type *o_ptr, int item)
   if (item - 1 >= INVEN_WIELD)
     {
       msg_format("%^s: %s (%c).",
-		 describe_use(item + 1), o_name, index_to_label(item + 1));
+		 describe_use(item - 1), o_name, index_to_label(item - 1));
     }
   else if (item - 1 >= 0)
     {
@@ -278,7 +278,7 @@ u32b flags_other(object_type *o_ptr)
   if ((o_ptr->to_d) || is_weapon(o_ptr) || (o_ptr->flags_obj & OF_SHOW_MODS)) 
     all_flags |= IF_TO_D;
   if ((o_ptr->to_a) || is_armour(o_ptr)) all_flags |= IF_TO_A;
-  if ((o_ptr->ac) || is_armour(o_ptr)) all_flags |= IF_AC;
+  if ((o_ptr->ac) || is_armour(o_ptr)) all_flags |= (IF_AC | IF_TO_A);
   all_flags |= IF_DD_DS;
 
   return all_flags;
@@ -287,21 +287,54 @@ u32b flags_other(object_type *o_ptr)
 /* 
  * Does the item have stat or other bonuses?
  */
-bool no_stat_bonuses(object_type *o_ptr)
+bool has_bonuses(object_type *o_ptr)
 {
   int j;
 
   /* Affects stats? */
   for (j = 0; j < A_MAX; j++)
-    if (o_ptr->bonus_stat[j] != 0) return FALSE;
+    if (o_ptr->bonus_stat[j] != 0) return TRUE;
 
   /* Affects something else? */
   for (j = 0; j < MAX_P_BONUS; j++)
-    if (o_ptr->bonus_other[j] != 0) return FALSE;
+    if (o_ptr->bonus_other[j] != 0) return TRUE;
 
   /* Doesn't look like it */
+  return FALSE;
+}
+
+/* 
+ * Determine if all the properties of a wieldable item are known,
+ * but it's not formally identified
+ */
+bool known_really(object_type *o_ptr)
+{
+  u32b otherflags = flags_other(o_ptr);
+  bool needs_to_be_worn = has_bonuses(o_ptr);
+
+  /* Any ego-item type must be known */
+  if (o_ptr->name2) 
+    if (!(e_info[o_ptr->name2].everseen)) return FALSE;
+
+  /* Object flags must be known */
+  if ((o_ptr->id_obj) != (o_ptr->flags_obj | o_ptr->id_obj)) return FALSE;
+
+  /* Other flags must be known */
+  if ((o_ptr->id_other) != (otherflags | o_ptr->id_other)) return FALSE;
+
+  /* Objects with bonuses need to be worn to see the bonuses */
+  if (needs_to_be_worn && (!(o_ptr->ident & IDENT_WORN))) return FALSE;
+
+  /* No need to identify if it already has been */  
+  if (o_ptr->ident & IDENT_KNOWN) return FALSE;
+
+  /* Has to be wieldable */
+  if (wield_slot(o_ptr) < 0) return FALSE;
+
+  /* Must be OK */
   return TRUE;
 }
+
 
 /* 
  * Notice random effect curses
@@ -330,11 +363,7 @@ void notice_curse(u32b curse_flag, int item)
 	    label_as_ego(o_ptr, item);
 	}
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj)) &&
-	  ((flags_other(o_ptr)) == (o_ptr->id_other)) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
+      if (known_really(o_ptr)) identify_object(o_ptr);
 
       return;
     }
@@ -353,16 +382,12 @@ void notice_curse(u32b curse_flag, int item)
 	  o_ptr->ident |= IDENT_CURSED;
 
 	  /* Ego item? */
-	  if (already_ego != has_ego_properties(o_ptr))
+	  if (already_ego != has_ego_properties(o_ptr)) 
 	    label_as_ego(o_ptr, item);
 	}
 
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj)) &&
-	  ((flags_other(o_ptr)) == (o_ptr->id_other)) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
+      if (known_really(o_ptr)) identify_object(o_ptr);
     }
 }
 
@@ -395,15 +420,10 @@ void notice_obj(u32b obj_flag, int item)
 	}
 
       /* Ego item? */
-      if (already_ego != has_ego_properties(o_ptr))
-	label_as_ego(o_ptr, item);
+      if (already_ego != has_ego_properties(o_ptr)) label_as_ego(o_ptr, item);
 
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj)) &&
-	  ((flags_other(o_ptr)) == (o_ptr->id_other)) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
+      if (known_really(o_ptr)) identify_object(o_ptr);
       
       return;
     }
@@ -424,38 +444,27 @@ void notice_obj(u32b obj_flag, int item)
 	}
 
       /* Ego item? */
-      if (already_ego != has_ego_properties(o_ptr))
-	label_as_ego(o_ptr, item);
+      if (already_ego != has_ego_properties(o_ptr)) label_as_ego(o_ptr, item);
 
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj)) &&
-	  ((flags_other(o_ptr)) == (o_ptr->id_other)) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
+      if (known_really(o_ptr)) identify_object(o_ptr);
     }
 }
 
 /* 
  * Notice other properties
  */
-void notice_other(u32b other_flag, int item, object_type *o_ptr)
+void notice_other(u32b other_flag, int item)
 {
   int i, j;
   u32b temp_flag;
   bool already_ego = FALSE;
+  object_type *o_ptr;
 
-  if (item || o_ptr) 
+  if (item) 
     {
       if (item > 0) o_ptr = &inventory[item - 1];
-      else if (!o_ptr) o_ptr = &o_list[0 - item];
-
-      /* Determine if the item is being worn */
-      else 
-	for (i = INVEN_WIELD; i <= INVEN_FEET; i++)
-	  if (o_ptr == &inventory[i]) item = i + 1;
-
-
+      else o_ptr = &o_list[0 - item];
 
       already_ego = has_ego_properties(o_ptr);
 
@@ -519,16 +528,11 @@ void notice_other(u32b other_flag, int item, object_type *o_ptr)
       if (other_flag & IF_DD_DS) o_ptr->id_other |= IF_DD_DS;
 
       /* Ego item? */
-      if (already_ego != has_ego_properties(o_ptr))
-	label_as_ego(o_ptr, item);
+      if (already_ego != has_ego_properties(o_ptr)) label_as_ego(o_ptr, item);
 
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj | o_ptr->id_obj)) &&
-	  ((o_ptr->id_other) == (o_ptr->id_other | flags_other(o_ptr))) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
-      
+      if (known_really(o_ptr)) identify_object(o_ptr);
+
       return;
     }
   
@@ -592,15 +596,10 @@ void notice_other(u32b other_flag, int item, object_type *o_ptr)
       if (other_flag & IF_DD_DS) o_ptr->id_other |= IF_DD_DS;
 
       /* Ego item? */
-      if (already_ego != has_ego_properties(o_ptr))
-	label_as_ego(o_ptr, item);
+      if (already_ego != has_ego_properties(o_ptr)) label_as_ego(o_ptr, item);
 
       /* Fully identified now? */
-      if (((o_ptr->id_obj) == (o_ptr->flags_obj | o_ptr->id_obj)) &&
-	  ((flags_other(o_ptr)) == (o_ptr->id_other | flags_other(o_ptr))) &&
-	  ((o_ptr->ident & IDENT_WORN) ||  no_stat_bonuses(o_ptr)) &&
-	  (!(o_ptr->ident & IDENT_KNOWN)) && (wield_slot(o_ptr) >= INVEN_WIELD))
-	identify_object(o_ptr);
+      if (known_really(o_ptr)) identify_object(o_ptr);
     }
 }
 
