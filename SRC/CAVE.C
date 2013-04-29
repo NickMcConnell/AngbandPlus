@@ -821,7 +821,34 @@ void map_info(int y, int x, byte *ap, char *cp)
                         c = f_ptr->x_char;
 
                         /* Hard to see at night */
-                        if (!daytime) a = TERM_L_DARK;
+                        if (!daytime)
+                        {
+                                if (graf_new)
+                                {
+                                        /* Use a dark tile */
+                                        c += 1;
+                                }
+                                else
+                                {
+                                        /* Use "gray" */
+                                        a = TERM_L_DARK;
+                                }
+                        }
+                        /* Handle "view_bright_lite" */
+                        else if ((view_bright_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
+                        {
+                                if (graf_new)
+                                {
+                                        /* Use a dark tile */
+                                        c += 1;
+                                }
+                                else
+                                {
+                                        /* Use "gray" */
+                                        a = TERM_SLATE;
+                                }
+                        }
+
                 }
                 /* Hack -- Safe cave grid -- now use 'invisible trap' */
 		else if (view_safe_grids && (info & (CAVE_SAFE)))
@@ -963,7 +990,33 @@ void map_info(int y, int x, byte *ap, char *cp)
                         c = f_ptr->x_char;
 
                         /* Hard to see at night */
-                        if (!daytime) a = TERM_L_DARK;
+                        if (!daytime)
+                        {
+                                if (graf_new)
+                                {
+                                        /* Use a dark tile */
+                                        c += 1;
+                                }
+                                else
+                                {
+                                        /* Use "gray" */
+                                        a = TERM_L_DARK;
+                                }
+                        }
+                        /* Handle "view_bright_lite" */
+                        else if ((view_bright_lite) && (f_ptr->flags2 & (FF2_ATTR_LITE)))
+                        {
+                                if (graf_new)
+                                {
+                                        /* Use a dark tile */
+                                        c += 1;
+                                }
+                                else
+                                {
+                                        /* Use "gray" */
+                                        a = TERM_SLATE;
+                                }
+                        }
 
                 }
                 /* Hack -- Safe cave grid -- now use 'invisible trap' */
@@ -2776,6 +2829,8 @@ void update_view(void)
 
 	int pg = GRID(py,px);
 
+        int fy,fx;
+
 	int i, g, o2;
 
 	int radius;
@@ -2831,19 +2886,24 @@ void update_view(void)
 	/* Handle real light */
 	if (radius > 0) ++radius;
 
-#ifdef MONSTER_LITE
     /*** Step 1A -- monster lites ***/
-
+#ifdef MONSTER_LITE
     /* Scan monster list and add monster lites */
-    for ( k = 1; k < MAX_M_IDX; k++)
+    for ( i = 1; i < z_info->m_max; i++)
    {
 
-        /* Check the k'th monster */
-        monster_type *m_ptr = &m_list[k];
+        /* Check the i'th monster */
+        monster_type *m_ptr = &m_list[i];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
        /* Skip dead monsters */
        if (!m_ptr->r_idx) continue;
+
+        /* Skip sleeping monsters */
+        if (m_ptr->csleep) continue;
+
+        /* Skip hiding monsters */
+        if (m_ptr->mflag & (MFLAG_HIDE)) continue;
 
 
        /* Access the location */
@@ -2852,6 +2912,17 @@ void update_view(void)
 
         /* Carrying lite */
         if (r_ptr->flags2 & (RF2_HAS_LITE))
+#if 0
+        /* We might also allow the following situation for monsters
+         * to carry lights:
+
+          - if they are t, p, q, P, h or l
+          - and not hurt lite
+          - and the player is hidden or in darkness
+         *
+         */
+
+#endif
         {
             /* monster grid */
             if (los(py,px,fy,fx))
@@ -3902,7 +3973,23 @@ void town_illuminate(bool daytime)
                         /* Don't affect indoors */
                         if (!(f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
                         {
-                                /* Nothing */
+                                if ((daytime) && (cave_info[y][x] & (CAVE_WALL)))
+                                {
+                                        for (i = 0; i < 8; i++)
+                                        {
+                                                int yy = y + ddy_ddd[i];
+                                                int xx = x + ddx_ddd[i];
+                        
+                                                /* Ignore annoying locations */
+                                                if (!in_bounds_fully(yy, xx)) continue;
+                        
+                                                if (f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE))
+                                                {
+                                                        /* Illuminate the grid */
+                                                        cave_info[y][x] |= (CAVE_GLOW);
+                                                }
+                                        }
+                                }
                         }
 			/* Boring grids (light) */
                         else if (daytime)

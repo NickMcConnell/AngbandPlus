@@ -1204,8 +1204,8 @@
 #define SPELL_WARD_GLYPH        6
 #define SPELL_WARD_TRAP         7
 #define SPELL_SUMMON            8
-#define SPELL_SUMMON_R          9
-#define SPELL_CREATE_TVAL     10
+#define SPELL_SUMMON_RACE       9
+#define SPELL_CREATE_RACE     10
 #define SPELL_CREATE_KIND     11
 #define SPELL_EARTHQUAKE      12
 #define SPELL_DESTRUCTION     13
@@ -1598,6 +1598,18 @@
 #define SV_HOLD_BOX          3
 #define SV_HOLD_CAGE         4
 
+/* The "sval" codes for TV_JUNK */
+#define SV_JUNK_ROCK	     1
+#define SV_JUNK_SHARD        3
+#define SV_JUNK_STICK	     6
+#define SV_JUNK_STUMP	     7
+#define SV_JUNK_BRANCH	     8
+#define SV_JUNK_SAND         9
+#define SV_JUNK_EARTH        10
+#define SV_JUNK_MUD          11
+#define SV_JUNK_DUST         12
+#define SV_JUNK_ICE          13
+
 /* The "sval" codes for TV_BODY */
 #define SV_BODY_CORPSE       1
 #define SV_BODY_HEAD         2
@@ -1605,8 +1617,6 @@
 #define SV_BODY_ARM          4
 #define SV_BODY_LEG          6
 #define SV_BODY_WING         7
-#define SV_BODY_STUMP        10
-#define SV_BODY_BRANCH       11
 #define SV_BODY_CLAW         12
 
 /* The "sval" codes for TV_SKIN */
@@ -2163,7 +2173,9 @@
 #define RBM_AIM         44
 #define RBM_ORB         45
 #define RBM_STAR        46
-
+#define RBM_SPHERE	47
+#define RBM_PANEL	48
+#define RBM_LEVEL	49
 
 /*** Function flags ***/
 
@@ -2693,7 +2705,7 @@
 #define RF2_TAKE_ITEM           0x00400000      /* Monster can pick up items */
 #define RF2_KILL_ITEM           0x00800000      /* Monster can crush items */
 #define RF2_SNEAKY                      0x01000000 /* Monster hides a lot of actions */
-#define RF2_BRAIN_2                     0x02000000
+#define RF2_HAS_AURA                    0x02000000
 #define RF2_BRAIN_3                     0x04000000
 #define RF2_BRAIN_4                     0x08000000
 #define RF2_BRAIN_5                     0x10000000

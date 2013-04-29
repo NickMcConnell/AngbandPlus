@@ -103,6 +103,11 @@ introduce bugs.
 - Implement alchemy/manufacturing items.
 	This is low priority at this stage.
 
+- Implement room descriptions version 2.
+        This will mean that features and objects will be placed
+more aesthetically around the room, and match the textual
+descriptions.
+
 
 
 

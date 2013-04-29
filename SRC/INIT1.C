@@ -176,6 +176,8 @@ static cptr r_info_blow_method[] =
         "AIM",
         "ORB",
         "STAR",
+	  "SPHERE",
+	"PANEL",
 	NULL
 };
 
@@ -463,9 +465,9 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-        "SNEAKY",
-	"BRAIN_2",
-	"BRAIN_3",
+      "SNEAKY",
+	"HAS_AURA",
+        "BRAIN_3",
 	"BRAIN_4",
 	"BRAIN_5",
 	"BRAIN_6",
@@ -1130,6 +1132,7 @@ static cptr s_info_flags3[] =
 
 static cptr s_info_types[] =
 {
+        "",
         "RECHARGE",
         "IDENT_TVAL",
         "ENCHANT_TVAL",
@@ -1138,8 +1141,8 @@ static cptr s_info_types[] =
         "WARD_GLYPH",
         "WARD_TRAP",
         "SUMMON",
-        "SUMMON_R",
-        "CREATE_TVAL",
+        "SUMMON_RACE",
+        "CREATE_RACE",
         "CREATE_KIND",
         "EARTHQUAKE",
         "DESTRUCTION",
@@ -4034,10 +4037,10 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			r_ptr->rarity = rar;
 			r_ptr->extra = pad;
 			r_ptr->mexp = exp;
-
+#if 0
                         /* Check */
                         if (r_ptr->rarity == 0) msg_format("Not encountered: %s",r_name + r_ptr->name);
-
+#endif
 			/* Next... */
 			continue;
 		}

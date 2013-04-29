@@ -55,7 +55,6 @@ void delete_monster_idx(int i)
 	/* Monster is gone */
 	cave_m_idx[y][x] = 0;
 
-
 	/* Delete objects */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -1466,6 +1465,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
         int bx2 = x2/BLOCK_WID;
 
 	monster_type *m_ptr;
+        monster_race *r_ptr;
 
 	/* Monsters */
 	m1 = cave_m_idx[y1][x1];
@@ -1480,11 +1480,43 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	if (m1 > 0)
 	{
 		m_ptr = &m_list[m1];
-
+                r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Move monster */
 		m_ptr->fy = y2;
 		m_ptr->fx = x2;
+
+		/* Some monsters radiate lite when moving */
+		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		{
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
+
+                /* Some monsters radiate damage when moving */
+                if (r_ptr->flags2 & (RF2_HAS_AURA))
+                {
+                        int i;
+        
+                        /* Scan through all four blows */
+                        for (i = 0; i < 4; i++)
+                        {
+                                int flg;
+        
+                                /* End of attacks */
+                                if (!(r_ptr->blow[i].method)) break;
+        
+                                /* Skip if not spores */
+                                if (r_ptr->blow[i].method != (RBM_AURA)) continue;
+        
+                                flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+        
+                                /* Hit with radiate attack */
+                                (void)project(m1, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                         r_ptr->blow[i].effect, flg);
+                        }
+        
+                }
 
 		/* Update monster */
 		update_mon(m1, TRUE);
@@ -1523,10 +1555,47 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	if (m2 > 0)
 	{
 		m_ptr = &m_list[m2];
+                r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Move monster */
 		m_ptr->fy = y1;
 		m_ptr->fx = x1;
+
+
+		/* Some monsters radiate lite when moving */
+		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		{
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
+
+
+
+                /* Some monsters radiate damage when moving */
+                if (r_ptr->flags2 & (RF2_HAS_AURA))
+                {
+                        int i;
+        
+                        /* Scan through all four blows */
+                        for (i = 0; i < 4; i++)
+                        {
+                                int flg;
+        
+                                /* End of attacks */
+                                if (!(r_ptr->blow[i].method)) break;
+        
+                                /* Skip if not spores */
+                                if (r_ptr->blow[i].method != (RBM_AURA)) continue;
+        
+                                flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+        
+                                /* Hit with radiate attack */
+                                (void)project(m2, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                         r_ptr->blow[i].effect, flg);
+                        }
+        
+                }
+
 
 		/* Update monster */
 		update_mon(m2, TRUE);
@@ -2249,6 +2318,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	/* Optimize -- Repair flags */
 	repair_mflag_born = TRUE;
 
+		/* Some monsters radiate lite when born */
+		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		{
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
 
 	/* Place the monster in the dungeon */
 	if (!monster_place(y, x, n_ptr)) return (FALSE);
@@ -2819,12 +2894,9 @@ bool summon_specific(int y1, int x1, int lev, int type)
  * Unlike above routine, we only place one of the monster, regardless
  * of type and we do allow uniques, but not if already created.
  */
-bool summon_specific_one(int y1, int x1, int r_idx)
+bool summon_specific_one(int y1, int x1, int r_idx, bool slp)
 {
         int i, x, y;
-
-        /* Get the feature */
-        feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
         /* Get the monster */
         monster_race *r_ptr = &r_info[r_idx];
@@ -2849,7 +2921,7 @@ bool summon_specific_one(int y1, int x1, int r_idx)
 		if (!cave_empty_bold(y, x)) continue;
 
 		/* Hack -- no summoning on glyph of warding */
-                if (f_ptr->flags1 & (FF1_GLYPH)) return (FALSE);
+                if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) continue;
 
 		/* Okay */
 		break;
@@ -2858,12 +2930,11 @@ bool summon_specific_one(int y1, int x1, int r_idx)
 	/* Failure */
 	if (i == 20) return (FALSE);
 
-	/* Attempt to place the monster (awake, allow groups) */
-        if (!place_monster_aux(y, x, r_idx, FALSE, FALSE)) return (FALSE);
+	/* Attempt to place the monster (awake or asleep, do not allow groups) */
+        if (!place_monster_aux(y, x, r_idx, slp, FALSE)) return (FALSE);
 
         /* Hack -- monster does not drop anything */
         m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
-
 
 	/* Success */
 	return (TRUE);
@@ -2909,7 +2980,7 @@ bool animate_object(int item)
         if (o_ptr->dropped <= 0) return (FALSE);
 
         /* Summon the specific race */
-        summon_specific_one(y1, x1, o_ptr->dropped);
+        summon_specific_one(y1, x1, o_ptr->dropped, FALSE);
 
         /* Hack -- no result */
         if (!result)

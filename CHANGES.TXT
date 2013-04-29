@@ -1,3 +1,53 @@
+06-01-2001 Unangband 0.4.8b Bugfix release
+
+- Tidied up fire/lava/plasma damage information
+about grids and also provided for electricity.
+You should now see (non-invisible) monsters as
+well.
+- Being in water now causes acid/fire damage to
+be halved, and electricity/cold damage to double.
+This may exceed limits for breath weapons, so
+be careful. This also includes monsters. Slay
+bonuses are modified down to 2 times or up to
+4 times as appropriate. (Idea adapated from
+Oangband).
+- Renamed water hound to acid hound, and added
+water hound with same stats but no acid
+attacks.
+- Beastmasters and mystics now summon animals.
+Renamed the vanilla beastmaster to 'Summoner'.
+- Gave thieves of all kinds the 'SNEAKY' flag,
+which allows them to hide in various things
+and behind large objects.
+- Fixed area based spells (eg light area,
+call light). These were incorrectly double
+damage, but I have left this as it stands.
+- Gave various monsters aura attacks, in
+particular fire and ice elementals (Fire and
+cold respectively), ring wraiths and balrogs.
+Auras attack you like a terrain if you are
+adjacent to a monster with the aura, or if you
+attack the monster directly.
+- Vortices now attack with their breath weapon
+in many instances, since this is now possible.
+Many of them have auras. They may also be found
+in bottles.
+- Added has lite to novice monsters, ethereal
+and crystal monsters and light and sun monsters.
+Note that HAS_AURA with a fire or electricity
+attack is similar but not the same as HAS_LITE.
+In particular, it does not light the floor around
+the monster.
+- Stumps and branches are now junk, and not
+flavored by the monster they are cut from. Trees
+also drop broken sticks.
+- Fixed up problems with the spell book spell
+order.
+- Changed lighting code slightly to make
+view_bright_light option work better in town.
+- Removed last 2 non-Tolkein or non-mythological
+uniques.
+
 06-01-2001 Unangband 0.4.8a Bugfix release
 
 - Fixed problem with not using variant_save_feats

@@ -175,7 +175,7 @@ T:Archer Hero
 T:Archer Baron
 T:Archer Duke
 T:Archer Lord
-O:23:8:19:13:17:2
+O:23:8:19:24:18:2
 
 N:8:Druid
 S:-3:2:3:0:-1:2

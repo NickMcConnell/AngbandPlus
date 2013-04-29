@@ -2228,6 +2228,13 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+		/* Some monsters stop radiating lite when dying */
+		if (r_ptr->flags2 & (RF2_HAS_LITE))
+		{
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		}
+
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)

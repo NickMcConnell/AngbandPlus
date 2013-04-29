@@ -241,7 +241,8 @@ static bool monster_can_smell(monster_type *m_ptr)
 	}
 
 	/* Other monsters can sometimes make good use of scent */
-	else if (strchr("fkoQyHORTY", r_ptr->d_char))
+        /* Now include ancient dragons */
+        else if (strchr("AfkoQyHORTY", r_ptr->d_char))
 	{
 		if (age <= SMELL_STRENGTH - 10)
 		{
@@ -6494,8 +6495,12 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				/* Monster ate another monster */
 				did_kill_body = TRUE;
 
-				/* Kill the monster */
-				delete_monster(ny, nx);
+				/* Generate treasure, etc */
+                                monster_death(cave_m_idx[ny][nx]);
+
+				/* Delete the monster */
+                                delete_monster_idx(cave_m_idx[ny][nx]);
+
 			}
 
 			/* Attack if confused and not fleeing */
@@ -7251,6 +7256,9 @@ static void recover_monster(int m_idx, bool regen)
 	{
 		u32b notice;
 
+		/* Anti-stealth */
+		notice = rand_int(1024);
+
 		/* Aggravated by the player */
 		if (p_ptr->aggravate)
 		{
@@ -7268,16 +7276,10 @@ static void recover_monster(int m_idx, bool regen)
 				/* Dump a message */
 				msg_format("%^s wakes up.", m_name);
 			}
-
-			/* XXX XXX Efficiency */
-			return;
 		}
 
-		/* Anti-stealth */
-		notice = rand_int(1024);
-
 		/* Hack -- See if monster "notices" player */
-		if ((notice * notice * notice) <= p_ptr->noise)
+		else if ((notice * notice * notice) <= p_ptr->noise)
 		{
 			int d = 1;
 
@@ -7330,6 +7332,32 @@ static void recover_monster(int m_idx, bool regen)
 			}
 		}
 	}
+
+	/* Some monsters radiate damage when awake */
+	if (!(m_ptr->csleep) && (r_ptr->flags2 & (RF2_HAS_AURA)))
+	{
+                int i;
+
+                /* Scan through all four blows */
+                for (i = 0; i < 4; i++)
+                {
+                        int flg;
+
+                        /* End of attacks */
+                        if (!(r_ptr->blow[i].method)) break;
+
+                        /* Skip if not spores */
+                        if (r_ptr->blow[i].method != (RBM_AURA)) continue;
+
+                        flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+                        /* Hit with radiate attack */
+                        (void)project(m_idx, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                 r_ptr->blow[i].effect, flg);
+                }
+
+	}
+
 
 	/* Recover from stuns */
 	if (m_ptr->stunned)
@@ -7488,7 +7516,7 @@ static void recover_monster(int m_idx, bool regen)
 
 
 	/* Hack -- Update the health bar (always) */
-	if (p_ptr->health_who == cave_m_idx[m_ptr->fy][m_ptr->fx]) 
+	if (p_ptr->health_who == m_idx) 
 		p_ptr->redraw |= (PR_HEALTH);
 }
 

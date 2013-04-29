@@ -97,29 +97,17 @@ V:2.9.2
 
 ### Body Armor & Shields ###
 
-N:1:of Resist Shards
-X:30:20:0
-W:30:5:0:4000
+N:2:of High Resistance
+X:30:20:2
+W:30:5:0:1200
 T:34:0:99
 T:36:0:99
 T:37:0:99
-F:RES_SHARD
 
-N:2:of Resist Nether
-X:30:24:0
-W:30:5:0:6000
-T:34:0:99
-T:36:0:99
-T:37:0:99
-F:RES_NETHR
-
-N:3:of Resist Nexus
-X:30:22:0
-W:30:5:0:5000
-T:34:0:99
-T:36:0:99
-T:37:0:99
-F:RES_NEXUS
+N:3:(Continual Light)
+X:33:6:0
+W:0:2:0:100
+F:LITE
 
 N:4:of Resist Acid
 X:30:16:0
@@ -338,8 +326,8 @@ N:30:of Seeing
 X:33:8:0
 W:0:2:0:2000
 C:0:0:0:5
-T:33:0:99
 T:32:0:99
+T:33:0:99
 F:SEARCH | RES_BLIND | SEE_INVIS
 
 N:31:of Infravision
@@ -349,7 +337,7 @@ C:0:0:0:5
 T:32:0:99
 F:INFRA | HIDE_TYPE
 
-N:32:of Light
+N:32:of *Light*
 X:33:6:0
 W:0:2:0:1000
 T:32:0:99

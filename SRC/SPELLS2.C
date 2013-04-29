@@ -6531,17 +6531,6 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                                 break;
                         }
 
-                        /* Radius 2, centred on self */
-                        case RBM_AURA:
-                        {
-                                int py = p_ptr->py;
-                                int px = p_ptr->px;
-                        
-                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-                                if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
-                                break;
-                        }
-
                         /* Affect self directly */
                         case RBM_SELF:
                         {
@@ -6693,8 +6682,11 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                         }
                         case RBM_AREA:
                         {
-                                if (project_hack(effect, damage)) obvious = TRUE;
-
+                                int py = p_ptr->py;
+                                int px = p_ptr->px;
+                        
+                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+                                if (project(-1, (level / 10)+1, py, px, damage, effect, flg)) obvious = TRUE;
                                 break;
                         }
                         case RBM_LOS:
@@ -6747,6 +6739,29 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 
                                 break;
                         }
+				case RBM_SPHERE:
+                        /* Radius 2, centred on self */
+                        {
+                                int py = p_ptr->py;
+                                int px = p_ptr->px;
+                        
+                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+                                if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_PANEL:
+                        {
+                                if (project_hack(effect, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_LEVEL:
+                        {
+                                if (project_hack(effect, damage)) obvious = TRUE;
+
+                                break;
+                        }
+
                         default:
                         {
                                 /* Allow direction to be cancelled for free */
@@ -6834,13 +6849,14 @@ bool process_spell_types(int spell, int level, bool *cancel)
                                 if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param)) obvious = TRUE;
                                 break;
                         }
-                        case SPELL_SUMMON_R:
+                        case SPELL_SUMMON_RACE:
                         {
-                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param)) obvious = TRUE;
+                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE)) obvious = TRUE;
                                 break;
                         }
-                        case SPELL_CREATE_TVAL:
+                        case SPELL_CREATE_RACE:
                         {
+                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, TRUE)) obvious = TRUE;
                                 break;
                         }
                         case SPELL_CREATE_KIND:

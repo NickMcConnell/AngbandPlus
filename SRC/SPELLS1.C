@@ -1528,6 +1528,62 @@ static int project_m_x;
 static int project_m_y;
 
 
+/*
+ * Temporarily light a grid.
+ * 
+ * Memorise a monster or terrain if visible.
+ *
+ * We employ hacks here in order to temporarily make
+ * the floor visible.
+ *
+ */
+static bool temp_lite(int y, int x)
+{
+        /* Grid is in line of sight */
+        if (player_has_los_bold(y, x))
+        {
+                if (!(cave_info[y][x] & (CAVE_SEEN))
+                    && !(p_ptr->blind))
+                {
+                        /* Temporarily seen */
+                        cave_info[y][x] |= (CAVE_SEEN);
+
+                        /* Remember? */
+                        note_spot(y,x);
+
+                        /* Temporarily seen */
+                        cave_info[y][x] &= ~(CAVE_SEEN);
+
+                        /* Get monster */
+                        if (cave_m_idx[y][x] > 0 )
+                        {
+                                monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+                                monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+                                /* Detect all non-invisible monsters */
+                                if (!(r_ptr->flags2 & (RF2_INVISIBLE)) || (p_ptr->tim_invis) || (p_ptr->see_inv))
+                                {
+                                        /* Optimize -- Repair flags */
+                                        repair_mflag_mark = repair_mflag_show = TRUE;
+                
+                                        /* Hack -- Detect the monster */
+                                        m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+                
+                                        /* Update the monster */
+                                        update_mon(cave_m_idx[y][x], FALSE);
+                                }
+                        }
+                }
+
+                /* Something seen */
+		return (TRUE);
+	}
+
+	return (FALSE);
+}
+
+
+
 
 /*
  * We are called from "project()" to "damage" terrain features
@@ -1566,6 +1622,11 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	switch (typ)
 	{
 		case GF_ACID:
+                {
+
+                        /* Hack -- halve acid damage in water */
+                        if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+                
 			/* Destroy hurt by acid */
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_ACID))  &&
                                (dam > (f_info[cave_feat[y][x]].power*10)))
@@ -1577,19 +1638,21 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the feature */
 				cave_alter_feat(y, x, FS_HURT_ACID);
 			}
 			break;
-		case GF_LAVA:
+                }
 		case GF_FIRE:
+                {
+                        /* Hack -- halve fire damage in water */
+                        if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+                
+                        /* Drop through */
+                }
+		case GF_LAVA:
 		case GF_PLASMA:
                 {
-                        int i;
-
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE)) &&
                                (dam > (f_info[cave_feat[y][x]].power*10)))
                         {
@@ -1600,51 +1663,23 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the feature */
 				cave_alter_feat(y, x, FS_HURT_FIRE);
 			}
 
-			/* Grid is in line of sight */
-			if (player_has_los_bold(y, x))
-			{
-                                /* Remember? */
-                                note_spot(y,x);
-
-                		/* Observe */
-				obvious = TRUE;
-
-				/* Fully update the visuals */
-				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-			}
-
-                        if (!(cave_info[y][x] & (CAVE_WALL)))
-                                for (i = 0; i < 8; i++)
-                        {
-                                int yy = y + ddy_ddd[i];
-                                int xx = x + ddx_ddd[i];
-
-                                /* Ignore annoying locations */
-                                if ((in_bounds_fully(yy, xx)) && (player_has_los_bold(yy,xx))) 
-                                {
-                                        /* Memorize grid */
-                                        note_spot(yy,xx);
-
-                                        /* Observe */
-                                        obvious = TRUE;
-
-                                        /* Fully update the visuals */
-                                        p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
-                                }
-
-                        }
+                        obvious |= temp_lite(y,x);
 
                 	break;
                 }
 		case GF_COLD:
+                {
+                        /* Hack -- double cold damage in water */
+                        if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+                        /* Drop through */
+                }
 		case GF_ICE:
+                {
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_COLD)) &&
                                (dam > (f_info[cave_feat[y][x]].power*10)))
                         {
@@ -1655,19 +1690,18 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the feature */
 				cave_alter_feat(y, x, FS_HURT_COLD);
 			}
 			break;
+                }
                 case GF_EXPLODE:
 		case GF_METEOR:
 		case GF_SHARD:
 		case GF_FORCE:
 		case GF_MANA:
 		case GF_SOUND:
+                {
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_KILL_HUGE)) &&
                                (dam > (f_info[cave_feat[y][x]].power*10)))
                         {
@@ -1678,16 +1712,17 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the feature */
 				cave_alter_feat(y, x, FS_KILL_HUGE);
 			}
 			break;
+                }
                 /* Electricity */
 		case GF_ELEC:
                 {
+                        /* Hack -- double electricy damage in water */
+                        if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+                
                         if ((f_info[cave_feat[y][x]].flags3 & (FF3_HURT_ELEC)) &&
                                (dam > (f_info[cave_feat[y][x]].power*10)))
                         {
@@ -1697,12 +1732,13 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                                         msg_format("The %s is struck by lightening.",f);
 					obvious = TRUE;
 				}
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
                                 cave_alter_feat(y, x, FS_HURT_ELEC);
-			}
+
+                        }
+
+                        obvious |= temp_lite(y,x);
 			break;
                 }
                 /* Water */
@@ -1717,8 +1753,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                                         msg_format("The %s floods.",f);
 					obvious = TRUE;
 				}
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
                                 cave_alter_feat(y, x, FS_HURT_WATER);
@@ -1737,8 +1771,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                                         msg_format("The %s boils.",f);
 					obvious = TRUE;
 				}
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
                                 cave_alter_feat(y, x, FS_HURT_BWATER);
@@ -1756,8 +1788,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                                         msg_format("The %s is poisoned.",f);
 					obvious = TRUE;
 				}
-				/* Forget the feature */
-				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the feature */
                                 cave_alter_feat(y, x, FS_HURT_POIS);
@@ -1797,9 +1827,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the trap */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the trap */
                                 cave_alter_feat(y, x, FS_DISARM);
 			}
@@ -1812,9 +1839,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					msg_print("Click!");
 					obvious = TRUE;
 				}
-
-				/* Forget the trap */
-				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
                                 cave_alter_feat(y, x, FS_TUNNEL);
@@ -1850,9 +1874,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the trap */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the trap */
                                 cave_alter_feat(y, x, FS_TUNNEL);
 			}
@@ -1873,9 +1894,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Forget the trap */
-				cave_info[y][x] &= ~(CAVE_MARK);
-
 				/* Destroy the trap */
 				cave_alter_feat(y, x, FS_HURT_ROCK);
 			}
@@ -1894,9 +1912,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			/* Observe */
 			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
-
-			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 			break;
 		}
@@ -1973,8 +1988,10 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Observe */
 				obvious = TRUE;
 
-				/* Fully update the visuals */
-				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+                        /* Fully update the visuals */
+                        p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+
 			}
 
                         if (!(cave_info[y][x] & (CAVE_WALL)))
@@ -2117,7 +2134,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Acid -- Lots of things */
 			case GF_ACID:
 			{
-				if (hates_acid(o_ptr))
+
+                                /* Hack -- halve acid damage in water */
+                                if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
+                		if (hates_acid(o_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
@@ -2130,6 +2151,10 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Elec -- Rings and Wands */
 			case GF_ELEC:
 			{
+
+                                /* Hack -- double electricy damage in water */
+                                if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+                        
 				if (hates_elec(o_ptr))
 				{
 					do_kill = TRUE;
@@ -2143,6 +2168,12 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Fire -- Flammable objects */
 			case GF_FIRE:
 			{
+
+	/* Hack -- halve fire damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
+
+
 				if (hates_fire(o_ptr))
 				{
 					do_kill = TRUE;
@@ -2156,6 +2187,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			/* Cold -- potions and flasks */
 			case GF_COLD:
 			{
+
+	/* Hack -- double cold damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+
 				if (hates_cold(o_ptr))
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
@@ -2512,6 +2548,13 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Acid */
 		case GF_ACID:
 		{
+
+	/* Hack -- halve acid damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
+
+
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ACID))
 			{
@@ -2525,6 +2568,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Electricity */
 		case GF_ELEC:
 		{
+
+	/* Hack -- double electricy damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ELEC))
 			{
@@ -2538,6 +2586,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Fire damage */
 		case GF_FIRE:
 		{
+
+	/* Hack -- halve fire damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_FIRE))
 			{
@@ -2551,6 +2604,11 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Cold */
 		case GF_COLD:
 		{
+	/* Hack -- double cold damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+
+
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_COLD))
 			{
@@ -4039,6 +4097,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
+
+	/* Hack -- halve acid damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
 			msg_print ("You are covered in acid!");
 			acid_dam(dam, killer);
 			break;
@@ -4047,6 +4109,13 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_FIRE:
 		{
+
+	/* Hack -- halve fire damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+
+
+
+
 			msg_print ("You are enveloped in flames!");
 			fire_dam(dam, killer);
 			break;
@@ -4055,6 +4124,11 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_COLD:
 		{
+
+	/* Hack -- double cold damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+
 			msg_print ("You are covered in frost!");
 			cold_dam(dam, killer);
 			break;
@@ -4063,6 +4137,11 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		/* Standard damage -- hurts inventory too */
 		case GF_ELEC:
 		{
+
+	/* Hack -- double electricy damage in water */
+	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
+
+
 			msg_print("You are struck by electricity!");
 			elec_dam(dam, killer);
 			break;

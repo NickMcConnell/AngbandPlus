@@ -2571,9 +2571,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	monster_type *m_ptr;
-	int i;
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 

@@ -3492,12 +3492,11 @@ static bool name_drop_okay(int r_idx)
                 else if ((j_ptr->sval == SV_BODY_LEG) && !(r_ptr->flags7 & (RF7_HAS_LEG))) return (FALSE);
                 else if ((j_ptr->sval == SV_BODY_WING) && !(r_ptr->flags7 & (RF7_HAS_WING))) return (FALSE);
                 else if ((j_ptr->sval == SV_BODY_CLAW) && !(r_ptr->flags7 & (RF7_HAS_CLAW))) return (FALSE);
-                else if ((j_ptr->sval == SV_BODY_BRANCH) && !(r_ptr->d_char == '<')) return (FALSE);
         }
         else if (j_ptr->tval == TV_HOLD)
         {
                 /* Only fit elementals in bottles */
-                if ((j_ptr->sval == SV_HOLD_BOTTLE) && !(r_ptr->d_char == 'E')) return (FALSE);
+                if ((j_ptr->sval == SV_HOLD_BOTTLE) && !(r_ptr->d_char == 'E') && !(r_ptr->d_char == 'v')) return (FALSE);
 
                 /* Only fit non-spellcasters in sacks */
                 else if ((j_ptr->sval == SV_HOLD_SACK) && !(r_ptr->flags4) && !(r_ptr->flags5) && !(r_ptr->flags6)) return (FALSE);
@@ -3766,6 +3765,7 @@ static bool kind_is_race(int k_idx)
                 case TV_LITE:
                 case TV_FLASK:
 		{
+                        if (r_ptr->flags2 & (RF2_HAS_LITE)) return (TRUE);
                         if (r_ptr->flags7 & (RF7_DROP_LITE)) return (TRUE);
                         return (FALSE);
 		}
@@ -4025,7 +4025,7 @@ bool make_body(object_type *j_ptr, int r_idx)
         /* Hack -- handle trees */
         if (r_ptr->d_char == '<')
         {
-                k_idx = lookup_kind(TV_BODY,SV_BODY_STUMP);
+                k_idx = lookup_kind(TV_JUNK,SV_JUNK_STUMP);
 
                 if (!k_idx) return (FALSE);
 
@@ -4034,9 +4034,6 @@ bool make_body(object_type *j_ptr, int r_idx)
                 /* Inscribe it */
                 j_ptr->note = r_info[r_idx].note;
 #endif
-                /* Re-inscribe it */
-                if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
-
                 return (TRUE);
         }
 
@@ -4118,17 +4115,14 @@ bool make_part(object_type *j_ptr, int r_idx)
         /* Hack -- handle trees */
         if (r_ptr->d_char == '<')
         {
-                k_idx = lookup_kind(TV_BODY,SV_BODY_BRANCH);
+                k_idx = lookup_kind(TV_JUNK,SV_JUNK_BRANCH);
 
                 if (!k_idx) return (FALSE);
 
                 object_prep(j_ptr,k_idx);
-#if 0
-                /* Inscribe it */
-                j_ptr->note = r_info[r_idx].note;
-#endif
+
                 /* Re-inscribe it */
-                if ((!j_ptr->note) && !(r_ptr->flags1 & (RF1_UNIQUE))) j_ptr->note = k_info[k_idx].note;
+                if (!j_ptr->note) j_ptr->note = k_info[k_idx].note;
 
                 return (TRUE);
         }
@@ -4177,6 +4171,21 @@ bool make_skin(object_type *j_ptr, int m_idx)
 
         monster_type *m_ptr = &m_list[m_idx];
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+        /* Hack -- handle trees */
+        if (r_ptr->d_char == '<')
+        {
+                k_idx = lookup_kind(TV_JUNK,SV_JUNK_STICK);
+
+                if (!k_idx) return (FALSE);
+
+                object_prep(j_ptr,k_idx);
+
+                /* Re-inscribe it */
+                if (!j_ptr->note) j_ptr->note = k_info[k_idx].note;
+
+                return (TRUE);
+        }
 
         /* Usually produce a skin */
         if (r_ptr->flags7 & (RF7_HAS_SKIN)) k_idx = lookup_kind(TV_SKIN,SV_SKIN_SKIN);

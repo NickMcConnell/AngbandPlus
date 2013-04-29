@@ -191,6 +191,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_POLEARM:
 		case TV_SWORD:
 		case TV_DIGGING:
+		case TV_STAFF:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
@@ -489,7 +490,12 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 #ifdef ALLOW_OBJECT_INFO
                                         if (rand_int(100)<tdam*3) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
 #endif
-					if (mult < 3) mult = 3;
+
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
+					{
+						if (mult < 2 ) mult = 2;
+					}
+					else if (mult < 3) mult = 3;
 				}
 			}
 
@@ -514,7 +520,11 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 #ifdef ALLOW_OBJECT_INFO
                                         if (rand_int(100)<tdam*3) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L);
 #endif
-					if (mult < 3) mult = 3;
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
+					{
+						if (mult < 4 ) mult = 4;
+					}
+					else if (mult < 3) mult = 3;
 				}
 			}
 
@@ -539,7 +549,11 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 #ifdef ALLOW_OBJECT_INFO
                                         if (rand_int(100)<tdam*3) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
 #endif
-					if (mult < 3) mult = 3;
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
+					{
+						if (mult < 2 ) mult = 2;
+					}
+					else if (mult < 3) mult = 3;
 				}
 			}
 
@@ -564,7 +578,12 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 #ifdef ALLOW_OBJECT_INFO
                                         if (rand_int(100)<tdam*3) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
 #endif
-					if (mult < 3) mult = 3;
+					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
+					{
+						if (mult < 4 ) mult = 4;
+					}
+					else if (mult < 3) mult = 3;
+
 				}
 			}
 
@@ -1235,6 +1254,32 @@ void py_attack(int y, int x)
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
+
+
+	/* Some monsters radiate damage when attacked */
+	if (r_ptr->flags2 & (RF2_HAS_AURA))
+	{
+				/* Scan through all four blows */
+				for (i = 0; i < 4; i++)
+				{
+                                        int flg;
+
+					/* End of attacks */
+					if (!(r_ptr->blow[i].method)) break;
+
+					/* Skip if not spores */
+					if (r_ptr->blow[i].method != (RBM_AURA)) continue;
+
+					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+					/* Hit with radiate attack */
+                                        (void)project_p(cave_m_idx[y][x], m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                                 r_ptr->blow[i].effect, flg);
+				}
+
+	}
+
+
 
 
 	/* Handle player fear */
