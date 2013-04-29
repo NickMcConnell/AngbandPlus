@@ -497,8 +497,8 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
   /* Require identical "ego-item" names */
   if (o_ptr->name2 != j_ptr->name2) return (FALSE);
   
-  /* Hack -- Never stack "powerful" items */
-  if (o_ptr->activation || j_ptr->activation) return (FALSE);
+  /* Require identical activation */
+  if (o_ptr->activation != j_ptr->activation) return (FALSE);
   
   /* Hack -- Never stack recharging items */
   if (o_ptr->timeout || j_ptr->timeout) return (FALSE);

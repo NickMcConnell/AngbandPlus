@@ -222,8 +222,8 @@ techniques.  Different classes have access to different specialty abilites
          launchers, shooting quickly with bows and crossbows.  His biggest 
          drawback is his ignorance of spells and many magical items.  Most of 
          his survival skills are average or worse.  A Warrior learns no 
-         magical spells, and has poor magical defences.  He has very fast, 
-         strong pseudo-ID.  His prime stat is Strength, and a good Dexterity 
+         magical spells, and has poor magical defences.  He has strong 
+	 pseudo-ID.  His prime stat is Strength, and a good Dexterity 
          and Constitution can really help at times.
 
 ***** <Mage>
@@ -235,8 +235,8 @@ techniques.  Different classes have access to different specialty abilites
          is almost as bad at archery.  He is stealthy at low levels, but his 
          magic betrays his presence later on.  Most of his other skills are 
          mediocre.  He has excellent magical defences, but dangerously poor 
-         physical ones.  He has very slow, weak pseudo-ID.  Intelligence is 
-         his primary stat, and a high Constitution is very useful.
+         physical ones.  He has weak pseudo-ID.  Intelligence is his primary 
+	 stat, and a high Constitution is very useful.
 
 ***** <Priest>
      Priest:
@@ -249,8 +249,8 @@ techniques.  Different classes have access to different specialty abilites
          stay away from archery and edged weapons.  They have average survival 
          skills, but know quite a bit about magical items, and resist magic 
          very well.  Priests gain +1 to light radius at level 35 and above and 
-         permanent protection against evil at level 50.  They have very fast 
-         but weak pseudo-ID.  Wisdom is a Priest's primary stat.
+         permanent protection against evil at level 50.  They have weak 
+	 pseudo-ID.  Wisdom is a Priest's primary stat.
 
 ***** <Rogue>
      Rogue:
@@ -261,12 +261,11 @@ techniques.  Different classes have access to different specialty abilites
          class, and gets the most effective sneak attacks against sleeping 
          monsters.  Rogues have the capacity of filching purses and setting 
          traps (use the '+' command.  See the help file "combat.txt for more 
-         details).  They have fairly fast, strong pseudo-ID.  They will also 
-         get a fairly good collection of spells to improve their natural 
-         skills, aid in battle, and gain information.  Unfortunately, no 
-         shopkeeper trusts a rogue, and so members of this class will pay 
-         dearly for goods in town.  A rogue's primary stats are Intelligence 
-         and Dexterity.
+         details).  They have strong pseudo-ID.  They will also get a fairly 
+	 good collection of spells to improve their natural skills, aid in 
+	 battle, and gain information.  Unfortunately, no shopkeeper trusts a 
+	 rogue, and so members of this class will pay dearly for goods in town. 
+	 A rogue's primary stats are Intelligence and Dexterity.
 
 ***** <Ranger>
      Ranger:
@@ -276,8 +275,8 @@ techniques.  Different classes have access to different specialty abilites
          monsters abilities very quickly.  Rangers are better than average in
          melee, and find their spells to be mighty handy.   They have pretty
          good dungeon survival skills and stealth, but are a little uncertain
-         about magical devices, and have fairly slow pseudo-ID.  A ranger's
-         primary stats are Wisdom and Constitution.
+         about magical devices, and have strong pseudo-ID.  A ranger's primary 
+	 stats are Wisdom and Constitution.
 
 ***** <Paladin>
      Paladin:
@@ -288,8 +287,8 @@ techniques.  Different classes have access to different specialty abilites
          little stealth, and poor survival skills, but can survive as well or 
          better than any other class in battle or against magic.  He has a sub-
          set of the priestly prayers.  Plus one to light radius at level 45 
-         and above.  He has moderately-paced, strong pseudo-ID.  His primary 
-         stats are Wisdom and Strength.
+         and above.  He has strong pseudo-ID.  His primary stats are Wisdom 
+	 and Strength.
 
 ***** <Druid>
      Druid:
@@ -300,8 +299,8 @@ techniques.  Different classes have access to different specialty abilites
          melee weapon.  Although a druid can do a lot of damage, his spells 
          are more random than are those of other realms.  He has decent 
          magical skill, fairly high stealth, and good magical defences.  A 
-         Druid will have decent survival skills.  He has extremely slow, weak 
-         pseudo-ID.  His primary stat is Wisdom.
+         Druid will have decent survival skills.  He has weak pseudo-ID.  His 
+	 primary stat is Wisdom.
 
 ***** <Necromancer>
      Necromancer:
@@ -310,8 +309,8 @@ techniques.  Different classes have access to different specialty abilites
          magical item ability is acceptable, but virtually all of his other 
          skills are poor, and he has a hard time protecting himself.  Fortu-
          ately, at higher levels his magic can help with some of these prob-
-         lems.  He has slow, weak pseudo-ID.  His primary stat is 
-         Intelligence, and he needs to watch his Constitution.
+         lems.  He has weak pseudo-ID.  His primary stat is Intelligence, and 
+	 he needs to watch his Constitution.
 
 ***** <Assassin>
      Assassin:
@@ -326,8 +325,8 @@ techniques.  Different classes have access to different specialty abilites
          spells.  He can shoot missiles and throw objects more quietly than 
          any other class, and makes little noise in melee as well.  An 
          Assassin will have mediocre magic skill, and poor magical defences.  
-         He has fairly fast, strong pseudo-ID.  His primary stats are 
-         Intelligence and Strength.
+         He has strong pseudo-ID.  His primary stats are Intelligence and 
+	 Strength.
 
 
 === Combinations of Race and Class (recommendations only) ===

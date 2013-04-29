@@ -116,7 +116,7 @@ void magic_spiking(void)
       msg_print("There is a monster in the way!");
       
       /* Attack */
-      py_attack(y, x);
+      if (py_attack(y, x, TRUE)) return;
     }
   
   /* Go for it */

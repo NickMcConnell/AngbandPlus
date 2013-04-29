@@ -51,11 +51,11 @@ mation about any command, consult the help file "cmddesc.txt".
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (unused)
- (  Load screen dump                    ^I  (special - tab)
+ (  Load screen dump                    ^I  (show item list)
  )  Dump screen dump                    ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
  }  Uninscribe an object                ^L  (unused)
- [  (unused)                            ^M  (special - return)
+ [  (show monster list)                 ^M  (special - return)
  ]  end/default shapechange             ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
@@ -112,11 +112,11 @@ mation about any command, consult the help file "cmddesc.txt".
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)
  *  Target monster or location          ^H  (alter - west)
- (  Load screen dump                    ^I  (special - tab)
+ (  Load screen dump                    ^I  (show item list)
  )  Dump screen dump                    ^J  (alter - south)
  {  Inscribe an object                  ^K  (alter - north)
  }  Uninscribe an object                ^L  (alter - east)
- [  Repeat last command                 ^M  (special - return)
+ [  Show monster list                   ^M  (special - return)
  ]  end/default shapechange             ^N  (alter - south east)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
@@ -125,7 +125,7 @@ mation about any command, consult the help file "cmddesc.txt".
  ;  Walk (normal pickup)                ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel or Clear a Web
  '  Time of day                         ^U  (alter - north east)
- "  Enter a user pref command           ^V  Examine current target
+ "  Enter a user pref command           ^V  Repeat last command
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit
  .  Stay still for one turn             ^Y  (alter - north west)

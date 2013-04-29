@@ -1387,7 +1387,7 @@ static int select_property(int temp_potential, int *property_list,
 	      {
 		int paranoia = 0;
 
-		while ((!optimal) && (paranoia < 100))
+		while ((!optimal) && (paranoia < 20))
 		  {
 		    selection = rand_int(choices);
 		    current_value = rand_int(*max_value + 1);
@@ -1556,6 +1556,8 @@ static bool choose_type(object_type *o_ptr)
 	    case EGO_AMULET_MENTAL:
 	      /* min potential 350 (100 for just CHR) */
 	      {
+		int paranoia = 20;
+
 		/* Mostly mental properties */
 		while (potential > MIN(2000, (2 * initial_potential / 3)))
 		  {
@@ -1614,6 +1616,8 @@ static bool choose_type(object_type *o_ptr)
 			get_quality(TRUE, ADD_CHR, randint(bonus), o_ptr);
 			get_quality(TRUE, SUST_CHR, 0, o_ptr);
 		      }
+
+		    if (paranoia-- <= 0) break;
 		  }
 
 		done = TRUE;
@@ -1900,6 +1904,7 @@ static bool choose_type(object_type *o_ptr)
 		int max_value = bonus + 1;
 		int stats[3] = {ADD_STR, ADD_DEX, ADD_CON};
 		int sustains[3] = {SUST_STR, SUST_DEX, SUST_CON};
+		int tries = 5;
 
 		/* Stat boost... */
 		property = select_property(potential, stats, 3, &max_value, 
@@ -1919,8 +1924,8 @@ static bool choose_type(object_type *o_ptr)
 		  }
 
 		/* Repeat while relatively good */
-		while (randint(initial_potential) > initial_potential 
-		       - potential)
+		while ((randint(initial_potential) > initial_potential 
+			- potential) && (tries > 0))
 		  {
 		    max_value = bonus + 1;
 		    property = select_property(potential, stats, 3, &max_value, 
@@ -1928,6 +1933,7 @@ static bool choose_type(object_type *o_ptr)
 		    get_quality(TRUE, property, randint(max_value), o_ptr);
 
 		    get_quality(TRUE, property - ADD_STR + SUST_STR, 0, o_ptr);
+		    tries--;
 		  }
 
 		done = TRUE;
@@ -2145,7 +2151,7 @@ static bool choose_type(object_type *o_ptr)
 		/* Either sacrifice for some other properties... */ 
 		if (randint(2) == 1)
 		  {
-		    get_quality(TRUE, SPEED, max_value / 2, o_ptr);
+		    get_quality(TRUE, SPEED, 1 + max_value / 2, o_ptr);
 
 		    /* Maybe get combat bonuses... */
 		    if (randint(4) == 1) 

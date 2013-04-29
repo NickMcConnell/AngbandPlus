@@ -7678,7 +7678,8 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	    if (!((r_ptr->flags4 & (RF4_BRTH_CHAOS)) || prefix(name, "Chaos")))
 	      {
 		/* Have fun */
-		chaotic_effects(m_ptr);
+		if (rand_int(5) == 0) 
+		  chaotic_effects(m_ptr);
 	      }
 	  }
 

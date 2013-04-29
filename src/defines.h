@@ -55,14 +55,14 @@
 /**
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.1.3"
+#define VERSION_STRING	"1.1.4"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	1
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 
 /**
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -3721,6 +3721,7 @@
  */
 #define known_cursed_p(T) \
   (((T)->id_curse) || ((T)->ident & IDENT_CURSED) ? TRUE : FALSE)
+
 
 /**
  * Convert an "attr"/"char" pair into a "pict" (P)

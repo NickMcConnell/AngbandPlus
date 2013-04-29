@@ -380,7 +380,7 @@ extern void (*restore_buttons_hook)(void);
  */
 
 /* attack.c */
-extern void py_attack(int y, int x);
+extern bool py_attack(int y, int x, bool can_push);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
 

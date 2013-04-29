@@ -820,7 +820,7 @@ void display_player_sml(void)
 	    }
 	  
 	  /* Sustain */
-	  if (o_ptr->flags_obj & (OF_SUSTAIN_STR << j))
+	  if (o_ptr->id_obj & (OF_SUSTAIN_STR << j))
 	    {
 	      /* Dark green, "s" if no stat bonus. */
 	      a = TERM_GREEN;
