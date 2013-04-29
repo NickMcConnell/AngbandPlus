@@ -1,7 +1,6 @@
-/* File: angband.h */
-
-/* The basic include file.
- *
+/** \file angband.h 
+    \brief The basic include file.
+ 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -49,7 +48,7 @@ extern void nds_fatal_err(const char *);
 /***** Some older copyright messages follow below *****/
 
 
-/*
+/**
  * Note that these copyright messages apply to an ancient version
  * of Angband, as in, from pre-2.4.frog-knows days, and thus the
  * references to version numbers may be rather misleading...

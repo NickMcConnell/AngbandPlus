@@ -1,3 +1,7 @@
+/** \file cmds.h 
+    \brief Commands include file.
+*/
+ 
 #ifndef __angband_cmds_h__
 #define __angband_cmds_h__
 

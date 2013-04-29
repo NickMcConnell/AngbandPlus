@@ -1,6 +1,7 @@
-/* File z-util.h */
+/** \file z-util.h 
+    \brief Low-level string handling include
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
@@ -23,7 +24,7 @@
 
 /**** Available variables ****/
 
-/* A cptr to the name of the program */
+/** A cptr to the name of the program */
 extern char *argv0;
 
 
@@ -34,7 +35,7 @@ extern void (*quit_aux)(cptr);
 
 /**** Available Functions ****/
 
-/* Case insensitive comparison between two strings */
+/** Case insensitive comparison between two strings */
 extern int my_stricmp(const char *s1, const char *s2);
 extern int my_strnicmp(cptr a, cptr b, int n);
 /**
@@ -43,10 +44,10 @@ extern int my_strnicmp(cptr a, cptr b, int n);
 extern char *my_stristr(const char *string, const char *pattern);
 
 
-/* Copy a string */
+/** Copy a string */
 extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 
-/* Concatenate two strings */
+/** Concatenate two strings */
 extern size_t my_strcat(char *buf, const char *src, size_t bufsize);
 
 /* Test equality, prefix, suffix */
@@ -57,13 +58,13 @@ extern bool suffix(cptr s, cptr t);
 #define streq(s, t)		(!strcmp(s, t))
 
 
-/* Print an error message */
+/** Print an error message */
 extern void plog(cptr str);
 
-/* Exit, with optional message */
+/** Exit, with optional message */
 extern void quit(cptr str);
 
-/*  Fast string concatenation */
+/**  Fast string concatenation */
 char *my_fast_strcat(char *buf, char *end, const char *src, size_t bufsize);
 
 

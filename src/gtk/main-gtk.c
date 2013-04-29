@@ -1,7 +1,6 @@
-/*
- * File: main-gtk.c
- * Purpose: GTK port for Angband
- *
+/** \file main-gtk.c
+    \brief GTK port for Angband
+ 
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -28,7 +27,7 @@
 
 
 #define MAX_TERM_DATA 1
-/*
+/**
  * Extra data to associate with each "window"
  *
  * Each "window" is represented by a "term_data" structure, which
@@ -66,43 +65,47 @@ struct term_data
 };
 
 
-/*
+/**
  * An array of "term_data" structures, one for each "sub-window"
  */
 static term_data data[MAX_TERM_DATA];
 
-/* Save the prefs. */
+/**
+ * Save the prefs. 
+ */
 static void save_prefs(void);
 
-/* Ignore the prefs. */
+/**
+ * Ignore the prefs. 
+ */
 bool ignore_prefs;
 
-/*
+/**
  * game in progress
  */
 static bool game_in_progress = FALSE;
 
-/*
+/**
  * Number of active terms
  */
 static int num_term = 1;
 
-/*
+/**
  * Remember the number of terminal windows open
  */
 static int term_windows_open = 1;
 
-/* 
+/**
  * Our glade file 
  */
 GladeXML *xml;
 
-/*
+/**
  * Path to the Gtk settings file
  */
 char settings[1024];
 
-/*
+/**
  * Set foreground color
  */
 static void set_foreground_color(term_data *td, byte a)
@@ -130,7 +133,7 @@ static void set_foreground_color(term_data *td, byte a)
 	}
 }
 
-/* 
+/**
  * Set a GdkRectangle 
  */
 static void init_gdk_rect(GdkRectangle *r, int x, int y, int w, int h)
@@ -141,7 +144,7 @@ static void init_gdk_rect(GdkRectangle *r, int x, int y, int w, int h)
 	r->height = h;
 }
 
-/*
+/**
  * Draw a cairo rectangle from a GdkRectangle object.
  */
 static void c_rect(cairo_t *cr, GdkRectangle r)
@@ -149,7 +152,7 @@ static void c_rect(cairo_t *cr, GdkRectangle r)
 	cairo_rectangle (cr, r.x, r.y, r.width, r.height);
 }
 
-/*
+/**
  * Erase the whole term.
  */
 static errr Term_clear_gtk(void)
@@ -181,7 +184,7 @@ static errr Term_clear_gtk(void)
 }
 
 
-/*
+/**
  * Erase some characters.
  */
 static errr Term_wipe_gtk(int x, int y, int n)
@@ -211,7 +214,7 @@ static errr Term_wipe_gtk(int x, int y, int n)
 	return (0);
 }
 
-/*
+/**
  * Draw some textual characters.
  */
 static errr Term_text_gtk(int x, int y, int n, byte a, char *s)
@@ -271,7 +274,7 @@ static errr Term_flush_gtk(void)
 }
 
 
-/*
+/**
  * Handle a "special request"
  */
 static errr Term_xtra_gtk(int n, int v)
@@ -338,7 +341,7 @@ static errr Term_curs_gtk(int x, int y)
 	return (0);
 }
 
-/*
+/**
  * Hack -- redraw a term_data
  *
  * Note that "Term_redraw()" calls "TERM_XTRA_CLEAR"
@@ -429,7 +432,9 @@ void new_event_handler(GtkButton *was_clicked, gpointer user_data)
 
 
 
-/*** Callbacks: font selector */
+/**
+ * Callbacks: font selector 
+ */
 
 static void load_font_by_name(term_data *td, cptr fontname)
 {	
@@ -547,7 +552,9 @@ void change_font_event_handler(GtkWidget *widget, gpointer user_data)
 /*** Callbacks: savefile opening ***/
 
 
-/* Filter function for the savefile list */
+/**
+ * Filter function for the savefile list 
+ */
 static gboolean file_open_filter(const GtkFileFilterInfo *filter_info, gpointer data)
 {
 	const char *name = filter_info->display_name;
@@ -565,7 +572,7 @@ static gboolean file_open_filter(const GtkFileFilterInfo *filter_info, gpointer 
 	return TRUE;
 }
 
-/*
+/**
  * Open/Save Dialog box
  */
 static bool save_dialog_box(bool save)
@@ -804,10 +811,11 @@ gboolean keypress_event_handler(GtkWidget *widget, GdkEventKey *event, gpointer 
 	return (TRUE);
 }
 
-/* Prefs - copied straight from main-x11.c and hacked.
+/**
+ * Prefs - copied straight from main-x11.c and hacked.
  * It'd probably be better to use something more gtkish,
- * but at lest we'll have prefs. */
-
+ * but at lest we'll have prefs. 
+*/
 static void save_prefs(void)
 {
 	ang_file *fff;
@@ -1074,7 +1082,7 @@ gboolean expose_event_handler(GtkWidget *widget, GdkEventExpose *event, gpointer
 	return (TRUE);
 }
 
-/*
+/**
  * Given a position in the ISO Latin-1 character set, return
  * the correct character on this system.
  */
@@ -1191,7 +1199,7 @@ const char help_gtk[] =
 	"GTK for X11, subopts -n<windows>, -i to ignore prefs, and standard GTK options";
 
 
-/*
+/**
  * Initialization function
  */
 errr init_gtk(int argc, char **argv)

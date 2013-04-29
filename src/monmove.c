@@ -1,6 +1,7 @@
-/* File: monmove.c */
+/** \file monmove.c 
+    \brief Monster movement
 
-/* Monster learning, monster distance attacks and spells, fear, flow/
+ * Monster learning, monster distance attacks and spells, fear, flow/
  * movement, monster AI affecting movement and spells, process a monster 
  * (with spells and actions of all kinds, reproduction, effects of any 
  * terrain on monster movement, picking up and destroying objects), 
@@ -27,18 +28,18 @@
 #include "angband.h"
 
 
-/*
+/**
  * Monsters will run up to 25 grids away
  */
 #define FLEE_RANGE      MAX_SIGHT + 5
 
-/*
+/**
  * Terrified monsters will turn to fight if they are slower than the
  * character, and closer to him than this distance.
  */
 #define TURN_RANGE      3
 
-/*
+/**
  * Calculate minimum and desired combat ranges.  -BR-
  */
 static void find_range(monster_type *m_ptr)
@@ -133,7 +134,7 @@ static void find_range(monster_type *m_ptr)
 }
 
 
-/*
+/**
  * Given a central direction at position [dir #][0], return a series 
  * of directions radiating out on both sides from the central direction 
  * all the way back to its rear.
@@ -169,7 +170,7 @@ static byte side_dirs[20][8] =
 };
 
 
-/*
+/**
  * Get and return the strength (age) of scent in a given grid.
  *
  * Return "-1" if no scent exists in the grid.
@@ -196,7 +197,7 @@ int get_scent(int y, int x)
 }
 
 
-/*
+/**
  * Can the monster catch a whiff of the character?
  *
  * Many more monsters can smell, but they find it hard to smell and 
@@ -247,7 +248,7 @@ static bool monster_can_smell(monster_type *m_ptr)
   return (FALSE);
 }
 
-/*
+/**
  * Determine if there is a space near the player in which
  * a summoned creature can appear
  */
@@ -281,7 +282,7 @@ static int summon_possible(int y1, int x1)
   return(num_clear);
 }
 
-/*
+/**
  * Fully update monster's knowledge of the player.
  * Used by player ghost (and all monsters with smart_cheat).
  */
@@ -329,7 +330,7 @@ static void update_smart_cheat(int m_idx)
   return;
 }
 
-/*
+/**
  * Used to determine the player's known level of resistance to a
  * particular spell.
  *
@@ -631,7 +632,7 @@ static int find_resist(int m_idx, int spell_lrn)
 }
 
 
-/*
+/**
  * Used to exclude spells which are too expensive for the
  * monster to cast.  Excludes all spells that cost more than the
  * current available mana.
@@ -694,7 +695,7 @@ static void remove_expensive_spells(int m_idx, u32b *f4p, u32b *f5p,
   
 }
 
-/*
+/**
  * Intellegent monsters use this function to filter away spells
  * which have no benefit.
  */
@@ -741,7 +742,7 @@ static void remove_useless_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p,
   
 }
 
-/*
+/**
  * Count the number of castable spells.
  *
  * If exactly 1 spell is availble cast it.  If more than more is
@@ -840,7 +841,7 @@ static int choose_attack_spell_fast(int m_idx, u32b *f4p, u32b *f5p,
 }
 
 
-/*
+/**
  * Have a monster choose a spell.
  *
  * Monster at m_idx uses this function to select a legal attack spell.
@@ -1158,7 +1159,7 @@ int choose_ranged_attack(int m_idx, bool archery_only, int shape_rate)
 
 
 
-/*
+/**
  * Can the monster exist in this grid?
  *
  * Because this function is designed for use in monster placement and
@@ -1270,7 +1271,7 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok)
 }
 
 
-/*
+/**
  * Can the monster enter this grid?  How easy is it for them to do so?
  *
  * The code that uses this function sometimes assumes that it will never 
@@ -1581,7 +1582,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 }
 
 
-/*
+/**
  * Helper function for monsters that want to advance toward the character.
  * Assumes that the monster isn't frightened, and is not in LOS of the 
  * character.
@@ -1714,7 +1715,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
 }
 
 
-/*
+/**
  * "Do not be seen."
  *
  * Monsters in LOS that want to retreat are primarily interested in 
@@ -1972,7 +1973,7 @@ static bool find_safety(monster_type *m_ptr, int *ty, int *tx)
 }
 
 
-/*
+/**
  * Helper function for monsters that want to retreat from the character.
  * Used for any monster that is terrified, frightened, is looking for a 
  * temporary hiding spot, or just wants to open up some space between it 
@@ -2189,7 +2190,7 @@ static bool get_move_retreat(monster_type *m_ptr, int *ty, int *tx)
 }
 
 
-/*
+/**
  * Choose the probable best direction for a monster to move in.  This 
  * is done by choosing a target grid and then finding the direction that 
  * best approaches it.
@@ -2578,7 +2579,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 
 
 
-/*
+/**
  * A simple method to help fleeing monsters who are having trouble getting
  * to their target.  It's very limited, but works fairly well in the 
  * situations it is called upon to resolve.  XXX
@@ -2745,7 +2746,7 @@ static bool get_route_to_target(monster_type *m_ptr, int *ty, int *tx)
 }
 
 
-/*
+/**
  * Confused monsters bang into walls and doors, and wander into lava or 
  * water.  This function assumes that the monster does not belong in this 
  * grid, and therefore should suffer for trying to enter it.
@@ -2868,7 +2869,7 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 }
 
 
-/*
+/**
  * Given a target grid, calculate the grid the monster will actually 
  * attempt to move into.
  *
@@ -3320,7 +3321,7 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear,
 
 
 
-/*
+/**
  * If one monster moves into another monster's grid, they will 
  * normally swap places.  If the second monster cannot exist in the 
  * grid the first monster left, this can't happen.  In such cases, 
@@ -3379,7 +3380,7 @@ static bool push_aside(monster_type *m_ptr, monster_type *n_ptr)
   return (FALSE);
 }
 
-/*
+/**
  * Check the effect of the Rogue's monster trap.  Certain traps may be avoided 
  * by certain monsters.  Traps may be disarmed by smart monsters.
  * If the trap works, the effects vary depending on trap type. -BR-
@@ -3528,7 +3529,8 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	}
       
       /* Explosion traps are always destroyed. */
-      if ((feat == FEAT_MTRAP_EXPLOSIVE) || (feat == FEAT_MTRAP_STASIS))
+      if ((feat == FEAT_MTRAP_EXPLOSIVE) || (feat == FEAT_MTRAP_STASIS)
+	  || (feat == FEAT_MTRAP_GENOCIDE))
 	{
 	  trap_destroyed = TRUE;
 	}
@@ -3652,6 +3654,41 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	  if (!(m_ptr->r_idx)) mon_dies = TRUE;
 	}
       
+      else if (feat == FEAT_MTRAP_GENOCIDE)
+	{
+	  int i;
+  	  char typ = r_ptr->d_char;
+  
+	  if (m_ptr->ml) msg_format("%^s vanishes!", m_name);
+
+	  /* Delete the monsters of that "type" */
+	  for (i = 1; i < m_max; i++)
+	    {
+	      monster_type *n_ptr = &m_list[i];
+	      monster_race *r1_ptr = &r_info[n_ptr->r_idx];
+      
+	      /* Paranoia -- Skip dead monsters */
+	      if (!n_ptr->r_idx) continue;
+      
+	      /* Hack -- Skip Unique Monsters */
+	      if (r1_ptr->flags1 & (RF1_UNIQUE)) continue;
+      
+	      /* Skip "wrong" monsters */
+	      if (r1_ptr->d_char != typ) continue;
+      
+	      /* Ignore monsters in icky squares */
+	      if ((cave_info[n_ptr->fy][n_ptr->fx] & CAVE_ICKY) == CAVE_ICKY) 
+		continue;
+
+	      /* Ignore monsters too far away */
+	      if (distance(n_ptr->fy, n_ptr->fx, y, x) > 5) continue;
+      
+	      /* Delete the monster */
+	      delete_monster_idx(i);
+	    }
+	  
+	}
+      
       /* Other traps (sturdy, net, spirit) default to 75% of normal damage */
       else
 	{
@@ -3684,7 +3721,7 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 }
 
 
-/*
+/**
  * Process a monster's move.
  *
  * All the plotting and planning has been done, and all this function 
@@ -4292,7 +4329,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 }
 
 
-/*
+/**
  * Monster takes its turn.
  */
 static void process_monster(monster_type *m_ptr)
@@ -4690,7 +4727,7 @@ static void process_monster(monster_type *m_ptr)
 }
 
 
-/*
+/**
  * Monster regeneration of HPs and mana, and recovery from all temporary 
  * conditions.
  *
@@ -5150,7 +5187,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 }
 
 
-/*
+/**
  * Process all living monsters, once per game turn.
  *
  * Scan through the list of all living monsters, (backwards, so we can 
@@ -5221,7 +5258,7 @@ void process_monsters(byte minimum_energy)
 }
 
 
-/*
+/**
  * Clear 'moved' status from all monsters.
  * 
  * Clear noise if appropriate.

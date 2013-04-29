@@ -1,6 +1,7 @@
-/* File: main.h */
+/** \file main.h 
+    \brief Include for main
 
-/*
+ *
  * Copyright (c) 2002 Robert Ruehlmann
  *
  * This software may be copied and distributed for educational, research,

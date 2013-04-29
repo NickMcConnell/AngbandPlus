@@ -1,6 +1,5 @@
-/*
- * File: main-cairo.h
- * Purpose: Cairo calls header for use in Angband ports
+/** \file cairo-utils.h
+    \brief Cairo calls header for use in Angband ports
  * (Currently for the Gtk port, but should be reusable.)
  *
  * Copyright (c) 2000-2007 Robert Ruehlmann, Shanoah Alkire

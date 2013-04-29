@@ -1,6 +1,7 @@
-/* File: main.c */
+/** \file main.c 
+    \brief Main file for those platforms that need it
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -13,15 +14,16 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
+ *
+
+
+ *
+ * Some machines have a main() function in their main-xxx.c file,
+ * all the others use this file for their main() function.
  */
 
 #include "angband.h"
 
-
-/*
- * Some machines have a "main()" function in their "main-xxx.c" file,
- * all the others use this file for their "main()" function.
- */
 
 
 #if !defined(MACINTOSH) && !(defined(WINDOWS) && !defined(USE_SDL)) && !defined(ACORN)
@@ -34,7 +36,7 @@
 
 #include "main.h"
 
-/*
+/**
  * List of the available modules in the order they are tried.
  */
 static const struct module modules[] =
@@ -57,7 +59,7 @@ static const struct module modules[] =
 
 };
 
-/*
+/**
  * List of sound modules in the order they should be tried.
  */
 static const struct module sound_modules[] =
@@ -72,10 +74,10 @@ static const struct module sound_modules[] =
 #endif
 
 
-/*
- * A hook for "quit()".
+/**
+ * A hook for quit().
  *
- * Close down, then fall back into "quit()".
+ * Close down, then fall back into quit().
  */
 static void quit_hook(cptr s)
 {
@@ -95,7 +97,7 @@ static void quit_hook(cptr s)
 
 
 
-/*
+/**
  * SDL needs a look-in
  */
 #ifdef USE_SDL
@@ -103,7 +105,7 @@ static void quit_hook(cptr s)
 #endif
 
 
-/*
+/**
  * Set the stack size and overlay buffer (see main-286.c")
  */
 #ifdef USE_286
@@ -112,7 +114,7 @@ extern unsigned _stklen = 32768U;
 extern unsigned _ovrbuffer = 0x1500;
 #endif
 
-/*
+/**
  * Initialize and verify the file paths, and the score file.
  *
  * Use the ANGBAND_PATH environment var if possible, else use
@@ -124,7 +126,7 @@ extern unsigned _ovrbuffer = 0x1500;
  * these two things works...
  *
  * We must ensure that the path ends with "PATH_SEP" if needed,
- * since the "init_file_paths()" function will simply append the
+ * since the init_file_paths() function will simply append the
  * relevant "sub-directory names" to the given path.
  *
  * Note that the "path" must be "Angband:" for the Amiga, and it
@@ -172,7 +174,7 @@ static void init_stuff(void)
 
 
 
-/*
+/**
  * Handle a "-d<what>=<path>" option
  *
  * The "<what>" can be any string starting with the same letter as the
@@ -274,7 +276,7 @@ static void change_path(cptr info)
 
 #ifdef SET_UID
 
-/*
+/**
  * Find a default user name from the system.
  */
 static void user_name(char *buf, size_t len, int id)
@@ -295,12 +297,12 @@ static void user_name(char *buf, size_t len, int id)
 #endif /* SET_UID */
 
 
-/*
+/**
  * Simple "main" function for multiple platforms.
  *
  * Note the special "--" option which terminates the processing of
  * standard options.  All non-standard options (if any) are passed
- * directly to the "init_xxx()" function.
+ * directly to the init_xxx() function.
  */
 int main(int argc, char *argv[])
 {

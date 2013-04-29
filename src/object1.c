@@ -1,6 +1,7 @@
-/* File: object1.c */
+/** \file object1.c 
+    \brief Object display and description
 
-/* Object flavors, colors, easy-know, display of modifiers (eg. "(+2 to 
+ * Object flavors, colors, easy-know, display of modifiers (eg. "(+2 to 
  * strength)"), naming, puralizations, etc., what items 
  * go where in equipment, equipment-related strings, etc., and inventory 
  * management and display functions.
@@ -23,13 +24,13 @@
 #include "angband.h"
 
 
-/*
+/**
  * Max sizes of the following arrays.  Changes for FAangband 0.2.2 from
  * NPPangband.
  */
 #define MAX_SYLLABLES 164	/* Used with scrolls (see below) */
 
-/*
+/**
  * Syllables for scrolls (must be 1-4 letters each)
  */
 
@@ -55,7 +56,7 @@ static cptr syllables[MAX_SYLLABLES] =
 };
 
 
-/*
+/**
  * Hold the titles of scrolls, 6 to 14 characters each
  * Also keep an array of scroll colors (always WHITE for now)
  */
@@ -150,7 +151,7 @@ static void flavor_assign_random(byte tval)
 
 
 
-/*
+/**
  * Prepare the "variable" part of the "k_info" array.
  *
  * The "color"/"metal"/"type" of an item is its "flavor".
@@ -295,7 +296,7 @@ void flavor_init(void)
 }
 
 
-/*
+/**
  * Get the inventory color for an object.
  *
  * Hack - set the listing color of a spellbook with no useable spells 
@@ -316,7 +317,7 @@ byte proc_list_color_hack(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Reset the "visual" lists
  *
  * This involves resetting various things to their "default" state.
@@ -400,7 +401,7 @@ void reset_visuals(bool unused)
 }
 
 
-/*
+/**
  * Puts a very stripped-down version of an object's name into buf.
  * If easy_know is TRUE, then the IDed names are used, otherwise
  * flavours, scroll names, etc will be used.
@@ -483,7 +484,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 }
 
 
-/*
+/**
  * Efficient version of '(T) += strfmt((T), "%c", (C))'
  */
 #define object_desc_chr_macro(T,C) do { \
@@ -495,7 +496,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 
 
 
-/*
+/**
  * Efficient version of '(T) += strfmt((T), "%s", (S))'
  */
 #define object_desc_str_macro(T,S) do { \
@@ -509,7 +510,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 
 
 
-/*
+/**
  * Efficient version of '(T) += strfmt((T), "%u", (N))'
  */
 #define object_desc_num_macro(T,N) do { \
@@ -538,7 +539,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 
 
 
-/*
+/**
  * Efficient version of '(T) += strfmt((T), "%+d", (I))'
  */
 #define object_desc_int_macro(T,I) do { \
@@ -568,7 +569,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 } while (0)
 
 
-/*
+/**
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
  * One can choose the "verbosity" of the description, including whether
@@ -581,9 +582,9 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
  * Note that the inscription will be clipped to keep the total description
  * under 79 chars (plus a terminator).
  *
- * Note the use of "object_desc_int_macro()" and "object_desc_num_macro()"
- * and "object_desc_str_macro()" and "object_desc_chr_macro()" as extremely
- * efficient, portable, versions of some common "strfmt()" commands (without
+ * Note the use of object_desc_int_macro() and object_desc_num_macro()
+ * and object_desc_str_macro() and object_desc_chr_macro() as extremely
+ * efficient, portable, versions of some common strfmt() commands (without
  * the bounds checking or termination writing), which allow a pointer to
  * efficiently move through a buffer while modifying it in various ways.
  *
@@ -613,8 +614,6 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
  *
  * None of the Special Rings/Amulets are "EASY_KNOW", though they could be,
  * at least, those which have no "pluses", such as the three artifact lites.
- *
- * Hack -- Display "The One Ring" as "a Plain Gold Ring" until aware.
  *
  * The "pluralization" rules are extremely hackish, in fact, for efficiency,
  * we only handle things like "torch"/"torches" and "cutlass"/"cutlasses",
@@ -1793,7 +1792,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 }
 
 
-/*
+/**
  * Describe an item and pretend the item is fully known and has no flavor.
  */
 void object_desc_spoil(char *buf, object_type *o_ptr, int pref, int mode)
@@ -1812,7 +1811,7 @@ void object_desc_spoil(char *buf, object_type *o_ptr, int pref, int mode)
 }
 
 
-/*
+/**
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
  */
@@ -1853,7 +1852,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 }
 
 
-/*
+/**
  * Strip an "object name" into a buffer.  Lifted from wizard2.c.
  */
 void strip_name(char *buf, int k_idx, bool easy_know)
@@ -1887,7 +1886,7 @@ void strip_name(char *buf, int k_idx, bool easy_know)
 
 
 
-/*
+/**
  * Convert an inventory index into a one character label
  * Note that the label does NOT distinguish inven/equip.
  */
@@ -1904,7 +1903,7 @@ char index_to_label(int i)
 }
 
 
-/*
+/**
  * Convert a label into the index of an item in the "inven"
  * Return "-1" if the label does not indicate a real item
  */
@@ -1926,7 +1925,7 @@ s16b label_to_inven(int c)
 }
 
 
-/*
+/**
  * Convert a label into the index of a item in the "equip"
  * Return "-1" if the label does not indicate a real item
  */
@@ -1950,7 +1949,7 @@ s16b label_to_equip(int c)
 
 
 
-/*
+/**
  * Determine which equipment slot (if any) an item likes
  */
 s16b wield_slot(object_type *o_ptr)
@@ -2038,7 +2037,7 @@ s16b wield_slot(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Return a string mentioning how a given item is carried
  */
 cptr mention_use(int i)
@@ -2101,7 +2100,7 @@ cptr mention_use(int i)
 }
 
 
-/*
+/**
  * Return a string describing how a given item is being worn.
  * Currently, only used for items in the equipment, not inventory.
  */
@@ -2167,7 +2166,7 @@ cptr describe_use(int i)
 
 
 
-/*
+/**
  * Check an item against the item tester info
  */
 bool item_tester_okay(object_type *o_ptr)
@@ -2200,7 +2199,7 @@ bool item_tester_okay(object_type *o_ptr)
 
 
 
-/*
+/**
  * Choice window "shadow" of the "show_inven()" function
  */
 void display_inven(void)
@@ -2287,7 +2286,7 @@ void display_inven(void)
 
 
 
-/*
+/**
  * Choice window "shadow" of the "show_equip()" function
  */
 void display_equip(void)
@@ -2386,7 +2385,7 @@ void display_equip(void)
 
 
 
-/*
+/**
  * Display the inventory.
  *
  * Hack -- do not display "trailing" empty slots
@@ -2569,7 +2568,7 @@ void show_inven(void)
 
 
 
-/*
+/**
  * Display the equipment.
  */
 void show_equip(void)
@@ -2734,7 +2733,7 @@ void show_equip(void)
 
 
 
-/*
+/**
  * Flip "inven" and "equip" in any sub-windows
  */
 void toggle_inven_equip(void)
@@ -2773,7 +2772,7 @@ void toggle_inven_equip(void)
 
 
 
-/*
+/**
  * Verify the choice of an item.
  *
  * The item can be negative to mean "item on floor".
@@ -2809,7 +2808,7 @@ bool verify_item(cptr prompt, int item)
 }
 
 
-/*
+/**
  * Hack -- allow user to "prevent" certain choices
  *
  * The item can be negative to mean "item on floor".
@@ -2858,7 +2857,7 @@ extern bool get_item_allow(int item)
 
 
 
-/*
+/**
  * Verify the "okayness" of a given item.
  *
  * The item can be negative to mean "item on floor".
@@ -2883,7 +2882,7 @@ static bool get_item_okay(int item)
   return (item_tester_okay(o_ptr));
 }
 
-/*
+/**
  * Find the "first" inventory object with the given "tag".
  *
  * A "tag" is a char "n" appearing as "@n" anywhere in the
@@ -2952,7 +2951,7 @@ static int get_tag(int *cp, char tag)
 }
 
 
-/*
+/**
  * Get the indexes of objects at a given floor location. -TNB-
  *
  * Return the number of object indexes acquired.
@@ -3015,7 +3014,7 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
 }
 
 
-/*
+/**
  * Display a list of the items on the floor at the given location. -TNB-
  */
 void show_floor(int *floor_list, int floor_num)
@@ -3130,12 +3129,12 @@ void show_floor(int *floor_list, int floor_num)
 }
 
 /* Arrays for inventory, equipment and floor */
-int i1, i2, e1, e2, f1, f2;
-int inven_count = 0, equip_count = 0, floor_count = 0;
-int equ[24], inv[24], flo[24];
+int i1, i2, e1, e2, f1, f2, q1, q2;
+int inven_count = 0, equip_count = 0, floor_count = 0, quiv_count = 0;
+int equ[24], inv[24], flo[24], qui[24];
 
 
-/* 
+/** 
  * Make the correct prompt for items, handle mouse buttons
  */
 void item_prompt(int mode, cptr pmt)
@@ -3307,8 +3306,9 @@ void item_prompt(int mode, cptr pmt)
 
 
 
-/* Item selection menus */
-
+/**
+ * Item selection menus 
+ */
 static char get_item_tag(menu_type *menu, int oid)
 {
   const int *choice = menu->menu_data;
@@ -3320,7 +3320,7 @@ static char get_item_tag(menu_type *menu, int oid)
     return index_to_label(idx);
 }
 
-/*
+/**
  * Display an entry on the item menu
  */
 void get_item_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -3371,7 +3371,7 @@ void get_item_display(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(attr, format("%s",o_name), row, col + 2);
 }
 
-/*
+/**
  * Deal with events on the get_item menu
  */
 bool get_item_action(char cmd, void *db, int oid)
@@ -3380,7 +3380,7 @@ bool get_item_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list items to choose from
  */
 bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
@@ -3487,13 +3487,17 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
       allow_equip = TRUE;
       
       /* Record them */
-      for (equip_count = 0, j = e1; j <= e2; j++)
+      for (equip_count = 0, quiv_count = 0, j = e1; j <= e2; j++)
 	if (get_item_okay(j))
-	  equ[equip_count++] = j;
+	  {
+	    equ[equip_count++] = j;
+	    if (j >= INVEN_Q0) qui[quiv_count++] = j;
+	  }
     }
 
   /* Check for anything in the quiver */
-  use_quiver = (allow_equip && (e2 > INVEN_SUBTOTAL));
+  use_quiver = (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v')) &&
+		allow_equip && quiv_count);
   
   /* Count "okay" floor items */
   floor_num = 0;
@@ -3550,8 +3554,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
     }
   
   /* Hack -- Start on equipment if shooting or throwing */
-  else if (((p_ptr->command_cmd == 'f') || (p_ptr->command_cmd == 'v'))
-      && use_quiver)
+  else if (use_quiver)
     {
       p_ptr->command_wrk = (USE_EQUIP);
     }
@@ -3600,6 +3603,11 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
     {
       menu.menu_data = inv;
       num_entries = inven_count;
+    }
+  else if ((p_ptr->command_wrk == (USE_EQUIP)) && use_quiver)
+    {
+      menu.menu_data = qui;
+      num_entries = quiv_count;
     }
   else if (p_ptr->command_wrk == (USE_EQUIP))
     {
@@ -4038,7 +4046,7 @@ bool item_menu(int *cp, cptr pmt, int mode, bool *oops)
   return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
 
-/*
+/**
  * Let the user select an item, save its "index"
  *
  * Return TRUE only if an acceptable item was chosen by the user.
@@ -4171,7 +4179,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 }
 
 
-/*
+/**
  * Link to various object coloring functions from info.c. -LM-
  */
 char *object_adj(int tval, int sval)
@@ -4192,7 +4200,7 @@ char *object_adj(int tval, int sval)
 
 /* Set Item Code */
 
-/*
+/**
  * Determin if a given Set of artifacts is being used by the player.
  */
 extern bool check_set(byte s_idx)
@@ -4217,7 +4225,7 @@ extern bool check_set(byte s_idx)
   return (count >= s_ptr->no_of_items);
 }
 
-/*
+/**
  * Apply bonuses for complete artifact sets.
  */
 extern void apply_set(int s_idx)
@@ -4286,7 +4294,7 @@ extern void apply_set(int s_idx)
   if (bonus_applied) msg_print("Item set completed!");
 }
 
-/*
+/**
  * Remove bonuses for no-longer-complete artifact sets.
  */
 extern void remove_set(int s_idx)

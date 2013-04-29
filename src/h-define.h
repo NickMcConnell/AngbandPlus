@@ -1,11 +1,11 @@
-/* File: h-define.h */
+/** \file h-define.h 
+    \brief Define some simple constants and macros
+ */
+
 
 #ifndef INCLUDED_H_DEFINE_H
 #define INCLUDED_H_DEFINE_H
 
-/*
- * Define some simple constants
- */
 
 
 /*

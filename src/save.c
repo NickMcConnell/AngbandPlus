@@ -1,6 +1,7 @@
-/* File: save.c */
+/** \file save.c 
+    \brief Creation of savefiles  
 
-/* Creation of savefiles.  Loading a player from a savefile.
+ * Loading a player from a savefile.
  *
  * Copyright (c) 2009 Nick McConnell, Leon Marrick, Bahman Rabii, Ben Harrison
  *
@@ -21,7 +22,7 @@
 
 
 
-/*
+/**
  * Some "local" parameters, used to help write savefiles
  */
 
@@ -34,7 +35,7 @@ static u32b	x_stamp = 0L;	/* A simple "checksum" on the encoded bytes */
 
 
 
-/*
+/**
  * These functions place information into a savefile a byte at a time
  */
 
@@ -94,7 +95,7 @@ static void wr_string(cptr str)
  */
 
 
-/*
+/**
  * Write an "item" record
  */
 static void wr_item(object_type *o_ptr)
@@ -172,7 +173,7 @@ static void wr_item(object_type *o_ptr)
 }
   
 
-/*
+/**
  * Write a "monster" record
  */
 static void wr_monster(monster_type *m_ptr)
@@ -234,7 +235,7 @@ static void wr_monster(monster_type *m_ptr)
 }
 
 
-/*
+/**
  * Write a "lore" record
  */
 static void wr_lore(int r_idx)
@@ -287,7 +288,7 @@ static void wr_lore(int r_idx)
 }
 
 
-/*
+/**
  * Write an "xtra" record.  Records knowledge of object kinds.
  */
 static void wr_xtra(int k_idx)
@@ -309,7 +310,7 @@ static void wr_xtra(int k_idx)
 }
 
 
-/*
+/**
  * Write a "store" record
  */
 static void wr_store(store_type *st_ptr)
@@ -351,7 +352,7 @@ static void wr_store(store_type *st_ptr)
 }
 
 
-/*
+/**
  * Write RNG state
  */
 static errr wr_randomizer(void)
@@ -375,7 +376,7 @@ static errr wr_randomizer(void)
 }
 
 
-/*
+/**
  * Write the "options"
  */
 static void wr_options(void)
@@ -481,7 +482,7 @@ static void wr_options(void)
 }
 
 
-/*
+/**
  * Hack -- Write the "ghost" info
  */
 static void wr_ghost(void)
@@ -496,7 +497,7 @@ static void wr_ghost(void)
 }
 
 
-/*
+/**
  * Write autoinscribe & squelch item-quality submenu to the savefile
  */
 static void wr_squelch(void)
@@ -534,7 +535,7 @@ static void wr_squelch(void)
 }
 
 
-/*
+/**
  * Write some "extra" info
  */
 static void wr_extra(void)
@@ -697,7 +698,7 @@ static void wr_extra(void)
   wr_s32b(turn);
 }
 
-/*
+/**
  * Write the notes into the savefile. Every savefile has at least NOTES_MARK.
  */
 static void wr_notes(void)
@@ -725,13 +726,13 @@ static void wr_notes(void)
 
 
 
-/*
+/**
  * The cave grid flags that get saved in the savefile
  */
 #define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
 
 
-/*
+/**
  * Write the current dungeon
  */
 static void wr_dungeon(void)
@@ -912,7 +913,7 @@ static void wr_dungeon(void)
 
 
 
-/*
+/**
  * Actually write a save-file
  */
 static bool wr_savefile_new(void)
@@ -1197,7 +1198,7 @@ static bool wr_savefile_new(void)
 }
 
 
-/*
+/**
  * Medium level player saver
  */
 static bool save_player_aux(char *name)
@@ -1239,7 +1240,7 @@ static bool save_player_aux(char *name)
 
 
 
-/*
+/**
  * Attempt to save the player in a savefile
  */
 bool save_player(void)
@@ -1325,7 +1326,7 @@ bool save_player(void)
   return (result);
 }
 
-/*
+/**
  * Hack
  *
  * Check worn items and apply sets as set data is not stored -GS-
@@ -1364,7 +1365,7 @@ void check_item_sets(void)
     }
 }
 
-/*
+/**
  * Attempt to Load a "savefile"
  *
  * Version 2.7.0 introduced a slightly different "savefile" format from

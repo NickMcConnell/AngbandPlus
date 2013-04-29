@@ -1,6 +1,7 @@
-/* File: xtra1.c */
+/** \file xtra1.c 
+    \brief Display of character data
 
-/* Display of stats to the user from internal figures, char info shown on 
+ * Display of stats to the user from internal figures, char info shown on 
  * main screen and status displays, monster health bar, display various
  * things in sub-windows, spell management, calculation of max mana, max
  * HP, light radius, and weight limit.  Apply and display all modifiers,
@@ -26,7 +27,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Converts stat num into a six-char (right justified) string
  */
 void cnv_stat(int val, char *out_val)
@@ -59,7 +60,7 @@ void cnv_stat(int val, char *out_val)
 
 
 
-/*
+/**
  * Modify a stat value by a "modifier", return new value
  *
  * Stats go up: 3,4,...,17,18,18/10,18/20,...,18/220
@@ -109,7 +110,7 @@ s16b modify_stat_value(int value, int amount)
 
 
 
-/*
+/**
  * Print character info at given row, column in a 13 char field
  */
 static void prt_field(cptr info, int row, int col)
@@ -127,7 +128,7 @@ static void prt_field(cptr info, int row, int col)
 
 
 
-/*
+/**
  * Print character stat in given row, column
  */
 static void prt_stat(int stat)
@@ -160,7 +161,7 @@ static void prt_stat(int stat)
 
 
 
-/*
+/**
  * Prints "title", including "wizard" or "winner" as needed.
  */
 static void prt_title(void)
@@ -189,7 +190,7 @@ static void prt_title(void)
 }
 
 
-/*
+/**
  * Prints level
  */
 static void prt_level(void)
@@ -211,7 +212,7 @@ static void prt_level(void)
 }
 
 
-/*
+/**
  * Display the experience
  */
 static void prt_exp(void)
@@ -245,7 +246,7 @@ static void prt_exp(void)
     }
 }
 
-/*
+/**
  * Prints current gold
  */
 static void prt_gold(void)
@@ -257,7 +258,7 @@ static void prt_gold(void)
   c_put_str(TERM_L_GREEN, tmp, ROW_GOLD, COL_GOLD + 3);
 }
 
-/*
+/**
  * Prints current shape, if not normal.   -LM-
  */
 static void prt_shape(void)
@@ -314,7 +315,7 @@ static void prt_shape(void)
 }
 
 
-/*
+/**
  * Prints current AC
  */
 static void prt_ac(void)
@@ -327,7 +328,7 @@ static void prt_ac(void)
 }
 
 
-/*
+/**
  * Prints Cur/Max hit points
  */
 static void prt_hp(void)
@@ -361,7 +362,7 @@ static void prt_hp(void)
 }
 
 
-/*
+/**
  * Prints players max/cur spell points
  */
 static void prt_sp(void)
@@ -400,7 +401,7 @@ static void prt_sp(void)
 }
 
 
-/*
+/**
  * Prints depth in stat area
  */
 static void prt_depth(void)
@@ -458,10 +459,10 @@ static void prt_depth(void)
  * Status line display functions
  * ------------------------------------------------------------------------ */
 
-/* Simple macro to initialise structs */
+/** Simple macro to initialise structs */
 #define S(s)		s, sizeof(s)
 
-/*
+/**
  * Struct to describe different timed effects
  */
 struct state_info
@@ -472,7 +473,7 @@ struct state_info
   byte attr;
 };
 
-/* p_ptr->hunger descriptions */
+/** p_ptr->hunger descriptions */
 static const struct state_info hunger_data[] =
 {
   { PY_FOOD_FAINT, S("Faint"),    TERM_RED },
@@ -505,7 +506,7 @@ static const struct state_info hunger_data[] =
 }
 
 
-/*
+/**
  * Prints status of hunger
  */
 static size_t prt_hunger(int row, int col)
@@ -516,7 +517,7 @@ static size_t prt_hunger(int row, int col)
 
 
 
-/*
+/**
  * Prints Searching, Resting, or 'count' status
  * Display is always exactly 10 characters wide (see below)
  *
@@ -617,7 +618,7 @@ static size_t prt_state(int row, int col)
 }
 
 
-/*
+/**
  * Prints the speed of a character.  		-CJS-
  */
 static size_t prt_speed(int row, int col)
@@ -650,7 +651,7 @@ static size_t prt_speed(int row, int col)
   return strlen(buf);
 }
 
-/*
+/**
  * Prints trap detection status
  */
 static size_t prt_dtrap(int row, int col)
@@ -669,7 +670,7 @@ static size_t prt_dtrap(int row, int col)
 
 
 
-/*
+/**
  * Print whether a character is studying or not.
  */
 static size_t prt_study(int row, int col)
@@ -684,7 +685,7 @@ static size_t prt_study(int row, int col)
   return 0;
 }
 
-/*
+/**
  * Print whether a character is due a specialty or not.
  */
 static size_t prt_spec(int row, int col)
@@ -700,7 +701,7 @@ static size_t prt_spec(int row, int col)
 }
 
 
-/*
+/**
  * Print blind.
  */
 static size_t prt_blind(int row, int col)
@@ -713,7 +714,7 @@ static size_t prt_blind(int row, int col)
   return 0;
 }
 
-/*
+/**
  * Print confused.
  */
 static size_t prt_confused(int row, int col)
@@ -726,7 +727,7 @@ static size_t prt_confused(int row, int col)
   return 0;
 }
 
-/*
+/**
  * Print afraid.
  */
 static size_t prt_afraid(int row, int col)
@@ -739,7 +740,7 @@ static size_t prt_afraid(int row, int col)
   return 0;
 }
 
-/*
+/**
  * Print paralyzed.
  */
 static size_t prt_paralyzed(int row, int col)
@@ -752,7 +753,7 @@ static size_t prt_paralyzed(int row, int col)
   return 0;
 }
 
-/*
+/**
  * Print poisoned.
  */
 static size_t prt_poisoned(int row, int col)
@@ -766,7 +767,7 @@ static size_t prt_poisoned(int row, int col)
 }
 
 
-/* Useful typedef */
+/** Useful typedef */
 typedef size_t status_f(int row, int col);
 
 status_f *status_handlers[] =
@@ -774,7 +775,7 @@ status_f *status_handlers[] =
   prt_afraid, prt_paralyzed, prt_poisoned, prt_dtrap };
 
 
-/*
+/**
  * Print the status line.
  */
 extern void update_statusline(void)
@@ -911,7 +912,7 @@ static void prt_blank(void)
 }
 
 
-/*
+/**
  * Redraw the "monster health bar"
  *
  * The "monster health bar" provides visual feedback on the "health"
@@ -1009,7 +1010,7 @@ static void health_redraw(void)
 }
 
 
-/*
+/**
  * Redraw the "monster mana bar"
  *
  * The "monster mana bar" provides visual feedback on the "mana"
@@ -1099,7 +1100,7 @@ static void mana_redraw(void)
 }
 
 
-/*
+/**
  * Constants for extra status messages
  */
 enum {
@@ -1130,7 +1131,7 @@ enum {
   STATUS_MAX
 };
 
-/*
+/**
  * One of these exists for every extra status message.
  *
  * Col and row tell us where to draw.
@@ -1143,7 +1144,7 @@ typedef struct {
   int width, sm_width;
 } status_type;
 
-/*
+/**
  * Table of extra status message info.
  *
  * Order must match that of the STATUS_XXX constants.
@@ -1179,7 +1180,7 @@ status_type status_info[] = {
 
 
 
-/*
+/**
  * Initialize the extra status messages.
  */
 static void init_status(void)
@@ -1220,7 +1221,7 @@ static void init_status(void)
 }
 
 
-/*
+/**
  * Display all the extra status messages.
  */
 static void prt_status(void)
@@ -1403,7 +1404,7 @@ static void prt_status(void)
 }
 
 
-/*
+/**
  * Display basic info (mostly left of map)
  */
 static void prt_frame_basic(void)
@@ -1450,7 +1451,7 @@ static void prt_frame_basic(void)
 }
 
 
-/*
+/**
  * Display extra info (mostly below map)
  */
 static void prt_frame_extra(void)
@@ -1470,7 +1471,7 @@ static void prt_frame_extra(void)
 }
 
 
-/*
+/**
  * Hack -- display inventory in sub-windows
  */
 static void fix_inven(void)
@@ -1502,7 +1503,7 @@ static void fix_inven(void)
     }
 }
 
-/*
+/**
  * Hack -- display monsters in sub-windows
  */
 static void fix_monlist(void)
@@ -1534,7 +1535,7 @@ static void fix_monlist(void)
     }
 }
 
-/*
+/**
  * Hack -- display monsters in sub-windows
  */
 static void fix_itemlist(void)
@@ -1568,7 +1569,7 @@ static void fix_itemlist(void)
 
 
 
-/*
+/**
  * Hack -- display equipment in sub-windows
  */
 static void fix_equip(void)
@@ -1601,7 +1602,7 @@ static void fix_equip(void)
 }
 
 
-/*
+/**
  * Hack -- display player in sub-windows (mode 0)
  */
 static void fix_player_0(void)
@@ -1635,7 +1636,7 @@ static void fix_player_0(void)
 
 
 
-/*
+/**
  * Hack -- display player in sub-windows (mode 1)
  */
 static void fix_player_1(void)
@@ -1668,7 +1669,7 @@ static void fix_player_1(void)
 }
 
 
-/*
+/**
  * Hack -- display recent messages in sub-windows
  *
  * Adjust for width and split messages.   XXX XXX XXX
@@ -1720,7 +1721,7 @@ static void fix_message(void)
 }
 
 
-/*
+/**
  * Hack -- display overhead view in sub-windows
  *
  * Note that the "player" symbol does NOT appear on the map.
@@ -1766,7 +1767,7 @@ static void fix_overhead(void)
 }
 
 
-/*
+/**
  * Hack -- display monster recall in sub-windows
  */
 static void fix_monster(void)
@@ -1799,7 +1800,7 @@ static void fix_monster(void)
 }
 
 
-/*
+/**
  * Hack -- display object recall in sub-windows
  */
 static void fix_object(void)
@@ -1832,7 +1833,7 @@ static void fix_object(void)
 }
 
 
-/*
+/**
  * Calculate number of spells player should have, and forget,
  * or remember, spells until that number is properly reflected.
  *
@@ -2108,7 +2109,7 @@ static void calc_spells(void)
 }
 
 
-/*
+/**
  * Calculate number of specialties player should have. -BR-
  */
 static void calc_specialty(void)
@@ -2168,7 +2169,7 @@ static void calc_specialty(void)
 }
 
 
-/*
+/**
  * Calculate maximum mana.  You do not need to know any spells.
  * Note that mana is lowered by heavy (or inappropriate) armor, and
  * by a shapeshift.
@@ -2345,7 +2346,7 @@ static void calc_mana(void)
 
 
 
-/*
+/**
  * Calculate the players (maximal) hit points
  *
  * Adjust current hitpoints if necessary
@@ -2392,7 +2393,7 @@ static void calc_hitpoints(void)
 
 
 
-/*
+/**
  * Extract and set the current "lite radius"
  */
 static void calc_torch(void)
@@ -2473,7 +2474,7 @@ static void calc_torch(void)
 
 
 
-/*
+/**
  * Computes current weight limit.
  */
 static int weight_limit(void)
@@ -2487,7 +2488,7 @@ static int weight_limit(void)
   return (i);
 }
 
-/* Calculate all class-based bonuses and penalties to melee Skill.  Oangband
+/** Calculate all class-based bonuses and penalties to melee Skill.  Oangband
  * recognizes that it takes a great deal of training to get critical hits with
  * a large, heavy weapon - training that many classes simply do not have the
  * time or inclination for.  -LM- 
@@ -2569,7 +2570,7 @@ sint add_special_melee_skill (byte pclass, s16b weight, object_type *o_ptr)
   return (add_skill);
 }
 
-/* Calculate all class and race-based bonuses and 
+/** Calculate all class and race-based bonuses and 
  * penalties to missile Skill 
  */
 sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
@@ -2619,7 +2620,7 @@ sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 }
 
 
-/*
+/**
  * Paranoid bounds checking on player resistance arrays.
  *
  * These now represent what percentage of damage the player takes -NRM-
@@ -2642,7 +2643,7 @@ static void resistance_limits(void)
     }
 }
 
-/*
+/**
  * Apply a percentage resistance to the existing player resistance level.
  */
 extern void apply_resist(int *player_resist, int item_resist)
@@ -2652,7 +2653,7 @@ extern void apply_resist(int *player_resist, int item_resist)
 
 
 
-/* Applies vital statistic changes from a shapeshift 
+/** Applies vital statistic changes from a shapeshift 
  * to the player.
 */
 static void shape_change_stat(void)
@@ -2754,7 +2755,7 @@ static void shape_change_stat(void)
     }
 }
 
-/* A Sangband-derived function to apply all non-stat changes from a shapeshift 
+/** A Sangband-derived function to apply all non-stat changes from a shapeshift 
  * to the player.  Any alterations also need to be added to the character 
  * screen (files.c, function "player_flags"), and all timed states 
  * (opposition to the elements for example) must be hacked into the timing of 
@@ -3024,7 +3025,7 @@ static void shape_change_main(void)
 
 
 
-/*
+/**
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
  * and temporary spell effects.
@@ -4398,7 +4399,7 @@ extern void calc_bonuses(bool inspect)
 
 
 
-/*
+/**
  * Handle "p_ptr->notice"
  */
 void notice_stuff(void)
@@ -4439,7 +4440,7 @@ void notice_stuff(void)
 }
 
 
-/*
+/**
  * Handle "p_ptr->update"
  */
 void update_stuff(void)
@@ -4527,7 +4528,7 @@ void update_stuff(void)
 }
 
 
-/*
+/**
  * Handle "p_ptr->redraw"
  */
 void redraw_stuff(void)
@@ -4767,7 +4768,7 @@ void redraw_stuff(void)
 }
 
 
-/*
+/**
  * Handle "p_ptr->window"
  */
 void window_stuff(void)
@@ -4870,7 +4871,7 @@ void window_stuff(void)
 }
 
 
-/*
+/**
  * Handle "p_ptr->update" and "p_ptr->redraw" and "p_ptr->window"
  */
 void handle_stuff(void)

@@ -1,6 +1,7 @@
-/* File: xtra2.c */
+/** \file xtra2.c 
+    \brief Monster death, player attributes, targetting
 
-/* Handlers for most of the player's temporary attributes, resistances,
+ * Handlers for most of the player's temporary attributes, resistances,
  * nutrition, experience.  Monsters that drop a specific treasure, monster
  * death and subsequent events, screen scrolling, monster health descrip-
  * tions.  Sorting, targetting, what and how squares appear when looked at,
@@ -28,7 +29,7 @@
 #include "angbandcw.h"
 #endif /* _WIN32_WCE */
 
-/*
+/**
  * Set "p_ptr->blind", notice observable changes
  *
  * Note the use of "PU_FORGET_VIEW" and "PU_UPDATE_VIEW", which are needed
@@ -92,7 +93,7 @@ bool set_blind(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->confused", notice observable changes
  */
 bool set_confused(int v)
@@ -146,7 +147,7 @@ bool set_confused(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->poisoned", notice observable changes
  */
 bool set_poisoned(int v)
@@ -207,7 +208,7 @@ bool set_poisoned(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->afraid", notice observable changes
  */
 bool set_afraid(int v)
@@ -256,7 +257,7 @@ bool set_afraid(int v)
   return (TRUE);
 }
 
-/*
+/**
  * Set "p_ptr->paralyzed", notice observable changes
  */
 bool set_paralyzed(int v)
@@ -306,7 +307,7 @@ bool set_paralyzed(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->image", notice observable changes
  *
  * Note the use of "PR_MAP", which is needed because "p_ptr->image" affects
@@ -367,7 +368,7 @@ bool set_image(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->fast", notice observable changes
  */
 bool set_fast(int v)
@@ -420,7 +421,7 @@ bool set_fast(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->slow", notice observable changes
  */
 bool set_slow(int v)
@@ -473,7 +474,7 @@ bool set_slow(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->shield", notice observable changes
  */
 bool set_shield(int v)
@@ -527,7 +528,7 @@ bool set_shield(int v)
 
 
 
-/*
+/**
  * Set "p_ptr->blessed", notice observable changes
  */
 bool set_blessed(int v)
@@ -580,7 +581,7 @@ bool set_blessed(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->hero", notice observable changes
  */
 bool set_hero(int v)
@@ -633,7 +634,7 @@ bool set_hero(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->shero", notice observable changes
  */
 bool set_shero(int v)
@@ -686,7 +687,7 @@ bool set_shero(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->protevil", notice observable changes
  */
 bool set_protevil(int v)
@@ -736,7 +737,7 @@ bool set_protevil(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->magicdef", notice observable changes
  */
 bool set_extra_defences(int v)
@@ -789,7 +790,7 @@ bool set_extra_defences(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->tim_invis", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
@@ -847,7 +848,7 @@ bool set_tim_invis(int v)
   return (TRUE);
 }
 
-/*
+/**
  * Set "p_ptr->tim_esp", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because
@@ -907,7 +908,7 @@ bool set_tim_esp(int v)
 
 
 
-/*
+/**
  * Set "p_ptr->superstealth", notice observable changes
  */
 bool set_superstealth(int v, bool message)
@@ -960,7 +961,7 @@ bool set_superstealth(int v, bool message)
 
 
 
-/*
+/**
  * Set "p_ptr->tim_infra", notice observable changes
  *
  * Note the use of "PU_MONSTERS", which is needed because because
@@ -1019,7 +1020,7 @@ bool set_tim_infra(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->oppose_acid", notice observable changes
  */
 bool set_oppose_acid(int v)
@@ -1072,7 +1073,7 @@ bool set_oppose_acid(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->oppose_elec", notice observable changes
  */
 bool set_oppose_elec(int v)
@@ -1125,7 +1126,7 @@ bool set_oppose_elec(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->oppose_fire", notice observable changes
  */
 bool set_oppose_fire(int v)
@@ -1181,7 +1182,7 @@ bool set_oppose_fire(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->oppose_cold", notice observable changes
  */
 bool set_oppose_cold(int v)
@@ -1234,7 +1235,7 @@ bool set_oppose_cold(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->oppose_pois", notice observable changes
  */
 bool set_oppose_pois(int v)
@@ -1287,7 +1288,7 @@ bool set_oppose_pois(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
@@ -1423,7 +1424,7 @@ bool set_stun(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->cut", notice observable changes
  *
  * Note the special code to only notice "range" changes.
@@ -1636,7 +1637,7 @@ bool set_cut(int v)
 }
 
 
-/*
+/**
  * Set "p_ptr->food", notice observable changes
  *
  * The "p_ptr->food" variable can get as large as 20000, allowing the
@@ -1858,7 +1859,7 @@ bool set_food(int v)
   return (TRUE);
 }
 
-/*
+/**
  * Set "p_ptr->word_recall", notice observable changes
  */
 bool word_recall(int v)
@@ -1874,7 +1875,7 @@ bool word_recall(int v)
 }
 
 
-/*
+/**
  * Advance experience levels and print experience
  */
 void check_experience(void)
@@ -2004,7 +2005,7 @@ void check_experience(void)
 }
 
 
-/*
+/**
  * Gain experience
  */
 void gain_exp(s32b amount)
@@ -2024,7 +2025,7 @@ void gain_exp(s32b amount)
 }
 
 
-/*
+/**
  * Lose experience
  */
 void lose_exp(s32b amount)
@@ -2042,7 +2043,7 @@ void lose_exp(s32b amount)
 
 
 
-/*
+/**
  * Hack -- Return the "automatic coin type" of a monster race
  * Used to allocate proper treasure when "Creeping coins" die
  *
@@ -2079,7 +2080,7 @@ static int get_coin_type(monster_race *r_ptr)
 }
 
 
-/*
+/**
  * Create magical stairs after finishing a quest monster.
  */
 static void build_quest_stairs(int y, int x, char *portal)
@@ -2112,7 +2113,7 @@ static void build_quest_stairs(int y, int x, char *portal)
   p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 }
 
-/*
+/**
  * Handle the "death" of a monster.
  *
  * Disperse treasures centered at the monster location based on the
@@ -2400,12 +2401,16 @@ void monster_death(int m_idx)
       if (stage_map[q_list[i].stage][1] == r_ptr->level) q_list[i].stage = 0;
     }
 
+  /* Hack -- Mark Sauron's other forms as dead */
+  if ((r_ptr->level = 85) && (r_ptr->flags1 & (RF1_QUESTOR)))
+    for (i = 1; i < 4; i++) r_info[m_ptr->r_idx - i].max_num--;
+
   /* Make a staircase for Morgoth */
   if (r_ptr->level == 100)
     build_quest_stairs(y, x, "staircase");
   
-  /* ...or a portal for ironmen and dungeon-only games */
-  else if ((adult_ironman) || (adult_dungeon))
+  /* ...or a portal for ironmen wilderness games */
+  else if (adult_ironman && !adult_dungeon)
     build_quest_stairs(y, x, "portal"); 
   
   /* or a path out of Nan Dungortheb */
@@ -2451,7 +2456,7 @@ void monster_death(int m_idx)
 
 
 
-/*
+/**
  * Decrease a monster's hit points, handle monster death.
  *
  * We return TRUE if the monster has been killed (and deleted).
@@ -2726,7 +2731,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 }
 
 
-/*
+/**
  * Calculates current boundaries
  */
 void panel_recalc_bounds(void)
@@ -2747,7 +2752,7 @@ void panel_recalc_bounds(void)
 }
 
 
-/*
+/**
  * Handle a request to change the current panel
  *
  * Return TRUE if the panel was changed.
@@ -2934,7 +2939,7 @@ void verify_panel(void)
 }
 
 
-/*
+/**
  * Monster health description
  */
 cptr look_mon_desc(int m_idx)
@@ -2995,7 +3000,7 @@ cptr look_mon_desc(int m_idx)
     return (living ? "almost dead" : "almost destroyed");
 }
 
-/*
+/**
  * Monster attitude description
  */
 cptr look_mon_host(int m_idx)
@@ -3030,7 +3035,7 @@ cptr look_mon_host(int m_idx)
 
 
 
-/*
+/**
  * Angband sorting algorithm -- quick sort in place
  *
  * Note that the details of the data we are sorting is hidden,
@@ -3079,7 +3084,7 @@ void ang_sort_aux(vptr u, vptr v, int p, int q)
 }
 
 
-/*
+/**
  * Angband sorting algorithm -- quick sort in place
  *
  * Note that the details of the data we are sorting is hidden,
@@ -3100,7 +3105,7 @@ void ang_sort(vptr u, vptr v, int n)
 /*** Targetting Code ***/
 
 
-/*
+/**
  * Extract a direction (or zero) from a character
  */
 sint target_dir(char ch)
@@ -3169,7 +3174,7 @@ sint target_dir(char ch)
 }
 
 
-/*
+/**
  * Extract a direction (or zero) from a mousepress
  */
 extern sint mouse_dir(event_type ke, bool locating)
@@ -3231,7 +3236,7 @@ extern sint mouse_dir(event_type ke, bool locating)
 
 
 
-/*
+/**
  * Determine is a monster makes a reasonable target
  *
  * The concept of "targetting" was stolen from "Morgul" (?)
@@ -3277,7 +3282,7 @@ bool target_able(int m_idx)
   return (TRUE);
 }
 
-/*
+/**
  * Determine if an object makes a reasonable target
  *
  * The player can target any location, or any "target-able" object.
@@ -3338,7 +3343,7 @@ bool target_able_obj(int o_idx)
 
 
 
-/*
+/**
  * Update (if necessary) and verify (if possible) the target.
  *
  * We return TRUE if the target is "okay" and FALSE otherwise.
@@ -3394,7 +3399,7 @@ bool target_okay(void)
 }
 
 
-/*
+/**
  * Set the target to a monster (or nobody)
  */
 void target_set_monster(int m_idx)
@@ -3425,7 +3430,7 @@ void target_set_monster(int m_idx)
 }
 
 
-/*
+/**
  * Set the target to an object
  */
 void target_set_object(int o_idx)
@@ -3456,7 +3461,7 @@ void target_set_object(int o_idx)
 }
 
 
-/*
+/**
  * Set the target to a location
  */
 void target_set_location(int y, int x)
@@ -3485,7 +3490,7 @@ void target_set_location(int y, int x)
 }
 
 
-/*
+/**
  * Sorting hook -- comp function -- by "distance to player"
  *
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
@@ -3520,7 +3525,7 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
 }
 
 
-/*
+/**
  * Sorting hook -- swap function -- by "distance to player"
  *
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
@@ -3546,7 +3551,7 @@ static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
 
 
 
-/*
+/**
  * Hack -- help "select" a location (see below)
  */
 static s16b target_pick(int y1, int x1, int dy, int dx)
@@ -3598,7 +3603,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 }
 
 
-/*
+/**
  * Hack -- determine if a given location is "interesting"
  */
 static bool target_set_interactive_accept(int y, int x)
@@ -3654,7 +3659,7 @@ static bool target_set_interactive_accept(int y, int x)
 }
 
 
-/*
+/**
  * Prepare the "temp" array for "target_interactive_set"
  *
  * Return the number of target_able monsters in the set.
@@ -3712,7 +3717,7 @@ static void target_set_interactive_prepare(int mode)
   ang_sort(temp_x, temp_y, temp_n);
 }
 
-/* 
+/** 
  * Abbreviated monster names for small screen
  */
 void cut_down(char *name)
@@ -3769,7 +3774,7 @@ void cut_down(char *name)
 
 
 
-/*
+/**
  * Examine a grid, return a keypress.
  *
  * The "mode" argument contains the "TARGET_LOOK" bit flag, which
@@ -4190,7 +4195,7 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 }
 
 
-/*
+/**
  * Draw a visible path over the squares between (x1,y1) and (x2,y2).
  * The path consists of "*", which are white except where there is a
  * monster, object or feature in the grid.
@@ -4268,7 +4273,7 @@ static int draw_path(u16b *path, char *c, byte *a,
 	}
       
       /* Known walls are blue. */
-      else if (!cave_floor_bold(y,x) && (cave_info[y][x] & (CAVE_MARK) ||
+      else if (!cave_project(y,x) && (cave_info[y][x] & (CAVE_MARK) ||
 					 player_can_see_bold(y,x)))
 	{
 	  colour = TERM_BLUE;
@@ -4294,7 +4299,7 @@ static int draw_path(u16b *path, char *c, byte *a,
   return i;
 }
 
-/*
+/**
  * Load the attr/char at each point along "path" which is on screen from
  * "a" and "c". This was saved in draw_path().
  *
@@ -4316,7 +4321,7 @@ static void load_path(int max, u16b *path, char *c, byte *a)
 }
 
 
-/*
+/**
  * Handle "target" and "look".
  *
  * Note that this code can be called from "get_aim_dir()".
@@ -4828,7 +4833,7 @@ bool target_set_interactive(int mode)
   return (TRUE);
 }
 
-/*
+/**
  * Given a starting position, find the 'n'th closest monster.
  *
  * Note:  "require_visible" only works when this function is looking around
@@ -4959,7 +4964,7 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 
 
 
-/*
+/**
  * Get an "aiming direction" (1,2,3,4,6,7,8,9 or 5) from the user.
  *
  * Return TRUE if a direction was chosen, otherwise return FALSE.
@@ -5183,7 +5188,7 @@ bool get_aim_dir(int *dp)
 
 
 
-/*
+/**
  * Request a "movement" direction (1,2,3,4,6,7,8,9) from the user.
  *
  * Return TRUE if a direction was chosen, otherwise return FALSE.
@@ -5252,7 +5257,7 @@ bool get_rep_dir(int *dp)
 }
 
 
-/*
+/**
  * Apply confusion, if needed, to a direction
  *
  * Display a message and return TRUE if direction changes.

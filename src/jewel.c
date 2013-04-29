@@ -1,6 +1,7 @@
-/* File: jewel.c */
+/** \file jewel.c 
+    \brief Jewellery generation.
 
-/* Random rings and amulets.  Selling and providing qualities.   Selecting a 
+ * Random rings and amulets.  Selling and providing qualities.   Selecting a 
  * theme and corresponding name, and the properties of all possible themes.  
  * Adding semi-random qualities until potential is all used up.  Removing 
  * contradictory flags.  
@@ -22,146 +23,19 @@
  */
 
 #include "angband.h"
+#include "jewel.h"
 
-/* A global variable whose contents will be bartered to acquire powers. */
+/** A global variable whose contents will be bartered to acquire powers. */
 static int potential = 0;
 
-/* The initial potential of the artifact. */
+/** The initial potential of the object. */
 static int initial_potential = 0;
 
-/* Percentage chance for an object to be terrible. */
+/** Percentage chance for an object to be terrible. */
 #define TERRIBLE_CHANCE		5
 
-/* Definitions of most property flags. */
 
-/* Stat bonuses */
-#define ADD_STR			1
-#define ADD_INT			2
-#define ADD_WIS			3
-#define ADD_DEX			4
-#define ADD_CON			5
-#define ADD_CHR			6
-
-/* Other bonuses */
-#define MAGIC_MASTERY		10
-#define STEALTH			11
-#define SEARCH			12
-#define INFRA			13
-#define TUNNEL			14
-#define SPEED			15
-#define MIGHT			16
-#define SHOTS			17
-
-/* Slays */
-#define SLAY_ANIMAL		20
-#define SLAY_EVIL		21
-#define SLAY_UNDEAD		22
-#define SLAY_DEMON		23
-#define SLAY_ORC		24
-#define SLAY_TROLL		25
-#define SLAY_GIANT		26
-#define SLAY_DRAGON		27
-
-/* Brands */
-#define BRAND_ACID		30
-#define BRAND_ELEC		31
-#define BRAND_FIRE		32
-#define BRAND_COLD		33
-#define BRAND_POIS		34
-
-/* Object flags */
-#define SUST_STR		40
-#define SUST_INT		41
-#define SUST_WIS		42
-#define SUST_DEX		43
-#define SUST_CON		44
-#define SUST_CHR		45
-#define SLOW_DIGEST		46
-#define FEATHER	 		47
-#define LITE			48
-#define REGEN			49
-#define TELEPATHY		50
-#define SEE_INVIS		51
-#define FREE_ACT		52
-#define HOLD_LIFE		53
-#define SEEING                  54
-#define FEARLESS                55
-#define DARKNESS                56
-#define ELEC_PROOF              57
-#define CHAOTIC                 58
-
-/* Resists */
-#define IM_ACID			70
-#define IM_ELEC			71
-#define IM_FIRE			72
-#define IM_COLD			73
-#define RES_ACID		74
-#define RES_ELEC		75
-#define RES_FIRE		76
-#define RES_COLD		77
-#define RES_POIS		78
-#define RES_LITE		79
-#define RES_DARK		80
-#define RES_CONFU		81
-#define RES_SOUND		82
-#define RES_SHARD		83
-#define RES_NEXUS		84
-#define RES_NETHR		85
-#define RES_CHAOS		86
-#define RES_DISEN		87
-
-/* Vulnerabilities */
-#define VUL_BASE		90
-#define VUL_ACID		90
-#define VUL_ELEC		91
-#define VUL_FIRE		92
-#define VUL_COLD		93
-#define VUL_POIS		94
-#define VUL_LITE		95
-#define VUL_DARK		96
-#define VUL_CONFU		97
-#define VUL_SOUND		98
-#define VUL_SHARD		99
-#define VUL_NEXUS		100
-#define VUL_NETHR		101
-#define VUL_CHAOS		102
-#define VUL_DISEN		103
-#define VUL_MAX  		103
-
-/* Combat and armour bonuses */
-#define ADD_AC			105
-#define ADD_SKILL		106
-#define ADD_DEADLINESS		107
-
-/* Curses */
-#define TELEPORT                110
-#define CURSE_BASE              110
-#define NO_TELEPORT             111
-#define AGGRO_PERM              112
-#define AGGRO_RAND              113
-#define SLOW_REGEN              114
-#define AFRAID                  115
-#define HUNGRY                  116
-#define POIS_RAND               117
-#define POIS_RAND_BAD           118
-#define CUT_RAND                119
-#define CUT_RAND_BAD            120
-#define HALLU_RAND              121
-#define DROP_WEAPON             122
-#define ATTRACT_DEMON           123
-#define ATTRACT_UNDEAD          124
-#define STICKY_CARRY            125
-#define STICKY_WIELD            126
-#define PARALYZE                127
-#define PARALYZE_ALL            128
-#define DRAIN_EXP               129
-#define DRAIN_MANA              130
-#define DRAIN_STAT              131
-#define DRAIN_CHARGE            132
-#define CURSE_MAX               132
-
-
-/* Random activations are defined in defines.h. */
+/** Random activations are defined in defines.h. */
 
 int act_cost[]=
 {
@@ -248,8 +122,8 @@ int act_cost[]=
 };
 
 
-/* 
- * Debit an artifact's account.
+/**
+ * Debit an object's account.
  */
 static bool take_money(bool on_credit, int cost)
 {
@@ -273,8 +147,8 @@ static bool take_money(bool on_credit, int cost)
 
 
 
-/* 
- * Grant the quality asked for, if the artifact can afford it.
+/**
+ * Grant the quality asked for, if the object can afford it.
  */
 static bool get_quality(bool on_credit, int purchase, int value, 
 			object_type *o_ptr)
@@ -856,8 +730,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_ACID:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_ACID] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_ACID] = 40 + 5 * value;
 	    return(TRUE);
@@ -866,8 +742,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_ELEC:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_ELEC] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_ELEC] = 40 + 5 * value;
 	    return(TRUE);
@@ -876,8 +754,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_FIRE:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_FIRE] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_FIRE] = 40 + 5 * value;
 	    return(TRUE);
@@ -886,8 +766,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_COLD:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_COLD] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_COLD] = 40 + 5 * value;
 	    return(TRUE);
@@ -896,8 +778,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_POIS:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 1200 - 100 * value)) 
+	current = (o_ptr->percent_res[P_RES_POIS] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 100 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_POIS] = 40 + 5 * value;
 	    return(TRUE);
@@ -906,8 +790,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_LITE:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 750 - 60 * value)) 
+	current = (o_ptr->percent_res[P_RES_LITE] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 60 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_LITE] = 40 + 5 * value;
 	    return(TRUE);
@@ -916,8 +802,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_DARK:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 750 - 60 * value)) 
+	current = (o_ptr->percent_res[P_RES_DARK] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 60 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_DARK] = 40 + 5 * value;
 	    return(TRUE);
@@ -926,8 +814,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_CONFU:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 900 - 75 * value)) 
+	current = (o_ptr->percent_res[P_RES_CONFU] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 75 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_CONFU] = 40 + 5 * value;
 	    return(TRUE);
@@ -936,8 +826,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_SOUND:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_SOUND] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_SOUND] = 40 + 5 * value;
 	    return(TRUE);
@@ -946,8 +838,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_SHARD:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_SHARD] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_SHARD] = 40 + 5 * value;
 	    return(TRUE);
@@ -956,8 +850,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_NEXUS:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 600 - 50 * value)) 
+	current = (o_ptr->percent_res[P_RES_NEXUS] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 50 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_NEXUS] = 40 + 5 * value;
 	    return(TRUE);
@@ -966,8 +862,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_NETHR:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 1000 - 80 * value)) 
+	current = (o_ptr->percent_res[P_RES_NETHR] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 80 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_NETHR] = 40 + 5 * value;
 	    return(TRUE);
@@ -976,8 +874,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_CHAOS:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 1000 - 80 * value)) 
+	current = (o_ptr->percent_res[P_RES_CHAOS] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 80 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_CHAOS] = 40 + 5 * value;
 	    return(TRUE);
@@ -986,8 +886,10 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case RES_DISEN:
       {
-	if (!value) value = rand_int(8);
-	if (take_money(on_credit, 1200 - 100 * value)) 
+	current = (o_ptr->percent_res[P_RES_DISEN] / 5) - 8;
+	if (current <= 0) return (FALSE);
+	if (!value) value = rand_int(MIN(current, 8));
+	if (take_money(on_credit, 100 * (current - value))) 
 	  {
 	    o_ptr->percent_res[P_RES_DISEN] = 40 + 5 * value;
 	    return(TRUE);
@@ -1159,7 +1061,7 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case ADD_SKILL:
       {
-	if (take_money(on_credit, value * 40))
+	if (take_money(on_credit, value * 70))
 	  {
 	    o_ptr->to_h += value;
 	    return(TRUE);
@@ -1168,7 +1070,7 @@ static bool get_quality(bool on_credit, int purchase, int value,
       }
     case ADD_DEADLINESS:
       {
-	if (take_money(on_credit, value * 40))
+	if (take_money(on_credit, value * 70))
 	  {
 	    o_ptr->to_d += value;
 	    return(TRUE);
@@ -1379,8 +1281,8 @@ static bool get_quality(bool on_credit, int purchase, int value,
   return(FALSE);
 }
 
-/* 
- * Grant the activation asked for, if the artifact can afford it.
+/**
+ * Grant the activation asked for, if the object can afford it.
  */
 static bool get_activation(bool on_credit, int activation, object_type *o_ptr)
 {
@@ -1396,15 +1298,20 @@ static bool get_activation(bool on_credit, int activation, object_type *o_ptr)
 
 
 /* Ranking methods, etc */
+/** Pick the cheapest property available */
 #define CHEAPEST_FIRST       1
+/** Pick the most expensive property available */
 #define DEAREST_FIRST        2
+/** Pick a property at random */
 #define RANDOM_CHOICE        3
+/** Pick the first property from the list that is affordable and new */
 #define FIRST_VALID          4
+/** Find the maximum value that can be associated with a property */
 #define FIND_MAX_VALUE       5
-
+/** More than you can afford... */
 #define TOO_MUCH         10000
 
-/*
+/**
  * Select a property from a group, subject to affordability, and ranked by
  * various methods.  Properties which cost a negative amount don't need to be
  * considered for ranking methods, since they are always affordable.
@@ -1540,7 +1447,7 @@ static int select_property(int temp_potential, int *property_list,
   else return (0);
 }
 
-/* 
+/** 
  * Assign a tval and sval, grant a certain amount of potential to be used 
  * for acquiring powers, and determine rarity and native depth.
  */
@@ -1560,7 +1467,7 @@ static void allocate_potential(object_type *o_ptr, int lev)
   initial_potential = potential;
 }
 
-/* 
+/** 
  * Pick an initial set of qualities, based on a theme.  Also add a bonus to 
  * armour class, Skill, and Deadliness.
  */
@@ -1649,55 +1556,64 @@ static bool choose_type(object_type *o_ptr)
 	    case EGO_AMULET_MENTAL:
 	      /* min potential 350 (100 for just CHR) */
 	      {
-		/* 40% deepen wisdom */
-		if (randint(5) < 3)
+		/* Mostly mental properties */
+		while (potential > MIN(2000, (2 * initial_potential / 3)))
 		  {
-		    /* Some wisdom, sustained */
-		    get_quality(TRUE, ADD_WIS, bonus, o_ptr);
-		    get_quality(TRUE, SUST_WIS, 0, o_ptr);
+		    /* 40% deepen wisdom */
+		    if (randint(5) < 3)
+		      {
+			/* Some wisdom, sustained */
+			get_quality(TRUE, ADD_WIS, bonus, o_ptr);
+			get_quality(TRUE, SUST_WIS, 0, o_ptr);
+			
+			/* And maybe some charisma */
+			if (randint(3) == 1)
+			  get_quality(TRUE, ADD_CHR, randint(4), o_ptr);
+			
+			/* Maybe an activation */
+			if (randint(5) == 1)
+			  get_activation(TRUE, ACT_RANDOM_BLESS, o_ptr);
+			else if (randint(5) == 1)
+			  get_activation(TRUE, ACT_RANDOM_HEROISM, o_ptr);
+			else if (randint(5) == 1)
+			  get_activation(TRUE, ACT_RANDOM_PROT_FROM_EVIL, o_ptr);
+			
+			/* Sometimes vulnerable to dark and/or cold */
+			if (randint(8) == 1) 
+			  get_quality(FALSE, VUL_COLD, 0, o_ptr);
+			if (randint(8) == 1) 
+			  get_quality(FALSE, VUL_DARK, 0, o_ptr);
+		      }
 		    
-		    /* And maybe some charisma */
-		    if (randint(3) == 1)
-		      get_quality(TRUE, ADD_CHR, randint(4), o_ptr);
+		    /* 40% sharpen intelligence */
+		    else if (randint(3) != 1)
+		      {
+			/* Some intelligence, sustained */
+			get_quality(TRUE, ADD_INT, bonus, o_ptr);
+			get_quality(TRUE, SUST_INT, 0, o_ptr);
+			
+			/* Maybe an activation */
+			if (randint(6) == 1)
+			  get_activation(TRUE, ACT_RANDOM_IDENTIFY, o_ptr);
+			else if (randint(6) == 1)
+			  get_activation(TRUE, ACT_RANDOM_DETECT_MONSTERS, 
+					 o_ptr);
+			else if (randint(6) == 1)
+			  get_activation(TRUE, ACT_RANDOM_DETECT_D_S_T, o_ptr);
+			
+			/* Sometimes vulnerable to electricity and/or light */
+			if (randint(8) == 1) 
+			  get_quality(FALSE, VUL_ELEC, 0, o_ptr);
+			if (randint(8) == 1) 
+			  get_quality(FALSE, VUL_LITE, 0, o_ptr);
+		      }
 		    
-		    /* Maybe an activation */
-		    if (randint(5) == 1)
-		      get_activation(TRUE, ACT_RANDOM_BLESS, o_ptr);
-		    else if (randint(5) == 1)
-		      get_activation(TRUE, ACT_RANDOM_HEROISM, o_ptr);
-		    else if (randint(5) == 1)
-		      get_activation(TRUE, ACT_RANDOM_PROT_FROM_EVIL, o_ptr);
-		    
-		    /* Sometimes vulnerable to dark and/or cold */
-		    if (randint(8) == 1) get_quality(FALSE, VUL_COLD, 0, o_ptr);
-		    if (randint(8) == 1) get_quality(FALSE, VUL_DARK, 0, o_ptr);
-		  }
-		
-		/* 40% sharpen intelligence */
-		else if (randint(3) != 1)
-		  {
-		    /* Some intelligence, sustained */
-		    get_quality(TRUE, ADD_INT, bonus, o_ptr);
-		    get_quality(TRUE, SUST_INT, 0, o_ptr);
-		    
-		    /* Maybe an activation */
-		    if (randint(6) == 1)
-		      get_activation(TRUE, ACT_RANDOM_IDENTIFY, o_ptr);
-		    else if (randint(6) == 1)
-		      get_activation(TRUE, ACT_RANDOM_DETECT_MONSTERS, o_ptr);
-		    else if (randint(6) == 1)
-		      get_activation(TRUE, ACT_RANDOM_DETECT_D_S_T, o_ptr);
-		    
-		    /* Sometimes vulnerable to electricity and/or light */
-		    if (randint(8) == 1) get_quality(FALSE, VUL_ELEC, 0, o_ptr);
-		    if (randint(8) == 1) get_quality(FALSE, VUL_LITE, 0, o_ptr);
-		  }
-		    
-		/* Remaining 20% just get charisma */
-		else
-		  {
-		    get_quality(TRUE, ADD_CHR, randint(bonus), o_ptr);
-		    get_quality(TRUE, SUST_CHR, 0, o_ptr);
+		    /* Remaining 20% just get charisma */
+		    else
+		      {
+			get_quality(TRUE, ADD_CHR, randint(bonus), o_ptr);
+			get_quality(TRUE, SUST_CHR, 0, o_ptr);
+		      }
 		  }
 
 		done = TRUE;
@@ -2002,8 +1918,9 @@ static bool choose_type(object_type *o_ptr)
 		    get_quality(TRUE, property, 0, o_ptr);
 		  }
 
-		/* And good ones may get to do it again */
-		if (randint(potential) > 2000)
+		/* Repeat while relatively good */
+		while (randint(initial_potential) > initial_potential 
+		       - potential)
 		  {
 		    max_value = bonus + 1;
 		    property = select_property(potential, stats, 3, &max_value, 
@@ -2023,11 +1940,27 @@ static bool choose_type(object_type *o_ptr)
 		temp = 1 + bonus;
 		get_quality(TRUE, ADD_SKILL, temp + randint(5), o_ptr);
 		get_quality(TRUE, ADD_DEADLINESS, temp + randint(5), o_ptr);
+
+		/* Particularly low level items become skill OR deadliness */
+		if (randint(initial_potential) > potential)
+		  {
+		    if (randint(2) == 1) 
+		      {
+			o_ptr->to_h += o_ptr->to_d;
+			o_ptr->to_d = 0;
+		      }
+		    else
+		      {
+			o_ptr->to_d += o_ptr->to_h;
+			o_ptr->to_h = 0;
+		      }
+		  }
 		
 		/* Maybe some stat boosts */
-		if (randint(4) == 1) 
+		temp = potential;
+		if (randint(temp) > (initial_potential / 6)) 
 		  get_quality(TRUE, ADD_STR, randint(bonus), o_ptr);
-		if (randint(4) == 1) 
+		if (randint(temp) > (initial_potential / 6)) 
 		  get_quality(TRUE, ADD_DEX, randint(bonus), o_ptr);
 		
 		/* And fearlessness */
@@ -2058,7 +1991,7 @@ static bool choose_type(object_type *o_ptr)
 		/* Free action... */
 		get_quality(TRUE, FREE_ACT, 0, o_ptr);
 
-		/* ... and another nice property, if affordable */	    
+		/* ... and more nice properties, if affordable */	    
 		property = select_property(potential, mobility, 5, &max_value,
 					   RANDOM_CHOICE, o_ptr);
 		get_quality(FALSE, property, 0, o_ptr);
@@ -2077,7 +2010,7 @@ static bool choose_type(object_type *o_ptr)
 		else get_quality(TRUE, RES_NETHR, 0, o_ptr);
 
 		/* Rack 'em up while we're feeling lucky */
-		while (randint(potential) > 2000)
+		while (randint(potential) > 1000)
 		  {
 		    int k = rand_int(10);
 
@@ -2212,15 +2145,30 @@ static bool choose_type(object_type *o_ptr)
 		/* Either sacrifice for some other properties... */ 
 		if (randint(2) == 1)
 		  {
-		    get_quality(TRUE, SPEED, randint(max_value), o_ptr);
+		    get_quality(TRUE, SPEED, max_value / 2, o_ptr);
 
-		    /* Maybe get combat bonuses */
-		    if (randint(2) == 1) 
+		    /* Maybe get combat bonuses... */
+		    if (randint(4) == 1) 
 		      {
 			temp = 2 + randint(bonus);
 			get_quality(TRUE, ADD_DEADLINESS, temp, o_ptr);
 			get_quality(TRUE, ADD_SKILL, temp, o_ptr);
 		      }
+
+		    /* ...or a high resist...*/
+		    else if (randint(3) == 1) 
+		      {
+			get_quality(TRUE, rand_range(RES_POIS, RES_DISEN), 
+				    0, o_ptr);
+		      }
+
+		    /* ...or nice power */
+		    else if (randint(2) == 1) 
+		      {
+			get_quality(TRUE, rand_range(REGEN, DARKNESS), 
+				    0, o_ptr);
+		      }
+
 		  }
 		
 		/* ...or go all out */
@@ -2250,6 +2198,9 @@ static bool choose_type(object_type *o_ptr)
 		/* Some advantages */
 		get_quality(TRUE, RES_NEXUS, 0, o_ptr);
 		get_quality(TRUE, FREE_ACT, 0, o_ptr);
+
+		/* Reduce chance to recover */
+		potential /= 2;
 
 		done = TRUE;
 		break;
@@ -2339,7 +2290,7 @@ static bool choose_type(object_type *o_ptr)
 }
 
 
-/* 
+/** 
  * Grant extra abilities, until object's units of exchange are all used up.  
  * This function can be quite random - indeed needs to be - because of all 
  * the possible themed random artifacts.
@@ -2633,7 +2584,7 @@ static void add_properties(object_type *o_ptr)
 
 
 
-/* 
+/** 
  * Invoke perilous magics, and curse the object beyound redemption!   
  * Not really in Leon's league, though.
  */
@@ -2857,7 +2808,7 @@ static void j_make_terrible(object_type *o_ptr)
 
 
 
-/* 
+/** 
  * Clean up the object by removing illogical combinations of powers -  
  * curses win out every time.
  */
@@ -2899,7 +2850,7 @@ static void j_remove_contradictory(object_type *o_ptr)
 }
 
 
-/* 
+/** 
  * Design a ring or amulet.
  */
 extern bool design_ring_or_amulet(object_type *o_ptr, int lev)

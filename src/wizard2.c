@@ -1,6 +1,7 @@
-/* File: wizard2.c */
+/** \file wizard2.c 
+    \brief Cheat modes
 
-/* The wizard & debugging commands and their effects.
+ * The wizard & debugging commands and their effects.
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -23,7 +24,7 @@
 #ifdef ALLOW_DEBUG
 
 
-/*
+/**
  * Debug scent trails and noise bursts.
  */
 static void do_cmd_wiz_hack_ben(void)
@@ -250,7 +251,7 @@ static void do_cmd_wiz_hack_ben(void)
 
 
 
-/*
+/**
  * Output a long int in binary format.
  */
 static void prt_binary(u32b flags, int row, int col)
@@ -276,7 +277,7 @@ static void prt_binary(u32b flags, int row, int col)
 }
 
 
-/*
+/**
  * Hack -- Teleport to the target.  Oangband asks for a target after 
  * the command.
  */
@@ -305,7 +306,7 @@ static void do_cmd_wiz_bamf(void)
 
 
 
-/*
+/**
  * Aux function for "do_cmd_wiz_change()"
  */
 static void do_cmd_wiz_change_aux(void)
@@ -402,7 +403,7 @@ static void do_cmd_wiz_change_aux(void)
 }
 
 
-/*
+/**
  * Change various "permanent" player variables.
  */
 static void do_cmd_wiz_change(void)
@@ -415,7 +416,7 @@ static void do_cmd_wiz_change(void)
 }
 
 
-/*
+/**
  * Wizard routines for creating objects and modifying them
  *
  * This has been rewritten to make the whole procedure
@@ -465,7 +466,7 @@ static void do_cmd_wiz_change(void)
  */
 
 
-/*
+/**
  * Display an item's properties
  */
 static void wiz_display_item(object_type *o_ptr)
@@ -517,7 +518,7 @@ static void wiz_display_item(object_type *o_ptr)
 }
 
 
-/*
+/**
  * A structure to hold a tval, its description and its possibility 
  <  * for becoming an artifact.
 */
@@ -529,7 +530,7 @@ typedef struct tval_desc
   
 } tval_desc;
 
-/*
+/**
  * A list of tvals, their textual names, and possibility for becoming an
  * artifact.
  */
@@ -573,7 +574,7 @@ static tval_desc tvals[] =
 };
 
 
-/*
+/**
  * Build an "artifact name" and transfer it into a buffer.
  */
 static void get_art_name(char *buf, int a_idx)
@@ -610,7 +611,7 @@ static void get_art_name(char *buf, int a_idx)
 }
 
 
-/*
+/**
  * Hack -- title for each column
  *
  * This will not work with "EBCDIC", I would think.  XXX XXX XXX
@@ -623,7 +624,7 @@ static char head[3] =
   { 'a', 'A', '0' };
 
 
-/*
+/**
  * Acquire an object or artifact for creation by selecting first a tval 
  * and then a specific object or artifact from successive menus.
  *
@@ -796,7 +797,7 @@ static int wiz_create_itemtype(bool artifact)
   return (choice[num]);
 }
 
-/*
+/**
  * Tweak an item
  */
 static void wiz_tweak_item(object_type *o_ptr)
@@ -834,7 +835,7 @@ static void wiz_tweak_item(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Apply magic to an item or turn it into an artifact. -Bernd-
  */
 static void wiz_reroll_item(object_type *o_ptr)
@@ -920,13 +921,13 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 
-/*
+/**
  * Maximum number of rolls
  */
 #define TEST_ROLL 100000
 
 
-/*
+/**
  * Try to create an item again. Output some statistics. -Bernd-
  *
  * The statistics are correct now.  We acquire a clean grid, and then
@@ -1084,7 +1085,7 @@ static void wiz_statistics(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Change the quantity of an item
  */
 static void wiz_quantity_item(object_type *o_ptr)
@@ -1124,7 +1125,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 
 
-/*
+/**
  * Play with an item. Options include:
  *   - Output statistics (via wiz_roll_item)
  *   - Reroll item (via wiz_reroll_item)
@@ -1252,7 +1253,7 @@ static void do_cmd_wiz_play(void)
 }
 
 
-/*
+/**
  * Wizard routine for creating objects
  *
  * Note that wizards cannot create objects on top of other objects.
@@ -1314,7 +1315,7 @@ static void wiz_create_item(void)
 }
 
 
-/*
+/**
  * Cure everything instantly
  */
 static void do_cmd_wiz_cure_all(void)
@@ -1363,16 +1364,21 @@ static void do_cmd_wiz_cure_all(void)
 
 /* Jump menu code */
 
-/* Choice of location */
+/**
+ * Choice of location 
+ */
 static int place = 0;
 
+/**
+ * Label for location
+ */
 static char jump_tag(menu_type *menu, int oid)
 {
   return I2A(oid);
 }
 
-/*
- * Display an entry on the recall menu
+/**
+ * Display an entry on the jump menu
  */
 void jump_display(menu_type *menu, int oid, bool cursor, int row, 
 			 int col, int width)
@@ -1385,7 +1391,7 @@ void jump_display(menu_type *menu, int oid, bool cursor, int row,
 
 }
 
-/*
+/**
  * Deal with events on the jump menu
  */
 bool jump_action(char cmd, void *db, int oid)
@@ -1408,7 +1414,7 @@ bool jump_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list of places to jump to.
  */
 bool jump_menu(int level, int *location)
@@ -1457,7 +1463,7 @@ bool jump_menu(int level, int *location)
   return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
 
-/*
+/**
  * Go to any level
  */
 static void do_cmd_wiz_jump(void)
@@ -1510,7 +1516,7 @@ static void do_cmd_wiz_jump(void)
 }
 
 
-/*
+/**
  * Become aware of a lot of objects
  */
 static void do_cmd_wiz_learn(void)
@@ -1541,7 +1547,7 @@ static void do_cmd_wiz_learn(void)
 }
 
 
-/*
+/**
  * Hack -- Rerate Hitpoints
  */
 static void do_cmd_rerate(void)
@@ -1589,7 +1595,7 @@ static void do_cmd_rerate(void)
 }
 
 
-/*
+/**
  * Summon some creatures
  */
 static void do_cmd_wiz_summon(int num)
@@ -1606,7 +1612,7 @@ static void do_cmd_wiz_summon(int num)
 }
 
 
-/*
+/**
  * Summon a creature of the specified type
  *
  * This function is rather dangerous XXX XXX XXX
@@ -1640,7 +1646,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
     }
 }
 
-/*
+/**
  * Create an artifact
  */
 static void wiz_create_artifact(void)
@@ -1722,7 +1728,7 @@ static void wiz_create_artifact(void)
 }
 
 
-/*
+/**
  * Hack -- Delete all nearby monsters
  */
 static void do_cmd_wiz_zap(int d)
@@ -1746,7 +1752,7 @@ static void do_cmd_wiz_zap(int d)
 }
 
 
-/*
+/**
  * Un-hide all monsters
  */
 static void do_cmd_wiz_unhide(int d)
@@ -1776,7 +1782,7 @@ static void do_cmd_wiz_unhide(int d)
 }
 
 
-/*
+/**
  * Query the dungeon
  */
 static void do_cmd_wiz_query(void)
@@ -1860,7 +1866,7 @@ static void do_cmd_wiz_query(void)
 
 #ifdef ALLOW_SPOILERS
 
-/*
+/**
  * External function
  */
 extern void do_cmd_spoilers(void);
@@ -1871,7 +1877,7 @@ extern void do_cmd_spoilers(void);
 
 
 
-/*
+/**
  * Ask for and parse a "debug command"
  *
  * The "p_ptr->command_arg" may have been set.

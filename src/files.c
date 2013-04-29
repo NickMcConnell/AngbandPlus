@@ -1,6 +1,7 @@
-/* File: files.c */
+/** \file files.c 
+    \brief High level routines dealing with external files
 
-/* Code for multiuser machines, Colors for skill descriptions, the char-
+ * Code for multiuser machines, Colors for skill descriptions, the char-
  * acter screens (inc. resistance flags for races, etc.), equippy chars, 
  * online-help, extraction of base name (for savefiles), saving, death 
  * (with inventory, equip, etc. display), calculating and displaying 
@@ -27,7 +28,7 @@
 
 #ifdef CHECK_TIME
 
-/*
+/**
  * Operating hours for ANGBAND (defaults to non-work hours)
  */
 static char days[7][29] =
@@ -41,7 +42,7 @@ static char days[7][29] =
   "SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
 };
 
-/*
+/**
  * Restict usage (defaults to no restrictions)
  */
 static bool check_time_flag = FALSE;
@@ -49,7 +50,7 @@ static bool check_time_flag = FALSE;
 #endif
 
 
-/*
+/**
  * Handle CHECK_TIME
  */
 errr check_time(void)
@@ -78,7 +79,7 @@ errr check_time(void)
 
 
 
-/*
+/**
  * Initialize CHECK_TIME
  */
 errr check_time_init(void)
@@ -132,13 +133,13 @@ errr check_time_init(void)
 }
 
 
-/*
+/**
  * Hack -- pass color info around this file
  */
 static byte likert_color = TERM_WHITE;
 
 
-/*
+/**
  * Returns a "rating" of x depending on y
  */
 static cptr likert(int x, int y)
@@ -237,7 +238,7 @@ static cptr likert(int x, int y)
 }
 
 
-/*
+/**
  * Obtain the "flags" for the player as if he was an item.  Currently includes 
  * race, class, and shapechange (optionally). -LM-
  *
@@ -355,7 +356,7 @@ void player_flags(u32b *flags)
 }
 
 
-/*
+/**
  * Obtain information about player negative mods.
  * Currently includes shapechange and race effects.
  *
@@ -411,7 +412,7 @@ void player_weakness_dis(u32b *flags)
     }
   
 }
-/*
+/**
  * Race and shapechange resists 
  */
 void get_player_resists(int *player_resists)
@@ -488,7 +489,7 @@ void get_player_resists(int *player_resists)
     }
 }
 
-/*
+/**
  * Shapechange bonuses - level-based race bonuses are not shown
  */
 void get_player_bonus(int *player_bonus)
@@ -574,7 +575,7 @@ void get_player_bonus(int *player_bonus)
     }
 }
 
-/*
+/**
  * Hack -- see below
  */
 static u32b display_player_powers[10] =
@@ -592,7 +593,7 @@ static u32b display_player_powers[10] =
   OF_FEARLESS
 };
 
-/*
+/**
  * Hack -- see below
  */
 static cptr display_player_resist_names[2][7] =
@@ -646,7 +647,7 @@ static cptr display_player_bonus_names[8] =
   };
 
 
-/*
+/**
  * Display the character on the screen (various modes)
  *
  * Completely redone for FA 030 to use the new 'C' screen display.
@@ -670,13 +671,13 @@ void display_player(int mode)
 
 }
 
-/* 
+/*
  * Hack - include a chunk of the old display code to deal with small screen
  * birth
  */
 
 
-/*
+/**
  * Print long number with header at given row, column
  * Use the color for the number, not the header
  */
@@ -689,7 +690,7 @@ static void prt_lnum(cptr header, s32b num, int row, int col, byte color)
   c_put_str(color, out_val, row, col + len);
 }
 
-/*
+/**
  * Print number with header at given row, column
  */
 static void prt_num(cptr header, int num, int row, int col, byte color)
@@ -702,7 +703,7 @@ static void prt_num(cptr header, int num, int row, int col, byte color)
   c_put_str(color, out_val, row, col + len);
 }
 
-/*
+/**
  * Print decimal number with header at given row, column
  */
 static void prt_deci(cptr header, int num, int deci, int row, int col, 
@@ -720,7 +721,7 @@ static void prt_deci(cptr header, int num, int deci, int row, int col,
   c_put_str(color, out_val, row, col + len + 6);
 }
 
-/*
+/**
  * Display the character for small screen birth
  *
  */
@@ -897,7 +898,7 @@ void display_player_sml(void)
 
 }
 
-/* 
+/** 
  * Get the right colour for a given resistance
  */
 byte resist_colour(int resist_value)
@@ -913,10 +914,10 @@ byte resist_colour(int resist_value)
 }
 
 
-/* Max length of note output */
+/** Max length of note output */
 #define LINEWRAP        75
 
-/* 
+/** 
  * Make a char_attr array of character information for file dump or screen
  * reading.  Mode 0 and 1 show 24 lines of player info for minor windows.
  */
@@ -2119,6 +2120,10 @@ extern int make_dump(char_attr_line *line, int mode)
   return (current_line);
 }
 
+/**
+ * Show the character screen
+ */
+
 void display_dump(char_attr_line *line, int top_line, int bottom_line, int col)
 {
   int i;
@@ -2138,6 +2143,10 @@ void display_dump(char_attr_line *line, int top_line, int bottom_line, int col)
       dump_line(shifted_line);
     }
 }
+
+/**
+ * Write a character dump to a file
+ */
 
 errr file_character(cptr name, char_attr_line *line, int last_line)
 {
@@ -2202,7 +2211,7 @@ errr file_character(cptr name, char_attr_line *line, int last_line)
 }
 
 
-/*
+/**
  * Make a string lower case.
  */
 static void string_lower(char *buf)
@@ -2219,10 +2228,12 @@ static void string_lower(char *buf)
     }
 }
 
-/* Keep track of how recursed the file showing is */
+/**
+ * Keep track of how recursed the file showing is 
+ */
 static int push_file = 0;
 
-/*
+/**
  * Recursive file perusal.
  *
  * Return FALSE on "ESCAPE", otherwise TRUE.
@@ -2819,7 +2830,7 @@ return ret;
 }
 
 
-/*
+/**
  * Peruse the On-Line-Help
  */
 void do_cmd_help(void)
@@ -2835,7 +2846,7 @@ void do_cmd_help(void)
 }
 
 
-/*
+/**
  * Process the player name.
  * Extract a clean "base name".
  * Build the savefile name if needed.
@@ -2954,7 +2965,7 @@ void process_player_name(bool sf)
 
 
 
-/*
+/**
  * Hack -- commit suicide
  */
 void do_cmd_suicide(void)
@@ -2999,7 +3010,7 @@ void do_cmd_suicide(void)
 }
 
 
-/*
+/**
  * Save the game
  */
 void do_cmd_save_game(void)
@@ -3049,7 +3060,7 @@ void do_cmd_save_game(void)
 
 
 
-/*
+/**
  * Gets a personalized string for ghosts.  Code originally from get_name. -LM-
  */
 static char *get_personalized_string(byte choice)
@@ -3128,7 +3139,7 @@ static char *get_personalized_string(byte choice)
   
 }
 
-/*
+/**
  * Save a "bones" file for a dead character.  Now activated and (slightly) 
  * altered.  Allows the inclusion of personalized strings. 
  */
@@ -3285,7 +3296,7 @@ static void make_bones(void)
 }
 
 
-/*
+/**
  * Centers a string within a 31 character string
  */
 static void center_string(char *buf, cptr str)
@@ -3302,18 +3313,18 @@ static void center_string(char *buf, cptr str)
   sprintf(buf, "%*s%s%*s", j, "", str, 31 - i - j, "");
 }
 
-/*
+/**
  * Hack - save the time of death
  */
 static time_t death_time = (time_t)0;
 
 
-/*
+/**
  * Encode the screen colors for the closing screen
  */
 static char hack[17] = "dwsorgbuDWvyRGBU";
 
-/*
+/**
  * Display a "tomb-stone"
  */
 static void print_tomb(void)
@@ -3515,7 +3526,7 @@ static void print_tomb(void)
 }
 
 
-/*
+/**
  * Hack - Know inventory and home items upon death
  */
 static void death_knowledge(void)
@@ -3591,7 +3602,7 @@ static void death_knowledge(void)
   handle_stuff();
 }
 
-/*
+/**
  * Display some character info
  */
 static void show_info(void)
@@ -3719,7 +3730,7 @@ static void show_info(void)
 
 
 
-/*
+/**
  * Special version of 'do_cmd_examine'
  */
 static void death_examine(void)
@@ -3773,7 +3784,7 @@ static void death_examine(void)
   screen_load();
 }
 
-/*
+/**
  * Change the player into a Winner
  */
 static void kingly(void)
@@ -3825,7 +3836,7 @@ static void kingly(void)
   pause_line(23);
 }
 
-/*
+/**
  * Handle character death
  */
 static void close_game_aux(void)
@@ -3995,7 +4006,7 @@ static void close_game_aux(void)
   
 }
 
-/*
+/**
  * Close up the current game (player may or may not be dead)
  *
  * This function is called only from "main.c" and "signals.c".
@@ -4055,7 +4066,7 @@ void close_game(void)
 }
 
 
-/*
+/**
  * Handle abrupt death of the visual system
  *
  * This routine is called only in very rare situations, and only
@@ -4098,7 +4109,9 @@ void exit_game_panic(void)
 }
 
 
-/*  Taken from Zangband.  What a good idea! */
+/**
+ * Taken from Zangband.  What a good idea! 
+ */
 errr get_rnd_line(char *file_name, char *output)
 {
   ang_file *fp;
@@ -4146,7 +4159,7 @@ errr get_rnd_line(char *file_name, char *output)
 #include <signal.h>
 
 
-/*
+/**
  * Handle signals -- suspend
  *
  * Actually suspend the game, and then resume cleanly
@@ -4183,7 +4196,7 @@ static void handle_signal_suspend(int sig)
 }
 
 
-/*
+/**
  * Handle signals -- simple (interrupt and quit)
  *
  * This function was causing a *huge* number of problems, so it has
@@ -4274,7 +4287,7 @@ static void handle_signal_simple(int sig)
 }
 
 
-/*
+/**
  * Handle signal -- abort, kill, etc
  */
 static void handle_signal_abort(int sig)
@@ -4331,7 +4344,7 @@ static void handle_signal_abort(int sig)
 
 
 
-/*
+/**
  * Ignore SIGTSTP signals (keyboard suspend)
  */
 void signals_ignore_tstp(void)
@@ -4343,7 +4356,7 @@ void signals_ignore_tstp(void)
 
 }
 
-/*
+/**
  * Handle SIGTSTP signals (keyboard suspend)
  */
 void signals_handle_tstp(void)
@@ -4356,7 +4369,7 @@ void signals_handle_tstp(void)
 }
 
 
-/*
+/**
  * Prepare to handle the relevant signals
  */
 void signals_init(void)
@@ -4443,21 +4456,21 @@ void signals_init(void)
 #else	/* HANDLE_SIGNALS */
 
 
-/*
+/**
  * Do nothing
  */
 void signals_ignore_tstp(void)
 {
 }
 
-/*
+/**
  * Do nothing
  */
 void signals_handle_tstp(void)
 {
 }
 
-/*
+/**
  * Do nothing
  */
 void signals_init(void)
@@ -4498,7 +4511,7 @@ bool write_char(int row, int col)
 }
       
 
-/*
+/**
  * Get the default (ASCII) tile for a given screen location
  */
 static void get_default_tile(int row, int col, byte *a_def, char *c_def)
@@ -4565,7 +4578,9 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
 
 
 
-/* Take an html screenshot */
+/**
+ * Take an html screenshot 
+ */
 void html_screenshot(cptr name)
 {
   int y, x;

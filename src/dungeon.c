@@ -1,6 +1,7 @@
-/* File: dungeon.c */
+/** \file dungeon.c 
+    \brief Turn-by-turn processing
 
-/* Char & monster regeneration, town and dungeon management,
+ * Char & monster regeneration, town and dungeon management,
  * all timed character, monster, and object states, entry into Wizard, 
  * debug, and borg mode, definitions of user commands, process player, 
  * the basic function for interacting with the dungeon (including what 
@@ -27,7 +28,7 @@
 
 
 
-/*
+/**
  * Regenerate hit points
  */
 static void regenhp(int percent)
@@ -74,7 +75,7 @@ static void regenhp(int percent)
 }
 
 
-/*
+/**
  * Regenerate mana points
  */
 static void regenmana(int percent)
@@ -120,7 +121,7 @@ static void regenmana(int percent)
     }
 }
 
-/*
+/**
  * If player has inscribed the object with "!!", let him know when it's 
  * recharged. -LM-
  */
@@ -162,6 +163,9 @@ static void recharged_notice(object_type *o_ptr)
     }
 }
 
+/**
+ * Remove light-sensitive monsters from sunlt areas
+ */
 void sun_banish(void)
 {
   bool some_gone = FALSE;
@@ -251,7 +255,7 @@ static void play_ambient_sound(void)
     }
 }
 
-/*
+/**
  * Handle certain things once every 10 game turns.
  */
 static void process_world(void)
@@ -1352,7 +1356,7 @@ static void process_world(void)
 
 #ifdef ALLOW_BORG
 
-/*
+/**
  * Verify use of "borg" mode
  */
 static bool verify_borg_mode(void)
@@ -1385,7 +1389,7 @@ static bool verify_borg_mode(void)
 }
 
 
-/*
+/**
  * Hack -- Declare the Borg Routines
  */
 extern void do_cmd_borg(void);
@@ -1396,7 +1400,7 @@ extern void do_cmd_borg(void);
 
 
 
-/*
+/**
  * Hack -- helper function for "process_player()"
  *
  * Check for changes in the "monster memory"
@@ -1472,7 +1476,7 @@ static void process_player_aux(void)
     }
 }
 
-/*
+/**
  * Helper function for mana gained through special means
  * (Power Siphon and Soul Siphon).
  */
@@ -1519,7 +1523,7 @@ static void special_mana_gain(void)
 }
 
 
-/*
+/**
  * Process the player
  *
  * Notice the annoying code to handle "pack overflow", which
@@ -1975,7 +1979,7 @@ static void process_player(void)
 
 
 
-/*
+/**
  * Interact with the current dungeon level.
  *
  * This function will not exit until the level is completed,
@@ -2332,7 +2336,7 @@ static void dungeon(void)
 
 
 
-/*
+/**
  * Process some user pref files
  */
 static void process_some_user_pref_files(void)
@@ -2362,7 +2366,7 @@ static void process_some_user_pref_files(void)
 }
 
 
-/*
+/**
  * Actually play a game
  *
  * If the "new_game" parameter is true, then, after loading the

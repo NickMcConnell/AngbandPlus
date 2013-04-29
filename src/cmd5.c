@@ -1,6 +1,7 @@
-/* File: cmd5.c */
+/** \file cmd5.c 
+    \brief Commands, part 5
 
-/* Warrior probing.  Selection, browsing, learning, and casting of spells 
+ * Warrior probing.  Selection, browsing, learning, and casting of spells 
  * and prayers.  Includes definitions of all spells and prayers.  Shape-
  * shifting and making Athelas.
  *
@@ -22,7 +23,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Warriors will eventually learn to pseudo-probe monsters.  If they use 
  * the browse command, give ability information. -LM-
  */
@@ -55,7 +56,7 @@ static void warrior_probe_desc(void)
   screen_load();
 }
 
-/* 
+/**
  * Warriors will eventually learn to pseudo-probe monsters.  This allows 
  * them to better choose between slays and brands.  They select a target, 
  * and receive (slightly incomplete) infomation about racial type, 
@@ -145,7 +146,7 @@ static void pseudo_probe(void)
 
 
 
-/* 
+/**
  * Alter player's shape.  Taken from Sangband.
  */
 void shapechange(s16b shape)
@@ -262,8 +263,9 @@ void shapechange(s16b shape)
     }
 }
 
-/* Type for choosing an elemental attack */
-
+/**
+ * Type for choosing an elemental attack 
+ */
 typedef struct ele_attack_type
 {
   char *desc;
@@ -283,7 +285,7 @@ static char el_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the sval menu
  */
 void el_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -299,7 +301,7 @@ void el_display(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(attr, format("%s", ele_attack[idx].desc), row, col);
 }
 
-/*
+/**
  * Deal with events on the sval menu
  */
 bool el_action(char cmd, void *db, int oid)
@@ -329,7 +331,7 @@ bool el_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list of svals to be squelched.
  */
 bool el_menu(void)
@@ -393,7 +395,7 @@ bool el_menu(void)
   return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
 
-/*
+/**
  * Choose a paladin elemental attack. -LM-
  */
 static bool choose_ele_attack(void)
@@ -416,8 +418,9 @@ static bool choose_ele_attack(void)
 }
 
 
-/* Array of elemental resistances */
-
+/**
+ * Array of elemental resistances 
+ */
 const char *ele_resist[] = 
   {
     "Fire Resistance",
@@ -432,7 +435,7 @@ static char res_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the sval menu
  */
 void res_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -448,7 +451,7 @@ void res_display(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(attr, format("%s", ele_resist[idx]), row, col);
 }
 
-/*
+/**
  * Deal with events on the sval menu
  */
 bool res_action(char cmd, void *db, int oid)
@@ -493,7 +496,7 @@ bool res_action(char cmd, void *db, int oid)
     }
 }
 
-/*
+/**
  * Display list of svals to be squelched.
  */
 bool res_menu(void)
@@ -545,7 +548,7 @@ bool res_menu(void)
   return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
 
-/*
+/**
  * Choose an elemental resistance
  */
 static bool choose_ele_resist(void)
@@ -568,7 +571,7 @@ static bool choose_ele_resist(void)
 }
 
 
-/* 
+/**
  * Hack -- The Athelas-creation code. -LM-
  */
 void create_athelas(void)
@@ -593,7 +596,7 @@ void create_athelas(void)
 }
 
 
-/*
+/**
  * Controlled teleportation.  -LM-
  * Idea from PsiAngband, through Zangband.
  */
@@ -631,7 +634,7 @@ void dimen_door(void)
 }
 
 
-/*
+/**
  * Rebalance Weapon.  This is a rather powerful spell, because it can be 
  * used with any non-artifact throwing weapon, including ego-items.  It is 
  * therefore high-level, and curses weapons on failure.  Do not give Assas-
@@ -703,7 +706,7 @@ static void rebalance_weapon(void)
 }
 
 
-/*
+/**
  * Calculate level boost for Channeling ability.
  */
 int get_channeling_boost(void)
@@ -720,7 +723,7 @@ int get_channeling_boost(void)
 }
 
 
-/*
+/**
  * The correct spell book tester
  */
 static bool item_tester_hook_book(object_type *o_ptr)
@@ -739,7 +742,9 @@ static bool item_tester_hook_book(object_type *o_ptr)
 }
 
 
-/* Spell choice code */
+/**
+ * Spell choice code 
+ */
 int num, first_spell;
 byte attr_book;
 bool tips;
@@ -749,7 +754,7 @@ static char get_spell_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the gain specialty menu
  */
 void get_spell_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -863,7 +868,7 @@ void get_spell_display(menu_type *menu, int oid, bool cursor, int row,
     }
 }
 
-/*
+/**
  * Deal with events on the spell menu
  */
 bool get_spell_action(char cmd, void *db, int oid)
@@ -872,7 +877,7 @@ bool get_spell_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list available specialties.
  */
 char get_spell_menu(char *prompt, int tval, int sval)
@@ -1053,7 +1058,7 @@ char get_spell_menu(char *prompt, int tval, int sval)
 }
 
 
-/*
+/**
  * Allow user to choose a spell/prayer from the given book.
  *
  * If a valid spell is chosen, saves it in '*sn' and returns TRUE
@@ -1275,7 +1280,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 }
 
 
-/*
+/**
  * Peruse the spells/prayers in a Book, showing "spell tips" as 
  * requested. -LM-
  *
@@ -1377,7 +1382,7 @@ void do_cmd_browse(void)
 
 
 
-/*
+/**
  * Study a book to gain a new spell/prayer
  */
 void do_cmd_study(void)
@@ -1602,7 +1607,7 @@ void do_cmd_study(void)
 
 
 
-/*
+/**
  * Cast a spell or pray a prayer.
  */
 void do_cmd_cast_or_pray(void)
@@ -3726,7 +3731,7 @@ void do_cmd_cast_or_pray(void)
   
 }
 
-/*
+/**
  * Check if we have a race, class, or specialty ability -BR-
  */
 bool check_ability(int ability)
@@ -3760,7 +3765,7 @@ bool check_ability(int ability)
   return(FALSE);
 }
 
-/*
+/**
  * Check if we have a specialty ability -BR-
  */
 bool check_ability_specialty(int ability)
@@ -3780,7 +3785,7 @@ bool check_ability_specialty(int ability)
   return(FALSE);
 }
 
-/*
+/**
  * Check if we can gain a specialty ability -BR-
  */
 bool check_specialty_gain(int specialty)
@@ -3808,7 +3813,9 @@ bool check_specialty_gain(int specialty)
   return (allowed);
 }
 
-/* Gain specialty code */
+/**
+ * Gain specialty code 
+ */
 int num;
 
 
@@ -3817,7 +3824,7 @@ static char gain_spec_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the gain specialty menu
  */
 void gain_spec_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -3848,7 +3855,7 @@ void gain_spec_display(menu_type *menu, int oid, bool cursor, int row,
     }
 }
 
-/*
+/**
  * Deal with events on the gain specialty menu
  */
 bool gain_spec_action(char cmd, void *db, int oid)
@@ -3857,7 +3864,7 @@ bool gain_spec_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list available specialties.
  */
 bool gain_spec_menu(int *pick)
@@ -3928,7 +3935,7 @@ bool gain_spec_menu(int *pick)
   return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
 }
 
-/*
+/**
  * Gain a new specialty ability
  * Adapted from birth.c get_player_choice -BR-
  */
@@ -4006,7 +4013,7 @@ void do_cmd_gain_specialty(void)
 }
 
 
-/*
+/**
  * Interact with specialty abilities -BR-
  */
 void do_cmd_specialty(void)

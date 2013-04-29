@@ -1,23 +1,7 @@
-/*
- * File: ui.c
- * Purpose: Generic menu interaction functions
- *
- * Copyright (c) 2007 Pete Mack and others.
- *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 2, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
- */
-#include "angband.h"
+/** \file ui.c
+    \brief Generic menu interaction functions
 
-/*
+ 
  * Implementation of Extremely Basic Event Model.
  * Limits:
  *   all events are of the concrete type event_type (see z-util.h), 
@@ -37,7 +21,22 @@
  *
  * The event_target   The registrar for event_listeners.
  * For convenience, the event target is also an event_listener.
+ *
+ * Copyright (c) 2007 Pete Mack and others.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
+#include "angband.h"
+
 
 /* Some useful constants */
 const char default_choice[] =
@@ -85,7 +84,9 @@ bool region_inside(const region *loc, const event_type *key)
 
 /* ======================= EVENTS ======================== */
 
-/* List of event listeners--Helper class for event_target and the event loop */
+/**
+ * List of event listeners--Helper class for event_target and the event loop 
+ */
 struct listener_list
 {
   event_listener *listener;
@@ -101,7 +102,7 @@ void stop_event_loop()
   Term_event_push(&stop);
 }
 
-/*
+/**
  * Primitive event loop.
  *  - target = the event target
  *  - forever - if false, stop at first unhandled event. Otherwise, stop only
@@ -188,7 +189,9 @@ void remove_listener(event_target * target, event_listener * observer)
 
 /* ======================= MN_EVT HELPER FUNCTIONS ====================== */
 
-/* Display an event, with possible preference overrides */
+/**
+ * Display an event, with possible preference overrides 
+ */
 static void display_event_aux(event_action *event, int menu_id, byte color, 
                               int row, int col, int wid)
 {
@@ -210,8 +213,10 @@ static void display_event(menu_type *menu, int oid, bool cursor, int row,
 		    width);
 }
 
-/* act on selection only */
-/* Return: true if handled. */
+/**
+ * act on selection only 
+ * Return: true if handled. 
+ */
 static bool handle_menu_item_event(char cmd, void *db, int oid)
 {
   event_action *evt = &((event_action *)db)[oid];
@@ -235,7 +240,9 @@ static int valid_menu_event(menu_type *menu, int oid)
   return (NULL != evts[oid].name);
 }
 
-/* Virtual function table for action_events */
+/**
+ * Virtual function table for action_events 
+ */
 static const menu_iter menu_iter_event =
   {
     MN_EVT,
@@ -264,7 +271,7 @@ static void display_menu_item(menu_type *menu, int oid, bool cursor, int row,
 		    col, width);
 }
 
-/* act on selection only */
+/** act on selection only */
 static bool handle_menu_item(char cmd, void *db, int oid)
 {
   if (cmd == '\xff')
@@ -294,7 +301,9 @@ static int valid_menu_item(menu_type *menu, int oid)
   return (NULL != items[oid].evt.name);
 }
 
-/* Virtual function table for menu items */
+/**
+ * Virtual function table for menu items 
+ */
 static const menu_iter menu_iter_item =
   {
     MN_ACT,
@@ -304,7 +313,9 @@ static const menu_iter menu_iter_item =
     handle_menu_item
   };
 
-/* Simple strings - display and selection only */
+/**
+ * Simple strings - display and selection only 
+ */
 static void display_string(menu_type *menu, int oid, bool cursor,
 			   int row, int col, int width)
 {
@@ -313,7 +324,9 @@ static void display_string(menu_type *menu, int oid, bool cursor,
   Term_putstr(col, row, width, color, items[oid]);
 }
 
-/* Virtual function table for displaying arrays of strings */
+/**
+ * Virtual function table for displaying arrays of strings 
+ */
 static const menu_iter menu_iter_string =
 { MN_STRING, 0, 0, display_string, 0 };
 
@@ -323,8 +336,10 @@ static const menu_iter menu_iter_string =
 /* ================== SKINS ============== */
 
 
-/* Scrolling menu */
-/* Find the position of a cursor given a screen address */
+/**
+ * Scrolling menu
+ * Find the position of a cursor given a screen address 
+ */
 static int scrolling_get_cursor(int row, int col, int n, int top, region *loc)
 {
   int cursor = row - loc->row + top;
@@ -334,7 +349,9 @@ static int scrolling_get_cursor(int row, int col, int n, int top, region *loc)
 }
 
 
-/* Display current view of a skin */
+/**
+ * Display current view of a skin 
+ */
 static void
 display_scrolling(menu_type *menu, int cursor, int *top, region *loc)
 {
@@ -381,7 +398,9 @@ static char scroll_get_tag(menu_type *menu, int pos)
   return 0;
 }
 
-/* Virtual function table for scrollable menu skin */
+/**
+ * Virtual function table for scrollable menu skin 
+ */
 static const menu_skin scroll_skin =
   {
     MN_SCROLL,
@@ -391,8 +410,10 @@ static const menu_skin scroll_skin =
   };
 
 
-/* Multi-column menu */
-/* Find the position of a cursor given a screen address */
+/**
+ * Multi-column menu
+ * Find the position of a cursor given a screen address 
+ */
 static int columns_get_cursor(int row, int col, int n, int top, region *loc)
 {
   int rows_per_page = loc->page_rows;
@@ -441,7 +462,9 @@ static char column_get_tag(menu_type *menu, int pos)
   return 0;
 }
 
-/* Virtual function table for multi-column menu skin */
+/**
+ * Virtual function table for multi-column menu skin 
+ */
 static const menu_skin column_skin =
 {
   MN_COLUMNS,
@@ -487,7 +510,7 @@ static bool is_valid_row(menu_type *menu, int cursor)
   return menu->row_funcs->valid_row(menu, oid);
 }
 
-/* 
+/**
  * Return a new position in the menu based on the key
  * pressed and the flags and various handler functions.
  */
@@ -547,7 +570,7 @@ static int get_cursor_key(menu_type *menu, int top, char key)
   return -1;
 }
 
-/*
+/**
  * Event handler wrapper function
  * Filters unhandled keys & conditions 
  */
@@ -577,7 +600,9 @@ static bool handle_menu_key(char cmd, menu_type *menu, int cursor)
   return FALSE;
 }
 
-/* Modal display of menu */
+/**
+ * Modal display of menu 
+ */
 static void display_menu_row(menu_type *menu, int pos, int top,
                              bool cursor, int row, int col, int width)
 {
@@ -636,7 +661,9 @@ void menu_refresh(menu_type *menu)
   menu->skin->display_list(menu, menu->cursor, &menu->top, &menu->active);
 }
 
-/* The menu event loop */
+/**
+ * The menu event loop 
+ */
 static bool menu_handle_event(menu_type *menu, const event_type *in)
 {
   int n = menu->filter_count;
@@ -844,7 +871,9 @@ static bool menu_handle_event(menu_type *menu, const event_type *in)
 }
 
 
-/* VTAB for menus */
+/**
+ * VTAB for menus 
+ */
 static const panel_type menu_target =
   {
     {
@@ -860,7 +889,7 @@ static const panel_type menu_target =
     {0, 0, 0, 0}                            /* boundary */
   };
 
-/* 
+/**
  * Modal selection from a menu.
  * Arguments:
  *  - menu - the menu
@@ -954,7 +983,7 @@ event_type menu_select(menu_type *menu, int *cursor, int no_handle)
 
 /* ================== MENU ACCESSORS ================ */
 
-/*
+/**
  * The menu skin registry.  In the unlikely event you need to register
  * more skins, make the array bigger.
  */
@@ -966,7 +995,7 @@ static menu_skin const *menu_skin_reg[20] =
   0
 };
 
-/* 
+/**
  * The menu row-iterator registry.
  * Note that there's no need to register "anonymous" row iterators, that is,
  * iterators always accessed by address, and not available in pref files.
@@ -1030,7 +1059,7 @@ void add_menu_iter(const menu_iter * iter, menu_iter_id id)
   menu_iter_reg[i] = iter;
 }
 
-/*
+/**
  * Set the filter to a new value.
  * IMPORTANT: The filter is assumed to be owned by the menu.
  * To remove a filter that is not owned by the menu, use:
@@ -1042,9 +1071,11 @@ void menu_set_filter(menu_type *menu, const int object_list[], int n)
   menu->filter_count = n;
 }
 
-/* Delete the filter */
-/* HACK: returns old filter for possible destruction */
-/* as: FREE(menu_remove_filter(m)); */
+/**
+ * Delete the filter 
+ * HACK: returns old filter for possible destruction 
+ * as: FREE(menu_remove_filter(m)); 
+ */
 void menu_release_filter(menu_type *menu)
 {
   if (menu->object_list)
@@ -1060,7 +1091,9 @@ void menu_set_id(menu_type *menu, int id)
 
 /* ======================== MENU INITIALIZATION ==================== */
 
-/* This is extremely primitive, barely sufficient to the job done */
+/**
+ * This is extremely primitive, barely sufficient to the job done 
+ */
 bool menu_layout(menu_type *menu, const region *loc)
 {
   region active;
@@ -1153,7 +1186,7 @@ void menu_destroy(menu_type *menu)
 
 /*** Miscellaneous things ***/
 
-/*
+/**
  * A Hengband-like 'window' function, that draws a surround box in ASCII art.
  */
 void window_make(int origin_x, int origin_y, int end_x, int end_y)

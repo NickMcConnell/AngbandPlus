@@ -1,8 +1,7 @@
-/* File: main-xxx.c */
+/** \file main-xxx.c
+    \brief Sample visual module for Angband 2.8.1 
 
-/* Purpose: Sample visual module for Angband 2.8.1 */
-
-/*
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -23,46 +22,46 @@
  * actually work, but if the code near "XXX XXX XXX" comments were
  * replaced with functional code, then it probably would.
  *
- * See "z-term.c" for info on the concept of the "generic terminal",
+ * See z-term.c for info on the concept of the "generic terminal",
  * and for more comments about what this file must supply.
  *
  * There are two basic ways to port Angband to a new system.  The
- * first involves modifying the "main-gcu.c" and/or "main-x11.c"
+ * first involves modifying the main-gcu.c and/or main-x11.c
  * files to support some version of "curses" and/or "X11" on your
  * machine, and to compile with the "USE_GCU" and/or "USE_X11"
  * compilation flags defined.  The second involves creating a
- * new "main-xxx.c" file, based on this sample file (or on any
- * existing "main-xxx.c" file), and comes in two flavors, based
- * on whether it contains a "main()" function (as in "main-mac.c"
- * and "main-win.c") or not (as in "main-gcu.c" or "main-x11.c").
+ * new main-xxx.c file, based on this sample file (or on any
+ * existing main-xxx.c file), and comes in two flavors, based
+ * on whether it contains a main() function (as in main-mac.c
+ * and main-win.c) or not (as in main-gcu.c or main-x11.c).
  *
- * If the "main-xxx.c" file includes its own "main()" function,
- * then you should NOT link in the "main.c" file, and your "main()"
+ * If the main-xxx.c file includes its own main() function,
+ * then you should NOT link in the main.c file, and your main()
  * function must process any command line arguments, initialize the
- * "visual system", and call "play_game()" with appropriate arguments.
+ * "visual system", and call play_game() with appropriate arguments.
  *
- * If the "main-xxx.c" file does not include its own "main()"
- * function, then you must add some code to "main.c" which, if
+ * If the main-xxx.c file does not include its own main()
+ * function, then you must add some code to main.c which, if
  * the appropriate "USE_XXX" compilation flag is defined, will
- * attempt to call the "init_xxx()" function in the "main-xxx.c"
+ * attempt to call the init_xxx() function in the main-xxx.c
  * file, which should initialize the "visual system" and return
- * zero if it was successful.  The "main()" function in "main.c"
+ * zero if it was successful.  The main() function in main.c
  * will take care of processing command line arguments and then
- * calling "play_game()" with appropriate arguments.
+ * calling play_game() with appropriate arguments.
  *
- * Note that the "util.c" file often contains functions which must
+ * Note that the util.c file often contains functions which must
  * be modified in small ways for various platforms, even if you are
- * able to use the existing "main-gcu.c" and/or "main-x11.c" files,
+ * able to use the existing main-gcu.c and/or main-x11.c files,
  * in particular, the "file handling" functions may not work on all
  * systems.
  *
  * When you complete a port to a new system, you should email any
  * newly created files, and any changes made to existing files,
- * including "h-config.h", "z-config.h", and any of the "Makefile"
+ * including h-config.h and any of the Makefile
  * files, to "benh@phial.com" for inclusion in the next version.
  *
- * Try to stick to a "three letter" naming scheme for "main-xxx.c"
- * and "Makefile.xxx" and such for consistency and simplicity.
+ * Try to stick to a "three letter" naming scheme for main-xxx.c
+ * and Makefile.xxx and such for consistency and simplicity.
  */
 
 
@@ -73,7 +72,7 @@
 #ifdef USE_XXX
 
 
-/*
+/**
  * Extra data to associate with each "window"
  *
  * Each "window" is represented by a "term_data" structure, which
@@ -92,7 +91,7 @@ struct term_data
 
 
 
-/*
+/**
  * Number of "term_data" structures to support XXX XXX XXX
  *
  * You MUST support at least one "term_data" structure, and the
@@ -106,7 +105,7 @@ struct term_data
 #define MAX_TERM_DATA 1
 
 
-/*
+/**
  * An array of "term_data" structures, one for each "sub-window"
  */
 static term_data data[MAX_TERM_DATA];
@@ -114,7 +113,7 @@ static term_data data[MAX_TERM_DATA];
 
 #if 0	/* Fix the syntax below XXX XXX XXX */
 
-/*
+/**
  * The "color" array for the visual module XXX XXX XXX
  *
  * This table should be used in whetever way is necessary to
@@ -164,7 +163,7 @@ static local_color_data_type color_data[16] =
 /*** Function hooks needed by "Term" ***/
 
 
-/*
+/**
  * Init a new "term"
  *
  * This function should do whatever is necessary to prepare a new "term"
@@ -181,7 +180,7 @@ static void Term_init_xxx(term *t)
 
 
 
-/*
+/**
  * Nuke an old "term"
  *
  * This function is called when an old "term" is no longer needed.  It should
@@ -198,7 +197,7 @@ static void Term_nuke_xxx(term *t)
 
 
 
-/*
+/**
  * Do a "user action" on the current "term"
  *
  * This function allows the visual module to do implementation defined
@@ -220,7 +219,7 @@ static errr Term_user_xxx(int n)
 }
 
 
-/*
+/**
  * Do a "special thing" to the current "term"
  *
  * This function must react to a large number of possible arguments, each
@@ -461,7 +460,7 @@ static errr Term_xtra_xxx(int n, int v)
 }
 
 
-/*
+/**
  * Display the cursor
  *
  * This routine should display the cursor at the given location
@@ -488,7 +487,7 @@ static errr Term_curs_xxx(int x, int y)
 }
 
 
-/*
+/**
  * Erase some characters
  *
  * This function should erase "n" characters starting at (x,y).
@@ -506,7 +505,7 @@ static errr Term_wipe_xxx(int x, int y, int n)
 }
 
 
-/*
+/**
  * Draw some text on the screen
  *
  * This function should actually display an array of characters
@@ -549,7 +548,7 @@ static errr Term_text_xxx(int x, int y, int n, byte a, const char *cp)
 }
 
 
-/*
+/**
  * Draw some attr/char pairs on the screen
  *
  * This routine should display the given "n" attr/char pairs at
@@ -590,7 +589,7 @@ static errr Term_pict_xxx(int x, int y, int n, const byte *ap, const char *cp)
 /*** Internal Functions ***/
 
 
-/*
+/**
  * Instantiate a "term_data" structure
  *
  * This is one way to prepare the "term_data" structures and to
@@ -671,7 +670,7 @@ static void term_data_link(int i)
 
 
 
-/*
+/**
  * Initialization function
  */
 errr init_xxx(void)
@@ -709,7 +708,7 @@ errr init_xxx(void)
  */
 
 
-/*
+/**
  * An event handler XXX XXX XXX
  *
  * You may need an event handler, which can be used by both
@@ -727,7 +726,7 @@ static bool CheckEvents(bool wait)
 }
 
 
-/*
+/**
  * Init some stuff
  *
  * This function is used to keep the "path" variable off the stack.
@@ -747,7 +746,7 @@ static void init_stuff(void)
 }
 
 
-/*
+/**
  * Main function
  *
  * This function must do a lot of stuff.

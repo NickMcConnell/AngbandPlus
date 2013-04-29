@@ -1,3 +1,6 @@
+/** \file main-nds.h
+    \brief Main NDS include file
+*/
 #ifndef MAIN_NDS_H
 #define MAIN_NDS_H
 

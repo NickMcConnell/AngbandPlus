@@ -1,6 +1,7 @@
-/* File: tables.c */
+/** \file tables.c 
+    \brief Various standard tables
 
-/* Mapping of directions, what classes are legal for what races.  Stat 
+ * Mapping of directions, what classes are legal for what races.  Stat 
  * effects, blows per round, store owners, speed-to-energy, base exp level 
  * cost, player sexes, races, classes, spell table (for each class), spell 
  * names by index, conversion of +to_d to Deadliness, traps on chests, 
@@ -24,31 +25,37 @@
 
 #include "angband.h"
 
-/*
+/**
  * Global array for looping through the "keypad directions"
  */
 s16b ddd[9] =
   { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
-/*
+/**
  * Global arrays for converting "keypad direction" into offsets
  */
 s16b ddx[10] =
   {  0, -1,  0,  1, -1,  0,  1, -1,  0,  1 };
 
+/**
+ * Global arrays for converting "keypad direction" into offsets
+ */
 s16b ddy[10] =
   {  0,  1,  1,  1,  0,  0,  0, -1, -1, -1 };
 
-/*
+/**
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
  */
 s16b ddx_ddd[9] =
   {  0,  0,  1, -1,  1, -1,  1, -1,  0 };
 
+/**
+ * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]"
+ */
 s16b ddy_ddd[9] =
   {  1, -1,  0,  0,  1,  1, -1, -1,  0 };
 
-/*
+/**
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
  */
@@ -59,7 +66,7 @@ char hexsym[16] =
   };
 
 
-/*
+/**
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
 byte adj_mag_study[] =
@@ -105,7 +112,7 @@ byte adj_mag_study[] =
   };
 
 
-/*
+/**
  * Stat Table (INT/WIS) -- extra tenth-mana-points per level.
  */
 byte adj_mag_mana[] =
@@ -151,7 +158,7 @@ byte adj_mag_mana[] =
   };
 
 
-/*
+/**
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
  */
 byte adj_mag_fail[] =
@@ -197,7 +204,7 @@ byte adj_mag_fail[] =
   };
 
 
-/*
+/**
  * Stat Table (INT/WIS) -- Reduction of failure rate
  */
 byte adj_mag_stat[] =
@@ -243,7 +250,7 @@ byte adj_mag_stat[] =
   };
 
 
-/*
+/**
  * Stat Table (CHR) -- payment percentage of normal.  Effect of CHR 
  * increased because of changes elsewhere. -LM-
  */
@@ -290,7 +297,7 @@ byte adj_chr_gold[] =
   };
 
 
-/*
+/**
  * Stat Table (INT) -- Magic devices
  */
 byte adj_int_dev[] =
@@ -336,7 +343,7 @@ byte adj_int_dev[] =
   };
 
 
-/*
+/**
  * Stat Table (WIS) -- Saving throw
  */
 byte adj_wis_sav[] =
@@ -382,7 +389,7 @@ byte adj_wis_sav[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) -- disarming (also getting out of pits)
  */
 byte adj_dex_dis[] =
@@ -428,7 +435,7 @@ byte adj_dex_dis[] =
   };
 
 
-/*
+/**
  * Stat Table (INT) -- disarming
  */
 byte adj_int_dis[] =
@@ -474,7 +481,7 @@ byte adj_int_dis[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
 byte adj_dex_ta[] =
@@ -520,7 +527,7 @@ byte adj_dex_ta[] =
   };
 
 
-/*
+/**
  * Stat Table (STR) -- bonus to Deadliness (plus 128).  To compensate
  * for changes elsewhere, STR now has a larger effect. -LM-
  */
@@ -567,7 +574,7 @@ byte adj_str_td[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) -- bonus to Skill (plus 128.  To compensate for
  * changes elsewhere, DEX now has a larger effect. -LM-
  */
@@ -614,7 +621,7 @@ byte adj_dex_th[] =
   };
 
 
-/*
+/**
  * Stat Table (STR) -- weight limit in deca-pounds
  */
 byte adj_str_wgt[] =
@@ -660,7 +667,7 @@ byte adj_str_wgt[] =
   };
 
 
-/*
+/**
  * Stat Table (STR) -- weapon weight limit in pounds
  */
 byte adj_str_hold[] =
@@ -706,7 +713,7 @@ byte adj_str_hold[] =
   };
 
 
-/*
+/**
  * Stat Table (STR) -- digging value
  */
 byte adj_str_dig[] =
@@ -752,7 +759,7 @@ byte adj_str_dig[] =
   };
 
 
-/*
+/**
  * Stat Table (STR) -- help index into the "blow" table
  */
 byte adj_str_blow[] =
@@ -797,7 +804,7 @@ byte adj_str_blow[] =
     240 /* 18/220+ */
   };
 
-/*
+/**
  * Stat Table (DEX) -- index into the "blow" table
  */
 byte adj_dex_blow[] =
@@ -843,7 +850,7 @@ byte adj_dex_blow[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) -- Used for number of shots per round
  */
 byte adj_dex_shots[] =
@@ -889,7 +896,7 @@ byte adj_dex_shots[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling".  Modified to 
  * make both theft and security from theft less of a sure thing by LM.
  */
@@ -936,7 +943,7 @@ byte adj_dex_safe[] =
   };
 
 
-/*
+/**
  * Stat Table (CON) -- base regeneration rate
  */
 byte adj_con_fix[] =
@@ -982,7 +989,7 @@ byte adj_con_fix[] =
   };
 
 
-/*
+/**
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128).
  * Because monsters don't breath as powerfully now, I have reduced the
  * effect of this stat. -LM-
@@ -1030,7 +1037,7 @@ byte adj_con_mhp[] =
   };
 
 
-/*
+/**
  * Stat Table (DEX) evasion max bonus from DEX.
  */
 byte adj_dex_evas[] =
@@ -1076,7 +1083,7 @@ byte adj_dex_evas[] =
   };
 
 
-/*
+/**
  * This table is used to help calculate the number of blows the player 
  * can make in a single round of attacks (one player turn) with a 
  * weapon that is not too heavy to wield effectively.
@@ -1112,7 +1119,7 @@ byte blows_table[12][12] =
   {  2,  3,  3,  4,  4,  4,  5,  5,  5,  6,  6,  6 }  /* 11+        */
 };
 
-/*
+/**
  * This table allows quick conversion from "speed" to "energy"
  * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
  * Note that table access is *much* quicker than computation.
@@ -1161,7 +1168,7 @@ byte extract_energy[200] =
 
 
 
-/*
+/**
  * Experience levels
  */
 s32b player_exp[PY_MAX_LEVEL] =
@@ -1219,7 +1226,7 @@ s32b player_exp[PY_MAX_LEVEL] =
   };
 
 
-/*
+/**
  * Player Sexes
  *
  *	Title,
@@ -1239,7 +1246,7 @@ player_sex sex_info[MAX_SEXES] =
   };
 
 
-/*
+/**
  * The spell information table.  Each class has a list of spells, 
  * organized into spellbooks. -LM-
  *
@@ -1994,7 +2001,7 @@ player_magic magic_info[MAX_CLASS] =
 
 
 
-/*
+/**
  * Names of the spells (mage spells, priestly prayers, Nature magics,
  * and Necromantic spells).  Spells are listed by index (see table above 
  * for index assignments, and cmd5.c for the effects asociated with each 
@@ -2338,7 +2345,7 @@ cptr spell_names[255] =
   };
 
 
-/*
+/**
  * Conversion of plusses to Deadliness to a percentage added to damage.  
  * Much of this table is not intended ever to be used, and is included 
  * only to handle possible inflation elsewhere. -LM-
@@ -2364,12 +2371,13 @@ byte deadliness_conversion[151] =
     255, 255, 255, 255, 255, 255, 255, 255, 255, 255
   };
 
-/*
+/**
  * Each chest has a certain set of traps, determined by pval (which 
  * also controls the quality of treasure).
  * Table revised for Oangband.
+ *
+ * Note that traps can actually be 4 entries past the nominal "best" comment 
  */
-/* Note that traps can actually be 4 entries past the nominal "best" comment */
 int chest_traps[100] =
   {
     0,					/* 0 == empty */
@@ -2476,7 +2484,7 @@ int chest_traps[100] =
 
 
 
-/*
+/**
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
 cptr color_names[16] =
@@ -2505,7 +2513,7 @@ cptr color_names[16] =
  * it was previously used.
  */
 
-/* 
+/**
  * Index into "grouper" for general item types.
  *
  * Must be synced to non-NULL entries in group_item.
@@ -2518,7 +2526,7 @@ int new_group_index[] =
     22, 23, 24, 25, 26, 27, 28, 29, 30, 36,
     -1};
 
-/*
+/**
  * The basic items categorized by type
  */
 grouper group_item[] =
@@ -2572,7 +2580,7 @@ grouper group_item[] =
   };
 
 
-/*
+/**
  * Abbreviations of healthy stats
  */
 cptr stat_names[A_MAX] =
@@ -2580,7 +2588,7 @@ cptr stat_names[A_MAX] =
     "STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
   };
 
-/*
+/**
  * Abbreviations of damaged stats
  */
 cptr stat_names_reduced[A_MAX] =
@@ -2589,7 +2597,7 @@ cptr stat_names_reduced[A_MAX] =
   };
 
 
-/*
+/**
  * Certain "screens" always use the main screen, including News, Birth,
  * Dungeon, Tomb-stone, High-scores, Macros, Colors, Visuals, Options.
  *
@@ -2634,7 +2642,7 @@ cptr window_flag_desc[32] =
   };
 
 
-/*
+/**
  * Options -- textual names (where defined)
  */
 cptr option_text[OPT_MAX] =
@@ -2789,7 +2797,7 @@ cptr option_text[OPT_MAX] =
   };
 
 
-/*
+/**
  * Options -- descriptions (where defined)
  */
 cptr option_desc[OPT_MAX] =
@@ -2944,7 +2952,7 @@ cptr option_desc[OPT_MAX] =
   };
 
 
-/*
+/**
  * Options -- normal values
  */
 bool option_norm[OPT_MAX] =
@@ -3097,7 +3105,7 @@ bool option_norm[OPT_MAX] =
   };
 
 
-/*
+/**
  * Option screen interface
  */
 byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
@@ -3253,7 +3261,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
     }
   };
 
-/* Table of Druid blows. -LM- */
+/**
+ * Table of Druid blows. -LM- 
+ */
 druid_blows d_blow[NUM_D_BLOWS] =
   {
     { "punch",		  1, 5 },
@@ -3473,7 +3483,7 @@ byte mana_cost_RF7[32]=
     20 			/* RF7_S_UNIQUE */ /* Summon - 8 */
   };
 
-/*
+/**
  * d_base:     base desirability for AI.
  * d_summ:     desriability for AI per monster level
  *                  times 0-3 based on number of clear spaces
@@ -3642,7 +3652,7 @@ byte spell_desire_RF7[32][8] =
     { 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
 };
 
-/*
+/**
  * Optimal Ranges for various spells.
  * 6 is optimal for Breath Weapons, Beams, and Arcs.
  * 3 is optimal for Lash/Spit.
@@ -3671,7 +3681,7 @@ byte spell_range_RF7[32] =
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
   };
 
-/*
+/**
  * Names array for specialty abilites.
  * The order here must match both the definition numbers in defines.h and
  * the order of specialty_tips in info.c
@@ -3779,7 +3789,7 @@ cptr specialty_names[TOTAL_SPECIALTIES]=
   };
 
 
-/*
+/**
  * List of all the stages and what is near them.  Order is
  * locality, level, stage numbers in the six directions (north, east, south,
  * west, up, down), stage type.
@@ -4204,6 +4214,10 @@ int stage_map[NUM_STAGES][9] =
   /* 411 */ {ANGBAND         , 127,   0,   0,   0,   0, 410,   0,   CAVE}};
 
 
+/**
+ * List of stages for dungeon only mode
+ */
+
 int dungeon_map[NUM_STAGES][9] =
   {
   /* num     locality          lev    N    E    S    W    U    D    type */
@@ -4620,7 +4634,10 @@ int dungeon_map[NUM_STAGES][9] =
   /* 319 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
   /* 328 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0}
   };
-/* Names of localities */
+
+/**
+ * Names of localities 
+ */
 
 cptr locality_name[MAX_LOCALITIES] = 
   {
@@ -4664,7 +4681,9 @@ cptr locality_name[MAX_LOCALITIES] =
   };
 
 
-/* Names of localities */
+/**
+ * Names of localities 
+ */
 
 cptr short_locality_name[MAX_LOCALITIES] = 
   {
@@ -4708,12 +4727,16 @@ cptr short_locality_name[MAX_LOCALITIES] =
   };
 
 
-/* Stage numbers of towns */
+/**
+ * Stage numbers of towns 
+ */
 
 int towns[10] = {6, 30, 37, 44, 115, 150, 151, 152, 153, 154};
 
 
-/* Probabilities of races appearing in the respective towns */
+/**
+ * Probabilities of races appearing in the respective towns 
+ */
 
 int race_town_prob[10][14] = 
   {
@@ -4728,7 +4751,9 @@ int race_town_prob[10][14] =
     /* Menegroth       */ {0, 5, 70, 0, 0, 0, 5, 0, 5, 5, 5, 0, 5, 0},
     /* Gondolin        */ {0, 5, 20, 0, 0, 0, 0, 0, 0, 75, 0, 0, 0, 0}};
 
-/* Store types by index */
+/**
+ * Store types by index 
+ */
 
 byte type_of_store[MAX_STORES] = 
   {

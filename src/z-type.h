@@ -1,3 +1,6 @@
+/** \file z-type.h
+    \brief Types include
+*/
 
 
 typedef struct data_panel data_panel;

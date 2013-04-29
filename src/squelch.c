@@ -1,25 +1,7 @@
-/*
- * File: squelch.c
- * Purpose: Item destruction
+/** \file squelch.c
+    \brief Item destruction
+ 
  *
- * Copyright (c) 2009 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
- * David Vestal, Pete Mack, Andrew Sidwell, Nick McConnell.
- *
- * This work is free software; you can redistribute it and/or modify it
- * under the terms of either:
- *
- * a) the GNU General Public License as published by the Free Software
- *    Foundation, version 2, or
- *
- * b) the "Angband licence":
- *    This software may be copied and distributed for educational, research,
- *    and not for profit purposes provided that this copyright and statement
- *    are included in all such copies.  Other copyrights may also apply.
- */
-#include "angband.h"
-#include "cmds.h"
-
-/*
  * The squelch code has a long history.  Originally it started out as a simple
  * sval-dependent item destroyer, but then ego-item and quality squelch was
  * added too, and then squelched items on the dungeon floor were marked by
@@ -43,9 +25,26 @@
  *
  * The UI code is much cleaner than it was before, but the interface itself
  * still needs some design.  XXX
- */
+ *
 
-/*
+ * Copyright (c) 2009 David T. Blackston, Iain McFall, DarkGod, Jeff Greene,
+ * David Vestal, Pete Mack, Andrew Sidwell, Nick McConnell.
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
+ */
+#include "angband.h"
+#include "cmds.h"
+
+/**
  * Names of categories.
  */
 static const char *type_names[TYPE_MAX] =
@@ -71,7 +70,9 @@ static const char *type_names[TYPE_MAX] =
   "Amulets",
 };
 
-/* Mapping of tval -> type */
+/**
+ * Mapping of tval -> type 
+ */
 static int tvals[TYPE_MAX] =
 {
   TV_SWORD, 
@@ -99,7 +100,7 @@ byte squelch_level[TYPE_MAX];
 size_t squelch_size = TYPE_MAX;
 
 
-/*
+/**
  * The different kinds of quality squelch
  */
 enum
@@ -117,7 +118,7 @@ enum
   SQUELCH_MAX
 };
 
-/*
+/**
  * The names for the various kinds of quality
  */
 static const char *quality_names[SQUELCH_MAX] =
@@ -134,14 +135,18 @@ static const char *quality_names[SQUELCH_MAX] =
 };
 
 
-/* Structure to describe tval/description pairings. */
+/**
+ * Structure to describe tval/description pairings. 
+ */
 typedef struct
 {
   int tval;
   const char *desc;
 } tval_desc;
 
-/* Categories for sval-dependent squelch. */
+/**
+ * Categories for sval-dependent squelch. 
+ */
 static tval_desc sval_dependent[] =
 {
   { TV_STAFF,		"Staffs" },
@@ -165,7 +170,7 @@ static tval_desc sval_dependent[] =
 
 /*** Autoinscription stuff ***/
 
-/*
+/**
  * This code needs documenting.
  */
 int get_autoinscription_index(s16b k_idx)
@@ -181,7 +186,7 @@ int get_autoinscription_index(s16b k_idx)
   return -1;
 }
 
-/*
+/**
  * DOCUMENT ME!
  */
 const char *get_autoinscription(s16b kind_idx)
@@ -197,7 +202,9 @@ const char *get_autoinscription(s16b kind_idx)
   return 0;
 }
 
-/* Put the autoinscription on an object */
+/**
+ * Put the autoinscription on an object 
+ */
 int apply_autoinscription(object_type *o_ptr)
 {
   char o_name[80];
@@ -312,9 +319,10 @@ void autoinscribe_pack(void)
   return;
 }
 
-/* WinCE has no bsearch */
 #ifdef _WIN32_WCE
-
+/**
+ * WinCE has no bsearch 
+ */
 typedef int (*comp_fn) (const void *, const void *);
 
 void *my_bsearch(const void *key, const void *base, size_t num, size_t size, 
@@ -358,7 +366,7 @@ void *my_bsearch(const void *key, const void *base, size_t num, size_t size,
 
 /*** Squelch code ***/
 
-/*
+/**
  * Determines whether a tval is eligable for sval-squelch.
  */
 bool squelch_tval(int tval)
@@ -376,7 +384,7 @@ bool squelch_tval(int tval)
 }
 
 
-/*
+/**
  * Determines if an object is eligable for squelching.
  */
 extern bool squelch_item_ok(object_type *o_ptr)
@@ -528,7 +536,7 @@ extern bool squelch_item_ok(object_type *o_ptr)
 }
 
 
-/* 
+/**
  * Returns TRUE if an item should be hidden due to the player's
  * current settings.
  */
@@ -538,7 +546,7 @@ bool squelch_hide_item(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Destroy all {squelch}able items.
  *
  * Imported, with thanks, from Ey... much cleaner than the original.
@@ -606,7 +614,7 @@ void squelch_items(void)
 }
 
 
-/*
+/**
  * Drop all {squelch}able items.
  */
 extern void squelch_drop(void)
@@ -686,7 +694,7 @@ typedef struct ego_desc
   const char *short_name;
 } ego_desc;
 
-/*
+/**
  * Skip common prefixes in ego-item names.
  */
 static const char *strip_ego_name(const char *name)
@@ -696,7 +704,7 @@ static const char *strip_ego_name(const char *name)
   return name;
 }
 
-/*
+/**
  * Utility function used to find/sort tval names.
  */
 static int tval_comp_func(const void *a_ptr, const void *b_ptr)
@@ -706,7 +714,7 @@ static int tval_comp_func(const void *a_ptr, const void *b_ptr)
   return a - b;
 }
 
-/*
+/**
  * Display an ego-item type on the screen.
  */
 int ego_item_name(char *buf, size_t buf_size, ego_desc *d_ptr)
@@ -804,7 +812,7 @@ int ego_item_name(char *buf, size_t buf_size, ego_desc *d_ptr)
   return (int)(buf - end);
 }
 
-/*
+/**
  * Utility function used for sorting an array of ego-item indices by
  * ego-item name.
  */
@@ -819,7 +827,7 @@ static int ego_comp_func(const void *a_ptr, const void *b_ptr)
 
 /*** Ego squelch menu ***/
 
-/*
+/**
  * Display an entry on the sval menu
  */
 static void ego_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -846,7 +854,7 @@ static void ego_display(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(sq_attr, choice[oid].short_name, row, col + strlen(buf));
 }
 
-/*
+/**
  * Deal with events on the sval menu
  */
 static bool ego_action(char cmd, void *db, int oid)
@@ -865,7 +873,7 @@ static bool ego_action(char cmd, void *db, int oid)
   return FALSE;
 }
 
-/*
+/**
  * Display list of ego items to be squelched.
  */
 static void ego_menu(void *unused, const char *also_unused)
@@ -982,7 +990,7 @@ static void ego_menu(void *unused, const char *also_unused)
 
 /*** Quality-squelch menu ***/
 
-/*
+/**
  * Display an entry in the menu.
  */
 static void quality_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -1000,7 +1008,7 @@ static void quality_display(menu_type *menu, int oid, bool cursor, int row,
 }
 
 
-/*
+/**
  * Display the quality squelch subtypes.
  */
 static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row, 
@@ -1012,7 +1020,7 @@ static void quality_subdisplay(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(attr, name, row, col);
 }
 
-/*
+/**
  * Handle "Enter".  :(
  */
 static bool quality_subaction(char cmd, void *db, int oid)
@@ -1021,7 +1029,7 @@ static bool quality_subaction(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Handle keypresses.
  */
 static bool quality_action(char cmd, void *db, int oid)
@@ -1061,7 +1069,7 @@ static bool quality_action(char cmd, void *db, int oid)
   return TRUE;
 }
 
-/*
+/**
  * Display quality squelch menu.
  */
 static void quality_menu(void *unused, const char *also_unused)
@@ -1101,7 +1109,7 @@ static void quality_menu(void *unused, const char *also_unused)
 
 /*** Sval-dependent menu ***/
 
-/*
+/**
  * Display an entry on the sval menu
  */
 static void sval_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -1123,7 +1131,7 @@ static void sval_display(menu_type *menu, int oid, bool cursor, int row,
     c_put_str(TERM_L_RED, "*", row, col + 1);
 }
 
-/*
+/**
  * Deal with events on the sval menu
  */
 static bool sval_action(char cmd, void *db, int oid)
@@ -1142,10 +1150,12 @@ static bool sval_action(char cmd, void *db, int oid)
   return FALSE;
 }
 
-/* Hack - special artifacts are not squelchable */
+/**
+ * Hack - special artifacts are not squelchable 
+ */
 #define LAST_NORMAL 730
 
-/*
+/**
  * Display list of svals to be squelched.
  */
 static bool sval_menu(int tval, const char *desc)
@@ -1245,7 +1255,9 @@ static bool sval_menu(int tval, const char *desc)
 }
 
 
-/* Returns TRUE if there's anything to display a menu of */
+/**
+ * Returns TRUE if there's anything to display a menu of 
+ */
 extern bool seen_tval(int tval)
 {
   int i;
@@ -1267,7 +1279,7 @@ extern bool seen_tval(int tval)
 }
 
 
-/* Extra options on the "item options" menu */
+/** Extra options on the "item options" menu */
 struct
 {
   char tag;
@@ -1354,7 +1366,7 @@ static const menu_iter options_item_iter =
 };
 
 
-/*
+/**
  * Display and handle the main squelching menu.
  */
 void do_cmd_options_item(void *unused, cptr title)

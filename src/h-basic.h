@@ -1,13 +1,14 @@
-/* File: h-basic.h */
+/** \file h-basic.h 
+    \brief Lowest-level include file 
 
-#ifndef INCLUDED_H_BASIC_H
-#define INCLUDED_H_BASIC_H
-
-/*
+ *
  * The most basic "include" file.
  *
  * This file simply includes other low level header files.
  */
+
+#ifndef INCLUDED_H_BASIC_H
+#define INCLUDED_H_BASIC_H
 
 /* Autoconf Support */
 #ifdef HAVE_CONFIG_H

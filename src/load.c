@@ -1,6 +1,22 @@
-/* File: load.c */
-
-/* Up-to-date savefile handling.
+/** \file load.c
+    \brief Up-to-date savefile handling.
+ 
+ 
+ * We attempt to prevent corrupt savefiles from inducing memory errors.
+ *
+ * Note that this file should not use the random number generator, the
+ * object flavors, the visual attr/char mappings, or anything else which
+ * is initialized *after* or *during* the "load character" function.
+ *
+ * This file assumes that the monster/object records are initialized
+ * to zero, and the race/kind tables have been loaded correctly.  The
+ * order of object stacks is currently not saved in the savefiles, but
+ * the "next" pointers are saved, so all necessary knowledge is present.
+ *
+ * We should implement simple "savefile extenders" using some form of
+ * "sized" chunks of bytes, with a {size,type,data} format, so everyone
+ * can know the size, interested people can know the type, and the actual
+ * data is available to the parsing routines that acknowledge the type.
  *
  * Copyright (c) 2009 Nick McConnell, Leon Marrick, Bahman Rabii, Ben Harrison
  *
@@ -19,48 +35,31 @@
 #include "angband.h"
 
 
-/*
- * We attempt to prevent corrupt savefiles from inducing memory errors.
- *
- * Note that this file should not use the random number generator, the
- * object flavors, the visual attr/char mappings, or anything else which
- * is initialized *after* or *during* the "load character" function.
- *
- * This file assumes that the monster/object records are initialized
- * to zero, and the race/kind tables have been loaded correctly.  The
- * order of object stacks is currently not saved in the savefiles, but
- * the "next" pointers are saved, so all necessary knowledge is present.
- *
- * We should implement simple "savefile extenders" using some form of
- * "sized" chunks of bytes, with a {size,type,data} format, so everyone
- * can know the size, interested people can know the type, and the actual
- * data is available to the parsing routines that acknowledge the type.
- */
 
 
-/*
+/**
  * Local "savefile" pointer
  */
 static ang_file	*fff;
 
-/*
+/**
  * Hack -- old "encryption" byte
  */
 static byte	xor_byte;
 
-/*
+/**
  * Hack -- simple "checksum" on the actual values
  */
 static u32b	v_check = 0L;
 
-/*
+/**
  * Hack -- simple "checksum" on the encoded bytes
  */
 static u32b	x_check = 0L;
 
 
 
-/*
+/**
  * This function determines if the version of the savefile
  * currently being read is older than FAangband version "x.y.z".
  */
@@ -88,7 +87,7 @@ static bool older_than(byte x, byte y, byte z)
 
 
 
-/*
+/**
  * Hack -- Show information on the screen, one line at a time.
  *
  * Avoid the top two lines, to avoid interference with "msg_print()".
@@ -108,7 +107,7 @@ static void note(cptr msg)
 }
 
 
-/*
+/**
  * The following functions are used to load the basic building blocks
  * of savefiles.  They also maintain the "checksum" info for 2.7.0+
  */
@@ -160,7 +159,7 @@ static void rd_s32b(s32b *ip)
 }
 
 
-/*
+/**
  * Hack -- read a string
  */
 static void rd_string(char *str, int max)
@@ -187,7 +186,7 @@ static void rd_string(char *str, int max)
 }
 
 
-/*
+/**
  * Hack -- strip some bytes
  */
 static void strip_bytes(int n)
@@ -201,7 +200,7 @@ static void strip_bytes(int n)
 
 
 
-/*
+/**
  * Read an object
  *
  * This function attempts to "repair" old savefiles, and to extract
@@ -442,7 +441,7 @@ static void rd_item(object_type *o_ptr)
 
 
 
-/*
+/**
  * Read a monster
  */
 static void rd_monster(monster_type *m_ptr)
@@ -514,7 +513,7 @@ static void rd_monster(monster_type *m_ptr)
 
 
 
-/*
+/**
  * Read the monster lore
  */
 static void rd_lore(int r_idx)
@@ -582,7 +581,7 @@ static void rd_lore(int r_idx)
 
 
 
-/*
+/**
  * Read a store
  */
 static errr rd_store(int n)
@@ -644,7 +643,7 @@ static errr rd_store(int n)
 
 
 
-/*
+/**
  * Read RNG state (added in 2.8.0)
  */
 static void rd_randomizer(void)
@@ -671,7 +670,7 @@ static void rd_randomizer(void)
 
 
 
-/*
+/**
  * Read options (ignore most pre-2.8.0 options)
  *
  * Note that the normal options are now stored as a set of 256 bit flags,
@@ -799,7 +798,7 @@ static void rd_options(void)
 
 
 
-/*
+/**
  * Hack -- strip the old-style "player ghost" info.
  *
  * XXX XXX XXX This is such a nasty hack it hurts.
@@ -817,7 +816,9 @@ static void rd_ghost(void)
 }
 
 
-/* String-handling function from Greg Wooledge's random artifact generator. */
+/**
+ * String-handling function from Greg Wooledge's random artifact generator. 
+ */
 static char *my_strdup (const char *s)
 {
   char *t = malloc(strlen (s) + 1);
@@ -825,11 +826,13 @@ static char *my_strdup (const char *s)
   return t;
 }
 
-/* Hack - hard code this here */
+/**
+ * Hack - hard code this here 
+ */
 #define MAX_A_IDX       250     /* Max size for "a_info[]" */
 
 
-/*
+/**
  * Read the saved random artifacts from a savefile, and add them to the 
  * a_name structure.  This code is adopted from Greg Wooledge's random 
  * artifacts.
@@ -897,7 +900,9 @@ static int convert_saved_names(void)
 }
 
 
-/* Convert a pre-0.2.2 stage */
+/**
+ * Convert a pre-0.2.2 stage 
+ */
 int conv_stage(int old)
 {
   int new = old;
@@ -939,7 +944,7 @@ int conv_stage(int old)
 }
 
 
-/*
+/**
  * Read squelch and autoinscription submenu for all known objects
  */
 static int rd_squelch(void)
@@ -1003,7 +1008,7 @@ static int rd_squelch(void)
 }
 
 
-/*
+/**
  * Read the "extra" information
  */
 static errr rd_extra(void)
@@ -1270,7 +1275,7 @@ static errr rd_extra(void)
 }
 
 
-/*
+/**
  * Read the notes. Every new savefile has at least NOTES_MARK.
  */
 static errr rd_notes(void)
@@ -1321,7 +1326,7 @@ static errr rd_notes(void)
 
 
 
-/*
+/**
  * Read the player inventory
  *
  * Note that the inventory changed in Angband 2.7.4.  Two extra
@@ -1420,7 +1425,7 @@ static errr rd_inventory(void)
 
 
 
-/*
+/**
  * Read the saved messages
  */
 static void rd_messages(void)
@@ -1452,7 +1457,7 @@ static void rd_messages(void)
 
 
 
-/*
+/**
  * Read the dungeon
  *
  * The monsters/objects must be loaded in the same order
@@ -1778,7 +1783,7 @@ static errr rd_dungeon(void)
 
 
 
-/*
+/**
  * Actually read the savefile
  */
 static errr rd_savefile_new_aux(void)
@@ -2343,7 +2348,7 @@ static errr rd_savefile_new_aux(void)
 }
 
 
-/*
+/**
  * Actually read the savefile
  */
 errr rd_savefile_new(void)
@@ -2367,7 +2372,7 @@ errr rd_savefile_new(void)
 }
  
 
-/*
+/**
  * Open the savefile chosen earlier, and read and save Angband and 
  * Oangband version information.  This code is awfully hackish, but it 
  * can be adopted for any additional variant version information. -LM-

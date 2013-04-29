@@ -1,6 +1,7 @@
-/* File: z-term.h */
+/** \file z-term.h 
+    \brief Term package include
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
@@ -15,7 +16,7 @@
 
 
 
-/*
+/**
  * A term_win is a "window" for a Term
  *
  *	- Cursor Useless/Visible codes
@@ -57,7 +58,7 @@ struct term_win
 };
 
 
-/*
+/**
  * Event record for general input
  * Note that there are currently no event subtypes.
  */
@@ -100,7 +101,7 @@ struct event_type
 #define EVENT_EMPTY		{ EVT_NONE, 0, 0, 0, 0 }
 
 
-/*
+/**
  * An actual "term" structure
  *
  *	- Extra "user" info (used by application)
@@ -312,7 +313,7 @@ struct term
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
 
 
-/*
+/**
  * Angband "attributes" (with symbols, and base (R,G,B) codes)
  *
  * The "(R,G,B)" codes are given in "fourths" of the "maximal" value,

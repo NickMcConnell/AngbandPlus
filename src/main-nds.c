@@ -1,10 +1,11 @@
-/* File: main-nds.c */
+/** \file main-nds.c 
+    \brief Main file for playing on the Nintendo DS
 
-/* Purpose: Main file for playing on the Nintendo DS */
-
-/*
+ *
  * Original version by Nick McConnell
+ *
  * Improvements/extensions by Michael 'Immir' Smith
+ *
  * Various DS stuff borrowed from http://frodo.dyn.gno.org/~brettk/NetHackDS.
  *
  * Template main-xxx.c by Ben Harrison (benh@phial.com).
@@ -58,17 +59,23 @@
 #include <nds/text.h>
 #include <nds/overlay.h>
 
-// main include release notes:
+/**
+ * main include release notes:
+ */
 #include <relnote.h>
 
 /* some temporary prototypes */
 
-/* from xtra2.c */
+/**
+ * from xtra2.c 
+ */
 void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
 			     bool require_visible);
 
 
-// flag for lid-closed
+/**
+ * flag for lid-closed
+ */
 volatile int power_state = 0;
 int nds_inform = 1; // inform user of NDS specific behaviour?
 
@@ -80,7 +87,7 @@ int TILE_HEIGHT;
 
 #define UNUSED __attribute__((unused))
 
-/*
+/**
  * Extra data to associate with each "window"
  *
  * Each "window" is represented by a "term_data" structure, which
@@ -130,7 +137,7 @@ void nds_fatal_err(const char* msg) {
   exit(1);
 }
 
-/*
+/**
  * Number of "term_data" structures to support XXX XXX XXX
  *
  * You MUST support at least one "term_data" structure, and the
@@ -144,12 +151,12 @@ void nds_fatal_err(const char* msg) {
 #define MAX_TERM_DATA 2
 
 
-/*
+/**
  * An array of "term_data" structures, one for each "sub-window"
  */
 static term_data data[MAX_TERM_DATA];
 
-/*
+/**
  * Colour data
  */
 
@@ -177,7 +184,7 @@ u16b color_data[] = {
 /*** Function hooks needed by "Term" ***/
 
 
-/*
+/**
  * Init a new "term"
  *
  * This function should do whatever is necessary to prepare a new "term"
@@ -194,7 +201,7 @@ static void Term_init_nds(term *t)
 
 
 
-/*
+/**
  * Nuke an old "term"
  *
  * This function is called when an old "term" is no longer needed.  It should
@@ -211,7 +218,7 @@ static void Term_nuke_nds(term *t)
 
 
 
-/*
+/**
  * Do a "user action" on the current "term"
  *
  * This function allows the visual module to do implementation defined
@@ -232,7 +239,7 @@ static errr Term_user_nds(int n)
 
 
 
-/*
+/**
  * Find the square a particular pixel is part of.
  */
 static void pixel_to_square(int * const x, int * const y,
@@ -286,7 +293,7 @@ void window_swap () {
 }
 
 
-/*
+/**
  * All event handling 
  * MJS: Where did this stuff come from? Do we really need this stuff?
  */
@@ -332,7 +339,7 @@ void put_mouse_event(byte x, byte y) {
 }
 
 
-/*
+/**
  * Handle a touch on the touch screen.
  */
 static void handle_touch(int x, int y, int button, bool press) {
@@ -624,7 +631,7 @@ void do_vblank() {
 
 
 
-/*
+/**
  * An event handler XXX XXX XXX
  *
  * You may need an event handler, which can be used by both
@@ -664,7 +671,7 @@ static errr CheckEvents(bool wait)
 }
 
 
-/*
+/**
  * Do a "special thing" to the current "term"
  *
  * This function must react to a large number of possible arguments, each
@@ -854,7 +861,7 @@ static errr Term_xtra_nds(int n, int v)
 }
 
 
-/*
+/**
  * Display the cursor
  */
 static errr Term_curs_nds(int x, int y)
@@ -897,7 +904,7 @@ static errr Term_curs_nds(int x, int y)
 }
 
 
-/*
+/**
  * Erase some characters
  *
  * This function should erase "n" characters starting at (x,y).
@@ -921,7 +928,7 @@ static errr Term_wipe_nds(int x, int y, int n) {
 }
 
 
-/*
+/**
  * Draw some text on the screen
  *
  * This function should actually display an array of characters
@@ -982,7 +989,7 @@ static errr Term_text_nds(int x, int y, int n, byte a, const char *cp)
   return (0);
 }
 
-/*
+/**
  * Draw some attr/char pairs on the screen
  *
  * This routine should display the given "n" attr/char pairs at
@@ -1020,7 +1027,7 @@ static errr Term_pict_nds(int x, int y, int n, const byte *ap, const char *cp,
 
 /*** Internal Functions ***/
 
-/*
+/**
  * Instantiate a "term_data" structure
  *
  * This is one way to prepare the "term_data" structures and to
@@ -1071,7 +1078,7 @@ static void term_data_link(int i) {
 
 
 
-/*
+/**
  * Initialization function
  */
 errr init_nds(void) {
@@ -1125,7 +1132,7 @@ errr init_nds(void) {
 }
 
 
-/*
+/**
  * Init some stuff
  *
  * This function is used to keep the "path" variable off the stack.
@@ -1145,7 +1152,7 @@ static void init_stuff(void) {
   small_screen = TRUE;
 }
 
-/*
+/**
  * Display warning message (see "z-util.c")
  */
 static void hook_plog(cptr str) {
@@ -1161,7 +1168,7 @@ void nds_exit(int code) {
   IPC->mailData = 0xDEADC0DE;	// tell arm7 to shut down the DS
 }
 
-/*
+/**
  * Display error message and quit (see "z-util.c")
  */
 
@@ -1174,7 +1181,7 @@ static void hook_quit(cptr str) {
 }
 
 
-/*
+/**
  * Right now, the main thing we do here is check for the lid state, so we
  * can power on/off as appropriate.
  */
@@ -1213,7 +1220,7 @@ void vsyncHandler() {
 }
 
 
-/*
+/**
  * Key interrupt handler.  Right now, I only use this to toggle the console
  * layer on and off.
  */
@@ -1369,7 +1376,7 @@ void draw_line8(u16 *fb, int x0, int y0, int x1, int y1, int c) {
     draw_pix8(fb,x,y0,c);
 }
 
-/*
+/**
  * Main function
  *
  * This function must do a lot of stuff.

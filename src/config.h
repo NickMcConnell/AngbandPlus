@@ -1,8 +1,6 @@
-
-/* File: config.h */
-
-/* Compilation options.
- *
+/** \file config.h 
+    \brief Compilation options.
+ 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,

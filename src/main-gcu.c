@@ -1,7 +1,6 @@
-/*
- * File: main-gcu.c
- * Purpose: Support for "curses" systems
- *
+/** \file main-gcu.c
+    \brief Support for "curses" systems
+ 
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -23,11 +22,13 @@
 #include "main.h"
 
 
-/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+/**
+ * Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX 
+ */
 #define term System_term
 
 
-/*
+/**
  * Include the proper "header" file
  */
 #ifdef USE_NCURSES
@@ -46,13 +47,13 @@
 
 
 
-/*
+/**
  * Use POSIX terminal I/O
  */
 #define USE_TPOSIX
 
 
-/*
+/**
  * Hack -- Windows Console mode uses PDCURSES and cannot do any terminal stuff
  * Hack -- Windows needs Sleep(), and I really don't want to pull in all
  *         the Win32 headers for this one function
@@ -63,7 +64,7 @@ _stdcall void Sleep(int);
 #define usleep(v) Sleep(v / 1000)
 #endif
 
-/*
+/**
  * POSIX stuff
  */
 #ifdef USE_TPOSIX
@@ -72,7 +73,7 @@ _stdcall void Sleep(int);
 
 
 
-/*
+/**
  * If you have errors relating to curs_set(), comment out the following line
  */ 
 #define USE_CURS_SET
@@ -88,7 +89,7 @@ _stdcall void Sleep(int);
 
 
 
-/*
+/**
  * Save the "normal" and "angband" terminal settings
  */
 
@@ -99,14 +100,14 @@ static struct termios  game_termios;
 
 #endif
 
-/*
+/**
  * The TERM environment variable; used for terminal capabilities.
  */
 static char *termtype;
 static bool loaded_terminfo;
 
 
-/*
+/**
  * Information about a term
  */
 typedef struct term_data
@@ -115,19 +116,25 @@ typedef struct term_data
 	WINDOW *win;            /* Pointer to the curses window */
 } term_data;
 
-/* Max number of windows on screen */
+/**
+ * Max number of windows on screen 
+ */
 #define MAX_TERM_DATA 4
 
-/* Information about our windows */
+/**
+ * Information about our windows 
+ */
 static term_data data[MAX_TERM_DATA];
 
-/* Number of initialized "term" structures */
+/** Number of initialized "term" structures */
 static int active = 0;
 
 
 #ifdef A_ALTCHARSET
 
-/* Whether or not to use the special ACS characters */
+/**
+ * Whether or not to use the special ACS characters 
+ */
 static int use_alt_charset = 1;
 
 #endif
@@ -135,7 +142,7 @@ static int use_alt_charset = 1;
 
 #ifdef A_COLOR
 
-/*
+/**
  * Hack -- define "A_BRIGHT" to be "A_BOLD", because on many
  * machines, "A_BRIGHT" produces ugly "inverse" video.
  */
@@ -143,27 +150,27 @@ static int use_alt_charset = 1;
 # define A_BRIGHT A_BOLD
 #endif
 
-/*
+/**
  * Software flag -- we are allowed to use color
  */
 static int can_use_color = FALSE;
 
-/*
+/**
  * Software flag -- we are allowed to change the colors
  */
 static int can_fix_color = FALSE;
 
-/*
+/**
  * Simple Angband to Curses color conversion table
  */
 static int colortable[BASIC_COLORS];
 
-/*
+/**
  * Background color we should draw with; either BLACK or DEFAULT
  */
 static int bg_color = COLOR_BLACK;
 
-/*
+/**
  * Lookup table for the "alternate character set".
  *
  * It's worth noting that curses already has this, as an undocumented
@@ -180,7 +187,7 @@ static unsigned int acs_table[32] = {
 
 
 
-/*
+/**
  * Place the "keymap" into its "normal" state
  */
 static void keymap_norm(void)
@@ -197,7 +204,7 @@ static void keymap_norm(void)
 }
 
 
-/*
+/**
  * Place the "keymap" into the "game" state
  */
 static void keymap_game(void)
@@ -212,7 +219,7 @@ static void keymap_game(void)
 }
 
 
-/*
+/**
  * Save the normal keymap
  */
 static void keymap_norm_prepare(void)
@@ -228,7 +235,7 @@ static void keymap_norm_prepare(void)
 }
 
 
-/*
+/**
  * Save the keymaps (normal and game)
  */
 static void keymap_game_prepare(void)
@@ -274,7 +281,7 @@ static void keymap_game_prepare(void)
 
 
 
-/*
+/**
  * Suspend/Resume
  */
 static errr Term_xtra_gcu_alive(int v)
@@ -340,7 +347,7 @@ const char help_gcu[] = "Text mode, subopts -b(ig screen)";
 #endif
 
 
-/*
+/**
  * Init the "curses" system
  */
 static void Term_init_gcu(term *t)
@@ -370,7 +377,7 @@ static void Term_init_gcu(term *t)
 }
 
 
-/*
+/**
  * Nuke the "curses" system
  */
 static void Term_nuke_gcu(term *t)
@@ -414,7 +421,7 @@ static void Term_nuke_gcu(term *t)
 
 
 
-/*
+/**
  * Process events, with optional wait
  */
 static errr Term_xtra_gcu_event(int v)
@@ -493,7 +500,7 @@ void set_256color_table(int i, int fg)
 }
 
 
-/*
+/**
  * React to changes
  */
 static errr Term_xtra_gcu_react(void)
@@ -543,7 +550,7 @@ static errr Term_xtra_gcu_react(void)
 }
 
 
-/*
+/**
  * Handle a "special request"
  */
 static errr Term_xtra_gcu(int n, int v)
@@ -609,7 +616,7 @@ static errr Term_xtra_gcu(int n, int v)
 }
 
 
-/*
+/**
  * Actually MOVE the hardware cursor
  */
 static errr Term_curs_gcu(int x, int y)
@@ -624,7 +631,7 @@ static errr Term_curs_gcu(int x, int y)
 }
 
 
-/*
+/**
  * Erase a grid of space
  * Hack -- try to be "semi-efficient".
  */
@@ -652,7 +659,7 @@ static errr Term_wipe_gcu(int x, int y, int n)
 }
 
 
-/*
+/**
  * Place some text on the screen using an attribute
  */
 static errr Term_text_gcu(int x, int y, int n, byte a, char *s)
@@ -702,8 +709,8 @@ static errr Term_text_gcu(int x, int y, int n, byte a, char *s)
 }
 
 
-/*
- * Create a window for the given "term_data" argument.
+/**
+ * Create a window for the given term_data argument.
  *
  * Assumes legal arguments.
  */
@@ -762,13 +769,13 @@ static void hook_quit(cptr str)
 }
 
 
-/*
- * Prepare "curses" for use by the file "z-term.c"
+/**
+ * Prepare "curses" for use by the file z-term.c
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
  *
- * Someone should really check the semantics of "initscr()"
+ * Someone should really check the semantics of initscr()
  */
 errr init_gcu(int argc, char **argv)
 {

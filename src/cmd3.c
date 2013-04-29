@@ -1,6 +1,7 @@
-/* File: cmd3.c */
+/** \file cmd3.c 
+    \brief Commands, part 3
 
-/* Inventory and equipment display and management interface, observing an 
+ * Inventory and equipment display and management interface, observing an 
  * object, inscribing, refuelling, (l)ooking around the screen and 
  * Looking around the dungeon, help info on textual chars ("8" is the home, 
  * etc.), monster memory interface, stealing and setting monster traps.
@@ -22,7 +23,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Display inventory - new - not quite ready
  */
 void do_cmd_inven_new(void)
@@ -96,7 +97,7 @@ void do_cmd_inven_new(void)
 
 
 
-/*
+/**
  * Display inventory
  */
 void do_cmd_inven(void)
@@ -158,7 +159,7 @@ void do_cmd_inven(void)
 }
 
 
-/*
+/**
  * Display equipment
  */
 void do_cmd_equip(void)
@@ -222,7 +223,7 @@ void do_cmd_equip(void)
 }
 
 
-/*
+/**
  * The "wearable" tester
  */
 static bool item_tester_hook_wear(object_type *o_ptr)
@@ -235,7 +236,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Wield or wear a single item from the pack or floor, if not shapechanged.
  */
 void do_cmd_wield(void)
@@ -637,7 +638,7 @@ void do_cmd_wield(void)
 
 
 
-/*
+/**
  * Take off an item, if not shapechanged.
  */
 void do_cmd_takeoff(void)
@@ -709,7 +710,7 @@ void do_cmd_takeoff(void)
 }
 
 
-/*
+/**
  * Drop an item
  */
 void do_cmd_drop(void)
@@ -796,7 +797,7 @@ void do_cmd_drop(void)
   inven_drop(item, amt);
 }
 
-/*
+/**
  * Destroy an item
  *
  * No longer takes a turn -BR-
@@ -991,7 +992,7 @@ void do_cmd_destroy(void)
 }
 
 
-/*
+/**
  * Display specialized object information.  -LM-
  *
  * Unidentified:
@@ -1057,7 +1058,7 @@ void do_cmd_observe(void)
 
 
 
-/*
+/**
  * Remove the inscription from an object
  * XXX Mention item (when done)?
  */
@@ -1118,7 +1119,7 @@ void do_cmd_uninscribe(void)
 }
 
 
-/*
+/**
  * Inscribe an object with a comment
  */
 void do_cmd_inscribe(void)
@@ -1194,7 +1195,7 @@ void do_cmd_inscribe(void)
 
 
 
-/*
+/**
  * An "item_tester_hook" for refilling lanterns
  */
 static bool item_tester_refill_lantern(object_type *o_ptr)
@@ -1214,7 +1215,7 @@ static bool item_tester_refill_lantern(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Refill the players lamp (from the pack or floor)
  */
 static void do_cmd_refill_lamp(void)
@@ -1312,7 +1313,7 @@ static void do_cmd_refill_lamp(void)
 
 
 
-/*
+/**
  * An "item_tester_hook" for refilling torches
  */
 static bool item_tester_refill_torch(object_type *o_ptr)
@@ -1326,7 +1327,7 @@ static bool item_tester_refill_torch(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Refuel the players torch (from the pack or floor)
  */
 static void do_cmd_refill_torch(void)
@@ -1418,7 +1419,7 @@ static void do_cmd_refill_torch(void)
 
 
 
-/*
+/**
  * Refill the players lamp, or restock his torches
  */
 void do_cmd_refill(void)
@@ -1458,7 +1459,7 @@ void do_cmd_refill(void)
 
 
 
-/*
+/**
  * Target command
  */
 void do_cmd_target(void)
@@ -1478,7 +1479,7 @@ void do_cmd_target(void)
 
 
 
-/*
+/**
  * Look command
  */
 void do_cmd_look(void)
@@ -1492,7 +1493,7 @@ void do_cmd_look(void)
 
 
 
-/*
+/**
  * Allow the player to examine other sectors on the map
  */
 void do_cmd_locate(void)
@@ -1591,7 +1592,7 @@ void do_cmd_locate(void)
 
 
 
-/*
+/**
  * The table of "symbol info" -- each entry is a string of the form
  * "X:desc" where "X" is the trigger, and "desc" is the "info".
  */
@@ -1697,7 +1698,7 @@ static cptr ident_info[] =
 
 
 
-/*
+/**
  * Sorting hook -- Comp function -- see below
  *
  * We use "u" to point to array of monster indexes,
@@ -1772,7 +1773,7 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 }
 
 
-/*
+/**
  * Sorting hook -- Swap function -- see below
  *
  * We use "u" to point to array of monster indexes,
@@ -1792,7 +1793,7 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 
 
-/*
+/**
  * Identify a character, allow recall of monsters
  *
  * Several "special" responses recall "mulitple" monsters:
@@ -2090,7 +2091,9 @@ void do_cmd_query_symbol(void)
 
 
 
-/* Hack -- possible victim outcry. -LM- */
+/**
+ * Hack -- possible victim outcry. -LM- 
+ */
 static cptr desc_victim_outcry[] =
 {
   "'My money, where's my money?'",
@@ -2117,7 +2120,7 @@ static cptr desc_victim_outcry[] =
 
 
 
-/*
+/**
  * Rogues may steal gold from monsters.  The monster needs to have 
  * something to steal (it must drop some form of loot), and should 
  * preferably be asleep.  Humanoids and dragons are a rogue's favorite
@@ -2304,7 +2307,7 @@ void py_steal(int y, int x)
 }
 
 
-/* 
+/**
  * Rogues may set traps.  Only one such trap may exist at any one time, 
  * but an old trap can be disarmed to free up equipment for a new trap.
  * -LM-
@@ -2398,7 +2401,9 @@ bool py_set_trap(int y, int x)
   return TRUE;
 }
 
-/* Trap coordinates */
+/**
+ * Trap coordinates 
+ */
 static int trap_y = 0;
 static int trap_x = 0;
 
@@ -2415,7 +2420,8 @@ static char *trap_type[] =
   "Stasis Trap      (freezes time for a monster)",
   "Drain Life Trap  (hurts living monsters)",
   "Unmagic Trap     (damages and reduces mana)",
-  "Dispelling Trap  (hurts all monsters in sight)"
+  "Dispelling Trap  (hurts all monsters in sight)",
+  "Genocide Trap    (removes nearby like monsters)" 
 };
 
 static char trap_tag(menu_type *menu, int oid)
@@ -2423,7 +2429,7 @@ static char trap_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the sval menu
  */
 void trap_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -2439,7 +2445,7 @@ void trap_display(menu_type *menu, int oid, bool cursor, int row,
   c_put_str(attr, format("%s", trap_type[idx]), row, col);
 }
 
-/*
+/**
  * Deal with events on the trap menu
  */
 bool trap_action(char cmd, void *db, int oid)
@@ -2453,7 +2459,7 @@ bool trap_action(char cmd, void *db, int oid)
 }
 
 
-/*
+/**
  * Display list of monster traps.
  */
 bool trap_menu(void)
@@ -2518,7 +2524,7 @@ bool trap_menu(void)
 }
 
 
-/* 
+/** 
  * Turn a basic monster trap into an advanced one -BR-
  */
 bool py_modify_trap(int y, int x)

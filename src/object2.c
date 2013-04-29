@@ -1,6 +1,7 @@
-/* File: object2.c */
+/** \file object2.c 
+    \brief Object generation and management
 
-/* Object stacks, compaction, generation, IDing, "trying", pricing, 
+ * Object stacks, compaction, generation, IDing, "trying", pricing, 
  * stacking.  Creating special artifacts, Adding charges to wands and 
  * staffs, bonuses to weapons and armour, powers and higher pvals to 
  * amulets and rings, fuel to lights, trap difficulty to chests, creating
@@ -26,7 +27,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Excise a dungeon object from any stacks
  */
 void excise_object_idx(int o_idx)
@@ -147,7 +148,7 @@ void excise_object_idx(int o_idx)
 }
 
 
-/*
+/**
  * Delete a dungeon object
  *
  * Handle "stacks" of objects correctly.
@@ -186,7 +187,7 @@ void delete_object_idx(int o_idx)
 }
 
 
-/*
+/**
  * Deletes all objects at given location
  */
 void delete_object(int y, int x)
@@ -228,7 +229,7 @@ void delete_object(int y, int x)
 
 
 
-/*
+/**
  * Move an object from index i1 to index i2 in the object list
  */
 static void compact_objects_aux(int i1, int i2)
@@ -306,7 +307,7 @@ static void compact_objects_aux(int i1, int i2)
 }
 
 
-/*
+/**
  * Compact and Reorder the object list
  *
  * This function can be very dangerous, use with caution!
@@ -462,7 +463,7 @@ void compact_objects(int size)
 }
 
 
-/*
+/**
  * Delete all the items when player leaves the level
  *
  * Note -- we do NOT visually reflect these (irrelevant) changes
@@ -528,7 +529,7 @@ void wipe_o_list(void)
 }
 
 
-/*
+/**
  * Acquires and returns the index of a "free" object.
  *
  * This routine should almost never fail, but in case it does,
@@ -583,7 +584,7 @@ s16b o_pop(void)
 }
 
 
-/*
+/**
  * Apply a "object restriction function" to the "object allocation table"
  */
 errr get_obj_num_prep(void)
@@ -617,7 +618,7 @@ errr get_obj_num_prep(void)
 
 
 
-/*
+/**
  * Choose an object kind that seems "appropriate" to the given level
  *
  * This function uses the "prob2" field of the "object allocation table",
@@ -762,7 +763,7 @@ s16b get_obj_num(int level)
 
 
 
-/*
+/**
  * Known is true when the "attributes" of an object are "known".
  * These include tohit, todam, toac, cost, and pval (charges, bonuses, etc.).
  *
@@ -803,7 +804,7 @@ void object_known(object_type *o_ptr)
 
 
 
-/*
+/**
  * The player is now aware of the effects of the given object.
  */
 void object_aware(object_type *o_ptr)
@@ -814,7 +815,7 @@ void object_aware(object_type *o_ptr)
 
 
 
-/*
+/**
  * Something has been "sampled"
  */
 void object_tried(object_type *o_ptr)
@@ -825,7 +826,7 @@ void object_tried(object_type *o_ptr)
 
 
 
-/*
+/**
  * Return the "value" of an "unknown" item
  * Make a guess at the value of non-aware items
  */
@@ -914,7 +915,7 @@ static s32b object_value_base(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Return the "real" price of a "known" item, not including discounts
  *
  * Wand and staffs get cost for each charge
@@ -1350,7 +1351,7 @@ static s32b object_value_real(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Distribute charges of rods or wands.
  *
  * o_ptr = source item
@@ -1403,7 +1404,7 @@ void reduce_charges(object_type *o_ptr, int amt)
     }
 }
 
-/*
+/**
  * Return the price of an item including plusses (and charges)
  *
  * This function returns the "value" of the given item (qty one)
@@ -1446,7 +1447,7 @@ s32b object_value(object_type *o_ptr)
 
 
 
-/*
+/**
  * Determine if an item can "absorb" a second item
  *
  * See "object_absorb()" for the actual "absorption" code.
@@ -1630,7 +1631,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 }
 
 
-/*
+/**
  * Allow one item to "absorb" another, assuming they are similar
  *
  * Handle new wands/rods -LM-
@@ -1687,7 +1688,7 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 
 
-/*
+/**
  * Find the index of the object_kind with the given tval and sval
  */
 s16b lookup_kind(int tval, int sval)
@@ -1711,7 +1712,7 @@ s16b lookup_kind(int tval, int sval)
 }
 
 
-/*
+/**
  * Wipe an object clean.
  */
 void object_wipe(object_type *o_ptr)
@@ -1721,7 +1722,7 @@ void object_wipe(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Prepare an object based on an existing object
  */
 void object_copy(object_type *o_ptr, object_type *j_ptr)
@@ -1731,7 +1732,7 @@ void object_copy(object_type *o_ptr, object_type *j_ptr)
 }
 
 
-/*
+/**
  * Prepare an object based on an object kind.
  */
 void object_prep(object_type *o_ptr, int k_idx)
@@ -1793,7 +1794,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 }
 
 
-/*
+/**
  * Help determine an "enchantment bonus" for an object.
  *
  * To avoid floating point but still provide a smooth distribution of bonuses,
@@ -1811,7 +1812,7 @@ void object_prep(object_type *o_ptr, int k_idx)
  * It is always possible (albeit unlikely) to get the "full" enchantment.
  *
  * A sample distribution of values from "m_bonus(10, N)" is shown below:
- *
+ *<pre>
  *   N	     0	   1	 2     3     4	   5	 6     7     8	   9	10
  * ---	  ----	----  ----  ----  ----	----  ----  ----  ----	----  ----
  *   0	 66.37 13.01  9.73  5.47  2.89	1.31  0.72  0.26  0.12	0.09  0.03
@@ -1831,8 +1832,9 @@ void object_prep(object_type *o_ptr, int k_idx)
  * 112	  0.15	0.20  0.56  0.87  2.00	3.83  6.86 10.06 17.89 27.31 30.27
  * 120	  0.03	0.11  0.31  0.46  1.31	2.48  4.60  7.78 11.67 25.53 45.72
  * 128	  0.02	0.01  0.13  0.33  0.83	1.41  3.24  6.17  9.57 14.22 64.07
+ </pre>
  */
-static s16b m_bonus(int max, int level)
+extern s16b m_bonus(int max, int level)
 {
   int bonus, stand, extra, value;
   
@@ -1879,7 +1881,7 @@ static s16b m_bonus(int max, int level)
 
 
 
-/*
+/**
  * Cheat -- describe a created object for the user
  */
 static void object_mention(object_type *o_ptr)
@@ -1911,7 +1913,7 @@ static void object_mention(object_type *o_ptr)
     }
 }
 
-/* 
+/**
  * Test an ego item for any negative qualities
  */
 bool good_ego(const ego_item_type *e_ptr)
@@ -1946,7 +1948,7 @@ bool good_ego(const ego_item_type *e_ptr)
   return TRUE;
 }
 
-/*
+/**
  * Attempt to change an object into an ego-item -MWK-
  * Better only called by apply_magic().
  * The return value says if we picked a cursed item (if allowed) and is
@@ -2060,7 +2062,7 @@ static int make_ego_item(object_type *o_ptr, int power)
 	   e_info[e_idx].flags_kind & KF_RAND_CURSE) ? -2 : 2);
 }
 
-/*
+/**
  * Mega-Hack -- Attempt to create one of the "Special Objects".
  *
  * This function now does not run down the list sequentially, which 
@@ -2136,7 +2138,7 @@ static bool make_artifact_special(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Attempt to change an object into an artifact
  *
  * This routine should only be called by "apply_magic()"
@@ -2195,7 +2197,7 @@ static bool make_artifact(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Apply magic to an item known to be a "weapon"
  *
  * Hack -- note special base damage dice boosting
@@ -2302,7 +2304,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 }
 
 
-/*
+/**
  * Apply magic to an item known to be "armor"
  *
  * Hack -- note special processing for crown/helm
@@ -2386,7 +2388,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 
 
-/*
+/**
  * Apply magic to miscellanious items
  *
  * Hack -- note the special code for various items
@@ -2453,7 +2455,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
     }
 }
 
-/*
+/**
  * Apply slightly randomised percentage resistances -NRM-
  * Also add element proofing flags where appropriate
  */
@@ -2592,7 +2594,7 @@ extern void apply_resistances(object_type *o_ptr, int lev, u32b flags)
     o_ptr->flags_obj |= OF_COLD_PROOF;
 }
 
-/*
+/**
  * Complete the "creation" of an object by applying "magic" to the item
  *
  * This includes not only rolling for random bonuses, but also putting the
@@ -3100,7 +3102,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 }
 
 
-/*
+/**
  * Hack -- determine if a template is the right kind of object. -LM-
  */
 static bool kind_is_right_kind(int k_idx)
@@ -3112,7 +3114,7 @@ static bool kind_is_right_kind(int k_idx)
   else return (FALSE);
 }
 
-/*
+/**
  * Hack -- determine if a template is "good".  This concept has been consider-
  * ably expanded in Oangband. -LM-
  */
@@ -3264,7 +3266,7 @@ static bool kind_is_good(int k_idx)
   return (FALSE);
 }
 
-/*
+/**
  * Attempt to make an object (normal, good/great, or with a specified tval)
  *
  * This routine plays nasty games to generate the "special artifacts".
@@ -3455,7 +3457,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 
 
 
-/*
+/**
  * Make a treasure object.  This function has been reworked in Oangband, 
  * but is still a bit of a hack.
  */
@@ -3514,7 +3516,7 @@ bool make_gold(object_type *j_ptr)
 
 
 
-/*
+/**
  * Let the floor carry an object
  */
 s16b floor_carry(int y, int x, object_type *j_ptr)
@@ -3593,7 +3595,7 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 }
 
 
-/*
+/**
  * Let an object fall to the ground at or near a location.
  *
  * The initial location is assumed to be "in_bounds_fully()".
@@ -3854,7 +3856,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 }
 
 
-/*
+/**
  * Scatter some "great" objects near the player
  */
 void acquirement(int y1, int x1, int num, bool great)
@@ -3881,7 +3883,7 @@ void acquirement(int y1, int x1, int num, bool great)
 }
 
 
-/*
+/**
  * Attempt to place an object (normal or good/great) at the given location.
  */
 void place_object(int y, int x, bool good, bool great, bool exact_kind)
@@ -3915,7 +3917,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
 }
 
 
-/*
+/**
  * Places a treasure (Gold or Gems) at given location
  */
 void place_gold(int y, int x)
@@ -3945,7 +3947,7 @@ void place_gold(int y, int x)
 
 
 
-/*
+/**
  * Hack -- instantiate a trap
  *
  * This function has been altered in Oangband to (in a hard-coded fashion) 
@@ -4145,7 +4147,7 @@ void pick_trap(int y, int x)
 
 
 
-/*
+/**
  * Places a random trap at the given location.
  *
  * The location must be a legal, naked, floor grid.
@@ -4194,7 +4196,7 @@ void place_trap(int y, int x)
   
 }
 
-/*
+/**
  * Place a secret door at the given location
  */
 void place_secret_door(int y, int x)
@@ -4204,7 +4206,7 @@ void place_secret_door(int y, int x)
 }
 
 
-/*
+/**
  * Place an unlocked door at the given location
  */
 void place_unlocked_door(int y, int x)
@@ -4214,7 +4216,7 @@ void place_unlocked_door(int y, int x)
 }
 
 
-/*
+/**
  * Place a random type of closed door at the given location.
  */
 void place_closed_door(int y, int x)
@@ -4247,7 +4249,7 @@ void place_closed_door(int y, int x)
 }
 
 
-/*
+/**
  * Place a random type of door at the given location.
  */
 void place_random_door(int y, int x)
@@ -4286,7 +4288,7 @@ void place_random_door(int y, int x)
     }
 }
 
-/*
+/**
  * Describe the charges on an item in the inventory.
  */
 void inven_item_charges(int item)
@@ -4315,7 +4317,7 @@ void inven_item_charges(int item)
 }
 
 
-/*
+/**
  * Describe an item in the inventory.
  */
 void inven_item_describe(int item)
@@ -4345,7 +4347,7 @@ void inven_item_describe(int item)
 }
 
 
-/*
+/**
  * Increase the "number" of an item in the inventory
  */
 void inven_item_increase(int item, int num)
@@ -4386,7 +4388,7 @@ void inven_item_increase(int item, int num)
 }
 
 
-/*
+/**
  * Erase an inventory slot if it has no more items
  */
 void inven_item_optimize(int item)
@@ -4445,7 +4447,7 @@ void inven_item_optimize(int item)
 }
 
 
-/*
+/**
  * Describe the charges on an item on the floor.
  */
 void floor_item_charges(int item)
@@ -4475,7 +4477,7 @@ void floor_item_charges(int item)
 
 
 
-/*
+/**
  * Describe an item in the inventory.
  */
 void floor_item_describe(int item)
@@ -4492,7 +4494,7 @@ void floor_item_describe(int item)
 }
 
 
-/*
+/**
  * Increase the "number" of an item on the floor
  */
 void floor_item_increase(int item, int num)
@@ -4514,7 +4516,7 @@ void floor_item_increase(int item, int num)
 }
 
 
-/*
+/**
  * Optimize an item on the floor (destroy "empty" items)
  */
 void floor_item_optimize(int item)
@@ -4535,7 +4537,7 @@ void floor_item_optimize(int item)
 
 
 
-/*
+/**
  * Check if we have space for an item in the pack without overflow
  */
 bool inven_carry_okay(object_type *o_ptr)
@@ -4562,7 +4564,7 @@ bool inven_carry_okay(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Add an item to the player's inventory, and return the slot used.
  *
  * If the new item can combine with an existing item in the inventory,
@@ -4738,7 +4740,7 @@ s16b inven_carry(object_type *o_ptr)
 
 
 
-/*
+/**
  * Take off (some of) a non-cursed equipment item
  *
  * Note that only one item at a time can be wielded per slot.
@@ -4849,7 +4851,7 @@ s16b inven_takeoff(int item, int amt)
 
 
 
-/*
+/**
  * Drop (some of) a non-cursed inventory/equipment item
  *
  * The object will be dropped "near" the current location
@@ -4917,7 +4919,7 @@ void inven_drop(int item, int amt)
 
 
 
-/*
+/**
  * Combine items in the pack
  *
  * Note special handling of the "overflow" slot
@@ -4986,7 +4988,7 @@ void combine_pack(void)
 }
 
 
-/*
+/**
  * Reorder items in the pack.
  *
  * Note special handling of the "overflow" slot
@@ -5093,7 +5095,7 @@ void reorder_pack(void)
 
 
 
-/*
+/**
  * Copy of "get_tag" (in object1.c) that looks only at the given 
  * inventory slot, and accepts any letter between '@' and the number.
  * Stores the number found.
@@ -5135,7 +5137,7 @@ static bool get_tag_num(int i, int *tag_num)
   return (FALSE);
 }
 
-/*
+/**
  * Count number of missiles in the quiver slots.
  */
 int quiver_count(void)
@@ -5165,7 +5167,7 @@ int quiver_count(void)
 }
 
 
-/*
+/**
  * Calculate and apply the reduction in pack size due to use of the
  * Quiver.
  */
@@ -5178,7 +5180,7 @@ void find_quiver_size(void)
     (ammo_num + MAX_STACK_SIZE - 2) / (MAX_STACK_SIZE - 1);
 }
 
-/*
+/**
  * Update (combine and sort ammo in) the quiver.  If requested, find 
  * the right slot to put new ammo in, make it available, and return it.
  *
@@ -5206,12 +5208,6 @@ int process_quiver(int num_new, object_type *o_ptr)
   bool track = FALSE;
   
   bool temp_slot=FALSE;
-  
-  bool untouchable[1 + INVEN_Q9 - INVEN_Q0];
-  
-  /* All slots start out being alterable. */
-  for (i = 0; i < 1 + INVEN_Q9 - INVEN_Q0; i++) 
-    untouchable[i] = FALSE;
   
   /* Combine the quiver (backwards) */
   for (i = INVEN_Q9; i > INVEN_Q0; i--)
@@ -5307,65 +5303,12 @@ int process_quiver(int num_new, object_type *o_ptr)
       /* Skip empty slots */
       if (!i_ptr->k_idx) continue;
       
-      /*
-       * put items inscribed "@#" into the quiver corresponding 
-       * to their number.
-       */
-      /* Get the inscription of the item. */
-      if ((get_tag_num(i, &tag_num)) && (tag_num != i - INVEN_Q0))
-	{
-	  /* Save tag number of this object */
-	  int tag_num1 = tag_num;
-	  
-	  /* Get local object */
-	  j_ptr = &object_type_body;
-	  
-	  /* Save a copy of the moving item */
-	  object_copy(j_ptr, &inventory[i]);
-	  
-	  /* Move the item in the destination slot to the original location. */
-	  object_copy(&inventory[i], &inventory[INVEN_Q0 + tag_num]);
-	  
-	  /* Put the tagged item where it wants to go. */
-	  object_copy(&inventory[INVEN_Q0 + tag_num], j_ptr);
-	  
-	  /* XXX -- Delete any duplicate tags. */
-	  if ((get_tag_num(i, &tag_num)) && (tag_num == tag_num1))
-	    {
-	      j_ptr = &inventory[i];
-	      j_ptr->note = 0;
-	    }
-	  
-	  /* Mark the destination slot as being untouchable. */
-	  untouchable[tag_num] = TRUE;
-	  
-	  /* Keep track of 'new' item */
-	  if (slot == i) slot = INVEN_Q0 + tag_num;
-	  else if (slot == INVEN_Q0 + tag_num) slot = i;
-	  
-	  /* Go to next slot. */
-	  continue;
-	}
-      
-      /* Leave items with inscriptions that match their slots alone. */
-      if ((get_tag_num(i, &tag_num)) && (tag_num == i - INVEN_Q0))
-	{
-	  /* Mark this slot as being untouchable */
-	  untouchable[i - INVEN_Q0] = TRUE;
-	  
-	  /* Go to next slot. */
-	  continue;
-	}
-      
       /* Get the "value" of the item */
       i_value = object_value(i_ptr);
       
       /* Scan every occupied slot */
       for (j = INVEN_Q0; j <= INVEN_Q9; j++)
 	{
-	  /* Skip untouchable slots. */
-	  if (untouchable[j - INVEN_Q0]) continue;
-	  
 	  /* Get the item already there */
 	  j_ptr = &inventory[j];
 	  
@@ -5418,21 +5361,14 @@ int process_quiver(int num_new, object_type *o_ptr)
       /* Slide the objects */
       for (k = i; k > j;)
 	{
-	  /* Do not alter untouchable slots. */
-	  for (num = 1; num < 11;)
-	    {
-	      if (untouchable[k - num - INVEN_Q0]) num++;
-	      else break;
-	    }
-	  
 	  /* Slide the item */
-	  object_copy(&inventory[k], &inventory[k-num]);
+	  object_copy(&inventory[k], &inventory[k - 1]);
 	  
 	  /* Keep track of 'new' item */
-	  if ((slot == k-num) && (!track)) slot = k;
+	  if ((slot == k - 1) && (!track)) slot = k;
 	  
 	  /* Move down to the next alterable slot. */
-	  k -= num;
+	  k -= 1;
 	}
       
       /* Helper for tracking 'new' ammo */
@@ -5461,7 +5397,7 @@ int process_quiver(int num_new, object_type *o_ptr)
 
 
 
-/*
+/**
  * Hack -- display an object kind in the current window
  *
  * Include list of usable spells for readable books
@@ -5515,7 +5451,7 @@ void display_koff(int k_idx)
     }
 }
 
-/*** Object kind lookup functions ***/
+/* Object kind lookup functions */
 
 /**
  * Find the tval and sval of object kind `k_idx`, and return via the pointers
@@ -5539,7 +5475,7 @@ bool lookup_reverse(s16b k_idx, int *tval, int *sval)
 }
 
 
-/*** Textual<->numeric conversion ***/
+/*** Textual<->numeric conversion */
 
 /**
  * List of { tval, name } pairs.
@@ -5738,7 +5674,7 @@ static int compare_items(object_type *o1, object_type *o2)
   return compare_types(o1, o2);
 }
 
-/*
+/**
  * Display visible items, similar to display_monlist
  */
 void display_itemlist(void)
@@ -5761,9 +5697,6 @@ void display_itemlist(void)
   char buf[80];
   
   int floor_list[MAX_FLOOR_STACK];
-  
-  /* Set major town flag if necessary */
-  //if ((p_ptr->depth == 0) && (p_ptr->stage < 151)) dungeon_wid /= 2;
   
   /* Clear the term if in a subwindow, set x otherwise */
   if (Term != angband_term[0])

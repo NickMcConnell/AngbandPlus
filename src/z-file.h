@@ -1,3 +1,7 @@
+/** \file z-file.h
+    \brief Low-level file handling include
+*/
+
 #ifndef INCLUDED_Z_FILE_H
 #define INCLUDED_Z_FILE_H
 

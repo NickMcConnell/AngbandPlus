@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.1.2
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -4393,7 +4393,7 @@ A:70/2
 P:0:0d0:0:0:0:0
 F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF | 
 F:EASY_KNOW
-D:A spellbook for powerful Mages.
+D:A spellbook for powerful Mages and Rogues.
 
 N:657:[Power and Destruction]
 G:?:r
@@ -4403,7 +4403,7 @@ A:85/2
 P:0:0d0:0:0:0:0
 F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF | 
 F:EASY_KNOW
-D:A spellbook of destructive power for Mages and Rogues.
+D:A spellbook of destructive power for Mages.
 
 N:658:[Book of Runes]
 G:?:r

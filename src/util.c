@@ -1,6 +1,6 @@
-/* File: util.c */
+/** \file util.c 
+    \brief Utility function file
 
-/*
  * Copyright (c) 2009 Nick McConnell, Andi Sidwell, 
  * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
@@ -24,7 +24,7 @@
 
 
 
-/*
+/**
  * Convert a decimal to a single digit hex number
  */
 static char hexify(int i)
@@ -32,7 +32,7 @@ static char hexify(int i)
 	return (hexsym[i % 16]);
 }
 
-/*
+/**
  * Convert a hexidecimal-digit into a decimal
  */
 static int dehex(char c)
@@ -43,7 +43,7 @@ static int dehex(char c)
 }
 
 
-/*
+/**
  * Transform macro trigger name ('\[alt-D]' etc..)
  * into macro trigger key code ('^_O_64\r' or etc..)
  */
@@ -176,7 +176,7 @@ static size_t trigger_text_to_ascii(char *buf, size_t max, cptr *strptr)
 }
 
 
-/*
+/**
  * Hack -- convert a printable string into real ascii
  *
  * This function will not work on non-ascii systems.
@@ -286,7 +286,7 @@ void text_to_ascii(char *buf, size_t len, cptr str)
 }
 
 
-/*
+/**
  * Transform macro trigger key code ('^_O_64\r' or etc..) 
  * into macro trigger name ('\[alt-D]' etc..)
  */
@@ -367,7 +367,7 @@ static size_t trigger_ascii_to_text(char *buf, size_t max, cptr *strptr)
 }
 
 
-/*
+/**
  * Hack -- convert a string into a printable form
  *
  * This function will not work on non-ascii systems.
@@ -473,7 +473,7 @@ void ascii_to_text(char *buf, size_t len, cptr str)
 
 
 
-/*
+/**
  * The "macro" package
  *
  * Functions are provided to manipulate a collection of macros, each
@@ -483,13 +483,13 @@ void ascii_to_text(char *buf, size_t len, cptr str)
 
 
 
-/*
+/**
  * Determine if any macros have ever started with a given character.
  */
 static bool macro__use[256];
 
 
-/*
+/**
  * Find the macro (if any) which exactly matches the given pattern
  */
 int macro_find_exact(cptr pat)
@@ -512,7 +512,7 @@ int macro_find_exact(cptr pat)
 }
 
 
-/*
+/**
  * Find the first macro (if any) which contains the given pattern
  */
 static int macro_find_check(cptr pat)
@@ -535,7 +535,7 @@ static int macro_find_check(cptr pat)
 }
 
 
-/*
+/**
  * Find the first macro (if any) which contains the given pattern and more
  */
 static int macro_find_maybe(cptr pat)
@@ -559,7 +559,7 @@ static int macro_find_maybe(cptr pat)
 
 
 
-/*
+/**
  * Find the longest macro (if any) which starts with the given pattern
  */
 static int macro_find_ready(cptr pat)
@@ -592,7 +592,7 @@ static int macro_find_ready(cptr pat)
 }
 
 
-/*
+/**
  * Add a macro definition (or redefinition).
  *
  * We should use "act == NULL" to "remove" a macro, but this might make it
@@ -645,7 +645,7 @@ errr macro_add(cptr pat, cptr act)
 
 
 
-/*
+/**
  * Initialize the "macro" package
  */
 errr macro_init(void)
@@ -661,7 +661,7 @@ errr macro_init(void)
 }
 
 
-/*
+/**
  * Free the macro package
  */
 errr macro_free(void)
@@ -694,7 +694,7 @@ errr macro_free(void)
 }
 
 
-/*
+/**
  * Free the macro trigger package
  */
 errr macro_trigger_free(void)
@@ -736,7 +736,7 @@ errr macro_trigger_free(void)
 }
 
 
-/*
+/**
  * Flush all pending input.
  *
  * Actually, remember the flush, using the "inkey_xtra" flag, and in the
@@ -750,7 +750,7 @@ void flush(void)
 }
 
 
-/*
+/**
  * Flush all pending input if the flush_failure option is set.
  */
 void flush_fail(void)
@@ -759,7 +759,7 @@ void flush_fail(void)
 }
 
 
-/*
+/**
  * Local variable -- we are inside a "macro action"
  *
  * Do not match any macros until "ascii 30" is found.
@@ -767,14 +767,14 @@ void flush_fail(void)
 static bool parse_macro = FALSE;
 
 
-/*
+/**
  * Local variable -- we are inside a "macro trigger"
  *
  * Strip all keypresses until a low ascii value is found.
  */
 static bool parse_under = FALSE;
 
-/*
+/**
  * The mousebutton code. Buttons should be created when neccessary and 
  * destroyed when no longer necessary.  By default, buttons occupy the section
  * of the bottom line between the status display and the location display
@@ -785,7 +785,7 @@ static bool parse_under = FALSE;
  * add_button_gui and kill_button_gui.
  */
 
-/*
+/**
  * Add a button 
  */
 int add_button_text(char *label, unsigned char keypress)
@@ -828,7 +828,7 @@ int add_button_text(char *label, unsigned char keypress)
   return (length);
 }
 
-/*
+/**
  * Add a button 
  */
 int add_button(char *label, unsigned char keypress)
@@ -837,7 +837,7 @@ int add_button(char *label, unsigned char keypress)
   else return (*add_button_hook)(label, keypress);
 }
 
-/* 
+/**
  * Make a backup of thr current buttons
  */
 void backup_buttons_text(void)
@@ -855,7 +855,7 @@ void backup_buttons(void)
   (*backup_buttons_hook)();
 }
 
-/* 
+/**
  * Restore the buttons from backup
  */
 void restore_buttons_text(void)
@@ -882,7 +882,7 @@ void restore_buttons(void)
 }
    
 
-/* 
+/**
  * Remove a button
  */
 int kill_button_text(unsigned char keypress)
@@ -928,7 +928,7 @@ int kill_button_text(unsigned char keypress)
   return (length);
 }
 
-/*
+/**
  * Kill a button 
  */
 int kill_button(unsigned char keypress)
@@ -937,7 +937,7 @@ int kill_button(unsigned char keypress)
   else return (*kill_button_hook)(keypress);
 }
 
-/*
+/**
  * Kill all buttons (use sparingly!) 
  */
 void kill_all_buttons_text(void)
@@ -958,7 +958,7 @@ void kill_all_buttons(void)
   (*kill_all_buttons_hook)();
 }
 
-/*
+/**
  * Helper function called only from "inkey()"
  *
  * This function does almost all of the "macro" processing.
@@ -1146,7 +1146,7 @@ static event_type inkey_aux(int scan_cutoff)
 
 
 
-/*
+/**
  * Mega-Hack -- special "inkey_next" pointer.  XXX XXX XXX
  *
  * This special pointer allows a sequence of keys to be "inserted" into
@@ -1159,7 +1159,7 @@ static cptr inkey_next = NULL;
 
 #ifdef ALLOW_BORG
 
-/*
+/**
  * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
  *
  * This special function hook allows the "Borg" (see elsewhere) to take
@@ -1170,7 +1170,7 @@ char (*inkey_hack)(int flush_first) = NULL;
 #endif /* ALLOW_BORG */
 
 
-/*
+/**
  * Get a keypress from the user.
  *
  * This function recognizes a few "global parameters".  These are variables
@@ -1494,7 +1494,7 @@ event_type inkey_ex(void)
 }
 
 
-/*
+/**
  * Get a keypress or mouse click from the user.
  */
 char anykey(void)
@@ -1510,7 +1510,7 @@ char anykey(void)
   return ke.key;
 }
 
-/*
+/**
  * Get a "keypress" from the user.
  */
 char inkey(void)
@@ -1530,13 +1530,13 @@ char inkey(void)
 
 
 
-/*
+/**
  * We are delaying message display
  */
 static bool must_more = FALSE;
 
 
-/*
+/**
  * Flush the screen, make a noise
  */
 void bell(cptr reason)
@@ -1565,7 +1565,7 @@ void bell(cptr reason)
 
 
 
-/*
+/**
  * Hack -- Make a (relevant?) sound
  */
 void sound(int val)
@@ -1603,19 +1603,19 @@ void sound(int val)
  */
 
 
-/*
+/**
  * The number of quarks (first quark is NULL)
  */
 static s16b quark__num = 1;
 
 
-/*
+/**
  * The array[QUARK_MAX] of pointers to the quarks
  */
 static char **quark__str;
 
 
-/*
+/**
  * Add a new "quark" to the set of quarks.
  */
 s16b quark_add(cptr str)
@@ -1643,7 +1643,7 @@ s16b quark_add(cptr str)
 }
 
 
-/*
+/**
  * This function looks up a quark
  */
 char *quark_str(s16b i)
@@ -1661,7 +1661,7 @@ char *quark_str(s16b i)
 }
 
 
-/*
+/**
  * Initialize the "quark" package
  */
 errr quarks_init(void)
@@ -1674,7 +1674,7 @@ errr quarks_init(void)
 }
 
 
-/*
+/**
  * Free the "quark" package
  */
 errr quarks_free(void)
@@ -1736,59 +1736,59 @@ errr quarks_free(void)
  */
 
 
-/*
+/**
  * The next "free" index to use
  */
 static u16b message__next;
 
-/*
+/**
  * The index of the oldest message (none yet)
  */
 static u16b message__last;
 
-/*
+/**
  * The next "free" offset
  */
 static u16b message__head;
 
-/*
+/**
  * The offset to the oldest used char (none yet)
  */
 static u16b message__tail;
 
-/*
+/**
  * The next message to display for the easy_more code (none yet)
  */
 static u16b message__easy;
 
-/*
+/**
  * The array[MESSAGE_MAX] of offsets, by index
  */
 static u16b *message__ptr;
 
-/*
+/**
  * The array[MESSAGE_BUF] of chars, by offset
  */
 static char *message__buf;
 
-/*
+/**
  * The array[MESSAGE_MAX] of u16b for the types of messages
  */
 static u16b *message__type;
 
-/*
+/**
  * The array[MESSAGE_MAX] of u16b for the count of messages
  */
 static u16b *message__count;
 
 
-/*
+/**
  * Table of colors associated to message-types
  */
 static byte message__color[MSG_MAX];
 
 
-/*
+/**
  * Calculate the index of a message
  */
 static s16b message_age2idx(int age)
@@ -1797,7 +1797,7 @@ static s16b message_age2idx(int age)
 }
 
 
-/*
+/**
  * How many messages are "available"?
  */
 s16b message_num(void)
@@ -1808,7 +1808,7 @@ s16b message_num(void)
 
 
 
-/*
+/**
  * Recall the "text" of a saved message
  */
 cptr message_str(s16b age)
@@ -1842,7 +1842,7 @@ cptr message_str(s16b age)
 }
 
 
-/*
+/**
  * Recall the "type" of a saved message
  */
 u16b message_type(s16b age)
@@ -1863,7 +1863,7 @@ u16b message_type(s16b age)
 }
 
 
-/*
+/**
  * Recall the "color" of a message type
  */
 static byte message_type_color(u16b type)
@@ -1876,7 +1876,7 @@ static byte message_type_color(u16b type)
 }
 
 
-/*
+/**
  * Recall the "color" of a saved message
  */
 byte message_color(s16b age)
@@ -1898,7 +1898,7 @@ errr message_color_define(u16b type, byte color)
 }
 
 
-/*
+/**
  * Add a new message, with great efficiency
  *
  * We must ignore long messages to prevent internal overflow, since we
@@ -2144,7 +2144,7 @@ void message_add(cptr str, u16b type)
 }
 
 
-/*
+/**
  * This displays all the messages on the screen, trying to
  * minimise the amount of times the -more- key has to be
  * pressed, by using all the available screen space.
@@ -2380,7 +2380,7 @@ void messages_easy(bool command)
 }
 
 
-/*
+/**
  * Initialize the "message" package
  */
 errr messages_init(void)
@@ -2405,7 +2405,7 @@ errr messages_init(void)
 }
 
 
-/*
+/**
  * Free the "message" package
  */
 void messages_free(void)
@@ -2464,7 +2464,7 @@ void messages_free(void)
  */
 
 
-/*
+/**
  * Looks if "inscrip" is present on the given object.
  */
 bool check_for_inscrip(const object_type *o_ptr, const char *inscrip)
@@ -2480,7 +2480,7 @@ bool check_for_inscrip(const object_type *o_ptr, const char *inscrip)
 
 
 
-/*
+/**
  * Hack -- flush
  */
 static void msg_flush(int x)
@@ -2516,7 +2516,7 @@ static void msg_flush(int x)
 static int message_column = 0;
 
 
-/*
+/**
  * Output a message to the top line of the screen.
  *
  * Break long messages into multiple pieces (40-72 chars).
@@ -2680,7 +2680,7 @@ static void msg_print_aux(u16b type, cptr msg)
 }
 
 
-/*
+/**
  * Print a message in the default color (white)
  */
 void msg_print(cptr msg)
@@ -2689,7 +2689,7 @@ void msg_print(cptr msg)
 }
 
 
-/*
+/**
  * Display a formatted message, using "vstrnfmt()" and "msg_print()".
  */
 void msg_format(cptr fmt, ...)
@@ -2712,7 +2712,7 @@ void msg_format(cptr fmt, ...)
 }
 
 
-/*
+/**
  * Display a message and play the associated sound.
  *
  * The "extra" parameter is currently unused.
@@ -2729,7 +2729,7 @@ void message(u16b message_type, s16b extra, cptr message)
 
 
 
-/*
+/**
  * Display a formatted message and play the associated sound.
  *
  * The "extra" parameter is currently unused.
@@ -2754,7 +2754,7 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
 }
 
 
-/*
+/**
  * Print the queued messages.
  */
 void message_flush(void)
@@ -2778,7 +2778,7 @@ void message_flush(void)
 
 
 
-/*
+/**
  * Save the screen, and increase the "icky" depth.
  *
  * This function must match exactly one call to "screen_load()".
@@ -2796,7 +2796,7 @@ void screen_save(void)
 }
 
 
-/*
+/**
  * Load the screen, and decrease the "icky" depth.
  *
  * This function must match exactly one call to "screen_save()".
@@ -2814,7 +2814,7 @@ void screen_load(void)
 }
 
 
-/*
+/**
  * Display a string on the screen using an attribute.
  *
  * At the given location, using the given attribute, if allowed,
@@ -2835,7 +2835,7 @@ void c_put_str(byte attr, cptr str, int row, int col)
 }
 
 
-/*
+/**
  * As above, but in "white"
  */
 void put_str(cptr str, int row, int col)
@@ -2846,7 +2846,7 @@ void put_str(cptr str, int row, int col)
 
 
 
-/*
+/**
  * As above, but centered horizontally
  */
 void put_str_center(cptr str, int row)
@@ -2858,7 +2858,7 @@ void put_str_center(cptr str, int row)
 }
 
 
-/*
+/**
  * Display a string on the screen using an attribute, and clear
  * to the end of the line.
  */
@@ -2880,7 +2880,7 @@ void c_prt(byte attr, cptr str, int row, int col)
 }
 
 
-/*
+/**
  * As above, but in "white"
  */
 void prt(cptr str, int row, int col)
@@ -2890,7 +2890,7 @@ void prt(cptr str, int row, int col)
 }
 
 
-/*
+/**
  * As above, but in "white"
  */
 void prt_center(cptr str, int row)
@@ -2903,7 +2903,7 @@ void prt_center(cptr str, int row)
 }
 
 
-/*
+/**
  * Print some (colored) text to the screen at the current cursor position,
  * automatically "wrapping" existing text (at spaces) when necessary to
  * avoid placing any text into the last column, and clearing every line
@@ -3022,7 +3022,7 @@ void text_out_to_screen(byte a, char *str)
 }
 
 
-/*
+/**
  * Write text to the given file and apply line-wrapping.
  *
  * Hook function for text_out(). Make sure that text_out_file points
@@ -3175,7 +3175,7 @@ void text_out_to_file(byte a, char *str)
 }
 
 
-/*
+/**
  * Output text to the screen or to a file depending on the selected
  * text_out hook.
  */
@@ -3185,7 +3185,7 @@ void text_out(char *str)
 }
 
 
-/*
+/**
  * Output text to the screen (in color) or to a file depending on the
  * selected hook.
  */
@@ -3195,7 +3195,7 @@ void text_out_c(byte a, char *str)
 }
 
 
-/*
+/**
  * Clear part of the screen
  */
 void clear_from(int row)
@@ -3210,13 +3210,13 @@ void clear_from(int row)
         }
 }
 
-/*
+/**
  * New (as of FA0.3.0) info printing functions, designed for use in character 
  * dumps and screens.  Basic data structure is an array of the new char_attr 
  * type.  
  */
 
-/*
+/**
  * Put a coloured string at a location in the char_attr line dump_ptr
  */
 void dump_put_str(byte attr, const char *str, int col)
@@ -3263,7 +3263,7 @@ void dump_put_str(byte attr, const char *str, int col)
   dump_ptr[i].pchar = '\0';
 }
 
-/*
+/**
  * Print long number with header at given column
  * Use the color for the number, not the header
  */
@@ -3277,7 +3277,7 @@ void dump_lnum(char *header, s32b num, int col, byte color)
   dump_put_str(color, out_val, col + len);
 }
 
-/*
+/**
  * Print number with header at given row, column
  */
 void dump_num(char *header, int num, int col, byte color)
@@ -3289,7 +3289,7 @@ void dump_num(char *header, int num, int col, byte color)
   dump_put_str(color, out_val, col + len);
 }
 
-/*
+/**
  * Print decimal number with header at given row, column
  */
 void dump_deci(char *header, int num, int deci, int col, byte color)
@@ -3306,7 +3306,7 @@ void dump_deci(char *header, int num, int deci, int col, byte color)
 }
 
 
-/* 
+/**
  * Hook function - dump a char_attr line to a file 
  */
 void dump_line_file(char_attr *this_line)
@@ -3341,7 +3341,7 @@ void dump_line_file(char_attr *this_line)
   file_put(dump_out_file, buf);
 }
 
-/* 
+/**
  * Hook function - dump a char_attr line to the screen 
  */
 void dump_line_screen(char_attr *this_line)
@@ -3366,7 +3366,7 @@ void dump_line_screen(char_attr *this_line)
   dump_row++;
 }
 
-/* 
+/**
  * Hook function - dump a char_attr line to a memory location
  */
 void dump_line_mem(char_attr *this_line)
@@ -3374,7 +3374,9 @@ void dump_line_mem(char_attr *this_line)
   dump_ptr = this_line;
 }
 
-/* Dump a char_attr line */
+/**
+ * Dump a char_attr line 
+ */
 void dump_line(char_attr *this_line)
 {
   dump_line_hook(this_line);
@@ -3382,7 +3384,7 @@ void dump_line(char_attr *this_line)
 
 
 
-/*
+/**
  * The default "keypress handling function" for askfor_aux, this takes the
  * given keypress, input buffer, length, etc, and does the appropriate action
  * for each keypress, such as moving the cursor left or inserting a character.
@@ -3503,7 +3505,7 @@ bool askfor_aux_keypress(char *buf, size_t buflen, size_t *curs, size_t *len,
 }
 
 
-/*
+/**
  * Get some input at the cursor location.
  *
  * The buffer is assumed to have been initialized to a default string.
@@ -3590,7 +3592,7 @@ bool askfor_aux(char *buf, size_t len,
   return (ke.key != ESCAPE);
 }
 
-/*
+/**
  * A "keypress" handling function for askfor_aux, that handles the special
  * case of '*' for a new random "name" and passes any other "keypress"
  * through to the default "editing" handler.
@@ -3624,7 +3626,7 @@ bool get_name_keypress(char *buf, size_t buflen, size_t *curs, size_t *len,
 }
 
 
-/*
+/**
  * Gets a name for the character, reacting to name changes.
  *
  * If sf is TRUE, we change the savefile name depending on the character name.
@@ -3680,7 +3682,7 @@ bool get_name(bool sf)
   return res;
 }
 
-/*
+/**
  * Prompt for a number from a user.
  * + will increase the current amount, - will decrease (with wrapping).
  * * will select the maximum amount.
@@ -3868,7 +3870,7 @@ bool get_num(char *prompt, int max, int amt)
 }
   
 
-/*
+/**
  * Prompt for a string from the user.
  *
  * The "prompt" should take the form "Prompt: ".
@@ -3901,7 +3903,7 @@ bool get_string(cptr prompt, char *buf, size_t len)
 
 
 
-/*
+/**
  * Request a "quantity" from the user
  *
  * Allow "p_ptr->command_arg" to specify a quantity
@@ -3946,7 +3948,7 @@ s16b get_quantity(cptr prompt, int max)
   return (amt);
 }
 
-/*
+/**
  * Hack - duplication of get_check prompt to give option of setting destroyed
  * option to squelch.
  *
@@ -4038,7 +4040,7 @@ int get_check_other(cptr prompt, char other)
 }
 
 
-/*
+/**
  * Verify something with the user
  *
  * The "prompt" should take the form "Query? "
@@ -4112,7 +4114,7 @@ bool get_check(cptr prompt)
 }
 
 
-/*
+/**
  * Prompts for a keypress
  *
  * The "prompt" should take the form "Command: "
@@ -4154,7 +4156,7 @@ bool get_com_ex(cptr prompt, event_type *command)
 }
 
 
-/*
+/**
  * Pause for user response
  *
  * This function is stupid.  XXX XXX XXX
@@ -4172,13 +4174,13 @@ void pause_line(int row)
 
 
 
-/*
+/**
  * Hack -- special buffer to hold the action of the current keymap
  */
 static char request_command_buffer[256];
 
 
-/*
+/**
  * Request a command from the user.
  *
  * Sets p_ptr->command_cmd, p_ptr->command_dir, p_ptr->command_rep,
@@ -4488,7 +4490,7 @@ void request_command(void)
 
 
 
-/*
+/**
  * Generates damage for "2d6" style dice rolls
  */
 int damroll(int num, int sides)
@@ -4509,7 +4511,7 @@ int damroll(int num, int sides)
 }
 
 
-/*
+/**
  * Same as above, but always maximal
  */
 int maxroll(int num, int sides)
@@ -4519,7 +4521,7 @@ int maxroll(int num, int sides)
 
 
 
-/*
+/**
  * Check a char for "vowel-hood"
  */
 bool is_a_vowel(int ch)
@@ -4543,7 +4545,7 @@ bool is_a_vowel(int ch)
 }
 
 
-/*
+/**
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
  */
@@ -4579,7 +4581,7 @@ extern int color_char_to_attr(char c)
 
 #if 0
 
-/*
+/**
  * Replace the first instance of "target" in "buf" with "insert"
  * If "insert" is NULL, just remove the first instance of "target"
  * In either case, return TRUE if "target" is found.
@@ -4637,17 +4639,23 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 
 #define REPEAT_MAX 20
 
-/* Number of chars saved */
+/**
+ * Number of chars saved 
+ */
 static int repeat__cnt = 0;
 
-/* Current index */
+/**
+ * Current index 
+ */
 static int repeat__idx = 0;
 
-/* Saved "stuff" */
+/**
+ * Saved "stuff" 
+ */
 static int repeat__key[REPEAT_MAX];
 
 
-/*
+/**
  * Push data.
  */
 void repeat_push(int what)
@@ -4663,7 +4671,7 @@ void repeat_push(int what)
 }
 
 
-/*
+/**
  * Pull data.
  */
 bool repeat_pull(int *what)
@@ -4693,7 +4701,7 @@ void repeat_clear(void)
 }
 
 
-/*
+/**
  * Repeat previous command, or begin memorizing new command.
  */
 void repeat_check(void)
@@ -4738,10 +4746,14 @@ void repeat_check(void)
 
 #ifdef SUPPORT_GAMMA
 
-/* Table of gamma values */
+/**
+ * Table of gamma values 
+ */
 byte gamma_table[256];
 
-/* Table of ln(x / 256) * 256 for x going from 0 -> 255 */
+/**
+ * Table of ln(x / 256) * 256 for x going from 0 -> 255 
+ */
 static const s16b gamma_helper[256] =
 {
 	0, -1420, -1242, -1138, -1065, -1007, -961, -921, -887, -857, -830,
@@ -4769,7 +4781,7 @@ static const s16b gamma_helper[256] =
 };
 
 
-/*
+/**
  * Build the gamma table so that floating point isn't needed.
  *
  * Note gamma goes from 0->256.  The old value of 100 is now 128.
@@ -4837,7 +4849,7 @@ void build_gamma_table(int gamma)
 
 #endif /* SUPPORT_GAMMA */
 
-/*
+/**
  * Deal with pre-selected items from the item menu
  */
 int handle_item(void)
@@ -4861,7 +4873,7 @@ int handle_item(void)
 
 
 
-/* 
+/**
  * Convert an input from tenths of a pound to tenths of a kilogram. -LM-
  */
 int make_metric(int wgt)
@@ -4876,7 +4888,7 @@ int make_metric(int wgt)
 }
 
 
-/*
+/**
  * Accept values for y and x (considered as the endpoints of lines) between 
  * 0 and 40, and return an angle in degrees (divided by two). -LM-
  *
@@ -4945,7 +4957,7 @@ byte get_angle_to_grid[41][41] =
 
 
 
-/*
+/**
  * Returns a string which contains the name of a extended color.
  * Examples: "Dark", "Red1", "Yellow5", etc.
  * IMPORTANT: the returned string is statically allocated so it must *not* be
@@ -4969,7 +4981,7 @@ cptr get_ext_color_name(byte ext_color)
 }
 
 
-/*
+/**
  * Converts a string to a terminal color byte.
  */
 int color_text_to_attr(cptr name)
@@ -5066,7 +5078,7 @@ static char *short_color_names[MAX_BASE_COLORS] =
   "L.Umber"
 };
 
-/*
+/**
  * Extract a textual representation of an attribute
  */
 cptr attr_to_text(byte a)
@@ -5091,7 +5103,7 @@ cptr attr_to_text(byte a)
   return (base);
 }
 
-/* 
+/**
  * Path finding algorithm variables 
  */
 static int terrain[MAX_PF_RADIUS][MAX_PF_RADIUS];
@@ -5283,7 +5295,7 @@ bool findpath(int y, int x)
   return (TRUE);
 }
 
-/*
+/**
  * Move the cursor
  */
 void move_cursor(int row, int col)

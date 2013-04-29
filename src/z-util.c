@@ -1,7 +1,6 @@
-/*
- * File: z-util.c
- * Purpose: Low-level string handling and other utilities.
- *
+/** \file z-util.c
+    \brief Low-level string handling and other utilities.
+ 
  * Copyright (c) 1997-2005 Ben Harrison, Robert Ruehlmann.
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -18,13 +17,13 @@
 #include "z-util.h"
 
 
-/*
+/**
  * Convenient storage of the program name
  */
 char *argv0 = NULL;
 
 
-/*
+/**
  * Case insensitive comparison between two strings
  */
 int my_stricmp(const char *s1, const char *s2)
@@ -59,7 +58,7 @@ int my_stricmp(const char *s1, const char *s2)
 }
 
 
-/*
+/**
  * Case insensitive comparison between the first n characters of two strings
  */
 int my_strnicmp(cptr a, cptr b, int n)
@@ -81,7 +80,7 @@ int my_strnicmp(cptr a, cptr b, int n)
 }
 
 
-/*
+/**
  * An ANSI version of strstr() with case insensitivity.
  *
  * In the public domain; found at:
@@ -118,7 +117,7 @@ char *my_stristr(const char *string, const char *pattern)
 }
 
 
-/*
+/**
  * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
  * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
  * not overlap.
@@ -148,7 +147,7 @@ size_t my_strcpy(char *buf, const char *src, size_t bufsize)
 }
 
 
-/*
+/**
  * The my_strcat() tries to append a string to an existing NUL-terminated string.
  * It never writes more characters into the buffer than indicated by 'bufsize' and
  * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
@@ -177,7 +176,7 @@ size_t my_strcat(char *buf, const char *src, size_t bufsize)
 }
 
 
-/*
+/**
  * Determine if string "a" is equal to string "b"
  */
 #undef streq
@@ -187,7 +186,7 @@ bool streq(cptr a, cptr b)
 }
 
 
-/*
+/**
  * Determine if string "t" is a suffix of string "s"
  */
 bool suffix(cptr s, cptr t)
@@ -203,7 +202,7 @@ bool suffix(cptr s, cptr t)
 }
 
 
-/*
+/**
  * Determine if string "t" is a prefix of string "s"
  */
 bool prefix(cptr s, cptr t)
@@ -221,12 +220,12 @@ bool prefix(cptr s, cptr t)
 
 
 
-/*
+/**
  * Redefinable "plog" action
  */
 void (*plog_aux)(cptr) = NULL;
 
-/*
+/**
  * Print (or log) a "warning" message (ala "perror()")
  * Note the use of the (optional) "plog_aux" hook.
  */
@@ -241,12 +240,12 @@ void plog(cptr str)
 
 
 
-/*
+/**
  * Redefinable "quit" action
  */
 void (*quit_aux)(cptr) = NULL;
 
-/*
+/**
  * Exit (ala "exit()").  If 'str' is NULL, do "exit(EXIT_SUCCESS)".
  * Otherwise, plog() 'str' and exit with an error code of -1.
  * But always use 'quit_aux', if set, before anything else.
@@ -266,7 +265,7 @@ void quit(cptr str)
 	(void)(exit(EXIT_FAILURE));
 }
 
-/*
+/**
  * Fast string concatenation - stolen from NPPangband for FAangband 0.3.2.
  * Append the "src" string to "buf" given the address of the trailing null
  * character of "buf" in "end". "end" can be NULL, in which the trailing null

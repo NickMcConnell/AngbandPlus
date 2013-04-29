@@ -1,6 +1,7 @@
-/* File: z-rand.c */
+/** \file z-rand.c 
+    \brief Random number generator
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison, Randy Hutson
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -13,10 +14,10 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
+ *
 
 
-/*
+ *
  * This file provides an optimized random number generator.
  *
  *
@@ -26,7 +27,7 @@
  * is fast, but slightly biased at high values, and second, the simple
  * "div" flavor, which is less fast (and potentially non-terminating)
  * but which is not biased and is much less subject to non-randomness
- * problems in the low bits.  Note the "rand_int()" macro in "z-rand.h",
+ * problems in the low bits.  Note the rand_int() macro in z-rand.h,
  * which must specify a "default" flavor.
  *
  * Note the use of the "simple" RNG, first you activate it via
@@ -50,38 +51,38 @@
 #include "z-rand.h"
 
 
-/*
+/**
  * Random Number Generator -- Linear Congruent RNG
  */
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
 
 
 
-/*
+/**
  * Use the "simple" LCRNG
  */
 bool Rand_quick = TRUE;
 
 
-/*
+/**
  * Current "value" of the "simple" RNG
  */
 u32b Rand_value;
 
 
-/*
+/**
  * Current "index" for the "complex" RNG
  */
 u16b Rand_place;
 
-/*
+/**
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
 
 
 
-/*
+/**
  * Initialize the "complex" RNG using a new seed
  */
 void Rand_state_init(u32b seed)
@@ -110,7 +111,7 @@ void Rand_state_init(u32b seed)
 }
 
 
-/*
+/**
  * Extract a "random" number from 0 to m-1, via "division"
  *
  * This method selects "random" 28-bit numbers, and then uses
@@ -186,17 +187,17 @@ u32b Rand_div(u32b m)
 
 
 
-/*
+/**
  * The number of entries in the "Rand_normal_table"
  */
 #define RANDNOR_NUM	256
 
-/*
+/**
  * The standard deviation of the "Rand_normal_table"
  */
 #define RANDNOR_STD	64
 
-/*
+/**
  * The normal distribution table for the "Rand_normal()" function (below)
  */
 static s16b Rand_normal_table[RANDNOR_NUM] =
@@ -240,7 +241,7 @@ static s16b Rand_normal_table[RANDNOR_NUM] =
 
 
 
-/*
+/**
  * Generate a random integer number of NORMAL distribution
  *
  * The table above is used to generate a psuedo-normal distribution,
@@ -302,7 +303,7 @@ s16b Rand_normal(int mean, int stand)
 }
 
 
-/*
+/**
  * Extract a "random" number from 0 to m-1, using the "simple" RNG.
  *
  * This function should be used when generating random numbers in

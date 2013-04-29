@@ -1,6 +1,7 @@
-/* File: monster2.c */
+/** \file monster2.c 
+    \brief Monster generation, learning and removal
 
-/* Monster processing, compacting, generation, goody drops, deletion, 
+ * Monster processing, compacting, generation, goody drops, deletion, 
  * place the player, monsters, and their escorts at a given location, 
  * generation of monsters, summoning, monster reaction to pain 
  * levels, monster learning.
@@ -24,7 +25,7 @@
 
 
 
-/*
+/**
  * Delete a monster by index.
  *
  * When a monster is deleted, all of its objects are deleted.
@@ -109,7 +110,7 @@ void delete_monster_idx(int i)
 }
 
 
-/*
+/**
  * Delete the monster, if any, at a given location
  */
 void delete_monster(int y, int x)
@@ -122,7 +123,7 @@ void delete_monster(int y, int x)
 }
 
 
-/*
+/**
  * Move an object from index i1 to index i2 in the object list
  */
 static void compact_monsters_aux(int i1, int i2)
@@ -177,7 +178,7 @@ static void compact_monsters_aux(int i1, int i2)
 }
 
 
-/*
+/**
  * Compact and Reorder the monster list
  *
  * This function can be very dangerous, use with caution!
@@ -270,7 +271,7 @@ void compact_monsters(int size)
 }
 
 
-/*
+/**
  * Delete/Remove all the monsters when the player leaves the level
  *
  * This is an efficient method of simulating multiple calls to the
@@ -337,7 +338,7 @@ void wipe_m_list(void)
 }
 
 
-/*
+/**
  * Acquires and returns the index of a "free" monster.
  *
  * This routine should almost never fail, but it *can* happen.
@@ -391,7 +392,7 @@ s16b m_pop(void)
 }
 
 
-/*
+/**
  * Apply a "monster restriction function" to the "monster allocation table"
  */
 errr get_mon_num_prep(void)
@@ -425,7 +426,7 @@ errr get_mon_num_prep(void)
 
 
 
-/*
+/**
  * Choose a monster race that seems "appropriate" to the given level
  *
  * We use this function, not only to pick a monster but to build a 
@@ -656,7 +657,7 @@ s16b get_mon_num(int level)
 
 
 
-/*
+/**
  * A replacement for "get_mon_num()", for use when that function has 
  * built up a suitable table of monster probabilities, and all we want 
  * to do is pull another monster from it.
@@ -696,7 +697,7 @@ s16b get_mon_num_quick(int level)
   return (table[i].index);
 }
 
-/*
+/**
  * Display visible monsters in a window
  */
 void display_monlist(void)
@@ -843,7 +844,7 @@ void display_monlist(void)
 }
 
 
-/*
+/**
  * Build a string describing a monster in some way.
  *
  * We can correctly describe monsters based on their visibility.
@@ -873,22 +874,22 @@ void display_monlist(void)
  * Perhaps the "offscreen" descriptor should be abbreviated.
  *
  * Mode Flags:
- *   0x01 --> Objective (or Reflexive)
- *   0x02 --> Possessive (or Reflexive)
- *   0x04 --> Use indefinites for hidden monsters ("something")
- *   0x08 --> Use indefinites for visible monsters ("a kobold")
- *   0x10 --> Pronominalize hidden monsters
- *   0x20 --> Pronominalize visible monsters
- *   0x40 --> Assume the monster is hidden
- *   0x80 --> Assume the monster is visible
+ *   - 0x01 --> Objective (or Reflexive)
+ *   - 0x02 --> Possessive (or Reflexive)
+ *   - 0x04 --> Use indefinites for hidden monsters ("something")
+ *   - 0x08 --> Use indefinites for visible monsters ("a kobold")
+ *   - 0x10 --> Pronominalize hidden monsters
+ *   - 0x20 --> Pronominalize visible monsters
+ *   - 0x40 --> Assume the monster is hidden
+ *   - 0x80 --> Assume the monster is visible
  *
  * Useful Modes:
- *   0x00 --> Full nominative name ("the kobold") or "it"
- *   0x04 --> Full nominative name ("the kobold") or "something"
- *   0x80 --> Genocide resistance name ("the kobold")
- *   0x88 --> Killing name ("a kobold")
- *   0x22 --> Possessive, genderized if visable ("his") or "its"
- *   0x23 --> Reflexive, genderized if visable ("himself") or "itself"
+ *   - 0x00 --> Full nominative name ("the kobold") or "it"
+ *   - 0x04 --> Full nominative name ("the kobold") or "something"
+ *   - 0x80 --> Genocide resistance name ("the kobold")
+ *   - 0x88 --> Killing name ("a kobold")
+ *   - 0x22 --> Possessive, genderized if visable ("his") or "its"
+ *   - 0x23 --> Reflexive, genderized if visable ("himself") or "itself"
  */
 void monster_desc(char *desc, monster_type *m_ptr, int mode)
 {
@@ -1073,7 +1074,7 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 }
 
 
-/*
+/**
  * Build a string describing a monster race, currently used for quests.
  *
  * Assumes a singular monster.  This may need to be run through the
@@ -1097,7 +1098,7 @@ void monster_desc_race(char *desc, size_t max, int r_idx)
 
 
 
-/*
+/**
  * Learn about a monster (by "probing" it)
  */
 void lore_do_probe(int m_idx)
@@ -1120,7 +1121,7 @@ void lore_do_probe(int m_idx)
 }
 
 
-/*
+/**
  * Take note that the given monster just dropped some treasure
  *
  * Note that learning the "GOOD"/"GREAT" flags gives information
@@ -1158,7 +1159,7 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
 
 
 
-/*
+/**
  * This function updates the monster record of the given monster
  *
  * This involves extracting the distance to the player (if requested),
@@ -1173,9 +1174,9 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  *
  * The only monster fields that are changed here are "cdis" (the
  * distance from the player), "ml" (visible to the player), and
- * "mflag" (to maintain the "MFLAG_VIEW" flag).
+ * "mflag" (to maintain the MFLAG_VIEW flag).
  *
- * Note the special "update_monsters()" function which can be used to
+ * Note the special update_monsters() function which can be used to
  * call this function once for every monster.
  *
  * Note the "full" flag which requests that the "cdis" field be updated,
@@ -1195,10 +1196,10 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  *
  * Note that this function is called once per monster every time the
  * player moves.  When the player is running, this function is one
- * of the primary bottlenecks, along with "update_view()" and the
- * "process_monsters()" code, so efficiency is important.
+ * of the primary bottlenecks, along with update_view() and the
+ * process_monsters() code, so efficiency is important.
  *
- * Note the optimized "inline" version of the "distance()" function.
+ * Note the optimized "inline" version of the distance() function.
  *
  * A monster is "visible" to the player if (1) it has been detected
  * by the player, (2) it is close to the player and the player has
@@ -1213,8 +1214,8 @@ void lore_treasure(int m_idx, int num_item, int num_gold)
  * or viewed directly, but old targets will remain set.   XXX XXX
  *
  * The player can choose to be disturbed by several things, including
- * "disturb_move" (monster which is viewable moves in some way), and
- * "disturb_near" (monster which is "easily" viewable moves in some
+ * disturb_move (monster which is viewable moves in some way), and
+ * disturb_near (monster which is "easily" viewable moves in some
  * way).  Note that "moves" includes "appears" and "disappears".
  */
 void update_mon(int m_idx, bool full)
@@ -1464,7 +1465,7 @@ void update_mon(int m_idx, bool full)
 
 
 
-/*
+/**
  * This function simply updates all the (non-dead) monsters (see above).
  */
 void update_monsters(bool full)
@@ -1487,7 +1488,7 @@ void update_monsters(bool full)
 
 
 
-/*
+/**
  * Make a monster carry an object
  */
 s16b monster_carry(int m_idx, object_type *j_ptr)
@@ -1555,7 +1556,9 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
   return (o_idx);
 }
 
-/* See whether all surrounding squares are trap detected */
+/**
+ * See whether all surrounding squares are trap detected 
+ */
 bool is_detected(int y, int x)
 {
   int d, xx, yy;
@@ -1584,7 +1587,7 @@ bool is_detected(int y, int x)
 
 
 
-/*
+/**
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
  */
 void monster_swap(int y1, int x1, int y2, int x2)
@@ -1685,7 +1688,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 }
 
 
-/*
+/**
  * Place the player in the dungeon XXX XXX
  */
 s16b player_place(int y, int x)
@@ -1706,7 +1709,7 @@ s16b player_place(int y, int x)
 }
 
 
-/*
+/**
  * Place a copy of a monster in the dungeon XXX XXX
  */
 s16b monster_place(int y, int x, monster_type *n_ptr)
@@ -1761,16 +1764,22 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 }
 
 
-/* Group mode for making mono-racial groups */
+/**
+ * Group mode for making mono-racial groups 
+ */
 static bool group_mode = FALSE;
 
-/* Group race for making mono-racial groups */
+/**
+ * Group race for making mono-racial groups 
+ */
 static byte group_race = NON_RACIAL;
 
-/* Current group leader */
+/**
+ * Current group leader 
+ */
 static u16b group_leader;
 
-/*
+/**
  * Find an appropriate same race monster 
  */
 static bool get_racial_monster(int r_idx)
@@ -1782,7 +1791,7 @@ static bool get_racial_monster(int r_idx)
   return (TRUE);
 }
 
-/*
+/**
  * Attempt to place a monster of the given race at the given location.
  *
  * To give the player a sporting chance, any monster that appears in
@@ -2100,13 +2109,13 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 }
 
 
-/*
+/**
  * Maximum size of a group of monsters
  */
 #define GROUP_MAX	32
 
 
-/*
+/**
  * Attempt to place a group of monsters around the given location.
  *
  * Hack -- A group of monsters counts as a single individual for the 
@@ -2193,12 +2202,12 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp,
   return (TRUE);
 }
 
-/*
+/**
  * Hack -- help pick an escort type
  */
 static int place_monster_idx = 0;
 
-/*
+/**
  * Hack -- help pick an escort type
  */
 static bool place_monster_okay(int r_idx)
@@ -2225,7 +2234,7 @@ static bool place_monster_okay(int r_idx)
 
 
 
-/*
+/**
  * Attempt to place an escort of monsters around the given location
  */
 static void place_monster_escort(int y, int x, int leader_idx, bool slp)
@@ -2280,7 +2289,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 	  int my = hy + ddy_ddd[i];
 	  
 	  /* Walls block flow */
-	  if (!cave_floor_bold(my, mx)) continue;
+	  if (!cave_project(my, mx)) continue;
 	  
 	  /* Flow past occupied grids. */
 	  if (cave_m_idx[my][mx] != 0)
@@ -2337,7 +2346,7 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp)
 
 
 
-/*
+/**
  * Attempt to place a monster of the given race at the given location
  *
  * Monsters may have some friends, or lots of friends.  They may also 
@@ -2400,7 +2409,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
   return (TRUE);
 }
 
-/*
+/**
  * Hack -- attempt to place a monster at the given location
  *
  * Attempt to find a monster appropriate to the "monster_level"
@@ -2426,7 +2435,7 @@ bool place_monster(int y, int x, bool slp, bool grp, bool quick)
 }
 
 
-/*
+/**
  * Attempt to allocate a random monster in the dungeon.
  *
  * Place the monster at least "dis" distance from the player.
@@ -2494,13 +2503,13 @@ bool alloc_monster(int dis, bool slp, bool quick)
 
 
 
-/*
+/**
  * Hack -- the "type" of the current "summon specific"
  */
 static int summon_specific_type = 0;
 
 
-/*
+/**
  * Hack -- help decide if a monster race is "okay" to summon
  */
 static bool summon_specific_okay(int r_idx)
@@ -2669,7 +2678,7 @@ static bool summon_specific_okay(int r_idx)
 }
 
 
-/*
+/**
  * Place a monster (of the specified "type") near the given
  * location.  Return TRUE if a monster was actually summoned.
  *
@@ -2767,7 +2776,7 @@ bool summon_specific(int y1, int x1, bool scattered, int lev, int type)
 }
 
 
-/*
+/**
  * Hack - seemed like the most efficient way to summon the quest monsters,
  * given that they are excluded from the monster allocation table for all
  * stages but their quest stage. -NRM-
@@ -2822,7 +2831,7 @@ bool summon_questor(int y1, int x1)
   return (FALSE);
 }
 
-/*
+/**
  * Assess shapechange possibilities
  */
 int assess_shapechange(int m_idx, monster_type *m_ptr)
@@ -3030,7 +3039,7 @@ int assess_shapechange(int m_idx, monster_type *m_ptr)
 
 
 
-/*
+/**
  * Let the given monster attempt to reproduce.
  *
  * Note that "reproduction" REQUIRES empty space.
@@ -3069,7 +3078,7 @@ bool multiply_monster(int m_idx)
 
 
 
-/*
+/**
  * Dump a message describing a monster's reaction to damage
  *
  * Technically should attempt to treat "Beholder"'s as jelly's
@@ -3181,7 +3190,7 @@ void message_pain(int m_idx, int dam)
 
 
 
-/*
+/**
  * Monster learns about an "observed" resistance.
  *
  * The LRN_xxx const indicates the type of resistance to be

@@ -1,5 +1,7 @@
+/** \file ui.h
+    \brief UI include
 
-/*
+
  * Copyright (c) 2007 Pete Mack and others
  * This code released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to

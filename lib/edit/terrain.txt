@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:1.1.1
+V:1.1.2
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -769,10 +769,12 @@ G:^:y
 F:TF_LOS | TF_PROJECT | TF_M_TRAP
 D:A monster trap that hurts all monsters in sight.
 
-# 0x5D --> monster trap -- unused
+# 0x5D --> monster trap -- genocide
 
-#N:93:monster trap
+#N:93:monster trap (genocide)
 #G:^:y
+F:TF_LOS | TF_PROJECT | TF_M_TRAP
+D:A monster trap that removes all nearby like monsters.
 
 # 0x5E --> monster trap -- unused
 

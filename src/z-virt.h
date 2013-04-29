@@ -1,19 +1,14 @@
-/* File: z-virt.h */
-
-/*
+/** \file z-virt.h 
+    \brief Memery management include
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
- */
+ *
 
-#ifndef INCLUDED_Z_VIRT_H
-#define INCLUDED_Z_VIRT_H
-
-#include "h-basic.h"
-
-/*
+ 
  * Memory management routines.
  *
  * Set ralloc_aux to modify the memory allocation routine.
@@ -41,6 +36,11 @@
  * in particular, that it returns its first argument.
  */
 
+
+#ifndef INCLUDED_Z_VIRT_H
+#define INCLUDED_Z_VIRT_H
+
+#include "h-basic.h"
 
 
 /**** Available macros ****/

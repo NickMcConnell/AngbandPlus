@@ -1,18 +1,16 @@
-/* File: externs.h */
-
-/* Variable and function definitions.
- *
+/** \file externs.h 
+    \brief Variable and function definitions.
+ 
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
- */
+ *
 
 
-/*
+ *
  * Note that some files have their own header files
- * (z-virt.h, z-util.h, z-form.h, term.h, random.h)
  */
 
 
@@ -624,6 +622,7 @@ extern s16b lookup_kind(int tval, int sval);
 extern void object_wipe(object_type *o_ptr);
 extern void object_copy(object_type *o_ptr, object_type *j_ptr);
 extern void object_prep(object_type *o_ptr, int k_idx);
+extern s16b m_bonus(int max, int level);
 extern void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, 
                         bool great);
 extern bool make_object(object_type *j_ptr, bool good, bool great, 

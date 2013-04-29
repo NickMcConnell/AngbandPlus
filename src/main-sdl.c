@@ -1,7 +1,6 @@
-/*
- * File: main-sdl.c
- * Purpose: Angband SDL port 
- *
+/** \file main-sdl.c
+    \brief Angband SDL port 
+ 
  * Copyright (c) 2007 Ben Harrison, Gregory Velichansky, Eric Stevens,
  * Leon Marrick, Iain McFall, and others
  *
@@ -15,19 +14,16 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
-#include "angband.h"
-#include "cmds.h"
-
-/*
+ *
+ *
  * Comments and suggestions are welcome. The UI probably needs some
  * adjustment, and I need comments from you.
  *perhaps also something like "Angband 3.0.8 by Andrew Sidwell and others;
  SDL port by Iain McFall an others, please see the accompanying documentation
  for credits" or something
- */
+ *
 
-/*
+
  * This file helps Angband work with at least some computers capable of running
  * SDL, a set of simple and quite popular game development libraries that work
  * on many different operating systems, including Windows, most flavours of
@@ -67,9 +63,9 @@
  * 2001 Gregory Velichansky <hmaon@bumba.net>, creator of the first Angband SDL
  * port.
  * 2006 Eric Stevens <sdltome@gmail.com>, main author of the TOME SDL port.
- */
 
-/*
+
+
  * Comments on using SDL with Angband:
  *
  * The good news:
@@ -107,6 +103,7 @@
  *   Windows machines.
  */
 #include "angband.h"
+#include "cmds.h"
 
 #ifdef USE_SDL
 
@@ -115,24 +112,32 @@
 #include "SDL_ttf.h"
 #include "SDL_image.h"
 
-/* SDL flags used for the main window surface */
+/**
+ * SDL flags used for the main window surface 
+ */
 static Uint32 vflags = SDL_ANYFORMAT;
 
-/* Current screen dimensions */
+/**
+ * Current screen dimensions 
+ */
 static int screen_w = 800;
 static int screen_h = 600;
 
-/* Fullscreen dimensions */
+/**
+ * Fullscreen dimensions 
+ */
 static int full_w;
 static int full_h;
 
-/* Want fullscreen? */
+/**
+ * Want fullscreen? 
+ */
 static bool fullscreen = FALSE;
 
 /* XXXXXXXXX */
 static char *ANGBAND_DIR_USER_SDL;
 
-/*
+/**
  * Used as 'system' font
  */
 static cptr DEFAULT_FONT_FILE = "6x10x.fon";
@@ -142,7 +147,7 @@ char *FontList[MAX_FONTS];
 static int num_fonts = 0;
 
 
-/*
+/**
  * A font structure
  * Note that the data is only valid for a surface with matching
  * values for pitch & bpp. If a surface is resized the data _must_ be
@@ -166,7 +171,7 @@ static sdl_Font SystemFont;
 
 #define NUM_GLYPHS 256
 
-/*
+/**
  * Window information
  * Each window has its own surface and coordinates
  */
@@ -257,7 +262,7 @@ struct sdl_ButtonBank
 	bool need_update;
 };
 
-/*
+/**
  * Other 'windows' (basically a surface with a position and buttons on it)
  * Currently used for the top status bar and popup windows
  */
@@ -287,37 +292,37 @@ struct sdl_Window
 
 
 
-/*
+/**
  * The main surface of the application
  */
 static SDL_Surface *AppWin;
 
-/*
+/**
  * The status bar
  */
 static sdl_Window StatusBar;
 
-/*
+/**
  * The Popup window
  */
 static sdl_Window PopUp;
 static bool popped;
 
-/*
+/**
  * Term windows
  */
 static term_window windows[ANGBAND_TERM_MAX];
 static int Zorder[ANGBAND_TERM_MAX];
 
-/* Keep track of the mouse status */
+/** Keep track of the mouse status */
 static mouse_info mouse;
 
-/*
+/**
  * Hack -- define which keys should be ignored
  */
 static bool ignore_key[1024];
 
-/*
+/**
  * We ignore all keypresses involving only modifier keys
  */
 static int ignore_key_list[] =
@@ -328,7 +333,7 @@ static int ignore_key_list[] =
 	SDLK_COMPOSE, 0
 };
 
-/*
+/**
  * The number pad consists of 10 keys, each with an SDL identifier
  */
 #define is_numpad(k) \
@@ -398,7 +403,7 @@ static int GfxButtons[GfxModes];        /* Graphics mode buttons */
 static int SelectedGfx;                         /* Current selected gfx */
 #endif
 
-/*
+/**
  * The basic angband text colours in an sdl friendly form
  */
 static u32b text_colours[MAX_COLORS];
@@ -406,7 +411,7 @@ static u32b text_colours[MAX_COLORS];
 u32b back_colour;		/* Background colour */
 
 
-/*
+/**
  * Fill in an SDL_Rect structure.
  * Note it also returns the value adjusted
  */
@@ -420,7 +425,7 @@ static SDL_Rect *RECT(int x, int y, int w, int h, SDL_Rect *rect)
 	return rect;
 }
 
-/*
+/**
  * Is a point(x, y) in a rectangle?
  */
 static bool point_in(SDL_Rect *rect, int x, int y)
@@ -434,7 +439,7 @@ static bool point_in(SDL_Rect *rect, int x, int y)
 	return (TRUE);
 }
 
-/*
+/**
  * Draw an outline box
  * Given the top, left, width & height
  */
@@ -464,7 +469,7 @@ static void sdl_DrawBox(SDL_Surface *surface, SDL_Rect *rect,
 	SDL_FillRect(surface, &rc, colour);
 }
 
-/*
+/**
  * Get the width and height of a given font file
  */
 static errr sdl_CheckFont(cptr fontname, int *width, int *height)
@@ -491,11 +496,11 @@ static errr sdl_CheckFont(cptr fontname, int *width, int *height)
 	return (0);
 }
 
-/* 
+/** 
 * The sdl_Font routines
  */
 
-/*
+/**
  * Free any memory assigned by Create()
  */
 static void sdl_FontFree(sdl_Font *font)
@@ -507,7 +512,7 @@ static void sdl_FontFree(sdl_Font *font)
 }
 
 
-/*
+/**
  * Create new font data with font fontname, optimizing the data
  * for the surface given
  */
@@ -621,7 +626,7 @@ static errr sdl_FontCreate(sdl_Font *font, cptr fontname, SDL_Surface *surface)
 
 
 
-/*
+/**
  * Draw some text onto a surface
  * The surface is first checked to see if it is compatable with
  * this font, if it isn't the the font will be 're-precalculated'
@@ -710,7 +715,7 @@ static errr sdl_FontDraw(sdl_Font *font, SDL_Surface *surface, Uint32 colour,
 
 
 
-/*
+/**
  * Draw a button on the screen
  */
 static void sdl_ButtonDraw(sdl_Button *button)
@@ -736,7 +741,7 @@ static void sdl_ButtonDraw(sdl_Button *button)
 	}
 }
 
-/*
+/**
  * Adjust the position of a button
  */
 static void sdl_ButtonMove(sdl_Button *button, int x, int y)
@@ -746,7 +751,7 @@ static void sdl_ButtonMove(sdl_Button *button, int x, int y)
 	button->owner->need_update = TRUE;
 }
 
-/*
+/**
  * Adjust the size of a button
  */
 static void sdl_ButtonSize(sdl_Button *button, int w, int h)
@@ -756,7 +761,7 @@ static void sdl_ButtonSize(sdl_Button *button, int w, int h)
 	button->owner->need_update = TRUE;
 }
 
-/*
+/**
  * Set the caption
  */
 static void sdl_ButtonCaption(sdl_Button *button, cptr s)
@@ -765,7 +770,7 @@ static void sdl_ButtonCaption(sdl_Button *button, cptr s)
 	button->owner->need_update = TRUE;
 }
 
-/*
+/**
  * Set the visibility of a button
  */
 static void sdl_ButtonVisible(sdl_Button *button, bool visible)
@@ -779,13 +784,13 @@ static void sdl_ButtonVisible(sdl_Button *button, bool visible)
 }
 
 
-/* Maximum amount of buttons in a bank */
+/** Maximum amount of buttons in a bank */
 #define MAX_BUTTONS 20
 
 /*
  * The button_bank package
  */
-/*
+/**
  * Initialize it
  */
 static void sdl_ButtonBankInit(sdl_ButtonBank *bank, sdl_Window *window)
@@ -797,7 +802,7 @@ static void sdl_ButtonBankInit(sdl_ButtonBank *bank, sdl_Window *window)
         bank->need_update = TRUE;
 }
 
-/*
+/**
  * Clear the bank
  */
 static void sdl_ButtonBankFree(sdl_ButtonBank *bank)
@@ -806,7 +811,7 @@ static void sdl_ButtonBankFree(sdl_ButtonBank *bank)
   (void)FREE(bank->used);
 }
 
-/*
+/**
  * Draw all the buttons on the screen
  */
 static void sdl_ButtonBankDrawAll(sdl_ButtonBank *bank)
@@ -825,7 +830,7 @@ static void sdl_ButtonBankDrawAll(sdl_ButtonBank *bank)
 	bank->need_update = FALSE;
 }
 
-/*
+/**
  * Get a new button index
  */
 static int sdl_ButtonBankNew(sdl_ButtonBank *bank)
@@ -865,7 +870,7 @@ static int sdl_ButtonBankNew(sdl_ButtonBank *bank)
         return (i);
 }
 
-/*
+/**
  * Retrieve button 'idx' or NULL
  */
 static sdl_Button *sdl_ButtonBankGet(sdl_ButtonBank *bank, int idx)
@@ -879,7 +884,7 @@ static sdl_Button *sdl_ButtonBankGet(sdl_ButtonBank *bank, int idx)
 }
 
 #if 0
-/*
+/**
  * Remove a Button by its index
  */
 static void sdl_ButtonBankRemove(sdl_ButtonBank *bank, int idx)
@@ -905,7 +910,7 @@ static void sdl_ButtonBankRemove(sdl_ButtonBank *bank, int idx)
 
 #endif
 
-/*
+/**
  * Examine and respond to mouse presses
  * Return if we 'handled' the click
  */
@@ -936,7 +941,7 @@ static bool sdl_ButtonBankMouseDown(sdl_ButtonBank *bank, int x, int y)
 	return (FALSE);
 }
 
-/*
+/**
  * Respond to a mouse button release
  */
 static bool sdl_ButtonBankMouseUp(sdl_ButtonBank *bank, int x, int y)
@@ -988,7 +993,7 @@ static bool sdl_ButtonBankMouseUp(sdl_ButtonBank *bank, int x, int y)
 	return (FALSE);
 }
 
-/*
+/**
  * sdl_Window functions
  */
 static void sdl_WindowFree(sdl_Window* window)
@@ -1002,7 +1007,7 @@ static void sdl_WindowFree(sdl_Window* window)
 	}
 }
 
-/*
+/**
  * Initialize a window
  */
 static void sdl_WindowInit(sdl_Window* window, int w, int h, 
@@ -1153,7 +1158,7 @@ static void BringToTop()
 
 	
 	
-/*
+/**
  * Validate a file
  */
 static void validate_file(cptr s)
@@ -1162,7 +1167,7 @@ static void validate_file(cptr s)
                 quit_fmt("Cannot find required file:\n%s", s);
 }
 
-/*
+/**
  * Find a window that is under the points x,y on
  * the main screen
  */
@@ -1846,7 +1851,7 @@ static void MoreActivate(sdl_Button *sender)
 
 static errr Term_xtra_sdl_clear(void);
 
-/*
+/**
  * Make a window with size (x,y) pixels
  * Note: The actual size of the window may end up smaller.
  * This may be called when a window wants resizing,
@@ -2145,14 +2150,14 @@ static void DrawSizeWidget(void)
 static int Movingx;
 static int Movingy;
 
-/*
+/**
  * Is What within Range units of Origin
  */
 
 #define closeto(Origin, What, Range) \
 	((ABS((Origin) - (What))) < (Range))
 
-/*
+/**
  * This function keeps the 'mouse' info up to date,
  * and reacts to mouse buttons appropriately.
  */
@@ -2475,7 +2480,7 @@ static void sdl_HandleMouseEvent(SDL_Event *event)
 	}
 }
 
-/*
+/**
  * Handle keypresses.
  *
  * We treat left and right modifier keys as equivalent.
@@ -2551,7 +2556,7 @@ static void sdl_keypress(SDL_keysym keysym)
 
 static void init_windows(void);
 static void init_morewindows(void);
-/*
+/**
  * Handle a single message sent to the application.
  *
  * Functions that are either called from a separate thread or which need to
@@ -2655,7 +2660,7 @@ static errr sdl_HandleEvent(SDL_Event *event)
 	return (0);
 }
 
-/*
+/**
  * Update the redraw rect
  * A simple but effective way to keep track of what
  * parts of a window need to updated.
@@ -2681,7 +2686,7 @@ static void set_update_rect(term_window *win, SDL_Rect *rc)
 	}
 }
 
-/*
+/**
  * Given a position in the ISO Latin-1 character set, return
  * the correct character on this system.
  */
@@ -2692,7 +2697,7 @@ static byte Term_xchar_sdl(byte c)
 }
 
 
-/*
+/**
  * Clear a terminal window
  */
 static errr Term_xtra_sdl_clear(void)
@@ -2718,7 +2723,7 @@ static errr Term_xtra_sdl_clear(void)
 	return (0);
 }
 
-/*
+/**
  * Process at least one event
  */
 static errr Term_xtra_sdl_event(int v)
@@ -2753,7 +2758,7 @@ static errr Term_xtra_sdl_event(int v)
 	return (error);
 }
 
-/*
+/**
  * Process all pending events
  */
 static errr Term_xtra_sdl_flush(void)
@@ -2771,7 +2776,7 @@ static errr Term_xtra_sdl_flush(void)
 	return (0);
 }
 
-/*
+/**
  * Delay for "x" milliseconds
  */
 static errr Term_xtra_sdl_delay(int v)
@@ -2927,7 +2932,7 @@ static errr Term_wipe_sdl(int col, int row, int n)
 	return (0);
 }
 
-/*
+/**
  * Draw some text to a window
  */
 static errr Term_text_sdl(int col, int row, int n, byte a, char *s)
@@ -2952,7 +2957,7 @@ static errr Term_text_sdl(int col, int row, int n, byte a, char *s)
 }
 
 #ifdef USE_GRAPHICS
-/*
+/**
  * Do a 'stretched blit'
  * SDL has no support for stretching... What a bastard!
  * 
@@ -3033,7 +3038,7 @@ static void sdl_StretchBlit(SDL_Surface *src, SDL_Rect *srcRect, SDL_Surface *de
 	
 }
 
-/*
+/**
  * Make the 'pre-stretched' tiles for this window
  * Assumes the tiles surface was freed elsewhere
  */
@@ -3100,7 +3105,7 @@ static errr sdl_BuildTileset(term_window *win)
 }
 #endif
 
-/*
+/**
  * Put some gfx on the screen
  * XXX - This function _never_ seems to get called with n > 1 ?
  * This needs improvement...
@@ -3206,7 +3211,7 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const char *c
 	return (0);
 }
 
-/*
+/**
  * Create and initialize the Term contined within this window.
  */
 static void term_data_link_sdl(term_window *win)
@@ -3243,7 +3248,7 @@ static void term_data_link_sdl(term_window *win)
         t->data = win;
 }
 
-/*
+/**
  * Initialize the status bar:
  *  Populate it with some buttons
  *  Set the custom draw function for the bar
@@ -3337,7 +3342,7 @@ static void init_morewindows(void)
 
 #ifdef USE_GRAPHICS
 
-/*
+/**
  * The new streamlined graphics loader.
  * Only uses colour keys.
  * Much more tolerant of different bit-planes
@@ -3413,7 +3418,7 @@ static errr load_gfx(void)
 }
 #endif
 
-/*
+/**
  * Initialize the graphics
  */
 static void init_gfx(void)
@@ -3467,7 +3472,7 @@ static void init_gfx(void)
 #endif
 }
 
-/*
+/**
  * Create the windows
  * Called sometime after load_prefs()
  */
@@ -3509,7 +3514,7 @@ static void init_windows(void)
 	Term_activate(term_screen);
 }
 
-/*
+/**
  * Set up some SDL stuff
  *
  */
@@ -3631,8 +3636,9 @@ static void init_paths(void)
 
 
 const char help_sdl[] = "SDL frontend";
-/*
- * The SDL port's "main()" function.
+
+/**
+ * The SDL port's main() function.
  */
 int init_sdl(int argc, char *argv[])
 {

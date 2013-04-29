@@ -1,8 +1,6 @@
-/* File: generate.c */
-
-/* 
- * Dungeon generation
- *
+/** \file generate.c 
+    \brief Dungeon generation
+ 
  * Code for making, stocking, and populating levels when generated.  
  * Includes rooms of every kind, pits, vaults (inc. interpretation of 
  * v_info.txt), streamers, tunnelling, etc.  Level feelings and other 
@@ -44,11 +42,14 @@
 /*
  * Dungeon generation values
  */
-#define DUN_ROOMS	     30	  /* Number of rooms to attempt */
-#define DEST_LEVEL_CHANCE    25	  /* 1/chance of being a destroyed level */
-#define MORIA_LEVEL_CHANCE   40	  /* 1/chance of being a moria-style level */
+/** Number of rooms to attempt */
+#define DUN_ROOMS	     30	  
+/** 1/chance of being a destroyed level */
+#define DEST_LEVEL_CHANCE    25
+/** 1/chance of being a moria-style level */
+#define MORIA_LEVEL_CHANCE   40	  
 
-/* 
+/** 
  * 1/chance of being a themed level - higher in wilderness -NRM-
  */
 #define THEMED_LEVEL_CHANCE  (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE \
@@ -58,45 +59,65 @@
 /*
  * Dungeon tunnel generation values
  */
-#define DUN_TUN_RND  	30	/* 1 in # chance of random direction */
-#define DUN_TUN_ADJ  	10	/* 1 in # chance of adjusting direction */
-#define DUN_TUN_PEN	35	/* Chance of doors at room entrances */
-#define DUN_TUN_JCT	70      /* Chance of doors at tunnel junctions */
+/** 1 in # chance of random direction */
+#define DUN_TUN_RND  	30	
+/**1 in # chance of adjusting direction */
+#define DUN_TUN_ADJ  	10
+/** Chance of doors at room entrances */
+#define DUN_TUN_PEN	35	
+/** Chance of doors at tunnel junctions */
+#define DUN_TUN_JCT	70      
 
 /*
  * Dungeon streamer generation values
  */
-#define DUN_STR_WID	2    /* Width of streamers (can sometimes be higher) */
-#define DUN_STR_MAG	3    /* Number of magma streamers */
-#define DUN_STR_MC	70   /* 1/chance of treasure per magma */
-#define DUN_STR_QUA	2    /* Number of quartz streamers */
-#define DUN_STR_QC	35   /* 1/chance of treasure per quartz */
-#define DUN_STR_CHG	16   /* 1/(4 + chance) of altering direction */
+/** Width of streamers (can sometimes be higher) */
+#define DUN_STR_WID	2    
+/** Number of magma streamers */
+#define DUN_STR_MAG	3    
+/** 1/chance of treasure per magma */
+#define DUN_STR_MC	70   
+/** Number of quartz streamers */
+#define DUN_STR_QUA	2    
+/** 1/chance of treasure per quartz */
+#define DUN_STR_QC	35   
+/** 1/(4 + chance) of altering direction */
+#define DUN_STR_CHG	16   
 
 /*
  * Dungeon treasure allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	2	/* Amount of objects for rooms/corridors */
-#define DUN_AMT_GOLD	2	/* Amount of treasure for rooms/corridors */
+/** Amount of objects for rooms */
+#define DUN_AMT_ROOM	9	
+/** Amount of objects for rooms/corridors */
+#define DUN_AMT_ITEM	2	
+/** Amount of treasure for rooms/corridors */
+#define DUN_AMT_GOLD	2	
 
 /*
  * Hack -- Dungeon allocation "places"
  */
-#define ALLOC_SET_CORR		1	/* Hallway */
-#define ALLOC_SET_ROOM		2	/* Room */
-#define ALLOC_SET_BOTH		3	/* Anywhere */
+/** Hallway */
+#define ALLOC_SET_CORR		1	
+/** Room */
+#define ALLOC_SET_ROOM		2	
+/** Anywhere */
+#define ALLOC_SET_BOTH		3	
 
 /*
  * Hack -- Dungeon allocation "types"
  */
-#define ALLOC_TYP_RUBBLE	1	/* Rubble */
-#define ALLOC_TYP_TRAP		3	/* Trap */
-#define ALLOC_TYP_GOLD		4	/* Gold */
-#define ALLOC_TYP_OBJECT	5	/* Object */
+/** Rubble */
+#define ALLOC_TYP_RUBBLE	1	
+/** Trap */
+#define ALLOC_TYP_TRAP		3	
+/** Gold */
+#define ALLOC_TYP_GOLD		4	
+/** Object */
+#define ALLOC_TYP_OBJECT	5	
 
 
-/*
+/**
  * Maximum numbers of rooms along each axis (currently 6x18)
  */
 #define MAX_ROOMS_ROW	(DUNGEON_HGT / BLOCK_HGT)
@@ -117,10 +138,12 @@
 #define TUNN_MAX	300
 #define STAIR_MAX	30
 
-/* Tree type chances */
+/**
+ * Tree type chances 
+ */
 #define HIGHLAND_TREE_CHANCE 30
 
-/*
+/**
  * Simple structure to hold a map location
  */
 
@@ -132,7 +155,7 @@ struct coord
   byte x;
 };
 
-/*
+/**
  * Structure to hold all dungeon generation data
  */
 
@@ -171,24 +194,24 @@ struct dun_data
   int room_map[MAX_ROOMS_ROW][MAX_ROOMS_COL];
 };
 
-/*
- * Dungeon generation data -- see "cave_gen()"
+/**
+ * Dungeon generation data -- see  cave_gen()
  */
 static dun_data *dun;
 
 
-/*
+/**
  * Is the level moria-style?
  */
 static bool moria_level;
 
-/*
+/**
  * Is the level underworld?
  */
 static bool underworld;
 
 
-/*
+/**
  * Room type information
  */
 typedef struct room_data room_data;
@@ -202,7 +225,7 @@ struct room_data
   byte min_level;
 };
 
-/*
+/**
  * Table of values that control how many times each type of room will, 
  * on average, appear on 100 levels at various depths.  Each type of room 
  * has its own row, and each column corresponds to dungeon levels 0, 10, 
@@ -239,7 +262,7 @@ static room_data room[ROOM_MAX] =
 
 
 
-/*
+/**
  * This table takes a depth, and returns a suitable monster symbol.  Depth 
  * input is assumed to be player depth.  It is also assumed that monsters 
  * can be generated slightly out of depth.  -LM-
@@ -295,7 +318,7 @@ static char mon_symbol_at_depth[12][13] =
   {'N', 'N', 'U', 'U', 'D', 'D', '*',   'p', 'h', 'v', '*', 'D', 'Z' } 
 };
 
-/* 
+/**
  * Restrictions on monsters, used in pits, vaults, and chambers.
  */
 static bool allow_unique;
@@ -306,7 +329,7 @@ static u32b breath_flag_mask;
 
 
 
-/*
+/**
  * Table of monster descriptions.  Used to make descriptions for kinds 
  * of pits and rooms of chambers that have no special names.
  */
@@ -364,7 +387,7 @@ cptr d_char_req_desc[] =
   NULL
 };
 
-/* 
+/** 
  * Number and type of "vaults" in wilderness levels 
  * These need to be set at the start of each wilderness generation routine.
  */
@@ -372,7 +395,7 @@ int wild_vaults = 0;
 int wild_type = 0;
 
 
-/*
+/**
  * Specific levels on which there should never be a vault
  */
 bool no_vault(void)
@@ -397,7 +420,7 @@ bool no_vault(void)
 /**************************************************************/
 
 
-/*
+/**
  * Hack - select beings of the four basic elements.  Used in the elemental 
  * war themed level.
  */
@@ -431,7 +454,7 @@ static bool vault_aux_elemental(int r_idx)
 }
 
 
-/*
+/**
  * Use various selection criteria (set elsewhere) to restrict monster 
  * generation.
  *
@@ -535,13 +558,13 @@ static bool mon_select(int r_idx)
   return (TRUE);
 }
 
-/*
+/**
  * Accept characters representing a race or group of monsters and 
  * an (adjusted) depth, and use these to set values for required racial 
  * type, monster symbol, monster symbol color, and breath type.  -LM-
  *
  * This function is called to set restrictions, point the monster 
- * allocation function to "mon_select()", and remake monster allocation.  
+ * allocation function to mon_select(), and remake monster allocation.  
  * It undoes all of this things when called with the symbol '\0'.
  * 
  * Describe the monsters (used by cheat_room) and determine if they 
@@ -1106,7 +1129,7 @@ static char *mon_restrict(char symbol, byte depth, bool *ordered,
 /**************************************************************/
 
 
-/*
+/**
  * Count the number of walls adjacent to the given grid.
  *
  * Note -- Assumes "in_bounds_fully(y, x)"
@@ -1132,7 +1155,7 @@ static int next_to_walls(int y, int x)
 }
 
 
-/*
+/**
  * Returns co-ordinates for the player.  Player prefers to be near 
  * walls, because large open spaces are dangerous.
  */
@@ -1211,7 +1234,7 @@ static void new_player_spot(void)
 }
 
 
-/*
+/**
  * Convert existing terrain type to rubble
  */
 static void place_rubble(int y, int x)
@@ -1221,7 +1244,7 @@ static void place_rubble(int y, int x)
 }
 
 
-/*
+/**
  * Convert existing terrain type to "up stairs"
  */
 static void place_up_stairs(int y, int x)
@@ -1231,7 +1254,7 @@ static void place_up_stairs(int y, int x)
 }
 
 
-/*
+/**
  * Convert existing terrain type to "down stairs"
  */
 static void place_down_stairs(int y, int x)
@@ -1241,7 +1264,7 @@ static void place_down_stairs(int y, int x)
 }
 
 
-/*
+/**
  * Place an up/down staircase at given location
  */
 static void place_random_stairs(int y, int x)
@@ -1254,8 +1277,7 @@ static void place_random_stairs(int y, int x)
     {
       place_down_stairs(y, x);
     }
-  else if ((is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN])) && 
-	   !(adult_dungeon && stage_map[p_ptr->stage][DOWN]))
+  else if (adult_dungeon && !stage_map[p_ptr->stage][DOWN])
     {
       place_up_stairs(y, x);
     }
@@ -1270,7 +1292,7 @@ static void place_random_stairs(int y, int x)
 }
 
 
-/*
+/**
  * Places some staircases near walls
  */
 static void alloc_stairs(int feat, int num, int walls)
@@ -1327,9 +1349,8 @@ static void alloc_stairs(int feat, int num, int walls)
 	      if (feat != FEAT_MORE_SHAFT) cave_set_feat(y, x, FEAT_MORE);
 	    }
 	  
-	  /* Bottom of dungeon, quest or underworld -- must go up */
-	  else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]) 
-		   || (underworld))
+	  /* Bottom of dungeon or underworld -- must go up */
+	  else if ((!stage_map[p_ptr->stage][DOWN]) || (underworld))
 	    {
 	      /* Clear previous contents, add up stairs */
 	      if (feat != FEAT_LESS_SHAFT) cave_set_feat(y, x, FEAT_LESS);
@@ -1349,7 +1370,7 @@ static void alloc_stairs(int feat, int num, int walls)
 }
 
 
-/*
+/**
  * Allocates some objects (using "place" and "type")
  */
 static void alloc_object(int set, int typ, int num)
@@ -1418,7 +1439,7 @@ static void alloc_object(int set, int typ, int num)
 }
 
 
-/*
+/**
  * Value "1" means the grid will be changed, value "0" means it won't.
  *
  * We have 47 entries because 47 is not divisible by any reasonable 
@@ -1431,7 +1452,7 @@ static bool streamer_change_grid[47] =
 };
 
 
-/*
+/**
  * Places "streamers" of rock through dungeon.
  *
  * Note that there are actually six different terrain features used
@@ -1626,7 +1647,7 @@ static void build_streamer(int feat, int chance)
 
 
 
-/*
+/**
  * Build a destroyed level
  */
 void destroy_level(bool new_level)
@@ -1730,7 +1751,7 @@ void destroy_level(bool new_level)
 /**************************************************************/
 
 
-/*
+/**
  * Place objects, up to the number asked for, in a rectangle centered on 
  * y0, x0.  Accept values for maximum vertical and horizontal displacement.
  *
@@ -1790,7 +1811,7 @@ static void spread_objects(int depth, int num, int y0, int x0, int dy, int dx)
 }
 
 
-/*
+/**
  * Place traps, up to the number asked for, in a rectangle centered on 
  * y0, x0.  Accept values for maximum vertical and horizontal displacement.
  *
@@ -1840,7 +1861,7 @@ static void spread_traps(int num, int y0, int x0, int dy, int dx)
 }
 
 
-/*
+/**
  * Place monsters, up to the number asked for, in a rectangle centered on 
  * y0, x0.  Accept values for monster depth, symbol, and maximum vertical 
  * and horizontal displacement.  Call monster restriction functions if 
@@ -1915,7 +1936,7 @@ static void spread_monsters(char symbol, int depth, int num,
 
 
 
-/*
+/**
  * Generate helper -- create a new room with optional light
  * 
  * Return FALSE if the room is not fully within the dungeon.
@@ -1941,7 +1962,7 @@ static bool generate_room(int y1, int x1, int y2, int x2, int light)
 }
 
 
-/*
+/**
  * Generate helper -- fill a rectangle with a feature
  */
 static void generate_fill(int y1, int x1, int y2, int x2, int feat)
@@ -1958,7 +1979,7 @@ static void generate_fill(int y1, int x1, int y2, int x2, int feat)
 }
 
 
-/*
+/**
  * Generate helper -- mark a rectangle with a set of cave_info flags
  */
 static void generate_mark(int y1, int x1, int y2, int x2, int flg)
@@ -1975,7 +1996,7 @@ static void generate_mark(int y1, int x1, int y2, int x2, int flg)
 }
 
 
-/*
+/**
  * Generate helper -- draw a rectangle with a feature
  */
 static void generate_draw(int y1, int x1, int y2, int x2, int feat)
@@ -1996,7 +2017,7 @@ static void generate_draw(int y1, int x1, int y2, int x2, int feat)
 }
 
 
-/*
+/**
  * Generate helper -- split a rectangle with a feature
  */
 static void generate_plus(int y1, int x1, int y2, int x2, int feat)
@@ -2020,7 +2041,7 @@ static void generate_plus(int y1, int x1, int y2, int x2, int feat)
 }
 
 
-/*
+/**
  * Generate helper -- open all sides of a rectangle with a feature
  */
 static void generate_open(int y1, int x1, int y2, int x2, int feat)
@@ -2039,7 +2060,7 @@ static void generate_open(int y1, int x1, int y2, int x2, int feat)
 }
 
 
-/*
+/**
  * Generate helper -- open one side of a rectangle with a feature
  */
 static void generate_hole(int y1, int x1, int y2, int x2, int feat)
@@ -2077,7 +2098,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 }
 
 
-/*
+/**
  * Find a good spot for the next room.  
  *
  * Find and allocate a free space in the dungeon large enough to hold 
@@ -2224,7 +2245,7 @@ static bool find_space(int *y, int *x, int height, int width)
 
 
 
-/*
+/**
  * Is a feature passable (at least in theory) by the character?
  */
 static bool passable(int feat)
@@ -2254,7 +2275,7 @@ static bool passable(int feat)
 
 
 
-/*
+/**
  * Make a starburst room. -LM-
  *
  * Starburst rooms are made in three steps:
@@ -2639,7 +2660,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 
 
 
-/*
+/**
  * Room building routines.
  *
  * Nine basic room types:
@@ -2656,7 +2677,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
  */
 
 
-/*
+/**
  * Special kind of room type 1, found only in moria-style dungeons.  Uses 
  * the "starburst room" code.
  */
@@ -2737,7 +2758,7 @@ static bool build_type1_moria(bool light)
 }
 
 
-/*
+/**
  * Type 1 -- normal rectangular rooms
  *
  * These rooms have the lowest build priority (this means that they 
@@ -2946,7 +2967,7 @@ static bool build_type1(void)
 }
 
 
-/*
+/**
  * Type 2 -- Overlapping rectangular rooms
  */
 static bool build_type2(void)
@@ -3051,7 +3072,7 @@ static bool build_type2(void)
 
 
 
-/*
+/**
  * Type 3 -- Cross shaped rooms
  *
  * Room "a" runs north/south, and Room "b" runs east/east
@@ -3235,7 +3256,7 @@ static bool build_type3(void)
 }
 
 
-/*
+/**
  * Type 4 -- Large room with an inner room
  *
  * Possible sub-types:
@@ -3461,7 +3482,7 @@ static bool build_type4(void)
 }
 
 
-/*
+/**
  * Type 5 -- Monster pits
  *
  * A monster pit is a 11x33 room, with an inner room filled with monsters.
@@ -3692,7 +3713,7 @@ static bool build_type5(void)
 
 
 
-/*
+/**
  * Helper function to "build_type6".  Fill a room matching 
  * the rectangle input with magma, and surround it with inner wall.  
  * Create a door in a random inner wall grid along the border of the 
@@ -3807,7 +3828,7 @@ static void make_chamber(int c_y1, int c_x1, int c_y2, int c_x2)
 
 
 
-/*
+/**
  * Expand in every direction from a start point, turning magma into rooms.  
  * Stop only when the magma and the open doors totally run out.
  */
@@ -3842,7 +3863,7 @@ static void hollow_out_room(int y, int x)
 
 
 
-/*
+/**
  * Type 6 -- Rooms of chambers
  *
  * Build a room, varying in size between 22x22 and 44x66, consisting of 
@@ -4253,7 +4274,7 @@ static bool build_type6(void)
 
 
 
-/*
+/**
  * Apply any general restrictions on monsters in vaults and themed levels.
  */
 static void general_monster_restrictions(void)
@@ -4275,7 +4296,7 @@ static void general_monster_restrictions(void)
     {
     case THEME_ELEMENTAL:
       {
-	/* Handled with a call from "mon_select()" */
+	/* Handled with a call from mon_select() */
 	get_mon_num_hook = mon_select;
 	
 	break;
@@ -4323,7 +4344,7 @@ static void general_monster_restrictions(void)
 }
 
 
-/*
+/**
  * Hack -- fill in "vault" rooms and themed levels
  */
 static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data, 
@@ -4963,7 +4984,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 }
 
 
-/*
+/**
  * Type 7 -- interesting rooms. -LM-
  */
 static bool build_type7(void)
@@ -5013,7 +5034,7 @@ static bool build_type7(void)
   return (TRUE);
 }
 
-/*
+/**
  * Type 8 -- lesser vaults.
  */
 static bool build_type8(void)
@@ -5070,7 +5091,7 @@ static bool build_type8(void)
 
 
 
-/*
+/**
  * Type 9 -- greater vaults.
  */
 static bool build_type9(void)
@@ -5129,7 +5150,7 @@ static bool build_type9(void)
 
 
 
-/*
+/**
  * Type 10 -- Extremely large rooms.
  * 
  * These are the largest, most difficult to position, and thus highest-
@@ -5214,7 +5235,7 @@ static bool build_type10(void)
 
 
 
-/*
+/**
  * Helper function that reads the room data table and returns the number 
  * of rooms, of a given type, we should build on this level.
  */
@@ -5282,7 +5303,7 @@ static int num_rooms_allowed(int room_type)
 }
 
 
-/*
+/**
  * Build a room of the given type.
  * 
  * Check to see if there will probably be enough space in the monster 
@@ -5339,7 +5360,7 @@ static bool room_build(int room_type)
 /**************************************************************/
 
 
-/*
+/**
  * Given a current position (y1, x1), move towards the target grid 
  * (y2, x2) either vertically or horizontally.
  *
@@ -5365,7 +5386,7 @@ static void correct_dir(int *row_dir, int *col_dir, int y1, int x1, int y2,
 }
 
 
-/*
+/**
  * Go in a semi-random direction from current location to target location.  
  * Do not actually head away from the target grid.  Always make a turn.
  */
@@ -5396,7 +5417,7 @@ static void adjust_dir(int *row_dir, int *col_dir, int y1, int x1, int y2,
 }
 
 
-/*
+/**
  * Go in a completely random orthongonal direction.  If we turn around 
  * 180 degrees, save the grid; it may be a good place to place stairs 
  * and/or the player.
@@ -5429,7 +5450,7 @@ static void rand_dir(int *row_dir, int *col_dir, int y, int x)
 }
 
 
-/* Terrain type is unalterable and impassable. */
+/** Terrain type is unalterable and impassable. */
 static bool unalterable(byte feat)
 {
   /* A few features are unalterable. */
@@ -5445,7 +5466,7 @@ static bool unalterable(byte feat)
   return (FALSE);
 }
 
-/*
+/**
  * Given a set of coordinates, return the index number of the room occupying 
  * the dungeon block this location is in.
  */
@@ -5464,7 +5485,7 @@ static int get_room_index(int y, int x)
 
 
 
-/*
+/**
  * Search for a vault entrance.
  *
  * Notes:
@@ -5661,7 +5682,7 @@ static bool find_entrance(int row_dir, int col_dir, int *row1, int *col1)
   else return (FALSE);
 }
 
-/*
+/**
  * Tests suitability of potential entranceways, and places doors if 
  * appropriate.
  */
@@ -5685,7 +5706,7 @@ static void try_entrance(int y0, int x0)
     }
 }
 
-/*
+/**
  * Places door at y, x position if at least 2 walls and two corridor spaces 
  * found
  */
@@ -5747,7 +5768,7 @@ static void try_door(int y0, int x0)
 
 
 
-/*
+/**
  * Constructs a tunnel between two points. 
  *
  * The tunnelling code connects room centers together.  It is the respon-
@@ -6517,7 +6538,7 @@ void build_tunnel(int start_room, int end_room)
 }
 
 
-/*
+/**
  * Creation of themed levels.  Use a set of flags to ensure that no level 
  * is built more than once.  Store the current themed level number for later 
  * reference.  -LM-
@@ -6680,7 +6701,7 @@ static bool build_themed_level(void)
 }
 
 
-/*
+/**
  * Generate a new dungeon level.  Determine if the level is destroyed, 
  * empty, or themed.  If themed, create a themed level.  Otherwise, build 
  * up to DUN_ROOMS rooms, type by type, in descending order of size and 
@@ -7067,7 +7088,7 @@ static void cave_gen(void)
 /*** Various wilderness helper routines  ***/
 
 
-/*
+/**
  * Makes "paths to nowhere" from interstage paths toward the middle of the
  * current stage.  Adapted from tunnelling code.
  */
@@ -7151,7 +7172,7 @@ static coord path_start(int sy, int sx, int ty, int tx)
   return (pathend);
 }
 
-/* Move the path if it might land in a river */
+/** Move the path if it might land in a river */
 void river_move(int *xp)
 {
   int x = (*xp), diff;
@@ -7164,7 +7185,7 @@ void river_move(int *xp)
   return;
 }
 
-/*
+/**
  * Places paths to adjacent surface stages, and joins them.  Does each 
  * direction separately, which is a bit repetitive -NRM-
  */
@@ -7514,7 +7535,7 @@ static void alloc_paths(int stage, int last_stage)
 }
 
 
-/* 
+/**
  * Make a formation - a randomish group of terrain squares. -NRM-
  * Care probably needed with declaring feat[].
  *
@@ -7676,7 +7697,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 }
 
 
-/*
+/**
  * Generate a new plain level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -7915,7 +7936,7 @@ void mtn_connect(int y, int x, int y1, int x1)
     }
 }
 
-/*
+/**
  * Generate a new mountain level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -8275,7 +8296,7 @@ static void mtn_gen(void)
     }
 }
 
-/*
+/**
  * Generate a new mountaintop level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -8543,7 +8564,7 @@ static void mtntop_gen(void)
     }
 }
 
-/*
+/**
  * Generate a new forest level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -8817,7 +8838,7 @@ static void forest_gen(void)
     }
 }
 
-/*
+/**
  * Generate a new swamp level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -9039,7 +9060,7 @@ static void swamp_gen(void)
     }
 }
 
-/*
+/**
  * Generate a new desert level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -9335,7 +9356,7 @@ static void desert_gen(void)
 }
 
 
-/*
+/**
  * Generate a new river level. Place stairs, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -9639,7 +9660,7 @@ static void river_gen(void)
     }
 }
 
-/*
+/**
  * Attempt to place a web of the required type
  */
 bool place_web(int type)
@@ -9729,7 +9750,7 @@ bool place_web(int type)
 
 
 
-/*
+/**
  * Generate a new valley level. Place down slides, 
  * and random monsters, objects, and traps.  Place any quest monsters.
  *
@@ -9961,7 +9982,7 @@ static void valley_gen(void)
     }
 
   /* Maybe place a few random portals. */
-  if (adult_dungeon && (p_ptr->depth == 70) && stage_map[p_ptr->stage][DOWN])
+  if (adult_dungeon && stage_map[p_ptr->stage][DOWN])
     {
       feature_type *f_ptr = NULL;
 
@@ -9982,7 +10003,7 @@ static void valley_gen(void)
 
 
 
-/*
+/**
  * Builds a store at a given pseudo-location
  *
  * As of 2.8.1 (?) the town is actually centered in the middle of a
@@ -10001,7 +10022,7 @@ static void valley_gen(void)
  * 
  * The home only appears if it is the player's home town.
  *
- * Note the use of "town_illuminate()" to handle all "illumination"
+ * Note the use of town_illuminate() to handle all "illumination"
  * and "memorization" issues.
  */
 static void build_store(int n, int yy, int xx, int stage)
@@ -10094,7 +10115,7 @@ static void build_store(int n, int yy, int xx, int stage)
 
 
 
-/*
+/**
  * Generate the "consistent" town features, and place the player
  *
  * Hack -- play with the R.N.G. to always yield the same town
@@ -10264,7 +10285,7 @@ static void town_gen_hack(void)
 
 
 
-/*
+/**
  * Town logic flow for generation of new town
  *
  * We start with a fully wiped cave of normal floors.
@@ -10379,7 +10400,7 @@ static void town_gen(void)
 
 
 
-/*
+/**
  * Generate a random dungeon level
  *
  * Hack -- regenerate any "overflow" levels
@@ -10389,7 +10410,7 @@ static void town_gen(void)
  * Note that this function resets flow data and grid flags directly.
  * Note that this function does not reset features, monsters, or objects.  
  * Features are left to the town and dungeon generation functions, and 
- * "wipe_m_list()" and "wipe_o_list()" handle monsters and objects.
+ * wipe_m_list() and wipe_o_list() handle monsters and objects.
  */
 void generate_cave(void)
 {

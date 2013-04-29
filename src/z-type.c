@@ -1,3 +1,7 @@
+/** \file z-type.c
+    \brief Types
+*/
+
 #include "h-basic.h"
 #include "z-form.h"
 #include "z-term.h"

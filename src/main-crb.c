@@ -1,6 +1,5 @@
-/*
- * File: main-crb.c
- * Purpose: Provide support for OS X, version 10.3 and later.
+/** \file main-crb.c
+    \brief Provide support for OS X, version 10.3 and later.
  *
  * Copyright (c) 2003 pelpel
  * Copyright (c) 2003,2004,2005 Robert Ruehlmann
@@ -20,11 +19,9 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
-#include "angband.h"
+ *
 
-
-/*
+ *
  * Notes:
  *
  * (pelpel) Characters in the ASCII mode are clipped by their bounding
@@ -47,28 +44,28 @@
  *
  * Important Resources in the resource file:
  *
- *   FREF 130 = ANGBAND_CREATOR / 'APPL' (application)
- *   FREF 129 = ANGBAND_CREATOR / 'SAVE' (save file)
- *   FREF 130 = ANGBAND_CREATOR / 'TEXT' (bone file, generic text file)
- *   FREF 131 = ANGBAND_CREATOR / 'DATA' (binary image file, score file)
+ *   - FREF 130 = ANGBAND_CREATOR / 'APPL' (application)
+ *   - FREF 129 = ANGBAND_CREATOR / 'SAVE' (save file)
+ *   - FREF 130 = ANGBAND_CREATOR / 'TEXT' (bone file, generic text file)
+ *   - FREF 131 = ANGBAND_CREATOR / 'DATA' (binary image file, score file)
  *
- */
+ *
 
-/* -------------------------------------------------------
+ * -------------------------------------------------------
  * PORTING YOUR VARIANT
  * ------------------------------------------------------
- * 0. Requires installation of XCode.  The framework .h files are otherwise
+ * - Requires installation of XCode.  The framework .h files are otherwise
  * absent. New changes also require use of NIB (xml) files, which
  * are most easily edited with Interface Builder. (XCode package.)
  * This reduces the amount of hand-coded menu creation by an order of magnitude.
  *
  *
- * 1. Compiling the binary
+ * - Compiling the binary
  *
  * You might wish to disable some SET_UID features for various reasons:
  * to have user folder within the lib folder, savefile names etc.
  *
- * 2. Installation
+ * - Installation
  *
  * The "angband" binary must be arranged this way for it to work:
  *
@@ -123,6 +120,8 @@
  */
 
 
+#include "angband.h"
+
 #ifdef MACH_O_CARBON
 
 
@@ -141,7 +140,7 @@
 #define huge size_t
 #endif
 
-/*
+/**
  * Width in pixels of white borders around the black screen.
  */
 #define BORDER_WID 1
@@ -149,7 +148,7 @@
 
 static const bool show_events = 0;
 
-/*
+/**
  * A rather crude fix to reduce amount of redraw artifacts.
  * Some fixed width fonts (i.e. Monaco) has characters with negative
  * left bearings, so Term_wipe_mac or overwriting cannot completely
@@ -159,17 +158,17 @@ static const bool show_events = 0;
 #define CLIP_HACK 0 /* */
 static const int use_clip_hack = CLIP_HACK;
 
-/*
+/**
  * Minimum font size
  */
 #define MIN_FONT 8
 
-/*
+/**
  * Another redraw artifact killer, based on suggestion by Julian Lighton
  */
 #define OVERWRITE_HACK (0)
 
-/* 
+/** 
  * These hacks should never be enabled at the same time.
  * Clip-hack renders overwrite-hack meaningless, and
  * it will cause use of an unitialized variable. - pete mack.
@@ -177,7 +176,7 @@ static const int use_clip_hack = CLIP_HACK;
 
 static const int use_overwrite_hack = (OVERWRITE_HACK && !CLIP_HACK);
 
-/*
+/**
  * Maximum number of windows.
  */
 #define MAX_TERM_DATA 8
@@ -194,7 +193,7 @@ typedef struct GlyphInfo GlyphInfo;
 
 typedef struct term_data term_data;
 
-/*
+/**
  * Extra "term" data
  */
 struct term_data
@@ -262,7 +261,7 @@ inline static void term_data_color(int a);
 static void install_handlers(WindowRef w);
 static void graphics_tiles_nuke(void);
 static void play_sound(int num);
-/*
+/**
  * Available values for 'wait'
  */
 
@@ -271,37 +270,37 @@ static void play_sound(int num);
 #define CHECK_EVENTS_WAIT 1
 
 
-/*
+/**
  * Delay handling of double-clicked savefiles
  */
 bool open_when_ready = FALSE;
 
-/*
+/**
  * Delay handling of pre-emptive "quit" event
  */
 bool quit_when_ready = FALSE;
 
 static long mac_os_version;
 
-/*
+/**
  * Hack -- game in progress
  */
 static bool game_in_progress = FALSE;
 
 
-/*
+/**
  * Indicate if the user chooses "new" to start a game
  */
 static bool new_game = FALSE;
 
 /* Out-of-band color identifiers */
-/* True black (TERM_BLACK may be altered) */
+/** True black (TERM_BLACK may be altered) */
 #define COLOR_BLACK             (256)
-/* No current color */
+/** No current color */
 #define COLOR_INVALID	(-1)
 
 
-/*
+/**
  * Keeps track of who owns the QD CGContext, and it's current state.
  * Always use this to change the active graphics port.
  * (It is a parallel structure to the Term variable.)
@@ -317,13 +316,13 @@ struct ActivePort {
 static struct ActivePort focus; /* initialized to 0 */
 
 
-/*
+/**
  * An array of term_data's
  */
 static term_data data[MAX_TERM_DATA];
 
 
-/*
+/**
  * Note when "open"/"new" become valid
  */
 static bool initialized = FALSE;
@@ -368,7 +367,7 @@ static MenuRef MyGetMenuHandle_aux(int menuID, bool first)
 	return menuRefs[menuID];
 }
 
-/*
+/**
  * Provide a flat namespace for OS X menus and submenus. 
  * It's a nuisance doing this via heirarchical calls all the time.
  */
@@ -378,7 +377,7 @@ inline static MenuRef MyGetMenuHandle(int menuID)
 }
 
 
-/*
+/**
  * Convert a pathname to a corresponding FSSpec.
  * Returns noErr on success.
  */
@@ -399,7 +398,7 @@ static OSErr path_to_spec(const char *path, FSSpec *spec)
 }
 
 
-/*
+/**
  * Convert a FSSpec to a corresponding pathname.
  * Returns noErr on success.
  */
@@ -420,7 +419,7 @@ static OSErr spec_to_path(const FSSpec *spec, char *buf, size_t size)
 }
 
 
-/*
+/**
  * [via path_to_spec]
  * Set creator and filetype of a file specified by POSIX-style pathname.
  * Returns 0 on success, -1 in case of errors.
@@ -447,7 +446,7 @@ void fsetfileinfo(cptr pathname, u32b fcreator, u32b ftype)
 }
 
 
-/*
+/**
  * Activate a given window, if necessary.  This should normally 
  * be called by Term_activate, when the z-term is updating it's
  * state.  It should also be called prior to any updates when
@@ -518,7 +517,7 @@ static void activate(WindowRef w)
 	focus.active = w;
 }
 
-/* 
+/** 
  * Temporarily give up control of the Quickdraw port.
  * Call when the window becomes inactive.
  * Call when the graphics state changes in any way, to
@@ -532,7 +531,7 @@ static void hibernate()
 	focus.ctx = 0;
 }
 
-/*
+/**
  * Display a warning message
  */
 static void mac_warning(cptr warning)
@@ -549,7 +548,7 @@ static void mac_warning(cptr warning)
 	CFRelease(msg);
 }
 
-/*
+/**
  * Notice fully up-to-date status of the main window
  */
 static void validate_main_window(void)
@@ -568,9 +567,9 @@ static void validate_main_window(void)
 }
 
 
-/*** Some generic functions ***/
+/**** Some generic functions ***/
 
-/*
+/**
  * Update color_info with the current values in angband_color_table
  */
 static void update_color_info(void)
@@ -596,7 +595,7 @@ static void update_color_info(void)
 	}
 }
 
-/*
+/**
  * Activate a color (0 to 256)
  * -1 is invalid, 256 is true black.
  */
@@ -615,7 +614,7 @@ inline static void term_data_color(int a)
 	}
 }
 
-/*
+/**
  * Get font metrics 
  */
 static GlyphInfo *get_glyph_info(ATSUFontID fid, float size)
@@ -742,7 +741,7 @@ static void release_glyph_info(GlyphInfo *info)
 	}
 }
 
-/*
+/**
  * Hack -- Apply and Verify the "font" info
  *
  * This should usually be followed by "term_data_check_size()"
@@ -771,7 +770,7 @@ static void term_data_check_font(term_data *td)
 }
 
 
-/*
+/**
  * Hack -- Apply and Verify the "size" info
  */
 static void term_data_check_size(term_data *td)
@@ -864,7 +863,7 @@ static void term_data_check_size(term_data *td)
 }
 
 
-/*
+/**
  * resize a term_data
  *
  * This should normally be followed by "term_data_redraw()"
@@ -892,7 +891,7 @@ static void term_data_resize(term_data *td)
 }
 
 
-/*
+/**
  * Hack -- redraw a term_data
  *
  * Note that "Term_redraw()" calls "TERM_XTRA_CLEAR"
@@ -916,12 +915,12 @@ static void term_data_redraw(term_data *td)
  * Graphics support
  */
 
-/*
+/**
  * PICT id / file name of image tiles
  */
 static const char *pict_id = NULL;
 
-/*
+/**
  * Frame
  * Wrapper for CGImages of the current tile set.
  *
@@ -950,7 +949,7 @@ static struct
 	CGImageRef *tile_images;
 } frame = {0};
 
-/*
+/**
  * Rendevous for font update events.
  */
 static struct 
@@ -960,7 +959,7 @@ static struct
 
 
 
-/* 
+/**
  * Replacement for BitMap (from QD2Qz porting guide)
  */
 void DrawSubimage (CGContextRef context, CGRect dst,
@@ -987,7 +986,7 @@ void DrawSubimage (CGContextRef context, CGRect dst,
 	CGContextRestoreGState (context);
 }
 
-/*
+/**
  * Copy an image with tiles of size src into a new one with
  * tiles of size dst.  Interpolation will not cross tile borders.
  */
@@ -1135,7 +1134,7 @@ static void ShowTextAt(int x, int y, int color, int n, const char *text )
 }
 
 
-/*
+/**
  * Init the graphics "frame"
  */
 static errr graphics_init(void)
@@ -1195,7 +1194,7 @@ static void graphics_tiles_nuke(void)
 	}
 }
 
-/*
+/**
  * Nuke the graphics "frame" and contents.
  */
 static errr graphics_nuke(void)
@@ -1221,20 +1220,26 @@ static errr graphics_nuke(void)
 }
 
 
-/* Arbitary limit on number of possible samples per event */
+/**
+ * Arbitary limit on number of possible samples per event 
+ */
 #define MAX_SAMPLES                     8
 
-/* Struct representing all data for a set of event samples */
+/**
+ * Struct representing all data for a set of event samples 
+ */
 typedef struct
 {
         int num;                /* Number of available samples for this event */
         NSSound *sound[MAX_SAMPLES];
 } sound_sample_list;
 
-/* Array of event sound structs */
+/**
+ * Array of event sound structs 
+ */
 static sound_sample_list samples[MSG_MAX];
 
-/*
+/**
  * Load sound effects based on sound.cfg within the xtra/sound directory;
  * bridge to Cocoa to use NSSound for simple loading and playback, avoiding
  * I/O latency by cacheing all sounds at the start.  Inherits full sound
@@ -1380,7 +1385,7 @@ static void load_sounds(void)
 
 
 
-/*
+/**
  * Play sound effects asynchronously.  Select a sound from any available
  * for the required event, and bridge to Cocoa to play it.
  */
@@ -1411,7 +1416,7 @@ static void play_sound(int event)
         [autorelease_pool release];
 }
 
-/*
+/**
  * Given a position in the ISO Latin-1 character set, return
  * the correct character on this system.
  */
@@ -1428,7 +1433,7 @@ static byte Term_xchar_mac(byte c)
 
 /*** Support for the "z-term.c" package ***/
 
-/*
+/**
  * Initialize a new Term
  *
  * Note also the "window type" called "noGrowDocProc", which might be more
@@ -1498,7 +1503,7 @@ static void Term_init_mac(term *t)
 	t->mapped_flag = td->mapped;
 }
 
-/*
+/**
  * Nuke an old Term
  */
 static void Term_nuke_mac(term *t)
@@ -1506,7 +1511,7 @@ static void Term_nuke_mac(term *t)
 #pragma unused(t)
 }
 
-/*
+/**
  * Unused
  */
 static errr Term_user_mac(int c)
@@ -1516,7 +1521,7 @@ static errr Term_user_mac(int c)
 }
 
 
-/*
+/**
  * React to changes
  */
 static errr Term_xtra_mac_react(void)
@@ -1530,7 +1535,7 @@ static errr Term_xtra_mac_react(void)
 }
 
 
-/*
+/**
  * Do a "special thing"
  */
 static errr Term_xtra_mac(int n, int v)
@@ -1647,7 +1652,7 @@ static errr Term_xtra_mac(int n, int v)
 	return (1);
 }
 
-/*
+/**
  * Low level graphics (Assumes valid input).
  * Draw a "cursor" at (x,y), using a "yellow box".
  * We are allowed to use "Term_what()" to determine
@@ -1686,7 +1691,7 @@ static errr Term_curs_mac(int x, int y)
 	return (0);
 }
 
-/*
+/**
  * Low level graphics helper (Assumes valid input)
  *
  * Based on suggestion by Julian Lighton
@@ -1704,7 +1709,7 @@ static void Term_wipe_mac_aux(int x, int y, int n)
 }
 
 
-/*
+/**
  * Low level graphics (Assumes valid input)
  *
  * Erase "n" characters starting at (x,y)
@@ -1733,7 +1738,7 @@ static errr Term_wipe_mac(int x, int y, int n)
 }
 
 
-/*
+/**
  * Low level graphics.  Assumes valid input.
  *
  * Draw several ("n") chars, with an attr, at a given location.
@@ -1788,7 +1793,7 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
 }
 
 
-/*
+/**
  * Create and initialize window number "i"
  */
 static void term_data_link(int i)
@@ -1853,7 +1858,7 @@ static void term_data_link(int i)
 	Term_activate(old);
 }
 
-/*
+/**
  * (Carbon, Bundle)
  * Return a POSIX pathname of the lib directory, or NULL if it can't be
  * located.  Caller must supply a buffer along with its size in bytes,
@@ -1901,7 +1906,7 @@ static char *locate_lib(char *buf, size_t size)
  */
 
 
-/*
+/**
  * Store "value" as the value for preferences item name
  * pointed by key
  */
@@ -1941,7 +1946,7 @@ static void save_preference(const char *key, type_union value)
 }
 
 
-/*
+/**
  * Load preference value for key, returns TRUE if it succeeds with
  * vptr updated appropriately, FALSE otherwise.
  */
@@ -1984,7 +1989,9 @@ static bool load_preference(const char *key, type_union *vptr, size_t maxlen )
         return (TRUE);
 }
 
-/* Convenience wrappers for commonly used type short */
+/**
+ * Convenience wrappers for commonly used type short 
+ */
 static void save_pref_short(const char *key, short value)
 {
         type_union u = i2u(value);
@@ -1999,7 +2006,7 @@ static bool load_pref_short(const char *key, short *vptr)
         return ret;
 }
 
-/*
+/**
  * Save preferences to preferences file for current host+current user+
  * current application.
  */
@@ -2052,7 +2059,7 @@ static void cf_save_prefs()
 }
 
 
-/*
+/**
  * Load preferences from preferences file for current host+current user+
  * current application.
  */
@@ -2185,7 +2192,7 @@ static void cf_load_prefs()
 }
 
 
-/*
+/**
  * Hack -- default data for a window
  */
 static void term_data_hack(term_data *td)
@@ -2222,7 +2229,7 @@ static void term_data_hack(term_data *td)
 }
 
 
-/*
+/**
  * Read the preference file, Create the windows.
  *
  * We attempt to use "FindFolder()" to track down the preference file.
@@ -2290,7 +2297,9 @@ static void init_windows(void)
 }
 
 
-/* Set up the contents of the about dialog */
+/**
+ * Set up the contents of the about dialog 
+ */
 static void init_aboutdialogcontent()
 {
         HIViewRef aboutDialogViewRef;
@@ -2343,7 +2352,7 @@ static void init_aboutdialogcontent()
 }
 
 
-/*
+/**
  * Save preferences
  */
 static void save_pref_file(void)
@@ -2352,7 +2361,7 @@ static void save_pref_file(void)
 }
 
 
-/*
+/**
  * Prepare savefile dialogue and set the variable
  * savefile accordingly. Returns true if it succeeds, false (or
  * aborts) otherwise. If all is false, only allow files whose type
@@ -2458,7 +2467,7 @@ static bool select_savefile(bool all)
 	return (TRUE);
 }
 
-/*
+/**
  * Initialize the menus
  *
  * Fixed top level menus are now loaded all at once by GetNewMBar().
@@ -2537,7 +2546,8 @@ static void install_handlers(WindowRef w)
 static int funcGTE(int a, int b) { return a >= b; }
 static int funcConst(int a, int c) {return c; }
 
-/* This initializes all the menus with values that change unpredictably.
+/**
+ * This initializes all the menus with values that change unpredictably.
  * This function is called on every menu draw and therefore should be kept
  * light and fast; menus that change rarely are done at the time of change
  */
@@ -2655,7 +2665,7 @@ static OSStatus AngbandGame(EventHandlerCallRef inCallRef,
         return noErr;
 }
 
-/*
+/**
  *  "New" / "Open" /  "Import"
  */
 static OSStatus openGame(int op)
@@ -3043,7 +3053,9 @@ static OSStatus UpdateCommand(EventHandlerCallRef inCallRef,
         return noErr;
 }
 
-/* Handle toggling sound via the menu option */
+/**
+ * Handle toggling sound via the menu option 
+ */
 static OSStatus SoundCommand(EventHandlerCallRef inCallRef,
                                                         EventRef inEvent, void *inUserData )
 {
@@ -3134,7 +3146,7 @@ static void FontChanged(UInt32 fontID, float size)
         RevalidateGraphics(td, TRUE);
 }
 
-/*
+/**
  * Bookkeeping for font-related events.
  */
 static OSStatus FontCommand(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData)
@@ -3297,7 +3309,9 @@ static OSStatus KeyboardCommand ( EventHandlerCallRef inCallRef,
         return noErr;
 }
 
-/* About angband... */
+/**
+ * About angband... 
+ */
 static OSStatus AboutCommand(EventHandlerCallRef inCallRef, EventRef inEvent,
     void *inUserData )
 {
@@ -3409,7 +3423,7 @@ static OSErr AEH_Open(const AppleEvent *theAppleEvent, AppleEvent* reply,
 }
 
 
-/*
+/**
  * Handle quit_when_ready, by Peter Ammon,
  * slightly modified to check inkey_flag.
  */
@@ -3435,7 +3449,7 @@ static void quit_calmly(void)
 }
 
 
-/*
+/**
  * Macintosh modifiers (event.modifier & ccc):
  *   cmdKey, optionKey, shiftKey, alphaLock, controlKey
  *
@@ -3486,7 +3500,7 @@ static void quit_calmly(void)
  */
 
 
-/*
+/**
  * optimize non-blocking calls to "CheckEvents()"
  * idea from "maarten hazewinkel <mmhazewi@cs.ruu.nl>"
  *
@@ -3496,7 +3510,7 @@ static void quit_calmly(void)
 #define event_ticks 1
 
 
-/*
+/**
  * check for events, return true if we process any
  */
 static bool CheckEvents(int wait)
@@ -3554,7 +3568,7 @@ static bool CheckEvents(int wait)
 
 
 
-/*
+/**
  * Hook to tell the user something important
  */
 static void hook_plog(cptr str)
@@ -3564,7 +3578,7 @@ static void hook_plog(cptr str)
 }
 
 
-/*
+/**
  * Hook to tell the user something, and then quit
  */
 static void hook_quit(cptr str)
@@ -3587,7 +3601,7 @@ static void hook_quit(cptr str)
 /*** Main program ***/
 
 
-/*
+/**
  * Initialize and verify file and dir paths
  *
  */
@@ -3619,7 +3633,7 @@ static void init_paths(void)
 	}
 }
 
-/*
+/**
  * Macintosh Main loop
  */
 int main(void)
