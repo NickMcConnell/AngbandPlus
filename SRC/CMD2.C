@@ -154,7 +154,7 @@ static void do_cmd_travel(void)
 
                         if ((selection==p_ptr->dungeon)
                                  && (t_ptr->distant != p_ptr->dungeon)
-                                 && ((!zone2->guard) || (r_info[zone2->guard].cur_num==0)))
+                                 && ((!zone2->guard) || (!r_info[zone2->guard].max_num)))
 			{
 
                                 if (!zone2->guard) msg_format("In the distance lies %s.",t_name + t_info[t_ptr->distant].name);

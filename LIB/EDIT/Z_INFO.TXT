@@ -38,6 +38,9 @@ M:V:35
 # Maximum number of towns
 M:T:40
 
+# Maximum number of stores
+M:U:33
+
 # Maximum number of quests
 M:Q:6
 

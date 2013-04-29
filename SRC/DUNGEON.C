@@ -586,7 +586,7 @@ static void process_world(void)
 				while (1)
 				{
 					n = rand_int(MAX_STORES);
-					if (store_home(n)) break;
+                                        if (n == STORE_HOME) break;
 				}
 
 				/* Shuffle it */

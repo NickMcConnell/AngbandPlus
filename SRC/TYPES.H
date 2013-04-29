@@ -76,7 +76,6 @@ typedef s16b s16b_wid[DUNGEON_WID];
 typedef struct header header;
 typedef struct maxima maxima;
 typedef struct dungeon_zone dungeon_zone;
-typedef struct town_store town_store;
 typedef struct town_type town_type;
 typedef struct desc_type desc_type;
 typedef struct room_info_type room_info_type;
@@ -188,6 +187,8 @@ struct maxima
 	u16b h_max;             /* Max size for "h_info[]" */
 
 	u16b t_max;		/* Max size for "t_info[]" */
+        u16b u_max;             /* Max size for "u_info[]" */
+
 	u16b q_max;		/* Max size for "q_info[]" */
 
 	u16b b_max;             /* Max size per element of "b_info[]" */
@@ -217,21 +218,6 @@ struct dungeon_zone
 
 
 /*
- * Town store structure
- *
- */
-struct town_store
-{
-        u32b name;                     /* Name (offset) */
-
-        byte d_char;                      /* Default feature char */
-        byte d_attr;                      /* Default feature attr */
-
-	byte level;
-	byte tval;
-};
-
-/*
  * Dungeon level structure
  *
  */
@@ -244,7 +230,7 @@ struct town_type
         u16b near;
         u16b distant;
 
-        town_store store[MAX_STORES];
+        u16b store[MAX_STORES];
         dungeon_zone zone[MAX_DUNGEON_ZONES];
 
 };
@@ -896,6 +882,17 @@ struct owner_type
  */
 struct store_type
 {
+        u32b name;                     /* Name (offset) */
+
+        byte d_char;                      /* Default feature char */
+        byte d_attr;                      /* Default feature attr */
+
+	byte x_attr;            /* Desired feature attribute */
+	char x_char;            /* Desired feature character */
+
+	byte level;
+	byte tval;
+
 	byte owner;                             /* Owner index */
 	byte extra;                             /* Unused for now */
 

@@ -240,6 +240,10 @@ extern header *t_head;
 extern town_type *t_info;
 extern char *t_name;
 extern char *t_text;
+extern header *u_head;
+extern store_type *u_info;
+extern char *u_name;
+extern char *u_text;
 extern header *h_head;
 extern hist_type *h_info;
 extern char *h_text;
@@ -457,6 +461,7 @@ extern errr init_c_info_txt(FILE *fp, char *buf);
 extern errr init_w_info_txt(FILE *fp, char *buf);
 extern errr init_s_info_txt(FILE *fp, char *buf);
 extern errr init_t_info_txt(FILE *fp, char *buf);
+extern errr init_u_info_txt(FILE *fp, char *buf);
 extern errr init_h_info_txt(FILE *fp, char *buf);
 extern errr init_b_info_txt(FILE *fp, char *buf);
 extern errr init_g_info_txt(FILE *fp, char *buf);
@@ -719,7 +724,6 @@ extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 
 /* store.c */
-extern bool store_home(int n);
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);

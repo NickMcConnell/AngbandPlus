@@ -2427,7 +2427,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_pval_stacks,
                 OPT_stack_force_pvals,
                 OPT_stack_force_times,
-                255
+                OPT_variant_town
 	},
 
         /*** Variant other ***/

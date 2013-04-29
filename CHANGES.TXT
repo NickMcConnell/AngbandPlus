@@ -1,3 +1,12 @@
+30-11-2001 Unangband 0.4.5b Bugfix release
+- Fixed problem with crashing when updating stores by reverting to 0.4.3
+store code (again).
+- Fixed problem with never generating stairs down on level 1.
+
+27-11-2001 Unangband 0.4.5a Bugfix release
+- Fixed problem with logical inversion in stores.c allowing purchase of all
+items for free except in home.
+
 26-11-2001 Unangband 0.4.5 "Option Pack"
 - Now support stacking of pvals and timeouts. Pvals stacked if equal
 or 1 less than existing item pval, or if stack_force_pvals option in

@@ -1008,6 +1008,22 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'U' for "Maximum u_info[] index" */
+                if (buf[2] == 'U')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the value */
+                        z_info->u_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
 		/* Process 'Q' for "Maximum q_info[] index" */
 		if (buf[2] == 'Q')
 		{
@@ -4990,7 +5006,7 @@ errr init_t_info_txt(FILE *fp, char *buf)
 {
         int i;
 
-	char *s, *t;
+        char *s;
 
 	/* Not ready yet */
 	bool okay = FALSE;
@@ -5000,9 +5016,6 @@ errr init_t_info_txt(FILE *fp, char *buf)
 
 	/* Zone number */
 	int zone = 0;
-
-	/* Store number */
-	int store = 0;
 
 	/* Just before the first record */
 	error_idx = -1;
@@ -5097,7 +5110,6 @@ errr init_t_info_txt(FILE *fp, char *buf)
 			t_head->name_size += strlen(s);
 
                         /* Reset the counters */
-                        store = 0;
                         zone = 0;
 
 			/* Next... */
@@ -5208,62 +5220,24 @@ errr init_t_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'S')
 		{
 
-			int tmp;
+                        int store1,store2,store3,store4,store5,store6,store7,store8;
 
-			/* Oops, no more slots */
-                        if (store == MAX_STORES) return (PARSE_ERROR_GENERIC);
+			/* Scan for the values */
+                        if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
+                                        &store1, &store2, &store3, &store4, &store5, &store6, &store7, &store8)) return (PARSE_ERROR_GENERIC);
 
-			/* Get the text */
-			s = buf+2;
+			/* Save the values */
+                        t_ptr->store[0] = store1;
+                        t_ptr->store[1] = store2;
+                        t_ptr->store[2] = store3;
+                        t_ptr->store[3] = store4;
+                        t_ptr->store[4] = store5;
+                        t_ptr->store[5] = store6;
+                        t_ptr->store[6] = store7;
+                        t_ptr->store[7] = store8;
 
-			/* Get the value */
-                        t_ptr->store[store].d_char = s[0];
-
-			/* Skip the colon */
-                        s = s+2;
-
-			/* Extract the attr */
-			tmp = color_char_to_attr(s[0]);
-
-			/* Paranoia */
-			if (tmp < 0) return (PARSE_ERROR_GENERIC);
-
-			/* Get the value */
-                        t_ptr->store[store].d_attr = s[0];
-
-			/* Skip the colon */
-                        t = s+2;                        
-
-			/* Analyze the third field */
-                        for (s = t; *t && (*t != ':'); t++) /* loop */;
-
-			/* Terminate the field (if necessary) */
-			if (*t == ':') *t++ = '\0';
-
-			/* Get the value */
-			t_ptr->store[store].level = atoi(s);
-
-                        /* Analyze the fourth field */
-                        for (s = t; *t && (*t != ':'); t++) /* loop */;
-
-			/* Terminate the field (if necessary) */
-			if (*t == ':') *t++ = '\0';
-
-			/* Get the value */
-                        t_ptr->store[store].tval = atoi(s);
-
-			/* Hack -- Verify space */
-                        if (t_head->name_size + strlen(t) + 8 > z_info->fake_name_size)
-				return (PARSE_ERROR_OUT_OF_MEMORY);
-
-			/* Advance and Save the name index */
-                        if (!t_ptr->store[store].name) t_ptr->store[store++].name = ++t_head->name_size;
-
-                        /* Append chars to the name */
-                        strcpy(t_name + t_head->name_size, t);
-
-			/* Advance the index */
-                        t_head->name_size += strlen(t);
+			/* Find the next empty zone slot (if any) */
+			zone++;
 
 			/* Next... */
 			continue;
@@ -5289,6 +5263,210 @@ errr init_t_info_txt(FILE *fp, char *buf)
 }
 
 
+
+/*
+ * Initialize the "u_info" array, by parsing an ascii "template" file
+ */
+errr init_u_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+        char *s;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+        store_type *u_ptr = NULL;
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+	/* Prepare the "fake" stuff */
+        u_head->name_size = 0;
+        u_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+                            (v1 != u_head->v_major) ||
+                            (v2 != u_head->v_minor) ||
+                            (v3 != u_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+                        if (i >= u_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+                        u_ptr = &u_info[i];
+
+			/* Hack -- Verify space */
+                        if (u_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the name index */
+                        if (!u_ptr->name) u_ptr->name = ++u_head->name_size;
+
+			/* Append chars to the name */
+                        strcpy(u_name + u_head->name_size, s);
+
+			/* Advance the index */
+                        u_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+                /* There better be a current u_ptr */
+                if (!u_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+
+#if 0
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Get the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+                        if (u_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the text index */
+                        if (!u_ptr->text) u_ptr->text = ++u_head->text_size;
+
+			/* Append chars to the name */
+                        strcpy(u_text + u_head->text_size, s);
+
+			/* Advance the index */
+                        u_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+#endif
+
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+			char sym;
+			int tmp;
+
+			/* Paranoia */
+			if (!buf[2]) return (PARSE_ERROR_GENERIC);
+			if (!buf[3]) return (PARSE_ERROR_GENERIC);
+			if (!buf[4]) return (PARSE_ERROR_GENERIC);
+
+			/* Extract the char */
+			sym = buf[2];
+
+			/* Extract the attr */
+			tmp = color_char_to_attr(buf[4]);
+
+			/* Paranoia */
+			if (tmp < 0) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+                        u_ptr->d_attr = tmp;
+                        u_ptr->d_char = sym;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'I' for "Info" (one line only) */
+		if (buf[0] == 'I')
+		{
+                        int level, tval;
+
+			/* Scan for the values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+                                        &level, &tval)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+                        u_ptr->level=level;
+                        u_ptr->tval=tval;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+        ++u_head->name_size;
+        ++u_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	/* Success */
+	return (0);
+}
 
 
 /*

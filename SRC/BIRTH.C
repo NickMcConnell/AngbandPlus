@@ -1781,7 +1781,7 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-        int n;
+        int i, n;
 
 	/* Create a new character */
 	while (1)
@@ -1816,6 +1816,12 @@ void player_birth(void)
 	{
 		/* Initialize */
 		store_init(n);
+
+		/* Ignore home */
+		if (n == STORE_HOME) continue;
+
+		/* Maintain the shop (ten times) */
+		for (i = 0; i < 10; i++) store_maint(n);
 	}
 
         /* Hack --- give awareness of items */

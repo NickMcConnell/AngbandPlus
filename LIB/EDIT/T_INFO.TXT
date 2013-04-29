@@ -12,7 +12,7 @@
 #Currently up to 4 lines (ie up to 3 quest monsters per dungeon).
 #X:can go to easily:can go to after bottom level quest monster killed
 #R:race characters allowed
-#S:char:attr:level (if > 0, operates as black market):tval (optional):store name
+#S:store1:store2:store3:store4:store5:store6:store7:store8
 #O:race idx:purse:maxgreed:mingreed:haggleper:tolerance:name
 
 #If surface level is less than or equal to MAX_ZONE_WILDS (currently 15), the surface
@@ -32,28 +32,19 @@ V:2.9.2
 
 N:0:Angband
 X:0:0
-L:0:0:0:0:0
+L:0:0:1:0:0
 L:1:56:0:0:0
 L:99:56:0:0:587
 L:100:56:0:0:588
-S:1:U:0:0:General store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:g:0:0:Temple
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:7:D:25:0:Black Market
-S:8:y:0:0:Your home
+S:1:2:3:4:5:6:7:8
 D:It feels like home...
 
 # Alternate starting dungeon.
 
 N:1:Hobbiton
 X:10:37
-L:0:0:1:162:0
-S:1:r:1:80:Farmer Maggot's Mushroom Store
-S:7:U:5:0:The Mill
-S:8:G:0:0:Bag End
+L:0:0:135:162:0
+S:9:10:11:0:0:0:0:0
 D:In a hole in the ground, there lived a hobbit.
 
 #The following quests are from the hobbit.
@@ -61,19 +52,13 @@ D:In a hole in the ground, there lived a hobbit.
 N:2:Rivendell
 X:1:3
 L:0:0:162:153:0
-S:1:G:0:11:House of Elrond
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:g:0:0:Temple
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:7:u:5:0:Marketplace
+S:12:2:3:4:5:6:13:0
 
 # Misty Mountains are quite wet (Underground rivers etc).
 
 N:3:the Misty Mountains
 X:2:4
-L:2:1:56:49:0
+L:2:135:56:153:0
 L:3:56:0:153:68
 L:4:56:0:0:0
 L:13:56:0:154:185
@@ -81,40 +66,28 @@ L:13:56:0:154:185
 N:4:the house of Beorn
 X:3:5
 L:0:0:162:0:325
-S:+:U:0:80:House of Beorn
+S:14:0:0:0:0:0:0:0
 
 #Should be guarded by King of Wood Elves
 
 N:5:Mirkwood
 X:4:6
-L:14:1:162:153:0
+L:14:135:162:153:0
 L:15:56:0:0:0
 L:56:0:153:0:0
-S:1:o:5:80:Festhall
-S:1:y:35:24:Music hall
-S:3:U:25:17:Fletcher
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:6:y:35:45:Jewelers
-S:6:R:35:92:Library
+S:15:16:17:4:5:18:19:0
 
 N:6:Lake-town
 X:5:7
 L:0:0:155:1:0
-S:1:U:0:0:General Store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:g:0:0:Temple
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:7:D:25:0:Black Market
+S:1:2:3:4:5:6:7:0
 
 # We disturb Smaug while entering his lair...
 # Note Smaug is out of depth by 10 levels at bottom.
 
 N:7:the Lonely Mountain
 X:8:9
-L:33:155:56:1:0:498
+L:33:155:56:0:498
 L:34:56:0:0:0:0
 L:38:56:0:0:0:498
 
@@ -128,13 +101,7 @@ L:40:121:0:0:0
 N:9:Lake-town, rebuilt
 X:14:0
 L:0:0:155:1:0
-S:1:U:0:0:General Store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:g:w:40:0:statue in your honor
+S:1:2:3:4:5:6:20:0
 
 #The following levels are from the Fellowship of the Ring.
 
@@ -143,48 +110,37 @@ S:g:w:40:0:statue in your honor
 
 N:10:Farmer Maggot's farm
 X:1:11
-L:0:0:1:162:14
+L:0:0:135:162:14
 L:1:114:0:0:0
-L:8:114:0:0:0:123
-S:+:U:1:80:Farmhouse
+L:8:114:0:0:123
+S:21:0:0:0:0:0:0:0
 
 #Uh. Very nasty. Potentially 32 levels out of depth. Can you make it to the store first?
 
 N:11:Bree
 X:10:12
-L:0:0:1:0:464
-S:1:u:0:80:Inn
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
+L:0:0:135:162:464
+S:22:2:3:4:5:6:0:0
 
 #Characters will spend a lot of time in Weathertop, as they need to be able
 #to beat at least 2 very out of depth monsters in a 1 on 1 fight to progress.
 
 N:12:Weathertop
 X:11:13
-L:9:1:0:49:479
+L:9:135:0:49:479
 L:10:56:0:0:0
 L:19:56:0:0:479
 
 N:13:Trollshaw Forest
 X:12:14
-L:14:1:162:154:491
+L:14:135:162:154:491
 
 #Duplicate to allow acces to Moria.
 
 N:14:Rivendell
 X:13:15
 L:0:0:162:153:0
-S:1:G:0:11:House of Elrond
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:g:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:R:35:90:Library
-S:7:u:5:0:Marketplace
+S:12:2:3:4:5:6:13:0
 #Note tval 11 does not exist, so no items sold here.
 
 #Even worse (26 levels out of depth)
@@ -206,27 +162,15 @@ L:60:56:141:0:502
 
 N:17:Isengard
 X:16:20
-L:20:0:0:0:262
+L:20:0:1:0:262
 L:21:56:0:0:0
 L:60:56:0:0:528
-S:1:D:0:0:Barracks
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:7:D:25:0:Black Market
+S:23:2:3:4:5:6:7:0
 
 N:18:Lothlorien
 X:19:20
 L:0:0:162:162:0
-S:1:o:5:80:Festhall
-S:2:U:25:17:Fletcher
-S:4:g:0:0:Temple
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:6:y:35:45:Jewelers
-S:<:W:60:0:The White Tree
+S:15:17:4:5:18:24:0:0
 
 N:19:Parth Galen
 X:20:24
@@ -238,19 +182,13 @@ L:14:162:162:162:1043
 
 N:21:Edoras
 X:22:28
-L:0:0:0:0:0
+L:0:0:1:0:0
 L:8:56:0:0:123
-S:1:U:0:0:General Store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:g:0:0:Temple
-S:4:G:35:91:Shrine
-S:5:b:0:0:Alchemist
-S:6:r:0:0:Magic Shop
+S:1:2:3:4:5:6:25:0
 
 N:22:Battle of Helm's Deep
 X:21:23
-L:50:1:162:56:267
+L:50:135:162:56:267
 
 N:23:Isengard
 X:20:22
@@ -264,19 +202,13 @@ L:65:199:200:201:0
 
 N:25:Ithilien
 X:26:27
-L:14:1:162:199:0
+L:14:135:162:199:0
 L:15:0:1:153:0
-S:+:U:0:80:Supplies
-S:+:U:0:17:Supplies
-S:+:U:0:18:Supplies
-S:+:U:0:39:Supplies
-S:+:U:0:77:Supplies
-S:+:U:5:75:Supplies
-S:+:DU:5:70:Supplies
+S:26:27:28:29:30:31:32:0
 
 N:26:Minas Morgul
 X:25:31
-L:65:0:56:155:543
+L:65:135:56:155:543
 L:66:56:0:0:0
 L:85:56:0:0:578
 
@@ -292,38 +224,27 @@ N:28:Minas Tirith
 X:29:30
 L:0:0:0:0:0
 L:1:0:0:0:0
-S:1:U:0:0:General Store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
+S:1:2:3:4:5:6:0:0
 
 N:29:Paths of the Dead
 X:28:30
-L:65:1:1:56:0
+L:65:135:1:56:0
 L:66:56:0:0:0
 L:85:56:0:0:585
 
 N:30:Battle of Five Armies
 X:27:31
-L:70:1:162:56:575
+L:70:135:162:56:575
 
 N:31:Minas Tirith
 X:25:26
-L:0:0:0:0:0
+L:0:0:1:0:0
 L:1:0:0:0:0
-S:1:U:0:0:General Store
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
-S:<:W:80:0:The White Tree
+S:1:2:3:4:5:6:24:0
 
 N:32:Mordor
 X:33:27
-L:75:1:201:209:0
+L:75:135:201:209:0
 
 N:33:Orodruin
 X:56:34
@@ -340,46 +261,31 @@ L:99:56:1:209:587
 
 N:35:Hobbiton
 X:0:36
-L:60:0:1:199:528
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:7:U:5:0:The Mill
+L:60:0:135:199:528
+S:2:3:11:0:0:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:39:0
-L:0:0:1:162:0
-S:1:R:1:80:Farmer Maggot's Mushroom Store
-S:7:U:5:0:The Mill
-S:8:G:0:0:Bag End
+L:0:0:135:162:0
+S:9:10:11:0:0:0:0:0
 
 # The following are accessible from the first Hobbiton for consistency
 
 N:37:Bree
 X:2:38
-L:0:0:1:0:0
-S:1:u:0:80:Inn
-S:2:s:0:0:Armoury
-S:3:w:0:0:Weapon Smith
-S:4:b:0:0:Temple
-S:5:g:0:0:Alchemist
-S:6:r:0:0:Magic Shop
+L:0:0:135:162:0
+S:22:2:3:4:5:6:0:0
 
 # And an alternate early dungeon...
 
 N:38:Barrow-downs
 X:37:38
-L:1:1:162:114:0
+L:1:135:162:56:0
 L:11:56:0:0:0:0
 
 # Other alternate dungeons should be placed here
 
 # Must always be last position
-N:39:retirement
-L:0:0:0:162:0
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
-S:<:W:80:0:The White Tree
+N:39:the West
+L:0:0:135:162:0
+S:24:24:24:24:24:24:24:0

@@ -1881,6 +1881,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		return (FALSE);
 	}
+
 	/* Require monster can survive on terrain */
         if (place_monster_here(y, x, r_idx)==MM_FAIL)
 	{

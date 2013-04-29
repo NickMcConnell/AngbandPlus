@@ -1,0 +1,145 @@
+# File: b_info.txt
+
+# This file is used to initialize the "lib/data/u_info.raw" file, which is
+# used to initialize the "shop" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/b_info.raw" file.
+
+# Format:
+# N:store:store name
+# I:level:tval
+
+
+# Version stamp (required)
+
+V:2.9.2
+
+N:1:General store
+G:1:U
+I:0:0
+
+N:2:Armoury
+G:2:s
+I:0:0
+
+N:3:Weapon Smith
+G:3:w
+I:0:0
+
+N:4:Temple
+G:4:g
+I:0:0
+
+N:5:Alchemist
+G:5:b
+I:0:0
+
+N:6:Magic Shop
+G:6:r
+I:0:0
+
+N:7:Black Market
+G:7:D
+I:25:0
+
+N:8:Your home
+G:8:y
+I:0:0
+
+N:9:Farmer Maggot's Mushroom Store
+G:1:r
+I:1:80
+
+N:10:Mill
+G:7:U
+I:5:0
+
+N:11:round green door to 'Bag End'
+G:8:G
+I:0:0
+
+N:12:House of Elrond
+G:1:G
+I:0:11
+
+N:13:Marketplace
+G:7:u
+I:5:0
+
+N:14:House of Beorn
+G:+:U
+I:0:80
+
+N:15:Festhall
+G:1:o
+I:5:80
+
+N:16:Music hall
+G:1:y
+I:35:24
+
+N:17:Fletcher
+G:3:U
+I:25:17
+
+N:18:Jewelers
+G:6:y
+I:35:45
+
+N:19:Library
+G:6:R
+I:35:92
+
+N:20:newly erected statue in your honor
+G:g:w
+I:40:0
+
+N:21:Farmhouse
+G:+:U
+I:1:80
+
+N:22:Inn
+G:1:u
+I:0:80
+
+N:23:Barracks
+G:1:D
+I:0:0
+
+N:24:White Tree
+G:<:W
+I:80:0
+
+N:25:Shrine
+G:4:G
+I:35:91
+
+N:26:Storeroom
+G:+:U
+I:0:80
+
+N:27:Storeroom
+G:+:U
+I:0:17
+
+N:28:Storeroom
+G:+:U
+I:0:18
+
+N:29:Storeroom
+G:+:U
+I:0:39
+
+N:30:Storeroom
+G:+:U
+I:0:77
+
+N:31:Storeroom
+G:+:U
+I:0:75
+
+N:32:Storeroom
+G:+:U
+I:0:70

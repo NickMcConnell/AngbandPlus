@@ -2568,7 +2568,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 	strcpy(text_visible, "");
 
 	/* Town or not in room */
-	if (!room)
+        if (!room)
         {
                 town_type *t_ptr = &t_info[p_ptr->dungeon];
                 dungeon_zone *zone=&t_ptr->zone[0];;
@@ -2580,11 +2580,8 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		{
 			if ((zone->fill) && (zone->level < MAX_ZONE_WILDS)) strcpy(name, "the wilds of ");
 			else if (zone->fill) strcpy(name,"the ruins of ");
-                        else if (!t_ptr->store[1].d_char)
-                        {
-
-                        }
-                        else if (!t_ptr->store[2].d_char) strcpy(name,"the village of ");
+                        else if (!t_ptr->store[1]) strcpy(name,"");
+                        else if (!t_ptr->store[2]) strcpy(name,"the village of ");
 			else strcpy(name,"the town of ");
                         strcat(name, t_name + t_info[p_ptr->dungeon].name);
                         strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
@@ -2598,12 +2595,12 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
                         strcat(text_always, t_name + t_info[p_ptr->dungeon].name);
                         strcat(text_always, ".");
 		}
-		else
-		{
+                else
+                {
                         strcpy(name, "empty room");
-		}
+                }
 
-		return;
+        	return;
 	}
 	
 	/* In room */
@@ -2924,13 +2921,7 @@ void describe_room(void)
 	/* Get the actual room description */
 	get_room_desc(room, name, text_visible, text_always);
 
-        if ((p_ptr->depth == town_depth(p_ptr->dungeon))
-                || (p_ptr->depth == min_depth(p_ptr->dungeon)))
-        {
-                msg_format("You have entered %s.",name);
-                msg_format("%s",text_always);
-        }
-        else if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
+        if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
          && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 	{
                 if (room_names)
@@ -2979,12 +2970,17 @@ void describe_room(void)
 		}
 	}
         else if ((strlen(text_always)) &&
-          ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
-          !(p_ptr->depth)))
+          (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 	{
 		/* Message */
                 if (room_descriptions) msg_format("%s", text_always);
 	}
+        else if ((p_ptr->depth == town_depth(p_ptr->dungeon))
+                || (p_ptr->depth == min_depth(p_ptr->dungeon)))
+        {
+                msg_format("You have entered %s.",name);
+                msg_format("%s",text_always);
+        }
 
 	/* Window stuff */
 	p_ptr->window |= (PW_ROOM_INFO);
@@ -4011,6 +4007,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (f_info[feat].flags1 & (FF1_ENTER))
 			{
 				s3 = "the entrance to the ";
+
+                                name = u_name + u_info[t_info[p_ptr->dungeon].store[feat-FEAT_SHOP_HEAD]].name;
 			}
 
 			/* Display a message */

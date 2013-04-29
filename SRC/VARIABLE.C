@@ -661,6 +661,13 @@ town_type *t_info;
 char *t_name;
 char *t_text;
 
+/*
+ * The store arrays
+ */
+header *u_head;
+store_type *u_info;
+char *u_name;
+char *u_text;
 
 
 /*
