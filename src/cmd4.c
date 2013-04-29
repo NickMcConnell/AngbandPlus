@@ -3971,6 +3971,9 @@ static void dump_colors(FILE *fff)
       /* Dump a comment */
       fprintf(fff, "# Color '%s'\n", name);
       
+      /* Dump the colour info */
+      fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
+          i, kv, rv, gv, bv);
     }
 }
 
@@ -5058,7 +5061,7 @@ void do_cmd_colors(void)
  */
 void do_cmd_note(void)
 {
-  make_note("", p_ptr->stage, NOTE_PLAYER);
+  make_note("", p_ptr->stage, NOTE_PLAYER, p_ptr->lev);
 }
   
   
@@ -5068,7 +5071,7 @@ void do_cmd_note(void)
  *
  * Updated for FA 030 -NRM-
  */
-void make_note(char *note, int what_stage, byte note_type)
+void make_note(char *note, int what_stage, byte note_type, s16b lev)
 {
   char buf[80];
   
@@ -5119,7 +5122,7 @@ void make_note(char *note, int what_stage, byte note_type)
   /* Should be in the right place */
   notes[num].turn = turn;
   notes[num].place = what_stage;
-  notes[num].level = p_ptr->lev;
+  notes[num].level = lev;
   notes[num].type = note_type;
   sprintf(notes[num].note, buf);
       

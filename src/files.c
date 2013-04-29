@@ -1665,7 +1665,7 @@ void display_player_sml(void)
   byte a;
   char c;
   
-  char buf[80];
+  char buf[100];
   
   int show_m_tohit = p_ptr->dis_to_h;
   int show_a_tohit = p_ptr->dis_to_h;
@@ -1895,7 +1895,7 @@ extern int make_dump(char_attr_line *line, int mode)
   
   char o_name[120];
   
-  char buf[80];
+  char buf[100];
   char buf1[20];
   char buf2[20];
 
@@ -2172,24 +2172,35 @@ extern int make_dump(char_attr_line *line, int mode)
 	  for (i = 0; i < 12; i++) sum += (int)p_ptr->barehand_dam[i];
 	  dump_num("Av. Damage/Blow  ", sum/12, 1, TERM_L_BLUE);
 	}
-      else if (show_m_todam >= 0)
+      else
+	{	  
+	  if (show_m_todam >= 0)
 	dump_num("Deadliness (%)   ", deadliness_conversion[show_m_todam], 
 		 1, TERM_L_BLUE);
       else
 	dump_num("Deadliness (%)   ", -deadliness_conversion[-show_m_todam], 
 		 1, TERM_L_BLUE);
-      if (show_a_todam > 0)
-	dump_num("Deadliness (%)   ", deadliness_conversion[show_a_todam], 
-		 53, TERM_L_BLUE);
-      else
-	dump_num("Deadliness (%)   ", -deadliness_conversion[-show_a_todam], 
-		 53, TERM_L_BLUE);
+	}
+
       dump_put_str(TERM_WHITE, "Base AC/+ To AC", 27);
       sprintf(buf1, "%3d", p_ptr->dis_ac);
       dump_put_str(TERM_L_BLUE, buf1, 43);
       dump_put_str(TERM_WHITE, "/", 46);
       sprintf(buf1, "%3d", p_ptr->dis_to_a);
       dump_put_str(TERM_L_BLUE, buf1, 47);
+
+      if (show_a_todam > 0)
+	dump_num("Deadliness (%)   ", deadliness_conversion[show_a_todam], 
+		 53, TERM_L_BLUE);
+      else
+	dump_num("Deadliness (%)   ", -deadliness_conversion[-show_a_todam], 
+		 53, TERM_L_BLUE);
+
+      current_line++;
+      dump_ptr = (char_attr *)&line[current_line];
+      dump_put_str(TERM_WHITE, "Game Turn", 27);
+      sprintf(buf1, "%12d", (int)turn);
+      dump_put_str(TERM_L_BLUE, buf1, 38);
       current_line += 2;
       
       dump_ptr = (char_attr *)&line[current_line];
@@ -2920,12 +2931,35 @@ extern int make_dump(char_attr_line *line, int mode)
   dump_put_str(TERM_WHITE, "============================================================", 0);
   current_line++;
   dump_ptr = (char_attr *)&line[current_line];
-  if (dead)
+
+  /* Fake note */
+  if (!dead)
     {
-      dump_put_str(TERM_WHITE, "============================================================", 0);
+      char info_note[43];
+      char place[32];
+
+      /* Get the location name */
+      if (p_ptr->depth)
+	strnfmt(place, sizeof(place), "%15s%4d ", locality_name[stage_map[p_ptr->stage][LOCALITY]], p_ptr->depth);
+      else if ((stage_map[p_ptr->stage][LOCALITY] != UNDERWORLD) && (stage_map[p_ptr->stage][LOCALITY] != MOUNTAIN_TOP))
+	strnfmt(place, sizeof(place), "%15s Town", locality_name[stage_map[p_ptr->stage][LOCALITY]]);
+      else
+	strnfmt(place, sizeof(place), "%15s     ", locality_name[stage_map[p_ptr->stage][LOCALITY]]);
+      
+      /* Make preliminary part of note */
+      strnfmt(info_note, sizeof(info_note), "|%9lu| %s | %2d  | ", 
+              turn, place, p_ptr->lev);
+      
+      /* Write the info note */
+      dump_put_str(TERM_WHITE, info_note, 0);
+      dump_put_str(NOTE_DEATH, "Still alive", strlen(info_note));
+
       current_line++;
       dump_ptr = (char_attr *)&line[current_line];
     }
+  dump_put_str(TERM_WHITE, "============================================================", 0);
+  current_line++;
+  dump_ptr = (char_attr *)&line[current_line];
   
   
   /* Dump options */
@@ -2991,7 +3025,7 @@ errr file_character(cptr name, char_attr_line *line, int last_line)
 {
   int i;
   int fd = -1;
-  char buf[80];
+  char buf[100];
   
   /* Drop priv's */
   safe_setuid_drop();
@@ -3096,10 +3130,14 @@ static int push_file = 0;
  *
  * XXX XXX XXX Allow the user to "save" the current file.
  */
+
+#define MAX_BUF 1024
+
 bool show_file(cptr name, cptr what, int line, int mode)
 {
   int i, k, n;
   int wid, hgt;
+  int ret;
   event_type ke;
   
   /* Number of "real" lines passed by */
@@ -3133,22 +3171,22 @@ bool show_file(cptr name, cptr what, int line, int mode)
   char shower[81] = "";
   
   /* Filename */
-  char filename[1024];
+  char *filename;
 
   /* Describe this thing */
   char caption[128] = "";
 
   /* Path buffer */
-  char path[1024];
+  char *path;
   
   /* General buffer */
-  char buf[1024];
+  char *buf;
   
   /* Small screen back up buffer */
-  char buf2[1024];
+  char *buf2;
   
   /* Lower case version of the buffer, for searching */
-  char lc_buf[1024];
+  char *lc_buf;
   
   /* Sub-menu information */
   char hook[10][32];
@@ -3163,11 +3201,22 @@ bool show_file(cptr name, cptr what, int line, int mode)
   /* Normal screen ? */
   bool old_normal_screen = FALSE;
 
+  /* mallocs */
+  filename = malloc(MAX_BUF);
+  path = malloc(MAX_BUF);
+  buf = malloc(MAX_BUF);
+  buf2 = malloc(MAX_BUF);
+  lc_buf = malloc(MAX_BUF);
+
   /* Show messages first */
   if (easy_more) messages_easy(FALSE);
 
   /* Record normal screen if it's the first time in */
-  if (!push_file) old_normal_screen = normal_screen;
+  if (push_file==0)
+  {
+    backup_buttons();
+    old_normal_screen = normal_screen;
+  }
  
   /* Get size */
   Term_get_size(&wid, &hgt);
@@ -3185,7 +3234,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
     }
   
   /* Copy the filename */
-  my_strcpy(filename, name, sizeof(filename));
+  my_strcpy(filename, name, MAX_BUF);
   
   n = strlen(filename);
   
@@ -3208,7 +3257,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
     {
       my_strcpy(caption, what, sizeof(caption));
       
-      my_strcpy(path, name, sizeof(path));
+      my_strcpy(path, name, MAX_BUF);
       fff = file_open(path, MODE_READ, -1);
     }
   
@@ -3217,7 +3266,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
     {
       strnfmt(caption, sizeof(caption), "Help file '%s'", name);
       
-      path_build(path, sizeof(path), ANGBAND_DIR_HELP, name);
+      path_build(path, MAX_BUF, ANGBAND_DIR_HELP, name);
       fff = file_open(path, MODE_READ, -1);
     }
   
@@ -3238,7 +3287,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
       message_flush();
       
       /* Oops */
-      return (TRUE);
+      ret = TRUE;
+      goto DONE;
+
     }
 
   /* Note we're entering the file */
@@ -3248,7 +3299,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
   while (TRUE)
     {
       /* Read a line or stop */
-      if (!file_getl(fff, buf, sizeof(buf))) break;
+      if (!file_getl(fff, buf, MAX_BUF)) break;
       
       /* Check for a mouseable line (note hex parentheses) */
       if ((buf[4] == 0x28) && (isdigit(buf[5])) && (buf[6] == 0x29))
@@ -3330,7 +3381,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	    {
 	      /* Leaving */
 	      push_file--;
-	      return (TRUE);
+          ret = TRUE;
+          goto DONE;
 	    }
 	  
 	  /* File has been restarted */
@@ -3342,7 +3394,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	{
 
 	  /* Get a line */
-	  if (!file_getl(fff, buf, sizeof(buf))) break;
+	  if (!file_getl(fff, buf, MAX_BUF)) break;
 	  
 	  /* Skip tags/links */
 	  if (prefix(buf, "***** ")) continue;
@@ -3360,7 +3412,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	  if (!i) line = next;
 	  
 	  /* Get a line of the file or stop */
-	  if (!file_getl(fff, buf, sizeof(buf))) break;
+	  if (!file_getl(fff, buf, MAX_BUF)) break;
 	  
 	  /* Hack -- skip "special" lines */
 	  if (prefix(buf, "***** ")) continue;
@@ -3443,7 +3495,6 @@ bool show_file(cptr name, cptr what, int line, int mode)
       
       
       /* Buttons */
-      if (push_file == 1) backup_buttons();
       kill_all_buttons();
       normal_screen = FALSE;
       add_button("ESC", ESCAPE);
@@ -3635,7 +3686,6 @@ bool show_file(cptr name, cptr what, int line, int mode)
   /* Kill the buttons */
   if (push_file == 1)
     { 
-      restore_buttons();
       normal_screen = old_normal_screen;
       update_statusline();
     }
@@ -3644,11 +3694,24 @@ bool show_file(cptr name, cptr what, int line, int mode)
   file_close(fff);
   push_file--;
   
-  /* Exit on '?' */
-  if (ke.key == '?') return (FALSE);
-  
   /* Normal return */
-  return (TRUE);
+  ret = TRUE;
+ 
+  /* Exit on '?' */
+ if (ke.key == '?') ret = FALSE;
+ 
+DONE:
+free(filename);
+free(path);
+free(buf);
+free(buf2);
+free(lc_buf);
+
+if (push_file==0)
+restore_buttons();
+
+return ret;
+
 }
 
 

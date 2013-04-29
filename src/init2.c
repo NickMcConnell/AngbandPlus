@@ -1848,6 +1848,9 @@ static errr init_other(void)
   /* Initialise the hooks */
   add_button_hook = add_button_text;
   kill_button_hook = kill_button_text;
+  kill_all_buttons_hook = kill_all_buttons_text;
+  backup_buttons_hook = backup_buttons_text;
+  restore_buttons_hook = restore_buttons_text;
 
   /*** Prepare quest array ***/
   
@@ -2256,8 +2259,10 @@ static errr init_alloc(void)
  */
 static void note(cptr str)
 {
-  Term_erase(0, 23, 255);
-  Term_putstr(20, 23, -1, TERM_WHITE, str);
+  int col = MAX(0, (Term->wid - strlen(str)) / 2);
+  int row = Term->hgt - 1;
+  Term_erase(0, row, 255);
+  Term_putstr(col, row, -1, TERM_WHITE, str);
   Term_fresh();
 }
 

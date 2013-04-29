@@ -249,8 +249,8 @@ static void rd_item(object_type *o_ptr)
 {
   int i;
 
-  byte old_dd;
-  byte old_ds;
+/*  byte old_dd;
+  byte old_ds; */
   
   u32b f1, f2, f3;
 
@@ -289,10 +289,16 @@ static void rd_item(object_type *o_ptr)
   rd_s16b(&o_ptr->to_a);
   
   rd_s16b(&o_ptr->ac);
-  
+
+  /* SJGU keep save dice */
+  rd_byte(&o_ptr->dd);
+  rd_byte(&o_ptr->ds);
+
+/*
   rd_byte(&old_dd);
   rd_byte(&old_ds);
-  
+*/
+
   rd_byte(&o_ptr->ident);
   
   rd_byte(&o_ptr->marked);
@@ -431,20 +437,25 @@ static void rd_item(object_type *o_ptr)
       /* Verify that ego-item */
       if (!e_ptr->name) o_ptr->name2 = 0;
     }
-  
+
   /* Acquire standard fields, unless the item is blasted or shattered. */
   if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
     o_ptr->ac = k_ptr->ac;
+
+  if (o_ptr->name2 == EGO_DWARVEN) o_ptr->ac += 5;
+
+/* SJGU I don't want to stuff up all my new dice and weights thank you! */
+#if 0
   if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
     o_ptr->dd = k_ptr->dd;
   if ((o_ptr->name2 != EGO_BLASTED) && (o_ptr->name2 != EGO_SHATTERED))
     o_ptr->ds = k_ptr->ds;
   
   if (o_ptr->name2 == EGO_BALROG) o_ptr->dd = old_dd;
-  if (o_ptr->name2 == EGO_DWARVEN) o_ptr->ac += 5;
+  if (o_ptr->name2 == EGO_ANGBAND) o_ptr->ds = old_ds; 
   
   /* Acquire standard weight, unless an ego-item. */
-  if (!o_ptr->name2) o_ptr->weight = k_ptr->weight;
+  if (!o_ptr->name2) o_ptr->weight = k_ptr->weight; 
   
   /* Hack -- keep some old fields.  Moved from ego-item area. */
   if ((o_ptr->ds < old_ds) && (o_ptr->dd == old_dd))
@@ -452,7 +463,8 @@ static void rd_item(object_type *o_ptr)
       /* Keep old enhanced damage dice. */
       o_ptr->ds = old_ds;
     }
-  
+#endif
+
   /* Hack -- extract the "broken" flag */
   if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
   
@@ -2219,7 +2231,64 @@ static errr rd_savefile_new_aux(void)
       rd_ghost();
     }
   
+    /* Otherwise optionally look at the dead one, quickstart */
+    else
+    {
+            event_type answer;
+
+        /* Clear screen */
+        Term_clear();
+
+        prt("Would you like to see details of your", 15, 0);
+        prt("recently dead character? (yes/no)", 16, 0);
+        update_statusline();      
+        add_button("Yes", 'y');
+        add_button("No", 'n');
+        calc_bonuses(FALSE);
+        update_statusline();      
+      
+        answer = inkey_ex();
+              
+        if ((answer.key == 'Y') || (answer.key == 'y'))
+        {
+            /* Buttons */
+            kill_button('y');
+            kill_button('n');
+            update_statusline();
+                    
+            /* Display */
+            reset_visuals(FALSE);
+            do_cmd_change_name();
+        }
   
+        /* Clear screen */
+        Term_clear();
+#if 0
+        /* Quickstart */
+        prt("Would you like to start a new character", 15, 0);
+        prt("based on your last character? (yes/no)", 16, 0);
+        add_button("Yes", 'y');
+        add_button("No", 'n');
+        update_statusline();      
+      
+        answer = inkey_ex();
+              
+        if ((answer.key == 'Y') || (answer.key == 'y'))
+        {
+            /* Buttons */
+            kill_button('y');
+            kill_button('n');
+            update_statusline();
+                    
+            /* Set to quickstart */
+            character_quickstart = TRUE;
+        }
+  
+        /* Clear screen */
+        Term_clear();
+#endif
+    } 
+
 #ifdef VERIFY_CHECKSUMS
   
   /* Save the checksum */

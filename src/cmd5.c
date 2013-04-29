@@ -670,11 +670,19 @@ void get_spell_display(menu_type *menu, int oid, bool cursor, int row,
   prt("", row, col);
       
   /* Print out (colored) information about a single spell. */
+#ifdef NDS
+ c_put_str(attr_name, format("%-20s", spell_names[s_ptr->index]), 
+ row, col);
+ put_str(format("%2d %3d%3d%%", s_ptr->slevel, 
+ s_ptr->smana, spell_chance(idx)), row, col + 20);
+ c_put_str(attr_extra, format("%s", comment), row, col + 30);
+#else
   c_put_str(attr_name, format("%-30s", spell_names[s_ptr->index]), 
 	    row, col);
   put_str(format("%2d %4d %3d%%", s_ptr->slevel, 
 		 s_ptr->smana, spell_chance(idx)), row, col + 30);
   c_put_str(attr_extra, format("%s", comment), row, col + 42);
+#endif
   
   /* Help text */
   if (cursor && tips)
@@ -781,7 +789,12 @@ char get_spell_menu(char *prompt, int tval, int sval)
   /* Title the list */
   prt("", 2, col);
   put_str("Name", 2, col + 5);
+#ifdef NDS
+ put_str("Lv Mana Fail Info", 2, col + 22);
+#else
   put_str("Lv Mana Fail Info", 2, col + 35);
+#endif
+
 
   /* Get the number of rows */
   num = after_last_spell - first_spell;
@@ -1007,6 +1020,10 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
   strnfmt(browse_prompt, 78, "(Browsing) Choose a spell, or ESC: ",
 	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
+
+#ifdef NDS
+ p_ptr->command_see = 1;
+#endif
 
   /* Button */
   add_button("*", '*');
@@ -3333,11 +3350,11 @@ void do_cmd_cast_or_pray(void)
 	  {
 	    if (!p_ptr->superstealth)
 	      {
-		(void)set_superstealth(40);
+		(void)set_superstealth(40,TRUE);
 	      }
 	    else
 	      {
-		(void)set_superstealth(p_ptr->superstealth + randint(20));
+		(void)set_superstealth(p_ptr->superstealth + randint(20),TRUE);
 	      }
 	    break;
 	  }
@@ -3742,7 +3759,7 @@ void do_cmd_gain_specialty(void)
 	      specialty_names[choices[pick]]);
       
       /* Write message */
-      make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
+      make_note(buf,  p_ptr->stage, NOTE_SPECIALTY, p_ptr->lev);
       
       /* Update some stuff */
       p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | 

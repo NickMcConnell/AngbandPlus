@@ -230,7 +230,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
   autop = auto_pickup_check(o_ptr, FALSE);
   
   /* No missiles to combine with and no autopickup. */
-  if (!ammo_num & !autop) return (FALSE);
+  if (!ammo_num && !autop) return (FALSE);
   
   /* Effective added count */
   added_ammo_num = (throwing ?
@@ -365,7 +365,7 @@ extern void py_pickup_aux(int o_idx)
   
   char o_name[120];
   object_type *o_ptr;
-  
+  object_type *i_ptr = &inventory[INVEN_LITE];
   
   o_ptr = &o_list[o_idx];
   
@@ -378,17 +378,22 @@ extern void py_pickup_aux(int o_idx)
   /* Set squelch status */
   p_ptr->notice |= PN_SQUELCH;
 
+  /* Hack - set the turn found for artifacts */
+  if (o_ptr->name1)
+    if (a_info[o_ptr->name1].creat_turn < 2)
+	{
+      a_info[o_ptr->name1].creat_turn = turn;
+      a_info[o_ptr->name1].creat_turn |= (p_ptr->lev << 24);
+	}
+
+  /* Stone of Lore gives id on pickup */
+  if ((!object_known_p(o_ptr)) && (i_ptr->sval == SV_STONE_LORE)) identify_object(o_ptr);
+
   /* Describe the object */
   object_desc(o_name, o_ptr, TRUE, 3);
   
   /* Message */
   msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
-  /* Hack - set the turn found for artifacts */
-  if (o_ptr->name1)
-    if (a_info[o_ptr->name1].creat_turn < 2)
-      a_info[o_ptr->name1].creat_turn = turn;
-
   
   /* Delete the object */
   delete_object_idx(o_idx);
@@ -435,7 +440,7 @@ byte py_pickup(int pickup, int y, int x)
   /* Objects picked up.  Used to determine time cost of command. */
   byte objs_picked_up = 0;
   
-  int floor_num = 0, floor_list[23], floor_o_idx = 0;
+  int floor_num = 0, floor_list[24], floor_o_idx = 0;
   
   int can_pickup = 0;
   bool call_function_again = FALSE;
@@ -2078,8 +2083,8 @@ void move_player(int dir, int do_pickup)
 	      }
 	    case FEAT_TREE: case FEAT_TREE2:
 	      {
-		/* Druids, rangers and elves slip easily under trees. */
-		if ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))) 
+		/* Druids, rangers, elves and ents (SJGU) slip easily under trees. */
+		if (((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))) || (check_ability(SP_WOODEN)))
 		  can_move = TRUE;
 		
 		/* Bats, dragons can fly */
@@ -2217,7 +2222,27 @@ void move_player(int dir, int do_pickup)
 	      /* Update stealth for Unlight */
 	      if (check_ability(SP_UNLIGHT))
 		p_ptr->update |= PU_BONUS;
-	      
+
+		/* Superstealth for ents in trees SJGU */
+		if ((check_ability(SP_WOODEN)) && 
+		  (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags & TF_TREE))
+		{
+		  if (!(f_info[cave_feat[py][px]].flags & TF_TREE) || !(p_ptr->superstealth))
+		  {
+			  set_superstealth(p_ptr->superstealth + 1,FALSE);
+			  p_ptr->update |= (PU_BONUS);
+		  }
+		}
+		else if ((check_ability(SP_WOODEN)) && 
+		  (f_info[cave_feat[py][px]].flags & TF_TREE))
+		{
+		  if (p_ptr->superstealth)
+		  {
+		    set_superstealth(p_ptr->superstealth - 1,FALSE);
+		    p_ptr->update |= (PU_BONUS);
+		  }
+		}
+
 	      /* New location */
 	      y = py = p_ptr->py;
 	      x = px = p_ptr->px;

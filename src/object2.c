@@ -828,6 +828,11 @@ static s32b object_value_base(object_type *o_ptr)
 	    aware_cost += (1 + o_ptr->ds - k_ptr->ds) * 
 	      (2 + o_ptr->ds - k_ptr->ds) * 1L;
 	  }
+	if (o_ptr->dd > k_ptr->dd)
+	  {
+	    aware_cost += (1 + o_ptr->dd - k_ptr->dd) * 
+	      (2 + o_ptr->dd - k_ptr->dd) * 1L;
+	  }
 	break;
       }
       
@@ -840,6 +845,12 @@ static s32b object_value_base(object_type *o_ptr)
 	    aware_cost += (o_ptr->ds - k_ptr->ds) * 
 	      (o_ptr->ds - k_ptr->ds) * 
 	      o_ptr->dd * o_ptr->dd * 16L;
+	  }
+	if (o_ptr->dd > k_ptr->dd)
+	  {
+	    aware_cost += (o_ptr->dd - k_ptr->dd) * 
+	      (o_ptr->ds - k_ptr->dd) * 
+	      o_ptr->ds * o_ptr->ds * 16L;
 	  }
 	break;
       }
@@ -2292,8 +2303,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	      /* Base speed (1 to 10) */
 	      o_ptr->pval = randint(5) + m_bonus(5, level);
 	      
-	      /* Super-charge the ring */
-	      while (rand_int(100) < 50) o_ptr->pval++;
+	      /* Super-charge the ring + SJGU - miffed at never finding good speed rings */
+	      while (rand_int(100) < 55) o_ptr->pval++;
 	      
 	      /* Cursed Ring */
 	      if (power < 0)
@@ -2309,9 +2320,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 		  
 		  break;
 		}
-	      
-	      /* Rating boost */
-	      rating += 25;
+
+		  /* Only increase rating if not cursed */
+	      if (power >= 0)
+		  {
+	        /* Rating boost */
+	        rating += 10 + 3 * o_ptr->pval;
+		  }
 	      
 	      /* Mention the item */
 	      if (cheat_peek) object_mention(o_ptr);
@@ -2325,22 +2340,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	      /* Speed (1 to 7) */
 	      o_ptr->pval = randint(3) + m_bonus(4, level);
 	      
-	      /* Maybe Extra Power */
-	      if (randint(2) == 1)
-		{
-		  o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
+	      /* SJGU - they now get power and at least one resist */
+	      o_ptr->xtra1 = OBJECT_XTRA_TYPE_POWER;
 		  o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
-		}
-	      
-	      /* Or Else Random Resist */
-	      else
-		{
-		  o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
-		  o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
-		}
 	      
 	      /* Rating boost */
-	      rating += 25;
+	      rating += 20 + o_ptr->pval;
 	      
 	      /* Mention the item */
 	      if (cheat_peek) object_mention(o_ptr);
@@ -2359,7 +2364,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	      o_ptr->to_h = 3 + randint(2) + m_bonus(5, level);
 	      
 	      /* Rating boost */
-	      rating += 25;
+	      rating += 15 + 3 * o_ptr->pval;
 	      
 	      /* Mention the item */
 	      if (cheat_peek) object_mention(o_ptr);
@@ -2430,6 +2435,16 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	      o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
 	      break;
 	    }
+	  case SV_RING_VENOM: 
+		{
+          /* Assign an activation. */
+          o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+          o_ptr->xtra2 = ACT_RING_POIS;
+       
+          /* Bonus to armor class. */
+          o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
+          break;
+     }
 	    
 	    /* Weakness, Stupidity */
 	  case SV_RING_WEAKNESS:
@@ -2592,7 +2607,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	      o_ptr->to_a = randint(5) + m_bonus(5, level);
 	      
 	      /* Boost the rating */
-	      rating += 20;
+	      rating += 5;
 	      
 	      /* Mention the item */
 	      if (cheat_peek) object_mention(o_ptr);
@@ -2653,6 +2668,20 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 		  /* Reverse bonuses */
 		  o_ptr->pval = 0 - (o_ptr->pval);
 		}
+	      
+	      break;
+	    }
+
+			    /* Amulet of trickery. */
+	  case SV_AMULET_TRICKERY:
+	    {
+	      o_ptr->pval = 1 + m_bonus(2, level);
+
+	      /* Boost the rating */
+	      rating += 15 + o_ptr->pval;
+	      
+	      /* Mention the item */
+	      if (cheat_peek) object_mention(o_ptr);
 	      
 	      break;
 	    }
@@ -2737,7 +2766,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
  */
 extern void apply_resistances(object_type *o_ptr, int lev)
 {
-  int i, res, roll = 0;
+  int i, res = 0;
 
   u32b f1, f2, f3;
       
@@ -2785,46 +2814,81 @@ extern void apply_resistances(object_type *o_ptr, int lev)
   
   /* Add extra resists */
   
-  /* This gets done more often as we go deeper */
-  while (roll < 2)
+  /* Vulnerability */
+  if (f2 & (TR2_RAND_RES_NEG))
+  {
+    int roll = 0;
+    /* This gets done more often as we go deeper */
+    while (roll < 2)
     {
       /* Low resists more likely at low levels */
-      int k = rand_int(100);
-      bool low = (k < (100 - lev));
+      int k = rand_int(128);
+      bool low = (k < (128 - lev));
 
-      /* Vulnerability */
-      if (f2 & (TR2_RAND_RES_NEG))
-	{
-	  k = (low ? rand_int(4) : rand_int(10) + 4);
-	  o_ptr->percent_res[k] += 10 + rand_int(5) + m_bonus(30, lev);
-	}
-      /* Rings of Protection, etc */
-      if (f2 & (TR2_RAND_RES_SML))
-	{
-	  /* Twice as many of these */
-	  k = (low ? rand_int(4) : rand_int(10) + 4);
-	  o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
-	  k = (low ? rand_int(4) : rand_int(10) + 4);
-	  o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
-	}
-      /* Armour of Resistance */
-      if (f2 & (TR2_RAND_RES))
-	{
-	  k = (low ? rand_int(4) : rand_int(10) + 4);
-	  o_ptr->percent_res[k] -= 20 + rand_int(5) + m_bonus(20, lev);
-	}
-      /* Former one high resist objects */
-      if (f2 & (TR2_RAND_RES_XTRA))
-	{
-	  /* Low resists less likely here */
-	  k = ((rand_int(10) == 0) ? rand_int(4) : rand_int(10) + 4);
-	  o_ptr->percent_res[k] -= 30 + rand_int(5) + m_bonus(20, lev);
-	}
+      k = (low ? rand_int(4) : rand_int(10) + 4);
+      o_ptr->percent_res[k] += 10 + rand_int(5) + m_bonus(30, lev);
 
-      /* Try again? */
-      k = 10 - (lev/40);
-      roll = rand_int(k);
+      roll = rand_int(10 - (lev/30));
     }
+  }
+
+  /* Rings of Protection, etc */
+  if (f2 & (TR2_RAND_RES_SML))
+  {
+    int roll = 0;
+    /* This gets done more often as we go deeper */
+    while (roll < 2)
+    {
+      /* Low resists more likely at low levels */
+      int k = rand_int(128);
+      bool low = (k < (128 - lev));
+
+      k = (low ? rand_int(4) : rand_int(10) + 4);
+      o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
+
+      /* Twice as many of these */
+      k = rand_int(128);
+      low = (k < (128 - lev));
+      k = (low ? rand_int(4) : rand_int(10) + 4);
+      o_ptr->percent_res[k] -= 4 + rand_int(8) + m_bonus(10, lev);
+
+      roll = rand_int(10 - (lev/30));
+    }
+  }
+
+  /* Armour of Resistance etc */
+  if (f2 & (TR2_RAND_RES))
+  {
+    int roll = 0;
+    /* This gets done more often as we go deeper */
+    while (roll < 2)
+    {
+      /* Low resists more likely at low levels */
+      int k = rand_int(128);
+      bool low = (k < (128 - lev));
+
+      k = (low ? rand_int(4) : rand_int(10) + 4);
+      o_ptr->percent_res[k] -= 20 + rand_int(5) + m_bonus(20, lev);
+      
+      roll = rand_int(10 - (lev/30));
+    }
+  }
+
+  /* Former one high resist objects */
+  if (f2 & (TR2_RAND_RES_XTRA))
+  {
+    int roll = 0;
+    /* This gets done more often as we go deeper */
+    while (roll < 2)
+    {
+      /* Low resists less likely here */
+      int k = ((rand_int(10) == 0) ? rand_int(4) : rand_int(10) + 4);
+      o_ptr->percent_res[k] -= 30 + rand_int(5) + m_bonus(20, lev);
+      
+      roll = rand_int(10 - (lev/30));
+    }
+  }
+
 
   /* Randomise a bit */
   for (i = 0; i < MAX_P_RES; i++)
@@ -2992,10 +3056,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
       
       /* Mega-Hack -- increase the rating */
-      rating += 10;
+      rating += 15;
       
       /* Mega-Hack -- increase the rating again */
-      if (a_ptr->cost > 50000L) rating += 10;
+	  rating += a_ptr->cost / 2000;
       
       /* Set the good item flag */
       good_item_flag = TRUE;
@@ -3010,7 +3074,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
   
   switch (o_ptr->tval)
     {
-      /**** Enhance damage dice of Melee Weapons. -LM- ****/
+      /**** 
+	  damage dice of Melee Weapons. -LM- ****/
     case TV_HAFTED:
     case TV_POLEARM:
     case TV_SWORD:
@@ -3019,22 +3084,46 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	 * damage dice.   Note the maximum value for dd*ds of 40.
 	 */
 	int newdicesides = 0;
+	int oldsides = o_ptr->ds;
 	
-	if ((rand_int(3 * (o_ptr->dd + 1) * (o_ptr->ds + 1)) == 0) && 
-	    ((o_ptr->dd * 3 * o_ptr->ds / 2) < 41))
-	  {
-	    newdicesides = 3 * o_ptr->ds / 2;
-	    
-	    if ((rand_int((o_ptr->dd + 2) * (o_ptr->ds + 2) / 4) == 0) && 
-		((o_ptr->dd * (11 * o_ptr->ds / 6)) < 41))
-	      {
-		newdicesides = 11 * o_ptr->ds / 6;
-	      }
-	    /* If at least the first test succeeded, improve
-	     * the damage dice.
-	     */
-	    if (newdicesides != 0) o_ptr->ds = newdicesides;
-	  }
+	if (rand_int((2 * (o_ptr->dd + 1) * (o_ptr->ds + 1))/((lev/20)+1)) == 0)
+	{
+		if ((rand_int((o_ptr->dd + 2) * (o_ptr->ds + 2) / 5) == 0) && 
+		(((o_ptr->dd + 1) * o_ptr->ds) < 41))
+		{
+		  o_ptr->weight = (o_ptr->weight * (o_ptr->dd + 3)) / (o_ptr->dd + 2);
+		  o_ptr->dd += 1; 
+		}
+		else
+		{
+		  newdicesides = o_ptr->ds / 2;
+
+		  for (i = 0; i < newdicesides; i++)
+		  {
+		    if ((o_ptr->dd * (o_ptr->ds + 1) < 41) && (randint(5) != 1)) o_ptr->ds++;
+		  }
+
+	      if (rand_int((o_ptr->dd + 2) * (o_ptr->ds + 2) / 5) == 0)
+		  {
+			/* If we get this far have another go at the dice missed earlier */
+		    newdicesides = (11 * oldsides / 6) - o_ptr->ds;
+		  
+		    for (i = 0; i < newdicesides; i++)
+			{
+			  if ((o_ptr->dd * (o_ptr->ds + 1) < 41) && (randint(5) != 1)) o_ptr->ds++;
+			}
+		  }
+
+		  if (randint(5) == 1)
+		  {
+			 o_ptr->weight = (o_ptr->weight * 4) / 5;
+		  }
+		  else if (randint(3) == 1)
+		  {
+			 o_ptr->weight = (o_ptr->weight * 5) / 4;
+		  }
+		}
+	}
 	break;
       }
       
@@ -3043,17 +3132,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
     case TV_ARROW:
     case TV_BOLT:
       {
-	/* Up to three chances to enhance damage dice. */
-	if (randint(8) == 1) 
+	/* Up to two chances to enhance damage dice. SJGU was 3 and +2 to ds */
+	if (randint(6) == 1) 
 	  {
-	    o_ptr->ds += 2;
-	    if (randint(6) == 1)
+	    o_ptr->ds += 1;
+	    if (randint(10) == 1)
 	      {
-		o_ptr->ds += 2;
-		if (randint(6) == 1)
+		o_ptr->ds += 1;
+/*		if (randint(5) == 1)
 		  {
-		    o_ptr->ds += 2;
-		  }
+		    o_ptr->ds += 1;
+		  } */
 	      }
 	  }
 	break;
@@ -3087,6 +3176,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       
     case TV_DRAG_ARMOR:
       {
+	o_ptr->pval = 1 + m_bonus(4, lev);
+
 	/* Assign an activation. */
 	o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 	
@@ -3199,8 +3290,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	break;
       }
     }
-  
-  
+
   /*
    * Throwing weapons, especially ego-items may sometimes be
    * perfectly  balanced.  Takes precedence over standard
@@ -3229,16 +3319,57 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       
       /* Extract the flags */
       object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* SJGU Assign a pval where required. Moved so that I could
+	 * use it in the 'of Angband' calculations
+	 */
+
+      if ((e_ptr->max_pval > 0) && (e_ptr->max_pval < 129)) 
+	o_ptr->pval += randint(e_ptr->max_pval);
+      else if (e_ptr->max_pval > 128)
+	o_ptr->pval -= randint(e_ptr->max_pval - 128);
       
       /* Extra powers and modifications */
       switch (o_ptr->name2)
 	{
 	case EGO_BALROG:
 	  {
-	    o_ptr->weight = k_info[o_ptr->k_idx].weight * 3;
-	    o_ptr->dd = 2;
+	    o_ptr->weight = o_ptr->weight * 3;
+	    o_ptr->dd += 1;
 	    o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
 	    o_ptr->xtra2 = ACT_BALROG_WHIP;
+	    break;
+	  }
+	case EGO_ANGBAND:
+	  {
+		/* Worse pval will have better chance of more sides */
+		int chances = (randint(1 - o_ptr->pval) + 1 - o_ptr->pval) / 2;
+
+		for (i = 0; i < chances; i++)
+		{
+			if (randint(3 - o_ptr->pval) < (1 - o_ptr->pval)) o_ptr->ds++;
+		}
+		/* SJGU Hack because otherwise gets massive negatives from being cursed */
+		o_ptr->to_h = k_info[o_ptr->k_idx].to_h;
+		o_ptr->to_d = k_info[o_ptr->k_idx].to_d + randint(1 - (3 * o_ptr->pval));
+		/* Angband weapons are usually unusually light */
+		o_ptr->weight = ((o_ptr->weight * (100 - (5 * (randint(3 - o_ptr->pval) - 1)))) / 100);
+	    break;
+	  }
+	case EGO_NOGROD:
+	  {
+	  	/* Nogrod weapons have an extra dice and are light */
+		if (((o_ptr->dd + 1) * o_ptr->ds) < 41)
+		{
+		  o_ptr->dd += 1; 
+		}
+		else
+		{
+		/* if we can't get an extra dice then weapon is even lighter */
+		  o_ptr->weight = (5 * o_ptr->weight / 6);
+		}
+
+		o_ptr->weight = (4 * o_ptr->weight / 5);
 	    break;
 	  }
 	  /* Dwarven armour is strong and light. */
@@ -3305,11 +3436,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       else if (e_ptr->max_to_a > 128)
 	o_ptr->to_a -= randint(e_ptr->max_to_a - 128);
       
-      if ((e_ptr->max_pval > 0) && (e_ptr->max_pval < 129)) 
-	o_ptr->pval += randint(e_ptr->max_pval);
-      else if (e_ptr->max_pval > 128)
-	o_ptr->pval -= randint(e_ptr->max_pval - 128);
-      
       
       /* Hack -- Frequently neaten missile to_h and to_d, for improved 
        * stacking qualities.
@@ -3338,16 +3464,21 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       /* Add resistances */
       apply_resistances(o_ptr, lev);
 
-      /* Hack - reverse resists for cursed objects  - not dragon scale */
-      if ((power < 0) &&  (o_ptr->tval != TV_DRAG_ARMOR))
-	for (i = 0; i < MAX_P_RES; i++)
-	  o_ptr->percent_res[i] = 200 - o_ptr->percent_res[i];
-
       /* Hack -- acquire "broken" flag */
       if (!k_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
       
       /* Hack -- acquire "cursed" flag */
       if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+      /* Hack - reverse resists for cursed objects  - not dragon scale SJGU or Eregion */
+/*      if (((power < 0) &&  (o_ptr->tval != TV_DRAG_ARMOR)) && (!((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_EREGION)))) */
+/* SJGU I think this should catch most things rather than the list just getting bigger */
+/*      if ((power < 0) && (o_ptr->pval <= 0)) */
+
+/* Yet another attempt! */
+	  if (cursed_p(o_ptr))
+		  for (i = 0; i < MAX_P_RES; i++)
+	  o_ptr->percent_res[i] = 200 - o_ptr->percent_res[i];
     }
 }
 
@@ -3441,6 +3572,7 @@ static bool kind_is_good(int k_idx)
 	if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 	if (k_ptr->sval == SV_AMULET_ESCAPING) return (TRUE);
 	if (k_ptr->sval == SV_AMULET_LION) return (TRUE);
+	if (k_ptr->sval == SV_AMULET_TRICKERY) return (TRUE);
 	
 	if (k_ptr->cost >= 500 + p_ptr->depth * 90) return (TRUE);
 	
@@ -3462,7 +3594,8 @@ static bool kind_is_good(int k_idx)
 	if (k_ptr->sval == SV_WAND_DRAGON_COLD) return (TRUE);
 	if (k_ptr->sval == SV_WAND_DRAGON_BREATH) return (TRUE);
 	if (k_ptr->sval == SV_WAND_ANNIHILATION) return (TRUE);
-	
+	if (k_ptr->sval == SV_WAND_TELEPORT_AWAY) return (TRUE);
+		
 	if (k_ptr->cost >= 400 + p_ptr->depth * 60) return (TRUE);
 	
 	return (FALSE);
@@ -3477,6 +3610,7 @@ static bool kind_is_good(int k_idx)
 	if (k_ptr->sval == SV_STAFF_HOLINESS) return (TRUE);
 	if (k_ptr->sval == SV_STAFF_MSTORM) return (TRUE);
 	if (k_ptr->sval == SV_STAFF_STARBURST) return (TRUE);
+	if (k_ptr->sval == SV_STAFF_BANISHMENT) return (TRUE);
 	
 	if (k_ptr->cost >= 500 + p_ptr->depth * 60) return (TRUE);
 	
@@ -3498,6 +3632,7 @@ static bool kind_is_good(int k_idx)
 	if (k_ptr->sval == SV_ROD_NORTHWINDS) return (TRUE);
 	if (k_ptr->sval == SV_ROD_DRAGONFIRE) return (TRUE);
 	if (k_ptr->sval == SV_ROD_GLAURUNGS) return (TRUE);
+	if (k_ptr->sval == SV_ROD_TELEPORT_AWAY) return (TRUE);
 	
 	if (k_ptr->cost >= 500 + p_ptr->depth * 100) return (TRUE);
 	
@@ -3507,6 +3642,12 @@ static bool kind_is_good(int k_idx)
       /*  Any potion or scroll that costs a certain amount or more 
        * must be good. */
     case TV_POTION:
+      {
+	if (k_ptr->sval == SV_POTION_HEALING) return (TRUE);
+	if (k_ptr->sval == SV_POTION_STAR_HEALING) return (TRUE);
+	if (k_ptr->sval == SV_POTION_LIFE) return (TRUE);
+	if (k_ptr->sval == SV_POTION_RESTORE_MANA) return (TRUE);
+      }
     case TV_SCROLL:
       {
 	if (k_ptr->cost >= 10000) return (TRUE);
@@ -4412,7 +4553,7 @@ void place_trap(int y, int x)
   if (!in_bounds(y, x)) return;
 
   /* Hack - handle trees */
-  if (f_ptr->flags & TF_TREE)
+  if ((f_ptr->flags & TF_TREE) && (cave_o_idx[y][x] == 0))
     {
       if (cave_feat[y][x] == FEAT_TREE)
 	cave_set_feat(y, x, FEAT_TREE_INVIS);

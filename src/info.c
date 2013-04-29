@@ -72,26 +72,26 @@ cptr obj_special_info[6][50] =
   /* Dragon Scale Mails. */
   {
     "",								/*  */
-    "(It can breathe acid for 150 damage)",			/* Black */
-    "(It can breathe lightning for 130 damage)",		/* Blue */
-    "(It can breathe frost for 140 damage)",			/* White */
-    "(It can breathe fire for 160 damage)",			/* Red */
-    "(It can breathe poison for 150 damage)",			/* Green */
-    "(It can breathe any of various elements for 190 damage)",	/* Multihued */
+    "(It can breathe acid for 45-270 damage)",			/* Black */
+    "(It can breathe lightning for 40-260 damage)",		/* Blue */
+    "(It can breathe frost for 45-270 damage)",			/* White */
+    "(It can breathe fire for 50-300 damage)",			/* Red */
+    "(It can breathe poison for 45-270 damage)",			/* Green */
+    "(It can breathe any of various elements for 60-360 damage)",	/* Multihued */
     "",	"",	"",						/*  */
-    "(It can breathe light or darkness for 160 damage)",	/* Shining */
+    "(It can breathe light or darkness for 50-300 damage)",	/* Shining */
     "",								/*  */
-    "(It can breathe sound or shards for 190 damage)",		/* Law */
+    "(It can breathe sound or shards for 60-360 damage)",		/* Law */
     "",								/*  */
-    "(It can breathe confusion for 130 damage)",		/* Bronze */
+    "(It can breathe confusion for 40-260 damage)",		/* Bronze */
     "",								/*  */
-    "(It can breathe sound for 130 damage)",			/* Gold */
+    "(It can breathe sound for 40-260 damage)",			/* Gold */
     "",								/*  */
-    "(It can breathe chaos or disenchantment for 180 damage)",	/* Chaos */
+    "(It can breathe chaos or disenchantment for 55-330 damage)",	/* Chaos */
     "",								/*  */
-    "(It can breathe sound, shards, chaos, or disenchantment for 210 damage)",	/* Balance */
+    "(It can breathe sound, shards, chaos, or disenchantment for 60-360 damage)",	/* Balance */
     "",	"",	"",	"",	"",	"",	"",	"",	"",
-    "(It can breathe just about anything for 240 damage)",	/* Power */
+    "(It can breathe just about anything for 75-450 damage)",	/* Power */
     "",	"",	"",	"",	"",	"",	"",	"",	"",	"",
     "",	"",	"",	"",	"",	"",	"",	"",	""
   },
@@ -782,7 +782,11 @@ extern void output_dam(object_type *o_ptr, int mult, cptr against, bool *first)
 extern void display_weapon_damage(object_type *o_ptr)
 {
   object_type forge, *old_ptr = &forge;
-  u32b f1, f2, f3;
+  u32b f1, f2, f3, g1, g2, g3, h1;
+
+  object_type *i_ptr;
+  int i;
+
   bool first = TRUE;
   bool full = TRUE;
   int show_m_tohit;
@@ -795,7 +799,22 @@ extern void display_weapon_damage(object_type *o_ptr)
   
   /* Extract the flags */
   object_flags(o_ptr, &f1, &f2, &f3);
-  
+  h1=f1;
+
+  /* Check rings for additional brands (slays) */
+  for (i = 0; i < 2; i++)
+  {
+    i_ptr = &inventory[INVEN_LEFT + i];
+    /* If wearing a ring */
+    if (i_ptr->k_idx)
+    {
+      /* Extract the flags */
+      object_flags(i_ptr, &g1, &g2, &g3);
+      /* Pick up any brands (and slays!) */
+      h1 = h1 | g1;
+    }
+  }
+
   /* Ok now the hackish stuff, we replace the current weapon with this one */
   object_copy(old_ptr, &inventory[INVEN_WIELD]);
   object_copy(&inventory[INVEN_WIELD], o_ptr);
@@ -809,43 +828,95 @@ extern void display_weapon_damage(object_type *o_ptr)
 		     format("blow%s and do an average damage per blow of ", 
 			    (p_ptr->num_blow) ? "s" : ""));
   
-  if (full && (f1 & TR1_SLAY_ANIMAL)) 
+  if (full && (h1 & TR1_SLAY_ANIMAL))
+  {
+	if (f1 & TR1_SLAY_ANIMAL)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "animals", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_EVIL)) 
+	else output_dam(o_ptr, 14, "animals", &first);
+  }
+  if (full && (h1 & TR1_SLAY_EVIL)) 
+  {
+	if (f1 & TR1_SLAY_EVIL)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 17 : 15), "evil creatures", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_ORC)) 
+	else output_dam(o_ptr, 13, "evil creatures", &first);
+  }
+  if (full && (h1 & TR1_SLAY_ORC)) 
+  {
+	if (f1 & TR1_SLAY_ORC)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "orcs", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_TROLL)) 
+	else output_dam(o_ptr, 16, "orcs", &first);
+  }
+  if (full && (h1 & TR1_SLAY_TROLL)) 
+  {
+	if (f1 & TR1_SLAY_TROLL)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "trolls", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_GIANT)) 
+	else output_dam(o_ptr, 16, "trolls", &first);
+  }
+  if (full && (h1 & TR1_SLAY_GIANT)) 
+  {
+	if (f1 & TR1_SLAY_GIANT)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "giants", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_DRAGON)) 
+	else output_dam(o_ptr, 16, "giants", &first);
+  }
+  if (full && (h1 & TR1_SLAY_DRAGON)) 
+  {
+	if (f1 & TR1_SLAY_DRAGON)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "dragons", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_UNDEAD)) 
+	else output_dam(o_ptr, 16, "dragons", &first);
+  }
+  if (full && (h1 & TR1_SLAY_UNDEAD)) 
+  {
+	if (f1 & TR1_SLAY_UNDEAD)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "undead", 
 	       &first);
-  if (full && (f1 & TR1_SLAY_DEMON)) 
+	else output_dam(o_ptr, 16, "undead", &first);
+  }
+  if (full && (h1 & TR1_SLAY_DEMON))
+  {
+	if (f1 & TR1_SLAY_DEMON)
     output_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 25 : 20), "demons", 
 		       &first);
+	else output_dam(o_ptr, 16, "demons", &first);
+  }
   
-  if (full && (f1 & TR1_BRAND_FIRE)) 
+  if (full && (h1 & TR1_BRAND_FIRE))
+  {
+    if (f1 & TR1_BRAND_FIRE)
     output_dam(o_ptr, (o_ptr->name2 == EGO_BALROG) ? 30 : 17, 
 	       "non fire resistant creatures", &first);
-  if (full && (f1 & TR1_BRAND_COLD)) 
+	else output_dam(o_ptr, 14, "non fire resistant creatures", &first);
+  }
+  if (full && (h1 & TR1_BRAND_COLD))
+  {
+    if (f1 & TR1_BRAND_COLD)
     output_dam(o_ptr, 17, "non cold resistant creatures", &first);
-  if (full && (f1 & TR1_BRAND_ELEC)) 
+	else output_dam(o_ptr, 14, "non cold resistant creatures", &first);
+  }
+  if (full && (h1 & TR1_BRAND_ELEC))
+  {
+    if (f1 & TR1_BRAND_ELEC)
     output_dam(o_ptr, 17, "non lightning resistant creatures", &first);
-  if (full && (f1 & TR1_BRAND_ACID)) 
+	else output_dam(o_ptr, 14, "non lightning resistant creatures", &first);
+  }
+  if (full && (h1 & TR1_BRAND_ACID)) 
+  {
+    if (f1 & TR1_BRAND_ACID)
     output_dam(o_ptr, 17, "non acid resistant creatures", &first);
-  if (full && (f1 & TR1_BRAND_POIS)) 
+	else output_dam(o_ptr, 14, "non acid resistant creatures", &first);
+  }
+  if (full && (h1 & TR1_BRAND_POIS)) 
+  {
+    if (f1 & TR1_BRAND_POIS)
     output_dam(o_ptr, 17, "non poison resistant creatures", &first);
-  
+	else output_dam(o_ptr, 14, "non poison resistant creatures", &first);
+  }
+      
   output_dam(o_ptr, 10, (first) ? "all monsters" : "other monsters", &first);
   
   text_out_to_screen(TERM_WHITE, ".  Your + to Skill would be ");
@@ -928,13 +999,16 @@ extern void output_ammo_dam(object_type *o_ptr, int mult, cptr against,
  */
 extern void display_ammo_damage(object_type *o_ptr)
 {
-  u32b f1, f2, f3;
+  u32b f1, f2, f3, g1, g2, g3, h1;
+
+  object_type *i_ptr;
+
   bool first = TRUE;
   bool full = TRUE, perfect;
   
   /* Extract the flags */
   object_flags(o_ptr, &f1, &f2, &f3);
-  
+    
   /* Artifacts need to be fully identified, others just known */
   if ((o_ptr->name1) && !(o_ptr->ident & IDENT_MENTAL))
     full = FALSE;
@@ -945,14 +1019,8 @@ extern void display_ammo_damage(object_type *o_ptr)
   perfect = (full && (f1 & TR1_PERFECT_BALANCE));
 
   if (o_ptr->tval > TV_BOLT)
+  {
     text_out_to_screen(TERM_WHITE, "\nThrowing it you would do an average damage of ");
-  else if (p_ptr->ammo_tval == o_ptr->tval)
-    text_out_to_screen(TERM_WHITE, "\nUsing it with your current launcher you would do an average damage per shot of ");
-  else
-    {
-      text_out_to_screen(TERM_WHITE, "\nYou cannot use this missile with your current launcher. ");
-      return;
-    }
   if (full && (f1 & TR1_SLAY_ANIMAL)) 
     output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "animals", 
 	       &first, perfect);
@@ -993,10 +1061,115 @@ extern void display_ammo_damage(object_type *o_ptr)
   if (full && (f1 & TR1_BRAND_POIS)) 
     output_ammo_dam(o_ptr, 17, "non poison resistant creatures", &first, 
 		    perfect);
-
   output_ammo_dam(o_ptr, 10, (first) ? "all monsters" : "other monsters", 
 		  &first, perfect);
   text_out_to_screen(TERM_WHITE, ". ");
+  }
+  else if (p_ptr->ammo_tval == o_ptr->tval)
+  {
+  /* Check launcher for additional brands (slays) */
+  i_ptr = &inventory[INVEN_BOW];
+  /* If wielding a launcher - sanity check */
+  if (i_ptr->k_idx)
+  {
+    /* Extract the flags */
+    object_flags(i_ptr, &g1, &g2, &g3);
+    /* Pick up any brands (and slays!) */
+    h1 = f1 | g1;
+  }
+    text_out_to_screen(TERM_WHITE, "\nUsing it with your current launcher you would do an average damage per shot of ");
+  if (full && (h1 & TR1_SLAY_ANIMAL))
+  {
+	if (f1 & TR1_SLAY_ANIMAL)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 17 : 15), "animals", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "animals", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_EVIL)) 
+  {
+	if (f1 & TR1_SLAY_EVIL)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 15 : 13), "evil creatures", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 12, "evil creatures", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_ORC)) 
+  {
+	if (f1 & TR1_SLAY_ORC)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "orcs", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "orcs", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_TROLL)) 
+  {
+	if (f1 & TR1_SLAY_TROLL)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "trolls", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "trolls", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_GIANT)) 
+  {
+	if (f1 & TR1_SLAY_GIANT)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "giants", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "giants", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_DRAGON)) 
+  {
+	if (f1 & TR1_SLAY_DRAGON)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "dragons", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "dragons", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_UNDEAD)) 
+  {
+	if (f1 & TR1_SLAY_UNDEAD)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "undead", 
+	       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "undead", &first, perfect);
+  }
+  if (full && (h1 & TR1_SLAY_DEMON))
+  {
+	if (f1 & TR1_SLAY_DEMON)
+    output_ammo_dam(o_ptr, ((f1 & TR1_SLAY_KILL) ? 20 : 17), "demons", 
+		       &first, perfect);
+	else output_ammo_dam(o_ptr, 15, "demons", &first, perfect);
+  }
+  
+  if (full && (h1 & TR1_BRAND_FIRE))
+  {
+    if (f1 & TR1_BRAND_FIRE)
+    output_ammo_dam(o_ptr, 15, "non fire resistant creatures", &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "non fire resistant creatures", &first, perfect);
+  }
+  if (full && (h1 & TR1_BRAND_COLD))
+  {
+    if (f1 & TR1_BRAND_COLD)
+    output_ammo_dam(o_ptr, 15, "non cold resistant creatures", &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "non cold resistant creatures", &first, perfect);
+  }
+  if (full && (h1 & TR1_BRAND_ELEC))
+  {
+    if (f1 & TR1_BRAND_ELEC)
+    output_ammo_dam(o_ptr, 15, "non lightning resistant creatures", &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "non lightning resistant creatures", &first, perfect);
+  }
+  if (full && (h1 & TR1_BRAND_ACID)) 
+  {
+    if (f1 & TR1_BRAND_ACID)
+    output_ammo_dam(o_ptr, 15, "non acid resistant creatures", &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "non acid resistant creatures", &first, perfect);
+  }
+  if (full && (h1 & TR1_BRAND_POIS)) 
+  {
+    if (f1 & TR1_BRAND_POIS)
+    output_ammo_dam(o_ptr, 15, "non poison resistant creatures", &first, perfect);
+	else output_ammo_dam(o_ptr, 13, "non poison resistant creatures", &first, perfect);
+  }
+  output_ammo_dam(o_ptr, 10, (first) ? "all monsters" : "other monsters", 
+		  &first, perfect);
+  text_out_to_screen(TERM_WHITE, ". ");
+  }
+  else text_out_to_screen(TERM_WHITE, "\nYou cannot use this missile with your current launcher. ");
   
 }
 
@@ -2163,55 +2336,55 @@ cptr item_activation(object_type *o_ptr)
       
     case ACT_DRAGON_BLUE:
       {
-	return "assume dragon form; Activation in dragon form: breathe lightning (130) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe lightning very 50+d50 turns";
       }
     case ACT_DRAGON_WHITE:
       {
-	return "assume dragon form; Activation in dragon form: breathe frost (140) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe frost every 50+d50 turns";
       }
     case ACT_DRAGON_BLACK:
       {
-	return "assume dragon form; Activation in dragon form: breathe acid (150) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe acid every 50+d50 turns";
       }
     case ACT_DRAGON_GREEN:
       {
-	return "assume dragon form; Activation in dragon form: breathe poison gas (150) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe poison gas every 50+d50 turns";
       }
     case ACT_DRAGON_RED:
       {
-	return "assume dragon form; Activation in dragon form: breathe fire (160) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe fire every 50+d50 turns";
       }
     case ACT_DRAGON_MULTIHUED:
       {
-	return "assume dragon form; Activation in dragon form: breathe an element or poison (190) every 350+d350 turns";
+	return "assume dragon form; Activation in dragon form: breathe an element or poison every 50+d50 turns";
       }
     case ACT_DRAGON_BRONZE:
       {
-	return "assume dragon form; Activation in dragon form: breathe confusion (130) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe confusion every 50+d50 turns";
       }
     case ACT_DRAGON_GOLD:
       {
-	return "assume dragon form; Activation in dragon form: breathe sound (130) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe sound every 50+d50 turns";
       }
     case ACT_DRAGON_CHAOS:
       {
-	return "assume dragon form; Activation in dragon form: breathe chaos/disenchant (180) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe chaos/disenchant every 50+d50 turns";
       }
     case ACT_DRAGON_LAW:
       {
-	return "assume dragon form; Activation in dragon form: breathe sound/shards (190) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe sound/shards every 50+d50 turns";
       }
     case ACT_DRAGON_BALANCE:
       {
-	return "assume dragon form; Activation in dragon form: breathe balance (210) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe balance every 50+d50 turns";
       }
     case ACT_DRAGON_SHINING:
       {
-	return "assume dragon form; Activation in dragon form: breathe light/darkness (160) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe light/darkness every 50+d50 turns";
       }
     case ACT_DRAGON_POWER:
       {
-	return "assume dragon form; Activation in dragon form: breathe the elements (240) every 300+d300 turns";
+	return "assume dragon form; Activation in dragon form: breathe the elements every 50+d50 turns";
       }
       
     case ACT_RING_ACID:
@@ -2229,6 +2402,10 @@ cptr item_activation(object_type *o_ptr)
     case ACT_RING_ELEC:
       {
 	return "cast a electricity ball(80) and oppose electricity every 50+d100 turns";
+      }
+    case ACT_RING_POIS:
+      {
+	return "cast a poison ball(80) and oppose poison every 50+d100 turns";
       }
     case ACT_AMULET_ESCAPING:
       {

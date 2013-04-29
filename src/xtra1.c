@@ -2384,9 +2384,8 @@ static void calc_torch(void)
 	  p_ptr->cur_lite += 2;
 	}
       
-      /* Artifact Lites (but not the Stone of Lore) provide permanent, 
-       * bright, light */
-      if ((artifact_p(o_ptr)) && (o_ptr->k_idx != 477)) p_ptr->cur_lite += 3;
+      /* Artifact Lites provide permanent, bright, light */
+      if (artifact_p(o_ptr)) p_ptr->cur_lite += 3;
     }
   
   /* Priests and Paladins get a bonus to light radius at level 35 and
@@ -3545,14 +3544,6 @@ extern void calc_bonuses(bool inspect)
       (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags & TF_TREE))
     p_ptr->pspeed += 3;
 
-  /* Superstealth for ents in forest */
-  if ((check_ability(SP_WOODEN)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))
-    {
-      p_ptr->superstealth += 1;
-      p_ptr->update |= (PU_BONUS);
-    }
-
   /* Dwarves are good miners */
   if (check_ability(SP_DWARVEN))
     p_ptr->skill_dig += 40;
@@ -4020,7 +4011,7 @@ extern void calc_bonuses(bool inspect)
 	  /* Extra might */
 	  p_ptr->ammo_mult += extra_might;
 	  
-	  /* Love your launcher */
+	  /* Love your launcher SJGU bonuses reduced */
 	  if (((check_ability(SP_BOW_SPEED_GREAT)) && 
 	       (p_ptr->ammo_tval == TV_ARROW)) ||
 	      ((check_ability(SP_SLING_SPEED_GREAT)) && 
@@ -4029,11 +4020,11 @@ extern void calc_bonuses(bool inspect)
 	       (p_ptr->ammo_tval == TV_BOLT)))
 	    {
 	      /* Big bonus... */
-	      p_ptr->num_fire += dex_factor;
+	      p_ptr->num_fire += 3 * dex_factor / 4;
 
 	      /* ...and sometimes even more */
 	      if (check_ability(SP_RAPID_FIRE))
-		p_ptr->num_fire += dex_factor;
+		p_ptr->num_fire += dex_factor / 4;
 	    }
 	  
 	  /* Like your launcher */

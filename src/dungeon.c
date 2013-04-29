@@ -64,7 +64,7 @@ int value_check_aux1(const object_type *o_ptr)
 /*
  * Return a "feeling" (or FEEL_NONE) about an item.  Method 2 (Light).
  */
-static int value_check_aux2(object_type *o_ptr)
+int value_check_aux2(object_type *o_ptr)
 {
   /* Cursed items (all of them) */
   if (cursed_p(o_ptr)) return FEEL_CURSED;
@@ -83,9 +83,9 @@ static int value_check_aux2(object_type *o_ptr)
   
   /* Good weapon bonuses */
   if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_WEAK;
-  
-  /* No feeling */
-  return FEEL_NONE;
+/* SJGU */
+  /* Default to "average" */
+  return FEEL_AVERAGE;
 }
 
 
@@ -183,10 +183,10 @@ static void sense_inventory(void)
       
       /* Check for a feeling */
       feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-      
+#if 0 /* SJGU - can't happen */ 
       /* Skip non-feelings */
       if (feel == FEEL_NONE) continue;
-      
+#endif      
       /* Stop everything */
       if (disturb_minor) disturb(0, 0);
       
@@ -743,13 +743,14 @@ static void process_world(void)
   /* Timed near-complete stealth -LM- */
   if ((p_ptr->superstealth) && (!extend_magic))
     {
-      (void)set_superstealth(p_ptr->superstealth - 1);
+	  if (!((check_ability(SP_WOODEN)) && 
+            (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags & TF_TREE)))
+	  {
+        (void)set_superstealth(p_ptr->superstealth - 1,TRUE);
       
-      /* Warn the player that he's going to be revealed soon. */
-      if ((p_ptr->superstealth == 5) && 
-          !((check_ability(SP_WOODEN)) && 
-            (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST)))
-        msg_print("You sense your mantle of shadow fading...");
+        /* Warn the player that he's going to be revealed soon. */
+        if (p_ptr->superstealth == 5) msg_print("You sense your mantle of shadow fading...");
+	  }
     }
   
   /* Timed temporary elemental brands. -LM- */
@@ -1652,6 +1653,8 @@ static void process_player(void)
       /* Mega-hack -- show lists */
       if (show_lists) p_ptr->command_see = TRUE;      
 
+      /* Hack - update visible monster list */
+      p_ptr->window |= PW_MONLIST;
 
       /* Assume free turn */
       p_ptr->energy_use = 0;
@@ -1935,8 +1938,9 @@ static void dungeon(void)
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
   
   /* No stairs down from Quest */
-  if (is_quest(p_ptr->stage))
-    if (p_ptr->create_stair == FEAT_MORE) 
+  if ((is_quest(p_ptr->stage)) && 
+      ((p_ptr->create_stair == FEAT_MORE) || 
+      (p_ptr->create_stair == FEAT_MORE_SHAFT))) 
       p_ptr->create_stair = 0;
   
   
@@ -1988,14 +1992,6 @@ static void dungeon(void)
   if ((p_ptr->schange == SHAPE_VAMPIRE) && 
       ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
     shapechange(SHAPE_NORMAL);
-  
-  
-  /* Announce superstealth (or lack of) for ents */
-  if ((check_ability(SP_WOODEN)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))
-    set_superstealth(1);
-  else if (check_ability(SP_WOODEN))
-    set_superstealth(0);
   
   /* Update stuff */
   p_ptr->update |= (PU_BONUS | PU_HP | PU_SPELLS | PU_SPECIALTY);
@@ -2308,7 +2304,9 @@ void play_game(bool new_game)
   Term_activate(angband_term[0]);
   
   /* Verify minimum size */
-  if ((Term->hgt < 24) || (Term->wid < (small_screen ? 48 : 80)))
+  // MJS
+  if ((Term->hgt < (small_screen ? 12 : 24)) ||
+  (Term->wid < (small_screen ? 32 : 80)))
     {
       quit("main window is too small");
     }
@@ -2316,7 +2314,9 @@ void play_game(bool new_game)
   
   /* Hack -- turn off the cursor */
   (void)Term_set_cursor(0);
-  
+ 
+  /* Quickstart */
+  character_quickstart = FALSE;
   
   /* Attempt to load */
   if (!load_player())

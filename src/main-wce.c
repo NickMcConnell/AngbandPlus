@@ -6892,13 +6892,14 @@ int add_button_win(char *label, unsigned char keypress)
 
   /* Check we haven't run out of room */
   button_length += length;
+#if 0 /* SJGU */
   if (button_length + button_start > button_end) 
     {
       bell("No more room for buttons!");
       button_length -= length;
       return 0;
     }
-
+#endif
   /* Make the button */
   strncpy(mse_button[num_buttons].label, label, MAX_MOUSE_LABEL);
   mse_button[num_buttons].left  = button_length;

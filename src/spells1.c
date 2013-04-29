@@ -1188,13 +1188,13 @@ void take_hit(int dam, cptr kb_str)
       sprintf(buf, "Killed by %s.", p_ptr->died_from);
       
       /* Write message */
-      make_note(buf,  p_ptr->stage, NOTE_DEATH);
+      make_note(buf,  p_ptr->stage, NOTE_DEATH, p_ptr->lev);
       
       /* date and time*/
       sprintf(buf, "Killed on %s.", long_day);
       
       /* Write message */
-      make_note(buf,  p_ptr->stage, NOTE_DEATH);
+      make_note(buf,  p_ptr->stage, NOTE_DEATH, p_ptr->lev);
 	  
       /* Dead */
       return;
@@ -2119,7 +2119,7 @@ int apply_dispel(int power)
     }
   if (p_ptr->superstealth && (!check_save(power)))
     {
-      set_superstealth(0);
+      set_superstealth(0,TRUE);
       num_effects += 1;
     }
   if (p_ptr->ele_attack && (!check_save(power)))

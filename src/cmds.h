@@ -68,7 +68,7 @@ extern void do_cmd_pref(void);
 extern void do_cmd_macros(void);
 extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
-extern void make_note(char *note, int what_stage, byte note_type);
+extern void make_note(char *note, int what_stage, byte note_type, s16b lev);
 extern void do_cmd_note(void);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);

@@ -924,7 +924,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
     }
   
   /* Special terrain (trees etc) */
-  else if ((feat >= FEAT_LAVA) && (feat <= FEAT_WEB))
+  else if (feat >= FEAT_MIN_SPECIAL)
     {
       /* Memorized (or seen) floor */
       if ((info & (CAVE_MARK)) ||
@@ -5131,20 +5131,22 @@ void town_illuminate(bool daytime, bool cave)
  */
 void cave_set_feat(int y, int x, int feat)
 {
+
+  feature_type *f_ptr = &f_info[feat];
+
   /* Change the feature */
   cave_feat[y][x] = feat;
   
-  /* Handle "wall/door" grids.  Trees are also considered walls. */
-  if (((feat >= FEAT_DOOR_HEAD) && (feat < FEAT_SHOP_HEAD)) || 
-      (feat == FEAT_TREE) || (feat == FEAT_TREE2))
-    {
-      cave_info[y][x] |= (CAVE_WALL);
-    }
-  
-  /* Handle "floor"/etc grids */
-  else
+  /* Handle "floor" grids. */
+  if ((f_ptr->flags & TF_LOS) || (f_ptr->flags & TF_SHOP))
     {
       cave_info[y][x] &= ~(CAVE_WALL);
+    }
+  
+  /* Handle "wall"/etc grids */
+  else
+    {
+      cave_info[y][x] |= (CAVE_WALL);
     }
   
   /* Notice/Redraw */

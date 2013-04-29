@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.5a"
+#define VERSION_STRING	"0.3.6"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	5
+#define VERSION_PATCH	6
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -424,8 +424,8 @@
  * Misc constants
  */
 #define TOWN_DAWN	2000	/* Number of turns from dawn to dawn XXX */
-#define BREAK_GLYPH	400	/* Rune of protection resistance */
-#define BTH_PLUS_ADJ    1       /* Adjust BTH per plus-to-hit */
+#define BREAK_GLYPH	300		/* Rune of protection resistance */
+#define BTH_PLUS_ADJ    1   /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ	8	/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2	/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2	/* Percent of player exp drained per hit */
@@ -978,6 +978,8 @@
 #define FEAT_BROKEN	0x05
 #define FEAT_LESS	0x06
 #define FEAT_MORE	0x07
+#define FEAT_LESS_SHAFT    0x08
+#define FEAT_MORE_SHAFT    0x09
 
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
@@ -1557,8 +1559,10 @@
 #define ACT_RING_ELEC			221
 #define ACT_RING_FIRE			222
 #define ACT_RING_COLD			223
-#define ACT_AMULET_ESCAPING		224
-#define ACT_AMULET_LION			225
+#define ACT_RING_POIS			224
+#define ACT_AMULET_ESCAPING		225
+#define ACT_AMULET_LION			226
+
 
 /* Ego-items */
 #define ACT_BALROG_WHIP			245
@@ -1822,6 +1826,7 @@
 #define SV_AMULET_ARTIFACT_1            17
 #define SV_AMULET_ARTIFACT_2            18
 #define SV_AMULET_ARTIFACT_3            19
+#define SV_AMULET_TRICKERY      20
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE			0
@@ -1849,7 +1854,7 @@
 #define SV_RING_SEE_INVIS		22
 #define SV_RING_SEARCHING		23
 #define SV_RING_STR			24
-/* xxx */
+#define SV_RING_VENOM		25
 #define SV_RING_DEX			26
 #define SV_RING_CON			27
 #define SV_RING_SKILL			28
@@ -2446,9 +2451,8 @@
 #define PW_EQUIP	0x00000002L	/* Display equip/inven */
 #define PW_PLAYER_0	0x00000004L	/* Display player (basic) */
 #define PW_PLAYER_1	0x00000008L	/* Display player (extra) */
-#define PW_SPELL        0x00000010L     /* Display spell list */
-/* xxx */
-/* xxx */
+#define PW_SPELL    0x00000010L /* Display spell list */
+#define PW_STUFF    0x00000020L /* Display stuff */
 #define PW_MESSAGE	0x00000040L	/* Display messages */
 #define PW_OVERHEAD	0x00000080L	/* Display overhead view */
 #define PW_MONSTER	0x00000100L	/* Display monster recall */
@@ -3715,12 +3719,13 @@
  * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_passable_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)) || \
-	(cave_feat[Y][X] == FEAT_TREE) || \
-	(cave_feat[Y][X] == FEAT_TREE2) || \
-	(cave_feat[Y][X] == FEAT_RUBBLE) || \
-	(cave_feat[Y][X] == FEAT_GRASS))
-
+    (!(cave_info[Y][X] & (CAVE_WALL)) || \
+    (cave_feat[Y][X] == FEAT_TREE) || \
+    (cave_feat[Y][X] == FEAT_TREE2) || \
+    (cave_feat[Y][X] == FEAT_RUBBLE) || \
+    (cave_feat[Y][X] >= FEAT_VOID) || \
+    ((cave_feat[Y][X] >= FEAT_TRAP_HEAD) && \
+     (cave_feat[Y][X] <= FEAT_TRAP_TAIL)))
 
 
 
