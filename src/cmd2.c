@@ -115,6 +115,28 @@ void do_cmd_go_up(void)
 	}
     }
   
+  /* Handle ironman */
+  if (adult_ironman)
+    {
+      int next = stage_map[p_ptr->stage][2 + (pstair - FEAT_LESS_NORTH)/2];
+
+      /* Upstairs */
+      if (pstair < FEAT_LESS_NORTH)
+	{
+	  msg_print("Nothing happens.");
+	  return;
+	}
+      else 
+	{
+	  /* New towns are OK */
+	  if ((next == p_ptr->last_stage) || stage_map[next][DEPTH]) 
+	    {
+	      msg_print("Nothing happens.");
+	      return;
+	    }
+	}
+    }
+
   /* Make certain the player really wants to leave a themed level. -LM- */
   if (p_ptr->themed_level)
     if (!get_check("This level will never appear again.  Really leave?")) 
@@ -228,6 +250,24 @@ void do_cmd_go_down(void)
 	}
     }
   
+  /* Handle ironman */
+  if (adult_ironman && !p_ptr->depth)
+    {
+      int i, other;
+      int next = stage_map[p_ptr->stage][2 + (pstair - FEAT_MORE_NORTH)/2];
+      
+      /* Check if this is the right way out of town */
+      for (i = NORTH; i <= WEST; i++)
+	{
+	  other = stage_map[p_ptr->stage][i];
+	  if (stage_map[next][DEPTH] < stage_map[other][DEPTH]) 
+	    {
+	      msg_print("Nothing happens.");
+	      return;
+	    }
+	}
+    }
+
   /* Make certain the player really wants to leave a themed level. -LM- */
   if (p_ptr->themed_level)
     if (!get_check("This level will never appear again.  Really leave?")) 
@@ -244,6 +284,30 @@ void do_cmd_go_down(void)
   
   if (pstair == FEAT_MORE)
     {
+      int location;
+
+      /* Magical portal for ironman */
+      if (adult_ironman && !stage_map[p_ptr->stage][DOWN])
+	{
+	  /* Get choice */
+	  if (!jump_menu(p_ptr->depth + 1, &location))
+	    return;
+	  
+	  /* Land properly */
+	  p_ptr->last_stage = NOWHERE;
+
+	  /* New stage */
+	  p_ptr->stage = location;
+	  
+	  /* New depth */
+	  p_ptr->depth = stage_map[location][DEPTH];
+	  
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+
+	  return;
+	}
+
       /* stairs */
       message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
 
@@ -270,10 +334,8 @@ void do_cmd_go_down(void)
 	  p_ptr->create_stair = pstair ^ 0x05;
 	  
 	  /* path */
-	  message(MSG_STAIRS, 0, 
-		  "You enter a winding path to greater danger.");
+	  message(MSG_STAIRS, 0, "You enter a winding path to greater danger.");
 	}
-      
     }
   
   /* Handle mountaintop stuff */

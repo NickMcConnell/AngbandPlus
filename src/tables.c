@@ -2758,13 +2758,13 @@ cptr option_text[OPT_MAX] =
     NULL,	NULL,		NULL,		NULL,		NULL, /*120*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,
-    "birth_point_based",	      /* OPT_birth_point_based */
-    "birth_auto_roller",	      /* OPT_birth_auto_roller */
+    "birth_point_based",              /* OPT_birth_point_based */
+    "birth_auto_roller",              /* OPT_birth_auto_roller */
     "birth_take_notes",		      /* OPT_birth_take_notes */	
     "birth_preserve",		      /* OPT_birth_preserve */	   
     "birth_notes_save",	              /* OPT_birth_notes_save */
-    NULL,
-    NULL,
+    "birth_ironman",	              /* OPT_birth_ironman */
+    "birth_thrall",	              /* OPT_birth_thrall */
     NULL,
     NULL,
     NULL,
@@ -2791,12 +2791,12 @@ cptr option_text[OPT_MAX] =
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,
     "adult_point_based",	        /* OPT_adult_point_based */
-    "adult_auto_roller",		/* OPT_adult_auto_roller */	     
+    "adult_auto_roller",      		/* OPT_adult_auto_roller */	     
     "adult_take_notes",                 /* OPT_adult_take_notes */
     "adult_preserve",		        /* OPT_adult_preserve */
     "adult_notes_save",                 /* OPT_adult_notes_save */
-    NULL,
-    NULL,
+    "adult_ironman",	                /* OPT_adult_ironman */
+    "adult_thrall",      		/* OPT_adult_thrall */	     
     NULL,
     NULL,
     NULL,	NULL,	NULL,	NULL,	NULL,
@@ -2917,8 +2917,8 @@ cptr option_desc[OPT_MAX] =
     "Birth: Have notes written to a file",         /* OPT_birth_take_notes */
     "Birth: No special feelings/artifacts preserved",/* OPT_birth_preserve */ 
     "Birth: Write notes file in savefile directory",/* OPT_birth_notes_save */
-    NULL,
-    NULL,
+    "Birth: Ironman mode ",                        /* OPT_birth_ironman */
+    "Birth: Thrall mode",                          /* OPT_birth_thrall */
     NULL,
     NULL,
     NULL,	 
@@ -2949,8 +2949,8 @@ cptr option_desc[OPT_MAX] =
     "Adult: Have notes written to a file",         /* OPT_adult_take_notes */
     "Adult: Artifacts preserved & no special feelings",/* OPT_adult_preserve*/ 
     "Adult: Write notes file in savefile directory",/* OPT_adult_notes_save */
-    NULL,
-    NULL,
+    "Adult: Ironman mode",                         /* OPT_adult_ironman */
+    "Adult: Thrall mode",                          /* OPT_adult_thrall */
     NULL, 
     NULL, 
     NULL,	NULL,	NULL,	NULL,	NULL,
@@ -3070,8 +3070,8 @@ bool option_norm[OPT_MAX] =
     TRUE,                /* OPT_birth_take_notes */
     TRUE,	         /* OPT_birth_preserve */      
     FALSE,               /* OPT_birth_notes_save */
-    FALSE,
-    FALSE,
+    FALSE,		 /* OPT_birth_ironman */
+    FALSE,		 /* OPT_birth_thrall */
     FALSE,
     FALSE,	  
     FALSE,	  
@@ -3098,9 +3098,9 @@ bool option_norm[OPT_MAX] =
     TRUE,	        /* OPT_adult_auto_roller */
     TRUE,               /* OPT_adult_take_notes */
     TRUE,	        /* OPT_adult_preserve */      
-    FALSE,
-    FALSE,
-    FALSE,
+    FALSE,	        /* OPT_adult_notes_save */  
+    FALSE,	        /* OPT_adult_ironman */  
+    FALSE,	        /* OPT_adult_thrall */  
     FALSE, 
     FALSE, 
     FALSE,	FALSE,	FALSE,	FALSE,	FALSE,

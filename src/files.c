@@ -1891,7 +1891,7 @@ extern int make_dump(char_attr_line *line, int mode)
   
   int k, which = 0;  
 
-  store_type *st_ptr;
+  store_type *st_ptr = NULL;
   
   char o_name[120];
   
@@ -1924,23 +1924,27 @@ extern int make_dump(char_attr_line *line, int mode)
   int current_line = 0;
 
   bool dead = FALSE;
+  bool have_home = (p_ptr->home != 0);
 
   /* Get the store number of the home */
-  for (k = 0; k < NUM_TOWNS; k++)
+  if (have_home)
     {
-      /* Found the town */
-      if (p_ptr->home == towns[k])
+      for (k = 0; k < NUM_TOWNS; k++)
 	{
-	  which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
-	  break;
+	  /* Found the town */
+	  if (p_ptr->home == towns[k])
+	    {
+	      which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
+	      break;
+	    }
+	  /* Next town */
+	  else
+	    which += (k < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
 	}
-      /* Next town */
-      else
-	which += (k < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
-    }
 
-  /* Activate the store */
-  st_ptr = &store[which];
+      /* Activate the store */
+      st_ptr = &store[which];
+    }
 
   dump_ptr = (char_attr *)&line[current_line]; 
 
@@ -2719,26 +2723,29 @@ extern int make_dump(char_attr_line *line, int mode)
   current_line += 2;  
   
   /* Dump the Home -- if anything there */
-  if (st_ptr->stock_num)
+  if (have_home)
     {
-      dump_ptr = (char_attr *)&line[current_line];
-
-      /* Header */
-      dump_put_str(TERM_WHITE, "[Home Inventory]", 2);
-      current_line += 2;
-      
-      /* Dump all available items */
-      for (i = 0; i < st_ptr->stock_num; i++)
+      if (st_ptr->stock_num)
 	{
 	  dump_ptr = (char_attr *)&line[current_line];
-	  object_desc(o_name, &st_ptr->stock[i], TRUE, 4);
-	  sprintf(buf, "%c) %s", I2A(i), o_name);
-	  dump_put_str(proc_list_color_hack(&st_ptr->stock[i]), buf, 0);
-	  current_line++;
+	  
+	  /* Header */
+	  dump_put_str(TERM_WHITE, "[Home Inventory]", 2);
+	  current_line += 2;
+	  
+	  /* Dump all available items */
+	  for (i = 0; i < st_ptr->stock_num; i++)
+	    {
+	      dump_ptr = (char_attr *)&line[current_line];
+	      object_desc(o_name, &st_ptr->stock[i], TRUE, 4);
+	      sprintf(buf, "%c) %s", I2A(i), o_name);
+	      dump_put_str(proc_list_color_hack(&st_ptr->stock[i]), buf, 0);
+	      current_line++;
+	    }
+	  
+	  /* Add an empty line */
+	  current_line += 2;
 	}
-      
-      /* Add an empty line */
-      current_line += 2;
     }
   
   /* Add in "character start" information */
@@ -2918,6 +2925,20 @@ extern int make_dump(char_attr_line *line, int mode)
   current_line += 2;
 
   /* Dump options */
+  for (i = OPT_adult_start + 5; i < OPT_adult_end; i++)
+    {
+      if (option_desc[i])
+	{
+	  dump_ptr = (char_attr *)&line[current_line];
+	  sprintf(buf, "%-49s: %s (%s)",
+		  option_desc[i],
+		  op_ptr->opt[i] ? "yes" : "no ",
+		  option_text[i]);
+	  dump_put_str(TERM_WHITE, buf, 0);
+	  current_line++;
+	}
+    }
+
   for (i = OPT_score_start; i < OPT_score_end; i++)
     {
       if (option_desc[i])
@@ -4340,7 +4361,7 @@ static void death_knowledge(void)
   
   object_type *o_ptr;
   
-  store_type *st_ptr;
+  store_type *st_ptr = NULL;
   
   /* Get the store number of the home */
   for (i = 0; i < NUM_TOWNS; i++)
@@ -4356,10 +4377,6 @@ static void death_knowledge(void)
 	which += (i < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
     }
 
-  /* Activate the store */
-  st_ptr = &store[which];
-
-  
   /* Hack -- Know everything in the inven/equip */
   for (i = 0; i < INVEN_TOTAL; i++)
     {
@@ -4376,20 +4393,28 @@ static void death_knowledge(void)
       o_ptr->ident |= (IDENT_MENTAL);
     }
   
-  /* Hack -- Know everything in the home */
-  for (i = 0; i < st_ptr->stock_num; i++)
+  /* Thralls sometimes (often!) don't have a home */
+  if (p_ptr->home)
     {
-      o_ptr = &st_ptr->stock[i];
+      /* Activate the store */
+      st_ptr = &store[which];
       
-      /* Skip non-objects */
-      if (!o_ptr->k_idx) continue;
       
-      /* Aware and Known */
-      object_aware(o_ptr);
-      object_known(o_ptr);
-      
-      /* Fully known */
-      o_ptr->ident |= (IDENT_MENTAL);
+      /* Hack -- Know everything in the home */
+      for (i = 0; i < st_ptr->stock_num; i++)
+	{
+	  o_ptr = &st_ptr->stock[i];
+	  
+	  /* Skip non-objects */
+	  if (!o_ptr->k_idx) continue;
+	  
+	  /* Aware and Known */
+	  object_aware(o_ptr);
+	  object_known(o_ptr);
+	  
+	  /* Fully known */
+	  o_ptr->ident |= (IDENT_MENTAL);
+	}
     }
   
   /* Hack -- Recalculate bonuses */
@@ -5508,7 +5533,6 @@ void close_game(void)
 {
   char buf[1024];
   
-  
   /* Handle stuff */
   handle_stuff();
   
@@ -5534,6 +5558,9 @@ void close_game(void)
   highscore_fd = fd_open(buf, O_RDWR);
   
   
+  /* Paranoia */
+  game_start = FALSE;
+
   /* Handle death */
   if (p_ptr->is_dead)
     {
@@ -5560,11 +5587,6 @@ void close_game(void)
   
   /* Forget the high score fd */
   highscore_fd = -1;
-  
-  my_fclose(notes_file);
-      
-  /* Delete the notes file */
-  fd_kill(notes_fname);
   
   /* Allow suspending now */
   signals_handle_tstp();

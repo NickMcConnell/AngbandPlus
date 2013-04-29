@@ -236,7 +236,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
   purse = (s32b)(ot_ptr->max_cost);
   
   /* I'm not paying that */
-  if (price >= purse) price = purse;
+  if (flip && (price >= purse)) price = purse;
 	
   /* Note -- Never become "free" */
   if (price <= 0L) return (1L);
@@ -2019,7 +2019,11 @@ static void store_sell(void)
       price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
       
       /* Confirm sale */
-      if (!get_check(format("Selling %s (%c) for %d gold.", o_name, index_to_label(item), price)))
+      msg_format("Selling %s (%c) for %d gold.", o_name, index_to_label(item), 
+		 price);
+
+      /* Confirm sale */
+      if (!get_check(format("Accept %d gold?", price)))
 	{
 	  return;
 	}
@@ -2309,6 +2313,7 @@ static bool order_menu(int tval, const char *desc)
       /* Skip empty objects, unaware objects, and incorrect tvals */
       if (!k_ptr->name) continue;
       if (!k_ptr->aware) continue;
+      if (k_ptr->flags3 & TR3_NO_ORDER) continue;
       if (k_ptr->tval != tval) continue;
 
       /* Hack - town books only */

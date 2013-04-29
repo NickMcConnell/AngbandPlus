@@ -1008,13 +1008,13 @@ static int rd_squelch(void)
   rd_byte(&tmp8u);
 
   /* Check against current number */
-  if (tmp8u != SQUELCH_BYTES)
+  if (tmp8u != TYPE_MAX)
     {
       strip_bytes(tmp8u);
     }
   else
     {
-      for (i = 0; i < SQUELCH_BYTES; i++)
+      for (i = 0; i < TYPE_MAX; i++)
 	rd_byte(&squelch_level[i]);
     }
   

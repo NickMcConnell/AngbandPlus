@@ -806,7 +806,8 @@ void hit_trap(int y, int x)
 	Rand_quick = FALSE;
 	
 	/* Paranoia  -NRM- */
-	if ((stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE) &&
+	if (((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) ||
+	     (stage_map[p_ptr->stage][STAGE_TYPE] == VALLEY)) &&
 	    (!stage_map[p_ptr->stage][DOWN]))
 	  {
 	    cave_info[y][x] &= ~(CAVE_MARK);

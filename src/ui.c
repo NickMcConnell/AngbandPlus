@@ -1161,10 +1161,10 @@ void window_make(int origin_x, int origin_y, int end_x, int end_y)
   int n;
   region to_clear;
   
-  to_clear.col = origin_x;
-  to_clear.row = origin_y;
-  to_clear.width = end_x - origin_x;
-  to_clear.page_rows = end_y - origin_y;
+  to_clear.col = origin_x - 3;
+  to_clear.row = origin_y - 3;
+  to_clear.width = end_x - origin_x + 5;
+  to_clear.page_rows = end_y - origin_y + 5;
   
   region_erase(&to_clear);
   

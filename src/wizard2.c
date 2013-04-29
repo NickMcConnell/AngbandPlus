@@ -1373,17 +1373,111 @@ static void do_cmd_wiz_cure_all(void)
 }
 
 
+/* Jump menu code */
+
+/* Choice of location */
+static int place = 0;
+
+static char jump_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the recall menu
+ */
+void jump_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  const u16b *choice = menu->menu_data;
+
+  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+  
+  c_put_str(attr, locality_name[stage_map[choice[oid]][LOCALITY]], row, col);
+
+}
+
+/*
+ * Deal with events on the jump menu
+ */
+bool jump_action(char cmd, void *db, int oid)
+{
+  u16b *choice = db;
+  
+  int idx = choice[oid];
+
+  if ((cmd == '\r') || (cmd == '\n') || (cmd == '\xff'))
+    {
+      place = idx;
+      /* Accept request */
+      msg_format("You jump to %s level %d.",
+		 locality_name[stage_map[place][LOCALITY]], 
+		 stage_map[place][DEPTH]);
+    }
+  else return FALSE;
+  
+  return TRUE;
+}
+
+
+/*
+ * Display list of places to jump to.
+ */
+bool jump_menu(int level, int *location)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, jump_tag, 0, jump_display, jump_action };
+  region area = { (small_screen ? 0 : 15), 1, 48, -1 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0, j = 0;
+  size_t i;
+  u16b *choice;
+
+  /* Create the array */
+  choice = C_ZNEW(15, u16b);
+  
+  /* Get the possible stages */
+  for (i = 0; i < NUM_STAGES; i++)
+    if ((stage_map[i][DEPTH] == level) && (stage_map[i][LOCALITY] != 0))
+      choice[j++] = i;
+  
+  /* Clear space */
+  area.page_rows = j + 2;
+  
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.title = "Which region do you want to be transported to?";
+  menu.cmd_keys = " \n\r";
+  menu.count = j;
+  menu.menu_data = choice;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+  
+  /* Select an entry */
+  evt = menu_select(&menu, &cursor, 0);
+
+  /* Set it */
+  if (evt.type == EVT_SELECT) *location = place;
+  
+  /* Free memory */
+  FREE(choice);
+  
+  /* Load screen */
+  screen_load();
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
+
 /*
  * Go to any level
  */
 static void do_cmd_wiz_jump(void)
 {
   char ppp[80];
-  char choice, ch = 'a';
   char tmp_val[160];
   
-  int poss_stages[10];
-  int i, j = 0;
+  int new_place;
   
   /* Ask for level */
   if (p_ptr->command_arg <= 0)
@@ -1407,42 +1501,22 @@ static void do_cmd_wiz_jump(void)
   /* Paranoia */
   if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
   
-  /* Get the possible stages */
-  for (i = 0; i < NUM_STAGES; i++)
-    if ((stage_map[i][DEPTH] == p_ptr->command_arg) && 
-	(stage_map[i][LOCALITY] != 0))
-      poss_stages[j++] = i;
-  
-  /* Save screen */
-  screen_save();
-  
-  /* List choices */
-  for (i = 0; i < j; i++)
-    prt(format("(%c) %15s", ch + i, 
-	       locality_name[stage_map[poss_stages[i]][LOCALITY]]), 2 + i, 30);
   
   /* Get choice */
-  if (!get_com("Region:",&choice))
+  if (!jump_menu(p_ptr->command_arg, &new_place))
     {
-      screen_load();
       return;
     }
-  i = (int) (choice - ch);
-  
-  /* Load screen */
-  screen_load();
-  
-  /* Accept request */
-  msg_format("You jump to %s level %d.",
-	     locality_name[stage_map[poss_stages[i]][LOCALITY]], 
-	     p_ptr->command_arg);
-  
+
   /* New stage */
-  p_ptr->stage = poss_stages[i];
+  p_ptr->stage = new_place;
   
   /* New depth */
-  p_ptr->depth = stage_map[poss_stages[i]][DEPTH];
+  p_ptr->depth = stage_map[new_place][DEPTH];
   
+  /* Land properly */
+  p_ptr->last_stage = NOWHERE;
+
   /* Leaving */
   p_ptr->leaving = TRUE;
 }

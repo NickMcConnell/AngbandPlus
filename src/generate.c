@@ -8866,7 +8866,8 @@ static void desert_gen(void)
 		  /* The gate of Angband */
 		  cave_set_feat(y, x, FEAT_MORE);
 		  made_gate = TRUE;
-		  if (stage_map[p_ptr->last_stage][STAGE_TYPE] == CAVE)
+		  if ((stage_map[p_ptr->last_stage][STAGE_TYPE] == CAVE) ||
+		      (turn < 10))
 		    player_place(y, x);
 		  break;
 		}
@@ -9766,32 +9767,35 @@ static void town_gen_hack(void)
       rooms[3] = 7;
       n = 4;
     }
-  
-  /* Place two rows of stores */
-  for (y = 0; y < 2; y++)
-    {
-      /* Place two or four stores per row */
-      for (x = 0; x < 4; x++)
+
+  /* No stores for ironmen away from home */
+  if ((!adult_ironman) || (p_ptr->stage == p_ptr->home))
+    {  
+      /* Place two rows of stores */
+      for (y = 0; y < 2; y++)
 	{
-	  /* Pick a random unplaced store */
-	  k = ((n <= 1) ? 0 : rand_int(n));
-	  
-	  /* Build that store at the proper location */
-	  build_store(rooms[k], y, x, stage);
-	  
-	  /* Shift the stores down, remove one store */
-	  rooms[k] = rooms[--n];
-	  
-	  /* Cut short if a minor town */
-	  if ((x > 0) && !major)
-	    break;
+	  /* Place two or four stores per row */
+	  for (x = 0; x < 4; x++)
+	    {
+	      /* Pick a random unplaced store */
+	      k = ((n <= 1) ? 0 : rand_int(n));
+	      
+	      /* Build that store at the proper location */
+	      build_store(rooms[k], y, x, stage);
+	      
+	      /* Shift the stores down, remove one store */
+	      rooms[k] = rooms[--n];
+	      
+	      /* Cut short if a minor town */
+	      if ((x > 0) && !major)
+		break;
+	    }
 	}
+      /* Hack -- Build the 9th store.  Taken from Zangband */
+      if (major)
+	build_store(rooms[0], rand_int(2), 4, stage);
     }
-  /* Hack -- Build the 9th store.  Taken from Zangband */
-  if (major)
-    build_store(rooms[0], rand_int(2), 4, stage);
-  
-  
+      
   /* Place the paths */
   for (n = 2; n < 6; n++)
     {

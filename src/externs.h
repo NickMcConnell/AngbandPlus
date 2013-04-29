@@ -139,6 +139,7 @@ extern bool arg_graphics_nice;
 extern bool arg_monochrome;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
+extern bool game_start;
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -959,7 +960,7 @@ extern bool change_panel(int dy, int dx);
 extern void verify_panel(void);
 
 /* squelch.c */
-extern byte squelch_level[SQUELCH_BYTES];
+extern byte squelch_level[TYPE_MAX];
 int get_autoinscription_index(s16b k_idx);
 const char *get_autoinscription(s16b kind_idx);
 int apply_autoinscription(object_type *o_ptr);
@@ -1003,6 +1004,7 @@ extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 /* wizard2.c */
 extern void do_cmd_debug(void);
 #endif /* ALLOW_DEBUG */
+bool jump_menu(int level, int *location);
 
 
 

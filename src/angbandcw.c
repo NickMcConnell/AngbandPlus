@@ -635,12 +635,33 @@ void HandleKeyDownTimer()
 	{
 		Term_keypress(155);
 	}
+	if (g_g.m_buttonsDown & DIR_1)
+	{
+		Term_keypress(156);
+	}
+	if (g_g.m_buttonsDown & DIR_2)
+	{
+		Term_keypress(157);
+	}
+	if (g_g.m_buttonsDown & DIR_3)
+	{
+		Term_keypress(158);
+	}
 }
 
 int ButtonUp(int vkKey)
 {
 	switch(vkKey)
 	{
+		case 204: /* 1 */
+			g_g.m_buttonsDown &= !DIR_1;
+			break;
+		case 205: /* 2 */
+			g_g.m_buttonsDown &= !DIR_2;
+			break;
+		case 198: /* 3 */
+			g_g.m_buttonsDown &= !DIR_3;
+			break;
 		case 196: /* A */
 			g_g.m_buttonsDown &= !DIR_A;
 			break;
@@ -676,6 +697,15 @@ int ButtonPress(int vkKey)
 {
 	switch(vkKey)
 	{
+		case 204: /* 1 */
+			g_g.m_buttonsDown |= DIR_1;
+			break;
+		case 205: /* 2 */
+			g_g.m_buttonsDown |= DIR_2;
+			break;
+		case 198: /* 3 */
+			g_g.m_buttonsDown |= DIR_3;
+			break;
 		case 196: /* A */
 			g_g.m_buttonsDown |= DIR_A;
 			break;

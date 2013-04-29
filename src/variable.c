@@ -67,6 +67,7 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
  * Various things
  */
 
+bool game_start;                /* Restart after death? */
 bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
@@ -96,8 +97,6 @@ bool use_dbltile = FALSE;       /* The double tile mode is enabled */
 bool use_bigtile = FALSE;       /* The bigtile mode is enabled */
 bool small_screen = FALSE;      /* Small screen mode for portables */
 bool use_transparency = FALSE;  /* Use transparent tiles */
-char notes_fname[1024];         /* Buffer to hold current notes file name */
-FILE *notes_file;               /* Notes file */
 char notes_start[80];           /* Opening line of notes */
 
 int image_count;  		/* Grids until next random image    */
