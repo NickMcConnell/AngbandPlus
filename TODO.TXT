@@ -1,0 +1,51 @@
+04-11-2000
+- Implement all varient changes as options, so I can prove that the majority
+  of my implementation work is actually better than core vanilla code, in
+  terms of size/algorithm complexity.
+- Tidy up order of GF_ types so that we could consider making resistances
+  for items/monsters using ordered flags.
+- Allow monsters to attack other monsters while confused.
+- Allow monsters to breath while confused and end up attacking in wrong
+  direction.
+- Give features a saving throw in project_f equal to the feature power * 20,
+  or 20 if power=0. If a number 1d(save) is rolled higher than the attack
+  damage, then the feature resists destruction.
+- Make features react to the presence of monsters with the appropriate flags
+- Make monsters attack features that they can damage with blows if they are
+  blocked by the feature
+- Make fleeing monsters push past other monsters/get pushed past by other
+  monsters
+- Make thieves flee once they steal stuff, and drop stuff if out of sight
+- Balance the number of monsters so that we don't get too many monsters deep
+  in the dungeon (Easily happen with summoning out of sight and FRIEND flag)
+- Add HAS_AURA flag and AURA attack that continously radiates a radius 1
+  blow type from a monster
+- Adopt smart features from other varients (Don't we all)
+
+To do list of changes from an old lost version of Angband that I coded back in 1994/95:
+- Allow monsters to cast spells while out of sight. Not actually that big a
+  change, however play balance may be required, as this makes many spell
+  casters much more powerful and dangerous. We centre summons on the
+  summoning monster and warn the player by telling them they hear chanting
+  in the distance of various forms, prevent spells that require line of
+  sight, allow spells that require project when a monster is out of line of
+  sight, and balls to shoot against regions near a player, if the player is
+  in the area of effect. This may cause somewhat of a performance hit. Some
+  spells (eg heal) really ought to be allowed while out of sight, with
+  minimal modification
+- Make teleporters teleport only if out of sight and high hit points, or in
+  sight only while low hit points, along with phase door if adjacent and have
+  better spell attacks. This should keep blink dogs and phase spiders more
+  'together'
+- Implement FRIEND flag to allow monster to have friends if found deeper in
+  the dungeon and add flag to all sorts of monsters
+- Remove duplicate monsters that are not needed once FRIEND flag is added
+- Make elementals 10 faster, and have more spells
+- Make dragons get more spells, and earlier (Should make them more of a
+  threat).
+- Add all sorts of cool monsters (I still have this list) including trees
+  that (get this) make sense
+- Remove BR_NETH from Dracolisk as this is in error. (The original AD&D
+  monster never had this ability, I believe it was added when someone
+  misread Dracolisk for Dracolich). Monsters to appear in groups only if
+  deeper as flag rather than dual entries.

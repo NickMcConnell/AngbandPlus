@@ -1,0 +1,1882 @@
+SAVE FILE INDEPENDENCE
+Multiple streams within save files.
+Additional options supported/ignored if unimplemented.
+Additional entries within each stream supported/ignored if unimplemented.
+Vanilla/varient import/export filters.
+Multiple levels in save file.
+Monsters/items/ego items etc indexed by name/global type rather than order.
+Support loading multiple e_info/k_info/r_info files from multiple directories or
+selecting different info files at birth.
+Security preventing *_info files being modified after birth. 
+
+NEW CLASSES
+
+Use cr_info.txt and cc_info.txt to implement multiple races/classes. This should include
+H: lines for history, skill/hit point advancement, shots/blows, attribute modifiers, and 
+special attributes gained (eg RES_FEAR) at various levels.
+	
+Supporting many more special attributes in cr_info that allow more monster races
+to be translated to cr_info.txt (eg HURT_LITE, HURT_FIRE, RES_NEXUS etc.)
+
+New classes must be introduced to Angband to expand variety of styles of
+play, not unnecessarily. 
+
+THIEF
+Thieves should be effective fighters and archers, with the best stealth. They are an
+alternate non-spell casting class to the warrior. They are the only class to improve in
+stealth and perception and have an excellent pseudo id.
+
+An increased chance of critical hits against sleeping/fleeing monsters should
+also not be too imbalancing for thieves (Backstab attack).
+
+A lot of varients attempt to incorporate these changes into rogues. I have them as a seperate
+class to test for play balance. To differentiate them, rogues should have improved magic item use.
+
+ARCHER
+
+I have a lot of support for the Archer class, if simply because giving
+multiple shots to a Ranger is a big hack. There should be a multiple shots
+routine set up just as there is a multiple blows routine, but only up to
+4 shots maximum, or things start to get out of hand (Especially with extra
+shot artifacts. That and seeker bolts of slay evil=1600+ dam).
+Archers should be first on this list, then Warriors and Rangers,
+then Mages and Rogues, then Priests (Crossbows were to the medieval clergy
+on par with what edged weapons have been traditionally perceived to be).
+
+Archers then become the limited resource attack from a distance style of
+play that many people want mages to be.  (ie Shoot multiple times, then
+teleport away). They as bad HtH fighters as priests to give
+this incentive. Besides which, they can always use their bows rather
+than fight in melee. Again, they have a hard early game (Care to run out
+of shots, again), although their starting items might benefit (Short bow,
+arrows). However they would have the strongest end game except for the GOI.
+
+WARRIOR MAGES
+
+I believe WARRIOR MAGES may be looked at as an effective MAGE equivelent to the PALADIN,
+with spell casting from the first level. They are not nearly as good in other skills as
+rangers however.
+
+LIGHTING
+
+Allow monsters, objects, feature to light their location and adjacent locations.
+
+Have a routine unlit_grid(x,y) that iterates from x-2,y-2 to x+2,y+2, determining if there is an object, monster or terrain adjacent that can light the locations ajacent to x,y. Complications due to multiple objects in a stack, in particular, how do we determine which object, monster or feature we are removing (Maybe seperate routine for each)
+so that it does not get included in the unlit_grid routine. Or do we
+remove the item first.
+
+If we drop a torch or lantern from when we are wielding it, we consider it lit. Should we consider permalit artifacts to always be lit, or only be lit when we wield them?
+
+Monsters that are GLOWS are always lit. Monsters that are HAVE_LIT have a radius 1 light. To prevent problems "dragging" light into a room
+
+FOG OF WAR
+
+Make detection spells work on a less than 100% basis. eg 80%-90%. This way, there can be no way of being exactly sure of whether or not a secret door is found or trap etc. These can still be detected safely by using indirect methods, such as a monster opening the door or hitting the trap.
+
+
+Maybe do the same for telepathy. Have anti-detection rooms and anti-telepathy rooms. Also perma-dark rooms, anti-magic rooms etc.
+
+
+
+
+
+
+
+NEW SPELL BOOKS/SPELLS
+
+Defined spells with s_info file including area of effect/range/damage progression.
+Generic routine for determining blow/spell attacks rather than seperate blows and 
+spells.
+
+In particular, we need generate create an object spells, generate create a feature spells,
+generate bolt/beam/ball/wall (Line running perpendicular to direction chosen)/shield (All
+adjacent locations)/flood (Square area) spells. We should also have temporary object
+spells which create a wielded object, that may not be unwielded/sold and which is destroyed when
+the time out field drops to zero. This allows various temporary blade spells, Continual Light/Mage Light,
+Psychic Crown (Telepathy) and other effects to be generated.
+
+Note all summoned/charmed creatures are set to Betray the caster at the earliest
+moment.
+
+Note sleep/slow/confuse/scare spells should be improved in effectiveness against uniques and
+other monsters.
+
+Reorganise those goddamn spell books. There are lots of good spell ideas
+screaming to get in, (Wizard Lock etc.), too many ego books, and not
+enough classes able to take advantage of them, so it becomes yet another
+cash money item on the dungeon floor when we have enough.
+
+I'd like to see more spells that a character can ever study, if only for some
+varied tactics in the mid to end game. This is more organic than the idea
+of schools of magic that some varients employ. Either we reduce the number of half-spells
+that high level characters can know or provide more books than can be learnt from.
+I suggest the latter, with a maximum of 9 books per character to prevent too much diversification. Even this
+may be an artificial limit, because books limit the inventory space and somone with too many books can't carry
+much else.
+
+Spell books are generated on a theme, such as Magic Book of Fire Spells, or Prayer Book
+of Battle Hymns. Books can be generated as (Fireproof) or (Waterproof) or (Theftproof)
+which gives the book immunity to damage/loss from that particular sort or (*Special*) which gives immunity to all of the above.
+
+MORE PRAYER BOOKS (14 total including 4 basic)
+Since only 9 books can be learnt the character must forgo 5 spell books.
+
+Blessings (Instead of Beginners Handbook)
+Mantras (Instead of Words of Wisdom)
+Chants (Instead of Chants and Blessings)
+Excorcisms (Instead of Exorcism and Dispelling)
+
+Battle Hymns
+------------
+Bless
+Chant
+Sanctuary
+Prayer
+Shield
+Hero's Prayer (Heroism)
+Righteous Fury (Beserk + bless)
+Armour of God (GOI)
+
+Holy Wrath
+----------
+Spiritual Hammer (Slay Evil object)
+Ray of Light
+Orb of Draining
+Flame Strike
+Hexen Hammer (Slay Demon object)
+Summon Angel
+Earthquake
+Holy Word
+
+the Eye of God
+--------------
+Call Light
+Detect Monsters
+Find Traps
+Detect Doors/Stairs
+Detection
+Perception
+Probing
+Clairvoyance
+
+Spiritual Medium
+----------------
+Detect Undead
+Scare Monster
+Sense Invisible
+Turn Undead
+Dispel Undead
+Summon Ghost
+Raise Dead
+Restoration
+Rememberance
+
+Abjurations
+-----------
+Detect Evil
+Remove Fear
+Detect Curse
+Remove Curse
+Protection From Evil
+Dispel Evil
+Banishment
+Glyph of Warding
+
+Laying of Hands
+---------------
+Cure Light Wounds
+Slow Poison
+Cure Moderate Wounds
+Neutralise Poison
+Cure Serious Wounds
+Satisfy Hunger
+Cure Critical Wounds
+Cure Mortal Wounds
+Heal
+
+the Way of God
+--------------
+Blink
+Portal
+Teleport Self
+Teleport Other
+Teleport Level
+Word of Recall
+Alter Reality
+
+Relics
+------
+Unbarring Ways
+Recharging
+Dispel Curse
+Enchant Weapon To-Hit
+Enchant Weapon To-Damage
+Enchant Armour
+Enchant Armour To-Resist
+Bless Weapon
+Elemental Brand
+
+Saints
+------
+Resist Blindness
+Resist Heat and Cold
+Resist Poison
+Resist Lightening
+Resistance
+
+Accursed Ways
+-------------
+Cause Light Wounds
+Animate Skeleton
+Cause Serious Wounds
+Animate Zombie
+Summon Ghoul
+Cause Critical Wounds
+Finger of Death
+Annihilation
+
+
+MORE MAGIC BOOKS (22 total including 4 basic)
+Since only 9 books can be studied from, the mage is forced to forgo 13 books of spells.
+
+Cantrips (Instead of Magic for Beginners)
+Conjuring (Instead of Conjuring and Tricks)
+Incantations (Instead of Incantations and Illusions)
+Sorcery (Instead of Sorcery and Invocatins)
+
+Fire Magic
+----------
+Burning Hands (Range 1)
+Flame Blade (Fire Brand object)
+Fire Trap
+Resist Fire
+Fire Bolt
+Flame Shield
+Fire Ball
+Fire Bolt II
+Wall of Fire
+Fire Bolt III
+Fire Storm
+Hellfire
+
+Acid Magic
+-----------
+Melting Hands (Range 1)
+Acid Blade (Acid Brand object)
+Acid Trap
+Resist Acid
+Acid Bolt
+Acid Shield
+Acid Ball
+Acid Bolt II
+Wall of Acid
+Acid Bolt III
+Acid Storm
+Ultimate Solvent
+
+Lightening Magic
+----------------
+Shocking Hands (Range 1)
+Storm Blade (Elec Brand object)
+Lightening Trap
+Resist Electricity
+Lightening Bolt
+Storm Shield
+Lightening Ball
+Lightening Bolt II
+Wall of Lightening
+Lightening Bolt III
+Lightening Storm
+Chain Lightening
+
+Frost Magic
+-----------
+Freezing Hands (Range 1)
+Ice Blade (Frost Brand object)
+Frost Trap
+Resist Cold
+Frost Bolt
+Ice Shield
+Frost Ball
+Frost Bolt II
+Wall of Ice
+Frost Bolt III
+Ice Storm
+Absolute Zero
+
+Celestial Magic
+---------------
+Light Area
+Continual Light (Permalight object)
+Light Blade (Light Brand object)
+Spear of Light
+Starlight
+Sunburst
+Shooting Star (Meteor bolt)
+Meteor Storm
+Supernova
+
+Water Magic
+-----------
+Waterwalking
+Breathe Water
+Lower Water
+Water Bolt
+Water Shield
+Water Ball
+Water Bolt II
+Wall of Water
+Water Bolt III
+Flood
+
+Earth Magic
+-----------
+Treasure Detection
+Turn Stone to Mud
+Stone Skin
+Stone Bridge
+Shard Bolt
+Stone Shield
+Earthquake
+Shatter Hammer
+Shard Ball
+Wall of Stone
+Shard Storm
+Volcanic Blast
+
+Air Magic
+---------
+Wall of Fog
+Stinking Cloud
+Breathe Water
+Turn Water to Air
+Fly
+Frost Cloud
+Acid Cloud
+Fire Cloud
+Storm Cloud
+Cloud Kill
+Death Fog
+
+Transformations
+---------------
+Polymorph Other
+Heroism
+Shield
+Beserker
+Haste Self
+Resistance
+Globe of Invulneribility
+
+Words of Power
+--------------
+Word of Opening
+Power Word Sleep
+Power Word Stun
+Symbol of Pain
+Power Word Blind
+Word of Recall
+Power Word Kill
+Word of Destruction
+Glyph of Warding
+
+Illusions
+---------
+Scare Monster
+Confuse Monster
+Sleep I
+Charm Person
+Charisma
+Sleep II
+Sleep III
+Slow Monster
+Charm Monster
+Mass Sleep
+Mass Confusion
+Mass Fear
+Mass Charm
+
+Divinations
+-----------
+Detect Monsters
+Detect Evil
+Read Magic (Identify Scroll)
+Object Detection
+Find Hidden Traps/Doors
+Identify
+Detect Enchantment
+*Identify*
+
+Life Magic
+----------
+Cure Light Wounds
+Cure Poison
+Satisfy Hunger
+Resist Poison
+Cure Serious Wounds
+Cure Critical Wounds
+Genocide
+Mass Genocide
+
+Escapes
+-------
+Phase Door
+Door Creation
+Stair Creation
+Levitation
+Teleport Self
+Teleport Other
+Teleport Level
+Earthquake
+Recall
+Instant Recall
+
+Enchantments
+------------
+Wizard Lock
+Trap/Door Destruction
+Recharge Item I
+Recharge Item II
+Recharge Item III
+Enchant Scroll
+Enchant Wand
+Enchant Staff
+Enchant Rod
+
+Alchemy
+-------
+Analyze Magic (Identify Potion)
+Dust of Sneezing (Confusion)
+Balm of Heat and Cold
+Healing Salve
+Blasting Powder
+Philter of Heroism (Hero)
+Pill of Perception (Clairvoyance)
+Strength Serum (Beserk)
+Essence of Speed
+Enchant Potion
+Create Gold
+
+Magic Missiles
+--------------
+Magic Missile
+Magic Missile II
+Magic Missile III
+Magic Missile V
+Mana Shield
+Mana Bolt
+Magic Missile X
+Mana Ball
+Mana Bolt II
+Mana Bolt III
+Mana Storm
+
+Necromancy
+----------
+Animate Skeleton
+Scare Monster
+Animate Zombie
+Turn Undead
+Animate Mummy
+Summon Ghoul
+Dispel Undead
+Summon Ghost
+Summon Demon
+Banishment
+Summon Greater Demon
+
+Animal Magic
+------------
+Detect Animals
+Detect Monsters
+Summon Animal
+Charm Person or Animal
+Find Familiar
+Dispel Animals
+Dispel Dragons
+Summon Dragon
+Dragonbreath
+Summon Greater Dragon
+
+MONSTER REVISIONS
+
+Rebalance monster list/experience value/rarity algorithmically with uniques
+appearing earlier than the algorithm would place a non-unique. 
+Allow unlimited monster races/uniques.
+Template for each monster genus/kind/race.
+Monster races associated with a particular genus/kind (ie Bats, red dragons) to allow
+ "proper" pits/summon_same, using rg_idx/rk_idx.
+Have centralised maintenance for rg_idx/rk_idx list if needed.
+Monster r_list editor with attribute inherietence.
+Valid flags listed at start of r_info file to confirm parsing.
+Unimplemented flags ignored.
+Template for monster variables specified at start of r_info file.
+Unimplemented variables ignored.
+
+Allow monsters to attack with objects they carry if they hit, and use objects they
+carry if they cast spells. 
+Allow monsters to have all spells from s_info file.
+Allow monsters to cast summon/heal/speed while out of sight centred on monster.
+Allow monsters to target ball spells next to you/not shoot friends with bolts.
+Monsters have IS_LITE, HAS_LITE_1, HAS_LITE_2 flags and NEED_LITE flags, but this
+is only used if the option Monsters carry lights is selected.
+Monsters have CAN_FLY, CAN_CLIMB, CAN_SWIM, AQUATIC attributes that only have effect
+if features that require CAN_FLY, CAN_CLIMB, CAN_SWIM are in the f_info.txt.
+Monsters GAZES, SPORES, WAILS flag for monsters to make these blows at a distance.
+if the option Monsters can make some blows at a distance is selected.
+
+
+
+
+NEW MONSTERS
+,
+Pink mushroom patch (LOSE_STR, MULTIPLY)
+Brown mushroom patch (LOSE_CHA)
+Green mushroom patch (LOSE_WIS)
+Black mushroom patch (LOST_INT)
+White mushroom patch (COLD)
+Blue mushroom patch (ELEC)
+Red mushroom patch (FIRE)
+Explodestool (EXPLODE)
+Copper mushroom patch (LOSE_DEX)
+Silver mushroom patch (HURT_LITE)
+Gold mushroom patch (HALLUC)
+Wrinkled mushroom patch (LOSE_ALL)
+Rotting mushroom patch (EXP_20)
+Slimy mushroom patch (ACID)
+
+a
+Worker ant (Use existing soldier)
+Guardian ant
+Giant green ant
+Giant copper ant (DISENCHANT)
+Giant silver ant (EAT_LITE)
+Giant gold ant (STUN)
+Giant brass ant (HALLUC)
+Giant bronze ant (CONFUSE)
+Giant driver ant
+
+A
+The Forgotten
+The Deluded
+The Deceived
+The Misbegotten
+The Bewitched
+The Fallen
+The Damned
+
+b
+Giant white bat
+Giant black bat
+Giant grey bat
+White dragon bat
+Black dragon bat
+Brass dragon bat
+Silver dragon bat
+Bronze dragon bat
+Gold dragon bat
+Copper dragon bat
+Doom bat
+Hell bat
+Giant vampire bat
+Werebat
+Demonbat
+
+B
+Raven
+Falcon
+Eagle
+Giant raven
+Giant falcon
+Giant owl
+Giant eagle
+Mirkwood raven
+Werebird
+Hell hawk
+Demonbird
+
+c
+Giant black centipede
+Giant green centipede
+Giant red centipede
+Giant blue centipede
+Giant pink centipede
+Metallic copper centipedes
+Metallic silver centipedes
+Metallic brass centipedes
+Metallic gold centipedes
+Metallic bronze centipedes
+Night crawler
+Cave crawler
+Dungeon crawler
+Grave crawler
+Crypt crawler
+Mirkwood crawler
+Werecrawler
+Demoncrawler
+Hell crawler
+
+C
+Werejackel
+Guard dog
+Wild dog
+Giant jackel
+Hyena
+Hyenadon
+Werehyena
+Hyenawere
+Giant hyena
+Black wolf
+Grey wolf
+Dire wolf
+Mirkwood wolf
+Giant wolf
+Greater werewolf
+Werewolf warrior
+Werewolf priest
+Werewolf mage
+Werewolf sorceror
+Demondog
+
+d
+Baby copper dragon (ACID, DISENCHANT)
+Baby silver dragon (COLD, NEXUS)
+Baby bronze dragon (FIRE, CONFUSION)
+Baby gold dragon (POISON, SOUND)
+Baby brass dragon (ELEC, CHAOS)
+Baby land dragon (FIRE, ACID)
+Baby sea dragon (ACID, POISON)
+Baby war dragon (POISON, FIRE)
+Baby violet dragon (PLASMA)
+Baby yellow dragon (METEOR)
+Baby brown dragon (SHARD)
+Baby amethyst dragon (TIME)
+Baby diamond dragon (MANA)
+Baby emerald dragon (WALL)
+Baby sapphire dragon (GRAVITY)
+Baby topaz dragon (INERTIA)
+Baby shimmering dragon (LITE, DARK)
+Young copper dragon (ACID, DISENCHANT)
+Young silver dragon (COLD, NEXUS)
+Young bronze dragon (FIRE, CONFUSION)
+Young gold dragon (POISON, SOUND)
+Young brass dragon (ELEC, CHAOS)
+Young land dragon (FIRE, ACID)
+Young sea dragon (ACID, POISON)
+Young war dragon (POISON, FIRE)
+Young violet dragon (PLASMA)
+Young yellow dragon (METEOR)
+Young brown dragon (SHARD)
+Young amethyst dragon (TIME)
+Young diamond dragon (MANA)
+Young emerald dragon (WALL)
+Young sapphire dragon (GRAVITY)
+Young topaz dragon (INERTIA)
+Young shimmering dragon (LITE, DARK)
+Mature copper dragon (ACID, DISENCHANT)
+Mature silver dragon (COLD, NEXUS)
+Mature bronze dragon (FIRE, CONFUSION)
+Mature gold dragon (POISON, SOUND)
+Mature brass dragon (ELEC, CHAOS)
+Mature land dragon (FIRE, ACID)
+Mature sea dragon (ACID, POISON)
+Mature war dragon (POISON, FIRE)
+Mature violet dragon (PLASMA)
+Mature yellow dragon (METEOR)
+Mature brown dragon (SHARD)
+Mature amethyst dragon (TIME)
+Mature diamond dragon (MANA)
+Mature emerald dragon (WALL)
+Mature sapphire dragon (GRAVITY)
+Mature topaz dragon (INERTIA)
+Mature shimmering dragon (LITE, DARK)
+
+D
+Old copper dragon (ACID, DISENCHANT)
+Old silver dragon (COLD, NEXUS)
+Old bronze dragon (FIRE, CONFUSION)
+Old gold dragon (POISON, SOUND)
+Old brass dragon (ELEC, CHAOS)
+Old land dragon (FIRE, ACID)
+Old sea dragon (ACID, POISON)
+Old war dragon (POISON, FIRE)
+Old violet dragon (PLASMA)
+Old yellow dragon (METEOR)
+Old brown dragon (SHARD)
+Old amethyst dragon (TIME)
+Old diamond dragon (MANA)
+Old emerald dragon (WALL)
+Old sapphire dragon (GRAVITY)
+Old topaz dragon (INERTIA)
+Old shimmering dragon (LITE, DARK)
+Ancient copper dragon (ACID, DISENCHANT)
+Ancient silver dragon (CAncient, NEXUS)
+Ancient bronze dragon (FIRE, CONFUSION)
+Ancient gold dragon (POISON, SOUND)
+Ancient brass dragon (ELEC, CHAOS)
+Ancient land dragon (FIRE, ACID)
+Ancient sea dragon (ACID, POISON)
+Ancient war dragon (POISON, FIRE)
+Ancient violet dragon (PLASMA)
+Ancient yellow dragon (METEOR)
+Ancient brown dragon (SHARD)
+Ancient amethyst dragon (TIME)
+Ancient diamond dragon (MANA)
+Ancient emerald dragon (WALL)
+Ancient sapphire dragon (GRAVITY)
+Ancient topaz dragon (INERTIA)
+Ancient shimmering dragon (LITE, DARK)
+Great sea wyrm
+Great plague wyrm
+Great celestial wyrm
+Great Wyrm of Time and Space
+Great Wyrm of the World
+Great Wyrm of Power
+
+e
+Blinking eye
+Discharger eye
+Nexus eye
+Blind eye
+Wizard eye
+Undead eye
+Chaos eye
+Gazer
+Watcher
+Voyeur
+Spectator
+Hell eye
+Demoneye
+Nighteye
+
+E
+Water weird
+Water witch
+Fire bat
+Fire snake
+Fire bird
+Fire lizard
+Unseen servant
+Hidden tracker
+Silent killer
+Magma spirit
+Smoke spirit
+Ooze spirit
+Ice spirit
+Djinn
+Dao
+Efreet
+Marid
+Jinn
+
+f
+Hell cat
+Demoncat
+Weretiger
+Werelion
+Werepanther
+
+F (move to 'I'nsect and replace with 'F'ish)
+Giant blue fly
+Giant green fly
+Giant black fly
+Giant white fly
+Giant bottle fly
+Giant white butterfly
+Giant yellow butterfly
+Giant orange butterfly
+Giant blue butterfly
+Giant green butterfly
+Giant red butterfly
+Giant white moth
+Giant black moth
+Giant grey moth
+Giant brown moth
+Giant damsel fly
+Giant copper dragon fly
+Giant silver dragon fly
+Giant brass dragon fly
+Giant diamond dragon fly
+Giant topaz dragon fly
+Giant emerald dragon fly
+Giant sapphire dragon fly
+Giant amethyst dragon fly
+Hell fly
+Demonfly
+Werefly
+
+g
+Sandstone golem
+Jade golem
+Obsidian golem
+Marble golem
+Copper golem
+Silver golem
+Gold golem
+Brass golem
+Bronze golem
+Gold-plated golem
+Amber golem
+Coal golem
+Magma golem
+Quartz golem
+Limestone golem
+Shale golem
+Ice golem
+Brass monkey
+Mechanism
+Automaton
+Clockwork avian
+Clockwork beast
+Clockwork mushroom patch
+Clockwork bat
+Clockwork ant
+Clockwork dog
+Clockwork fly
+Clockwork spider
+Clockwork scorpion
+Clockwork worm
+
+G
+Wendigo
+Premonition
+Deja vu
+Vision
+Phantasm
+Apparition
+Haunt
+Mirage
+Spook
+Fright
+Chill
+Shiver
+Reflection
+Idolan
+Delirium
+Terror
+Zeitgeist
+Drowned soul
+Hungry soul
+Thirsty soul
+Unborn soul
+Dying soul
+Bitter soul
+Hateful soul
+Dreadful soul
+Ghastly soul
+Ghoulish soul
+Gaunt soul
+Forgotten soul
+Wailing spirit
+Crying spirit
+Shrieking spirit
+Mumbling spirit
+Whispering spirit
+Cackling spirit
+Gibbering spirit
+Howling spirit
+Screaming spirit
+
+h
+Boggle
+Pookah
+Leprachaun
+Gremlin
+Jermalaine
+Faerie
+Sprite
+Brownie
+Pixie
+Pukelman
+Nixie
+Dryad
+Maenad
+Sylph
+Sirine
+Mermaid
+Merman
+Selkie
+Sneaky looking gnome
+Gnome priest
+Gnome archer
+Gnome warrior
+Gnome thief
+Gnome rogue
+Gnome warrior mage
+Gnome sorceror
+Gnome wizard
+Gnome enchanter
+Gnome illusionist
+Gnome captain
+Gnome druid
+Gnome lord
+Dark elven archer
+Dark elven thief
+Dark elven warrior mage
+Dark elven sorceror
+Dark elven rogue
+Surly looking dwarf
+Dwarven archer
+Dwarven warrior
+Dwarven priest
+Dwarven mage
+Dwarven high priest
+Dwarven captain
+Dwarven thief
+Dwarven sergeant
+Dwarven lord
+Haughty looking elf
+Elven archer
+Elven thief
+Elven rogue
+Elven warrior
+Elven mage
+Elven wizard
+Elven high priest
+Elven druid
+Elven sorceror
+Elven master archer
+Elven captain
+Elven lord
+High elf wizard
+High elf warrior
+High elf druid
+High elf priest
+High elf lord
+Grey elf priest
+Grey elf wizard
+Grey elf lord
+Wood elf archer
+Wood elf thief
+Wood elf druid
+Wood elf lord
+
+H
+Clear horror
+Hooked horror
+Tentacled horror
+Fanged horror
+Spiny horror
+Clawed horror
+Toothy horror
+Scaly horror
+Hairy horror
+Wrinkled horror
+Hell horror
+Demonhorror
+Horned horror
+Rotting horror
+Warty horror
+Hunting horror
+
+i
+Yellow icky thing
+Orange icky thing
+Red icky thing
+Black icky thing
+Pink icky thing
+Brown icky thing
+Gelatinous icky thing
+Squelching icky thing
+
+I
+Giant brown locust
+Giant green locust
+Giant black locust
+Giant grey locust
+Giant yellow locust
+Giant grub
+Giant termite worker
+Giant termite soldier
+Giant termite guardian
+Giant termite queen
+Giant bee
+Giant hornet
+Giant wasp
+Hell hornet
+Demonbee
+Demonflea
+
+j
+Green slime (POISON)
+Red slime
+Pink slime (LOSE_STR)
+Black slime (LOSE_ALL)
+Yellow slime (EAT_FOOD)
+Purple slime (LOSE_CON)
+White slime 
+Blue slime (DISENCHANT)
+Brown slime (COLD)
+Clear slime
+Silver slime (EAT_LITE)
+Clear jelly
+Red jelly
+Orange jelly
+Black jelly
+Grey jelly
+Clear pudding
+White pudding
+Grey pudding
+Green pudding
+Yellow pudding
+Brown pudding
+Red ooze
+Pink ooze
+Yellow ooze
+White ooze
+Grey ooze
+Clear ooze
+Silver ooze
+
+J
+Large green snake
+Large red snake
+Large copper snake
+Large silver snake
+Large gold snake
+Large black snake
+Large blue snake
+Large brass snake
+Large bronze snake
+Large iridescent snake
+Giant green snake
+Giant grey snake
+Giant white snake
+Giant yellow snake
+Giant blue snake
+Giant silver snake
+Giant copper snake
+Giant gold snake
+Giant black snake
+Giant brass snake
+Giant bronze snake
+Giant iridescent snake
+Boa constrictor
+Sea snake
+Sea serpent
+Hell snake
+
+k
+Black kobold
+Grey kobold
+Kobold warrior
+Kobold archer
+Kobold engineer
+Kobold mage
+Kobold priest
+Kobold witchdoctor
+Kobold shaman
+Kobold lord
+Kobold captain
+Kobold sergeant
+Kobold assassian
+
+K
+Killer borer beetle
+Killer green beetle
+Killer yellow beetle
+Killer copper beetle
+Killer dung beetle
+Killer gold beetle
+Killer black beetle
+
+l
+Giant brown louse
+Giant grey louse
+Giant yellow louse
+Giant green louse
+
+L
+Ghoul
+Night ghoul
+Death ghoul
+Nether ghoul
+Black ghoul
+Grave ghoul
+Pit ghoul
+Crypt ghoul
+Emporer ghoul
+Guardian ghoul
+Spirit ghoul
+Master ghoul
+Forest ghoul
+Mountain ghoul
+Bog ghoul
+River ghoul
+Tunnel ghoul
+Ghast
+Night ghast
+Death ghast
+Nether ghast
+Black ghast
+Grave ghast
+Crypt ghast
+Pit ghast
+Gaunt
+Night gaunt
+Death gaunt
+Nether gaunt
+Black gaunt
+Grave gaunt
+Crypt gaunt
+Pit gaunt
+Gaurdian gaunt
+Spirit gaunt
+Night lich
+Death lich
+Nether lich
+Black lich
+Pit lich
+Crypt lich
+Grave lich
+Spirit lich
+Gorgolich
+Emporer lich
+Demilich
+Guardian lich
+Grey reaver
+White reaver
+Dark reaver
+Night reaver
+Gaunt reaver
+Death reaver
+
+m
+Black mold (HIGH POISON)
+White mold (POISON)
+Blue mold (COLD)
+Wrinkled mold (LOSE_ALL)
+Slimy mold
+Warty mold
+Sticky mold
+Scaly mold
+Spiny mold
+Rotting mold
+
+M
+6-headed hydra
+8-headed hydra
+10-headed hydra
+12-headed hydra
+13-headed hydra
+
+n
+White naga
+Grey naga
+Yellow naga
+Blue naga
+Sea naga
+River naga
+Water naga
+Emporer naga
+
+o
+Orc witchdoctor
+Orc warrior
+Orc soldier
+Orc king
+Orc captain
+Orc sergeant
+Orc chieftan
+Orc mage
+Orc priest
+Orc archer
+Green orc
+Mountain orc
+Forest orc
+Mirkwood orc
+Swamp orc
+River orc
+Night orc
+Grey orc
+Orc mechanic
+Orc engineer
+Orc assassin
+Half orc thief
+Half orc assassin
+Half orc warrior
+Half orc priest
+Half orc mage
+Uruk captain
+Uruk shaman
+Uruk warrior
+Uruk cheiftan
+Uruk mage
+Uruk priest
+
+O
+Green ogre
+Mountain ogre
+Grey ogre
+Forest ogre
+Mirkwood ogre
+Swamp ogre
+Night ogre
+Ogre witchdoctor
+Ogre warrior
+Ogre captain
+Ogre chieftan
+Ogre priest
+Ogre archer
+Half ogre
+
+p
+Neanderthal
+Neanderthal shaman
+Neanderthal witchdoctor
+Neanderthal warrior
+Neanderthal hunter
+Neanderthal chieftan
+Archer
+Mercenary
+Soldier
+Rogue
+Novice thief
+Master archer
+Novice druid
+Warrior mage
+Novice warrior mage
+Seedy looking human
+Chronomancer
+Pyromancer
+Hydromancer
+Geomancer
+King
+Baron
+Count
+Bishop
+Black bishop
+Black baron
+Dark knight
+Grey knight
+Green knight
+Red knight
+Blue knight
+Jade mystic
+Pearl mystic
+
+P
+Mountain giant
+Water giant
+Forest giant
+Swamp giant
+River giant
+Green giant
+Grey giant
+Black giant
+Sea giant
+Red giant
+Blue giant
+Night giant
+Firbolg
+Formian
+Two-headed giant
+Cyclops
+Half giant
+
+q
+Giant weasel
+Giant stoat
+Giant otter
+Bear cub
+Bear
+Black bear
+Grizzly bear
+Polar bear
+Werebear
+Wild horse
+Werehorse
+Sea horse
+Giant seahorse
+Black mare
+Death mare
+Grey mare
+
+Q
+
+r
+Giant brown mouse
+Giant field mouse
+Giant grey mouse
+Giant black mouse
+Giant ship rat
+Giant black rat
+Giant pink rat
+
+R
+Giant blue frog
+Giant yellow frog
+Giant brown frog
+Giant black frog
+Giant grey frog
+Giant pink toad
+Giant green toad
+Giant yellow toad
+Giant brown toad
+Giant black toad
+Black lizard
+Werelizard
+Lizardman
+Lizardman witchdoctor
+Lizardman shaman
+Lizardman warrior
+Lizardman chieftan
+Troglodyte
+Troglodyte witchdoctor
+Troglodyte shaman
+Troglodyte warrior
+Troglodyte chieftan
+
+s
+Floating claw
+Floating hand
+Floating head
+Floating skull
+Floating mouth
+Floating body
+Crawling claw
+Crawling hand
+Crawling body
+Headless body
+Headless horseman
+Skeleton centipede
+Skeleton goblin
+Skeleton snake
+Skeleton elf
+Skeleton gnome
+Skeleton dwarf
+Skeleton ogre
+Skeleton horse
+Skeleton bear
+Skeleton dinosaur
+Skeleton dragon
+Skeleton wolf
+Skeleton cat
+Skeleton hydra
+Skeleton naga
+Skeleton lizard
+Skeleton lizardman
+Skeleton troglodyte
+Skeleton frog
+Skeleton ape
+Skeleton giant
+
+S
+Stone spider
+River spider
+Rock spider
+Water spider
+Swamp spider
+Forest spider
+Giant pink tick
+Giant black tick
+Giant grey tick
+Giant yellow tick
+Giant green tick
+Giant black scorpion
+Giant white scorpion
+Giant green scorpion
+
+t
+Town crier
+Watchman
+Guard
+Constable
+Sheriff
+Merry goodwife
+Friendly child
+Rustic farmer
+Starving wretch
+Crosseyed mage
+Bumbling priest
+
+T
+River troll
+Rock troll
+Mountain troll
+Swamp troll
+Pit troll
+Mirkwood troll
+Green troll
+Night troll
+Black troll
+Grey troll
+Hill troll
+Sea troll
+Bog troll
+Guardian troll
+Giant troll
+Giant 2-headed troll
+Troll shaman
+Troll witchdoctor
+Troll warrior
+Troll captain
+
+u
+Night hag
+Green hag
+Black hag
+Cave hag
+Blue hag
+Water hag
+Mountain hag
+Bog hag
+Sea hag
+Gargoyle
+Margoyle
+Kaocinth
+Bird demon
+Snake demon
+Lizard demon
+Frog demon
+Crab demon
+Bee demon
+Fly demon
+Cat demon
+Dog demon
+Pig demon
+Bear demon
+Horse demon
+Goat demon
+Fish demon
+
+U
+Mountain demon
+River demon
+Hill demon
+Ice daemon
+Fire demon
+Lightening demon
+Tunnel demon
+Grave demon
+Pit demon
+Bog demon
+Stone demon
+Forest demon
+Cave demon
+Sea demon
+Swamp demon
+Half demon
+Night demon
+Horned demon
+Wrinkled demon
+Scaly demon
+Toothed demon
+Hooked demon
+Spiny demon
+Fanged demon
+Hairy demon
+Tentacled demon
+Rotting demon
+Warty demon
+Slimy demon
+
+v
+
+V
+Kobold vampire
+Orc vampire
+Troll vampire
+Elf vampire
+Gnome vampire
+Dwarf vampire
+Ogre vampire
+Goblin vampire
+Cave vampire
+Drowned vampire
+Bog vampire
+Crypt vampire
+Mountain vampire
+Mirkwood vampire
+Cairn vampire
+Tunnel vampire
+Pit vampire
+
+w
+Slimy worm mass
+Rotting worm mass
+Warty worm mass
+Wrinkled worm mass (LOSE_ALL)
+Undead worm mass
+Giant black worm
+Giant earth worm
+Giant red worm
+Giant blue worm
+Giant white worm
+Giant grey worm
+Giant yellow worm
+Giant green worm
+Giant nether worm
+Giant disenchanter worm
+Giant water worm
+Giant sea worm
+Leech
+Giant leech
+Giant black slug
+Giant grey slug
+Giant brown slug
+Giant white slug
+Giant black snail
+Giant grey snail
+Giant white snail
+Giant blue snail
+Giant iridescent snail
+Giant red snail
+Giant green snail
+Giant brown snail
+
+W
+Night wight
+Cave wight
+Black wight
+Green wight
+Drowned wight
+Red wight
+Grey wight
+Bog wight
+Crypt wight
+Mountain wight
+Mirkwood wight
+River wight
+Cairn wight
+Dark wight
+Tunnel wight
+Pit wight
+Green wraith
+Bog wraith
+Red wraith
+Death wraith
+Night wraith
+Cave wraith
+Crypt wraith
+Dark wraith
+Dragon wight
+Nighthunter
+Nightstalker
+Nighthand
+Nightblade
+Nightfist
+Nightslayer
+Nightstealer
+Nightshadow
+Nightrunner
+Nightslither
+Nightswimmer
+Nightcreeper
+Nighttracker
+
+X
+Xerna
+
+y
+Mirkwood goblin
+Cave goblin
+Hill goblin
+Mountain goblin
+Sea goblin
+River goblin
+Black goblin
+Night goblin
+Swamp goblin
+Goblin
+Goblin warrior
+Goblin priest
+Goblin witchdoctor
+Goblin shaman
+Goblin mage
+Goblin archer
+Goblin chieftan
+Goblin sergeant
+Goblin lord
+Goblin mechanic
+Goblin engineer
+Goblin thief
+Goblin assassin
+Half goblin
+Half goblin thief
+
+Y
+Baboon
+Gorilla
+Green monkey
+Brown monkey
+Black monkey
+Winged monkey
+White monkey
+White ape
+Black ape
+Green ape
+Brown ape
+
+z
+Zombie goblin
+Zombie snake
+Zombie elf
+Zombie gnome
+Zombie dwarf
+Zombie ogre
+Zombie horse
+Zombie bear
+Zombie dragon
+Zombie wolf
+Zombie cat
+Zombie hydra
+Zombie naga
+Zombie lizardman
+Zombie troglodyte
+Zombie lizard
+Zombie frog
+Zombie ape
+Zombie giant
+Mummified kobold
+Mummified goblin
+Mummified snake
+Mummified elf
+Mummified gnome
+Mummified dwarf
+Mummified ogre
+Mummified horse
+Mummified bear
+Mummified dragon
+Mummified wolf
+Mummified cat
+Mummified hydra
+Mummified naga
+Mummified lizard
+Mummified lizardman
+Mummified troglodyte
+Mummified frog
+Mummified ape
+Mummified giant
+
+Z
+
+ROOM DESCRIPTIONS
+
+Specify a d_info file with room descriptions, but not layout. 
+Such rooms more commonly generate objects/monsters of a particular flavour.
+Some such rooms contain more traps/monsters/objects.
+Lots of room descriptions: can be for vaults/unusual shaped rooms as well.
+Allow unusually shaped rooms with larger interiors/pillars. 
+Allow other shapes of maze rooms (Spiral/maze generators/tessilated). 
+Allow larger rooms subdivided into smaller areas. 
+Allow wider corridors (2 or 3 width) deep in dungeon, sometimes with pillars 
+or lit. 
+
+NEW ITEMS
+
+Many more ego items:
+BR_CUTS, BR_STUN, BR_POIS, BR_CONF weapons
+Note that CUTS and STUN only increase chance, not automatic
+Weapons
+of Venom (Poison, no resistance)
+of Ice (Cut, Cold, Resist Cold)
+of Confusion (Conf, Res Conf)
+of Thunder (Stun, Electricity, Resist Sound)
+(Flame Tongue) (Fire, Resist Fire, Cut, Charisma)
+(Frost Heart) (Cold, Resist Cold, Stun, Constitution)
+(Enchanted) (Intelligence, High Resist)
+of Suns (Fire, Electricity, Res_Fire, Res_elec)
+of Comets (Fire, Cold, ResFire, ResCold)
+of Stars (Light, Res Light, Res Darkness)
+of Shattering (Cut, Stun)
+
+Ammunition
+of Sharpness (Cut)
+of Impact (Stun)
+of Light (Light)
+of Confusing (Conf)
+
+Helmets
+of Brilliance (Intelligence, Resist Light)
+of Shades (Wisdom, Resist Darkness)
+of Song (Resist Sound)
+
+Gauntlets
+of Defence
+
+Shields
+of Endure various high resists
+
+Armour
+of Resist various high resists
+
+Rings
+of Resist various high resists
+
+EGO FLAVOURS:
+
+leather gloves
+gauntlets
+soft leather boots
+hard leather boots
+metal shod boots
+soft leather cap
+hard leather cap
+metal cap
+iron helm
+steel helm
+cloak
+
+fabrics: mink, feather, silk, ermine, cotton, wool, filthy rag, dyed, bloodstained, spidersilk,
+
+leather: horse leather, tassled, dyed, skin, catskin, leopard skin, lion skin, bloodstained, studded, riveted, polished, enameled, dragonhide, mammoth hide, elephant hide,
+
+metals: silver, silverplated, goldplated, mithrilplated, jewelled, bronze, fine steel,
+cold iron, rusty, polished steel, broken, dull iron, black steel, enamelled, bloodstained,
+meteroic iron, dwarven, elven, glassteel, tarnished, 
+
+steels/irons: fine, goldplated, adamite, meteoric, dull, rusty, polished, dented, enamel,
+bloodstained, silverplated, dwarven, elven, broken, barbed, riveted, studded, ribbed, tarnished, 
+
+OBJECT MEMORY:
+
+Spot if attacked that you have fire/cold/confusion resistance etc. and make best
+"guess" as to object providing this ability. eg Ring of Resist Fire? 
+Spot if attacking that you have SLAY_ORC/BRAND_FIRE ability if you know enough about monster. 
+Spot if you have permalight.
+Support multiple types of object per flavour and guess the object based on whether
+object flavour has been found eg Potion of Cure Blindness? rather than always known. 
+Guess at object flavour if you gain partial benefit rather than never know. eg
+Potion of Cure Light Wounds? if no more than light wounds healed.
+
+Object memory should allow the following:
+
+1. You have wielded 6 items and lose strength from an normally resistable attack. This clearly means none of these items sustain strength.
+
+2. You have wielded 6 items and notice that you sustain strength. You take off each item in turn, testing that you still possess this ability, until you notice that you lose this ability after removing an item. This item clearly provides this ability.
+
+3. You have wielded 3 new items over the course of a period of adventuring. You then notice that you sustain strength, which you previously did not do. Then clearly, one or more items may sustain strength (In fact, at least 1 of these three must do).
+
+4. This should also apply to attacks which deliver known elemental damage, which either exceeded 1/3 of maximum damage (no resistance) or deliver less than 1/3 of minimum damage (resistance).
+
+5. This should also apply to feather fall, regeneration (after a number of turns of damage), free action, see invisible etc.
+
+For 6 & 7, we assume we can determine the damage done by the weapon. Either because we are assumed 'good' enough, or because we have killed enough creatures, or because we have killed enough creatures and the monster health bar is affected appropriately. If we make the third assumption, then in order for 7 to apply, we have to kill a creature in less than the minimum number of blows normally required. This is hard to track. I prefer option 2 because it allows for fast detects while fighting with the weapon against known creatures.
+
+6. For attacks, if we deliver low damage (less than 3x minimum damage) we know that the weapon does NOT_ have slays for the type of creature, and NOT_ brands for anything that creature is hurt by. This requires we know the weapon is not cursed, and so don't include bonus damage in the expected minimum damage, or that we have identified the weapon and can include bonuses. If we are wearing cursed items, we don't know minimums (as our stats may be reduced) and so can't perform this step.
+
+7. When you deliver very high (exceeds maximum) damage and attempt to guess from what you know of the creature you are fighting, what the source of the high damage might be. This means an item MAY_ slay a particular race (depending on what races an creature belongs to) and MAY_ brand a particular element (depending on what resistances/hurts a creature has). We can limit this to Execute Dragon and the brands for which we know a creature is hurt by if we deliver greater than 3 times damage. We include the highest allowed strength in our maximum damage calculation, because we don't know our real strength, and require that the weapon is at least identified (Otherwise we don't know its damage bonus), along with our rings and gauntlets. If all items we wear are identified and HAS_ strength bonus, or NOT_ strength bonus, then we can use our real strength in this calculation.
+If we restrict the possible brands by a creature being IMMUNE to all the brands except for those the weapon does NOT possess, and restrict the slays so that there is only one the creature belongs to except for those that the weapon does NOT possess, then clearly the weapon HAS that slay.
+Similiarly, if the weapon does NOT slay the races to which the creature belongs, and the creature is IMMUNE to all brands except for one other than those the weapon does NOT possess, then clearly the weapon the weapon HAS the excepted brand.
+Similiarly, if the creature is a dragon and > 3x max damage is delivered, and the creature is IMMUNE to all the brands except those that the weapon does NOT have, then the weapon is EXECUTE dragon.
+Similiarly, if the creature is not a dragon and > 3x max damage is delivered, and the creature is IMMUNE to all brands except one and those that the weapon does NOT have, then the weapon HAS that one brand.
+
+8. Trivially permanent light, extra blows/attacks, cursed should be noticed and memorised.
+
+
+The following rules are useful:
+When wielded, object is marked with NOT_CURSED, NOT_HEAVY_CURSED etc. unless cursed. Then, mark with HAS_CURSED. If {average} or identified non-ego/non-artifact item, memorise KIDX with NOT_ if not cursed, unless MAY or HAS in which case memorise with MAY_. Similarly for cursed items, identified ego items and identified artifacts.
+
+When notices does not have ability, all objects wielded are marked with NOT_ flag and this is memorised for K_IDX (or flavour if flavoured and unidentified) and identified ARTIFACT items. Identified EGO items are memorised with NOT_ unless they are already memorised with HAS_ or MAY_ in which case this is replaced by MAY_.
+
+When notices has ability, all objects wielded marked with MAY_ flag, unless an {average} or identified non-ego/non-artifact KIDX (or flavour if flavoured and unidentified) marked with NOT_ flag, or identified artifact marked with NOT_ flag. If this leaves only one item, then item is marked with HAS_ flag instead, which marks an identified artifact with HAS_ if the KIDX (or flavour if flavoured and unidentified) is marked with NOT_, or marks an identified non-ego/non-artifact or {average} KIDX (or flavour if flavoured and unidentified) marked with HAS_ flag, or marks an identified ego item or artifact with HAS_ if the KIDX (or flavour if flavoured and unidentified) is marked with NOT_, unless the identified ego item is NOT_ or MAY_ in which case it is rememorised with MAY_ and marked with HAS_.
+
+When identified, if non-ego/non-artifact, KIDX is memorised with HAS_ if object (or flavour) is marked with HAS_. If artifact and marked with HAS_, and KIDX is memorised with NOT_, then memorise artifact with HAS_. If ego item and marked with HAS_, and KIDX is memorised with NOT_ then memorise ego item with HAS_ unless ego item is memorised with NOT_ or MAY_. In this case, memorise as MAY_.
+
+Memorise what MAY_ flags have been learned until an object is wielded or taken off. If an object is wielded, forget learned or put aside MAY_ flags, except MAY_ flags where object is identified or {average} has matching KIDX NOT_ flags, or object is identified artifact with matching KIDX NOT_ flags and artifact NOT_ flags. If object is taken off, put aside MAY flags_ that are learned and mark object as put-aside. If a second object is taken off, get rid of this put aside information. However, if put-aside MAY_ flags exist, and it is noticed that the ability is no longer present, mark the put-aside object with a HAS_ flag instead.
+If a wielded or put aside item is identified and learned or put-aside flags exist, remove those objects from contention on the learned or put aside list, if it then becomes known that the object does NOT_ have the property, via KIDX and/or artifact as appropriate. Then if there exists only 1 remaining object that can contend (either the put aside object or a wielded object) for a flag on the list, then mark that object as HAS_ that ability.
+
+When marked with HAS_ flag or MAY_, attempts to match an object to an EGO item or ARTIFACT in memory, guessing as to which item matches most closely for flags, and ending guess with '?' (or '??' with MAY_), and marking flavour_guess with the item if the item is flavoured.
+
+Flavours are unmemorised at death. All KIDX, ego and artifacts memory is persistant.
+
+With wands, potions, scrolls, rods, staves, attempt to guess item if not determined by effects applied from partial effects applied. ie if 8 damage healed, will guess Cure Light Wounds? unless Cure Light Wounds flavour already known in which case guess Cure Serious Wounds? etc. If effect not determined, guess ('??') from those items that have unknown effects based on the result ie aimed at wall, not monster, and no obvious result, guess Wand of Slow Monster?? unless Slow Monster flavour already known etc. Guess {empty/charging} if all Wand/Rod/Staff KIDX are known this game. Must have KIDX in memory, and effects result from successful usage also in memory. Because of Wands of Wonder, any effect that potentially could be a Wand of Wonder is also guessed. ie Wand of Transmute Rock to Mud?
+
+Also get {good}/{cursed} feelings about scrolls, wands, potions, staves, rods if mage, priest, rogue.
+
+Once object memory is working, we may modify *IDENTIFY*'s powers somewhat, may be to provide an additional *LEGEND LORE* item, with the old identify's powers, and let *IDENTIFY* only pick 1 ability, or make Identify itself a lot less available.
+
+ALGORITHMIC MONSTER LEVEL:
+
+We determine the resistances/powers held from objects available at a particular depth. 
+This allows us to compute MAX_DAMAGE, which is maximum damage applied in a single player action (ie highest of MAX_MELEE DAMAGE * SPEED and MAX_SPELL_DAMAGE * SPEED / CHANCE and MAX_SPELL_DAMAGE), AVG_DAMAGE, which is the average damage applied per round (ie ((MAX_MELEE DAMAGE * SPEED * CHANCE-1)  + MAX_SPELL DAMAGE * SPEED) / CHANCE).
+
+Therefore what is important is two things: MAX_DAMAGE which is determines the minimum player hit points required to encounter the monster, and AVG_DAMAGE * TKK which is the player hit points required to kill the monster.
+
+In addition, special abilities have a minimum level assigned to them, based on the level at which objects appear providing resistance to the effect in question.
+
+We then give a rough estimate of player hit points, damage, speed, tactics, and monster friends. This allows us to determine how quickly a player may kill a monster (ie speed -10 + tactics + no friends + low level == very easily) which times its AVG_DAMAGE gives the minimum player hit points required at the level to allow that monster. Note that we assume healing capacity as well (ie Cure Light Wounds etc.) which adds to player hit points when available, and Teleportation, which doubles player hit points when available.
+
+We also use MAX_DAMAGE as a threat assessment. If a player can be dropped below 50% hit points by MAX_DAMAGE the monster needs to be made deeper, or 80% with friends.
+
+
+FRIENDLY MONSTERS/UNIQUES:
+
+Monsters fight other monsters under the following conditions:
+
+* hostile fights you.
+* friendly fight hostile --> hostile fights friendly.
+* anybody fights multipy if not the same race and if there are too many multiply creatures --> if there are too many multiply creatures, multiply creatures fight those not of the same race
+* mindless fight anything not of the same race
+* kill_body fights anything that is not the same race --> anybody flees kill_body if not of the same race or fight if cornered, unless friendly when they always fight
+* undead fight living if not summon undead --> living if not summon undead flee undead or fight if cornered, unless friendly, when they always fight
+* good fights evil --> evil fights good
+* betrayal monsters fight weak hostile monsters --> weak hostile monsters fight betrayal monsters
+* demons fight animals --> animals flee demons or fight if cornered, unless friendly when they always fight
+
+Good monsters are neutral towards you unless marked friendly. Evil monsters are always hostile, unless marked betrayal. Demonic monsters are almost always betrayal unless summoned. Neither good nor evil monsters are suspicious. Monsters that surrender because they cannot flee, become betrayal monsters, as are those marked BETRAYAL. Summoned monsters are always hostile if summoned by hostile, or BETRAYAL if summoned by you (Except familiars, which are friendly).
+
+You forget the id of items that a neutral, suspicious or hostile monster is carrying. However they use the id flag to mark if they know what the item they are carrying is. This enables them to use/value items if they are selling them to you.
+
+Friendly uniques (Not pets):
+
+Pippin, Samwise, Frodo Baggins, Bilbo Baggins, Mary, Gandalf, Aragorn, Gimlee, Legolas etc.
+
+Friendly monsters will give you useful objects that they carry. Friendly monsters will tell you information about unfriendly monsters that you encounter. ('Gandalf says "The pseudodragon can breath light."') Friendly monsters can tell you about monsters that are common on this level or occur deeper in the dungeon ('Gandalf tells you about the Dracolich. He says "It can breath nether.") Friendly monsters will warn you about out of depth monsters that are present on the level. ('Gandalf warns you about the Ancient Multi-Hued Dragon on this level. He says "It can breath poison."') Monsters that are not smart will warn you about out of depth monsters, but not be able to tell you what the monster is, just a general description of it. ('The goblin warns you about a dangerous monster on this level. He says "It is undead and can breath nether."').
+
+Friendly monsters tell you about items that you have ('Gandalf says "The Phial of Gladriel activates to call light.") or out of depth items or artifacts that occur on this level that you have not found ('Gandalf tells you about the Power dragon scale mail on this level. He says "It can resist nether.").
+
+Friendly monsters have useful spells at their disposal ('Gandalf identifies the silver rod. He says "It is a rod of teleportation."', 'Gandalf heals you', 'Gandalf is surrounded in bright light.' 'Gandalf casts a spell of monster detection. You sense the presence of monsters.'). Friendly monsters are never invisible unless you have betrayed them.
+
+Friendly monsters fight hostile monsters and help other friendly monsters. When you leave a level, friendly monsters perform one last action and then depart. Friendly uniques are marked with "You have encountered..." rather than "You have killed..." when they depart. This requires that you have seen them on the level first. Friendly uniques that have become hostile will attempt to leave rather than fight you, such as by teleporting away, climbing up or down stairs or fleeing.
+
+If you attack a friendly monster or hit it with spells, it becomes suspicious.
+
+Neutral monsters will talk to you to determine your intentions. Neutral monsters do their own thing. ('The novice mage identifies the silver rod.'). They may offer to sell you items that they are carrying or offer you services in return for items or money. If you give them stuff, they may temporarily help you, but as a rule become suspicious of you after a while. Neutral monsters fight other monsters if necessary.
+
+Suspicious monsters that are marked friendly may forgive you after a while. Suspicious monsters try to avoid you by staying out of melee range (> adjacent).  If you attack, corner or hit neutral / suspicious monster with spells, it becomes hostile.
+
+Betrayal monsters appear as friendly but they never give you useful information, help you with magic or give you items, except trivially ('Smeagol tells you about the white worm mass. He says "It crawlsss to poison".') They will try to rip you off selling you stuff and so on.
+Bill Ferny, Wormtongue, Smeagol etc. are typical betrayal monsters. Typically betrayal monsters use a shortened name (up to the comma) until they betray you, at which point they use their long name. eg Wormtongue only becomes the Agent of Saruman after he betrays you.
+
+Betrayal monsters will fight weak monsters, but will betray you once they have determined your weaknesses or in the presence of tougher monsters. If attacked, they immediately become hostile.
+
+MONSTER SPEECH
+
+Hostile monsters communicate information about you amongst themselves ('The mage says "The human warrior can resist fire.'), and wake others up, if afraid or attacking you ('The mage yells out in fear.' 'The mage screams in anger.' 'The mage yells out a warning.') Creatures say, cry out, yell or scream depending on how much of a threat you are. Some creatures whisper (undead), moan (undead), howl (dogs), wail (undead), gibber and so forth.
+
+h,p,t,y,o,etc.	UNDEAD		B		C		F		J,R
+says		whispers	chirps		growls		purrs		hisses
+yells out	gibbers		whistles	barks		miaows		hisses
+cries out	moans		caws		bays		hisses		hisses
+screams		wails		screeches	howls		catawauls	hisses
+
+If you don't understand the language (eg animals/undead) the string is replaced by 'something' and you are warned you don't understand it. ('The master lich whispers something. You don't understand it.')
+
+L: is language transformation. Strings of form 'before' are transformed to ->'after' when spoken by the creature. A space after may also be punctuation.
+V: Gives special strings said by the creature, such as part of an attack or at random. These are already transformed.
+
+eg Smeagol.
+L:"s "->"sss "
+V:Where'sss my preciousss?
+V:It hurtsss me.
+
+eg sibillance
+L:"str"->"thw":"st"->"thw":"s"->"th"
+V:The human warrior can thuthwain thwength.
+V:Thay it aint tho.
+V:Thuppothedly, he thaid that Thammy thingth thwell.
+
+eg bad European accent.
+L:" wha"->" vo":" wh"->" v":" w"->" v":"ve "->"ff ":"ing "->"ink ":" s"->" z":" zt"->" st"
+V:Vot are you doink?
+V:Ve haff vays of makink you talk.
+V:Hogan!!!!!
+V:Do you haff the strength to do this?
+
+Creatures do not have to speak to be able to use special strings eg.
+V:Miaow!
+V:Purrr...
+becomes:
+The scruffy cat says "Miaow!".

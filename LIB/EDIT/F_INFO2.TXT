@@ -1,0 +1,1163 @@
+# HURT_POISON:	Destroyed by poison balls/bolts/breath.
+# HURT_BWATER:	Destroyed by steam & fire balls/bolts/breath.
+# ATTR_LITE:	Attribute is modified by torchlight/blindness/not seen.
+# COLLAPSE:	Destroy feature if adjacent feature is destroyed except by this.
+# NO_HEAL
+# NO_MANA
+# NO_LITE
+# ERUPT Erupt as radius 2 ball spell of blow type occasionally.
+# STRIKE Erupt as bolt/beam spell of blow type occasionally.
+# DYNAMIC Feature dynamically moves/changes
+
+#This file contains additional features that are deprecated or not in use yet.
+#They are guaranteed to need additional work before reimplementation.
+
+#ANDY: Should mark permanent walls as G:#:s to distinguish when discovered.
+#This will require seperate features and paradoxically requires that we allow permanent features
+#to change.  Hmmm... perhaps we should mark granite that has been tunnelled into as G:#:s
+#instead to indicate that it is not PERMANENT. I'm thinking about it.
+
+
+# Need boiling waterfalls, and bases of various water falls which block line of sight and project but not
+# move.
+
+#Also need rubble with HAS_ITEM generated 10% of the time when first in the dungeon.
+#Plus rubble with known item, which we have detected via detect objects, using a
+#G:*:w. We should make rubble without an item only appear on level 2, so that all rubble
+#on level 1 has an item.
+
+
+#Need Chasm center -- unbridgeable (Surrounded by open floor over chasm)
+#This would give us two types of chasm, one that has bridges, and one
+#that must be walked around the side of.
+
+#N:xx:chasm
+#G: :D
+#W:72:3:1:139
+#K:DEFAULT:141
+#B:TRAP:FALL_MORE:10d6
+#F:LAKE | RIVER | MORE | 
+#F:CAN_FLY | LOS | MOVE | PROJECT | PLACE |
+#F:NOTICE | REMEMBER
+
+#N:148:icy water
+#G:.:b
+#W:30:6:7:148
+#B:TRAP:COLD:2d6
+#F:SHALLOW |
+#F:CAN_FLY | CAN_SWIM | LAKE | RIVER | ICE |
+#F:HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE
+
+#deep icy water (SECRET)
+
+#N:149:deep icy water
+#G:.:b
+#M:148
+#W:45:6:7:148
+#K:DEFAULT:149
+#K:BRIDGE:147
+#K:SECRET:150
+#B:TRAP:ICYW:6d6
+#D:The water is deeper than it looks.
+#F:DEEP | SECRET |
+#F:BRIDGE | CAN_SWIM |  HIDE_SWIM | LAKE | RIVER | ICE |
+#F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE
+
+#N:150:deep icy water
+#G:::b
+#W:39:6:7:148
+#K:DEFAULT:150
+#K:BRIDGE:147
+#B:TRAP:ICYW:6d6
+#F:DEEP |
+#F:BRIDGE | CAN_SWIM |  HIDE_SWIM | LAKE | RIVER | ICE |
+#F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#Oops.  Stuff we should really have, need more space than 1 byte.
+#Its actually easy enough to do. We replace the CAVE_ICKY flag with FEAT_XTRA. Then use the
+#flag as a (fake) 9th bit.
+#Alternately, we use the existing CAVE_WALL flag, which means we shift 'up' all the features
+#that block LOS by adding 256 to the feature number (here only). This means we would not have
+#to translate save files from existing games on the vanilla version. Also we should not have
+#to use the nothing placeholders we have here.
+
+#We need to create the following features:
+#open floor (vault), broken floor (vault), open door (vault), broken door (vault),
+#mark all traps as icky (No real loss),
+#and allow smoke/poison gas/acidic vapour/steam in vaults.
+#We should probably mark vault doors/vault walls icky as well, but this increases the number of
+#doors/walls additional required significantly. Instead, it should be easily enough to
+#check for adjacent vault features and "spread the love" for tunnelled/opened/bashed doors/walls.
+#Of course, we get the situation where an umber hulk (Or similar) tunnelling out of a greater
+#vault leaves an icky trail across the dungeon. We may want to check CAVE_ROOM as well.
+
+# Alternately, we treat burning oil/coal as blocking LOS, but not MOVE/PROJECT (thick smoke).
+# Then we move burning oil/coal to use 160/161, move the burning oils from here to
+# 162/163/164/165, move the deep oil SECRET/deep oil known to 221/223 and the use the 2
+# unused streamer SECRET treasure features for oil spill and stone bridge (over deep oil).
+# Then we add smoke as a feature for when open floors are hurt and become, also blocking
+# LOS (see 264). 
+# We also add acidic vapours and steam as features. We add poisonous gas ('v').
+# With the 34 features added here before wilderness features, we are on the nose.
+
+# Frown. I would like to accomodate the rubble with hidden and known treasure, unbridgeable
+# chasm and known permanent rock (Or whatever other solution we choose to use) as well. May
+# need to reorganise stuff a bit.
+
+# In order for smoke/steam/acidic vapours to work correctly, each corresponding initial
+# feature needs HURT_FIRE/STEAM/ACID to transition to the feature listed here.
+
+# Note that the colours for smoke/steam/acidic vapours/poisonous gas are picked to
+# contrast from their base terrain(s). This makes it easier to distinguish ';' from ':'.
+
+# We use the following algorithm to spread fires/smoke/steam/acidic vapours:
+
+# Function: X = adj(Y) holds if Y is adjacent to X, or is X.
+# Initial conditions:
+# Initialise list of regions L1 to all regions A where there exists a B = adj(A) and B is 
+# vulnerible to damage caused by A.
+# Algorithm:
+# Pick a random region from L1 called A. Pick a random B=adj(A). If B hurt by A, then transform
+# B -> B1. Then check A, B1. If regions exist next to A which are vulnerible to it, add A to L2.
+# If regions exist next to B1 which are vulnerible to it, add B1 to L2 only if B1 does not exist
+# in L1 or L2. Remove A from L1 and iterate. When L1 is empty, copy L2 to L1 and set L2 to empty.
+# Perform an iteration every n game turns, where n = 100 /(count (L1) + count (L2)), min=1,
+# max=100. When any region A transformed by another method, check if there exists a B = adj(A)
+# and B is vulnerible to damage caused by A. If this hold, add A to L2 if A does not exist in L1
+# or L2.
+
+#N:256:oil fall
+#G:>:D
+#K:DEFAULT:256:K:HURT_FIRE:260
+##B:TRAP:FALL_MORE:10D6
+#F:WATER | DEEP | NOTICE | 
+#F:BRIDGE | HURT_FIRE |
+#F:CAN_FLY | MORE | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:257:stone bridge (over deep oil)
+#G:':w
+#M:140
+#K:DEFAULT:259:K:HURT_FIRE:263
+#F:CAN_FLY | CAN_CLIMB | BRIDGED |
+#F:HURT_ROCK | LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | 
+#F:NOTICE | REMEMBER | NOTICE | HURT_FIRE
+
+#Deep oil - SECRET
+
+#N:258:deep oil
+#G:.:D
+#M:213
+#D:The oil is deeper than it looks.
+#K:DEFAULT:258:BRIDGE:257:K:HURT_FIRE:262:K:SECRET:259
+#F:WATER | DEEP | LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+#F:CAN_FLY | HURT_FIRE | BRIDGE | SECRET 
+
+#N:259:deep oil
+#G:::D
+#K:DEFAULT:259:BRIDGE:257:K:HURT_FIRE:262
+#F:WATER | DEEP | LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+#F:CAN_FLY | HURT_FIRE | BRIDGE
+
+#N:260:burning oil fall
+#G:>:D
+##B:TRAP:FALL_MORE:10D6
+#F:WATER | DEEP | NOTICE | 
+#F:BRIDGE | HURT_FIRE | 
+#F:CAN_FLY | MORE | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:261:stone bridge (over deep burning oil)
+#G:':w
+#M:140
+#K:DEFAULT:263
+#B:TRAP:FIRE:4d6
+#F:CAN_FLY | CAN_CLIMB | BRIDGED |
+#F:HURT_ROCK | LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | HIDE_SWIM |
+#F:NOTICE | REMEMBER | NOTICE | GLOW
+
+#Deep burning oil - SECRET
+
+#N:262:deep burning oil
+#G:::o
+#M:215
+#B:TRAP:FIRE:2d6
+#D:The burning oil is deeper than it looks.
+#K:DEFAULT:216:BRIDGE:218
+#F:WATER | DEEP | LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+#F:CAN_FLY | HURT_FIRE |  GLOW | BRIDGE | SECRET
+
+#N:263:deep burning oil
+#G:::o
+#B:TRAP:FIRE:2d6
+#K:DEFAULT:216:BRIDGE:218
+#F:WATER | DEEP | LOS | MOVE | PLACE | PROJECT | REMEMBER | NOTICE | HIDE_ITEM |
+#F:CAN_FLY | HURT_FIRE |  GLOW | BRIDGE
+
+#N:264:smoke
+#G:':D
+#B:TRAP:FIRE:2d4
+#K:DEFAULT:1
+#F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_FIRE
+
+#N:265:smoke over open floor (over tunnel)
+#G:':D
+#M:264
+#B:TRAP:FIRE:2d4
+#K:DEFAULT:266:K:HURT_FIRE:133
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | COVERED | KILL_HUGE |
+#F:HURT_FIRE |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:266:smoke over broken floor
+#G:':D
+#M:140
+#K:DEFAULT:266:K:HURT_FIRE:136
+#B:TRAP:FIRE:2d4
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:267:smoke over open floor (over chasm)
+#G:':D
+#M:264
+#B:TRAP:FIRE:2d4
+#K:DEFAULT:141:K:HURT_FIRE:139
+#F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_FIRE |
+
+#N:268:acidic vapour
+#G:':G
+#B:TRAP:ACID:2d4
+#K:DEFAULT:268:HURT_ACID:1
+#F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_ACID
+
+#N:269:acidic vapour over open floor (over tunnel)
+#G:':G
+#M:268
+#B:TRAP:ACID:2d4
+#K:DEFAULT:270:HURT_ACID:133
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | COVERED | KILL_HUGE |
+#F:HURT_ACID |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:270:acidic vapour over broken floor
+#G:':G
+#M:268
+#B:TRAP:ACID:2d4
+#K:DEFAULT:270:HURT_ACID:136
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG | HURT_ACID |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:271:acidic vapour over open floor (over chasm)
+#G:':G
+#M:268
+#B:TRAP:ACID:2d4
+#K:DEFAULT:141:HURT_ACID:139
+#F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_ACID |
+
+#N:272:acidic vapour over stone bridge (over deep acid)
+#G:':G
+#B:TRAP:ACID:4d6
+#M:260
+#K:DEFAULT:276:HURT_ACID:156
+#F:CAN_FLY | CAN_CLIMB | HURT_ROCK |
+#F:MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | BRIDGED | CAN_SWIM | HIDE_SWIM | HURT_ACID |
+#F:NOTICE | REMEMBER | NOTICE
+
+#Acidic vapours over acid - SECRET
+
+#N:273:acidic vapour over acid
+#G:':G
+#M:268
+#B:TRAP:ACID:2d6
+#K:DEFAULT:273:K:SECRET:275:HURT_ACID:157
+#D:The acidic vapours conceal a pool of acid.
+#F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+#F:CAN_FLY | CAN_SWIM |   HURT_ACID |
+#F:HIDE_ITEM  | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#Acidic vapours over deep acid - SECRET
+
+#N:274:acidic vapour over deep acid
+#G:':G
+#M:268
+#K:DEFAULT:274:BRIDGE:272:K:SECRET:276:HURT_ACID:158
+#B:TRAP:ACID:4d6
+#D:The acidic vapours conceal a pool of deep acid.
+#F:WATER | DEEP | NOTICE | RIVER | LAKE | HURT_ACID |
+#F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+#F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:275:acidic vapour over acid
+#G:.:G
+#B:TRAP:ACID:2d6
+#K:DEFAULT:275:BRIDGE:272:HURT_ACID:157
+#F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+#F:CAN_FLY | CAN_SWIM |   HURT_ACID |
+#F:HIDE_ITEM  | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:276:acidic vapour over deep acid
+#G:::G
+#K:DEFAULT:276:BRIDGE:272:HURT_ACID:159
+#B:TRAP:ACID:4d6
+#F:WATER | DEEP | NOTICE | RIVER | LAKE | HURT_ACID |
+#F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+#F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:277:steam
+#G:':W
+##B:TRAP:STEAM:1d3
+#K:DEFAULT:1K:TUNNEL:279
+#F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_STEAM
+
+#N:278:steam over open floor (over tunnel)
+#G:':W
+#M:277
+##B:TRAP:STEAM:1d3
+#K:DEFAULT:279:HURT_STEAM:133
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | COVERED | KILL_HUGE |
+#F:HURT_STEAM |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:279:steam over broken floor
+#G:':W
+#M:277
+##B:TRAP:STEAM:1d3
+#K:DEFAULT:279:HURT_STEAM:136
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG | HURT_STEAM |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:280:steam over open floor (over chasm)
+#G:':W
+#M:277
+##B:TRAP:STEAM:1d3
+#K:DEFAULT:141:HURT_STEAM:139
+#F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_STEAM |
+#F:COLLAPSE
+
+#N:281:steam over stone bridge (over boiling water)
+#G:':W
+##B:TRAP:STEAM:3d6
+#M:277
+#K:DEFAULT:208:HURT_STEAM:207
+#F:CAN_FLY | CAN_CLIMB | HURT_ROCK |
+#F:MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | BRIDGED | CAN_SWIM | HIDE_SWIM |
+#F:NOTICE | REMEMBER | NOTICE | HURT_STEAM
+
+#N:282:steam over geothermal floor
+#G:':W
+##B:TRAP:STEAM:1d3
+#K:DEFAULT:282:HURT_STEAM:209
+#F:HIDE_ITEM | RIVER | LAKE | DROP | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | 
+#F:NOTICE | REMEMBER | NOTICE
+
+#N:283:steam over geothermal floor (over lava)
+#G:':W
+#M:135
+#K:DEFAULT:283:BRIDGE:282:HURT_STEAM:210
+#B:TRAP:FIRE:20d6
+#F:BASH | CAN_FLY | KILL_HUGE | HIDE_ITEM | LAVA |
+#F:DROP | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | HURT_STEAM |
+#F:NOTICE | REMEMBER | NOTICE | COVERED
+
+#Steam over boiling water -SECRET
+
+#N:284:steam over boiling water
+#G:':W
+#M:264
+##B:TRAP:STEAM:3d6
+#K:DEFAULT:284:HURT_STEAM:208:K:SECRET:285:BRIDGE:207
+#D:The steam conceals a pool of boiling water.
+#F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+#F:CAN_FLY | CAN_SWIM |  
+#F:HIDE_ITEM  | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE | SECRET | HURT_STEAM
+
+#N:285:steam over boiling water
+#G:::W
+#K:DEFAULT:285:BRIDGE:207:HURT_STEAM:208
+##B:TRAP:STEAM:3d6
+#F:WATER | DEEP | NOTICE | RIVER | LAKE |
+#F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+#F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:NOTICE | REMEMBER | NOTICE | HURT_STEAM
+
+#N:286:poison gas
+#G:':v
+#B:TRAP:POISON:3d4
+#K:DEFAULT:286K:TUNNEL:288:HURT_POISON:1
+#F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_POISON
+
+#N:287:poison gas over open floor (over tunnel)
+#G:':v
+#M:286
+#B:TRAP:POISON:3d4
+#K:DEFAULT:286:HURT_POISON:133K:TUNNEL:288
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | COVERED | KILL_HUGE |
+#F:CAN_CLIMB | CAN_FLY | HURT_POISON
+
+#N:288:poison gas over broken floor
+#G:':v
+#M:286
+#B:TRAP:POISON:3d4
+#K:DEFAULT:288:HURT_POISON:136
+#F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG |
+#F:CAN_CLIMB | CAN_FLY
+
+#N:289:poison gas over open floor (over chasm)
+#G:':v
+#M:286
+#B:TRAP:POISON:3d4
+#K:DEFAULT:141:HURT_POISON:139
+#F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+#F:KILL_HUGE | CAN_FLY | CAN_CLIMB |
+#F:COLLAPSE
+
+
+#Waves
+
+#N:wave over shallow water
+#G:':b
+#T:WATER:4d6
+#K:DEFAULT:141:HURT_POISON:139
+#F:BRIDGE | DEEP |
+
+#Always treat waves as deep
+
+#wave under bridge
+#wave over deep water (HIDDEN)
+#wave over deep water (KNOWN)
+
+#Waves move through water
+
+#Still water (Creates waves when something moves through it), never river
+
+#Clouds
+
+#Cloud
+#G:whatever underneath
+#U:fog
+
+#Thunder cloud
+#G:whatever underneath
+#U:thunderstorm
+#Thunder clouds turn to storm clouds and back
+
+#Storm cloud
+#G:whatever underneath
+#U:lightening storm
+#B:ELEC:12d6
+#F:STRIKE
+
+#Fog
+#G:':W
+
+#Thunderstorm
+#G:':D
+
+#Lightening storm
+#G:':D
+#B:ELEC:4d6
+#F:STRIKE
+
+#Storm
+#G:':W
+#Storms turn earth to mud
+
+#Snow cloud
+#B:
+#U:snowstorm
+#Snow clouds cover stuff in snow
+
+#Snowstorm
+#G:':B
+
+#Sandstorm
+#G:':y
+#Sand storms cover stuff in sand
+
+
+
+
+
+
+#Wilderness/extended features.
+
+
+#When you are on the town level during daytime there is a slightly different display
+#algorithm.
+
+#At ground level when OUTSIDE, you see the M: mimiced graphic for those objects in LOS, 
+#and the U: unseen graphic for those objects out of LOS, even if not CAVE_GLOW. All
+# flying/climbing creatures are treated as in visible even if they are not, up to the maximum
+# visible distance, unless they are in HIDE_FLY locations and not adjacent.
+
+#If you are flying or climbing, you always see the U: unseen graphic. All creatures
+#are treated as visible even if they are not, up to the maximum visible distance, unless they
+#are climbing/flying and in HIDE_FLY locations.
+
+#During day time, all OUTSIDE locations are CAVE_GLOW unless marked HIDE_GLOW (under trees).
+#The many (75%) buildings are permalight, from windows.
+
+#Poison gas/acidic vapours don't appear outside. Smoke spreads only through forest/grass
+#fires. Steam spreads only over geothermal ground/boiling water. Acidic vapours spread 
+#only over acid.
+
+#We could clean up many problems by eliminating acidic vapours outside. This would
+#eliminate confusion/potential confusion with grass (G. is acidic vapours over acid/grass),
+#(G: is acidic vapours over deep acid/deep grass). Alternately, we could eliminate acid
+#outside completely, which would allow more naturally terrain types.
+
+# Flags
+
+# ICKY: Needed to replace CAVE_ICKY.
+# HIDE_FLY: Hide climbers/flyers unless adjacent.
+# OUTSIDE: Climbers/flyers treated as covered on town level unless player on this or climbing
+# CAVE_GLOW if daytime only. Locations that are not marked outside are always lit.
+# Use graphic or U: for objects out of LOS, even if not CAVE_GLOW. All flyers/climbers visible if
+# not hidden.
+# TOWN: Generate town monsters here.
+# WILD: Generate on town level.
+# EASY_CLIMB: If moved from OUTSIDE to inside, treat as climbing. If climbing, and moved from 
+# inside to OUTSIDE, stop climbing. (Unlike CAN_CLIMB, which indicates a creature may climb
+# if it has CAN_CLIMB. This indicates it must CLIMB).
+# HURT_ROOM: Remove from locations next to rooms.
+# NEED_WALL: If next to an OUTSIDE location, needs at least one non NEED_WALL location 
+# next to it, otherwise it collapses (ie this handles houses falling down without walls).
+
+# ATTR_FACE: If using extended colour attributes, make ATTR_FACE NORTH squares one colour
+# lighter, ATTR_FACE EAST & WEST squares the same colour, and ATTR_FACE SOUTH squares one
+# colour darker.
+# EAST | WEST | NORTH | SOUTH
+
+# Of course, note that due to careful selection of colours, we don't suffer any confusion.
+# We can extend this usage to show early morning and late evening time sets.
+# For early morning, colour the west face darker. For late evening colour the east
+# face darker.
+# Also put a shadow to the south & west (early morning) or south & east (early evening)
+# of buildings, trees, and so forth, except do not shade acid/water/ice etc. where shading
+# may confuse the issue somewhat.
+
+# Also note that the colour selection implies the southern hemisphere. (eg New Zealand).
+# (Actually, it doesn't, merely that screen up faces the equator).
+# This however, is appropriate given the vertical orientation of the screen.
+
+# Mountain:    s<  North:   U<   East:  s<  West:  s<  South:  D<
+# Hill:	       U<  North:   o<   East:  U<  West:  U<  South:  u<
+# Sand dune:   y<  North:   W<   East:  y<  West:  y<  South:  o<
+# Ice:         B<  North:   W<   East:  B<  West:  B<  South:  b<
+# Building:    w<  North:   W<   East:  w<  West:  w<  South:  s<
+# Tree?:       g<  North:   G<   East:  g<  West:  g<  South:  s<
+
+# This technique however requires we have 8 directions (N face, E face, S face, W face,
+# NE ridge, SW ridge, SE ridge, NW ridge) plus height map for each of the above types.
+# Plus 8 for each feature that can occur under the above types. This is currently
+# This gives support for a graphics set which would actually want to show the following
+#
+#		---
+#	       |\ /|
+#              |.X.|
+#	       |/:\|
+#		---
+#
+# The height map is required to handle intersections between two or more of the above
+# types in order to determine which direction a location is facing. The transition between
+# a two different facings is treated as level.
+# Are there ways of faking a height map using CAVE_VIEW/CAVE_MARK/etc? Maybe.
+
+#eg		Mountain
+#		UUUUUUUU
+#		sUUUUUUs
+#		ssUUUUss
+#		sssUUsss
+#		ssssssss
+#		sssDDsss
+#		ssDDDDss
+#		sDDDDDDs
+#		DDDDDDDD
+#
+#eg		Hill
+#		oooooooo
+#		UooooooU
+#		UUooooUU
+#		UUUooUUU
+#		UUUUUUUU
+#		UUUuuUUU
+#		UUuuuuUU
+#		UuuuuuuU
+#		uuuuuuuu
+#
+#eg		Sand dune
+#		WWWWWWWW
+#		yWWWWWWy
+#		yyWWWWyy
+#		yyyWWyyy
+#		yyyyyyyy
+#		yyyooyyy
+#		yyooooyy
+#		yooooooy
+#		oooooooo
+
+#eg		Ice
+#		WWWWWWWW
+#		BWWWWWWB
+#		BBWWWWBB
+#		BBBWWBBB
+#		BBBBBBBB
+#		BBBbbBBB
+#		BBbbbbBB
+#		BbbbbbbB
+#		bbbbbbbb
+
+#eg		Building
+#		wWWWWWWW
+#		wwWWWWWw
+#		wwwWWWww
+#		wwwwWwww
+#		wwwwWwww
+#		wwwsswww
+#		wwssssww
+#		wssssssw
+#		ssssssss
+
+
+#Use deep sand/quicksand/mud/muddy trail/deep muddy trail/deep mud/rubble - tag OUTSIDE
+#Use water/icy water/deep water/deep icy water - tag OUTSIDE
+#Use acid/lava/boiling water/boiling mud - tag OUTSIDE
+
+#Ice, ice floor, icy underwater etc. all look like ice from outside - tag U:ice (outside)
+#Sand/sandy trail/sand-filled looks like sand dune from outside - tag U:sand dune
+#Acid-filled/lava-filled/underwater etc. are not generated straight up but look like a mountain
+#top when generated.
+#Mamga/quartz/granite/open floor/traps etc. look like stone building from outside - tag U:
+
+#We want following possibilities when generating rooms.
+
+# Building hidden by sand dune.
+
+#        <<<<
+#    <<<<<yy
+#    <yyy######
+#    ....+....#
+#  <<<yyy#....#
+#  <yyyyy#....#
+#  <<<yyy#....#
+#    <yyy######
+#    <<<
+
+# y = sand-filled
+
+# Looks like:
+
+
+#        <<<<
+#    <<<<<<<
+#    <<<<######
+#    <<<<######
+#  <<<<<<######
+#  <<<<<<######
+#  <<<<<<######
+#    <<<<######
+#    <<<
+
+# from outside (Can be reached by sand through corridor).
+
+
+# Building on a hill.
+
+#        <<<<
+#    <<<<<<<<
+#    <%%%######
+#    <%%%+....#
+#  <<<%%%#....#
+#  <%%%%%#....#
+#  <<<%%%#....#
+#    <%%%######
+#    <<<<<<
+
+# %=hill top
+
+# Looks like:
+#        <<<<
+#    <<<<<<<<
+#    <%%%######
+#    <%%%######
+#  <<<%%%######
+#  <%%%%%######
+#  <<<%%%######
+#    <%%%######
+#    <<<<<<
+
+# %=hilltop
+
+
+# Building on a mountain.
+
+#        %%%%
+#    %%%%%%%%
+#    %%%%######
+#    <<<.+....#
+#  %%%%%%#....#
+#  %%%%%%#....#
+#  %%%%%%#....#
+#    %%%%######
+#    %%%%%%%
+
+
+# Looks like:
+
+#        %%%%
+#    %%%%%%%%
+#    %%%%######
+#    <<<.######
+#  %%%%%%######
+#  %%%%%%######
+#  %%%%%%######
+#    %%%%######
+#    %%%%%%
+
+# from outside. (Can be reached via stone steps).
+
+# Building on a lake.
+
+#        bbbb
+#    bbbbbbbb
+#    bbbb######
+#    ....+....#
+#  bbbbbb#....#
+#  bbbbbb#....#
+#  bbbbbb#....#
+#    bbbb######
+#    bbbbbbb
+
+# y = sand-filled
+
+# Looks like:
+
+#        bbbb
+#    bbbbbbbb
+#    bbbb######
+#    ....######
+#  bbbbbb######
+#  bbbbbb######
+#  bbbbbb######
+#    bbbb######
+#    bbbbbbb
+
+# from outside. (Can be reached via stone bridge (over deep water)).
+
+# Building in a mountain
+
+#        %%%%
+#    %%%%%%%%
+#    %%%%%%%%##
+#    .........#
+#  %%%%%%%....#
+#  %%%%%%%....#
+#  %%%%%%%....#
+#    %%%%%%%%##
+#    %%%%%%%
+
+# Looks like:
+
+#        %%%%
+#    %%%%%%%%
+#    %%%%%%%%##
+#    %%%%%%%%##
+#  %%%%%%%%%%%#
+#  %%%%%%%%%%%#
+#  %%%%%%%%%%%#
+#    %%%%%%%%##
+#    %%%%%%%
+
+# from outside. (Can be reached via open floor).
+
+# Building in a forest.
+
+#        ggggg
+#    ggg g<g<g
+#    g<g ######
+#    ggg +....#
+# ggg ggg#....#
+# g<g g<g#....#
+# ggg ggg#....#
+#    g<g ######
+#    ggg
+
+# g = shade
+
+# Looks like:
+
+#        <<<<<
+#    <<< <<<<<
+#    <<< ######
+#    <<< ######
+# <<< <<<######
+# <<< <<<######
+# <<< <<<######
+#    <<< ######
+#    <<<
+
+# Building under a pyramid.
+
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+#.............<<
+#<<<%%%%%%....<<
+#<<<%%%%%%....<<
+#<<<<<<<<<....<<
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+
+# % = stone building
+
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+#<<<%%%%%%%%%<<<
+#<<<%%%%%%%%%<<<
+#<<<%%%%%%%%%<<<
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+#<<<<<<<<<<<<<<<
+
+# from outside. (Can be reached from any non-trunk square).
+
+
+# In order to distinguish 'on a' types from 'in a' types, we have require the following:
+# 1.	Place 'on a' features, place rooms/corridors, place 'in a' features.
+# 2.	Ensure that only limited base types are supported: no traps, no doors, no rubble,
+#       for 'in a' types.
+# 3.	We always mark corridors, even if indistinguishable from 
+# 4.	Mark 'castles/town/fake towns/ruins' specially so they don't get converted to 'in a'
+# 	rooms.
+
+# Man made features are placed as special rooms.
+
+# Castles/forts have granite walls, towers, stone stairs on
+# the inside to allow us to climb onto granite walls (fake battlements) and up towers.
+# Farms use farm buildings, trees and paddocks (grass/mud) and stones for fences.
+# Megaliths use stones/stone stairs/granite and trails.
+# Fake towns use granite, doors, open floors, water for wells etc.
+# Pyramids/temples use granite walls, open floors, doors, stone steps etc.
+# Cairns/mounds use hill sides and hill tops over open floors, doors etc.
+#
+# Sample tower:
+#
+# 
+#          ######
+#          #<...#
+#          #....+
+#          #....#
+#          ######
+#
+#
+# Which from outside looks like
+#
+#          ######
+#          #<####
+#          ######
+#          ######
+#          ######
+
+
+#For hills/mountains we generate floors to allow us to place rooms underneath. In fact, we
+#place the room first, and all the corridors, and then stream the terrain over the top. We also
+#need stairs.
+
+#For ice/sand dunes: Because we have icy floors, we do not need floor terrain. We use sand for 
+#sandy floor, to distinguish from deep sand which is the exterior terrain. However, we still
+#need terrain for stairs.
+
+#For trees, we need granite walls because a tree top (shade terrain) may be generate over
+#a wall. This makes it 'pretty'.
+
+#We cover rivers/acid etc. with mountains and fill the acid/river terrain. Because 'filled'
+#terrain is marked to look like a mountain top anyway, we only need to generate mountain side
+#terrain over each of these elements.
+
+#For all other terrain (hills, grass etc. we do not generate acid/river terrain 'underneath' it.
+
+#N:cobbles
+#G:.:w
+#F:OUTSIDE | LOS | MOVE | PROJECT | TOWN | CAN_CLIMB | ATTR_LITE
+
+#N:town walls
+#G:#:w
+#F:ATTR_LITE | OUTSIDE | CAN_CLIMB | PERMANENT
+
+#N:town gates
+#G:+:U
+#F:OUTSIDE | CAN_CLIMB | OPEN
+
+#N:open town gates
+#G:':U
+#F:OUTSIDE | CAN_CLIMB | CLOSE | TOWN
+
+#N:stone building
+#G:#:w
+#F:PERMANENT | CAN_CLIMB
+
+#N:stone stairs
+#G:<:w
+#F: ATTR_LITE | OUTSIDE | LOS | MOVE | PROJECT | EASY_CLIMB | HURT_ROOM
+
+#N:open ground
+#G:.:U
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG
+
+#N:open ground (trail)
+#G:.:U
+#M:open ground
+#U:open ground
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG
+
+
+#N:cobbled road
+#G:.:w
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG
+
+#N:broken ground
+#G:.:s
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG
+
+#Note -- open trail goes through grass
+
+#N:open trail
+#G:.:o
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG
+
+#N:grass
+#G:.:G
+#K:BRIDGE:open trail
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG | BRIDGE
+
+#N:deep grass - hidden
+##K::BRIDGE:open trail:KILL_MOVE:DEEP_GRASS
+#G:.:G
+#G:OUTSIDE | HIDDEN | HIDE_DEEP | KILL_MOVE
+
+#N:deep grass
+#G:::G
+#G:OUTSIDE | HIDE_DEEP
+
+#N:grass fire
+#G:':D
+#B:TRAP:FIRE:2d6
+#K:BRIDGE:open trail
+#F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG | BRIDGE | GLOW | HIDE_GLOW
+
+#N:deep grass fire - hidden
+##K::BRIDGE:open trail:KILL_MOVE:DEEP_GRASS
+#B:TRAP:FIRE:4d6
+#G:':D
+#G:OUTSIDE | HIDDEN | HIDE_DEEP | KILL_MOVE
+
+#N:deep grass fire
+#B:TRAP:FIRE:4d6
+#G:':o
+#F:OUTSIDE | HIDE_DEEP | GLOW | HIDE_GLOW
+
+#N:burnt grass
+#G:.:D
+
+#N:snow
+#G:.:B
+#F:OUTSIDE | WATER
+
+#Deep snow - hidden
+#N:deep snow
+#K::BRIDGE:deep snowy trail
+#G:.:B
+#G:OUTSIDE | HIDDEN | DEEP | WATER
+
+#N:deep snow
+#G:::B
+#G:OUTSIDE | DEEP | WATER
+
+#N:snowy trail
+#G:.:o
+#G:OUTSIDE | WATER
+
+#N:deep snowy trail - hidden
+#U:snowy trail
+#G:snowy trail
+#G:.:o
+#G:OUTSIDE | HIDDEN | HIDE_DEEP | WATER
+
+#Ice (outside)
+#N:ice
+#N:<:B
+#F: OUTSIDE | EASY_CLIMB | HURT_ROOM
+
+#N:ice (over deep icy water)
+#G:#:B
+#M:ice (outside)
+#U:ice (outside)
+#G:OUTSIDE
+
+#N:ice (over chasm)
+#G:#:B
+#M:ice (outside)
+#U:ice (outside)
+#G:OUTSIDE
+
+#N:geothermal ground
+#G:.:R
+#F: OUTSIDE
+
+#N:geothermal ground (over lava)
+#G:.:R
+#F: OUTSIDE
+
+#N:steam over geothermal ground
+#G:.:R
+#F: OUTSIDE
+
+#N:steam over geothermal ground (over lava)
+#G:.:R
+#F: OUTSIDE
+
+#N:sand dune
+#G:<:y
+#F:EASY_CLIMB | OUTSIDE | HURT_ROOM | MOVE | PROJECT | LOS
+
+#Trees should have HURT_ROOM if we can ever generate 3 next to each other.
+
+#N:tree
+#G:<:g
+#F:LOS | MOVE | PROJECT | EASY_CLIMB | CAN_FLY | HIDE_FLY | HIDE_GLOW
+
+#N:shade
+#G:.:s
+#U:tree
+#F:LOS | MOVE | PROJECT | CAN_CLIMB | CAN_FLY | HIDE_FLY | HIDE_GLOW
+
+#N:tree on fire
+#G:':o
+#B:TRAP:FIRE:4d6
+#F:MOVE | PROJECT | EASY_CLIMB | CAN_FLY | HIDE_FLY | HIDE_GLOW | GLOW
+
+#N:forest fire
+#G:':o
+#B:TRAP:FIRE:4d6
+#U:tree
+#F:MOVE | PROJECT | CAN_CLIMB | CAN_FLY | HIDE_FLY | HIDE_GLOW | GLOW
+
+#N:burnt tree
+#G:::D
+
+
+#Hill -> mud from water / deep mud-> deep water / others overwrite
+
+#N:hillside
+#G:<:U
+#F:LOS | MOVE | PROJECT | EASY_CLIMB | HURT_ROOM | HIDE_DIG
+
+#N:hilltop
+#G:#:U
+#F:LOS | MOVE | PROJECT | EASY_CLIMB | HIDE_DIG
+
+#N:mountain side 
+#G:<:s
+#K: :BRIDGE:stone steps
+#F: BRIDGE | OUTSIDE | CAN_FLY
+
+#N:mountain top
+#G:#:s
+#F: OUTSIDE | CAN_FLY
+
+#N:underwater - under mountain side
+#G:#:b
+#U:mountain side
+#K:155:BRIDGE:153
+#F: WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER |
+#F: HIDE_ITEM | BRIDGE  | HIDE_SWIM | ROOM | CORRIDOR |
+#F: NOTICE | REMEMBER
+
+#N:acid-filled - under mountain side
+#G:#:g
+#U:mountain side
+#B:TRAP:ACID:8D6
+#K:159:BRIDGE:157
+#F: WATER | FILLED | CAN_SWIM |  TUNNEL | CAN_PASS |
+#F: HIDE_ITEM  | HIDE_SWIM | LAKE | 
+#F: NOTICE | REMEMBER
+
+#N:119:sand-filled - under mountain side
+#G:#:y
+#B:193
+#F: WATER | FILLED | TUNNEL | CAN_PASS |
+#F: HIDE_ITEM  | CAN_DIG |
+#F: NOTICE | REMEMBER
+
+#N:120:mud-filled - under mountain side
+#G:#:u
+#K:201:BRIDGE:199
+#F: WATER | FILLED | TUNNEL | CAN_PASS |
+#F: HIDE_ITEM  | HIDE_DIG | LAKE | CAN_DIG |
+#F: NOTICE | REMEMBER
+
+#N:121:under boiling mud - under mountain side
+#G:#:R
+#B:TRAP:STEAM:6D6
+#K:205:BRIDGE:209
+#F: WATER | FILLED | TUNNEL | CAN_PASS |
+#F: HIDE_ITEM  | HIDE_DIG | CAN_DIG |
+#F: NOTICE | REMEMBER
+
+#N:122:boiling underwater - under mountain side
+#G:#:v
+#B:TRAP:STEAM:6D6
+#K:207:BRIDGE:209
+#F: WATER | FILLED | TUNNEL | CAN_PASS | CAN_SWIM |
+#F: HIDE_ITEM  | HIDE_SWIM |
+#F: NOTICE | REMEMBER
+
+#N:123:lava-filled - under mountain side
+#G:#:r
+#B:TRAP:FIRE:24D6
+#K:218:BRIDGE:210
+#F: LAVA | FILLED | TUNNEL | CAN_PASS |
+#F: HIDE_ITEM  | LAKE |  
+#F: NOTICE | REMEMBER
+
+#N:stone stairs over open floor
+
+#N:stone stairs over down stairs
+
+#N:hill side over open floor
+
+#N:hill side over down stairs
+
+#N:hill top over open floor
+
+#N:hill top over down stairs
+
+#N:mountain side over open floor
+
+#N:mountain side over down stairs
+
+#N:mountain top over open floor
+
+#N:mountain top over down stairs
+
+#N:ice over down stairs
+
+#N:sand dune over down stairs
+
+#N:shade (over granite wall)
+#G:.:s
+#U:tree
+#F:CAN_CLIMB | CAN_FLY | HIDE_FLY
+
+
+# 60 features

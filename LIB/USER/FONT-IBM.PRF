@@ -1,0 +1,225 @@
+# File: font-ibm.prf
+
+#
+# This file is used by Angband (when it was compiled using "main-ibm.c")
+# to specify simple attr/char remappings using a standard font, allowing
+# the use of the IBM's built in pseudo-graphic pictures for walls and such.
+#
+
+
+
+### Terrain Features ###
+
+
+#
+# Floors (white / centered dot)
+#
+
+F:1:1/-7
+F:133:1/-7
+F:134:1/-7
+F:139:1/-7
+
+#
+# Invis traps (white / centered dot)
+#
+
+F:2:1/-7
+
+
+#
+# Magma (slate / special solid block)
+#
+
+F:50:2/-80
+F:52:2/-80
+
+
+#
+# Quartz (light slate / special solid block)
+#
+
+F:51:9/-80
+F:53:9/-80
+
+
+#
+# Secret door (white / solid block)
+#
+
+F:48:1/-79
+
+#
+# Granite walls (white / solid block)
+#
+
+F:56:1/-79
+F:57:1/-79
+F:58:1/-79
+F:59:1/-79
+
+#
+# Permanent rock (white / solid block)
+#
+
+F:60:1/-79
+F:61:1/-79
+F:62:1/-79
+F:63:1/-79
+
+
+#
+# Limestone features (light white/ special solid block)
+#
+
+F:111:9/-80
+
+
+#
+# Sandstone (yellow / special solid block)
+#
+
+F:112:11/-80
+
+#
+# Granite cracks (white / special solid block)
+#
+
+F:113:1/-80
+
+#
+# Earth (umber / special solid block)
+#
+
+F:114:7/-80
+F:199:7/-80
+F:200:7/-80
+
+#
+# Ice cracks (light blue / special solid block)
+#
+
+F:115:14/-80
+
+#
+# Ice (light blue / solid block)
+#
+
+F:148:14/-79
+
+#
+# Underwater (blue / solid block)
+#
+
+F:119:6/-79
+F:121:6/-79
+F:150:6/-79
+
+#
+# Oil shale (dark slate / special solid block)
+#
+
+F:122:0/-80
+
+#
+# Coal (dark slate / solid block)
+#
+
+F:123:0/-79
+
+#
+# Burning coal (orange / solid block)
+#
+
+F:124:3/-79
+
+#
+# Earth floor (umber / centred dot)
+#
+
+F:135:7/-7
+
+#
+# Broken floor (slate / centred dot)
+#
+
+F:136:2/-7
+
+#
+# Trail (orange / centred dot)
+#
+
+F:137:3/-7
+F:138:3/-7
+F:194:3/-7
+F:195:3/-7
+F:202:3/-7
+F:202:3/-7
+
+
+#
+# Ice floor (light blue / centred dot)
+#
+
+F:145:14/-7
+F:146:14/-7
+
+#
+# Water (blue / special solid block)
+#
+
+F:153:6/-80
+F:154:6/-80
+
+#
+# Deep water (blue / solid block)
+#
+
+F:155:6/-79
+
+#
+# Acid (green / special solid block)
+#
+
+F:157:5/-80
+F:158:5/-80
+
+#
+# Deep acid (green / solid block)
+#
+
+F:159:5/-79
+
+#
+# Sand (yellow / centred dot)
+#
+
+F:192:11/-7
+F:193:11/-7
+F:196:11/-7
+
+#
+# Quicksand (yellow / solid block)
+#
+
+F:197:11/-79
+
+#
+# Deep mud (umber / solid block)
+#
+
+F:201:7/-79
+
+#
+# Shallow lava (red / special solid block)
+#
+
+F:216:4/-80
+F:217:4/-80
+
+
+#
+# Deep lava (red / solid block)
+#
+
+F:218:4/-79

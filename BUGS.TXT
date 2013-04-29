@@ -1,0 +1,18 @@
+09-11-2000
+- Running is broken
+- We can bash into open broken doors
+
+04-11-2000
+- Looking is badly broken.
+- Running is probably broken, despite changes, so will need to be thoroughly tested.
+- Monsters do not correctly move over different terrain types still.
+- Monsters are not correctly summoned/created on terrain type which is not floor.
+- Monsters do not flow at all correctly. Consider disabling as this is a big can of worms. Note that in vanilla flowing is still broken for KILL_WALL/PASS_WALL monsters and permanent rock which we could consider a sub-problem of the whole flow over different terrain types issue. So perhaps a different pathing algorithm / flow lists by monster might be used.
+- Traps that cast spells are broken now.
+- Some new feature functionality not implemented yet or not working correctly eg DEEP, SHALLOW.
+- MF_HIDE flags are not correctly working and will cause monsters to disappear intermittently when on, walking off terrain that they can hide under.
+- Thieves do not teleport once they steal anymore. This may be a feature, not a bug. (See todo.txt)
+- We can generate unconnected spaces as part of lake generation. Should always
+ensure that points generated in a lake are all connected, if even only diagonally.
+- We can generated unconnected spaces as a part of big lake generation, followed by
+room placement. Should always ensure that room placement does not block lake segments.
