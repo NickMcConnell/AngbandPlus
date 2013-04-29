@@ -1209,6 +1209,9 @@ void do_cmd_refill(void)
 
 	cptr q, s;
 
+        bool unstack = FALSE;
+
+
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_empty_flask_or_lite;
@@ -1216,7 +1219,7 @@ void do_cmd_refill(void)
 	/* Get an item */
 	q = "Fill/fuel which item? ";
 	s = "You have nothing to fill or fuel.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+        if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1269,7 +1272,7 @@ void do_cmd_refill(void)
 	if (item == item2) return;
 
 	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
+        if (item2 >= INVEN_TOTAL+1)
 	{
                 object_type object_type_body;
 
@@ -1280,36 +1283,67 @@ void do_cmd_refill(void)
 	/* Get the item (in the pack) */
 	else if (item2 >= 0)
 	{
-		j_ptr = &inventory[item];
+                j_ptr = &inventory[item2];
 	}
 
 	/* Get the item (on the floor) */
 	else
 	{
-		j_ptr = &o_list[0 - item];
+                j_ptr = &o_list[0 - item2];
 	}
 
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
+        if (o_ptr->number > 1)
+        {
+                /* Get local object */
+                i_ptr = &object_type_body;
+
+                /* Obtain a local object */
+                object_copy(i_ptr, o_ptr);
+
+                /* Modify quantity */
+                i_ptr->number = 1;
+
+                /* Reset stack counter */
+                i_ptr->stackc = 0;
+
+                /* Unstack the used item */
+                o_ptr->number--;
+
+                o_ptr = i_ptr;
+
+                unstack = TRUE;
+
+        }
+
 	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
 	{
+
+                /* Message */
+                if (unstack) msg_print("You unstack your lantern.");
 
                 /* Refuel */
                 o_ptr->pval += j_ptr->pval;
         
                 /* Message */
                 msg_print("You fuel the lamp.");
-        
+
                 /* Comment */
                 if (o_ptr->pval >= FUEL_LAMP)
                 {
                         o_ptr->pval = FUEL_LAMP;
                         msg_print("The lamp is full.");
                 }
+
 	}
 	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
 	{
+
+                /* Message */
+                if (unstack) msg_print("You unstack your torch.");
+
                 /* Refuel */
                 o_ptr->pval += j_ptr->pval + 5;
         
@@ -1331,39 +1365,41 @@ void do_cmd_refill(void)
         }
         else
         {
-                /* Get local object */
-                i_ptr = &object_type_body;
+                if (unstack)
+                {
+                        /* We are done */
+                }
+                else if (item >= INVEN_TOTAL+1)
+                {
+                        cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+                }
         
-                /* Obtain a local object */
-                object_copy(i_ptr, o_ptr);
-
-                /* Modify quantity */
-                i_ptr->number = 1;
-
-                /* Reset stack counter */
-                i_ptr->stackc = 0;
-
-                /* Reset the pval */
-                i_ptr->pval = 0;
+                /* Decrease the item (in the pack) */
+                else if ((item >= 0) && (o_ptr->tval != TV_LITE))
+                {
+                        inven_item_increase(item, -1);
+                        inven_item_describe(item);
+                        inven_item_optimize(item);
+                }
+                /* Decrease the item (from the floor) */
+                else
+                {
+                        floor_item_increase(0 - item, -1);
+                        floor_item_describe(0 - item);
+                        floor_item_optimize(0 - item);
+                }
 
                 /* Adjust the weight and carry */
-                item = inven_carry(i_ptr);
-        }        
+                item = inven_carry(j_ptr);
 
-	/* Decrease the item (in the pack) */
-	if ((item >= 0) && (o_ptr->tval != TV_LITE))
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
         }
-	/* Decrease the item (from the floor) */
-	else if (o_ptr->tval != TV_LITE)
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
+
+        if (unstack)
+        {
+                /* Adjust the weight and carry */
+                p_ptr->total_weight -= o_ptr->weight;
+                item = inven_carry(o_ptr);
+        }
 
 
 	/* Decrease the feature */
@@ -1380,10 +1416,6 @@ void do_cmd_refill(void)
 	{
                 if (j_ptr->number > 1)
                 {
-
-                        object_type *i_ptr;
-                        object_type object_type_body;
-
                         /* Get local object */
                         i_ptr = &object_type_body;
 
@@ -1630,7 +1662,7 @@ static cptr ident_info[] =
 	"C:Canine",
 	"D:mature Dragons",
 	"E:Elemental",
-	"F:Fish",
+        "F:Fish/Amphibian",
 	"G:Ghost",
 	"H:Hybrid",
 	"I:Insect",
@@ -1642,7 +1674,7 @@ static cptr ident_info[] =
 	"O:Ogre",
         "P:Giant",
 	"Q:Quadrepeds",
-	"R:Reptile/Amphibian",
+        "R:Reptile",
 	"S:Spider/Scorpion/Tick",
 	"T:Troll",
 	"U:Major Demon",

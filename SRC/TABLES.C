@@ -2387,6 +2387,7 @@ cptr inscrip_text[MAX_INSCRIP] =
         "superb",
 	"unbreakable",
         "ungettable",
+        "nonmagical",
         "sustain",
         "high resist",
         "enchanted",

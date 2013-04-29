@@ -176,7 +176,7 @@ C:1:Z
 
 # Apply a rune (aPply)
 A:y
-C:1:^P
+C:1:^E
 
 # Take off equipment
 A:t

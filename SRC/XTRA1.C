@@ -3594,7 +3594,6 @@ void update_stuff(void)
                 describe_room();
 	}
 
-
 }
 
 

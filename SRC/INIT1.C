@@ -120,7 +120,7 @@ static cptr d_info_level_flag[] =
 	"ACID",
 	"OIL",
 	"CHASM",
-	"DESTROYED",
+	"DARK",  /* Hack -- dark rooms - was destroyed */
 	"CROWDED"
 };
 

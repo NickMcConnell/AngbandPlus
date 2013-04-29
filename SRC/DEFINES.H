@@ -3710,11 +3710,11 @@
  * Determine if a "legal" grid is a valid starting grid for player
  */
 #define cave_start_bold(Y,X) \
-        ((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) && \
+        (((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) || \
+         (f_info[cave_feat[Y][X]].flags3 & (FF3_EASY_CLIMB))) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
          !(f_info[cave_feat[Y][X]].blow.method) && \
          !(f_info[cave_feat[Y][X]].blow.effect) && \
-         (cave_m_idx[Y][X] == 0) && \
          (cave_m_idx[Y][X] == 0))
 
 /*

@@ -649,15 +649,15 @@ extern void inven_drop(int item, int amt);
 extern void combine_pack(void);
 extern void reorder_pack(void);
 extern void display_spell_list(void);
-extern void fill_book(object_type *o_ptr,byte *spells, int *num);
+extern void fill_book(object_type *o_ptr,s16b *book, int *num);
 extern s16b spell_level(int spell);
 extern s16b spell_power(int spell);
 extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
 extern void spell_desc(int spell, cptr activate, int level);
 extern void spell_info(char *p, int spell);
-extern void print_powers(byte *spells, int num, int y, int x);
-extern void print_spells(byte *spells, int num, int y, int x);
+extern void print_powers(s16b *book, int num, int y, int x);
+extern void print_spells(s16b *book, int num, int y, int x);
 extern void display_koff(int k_idx);
 
 /* save.c */

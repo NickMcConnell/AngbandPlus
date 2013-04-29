@@ -38,7 +38,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
         int spell = 0;
 
-	byte book[26];
+        s16b book[26];
 
 	bool verify;
 
@@ -341,7 +341,7 @@ void do_cmd_browse(void)
 
 	int num = 0;
 
-	byte book[26];
+        s16b book[26];
 
 	object_type *o_ptr;
 
@@ -436,6 +436,13 @@ void do_cmd_browse(void)
 
 	/* Fill book with spells */
 	fill_book(o_ptr,book,&num);
+
+        /* Paranoia */
+        if (num == 0)
+        {
+                msg_format("There are no %ss to browse.",p);
+                return;
+        }
 
 	/* Save screen */
 	screen_save();
@@ -644,7 +651,7 @@ void do_cmd_study(void)
 	/* Song book -- Learn a spell in order */
         else if (o_ptr->tval == TV_SONG_BOOK)
 	{
-		byte book[26];
+                s16b book[26];
 
 		int num = 0;
 

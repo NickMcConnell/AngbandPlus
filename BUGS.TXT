@@ -1,7 +1,9 @@
-Note that these are play balance bugs only, there are no known stability
-bugs (Fingers crossed). 
+08-02-2002
+- There are still plenty of generation bugs for wilderness in campaign
+mode resulting in big crashes. This looks like it'll need a complete
+rewrite.
 
-06-01-2001
+06-01-2002
 - You should be able to traverse rubble. But requiring 2 moves.
 - Monsters need more information saved.
 

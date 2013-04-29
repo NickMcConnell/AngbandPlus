@@ -320,6 +320,8 @@ static void new_player_spot(void)
 {
 	int y, x;
 
+        msg_print("Trying to place player...");
+
 	/* Place the player */
 	while (1)
 	{
@@ -680,10 +682,6 @@ static void build_terrain(int y, int x, int feat)
 	{
                 newfeat = feat_state(oldfeat,FS_CHASM);
 	}
-        else if (f2_ptr->flags1 & (FF1_FLOOR))
-	{
-                newfeat = feat_state(feat,FS_TUNNEL);
-	}
         else if (f_ptr->flags1 & (FF1_FLOOR))
         {
                 newfeat = feat_state(feat,FS_TUNNEL);
@@ -974,6 +972,7 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
         
 	int lake_width,lake_length;
 
+        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 
         /* Hack -- increase the 'big'ness */
         if ((f_info[feat1].flags1 & (FF1_WALL)) && (variant_big_feats))
@@ -1005,6 +1004,9 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
                 /* Place lake into dungeon */
                 for (i = 0; i<lake_length; i++)
                 {
+                        /* Paranoia */
+                        if (!in_bounds_fully(y,x)) break;
+
                         /* Pick a nearby grids */
                         ty = y + rand_int(2* lake_width+1)- lake_width;
                         tx = x + rand_int(2* lake_width+1)- lake_width;
@@ -1036,7 +1038,7 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
                         if (!in_bounds_fully(y, x)) break;
                         if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
 
-                        if (!do_big_lake)
+                        if ((!do_big_lake) && (!surface))
                         {
                                 /* Don't allow rooms here */
                                 by = y/BLOCK_HGT;
@@ -1090,7 +1092,7 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
                         if (!in_bounds_fully(y, x)) break;
                         if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
         
-                        if (!(f_info[feat1].flags1 & (FF1_WALL)))
+                        if (!(f_info[feat1].flags1 & (FF1_WALL)) && !(surface))
                         {
                                 /* Don't allow rooms here */
                                 by = y/BLOCK_HGT;
@@ -1132,8 +1134,8 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
                                 x += ddx[dir];
                         }
                 }
-
 	}
+
 }
 				
 
@@ -1706,7 +1708,7 @@ static void get_room_info(int y, int x)
                 while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
 
 		/* If not allowed on this level, drop to maximum result */
-		if (p_ptr->depth < d_info[i].level)
+                if ((p_ptr->depth < d_info[i].level) || ((d_info[i].l_flag) && !(level_flag & d_info[i].l_flag)))
 		{
                         while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
 		}
@@ -1777,7 +1779,7 @@ static void get_room_info(int y, int x)
                         int num = 7 + rand_int(6);
                         int k = 0;
 
-                        if (f_info[d_info[i].feat].flags3 & (FF3_ALLOC)) num = 1;
+                        if (f_info[d_info[i].feat].flags3 & (FF3_ALLOC)) num = 0;
 
                         for (ii = 0; ii < 15; ii++)
 			{
@@ -1890,6 +1892,10 @@ static void build_type1(int y0, int x0)
 	}
 
 
+	/* Hack -- mark light rooms */
+        if (light) level_flag &= ~(LF1_DEST);
+        else level_flag |= (LF1_DEST) ;
+
 	/* Pretty description and maybe more monsters/objects/traps*/
 	get_room_info(y0,x0);
 
@@ -1944,6 +1950,10 @@ static void build_type2(int y0, int x0)
 	/* Generate inner floors (b) */
 	generate_fill(y1b, x1b, y2b, x2b, FEAT_FLOOR);
 
+
+	/* Hack -- mark light rooms */
+        if (light) level_flag &= ~(LF1_DEST);
+        else level_flag |= (LF1_DEST);
 
 	/* Pretty description and maybe more monsters/objects/traps*/
 	get_room_info(y0,x0);
@@ -2102,6 +2112,12 @@ static void build_type3(int y0, int x0)
 			break;
 		}
 	}
+
+
+	/* Hack -- mark light rooms */
+        if (light) level_flag &= ~(LF1_DEST);
+        else level_flag |= (LF1_DEST);
+
 
 	/* Pretty description and maybe more monsters/objects/traps*/
 	get_room_info(y0,x0);
@@ -3420,8 +3436,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 
 	bool door_flag = FALSE;
 
-
-
 	/* Reset the arrays */
 	dun->tunn_n = 0;
 	dun->wall_n = 0;
@@ -3455,7 +3469,6 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		/* Get the next location */
 		tmp_row = row1 + row_dir;
 		tmp_col = col1 + col_dir;
-
 
 		/* Do not leave the dungeon!!! XXX XXX */
 		while (!in_bounds_fully(tmp_row, tmp_col))
@@ -3962,7 +3975,7 @@ static void cave_gen(void)
                 int count=0;
 
 		/* Allocate some lakes and rivers*/
-		while ((randint(100)<DUN_FEAT) || (zone->big) || (zone->small))
+                while ((randint(100)<DUN_FEAT) || (zone->big) || (zone->small))
 		{
                         /* Increase count */
                         count++;
@@ -4045,6 +4058,7 @@ static void cave_gen(void)
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
 
+
 		/* Align dungeon rooms */
 		if (dungeon_align)
 		{
@@ -4106,8 +4120,9 @@ static void cave_gen(void)
 	{
 		y = 0;
 
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
+                cave_feat[y][x] = FEAT_PERM_SOLID;
+
+                cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Bottom */
@@ -4115,8 +4130,9 @@ static void cave_gen(void)
 	{
 		y = DUNGEON_HGT-1;
 
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
+                cave_feat[y][x] = FEAT_PERM_SOLID;
+
+                cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Left */
@@ -4124,8 +4140,9 @@ static void cave_gen(void)
 	{
 		x = 0;
 
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
+                cave_feat[y][x] = FEAT_PERM_SOLID;
+
+                cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Right */
@@ -4133,8 +4150,9 @@ static void cave_gen(void)
 	{
 		x = DUNGEON_WID-1;
 
-		/* Clear previous contents, add "solid" perma-wall */
-		cave_set_feat(y, x, FEAT_PERM_SOLID);
+                cave_feat[y][x] = FEAT_PERM_SOLID;
+
+                cave_info[y][x] |= (CAVE_WALL);
 	}
 
 
@@ -4154,6 +4172,8 @@ static void cave_gen(void)
 	/* Start with no tunnel doors */
 	dun->door_n = 0;
 
+        msg_format("Build tunnel for %d rooms",dun->cent_n);
+
 	/* Hack -- connect the first room to the last room */
 	y = dun->cent[dun->cent_n-1].y;
 	x = dun->cent[dun->cent_n-1].x;
@@ -4169,6 +4189,8 @@ static void cave_gen(void)
 		x = dun->cent[i].x;
 	}
 
+        msg_print("Done building tunnels.");
+
 	/* Place intersection doors */
 	for (i = 0; i < dun->door_n; i++)
 	{
@@ -4183,7 +4205,7 @@ static void cave_gen(void)
 		try_door(y + 1, x);
 	}
 
-	/* Hack -- Sandstone streamers are shallow */
+        /* Hack -- Sandstone streamers are shallow */
 	if (rand_int(DUN_STR_SLV) > p_ptr->depth)
 	{
 

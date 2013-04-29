@@ -3640,7 +3640,7 @@ void store_maint(int which)
         ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 
 	/* Store keeper forgives the player */
-	st_ptr->insult_cur = 0;
+        st_ptr->insult_cur = 0;
 
 #if 0
 	/* Mega-Hack -- prune the black market */
@@ -3743,7 +3743,7 @@ void store_init(int which)
 		object_wipe(&st_ptr->stock[k]);
 	}
 
-	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+        if ((store_num_fake == -1) && (store_num_real > 0))
 	{
 		/* Create some new items */
 		while (st_ptr->stock_num < 5) store_create();

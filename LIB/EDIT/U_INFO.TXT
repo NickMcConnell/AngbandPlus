@@ -217,7 +217,7 @@ N:10:Mill
 G:7:U
 I:5:0
 
-N:11:round green door to 'Bag End'
+N:11:'Bag End'
 G:8:G
 I:0:0
 

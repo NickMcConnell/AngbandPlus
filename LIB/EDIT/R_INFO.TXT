@@ -297,7 +297,7 @@
 # c - centipedes	C - Canines
 # d - young dragons	D - mature Dragons/drakes
 # e - eyes		E - Elementals
-# f - felines		F - Fish
+# f - felines           F - Fish/Amphibians
 # g - golems		G - Ghosts
 # h - hobbits/dwarves   H - Hybrids
 # i - icky things	I - Insects
@@ -309,7 +309,7 @@
 # o - orcs		O - Ogres
 # p - people (priest)   P - giants
 # q - people (mage)     Q - Quadrepeds
-# r - rodents		R - reptiles
+# r - rodents           R - Reptiles
 # s - skeletons		S - Spiders/ticks
 # t - people (thieves/warriors)  T - trolls
 # u - minor demons	U - major demons
@@ -854,7 +854,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Its a large pile of white flesh.
 
 N:41:Giant green frog
-G:R:g
+G:F:g
 I:110:2d8:12:8:30
 W:2:1:0:6
 B:BITE:HURT:1d3
@@ -1558,7 +1558,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a large pulsating mound of pink flesh.
 
 N:107:Giant pink frog
-G:R:R
+G:F:R
 I:110:5d8:12:16:50
 W:7:1:0:16
 B:BITE:LOSE_STR:2d4
@@ -13606,7 +13606,7 @@ D:It is a rodent of unusual size.
 #It can bite to poison with damage 1d5.
 
 N:961:Giant green frog
-G:R:g
+G:F:g
 I:110:2d8:12:8:30
 W:5:1:0:6
 B:BITE:HURT:1d3
@@ -13616,7 +13616,7 @@ F:ANIMAL | MULTIPLY
 D:It is as big as a wolf.
 
 N:962:Giant pink frog
-G:R:R
+G:F:R
 I:110:5d8:12:16:50
 W:10:1:0:16
 B:BITE:LOSE_STR:2d4
@@ -13626,7 +13626,7 @@ F:ANIMAL | CAN_SWIM | MULTIPLY
 D:It looks poisonous.
 
 N:963:Giant red speckled frog
-G:R:r
+G:F:r
 I:110:6d8:12:20:50
 W:16:1:0:16
 B:BITE:HURT:3d4
@@ -13636,7 +13636,7 @@ F:ANIMAL | CAN_SWIM | MULTIPLY
 D:It looks poisonous.
 
 N:964:Giant blue frog
-G:R:B
+G:F:B
 I:110:4d8:12:12:50
 W:5:1:0:11
 B:BITE:POISON:2d4
@@ -13646,7 +13646,7 @@ F:ANIMAL | CAN_SWIM | IM_POIS
 D:It looks poisonous.
 
 N:965:Giant blue frog
-G:R:B
+G:F:B
 I:110:4d8:12:12:50
 W:8:1:0:11
 B:BITE:POISON:2d4
@@ -13656,7 +13656,7 @@ F:ANIMAL | CAN_SWIM | MULTIPLY | IM_POIS
 D:It looks poisonous.
 
 N:966:Giant yellow frog
-G:R:y
+G:F:y
 I:110:5d8:12:16:50
 W:10:1:0:16
 B:BITE:LOSE_DEX:2d4
@@ -13666,7 +13666,7 @@ F:ANIMAL | CAN_SWIM | IM_POIS
 D:It looks poisonous.
 
 N:967:Giant yellow frog
-G:R:y
+G:F:y
 I:110:5d8:12:16:50
 W:11:1:0:16
 B:BITE:LOSE_DEX:2d4
@@ -13676,7 +13676,7 @@ F:ANIMAL | CAN_SWIM | MULTIPLY | IM_POIS
 D:It looks poisonous.
 
 N:968:Giant black frog
-G:R:D
+G:F:D
 I:110:7d8:12:24:50
 W:17:1:0:20
 B:BITE:POISON:5d4
@@ -13686,7 +13686,7 @@ F:ANIMAL | CAN_SWIM | IM_POIS
 D:It looks poisonous.
 
 N:969:Giant black frog
-G:R:D
+G:F:D
 I:110:7d8:12:24:50
 W:20:1:0:20
 B:BITE:POISON:5d4
@@ -13696,7 +13696,7 @@ F:ANIMAL | CAN_SWIM | MULTIPLY | IM_POIS
 D:It looks poisonous.
 
 N:970:Giant tree frog
-G:R:G
+G:F:G
 I:110:3d8:12:16:30
 W:5:1:0:12
 B:BITE:HURT:2d3
@@ -13709,7 +13709,7 @@ S:SPIT
 D:It is as big as a wolf.
 
 N:971:Giant tree frog
-G:R:G
+G:F:G
 I:110:3d8:12:16:30
 W:8:1:0:12
 B:BITE:HURT:2d3
@@ -13722,7 +13722,7 @@ S:SPIT
 D:It is as big as a wolf.
 
 N:972:Giant green toad
-G:R:g
+G:F:g
 I:110:6d8:12:24:50
 W:18:1:0:24
 B:BITE:POISON:3d4
@@ -13735,7 +13735,7 @@ S:BLINK | SLOW | SCARE | DARKNESS | SPIT
 D:It is ugly and covered in warts.
 
 N:973:Giant brown toad
-G:R:u
+G:F:u
 I:110:7d8:12:28:50
 W:21:1:0:30
 B:BITE:LOSE_CHR:3d4
@@ -13749,7 +13749,7 @@ S:S_MONSTER
 D:It is ugly and covered in big brown warts.
 
 N:974:Giant horny toad
-G:R:U
+G:F:U
 I:110:10d8:12:32:50
 W:25:1:0:45
 B:BITE:HURT:4d4
@@ -15902,7 +15902,7 @@ D:It is about five feet long and carnivorous.
 
 
 N:1236:Giant red speckled frog
-G:R:r
+G:F:r
 I:110:6d8:12:20:50
 W:13:1:0:16
 B:BITE:HURT:3d4
@@ -15922,7 +15922,7 @@ D:It looks poisonous.
 #it may notice from 120 feet. It can bite to attack with damage 1d6.
 
 N:1237:Giant black frog
-G:R:D
+G:F:D
 I:110:4d8:12:18:50
 W:5:1:0:16
 B:BITE:HURT:1d6

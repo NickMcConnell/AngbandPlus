@@ -2038,7 +2038,7 @@ int value_check_aux3(object_type *o_ptr)
 	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+                if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
 
 		/* Normal */
 		return (INSCRIP_SPECIAL);
@@ -2048,7 +2048,7 @@ int value_check_aux3(object_type *o_ptr)
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+                if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
 
                 /* Superb */
                 if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
@@ -2058,10 +2058,10 @@ int value_check_aux3(object_type *o_ptr)
 	}
 
 	/* Cursed items */
-	if (cursed_p(o_ptr)) return (0);
+        if (cursed_p(o_ptr)) return (0);
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return (0);
+        if (broken_p(o_ptr)) return (0);
 
         /* Great "armor" bonus */
         if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
@@ -2082,12 +2082,16 @@ int value_check_aux3(object_type *o_ptr)
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* Default to nothing */
-	return (0);
+        return (0);
 }
 
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 4 (Cursed).
+ *
+ * Note we return INSCRIP_NONMAGICAL for items that we do not mark
+ * this way, but allow such items to be sensed again, elsewhere.
+ * Hack -- we 'overload' this semantically with removed curses.
  */
 int value_check_aux4(object_type *o_ptr)
 {
@@ -2098,7 +2102,7 @@ int value_check_aux4(object_type *o_ptr)
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
 
 		/* Normal */
-		return (0);
+                return (0);
 	}
 
 	/* Ego-Items */
@@ -2111,7 +2115,7 @@ int value_check_aux4(object_type *o_ptr)
                 if (o_ptr->xtra1) return (0);
 
 		/* Normal */
-		return (0);
+                return (0);
 	}
 
 	/* Cursed items */
@@ -2121,7 +2125,7 @@ int value_check_aux4(object_type *o_ptr)
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
 	/* Default to nothing */
-	return (0);
+        return (0);
 }
 
 
@@ -2305,7 +2309,7 @@ bool detect_objects_magic(void)
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+                o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2388,13 +2392,14 @@ bool detect_objects_cursed(void)
                 feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
-		if (!feel) continue;
+                if (!feel) continue;
 
 		/* Sense the object */
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+                /* Hack -- allow non-cursed items to be re-sensed */
+                o_ptr->ident |= (IDENT_SENSE);
 
 	}
 

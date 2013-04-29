@@ -466,6 +466,7 @@ int cost_at_center = 0;
 #endif	/* MONSTER_FLOW */
 
 
+
 /*
  * Array[z_info->o_max] of dungeon objects
  */

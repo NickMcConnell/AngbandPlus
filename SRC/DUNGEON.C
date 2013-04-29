@@ -2725,7 +2725,6 @@ static void dungeon(void)
 	window_stuff();
 
 
-
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
 
@@ -2793,7 +2792,8 @@ static void dungeon(void)
 		/* Can the player move? */
 		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
 		{
-			/* process monster with even more energy first */
+
+                        /* process monster with even more energy first */
 			process_monsters((byte)(p_ptr->energy + 1));
 
 			/* if still alive */
@@ -2852,9 +2852,10 @@ static void dungeon(void)
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
-
-		/* Process the world */
+                /* Process the world */
 		process_world();
+
+
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3135,8 +3136,9 @@ void play_game(bool new_game)
 
                         for (ii = 0; ii < MAX_DUNGEON_ZONES;ii++)
                         {
+                                int guard = t_info[i].zone[ii].guard;
 
-                                r_info[t_info[i].zone[ii].guard].flags1 |= RF1_QUESTOR;
+                                if (guard) r_info[guard].flags1 |= RF1_QUESTOR;
                         }
                 }
         }

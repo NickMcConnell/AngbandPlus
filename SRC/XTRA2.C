@@ -2817,6 +2817,7 @@ bool change_panel(int dir)
 static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
 {
 	/* Initialize text */
+        strcpy(name, "");
 	strcpy(text_always, "");
 	strcpy(text_visible, "");
 
@@ -2824,35 +2825,25 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
         if (!room)
         {
                 town_type *t_ptr = &t_info[p_ptr->dungeon];
-                dungeon_zone *zone=&t_ptr->zone[0];;
+                dungeon_zone *zone=&t_ptr->zone[0];
 
                 /* Get the zone */ 
                 get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 		if (p_ptr->depth == min_depth(p_ptr->dungeon))
 		{
-			if ((zone->fill) && (zone->level < MAX_ZONE_WILDS)) strcpy(name, "the wilds of ");
-			else if (zone->fill) strcpy(name,"the ruins of ");
-                        else if (!t_ptr->store[1]) strcpy(name,"");
-                        else if (!t_ptr->store[2]) strcpy(name,"the village of ");
-			else strcpy(name,"the town of ");
-                        strcat(name, t_name + t_info[p_ptr->dungeon].name);
+                        strcpy(name, t_name + t_info[p_ptr->dungeon].name);
                         strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
-		}
+                }
 		else if (!zone->fill)
 		{
-			/* Initialise town description */
-			strcpy(name, "a town hidden in ");
-			strcat(name, t_name + t_info[p_ptr->dungeon].name);
-                        strcpy(text_always, "A collection of ramshackle buildings, deep beneath ");
-                        strcat(text_always, t_name + t_info[p_ptr->dungeon].name);
-                        strcat(text_always, ".");
+                        strcpy(name, t_name + t_info[p_ptr->dungeon].name);
+                        strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
 		}
                 else
                 {
                         strcpy(name, "empty room");
                 }
-
         	return;
 	}
 	
@@ -3015,9 +3006,20 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 			}
 
-			return;
 		}
 	}
+
+        if (cheat_room)
+        {
+                if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"  This room cannot be teleported into.");
+                if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"  This room prevent you naturally healing your wounds.");
+                if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"  This room makes you vulnerible to being hit.");
+                if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"  This room cannot be magically lit.");
+                if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"  This room magically teleports you occasionally.");
+                if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"  This room prevents you casting spells.");
+                if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"  This room prevents you using wands, staffs or rods.");
+        }
+
 }
 
 
@@ -3027,7 +3029,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 static void room_info_top(int room)
 {
 	char first[2];
-	char name[32];
+        char name[40];
 	char text_visible[240];
 	char text_always[240];
 
@@ -3171,6 +3173,9 @@ void describe_room(void)
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
 
+        /* Hack -- not a room */
+        if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) room = 0;
+
 	/* Get the actual room description */
 	get_room_desc(room, name, text_visible, text_always);
 
@@ -3230,7 +3235,9 @@ void describe_room(void)
                 || (p_ptr->depth == min_depth(p_ptr->dungeon)))
         {
                 msg_format("You have entered %s.",name);
-                msg_format("%s",text_always);
+
+		/* Message */
+                if (room_descriptions) msg_format("%s", text_always);
         }
 
 	/* Window stuff */

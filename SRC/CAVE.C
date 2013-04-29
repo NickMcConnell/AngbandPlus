@@ -4205,7 +4205,7 @@ void cave_set_feat(int y, int x, int feat)
 			}
 
 			/* Was destroyed grid only one illuminating this one? */
-                        else if ((cave_info[yy][xx] & (CAVE_GLOW)) && !(cave_info[yy][xx] & (CAVE_ROOM)))
+                        else if (cave_info[yy][xx] & (CAVE_GLOW))
 			{
                                 /* Darken temporarily */
                                 cave_info[yy][xx] &= ~(CAVE_GLOW);
@@ -4272,13 +4272,14 @@ void cave_set_feat(int y, int x, int feat)
          */
         if (feat == FEAT_TREE_BIG)
         {
-                int k = rand_int(8);
 		for (i = 0; i < 8; i++)
 		{
-                        int yy = y + ddy_ddd[k];
-                        int xx = x + ddx_ddd[k];
+                        int yy,xx;
 
-                        k = rand_int(8);
+                        int k = rand_int(8);
+
+                        yy = y + ddy_ddd[k];
+                        xx = x + ddx_ddd[k];
 
      			/* Ignore annoying locations */
                         if (!in_bounds_fully(yy, xx)) continue;
@@ -4293,13 +4294,14 @@ void cave_set_feat(int y, int x, int feat)
         }
         else if (feat == FEAT_TREE_BIG_S)
         {
-                int k = rand_int(8);
 		for (i = 0; i < 8; i++)
 		{
-                        int yy = y + ddy_ddd[k];
-                        int xx = x + ddx_ddd[k];
+                        int yy,xx;
 
-                        k = rand_int(8);
+                        int k = rand_int(8);
+
+                        yy = y + ddy_ddd[k];
+                        xx = x + ddx_ddd[k];
 
      			/* Ignore annoying locations */
                         if (!in_bounds_fully(yy, xx)) continue;

@@ -6482,13 +6482,9 @@ void reorder_pack(void)
 
 
 /*
- * Fills a book with spells (in order)
+ * Fills a book with spells (in order). Note hack for runestones.
  */
-
-/*
- * Print a list of spells (for browsing or casting or viewing).
- */
-void fill_book(object_type *o_ptr, byte *book, int *num)
+void fill_book(object_type *o_ptr, s16b *book, int *num)
 {
 	int i,ii;
 
@@ -6497,6 +6493,9 @@ void fill_book(object_type *o_ptr, byte *book, int *num)
 	/* No spells */
 	*num = 0;
 
+	/* Fill book with nothing */
+	for (i=0;i<26;i++) book[i]=0;
+
 	/* Fill book with spells */
         for (i=0;i<z_info->s_max;i++)
 	{
@@ -6504,13 +6503,32 @@ void fill_book(object_type *o_ptr, byte *book, int *num)
 
 		for (ii=0;ii<MAX_SPELL_APPEARS;ii++)
 		{
-
 			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
-		    	(s_ptr->appears[ii].sval == o_ptr->sval))
-				{
+                                (s_ptr->appears[ii].sval == o_ptr->sval))
+                        {
+                                if (o_ptr->tval == TV_RUNESTONE)
+                                {
+                                        int iii;
+
+                                        for (iii = 0;iii<INVEN_WIELD;iii++)
+                                        {
+                                                if (inventory[iii].k_idx)
+                                                {
+                                                        if ((inventory[iii].tval == TV_RUNESTONE)
+                                                                && (inventory[iii].sval == s_ptr->appears[ii].slot))
+                                                        {
+                                                                book[iii] = i;
+                                                                if (*num < iii+1) *num = iii+1;
+                                                        }
+                                                }
+                                        }
+                                }
+                                else
+                                {
                                         book[s_ptr->appears[ii].slot-1] = i;
-					(*num)++;
-				}
+                                        (*num)++;
+                                }
+                        }
 
 		}
 
@@ -7926,7 +7944,7 @@ void spell_info(char *p, int spell)
 /*
  * Print a list of powers (for selection).
  */
-void print_powers(byte *book, int num, int y, int x)
+void print_powers(s16b *book, int num, int y, int x)
 {
         int i, spell;
 
@@ -7977,7 +7995,7 @@ void print_powers(byte *book, int num, int y, int x)
 /*
  * Print a list of spells (for browsing or casting or viewing).
  */
-void print_spells(byte *book, int num, int y, int x)
+void print_spells(s16b *book, int num, int y, int x)
 {
         int i, ii, spell, level;
 
@@ -8186,7 +8204,7 @@ void display_koff(int k_idx)
 
 	if (browse)
 	{
-		byte book[26];
+                s16b book[26];
 
 		int num;
 

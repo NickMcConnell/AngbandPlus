@@ -36,8 +36,11 @@
 # K: item
 # Generate extra items of this tval for this room.
 
-# L: ACID | OIL | CHASM | LAVA | ICE | WATER
+# L: ACID | OIL | CHASM | LAVA | ICE | WATER | DARK
 # Only generate on levels marked as this.
+
+# DARK - only generate in dark rooms.
+
 # NORTH: Line north wall of this room with items | feature.
 # SOUTH: Line south wall of this room with items | feature.
 # EAST: Line east wall of this room with items | feature.
@@ -128,6 +131,7 @@ B:
 D:Candles line 
 F:405
 S:SEEN
+L:DARK
 
 N:1:2:12:0
 A:curtained
@@ -1589,6 +1593,7 @@ N:15:16:12:0
 A:torch-lit
 B:
 F:404
+L:DARK
 
 N:15:16:15:0
 A:gloomy
@@ -1599,6 +1604,7 @@ N:15:16:18:0
 A:shadowy
 B:
 S:GLOOMY
+L:DARK
 
 N:15:16:21:0
 A:half-lit
@@ -1630,9 +1636,10 @@ A:ancient
 B:
 
 N:15:16:42:10
-A:brilliant
+A:magical
 B:
 F:406
+L:DARK
 
 N:15:16:100:0
 A:empty

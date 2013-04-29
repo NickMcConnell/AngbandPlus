@@ -1,3 +1,19 @@
+11-02-2002 Unangband 0.4.9a Bugfix release
+- Changed apply rune to ^E in roguelike keyset.
+- Fixed generally filling/refueling weirdness.
+- Fixed problems with curtains.
+- Changed amphibians to use 'F' graphic.
+- Fixed bad bug that could cause you to miss artifacts by generating
+them in unseen stores (Campaign mode only).
+- Fixed biggest crash bug in campaign mode. There is still
+an infinite loop in tunnel code somewhere (This code is pretty much
+from Vanilla). Should be fixed in next release.
+- Level-type dependent rooms were getting generated on all levels.
+- Changed it so that rooms with lite objects/magical darkness only
+get generated in dark rooms.
+- Added ability to cast spells from runes... not all spells are yet
+done, but this just requires editting s_info.txt now.
+
 04-02-2002  UnAngband 0.4.9 "Black magic" release
 - Changed semantics of stacking so that both
 items must be inscribed with '=s' to force
