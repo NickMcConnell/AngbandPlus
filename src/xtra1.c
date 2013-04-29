@@ -1742,7 +1742,7 @@ static void fix_overhead(void)
       cave_m_idx[py][px] = 0;
       
       /* Redraw map */
-      display_map(&cy, &cx);
+      display_map(&cy, &cx, TRUE);
       
       /* Hack -- Show player XXX XXX XXX */
       cave_m_idx[py][px] = -1;
@@ -3215,8 +3215,6 @@ extern void calc_bonuses(bool inspect)
   if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
   
   /* Status protection flags */
-  //if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
-  //if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
   if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
   if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
   
@@ -3374,8 +3372,6 @@ extern void calc_bonuses(bool inspect)
       if (f3 & (TR3_DRAIN_EXP)) p_ptr->black_breath = TRUE;
       
       /* Status protection flags */
-      //if (f2 & (TR2_RES_FEAR)) p_ptr->no_fear = TRUE;
-      //if (f2 & (TR2_RES_BLIND)) p_ptr->no_blind = TRUE;
       if (f3 & (TR3_FEARLESS)) p_ptr->no_fear = TRUE;
       if (f3 & (TR3_SEEING)) p_ptr->no_blind = TRUE;
       
@@ -4428,6 +4424,9 @@ extern void calc_bonuses(bool inspect)
       /* Save it */
       p_ptr->old_shield_on_back = p_ptr->shield_on_back;
     }
+
+  /* Hack - force redraw if stuff has changed */
+  if (p_ptr->redraw) p_ptr->update |= (PU_BONUS);
 }
 
 

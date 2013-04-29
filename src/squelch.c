@@ -151,6 +151,8 @@ static tval_desc sval_dependent[] =
   { TV_FOOD,		"Food" },
   { TV_MAGIC_BOOK,	"Magic books" },
   { TV_PRAYER_BOOK,	"Prayer books" },
+  { TV_NECRO_BOOK,	"Necromantic tomes" },
+  { TV_DRUID_BOOK,	"Stones of Lore" },
   { TV_SPIKE,		"Spikes" },
   { TV_LITE,		"Lights" },
   { TV_SKELETON,        "Skeletons" },

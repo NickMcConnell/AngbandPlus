@@ -1229,7 +1229,8 @@ static void process_world(void)
     }
   
   /* Delayed level feelings */
-  if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100)))
+  if ((p_ptr->depth) && (!p_ptr->leaving) && (!do_feeling) && (!(turn % 100))
+      && (!p_ptr->themed_level))
     {
       
       int chance = 40;
@@ -1951,8 +1952,8 @@ static void dungeon(void)
     }
   
   
-	/* Choose panel */
-	verify_panel();
+  /* Choose panel */
+  verify_panel();
   
   
   /* Flush messages */
@@ -1960,7 +1961,7 @@ static void dungeon(void)
   
   
   /* Hack -- Increase "xtra" depth */
-	character_xtra++;
+  character_xtra++;
 
 
   /* Clear */
@@ -2007,15 +2008,15 @@ static void dungeon(void)
   /* Update stuff */
   update_stuff();
 
-	/* Redraw stuff */
-	redraw_stuff();
+  /* Redraw stuff */
+  redraw_stuff();
+  
+  /* Redraw stuff */
+  window_stuff();
+  
 
-	/* Redraw stuff */
-	window_stuff();
-
-
-	/* Hack -- Decrease "xtra" depth */
-	character_xtra--;
+  /* Hack -- Decrease "xtra" depth */
+  character_xtra--;
   
   
   /* Update stuff */
@@ -2035,20 +2036,20 @@ static void dungeon(void)
   /* Redraw buttons */
   p_ptr->redraw |= (PR_BUTTONS);
   
-	/* Notice stuff */
-	notice_stuff();
-
-	/* Update stuff */
-	update_stuff();
-
-	/* Redraw stuff */
-	redraw_stuff();
-
-	/* Window stuff */
-	window_stuff();
-
-	/* Refresh */
-	Term_fresh();
+  /* Notice stuff */
+  notice_stuff();
+  
+  /* Update stuff */
+  update_stuff();
+  
+  /* Redraw stuff */
+  redraw_stuff();
+  
+  /* Window stuff */
+  window_stuff();
+  
+  /* Refresh */
+  Term_fresh();
 
 
 	/* Handle delayed death */

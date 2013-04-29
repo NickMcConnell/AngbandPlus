@@ -2219,11 +2219,19 @@ void player_birth(void)
   /* Note player birth in the message recall */
   message_add(" ", MSG_GENERIC);
   message_add("  ", MSG_GENERIC);
-	message_add("====================", MSG_GENERIC);
-	message_add("  ", MSG_GENERIC);
-	message_add(" ", MSG_GENERIC);
-
-
+  message_add("====================", MSG_GENERIC);
+  message_add("  ", MSG_GENERIC);
+  message_add(" ", MSG_GENERIC);
+  
+  
+  /* Hack - don't display above for easy_more */
+  if (easy_more)
+    {
+      /* Arcane weirdness */
+      msg_print(" ");
+      message_flush();
+    }
+	
   /* Hack -- outfit the player */
   player_outfit();
   

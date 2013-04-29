@@ -4291,7 +4291,8 @@ static void process_monster(monster_type *m_ptr)
     }
 
   /* Roll to use ranged attacks failed, but monster is an archer. */
-  if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!(m_ptr->confused)))
+  if ((choice == 0) && (r_ptr->flags2 & (RF2_ARCHER)) && (!(m_ptr->confused)
+							  && aware))
     {
       /* Pick an archery attack (usually) */
       if ((rand_int(8) != 0) && (m_ptr->cdis > 1)) 

@@ -2124,7 +2124,7 @@ static errr save_prefs()
         fprintf(fff, "Graphics = %d\n", use_graphics);
         fprintf(fff, "Bigtile = %d\n", use_bigtile);
         fprintf(fff, "Dbltile = %d\n", use_dbltile);
-        fprintf(fff, "Dbltile = %d\n", use_trptile);
+        fprintf(fff, "Trptile = %d\n", use_trptile);
         for (i = 0; i < ANGBAND_TERM_MAX; i++)
         {
                 term_window *win = &windows[i];

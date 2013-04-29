@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.0"
+#define VERSION_STRING	"0.3.1"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -3257,6 +3257,7 @@
 #define OPT_view_bright_lite		61
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
+#define OPT_easy_more                   65
 #define OPT_show_piles                  67
 #define OPT_hp_changes_colour           68
 #define OPT_show_detect                 69 /*This is really quite out of order -BR-*/
@@ -3374,6 +3375,7 @@
 #define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
+#define easy_more                       op_ptr->opt[OPT_easy_more]
 #define show_piles                      op_ptr->opt[OPT_show_piles]
 #define show_lists                      op_ptr->opt[OPT_show_lists]
 
@@ -3832,7 +3834,7 @@ extern int PlayerUID;
 /*
  * Mega-Hack -- maximum known sounds
  */
-#define SOUND_MAX 25
+#define SOUND_MAX MSG_MAX
 
 
 /*** Hack ***/

@@ -1636,7 +1636,7 @@ static void o_xtra_act(char ch, int oid)
   s16b idx = get_autoinscription_index(oid);
   
   /* Forget it if we've never seen the thing */
-  if (k_ptr->everseen)
+  if (!k_ptr->everseen)
     return;
   
   /* Uninscribe */
@@ -5136,12 +5136,20 @@ void do_cmd_feeling(void)
   /* No useful feeling in town */
   if (!p_ptr->depth)
     {
-		msg_print("Looks like a typical town.");
-		return;
+      msg_print("Looks like a typical town.");
+      return;
+    }
+  
+  /* No useful feelings until enough time has passed */
+  if (!do_feeling)
+    {
+      msg_print("You are still uncertain about this level...");
+      return;
     }
   
   /* Display the feeling */
-  msg_print(feeling_text[feeling]);
+    if (p_ptr->themed_level) msg_format("%s", themed_feeling);
+    else msg_print(feeling_text[feeling]);
 }
 
 /*

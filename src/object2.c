@@ -1232,6 +1232,18 @@ void reduce_charges(object_type *o_ptr, int amt)
     }
 }
 
+/* 
+ * Check for "resist" items with vulnerabilities - more generality needed 
+ */
+bool crummy(object_type *o_ptr)
+{
+  int i;
+
+  for (i = 0; i < MAX_P_RES; i++)
+    if (o_ptr->percent_res[i] > RES_LEVEL_BASE) return TRUE;
+
+  return FALSE;
+}
 
 /*
  * Return the price of an item including plusses (and charges)
@@ -1257,6 +1269,9 @@ s32b object_value(object_type *o_ptr)
       
       /* Cursed items -- worthless */
       if (cursed_p(o_ptr)) return (0L);
+
+      /* "Resist" items with negative resist -- worthless */
+      if (crummy(o_ptr)) return (0L);
       
       /* Real value (see above) */
       value = object_value_real(o_ptr);
@@ -1319,6 +1334,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
   if (o_ptr->k_idx != j_ptr->k_idx) return (0);
   
   /* Require identical resists */
+  if (o_ptr->el_proof != j_ptr->el_proof) return (0);
+  
+  /* Require identical proofing */
   for (i = 0; i < MAX_P_RES; i++)
     if (o_ptr->percent_res[i] != j_ptr->percent_res[i]) return (0);
   
@@ -2954,6 +2972,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       o_ptr->weight = a_ptr->weight;
       for (i = 0; i < MAX_P_RES; i++)
 	o_ptr->percent_res[i] = a_ptr->percent_res[i];
+      for (i = 0; i < 4; i++)
+	if (a_ptr->flags2 & (TR2_IM_ACID << i)) o_ptr->percent_res[i] = 0;
       o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
       
       /* Mark where it was found */

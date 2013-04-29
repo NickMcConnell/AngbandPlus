@@ -100,6 +100,10 @@ bool set_confused(int v)
       if (!p_ptr->confused)
 	{
 	  msg_print("You are confused!");
+
+	  /* Lose target */
+	  target_set_monster(0);
+
 	  notice = TRUE;
 	}
     }

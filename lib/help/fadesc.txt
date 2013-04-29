@@ -80,9 +80,9 @@ Nick McConnell
 === See also oangdesc.txt for OAngband Copyright Information ===
 === See also angdesc.txt for Angband Copyright Information ===
 
-FAangband Version 0.3.0:  Nick McConnell
+FAangband Version 0.3.1:  Nick McConnell
 
-Copyright (c) 2005-2007 Nick McConnell, Bahman Rabii, Leon Marrick, 
+Copyright (c) 2005-2008 Nick McConnell, Bahman Rabii, Leon Marrick, 
                         Robert Ruehlmann, Ben Harrison, James E. Wilson, 
                         Robert A. Koeneke
 

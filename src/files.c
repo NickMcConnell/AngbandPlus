@@ -2366,7 +2366,7 @@ extern int make_dump(char_attr_line *line, int mode)
 	      
 	      /* Check flags */
 	      else if ((f[2] & flag) || 
-		       ((o_ptr->k_idx) && 
+		       ((o_ptr->k_idx) && (o_ptr->ident & IDENT_KNOWN) &&
 			(o_ptr->percent_res[r] != 100)))
 		{
 		  if (o_ptr->percent_res[r] < 100) 
@@ -2770,11 +2770,20 @@ extern int make_dump(char_attr_line *line, int mode)
   i = 0;
   while (notes[i].turn)
     {
-      int length, length_info;
-      int region = stage_map[notes[i].place][LOCALITY];
-      int lev = stage_map[notes[i].place][DEPTH];
+      int length, length_info, region, lev;
       char info_note[43];
       char place[32];
+
+      /* Paranoia */
+      if ((notes[i].place > NUM_STAGES) || (notes[i].level > 50) ||
+	  (notes[i].type > 15))
+	{
+	  i++;
+	  continue;
+	}
+
+      region = stage_map[notes[i].place][LOCALITY];
+      lev = stage_map[notes[i].place][DEPTH];
 
       /* Divider before death */
       if ((notes[i].type == NOTE_DEATH) && (!dead))
@@ -3122,6 +3131,9 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
   /* Normal screen ? */
   bool old_normal_screen = FALSE;
+
+  /* Show messages first */
+  if (easy_more) messages_easy(FALSE);
 
   /* Record normal screen if it's the first time in */
   if (!push_file) old_normal_screen = normal_screen;
@@ -5325,6 +5337,9 @@ static void close_game_aux(void)
   /* Flush all input keys */
   flush();
 
+  /* Easy more? */
+  if (easy_more) messages_easy(FALSE);
+	
   /* Screen no longer normal */
   normal_screen = FALSE;
 

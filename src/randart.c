@@ -3200,7 +3200,7 @@ static void choose_basic_theme(int a_idx)
 	    temp = 3 + randint(7) + potential / 2000;
 	    a_ptr->to_d += temp;
 	    a_ptr->to_h += temp;
-	    a_ptr->ac += 5 + randint(10) + potential / 1000;
+	    a_ptr->to_a += 5 + randint(10) + potential / 1000;
 
 	    /* Power over an element */
 	    temp = randint(4);
@@ -4187,10 +4187,13 @@ void alloc_percentages(int a_idx)
 	a_ptr->percent_res[i] = RES_LEVEL_BASE;
     }
 
-  /* Allocate percentages to immunities */
+  /* Allocate percentages and flags to immunities */
   for (i = 0; i < 4; i++)
     if (a_ptr->flags2 & (1L << (12 + i)))
-      a_ptr->percent_res[i] = 0;
+      {
+	a_ptr->percent_res[i] = 0;
+	a_ptr->flags2 |= (TR2_IM_ACID << i);
+      }
 }    
 
 

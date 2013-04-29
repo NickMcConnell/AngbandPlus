@@ -9011,6 +9011,7 @@ static void river_gen(void)
   int stage = p_ptr->stage;
   int last_stage = p_ptr->last_stage;
   int form_grids = 0;
+  int path;
   
   int form_feats[8] = {FEAT_TREE, FEAT_RUBBLE, FEAT_MAGMA, FEAT_WALL_SOLID, 
 		       FEAT_TREE, FEAT_QUARTZ, FEAT_NONE};
@@ -9032,6 +9033,9 @@ static void river_gen(void)
   
   /* Place 2 or 3 paths to neighbouring stages, place player -NRM- */
   alloc_paths(stage, last_stage);
+
+  /* Hack - remember the path in case it has to move */
+  path = cave_feat[p_ptr->py][p_ptr->px];
   
   /* Special boundary walls -- Top */
   i = 4;
@@ -9210,7 +9214,8 @@ static void river_gen(void)
   /* Hack - move the player out of the river */
   y = p_ptr->py;
   x = p_ptr->px;
-  while (cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER)
+  while ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER) ||
+	 (cave_feat[p_ptr->py][p_ptr->px] == FEAT_PERM_SOLID))
     p_ptr->px++;
 
   /* Place player if they had to move */
@@ -9218,6 +9223,11 @@ static void river_gen(void)
     {
       cave_m_idx[p_ptr->py][p_ptr->px] = -1;
       cave_m_idx[y][x] = 0;
+      cave_set_feat(y, x, path);
+      for (y = p_ptr->py; y > 0; y--)
+	if ((cave_feat[y][p_ptr->px] > FEAT_RUBBLE) && 
+	    (cave_feat[y][p_ptr->px] <= FEAT_PERM_SOLID))
+	  cave_set_feat(y, p_ptr->px, FEAT_FLOOR);
     }
   
   /* Basic "amount" */
