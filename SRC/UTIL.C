@@ -6,67 +6,15 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
- * source code are released under the Gnu Public License. See www.fsf.org
- * for current GPL license details. Addition permission granted to
- * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
 
 
 
-
-#ifndef HAS_MEMSET
-
-/*
- * For those systems that don't have "memset()"
- *
- * Set the value of each of 'n' bytes starting at 's' to 'c', return 's'
- * If 'n' is negative, you will erase a whole lot of memory.
- */
-char *memset(char *s, int c, huge n)
-{
-	char *t;
-	for (t = s; len--; ) *t++ = c;
-	return (s);
-}
-
-#endif
-
-
-
-#ifndef HAS_STRICMP
-
-/*
- * For those systems that don't have "stricmp()"
- *
- * Compare the two strings "a" and "b" ala "strcmp()" ignoring case.
- */
-int stricmp(cptr a, cptr b)
-{
-	cptr s1, s2;
-	char z1, z2;
-
-	/* Scan the strings */
-	for (s1 = a, s2 = b; TRUE; s1++, s2++)
-	{
-		z1 = FORCEUPPER(*s1);
-		z2 = FORCEUPPER(*s2);
-		if (z1 < z2) return (-1);
-		if (z1 > z2) return (1);
-		if (!z1) return (0);
-	}
-}
-
-#endif
-
-
 #ifdef SET_UID
 
-# ifndef HAS_USLEEP
+# ifndef HAVE_USLEEP
 
 /*
  * For those systems that don't have "usleep()" but need it.
@@ -109,7 +57,7 @@ int usleep(huge usecs)
 	return 0;
 }
 
-# endif
+# endif /* HAVE_USLEEP */
 
 
 /*
@@ -129,8 +77,9 @@ void user_name(char *buf, int id)
 	/* Look up the user name */
 	if ((pw = getpwuid(id)))
 	{
-		strcpy(buf, pw->pw_name);
-		buf[16] = '\0';
+		/* Get the first 15 characters of the user name */
+		strncpy(buf, pw->pw_name, 16);
+		buf[15] = '\0';
 
 #ifdef CAPITALIZE_USER_NAME
 		/* Hack -- capitalize the user name */
@@ -144,9 +93,38 @@ void user_name(char *buf, int id)
 	strcpy(buf, "PLAYER");
 }
 
+
+/*
+ * Find the users home directory.
+ */
+errr user_home(char *buf, int len)
+{
+	char *homedir;
+	struct passwd *pw;
+
+	/* Get the "HOME" environment variable */
+	homedir = getenv("HOME");
+
+	if (!homedir)
+	{
+		/* Get the directory from the passwd structure */
+		pw = getpwuid(getuid());
+
+		if (pw) homedir = pw->pw_dir;
+
+		/* Paranoia */
+		if (!homedir) return (-1);
+	}
+
+	/* Store the users home directory */
+	strncpy(buf, homedir, len);
+	buf[len-1] = '\0';
+
+	/* Success */
+	return (0);
+}
+
 #endif /* SET_UID */
-
-
 
 
 /*
@@ -183,7 +161,7 @@ void user_name(char *buf, int id)
 
 
 /*
- * Most of the "file" routines for "ACORN" should be in "main-acn.c"
+ * Most of the "file" routines for "ACORN" should be in "main-ros.c"
  */
 
 
@@ -205,6 +183,9 @@ errr path_parse(char *buf, int max, cptr file)
 	struct passwd	*pw;
 	char user[128];
 
+
+	/* Unused */
+	(void)max;
 
 	/* Assume no result */
 	buf[0] = '\0';
@@ -280,12 +261,14 @@ errr path_parse(char *buf, int max, cptr file)
 #endif /* SET_UID */
 
 
+#ifndef HAVE_MKSTEMP
+
 /*
  * Hack -- acquire a "temporary" file name if possible
  *
  * This filename is always in "system-specific" form.
  */
-errr path_temp(char *buf, int max)
+static errr path_temp(char *buf, int max)
 {
 	cptr s;
 
@@ -301,6 +284,8 @@ errr path_temp(char *buf, int max)
 	/* Success */
 	return (0);
 }
+
+#endif /* HAVE_MKSTEMP */
 
 
 /*
@@ -381,8 +366,40 @@ errr my_fclose(FILE *fff)
 	return (0);
 }
 
-
 #endif /* ACORN */
+
+
+#ifdef HAVE_MKSTEMP
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	int fd;
+
+	/* Prepare the buffer for mkstemp */
+	strncpy(buf, "/tmp/anXXXXXX", max);
+
+	/* Secure creation of a temporary file */
+	fd = mkstemp(buf);
+
+	/* Check the file-descriptor */
+	if (fd < 0) return (NULL);
+
+	/* Return a file stream */
+	return (fdopen(fd, "w"));
+}
+
+#else /* HAVE_MKSTEMP */
+
+FILE *my_fopen_temp(char *buf, int max)
+{
+	/* Generate a temporary filename */
+	if (path_temp(buf, max)) return (NULL);
+
+	/* Open the file */
+	return (my_fopen(buf, "w"));
+}
+
+#endif /* HAVE_MKSTEMP */
 
 
 /*
@@ -392,7 +409,7 @@ errr my_fclose(FILE *fff)
  *
  * Process tabs, strip internal non-printables
  */
-errr my_fgets(FILE *fff, char *buf, huge n)
+errr my_fgets(FILE *fff, char *buf, size_t n)
 {
 	huge i = 0;
 
@@ -422,11 +439,8 @@ errr my_fgets(FILE *fff, char *buf, huge n)
 				/* Hack -- require room */
 				if (i + 8 >= n) break;
 
-				/* Append a space */
-				buf[i++] = ' ';
-
-				/* Append some more spaces */
-				while (!(i % 8)) buf[i++] = ' ';
+				/* Append 1-8 spaces */
+				do { buf[i++] = ' '; } while (i % 8);
 			}
 
 			/* Handle printables */
@@ -456,8 +470,11 @@ errr my_fgets(FILE *fff, char *buf, huge n)
  *
  * Perhaps this function should handle internal weirdness.
  */
-errr my_fputs(FILE *fff, cptr buf, huge n)
+errr my_fputs(FILE *fff, cptr buf, size_t n)
 {
+	/* Unused paramter */
+	(void)n;
+
 	/* Dump, ignore errors */
 	(void)fprintf(fff, "%s\n", buf);
 
@@ -470,7 +487,7 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 
 
 /*
- * Most of the "file" routines for "ACORN" should be in "main-acn.c"
+ * Most of the "file" routines for "ACORN" should be in "main-ros.c"
  *
  * Many of them can be rewritten now that only "fd_open()" and "fd_make()"
  * and "my_fopen()" should ever create files.
@@ -636,7 +653,7 @@ errr fd_lock(int fd, int what)
 		if (lockf(fd, F_LOCK, 0) != 0) return (1);
 	}
 
-#  endif
+#  endif /* defined(F_ULOCK) && defined(F_LOCK) */
 
 # else
 
@@ -656,11 +673,16 @@ errr fd_lock(int fd, int what)
 		if (flock(fd, LOCK_EX) != 0) return (1);
 	}
 
-#  endif
+#  endif /* defined(LOCK_UN) && defined(LOCK_EX) */
 
-# endif
+# endif /* USG */
 
-#endif
+#else /* SET_UID */
+
+	/* Unused parameter */
+	(void)what;
+
+#endif /* SET_UID */
 
 	/* Success */
 	return (0);
@@ -692,27 +714,9 @@ errr fd_seek(int fd, long n)
 
 
 /*
- * Hack -- attempt to truncate a file descriptor
- */
-errr fd_chop(int fd, huge n)
-{
-	/* Verify the fd */
-	if (fd < 0) return (-1);
-
-#if defined(SUNOS) || defined(ULTRIX) || defined(NeXT)
-	/* Truncate */
-	ftruncate(fd, n);
-#endif
-
-	/* Success */
-	return (0);
-}
-
-
-/*
  * Hack -- attempt to read data from a file descriptor
  */
-errr fd_read(int fd, char *buf, huge n)
+errr fd_read(int fd, char *buf, size_t n)
 {
 	/* Verify the fd */
 	if (fd < 0) return (-1);
@@ -745,7 +749,7 @@ errr fd_read(int fd, char *buf, huge n)
 /*
  * Hack -- Attempt to write data to a file descriptor
  */
-errr fd_write(int fd, cptr buf, huge n)
+errr fd_write(int fd, cptr buf, size_t n)
 {
 	/* Verify the fd */
 	if (fd < 0) return (-1);
@@ -867,18 +871,24 @@ static int dehex(char c)
  *
  * To be safe, "buf" should be at least as large as "str".
  */
-void text_to_ascii(char *buf, cptr str)
+void text_to_ascii(char *buf, int len, cptr str)
 {
 	char *s = buf;
 
 	/* Analyze the "ascii" string */
 	while (*str)
 	{
+		/* Check if the buffer is long enough */
+		if (s >= buf + len - 1) break;
+
 		/* Backslash codes */
 		if (*str == '\\')
 		{
 			/* Skip the backslash */
 			str++;
+
+			/* Paranoia */
+			if (!(*str)) break;
 
 			/* Hack -- simple way to specify Escape */
 			if (*str == 'e')
@@ -916,6 +926,12 @@ void text_to_ascii(char *buf, cptr str)
 				*s++ = '\t';
 			}
 
+			/* Bell */
+			else if (*str == 'a')
+			{
+				*s++ = '\a';
+			}
+
 			/* Actual "backslash" */
 			else if (*str == '\\')
 			{
@@ -949,7 +965,12 @@ void text_to_ascii(char *buf, cptr str)
 		else if (*str == '^')
 		{
 			str++;
-			*s++ = (*str++ & 037);
+
+			if (*str)
+			{
+				*s++ = KTRL(*str);
+				str++;
+			}
 		}
 
 		/* Normal chars */
@@ -968,10 +989,8 @@ void text_to_ascii(char *buf, cptr str)
  * Hack -- convert a string into a printable form
  *
  * This function will not work on non-ascii systems.
- *
- * To be safe, "buf" should be at least four times as large as "str".
  */
-void ascii_to_text(char *buf, cptr str)
+void ascii_to_text(char *buf, int len, cptr str)
 {
 	char *s = buf;
 
@@ -979,6 +998,10 @@ void ascii_to_text(char *buf, cptr str)
 	while (*str)
 	{
 		byte i = (byte)(*str++);
+
+		/* Check if the buffer is long enough */
+		/* HACK - always assume worst case (hex-value + '\0') */
+		if (s >= buf + len - 5) break;
 
 		if (i == ESCAPE)
 		{
@@ -999,6 +1022,11 @@ void ascii_to_text(char *buf, cptr str)
 		{
 			*s++ = '\\';
 			*s++ = 't';
+		}
+		else if (i == '\a')
+		{
+			*s++ = '\\';
+			*s++ = 'a';
 		}
 		else if (i == '\n')
 		{
@@ -1517,9 +1545,9 @@ char (*inkey_hack)(int flush_first) = NULL;
  * any time.  These sub-commands could include commands to take a picture of
  * the current screen, to start/stop recording a macro action, etc.
  *
- * If "angband_term[0]" is not active, we will make it active during this
+ * If "term_screen" is not active, we will make it active during this
  * function, so that the various "main-xxx.c" files can assume that input
- * is only requested (via "Term_inkey()") when "angband_term[0]" is active.
+ * is only requested (via "Term_inkey()") when "term_screen" is active.
  *
  * Mega-Hack -- This function is used as the entry point for clearing the
  * "signal_count" variable, and of the "character_saved" variable.
@@ -1600,7 +1628,7 @@ char inkey(void)
 
 
 	/* Hack -- Activate main screen */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 
 	/* Get a key */
@@ -1624,7 +1652,7 @@ char inkey(void)
 			Term_fresh();
 
 			/* Hack -- activate main screen */
-			Term_activate(angband_term[0]);
+			Term_activate(term_screen);
 
 			/* Mega-Hack -- reset saved flag */
 			character_saved = FALSE;
@@ -1808,7 +1836,25 @@ void sound(int val)
  * Some code uses "zero" to indicate the non-existance of a quark.
  *
  * Note that "quark zero" is NULL and should never be "dereferenced".
+ *
+ * ToDo: Add reference counting for quarks, so that unused quarks can
+ * be overwritten.
+ *
+ * ToDo: Automatically resize the array if necessary.
  */
+
+
+/*
+ * The number of quarks (first quark is NULL)
+ */
+static s16b quark__num = 1;
+
+
+/*
+ * The array[QUARK_MAX] of pointers to the quarks
+ */
+static cptr *quark__str;
+
 
 /*
  * Add a new "quark" to the set of quarks.
@@ -1859,7 +1905,7 @@ cptr quark_str(s16b i)
 /*
  * Initialize the "quark" package
  */
-errr quark_init(void)
+errr quarks_init(void)
 {
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
@@ -1868,6 +1914,26 @@ errr quark_init(void)
 	return (0);
 }
 
+
+/*
+ * Free the "quark" package
+ */
+errr quarks_free(void)
+{
+	int i;
+
+	/* Free the "quarks" */
+	for (i = 1; i < quark__num; i++)
+	{
+		string_free(quark__str[i]);
+	}
+
+	/* Free the list of "quarks" */
+	FREE((void*)quark__str);
+
+	/* Success */
+	return (0);
+}
 
 
 /*
@@ -1910,6 +1976,47 @@ errr quark_init(void)
  * extremely efficient, both in space and time, for use with the Borg.
  */
 
+
+/*
+ * The next "free" index to use
+ */
+static u16b message__next;
+
+/*
+ * The index of the oldest message (none yet)
+ */
+static u16b message__last;
+
+/*
+ * The next "free" offset
+ */
+static u16b message__head;
+
+/*
+ * The offset to the oldest used char (none yet)
+ */
+static u16b message__tail;
+
+/*
+ * The array[MESSAGE_MAX] of offsets, by index
+ */
+static u16b *message__ptr;
+
+/*
+ * The array[MESSAGE_BUF] of chars, by offset
+ */
+static char *message__buf;
+
+/*
+ * The array[MESSAGE_MAX] of u16b for the types of messages
+ */
+static u16b *message__type;
+
+
+/*
+ * Table of colors associated to message-types
+ */
+static byte message__color[MSG_MAX];
 
 
 /*
@@ -1956,8 +2063,11 @@ u16b message_type(s16b age)
 {
 	s16b x;
 
-	/* Forgotten messages have no special color */
-	if ((age < 0) || (age >= message_num())) return (TERM_WHITE);
+	/* Paranoia */
+	if (!message__type) return (MSG_GENERIC);
+
+	/* Forgotten messages are generic */
+	if ((age < 0) || (age >= message_num())) return (MSG_GENERIC);
 
 	/* Get the "logical" index */
 	x = (message__next + MESSAGE_MAX - (age + 1)) % MESSAGE_MAX;
@@ -1968,11 +2078,37 @@ u16b message_type(s16b age)
 
 
 /*
+ * Recall the "color" of a message type
+ */
+byte message_type_color(u16b type)
+{
+	byte color = message__color[type];
+
+	if (color == TERM_DARK) color = TERM_WHITE;
+
+	return (color);
+}
+
+
+/*
  * Recall the "color" of a saved message
  */
 byte message_color(s16b age)
 {
-	return message__color[message_type(age)];
+	return message_type_color(message_type(age));
+}
+
+
+errr message_color_define(u16b type, byte color)
+{
+	/* Ignore illegal types */
+	if (type >= MSG_MAX) return (1);
+
+	/* Store the color */
+	message__color[type] = color;
+
+	/* Success */
+	return (0);
 }
 
 
@@ -2178,7 +2314,7 @@ void message_add(cptr str, u16b type)
 /*
  * Initialize the "message" package
  */
-errr message_init(void)
+errr messages_init(void)
 {
 	/* Message variables */
 	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
@@ -2196,6 +2332,16 @@ errr message_init(void)
 }
 
 
+/*
+ * Free the "message" package
+ */
+void messages_free(void)
+{
+	/* Free the messages */
+	FREE(message__ptr);
+	FREE(message__buf);
+	FREE(message__type);
+}
 
 
 /*
@@ -2279,6 +2425,10 @@ static void msg_flush(int x)
 	Term_erase(0, 0, 255);
 }
 
+
+static int message_column = 0;
+
+
 /*
  * Output a message to the top line of the screen.
  *
@@ -2306,30 +2456,33 @@ static void msg_flush(int x)
  */
 static void msg_print_aux(u16b type, cptr msg)
 {
-	static int p = 0;
 	int n;
 	char *t;
 	char buf[1024];
-	byte color = TERM_WHITE;
+	byte color;
+	int w, h;
 
+
+	/* Obtain the size */
+	(void)Term_get_size(&w, &h);
 
 	/* Hack -- Reset */
-	if (!msg_flag) p = 0;
+	if (!msg_flag) message_column = 0;
 
 	/* Message Length */
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (p && (!msg || ((p + n) > 72)))
+	if (message_column && (!msg || ((message_column + n) > (w - 8))))
 	{
 		/* Flush */
-		msg_flush(p);
+		msg_flush(message_column);
 
 		/* Forget it */
 		msg_flag = FALSE;
 
 		/* Reset */
-		p = 0;
+		message_column = 0;
 	}
 
 
@@ -2360,30 +2513,27 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Copy it */
-	strcpy(buf, msg);
+	strncpy(buf, msg, sizeof(buf));
+	buf[sizeof(buf)-1] = '\0';
 
 	/* Analyze the buffer */
 	t = buf;
 
-	/* Get the color of the message (if legal) */
-	if (message__color)
-		color = message__color[type];
-
-	/* HACK -- no "black" messages */
-	if (color == TERM_DARK) color = TERM_WHITE;
+	/* Get the color of the message */
+	color = message_type_color(type);
 
 	/* Split message */
-	while (n > 72)
+	while (n > (w - 8))
 	{
 		char oops;
 
 		int check, split;
 
 		/* Default split */
-		split = 72;
+		split = (w - 8);
 
 		/* Find the "best" split point */
-		for (check = 40; check < 72; check++)
+		for (check = (w / 2); check < (w - 8); check++)
 		{
 			/* Found a valid split point */
 			if (t[check] == ' ') split = check;
@@ -2412,19 +2562,13 @@ static void msg_print_aux(u16b type, cptr msg)
 	}
 
 	/* Display the tail of the message */
-	Term_putstr(p, 0, n, color, t);
-
-	/* Hack --- set up context help file */
-	strcpy(context_help_file,"messages.txt");
-
-	/* Hack --- set up context help search string */
-        sprintf(context_help_match, "Message: %s",t);
+	Term_putstr(message_column, 0, n, color, t);
 
 	/* Remember the message */
 	msg_flag = TRUE;
 
 	/* Remember the position */
-	p += n + 1;
+	message_column += n + 1;
 
 	/* Optional refresh */
 	if (fresh_after) Term_fresh();
@@ -2470,6 +2614,9 @@ void msg_format(cptr fmt, ...)
  */
 void message(u16b message_type, s16b extra, cptr message)
 {
+	/* Unused parameter */
+	(void)extra;
+
 	sound(message_type);
 
 	msg_print_aux(message_type, message);
@@ -2502,6 +2649,29 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
 }
 
 
+/*
+ * Print the queued messages.
+ */
+void message_flush(void)
+{
+	/* Hack -- Reset */
+	if (!msg_flag) message_column = 0;
+
+	/* Flush when needed */
+	if (message_column)
+	{
+		/* Print pending messages */
+		msg_flush(message_column);
+
+		/* Forget it */
+		msg_flag = FALSE;
+
+		/* Reset */
+		message_column = 0;
+	}
+}
+
+
 
 /*
  * Hack -- prevent "accidents" in "screen_save()" or "screen_load()"
@@ -2517,7 +2687,7 @@ static int screen_depth = 0;
 void screen_save(void)
 {
 	/* Hack -- Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Save the screen (if legal) */
 	if (screen_depth++ == 0) Term_save();
@@ -2535,7 +2705,7 @@ void screen_save(void)
 void screen_load(void)
 {
 	/* Hack -- Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Load the screen (if legal) */
 	if (--screen_depth == 0) Term_load();
@@ -2593,8 +2763,6 @@ void prt(cptr str, int row, int col)
 }
 
 
-
-
 /*
  * Print some (colored) text to the screen at the current cursor position,
  * automatically "wrapping" existing text (at spaces) when necessary to
@@ -2604,12 +2772,12 @@ void prt(cptr str, int row, int col)
  * calls to this function will work correctly.
  *
  * Once this function has been called, the cursor should not be moved
- * until all the related "c_roff()" calls to the window are complete.
+ * until all the related "text_out()" calls to the window are complete.
  *
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void c_roff(byte a, cptr str)
+void text_out_to_screen(byte a, cptr str)
 {
 	int x, y;
 
@@ -2638,6 +2806,8 @@ void c_roff(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			continue;
 		}
 
 		/* Clean up the char */
@@ -2702,15 +2872,106 @@ void c_roff(byte a, cptr str)
 
 
 /*
- * As above, but in "white"
+ * Write text to the given file and apply line-wrapping.
+ *
+ * Hook function for text_out(). Make sure that text_out_file points
+ * to an open text-file.
+ *
+ * Long lines will be wrapped on the last space before column 75,
+ * directly at column 75 if the word is *very* long, or when
+ * encountering a newline character.
+ *
+ * Buffers the last line till a wrap occurs.  Flush the buffer with
+ * an explicit newline if necessary.
  */
-void roff(cptr str)
+void text_out_to_file(byte attr, cptr str)
 {
-	/* Spawn */
-	c_roff(TERM_WHITE, str);
+	cptr r;
+
+	/* Line buffer */
+	static char roff_buf[256];
+
+	/* Current pointer into line roff_buf */
+	static char *roff_p = roff_buf;
+
+	/* Last space saved into roff_buf */
+	static char *roff_s = NULL;
+
+
+	/* Unused */
+	(void)attr;
+
+	/* Scan the given string, character at a time */
+	for (; *str; str++)
+	{
+		char ch = *str;
+		bool wrap = (ch == '\n');
+
+		if (!isprint(ch)) ch = ' ';
+
+		if (roff_p >= roff_buf + 75) wrap = TRUE;
+
+		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = TRUE;
+
+		/* Handle line-wrap */
+		if (wrap)
+		{
+			/* Terminate the current line */
+			*roff_p = '\0';
+
+			r = roff_p;
+
+			/* Wrap the line on the last known space */
+			if (roff_s && (ch != ' '))
+			{
+				*roff_s = '\0';
+				r = roff_s + 1;
+			}
+
+			/* Output the line */
+			fprintf(text_out_file, "%s\n", roff_buf);
+
+			/* Reset the buffer */
+			roff_s = NULL;
+			roff_p = roff_buf;
+			roff_buf[0] = '\0';
+
+			/* Copy the remaining line into the buffer */
+			while (*r) *roff_p++ = *r++;
+
+			/* Append the last character */
+			if (ch != ' ') *roff_p++ = ch;
+
+			continue;
+		}
+
+		/* Remember the last space character */
+		if (ch == ' ') roff_s = roff_p;
+
+		/* Save the char */
+		*roff_p++ = ch;
+	}
 }
 
 
+/*
+ * Output text to the screen or to a file depending on the selected
+ * text_out hook.
+ */
+void text_out(cptr str)
+{
+	text_out_c(TERM_WHITE, str);
+}
+
+
+/*
+ * Output text to the screen (in color) or to a file depending on the
+ * selected hook.
+ */
+void text_out_c(byte a, cptr str)
+{
+	text_out_hook(a, str);
+}
 
 
 /*
@@ -2745,9 +3006,8 @@ void clear_from(int row)
  * Return accepts the current buffer contents and returns TRUE.
  * Escape clears the buffer and the window and returns FALSE.
  *
- * Note that 'buf' must be able to hold 'len+1' characters, not just 'len'
- * characters, as might be expected.  That is, 'len' primarily refers to
- * the input, not the buffer itself.
+ * Note that 'len' refers to the size of the buffer.  The maximum length
+ * of the input is 'len-1'.
  */
 bool askfor_aux(char *buf, int len)
 {
@@ -2775,7 +3035,7 @@ bool askfor_aux(char *buf, int len)
 	if (x + len > 80) len = 80 - x;
 
 	/* Truncate the default entry */
-	buf[len] = '\0';
+	buf[len-1] = '\0';
 
 
 	/* Display the default answer */
@@ -2818,7 +3078,7 @@ bool askfor_aux(char *buf, int len)
 
 			default:
 			{
-				if ((k < len) && (isprint(ch)))
+				if ((k < len-1) && (isprint(ch)))
 				{
 					buf[k++] = ch;
 				}
@@ -2856,7 +3116,7 @@ bool get_string(cptr prompt, char *buf, int len)
 	bool res;
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 	/* Display prompt */
 	prt(prompt, 0, 0);
@@ -2924,7 +3184,7 @@ s16b get_quantity(cptr prompt, int max)
 		sprintf(buf, "%d", amt);
 
 		/* Ask for a quantity */
-		if (!get_string(prompt, buf, 6)) return (0);
+		if (!get_string(prompt, buf, 7)) return (0);
 
 		/* Extract a number */
 		amt = atoi(buf);
@@ -2956,9 +3216,6 @@ s16b get_quantity(cptr prompt, int max)
  * The "prompt" should take the form "Query? "
  *
  * Note that "[y/n]" is appended to the prompt.
- *
- * Hack -- make 0 say no and 7 say yes. (From
- * roguelike keyset finger positioning).
  */
 bool get_check(cptr prompt)
 {
@@ -2967,7 +3224,7 @@ bool get_check(cptr prompt)
 	char buf[80];
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 	/* Hack -- Build a "useful" prompt */
 	strnfmt(buf, 78, "%.70s[y/n] ", prompt);
@@ -2981,7 +3238,7 @@ bool get_check(cptr prompt)
 		ch = inkey();
 		if (quick_messages) break;
 		if (ch == ESCAPE) break;
-                if (strchr("YyNn07", ch)) break;
+		if (strchr("YyNn", ch)) break;
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
@@ -2989,7 +3246,7 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-        if ((ch != 'Y') && (ch != 'y') && (ch != '7')) return (FALSE);
+	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -3008,7 +3265,7 @@ bool get_com(cptr prompt, char *command)
 	char ch;
 
 	/* Paranoia XXX XXX XXX */
-	msg_print(NULL);
+	message_flush();
 
 	/* Display a prompt */
 	prt(prompt, 0, 0);
@@ -3109,7 +3366,7 @@ void request_command(bool shopping)
 		if (p_ptr->command_new)
 		{
 			/* Flush messages */
-			msg_print(NULL);
+			message_flush();
 
 			/* Use auto-command */
 			ch = (char)p_ptr->command_new;
@@ -3163,7 +3420,7 @@ void request_command(bool shopping)
 				}
 
 				/* Actual numeric data */
-				else if (ch >= '0' && ch <= '9')
+				else if (isdigit(ch))
 				{
 					/* Stop count at 9999 */
 					if (p_ptr->command_arg >= 1000)
@@ -3356,9 +3613,13 @@ uint damroll(uint num, uint sides)
 {
 	uint i, sum = 0;
 
+
+	/* HACK - rand_die(0) is undefined */
+	if (sides == 0) return (0);
+
 	for (i = 0; i < num; i++)
 	{
-		sum += (rand_int(sides) + 1);
+		sum += rand_die(sides);
 	}
 
 	return (sum);
@@ -3397,6 +3658,37 @@ bool is_a_vowel(int ch)
 	}
 
 	return (FALSE);
+}
+
+
+/*
+ * Convert a "color letter" into an "actual" color
+ * The colors are: dwsorgbuDWvyRGBU, as shown below
+ */
+int color_char_to_attr(char c)
+{
+	switch (c)
+	{
+		case 'd': return (TERM_DARK);
+		case 'w': return (TERM_WHITE);
+		case 's': return (TERM_SLATE);
+		case 'o': return (TERM_ORANGE);
+		case 'r': return (TERM_RED);
+		case 'g': return (TERM_GREEN);
+		case 'b': return (TERM_BLUE);
+		case 'u': return (TERM_UMBER);
+
+		case 'D': return (TERM_L_DARK);
+		case 'W': return (TERM_L_WHITE);
+		case 'v': return (TERM_VIOLET);
+		case 'y': return (TERM_YELLOW);
+		case 'R': return (TERM_L_RED);
+		case 'G': return (TERM_L_GREEN);
+		case 'B': return (TERM_L_BLUE);
+		case 'U': return (TERM_L_UMBER);
+	}
+
+	return (-1);
 }
 
 
@@ -3505,6 +3797,19 @@ bool repeat_pull(int *what)
 }
 
 
+void repeat_clear(void)
+{
+	/* Start over from the failed pull */
+	if (repeat__idx)
+		repeat__cnt = --repeat__idx;
+	/* Paranoia */
+	else
+		repeat__cnt = repeat__idx;
+
+	return;
+}
+
+
 /*
  * Repeat previous command, or begin memorizing new command.
  */
@@ -3556,7 +3861,7 @@ void repeat_check(void)
 byte gamma_table[256];
 
 /* Table of ln(x / 256) * 256 for x going from 0 -> 255 */
-static s16b gamma_helper[256] =
+static const s16b gamma_helper[256] =
 {
 	0, -1420, -1242, -1138, -1065, -1007, -961, -921, -887, -857, -830,
 	-806, -783, -762, -744, -726, -710, -694, -679, -666, -652, -640,
@@ -3610,7 +3915,7 @@ void build_gamma_table(int gamma)
 		 * value and diff have been scaled by 256
 		 */
 		n = 1;
-		value = 256 * 256;
+		value = 256L * 256L;
 		diff = ((long)gamma_helper[i]) * (gamma - 256);
 
 		while (diff)

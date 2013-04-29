@@ -6,51 +6,6 @@ allowing them to ignore water damage or falling into terrain. This
 requires a skill test as well for swim or climbing skill as
 appropriate, and is heavily penalised by armour.
 
-LIGHTING
-
-Allow monsters, objects, feature to light their location and adjacent
-locations.
-
-Have a routine unlit_grid(x,y) that iterates from x-2,y-2 to x+2,y+2,
-determining if there is an object, monster or terrain adjacent that can
-light the locations ajacent to x,y. Complications due to multiple
-objects in a stack, in particular, how do we determine which object,
-monster or feature we are removing (Maybe seperate routine for each)
-so that it does not get included in the unlit_grid routine. Or do we
-remove the item first.
-
-If we drop a torch or lantern from when we are wielding it, we consider
-it lit. Should we consider permalit artifacts to always be lit, or only
-be lit when we wield them?
-
-Monsters that are GLOWS are always lit. Monsters that are HAVE_LIT have
-a radius 1 light. To prevent problems "dragging" light into a room
-
-FOG OF WAR
-
-Have anti-detection rooms and anti-telepathy rooms. Also perma-dark
-rooms, anti-magic rooms etc.
-
-NEW SPELL BOOKS/SPELLS
-
-Defined spells with s_info file including area of effect/range/damage
-progression.
-
-In particular, we need generate create an object spells, generate
-create a feature spells, generate bolt/beam/ball/wall (Line running
-perpendicular to direction chosen)/shield (All adjacent locations)/
-flood (Square area) spells. We should also have temporary object spells
-which create a wielded object, that may not be unwielded/sold and which
-is destroyed when the time out field drops to zero. This allows various
-temporary blade spells, Continual Light/Mage Light, Psychic Crown
-(Telepathy) and other effects to be generated.
-
-Note all summoned/charmed creatures are set to Betray the caster at the
-earliest moment.
-
-Note sleep/slow/confuse/scare spells should be improved in
-effectiveness against uniques and other monsters.
-
 
 MONSTER REVISIONS
 
@@ -64,249 +19,13 @@ Unimplemented flags ignored.
 Template for monster variables specified at start of r_info file.
 Unimplemented variables ignored.
 
-Allow monsters to attack with objects they carry if they hit, and use
-objects they carry if they cast spells. 
 Allow monsters to have all spells from s_info file.
 Allow monsters to target ball spells next to you/not shoot friends with
 bolts.
-Monsters have IS_LITE, HAS_LITE_1, HAS_LITE_2 flags and NEED_LITE flags,
-but this is only used if the option Monsters carry lights is selected.
 
 NEW MONSTERS
-,
-Pink mushroom patch (LOSE_STR, MULTIPLY)
-Brown mushroom patch (LOSE_CHA)
-Green mushroom patch (LOSE_WIS)
-Black mushroom patch (LOST_INT)
-White mushroom patch (COLD)
-Blue mushroom patch (ELEC)
-Red mushroom patch (FIRE)
-Explodestool (EXPLODE)
-Copper mushroom patch (LOSE_DEX)
-Silver mushroom patch (HURT_LITE)
-Gold mushroom patch (HALLUC)
-Wrinkled mushroom patch (LOSE_ALL)
-Rotting mushroom patch (EXP_20)
-Slimy mushroom patch (ACID)
-
-a
-Worker ant (Use existing soldier)
-Guardian ant
-Giant green ant
-Giant copper ant (DISENCHANT)
-Giant silver ant (EAT_LITE)
-Giant gold ant (STUN)
-Giant brass ant (HALLUC)
-Giant bronze ant (CONFUSE)
-Giant driver ant
-
-A
-The Forgotten
-The Deluded
-The Deceived
-The Misbegotten
-The Bewitched
-The Fallen
-The Damned
-
-b
-Giant white bat
-Giant black bat
-Giant grey bat
-White dragon bat
-Black dragon bat
-Brass dragon bat
-Silver dragon bat
-Bronze dragon bat
-Gold dragon bat
-Copper dragon bat
-Doom bat
-Hell bat
-Giant vampire bat
-Werebat
-Demonbat
-
-B
-Raven
-Falcon
-Eagle
-Giant raven
-Giant falcon
-Giant owl
-Giant eagle
-Mirkwood raven
-Werebird
-Hell hawk
-Demonbird
-
-c
-Giant black centipede
-Giant green centipede
-Giant red centipede
-Giant blue centipede
-Giant pink centipede
-Metallic copper centipedes
-Metallic silver centipedes
-Metallic brass centipedes
-Metallic gold centipedes
-Metallic bronze centipedes
-Night crawler
-Cave crawler
-Dungeon crawler
-Grave crawler
-Crypt crawler
-Mirkwood crawler
-Werecrawler
-Demoncrawler
-Hell crawler
-
-C
-Werejackel
-Guard dog
-Wild dog
-Giant jackel
-Hyena
-Hyenadon
-Werehyena
-Hyenawere
-Giant hyena
-Black wolf
-Grey wolf
-Dire wolf
-Mirkwood wolf
-Giant wolf
-Greater werewolf
-Werewolf warrior
-Werewolf priest
-Werewolf mage
-Werewolf sorceror
-Demondog
-
-d
-Baby copper dragon (ACID, DISENCHANT)
-Baby silver dragon (COLD, NEXUS)
-Baby bronze dragon (FIRE, CONFUSION)
-Baby gold dragon (POISON, SOUND)
-Baby brass dragon (ELEC, CHAOS)
-Baby land dragon (FIRE, ACID)
-Baby sea dragon (ACID, POISON)
-Baby war dragon (POISON, FIRE)
-Baby violet dragon (PLASMA)
-Baby yellow dragon (METEOR)
-Baby brown dragon (SHARD)
-Baby amethyst dragon (TIME)
-Baby diamond dragon (MANA)
-Baby emerald dragon (WALL)
-Baby sapphire dragon (GRAVITY)
-Baby topaz dragon (INERTIA)
-Baby shimmering dragon (LITE, DARK)
-Young copper dragon (ACID, DISENCHANT)
-Young silver dragon (COLD, NEXUS)
-Young bronze dragon (FIRE, CONFUSION)
-Young gold dragon (POISON, SOUND)
-Young brass dragon (ELEC, CHAOS)
-Young land dragon (FIRE, ACID)
-Young sea dragon (ACID, POISON)
-Young war dragon (POISON, FIRE)
-Young violet dragon (PLASMA)
-Young yellow dragon (METEOR)
-Young brown dragon (SHARD)
-Young amethyst dragon (TIME)
-Young diamond dragon (MANA)
-Young emerald dragon (WALL)
-Young sapphire dragon (GRAVITY)
-Young topaz dragon (INERTIA)
-Young shimmering dragon (LITE, DARK)
-Mature copper dragon (ACID, DISENCHANT)
-Mature silver dragon (COLD, NEXUS)
-Mature bronze dragon (FIRE, CONFUSION)
-Mature gold dragon (POISON, SOUND)
-Mature brass dragon (ELEC, CHAOS)
-Mature land dragon (FIRE, ACID)
-Mature sea dragon (ACID, POISON)
-Mature war dragon (POISON, FIRE)
-Mature violet dragon (PLASMA)
-Mature yellow dragon (METEOR)
-Mature brown dragon (SHARD)
-Mature amethyst dragon (TIME)
-Mature diamond dragon (MANA)
-Mature emerald dragon (WALL)
-Mature sapphire dragon (GRAVITY)
-Mature topaz dragon (INERTIA)
-Mature shimmering dragon (LITE, DARK)
-
-D
-Old copper dragon (ACID, DISENCHANT)
-Old silver dragon (COLD, NEXUS)
-Old bronze dragon (FIRE, CONFUSION)
-Old gold dragon (POISON, SOUND)
-Old brass dragon (ELEC, CHAOS)
-Old land dragon (FIRE, ACID)
-Old sea dragon (ACID, POISON)
-Old war dragon (POISON, FIRE)
-Old violet dragon (PLASMA)
-Old yellow dragon (METEOR)
-Old brown dragon (SHARD)
-Old amethyst dragon (TIME)
-Old diamond dragon (MANA)
-Old emerald dragon (WALL)
-Old sapphire dragon (GRAVITY)
-Old topaz dragon (INERTIA)
-Old shimmering dragon (LITE, DARK)
-Ancient copper dragon (ACID, DISENCHANT)
-Ancient silver dragon (CAncient, NEXUS)
-Ancient bronze dragon (FIRE, CONFUSION)
-Ancient gold dragon (POISON, SOUND)
-Ancient brass dragon (ELEC, CHAOS)
-Ancient land dragon (FIRE, ACID)
-Ancient sea dragon (ACID, POISON)
-Ancient war dragon (POISON, FIRE)
-Ancient violet dragon (PLASMA)
-Ancient yellow dragon (METEOR)
-Ancient brown dragon (SHARD)
-Ancient amethyst dragon (TIME)
-Ancient diamond dragon (MANA)
-Ancient emerald dragon (WALL)
-Ancient sapphire dragon (GRAVITY)
-Ancient topaz dragon (INERTIA)
-Ancient shimmering dragon (LITE, DARK)
-Great sea wyrm
-Great plague wyrm
-Great celestial wyrm
-Great Wyrm of Time and Space
-Great Wyrm of the World
-Great Wyrm of Power
-
-e
-Blinking eye
-Discharger eye
-Nexus eye
-Blind eye
-Wizard eye
-Undead eye
-Chaos eye
-Gazer
-Watcher
-Voyeur
-Spectator
-Hell eye
-Demoneye
-Nighteye
 
 E
-Water weird
-Water witch
-Fire bat
-Fire snake
-Fire bird
-Fire lizard
-Unseen servant
-Hidden tracker
-Silent killer
-Magma spirit
-Smoke spirit
-Ooze spirit
-Ice spirit
 Djinn
 Dao
 Efreet
@@ -350,24 +69,7 @@ Demonfly
 Werefly
 
 g
-Sandstone golem
-Jade golem
-Obsidian golem
-Marble golem
-Copper golem
-Silver golem
-Gold golem
-Brass golem
-Bronze golem
-Gold-plated golem
-Amber golem
-Coal golem
-Magma golem
-Quartz golem
-Limestone golem
-Shale golem
-Ice golem
-Brass monkey
+
 Mechanism
 Automaton
 Clockwork avian
@@ -383,43 +85,6 @@ Clockwork worm
 
 G
 Wendigo
-Premonition
-Deja vu
-Vision
-Phantasm
-Apparition
-Haunt
-Mirage
-Spook
-Fright
-Chill
-Shiver
-Reflection
-Idolan
-Delirium
-Terror
-Zeitgeist
-Drowned soul
-Hungry soul
-Thirsty soul
-Unborn soul
-Dying soul
-Bitter soul
-Hateful soul
-Dreadful soul
-Ghastly soul
-Ghoulish soul
-Gaunt soul
-Forgotten soul
-Wailing spirit
-Crying spirit
-Shrieking spirit
-Mumbling spirit
-Whispering spirit
-Cackling spirit
-Gibbering spirit
-Howling spirit
-Screaming spirit
 
 h
 Boggle
@@ -440,119 +105,24 @@ Sirine
 Mermaid
 Merman
 Selkie
-Sneaky looking gnome
-Gnome priest
-Gnome archer
-Gnome warrior
-Gnome thief
-Gnome rogue
-Gnome warrior mage
-Gnome sorceror
-Gnome wizard
-Gnome enchanter
-Gnome illusionist
-Gnome captain
-Gnome druid
-Gnome lord
-Dark elven archer
-Dark elven thief
-Dark elven warrior mage
-Dark elven sorceror
-Dark elven rogue
-Surly looking dwarf
-Dwarven archer
-Dwarven warrior
-Dwarven priest
-Dwarven mage
-Dwarven high priest
-Dwarven captain
-Dwarven thief
-Dwarven sergeant
-Dwarven lord
-Haughty looking elf
-Elven archer
-Elven thief
-Elven rogue
-Elven warrior
-Elven mage
-Elven wizard
-Elven high priest
-Elven druid
-Elven sorceror
-Elven master archer
-Elven captain
-Elven lord
-High elf wizard
-High elf warrior
-High elf druid
-High elf priest
-High elf lord
-Grey elf priest
-Grey elf wizard
-Grey elf lord
-Wood elf archer
-Wood elf thief
-Wood elf druid
-Wood elf lord
 
 H
-Clear horror
-Hooked horror
-Tentacled horror
-Fanged horror
-Spiny horror
-Clawed horror
-Toothy horror
-Scaly horror
-Hairy horror
-Wrinkled horror
-Hell horror
-Demonhorror
-Horned horror
-Rotting horror
-Warty horror
-Hunting horror
 
 i
-Yellow icky thing
-Orange icky thing
-Red icky thing
-Black icky thing
-Pink icky thing
-Brown icky thing
 Gelatinous icky thing
 Squelching icky thing
 
 I
-Giant brown locust
-Giant green locust
-Giant black locust
-Giant grey locust
-Giant yellow locust
 Giant grub
 Giant termite worker
 Giant termite soldier
 Giant termite guardian
 Giant termite queen
-Giant bee
-Giant hornet
-Giant wasp
 Hell hornet
 Demonbee
 Demonflea
 
 j
-Green slime (POISON)
-Red slime
-Pink slime (LOSE_STR)
-Black slime (LOSE_ALL)
-Yellow slime (EAT_FOOD)
-Purple slime (LOSE_CON)
-White slime 
-Blue slime (DISENCHANT)
-Brown slime (COLD)
-Clear slime
-Silver slime (EAT_LITE)
 Clear jelly
 Red jelly
 Orange jelly
@@ -572,49 +142,6 @@ Grey ooze
 Clear ooze
 Silver ooze
 
-J
-Large green snake
-Large red snake
-Large copper snake
-Large silver snake
-Large gold snake
-Large black snake
-Large blue snake
-Large brass snake
-Large bronze snake
-Large iridescent snake
-Giant green snake
-Giant grey snake
-Giant white snake
-Giant yellow snake
-Giant blue snake
-Giant silver snake
-Giant copper snake
-Giant gold snake
-Giant black snake
-Giant brass snake
-Giant bronze snake
-Giant iridescent snake
-Boa constrictor
-Sea snake
-Sea serpent
-Hell snake
-
-k
-Black kobold
-Grey kobold
-Kobold warrior
-Kobold archer
-Kobold engineer
-Kobold mage
-Kobold priest
-Kobold witchdoctor
-Kobold shaman
-Kobold lord
-Kobold captain
-Kobold sergeant
-Kobold assassian
-
 K
 Killer borer beetle
 Killer green beetle
@@ -630,193 +157,12 @@ Giant grey louse
 Giant yellow louse
 Giant green louse
 
-L
-Ghoul
-Night ghoul
-Death ghoul
-Nether ghoul
-Black ghoul
-Grave ghoul
-Pit ghoul
-Crypt ghoul
-Emporer ghoul
-Guardian ghoul
-Spirit ghoul
-Master ghoul
-Forest ghoul
-Mountain ghoul
-Bog ghoul
-River ghoul
-Tunnel ghoul
-Ghast
-Night ghast
-Death ghast
-Nether ghast
-Black ghast
-Grave ghast
-Crypt ghast
-Pit ghast
-Gaunt
-Night gaunt
-Death gaunt
-Nether gaunt
-Black gaunt
-Grave gaunt
-Crypt gaunt
-Pit gaunt
-Gaurdian gaunt
-Spirit gaunt
-Night lich
-Death lich
-Nether lich
-Black lich
-Pit lich
-Crypt lich
-Grave lich
-Spirit lich
-Gorgolich
-Emporer lich
-Demilich
-Guardian lich
-Grey reaver
-White reaver
-Dark reaver
-Night reaver
-Gaunt reaver
-Death reaver
-
 m
-Black mold (HIGH POISON)
-White mold (POISON)
-Blue mold (COLD)
-Wrinkled mold (LOSE_ALL)
-Slimy mold
-Warty mold
 Sticky mold
 Scaly mold
 Spiny mold
 Rotting mold
 
-M
-6-headed hydra
-8-headed hydra
-10-headed hydra
-12-headed hydra
-13-headed hydra
-
-n
-White naga
-Grey naga
-Yellow naga
-Blue naga
-Sea naga
-River naga
-Water naga
-Emporer naga
-
-o
-Orc witchdoctor
-Orc warrior
-Orc soldier
-Orc king
-Orc captain
-Orc sergeant
-Orc chieftan
-Orc mage
-Orc priest
-Orc archer
-Green orc
-Mountain orc
-Forest orc
-Mirkwood orc
-Swamp orc
-River orc
-Night orc
-Grey orc
-Orc mechanic
-Orc engineer
-Orc assassin
-Half orc thief
-Half orc assassin
-Half orc warrior
-Half orc priest
-Half orc mage
-Uruk captain
-Uruk shaman
-Uruk warrior
-Uruk cheiftan
-Uruk mage
-Uruk priest
-
-O
-Green ogre
-Mountain ogre
-Grey ogre
-Forest ogre
-Mirkwood ogre
-Swamp ogre
-Night ogre
-Ogre witchdoctor
-Ogre warrior
-Ogre captain
-Ogre chieftan
-Ogre priest
-Ogre archer
-Half ogre
-
-p
-Neanderthal
-Neanderthal shaman
-Neanderthal witchdoctor
-Neanderthal warrior
-Neanderthal hunter
-Neanderthal chieftan
-Archer
-Mercenary
-Soldier
-Rogue
-Novice thief
-Master archer
-Novice druid
-Warrior mage
-Novice warrior mage
-Seedy looking human
-Chronomancer
-Pyromancer
-Hydromancer
-Geomancer
-King
-Baron
-Count
-Bishop
-Black bishop
-Black baron
-Dark knight
-Grey knight
-Green knight
-Red knight
-Blue knight
-Jade mystic
-Pearl mystic
-
-P
-Mountain giant
-Water giant
-Forest giant
-Swamp giant
-River giant
-Green giant
-Grey giant
-Black giant
-Sea giant
-Red giant
-Blue giant
-Night giant
-Firbolg
-Formian
-Two-headed giant
-Cyclops
-Half giant
 
 q
 Giant weasel
@@ -835,41 +181,6 @@ Giant seahorse
 Black mare
 Death mare
 Grey mare
-
-Q
-
-r
-Giant brown mouse
-Giant field mouse
-Giant grey mouse
-Giant black mouse
-Giant ship rat
-Giant black rat
-Giant pink rat
-
-R
-Giant blue frog
-Giant yellow frog
-Giant brown frog
-Giant black frog
-Giant grey frog
-Giant pink toad
-Giant green toad
-Giant yellow toad
-Giant brown toad
-Giant black toad
-Black lizard
-Werelizard
-Lizardman
-Lizardman witchdoctor
-Lizardman shaman
-Lizardman warrior
-Lizardman chieftan
-Troglodyte
-Troglodyte witchdoctor
-Troglodyte shaman
-Troglodyte warrior
-Troglodyte chieftan
 
 s
 Floating claw
@@ -920,41 +231,6 @@ Giant green tick
 Giant black scorpion
 Giant white scorpion
 Giant green scorpion
-
-t
-Town crier
-Watchman
-Guard
-Constable
-Sheriff
-Merry goodwife
-Friendly child
-Rustic farmer
-Starving wretch
-Crosseyed mage
-Bumbling priest
-
-T
-River troll
-Rock troll
-Mountain troll
-Swamp troll
-Pit troll
-Mirkwood troll
-Green troll
-Night troll
-Black troll
-Grey troll
-Hill troll
-Sea troll
-Bog troll
-Guardian troll
-Giant troll
-Giant 2-headed troll
-Troll shaman
-Troll witchdoctor
-Troll warrior
-Troll captain
 
 u
 Night hag
@@ -1014,8 +290,6 @@ Tentacled demon
 Rotting demon
 Warty demon
 Slimy demon
-
-v
 
 V
 Kobold vampire
@@ -1306,16 +580,23 @@ From q_info.txt file.
 
 #Quest structure.
 
+#Not implemented yet, but a pool for ideas.
+
 #N:num:name (name is preceeded by 'You have ' in list of quests.)
 #U:race assigning quest
-#D:description
-#L:level
+#T:town:depth
 #Q:quest number completed?
 #A:artifact given by player?
 #K:item given by player?
 #R:race:num killed (0 for seen) (up to 4 lines)
 #G:item:ego item:artifact:experience gifted to player
-#F:monster flag change (LEAVING | ENEMY | ALLY)
+#S:summon race (summons this race, done first. Picks a random location on map.)
+#X:execute race (this kills uniques even if not on level)
+#L:leaving race (set to leaving)
+#E:enemy race (set to become enemies)
+#F:friendly race (set to allies)
+#D:description
+
 
 # Random quests need to be balanced somehow... they usually use 3 lines
 # for given, failed and completed, although failed is optional...
@@ -1354,7 +635,7 @@ N:1:been told Farmer Maggot's story.
 U:14
 D:seems sad about something.
 G:0:0:0:1
-F:ALLY
+F:14
 
 # More talking...
 
@@ -1373,7 +654,8 @@ R:51:1
 R:52:1
 R:919:1
 D:tells you to get off his land.
-F:ENEMY | LEAVING
+L:14
+E:14
 G:0:0:0:0
 
 # Have we seen the dogs and not killed all of them?
@@ -1395,40 +677,130 @@ N:5:completed the Farmer Maggot quests.
 U:14
 K:28
 D:seems just a little happier.
-F:ALLY | LEAVING
+F:14
+L:14
 G:266:0:0:120
 
+
+#Gandalf the Grey fights Durin's bane.
+#N::says 'You must not pass. You must not pass!'
+#S:Durin's bane.
+
+#And gets killed, of course.
+
+
+# Death of Boromir
+
+#If we are the ring bearer, he asks us for the ring, and attacks us if we do not give it to him.
+
+#N::asks you for the One Ring.
+#U:xxx
+
+#If we are not, then he staggers out of the forest and dies.
+
+#N::gasps 'Orcs. They came from the forest.' and falls to the ground filled with arrows, and bleeding.
+#U:xxx
+#T:Perth Galen
+#S:Uruk_hai Captain
+#X:xxx (Kill Boromir)
+
+# Faramir, Guardian of Ilithien
+
+#N::says 'You are a trespasser here. Give us one reason, why we should not kill you?'
+#T:Ilithien:1
+#U:xxx
+
+#Attack player if Boromir has the ring, as he is under the influence of the ring.
+
+#N::says 'Boromir was here. He warned us against you.'
+#F:xxx
+
+#N::says 'Boromir dead? This rests heavy on my heart. But any friend of Boromir's is a friend of mine.'
+#U:xxx
+#R:Boromir:1
+#F:xxx
+
+#N::says 'You have freedom to take what supplies you need for the journey ahead.'
+#R:
+#L:xxx
+
+#N::says 'Any friend of Gandalf's is at least to be permitted to live. You have freedom to rest here a while.'
+#R:
+#We don't leave, so stores remain locked.
+
+# Death of Faramir --- happens in Minas Tirith
+
+#N::is carried in grievously injured, by Gandalf.
+#U:xxx
+#S:yyy (Somebody else).
+#X:xxx
+
+# Denethor's grief
+#N::lies weeping over the body of Faramir lain on a wooden pyre. He cries 'My son. My son...'.
+#U:xxx
+#R:xxx
+
+# Denethor's grief
+#N::says 'Give me fire. Give me fire for his body. I must burn him.'
+#U:xxx
+#Q:-1
+
+# Denethor's grief
+#N::says to Gandalf. 'You, you did this. You have killed my sons. I hold you responsible...'
+#U:xxx
+#Q:-1
+#E:xxx
+#S:xxx
+
+# Battle of Five Armies
+# Battle at Hornburg
+
+#Use quests to generate the armies. This way, we have problems if we kill our allied uniques, but
+#it's easier if we kill some enemy uniques.
 
 
 # One Ring quest
 
-N:100:been asked for 'My precious' by Smeagol.
-U:68
-D:says 'Where'sss my preciousss... doesss it have it?'
-G:0:0:0:100
-F:ALLY
+#This means we get the ring at the start, and play the quest ourselves.
+#Is it unbalanced having the One Ring all the way through??
 
-N:101:given Sting to Frodo.
-U:xxx
-A:88
-D:says 'Its too heavy a burden for me to bear, anymore.'
-G:0:0:13:10000
-F:ALLY | LEAVING
+#If we give the One Ring to Boromir, or anyone else except Gollum, we end up with a super-Sauron
+#equally tough as Morgoth. Also various other points are triggered. ie under some circumstances
+#Boromir does not die, so Faramir never becomes our friend, and we do not access Ilithien with
+#out killing him. Similiarly, if we kill various uniques, we have problems.
 
-N:102:given the One Ring to Bilbo.
-U:xxx
-A:13
-D:says 'No, it's not for me. Not now.'
-G:0:0:13:50000
-F:ALLY | LEAVING
+#The ring quest also causes us problems at various points on the road.
 
-N:103:given the One Ring to Smeagol.
-U:68
-A:13
-L:100
-D:says 'My precious!'
-G:0:0:0:100000
-F:ENEMY | LEAVING
+#N:6:been asked for 'My precious' by Smeagol.
+#U:68
+#D:says 'Where'sss my preciousss... doesss it have it?'
+#G:0:0:0:100
+#F:68
+
+#N:7:given Sting to Frodo.
+#U:xxx
+#A:88
+#D:says 'Its too heavy a burden for me to bear, anymore.'
+#G:0:0:13:10000
+#F:xxx
+#L:xxx
+
+#N:102:given the One Ring to Bilbo.
+#U:xxx
+#A:13
+#D:says 'No, it's not for me. Not now.'
+#G:0:0:13:50000
+#F:xxx
+#L:xxx
+
+#N:103:given the One Ring to Smeagol.
+#U:68
+#A:13
+#L:100
+#D:says 'My precious!'
+#G:0:0:0:100000
+#E:68
+#L:68
 
 
 FRIENDLY MONSTERS/UNIQUES:

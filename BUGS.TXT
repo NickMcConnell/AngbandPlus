@@ -1,9 +1,3 @@
-28-02-2002
-- For some reason, we are crashing sometimes when we die, under many
-circumstances. This has the effect of preserving the characters life.
-- We are crashing if you have to reinitialise your data files when you
-have a saved character.
-
 25-02-2002
 - Cannot generate all objects to test in wizard mode because there are
 too many (Potions/scrolls).

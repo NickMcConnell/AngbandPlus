@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -21,9 +21,7 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h"
- * and the variable initialization file "variable.c".  If you change
- * anything in "variable.c", you only need to recompile that file.
+ * Note: Also examine the "system" configuration file "h-config.h".
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -46,13 +44,6 @@
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
-
-
-/*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
 
 
 /*
@@ -177,7 +168,8 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/*#define ALLOW_BORG*/
+/* #define ALLOW_BORG */
+
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -189,6 +181,10 @@
  */
 #define ALLOW_SPOILERS
 
+/*
+ * OPTION: Compile in scripting support
+ */
+#define USE_SCRIPT
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -231,24 +227,10 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow object memory
- */
-#define ALLOW_OBJECT_INFO
-
-/*
  * OPTION: Expand object memory. This may be a performance hit on older
  * machines.
  */
-#ifdef ALLOW_OBJECT_INFO
 #define ALLOW_OBJECT_INFO_MORE
-#endif
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -272,6 +254,12 @@
  */
 #define ALLOW_EASY_FLOOR
 
+
+/*
+ * OPTION: Delay the loading of the "f_text" array until it is actually
+ * needed, saving ~1K, since "feature" descriptions are unused.
+ */
+#define DELAY_LOAD_F_TEXT
 
 /*
  * OPTION: Delay the loading of the "k_text" array until it is actually
@@ -311,47 +299,44 @@
 
 
 /*
- * Allow "Wizards" to yield "high scores"
+ * OPTION: Allow "Wizards" to yield "high scores"
  */
 /* #define SCORE_WIZARDS */
 
 /*
- * Allow "Borgs" to yield "high scores"
+ * OPTION: Allow "Borgs" to yield "high scores"
  */
-/*#define SCORE_BORGS*/
+/* #define SCORE_BORGS */
 
 /*
- * Allow "Cheaters" to yield "high scores"
+ * OPTION: Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
 
+
+
 /*
- * OPTION: Support monster flow code.
+ * OPTION: Allow use of the "flow_by_smell" and "flow_by_sound"
+ * software options, which enable "monster flowing".
  */
 #define MONSTER_FLOW
 
 
 /*
- * OPTION: Support monster spell ai code.
+ * OPTION: Allow use of the "smart_monsters" and "smart_packs"
+ * software options, which attempt to make monsters smarter.
+ *
+ * AI code by Keldon Jones (keldon@umr.edu), modified by Julian
+ * Lighton (jl8e@fragment.com).
  */
 #define MONSTER_AI
 
-
-/*
- * OPTION: Support monster lite code.
- */
-#define MONSTER_LITE
 
 /*
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
 
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
 
 /*
  * OPTION: Use the "complex" wall illumination code
@@ -391,6 +376,11 @@
  */
 #define GJW_RANDART
 
+/*
+ * OPTION: Allow the use of 'pretty' character names for various class + style combinations
+ */
+#define USE_CLASS_PRETTY_NAMES
+
 
 /*
  * OPTION: Allow the use of "sound" in various places.
@@ -404,14 +394,7 @@
 
 
 /*
- * OPTION: Allow the use of 'pretty' character names for various class + style combinations
- */
-#define USE_CLASS_PRETTY_NAMES
-
-
-
-/*
- * OPTION: Hack -- Macintosh stuff
+ * Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
 
@@ -422,7 +405,7 @@
 
 
 /*
- * OPTION: Hack -- Windows stuff
+ * Hack -- Windows stuff
  */
 #ifdef WINDOWS
 
@@ -433,7 +416,7 @@
 
 
 /*
- * OPTION: Hack -- EMX stuff
+ * Hack -- EMX stuff
  */
 #ifdef USE_EMX
 
@@ -447,10 +430,14 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final "slash" is
- * required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.
+ *
+ * The configure script overrides this value.  Check the "--prefix=<dir>"
+ * option of the configure script.
+ *
+ * This value will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessable.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -462,7 +449,16 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif
+#endif /* DEFAULT_PATH */
+
+
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+#define PRIVATE_USER_PATH "~/.angband"
+#endif /* SET_UID */
 
 
 /*
@@ -470,16 +466,8 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID */
 
-/*
- * Allow players on UNIX systems to keep a ".angband.prf" user pref
- * file in their home-directory.
- *
- * WARNING - This may allow bypassing of some of the "security"
- * compilation options and may be a security risk!
- */
-#define ALLOW_PREF_IN_HOME
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -494,6 +482,18 @@
 
 
 /*
+ * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
+ * the '-d<what>=<path>' command line option (except for '-du=<path>').
+ *
+ * This prevents cheating in multi-user installs as well as possible
+ * security problems when running setgid.
+ */
+#ifdef SET_UID
+#define FIXED_PATHS
+#endif /* SET_UID */
+
+
+/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
@@ -504,7 +504,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"andrewdoull@hotmail.com"
+#define MAINTAINER	"rr9@angband.org"
 
 
 /*
@@ -551,17 +551,15 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef MONSTER_AI
-# undef MONSTER_LITE
 # undef DELAY_LOAD_R_TEXT
+# undef ALLOW_OBJECT_INFO_MORE
 # undef USE_CLASS_PRETTY_NAMES
 # define DELAY_LOAD_R_TEXT
 #endif
@@ -586,12 +584,9 @@
 
 /*
  * Allow the Borg to use graphics.
- *
- * XXX - Turned off by default since the Borg crashs when the graphics
- * mode changes after the Borg is initialized.
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-/*#  define ALLOW_BORG_GRAPHICS*/
+#  define ALLOW_BORG_GRAPHICS
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */

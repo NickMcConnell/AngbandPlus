@@ -77,20 +77,20 @@ static int check_hit(int power, int level)
 	/* Total armor */
 	ac = p_ptr->ac + p_ptr->to_a;
 
-        /* Some rooms make the player vulnerible */
-        if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-        {
-                /* Special rooms affect some of this */
-                int by = p_ptr->py/BLOCK_HGT;
-                int bx = p_ptr->px/BLOCK_HGT;
+	/* Some rooms make the player vulnerible */
+	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	{
+		/* Special rooms affect some of this */
+		int by = p_ptr->py/BLOCK_HGT;
+		int bx = p_ptr->px/BLOCK_HGT;
 
-                /* Get the room */
-                if(room_info[dun_room[by][bx]].flags & (ROOM_CURSED))
-                {
-                        /* Halve the effective armor class */
-                        ac /=2;
-                }
-        }                                                            
+		/* Get the room */
+		if(room_info[dun_room[by][bx]].flags & (ROOM_CURSED))
+		{
+			/* Halve the effective armor class */
+			ac /=2;
+		}
+	}							    
 
 
 	/* Power and Level compete against Armor */
@@ -202,10 +202,10 @@ bool make_attack_normal(int m_idx)
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-                /* Skip 'tricky' attacks */
-                if ((method == RBM_SHOOT) ||
-                       (method == RBM_TRAP) ||
-                        (method == RBM_AURA)) continue;
+		/* Skip 'tricky' attacks */
+		if ((method == RBM_SHOOT) ||
+		       (method == RBM_TRAP) ||
+			(method == RBM_AURA)) continue;
 
 		/* Extract the attack "power" */
 		switch (effect)
@@ -260,7 +260,7 @@ bool make_attack_normal(int m_idx)
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
 				/* Message */
@@ -324,9 +324,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-                                case RBM_VOMIT:
+				case RBM_VOMIT:
 				{
-                                        act = "vomits on you.";
+					act = "vomits on you.";
 					break;
 				}
 
@@ -439,12 +439,10 @@ bool make_attack_normal(int m_idx)
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
 
-#ifdef ALLOW_OBJECT_INFO
-
 			/* Check for usage */
 			if (rand_int(100)<damage)
 			{
-                                int slot;
+				int slot;
 
 				/* Pick a (possibly empty) inventory slot */
 				switch (randint(6))
@@ -460,11 +458,8 @@ bool make_attack_normal(int m_idx)
 				/* Object used? */
 				object_usage(INVEN_WIELD);
 			}
-
-#endif
-
-                        /* New result routine */
-                        project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
+			/* New result routine */
+			project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
 
 
 			/* Hack -- only one of cut or stun */
@@ -571,12 +566,12 @@ bool make_attack_normal(int m_idx)
 		if (visible)
 		{
 			/* Count "obvious" attacks (and ones that cause damage) */
-			if (obvious || damage || (l_ptr->r_blows[ap_cnt] > 10))
+			if (obvious || damage || (l_ptr->blows[ap_cnt] > 10))
 			{
 				/* Count attacks of this type */
-				if (l_ptr->r_blows[ap_cnt] < MAX_UCHAR)
+				if (l_ptr->blows[ap_cnt] < MAX_UCHAR)
 				{
-					l_ptr->r_blows[ap_cnt]++;
+					l_ptr->blows[ap_cnt]++;
 				}
 			}
 		}
@@ -592,9 +587,9 @@ bool make_attack_normal(int m_idx)
 
 
 	/* Always notice cause of death */
-	if (p_ptr->is_dead && (l_ptr->r_deaths < MAX_SHORT))
+	if (p_ptr->is_dead && (l_ptr->deaths < MAX_SHORT))
 	{
-		l_ptr->r_deaths++;
+		l_ptr->deaths++;
 	}
 
 
@@ -650,9 +645,9 @@ static byte chome[] =
  * corridor, must be moving straight into a corridor here. ???
  *
  * Diagonal Corridor    Blunt Corridor (?)
- *       # #                  #
- *       #x#                 @x#
- *       @p.                  p
+ *       # #		  #
+ *       #x#		 @x#
+ *       @p.		  p
  */
 static void mon_run_init(int dir)
 {
@@ -671,11 +666,11 @@ static void mon_run_init(int dir)
 	m_ptr->run_old_dir = dir;
 
 	/* Assume looking for open area */
-        m_ptr->mflag |= MFLAG_RUN_OPEN_AREA;
+	m_ptr->mflag |= MFLAG_RUN_OPEN_AREA;
 
 	/* Assume not looking for breaks */
-        m_ptr->mflag &= ~(MFLAG_RUN_BREAK_RIGHT);
-        m_ptr->mflag &= ~(MFLAG_RUN_BREAK_LEFT);
+	m_ptr->mflag &= ~(MFLAG_RUN_BREAK_RIGHT);
+	m_ptr->mflag &= ~(MFLAG_RUN_BREAK_LEFT);
 
 	/* Assume no nearby walls */
 	deepleft = deepright = FALSE;
@@ -691,36 +686,36 @@ static void mon_run_init(int dir)
 	/* Check for nearby wall */
 	if (see_wall(cycle[i+1], fy, fx))
 	{
-                m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
+		m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 		shortleft = TRUE;
 	}
 
 	/* Check for distant wall */
 	else if (see_wall(cycle[i+1], row, col))
 	{
-                m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
+		m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 		deepleft = TRUE;
 	}
 
 	/* Check for nearby wall */
 	if (see_wall(cycle[i-1], fy, fx))
 	{
-                m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
+		m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 		shortright = TRUE;
 	}
 
 	/* Check for distant wall */
 	else if (see_wall(cycle[i-1], row, col))
 	{
-                m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
+		m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 		deepright = TRUE;
 	}
 
 	/* Looking for a break */
-        if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)) && (m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
+	if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)) && (m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 	{
 		/* Not looking for open area */
-                m_ptr->mflag &= ~(MFLAG_RUN_OPEN_AREA);
+		m_ptr->mflag &= ~(MFLAG_RUN_OPEN_AREA);
 
 		/* Hack -- allow angled corridor entry */
 		if (dir & 0x01)
@@ -766,10 +761,10 @@ static bool run_test(void)
 	int check_dir = 0;
 
 	int row, col;
-        int i, max;
+	int i, max;
 	int option, option2;
 
-        int feat;
+	int feat;
 
 	bool notice;
 
@@ -802,14 +797,14 @@ static bool run_test(void)
 		/* Visible monsters abort running */
 		if (cave_m_idx[row][col] > 0)
 		{
-                        return (TRUE);
+			return (TRUE);
 		}
 
 		/* Analyze unknown grids and floors */
-                if (cave_floor_bold(row, col))
+		if (cave_floor_bold(row, col))
 		{
 			/* Looking for open area */
-                        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
+			if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
 			{
 				/* Nothing */
 			}
@@ -851,18 +846,18 @@ static bool run_test(void)
 		/* Obstacle, while looking for open area */
 		else
 		{
-                        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
+			if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA))
 			{
 				if (i < 0)
 				{
 					/* Break to the right */
-                                        m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
+					m_ptr->mflag |= MFLAG_RUN_BREAK_RIGHT;
 				}
 
 				else if (i > 0)
 				{
 					/* Break to the left */
-                                        m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
+					m_ptr->mflag |= MFLAG_RUN_BREAK_LEFT;
 				}
 			}
 		}
@@ -870,7 +865,7 @@ static bool run_test(void)
 
 
 	/* Looking for open area */
-        if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA)run_open_area)
+	if (m_ptr->mflag & (MFLAG_RUN_OPEN_AREA)run_open_area)
 	{
 		/* Hack -- look again */
 		for (i = -max; i < 0; i++)
@@ -880,19 +875,19 @@ static bool run_test(void)
 			row = fy + ddy[new_dir];
 			col = fx + ddx[new_dir];
 
-                        /* Get feature */
-                        feat = cave_feat[row][col];
+			/* Get feature */
+			feat = cave_feat[row][col];
 
 			/* Get mimiced feature */
-                        feat = f_info[feat].mimic;
+			feat = f_info[feat].mimic;
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-                            (!(f_info[feat].flags1 & (FF1_WALL))) )
+			    (!(f_info[feat].flags1 & (FF1_WALL))) )
 			{
 				/* Looking to break right */
-                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
+				if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 				{
 					return (TRUE);
 				}
@@ -903,7 +898,7 @@ static bool run_test(void)
 			else
 			{
 				/* Looking to break left */
-                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
+				if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
 				{
 					return (TRUE);
 				}
@@ -918,19 +913,19 @@ static bool run_test(void)
 			row = fy + ddy[new_dir];
 			col = fx + ddx[new_dir];
 
-                        /* Get feature */
-                        feat = cave_feat[row][col];
+			/* Get feature */
+			feat = cave_feat[row][col];
 
 			/* Get mimiced feature */
-                        feat = f_info[feat].mimic;
+			feat = f_info[feat].mimic;
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-                            (!(f_info[feat].flags1 & (FF1_WALL))))
+			    (!(f_info[feat].flags1 & (FF1_WALL))))
 			{
 				/* Looking to break left */
-                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
+				if ((m_ptr->mflag & (MFLAG_RUN_BREAK_LEFT)))
 				{
 					return (TRUE);
 				}
@@ -940,7 +935,7 @@ static bool run_test(void)
 			else
 			{
 				/* Looking to break right */
-                                if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
+				if ((m_ptr->mflag & (MFLAG_RUN_BREAK_RIGHT)))
 				{
 					return (TRUE);
 				}

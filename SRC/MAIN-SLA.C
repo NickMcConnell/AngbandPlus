@@ -10,9 +10,9 @@
 
 
 /*
- * This file helps Angband work with Unix/slang computers.
- *
- * This file is probably out of date.  XXX XXX XXX
+ * This file makes Angband work with the S-Lang library, available
+ * from <URL:http://www.s-lang.org/>.  S-Lang works with OS/2,
+ * MSDOS and Unix.  (And with VMS - if the rest of Angband does.)
  *
  *
  * Author: hans@grumbeer.pfalz.de (Hans-Joachim Baader)
@@ -26,6 +26,7 @@
 
 #ifdef USE_SLA
 
+#include "main.h"
 
 
 #include <slang.h>
@@ -44,7 +45,7 @@ static bool can_use_color = FALSE;
 
 
 /*
- * Angband to SLang color conversion table
+ * Angband to S-Lang color conversion table
  */
 static int colortable[16];
 
@@ -61,9 +62,9 @@ static term term_screen_body;
 /*
  * Hack -- see below
  */
-void init_pair (int index, char *foreground, char *background)
+static void init_pair(int index, char *foreground, char *background)
 {
-	SLtt_set_color (index, "", foreground, background);
+	SLtt_set_color(index, "", foreground, background);
 }
 
 
@@ -96,7 +97,7 @@ void init_pair (int index, char *foreground, char *background)
 
 
 
-static char *color_terminals [] =
+static char *color_terminals[] =
 {
 #ifdef linux
 	"console",
@@ -148,13 +149,19 @@ int has_colors(void)
 		/*init_pair (REVERSE, "black", "white");*/
 	}
 
+#if 0
+	/*
+	 * This sets up Angband to print characters reversed, but it does not
+	 * reverse the background in places where not characters were printed.
+	 */
 	/* Setup bizarre colors */
 	else
 	{
-		SLtt_set_mono (A_BOLD,    NULL, SLTT_BOLD_MASK);
-		SLtt_set_mono (A_REVERSE, NULL, SLTT_REV_MASK);
-		SLtt_set_mono (A_BOLD|A_REVERSE, NULL, SLTT_BOLD_MASK | SLTT_REV_MASK);
+		SLtt_set_mono(A_BOLD,    NULL, SLTT_BOLD_MASK);
+		SLtt_set_mono(A_REVERSE, NULL, SLTT_REV_MASK);
+		SLtt_set_mono(A_BOLD|A_REVERSE, NULL, SLTT_BOLD_MASK | SLTT_REV_MASK);
 	}
+#endif
 
 	return SLtt_Use_Ansi_Colors;
 }
@@ -164,10 +171,13 @@ int has_colors(void)
 
 
 /*
- * Nuke SLang
+ * Nuke S-Lang
  */
 static void Term_nuke_sla(term *t)
 {
+	/* Unused parameter */
+	(void) t;
+
 	if (!slang_on) return;
 
 	/* Show the cursor */
@@ -189,10 +199,13 @@ static void Term_nuke_sla(term *t)
 
 
 /*
- * Init SLang
+ * Init S-Lang
  */
 static void Term_init_sla(term *t)
 {
+	/* Unused parameter */
+	(void) t;
+
 	/* Note that we are on */
 	slang_on = TRUE;
 }
@@ -204,7 +217,7 @@ static void Term_init_sla(term *t)
 static errr Term_xtra_sla_event(int v)
 {
 	/* Do not wait unless requested */
-	if (!v && (SLang_input_pending (0) == 0)) return (1);
+	if (!v && (SLang_input_pending(0) == 0)) return (1);
 
 	/* Get and enqueue the key */
 	Term_keypress(SLang_getkey ());
@@ -229,9 +242,16 @@ static errr Term_xtra_sla_alive(int v)
 		/* We are now off */
 		slang_on = FALSE;
 
+		/* Block further signals, so double signals wont confuse us */
+		SLsig_block_signals();
+
 		/* Shut down (temporarily) */
-		SLsmg_reset_smg();
+		if (SLsmg_suspend_smg() < 0)
+			quit("Could not save S-Lang state");
 		SLang_reset_tty();
+
+		/* Done with blocking */
+		SLsig_unblock_signals();
 	}
 
 	/* Resume */
@@ -240,8 +260,27 @@ static errr Term_xtra_sla_alive(int v)
 		/* Oops */
 		if (slang_on) return (1);
 
-		/* Fix the screen */
-		SLsmg_refresh();
+		/* Block further signals, so double signals wont confuse us */
+		SLsig_block_signals();
+
+		/* Initialize, check for errors */
+		if (SLang_init_tty(-1, TRUE, 0) == -1)
+		    quit("S-Lang re-initialization failed");
+
+#ifdef HANDLE_SIGNALS
+		/* Allow keyboard generated suspend signal (on Unix, ^Z) */
+		SLtty_set_suspend_state(TRUE);
+#endif
+
+		/* Restore the and screen and screen management state */
+		if (SLsmg_resume_smg() == -1)
+		{
+		    SLang_reset_tty();
+		    quit("Could not get back virtual display memory");
+		}
+
+		/* Done with blocking */
+		SLsig_unblock_signals();
 
 		/* Note that we are on */
 		slang_on = TRUE;
@@ -310,10 +349,10 @@ static errr Term_xtra_sla(int n, int v)
 /*
  * Actually MOVE the hardware cursor
  */
-static errr Term_curs_sla(int x, int y, int z)
+static errr Term_curs_sla(int x, int y)
 {
 	/* Literally move the cursor */
-	SLsmg_gotorc (y, x);
+	SLsmg_gotorc(y, x);
 
 	/* Success */
 	return 0;
@@ -350,23 +389,32 @@ static errr Term_text_sla(int x, int y, int n, byte a, cptr s)
 	if (can_use_color) SLsmg_set_color(colortable[a&0x0F]);
 
 	/* Dump the string */
-	SLsmg_write_nchars(s, n);
+	SLsmg_write_nchars((char *)s, n);
 
 	/* Success */
 	return 0;
 }
 
 
+const char help_sla[] = "S-Lang library, for terminal console";
+
+
 /*
- * Prepare "SLang" for use by the file "term.c"
+ * Prepare "S-Lang" for use by the file "z-term.c"
  * Installs the "hook" functions defined above
  */
-errr init_sla(void)
+errr init_sla(int argc, char **argv)
 {
-	int i, err;
+	int err;
 
 	term *t = &term_screen_body;
 
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
+
+	/* Block signals, so signals cannot confuse the setup */
+	SLsig_block_signals();
 
 	/* Initialize, check for errors */
 	err = (SLang_init_tty(-1, TRUE, 0) == -1);
@@ -375,11 +423,20 @@ errr init_sla(void)
 	if (err) quit("SLang initialization failed");
 
 	/* Get terminal info */
-	SLtt_get_terminfo ();
+	SLtt_get_terminfo();
+
+#ifdef HANDLE_SIGNALS
+	/* Allow keyboard generated suspend signal (on Unix, ^Z) */
+	SLtty_set_suspend_state(TRUE);
+
+	/* Instead of signal(), use sigaction():SA_RESTART via SLsignal() */
+	signal_aux = SLsignal;
+#endif
 
 	/* Initialize some more */
-	if (SLsmg_init_smg() == 0)
+	if (SLsmg_init_smg() == -1)
 	{
+		SLang_reset_tty();
 		quit("Could not get virtual display memory");
 	}
 
@@ -387,7 +444,12 @@ errr init_sla(void)
 	err = ((SLtt_Screen_Rows < 24) || (SLtt_Screen_Cols < 80));
 
 	/* Quit with message */
-	if (err) quit("SLang screen must be at least 80x24");
+	if (err)
+	{
+		SLsmg_reset_smg();
+		SLang_reset_tty();
+		quit("SLang screen must be at least 80x24");
+	}
 
 	/* Now let's go for a little bit of color! */
 	err = !has_colors();
@@ -439,6 +501,8 @@ errr init_sla(void)
 		colortable[15] = 3;       /* Light Brown XXX */
 	}
 
+	/* Done with blocking */
+	SLsig_unblock_signals();
 
 	/* Initialize the term */
 	term_init(t, 80, 24, 64);
@@ -465,5 +529,3 @@ errr init_sla(void)
 }
 
 #endif /* USE_SLA */
-
-

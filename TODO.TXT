@@ -4,12 +4,6 @@ various files and ideas.
 
 For a start, here are the current bugs:
 
--	Surface generation needs to be improved for campaign mode,
-and there are still some software bugs that seem to occur. I'll probably
-do a re-write of the town generation routines (Especially for cities),
-and import some wilderness generation routines from Pernband (Or if
-I can, Zangband).
-
 - You should be able to traverse rubble. But requiring 2 moves.
 	Also iron and wooden cages. Provided you are not stuck
 in them.
@@ -24,20 +18,9 @@ break highscore compatibility for people. :(
 - Updated birth.txt is incomplete.
 	Documentation in general needs an overhaul.
 
-- Should add kobolds from JLE's patch.
-	Easy enough to do.
-
 - Not all the monsters from the future.txt file are created yet.
 	Just requires a big sit down. Adding any more monsters or
 altering them affects rand arts however.
-
-- Need to notify the player they are singing/playing.
-	Also want to have DTraps as implemented in Oangband.
-
-- We are (now) many point releases behind the Angband code state
-of the play.
-	When Robert Rhuelmann releases 3.0, I'll look into
-updating the code base to this version.
 
 And new features:
 - Implement Ego lights, and monster bleeding/poisoning from

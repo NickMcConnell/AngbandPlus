@@ -1,0 +1,432 @@
+#Information for the towns.
+
+#Currently used for navigation between towns/dungeons, placing of uniques in some towns/dungeons,
+#and defining stores and terrain in dungeons.
+
+#Note we get quite sophisticated here, for very little cost but much hackery.
+
+#L:level:fill with feature (0=town):big feature:small feature:small feature:quest monster
+#Currently up to 4 lines (ie up to 3 quest monsters per dungeon).
+#X:can go to easily:can go to after bottom level quest monster killed
+#G:monsters with this character preferred
+#R:monsters with this flag preferred
+#S:store1:store2:store3:store4:store5:store6:store7:store8
+#O:race idx:purse:maxgreed:mingreed:hagglepeG:tolerance:name
+
+#If surface level is less than or equal to MAX_ZONE_WILDS (currently 20), the surface
+#level is a wilderness, with some trails through it and (possibly) a set of stairs.
+#Otherwise, it is ruins, with a number of buildings, and rubble.
+
+#Note: Stores with non-numeric graphics do not build a building: they are just 
+#a single location. They also do not charge money or restock. Instead, they contain
+#a number of great items (including possibly artifacts) as a 'reward' for the player. eg
+#quest rewards. As a result, towns containing these locations should not be re-entered.
+
+
+#Version information
+
+V:2.9.6
+
+
+# Default starting dungeon.
+
+N:0:Angband
+X:43:0
+L:0:0:407:0:0:0
+L:1:56:0:0:0:0
+L:100:56:0:0:588:0
+S:1:2:3:4:5:6:7:8
+D:It feels like home...
+
+# Alternate starting dungeon.
+
+N:1:Hobbiton
+X:10:37
+G:h
+L:0:0:411:435:0:0
+S:9:29:10:11:0:0:0:0
+D:Tip: Press '<' to travel elsewhere.
+
+#The following quests are from the hobbit.
+
+N:2:Rivendell
+X:39:3
+L:0:0:420:126:0:0
+S:12:2:3:4:5:6:13:0
+
+# Misty Mountains are quite wet (Underground rivers etc).
+
+N:3:the Misty Mountains
+X:2:4
+G:k
+R:HURT_LITE
+L:5:420:56:56:0:0
+L:6:56:0:153:68:0
+L:7:56:0:153:0:0
+L:13:56:0:154:185:0
+
+N:4:the house of Beorn
+X:3:5
+R:ANIMAL
+L:10:0:435:0:325:0
+S:14:0:0:0:0:0:0:0
+
+#Should be guarded by King of Wood Elves
+
+N:5:Mirkwood
+X:4:6
+G:l
+R:CAN_CLIMB
+L:14:420:56:153:349:0
+L:15:56:0:0:0:0
+L:32:0:153:0:0:0
+S:15:16:17:4:5:18:19:0
+
+N:6:Lake-town
+X:5:7
+L:0:0:407:0:0:0
+S:1:2:3:4:5:6:7:0
+
+# We disturb Smaug while entering his lair...
+# Note Smaug is out of depth by 10 levels at bottom.
+
+N:7:the Lonely Mountain
+X:8:9
+R:DRAGON
+#Was L:33. Need to fix by implementing flags eg RUINS
+L:20:435:56:154:498:0
+L:21:56:0:0:0:0:0
+L:38:56:0:0:0:498:0
+
+# With disasterous consequences.
+
+N:8:Lake-town
+X:7:9
+R:CAN_SWIM
+L:39:155:407:49:498:0
+
+N:9:Lake-town, rebuilt
+X:14:47
+L:0:0:407:1:0:0
+S:1:2:3:4:5:6:20:0
+D:Visit the statue to collect a reward from the grateful townsfolk.
+
+#The following levels are from the Fellowship of the Ring.
+
+N:10:Farmer Maggot's farm
+X:1:40
+G:,
+R:ANIMAL
+L:0:0:435:419:14:0
+L:1:114:0:0:0:0
+L:8:114:0:0:123:0
+S:21:0:0:0:0:0:0:0
+
+N:11:Bree
+G:t
+X:41:12
+L:0:0:407:419:464:0
+S:22:2:3:4:5:6:0:0
+
+N:12:Weathertop
+X:41:13
+L:9:420:56:49:479:0
+
+N:13:Trollshaw Forest
+X:12:14
+L:14:420:420:154:491:0
+
+#Duplicate to allow acces to Moria.
+
+N:14:Rivendell
+X:13:15
+L:0:0:420:126:0:0
+S:12:2:3:4:5:6:13:27
+
+N:15:Caradhras
+X:16:19
+R:IM_COLD
+L:20:56:144:145:567:0
+
+N:16:Moria
+X:17:18
+L:21:49:397:56:1048:0
+L:22:56:0:0:0:0
+L:45:56:1:0:0:0
+L:50:56:141:0:502:0
+
+N:17:Isengard
+X:16:20
+G:q
+R:EVIL
+L:21:423:141:141:267:31
+L:22:0:1:0:0:31
+L:23:50:0:0:0:31
+L:50:56:0:0:543:31
+S:23:2:3:4:5:6:7:0
+
+N:18:Lothlorien
+X:19:20
+G:l
+L:0:0:420:420:0:0
+S:15:17:4:5:18:24:0:0
+D:Galadriel's gifts can be found at the White tree.
+
+N:19:Parth Galen
+X:20:24
+G:o
+L:20:420:155:56:1046:0
+
+N:20:Fangorn
+X:21:23
+G:o
+L:20:420:420:420:1098:0
+
+N:21:Edoras
+X:22:28
+G:t
+R:WARRIOR
+L:0:0:407:0:0:0
+L:1:56:0:0:528:0
+S:1:2:3:4:5:6:25:0
+
+N:22:Hornburg
+X:21:23
+G:o
+R:ESCORT
+L:50:420:56:155:267:49
+
+N:23:Isengard
+X:20:22
+G:q
+R:EVIL
+L:50:425:141:141:528:31
+L:51:56:0:0:0:31
+L:81:56:0:0:543:31
+
+N:24:the Marshes of the Dead
+X:19:25
+R:UNDEAD
+L:65:199:200:201:0:0
+
+#Should be guarded by Faramir
+
+N:25:Ithilien
+X:26:49
+G:t
+R:EVIL
+L:20:420:155:199:0:0
+L:21:0:1:153:0:0
+S:26:26:26:0:0:0:0:0
+
+N:26:Minas Morgul
+X:25:31
+R:UNDEAD
+L:70:407:56:397:540:46
+L:71:56:0:397:0:46
+L:85:56:0:0:575:46
+
+#Note that we need a map to travel from Minas Morgol to Cirith Ungol now.
+
+N:27:Cirith Ungol
+X:26:31
+L:50:56:141:141:565:11
+L:51:56:1:0:0:11
+L:65:56:1:0:1099:11
+
+#King Denethor should guard Minas Tirith
+
+N:28:Minas Tirith
+X:29:30
+R:WARRIOR
+L:0:407:56:56:0:46
+L:1:0:1:0:0:46
+L:15:56:0:0:0:46
+S:1:2:3:4:5:6:0:0
+
+N:29:the Paths of the Dead
+X:28:30
+G:W
+R:UNDEAD
+L:55:436:56:56:550:0
+L:56:56:0:0:0:0
+L:85:56:0:0:569:0
+
+N:30:the Battle of Pelennor Fields
+X:27:31
+G:W
+R:ESCORTS
+L:70:435:411:420:575:0
+
+N:31:Minas Tirith
+X:25:26
+R:WARRIOR
+L:0:407:56:56:0:46
+L:1:0:1:0:0:46
+L:15:56:0:0:0:46
+S:1:2:3:4:5:6:24:46
+D:A white tree has found root in Minas Tirith.
+
+N:32:the Plains of Gorgoroth
+X:51:27
+G:o
+L:75:441:201:431:0:0
+L:79:56:209:0:0:0
+
+N:33:Orodruin
+X:32:34
+R:BR_FIRE
+L:79:432:218:218:0:0
+L:80:56:218:218:0:0
+L:98:56:218:218:68:0
+L:99:218:161:56:0:0
+
+N:34:Bara-dur
+X:33:35
+G:M
+R:EVIL
+L:65:409:218:216:578:20
+L:66:56:218:216:0:20
+L:99:56:218:216:587:20
+
+N:35:Hobbiton
+X:0:36
+G:h
+L:60:0:407:199:543:0
+S:2:3:7:11:0:0:0:0
+
+N:36:Hobbiton, rebuilt
+X:39:47
+G:h
+L:0:0:407:419:0:0
+S:9:29:10:11:0:0:0:0
+
+# The following are accessible from the first Hobbiton for consistency
+
+N:37:Bree
+G:t
+X:38:39
+L:0:0:407:419:1083:0
+S:22:2:3:4:5:6:0:0
+
+# Need a barrow wight unique.
+
+N:38:Barrow-downs
+X:37:39
+L:1:407:407:56:0:0
+L:2:56:0:0:0:0
+L:20:56:0:0:0:0
+
+N:39:Trollshaw Forest
+X:37:2
+L:1:420:420:155:1078:0
+L:2:56:0:0:1079:0
+L:3:56:0:0:1080:0
+
+N:40:the Old Forest
+X:10:11
+R:PLANT
+L:9:420:420:153:1069:0
+L:10:0:419:0:1089:0
+S:28:0:0:0:0:0:0:0
+
+# And the same dungeon accessible from the LOtR quest.
+# Need a barrow-wight unique.
+
+N:41:Barrow-downs
+X:12:40
+L:1:420:420:56:0:0
+L:2:56:0:0:0:0
+L:20:56:0:0:0:0
+
+# Alternate Lonely Mountain for 'There and Back again' map
+
+# We disturb Smaug while entering his lair...
+# Note Smaug is out of depth by 10 levels at bottom.
+
+N:42:the Lonely Mountain
+X:14:47
+R:DRAGON
+L:20:435:56:154:498:0
+L:34:56:0:0:0:0:0
+L:38:56:0:0:0:498:0
+
+# Alternate to bypass Moria etc. and reach Angband...
+
+N:43:the ruins of Angmar
+X:14:0
+R:UNDEAD
+L:21:425:141:141:0:0
+L:22:56:141:0:0:0
+L:80:56:0:0:575:0
+L:81:56:0:0:0:0
+
+# Sunken dungeon.
+
+N:44:the sunken city of Numenor
+X:14:44
+G:G
+R:CAN_SWIM
+L:21:403:400:49:0:0
+L:22:399:56:0:0:0
+L:60:399:56:0:0:0
+
+N:45:the temple of Elemental Evil
+X:14:45
+G:E
+R:PRIEST
+L:21:425:141:141:0:0
+L:22:56:0:0:0:0
+L:60:56:0:0:0:0
+
+N:46:the Crystal Castle
+X:14:45
+G:g
+R:MAGE
+L:21:56:144:145:567:0
+L:22:148:145:0:0:0
+L:60:148:145:0:0:0
+
+N:47:the Battle of Five Armies
+X:42:48
+G:o
+R:ESCORT
+L:39:420:56:153:0:0
+
+N:48:Dol Goldur
+X:20:23
+G:q
+R:EVIL
+L:40:420:56:420:508:44
+L:41:56:0:0:0:44
+L:65:56:0:0:1047:44
+
+N:49:Morannen
+X:25:50
+G:q
+R:EVIL
+L:50:407:56:397:579:43
+L:51:56:0:397:0:43
+L:75:56:0:0:579:43
+
+N:50:Udun
+X:49:51
+R:DEMON
+L:79:407:218:218:0:0
+L:80:56:218:218:0:0
+L:98:56:218:218:586:0
+L:99:218:161:56:0:0
+
+N:51:Isenmouthe
+X:32:50
+R:EVIL
+L:80:407:218:208:0:0
+L:90:56:208:218:0:0
+
+# Other alternate dungeons should be placed here
+
+# Must always be last position
+N:52:the West
+G:M
+L:0:0:420:0:0:0
+S:24:24:24:24:24:24:24:0

@@ -6,243 +6,11 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
- * source code are released under the Gnu Public License. See www.fsf.org
- * for current GPL license details. Addition permission granted to
- * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
 
-
-
 #ifdef ALLOW_DEBUG
-
-/*
- * Debug scent trails and noise bursts.
- */
-static void do_cmd_wiz_hack_ben(void)
-{
-
-#ifdef MONSTER_FLOW
-
-	char cmd;
-
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int i, y, x, y2, x2;
-
-	/* Get a "debug command" */
-	if (!get_com("Press 'S' for scent, 'N' for noise info: ", &cmd)) return;
-
-
-	/* Analyze the command */
-	switch (cmd)
-	{
-		case 'S':
-		case 's':
-		{
-                        for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
-                        {
-                                for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
-                                {
-					byte a;
-
-					int age = get_scent(y, x);
-
-					/* Must have scent */
-					if (age == -1) continue;
-
-					/* Pretty colors by age */
-					if (age > SMELL_STRENGTH) a = TERM_L_DARK;
-
-					else if (age < 10) a = TERM_BLUE;
-					else if (age < 20) a = TERM_L_BLUE;
-					else if (age < 30) a = TERM_GREEN;
-					else if (age < 40) a = TERM_L_GREEN;
-					else if (age < 50) a = TERM_YELLOW;
-					else if (age < 60) a = TERM_ORANGE;
-					else if (age < 70) a = TERM_L_RED;
-					else a = TERM_RED;
-
-
-					/* Display player/floors/walls */
-					if ((y == py) && (x == px))
-					{
-						print_rel('@', a, y, x);
-					}
-					else 
-					{
-						print_rel('0' + (age % 10), a, y, x);
-					}
-				}
-			}
-
-			/* Prompt */
-			prt("Scent ages", 0, 0);
-
-			/* Wait for a keypress */
-			(void)inkey();
-
-			/* Redraw map */
-			prt_map();
-
-			break;
-
-		}
-
-		case 'N':
-		case 'n':
-		{
-
-			/* Get a "debug command" */
-			if (!get_com("Press 'D' for direction of flow, 'C' for actual cost values: ", &cmd)) return;
-
-			if ((cmd == 'D') || (cmd == 'd'))
-			{
-                                for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
-                                {
-                                        for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
-                                        {
-						int lowest_cost = cave_cost[y][x];
-						int dir = -1;
-						int cost;
-
-						if (lowest_cost == 0) continue;
-
-						for (i = 0; i < 8; i++)
-						{
-							/* Get the location */
-							y2 = y + ddy_ddd[i];
-							x2 = x + ddx_ddd[i];
-
-							cost = cave_cost[y2][x2];
-							if (!cost) continue;
-
-							/* If this grid's scent is younger, save it */
-							if (lowest_cost > cost) lowest_cost = cost;
-
-							/* If it isn't, look elsewhere */
-							else continue;
-
-							/* Save this direction */
-							dir = i;
-						}
-
-						/* If we didn't find any younger scent, print a '5' */
-						if (dir == -1) print_rel('5', TERM_YELLOW, y, x);
-
-						/* Otherwise, convert to true direction and print */
-						else
-						{
-							i = ddd[dir];
-							print_rel('0' + i, TERM_L_BLUE, y, x);
-						}
-					}
-				}
-
-				/* Prompt */
-				prt("Directions given to advancing monsters using noise info", 0, 0);
-
-				/* Wait for a keypress */
-				(void)inkey();
-
-				/* Redraw map */
-				prt_map();
-			}
-
-			/* Actual cost values */
-			else
-			{
-				int j;
-
-				for (i = cost_at_center - 2; i <= 100 + NOISE_STRENGTH; ++i)
-				{
-					/* First show grids with no scent */
-					if (i == cost_at_center - 2) j = 0;
-
-					/* Then show specially marked grids (bug-checking) */
-					else if (i == cost_at_center - 1) j = 255;
-
-					/* Then show standard grids */
-					else j = i;
-
-					/* Update map */
-                                        for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
-                                        {
-                                                for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
-                                                {
-							byte a = TERM_YELLOW;
-
-							/* Display proper cost */
-							if (cave_cost[y][x] != j) continue;
-
-							/* Display player/floors/walls */
-							if ((y == py) && (x == px))
-							{
-								print_rel('@', a, y, x);
-							}
-							else if (cave_floor_bold(y, x))
-							{
-								print_rel('*', a, y, x);
-							}
-							else
-							{
-								print_rel('#', a, y, x);
-							}
-						}
-					}
-
-					/* Prompt */
-					if (j == 0)
-					{
-						prt("Grids with no scent", 0, 0);
-					}
-					else if (j == 255)
-					{
-						prt("Specially marked grids", 0, 0);
-					}
-					else
-					{
-						prt(format("Depth %d: ", j), 0, 0);
-					}
-
-					/* Get key */
-					if (inkey() == ESCAPE) break;
-
-					/* Redraw map */
-					prt_map();
-				}
-			}
-
-			break;
-		}
-
-		default:
-		{
-			break;
-		}
-  	}
-
-	/* Done */
-	prt("", 0, 0);
-
-	/* Redraw map */
-	prt_map();
-
-#else /* MONSTER_FLOW */
-
-	/* Oops */
-	msg_print("Monster flow is not included in this copy of the game.");
-
-#endif /* MONSTER_FLOW */
-
-}
-
-
 
 /*
  * Output a long int in binary format.
@@ -311,7 +79,7 @@ static void do_cmd_wiz_change_aux(void)
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
 
 		/* Query */
-		if (!get_string(ppp, tmp_val, 3)) return;
+		if (!get_string(ppp, tmp_val, 4)) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -329,7 +97,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 9)) return;
+	if (!get_string("Gold: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -345,7 +113,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	if (!get_string("Experience: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -363,7 +131,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Max Exp: ", tmp_val, 9)) return;
+	if (!get_string("Max Exp: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -445,7 +213,7 @@ static void do_cmd_wiz_change(void)
 /*
  * Display an item's properties
  */
-static void wiz_display_item(object_type *o_ptr)
+static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
@@ -482,19 +250,19 @@ static void wiz_display_item(object_type *o_ptr)
 	           o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
-	prt("AFFECT..........SLAY......BRAND.", 11, j);
-	prt("                ae      x q aefc", 12, j);
-	prt("siwdcc  ssidsa  nvudotgdd u clio", 13, j);
-	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
+	prt("AFFECT..........SLAY.......BRAND", 11, j);
+	prt("                ae      x  paefc", 12, j);
+	prt("siwdcc  ssidsasmnvudotgdd  oclio", 13, j);
+	prt("tnieoh  trnipthgiinmrrnrr  iierl", 14, j);
+	prt("rtsxna..lcfgdkttmldncltgg..sdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcp psaefcp ldbc sn   ", 19, j);
-	prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
-	prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
-	prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
+	prt("SUST........IMM.RESIST.........", 18, j);
+	prt("            afecaefcpfldbc s n  ", 19, j);
+	prt("siwdcc      cilocliooeialoshnecd", 20, j);
+	prt("tnieoh      irelierliatrnnnrethi", 21, j);
+	prt("rtsxna......decddcedsrekdfddxhss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
@@ -508,6 +276,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("trenhste    tttpdced  detwes eee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
+
+
 
 /*
  * Strip an "object name" into a buffer
@@ -536,21 +306,9 @@ static void strip_name(char *buf, int k_idx)
 
 
 /*
- * Hack -- title for each column
- *
- * This will not work with "EBCDIC", I would think.  XXX XXX XXX
- *
- * The third column head overlaps the first after 17 items are
- * listed.  XXX XXX XXX
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
-/*
  * Get an object kind for creation (or zero)
  *
- * List up to 57 choices in three columns
+ * List up to 60 choices in three columns
  */
 static int wiz_create_itemtype(void)
 {
@@ -562,6 +320,10 @@ static int wiz_create_itemtype(void)
 	char ch;
 
 	int choice[60];
+	static const char choice_name[] = ("abcdefghijklmnopqrst"
+	                                   "ABCDEFGHIJKLMNOPQRST"
+	                                   "0123456789:;<=>?@%&*");
+	const char *cp;
 
 	char buf[160];
 
@@ -570,15 +332,15 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 57) && tvals[num].tval; num++)
+        for (num = 0; (num < 60) && object_group_tval[num]; num++)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
-		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+		ch  = choice_name[num];
+                prt(format("[%c] %s", ch, object_group_text[num]), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -586,16 +348,15 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((cp = strchr(choice_name, ch)) != NULL)
+		num = cp - choice_name;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
 
 	/* Base object type chosen, fill in tval */
-	tval = tvals[num].tval;
-	tval_desc = tvals[num].desc;
+        tval = object_group_tval[num];
+        tval_desc = object_group_text[num];
 
 
 	/*** And now we go for k_idx ***/
@@ -604,7 +365,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -617,7 +378,7 @@ static int wiz_create_itemtype(void)
 			/* Prepare it */
 			row = 2 + (num % 20);
 			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			ch  = choice_name[num];
 
 			/* Get the "name" of object "i" */
 			strip_name(buf, i);
@@ -638,9 +399,8 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((cp = strchr(choice_name, ch)) != NULL)
+		num = cp - choice_name;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -664,25 +424,25 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -852,7 +612,7 @@ static void wiz_statistics(object_type *o_ptr)
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
 		           quality, p_ptr->depth);
-		msg_print(NULL);
+		message_flush();
 
 		/* Set counters to zero */
 		matches = better = worse = other = 0;
@@ -936,7 +696,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Final dump */
 		msg_format(q, i, matches, better, worse, other);
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -948,11 +708,11 @@ static void wiz_statistics(object_type *o_ptr)
 /*
  * Change the quantity of a the item
  */
-static void wiz_quantity_item(object_type *o_ptr)
+static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[100];
+	char tmp_val[3];
 
 
 	/* Never duplicate artifacts */
@@ -963,7 +723,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 2))
+	if (get_string("Quantity: ", tmp_val, 3))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -972,11 +732,18 @@ static void wiz_quantity_item(object_type *o_ptr)
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
 
+		/* Adjust total weight being carried */
+		if (carried)
+		{
+			/* Remove the weight of the old number of objects */
+			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+
+			/* Add the weight of the new number of objects */
+			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
+
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
-
-		/* Reset pvals */
-                if (o_ptr->number <= o_ptr->stackc) o_ptr->stackc = 0;
 	}
 }
 
@@ -1067,7 +834,8 @@ static void do_cmd_wiz_play(void)
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			bool carried = (item >= 0) ? TRUE : FALSE;
+			wiz_quantity_item(i_ptr, carried);
 		}
 	}
 
@@ -1135,15 +903,11 @@ static void wiz_create_item(void)
 	/* Return if failed */
 	if (!k_idx) return;
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
-
-        /* Apply inscription */
-        i_ptr->note = k_info[k_idx].note;
 
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
@@ -1255,9 +1019,11 @@ static void do_cmd_wiz_cure_all(void)
 /*
  * Go to any level
  */
+/*
+ * Go to any level
+ */
 static void do_cmd_wiz_jump(void)
 {
-
         /* Ask for a town */
         if (adult_campaign)
         {
@@ -1552,7 +1318,7 @@ static void do_cmd_wiz_query(void)
 		case 'm': mask |= (CAVE_MARK); break;
 		case 'g': mask |= (CAVE_GLOW); break;
 		case 'r': mask |= (CAVE_ROOM); break;
-		case 'i': mask |= (CAVE_SAFE); break;
+                case 'i': mask |= (CAVE_SAFE); break;
 		case 's': mask |= (CAVE_SEEN); break;
 		case 'v': mask |= (CAVE_VIEW); break;
 		case 't': mask |= (CAVE_TEMP); break;
@@ -1565,6 +1331,8 @@ static void do_cmd_wiz_query(void)
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
 			byte a = TERM_RED;
+
+			if (!in_bounds_fully(y, x)) continue;
 
 			/* Given mask, show only those grids */
 			if (mask && !(cave_info[y][x] & mask)) continue;
@@ -1593,12 +1361,11 @@ static void do_cmd_wiz_query(void)
 
 	/* Get keypress */
 	msg_print("Press any key.");
-	msg_print(NULL);
+	message_flush();
 
 	/* Redraw map */
 	prt_map();
 }
-
 
 
 #ifdef ALLOW_SPOILERS
@@ -1609,13 +1376,6 @@ static void do_cmd_wiz_query(void)
 extern void do_cmd_spoilers(void);
 
 #endif
-
-
-
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
 
 
 
@@ -1726,7 +1486,8 @@ void do_cmd_debug(void)
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+			break;
 		}
 
 		/* Identify */
@@ -1849,13 +1610,6 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
-			break;
-		}
-
-		/* Hack */
-		case '_':
-		{
-			do_cmd_wiz_hack_ben();
 			break;
 		}
 

@@ -104,7 +104,7 @@ s16b modify_stat_value(int value, int amount)
 static void prt_field(cptr info, int row, int col)
 {
 	/* Dump 13 spaces to clear */
-	c_put_str(TERM_WHITE, "             ", row, col);
+	c_put_str(TERM_WHITE, "	     ", row, col);
 
 	/* Dump the info itself */
 	c_put_str(TERM_L_BLUE, info, row, col);
@@ -295,7 +295,7 @@ static void prt_sp(void)
 
 
 	/* Do not show mana unless it matters */
-	if (c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL) return;
+	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
 
 
 	put_str("Max SP ", ROW_MAXSP, COL_MAXSP);
@@ -335,11 +335,11 @@ static void prt_depth(void)
 {
 	char depths[32];
 
-        town_type *t_ptr = &t_info[p_ptr->dungeon];
-        dungeon_zone *zone = &t_ptr->zone[0];
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	dungeon_zone *zone = &t_ptr->zone[0];
 
 	/* Get the zone */	
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	if (!zone->fill)
 	{
@@ -437,7 +437,7 @@ static void prt_confused(void)
 	}
 	else
 	{
-		put_str("        ", ROW_CONFUSED, COL_CONFUSED);
+		put_str("	", ROW_CONFUSED, COL_CONFUSED);
 	}
 }
 
@@ -469,7 +469,7 @@ static void prt_poisoned(void)
 	}
 	else
 	{
-		put_str("        ", ROW_POISONED, COL_POISONED);
+		put_str("	", ROW_POISONED, COL_POISONED);
 	}
 }
 
@@ -575,30 +575,30 @@ static void prt_state(void)
 	}
 
 	/* Fainting / Starving */
-        else if (p_ptr->rest < PY_REST_FAINT)
+	else if (p_ptr->rest < PY_REST_FAINT)
 	{
-                attr = TERM_RED;
-                strcpy(text, "Exhausted ");
+		attr = TERM_RED;
+		strcpy(text, "Exhausted ");
 	}
 
-        /* Weak */
-        else if (p_ptr->rest < PY_REST_WEAK)
+	/* Weak */
+	else if (p_ptr->rest < PY_REST_WEAK)
 	{
-                attr = TERM_ORANGE;
-                strcpy(text, "Exhausted ");
+		attr = TERM_ORANGE;
+		strcpy(text, "Exhausted ");
 	}
 
-        /* Tired */
-        else if (p_ptr->rest < PY_REST_ALERT)
+	/* Tired */
+	else if (p_ptr->rest < PY_REST_ALERT)
 	{
-                attr = TERM_YELLOW;
-                strcpy(text, "Tired     ");
+		attr = TERM_YELLOW;
+		strcpy(text, "Tired     ");
 	}
 
 	/* Nothing interesting */
 	else
 	{
-		strcpy(text, "          ");
+		strcpy(text, "	  ");
 	}
 
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
@@ -612,7 +612,7 @@ static void prt_state(void)
 
 
 /*
- * Prints the speed of a character.                     -CJS-
+ * Prints the speed of a character.		     -CJS-
  */
 static void prt_speed(void)
 {
@@ -690,7 +690,7 @@ static void prt_cut(void)
 	}
 	else
 	{
-		put_str("            ", ROW_CUT, COL_CUT);
+		put_str("	    ", ROW_CUT, COL_CUT);
 	}
 }
 
@@ -710,11 +710,11 @@ static void prt_stun(void)
 	}
 	else if (s)
 	{
-		c_put_str(TERM_ORANGE, "Stun        ", ROW_STUN, COL_STUN);
+		c_put_str(TERM_ORANGE, "Stun	", ROW_STUN, COL_STUN);
 	}
 	else
 	{
-		put_str("            ", ROW_STUN, COL_STUN);
+		put_str("	    ", ROW_STUN, COL_STUN);
 	}
 }
 
@@ -763,14 +763,14 @@ static void health_redraw(void)
 	/* Tracking a visible monster */
 	else
 	{
-                int pct, len;
+		int pct, len;
 
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
 
-                /* Extract the "percent" of health */
+		/* Extract the "percent" of health */
 		pct = 100L * m_ptr->hp / m_ptr->maxhp;
 
 		/* Badly wounded */
@@ -809,6 +809,61 @@ static void health_redraw(void)
 	}
 }
 
+
+
+/*
+ * Hack -- track the given object kind
+ */
+void artifact_track(int a_idx)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Make fake artifact */
+	make_fake_artifact(o_ptr, a_idx);
+
+	term_obj_real = FALSE;
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+/*
+ * Hack -- track the given object kind
+ */
+void object_kind_track(int k_idx)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Prepare the object */
+	object_wipe(o_ptr);
+	object_prep(o_ptr, k_idx);
+
+	term_obj_real = FALSE;
+	object_known(o_ptr);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+/*
+ * Hack -- track the given object kind
+ */
+void object_actual_track(const object_type *j_ptr)
+{
+	object_type *o_ptr = &term_object;
+
+	/* Prepare the object */
+	object_wipe(o_ptr);
+	object_copy(o_ptr, j_ptr);
+
+	term_obj_real = TRUE;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OBJECT);
+}
+
+
+
 #ifdef USE_CLASS_PRETTY_NAMES
 
 
@@ -825,11 +880,11 @@ static void health_redraw(void)
  */
 void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool short_name)
 {
-        char temp[60];
+	char temp[60];
 
-        temp[0] = '\0';
+	temp[0] = '\0';
 
-        if (short_name) strcpy(temp,c_name+c_info[p_ptr->pclass].name);
+	if (short_name) strcpy(temp,c_name+c_info[p_ptr->pclass].name);
 
 	switch (p_ptr->pclass)
 	{
@@ -839,8 +894,8 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_ONE_HANDED) strcpy(temp,"Swashbuckler");
 			if (style == WS_TWO_HANDED) strcpy(temp,"Samurai");
 			if (style == WS_TWO_WEAPON) strcpy(temp,"Gladiator");
-                        if (style == WS_WEAPON_SHIELD) strcpy(temp,"Knight");
-                        if (style == WS_RING) strcpy(temp,"Ringbearer");
+			if (style == WS_WEAPON_SHIELD) strcpy(temp,"Knight");
+			if (style == WS_RING) strcpy(temp,"Ringbearer");
 			if ((style == WS_HAFTED) && (long_name))
 			{
 				strcpy(temp,"Weaponmaster (Hafted)");
@@ -864,20 +919,20 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_SLAY_TROLL) strcpy(temp,"Trollkiller");
 			if (style == WS_SLAY_GIANT) strcpy(temp,"Giantkiller");
 			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonkiller");
-                        if (style == WS_RING) strcpy(temp,"Ringbearer");
+			if (style == WS_RING) strcpy(temp,"Ringbearer");
 			break;
 
 		case 1:
-                        if (style == WS_POTION) strcpy(temp,"Herbalist");
-                        if (style == WS_SCROLL) strcpy(temp,"Sage");
-                        if (style == WS_WAND) strcpy(temp,"Magician");
-                        if (style == WS_STAFF) strcpy(temp,"Wizard");
-                        if (style == WS_AMULET) strcpy(temp,"Witch");
-                        if (style == WS_RING) strcpy(temp,"Ringwielder");
-                        if ((style == WS_MAGIC_BOOK) && (sval >= 0))
+			if (style == WS_POTION) strcpy(temp,"Herbalist");
+			if (style == WS_SCROLL) strcpy(temp,"Sage");
+			if (style == WS_WAND) strcpy(temp,"Magician");
+			if (style == WS_STAFF) strcpy(temp,"Wizard");
+			if (style == WS_AMULET) strcpy(temp,"Witch");
+			if (style == WS_RING) strcpy(temp,"Ringwielder");
+			if ((style == WS_MAGIC_BOOK) && (sval >= 0))
 			{
 
-                                object_kind *k_ptr=&k_info[0];
+				object_kind *k_ptr=&k_info[0];
 				int i;
 			
 				/* Analyse books */
@@ -885,31 +940,31 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				{
 					k_ptr = &k_info[i];
 
-                                        if ((k_ptr->tval == TV_MAGIC_BOOK) && (k_ptr->sval == sval)) break;
+					if ((k_ptr->tval == TV_MAGIC_BOOK) && (k_ptr->sval == sval)) break;
 				}
 
 				if (short_name) strcpy(temp,"Magi");
 				else sprintf(temp,"%s",k_name+k_ptr->name);
 				if (long_name) sprintf(temp,"Magi %s",k_name+k_ptr->name);
-                                if (sval == 1) strcpy(temp,"Conjuror");
-                                if (sval == 2) strcpy(temp,"Invoker");
-                                if (sval == 3) strcpy(temp,"Sorcerer");
-                                if (sval == 6) strcpy(temp,"Archmage");
-                                if (sval == 7) strcpy(temp,"Warlock");
+				if (sval == 1) strcpy(temp,"Conjuror");
+				if (sval == 2) strcpy(temp,"Invoker");
+				if (sval == 3) strcpy(temp,"Sorcerer");
+				if (sval == 6) strcpy(temp,"Archmage");
+				if (sval == 7) strcpy(temp,"Warlock");
 				if (sval == 8) strcpy(temp,"War mage");
-                                if (sval == 22) strcpy(temp,"Enchanter");
-                                if (sval == 24) strcpy(temp,"Healer");
-                                if (sval == 21) strcpy(temp,"Runesmith");
-                                if (sval == 18) strcpy(temp,"Geomancer");
-                                if (sval == 20) strcpy(temp,"Hydromancer");
-                                if (sval == 9) strcpy(temp,"Pyromancer");
-                                if (sval == 11) strcpy(temp,"Cyromancer");
-                                if (sval == 13) strcpy(temp,"Alchemist");
-                                if (sval == 14) strcpy(temp,"Necromancer");
-                                if (sval == 25) strcpy(temp,"Artificer");
-                                if (sval == 23) strcpy(temp,"Sage");
-                                if (sval == 15) strcpy(temp,"Beastmaster");
-                                if (sval == 16) strcpy(temp,"Illusionist");
+				if (sval == 22) strcpy(temp,"Enchanter");
+				if (sval == 24) strcpy(temp,"Healer");
+				if (sval == 21) strcpy(temp,"Runesmith");
+				if (sval == 18) strcpy(temp,"Geomancer");
+				if (sval == 20) strcpy(temp,"Hydromancer");
+				if (sval == 9) strcpy(temp,"Pyromancer");
+				if (sval == 11) strcpy(temp,"Cyromancer");
+				if (sval == 13) strcpy(temp,"Alchemist");
+				if (sval == 14) strcpy(temp,"Necromancer");
+				if (sval == 25) strcpy(temp,"Artificer");
+				if (sval == 23) strcpy(temp,"Sage");
+				if (sval == 15) strcpy(temp,"Beastmaster");
+				if (sval == 16) strcpy(temp,"Illusionist");
 
 			}
 			break;
@@ -939,8 +994,8 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 		case 3:
 			if (style == WS_POTION) strcpy(temp,"Chemist");
 			if (style == WS_SCROLL) strcpy(temp,"Scholar");
-                        if (style == WS_AMULET) strcpy(temp,"Gypsy");
-                        if (style == WS_RING) strcpy(temp,"Jeweler");
+			if (style == WS_AMULET) strcpy(temp,"Gypsy");
+			if (style == WS_RING) strcpy(temp,"Jeweler");
 			break;
 		case 4:
 			if (style == WS_ONE_HANDED) strcpy(temp,"Outlaw");
@@ -953,20 +1008,20 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			break;
 
 		case 5:
-                        if (style == WS_ONE_HANDED) strcpy(temp,"Cavalier");
-                        if ((style == WS_WEAPON_SHIELD) && (long_name))
+			if (style == WS_ONE_HANDED) strcpy(temp,"Cavalier");
+			if ((style == WS_WEAPON_SHIELD) && (long_name))
 			{
-                                strcpy(temp,"Knight Defender");
+				strcpy(temp,"Knight Defender");
 			}
-                        else if (style == WS_WEAPON_SHIELD)
+			else if (style == WS_WEAPON_SHIELD)
 			{
-                                strcpy(temp,"Defender");
+				strcpy(temp,"Defender");
 			}
 			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonslayer");
-                        if ((style == WS_PRAYER_BOOK) && (sval >= 0))
+			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
 			{
 
-                                object_kind *k_ptr=&k_info[0];
+				object_kind *k_ptr=&k_info[0];
 				int i;
 			
 				/* Analyse books */
@@ -974,7 +1029,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				{
 					k_ptr = &k_info[i];
 
-                                        if ((k_ptr->tval == TV_PRAYER_BOOK) && (k_ptr->sval == sval)) break;
+					if ((k_ptr->tval == TV_PRAYER_BOOK) && (k_ptr->sval == sval)) break;
 				}
 
 				if (short_name) strcpy(temp,"Knight Errant");
@@ -984,17 +1039,17 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			break;
 		case 6:
 			if (style == WS_UNARMED) strcpy(temp,"Acrobat");
-                        if (style == WS_ONE_HANDED) strcpy(temp,"Highwayman");
-                        if (style == WS_TWO_HANDED) strcpy(temp,"Ninja");
-                        if (style == WS_TWO_WEAPON) strcpy(temp,"Enforcer");
-                        if (style == WS_THROWN) strcpy(temp,"Juggler");
+			if (style == WS_ONE_HANDED) strcpy(temp,"Highwayman");
+			if (style == WS_TWO_HANDED) strcpy(temp,"Ninja");
+			if (style == WS_TWO_WEAPON) strcpy(temp,"Enforcer");
+			if (style == WS_THROWN) strcpy(temp,"Juggler");
 			if (style == WS_BACKSTAB) strcpy(temp,"Assassin");
-                        if (style == WS_POTION) strcpy(temp,"Apothecry");
-                        if (style == WS_SCROLL) strcpy(temp,"Archeologist");
-                        if (style == WS_AMULET) strcpy(temp,"Merchant");
-                        if (style == WS_RING) strcpy(temp,"Fence");
-                        if (style == WS_SLAY_UNDEAD) strcpy(temp,"Graverobber");
-                        if (style == WS_SLAY_DEMON) strcpy(temp,"Tombrobber");
+			if (style == WS_POTION) strcpy(temp,"Apothecry");
+			if (style == WS_SCROLL) strcpy(temp,"Archeologist");
+			if (style == WS_AMULET) strcpy(temp,"Merchant");
+			if (style == WS_RING) strcpy(temp,"Fence");
+			if (style == WS_SLAY_UNDEAD) strcpy(temp,"Graverobber");
+			if (style == WS_SLAY_DEMON) strcpy(temp,"Tombrobber");
 			break;
 
 		case 7:
@@ -1003,38 +1058,38 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_XBOW) strcpy(temp,"Crossbowman");
 			break;
 		case 8:
-                        if (style == WS_UNARMED) strcpy(temp,"Mystic");
+			if (style == WS_UNARMED) strcpy(temp,"Mystic");
 
-                        if (((style == WS_PRAYER_BOOK) || (style == WS_MAGIC_BOOK)) && (sval >= 0))
+			if (((style == WS_PRAYER_BOOK) || (style == WS_MAGIC_BOOK)) && (sval >= 0))
 			{
 
-                                object_kind *k_ptr=&k_info[0];
+				object_kind *k_ptr=&k_info[0];
 				int i;
 
-                                int t = 0;
+				int t = 0;
 
-                                switch(style)
-                                {
-                                        case WS_MAGIC_BOOK:
-                                                t = TV_MAGIC_BOOK;
-                                                break;
-                                        case WS_PRAYER_BOOK:
-                                                t = TV_PRAYER_BOOK;
-                                                break;
-                                }
+				switch(style)
+				{
+					case WS_MAGIC_BOOK:
+						t = TV_MAGIC_BOOK;
+						break;
+					case WS_PRAYER_BOOK:
+						t = TV_PRAYER_BOOK;
+						break;
+				}
 			
 				/* Analyse books */
 				for (i = 0;i<z_info->k_max;i++)
 				{
 					k_ptr = &k_info[i];
 
-                                        if ((k_ptr->tval == t) && (k_ptr->sval == sval)) break;
+					if ((k_ptr->tval == t) && (k_ptr->sval == sval)) break;
 				}
 
-                                if (short_name) strcpy(temp,"Cultist");
+				if (short_name) strcpy(temp,"Cultist");
 				else sprintf(temp,"%s",k_name+k_ptr->name);
-                                if (long_name) sprintf(temp,"Cultist %s",
-                                        k_name+k_ptr->name);
+				if (long_name) sprintf(temp,"Cultist %s",
+					k_name+k_ptr->name);
 			}
 			break;
 		case 9:
@@ -1042,10 +1097,10 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_THROWN) strcpy(temp,"Jester");
 			if (style == WS_INSTRUMENT) strcpy(temp,"Musician");
 
-                        if ((style == WS_SONG_BOOK) && (sval >= 0))
+			if ((style == WS_SONG_BOOK) && (sval >= 0))
 			{
 
-                                object_kind *k_ptr=&k_info[0];
+				object_kind *k_ptr=&k_info[0];
 				int i;
 			
 				/* Analyse books */
@@ -1053,17 +1108,17 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				{
 					k_ptr = &k_info[i];
 
-                                        if ((k_ptr->tval == TV_SONG_BOOK) && (k_ptr->sval == sval)) break;
+					if ((k_ptr->tval == TV_SONG_BOOK) && (k_ptr->sval == sval)) break;
 				}
 
-                                if (short_name) strcpy(temp,"Spellsinger");
+				if (short_name) strcpy(temp,"Spellsinger");
 				else sprintf(temp,"%s",k_name+k_ptr->name);
-                                if (long_name) sprintf(temp,"Spellsinger (%s)",k_name+k_ptr->name);
-                        }
+				if (long_name) sprintf(temp,"Spellsinger (%s)",k_name+k_ptr->name);
+			}
 			break;
-        }
+	}
 
-        strcpy(name,temp);
+	strcpy(name,temp);
 }
 
 #endif
@@ -1077,17 +1132,17 @@ static void prt_frame_basic(void)
 	int i;
 #ifdef USE_CLASS_PRETTY_NAMES
 
-        char name[60];
+	char name[60];
 
-        lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,FALSE,TRUE);
+	lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,FALSE,TRUE);
 
 #endif
 	/* Race and Class */
 	prt_field(p_name + rp_ptr->name, ROW_RACE, COL_RACE);
 
 #ifdef USE_CLASS_PRETTY_NAMES
-        if (strlen(name)) prt_field(name, ROW_CLASS, COL_CLASS);
-        else prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
+	if (strlen(name)) prt_field(name, ROW_CLASS, COL_CLASS);
+	else prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
 
 #else
 	prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
@@ -1416,9 +1471,10 @@ static void fix_monster(void)
 static void fix_object(void)
 {
 	int j;
+	object_type *o_ptr = &term_object;
 
 	/* Scan windows */
-	for (j = 0; j < 8; j++)
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
 		term *old = Term;
 
@@ -1431,8 +1487,8 @@ static void fix_object(void)
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-		/* Display monster race info */
-		if (p_ptr->object_kind_idx) display_koff(p_ptr->object_kind_idx);
+		/* Display object info */
+		display_koff(o_ptr);
 
 		/* Fresh */
 		Term_fresh();
@@ -1449,7 +1505,7 @@ static void fix_room_info(void)
 {
 
 	int by = p_ptr->py / BLOCK_HGT;
-        int bx = p_ptr->px / BLOCK_WID;
+	int bx = p_ptr->px / BLOCK_WID;
 	int room = dun_room[by][bx];
 
 	int j;
@@ -1463,13 +1519,13 @@ static void fix_room_info(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-                if (!(op_ptr->window_flag[j] & (PW_ROOM_INFO))) continue;
+		if (!(op_ptr->window_flag[j] & (PW_ROOM_INFO))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
 
-                /* Display room info */
-                display_room_info(room);
+		/* Display room info */
+		display_room_info(room);
 
 		/* Fresh */
 		Term_fresh();
@@ -1504,31 +1560,31 @@ static void calc_spells(void)
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
 
-        int max_spells = PY_MAX_SPELLS;
-        cptr p;
+	int max_spells = PY_MAX_SPELLS;
+	cptr p;
 
-        if (!variant_more_spells) max_spells = 64;
+	if (!variant_more_spells) max_spells = 64;
 
-        /* Hack --- We don't know which book it comes from */
-        switch (c_info[p_ptr->pclass].sp_stat)
-        {
-                case A_WIS:
-                        p="prayer";
-                break;
+	/* Hack --- We don't know which book it comes from */
+	switch (c_info[p_ptr->pclass].spell_stat)
+	{
+		case A_WIS:
+			p="prayer";
+		break;
 
-                case A_CHR:
-                        p = "song";
-                break;
+		case A_CHR:
+			p = "song";
+		break;
 
-                default:
-                        p="spell";
-                break;
+		default:
+			p="spell";
+		break;
 
-        }
+	}
 
 
 
-	if (c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL) return;
+	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
@@ -1537,49 +1593,49 @@ static void calc_spells(void)
 	if (character_xtra) return;
 
 	/* Determine the number of spells allowed */
-	levels = p_ptr->lev - c_info[p_ptr->pclass].sp_lvl + 1;
+	levels = p_ptr->lev - c_info[p_ptr->pclass].spell_first + 1;
 
 	/* Hack -- no negative spells */
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].sp_stat]] *
+	num_allowed = (adj_mag_study[p_ptr->stat_ind[c_info[p_ptr->pclass].spell_stat]] *
 		       levels / 2);
 
-        /* Hack --- adjust num_allowed */
-        if (num_allowed > max_spells) num_allowed = max_spells;
+	/* Hack --- adjust num_allowed */
+	if (num_allowed > max_spells) num_allowed = max_spells;
 
-        /* Hack --- Assume no spells available */
+	/* Hack --- Assume no spells available */
 	k = 0;
 
-        /* Number of spells can be learnt */
+	/* Number of spells can be learnt */
 	for (j = 0; j < z_info->s_max;j++)
 	{
 		/* Get the spell details */
-                for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
+		for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
 		{
-                        if (s_info[j].cast[ii].class == p_ptr->pclass)
+			if (s_info[j].cast[ii].class == p_ptr->pclass)
 			{
 				k++;
 			}
 		}
 	}
 
-        /* Hack --- Assume cannot learn more than spells in spell books */
-        if (num_allowed > k) num_allowed = k;
+	/* Hack --- Assume cannot learn more than spells in spell books */
+	if (num_allowed > k) num_allowed = k;
 
 
 	/* Assume none known */
 	num_known = 0;
 
-        /* Count the number of spells we know */
+	/* Count the number of spells we know */
 	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Count known spells */
-                if ((j < 32) ? (p_ptr->spell_learned1 & (1L << j)) :
-                      ((j < 64) ? (p_ptr->spell_learned2 & (1L << (j - 32))) :
-                      ((j < 96) ? (p_ptr->spell_learned3 & (1L << (j - 64))) :
-                      (p_ptr->spell_learned4 & (1L << (j - 96))))))
+		if ((j < 32) ? (p_ptr->spell_learned1 & (1L << j)) :
+		      ((j < 64) ? (p_ptr->spell_learned2 & (1L << (j - 32))) :
+		      ((j < 96) ? (p_ptr->spell_learned3 & (1L << (j - 64))) :
+		      (p_ptr->spell_learned4 & (1L << (j - 96))))))
 		{
 			num_known++;
 
@@ -1608,7 +1664,7 @@ static void calc_spells(void)
 		msg_print("Converting from old spell format...");
 
 		/* Count the number of spells we know */
-                for (j = 0; j < max_spells; j++)
+		for (j = 0; j < max_spells; j++)
 		{
 
 			if (p_ptr->spell_order[j] == 99)
@@ -1685,30 +1741,30 @@ static void calc_spells(void)
 
 
 		/* Skip spells we are allowed to know */
-                if (spell_level(j) <= p_ptr->lev) continue;
+		if (spell_level(j) <= p_ptr->lev) continue;
 
 		/* Is it known? */
-                if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
-                      (p_ptr->spell_learned4 & (1L << (i - 96))))))
+		if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+		      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+		      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+		      (p_ptr->spell_learned4 & (1L << (i - 96))))))
 		{
 			/* Mark as forgotten */
 			if (i < 32)
 			{
 				p_ptr->spell_forgotten1 |= (1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
 				p_ptr->spell_forgotten2 |= (1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_forgotten3 |= (1L << (i - 64));
+				p_ptr->spell_forgotten3 |= (1L << (i - 64));
 			}
-                        else
+			else
 			{
-                                p_ptr->spell_forgotten4 |= (1L << (i - 96));
+				p_ptr->spell_forgotten4 |= (1L << (i - 96));
 			}
 
 			/* No longer known */
@@ -1716,17 +1772,17 @@ static void calc_spells(void)
 			{
 				p_ptr->spell_learned1 &= ~(1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
 				p_ptr->spell_learned2 &= ~(1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_learned3 &= ~(1L << (i - 64));
+				p_ptr->spell_learned3 &= ~(1L << (i - 64));
 			}
 			else
 			{
-                                p_ptr->spell_learned4 &= ~(1L << (i - 96));
+				p_ptr->spell_learned4 &= ~(1L << (i - 96));
 			}
 
 			/* Message */
@@ -1757,27 +1813,27 @@ static void calc_spells(void)
 		s_ptr = &s_info[j];
 
 		/* Forget it (if learned) */
-                if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
-                      (p_ptr->spell_learned4 & (1L << (i - 96))))))
+		if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+		      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+		      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+		      (p_ptr->spell_learned4 & (1L << (i - 96))))))
 		{
 			/* Mark as forgotten */
 			if (i < 32)
 			{
 				p_ptr->spell_forgotten1 |= (1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
 				p_ptr->spell_forgotten2 |= (1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_forgotten3 |= (1L << (i - 64));
+				p_ptr->spell_forgotten3 |= (1L << (i - 64));
 			}
-                        else
+			else
 			{
-                                p_ptr->spell_forgotten4 |= (1L << (i - 96));
+				p_ptr->spell_forgotten4 |= (1L << (i - 96));
 			}
 
 			/* No longer known */
@@ -1785,17 +1841,17 @@ static void calc_spells(void)
 			{
 				p_ptr->spell_learned1 &= ~(1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
 				p_ptr->spell_learned2 &= ~(1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_learned3 &= ~(1L << (i - 64));
+				p_ptr->spell_learned3 &= ~(1L << (i - 64));
 			}
 			else
 			{
-                                p_ptr->spell_learned4 &= ~(1L << (i - 96));
+				p_ptr->spell_learned4 &= ~(1L << (i - 96));
 			}
 
 			/* Message */
@@ -1826,7 +1882,7 @@ static void calc_spells(void)
 		s_ptr = &s_info[j];
 
 		/* Get the spell details */
-                for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
+		for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
 		{
 			if (s_ptr->cast[ii].class == p_ptr->pclass)
 			{
@@ -1835,48 +1891,48 @@ static void calc_spells(void)
 		}
 
 		/* Skip spells we cannot remember */
-                if (spell_level(j) > p_ptr->lev) continue;
+		if (spell_level(j) > p_ptr->lev) continue;
 
 		/* First set of spells */
-                if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
-                      (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
+		if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
+		      ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
+		      ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
+		      (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
 		{
-                        /* No longer forgotten */
+			/* No longer forgotten */
 			if (i < 32)
 			{
-                                p_ptr->spell_forgotten1 &= ~(1L << i);
+				p_ptr->spell_forgotten1 &= ~(1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
-                                p_ptr->spell_forgotten2 &= ~(1L << (i - 32));
+				p_ptr->spell_forgotten2 &= ~(1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_forgotten3 &= ~(1L << (i - 64));
+				p_ptr->spell_forgotten3 &= ~(1L << (i - 64));
 			}
 			else
 			{
-                                p_ptr->spell_forgotten4 &= ~(1L << (i - 96));
+				p_ptr->spell_forgotten4 &= ~(1L << (i - 96));
 			}
 
-                        /* Mark as remembered */
+			/* Mark as remembered */
 			if (i < 32)
 			{
-                                p_ptr->spell_learned1 |= (1L << i);
+				p_ptr->spell_learned1 |= (1L << i);
 			}
-                        else if (i < 64)
+			else if (i < 64)
 			{
-                                p_ptr->spell_learned2 |= (1L << (i - 32));
+				p_ptr->spell_learned2 |= (1L << (i - 32));
 			}
-                        else if (i < 96)
+			else if (i < 96)
 			{
-                                p_ptr->spell_learned3 |= (1L << (i - 64));
+				p_ptr->spell_learned3 |= (1L << (i - 64));
 			}
-                        else
+			else
 			{
-                                p_ptr->spell_learned4 |= (1L << (i - 96));
+				p_ptr->spell_learned4 |= (1L << (i - 96));
 			}
 
 			/* Message */
@@ -1920,53 +1976,53 @@ static void calc_spells(void)
  */
 static void calc_mana(void)
 {
-        int msp, levels, cur_wgt, max_wgt;
+	int msp, levels, cur_wgt, max_wgt;
 
-        int i;
+	int i;
 
-        player_class *pc_ptr = &(c_info[p_ptr->pclass]);
+	player_class *pc_ptr = &(c_info[p_ptr->pclass]);
 
 	object_type *o_ptr;
 
-        bool icky_hands = FALSE;
+	bool icky_hands = FALSE;
 
 	/* Do not show mana unless it matters */
-        if (pc_ptr->sp_lvl > PY_MAX_LEVEL) return;
+	if (pc_ptr->spell_first > PY_MAX_LEVEL) return;
 
 	/* Extract "effective" player level */
-        levels = (p_ptr->lev - pc_ptr->sp_lvl) + 1;
+	levels = (p_ptr->lev - pc_ptr->spell_first) + 1;
 
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-        msp = adj_mag_mana[p_ptr->stat_ind[pc_ptr->sp_stat]] * levels / 2;
+	msp = adj_mag_mana[p_ptr->stat_ind[pc_ptr->spell_stat]] * levels / 2;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
-        /* Assume player is not encumbered by gloves */
-        p_ptr->cumber_glove = FALSE;
+	/* Assume player is not encumbered by gloves */
+	p_ptr->cumber_glove = FALSE;
 
-        /* Check for icky_hands*/
+	/* Check for icky_hands*/
 	for (i = 0;i< z_info->w_max;i++)
 	{
 		if (w_info[i].class != p_ptr->pclass) continue;
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-                if (w_info[i].benefit != WB_ICKY_HANDS) continue;
+		if (w_info[i].benefit != WB_ICKY_HANDS) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+		if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
-                        icky_hands=TRUE;
+			icky_hands=TRUE;
 		}
 
 	}
 
 	/* Only mages are affected */
-        if (icky_hands)
+	if (icky_hands)
 	{
 		u32b f1, f2, f3;
 
@@ -2003,10 +2059,10 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-        max_wgt = pc_ptr->spell_weight;
+	max_wgt = pc_ptr->spell_weight;
 
 	/* Heavy armor penalizes mana */
-	if (((cur_wgt - max_wgt) / 10) > 0)
+	if ((((cur_wgt - max_wgt) / 10) > 0) && (msp))
 	{
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
@@ -2130,24 +2186,24 @@ static void calc_torch(void)
 {
 	object_type *o_ptr = &inventory[INVEN_LITE];
 
-        u32b f1;
-        u32b f2;
-        u32b f3;
+	u32b f1;
+	u32b f2;
+	u32b f3;
 
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
 	/* Player is glowing */
-        if (p_ptr->lite)
-        {
+	if (p_ptr->lite)
+	{
 #ifdef ALLOW_OBJECT_INFO_MORE
-                equip_can_flags(0x0L,0x0L,TR3_LITE);
+		equip_can_flags(0x0L,0x0L,TR3_LITE);
 #endif
-                p_ptr->cur_lite = 2;
-        }
+		p_ptr->cur_lite = 2;
+	}
 
-        /* Get the object flags */
-        object_flags(o_ptr,&f1,&f2,&f3);
+	/* Get the object flags */
+	object_flags(o_ptr,&f1,&f2,&f3);
 
 	/* Examine actual lites */
 	if (o_ptr->tval == TV_LITE)
@@ -2165,32 +2221,32 @@ static void calc_torch(void)
 		}
 
 		/* Artifact Lites provide permanent, bright, lite */
-                if (artifact_p(o_ptr))
-                {
-                        p_ptr->cur_lite = 3;
+		if (artifact_p(o_ptr))
+		{
+			p_ptr->cur_lite = 3;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-                        object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
 #endif
 
-                }
+		}
 
 	}
-        /* Examine spells */
-        else if (o_ptr->tval == TV_SPELL)
+	/* Examine spells */
+	else if (o_ptr->tval == TV_SPELL)
 	{
-                if (f3 & (TR3_LITE))
-                {
-                        p_ptr->cur_lite = 3;
+		if (f3 & (TR3_LITE))
+		{
+			p_ptr->cur_lite = 3;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-                        object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
 #endif
-                }
-                else
-                {             
-                        p_ptr->cur_lite = 1;
-                }             
+		}
+		else
+		{	     
+			p_ptr->cur_lite = 1;
+		}	     
 	}
 
 	/* Reduce lite when running if requested */
@@ -2277,20 +2333,20 @@ static int weight_limit(void)
  */
 static void calc_bonuses(void)
 {
-        int i, j, k, hold, weight;
+	int i, j, k, hold, weight;
 
 	int old_speed;
 
 	int old_telepathy;
 	int old_see_inv;
 
-        int old_esp_orc;
-        int old_esp_giant;
-        int old_esp_troll;
-        int old_esp_dragon;
+	int old_esp_orc;
+	int old_esp_giant;
+	int old_esp_troll;
+	int old_esp_dragon;
 
-        int old_esp_demon;
-        int old_esp_undead;
+	int old_esp_demon;
+	int old_esp_undead;
 	int old_esp_nature;
 
 	int old_dis_ac;
@@ -2318,13 +2374,13 @@ static void calc_bonuses(void)
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
 
-        old_esp_orc = p_ptr->esp_orc;
-        old_esp_giant = p_ptr->esp_giant;
-        old_esp_dragon = p_ptr->esp_dragon;
-        old_esp_troll = p_ptr->esp_troll;
+	old_esp_orc = p_ptr->esp_orc;
+	old_esp_giant = p_ptr->esp_giant;
+	old_esp_dragon = p_ptr->esp_dragon;
+	old_esp_troll = p_ptr->esp_troll;
 
-        old_esp_undead = p_ptr->esp_undead;
-        old_esp_demon = p_ptr->esp_demon;
+	old_esp_undead = p_ptr->esp_undead;
+	old_esp_demon = p_ptr->esp_demon;
 	old_esp_nature = p_ptr->esp_nature;
 
 	/* Save the old armor class */
@@ -2383,12 +2439,12 @@ static void calc_bonuses(void)
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
-        p_ptr->esp_orc = FALSE;
-        p_ptr->esp_giant = FALSE;
-        p_ptr->esp_troll = FALSE;
-        p_ptr->esp_dragon = FALSE;
-        p_ptr->esp_undead = FALSE;
-        p_ptr->esp_dragon = FALSE;
+	p_ptr->esp_orc = FALSE;
+	p_ptr->esp_giant = FALSE;
+	p_ptr->esp_troll = FALSE;
+	p_ptr->esp_dragon = FALSE;
+	p_ptr->esp_undead = FALSE;
+	p_ptr->esp_dragon = FALSE;
 	p_ptr->esp_nature = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
@@ -2464,13 +2520,13 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-        if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
-        if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
-        if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
-        if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
-        if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
-        if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
-        if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
+	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+	if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
+	if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
+	if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
+	if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
+	if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
+	if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
 	if (f3 & (TR3_ESP_NATURE)) p_ptr->esp_nature = TRUE;
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
@@ -2570,14 +2626,14 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-                if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
-                if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
-                if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
-                if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
-                if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
+		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+		if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
+		if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
+		if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
+		if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
 			if (f3 & (TR3_ESP_NATURE)) p_ptr->esp_nature = TRUE;
-                if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
-                if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
+		if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
+		if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
@@ -2728,6 +2784,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 5;
 		p_ptr->to_h += 10;
 		p_ptr->dis_to_h += 10;
+		p_ptr->hold_life = TRUE;
 	}
 
 	/* Temprory shield */
@@ -2742,6 +2799,7 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
+		p_ptr->resist_fear = TRUE;
 	}
 
 	/* Temporary "Beserk" */
@@ -2751,6 +2809,7 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_h += 24;
 		p_ptr->to_a -= 10;
 		p_ptr->dis_to_a -= 10;
+		p_ptr->resist_fear = TRUE;
 	}
 
 	/* Temporary "fast" */
@@ -2774,7 +2833,7 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra+=5;
 	}
 
 
@@ -2786,24 +2845,24 @@ static void calc_bonuses(void)
 	/* Extract the "weight limit" (in tenth pounds) */
 	i = weight_limit();
 
-        /* Base tire rate */
-        k = 10 - adj_con_fix[p_ptr->stat_ind[A_CON]];
+	/* Base tire rate */
+	k = 10 - adj_con_fix[p_ptr->stat_ind[A_CON]];
 
-        /* Apply "tiredness" from weight */
-        if (j > i/2) k += ((j - (i/2)) / (i / 10));
+	/* Apply "tiredness" from weight */
+	if (j > i/2) k += ((j - (i/2)) / (i / 10));
 
 	/* ANDY - Modify the weight for terrain underneath */
 
 	/* Ignore annoying locations */
 	if (in_bounds_fully(p_ptr->py, p_ptr->px))
 	{
-                feature_type *f_ptr =&f_info[cave_feat[p_ptr->py][p_ptr->px]];
+		feature_type *f_ptr =&f_info[cave_feat[p_ptr->py][p_ptr->px]];
 
-                bool can_swim = f_ptr->flags2 & (FF2_CAN_SWIM);
+		bool can_swim = f_ptr->flags2 & (FF2_CAN_SWIM);
 
-                /* If both hands not free, we cannot swim */
-                if ((inventory[INVEN_WIELD].k_idx) ||
-                        (inventory[INVEN_ARM].k_idx)) can_swim = FALSE;
+		/* If both hands not free, we cannot swim */
+		if ((inventory[INVEN_WIELD].k_idx) ||
+			(inventory[INVEN_ARM].k_idx)) can_swim = FALSE;
 
 		if (f_ptr->flags2 & (FF2_FILLED))
 		{
@@ -2812,12 +2871,12 @@ static void calc_bonuses(void)
 			if (f_ptr->flags2 & (FF2_CAN_SWIM))
 			{
 				j = j * 3;
-                                k = k * 3;
+				k = k * 3;
 			}
 			else
 			{
 				j = j * 4;
-                                k = k * 4;
+				k = k * 4;
 			}
 		}
 		else if (f_ptr->flags2 & (FF2_DEEP))
@@ -2826,23 +2885,23 @@ static void calc_bonuses(void)
 			if (f_ptr->flags2 & (FF2_CAN_SWIM))
 			{
 				j = j * 2;
-                                k = k * 2;
+				k = k * 2;
 			}
 			else
 			{
 				j = j * 3;
-                                k = k * 3;
+				k = k * 3;
 			}
 		}
 		else if (f_ptr->flags2 & (FF2_SHALLOW))
 		{
 			j = (j * 3)/2;
-                        k = (k * 3)/2;
+			k = (k * 3)/2;
 		}
 	}
 
-        /* Set the rate of tiring */
-        p_ptr->tiring = k;
+	/* Set the rate of tiring */
+	p_ptr->tiring = k;
 
 	/* Apply "encumbrance" from weight */
 	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
@@ -3008,7 +3067,7 @@ static void calc_bonuses(void)
 
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
-              
+	      
 		}
 
 
@@ -3032,7 +3091,7 @@ static void calc_bonuses(void)
 	else weight = 0;
 
 	/* Examine the "secondary weapon" */
-        o_ptr = &inventory[INVEN_ARM];
+	o_ptr = &inventory[INVEN_ARM];
 
 	/* Add weight of secondary weapon */
 	if (o_ptr->k_idx && (o_ptr->tval != TV_SHIELD)) weight += 2* o_ptr->weight;
@@ -3053,13 +3112,13 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-                int num = c_info[p_ptr->pclass].max_attacks;
-                int wgt = c_info[p_ptr->pclass].min_weight;
-                int mul = c_info[p_ptr->pclass].att_multiply;
+		int num = c_info[p_ptr->pclass].max_attacks;
+		int wgt = c_info[p_ptr->pclass].min_weight;
+		int mul = c_info[p_ptr->pclass].att_multiply;
 		int div;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
-                div = ((weight < wgt) ? wgt : weight);
+		div = ((weight < wgt) ? wgt : weight);
 
 		/* Get the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
@@ -3086,7 +3145,7 @@ static void calc_bonuses(void)
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
 		/* Boost digging skill by weapon weight */
-                p_ptr->skill_dig += (weight / 10);
+		p_ptr->skill_dig += (weight / 10);
 	}
 
 
@@ -3097,14 +3156,14 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Hack --- always uses no style */
-        p_ptr->cur_style |= (1L << WS_NONE);
+	p_ptr->cur_style |= (1L << WS_NONE);
 
 	/* Check weapon preference styles */
 	o_ptr = &inventory[INVEN_WIELD];
 
-        if ((!o_ptr->k_idx) || (o_ptr->number > 1))
+	if ((!o_ptr->k_idx) || (o_ptr->number > 1))
 	{
-                p_ptr->cur_style |= (1L << WS_UNARMED);
+		p_ptr->cur_style |= (1L << WS_UNARMED);
 	}
 	else 
 	{
@@ -3117,35 +3176,35 @@ static void calc_bonuses(void)
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
-                  case TV_STAFF:
+		  case TV_STAFF:
 			case TV_HAFTED:
-                        {
-                                p_ptr->cur_style |= (1L << WS_HAFTED);
+			{
+				p_ptr->cur_style |= (1L << WS_HAFTED);
 				break;
-                        }
+			}
 			case TV_SWORD:
-                        {
-                                p_ptr->cur_style |= (1L << WS_SWORD);
+			{
+				p_ptr->cur_style |= (1L << WS_SWORD);
 				break;
-                        }
+			}
 			case TV_POLEARM:
-                        {
-                                p_ptr->cur_style |= (1L << WS_POLEARM);
+			{
+				p_ptr->cur_style |= (1L << WS_POLEARM);
 				break;
-                        }
+			}
 			case TV_INSTRUMENT:
-                        {
-                                p_ptr->cur_style |= (1L << WS_INSTRUMENT);
-                                p_ptr->cur_style |= (1L << WS_UNARMED);
+			{
+				p_ptr->cur_style |= (1L << WS_INSTRUMENT);
+				p_ptr->cur_style |= (1L << WS_UNARMED);
 				break;
-                        }
-                        case TV_DIGGING:
-                                break;
-                        default:
-                        {
-                                p_ptr->cur_style |= (1L << WS_UNARMED);
-                                break;
-                        }
+			}
+			case TV_DIGGING:
+				break;
+			default:
+			{
+				p_ptr->cur_style |= (1L << WS_UNARMED);
+				break;
+			}
 		}
 	}
 
@@ -3154,7 +3213,7 @@ static void calc_bonuses(void)
 
 	if (!o_ptr->k_idx)
 	{
-                p_ptr->cur_style |= (1L << WS_THROWN);
+		p_ptr->cur_style |= (1L << WS_THROWN);
 	}
 	else if (o_ptr->tval==TV_BOW)
 	{
@@ -3162,22 +3221,22 @@ static void calc_bonuses(void)
 		switch(o_ptr->sval)
 		{
 			case SV_SLING:
-                        {
-                                p_ptr->cur_style |= (1L << WS_SLING);
+			{
+				p_ptr->cur_style |= (1L << WS_SLING);
 				break;
-                        }
+			}
 			case SV_SHORT_BOW:
 			case SV_LONG_BOW:
-                        {
-                                p_ptr->cur_style |= (1L << WS_BOW);
+			{
+				p_ptr->cur_style |= (1L << WS_BOW);
 				break;
-                        }
+			}
 			case SV_LIGHT_XBOW:
 			case SV_HEAVY_XBOW:
-                        {
-                                p_ptr->cur_style |= (1L << WS_XBOW);
-                                break;
-                        }
+			{
+				p_ptr->cur_style |= (1L << WS_XBOW);
+				break;
+			}
 		}
 	}
 
@@ -3198,18 +3257,18 @@ static void calc_bonuses(void)
 		switch(o_ptr->tval)
 		{
 			case TV_SHIELD:
-                        {
-                                p_ptr->cur_style |= (1L << WS_WEAPON_SHIELD);
+			{
+				p_ptr->cur_style |= (1L << WS_WEAPON_SHIELD);
 				break;
-                        }
+			}
 			case TV_HAFTED:
 			case TV_POLEARM:
 			case TV_SWORD:
 			case TV_STAFF:
-                        {
-                                p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
-                                break;
-                        }
+			{
+				p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
+				break;
+			}
 		}
 	}
 
@@ -3221,7 +3280,7 @@ static void calc_bonuses(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+		if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -3235,15 +3294,15 @@ static void calc_bonuses(void)
 				break;
 
 				case WB_AC:
-                                        if (!p_ptr->heavy_wield) p_ptr->to_a += (p_ptr->lev-w_info[i].level) /2;
+					if (!p_ptr->heavy_wield) p_ptr->to_a += (p_ptr->lev-w_info[i].level) /2;
 					break;
 
 				case WB_BLOW:
-                                        if (!p_ptr->heavy_wield) p_ptr->num_blow++;
+					if (!p_ptr->heavy_wield) p_ptr->num_blow++;
 					break;
 
 				case WB_SHOT:
-                                        if (!p_ptr->heavy_shoot) p_ptr->num_fire++;
+					if (!p_ptr->heavy_shoot) p_ptr->num_fire++;
 					break;
 
 				case WB_MIGHT:
@@ -3251,7 +3310,7 @@ static void calc_bonuses(void)
 					break;
 
 				case WB_ICKY_WIELD:
-                                        if ((inventory[INVEN_WIELD].k_idx) && (!p_ptr->bless_blade)) p_ptr->icky_wield = TRUE;
+					if ((inventory[INVEN_WIELD].k_idx) && (!p_ptr->bless_blade)) p_ptr->icky_wield = TRUE;
 					break;
 
 				case WB_BLESSED:
@@ -3262,7 +3321,7 @@ static void calc_bonuses(void)
 				case WB_RES_FEAR:
 					p_ptr->resist_fear = TRUE;
 					break;
-                         }
+			 }
 		}
 
 	}
@@ -3316,7 +3375,7 @@ static void calc_bonuses(void)
 			}
 
 			/* Change in INT may affect Mana/Spells */
-			else if ((i == c_info[p_ptr->pclass].sp_stat) && (c_info[p_ptr->pclass].sp_lvl <= PY_MAX_LEVEL))
+			else if ((i == c_info[p_ptr->pclass].spell_stat) && (c_info[p_ptr->pclass].spell_first <= PY_MAX_LEVEL))
 			{
 				p_ptr->update |= (PU_MANA | PU_SPELLS);
 			}
@@ -3330,50 +3389,50 @@ static void calc_bonuses(void)
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_orc != old_esp_orc)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_orc != old_esp_orc)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_giant != old_esp_giant)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_giant != old_esp_giant)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_troll != old_esp_troll)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_troll != old_esp_troll)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_dragon != old_esp_dragon)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_dragon != old_esp_dragon)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_demon != old_esp_demon)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_demon != old_esp_demon)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_undead != old_esp_undead)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_undead != old_esp_undead)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-        /* Hack -- ESP Change */
-        if (p_ptr->esp_nature != old_esp_nature)
+	/* Hack -- ESP Change */
+	if (p_ptr->esp_nature != old_esp_nature)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
@@ -3580,7 +3639,7 @@ void update_stuff(void)
 	if (p_ptr->update & (PU_ROOM_INFO))
 	{
 		p_ptr->update &= ~(PU_ROOM_INFO);
-                describe_room();
+		describe_room();
 	}
 
 }
@@ -3702,7 +3761,7 @@ void redraw_stuff(void)
 		prt_frame_extra();
 	}
 
-        if (p_ptr->redraw & (PR_CUT))
+	if (p_ptr->redraw & (PR_CUT))
 	{
 		p_ptr->redraw &= ~(PR_CUT);
 		prt_cut();
@@ -3851,11 +3910,11 @@ void window_stuff(void)
 		fix_object();
 	}
 
-        /* Display room info */
-        if (p_ptr->window & (PW_ROOM_INFO))
+	/* Display room info */
+	if (p_ptr->window & (PW_ROOM_INFO))
 	{
-                p_ptr->window &= ~(PW_ROOM_INFO);
-                fix_room_info();
+		p_ptr->window &= ~(PW_ROOM_INFO);
+		fix_room_info();
 	}
 
 }

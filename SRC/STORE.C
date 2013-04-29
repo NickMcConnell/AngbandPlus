@@ -470,8 +470,8 @@ more frequent while expensive */
 		case TV_POTION:
 		case TV_SCROLL:
 		{
-                        if (cost <= 140L) size += mass_roll(1, 5);
-                        if (cost <= 280L) size += mass_roll(1, 3);
+			if (cost <= 140L) size += mass_roll(1, 5);
+			if (cost <= 280L) size += mass_roll(1, 3);
 			break;
 		}
 
@@ -698,7 +698,7 @@ static bool store_check_num(object_type *o_ptr)
 /*
  * Determine if a weapon is 'blessed'
  */
-static bool is_blessed(object_type *o_ptr)
+static bool is_blessed(const object_type *o_ptr)
 {
 	u32b f1, f2, f3;
 
@@ -715,7 +715,7 @@ static bool is_blessed(object_type *o_ptr)
  *
  * Note that a shop-keeper must refuse to buy "worthless" objects
  */
-static bool store_will_buy(object_type *o_ptr)
+static bool store_will_buy(const object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
 	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1)) return (TRUE);
@@ -738,7 +738,8 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
-                                case TV_INSTRUMENT:
+				case TV_INSTRUMENT:
+				case TV_MAP:
 				break;
 				default:
 				return (FALSE);
@@ -978,7 +979,6 @@ static int store_carry(object_type *o_ptr)
 	/* Remove special inscription, if any */
 	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
-
 	/* Check each existing object (try to combine) */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
 	{
@@ -1187,55 +1187,55 @@ static void store_create(void)
 	/* Total choices in store */
 	total = 0;
 
-        for (i = 0;i < STORE_CHOICES;i++)
-        {
-                if (su_ptr->tval[i])
-                {
-                        total += su_ptr->count[i];
-                }
-        }
+	for (i = 0;i < STORE_CHOICES;i++)
+	{
+		if (su_ptr->tval[i])
+		{
+			total += su_ptr->count[i];
+		}
+	}
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
 
-                /* Paranoia */
-                race_drop_idx = 0;
+		/* Paranoia */
+		race_drop_idx = 0;
 
-                /* Quest rewards */
-                if ((total == 0) && (store_num_fake == -1))
-                {
-                        /* Mega-hack -- fiddle depth */
-                        int depth = p_ptr->depth;
+		/* Quest rewards */
+		if ((total == 0) && (store_num_fake == -1))
+		{
+			/* Mega-hack -- fiddle depth */
+			int depth = p_ptr->depth;
 
-                        p_ptr->depth = su_ptr->level;
-                        object_level = su_ptr->level;
+			p_ptr->depth = su_ptr->level;
+			object_level = su_ptr->level;
 
-                        /* Get local object */
-                        i_ptr = &object_type_body;
+			/* Get local object */
+			i_ptr = &object_type_body;
 
-                        if (!make_object(i_ptr, TRUE, TRUE)) continue;
+			if (!make_object(i_ptr, TRUE, TRUE)) continue;
 
-                        /* Reset depth */
-                        p_ptr->depth = depth;
-                        object_level = depth;
+			/* Reset depth */
+			p_ptr->depth = depth;
+			object_level = depth;
 
-                        object_aware(i_ptr);
-                        object_known(i_ptr);
+			object_aware(i_ptr);
+			object_known(i_ptr);
 
-                        /* Attempt to carry the (known) object */
-                        (void)store_carry(i_ptr);
+			/* Attempt to carry the (known) object */
+			(void)store_carry(i_ptr);
 
-                        return;
-                }
+			return;
+		}
 
 		/* Black Market */
-                else if (total == 0)
+		else if (total == 0)
 		{
 			/* Pick a level for object/magic */
 			level = su_ptr->level + rand_int(su_ptr->level);
 
-                        if (level > 100) level = 100;
+			if (level > 100) level = 100;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
@@ -1248,7 +1248,7 @@ static void store_create(void)
 		/* Normal Store */
 		else
 		{
-                        k_idx = 0;
+			k_idx = 0;
 
 			choice = rand_int(total);
 
@@ -1264,7 +1264,7 @@ static void store_create(void)
 				break;
 			}
 
-                        if (!k_idx) continue;
+			if (!k_idx) continue;
 
 			/* Hack -- fake level for apply_magic() */
 			level = rand_range(1, STORE_OBJ_LEVEL+su_ptr->level);
@@ -1276,8 +1276,8 @@ static void store_create(void)
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
 
-                /* Apply some "low-level" magic (no artifacts unless reward) */
-                apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
+		/* Apply some "low-level" magic (no artifacts unless reward) */
+		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -1428,6 +1428,12 @@ static void display_entry(int item)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
+		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+                if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+
+		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+                if (o_ptr->name2) e_info[o_ptr->name2].aware = TRUE;
+
 		/* Show weights */
 		if (show_weights)
 		{
@@ -1467,6 +1473,10 @@ static void display_entry(int item)
 			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
 			put_str(out_val, y, 61);
 		}
+
+		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
+                if (!k_info[o_ptr->k_idx].flavor) k_info[o_ptr->k_idx].aware = TRUE;
+
 
 		/* Display a "fixed" cost */
 		if (o_ptr->ident & (IDENT_FIXED))
@@ -1530,7 +1540,7 @@ static void display_inventory(void)
 	for (i = k; i < 13; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
-	put_str("        ", 5, 20);
+	put_str("	", 5, 20);
 
 	/* Visual reminder of "more items" */
 	if (st_ptr->stock_num > 12)
@@ -1570,7 +1580,7 @@ static void display_store(void)
 	Term_clear();
 
 	/* The "Home" is special */
-        if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
 
 		/* Put the owner name */
@@ -2393,7 +2403,7 @@ static void store_purchase(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-                if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+		if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 		{
 			msg_print("There is nothing here.");
 		}
@@ -2406,7 +2416,7 @@ static void store_purchase(void)
 
 
 	/* Prompt */
-        if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
 		sprintf(out_val, "Which item do you want to take? ");
 	}
@@ -2880,16 +2890,16 @@ static void store_sell(void)
  */
 static void store_examine(void)
 {
-	int         item;
+	int	 item;
 	object_type *o_ptr;
-	char        o_name[80];
-	char        out_val[160];
+	char	o_name[80];
+	char	out_val[160];
 
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-                if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+		if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 		{
 			msg_print("There is nothing here.");
 		}
@@ -2919,9 +2929,10 @@ static void store_examine(void)
 	/* Describe */
 	msg_format("Examining %s...", o_name);
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-		msg_print("You see nothing special.");
+	msg_print("");
+
+	/* Describe */
+	screen_object(o_ptr, TRUE);
 
 	return;
 }
@@ -3285,25 +3296,25 @@ static void set_store(int which)
 		store_num_fake = -1;
 	}
 
-        if (store_num_fake == STORE_HOME)
-        {
-                /* Save the store pointers */
-                st_ptr = &store[STORE_HOME];
-        }
-        else
-        {
-                /* Save the store and owner pointers */
-                st_ptr = &store[store_num];
-        }
+	if (store_num_fake == STORE_HOME)
+	{
+		/* Save the store pointers */
+		st_ptr = &store[STORE_HOME];
+	}
+	else
+	{
+		/* Save the store and owner pointers */
+		st_ptr = &store[store_num];
+	}
 
-        if (store_num_fake >= 0)
-        {
-                ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
-        }
-        else
-        {
-                ot_ptr = &b_info[0];
-        }
+	if (store_num_fake >= 0)
+	{
+		ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
+	}
+	else
+	{
+		ot_ptr = &b_info[0];
+	}
 
 	su_ptr = &u_info[store_num_real];
 
@@ -3328,10 +3339,10 @@ void do_cmd_store(void)
 
 	int tmp_chr;
 
-        dungeon_zone *zone = &t_info[0].zone[0];
+	dungeon_zone *zone = &t_info[0].zone[0];
 
 	/* Get the zone */	
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 
 	/* Verify a store */
@@ -3350,7 +3361,7 @@ void do_cmd_store(void)
 	 */
 	if (p_ptr->town != p_ptr->dungeon)
 	{
-                int i,ii;
+		int i,ii;
 
 #if 0
 		/* Hack -- warn player */
@@ -3363,14 +3374,14 @@ void do_cmd_store(void)
 		p_ptr->town = p_ptr->dungeon;		
 
 		/* Initialise the stores -- except for home */
-                for (i = 0; i<STORE_HOME;i++)
+		for (i = 0; i<STORE_HOME;i++)
 		{
 			store_init(i);
 
-                        for (ii = 0;ii<10;ii++)
-                        {
-                                store_maint(i);
-                        }
+			for (ii = 0;ii<10;ii++)
+			{
+				store_maint(i);
+			}
 		}
 	}
 
@@ -3601,8 +3612,7 @@ void store_shuffle(int which)
 	}
 
 	/* Activate the new owner */
-        ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
-
+	ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 
 	/* Reset the owner data */
 	st_ptr->insult_cur = 0;
@@ -3642,10 +3652,10 @@ void store_maint(int which)
 	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1)) return;
 
 	/* Activate the owner */
-        ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
+	ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 
 	/* Store keeper forgives the player */
-        st_ptr->insult_cur = 0;
+	st_ptr->insult_cur = 0;
 
 #if 0
 	/* Mega-Hack -- prune the black market */
@@ -3704,7 +3714,6 @@ void store_maint(int which)
 	/* Create some new items */
 	while (st_ptr->stock_num < j) store_create();
 
-
 	/* Hack -- Restore the rating */
 	rating = old_rating;
 }
@@ -3729,8 +3738,8 @@ void store_init(int which)
 	}
 	else
 	{
-                /* Activate the new owner */
-                ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
+		/* Activate the new owner */
+		ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 	}
 
 	/* Initialize the store */
@@ -3748,7 +3757,7 @@ void store_init(int which)
 		object_wipe(&st_ptr->stock[k]);
 	}
 
-        if ((store_num_fake == -1) && (store_num_real > 0))
+	if ((store_num_fake == -1) && (store_num_real > 0))
 	{
 		/* Create some new items */
 		while (st_ptr->stock_num < 5) store_create();

@@ -6,21 +6,11 @@
 # ~ - Body (red)/Skeleton
 # ~ - Candle/Lantern
 
-# Altars are equivelent of priest books, but cannot be moved.
-
 # Thrones are equivelent of non-directional rods, that are used.
-
-# Wells allow you to fill empty bottles, and end up with a potion of some
-# kind. You cannot quaff from them.
-
-# Fountains are like wells, but you can also quaff from them.
 
 # Candles are lights that are destroyed when their pval is used up, and
 # have powers equivelent to various rings. Lanterns are similar, but made
 # be refuelled to allow power to continue.
-
-# Statues are like chests, but cannot be opened. Bashing a statue results
-# in money only.
 
 # All objects with sval = 0 are a non-magical version of the object that
 # could be of any flavor?

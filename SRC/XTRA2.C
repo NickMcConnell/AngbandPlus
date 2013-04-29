@@ -1672,57 +1672,57 @@ bool set_rest(int v)
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
-        v = (v > PY_REST_MAX) ? PY_REST_MAX : (v < 0) ? 0 : v;
+	v = (v > PY_REST_MAX) ? PY_REST_MAX : (v < 0) ? 0 : v;
 
 	/* Fainting / Starving */
-        if (p_ptr->rest < PY_REST_FAINT)
+	if (p_ptr->rest < PY_REST_FAINT)
 	{
 		old_aux = 0;
 	}
 
 	/* Weak */
-        else if (p_ptr->rest < PY_REST_WEAK)
+	else if (p_ptr->rest < PY_REST_WEAK)
 	{
 		old_aux = 1;
 	}
 
 	/* Hungry */
-        else if (p_ptr->rest < PY_REST_ALERT)
+	else if (p_ptr->rest < PY_REST_ALERT)
 	{
 		old_aux = 2;
 	}
 
 	/* Normal */
-        else
+	else
 	{
 		old_aux = 3;
 	}
 
 	/* Fainting / Starving */
-        if (v < PY_REST_FAINT)
+	if (v < PY_REST_FAINT)
 	{
 		new_aux = 0;
 	}
 
 	/* Weak */
-        else if (v < PY_REST_WEAK)
+	else if (v < PY_REST_WEAK)
 	{
 		new_aux = 1;
 	}
 
 	/* Hungry */
-        else if (v < PY_REST_ALERT)
+	else if (v < PY_REST_ALERT)
 	{
 		new_aux = 2;
 	}
 
 	/* Normal */
-        else
+	else
 	{
 		new_aux = 3;
 	}
 
-        /* Rest increase */
+	/* Rest increase */
 	if (new_aux > old_aux)
 	{
 		/* Describe the state */
@@ -1732,7 +1732,7 @@ bool set_rest(int v)
 			/* Normal */
 			case 3:
 			{
-                                msg_print("You are no longer tired.");
+				msg_print("You are no longer tired.");
 				break;
 			}
 
@@ -1751,21 +1751,21 @@ bool set_rest(int v)
 			/* Fainting / Starving */
 			case 0:
 			{
-                                msg_print("You are getting faint from exhaustion!");
+				msg_print("You are getting faint from exhaustion!");
 				break;
 			}
 
 			/* Weak */
 			case 1:
 			{
-                                msg_print("You are getting weak from exhaustion!");
+				msg_print("You are getting weak from exhaustion!");
 				break;
 			}
 
 			/* Hungry */
 			case 2:
 			{
-                                msg_print("You are getting short of breath.");
+				msg_print("You are getting short of breath.");
 				break;
 			}
 
@@ -1776,7 +1776,7 @@ bool set_rest(int v)
 	}
 
 	/* Use the value */
-        p_ptr->rest = v;
+	p_ptr->rest = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -1788,7 +1788,7 @@ bool set_rest(int v)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Redraw hunger */
-        p_ptr->redraw |= (PR_STATE);
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1817,106 +1817,106 @@ static cptr desc_stat_imp[] =
  */
 void improve_aware(void)
 {
-        int i;
+	int i;
 
-        int aware_amulet=-1;
-        int aware_ring=-1;
-        int aware_wand=-1;
-        int aware_staff=-1;
-        int aware_potion=-1;
-        int aware_scroll=-1;
+	int aware_amulet=-1;
+	int aware_ring=-1;
+	int aware_wand=-1;
+	int aware_staff=-1;
+	int aware_potion=-1;
+	int aware_scroll=-1;
 
-        u32b aware_style;
+	u32b aware_style;
 
-        /* Hack -- Check for id'ed */
-        for (i=1;i<z_info->w_max;i++)
-        {
-                if (w_info[i].benefit != WB_ID) continue;
+	/* Hack -- Check for id'ed */
+	for (i=1;i<z_info->w_max;i++)
+	{
+		if (w_info[i].benefit != WB_ID) continue;
 
-                if (w_info[i].class != p_ptr->pclass) continue;
+		if (w_info[i].class != p_ptr->pclass) continue;
 
-                if (w_info[i].level > p_ptr->lev) continue;
+		if (w_info[i].level > p_ptr->lev) continue;
 
-                aware_style = (w_info[i].styles & (1L << p_ptr->pstyle));
-                                                                   
-                if (aware_style & (1L << WS_WAND)) aware_wand = 2*(p_ptr->lev - w_info[i].level)+1;
+		aware_style = (w_info[i].styles & (1L << p_ptr->pstyle));
+								   
+		if (aware_style & (1L << WS_WAND)) aware_wand = 2*(p_ptr->lev - w_info[i].level)+1;
 
-                if (aware_style & (1L << WS_STAFF)) aware_staff = 2*(p_ptr->lev - w_info[i].level)+1;
+		if (aware_style & (1L << WS_STAFF)) aware_staff = 2*(p_ptr->lev - w_info[i].level)+1;
 
-                if (aware_style & (1L << WS_POTION)) aware_potion = 2*(p_ptr->lev - w_info[i].level)+1;
+		if (aware_style & (1L << WS_POTION)) aware_potion = 2*(p_ptr->lev - w_info[i].level)+1;
 
-                if (aware_style & (1L << WS_SCROLL)) aware_scroll = 2*(p_ptr->lev - w_info[i].level)+1;
+		if (aware_style & (1L << WS_SCROLL)) aware_scroll = 2*(p_ptr->lev - w_info[i].level)+1;
 
-                if (aware_style & (1L << WS_RING)) aware_ring = 2*(p_ptr->lev - w_info[i].level)+1;
+		if (aware_style & (1L << WS_RING)) aware_ring = 2*(p_ptr->lev - w_info[i].level)+1;
 
-                if (aware_style & (1L << WS_AMULET)) aware_amulet = 2*(p_ptr->lev - w_info[i].level)+1;
+		if (aware_style & (1L << WS_AMULET)) aware_amulet = 2*(p_ptr->lev - w_info[i].level)+1;
 
-         }
+	 }
 
-        /* Hack -- Check for id'ed */
-        for (i=1;i<z_info->k_max;i++)
-        {
-                /*Already aware */
-                if (k_info[i].aware) continue;
+	/* Hack -- Check for id'ed */
+	for (i=1;i<z_info->k_max;i++)
+	{
+		/*Already aware */
+		if (k_info[i].aware) continue;
 
-                switch (k_info[i].tval)
-                {
-                        case TV_WAND:
-                        {
-                                if (k_info[i].level <= aware_wand)
-                                {
-                                        k_info[i].aware=TRUE;
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                        case TV_STAFF:
-                        {
-                                if (k_info[i].level <= aware_staff) 
-                                {
-                                        k_info[i].aware=TRUE;                                        
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                        case TV_POTION:
-                        {
-                                if (k_info[i].level <= aware_potion) 
-                                {
-                                        k_info[i].aware=TRUE;
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                        case TV_SCROLL:
-                        {
-                                if (k_info[i].level <= aware_scroll) 
-                                {
-                                        k_info[i].aware=TRUE;
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                        case TV_RING:
-                        {
-                                if (k_info[i].level <= aware_ring) 
-                                {
-                                        k_info[i].aware=TRUE;
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                        case TV_AMULET:
-                        {
-                                if (k_info[i].level <= aware_amulet) 
-                                {
-                                        k_info[i].aware=TRUE;
-                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
-                                }
-                                break;
-                        }
-                }
-        }
+		switch (k_info[i].tval)
+		{
+			case TV_WAND:
+			{
+				if (k_info[i].level <= aware_wand)
+				{
+					k_info[i].aware=TRUE;
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+			case TV_STAFF:
+			{
+				if (k_info[i].level <= aware_staff) 
+				{
+					k_info[i].aware=TRUE;					
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+			case TV_POTION:
+			{
+				if (k_info[i].level <= aware_potion) 
+				{
+					k_info[i].aware=TRUE;
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+			case TV_SCROLL:
+			{
+				if (k_info[i].level <= aware_scroll) 
+				{
+					k_info[i].aware=TRUE;
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+			case TV_RING:
+			{
+				if (k_info[i].level <= aware_ring) 
+				{
+					k_info[i].aware=TRUE;
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+			case TV_AMULET:
+			{
+				if (k_info[i].level <= aware_amulet) 
+				{
+					k_info[i].aware=TRUE;
+					p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+				}
+				break;
+			}
+		}
+	}
 }
 
 /*
@@ -1925,15 +1925,15 @@ void improve_aware(void)
  */
 static void improve_stat(void)
 {
-        int k, stat, i;
+	int k, stat, i;
 
-        int tmp = 0;
+	int tmp = 0;
 
 	int table[7];
 
 	cptr p="";
 
-        /* Start table */
+	/* Start table */
 	table[0]=0;
 
 	/* Build probability table */
@@ -1954,19 +1954,19 @@ static void improve_stat(void)
 	/* Pick entry from table */
 	for (stat = 0;stat <=A_CHR;stat++)
 	{
-                if (k< table[stat+1]) break;
+		if (k< table[stat+1]) break;
 	}
 
 	/* Display */
-        if (p_ptr->stat_cur[stat]<p_ptr->stat_max[stat])
-        {
-                /* Set description */
-                p = "you could be ";
+	if (p_ptr->stat_cur[stat]<p_ptr->stat_max[stat])
+	{
+		/* Set description */
+		p = "you could be ";
 
-                /* Hack --- store stat */
-                tmp = p_ptr->stat_cur[stat];
-                p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
-        }
+		/* Hack --- store stat */
+		tmp = p_ptr->stat_cur[stat];
+		p_ptr->stat_cur[stat] = p_ptr->stat_max[stat];
+	}
 
 	/* Attempt to increase */
 	if (inc_stat(stat))
@@ -1977,7 +1977,7 @@ static void improve_stat(void)
 	}
 
 	/* Hack --- restore stat */
-        if (tmp) p_ptr->stat_cur[stat] = tmp;
+	if (tmp) p_ptr->stat_cur[stat] = tmp;
 
 }
 
@@ -2043,8 +2043,8 @@ void check_experience(void)
 		/* Improve a stat */
 		if ((variant_free_stats) && (p_ptr->lev > p_ptr->max_lev)) improve_stat();
 
-                /* Improve awareness */
-                if (p_ptr->lev > p_ptr->max_lev) improve_aware();
+		/* Improve awareness */
+		if (p_ptr->lev > p_ptr->max_lev) improve_aware();
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
@@ -2109,39 +2109,39 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-int get_food_type(monster_race *r_ptr)
+int get_food_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
-        /* Analyze "food" monsters */
-        if ((r_ptr->d_char == ',') && (strstr(name,"mushroom")))
+	/* Analyze "food" monsters */
+	if ((r_ptr->d_char == ',') && (strstr(name,"mushroom")))
 	{
 		/* Look for textual clues */
-                if (strstr(name, "Spotted ")) return (SV_FOOD_POISON+1);
-                if (strstr(name, "Silver ")) return (SV_FOOD_BLINDNESS+1);
-                if (strstr(name, "Yellow ")) return (SV_FOOD_PARANOIA+1);
-                if (strstr(name, "Grey ")) return (SV_FOOD_CONFUSION+1);
-                if (strstr(name, "Copper ")) return (SV_FOOD_PARALYSIS+1);
-                if (strstr(name, "Pink ")) return (SV_FOOD_WEAKNESS+1);
-                if (strstr(name, "Purple ")) return (SV_FOOD_SICKNESS+1);
-                if (strstr(name, "Black ")) return (SV_FOOD_STUPIDITY+1);
-                if (strstr(name, "Green ")) return (SV_FOOD_NAIVETY+1);
-                if (strstr(name, "Rotting ")) return (SV_FOOD_UNHEALTH+1);
-                if (strstr(name, "Brown ")) return (SV_FOOD_DISEASE+1);
-                if (strstr(name, "Shrieker ")) return (SV_FOOD_CURE_PARANOIA+1);
-                if (strstr(name, "Magic ")) return ((rand_int(100)<30?SV_FOOD_MANA+1:SV_FOOD_HALLUCINATION+1));
+		if (strstr(name, "Spotted ")) return (SV_FOOD_POISON+1);
+		if (strstr(name, "Silver ")) return (SV_FOOD_BLINDNESS+1);
+		if (strstr(name, "Yellow ")) return (SV_FOOD_PARANOIA+1);
+		if (strstr(name, "Grey ")) return (SV_FOOD_CONFUSION+1);
+		if (strstr(name, "Copper ")) return (SV_FOOD_PARALYSIS+1);
+		if (strstr(name, "Pink ")) return (SV_FOOD_WEAKNESS+1);
+		if (strstr(name, "Purple ")) return (SV_FOOD_SICKNESS+1);
+		if (strstr(name, "Black ")) return (SV_FOOD_STUPIDITY+1);
+		if (strstr(name, "Green ")) return (SV_FOOD_NAIVETY+1);
+		if (strstr(name, "Rotting ")) return (SV_FOOD_UNHEALTH+1);
+		if (strstr(name, "Brown ")) return (SV_FOOD_DISEASE+1);
+		if (strstr(name, "Shrieker ")) return (SV_FOOD_CURE_PARANOIA+1);
+		if (strstr(name, "Magic ")) return ((rand_int(100)<30?SV_FOOD_MANA+1:SV_FOOD_HALLUCINATION+1));
 
-                /* Force nothing */
-                return (-1);
+		/* Force nothing */
+		return (-1);
 	}
-        /* Analyze "food" monsters */
-        else if (strstr(name,", Farmer Maggot"))
-        {
-                return (SV_FOOD_MANA+1);
-        }
+	/* Analyze "food" monsters */
+	else if (strstr(name,", Farmer Maggot"))
+	{
+		return (SV_FOOD_MANA+1);
+	}
 
 	/* Assume nothing */
-        return (0);
+	return (0);
 }
 
 
@@ -2151,12 +2151,12 @@ int get_food_type(monster_race *r_ptr)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-int get_coin_type(monster_race *r_ptr)
+int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
 	/* Analyze "coin" monsters */
-        if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
+	if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
 	{
 		/* Look for textual clues */
 		if (strstr(name, " copper ")) return (2);
@@ -2214,9 +2214,9 @@ void monster_death(int m_idx)
 
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-        bool do_chest = (r_ptr->flags7 & (RF7_DROP_CHEST));
+	bool do_chest = (r_ptr->flags7 & (RF7_DROP_CHEST));
 
-        int force_food = get_food_type(r_ptr);
+	int force_food = get_food_type(r_ptr);
 	int force_coin = get_coin_type(r_ptr);
 
 	object_type *i_ptr;
@@ -2227,12 +2227,12 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-        /* Some monsters stop radiating lite when dying */
-        if (r_ptr->flags2 & (RF2_HAS_LITE))
-        {
-                /* Update the visuals */
-                p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-        }
+	/* Some monsters stop radiating lite when dying */
+	if (r_ptr->flags2 & (RF2_HAS_LITE))
+	{
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+	}
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2265,42 +2265,42 @@ void monster_death(int m_idx)
 	m_ptr->hold_o_idx = 0;
 
 
-        /* Drop corpses */
-        if (variant_drop_body)
-        {
-                /* Hack -- only rarely drop bodies */
-                if ((rand_int(100)<30) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
+	/* Drop corpses */
+	if (variant_drop_body)
+	{
+		/* Hack -- only rarely drop bodies */
+		if ((rand_int(100)<30) || (r_ptr->flags1 & (RF1_UNIQUE)) ||
 			(r_ptr->flags2 & (RF2_REGENERATE)) ||
-                        (r_ptr->level > p_ptr->depth))
-                {
-                        /* Get local object */
-                        i_ptr = &object_type_body;
+			(r_ptr->level > p_ptr->depth))
+		{
+			/* Get local object */
+			i_ptr = &object_type_body;
 
-                        /* Wipe the object */ 
-                        object_wipe(i_ptr);
+			/* Wipe the object */ 
+			object_wipe(i_ptr);
 
-                        /* Drop a body? */
-                        if (make_body(i_ptr, m_ptr->r_idx))
-                        {
+			/* Drop a body? */
+			if (make_body(i_ptr, m_ptr->r_idx))
+			{
 
-                                /* Note who dropped it */
-                                i_ptr->dropped = m_ptr->r_idx;
+				/* Note who dropped it */
+				i_ptr->dropped = m_ptr->r_idx;
 
 				/* I'll be back, Bennett */
 				if (r_ptr->flags2 & (RF2_REGENERATE)) i_ptr->timeout = damroll(3,6);
 
-                                /* Drop it in the dungeon */
-                                drop_near(i_ptr, -1, y, x);
-                        }
+				/* Drop it in the dungeon */
+				drop_near(i_ptr, -1, y, x);
+			}
 
-        	        /* Add some dust */
-	                if (r_ptr->flags7 & (RF7_HAS_DUST)) feat_near(FEAT_FLOOR_DUST_T,m_ptr->fy,m_ptr->fx);
+			/* Add some dust */
+			if (r_ptr->flags7 & (RF7_HAS_DUST)) feat_near(FEAT_FLOOR_DUST_T,m_ptr->fy,m_ptr->fx);
 
-                }
-        }
+		}
+	}
 
 	/* Do we drop more treasure? */
-        if (m_ptr->mflag & (MFLAG_MADE)) return;
+	if (m_ptr->mflag & (MFLAG_MADE)) return;
 
 	/* Mega-Hack -- drop "winner" treasures */
 	if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
@@ -2346,14 +2346,14 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
-        /* Hack -- handle mushroom patches */
-        food_type = force_food;
+	/* Hack -- handle mushroom patches */
+	food_type = force_food;
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
-        /* Hack -- handle monster drops */
-        race_drop_idx = m_ptr->r_idx;
+	/* Hack -- handle monster drops */
+	race_drop_idx = m_ptr->r_idx;
 
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
@@ -2367,16 +2367,16 @@ void monster_death(int m_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-                /* Make Chest */
-                if (do_chest && do_item && (rand_int(100) < 5))
-                {
-                        int chest;
+		/* Make Chest */
+		if (do_chest && do_item && (rand_int(100) < 5))
+		{
+			int chest;
 
-                        /* Drop it in the dungeon */
-                        if (make_chest(&chest)) feat_near(chest,y,x);
+			/* Drop it in the dungeon */
+			if (make_chest(&chest)) feat_near(chest,y,x);
 
-                        continue;
-                }
+			continue;
+		}
 
 		/* Make Gold */
 		if (do_gold && (!do_item || (rand_int(100) < 50)))
@@ -2398,9 +2398,9 @@ void monster_death(int m_idx)
 			dump_item++;
 		}
 
-                /* Note who dropped it */
-                /* Hack -- don't mark existing skeletons */
-                if (i_ptr->dropped <= 0) i_ptr->dropped = m_ptr->r_idx;
+		/* Note who dropped it */
+		/* Hack -- don't mark existing skeletons */
+		if (i_ptr->dropped <= 0) i_ptr->dropped = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
@@ -2409,14 +2409,14 @@ void monster_death(int m_idx)
 	/* Reset the object level */
 	object_level = p_ptr->depth;
 
-        /* Reset "food" type */
-        food_type = 0;
+	/* Reset "food" type */
+	food_type = 0;
 
 	/* Reset "coin" type */
 	coin_type = 0;
 
-        /* Reset "monster drop" type */
-        race_drop_idx = 0;
+	/* Reset "monster drop" type */
+	race_drop_idx = 0;
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
@@ -2429,7 +2429,7 @@ void monster_death(int m_idx)
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
 
 	/* Hack -- Mark quests as complete */
-	for (i = 0; i < MAX_Q_IDX; i++)
+	if (!adult_campaign) for (i = 0; i < MAX_Q_IDX; i++)
 	{
 		/* Hack -- note completed quests */
 		if (q_list[i].level == r_ptr->level) q_list[i].level = 0;
@@ -2440,13 +2440,13 @@ void monster_death(int m_idx)
 
 
 	/* Hack -- campaign mode has quest monsters without stairs */
-        if ((adult_campaign) && ((p_ptr->depth !=max_depth(p_ptr->dungeon)) || (p_ptr->depth == min_depth(p_ptr->dungeon))) )
+	if ((adult_campaign) && ((p_ptr->depth !=max_depth(p_ptr->dungeon)) || (p_ptr->depth == min_depth(p_ptr->dungeon))) )
 	{
 		return;
 	}
 
 	/* Need some stairs */
-	else if (total)
+	else if ((total) || (adult_campaign))
 	{
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -2532,11 +2532,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
-        /* Are we hurting it badly? */
-        if ((variant_drop_body) && ((m_ptr->maxhp / 3) < dam) && (m_ptr->maxhp > rand_int(100)))
-        {
-                object_type *i_ptr;
-                object_type object_type_body;
+	/* Are we hurting it badly? */
+	if ((variant_drop_body) && ((m_ptr->maxhp / 3) < dam) && (m_ptr->maxhp > rand_int(100)))
+	{
+		object_type *i_ptr;
+		object_type object_type_body;
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -2544,39 +2544,39 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-                /* Rip off a head */
-                if ((m_ptr->hp < dam) && make_head(i_ptr,m_ptr->r_idx))
-                {
-                        /* Note who dropped it */
-                        i_ptr->dropped = m_ptr->r_idx;
+		/* Rip off a head */
+		if ((m_ptr->hp < dam) && make_head(i_ptr,m_ptr->r_idx))
+		{
+			/* Note who dropped it */
+			i_ptr->dropped = m_ptr->r_idx;
 
-                        /* Drop it in the dungeon */
-                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
-                }
-                /* Rip off a limb */
-                else if ((m_ptr->hp - dam < m_ptr->maxhp / 10) && make_part(i_ptr,m_ptr->r_idx))
-                {
-                        /* Note who dropped it */
-                        i_ptr->dropped = m_ptr->r_idx;
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+		}
+		/* Rip off a limb */
+		else if ((m_ptr->hp - dam < m_ptr->maxhp / 10) && make_part(i_ptr,m_ptr->r_idx))
+		{
+			/* Note who dropped it */
+			i_ptr->dropped = m_ptr->r_idx;
 
-                        /* Drop it in the dungeon */
-                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
-                }
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+		}
 
-                /* Rip off some skin */
-                else if (make_skin(i_ptr,m_idx))
-                {
-                        /* Note who dropped it */
-                        i_ptr->dropped = m_ptr->r_idx;
+		/* Rip off some skin */
+		else if (make_skin(i_ptr,m_idx))
+		{
+			/* Note who dropped it */
+			i_ptr->dropped = m_ptr->r_idx;
 
-                        /* Drop it in the dungeon */
-                        drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
-                }
+			/* Drop it in the dungeon */
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+		}
 
 
-        	/* Add some blood */
-	        if (r_ptr->flags7 & (RF7_HAS_BLOOD)) feat_near(FEAT_FLOOR_BLOOD_T,m_ptr->fy,m_ptr->fx);
-        }
+		/* Add some blood */
+		if (r_ptr->flags7 & (RF7_HAS_BLOOD)) feat_near(FEAT_FLOOR_BLOOD_T,m_ptr->fy,m_ptr->fx);
+	}
 
 	/* Hurt it */
 	m_ptr->hp -= dam;
@@ -2617,7 +2617,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Maximum player level */
 		div = p_ptr->max_lev;
 
-                /* Give some experience for the kill */
+		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
 
 		/* Handle fractional experience */
@@ -2638,7 +2638,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Gain experience */
 		gain_exp(new_exp);
 
-                /* Generate treasure */
+		/* Generate treasure */
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
@@ -2648,17 +2648,17 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
+			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
 			/* Count kills in all lives */
-			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
+			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
 		}
 
 		/* Delete the monster */
-                delete_monster_idx(m_idx);
+		delete_monster_idx(m_idx);
 
 		/* Not afraid */
 		(*fear) = FALSE;
@@ -2739,10 +2739,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  */
 bool modify_panel(int wy, int wx)
 {
-        dungeon_zone *zone=&t_info[0].zone[0];
+	dungeon_zone *zone=&t_info[0].zone[0];
 
 	/* Get the zone */
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Verify wy, adjust if needed */
 	if (!zone->fill) wy = SCREEN_HGT;
@@ -2819,34 +2819,34 @@ bool change_panel(int dir)
 static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
 {
 	/* Initialize text */
-        strcpy(name, "");
+	strcpy(name, "");
 	strcpy(text_always, "");
 	strcpy(text_visible, "");
 
 	/* Town or not in room */
-        if (!room)
-        {
-                town_type *t_ptr = &t_info[p_ptr->dungeon];
-                dungeon_zone *zone=&t_ptr->zone[0];
+	if (!room)
+	{
+		town_type *t_ptr = &t_info[p_ptr->dungeon];
+		dungeon_zone *zone=&t_ptr->zone[0];
 
-                /* Get the zone */ 
-                get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+		/* Get the zone */ 
+		get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 		if (p_ptr->depth == min_depth(p_ptr->dungeon))
 		{
-                        strcpy(name, t_name + t_info[p_ptr->dungeon].name);
-                        strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
-                }
+			strcpy(name, t_name + t_info[p_ptr->dungeon].name);
+			strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+		}
 		else if (!zone->fill)
 		{
-                        strcpy(name, t_name + t_info[p_ptr->dungeon].name);
-                        strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+			strcpy(name, t_name + t_info[p_ptr->dungeon].name);
+			strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
 		}
-                else
-                {
-                        strcpy(name, "empty room");
-                }
-        	return;
+		else
+		{
+			strcpy(name, "empty room");
+		}
+		return;
 	}
 	
 	/* In room */
@@ -2859,10 +2859,10 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			return;
 		}
 
-                case (ROOM_NEST_THEME):
+		case (ROOM_NEST_THEME):
 		{
-                        strcpy(name, "monster den");
-                        strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
+			strcpy(name, "monster den");
+			strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
 			return;
 		}
 
@@ -2887,10 +2887,10 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			return;
 		}
 
-                case (ROOM_PIT_THEME):
+		case (ROOM_PIT_THEME):
 		{
-                        strcpy(name, "monster pit");
-                        strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
+			strcpy(name, "monster pit");
+			strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
 			return;
 		}
 
@@ -2937,10 +2937,10 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			strcat(text_visible, "its share of monsters and treasure.");
 			return;
 		}
-                case (ROOM_TOWER):
+		case (ROOM_TOWER):
 		{
-                        strcpy(name, "tower");
-                        strcpy(text_visible, "This tower is filled with monsters and traps.");
+			strcpy(name, "tower");
+			strcpy(text_visible, "This tower is filled with monsters and traps.");
 			return;
 		}
 		case (ROOM_NORMAL):
@@ -3032,16 +3032,16 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 		}
 	}
 
-        if (cheat_room)
-        {
-                if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"  This room cannot be teleported into.");
-                if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"  This room prevent you naturally healing your wounds.");
-                if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"  This room makes you vulnerible to being hit.");
-                if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"  This room cannot be magically lit.");
-                if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"  This room magically teleports you occasionally.");
-                if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"  This room prevents you casting spells.");
-                if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"  This room prevents you using wands, staffs or rods.");
-        }
+	if (cheat_room)
+	{
+		if (room_info[room].flags & (ROOM_ICKY)) strcat(text_always,"  This room cannot be teleported into.");
+		if (room_info[room].flags & (ROOM_BLOODY)) strcat(text_always,"  This room prevent you naturally healing your wounds.");
+		if (room_info[room].flags & (ROOM_CURSED)) strcat(text_always,"  This room makes you vulnerible to being hit.");
+		if (room_info[room].flags & (ROOM_GLOOMY)) strcat(text_always,"  This room cannot be magically lit.");
+		if (room_info[room].flags & (ROOM_PORTAL)) strcat(text_always,"  This room magically teleports you occasionally.");
+		if (room_info[room].flags & (ROOM_SILENT)) strcat(text_always,"  This room prevents you casting spells.");
+		if (room_info[room].flags & (ROOM_STATIC)) strcat(text_always,"  This room prevents you using wands, staffs or rods.");
+	}
 
 }
 
@@ -3052,7 +3052,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 static void room_info_top(int room)
 {
 	char first[2];
-        char name[40];
+	char name[40];
 	char text_visible[240];
 	char text_always[240];
 
@@ -3069,14 +3069,14 @@ static void room_info_top(int room)
 	Term_gotoxy(0, 0);
 
 	/* Hack - set first character to upper */
-        first[0] = name[0]-32;
+	first[0] = name[0]-32;
 	first[1] = '\0';
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, first);
 
 	/* Dump the name */
-        Term_addstr(-1, TERM_WHITE, (name+1));
+	Term_addstr(-1, TERM_WHITE, (name+1));
 
 }
 
@@ -3098,29 +3098,32 @@ static void screen_room_info(int room)
 	/* Flush messages */
 	msg_print(NULL);
 
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
 	/* Begin recall */
 	Term_erase(0, 1, 255);
 
 	/* Describe room */
-        if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
+	if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
 	{
 		/* Recall monster */
-                roff(text_visible);
+		text_out(text_visible);
 
-                if (strlen(text_always))
+		if (strlen(text_always))
 		{
-			roff("  ");
-                        roff(text_always);
+			text_out("  ");
+			text_out(text_always);
 		}
 
 	}
-        else if (strlen(text_always))
+	else if (strlen(text_always))
 	{
-                roff(text_always);
+		text_out(text_always);
 	}
 	else
 	{
-		roff("There is nothing remarkable about it.");
+		text_out("There is nothing remarkable about it.");
 	}
 
 	/* Describe room */
@@ -3154,26 +3157,29 @@ void display_room_info(int room)
 	/* Get the actual room description */
 	get_room_desc(room, name, text_visible, text_always);
 
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
 	/* Describe room */
-        if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
+	if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
 	{
 		/* Recall monster */
-                roff(text_visible);
+		text_out(text_visible);
 
-                if (strlen(text_always))
+		if (strlen(text_always))
 		{
-			roff("  ");
-                        roff(text_always);
+			text_out("  ");
+			text_out(text_always);
 		}
 
 	}
-        else if (strlen(text_always))
+	else if (strlen(text_always))
 	{
-                roff(text_always);
+		text_out(text_always);
 	}
 	else
 	{
-		roff("There is nothing remarkable about it.");
+		text_out("There is nothing remarkable about it.");
 	}
 
 	/* Describe room */
@@ -3187,7 +3193,7 @@ void describe_room(void)
 {
 
 	int by = p_ptr->py / BLOCK_HGT;
-        int bx = p_ptr->px / BLOCK_WID;
+	int bx = p_ptr->px / BLOCK_WID;
 	int room = dun_room[by][bx];
 	char name[32];
 	char text_visible[240];
@@ -3196,44 +3202,44 @@ void describe_room(void)
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
 
-        /* Hack -- not a room */
-        if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) room = 0;
+	/* Hack -- not a room */
+	if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))) room = 0;
 
 	/* Get the actual room description */
 	get_room_desc(room, name, text_visible, text_always);
 
-        if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
-         && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
+	if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
+	 && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 	{
-                if (room_names)
+		if (room_names)
 		{
 			msg_format("You have entered %s %s.",
-                                 (is_a_vowel(name[0]) ? "an" : "a"),name);
+				 (is_a_vowel(name[0]) ? "an" : "a"),name);
 		}
 
-                if (!(room_descriptions) || (room_info[room].flags & (ROOM_SEEN)))
-                {
-                }
-                else if ((strlen(text_visible)) && (strlen(text_always)))
+		if (!(room_descriptions) || (room_info[room].flags & (ROOM_SEEN)))
 		{
-			/* Message */
-                        msg_format("%s  %s", text_visible, text_always);
-
-			/* Now seen */
-			room_info[room].flags |= ROOM_SEEN;
 		}
-                else if (strlen(text_visible))
+		else if ((strlen(text_visible)) && (strlen(text_always)))
 		{
 			/* Message */
-                        msg_format("%s", text_visible);
+			msg_format("%s  %s", text_visible, text_always);
 
 			/* Now seen */
 			room_info[room].flags |= ROOM_SEEN;
 		}
-                else if (strlen(text_always))
+		else if (strlen(text_visible))
 		{
 			/* Message */
-                        msg_format("%s", text_always);
+			msg_format("%s", text_visible);
+
+			/* Now seen */
+			room_info[room].flags |= ROOM_SEEN;
+		}
+		else if (strlen(text_always))
+		{
+			/* Message */
+			msg_format("%s", text_always);
 
 			/* Now seen */
 			room_info[room].flags |= ROOM_SEEN;
@@ -3241,27 +3247,27 @@ void describe_room(void)
 		else
 		{
 			/* Message */
-                        msg_print("There is nothing remarkable about it.");
+			msg_print("There is nothing remarkable about it.");
 
 			/* Now seen */
-                        room_info[room].flags |= ROOM_SEEN;
+			room_info[room].flags |= ROOM_SEEN;
 
 		}
 	}
-        else if ((strlen(text_always)) &&
-          (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
+	else if ((strlen(text_always)) &&
+	  (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 	{
 		/* Message */
-                if (room_descriptions) msg_format("%s", text_always);
+		if (room_descriptions) msg_format("%s", text_always);
 	}
-        else if ((p_ptr->depth == town_depth(p_ptr->dungeon))
-                || (p_ptr->depth == min_depth(p_ptr->dungeon)))
-        {
-                msg_format("You have entered %s.",name);
+	else if ((p_ptr->depth == town_depth(p_ptr->dungeon))
+		|| (p_ptr->depth == min_depth(p_ptr->dungeon)))
+	{
+		msg_format("You have entered %s.",name);
 
 		/* Message */
-                if (room_descriptions) msg_format("%s", text_always);
-        }
+		if (room_descriptions) msg_format("%s", text_always);
+	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_ROOM_INFO);
@@ -3823,7 +3829,7 @@ static bool target_set_interactive_accept(int y, int x)
 	}
 
 	/* Interesting memorized features */
-        if ((cave_info[y][x] & (CAVE_MARK)) && (f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)))
+	if ((cave_info[y][x] & (CAVE_MARK)) && (f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)))
 	{
 		return (TRUE);
 	}
@@ -3846,9 +3852,9 @@ static void target_set_interactive_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-        for (y = p_ptr->wy; ((y < p_ptr->wy + SCREEN_HGT) && (temp_n<TEMP_MAX)); y++)
+	for (y = p_ptr->wy; ((y < p_ptr->wy + SCREEN_HGT) && (temp_n<TEMP_MAX)); y++)
 	{
-                for (x = p_ptr->wx; ((x < p_ptr->wx + SCREEN_WID)&&(temp_n<TEMP_MAX)); x++)
+		for (x = p_ptr->wx; ((x < p_ptr->wx + SCREEN_WID)&&(temp_n<TEMP_MAX)); x++)
 		{
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
@@ -4093,16 +4099,16 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 #endif
 
-                                /* Use a preposition */
-                                if (m_ptr->mflag && (MFLAG_OVER))
-                                {
-                                        s2 = "above ";
-                                }
-                                else
-                                {
-                                        /* Use a preposition */
-                                        s2 = "on ";
-                                }
+				/* Use a preposition */
+				if (m_ptr->mflag && (MFLAG_OVER))
+				{
+					s2 = "above ";
+				}
+				else
+				{
+					/* Use a preposition */
+					s2 = "on ";
+				}
 			}
 		}
 
@@ -4251,7 +4257,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-                        if ((*s2) && ((!(f_info[feat].flags1 & (FF1_MOVE)) && !(f_info[feat].flags3 & (FF3_EASY_CLIMB))) ||
+			if ((*s2) && ((!(f_info[feat].flags1 & (FF1_MOVE)) && !(f_info[feat].flags3 & (FF3_EASY_CLIMB))) ||
 			    !(f_info[feat].flags1 & (FF1_LOS)) ||
 			    (f_info[feat].flags1 & (FF1_ENTER)) ||
 			    (f_info[feat].flags2 & (FF2_SHALLOW)) ||
@@ -4264,21 +4270,21 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				s2 = "in ";
 			}
 
-                        else if (*s2)
+			else if (*s2)
 			{
 				s2 = "on ";
 			}
 
 			/* Pick a prefix */
-                        if ((f_info[feat].flags2 & (FF2_SHALLOW)) ||
-                            (f_info[feat].flags2 & (FF2_DEEP)) ||
-                            (f_info[feat].flags2 & (FF2_FILLED)) ||
+			if ((f_info[feat].flags2 & (FF2_SHALLOW)) ||
+			    (f_info[feat].flags2 & (FF2_DEEP)) ||
+			    (f_info[feat].flags2 & (FF2_FILLED)) ||
 			    (f_info[feat].flags3 & (FF3_GROUND)) )
 			{
 				s3 = "";
 			}
 
-                        else
+			else
 			{
 				/* Pick proper indefinite article */
 				s3 = (is_a_vowel(name[0]) ? "an " : "a ");
@@ -4288,14 +4294,14 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (prefix(name, "the ")) s3 = "";
 
 			/* Hack -- special introduction for filled areas */
-                        if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "";
+			if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "";
 
 			/* Hack -- special introduction for store doors */
 			if (f_info[feat].flags1 & (FF1_ENTER))
 			{
 				s3 = "the entrance to the ";
 
-                                name = u_name + u_info[t_info[p_ptr->dungeon].store[feat-FEAT_SHOP_HEAD]].name;
+				name = u_name + u_info[t_info[p_ptr->dungeon].store[feat-FEAT_SHOP_HEAD]].name;
 			}
 
 			/* Display a message */
@@ -4314,16 +4320,16 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Room description if needed */
 		/* We describe a room if we are looking at ourselves, or something in a room when we are
 		 * not in a room, or in a different room. */
-                if ((cave_info[y][x] & (CAVE_MARK)) &&
-                        (cave_info[y][x] & (CAVE_ROOM)) &&
-                        (room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].flags & (ROOM_SEEN)) &&
-                        (room_names) &&
-                        ((cave_m_idx[y][x] < 0) ||
+		if ((cave_info[y][x] & (CAVE_MARK)) &&
+			(cave_info[y][x] & (CAVE_ROOM)) &&
+			(room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].flags & (ROOM_SEEN)) &&
+			(room_names) &&
+			((cave_m_idx[y][x] < 0) ||
 				!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
-                         ( dun_room[y/BLOCK_HGT][x/BLOCK_WID]!= dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID])) )
+			 ( dun_room[y/BLOCK_HGT][x/BLOCK_WID]!= dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID])) )
 		{
-                        int i;
-                        bool edge = FALSE;
+			int i;
+			bool edge = FALSE;
 			bool recall = FALSE;
 
 			/* Get room location */
@@ -4332,75 +4338,75 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 			int room = dun_room[by][bx];
 
-                        char name[32];
-                        char text_visible[240];
-                        char text_always[240];
+			char name[32];
+			char text_visible[240];
+			char text_always[240];
 
-                        /* Get the actual room description */
-                        get_room_desc(room, name, text_visible, text_always);
+			/* Get the actual room description */
+			get_room_desc(room, name, text_visible, text_always);
 
 			/* Always in rooms */
 			s2 = "in ";
 
-                        /* Hack --- edges of rooms */
-                        for (i = 0;i<8;i++)
-                        {
-                                int yy = y+ddy[i];
-                                int xx = x+ddx[i];
+			/* Hack --- edges of rooms */
+			for (i = 0;i<8;i++)
+			{
+				int yy = y+ddy[i];
+				int xx = x+ddx[i];
 
-                                if (!(cave_info[yy][xx] & (CAVE_ROOM))) edge = TRUE;
-                        }
+				if (!(cave_info[yy][xx] & (CAVE_ROOM))) edge = TRUE;
+			}
 
-                        if (edge) s2 = "outside ";
+			if (edge) s2 = "outside ";
 
 			/* Pick proper indefinite article */
-                        s3 = (is_a_vowel(name[0])) ? "an " : "a ";
+			s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
 
-                        /* Interact */
+			/* Interact */
 
-                        while (1)
-                        {
-                                /* Recall */
-                                if (recall)
-                                {
-                                        /* Save screen */
-                                        screen_save();
+			while (1)
+			{
+				/* Recall */
+				if (recall)
+				{
+					/* Save screen */
+					screen_save();
 
-                                        /* Recall on screen */
-                                        screen_room_info(room);
+					/* Recall on screen */
+					screen_room_info(room);
 
-                                        /* Hack -- Complete the prompt (again) */
-                                        Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+					/* Hack -- Complete the prompt (again) */
+					Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
 
-                                        /* Command */
-                                        query = inkey();
+					/* Command */
+					query = inkey();
 
-                                        /* Load screen */
-                                        screen_load();
-                                }
+					/* Load screen */
+					screen_load();
+				}
 
-                                /* Normal */
-                                else
-                                {
-                                        /* Describe, and prompt for recall */
-                                        sprintf(out_val, "%s%s%s%s [r,%s]",
-                                                s1, s2, s3, name, info);
-                                                prt(out_val, 0, 0);
+				/* Normal */
+				else
+				{
+					/* Describe, and prompt for recall */
+					sprintf(out_val, "%s%s%s%s [r,%s]",
+						s1, s2, s3, name, info);
+						prt(out_val, 0, 0);
 
-                                        /* Place cursor */
-                                        move_cursor_relative(y, x);
+					/* Place cursor */
+					move_cursor_relative(y, x);
 
-                                        /* Command */
-                                        query = inkey();
-                                }
+					/* Command */
+					query = inkey();
+				}
 
-                                /* Normal commands */
-                                if (query != 'r') break;
+				/* Normal commands */
+				if (query != 'r') break;
 
-                                /* Toggle recall */
-                                recall = !recall;
-                       }
+				/* Toggle recall */
+				recall = !recall;
+		       }
 		}
 
 
@@ -5064,64 +5070,64 @@ bool confuse_dir(int *dp)
 
 int min_depth(int dungeon)
 {
-        town_type *t_ptr=&t_info[dungeon];
+	town_type *t_ptr=&t_info[dungeon];
 
-        return (t_ptr->zone[0].level);
+	return (t_ptr->zone[0].level);
 }
 
 int max_depth(int dungeon)
 {
-        town_type *t_ptr=&t_info[dungeon];
+	town_type *t_ptr=&t_info[dungeon];
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
 	/* Get the zone */	
-        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
-                if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
+		if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
 
 		zone = &t_info[dungeon].zone[i];
 	}
 
-        return (zone->level);
+	return (zone->level);
 }
 
 int town_depth(int dungeon)
 {
-        town_type *t_ptr=&t_info[dungeon];
+	town_type *t_ptr=&t_info[dungeon];
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
 	/* Get the zone */	
-        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
 		zone = &t_info[dungeon].zone[i];
-                if (!zone->fill) break;
+		if (!zone->fill) break;
 	}
 
-        return (zone->level);
+	return (zone->level);
 }
 
 
 void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
 {
-        town_type *t_ptr = &t_info[dungeon];
-        dungeon_zone *zone = &t_ptr->zone[0];
+	town_type *t_ptr = &t_info[dungeon];
+	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
 
-        /* Hack -- handle towers */
-        if (depth < min_depth(dungeon)) depth = 2 * min_depth(dungeon) - depth;
+	/* Hack -- handle towers */
+	if (depth < min_depth(dungeon)) depth = 2 * min_depth(dungeon) - depth;
 
 	/* Get the zone */	
-        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	for (i = 0;i<MAX_DUNGEON_ZONES;i++)
 	{
-                if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
+		if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
 
-                if (t_ptr->zone[i].level > depth) break;
+		if (t_ptr->zone[i].level > depth) break;
 
-                zone = &t_ptr->zone[i];
+		zone = &t_ptr->zone[i];
 	}
 
-        *zone_handle = zone;
+	*zone_handle = zone;
 
 }

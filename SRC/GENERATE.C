@@ -111,7 +111,7 @@
  */
 /* DUN_ROOMS now defined in defines.h */
 #define DUN_UNUSUAL     200     /* Level/chance of unusual room */
-#define DUN_DEST        30      /* 1/chance of having a destroyed level */
+#define DUN_DEST	30      /* 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
@@ -142,7 +142,7 @@
  * Dungeon feature values
  */
 #define DUN_FEAT_OILC   10      /* 1/chance of oil/coal feature level */
-#define DUN_FEAT        40      /* Chance in 100 of having features */
+#define DUN_FEAT	40      /* Chance in 100 of having features */
 #define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
 
@@ -156,33 +156,33 @@
 /*
  * Hack -- Dungeon allocation "places"
  */
-#define ALLOC_SET_CORR          1       /* Hallway */
-#define ALLOC_SET_ROOM          2       /* Room */
-#define ALLOC_SET_BOTH          3       /* Anywhere */
+#define ALLOC_SET_CORR	  1       /* Hallway */
+#define ALLOC_SET_ROOM	  2       /* Room */
+#define ALLOC_SET_BOTH	  3       /* Anywhere */
 
 /*
  * Hack -- Dungeon allocation "types"
  */
-#define ALLOC_TYP_RUBBLE        1       /* Rubble */
-#define ALLOC_TYP_TRAP          3       /* Trap */
-#define ALLOC_TYP_GOLD          4       /* Gold */
-#define ALLOC_TYP_OBJECT        5       /* Object */
+#define ALLOC_TYP_RUBBLE	1       /* Rubble */
+#define ALLOC_TYP_TRAP	  3       /* Trap */
+#define ALLOC_TYP_GOLD	  4       /* Gold */
+#define ALLOC_TYP_OBJECT	5       /* Object */
 #define ALLOC_TYP_FEATURE	6	/* Feature eg fountain */
 
 /*
  * Bounds on some arrays used in the "dun_data" structure.
  * These bounds are checked, though usually this is a formality.
  */
-#define CENT_MAX        100
-#define DOOR_MAX        200
-#define WALL_MAX        500
-#define TUNN_MAX        900
+#define CENT_MAX	100
+#define DOOR_MAX	200
+#define WALL_MAX	500
+#define TUNN_MAX	900
 
 
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX        9
+#define ROOM_MAX	9
 
 
 
@@ -249,8 +249,8 @@ struct dun_data
 	/* Hack -- there is a pit/nest on this level */
 	bool crowded;
 
-        /* Hack -- number of entrances to dungeon */
-        bool entrance;
+	/* Hack -- number of entrances to dungeon */
+	bool entrance;
 };
 
 
@@ -265,14 +265,14 @@ static dun_data *dun;
  */
 static room_data room[ROOM_MAX] =
 {
-	{ 0, 0, 0, 0, 0 },              /* 0 = Nothing */
-	{ 0, 0, -1, 1, 1 },             /* 1 = Simple (33x11) */
-	{ 0, 0, -1, 1, 1 },             /* 2 = Overlapping (33x11) */
-	{ 0, 0, -1, 1, 3 },             /* 3 = Crossed (33x11) */
-	{ 0, 0, -1, 1, 3 },             /* 4 = Large (33x11) */
-	{ 0, 0, -1, 1, 5 },             /* 5 = Monster nest (33x11) */
-	{ 0, 0, -1, 1, 5 },             /* 6 = Monster pit (33x11) */
-	{ 0, 1, -1, 1, 5 },             /* 7 = Lesser vault (33x22) */
+	{ 0, 0, 0, 0, 0 },	      /* 0 = Nothing */
+	{ 0, 0, -1, 1, 1 },	     /* 1 = Simple (33x11) */
+	{ 0, 0, -1, 1, 1 },	     /* 2 = Overlapping (33x11) */
+	{ 0, 0, -1, 1, 3 },	     /* 3 = Crossed (33x11) */
+	{ 0, 0, -1, 1, 3 },	     /* 4 = Large (33x11) */
+	{ 0, 0, -1, 1, 5 },	     /* 5 = Monster nest (33x11) */
+	{ 0, 0, -1, 1, 5 },	     /* 6 = Monster pit (33x11) */
+	{ 0, 1, -1, 1, 5 },	     /* 7 = Lesser vault (33x22) */
 	{ -1, 2, -2, 3, 10 }    /* 8 = Greater vault (66x44) */
 };
 
@@ -323,31 +323,31 @@ static void new_player_spot(void)
 {
 	int y, x;
 
-        int count=0;
+	int count=0;
 
 	/* Place the player */
-        while (1)
+	while (1)
 	{
 
 		/* Pick a legal spot */
 		y = rand_range(1, DUNGEON_HGT - 2);
 		x = rand_range(1, DUNGEON_WID - 2);
 
-                if (cave_naked_bold(y,x) && (count > 2000)) break;
+		if (cave_naked_bold(y,x) && (count > 2000)) break;
 
-                /* Must be a "start" floor grid */
-                if (!cave_start_bold(y, x)) continue;
+		/* Must be a "start" floor grid */
+		if (!cave_start_bold(y, x)) continue;
 
 		/* Refuse to start in anti-teleport rooms */
-                if (cave_info[y][x] & (CAVE_ROOM))
-                {
-                        /* Don't allow teleport here */
-                        int by = y/BLOCK_HGT;
-                        int bx = x/BLOCK_HGT;
-                        int room = dun_room[by][bx];
+		if (cave_info[y][x] & (CAVE_ROOM))
+		{
+			/* Don't allow teleport here */
+			int by = y/BLOCK_HGT;
+			int bx = x/BLOCK_HGT;
+			int room = dun_room[by][bx];
 
-                        if (room_info[room].flags & (ROOM_ICKY)) continue;
-                }
+			if (room_info[room].flags & (ROOM_ICKY)) continue;
+		}
 
 		/* Done */
 		break;
@@ -385,11 +385,11 @@ static int next_to_walls(int y, int x)
  */
 static void place_rubble(int y, int x)
 {
-        /* Put item under rubble */
-        if (rand_int(100) < 5) cave_set_feat(y, x, FEAT_RUBBLE_H);
+	/* Put item under rubble */
+	if (rand_int(100) < 5) cave_set_feat(y, x, FEAT_RUBBLE_H);
 
 	/* Create rubble */
-        else cave_set_feat(y, x, FEAT_RUBBLE);
+	else cave_set_feat(y, x, FEAT_RUBBLE);
 }
 
 
@@ -466,43 +466,43 @@ static void alloc_stairs(int feat, int num, int walls)
 				y = rand_int(DUNGEON_HGT);
 				x = rand_int(DUNGEON_WID);
 
-                                /* Require actual floor grid */
-                                if (!(f_info[cave_feat[y][x]].flags1 & (FF1_FLOOR))) continue;
+				/* Require actual floor grid */
+				if (!(f_info[cave_feat[y][x]].flags1 & (FF1_FLOOR))) continue;
 
 				/* Require a certain number of adjacent walls */
 				if (next_to_walls(y, x) < walls) continue;
 
-                                /* No dungeon, no stairs */
-                                if (min_depth(p_ptr->dungeon) == max_depth(p_ptr->dungeon))
-                                {
-                                        /* Nothing */
-                                }
+				/* No dungeon, no stairs */
+				if (min_depth(p_ptr->dungeon) == max_depth(p_ptr->dungeon))
+				{
+					/* Nothing */
+				}
 				/* Town -- must go down */
-                                else if (p_ptr->depth == min_depth(p_ptr->dungeon))
+				else if (p_ptr->depth == min_depth(p_ptr->dungeon))
 				{
 					/* Clear previous contents, add down stairs */
 					cave_set_feat(y, x, FEAT_MORE);
 				}
 
-                                /* Top of tower -- must go down */
-                                else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-                                {
+				/* Top of tower -- must go down */
+				else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth >= max_depth(p_ptr->dungeon)))
+				{
 
 					/* Clear previous contents, add down stairs */
 					cave_set_feat(y, x, FEAT_MORE);
 
-                                }
+				}
 
-                                /* Bottom of tower dungeon -- must go up */
-                                else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth == 1))
-                                {
+				/* Bottom of tower dungeon -- must go up */
+				else if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth == 1))
+				{
 
 					/* Clear previous contents, add down stairs */
-                                        cave_set_feat(y, x, FEAT_LESS);
+					cave_set_feat(y, x, FEAT_LESS);
 
-                                }
+				}
 				/* Quest -- must go up */
-                                else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
+				else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
 				{
 					/* Clear previous contents, add up stairs */
 					cave_set_feat(y, x, FEAT_LESS);
@@ -532,35 +532,35 @@ static void alloc_stairs(int feat, int num, int walls)
  */
 static void alloc_object(int set, int typ, int num)
 {
-        int y, x, k, c;
+	int y, x, k, c;
 
 	/* Place some objects */
 	for (k = 0; k < num; k++)
 	{
-                c = 0;
+		c = 0;
 
 		/* Pick a "legal" spot */
 		while (TRUE)
 		{
 			bool room;
 
-                        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+			bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 
-                        /* Paranoia */
-                        if (c++ > 2000) return;
+			/* Paranoia */
+			if (c++ > 2000) return;
 
 			/* Location */
 			y = rand_int(DUNGEON_HGT);
 			x = rand_int(DUNGEON_WID);
 
-                        /* Require actual floor grid */
-                        if (!(f_info[cave_feat[y][x]].flags1 & (FF1_FLOOR))) continue;
+			/* Require actual floor grid */
+			if (!(f_info[cave_feat[y][x]].flags1 & (FF1_FLOOR))) continue;
 
 			/* Check for "room" */
 			room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
 
 			/* Require corridor? */
-                        if ((set == ALLOC_SET_CORR) && room && !surface) continue;
+			if ((set == ALLOC_SET_CORR) && room && !surface) continue;
 
 			/* Require room? */
 			if ((set == ALLOC_SET_ROOM) && !room) continue;
@@ -634,42 +634,42 @@ static void build_terrain(int y, int x, int feat)
 	int oldfeat, newfeat;
 	int k;
 
-        feature_type *f_ptr;
-        feature_type *f2_ptr;
+	feature_type *f_ptr;
+	feature_type *f2_ptr;
 
 	/* Get the feature */
-        oldfeat = cave_feat[y][x];
-        f_ptr = &f_info[oldfeat];
+	oldfeat = cave_feat[y][x];
+	f_ptr = &f_info[oldfeat];
 
 	/* Set the new feature */
 	newfeat = oldfeat;
-        f2_ptr = &f_info[feat];
+	f2_ptr = &f_info[feat];
 
-        /* Special cases first */
-        switch (feat)
-        {
-                case FEAT_QSAND_H:
-                case FEAT_SAND_H:
-                {
-                        if (oldfeat == FEAT_WATER) newfeat = FEAT_QSAND_H;
-                        if (oldfeat == FEAT_WATER_H) newfeat = FEAT_QSAND_H;
-                        break;
-                }
-                case FEAT_ICE_WATER_K:
-                case FEAT_ICE_WATER_H:
-                {
-                        if (f_ptr->flags2 & (FF2_LAVA)) newfeat = FEAT_BWATER;
-                        else if (f_ptr->flags2 & (FF2_ICE | FF2_WATER)) newfeat = feat;
-                        break;
-                }        
-                case FEAT_BMUD:
-                case FEAT_BWATER:
-                {
-                        if (f_ptr->flags2 & (FF2_WATER)) newfeat = feat;
-                        if (f_ptr->flags2 & (FF2_HIDE_DIG)) newfeat = feat;
-                        if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
-                        if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_GEOTH;
-			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH;                    
+	/* Special cases first */
+	switch (feat)
+	{
+		case FEAT_QSAND_H:
+		case FEAT_SAND_H:
+		{
+			if (oldfeat == FEAT_WATER) newfeat = FEAT_QSAND_H;
+			if (oldfeat == FEAT_WATER_H) newfeat = FEAT_QSAND_H;
+			break;
+		}
+		case FEAT_ICE_WATER_K:
+		case FEAT_ICE_WATER_H:
+		{
+			if (f_ptr->flags2 & (FF2_LAVA)) newfeat = FEAT_BWATER;
+			else if (f_ptr->flags2 & (FF2_ICE | FF2_WATER)) newfeat = feat;
+			break;
+		}	
+		case FEAT_BMUD:
+		case FEAT_BWATER:
+		{
+			if (f_ptr->flags2 & (FF2_WATER)) newfeat = feat;
+			if (f_ptr->flags2 & (FF2_HIDE_DIG)) newfeat = feat;
+			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
+			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_ICE_GEOTH;
+			if (oldfeat == FEAT_FLOOR_ICE) newfeat = FEAT_GEOTH;		    
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
 			if (oldfeat == FEAT_LAVA_H) newfeat = feat;
 			if (oldfeat == FEAT_LAVA_K) newfeat = feat;
@@ -682,227 +682,227 @@ static void build_terrain(int y, int x, int feat)
 			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_EARTH) newfeat = FEAT_BMUD;
 			break;
-                }
-                case FEAT_GEOTH:
-                {
+		}
+		case FEAT_GEOTH:
+		{
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_ICE_GEOTH;
 			if (oldfeat == FEAT_MUD_H) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_MUD_HT) newfeat = FEAT_BMUD;
 			if (oldfeat == FEAT_MUD_K) newfeat = FEAT_BMUD;
 			break;
-                }
-        }
+		}
+	}
 
-        /* Have we handled a special case? */
-        if (newfeat != oldfeat)
-        {
-                /* Nothing */
-        }
-        else if (!oldfeat)
-        {
-                newfeat = feat;
-        }
-        else if ((f_ptr->flags1 & (FF1_WALL))
-                && !(f_ptr->flags2 & (FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
-                && !(f_ptr->flags3 & (FF3_TREE)))
+	/* Have we handled a special case? */
+	if (newfeat != oldfeat)
+	{
+		/* Nothing */
+	}
+	else if (!oldfeat)
 	{
 		newfeat = feat;
 	}
-        else if ((f_ptr->flags2 & (FF2_CHASM)) || (f2_ptr->flags2 & (FF2_CHASM)))
-	{
-                newfeat = feat_state(oldfeat,FS_CHASM);
-        }
-        else if (f_ptr->flags1 & (FF1_FLOOR))
-        {
-                newfeat = feat_state(feat,FS_TUNNEL);
-        }
-        else if (f2_ptr->flags1 & (FF1_FLOOR))
-        {
-                newfeat = feat_state(oldfeat,FS_TUNNEL);
-        }
-        else if (f_ptr->flags3 & (FF3_GROUND))
+	else if ((f_ptr->flags1 & (FF1_WALL))
+		&& !(f_ptr->flags2 & (FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
+		&& !(f_ptr->flags3 & (FF3_TREE)))
 	{
 		newfeat = feat;
 	}
-        else if (f2_ptr->flags3 & (FF3_GROUND))
+	else if ((f_ptr->flags2 & (FF2_CHASM)) || (f2_ptr->flags2 & (FF2_CHASM)))
+	{
+		newfeat = feat_state(oldfeat,FS_CHASM);
+	}
+	else if (f_ptr->flags1 & (FF1_FLOOR))
+	{
+		newfeat = feat_state(feat,FS_TUNNEL);
+	}
+	else if (f2_ptr->flags1 & (FF1_FLOOR))
+	{
+		newfeat = feat_state(oldfeat,FS_TUNNEL);
+	}
+	else if (f_ptr->flags3 & (FF3_GROUND))
 	{
 		newfeat = feat;
 	}
-        else if (f_ptr->flags2 & (FF2_LAVA))
-        {
-                if ((f2_ptr->flags2 & (FF2_ICE)) && (f2_ptr->flags1 & (FF1_WALL)) &&
-                        (f2_ptr->flags2 & (FF2_CAN_TINY)))
-                {
-                        newfeat = FEAT_ICE_GEOTH_HC;
-                }
-                else if ((f2_ptr->flags2 & (FF2_ICE)) && (f2_ptr->flags1 & (FF1_WALL)))
-                {
-                        newfeat = FEAT_ICE_GEOTH;
-                }
-                else if ((f2_ptr->flags2 & (FF2_HIDE_DIG)) && (f2_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
-                {
-                        newfeat = FEAT_BMUD;
-                }
-                else if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
-                {
-                        newfeat = FEAT_BWATER;
-                }
-                else if (f2_ptr->flags2 & (FF2_WATER | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
-                {
-                        newfeat = FEAT_GEOTH_LAVA;
-                }
-        }
-        else if (f2_ptr->flags2 & (FF2_LAVA))
-        {
-                if ((f_ptr->flags2 & (FF2_ICE)) && (f_ptr->flags1 & (FF1_WALL)) &&
-                        (f_ptr->flags2 & (FF2_CAN_TINY)))
-                {
-                        newfeat = FEAT_ICE_GEOTH_HC;
-                }
-                else if ((f_ptr->flags2 & (FF2_ICE)) && (f_ptr->flags1 & (FF1_WALL)))
-                {
-                        newfeat = FEAT_ICE_GEOTH;
-                }
-                else if ((f_ptr->flags2 & (FF2_HIDE_DIG)) && (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
-                {
-                        newfeat = FEAT_BMUD;
-                }
-                else if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
-                {
-                        newfeat = FEAT_BWATER;
-                }
-                else if (f_ptr->flags2 & (FF2_WATER | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
-                {
-                        newfeat = FEAT_GEOTH_LAVA;
-                }
-                else
-                {
-                        newfeat = feat;
-                }
-        }
-        else if (f_ptr->flags2 & (FF2_ICE))
-        {
-                /* Handle case of ice wall over underwater */
-                if ((f_ptr->flags1 & (FF1_WALL)) && (f_ptr->flags2 & (FF2_CAN_TINY)))
-                {
-                        if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED))
-                         && (f2_ptr->flags1 & (FF1_SECRET)))
-                        {
-                                newfeat = FEAT_UNDER_ICE_HC;
-                        }
-                        else if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED)))
-                        {
-                                newfeat = FEAT_UNDER_ICE_KC;
-                        }
-                }
-                else if (f_ptr->flags1 & (FF1_WALL))
-                {
-                        if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED)))
-                        {
-                                newfeat = FEAT_UNDER_ICE;
-                        }
-                }
-                else if (f2_ptr->flags2 & (FF2_HURT_COLD)) newfeat = feat_state(feat,FS_HURT_COLD);
-        }
-        else if (f2_ptr->flags2 & (FF2_ICE))
-        {
-                /* Handle case of ice wall over underwater */
-                if ((f2_ptr->flags1 & (FF1_WALL)) && (f2_ptr->flags2 & (FF2_CAN_TINY)))
-                {
-                        if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED))
-                         && (f_ptr->flags1 & (FF1_SECRET)))
-                        {
-                                newfeat = FEAT_UNDER_ICE_HC;
-                        }
-                        else if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED)))
-                        {
-                                newfeat = FEAT_UNDER_ICE_KC;
-                        }
-                }
-                else if (f2_ptr->flags1 & (FF1_WALL))
-                {
-                        if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED)))
-                        {
-                                newfeat = FEAT_UNDER_ICE;
-                        }
-                }
-                else if (f_ptr->flags2 & (FF2_HURT_COLD)) newfeat = feat_state(oldfeat,FS_HURT_COLD);
-                else if (f_ptr->flags2 & (FF2_HIDE_DIG)) newfeat = feat;
-        }
-        else if ((f_ptr->flags2 & (FF2_WATER)) || (f2_ptr->flags2 & (FF2_WATER)))
-        {
-                /* Hack -- we try and match water properties */
-                u32b mask1 = (FF1_SECRET | FF1_LESS);
-                u32b mask2 = (FF2_WATER | FF2_SHALLOW | FF2_FILLED | FF2_DEEP | FF2_ICE | FF2_LAVA | FF2_CHASM | FF2_HIDE_SWIM);
-                u32b match1 = 0x0L;
-                u32b match2 = FF2_WATER;
+	else if (f2_ptr->flags3 & (FF3_GROUND))
+	{
+		newfeat = feat;
+	}
+	else if (f_ptr->flags2 & (FF2_LAVA))
+	{
+		if ((f2_ptr->flags2 & (FF2_ICE)) && (f2_ptr->flags1 & (FF1_WALL)) &&
+			(f2_ptr->flags2 & (FF2_CAN_TINY)))
+		{
+			newfeat = FEAT_ICE_GEOTH_HC;
+		}
+		else if ((f2_ptr->flags2 & (FF2_ICE)) && (f2_ptr->flags1 & (FF1_WALL)))
+		{
+			newfeat = FEAT_ICE_GEOTH;
+		}
+		else if ((f2_ptr->flags2 & (FF2_HIDE_DIG)) && (f2_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
+		{
+			newfeat = FEAT_BMUD;
+		}
+		else if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
+		{
+			newfeat = FEAT_BWATER;
+		}
+		else if (f2_ptr->flags2 & (FF2_WATER | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
+		{
+			newfeat = FEAT_GEOTH_LAVA;
+		}
+	}
+	else if (f2_ptr->flags2 & (FF2_LAVA))
+	{
+		if ((f_ptr->flags2 & (FF2_ICE)) && (f_ptr->flags1 & (FF1_WALL)) &&
+			(f_ptr->flags2 & (FF2_CAN_TINY)))
+		{
+			newfeat = FEAT_ICE_GEOTH_HC;
+		}
+		else if ((f_ptr->flags2 & (FF2_ICE)) && (f_ptr->flags1 & (FF1_WALL)))
+		{
+			newfeat = FEAT_ICE_GEOTH;
+		}
+		else if ((f_ptr->flags2 & (FF2_HIDE_DIG)) && (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
+		{
+			newfeat = FEAT_BMUD;
+		}
+		else if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_DEEP | FF2_FILLED)))
+		{
+			newfeat = FEAT_BWATER;
+		}
+		else if (f_ptr->flags2 & (FF2_WATER | FF2_ACID | FF2_OIL | FF2_ICE | FF2_CHASM))
+		{
+			newfeat = FEAT_GEOTH_LAVA;
+		}
+		else
+		{
+			newfeat = feat;
+		}
+	}
+	else if (f_ptr->flags2 & (FF2_ICE))
+	{
+		/* Handle case of ice wall over underwater */
+		if ((f_ptr->flags1 & (FF1_WALL)) && (f_ptr->flags2 & (FF2_CAN_TINY)))
+		{
+			if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED))
+			 && (f2_ptr->flags1 & (FF1_SECRET)))
+			{
+				newfeat = FEAT_UNDER_ICE_HC;
+			}
+			else if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED)))
+			{
+				newfeat = FEAT_UNDER_ICE_KC;
+			}
+		}
+		else if (f_ptr->flags1 & (FF1_WALL))
+		{
+			if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED)))
+			{
+				newfeat = FEAT_UNDER_ICE;
+			}
+		}
+		else if (f2_ptr->flags2 & (FF2_HURT_COLD)) newfeat = feat_state(feat,FS_HURT_COLD);
+	}
+	else if (f2_ptr->flags2 & (FF2_ICE))
+	{
+		/* Handle case of ice wall over underwater */
+		if ((f2_ptr->flags1 & (FF1_WALL)) && (f2_ptr->flags2 & (FF2_CAN_TINY)))
+		{
+			if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED))
+			 && (f_ptr->flags1 & (FF1_SECRET)))
+			{
+				newfeat = FEAT_UNDER_ICE_HC;
+			}
+			else if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED)))
+			{
+				newfeat = FEAT_UNDER_ICE_KC;
+			}
+		}
+		else if (f2_ptr->flags1 & (FF1_WALL))
+		{
+			if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED)))
+			{
+				newfeat = FEAT_UNDER_ICE;
+			}
+		}
+		else if (f_ptr->flags2 & (FF2_HURT_COLD)) newfeat = feat_state(oldfeat,FS_HURT_COLD);
+		else if (f_ptr->flags2 & (FF2_HIDE_DIG)) newfeat = feat;
+	}
+	else if ((f_ptr->flags2 & (FF2_WATER)) || (f2_ptr->flags2 & (FF2_WATER)))
+	{
+		/* Hack -- we try and match water properties */
+		u32b mask1 = (FF1_SECRET | FF1_LESS);
+		u32b mask2 = (FF2_WATER | FF2_SHALLOW | FF2_FILLED | FF2_DEEP | FF2_ICE | FF2_LAVA | FF2_CHASM | FF2_HIDE_SWIM);
+		u32b match1 = 0x0L;
+		u32b match2 = FF2_WATER;
 
-                int k_idx = f_info[oldfeat].k_idx;
+		int k_idx = f_info[oldfeat].k_idx;
 
-                int i;
+		int i;
 
-                /* Hack -- get most poisonous object */
-                if (f_info[feat].k_idx > k_idx) k_idx = f_info[feat].k_idx;
+		/* Hack -- get most poisonous object */
+		if (f_info[feat].k_idx > k_idx) k_idx = f_info[feat].k_idx;
 
-                /* Hack -- get flags */
-                if ((f_ptr->flags2 & (FF2_SHALLOW)) || (f2_ptr->flags2 & (FF2_SHALLOW)))
-                {
-                        match2 |= FF2_SHALLOW;
-                }
-                else if ((f_ptr->flags2 & (FF2_FILLED)) || (f2_ptr->flags2 & (FF2_FILLED)))
-                {
-                        match2 |= FF2_FILLED;
-                        match1 |= ((f_ptr->flags1 & (FF1_SECRET)) || (f2_ptr->flags1 & (FF1_SECRET)));
-                }
-                else
-                {
-                        match2 |= FF2_DEEP;
-                        match2 |= ((f_ptr->flags2 & (FF2_HIDE_SWIM)) || (f2_ptr->flags2 & (FF2_HIDE_SWIM)));
-                        match1 |= ((f_ptr->flags1 & (FF1_SECRET)) || (f2_ptr->flags1 & (FF1_SECRET)));
-                        match1 |= ((f_ptr->flags1 & (FF1_LESS)) || (f2_ptr->flags1 & (FF1_LESS)));
-                }
+		/* Hack -- get flags */
+		if ((f_ptr->flags2 & (FF2_SHALLOW)) || (f2_ptr->flags2 & (FF2_SHALLOW)))
+		{
+			match2 |= FF2_SHALLOW;
+		}
+		else if ((f_ptr->flags2 & (FF2_FILLED)) || (f2_ptr->flags2 & (FF2_FILLED)))
+		{
+			match2 |= FF2_FILLED;
+			match1 |= ((f_ptr->flags1 & (FF1_SECRET)) || (f2_ptr->flags1 & (FF1_SECRET)));
+		}
+		else
+		{
+			match2 |= FF2_DEEP;
+			match2 |= ((f_ptr->flags2 & (FF2_HIDE_SWIM)) || (f2_ptr->flags2 & (FF2_HIDE_SWIM)));
+			match1 |= ((f_ptr->flags1 & (FF1_SECRET)) || (f2_ptr->flags1 & (FF1_SECRET)));
+			match1 |= ((f_ptr->flags1 & (FF1_LESS)) || (f2_ptr->flags1 & (FF1_LESS)));
+		}
 
-                for (i = 0;i < z_info->f_max;i++)
-                {
-                        /* Hack -- force match */
-                        if ((f_info[i].flags1 & (mask1)) != match1) continue;
-                        if ((f_info[i].flags2 & (mask2)) != match2) continue;
+		for (i = 0;i < z_info->f_max;i++)
+		{
+			/* Hack -- force match */
+			if ((f_info[i].flags1 & (mask1)) != match1) continue;
+			if ((f_info[i].flags2 & (mask2)) != match2) continue;
 
-                        if (f_info[i].k_idx != k_idx) continue;
+			if (f_info[i].k_idx != k_idx) continue;
 
-                        newfeat = i;
-                }
-        }
-        else if ((f_ptr->flags2 & (FF2_CAN_DIG)) || (f2_ptr->flags2 & (FF2_CAN_DIG)))
-        {
-                newfeat = feat;
-        }
+			newfeat = i;
+		}
+	}
+	else if ((f_ptr->flags2 & (FF2_CAN_DIG)) || (f2_ptr->flags2 & (FF2_CAN_DIG)))
+	{
+		newfeat = feat;
+	}
 
 
-        /* Hack -- no change */
-        if (newfeat == oldfeat) return;
+	/* Hack -- no change */
+	if (newfeat == oldfeat) return;
 
 	k = randint(100);
 
-        if (f_info[newfeat].flags3 & (FF3_TREE))
-        {
-                if (k<=85) newfeat = oldfeat;
-                if ((k > 85) && (k <= 92)) newfeat = FEAT_TREE;
-                if ((k > 91) && (k <= 92)) newfeat = FEAT_TREE_BROKEN;
-                if ((k > 92) && (k <= 93)) newfeat = FEAT_TREE_HIDE;
-        }
+	if (f_info[newfeat].flags3 & (FF3_TREE))
+	{
+		if (k<=85) newfeat = oldfeat;
+		if ((k > 85) && (k <= 92)) newfeat = FEAT_TREE;
+		if ((k > 91) && (k <= 92)) newfeat = FEAT_TREE_BROKEN;
+		if ((k > 92) && (k <= 93)) newfeat = FEAT_TREE_HIDE;
+	}
 
 	switch (newfeat) {
 
 
-                case FEAT_BUSH:
-                case FEAT_BUSH_HURT:
-                case FEAT_BUSH_FOOD:
-                case FEAT_BUSH_HURT_P:
-                if (k<=30) newfeat = oldfeat;
-                if (k<=90) newfeat = FEAT_GRASS;
-                break;
+		case FEAT_BUSH:
+		case FEAT_BUSH_HURT:
+		case FEAT_BUSH_FOOD:
+		case FEAT_BUSH_HURT_P:
+		if (k<=30) newfeat = oldfeat;
+		if (k<=90) newfeat = FEAT_GRASS;
+		break;
 
 		case FEAT_RUBBLE:
 		if (k<90) newfeat = oldfeat;
@@ -1004,28 +1004,28 @@ static void build_terrain(int y, int x, int feat)
  */
 static void build_feature(int y, int x, int feat, bool do_big_lake)
 {
-        int i, dir;
-        int ty, tx, yi,xi;
+	int i, dir;
+	int ty, tx, yi,xi;
 	int by,bx;
-        int feat1 = feat;
-        int feat2 = f_info[feat].edge;
+	int feat1 = feat;
+	int feat2 = f_info[feat].edge;
 
 	int lake_width,lake_length;
 
-        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
 
-        /* Hack -- increase the 'big'ness */
-        if ((f_info[feat1].flags1 & (FF1_WALL)) && (variant_big_feats))
-        {
-                /* Make small go big */
-                do_big_lake = TRUE;
-        }
+	/* Hack -- increase the 'big'ness */
+	if ((f_info[feat1].flags1 & (FF1_WALL)) && (variant_big_feats))
+	{
+		/* Make small go big */
+		do_big_lake = TRUE;
+	}
 
-        /* Hack -- minimise holes in terrain */
-        if (surface && !feat2) feat2 = feat1;
+	/* Hack -- minimise holes in terrain */
+	if (surface && !feat2) feat2 = feat1;
 
 	/* Hack -- Save the room location */
-        if (!(f_info[feat1].flags2 & (FF2_RIVER))
+	if (!(f_info[feat1].flags2 & (FF2_RIVER))
 	       && (dun->cent_n < CENT_MAX))
 	{
 		dun->cent[dun->cent_n].y = y;
@@ -1033,149 +1033,149 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
 		dun->cent_n++;
 	}
 
-        if ((f_info[feat1].flags2 & (FF2_LAKE)) || !(f_info[feat1].flags2 & (FF2_RIVER)))
+	if ((f_info[feat1].flags2 & (FF2_LAKE)) || !(f_info[feat1].flags2 & (FF2_RIVER)))
 	{
 		lake_width = DUN_FEAT_RNG;
-                lake_length = 15+randint(p_ptr->depth/2);
+		lake_length = 15+randint(p_ptr->depth/2);
 
 		if (do_big_lake)
 		{
 			lake_width = DUN_FEAT_RNG+1;
-                        lake_length = 200;
+			lake_length = 200;
 		}
 
-                /* Place lake into dungeon */
-                for (i = 0; i<lake_length; i++)
-                {
-                        /* Paranoia */
-                        if (!in_bounds_fully(y,x)) break;
+		/* Place lake into dungeon */
+		for (i = 0; i<lake_length; i++)
+		{
+			/* Paranoia */
+			if (!in_bounds_fully(y,x)) break;
 
-                        /* Pick a nearby grids */
-                        ty = y + rand_int(2* lake_width+1)- lake_width;
-                        tx = x + rand_int(2* lake_width+1)- lake_width;
-                        if (!in_bounds_fully(ty, tx)) continue;
-                        if (f_info[cave_feat[ty][tx]].flags1 & (FF1_PERMANENT)) continue;
-                 
-                        y = ty;
-                        x = tx;
+			/* Pick a nearby grids */
+			ty = y + rand_int(2* lake_width+1)- lake_width;
+			tx = x + rand_int(2* lake_width+1)- lake_width;
+			if (!in_bounds_fully(ty, tx)) continue;
+			if (f_info[cave_feat[ty][tx]].flags1 & (FF1_PERMANENT)) continue;
+		 
+			y = ty;
+			x = tx;
 
-                        /* Don't want to write over own feat */
-                        if (cave_feat[y][x] == feat1)
-                        {
-                                /* Choose a random compass direction */
-                                dir = ddd[rand_int(4)];
-                        
-                                /* Walk to edge of feature */
-                                while (cave_feat[y][x] == feat1)
-                                {
-                                        y = y+ddy[dir];
-                                        x = x+ddx[dir];
+			/* Don't want to write over own feat */
+			if (cave_feat[y][x] == feat1)
+			{
+				/* Choose a random compass direction */
+				dir = ddd[rand_int(4)];
+			
+				/* Walk to edge of feature */
+				while (cave_feat[y][x] == feat1)
+				{
+					y = y+ddy[dir];
+					x = x+ddx[dir];
 
-                                        /* Stop at dungeon edge */
-                                        if (!in_bounds_fully(y, x)) break;
-                                        if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
-                                }
+					/* Stop at dungeon edge */
+					if (!in_bounds_fully(y, x)) break;
+					if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
+				}
 
-                        }
+			}
 
-                        if (!in_bounds_fully(y, x)) break;
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
+			if (!in_bounds_fully(y, x)) break;
+			if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
 
-                        if ((!do_big_lake) && (!surface))
-                        {
-                                /* Don't allow rooms here */
-                                by = y/BLOCK_HGT;
-                                bx = x/BLOCK_HGT;
-        
-                                dun->room_map[by][bx] = TRUE;
-                        }
+			if ((!do_big_lake) && (!surface))
+			{
+				/* Don't allow rooms here */
+				by = y/BLOCK_HGT;
+				bx = x/BLOCK_HGT;
+	
+				dun->room_map[by][bx] = TRUE;
+			}
 
-                        for (yi=y-lake_width;yi<=y+lake_width;yi++)
-                        {
-                                for (xi=x-lake_width;xi<=x+lake_width;xi++)
-                                {
-        
-                                        if ((yi==y-lake_width)||
-                                            (yi==y+lake_width)||
-                                            (xi==x-lake_width)||
-                                            (xi==x+lake_width))
-                                        {
-                                                if ((in_bounds_fully(yi,xi)) && (feat2)) build_terrain(yi,xi,feat2);
-        
-                                        }
-                                        else
-                                        {
-                                                if ((in_bounds_fully(yi,xi))
-                                                        && (randint(100)<(do_big_lake? 40:20)))
-                                                {
-                                                        if (feat2) build_terrain(yi,xi,feat2);
-                                                }
-                                                else if (in_bounds_fully(yi,xi))
-                                                {
-                                                        build_terrain(yi,xi,feat1);
-                                                }
-                                        }
-                                }
-                        }
-                }
+			for (yi=y-lake_width;yi<=y+lake_width;yi++)
+			{
+				for (xi=x-lake_width;xi<=x+lake_width;xi++)
+				{
+	
+					if ((yi==y-lake_width)||
+					    (yi==y+lake_width)||
+					    (xi==x-lake_width)||
+					    (xi==x+lake_width))
+					{
+						if ((in_bounds_fully(yi,xi)) && (feat2)) build_terrain(yi,xi,feat2);
+	
+					}
+					else
+					{
+						if ((in_bounds_fully(yi,xi))
+							&& (randint(100)<(do_big_lake? 40:20)))
+						{
+							if (feat2) build_terrain(yi,xi,feat2);
+						}
+						else if (in_bounds_fully(yi,xi))
+						{
+							build_terrain(yi,xi,feat1);
+						}
+					}
+				}
+			}
+		}
 
 	}
 
 	if (f_info[feat1].flags2 & (FF2_RIVER))
 	{
 
-                /* Choose a random compass direction */
-                dir = ddd[rand_int(4)];
-        
-                /* Place river into dungeon */
-                while (TRUE)
-                {
-                        /* Stop at dungeon edge */
-                        if (!in_bounds_fully(y, x)) break;
-                        if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
-        
-                        if (!(f_info[feat1].flags1 & (FF1_WALL)))
-                        {
-                                /* Don't allow rooms here */
-                                by = y/BLOCK_HGT;
-                                bx = x/BLOCK_HGT;
-        
-                                dun->room_map[by][bx] = TRUE;
-                        }
-        
-                        /*Add terrain*/
-                        build_terrain(y,x,feat1);
-        
-                        if (feat2)
-                        {
-                                for (i=0;i<8;i++)
-                                {
-                                        int di = ddd[i];
-                                        int yi = y+ddy[di];
-                                        int xi = x+ddx[di];
-        
-                                        if (!in_bounds_fully(yi, xi)) continue;
-                                        if (f_info[cave_feat[yi][xi]].flags1 & (FF1_PERMANENT)) continue;
-        
-                                        build_terrain(yi,xi,feat2);
-                                }
-                        }
-        
-                        /*Stagger the river*/
-                        if (rand_int(100)<50)
-                        {
-                                int dir2 = ddd[rand_int(4)];
-        
-                                y += ddy[dir2];
-                                x += ddx[dir2];
-                        }
-                        /* Advance the streamer */
-                        else
-                        {
-                                y += ddy[dir];
-                                x += ddx[dir];
-                        }
-                }
+		/* Choose a random compass direction */
+		dir = ddd[rand_int(4)];
+	
+		/* Place river into dungeon */
+		while (TRUE)
+		{
+			/* Stop at dungeon edge */
+			if (!in_bounds_fully(y, x)) break;
+			if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) break;
+	
+			if (!(f_info[feat1].flags1 & (FF1_WALL)))
+			{
+				/* Don't allow rooms here */
+				by = y/BLOCK_HGT;
+				bx = x/BLOCK_HGT;
+	
+				dun->room_map[by][bx] = TRUE;
+			}
+	
+			/*Add terrain*/
+			build_terrain(y,x,feat1);
+	
+			if (feat2)
+			{
+				for (i=0;i<8;i++)
+				{
+					int di = ddd[i];
+					int yi = y+ddy[di];
+					int xi = x+ddx[di];
+	
+					if (!in_bounds_fully(yi, xi)) continue;
+					if (f_info[cave_feat[yi][xi]].flags1 & (FF1_PERMANENT)) continue;
+	
+					build_terrain(yi,xi,feat2);
+				}
+			}
+	
+			/*Stagger the river*/
+			if (rand_int(100)<50)
+			{
+				int dir2 = ddd[rand_int(4)];
+	
+				y += ddy[dir2];
+				x += ddx[dir2];
+			}
+			/* Advance the streamer */
+			else
+			{
+				y += ddy[dir];
+				x += ddx[dir];
+			}
+		}
 	}
 
 }
@@ -1216,7 +1216,7 @@ static void build_streamer(int feat, int chance)
 			{
 				ty = rand_spread(y, d);
 				tx = rand_spread(x, d);
-                                if (!in_bounds_fully(ty, tx)) continue;
+				if (!in_bounds_fully(ty, tx)) continue;
 				break;
 			}
 
@@ -1228,7 +1228,7 @@ static void build_streamer(int feat, int chance)
 			cave_set_feat(ty, tx, feat);
 
 			/* Hack -- Add some (known) treasure */
-                        if ((chance) &&(rand_int(chance) == 0)) cave_feat[ty][tx] += 0x04;
+			if ((chance) &&(rand_int(chance) == 0)) cave_feat[ty][tx] += 0x04;
 		}
 
 		/* Advance the streamer */
@@ -1236,7 +1236,7 @@ static void build_streamer(int feat, int chance)
 		x += ddx[dir];
 
 		/* Stop at dungeon edge */
-                if (!in_bounds_fully(y, x)) break;
+		if (!in_bounds_fully(y, x)) break;
 	}
 }
 
@@ -1276,33 +1276,33 @@ static void destroy_level(void)
 				/* Delete the monster (if any) */
 				delete_monster(y, x);
 
-                                /* Destroy "outside" grids */
-                                if ((cave_valid_bold(y,x)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
-                                {
-                                        /* Delete objects */
-                                        delete_object(y, x);
-        
-                                        /* Burn stuff */
-                                        if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-                                        {
-                                                cave_alter_feat(y,x,FS_HURT_FIRE);
-                                        }
-                                        /* Don't touch chasms */
-                                        else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
-                                        {
-                                                /* Nothing */
-                                        }
+				/* Destroy "outside" grids */
+				if ((cave_valid_bold(y,x)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
+				{
+					/* Delete objects */
+					delete_object(y, x);
+	
+					/* Burn stuff */
+					if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
+					{
+						cave_alter_feat(y,x,FS_HURT_FIRE);
+					}
+					/* Don't touch chasms */
+					else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
+					{
+						/* Nothing */
+					}
 							/* Magma */
-                                        else if (rand_int(100)< 15)
+					else if (rand_int(100)< 15)
 					{
 						/* Create magma vein */
-                                                cave_set_feat(y, x, FEAT_RUBBLE);
+						cave_set_feat(y, x, FEAT_RUBBLE);
 					}
 
 
-                                }
+				}
 				/* Destroy valid grids */
-                                else if (cave_valid_bold(y, x))
+				else if (cave_valid_bold(y, x))
 				{
 					/* Delete objects */
 					delete_object(y, x);
@@ -1310,14 +1310,14 @@ static void destroy_level(void)
 					/* Wall (or floor) type */
 					t = rand_int(200);
 
-                                        /* Burn stuff */
-                                        if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
-                                        {
-                                                cave_alter_feat(y,x,FS_HURT_FIRE);
-                                        }
+					/* Burn stuff */
+					if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
+					{
+						cave_alter_feat(y,x,FS_HURT_FIRE);
+					}
 
 					/* Granite */
-                                        else if (t < 20)
+					else if (t < 20)
 					{
 						/* Create granite wall */
 						cave_set_feat(y, x, FEAT_WALL_EXTRA);
@@ -1337,11 +1337,11 @@ static void destroy_level(void)
 						cave_set_feat(y, x, FEAT_MAGMA);
 					}
 
-                                        /* Rubble */
-                                        else if (t < 130)
+					/* Rubble */
+					else if (t < 130)
 					{
-                                                /* Create rubble */
-                                                cave_set_feat(y, x, FEAT_RUBBLE);
+						/* Create rubble */
+						cave_set_feat(y, x, FEAT_RUBBLE);
 					}
 
 					/* Floor */
@@ -1390,7 +1390,7 @@ static void vault_treasure(int y, int x, int num)
 			if (!cave_clean_bold(j, k)) continue;
 
 			/* Place gold */
-                        place_gold(j, k);
+			place_gold(j, k);
 
 			/* Placement accomplished */
 			break;
@@ -1426,7 +1426,7 @@ static void vault_items(int y, int x, int num)
 			if (!cave_clean_bold(j, k)) continue;
 
 			/* Place gold */
-                        place_object(j, k, FALSE,FALSE);
+			place_object(j, k, FALSE,FALSE);
 
 			/* Placement accomplished */
 			break;
@@ -1548,12 +1548,12 @@ static void vault_monsters(int y1, int x1, int num)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
-                        monster_level = p_ptr->depth + 2;
+			monster_level = p_ptr->depth + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = p_ptr->depth;
 
-                        /* Check we have number */
-                        if (++k>=num) break;
+			/* Check we have number */
+			if (++k>=num) break;
 		}
 	}
 }
@@ -1719,8 +1719,8 @@ static bool room_info_mon(int r_idx)
 	if ((room_info_mon_char) &&
 		(room_info_mon_char != r_ptr->d_char)) return (FALSE);
 
-        /* Require matching flag if set */
-        if (room_info_mon_flag < 0) return (TRUE);
+	/* Require matching flag if set */
+	if (room_info_mon_flag < 0) return (TRUE);
 
 	if ((room_info_mon_flag < 32) && 
 		!(r_ptr->flags1 & (1L << room_info_mon_flag))) return (FALSE);
@@ -1733,9 +1733,9 @@ static bool room_info_mon(int r_idx)
 		(room_info_mon_flag < 96) && 
 		!(r_ptr->flags3 & (1L << (room_info_mon_flag -64)))) return (FALSE);
 
-        if ((room_info_mon_flag >= 96) && 
-                (room_info_mon_flag < 128) && 
-                !(r_ptr->flags4 & (1L << (room_info_mon_flag -96)))) return (FALSE);
+	if ((room_info_mon_flag >= 96) && 
+		(room_info_mon_flag < 128) && 
+		!(r_ptr->flags4 & (1L << (room_info_mon_flag -96)))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1785,12 +1785,12 @@ static void get_room_info(int y, int x)
 		roll = randint(100);
 
 		/* Get the proper entry in the table */
-                while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
+		while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
 
 		/* If not allowed on this level, drop to maximum result */
-                if ((p_ptr->depth < d_info[i].level) || ((d_info[i].l_flag) && !(level_flag & d_info[i].l_flag)))
+		if ((p_ptr->depth < d_info[i].level) || ((d_info[i].l_flag) && !(level_flag & d_info[i].l_flag)))
 		{
-                        while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
+			while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
 		}
 
 		/* Save index */
@@ -1803,12 +1803,12 @@ static void get_room_info(int y, int x)
 		room_info[room].flags |= (d_info[i].flags & ~(ROOM_SEEN));
 
 		/* Option */
-                if (!(variant_room_info)) continue;
+		if (!(variant_room_info)) continue;
 		
 		/* Place monster if needed */
-                if ((d_info[i].r_flag) || (d_info[i].r_char))
+		if ((d_info[i].r_flag) || (d_info[i].r_char))
 		{
-                  room_info_mon_flag = d_info[i].r_flag -1;
+		  room_info_mon_flag = d_info[i].r_flag -1;
 			room_info_mon_char = d_info[i].r_char;
 
 			get_mon_num_hook = room_info_mon;
@@ -1816,8 +1816,8 @@ static void get_room_info(int y, int x)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-                        /* Place several monsters */
-                        vault_monsters(y,x,randint(2)+2);
+			/* Place several monsters */
+			vault_monsters(y,x,randint(2)+2);
 		}
 
 		/* Place objects if needed */
@@ -1831,8 +1831,8 @@ static void get_room_info(int y, int x)
 			get_obj_num_prep();
 
 			/* Place the items */
-                        if (d_info[i].tval == TV_GOLD) vault_treasure(y,x,randint(4)+2);
-                        else vault_items(y, x, randint(4)+2);
+			if (d_info[i].tval == TV_GOLD) vault_treasure(y,x,randint(4)+2);
+			else vault_items(y, x, randint(4)+2);
 
 			get_obj_num_hook = NULL;
 
@@ -1845,24 +1845,24 @@ static void get_room_info(int y, int x)
 		if (d_info[i].feat)
 		{
 			int ii, y1, x1;
-                        int num = 7 + rand_int(6);
-                        int k = 0;
+			int num = 7 + rand_int(6);
+			int k = 0;
 
-                        if (f_info[d_info[i].feat].flags3 & (FF3_ALLOC)) num /=2;
+			if (f_info[d_info[i].feat].flags3 & (FF3_ALLOC)) num /=2;
 
-                        for (ii = 0; ii < 15; ii++)
+			for (ii = 0; ii < 15; ii++)
 			{
 				int d = 3;
 
 				/* Pick a nearby location */
-                                scatter(&y1, &x1, y, x, d, 0);
+				scatter(&y1, &x1, y, x, d, 0);
 
 				/* Require "empty" grid */
-                                if (!cave_start_bold(y1, x1)) continue;
+				if (!cave_start_bold(y1, x1)) continue;
 
 				cave_set_feat(y1,x1,d_info[i].feat);
 
-                                if (k++ >= num) break;
+				if (k++ >= num) break;
 			}
 		}
 
@@ -1874,11 +1874,11 @@ static void get_room_info(int y, int x)
 	/* Terminate index list */
 	room_info[room].section[j] = -1;
 
-        /* Hack -- only clear room info hook here */
-        get_mon_num_hook = NULL;
+	/* Hack -- only clear room info hook here */
+	get_mon_num_hook = NULL;
 
-        /* Prepare allocation table */
-        get_mon_num_prep();
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 
 }
@@ -1962,8 +1962,8 @@ static void build_type1(int y0, int x0)
 
 
 	/* Hack -- mark light rooms */
-        if (light) level_flag &= ~(LF1_DEST);
-        else level_flag |= (LF1_DEST) ;
+	if (light) level_flag &= ~(LF1_DEST);
+	else level_flag |= (LF1_DEST) ;
 
 	/* Pretty description and maybe more monsters/objects/traps*/
 	get_room_info(y0,x0);
@@ -2021,8 +2021,8 @@ static void build_type2(int y0, int x0)
 
 
 	/* Hack -- mark light rooms */
-        if (light) level_flag &= ~(LF1_DEST);
-        else level_flag |= (LF1_DEST);
+	if (light) level_flag &= ~(LF1_DEST);
+	else level_flag |= (LF1_DEST);
 
 	/* Pretty description and maybe more monsters/objects/traps*/
 	get_room_info(y0,x0);
@@ -2184,8 +2184,8 @@ static void build_type3(int y0, int x0)
 
 
 	/* Hack -- mark light rooms */
-        if (light) level_flag &= ~(LF1_DEST);
-        else level_flag |= (LF1_DEST);
+	if (light) level_flag &= ~(LF1_DEST);
+	else level_flag |= (LF1_DEST);
 
 
 	/* Pretty description and maybe more monsters/objects/traps*/
@@ -2664,25 +2664,25 @@ static void build_type5(int y0, int x0)
 
 
 	/* Hack -- Choose a nest type */
-        tmp = randint(p_ptr->depth*2);
+	tmp = randint(p_ptr->depth*2);
 
-        /* Dungeon pit */
-        if ((adult_campaign) && (tmp < 25))
-        {
+	/* Dungeon pit */
+	if ((adult_campaign) && (tmp < 25))
+	{
 		/* Describe */
-                name = "monster";
+		name = "monster";
 
-                get_mon_num_hook = dun_level_mon;
+		get_mon_num_hook = dun_level_mon;
 
 		/* Appropriate rating bonus */
-                rating_bonus = 10;
+		rating_bonus = 10;
 
 		/* Initialise room description */
-                room_info[dun->cent_n+1].type = ROOM_NEST_THEME;
+		room_info[dun->cent_n+1].type = ROOM_NEST_THEME;
 
-        }
+	}
 	/* Monster nest (jelly) */
-        else if (tmp < 30)
+	else if (tmp < 30)
 	{
 		/* Describe */
 		name = "jelly";
@@ -2694,7 +2694,7 @@ static void build_type5(int y0, int x0)
 		rating_bonus = 25 - p_ptr->depth;
 
 		/* Initialise room description */
-                room_info[dun->cent_n+1].type = ROOM_NEST_JELLY;
+		room_info[dun->cent_n+1].type = ROOM_NEST_JELLY;
 	}
 
 	/* Monster nest (animal) */
@@ -2711,7 +2711,7 @@ static void build_type5(int y0, int x0)
 
 
 		/* Initialise room description */
-                room_info[dun->cent_n+1].type = ROOM_NEST_ANIMAL;
+		room_info[dun->cent_n+1].type = ROOM_NEST_ANIMAL;
 	}
 
 	/* Monster nest (undead) */
@@ -2841,7 +2841,7 @@ static void build_type6(int y0, int x0)
 
 	int i, j, y, x, y1, x1, y2, x2;
 
-        int rating_bonus=0;
+	int rating_bonus=0;
 
 	bool empty = FALSE;
 
@@ -2881,24 +2881,24 @@ static void build_type6(int y0, int x0)
 
 
 	/* Choose a pit type */
-        tmp = randint(p_ptr->depth*2);
+	tmp = randint(p_ptr->depth*2);
 
-        /* Dungeon pit */
-        if ((adult_campaign) && (tmp < 10))
-        {
+	/* Dungeon pit */
+	if ((adult_campaign) && (tmp < 10))
+	{
 		/* Describe */
-                name = "monster";
+		name = "monster";
 
-                get_mon_num_hook = dun_level_mon;
+		get_mon_num_hook = dun_level_mon;
 
 		/* Appropriate rating bonus */
-                rating_bonus = 10;
+		rating_bonus = 10;
 
 		/* Initialise room description */
-                room_info[dun->cent_n+1].type = ROOM_PIT_THEME;
+		room_info[dun->cent_n+1].type = ROOM_PIT_THEME;
 
-        }
-        else if (tmp < 20)
+	}
+	else if (tmp < 20)
 	{
 		/* Message */
 		name = "orc";
@@ -3311,10 +3311,10 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-                                /* Now trapped/locked doors */
+				/* Now trapped/locked doors */
 				case '+':
 				{
-                                        place_trapped_door(y, x);
+					place_trapped_door(y, x);
 					break;
 				}
 
@@ -3545,10 +3545,10 @@ static void build_tower(int y0, int x0, int ymax, int xmax, cptr data)
 					break;
 				}
 
-                                /* Now locked doors */
+				/* Now locked doors */
 				case '+':
 				{
-                                        place_trapped_door(y, x);
+					place_trapped_door(y, x);
 					break;
 				}
 
@@ -3651,7 +3651,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 	correct_dir(&row_dir, &col_dir, row1, col1, row2, col2);
 
 	/* Keep going until done (or bored) */
-        while ((row1 != row2) || (col1 != col2))
+	while ((row1 != row2) || (col1 != col2))
 	{
 		/* Mega-Hack -- Paranoia -- prevent infinite loops */
 		if (main_loop_count++ > 2000) break;
@@ -3847,7 +3847,7 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 			place_random_door(y, x);
 		}
 
-        }
+	}
 
 }
 
@@ -4003,12 +4003,12 @@ static bool room_build(int by0, int bx0, int typ)
 		case 2: build_type2(y, x); break;
 		case 1: build_type1(y, x); break;
 
-                default: if ((!dun->entrance) && (p_ptr->depth < max_depth(p_ptr->dungeon)))
-                {
-                        cave_set_feat(y,x,FEAT_ENTRANCE);
-                        dun->entrance = TRUE;
-                        break;
-                }
+		default: if ((!dun->entrance) && (p_ptr->depth < max_depth(p_ptr->dungeon)))
+		{
+			cave_set_feat(y,x,FEAT_ENTRANCE);
+			dun->entrance = TRUE;
+			break;
+		}
 	}
 
 
@@ -4019,7 +4019,7 @@ static bool room_build(int by0, int bx0, int typ)
 		{
 			dun->room_map[by][bx] = TRUE;
 
-                        dun_room[by][bx] = dun->cent_n+1;
+			dun_room[by][bx] = dun->cent_n+1;
 
 		}
 	}
@@ -4103,40 +4103,40 @@ static void cave_gen(void)
 
 	dun_data dun_body;
 
-        dungeon_zone *zone=&t_info[0].zone[0];
+	dungeon_zone *zone=&t_info[0].zone[0];
 
-        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
-        bool daytime = (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)));
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+	bool daytime = (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)));
 
 	/* Global data */
 	dun = &dun_body;
 
 	level_flag = 0x00;
 
-        /* Get the zone */
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	/* Get the zone */
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Hack -- Start with basic granite */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
-                        /* Create air */
-                        if ((zone->tower) && (p_ptr->depth > min_depth(p_ptr->dungeon))) cave_set_feat(y,x,FEAT_CHASM);
+			/* Create air */
+			if ((zone->tower) && (p_ptr->depth > min_depth(p_ptr->dungeon))) cave_set_feat(y,x,FEAT_CHASM);
 
-                        /* Create ground */
-                        else if (surface)
-                        {
-                                cave_set_feat(y,x,FEAT_GROUND);
-                                if (zone->fill) build_terrain(y,x,zone->fill);
-                        }
+			/* Create ground */
+			else if (surface)
+			{
+				cave_set_feat(y,x,FEAT_GROUND);
+				if (zone->fill) build_terrain(y,x,zone->fill);
+			}
 
 			/* Create granite wall */
-                        else
-                        {
-                                cave_set_feat(y,x,FEAT_WALL_EXTRA);
-                                if (zone->fill) build_terrain(y,x,zone->fill);
-                        }
+			else
+			{
+				cave_set_feat(y,x,FEAT_WALL_EXTRA);
+				if (zone->fill) build_terrain(y,x,zone->fill);
+			}
 		}
 	}
 
@@ -4150,7 +4150,7 @@ static void cave_gen(void)
 	if (p_ptr->depth == max_depth(p_ptr->dungeon)) destroyed = FALSE;
 
 	/* Hack -- No destroyed unusual levels */
-        if ((zone->fill) && !(f_info[zone->fill].flags1 & (FF1_WALL))) destroyed = FALSE;
+	if ((zone->fill) && !(f_info[zone->fill].flags1 & (FF1_WALL))) destroyed = FALSE;
 
 	/* Hack -- No destroyed slightly unusual levels */
 	if (!zone->big) destroyed = FALSE;
@@ -4160,15 +4160,15 @@ static void cave_gen(void)
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
 	dun->col_rooms = DUNGEON_WID / BLOCK_WID;
 
-        /* Initialise 'zeroeth' room description */
-        room_info[0].flags = 0;
+	/* Initialise 'zeroeth' room description */
+	room_info[0].flags = 0;
 
 	/* Initialize the room table */
 	for (by = 0; by < dun->row_rooms; by++)
 	{
 		for (bx = 0; bx < dun->col_rooms; bx++)
 		{
-                        dun->room_map[by][bx] = FALSE;
+			dun->room_map[by][bx] = FALSE;
 			dun_room[by][bx] = 0;
 		}
 	}
@@ -4177,29 +4177,29 @@ static void cave_gen(void)
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
 
-        /* No "entrance" yet */
-        dun->entrance = FALSE;
+	/* No "entrance" yet */
+	dun->entrance = FALSE;
 
 	/* No rooms yet */
 	dun->cent_n = 0;
 
 	/* No features on destroyed level */
-        if ((!destroyed) && (variant_lake_feats) && (!(zone->tower) || (p_ptr->depth <=min_depth(p_ptr->dungeon))) )
+	if ((!destroyed) && (variant_lake_feats) && (!(zone->tower) || (p_ptr->depth <=min_depth(p_ptr->dungeon))) )
 	{
 		bool big = FALSE;
 		bool done_big = FALSE;
 
-                int feat;
-                int count=0;
+		int feat;
+		int count=0;
 
 		/* Allocate some lakes and rivers*/
-                while ((randint(100)<DUN_FEAT) || (zone->big) || (zone->small))
+		while ((randint(100)<DUN_FEAT) || (zone->big) || (zone->small))
 		{
-                        /* Increase count */
-                        count++;
+			/* Increase count */
+			count++;
 
-                        /* No more than 3 features */
-                        if (count > DUN_MAX_LAKES) break;
+			/* No more than 3 features */
+			if (count > DUN_MAX_LAKES) break;
 
 			get_feat_num_hook = cave_feat_lake;
 
@@ -4207,16 +4207,16 @@ static void cave_gen(void)
 
 			feat = get_feat_num(p_ptr->depth);
 
-                        get_feat_num_hook = NULL;
+			get_feat_num_hook = NULL;
 
 			get_feat_num_prep();
 
 			if ((zone->big) && (count == 1)) feat = zone->big;
-                        else if (zone->small) feat = zone->small;
+			else if (zone->small) feat = zone->small;
 
 			if (feat)
-			{                             
-                                if ((!done_big) && (variant_big_feats))
+			{			     
+				if ((!done_big) && (variant_big_feats))
 				{
 					big = randint(150) < p_ptr->depth;
 
@@ -4237,30 +4237,30 @@ static void cave_gen(void)
 
 					if (f_info[feat].edge)
 					{
-                                                cptr edge;
+						cptr edge;
 
-                                                edge = (f_name + f_info[f_info[feat].edge].name);
+						edge = (f_name + f_info[f_info[feat].edge].name);
 
-                                                msg_format("Building %s%s surrounded by %s.", (big?"big ":""),name,edge);
+						msg_format("Building %s%s surrounded by %s.", (big?"big ":""),name,edge);
 					}
-                                        else
-                                        {
-                                        msg_format ("Building %s%s.", (big?"big ":""),name);
-                                        }
+					else
+					{
+					msg_format ("Building %s%s.", (big?"big ":""),name);
+					}
 				}
 
-                                /* Hack -- Choose starting point */
-                                y = rand_spread(DUNGEON_HGT / 2, 10);
-                                x = rand_spread(DUNGEON_WID / 2, 15);
+				/* Hack -- Choose starting point */
+				y = rand_spread(DUNGEON_HGT / 2, 10);
+				x = rand_spread(DUNGEON_WID / 2, 15);
 
-                                build_feature(y, x, feat, big);
+				build_feature(y, x, feat, big);
 
-                                if (f_info[feat].flags2 & (FF2_WATER)) level_flag |= (LF1_WATER);
-                                if (f_info[feat].flags2 & (FF2_LAVA)) level_flag |= (LF1_LAVA);
-                                if (f_info[feat].flags2 & (FF2_ICE)) level_flag |= (LF1_ICE);
-                                if (f_info[feat].flags2 & (FF2_ACID)) level_flag |= (LF1_ACID);
-                                if (f_info[feat].flags2 & (FF2_OIL)) level_flag |= (LF1_OIL);
-                                if (f_info[feat].flags2 & (FF2_CHASM)) level_flag |= (LF1_CHASM);
+				if (f_info[feat].flags2 & (FF2_WATER)) level_flag |= (LF1_WATER);
+				if (f_info[feat].flags2 & (FF2_LAVA)) level_flag |= (LF1_LAVA);
+				if (f_info[feat].flags2 & (FF2_ICE)) level_flag |= (LF1_ICE);
+				if (f_info[feat].flags2 & (FF2_ACID)) level_flag |= (LF1_ACID);
+				if (f_info[feat].flags2 & (FF2_OIL)) level_flag |= (LF1_OIL);
+				if (f_info[feat].flags2 & (FF2_CHASM)) level_flag |= (LF1_CHASM);
 
 			}
 
@@ -4270,82 +4270,92 @@ static void cave_gen(void)
 
 	}
 
-        /* Hack -- build a tower in the centre of the level */
-        if ((zone->tower) && (p_ptr->depth >= min_depth(p_ptr->dungeon)))
-        {
+	/* Hack -- build a tower in the centre of the level */
+	if ((zone->tower) && (p_ptr->depth >= min_depth(p_ptr->dungeon)))
+	{
 
-                int typ = v_info[zone->tower].typ;
+		int typ = v_info[zone->tower].typ;
 
-                /* Hack - set to center of level */
-                int by0 = dun->row_rooms /2;
-                int bx0 = dun->col_rooms /2;
+		/* Hack - set to center of level */
+		int by0 = dun->row_rooms /2;
+		int bx0 = dun->col_rooms /2;
 
-                /* Extract blocks */
-                int by1 = by0 + room[typ].dy1;
-                int bx1 = bx0 + room[typ].dx1;
-                int by2 = by0 + room[typ].dy2;
-                int bx2 = bx0 + room[typ].dx2;
+		/* Extract blocks */
+		int by1 = by0 + room[typ].dy1;
+		int bx1 = bx0 + room[typ].dx1;
+		int by2 = by0 + room[typ].dy2;
+		int bx2 = bx0 + room[typ].dx2;
 
-                vault_type *v_ptr;
+		vault_type *v_ptr;
 
-                /* It is *extremely* important that the following calculation */
-                /* be *exactly* correct to prevent memory errors XXX XXX XXX */
-        
-                /* Get the location of the tower */
-                y = ((by1 + by2 + 1) * BLOCK_HGT) / 2;
-                x = ((bx1 + bx2 + 1) * BLOCK_WID) / 2;
+		/* It is *extremely* important that the following calculation */
+		/* be *exactly* correct to prevent memory errors XXX XXX XXX */
+	
+		/* Get the location of the tower */
+		y = ((by1 + by2 + 1) * BLOCK_HGT) / 2;
+		x = ((bx1 + bx2 + 1) * BLOCK_WID) / 2;
 
-                /* Hack -- are we directly above another tower? */
-                if ((p_ptr->depth == zone->level) && (p_ptr->depth > min_depth(p_ptr->dungeon)))
-                {
+		/* Hack -- are we directly above another tower? */
+		if ((p_ptr->depth == zone->level) && (p_ptr->depth > min_depth(p_ptr->dungeon)))
+		{
 
-                        dungeon_zone *roof;
-        
-                        get_zone(&roof,p_ptr->dungeon,p_ptr->depth-1);
+			dungeon_zone *roof;
+	
+			get_zone(&roof,p_ptr->dungeon,p_ptr->depth-1);
 
-                        v_ptr = &v_info[roof->tower];
+			v_ptr = &v_info[roof->tower];
 
-                        build_roof(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
-                }
+			build_roof(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+		}
 
-                v_ptr = &v_info[zone->tower];
+		v_ptr = &v_info[zone->tower];
 
-                /* Hack -- Build the tower */
-                build_tower(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
+		/* Hack -- Build the tower */
+		build_tower(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 
-                /* Reserve some blocks */
-                for (by = by1; by <= by2; by++)
-                {
-                        for (bx = bx1; bx <= bx2; bx++)
-                        {
-                                dun->room_map[by][bx] = TRUE;
-        
-                                dun_room[by][bx] = dun->cent_n+1;
-        
-                        }
-                }
-        
-                /* Initialise room description */
-                room_info[dun->cent_n+1].type = ROOM_TOWER;
-                room_info[dun->cent_n+1].flags = 0;
-                dun->cent[dun->cent_n].y = y;
-                dun->cent[dun->cent_n].x = x;
-                dun->cent_n++;
+		/* Reserve some blocks */
+		for (by = by1; by <= by2; by++)
+		{
+			for (bx = bx1; bx <= bx2; bx++)
+			{
+				dun->room_map[by][bx] = TRUE;
+	
+				dun_room[by][bx] = dun->cent_n+1;
+	
+			}
+		}
+	
+		/* Initialise room description */
+		room_info[dun->cent_n+1].type = ROOM_TOWER;
+		room_info[dun->cent_n+1].flags = 0;
+		dun->cent[dun->cent_n].y = y;
+		dun->cent[dun->cent_n].x = x;
+		dun->cent_n++;
 
-                /* Hack -- always have upstairs */
-                if ((surface) && (p_ptr->depth <= max_depth(p_ptr->dungeon))) feat_near(FEAT_LESS, y, x);
 
-        }
+		/* Hack -- descending player always in tower */
+		if ((surface) && (p_ptr->create_up_stair))
+		{
+			player_place(y, x);
+		}
+
+		/* Hack -- always have upstairs */
+		else if (surface)
+		{
+			feat_near(FEAT_LESS, y, x);
+		}
+
+	}
 
 	/* Hack -- All levels deeper than 20 on surface are 'destroyed' */
-        if ((p_ptr->depth > 20) && (surface)) destroyed = TRUE;
+	if ((p_ptr->depth > 20) && (surface)) destroyed = TRUE;
 
 	/* Hack -- All levels with escorts are 'battlefields' */
-        if (RF1_ESCORT & (1L << (t_info[p_ptr->dungeon].r_flag-1))) battlefield = TRUE;
-        if (RF1_ESCORTS & (1L << (t_info[p_ptr->dungeon].r_flag-1))) battlefield = TRUE;
+	if (RF1_ESCORT & (1L << (t_info[p_ptr->dungeon].r_flag-1))) battlefield = TRUE;
+	if (RF1_ESCORTS & (1L << (t_info[p_ptr->dungeon].r_flag-1))) battlefield = TRUE;
 
 	/* Build some rooms */
-        for (i = 0; i < DUN_ROOMS; i++)
+	for (i = 0; i < DUN_ROOMS; i++)
 	{
 		/* Pick a block for the room */
 		by = rand_int(dun->row_rooms);
@@ -4362,14 +4372,14 @@ static void cave_gen(void)
 		}
 
 
-                /* Towers don't have other rooms above the surface */
-                if ((zone->tower) && !(p_ptr->depth <= min_depth(p_ptr->dungeon)))
+		/* Towers don't have other rooms above the surface */
+		if ((zone->tower) && !(p_ptr->depth <= min_depth(p_ptr->dungeon)))
 		{
 			/* Never mind */
 			continue;
 		}
 		/* Battle-fields don't have rooms */
-                else if (battlefield)
+		else if (battlefield)
 		{
 
 			/* Attempt a "non-existent" room */
@@ -4379,8 +4389,8 @@ static void cave_gen(void)
 			continue;
 		}
 
-                /* Destroyed levels are boring */
-                else if (destroyed)
+		/* Destroyed levels are boring */
+		else if (destroyed)
 		{
 			/* Attempt a "trivial" room */
 			if (room_build(by, bx, 1)) continue;
@@ -4441,9 +4451,9 @@ static void cave_gen(void)
 	{
 		y = 0;
 
-                cave_feat[y][x] = FEAT_PERM_SOLID;
+		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-                cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Bottom */
@@ -4451,9 +4461,9 @@ static void cave_gen(void)
 	{
 		y = DUNGEON_HGT-1;
 
-                cave_feat[y][x] = FEAT_PERM_SOLID;
+		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-                cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Left */
@@ -4461,9 +4471,9 @@ static void cave_gen(void)
 	{
 		x = 0;
 
-                cave_feat[y][x] = FEAT_PERM_SOLID;
+		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-                cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Special boundary walls -- Right */
@@ -4471,9 +4481,9 @@ static void cave_gen(void)
 	{
 		x = DUNGEON_WID-1;
 
-                cave_feat[y][x] = FEAT_PERM_SOLID;
+		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-                cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 
@@ -4493,13 +4503,13 @@ static void cave_gen(void)
 	/* Start with no tunnel doors */
 	dun->door_n = 0;
 
-        /* Paranoia */
-        if (dun->cent_n)
-        {
-                /* Hack -- connect the first room to the last room */
-                y = dun->cent[dun->cent_n-1].y;
-                x = dun->cent[dun->cent_n-1].x;
-        }
+	/* Paranoia */
+	if (dun->cent_n)
+	{
+		/* Hack -- connect the first room to the last room */
+		y = dun->cent[dun->cent_n-1].y;
+		x = dun->cent[dun->cent_n-1].x;
+	}
 
 	/* Connect all the rooms together */
 	for (i = 0; i < dun->cent_n; i++)
@@ -4527,14 +4537,14 @@ static void cave_gen(void)
 	}
 
 
-        /* Hack -- Sandstone streamers are shallow */
+	/* Hack -- Sandstone streamers are shallow */
 	if (rand_int(DUN_STR_SLV) > p_ptr->depth)
 	{
 
 		/* Hack -- Add some sandstone streamers */
 		for (i = 0; i < DUN_STR_SAN; i++)
 		{
-                        build_streamer(FEAT_SANDSTONE, 0);
+			build_streamer(FEAT_SANDSTONE, 0);
 		}
 	}
 
@@ -4551,7 +4561,7 @@ static void cave_gen(void)
 
 	/* Hack -- Add some quartz streamers */
 	for (i = 0; i < DUN_STR_QUA; i++)
-	{                
+	{		
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
 
@@ -4562,7 +4572,7 @@ static void cave_gen(void)
 	}
 
 	/* Hack -- Add cracks through the dungeon occasionally */
-        if ((variant_new_feats) && !(rand_int(DUN_STR_CRA)))
+	if ((variant_new_feats) && !(rand_int(DUN_STR_CRA)))
 	{
 		build_streamer(FEAT_WALL_C, DUN_STR_CC);
 	}
@@ -4570,76 +4580,76 @@ static void cave_gen(void)
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
-        k = 0;
+	k = 0;
 
-        /* Hack -- make sure we have rooms/corridors to place stuff */
-        if ((((!surface) || (destroyed)) && !(battlefield)) || (zone->tower))
+	/* Hack -- make sure we have rooms/corridors to place stuff */
+	if ((((!surface) || (destroyed)) && !(battlefield)) || (zone->tower))
 	{
-                /* Place 3 or 4 down stairs near some walls */
-                alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
-        
-                /* Place 1 or 2 up stairs near some walls */
-                alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
-        
-                /* Basic "amount" */
-                k = (p_ptr->depth / 3);
-                if (k > 10) k = 10;
-                if (k < 2) k = 2;
-        
-                /* Put some rubble in corridors */
-                if (!zone->tower) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
-        
-                /* Place some traps in the dungeon */
-                alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
-        
-                /* Place some features in rooms */
-                alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, 1);
+		/* Place 3 or 4 down stairs near some walls */
+		alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	
+		/* Place 1 or 2 up stairs near some walls */
+		alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	
+		/* Basic "amount" */
+		k = (p_ptr->depth / 3);
+		if (k > 10) k = 10;
+		if (k < 2) k = 2;
+	
+		/* Put some rubble in corridors */
+		if (!zone->tower) alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));
+	
+		/* Place some traps in the dungeon */
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
+	
+		/* Place some features in rooms */
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, 1);
 	}
-        /* Hack -- have more monsters at night */
-        else if (!daytime)
-        {
-                /* Basic "amount" */
-                k = (p_ptr->depth / 3);
-                if (k > 10) k = 10;
-                if (k < 2) k = 2;
-        }
+	/* Hack -- have more monsters at night */
+	else if (!daytime)
+	{
+		/* Basic "amount" */
+		k = (p_ptr->depth / 3);
+		if (k > 10) k = 10;
+		if (k < 2) k = 2;
+	}
 
-        /* Determine the character location */
-        new_player_spot();
+	/* Determine the character location */
+	if ((p_ptr->py == 0) || (p_ptr->px == 0)) new_player_spot();
 
 	/* Ensure wandering monsters suit the dungeon level */
-        get_mon_num_hook = dun_level_mon;
+	get_mon_num_hook = dun_level_mon;
 
-        /* Prepare allocation table */
-        get_mon_num_prep();
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
-        /* Pick a base number of monsters */
-        i = MIN_M_ALLOC_LEVEL + randint(8);
+	/* Pick a base number of monsters */
+	i = MIN_M_ALLOC_LEVEL + randint(8);
 
-        /* Put some monsters in the dungeon */
-        for (i = i + k; i > 0; i--)
-        {
-                (void)alloc_monster(0, TRUE);
-        }
-
-        get_mon_num_hook = NULL;
-
-        /* Prepare allocation table */
-        get_mon_num_prep();
-
-        /* Hack -- make sure we have rooms/corridors to place stuff */
-        if ((((!surface) || (destroyed)) && !(battlefield)) || (zone->tower))
+	/* Put some monsters in the dungeon */
+	for (i = i + k; i > 0; i--)
 	{
-                /* Put some objects in rooms */
-                alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
-        
-                /* Put some objects/gold in the dungeon */
-                alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
-                alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
-        }
+		(void)alloc_monster(0, TRUE);
+	}
+
+	get_mon_num_hook = NULL;
+
+	/* Prepare allocation table */
+	get_mon_num_prep();
+
+	/* Hack -- make sure we have rooms/corridors to place stuff */
+	if ((((!surface) || (destroyed)) && !(battlefield)) || (zone->tower))
+	{
+		/* Put some objects in rooms */
+		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ROOM, 3));
+	
+		/* Put some objects/gold in the dungeon */
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
+		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
+	}
 
 	/* Apply illumination */
-        if (surface) town_illuminate(daytime);
+	if (surface) town_illuminate(daytime);
 
 	/* Ensure quest monsters */
 	if (is_quest(p_ptr->depth))
@@ -4671,8 +4681,8 @@ static void cave_gen(void)
 		}
 	}
 	/* Ensure guardian monsters --- only night time in towns */
-        else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0)
-                && (!surface || !daytime))
+	else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0)
+		&& (!surface || !daytime))
 	{
 		int y, x;
 
@@ -4686,7 +4696,7 @@ static void cave_gen(void)
 		}
 
 		/* Place the questor */
-                place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+		place_monster_aux(y, x, zone->guard, TRUE, TRUE);
 	}
 }
 
@@ -4719,13 +4729,13 @@ static void build_store(int n, int yy, int xx)
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
 
-        town_type *t_ptr = &t_info[p_ptr->dungeon];
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
 
 	/* Hack -- extract char value */
-        byte d_char = u_info[t_ptr->store[n]].d_char;
+	byte d_char = u_info[t_ptr->store[n]].d_char;
 
 	/* Hack -- don't build building for some 'special locations' */
-        bool building = (((d_char >= '0') && (d_char <= '8')) || (d_char == '+'));
+	bool building = (((d_char >= '0') && (d_char <= '8')) || (d_char == '+'));
 
 	/* Find the "center" of the store */
 	y0 = qy + yy * 9 + 6;
@@ -4823,11 +4833,11 @@ static void town_gen_hack(void)
 
 	int rooms[MAX_STORES];
 
-        town_type *t_ptr = &t_info[p_ptr->dungeon];
-        dungeon_zone *zone=&t_ptr->zone[0];;
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	dungeon_zone *zone=&t_ptr->zone[0];;
 
 	/* Get the zone */
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
@@ -4840,20 +4850,20 @@ static void town_gen_hack(void)
 	{
 		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
 		{
-                        /* Create terrain on top */
-                        build_terrain(y, x, zone->big);
+			/* Create terrain on top */
+			build_terrain(y, x, zone->big);
 		}
 	}
 
 #if 0
-        /* Hack -- place small terrain */
-        if (zone->small)
-        {
-                build_feature(qy + SCREEN_HGT/2, qx + SCREEN_WID/2, zone->small, FALSE);
-        }
+	/* Hack -- place small terrain */
+	if (zone->small)
+	{
+		build_feature(qy + SCREEN_HGT/2, qx + SCREEN_WID/2, zone->small, FALSE);
+	}
 #endif
 	/* Prepare an Array of "remaining stores", and count them */
-        for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
+	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
 
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++)
@@ -4865,8 +4875,8 @@ static void town_gen_hack(void)
 			k = ((n <= 1) ? 0 : rand_int(n));
 
 			/* Build that store at the proper location */
-                        if (t_ptr->store[rooms[k]]) build_store(rooms[k], y, x);
-                                
+			if (t_ptr->store[rooms[k]]) build_store(rooms[k], y, x);
+				
 			/* Shift the stores down, remove one store */
 			rooms[k] = rooms[--n];
 		}
@@ -4879,16 +4889,16 @@ static void town_gen_hack(void)
 		y = qy + rand_range(3, SCREEN_HGT - 4);
 		x = qx + rand_range(3, SCREEN_WID - 4);
 
-                /* Require a "naked" floor grid */
-                if (cave_naked_bold(y, x)) break;
+		/* Require a "naked" floor grid */
+		if (cave_naked_bold(y, x)) break;
 	}
 
 	/* Clear previous contents, add down stairs */
-        if (p_ptr->depth < max_depth(p_ptr->dungeon))
-        {
-                if (p_ptr->depth == min_depth(p_ptr->dungeon)) cave_set_feat(y, x, FEAT_ENTRANCE);
-                else cave_set_feat(y, x, FEAT_MORE);
-        }
+	if (p_ptr->depth < max_depth(p_ptr->dungeon))
+	{
+		if (p_ptr->depth == min_depth(p_ptr->dungeon)) cave_set_feat(y, x, FEAT_ENTRANCE);
+		else cave_set_feat(y, x, FEAT_MORE);
+	}
 
 	/* Place the player */
 	player_place(y, x);
@@ -4900,12 +4910,12 @@ static void town_gen_hack(void)
 		y = qy + rand_range(3, SCREEN_HGT - 4);
 		x = qx + rand_range(3, SCREEN_WID - 4);
 
-                /* Require a "naked" floor grid */
-                if (cave_naked_bold(y, x)) break;
+		/* Require a "naked" floor grid */
+		if (cave_naked_bold(y, x)) break;
 	}
 
 	/* Clear previous contents, add up stairs */
-        if (p_ptr->depth > min_depth(p_ptr->dungeon)) cave_set_feat(y, x, FEAT_LESS);
+	if (p_ptr->depth > min_depth(p_ptr->dungeon)) cave_set_feat(y, x, FEAT_LESS);
 
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
@@ -4937,36 +4947,36 @@ static void town_gen(void)
 
 	int residents;
 
-        bool daytime;
+	bool daytime;
 
-        int qy = SCREEN_HGT;
-        int qx = SCREEN_WID;
+	int qy = SCREEN_HGT;
+	int qx = SCREEN_WID;
 
-        int by,bx;
+	int by,bx;
 
-        town_type *t_ptr = &t_info[p_ptr->dungeon];
-        dungeon_zone *zone=&t_ptr->zone[0];;
+	town_type *t_ptr = &t_info[p_ptr->dungeon];
+	dungeon_zone *zone=&t_ptr->zone[0];;
 
 	/* Get the zone */
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Initialize the room table */
-        for (by = 0; by < MAX_ROOMS_ROW; by++)
+	for (by = 0; by < MAX_ROOMS_ROW; by++)
 	{
-                for (bx = 0; bx < MAX_ROOMS_COL; bx++)
+		for (bx = 0; bx < MAX_ROOMS_COL; bx++)
 		{
 			dun_room[by][bx] = 0;
 		}
 	}
 
-        /* Initialise 'zeroeth' room description */
-        room_info[0].flags = 0;
+	/* Initialise 'zeroeth' room description */
+	room_info[0].flags = 0;
 
 	/* Day time */
-        if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
+	if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 	{
-                /* Day time */
-                daytime = TRUE;
+		/* Day time */
+		daytime = TRUE;
 
 		/* Number of residents */
 		residents = MIN_M_ALLOC_TD;
@@ -4976,7 +4986,7 @@ static void town_gen(void)
 	else
 	{
 		/* Night time */
-                daytime = FALSE;
+		daytime = FALSE;
 
 		/* Number of residents */
 		residents = MIN_M_ALLOC_TN;
@@ -4998,8 +5008,8 @@ static void town_gen(void)
 	{
 		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
 		{
-                        /* Create empty ground */
-                        cave_set_feat(y, x, FEAT_GROUND);
+			/* Create empty ground */
+			cave_set_feat(y, x, FEAT_GROUND);
 		}
 	}
 
@@ -5010,27 +5020,27 @@ static void town_gen(void)
 	town_illuminate(daytime);
 
 	/* Ensure guardian monsters */
-        if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
 	{
 		/* Pick a location */
 		while (1)
 		{
 			y = qy + rand_range(3, SCREEN_HGT - 4);
-                        x = qx + rand_range(3, SCREEN_WID - 4);
+			x = qx + rand_range(3, SCREEN_WID - 4);
 
-                        /* Require a "naked" floor grid */
-                        if (cave_naked_bold(y, x)) break;
+			/* Require a "naked" floor grid */
+			if (cave_naked_bold(y, x)) break;
 		}
 
 		/* Place the questor */
-                place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+		place_monster_aux(y, x, zone->guard, TRUE, TRUE);
 	}
 
 	/* Ensure wandering monsters suit the dungeon level */
-        get_mon_num_hook = dun_level_mon;
-        
-        /* Prepare allocation table */
-        get_mon_num_prep();
+	get_mon_num_hook = dun_level_mon;
+	
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 
 
@@ -5041,10 +5051,10 @@ static void town_gen(void)
 		(void)alloc_monster(3, TRUE);
 	}
 
-        get_mon_num_hook = NULL;
+	get_mon_num_hook = NULL;
 
-        /* Prepare allocation table */
-        get_mon_num_prep();
+	/* Prepare allocation table */
+	get_mon_num_prep();
 
 
 
@@ -5065,10 +5075,10 @@ void generate_cave(void)
 {
 	int y, x, num;
 
-        dungeon_zone *zone=&t_info[0].zone[0];;
+	dungeon_zone *zone=&t_info[0].zone[0];;
 
 	/* Get the zone */
-        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
@@ -5102,12 +5112,9 @@ void generate_cave(void)
 				/* No monsters */
 				cave_m_idx[y][x] = 0;
 
-#ifdef MONSTER_FLOW
 				/* No flow */
 				cave_cost[y][x] = 0;
 				cave_when[y][x] = 0;
-#endif /* MONSTER_FLOW */
-
 			}
 		}
 
@@ -5166,7 +5173,7 @@ void generate_cave(void)
 		if ((turn - old_turn) < 1000) feeling = 0;
 
 		/* Hack -- no feeling in the town */
-                if (!zone->fill) feeling = 0;
+		if (!zone->fill) feeling = 0;
 
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)
@@ -5231,6 +5238,7 @@ void generate_cave(void)
 
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
 }
 
 

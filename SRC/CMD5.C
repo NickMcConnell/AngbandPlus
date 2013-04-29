@@ -36,63 +36,63 @@
  */
 int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 {
-        int i,ii;
+int i,ii;
 
 	int num = 0;
 
-        int spell = 0;
+	int spell = 0;
 
-        s16b book[26];
+	s16b book[26];
 
 	bool verify;
 
 
-        int okay = 0;
+	int okay = 0;
 
-        bool flag, redraw;
+	bool flag, redraw;
 	char choice;
 
-        spell_type *s_ptr;
-        spell_cast *sc_ptr = &(s_info[0].cast[0]);
+	spell_type *s_ptr;
+	spell_cast *sc_ptr = &(s_info[0].cast[0]);
 
 	char out_val[160];
 
-        cptr p;
+	cptr p;
 
-        bool cast = FALSE;
+	bool cast = FALSE;
 
-        /* Spell */
-        switch (o_ptr->tval)
-        {
+	/* Spell */
+	switch (o_ptr->tval)
+	{
 
-                case TV_PRAYER_BOOK:
-                        p="prayer";
-                        cast = TRUE;
-                break;
+		case TV_PRAYER_BOOK:
+			p="prayer";
+			cast = TRUE;
+			break;
 
-                case TV_SONG_BOOK:
-                        p="song";
-                        cast = TRUE;
-                break;
+		case TV_SONG_BOOK:
+			p="song";
+			cast = TRUE;
+			break;
 
-                case TV_MAGIC_BOOK:
-                        p="spell";
-                        cast = TRUE;
-                break;
+		case TV_MAGIC_BOOK:
+			p="spell";
+			cast = TRUE;
+			break;
 
-                case TV_RUNESTONE:
-                        p="rune";
-                        cast = TRUE;
-                break;
+		case TV_RUNESTONE:
+			p="rune";
+			cast = TRUE;
+			break;
 
-                default:
-                        p="power";
-                break;
+		default:
+			p="power";
+			break;
 
-        }
+	}
 
 	/* Cannot cast spells if illiterate */
-        if ((cast) &&(c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL))
+	if ((cast) &&(c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL))
 	{
 		msg_print("You cannot read books.");
 
@@ -106,7 +106,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 	if (repeat_pull(sn))
 	{
 		/* Verify the spell */
-                if (!(cast) || (spell_okay(*sn, known)))
+		if (!(cast) || (spell_okay(*sn, known)))
 		{
 			/* Success */
 			return (TRUE);
@@ -119,13 +119,13 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 	fill_book(o_ptr,book,&num);
 
 	/* Assume no usable spells */
-        okay = 0;
+	okay = 0;
 
 	/* Assume no spells available */
 	(*sn) = -2;
 
 	/* Check for "okay" spells */
-        if (cast) for (i = 0; i < num; i++)
+	if (cast) for (i = 0; i < num; i++)
 	{
 		/* Look for "okay" spells */
 		if (spell_okay(book[i], known)) okay = TRUE;
@@ -168,8 +168,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 
 	/* Build a prompt (accept all spells) */
-        strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
-	        p, I2A(0), I2A(num - 1), prompt, p);
+	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
+	p, I2A(0), I2A(num - 1), prompt, p);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -188,7 +188,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			}
 
 			/* Show the list */
-                        else if (cast)
+			else if (cast)
 			{
 				/* Show list */
 				redraw = TRUE;
@@ -210,7 +210,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 				screen_save();
 
 				/* Display a list of spells */
-                                print_powers(book, num, 1, 20);
+				print_powers(book, num, 1, 20);
 			}
 
 			/* Ask again */
@@ -238,7 +238,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		spell = book[i];
 
 		/* Require "okay" spells */
-                if ((cast) && (!spell_okay(spell, known)))
+		if ((cast) && (!spell_okay(spell, known)))
 		{
 			bell("Illegal spell choice!");
 			msg_format("You may not %s that %s.", prompt, p);
@@ -247,35 +247,35 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 
 		/* Verify it */
-                if (verify)
+		if (verify)
 		{
 			char tmp_val[160];
 
 			/* Get the spell */
 			s_ptr = &s_info[spell];
 
-                        if (cast)
-                        {
-                                /* Get the spell details */
-                                for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
-                                {
-                                        if (s_ptr->cast[ii].class == p_ptr->pclass)
-                                        {
-                                                sc_ptr=&(s_ptr->cast[ii]);
-                                        }
-                                }
-        
-                                /* Prompt */
-                                strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
-                                        prompt, s_name + s_ptr->name,
-                                        sc_ptr->mana, spell_chance(spell));
-                        }
-                        else
-                        {
-                                /* Prompt */
-                                strnfmt(tmp_val, 78, "%^s %s)? ",
-                                        prompt, s_name + s_ptr->name);
-                        }
+			if (cast)
+			{
+				/* Get the spell details */
+				for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
+				{
+					if (s_ptr->cast[ii].class == p_ptr->pclass)
+					{
+						sc_ptr=&(s_ptr->cast[ii]);
+					}
+				}
+
+				/* Prompt */
+				strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
+				prompt, s_name + s_ptr->name,
+				sc_ptr->mana, spell_chance(spell));
+			}
+			else
+			{
+				/* Prompt */
+				strnfmt(tmp_val, 78, "%^s %s)? ",
+				prompt, s_name + s_ptr->name);
+			}
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -314,7 +314,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 }
 
 
-bool inven_book_okay(object_type *o_ptr)
+bool inven_book_okay(const object_type *o_ptr)
 {
 /* Note this routine is simple, but horribly inefficient due 
    to the (1st iteration) design of the data structures */
@@ -324,12 +324,12 @@ bool inven_book_okay(object_type *o_ptr)
 
 	spell_type *s_ptr;
 
-        if ((o_ptr->tval != TV_MAGIC_BOOK) &&
-            (o_ptr->tval != TV_PRAYER_BOOK) &&
-            (o_ptr->tval != TV_RUNESTONE) &&
-            (o_ptr->tval != TV_SONG_BOOK)) return (0);
+	if ((o_ptr->tval != TV_MAGIC_BOOK) &&
+  	  (o_ptr->tval != TV_PRAYER_BOOK) &&
+  	  (o_ptr->tval != TV_RUNESTONE) &&
+  	  (o_ptr->tval != TV_SONG_BOOK)) return (0);
 
-        for (i=0;i<z_info->s_max;i++)
+	for (i=0;i<z_info->s_max;i++)
 	{
 		s_ptr=&s_info[i];
 
@@ -367,23 +367,23 @@ void do_cmd_browse(void)
 
 	int num = 0;
 
-        s16b book[26];
+	s16b book[26];
 
 	object_type *o_ptr;
 
-        cptr p, q, s;
+	cptr p, q, s;
 
-        int spell=-1;
+	int spell=-1;
 
-        int i;
+	int i;
 
-        char choice = 0;
+	char choice = 0;
 
 	char out_val[160];
 
 
 	/* Cannot browse books if illiterate */
-	if (c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL)
+        if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
 	{
 		msg_print("You cannot read books.");
 
@@ -436,52 +436,53 @@ void do_cmd_browse(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-        /* Spell */
-        switch (o_ptr->tval)
-        {
+	/* Spell */
+	switch (o_ptr->tval)
+	{
 
-                case TV_PRAYER_BOOK:
-                        p="prayer";
-                break;
+	case TV_PRAYER_BOOK:
+		p="prayer";
+		break;
 
-                case TV_SONG_BOOK:
-                        p="song";
-                break;
+	case TV_SONG_BOOK:
+		p="song";
+		break;
 
-                case TV_MAGIC_BOOK:
-                        p="spell";
-                break;
+	case TV_MAGIC_BOOK:
+		p="spell";
+		break;
 
-                case TV_RUNESTONE:
-                        p="rune";
-                break;
-                default:
-                        p="power";
-                break;
-        }
+	case TV_RUNESTONE:
+		p="rune";
+		break;
+
+	default:
+		p="power";
+		break;
+	}
 
 	/* Fill book with spells */
 	fill_book(o_ptr,book,&num);
 
-        /* Paranoia */
-        if (num == 0)
-        {
-                msg_format("There are no %ss to browse.",p);
-                return;
-        }
+	/* Paranoia */
+	if (num == 0)
+	{
+		msg_format("There are no %ss to browse.",p);
+		return;
+	}
 
 	/* Save screen */
 	screen_save();
 
 	/* Display the spells */
-        print_spells(book, num, 1, 20);
+	print_spells(book, num, 1, 20);
 
 	/* Build a prompt (accept all spells) */
-        strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
-                p, I2A(0), I2A(num - 1), p);
+	strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
+		p, I2A(0), I2A(num - 1), p);
 
 	/* Get a spell from the user */
-        while ((choice != ESCAPE) && get_com(out_val, &choice))
+	while ((choice != ESCAPE) && get_com(out_val, &choice))
 	{
 		/* Lowercase 1+*/
 		choice = tolower(choice);
@@ -489,50 +490,52 @@ void do_cmd_browse(void)
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
 
-                if ((i >= 0) && (i < num))
-                {
-                        /* Save the spell index */
-                        spell = book[i];
+		if ((i >= 0) && (i < num))
+		{
+			/* Save the spell index */
+			spell = book[i];
 
-                        /* Load screen */
-                        screen_load();
+			/* Load screen */
+			screen_load();
 
-                        /* Save screen */
-                        screen_save();
+			/* Save screen */
+			screen_save();
 
-                        /* Display the spells */
-                        print_spells(book, num, 1, 20);
+			/* Display the spells */
+			print_spells(book, num, 1, 20);
 
-                        /* Begin recall */
-                        Term_gotoxy(0, 1);
+			/* Begin recall */
+			Term_gotoxy(0, 1);
 
-                        /* Recall spell */
-                        spell_desc(spell,NULL,spell_power(spell));
+			/* Recall spell */
+			spell_desc(&s_info[spell],"When cast, it ",spell_power(spell), TRUE);
 
-                        /* Build a prompt (accept all spells) */
-                        strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
-                                p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+			text_out(".");
 
-                        continue;
-                }
+			/* Build a prompt (accept all spells) */
+			strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
+				p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+
+			continue;
+		}
 
 	}
 
-        /* Prompt for a command */
-        put_str("(Browsing) Command: ", 0, 0);
+	/* Prompt for a command */
+	put_str("(Browsing) Command: ", 0, 0);
 
-        /* Hack -- Get a new command */
-        p_ptr->command_new = inkey();
+	/* Hack -- Get a new command */
+	p_ptr->command_new = inkey();
 
-        /* Load screen */
-        screen_load();
+	/* Load screen */
+	screen_load();
 
-        /* Hack -- Process "Escape" */
-        if (p_ptr->command_new == ESCAPE)
-        {
-                /* Reset stuff */
-                p_ptr->command_new = 0;
-        }
+	/* Hack -- Process "Escape" */
+	if (p_ptr->command_new == ESCAPE)
+	{
+		/* Reset stuff */
+		p_ptr->command_new = 0;
+	}
 }
 
 
@@ -543,26 +546,26 @@ void do_cmd_browse(void)
  */
 void do_cmd_study(void)
 {
-        int i, item;
+	int i, item;
 
 	int spell = -1;
 
-        cptr p, q, s;
+cptr p, q, s;
 
 	object_type *o_ptr;
 
-        spell_type *s_ptr;
+spell_type *s_ptr;
 
-        int max_spells = PY_MAX_SPELLS;
+int max_spells = PY_MAX_SPELLS;
 
-        if (!variant_more_spells) max_spells = 64;
+if (!variant_more_spells) max_spells = 64;
 
 	/* Cannot cast spells if illiterate */
-	if (c_info[p_ptr->pclass].sp_lvl > 50)
+        if (c_info[p_ptr->pclass].spell_first > 50)
 	{
 		msg_print("You cannot read books.");
 
-                return;
+return;
 	}
 
 	if (p_ptr->blind || no_lite())
@@ -579,7 +582,7 @@ void do_cmd_study(void)
 
 	if (!(p_ptr->new_spells))
 	{
-                msg_format("You cannot learn anything new!");
+msg_format("You cannot learn anything new!");
 		return;
 	}
 
@@ -595,9 +598,9 @@ void do_cmd_study(void)
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-                object_type object_type_body;
+object_type object_type_body;
 
-                o_ptr = &object_type_body;
+o_ptr = &object_type_body;
 
 		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -620,33 +623,33 @@ void do_cmd_study(void)
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-        switch (o_ptr->tval)
-        {
-                case TV_PRAYER_BOOK:
-                        p="prayer";
-                break;
+switch (o_ptr->tval)
+{
+case TV_PRAYER_BOOK:
+p="prayer";
+break;
 
-                case TV_SONG_BOOK:
-                        p = "song";
-                break;
+case TV_SONG_BOOK:
+p = "song";
+break;
 
-                default:
-                        p="spell";
-                break;
+default:
+p="spell";
+break;
 
-        }
+}
 
 
 	/* Prayer book -- Learn a random prayer */
 	if (o_ptr->tval == TV_PRAYER_BOOK)
 	{
-                int ii;
+int ii;
 
 		int k = 0;
 
 		int gift = -1;
 
-                for (i=0;i<z_info->s_max;i++)
+for (i=0;i<z_info->s_max;i++)
 		{
 			s_ptr=&s_info[i];
 
@@ -655,15 +658,15 @@ void do_cmd_study(void)
 
 				if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
 			    	(s_ptr->appears[ii].sval == o_ptr->sval) &&
-                                (spell_okay(i,FALSE)))
-                                {
-                                        if ((++k == 1) || ((k > 1) &&
-                                                (rand_int(k) ==0)))
+(spell_okay(i,FALSE)))
+{
+if ((++k == 1) || ((k > 1) &&
+(rand_int(k) ==0)))
 					{
 						gift = i;
 					}
 
-                                }
+}
 
 			}
 
@@ -675,9 +678,9 @@ void do_cmd_study(void)
 	}
 
 	/* Song book -- Learn a spell in order */
-        else if (o_ptr->tval == TV_SONG_BOOK)
+else if (o_ptr->tval == TV_SONG_BOOK)
 	{
-                s16b book[26];
+s16b book[26];
 
 		int num = 0;
 
@@ -689,9 +692,9 @@ void do_cmd_study(void)
 		/* Do the hard work */
 		for(i=0;i<num;i++)
 		{
-                        if (spell_okay(book[i],FALSE))
+if (spell_okay(book[i],FALSE))
 			{
-                                graft = book[i];
+graft = book[i];
 				break;
 			}
 
@@ -702,8 +705,8 @@ void do_cmd_study(void)
 	}
 
 	/* Magic book -- Learn a selected spell */
-        /* Now only for basic magic books */
-        else if (o_ptr->tval == TV_MAGIC_BOOK)
+/* Now only for basic magic books */
+else if (o_ptr->tval == TV_MAGIC_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", o_ptr, FALSE) && (spell == -1)) return;
@@ -722,18 +725,18 @@ void do_cmd_study(void)
 	}
 
 
-        /* Take a turn */
-        p_ptr->energy_use = 100;
+/* Take a turn */
+p_ptr->energy_use = 100;
 
 	/* Find the next open entry in "spell_order[]" */
-        for (i = 0; i < PY_MAX_SPELLS; i++)
+for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
 		if (p_ptr->spell_order[i] == 0) break;
 	}
 
 	/* Paranoia */
-        if (i >= max_spells)
+if (i >= max_spells)
 	{
 		/* Message */
 		msg_format("You cannot learn any more %ss.", p);
@@ -749,25 +752,25 @@ void do_cmd_study(void)
 	{
 		p_ptr->spell_learned1 |= (1L << i);
 	}
-        else if (i < 64)
-        {
-                p_ptr->spell_learned2 |= (1L << (i - 32));
-        }
-        else if (i < 96)
-        {
-                p_ptr->spell_learned3 |= (1L << (i - 64));
-        }
-        else
-        {
-                p_ptr->spell_learned4 |= (1L << (i - 96));
-        }
+else if (i < 64)
+{
+p_ptr->spell_learned2 |= (1L << (i - 32));
+}
+else if (i < 96)
+{
+p_ptr->spell_learned3 |= (1L << (i - 64));
+}
+else
+{
+p_ptr->spell_learned4 |= (1L << (i - 96));
+}
 
-        /*Set to spell*/
-        s_ptr = &(s_info[spell]);
+/*Set to spell*/
+s_ptr = &(s_info[spell]);
 
 	/* Mention the result */
 	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
-	           p, s_name + s_ptr->name);
+	   p, s_name + s_ptr->name);
 
 	/* One less spell available */
 	p_ptr->new_spells--;
@@ -777,8 +780,8 @@ void do_cmd_study(void)
 	{
 		/* Message */
 		msg_format("You can learn %d more %s%s.",
-		           p_ptr->new_spells, p,
-		           (p_ptr->new_spells != 1) ? "s" : "");
+		   p_ptr->new_spells, p,
+		   (p_ptr->new_spells != 1) ? "s" : "");
 	}
 
 	/* Save the new_spells value */
@@ -792,16 +795,16 @@ void do_cmd_study(void)
 }
 
 
-bool inven_cast_okay(object_type *o_ptr)
+bool inven_cast_okay(const object_type *o_ptr)
 {
-        int i,ii;
+int i,ii;
 
 	spell_type *s_ptr;
 
-        if ((o_ptr->tval != TV_MAGIC_BOOK) &&
-            (o_ptr->tval != TV_PRAYER_BOOK) &&
-            (o_ptr->tval != TV_RUNESTONE) &&
-            (o_ptr->tval != TV_SONG_BOOK)) return (0);
+if ((o_ptr->tval != TV_MAGIC_BOOK) &&
+    (o_ptr->tval != TV_PRAYER_BOOK) &&
+    (o_ptr->tval != TV_RUNESTONE) &&
+    (o_ptr->tval != TV_SONG_BOOK)) return (0);
 
 	for (i=0;i<PY_MAX_SPELLS;i++)
 	{
@@ -832,8 +835,8 @@ bool inven_cast_okay(object_type *o_ptr)
  */
 void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 {
-        int i;
-        int chance;
+int i;
+int chance;
 
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
@@ -855,7 +858,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 
 	/* Verify "dangerous" spells */
-        if (sc_ptr->mana > p_ptr->csp)
+if (sc_ptr->mana > p_ptr->csp)
 	{
 		/* Warning */
 		msg_format("You do not have enough mana to %s this %s.",p,t);
@@ -870,8 +873,8 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	}
 
 	/* Verify "warning" spells */
-        else if ((verify_mana) &&
-                 ((p_ptr->csp - sc_ptr->mana) < (p_ptr->msp * op_ptr->hitpoint_warn) / 10))
+else if ((verify_mana) &&
+ ((p_ptr->csp - sc_ptr->mana) < (p_ptr->msp * op_ptr->hitpoint_warn) / 10))
 	{
 		/* Warning */
 		msg_format("You have limited mana to %s this %s.",p,t);
@@ -888,45 +891,44 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
-        /* Some rooms only give a (slight) chance */
-        if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
-        {
-                /* Special rooms affect some of this */
-                int by = p_ptr->py/BLOCK_HGT;
-                int bx = p_ptr->px/BLOCK_HGT;
+/* Some rooms only give a (slight) chance */
+if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+{
+/* Special rooms affect some of this */
+int by = p_ptr->py/BLOCK_HGT;
+int bx = p_ptr->px/BLOCK_HGT;
 
-                /* Get the room */
-                if(room_info[dun_room[by][bx]].flags & (ROOM_SILENT))
-                {
-                        chance = 99;
+/* Get the room */
+if(room_info[dun_room[by][bx]].flags & (ROOM_SILENT))
+{
+chance = 99;
 
-                        /* Warn the player */
-                        msg_print("You are engulfed in magical silence.");
+/* Warn the player */
+msg_print("You are engulfed in magical silence.");
 
-                }
-        }                                                            
+}
+}    
 
 	/* Failed spell */
 	if (rand_int(100) < chance)
 	{
 		if (flush_failure) flush();
-                msg_format("You failed to %s the %s!",p,t);
+msg_format("You failed to %s the %s!",p,t);
 
-                p_ptr->held_song = 0;
+p_ptr->held_song = 0;
 	}
 
 	/* Process spell */
 	else
 	{
-                bool abort = FALSE;
+		    /* Must be true to let us abort */
+bool abort = TRUE;
 
-                /* Apply the spell effect */
-                process_spell(spell,plev,&abort);
+/* Apply the spell effect */
+process_spell(spell,plev,&abort);
 
-                if (strlen(s_text+s_ptr->text)) msg_format("%s",s_text+s_ptr->text);
-
-                /* Did we cancel? */
-                if (abort) return;
+/* Did we cancel? */
+if (abort) return;
 
 		for (i=0;i<PY_MAX_SPELLS;i++)
 		{
@@ -941,30 +943,30 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 		/* A spell was cast */ 
 		else if (!((i < 32) ?
-                      (p_ptr->spell_worked1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_worked3 & (1L << (i - 64))) :
-                      (p_ptr->spell_worked4 & (1L << (i - 96)))))))
+      (p_ptr->spell_worked1 & (1L << i)) :
+      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
+      ((i < 96) ? (p_ptr->spell_worked3 & (1L << (i - 64))) :
+      (p_ptr->spell_worked4 & (1L << (i - 96)))))))
 
 		{
-                        int e = sc_ptr->level;
+int e = sc_ptr->level;
 
 			/* The spell worked */
 			if (i < 32)
 			{
 				p_ptr->spell_worked1 |= (1L << i);
 			}
-                        else if (i < 64)
+else if (i < 64)
 			{
 				p_ptr->spell_worked2 |= (1L << (i - 32));
 			}
-                        else if (i < 96)
+else if (i < 96)
 			{
-                                p_ptr->spell_worked3 |= (1L << (i - 64));
+p_ptr->spell_worked3 |= (1L << (i - 64));
 			}
-                        else if (i < 128)
+else if (i < 128)
 			{
-                                p_ptr->spell_worked2 |= (1L << (i - 96));
+p_ptr->spell_worked2 |= (1L << (i - 96));
 			}
 
 			/* Gain experience */
@@ -974,9 +976,6 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			p_ptr->window |= (PW_OBJECT);
 		}
 	}
-
-        /* Take a partial turn, if not already */
-        if (!p_ptr->energy_use) p_ptr->energy_use = 50;
 
 	/* Sufficient mana */
 	if (sc_ptr->mana <= p_ptr->csp)
@@ -1040,11 +1039,11 @@ void do_cmd_cast(void)
 	if (p_ptr->held_song)
 	{
 		/* Verify */
-                if (!get_check("Continue singing?")) p_ptr->held_song = 0;
+if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].name))) p_ptr->held_song = 0;
 	}
 
 	/* Cannot cast spells if illiterate */
-	if (c_info[p_ptr->pclass].sp_lvl > 50)
+        if (c_info[p_ptr->pclass].spell_first > 50)
 	{
 		msg_print("You cannot read books.");
 		return;
@@ -1071,15 +1070,15 @@ void do_cmd_cast(void)
 
 	/* Get an item */
 	q = "Use which book? ";
-        s = "You have nothing you have studied!";
+s = "You have nothing you have studied!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-                object_type object_type_body;
+object_type object_type_body;
 
-                o_ptr = &object_type_body;
+o_ptr = &object_type_body;
 
 		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -1101,31 +1100,31 @@ void do_cmd_cast(void)
 	handle_stuff();
 
 	/* Cast, recite, sing or play */
-        switch (o_ptr->tval)
+switch (o_ptr->tval)
 	{
 
-                case TV_MAGIC_BOOK:
+case TV_MAGIC_BOOK:
 		{
-                        p="cast";
-                        t="spell";
+p="cast";
+t="spell";
 			
 			break;
 		}
-                case TV_RUNESTONE:
+case TV_RUNESTONE:
 		{
-                        p="apply";
-                        t="rune";
+p="apply";
+t="rune";
 			
 			break;
 		}
-                case TV_PRAYER_BOOK:
+case TV_PRAYER_BOOK:
 		{
-       	                p="recite";
+       	p="recite";
 			t="prayer";
 			
 			break;
 		}
-                case TV_SONG_BOOK:
+case TV_SONG_BOOK:
 		{
 			if (p_ptr->pstyle == WS_INSTRUMENT)
 			{
@@ -1136,15 +1135,15 @@ void do_cmd_cast(void)
 				p="sing";
 			}
 			t = "song";
-                	break;
+	break;
 		}
 
-                default:
+default:
 		{
-                        p="use";
-                        t="power";
+p="use";
+t="power";
 			break;		
-	        }
+	}
 	}
 
 	/* Ask for a spell */
@@ -1155,37 +1154,38 @@ void do_cmd_cast(void)
 	}
 
 	/* Take a (partial) turn */
-        if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-        else p_ptr->energy_use = 100;
+if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+else p_ptr->energy_use = 100;
 
 	/* Hold a song if possible */
-        if (s_info[spell].flags3 & (SF3_HOLD_SONG))
+if (s_info[spell].flags3 & (SF3_HOLD_SONG))
 	{
 		int i;
 
-                for (i = 0;i< z_info->w_max;i++)
-                {
-                        if (w_info[i].class != p_ptr->pclass) continue;
-        
-                        if (w_info[i].level > p_ptr->lev) continue;
-        
-                        if (w_info[i].benefit != WB_HOLD_SONG) continue;
-        
-                            /* Check for styles */       
-                        if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
-                                {
-                                        p_ptr->held_song = spell;
-                                }
+for (i = 0;i< z_info->w_max;i++)
+{
+if (w_info[i].class != p_ptr->pclass) continue;
+
+if (w_info[i].level > p_ptr->lev) continue;
+
+if (w_info[i].benefit != WB_HOLD_SONG) continue;
+
+    /* Check for styles */       
+if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+{
+		/* Verify */
+if (get_check(format("Continue singing %s?", s_name + s_info[spell].name))) p_ptr->held_song = spell;
+}
 				/* Hack - Cancel searching */
 	/* Stop searching */
 	if (p_ptr->searching)
 	{
-                /* Clear the searching flag */
+/* Clear the searching flag */
 		p_ptr->searching = FALSE;
 
-                /* Clear the last disturb */
-                p_ptr->last_disturb = turn;
+/* Clear the last disturb */
+p_ptr->last_disturb = turn;
 	}
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -1193,11 +1193,11 @@ void do_cmd_cast(void)
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
 
-                }
+}
 	}
 
 	/* Cast the spell - held songs get cast later*/
-        if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
+if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
 	
 }
 

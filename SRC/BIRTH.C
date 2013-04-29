@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-2 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -35,9 +35,9 @@ struct birther
 
 	s32b au;
 
-	byte stat[A_MAX];
+	s16b stat[A_MAX];
 
-	char history[5][55];
+	char history[4][60];
 };
 
 /*
@@ -49,7 +49,6 @@ struct birth_menu
 	cptr name;
 };
 
-
 /*
  * The last character displayed
  */
@@ -59,7 +58,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 
 
@@ -303,10 +302,10 @@ static void get_extra(void)
 
 
 	/* Level one */
-        p_ptr->max_lev = p_ptr->lev = 1;
+	p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
-	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + ((p_ptr->pstyle)?10:0);
+	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -523,7 +522,7 @@ static void player_wipe(void)
 
 
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL+1; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		object_wipe(&inventory[i]);
 	}
@@ -579,7 +578,7 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
-		l_ptr->r_pkills = 0;
+                l_ptr->pkills = 0;
 	}
 
 
@@ -590,14 +589,12 @@ static void player_wipe(void)
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
-        /* Hack -- Well rested player */
-        p_ptr->rest = PY_REST_FULL - 1;
-
+	/* Hack -- Well rested player */
+	p_ptr->rest = PY_REST_FULL - 1;
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 0;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
 }
-
 
 
 
@@ -608,8 +605,8 @@ static void player_wipe(void)
  */
 static void player_outfit(void)
 {
-	int i,tv,sv;
-
+	int i;
+	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
@@ -636,21 +633,32 @@ static void player_outfit(void)
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
 
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player his equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-		/* Look up standard equipment */
-		tv = c_info[p_ptr->pclass].outfit[i*2+0];
-		sv = c_info[p_ptr->pclass].outfit[i*2+1];
+		/* Access the item */
+		e_ptr = &(cp_ptr->start_items[i]);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+		}
 	}
 }
 
@@ -660,7 +668,7 @@ static void player_outfit(void)
 
 static cptr w_name_style[] =
 {
-        "None",
+	"None",
 	"Unarmed",
 	"One-handed",
 	"Two-handed",
@@ -673,16 +681,16 @@ static cptr w_name_style[] =
 	"Slings",
 	"Bows",
 	"Cross-bows",
-        "Backstab",
-        "Magic books",
-        "Prayer books",
-        "Song books",
-        "Instruments",
+	"Backstab",
+	"Magic books",
+	"Prayer books",
+	"Song books",
+	"Instruments",
 	"Potions",
 	"Scrolls",
 	"Amulets",
 	"Rings",
-        "Wands/Rods",
+	"Wands/Rods",
 	"Staves",
 	"Slay Orcs",
 	"Slay Trolls",
@@ -693,7 +701,6 @@ static cptr w_name_style[] =
 	"Slay Animals",
 	"Slay Demons"
 };
-
 
 
 /* Locations of the tables on the screen */
@@ -732,7 +739,7 @@ static void clear_question(void)
  * Generic "get choice from menu" function
  */
 static int get_player_choice(birth_menu *choices, int num, int col, int wid,
-                             void (*hook)(birth_menu))
+                             cptr helpfile, void (*hook)(birth_menu))
 {
 	int top = 0, cur = 0;
 	int i, dir;
@@ -828,7 +835,11 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		}
 		else if (c == '?')
 		{
-                        do_cmd_help();
+			sprintf(buf, "%s#%s", helpfile, choices[cur].name);
+
+			screen_save();
+			(void)show_file(buf, NULL, 0, 0);
+			screen_load();
 		}
 		else if (c == '=')
 		{
@@ -970,14 +981,14 @@ static bool get_player_race()
 	}
 
 	p_ptr->prace = get_player_choice(races, z_info->p_max, RACE_COL, 15,
-                race_aux_hook);
+                "races.txt", race_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->prace == INVALID_CHOICE)
 	{
 		p_ptr->prace = 0;
 
-                C_FREE(races, z_info->p_max, birth_menu);
+                FREE(races);
 
         	return (FALSE);
 	}
@@ -985,7 +996,7 @@ static bool get_player_race()
 	/* Save the race pointer */
 	rp_ptr = &p_info[p_ptr->prace];
 
-	C_FREE(races, z_info->p_max, birth_menu);
+        FREE(races);
 
 	/* Success */
 	return (TRUE);
@@ -1057,14 +1068,14 @@ static bool get_player_class(void)
 	}
 
 	p_ptr->pclass = get_player_choice(classes, z_info->c_max, CLASS_COL, 20,
-                                      class_aux_hook);
+                                      "classes.txt", class_aux_hook);
 
 	/* No selection? */
 	if (p_ptr->pclass == INVALID_CHOICE)
 	{
 		p_ptr->pclass = 0;
 
-                C_FREE(classes, z_info->c_max, birth_menu);
+                FREE(classes);
 
 		return (FALSE);
 	}
@@ -1072,7 +1083,7 @@ static bool get_player_class(void)
 	/* Set class */
 	cp_ptr = &c_info[p_ptr->pclass];
 
-	C_FREE(classes, z_info->c_max, birth_menu);
+        FREE(classes);
 
 	return (TRUE);
 }
@@ -1167,7 +1178,7 @@ static bool get_player_style(void)
         styles[0].ghost = TRUE;
 
         choice = get_player_choice(styles, num, STYLE_COL, 20,
-                                      style_aux_hook);
+                                     "styles.txt", style_aux_hook);
 
 	/* No selection? */
         if (choice == INVALID_CHOICE)
@@ -1245,8 +1256,8 @@ static bool get_player_book(void)
         {
                 p_ptr->psval = k_info[book_list[0]].sval;
 
-                C_FREE(book_list, bookc, int);
-                C_FREE(books, bookc, birth_menu);
+                FREE(book_list);
+                FREE(books);
 
                 return (TRUE);
 	}
@@ -1264,7 +1275,7 @@ static bool get_player_book(void)
 	}
 
         choice = get_player_choice(books, num, BOOK_COL, 20,
-                                      NULL);
+                                     "styles.txt", NULL);
 
 	/* No selection? */
         if (choice == INVALID_CHOICE)
@@ -1273,15 +1284,15 @@ static bool get_player_book(void)
 
 		return (FALSE);
 
-                C_FREE(book_list, bookc, int);
-                C_FREE(books, bookc, birth_menu);
+                FREE(book_list);
+                FREE(books);
 	}
         else
         {
                 p_ptr->psval = k_info[book_list[choice]].sval;
         }
-        C_FREE(book_list, bookc, int);
-        C_FREE(books, bookc, birth_menu);
+        FREE(book_list);
+        FREE(books);
 
 	return (TRUE);
 }
@@ -1307,7 +1318,7 @@ static bool get_player_sex(void)
 	}
 
         p_ptr->psex = get_player_choice(genders, 2, SEX_COL, 15,
-                                    NULL);
+                                 "birth.txt",   NULL);
 
 	/* No selection? */
 	if (p_ptr->psex == INVALID_CHOICE)
@@ -1333,7 +1344,6 @@ static bool get_player_sex(void)
  */
 static bool player_birth_aux_1(void)
 {
-
 	/*** Instructions ***/
 
 	/* Clear screen */
@@ -1388,11 +1398,10 @@ static bool player_birth_aux_1(void)
 }
 
 
-
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1408,7 +1417,7 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  */
 static bool player_birth_aux_2(void)
 {
-        int i;
+	int i;
 
 	int row = 3;
 	int col = 42;
@@ -1539,13 +1548,13 @@ static bool player_birth_aux_2(void)
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
@@ -1593,9 +1602,9 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
@@ -1607,7 +1616,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 
@@ -1677,7 +1686,7 @@ static bool player_birth_aux_3(void)
 				strcpy(inp, "");
 
 				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
+				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- add a fake slash */
 				strcat(inp, "/");
@@ -1936,9 +1945,9 @@ static bool player_birth_aux_3(void)
  */
 static bool player_birth_aux(void)
 {
-	char ch;
+        int i;
 
-	int i;
+	char ch;
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return (FALSE);
@@ -2000,7 +2009,8 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-        int i, n;
+	int i, n;
+
 
 	/* Create a new character */
 	while (1)
@@ -2011,6 +2021,7 @@ void player_birth(void)
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
+
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
@@ -2023,12 +2034,12 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-        /* Hack -- set the dungeon */
-        if (adult_campaign) p_ptr->dungeon = 1;
-        else p_ptr->dungeon = 0;
+	/* Hack -- set the dungeon */
+	if (adult_campaign) p_ptr->dungeon = 1;
+	else p_ptr->dungeon = 0;
 
-        /* Hack -- set the town */
-        p_ptr->town = p_ptr->dungeon;
+	/* Hack -- set the town */
+	p_ptr->town = p_ptr->dungeon;
 
 	/* Set last disturb */
 	p_ptr->last_disturb = turn;
@@ -2045,10 +2056,6 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
-
-        /* Hack --- give awareness of items */
-        improve_aware();
-
 }
 
 

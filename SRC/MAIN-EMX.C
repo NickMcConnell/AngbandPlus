@@ -101,6 +101,8 @@
  *
  */
 
+#include "main.h"
+
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -340,10 +342,6 @@ static void Term_nuke_pipe_emx(term *t);
 static FILE *initPipe(char *name);
 static int initPipeTerm(term *term, char *name);
 
-/*
- * Main initialization function
- */
-errr init_emx(void);
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -739,7 +737,7 @@ static void Term_nuke_pipe_emx(term *t)
 		fputc(PIP_NUKE, tp->out); /* Terminate client */
 		fflush(tp->out);
 		fclose(tp->out);         /* Close Pipe */
-  		FREE(t->data, termData); /* free xtra memory for pipe data */
+  		FREE(t->data);           /* free xtra memory for pipe data */
 		t->data=NULL;            /* Paranoia */
 	}
 }
@@ -795,15 +793,23 @@ static int initPipeTerm(term *t, char *name)
  	return lineCount;
 }
 
+
+const char help_emx[] = "OS/2 EMX (IBM-PC)";
+
+
 /*
- * Prepare "term.c" to use "USE_EMX" built-in video library
+ * Prepare "z-term.c" to use "USE_EMX" built-in video library
  */
-errr init_emx(void)
+errr init_emx(int argc, char **argv)
 {
 	int i;
 
 	term *t;
  	const char *name;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Initialize the pipe windows */
 	for (i = MAX_TERM_DATA-1; i > 0; --i)
@@ -1095,7 +1101,7 @@ static void Term_init_emx(term *t)
 static void Term_nuke_emx(term *t)
 {
 	if (t->data_flag && t->data != NULL) {
- 		FREE(t->data, termData);
+ 		FREE(t->data);
    		t->data = NULL;
     	}
 }
@@ -1105,10 +1111,6 @@ static void Term_nuke_emx(term *t)
  */
 static errr CheckEvents(int returnImmediately);
 
-/*
- * Main initialization function
- */
-errr init_emx(void);
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -1198,12 +1200,18 @@ void emx_init_term(term *t, void *main_instance, int n)
 	t->xtra_hook = Term_xtra_emx;
 }
 
+
 /*
- * Prepare "term.c" to use "USE_EMX" built-in faked video library
+ * Prepare "z-term.c" to use "USE_EMX" built-in faked video library
  */
-errr init_emx(void)
+errr init_emx(int argc, char **argv)
 {
 	int i;
+
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Initialize the windows */
 	emx_init_term(&emxterm[0],  NULL, 0);
@@ -1271,7 +1279,7 @@ void angbandThread(void *arg)
 	argv0 = (char*)arg;
 
 	/* Use the "main-emx.c" support */
-	init_emx();
+	init_emx(0, NULL);
 	ANGBAND_SYS = "ibm";
 
 	/* Get the file paths */

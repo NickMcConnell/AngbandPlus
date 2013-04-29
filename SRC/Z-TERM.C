@@ -283,25 +283,25 @@ term *Term = NULL;
 /*
  * Nuke a term_win (see below)
  */
-static errr term_win_nuke(term_win *s, int w, int h)
+static errr term_win_nuke(term_win *s)
 {
 	/* Free the window access arrays */
-	C_KILL(s->a, h, byte*);
-	C_KILL(s->c, h, char*);
+	KILL(s->a);
+	KILL(s->c);
 
 	/* Free the window content arrays */
-	C_KILL(s->va, h * w, byte);
-	C_KILL(s->vc, h * w, char);
+	KILL(s->va);
+	KILL(s->vc);
 
 #ifdef USE_TRANSPARENCY
 
 	/* Free the terrain access arrays */
-	C_KILL(s->ta, h, byte*);
-	C_KILL(s->tc, h, char*);
+	KILL(s->ta);
+	KILL(s->tc);
 
 	/* Free the terrain content arrays */
-	C_KILL(s->vta, h * w, byte);
-	C_KILL(s->vtc, h * w, char);
+	KILL(s->vta);
+	KILL(s->vtc);
 
 #endif /* USE_TRANSPARENCY */
 
@@ -1082,7 +1082,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 /*
  * Actually perform all requested changes to the window
  *
- * If aboslutely nothing has changed, not even temporarily, or if the
+ * If absolutely nothing has changed, not even temporarily, or if the
  * current "Term" is not mapped, then this function will return 1 and
  * do absolutely nothing.
  *
@@ -2331,24 +2331,24 @@ errr Term_resize(int w, int h)
 	}
 
 	/* Free some arrays */
-	C_KILL(hold_x1, Term->hgt, byte);
-	C_KILL(hold_x2, Term->hgt, byte);
+	FREE(hold_x1);
+	FREE(hold_x2);
 
 	/* Nuke */
-	term_win_nuke(hold_old, Term->wid, Term->hgt);
+	term_win_nuke(hold_old);
 
 	/* Kill */
-	KILL(hold_old, term_win);
+	FREE(hold_old);
 
 	/* Illegal cursor */
 	if (Term->old->cx >= w) Term->old->cu = 1;
 	if (Term->old->cy >= h) Term->old->cu = 1;
 
 	/* Nuke */
-	term_win_nuke(hold_scr, Term->wid, Term->hgt);
+	term_win_nuke(hold_scr);
 
 	/* Kill */
-	KILL(hold_scr, term_win);
+	FREE(hold_scr);
 
 	/* Illegal cursor */
 	if (Term->scr->cx >= w) Term->scr->cu = 1;
@@ -2358,10 +2358,10 @@ errr Term_resize(int w, int h)
 	if (hold_mem)
 	{
 		/* Nuke */
-		term_win_nuke(hold_mem, Term->wid, Term->hgt);
+		term_win_nuke(hold_mem);
 
 		/* Kill */
-		KILL(hold_mem, term_win);
+		FREE(hold_mem);
 
 		/* Illegal cursor */
 		if (Term->mem->cx >= w) Term->mem->cu = 1;
@@ -2372,10 +2372,10 @@ errr Term_resize(int w, int h)
 	if (hold_tmp)
 	{
 		/* Nuke */
-		term_win_nuke(hold_tmp, Term->wid, Term->hgt);
+		term_win_nuke(hold_tmp);
 
 		/* Kill */
-		KILL(hold_tmp, term_win);
+		FREE(hold_tmp);
 
 		/* Illegal cursor */
 		if (Term->tmp->cx >= w) Term->tmp->cu = 1;
@@ -2455,10 +2455,6 @@ errr Term_activate(term *t)
  */
 errr term_nuke(term *t)
 {
-	int w = t->wid;
-	int h = t->hgt;
-
-
 	/* Hack -- Call the special "nuke" hook */
 	if (t->active_flag)
 	{
@@ -2474,43 +2470,43 @@ errr term_nuke(term *t)
 
 
 	/* Nuke "displayed" */
-	term_win_nuke(t->old, w, h);
+	term_win_nuke(t->old);
 
 	/* Kill "displayed" */
-	KILL(t->old, term_win);
+	KILL(t->old);
 
 	/* Nuke "requested" */
-	term_win_nuke(t->scr, w, h);
+	term_win_nuke(t->scr);
 
 	/* Kill "requested" */
-	KILL(t->scr, term_win);
+	KILL(t->scr);
 
 	/* If needed */
 	if (t->mem)
 	{
 		/* Nuke "memorized" */
-		term_win_nuke(t->mem, w, h);
+		term_win_nuke(t->mem);
 
 		/* Kill "memorized" */
-		KILL(t->mem, term_win);
+		KILL(t->mem);
 	}
 
 	/* If needed */
 	if (t->tmp)
 	{
 		/* Nuke "temporary" */
-		term_win_nuke(t->tmp, w, h);
+		term_win_nuke(t->tmp);
 
 		/* Kill "temporary" */
-		KILL(t->tmp, term_win);
+		KILL(t->tmp);
 	}
 
 	/* Free some arrays */
-	C_KILL(t->x1, h, byte);
-	C_KILL(t->x2, h, byte);
+	KILL(t->x1);
+	KILL(t->x2);
 
 	/* Free the input queue */
-	C_KILL(t->key_queue, t->key_size, char);
+	KILL(t->key_queue);
 
 	/* Success */
 	return (0);

@@ -18,12 +18,12 @@
 
 #define LOG_PRINT1(string, value) \
 	do { if (randart_verbose) \
-		fprintf(randart_log, (string), (value)); \
+		fprintf(randart_log, (string), (int)(value)); \
 	} while (0);
 
 #define LOG_PRINT2(string, val1, val2) \
 	do { if (randart_verbose) \
-		fprintf(randart_log, (string), (val1), (val2)); \
+		fprintf(randart_log, (string), (int)(val1), (int)(val2)); \
 	} while (0);
 
 /*
@@ -790,18 +790,18 @@ static cptr names_list =
 
 /* ARD_ESP -- following changed to include ARD_IDX_BOW_SENSE */
 static s16b art_idx_bow[] =
-        {ART_IDX_BOW_SHOTS, ART_IDX_BOW_MIGHT, ART_IDX_BOW_SENSE};
+	{ART_IDX_BOW_SHOTS, ART_IDX_BOW_MIGHT, ART_IDX_BOW_SENSE};
 static s16b art_idx_weapon[] =
 	{ART_IDX_WEAPON_HIT, ART_IDX_WEAPON_DAM, ART_IDX_WEAPON_AGGR};
 /* ARD_ESP -- following changed to include ARD_IDX_NONWEAPON_SENSE */
 static s16b art_idx_nonweapon[] =
-        {ART_IDX_NONWEAPON_HIT, ART_IDX_NONWEAPON_DAM, ART_IDX_NONWEAPON_AGGR,
-        ART_IDX_NONWEAPON_SENSE};
+	{ART_IDX_NONWEAPON_HIT, ART_IDX_NONWEAPON_DAM, ART_IDX_NONWEAPON_AGGR,
+	ART_IDX_NONWEAPON_SENSE};
 /* ARD_ESP -- following changed to include ARD_IDX_MELEE_SENSE */
 static s16b art_idx_melee[] =
 	{ART_IDX_MELEE_BLESS, ART_IDX_MELEE_BRAND_SLAY, ART_IDX_MELEE_SINV,
 	ART_IDX_MELEE_BLOWS, ART_IDX_MELEE_AC, ART_IDX_MELEE_DICE,
-        ART_IDX_MELEE_WEIGHT, ART_IDX_MELEE_TUNN, ART_IDX_MELEE_SENSE};
+	ART_IDX_MELEE_WEIGHT, ART_IDX_MELEE_TUNN, ART_IDX_MELEE_SENSE};
 static s16b art_idx_allarmor[] =
 	{ART_IDX_ALLARMOR_WEIGHT};
 static s16b art_idx_boot[] =
@@ -828,7 +828,7 @@ static s16b art_idx_gen[] =
 	ART_IDX_GEN_RLITE, ART_IDX_GEN_RDARK, ART_IDX_GEN_RBLIND,
 	ART_IDX_GEN_RCONF, ART_IDX_GEN_RSOUND, ART_IDX_GEN_RSHARD,
 	ART_IDX_GEN_RNEXUS, ART_IDX_GEN_RNETHER, ART_IDX_GEN_RCHAOS,
-        ART_IDX_GEN_RDISEN, ART_IDX_GEN_AC, ART_IDX_GEN_TUNN};
+	ART_IDX_GEN_RDISEN, ART_IDX_GEN_AC, ART_IDX_GEN_TUNN};
 static s16b art_idx_high_resist[] =
 	{ART_IDX_GEN_RPOIS, ART_IDX_GEN_RFEAR,
 	ART_IDX_GEN_RLITE, ART_IDX_GEN_RDARK, ART_IDX_GEN_RBLIND,
@@ -1063,44 +1063,44 @@ static errr init_names(void)
 	char *a_next;
 	int i;
 
-        /* Temporary space for names, while reading and randomizing them. */
+	/* Temporary space for names, while reading and randomizing them. */
 	cptr *names;
 
 	build_prob(names_list);
 
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
-        C_MAKE(names, z_info->a_max, cptr);
+	C_MAKE(names, z_info->a_max, cptr);
 
-        for (i = 1 ; i < z_info->a_max; i++)
+	for (i = 1 ; i < z_info->a_max; i++)
 	{
 		char *word = make_word();
 
 /* Start of ARD_RAND changes for artifact names */
 
-                if (i == ART_POWER)
-                {
-                        names[i-1] = string_make("of Power (The One Ring)");
-                        continue;
-                }
+		if (i == ART_POWER)
+		{
+			names[i-1] = string_make("of Power (The One Ring)");
+			continue;
+		}
 
-                if (i == ART_GROND)
-                {
-                        names[i-1] = string_make("'Grond'");
-                        continue;
-                }
+		if (i == ART_GROND)
+		{
+			names[i-1] = string_make("'Grond'");
+			continue;
+		}
 
-                if (i == ART_MORGOTH)
-                {
-                        names[i-1] = string_make("of Morgoth");
-                        continue;
-                }
-                if ((!adult_rand_artifacts) && (i<a_max))
-                {
-                        names[i-1] = string_make(a_name+a_info[i].name);
+		if (i == ART_MORGOTH)
+		{
+			names[i-1] = string_make("of Morgoth");
+			continue;
+		}
+		if ((!adult_rand_artifacts) && (i<a_max))
+		{
+			names[i-1] = string_make(a_name+a_info[i].name);
 
-                        continue;
-                }
+			continue;
+		}
 /* End ARD_RAND
  */
 
@@ -1109,45 +1109,44 @@ static errr init_names(void)
 		else
 			sprintf(buf, "of %s", word);
 
-                names[i-1] = string_make(buf);
+		names[i-1] = string_make(buf);
 	}
 
 	/* Convert our names array into an a_name structure for later use. */
-        name_size = 2;
+	name_size = 2;
 
-        for (i = 1; i < z_info->a_max; i++)
+	for (i = 1; i < z_info->a_max; i++)
 	{
-                name_size += strlen(names[i-1]) + 1;
+		name_size += strlen(names[i-1]) + 1;
 	}
 
 	C_MAKE(a_base, name_size, char);
 
 	a_next = a_base + 1;	/* skip first char */
 
-        for (i = 1; i < z_info->a_max; i++)
+	for (i = 1; i < z_info->a_max; i++)
 	{
 		strcpy(a_next, names[i-1]);
-                if (a_info[i].tval > 0)
-                {
+		if (a_info[i].tval > 0)
+		{
 			a_info[i].name = a_next - a_base;
-                }
+		}
 		a_next += strlen(names[i-1]) + 1;
 	}
 
 	/* Free the old names */
-	C_KILL(a_name, z_info->fake_name_size, char);
+	KILL(a_name);
 
-        for (i = 1; i < z_info->a_max; i++)
+	for (i = 1; i < z_info->a_max; i++)
 	{
-                string_free(names[i-1]);
+		string_free(names[i-1]);
 	}
 
 	/* Free the "names" array */
-        C_KILL(names, z_info->a_max, cptr);
+	KILL(names);
 
 	/* Store the names */
-        a_name = a_base;
-        a_head->name_size = name_size;
+	a_name = a_base;
 
 	/* Success */
 	return (0);
@@ -1466,7 +1465,7 @@ static bool init_mon_power (void)
 
 	for (i = 0; i < z_info->r_max; i++)
 	{
-                rptr = &r_info[i];
+		rptr = &r_info[i];
 
 		/* Set the current level */
 
@@ -1568,7 +1567,6 @@ static s32b slay_power(int a_idx)
 	const artifact_type *a_ptr = &a_info[a_idx];
 	s32b s_index = 0;
 	s32b sv;
-	int av_dam;
 	int i;
 	int mult;
 	monster_race *r_ptr;
@@ -1760,9 +1758,6 @@ static s32b artifact_power(int a_idx)
 	object_kind *k_ptr;
 	int immunities = 0;
 	int extra_stat_bonus = 0;
-	int temp;
-
-	int q = 1000;
 
 	LOG_PRINT("********** ENTERING EVAL POWER ********\n");
 	LOG_PRINT1("Artifact index is %d\n", a_idx);
@@ -1781,7 +1776,7 @@ static s32b artifact_power(int a_idx)
 		/* Paranoia */
 		if (!k_idx)
 		{
-                        quit_fmt("Illegal tval(%d)/sval(%d) value for artifact %d!", a_ptr->tval, a_ptr->sval,a_idx);
+			quit_fmt("Illegal tval(%d)/sval(%d) value for artifact %d!", a_ptr->tval, a_ptr->sval,a_idx);
 		}
 	}
 
@@ -2192,19 +2187,19 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("free action",	 7, TR3_FREE_ACT, 3,);
 	ADD_POWER("hold life",		 6, TR3_HOLD_LIFE, 3,);
 	ADD_POWER("feather fall",	 0, TR3_FEATHER, 3,); /* was 2 */
-        ADD_POWER("permanent light",     2, TR3_LITE, 3,); /* was 2 */
+	ADD_POWER("permanent light",     2, TR3_LITE, 3,); /* was 2 */
 
 	ADD_POWER("see invisible",	 4, TR3_SEE_INVIS, 3,);
 /*** Start of ESP powers ARD_ESP */
-        ADD_POWER("sense orcs",          1, TR3_ESP_ORC, 3,);
-        ADD_POWER("sense trolls",        1, TR3_ESP_TROLL, 3,);
-        ADD_POWER("sense giants",        2, TR3_ESP_GIANT, 3,);
-        ADD_POWER("sense demons",        4, TR3_ESP_DEMON, 3,);
-        ADD_POWER("sense undead",        5, TR3_ESP_UNDEAD, 3,);
-        ADD_POWER("sense dragons",       5, TR3_ESP_DRAGON, 3,);
-        ADD_POWER("sense nature",        4, TR3_ESP_NATURE, 3,);
+	ADD_POWER("sense orcs",	  1, TR3_ESP_ORC, 3,);
+	ADD_POWER("sense trolls",	1, TR3_ESP_TROLL, 3,);
+	ADD_POWER("sense giants",	2, TR3_ESP_GIANT, 3,);
+	ADD_POWER("sense demons",	4, TR3_ESP_DEMON, 3,);
+	ADD_POWER("sense undead",	5, TR3_ESP_UNDEAD, 3,);
+	ADD_POWER("sense dragons",       5, TR3_ESP_DRAGON, 3,);
+	ADD_POWER("sense nature",	4, TR3_ESP_NATURE, 3,);
 /*** End of ESP powers ARD_ESP */
-        ADD_POWER("telepathy",          18, TR3_TELEPATHY, 3,);
+	ADD_POWER("telepathy",	  18, TR3_TELEPATHY, 3,);
 	ADD_POWER("slow digestion",	 1, TR3_SLOW_DIGEST, 3,);
 	/* Digging moved to general section since it can be on anything now */
 	ADD_POWER("tunnelling",	 a_ptr->pval, TR1_TUNNEL, 1,);
@@ -2352,7 +2347,7 @@ static struct item_choice {
 static s16b choose_item(int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
-	int tval, sval;
+	int tval, sval=0;
 	object_kind *k_ptr;
 	int r, i;
 	s16b k_idx, r2;
@@ -2509,7 +2504,7 @@ static s16b choose_item(int a_idx)
 		else if (r2 < 126) sval = SV_DRAGON_RED;
 		else if (r2 < 132) sval = SV_DRAGON_GREEN;
 		else if (r2 < 138) sval = SV_DRAGON_MULTIHUED;
-                else if (r2 < 144) sval = SV_DRAGON_ETHER;
+		else if (r2 < 144) sval = SV_DRAGON_ETHER;
 		else if (r2 < 152) sval = SV_DRAGON_LAW;
 		else if (r2 < 159) sval = SV_DRAGON_BRONZE;
 		else if (r2 < 166) sval = SV_DRAGON_GOLD;
@@ -2587,7 +2582,7 @@ static s16b choose_item(int a_idx)
 
 
 	/* Artifacts ignore everything */
-        a_ptr->flags2 |= TR2_IGNORE_MASK;
+	a_ptr->flags2 |= TR2_IGNORE_MASK;
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	/*
@@ -2825,23 +2820,23 @@ static void parse_frequencies ()
 
 /* Start of ESP frequenty run -- for bows ARD_ESP */
 /* Note that weird constant is just all ESP_ flags OR'ed together */
-                        if (a_ptr->flags3 & 0x00300F00)
+			if (a_ptr->flags3 & 0x00300F00)
 			{
-                                /* We have some sensing - count them */
+				/* We have some sensing - count them */
 				temp = 0;
-                                if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+				if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
+				if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
+				if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+				if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
 
 
 
 				/* Add these to the frequency count */
-                                artprobs[ART_IDX_BOW_SENSE] += temp;
-                        }
+				artprobs[ART_IDX_BOW_SENSE] += temp;
+			}
 /* Cumulative frequency of ESP for bows  ARD_ESP */
 /* Note I do weapons, bows and other stuff seperately to best match
  * the existing if-statements
@@ -2940,24 +2935,24 @@ static void parse_frequencies ()
 			}
 
 /* Start of ESP frequencies for non-weapons ARD_ESP */
-                        if (a_ptr->flags3 & 0x00300F00)
+			if (a_ptr->flags3 & 0x00300F00)
 			{
-                                /* We have some sensing - count them */
+				/* We have some sensing - count them */
 
 				temp = 0;
-                                if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+				if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
+				if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
+				if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+				if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
 
 
 
 				/* Add these to the frequency count */
-                                artprobs[ART_IDX_NONWEAPON_SENSE] += temp;
-                        }
+				artprobs[ART_IDX_NONWEAPON_SENSE] += temp;
+			}
 /* End of ESP frequencies for non-weapons ARD_ESP */
 
 		}
@@ -3009,23 +3004,23 @@ static void parse_frequencies ()
 
 /* Start of ESP frequencies for weapons ARD_ESP */
 
-                        if (a_ptr->flags3 & 0x00300F00)
+			if (a_ptr->flags3 & 0x00300F00)
 			{
-                                /* We have some sensing - count them */
+				/* We have some sensing - count them */
 
 				temp = 0;
-                                if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
-                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+				if (a_ptr->flags3 & TR3_ESP_ORC) temp++;
+				if (a_ptr->flags3 & TR3_ESP_TROLL) temp++;
+				if (a_ptr->flags3 & TR3_ESP_GIANT) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
+				if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+				if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
 
 
 				/* Add these to the frequency count */
-                                artprobs[ART_IDX_MELEE_SENSE] += temp;
-                        }
+				artprobs[ART_IDX_MELEE_SENSE] += temp;
+			}
 
 /* End of ESP frequencies for weapons ARD_ESP */
 
@@ -3424,10 +3419,10 @@ static void parse_frequencies ()
 
 		if (a_ptr->flags3 & TR3_LITE)
 		{
-                        /* Handle permanent light */
-                        LOG_PRINT("Adding 1 for permanent light - general.\n");
+			/* Handle permanent light */
+			LOG_PRINT("Adding 1 for permanent light - general.\n");
 
-                        (artprobs[ART_IDX_GEN_LITE])++;
+			(artprobs[ART_IDX_GEN_LITE])++;
 		}
 
 		if (a_ptr->flags3 & TR3_SEE_INVIS)
@@ -4240,85 +4235,85 @@ static void add_telepathy(artifact_type *a_ptr)
 /* Start of ESP Add_functions ARD_ESP */
 static bool add_sense_orc(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_ORC) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_ORC;
-        LOG_PRINT("Adding ability: sense orc\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_ORC) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_ORC;
+	LOG_PRINT("Adding ability: sense orc\n");
+	return (TRUE);
 }
 
 static bool add_sense_giant(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_GIANT) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_GIANT;
-        LOG_PRINT("Adding ability: sense giant\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_GIANT) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_GIANT;
+	LOG_PRINT("Adding ability: sense giant\n");
+	return (TRUE);
 }
 
 static bool add_sense_troll(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_TROLL) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_TROLL;
-        LOG_PRINT("Adding ability: sense troll\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_TROLL) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_TROLL;
+	LOG_PRINT("Adding ability: sense troll\n");
+	return (TRUE);
 }
 
 static bool add_sense_dragon(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_DRAGON) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_DRAGON;
-        LOG_PRINT("Adding ability: sense dragon\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_DRAGON) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_DRAGON;
+	LOG_PRINT("Adding ability: sense dragon\n");
+	return (TRUE);
 }
 
 static bool add_sense_demon(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_DEMON) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_DEMON;
-        LOG_PRINT("Adding ability: sense demon\n");
-        return (TRUE);
-}                     
+	if (a_ptr->flags3 & TR3_ESP_DEMON) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_DEMON;
+	LOG_PRINT("Adding ability: sense demon\n");
+	return (TRUE);
+}		     
 
 static bool add_sense_undead(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_UNDEAD) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_UNDEAD;
-        LOG_PRINT("Adding ability: sense undead\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_UNDEAD) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_UNDEAD;
+	LOG_PRINT("Adding ability: sense undead\n");
+	return (TRUE);
 }
 
 static bool add_sense_nature(artifact_type *a_ptr)
 {
-        if (a_ptr->flags3 & TR3_ESP_NATURE) return FALSE;
-        a_ptr->flags3 |= TR3_ESP_NATURE;
-        LOG_PRINT("Adding ability: sense nature\n");
-        return (TRUE);
+	if (a_ptr->flags3 & TR3_ESP_NATURE) return FALSE;
+	a_ptr->flags3 |= TR3_ESP_NATURE;
+	LOG_PRINT("Adding ability: sense nature\n");
+	return (TRUE);
 }
 
 
 static void add_sense_slay(artifact_type *a_ptr)
 {
-        /* Pick a sense at random, as long as the weapon has the slay */
-        /* Note we bias towards the high slays here */
+	/* Pick a sense at random, as long as the weapon has the slay */
+	/* Note we bias towards the high slays here */
 
 	int r;
 	int count = 0;
 	bool success = FALSE;
 
-        /* Hack -- not on telepathic items */
-        if (a_ptr->flags3 & (TR3_TELEPATHY)) return;
+	/* Hack -- not on telepathic items */
+	if (a_ptr->flags3 & (TR3_TELEPATHY)) return;
 
 	while ( (!success) & (count < MAX_TRIES) )
 	{
-                r = rand_int(10);
-                if ((r == 0) && (a_ptr->flags1 & TR1_SLAY_ORC)) success = add_sense_orc(a_ptr);
-                else if ((r == 1) && (a_ptr->flags1 & TR1_SLAY_GIANT)) success = add_sense_giant(a_ptr);
-                else if ((r == 2) && (a_ptr->flags1 & TR1_SLAY_TROLL)) success = add_sense_troll(a_ptr);
-                else if ((r == 3) && (a_ptr->flags1 & TR1_SLAY_DRAGON)) success = add_sense_dragon(a_ptr);
-                else if ((r == 4) && (a_ptr->flags1 & TR1_SLAY_DEMON)) success = add_sense_demon(a_ptr);
-                else if ((r == 5) && (a_ptr->flags1 & TR1_SLAY_UNDEAD)) success = add_sense_undead(a_ptr);
-                else if ((r == 6) && (a_ptr->flags1 & TR1_KILL_DRAGON)) success = add_sense_dragon(a_ptr);
-                else if ((r == 7) && (a_ptr->flags1 & TR1_KILL_DEMON)) success = add_sense_demon(a_ptr);
-                else if ((r == 8) && (a_ptr->flags1 & TR1_KILL_UNDEAD)) success = add_sense_undead(a_ptr);
+		r = rand_int(10);
+		if ((r == 0) && (a_ptr->flags1 & TR1_SLAY_ORC)) success = add_sense_orc(a_ptr);
+		else if ((r == 1) && (a_ptr->flags1 & TR1_SLAY_GIANT)) success = add_sense_giant(a_ptr);
+		else if ((r == 2) && (a_ptr->flags1 & TR1_SLAY_TROLL)) success = add_sense_troll(a_ptr);
+		else if ((r == 3) && (a_ptr->flags1 & TR1_SLAY_DRAGON)) success = add_sense_dragon(a_ptr);
+		else if ((r == 4) && (a_ptr->flags1 & TR1_SLAY_DEMON)) success = add_sense_demon(a_ptr);
+		else if ((r == 5) && (a_ptr->flags1 & TR1_SLAY_UNDEAD)) success = add_sense_undead(a_ptr);
+		else if ((r == 6) && (a_ptr->flags1 & TR1_KILL_DRAGON)) success = add_sense_dragon(a_ptr);
+		else if ((r == 7) && (a_ptr->flags1 & TR1_KILL_DEMON)) success = add_sense_demon(a_ptr);
+		else if ((r == 8) && (a_ptr->flags1 & TR1_KILL_UNDEAD)) success = add_sense_undead(a_ptr);
 		    else if ((r == 9) && (a_ptr->flags1 & TR1_SLAY_NATURAL)) success = add_sense_nature(a_ptr);
 
 		count++;
@@ -4327,29 +4322,29 @@ static void add_sense_slay(artifact_type *a_ptr)
 
 static void add_sense_rand(artifact_type *a_ptr)
 {
-        /* Pick a sense at random */
-        /* Note we bias towards the high slays here, even though per
+	/* Pick a sense at random */
+	/* Note we bias towards the high slays here, even though per
 	   * se, none of this equipment will have high-slays
-         */
+	 */
 
 
 	int r;
 	int count = 0;
 	bool success = FALSE;
 
-        /* Hack -- not on telepathic items */
-        if (a_ptr->flags3 & (TR3_TELEPATHY)) return;
+	/* Hack -- not on telepathic items */
+	if (a_ptr->flags3 & (TR3_TELEPATHY)) return;
 
 	while ( (!success) & (count < MAX_TRIES) )
 	{
-                r = rand_int(10);
-                if (r < 2) success = add_sense_dragon(a_ptr);
-                else if (r < 4) success = add_sense_demon(a_ptr);
-                else if (r < 6) success = add_sense_undead(a_ptr);
-                else if (r == 6) success = add_sense_orc(a_ptr);
-                else if (r == 7) success = add_sense_giant(a_ptr);
-                else if (r == 8) success = add_sense_troll(a_ptr);
-                else if (r == 9) success = add_sense_nature(a_ptr);
+		r = rand_int(10);
+		if (r < 2) success = add_sense_dragon(a_ptr);
+		else if (r < 4) success = add_sense_demon(a_ptr);
+		else if (r < 6) success = add_sense_undead(a_ptr);
+		else if (r == 6) success = add_sense_orc(a_ptr);
+		else if (r == 7) success = add_sense_giant(a_ptr);
+		else if (r == 8) success = add_sense_troll(a_ptr);
+		else if (r == 9) success = add_sense_nature(a_ptr);
 
 		count++;
 	}
@@ -4967,14 +4962,14 @@ static void add_ability_aux(artifact_type *a_ptr, int r)
 			break;
 
 /* Start of ESP cases ARD_ESP */
-                case ART_IDX_MELEE_SENSE:
-                        add_sense_slay(a_ptr);
-                        break;
+		case ART_IDX_MELEE_SENSE:
+			add_sense_slay(a_ptr);
+			break;
 
-                case ART_IDX_BOW_SENSE:
-                case ART_IDX_NONWEAPON_SENSE:
-                        add_sense_rand(a_ptr);
-                        break;
+		case ART_IDX_BOW_SENSE:
+		case ART_IDX_NONWEAPON_SENSE:
+			add_sense_rand(a_ptr);
+			break;
 /* End of ESP cases ARD_ESP */
 
 		case ART_IDX_HELM_WIS:
@@ -5217,12 +5212,12 @@ static void do_curse(artifact_type *a_ptr)
  */
 static void scramble_artifact(int a_idx)
 {
-        artifact_type *a_ptr = &a_info[a_idx];
+	artifact_type *a_ptr = &a_info[a_idx];
 	artifact_type a_old;
 	object_kind *k_ptr;
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
 	s32b power;
-        int tries=0;
+	int tries=0;
 	s16b k_idx;
 	byte rarity_old, base_rarity_old;
 	s16b rarity_new;
@@ -5324,7 +5319,7 @@ static void scramble_artifact(int a_idx)
 		a_ptr->flags1 = a_ptr->flags2 = 0;
 
 		/* Artifacts ignore everything */
-                a_ptr->flags2 = (TR2_IGNORE_MASK);
+		a_ptr->flags2 = (TR2_IGNORE_MASK);
 	}
 
 	/* Got a base item. */
@@ -5416,7 +5411,7 @@ static void scramble_artifact(int a_idx)
 			 */
 			msg_format("Warning!  Couldn't get appropriate power level.");
 			LOG_PRINT("Warning!  Couldn't get appropriate power level.\n");
-                        msg_print(NULL);
+			msg_print(NULL);
 		}
 
 	}
@@ -5537,7 +5532,7 @@ static errr scramble(void)
  * z_info->a_max if adult_rand_artifacts is not set.
  */
 		/* Generate all the artifacts. */
-                for (a_idx = (adult_rand_artifacts ? 1 : a_max) ; a_idx < z_info->a_max; a_idx++)
+		for (a_idx = (adult_rand_artifacts ? 1 : a_max) ; a_idx < z_info->a_max; a_idx++)
 		{
 			scramble_artifact(a_idx);
 		}
@@ -5582,11 +5577,11 @@ errr do_randart(u32b randart_seed, bool full)
 	/* Only do all the following if full randomization requested */
 	if (full)
 	{
-                int i;
+		int i;
 
-                artifact_type *a_info_new;
+		artifact_type *a_info_new;
 
-                int art_high_slot = 255;
+		int art_high_slot = 255;
 
 		/* Allocate the "monster power ratings" array */
 		C_MAKE(mon_power, z_info->r_max, long);
@@ -5594,47 +5589,43 @@ errr do_randart(u32b randart_seed, bool full)
 /* ARD_RAND - Start of allocation routine to create extra artifact
  * slots. We store the old z_info->a_max for use elsewhere in randart.c
  */
-                /* Allocate the new artifact range */
-                C_MAKE(a_info_new, 256, artifact_type);
+		/* Allocate the new artifact range */
+		C_MAKE(a_info_new, 256, artifact_type);
 
-                for (i = ART_MIN_NORMAL; i < z_info->a_max;i++)
-                {
-                        artifact_type *a_ptr = &a_info[i];
-                        artifact_type *a2_ptr = &a_info_new[art_high_slot];
+		for (i = ART_MIN_NORMAL; i < z_info->a_max;i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+			artifact_type *a2_ptr = &a_info_new[art_high_slot];
 
-                        if (a_info[i].tval == 0) continue;
-                        if (i == ART_POWER) continue;
-                        if (i == ART_GROND) continue;
-                        if (i == ART_MORGOTH) continue;
-                        
-                        COPY(a2_ptr,a_ptr,artifact_type);
-                        art_high_slot--;
-                }
+			if (a_info[i].tval == 0) continue;
+			if (i == ART_POWER) continue;
+			if (i == ART_GROND) continue;
+			if (i == ART_MORGOTH) continue;
+			
+			COPY(a2_ptr,a_ptr,artifact_type);
+			art_high_slot--;
+		}
 
-                /* Copy existing a_info array to a_info_new */
-                for (i = 0; i< z_info->a_max;i++)
-                {
-                        artifact_type *a_ptr = &a_info[i];
-                        artifact_type *a2_ptr = &a_info_new[i];
-        
-                        COPY(a2_ptr,a_ptr,artifact_type);
-                }
-        
-                /* Free existing a_info array */
-                C_KILL(a_info, z_info->a_max, artifact_type);
-        
-                /* Set new a_info array to existing */
-                a_info = a_info_new;
+		/* Copy existing a_info array to a_info_new */
+		for (i = 0; i< z_info->a_max;i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+			artifact_type *a2_ptr = &a_info_new[i];
+	
+			COPY(a2_ptr,a_ptr,artifact_type);
+		}
+	
+		/* Free existing a_info array */
+		KILL(a_info);
+	
+		/* Set new a_info array to existing */
+		a_info = a_info_new;
 
-                /* Temporarily store old number of artifacts */
-                a_max = z_info->a_max;
+		/* Temporarily store old number of artifacts */
+		a_max = z_info->a_max;
 
-                /* Update number of artifacts */
-                z_info->a_max = 256;
-
-                /* Update head information */
-                a_head->info_num = 256;
-                a_head->info_size = a_head->info_num * a_head->info_len;
+		/* Update number of artifacts */
+		z_info->a_max = 256;
 
 /* ARD_RAND - End of allocation process. */
 
@@ -5692,15 +5683,15 @@ errr do_randart(u32b randart_seed, bool full)
 		}
 
 		/* Free the "kinds" array */
-                C_KILL(kinds, z_info->a_max, s16b);
+		KILL(kinds);
 
 		/* Free the "original powers" arrays */
-                C_KILL(base_power, z_info->a_max, s32b);
-                C_KILL(base_item_level, z_info->a_max, byte);
-                C_KILL(base_item_rarity, z_info->a_max, byte);
+		KILL(base_power);
+		KILL(base_item_level);
+		KILL(base_item_rarity);
 
 		/* Free the "slay values" array */
-                C_KILL(slays, SLAY_MAX, s32b);
+		KILL(slays);
 
 	}
 

@@ -1,0 +1,338 @@
+=== New Options ===
+
+Unangband attempts to implement most of its new features as options or
+info.txt file modifications (see the lib\edit\ directory). Switch the
+Variant and Save-file options on to play the full Unangband experience,
+or switch off those new features you dislike.
+
+There are also a number of options under other menus that can be used
+to modify various new features in the game.
+
+=== New User Interface options ===
+
+***** <stack_force_pvals>
+Merge pvals when stacking    [stack_force_pvals]
+    Force otherwise identical objects to merge, if they have pvals of the
+    same sign. The pval is the object charges for wands or staffs, turns of
+    light remaining for torches, or its stat or skill modifier for rings
+    and amulets. The resulting stack averages the pvals, and rounds up, but
+    keeps an internal record of how many objects have the next lowest pval.
+    You can force this behaviour by inscribing both objects with {=s} even
+    without this option set.
+    This object is the least 'realistic' of all the stacking options. It
+    requires that the Save-file option variant_pval_stacks is set.
+
+***** <stack_force_times>
+Merge timeouts when stacking    [stack_force_times]
+    Force otherwise identical objects to merge, if they are timed out or
+    still have a time out running. This allows (charging) and charged
+    objects such as rods and dragon armour to stack completely. The
+    resulting stack has the largest timeout of any item in the stack. You
+    can force this behaviour by inscribing both objects with {=s} even
+    without this option set.
+    This option requires that the Save-file option variant_time_stacks is
+    set.
+
+***** <easy_autos>
+Automatically inscribe all objects
+    Whenever you inscribe or uninscribe an object, all objects of the same
+    kind will be inscribed or uninscribed, including objects that are
+    subsequently created. To edit this, use the ~ command and display the
+    objects or ego items you wish to modify. You can then modify the auto-
+    inscriptions, and save them to a preference file.
+
+***** <easy_search>
+Start searching if not disturbed
+    After 20 turns without being disturbed, the character will auto-
+    matically enter Search mode. This is most useful for characters
+    using the new variant_fast_moves option, as this allows them to
+    recover from being tired without additional keypresses.
+
+
+=== Disturbance options ===
+
+***** <verify_mana>
+Verify critical mana
+    The game will always prompt you to confirm casting a spell if it
+    would leave you with less mana, than the Hitpoint warning
+    percentage.
+
+
+=== Game-play options ===
+
+***** <view_unsafe_grids>
+Map marked by detect traps    [view_unsafe_grids]
+     Unknown grids that have not been traversed previously, or had a detect
+     trap spell cast on them are marked with a grey 'x'. This allows you to
+     determine where in the dungeon you have cast detect traps, but does not
+     ensure that grids not marked with a grey 'x' are trap free. This option
+     has no effect on surface grids, but outdoor locations cannot be trapped.
+
+***** <reseed_artifacts>
+Reseed random artifacts on death    [reseed_artifacts]
+     The seed for random artifacts will be re-rolled at character death.
+     Without this option, artifacts in the same save file should remain from
+     game to game, provided neither the monster.txt or artifact.txt info
+     files are modified. Artifact memory will also persist if the artifacts
+     are not reseeded.
+
+
+=== Efficiency options ===
+
+***** <room_names>
+Display room names
+     When entering a lit room, the name of the room will be displayed as
+     a brief message. Room names can indicate what types of creatures,
+     treasures or traps can be encountered in that room if the
+     variant_room_info option is switched on.
+
+***** <room_descriptions>
+     When entering a room, a description of the contents of the room will
+     be displayed. If the room is lit, visible features will be noted, other-
+     wise only sounds, wind and temperature will be noticed. The description
+     will not be displayed again, once the room is lit, except by looking
+     at yourself while in the room, or at the contents of the room while
+     outside it. The room description will provide important information
+     about what types of creatures, treasure, traps or magical effects are
+     in the room if the variant_room_info option is switched on.
+
+
+=== Birth options ===
+
+***** <birth_rand_artifacts>
+Randomize all of the artifacts    [birth_rand_artifacts]
+     A different set of artifacts will be created, in place of the standard 
+     ones. This is intended primarily for people who have played enough to
+     know what most of the standard artifacts do and have got bored with
+     them. Without this option set, the standard artifacts will be used,
+     along with a selection of random artifacts.
+
+***** <birth_campaign>
+Birth: Play in Lord of the Rings campaign    [birth_campaign]
+     The character will start in Hobbiton, instead of Angband, and be able
+     to travel to Rivendell, the Lonely Mountain, Isengard and other
+     locations featured in the Hobbit and the Lord of the Rings books.
+     Be prepared for out of depth uniques (Especially at night), dungeon
+     guardians you have to defeat in order to progress further, quest
+     rewards in set locations, and dangerous battlefields and towers.
+
+
+=== Cheating options ===
+
+***** <cheat_auto>
+Cheat: Auto-inscribe items as if known    [cheat_auto]
+    Cheaters never win. But they squeltch lots.
+
+
+=== Variant options ===
+
+***** <variant_mushrooms>
+Magic mushroom patch    [variant_mushrooms]
+    Fun with mushrooms, and a reason to use a wand of Clone Monster on Magic
+    Mushroom Patches... as if you need one ;)
+
+***** <variant_free_stats>
+Stat gain with each new level    [variant_free_stats]
+    Increases a random stat (Strength, Intelligence, etc) every time the
+    character gains a level.
+
+***** <variant_fast_kills>
+Kills don't waste blows    [variant_fast_kills]
+    If a monster is killed with less blows than a character is capable of,
+    the character may act immediately, instead of using a full turn and
+    wasting the excess energy.
+
+***** <variant_scale_dam>
+Scale down melee damage    [variant_scale_dam]
+    Scale down melee damage inflicted by the player, so that monster armor
+    provides the same effective protection against the player's blows as
+    the player's armor does against the monster's attacks. This option is
+    used in conjunction with variant_scale_hp to make player spells more
+    damaging against monsters, while leaving melee attacks and missile
+    attacks no less effective.
+
+***** <variant_scale_hp>
+Scale down monster hit points    [variant_scale_hp]
+    Scale down monster hit points by the same factor as melee damage is
+    scaled down against them. This option only takes effect if the
+    variant_scale_dam option is also in effect.
+
+***** <variant_hit_traps>
+Monsters hit traps    [variant_hit_traps]
+    Monsters are affected by traps on the ground. The character does not
+    receive any experience for monsters killed this way however.
+
+***** <variant_oos_summons>
+Monsters summon out of sight    [variant_oos_summons]
+    Monsters can cast summoning spells while out of direct line of sight
+    of the player. The summoned monsters appear around the summoner. It
+    is strongly recommended that that the variant_unsummon option
+    is used if this is selected.
+
+***** <variant_oos_escapes>
+Monsters teleport out of sight    [variant_oos_escapes]
+    Monsters can teleport and blink while out of sight of the player.
+
+***** <variant_oos_heals>
+Monsters heal out of sight    [variant_oos_heals]
+    Monsters can heal themselves while out of sight of the player.
+
+***** <variant_oos_xtra>
+Monsters aggravate out of sight    [variant_oos_xtra]
+    Monsters can shriek and haste themselves while out of sight of the
+    player.
+
+***** <variant_dis_attacks>
+Monsters use ranged attacks    [variant_dis_attacks]
+    Monsters will use certain melee attacks at range.
+
+***** <variant_hurt_feats>
+Spells can destroy features    [variant_hurt_feats]
+    Fire attacks destroy wooden features and so on, provided they are
+    'sufficiently' damaging.
+
+***** <variant_new_feats>
+Generate trapped doors
+    Generates new features in the dungeon, including trapped doors and
+    chests. It is highly recommended that this option is switched on,
+    as the game has not been thoroughly tested without it.
+
+***** <variant_lake_feats>
+Generate lakes and rivers
+    Generate lakes and rivers of terrain through the dungeon. There
+    will always be a 'shallow' path or bridge through the rivers and
+    lakes created.
+
+***** <variant_big_feats>
+Generate big lakes and rivers
+    Generate 'big' lakes and rivers through the dungeon, which are more
+    likely to have disconnected areas. All rooms will be accessible
+    however.
+
+***** <variant_great_id>
+Object sensing improved
+    Classes with 'heavy' pseudo-id, and detect magic and detect curse
+    spells and objects will be able to differentiate more power levels.
+    {Very good} and {great} objects are {good} objects but with higher
+    bonuses to hit, damage or armour class. {Superb} objects are Ego
+    Items with hidden powers.
+
+***** <variant_many_rings>
+Wield multiple rings
+    Up to 5 rings may be worn on each hand provided that they stack. No
+    additional benefit is gained from wearing multiple rings, except
+    economising on inventory space.
+
+***** <variant_fast_floor>
+Use objects faster from floor
+    Any item may be used from the floor with only half the energy that
+    it takes compared to items in the inventory. This includes using
+    objects, firing and throwing objects, and spells from books on the
+    floor.
+
+***** <variant_fast_equip>
+Use objects faster when wielded
+    Any item may be wielded into the first equipment slot and used from
+    that slot for half the energy it would require as compared to using
+    the item from the inventory. Melee attacks still occur at the same
+    speed however. A character wielding an item other than a weapon may
+    only kick to attack while they do so. In addition, artifacts and
+    other worn items only take half the energy to activate.
+
+=== Save-file options ===
+
+***** <variant_learn_id>
+Object memory
+    Remember what powers are known about objects, other than when an
+    object is fully identified, and attempt to figure out what objects
+    have particular powers by noticing when the character is not affected
+    by various types of attacks.  In addition, ego items and artifacts
+    will be remembered from game to game using the same save file. This
+    option modifies the save file, to a format incompatible with vanilla
+    Angband.
+
+***** <variant_guess_id>
+Object types guessed
+    Attempt to guess, based on the powers known about an object, and what
+    is known about object kinds, ego items and artifacts, what an object
+    is.  This option modifies the save file, to a format incompatible
+    with vanilla Angband.
+
+***** <variant_usage_id>
+Object usage count
+    Keep track of the number of times an object is used, and after a
+    number of uses, impart useful information about that object. This
+    option modifies the save file, to a format incomaptible with vanilla
+    Angband.
+
+***** <variant_pval_stacks>
+Object pval stacking (wands/staffs)
+    Allow stacking of wands/staffs and other items that differ by pval.
+    Without force_stack_pval, items will stack if they have the same sign
+    and differ in pval by 1. eg a ring of Strength (+3) will stack with
+    a ring of Strength (+2) or (+4) but not both. The most useful impact
+    is that an identified stack of wands or staffs will not unstack until
+    one of the items in the stack is depleted to zero charges.  This
+    option modifies the save file, to a format incompatible with vanilla
+    Angband.
+   
+***** <variant_time_stacks>
+Object timeout stacking (rods)
+    Allow stacking of rods and other items that differ by timeout. With-
+    out force_stack_times, 1 charging item will stack with a stack of
+    charged items, but further charging items will not stack in the stack.
+    This option modifies the save file, to a format incompatible with
+    vanilla Angband.
+
+***** <variant_room_info>
+Generate themed rooms
+    Generate rooms that are filled with objects, monsters and terrain
+    based on the room descriptions. This results in additional monsters
+    and objects in the dungeon. This option modifies the save file, to a
+    format incompatible with vanilla Angband.
+
+***** <variant_belt_slot>
+Add belt slot to equipment
+    Adds an additional inventory slot to the equipment screen. Items are
+    wielded into this slot from the equipment, instead of inventory. Items
+    in this slot do not apply their powers to the wielder, but act as
+    equipment for the purposes of the variant_fast_equipment option.  This
+    option modifies the save file, to a format incompatible with vanilla
+    Angband.
+
+***** <variant_fast_moves>
+Move faster but get tired
+    Moving only takes half the energy, but instead the character quickly
+    tires and has to recover by resting, or standing still, or risks
+    fainting from exhaustion.  This applies to all activity, not just
+    moving.  Selecting this option allows allows the character to tire
+    out and drown realistically while swimming.  This option modifies
+    the save file, to a format incompatible with vanilla Angband.
+
+***** <variant_unsummon>
+Limit power of summoning
+    Monsters are limited to summoning every 50 turns, and monsters that
+    they summon cannot summon themselves for 100 turns.  This option is
+    also used to save additional information about monster state in the
+    save file.  This option modifies the save file, to a format
+    incompatible with vanilla Angband.
+
+***** <variant_more_spells>
+Learn more than 64 spells
+    The character is not limited to 64 spells: instead their spell stat
+    gives the only upper limit as to how many spells they may learn.  This
+    option modifies the save file, to a format incompatible with vanilla
+    Angband.
+
+***** <variant_drop_body>
+Monsters drop corpses
+    Monsters drop corpses 30% of the time, and occasionally body parts and
+    heads. This also allows the generation of monster body parts on the
+    floor, as opposed to mummified corpses and broken teeth. This option
+    modifies the save file, to a format incompatible with vanilla Angband.
+
+***** <variant_save_feats>
+    Features other than the first 255 are saved in the save file. In
+    particular, this affects out door terrain.  This is a recommended
+    option, especially with the variant_campaign. This option modifies the
+    save file, to a format incompatible with vanilla Angband.

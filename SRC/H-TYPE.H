@@ -28,7 +28,7 @@
  * A real normally takes from 4 to 10 bytes
  * A vptr normally takes 4 (rarely 8) bytes
  *
- * Note that some files have already been included by "h-include.h"
+ * Note that some files have already been included by "h-system.h"
  * These include <stdio.h> and <sys/types>, which define some types
  * In particular, "bool", "byte", "uint", and "huge" may be defined
  * already, possibly using "typedefs" of various kinds, and possibly
@@ -87,11 +87,6 @@ typedef int errr;
 #define bool bool_hack
 
 
-/* Note that "signed char" is not always "defined" */
-/* So always use "s16b" to hold small signed values */
-/* A signed byte of memory */
-/* typedef signed char syte; */
-
 /* Note that unsigned values can cause math problems */
 /* An unsigned byte of memory */
 typedef unsigned char byte;
@@ -127,27 +122,6 @@ typedef unsigned int u32b;
 typedef signed long s32b;
 typedef unsigned long u32b;
 #endif
-
-
-
-
-/*** Pointers to Functions of special types (for various purposes) ***/
-
-/* A generic function takes a user data and a special data */
-typedef errr	(*func_gen)(vptr, vptr);
-
-/* An equality testing function takes two things to compare (bool) */
-typedef bool	(*func_eql)(vptr, vptr);
-
-/* A comparison function takes two things and to compare (-1,0,+1) */
-typedef sint	(*func_cmp)(vptr, vptr);
-
-/* A hasher takes a thing (and a max hash size) to hash (0 to siz - 1) */
-typedef uint	(*func_hsh)(vptr, uint);
-
-/* A key extractor takes a thing and returns (a pointer to) some key */
-typedef vptr	(*func_key)(vptr);
-
 
 
 #endif

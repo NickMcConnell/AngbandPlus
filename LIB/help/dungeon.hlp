@@ -1,0 +1,25 @@
+             -- Exploring the Dungeon --
+
+Please choose one of the following online help files:
+
+    (1) Playing the Game           (playing.txt)
+    (2) Exploring the Dungeon      (dungeon.txt)
+    (3) Weapons and Armour         (attack.txt)
+    (4) Stats and Skills           (stats.txt)
+    (5) Resistances                (resist.txt)
+    (6) Monster Descriptions       (bestiary.txt)
+    (7) Map Symbols                (symbol.txt)
+    (8) Rumours                    (rumours.hlp)
+
+
+ ?  : return to previous menu
+ ESC: leave help
+
+***** [1] playing.txt
+***** [2] dungeon.txt
+***** [3] attack.txt
+***** [4] stats.txt
+***** [5] resist.txt
+***** [6] bestiary.txt
+***** [7] symbol.txt
+***** [8] rumours.hlp

@@ -6,22 +6,10 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
- * source code are released under the Gnu Public License. See www.fsf.org
- * for current GPL license details. Addition permission granted to
- * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
 
-
-
-/*
- * You may or may not want to use the following "#undef".
- */
-/* #undef _POSIX_SAVED_IDS */
 
 
 /*
@@ -34,33 +22,36 @@ void safe_setuid_drop(void)
 
 # ifdef SAFE_SETUID
 
-#  ifdef SAFE_SETUID_POSIX
+#  ifdef HAVE_SETEGID
 
-	if (setuid(getuid()) != 0)
+	if (setegid(getgid()) != 0)
 	{
-		quit("setuid(): cannot set permissions correctly!");
+		quit("setegid(): cannot set permissions correctly!");
 	}
+ 
+#  else /* HAVE_SETEGID */
+
+#   ifdef SAFE_SETUID_POSIX
+
 	if (setgid(getgid()) != 0)
 	{
 		quit("setgid(): cannot set permissions correctly!");
 	}
+    
+#   else /* SAFE_SETUID_POSIX */
 
-#  else
-
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
 	if (setregid(getegid(), getgid()) != 0)
 	{
 		quit("setregid(): cannot set permissions correctly!");
 	}
 
-#  endif
+#   endif /* SAFE_SETUID_POSIX */
 
-# endif
+#  endif /* HAVE_SETEGID */
 
-#endif
+# endif /* SAFE_SETUID */
+
+#endif /* SET_UID */
 
 }
 
@@ -75,33 +66,36 @@ void safe_setuid_grab(void)
 
 # ifdef SAFE_SETUID
 
-#  ifdef SAFE_SETUID_POSIX
+#  ifdef HAVE_SETEGID
 
-	if (setuid(player_euid) != 0)
+	if (setegid(player_egid) != 0)
 	{
-		quit("setuid(): cannot set permissions correctly!");
+		quit("setegid(): cannot set permissions correctly!");
 	}
+
+#  else /* HAVE_SETEGID */
+
+#   ifdef SAFE_SETUID_POSIX
+
 	if (setgid(player_egid) != 0)
 	{
 		quit("setgid(): cannot set permissions correctly!");
 	}
 
-#  else
+#   else /* SAFE_SETUID_POSIX */
 
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
 	if (setregid(getegid(), getgid()) != 0)
 	{
 		quit("setregid(): cannot set permissions correctly!");
 	}
 
-#  endif
+#   endif /* SAFE_SETUID_POSIX */
 
-# endif
+#  endif /* HAVE_SETEGID */
 
-#endif
+# endif /* SAFE_SETUID */
+
+#endif /* SET_UID */
 
 }
 
@@ -300,11 +294,14 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  * Specify colors for message-types.
  *   M:<type>:<attr>
  *
+ * Specify the attr/char values for "flavors" by flavors index.
+ *   L:<num>:<a>/<c>
+ *
  * Specify auto-inscriptions for object kinds/ego items/artifacts
  *   I:<type>:<num>:<str>
- * 
+ *
  */
-errr process_pref_file_aux(char *buf)
+errr process_pref_file_command(char *buf)
 {
 	int i, j, n1, n2;
 
@@ -338,7 +335,7 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->r_max) return (1);
+			if ((i < 0) || (i >= z_info->r_max)) return (1);
 			r_ptr = &r_info[i];
 			if (n1) r_ptr->x_attr = n1;
 			if (n2) r_ptr->x_char = n2;
@@ -356,7 +353,7 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->k_max) return (1);
+			if ((i < 0) || (i >= z_info->k_max)) return (1);
 			k_ptr = &k_info[i];
 			if (n1) k_ptr->x_attr = n1;
 			if (n2) k_ptr->x_char = n2;
@@ -374,10 +371,28 @@ errr process_pref_file_aux(char *buf)
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
-			if (i >= z_info->f_max) return (1);
+			if ((i < 0) || (i >= z_info->f_max)) return (1);
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
+			return (0);
+		}
+	}
+
+
+	/* Process "L:<num>:<a>/<c>" -- attr/char for flavors */
+	else if (buf[0] == 'L')
+	{
+		if (tokenize(buf+2, 3, zz) == 3)
+		{
+			flavor_type *x_ptr;
+			i = (huge)strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+                        if ((i < 0) || (i >= z_info->x_max)) return (1);
+			x_ptr = &x_info[i];
+			if (n1) x_ptr->x_attr = n1;
+			if (n2) x_ptr->x_char = n2;
 			return (0);
 		}
 	}
@@ -391,6 +406,7 @@ errr process_pref_file_aux(char *buf)
 			j = (byte)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
+			if ((j < 0) || (j >= 256)) return (1);
 			misc_to_attr[j] = n1;
 			misc_to_char[j] = n2;
 			return (0);
@@ -405,6 +421,7 @@ errr process_pref_file_aux(char *buf)
 		{
 			j = (byte)strtol(zz[0], NULL, 0) % 128;
 			n1 = strtol(zz[1], NULL, 0);
+			if ((j < 0) || (j >= 128)) return (1);
 			if (n1) tval_to_attr[j] = n1;
 			return (0);
 		}
@@ -414,7 +431,7 @@ errr process_pref_file_aux(char *buf)
 	/* Process "A:<str>" -- save an "action" for later */
 	else if (buf[0] == 'A')
 	{
-		text_to_ascii(macro_buffer, buf+2);
+		text_to_ascii(macro_buffer, sizeof(macro_buffer), buf+2);
 		return (0);
 	}
 
@@ -422,7 +439,7 @@ errr process_pref_file_aux(char *buf)
 	else if (buf[0] == 'P')
 	{
 		char tmp[1024];
-		text_to_ascii(tmp, buf+2);
+		text_to_ascii(tmp, sizeof(tmp), buf+2);
 		macro_add(tmp, macro_buffer);
 		return (0);
 	}
@@ -434,12 +451,12 @@ errr process_pref_file_aux(char *buf)
 
 		char tmp[1024];
 
-                if (tokenize(buf+2, 2, zz) != 2) return (1);
+		if (tokenize(buf+2, 2, zz) != 2) return (1);
 
 		mode = strtol(zz[0], NULL, 0);
 		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
 
-		text_to_ascii(tmp, zz[1]);
+		text_to_ascii(tmp, sizeof(tmp), zz[1]);
 		if (!tmp[0] || tmp[1]) return (1);
 		i = (byte)(tmp[0]);
 
@@ -457,6 +474,7 @@ errr process_pref_file_aux(char *buf)
 		if (tokenize(buf+2, 5, zz) == 5)
 		{
 			i = (byte)strtol(zz[0], NULL, 0);
+			if ((i < 0) || (i >= 256)) return (1);
 			angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
 			angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
 			angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
@@ -508,7 +526,7 @@ errr process_pref_file_aux(char *buf)
 
 			/* Ignore illegal windows */
 			/* Hack -- Ignore the main window */
-			if ((win <= 0) || (win >= 8)) return (1);
+			if ((win <= 0) || (win >= ANGBAND_TERM_MAX)) return (1);
 
 			/* Ignore illegal flags */
 			if ((flag < 0) || (flag >= 32)) return (1);
@@ -540,58 +558,44 @@ errr process_pref_file_aux(char *buf)
 		if (tokenize(buf+2, 2, zz) == 2)
 		{
 			u16b type = (u16b)strtol(zz[0], NULL, 0);
-			byte color = color_char_to_attr(zz[1][0]);
+			int color = color_char_to_attr(zz[1][0]);
 
-			/* Ignore illegal types */
-			if (type >= MSG_MAX) return (1);
+			/* Ignore illegal color */
+			if (color < 0) return (1);
 
 			/* Store the color */
-			message__color[type] = color;
-
-			/* Success */
-			return (0);
+			return (message_color_define(type, (byte)color));
 		}
 	}
 
-        /* Process "I:<typ>:<num>:<str>" -- create auto-inscription */
-        else if (buf[0] == 'I')
+	/* Process "I:<typ>:<num>:<str>" -- create auto-inscription */
+	else if (buf[0] == 'I')
 	{
+		if (tokenize(buf+2, 3, zz) != 3) return (1);
 
-                if (tokenize(buf+2, 3, zz) != 3) return (1);
+		i = strtol(zz[1], NULL, 0);
 
-                i = strtol(zz[1], NULL, 0);
+		switch(buf[2])
+		{
+			case 'E':
+			{
+				if ((i < 0) || (i >= z_info->e_max)) return (1);
 
-                switch(buf[2])
-                {
+				e_info[i].note = quark_add(zz[2]);
 
-                        case 'E':
-                        {
-                                if ((i < 0) || (i >= z_info->e_max)) return (1);
+				return (0);
+			}
+			case 'K':
+			{
+				if ((i < 0) || (i >= z_info->k_max)) return (1);
 
-                                e_info[i].note = quark_add(zz[2]);
+				k_info[i].note = quark_add(zz[2]);
 
-                                return (0);
-                        }
-#if 0
-                        case 'R':
-                        {
-                                if ((i < 0) || (i >= z_info->e_max)) return (1);
-
-                                r_info[i].note = quark_add(zz[2]);
-
-                                return (0);
-                        }
-#endif
-                        case 'K':
-                        {
-                                if ((i < 0) || (i >= z_info->k_max)) return (1);
-
-                                k_info[i].note = quark_add(zz[2]);
-
-                                return (0);
-                        }
-                }
+				return (0);
+			 }
+		}
 	}
+
 
 
 	/* Failure */
@@ -810,14 +814,9 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 
 
 /*
- * Process the "user pref file" with the given name
- *
- * See the function above for a list of legal "commands".
- *
- * We also accept the special "?" and "%" directives, which
- * allow conditional evaluation and filename inclusion.
+ * Open the "user pref file" and parse it.
  */
-errr process_pref_file(cptr name)
+static errr process_pref_file_aux(cptr name)
 {
 	FILE *fp;
 
@@ -825,28 +824,25 @@ errr process_pref_file(cptr name)
 
 	char old[1024];
 
-	int num = -1;
+	int line = -1;
 
 	errr err = 0;
 
 	bool bypass = FALSE;
 
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
-
 	/* Open the file */
-	fp = my_fopen(buf, "r");
+	fp = my_fopen(name, "r");
 
 	/* No such file */
 	if (!fp) return (-1);
 
 
 	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Count lines */
-		num++;
+		line++;
 
 
 		/* Skip "empty" lines */
@@ -899,7 +895,7 @@ errr process_pref_file(cptr name)
 
 
 		/* Process the line */
-		err = process_pref_file_aux(buf);
+		err = process_pref_file_command(buf);
 
 		/* Oops */
 		if (err) break;
@@ -909,10 +905,11 @@ errr process_pref_file(cptr name)
 	/* Error */
 	if (err)
 	{
-		/* Useful error message */
-		msg_format("Error %d in line %d of file '%s'.", err, num, name);
+		/* Print error message */
+		/* ToDo: Add better error messages */
+		msg_format("Error %d in line %d of file '%s'.", err, line, name);
 		msg_format("Parsing '%s'", old);
-		msg_print(NULL);
+		message_flush();
 	}
 
 	/* Close the file */
@@ -924,6 +921,40 @@ errr process_pref_file(cptr name)
 
 
 
+/*
+ * Process the "user pref file" with the given name
+ *
+ * See the functions above for a list of legal "commands".
+ *
+ * We also accept the special "?" and "%" directives, which
+ * allow conditional evaluation and filename inclusion.
+ */
+errr process_pref_file(cptr name)
+{
+	char buf[1024];
+
+	errr err = 0;
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_PREF, name);
+
+	/* Process the pref file */
+	err = process_pref_file_aux(buf);
+
+	/* Stop at parser errors, but not at non-existing file */
+	if (err < 1)
+	{
+		/* Build the filename */
+		path_build(buf, 1024, ANGBAND_DIR_USER, name);
+
+		/* Process the pref file */
+		err = process_pref_file_aux(buf);
+	}
+
+	/* Result */
+	return (err);
+}
 
 
 
@@ -1007,7 +1038,7 @@ errr check_time_init(void)
 	check_time_flag = TRUE;
 
 	/* Parse the file */
-	while (0 == my_fgets(fp, buf, 80))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		/* Skip comments and blank lines */
 		if (!buf[0] || (buf[0] == '#')) continue;
@@ -1028,7 +1059,7 @@ errr check_time_init(void)
 	/* Close it */
 	my_fclose(fp);
 
-#endif
+#endif /* CHECK_TIME */
 
 	/* Success */
 	return (0);
@@ -1134,7 +1165,7 @@ errr check_load_init(void)
 	(void)gethostname(thishost, (sizeof thishost) - 1);
 
 	/* Parse it */
-	while (0 == my_fgets(fp, buf, 1024))
+	while (0 == my_fgets(fp, buf, sizeof(buf)))
 	{
 		int value;
 
@@ -1158,7 +1189,7 @@ errr check_load_init(void)
 	/* Close the file */
 	my_fclose(fp);
 
-#endif
+#endif /* CHECK_LOAD */
 
 	/* Success */
 	return (0);
@@ -1310,12 +1341,12 @@ static void display_player_xtra_info(void)
 	if (p_ptr->lev >= p_ptr->max_lev)
 	{
 		Term_putstr(col+8, 10, -1, TERM_L_GREEN,
-			    format("%10d", p_ptr->lev));
+		            format("%10d", p_ptr->lev));
 	}
 	else
 	{
 		Term_putstr(col+8, 10, -1, TERM_YELLOW,
-			    format("%10d", p_ptr->lev));
+		            format("%10d", p_ptr->lev));
 	}
 
 
@@ -1324,19 +1355,19 @@ static void display_player_xtra_info(void)
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
 		Term_putstr(col+8, 11, -1, TERM_L_GREEN,
-			    format("%10ld", p_ptr->exp));
+		            format("%10ld", p_ptr->exp));
 	}
 	else
 	{
 		Term_putstr(col+8, 11, -1, TERM_YELLOW,
-			    format("%10ld", p_ptr->exp));
+		            format("%10ld", p_ptr->exp));
 	}
 
 
 	/* Maximum Experience */
 	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
 	Term_putstr(col+8, 12, -1, TERM_L_GREEN,
-		    format("%10ld", p_ptr->max_exp));
+	            format("%10ld", p_ptr->max_exp));
 
 
 	/* Advance Experience */
@@ -1344,30 +1375,30 @@ static void display_player_xtra_info(void)
 	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
 		s32b advance = (player_exp[p_ptr->lev - 1] *
-				p_ptr->expfact / 100L);
+		                p_ptr->expfact / 100L);
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-			    format("%10ld", advance));
+		            format("%10ld", advance));
 	}
 	else
 	{
 		Term_putstr(col+8, 13, -1, TERM_L_GREEN,
-			    format("%10s", "********"));
+		            format("%10s", "********"));
 	}
 
 
 	/* Gold */
 	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
 	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
-		    format("%10ld", p_ptr->au));
+	            format("%10ld", p_ptr->au));
 
 
 	/* Burden */
-	sprintf(buf, "%d.%d lbs",
-		p_ptr->total_weight / 10,
-		p_ptr->total_weight % 10);
+	sprintf(buf, "%ld.%ld lbs",
+	        p_ptr->total_weight / 10L,
+	        p_ptr->total_weight % 10L);
 	Term_putstr(col, 17, -1, TERM_WHITE, "Burden");
 	Term_putstr(col+8, 17, -1, TERM_L_GREEN,
-		    format("%10s", buf));
+	            format("%10s", buf));
 
 
 	/* Middle */
@@ -1393,6 +1424,7 @@ static void display_player_xtra_info(void)
 	Term_putstr(col, 11, -1, TERM_WHITE, "Fight");
 	Term_putstr(col+5, 11, -1, TERM_L_BLUE, format("%13s", buf));
 
+
 	/* Melee weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
@@ -1404,6 +1436,7 @@ static void display_player_xtra_info(void)
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
+
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
 	{
@@ -1412,7 +1445,7 @@ static void display_player_xtra_info(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & ((WS_WIELD_FLAGS)& (1L << p_ptr->pstyle)))))
+		if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & ((WS_WIELD_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -1430,19 +1463,20 @@ static void display_player_xtra_info(void)
 	}
 
 	/* Melee attacks */
-        sprintf(buf, "(%+d,%+d)", hit, dam);
+	sprintf(buf, "(%+d,%+d)", hit, dam);
 	Term_putstr(col, 12, -1, TERM_WHITE, "Melee");
 	Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
 
-        /* Describe fighting styles */
-        if (p_ptr->cur_style & (1L << WS_HAFTED)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "H");
-        if (p_ptr->cur_style & (1L << WS_SWORD)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "S");
-        if (p_ptr->cur_style & (1L << WS_POLEARM)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "P");
-        if (p_ptr->cur_style & (1L << WS_UNARMED)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "UN");
-        if (p_ptr->cur_style & (1L << WS_ONE_HANDED)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "1H");
-        if ((p_ptr->pstyle == WS_TWO_HANDED)&&(p_ptr->cur_style & (1L << WS_TWO_HANDED))) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2H");
-        if (p_ptr->cur_style & (1L << WS_TWO_WEAPON)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2W");
-        if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "WS");
+	/* Describe melee styles */
+	if (p_ptr->cur_style & (1L << WS_HAFTED)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "H");
+	if (p_ptr->cur_style & (1L << WS_SWORD)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "S");
+	if (p_ptr->cur_style & (1L << WS_POLEARM)) Term_putstr(col+6, 12, -1, TERM_YELLOW, "P");
+	if (p_ptr->cur_style & (1L << WS_UNARMED)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "UN");
+	if (p_ptr->cur_style & (1L << WS_ONE_HANDED)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "1H");
+	if ((p_ptr->pstyle == WS_TWO_HANDED)&&(p_ptr->cur_style & (1L << WS_TWO_HANDED))) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2H");
+	if (p_ptr->cur_style & (1L << WS_TWO_WEAPON)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2W");
+	if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "WS");
+
 
 	/* Range weapon */
 	o_ptr = &inventory[INVEN_BOW];
@@ -1455,7 +1489,6 @@ static void display_player_xtra_info(void)
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
 
-
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
 	{
@@ -1464,7 +1497,7 @@ static void display_player_xtra_info(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_SHOOT_FLAGS)& (1L << p_ptr->pstyle)))))
+		if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_SHOOT_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -1481,19 +1514,16 @@ static void display_player_xtra_info(void)
 
 	}
 
-
-
 	/* Range attacks */
-        sprintf(buf, "(%+d,%+d)", hit, dam);
+	sprintf(buf, "(%+d,%+d)", hit, dam);
 	Term_putstr(col, 13, -1, TERM_WHITE, "Shoot");
 	Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
 
-        /* Describe fighting styles */
-        if (p_ptr->cur_style & (1L << WS_THROWN)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "T");
-        if (p_ptr->cur_style & (1L << WS_SLING)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "S");
-        if (p_ptr->cur_style & (1L << WS_BOW)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "B");
-        if (p_ptr->cur_style & (1L << WS_XBOW)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "X");
-                                 
+	/* Describe shooting styles */
+	if (p_ptr->cur_style & (1L << WS_THROWN)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "T");
+	if (p_ptr->cur_style & (1L << WS_SLING)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "S");
+	if (p_ptr->cur_style & (1L << WS_BOW)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "B");
+	if (p_ptr->cur_style & (1L << WS_XBOW)) Term_putstr(col+6, 13, -1, TERM_YELLOW, "X");
 
 	/* Blows */
 	sprintf(buf, "%d/turn", p_ptr->num_blow);
@@ -1530,21 +1560,20 @@ static void display_player_xtra_info(void)
 
 
 		/* Check for styles */
-                if (w_info[i].styles & (p_ptr->cur_style & (WS_SHOOT_FLAGS)))
+		if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_WIELD_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{
 
 				case WB_HIT:
-                                        tmp += (p_ptr->lev - w_info[i].level) /2;
+					tmp += (p_ptr->lev - w_info[i].level) /2;
 					break;
                         }
 		}
 
 	}
-
-	/* Final fighting skill */
 	xthn = p_ptr->skill_thn + (tmp * BTH_PLUS_ADJ);
+
 
 	/* Shooting Skill (with current bow) */
 	o_ptr = &inventory[INVEN_BOW];
@@ -1557,22 +1586,21 @@ static void display_player_xtra_info(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-
 		/* Check for styles */
-                if (w_info[i].styles & (p_ptr->cur_style & (WS_SHOOT_FLAGS)))
+		if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_SHOOT_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{
 
 				case WB_HIT:
-                                        tmp += (p_ptr->lev - w_info[i].level) /2;
+					tmp += (p_ptr->lev - w_info[i].level) /2;
 					break;
                         }
 		}
 
 	}
 
-	/* Final shooting skill */
+
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 	/* Basic abilities */
@@ -1634,6 +1662,9 @@ static void display_player_xtra_info(void)
  */
 void player_flags(u32b *f1, u32b *f2, u32b *f3)
 {
+
+	int i;
+
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
@@ -1641,6 +1672,26 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	(*f1) |= rp_ptr->flags1;
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
+
+	/*** Handle styles ***/
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+		/* Check for styles */
+		if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+		{
+			switch (w_info[i].benefit)
+			{
+				case WB_RES_FEAR:
+                                        (*f2) |= TR2_RES_FEAR;
+					break;
+                        }
+		}
+
+	}
 }
 
 
@@ -1656,9 +1707,12 @@ static void display_player_equippy(int y, int x)
 
 	object_type *o_ptr;
 
+	int inven_max = INVEN_TOTAL;
+
+	if (variant_belt_slot) inven_max++;
 
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
+	for (i = INVEN_WIELD; i < inven_max; ++i)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1679,7 +1733,7 @@ static void display_player_equippy(int y, int x)
 /*
  * Hack -- see below
  */
-static byte display_player_flag_set[4] =
+static const byte display_player_flag_set[4] =
 {
 	2,
 	2,
@@ -1690,7 +1744,7 @@ static byte display_player_flag_set[4] =
 /*
  * Hack -- see below
  */
-static u32b display_player_flag_head[4] =
+static const u32b display_player_flag_head[4] =
 {
 	TR2_RES_ACID,
 	TR2_RES_BLIND,
@@ -1704,47 +1758,47 @@ static u32b display_player_flag_head[4] =
 static cptr display_player_flag_names[4][8] =
 {
 	{
-		" Acid:",       /* TR2_RES_ACID */
-		" Elec:",       /* TR2_RES_ELEC */
-		" Fire:",       /* TR2_RES_FIRE */
-		" Cold:",       /* TR2_RES_COLD */
-		" Pois:",       /* TR2_RES_POIS */
-		" Fear:",       /* TR2_RES_FEAR */
-		" Lite:",       /* TR2_RES_LITE */
-		" Dark:"        /* TR2_RES_DARK */
+		" Acid:",	/* TR2_RES_ACID */
+		" Elec:",	/* TR2_RES_ELEC */
+		" Fire:",	/* TR2_RES_FIRE */
+		" Cold:",	/* TR2_RES_COLD */
+		" Pois:",	/* TR2_RES_POIS */
+		" Fear:",	/* TR2_RES_FEAR */
+		" Lite:",	/* TR2_RES_LITE */
+		" Dark:"	/* TR2_RES_DARK */
 	},
 
 	{
-		"Blind:",       /* TR2_RES_BLIND */
-		"Confu:",       /* TR2_RES_CONFU */
-		"Sound:",       /* TR2_RES_SOUND */
-		"Shard:",       /* TR2_RES_SHARD */
-		"Nexus:",       /* TR2_RES_NEXUS */
-		"Nethr:",       /* TR2_RES_NETHR */
-		"Chaos:",       /* TR2_RES_CHAOS */
-		"Disen:"        /* TR2_RES_DISEN */
+		"Blind:",	/* TR2_RES_BLIND */
+		"Confu:",	/* TR2_RES_CONFU */
+		"Sound:",	/* TR2_RES_SOUND */
+		"Shard:",	/* TR2_RES_SHARD */
+		"Nexus:",	/* TR2_RES_NEXUS */
+		"Nethr:",	/* TR2_RES_NETHR */
+		"Chaos:",	/* TR2_RES_CHAOS */
+		"Disen:"	/* TR2_RES_DISEN */
 	},
 
 	{
-		"S.Dig:",       /* TR3_SLOW_DIGEST */
-		"Feath:",       /* TR3_FEATHER */
-		"PLite:",       /* TR3_LITE */
-		"Regen:",       /* TR3_REGEN */
-		"Telep:",       /* TR3_TELEPATHY */
-		"Invis:",       /* TR3_SEE_INVIS */
-		"FrAct:",       /* TR3_FREE_ACT */
-		"HLife:"        /* TR3_HOLD_LIFE */
+		"S.Dig:",	/* TR3_SLOW_DIGEST */
+		"Feath:",	/* TR3_FEATHER */
+		"PLite:",	/* TR3_LITE */
+		"Regen:",	/* TR3_REGEN */
+		"Telep:",	/* TR3_TELEPATHY */
+		"Invis:",	/* TR3_SEE_INVIS */
+		"FrAct:",	/* TR3_FREE_ACT */
+		"HLife:"	/* TR3_HOLD_LIFE */
 	},
 
 	{
-		"Stea.:",       /* TR1_STEALTH */
-		"Sear.:",       /* TR1_SEARCH */
-		"Infra:",       /* TR1_INFRA */
-		"Tunn.:",       /* TR1_TUNNEL */
-		"Speed:",       /* TR1_SPEED */
-		"Blows:",       /* TR1_BLOWS */
-		"Shots:",       /* TR1_SHOTS */
-		"Might:"        /* TR1_MIGHT */
+		"Stea.:",	/* TR1_STEALTH */
+		"Sear.:",	/* TR1_SEARCH */
+		"Infra:",	/* TR1_INFRA */
+		"Tunn.:",	/* TR1_TUNNEL */
+		"Speed:",	/* TR1_SPEED */
+		"Blows:",	/* TR1_BLOWS */
+		"Shots:",	/* TR1_SHOTS */
+		"Might:"	/* TR1_MIGHT */
 	}
 };
 
@@ -1839,8 +1893,15 @@ static void display_player_flag_info(void)
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
+			/* Hack -- Check immunities */
+			if ((x == 0) && (y < 4) &&
+			    (f[set] & ((TR2_IM_ACID) << y)))
+			{
+				c_put_str(TERM_WHITE, "*", row, col+n);
+			}
+
 			/* Check flags */
-			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			else if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
 
 			/* Advance */
 			row++;
@@ -1865,19 +1926,21 @@ static void display_player_misc_info(void)
 	char buf[80];
 
 #ifdef USE_CLASS_PRETTY_NAMES
-        char name[60];
-#endif				
+	char name[60];
+#endif
 
 
 	/* Name */
 	put_str("Name", 2, 1);
+
 #ifdef USE_CLASS_PRETTY_NAMES
-        lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,TRUE,TRUE);
-        sprintf(buf,"%s, the %s",op_ptr->full_name,name);
-        c_put_str(TERM_L_BLUE, buf, 2, 8);
+	lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,TRUE,TRUE);
+	sprintf(buf,"%s, the %s",op_ptr->full_name,name);
+	c_put_str(TERM_L_BLUE, buf, 2, 8);
 #else
 	c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 8);
 #endif
+
 
 	/* Sex */
 	put_str("Sex", 3, 1);
@@ -1891,12 +1954,14 @@ static void display_player_misc_info(void)
 
 	/* Class */
 	put_str("Class", 5, 1);
+
 #ifdef USE_CLASS_PRETTY_NAMES
         lookup_prettyname(name,p_ptr->pstyle,p_ptr->psval,FALSE,TRUE);
         c_put_str(TERM_L_BLUE, name, 5, 8);
 #else
 	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
 #endif
+
 
 	/* Title */
 	put_str("Title", 6, 1);
@@ -1916,7 +1981,7 @@ static void display_player_misc_info(void)
 	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev-1)/5];
+		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
 	}
 
 	/* Dump it */
@@ -2183,7 +2248,6 @@ void display_player(int mode)
 }
 
 
-
 /*
  * Hack -- Dump a character description file
  *
@@ -2207,13 +2271,9 @@ errr file_character(cptr name, bool full)
 
 	char buf[1024];
 
-	int k, info_length;
-	cptr info[128];
-	cptr blanks = "     ";
 
-
-	/* Drop priv's */
-	safe_setuid_drop();
+	/* Unused parameter */
+	(void)full;
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, name);
@@ -2242,16 +2302,16 @@ errr file_character(cptr name, bool full)
 	/* Open the non-existing file */
 	if (fd < 0) fff = my_fopen(buf, "w");
 
-	/* Grab priv's */
-	safe_setuid_grab();
-
 
 	/* Invalid file */
 	if (!fff) return (-1);
 
 
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+
 	/* Begin dump */
-        fprintf(fff, "  [Unangband 0.4.9 Character Dump]\n\n");
+	fprintf(fff, "  [Unangband 0.5.0 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);
@@ -2299,27 +2359,19 @@ errr file_character(cptr name, bool full)
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
-
 		int inven_max = INVEN_TOTAL;
 
 		if (variant_belt_slot) inven_max++;
-
 
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < inven_max; i++)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
-				index_to_label(i), o_name);
+			        index_to_label(i), o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&inventory[i], info, 128);
-
-			/* Write it */
-			for (k = 0; k < info_length; k++)
-			{
-				fprintf(fff, "%s%s\n", blanks, info[k]);
-			}
+			identify_random_gen(&inventory[i]);
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2332,16 +2384,10 @@ errr file_character(cptr name, bool full)
 
 		object_desc(o_name, &inventory[i], TRUE, 3);
 		fprintf(fff, "%c) %s\n",
-			index_to_label(i), o_name);
+		        index_to_label(i), o_name);
 
 		/* Describe random object attributes */
-		info_length = identify_random_gen(&inventory[i], info, 128);
-
-		/* Write it */
-		for (k = 0; k < info_length; k++)
-		{
-			fprintf(fff, "%s%s\n", blanks, info[k]);
-		}
+		identify_random_gen(&inventory[i]);
 	}
 	fprintf(fff, "\n\n");
 
@@ -2359,13 +2405,7 @@ errr file_character(cptr name, bool full)
 			fprintf(fff, "%c) %s\n", I2A(i), o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
-
-			/* Write it */
-			for (k = 0; k < info_length; k++)
-			{
-				fprintf(fff, "%s%s\n", blanks, info[k]);
-			}
+			identify_random_gen(&st_ptr->stock[i]);
 		}
 
 		/* Add an empty line */
@@ -2382,9 +2422,9 @@ errr file_character(cptr name, bool full)
 		if (option_desc[i])
 		{
 			fprintf(fff, "%-45s: %s (%s)\n",
-				option_desc[i],
-				op_ptr->opt[i] ? "yes" : "no ",
-				option_text[i]);
+			        option_desc[i],
+			        op_ptr->opt[i] ? "yes" : "no ",
+			        option_text[i]);
 		}
 	}
 
@@ -2406,16 +2446,10 @@ errr file_character(cptr name, bool full)
  */
 static void string_lower(char *buf)
 {
-	cptr buf_ptr;
+	char *s;
 
-	/* No string */
-	if (!buf) return;
-
-	/* Lower the string */
-	for (buf_ptr = buf; *buf_ptr != 0; buf_ptr++)
-	{
-		buf[buf_ptr - buf] = tolower(*buf_ptr);
-	}
+	/* Lowercase the string */
+	for (s = buf; *s != 0; s++) *s = tolower(*s);
 }
 
 
@@ -2439,7 +2473,7 @@ static void string_lower(char *buf)
  */
 bool show_file(cptr name, cptr what, int line, int mode)
 {
-	int i, k;
+	int i, k, n;
 
 	char ch;
 
@@ -2461,14 +2495,20 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Current help file */
 	FILE *fff = NULL;
 
-	/* Hack --- Find this string (if any) */
-	char *find = context_help_match;
+	/* Find this string (if any) */
+	char *find = NULL;
+
+	/* Jump to this tag */
+	cptr tag = NULL;
 
 	/* Hold a string to find */
 	char finder[80];
 
 	/* Hold a string to show */
 	char shower[80];
+
+	/* Filename */
+	char filename[1024];
 
 	/* Describe this thing */
 	char caption[128];
@@ -2485,8 +2525,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	/* Sub-menu information */
 	char hook[10][32];
 
-        /* Hack -- lower find */
-        string_lower(find);
+	int wid, hgt;
+
 
 	/* Wipe finder */
 	strcpy(finder, "");
@@ -2499,6 +2539,29 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	/* Wipe the hooks */
 	for (i = 0; i < 10; i++) hook[i][0] = '\0';
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	/* Copy the filename */
+	strncpy(filename, name, sizeof(filename));
+	filename[sizeof(filename)-1] = '\0';
+
+	n = strlen(filename);
+
+	/* Extract the tag from the filename */
+	for (i = 0; i < n; i++)
+	{
+		if (filename[i] == '#')
+		{
+			filename[i] = '\0';
+			tag = filename + i + 1;
+			break;
+		}
+	}
+
+	/* Redirect the name */
+	name = filename;
 
 
 	/* Hack XXX XXX XXX */
@@ -2545,7 +2608,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	{
 		/* Message */
 		msg_format("Cannot open '%s'.", name);
-		msg_print(NULL);
+		message_flush();
 
 		/* Oops */
 		return (TRUE);
@@ -2556,7 +2619,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	while (TRUE)
 	{
 		/* Read a line or stop */
-		if (my_fgets(fff, buf, 1024)) break;
+		if (my_fgets(fff, buf, sizeof(buf))) break;
 
 		/* XXX Parse "menu" items */
 		if (prefix(buf, "***** "))
@@ -2575,6 +2638,22 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 				/* Extract the menu item */
 				strcpy(hook[k], buf + 10);
+			}
+			/* Notice "tag" requests */
+			else if (buf[6] == '<')
+			{
+				if (tag)
+				{
+					/* Remove the closing '>' of the tag */
+					buf[strlen(buf) - 1] = '\0';
+
+					/* Compare with the requested tag */
+					if (streq(buf + 7, tag))
+					{
+						/* Remember the tagged line */
+						line = next;
+					}
+				}
 			}
 
 			/* Skip this */
@@ -2617,22 +2696,29 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			next = 0;
 		}
 
-		/* Skip lines if needed */
-		for (; next < line; next++)
+
+		/* Goto the selected line */
+		while (next < line)
 		{
-			/* Skip a line */
-			if (my_fgets(fff, buf, 1024)) break;
+			/* Get a line */
+			if (my_fgets(fff, buf, sizeof(buf))) break;
+
+			/* Skip tags/links */
+			if (prefix(buf, "***** ")) continue;
+
+			/* Count the lines */
+			next++;
 		}
 
 
-		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
+		/* Dump the next lines of the file */
+		for (i = 0; i < hgt - 4; )
 		{
 			/* Hack -- track the "first" line */
 			if (!i) line = next;
 
 			/* Get a line of the file or stop */
-			if (my_fgets(fff, buf, 1024)) break;
+			if (my_fgets(fff, buf, sizeof(buf))) break;
 
 			/* Hack -- skip "special" lines */
 			if (prefix(buf, "***** ")) continue;
@@ -2644,8 +2730,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			strcpy(lc_buf, buf);
 
 			/* Make the line lower case */
-			if (!case_sensitive)
-				string_lower(lc_buf);
+			if (!case_sensitive) string_lower(lc_buf);
 
 			/* Hack -- keep searching */
 			if (find && !i && !strstr(lc_buf, find)) continue;
@@ -2689,30 +2774,29 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-			   VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-			   caption, line, size), 0, 0);
+		prt(format("[%s %s, %s, Line %d/%d]", VERSION_NAME,
+		           VERSION_STRING, caption, line, size), 0, 0);
 
 
 		/* Prompt -- menu screen */
 		if (menu)
 		{
 			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", 23, 0);
+			prt("[Press a Number, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- small files */
-		else if (size <= 20)
+		else if (size <= hgt - 4)
 		{
 			/* Wait for it */
-			prt("[Press ESC to exit.]", 23, 0);
+			prt("[Press ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Prompt -- large files */
 		else
 		{
 			/* Wait for it */
-			prt("[Press Space to advance, or ESC to exit.]", 23, 0);
+			prt("[Press Space to advance, or ESC to exit.]", hgt - 1, 0);
 		}
 
 		/* Get a keypress */
@@ -2731,19 +2815,18 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (ch == '&')
 		{
 			/* Get "shower" */
-			prt("Show: ", 23, 0);
+			prt("Show: ", hgt - 1, 0);
 			(void)askfor_aux(shower, 80);
 
 			/* Make the "shower" lowercase */
-			if (!case_sensitive)
-				string_lower(shower);
+			if (!case_sensitive) string_lower(shower);
 		}
 
 		/* Try finding */
 		if (ch == '/')
 		{
 			/* Get "finder" */
-			prt("Find: ", 23, 0);
+			prt("Find: ", hgt - 1, 0);
 			if (askfor_aux(finder, 80))
 			{
 				/* Find it */
@@ -2752,8 +2835,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 				line = line + 1;
 
 				/* Make the "finder" lowercase */
-				if (!case_sensitive)
-					string_lower(finder);
+				if (!case_sensitive) string_lower(finder);
 
 				/* Show it */
 				strcpy(shower, finder);
@@ -2764,7 +2846,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (ch == '#')
 		{
 			char tmp[80];
-			prt("Goto Line: ", 23, 0);
+			prt("Goto Line: ", hgt - 1, 0);
 			strcpy(tmp, "0");
 			if (askfor_aux(tmp, 80))
 			{
@@ -2776,7 +2858,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		if (ch == '%')
 		{
 			char ftmp[80];
-			prt("Goto File: ", 23, 0);
+			prt("Goto File: ", hgt - 1, 0);
 			strcpy(ftmp, "help.hlp");
 			if (askfor_aux(ftmp, 80))
 			{
@@ -2794,14 +2876,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Back up one half page */
 		if (ch == '_')
 		{
-			line = line - 10;
+			line = line - ((hgt - 4) / 2);
 			if (line < 0) line = 0;
 		}
 
 		/* Back up one full page */
 		if (ch == '-')
 		{
-			line = line - 20;
+			line = line - (hgt - 4);
 			if (line < 0) line = 0;
 		}
 
@@ -2814,14 +2896,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Advance one half page */
 		if (ch == '+')
 		{
-			line = line + 10;
+			line = line + ((hgt - 4) / 2);
 			if (line < 0) line = 0;
 		}
 
 		/* Advance one full page */
 		if (ch == ' ')
 		{
-			line = line + 20;
+			line = line + (hgt - 4);
 		}
 
 		/* Recurse on numbers */
@@ -2851,18 +2933,8 @@ void do_cmd_help(void)
 	/* Save screen */
 	screen_save();
 
-	/* Hack --- use context help */
-        if (strlen(context_help_file))
-	{
-		/* Show the specified file */
-                (void)show_file(context_help_file,NULL,0,0);
-
-	}
-	else
-	{
-		/* Peruse the main help file */
-		(void)show_file("help.hlp", NULL, 0, 0);
-	}
+	/* Peruse the main help file */
+	(void)show_file("help.hlp", NULL, 0, 0);
 
 	/* Load screen */
 	screen_load();
@@ -2967,7 +3039,7 @@ void get_name(void)
 	strcpy(tmp, op_ptr->full_name);
 
 	/* Prompt for a new name */
-	if (get_string("Enter a name for your character: ", tmp, 15))
+	if (get_string("Enter a name for your character: ", tmp, sizeof(tmp)))
 	{
 		/* Use the name */
 		strcpy(op_ptr->full_name, tmp);
@@ -3034,7 +3106,7 @@ void do_cmd_save_game(void)
 	disturb(1, 0);
 
 	/* Clear messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Handle stuff */
 	handle_stuff();
@@ -3147,8 +3219,14 @@ static void make_bones(void)
 			/* File type is "TEXT" */
 			FILE_TYPE(FILE_TYPE_TEXT);
 
+			/* Grab permissions */
+			safe_setuid_grab();
+
 			/* Try to write a new "Bones File" */
 			fp = my_fopen(str, "w");
+
+			/* Drop permissions */
+			safe_setuid_drop();
 
 			/* Not allowed to write it?  Weird. */
 			if (!fp) return;
@@ -3165,7 +3243,7 @@ static void make_bones(void)
 	}
 }
 
-#endif
+#endif /* 0 */
 
 
 /*
@@ -3203,7 +3281,7 @@ static void print_tomb(void)
 		int i = 0;
 
 		/* Dump the file to the screen */
-		while (0 == my_fgets(fp, buf, 1024))
+		while (0 == my_fgets(fp, buf, sizeof(buf)))
 		{
 			/* Display and advance */
 			put_str(buf, i++, 0);
@@ -3223,7 +3301,7 @@ static void print_tomb(void)
 	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev-1)/5];
+		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
 	}
 
 	center_string(buf, op_ptr->full_name);
@@ -3236,7 +3314,7 @@ static void print_tomb(void)
 	put_str(buf, 8, 11);
 
 
-	center_string(buf, c_name+ cp_ptr->name);
+	center_string(buf, c_name + cp_ptr->name);
 	put_str(buf, 10, 11);
 
 	sprintf(tmp, "Level: %d", (int)p_ptr->lev);
@@ -3277,12 +3355,12 @@ static void death_knowledge(void)
 
 	store_type *st_ptr = &store[STORE_HOME];
 
-        int inven_max = INVEN_TOTAL;
+	int inven_max = INVEN_TOTAL;
 
-        if (variant_belt_slot) inven_max++;
+	if (variant_belt_slot) inven_max++;
 
 	/* Hack -- Know everything in the inven/equip */
-        for (i = 0; i < inven_max; i++)
+	for (i = 0; i < inven_max; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3292,7 +3370,9 @@ static void death_knowledge(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-		object_mental(o_ptr);
+
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
 	}
 
 	/* Hack -- Know everything in the home */
@@ -3306,7 +3386,9 @@ static void death_knowledge(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-		object_mental(o_ptr);
+
+		/* Fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
 	}
 
 	/* Hack -- Recalculate bonuses */
@@ -3427,34 +3509,27 @@ static void death_examine(void)
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
+	while (TRUE)
 	{
+		if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP))) return;
+
+		/* Get the item */
 		o_ptr = &inventory[item];
-	}
 
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+                /* Known */
+                object_known(o_ptr);
 
-	/* Fully known */
-	object_mental(o_ptr);
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+		/* Describe */
+		msg_format("Examining %s...", o_name);
 
-	/* Describe */
-	msg_format("Examining %s...", o_name);
+                msg_print("");
 
-	/* Describe it fully */
-	if (!identify_fully_aux(o_ptr))
-	{
-		msg_print("You see nothing special.");
-		msg_print(NULL);
+                screen_object(o_ptr, TRUE);
+
 	}
 }
 
@@ -3482,10 +3557,10 @@ static errr highscore_read(high_score *score)
 /*
  * Write one score to the highscore file
  */
-static int highscore_write(high_score *score)
+static int highscore_write(const high_score *score)
 {
 	/* Write the record, note failure */
-	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
+	return (fd_write(highscore_fd, (cptr)(score), sizeof(high_score)));
 }
 
 
@@ -3495,7 +3570,7 @@ static int highscore_write(high_score *score)
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
-static int highscore_where(high_score *score)
+static int highscore_where(const high_score *score)
 {
 	int i;
 
@@ -3523,7 +3598,7 @@ static int highscore_where(high_score *score)
  * Actually place an entry into the high score file
  * Return the location (0 is best) or -1 on "failure"
  */
-static int highscore_add(high_score *score)
+static int highscore_add(const high_score *score)
 {
 	int i, slot;
 	bool done = FALSE;
@@ -3619,7 +3694,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str(format("                %s Hall of Fame", VERSION_NAME),
+		        0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -3678,15 +3754,15 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 			if ((*when == '@') && strlen(when) == 9)
 			{
 				sprintf(tmp_val, "%.4s-%.2s-%.2s",
-					when + 1, when + 5, when + 7);
+				        when + 1, when + 5, when + 7);
 				when = tmp_val;
 			}
 
 			/* Dump some info */
 			sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-				place, the_score.pts, the_score.who,
-				p_name + p_info[pr].name, c_name + c_info[pc].name,
-				clev);
+			        place, the_score.pts, the_score.who,
+			        p_name + p_info[pr].name, c_name + c_info[pc].name,
+			        clev);
 
 			/* Append a "maximum level" */
 			if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
@@ -3696,13 +3772,13 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* Another line of info */
 			sprintf(out_val, "               Killed by %s on %s %d",
-				the_score.how, "Dungeon Level", cdun);
+			        the_score.how, "Dungeon Level", cdun);
 
 			/* Hack -- some people die in the town */
 			if (!cdun)
 			{
 				sprintf(out_val, "               Killed by %s in the Town",
-					the_score.how);
+				        the_score.how);
 			}
 
 			/* Append a "maximum level" */
@@ -3713,8 +3789,8 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 			/* And still another line of info */
 			sprintf(out_val,
-				"               (User %s, Date %s, Gold %s, Turn %s).",
-				user, when, gold, aged);
+			        "               (User %s, Date %s, Gold %s, Turn %s).",
+			        user, when, gold, aged);
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 
@@ -3750,7 +3826,7 @@ void display_scores(int from, int to)
 	Term_clear();
 
 	/* Title */
-	put_str("                Angband Hall of Fame", 0, 0);
+	put_str(format("                %s Hall of Fame", VERSION_NAME), 0, 0);
 
 	/* Display the scores */
 	display_scores_aux(from, to, -1, NULL);
@@ -3784,7 +3860,9 @@ static int score_idx = -1;
  */
 static errr enter_score(void)
 {
+#ifndef SCORE_CHEATERS
 	int j;
+#endif /* SCORE_CHEATERS */
 
 	high_score the_score;
 
@@ -3801,7 +3879,7 @@ static errr enter_score(void)
 	if (p_ptr->noscore & 0x000F)
 	{
 		msg_print("Score not registered for wizards.");
-		msg_print(NULL);
+		message_flush();
 		score_idx = -1;
 		return (0);
 	}
@@ -3814,11 +3892,11 @@ static errr enter_score(void)
 	if (p_ptr->noscore & 0x00F0)
 	{
 		msg_print("Score not registered for borgs.");
-		msg_print(NULL);
+		message_flush();
 		score_idx = -1;
 		return (0);
 	}
-#endif
+#endif /* SCORE_BORGS */
 
 #ifndef SCORE_CHEATERS
 
@@ -3828,18 +3906,18 @@ static errr enter_score(void)
 		if (!op_ptr->opt[j]) continue;
 
 		msg_print("Score not registered for cheaters.");
-		msg_print(NULL);
+		message_flush();
 		score_idx = -1;
 		return (0);
 	}
 
-#endif
+#endif /* SCORE_CHEATERS */
 
 	/* Hack -- Interupted */
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
 	{
 		msg_print("Score not registered due to interruption.");
-		msg_print(NULL);
+		message_flush();
 		score_idx = -1;
 		return (0);
 	}
@@ -3848,7 +3926,7 @@ static errr enter_score(void)
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 	{
 		msg_print("Score not registered due to quitting.");
-		msg_print(NULL);
+		message_flush();
 		score_idx = -1;
 		return (0);
 	}
@@ -3858,8 +3936,7 @@ static errr enter_score(void)
 	(void)WIPE(&the_score, high_score);
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(the_score.what, "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -3873,14 +3950,8 @@ static errr enter_score(void)
 	sprintf(the_score.turns, "%9lu", (long)turn);
 	the_score.turns[9] = '\0';
 
-#ifdef HIGHSCORE_DATE_HACK
-	/* Save the date in a hacked up form (9 chars) */
-	sprintf(the_score.day, "%-.6s %-.2s",
-		ctime(&death_time) + 4, ctime(&death_time) + 22);
-#else
 	/* Save the date in standard encoded form (9 chars) */
 	strftime(the_score.day, 10, "@%Y%m%d", localtime(&death_time));
-#endif
 
 	/* Save the player name (15 chars) */
 	sprintf(the_score.who, "%-.15s", op_ptr->full_name);
@@ -3900,16 +3971,26 @@ static errr enter_score(void)
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
 
+	/* Grab permissions */
+	safe_setuid_grab();
 
 	/* Lock (for writing) the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
 
+	/* Drop permissions */
+	safe_setuid_drop();
+
 	/* Add a new entry to the score list, see where it went */
 	score_idx = highscore_add(&the_score);
+
+	/* Grab permissions */
+	safe_setuid_grab();
 
 	/* Unlock the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
 
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Success */
 	return (0);
@@ -3932,7 +4013,7 @@ static void top_twenty(void)
 	if (highscore_fd < 0)
 	{
 		msg_print("Score file unavailable.");
-		msg_print(NULL);
+		message_flush();
 		return;
 	}
 
@@ -3976,14 +4057,13 @@ errr predict_score(void)
 	if (highscore_fd < 0)
 	{
 		msg_print("Score file unavailable.");
-		msg_print(NULL);
+		message_flush();
 		return (0);
 	}
 
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(the_score.what, "%s", VERSION_STRING);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long)total_points());
@@ -4053,9 +4133,6 @@ static void kingly(void)
 	/* Hack -- retire in town */
 	p_ptr->depth = 0;
 
-	/* Hack -- retire in first dungeon */
-        p_ptr->dungeon = 0;
-
 	/* Fake death */
 	strcpy(p_ptr->died_from, "Ripe Old Age");
 
@@ -4104,14 +4181,19 @@ static void kingly(void)
 static void close_game_aux(void)
 {
 	int ch;
+	bool wants_to_quit = FALSE;
+	cptr p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
-	cptr p;
-
-	/* Prompt */
-	p = "['i' for info, 'f' to file, 't' for scores, 'x' to examine, or ESC]";
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
+
+	/* Save dead player */
+	if (!save_player())
+	{
+		msg_print("death save failed!");
+		message_flush();
+	}
 
 	/* Get time of death */
 	(void)time(&death_time);
@@ -4129,100 +4211,136 @@ static void close_game_aux(void)
 	flush();
 
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
-	/* Forever */
-	while (1)
+	/* Loop */
+	while (!wants_to_quit)
 	{
 		/* Describe options */
-		Term_putstr(2, 23, -1, TERM_WHITE, p);
+		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
 		ch = inkey();
 
-		/* Exit */
-		if (ch == ESCAPE)
+		switch (ch)
 		{
-			if (get_check("Do you want to quit? ")) break;
-		}
-
-		/* File dump */
-		else if (ch == 'f')
-		{
-			char ftmp[80];
-
-			sprintf(ftmp, "%s.txt", op_ptr->base_name);
-
-			if (get_string("File name: ", ftmp, 80))
+			/* Exit */
+			case ESCAPE:
 			{
-				if (ftmp[0] && (ftmp[0] != ' '))
+				if (get_check("Do you want to quit? "))
+					wants_to_quit = TRUE;
+
+				break;
+			}
+
+			/* File dump */
+			case 'f':
+			case 'F':
+			{
+				char ftmp[80];
+
+				sprintf(ftmp, "%s.txt", op_ptr->base_name);
+
+				if (get_string("File name: ", ftmp, 80))
 				{
-					errr err;
-
-					/* Save screen */
-					screen_save();
-
-					/* Dump a character file */
-					err = file_character(ftmp, FALSE);
-
-					/* Load screen */
-					screen_load();
-
-					/* Check result */
-					if (err)
+					if (ftmp[0] && (ftmp[0] != ' '))
 					{
-						msg_print("Character dump failed!");
-					}
-					else
-					{
-						msg_print("Character dump successful.");
-					}
+						errr err;
 
-					/* Flush messages */
-					msg_print(NULL);
+						/* Save screen */
+						screen_save();
+
+						/* Dump a character file */
+						err = file_character(ftmp, FALSE);
+
+						/* Load screen */
+						screen_load();
+
+						/* Check result */
+						if (err)
+						{
+							msg_print("Character dump failed!");
+						}
+						else
+						{
+							msg_print("Character dump successful.");
+						}
+
+						/* Flush messages */
+						message_flush();
+					}
 				}
+
+				break;
+			}
+
+			/* Show more info */
+			case 'i':
+			case 'I':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Show the character */
+				show_info();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Show last messages */
+			case 'm':
+			case 'M':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Display messages */
+				do_cmd_messages();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Show top scores */
+			case 'v':
+			case 'V':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Show the scores */
+				top_twenty();
+
+				/* Load screen */
+				screen_load();
+
+				break;
+			}
+
+			/* Examine an item */
+			case 'x':
+			case 'X':
+			{
+				/* Save screen */
+				screen_save();
+
+				/* Clear the screen */
+				Term_clear();
+
+				/* Examine items */
+				death_examine();
+
+				/* Load screen */
+				screen_load();
+
+				break;
 			}
 		}
-
-		/* Show more info */
-		else if (ch == 'i')
-		{
-			/* Save screen */
-			screen_save();
-
-			/* Show the character */
-			show_info();
-
-			/* Load screen */
-			screen_load();
-		}
-
-		/* Show top scores */
-		else if (ch == 't')
-		{
-			/* Save screen */
-			screen_save();
-
-			/* Show the scores */
-			top_twenty();
-
-			/* Load screen */
-			screen_load();
-		}
-
-		/* Examine an item */
-		else if (ch == 'x')
-		{
-			death_examine();
-		}
-	}
-
-
-	/* Save dead player */
-	if (!save_player())
-	{
-		msg_print("death save failed!");
-		msg_print(NULL);
 	}
 
 #if 0
@@ -4251,7 +4369,7 @@ void close_game(void)
 	handle_stuff();
 
 	/* Flush the messages */
-	msg_print(NULL);
+	message_flush();
 
 	/* Flush the input */
 	flush();
@@ -4268,9 +4386,14 @@ void close_game(void)
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
 
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Handle death */
 	if (p_ptr->is_dead)
@@ -4301,7 +4424,7 @@ void close_game(void)
 
 
 	/* Hack -- Decrease "icky" depth */
-	/* character_icky--; */
+	character_icky--;
 
 
 	/* Allow suspending now */
@@ -4359,6 +4482,21 @@ void exit_game_panic(void)
 #include <signal.h>
 
 
+typedef void (*Signal_Handler_t)(int);
+
+/*
+ * Wrapper around signal() which it is safe to take the address
+ * of, in case signal itself is hidden by some some macro magic.
+ */
+static Signal_Handler_t wrap_signal(int sig, Signal_Handler_t handler)
+{
+	return signal(sig, handler);
+}
+
+/* Call this instead of calling signal() directly. */  
+Signal_Handler_t (*signal_aux)(int, Signal_Handler_t) = wrap_signal;
+
+
 /*
  * Handle signals -- suspend
  *
@@ -4366,8 +4504,11 @@ void exit_game_panic(void)
  */
 static void handle_signal_suspend(int sig)
 {
+	/* Protect errno from library calls in signal handler */
+	int save_errno = errno;
+
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 #ifdef SIGSTOP
 
@@ -4392,7 +4533,10 @@ static void handle_signal_suspend(int sig)
 #endif
 
 	/* Restore handler */
-	(void)signal(sig, handle_signal_suspend);
+	(void)(*signal_aux)(sig, handle_signal_suspend);
+
+	/* Restore errno */
+	errno = save_errno;
 }
 
 
@@ -4412,8 +4556,11 @@ static void handle_signal_suspend(int sig)
  */
 static void handle_signal_simple(int sig)
 {
+	/* Protect errno from library calls in signal handler */
+	int save_errno = errno;
+
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 
 	/* Nothing to save, just quit */
@@ -4483,7 +4630,10 @@ static void handle_signal_simple(int sig)
 	}
 
 	/* Restore handler */
-	(void)signal(sig, handle_signal_simple);
+	(void)(*signal_aux)(sig, handle_signal_simple);
+
+	/* Restore errno */
+	errno = save_errno;
 }
 
 
@@ -4493,7 +4643,7 @@ static void handle_signal_simple(int sig)
 static void handle_signal_abort(int sig)
 {
 	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+	(void)(*signal_aux)(sig, SIG_IGN);
 
 
 	/* Nothing to save, just quit */
@@ -4505,7 +4655,7 @@ static void handle_signal_abort(int sig)
 
 	/* Give a warning */
 	Term_putstr(0, 23, -1, TERM_RED,
-		    "A gruesome software bug LEAPS out at you!");
+	            "A gruesome software bug LEAPS out at you!");
 
 	/* Message */
 	Term_putstr(45, 23, -1, TERM_RED, "Panic save...");
@@ -4551,7 +4701,7 @@ void signals_ignore_tstp(void)
 {
 
 #ifdef SIGTSTP
-	(void)signal(SIGTSTP, SIG_IGN);
+	(void)(*signal_aux)(SIGTSTP, SIG_IGN);
 #endif
 
 }
@@ -4563,7 +4713,7 @@ void signals_handle_tstp(void)
 {
 
 #ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
+	(void)(*signal_aux)(SIGTSTP, handle_signal_suspend);
 #endif
 
 }
@@ -4576,84 +4726,89 @@ void signals_init(void)
 {
 
 #ifdef SIGHUP
-	(void)signal(SIGHUP, SIG_IGN);
+	(void)(*signal_aux)(SIGHUP, SIG_IGN);
 #endif
 
 
 #ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
+	(void)(*signal_aux)(SIGTSTP, handle_signal_suspend);
 #endif
 
 
 #ifdef SIGINT
-	(void)signal(SIGINT, handle_signal_simple);
+	(void)(*signal_aux)(SIGINT, handle_signal_simple);
 #endif
 
 #ifdef SIGQUIT
-	(void)signal(SIGQUIT, handle_signal_simple);
+	(void)(*signal_aux)(SIGQUIT, handle_signal_simple);
 #endif
 
 
 #ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
+	(void)(*signal_aux)(SIGFPE, handle_signal_abort);
 #endif
 
 #ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
+	(void)(*signal_aux)(SIGILL, handle_signal_abort);
 #endif
 
 #ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
+	(void)(*signal_aux)(SIGTRAP, handle_signal_abort);
 #endif
 
 #ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
+	(void)(*signal_aux)(SIGIOT, handle_signal_abort);
 #endif
 
 #ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
+	(void)(*signal_aux)(SIGKILL, handle_signal_abort);
 #endif
 
 #ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
+	(void)(*signal_aux)(SIGBUS, handle_signal_abort);
 #endif
 
 #ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
+	(void)(*signal_aux)(SIGSEGV, handle_signal_abort);
 #endif
 
 #ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
+	(void)(*signal_aux)(SIGTERM, handle_signal_abort);
 #endif
 
 #ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
+	(void)(*signal_aux)(SIGPIPE, handle_signal_abort);
 #endif
 
 #ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
+	(void)(*signal_aux)(SIGEMT, handle_signal_abort);
 #endif
 
+/*
+ * SIGDANGER:
+ * This is not a common (POSIX, SYSV, BSD) signal, it is used by AIX(?) to
+ * signal that the system will soon be out of memory.
+ */
 #ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
+	(void)(*signal_aux)(SIGDANGER, handle_signal_abort);
 #endif
 
 #ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
+	(void)(*signal_aux)(SIGSYS, handle_signal_abort);
 #endif
 
 #ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
+	(void)(*signal_aux)(SIGXCPU, handle_signal_abort);
 #endif
 
 #ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
+	(void)(*signal_aux)(SIGPWR, handle_signal_abort);
 #endif
 
 }
 
 
-#else   /* HANDLE_SIGNALS */
+#else	/* HANDLE_SIGNALS */
 
 
 /*
@@ -4678,6 +4833,6 @@ void signals_init(void)
 }
 
 
-#endif  /* HANDLE_SIGNALS */
+#endif	/* HANDLE_SIGNALS */
 
 

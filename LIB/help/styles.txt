@@ -1,0 +1,425 @@
+=== Styles ===
+
+        Each classes may choose to specialise in a particular style for a
+        10% additional experience penalty. Some classes, notably Rangers
+        and Priests are less powerful that the Vanilla Angband characters
+        but may choose to regain their former abilities through particular
+        choices of styles. To compensate, non-specialised Rangers and Priests
+        have less of an experience penalty than their Vanilla counterparts.
+
+        The styles confer a number of different benefits as explained below.
+        More importantly, each class style suggests a particular sub-class
+        type listed in brackets, that can be used to further distinguish
+        different characters. The styles effectively expand the number of
+        player classes from 9 to over 100.
+
+        Warrior Styles
+
+        Unarmed (Martial Artist)
+
+                The Martial Artist has an un-equalled unarmed fighting prowess.
+                When fighting with their bare hands (No weapon or shield
+                worn), they gain to hit and damage bonuses, improved armour
+                class and at higher levels, attack with multiple blows and
+                additional critical damage.
+
+        One-Handed (Swashbuckler)
+
+                The Swashbuckler is a flashy fighter, capable of targetting
+                their attacks with precision. When not using a shield,
+                a Swashbuckler gets additional to hit bonuses, improved
+                natural armour class and can cause additional critical damage
+                at higher levels.
+
+        Two-Handed (Samurai)
+
+                The Samurai is a honorable and deadly warrior, with a strict
+                Bushido code. When not using a shield, a Samurai gets
+                additional to hit and damage with their weapon, and gains
+                additional blows in melee at higher levels.
+
+        Two-Weapon (Gladiator)
+
+                The Gladiator is a savage and brutal warrior, capable of
+                using a large number of weapons for the entertainment of
+                others. When wielding two weapons at a time, a Gladiator
+                can use the 2nd weapon to provide additional armour class
+                and at higher levels, attack with it in addition to their
+                primary weapon.
+
+        Weapon and Shield (Knight)
+
+                The Knight is a valiant defender of the weak and vigilant
+                upholder of chivalry and smiter of evil. The Knight prefers
+                to use a weapon and shield, with which they gain additional
+                armour class and can gain additional blows at higher levels.
+
+        Hafted/Sword/Polearm (Weaponmaster)
+
+                The Weaponmaster specialises in a particular style of weapons
+                preferring them to all others. With their preferred weapon
+                type (Either hafted or polearm weapons or swords), they
+                may gain an advantage to hit and damage and additional blows
+                at higher levels.
+
+
+        Thrown (Tribesman)
+
+                XXX TO BE DONE
+
+
+        Bow (Nomad)
+
+                XXX TO BE DONE
+
+
+
+
+	Rings (Ringbearer)
+
+                XXX TO BE DONE
+
+
+        Slay Orc/Giant/Troll/Dragon (Dragonkiller, Giantkiller etc.)
+
+                The killer has devoted a life long training regime to
+                the fighting styles required to defeat a particular creation
+                of Morgoth. Dwarves in particular prefer to learn the ways
+                to combat other races. When fighting their hated type of
+                creature, killers gain to hit and damage bonuses and can
+                cause additional critical damage at higher levels.
+
+        Mage Styles
+
+        Magic Book (Archmage/Illusionist/Enchanter etc.)
+
+                Many mages devote an themselves to the in depth pursuit
+                of a particular magical type. Styling themselves Geomancers,
+                Necromancers, Illusionists or otherwise, they have
+                a deep understanding of a particular style of magic. Each
+                spell book contains the creations of the greatest mages in
+                the particular field.
+
+                These specialised Magi can cast spells from 1 spell book
+                at roughly twice the effective power of a non-specialised
+                mage.
+
+        Potion (Herbalist)
+
+                XXX TO BE DONE
+
+
+        Scrolls (Sage)
+
+                XXX TO BE DONE
+
+
+	Rings (Ringwielder)
+
+                XXX TO BE DONE
+
+
+        Amulets (Witch)
+
+                Witches have a thorough knowledge of magical talismans and
+                the relationship between the materials used in these devices
+                and the magic they manifest. Witches may identify simple
+                amulets as they see them, and slowly improve in the range
+                of magical amulets identified at higher levels.
+
+        Wands (Magician)
+
+                Magicians have a working knowledge of wands of various types
+                and the magics they invoke. Magicians will identify simple
+                wands as they see them, and slowly improve in the types
+                of wands identified at higher levels.
+
+        Staves (Wizard)
+
+                Wizards have a profound knowledge of magical staves and
+                and the powers they have. Wizards will identify simple
+                staves as they see them, and slowly improve in the types
+                of staves identified at higher levels.
+
+
+        Priest Styles
+
+        Hafted (Templar)
+
+                Many priests forgo a life of monastic study and take up arms
+                against the enemies of their god. In return, the church
+                and higher powers grant them a lessening of the restriction
+                on blood-letting, to symbolically allow them to use blunt
+                weapons. Though a mace may smash open a skull as effectively
+                as an axe, the Templar priests are free to use hafted weapons
+                without needing a special benediction from their god.
+
+        Unarmed (Warrior Monk)
+
+                Other priests prefer to forsake weapons entirely, and fight
+                the enemies of their god with their bare hands. These
+                Warrior Monks fight without weapon or shield, and through
+                their skill and devotion, gain to hit and damage bonuses,
+                improved armour class and at higher levels, attack with
+                multiple blows and additional critical damage.
+
+        Slay Undead/Slay Demon (Exorcist)
+
+                Exorcists cast out the demons and the unliving from this
+                world, through two seperate branches, the Ordo Maleficarum
+                and the Ordo Necros. The Hexen Hammer specialise
+                in combating demons or undead and gain to hit and damage
+                bonuses when fighting these foes.
+
+        Slay Evil (Inquisitor)
+
+                Inquisitors hunt down the evil and impure in the living and
+                burn it out with holy fire. Through their superior knowledge
+                of human anatomy and behaviour, they can cause additional
+                critical damage at higher levels.
+
+        Rogue Styles
+
+        Potion (Chemist)
+
+                Chemists have a sound understanding of the physical and
+                magical principles behind the reagents required for magic
+                potions. They may identify simple potions as they encounter
+                them, and slowly improve in the complexity of potions
+                identified at higher levels.
+
+        Scrolls (Scholar)
+
+                Scholars have a deep knowledge of ancient and modern magical
+                writings and how they relate to the underlying spell
+                processes. They may identify simple scrolls as they see
+                them, and slowly improve in the range of magical scrolls
+                identified at higher levels.
+
+        Rings (Jeweler)
+
+                Jewelers have a refined knowledge of the interactions of
+                metals, minerals and settings required for magical jewelery
+                such as rings. Jewelers may identify simple rings, improving
+                in the number of types identified at higher levels.
+
+        Amulets (Gypsy)
+
+                XXX TO BE DONE
+
+
+        Ranger Styles
+
+        One-Handed (Outlaw)
+
+                The Outlaw is a deft and cunning fighter, capable of
+                targetting their attacks with precision. When not using a
+                shield, a Outlaw can cause additional critical damage at
+                higher levels.
+
+        Two-Weapon (Bounty Hunter)
+
+                The Bounty Hunter is an unorthodox and cunning fighter,
+                skilled in using a large number of weapons for their own
+                survival. When wielding two weapons at a time, a Bounty
+                Hunter can use the 2nd weapon at higher levels, attacking
+                with it in addition to their primary weapon.
+
+        Bows (Huntsman)
+
+                The Huntsman is a skilled archer, and can fire additional
+                shots at higher levels.
+
+        Slay Orc/Giant/Troll/Dragon (Dragonslayer, Giantslayer etc.)
+
+                The slayer has devoted a life long training regime to
+                the fighting styles required to defeat a particular creation
+                of Morgoth. Dwarves in particular prefer to learn the ways
+                to combat other races. When fighting their hated type of
+                creature, slayers can cause additional critical damage at
+                higher levels.
+
+        Slay Animal (Tracker)
+
+                Through their long experience tracking and hunting animals,
+                the Tracker can cause additional critical damage against
+                animals at higher levels.
+
+	Paladin Styles
+
+        One-Handed (Cavaliers)
+
+               Cavaliers hold honour and worthiness above all other values.
+               They prize appearance and social status, but will always
+               step forward to defend the honour of a lady. Cavaliers
+               are flashy fighters and target their blows with precision.
+               When not using a shield, a Cavalier gains bonuses to hit and
+               can cause additional critical damage at higher levels.
+
+        Weapon & Shield (Knight Defender)
+
+               Knight Defenders have sworn to protect the weak and defense-
+               less and uphold the code of chivalry. Knight Defenders have
+               specialised in defensive techniques, and when fighting with
+               a weapon and shield, gain increased armour class and can
+               gain additional blows at higher levels.
+
+	Prayer Book (Knight of the Order)
+
+               Knights of various religious orders have sworn secret oaths
+               and pacts, and have a code of honour and pledges known only
+               to themselves. In return they are privy to hidden knowledge
+               with which they arm themselves against enemies of their
+               order.
+
+               Knights of the Order can cast spells from 1 prayer book at
+               roughly twice the effective power of a non-specialised
+               priest.
+
+        Slay Dragon (Dragon Slayer)
+
+                XXX TO BE DONE
+
+        Thief Styles
+
+	Unarmed (Acrobat)
+
+                The Acrobat has an un-equalled unarmed fighting prowess.
+                When fighting with their bare hands (No weapon or shield
+                worn), they gain to hit and damage bonuses, improved armour
+                class and at higher levels, attack with multiple blows and
+                additional critical damage.
+
+        One-Handed (Highwayman)
+
+                The Highwayman is a flashy fighter, capable of targetting
+                their attacks with precision. When not using a shield,
+                a Swashbuckler gets additional to hit bonuses, improved
+                natural armour class and can cause additional critical damage
+                at higher levels.
+
+        Two-Handed (Ninja)
+
+                The Ninja is a mysterious and deadly assassin, with a strict
+                family code. When not using a shield, a Ninja gets
+                additional to hit and damage with their weapon, and gains
+                additional blows in melee at higher levels.
+
+        Two-Weapon (Enforcer)
+
+                The Enforcer is a savage and brutal warrior, capable of
+                using a large number of weapons for the entertainment of
+                others. When wielding two weapons at a time, a Enforcer
+                can use the 2nd weapon to provide additional armour class
+                and at higher levels, attack with it in addition to their
+                primary weapon.
+
+	Thrown (Juggler)
+
+                XXX TO BE DONE
+
+
+        Backstab (Assassin)
+
+                XXX TO BE DONE
+
+        Amulets (Merchant)
+
+                XXX TO BE DONE
+
+        Rings (Fence)
+
+                Fences have a practical knowledge of the interactions of
+                metals, minerals and settings required for magical jewelery
+                such as rings. Fences may identify simple rings, improving
+                in the number of types identified at higher levels.
+
+        Potions (Poisoner)
+
+                XXX TO BE DONE
+
+
+        Scrolls (Archeologist)
+
+                XXX TO BE DONE
+
+
+        Slay Undead (Graverobber)
+
+                XXX TO BE DONE
+
+
+        Slay Demon (Tombrobber)
+
+                XXX TO BE DONE
+
+
+
+        Archer Styles
+
+        Sling (Slinger)
+
+                XXX TO BE DONE
+
+
+        Bow (Longbowman)
+
+                XXX TO BE DONE
+
+
+        Crossbow (Crossbowman)
+
+                XXX TO BE DONE
+
+
+        Shaman Styles
+
+                XXX TO BE DONE
+
+
+        Unarmed (Mystic)
+
+                Many shamans forsake all material possesions and learn to
+                fend for themselves using on their hands and feet. These
+                Mystics fight without weapon or shield, and through
+                their skill and devotion, gain to hit and damage bonuses,
+                improved armour class and at higher levels, attack with
+                multiple blows and additional critical damage.
+
+        Magic Book/Priest Book (Cultist)
+
+                Many shamans worship gods with old dark powers, seething
+                with a magic of a particular sort. These Cultists have
+                a knowledge of old magics superior to modern Priest and
+                Mages and can see the underlying connections to this
+                forgotten magic in the spells and prayers of this
+                generation.
+
+                Cultists can cast spells from 1 spell book at roughly
+                twice the effective power of a non-specialised mage or
+                priest.
+
+        Bard Styles
+
+        Unarmed (Dervish)
+
+                XXX TO BE DONE
+
+
+        Songbook (Spellsinger)
+
+                XXX TO BE DONE
+
+
+        Thrown (Jester)
+
+                XXX TO BE DONE
+
+
+	Instrument (Musician)
+
+                Musicians may wield musical instruments of a variety of types to improve
+                the power of particular songs. It is believed that there is
+                one effective musical instrument in the dungeon for each type
+                of bardic song book. Bards primary attribute is Charisma,
+

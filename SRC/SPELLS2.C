@@ -17,13 +17,12 @@
 #include "angband.h"
 
 
+
 /*
  * Increase players hit points, notice effects
  */
-int hp_player(int num)
+bool hp_player(int num)
 {
-	byte guess=0;
-
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -47,51 +46,31 @@ int hp_player(int num)
 		if (num < 5)
 		{
 			msg_print("You feel a little better.");
-			guess = SV_POTION_CURE_LIGHT;
-
 		}
 
 		/* Heal 5-14 */
 		else if (num < 15)
 		{
 			msg_print("You feel better.");
-			guess = SV_POTION_CURE_LIGHT;
 		}
 
 		/* Heal 15-34 */
 		else if (num < 35)
 		{
 			msg_print("You feel much better.");
-			guess = SV_POTION_CURE_SERIOUS;
 		}
 
 		/* Heal 35+ */
-		else if (num < 50)
-		{
+		else		{
 			msg_print("You feel very good.");
-			guess = SV_POTION_CURE_CRITICAL;
-		}
-
-		/* Heal 50+ */
-		else if (num < 300)
-		{
-			msg_print("You feel very good.");
-			guess = SV_POTION_HEALING;
-		}
-
-		/* Heal 300+ */
-		else
-		{
-			msg_print("You feel very good.");
-			guess = SV_POTION_STAR_HEALING;
 		}
 
 		/* Notice */
-		return (guess);
+		return (TRUE);
 	}
 
 	/* Ignore */
-	return (0);
+	return (FALSE);
 }
 
 
@@ -186,12 +165,10 @@ bool do_dec_stat(int stat)
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
-		           desc_stat_neg[stat]);
+			   desc_stat_neg[stat]);
 
-#ifdef ALLOW_OBJECT_INFO
 		/* Always notice */
-                equip_can_flags(0x0L,(1L<<stat),0x0L);
-#endif
+		equip_can_flags(0x0L,(1L<<stat),0x0L);
 
 		/* Notice effect */
 		return (TRUE);
@@ -203,10 +180,8 @@ bool do_dec_stat(int stat)
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
 
-#ifdef ALLOW_OBJECT_INFO
 		/* Always notice */
 		equip_not_flags(0x0L,(1L<<stat),0x0L);
-#endif
 
 		/* Notice effect */
 		return (TRUE);
@@ -452,37 +427,175 @@ bool restore_level(void)
 	return (FALSE);
 }
 
+#define TR1_WEAPON_FLAGS (TR1_SLAY_ORC | TR1_SLAY_TROLL | TR1_SLAY_GIANT |\
+			TR1_SLAY_DRAGON | TR1_SLAY_UNDEAD | TR1_SLAY_DEMON |\
+			TR1_SLAY_NATURAL | TR1_SLAY_EVIL | TR1_KILL_DRAGON |\
+			TR1_KILL_UNDEAD | TR1_KILL_DEMON | TR1_BRAND_ACID |\
+			TR1_BRAND_FIRE | TR1_BRAND_POIS | TR1_BRAND_ELEC |\
+			TR1_BRAND_COLD)
+
+#define TR2_WEAPON_FLAGS 0x0L
+
+#define TR3_WEAPON_FLAGS (TR3_IMPACT)
 
 /*
  * Hack -- acquire self knowledge
  *
  * List various information about the player and/or his current equipment.
- *
- * See also "identify_fully()".
- *
- * Use the "roff()" routines, perhaps.  XXX XXX XXX
- *
- * Use the "show_file()" method, perhaps.  XXX XXX XXX
- *
- * This function cannot display more than 20 lines.  XXX XXX XXX
  */
 void self_knowledge(void)
 {
-	int i = 0, j, k;
+	int i;
 
 	u32b f1 = 0L, f2 = 0L, f3 = 0L;
 
+	u32b t1, t2, t3;
+
 	object_type *o_ptr;
 
-	cptr info[128];
+	/* Save screen */
+	screen_save();
 
+	/* Clear the screen */
+	Term_clear();
+
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+
+	if (p_ptr->blind)
+	{
+		text_out("You cannot see.  ");
+	}
+	if (p_ptr->confused)
+	{
+		text_out("You are confused.  ");
+	}
+	if (p_ptr->afraid)
+	{
+		text_out("You are terrified.  ");
+	}
+	if (p_ptr->cut)
+	{
+		text_out("You are bleeding.  ");
+	}
+	if (p_ptr->stun)
+	{
+		text_out("You are stunned.  ");
+	}
+	if (p_ptr->poisoned)
+	{
+		text_out("You are poisoned.  ");
+	}
+	if (p_ptr->image)
+	{
+		text_out("You are hallucinating.  ");
+	}
+
+	if (p_ptr->blessed)
+	{
+		text_out("You feel rightous.  ");
+	}
+	if (p_ptr->hero)
+	{
+		text_out("You feel heroic.  ");
+	}
+	if (p_ptr->shero)
+	{
+		text_out("You are in a battle rage.  ");
+	}
+	if (p_ptr->protevil)
+	{
+		text_out("You are protected from evil.  ");
+	}
+	if (p_ptr->shield)
+	{
+		text_out("You are protected by a mystic shield.  ");
+	}
+	if (p_ptr->invuln)
+	{
+		text_out("You are temporarily invulnerable.  ");
+	}
+	if (p_ptr->searching)
+	{
+		text_out("You are looking around very carefully.  ");
+	}
+	if (p_ptr->new_spells)
+	{
+		text_out("You can learn some spells/prayers.  ");
+	}
+
+	if (p_ptr->word_recall)
+	{
+		text_out("You will soon be recalled.  ");
+	}
+
+	/* Hack -- timed abilities that may also be from equipment */
+	if (p_ptr->tim_infra)
+	{
+		text_out("Your eyes are temporarily sensitive to infrared light.  ");
+	}
+
+	if (p_ptr->tim_invis)
+	{
+		text_out("You can temporarily see invisible monsters.  ");
+
+	}
+
+	if (p_ptr->oppose_acid)
+	{
+		text_out("You are temporarily resistant to acid.  ");
+
+	}
+	if (p_ptr->oppose_elec)
+	{
+		text_out("You are temporarily resistant to electricity.  ");
+
+	}
+	if (p_ptr->oppose_fire)
+	{
+		text_out("You are temporarily resistant to fire.  ");
+
+	}
+	if (p_ptr->oppose_cold)
+	{
+		text_out("You are temporarily resistant to cold.  ");
+
+	}
+	if (p_ptr->oppose_pois)
+	{
+		text_out("You are temporarily resistant to poison.  ");
+
+	}
+
+	/* Hack -- racial effects */
+	if (rp_ptr->flags1 || rp_ptr->flags2 || rp_ptr->flags3)
+	{
+		text_out("Your race affects you.  ");
+
+		list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1);
+	}
+
+	/* Get player flags */
+	player_flags(&t1,&t2,&t3);
+
+	/* Eliminate race flags */
+	t1 &= ~(rp_ptr->flags1);
+	t2 &= ~(rp_ptr->flags2);
+	t3 &= ~(rp_ptr->flags3);
+
+	/* Hack -- class effects */
+	if (f1 || f2 || f3)
+	{
+		text_out("Your training affects you.  ");
+
+		list_object_flags(f1,f2,f3);
+
+	}
 
 	/* Get item flags from equipment */
-	for (k = INVEN_WIELD; k < INVEN_TOTAL; k++)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
-		u32b t1, t2, t3;
-
-		o_ptr = &inventory[k];
+		o_ptr = &inventory[i];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
@@ -491,1168 +604,51 @@ void self_knowledge(void)
 		object_flags(o_ptr, &t1, &t2, &t3);
 
 		/* Extract flags */
-		f1 |= t1;
-		f2 |= t2;
-		f3 |= t3;
+		f1 |= t1 & ~(TR1_WEAPON_FLAGS);
+		f2 |= t2 & ~(TR2_WEAPON_FLAGS);
+		f3 |= t3 & ~(TR3_WEAPON_FLAGS);
 	}
 
+	/* Hack -- other equipment effects */
+	if (f1 || f2 || f3)
+	{
+		text_out("Your equipment affects you.  ");
 
-	if (p_ptr->blind)
-	{
-		info[i++] = "You cannot see.";
-	}
-	if (p_ptr->confused)
-	{
-		info[i++] = "You are confused.";
-	}
-	if (p_ptr->afraid)
-	{
-		info[i++] = "You are terrified.";
-	}
-	if (p_ptr->cut)
-	{
-		info[i++] = "You are bleeding.";
-	}
-	if (p_ptr->stun)
-	{
-		info[i++] = "You are stunned.";
-	}
-	if (p_ptr->poisoned)
-	{
-		info[i++] = "You are poisoned.";
-	}
-	if (p_ptr->image)
-	{
-		info[i++] = "You are hallucinating.";
+		list_object_flags(f1,f2,f3);
+
+		equip_can_flags(f1,f2,f3);
+
+		equip_not_flags(~(f1 | TR1_WEAPON_FLAGS),~(f2 | TR2_WEAPON_FLAGS),~(f3 | TR3_WEAPON_FLAGS));
 	}
 
-	if (p_ptr->aggravate)
-	{
-		info[i++] = "You aggravate monsters.";
-	}
-	if (p_ptr->teleport)
-	{
-		info[i++] = "Your position is very uncertain.";
-	}
-
-	if (p_ptr->blessed)
-	{
-		info[i++] = "You feel rightous.";
-	}
-	if (p_ptr->hero)
-	{
-		info[i++] = "You feel heroic.";
-	}
-	if (p_ptr->shero)
-	{
-		info[i++] = "You are in a battle rage.";
-	}
-	if (p_ptr->protevil)
-	{
-		info[i++] = "You are protected from evil.";
-	}
-	if (p_ptr->shield)
-	{
-		info[i++] = "You are protected by a mystic shield.";
-	}
-	if (p_ptr->invuln)
-	{
-		info[i++] = "You are temporarily invulnerable.";
-	}
-	if (p_ptr->confusing)
-	{
-		info[i++] = "Your hands are glowing dull red.";
-	}
-	if (p_ptr->searching)
-	{
-		info[i++] = "You are looking around very carefully.";
-	}
-	if (p_ptr->new_spells)
-	{
-		info[i++] = "You can learn some spells/prayers.";
-	}
-	if (p_ptr->word_recall)
-	{
-		info[i++] = "You will soon be recalled.";
-	}
-	if (p_ptr->see_infra)
-	{
-		info[i++] = "Your eyes are sensitive to infrared light.";
-	}
-
-	if (p_ptr->slow_digest)
-	{
-		info[i++] = "Your appetite is small.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
-#endif
-	}
-	if (p_ptr->ffall)
-	{
-		info[i++] = "You land gently.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_FEATHER);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_FEATHER);
-#endif
-	}
-	if (p_ptr->lite)
-	{
-		info[i++] = "You are glowing with light.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_LITE);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_LITE);
-#endif
-	}
-	if (p_ptr->regenerate)
-	{
-		info[i++] = "You regenerate quickly.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_REGEN);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_REGEN);
-#endif
-	}
-	if (p_ptr->telepathy)
-	{
-		info[i++] = "You have ESP.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_TELEPATHY);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_TELEPATHY);
-#endif
-	}
-	if (p_ptr->see_inv)
-	{
-		info[i++] = "You can see invisible creatures.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_SEE_INVIS);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_SEE_INVIS);
-#endif
-	}
-	if (p_ptr->free_act)
-	{
-		info[i++] = "You have free action.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
-#endif
-	}
-	if (p_ptr->hold_life)
-	{
-		info[i++] = "You have a firm hold on your life force.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
-#endif
-	}
-	else if (p_ptr->blessed)
-	{
-		info[i++] = "You have a temporary hold on your life force.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
-#endif
-	}
-
-
-	if (p_ptr->immune_acid)
-	{
-
-		info[i++] = "You are completely immune to acid.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_IM_ACID,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
-	{
-		info[i++] = "You resist acid exceptionally well.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
-		equip_can_flags(0x0L,TR2_RES_ACID,0x0L);
-#endif
-
-	}
-	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
-	{
-		info[i++] = "You are resistant to acid.";
-
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
-		if(!p_ptr->oppose_acid) equip_can_flags(0x0L,TR2_RES_ACID,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
-		equip_not_flags(0x0L,TR2_RES_ACID,0x0L);
-#endif
-	}
-
-	if (p_ptr->immune_elec)
-	{
-		info[i++] = "You are completely immune to lightning.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_IM_ELEC,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
-	{
-		info[i++] = "You resist lightning exceptionally well.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
-		equip_can_flags(0x0L,TR2_RES_ELEC,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
-	{
-		info[i++] = "You are resistant to lightning.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
-		if(!p_ptr->oppose_elec) equip_can_flags(0x0L,TR2_RES_ELEC,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
-		equip_not_flags(0x0L,TR2_RES_ELEC,0x0L);
-#endif
-	}
-
-	if (p_ptr->immune_fire)
-	{
-		info[i++] = "You are completely immune to fire.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_IM_FIRE,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
-	{
-		info[i++] = "You resist fire exceptionally well.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
-		equip_can_flags(0x0L,TR2_RES_FIRE,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
-	{
-		info[i++] = "You are resistant to fire.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
-		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_FIRE,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
-		equip_not_flags(0x0L,TR2_RES_FIRE,0x0L);
-#endif
-	}
-
-	if (p_ptr->immune_cold)
-	{
-		info[i++] = "You are completely immune to cold.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_IM_COLD,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
-	{
-		info[i++] = "You resist cold exceptionally well.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
-		equip_can_flags(0x0L,TR2_RES_COLD,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
-	{
-		info[i++] = "You are resistant to cold.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
-		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_COLD,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
-		equip_not_flags(0x0L,TR2_RES_COLD,0x0L);
-#endif
-	}
-
-	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
-	{
-		info[i++] = "You resist poison exceptionally well.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
-#endif
-	}
-	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
-	{
-		info[i++] = "You are resistant to poison.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
-#endif
-	}
-
-	if (p_ptr->resist_fear)
-	{
-		info[i++] = "You are completely fearless.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
-#endif
-	}
-	else if ((p_ptr->hero)||(p_ptr->shero))
-	{
-		info[i++] = "You are temporarily fearless.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
-#endif
-	}
-
-	if (p_ptr->resist_lite)
-	{
-		info[i++] = "You are resistant to bright light.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_LITE,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_LITE,0x0L);
-#endif
-	}
-	if (p_ptr->resist_dark)
-	{
-		info[i++] = "You are resistant to darkness.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_DARK,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_DARK,0x0L);
-#endif
-	}
-	if (p_ptr->resist_blind)
-	{
-		info[i++] = "Your eyes are resistant to blindness.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
-#endif
-	}
-	if (p_ptr->resist_confu)
-	{
-		info[i++] = "You are resistant to confusion.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
-#endif
-	}
-	if (p_ptr->resist_sound)
-	{
-		info[i++] = "You are resistant to sonic attacks.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
-#endif
-	}
-	if (p_ptr->resist_shard)
-	{
-		info[i++] = "You are resistant to blasts of shards.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
-#endif
-	}
-	if (p_ptr->resist_nexus)
-	{
-		info[i++] = "You are resistant to nexus attacks.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_NEXUS,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_NEXUS,0x0L);
-#endif
-	}
-	if (p_ptr->resist_nethr)
-	{
-		info[i++] = "You are resistant to nether forces.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_NETHR,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
-#endif
-	}
-	if (p_ptr->resist_chaos)
-	{
-		info[i++] = "You are resistant to chaos.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
-#endif
-	}
-	if (p_ptr->resist_disen)
-	{
-		info[i++] = "You are resistant to disenchantment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_RES_DISEN,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_RES_DISEN,0x0L);
-#endif
-	}
-
-	if (p_ptr->sustain_str)
-	{
-		info[i++] = "Your strength is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_STR,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_STR,0x0L);
-#endif
-	}
-	if (p_ptr->sustain_int)
-	{
-		info[i++] = "Your intelligence is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_INT,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_INT,0x0L);
-#endif
-	}
-	if (p_ptr->sustain_wis)
-	{
-		info[i++] = "Your wisdom is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_WIS,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_WIS,0x0L);
-#endif
-	}
-	if (p_ptr->sustain_con)
-	{
-		info[i++] = "Your constitution is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_CON,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_CON,0x0L);
-#endif
-	}
-	if (p_ptr->sustain_dex)
-	{
-		info[i++] = "Your dexterity is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_DEX,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_DEX,0x0L);
-#endif
-	}
-	if (p_ptr->sustain_chr)
-	{
-		info[i++] = "Your charisma is sustained.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(0x0L,TR2_SUST_CHR,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(0x0L,TR2_SUST_CHR,0x0L);
-#endif
-	}
-
-	if (f1 & (TR1_STR))
-	{
-		info[i++] = "Your strength is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_STR,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_STR,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_INT))
-	{
-		info[i++] = "Your intelligence is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_INT,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_INT,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "Your wisdom is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_WIS,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_WIS,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "Your dexterity is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_DEX,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_DEX,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "Your constitution is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_CON,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_CON,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "Your charisma is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-                equip_can_flags(TR1_CHR,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-                equip_not_flags(TR1_CHR,0x0L,0x0L);
-#endif
-	}
-
-	if (f1 & (TR1_STEALTH))
-	{
-		info[i++] = "Your stealth is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_STEALTH,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_STEALTH,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_SEARCH))
-	{
-		info[i++] = "Your searching ability is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_SEARCH,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_SEARCH,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_INFRA))
-	{
-		info[i++] = "Your infravision is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_INFRA,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_INFRA,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_TUNNEL))
-	{
-		info[i++] = "Your digging ability is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_TUNNEL,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_TUNNEL,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_SPEED))
-	{
-		info[i++] = "Your speed is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_SPEED,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_SPEED,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "Your attack speed is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_BLOWS,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_BLOWS,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_SHOTS))
-	{
-		info[i++] = "Your shooting speed is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_SHOTS,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_SHOTS,0x0L,0x0L);
-#endif
-	}
-	if (f1 & (TR1_MIGHT))
-	{
-		info[i++] = "Your shooting might is affected by your equipment.";
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_can_flags(TR1_MIGHT,0x0L,0x0L);
-#endif
-	}
-	else
-	{
-#ifdef ALLOW_OBJECT_INFO
-		/* Always notice */
-		equip_not_flags(TR1_MIGHT,0x0L,0x0L);
-#endif
-	}
-
-
-	/* Get the current weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	/* Analyze the weapon */
 	if (o_ptr->k_idx)
 	{
-		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_POIS))
+		object_flags(o_ptr,&f1,&f2,&f3);
+
+		/* Extract flags */
+		f1 |= t1 & (TR1_WEAPON_FLAGS);
+		f2 |= t2 & (TR2_WEAPON_FLAGS);
+		f3 |= t3 & (TR3_WEAPON_FLAGS);
+
+		/* Hack -- other equipment effects */
+		if (f1 || f2 || f3)
 		{
-			info[i++] = "Your weapon poisons your foes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
-#endif
-		}
-		/* Special "Attack Bonuses" */
-		if (f1 & (TR1_BRAND_ACID))
-		{
-			info[i++] = "Your weapon melts your foes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_BRAND_ELEC))
-		{
-			info[i++] = "Your weapon shocks your foes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_BRAND_FIRE))
-		{
-			info[i++] = "Your weapon burns your foes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_BRAND_COLD))
-		{
-			info[i++] = "Your weapon freezes your foes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
-#endif
+			text_out("Your weapon has special powers.  ");
+	
+			list_object_flags(f1,f2,f3);
+	
+			object_can_flags(o_ptr,f1,f2,f3);
+	
+			object_not_flags(o_ptr,TR1_WEAPON_FLAGS & ~(f1),TR2_WEAPON_FLAGS & ~(f2),TR3_WEAPON_FLAGS & ~(f3));
 		}
 
-		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_NATURAL))
-		{
-			info[i++] = "Your weapon strikes at natural creatures with extra force.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_EVIL))
-		{
-			info[i++] = "Your weapon strikes at evil with extra force.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_UNDEAD))
-		{
-			info[i++] = "Your weapon strikes at undead with holy wrath.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_DEMON))
-		{
-			info[i++] = "Your weapon strikes at demons with holy wrath.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_ORC))
-		{
-			info[i++] = "Your weapon is especially deadly against orcs.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_TROLL))
-		{
-			info[i++] = "Your weapon is especially deadly against trolls.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_GIANT))
-		{
-			info[i++] = "Your weapon is especially deadly against giants.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
-#endif
-		}
-		if (f1 & (TR1_SLAY_DRAGON))
-		{
-			info[i++] = "Your weapon is especially deadly against dragons.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
-#endif
-		}
-
-		/* Special "kill" flags */
-		if (f1 & (TR1_KILL_DRAGON))
-		{
-			info[i++] = "Your weapon is a great bane of dragons.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
-#endif
-		}
-
-
-		/* Indicate Blessing */
-		if (f3 & (TR3_BLESSED))
-		{
-			info[i++] = "Your weapon has been blessed by the gods.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
-#endif
-		}
-
-		/* Hack */
-		if (f3 & (TR3_IMPACT))
-		{
-			info[i++] = "Your weapon can induce earthquakes.";
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_IMPACT);
-#endif
-		}
-		else
-		{
-#ifdef ALLOW_OBJECT_INFO
-			/* Always notice */
-                        object_not_flags(o_ptr,0x0L,0x0L,TR3_IMPACT);
-#endif
-		}
 	}
 
+	text_out("\n");
 
-	/* Save screen */
-	screen_save();
-
-
-	/* Clear the screen */
-	Term_clear();
-
-	/* Label the information */
-	prt("     Your Attributes:", 1, 0);
-
-	/* Dump the info */
-	for (k = 2, j = 0; j < i; j++)
-	{
-		/* Show the info */
-		prt(info[j], k++, 0);
-
-		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
-		{
-			prt("-- more --", k, 0);
-			inkey();
-
-			/* Clear the screen */
-			Term_clear();
-
-			/* Label the information */
-			prt("     Your Attributes:", 1, 0);
-
-			/* Reset */
-			k = 2;
-		}
-	}
-
-	/* Pause */
-	prt("[Press any key to continue]", k, 0);
-	(void)inkey();
-
+	inkey();
 
 	/* Load screen */
 	screen_load();
@@ -1758,11 +754,13 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
 		{
 			/* Hack -- Safe */
-                        if (flags1 & (FF1_TRAP))
-                        {
-                                cave_info[y][x] |= (CAVE_SAFE);
-                                if (view_safe_grids) lite_spot(y,x);
-                        }
+			if (flags1 & (FF1_TRAP))
+			{
+				cave_info[y][x] |= (CAVE_SAFE);
+				if (view_safe_grids) lite_spot(y,x);
+
+				detect = TRUE;
+			}
 
 			/* Detect flags */
 			if ((f_info[cave_feat[y][x]].flags1 & (flags1)) ||
@@ -1773,7 +771,7 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 				{
 
 					/*Find secrets*/
-                                        cave_alter_feat(y,x,FS_SECRET);
+					cave_alter_feat(y,x,FS_SECRET);
 				}
 
 				/* Hack -- Memorize */
@@ -1956,7 +954,7 @@ bool detect_objects_gold(void)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Hack -- memorize it */
-                        o_ptr->marked = TRUE;
+			o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1987,7 +985,7 @@ bool detect_objects_normal(void)
 
 	bool detect = FALSE;
 
-        /* Scan objects */
+	/* Scan objects */
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];
@@ -2009,7 +1007,10 @@ bool detect_objects_normal(void)
 		if (o_ptr->tval != TV_GOLD)
 		{
 			/* Hack -- memorize it */
-                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+
+			/* Hack -- have seen object */
+                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2032,13 +1033,13 @@ bool detect_objects_normal(void)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 3 (Magic).
  */
-int value_check_aux3(object_type *o_ptr)
+int value_check_aux3(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
 	{
 		/* Cursed/Broken */
-                if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
 
 		/* Normal */
 		return (INSCRIP_SPECIAL);
@@ -2048,32 +1049,32 @@ int value_check_aux3(object_type *o_ptr)
 	if (ego_item_p(o_ptr))
 	{
 		/* Cursed/Broken */
-                if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
 
-                /* Superb */
-                if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
+		/* Superb */
+		if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
 
 		/* Normal */
 		return (INSCRIP_EXCELLENT);
 	}
 
 	/* Cursed items */
-        if (cursed_p(o_ptr)) return (0);
+	if (cursed_p(o_ptr)) return (0);
 
 	/* Broken items */
-        if (broken_p(o_ptr)) return (0);
+	if (broken_p(o_ptr)) return (0);
 
-        /* Great "armor" bonus */
-        if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
+	/* Great "armor" bonus */
+	if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
 
-        /* Great "weapon" bonus */
-        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
+	/* Great "weapon" bonus */
+	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
 
-        /* Very good "armor" bonus */
-        if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
+	/* Very good "armor" bonus */
+	if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
 
 	/* Good "weapon" bonus */
-        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 7)) return (INSCRIP_VERY_GOOD);
+	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 7)) return (INSCRIP_VERY_GOOD);
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -2082,7 +1083,7 @@ int value_check_aux3(object_type *o_ptr)
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* Default to nothing */
-        return (0);
+	return (0);
 }
 
 
@@ -2093,7 +1094,7 @@ int value_check_aux3(object_type *o_ptr)
  * this way, but allow such items to be sensed again, elsewhere.
  * Hack -- we 'overload' this semantically with removed curses.
  */
-int value_check_aux4(object_type *o_ptr)
+int value_check_aux4(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -2102,7 +1103,7 @@ int value_check_aux4(object_type *o_ptr)
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
 
 		/* Normal */
-                return (0);
+		return (0);
 	}
 
 	/* Ego-Items */
@@ -2111,21 +1112,21 @@ int value_check_aux4(object_type *o_ptr)
 		/* Cursed/Broken */
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
 
-                /* Superb */
-                if (o_ptr->xtra1) return (0);
+		/* Superb */
+		if (o_ptr->xtra1) return (0);
 
 		/* Normal */
-                return (0);
+		return (0);
 	}
 
 	/* Cursed items */
-        if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
+	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
 	/* Broken items */
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
 	/* Default to nothing */
-        return (0);
+	return (0);
 }
 
 
@@ -2184,7 +1185,10 @@ bool detect_objects_magic(void)
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
-                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+
+			/* Hack -- have seen object */
+                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2213,6 +1217,7 @@ bool detect_objects_magic(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_STAFF:
 			{
 				okay = TRUE;
 				break;
@@ -2253,7 +1258,7 @@ bool detect_objects_magic(void)
 
 		bool okay = FALSE;
 
-                object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
@@ -2297,7 +1302,7 @@ bool detect_objects_magic(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-                feel = value_check_aux3(o_ptr);
+		feel = value_check_aux3(o_ptr);
 
 		/* Sense something */
 		if (!feel) continue;
@@ -2309,7 +1314,7 @@ bool detect_objects_magic(void)
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-                o_ptr->ident |= (IDENT_SENSE);
+		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2349,7 +1354,7 @@ bool detect_objects_cursed(void)
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
-                int feel;
+		int feel;
 
 		object_type *o_ptr = &o_list[i];
 
@@ -2367,10 +1372,13 @@ bool detect_objects_cursed(void)
 		if (!panel_contains(y, x)) continue;
 
 		/* Cursed items */
-                if (cursed_p(o_ptr) || broken_p(o_ptr))
+		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
 			/* Memorize the item */
-                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+			if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
+
+			/* Hack -- have seen object */
+                        if (!(k_info[o_ptr->k_idx].flavor)) k_info[o_ptr->k_idx].aware = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2389,17 +1397,17 @@ bool detect_objects_cursed(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-                feel = value_check_aux4(o_ptr);
+		feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
-                if (!feel) continue;
+		if (!feel) continue;
 
 		/* Sense the object */
 		o_ptr->discount = feel;
 
 		/* The object has been "sensed" */
-                /* Hack -- allow non-cursed items to be re-sensed */
-                o_ptr->ident |= (IDENT_SENSE);
+		/* Hack -- allow non-cursed items to be re-sensed */
+		o_ptr->ident |= (IDENT_SENSE);
 
 	}
 
@@ -2408,7 +1416,7 @@ bool detect_objects_cursed(void)
 	{
 		int feel;
 
-                object_type *o_ptr = &inventory[i];
+		object_type *o_ptr = &inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
@@ -2423,7 +1431,7 @@ bool detect_objects_cursed(void)
 		if (object_known_p(o_ptr)) continue;
 
 		/* Get the inscription */
-                feel = value_check_aux4(o_ptr);
+		 feel = value_check_aux4(o_ptr);
 
 		/* Sense something? */
 		if (!feel) continue;
@@ -2542,7 +1550,7 @@ bool detect_monsters_invis(void)
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
 		{
 			/* Take note that they are invisible */
-			l_ptr->r_flags2 |= (RF2_INVISIBLE);
+			l_ptr->flags2 |= (RF2_INVISIBLE);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -2609,7 +1617,7 @@ bool detect_monsters_evil(void)
 		if (r_ptr->flags3 & (RF3_EVIL))
 		{
 			/* Take note that they are evil */
-			l_ptr->r_flags3 |= (RF3_EVIL);
+			l_ptr->flags3 |= (RF3_EVIL);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -2674,7 +1682,7 @@ bool detect_monsters_undead(void)
 		if (r_ptr->flags3 & (RF3_UNDEAD))
 		{
 			/* Take note that they are evil */
-			l_ptr->r_flags3 |= (RF3_UNDEAD);
+			l_ptr->flags3 |= (RF3_UNDEAD);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -2739,7 +1747,7 @@ bool detect_monsters_animal(void)
 		if (r_ptr->flags3 & (RF3_ANIMAL))
 		{
 			/* Take note that they are evil */
-			l_ptr->r_flags3 |= (RF3_ANIMAL);
+			l_ptr->flags3 |= (RF3_ANIMAL);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -2801,10 +1809,10 @@ bool detect_monsters_demon(void)
 		if (!panel_contains(y, x)) continue;
 
 		/* Detect evil monsters */
-                if (r_ptr->flags3 & (RF3_DEMON))
+		if (r_ptr->flags3 & (RF3_DEMON))
 		{
 			/* Take note that they are evil */
-                        l_ptr->r_flags3 |= (RF3_DEMON);
+			l_ptr->flags3 |= (RF3_DEMON);
 
 			/* Update monster recall window */
 			if (p_ptr->monster_race_idx == m_ptr->r_idx)
@@ -2831,7 +1839,7 @@ bool detect_monsters_demon(void)
 	if (flag)
 	{
 		/* Describe result */
-                msg_print("You sense the presence of demons!");
+		msg_print("You sense the presence of demons!");
 	}
 
 	/* Result */
@@ -2904,7 +1912,7 @@ void stair_creation(void)
 /*
  * Hook to specify "weapon"
  */
-static bool item_tester_hook_weapon(object_type *o_ptr)
+static bool item_tester_hook_weapon(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2916,7 +1924,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
-                case TV_STAFF:
+		case TV_STAFF:
 		{
 			return (TRUE);
 		}
@@ -2928,7 +1936,7 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 /*
  * Hook to specify a strict "weapon"
  */
-static bool item_tester_hook_weapon_strict(object_type *o_ptr)
+static bool item_tester_hook_weapon_strict(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2947,7 +1955,7 @@ static bool item_tester_hook_weapon_strict(object_type *o_ptr)
 /*
  * Hook to specify "armour"
  */
-static bool item_tester_hook_armour(object_type *o_ptr)
+static bool item_tester_hook_armour(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -2971,10 +1979,11 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 /*
  * Hook to specify "bolts"
  */
-static bool item_tester_hook_bolts(object_type *o_ptr)
+static bool item_tester_hook_ammo(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
+		case TV_ARROW:
 		case TV_BOLT:
 		{
 			return (TRUE);
@@ -2986,7 +1995,7 @@ static bool item_tester_hook_bolts(object_type *o_ptr)
 
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
@@ -2996,7 +2005,7 @@ static bool item_tester_unknown(object_type *o_ptr)
 
 static int unknown_tval;
 
-static bool item_tester_unknown_tval(object_type *o_ptr)
+static bool item_tester_unknown_tval(const object_type *o_ptr)
 {
 	if(o_ptr->tval != unknown_tval) return FALSE;
 
@@ -3007,16 +2016,16 @@ static bool item_tester_unknown_tval(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown_bonus(object_type *o_ptr)
+static bool item_tester_unknown_bonus(const object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
 	else if (o_ptr->ident & (IDENT_BONUS))
 		return FALSE;
-        else
-        {
-                switch (o_ptr->tval)
-                {
+	else
+	{
+		switch (o_ptr->tval)
+		{
 			case TV_SHOT:
 			case TV_ARROW:
 			case TV_BOLT:
@@ -3034,21 +2043,21 @@ static bool item_tester_unknown_bonus(object_type *o_ptr)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
-                        case TV_RING:
-                        case TV_AMULET:
-                        case TV_WAND:
-                        case TV_STAFF:
+			case TV_RING:
+			case TV_AMULET:
+			case TV_WAND:
+			case TV_STAFF:
 			{
-                                return TRUE;
+				return TRUE;
 			}
-                }
-        }
+		}
+	}
 
-        return FALSE;
+	return FALSE;
 }
 
 
-static bool item_tester_unknown_star(object_type *o_ptr)
+static bool item_tester_unknown_star(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -3060,16 +2069,16 @@ static bool item_tester_unknown_star(object_type *o_ptr)
  * Note for the following function, the player must know it is an artifact
  * or ego item, either by sensing or identifying it.
  */
-static bool item_tester_known_rumor(object_type *o_ptr)
+static bool item_tester_known_rumor(const object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
-        else if ((!object_known_p(o_ptr))
-                && !(o_ptr->discount == INSCRIP_SPECIAL)
-                && !(o_ptr->discount == INSCRIP_EXCELLENT)
-                && !(o_ptr->discount == INSCRIP_SUPERB)
-                && !(o_ptr->discount == INSCRIP_WORTHLESS)
-                && !(o_ptr->discount == INSCRIP_TERRIBLE))
+	else if ((!object_known_p(o_ptr))
+		&& !(o_ptr->discount == INSCRIP_SPECIAL)
+		&& !(o_ptr->discount == INSCRIP_EXCELLENT)
+		&& !(o_ptr->discount == INSCRIP_SUPERB)
+		&& !(o_ptr->discount == INSCRIP_WORTHLESS)
+		&& !(o_ptr->discount == INSCRIP_TERRIBLE))
 		return FALSE;
 	else if (!(o_ptr->name1) && !(o_ptr->name2))
 		return FALSE;
@@ -3213,8 +2222,8 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	/* Failure */
 	if (!res) return (FALSE);
 
-        /* Hack --- unsense the item */
-        o_ptr->ident &= ~(IDENT_SENSE);        
+	/* Hack --- unsense the item */
+	o_ptr->ident &= ~(IDENT_SENSE);	
 
 	/* Remove special inscription, if any */
 	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -3278,8 +2287,8 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	/* Describe */
 	msg_format("%s %s glow%s brightly!",
-	           ((item >= 0) ? "Your" : "The"), o_name,
-	           ((o_ptr->number > 1) ? "" : "s"));
+		   ((item >= 0) ? "Your" : "The"), o_name,
+		   ((o_ptr->number > 1) ? "" : "s"));
 
 	/* Enchant */
 	if (enchant(o_ptr, num_hit, ENCH_TOHIT)) okay = TRUE;
@@ -3295,16 +2304,16 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
-        else
-        {
+	else
+	{
 
-                /* Recalculate bonuses */
-                p_ptr->update |= (PU_BONUS);
-        
-                /* Combine / Reorder the pack (later) */
-                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+	
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-        }
+	}
 
 	/* Something happened */
 	return (TRUE);
@@ -3323,11 +2332,11 @@ bool brand_item(int brand, cptr act)
 
 	cptr q, s;
 
-        bool brand_ammo = FALSE;
+	bool brand_ammo = FALSE;
 
 	/* Get an item */
-        q = "Enchant which item? ";
-        s = "You have nothing to enchant.";
+	q = "Enchant which item? ";
+	s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
 	/* Get the item (in the pack) */
@@ -3342,25 +2351,25 @@ bool brand_item(int brand, cptr act)
 		o_ptr = &o_list[0 - item];
 	}
 
-        /* Hack -- check ammo */
-        switch (o_ptr->tval)
-        {
-                case TV_SHOT:
-                case TV_ARROW:
-                case TV_BOLT:
-                        brand_ammo = TRUE;
-                break;
-        }
+	/* Hack -- check ammo */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+			brand_ammo = TRUE;
+		break;
+	}
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Describe */
-        msg_format("%s %s %s!",
-                   ((item >= 0) ? "Your" : "The"), o_name, act);
+	msg_format("%s %s %s!",
+		   ((item >= 0) ? "Your" : "The"), o_name, act);
 
-        /* you can never modify artifacts / ego-items with hidden powers*/
-        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
+	/* you can never modify artifacts / ego-items with hidden powers*/
+	if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
 	{
 		bool split = FALSE;
 
@@ -3370,44 +2379,44 @@ bool brand_item(int brand, cptr act)
 	/* Hack -- split stack only if required. This is dangerous otherwise as we may
 	   be calling from a routine where we delete items later. XXX XXX */
 	/* Mega-hack -- we allow 5 arrows/shots/bolts to be enchanted per application */
-        if ((o_ptr->number > 1) && ((!brand_ammo) || (o_ptr->number > 5)))
+	if ((o_ptr->number > 1) && ((!brand_ammo) || (o_ptr->number > 5)))
 	{
 
-                int qty = (brand_ammo) ? 5 : 1;
+		int qty = (brand_ammo) ? 5 : 1;
 		split = TRUE;
 
-        /* Get local object */
-        i_ptr = &object_type_body;
+	/* Get local object */
+	i_ptr = &object_type_body;
 
-        /* Obtain a local object */
-        object_copy(i_ptr, o_ptr);
+	/* Obtain a local object */
+	object_copy(i_ptr, o_ptr);
 
-        /* Modify quantity */
-        i_ptr->number = qty;
+	/* Modify quantity */
+	i_ptr->number = qty;
 
-        /* Reset stack counter */
-        i_ptr->stackc = 0;
+	/* Reset stack counter */
+	i_ptr->stackc = 0;
 
 	/* Decrease the item (in the pack) */
 	if (item >= 0)
 	{
 		inven_item_increase(item, -qty);
-            floor_item_describe(0 - item);
-            inven_item_optimize(item);
-        }
+	    floor_item_describe(0 - item);
+	    inven_item_optimize(item);
+	}
 	/* Decrease the item (from the floor) */
 	else
 	{
 		floor_item_increase(0 - item, -qty);
-                floor_item_describe(0 - item);
-                floor_item_optimize(0 - item);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
 	}
 		/* Hack -- use new temporary item */
 		o_ptr = i_ptr;
 	}
 
-                o_ptr->xtra1 = brand;
-                o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
+		o_ptr->xtra1 = brand;
+		o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
 
 			if (object_xtra_what[brand] == 1)
 			{
@@ -3422,39 +2431,39 @@ bool brand_item(int brand, cptr act)
 		    		object_can_flags(o_ptr,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2);
 			}
 
-                /* Remove special inscription, if any */
-                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 		    /* Carry item again if split */
 		    if (split)
 		    {
-	                /* Adjust the weight and carry */
-      	          item = inven_carry(o_ptr);
+			/* Adjust the weight and carry */
+      		  item = inven_carry(o_ptr);
 		    }
-        
-                /* Take note if allowed */
-                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
-        
-                /* The object has been "sensed" */
-                o_ptr->ident |= (IDENT_SENSE);
-        
-                /* Recalculate bonuses */
-                p_ptr->update |= (PU_BONUS);
-        
-                /* Combine / Reorder the pack (later) */
-                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	
+		/* Take note if allowed */
+		if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
+	
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+	
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+	
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
 	}
 	else
 	{
 		if (flush_failure) flush();
-                msg_print("The branding failed.");
+		msg_print("The branding failed.");
 
-                /* Sense it? */
+		/* Sense it? */
 	}
 
 	/* Something happened */
-        return (TRUE);
+	return (TRUE);
 }
 
 
@@ -3516,17 +2525,17 @@ bool ident_spell(void)
 	if (item >= INVEN_WIELD)
 	{
 		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
+			   describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
 		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+			   o_name, index_to_label(item));
 	}
 	else
 	{
 		msg_format("On the ground: %s.",
-		           o_name);
+			   o_name);
 	}
 
 	/* Something happened */
@@ -3588,17 +2597,17 @@ bool ident_spell_bonus(void)
 	if (item >= INVEN_WIELD)
 	{
 		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
+			   describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
 		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+			   o_name, index_to_label(item));
 	}
 	else
 	{
 		msg_format("On the ground: %s.",
-		           o_name);
+			   o_name);
 	}
 
 	/* Something happened */
@@ -3616,16 +2625,16 @@ bool ident_spell_rumor(void)
 
 	object_type *o_ptr;
 
-        cptr p, q, r, s;
+	cptr p, q, r, s;
 
 	int i;
 
 	bool done;
 
-        u32b f1,f2,f3;
+	u32b f1,f2,f3;
 
 	/* Only un-id'ed items */
-        item_tester_hook = item_tester_known_rumor;
+	item_tester_hook = item_tester_known_rumor;
 
 	/* Get an item */
 	q = "Learn legends about which item? ";
@@ -3649,11 +2658,11 @@ bool ident_spell_rumor(void)
 	{
 		case 1:
 			p="Hmm... these runes look interesting..";
-                        r=". but they tell you nothing more.";
+			r=". but they tell you nothing more.";
 			break;
 		case 2:
 			p="You recall tales fitting an item of this description";
-                        r=", and they are bawdy and dull.";
+			r=", and they are bawdy and dull.";
 			break;
 		case 3:
 			p="Ancient visions fill your mind..";
@@ -3665,21 +2674,21 @@ bool ident_spell_rumor(void)
 			break;
 		case 5:
 			p="The item glows with faint enchantments";
-                        r=", snaps, crackles and pops.";
+			r=", snaps, crackles and pops.";
 			break;
-                default:
+		default:
 			p="Ah... the memories..";
 			r=". things were always worse than you remember them.";
 			break;
 	}
 
-        /* Examine the item */
-        object_flags(o_ptr, &f1, &f2, &f3);
+	/* Examine the item */
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Remove known flags */
-        f1 &= ~(o_ptr->can_flags1);
-        f2 &= ~(o_ptr->can_flags2);
-        f3 &= ~(o_ptr->can_flags3); 
+	f1 &= ~(o_ptr->can_flags1);
+	f2 &= ~(o_ptr->can_flags2);
+	f3 &= ~(o_ptr->can_flags3); 
 
 	/* We know everything? */
 	done = ((f1 | f2 | f3) ? FALSE : TRUE);
@@ -3699,7 +2708,7 @@ bool ident_spell_rumor(void)
 	/* Clear some flags3 */
 	if (f3)	for (i = 0;i<32;i++)
 	{
-                if ((f3 & (1L<<i)) && (rand_int(100)<25)) f3 &= ~(1L<<i);
+		if ((f3 & (1L<<i)) && (rand_int(100)<25)) f3 &= ~(1L<<i);
 	}
 
 	
@@ -3732,23 +2741,23 @@ bool ident_spell_rumor(void)
 		if (item >= INVEN_WIELD)
 		{
 			msg_format("%^s: %s (%c).",
-			           describe_use(item), o_name, index_to_label(item));
+				   describe_use(item), o_name, index_to_label(item));
 		}
 		else if (item >= 0)
 		{
 			msg_format("In your pack: %s (%c).",
-			           o_name, index_to_label(item));
+				   o_name, index_to_label(item));
 		}
 		else
 		{
 			msg_format("On the ground: %s.",
-			           o_name);
+				   o_name);
 		}
 	}
 	else
 	{
 		/* Tell the player the bad news */
-                msg_format("%s%s.",p,r);
+		msg_format("%s%s.",p,r);
 	}
 
 	if (done)
@@ -3759,18 +2768,8 @@ bool ident_spell_rumor(void)
 	}
 	else if (f1 | f2 | f3)
 	{
-		cptr info[128];
-
-		int j,k;
-
 		/* Describe the new stuff learnt */
-                k= identify_fully_desc(info,f1,f2,f3);
-
-		for (j = 0; j < k; j++)
-		{
-			msg_format("%s",info[j]);
-		}
-
+		list_object_flags(f1,f2,f3);
 	}
 
 	/* Something happened */
@@ -3840,17 +2839,17 @@ bool ident_spell_tval(int tval)
 	if (item >= INVEN_WIELD)
 	{
 		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
+			   describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
 		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+			   o_name, index_to_label(item));
 	}
 	else
 	{
 		msg_format("On the ground: %s.",
-		           o_name);
+			   o_name);
 	}
 
 	/* Something happened */
@@ -3919,21 +2918,23 @@ bool identify_fully(void)
 	if (item >= INVEN_WIELD)
 	{
 		msg_format("%^s: %s (%c).",
-		           describe_use(item), o_name, index_to_label(item));
+			   describe_use(item), o_name, index_to_label(item));
 	}
 	else if (item >= 0)
 	{
 		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+			   o_name, index_to_label(item));
 	}
 	else
 	{
 		msg_format("On the ground: %s.",
-		           o_name);
+			   o_name);
 	}
 
-	/* Describe it fully */
-	identify_fully_aux(o_ptr);
+
+	msg_print("");
+
+	screen_object(o_ptr,TRUE);
 
 	/* Success */
 	return (TRUE);
@@ -3942,7 +2943,7 @@ bool identify_fully(void)
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
  */
-static bool item_tester_hook_recharge(object_type *o_ptr)
+static bool item_tester_hook_recharge(const object_type *o_ptr)
 {
 	/* Recharge staffs */
 	if (o_ptr->tval == TV_STAFF) return (TRUE);
@@ -4053,8 +3054,8 @@ bool recharge(int num)
 			}
 		}
 
-                /* Hack -- round up */
-                o_ptr->stackc = 0;
+		/* Hack -- round up */
+		o_ptr->stackc = 0;
 
 	}
 
@@ -4102,8 +3103,8 @@ bool recharge(int num)
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
 
-                        /* Hack -- round up */
-                        o_ptr->stackc = 0;
+			/* Hack -- round up */
+			o_ptr->stackc = 0;
 
 		}
 	}
@@ -4364,16 +3365,16 @@ void destroy_area(int y1, int x1, int r, bool full)
 				{
 					cave_alter_feat(y,x,FS_HURT_FIRE);
 				}
-                        /* Chasm */
+			/* Chasm */
 				else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
 				{
 					/* Nothing */
 				}
-                        /* Rubble */
-                        else if (rand_int(100) < 15)
+			/* Rubble */
+			else if (rand_int(100) < 15)
 				{
 					/* Create magma vein */
-                                        cave_set_feat(y,x,FEAT_RUBBLE);
+					cave_set_feat(y,x,FEAT_RUBBLE);
 				}
 
 			}
@@ -4391,11 +3392,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 				/* Burn stuff */
 				if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
 				{
-                                        feat = feat_state(cave_feat[y][x], FS_HURT_FIRE);
+					feat = feat_state(cave_feat[y][x], FS_HURT_FIRE);
 				}
 
 				/* Granite */
-                                else if (t < 20)
+				else if (t < 20)
 				{
 					/* Create granite wall */
 					feat = FEAT_WALL_EXTRA;
@@ -4415,11 +3416,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 					feat = FEAT_MAGMA;
 				}
 
-                                /* Rubble */
-                                else if (t < 130)
+				/* Rubble */
+				else if (t < 130)
 				{
 					/* Create magma vein */
-                                        feat = FEAT_RUBBLE;
+					feat = FEAT_RUBBLE;
 				}
 
 				/* Change the feature */
@@ -4440,24 +3441,20 @@ void destroy_area(int y1, int x1, int r, bool full)
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
-#ifdef ALLOW_OBJECT_INFO
+
 			/* Always notice */
 			equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
 
 			/* Always notice */
 			equip_not_flags(0x0L,TR2_RES_LITE,0x0L);
-#endif
-
 		}
 		else
 		{
-#ifdef ALLOW_OBJECT_INFO
 			/* Sometimes notice */
 			if ((p_ptr->resist_blind) && (rand_int(100)<30)) equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
 
 			/* Sometimes notice */
 			if ((p_ptr->resist_lite) && (rand_int(100)<30)) equip_can_flags(0x0L,TR2_RES_LITE,0x0L);
-#endif
 		}
 	}
 
@@ -4931,7 +3928,7 @@ static void cave_temp_room_lite(void)
  */
 static void cave_temp_room_unlite(void)
 {
-        int i,ii;
+	int i,ii;
 
 	/* Apply flag changes */
 	for (i = 0; i < temp_n; i++)
@@ -4943,22 +3940,22 @@ static void cave_temp_room_unlite(void)
 		cave_info[y][x] &= ~(CAVE_TEMP);
 
 		/* Darken the grid */
-                if (!(f_info[cave_feat[y][x]].flags2 & (FF2_GLOW)))
+		if (!(f_info[cave_feat[y][x]].flags2 & (FF2_GLOW)))
 		{
 			cave_info[y][x] &= ~(CAVE_GLOW);
 		}
 
 		/* Check to see if not illuminated by innately glowing grids */
-                for (ii = 0; ii < 8; ii++)
+		for (ii = 0; ii < 8; ii++)
 		{
-                        int yy = y + ddy_ddd[ii];
-                        int xx = x + ddx_ddd[ii];
+			int yy = y + ddy_ddd[ii];
+			int xx = x + ddx_ddd[ii];
 
 			/* Ignore annoying locations */
 			if (!in_bounds_fully(yy, xx)) continue;
 
-                        if (f_info[cave_feat[yy][xx]].flags2 & (FF2_GLOW))
-                        {
+			if (f_info[cave_feat[yy][xx]].flags2 & (FF2_GLOW))
+			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_GLOW);
 
@@ -5033,37 +4030,37 @@ void lite_room(int y1, int x1)
 {
 	int i, x, y;
 
-        /* Hack --- Have we seen this room before? */
-        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].flags & (ROOM_SEEN)))
-        {
-                p_ptr->update |= (PU_ROOM_INFO);
-                p_ptr->window |= (PW_ROOM_INFO);
-        }
+	/* Hack --- Have we seen this room before? */
+	if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].flags & (ROOM_SEEN)))
+	{
+		p_ptr->update |= (PU_ROOM_INFO);
+		p_ptr->window |= (PW_ROOM_INFO);
+	}
 
-        /* Some rooms cannot be completely lit */
-        if (cave_info[y1][x1] & (CAVE_ROOM))
-        {
-                /* Special rooms affect some of this */
-                int by = y1/BLOCK_HGT;
-                int bx = x1/BLOCK_HGT;
+	/* Some rooms cannot be completely lit */
+	if (cave_info[y1][x1] & (CAVE_ROOM))
+	{
+		/* Special rooms affect some of this */
+		int by = y1/BLOCK_HGT;
+		int bx = x1/BLOCK_HGT;
 
-                /* Get the room */
-                if(room_info[dun_room[by][bx]].flags & (ROOM_GLOOMY))
-                {
+		/* Get the room */
+		if(room_info[dun_room[by][bx]].flags & (ROOM_GLOOMY))
+		{
 
-                        /* Warn the player */
-                        msg_print("The light fails to penetrate the gloom.");
+			/* Warn the player */
+			msg_print("The light fails to penetrate the gloom.");
 
-                        return;
-                }
-        }                                                            
+			return;
+		}
+	}							    
 
 
 	/* Add the initial grid */
 	cave_temp_room_aux(y1, x1);
 
 	/* While grids are in the queue, add their neighbors */
-        for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
+	for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
@@ -5100,7 +4097,7 @@ void unlite_room(int y1, int x1)
 	cave_temp_room_aux(y1, x1);
 
 	/* Spread, breadth first */
-        for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
+	for (i = 0; ((i < temp_n) && (i<TEMP_MAX)); i++)
 	{
 		x = temp_x[i], y = temp_y[i];
 
@@ -5204,7 +4201,7 @@ bool fire_bolt(int typ, int dir, int dam)
  */
 bool fire_beam(int typ, int dir, int dam)
 {
-        int flg = PROJECT_BEAM | PROJECT_KILL;
+	int flg = PROJECT_BEAM | PROJECT_KILL;
 	return (project_hook(typ, dir, dam, flg));
 }
 
@@ -5259,12 +4256,12 @@ static void wield_spell(int item, int sval, int time)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-        cptr act;
+	cptr act;
 
-        char o_name[80];
+	char o_name[80];
 
 	/* Get the wield slot */
-        object_type *o_ptr = &inventory[item];
+	object_type *o_ptr = &inventory[item];
 
 
 	/* Get local object */
@@ -5272,7 +4269,7 @@ static void wield_spell(int item, int sval, int time)
 
 	/* Create the spell */
 	object_prep(i_ptr, lookup_kind(TV_SPELL, sval));
-        i_ptr->timeout = time;
+	i_ptr->timeout = time;
 	object_aware(i_ptr);
 	object_known(i_ptr);
 
@@ -5292,10 +4289,10 @@ static void wield_spell(int item, int sval, int time)
 		}
 
 		/* Take off existing item */
-                (void)inven_takeoff(item, 255);
+		(void)inven_takeoff(item, 255);
 
-                /* Oops. Cursed... */
-                if (inventory[item].k_idx) return;
+		/* Oops. Cursed... */
+		if (inventory[item].k_idx) return;
 	}
 
 	/* 'Wear' the spell */
@@ -5305,15 +4302,15 @@ static void wield_spell(int item, int sval, int time)
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-        if (item == INVEN_WIELD)
+	if (item == INVEN_WIELD)
 	{
 		act = "You are wielding";
 	}
-        else if (item == INVEN_BOW)
+	else if (item == INVEN_BOW)
 	{
 		act = "You are shooting with";
 	}
-        else if (item == INVEN_LITE)
+	else if (item == INVEN_LITE)
 	{
 		act = "Your light source is";
 	}
@@ -5326,7 +4323,7 @@ static void wield_spell(int item, int sval, int time)
 	object_desc(o_name, o_ptr, TRUE, 3);
 
 	/* Message */
-        msg_format("%s %s (%c).", act, o_name, index_to_label(item));
+	msg_format("%s %s (%c).", act, o_name, index_to_label(item));
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -5367,13 +4364,13 @@ static void enchant_item(byte tval, int plev)
 	cptr q,s;
 	int dirs,kind,i;
 
-        int item;
+	int item;
 
-        /* Get the local item */
-        i_ptr = &object_type_body;
+	/* Get the local item */
+	i_ptr = &object_type_body;
 
-        q = "Enchant which item?";
-        s = "You have no items to enchant.";
+	q = "Enchant which item?";
+	s = "You have no items to enchant.";
 
 	/* Restrict choices */
 	item_tester_tval = tval;
@@ -5394,7 +4391,7 @@ static void enchant_item(byte tval, int plev)
 	}
 
 	/* Start with same kind */
-        i = o_ptr->k_idx;
+	i = o_ptr->k_idx;
 
 	/* Randomly increase or decrease */
 	if (rand_int(100)<50)
@@ -5409,12 +4406,12 @@ static void enchant_item(byte tval, int plev)
 	}
 
 	/* Check for improvement */
-        if (randint(plev) > (k_info[i+dirs].level - k_info[i].level))
+	if (randint(plev) > (k_info[i+dirs].level - k_info[i].level))
 	{
 		/*Success*/
 		kind = i+dirs;
 	}
-        else if (randint(100) < 50)
+	else if (randint(100) < 50)
 	{
 		/* Pick bad failure */
 		while ((k_info[i].cost) && (k_info[i].tval == tval))
@@ -5427,8 +4424,8 @@ static void enchant_item(byte tval, int plev)
 		if (k_info[i].tval != tval)
 		{
 			/* Try other direction */
-                        i = o_ptr->k_idx;
-                        dirs = -dirs;
+			i = o_ptr->k_idx;
+			dirs = -dirs;
 
 			/* Pick bad failure */
 			while ((k_info[i].cost) && (k_info[i].tval == tval))
@@ -5441,46 +4438,46 @@ static void enchant_item(byte tval, int plev)
 		/* No bad items at all */
 		if (k_info[i].tval !=tval)
 		{
-                        i = o_ptr->k_idx;
+			i = o_ptr->k_idx;
 		}
 
-                /* No change */
+		/* No change */
 		kind = i;
 	}
-        else
-        {
+	else
+	{
 
-        /* Pick some junk*/
-                switch (tval)
-                {
-                        case TV_POTION:
-                        {
-                                kind = lookup_kind(TV_HOLD,1);
-                                break;
-                        }
-                /* XXX Really need some junk for each of these */
-                case TV_WAND:
-                case TV_STAFF:
+	/* Pick some junk*/
+		switch (tval)
+		{
+			case TV_POTION:
+			{
+				kind = lookup_kind(TV_HOLD,1);
+				break;
+			}
+		/* XXX Really need some junk for each of these */
+		case TV_WAND:
+		case TV_STAFF:
 		case TV_ROD:
-                        {
-                                kind = lookup_kind(TV_JUNK,6);
-                                break;
-                        }
-                /* XXX Odd junk, but can't be food */
+			{
+				kind = lookup_kind(TV_JUNK,6);
+				break;
+			}
+		/* XXX Odd junk, but can't be food */
 		case TV_FOOD:
-                        {
-                                kind = lookup_kind(TV_JUNK,3);
-                                break;
-                        }
-                /* XXX Pick meaningless junk */
-                default:
-                        {
-                                kind = lookup_kind(TV_JUNK,3);
-                                break;
-                        }
-                }
-        }
-        
+			{
+				kind = lookup_kind(TV_JUNK,3);
+				break;
+			}
+		/* XXX Pick meaningless junk */
+		default:
+			{
+				kind = lookup_kind(TV_JUNK,3);
+				break;
+			}
+		}
+	}
+	
 
 	/* Ta da! */
 	msg_print("There is a blinding flash!");
@@ -5505,10 +4502,10 @@ static void enchant_item(byte tval, int plev)
 	object_prep(i_ptr, kind);
 
 	/* Carry the object */
-        item = inven_carry(i_ptr);
+	item = inven_carry(i_ptr);
 
-        /* Describe the new object */
-        inven_item_describe(item);
+	/* Describe the new object */
+	inven_item_describe(item);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -5526,24 +4523,24 @@ static void create_gold(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-        int base;
+	int base;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
 
-        /* Create the gold */
-        object_prep(i_ptr, lookup_kind(TV_GOLD, 10));
+	/* Create the gold */
+	object_prep(i_ptr, lookup_kind(TV_GOLD, 10));
 
 	/* Hack -- Base coin cost */
-        base = k_info[i_ptr->k_idx].cost;
+	base = k_info[i_ptr->k_idx].cost;
 
 	/* Determine how much the treasure is "worth" */
-        i_ptr->pval = (base + (8L * randint(base)) + randint(8));
+	i_ptr->pval = (base + (8L * randint(base)) + randint(8));
 
-        /* Floor carries the item */
-        drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+	/* Floor carries the item */
+	drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
 
-        /* XXX To do thesis on inflation in Angband economies. */
+	/* XXX To do thesis on inflation in Angband economies. */
 }
 
 
@@ -5572,7 +4569,7 @@ static bool curse_armor(void)
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your armor", o_name);
+			   "terrible black aura", "surround your armor", o_name);
 	}
 
 	/* not artifact or failed save... */
@@ -5636,7 +4633,7 @@ static bool curse_weapon(void)
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
-		           "terrible black aura", "surround your weapon", o_name);
+			   "terrible black aura", "surround your weapon", o_name);
 	}
 
 	/* not artifact or failed save... */
@@ -5700,478 +4697,484 @@ static bool curse_weapon(void)
  */
 bool process_spell_flags(int spell, int level, bool *cancel)
 {
-        spell_type *s_ptr = &s_info[spell];
+	spell_type *s_ptr = &s_info[spell];
 
-        bool obvious = FALSE;
+	bool obvious = FALSE;
 
-        int lasts;
+	int lasts;
 
 	int ench_toh = 0;
 	int ench_tod = 0;
 	int ench_toa = 0;
 
-        /* Roll out the duration */
-        if ((s_ptr->l_dice) && (s_ptr->l_side))
-        {
-                lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
-        }
-        else
-        {
-                lasts = s_ptr->l_plus;
-        }
+	/* Roll out the duration */
+	if ((s_ptr->l_dice) && (s_ptr->l_side))
+	{
+		lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+	}
+	else
+	{
+		lasts = s_ptr->l_plus;
+	}
 
-        /* Process the flags that apply to equipment */
-        if (s_ptr->flags1 & (SF1_IDENT_SENSE)) obvious = TRUE;
-        if (s_ptr->flags1 & (SF1_IDENT_BONUS))
-        {
-                if (!ident_spell_bonus() && (*cancel)) return (TRUE);
-                *cancel = FALSE;
-                obvious = TRUE;
-        }
+	/* Process the flags that apply to equipment */
+	if (s_ptr->flags1 & (SF1_IDENT_SENSE)) obvious = TRUE;
+	if (s_ptr->flags1 & (SF1_IDENT_BONUS))
+	{
+		if (!ident_spell_bonus() && (*cancel)) return (TRUE);
+		*cancel = FALSE;
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_IDENT))
-        {
-                if (!ident_spell() && (*cancel)) return (TRUE);
-                *cancel = FALSE;
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_IDENT))
+	{
+		if (!ident_spell() && (*cancel)) return (TRUE);
+		*cancel = FALSE;
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_IDENT_RUMOR))
-        {
-                if (!ident_spell_rumor() && (*cancel)) return (TRUE);
-                *cancel = FALSE;
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_IDENT_RUMOR))
+	{
+		if (!ident_spell_rumor() && (*cancel)) return (TRUE);
+		*cancel = FALSE;
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_IDENT_FULLY))
-        {
-                if (!identify_fully() && (*cancel)) return (TRUE);
-                *cancel = FALSE;
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_IDENT_FULLY))
+	{
+		if (!identify_fully() && (*cancel)) return (TRUE);
+		*cancel = FALSE;
+		obvious = TRUE;
+	}
 
 	/* Process enchantment */
-        if (s_ptr->flags1 & (SF1_ENCHANT_TOH))
-        {
-                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toh = 3+rand_int(4);
-                else ench_toh = 1;
-        }
-        if (s_ptr->flags1 & (SF1_ENCHANT_TOD))
-        {
-                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_tod = 3+rand_int(4);
-                else ench_tod = 1;
-        }
-        if (s_ptr->flags1 & (SF1_ENCHANT_TOA))
-        {
-                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toa = 3+rand_int(4);
-                else ench_toa = 1;
-        }
+	if (s_ptr->flags1 & (SF1_ENCHANT_TOH))
+	{
+		if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toh = 3+rand_int(4);
+		else ench_toh = 1;
+	}
+	if (s_ptr->flags1 & (SF1_ENCHANT_TOD))
+	{
+		if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_tod = 3+rand_int(4);
+		else ench_tod = 1;
+	}
+	if (s_ptr->flags1 & (SF1_ENCHANT_TOA))
+	{
+		if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toa = 3+rand_int(4);
+		else ench_toa = 1;
+	}
 
 	/* Apply enchantment */
 	if (ench_toh || ench_tod || ench_toa)
 	{
-                if (!(enchant_spell(ench_toh, ench_tod, ench_toa)) && (*cancel))
+		if (!(enchant_spell(ench_toh, ench_tod, ench_toa)) && (*cancel))
 		{
-                        return (TRUE);
+			return (TRUE);
 		}
 		
-                *cancel = FALSE;
+		*cancel = FALSE;
 		obvious = TRUE;
 	}
 
-        /* Process the flags */
-        if ((s_ptr->flags1 & (SF1_DETECT_DOORS)) && (detect_doors())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_TRAPS)) && (detect_traps())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_STAIRS)) && (detect_stairs())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_WATER)) && (detect_water())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_GOLD)) && ((detect_treasure() || detect_objects_gold))) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_OBJECT)) && ((detect_objects_buried() || detect_objects_normal))) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_MAGIC)) && (detect_objects_magic())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_CURSE)) && (detect_objects_cursed())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_MONSTER)) && (detect_monsters_normal())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters_evil())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_INVIS)) && (detect_monsters_invis())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_ANIMAL)) && (detect_monsters_animal())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_UNDEAD)) && (detect_monsters_undead())) obvious = TRUE;
-        if ((s_ptr->flags1 & (SF1_DETECT_DEMON)) && (detect_monsters_demon())) obvious = TRUE;
+	/* Process the flags */
+	if ((s_ptr->flags1 & (SF1_DETECT_DOORS)) && (detect_doors())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_TRAPS)) && (detect_traps())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_STAIRS)) && (detect_stairs())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_WATER)) && (detect_water())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_GOLD)) && ((detect_treasure() || detect_objects_gold))) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_OBJECT)) && ((detect_objects_buried() || detect_objects_normal))) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_MAGIC)) && (detect_objects_magic())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_CURSE)) && (detect_objects_cursed())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_MONSTER)) && (detect_monsters_normal())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters_evil())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_INVIS)) && (detect_monsters_invis())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_ANIMAL)) && (detect_monsters_animal())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_UNDEAD)) && (detect_monsters_undead())) obvious = TRUE;
+	if ((s_ptr->flags1 & (SF1_DETECT_DEMON)) && (detect_monsters_demon())) obvious = TRUE;
 
-        if (s_ptr->flags1 & (SF1_MAP_AREA))
-        {
-                map_area();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_MAP_AREA))
+	{
+		map_area();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_WIZ_LITE))
-        {
-                wiz_lite();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_WIZ_LITE))
+	{
+		wiz_lite();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_LITE_ROOM))
-        {
-                lite_room(p_ptr->py,p_ptr->px);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_LITE_ROOM))
+	{
+		lite_room(p_ptr->py,p_ptr->px);
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_DARK_ROOM))
-        {
-                unlite_room(p_ptr->py,p_ptr->px);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_DARK_ROOM))
+	{
+		unlite_room(p_ptr->py,p_ptr->px);
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_FORGET))
-        {
-                lose_all_info();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_FORGET))
+	{
+		lose_all_info();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_SELF_KNOW))
-        {
-                self_knowledge();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_SELF_KNOW))
+	{
+		self_knowledge();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_IDENT_PACK))
-        {
-                identify_pack();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_IDENT_PACK))
+	{
+		identify_pack();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_ACQUIREMENT))
-        {
-                acquirement(p_ptr->py,p_ptr->px, 1, TRUE);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_ACQUIREMENT))
+	{
+		acquirement(p_ptr->py,p_ptr->px, 1, TRUE);
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags1 & (SF1_STAR_ACQUIREMENT))
-        {
-                acquirement(p_ptr->py,p_ptr->px, rand_int(2)+1, TRUE);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags1 & (SF1_STAR_ACQUIREMENT))
+	{
+		acquirement(p_ptr->py,p_ptr->px, rand_int(2)+1, TRUE);
+		obvious = TRUE;
+	}
 
 
-        /* SF2 - timed abilities and modifying level */
-        if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_INFRA)) && (set_tim_infra(p_ptr->tim_infra + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_HERO)) && (set_hero(p_ptr->hero + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_SHERO)) && (set_shero(p_ptr->shero + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_BLESS)) && (set_blessed(p_ptr->blessed + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_INVULN)) && (set_invuln(p_ptr->invuln + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts + (level== 0 ? 3 * p_ptr->lev : 0)))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (set_oppose_fire(p_ptr->oppose_fire + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (set_oppose_cold(p_ptr->oppose_cold + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (set_oppose_acid(p_ptr->oppose_acid + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (set_oppose_elec(p_ptr->oppose_elec + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (set_oppose_pois(p_ptr->oppose_pois + lasts))) obvious = TRUE;
+	/* SF2 - timed abilities and modifying level */
+	if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_INFRA)) && (set_tim_infra(p_ptr->tim_infra + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_HERO)) && (set_hero(p_ptr->hero + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SHERO)) && (set_shero(p_ptr->shero + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_BLESS)) && (set_blessed(p_ptr->blessed + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_INVULN)) && (set_invuln(p_ptr->invuln + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts + (level== 0 ? 3 * p_ptr->lev : 0)))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (set_oppose_fire(p_ptr->oppose_fire + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (set_oppose_cold(p_ptr->oppose_cold + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (set_oppose_acid(p_ptr->oppose_acid + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (set_oppose_elec(p_ptr->oppose_elec + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (set_oppose_pois(p_ptr->oppose_pois + lasts))) obvious = TRUE;
 
-        if (s_ptr->flags2 & (SF2_AGGRAVATE))
-        {
-                aggravate_monsters(0);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_AGGRAVATE))
+	{
+		aggravate_monsters(0);
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_CREATE_STAIR))
-        {
-                stair_creation();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_CREATE_STAIR))
+	{
+		stair_creation();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_TELE_LEVEL))
-        {
-                (void)teleport_player_level();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_TELE_LEVEL))
+	{
+		(void)teleport_player_level();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_ALTER_LEVEL))
-        {
-                p_ptr->leaving = TRUE;
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_ALTER_LEVEL))
+	{
+		p_ptr->leaving = TRUE;
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_GENOCIDE))
-        {
-                (void)genocide();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_GENOCIDE))
+	{
+		(void)genocide();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_MASS_GENOCIDE))
-        {
-                mass_genocide();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags2 & (SF2_MASS_GENOCIDE))
+	{
+		mass_genocide();
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags2 & (SF2_CUT))
-        {
-                if (!p_ptr->resist_shard)
-                {
-                        if (set_cut(p_ptr->cut + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_CUT))
+	{
+		if (!p_ptr->resist_shard)
+		{
+			if (set_cut(p_ptr->cut + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
-                        }
-                }
-                else
-                {
-                        /* Always notice */
-                        equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+			}
+		}
+		else
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_STUN))
-        {
-                if (!p_ptr->resist_sound)
-                {
-                        if (set_stun(p_ptr->stun + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_STUN))
+	{
+		if (!p_ptr->resist_sound)
+		{
+			if (set_stun(p_ptr->stun + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
-                        }
-                }
-                else
-                {
-                        /* Always notice */
-                        equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+			}
+		}
+		else
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_POISON))
-        {
-                if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-                {
-                        if (set_poisoned(p_ptr->poisoned + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_POISON))
+	{
+		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+		{
+			if (set_poisoned(p_ptr->poisoned + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
-                        }
-                }
-                else
-                {
-                        /* Always notice */
-                        equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+			}
+		}
+		else
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_BLIND))
-        {
-                if (!p_ptr->resist_blind)
-                {
-                        if (set_blind(p_ptr->blind + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_BLIND))
+	{
+		if (!p_ptr->resist_blind)
+		{
+			if (set_blind(p_ptr->blind + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
-                        }
-                }
-                else
-                {
-                        /* Always notice */
-                        equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+			}
+		}
+		else
+		{
+			/* Always notice */
+			equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_FEAR))
-        {
-                if ((!p_ptr->resist_fear)&&(!p_ptr->hero)&&(!p_ptr->shero))
-                {
-                        if (set_afraid(p_ptr->afraid + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_FEAR))
+	{
+		if ((!p_ptr->resist_fear)&&(!p_ptr->hero)&&(!p_ptr->shero))
+		{
+			if (set_afraid(p_ptr->afraid + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
-                        }
-                }
-                else
-                {
-                        /* Always notice */
-                        if (p_ptr->resist_fear) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+			}
+		}
+		else
+		{
+			/* Always notice */
+			if (p_ptr->resist_fear) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_CONFUSE))
-        {
-                if (!p_ptr->resist_confu)
-                {
-                        if (set_confused(p_ptr->confused + lasts))
-                        {
-                                obvious = TRUE;
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
-                        }
-                }
-                else
-                {
-                                /* Always notice */
-                                equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
-                }
-        }
+	if (s_ptr->flags2 & (SF2_CONFUSE))
+	{
+		if (!p_ptr->resist_confu)
+		{
+			if (set_confused(p_ptr->confused + lasts))
+			{
+				obvious = TRUE;
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+			}
+		}
+		else
+		{
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_HALLUC))
-        {
-                if (!p_ptr->resist_chaos)
-                {
-                        if (set_image(p_ptr->image + lasts))
-                        {
-                                obvious = TRUE;
+	if (s_ptr->flags2 & (SF2_HALLUC))
+	{
+		if (!p_ptr->resist_chaos)
+		{
+			if (set_image(p_ptr->image + lasts))
+			{
+				obvious = TRUE;
 
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
-                        }
-                }
-                else
-                {
-                                /* Always notice */
-                                equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
-                }
-        }
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
+			}
+		}
+		else
+		{
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_PARALYZE))
-        {
+	if (s_ptr->flags2 & (SF2_PARALYZE))
+	{
 
-                if (!p_ptr->free_act)
-                {
-                        if (set_paralyzed(p_ptr->paralyzed + lasts))
-                        {
-                                obvious = TRUE;
-                                /* Always notice */
-                                equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
-                        }
-                }
-                else
-                {
-                                /* Always notice */
-                                equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
-                }
-        }
+		if (!p_ptr->free_act)
+		{
+			if (set_paralyzed(p_ptr->paralyzed + lasts))
+			{
+				obvious = TRUE;
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+			}
+		}
+		else
+		{
+				/* Always notice */
+				equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+		}
+	}
 
-        if (s_ptr->flags2 & (SF2_HASTE))
+	if (s_ptr->flags2 & (SF2_HASTE))
 	{
 		if ((p_ptr->fast) && (set_fast(p_ptr->fast + rand_int(s_ptr->l_side/3)))) obvious = TRUE;
-        	else if (set_fast(p_ptr->fast + lasts + level)) obvious = TRUE;
+		else if (set_fast(p_ptr->fast + lasts + level)) obvious = TRUE;
+	}
+
+	if (s_ptr->flags2 & (SF2_RECALL))
+	{
+		set_recall();
+		obvious = TRUE;
 	}
 
 
 
 /* SF3 - healing self, and untimed improvements */
 
-        if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_INC_DEX)) && (do_inc_stat(A_DEX))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_STR)) && (do_res_stat(A_STR))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_INT)) && (do_res_stat(A_INT))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_WIS)) && (do_res_stat(A_WIS))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_DEX))  && (do_res_stat(A_DEX))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (remove_curse())) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_SLOW_POIS)) && (set_poisoned(p_ptr->poisoned / 2))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (set_poisoned(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_SLOW_CUTS)) && (set_cut(p_ptr->cut / 2))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (set_cut(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_STUN)) && (set_stun(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_CONF)) && (set_confused(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_FOOD)) && (set_food(PY_FOOD_MAX -1))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_afraid(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (set_blind(0))) obvious = TRUE;
-        if ((s_ptr->flags3 & (SF3_CURE_IMAGE)) && (set_image(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_DEX)) && (do_inc_stat(A_DEX))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_STR)) && (do_res_stat(A_STR))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_INT)) && (do_res_stat(A_INT))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_WIS)) && (do_res_stat(A_WIS))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_DEX))  && (do_res_stat(A_DEX))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (remove_curse())) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_SLOW_POIS)) && (set_poisoned(p_ptr->poisoned / 2))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (set_poisoned(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_SLOW_CUTS)) && (set_cut(p_ptr->cut / 2))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (set_cut(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_STUN)) && (set_stun(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CONF)) && (set_confused(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_FOOD)) && (set_food(PY_FOOD_MAX -1))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_afraid(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (set_blind(0))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_IMAGE)) && (set_image(0))) obvious = TRUE;
 
 
-        if (s_ptr->flags3 & (SF3_DEC_EXP))
-        {
-                if (!p_ptr->hold_life && !p_ptr->blessed && (p_ptr->exp > 0))
-                {
-                        lose_exp(p_ptr->exp / 4);
-                        obvious = TRUE;
-                }
-                else
-                {
-                        /* Always notice */
-                        if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
-                }
-        }
+	if (s_ptr->flags3 & (SF3_DEC_EXP))
+	{
+		if (!p_ptr->hold_life && !p_ptr->blessed && (p_ptr->exp > 0))
+		{
+			lose_exp(p_ptr->exp / 4);
+			obvious = TRUE;
+		}
+		else
+		{
+			/* Always notice */
+			if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+		}
+	}
 
 	
 
-        if (s_ptr->flags3 & (SF3_DEC_FOOD))
+	if (s_ptr->flags3 & (SF3_DEC_FOOD))
 	{
 		(void)set_food(PY_FOOD_STARVE - 1);
 		obvious = TRUE;
 	}
 
-        if (s_ptr->flags3 & (SF3_INC_EXP))
-        {
-                s32b ee = (p_ptr->exp / 2) + 10;
-                if (ee > 100000L) ee = 100000L;
-                gain_exp(ee);
-                obvious = TRUE;
-        }
+	if (s_ptr->flags3 & (SF3_INC_EXP))
+	{
+		s32b ee = (p_ptr->exp / 2) + 10;
+		if (ee > 100000L) ee = 100000L;
+		gain_exp(ee);
+		obvious = TRUE;
+	}
 
-        if (s_ptr->flags3 & (SF3_SLOW_MANA))
-        {
-                if (p_ptr->csp < p_ptr->msp)
-                {
-                        p_ptr->csp = p_ptr->csp + damroll(2,5);
-                        if (p_ptr->csp >= p_ptr->msp)
-                        {
-                                p_ptr->csp = p_ptr->msp;
-                                p_ptr->csp_frac = 0;
-                        }
-                        p_ptr->redraw |= (PR_MANA);
-                        p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-        
-                        obvious = TRUE;
-                }
-        }
+	if (s_ptr->flags3 & (SF3_SLOW_MANA))
+	{
+		if (p_ptr->csp < p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->csp + damroll(2,5);
+			if (p_ptr->csp >= p_ptr->msp)
+			{
+				p_ptr->csp = p_ptr->msp;
+				p_ptr->csp_frac = 0;
+			}
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+	
+			obvious = TRUE;
+		}
+	}
 
-        if (s_ptr->flags3 & (SF3_CURE_MANA))
-        {
+	if (s_ptr->flags3 & (SF3_CURE_MANA))
+	{
 
-                if (p_ptr->csp < p_ptr->msp)
-                {
-                        p_ptr->csp = p_ptr->msp;
-                        p_ptr->csp_frac = 0;
-                        p_ptr->redraw |= (PR_MANA);
-                        p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-                        obvious = TRUE;
-                }
-        }
+		if (p_ptr->csp < p_ptr->msp)
+		{
+			p_ptr->csp = p_ptr->msp;
+			p_ptr->csp_frac = 0;
+			p_ptr->redraw |= (PR_MANA);
+			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+			obvious = TRUE;
+		}
+	}
 
-        if (s_ptr->flags3 & (SF3_CURE_CURSE))
-        {
-                remove_all_curse();
-                obvious = TRUE;
-        }
+	if (s_ptr->flags3 & (SF3_CURE_CURSE))
+	{
+		remove_all_curse();
+		obvious = TRUE;
+	}
 
 
-        /* Hack -- we should really only set this here */
-        *cancel = FALSE;
+	/* Hack -- we should really only set this here */
+	*cancel = FALSE;
 
-        return (obvious);
+	return (obvious);
 
 }
 
 bool process_spell_blows(int spell, int level, bool *cancel)
 {
 
-        spell_type *s_ptr = &s_info[spell];
+	spell_type *s_ptr = &s_info[spell];
 
-        bool obvious = FALSE;
-        int ap_cnt;
-        int dir;
+	bool obvious = FALSE;
+	int ap_cnt;
+	int dir;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -6179,353 +5182,353 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 		int damage = 0;
 
 		/* Extract the attack infomation */
-                int effect = s_ptr->blow[ap_cnt].effect;
-                int method = s_ptr->blow[ap_cnt].method;
-                int d_dice = s_ptr->blow[ap_cnt].d_dice;
-                int d_side = s_ptr->blow[ap_cnt].d_side;
-                int d_plus = s_ptr->blow[ap_cnt].d_plus;
+		int effect = s_ptr->blow[ap_cnt].effect;
+		int method = s_ptr->blow[ap_cnt].method;
+		int d_dice = s_ptr->blow[ap_cnt].d_dice;
+		int d_side = s_ptr->blow[ap_cnt].d_side;
+		int d_plus = s_ptr->blow[ap_cnt].d_plus;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
 
-                /* Mega hack -- dispel evil/undead objects */
-                if ((!d_side) && (!level))
-                {
-                        d_plus += 25 * d_dice;
-                }
-                /* Hack -- use level as modifier */
-                else if (!d_side)
-                {
-                        d_plus += level * d_dice;
-                }
+		/* Mega hack -- dispel evil/undead objects */
+		if ((!d_side) && (!level))
+		{
+			d_plus += 25 * d_dice;
+		}
+		/* Hack -- use level as modifier */
+		else if (!d_side)
+		{
+			d_plus += level * d_dice;
+		}
 
-                /* Roll out the damage */
-                if ((d_dice) && (d_side))
-                {
-                        damage = damroll(d_dice, d_side) + d_plus;
-                }
-                else
-                {
-                        damage = d_plus;
-                }
+		/* Roll out the damage */
+		if ((d_dice) && (d_side))
+		{
+			damage = damroll(d_dice, d_side) + d_plus;
+		}
+		else
+		{
+			damage = d_plus;
+		}
 
-                /* Apply spell method */
-                switch (method)
-                {
-                        case RBM_SHOOT:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+		/* Apply spell method */
+		switch (method)
+		{
+			case RBM_SHOOT:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
-                                if (fire_bolt(effect, dir, damage)) obvious = TRUE;
-                                break;
-                        }
+				if (fire_bolt(effect, dir, damage)) obvious = TRUE;
+				break;
+			}
 
-                        /* Affect self directly */
-                        case RBM_SELF:
-                        {
-                                int py = p_ptr->py;
-                                int px = p_ptr->px;
+			/* Affect self directly */
+			case RBM_SELF:
+			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
 
-                                if (project_p(0, 0, py, px, damage, effect)) obvious = TRUE;
-                                break;
-                        }
+				if (project_p(0, 0, py, px, damage, effect)) obvious = TRUE;
+				break;
+			}
 
-                        /* Radius 1, centred on self */
-                        case RBM_ADJACENT:
-                        {
-                                int py = p_ptr->py;
-                                int px = p_ptr->px;
-                        
-                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-                                if (project(-1, 1, py, px, damage, effect, flg)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_HANDS:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
-					  
-
-                                /* Hack - scale damage */
-                                if ((level > 5) && (d_side)) damage+= damroll((level-1)/5, d_side);
-
-                                if (fire_hands(effect, dir, damage)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_MISSILE:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+			/* Radius 1, centred on self */
+			case RBM_ADJACENT:
+			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
+			
+				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL;
+				if (project(-1, 1, py, px, damage, effect, flg)) obvious = TRUE;
+				break;
+			}
+			case RBM_HANDS:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
-                                /* Hack - scale damage */
-                                if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
+				/* Hack - scale damage */
+				if ((level > 5) && (d_side)) damage+= damroll((level-1)/5, d_side);
 
-                                if (fire_bolt(effect, dir, damage)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_BOLT_10:
-                        {
+				if (fire_hands(effect, dir, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_MISSILE:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+					  
+
+				/* Hack - scale damage */
+				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
+
+				if (fire_bolt(effect, dir, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_BOLT_10:
+			{
 					int beam;
 
-				if (c_info[p_ptr->pclass].sp_pow) beam = level;
+				if (c_info[p_ptr->pclass].spell_power) beam = level;
 				else beam = level/2;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 						
 
-                                /* Hack - scale damage */
-                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-                                
-                                if (fire_bolt_or_beam(beam - 10, effect, dir, damage)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_BOLT:
-                        {
+				/* Hack - scale damage */
+				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+				
+				if (fire_bolt_or_beam(beam - 10, effect, dir, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_BOLT:
+			{
 				int beam;
 
-				if (c_info[p_ptr->pclass].sp_pow) beam = level;
+				if (c_info[p_ptr->pclass].spell_power) beam = level;
 				else beam = level/2;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
-                                /* Hack - scale damage */
-                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
-                                
-                                if (fire_bolt_or_beam(beam, effect, dir, damage)) obvious = TRUE;
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Hack - scale damage */
+				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+				
+				if (fire_bolt_or_beam(beam, effect, dir, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_BEAM:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_BEAM:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 						
 
-                                /* Hack - scale damage */
-                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+				/* Hack - scale damage */
+				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 
-                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
+				if (fire_beam(effect, dir, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_BLAST:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_BLAST:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 						
 
-                                /* Hack - scale damage */
-                                damage += level;
+				/* Hack - scale damage */
+				damage += level;
 
-                                if (fire_blast(effect, dir, damage)) obvious = TRUE;
+				if (fire_blast(effect, dir, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_WALL:
-                        {
-					int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+				break;
+			}
+			case RBM_WALL:
+			{
+				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 						
 
-                                /* Hack - scale damage */
-                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+				/* Hack - scale damage */
+				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 
 					if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_BALL:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_BALL:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
-                                if (fire_ball(effect, dir, damage, 2)) obvious = TRUE;
+				if (fire_ball(effect, dir, damage, 2)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_CLOUD:
-                        {
-                                int rad = 2;
+				break;
+			}
+			case RBM_CLOUD:
+			{
+				int rad = 2;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
-                                /* Hack - scale damage */
-                                damage += level / 2;
-                                
-                                if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
+				/* Hack - scale damage */
+				damage += level / 2;
+				
+				if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_STORM:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_STORM:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
-                                if (fire_ball(effect, dir, damage, 3)) obvious = TRUE;
+				if (fire_ball(effect, dir, damage, 3)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_BREATH:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_BREATH:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
-                                if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
+				if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_AREA:
-                        {
-                                int py = p_ptr->py;
-                                int px = p_ptr->px;
-                        
-                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-                                if (project(-1, (level / 10)+1, py, px, damage, effect, flg)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_LOS:
-                        {
-                                if (project_hack(effect, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_AREA:
+			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
+			
+				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL;
+				if (project(-1, (level / 10)+1, py, px, damage, effect, flg)) obvious = TRUE;
+				break;
+			}
+			case RBM_LOS:
+			{
+				if (project_hack(effect, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_LINE:
-                        {
+				break;
+			}
+			case RBM_LINE:
+			{
 
-					int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
+				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
 					if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_AIM:
-                        {
-                                int flg = PROJECT_STOP | PROJECT_KILL;
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_AIM:
+			{
+				int flg = PROJECT_STOP | PROJECT_KILL;
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
 
-                                if (project_hook(effect, dir, level, flg)) obvious = TRUE;
+				if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_ORB:
-                        {
+				break;
+			}
+			case RBM_ORB:
+			{
 				int rad = (level < 30 ? 2 : 3);
 
-				if (c_info[p_ptr->pclass].sp_pow) damage += level + level/2;
+				if (c_info[p_ptr->pclass].spell_power) damage += level + level/2;
 				else damage += level + level/4;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 
 					  
 
-                                if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
+				if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_CROSS:
-                        {
-                                int k;
+				break;
+			}
+			case RBM_CROSS:
+			{
+				int k;
 
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 					  
 
-                                
-                                for (k = 0; k < 4; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
+				
+				for (k = 0; k < 4; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_STAR:
-                        {
-                                int k;
+				break;
+			}
+			case RBM_STAR:
+			{
+				int k;
 
-					                                
-                                for (k = 0; k < 8; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
+									
+				for (k = 0; k < 8; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_AURA:
-                        /* Radius 2, centred on self */
-                        {
-                                int py = p_ptr->py;
-                                int px = p_ptr->px;
-                        
-                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-                                if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
-                                break;
-                        }
-                        case RBM_SPHERE:
-                        /* Variable radius */
-                        {
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			case RBM_AURA:
+			/* Radius 2, centred on self */
+			{
+				int py = p_ptr->py;
+				int px = p_ptr->px;
+			
+				int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE | PROJECT_KILL;
+				if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
+				break;
+			}
+			case RBM_SPHERE:
+			/* Variable radius */
+			{
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 
-                                if (fire_ball(effect, dir, damage, (level/10)+1)) obvious = TRUE;
+				if (fire_ball(effect, dir, damage, (level/10)+1)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_PANEL:
-                        {
-                                if (project_hack(effect, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_PANEL:
+			{
+				if (project_hack(effect, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                        case RBM_LEVEL:
-                        {
-                                if (project_hack(effect, damage)) obvious = TRUE;
+				break;
+			}
+			case RBM_LEVEL:
+			{
+				if (project_hack(effect, damage)) obvious = TRUE;
 
-                                break;
-                        }
+				break;
+			}
 
-                        case RBM_STRIKE:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+			case RBM_STRIKE:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
 
-                                /* Hack - scale damage */
-                                if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
+				/* Hack - scale damage */
+				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
-                                if (fire_ball(effect, dir, damage, 0)) obvious = TRUE;
+				if (fire_ball(effect, dir, damage, 0)) obvious = TRUE;
 
-                                break;
-                        }
-                        default:
-                        {
-                                /* Allow direction to be cancelled for free */
-                                if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
+				break;
+			}
+			default:
+			{
+				/* Allow direction to be cancelled for free */
+				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
 
-                                if (fire_hands(effect, dir, damage)) obvious = TRUE;
+				if (fire_hands(effect, dir, damage)) obvious = TRUE;
 
-                                break;
-                        }
-                }
+				break;
+			}
+		}
 
 		    /* Hack -- haven't cancelled */
 		    *cancel = FALSE;
-        }
+	}
 
-        /* Return result */
-        return (obvious);
+	/* Return result */
+	return (obvious);
 
 }
 
@@ -6534,132 +5537,132 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 bool process_spell_types(int spell, int level, bool *cancel)
 {
 
-        spell_type *s_ptr = &s_info[spell];
+	spell_type *s_ptr = &s_info[spell];
 
-        bool obvious = FALSE;
+	bool obvious = FALSE;
 
-        int lasts;
+	int lasts;
 
-        int dir;
+	int dir;
 
-        /* Roll out the duration */
-        if ((s_ptr->l_dice) && (s_ptr->l_side))
-        {
-                lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
-        }
-        else
-        {
-                lasts = s_ptr->l_plus;
-        }
+	/* Roll out the duration */
+	if ((s_ptr->l_dice) && (s_ptr->l_side))
+	{
+		lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+	}
+	else
+	{
+		lasts = s_ptr->l_plus;
+	}
 
-        /* Has another effect? */
-        if (s_ptr->type)
-        {
-                /* Process the effects */
-                switch(s_ptr->type)
-                {
-                        case SPELL_RECHARGE:
-                        {
-                                if ((!recharge(s_ptr->param)) && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_IDENT_TVAL:
-                        {
-                                if ((!ident_spell_tval(s_ptr->param)) && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_ENCHANT_TVAL:
-                        {
-                                enchant_item(s_ptr->param,level);
-                                break;
-                        }
-                        case SPELL_BRAND_WEAPON:
-                        {
-                                /* Only brand weapons */
-                                item_tester_hook = item_tester_hook_weapon_strict;
+	/* Has another effect? */
+	if (s_ptr->type)
+	{
+		/* Process the effects */
+		switch(s_ptr->type)
+		{
+			case SPELL_RECHARGE:
+			{
+				if ((!recharge(s_ptr->param)) && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_IDENT_TVAL:
+			{
+				if ((!ident_spell_tval(s_ptr->param)) && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_ENCHANT_TVAL:
+			{
+				enchant_item(s_ptr->param,level);
+				break;
+			}
+			case SPELL_BRAND_WEAPON:
+			{
+				/* Only brand weapons */
+				item_tester_hook = item_tester_hook_weapon_strict;
 
-                                if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_BRAND_ARMOR:
-                        {
-                                /* Only brand weapons */
-                                item_tester_hook = item_tester_hook_armour;
+				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_BRAND_ARMOR:
+			{
+				/* Only brand weapons */
+				item_tester_hook = item_tester_hook_armour;
 
-                                if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_BRAND_ITEM:
-                        {
-                                if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_BRAND_BOLTS:
-                        {
-                                /* Only brand bolts */
-                                item_tester_hook = item_tester_hook_bolts;
+				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_BRAND_ITEM:
+			{
+				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_BRAND_AMMO:
+			{
+				/* Only brand ammo */
+				item_tester_hook = item_tester_hook_ammo;
 
-                                if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
-                                break;
-                        }
-                        case SPELL_WARD_GLYPH:
-                        {
-                                warding_glyph();
-                                break;
-                        }
-                        case SPELL_WARD_TRAP:
-                        {
-                                if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
-                                else warding_trap(s_ptr->param,dir);
-                                break;
-                        }
-                        case SPELL_SUMMON:
-                        {
-                                if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param)) obvious = TRUE;
-                                break;
-                        }
-                        case SPELL_SUMMON_RACE:
-                        {
-                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE)) obvious = TRUE;
-                                break;
-                        }
-                        case SPELL_CREATE_RACE:
-                        {
-                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, TRUE)) obvious = TRUE;
-                                break;
-                        }
-                        case SPELL_CREATE_KIND:
-                        {
-                                create_gold();
-                                break;
-                        }
-                        case SPELL_EARTHQUAKE:
-                        {
-                                earthquake(p_ptr->py,p_ptr->px, s_ptr->param);
-                                break;
-                        }
-                        case SPELL_DESTRUCTION:
-                        {
-                                destroy_area(p_ptr->py,p_ptr->px, s_ptr->param, TRUE);
-                                break;
-                        }
-                        default:
-                        {
-                                wield_spell(s_ptr->type,s_ptr->param,lasts);
-                                break;
-                        }
-        
-                }
+				if (!brand_item(s_ptr->param, "glows brightly.") && (*cancel)) return (TRUE);
+				break;
+			}
+			case SPELL_WARD_GLYPH:
+			{
+				warding_glyph();
+				break;
+			}
+			case SPELL_WARD_TRAP:
+			{
+				if ((!get_rep_dir(&dir)) && (*cancel)) return (FALSE);
+				else warding_trap(s_ptr->param,dir);
+				break;
+			}
+			case SPELL_SUMMON:
+			{
+				if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param)) obvious = TRUE;
+				break;
+			}
+			case SPELL_SUMMON_RACE:
+			{
+				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE)) obvious = TRUE;
+				break;
+			}
+			case SPELL_CREATE_RACE:
+			{
+				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, TRUE)) obvious = TRUE;
+				break;
+			}
+			case SPELL_CREATE_KIND:
+			{
+				create_gold();
+				break;
+			}
+			case SPELL_EARTHQUAKE:
+			{
+				earthquake(p_ptr->py,p_ptr->px, s_ptr->param);
+				break;
+			}
+			case SPELL_DESTRUCTION:
+			{
+				destroy_area(p_ptr->py,p_ptr->px, s_ptr->param, TRUE);
+				break;
+			}
+			default:
+			{
+				wield_spell(s_ptr->type,s_ptr->param,lasts);
+				break;
+			}
+	
+		}
 
-                /* Haven't canceled */
-                cancel = FALSE;
+		/* Haven't canceled */
+		cancel = FALSE;
 
-                /* These effects are obvious */
-                obvious = TRUE;
-        }
+		/* These effects are obvious */
+		obvious = TRUE;
+	}
 
-        /* Return result */
-        return (obvious);
+	/* Return result */
+	return (obvious);
 }
 
 /*
@@ -6667,85 +5670,85 @@ bool process_spell_types(int spell, int level, bool *cancel)
  */
 bool process_spell_eaten(int spell, int level, bool *cancel)
 {
-        spell_type *s_ptr = &s_info[spell];
+	spell_type *s_ptr = &s_info[spell];
 
-        bool obvious = FALSE;
+	bool obvious = FALSE;
 
-        int ap_cnt;
+	int ap_cnt;
 
 	/* Inform the player */
-        if (strlen(s_text + s_info[spell].text))
-        {
-                msg_format("%s",s_text + s_info[spell].text);
-                obvious = TRUE;
-        }
+	if (strlen(s_text + s_info[spell].text))
+	{
+		msg_format("%s",s_text + s_info[spell].text);
+		obvious = TRUE;
+	}
 
-        /* Apply flags */
-        if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
+	/* Apply flags */
+	if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
 	{
 		int damage = 0;
 
-                int dir;
+		int dir;
 
 		/* Extract the attack infomation */
-                int effect = s_ptr->blow[ap_cnt].effect;
-                int method = s_ptr->blow[ap_cnt].method;
-                int d_dice = s_ptr->blow[ap_cnt].d_dice;
-                int d_side = s_ptr->blow[ap_cnt].d_side;
-                int d_plus = s_ptr->blow[ap_cnt].d_plus;
+		int effect = s_ptr->blow[ap_cnt].effect;
+		int method = s_ptr->blow[ap_cnt].method;
+		int d_dice = s_ptr->blow[ap_cnt].d_dice;
+		int d_side = s_ptr->blow[ap_cnt].d_side;
+		int d_plus = s_ptr->blow[ap_cnt].d_plus;
 
 		/* Hack -- no more attacks */
 		if (!method) break;
 
-                /* Mega hack -- dispel evil/undead objects */
-                if ((!d_side) && (!level))
-                {
-                        d_plus += 25 * d_dice;
-                }
-                /* Hack -- use level as modifier */
-                else if (!d_side)
-                {
-                        d_plus += level * d_dice;
-                }
+		/* Mega hack -- dispel evil/undead objects */
+		if ((!d_side) && (!level))
+		{
+			d_plus += 25 * d_dice;
+		}
+		/* Hack -- use level as modifier */
+		else if (!d_side)
+		{
+			d_plus += level * d_dice;
+		}
 
-                /* Roll out the damage */
-                if ((d_dice) && (d_side))
-                {
-                        damage = damroll(d_dice, d_side) + d_plus;
-                }
-                else
-                {
-                        damage = d_plus;
-                }
+		/* Roll out the damage */
+		if ((d_dice) && (d_side))
+		{
+			damage = damroll(d_dice, d_side) + d_plus;
+		}
+		else
+		{
+			damage = d_plus;
+		}
 
-                /* Hack -- breath weapons act like a normal spell */
-                if ((method == RBM_BREATH) && (get_aim_dir(&dir)))
-                {
-                        if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
-                }
-                /* Hack -- spitting acts like a normal spell */
-                else if ((method == RBM_SPIT) && (get_rep_dir(&dir)))
-                {
-                        if (fire_hands(effect, dir, damage)) obvious = TRUE;
-                }
-                /* Hack -- vomit in a random direction */
-                else if (method == RBM_VOMIT)
-                {
+		/* Hack -- breath weapons act like a normal spell */
+		if ((method == RBM_BREATH) && (get_aim_dir(&dir)))
+		{
+			if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
+		}
+		/* Hack -- spitting acts like a normal spell */
+		else if ((method == RBM_SPIT) && (get_rep_dir(&dir)))
+		{
+			if (fire_hands(effect, dir, damage)) obvious = TRUE;
+		}
+		/* Hack -- vomit in a random direction */
+		else if (method == RBM_VOMIT)
+		{
 			/* Random direction */
 			dir = ddd[rand_int(8)];
 
-                        if (fire_hands(effect, dir, damage)) obvious = TRUE;
-                }
-                else
-                {
-                        if (project_p(0,0,p_ptr->py,p_ptr->px,damage, effect)) obvious = TRUE;
-                }
-        }
+			if (fire_hands(effect, dir, damage)) obvious = TRUE;
+		}
+		else
+		{
+			if (project_p(0,0,p_ptr->py,p_ptr->px,damage, effect)) obvious = TRUE;
+		}
+	}
 
-        return (obvious);
+	return (obvious);
 
 }
 
@@ -6754,20 +5757,20 @@ bool process_spell_eaten(int spell, int level, bool *cancel)
 
 bool process_spell(int spell, int level, bool *cancel)
 {
-        bool obvious = FALSE;
+	bool obvious = FALSE;
 
 	/* Inform the player */
-        if (strlen(s_text + s_info[spell].text))
-        {
-                msg_format("%s",s_text + s_info[spell].text);
-                obvious = TRUE;
-        }
+	if (strlen(s_text + s_info[spell].text))
+	{
+		msg_format("%s",s_text + s_info[spell].text);
+		obvious = TRUE;
+	}
 
-        if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
-        if (process_spell_blows(spell,level,cancel)) obvious = TRUE;
-        if (process_spell_types(spell,level,cancel)) obvious = TRUE;
+	if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
+	if (process_spell_blows(spell,level,cancel)) obvious = TRUE;
+	if (process_spell_types(spell,level,cancel)) obvious = TRUE;
 
-        /* Return result */
-        return (obvious);
+	/* Return result */
+	return (obvious);
 }
 

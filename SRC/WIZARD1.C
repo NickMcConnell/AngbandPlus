@@ -6,12 +6,6 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
- *
- * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
- * source code are released under the Gnu Public License. See www.fsf.org
- * for current GPL license details. Addition permission granted to
- * incorporate modifications in all Angband variants as defined in the
- * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -26,7 +20,6 @@
 static FILE *fff = NULL;
 
 
-
 /*
  * Extract a textual representation of an attribute
  */
@@ -34,7 +27,7 @@ static cptr attr_to_text(byte a)
 {
 	switch (a)
 	{
-		case TERM_DARK:    return ("xxx");
+		case TERM_DARK:    return ("Dark");
 		case TERM_WHITE:   return ("White");
 		case TERM_SLATE:   return ("Slate");
 		case TERM_ORANGE:  return ("Orange");
@@ -77,7 +70,7 @@ typedef struct
 /*
  * The basic items categorized by type
  */
-static grouper group_item[] =
+static const grouper group_item[] =
 {
 	{ TV_SHOT,		"Ammo" },
 	{ TV_ARROW,		  NULL },
@@ -114,6 +107,8 @@ static grouper group_item[] =
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_SONG_BOOK,	"Books (Bard)" },
+        { TV_RUNESTONE,        "Books (Shaman)" },
 
 	{ TV_SPIKE,		"Various" },
 	{ TV_LITE,		  NULL },
@@ -245,6 +240,7 @@ static void spoil_obj_desc(cptr fname)
 	char wgt[80];
 	char dam[80];
 
+	cptr format = "%-51s  %7s%6s%4s%9s\n";
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
@@ -264,13 +260,11 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
+	fprintf(fff, "Spoiler File -- Basic Items (%s)\n\n\n", VERSION_STRING);
 
 	/* More Header */
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
-	        "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
-	        "----------------------------------------",
+	fprintf(fff, format, "Description", "Dam/AC", "Wgt", "Lev", "Cost");
+	fprintf(fff, format, "----------------------------------------",
 	        "------", "---", "---", "----");
 
 	/* List the groups */
@@ -315,7 +309,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+				fprintf(fff, "  %-51s%7s%6s%4d%9ld\n",
 				        buf, dam, wgt, e, (long)(v));
 			}
 
@@ -383,15 +377,11 @@ static void spoil_obj_desc(cptr fname)
  */
 #define MAX_LINE_LEN 75
 
-/*
- * Given an array, determine how many elements are in the array
- */
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
 
 /*
  * The artifacts categorized by type
  */
-static grouper group_artifact[] =
+static const grouper group_artifact[] =
 {
 	{ TV_SWORD,		"Edged Weapons" },
 	{ TV_POLEARM,	"Polearms" },
@@ -422,8 +412,6 @@ static grouper group_artifact[] =
 /*
  * Pair together a constant flag with a textual description.
  *
- * Used by both "init.c" and "wiz-spo.c".
- *
  * Note that it sometimes more efficient to actually make an array
  * of textual names, where entry 'N' is assumed to be paired with
  * the flag whose value is "1L << N", but that requires hard-coding.
@@ -446,7 +434,7 @@ struct flag_desc
  * listing each stat individually.
  */
 
-static flag_desc stat_flags_desc[] =
+static const flag_desc stat_flags_desc[] =
 {
 	{ TR1_STR,        "STR" },
 	{ TR1_INT,        "INT" },
@@ -461,7 +449,7 @@ static flag_desc stat_flags_desc[] =
  * which may be affected by an object's pval
  */
 
-static flag_desc pval_flags1_desc[] =
+static const flag_desc pval_flags1_desc[] =
 {
 	{ TR1_STEALTH,    "Stealth" },
 	{ TR1_SEARCH,     "Searching" },
@@ -477,9 +465,9 @@ static flag_desc pval_flags1_desc[] =
  * Slaying preferences for weapons
  */
 
-static flag_desc slay_flags_desc[] =
+static const flag_desc slay_flags_desc[] =
 {
-	{ TR1_SLAY_NATURAL,        "Natural" },
+        { TR1_SLAY_NATURAL,        "Natural" },
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
 	{ TR1_SLAY_DEMON,         "Demon" },
@@ -487,19 +475,21 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR1_KILL_DRAGON,        "Xdragon" },
+	{ TR1_KILL_DEMON,         "Xdemon" },
+	{ TR1_KILL_UNDEAD,        "Xundead" }
 };
 
 /*
  * Elemental brands for weapons
  */
-static flag_desc brand_flags_desc[] =
+static const flag_desc brand_flags_desc[] =
 {
-	{ TR1_BRAND_POIS,         "Poison Brand" },
 	{ TR1_BRAND_ACID,         "Acid Brand" },
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
+	{ TR1_BRAND_POIS,         "Venom" },
 };
 
 /*
@@ -566,13 +556,6 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_LITE,               "Permanent Light" },
 	{ TR3_REGEN,              "Regeneration" },
 	{ TR3_TELEPATHY,          "ESP" },
-        { TR3_ESP_ORC,            "Sense Orc" },
-        { TR3_ESP_TROLL,          "Sense Troll" },
-        { TR3_ESP_GIANT,          "Sense Giant" },
-        { TR3_ESP_DRAGON,         "Sense Dragon" },
-        { TR3_ESP_DEMON,          "Sense Demon" },
-        { TR3_ESP_UNDEAD,         "Sense Undead" },
-	 { TR3_ESP_NATURE,	 "Sense Nature" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_FREE_ACT,           "Free Action" },
 	{ TR3_HOLD_LIFE,          "Hold Life" },
@@ -650,9 +633,6 @@ typedef struct
 	                + 1       /* type of curse */
 	                + 1];     /* sentinel NULL */
 
-	/* A string describing an artifact's activation */
-	cptr activation;
-
 	/* "Level 20, Rarity 30, 3.0 lbs, 20000 Gold" */
 	char misc_desc[80];
 
@@ -681,9 +661,10 @@ static void spoiler_blanklines(int n)
  */
 static void spoiler_underline(cptr str)
 {
-	fprintf(fff, "%s\n", str);
+	text_out(str);
+	text_out("\n");
 	spoiler_out_n_chars(strlen(str), '-');
-	fprintf(fff, "\n");
+	text_out("\n");
 }
 
 
@@ -719,18 +700,18 @@ static cptr *spoiler_flag_aux(const u32b art_flags, const flag_desc *flag_x_ptr,
 /*
  * Get a "basic" description "The Cloak of Death [1,+10]"
  */
-static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
+static void analyze_general(const object_type *o_ptr, char *desc_x_ptr)
 {
 	/* Get a "useful" description of the object */
 	object_desc_store(desc_x_ptr, o_ptr, TRUE, 1);
+
 }
 
 /*
  * List "player traits" altered by an artifact's pval. These include stats,
  * speed, infravision, tunneling, stealth, searching, and extra attacks.
  */
-
-static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
+static void analyze_pval(const object_type *o_ptr, pval_info_type *pval_x_ptr)
 {
 	const u32b all_stats = (TR1_STR | TR1_INT | TR1_WIS |
 	                        TR1_DEX | TR1_CON | TR1_CHR);
@@ -778,9 +759,11 @@ static void analyze_pval (object_type *o_ptr, pval_info_type *pval_x_ptr)
 	*affects_list = NULL;
 }
 
-/* Note the slaying specialties of a weapon */
 
-static void analyze_slay (object_type *o_ptr, cptr *slay_list)
+/*
+ * Note the slaying specialities of a weapon
+ */
+static void analyze_slay(const object_type *o_ptr, cptr *slay_list)
 {
 	u32b f1, f2, f3;
 
@@ -793,9 +776,11 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 	*slay_list = NULL;
 }
 
-/* Note an object's elemental brands */
 
-static void analyze_brand (object_type *o_ptr, cptr *brand_list)
+/*
+ * Note an object's elemental brands
+ */
+static void analyze_brand(const object_type *o_ptr, cptr *brand_list)
 {
 	u32b f1, f2, f3;
 
@@ -809,9 +794,10 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 }
 
 
-/* Note the resistances granted by an object */
-
-static void analyze_resist (object_type *o_ptr, cptr *resist_list)
+/*
+ * Note the resistances granted by an object
+ */
+static void analyze_resist(const object_type *o_ptr, cptr *resist_list)
 {
 	u32b f1, f2, f3;
 
@@ -824,9 +810,11 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 	*resist_list = NULL;
 }
 
-/* Note the immunities granted by an object */
 
-static void analyze_immune (object_type *o_ptr, cptr *immune_list)
+/*
+ * Note the immunities granted by an object
+ */
+static void analyze_immune(const object_type *o_ptr, cptr *immune_list)
 {
 	u32b f1, f2, f3;
 
@@ -840,9 +828,11 @@ static void analyze_immune (object_type *o_ptr, cptr *immune_list)
 
 }
 
-/* Note which stats an object sustains */
 
-static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
+/*
+ * Note which stats an object sustains
+ */
+static void analyze_sustains(const object_type *o_ptr, cptr *sustain_list)
 {
 	const u32b all_sustains = (TR2_SUST_STR | TR2_SUST_INT | TR2_SUST_WIS |
 	                           TR2_SUST_DEX | TR2_SUST_CON | TR2_SUST_CHR);
@@ -874,8 +864,7 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
-
-static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
+static void analyze_misc_magic(const object_type *o_ptr, cptr *misc_list)
 {
 	u32b f1, f2, f3;
 
@@ -890,7 +879,7 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 	/*
 	 * Artifact lights -- large radius light.
 	 */
-        if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr) && (f3 & TR3_LITE))
+	if ((o_ptr->tval == TV_LITE) && artifact_p(o_ptr))
 	{
 		*misc_list++ = "Permanent Light(3)";
 	}
@@ -922,27 +911,24 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 }
 
 
-
-
 /*
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
-
-static void analyze_misc (object_type *o_ptr, char *misc_desc)
+static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 {
 	artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 	        a_ptr->level, a_ptr->rarity,
-	        a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	        a_ptr->weight / 10, a_ptr->weight % 10, (long)a_ptr->cost);
 }
+
 
 /*
  * Fill in an object description structure for a given object
  */
-
-static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
+static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_x_ptr)
 {
 	analyze_general(o_ptr, desc_x_ptr->description);
 
@@ -961,8 +947,6 @@ static void object_analyze(object_type *o_ptr, obj_desc_list *desc_x_ptr)
 	analyze_misc_magic(o_ptr, desc_x_ptr->misc_magic);
 
 	analyze_misc(o_ptr, desc_x_ptr->misc_desc);
-
-	desc_x_ptr->activation = item_activation(o_ptr);
 }
 
 
@@ -970,10 +954,11 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for %s Version %s",
+	        VERSION_NAME, VERSION_STRING);
 	spoiler_underline(buf);
 }
+
 
 /*
  * This is somewhat ugly.
@@ -1014,7 +999,7 @@ static void print_header(void)
 #define LIST_SEP ';'
 
 
-static void spoiler_outlist(cptr header, cptr *list, char separator)
+static void spoiler_outlist(cptr header, const cptr *list, char separator)
 {
 	int line_len, buf_len;
 	char line[MAX_LINE_LEN+1], buf[80];
@@ -1047,7 +1032,6 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 		 * If there is an item following this one, pad with separator and
 		 * a space and adjust the buffer length
 		 */
-
 		if (list[1])
 		{
 			sprintf(buf + buf_len, "%c ", separator);
@@ -1058,13 +1042,11 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 		 * If the buffer will fit on the current line, just append the
 		 * buffer to the line and adjust the line length accordingly.
 		 */
-
 		if (line_len + buf_len <= MAX_LINE_LEN)
 		{
 			strcat(line, buf);
 			line_len += buf_len;
 		}
-
 		/* Apply line wrapping and indention semantics described above */
 		else
 		{
@@ -1072,23 +1054,24 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 			 * Don't print a trailing list separator but do print a trailing
 			 * item separator.
 			 */
-			if (line_len > 1 && line[line_len - 1] == ' '
-			    && line[line_len - 2] == LIST_SEP)
+			if ((line_len > 1) && (line[line_len - 1] == ' ') &&
+			    (line[line_len - 2] == LIST_SEP))
 			{
 				/* Ignore space and separator */
 				line[line_len - 2] = '\0';
 
 				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
+				text_out(line);
+				text_out("\n");
 
 				/* Begin new line at primary indention level */
 				sprintf(line, "%s%s", INDENT1, buf);
 			}
-
 			else
 			{
 				/* Write to spoiler file */
-				fprintf(fff, "%s\n", line);
+				text_out(line);
+				text_out("\n");
 
 				/* Begin new line at secondary indention level */
 				sprintf(line, "%s%s", INDENT2, buf);
@@ -1102,20 +1085,23 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 	}
 
 	/* Write what's left to the spoiler file */
-	fprintf(fff, "%s\n", line);
+	text_out(line);
+	text_out("\n");
 }
 
 
-/* Create a spoiler file entry for an artifact */
-
-static void spoiler_print_art(obj_desc_list *art_ptr)
+/*
+ * Create a spoiler file entry for an artifact
+ */
+static void spoiler_print_art(const obj_desc_list *art_ptr)
 {
-	pval_info_type *pval_ptr = &art_ptr->pval_info;
+	const pval_info_type *pval_ptr = &art_ptr->pval_info;
 
 	char buf[80];
 
 	/* Don't indent the first line */
-	fprintf(fff, "%s\n", art_ptr->description);
+	text_out(art_ptr->description);
+	text_out("\n");
 
 	/* An "empty" pval description indicates that the pval affects nothing */
 	if (pval_ptr->pval_desc[0])
@@ -1138,56 +1124,6 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
 
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
-
-
-	/* Write out the possible activation at the primary indention level */
-	if (art_ptr->activation)
-	{
-		fprintf(fff, "%sActivates for %s\n", INDENT1, art_ptr->activation);
-	}
-
-	/* End with the miscellaneous facts */
-	fprintf(fff, "%s%s\n\n", INDENT1, art_ptr->misc_desc);
-}
-
-
-/*
- * Hack -- Create a "forged" artifact
- */
-static bool make_fake_artifact(object_type *o_ptr, int name1)
-{
-	int i;
-
-	artifact_type *a_ptr = &a_info[name1];
-
-
-	/* Ignore "empty" artifacts */
-	if (!a_ptr->name) return FALSE;
-
-	/* Get the "kind" index */
-	i = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-	/* Oops */
-	if (!i) return (FALSE);
-
-	/* Create the artifact */
-	object_prep(o_ptr, i);
-
-	/* Save the name */
-	o_ptr->name1 = name1;
-
-	/* Extract the fields */
-	o_ptr->pval = a_ptr->pval;
-	o_ptr->ac = a_ptr->ac;
-	o_ptr->dd = a_ptr->dd;
-	o_ptr->ds = a_ptr->ds;
-	o_ptr->to_a = a_ptr->to_a;
-	o_ptr->to_h = a_ptr->to_h;
-	o_ptr->to_d = a_ptr->to_d;
-	o_ptr->weight = a_ptr->weight;
-
-	/* Success */
-	return (TRUE);
 }
 
 
@@ -1222,6 +1158,10 @@ static void spoil_artifact(cptr fname)
 		return;
 	}
 
+	/* Dump to the spoiler file */
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+
 	/* Dump the header */
 	print_header();
 
@@ -1251,13 +1191,47 @@ static void spoil_artifact(cptr fname)
 			object_wipe(i_ptr);
 
 			/* Attempt to "forge" the artifact */
-			if (!make_fake_artifact(i_ptr, j)) continue;
+			if (!make_fake_artifact(i_ptr, (byte)j)) continue;
 
 			/* Analyze the artifact */
 			object_analyze(i_ptr, &artifact);
 
 			/* Write out the artifact description to the spoiler file */
 			spoiler_print_art(&artifact);
+
+			if (a_ptr->flags3 & TR3_ACTIVATE)
+			{
+                                s16b book[26];
+
+                                int i,num;
+
+				text_out(INDENT1);
+
+                                if (a_ptr->activation)
+                                {
+                                        (void)spell_desc(&s_info[a_ptr->activation], "When activated, it ", 0, TRUE);
+                                        text_out(format(", recharging in %d + d%d turns.",a_ptr->time, a_ptr->randtime));
+                                }
+
+                                /* Fill the book with spells */
+                                fill_book(i_ptr,book,&num);
+                
+                                for (i = 0; i < num; i++)
+                                {
+                                        (void)spell_desc(&s_info[book[i]],(i==0) ?"When activated, it ":", or ",0, TRUE);
+                                        text_out(format(", recharging in %d + d%d turns.",a_ptr->time, a_ptr->randtime));
+                                }
+
+                                text_out("\n");
+
+			}
+
+			/* Miscellaneous facts */
+			text_out(INDENT1);
+			text_out(artifact.misc_desc);
+
+			/* Terminate the entry */
+			text_out("\n\n");
 		}
 	}
 
@@ -1314,8 +1288,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1323,7 +1297,6 @@ static void spoil_mon_desc(cptr fname)
 	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
 	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
 	        "----", "---", "---", "---", "--", "--", "-----------");
-
 
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
@@ -1334,7 +1307,7 @@ static void spoil_mon_desc(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[n++] = i;
+		if (r_ptr->name) who[n++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -1411,7 +1384,7 @@ static void spoil_mon_desc(cptr fname)
 	fprintf(fff, "\n");
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
+	FREE(who);
 
 
 	/* Check for errors */
@@ -1429,87 +1402,8 @@ static void spoil_mon_desc(cptr fname)
 
 
 /*
- * Monster spoilers by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
- *
- * Adapted from the "monster_desc()" code in "monster1.c"
+ * Monster spoilers originally by: smchorse@ringer.cs.utsa.edu (Shawn McHorse)
  */
-
-/*
- * Pronoun arrays
- */
-static cptr wd_che[3] =
-{ "It", "He", "She" };
-static cptr wd_lhe[3] =
-{ "it", "he", "she" };
-
-/*
- * Buffer text to the given file. (-SHAWN-)
- * This is basically c_roff() from mon-desc.c with a few changes.
- */
-static void spoil_out(cptr str)
-{
-	cptr r;
-
-	/* Line buffer */
-	static char roff_buf[256];
-
-	/* Current pointer into line roff_buf */
-	static char *roff_p = roff_buf;
-
-	/* Last space saved into roff_buf */
-	static char *roff_s = NULL;
-
-	/* Special handling for "new sequence" */
-	if (!str)
-	{
-		if (roff_p != roff_buf) roff_p--;
-		while (*roff_p == ' ' && roff_p != roff_buf) roff_p--;
-		if (roff_p == roff_buf) fprintf(fff, "\n");
-		else
-		{
-			*(roff_p + 1) = '\0';
-			fprintf(fff, "%s\n\n", roff_buf);
-		}
-		roff_p = roff_buf;
-		roff_s = NULL;
-		roff_buf[0] = '\0';
-		return;
-	}
-
-	/* Scan the given string, character at a time */
-	for (; *str; str++)
-	{
-		char ch = *str;
-		int wrap = (ch == '\n');
-
-		if (!isprint(ch)) ch = ' ';
-		if (roff_p >= roff_buf + 75) wrap = 1;
-		if ((ch == ' ') && (roff_p + 2 >= roff_buf + 75)) wrap = 1;
-
-		/* Handle line-wrap */
-		if (wrap)
-		{
-			*roff_p = '\0';
-			r = roff_p;
-			if (roff_s && (ch != ' '))
-			{
-				*roff_s = '\0';
-				r = roff_s + 1;
-			}
-			fprintf(fff, "%s\n", roff_buf);
-			roff_s = NULL;
-			roff_p = roff_buf;
-			while (*r) *roff_p++ = *r++;
-		}
-
-		/* Save the char */
-		if ((roff_p > roff_buf) || (ch != ' '))
-		{
-			if (ch == ' ') roff_s = roff_p;
-			*roff_p++ = ch;
-		}
-	}
-}
 
 
 /*
@@ -1518,13 +1412,9 @@ static void spoil_out(cptr str)
 static void spoil_mon_info(cptr fname)
 {
 	char buf[1024];
-	int msex, vn, i, j, k, n;
-	bool breath, magic, sin;
-	cptr p, q;
-	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	int i, n;
 	u16b why = 2;
-	s16b *who;
+	u16b *who;
 	int count = 0;
 
 
@@ -1544,15 +1434,18 @@ static void spoil_mon_info(cptr fname)
 		return;
 	}
 
+	/* Dump to the spoiler file */
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-	spoil_out(buf);
-	spoil_out("------------------------------------------\n\n");
+	sprintf(buf, "Monster Spoilers for %s Version %s\n",
+	        VERSION_NAME, VERSION_STRING);
+	text_out(buf);
+	text_out("------------------------------------------\n\n");
 
 	/* Allocate the "who" array */
-	C_MAKE(who, z_info->r_max, s16b);
+	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Scan the monsters */
 	for (i = 1; i < z_info->r_max; i++)
@@ -1560,7 +1453,7 @@ static void spoil_mon_info(cptr fname)
 		monster_race *r_ptr = &r_info[i];
 
 		/* Use that monster */
-		if (r_ptr->name) who[count++] = i;
+		if (r_ptr->name) who[count++] = (u16b)i;
 	}
 
 	/* Select the sort method */
@@ -1575,65 +1468,50 @@ static void spoil_mon_info(cptr fname)
 	 */
 	for (n = 0; n < count; n++)
 	{
-		monster_race *r_ptr = &r_info[who[n]];
-
-		/* Extract the flags */
-		flags1 = r_ptr->flags1;
-		flags2 = r_ptr->flags2;
-		flags3 = r_ptr->flags3;
-		flags4 = r_ptr->flags4;
-		flags5 = r_ptr->flags5;
-		flags6 = r_ptr->flags6;
-		breath = FALSE;
-		magic = FALSE;
-
-		/* Extract a gender (if applicable) */
-		if (flags1 & (RF1_FEMALE)) msex = 2;
-		else if (flags1 & (RF1_MALE)) msex = 1;
-		else msex = 0;
-
+		int r_idx = who[n];
+		monster_race *r_ptr = &r_info[r_idx];
 
 		/* Prefix */
-		if (flags1 & (RF1_QUESTOR))
+		if (r_ptr->flags1 & RF1_QUESTOR)
 		{
-			spoil_out("[Q] ");
+			text_out("[Q] ");
 		}
-		else if (flags1 & (RF1_UNIQUE))
+		else if (r_ptr->flags1 & RF1_UNIQUE)
 		{
-			spoil_out("[U] ");
+			text_out("[U] ");
 		}
 		else
 		{
-			spoil_out("The ");
+			text_out("The ");
 		}
 
 		/* Name */
 		sprintf(buf, "%s  (", (r_name + r_ptr->name));	/* ---)--- */
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Color */
-		spoil_out(attr_to_text(r_ptr->d_attr));
+		text_out(attr_to_text(r_ptr->d_attr));
 
 		/* Symbol --(-- */
 		sprintf(buf, " '%c')\n", r_ptr->d_char);
-		spoil_out(buf);
+		text_out(buf);
 
 
 		/* Indent */
 		sprintf(buf, "=== ");
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Number */
-		sprintf(buf, "Num:%d  ", who[n]);
-		spoil_out(buf);
+		sprintf(buf, "Num:%d  ", r_idx);
+		text_out(buf);
 
 		/* Level */
 		sprintf(buf, "Lev:%d  ", r_ptr->level);
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Rarity */
 		sprintf(buf, "Rar:%d  ", r_ptr->rarity);
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Speed */
 		if (r_ptr->speed >= 110)
@@ -1644,10 +1522,10 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "Spd:-%d  ", (110 - r_ptr->speed));
 		}
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Hitpoints */
-		if ((flags1 & (RF1_FORCE_MAXHP)) || (r_ptr->hside == 1))
+		if ((r_ptr->flags1 & RF1_FORCE_MAXHP) || (r_ptr->hside == 1))
 		{
 			sprintf(buf, "Hp:%d  ", r_ptr->hdice * r_ptr->hside);
 		}
@@ -1655,630 +1533,25 @@ static void spoil_mon_info(cptr fname)
 		{
 			sprintf(buf, "Hp:%dd%d  ", r_ptr->hdice, r_ptr->hside);
 		}
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Armor Class */
 		sprintf(buf, "Ac:%d  ", r_ptr->ac);
-		spoil_out(buf);
+		text_out(buf);
 
 		/* Experience */
 		sprintf(buf, "Exp:%ld\n", (long)(r_ptr->mexp));
-		spoil_out(buf);
-
+		text_out(buf);
 
 		/* Describe */
-		spoil_out(r_text + r_ptr->text);
-		spoil_out("  ");
+		describe_monster(r_idx, TRUE);
 
-
-		spoil_out("This");
-
-		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
-		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
-		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
-
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else spoil_out(" creature");
-
-		spoil_out(" moves");
-
-		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
-		{
-			spoil_out(" extremely erratically");
-		}
-		else if (flags1 & (RF1_RAND_50))
-		{
-			spoil_out(" somewhat erratically");
-		}
-		else if (flags1 & (RF1_RAND_25))
-		{
-			spoil_out(" a bit erratically");
-		}
-		else
-		{
-			spoil_out(" normally");
-		}
-
-		if (flags1 & (RF1_NEVER_MOVE))
-		{
-			spoil_out(", but does not deign to chase intruders");
-		}
-
-		spoil_out(".  ");
-
-
-#if 0
-
-		if (!r_ptr->level || (flags1 & (RF1_FORCE_DEPTH)))
-		{
-			sprintf(buf, "%s is never found out of depth.  ", wd_che[msex]);
-		}
-
-		if (flags1 & (RF1_FORCE_SLEEP))
-		{
-			sprintf(buf, "%s is always created sluggish.  ", wd_che[msex]);
-		}
-
-#endif
-
-		if (flags1 & (RF1_ESCORT))
-		{
-			sprintf(buf, "%s usually appears with ", wd_che[msex]);
-			spoil_out(buf);
-			if (flags1 & (RF1_ESCORTS)) spoil_out("escorts.  ");
-			else spoil_out("an escort.  ");
-		}
-
-                if (flags1 & (RF1_FRIENDS))
-		{
-			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
-			spoil_out(buf);
-		}
-
-		/* Collect inate attacks */
-		vn = 0;
-		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_SPORE)) vp[vn++] = "release spores";
-		if (flags4 & (RF4_GAZE)) vp[vn++] = "gaze";
-		if (flags4 & (RF4_WAIL)) vp[vn++] = "wail";
-		if (flags4 & (RF4_SPIT)) vp[vn++] = "spit something";
-		if (flags4 & (RF4_SHOOT)) vp[vn++] = "shoot something";
-                if (flags4 & (RF4_EXPLODE)) vp[vn++] = "explode";
-                if (flags4 & (RF4_AURA)) vp[vn++] = "radiate an aura";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" may ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect breaths */
-		vn = 0;
-		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
-		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
-		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
-		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
-		if (flags4 & (RF4_BR_POIS)) vp[vn++] = "poison";
-		if (flags4 & (RF4_BR_NETH)) vp[vn++] = "nether";
-		if (flags4 & (RF4_BR_LITE)) vp[vn++] = "light";
-		if (flags4 & (RF4_BR_DARK)) vp[vn++] = "darkness";
-		if (flags4 & (RF4_BR_CONF)) vp[vn++] = "confusion";
-		if (flags4 & (RF4_BR_SOUN)) vp[vn++] = "sound";
-		if (flags4 & (RF4_BR_CHAO)) vp[vn++] = "chaos";
-		if (flags4 & (RF4_BR_DISE)) vp[vn++] = "disenchantment";
-		if (flags4 & (RF4_BR_NEXU)) vp[vn++] = "nexus";
-		if (flags4 & (RF4_BR_TIME)) vp[vn++] = "time";
-		if (flags4 & (RF4_BR_INER)) vp[vn++] = "inertia";
-		if (flags4 & (RF4_BR_GRAV)) vp[vn++] = "gravity";
-		if (flags4 & (RF4_BR_SHAR)) vp[vn++] = "shards";
-		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
-		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
-		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
-		if (flags4 & (RF4_BR_FEAR)) vp[vn++] = "fear";
-		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
-		if (flags4 & (RF4_XXX8)) vp[vn++] = "something";
-
-		if (vn)
-		{
-			breath = TRUE;
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" may breathe ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
-			}
-			if (flags2 & (RF2_POWERFUL)) spoil_out(" powerfully");
-		}
-
-		/* Collect spells */
-		vn = 0;
-		if (flags5 & (RF5_BA_ACID))           vp[vn++] = "produce acid balls";
-		if (flags5 & (RF5_BA_ELEC))           vp[vn++] = "produce lightning balls";
-		if (flags5 & (RF5_BA_FIRE))           vp[vn++] = "produce fire balls";
-		if (flags5 & (RF5_BA_COLD))           vp[vn++] = "produce frost balls";
-		if (flags5 & (RF5_BA_POIS))           vp[vn++] = "produce poison balls";
-		if (flags5 & (RF5_BA_NETH))           vp[vn++] = "produce nether balls";
-		if (flags5 & (RF5_BA_WATE))           vp[vn++] = "produce water balls";
-		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
-		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
-		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
-		if (flags5 & (RF5_BRAIN_SMASH))       vp[vn++] = "cause brain smashing";
-		if (flags5 & (RF5_CAUSE_1))           vp[vn++] = "cause light wounds";
-		if (flags5 & (RF5_CAUSE_2))           vp[vn++] = "cause serious wounds";
-		if (flags5 & (RF5_CAUSE_3))           vp[vn++] = "cause critical wounds";
-		if (flags5 & (RF5_CAUSE_4))           vp[vn++] = "cause mortal wounds";
-		if (flags5 & (RF5_BO_ACID))           vp[vn++] = "produce acid bolts";
-		if (flags5 & (RF5_BO_ELEC))           vp[vn++] = "produce lightning bolts";
-		if (flags5 & (RF5_BO_FIRE))           vp[vn++] = "produce fire bolts";
-		if (flags5 & (RF5_BO_COLD))           vp[vn++] = "produce frost bolts";
-		if (flags5 & (RF5_BO_POIS))           vp[vn++] = "produce poison bolts";
-		if (flags5 & (RF5_BO_NETH))           vp[vn++] = "produce nether bolts";
-		if (flags5 & (RF5_BO_WATE))           vp[vn++] = "produce water bolts";
-		if (flags5 & (RF5_BO_MANA))           vp[vn++] = "produce mana bolts";
-		if (flags5 & (RF5_BO_PLAS))           vp[vn++] = "produce plasma bolts";
-		if (flags5 & (RF5_BO_ICEE))           vp[vn++] = "produce ice bolts";
-		if (flags5 & (RF5_MISSILE))           vp[vn++] = "produce magic missiles";
-		if (flags5 & (RF5_SCARE))             vp[vn++] = "terrify";
-		if (flags5 & (RF5_BLIND))             vp[vn++] = "blind";
-		if (flags5 & (RF5_CONF))              vp[vn++] = "confuse";
-		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
-		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
-		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
-		if (flags6 & (RF6_XXX1))            vp[vn++] = "do something";
-		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
-		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
-		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
-		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
-		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
-		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
-		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
-		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
-		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
-		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon similar monsters";
-		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
-		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
-		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
-                if (flags6 & (RF6_S_ANIMAL))             vp[vn++] = "summon animals";
-		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
-		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
-		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
-		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
-		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
-		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
-		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
-		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
-		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
-		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon ring wraiths";
-		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
-
-		if (vn)
-		{
-			magic = TRUE;
-			if (breath)
-			{
-				spoil_out(", and is also");
-			}
-			else
-			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" is");
-			}
-			spoil_out(" magical, casting spells");
-			if (flags2 & (RF2_SMART)) spoil_out(" intelligently");
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" which ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
-			}
-		}
-
-		if (breath || magic)
-		{
-			sprintf(buf, "; 1 time in %d.  ",
-			        200 / (r_ptr->freq_inate + r_ptr->freq_spell));
-			spoil_out(buf);
-		}
-
-		/* Collect special abilities. */
-		vn = 0;
-                if (flags2 & (RF2_HAS_LITE)) vp[vn++] = "illuminate the dungeon";
-		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
-		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
-		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
-		if (flags2 & (RF2_KILL_WALL)) vp[vn++] = "bore through walls";
-		if (flags2 & (RF2_MOVE_BODY)) vp[vn++] = "push past weaker monsters";
-		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
-		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
-		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
-                if (flags3 & (RF3_TINY)) vp[vn++] = "crawl through tiny cracks";
-                if (flags2 & (RF2_CAN_CLIMB)) vp[vn++] = "climb on walls and ceilings";
-                if (flags2 & (RF2_CAN_DIG)) vp[vn++] = "dig through earth and rubble";
-                if ((flags2 & (RF2_CAN_SWIM)) && !(flags2 & (RF2_MUST_SWIM))) vp[vn++] = "swim under water";
-                if ((flags2 & (RF2_CAN_FLY)) && !(flags2 & (RF2_MUST_FLY))) vp[vn++] = "fly over obstacles";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" can ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-                /* Describe special abilities. */
-                if (flags2 & (RF2_MUST_SWIM))
-                {
-                        spoil_out(wd_che[msex]);
-                        spoil_out(" must swim and cannot move out of water.  ");
-                }
-
-                /* Describe special abilities. */
-                if (flags2 & (RF2_MUST_FLY))
-                {
-                        spoil_out(wd_che[msex]);
-                        spoil_out(" must fly and cannot move underwater.  ");
-                }
-
-		if (flags2 & (RF2_INVISIBLE))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is invisible.  ");
-		}
-		if (flags2 & (RF2_COLD_BLOOD))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is cold blooded.  ");
-		}
-		if (flags2 & (RF2_EMPTY_MIND))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is not detected by telepathy.  ");
-		}
-		if (flags2 & (RF2_WEIRD_MIND))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" is rarely detected by telepathy.  ");
-		}
-		if (flags2 & (RF2_MULTIPLY))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" breeds explosively.  ");
-		}
-		if (flags2 & (RF2_REGENERATE))
-		{
-			spoil_out(wd_che[msex]);
-			spoil_out(" regenerates quickly.  ");
-		}
-
-		/* Collect susceptibilities */
-		vn = 0;
-		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
-		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" is hurt by ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect immunities */
-		vn = 0;
-		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
-		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
-		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
-		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" resists ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect resistances */
-		vn = 0;
-		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
-		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
-		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
-		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
-		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" resists ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" and ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		/* Collect non-effects */
-		vn = 0;
-		if (flags3 & (RF3_NO_STUN)) vp[vn++] = "stunned";
-		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
-		if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
-		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
-
-		if (vn)
-		{
-			spoil_out(wd_che[msex]);
-			for (i = 0; i < vn; i++)
-			{
-				if (!i) spoil_out(" cannot be ");
-				else if (i < vn-1) spoil_out(", ");
-				else spoil_out(" or ");
-				spoil_out(vp[i]);
-			}
-			spoil_out(".  ");
-		}
-
-		spoil_out(wd_che[msex]);
-		if (r_ptr->sleep > 200)     spoil_out(" prefers to ignore");
-		else if (r_ptr->sleep > 95) spoil_out(" pays very little attention to");
-		else if (r_ptr->sleep > 75) spoil_out(" pays little attention to");
-		else if (r_ptr->sleep > 45) spoil_out(" tends to overlook");
-		else if (r_ptr->sleep > 25) spoil_out(" takes quite a while to see");
-		else if (r_ptr->sleep > 10) spoil_out(" takes a while to see");
-		else if (r_ptr->sleep > 5)  spoil_out(" is fairly observant of");
-		else if (r_ptr->sleep > 3)  spoil_out(" is observant of");
-		else if (r_ptr->sleep > 1)  spoil_out(" is very observant of");
-		else if (r_ptr->sleep > 0)  spoil_out(" is vigilant for");
-		else spoil_out(" is ever vigilant for");
-
-		sprintf(buf, " intruders, which %s may notice from %d feet.  ",
-		        wd_lhe[msex], 10 * r_ptr->aaf);
-		spoil_out(buf);
-
-		i = 0;
-		if (flags1 & (RF1_DROP_60)) i += 1;
-		if (flags1 & (RF1_DROP_90)) i += 2;
-		if (flags1 & (RF1_DROP_1D2)) i += 2;
-		if (flags1 & (RF1_DROP_2D2)) i += 4;
-		if (flags1 & (RF1_DROP_3D2)) i += 6;
-		if (flags1 & (RF1_DROP_4D2)) i += 8;
-
-		/* Drops gold and/or items */
-		if (i)
-		{
-			sin = FALSE;
-			spoil_out(wd_che[msex]);
-			spoil_out(" will carry");
-
-			if (i == 1)
-			{
-				spoil_out(" a");
-				sin = TRUE;
-			}
-			else if (i == 2)
-			{
-				spoil_out(" one or two");
-			}
-			else
-			{
-				sprintf(buf, " up to %u", i);
-				spoil_out(buf);
-			}
-
-			if (flags1 & (RF1_DROP_GREAT))
-			{
-				if (sin) spoil_out("n");
-				spoil_out(" exceptional object");
-			}
-			else if (flags1 & (RF1_DROP_GOOD))
-			{
-				spoil_out(" good object");
-			}
-			else if (flags1 & (RF1_DROP_USEFUL))
-			{
-				spoil_out(" useful object");
-			}
-			else if (flags1 & (RF1_ONLY_ITEM))
-			{
-				if (sin) spoil_out("n");
-                                if (get_food_type(r_ptr)) spoil_out(" mushroom");
-                                else spoil_out(" object");
-			}
-			else if (flags1 & (RF1_ONLY_GOLD))
-			{
-                                if (get_coin_type(r_ptr)) spoil_out(" precious metal");
-                                else spoil_out(" treasure");
-			}
-			else
-			{
-				if (sin) spoil_out("n");
-                                if (get_food_type(r_ptr)) spoil_out(" mushroom");
-                                else spoil_out(" object");
-				if (i > 1) spoil_out("s");
-                                if (get_coin_type(r_ptr)) spoil_out(" or precious metal");
-                                else spoil_out(" or treasure");
-			}
-			if (i > 1) spoil_out("s");
-
-			if (flags1 & (RF1_DROP_CHOSEN))
-			{
-				spoil_out(", in addition to chosen objects");
-			}
-
-			spoil_out(".  ");
-		}
-
-		/* Count the actual attacks */
-		for (i = 0, j = 0; j < 4; j++)
-		{
-			if (r_ptr->blow[j].method) i++;
-		}
-
-		/* Examine the actual attacks */
-		for (k = 0, j = 0; j < 4; j++)
-		{
-			if (!r_ptr->blow[j].method) continue;
-
-			/* No method yet */
-			p = "???";
-
-			/* Get the method */
-			switch (r_ptr->blow[j].method)
-			{
-				case RBM_HIT:	p = "hit"; break;
-				case RBM_TOUCH:	p = "touch"; break;
-				case RBM_PUNCH:	p = "punch"; break;
-				case RBM_KICK:	p = "kick"; break;
-				case RBM_CLAW:	p = "claw"; break;
-				case RBM_BITE:	p = "bite"; break;
-				case RBM_STING:	p = "sting"; break;
-                                case RBM_VOMIT: p = "vomit"; break;
-				case RBM_BUTT:	p = "butt"; break;
-				case RBM_CRUSH:	p = "crush"; break;
-				case RBM_ENGULF:	p = "engulf"; break;
-				case RBM_XXX2:	break;
-				case RBM_CRAWL:	p = "crawl on you"; break;
-				case RBM_DROOL:	p = "drool on you"; break;
-				case RBM_SPIT:	p = "spit"; break;
-				case RBM_XXX3:	break;
-				case RBM_GAZE:	p = "gaze"; break;
-				case RBM_WAIL:	p = "wail"; break;
-				case RBM_SPORE:	p = "release spores"; break;
-				case RBM_XXX4:	break;
-				case RBM_BEG:	p = "beg"; break;
-				case RBM_INSULT:	p = "insult"; break;
-				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
-			}
-
-
-			/* Default effect */
-			q = "???";
-
-			/* Get the effect */
-			switch (r_ptr->blow[j].effect)
-			{
-				case GF_HURT:	q = "attack"; break;
-				case GF_POIS:	q = "poison"; break;
-				case GF_UN_BONUS:	q = "disenchant"; break;
-				case GF_UN_POWER:	q = "drain charges"; break;
-				case GF_EAT_GOLD:	q = "steal gold"; break;
-				case GF_EAT_ITEM:	q = "steal items"; break;
-				case GF_EAT_FOOD:	q = "eat your food"; break;
-				case GF_EAT_LITE:	q = "absorb light"; break;
-				case GF_ACID:	q = "shoot acid"; break;
-				case GF_ELEC:	q = "electrify"; break;
-				case GF_FIRE:	q = "burn"; break;
-				case GF_COLD:	q = "freeze"; break;
-				case GF_BLIND:	q = "blind"; break;
-				case GF_CONFUSION:	q = "confuse"; break;
-				case GF_TERRIFY:	q = "terrify"; break;
-				case GF_PARALYZE:	q = "paralyze"; break;
-				case GF_LOSE_STR:	q = "reduce strength"; break;
-				case GF_LOSE_INT:	q = "reduce intelligence"; break;
-				case GF_LOSE_WIS:	q = "reduce wisdom"; break;
-				case GF_LOSE_DEX:	q = "reduce dexterity"; break;
-				case GF_LOSE_CON:	q = "reduce constitution"; break;
-				case GF_LOSE_CHR:	q = "reduce charisma"; break;
-				case GF_LOSE_ALL:	q = "reduce all stats"; break;
-				case GF_SHATTER:	q = "shatter"; break;
-				case GF_EXP_10:	q = "lower experience (by 10d6+)"; break;
-				case GF_EXP_20:	q = "lower experience (by 20d6+)"; break;
-				case GF_EXP_40:	q = "lower experience (by 40d6+)"; break;
-				case GF_EXP_80:	q = "lower experience (by 80d6+)"; break;
-			}
-
-
-			if (!k)
-			{
-				spoil_out(wd_che[msex]);
-				spoil_out(" can ");
-			}
-			else if (k < i-1)
-			{
-				spoil_out(", ");
-			}
-			else
-			{
-				spoil_out(", and ");
-			}
-
-			/* Describe the method */
-			spoil_out(p);
-
-			/* Describe the effect, if any */
-			if (r_ptr->blow[j].effect)
-			{
-				spoil_out(" to ");
-				spoil_out(q);
-				if (r_ptr->blow[j].d_dice && r_ptr->blow[j].d_side)
-				{
-					spoil_out(" with damage");
-					if (r_ptr->blow[j].d_side == 1)
-						sprintf(buf, " %d", r_ptr->blow[j].d_dice);
-					else
-						sprintf(buf, " %dd%d",
-					        r_ptr->blow[j].d_dice, r_ptr->blow[j].d_side);
-					spoil_out(buf);
-				}
-			}
-
-			k++;
-		}
-
-		if (k)
-		{
-			spoil_out(".  ");
-		}
-		else if (flags1 & (RF1_NEVER_BLOW))
-		{
-			sprintf(buf, "%s has no physical attacks.  ", wd_che[msex]);
-			spoil_out(buf);
-		}
-
-		spoil_out(NULL);
+		/* Terminate the entry */
+		text_out("\n");
 	}
 
 	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, s16b);
+	FREE(who);
 
 	/* Check for errors */
 	if (ferror(fff) || my_fclose(fff))
@@ -2292,14 +1565,6 @@ static void spoil_mon_info(cptr fname)
 
 
 
-
-
-
-/*
- * Forward declare
- */
-extern void do_cmd_spoilers(void);
-
 /*
  * Create Spoiler files
  */
@@ -2310,10 +1575,6 @@ void do_cmd_spoilers(void)
 
 	/* Save screen */
 	screen_save();
-
-
-	/* Drop priv's */
-	safe_setuid_drop();
 
 
 	/* Interact */
@@ -2374,12 +1635,8 @@ void do_cmd_spoilers(void)
 		}
 
 		/* Flush messages */
-		msg_print(NULL);
+		message_flush();
 	}
-
-
-	/* Grab priv's */
-	safe_setuid_grab();
 
 
 	/* Load screen */
@@ -2394,5 +1651,3 @@ static int i = 0;
 #endif
 
 #endif
-
-
