@@ -9,11 +9,19 @@
  * areas, casting ball, projection, beam, and bolt spells.  Some miscel-
  * lanious non-damage spell functions.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -450,12 +458,12 @@ void identify_object(object_type *o_ptr)
        * or wielded by the player.  This may result in out of order
        * entries in the notes file, which really should be re-ordered 
        */
-        turn = a_info[o_ptr->name1].creat_turn;
-        if (turn < 2) turn = real_turn;
-        lev = a_info[o_ptr->name1].p_level;
-        if (lev == 0) lev = p_ptr->lev;
-        make_note(note, artifact_stage, NOTE_ARTIFACT, lev);
-        turn = real_turn;
+      turn = a_info[o_ptr->name1].creat_turn;
+      if (turn < 2) turn = real_turn;
+      lev = (int)a_info[o_ptr->name1].p_level;
+      if (lev == 0) lev = (int)p_ptr->lev;
+      make_note(note, artifact_stage, NOTE_ARTIFACT, (s16b)lev);
+      turn = real_turn;
       
       /*
        * Mark item creation depth 0, which will indicate the artifact
@@ -4717,7 +4725,7 @@ void earthquake(int cy, int cx, int r, bool volcano)
 		  if (cave_m_idx[yy][xx] > 0) 
 		    {
 		      /* Flying monsters survive */
-		      if ((!r_ptr->flags2 & (RF2_FLYING)))
+		      if (!(r_ptr->flags2 & (RF2_FLYING)))
 			{
 			  /* What was that again ? */
 			  char m_name[80];

@@ -4601,7 +4601,7 @@ void make_note(char *note, int what_stage, byte note_type, s16b lev)
   /* Should be in the right place */
   notes[num].turn = turn;
   notes[num].place = what_stage;
-  notes[num].level = lev;
+  notes[num].level = (int)lev;
   notes[num].type = note_type;
   my_strcpy(notes[num].note, buf, sizeof(notes[num].note));
       

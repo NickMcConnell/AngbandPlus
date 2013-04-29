@@ -10,11 +10,19 @@
  * breaths and spells to the player, monsters, and dungeon terrain.  The 
  * projection code.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -8361,7 +8369,20 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	  move_cursor_relative(y0, x0);
 	  
 	  /* New radius is about to be drawn */
-	  if ((i == grids) || (gd[i + 1] > gd[i]))
+	  if (i == grids)
+	    {
+	      /* Flush each radius seperately */
+	      if ((op_ptr->delay_factor) || (fresh_before)) Term_fresh();
+	      
+	      /* Delay (efficiently) */
+	      if (visual || drawn)
+		{
+		  Term_xtra(TERM_XTRA_DELAY, msec);
+		}
+	    }
+
+	  /* Hack - repeat to avoid using uninitialised array element */
+	  else if (gd[i + 1] > gd[i])
 	    {
 	      /* Flush each radius seperately */
 	      if ((op_ptr->delay_factor) || (fresh_before)) Term_fresh();
