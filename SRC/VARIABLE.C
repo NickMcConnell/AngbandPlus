@@ -656,6 +656,14 @@ char *e_name;
 char *e_text;
 
 /*
+ * The flavor arrays
+ */
+header *x_head;
+flavor_type *x_info;
+char *x_name;
+char *x_text;
+
+/*
  * The monster race arrays
  */
 header *r_head;

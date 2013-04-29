@@ -770,14 +770,14 @@ static void health_redraw(void)
 	/* Tracking a visible monster */
 	else
 	{
-		int pct, len;
+                int pct, len;
 
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
 
-		/* Extract the "percent" of health */
+                /* Extract the "percent" of health */
 		pct = 100L * m_ptr->hp / m_ptr->maxhp;
 
 		/* Badly wounded */
@@ -812,6 +812,7 @@ static void health_redraw(void)
 
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+
 	}
 }
 
@@ -2136,6 +2137,10 @@ static void calc_torch(void)
 {
 	object_type *o_ptr = &inventory[INVEN_LITE];
 
+        u32b f1;
+        u32b f2;
+        u32b f3;
+
 	/* Assume no light */
 	p_ptr->cur_lite = 0;
 
@@ -2147,6 +2152,9 @@ static void calc_torch(void)
 #endif
                 p_ptr->cur_lite = 2;
         }
+
+        /* Get the object flags */
+        object_flags(o_ptr,&f1,&f2,&f3);
 
 	/* Examine actual lites */
 	if (o_ptr->tval == TV_LITE)
@@ -2164,18 +2172,29 @@ static void calc_torch(void)
 		}
 
 		/* Artifact Lites provide permanent, bright, lite */
-		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+                if ((artifact_p(o_ptr)) && (f3 & (TR3_LITE)))
+                {
+                        p_ptr->cur_lite = 3;
+
+#ifdef ALLOW_OBJECT_INFO_MORE
+                        object_can_flags(o_ptr,0x0L,0x0L,(TR3_LITE|TR3_INSTA_ART));
+#endif
+
+                }
 
 	}
-	/* Examine spells */
-	else if (o_ptr->tval == TV_SPELL)
+        /* Examine spells */
+        else if (o_ptr->tval == TV_SPELL)
 	{
-		/* Wizard lights (with duration remaining) provide lots of lite */
-		if ((o_ptr->sval == SV_LITE_WIZARD) && (o_ptr->pval > 0))
-		{
-			p_ptr->cur_lite = 3;
-		}
+                /* Wizard Lites provide bright, lite */
+                if (f3 & (TR3_LITE))
+                {
+                        p_ptr->cur_lite = 3;
 
+#ifdef ALLOW_OBJECT_INFO_MORE
+                        object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+#endif
+                }
 	}
 
 	/* Reduce lite when running if requested */
@@ -3581,13 +3600,11 @@ void redraw_stuff(void)
 	if (character_icky) return;
 
 
-
 	if (p_ptr->redraw & (PR_MAP))
 	{
 		p_ptr->redraw &= ~(PR_MAP);
 		prt_map();
 	}
-
 
 	if (p_ptr->redraw & (PR_BASIC))
 	{
@@ -3626,6 +3643,8 @@ void redraw_stuff(void)
 
 	if (p_ptr->redraw & (PR_STATS))
 	{
+                msg_print("Stats");
+
 		p_ptr->redraw &= ~(PR_STATS);
 		prt_stat(A_STR);
 		prt_stat(A_INT);
@@ -3671,7 +3690,6 @@ void redraw_stuff(void)
 		health_redraw();
 	}
 
-
 	if (p_ptr->redraw & (PR_EXTRA))
 	{
 		p_ptr->redraw &= ~(PR_EXTRA);
@@ -3683,7 +3701,7 @@ void redraw_stuff(void)
 		prt_frame_extra();
 	}
 
-	if (p_ptr->redraw & (PR_CUT))
+        if (p_ptr->redraw & (PR_CUT))
 	{
 		p_ptr->redraw &= ~(PR_CUT);
 		prt_cut();

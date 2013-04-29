@@ -4,10 +4,6 @@ various files and ideas.
 
 For a start, here are the current bugs:
 
-- Names of some artifacts when random artifacts is off are prematurely
-shortened.
-	This is a bug, and needs to be tracked down and fixed.
-
 - Campaign mode is broken.
 	There are 2 issues here:
 	Stores need to be implemented for the new store types.
@@ -15,14 +11,6 @@ shortened.
 do a re-write of the town generation routines (Especially for cities),
 and import some wilderness generation routines from Pernband (Or if
 I can, Zangband).
-
-- Mushroom weirdness from mushroom patch drops.
-	I'll fix this by creating a x_info.txt file which will
-have a reimplementation of flavors in it. This should also fix
-the problem with amulets not currently having enough flavors yet.
-
-- Chests are not handled 100% yet (You never hit a trap on them).
-	A matter of sitting down and debugging this.
 
 - You should be able to traverse rubble. But requiring 2 moves.
 	Also iron and wooden cages. Provided you are not stuck
@@ -58,12 +46,6 @@ EXP rather than EXP/LVL for monster power.
 of the play.
 	When Robert Rhuelmann releases 3.0, I'll look into
 updating the code base to this version.
-
-- Its a shame because it would look good, but monster lite code
-is not implemented yet.
-	I'll do this the same time I implement hiding and monster
-invisibility. Because I want players to be able to sneak around
-without light and remain hidden.
 
 And new features:
 - Implement Ego lights, and monster bleeding/poisoning from

@@ -88,6 +88,7 @@ typedef struct object_info object_info;
 #endif
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
+typedef struct flavor_type flavor_type;
 typedef struct monster_blow monster_blow;
 typedef struct monster_race monster_race;
 typedef struct monster_lore monster_lore;
@@ -174,12 +175,16 @@ struct maxima
 {
 	u32b fake_text_size;
 	u32b fake_name_size;
+
 	u16b d_max;             /* Max size for "d_info[]" */
 	u16b f_max;             /* Max size for "f_info[]" */
 	u16b k_max;             /* Max size for "k_info[]" */
 
 	u16b a_max;             /* Max size for "a_info[]" */
 	u16b e_max;             /* Max size for "e_info[]" */
+
+        u16b x_max;             /* Max size for "x_info[]" */
+	u16b q_max;		/* Max size for "q_info[]" */
 
 	u16b r_max;             /* Max size for "r_info[]" */
 	u16b v_max;             /* Max size for "v_info[]" */
@@ -189,8 +194,6 @@ struct maxima
 
 	u16b t_max;		/* Max size for "t_info[]" */
         u16b u_max;             /* Max size for "u_info[]" */
-
-	u16b q_max;		/* Max size for "q_info[]" */
 
 	u16b b_max;             /* Max size per element of "b_info[]" */
 	u16b c_max;    		/* Max size per element of "c_info[]" */
@@ -533,6 +536,25 @@ struct ego_item_type
         u16b note;             /* Auto-inscription */
 };
 
+/*
+ * Info about "flavors"
+ */
+struct flavor_type
+{
+	u32b name;                      /* Name (offset) */
+	u32b text;                      /* Text (offset) */
+
+	byte tval[5];           /* Legal tval */
+	byte min_sval[5];       /* Minimum legal sval */
+	byte max_sval[5];       /* Maximum legal tval */
+
+	byte d_attr;            /* Default object attribute */
+	char d_char;            /* Default object character */
+
+	byte x_attr;            /* Desired object attribute */
+	char x_char;            /* Desired object character */
+
+};
 
 
 

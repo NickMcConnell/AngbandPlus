@@ -28,6 +28,12 @@ M:A:136
 # Maximum number of ego-item types
 M:E:128
 
+# Maximum number of flavors
+M:X:185
+
+# Maximum number of quests
+M:Q:6
+
 # Maximum number of monster races
 M:R:1240
 
@@ -39,9 +45,6 @@ M:T:40
 
 # Maximum number of stores
 M:U:33
-
-# Maximum number of quests
-M:Q:6
 
 # Maximum number of player races
 M:P:10

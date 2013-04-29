@@ -1313,6 +1313,22 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'X' for "Maximum x_info[] index" */
+		if (buf[2] == 'X')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the value */
+			z_info->x_max = max;
+
+			/* Next... */
+			continue;
+		}
+
+
 
 		/* Process 'R' for "Maximum r_info[] index" */
 		if (buf[2] == 'R')
@@ -3726,6 +3742,224 @@ errr init_e_info_txt(FILE *fp, char *buf)
 }
 
 
+
+/*
+ * Initialize the "x_info" array, by parsing an ascii "template" file
+ */
+errr init_x_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+        char *s;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+	flavor_type *x_ptr = NULL;
+
+
+	int cur_t = 0;
+
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+		/* Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+			    (v1 != x_head->v_major) ||
+			    (v2 != x_head->v_minor) ||
+			    (v3 != x_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+			if (i >= x_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+			x_ptr = &x_info[i];
+
+			/* Hack -- Verify space */
+			if (x_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the name index */
+			if (!x_ptr->name) x_ptr->name = ++x_head->name_size;
+
+			/* Append chars to the name */
+			strcpy(x_name + x_head->name_size, s);
+
+			/* Advance the index */
+			x_head->name_size += strlen(s);
+
+			/* Start with the first of the tval indices */
+			cur_t = 0;
+
+			/* Next... */
+			continue;
+		}
+
+		/* There better be a current x_ptr */
+		if (!x_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Get the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+			if (x_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the text index */
+			if (!x_ptr->text) x_ptr->text = ++x_head->text_size;
+
+			/* Append chars to the name */
+			strcpy(x_text + x_head->text_size, s);
+
+			/* Advance the index */
+			x_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+			char sym;
+			int tmp;
+
+			/* Paranoia */
+			if (!buf[2]) return (PARSE_ERROR_GENERIC);
+			if (!buf[3]) return (PARSE_ERROR_GENERIC);
+			if (!buf[4]) return (PARSE_ERROR_GENERIC);
+
+			/* Extract the char */
+			sym = buf[2];
+
+			/* Extract the attr */
+			tmp = color_char_to_attr(buf[4]);
+
+			/* Paranoia */
+			if (tmp < 0) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			x_ptr->d_attr = tmp;
+			x_ptr->d_char = sym;
+
+			/* Next... */
+			continue;
+		}
+
+
+
+		/* Process 'T' for "Types allowed" (up to five lines) */
+		if (buf[0] == 'T')
+		{
+			int tval, sval1, sval2;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+					&tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			x_ptr->tval[cur_t] = (byte)tval;
+			x_ptr->min_sval[cur_t] = (byte)sval1;
+			x_ptr->max_sval[cur_t] = (byte)sval2;
+
+			/* increase counter for 'possible tval' index */
+			cur_t++;
+
+			/* only five T: lines allowed */
+			if (cur_t > 5) return (PARSE_ERROR_GENERIC);
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+	++x_head->name_size;
+	++x_head->text_size;
+
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+	/* Success */
+	return (0);
+}
+
+
+
 /*
  * Grab one (basic) flag in a monster_race from a textual string
  */
@@ -6108,6 +6342,32 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
+
+                /* Process 'O' for "Offered" (up to thirty two lines) */
+                if (buf[0] == 'O')
+		{
+                        int tval, sval, count;
+
+			/* Scan for the values */
+			if (3 != sscanf(buf+2, "%d:%d:%d",
+                                        &tval, &sval, &count)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+                        u_ptr->tval[cur_t] = (byte)tval;
+                        u_ptr->sval[cur_t] = (byte)sval;
+                        u_ptr->count[cur_t] = (byte)count;
+
+			/* increase counter for 'possible tval' index */
+			cur_t++;
+
+			/* only five T: lines allowed */
+                        if (cur_t > STORE_CHOICES) return (PARSE_ERROR_GENERIC);
+
+			/* Next... */
+			continue;
+		}
+
+
 
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);

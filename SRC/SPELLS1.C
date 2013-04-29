@@ -1564,7 +1564,8 @@ static bool temp_lite(int y, int x)
                                 monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
                                 /* Detect all non-invisible monsters */
-                                if (!(r_ptr->flags2 & (RF2_INVISIBLE)) || (p_ptr->tim_invis) || (p_ptr->see_inv))
+                                if ((!(r_ptr->flags2 & (RF2_INVISIBLE)) || (p_ptr->tim_invis) || (p_ptr->see_inv))
+							&& !(m_ptr->mflag & (MFLAG_HIDE)))
                                 {
                                         /* Optimize -- Repair flags */
                                         repair_mflag_mark = repair_mflag_show = TRUE;
@@ -6059,6 +6060,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	{
 		x1 = m_list[who].fx;
 		y1 = m_list[who].fy;
+
 	}
 
 	/* Oops */
@@ -6066,6 +6068,18 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	{
 		x1 = x;
 		y1 = y;
+	}
+
+	/* Hack -- lite up source location if appropriate */
+	if (!(flg & (PROJECT_HIDE)))
+	{
+		/* Hack -- fire/lite/plasma/lava/electricity lites source location */
+		if ((typ == GF_FIRE) || (typ == GF_LITE) ||
+			(typ == GF_PLASMA) || (typ == GF_LAVA) ||
+			(typ == GF_ELEC))
+		{
+			notice |= temp_lite(y1,x1);
+		}
 	}
 
 

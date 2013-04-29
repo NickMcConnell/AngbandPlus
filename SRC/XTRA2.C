@@ -2010,7 +2010,6 @@ void check_experience(void)
 	/* Handle stuff */
 	handle_stuff();
 
-
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
 	       (p_ptr->exp < (player_exp[p_ptr->lev-2] *
@@ -2228,13 +2227,12 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
-		/* Some monsters stop radiating lite when dying */
-		if (r_ptr->flags2 & (RF2_HAS_LITE))
-		{
-			/* Update the visuals */
-			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-		}
-
+        /* Some monsters stop radiating lite when dying */
+        if (r_ptr->flags2 & (RF2_HAS_LITE))
+        {
+                /* Update the visuals */
+                p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+        }
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2617,7 +2615,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Maximum player level */
 		div = p_ptr->max_lev;
 
-		/* Give some experience for the kill */
+                /* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
 
 		/* Handle fractional experience */
@@ -2638,7 +2636,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Gain experience */
 		gain_exp(new_exp);
 
-		/* Generate treasure */
+                /* Generate treasure */
 		monster_death(m_idx);
 
 		/* When the player kills a Unique, it stays dead */
@@ -2658,7 +2656,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Delete the monster */
-		delete_monster_idx(m_idx);
+                delete_monster_idx(m_idx);
 
 		/* Not afraid */
 		(*fear) = FALSE;

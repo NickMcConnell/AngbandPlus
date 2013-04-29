@@ -1,3 +1,30 @@
+12-01-2001 Unangband 0.4.8d Bugfix release
+
+- Added x_info.txt flavor file, and code support.
+Note: we could modify the code, so that multiple
+flavors per item could be supported, and then
+randomly determine which flavor the item actually
+was. This would require a flavor field in object,
+and any such item would not be easily known.
+- Note we could think about flavoring other items
+(Ego weapons/armor/etc.) if we stored flavor
+with the object (Probably need to increase it to
+s16b size).
+- Monsters could be generated with 0 maximum
+hp which would result in a crash when killing
+them (Reported by Sean Lester).
+- Changed power levels for invisibility,
+telepathy and new esp flags. This will result
+in new rand artifact sets for existing
+characters.
+- New drakes all had invisible flag by mistake.
+- Now lites source monster if they attack
+using fire/electricity etc. and does not
+reveal hidden monsters this way.
+- Made it so the palantir does not provide lite.
+- Fixed a bug with wizard lites that was preventing
+them providing lite.
+
 07-01-2001 Unangband 0.4.8c Bugfix release
 
 - Updated monster memory to include information

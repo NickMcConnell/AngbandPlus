@@ -64,6 +64,7 @@ gredit.exe: gredit.o
 	$(CC) $(CFLAGS) -o $@ gredit.o $(LIBS) -lgrx20
 
 
+
 #
 # Compile source files
 #
