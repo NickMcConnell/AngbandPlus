@@ -17,13 +17,13 @@
  * Hack -- Link a copyright message into the executable
  */
 cptr copyright[5] =
-{
-	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
-	"",
-	"This software may be copied and distributed for educational, research,",
-	"and not for profit purposes provided that this copyright and statement",
-	"are included in all such copies.  Other copyrights may also apply."
-};
+  {
+    "Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
+    "",
+    "This software may be copied and distributed for educational, research,",
+    "and not for profit purposes provided that this copyright and statement",
+    "are included in all such copies.  Other copyrights may also apply."
+  };
 
 
 /*
@@ -37,10 +37,10 @@ byte version_extra = VERSION_EXTRA;
 /*
  * Savefile version 
  */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra". Used for enryption */
+byte sf_major;		/* Savefile's "version_major" */
+byte sf_minor;		/* Savefile's "version_minor" */
+byte sf_patch;		/* Savefile's "version_patch" */
+byte sf_extra;		/* Savefile's "version_extra". Used for enryption */
 
 
 /*
@@ -54,10 +54,10 @@ u16b sf_saves;			/* Number of "saves" during this life */
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_fiddle;		/* Command arg -- Request fiddle mode */
+bool arg_wizard;		/* Command arg -- Request wizard mode */
+bool arg_sound;			/* Command arg -- Request special sounds */
+bool arg_graphics;		/* Command arg -- Request graphics mode */
 bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
@@ -75,7 +75,7 @@ s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town[10];			/* Hack -- consistent town layout */
+u32b seed_town[10];		/* Hack -- consistent town layout */
 
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
@@ -90,9 +90,9 @@ s32b do_feeling;		/* Hack -- Level feeling indicator */
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
-bool use_transparency = FALSE; /* Use transparent tiles */
-char notes_fname[1024];        /* Buffer to hold current notes file name */
-FILE *notes_file;              /* Notes file */
+bool use_transparency = FALSE;  /* Use transparent tiles */
+char notes_fname[1024];         /* Buffer to hold current notes file name */
+FILE *notes_file;               /* Notes file */
 
 int image_count;  		/* Grids until next random image    */
                   		/* Optimizes the hallucination code */
@@ -134,11 +134,11 @@ s16b SCREEN_WID = 66;
 
 s16b feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
-bool good_item_flag;	/* True if "Artifact" on this level */
+bool good_item_flag;	        /* True if "Artifact" on this level */
 
 bool closing_flag;		/* Dungeon is closing */
 
-bool fake_monochrome;	/* Use fake monochrome for effects */
+bool fake_monochrome;	        /* Use fake monochrome for effects */
 
 
 /*
@@ -258,14 +258,14 @@ term *angband_term[TERM_WIN_MAX];
  */
 char angband_term_name[TERM_WIN_MAX][16] =
 {
-	"FAangband",
-	"Term-1",
-	"Term-2",
-	"Term-3",
-	"Term-4",
-	"Term-5",
-	"Term-6",
-	"Term-7"
+  "FAangband",
+  "Term-1",
+  "Term-2",
+  "Term-3",
+  "Term-4",
+  "Term-5",
+  "Term-6",
+  "Term-7"
 };
 
 
@@ -274,22 +274,22 @@ char angband_term_name[TERM_WIN_MAX][16] =
  */
 byte angband_color_table[256][4] =
 {
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+  {0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
+  {0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
+  {0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
+  {0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
+  {0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
+  {0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
+  {0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
+  {0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
+  {0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
+  {0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
+  {0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
+  {0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
+  {0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
+  {0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
+  {0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
+  {0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
 };
 
 
@@ -298,31 +298,31 @@ byte angband_color_table[256][4] =
  */
 char angband_sound_name[SOUND_MAX][16] =
 {
-	"",
-	"hit",
-	"miss",
-	"flee",
-	"drop",
-	"kill",
-	"level",
-	"death",
-	"study",
-	"teleport",
-	"shoot",
-	"quaff",
-	"zap",
-	"walk",
-	"tpother",
-	"hitwall",
-	"eat",
-	"store1",
-	"store2",
-	"store3",
-	"store4",
-	"dig",
-	"opendoor",
-	"shutdoor",
-	"tplevel"
+  "",
+  "hit",
+  "miss",
+  "flee",
+  "drop",
+  "kill",
+  "level",
+  "death",
+  "study",
+  "teleport",
+  "shoot",
+  "quaff",
+  "zap",
+  "walk",
+  "tpother",
+  "hitwall",
+  "eat",
+  "store1",
+  "store2",
+  "store3",
+  "store4",
+  "dig",
+  "opendoor",
+  "shutdoor",
+  "tplevel"
 };
 
 
@@ -344,10 +344,11 @@ byte *temp_x;
 /*
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
  *
- * This array is padded to a width of 256 to allow fast access to elements
+ * These arrays are padded to a width of 256 to allow fast access to elements
  * in the array via "grid" values (see the GRID() macros).
  */
 byte (*cave_info)[256];
+byte (*cave_info2)[256];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -430,6 +431,11 @@ monster_type *m_list;
  * Array[MAX_M_IDX] of monster lore
  */
 monster_lore *l_list;
+
+/*
+ * Array[MAX_K_IDX] of object squelch values (Grrr)
+ */
+bool *sq_info;
 
 /*
  * Hack -- Array[MAX_Q_IDX] of quests

@@ -66,7 +66,9 @@ ter knows about and has killed by using the '~' command.
 Depending on how much you've learned, you may merely get information about the 
 general kind of object, a basic description of that specific object, artifact 
 and special object lore, or even a complete listing of special qualities and 
-attributes.
+attributes.  If the object is a weapon or ammunition, you will also get an 
+assessment of how much damage can be done with it.  This is very useful to
+help you decide which weapon to use.
      If you want to know what artifacts have appeared in the game (and will 
 therefore not appear again), or whether you already know about Rings of Speed, 
 use the '~' command.

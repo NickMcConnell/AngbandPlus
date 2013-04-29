@@ -131,10 +131,9 @@ Trap Setting: Grants the ability to set monster traps similar to those set by
 all Rogues.  Note that trap damage does depend on disarming skill.  Available
 to Warriors and Rangers.
 
-Unlight: Increases stealth, provides resist darkness, but limits light radius.
-In dark areas provides protection from damage, and allows actions (such as
-reading) which normally require light.  Available to  Necromancers, Rogues,
-and Assassins.
+Unlight: Increases stealth, provides resist darkness, and gives a vision radius
+of 2 when no light is wielded.  In dark areas provides protection from damage. 
+Available to  Necromancers, Rogues, and Assassins.
 
 
 === Allowed Specialty Abilities for Each Class ===

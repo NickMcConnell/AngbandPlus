@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.2.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -111,7 +111,7 @@ F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE |
 F:ACTIVATE | SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
 D:The Nauglamir; the carencet of gold set with a multitude of shining gems of 
-D:Valinor is but a setting.  The true power lies in the awesome Silmaril at 
+D:Valinor is but a setting.  The true power lies in the Silmaril of Feanor at 
 D:it's centre, shining forth the light of the Two Trees of Valinor.  Its 
 D:beauty and desirability are equalled only by its revealing power.
 
@@ -128,7 +128,19 @@ F:INSTA_ART
 D:A massive golden torque, made of innumerable strands of gold and steel 
 D:intermingled, with great golden hounds set at either end.
 
-# Artifact 8 is unused
+# The Elfstone 'Elessar'
+
+N:8:'Elessar'
+I:40:14:2
+W:60:60:3:40000
+P:0:0d0:0:0:10:8
+F:STR | WIS | CHR | SPEED | RES_FIRE
+F:RES_POIS | RES_FEAR | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
+F:IGNORE_COLD | ACTIVATE | INSTA_ART | HIDE_TYPE
+D:Crafted by Enerdhil of Gondolin, a jewel as green as leaves within which the 
+D:clear light of the sun is imprisoned.  The hand of one who holds it bring 
+D:to all that they touch healing from hurt.
+
 
 # The Ring of Barahir (Set Item)
 
@@ -267,7 +279,17 @@ D:A shimmering suit of true-silver, forged by dwarven smiths for Celeborn of
 D:the Teleri.  It gleams with purest white as you gaze upon it, and mighty are 
 D:its powers to protect and banish.
 
-# Artifact 31 is unused
+#The Chain Mail (Dwarven) of the Mormegil (Set Item)
+
+N:31:(Dwarven) of the Mormegil
+I:37:4:2
+W:24:3:220:32000
+P:14:1d4:-2:0:15:0
+F:CON | FREE_ACT | HIDE_TYPE | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_SHARD | RES_NEXUS
+D:A hauberk, leggings, and sleeves of interlocking steel rings, well padded 
+D:with leather.  You feel the vigour of Turin Turambar, the Blacksword of 
+D:Nargothrond, as you put it on.
 
 # The Augmented Chain Mail of Caspanion
 
@@ -607,7 +629,16 @@ D:travail, mantled by sea-commanding Ulmo's kingly gift from a multitude
 D:of hostile eyes.
 
 
-# Artifact 73 is unused
+# The Ethereal Cloak of Glorfindel
+
+N:73:of Glorfindel
+I:35:6:3
+W:10:60:0:50000
+P:0:0d0:0:0:20:0
+F:STR | WIS | CHR | HIDE_TYPE | 
+F:RES_FIRE | RES_FEAR | HOLD_LIFE 
+D:The golden cloak of Glorfindel the Valiant, lord of the House of the Golden 
+D:Flower of Gondolin.  
 
 # Artifact 74 is unused
 
@@ -927,8 +958,8 @@ F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE |
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE | FREE_ACT | SEE_INVIS | AGGRAVATE | 
 F:TWO_HANDED_DES | SHOW_MODS
-D:Runes dark and deadly stand stark against the naked steel of Turin's awesome 
-D:weapon, and you feel a wrathful power of slaying and rending as you 
+D:Runes dark and deadly stand stark against the naked blade of Turin's awesome 
+D:black weapon, and you feel a wrathful power of slaying and rending as you 
 D:slowly approach.
 
 # Artifacts 111 - 112 are unused
@@ -1035,7 +1066,7 @@ F:RES_FEAR | SHOW_MODS
 D:An heirloom of the dauntless Lords of Rhun far to the east, and a name 
 D:of dismay to creatures natural and unnatural.
 
-# The Small Sword 'Sting' 
+# The Small Sword of Idril
 
 N:121:'Sting'
 I:23:8:2
@@ -1044,14 +1075,27 @@ P:0:2d6:7:8:0:0
 F:STR | DEX | CON | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_ORC | SLAY_ANIMAL | RES_FEAR | 
 F:FREE_ACT | LITE | SEE_INVIS | SHOW_MODS
-D:A sword of small size but impressive power.
+D:A sword of small size but impressive power, kept by Idril Celebrindal of
+D:Gondolin for her personal protection.
 
 
-# Artifact 122 is unused
+# The Scimitar of Eglamoth
 
-# The Short Sword 'Gilettar'
+N:122:of Eglamoth
+I:23:18:4
+W:30:8:100:30000
+P:0:2d5:9:11:0:0
+F:DEX | 
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SEE_INVIS | 
+F:SHOW_MODS
+D:A damascened scimitar that hefts with wondrous ease.  Wielded by Eglamoth, 
+D:lord of the House of the Heavenly Arch of Gondolin, and the only one of the 
+D:Noldor to use a curved sword. 
 
-N:123:'Gilettar'
+
+# The Short Sword 'Dagmor'
+
+N:123:'Dagmor'
 I:23:10:3
 W:10:10:60:12000
 P:0:1d7:5:11:0:0
@@ -1171,7 +1215,18 @@ D:a legendary tree, and spells to break the wills of the undead and strike
 D:cold into the breasts of your enemies lay upon this perfectly balanced 
 D:spear.
 
-# Artifact 140 is unused
+# The Great Axe 'Dramborleg'
+
+N:140:'Dramborleg'
+I:22:25:3
+W:60:70:220:170000
+P:0:4d4:15:20:5:0
+F:STR | WIS | SPEED | HIDE_TYPE | 
+F:SLAY_DRAGON | SLAY_DEMON | SLAY_KILL | FREE_ACT | 
+F:RES_FIRE | RES_COLD | RES_DARK | RES_CONFU | RES_NETHR | 
+F:TWO_HANDED_DES | BLESSED | SEE_INVIS | SHOW_MODS
+D:'Thudder-Sharp', the great axe of Tuor of Gondolin, that smote both a 
+D:heavy dint as of a club and cleft as a sword.  
 
 # The Great Axe of Durin
 
@@ -1487,7 +1542,20 @@ D:Wielded by the High Priest of Tirion, this great mace gleams coldly as
 D:though moonlit, and it can strike as mighty a blow spiritually as 
 D:physically.
 
-# Artifact 170 is unused
+# The Lead-Filled Mace of Rog
+
+N:170:of Rog
+I:21:15:4
+W:20:15:180:30000
+P:0:3d4:10:15:0:0
+F:STR | CON | HIDE_TYPE | 
+F:BRAND_ELEC | SLAY_ORC | SLAY_DEMON | RES_ELEC | RES_LITE | RES_FIRE |
+F:RES_FEAR | RES_SHARD | LITE |  
+F:SHOW_MODS
+D:The great long-handled mace of Rog the Fearless, Lord of the house of the 
+D:Hammer of Wrath of Gondolin.  Wrought by the greatest craftsmen of the 
+D:Noldor, it strikes sparks as it crushes the hordes of Angband.
+
 
 # Artifact 171 is unused
 

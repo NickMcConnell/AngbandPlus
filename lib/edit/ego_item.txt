@@ -24,7 +24,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.2.0
 
 #N: ego-item index: name (appended to base object description)
 #X: amount the level feeling is increased by: xtra 
@@ -573,7 +573,8 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:Strong friend in peril, this weapon enhances stealth, resists all four 
 D:basic elements and cannot be damaged by them, grants see invisible and 
 D:protection from paralysis, increases armour class, boosts regeneration 
-D:speed, and renders the wearer lightfooted.
+D:speed, and renders the wearer lightfooted.  It also randomly sustains one 
+D:stat.
 
 # OneAbility
 
@@ -598,9 +599,10 @@ C:7:7:0:0
 F:SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_DRAGON |
 F:LITE | RES_DARK | SEE_INVIS | FREE_ACT |
 F:IGNORE_ACID | IGNORE_FIRE
-D:A weapon crafted for the defence of the Hidden Kingdom.  Deadly to the 
-D:invading hordes from Angband, it's bearer need not fear the dark or those 
-D:hidden from normal sight, and cannot be paralysed.
+D:A weapon crafted for the defence of the Hidden Kingdom, it is deadly to the 
+D:invading hordes of orcs, trolls, dragons and demons from Angband.  It gives 
+D:its bearer resistance to dark, permanent light, the ability to see those 
+D:hidden from normal sight, immunity from paralysis, and one extra power.
 
 N:68:of the Noldor
 X:20:0
@@ -613,7 +615,8 @@ F:STR | DEX | CON |
 F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
 F:FREE_ACT | SEE_INVIS
 D:A weapon made by the Deep Elves, feared by trolls, orcs, and giants.  It 
-D:offers sight of the unseen and protects from paralysis.
+D:offers sight of the unseen and protects from paralysis, and increases 
+D:strength, dexterity and constitution.
 
 
 N:69:of Nogrod
@@ -625,7 +628,8 @@ W:0:15:0:5000
 C:0:0:0:2
 F:TUNNEL | SPEED | LITE
 D:Cunningly designed by the dwarves of Nogrod, this weapon will aid swift 
-D:movement underground.
+D:movement underground.  It glows permanently, and increases the wielder's 
+D:speed and tunnelling ability.
 
 # 70 (unused)
 
@@ -920,8 +924,8 @@ W:50:4:0:20000
 C:10:10:0:2
 F:DEX | MIGHT1 | STEALTH | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 D:A bow of the Green Elves of in the Land of the Seven Rivers.  It's wielder 
-D:will find extra power in its shots, and feel nimbler and safe from prying 
-D:eyes.
+D:will find extra power in its shots, and will have greater stealth and 
+D:dexterity.
 
 N:107:of Extra Might
 X:20:0

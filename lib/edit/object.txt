@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.2.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -257,14 +257,14 @@ W:0:0:10:2
 D:A heady wine, almost as good as that served at the Green Dragon at Bywater.
 
 N:36:& Sprig~ of Athelas
-G:,:g
+G:,:g1
 I:80:40:0
 W:25:0:2:450
 A:35/2:60/2
 D:Athelas will break the grip of the Black Breath.
 
 N:37:& Cake~ of the Beornings
-G:,:U
+G:,:U1
 I:80:41:7500
 W:25:0:7:18
 A:25/2:45/2
@@ -843,7 +843,7 @@ F:SHOW_MODS
 D:The traditional hunter's weapon, this light bow is easily drawn.
 
 N:131:& Long Bow~
-G:}:U
+G:}:U1
 I:19:13:0
 W:18:0:40:350
 A:18/1:50/2
@@ -867,7 +867,7 @@ D:A mechanical bow made of wood, it is cocked to augment the strength
 D:of its wielder.
 
 N:135:& Heavy Crossbow~
-G:}:s
+G:}:s1
 I:19:24:0
 W:45:0:200:300
 A:45/1:70/2
@@ -889,12 +889,12 @@ G:{:s
 I:16:1:0
 W:1:0:1:1
 A:1/1:30/2
-P:0:1d3:0:0:0
+P:0:1d5:0:0:0
 F:SHOW_MODS
 D:A grapestone-shaped slug of lead, the right heft for hurling from a sling.
 
 N:139:& Seeker Shot~
-G:{:s
+G:{:y
 I:16:2:0
 W:40:0:2:10
 A:40/2:65/1
@@ -911,7 +911,7 @@ G:{:U
 I:17:1:0
 W:3:0:1:2
 A:3/1:15/1:55/2
-P:0:1d4:0:0:0
+P:0:1d6:0:0:0
 F:SHOW_MODS
 D:A standard clothyard arrow, straight and cleanly fletched.
 
@@ -934,7 +934,7 @@ G:{:s
 I:18:1:0
 W:3:0:2:3
 A:3/1:25/1:65/2
-P:0:1d5:0:0:0
+P:0:1d7:0:0:0
 F:SHOW_MODS
 D:A short, heavy arrow shot from a crossbow.
 
@@ -1385,7 +1385,7 @@ D:An exquisite suit of nearly impenetrable adamantite.
 ##### Armour -- Dragon Scale Mail #####
 
 N:213:Black Dragon Scale Mail~
-G:[:s
+G:[:s1
 I:38:1:0
 W:50:0:200:30000
 A:50/8
@@ -1478,7 +1478,7 @@ D:as you touch it, like massed trumpets heard and cyclones felt from afar.  ~
 ## XXX 223 XXX ##
 
 N:224:Bronze Dragon Scale Mail~
-G:[:U
+G:[:U1
 I:38:14:0
 W:55:0:200:30000
 A:55/8
@@ -1632,7 +1632,7 @@ D:A massive set of hand sheathings, bound with steel and thrice-cured leather.
 ##### Armour - Shields #####
 
 N:244:& Wicker Shield~
-G:):U
+G:):U1
 I:34:1:0
 W:1:0:30:25
 A:1/1
@@ -2854,50 +2854,56 @@ D:that restores your stolen charm.
 N:428:Strength
 G:!:d
 I:75:48:0
-W:26:0:4:6000
-A:30/6:40/2:50/2
+W:16:0:4:4000
+A:20/6:30/2:40/2
 P:0:1d1:0:0:0
 D:that makes you permanently stronger.
+F:NO_ORDER 
 
 N:429:Intelligence
 G:!:d
 I:75:49:0
-W:26:0:4:6000
-A:35/6:45/2:55/2
+W:16:0:4:4000
+A:25/6:35/2:45/2
 P:0:1d1:0:0:0
 D:that makes you permanently smarter.
+F:NO_ORDER 
 
 N:430:Wisdom
 G:!:d
 I:75:50:0
-W:26:0:4:6000
-A:35/6:45/2:55/2
+W:16:0:4:4000
+A:25/6:35/2:45/2
 P:0:1d1:0:0:0
 D:that makes you permanently wiser.
+F:NO_ORDER 
 
 N:431:Dexterity
 G:!:d
 I:75:51:0
-W:26:0:4:6000
-A:30/6:40/2:50/2
+W:16:0:4:4000
+A:20/6:30/2:40/2
 P:0:1d1:0:0:0
 D:that makes you permanently more agile.
+F:NO_ORDER 
 
 N:432:Constitution
 G:!:d
 I:75:52:0
-W:26:0:4:6000
-A:30/6:40/2:50/2
+W:16:0:4:4000
+A:20/6:30/2:40/2
 P:0:1d1:0:0:0
 D:that makes you permanently more healthy.
+F:NO_ORDER 
 
 N:433:Charisma
 G:!:d
 I:75:53:0
-W:22:0:4:1500
-A:15/6:28/2:40/2
+W:12:0:4:1000
+A:5/6:18/2:30/2
 P:0:1d1:0:0:0
 D:that makes you permanently more charming.
+F:NO_ORDER 
 
 N:434:Resistance
 G:!:d
@@ -2914,6 +2920,7 @@ W:60:0:4:40000
 A:60/2
 P:0:1d1:0:0:0
 D:that improves your mind and body in every way.
+F:NO_ORDER 
 
 N:436:Enlightenment
 G:!:d
@@ -2931,6 +2938,7 @@ A:70/4
 P:0:1d1:0:0:0
 D:that reveals the level and its secrets, improves your mind, 
 D:identifies your possesions, and gives self knowledge.
+F:NO_ORDER 
 
 N:438:Self Knowledge
 G:!:d
@@ -2947,6 +2955,7 @@ W:40:0:4:25000
 A:40/20
 P:0:1d1:0:0:0
 D:that enhances your life force.
+F:NO_ORDER 
 
 N:440:Blood Mastery
 G:!:d
@@ -2956,6 +2965,60 @@ A:70/5
 P:0:1d1:0:0:0
 D:that turns you into a Vampire.  It is dangerous to the holy and to 
 D:the guardians of nature.
+
+N:441:*Strength*
+G:!:d
+I:75:61:0
+W:26:0:4:6000
+A:30/6:40/2:50/2
+P:0:1d1:0:0:0
+D:that makes you permanently very strong.
+F:NO_ORDER 
+
+N:442:*Intelligence*
+G:!:d
+I:75:62:0
+W:26:0:4:6000
+A:35/6:45/2:55/2
+P:0:1d1:0:0:0
+D:that makes you permanently very smart.
+F:NO_ORDER 
+
+N:443:*Wisdom*
+G:!:d
+I:75:63:0
+W:26:0:4:6000
+A:35/6:45/2:55/2
+P:0:1d1:0:0:0
+D:that makes you permanently very wise.
+F:NO_ORDER 
+
+N:444:*Dexterity*
+G:!:d
+I:75:64:0
+W:26:0:4:6000
+A:30/6:40/2:50/2
+P:0:1d1:0:0:0
+D:that makes you permanently very agile.
+F:NO_ORDER 
+
+N:445:*Constitution*
+G:!:d
+I:75:65:0
+W:26:0:4:6000
+A:30/6:40/2:50/2
+P:0:1d1:0:0:0
+D:that makes you permanently very healthy.
+F:NO_ORDER 
+
+N:446:*Charisma*
+G:!:d
+I:75:66:0
+W:22:0:4:1500
+A:15/6:28/2:40/2
+P:0:1d1:0:0:0
+D:that makes you permanently very charming.
+F:NO_ORDER 
 
 ## XXX 441 XXX ##
 
@@ -3013,12 +3076,12 @@ A:70/8
 P:0:1d1:0:0:0
 D:that duplicates most foes.
 
-# Rarer in Oangband, because it is so powerful
+# Rarer in Oangband, because it is so powerful; now shallower in FAangband
 N:458:Teleport Away
 G:-:d
 I:65:3:8
 W:35:0:10:1750
-A:35/3
+A:25/3
 P:0:1d1:0:0:0
 D:that teleports foes away.
 
@@ -3361,7 +3424,7 @@ D:that summons more enemies for you to fight.
 N:504:Teleportation
 G:_:d
 I:55:4:10
-W:40:0:50:1500
+W:30:0:50:1500
 A:40/1:70/2
 P:0:1d2:0:0:0
 D:that can teleport you across the dungeon.
@@ -4020,7 +4083,7 @@ P:0:2d5:0:0:0
 D:An unassuming box, with room for several items.
 
 N:618:& Small iron chest~
-G:~:W
+G:~:s
 I:7:2:0
 W:40:0:300:1800
 A:40/7
@@ -4028,7 +4091,7 @@ P:0:2d4:0:0:0
 D:A sturdy metal container, with room for a few items.
 
 N:619:& Large iron chest~
-G:~:W
+G:~:s
 I:7:6:0
 W:50:0:550:3000
 A:50/10
@@ -4084,7 +4147,7 @@ P:0:1d1:0:0:0
 D:A small pointed metal bar, suitable for wedging under doors to slow down pursuit.
 
 N:627:& Wooden Torch~
-G:~:U
+G:~:U1
 I:39:0:4000
 W:1:0:30:2
 A:1/2
@@ -4303,7 +4366,7 @@ N:658:[Raal's Tome of Destruction]
 G:?:r
 I:90:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A spellbook of destructive power for Mages.
@@ -4386,7 +4449,7 @@ N:668:[Wrath of the Valar]
 G:?:b
 I:91:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A holy book of fearsome wrath for Priests and Paladins.
@@ -4468,7 +4531,7 @@ N:678:[Powers of Aman]
 G:?:g
 I:92:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A stone of the greatest natural lore for Druids.
@@ -4550,7 +4613,7 @@ N:688:[Necronomicon]
 G:?:v
 I:93:8:0
 W:95:0:30:100000
-A:95/4
+A:95/2
 P:0:0d0:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 D:A tome of untold evil for Necromancers.
@@ -4748,7 +4811,7 @@ F:INSTA_ART
 # The Lamp of Gwindor -- see artifact list
 
 N:733:& Lamp~
-G:~:y
+G:~:b
 I:39:4:0
 W:1:0:10:10000
 P:0:1d1:0:0:0
@@ -4757,7 +4820,7 @@ F:INSTA_ART
 # The Pearl 'Nimphelos'  -- see artifact list
 
 N:734:& Pearl~
-G:~:y
+G:~:w
 I:39:5:0
 W:40:0:5:25000
 P:0:1d1:0:0:0
@@ -4766,7 +4829,7 @@ F:INSTA_ART
 # The Palantir of Avallone -- see artifact list
 
 N:735:& Palantir~
-G:~:y
+G:~:D1
 I:39:6:0
 W:90:0:5:60000
 P:0:1d1:0:0:0
@@ -4804,7 +4867,14 @@ I:40:13:0
 W:30:0:3:25000
 F:INSTA_ART
 
-## XXX 740 XXX ##
+# The Elfstone 'Elessar' -- see artifact list
+
+N:740:& Elfstone~
+G:":g
+I:40:14:0
+W:30:0:3:40000
+F:INSTA_ART
+
 
 # The Ring of Barahir -- see artifact list
 

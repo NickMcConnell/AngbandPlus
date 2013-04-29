@@ -27,8 +27,7 @@ SRCS = \
 	generate.c \
 	init1.c \
 	init2.c \
-	load1.c \
-	load2.c \
+	load.c \
 	main-win.c \
 	monmove.c \
 	monattk.c \
@@ -74,8 +73,7 @@ EXOBJS = \
 	generate.o \
 	init1.o \
 	init2.o \
-	load1.o \
-	load2.o \
+	load.o \
 	main-win.o \
 	monmove.o \
 	monattk.o \
@@ -212,10 +210,7 @@ init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
-load1.o: load1.c $(INCS)
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
-
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 main.o: main.c $(INCS)

@@ -15,12 +15,14 @@ wide variety of paths through the wilderness.  There are also different types
 of wilderness - plains which are mainly grass with sometimes a river running 
 through, forests which are mainly trees, mountains with a maze of rocky paths, 
 deserts full of rock and rubble, and pathless swamps of grass and water.
-     There are five dungeons to be explored, each of which has a guardian on
-its deepest level (well, actually there are deeper levels of Angband, but 
-let's not be too ambitious yet).  New specialist abilities become available 
-after defeating your first and second dungeon guardians.  The shallowest levels
-of the dungeons are 16 (for Amon Rudh), 30 (for Nargothrond, Nan Dungortheb and
-Tol-In-Gaurhoth) and 40 (for Angband).
+     There are five dungeons (well, almost) to be explored, each of which has 
+a guardian on its deepest level (well, actually there are deeper levels of 
+Angband, but let's not be too ambitious yet).  New specialist abilities become 
+available after defeating your first and second dungeon guardians.  The 
+shallowest levels of the dungeons are 16 (for Amon Rudh), 30 (for Nargothrond 
+and Tol-In-Gaurhoth) and 40 (for Angband).  Nan Dungortheb is not a dungeon, 
+but a spider-ridden valley which can only be descended and not ascended;
+it also has a guardian.
 
 --- Dungeon Features, Light, Level Feelings, and Mining ---
 
@@ -31,14 +33,16 @@ benefit more from favorable and suffer less from unfavorable terrain than the
 player does.
 
      Rubble:
-          Slows down the player and all monsters that cannot bore or pass 
-     through rock.  Ends LOS, stops missiles, bolts, and beams, and reduces 
+          Slows down the player (apart from all types of dwarves) and all 
+     monsters that cannot bore or pass through rock.  Ends LOS, stops 
+     missiles, bolts, and beams, and reduces 
      the radius of ball spells.  Grants the player and monsters within it some 
      protection from melee, ranged, or magical attacks.  Rubble may dissolve 
      to normal floor.
 
      Water:
-          Cannot be passed by players with heavy burdens, or fiery, earthbound
+          Greatly slows players (apart from Maiar) with heavy burdens, and 
+     humanoid monstersor fiery, and is impassable to earthbound
      monsters.  All melee or ranged attacks and most spells benefit when the 
      target is in water, especially water-based spells.  Fire-based spells 
      become much less powerful, so find a lake if you battle Smaug.  Water may 
@@ -53,15 +57,24 @@ player does.
      floor.
 
      Trees:
-          Slows down players not familiar with druidic techniques, and all 
-     non-natural monsters that neither fly nor pass through rock.  Ends LOS, 
-     stops missiles, bolts, and beams, and reduces the radius of ball spells.  
-     Grants the player and monsters within it some protection from melee, 
-     ranged, or magical attacks.  Trees can burn.
+          Slows down players not familiar with druidic techniques or elven, 
+     and all non-natural monsters that neither fly nor pass through rock.  
+     Ends LOS, stops missiles, bolts, and beams, and reduces the radius of 
+     ball spells.  Grants the player and monsters within it some protection 
+     from melee, ranged, or magical attacks.  Trees can burn.
 
      Grass:
           Just like open floors, but green.
 
+     Web: 
+	  Woven by spiders.  Does not block line of sight or the passage of 
+     missiles, but players and monsters other than spiders will need to take a 
+     turn to clear the web before they can move on (players using the 'T' 
+     command).
+
+     Abyss:
+          Inhabitable only by flying monsters or players.  Others venturing 
+     (or forced) into it will fall into the darkness.
 
 Staircases, Secret Doors, and Traps:
           Paths lead from one region to another in wilderness.  Staircases 
@@ -104,8 +117,8 @@ Light:
      rumoured that other light sources exist which never need replenishing.
 
 Level Feelings:
-          If you have spent enough time on the previous level, you will get a 
-     message describing the level as you enter it.  The more interesting the 
+          After being on a level for a short while, you will get a 
+     message describing it.  The more interesting the 
      choice of adjectives, the more dangerous and lucrative the level is 
      likely to be.  If you have chosen Preserve mode when creating your 
      character, you will occasionally get the message "you have a special 
@@ -130,3 +143,4 @@ Mining:
      sorts of special vaults lie deep below the surface, some completely en-
      closed by solid rock, but smart adventurers deliberately alter the 
      dungeon to make the most dangerous breathers and summoners manageable.
+          Dwarves are exceptionally good miners.

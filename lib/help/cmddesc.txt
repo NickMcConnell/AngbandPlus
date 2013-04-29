@@ -233,7 +233,8 @@ Tunnel (T) or Tunnel (Ctrl-T)
      wall seams, and otherwise alter the environment to your liking.  Races 
      other than Ents would be well advised to be wielding a weapon, preferably 
      something heavy or especially designed for digging, before attempting to 
-     tunnel.  
+     tunnel.  This command will also remove a web, either from within it 
+     (automatically) or beside it.
      This command may take a count, is affected by the "always_repeat" option, 
      requires a direction, and takes some energy.
 
@@ -480,7 +481,8 @@ Observe an item (I)
      about the object, you see generic information about the object kind.  If 
      you have identified or otherwise know the object, a object description 
      will also often appear.  If you have fully *identified* an object, you 
-     will recall all the object attributes.
+     will recall all the object attributes.  This command will also give a 
+     summary of damage dealt by weapons and ammunition.
 
 
 --- Message Commands ---

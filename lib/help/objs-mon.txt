@@ -23,15 +23,17 @@ Your inventory (backpack) and equipment (your person):
 
 Your quiver:
           Your equipment includes a quiver, which may hold up to ten different 
-     kinds of ammo.  Once placed in the quiver (using the wield command), ammo 
-     normally sorts in the quiver slots just as it does in the packpack.  You may 
-     lock ammo into a specific slot, and make shooting a lot more convenient, by 
-     inscribing ammo with inscriptions similar to "@1", or "@f1".  Wherever you 
+     kinds of ammo or throwing weapons.  Once placed in the quiver (using the 
+     wield command), ammo and weapons normally sort in the quiver slots just 
+     as they do in the packpack.  You may lock them into a specific slot, and 
+     make ranged combat a lot more convenient, by inscribing them with 
+     inscriptions similar to "@1", or "@f1", or "@v1".  Wherever you 
      store it, ammo still takes up space; for every 99 missiles (or fraction 
-     thereof) that you place in the quiver slots, you lose an inventory slot.  
-     Any such slots will be clearly marked.  Ammo on the floor will automatically 
-     combine with similar items in the quiver, which makes cleaning up after a 
-     big fight much easier.
+     thereof) that you place in the quiver slots, you lose an inventory slot. 
+     Throwing weapons take the space of 5 pieces of ammo each.  Any such slots 
+     will be clearly marked in your inventory listing.  Ammo on the floor will 
+     automatically combine with similar items in the quiver, which makes 
+     cleaning up after a big fight much easier.
 
 
 Specific Types of Objects:

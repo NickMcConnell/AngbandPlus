@@ -9,7 +9,7 @@ Other option sets are described in their own documentation file.
 
 === Option Set 5 -- Birth Options ===
 
-     Point Based (Default -  ON):
+     Point Based (Default -  OFF):
 
          Point based character creation allows you to skip 'rolling
          for stats' altogether.  Instead you have a limited number of
@@ -17,7 +17,7 @@ Other option sets are described in their own documentation file.
          Higher stats cost much more than lower ones.  Leftover points
          are converted into extra starting money.
 
-     Auto Roller (Default -  ON):
+     Auto Roller (Default -  OFF):
 
          If you do not use point based character creation, this option
          will allow you to specify minimum stats.  Characters are
@@ -28,10 +28,16 @@ Other option sets are described in their own documentation file.
          be impossible to generate a character with multiple high
          stats specified.
 
-     Preserve (Default -  ON):
+     Preserve (Default -  OFF):
 
          Selecting Preserve mode makes it possible for artifacts to reappear
          if generated but not discovered, but eliminates all the handy 
          "special"  feelings (see the help file "wild-dun.txt").  In 
          FAangband, preserve mode can be problematic, as it is often hard to 
          clear an entire wilderness level.
+
+     Character Notes (Default - ON):
+
+	 Record all the main life milestones of your character automatically 
+	 in a notes file.  If selected, the notes file can be viewed from the
+	 '~' knowledge menu, and will appear in character dumps.

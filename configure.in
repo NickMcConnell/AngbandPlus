@@ -61,7 +61,6 @@ AC_DIAGNOSE([obsolete],[AC_CYGWIN is obsolete: use AC_CANONICAL_HOST and $host_o
 	 * ) CYGWIN=no;;
 esac
 
-AC_CANONICAL_HOST()
 AC_DIAGNOSE([obsolete],[AC_MINGW32 is obsolete: use AC_CANONICAL_HOST and $host_os])case $host_os in
   *mingw32* ) MINGW32=yes;;
 	  * ) MINGW32=no;;

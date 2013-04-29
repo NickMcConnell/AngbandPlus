@@ -35,7 +35,7 @@ Taur-Im-Duinath, Ephel Brandir and Ered Luin South.
 --- Stores ---
 
      To enter a store, simply move onto the entrance, which is represented by 
-a number from 1 to 9.  Once inside a store, you will see the name and race of 
+a number from 0 to 9.  Once inside a store, you will see the name and race of 
 the store owner, the name of the store, the maximum amount of cash that the 
 store owner will pay for any one item, and the store inventory.  The price of 
 items on sale depends on their base cost, how well your and the store owner's 
@@ -66,6 +66,8 @@ identified, they will pay you some base price for it.  Once they have bought
 it they will immediately identify the object.  If it is a good object, they 
 will add it to their inventory.  If it was a bad bargain, they simply throw 
 the item away.  In any case, you may receive some knowledge of the item type.
+Travelling merchants do not put out the stock you sell them - see below for
+more details.
 
 Bargaining:
      If you toggle the auto-haggle option off, you may bargain with the store 
@@ -80,7 +82,6 @@ keeper long enough, and forced him down to his final offer often enough, he
 will recognize that you are such a superb haggler that he'd might as well give 
 you the best possible price without argument.  The more expensive the item is, 
 the less likely the store owner is to assume that you are a good haggler.
-
 
 The General Store ("1")
      The General Store sells foods, drinks, cloaks, torches, lamps, oil, 
@@ -129,6 +130,15 @@ Your Home ("8")
 The Bookseller ("9")
      This shop carries all low-level spellbooks, and will purchase any book 
      you find.  Spellcasters beware - these are only available in large towns.
+
+The Travelling Merchant ("0")
+    This shop appears only in small towns.  It sells a range of General Store
+    type items, weapons and armour, but at a premium price.  Anything you sell
+    the Merchant will be stashed in his travelling bag rather than resold 
+    straight away.  It is also possible to put in an order for the regular
+    spellcaster books, and most potions and scrolls that have already been
+    identified; if you return later, the merchant may have stocked some of 
+    your desired item.
 
 ---Moving House---
 

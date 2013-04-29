@@ -43,9 +43,9 @@ deal of training and equipment to come into its own deeper in the
 dungeons.  As you will discover, upgrading to weapons with higher base
 damages is vital but heavy weapons are very hard to master.  You will
 have to find a compromise, depending on class, experience level, and
-available equipment (use the 'C'haracter screen to see how various
-weapons affect your melee skill).  Magical aids to combat (Bless,
-Heroism, and Berserk) can make all the difference when fighting tough
+available equipment (use the 'C'haracter screen or the 'I' (observe) command
+to see how various weapons affect your melee skill).  Magical aids to combat 
+(Bless, Heroism, and Berserk) can make all the difference when fighting tough
 monsters.
 
 
@@ -212,7 +212,9 @@ oil can be a life-saver, and there are rumours of objects deep in the
 dungeon that can do large amounts of damage when thrown.  Perhaps the
 most effective use of a high throwing skill is whipping daggers,
 darts, spears, throwing axes, and throwing hammers at your foes.  Such
-items do benefit from other Skill and Deadliness bonuses.
+items do benefit from other Skill and Deadliness bonuses.  Rogues, Warriors, 
+Assassins and Rangers have the best throwing skills; Mages can get similar
+throwing ability with a spell. 
 
      Attacking:
          To throw an object, you use the 'v' command and select any

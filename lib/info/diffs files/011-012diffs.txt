@@ -39,7 +39,3 @@ Bugs Fixed from 0.1.1
 
 - Some monster and object descriptions had incorrect spacing
 
-Contributers to this list include Sampsa Lahtonen, HallucinationMushroom, 
-Dean Chung, Artagas, Brian Pemberton, and probably others who I apologise for 
-forgetting; thanks to all of you.  Thanks also to Bahman Rabii for the
-continued improvements to Oangband, some of which I've been able to pinch.

@@ -430,7 +430,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"bahman@topped-with-meat.com"
+#define MAINTAINER	"nckmccnnll@yahoo.com.au"
 
 /*
  * OPTION: Default font (when using X11).

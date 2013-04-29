@@ -14,7 +14,7 @@ guys are still alive; all the good guys are dead, or at least have lost their
 best equipment), an attempt has been made to remove as many anachronisms as 
 possible.
 
-Here are the big changes:
+Here are the big changes from Oangband:
 
 - Races have been significantly changed.  Half-Orcs, Half-Trolls, Half-elves 
   and Shadow Fairies have gone; there are new varieties of Elves, Dwarves and 
@@ -68,19 +68,6 @@ Here are the big changes:
   playing it in Oangband; anyone with an Oangband compatible Angband savefile
   (version 2.9.1 or older) should be congratulated and, well, upgrade.
 
-Plans for future releases:
-
-- Improve stores.  At this point they are like McDonalds - no matter which town
-  you're in, you're getting the same product.  Eventually I intend to have 
-  different storekeepers and stock in every town (that's 50 separate stores), 
-  with each town's storekeepers being natives of the town.
-
-- Steal stuff from other variants.  The character notes from NPPangband is one
-  example that's high on the list.
-
-- Rebalance/bugfix.  I really don't have much of a clue how balanced it is 
-  currently and where that balance lies; any feedback is most welcome. 
-  
 Thanks to everyone who posts to rec.games.roguelike.angband and/or 
 angband.oook.cz, and particularly to Leon Marrick and Bahman Rabii for
 Oangband.
@@ -93,7 +80,7 @@ Nick McConnell
 === See also oangdesc.txt for OAngband Copyright Information ===
 === See also angdesc.txt for Angband Copyright Information ===
 
-FAangband Version 0.1.1:  Nick McConnell
+FAangband Version 0.2.0:  Nick McConnell
 
 Copyright (c) 2005      Nick McConnell, Bahman Rabii, Leon Marrick, 
                         Robert Ruehlmann, Ben Harrison, James E. Wilson, 

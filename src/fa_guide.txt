@@ -1,6 +1,6 @@
-Valid for Oangband 0.5.0
+Valid for FAangband 0.2.0
 
-ANGBAND.ICO, ANGBAND.RC, readdib.c, readdib.h
+FAangband.ico, angband.rc, readdib.c, readdib.h
 ** Windows specific files.  Delete or ignore if not using a windows
    system.
 
@@ -41,8 +41,8 @@ cmd3.c
 cmd4.c
 /* Screen refresh, change character name, message recall, interacting 
  * with options (inc. text of cheat options), macros, visuals, also level 
- * feelings, screen dumps/loading, and known Uniques/Artifacts/Objects/
- * recalling the contents of the home.
+ * feelings, screen dumps/loading, and knowledge screens for monsters,
+ * objects, notes, recalling the contents of the home.
 
 cmd5.c
 /* Warrior probing.  Selection, browsing, learning, and casting of spells 
@@ -73,7 +73,8 @@ files.c
 generate.c
 /* Code for making, stocking, and populating levels when generated.  
  * Additions to level feelings.  Includes rooms of every kind, pits, 
- * nests, vaults (inc. interpretation of v_info.txt).  Level feelings 
+ * nests, vaults (inc. interpretation of v_info.txt), and all the 
+ * different types of wilderness.  Level feelings 
  * and other messages, autoscummer behavior.  Creation of the town.
 
 info.c
@@ -81,7 +82,7 @@ info.c
  * Detailed info on spells.  Text for extended object descriptions of 
  * various kinds, artifact and DSM activation and flag descriptions.  Self 
  * Knowledge.  Spell failure chance, if is OK to cast, extra info shown in 
- * books, and print spells of a given spellbook.
+ * books, and print spells of a given spellbook.  Weapon damage info.
 
 init1.c
 /* Initialization of monsters, objects, artifacts, ego-items, and terrain.
@@ -93,21 +94,18 @@ init2.c
  * of what items are sold in the stores, prepare stores, inventory, and 
  * many other things, some error text, startup initializations.
 
-load1.c
-/* Old savefile handling.
+load.c
+/* Savefile handling.
 
-File: load2.c
-/* Up-to-date savefile handling
-
-File: main.c
+main.c
 /* system-specific variations and special features, command-line arguments.
 
-melee1.c
+monattk.c
 /* Monster melee attacks.  Monster critical blows, whether a monster 
  * attack hits, insult messages.  The code used when a monster attacks 
  * an adjacent player, including descriptions and effects.
 
-melee2.c
+monmove.c
 /* Monster learning, monster distance attacks and spells, fear, flow/
  * movement, monster AI effecting movement and spells, process a monster 
  * (with spells and actions of all kinds, reproduction, effects of any 
@@ -149,7 +147,7 @@ randart.c
  * names to the a_name array.  Initializing all random artifacts.
 
 save.c
-/* Creation of savefiles.  Loading a player from a savefile.
+/* Creation of savefiles.
 
 spells1.c
 /* Polymorph, teleport monster, teleport player, colors and ascii 
@@ -182,7 +180,7 @@ store.c
  * inventory management, what a store will buy (what stores will sell
  * is in init2.c, and store owners in tables.c), interacting with the
  * stores (entering, haggling, buying, selling, leaving, getting kicked
- * out, etc.).  Shuffle store owners.
+ * out, etc.).  Shuffle store owners, select the right race for the town.
 
 tables.c
 /* Mapping of directions, what classes are legal for what races.  Stat 
@@ -190,7 +188,10 @@ tables.c
  * cost, player sexes, races, classes, spell table (for each class), spell 
  * names by index, conversion of +to_d to Deadliness, traps on chests, 
  * class names, color names, stat abbrevs, window flags, options and their
- * default values.  Druid blows.  
+ * default values.  Druid blows.  The entire world map structure, and 
+ * store types.
+
+---
 
 util.c
 /* Functions, etc. for various machines that need them.  Basic text-handing 

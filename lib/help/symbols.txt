@@ -25,6 +25,7 @@ divided into dungeon features, objects, and monsters:
   .   Water                           9   Entrance to the Bookseller
   #   Lava (red)
   .   Grass (green)
+  %   Web (yellow)
 
                    Features that block line of sight
 

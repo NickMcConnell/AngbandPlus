@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.2.0
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -51,7 +51,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:':u
 
 # 0x06 --> up stairs (perm)
 
@@ -88,15 +88,15 @@ G:.:g
 N:12:invisible trap
 G:.:g
 
-# 0x0D --> shop -- magic shop (old)
+# 0x0D --> special feature -- web
 
-N:13:Magic Shop
-G:6:r
+N:13:web
+G:%:y
 
 # 0x0E --> shop -- black market (old)
 
-N:14:Black Market
-G:7:D
+N:14:empty space
+G: :D
 
 # 0x0F --> shop -- home (old)
 
@@ -413,6 +413,11 @@ G:8:y
 
 N:72:Bookstore
 G:9:o
+
+# 0x49 --> shop -- travelling merchant (perm)
+
+N:73:Travelling Merchant
+G:0:u
 
 # 0x50 --> monster trap -- basic
 

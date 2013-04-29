@@ -33,7 +33,7 @@
 
 # Version stamp (required)
 
-V:0.1.2
+V:0.2.0
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -67,43 +67,43 @@ N:3:50:100:60
 D:You are a well liked child.  
 
 N:4:7:40:50
-D:Your mother was a Green Elf.  
+D:You are of the Nandor.  
 N:4:7:75:55
-D:Your father was a Green Elf.  
+D:You were born by the River Adurant.  
 N:4:7:90:55
-D:Your mother was of the clan of Lenwe.  
+D:You followed Denethor across the Ered Luin.  
 N:4:7:95:60
-D:Your father was of the clan of Lenwe.  
+D:You are of the clan of Lenwe.  
 N:4:7:98:65
-D:Your mother was the daughter of Denethor.  
+D:You are regarded as a leader of the Nandor.  
 N:4:7:100:70
-D:Your father was Denethor son of Lenwe.  
+D:You were a counsellor of Denethor son of Lenwe.  
 
 N:5:7:40:50
-D:Your mother was of the Sindar.  
+D:You are of the Sindar.  
 N:5:7:75:55
-D:Your father was of the Sindar.  
+D:You are from the Forest of Neldoreth.  
 N:5:7:90:55
-D:Your mother lived in Menegroth.  
+D:You have lived in Menegroth.  
 N:5:7:95:60
-D:Your father lived in Menegroth.  
+D:You have served in the border guard of Doriath.  
 N:5:7:98:65
-D:Your mother was of the household of Melian.  
+D:You were born on the journey from Cuivienen.  
 N:5:7:100:70
-D:Your father was of the court of Thingol Greycloak.  
+D:You are of the court of Thingol Greycloak.  
 
 N:6:7:40:50
-D:Your mother was of the Noldor.  
+D:You are a scion of the House of the Tower of Snow.  
 N:6:7:75:55
-D:Your father was of the Noldor.  
+D:You were born into the House of the Hammer of Wrath.  
 N:6:7:90:55
-D:Your mother was born in Gondolin.  
+D:You were born in Nevrast.  
 N:6:7:95:60
-D:Your father was of the Guard of the Fountains.  
+D:You have served in the Guard of the Fountains.  
 N:6:7:98:65
-D:Your mother followed Turgon from Valinor.  
+D:You followed Turgon from Valinor.  
 N:6:7:100:70
-D:Your father fought in the Nirnaeth Arnoediad.  
+D:You fought in the Nirnaeth Arnoediad.  
 
 N:7:9:60:50
 D:You are one of several children 
@@ -187,6 +187,30 @@ N:19:23:85:45
 D:You are one of several children of a Druadan 
 N:19:23:100:55
 D:You are the only child of a Druadan 
+
+N:20:21:10:25
+D:You are the illegitimate and unacknowledged child 
+N:20:21:20:35
+D:You are the illegitimate but acknowledged child 
+N:20:21:95:45
+D:You are one of several children 
+N:20:21:100:50
+D:You are the first child 
+
+N:21:3:40:65
+D:of a servant from Dorthonion.  
+N:21:3:65:80
+D:of a Haladin woodsman.  
+N:21:3:80:90
+D:of a foot-soldier slain in the Dagor Bragollach.  
+N:21:3:90:105
+D:of a fugitive of the House of Beor.  
+N:21:3:96:120
+D:of a dispossessed landowner of Dor-Lomin.  
+N:21:3:99:130
+D:of a guard of Handir of Brethil.  
+N:21:3:100:140
+D:of a lesser branch of the House of Hador.  
 
 N:23:62:5:60
 D:Cook.  
@@ -399,7 +423,7 @@ D:and bronzed skin.
 N:66:0:66:50
 D:and darkly-tanned skin.
 N:66:0:100:50
-D:and weather-beaten skin.
+D:and weather-beaten skin, with a small beard.
 
 N:67:68:100:50
 D:In the past, you dwelt on earth in the form of 

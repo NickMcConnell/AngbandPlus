@@ -86,6 +86,10 @@ extern void quit(cptr str);
 /* Dump core, with optional message */
 extern void core(cptr str);
 
+/* Case insensitive comparison between two strings */
+extern int my_stricmp(const char *s1, const char *s2);
+extern int my_strnicmp(cptr a, cptr b, int n);
+
 /* Copy a string */
 extern size_t my_strcpy(char *buf, const char *src, size_t bufsize);
 

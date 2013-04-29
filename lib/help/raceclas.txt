@@ -39,12 +39,12 @@ Druedain, Edain, Grey Elves and High Elves particularly are only recommended
 for experienced players.
 
      Easterling:
-         Easterlings are the base characters - the run-of-the-mill humans of
-         Middle-Earth.   All other races are compared to them.
+         Easterlings are the swarthy humans who came into Beleriand late in 
+	 the First Age of Middle-Earth.   All other races are compared to them.
          Easterlings can choose any class and are average at everything.  They 
          have a slight bonus to fighting skill when using swords and 
-         crossbows, and have more hit points than many other races, but 
-         otherwise they have no racial adjustments or intrinsics.
+         crossbows, and have more hit points than many other races.  They get
+	 a bonus to hit in plains.
  
      Green Elf:
          Green elves are a branch of the Teleri who abandoned the Great Journey
@@ -53,8 +53,8 @@ for experienced players.
          more agile than Easterlings, but are not as strong.  Green elves are 
          better at searching, saving throws, stealth, perception, 
          and shooting (especially with bows), but they are not as good 
-         at hand weapons, disarming and magic devices.  Green elves may 
-         choose any class and do not receive any intrinsic abilities.
+         at hand weapons, disarming and magic devices.  Like all elves, Green 
+	 elves are able to move freely among trees
  
      Grey Elf:
          Grey elves are the people of King Thingol, and the first elves to
@@ -62,7 +62,7 @@ for experienced players.
          humans and tougher and stronger than green elves.  Grey elves have
          better saving throws but less stealth than green elves, and are better
          at hand-to-hand combat but not as good at shooting.  Grey elves
-         resist light effects intrinsically.
+         resist light effects intrinsically, and like the forest.
  
      Hobbits:
          Hobbits are very good at bows (especially slings), throwing, and have 
@@ -72,7 +72,7 @@ for experienced players.
          good at melee fighting.  They have few hit points, but can sometimes 
          endure ailments that would lay other races low.  Hobbits have fair 
          infravision, so they can detect warm creatures at a distance.  
-         Hobbits have no special abilities.
+         Hobbits, like Easterlings, are people of the plains.
  
      Petty-Dwarf:
          Petty-dwarves are an ancient and diminished race of dwarves thought
@@ -84,7 +84,8 @@ for experienced players.
          are not very good at fighting with hand weapons.  Petty-dwarves have 
          good infra-vision, so they can detect warm-blooded creatures at a 
          distance.  Petty-dwarves are intrinsically protected against 
-         paralysis and some slowing effects.
+         paralysis and some slowing effects, and like all dwarves are harder
+	 to hit when in the mountains, and can move easily through rubble.
  
      Dwarf:
          Dwarves are the headstrong miners and fighters of legend.  They are 
@@ -97,7 +98,8 @@ for experienced players.
          one big drawback, though:  Dwarves are loudmouthed and proud, singing 
          in loud voices, arguing with themselves for no good reason, screaming 
          out challenges at imagined foes.  In other words, dwarves have a 
-         miserable stealth.
+         miserable stealth.  They get the same terrain bonuses as 
+	 Petty-Dwarves.
  
      Druadan:
          Druedain, also known as woses, are the woodspeople who live alongside
@@ -105,7 +107,8 @@ for experienced players.
          street-smart and are poor at devices, disarming and shooting; they
          make excellent druids.  Druedain look, well, funny.  They tend to pay 
          more for goods in town.  Their uncanny appreciation of the natural
-         environment gives them the power of telepathy.
+         environment gives them the power of telepathy, and they fight more
+	 skilfully in forest.
  
      Longbeard:
          The longbeards are the eldest of the seven lines of the dwarves.  
@@ -117,15 +120,17 @@ for experienced players.
          The edain are the elf-friends of the houses of Beor, Hador and 
          Haleth.  First of men to enter Beleriand, they surpass the abilities 
          of other humans in every field, are superb melee fighters, and have 
-         amazing wisdom and constitution.  They may play any 
-         class.  Their constitution cannot be reduced.
+         amazing wisdom and constitution.  They may play any class.  Their 
+	 constitution cannot be reduced, and like druedain fight their best in
+	 the forests of Beleriand.
  
      High Elf:
          High elves are the Noldor, who fled from the Undying Lands to try and
          wrest the Silmarils back from Morgoth.  They are masters of all 
          skills, and are agile and intelligent, although their wisdom is 
          sometimes suspect.  High-elves begin their lives able to see the 
-         unseen, and resist light effects just like Grey elves.
+         unseen, and resist light effects just like Grey elves.  As other 
+	 elves, they move freely through trees.
  
      Maia:  
          (Special race for players new to FAangband.  Score is reduced by 50%)
@@ -135,7 +140,8 @@ for experienced players.
          deadly necromancers; indeed they can play any class with credit.  
          Their vital statistics put all other races to shame, their standard 
          abilities are always good and sometimes superlative, and they recover 
-         divinely quickly from all sorts of wounds and ailments.  Maiar are 
+         divinely quickly from all sorts of wounds and ailments, and are not 
+	 slowed in water like other races.  Maiar are 
          perfect for those desiring a character able to survive the perils of 
          an unfamiliar game.
 
@@ -146,7 +152,8 @@ for experienced players.
          elves are not merely stealthiest of all races, but they never 
          aggravate monsters.  (If they normally would, they suffer a penalty 
          of three to stealth).  The price they pay, though, is an increased
-         sensitivity to bright light.
+         sensitivity to bright light.  Dark elves have the usual elvish 
+	 ability to move unhindered through trees.
 
      Ent:
          Clad in bark-like skin, and with bodies like the trunks of trees, Ents
@@ -158,7 +165,8 @@ for experienced players.
          youth, trading dexterity for increased strength and constitution.  
          Members of this wise race can never gain feather fall by any means, 
          but will slowly acquire the ability needed to tear rock apart with 
-         their weaponless hands.
+         their weaponless hands.  Since they only need to stand still to be
+	 mistaken for trees, Ents are incredibly stealthy in forests.
  
      Beorning:
          These hardy woodsfolk, though of human origin, have developed a deep
@@ -172,7 +180,8 @@ for experienced players.
          of an increasingly powerful bear (use the ']' command), making them
          more effective in combat and weaker in magic and archery.  Beorning
          are best known as warriors, rangers, and druids, though they make 
-         fine rogues and priests as well.
+         fine rogues and priests as well.  They fight most skilfully on the 
+	 plains.
 
 
 === Classes ===

@@ -462,6 +462,9 @@ normally, but those identified as squlechable will be marked
 "SQUELCH".  Note that items inscribed with '!k' or '!*' can not be
 squelched.
 
+Having chosen items to be squelched, the strong_squelch option, if set, will
+enable automatic squelching.
+
 === Miscellaneous Options ===
 
 The "hitpoint_warn" value, if non-zero, is the percentage of maximal hitpoints
