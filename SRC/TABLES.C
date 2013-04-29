@@ -1535,6 +1535,12 @@ cptr option_text[OPT_MAX] =
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
+	"stack_force_pvals",						/* xxx */
+	"stack_force_times",						/* xxx */
+	"view_safe_grids",						/* xxx */
+	"room_descriptions",						/* xxx */
+	"room_names",						/* xxx */
+	"verify_mana",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1551,34 +1557,28 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"variant_town",						/* xxx */
+	"variant_mushrooms",						/* xxx */
+	"variant_hit_traps",						/* xxx */
+	"variant_room_info",						/* xxx */
+	"variant_free_stats",						/* xxx */
+	"variant_fast_kills",						/* xxx */
+	"variant_scale_dam",						/* xxx */
+	"variant_scale_hp",						/* xxx */
+	"variant_pval_stacks",						/* xxx */
+	"variant_oos_summons",						/* xxx */
+	"variant_oos_escapes",						/* xxx */
+	"variant_oos_heals",						/* xxx */
+	"variant_oos_xtra",						/* xxx */
+	"variant_hurt_feats",						/* xxx */
+	"variant_lake_feats",						/* xxx */
+	"variant_big_feats",						/* xxx */
+        "variant_new_feats",                                           /* xxx */
+	"variant_learn_id",						/* xxx */
+	"variant_guess_id",						/* xxx */
+	"variant_usage_id",						/* xxx */
+	"variant_great_id",						/* xxx */
+        "variant_dis_attacks",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1799,6 +1799,12 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
+	"Merge pvals when stacking (hack)",						/* xxx */
+	"Merge timeouts when stacking (hack)",						/* xxx */
+	"Map marked by detect traps",						/* xxx */
+	"Display room descriptions",						/* xxx */
+	"Display room names",						/* xxx */
+	"Verify critical mana",						/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1815,34 +1821,28 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+        "Play campaign mode (experimental)",                                                                           /* xxx */
+	"Magic mushroom patch",										/* xxx */
+	"Monsters hit traps",										/* xxx */
+	"Generate themed rooms",										/* xxx */
+	"Stat gain with each new level",										/* xxx */
+	"Kills don't waste blows",
+	"Scale down melee damage",										/* xxx */
+	"Scale down monster hit points",										/* xxx */
+	"Object pval stacking",										/* xxx */
+	"Monsters summon out of sight",										/* xxx */
+	"Monsters teleport out of sight",										/* xxx */
+	"Monsters heal out of sight",										/* xxx */
+	"Monsters aggravate out of sight",										/* xxx */
+	"Spells can destroy features",										/* xxx */
+	"Generate lakes and rivers",										/* xxx */
+	"Generate big lakes and rivers",										/* xxx */
+	"Generate trapped doors",										/* xxx */
+	"Object memory",										/* xxx */
+	"Object types guessed",										/* xxx */
+	"Object usage count",										/* xxx */
+	"Object sensing improved",										/* xxx */
+        "Monsters use ranged attacks",
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2274,10 +2274,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_ring_bell,
-		255,
-		255,
-		255,
-		255
+		OPT_stack_force_pvals,
+		OPT_stack_force_times,
+                255,
+                255
 	},
 
 	/*** Disturbance ***/
@@ -2299,7 +2299,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-		255,
+                255,
 		255,
 		255,
 		255
@@ -2326,7 +2326,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_show_piles,
-		255,
+                255,
 		255
 	},
 
@@ -2403,8 +2403,61 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255,
 		255
+	},
+
+        /*** Variant game-play ***/
+
+	{
+		OPT_variant_mushrooms,
+		OPT_variant_free_stats,
+		OPT_variant_fast_kills,
+		OPT_variant_scale_dam,
+		OPT_variant_scale_hp,
+		OPT_variant_hit_traps,
+		OPT_variant_oos_summons,
+		OPT_variant_oos_escapes,
+		OPT_variant_oos_heals,
+		OPT_variant_oos_xtra,
+                OPT_variant_dis_attacks,
+		OPT_variant_hurt_feats,
+		OPT_variant_room_info,
+                OPT_variant_new_feats,
+		OPT_variant_lake_feats,
+		OPT_variant_big_feats,
+                OPT_variant_pval_stacks,
+                OPT_stack_force_pvals,
+                OPT_stack_force_times,
+                255
+	},
+
+        /*** Variant other ***/
+
+	{
+		OPT_variant_learn_id,
+		OPT_variant_guess_id,
+		OPT_variant_usage_id,
+		OPT_variant_great_id,
+                OPT_view_safe_grids,
+                OPT_verify_mana,
+                OPT_room_names,
+                OPT_room_descriptions,
+                255, 
+		255,
+                255, 
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
+
 	}
+
 };
+
 
 
 cptr inscrip_text[MAX_INSCRIP] =
@@ -2421,6 +2474,8 @@ cptr inscrip_text[MAX_INSCRIP] =
         "uncursed",
         "very good",
         "great",
-        "superb"
+        "superb",
+	"unbreakable",
+	"ungettable"
 };
 

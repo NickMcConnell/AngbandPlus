@@ -12,12 +12,13 @@
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
-#All S:YES descriptions start 'You have entered a/an name1 name2. ' This is
+#All S:SEEN descriptions start 'You have entered a/an name1 name2. ' This is
 #why we provide name entries at the end without a description.
 
-#S:YES and S:NO descriptions are supplied if the character is not blind, and
-#enters a lit room or lights a dark room. S:NO descriptions are supplied if
-#the character enters a dark room or a room while blind.
+#All descriptions are supplied if the character is not blind, and
+#enters a lit room or lights a dark room. Without the SEEN flag,
+# descriptions are supplied if the character enters a dark room or a
+#room while blind.
 
 # Note that the "spacing" in the "description" lines is very important!
 
@@ -37,12 +38,21 @@
 
 # L: ACID | OIL | CHASM | LAVA | ICE | WATER
 # Only generate on levels marked as this.
+# NORTH: Line north wall of this room with items | feature.
+# SOUTH: Line south wall of this room with items | feature.
+# EAST: Line east wall of this room with items | feature.
+# WEST: Line west wall of this room with items | feature.
+# CENTRE: Fill centre (Excluding walls) of this room with items | feature.
+
 
 # R: flag
 # Generate extra monsters with this flag for this room.
 
-# S:YES | NO
-# Must have light to see this section of description
+# S:SEEN | ICKY
+# Room special flags as follows:
+# SEEN: This description is only given if room is lit.
+# ICKY: This is an anti-teleport room
+
 
 # For all the above, use the first encountered.
 
@@ -56,7 +66,7 @@ B:graveyard
 D:Animal skulls line 
 K:1
 R:ANIMAL
-S:YES
+S:SEEN
 
 N:1:2:2:5
 A:
@@ -64,92 +74,92 @@ B:mausoleum
 D:Skulls line 
 K:1
 R:UNDEAD
-S:YES
+S:SEEN
 
 N:1:2:3:0
 A:grafittied
 B:
 D:Crude grafitti covers 
-S:YES
+S:SEEN
 
 N:1:2:4:4
 A:
 B:
 D:Claw marks cover 
 G:H
-S:YES
+S:SEEN
 
 N:1:2:5:0
 A:frescoed
 B:
 D:Faded frescoes cover 
-S:YES
+S:SEEN
 
 N:1:2:6:0
 A:painted
 B:
 D:Faded cave paintings 
-S:YES
+S:SEEN
 
 N:1:2:7:9
 A:
 B:
 D:Hieroglyphics cover 
 G:z
-S:YES
+S:SEEN
 
 N:1:2:8:6
 A:
 B:
 D:Strange runes cover 
 F:20
-S:YES
+S:SEEN
 
 N:1:2:9:5
 A:
 B:
 D:Strange runes cover 
 F:21
-S:YES
+S:SEEN
 
 N:1:2:10:0
 A:candle-lit
 B:
 D:Candles line 
-S:YES
+S:SEEN
 
 N:1:2:11:0
 A:curtained
 B:
 D:Rotted curtains cover 
-S:YES
+S:SEEN
 
 N:1:2:12:0
 A:curtained
 B:
 D:Thick curtains cover 
-S:YES
+S:SEEN
 
 N:1:2:13:4
 A:
 B:
 D:Spiderwebs cover 
 G:S
-S:YES
+S:SEEN
 
 N:1:2:14:0
 A:
 B:
 D:Dusty cobwebs cover 
 F:134
-S:YES
+S:SEEN
 
 N:1:2:15:12
 A:
 B:
 D:Giant spiderwebs cover 
 G:S
-S:YES
+S:SEEN
 
 N:1:2:16:3
 A:
@@ -157,27 +167,27 @@ B:
 D:Delicate mushrooms cover 
 G:,
 K:80
-S:YES
+S:SEEN
 
 N:1:2:17:3
 A:moldy
 B:
 D:Mold covers 
 G:m
-S:YES
+S:SEEN
 
 N:1:2:18:0
 A:mildewed
 B:
 D:Mildew covers 
-S:YES
+S:SEEN
 
 N:1:2:19:1
 A:
 B:library
 D:Empty bookshelves line 
 K:70
-S:YES
+S:SEEN
 
 N:1:2:20:4
 A:
@@ -185,7 +195,7 @@ B:library
 D:Crowded bookshelves line 
 K:90
 G:q
-S:YES
+S:SEEN
 
 N:1:2:21:4
 A:
@@ -193,7 +203,7 @@ B:library
 D:Crowded bookshelves line 
 K:91
 G:q
-S:YES
+S:SEEN
 
 N:1:2:22:4
 A:
@@ -201,7 +211,7 @@ B:laboratory
 D:Laboratory equipment lines 
 K:75
 G:q
-S:YES
+S:SEEN
 
 N:1:2:23:5
 A:
@@ -209,7 +219,7 @@ B:weapons room
 D:Weapon racks line 
 K:21
 G:p
-S:YES
+S:SEEN
 
 N:1:2:24:7
 A:
@@ -217,7 +227,7 @@ B:weapons room
 D:Weapon racks line 
 K:22
 G:p
-S:YES
+S:SEEN
 
 N:1:2:25:4
 A:
@@ -225,49 +235,49 @@ B:weapons room
 D:Weapon racks line 
 K:23
 G:p
-S:YES
+S:SEEN
 
 N:1:2:26:1
 A:
 B:cloakroom
 D:Cloaks hang from 
 K:35
-S:YES
+S:SEEN
 
 N:1:2:27:3
 A:
 B:armoury
 D:Leather armour lines 
 K:36
-S:YES
+S:SEEN
 
 N:1:2:28:25
 A:
 B:armoury
 D:Metal armour lines 
 K:37
-S:YES
+S:SEEN
 
 N:1:2:29:3
 A:
 B:armoury
 D:Battered shields hang from 
 K:34
-S:YES
+S:SEEN
 
 N:1:2:30:5
 A:
 B:closet
 D:Empty chests line 
 K:7
-S:YES
+S:SEEN
 
 N:1:2:31:3
 A:
 B:
 D:Banners hang from 
 K:32
-S:YES
+S:SEEN
 
 N:1:2:32:6
 A:
@@ -275,7 +285,7 @@ B:
 D:Burn marks cover 
 R:IM_FIRE
 F:22
-S:YES
+S:SEEN
 
 N:1:2:33:6
 A:
@@ -283,7 +293,7 @@ B:
 D:Acid marks cover 
 R:IM_ACID
 F:23
-S:YES
+S:SEEN
 
 N:1:2:34:30
 A:
@@ -292,21 +302,21 @@ D:Frost covers
 R:IM_COLD
 F:132
 L:ICE
-S:YES
+S:SEEN
 
 N:1:2:35:10
 A:
 B:
 D:Burn marks cover 
 R:BR_FIRE
-S:YES
+S:SEEN
 
 N:1:2:36:11
 A:
 B:
 D:Acid marks cover 
 R:BR_ACID
-S:YES
+S:SEEN
 
 N:1:2:37:11
 A:
@@ -314,20 +324,20 @@ B:
 D:Frost covers 
 R:BR_COLD
 L:ICE
-S:YES
+S:SEEN
 
 N:1:2:38:0
 A:
 B:
 D:Slime covers 
-S:YES
+S:SEEN
 
 N:1:2:39:12
 A:
 B:
 D:Slime covers 
 G:,
-S:YES
+S:SEEN
 
 N:1:2:40:11
 A:
@@ -335,98 +345,98 @@ B:
 D:Acid marks cover 
 R:IM_ACID
 G:j
-S:YES
+S:SEEN
 
 N:1:2:41:17
 A:
 B:
 D:Ancient statues line 
 G:g
-S:YES
+S:SEEN
 
 N:1:2:42:1
 A:
 B:
 D:Broken statues line 
 F:49
-S:YES
+S:SEEN
 
 N:1:2:43:4
 A:
 B:crypt
 D:Stone caskets line 
 R:UNDEAD
-S:YES
+S:SEEN
 
 N:1:2:44:11
 A:
 B:
 D:Deep gouges cover 
 R:DRAGON
-S:YES
+S:SEEN
 
 N:1:2:45:4
 A:
 B:
 D:Scratch marks cover 
 G:f
-S:YES
+S:SEEN
 
 N:1:2:46:14
 A:
 B:
 D:Gold inlay covers 
 K:100
-S:YES
+S:SEEN
 
 N:1:2:47:0
 A:
 B:
 D:Wooden panels cover 
-S:YES
+S:SEEN
 
 N:1:2:48:0
 A:
 B:kitchen
 D:Cupboards cover 
 K:80
-S:YES
+S:SEEN
 
 N:1:13:49:0
 A:
 B:
 D:A worn 
-S:YES
+S:SEEN
 
 N:1:13:50:5
 A:
 B:
 D:A mottled 
-S:YES
+S:SEEN
 
 N:1:13:51:10
 A:
 B:
 D:A strange 
-S:YES
+S:SEEN
 
 N:1:13:52:15
 A:
 B:
 D:A gleaming 
-S:YES
+S:SEEN
 
 N:1:13:53:20
 A:
 B:
 D:A glistening 
-S:YES
+S:SEEN
 
 N:1:13:54:25
 A:
 B:
 D:A glowing 
-S:YES
+S:SEEN
 
 N:1:2:48:0
 A:
@@ -444,157 +454,157 @@ N:1:4:100:0
 A:
 B:
 D:
-S:YES
+S:SEEN
 
 N:2:4:15:0
 A:
 B:
 D:the north wall.  
-S:YES
+S:SEEN
 
 N:2:4:30:0
 A:
 B:
 D:the east wall.  
-S:YES
+S:SEEN
 
 N:2:4:45:0
 A:
 B:
 D:the west wall.  
-S:YES
+S:SEEN
 
 N:2:4:60:0
 A:
 B:
 D:the south wall.  
-S:YES
+S:SEEN
 
 N:2:4:65:0
 A:
 B:
 D:the walls and ceiling.  
-S:YES
+S:SEEN
 
 N:2:4:66:0
 A:
 B:
 D:every available surface.  
-S:YES
+S:SEEN
 
 N:2:3:67:0
 A:
 B:
 D:a nook in 
-S:YES
+S:SEEN
 
 N:2:3:68:0
 A:
 B:
 D:a recess in 
-S:YES
+S:SEEN
 
 N:2:3:69:0
 A:
 B:
 D:a cranny in 
-S:YES
+S:SEEN
 
 N:2:3:70:0
 A:
 B:
 D:an alcove in 
-S:YES
+S:SEEN
 
 N:2:3:71:0
 A:
 B:
 D:an cupboard in 
-S:YES
+S:SEEN
 
 N:2:4:100:0
 A:
 B:
 D:the walls.  
-S:YES
+S:SEEN
 
 N:3:4:25:0
 A:
 B:
 D:the north wall.  
-S:YES
+S:SEEN
 
 N:3:4:50:0
 A:
 B:
 D:the east wall.  
-S:YES
+S:SEEN
 
 N:3:4:75:0
 A:
 B:
 D:the west wall.  
-S:YES
+S:SEEN
 
 N:3:4:100:0
 A:
 B:
 D:the south wall.  
-S:YES
+S:SEEN
 
 N:4:5:1:4
 A:
 B:temple
 D:A stone altar 
 G:q
-S:YES
+S:SEEN
 
 N:4:5:2:4
 A:
 B:chapel
 D:A wooden shrine 
 G:q
-S:YES
+S:SEEN
 
 N:4:5:3:0
 A:
 B:
 D:A wooden platform 
-S:YES
+S:SEEN
 
 N:4:5:4:0
 A:
 B:
 D:A stone dais 
-S:YES
+S:SEEN
 
 N:4:5:5:4
 A:
 B:temple
 D:A sacrificial stone 
 R:UNDEAD
-S:YES
+S:SEEN
 
 N:4:5:6:9
 A:
 B:tomb
 D:A great sarcophagus 
 R:UNDEAD
-S:YES
+S:SEEN
 
 N:4:5:7:0
 A:
 B:feasthall
 D:A stone table 
 K:80
-S:YES
+S:SEEN
 
 N:4:5:8:0
 A:
 B:dining room
 D:A wooden table 
 K:80
-S:YES
+S:SEEN
 
 N:4:5:9:45
 A:
@@ -602,7 +612,7 @@ B:throneroom
 D:An iron throne 
 G:p
 K:33
-S:YES
+S:SEEN
 
 N:4:5:10:45
 A:
@@ -610,39 +620,39 @@ B:throneroom
 D:A gold-leafed throne 
 G:q
 K:33
-S:YES
+S:SEEN
 
 N:4:5:11:2
 A:
 B:
 D:A giant stone head 
-S:YES
+S:SEEN
 
 N:4:5:12:3
 A:
 B:
 D:A shallow grave 
 R:UNDEAD
-S:YES
+S:SEEN
 
 N:4:5:13:0
 A:sunken
 B:
 D:A sunken area 
-S:YES
+S:SEEN
 
 N:4:5:14:0
 A:
 B:plaza
 D:A fountain 
-S:YES
+S:SEEN
 F:153
 
 N:4:5:15:0
 A:
 B:
 D:A stone basin 
-S:YES
+S:SEEN
 
 N:4:5:16:1
 A:
@@ -650,181 +660,181 @@ B:mine
 D:A deep shaft 
 K:20
 F:64
-S:YES
+S:SEEN
 
 N:4:5:17:40
 A:
 B:nest
 D:A huge nest 
 G:B
-S:YES
+S:SEEN
 
 N:4:5:18:25
 A:
 B:cocoon
 D:A huge cocoon 
-S:YES
+S:SEEN
 
 N:4:5:19:12
 A:
 B:
 D:A huge spiderweb 
 G:S
-S:YES
+S:SEEN
 
 N:4:5:20:1
 A:
 B:cell
 D:An iron cage 
-S:YES
+S:SEEN
 
 N:4:5:21:1
 A:
 B:torture room
 D:A torture rack 
-S:YES
+S:SEEN
 
 N:4:5:22:1
 A:
 B:
 D:A large boulder 
 F:49
-S:YES
+S:SEEN
 
 N:4:5:24:1
 A:
 B:
 D:A fallen statue 
-S:YES
+S:SEEN
 
 N:4:5:25:1
 A:
 B:
 D:A stone monolith 
-S:YES
+S:SEEN
 
 N:4:6:40:0
 A:
 B:
 D:The floor is 
-S:YES
+S:SEEN
 
 N:4:7:100:0
 A:
 B:
 D:
-S:YES
+S:SEEN
 
 N:5:6:15:0
 A:
 B:
 D:against the north wall is 
-S:YES
+S:SEEN
 
 N:5:6:30:0
 A:
 B:
 D:against the east wall is 
-S:YES
+S:SEEN
 
 N:5:6:45:0
 A:
 B:
 D:aginst the west wall is 
-S:YES
+S:SEEN
 
 N:4:6:70:0
 A:
 B:
 D:against the south wall is 
-S:YES
+S:SEEN
 
 N:5:6:100:0
 A:
 B:
 D:in the centre of the room is 
-S:YES
+S:SEEN
 
 N:6:7:1:0
 A:
 B:
 D:littered with broken bones.  
 K:1
-S:YES
+S:SEEN
 
 N:6:7:2:3
 A:rocky
 B:
 D:littered with loose rocks.  
 F:95
-S:YES
+S:SEEN
 
 N:6:7:3:0
 A:
 B:junkyard
 D:strewn with junk.  
 K:3
-S:YES
+S:SEEN
 
 N:6:7:4:0
 A:
 B:cellar
 D:littered with broken pottery.  
 K:2
-S:YES
+S:SEEN
 
 N:6:7:5:0
 A:tiled
 B:
 D:decorated with a tile mosaic.  
-S:YES
+S:SEEN
 
 N:6:7:6:15
 A:
 B:
 D:decorated with a checkerboard pattern.  
 F:2
-S:YES
+S:SEEN
 
 N:6:7:7:25
 A:
 B:
 D:decorated with protective glyphs.  
 F:3
-S:YES
+S:SEEN
 
 N:6:7:8:14
 A:
 B:
 D:inlaid with precious metal.  
 K:100
-S:YES
+S:SEEN
 
 N:6:7:9:0
 A:sunken
 B:
 D:sunken in places.  
-S:YES
+S:SEEN
 
 N:6:7:10:15
 A:uneven
 B:
 D:broken and uneven in places.  
 F:136
-S:YES
+S:SEEN
 
 N:6:7:11:0
 A:damp
 B:
 D:slick with moisture.  
-S:YES
+S:SEEN
 
 N:6:7:12:0
 A:water-filled
 B:
 D:flooded with stagnant water.  
 F:153
-S:YES
+S:SEEN
 
 N:6:7:13:0
 A:water-filled
@@ -832,84 +842,84 @@ B:
 D:flooded with water.  
 F:153
 L:WATER
-S:YES
+S:SEEN
 
 N:6:7:14:0
 A:
 B:
 D:criss-crossed with rays of light.  
 F:2
-S:YES
+S:SEEN
 
 N:6:7:15:12
 A:
 B:
 D:covered in slime.  
 G:,
-S:YES
+S:SEEN
 
 N:6:7:16:10
 A:
 B:
 D:badly burned by powerful fire.  
 R:BR_FIRE
-S:YES
+S:SEEN
 
 N:1:2:17:11
 A:
 B:
 D:badly melted by powerful acid.  
 R:BR_ACID
-S:YES
+S:SEEN
 
 N:1:2:18:11
 A:
 B:
 D:covered in a thick layer of frost.  
 R:BR_COLD
-S:YES
+S:SEEN
 
 N:6:7:19:3
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:R
-S:YES
+S:SEEN
 
 N:6:7:20:3
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:J
-S:YES
+S:SEEN
 
 N:6:7:21:11
 A:
 B:hatchery
 D:littered with broken egg shells.  
 G:d
-S:YES
+S:SEEN
 
 N:6:7:22:4
 A:
 B:nest
 D:nested with twigs and feathers.  
 G:B
-S:YES
+S:SEEN
 
 N:6:7:23:2
 A:broken arrow
 B:
 D:littered with broken arrows.  
 K:17
-S:YES
+S:SEEN
 
 N:6:7:24:1
 A:sooty
 B:
 D:covered with soot.  
 K:77
-S:YES
+S:SEEN
 
 N:6:7:25:5
 A:dusty
@@ -917,7 +927,7 @@ B:
 D:covered with coal dust.  
 F:221
 L:OIL
-S:YES
+S:SEEN
 
 N:6:7:26:5
 A:
@@ -925,7 +935,7 @@ B:
 D:slick with oil.  
 F:219
 L:OIL
-S:YES
+S:SEEN
 
 N:6:7:27:72
 A:
@@ -933,20 +943,20 @@ B:
 D:covered with volcanic ash.  
 F:209
 L:LAVA
-S:YES
+S:SEEN
 
 N:6:7:28:51
 A:
 B:
 D:covered with sulpher deposits.  
-S:YES
+S:SEEN
 
 N:6:7:29:8
 A:sandy
 B:
 D:covered with sand.  
 F:192
-S:YES
+S:SEEN
 
 N:6:7:30:75
 A:
@@ -954,7 +964,7 @@ B:
 D:covered with acid.  
 F:157
 L:ACID
-S:YES
+S:SEEN
 
 N:6:7:31:30
 A:icy
@@ -962,20 +972,20 @@ B:
 D:covered in ice.  
 F:145
 L:ICE
-S:YES
+S:SEEN
 
 N:6:7:32:0
 A:bloody
 B:
 D:spattered with dried blood.  
-S:YES
+S:SEEN
 
 N:6:7:33:0
 A:dirt-filled
 B:
 D:caked with dirt.  
 F:135
-S:YES
+S:SEEN
 
 N:6:7:34:3
 A:muddy
@@ -983,60 +993,60 @@ B:
 D:covered in mud.  
 F:199
 L:WATER
-S:YES
+S:SEEN
 
 N:6:7:35:0
 A:rubble-filled
 B:
 D:covered in rubble.  
 F:96
-S:YES
+S:SEEN
 
 N:6:7:36:1
 A:dirt-filled
 B:
 D:covered with piles of dirt.  
 F:138
-S:YES
+S:SEEN
 
 N:6:7:38:3
 A:
 B:
 D:covered with bat guano.  
 G:b
-S:YES
+S:SEEN
 
 N:6:7:100:0
 A:dusty
 B:
 D:covered in dust.  
 F:134
-S:YES
+S:SEEN
 
 N:7:8:60:0
 A:
 B:
 D:The air here is 
-S:NO
+
 
 N:7:9:100:0
 A:
 B:
 D:
-S:NO
+
 
 N:8:9:15:51
 A:humid
 B:
 D:hot and humid.  
-S:NO
+
 
 N:8:9:25:72
 A:hot
 B:
 D:hot and dry.  
 L:LAVA
-S:NO
+
 
 N:8:9:30:72
 A:hot
@@ -1044,67 +1054,67 @@ B:
 D:stiffling hot.  
 R:IM_FIRE
 L:LAVA
-S:NO
+
 
 N:8:9:45:0
 A:damp
 B:
 D:cool and damp.  
-S:NO
+
 
 N:8:9:50:0
 A:
 B:
 D:cool and dry.  
-S:NO
+
 
 N:8:9:51:1
 A:dusty
 B:
 D:thick with dust.  
 F:134
-S:NO
+
 
 N:8:9:52:1
 A:steamy
 B:
 D:thick with steam.  
 F:209
-S:NO
+
 
 N:8:9:53:3
 A:
 B:
 D:thick with gas.  
 F:30
-S:NO
+
 
 N:8:9:54:4
 A:
 B:
 D:smokey with incense.  
 G:q
-S:NO
+
 
 N:8:9:55:9
 A:
 B:
 D:rank with sulphur.  
 R:DEMON
-S:NO
+
 
 N:8:9:56:9
 A:
 B:
 D:ripe with decay.  
 R:UNDEAD
-S:NO
+
 
 N:8:9:57:0
 A:mildewed
 B:
 D:rank with mildew.  
-S:NO
+
 
 N:8:9:99:30
 A:freezing
@@ -1112,134 +1122,134 @@ B:
 D:freezing cold.  
 L:ICE
 R:IM_COLD
-S:NO
+
 
 N:8:9:100:10
 A:
 B:
 D:stale.  
-S:NO
+
 
 N:9:10:5:0
 A:
 B:
 D:A warm breeze blows 
-S:NO
+
 
 N:9:10:10:0
 A:
 B:
 D:A cool breeze blows 
-S:NO
+
 
 N:9:10:15:40
 A:windy
 B:
 D:A hot wind blows 
 L:LAVA | CHASM
-S:NO
+
 
 N:9:10:20:30
 A:windy
 B:
 D:A cold wind blows 
 L:ICE | CHASM
-S:NO
+
 
 N:9:10:22:40
 A:windy
 B:
 D:A howling gale blows 
 L:CHASM
-S:NO
+
 
 N:9:11:100:0
 A:
 B:
 D:
-S:NO
+
 
 N:10:11:15:0
 A:
 B:
 D:from the north.  
-S:NO
+
 
 N:10:11:30:0
 A:
 B:
 D:from the east.  
-S:NO
+
 
 N:10:11:45:0
 A:
 B:
 D:from the west.   
-S:NO
+
 
 N:10:11:60:0
 A:
 B:
 D:from the south.  
-S:NO
+
 
 N:10:11:100:0
 A:
 B:
 D:around the room.  
-S:NO
+
 
 N:11:12:40:0
 A:
 B:
 D:You hear 
-S:NO
+
 
 N:11:15:100:0
 A:
 B:
-S:NO
+
 
 N:12:15:1:15
 A:
 B:
 D:the clank of machinery...
 F:2
-S:NO
+
 
 N:12:15:2:51
 A:
 B:
 D:the earth trembling deep beneath you.
-S:NO
+
 
 N:12:15:3:3
 A:
 B:kennels
 D:howling...
 G:C
-S:NO
+
 
 N:12:15:4:5
 A:haunted
 B:
 D:quiet footsteps...
 G:G
-S:NO
+
 
 N:12:15:5:3
 A:rat-infested
 B:
 D:a sudden scampering...
 G:r
-S:NO
+
 
 N:12:15:6:3
 A:
 B:
 D:slithering noises...
 G:J
-S:NO
+
 
 N:12:15:7:3
 A:
@@ -1252,198 +1262,198 @@ A:haunted
 B:
 D:something whispering...
 R:UNDEAD
-S:NO
+
 
 N:12:15:9:3
 A:
 B:antfarm
 D:a faint chittering...
 G:a
-S:NO
+
 
 N:12:15:10:4
 A:
 B:
 D:a faint chittering...
 G:S
-S:NO
+
 
 N:12:15:11:14
 A:
 B:
 D:distant chanting...
 G:q
-S:NO
+
 
 N:12:15:12:40
 A:
 B:
 D:distant echoes...
 L:CHASM
-S:NO
+
 
 N:12:15:13:3
 A:creepy
 B:
 D:something behind you!
 R:INVISIBLE
-S:NO
+
 
 N:12:15:14:10
 A:windy
 B:
 D:the wind whistling through a distant chasm...
-S:NO
+
 
 N:12:15:25:40
 A:windy
 B:
 D:the wind whistling through a nearby chasm...
 L:CHASM
-S:NO
+
 
 N:12:15:26:1
 A:
 B:
 D:the drip of water...
-S:NO
+
 
 N:12:15:30:3
 A:
 B:
 D:the drip of water...
 L:WATER
-S:NO
+
 
 N:12:15:35:18
 A:
 B:
 D:running water.
 L:WATER
-S:NO
+
 
 N:12:15:40:27
 A:
 B:
 D:rushing water.
 L:WATER
-S:NO
+
 
 N:12:15:60:40::
 D:the thunder of a nearby waterfall...
 L:WATER | CHASM
-S:NO
+
 
 N:12:15:75:60
 A:
 B:
 D:bubbling mud.
 L:LAVA
-S:NO
+
 
 N:12:15:85:81
 A:
 B:
 D:the earth trembling all around you.
 L:LAVA
-S:NO
+
 
 N:12:15:99:71
 A:
 B:
 D:the roar of a nearby volcano...
 L:LAVA
-S:NO
+
 
 N:12:15:100:0
 A:quiet
 B:
 D:nothing.
-S:NO
+
 
 N:13:14:30:0
 A:black
 B:
 D:black 
-S:YES
+S:SEEN
 
 N:13:14:35:0
 A:blue
 B:
 D:blue 
-S:YES
+S:SEEN
 
 N:13:14:55:0
 A:white
 B:
 D:white 
-S:YES
+S:SEEN
 
 N:13:14:60:0
 A:green
 B:
 D:green 
-S:YES
+S:SEEN
 
 N:13:14:65:0
 A:yellow
 B:
 D:yellow 
-S:YES
+S:SEEN
 
 N:13:14:95:0
 A:grey
 B:
 D:grey 
-S:YES
+S:SEEN
 
 N:13:14:100:0
 A:brown
 B:
 D:brown 
-S:YES
+S:SEEN
 
 N:14:3:80:0
 A:
 B:
 D:stonework covers 
-S:YES
+S:SEEN
 
 N:14:3:90:20
 A:
 B:
 D:metal covers 
-S:YES
+S:SEEN
 
 N:14:3:95:0
 A:
 B:
 D:wood covers 
-S:YES
+S:SEEN
 
 N:14:3:96:0
 A:frescoed
 B:
 D:fresco covers 
-S:YES
+S:SEEN
 
 N:14:3:97:0
 A:muralled
 B:
 D:mural covers 
-S:YES
+S:SEEN
 
 N:14:3:98:0
 A:painted
 B:
 D:painting covers 
-S:YES
+S:SEEN
 
 N:14:3:100:0
 A:curtained
 B:
 D:curtain covers 
-S:YES
+S:SEEN
 
 N:15:16:3:0
 A:low-ceilinged

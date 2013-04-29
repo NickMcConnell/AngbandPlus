@@ -751,6 +751,31 @@ void map_info(int y, int x, byte *ap, char *cp)
 						a = TERM_SLATE;
 					}
 				}
+
+			}
+		}
+
+		/* Hack -- Safe cave grid -- currently use 'dark floor' */
+		else if (view_safe_grids && (info & (CAVE_SAFE)))
+		{
+			/* Get the darkness feature */
+			f_ptr = &f_info[FEAT_FLOOR];
+
+			/* Normal attr */
+			a = f_ptr->x_attr;
+
+			/* Normal char */
+			c = f_ptr->x_char;
+
+			if (graf_new)
+			{
+				/* Use a dark tile */
+				c += 1;
+			}
+			else
+			{
+				/* Use "dark gray" */
+				a = TERM_L_DARK;
 			}
 		}
 
@@ -846,7 +871,44 @@ void map_info(int y, int x, byte *ap, char *cp)
 					}
 				}
 			}
+			/* Mega hack -- fiddle with store graphics */
+                        else if ((variant_town) && (f_info[feat].flags1 & (FF1_ENTER)))
+			{
+				int store = feat-FEAT_SHOP_HEAD;
+				int dungeon = p_ptr->dungeon;
+
+				/* Hack -- custom attr */
+                                a = t_info[dungeon].store[store].d_attr;
+
+				/* Hack -- custom char */
+                                c = t_info[dungeon].store[store].d_char;
+			}
 		}
+
+		/* Hack -- Safe cave grid -- currently use 'dark floor' */
+		else if (view_safe_grids && (info & (CAVE_SAFE)))
+		{
+			/* Get the darkness feature */
+			f_ptr = &f_info[FEAT_FLOOR];
+
+			/* Normal attr */
+			a = f_ptr->x_attr;
+
+			/* Normal char */
+			c = f_ptr->x_char;
+
+			if (graf_new)
+			{
+				/* Use a dark tile */
+				c += 1;
+			}
+			else
+			{
+				/* Use "dark gray" */
+				a = TERM_L_DARK;
+			}
+		}
+
 
 		/* Unknown */
 		else
@@ -1682,10 +1744,9 @@ void do_cmd_view_map(void)
  * which grids are part of "rooms", and thus which grids are affected by
  * "illumination" spells.  This flag does not have to be very fast.
  *
- * The "CAVE_ICKY" flag is saved in the savefile and is used to determine
- * which grids are part of "vaults", and thus which grids cannot serve as
- * the destinations of player teleportation.  This flag does not have to
- * be very fast.
+ * The "CAVE_SAFE" flag is saved in the savefile and is used to determine
+ * which grids have had detect traps cast on them. This allows unknown
+ * grids to be shown in an unsafe manner if traps have not been detected.
  *
  * The "CAVE_MARK" flag is saved in the savefile and is used to determine
  * which grids have been "memorized" by the player.  This flag is used by

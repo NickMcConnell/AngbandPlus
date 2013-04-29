@@ -166,10 +166,8 @@ extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
-#ifdef ALLOW_ROOMDESC
 extern room_info_type room_info[DUN_ROOMS];
 extern byte dun_room[MAX_ROOMS_ROW][MAX_ROOMS_COL];
-#endif
 extern header *z_head;
 extern maxima *z_info;
 extern object_type *o_list;
@@ -204,12 +202,10 @@ extern header *f_head;
 extern feature_type *f_info;
 extern char *f_name;
 extern char *f_text;
-#ifdef ALLOW_ROOMDESC
 extern header *d_head;
 extern desc_type *d_info;
 extern char *d_name;
 extern char *d_text;
-#endif
 extern header *k_head;
 extern object_kind *k_info;
 extern char *k_name;
@@ -240,6 +236,10 @@ extern header *s_head;
 extern spell_type *s_info;
 extern char *s_name;
 extern char *s_text;
+extern header *t_head;
+extern town_type *t_info;
+extern char *t_name;
+extern char *t_text;
 extern header *h_head;
 extern hist_type *h_info;
 extern char *h_text;
@@ -386,9 +386,7 @@ extern void do_cmd_colors(void);
 extern void do_cmd_note(void);
 extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
-#ifdef ALLOW_ROOMDESC
 extern void do_cmd_room_desc(void);
-#endif
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_knowledge(void);
@@ -449,9 +447,7 @@ extern int color_char_to_attr(char c);
 extern errr init_z_info_txt(FILE *fp, char *buf);
 extern errr init_v_info_txt(FILE *fp, char *buf);
 extern errr init_f_info_txt(FILE *fp, char *buf);
-#ifdef ALLOW_ROOMDESC
 extern errr init_d_info_txt(FILE *fp, char *buf);
-#endif
 extern errr init_k_info_txt(FILE *fp, char *buf);
 extern errr init_a_info_txt(FILE *fp, char *buf);
 extern errr init_e_info_txt(FILE *fp, char *buf);
@@ -460,6 +456,7 @@ extern errr init_p_info_txt(FILE *fp, char *buf);
 extern errr init_c_info_txt(FILE *fp, char *buf);
 extern errr init_w_info_txt(FILE *fp, char *buf);
 extern errr init_s_info_txt(FILE *fp, char *buf);
+extern errr init_t_info_txt(FILE *fp, char *buf);
 extern errr init_h_info_txt(FILE *fp, char *buf);
 extern errr init_b_info_txt(FILE *fp, char *buf);
 extern errr init_g_info_txt(FILE *fp, char *buf);
@@ -522,6 +519,7 @@ extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
+extern int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3);
 extern int identify_random_gen(object_type *o_ptr, cptr *info, int len);
 extern bool identify_fully_aux(object_type *o_ptr);
 extern void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3);
@@ -557,6 +555,8 @@ extern s16b o_pop(void);
 extern errr get_obj_num_prep(void);
 extern s16b get_obj_num(int level);
 extern void object_known(object_type *o_ptr);
+extern void object_bonus(object_type *o_ptr);
+extern void object_mental(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
 extern s32b object_value(object_type *o_ptr);
@@ -631,7 +631,7 @@ extern bool project_p(int who, int rad, int y, int x, int dam, int typ);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 
 /* spells2.c */
-extern bool hp_player(int num);
+extern int hp_player(int num);
 extern void warding_glyph(void);
 extern void warding_trap(int feat, int dir);
 extern bool do_dec_stat(int stat);
@@ -663,6 +663,8 @@ extern void stair_creation(void);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
 extern bool ident_spell(void);
+extern bool ident_spell_bonus(void);
+extern bool ident_spell_name(void);
 extern bool ident_spell_tval(int tval);
 extern bool identify_fully(void);
 extern bool recharge(int num);
@@ -717,6 +719,7 @@ extern bool destroy_doors_touch(void);
 extern bool sleep_monsters_touch(void);
 
 /* store.c */
+extern bool store_home(int n);
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);
@@ -854,7 +857,10 @@ extern bool target_set_interactive(int mode);
 extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
-
+extern int min_depth(int dungeon);
+extern int max_depth(int dungeon);
+extern int town_depth(int dungeon);
+extern void get_zone(dungeon_zone **zone_handle, int dungeon, int depth);
 
 /*
  * Hack -- conditional (or "bizarre") externs

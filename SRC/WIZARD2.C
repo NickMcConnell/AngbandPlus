@@ -876,6 +876,9 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
+
+		/* Reset pvals */
+		if (o_ptr->number < o_ptr->pvals) o_ptr->pvals = 0;
 	}
 }
 
@@ -1160,7 +1163,7 @@ static void do_cmd_wiz_jump(void)
 		char tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Jump to level (0-%d): ", MAX_DEPTH-1);
+		sprintf(ppp, "Jump to level (0-%d): ", max_depth(p_ptr->dungeon)-min_depth(p_ptr->dungeon));
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->depth);
@@ -1176,13 +1179,13 @@ static void do_cmd_wiz_jump(void)
 	if (p_ptr->command_arg < 0) p_ptr->command_arg = 0;
 
 	/* Paranoia */
-	if (p_ptr->command_arg > MAX_DEPTH - 1) p_ptr->command_arg = MAX_DEPTH - 1;
+	if (p_ptr->command_arg > max_depth(p_ptr->dungeon)-min_depth(p_ptr->dungeon)) p_ptr->command_arg = max_depth(p_ptr->dungeon)-min_depth(p_ptr->dungeon);
 
 	/* Accept request */
 	msg_format("You jump to dungeon level %d.", p_ptr->command_arg);
 
 	/* New depth */
-	p_ptr->depth = p_ptr->command_arg;
+	p_ptr->depth = p_ptr->command_arg + min_depth(p_ptr->dungeon);
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -1406,7 +1409,7 @@ static void do_cmd_wiz_query(void)
 		case 'm': mask |= (CAVE_MARK); break;
 		case 'g': mask |= (CAVE_GLOW); break;
 		case 'r': mask |= (CAVE_ROOM); break;
-		case 'i': mask |= (CAVE_ICKY); break;
+		case 'i': mask |= (CAVE_SAFE); break;
 		case 's': mask |= (CAVE_SEEN); break;
 		case 'v': mask |= (CAVE_VIEW); break;
 		case 't': mask |= (CAVE_TEMP); break;

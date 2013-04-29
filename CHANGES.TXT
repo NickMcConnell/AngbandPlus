@@ -1,3 +1,32 @@
+26-11-2001 Unangband 0.4.5 "Option Pack"
+- Now support stacking of pvals and timeouts. Pvals stacked if equal
+or 1 less than existing item pval, or if stack_force_pvals option in
+effect. Timeouts stacked if stack_force_timeouts in effect.
+- Items inscribed with '=s' behave if all stacking options are in
+effect. eg you can force all torches to stack now by inscribing one
+of them with '=s', rather than fiddling with options.
+- Added rod and scrolls of gauge magic. These identify the to hit/
+damage/ac bonuses and number of charges an item has.
+- Replace first recharge spell with Gauge Magic. This should make
+rogues/rangers/mages a bit more viable identification wise early
+on, particularly for rangers.
+- If an item is used sufficiently, it will now be sensed in addition
+to having its hit/damage/ac bonus revealed, and in circumstances where
+no further information is to be learnt about the item, it will be
+treated as identified.
+- Items now blend usage counts when 'absorbed'.
+- Player now guesses more about the object, by hazarding a guess
+about what ego item or artifact it is, or kind of object (For rings,
+amulets etc.) when he learns information about it.
+- Do a lot more hopefully correct learning of object abilities,
+by fixing situations where we didn't take into account that we already
+knew an object we are using provides this ability, and situations where
+we know the identified object cannot provide the ability (ie is not
+an ego item/artifact, or is fully identified).
+- Added a whole lot of options to control game play elements.
+- Use options smartly to maintain backwards save file compatibility.
+- Added campaign mode, which is extremely buggy.
+
 13-11-2001 Unangband 0.4.4 "Lost Legends"
 - Lots of changes lost because I had my laptop stolen :( Lesson. Back
 up to ftp when you are doing stuff (The Linus backup technique).

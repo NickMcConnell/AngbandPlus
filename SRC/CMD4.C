@@ -865,20 +865,22 @@ void do_cmd_options(void)
 		prt("(4) Efficiency Options", 7, 5);
 		prt("(5) Birth Options", 8, 5);
 		prt("(6) Cheat Options", 9, 5);
+                prt("(7) Variant Options (Game-Play)", 10, 5);
+                prt("(8) Variant Options (Other)", 11, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 11, 5);
+                prt("(W) Window flags", 13, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 13, 5);
-		prt("(A) Append options to a file", 14, 5);
+                prt("(L) Load a user pref file", 15, 5);
+                prt("(A) Append options to a file", 16, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 16, 5);
-		prt("(H) Hitpoint Warning", 17, 5);
+                prt("(D) Base Delay Factor", 18, 5);
+                prt("(H) Hitpoint Warning", 19, 5);
 
 		/* Prompt */
-		prt("Command: ", 19, 0);
+                prt("Command: ", 21, 0);
 
 		/* Get command */
 		ch = inkey();
@@ -921,6 +923,19 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_aux(5, "Cheat Options");
 		}
+
+		/* Variant Options */
+		else if (ch == '7')
+		{
+                        do_cmd_options_aux(6, "Variant Options (Game-Play)");
+		}
+
+		/* Variant Options */
+                else if (ch == '8')
+		{
+                        do_cmd_options_aux(7, "Variant Options (Other)");
+		}
+
 
 		/* Window flags */
 		else if ((ch == 'W') || (ch == 'w'))
@@ -2405,15 +2420,9 @@ static cptr do_cmd_feeling_text[11] =
  */
 void do_cmd_feeling(void)
 {
+
 	/* Verify the feeling */
 	if (feeling > 10) feeling = 10;
-
-	/* No useful feeling in town */
-	if (!p_ptr->depth)
-	{
-		msg_print("Looks like a typical town.");
-		return;
-	}
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);

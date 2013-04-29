@@ -231,16 +231,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow parsing and creation of room descriptions.
- */
-#define ALLOW_ROOMDESC
-
-/*
- * OPTION: Allow mushroom patches to drop 'appropriate' mushrooms when killed
- */
-#define ALLOW_MUSHROOM_HACK
-
-/*
  * OPTION: Allow object memory
  */
 #define ALLOW_OBJECT_INFO

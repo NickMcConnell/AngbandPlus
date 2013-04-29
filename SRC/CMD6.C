@@ -112,7 +112,7 @@ void do_cmd_eat_food(void)
 	/* Analyze the food */
 	switch (o_ptr->sval)
 	{
-		case SV_FOOD_POISON:
+                case SV_FOOD_POISON:
 		{
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
@@ -136,7 +136,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_BLINDNESS:
+                case SV_FOOD_BLINDNESS:
 		{
 			if (!p_ptr->resist_blind)
 			{
@@ -159,7 +159,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_PARANOIA:
+                case SV_FOOD_PARANOIA:
 		{
 			if ((!p_ptr->resist_fear)&&(!p_ptr->hero)&&(!p_ptr->shero))
 			{
@@ -183,7 +183,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_CONFUSION:
+                case SV_FOOD_CONFUSION:
 		{
 			if (!p_ptr->resist_confu)
 			{
@@ -206,7 +206,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_HALLUCINATION:
+                case SV_FOOD_HALLUCINATION:
 		{
 			if (!p_ptr->resist_chaos)
 			{
@@ -229,7 +229,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_PARALYSIS:
+                case SV_FOOD_PARALYSIS:
 		{
 			if (!p_ptr->free_act)
 			{
@@ -252,7 +252,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_WEAKNESS:
+                case SV_FOOD_WEAKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_STR);
@@ -260,7 +260,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_SICKNESS:
+                case SV_FOOD_SICKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
 			(void)do_dec_stat(A_CON);
@@ -268,7 +268,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_STUPIDITY:
+                case SV_FOOD_STUPIDITY:
 		{
 			take_hit(damroll(8, 8), "poisonous food");
 			(void)do_dec_stat(A_INT);
@@ -276,7 +276,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_NAIVETY:
+                case SV_FOOD_NAIVETY:
 		{
 			take_hit(damroll(8, 8), "poisonous food");
 			(void)do_dec_stat(A_WIS);
@@ -284,7 +284,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_UNHEALTH:
+                case SV_FOOD_UNHEALTH:
 		{
 			take_hit(damroll(10, 10), "poisonous food");
 			(void)do_dec_stat(A_CON);
@@ -292,7 +292,7 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_DISEASE:
+                case SV_FOOD_DISEASE:
 		{
 			take_hit(damroll(10, 10), "poisonous food");
 			(void)do_dec_stat(A_STR);
@@ -300,49 +300,49 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_CURE_POISON:
+                case SV_FOOD_CURE_POISON:
 		{
 			if (set_poisoned(0)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_BLINDNESS:
+                case SV_FOOD_CURE_BLINDNESS:
 		{
 			if (set_blind(0)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_PARANOIA:
+                case SV_FOOD_CURE_PARANOIA:
 		{
 			if (set_afraid(0)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_CONFUSION:
+                case SV_FOOD_CURE_CONFUSION:
 		{
 			if (set_confused(0)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_CURE_SERIOUS:
+                case SV_FOOD_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_RESTORE_STR:
+                case SV_FOOD_RESTORE_STR:
 		{
 			if (do_res_stat(A_STR)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_RESTORE_CON:
+                case SV_FOOD_RESTORE_CON:
 		{
 			if (do_res_stat(A_CON)) ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_RESTORING:
+                case SV_FOOD_RESTORING:
 		{
 			if (do_res_stat(A_STR)) ident = TRUE;
 			if (do_res_stat(A_INT)) ident = TRUE;
@@ -373,17 +373,17 @@ void do_cmd_eat_food(void)
 
 
 
-		case SV_FOOD_RATION:
-		case SV_FOOD_BISCUIT:
-		case SV_FOOD_JERKY:
-		case SV_FOOD_SLIME_MOLD:
+                case SV_FOOD_RATION:
+                case SV_FOOD_BISCUIT:
+                case SV_FOOD_JERKY:
+                case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
 			ident = TRUE;
 			break;
 		}
 
-		case SV_FOOD_WAYBREAD:
+                case SV_FOOD_WAYBREAD:
 		{
 			msg_print("That tastes good.");
 			(void)set_poisoned(0);
@@ -392,8 +392,8 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
-		case SV_FOOD_PINT_OF_ALE:
-		case SV_FOOD_PINT_OF_WINE:
+                case SV_FOOD_PINT_OF_ALE:
+                case SV_FOOD_PINT_OF_WINE:
 		{
 			msg_print("That tastes good.");
 			ident = TRUE;
@@ -454,6 +454,7 @@ void do_cmd_quaff_potion(void)
 
 	cptr q, s;
 
+	int guess = 0;
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -492,22 +493,22 @@ void do_cmd_quaff_potion(void)
 	/* Analyze the potion */
 	switch (o_ptr->sval)
 	{
-		case SV_POTION_WATER:
-		case SV_POTION_APPLE_JUICE:
-		case SV_POTION_SLIME_MOLD:
+                case SV_POTION_WATER:
+                case SV_POTION_APPLE_JUICE:
+                case SV_POTION_SLIME_MOLD:
 		{
 			msg_print("You feel less thirsty.");
 			ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_SLOWNESS:
+                case SV_POTION_SLOWNESS:
 		{
 			if (set_slow(p_ptr->slow + randint(25) + 15)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_SALT_WATER:
+                case SV_POTION_SALT_WATER:
 		{
 			msg_print("The potion makes you vomit!");
 			(void)set_food(PY_FOOD_STARVE - 1);
@@ -517,7 +518,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_POISON:
+                case SV_POTION_POISON:
 		{
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
@@ -526,11 +527,11 @@ void do_cmd_quaff_potion(void)
 					ident = TRUE;
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-					equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+                                        equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
 #endif
 				}
 			}
-			else if ((object_aware_p(o_ptr)) && (p_ptr->resist_pois) && (rand_int(100)<30))
+                        else if ((object_aware_p(o_ptr)) && (p_ptr->resist_pois))
 			{
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
@@ -540,7 +541,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_BLINDNESS:
+                case SV_POTION_BLINDNESS:
 		{
 			if (!p_ptr->resist_blind)
 			{
@@ -563,7 +564,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_CONFUSION:
+                case SV_POTION_CONFUSION:
 		{
 			if (!p_ptr->resist_confu)
 			{
@@ -586,7 +587,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_SLEEP:
+                case SV_POTION_SLEEP:
 		{
 			if (!p_ptr->free_act)
 			{
@@ -609,7 +610,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_LOSE_MEMORIES:
+                case SV_POTION_LOSE_MEMORIES:
 		{
 			if (!p_ptr->hold_life && !p_ptr->blessed && (p_ptr->exp > 0))
 			{
@@ -627,7 +628,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_RUINATION:
+                case SV_POTION_RUINATION:
 		{
 			msg_print("Your nerves and muscles feel weak and lifeless!");
 			take_hit(damroll(10, 10), "a potion of Ruination");
@@ -641,43 +642,43 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_DEC_STR:
+                case SV_POTION_DEC_STR:
 		{
 			if (do_dec_stat(A_STR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEC_INT:
+                case SV_POTION_DEC_INT:
 		{
 			if (do_dec_stat(A_INT)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEC_WIS:
+                case SV_POTION_DEC_WIS:
 		{
 			if (do_dec_stat(A_WIS)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEC_DEX:
+                case SV_POTION_DEC_DEX:
 		{
 			if (do_dec_stat(A_DEX)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEC_CON:
+                case SV_POTION_DEC_CON:
 		{
 			if (do_dec_stat(A_CON)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DEC_CHR:
+                case SV_POTION_DEC_CHR:
 		{
 			if (do_dec_stat(A_CHR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_DETONATIONS:
+                case SV_POTION_DETONATIONS:
 		{
 			msg_print("Massive explosions rupture your body!");
 			take_hit(damroll(50, 20), "a potion of Detonation");
@@ -687,7 +688,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_DEATH:
+                case SV_POTION_DEATH:
 		{
 			msg_print("A feeling of Death flows through your body.");
 			take_hit(5000, "a potion of Death");
@@ -695,7 +696,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_INFRAVISION:
+                case SV_POTION_INFRAVISION:
 		{
 			if (set_tim_infra(p_ptr->tim_infra + 100 + randint(100)))
 			{
@@ -704,7 +705,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_DETECT_INVIS:
+                case SV_POTION_DETECT_INVIS:
 		{
 			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
 			{
@@ -713,25 +714,26 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_SLOW_POISON:
+                case SV_POTION_SLOW_POISON:
 		{
 			if (set_poisoned(p_ptr->poisoned / 2)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_CURE_POISON:
+                case SV_POTION_CURE_POISON:
 		{
 			if (set_poisoned(0)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_BOLDNESS:
+                case SV_POTION_BOLDNESS:
 		{
-			if (set_afraid(0)) ident = TRUE;
+			if (set_afraid(0)) guess = SV_POTION_BOLDNESS;
+			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_SPEED:
+                case SV_POTION_SPEED:
 		{
 			if (!p_ptr->fast)
 			{
@@ -744,7 +746,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_RESIST_HEAT:
+                case SV_POTION_RESIST_HEAT:
 		{
 			if (set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10))
 			{
@@ -753,7 +755,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_RESIST_COLD:
+                case SV_POTION_RESIST_COLD:
 		{
 			if (set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10))
 			{
@@ -762,73 +764,86 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_HEROISM:
+                case SV_POTION_HEROISM:
 		{
-			if (hp_player(10)) ident = TRUE;
-			if (set_afraid(0)) ident = TRUE;
+			guess = hp_player(10);
+			if (set_afraid(0))
+			{
+				if (!guess) guess = SV_POTION_BOLDNESS;
+				else guess = SV_POTION_HEROISM;
+				if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+			}
 			if (set_hero(p_ptr->hero + randint(25) + 25)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_BESERK_STRENGTH:
+                case SV_POTION_BESERK_STRENGTH:
 		{
-			if (hp_player(30)) ident = TRUE;
-			if (set_afraid(0)) ident = TRUE;
+			guess = hp_player(30);
+			if (set_afraid(0))
+			{
+				if (!guess) guess = SV_POTION_BOLDNESS;
+				else guess = SV_POTION_HEROISM;
+				if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+			}
 			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_CURE_LIGHT:
+                case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
+			guess = hp_player(damroll(2, 8));
+			if ((set_blind(0)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
+                        if ((set_cut(p_ptr->cut - 10)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
 			break;
 		}
 
-		case SV_POTION_CURE_SERIOUS:
+                case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
+			guess = hp_player(damroll(4, 8));
+			if ((set_blind(0)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
+			if ((set_confused(0)) && (guess != SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if ((set_cut((p_ptr->cut / 2) - 50)) && (guess != SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			break;
+
+		}
+
+                case SV_POTION_CURE_CRITICAL:
+		{
+			guess = hp_player(damroll(6, 8));
+			if ((set_blind(0)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
+			if ((set_confused(0))  && (guess!= SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if (set_poisoned(0)) guess = SV_POTION_CURE_CRITICAL;
+			if (set_stun(0)) guess = SV_POTION_CURE_CRITICAL;
+			if (set_cut(0)) guess = SV_POTION_CURE_CRITICAL;
 			break;
 		}
 
-		case SV_POTION_CURE_CRITICAL:
+                case SV_POTION_HEALING:
 		{
-			if (hp_player(damroll(6, 8))) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			guess = hp_player(300);
+			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+			if ((set_blind(0)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
+			if ((set_confused(0)) && (guess < SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if ((set_poisoned(0)) && (guess < SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if ((set_stun(0)) && (guess < SV_POTION_HEALING)) guess = SV_POTION_CURE_CRITICAL;
+			if ((set_cut(0)) && (guess < SV_POTION_HEALING)) guess = SV_POTION_CURE_CRITICAL;
 			break;
 		}
 
-		case SV_POTION_HEALING:
+                case SV_POTION_STAR_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			guess = (hp_player(1200));
+			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+			if ((set_blind(0)) && (!guess)) guess = SV_POTION_CURE_LIGHT;
+			if ((set_confused(0))  && (guess < SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if ((set_poisoned(0)) && (guess < SV_POTION_CURE_CRITICAL)) guess = SV_POTION_CURE_SERIOUS;
+			if ((set_stun(0)) && (guess < SV_POTION_HEALING)) guess = SV_POTION_CURE_CRITICAL;
+			if ((set_cut(0)) && (guess < SV_POTION_HEALING)) guess = SV_POTION_CURE_CRITICAL;
 			break;
 		}
 
-		case SV_POTION_STAR_HEALING:
-		{
-			if (hp_player(1200)) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
-			break;
-		}
-
-		case SV_POTION_LIFE:
+                case SV_POTION_LIFE:
 		{
 			msg_print("You feel life flow through your body!");
 			restore_level();
@@ -849,7 +864,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_RESTORE_MANA:
+                case SV_POTION_RESTORE_MANA:
 		{
 			if (p_ptr->csp < p_ptr->msp)
 			{
@@ -863,96 +878,116 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_RESTORE_EXP:
+                case SV_POTION_RESTORE_EXP:
 		{
 			if (restore_level()) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_STR:
+                case SV_POTION_RES_STR:
 		{
 			if (do_res_stat(A_STR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_INT:
+                case SV_POTION_RES_INT:
 		{
 			if (do_res_stat(A_INT)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_WIS:
+                case SV_POTION_RES_WIS:
 		{
 			if (do_res_stat(A_WIS)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_DEX:
+                case SV_POTION_RES_DEX:
 		{
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_CON:
+                case SV_POTION_RES_CON:
 		{
 			if (do_res_stat(A_CON)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_RES_CHR:
+                case SV_POTION_RES_CHR:
 		{
 			if (do_res_stat(A_CHR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_STR:
+                case SV_POTION_INC_STR:
 		{
 			if (do_inc_stat(A_STR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_INT:
+                case SV_POTION_INC_INT:
 		{
 			if (do_inc_stat(A_INT)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_WIS:
+                case SV_POTION_INC_WIS:
 		{
 			if (do_inc_stat(A_WIS)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_DEX:
+                case SV_POTION_INC_DEX:
 		{
 			if (do_inc_stat(A_DEX)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_CON:
+                case SV_POTION_INC_CON:
 		{
 			if (do_inc_stat(A_CON)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_INC_CHR:
+                case SV_POTION_INC_CHR:
 		{
 			if (do_inc_stat(A_CHR)) ident = TRUE;
 			break;
 		}
 
-		case SV_POTION_AUGMENTATION:
+                case SV_POTION_AUGMENTATION:
 		{
-			if (do_inc_stat(A_STR)) ident = TRUE;
-			if (do_inc_stat(A_INT)) ident = TRUE;
-			if (do_inc_stat(A_WIS)) ident = TRUE;
-			if (do_inc_stat(A_DEX)) ident = TRUE;
-			if (do_inc_stat(A_CON)) ident = TRUE;
-			if (do_inc_stat(A_CHR)) ident = TRUE;
+			if (do_inc_stat(A_STR)) guess = SV_POTION_INC_STR;
+			if (do_inc_stat(A_INT))
+			{
+				if (!guess) guess = SV_POTION_INC_INT;
+				else ident = TRUE;
+			}
+			if (do_inc_stat(A_WIS))
+			{
+				if (!guess) guess = SV_POTION_INC_WIS;
+				else ident = TRUE;
+			}
+			if (do_inc_stat(A_DEX))
+			{
+				if (!guess) guess = SV_POTION_INC_DEX;
+				else ident = TRUE;
+			}
+			if (do_inc_stat(A_CON))
+			{
+				if (!guess) guess = SV_POTION_INC_CON;
+				else ident = TRUE;
+			}
+			if (do_inc_stat(A_CHR))
+			{
+				if (!guess) guess = SV_POTION_INC_CHR;
+				else ident = TRUE;
+			}
 			break;
 		}
 
-		case SV_POTION_ENLIGHTENMENT:
+                case SV_POTION_ENLIGHTENMENT:
 		{
 			msg_print("An image of your surroundings forms in your mind...");
 			wiz_lite();
@@ -960,7 +995,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_STAR_ENLIGHTENMENT:
+                case SV_POTION_STAR_ENLIGHTENMENT:
 		{
 			msg_print("You begin to feel more enlightened...");
 			msg_print(NULL);
@@ -979,7 +1014,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_SELF_KNOWLEDGE:
+                case SV_POTION_SELF_KNOWLEDGE:
 		{
 			msg_print("You begin to know yourself a little better...");
 			msg_print(NULL);
@@ -988,7 +1023,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
-		case SV_POTION_EXPERIENCE:
+                case SV_POTION_EXPERIENCE:
 		{
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
@@ -1008,6 +1043,82 @@ void do_cmd_quaff_potion(void)
 
 	/* The item has been tried */
 	object_tried(o_ptr);
+
+	/* A guess was made */
+	if (!ident && guess && !object_aware_p(o_ptr))
+	{
+		switch (guess)
+		{
+                        case SV_POTION_CURE_LIGHT:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware)
+				{
+					guess = SV_POTION_CURE_SERIOUS;
+					if (p_ptr->blind) guess = SV_POTION_HEROISM;
+					if ((p_ptr->blind) && (p_ptr->chp < p_ptr->mhp)) ident = TRUE;
+					if (p_ptr->afraid) ident = TRUE;
+				}
+				else break;			
+
+                        case SV_POTION_CURE_SERIOUS:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware)
+				{
+					guess = SV_POTION_CURE_CRITICAL;
+                                        if ((p_ptr->blind) || (p_ptr->stun) ||
+						(p_ptr->cut) || (p_ptr->confused))
+					{
+						guess = SV_POTION_HEROISM;
+						if (p_ptr->afraid) ident = TRUE;
+					}
+				}
+				else break;
+
+                        case SV_POTION_CURE_CRITICAL:
+				if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+				else if (k_info[lookup_kind(TV_POTION,guess)].aware)
+				{
+					guess = SV_POTION_HEALING;
+                                        if ((p_ptr->blind) || (p_ptr->stun) ||
+						(p_ptr->cut) || (p_ptr->confused))
+					{
+						guess = SV_POTION_HEROISM;
+						if (p_ptr->afraid) ident = TRUE;
+					}
+				}
+				else break;
+
+                        case SV_POTION_HEALING:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) guess = SV_POTION_STAR_HEALING;
+				else break;
+
+                        case SV_POTION_STAR_HEALING:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) ident = TRUE;
+				break;
+
+                        case SV_POTION_INC_STR:
+                        case SV_POTION_INC_INT:
+                        case SV_POTION_INC_WIS:
+                        case SV_POTION_INC_DEX:
+                        case SV_POTION_INC_CON:
+                        case SV_POTION_INC_CHR:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) ident = TRUE;
+				break;				
+
+                        case SV_POTION_BOLDNESS:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) guess = SV_POTION_HEROISM;
+				else break;
+
+                        case SV_POTION_HEROISM:                  
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) guess = SV_POTION_BESERK_STRENGTH;
+				else break;
+
+                        case SV_POTION_BESERK_STRENGTH:
+				if (k_info[lookup_kind(TV_POTION,guess)].aware) ident = TRUE;
+				break;
+
+		}
+
+		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
+	}
 
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
@@ -1189,6 +1300,7 @@ void do_cmd_read_scroll(void)
 
 	cptr q, s;
 
+	int guess = 0;
 
 	/* Check some conditions */
 	if (p_ptr->blind)
@@ -1244,7 +1356,7 @@ void do_cmd_read_scroll(void)
 	/* Analyze the scroll */
 	switch (o_ptr->sval)
 	{
-		case SV_SCROLL_DARKNESS:
+                case SV_SCROLL_DARKNESS:
 		{
 			if (!p_ptr->resist_blind)
 			{
@@ -1254,7 +1366,7 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_AGGRAVATE_MONSTER:
+                case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
 			aggravate_monsters(0);
@@ -1262,19 +1374,19 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_CURSE_ARMOR:
+                case SV_SCROLL_CURSE_ARMOR:
 		{
 			if (curse_armor()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_CURSE_WEAPON:
+                case SV_SCROLL_CURSE_WEAPON:
 		{
 			if (curse_weapon()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_SUMMON_MONSTER:
+                case SV_SCROLL_SUMMON_MONSTER:
 		{
 			for (k = 0; k < randint(3); k++)
 			{
@@ -1286,7 +1398,7 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_SUMMON_UNDEAD:
+                case SV_SCROLL_SUMMON_UNDEAD:
 		{
 			for (k = 0; k < randint(3); k++)
 			{
@@ -1298,40 +1410,47 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_TRAP_CREATION:
+                case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_PHASE_DOOR:
+                case SV_SCROLL_PHASE_DOOR:
 		{
 			teleport_player(10);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_TELEPORT:
+                case SV_SCROLL_TELEPORT:
 		{
 			teleport_player(100);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_TELEPORT_LEVEL:
+                case SV_SCROLL_TELEPORT_LEVEL:
 		{
 			(void)teleport_player_level();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_WORD_OF_RECALL:
+                case SV_SCROLL_WORD_OF_RECALL:
 		{
 			set_recall();
 			ident = TRUE;
 			break;
 		}
 
+
+                case SV_SCROLL_GAUGE_MAGIC:
+		{
+			ident = TRUE;
+                        if (!ident_spell_bonus()) used_up = FALSE;
+			break;
+		}
 
                 case SV_SCROLL_READ_MAGIC:
 		{
@@ -1347,21 +1466,28 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_IDENTIFY:
+                case SV_SCROLL_LEGEND_LORE:
+		{
+			ident = TRUE;
+			if (!ident_spell_name()) used_up = FALSE;
+			break;
+		}
+
+                case SV_SCROLL_IDENTIFY:
 		{
 			ident = TRUE;
 			if (!ident_spell()) used_up = FALSE;
 			break;
 		}
 
-		case SV_SCROLL_STAR_IDENTIFY:
+                case SV_SCROLL_STAR_IDENTIFY:
 		{
 			ident = TRUE;
 			if (!identify_fully()) used_up = FALSE;
 			break;
 		}
 
-		case SV_SCROLL_REMOVE_CURSE:
+                case SV_SCROLL_REMOVE_CURSE:
 		{
 			if (remove_curse())
 			{
@@ -1371,95 +1497,95 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_STAR_REMOVE_CURSE:
+                case SV_SCROLL_STAR_REMOVE_CURSE:
 		{
 			remove_all_curse();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_ENCHANT_ARMOR:
+                case SV_SCROLL_ENCHANT_ARMOR:
 		{
 			ident = TRUE;
 			if (!enchant_spell(0, 0, 1)) used_up = FALSE;
 			break;
 		}
 
-		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
+                case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
 		{
 			if (!enchant_spell(1, 0, 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
+                case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
 		{
 			if (!enchant_spell(0, 1, 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_STAR_ENCHANT_ARMOR:
+                case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
 			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_STAR_ENCHANT_WEAPON:
+                case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
 			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_RECHARGING:
+                case SV_SCROLL_RECHARGING:
 		{
 			if (!recharge(60)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_LIGHT:
+                case SV_SCROLL_LIGHT:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_MAPPING:
+                case SV_SCROLL_MAPPING:
 		{
 			map_area();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DETECT_GOLD:
+                case SV_SCROLL_DETECT_GOLD:
 		{
 			if (detect_treasure()) ident = TRUE;
 			if (detect_objects_gold()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DETECT_ITEM:
+                case SV_SCROLL_DETECT_ITEM:
 		{
 			if (detect_objects_normal()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DETECT_TRAP:
+                case SV_SCROLL_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DETECT_DOOR:
+                case SV_SCROLL_DETECT_DOOR:
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DETECT_INVIS:
+                case SV_SCROLL_DETECT_INVIS:
 		{
 			if (detect_monsters_invis()) ident = TRUE;
 			break;
@@ -1471,31 +1597,31 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_SATISFY_HUNGER:
+                case SV_SCROLL_SATISFY_HUNGER:
 		{
 			if (set_food(PY_FOOD_MAX - 1)) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_BLESSING:
+                case SV_SCROLL_BLESSING:
 		{
-			if (set_blessed(p_ptr->blessed + randint(12) + 6)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(12) + 6)) guess = SV_SCROLL_BLESSING;
 			break;
 		}
 
-		case SV_SCROLL_HOLY_CHANT:
+                case SV_SCROLL_HOLY_CHANT:
 		{
-			if (set_blessed(p_ptr->blessed + randint(24) + 12)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(24) + 12)) guess = SV_SCROLL_BLESSING;
 			break;
 		}
 
-		case SV_SCROLL_HOLY_PRAYER:
+                case SV_SCROLL_HOLY_PRAYER:
 		{
-			if (set_blessed(p_ptr->blessed + randint(48) + 24)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(48) + 24)) guess = SV_SCROLL_BLESSING;
 			break;
 		}
 
-		case SV_SCROLL_MONSTER_CONFUSION:
+                case SV_SCROLL_MONSTER_CONFUSION:
 		{
 			if (p_ptr->confusing == 0)
 			{
@@ -1506,21 +1632,21 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_PROTECTION_FROM_EVIL:
+                case SV_SCROLL_PROTECTION_FROM_EVIL:
 		{
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_RUNE_OF_PROTECTION:
+                case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
 			warding_glyph();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_TRAP_DOOR_DESTRUCTION:
+                case SV_SCROLL_TRAP_DOOR_DESTRUCTION:
 		{
 			if (destroy_doors_touch()) ident = TRUE;
 			break;
@@ -1533,44 +1659,44 @@ void do_cmd_read_scroll(void)
 		}
 
 
-		case SV_SCROLL_STAR_DESTRUCTION:
+                case SV_SCROLL_STAR_DESTRUCTION:
 		{
 			destroy_area(py, px, 15, TRUE);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_DISPEL_UNDEAD:
+                case SV_SCROLL_DISPEL_UNDEAD:
 		{
 			if (dispel_undead(60)) ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_GENOCIDE:
+                case SV_SCROLL_GENOCIDE:
 		{
 			(void)genocide();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_MASS_GENOCIDE:
+                case SV_SCROLL_MASS_GENOCIDE:
 		{
 			(void)mass_genocide();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_SCROLL_ACQUIREMENT:
+                case SV_SCROLL_ACQUIREMENT:
 		{
 			acquirement(py, px, 1, TRUE);
-			ident = TRUE;
+                        guess = SV_SCROLL_ACQUIREMENT;
 			break;
 		}
 
-		case SV_SCROLL_STAR_ACQUIREMENT:
+                case SV_SCROLL_STAR_ACQUIREMENT:
 		{
 			acquirement(py, px, randint(2) + 1, TRUE);
-			ident = TRUE;
+                        guess = SV_SCROLL_ACQUIREMENT;
 			break;
 		}
 	}
@@ -1581,6 +1707,30 @@ void do_cmd_read_scroll(void)
 
 	/* The item was tried */
 	object_tried(o_ptr);
+
+	/* A guess was made */
+	if (!ident && guess && !object_aware_p(o_ptr))
+	{
+		switch (guess)
+		{
+                        case SV_SCROLL_BLESSING:
+				if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_BLESSING)].aware) guess = SV_SCROLL_HOLY_CHANT;
+				else break;			
+
+                        case SV_SCROLL_HOLY_CHANT:
+				if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_HOLY_CHANT)].aware) guess = SV_SCROLL_HOLY_PRAYER;
+				else break;
+
+                        case SV_SCROLL_HOLY_PRAYER:
+                                if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_HOLY_PRAYER)].aware) ident = TRUE;
+				break;
+
+                        case SV_SCROLL_ACQUIREMENT:
+                                if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_ACQUIREMENT)].aware) ident = TRUE;
+		}
+
+		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
+	}
 
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
@@ -1632,7 +1782,7 @@ void do_cmd_use_staff(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, ident, chance, k, lev;
+        int item, ident, chance, k, lev, guess = 0;
 
 	object_type *o_ptr;
 
@@ -1720,7 +1870,7 @@ void do_cmd_use_staff(void)
 	/* Analyze the staff */
 	switch (o_ptr->sval)
 	{
-		case SV_STAFF_DARKNESS:
+                case SV_STAFF_DARKNESS:
 		{
 			if (!p_ptr->resist_blind)
 			{
@@ -1730,19 +1880,19 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_SLOWNESS:
+                case SV_STAFF_SLOWNESS:
 		{
 			if (set_slow(p_ptr->slow + randint(30) + 15)) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_HASTE_MONSTERS:
+                case SV_STAFF_HASTE_MONSTERS:
 		{
 			if (speed_monsters()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_SUMMONING:
+                case SV_STAFF_SUMMONING:
 		{
 			for (k = 0; k < randint(4); k++)
 			{
@@ -1754,7 +1904,7 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_TELEPORTATION:
+                case SV_STAFF_TELEPORTATION:
 		{
 			teleport_player(100);
 			ident = TRUE;
@@ -1768,14 +1918,14 @@ void do_cmd_use_staff(void)
 
 		}
 
-		case SV_STAFF_IDENTIFY:
+                case SV_STAFF_IDENTIFY:
 		{
 			if (!ident_spell()) use_charge = FALSE;
 			ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_REMOVE_CURSE:
+                case SV_STAFF_REMOVE_CURSE:
 		{
 			if (remove_curse())
 			{
@@ -1788,7 +1938,7 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_STARLITE:
+                case SV_STAFF_STARLITE:
 		{
 			if (!p_ptr->blind)
 			{
@@ -1799,82 +1949,86 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_LITE:
+                case SV_STAFF_LITE:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_MAPPING:
+                case SV_STAFF_MAPPING:
 		{
 			map_area();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_GOLD:
+                case SV_STAFF_DETECT_GOLD:
 		{
 			if (detect_treasure()) ident = TRUE;
 			if (detect_objects_gold()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_ITEM:
+                case SV_STAFF_DETECT_ITEM:
 		{
 			if (detect_objects_normal()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_TRAP:
+                case SV_STAFF_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_DOOR:
+                case SV_STAFF_DETECT_DOOR:
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_INVIS:
+                case SV_STAFF_DETECT_INVIS:
 		{
 			if (detect_monsters_invis()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DETECT_EVIL:
+                case SV_STAFF_DETECT_EVIL:
 		{
 			if (detect_monsters_evil()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_CURE_LIGHT:
+                case SV_STAFF_CURE_LIGHT:
 		{
 			if (hp_player(randint(8))) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_CURING:
+                case SV_STAFF_CURING:
 		{
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			if ((set_stun(0)) && !ident) guess = SV_STAFF_CURING;
+			if ((set_cut(0)) && !ident) guess = SV_STAFF_CURING;
+			if ((p_ptr->chp < p_ptr->mhp) && guess) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_HEALING:
+                case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			guess = hp_player(300);
+			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+                        if ((guess == SV_POTION_HEALING) || (guess == SV_POTION_STAR_HEALING)) ident = TRUE;
+			else guess = SV_STAFF_HEALING;
+			if ((set_stun(0)) && !ident && !guess) guess = SV_STAFF_CURING;
+			if ((set_cut(0)) && !ident && !guess) guess = SV_STAFF_CURING;
 			break;
 		}
 
-		case SV_STAFF_THE_MAGI:
+                case SV_STAFF_THE_MAGI:
 		{
 			if (do_res_stat(A_INT)) ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
@@ -1889,19 +2043,19 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_SLEEP_MONSTERS:
+                case SV_STAFF_SLEEP_MONSTERS:
 		{
 			if (sleep_monsters()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_SLOW_MONSTERS:
+                case SV_STAFF_SLOW_MONSTERS:
 		{
 			if (slow_monsters()) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_SPEED:
+                case SV_STAFF_SPEED:
 		{
 			if (!p_ptr->fast)
 			{
@@ -1914,53 +2068,67 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_PROBING:
+                case SV_STAFF_PROBING:
 		{
 			probing();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DISPEL_EVIL:
+                case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+                        if (dispel_evil(60)) guess = SV_STAFF_DISPEL_EVIL;
 			break;
 		}
 
-		case SV_STAFF_POWER:
+                case SV_STAFF_POWER:
 		{
 			if (dispel_monsters(120)) ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_HOLINESS:
+                case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
+			if (dispel_evil(120)) guess = SV_STAFF_DISPEL_EVIL;
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
-			if (hp_player(50)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			if (hp_player(50))
+			{
+				if (!guess) guess = SV_STAFF_HEALING;
+				else ident = TRUE;
+			}
+			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
+			if (set_stun(0))
+			{
+				if (!guess) guess = SV_STAFF_CURING;
+                                else if (guess == SV_STAFF_DISPEL_EVIL) ident = TRUE;
+			}
+			if (set_cut(0))
+			{
+				if (!guess) guess = SV_STAFF_CURING;
+                                else if (guess == SV_STAFF_DISPEL_EVIL) ident = TRUE;
+			}
+
 			break;
 		}
 
-		case SV_STAFF_GENOCIDE:
+                case SV_STAFF_GENOCIDE:
 		{
 			(void)genocide();
 			ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_EARTHQUAKES:
+                case SV_STAFF_EARTHQUAKES:
 		{
 			earthquake(py, px, 10);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_STAFF_DESTRUCTION:
+                case SV_STAFF_DESTRUCTION:
 		{
 			destroy_area(py, px, 15, TRUE);
 			ident = TRUE;
@@ -1974,6 +2142,28 @@ void do_cmd_use_staff(void)
 
 	/* Tried the item */
 	object_tried(o_ptr);
+
+	/* A guess was made */
+	if (!ident && guess && !object_aware_p(o_ptr))
+	{
+		switch (guess)
+		{
+                        case SV_STAFF_CURING:
+				if (k_info[lookup_kind(TV_STAFF,guess)].aware) guess = SV_STAFF_HEALING;
+				else break;
+
+                        case SV_STAFF_HEALING:
+				if (k_info[lookup_kind(TV_STAFF,guess)].aware) ident = TRUE;
+				else break;
+
+                        case SV_STAFF_DISPEL_EVIL:
+				if (k_info[lookup_kind(TV_STAFF,guess)].aware) ident = TRUE;
+				break;
+
+		}
+
+		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
+	}
 
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
@@ -1989,12 +2179,19 @@ void do_cmd_use_staff(void)
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
 
+	/* XXX Hack -- new unstacking code */
+	if (!o_ptr->pvals) o_ptr->pvals = o_ptr->number;
 
-	/* Use a single charge */
-	o_ptr->pval--;
+	o_ptr->pvals--;
+
+	/* No spare charges */	
+	if (!o_ptr->pvals) o_ptr->pval--;
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+	if ((item >= 0) && (o_ptr->number > 0) &&
+		(((o_ptr->pval == 1) && (o_ptr->pvals)) ||
+		  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) > o_ptr->pvals)) ||
+                  (!variant_pval_stacks)))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -2008,17 +2205,33 @@ void do_cmd_use_staff(void)
 		/* Modify quantity */
 		i_ptr->number = 1;
 
-		/* Restore the charges */
-		o_ptr->pval++;
+		/* Reset pvals*/
+		i_ptr->pvals = 0;
 
 		/* Unstack the used item */
 		o_ptr->number--;
+
+		/* Reduce the charges again on the new item */
+		if (o_ptr->pvals != o_ptr->number) i_ptr->pval=i_ptr->pval-2;
+
+		/* Restore the charges on the stack? */
+		if (!o_ptr->pvals) o_ptr->pval++;
+
+		/* Restore the count */
+		o_ptr->pvals++;
+
+		/* Fix the stack? */
+		if (o_ptr->pvals == o_ptr->number) o_ptr->pvals = 0;
+
+		/* Adjust the weight and carry */
 		p_ptr->total_weight -= i_ptr->weight;
 		item = inven_carry(i_ptr);
 
 		/* Message */
 		msg_print("You unstack your staff.");
 	}
+
+
 
 	/* Describe charges in the pack */
 	if (item >= 0)
@@ -2056,7 +2269,7 @@ void do_cmd_use_staff(void)
  */
 void do_cmd_aim_wand(void)
 {
-	int item, lev, ident, chance, dir, sval;
+        int item, lev, ident, chance, dir, sval, guess = 0;
 
 	object_type *o_ptr;
 
@@ -2151,49 +2364,49 @@ void do_cmd_aim_wand(void)
 	/* Analyze the wand */
 	switch (sval)
 	{
-		case SV_WAND_HEAL_MONSTER:
+                case SV_WAND_HEAL_MONSTER:
 		{
 			if (heal_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_HASTE_MONSTER:
+                case SV_WAND_HASTE_MONSTER:
 		{
 			if (speed_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_CLONE_MONSTER:
+                case SV_WAND_CLONE_MONSTER:
 		{
 			if (clone_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_TELEPORT_AWAY:
+                case SV_WAND_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_DISARMING:
+                case SV_WAND_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_TRAP_DOOR_DEST:
+                case SV_WAND_TRAP_DOOR_DEST:
 		{
 			if (destroy_door(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_STONE_TO_MUD:
+                case SV_WAND_STONE_TO_MUD:
 		{
 			if (wall_to_mud(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_LITE:
+                case SV_WAND_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
@@ -2201,172 +2414,176 @@ void do_cmd_aim_wand(void)
 			break;
 		}
 
-		case SV_WAND_SLEEP_MONSTER:
+                case SV_WAND_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_SLOW_MONSTER:
+                case SV_WAND_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_CONFUSE_MONSTER:
+                case SV_WAND_CONFUSE_MONSTER:
 		{
 			if (confuse_monster(dir, 10)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_FEAR_MONSTER:
+                case SV_WAND_FEAR_MONSTER:
 		{
 			if (fear_monster(dir, 10)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_DRAIN_LIFE:
+                case SV_WAND_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 75)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_POLYMORPH:
+                case SV_WAND_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_STINKING_CLOUD:
+                case SV_WAND_STINKING_CLOUD:
 		{
 			fire_ball(GF_POIS, dir, 12, 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_MAGIC_MISSILE:
+                case SV_WAND_MAGIC_MISSILE:
 		{
 			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_ACID_BOLT:
+                case SV_WAND_ACID_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_ELEC_BOLT:
+                case SV_WAND_ELEC_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_FIRE_BOLT:
+                case SV_WAND_FIRE_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_COLD_BOLT:
+                case SV_WAND_COLD_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_ACID_BALL:
+                case SV_WAND_ACID_BALL:
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_ELEC_BALL:
+                case SV_WAND_ELEC_BALL:
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_FIRE_BALL:
+                case SV_WAND_FIRE_BALL:
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_COLD_BALL:
+                case SV_WAND_COLD_BALL:
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_WONDER:
+                case SV_WAND_WONDER:
 		{
 			msg_print("Oops.  Wand of wonder activated.");
 			break;
 		}
 
-		case SV_WAND_DRAGON_FIRE:
+                case SV_WAND_DRAGON_FIRE:
 		{
 			fire_ball(GF_FIRE, dir, 100, 3);
-			ident = TRUE;
+			guess = SV_WAND_DRAGON_FIRE;
 			break;
 		}
 
-		case SV_WAND_DRAGON_COLD:
+                case SV_WAND_DRAGON_COLD:
 		{
 			fire_ball(GF_COLD, dir, 80, 3);
-			ident = TRUE;
+			guess = SV_WAND_DRAGON_COLD;
 			break;
 		}
 
-		case SV_WAND_DRAGON_BREATH:
+                case SV_WAND_DRAGON_BREATH:
 		{
 			switch (randint(5))
 			{
-				case 1:
+                                case 1:
 				{
 					fire_ball(GF_ACID, dir, 100, 3);
+					ident = TRUE;
 					break;
 				}
 
-				case 2:
+                                case 2:
 				{
 					fire_ball(GF_ELEC, dir, 80, 3);
+					ident = TRUE;
 					break;
 				}
 
-				case 3:
+                                case 3:
 				{
 					fire_ball(GF_FIRE, dir, 100, 3);
+					guess = SV_WAND_DRAGON_FIRE;
 					break;
 				}
 
-				case 4:
+                                case 4:
 				{
 					fire_ball(GF_COLD, dir, 80, 3);
+					guess = SV_WAND_DRAGON_COLD;
 					break;
 				}
 
 				default:
 				{
 					fire_ball(GF_POIS, dir, 60, 3);
+					ident = TRUE;
 					break;
 				}
 			}
 
-			ident = TRUE;
 			break;
 		}
 
-		case SV_WAND_ANNIHILATION:
+                case SV_WAND_ANNIHILATION:
 		{
 			if (drain_life(dir, 125)) ident = TRUE;
 			break;
@@ -2380,6 +2597,34 @@ void do_cmd_aim_wand(void)
 	/* Mark it as tried */
 	object_tried(o_ptr);
 
+	/* Hack -- Guess if wand of wonder */
+        if (ident && (sval < SV_WAND_WONDER) && !object_aware_p(o_ptr))
+	{
+		ident = FALSE;
+
+		if (k_info[o_ptr->k_idx].guess != sval) ident = TRUE;
+		if (k_info[lookup_kind(TV_SCROLL,sval)].aware) ident = TRUE;
+                if (k_info[lookup_kind(TV_SCROLL,SV_WAND_WONDER)].aware) ident = TRUE;
+	}
+
+	/* A guess was made */
+	if (!ident && guess && !object_aware_p(o_ptr))
+	{
+		switch (guess)
+		{
+                        case SV_WAND_DRAGON_FIRE:
+				if (k_info[lookup_kind(TV_WAND,guess)].aware) ident = TRUE;
+				else break;
+
+                        case SV_WAND_DRAGON_COLD:
+				if (k_info[lookup_kind(TV_WAND,guess)].aware) ident = TRUE;
+				else break;
+		}
+
+		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
+	}
+
+
 	/* Apply identification */
 	if (ident && !object_aware_p(o_ptr))
 	{
@@ -2390,12 +2635,19 @@ void do_cmd_aim_wand(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+	/* XXX Hack -- new unstacking code */
+	if (!o_ptr->pvals) o_ptr->pvals = o_ptr->number;
 
-	/* Use a single charge */
-	o_ptr->pval--;
+	o_ptr->pvals--;
 
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+	/* No spare charges */	
+	if (!o_ptr->pvals) o_ptr->pval--;
+
+	/* XXX Hack -- unstack if necessary */
+	if ((item >= 0) && (o_ptr->number > 0) &&
+		(((o_ptr->pval == 1) && (o_ptr->pvals)) ||
+		  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) > o_ptr->pvals)) ||
+                  (!variant_pval_stacks)))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -2409,11 +2661,29 @@ void do_cmd_aim_wand(void)
 		/* Modify quantity */
 		i_ptr->number = 1;
 
-		/* Restore the charges */
-		o_ptr->pval++;
+		/* Reset pvals*/
+		i_ptr->pvals = 0;
 
 		/* Unstack the used item */
 		o_ptr->number--;
+
+		/* Reduce the charges on the new item? */
+		if (o_ptr->pvals != o_ptr->number) i_ptr->pval=i_ptr->pval-2;
+
+		/* Restore the charges on the stack? */
+		if (!o_ptr->pvals) o_ptr->pval++;
+
+		/* Restore the count */
+		o_ptr->pvals++;
+
+		/* Fix the stack? */
+		if (o_ptr->pvals == o_ptr->number) o_ptr->pvals = 0;
+
+		/* Adjust the weight and carry */
+		p_ptr->total_weight -= i_ptr->weight;
+		item = inven_carry(i_ptr);
+
+		/* Adjust the weight and carry */
 		p_ptr->total_weight -= i_ptr->weight;
 		item = inven_carry(i_ptr);
 
@@ -2448,7 +2718,7 @@ void do_cmd_aim_wand(void)
  */
 void do_cmd_zap_rod(void)
 {
-	int item, ident, chance, dir, lev;
+        int item, ident, chance, dir, lev, guess = 0;
 
 	object_type *o_ptr;
 
@@ -2456,7 +2726,6 @@ void do_cmd_zap_rod(void)
 	bool use_charge = TRUE;
 
 	cptr q, s;
-
 
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
@@ -2543,14 +2812,14 @@ void do_cmd_zap_rod(void)
 	/* Analyze the rod */
 	switch (o_ptr->sval)
 	{
-		case SV_ROD_DETECT_TRAP:
+                case SV_ROD_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
 			o_ptr->pval = 50;
 			break;
 		}
 
-		case SV_ROD_DETECT_WATER:
+                case SV_ROD_DETECT_WATER:
 		{
 			if (detect_water()) ident = TRUE;
 			o_ptr->pval = 60;
@@ -2558,7 +2827,7 @@ void do_cmd_zap_rod(void)
 		}
 
 
-		case SV_ROD_DETECT_DOOR:
+                case SV_ROD_DETECT_DOOR:
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
@@ -2579,7 +2848,7 @@ void do_cmd_zap_rod(void)
 #endif
 		}
 
-		case SV_ROD_RECALL:
+                case SV_ROD_RECALL:
 		{
 			set_recall();
 			ident = TRUE;
@@ -2587,14 +2856,14 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_ILLUMINATION:
+                case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
 			o_ptr->pval = 30;
 			break;
 		}
 
-		case SV_ROD_MAPPING:
+                case SV_ROD_MAPPING:
 		{
 			map_area();
 			ident = TRUE;
@@ -2602,7 +2871,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_DETECTION:
+                case SV_ROD_DETECTION:
 		{
 			detect_all();
 			ident = TRUE;
@@ -2610,35 +2879,42 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_PROBING:
+                case SV_ROD_GAUGE_MAGIC:
 		{
+
+			ident = TRUE;
+                        (void)ident_spell_bonus();
+			break;
+/* Hack -- was rod of probing */
+#if 0
 			probing();
 			ident = TRUE;
 			o_ptr->pval = 50;
 			break;
+#endif
 		}
 
-		case SV_ROD_CURING:
+                case SV_ROD_CURING:
 		{
 			if (set_blind(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			if ((set_stun(0))&& !ident) guess = SV_ROD_CURING;
+			if ((set_cut(0))&& !ident) guess = SV_ROD_CURING;
 			o_ptr->pval = 999;
 			break;
 		}
 
-		case SV_ROD_HEALING:
+                case SV_ROD_HEALING:
 		{
 			if (hp_player(500)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
-			if (set_cut(0)) ident = TRUE;
+			if ((set_stun(0))&& !ident)  guess = SV_ROD_CURING;
+			if ((set_cut(0)) && !ident) guess = SV_ROD_CURING;
 			o_ptr->pval = 999;
 			break;
 		}
 
-		case SV_ROD_RESTORATION:
+                case SV_ROD_RESTORATION:
 		{
 			if (restore_level()) ident = TRUE;
 			if (do_res_stat(A_STR)) ident = TRUE;
@@ -2651,7 +2927,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_SPEED:
+                case SV_ROD_SPEED:
 		{
 			if (!p_ptr->fast)
 			{
@@ -2665,21 +2941,21 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_TELEPORT_AWAY:
+                case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
 			o_ptr->pval = 25;
 			break;
 		}
 
-		case SV_ROD_DISARMING:
+                case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
 			o_ptr->pval = 30;
 			break;
 		}
 
-		case SV_ROD_LITE:
+                case SV_ROD_LITE:
 		{
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
@@ -2688,35 +2964,35 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_SLEEP_MONSTER:
+                case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
 			o_ptr->pval = 18;
 			break;
 		}
 
-		case SV_ROD_SLOW_MONSTER:
+                case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
 			o_ptr->pval = 20;
 			break;
 		}
 
-		case SV_ROD_DRAIN_LIFE:
+                case SV_ROD_DRAIN_LIFE:
 		{
 			if (drain_life(dir, 75)) ident = TRUE;
 			o_ptr->pval = 23;
 			break;
 		}
 
-		case SV_ROD_POLYMORPH:
+                case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
 			o_ptr->pval = 25;
 			break;
 		}
 
-		case SV_ROD_ACID_BOLT:
+                case SV_ROD_ACID_BOLT:
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
@@ -2724,7 +3000,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_ELEC_BOLT:
+                case SV_ROD_ELEC_BOLT:
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
@@ -2732,7 +3008,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_FIRE_BOLT:
+                case SV_ROD_FIRE_BOLT:
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
@@ -2740,7 +3016,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_COLD_BOLT:
+                case SV_ROD_COLD_BOLT:
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
 			ident = TRUE;
@@ -2748,7 +3024,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_ACID_BALL:
+                case SV_ROD_ACID_BALL:
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
@@ -2756,7 +3032,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_ELEC_BALL:
+                case SV_ROD_ELEC_BALL:
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
@@ -2764,7 +3040,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_FIRE_BALL:
+                case SV_ROD_FIRE_BALL:
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
@@ -2772,7 +3048,7 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
-		case SV_ROD_COLD_BALL:
+                case SV_ROD_COLD_BALL:
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
@@ -2781,6 +3057,17 @@ void do_cmd_zap_rod(void)
 		}
 	}
 
+	/* A guess was made */
+	if (!ident && guess && !object_aware_p(o_ptr))
+	{
+		switch (guess)
+		{
+                        case SV_ROD_CURING:
+				if (k_info[lookup_kind(TV_SCROLL,guess)].aware) ident = TRUE;
+		}
+
+		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
+	}
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2867,8 +3154,8 @@ static void ring_of_power(int dir)
 	/* Pick a random effect */
 	switch (randint(10))
 	{
-		case 1:
-		case 2:
+                case 1:
+                case 2:
 		{
 			/* Message */
 			msg_print("You are surrounded by a malignant aura.");
@@ -2889,7 +3176,7 @@ static void ring_of_power(int dir)
 			break;
 		}
 
-		case 3:
+                case 3:
 		{
 			/* Message */
 			msg_print("You are surrounded by a powerful aura.");
@@ -2900,9 +3187,9 @@ static void ring_of_power(int dir)
 			break;
 		}
 
-		case 4:
-		case 5:
-		case 6:
+                case 4:
+                case 5:
+                case 6:
 		{
 			/* Mana Ball */
 			fire_ball(GF_MANA, dir, 300, 3);
@@ -2910,10 +3197,10 @@ static void ring_of_power(int dir)
 			break;
 		}
 
-		case 7:
-		case 8:
-		case 9:
-		case 10:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
 		{
 			/* Mana Bolt */
 			fire_bolt(GF_MANA, dir, 250);
@@ -3077,21 +3364,21 @@ void do_cmd_activate(void)
 
 		switch (a_ptr->activation)
 		{
-			case ACT_ILLUMINATION:
+                        case ACT_ILLUMINATION:
 			{
 				msg_format("The %s wells with clear light...", o_name);
 				lite_area(damroll(2, 15), 3);
 				break;
 			}
 
-			case ACT_MAGIC_MAP:
+                        case ACT_MAGIC_MAP:
 			{
 				msg_format("The %s shines brightly...", o_name);
 				map_area();
 				break;
 			}
 
-			case ACT_CLAIRVOYANCE:
+                        case ACT_CLAIRVOYANCE:
 			{
 				msg_format("The %s glows a deep green...", o_name);
 				wiz_lite();
@@ -3101,7 +3388,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_PROT_EVIL:
+                        case ACT_PROT_EVIL:
 			{
 				msg_format("The %s lets out a shrill wail...", o_name);
 				k = 3 * p_ptr->lev;
@@ -3109,14 +3396,14 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_DISP_EVIL:
+                        case ACT_DISP_EVIL:
 			{
 				msg_format("The %s floods the area with goodness...", o_name);
 				dispel_evil(p_ptr->lev * 5);
 				break;
 			}
 
-			case ACT_HASTE2:
+                        case ACT_HASTE2:
 			{
 				msg_format("The %s glows brightly...", o_name);
 				if (!p_ptr->fast)
@@ -3130,7 +3417,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FIRE3:
+                        case ACT_FIRE3:
 			{
 				msg_format("The %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3138,7 +3425,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST5:
+                        case ACT_FROST5:
 			{
 				msg_format("The %s glows bright white...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3146,7 +3433,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_ELEC2:
+                        case ACT_ELEC2:
 			{
 				msg_format("The %s glows deep blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3154,7 +3441,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_BIZZARE:
+                        case ACT_BIZZARE:
 			{
 				msg_format("The %s glows intensely black...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3163,14 +3450,14 @@ void do_cmd_activate(void)
 			}
 
 
-			case ACT_STAR_BALL:
+                        case ACT_STAR_BALL:
 			{
 				msg_format("Your %s is surrounded by lightning...", o_name);
 				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
 				break;
 			}
 
-			case ACT_RAGE_BLESS_RESIST:
+                        case ACT_RAGE_BLESS_RESIST:
 			{
 				msg_format("Your %s glows many colours...", o_name);
 				(void)hp_player(30);
@@ -3185,7 +3472,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_HEAL2:
+                        case ACT_HEAL2:
 			{
 				msg_format("Your %s glows a bright white...", o_name);
 				msg_print("You feel much better...");
@@ -3194,28 +3481,28 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_PHASE:
+                        case ACT_PHASE:
 			{
 				msg_format("Your %s twists space around you...", o_name);
 				teleport_player(10);
 				break;
 			}
 
-			case ACT_GENOCIDE:
+                        case ACT_GENOCIDE:
 			{
 				msg_format("Your % glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
 
-			case ACT_TRAP_DOOR_DEST:
+                        case ACT_TRAP_DOOR_DEST:
 			{
 				msg_format("Your %s glows bright red...", o_name);
 				destroy_doors_touch();
 				break;
 			}
 
-			case ACT_DETECT:
+                        case ACT_DETECT:
 			{
 				msg_format("Your %s glows bright white...", o_name);
 				msg_print("An image forms in your mind...");
@@ -3223,7 +3510,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_HEAL1:
+                        case ACT_HEAL1:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
 				msg_print("You feel a warm tingling inside...");
@@ -3232,7 +3519,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_RESIST:
+                        case ACT_RESIST:
 			{
 				msg_format("Your %s glows many colours...", o_name);
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
@@ -3243,35 +3530,35 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_SLEEP:
+                        case ACT_SLEEP:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
 				sleep_monsters_touch();
 				break;
 			}
 
-			case ACT_RECHARGE1:
+                        case ACT_RECHARGE1:
 			{
 				msg_format("Your %s glows bright yellow...", o_name);
 				recharge(60);
 				break;
 			}
 
-			case ACT_TELEPORT:
+                        case ACT_TELEPORT:
 			{
 				msg_format("Your %s twists space around you...", o_name);
 				teleport_player(100);
 				break;
 			}
 
-			case ACT_RESTORE_LIFE:
+                        case ACT_RESTORE_LIFE:
 			{
 				msg_format("Your %s glows a deep red...", o_name);
 				restore_level();
 				break;
 			}
 
-			case ACT_MISSILE:
+                        case ACT_MISSILE:
 			{
 				msg_format("Your %s glows extremely brightly...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3279,7 +3566,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FIRE1:
+                        case ACT_FIRE1:
 			{
 				msg_format("Your %s is covered in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3287,7 +3574,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST1:
+                        case ACT_FROST1:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3295,7 +3582,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_LIGHTNING_BOLT:
+                        case ACT_LIGHTNING_BOLT:
 			{
 				msg_format("Your %s is covered in sparks...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3303,7 +3590,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_ACID1:
+                        case ACT_ACID1:
 			{
 				msg_format("Your %s is covered in acid...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3311,7 +3598,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_ARROW:
+                        case ACT_ARROW:
 			{
 				msg_format("Your %s grows magical spikes...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3319,7 +3606,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_HASTE1:
+                        case ACT_HASTE1:
 			{
 				msg_format("Your %s glows bright green...", o_name);
 				if (!p_ptr->fast)
@@ -3333,7 +3620,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_REM_FEAR_POIS:
+                        case ACT_REM_FEAR_POIS:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
 				(void)set_afraid(0);
@@ -3341,7 +3628,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_STINKING_CLOUD:
+                        case ACT_STINKING_CLOUD:
 			{
 				msg_format("Your %s throbs deep green...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3349,7 +3636,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST2:
+                        case ACT_FROST2:
 			{
 				msg_format("Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3357,7 +3644,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST4:
+                        case ACT_FROST4:
 			{
 				msg_format("Your %s glows a pale blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3365,7 +3652,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FROST3:
+                        case ACT_FROST3:
 			{
 				msg_format("Your %s glows a intense blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3373,7 +3660,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FIRE2:
+                        case ACT_FIRE2:
 			{
 				msg_format("Your %s rages in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3381,7 +3668,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_DRAIN_LIFE2:
+                        case ACT_DRAIN_LIFE2:
 			{
 				msg_format("Your %s glows black...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3389,7 +3676,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_STONE_TO_MUD:
+                        case ACT_STONE_TO_MUD:
 			{
 				msg_format("Your %s pulsates...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3397,14 +3684,14 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_MASS_GENOCIDE:
+                        case ACT_MASS_GENOCIDE:
 			{
 				msg_format("Your %s lets out a long, shrill note...", o_name);
 				(void)mass_genocide();
 				break;
 			}
 
-			case ACT_CURE_WOUNDS:
+                        case ACT_CURE_WOUNDS:
 			{
 				msg_format("Your %s radiates deep purple...", o_name);
 				hp_player(damroll(4, 8));
@@ -3412,7 +3699,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_TELE_AWAY:
+                        case ACT_TELE_AWAY:
 			{
 				msg_format("Your %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3420,7 +3707,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_WOR:
+                        case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
 				if (p_ptr->word_recall == 0)
@@ -3436,7 +3723,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_CONFUSE:
+                        case ACT_CONFUSE:
 			{
 				msg_format("Your %s glows in scintillating colours...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3444,21 +3731,21 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_IDENTIFY:
+                        case ACT_IDENTIFY:
 			{
 				msg_format("Your %s glows yellow...", o_name);
 				if (!ident_spell()) return;
 				break;
 			}
 
-			case ACT_PROBE:
+                        case ACT_PROBE:
 			{
 				msg_format("Your %s glows brightly...", o_name);
 				probing();
 				break;
 			}
 
-			case ACT_DRAIN_LIFE1:
+                        case ACT_DRAIN_LIFE1:
 			{
 				msg_format("Your %s glows white...", o_name);
 				if (!get_aim_dir(&dir)) return;
@@ -3466,7 +3753,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ACT_FIREBRAND:
+                        case ACT_FIREBRAND:
 			{
 				msg_format("Your %s glows deep red...", o_name);
 				(void)brand_bolts();
@@ -3497,7 +3784,7 @@ void do_cmd_activate(void)
 		/* Branch on the sub-type */
 		switch (o_ptr->sval)
 		{
-			case SV_DRAGON_BLUE:
+                        case SV_DRAGON_BLUE:
 			{
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
@@ -3505,7 +3792,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_WHITE:
+                        case SV_DRAGON_WHITE:
 			{
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
@@ -3513,7 +3800,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_BLACK:
+                        case SV_DRAGON_BLACK:
 			{
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
@@ -3521,7 +3808,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_GREEN:
+                        case SV_DRAGON_GREEN:
 			{
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
@@ -3529,7 +3816,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_RED:
+                        case SV_DRAGON_RED:
 			{
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
@@ -3537,7 +3824,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_MULTIHUED:
+                        case SV_DRAGON_MULTIHUED:
 			{
 				chance = rand_int(5);
 				msg_format("You breathe %s.",
@@ -3554,7 +3841,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_BRONZE:
+                        case SV_DRAGON_BRONZE:
 			{
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
@@ -3562,7 +3849,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_GOLD:
+                        case SV_DRAGON_GOLD:
 			{
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
@@ -3570,7 +3857,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_CHAOS:
+                        case SV_DRAGON_CHAOS:
 			{
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
@@ -3581,7 +3868,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_LAW:
+                        case SV_DRAGON_LAW:
 			{
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
@@ -3592,7 +3879,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_BALANCE:
+                        case SV_DRAGON_BALANCE:
 			{
 				chance = rand_int(4);
 				msg_format("You breathe %s.",
@@ -3607,7 +3894,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_SHINING:
+                        case SV_DRAGON_SHINING:
 			{
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
@@ -3617,7 +3904,7 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case SV_DRAGON_POWER:
+                        case SV_DRAGON_POWER:
 			{
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);

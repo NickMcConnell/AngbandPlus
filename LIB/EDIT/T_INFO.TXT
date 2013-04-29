@@ -1,0 +1,385 @@
+#Information for the towns.
+
+#Currently used for navigation between towns/dungeons, placing of uniques in some towns/dungeons,
+#and defining stores and terrain in dungeons.
+
+#Note we get quite sophisticated here, for very little cost.
+
+#Note we use the town seeding and monster placement techniques for the topmost level of
+#each dungeon. However, we always place specified uniques.
+
+#L:level:fill with feature (0=town):big feature:small feature:small feature:quest monster
+#Currently up to 4 lines (ie up to 3 quest monsters per dungeon).
+#X:can go to easily:can go to after bottom level quest monster killed
+#R:race characters allowed
+#S:char:attr:level (if > 0, operates as black market):tval (optional):store name
+#O:race idx:purse:maxgreed:mingreed:haggleper:tolerance:name
+
+#If surface level is less than or equal to MAX_ZONE_WILDS (currently 15), the surface
+#level is a wilderness, with some trails through it and (possibly) a set of stairs.
+#Otherwise, it is ruins, with a number of buildings, and rubble.
+
+#Note: Stores with non-numeric graphics do not build a building: they are just 
+#a single location. They also do not charge money or restock. Instead, they contain
+#a number of great items (including possibly artifacts) as a 'reward' for the player. eg
+#quest rewards. As a result, towns containing these locations should not be re-entered.
+
+#Version information
+
+V:2.9.2
+
+# Default starting dungeon.
+
+N:0:Angband
+X:0:0
+L:0:0:0:0:0
+L:1:56:0:0:0
+L:99:56:0:0:587
+L:100:56:0:0:588
+S:1:U:0:0:General store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:g:0:0:Temple
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:7:D:25:0:Black Market
+S:8:y:0:0:Your home
+D:It feels like home...
+
+# Alternate starting dungeon.
+
+N:1:Hobbiton
+X:10:37
+L:0:0:1:162:0
+S:1:r:1:80:Farmer Maggot's Mushroom Store
+S:7:U:5:0:The Mill
+S:8:G:0:0:Bag End
+D:In a hole in the ground, there lived a hobbit.
+
+#The following quests are from the hobbit.
+
+N:2:Rivendell
+X:1:3
+L:0:0:162:153:0
+S:1:G:0:11:House of Elrond
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:g:0:0:Temple
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:7:u:5:0:Marketplace
+
+# Misty Mountains are quite wet (Underground rivers etc).
+
+N:3:the Misty Mountains
+X:2:4
+L:2:1:56:49:0
+L:3:56:0:153:68
+L:4:56:0:0:0
+L:13:56:0:154:185
+
+N:4:the house of Beorn
+X:3:5
+L:0:0:162:0:325
+S:+:U:0:80:House of Beorn
+
+#Should be guarded by King of Wood Elves
+
+N:5:Mirkwood
+X:4:6
+L:14:1:162:153:0
+L:15:56:0:0:0
+L:56:0:153:0:0
+S:1:o:5:80:Festhall
+S:1:y:35:24:Music hall
+S:3:U:25:17:Fletcher
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:6:y:35:45:Jewelers
+S:6:R:35:92:Library
+
+N:6:Lake-town
+X:5:7
+L:0:0:155:1:0
+S:1:U:0:0:General Store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:g:0:0:Temple
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:7:D:25:0:Black Market
+
+# We disturb Smaug while entering his lair...
+# Note Smaug is out of depth by 10 levels at bottom.
+
+N:7:the Lonely Mountain
+X:8:9
+L:33:155:56:1:0:498
+L:34:56:0:0:0:0
+L:38:56:0:0:0:498
+
+# With disasterous consequences.
+
+N:8:Lake-town
+X:7:9
+L:39:155:49:1:498
+L:40:121:0:0:0
+
+N:9:Lake-town, rebuilt
+X:14:0
+L:0:0:155:1:0
+S:1:U:0:0:General Store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:g:w:40:0:statue in your honor
+
+#The following levels are from the Fellowship of the Ring.
+
+#Note: This should be the Dunlending Agent. Wormtongue
+#should probably be elsewhere.
+
+N:10:Farmer Maggot's farm
+X:1:11
+L:0:0:1:162:14
+L:1:114:0:0:0
+L:8:114:0:0:0:123
+S:+:U:1:80:Farmhouse
+
+#Uh. Very nasty. Potentially 32 levels out of depth. Can you make it to the store first?
+
+N:11:Bree
+X:10:12
+L:0:0:1:0:464
+S:1:u:0:80:Inn
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+
+#Characters will spend a lot of time in Weathertop, as they need to be able
+#to beat at least 2 very out of depth monsters in a 1 on 1 fight to progress.
+
+N:12:Weathertop
+X:11:13
+L:9:1:0:49:479
+L:10:56:0:0:0
+L:19:56:0:0:479
+
+N:13:Trollshaw Forest
+X:12:14
+L:14:1:162:154:491
+
+#Duplicate to allow acces to Moria.
+
+N:14:Rivendell
+X:13:15
+L:0:0:162:153:0
+S:1:G:0:11:House of Elrond
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:g:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:R:35:90:Library
+S:7:u:5:0:Marketplace
+#Note tval 11 does not exist, so no items sold here.
+
+#Even worse (26 levels out of depth)
+
+N:15:Redhorn Pass
+X:16:19
+L:20:56:144:145:494
+
+#Balrog is likely to be encountered before end of Moria. (10 levels shallower)
+
+N:16:Moria
+X:17:18
+L:20:155:56:1:1048
+L:21:56:0:0:0
+L:45:56:1:0:0
+L:60:56:141:0:502
+
+#Even worse (55 levels out of depth)
+
+N:17:Isengard
+X:16:20
+L:20:0:0:0:262
+L:21:56:0:0:0
+L:60:56:0:0:528
+S:1:D:0:0:Barracks
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:7:D:25:0:Black Market
+
+N:18:Lothlorien
+X:19:20
+L:0:0:162:162:0
+S:1:o:5:80:Festhall
+S:2:U:25:17:Fletcher
+S:4:g:0:0:Temple
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:6:y:35:45:Jewelers
+S:<:W:60:0:The White Tree
+
+N:19:Parth Galen
+X:20:24
+L:14:162:155:56:0
+
+N:20:Fangorn
+X:21:23
+L:14:162:162:162:1043
+
+N:21:Edoras
+X:22:28
+L:0:0:0:0:0
+L:8:56:0:0:123
+S:1:U:0:0:General Store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:g:0:0:Temple
+S:4:G:35:91:Shrine
+S:5:b:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+
+N:22:Battle of Helm's Deep
+X:21:23
+L:50:1:162:56:267
+
+N:23:Isengard
+X:20:22
+L:60:56:1:0:528
+
+#Should be guarded by Faramir
+
+N:24:Marshes of the Dead
+X:19:25
+L:65:199:200:201:0
+
+N:25:Ithilien
+X:26:27
+L:14:1:162:199:0
+L:15:0:1:153:0
+S:+:U:0:80:Supplies
+S:+:U:0:17:Supplies
+S:+:U:0:18:Supplies
+S:+:U:0:39:Supplies
+S:+:U:0:77:Supplies
+S:+:U:5:75:Supplies
+S:+:DU:5:70:Supplies
+
+N:26:Minas Morgul
+X:25:31
+L:65:0:56:155:543
+L:66:56:0:0:0
+L:85:56:0:0:578
+
+N:27:Cirith Ungol
+X:26:31
+L:14:56:1:49:193
+L:15:56:1:0:329
+L:19:56:1:0:293
+
+#King Denethor should guard Minas Tirith
+
+N:28:Minas Tirith
+X:29:30
+L:0:0:0:0:0
+L:1:0:0:0:0
+S:1:U:0:0:General Store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+
+N:29:Paths of the Dead
+X:28:30
+L:65:1:1:56:0
+L:66:56:0:0:0
+L:85:56:0:0:585
+
+N:30:Battle of Five Armies
+X:27:31
+L:70:1:162:56:575
+
+N:31:Minas Tirith
+X:25:26
+L:0:0:0:0:0
+L:1:0:0:0:0
+S:1:U:0:0:General Store
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+S:<:W:80:0:The White Tree
+
+N:32:Mordor
+X:33:27
+L:75:1:201:209:0
+
+N:33:Orodruin
+X:56:34
+L:79:210:214:217:0
+L:80:50:210:217:0
+L:98:50:214:217:68
+L:99:217:161:50:0
+
+N:34:Bara-dur
+X:33:35
+L:65:0:1:209:578
+L:66:56:1:209:0
+L:99:56:1:209:587
+
+N:35:Hobbiton
+X:0:36
+L:60:0:1:199:528
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:7:U:5:0:The Mill
+
+N:36:Hobbiton, rebuilt
+X:39:0
+L:0:0:1:162:0
+S:1:R:1:80:Farmer Maggot's Mushroom Store
+S:7:U:5:0:The Mill
+S:8:G:0:0:Bag End
+
+# The following are accessible from the first Hobbiton for consistency
+
+N:37:Bree
+X:2:38
+L:0:0:1:0:0
+S:1:u:0:80:Inn
+S:2:s:0:0:Armoury
+S:3:w:0:0:Weapon Smith
+S:4:b:0:0:Temple
+S:5:g:0:0:Alchemist
+S:6:r:0:0:Magic Shop
+
+# And an alternate early dungeon...
+
+N:38:Barrow-downs
+X:37:38
+L:1:1:162:114:0
+L:11:56:0:0:0:0
+
+# Other alternate dungeons should be placed here
+
+# Must always be last position
+N:39:retirement
+L:0:0:0:162:0
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree
+S:<:W:80:0:The White Tree

@@ -80,7 +80,7 @@ static bool int_outof(monster_race *r_ptr, int prob)
  * to deliver the coup-de-gras.
  */
 
-s16b max_attack_dam [] =
+static s16b max_attack_dam [] =
 {
 0       /* RF4_SHRIEK */,
 10      /* RF4_SPORE */,
@@ -179,7 +179,7 @@ s16b max_attack_dam [] =
 0       /* RF6_S_UNIQUE */
 };
 
-s16b max_attack_level [] =
+static s16b max_attack_level [] =
 {
 0       /* RF4_SHRIEK */,
 0      /* RF4_SPORE */,
@@ -278,7 +278,7 @@ s16b max_attack_level [] =
 0       /* RF6_S_UNIQUE */
 };
 
-s16b max_attack_flav [] =
+static s16b max_attack_flav [] =
 {
 0       /* RF4_SHRIEK */,
 0      /* RF4_SPORE */,
@@ -377,7 +377,7 @@ GF_OLD_SLOW     /* RF5_SLOW */,
 0       /* RF6_S_UNIQUE */
 };
 
-s16b max_attack_perc [] =
+static s16b max_attack_perc [] =
 {
 0       /* RF4_SHRIEK */,
 0      /* RF4_SPORE */,
@@ -440,7 +440,7 @@ s16b max_attack_perc [] =
 20      /* RF5_SCARE */,
 70      /* RF5_BLIND */,
 50      /* RF5_CONF */,
-40      /* RF5_SLOW */,
+20      /* RF5_SLOW */,
 100     /* RF5_HOLD */,
 0       /* RF6_HASTE */,
 0       /* RF6_XXX1X6 */,
@@ -488,29 +488,32 @@ s16b max_attack_perc [] =
  * attack.
  * Note that we could weight the function so that player 'incapacitation' is considered
  * alongside player damage.
- *
- * Note this function will always return one spell.
  */
-static int pick_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
+static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 {
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	u32b f4 = (*f4p);
+	u32b f5 = (*f5p);
+	u32b f6 = (*f6p);
 
 	u32b smart = 0L;
 
 	s16b max,dam;   
 
-	int i, choice,choices;
+	int i, choice;
 
 	u32b bitzero=0x01;
 
 
 	/* Too stupid to know anything */
-        if (r_ptr->flags2 & (RF2_STUPID)) return (-1);
+	if (r_ptr->flags2 & (RF2_STUPID)) return;
 
 
 	/* Must be cheating or learning */
-        if (!smart_cheat && !smart_learn) return (-1);
+	if (!smart_cheat && !smart_learn) return;
+
 
 	/* Update acquired knowledge */
 	if (smart_learn)
@@ -587,8 +590,7 @@ static int pick_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 
 	max = 0;
-	choice = -1;
-	choices = 1;     
+	choice = 0;     
 
 	/* Extract the "innate" spells */
 	for (i = 0; i < 96; i++)
@@ -729,30 +731,9 @@ static int pick_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			break;
 		}
 
-		/* Tie breaker */
-                if ((max < dam) || ((max == dam) && (rand_int(choices)==0)))
-		{
-
-			if (choice >=0)
-			{
-				/* Monster doesn't try old choice */
-				if (choice<32) f4 &= ~(bitzero << (choice));
-
-				/* Monster doesn't try old choice */
-				if ((choice>=32) && (choice<64)) f5 &= ~(bitzero << (choice-32));
-
-				/* Monster doesn't try old choice */
-				if ((choice>=64) && (choice<32)) f6 &= ~(bitzero << (choice-64));               
-			}
-			choice = i;
-
-                        if (max == dam) choices++;
-			else choices = 1;
-		}
-
 		/* Spell is not good enough */
-		else
-		{
+		if ((dam==0) || (dam < max)) {
+
 			/* Monster doesn't try spell */
 			if (i<32) f4 &= ~(bitzero << (i));
 
@@ -769,9 +750,20 @@ static int pick_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		max = dam;
 
+		/* Monster doesn't try old choice */
+		if (choice<32) f4 &= ~(bitzero << (choice));
+
+		/* Monster doesn't try old choice */
+		if ((choice>=32) && (choice<64)) f5 &= ~(bitzero << (choice-32));
+
+		/* Monster doesn't try old choice */
+		if ((choice>=64) && (choice<32)) f6 &= ~(bitzero << (choice-64));               
+
+		choice = i;
+
 	}
-	return(choice);
 }
+
 #endif
 
 
@@ -861,23 +853,6 @@ static bool clean_shot(int y1, int x1, int y2, int x2)
 
 
 /*
- * Used by following routine to speed up results
- */
-static bool rand_int_hack(int *roll_p, int less)
-{
-        int roll = (*roll_p);
-        if (roll < less) return (TRUE);
-	else
-	{
-                roll = (roll-less) * 100/(100-less);
-                *roll_p = roll;
-		return (FALSE);
-	}
-	
-	
-}
-
-/*
  * Have a monster choose a spell to cast.
  *
  * Note that the monster's spell list has already had "useless" spells
@@ -903,7 +878,6 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 	int i, py = p_ptr->py, px = p_ptr->px;
 
-
 #ifdef MONSTER_AI
 
 	bool has_escape, has_attack, has_summon, has_tactic;
@@ -913,9 +887,6 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	/* Smart monsters restrict their spell choices. */
 	if (smart_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
-
-		int roll = rand_int(100);
-
 		/* What have we got? */
 		has_escape = ((f4 & (RF4_ESCAPE_MASK)) ||
 			      (f5 & (RF5_ESCAPE_MASK)) ||
@@ -941,9 +912,8 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/*** Try to pick an appropriate spell type ***/
 
-		/* Hurt badly or afraid, in line of sight, attempt to flee */
-		if (has_escape && ((m_ptr->hp < m_ptr->maxhp / 4) || m_ptr->monfear) &&
-			player_can_see_bold(m_ptr->fy,m_ptr->fx))
+		/* Hurt badly or afraid, attempt to flee */
+		if (has_escape && ((m_ptr->hp < m_ptr->maxhp / 4) || m_ptr->monfear))
 		{
 			/* Choose escape spell */
 			f4_mask = (RF4_ESCAPE_MASK);
@@ -962,7 +932,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/* Player is close and we have attack spells, blink away */
 		else if (has_tactic && (distance(py, px, m_ptr->fy, m_ptr->fx) < 4) &&
-			 has_attack && (rand_int_hack(&roll,75)))
+			 has_attack && (rand_int(100) < 75))
 		{
 			/* Choose tactical spell */
 			f4_mask = (RF4_TACTIC_MASK);
@@ -972,7 +942,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 
 		/* We're hurt (not badly), try to heal */
 		else if (has_heal && (m_ptr->hp < m_ptr->maxhp * 3 / 4) &&
-			 (!player_can_see_bold(m_ptr->fy,m_ptr->fx) || (rand_int_hack(&roll,60))))
+			 (rand_int(100) < 60))
 		{
 			/* Choose heal spell */
 			f4_mask = (RF4_HEAL_MASK);
@@ -981,7 +951,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Summon if possible (sometimes) */
-		else if (has_summon && (rand_int_hack(&roll,50)))
+		else if (has_summon && (rand_int(100) < 50))
 		{
 			/* Choose summon spell */
 			f4_mask = (RF4_SUMMON_MASK);
@@ -990,7 +960,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Attack spell (most of the time) */
-		else if (has_attack && (rand_int_hack(&roll,85)))
+		else if (has_attack && (rand_int(100) < 85))
 		{
 			/* Choose attack spell */
 			f4_mask = (RF4_ATTACK_MASK);
@@ -999,8 +969,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Try another tactical spell (sometimes) */
-		else if (has_tactic && (rand_int_hack(&roll,50)) &&
-			!player_can_see_bold(m_ptr->fy,m_ptr->fx))
+		else if (has_tactic && (rand_int(100) < 50))
 		{
 			/* Choose tactic spell */
 			f4_mask = (RF4_TACTIC_MASK);
@@ -1009,7 +978,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Haste self if we aren't already somewhat hasted (rarely) */
-		else if (has_haste && (rand_int_hack(&roll,(20 + r_ptr->speed - m_ptr->mspeed))))
+		else if (has_haste && (rand_int(100) < (20 + r_ptr->speed - m_ptr->mspeed)))
 		{
 			/* Choose haste spell */
 			f4_mask = (RF4_HASTE_MASK);
@@ -1018,7 +987,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Annoy player (most of the time) */
-		else if (has_annoy && (rand_int_hack(&roll,85)))
+		else if (has_annoy && (rand_int(100) < 85))
 		{
 			/* Choose annoyance spell */
 			f4_mask = (RF4_ANNOY_MASK);
@@ -1157,8 +1126,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 	bool normal;
 	bool direct;
 
-	/* Hack -- don't summon on surface */
-	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
 
 	/* Reset */
 	count = 0;
@@ -1295,7 +1262,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF4_SPORE */
 		case 96+1:
 		{
-                        if (!variant_dis_attacks) break;
 			if (target < 0) disturb(1,0);
 
 			if (who > 0)
@@ -1340,7 +1306,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		case 96+2:
 		{
 			if (!direct) break;
-                        if (!variant_dis_attacks) break;
 
 			if (target < 0) disturb(1,0);
 
@@ -1401,7 +1366,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF4_WAIL */
 		case 96+3:
 		{
-                        if (!variant_dis_attacks) break;
 			if (target < 0) disturb(1,0);
 			
 
@@ -1462,9 +1426,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF4_SPIT */
 		case 96+4:
 		{
-                        if (!variant_dis_attacks) break;
-
-                	if (target < 0) disturb(1,0);
+			if (target < 0) disturb(1,0);
 			
 
 			if (who > 0)
@@ -3829,7 +3791,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_KIN */
 		case 160+16:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3856,7 +3817,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_HI_DEMON */
 		case 160+17:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3878,7 +3838,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_MONSTER */
 		case 160+18:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3900,7 +3859,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_MONSTERS */
 		case 160+19:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3922,7 +3880,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_ANT */
 		case 160+20:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3944,15 +3901,13 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_SPIDER */
 		case 160+21:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
 				if ((blind) && (known)) msg_format("%^s mumbles.", m_name);
 				else if (known) msg_format("%^s magically summons spiders.", m_name);
 				else msg_print("You hear distant chittering.");
-			}
-			for (k = 0; k < 6; k++)
+			}                       for (k = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SPIDER);
 			}
@@ -3966,7 +3921,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_HOUND */
 		case 160+22:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3988,7 +3942,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_HYDRA */
 		case 160+23:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -3996,7 +3949,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s magically summons hydras.", m_name);
 				else msg_print("You hear distant hissing.");
 			}
-			for (k = 0; (k < 6)&& !((k>1) && (surface)); k++)
+			for (k = 0; k < 6; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HYDRA);
 			}
@@ -4010,7 +3963,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_ANGEL */
 		case 160+24:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4032,7 +3984,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_DEMON */
 		case 160+25:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4054,7 +4005,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_UNDEAD */
 		case 160+26:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4076,7 +4026,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_DRAGON */
 		case 160+27:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4098,7 +4047,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_HI_UNDEAD */
 		case 160+28:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4120,7 +4068,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		/* RF6_S_HI_DRAGON */
 		case 160+29:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if (who > 0)
 			{
@@ -4371,6 +4318,7 @@ bool make_attack_spell(int m_idx)
                 f5 &= ~(RF5_ATTACK_MASK);
                 f6 &= ~(RF6_ATTACK_MASK);
 
+
 		/* Remove escape spells if required */
 		if (!variant_oos_escapes)
 		{
@@ -4460,7 +4408,7 @@ bool make_attack_spell(int m_idx)
 #ifdef DRS_SMART_OPTIONS
 
 	/* Remove the "ineffective" spells */
-        /*remove_bad_spells(m_idx, &f4, &f5, &f6);*/
+	remove_bad_spells(m_idx, &f4, &f5, &f6);
 
 	/* No spells left */
 	if (!f4 && !f5 && !f6) return (FALSE);
@@ -5532,7 +5480,7 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 
 
 /*
- * Handle monster hitting a real trap.
+ * Handle monster hitting a real trap
  */
 void mon_hit_trap(int m_idx, int y, int x)
 {
@@ -5540,9 +5488,6 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 	feature_type *f_ptr;
         monster_type *m_ptr = &m_list[m_idx];
-
-	/* Option */
-	if (!variant_hit_traps) return;
 
         /* Hack --- don't activate unknown invisible traps */
         if ((cave_feat[y][x] == FEAT_INVIS) && !(cave_info[y][x] & (CAVE_MARK))) return;
@@ -5654,12 +5599,6 @@ static void process_monster(int m_idx)
 	bool did_pass_wall;
 	bool did_kill_wall;
         bool did_smart;
-
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
-
-	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
-
-	bool hurt_lite = r_ptr->flags3 & (RF3_HURT_LITE);
 
 	int mmove;
 
@@ -5888,24 +5827,13 @@ static void process_monster(int m_idx)
 	ox = m_ptr->fx;
 
 	/* Get hit by terrain continuously, but not traps */
-	if (((f_info[cave_feat[oy][ox]].blow.method) &&
+	if ((f_info[cave_feat[oy][ox]].blow.method) &&
 	    !(f_info[cave_feat[oy][ox]].flags1 & (FF1_HIT_TRAP)) &&
              !(place_monster_here(oy,ox,m_ptr->r_idx)) &&
-             !(m_ptr->mflag & (MFLAG_OVER))) || (surface && daytime && hurt_lite))
+             !(m_ptr->mflag & (MFLAG_OVER)))
 	{
 
-                if (surface && daytime && hurt_lite)
-		{
-			/* Burn the monster */
-			project_m(0,
-				  0,
-				  oy,
-				  ox,
-                                  damroll(4,6),
-				  GF_LITE);
-
-		}
-		else mon_hit_trap(m_idx,oy,ox);
+                mon_hit_trap(m_idx,oy,ox);
 
                 /* Is the monster hidden?*/
                 if (m_ptr->mflag & (MFLAG_HIDE))
@@ -6931,21 +6859,6 @@ static void process_monster(int m_idx)
 								/* Dump a message */
 								msg_format("%^s tries to pick up %s, but fails.",
 									   m_name, o_name);
-
-								/* Mark object as ungettable? */
-								if ((o_ptr->discount == 0) &&
-									!(o_ptr->ident & (IDENT_SENSE))
-                                                                        && !(object_known_p(o_ptr)))
-								{
-
-									/* Sense the object */
-									o_ptr->discount = INSCRIP_UNGETTABLE;
-
-									/* The object has been "sensed" */
-									o_ptr->ident |= (IDENT_SENSE);
-								}
-
-								/* XXX Flag object with correct flag? */
 							}
 						}
 					}

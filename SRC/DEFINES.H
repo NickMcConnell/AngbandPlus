@@ -688,8 +688,26 @@
  */
 #define KEYMAP_MODE_ROGUE       1
 
+
+/*
+ * Maximum number of zones in a dungeon. Used in t_info.txt.
+ */
+
+#define MAX_DUNGEON_ZONES         4
+
+/*
+ * Maximum surface level before we become ruins, rather than wilderness.
+ */
+#define MAX_ZONE_WILDS		15
+
+/*
+ * Number of feats we change to (Excluding default). Used in f_info.txt.
+ */
 #define MAX_FEAT_STATES         4
 
+/*
+ * Maximum number of 
+ */
 #define MAX_SPELL_APPEARS	5
 #define MAX_SPELL_CASTERS	5
 
@@ -816,6 +834,7 @@
 #define FEAT_ACID_K     159
 #define FEAT_BWATER_FALLS 160
 #define FEAT_LAVA_FALLS 161
+#define FEAT_TREE	162
 
 
 /* Dummy features */
@@ -1633,7 +1652,7 @@
 #define SV_ROD_ILLUMINATION             4
 #define SV_ROD_MAPPING                  5
 #define SV_ROD_DETECTION                6
-#define SV_ROD_PROBING                  7
+#define SV_ROD_GAUGE_MAGIC                  7 /* Was probing */
 #define SV_ROD_CURING                   8
 #define SV_ROD_HEALING                  9
 #define SV_ROD_RESTORATION              10
@@ -1701,11 +1720,12 @@
 #define SV_SCROLL_DETECT_CURSE          40
 #define SV_SCROLL_STAR_DESTRUCTION              41
 #define SV_SCROLL_DISPEL_UNDEAD                 42
-/* xxx */
+#define SV_SCROLL_GAUGE_MAGIC                    43
 #define SV_SCROLL_GENOCIDE                              44
 #define SV_SCROLL_MASS_GENOCIDE                 45
 #define SV_SCROLL_ACQUIREMENT                   46
 #define SV_SCROLL_STAR_ACQUIREMENT              47
+#define SV_SCROLL_LEGEND_LORE			48
 
 /* The "sval" codes for TV_POTION and TV_FOUNTAIN */
 #define SV_POTION_WATER                         0
@@ -1957,9 +1977,7 @@
 /* xxx (many) */
 #define PU_MONSTERS             0x10000000L     /* Update monsters */
 #define PU_DISTANCE             0x20000000L     /* Update distances */
-#ifdef ALLOW_ROOMDESC
 #define PU_ROOM_INFO            0x40000000L     /* Display room description */
-#endif
 #define PU_PANEL                0x80000000L     /* Update panel */
 
 
@@ -2009,9 +2027,7 @@
 #define PW_OVERHEAD             0x00000080L     /* Display overhead view */
 #define PW_MONSTER              0x00000100L     /* Display monster recall */
 #define PW_OBJECT               0x00000200L     /* Display object recall */
-#ifdef ALLOW_ROOMDESC
 #define PW_ROOM_INFO            0x00000400L     /* Display room description */
-#endif
 #define PW_SNAPSHOT             0x00000800L     /* Display snap-shot */
 /* xxx */
 /* xxx */
@@ -2027,12 +2043,21 @@
  */
 #define CAVE_MARK               0x01    /* memorized feature */
 #define CAVE_GLOW               0x02    /* self-illuminating */
-#define CAVE_ICKY               0x04    /* part of a vault */
+#define CAVE_SAFE               0x04    /* marked as safe */
 #define CAVE_ROOM               0x08    /* part of a room */
 #define CAVE_SEEN               0x10    /* seen flag */
 #define CAVE_VIEW               0x20    /* view flag */
 #define CAVE_TEMP               0x40    /* temp flag */
 #define CAVE_WALL               0x80    /* wall flag */
+
+/*** Room flags ***/
+
+
+/*
+ * Special room flags
+ */
+#define ROOM_SEEN               0x01    /* room has been seen */
+#define ROOM_ICKY               0x02    /* room is anti-teleport */
 
 
 
@@ -2079,11 +2104,13 @@
 #define INSCRIP_VERY_GOOD       100+10
 #define INSCRIP_GREAT           100+11
 #define INSCRIP_SUPERB          100+12
+#define INSCRIP_UNBREAKABLE	100+13 /* Artifact */
+#define INSCRIP_UNGETTABLE	100+14 /* Has flag preventing monster getting it */
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP                     13
+#define MAX_INSCRIP                     15
 
 
 /*
@@ -2771,6 +2798,7 @@
  *
  * These values are hard-coded by savefiles (and various pieces of code).
  */
+#define OPT_VARIANT                                     96
 #define OPT_BIRTH                                       128
 #define OPT_CHEAT                                       160
 #define OPT_ADULT                                       192
@@ -2817,8 +2845,6 @@
 /* xxx */
 #define OPT_auto_haggle                         32
 #define OPT_auto_scum                           33
-/* xxx testing_stack */
-/* xxx testing_carry */
 #define OPT_expand_look                         36
 #define OPT_expand_list                         37
 #define OPT_view_perma_grids            38
@@ -2857,9 +2883,12 @@
 #define OPT_auto_more                           71
 #define OPT_smart_monsters                      72
 #define OPT_smart_packs                         73
-/* xxx */
-/* xxx */
-/* xxx */
+#define OPT_stack_force_pvals			74
+#define OPT_stack_force_times		75
+#define OPT_view_safe_grids			76
+#define OPT_room_descriptions			77
+#define OPT_room_names				78
+#define OPT_verify_mana			79
 /* xxx */
 /* xxx */
 /* xxx */
@@ -2879,7 +2908,7 @@
 #define OPT_cheat_xtra                          (OPT_CHEAT+3)
 #define OPT_cheat_know                          (OPT_CHEAT+4)
 #define OPT_cheat_live                          (OPT_CHEAT+5)
-/* xxx xxx */
+
 #define OPT_adult_point_based           (OPT_ADULT+0)
 #define OPT_adult_auto_roller           (OPT_ADULT+1)
 #define OPT_adult_maximize                      (OPT_ADULT+2)
@@ -2895,8 +2924,29 @@
 #define OPT_score_xtra                          (OPT_SCORE+3)
 #define OPT_score_know                          (OPT_SCORE+4)
 #define OPT_score_live                          (OPT_SCORE+5)
-/* xxx xxx */
 
+#define OPT_variant_town                (OPT_VARIANT+0)
+#define OPT_variant_mushrooms		(OPT_VARIANT+1)
+#define OPT_variant_hit_traps           (OPT_VARIANT+2)
+#define OPT_variant_room_info		(OPT_VARIANT+3)
+#define OPT_variant_free_stats		(OPT_VARIANT+4)
+#define OPT_variant_fast_kills		(OPT_VARIANT+5)
+#define OPT_variant_scale_dam		(OPT_VARIANT+6)
+#define OPT_variant_scale_hp		(OPT_VARIANT+7)
+#define OPT_variant_pval_stacks		(OPT_VARIANT+8)
+#define OPT_variant_oos_summons		(OPT_VARIANT+9)
+#define OPT_variant_oos_escapes		(OPT_VARIANT+10)
+#define OPT_variant_oos_heals		(OPT_VARIANT+11)
+#define OPT_variant_oos_xtra		(OPT_VARIANT+12)
+#define OPT_variant_hurt_feats	(OPT_VARIANT+13)
+#define OPT_variant_lake_feats	(OPT_VARIANT+14)
+#define OPT_variant_big_feats	(OPT_VARIANT+15)
+#define OPT_variant_new_feats	(OPT_VARIANT+16)
+#define OPT_variant_learn_id		(OPT_VARIANT+17)
+#define OPT_variant_guess_id		(OPT_VARIANT+18)
+#define OPT_variant_usage_id		(OPT_VARIANT+19)
+#define OPT_variant_great_id		(OPT_VARIANT+20)
+#define OPT_variant_dis_attacks         (OPT_VARIANT+21)
 
 /*
  * Hack -- Option symbols
@@ -2975,10 +3025,12 @@
 #define auto_more                               op_ptr->opt[OPT_auto_more]
 #define smart_monsters                  op_ptr->opt[OPT_smart_monsters]
 #define smart_packs                             op_ptr->opt[OPT_smart_packs]
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
+#define stack_force_pvals                       op_ptr->opt[OPT_stack_force_pvals]
+#define stack_force_times                       op_ptr->opt[OPT_stack_force_times]
+#define view_safe_grids                         op_ptr->opt[OPT_view_safe_grids]
+#define verify_mana                           op_ptr->opt[OPT_verify_mana]
+#define room_descriptions                         op_ptr->opt[OPT_room_descriptions]
+#define room_names                           op_ptr->opt[OPT_room_names]
 /* xxx */
 /* xxx */
 /* xxx xxx */
@@ -3013,13 +3065,35 @@
 #define score_xtra                              op_ptr->opt[OPT_score_xtra]
 #define score_know                              op_ptr->opt[OPT_score_know]
 #define score_live                              op_ptr->opt[OPT_score_live]
-/* xxx xxx */
+/* XXX XXX */
+#define variant_town                            op_ptr->opt[OPT_variant_town]
+#define variant_mushrooms                       op_ptr->opt[OPT_variant_mushrooms]
+#define variant_hit_traps                       op_ptr->opt[OPT_variant_hit_traps]
+#define variant_room_info                       op_ptr->opt[OPT_variant_room_info]
+#define variant_free_stats                      op_ptr->opt[OPT_variant_free_stats]
+#define variant_fast_kills                      op_ptr->opt[OPT_variant_fast_kills]
+#define variant_scale_dam                       op_ptr->opt[OPT_variant_scale_dam]
+#define variant_scale_hp                        op_ptr->opt[OPT_variant_scale_hp]
+#define variant_pval_stacks                     op_ptr->opt[OPT_variant_pval_stacks]
+#define variant_oos_summons                     op_ptr->opt[OPT_variant_oos_summons]
+#define variant_oos_escapes                     op_ptr->opt[OPT_variant_oos_escapes]
+#define variant_oos_heals                       op_ptr->opt[OPT_variant_oos_heals]
+#define variant_oos_xtra                        op_ptr->opt[OPT_variant_oos_xtra]
+#define variant_hurt_feats                      op_ptr->opt[OPT_variant_hurt_feats]
+#define variant_lake_feats                      op_ptr->opt[OPT_variant_lake_feats]
+#define variant_big_feats                       op_ptr->opt[OPT_variant_big_feats]
+#define variant_new_feats                       op_ptr->opt[OPT_variant_new_feats]
+#define variant_guess_id                        op_ptr->opt[OPT_variant_guess_id]
+#define variant_learn_id                        op_ptr->opt[OPT_variant_learn_id]
+#define variant_great_id                        op_ptr->opt[OPT_variant_great_id]
+#define variant_usage_id                        op_ptr->opt[OPT_variant_usage_id]
+#define variant_dis_attacks                        op_ptr->opt[OPT_variant_dis_attacks]
 
 
 /*
  * Information for "do_cmd_options()".
  */
-#define OPT_PAGE_MAX                            6
+#define OPT_PAGE_MAX                            8
 #define OPT_PAGE_PER                            20
 
 

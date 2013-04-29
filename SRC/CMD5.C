@@ -1177,9 +1177,10 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			return;
 		}
 	}
-#if 0
+
 	/* Verify "warning" spells */
-        else if ((p_ptr->csp - sc_ptr->mana) < (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
+        else if ((verify_mana) &&
+                 ((p_ptr->csp - sc_ptr->mana) < (p_ptr->msp * op_ptr->hitpoint_warn) / 10))
 	{
 		/* Warning */
 		msg_format("You have limited mana to %s this %s.",p,t);
@@ -1192,7 +1193,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			return;
 		}
 	}
-#endif 
+
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
@@ -1347,7 +1348,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 1+19:
 			{
-				(void)recharge(5);
+                                (void)ident_spell_bonus();
 				break;
 			}
 

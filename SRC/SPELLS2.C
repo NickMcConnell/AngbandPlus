@@ -23,8 +23,10 @@
 /*
  * Increase players hit points, notice effects
  */
-bool hp_player(int num)
+int hp_player(int num)
 {
+	byte guess=0;
+
 	/* Healing needed */
 	if (p_ptr->chp < p_ptr->mhp)
 	{
@@ -48,32 +50,51 @@ bool hp_player(int num)
 		if (num < 5)
 		{
 			msg_print("You feel a little better.");
+			guess = SV_POTION_CURE_LIGHT;
+
 		}
 
 		/* Heal 5-14 */
 		else if (num < 15)
 		{
 			msg_print("You feel better.");
+			guess = SV_POTION_CURE_LIGHT;
 		}
 
 		/* Heal 15-34 */
 		else if (num < 35)
 		{
 			msg_print("You feel much better.");
+			guess = SV_POTION_CURE_SERIOUS;
 		}
 
 		/* Heal 35+ */
+		else if (num < 50)
+		{
+			msg_print("You feel very good.");
+			guess = SV_POTION_CURE_CRITICAL;
+		}
+
+		/* Heal 50+ */
+		else if (num < 300)
+		{
+			msg_print("You feel very good.");
+			guess = SV_POTION_HEALING;
+		}
+
+		/* Heal 300+ */
 		else
 		{
 			msg_print("You feel very good.");
+			guess = SV_POTION_STAR_HEALING;
 		}
 
 		/* Notice */
-		return (TRUE);
+		return (guess);
 	}
 
 	/* Ignore */
-	return (FALSE);
+	return (0);
 }
 
 
@@ -253,11 +274,8 @@ bool do_inc_stat(int stat)
 	return (FALSE);
 }
 
-
-
 /*
  * Identify everything being carried.
- * Done by a potion of "self knowledge".
  */
 void identify_pack(void)
 {
@@ -353,10 +371,28 @@ static int remove_curse_aux(int all)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Heavily Cursed Items need a special spell */
-		if (!all && (f3 & (TR3_HEAVY_CURSE))) continue;
+		if (!all && (f3 & (TR3_HEAVY_CURSE)))
+		{
+			/* Learn about the object */
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
+
+			continue;
+		}
 
 		/* Perma-Cursed Items can NEVER be uncursed */
-		if (f3 & (TR3_PERMA_CURSE)) continue;
+		if (f3 & (TR3_PERMA_CURSE))
+		{
+			/* Learn about the object */
+			if (all) object_can_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
+
+			continue;
+		}
+
+		/* Learn about the object */
+		if (!all) object_not_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
+
+		/* Learn about the object */
+		object_not_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
 
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
@@ -1631,7 +1667,7 @@ void self_knowledge(void)
 
 
 /*
- * Forget everything
+ * Forget everything. This really sucks now.
  */
 bool lose_all_info(void)
 {
@@ -1653,6 +1689,9 @@ bool lose_all_info(void)
 
 		/* Hack -- Clear the "felt" flag */
 		o_ptr->ident &= ~(IDENT_SENSE);
+
+		/* Hack -- Clear the "bonus" flag */
+		o_ptr->ident &= ~(IDENT_BONUS);
 
 		/* Hack -- Clear the "known" flag */
 		o_ptr->ident &= ~(IDENT_KNOWN);
@@ -1721,6 +1760,13 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
 		{
+			/* Hack -- Safe */
+                        if (flags1 & (FF1_TRAP))
+                        {
+                                cave_info[y][x] |= (CAVE_SAFE);
+                                if (view_safe_grids) lite_spot(y,x);
+                        }
+
 			/* Detect flags */
 			if ((f_info[cave_feat[y][x]].flags1 & (flags1)) ||
 				(f_info[cave_feat[y][x]].flags2 & (flags2)))
@@ -1742,6 +1788,7 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 				/* Obvious */
 				detect = TRUE;
 			}
+
 		}
 	}
 
@@ -1985,6 +2032,104 @@ bool detect_objects_normal(void)
 	return (detect);
 }
 
+/*
+ * Return a "feeling" (or NULL) about an item.  Method 3 (Magic).
+ */
+int value_check_aux3(object_type *o_ptr)
+{
+	/* Artifacts */
+	if (artifact_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+
+		/* Normal */
+		return (INSCRIP_SPECIAL);
+	}
+
+	/* Ego-Items */
+	if (ego_item_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (0);
+
+                /* Superb */
+                if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
+
+		/* Normal */
+		return (INSCRIP_EXCELLENT);
+	}
+
+	/* Cursed items */
+	if (cursed_p(o_ptr)) return (0);
+
+	/* Broken items */
+	if (broken_p(o_ptr)) return (0);
+
+        /* Great "armor" bonus */
+        if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
+
+        /* Great "weapon" bonus */
+        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
+
+        /* Very good "armor" bonus */
+        if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
+
+	/* Good "weapon" bonus */
+        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 7)) return (INSCRIP_VERY_GOOD);
+
+	/* Good "armor" bonus */
+	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
+
+	/* Good "weapon" bonus */
+	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
+
+	/* Default to nothing */
+	return (0);
+}
+
+
+/*
+ * Return a "feeling" (or NULL) about an item.  Method 4 (Cursed).
+ */
+int value_check_aux4(object_type *o_ptr)
+{
+	/* Artifacts */
+	if (artifact_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_TERRIBLE);
+
+		/* Normal */
+		return (0);
+	}
+
+	/* Ego-Items */
+	if (ego_item_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
+
+                /* Superb */
+                if (o_ptr->xtra1) return (0);
+
+		/* Normal */
+		return (0);
+	}
+
+	/* Cursed items */
+        if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
+
+	/* Broken items */
+	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
+
+	/* Default to nothing */
+	return (0);
+}
+
+
+
+
 
 /*
  * Detect all "magic" objects on the current panel.
@@ -2085,55 +2230,11 @@ bool detect_objects_magic(void)
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
-		/* Artifacts */
-		if (artifact_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+		/* Get the inscription */
+		feel = value_check_aux3(o_ptr);
 
-			/* Normal */
-			feel = INSCRIP_SPECIAL;
-		}
-
-		/* Ego-Items */
-		else if (ego_item_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-			/* Normal */
-			feel = INSCRIP_EXCELLENT;
-
-                        /* Superb */
-                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
-		}
-
-		/* Cursed items */
-		else if (cursed_p(o_ptr)) continue;
-
-		/* Broken items */
-		else if (broken_p(o_ptr)) continue;
-
-                /* Great "armor" bonus */
-                else if (o_ptr->to_a > 8) feel = INSCRIP_GREAT;
-
-                /* Great "weapon" bonus */
-                else if (o_ptr->to_h + o_ptr->to_d > 14) feel = INSCRIP_GREAT;
-
-                /* Very good "armor" bonus */
-                else if (o_ptr->to_a > 4) feel = INSCRIP_VERY_GOOD;
-
-                /* Very good "weapon" bonus */
-                else if (o_ptr->to_h + o_ptr->to_d > 7) feel = INSCRIP_VERY_GOOD;
-
-		/* Good "armor" bonus */
-		else if (o_ptr->to_a > 0) feel = INSCRIP_GOOD;
-
-		/* Good "weapon" bonus */
-		else if (o_ptr->to_h + o_ptr->to_d > 0)	feel = INSCRIP_GOOD;
-
-		/* Ignore if average */
-		if (feel == INSCRIP_AVERAGE) continue;
+		/* Sense something? */
+		if (!feel) continue;
 
 		/* Sense the object */
 		o_ptr->discount = feel;
@@ -2194,55 +2295,11 @@ bool detect_objects_magic(void)
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
-		/* Artifacts */
-		if (artifact_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+		/* Get the inscription */
+		feel = value_check_aux4(o_ptr);
 
-			/* Normal */
-			feel = INSCRIP_SPECIAL;
-		}
-
-		/* Ego-Items */
-		else if (ego_item_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-			/* Normal */
-			feel = INSCRIP_EXCELLENT;
-
-                        /* Superb */
-                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
-		}
-
-		/* Cursed items */
-		else if (cursed_p(o_ptr)) continue;
-
-		/* Broken items */
-		else if (broken_p(o_ptr)) continue;
-
-                /* Great "armor" bonus */
-                else if (o_ptr->to_a > 8) feel = INSCRIP_GREAT;
-
-                /* Great "weapon" bonus */
-                else if (o_ptr->to_h + o_ptr->to_d > 14) feel = INSCRIP_GREAT;
-
-                /* Very good "weapon" bonus */
-                else if (o_ptr->to_h + o_ptr->to_d > 7) feel = INSCRIP_VERY_GOOD;
-
-                /* Very good "armor" bonus */
-                else if (o_ptr->to_a > 4) feel = INSCRIP_VERY_GOOD;
-
-		/* Good "armor" bonus */
-		else if (o_ptr->to_a > 0) feel = INSCRIP_GOOD;
-
-		/* Good "weapon" bonus */
-		else if (o_ptr->to_h + o_ptr->to_d > 0)	feel = INSCRIP_GOOD;
-
-		/* Ignore if average */
-		if (feel == INSCRIP_AVERAGE) continue;
+		/* Sense something */
+		if (!feel) continue;
 
 		/* Detected */
 		detect = TRUE;
@@ -2270,6 +2327,8 @@ bool detect_objects_magic(void)
 	return (detect);
 }
 
+
+
 /*
  * Detect all "cursed" objects on the current panel.
  *
@@ -2286,11 +2345,10 @@ bool detect_objects_cursed(void)
 
 	bool detect = FALSE;
 
-
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
-                int feel = INSCRIP_AVERAGE;
+                int feel;
 
 		bool okay = FALSE;
 
@@ -2360,37 +2418,11 @@ bool detect_objects_cursed(void)
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
-		/* Artifacts */
-		if (artifact_p(o_ptr))
-		{
-			/* Normal */
-			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+		/* Get the inscription */
+		feel = value_check_aux3(o_ptr);
 
-			/* Cursed */
-			feel = INSCRIP_TERRIBLE;
-		}
-
-		/* Ego-Items */
-		else if (ego_item_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
-
-			/* Normal */
-			feel = INSCRIP_WORTHLESS;
-		}
-
-		/* Cursed items */
-		else if (cursed_p(o_ptr)) feel = INSCRIP_CURSED;
-
-		/* Broken items */
-		else if (broken_p(o_ptr)) feel = INSCRIP_BROKEN;
-
-		/* Ignore if average */
-		if (feel == INSCRIP_AVERAGE) continue;
-
-		/* Detected */
-		detect = TRUE;
+		/* Sense something? */
+		if (!feel) continue;
 
 		/* Sense the object */
 		o_ptr->discount = feel;
@@ -2403,7 +2435,7 @@ bool detect_objects_cursed(void)
 	/* Sense inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		int feel = INSCRIP_AVERAGE;
+		int feel;
 
 		bool okay = FALSE;
 
@@ -2451,34 +2483,11 @@ bool detect_objects_cursed(void)
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
-		/* Artifacts */
-		if (artifact_p(o_ptr))
-		{
-			/* Normal */
-			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+		/* Get the inscription */
+		feel = value_check_aux3(o_ptr);
 
-			/* Cursed */
-			feel = INSCRIP_TERRIBLE;
-		}
-
-		/* Ego-Items */
-		else if (ego_item_p(o_ptr))
-		{
-			/* Cursed/Broken */
-			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
-
-			/* Normal */
-			feel = INSCRIP_WORTHLESS;
-		}
-
-		/* Cursed items */
-		else if (cursed_p(o_ptr)) feel = INSCRIP_CURSED;
-
-		/* Broken items */
-		else if (broken_p(o_ptr)) feel = INSCRIP_BROKEN;
-
-		/* Ignore if average */
-		if (feel == INSCRIP_AVERAGE) continue;
+		/* Sense something? */
+		if (!feel) continue;
 
 		/* Detected */
 		detect = TRUE;
@@ -2870,11 +2879,11 @@ void stair_creation(void)
 	delete_object(py, px);
 
 	/* Create a staircase */
-	if (!p_ptr->depth)
+	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
@@ -2887,8 +2896,6 @@ void stair_creation(void)
 		cave_set_feat(py, px, FEAT_LESS);
 	}
 }
-
-
 
 
 /*
@@ -2939,6 +2946,15 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	return (FALSE);
 }
 
+
+static bool item_tester_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
 static int unknown_tval;
 
 static bool item_tester_unknown_tval(object_type *o_ptr)
@@ -2952,9 +2968,11 @@ static bool item_tester_unknown_tval(object_type *o_ptr)
 }
 
 
-static bool item_tester_unknown(object_type *o_ptr)
+static bool item_tester_unknown_bonus(object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
+		return FALSE;
+	else if ((o_ptr->ident & (IDENT_BONUS)) && (o_ptr->ident & (IDENT_SENSE)))
 		return FALSE;
 	else
 		return TRUE;
@@ -2968,6 +2986,28 @@ static bool item_tester_unknown_star(object_type *o_ptr)
 	else
 		return TRUE;
 }
+
+/*
+ * Note for the following function, the player must know it is an artifact
+ * or ego item, either by sensing or identifying it.
+ */
+static bool item_tester_known_name(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+        else if ((!object_known_p(o_ptr))
+                && !(o_ptr->discount == INSCRIP_SPECIAL)
+                && !(o_ptr->discount == INSCRIP_EXCELLENT)
+                && !(o_ptr->discount == INSCRIP_SUPERB)
+                && !(o_ptr->discount == INSCRIP_WORTHLESS)
+                && !(o_ptr->discount == INSCRIP_TERRIBLE))
+		return FALSE;
+	else if (!(o_ptr->name1) && !(o_ptr->name2))
+		return FALSE;
+	else
+		return TRUE;
+}
+
 
 
 /*
@@ -3269,6 +3309,251 @@ bool ident_spell(void)
 }
 
 
+/*
+ * Identify the bonus/charges of an object in the inventory (or on the floor)
+ * This routine does *not* automatically combine objects.
+ * Returns TRUE if something was identified, else FALSE.
+ */
+bool ident_spell_bonus(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_unknown_bonus;
+
+	/* Get an item */
+	q = "Identify which item? ";
+	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Identify it's bonuses */
+	object_bonus(o_ptr);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Describe */
+	if (item >= INVEN_WIELD)
+	{
+		msg_format("%^s: %s (%c).",
+		           describe_use(item), o_name, index_to_label(item));
+	}
+	else if (item >= 0)
+	{
+		msg_format("In your pack: %s (%c).",
+		           o_name, index_to_label(item));
+	}
+	else
+	{
+		msg_format("On the ground: %s.",
+		           o_name);
+	}
+
+	/* Something happened */
+	return (TRUE);
+}
+
+
+/*
+ * Reveal some powers of a known artifact or ego item.
+ * Returns TRUE if something was attempted, else FALSE.
+ */
+bool ident_spell_name(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	cptr p, q, r, s;
+
+	int i;
+
+	bool done;
+
+        u32b f1,f2,f3;
+
+	/* Only un-id'ed items */
+	item_tester_hook = item_tester_known_name;
+
+	/* Get an item */
+	q = "Learn legends about which item? ";
+	s = "You have nothing legendary to examine.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Pick an interesting phrase */
+	switch (randint(6))
+	{
+		case 1:
+			p="Hmm... these runes look interesting..";
+                        r=". but they tell you nothing more.";
+			break;
+		case 2:
+			p="You recall tales fitting an item of this description";
+                        r=", and they are bawdy and dull.";
+			break;
+		case 3:
+			p="Ancient visions fill your mind..";
+			r=". and give you a headache.";
+			break;
+		case 4:
+			p="The maker's mark is strangely familiar";
+			r="... oh, it's just a smudge of dirt.";
+			break;
+		case 5:
+			p="The item glows with faint enchantments";
+                        r=", snaps, crackles and pops.";
+			break;
+                default:
+			p="Ah... the memories..";
+			r=". things were always worse than you remember them.";
+			break;
+	}
+
+        /* Examine the item */
+        object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Remove known flags */
+	f1 &= ~(o_ptr->i_object.can_flags1);
+	f2 &= ~(o_ptr->i_object.can_flags2);
+	f3 &= ~(o_ptr->i_object.can_flags3);	
+
+	/* We know everything? */
+	done = ((f1 | f2 | f3) ? FALSE : TRUE);
+
+	/* Clear some flags1 */
+	if (f1)	for (i = 0;i<32;i++)
+	{
+		if ((f1 & (1L<<i)) && (rand_int(100)<25)) f1 &= ~(1L<<i);
+	}
+
+	/* Clear some flags2 */
+	if (f2)	for (i = 0;i<32;i++)
+	{
+		if ((f2 & (1L<<i)) && (rand_int(100)<25)) f2 &= ~(1L<<i);
+	}
+
+	/* Clear some flags3 */
+	if (f3)	for (i = 0;i<32;i++)
+	{
+                if ((f3 & (1L<<i)) && (rand_int(100)<25)) f3 &= ~(1L<<i);
+	}
+
+	
+	if (done || (f1 | f2 | f3))
+	{
+		char o_name[80];
+
+		/* Tell the player the good news */
+		msg_format("%s.",p);
+
+		if (done)
+		{
+			/* Do we know absolutely everything? */
+			if (object_known_p(o_ptr)) object_mental(o_ptr);
+			else
+			{
+				object_known(o_ptr);
+				object_aware(o_ptr);
+			}
+
+		}
+
+		/* Learn more about the item */
+		object_can_flags(o_ptr,f1,f2,f3);
+
+		/* Description */
+		object_desc(o_name, o_ptr, TRUE, 3);
+
+		/* Describe */
+		if (item >= INVEN_WIELD)
+		{
+			msg_format("%^s: %s (%c).",
+			           describe_use(item), o_name, index_to_label(item));
+		}
+		else if (item >= 0)
+		{
+			msg_format("In your pack: %s (%c).",
+			           o_name, index_to_label(item));
+		}
+		else
+		{
+			msg_format("On the ground: %s.",
+			           o_name);
+		}
+	}
+	else
+	{
+		/* Tell the player the bad news */
+                msg_format("%s%s.",p,r);
+	}
+
+	if (done)
+	{
+		/* Tell the player to stop trying */
+		msg_format("You feel you know all %s secrets.",(o_ptr->number>0?"their":"its"));
+
+	}
+	else if (f1 | f2 | f3)
+	{
+		cptr info[128];
+
+		int j,k;
+
+		/* Describe the new stuff learnt */
+                k= identify_fully_desc(info,f1,f2,f3);
+
+		for (j = 0; j < k; j++)
+		{
+			msg_format("%s",info[j]);
+		}
+
+	}
+
+	/* Something happened */
+	return (TRUE);
+}
+
+
 
 /*
  * Identify an object in the inventory (or on the floor)
@@ -3391,6 +3676,7 @@ bool identify_fully(void)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+	object_mental(o_ptr);
 
 #ifdef ALLOW_OBJECT_INFO
 
@@ -3398,9 +3684,6 @@ bool identify_fully(void)
 	clear_may_flags();
 
 #endif
-
-	/* Mark the item as fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3970,7 +4253,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			if (k > r) continue;
 
 			/* Lose room and vault */
-			cave_info[y][x] &= ~(CAVE_ROOM | CAVE_ICKY);
+			cave_info[y][x] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -4136,7 +4419,7 @@ void earthquake(int cy, int cx, int r)
 			if (distance(cy, cx, yy, xx) > r) continue;
 
 			/* Lose room and vault */
-			cave_info[yy][xx] &= ~(CAVE_ROOM | CAVE_ICKY);
+			cave_info[yy][xx] &= ~(CAVE_ROOM);
 
 			/* Lose light and knowledge */
 			cave_info[yy][xx] &= ~(CAVE_GLOW | CAVE_MARK);
@@ -4654,15 +4937,12 @@ void lite_room(int y1, int x1)
 	/* Now, lite them all up at once */
 	cave_temp_room_lite();
 
-#ifdef ALLOW_ROOMDESC
         /* Hack --- Have we seen this room before? */
-        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].seen))
+        if (!(room_info[dun_room[y1/BLOCK_HGT][x1/BLOCK_WID]].flags & (ROOM_SEEN)))
         {
                 p_ptr->update |= (PU_ROOM_INFO);
                 p_ptr->window |= (PW_ROOM_INFO);
         }
-#endif
-
 
 }
 

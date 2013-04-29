@@ -1311,11 +1311,10 @@ void py_attack(int y, int x)
 			 */
 
 			/* Hack -- Monster armor reduces total damage */
-                        k -= (k * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
+                        if (variant_scale_dam) k -= (k * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
 
 			/* No negative damage */
 			if (k < 0) k = 0;
-
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1366,7 +1365,8 @@ void py_attack(int y, int x)
 	}
 
 	/* Actual energy use */
-	p_ptr->energy_use = (100 * blows) / p_ptr->num_blow;
+	if (variant_fast_kills) p_ptr->energy_use = (100 * blows) / p_ptr->num_blow;
+	else p_ptr->energy_use = 100;
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)

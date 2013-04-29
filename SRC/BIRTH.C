@@ -1203,7 +1203,7 @@ static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
  */
 static bool player_birth_aux_2(void)
 {
-	int i;
+        int i;
 
 	int row = 3;
 	int col = 42;
@@ -1781,8 +1781,7 @@ static bool player_birth_aux(void)
  */
 void player_birth(void)
 {
-	int i, n;
-
+        int n;
 
 	/* Create a new character */
 	while (1)
@@ -1793,7 +1792,6 @@ void player_birth(void)
 		/* Roll up a new character */
 		if (player_birth_aux()) break;
 	}
-
 
 	/* Note player birth in the message recall */
 	message_add(" ", MSG_GENERIC);
@@ -1806,22 +1804,23 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
+        /* Hack -- set the dungeon */
+        if (variant_town) p_ptr->dungeon = 1;
+        else p_ptr->dungeon = 0;
+
+        /* Hack -- set the town */
+        p_ptr->town = p_ptr->dungeon;
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{
 		/* Initialize */
 		store_init(n);
-
-		/* Ignore home */
-		if (n == STORE_HOME) continue;
-
-		/* Maintain the shop (ten times) */
-		for (i = 0; i < 10; i++) store_maint(n);
 	}
 
         /* Hack --- give awareness of items */
         improve_aware();
+
 }
 
 

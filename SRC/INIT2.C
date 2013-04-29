@@ -706,7 +706,7 @@ static errr init_f_info(void)
 	/* Success */
 	return (0);
 }
-#ifdef ALLOW_ROOMDESC
+
 /*
  * Initialize the "d_info" array, by parsing a binary "image" file
  */
@@ -945,7 +945,6 @@ static errr init_d_info(void)
 	return (0);
 }
 
-#endif
 
 /*
  * Initialize the "k_info" array, by parsing a binary "image" file
@@ -3135,6 +3134,251 @@ static errr init_s_info(void)
 
 
 
+/*
+ * Initialize the "t_info" array, by parsing a binary "image" file
+ */
+static errr init_t_info_raw(int fd)
+{
+	header test;
+
+
+	/* Read and Verify the header */
+	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+            (test.v_major != t_head->v_major) ||
+            (test.v_minor != t_head->v_minor) ||
+            (test.v_patch != t_head->v_patch) ||
+            (test.v_extra != t_head->v_extra) ||
+            (test.info_num != t_head->info_num) ||
+            (test.info_len != t_head->info_len) ||
+            (test.head_size != t_head->head_size) ||
+            (test.info_size != t_head->info_size))
+	{
+		/* Error */
+		return (-1);
+	}
+
+
+	/* Accept the header */
+        (*t_head) = test;
+
+
+        /* Allocate the "t_info" array */
+        C_MAKE(t_info, t_head->info_num, town_type);
+
+        /* Read the "t_info" array */
+        fd_read(fd, (char*)(t_info), t_head->info_size);
+
+
+        /* Allocate the "t_name" array */
+        C_MAKE(t_name, t_head->name_size, char);
+
+        /* Read the "t_name" array */
+        fd_read(fd, (char*)(t_name), t_head->name_size);
+
+#ifndef DELAY_LOAD_T_TEXT
+
+        /* Allocate the "t_text" array */
+        C_MAKE(t_text, t_head->text_size, char);
+
+        /* Read the "t_text" array */
+        fd_read(fd, (char*)(t_text), t_head->text_size);
+
+#endif
+
+        /* Success */
+	return (0);
+}
+
+
+
+
+
+/*
+ * Initialize the "t_info" array
+ *
+ * Note that we let each entry have a unique "name" and "text" string,
+ * even if the string happens to be empty (everyone has a unique '\0').
+ */
+static errr init_t_info(void)
+{
+	int fd;
+
+	int mode = 0644;
+
+	errr err = 0;
+
+	FILE *fp;
+
+	/* General buffer */
+	char buf[1024];
+
+
+	/*** Make the header ***/
+
+	/* Allocate the "header" */
+	MAKE(t_head, header);
+
+	/* Save the "version" */
+	t_head->v_major = VERSION_MAJOR;
+	t_head->v_minor = VERSION_MINOR;
+	t_head->v_patch = VERSION_PATCH;
+	t_head->v_extra = VERSION_EXTRA;
+
+	/* Save the "record" information */
+	t_head->info_num = z_info->t_max;
+	t_head->info_len = sizeof(town_type);
+
+	/* Save the size of "t_head" and "t_info" */
+	t_head->head_size = sizeof(header);
+	t_head->info_size = t_head->info_num * t_head->info_len;
+
+
+#ifdef ALLOW_TEMPLATES
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd >= 0)
+	{
+#ifdef CHECK_MODIFICATION_TIME
+
+		err = check_modification_date(fd, "t_info.txt");
+
+#endif /* CHECK_MODIFICATION_TIME */
+
+		/* Attempt to parse the "raw" file */
+		if (!err)
+			err = init_t_info_raw(fd);
+
+		/* Close it */
+		fd_close(fd);
+
+		/* Success */
+		if (!err) return (0);
+	}
+
+
+	/*** Make the fake arrays ***/
+
+	/* Allocate the "t_info" array */
+        C_MAKE(t_info, t_head->info_num, town_type);
+
+	/* Hack -- make "fake" arrays */
+	C_MAKE(t_name, z_info->fake_name_size, char);
+	C_MAKE(t_text, z_info->fake_text_size, char);
+
+
+	/*** Load the ascii template file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 't_info.txt' file.");
+
+	/* Parse the file */
+	err = init_t_info_txt(fp, buf);
+
+	/* Close it */
+	my_fclose(fp);
+
+	/* Errors */
+	if (err)
+	{
+		cptr oops;
+
+		/* Error string */
+		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+
+		/* Oops */
+		msg_format("Error %d at line %d of 't_info.txt'.", err, error_line);
+		msg_format("Record %d contains a '%s' error.", error_idx, oops);
+		msg_format("Parsing '%s'.", buf);
+		msg_print(NULL);
+
+		/* Quit */
+		quit("Error in 't_info.txt' file.");
+	}
+
+
+	/*** Dump the binary image file ***/
+
+	/* File type is "DATA" */
+	FILE_TYPE(FILE_TYPE_DATA);
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Kill the old file */
+	fd_kill(buf);
+
+	/* Attempt to create the raw file */
+	fd = fd_make(buf, mode);
+
+	/* Dump to the file */
+	if (fd >= 0)
+	{
+		/* Dump it */
+		fd_write(fd, (char*)(t_head), t_head->head_size);
+
+		/* Dump the "t_info" array */
+		fd_write(fd, (char*)(t_info), t_head->info_size);
+
+		/* Dump the "t_name" array */
+		fd_write(fd, (char*)(t_name), t_head->name_size);
+
+		/* Dump the "t_text" array */
+		fd_write(fd, (char*)(t_text), t_head->text_size);
+
+		/* Close */
+		fd_close(fd);
+	}
+	/*** Kill the fake arrays ***/
+
+	/* Free the "t_info" array */
+	C_KILL(t_info, t_head->info_num, town_type);
+
+	/* Hack -- Free the "fake" arrays */
+	C_KILL(t_name, z_info->fake_name_size, char);
+	C_KILL(t_text, z_info->fake_text_size, char);
+
+#endif  /* ALLOW_TEMPLATES */
+
+
+	/*** Load the binary image file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_DATA, "t_info.raw");
+
+	/* Attempt to open the "raw" file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Process existing "raw" file */
+	if (fd < 0) quit("Cannot load 't_info.raw' file.");
+
+	/* Attempt to parse the "raw" file */
+	err = init_t_info_raw(fd);
+
+	/* Close it */
+	fd_close(fd);
+
+	/* Error */
+	if (err) quit("Cannot parse 't_info.raw' file.");
+
+	/* Success */
+	return (0);
+}
+
+
 
 
 
@@ -3982,7 +4226,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
 		{ TV_SCROLL, SV_SCROLL_DETECT_MAGIC },
-                { TV_SCROLL, SV_SCROLL_IDENTIFY },
+                { TV_SCROLL, SV_SCROLL_GAUGE_MAGIC },
                 { TV_SCROLL, SV_SCROLL_READ_MAGIC },
                 { TV_SCROLL, SV_SCROLL_ANALYZE_MAGIC },
 		{ TV_SCROLL, SV_SCROLL_LIGHT },
@@ -4161,7 +4405,7 @@ static errr init_other(void)
 		C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
 
 		/* No table for the black market or home */
-		if ((i == STORE_B_MARKET) || (i == STORE_HOME)) continue;
+		if ((i == STORE_B_MARKET) || (store_home(i))) continue;
 
 		/* Assume full table */
 		st_ptr->table_size = STORE_CHOICES;
@@ -4216,7 +4460,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Robert Ruehlmann", MAINTAINER);
+	(void)format("%s (%s).", "Andrew Doull", MAINTAINER);
 
 
 	/* Success */
@@ -4780,11 +5024,11 @@ void init_angband(void)
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
-#ifdef ALLOW_ROOMDESC
+
 	/* Initialize room description info */
 	note("[Initializing arrays... (room descriptions)]");
 	if (init_d_info()) quit("Cannot initialize room descriptions");
-#endif
+
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
@@ -4805,6 +5049,10 @@ void init_angband(void)
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
+	/* Initialize level info */
+	note("[Initializing arrays... (levels)]");
+	if (init_k_info()) quit("Cannot initialize levels");
+
 	/* Initialize history info */
 	note("[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
@@ -4824,6 +5072,10 @@ void init_angband(void)
 	/* Initialize spell info */
 	note("[Initializing arrays... (spells)]");
 	if (init_s_info()) quit("Cannot initialize spells");
+
+        /* Initialize town info */
+        note("[Initializing arrays... (dungeons)]");
+        if (init_t_info()) quit("Cannot initialize dungeons");
 
 	/* Initialize owner info */
 	note("[Initializing arrays... (owners)]");
@@ -4851,4 +5103,5 @@ void init_angband(void)
 
 	/* Done */
 	note("[Initialization complete]");
+
 }

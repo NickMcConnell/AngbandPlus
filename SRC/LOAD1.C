@@ -1895,9 +1895,7 @@ static errr rd_dungeon_old(void)
 	byte iy[512];
 
 
-#ifdef ALLOW_ROOMDESC
         int by,bx;
-#endif
 
 	/* Header info */
 	rd_s16b(&depth);
@@ -2073,7 +2071,6 @@ static errr rd_dungeon_old(void)
 				case 3:
 				{
 					info |= (CAVE_ROOM);
-					info |= (CAVE_ICKY);
 					break;
 				}
 
@@ -2152,6 +2149,12 @@ static errr rd_dungeon_old(void)
 	/* Save depth */
 	p_ptr->depth = depth;
 
+	/* Vanilla dungeon */
+	p_ptr->dungeon = 0;
+
+	/* Vanilla town */
+	p_ptr->town = 0;
+
 	/* Place player in dungeon */
 	if (!player_place(py, px))
 	{
@@ -2160,7 +2163,6 @@ static errr rd_dungeon_old(void)
 	}
 
 	/*** Room descriptions */
-#ifdef ALLOW_ROOMDESC
 
 	/* Initialize the room table */
         for (by = 0; by < MAX_ROOMS_ROW; by++)
@@ -2172,8 +2174,7 @@ static errr rd_dungeon_old(void)
 	}
 
         /* Initialise 'zeroeth' room description */
-        room_info[0].seen = FALSE;
-#endif
+        room_info[0].flags = 0;
 
 
 

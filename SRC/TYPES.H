@@ -75,10 +75,11 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 typedef struct header header;
 typedef struct maxima maxima;
-#ifdef ALLOW_ROOMDESC
+typedef struct dungeon_zone dungeon_zone;
+typedef struct town_store town_store;
+typedef struct town_type town_type;
 typedef struct desc_type desc_type;
 typedef struct room_info_type room_info_type;
-#endif
 typedef struct feature_state feature_state;
 typedef struct feature_blow feature_blow;
 typedef struct feature_type feature_type;
@@ -173,9 +174,7 @@ struct maxima
 {
 	u32b fake_text_size;
 	u32b fake_name_size;
-#ifdef ALLOW_ROOMDESC
 	u16b d_max;             /* Max size for "d_info[]" */
-#endif
 	u16b f_max;             /* Max size for "f_info[]" */
 	u16b k_max;             /* Max size for "k_info[]" */
 
@@ -188,6 +187,9 @@ struct maxima
 	u16b p_max;             /* Max size for "p_info[]" */
 	u16b h_max;             /* Max size for "h_info[]" */
 
+	u16b t_max;		/* Max size for "t_info[]" */
+	u16b q_max;		/* Max size for "q_info[]" */
+
 	u16b b_max;             /* Max size per element of "b_info[]" */
 	u16b c_max;    		/* Max size per element of "c_info[]" */
 
@@ -198,7 +200,56 @@ struct maxima
 	u16b m_max;             /* Max size for "m_list[]" */
 };
 
-#ifdef ALLOW_ROOMDESC
+
+
+/*
+ * Dungeon zone structure
+ *
+ */
+struct dungeon_zone
+{
+	byte level;
+        byte fill;
+        byte big;
+        byte small;
+	u16b guard;
+};
+
+
+/*
+ * Town store structure
+ *
+ */
+struct town_store
+{
+        u32b name;                     /* Name (offset) */
+
+        byte d_char;                      /* Default feature char */
+        byte d_attr;                      /* Default feature attr */
+
+	byte level;
+	byte tval;
+};
+
+/*
+ * Dungeon level structure
+ *
+ */
+
+struct town_type
+{
+        u32b name;                     /* Name (offset) */
+        u32b text;                      /* Text (offset) */
+
+        u16b near;
+        u16b distant;
+
+        town_store store[MAX_STORES];
+        dungeon_zone zone[MAX_DUNGEON_ZONES];
+
+};
+
+
 /*
  * Information about room descriptions
  *
@@ -209,11 +260,11 @@ struct desc_type
         u32b name2;
         u32b text;                      /* Text (offset) */
 
-	bool seen;                      /* Requires light */
-
+	byte flags;                      /* Room flags */
 	byte roll;                          /* Frequency of this entry */
 	byte chart;                         /* Chart index */
 	byte next;                          /* Next chart index */
+	
 	u16b level;                         /* Minimum */
 
 	byte feat;              /* Extra features of this type */
@@ -231,9 +282,8 @@ struct room_info_type
 	byte type;							/* Type of room (normal/pit) */
 	s16b section[ROOM_DESC_SECTIONS];	/* Array of room descriptions */
 
-	bool seen;
+	byte flags;		/* Room flags */
 };
-#endif
 
 
 /*
@@ -319,6 +369,9 @@ struct feature_type
  * Note we should retain kind/ego item information from
  * saved game to saved game, artifacts only if not random
  * artifacts, and never objects.
+ *
+ * Note that this is 2 bytes shorter than we want, but we
+ * take advantage of that in the structures it is in.
  */
 struct object_info
 {
@@ -335,7 +388,6 @@ struct object_info
 	u32b not_flags3;
 
 	s16b usage;
-	s16b fails;
 };
 #endif
 
@@ -393,11 +445,14 @@ struct object_kind
 
 	bool aware;                     /* The player is "aware" of the item's effects */
 
-	bool tried;                     /* The player has "tried" one of the items */
+	bool tried;                     /* The player has "tried" one of the items. Tried */
+
+	byte guess;			/* The player guesses the item to be this sval */
 
 #ifdef ALLOW_OBJECT_INFO
         object_info i_kind;
 #endif
+	s16b found;		/* Number encountered */
 };
 
 
@@ -447,6 +502,7 @@ struct artifact_type
 #ifdef ALLOW_OBJECT_INFO
 	object_info i_artifact;
 #endif
+	s16b found;		/* Number encountered */
 };
 
 
@@ -484,6 +540,7 @@ struct ego_item_type
 #ifdef ALLOW_OBJECT_INFO
         object_info i_ego_item;
 #endif
+	s16b found;		/* Number encountered */
 };
 
 
@@ -700,7 +757,7 @@ struct object_type
 
 	u16b note;                      /* Inscription index */
 
-	byte inscrip;           /* INSCRIP_XXX constant */
+	byte pvals;		/* Pval stack index */
 
 	s16b next_o_idx;        /* Next object in stack (if any) */
 
@@ -709,6 +766,9 @@ struct object_type
 #ifdef ALLOW_OBJECT_INFO
 	object_info i_object;
 #endif
+	byte guess1;		/* Guess this is artifact */
+	byte guess2;		/* Guess this is ego item */
+
 };
 
 
@@ -1088,6 +1148,9 @@ struct player_type
 
 	byte psval;		 /* Sytle sub-specialization*/
 	byte held_song;          /* Hack --- Song being sung */
+
+	u16b dungeon;		/* Current dungeon number */
+        u16b town;              /* Current town number */
 
 	s16b age;                       /* Characters age */
 	s16b ht;                        /* Height */

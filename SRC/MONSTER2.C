@@ -18,7 +18,7 @@
 
 
 
-/*
+/* 
  * Delete a monster by index.
  *
  * When a monster is deleted, all of its objects are deleted.
@@ -414,6 +414,9 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
+	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+
+	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
 
 	/* Boost the level */
 	if (level > 0)
@@ -473,6 +476,15 @@ s16b get_mon_num(int level)
 		{
 			continue;
 		}
+
+		/* Hack -- No MULTIPLY monsters on surface */
+		if (surface && (r_ptr->flags2 & (RF2_MULTIPLY))) continue;
+
+		/* Hack -- No NEVER_MOVE monsters on surface */
+                if (surface && (r_ptr->flags1 & (RF1_NEVER_MOVE))) continue;
+
+		/* Hack -- No HURT_LITE monsters on surface in daytime */
+		if (surface && daytime && (r_ptr->flags3 & (RF3_HURT_LITE))) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -1192,8 +1204,6 @@ void update_monsters(bool full)
 }
 
 
-
-
 /*
  * Make a monster carry an object
  */
@@ -1204,7 +1214,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
 
 	/* Scan objects already being held for combination */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1227,7 +1236,6 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
 			return (this_o_idx);
 		}
 	}
-
 
 	/* Make an object */
 	o_idx = o_pop();
@@ -1271,12 +1279,10 @@ void monster_swap(int y1, int x1, int y2, int x2)
 {
 	int m1, m2;
 
-#ifdef ALLOW_ROOMDESC
 	int by1 = y1/BLOCK_HGT;
         int bx1 = x1/BLOCK_WID;
 	int by2 = y2/BLOCK_HGT;
         int bx2 = x2/BLOCK_WID;
-#endif
 
 	monster_type *m_ptr;
 
@@ -1323,7 +1329,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
-#ifdef ALLOW_ROOMDESC
 		/* Update room description (if needed) */
                 /* Line 1 -- we are entering a room */
                 /* Line 2 -- which is different from the last room */
@@ -1335,7 +1340,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
                         p_ptr->window |= (PW_ROOM_INFO);
                         p_ptr->update |= (PU_ROOM_INFO);
 		}
-#endif
 	}
 
 	/* Monster 2 */
@@ -1370,7 +1374,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
-#ifdef ALLOW_ROOMDESC
 		/* Update room description (if needed) */
                 /* Line 1 -- we are entering a room */
                 /* Line 2 -- which is different from the last room */
@@ -1383,7 +1386,6 @@ void monster_swap(int y1, int x1, int y2, int x2)
                         p_ptr->update |= (PU_ROOM_INFO);
 		}
 
-#endif
 	}
 
 
@@ -1977,6 +1979,14 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	{
 		n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
 	}
+
+	/* Hack -- Scale down hit points by monster armour */
+        if ((variant_scale_hp) && (variant_scale_dam))
+        {
+                int ac = r_ptr->ac;
+
+                n_ptr->maxhp -= (n_ptr->maxhp * ((ac < 150) ? ac : 150) / 250);
+        }
 
 	/* And start out fully healthy */
 	n_ptr->hp = n_ptr->maxhp;

@@ -102,15 +102,171 @@ bool do_cmd_test(int y, int x, int action)
 }
 
 
+/*
+ * Travel to a different dungeon.
+ */
+static void do_cmd_travel(void)
+{
+        town_type *t_ptr = &t_info[p_ptr->dungeon];
+        dungeon_zone *zone1 = &t_ptr->zone[0];
+        dungeon_zone *zone2 = &t_ptr->zone[0];
+
+
+	int journey = 0;
+
+	int by = p_ptr->py / BLOCK_HGT;
+	int bx = p_ptr->px / BLOCK_WID;
+
+        bool edge_y = ((by < 2) || (by > ((DUNGEON_HGT/BLOCK_HGT)-2)));
+        bool edge_x = ((bx < 2) || (bx > ((DUNGEON_WID/BLOCK_WID)-2)));
+
+        /* Get the top of the dungeon */
+        get_zone(&zone1,p_ptr->dungeon,min_depth(p_ptr->dungeon));
+
+        /* Get the bottom of the dungeon */
+        get_zone(&zone2,p_ptr->dungeon,max_depth(p_ptr->dungeon));
+
+	if (p_ptr->depth == min_depth(p_ptr->dungeon))
+	{
+		/* Need to be full to travel for trip */
+		if (p_ptr->food < PY_FOOD_FULL)
+		{
+			msg_print("You'll need a full stomach for the road ahead.");
+		}
+		else if (!edge_y && !edge_x && zone1->fill)
+		{
+			msg_format("You need to be further from %s.",t_name + t_ptr->name);
+		}
+		else
+		{
+			int selection = p_ptr->dungeon;
+
+                        if (t_ptr->near != p_ptr->dungeon)
+			{
+                                msg_format("You see a well worn trail to %s.",t_name + t_info[t_ptr->near].name);
+                                if (get_check("Journey there?"))
+				{
+                                        selection = t_ptr->near;
+					
+					journey = damroll(2,4);
+				}
+			}
+
+                        if ((selection==p_ptr->dungeon)
+                                 && (t_ptr->distant != p_ptr->dungeon)
+                                 && ((!zone2->guard) || (r_info[zone2->guard].cur_num==0)))
+			{
+
+                                if (!zone2->guard) msg_format("In the distance lies %s.",t_name + t_info[t_ptr->distant].name);
+                                else msg_format("By defeating %s, you have opened the way to %s.",
+                                        r_name + r_info[zone2->guard].name, t_name + t_info[t_ptr->distant].name);
+
+                                if (get_check("Journey there?"))
+				{
+                                        selection = t_ptr->distant;
+
+					journey = damroll(3,4);
+
+				}
+#if 0
+				if (t_info[t_ptr->bottom].top != p_ptr->dungeon)
+				{
+					msg_print("You are embarking on a dangerous quest.");
+					msg_print("Make sure you are prepared, as you are doubtful of your chances of return.");
+
+                                        if (!get_check("Continue the journey?")) selection = p_ptr->dungeon;                                 
+				}
+#endif
+			}
+                        else if ((zone2->guard) && (selection == p_ptr->dungeon))
+			{
+				/* XXX Reveal monster name? */
+				msg_print("All other ways are guarded.");
+			}
+
+			/* Do we travel? */
+			if (selection != p_ptr->dungeon)
+			{
+
+				if (journey < 4)
+				{
+					msg_print("You have a mild and pleasant journey.");
+				}
+				else if (journey < 7)
+				{
+					msg_print("Your travels are without incident.");
+				}
+				else if (journey < 10)
+				{
+					msg_print("You have a long and arduous trip.");
+				}
+				else
+				{
+					msg_print("You get lost in the wilderness!");
+					/* XXX Fake a wilderness location? */
+				}
+
+				/* Get hungry/tired/sore */
+				set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
+
+				/* Change the dungeon */
+				p_ptr->dungeon = selection;
+
+				/* Set the new depth */
+				p_ptr->depth = min_depth(p_ptr->dungeon);
+
+#if 0
+				/* Reset the recall depth */
+				p_ptr->max_depth = min_depth(p_ptr->dungeon);
+#endif
+
+				/* Mega-hack */
+				if ((variant_town) && (p_ptr->dungeon == z_info->t_max))
+				{
+
+					p_ptr->total_winner = TRUE;
+
+					/* Redraw the "title" */
+					p_ptr->redraw |= (PR_TITLE);
+
+					/* Congratulations */
+					msg_print("*** CONGRATULATIONS ***");
+					msg_print("You have won the game!");
+					msg_print("You may retire (commit suicide) when you are ready.");
+				}
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+
+			}				
+
+		}
+
+
+
+		return;
+
+	}
+
+
+
+}
 
 
 /*
- * Go up one level
+ * Go up one level, or choose a different dungeon.
  */
 void do_cmd_go_up(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+
+	/* Travel if possible */
+        if ((variant_town) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
+	{
+                do_cmd_travel();
+		return;
+	}
 
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_LESS)
@@ -2465,6 +2621,9 @@ void do_cmd_fire(void)
 	/* Single object */
 	i_ptr->number = 1;
 
+	/* Reset pvals */
+	i_ptr->pvals = 0;
+
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
@@ -2812,6 +2971,9 @@ void do_cmd_throw(void)
 
 	/* Single object */
 	i_ptr->number = 1;
+
+	/* Reset pvals*/
+	i_ptr->pvals = 0;
 
 	/* Reduce and describe inventory */
 	if (item >= 0)

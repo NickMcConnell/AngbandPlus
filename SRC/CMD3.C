@@ -204,6 +204,10 @@ void do_cmd_wield(void)
 	/* Modify quantity */
 	i_ptr->number = 1;
 
+	/* Reset pvals*/
+	i_ptr->pvals = 0;
+
+
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
@@ -275,6 +279,7 @@ void do_cmd_wield(void)
 
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
+
 	}
 
 #ifdef ALLOW_OBJECT_INFO
@@ -521,32 +526,31 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		int feel = INSCRIP_SPECIAL;
 
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
-
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
 		/* Sense the object if allowed, don't sense ID'ed stuff */
-		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
-			o_ptr->discount = feel;
+                if ((o_ptr->discount == 0)
+                        && !(o_ptr->ident & (IDENT_SENSE))
+                         && !(object_known_p(o_ptr)))
+		{
+                        o_ptr->discount = INSCRIP_UNBREAKABLE;
 
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
 
-		/* Combine the pack */
-		p_ptr->notice |= (PN_COMBINE);
+			/* Combine the pack */
+			p_ptr->notice |= (PN_COMBINE);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		}
 
 		/* Done */
 		return;
+
 	}
 
 	/* Message */

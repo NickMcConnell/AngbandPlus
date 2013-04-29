@@ -102,6 +102,9 @@ void teleport_away(int m_idx, int dis)
 		/* Try several locations */
 		for (i = 0; i < 500; i++)
 		{
+
+			int by,bx;
+
 			/* Pick a (possibly illegal) location */
 			while (1)
 			{
@@ -123,8 +126,11 @@ void teleport_away(int m_idx, int dis)
 			/* Hack -- no teleport onto glyph of warding */
 			/*if (cave_feat[ny][nx] == FEAT_GLYPH) continue;*/
 
-			/* No teleporting into vaults and such */
-			/* if (cave_info[ny][nx] & (CAVE_ICKY)) continue; */
+			/* Don't allow teleporting into vaults */
+                        by = ny/BLOCK_HGT;
+                        bx = nx/BLOCK_HGT;
+
+                        /*if (room_info[dun_room[by][bx]].flags & (ROOM_ICKY)) continue; */
 
 			/* This grid looks good */
 			look = FALSE;
@@ -180,6 +186,8 @@ void teleport_player(int dis)
 		/* Try several locations */
 		for (i = 0; i < 500; i++)
 		{
+			int by,bx;
+
 			/* Pick a (possibly illegal) location */
 			while (1)
 			{
@@ -195,8 +203,11 @@ void teleport_player(int dis)
 			/* Require "naked" floor space */
 			if (!cave_naked_bold(y, x)) continue;
 
-			/* No teleporting into vaults and such */
-			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+			/* Don't allow teleporting into vaults */
+			by = y/BLOCK_HGT;
+			bx = x/BLOCK_HGT;
+
+			if (room_info[dun_room[by][bx]].flags & (ROOM_ICKY)) continue;			
 
 			/* This grid looks good */
 			look = FALSE;
@@ -289,7 +300,7 @@ void teleport_player_level(void)
 	}
 
 
-	if (!p_ptr->depth)
+	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
@@ -300,7 +311,7 @@ void teleport_player_level(void)
 		p_ptr->leaving = TRUE;
 	}
 
-	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
@@ -686,6 +697,7 @@ static int set_acid_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
+	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
@@ -699,6 +711,7 @@ static int set_elec_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
+	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ELEC);
 	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
@@ -712,6 +725,7 @@ static int set_fire_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
+	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_FIRE);
 	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
@@ -725,6 +739,7 @@ static int set_cold_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
+	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
 	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
@@ -1520,6 +1535,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 	dam = (dam + r) / (r + 1);
 #endif /* 0 */
 
+        if (!variant_hurt_feats) dam = 0;
+
 	/* Analyze the type */
 	switch (typ)
 	{
@@ -1879,6 +1896,11 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	bool obvious = FALSE;
 
 	u32b f1, f2, f3;
+	u32b if1=0;
+	u32b if2=0;
+	u32b if3=0;
+
+        u32b ignore_all = (TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_IGNORE_ACID | TR3_IGNORE_ELEC);
 
 	char o_name[80];
 
@@ -1926,6 +1948,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
 					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
+					if3 |= TR3_IGNORE_ACID;
 				}
 				break;
 			}
@@ -1938,6 +1961,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+					if3 |= TR3_IGNORE_ELEC;
 				}
 				break;
 			}
@@ -1950,6 +1974,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if3 |= TR3_IGNORE_FIRE;
 				}
 				break;
 			}
@@ -1962,6 +1987,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
 					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if3 |= TR3_IGNORE_COLD;
 				}
 				break;
 			}
@@ -1974,6 +2000,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if3 |= TR3_IGNORE_FIRE;
 				}
 				if (hates_elec(o_ptr))
 				{
@@ -1981,7 +2008,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
 					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
-				}
+					if3 |= TR3_IGNORE_ELEC;
 				break;
 			}
 
@@ -1993,6 +2020,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+					if3 |= TR3_IGNORE_FIRE;
 				}
 				if (hates_cold(o_ptr))
 				{
@@ -2000,6 +2028,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					do_kill = TRUE;
 					note_kill = (plural ? " shatter!" : " shatters!");
 					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+					if3 |= TR3_IGNORE_COLD;
 				}
 				break;
 			}
@@ -2108,7 +2137,32 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					msg_format("The %s %s unaffected!",
 						   o_name, (plural ? "are" : "is"));
+
+					/* Learn about resistences */
+					if (if1 | if2 | if3)
+					{
+                                                object_can_flags(o_ptr,if1,if2,if3);
+					}
+					/* Item is unbreakable */
+					else
+					{
+                                                if (!object_known_p(o_ptr))
+						{
+							/* Sense the object */
+							o_ptr->discount = INSCRIP_UNBREAKABLE;
+
+							/* Hack -- for holy orb */
+							if (typ == GF_HOLY_ORB) o_ptr->discount = INSCRIP_TERRIBLE;
+
+							/* The object has been "sensed" */
+							o_ptr->ident |= (IDENT_SENSE);
+						}
+
+                                                object_can_flags(o_ptr,0x0L,0x0L,ignore_all);
+					}
 				}
+
+				
 			}
 
 			/* Kill it */
@@ -2126,14 +2180,14 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				/* Redraw */
 				lite_spot(y, x);
 			}
+
+                }
 		}
 	}
 
 	/* Return "Anything seen?" */
 	return (obvious);
 }
-
-
 
 /*
  * Helper function for "project()" below.
@@ -3359,6 +3413,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Melee attack - hurt */               
 		case GF_HURT:
+
+			/* Hack -- Monster armor reduces total damage */
+                        if (variant_scale_dam) dam -= (dam * ((r_ptr->ac < 150) ? r_ptr->ac : 150) / 250);
+
 
 		/* Melee attack - unbonus */
 		case GF_UN_BONUS:
@@ -4631,6 +4689,9 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 				/* Modify number */
 				i_ptr->number = 1;
+
+				/* Reset pvals */
+				i_ptr->pvals = 0;
 
 				/* Carry the object */
 				if (who > 0)

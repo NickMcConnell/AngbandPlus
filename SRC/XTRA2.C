@@ -21,7 +21,7 @@
 /*
  * Set "p_ptr->blind", notice observable changes
  *
- * Note the use of "PU_FORGET_VIEW" and "PU_UPDATE_VIEW", which are needed
+ * Note the use of "PU_FORGET_VIEW" and "PU_UPDAfTE_VIEW", which are needed
  * because "p_ptr->blind" affects the "CAVE_SEEN" flag, and "PU_MONSTERS",
  * because "p_ptr->blind" affects monster visibility, and "PU_MAP", because
  * "p_ptr->blind" affects the way in which many cave grids are displayed.
@@ -1892,7 +1892,7 @@ void check_experience(void)
 		p_ptr->lev++;
 
 		/* Improve a stat */
-		if (p_ptr->lev > p_ptr->max_lev) improve_stat();
+		if ((variant_free_stats) && (p_ptr->lev > p_ptr->max_lev)) improve_stat();
 
                 /* Improve awareness */
                 if (p_ptr->lev > p_ptr->max_lev) improve_aware();
@@ -1967,8 +1967,6 @@ int get_food_type(monster_race *r_ptr)
         /* Analyze "food" monsters */
         if ((r_ptr->d_char == ',') && (strstr(name,"mushroom")))
 	{
-
-#ifdef ALLOW_MUSHROOM_HACK
 		/* Look for textual clues */
                 if (strstr(name, "Spotted ")) return (SV_FOOD_POISON+1);
                 if (strstr(name, "Silver ")) return (SV_FOOD_BLINDNESS+1);
@@ -1981,7 +1979,6 @@ int get_food_type(monster_race *r_ptr)
                 if (strstr(name, "Green ")) return (SV_FOOD_NAIVETY+1);
                 if (strstr(name, "Rotting ")) return (SV_FOOD_UNHEALTH+1);
                 if (strstr(name, "Brown ")) return (SV_FOOD_DISEASE+1);
-#endif
                 if (strstr(name, "Shrieker ")) return (SV_FOOD_CURE_PARANOIA+1);
                 if (strstr(name, "Magic ")) return ((rand_int(100)<30?SV_FOOD_MANA+1:SV_FOOD_HALLUCINATION+1));
 
@@ -2487,13 +2484,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  */
 bool modify_panel(int wy, int wx)
 {
+        dungeon_zone *zone=&t_info[0].zone[0];
+
+	/* Get the zone */
+        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	if (!zone->fill) wy = SCREEN_HGT;
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
 	else if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	if (!zone->fill) wx = SCREEN_WID;
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
 	else if (wx < 0) wx = 0;
 
@@ -2556,8 +2558,6 @@ bool change_panel(int dir)
 	return (modify_panel(wy, wx));
 }
 
-#ifdef ALLOW_ROOMDESC
-
 /* 
  * Hack - generate the current room description 
  */
@@ -2569,17 +2569,38 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 	/* Town or not in room */
 	if (!room)
-	{
-		if (!p_ptr->depth)
+        {
+                town_type *t_ptr = &t_info[p_ptr->dungeon];
+                dungeon_zone *zone=&t_ptr->zone[0];;
+
+                /* Get the zone */ 
+                get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
+		if (p_ptr->depth == min_depth(p_ptr->dungeon))
+		{
+			if ((zone->fill) && (zone->level < MAX_ZONE_WILDS)) strcpy(name, "the wilds of ");
+			else if (zone->fill) strcpy(name,"the ruins of ");
+                        else if (!t_ptr->store[1].d_char)
+                        {
+
+                        }
+                        else if (!t_ptr->store[2].d_char) strcpy(name,"the village of ");
+			else strcpy(name,"the town of ");
+                        strcat(name, t_name + t_info[p_ptr->dungeon].name);
+                        strcpy(text_always, t_text + t_info[p_ptr->dungeon].text);
+		}
+		else if (!zone->fill)
 		{
 			/* Initialise town description */
-			strcpy(name, "town");
-			strcpy(text_always, "It feels like home.");
+			strcpy(name, "a town hidden in ");
+			strcat(name, t_name + t_info[p_ptr->dungeon].name);
+                        strcpy(text_always, "A collection of ramshackle buildings, deep beneath ");
+                        strcat(text_always, t_name + t_info[p_ptr->dungeon].name);
+                        strcat(text_always, ".");
 		}
 		else
 		{
-			strcpy(name, "the dungeon");
-			strcpy(text_visible, "It is a dangerous maze of corridors and rooms.");
+                        strcpy(name, "empty room");
 		}
 
 		return;
@@ -2632,7 +2653,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 
 		case (ROOM_PIT_GIANT):
 		{
-			strcat(name, "dragon cavern");
+			strcat(name, "dragon pit");
 			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
 			return;
 		}
@@ -2684,7 +2705,7 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			while ((j = room_info[room].section[i++]) != -1)
 			{
 				/* Visible description or always present? */
-				if (d_info[j].seen)
+				if (d_info[j].flags & (ROOM_SEEN))
 				{
 					/* Get the textual history */
 					strcat(buf_text1, (d_text + d_info[j].text));
@@ -2773,14 +2794,14 @@ static void room_info_top(int room)
 	Term_gotoxy(0, 0);
 
 	/* Hack - set first character to upper */
-	first[0] = room_info[room].name[0]-32;
+        first[0] = name[0]-32;
 	first[1] = '\0';
 
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, first);
 
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (room_info[room].name+1));
+        Term_addstr(-1, TERM_WHITE, (name+1));
 
 }
 
@@ -2789,7 +2810,6 @@ static void room_info_top(int room)
  */
 void screen_room_info(int room)
 {
-        if (!character_dungeon) return;
 	char name[32];
 	char text_visible[240];
 	char text_always[240];
@@ -2807,21 +2827,21 @@ void screen_room_info(int room)
 	Term_erase(0, 1, 255);
 
 	/* Describe room */
-        if (strlen(room_info[room].text_visible))
+        if (strlen(text_visible))
 	{
 		/* Recall monster */
-		roff(room_info[room].text_visible);
+                roff(text_visible);
 
-                if (strlen(room_info[room].text_always))
+                if (strlen(text_always))
 		{
 			roff("  ");
-                        roff(room_info[room].text_always);
+                        roff(text_always);
 		}
 
 	}
-        else if (strlen(room_info[room].text_always))
+        else if (strlen(text_always))
 	{
-		roff(room_info[room].text_always);
+                roff(text_always);
 	}
 	else
 	{
@@ -2860,21 +2880,21 @@ void display_room_info(int room)
 	get_room_desc(room, name, text_visible, text_always);
 
 	/* Describe room */
-        if (strlen(room_info[room].text_visible))
+        if (strlen(text_visible))
 	{
 		/* Recall monster */
-		roff(room_info[room].text_visible);
+                roff(text_visible);
 
-                if (strlen(room_info[room].text_always))
+                if (strlen(text_always))
 		{
 			roff("  ");
-			roff(room_info[room].text_always);
+                        roff(text_always);
 		}
 
 	}
-        else if (strlen(room_info[room].text_always))
+        else if (strlen(text_always))
 	{
-		roff(room_info[room].text_always);
+                roff(text_always);
 	}
 	else
 	{
@@ -2901,81 +2921,75 @@ void describe_room(void)
 	/* Hack -- handle "xtra" mode */
 	if (!character_dungeon) return;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_ROOM_INFO);
-
 	/* Get the actual room description */
 	get_room_desc(room, name, text_visible, text_always);
 
-        if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
-         && ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
-               !(p_ptr->depth)))
+        if ((p_ptr->depth == town_depth(p_ptr->dungeon))
+                || (p_ptr->depth == min_depth(p_ptr->dungeon)))
+        {
+                msg_format("You have entered %s.",name);
+                msg_format("%s",text_always);
+        }
+        else if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
+         && (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)))
 	{
-                if (room_info[room].seen)
+                if (room_names)
 		{
 			msg_format("You have entered %s %s.",
-				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
-					room_info[room].name);
+                                 (is_a_vowel(name[0]) ? "an" : "a"),name);
 		}
-                else if ((strlen(room_info[room].text_visible)) && (strlen(room_info[room].text_always)))
+
+                if (!(room_descriptions) || (room_info[room].flags & (ROOM_SEEN)))
+                {
+                }
+                else
+
+		if ((strlen(text_visible)) && (strlen(text_always)))
 		{
 			/* Message */
-			msg_format("You have entered %s %s. %s %s",
-				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
-					room_info[room].name,
-				           room_info[room].text_visible,
-					   room_info[room].text_always);
+                        msg_format("%s %s", text_visible, text_always);
 
 			/* Now seen */
-			room_info[room].seen = TRUE;
+			room_info[room].flags |= ROOM_SEEN;
 		}
-                else if (strlen(room_info[room].text_visible))
+                else if (strlen(text_visible))
 		{
 			/* Message */
-			msg_format("You have entered %s %s. %s",
-				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
-					room_info[room].name,
-				           room_info[room].text_visible);
+                        msg_format("%s", text_visible);
 
 			/* Now seen */
-			room_info[room].seen = TRUE;
+			room_info[room].flags |= ROOM_SEEN;
 		}
-                else if (strlen(room_info[room].text_always))
+                else if (strlen(text_always))
 		{
 			/* Message */
-			msg_format("You have entered %s %s. %s",
-				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
-					room_info[room].name,
-				           room_info[room].text_always);
+                        msg_format("%s", text_always);
 
 			/* Now seen */
-			room_info[room].seen = TRUE;
+			room_info[room].flags |= ROOM_SEEN;
 		}
 		else
 		{
 			/* Message */
-			msg_format("You have entered %s %s. There is nothing remarkable about it.",
-				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
-					room_info[room].name);
+                        msg_print("There is nothing remarkable about it.");
+
 			/* Now seen */
-			room_info[room].seen = TRUE;
+                        room_info[room].flags |= ROOM_SEEN;
 
 		}
 	}
-        else if ((strlen(room_info[room].text_always)) &&
+        else if ((strlen(text_always)) &&
           ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
           !(p_ptr->depth)))
 	{
 		/* Message */
-		msg_format("%s", room_info[room].text_always);
+                if (room_descriptions) msg_format("%s", text_always);
 	}
 
 	/* Window stuff */
 	p_ptr->window |= (PW_ROOM_INFO);
 
 }
-
-#endif
 
 
 
@@ -4012,12 +4026,15 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			s1 = "It is ";
 		}
 
-#ifdef ALLOW_ROOMDESC
 		/* Room description if needed */
+		/* We describe a room if we are looking at ourselves, or something in a room when we are
+		 * not in a room, or in a different room. */
                 if ((cave_info[y][x] & (CAVE_MARK)) &&
                         (cave_info[y][x] & (CAVE_ROOM)) &&
-                        (room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].seen) &&
-                        (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
+                        (room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].flags & (ROOM_SEEN)) &&
+                        (room_names) &&
+                        ((cave_m_idx[y][x] < 0) ||
+				!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
                          ( dun_room[y/BLOCK_HGT][x/BLOCK_WID]!= dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID])) )
 		{
                         int i;
@@ -4029,7 +4046,14 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			int bx = x/BLOCK_HGT;
 
 			int room = dun_room[by][bx];
-			
+
+                        char name[32];
+                        char text_visible[240];
+                        char text_always[240];
+
+                        /* Get the actual room description */
+                        get_room_desc(room, name, text_visible, text_always);
+
 			/* Always in rooms */
 			s2 = "in ";
 
@@ -4045,7 +4069,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
                         if (edge) s2 = "outside ";
 
 			/* Pick proper indefinite article */
-			s3 = (is_a_vowel(room_info[room].name[0])) ? "an " : "a ";
+                        s3 = (is_a_vowel(name[0])) ? "an " : "a ";
 
 
                         /* Interact */
@@ -4076,7 +4100,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
                                 {
                                         /* Describe, and prompt for recall */
                                         sprintf(out_val, "%s%s%s%s [r,%s]",
-                                                s1, s2, s3, room_info[room].name, info);
+                                                s1, s2, s3, name, info);
                                                 prt(out_val, 0, 0);
 
                                         /* Place cursor */
@@ -4094,7 +4118,6 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
                        }
 		}
 
-#endif
 
 		/* Stop on everything but "return" */
 		if ((query != '\n') && (query != '\r')) break;
@@ -4754,4 +4777,63 @@ bool confuse_dir(int *dp)
 	return (FALSE);
 }
 
+int min_depth(int dungeon)
+{
+        town_type *t_ptr=&t_info[dungeon];
 
+        return (t_ptr->zone[0].level);
+}
+
+int max_depth(int dungeon)
+{
+        town_type *t_ptr=&t_info[dungeon];
+	dungeon_zone *zone = &t_ptr->zone[0];
+	int i;
+
+	/* Get the zone */	
+        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	{
+                if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
+
+		zone = &t_info[dungeon].zone[i];
+	}
+
+        return (zone->level);
+}
+
+int town_depth(int dungeon)
+{
+        town_type *t_ptr=&t_info[dungeon];
+	dungeon_zone *zone = &t_ptr->zone[0];
+	int i;
+
+	/* Get the zone */	
+        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	{
+		zone = &t_info[dungeon].zone[i];
+                if (!zone->fill) break;
+	}
+
+        return (zone->level);
+}
+
+
+void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
+{
+        town_type *t_ptr = &t_info[dungeon];
+        dungeon_zone *zone = &t_ptr->zone[0];
+	int i;
+
+	/* Get the zone */	
+        for (i = 0;i<MAX_DUNGEON_ZONES;i++)
+	{
+                if ((i) && (t_ptr->zone[i].level <= t_ptr->zone[i-1].level)) break;
+
+                if (t_ptr->zone[i].level > depth) break;
+
+                zone = &t_ptr->zone[i];
+	}
+
+        *zone_handle = zone;
+
+}

@@ -3241,9 +3241,7 @@ static void death_knowledge(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-
-		/* Fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
+		object_mental(o_ptr);
 	}
 
 	/* Hack -- Know everything in the home */
@@ -3257,9 +3255,7 @@ static void death_knowledge(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
-
-		/* Fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
+		object_mental(o_ptr);
 	}
 
 	/* Hack -- Recalculate bonuses */
@@ -3395,7 +3391,7 @@ static void death_examine(void)
 	}
 
 	/* Fully known */
-	o_ptr->ident |= (IDENT_MENTAL);
+	object_mental(o_ptr);
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -4005,6 +4001,10 @@ static void kingly(void)
 {
 	/* Hack -- retire in town */
 	p_ptr->depth = 0;
+
+	/* Hack -- retire in first dungeon */
+	if (variant_town) p_ptr->dungeon = 1;
+	else p_ptr->dungeon = 0;
 
 	/* Fake death */
 	strcpy(p_ptr->died_from, "Ripe Old Age");

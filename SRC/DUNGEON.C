@@ -39,7 +39,7 @@ int value_check_aux1(object_type *o_ptr)
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
 
                 /* Superb */
-                if (o_ptr->xtra1) return (INSCRIP_SUPERB);
+                if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
 
 		/* Normal */
 		return (INSCRIP_EXCELLENT);
@@ -52,16 +52,16 @@ int value_check_aux1(object_type *o_ptr)
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
         /* Great "armor" bonus */
-        if (o_ptr->to_a > 8) return (INSCRIP_GREAT);
+        if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
 
         /* Great "weapon" bonus */
-        if (o_ptr->to_h + o_ptr->to_d > 14) return (INSCRIP_GREAT);
+        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
 
         /* Very good "armor" bonus */
-        if (o_ptr->to_a > 4) return (INSCRIP_VERY_GOOD);
+        if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
 
 	/* Good "weapon" bonus */
-        if (o_ptr->to_h + o_ptr->to_d > 7) return (INSCRIP_VERY_GOOD);
+        if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 7)) return (INSCRIP_VERY_GOOD);
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -185,7 +185,7 @@ static void sense_inventory(void)
                 }
 
                 /* Sometimes sense flags to see if we gain ability */
-                if ((rand_int(100)<30) && !(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD))
+                if (!(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD) && (rand_int(100)<30))
 		{
 			u32b if1,if2,if3;
 
@@ -526,7 +526,7 @@ static void process_world(void)
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
-	if (!p_ptr->depth)
+	if (p_ptr->depth==min_depth(p_ptr->dungeon))
 	{
 		/* Hack -- Daybreak/Nighfall in town */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
@@ -572,9 +572,6 @@ static void process_world(void)
 			/* Maintain each shop (except home) */
 			for (n = 0; n < MAX_STORES; n++)
 			{
-				/* Skip the home */
-				if (n == STORE_HOME) continue;
-
 				/* Maintain */
 				store_maint(n);
 			}
@@ -589,7 +586,7 @@ static void process_world(void)
 				while (1)
 				{
 					n = rand_int(MAX_STORES);
-					if (n != STORE_HOME) break;
+					if (store_home(n)) break;
 				}
 
 				/* Shuffle it */
@@ -1262,23 +1259,38 @@ static void process_world(void)
 			sound(MSG_TPLEVEL);
 
 			/* Determine the level */
-			if (p_ptr->depth)
+			if (p_ptr->depth > min_depth(p_ptr->dungeon))
 			{
 				msg_print("You feel yourself yanked upwards!");
 
 				/* New depth */
-				p_ptr->depth = 0;
+				p_ptr->depth = min_depth(p_ptr->dungeon);
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
-			else
+			/* Hack -- only recall down if dungeon deeper than one level */
+			else if (min_depth(p_ptr->dungeon) < max_depth(p_ptr->dungeon)-1)
 			{
 				msg_print("You feel yourself yanked downwards!");
 
 				/* New depth */
 				p_ptr->depth = p_ptr->max_depth;
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
+				if (p_ptr->depth <= min_depth(p_ptr->dungeon)) p_ptr->depth = min_depth(p_ptr->dungeon)+1;
+				if (p_ptr->depth > max_depth(p_ptr->dungeon)) p_ptr->depth = max_depth(p_ptr->dungeon);
+
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
+			else if (p_ptr->dungeon != p_ptr->town)
+			{
+				msg_print("You feel yourself yanked sideways!");
+
+				/* New depth */
+                                p_ptr->depth = town_depth(p_ptr->town);
+
+				/* New dungeon */
+				p_ptr->dungeon = p_ptr->town;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
@@ -1286,7 +1298,6 @@ static void process_world(void)
 		}
 	}
 }
-
 
 
 /*
@@ -2542,8 +2553,15 @@ static void dungeon(void)
 		p_ptr->create_down_stair = FALSE;
 	}
 
+	/* No stairs down from deepest level */
+        if (p_ptr->depth==max_depth(p_ptr->dungeon))
+	{
+		p_ptr->create_down_stair = FALSE;
+	}
+
+
 	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+        if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || !dungeon_stair)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2597,7 +2615,6 @@ static void dungeon(void)
 	/* Update stuff */
 	update_stuff();
 
-
 	/* Fully update the visuals (and monster distances) */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
@@ -2626,6 +2643,7 @@ static void dungeon(void)
 	window_stuff();
 
 
+
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
 
@@ -2633,10 +2651,10 @@ static void dungeon(void)
         p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_ROOM_INFO);
 
 	/* Combine / Reorder the pack */
-	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+/*        p_ptr->notice |= (PN_COMBINE | PN_REORDER);*/
 
 	/* Window stuff */
-        p_ptr->window |= (PW_ROOM_INFO);
+/*        p_ptr->window |= (PW_ROOM_INFO);*/
 
 	/* Notice stuff */
 	notice_stuff();
@@ -2658,8 +2676,7 @@ static void dungeon(void)
 	if (p_ptr->is_dead) return;
 
 	/* Announce (or repeat) the feeling */
-	if (p_ptr->depth) do_cmd_feeling();
-
+	if (p_ptr->depth>min_depth(p_ptr->dungeon)) do_cmd_feeling();
 
 	/*** Process this dungeon level ***/
 
@@ -2953,6 +2970,10 @@ void play_game(bool new_game)
 		/* Start in town */
 		p_ptr->depth = 0;
 
+		/* Start in first dungeon */
+		if (variant_town) p_ptr->dungeon = 1;
+		else p_ptr->dungeon = 0;
+
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
@@ -3012,7 +3033,6 @@ void play_game(bool new_game)
 	/* Reset visuals */
 	reset_visuals(TRUE);
 
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
@@ -3026,7 +3046,6 @@ void play_game(bool new_game)
 	/* Process some user pref files */
 	process_some_user_pref_files();
 
-
 	/* Set or clear "rogue_like_commands" if requested */
 	if (arg_force_original) rogue_like_commands = FALSE;
 	if (arg_force_roguelike) rogue_like_commands = TRUE;
@@ -3038,7 +3057,6 @@ void play_game(bool new_game)
 
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
-
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
@@ -3059,7 +3077,6 @@ void play_game(bool new_game)
 	{
 		/* Process the level */
 		dungeon();
-
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -3156,6 +3173,10 @@ void play_game(bool new_game)
 
 				/* New depth */
 				p_ptr->depth = 0;
+
+				/* New dungeon */
+				if (variant_town) p_ptr->dungeon = 1;
+				else p_ptr->dungeon = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;

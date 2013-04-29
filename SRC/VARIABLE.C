@@ -363,7 +363,6 @@ byte (*cave_feat)[DUNGEON_WID];
 
 
 
-#ifdef ALLOW_ROOMDESC
 /*
  * Array of room information
  *
@@ -378,7 +377,6 @@ room_info_type room_info[DUN_ROOMS];
  */
 byte dun_room[MAX_ROOMS_ROW][MAX_ROOMS_COL];
 
-#endif
 
 
 
@@ -584,7 +582,6 @@ feature_type *f_info;
 char *f_name;
 char *f_text;
 
-#ifdef ALLOW_ROOMDESC
 /*
  * The room description information arrays
  */
@@ -592,7 +589,6 @@ header *d_head;
 desc_type *d_info;
 char *d_name;
 char *d_text;
-#endif
 
 /*
  * The object kind arrays
@@ -656,6 +652,16 @@ header *s_head;
 spell_type *s_info;
 char *s_name;
 char *s_text;
+
+/*
+ * The town/dungeon arrays
+ */
+header *t_head;
+town_type *t_info;
+char *t_name;
+char *t_text;
+
+
 
 /*
  * The player history arrays

@@ -335,17 +335,31 @@ static void prt_depth(void)
 {
 	char depths[32];
 
-	if (!p_ptr->depth)
+        town_type *t_ptr = &t_info[p_ptr->dungeon];
+        dungeon_zone *zone = &t_ptr->zone[0];
+
+	/* Get the zone */	
+        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
+	if (!zone->fill)
 	{
 		strcpy(depths, "Town");
 	}
+	else if ((p_ptr->depth == min_depth(p_ptr->dungeon)) && (zone->level < MAX_ZONE_WILDS))
+	{
+		strcpy(depths, "Ruins");
+	}
+	else if (p_ptr->depth == min_depth(p_ptr->dungeon))
+	{
+		strcpy(depths, "Wilds");
+	}
 	else if (depth_in_feet)
 	{
-		sprintf(depths, "%d ft", p_ptr->depth * 50);
+		sprintf(depths, "%d ft", (p_ptr->depth-min_depth(p_ptr->dungeon)) * 50);
 	}
 	else
 	{
-		sprintf(depths, "Lev %d", p_ptr->depth);
+		sprintf(depths, "Lev %d", (p_ptr->depth-min_depth(p_ptr->dungeon)));
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
@@ -3360,13 +3374,11 @@ void update_stuff(void)
 		verify_panel();
 	}
 
-#ifdef ALLOW_ROOMDESC
 	if (p_ptr->update & (PU_ROOM_INFO))
 	{
 		p_ptr->update &= ~(PU_ROOM_INFO);
-		describe_room();
+                describe_room();
 	}
-#endif
 
 
 }

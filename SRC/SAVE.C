@@ -363,8 +363,6 @@ static errr wr_savefile(void)
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
-
-
 	}
 
 
@@ -710,6 +708,8 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
 
+        if (variant_pval_stacks) wr_byte(o_ptr->pvals);
+
 	wr_byte(o_ptr->discount);
 
 	wr_byte(o_ptr->number);
@@ -744,22 +744,27 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->xtra2);
 
 #ifdef ALLOW_OBJECT_INFO
+        if (variant_learn_id)
+        {
+                wr_u32b(o_ptr->i_object.can_flags1);
+                wr_u32b(o_ptr->i_object.can_flags2);
+                wr_u32b(o_ptr->i_object.can_flags3);
 
-	wr_u32b(o_ptr->i_object.can_flags1);
-	wr_u32b(o_ptr->i_object.can_flags2);
-	wr_u32b(o_ptr->i_object.can_flags3);
+                wr_u32b(o_ptr->i_object.may_flags1);
+                wr_u32b(o_ptr->i_object.may_flags2);
+                wr_u32b(o_ptr->i_object.may_flags3);
 
-	wr_u32b(o_ptr->i_object.may_flags1);
-	wr_u32b(o_ptr->i_object.may_flags2);
-	wr_u32b(o_ptr->i_object.may_flags3);
+                wr_u32b(o_ptr->i_object.not_flags1);
+                wr_u32b(o_ptr->i_object.not_flags2);
+                wr_u32b(o_ptr->i_object.not_flags3);
+        }
+        if (variant_usage_id) wr_s16b(o_ptr->i_object.usage);
 
-	wr_u32b(o_ptr->i_object.not_flags1);
-	wr_u32b(o_ptr->i_object.not_flags2);
-	wr_u32b(o_ptr->i_object.not_flags3);
-
-	wr_s16b(o_ptr->i_object.usage);
-	wr_s16b(o_ptr->i_object.fails);
-
+        if (variant_guess_id)
+        {
+                wr_byte(o_ptr->guess1);
+                wr_byte(o_ptr->guess2);
+        }
 #endif
 
 
@@ -859,8 +864,9 @@ static void wr_xtra(int k_idx)
 
 	object_kind *k_ptr = &k_info[k_idx];
 
-	if (k_ptr->aware) tmp8u |= 0x01;
-	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->aware) tmp8u = 1;
+        else if ((variant_guess_id) && (k_ptr->guess)) tmp8u = k_ptr->guess+2;
+	else if (k_ptr->tried) tmp8u = 2;
 
 	wr_byte(tmp8u);
 }
@@ -1188,7 +1194,7 @@ static void wr_extra(void)
 /*
  * The cave grid flags that get saved in the savefile
  */
-#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_ICKY | CAVE_ROOM)
+#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_SAFE | CAVE_ROOM)
 
 
 /*
@@ -1208,12 +1214,14 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	wr_u16b(0);
+	if (variant_town) wr_u16b(p_ptr->dungeon);
+	else wr_u16b(0);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-	wr_u16b(0);
+        if (variant_town) wr_u16b(p_ptr->town);
+	else wr_u16b(0);
 	wr_u16b(0);
 
 
@@ -1294,32 +1302,40 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
-#ifdef ALLOW_ROOMDESC
-	/*** Dump room descriptions ***/
-	for (x = 0; x < MAX_ROOMS_ROW; x++)
+
+        if (!variant_room_info)
 	{
-		for (y = 0; y < MAX_ROOMS_COL; y++)
-		{
-			wr_byte(dun_room[x][y]);
-		}
+
 	}
-
-	for (i = 1; i < DUN_ROOMS; i++)
+	/*** Dump room descriptions ***/
+	else
 	{
-		wr_byte(room_info[i].type);
-		wr_byte(room_info[i].seen);
-
-		if (room_info[i].type == ROOM_NORMAL)
+		for (x = 0; x < MAX_ROOMS_ROW; x++)
 		{
-			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+			for (y = 0; y < MAX_ROOMS_COL; y++)
 			{
-				wr_s16b(room_info[i].section[j]);
+				wr_byte(dun_room[x][y]);
+			}
+		}
 
-				if (room_info[i].section[j] == -1) break;
+		for (i = 1; i < DUN_ROOMS; i++)
+		{
+                        int j;
+
+			wr_byte(room_info[i].type);
+			wr_byte(room_info[i].flags);
+
+			if (room_info[i].type == ROOM_NORMAL)
+			{
+				for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+				{
+					wr_s16b(room_info[i].section[j]);
+
+					if (room_info[i].section[j] == -1) break;
+				}
 			}
 		}
 	}
-#endif
 
 	/*** Compact ***/
 
@@ -1457,7 +1473,6 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
-
 	/* Hack -- Dump the quests */
 	tmp16u = MAX_Q_IDX;
 	wr_u16b(tmp16u);
@@ -1481,56 +1496,52 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 
 #ifdef ALLOW_OBJECT_INFO
+                if (variant_learn_id)
+                {
+                        wr_u32b(a_ptr->i_artifact.can_flags1);
+                        wr_u32b(a_ptr->i_artifact.can_flags2);
+                        wr_u32b(a_ptr->i_artifact.can_flags3);
 
-		wr_u32b(a_ptr->i_artifact.can_flags1);
-		wr_u32b(a_ptr->i_artifact.can_flags2);
-		wr_u32b(a_ptr->i_artifact.can_flags3);
+                        wr_u32b(a_ptr->i_artifact.not_flags1);
+                        wr_u32b(a_ptr->i_artifact.not_flags2);
+                        wr_u32b(a_ptr->i_artifact.not_flags3);
+                }
 
-		wr_u32b(a_ptr->i_artifact.may_flags1);
-		wr_u32b(a_ptr->i_artifact.may_flags2);
-		wr_u32b(a_ptr->i_artifact.may_flags3);
+                if (variant_usage_id) wr_s16b(a_ptr->i_artifact.usage);
 
-		wr_u32b(a_ptr->i_artifact.not_flags1);
-		wr_u32b(a_ptr->i_artifact.not_flags2);
-		wr_u32b(a_ptr->i_artifact.not_flags3);
-
-		wr_s16b(a_ptr->i_artifact.usage);
-		wr_s16b(a_ptr->i_artifact.fails);
-
+                if (variant_learn_id) wr_s16b(a_ptr->found);
 #endif
-
 	}
 
 	/* Hack -- Dump the ego items */
-	tmp16u = z_info->e_max;
-	wr_u16b(tmp16u);
+        tmp16u =z_info->e_max;
+        if ((variant_learn_id) || (variant_usage_id)) wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
 		ego_item_type *e_ptr = &e_info[i];
-		wr_byte(a_ptr->cur_num);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
 
 #ifdef ALLOW_OBJECT_INFO
 
-		wr_u32b(e_ptr->i_ego_item.can_flags1);
-		wr_u32b(e_ptr->i_ego_item.can_flags2);
-		wr_u32b(e_ptr->i_ego_item.can_flags3);
+                if (variant_learn_id)
+                {
+                        wr_u32b(e_ptr->i_ego_item.can_flags1);
+                        wr_u32b(e_ptr->i_ego_item.can_flags2);
+                        wr_u32b(e_ptr->i_ego_item.can_flags3);
 
-		wr_u32b(e_ptr->i_ego_item.may_flags1);
-		wr_u32b(e_ptr->i_ego_item.may_flags2);
-		wr_u32b(e_ptr->i_ego_item.may_flags3);
+                        wr_u32b(e_ptr->i_ego_item.may_flags1);
+                        wr_u32b(e_ptr->i_ego_item.may_flags2);
+                        wr_u32b(e_ptr->i_ego_item.may_flags3);
 
-		wr_u32b(e_ptr->i_ego_item.not_flags1);
-		wr_u32b(e_ptr->i_ego_item.not_flags2);
-		wr_u32b(e_ptr->i_ego_item.not_flags3);
+                        wr_u32b(e_ptr->i_ego_item.not_flags1);
+                        wr_u32b(e_ptr->i_ego_item.not_flags2);
+                        wr_u32b(e_ptr->i_ego_item.not_flags3);
+                }
 
-		wr_s16b(e_ptr->i_ego_item.usage);
-		wr_s16b(e_ptr->i_ego_item.fails);
+                if (variant_usage_id) wr_s16b(e_ptr->i_ego_item.usage);
+
+                if (variant_learn_id) wr_s16b(e_ptr->found);
 
 #endif
-
 	}
 
 	/* Write the "extra" information */

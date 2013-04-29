@@ -25,11 +25,7 @@
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     60       /* Used with potions (min 60) */
-#ifdef ALLOW_MUSHROOM_HACK
 #define MAX_SHROOM     26       /* Used with mushrooms (min 21) */
-#else
-#define MAX_SHROOM     21       /* Used with mushrooms (min 21) */
-#endif
 #define MAX_TITLES     50       /* Used with scrolls (min 50) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
@@ -154,7 +150,7 @@ static byte rod_col[MAX_METALS];
 /*
  * Mushrooms (adjectives and colors).
  */
-#ifdef ALLOW_MUSHROOM_HACK
+
 /* Note that we have changed most of the mushrooms flavours around so that
    all cursed mushrooms have predictable flavours and are dropped by
    the appropriate mushroom patch. This applies for the first 12 mushrooms.
@@ -168,7 +164,6 @@ static cptr food_adj[MAX_SHROOM] =
         "Copper","Pink", "Purple", "Black", "Green",
         "Rotting", "Brown","Blue", "Black Spotted", "Dark Blue",        
         "Dark Green", "Dark Red", "Furry","Light Green", "Violet",
-        "Light Blue", /* Hack */
         "Slimy", "Tan", "White", "White Spotted", "Wrinkled"
 
 };
@@ -179,31 +174,9 @@ static byte food_col[MAX_SHROOM] =
         TERM_L_UMBER, TERM_L_RED, TERM_VIOLET, TERM_L_DARK, TERM_GREEN,
         TERM_L_GREEN, TERM_UMBER, TERM_BLUE, TERM_L_DARK, TERM_BLUE,
         TERM_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN, TERM_VIOLET,
-        TERM_L_BLUE, /* Hack */
         TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
 };
 
-#else
-
-static cptr food_adj[MAX_SHROOM] =
-{
-	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
-	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
-	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-        "Slimy", "Tan", "White", "White Spotted", "Wrinkled",
-        "Purple"
-};
-
-static byte food_col[MAX_SHROOM] =
-{
-	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
-	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
-	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-        TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
-        TERM_VIOLET
-};
-
-#endif
 /*
  * Color adjectives and colors, for potions.
  *
@@ -521,27 +494,38 @@ void flavor_init(void)
 		rod_col[j] = temp_col;
 	}
 
-	/* Foods (Mushrooms) */
-#ifdef ALLOW_MUSHROOM_HACK
-        for (i = 12; i < MAX_SHROOM; i++)
-#else
-        for (i = 0; i < MAX_SHROOM; i++)
-#endif
+	/* Mushrooms */
+	if (variant_mushrooms)
 	{
-#ifdef ALLOW_MUSHROOM_HACK
-                j = rand_int(MAX_SHROOM-13)+12;
-                if (i==SV_FOOD_MANA) i++;
-                if (j>=SV_FOOD_MANA) j++;
-#else
-                j = rand_int(MAX_SHROOM);
-#endif
-		temp_adj = food_adj[i];
-		food_adj[i] = food_adj[j];
-		food_adj[j] = temp_adj;
-		temp_col = food_col[i];
-		food_col[i] = food_col[j];
-		food_col[j] = temp_col;
+		for (i = 12; i < MAX_SHROOM; i++)
+		{
+	                j = rand_int(MAX_SHROOM-13)+12;
+			temp_adj = food_adj[i];
+			food_adj[i] = food_adj[j];
+			food_adj[j] = temp_adj;
+			temp_col = food_col[i];
+			food_col[i] = food_col[j];
+			food_col[j] = temp_col;
+		}
+
+		food_adj[SV_FOOD_MANA] = food_adj[SV_FOOD_HALLUCINATION];
+		food_col[SV_FOOD_MANA] = food_col[SV_FOOD_HALLUCINATION];
 	}
+	else
+	{
+		for (i = 0; i < MAX_SHROOM; i++)
+		{
+	       	        j = rand_int(MAX_SHROOM);
+			temp_adj = food_adj[i];
+			food_adj[i] = food_adj[j];
+			food_adj[j] = temp_adj;
+			temp_col = food_col[i];
+			food_col[i] = food_col[j];
+			food_col[j] = temp_col;
+		}
+	}
+	
+
 
 	/* Potions */
 	for (i = 4; i < MAX_COLORS; i++)
@@ -748,7 +732,6 @@ void reset_visuals(bool unused)
 #define OBJECT_FLAGS_KNOWN  2 /* Only flags known to the player */
 #define OBJECT_FLAGS_RANDOM 3 /* Only known random flags */
 
-
 /*
  * Obtain the "flags" for an item
  */
@@ -773,6 +756,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
 	}
+
 
 	if (mode != OBJECT_FLAGS_RANDOM)
 	{
@@ -1494,7 +1478,39 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			object_desc_str_macro(t, (e_name + e_ptr->name));
 		}
 	}
+	/* Hack -- Append guessed names */
+	else
+	{
+		/* Grab any artifact name */
+		if (o_ptr->guess1)
+		{
+			artifact_type *a_ptr = &a_info[o_ptr->guess1];
 
+			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, (a_name + a_ptr->name));
+			object_desc_chr_macro(t, '?');			
+		}
+
+		/* Grab any ego-item name */
+		else if (o_ptr->guess2)
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->guess2];
+
+			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, (e_name + e_ptr->name));
+			object_desc_chr_macro(t, '?');
+		}
+
+		/* Grab any kind name */
+		else if (k_ptr->guess)
+		{
+			object_kind *k1_ptr = &k_info[lookup_kind(o_ptr->tval,k_ptr->guess-1)];
+
+			object_desc_str_macro(t, " of ");
+			object_desc_str_macro(t, (k_name + k1_ptr->name));
+			object_desc_chr_macro(t, '?');
+		}
+	}
 
 	/* No more details wanted */
 	if (mode < 1) goto object_desc_done;
@@ -1715,7 +1731,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Hack -- Wands and Staffs have charges */
-	if (known &&
+	if (((known) || (o_ptr->ident & (IDENT_BONUS))) &&
 	    ((o_ptr->tval == TV_STAFF) ||
 	     (o_ptr->tval == TV_WAND)))
 	{
@@ -1732,7 +1748,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 	/* Hack -- Rods have a "charging" indicator */
-	else if (known && (o_ptr->tval == TV_ROD))
+	else if (((known) || (o_ptr->ident & (IDENT_BONUS))) && (o_ptr->tval == TV_ROD))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		if (o_ptr->pval)
@@ -1887,7 +1903,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		v = "empty";
 	}
 
-	/* Use "tried" if the object has been tested unsuccessfully */
+	/* Use "tried" if the object has been tested unsuccessfully, but not guessed */
 	else if (!aware && object_tried_p(o_ptr))
 	{
 		v = "tried";
@@ -2174,7 +2190,7 @@ cptr item_activation(object_type *o_ptr)
  * ToDo: Allow dynamic generation of strings.
  */
 
-int identify_fully_desc(cptr *info,u32b f1, u32b f2, u32b f3)
+int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
 {
 	int i=0;
 
@@ -2905,6 +2921,303 @@ cptr describe_use(int i)
 	return p;
 }
 
+/*
+ * Attempt to guess an item name or sval
+ */
+void object_guess_name(object_type *o_ptr)
+{
+	int i,ii;
+
+	int score;
+	int high = 0;
+
+	byte guess1=0;
+	byte guess2=0;
+	byte guess3=0;
+
+        /* Variant? */
+        if (!variant_guess_id) return;
+
+	/* Check the ego item list */
+	if (!(o_ptr->ident & IDENT_SENSE) ||
+		(o_ptr->discount == INSCRIP_EXCELLENT) ||
+		(o_ptr->discount == INSCRIP_SUPERB) ||
+		(o_ptr->discount == INSCRIP_WORTHLESS))
+		for (i = 1; i < z_info->e_max; i++)
+	{
+		ego_item_type *e_ptr = &e_info[i];
+
+		/* Skip "empty" items */
+		if (!e_ptr->name) continue;
+
+		/* Must have knowledge of artifact existence */
+		if (e_ptr->found == 0) continue;
+
+		/* Test if this is a legal ego-item type for this object */
+		for (ii = 0; ii < 3; ii++)
+		{
+			/* Require identical base type */
+			if (o_ptr->tval == e_ptr->tval[ii])
+			{
+				/* Require sval in bounds */
+				if ((o_ptr->sval < e_ptr->min_sval[ii]) || (o_ptr->sval > e_ptr->max_sval[ii]))
+				{
+					continue;
+				}
+			}
+			else continue;
+		}
+
+		/* Must possess powers */
+		if (o_ptr->i_object.not_flags1 & e_ptr->i_ego_item.can_flags1) continue;
+		if (o_ptr->i_object.not_flags2 & e_ptr->i_ego_item.can_flags2) continue;
+		if (o_ptr->i_object.not_flags3 & e_ptr->i_ego_item.can_flags3) continue;
+
+		/* Must not have excepted powers */
+		if (o_ptr->i_object.can_flags1 & e_ptr->i_ego_item.not_flags1) continue;
+		if (o_ptr->i_object.can_flags2 & e_ptr->i_ego_item.not_flags2) continue;
+		if (o_ptr->i_object.can_flags3 & e_ptr->i_ego_item.not_flags3) continue;
+
+		/* Reset score */
+		score = 0;
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=1;
+		}
+
+		/* Do we have a match? */
+                if (score > high)
+		{
+			high = score;
+			guess2 = i;
+		}
+                /* Hack -- force lowest depth items */
+                else if ((score == high) && (guess2))
+                {
+                        ego_item_type *e2_ptr = &e_info[guess2];
+
+                        if (e_ptr->level < e2_ptr->level) guess2 = i;
+                }
+	}
+
+	/* This should be here to guess for rings/amulets etc. */
+
+	/* Check the normal item list */
+	for (i = 1; i < z_info->k_max; i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Skip "empty" items */
+		if (!k_ptr->name) continue;
+
+		/* Must be the same tval */
+		if (k_ptr->tval != o_ptr->tval) continue;
+
+                /* Must not already be aware? */
+                if (k_ptr->aware) continue;
+
+		/* Must possess powers */
+		if (o_ptr->i_object.not_flags1 & k_ptr->flags1) continue;
+		if (o_ptr->i_object.not_flags2 & k_ptr->flags2) continue;
+		if (o_ptr->i_object.not_flags3 & k_ptr->flags3) continue;
+
+		/* Must not have excepted powers */
+		if (o_ptr->i_object.can_flags1 & ~(k_ptr->flags1)) continue;
+		if (o_ptr->i_object.can_flags2 & ~(k_ptr->flags2)) continue;
+		if (o_ptr->i_object.can_flags3 & ~(k_ptr->flags3)) continue;
+
+		/* Reset score */
+		score = 0;
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=1;
+		}
+
+		/* Do we have a match? */
+                if (score > high)
+		{
+			high = score;
+                        guess3 = k_ptr->sval+1;
+		}
+                /* Hack -- force lowest depth items */
+                else if ((score == high) && (guess3))
+                {
+                        object_kind *k2_ptr = &k_info[lookup_kind(o_ptr->tval,guess3-1)];
+
+                        if (k_ptr->level < k2_ptr->level) guess3 = k_ptr->sval+1;
+                }
+
+	}
+
+	/* Check the artifact list */
+	if (!(o_ptr->ident & IDENT_SENSE) ||
+		(o_ptr->discount == INSCRIP_SPECIAL) ||
+		(o_ptr->discount == INSCRIP_TERRIBLE))
+		for (i = 1; i < z_info->a_max; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Skip "empty" items */
+		if (!a_ptr->name) continue;
+
+		/* Cannot make an artifact twice */
+		if (a_ptr->cur_num) continue;
+
+		/* Must have the correct fields */
+		if (a_ptr->tval != o_ptr->tval) continue;
+
+		/* Must have the correct sval or be a special artifact */
+                if ((i<ART_MIN_NORMAL) || (a_ptr->sval != o_ptr->sval)) continue;
+
+		/* Must have knowledge of artifact existence */
+		if (a_ptr->found == 0) continue;
+
+		/* Must possess powers */
+		if (o_ptr->i_object.not_flags1 & a_ptr->i_artifact.can_flags1) continue;
+		if (o_ptr->i_object.not_flags2 & a_ptr->i_artifact.can_flags2) continue;
+		if (o_ptr->i_object.not_flags3 & a_ptr->i_artifact.can_flags3) continue;
+
+		/* Must not have excepted powers */
+		if (o_ptr->i_object.can_flags1 & a_ptr->i_artifact.not_flags1) continue;
+		if (o_ptr->i_object.can_flags2 & a_ptr->i_artifact.not_flags2) continue;
+		if (o_ptr->i_object.can_flags3 & a_ptr->i_artifact.not_flags3) continue;
+
+		/* Reset score */
+		score = 0;
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=1;
+		}
+
+		/* Award points on matching powers: 3 for have, 1 for may */
+		for (ii=0;ii<32;ii++)
+		{
+                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=3;
+                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=1;
+		}
+
+		/* Artifacts have a minimum match threshold */
+		if ((score > 6) && (score > high))
+		{
+			high = score;
+			guess1 = i;
+			guess2 = 0;
+		}
+                /* Hack -- force lowest depth items */
+                else if ((score > 6) && (score == high) && (guess1))
+                {
+                        artifact_type *a2_ptr = &a_info[guess1];
+
+                        if (a_ptr->level < a2_ptr->level) guess1 = i;
+                }
+
+	}
+
+	/* Guessed an artifact? */
+	if ((guess1) && (guess1 != o_ptr->guess1))
+        {
+                char o_name[80];
+
+		/* Guess an artifact */
+		o_ptr->guess1 = guess1;
+
+                /* Describe the object */
+                object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		
+	}
+
+	/* Guessed an ego item */
+	else if ((guess2) && (guess2 != o_ptr->guess2))
+	{
+                char o_name[80];
+
+		/* Guess an artifact */
+		o_ptr->guess2 = guess2;
+
+                /* Describe the object */
+                object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	/* Guessed a kind */
+        else if ((guess3) && (guess3 != k_info[o_ptr->k_idx].guess))
+	{
+                char o_name[80];
+
+		/* Guess an artifact */
+                k_info[o_ptr->k_idx].guess = guess3;
+
+		/* Guess is tried */
+		k_info[o_ptr->k_idx].tried = TRUE;
+
+                /* Describe the object */
+                object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+		
+	}
+
+
+}
 
 #ifdef ALLOW_OBJECT_INFO
 /*
@@ -2913,6 +3226,8 @@ cptr describe_use(int i)
 
 void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
+        /* Variant? */
+        if (!variant_learn_id) return;
 
 	/* Clear not flags */
 	o_ptr->i_object.not_flags1 &= ~(f1);
@@ -2929,14 +3244,21 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	o_ptr->i_object.can_flags2 |= (f2);
 	o_ptr->i_object.can_flags3 |= (f3);
 
-	/* Must be identified */
-	if (!object_known_p(o_ptr)) return;
+	/* Must be identified to continue */
+        if (!object_known_p(o_ptr))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                if (!k_ptr->aware) object_guess_name(o_ptr);
+
+		return;
+	}
 
 	/* Hack -- Remove kind flags */
 	/* This prevents Blades of Chaos 'tainting' ego items etc. */
-	f1 &= ~(k_info[o_ptr->kind].flags1);
-	f2 &= ~(k_info[o_ptr->kind].flags2);
-	f3 &= ~(k_info[o_ptr->kind].flags3);
+        f1 &= ~(k_info[o_ptr->k_idx].flags1);
+        f2 &= ~(k_info[o_ptr->k_idx].flags2);
+        f3 &= ~(k_info[o_ptr->k_idx].flags3);
 
 	/* Artifact */
 	if (o_ptr->name1)
@@ -2982,10 +3304,10 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	                e_ptr->i_ego_item.can_flags1 |= f1;
 	                e_ptr->i_ego_item.can_flags2 |= f2;
 	                e_ptr->i_ego_item.can_flags3 |= f3;
+
 		}
 	}
 #if 0
-
 	/* Kind */
 	else
 	{
@@ -3013,29 +3335,58 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
  * or false if we already know this object, or know it cannot apply.
  */
 
-bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+static bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
-
-	u32b if1=f1;
-	u32b if2=f2;
-	u32b if3=f3;
+        bool possible;
 
 	/* Clear bits with not flags */
-	if1 &= ~(o_ptr->i_object.not_flags1);
-	if2 &= ~(o_ptr->i_object.not_flags2);
-	if3 &= ~(o_ptr->i_object.not_flags3);
+        f1 &= ~(o_ptr->i_object.not_flags1);
+        f2 &= ~(o_ptr->i_object.not_flags2);
+        f3 &= ~(o_ptr->i_object.not_flags3);
+
+        /* Hack -- do some smarter stuff if not ego/artifact */
+        if ((object_known_p(o_ptr)) && !(o_ptr->name1) && !(o_ptr->name2))
+        {
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                f1 &= (k_ptr->flags1);
+                f2 &= (k_ptr->flags2);
+                f3 &= (k_ptr->flags3);
+        }
+
+        /* Hack -- do some smarter stuff if object completely known */
+        if (o_ptr->ident & (IDENT_MENTAL))
+        {
+                u32b of1,of2,of3;
+
+                object_flags(o_ptr,&of1,&of2,&of3);
+
+                f1 &= of1;
+                f2 &= of2;
+                f3 &= of3;
+        }
+
+        possible = ((f1!=0)||(f2!=0)||(f3!=0));
 
         /* Clear bits with can flags */
-        if1 &= ~(o_ptr->i_object.can_flags1);
-        if2 &= ~(o_ptr->i_object.can_flags2);
-        if3 &= ~(o_ptr->i_object.can_flags3);
+        f1 &= ~(o_ptr->i_object.can_flags1);
+        f2 &= ~(o_ptr->i_object.can_flags2);
+        f3 &= ~(o_ptr->i_object.can_flags3);
 
 	/* Mark may flags */
-	o_ptr->i_object.may_flags1 |= (if1);
-	o_ptr->i_object.may_flags2 |= (if2);
-	o_ptr->i_object.may_flags3 |= (if3);
+        o_ptr->i_object.may_flags1 |= (f1);
+        o_ptr->i_object.may_flags2 |= (f2);
+        o_ptr->i_object.may_flags3 |= (f3);
 
-	return((if1!=0)||(if2!=0)||(if3!=0));	
+        /* Guess the object name */
+        if (!object_known_p(o_ptr))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                if (!k_ptr->aware) object_guess_name(o_ptr);
+	}
+
+        return(possible);
 
 }
 
@@ -3046,44 +3397,52 @@ bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
  * Unlike the above routine... do not set the may flags.
  */
 
-bool object_xnot_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+static bool object_xnot_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
-
-	u32b if1=f1;
-	u32b if2=f2;
-	u32b if3=f3;
-
 	/* Clear bits with not flags */
-	if1 &= ~(o_ptr->i_object.not_flags1);
-	if2 &= ~(o_ptr->i_object.not_flags2);
-	if3 &= ~(o_ptr->i_object.not_flags3);
+        f1 &= ~(o_ptr->i_object.not_flags1);
+        f2 &= ~(o_ptr->i_object.not_flags2);
+        f3 &= ~(o_ptr->i_object.not_flags3);
 
-#if 0
-        /* Clear bits with can flags */
-        if1 &= ~(o_ptr->i_object.can_flags1);
-        if2 &= ~(o_ptr->i_object.can_flags2);
-        if3 &= ~(o_ptr->i_object.can_flags3);
-#endif
-        /* Compare bits with may flags */
-        if1 &= (o_ptr->i_object.may_flags1);
-        if2 &= (o_ptr->i_object.may_flags2);
-        if3 &= (o_ptr->i_object.may_flags3);
+        /* Compare bits with can or may flags */
+        f1 &= ((o_ptr->i_object.may_flags1)|(o_ptr->i_object.can_flags1));
+        f2 &= ((o_ptr->i_object.may_flags2)|(o_ptr->i_object.can_flags2));
+        f3 &= ((o_ptr->i_object.may_flags3)|(o_ptr->i_object.can_flags3));
+
+        /* Hack -- do some smarter stuff if not ego/artifact */
+        if ((object_known_p(o_ptr)) && !(o_ptr->name1) && !(o_ptr->name2))
+        {
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                f1 &= (k_ptr->flags1);
+                f2 &= (k_ptr->flags2);
+                f3 &= (k_ptr->flags3);
+        }
+
+        /* Hack -- do some smarter stuff if object completely known */
+        if (o_ptr->ident & (IDENT_MENTAL))
+        {
+                u32b of1,of2,of3;
+
+                object_flags(o_ptr,&of1,&of2,&of3);
+
+                f1 &= of1;
+                f2 &= of2;
+                f3 &= of3;
+        }
 
 
-	return((if1!=0)||(if2!=0)||(if3!=0));	
+        return((f1!=0)||(f2!=0)||(f3!=0)); 
 
 }
-
-
-
 
 /*
  * Object does not have flags.
  */
 void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
-
-	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+        /* Variant? */
+        if (!variant_learn_id) return;
 
 	/* Mark not flags */
 	o_ptr->i_object.not_flags1 |= (f1);
@@ -3100,23 +3459,15 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	o_ptr->i_object.can_flags2 &= ~(f2);
 	o_ptr->i_object.can_flags3 &= ~(f3);
 
-	/* Must be aware */
-	if (!(k_ptr->aware)) return;
+	/* Must be identified to continue */
+        if (!object_known_p(o_ptr))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	k_ptr->i_kind.not_flags1 &= ~(f1);
-	k_ptr->i_kind.not_flags2 &= ~(f2);
-	k_ptr->i_kind.not_flags3 &= ~(f3);
+                if (!k_ptr->aware) object_guess_name(o_ptr);
 
-	k_ptr->i_kind.may_flags1 &= ~(f1);
-	k_ptr->i_kind.may_flags2 &= ~(f2);
-	k_ptr->i_kind.may_flags3 &= ~(f3);
-
-	k_ptr->i_kind.can_flags1 |= (f1);
-	k_ptr->i_kind.can_flags2 |= (f2);
-	k_ptr->i_kind.can_flags3 |= (f3);
-
-	/* Must be identified */
-	if (!object_known_p(o_ptr)) return;	
+                return;
+	}
 
 	/* Artifact */
 	if (o_ptr->name1)
@@ -3143,9 +3494,9 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 
 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
-		u32b one_ability = OBJECT_XTRA_BASE_ABILITY + (1L<<OBJECT_XTRA_SIZE_ABILITY) -1;
+                u32b one_resist = OBJECT_XTRA_BASE_RESIST + (1L<<OBJECT_XTRA_SIZE_RESIST) -1;
 		u32b one_sustain = OBJECT_XTRA_BASE_SUSTAIN + (1L<<OBJECT_XTRA_SIZE_SUSTAIN) -1;
-		u32b one_resist = OBJECT_XTRA_BASE_POWER + (1L<<OBJECT_XTRA_SIZE_POWER) -1;
+                u32b one_power = OBJECT_XTRA_BASE_POWER + (1L<<OBJECT_XTRA_SIZE_POWER) -1;
 
                 e_ptr->i_ego_item.can_flags1 &= ~(f1);
                 e_ptr->i_ego_item.can_flags2 &= ~(f2);
@@ -3158,9 +3509,8 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_sustain));
 			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
 
-`			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
+                        object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
 					e_ptr->i_ego_item.can_flags3);
-
 
 			e_ptr->i_ego_item.may_flags1 = 0x0L;
 			e_ptr->i_ego_item.may_flags2 = one_sustain;
@@ -3177,7 +3527,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 					e_ptr->i_ego_item.can_flags3);
 
 			e_ptr->i_ego_item.may_flags1 = 0x0L;
-			e_ptr->i_ego_item.may_flags2 = one_sustain;
+			e_ptr->i_ego_item.may_flags2 = one_resist;
 			e_ptr->i_ego_item.may_flags3 = 0x0L;
 		}
 		else if (e_ptr->i_ego_item.may_flags3 & (f3))
@@ -3185,14 +3535,14 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 			/* One ability */
 			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
 			e_ptr->i_ego_item.can_flags2 |= e_ptr->i_ego_item.may_flags2;
-			e_ptr->i_ego_item.can_flags3 |= (e_ptr->i_ego_item.may_flags3 & ~(one_ability));
+                        e_ptr->i_ego_item.can_flags3 |= (e_ptr->i_ego_item.may_flags3 & ~(one_power));
 
 			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
 					e_ptr->i_ego_item.can_flags3);
 
 			e_ptr->i_ego_item.may_flags1 = 0x0L;
 			e_ptr->i_ego_item.may_flags2 = 0x0L;
-			e_ptr->i_ego_item.may_flags3 = one_ability;
+                        e_ptr->i_ego_item.may_flags3 = one_power;
 		}
 
 	}
@@ -3203,13 +3553,21 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
  * Object forgets may flags
  */
 
-void object_may_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+static void object_may_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
 
 	/* Clear may flags */
         o_ptr->i_object.may_flags1 &= ~(f1);
         o_ptr->i_object.may_flags2 &= ~(f2);
         o_ptr->i_object.may_flags3 &= ~(f3);
+
+        /* Guess the object name */
+        if (!object_known_p(o_ptr))
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+                if (!k_ptr->aware) object_guess_name(o_ptr);
+	}
 
 	return;	
 
@@ -3281,6 +3639,9 @@ void object_usage(int slot)
 
 	char o_name[80];
 
+        /* Variant? */
+        if (!variant_usage_id) return;
+
 	if (slot >=0) o_ptr =&inventory[slot];
 	else o_ptr=&o_list[0-slot];
 
@@ -3295,7 +3656,6 @@ void object_usage(int slot)
 	/* Describe the object */
         object_desc(o_name, o_ptr, FALSE, 0);
 
-#if 0
 	/* Hack --- know everything */
         if ((o_ptr->i_object.usage) == MAX_SHORT)
 	{
@@ -3306,12 +3666,10 @@ void object_usage(int slot)
 		/* Identify it fully */
 		object_aware(o_ptr);
 		object_known(o_ptr);
+		object_mental(o_ptr);
 
 		/* Clear may flags */
 		clear_may_flags();
-
-		/* Mark the item as fully known */
-		o_ptr->ident |= (IDENT_MENTAL);
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -3324,7 +3682,7 @@ void object_usage(int slot)
 
                 return;
 	}
-#endif
+
 	/* Hack --- know most things */
         if ((o_ptr->i_object.usage) > 20000)
 	{
@@ -3360,7 +3718,7 @@ void object_usage(int slot)
 		object_aware(o_ptr);
 
 		/* Mark the item as partially known */
-		o_ptr->ident |= (IDENT_BONUS);
+		object_bonus(o_ptr);
 
 		/* Clear may flags */
 		clear_may_flags();
@@ -3384,7 +3742,6 @@ void object_usage(int slot)
 
 void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
 {
-
 	cptr info[128];
 
 	char o_name[80];
@@ -3393,12 +3750,20 @@ void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
 
 	object_type *i_ptr;
 
-	/* Nothing to update */
-	if (!(f1) && !(f2) && !(f3)) return;
+        /* Variant? */
+        if (!variant_learn_id) return;
 
 	/* Get the item */
 	if (slot >=0) i_ptr =&inventory[slot];
 	else i_ptr=&o_list[0-slot];
+
+        /* Clear bits with can flags */
+        f1 &= ~(i_ptr->i_object.can_flags1);
+        f2 &= ~(i_ptr->i_object.can_flags2);
+        f3 &= ~(i_ptr->i_object.can_flags3);
+
+	/* Nothing to update */
+	if (!(f1) && !(f2) && !(f3)) return;
 
 	/* Update the object */
 	object_can_flags(i_ptr,f1,f2,f3);
@@ -3435,6 +3800,8 @@ void equip_can_flags(u32b f1,u32b f2,u32b f3)
 
 	object_type *i_ptr;
 
+        /* Variant? */
+        if (!variant_learn_id) return;
 
 	/* Hack --- exclude racial flags */
 	f1 &= ~(rp_ptr->flags1);
@@ -3481,6 +3848,9 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3)
 	int count=0;
 
 	object_type *i_ptr;
+
+        /* Variant? */
+        if (!variant_learn_id) return;
 
 	/* Mark equipment with not flags*/
         for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)

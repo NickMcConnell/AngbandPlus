@@ -713,6 +713,31 @@ s16b get_obj_num(int level)
 
 
 
+/* Know an object fully */
+/*
+ * Call this after knowing an object. Currently just marks object with
+ * mental flag.
+ */
+void object_mental(object_type *o_ptr)
+{
+
+	/* Now we know about the item */
+	o_ptr->ident |= (IDENT_MENTAL);
+
+#ifdef ALLOW_OBJECT_INFO
+
+	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
+                                o_ptr->i_object.can_flags2,
+                                o_ptr->i_object.can_flags3);
+
+	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
+                                o_ptr->i_object.not_flags2,
+                                o_ptr->i_object.not_flags3);
+
+#endif
+
+
+}
 
 
 
@@ -748,18 +773,49 @@ void object_known(object_type *o_ptr)
 	/* The object is not "partially sensed" */
 	o_ptr->ident &= ~(IDENT_BONUS);
 
+	/* The object name is not guessed */
+	o_ptr->guess1 = 0;
+	o_ptr->guess2 = 0;
+
+	/* The object kind is not guessed */
+        k_info[o_ptr->k_idx].guess = 0; 
+
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 
-#ifdef ALLOW_OBJECT_INFO
+#ifdef ALLOW_OBJECT_INFO	
 
+	/* Now we know what it is, update what we know about it from our artifact memory */
+	if (o_ptr->name1)
+	{
+		object_can_flags(o_ptr,a_info[o_ptr->name1].i_artifact.can_flags1,
+                                a_info[o_ptr->name1].i_artifact.can_flags2,
+                                a_info[o_ptr->name1].i_artifact.can_flags3);
+
+                object_not_flags(o_ptr,a_info[o_ptr->name1].i_artifact.not_flags1,
+                                a_info[o_ptr->name1].i_artifact.not_flags2,
+                                a_info[o_ptr->name1].i_artifact.not_flags3);
+	}
+	/* Now we know what it is, update what we know about it from our ego item memory */
+	else if (o_ptr->name2)
+	{
+                object_can_flags(o_ptr,e_info[o_ptr->name2].i_ego_item.can_flags1,
+                                e_info[o_ptr->name2].i_ego_item.can_flags2,
+                                e_info[o_ptr->name2].i_ego_item.can_flags3);
+
+                object_not_flags(o_ptr,e_info[o_ptr->name2].i_ego_item.not_flags1,
+                                e_info[o_ptr->name2].i_ego_item.not_flags2,
+                                e_info[o_ptr->name2].i_ego_item.not_flags3);
+	}
+
+	/* Now we know what it is, update what we know about it */
 	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
-				o_ptr,o_ptr->i_object.can_flags2,
-				o_ptr,o_ptr->i_object.can_flags3);
+                        o_ptr->i_object.can_flags2,
+                        o_ptr->i_object.can_flags3);
 
 	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
-				o_ptr,o_ptr->i_object.not_flags2,
-				o_ptr,o_ptr->i_object.not_flags3);
+                        o_ptr->i_object.not_flags2,
+                        o_ptr->i_object.not_flags3);
 
 #endif
 
@@ -767,6 +823,102 @@ void object_known(object_type *o_ptr)
 }
 
 
+/*
+ * Sense the bonus/charges of an object
+ *
+ * Note under some circumstances, we fully know the object (When
+ * its bonuses/charges are all there is to know about it).
+ */
+void object_bonus(object_type *o_ptr)
+{
+
+	int feel = 0;
+
+	/* Identify the bonuses */
+	o_ptr->ident |= (IDENT_BONUS);
+
+	/* Is this all we need to know */
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) ||
+	    (o_ptr->tval == TV_ROD))
+	{
+		object_known(o_ptr);
+	}
+
+	/* Sense the item (if appropriate) */
+	else if ((o_ptr->discount == 0) &&
+                (o_ptr->discount<=INSCRIP_NULL) &&
+		!(object_known_p(o_ptr)))
+	{
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				/* Artifacts */
+				if (artifact_p(o_ptr))
+				{
+					/* Cursed/Broken */
+					if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
+
+					/* Normal */
+					feel = INSCRIP_SPECIAL;
+				}
+
+				/* Ego-Items */
+				else if (ego_item_p(o_ptr))
+				{
+					/* Cursed/Broken */
+					if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_WORTHLESS;
+
+					/* Normal */
+					feel = INSCRIP_EXCELLENT;
+
+		                        /* Superb */
+		                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
+
+				}
+
+				/* Still more to know? */
+				if (feel)
+				{
+
+					/* Sense the object */
+					o_ptr->discount = feel;
+
+					/* The item has been sensed */
+					o_ptr->ident |= (IDENT_SENSE);
+
+				}
+
+				/* Object is completely known */
+				else
+				{
+					object_known(o_ptr);
+				}
+
+				break;
+			}
+		}
+
+	}
+
+}
 
 
 
@@ -775,6 +927,14 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* No longer guessing */
+	k_ptr->guess = 0;
+
+	/* No longer tried */
+	k_ptr->tried = FALSE;
+
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
 }
@@ -786,8 +946,16 @@ void object_aware(object_type *o_ptr)
  */
 void object_tried(object_type *o_ptr)
 {
-	/* Mark it as tried (even if "aware") */
-	k_info[o_ptr->k_idx].tried = TRUE;
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Don't mark it if aware */
+	if (k_ptr->aware) return;
+
+	/* Don't mark it if guessed */
+	if (k_ptr->aware) return;
+
+	/* Mark it as tried */
+	k_ptr->tried = TRUE;
 }
 
 
@@ -1187,6 +1355,22 @@ s32b object_value(object_type *o_ptr)
 					/* Done */
 					break;
 				}
+
+
+				/* Wands/staffs */
+				case TV_WAND:
+				case TV_STAFF:
+				{
+					/* Hack -- negative/zero hit/damage bonuses */
+					if (o_ptr->pval <= 0) return (0L);
+
+					/* Factor in the bonuses */
+					value += (o_ptr->pval * 5L);
+
+					/* Done */
+					break;
+				}
+
 			}
 
 		}
@@ -1195,7 +1379,7 @@ s32b object_value(object_type *o_ptr)
                 {
                         s32b bonus=0L;
 
-                        switch (o_ptr->discount)
+                        if (variant_great_id) switch (o_ptr->discount)
                         {
                                 case INSCRIP_SPECIAL:
                                 {
@@ -1255,7 +1439,32 @@ s32b object_value(object_type *o_ptr)
 }
 
 
+/*
+ * Determine if the object has "=s" in its inscription.
+ */
+static bool auto_stack_okay(object_type *o_ptr)
+{
+	cptr s;
 
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-stack on "=s" */
+		if (s[1] == 's') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return (FALSE);
+}
 
 
 /*
@@ -1275,15 +1484,14 @@ s32b object_value(object_type *o_ptr)
  * Food, potions, scrolls, and "easy know" items always stack.
  *
  * Chests, and activatable items, never stack (for various reasons).
+ *
  */
 bool object_similar(object_type *o_ptr, object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
-
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
-
 
 	/* Analyze the items */
 	switch (o_ptr->tval)
@@ -1309,17 +1517,43 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
+
 			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			if (!(variant_pval_stacks) &&
+				(!object_known_p(o_ptr) || !object_known_p(j_ptr))) return (0);
+
+			/* Require identical knowledge of both items */
+			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
 
 			/* Fall through */
+
+
 		}
 
 		/* Staffs and Wands and Rods */
 		case TV_ROD:
 		{
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
+
+			/* Require 'similar' charges */
+			if (o_ptr->pval != j_ptr->pval)
+			{
+
+				if (!(variant_pval_stacks)) return (0);
+
+				/* Check for sign difference */
+				if ((o_ptr->pval > 0)&&(j_ptr->pval <= 0)) return (0);
+				if ((o_ptr->pval < 0)&&(j_ptr->pval >= 0)) return (0);
+				if ((o_ptr->pval == 0)&&(j_ptr->pval != 0)) return (0);
+
+				/* Line 1 -- no force pval stacking option */
+				/* Line 2 -- 1st pval is not 1 less than 2nd pval, or 1st pval is a pval stack */
+				/* Line 3 -- 1st pval is not 1 greater than 2nd pval, or 2nd pval is a pval stack */
+                                /* Line 4 -- an item has auto_stack */
+				if ((!stack_force_pvals) &&
+					((o_ptr->pval != j_ptr->pval-1) || (o_ptr->pvals))  &&
+					((o_ptr->pval != j_ptr->pval+1) || (j_ptr->pvals))
+					&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr)))) return (0);
+			}
 
 			/* Probably okay */
 			break;
@@ -1349,9 +1583,10 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_AMULET:
 		case TV_LITE:
 		{
-			/* Require full knowledge of both items */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
-
+			/* Require knowledge */
+                        if ((!variant_pval_stacks) &&
+                                (!object_known_p(o_ptr)
+                                  || !object_known_p(j_ptr))) return (0);
 			/* Fall through */
 		}
 
@@ -1368,8 +1603,25 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (o_ptr->to_d != j_ptr->to_d) return (FALSE);
 			if (o_ptr->to_a != j_ptr->to_a) return (FALSE);
 
-			/* Require identical "pval" code */
-			if (o_ptr->pval != j_ptr->pval) return (FALSE);
+			/* Require similar "pval" code */
+			if (o_ptr->pval != j_ptr->pval)
+			{
+
+                                if (!variant_pval_stacks) return (0);
+
+				/* Check for sign difference */
+				if ((o_ptr->pval > 0)&&(j_ptr->pval <= 0)) return (0);
+				if ((o_ptr->pval < 0)&&(j_ptr->pval >= 0)) return (0);
+				if ((o_ptr->pval == 0)&&(j_ptr->pval != 0)) return (0);
+
+				/* Line 1 -- no force pval stacking option */
+				/* Line 2 -- 1st pval is not 1 less than 2nd pval, or 1st pval is a pval stack */
+				/* Line 3 -- 1st pval is not 1 greater than 2nd pval, or 2nd pval is a pval stack */
+                                /* Line 4 -- an item has auto_stack */
+				if ((!stack_force_pvals) &&
+					((o_ptr->pval != j_ptr->pval-1) || (o_ptr->pvals))  &&
+					((o_ptr->pval != j_ptr->pval+1) || (j_ptr->pvals))
+					&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr)))) return (0);			}
 
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
@@ -1381,7 +1633,14 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
 
 			/* Hack -- Never stack recharging items */
-			if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
+			if (o_ptr->timeout || j_ptr->timeout)
+			{
+				/* Hack -- do not stack charged and recharging items */
+				if (o_ptr->timeout == 0) return (FALSE);
+				if (j_ptr->timeout == 0) return (FALSE);
+
+				if (!stack_force_times && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (FALSE);
+			}
 
 			/* Require identical "values" */
 			if (o_ptr->ac != j_ptr->ac) return (FALSE);
@@ -1411,12 +1670,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		return (0);
 	}
 
-
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
 	{
 		/* Normally require matching inscriptions */
-		if (!stack_force_notes) return (0);
+		if (!stack_force_notes && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
 
 		/* Never combine different inscriptions */
 		if (o_ptr->note && j_ptr->note) return (0);
@@ -1439,7 +1697,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		         (j_ptr->discount >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
-			if (!stack_force_notes) return (0);
+			if (!stack_force_notes && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
 
 			/* Hack -- Never merge a special inscription with a discount */
 			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
@@ -1449,7 +1707,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		else
 		{
 			/* Normally require matching discounts */
-			if (!stack_force_costs) return (0);
+			if (!stack_force_costs && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
 		}
 	}
 
@@ -1478,13 +1736,45 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
  * "maximum" of the two "discount" fields.
  *
  * These assumptions are enforced by the "object_similar()" code.
+ *
+ * We now support 'blending' of timeouts and pvals. - ANDY
+ *
+ * With stack_force_pvals, pvals are averaged across a stack of items.
+ *
+ * Without, we only stack items that have 1 pval difference,
+ * and use the pvals field to tell us how many of the higher pval
+ * items are in the stack. This should be particularly helpful with
+ * wands and staves as we will not unstack a pile of same charge items
+ * by using them until a wand is emptied completely.
+ *
+ * With stack_force_timeouts, timeouts are averaged across a stack of items.
  */
 void object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
+        int pvalm;
+
 	int total = o_ptr->number + j_ptr->number;
 
+	int number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
+
+	/* Hack -- Blend "pval" if necessary*/
+	if (o_ptr->pval != j_ptr->pval)
+	{
+                pvalm = ((o_ptr->pval * o_ptr->number) + (j_ptr->pval * j_ptr->number));
+
+                o_ptr->pval = pvalm/number;
+                o_ptr->pvals = pvalm%number;
+
+		/* Hack -- Bump up pval */
+		if (o_ptr->pvals) o_ptr->pval++;
+	}
+
+	/* Mega Hack -- Blend "timeouts" */
+	if (o_ptr->timeout != j_ptr->timeout)
+		o_ptr->timeout = ((o_ptr->timeout * o_ptr->number) + (j_ptr->timeout * j_ptr->number))/number;
+
 	/* Add together the item counts */
-	o_ptr->number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
+	o_ptr->number = number;
 
 	/* Hack -- Blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
@@ -1500,6 +1790,10 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+
+	/* Mega Hack -- Blend "usages" */
+	if (o_ptr->i_object.usage < j_ptr->i_object.usage) o_ptr->i_object.usage = j_ptr->i_object.usage;
+
 }
 
 
@@ -1863,7 +2157,7 @@ static bool make_artifact_special(object_type *o_ptr)
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
-	/* No artifacts in the town */
+	/* No artifacts in the basic town */
 	if (!p_ptr->depth) return (FALSE);
 
 	/* Check the special artifacts */
@@ -1933,7 +2227,7 @@ static bool make_artifact(object_type *o_ptr)
 	/* No artifacts, do nothing */
 	if (adult_no_artifacts) return (FALSE);
 
-	/* No artifacts in the town */
+	/* No artifacts in the basic town */
 	if (!p_ptr->depth) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
@@ -2910,7 +3204,22 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 }
 
+/*
+ * Hack -- determine if a template is "mushroom".
+ *
+ */
+static bool kind_is_shroom(int k_idx)
+{
 
+	object_kind *k_ptr = &k_info[k_idx];
+
+	if (k_ptr->tval != TV_FOOD) return (FALSE);
+
+	if (k_ptr->sval >= SV_FOOD_MIN_FOOD) return (FALSE);
+
+	return (TRUE);
+
+}
 
 /*
  * Hack -- determine if a template is "good".
@@ -3015,7 +3324,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 {
 	int prob, base;
 
-
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
 
@@ -3027,9 +3335,35 @@ bool make_object(object_type *j_ptr, bool good, bool great)
         {
                 int k_idx;
 
-                k_idx = lookup_kind(TV_FOOD,food_type-1);
+		/* Hack -- handle no type */
+		if (!(variant_mushrooms)) return (FALSE);
 
-                /* Handle failure */
+		if (food_type > 0)
+		{
+			k_idx = lookup_kind(TV_FOOD,food_type-1);
+
+	                /* Handle failure */
+			if (!k_idx) return (FALSE);
+		}
+		else
+		{
+			/* Activate restriction */
+			get_obj_num_hook = kind_is_shroom;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+
+			/* Pick a random object */
+			k_idx = get_obj_num(base);
+
+			/* Clear restriction */
+			get_obj_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_obj_num_prep();
+		}
+
+		/* Handle failure */
 		if (!k_idx) return (FALSE);
 
 		/* Prepare the object */
@@ -3161,7 +3495,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-
 	/* Scan objects in that grid for combination */
 	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -3183,7 +3516,6 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 			return (this_o_idx);
 		}
 	}
-
 
 	/* Make an object */
 	o_idx = o_pop();
@@ -3334,11 +3666,12 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 				/* Get the next object */
 				next_o_idx = o_ptr->next_o_idx;
 
+				/* Count objects */
+				k++;
+
 				/* Check for possible combination */
 				if (object_similar(o_ptr, j_ptr)) comb = TRUE;
 
-				/* Count objects */
-				k++;
 			}
 
 			/* Add new object */
@@ -3637,14 +3970,14 @@ s16b get_feat_num(int level)
                 /* Get the actual feature */
 		f_ptr = &f_info[f_idx];
 
-		/* Hack -- no upstairs on town level */
-		if ((f_ptr->flags1 & (FF1_LESS)) && is_quest(p_ptr->depth)) continue;
+		/* Hack -- no upstairs on surface */
+		if ((f_ptr->flags1 & (FF1_LESS)) && (p_ptr->depth == min_depth(p_ptr->dungeon))) continue;
 
 		/* Hack -- no chasm/trap doors/down stairs on quest levels */
 		if ((f_ptr->flags1 & (FF1_MORE)) && is_quest(p_ptr->depth)) continue;
 
                 /* Hack -- no chasm/trap doors/down stairs on the deepest level */
-		if ((f_ptr->flags1 & (FF1_MORE)) && (p_ptr->depth >= MAX_DEPTH-1)) continue;
+		if ((f_ptr->flags1 & (FF1_MORE)) && (p_ptr->depth == max_depth(p_ptr->dungeon))) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -3741,6 +4074,9 @@ static bool vault_trap_floor(int f_idx)
 
         /* Decline secrets */
         if (f_ptr->flags1 & (FF1_SECRET)) return (FALSE);
+
+	/* Decline high traps */
+	if ((!variant_new_feats) && (f_idx > 63)) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -3893,6 +4229,9 @@ static bool vault_closed_door(int f_idx)
         /* Decline open/secret/known jammed doors/broken */
 	if (!(f_ptr->flags1 & (FF1_OPEN))) return (FALSE);
 
+	/* Decline unknown trapped doors */
+	if ((!variant_new_feats) && (f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
+
 	/* Okay */
 	return (TRUE);
 }
@@ -3948,6 +4287,9 @@ static bool vault_trapped_door(int f_idx)
 
         /* Decline unlocked doors */
         if (f_idx == FEAT_DOOR_HEAD) return (FALSE);
+
+	/* Decline unknown trapped doors */
+	if ((!variant_new_feats) && (f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -4131,11 +4473,28 @@ void inven_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
+	/* Limit decrease to number of higher charge items */
+	if ((o_ptr->pvals) && (num < 0))
+	{
+		/* Limit */
+		if (o_ptr->pvals < -num) num = 0-o_ptr->pvals;
+	}
+
 	/* Change the number and weight */
 	if (num)
 	{
 		/* Add the number */
 		o_ptr->number += num;
+
+		/* Modify pvals */
+		if (o_ptr->pvals)
+		{
+
+			o_ptr->pvals+= num;
+
+			if (!o_ptr->pvals) o_ptr->pval--;
+
+		}
 
 		/* Add the weight */
 		p_ptr->total_weight += (num * o_ptr->weight);
@@ -4278,8 +4637,27 @@ void floor_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
+	/* Limit decrease to number of higher charge items */
+	if ((o_ptr->pvals) && (num < 0))
+	{
+		/* Limit */
+		if (o_ptr->pvals < -num) num = 0-o_ptr->pvals;
+	}
+
 	/* Change the number */
 	o_ptr->number += num;
+
+	/* Modify pvals */
+	if (o_ptr->pvals)
+	{
+
+		o_ptr->pvals+= num;
+
+		if (!o_ptr->pvals) o_ptr->pval--;
+
+	}
+
+
 }
 
 
@@ -4355,7 +4733,6 @@ s16b inven_carry(object_type *o_ptr)
 
 	object_type *j_ptr;
 
-
         int book_tval=0;
 
 	/* Hack -- for spell order, later */
@@ -4393,6 +4770,7 @@ s16b inven_carry(object_type *o_ptr)
 		/* Check if the two items can be combined */
 		if (object_similar(j_ptr, o_ptr))
 		{
+
 			/* Combine the items */
 			object_absorb(j_ptr, o_ptr);
 
@@ -4408,6 +4786,7 @@ s16b inven_carry(object_type *o_ptr)
 			/* Success */
 			return (j);
 		}
+
 	}
 
 
@@ -4585,6 +4964,9 @@ s16b inven_takeoff(int item, int amt)
 	/* Verify */
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
+	/* Not more than higher pval */
+	if (o_ptr->pvals && (amt > o_ptr->pvals)) amt = o_ptr->pvals;
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -4593,6 +4975,9 @@ s16b inven_takeoff(int item, int amt)
 
 	/* Modify quantity */
 	i_ptr->number = amt;
+
+	/* Reset pvals */
+	i_ptr->pvals = 0;
 
 	/* Describe the object */
 	object_desc(o_name, i_ptr, TRUE, 3);
@@ -4677,9 +5062,11 @@ void inven_drop(int item, int amt)
 	/* Error check */
 	if (amt <= 0) return;
 
+	/* Not more than higher pval */
+	if (o_ptr->pvals && (amt > o_ptr->pvals)) amt = o_ptr->pvals;
+
 	/* Not too many */
 	if (amt > o_ptr->number) amt = o_ptr->number;
-
 
 	/* Take off equipment */
 	if (item >= INVEN_WIELD)
@@ -4709,6 +5096,9 @@ void inven_drop(int item, int amt)
 
 	/* Modify quantity */
 	i_ptr->number = amt;
+
+	/* Reset pvals */
+	i_ptr->pvals = 0;
 
 	/* Describe local object */
 	object_desc(o_name, i_ptr, TRUE, 3);

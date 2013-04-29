@@ -487,6 +487,9 @@ static void rd_item(object_type *o_ptr)
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
 
+        if (variant_pval_stacks) rd_byte(&o_ptr->pvals);
+
+
 	/* Old method */
 	if (older_than(2, 7, 8))
 	{
@@ -570,28 +573,28 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->xtra2);
 	}
 
-	if (older_than(2,9,2))
-	{
-
-	}
-
-	else
+        if (variant_learn_id)
 	{
 		/* Knowledge */
 		rd_u32b(&o_ptr->i_object.can_flags1);
-		rd_u32b(&o_ptr->i_object.can_flags1);
-		rd_u32b(&o_ptr->i_object.can_flags1);
+                rd_u32b(&o_ptr->i_object.can_flags2);
+                rd_u32b(&o_ptr->i_object.can_flags3);
 
 		rd_u32b(&o_ptr->i_object.may_flags1);
-		rd_u32b(&o_ptr->i_object.may_flags1);
-		rd_u32b(&o_ptr->i_object.may_flags1);
+                rd_u32b(&o_ptr->i_object.may_flags2);
+                rd_u32b(&o_ptr->i_object.may_flags3);
 
 		rd_u32b(&o_ptr->i_object.not_flags1);
-		rd_u32b(&o_ptr->i_object.not_flags1);
-		rd_u32b(&o_ptr->i_object.not_flags1);
+                rd_u32b(&o_ptr->i_object.not_flags2);
+                rd_u32b(&o_ptr->i_object.not_flags3);
+        }
 
-		rd_s16b(&o_ptr->i_object.usage);
-		rd_s16b(&o_ptr->i_object.fails);
+        if (variant_usage_id) rd_s16b(&o_ptr->i_object.usage);
+
+        if (variant_guess_id)
+        {
+		rd_byte(&o_ptr->guess1);
+		rd_byte(&o_ptr->guess2);
 	}
 
 	/* Inscription */
@@ -1699,9 +1702,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	u16b start;
 	u16b limit;
 
-#ifdef ALLOW_ROOMDESC
         int by,bx;
-#endif
 
 
 	/* Read the dungeon */
@@ -1763,7 +1764,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 					case 3:
 					{
 						info |= (CAVE_ROOM);
-						info |= (CAVE_ICKY);
 						break;
 					}
 
@@ -1806,9 +1806,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 			/* Newer method */
 			else
 			{
-				/* The old "vault" flag */
-				if (tmp8u & (OLD_GRID_ICKY)) info |= (CAVE_ICKY);
-
 				/* The old "room" flag */
 				if (tmp8u & (OLD_GRID_ROOM)) info |= (CAVE_ROOM);
 
@@ -1889,6 +1886,12 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	/* Save depth */
 	p_ptr->depth = depth;
 
+	/* Vanilla dungeon */
+	p_ptr->dungeon = 0;
+
+	/* Vanilla town */
+	p_ptr->town = 0;
+
 	/* Place player in dungeon */
 	if (!player_place(py, px))
 	{
@@ -1897,7 +1900,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	}
 
 	/*** Room descriptions */
-#ifdef ALLOW_ROOMDESC
 
 	/* Initialize the room table */
         for (by = 0; by < MAX_ROOMS_ROW; by++)
@@ -1909,8 +1911,7 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 	}
 
         /* Initialise 'zeroeth' room description */
-        room_info[0].seen = FALSE;
-#endif
+        room_info[0].flags = 0;
 
 	/*** Objects ***/
 
@@ -2360,6 +2361,8 @@ static errr rd_dungeon(void)
 {
 	int i, y, x;
 
+	s16b town;
+	s16b dungeon;
 	s16b depth;
 	s16b py, px;
 	s16b ymax, xmax;
@@ -2370,26 +2373,29 @@ static errr rd_dungeon(void)
 
 	u16b limit;
 
-#ifdef ALLOW_ROOMDESC
         int by,bx;
-#endif
-
 
 	/*** Basic info ***/
 
-	/* Header info */
 	rd_s16b(&depth);
-	rd_u16b(&tmp16u);
+        rd_s16b(&dungeon);
 	rd_s16b(&py);
 	rd_s16b(&px);
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-	rd_u16b(&tmp16u);
+        rd_s16b(&town);
 	rd_u16b(&tmp16u);
 
 
 	/* Ignore illegal dungeons */
-	if ((depth < 0) || (depth >= MAX_DEPTH))
+        if (town>z_info->t_max)
+	{
+		note(format("Ignoring illegal dungeon (%d)", dungeon));
+		return (0);
+	}
+
+	/* Ignore illegal dungeons */
+        if ((depth < min_depth(dungeon)) || (depth > max_depth(dungeon)))
 	{
 		note(format("Ignoring illegal dungeon depth (%d)", depth));
 		return (0);
@@ -2491,8 +2497,20 @@ static errr rd_dungeon(void)
 
 	/*** Player ***/
 
+	/* Fix depth */
+        if (depth < min_depth(dungeon)) depth = min_depth(dungeon);
+
+	/* Fix depth */
+        if (depth > max_depth(dungeon)) depth = max_depth(dungeon);
+
 	/* Save depth */
 	p_ptr->depth = depth;
+
+	/* Save dungeon */
+	p_ptr->dungeon = dungeon;
+
+	/* Save town */
+	p_ptr->town = town;
 
 	/* Place player in dungeon */
 	if (!player_place(py, px))
@@ -2502,9 +2520,8 @@ static errr rd_dungeon(void)
 	}
 
 	/*** Room descriptions ***/
-#ifdef ALLOW_ROOMDESC
-
-	if (older_than(2,9,2))
+                   
+        if (!variant_room_info)
 	{
 		/* Initialize the room table */
 	        for (by = 0; by < MAX_ROOMS_ROW; by++)
@@ -2516,7 +2533,7 @@ static errr rd_dungeon(void)
 		}
 
 	        /* Initialise 'zeroeth' room description */
-	        room_info[0].seen = FALSE;
+	        room_info[0].flags = 0;
 
 	}
 	else
@@ -2532,8 +2549,10 @@ static errr rd_dungeon(void)
 
 		for (i = 1; i < DUN_ROOMS; i++)
 		{
+                        int j;
+
 			rd_byte(&room_info[i].type);
-			rd_byte(&room_info[i].seen);
+			rd_byte(&room_info[i].flags);
 
 			if (room_info[i].type == ROOM_NORMAL)
 			{
@@ -2546,9 +2565,6 @@ static errr rd_dungeon(void)
 			}
 		}
 	}
-
-#endif
-
 
 	/*** Objects ***/
 
@@ -2834,8 +2850,10 @@ static errr rd_savefile_new_aux(void)
 
 		rd_byte(&tmp8u);
 
-		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
-		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+                k_ptr->aware = (tmp8u == 1) ? TRUE: FALSE;
+                k_ptr->tried = (tmp8u >= 2) ? TRUE: FALSE;
+
+                if ((variant_guess_id) && (tmp8u > 2)) k_ptr->guess = (tmp8u - 2);
 
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
@@ -2876,20 +2894,16 @@ static errr rd_savefile_new_aux(void)
 	/* Read the artifact flags */
 	for (i = 0; i < tmp16u; i++)
 	{
+                artifact_type *a_ptr = &a_info[i];
+
 		rd_byte(&tmp8u);
 		a_info[i].cur_num = tmp8u;
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 
-		if (older_than(2,9,2))
-		{
-	
-		}
-
-		else
-		{
-			artifact_type *a_ptr = &a_info[i];
+                if (variant_learn_id)
+                {
 
 			/* Knowledge */
 			rd_u32b(&a_ptr->i_artifact.can_flags1);
@@ -2900,19 +2914,15 @@ static errr rd_savefile_new_aux(void)
 			rd_u32b(&a_ptr->i_artifact.not_flags2);
 			rd_u32b(&a_ptr->i_artifact.not_flags3);
 
-			rd_s16b(&a_ptr->i_artifact.usage);
-			rd_s16b(&a_ptr->i_artifact.fails);
-		}
+                }
+                if (variant_usage_id) rd_s16b(&a_ptr->i_artifact.usage);
+                if (variant_learn_id) rd_s16b(&a_ptr->found);
 
 	}
 
 	if (arg_fiddle) note("Loaded Artifacts");
 
-	if (older_than(2,9,2))
-	{
-	
-	}
-	else
+        if (variant_learn_id || variant_usage_id)
 	{
 		/* Load the Ego items */
 		rd_u16b(&tmp16u);
@@ -2931,20 +2941,23 @@ static errr rd_savefile_new_aux(void)
 			ego_item_type *e_ptr = &e_info[i];
 
 			/* Knowledge */
-			rd_u32b(&e_ptr->i_ego_item.can_flags1);
-			rd_u32b(&e_ptr->i_ego_item.can_flags2);
-			rd_u32b(&e_ptr->i_ego_item.can_flags3);
+                        if (variant_learn_id)
+                        {
+                                rd_u32b(&e_ptr->i_ego_item.can_flags1);
+                                rd_u32b(&e_ptr->i_ego_item.can_flags2);
+                                rd_u32b(&e_ptr->i_ego_item.can_flags3);
 
-			rd_u32b(&e_ptr->i_ego_item.may_flags1);
-			rd_u32b(&e_ptr->i_ego_item.may_flags2);
-			rd_u32b(&e_ptr->i_ego_item.may_flags3);
+                                rd_u32b(&e_ptr->i_ego_item.may_flags1);
+                                rd_u32b(&e_ptr->i_ego_item.may_flags2);
+                                rd_u32b(&e_ptr->i_ego_item.may_flags3);
 
-			rd_u32b(&e_ptr->i_ego_item.not_flags1);
-			rd_u32b(&e_ptr->i_ego_item.not_flags2);
-			rd_u32b(&e_ptr->i_ego_item.not_flags3);
+                                rd_u32b(&e_ptr->i_ego_item.not_flags1);
+                                rd_u32b(&e_ptr->i_ego_item.not_flags2);
+                                rd_u32b(&e_ptr->i_ego_item.not_flags3);
+                        }
 
-			rd_s16b(&e_ptr->i_ego_item.usage);
-			rd_s16b(&e_ptr->i_ego_item.fails);
+                        if (variant_usage_id) rd_s16b(&e_ptr->i_ego_item.usage);
+                        if (variant_learn_id) rd_s16b(&e_ptr->found);
 		}
 
 	}

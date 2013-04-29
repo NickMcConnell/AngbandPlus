@@ -808,7 +808,10 @@ G:+:U
 W:7:1:17:0
 M:32
 K:DEFAULT:1
-K:OPEN:4:K:BASH:5K:TUNNEL:5:SPIKE:47
+K:OPEN:4
+K:BASH:5
+K:TUNNEL:5
+K:SPIKE:47
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
 F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_7
@@ -1925,7 +1928,7 @@ K:DEFAULT:135
 K:KILL_HUGE:138
 K:TUNNEL:138
 F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | HIDE_DIG |
-F:KILL_HUGE | LAKE | RUN | CAN_CLIMB |
+F:KILL_HUGE | LAKE | RUN | CAN_CLIMB | FLOOR |
 F:CAN_FLY
 
 N:136:broken floor
@@ -2203,10 +2206,20 @@ F:LAVA | DEEP | LAKE | LESS |
 F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP |
 F:GLOW | LOS | MOVE | REMEMBER | PLACE
 
-# Place holders - should never be generated.
+# Hack -- trees. Not how we want them long term, but
+# here to keep wilderness locations interesting.
+# Note the nasty hacks in the code to make them
+# a little more treelike.
 
-N:162:nothing
-G: :w
+N:162:tree
+G:<:g
+W:0:1:17:0
+K:DEFAULT:1
+F:BASH | REMEMBER | NOTICE | MOVE |
+F:CAN_PASS | HURT_FIRE | CAN_CLIMB |
+F:POWER_10
+
+# Place holders - should never be generated.
 
 N:163:nothing
 G: :w
