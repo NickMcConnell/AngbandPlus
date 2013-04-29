@@ -282,7 +282,7 @@ void identify_pack(void)
 	int i;
 
 	/* Simply identify and know every item */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -1674,7 +1674,7 @@ bool lose_all_info(void)
 	int i;
 
 	/* Forget info about objects */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -2273,7 +2273,7 @@ bool detect_objects_magic(void)
 
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		int feel = INSCRIP_AVERAGE;
 
@@ -2460,7 +2460,7 @@ bool detect_objects_cursed(void)
 	}
 
 	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		int feel;
 
@@ -2999,10 +2999,40 @@ static bool item_tester_unknown_bonus(object_type *o_ptr)
 {
 	if (object_known_p(o_ptr))
 		return FALSE;
-	else if ((o_ptr->ident & (IDENT_BONUS)) && (o_ptr->ident & (IDENT_SENSE)))
+	else if (o_ptr->ident & (IDENT_BONUS))
 		return FALSE;
-	else
-		return TRUE;
+        else
+        {
+                switch (o_ptr->tval)
+                {
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+                        case TV_RING:
+                        case TV_AMULET:
+                        case TV_WAND:
+                        case TV_STAFF:
+			{
+                                return TRUE;
+			}
+                }
+        }
+
+        return FALSE;
 }
 
 
@@ -3334,7 +3364,6 @@ bool ident_spell(void)
 	/* Something happened */
 	return (TRUE);
 }
-
 
 /*
  * Identify the bonus/charges of an object in the inventory (or on the floor)
@@ -3699,18 +3728,10 @@ bool identify_fully(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
 	object_mental(o_ptr);
-
-#ifdef ALLOW_OBJECT_INFO
-
-	/* Clear may flags */
-	clear_may_flags();
-
-#endif
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

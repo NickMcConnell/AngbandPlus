@@ -2298,8 +2298,14 @@ errr file_character(cptr name, bool full)
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
+
+		int inven_max = INVEN_TOTAL;
+
+		if (variant_belt_slot) inven_max++;
+
+
 		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+		for (i = INVEN_WIELD; i < inven_max; i++)
 		{
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",

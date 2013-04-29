@@ -160,7 +160,7 @@ static void sense_inventory(void)
 	/*** Sense everything ***/
 
 	/* Check everything */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		bool okay = FALSE;
 
@@ -172,7 +172,7 @@ static void sense_inventory(void)
 #ifdef ALLOW_OBJECT_INFO
 
                 /* Always sense flags to see if we have ability */
-                if (i >= INVEN_WIELD)
+                if ((i >= INVEN_WIELD) && (i != INVEN_BELT))
 		{
 			u32b if1,if2,if3;
 
@@ -185,7 +185,7 @@ static void sense_inventory(void)
                 }
 
                 /* Sometimes sense flags to see if we gain ability */
-                if (!(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD) && (rand_int(100)<30))
+                if (!(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD) && (i != INVEN_BELT) && (rand_int(100)<30))
 		{
 			u32b if1,if2,if3;
 
@@ -477,8 +477,6 @@ static void process_world(void)
 
         int mimic;
 
-	int swim;
-
 	int regen_amount;
 
 	object_type *o_ptr;
@@ -639,21 +637,9 @@ static void process_world(void)
 
         }
 
-        /* Hack -- sometimes lose a turn sinking into deep terrain */
-        swim = adj_str_blow[p_ptr->stat_ind[A_STR]];
-
-        if (!(f_ptr->flags2 & (FF2_CAN_SWIM))) swim = swim /4;
-
-	if ((f_ptr->flags2 & (FF2_DEEP)) || (f_ptr->flags2 & (FF2_FILLED))) swim = swim /2;
-
-        if (swim < 12) swim = 12;
-
-	if ((p_ptr->stun) || (p_ptr->confused) || (p_ptr->paralyzed)) swim = 12;
-
-        if ((randint(swim) < 10) &&
-             ((f_ptr->flags2 & (FF2_DEEP)) ||
-              (f_ptr->flags2 & (FF2_FILLED)) ||
-	      (f_ptr->flags2 & (FF2_SHALLOW))))
+        /* If paralyzed, we drown in shallow, deep or filled */
+        if ((p_ptr->paralyzed || (p_ptr->stun >=100)) &&
+                (f_ptr->flags2 & (FF2_DEEP | FF2_SHALLOW | FF2_FILLED)))
         {
 
                 /* Get the mimiced feature */
@@ -662,65 +648,16 @@ static void process_world(void)
                 /* Get the feature name */
                 name = (f_name + f_info[mimic].name);
 
-                if ((p_ptr->paralyzed) || (p_ptr->stun >= 100) || ((randint(swim) < 5) && !(f_ptr->flags2 & FF2_SHALLOW)))
-		{
-                        
-			msg_format("You are drowning %s%s!",(f_ptr->flags2 & (FF2_FILLED)?"":"in the "),name);
+                msg_format("You are drowning %s%s!",(f_ptr->flags2 & (FF2_FILLED)?"":"in the "),name);
 
-			if (!p_ptr->resist_sound)
-			{
-				(void)set_stun(p_ptr->stun + randint(40));
-#ifdef ALLOW_OBJECT_INFO
-                                /* Always notice */
-                                equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
-#endif
-			}
-			else
-			{
-#ifdef ALLOW_OBJECT_INFO
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
-#endif
-			}
-			if (!p_ptr->resist_confu)
-			{
-				(void)set_confused(p_ptr->confused + randint(5) + 5);
-#ifdef ALLOW_OBJECT_INFO
-                                /* Always notice */
-                                equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
-#endif
-			}
-			else
-			{
-#ifdef ALLOW_OBJECT_INFO
-                                /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
-#endif
-			}
-
-			water_dam(damroll(4,6),name);
-
-			/* Get hit by terrain (again) */
-			if ((f_ptr->spell) || (f_ptr->blow.method))
-			{
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Hit the trap */
-				hit_trap(p_ptr->py,p_ptr->px);
-			}
-
-		}
-		else
-		{
-
-                        /* Warn the player */
-	                msg_format("You sink %s%s.",(f_ptr->flags2 & (FF2_FILLED)?"":"in the "),name);
-
-		}
-
+                /* Apply the blow */
+                project_p(0,
+                          0,
+                          p_ptr->py,
+                          p_ptr->px,
+                          damroll(4,6),
+                          GF_WATER);
         }
-        
 
 	/* Take damage from poison */
 	if (p_ptr->poisoned)
@@ -755,10 +692,16 @@ static void process_world(void)
 	}
 
 
-	/*** Check the Food, and Regenerate ***/
+        /*** Check the Food, Rest, and Regenerate ***/
+
+        /* Tire normally */
+        if ((variant_fast_moves) && !(p_ptr->searching || p_ptr->resting))
+        {
+                (void)set_rest(p_ptr->rest - p_ptr->tiring);
+        }
 
 	/* Digest normally */
-	if (p_ptr->food < PY_FOOD_MAX)
+        if (p_ptr->food < PY_FOOD_MAX)
 	{
 		/* Every 100 game turns */
 		if (!(turn % 100))
@@ -801,14 +744,14 @@ static void process_world(void)
 	regen_amount = PY_REGEN_NORMAL;
 
 	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
+        if ((p_ptr->food < PY_FOOD_WEAK) || (p_ptr->rest < PY_REST_WEAK))
 	{
 		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
+                if (p_ptr->food < PY_FOOD_STARVE)
 		{
 			regen_amount = 0;
 		}
-		else if (p_ptr->food < PY_FOOD_FAINT)
+                else if ((p_ptr->food < PY_FOOD_FAINT) || (p_ptr->rest < PY_REST_FAINT))
 		{
 			regen_amount = PY_REGEN_FAINT;
 		}
@@ -818,7 +761,7 @@ static void process_world(void)
 		}
 
 		/* Getting Faint */
-		if (p_ptr->food < PY_FOOD_FAINT)
+                if (p_ptr->food < PY_FOOD_FAINT) 
 		{
 			/* Faint occasionally */
 			if (!p_ptr->paralyzed && (rand_int(100) < 10))
@@ -831,7 +774,22 @@ static void process_world(void)
 				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
 			}
 		}
-	}
+
+                /* Getting Faint - lack of rest */
+                if (p_ptr->rest < PY_REST_FAINT) 
+		{
+			/* Faint occasionally */
+			if (!p_ptr->paralyzed && (rand_int(100) < 10))
+			{
+				/* Message */
+                                msg_print("You faint from exhaustion.");
+				disturb(1, 0);
+
+				/* Hack -- faint (bypass free action) */
+				(void)set_paralyzed(p_ptr->paralyzed + 1 + rand_int(5));
+                        }
+                }
+        }        
 
 	/* Regeneration ability */
 	if (p_ptr->regenerate)
@@ -1091,7 +1049,7 @@ static void process_world(void)
 	}
 
 	/* Process equipment */
-	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL+1; i++)
 	{
 		/* Get the object */
 		o_ptr = &inventory[i];
@@ -1186,7 +1144,7 @@ static void process_world(void)
 
 
 	/* Discharge spells */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2156,14 +2114,9 @@ static void process_player(void)
 	{
 		/* Check to see if on damaging terrain */
 		/* XXX This may cause a big slow down, but is needed for 'correctness' */
-		feature_type *f_ptr;
-		int mimic;
 
-	        /* Get the feature */
-	        f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
-
-	        /* Get the mimiced feature */
-	        mimic = f_ptr->mimic;
+                /*Get the feature */
+                feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
 
 	        /* Use covered or bridged if necessary */
 	        if ((f_ptr->flags2 & (FF2_COVERED)) || (f_ptr->flags2 & (FF2_BRIDGED)))
@@ -2179,12 +2132,20 @@ static void process_player(void)
 			disturb(0, 0);
 	        }
 
+                /* Stop resting if tiring too fast */
+                if ((p_ptr->tiring + 10) > PY_REST_RATE)
+	        {
+			disturb(0, 0);
+	        }
+
+
 		/* Basic resting */
 		if (p_ptr->resting == -1)
 		{
 			/* Stop resting */
 			if ((p_ptr->chp == p_ptr->mhp) &&
-			    (p_ptr->csp == p_ptr->msp))
+                            (p_ptr->csp == p_ptr->msp) &&
+                            (p_ptr->rest > PY_REST_FULL))
 			{
 				disturb(0, 0);
 			}
@@ -2200,7 +2161,8 @@ static void process_player(void)
 			    !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !p_ptr->cut &&
 			    !p_ptr->slow && !p_ptr->paralyzed &&
-			    !p_ptr->image && !p_ptr->word_recall)
+                            !p_ptr->image && !p_ptr->word_recall &&
+                            (p_ptr->rest > PY_REST_FULL))
 			{
 				disturb(0, 0);
 			}
@@ -2316,13 +2278,32 @@ static void process_player(void)
 		/* Paralyzed or Knocked Out */
 		if ((p_ptr->paralyzed) || (p_ptr->stun >= 100))
 		{
+                        /* Get the feature */
+                        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
 			/* Take a turn */
 			p_ptr->energy_use = 100;
+
+                        /* Catch breath */
+                        if (!(f_ptr->flags2 & (FF2_FILLED)))
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+                        }
+                        else
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest - p_ptr->tiring);
+                        }
+
 		}
 
 		/* Resting */
 		else if (p_ptr->resting)
 		{
+                        /* Get the feature */
+                        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
 			/* Timed rest */
 			if (p_ptr->resting > 0)
 			{
@@ -2332,6 +2313,18 @@ static void process_player(void)
 				/* Redraw the state */
 				p_ptr->redraw |= (PR_STATE);
 			}
+
+                        /* Catch breath */
+                        if (!(f_ptr->flags2 & (FF2_FILLED)))
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest + PY_REST_RATE * 2 - p_ptr->tiring);
+                        }
+                        else
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest - p_ptr->tiring);
+                        }
 
 			/* Take a turn */
 			p_ptr->energy_use = 100;
@@ -3055,6 +3048,7 @@ void play_game(bool new_game)
 				a_ptr->i_artifact.not_flags1 = 0x0L;
 				a_ptr->i_artifact.not_flags1 = 0x0L;
 
+                                a_ptr->found = 0;
 			}
 
 		}

@@ -514,7 +514,7 @@ static void player_wipe(void)
 
 
 	/* Clear the inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		object_wipe(&inventory[i]);
 	}
@@ -580,6 +580,9 @@ static void player_wipe(void)
 
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
+
+        /* Hack -- Well rested player */
+        p_ptr->rest = PY_REST_FULL - 1;
 
 
 	/* None of the spells have been learned yet */

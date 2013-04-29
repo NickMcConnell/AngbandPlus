@@ -758,6 +758,7 @@ void map_info(int y, int x, byte *ap, char *cp)
                 /* Hack -- Safe cave grid -- now use 'invisible trap' */
 		else if (view_safe_grids && (info & (CAVE_SAFE)))
 		{
+#if 0
 			/* Get the darkness feature */
                         f_ptr = &f_info[FEAT_INVIS];
 
@@ -766,6 +767,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Normal char */
 			c = f_ptr->x_char;
+#endif
+                        a = TERM_L_DARK;
+                        c = 'x';
 		}
 
 		/* Unknown */
@@ -878,6 +882,7 @@ void map_info(int y, int x, byte *ap, char *cp)
                 /* Hack -- Safe cave grid -- now use 'invisible trap' */
 		else if (view_safe_grids && (info & (CAVE_SAFE)))
 		{
+#if 0
 			/* Get the darkness feature */
                         f_ptr = &f_info[FEAT_INVIS];
 
@@ -886,6 +891,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Normal char */
 			c = f_ptr->x_char;
+#endif
+                        a = TERM_L_DARK;
+                        c = 'x';
+
 		}
 
 
@@ -4566,7 +4575,7 @@ void disturb(int stop_search, int unused_flag)
 	}
 
 	/* Cancel searching if requested */
-	if (stop_search && p_ptr->searching)
+        if (stop_search && p_ptr->searching)
 	{
 		/* Cancel */
 		p_ptr->searching = FALSE;

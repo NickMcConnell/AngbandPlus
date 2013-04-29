@@ -340,6 +340,10 @@ void do_cmd_go_down(void)
  */
 void do_cmd_search(void)
 {
+
+        /* Get the feature */
+        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -355,6 +359,18 @@ void do_cmd_search(void)
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
+
+        /* Catch breath */
+        if (!(f_ptr->flags2 & (FF2_FILLED)))
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+        }
+        else
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest - p_ptr->tiring);
+        }
 
 	/* Search */
 	search();
@@ -1193,7 +1209,8 @@ void do_cmd_close(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	if (variant_fast_moves) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -1827,7 +1844,8 @@ void do_cmd_bash(void)
 
 
 	/* Take a turn */
-	p_ptr->energy_use = 100;
+	if (variant_fast_moves) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
 	/* Apply confusion */
 	if (confuse_dir(&dir))
@@ -2221,8 +2239,9 @@ static void do_cmd_walk_or_jump(int jumping)
 	if (!do_cmd_walk_test(y, x)) return;
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Take time */
+        if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 	/* Confuse direction */
 	if (confuse_dir(&dir))
@@ -2337,8 +2356,9 @@ static void do_cmd_hold_or_stay(int pickup)
 		p_ptr->command_arg = 0;
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Take time */
+        if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 	/* Spontaneous Searching */
 	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
@@ -2395,6 +2415,9 @@ void do_cmd_stay(void)
  */
 void do_cmd_rest(void)
 {
+        /* Get the feature */
+        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
 	/* Prompt for time if needed */
 	if (p_ptr->command_arg <= 0)
 	{
@@ -2432,6 +2455,17 @@ void do_cmd_rest(void)
 	/* Paranoia */
 	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
 
+        /* Catch breath */
+        if (!(f_ptr->flags2 & (FF2_FILLED)))
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest + PY_REST_RATE * 2 - p_ptr->tiring);
+        }
+        else
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest - p_ptr->tiring);
+        }
 
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
@@ -2639,6 +2673,12 @@ void do_cmd_fire(void)
                 o_ptr->stackc--;
         }
 
+	/* Forget information on dropped object */
+        drop_may_flags(i_ptr);
+
+	/* Forget guessed information */
+	if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
@@ -2722,7 +2762,7 @@ void do_cmd_fire(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = (50 / thits);
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = (50 / thits);
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = (50 / thits);
         else p_ptr->energy_use = (100 / thits);
 
 	/* Start at the player */
@@ -3003,6 +3043,12 @@ void do_cmd_throw(void)
                 o_ptr->stackc--;
         }
 
+	/* Forget information on dropped object */
+        inven_drop_flags(i_ptr);
+
+	/* Forget guessed information */
+	if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
@@ -3048,7 +3094,7 @@ void do_cmd_throw(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 

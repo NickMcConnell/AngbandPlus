@@ -1,3 +1,45 @@
+16-12-2001 Unangband 0.4.6a Bugfix release
+- Fixed gauge magic so that it cannot be used on items where
+IDENT_BONUS reveals no information, and correctly handles
+identification cases as required (Reported by Larry Bassel).
+- Fixed problem where bonuses could be known on equipment,
+without telling updating known character information
+(Reported by Larry Bassel).
+- Fixed problem where you could wield items from equip
+when you did not have variant_belt_slot option, causing the
+item to disappear.
+- Further refinements to identify system as I think of more
+cases that need handling. Should not now 'orphan' may flags
+on objects, resulting in false positive identifies. Also
+handle all cases of objects being thrown away, destroyed,
+stolen etc.
+- Tidy up messages for new wielding systems.
+- Fixed bug with destruction prompting wrong item for auto-
+inscription.
+- Setting an auto-inscription with the inscribe or destroy
+commands sets it for all known items in the dungeon.
+- Added variant_fast_moves option, which allows player to
+move quickly while not searching, at the expense of tiring
+out.
+- Added ability to swim underwater. With variant_fast_moves,
+you quickly run out of air... otherwise you are just
+slowed.
+- Changed around the handling of swimming, so that you will
+tire yourself out instead of drowning randomly. However,
+being paralyzed/knocked out in water/mud/etc. will cause
+you to drown. Since when you run out of air, you become
+paralyzed, you will quickly drown.
+- Water damage of all sorts douses non-magical lights.
+- Fire/plasma/lava attacks now provide information about
+the grids they attack.
+- Light/light weak attacks also light up adjacent grids.
+- Fixed bug where safe grids were coming up identical to
+floor grids (Reported by Larry Bassel).
+- Artifacts no longer get auto-inscriptions.
+- Added kind/ego item/tval menus to autoinscription command
+($).
+
+
 15-12-2001 Unangband 0.4.6 "Under New Management" release
 - Added ability to wield any item for half the energy use when
 using it (Such as casting spells, firing ammo, throwing etc).
@@ -9,7 +51,7 @@ or generated aware.
 - Added '=k' inscription to destroy item when picked up, '=d'
 inscription to not pick up an item, '=i' inscription to not
 mark an item. Use in conjunction with auto-inscription (Above)
-to mimic auto-squeltch from other variants.
+to mimic auto-squelch from other variants.
 - Inscribe/uninscribe/destroy commands now request if inscription
 is to be applied to all objects of that type.
 - Made unarmed combat apply whenever object wielded that is not

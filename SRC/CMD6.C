@@ -102,7 +102,7 @@ void do_cmd_eat_food(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Identity not known yet */
@@ -485,7 +485,7 @@ void do_cmd_quaff_potion(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -1347,7 +1347,7 @@ void do_cmd_read_scroll(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -1829,7 +1829,7 @@ void do_cmd_use_staff(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -2325,7 +2325,7 @@ void do_cmd_aim_wand(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -2787,7 +2787,7 @@ void do_cmd_zap_rod(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -3362,7 +3362,7 @@ void do_cmd_activate(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Extract the item level */

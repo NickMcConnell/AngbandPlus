@@ -1,6 +1,9 @@
 Note that these are play balance bugs only, there are no known stability
 bugs (Fingers crossed). 
 
+15-12-2001
+- Campaign mode is broken.
+
 23-07-2001
 - Mushroom weirdness from mushroom patch drops.
 - Not detecting chest traps with detection spells.
@@ -17,8 +20,7 @@ does is attack you.
 - Come to mention it, flow code is broken for fleeing monsters. We should
 choose a path that doesn't lead to dead ends. Fleeing monsters currently
 have no preference in this regard.
-- Need to notify the player they are singing/playing and when they are using
-their preferred style.
+- Need to notify the player they are singing/playing.
 - Spells that create bridges, raise and lower water should be temporary,
 to prevent unreachable areas and getting monsters stuck on terrain (Which is
 not handled well).

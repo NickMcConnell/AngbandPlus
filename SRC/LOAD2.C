@@ -1383,7 +1383,8 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
-	strip_bytes(4);	/* Old "food_digested" / "protection" */
+        rd_s16b(&p_ptr->rest);
+        strip_bytes(2); /* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
 	rd_s16b(&p_ptr->slow);
@@ -2918,9 +2919,8 @@ static errr rd_savefile_new_aux(void)
                 }
                 if (variant_usage_id) rd_s16b(&a_ptr->i_artifact.usage);
 
-                /* Oops */
-                if (variant_learn_id) rd_byte(&tmp8u);
-                if (variant_learn_id) rd_byte(&tmp8u);
+                /* Load number found */
+                if (variant_learn_id) rd_u16b(&a_ptr->found);
 
 	}
 

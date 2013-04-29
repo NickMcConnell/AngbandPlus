@@ -2412,25 +2412,6 @@ static errr autos_dump(cptr fname)
                 }
 	}
 
-
-        /* Dump them */
-        for (i = 0; i < z_info->a_max; i++)
-	{
-                if (a_info[i].note)
-                {
-
-                        /* Start the macro */
-                        fprintf(fff, "# Artifact '%s'\n\n", a_name + a_info[i].name);
-
-                        /* Dump the kind */
-                        fprintf(fff, "I:A:%d:%s\n", i, quark_str(a_info[i].note));
-
-                        /* End the inscription */
-                        fprintf(fff, "\n\n");
-
-                }
-	}
-
         /* Dump them */
         for (i = 0; i < z_info->e_max; i++)
 	{
@@ -2464,21 +2445,245 @@ static errr autos_dump(cptr fname)
 
 
 /*
+ * A structure to hold a tval and its description
+ */
+typedef struct tval_desc
+{
+	int tval;
+	cptr desc;
+} tval_desc;
+
+/*
+ * A list of tvals and their textual names
+ */
+static tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword"                },
+	{ TV_POLEARM,           "Polearm"              },
+	{ TV_HAFTED,            "Hafted Weapon"        },
+	{ TV_BOW,               "Bow"                  },
+	{ TV_ARROW,             "Arrows"               },
+	{ TV_BOLT,              "Bolts"                },
+	{ TV_SHOT,              "Shots"                },
+	{ TV_SHIELD,            "Shield"               },
+	{ TV_CROWN,             "Crown"                },
+	{ TV_HELM,              "Helm"                 },
+	{ TV_GLOVES,            "Gloves"               },
+	{ TV_BOOTS,             "Boots"                },
+	{ TV_CLOAK,             "Cloak"                },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_RING,              "Ring"                 },
+	{ TV_AMULET,            "Amulet"               },
+	{ TV_LITE,              "Lite"                 },
+	{ TV_POTION,            "Potion"               },
+	{ TV_SCROLL,            "Scroll"               },
+	{ TV_WAND,              "Wand"                 },
+	{ TV_STAFF,             "Staff"                },
+	{ TV_ROD,               "Rod"                  },
+	{ TV_PRAYER_BOOK,       "Priest Book"          },
+	{ TV_MAGIC_BOOK,        "Magic Book"           },
+        { TV_SONG_BOOK,         "Song Book"            },
+        { TV_INSTRUMENT,        "Instrument"           },
+	{ TV_SPIKE,             "Spikes"               },
+	{ TV_DIGGING,           "Digger"               },
+	{ TV_CHEST,             "Chest"                },
+	{ TV_FOOD,              "Food"                 },
+	{ TV_FLASK,             "Flask"                },
+        { TV_BOTTLE,            "Bottle"               },
+        { TV_SKELETON,          "Skeleton"             },
+        { TV_JUNK,              "Junk"                 },
+	{ 0,                    NULL                   }
+};
+
+/*
+ * Strip an "object kind name" into a buffer
+ */
+static void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
+}
+
+
+
+/*
+ * Hack -- title for each column
+ *
+ * This will not work with "EBCDIC", I would think.  XXX XXX XXX
+ *
+ * The third column head overlaps the first after 17 items are
+ * listed.  XXX XXX XXX
+ */
+static char head[3] =
+{ 'a', 'A', '0' };
+
+
+
+/*
+ * Get an object for inscription (or zero)
+ *
+ * List up to 57 choices in three columns
+ *
+ * Itemtype is 0 for tval, 1 for kind, 2 for ego item.
+ */
+static int autos_itemtype(int itemtype)
+{
+	int i, num, max_num;
+	int col, row;
+	int tval;
+
+	cptr tval_desc;
+	char ch;
+
+	int choice[60];
+
+	char buf[160];
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Print all tval's and their descriptions */
+	for (num = 0; (num < 57) && tvals[num].tval; num++)
+	{
+		row = 2 + (num % 20);
+		col = 30 * (num / 20);
+		ch = head[num/20] + (num%20);
+		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
+	}
+
+	/* Me need to know the maximal possible tval_index */
+	max_num = num;
+
+	/* Choose! */
+	if (!get_com("Get what type of object? ", &ch)) return (0);
+
+	/* Analyze choice */
+	num = -1;
+	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+
+	/* Bail out if choice is illegal */
+	if ((num < 0) || (num >= max_num)) return (0);
+
+	/* Base object type chosen, fill in tval */
+	tval = tvals[num].tval;
+	tval_desc = tvals[num].desc;
+
+        /* We just wanted a tval? */
+        if (!itemtype) return (tval);
+
+	/* Clear screen */
+	Term_clear();
+
+	/*** And now we go for k_idx ***/
+
+
+	/* We have to search the whole itemlist. */
+        if (itemtype == 1) for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+	{
+		object_kind *k_ptr = &k_info[i];
+
+		/* Analyze matching items */
+		if (k_ptr->tval == tval)
+		{
+			/* Hack -- Skip instant artifacts */
+			if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+			/* Prepare it */
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			ch = head[num/20] + (num%20);
+
+			/* Get the "name" of object "i" */
+			strip_name(buf, i);
+
+			/* Print it */
+			prt(format("[%c] %s", ch, buf), row, col);
+
+			/* Remember the object index */
+			choice[num++] = i;
+		}
+	}
+	/* We have to search the whole itemlist. */
+        else if (itemtype == 2) for (num = 0, i = 1; (num < 57) && (i < z_info->e_max); i++)
+	{
+                ego_item_type *e_ptr = &e_info[i];
+
+                int j;
+
+                /* Up to 3 lines */
+                for (j = 0; j < 3 ;j++)
+
+		/* Analyze matching items */
+                if (e_ptr->tval[j] == tval)
+		{
+
+			/* Prepare it */
+			row = 2 + (num % 20);
+			col = 30 * (num / 20);
+			ch = head[num/20] + (num%20);
+
+                        /* Get the "name" of ego_item "i" */
+                        sprintf(buf, "%s", e_name + e_ptr->name);
+
+			/* Print it */
+			prt(format("[%c] %s", ch, buf), row, col);
+
+			/* Remember the object index */
+			choice[num++] = i;
+		}
+	}
+
+	/* Me need to know the maximal possible remembered object_index */
+	max_num = num;
+
+	/* Choose! */
+        if (!get_com(format("What kind of %s? ", tval_desc), &ch)) return (0);
+
+	/* Analyze choice */
+	num = -1;
+	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
+	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
+	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+
+	/* Bail out if choice is "illegal" */
+	if ((num < 0) || (num >= max_num)) return (0);
+
+	/* And return successful */
+	return (choice[num]);
+}
+
+/*
  * Interact with "auto-inscriptions"
  */
 void do_cmd_autos(void)
 {
-	int ch;
-	int cx;
+        int ch;
 
-	int i;
+        int k_idx = 0;
+        int e_idx = 0;
+        int tval = 0;
 
-	FILE *fff;
-
-	char buf[1024];
-
-
-	/* File type is "TEXT" */
+     	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
@@ -2498,16 +2703,113 @@ void do_cmd_autos(void)
 		/* Give some choices */
 		prt("(1) Load a user pref file", 4, 5);
                 prt("(2) Dump auto-inscriptions", 5, 5);
+                prt("(3) Inscribe by kind", 6, 5);
+                prt("(4) Inscribe by ego-item", 7, 5);
+                prt("(5) Inscribe by tval", 8, 5);
+
 #if 0
-                prt("(3) Inscribe by quality", 5, 5);
-                prt("(4) Inscribe by kind", 6, 5);
-                prt("(5) Inscribe by ego-item", 7, 5);
-                prt("(6) Inscribe by artifact", 8, 5);
-                prt("(7) Inscribe by value", 9, 5);
+                prt("(6) Inscribe by quality", 9, 5);
+                prt("(7) Inscribe by value", 10, 5);
 #endif
+                /* Hack -- we have a kind */
+                if (k_idx)
+                {
+                        char itmp[80];
+
+                        object_kind *k_ptr = &k_info[k_idx];
+
+			/* Prompt */
+                        prt("Command: Inscribe kind", 10, 0);
+
+			/* Prompt */
+                        prt("Auto-inscription: ", 12, 0);
+
+                        /* Default inscription */
+                        sprintf(itmp, "%s", quark_str(k_ptr->note));
+
+			/* Get a filename */
+                        if (!askfor_aux(itmp, 80)) continue;
+
+                        /* Set the inscription */
+                        k_ptr->note = quark_add(itmp);
+
+                        /* Not interacting with kind */
+                        k_idx = 0;
+
+                        continue;
+
+                }
+
+                /* Hack -- we have an ego item */
+                if (e_idx)
+                {
+                        char itmp[80];
+
+                        ego_item_type *e_ptr = &e_info[e_idx];
+
+			/* Prompt */
+                        prt("Command: Inscribe ego item", 10, 0);
+
+			/* Prompt */
+                        prt("Auto-inscription: ", 12, 0);
+
+                        /* Default inscription */
+                        sprintf(itmp, "%s", quark_str(e_ptr->note));
+
+			/* Get a filename */
+                        if (!askfor_aux(itmp, 80)) continue;
+
+                        /* Set the inscription */
+                        e_ptr->note = quark_add(itmp);
+
+                        /* Not interacting with ego item */
+                        e_idx = 0;
+
+                        continue;
+
+                }
+
+                /* Hack -- we have a tval */
+                if (tval)
+                {
+                        char itmp[80];
+
+                        int i;
+
+			/* Prompt */
+                        prt("Command: Inscribe tval", 10, 0);
+
+			/* Prompt */
+                        prt("Auto-inscription: ", 12, 0);
+
+                        /* No default inscription */
+                        itmp[0] = 0;
+
+			/* Get a filename */
+                        if (!askfor_aux(itmp, 80)) continue;
+
+                        /* Set all objects */
+                        for (i = 0; i < z_info->k_max;i++)
+                        {
+                                object_kind *k_ptr = &k_info[i];
+
+                                /* Not a matching tval */
+                                if (k_ptr->tval != tval) continue;
+
+                                /* Set the inscription */
+                                k_ptr->note = quark_add(itmp);
+                        }
+
+                        /* Not interacting with tval */
+                        tval = 0;
+
+                        continue;
+
+                }
+
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+                prt("Command: ", 10, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -2519,7 +2821,7 @@ void do_cmd_autos(void)
 		if (ch == '1')
 		{
 			/* Ask for and load a user pref file */
-			do_cmd_pref_file_hack(8);
+                        do_cmd_pref_file_hack(10);
 
 			/* Could skip the following if loading cancelled XXX XXX XXX */
 
@@ -2530,13 +2832,13 @@ void do_cmd_autos(void)
 		/* Dump colors */
 		else if (ch == '2')
 		{
-			char ftmp[80];
+                        char ftmp[80];
 
 			/* Prompt */
-                        prt("Command: Dump auto-inscriptions", 8, 0);
+                        prt("Command: Dump auto-inscriptions", 10, 0);
 
 			/* Prompt */
-			prt("File: ", 10, 0);
+                        prt("File: ", 12, 0);
 
 			/* Default filename */
 			sprintf(ftmp, "%s.prf", op_ptr->base_name);
@@ -2557,6 +2859,33 @@ void do_cmd_autos(void)
                         msg_print("Appended auto-inscriptions.");
 		}
 
+
+                /* Interact with kinds */
+                else if (ch == '3')
+		{
+                        /* Hack -- get item type */
+                        k_idx = autos_itemtype(1);
+
+                        continue;
+		}
+
+                /* Interact with ego items */
+                else if (ch == '4')
+		{
+                        /* Hack -- get item type */
+                        e_idx = autos_itemtype(2);
+
+                        continue;
+		}
+
+                /* Interact with kinds */
+                else if (ch == '5')
+		{
+                        /* Hack -- get item type */
+                        tval = autos_itemtype(0);
+
+                        continue;
+		}
 
 		/* Unknown option */
 		else
@@ -2924,7 +3253,7 @@ static void do_cmd_knowledge_artifacts(void)
 	}
 
 	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	for (i = 0; i < INVEN_TOTAL+1; i++)
 	{
 		object_type *o_ptr = &inventory[i];
 

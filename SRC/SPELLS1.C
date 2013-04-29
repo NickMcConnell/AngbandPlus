@@ -1098,11 +1098,42 @@ void water_dam(int dam, cptr kb_str)
 {
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
+	/* Check for light being wielded */
+        object_type *o_ptr = &inventory[INVEN_LITE];
+
+	/* Burn some fuel in the current lite */
+	if (o_ptr->tval == TV_LITE)
+	{
+                /* Hack -- Use up fuel (except on artifacts) */
+		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		{
+                        /* Douse light */
+                        o_ptr->pval = 0;
+
+			/* Hack -- Special treatment when blind */
+			if (p_ptr->blind)
+			{
+				/* Hack -- save some light for later */
+                                o_ptr->pval++;
+			}
+
+			/* The light is now out */
+                        else
+			{
+				disturb(0, 0);
+				msg_print("Your light has gone out!");
+			}
+		}
+	}
+
 	/* Take damage */
 	take_hit(dam, kb_str);
 
 	/* Inventory damage */
 	inven_damage(set_water_destroy, inv);
+
+
+
 }
 
 
@@ -1561,6 +1592,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_LAVA:
 		case GF_FIRE:
 		case GF_PLASMA:
+                {
+                        int i;
+
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE)) &&
 			       (dam > (f_info[cave_feat[y][x]].power*10))) {
 				/* Check line of sight */
@@ -1576,8 +1610,43 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Destroy the feature */
 				cave_alter_feat(y, x, FS_HURT_FIRE);
 			}
-			break;
 
+			/* Grid is in line of sight */
+			if (player_has_los_bold(y, x))
+			{
+                                /* Remember? */
+                                note_spot(y,x);
+
+                		/* Observe */
+				obvious = TRUE;
+
+				/* Fully update the visuals */
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+			}
+
+                        if (!(cave_info[y][x] & (CAVE_WALL)))
+                                for (i = 0; i < 8; i++)
+                        {
+                                int yy = y + ddy_ddd[i];
+                                int xx = x + ddx_ddd[i];
+
+                                /* Ignore annoying locations */
+                                if ((in_bounds_fully(yy, xx)) && (player_has_los_bold(yy,xx))) 
+                                {
+                                        /* Memorize grid */
+                                        note_spot(yy,xx);
+
+                                        /* Observe */
+                                        obvious = TRUE;
+
+                                        /* Fully update the visuals */
+                                        p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+                                }
+
+                        }
+
+                	break;
+                }
 		case GF_COLD:
 		case GF_ICE:
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_COLD)) &&
@@ -1815,6 +1884,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_LITE_WEAK:
 		case GF_LITE:
 		{
+                        int i;
+
 			/* Turn on the light */
 			cave_info[y][x] |= (CAVE_GLOW);
 
@@ -1827,6 +1898,31 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Fully update the visuals */
 				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 			}
+
+                        if (!(cave_info[y][x] & (CAVE_WALL)))
+                                for (i = 0; i < 8; i++)
+                        {
+                                int yy = y + ddy_ddd[i];
+                                int xx = x + ddx_ddd[i];
+
+                                /* Ignore annoying locations */
+                                if (in_bounds_fully(yy, xx))
+                                {
+                                        /* Turn on the light */
+                                        cave_info[yy][xx] |= (CAVE_GLOW);
+                                }
+
+                                /* Grid is in line of sight */
+                                if (player_has_los_bold(yy, xx))
+                                {
+                                        /* Observe */
+                                        obvious = TRUE;
+
+                                        /* Fully update the visuals */
+                                        p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+                                }
+
+                        }
 
 			break;
 		}
@@ -4698,6 +4794,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
                                         o_ptr->stackc--;
                                 }
+
+				drop_may_flags(i_ptr);
+
+				if (o_ptr->number == 1) inven_drop_flags(o_ptr);
 
 				/* Carry the object */
 				if (who > 0)

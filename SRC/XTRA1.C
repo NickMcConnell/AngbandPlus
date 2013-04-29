@@ -580,6 +580,33 @@ static void prt_state(void)
 		strcpy(text, "Searching ");
 	}
 
+	/* Searching */
+	else if (p_ptr->searching)
+	{
+		strcpy(text, "Searching ");
+	}
+
+	/* Fainting / Starving */
+        else if (p_ptr->rest < PY_REST_FAINT)
+	{
+                attr = TERM_RED;
+                strcpy(text, "Exhausted ");
+	}
+
+        /* Weak */
+        else if (p_ptr->rest < PY_REST_WEAK)
+	{
+                attr = TERM_ORANGE;
+                strcpy(text, "Exhausted ");
+	}
+
+        /* Tired */
+        else if (p_ptr->rest < PY_REST_ALERT)
+	{
+                attr = TERM_YELLOW;
+                strcpy(text, "Tired     ");
+	}
+
 	/* Nothing interesting */
 	else
 	{
@@ -2180,7 +2207,7 @@ static int weight_limit(void)
  */
 static void calc_bonuses(void)
 {
-	int i, j, hold, weight;
+        int i, j, k, hold, weight;
 
 	int old_speed;
 
@@ -2498,7 +2525,7 @@ static void calc_bonuses(void)
 		p_ptr->to_a += o_ptr->to_a;
 
 		/* Apply the mental bonuses to armor class, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
+		if (object_bonus_p(o_ptr)) p_ptr->dis_to_a += o_ptr->to_a;
 
 		/* Hack -- do not apply "weapon" bonuses */
 		if (i == INVEN_WIELD) continue;
@@ -2511,8 +2538,8 @@ static void calc_bonuses(void)
 		p_ptr->to_d += o_ptr->to_d;
 
 		/* Apply the mental bonuses tp hit/damage, if known */
-		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+		if (object_bonus_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
+		if (object_bonus_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
 
@@ -2648,13 +2675,27 @@ static void calc_bonuses(void)
 	/* Extract the current weight (in tenth pounds) */
 	j = p_ptr->total_weight;
 
+	/* Extract the "weight limit" (in tenth pounds) */
+	i = weight_limit();
+
+        /* Base tire rate */
+        k = 10 - adj_con_fix[p_ptr->stat_ind[A_CON]];
+
+        /* Apply "tiredness" from weight */
+        if (j > i/2) k += ((j - (i/2)) / (i / 10));
+
 	/* ANDY - Modify the weight for terrain underneath */
 
 	/* Ignore annoying locations */
 	if (in_bounds_fully(p_ptr->py, p_ptr->px))
 	{
-		feature_type *f_ptr;
-		f_ptr=&f_info[cave_feat[p_ptr->py][p_ptr->px]];
+                feature_type *f_ptr =&f_info[cave_feat[p_ptr->py][p_ptr->px]];
+
+                bool can_swim = f_ptr->flags2 & (FF2_CAN_SWIM);
+
+                /* If both hands not free, we cannot swim */
+                if ((inventory[INVEN_WIELD].k_idx) ||
+                        (inventory[INVEN_ARM].k_idx)) can_swim = FALSE;
 
 		if (f_ptr->flags2 & (FF2_FILLED))
 		{
@@ -2663,10 +2704,12 @@ static void calc_bonuses(void)
 			if (f_ptr->flags2 & (FF2_CAN_SWIM))
 			{
 				j = j * 3;
+                                k = k * 3;
 			}
 			else
 			{
 				j = j * 4;
+                                k = k * 4;
 			}
 		}
 		else if (f_ptr->flags2 & (FF2_DEEP))
@@ -2675,22 +2718,23 @@ static void calc_bonuses(void)
 			if (f_ptr->flags2 & (FF2_CAN_SWIM))
 			{
 				j = j * 2;
+                                k = k * 2;
 			}
 			else
 			{
 				j = j * 3;
+                                k = k * 3;
 			}
 		}
 		else if (f_ptr->flags2 & (FF2_SHALLOW))
 		{
 			j = (j * 3)/2;
+                        k = (k * 3)/2;
 		}
 	}
 
-
-
-	/* Extract the "weight limit" (in tenth pounds) */
-	i = weight_limit();
+        /* Set the rate of tiring */
+        p_ptr->tiring = k;
 
 	/* Apply "encumbrance" from weight */
 	if (j > i/2) p_ptr->pspeed -= ((j - (i/2)) / (i / 10));

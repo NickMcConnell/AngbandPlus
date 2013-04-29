@@ -494,7 +494,7 @@ struct artifact_type
 #ifdef ALLOW_OBJECT_INFO
 	object_info i_artifact;
 #endif
-        u16b note;             /* Auto-inscription */
+        u16b found;             /* Number of times found */
 };
 
 
@@ -1215,6 +1215,9 @@ struct player_type
 
 	s16b food;                      /* Current nutrition */
 
+        s16b rest;                      /* Current rest */
+        s16b water;                     /* Current water */
+
 	byte confusing;         /* Glowing hands */
 	byte searching;         /* Currently searching */
 
@@ -1409,7 +1412,11 @@ struct player_type
 	byte ammo_tval;         /* Ammo variety */
 
 	s16b pspeed;            /* Current speed */
+        s16b tiring;            /* Current rate of tiring */
+
         u32b cur_style;         /* Current weapon style(s)*/
+
+
 };
 
 

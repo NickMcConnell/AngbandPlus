@@ -374,6 +374,16 @@
 #define PY_FOOD_STARVE  100             /* Food value (Starving) */
 
 /*
+ * Player "rest" crucial values
+ */
+#define PY_REST_FULL    500    /* Rest value (Normal) */
+#define PY_REST_ALERT   300    /* Rest value (Tired) */
+#define PY_REST_WEAK    200    /* Rest value (Weak) */
+#define PY_REST_FAINT   100     /* Rest value (Fainting) */
+
+#define PY_REST_RATE    30
+
+/*
  * Player regeneration constants
  */
 #define PY_REGEN_NORMAL         197             /* Regen factor*2^16 when full */
@@ -2894,8 +2904,7 @@
 #define OPT_room_names				78
 #define OPT_verify_mana			79
 #define OPT_reseed_artifacts		80
-/* xxx */
-/* xxx */
+#define OPT_easy_autos                  81
 /* xxx */
 /* xxx xxx */
 #define OPT_birth_point_based           (OPT_BIRTH+0)
@@ -2930,6 +2939,8 @@
 #define OPT_score_xtra                          (OPT_SCORE+3)
 #define OPT_score_know                          (OPT_SCORE+4)
 #define OPT_score_live                          (OPT_SCORE+5)
+#define OPT_score_lore                          (OPT_SCORE+6)
+#define OPT_score_auto                          (OPT_SCORE+7)
 
 #define OPT_variant_town                (OPT_VARIANT+0)
 #define OPT_variant_mushrooms		(OPT_VARIANT+1)
@@ -2958,7 +2969,7 @@
 #define OPT_variant_fast_floor  (OPT_VARIANT+24)
 #define OPT_variant_fast_equip  (OPT_VARIANT+25)
 #define OPT_variant_belt_slot   (OPT_VARIANT+26)
-
+#define OPT_variant_fast_moves  (OPT_VARIANT+27)
 
 /*
  * Hack -- Option symbols
@@ -3044,6 +3055,7 @@
 #define room_descriptions                         op_ptr->opt[OPT_room_descriptions]
 #define room_names                           op_ptr->opt[OPT_room_names]
 #define reseed_artifacts			op_ptr->opt[OPT_reseed_artifacts]
+#define easy_autos                        op_ptr->opt[OPT_easy_autos]
 /* xxx */
 /* xxx */
 /* xxx xxx */
@@ -3080,6 +3092,9 @@
 #define score_xtra                              op_ptr->opt[OPT_score_xtra]
 #define score_know                              op_ptr->opt[OPT_score_know]
 #define score_live                              op_ptr->opt[OPT_score_live]
+#define score_lore                              op_ptr->opt[OPT_score_lore]
+#define score_auto                              op_ptr->opt[OPT_score_auto]
+
 /* XXX XXX */
 #define variant_town                            op_ptr->opt[OPT_variant_town]
 #define variant_mushrooms                       op_ptr->opt[OPT_variant_mushrooms]
@@ -3108,6 +3123,7 @@
 #define variant_fast_floor                      op_ptr->opt[OPT_variant_fast_floor]
 #define variant_fast_equip                      op_ptr->opt[OPT_variant_fast_equip]
 #define variant_belt_slot                       op_ptr->opt[OPT_variant_belt_slot]
+#define variant_fast_moves                      op_ptr->opt[OPT_variant_fast_moves]
 
 /*
  * Information for "do_cmd_options()".
@@ -3153,6 +3169,17 @@
 #define object_known_p(T) \
 	(((T)->ident & (IDENT_KNOWN)) || \
 	 (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware))
+
+/*
+ * Determine if a given inventory item has known bonuses
+ * Test One -- Check for special "known" tag
+ * Test Two -- Check for "Easy Know" + "Aware"
+ * Test Three -- Check for special "bonus" tag
+ */
+#define object_bonus_p(T) \
+	(((T)->ident & (IDENT_KNOWN)) || \
+	 (k_info[(T)->k_idx].easy_know && k_info[(T)->k_idx].aware) || \
+	 ((T)->ident & (IDENT_BONUS)))
 
 
 /*

@@ -3220,8 +3220,8 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		}
 	}
 
-        /* Take a turn, if not already */
-        if (!p_ptr->energy_use) p_ptr->energy_use = 100;
+        /* Take a partial turn, if not already */
+        if (!p_ptr->energy_use) p_ptr->energy_use = 50;
 
 	/* Sufficient mana */
 	if (sc_ptr->mana <= p_ptr->csp)
@@ -3516,7 +3516,7 @@ void do_cmd_cast(void)
 
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Cast the spell - held songs get cast later*/

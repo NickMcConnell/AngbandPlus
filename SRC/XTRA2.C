@@ -21,7 +21,7 @@
 /*
  * Set "p_ptr->blind", notice observable changes
  *
- * Note the use of "PU_FORGET_VIEW" and "PU_UPDAfTE_VIEW", which are needed
+ * Note the use of "PU_FORGET_VIEW" and "PU_UPDATE_VIEW", which are needed
  * because "p_ptr->blind" affects the "CAVE_SEEN" flag, and "PU_MONSTERS",
  * because "p_ptr->blind" affects monster visibility, and "PU_MAP", because
  * "p_ptr->blind" affects the way in which many cave grids are displayed.
@@ -1647,6 +1647,156 @@ bool set_food(int v)
 	/* Result */
 	return (TRUE);
 }
+/*
+ * Set "p_ptr->rest", notice observable changes
+ *
+ * Tiring is handled in "dungeon.c", but computation of the rate of
+ * tiring is handled in "xtra1.c". The player tires at a rate dependent
+ * on their constitution, but this is impacted if they are slowed by
+ * heavy equipment, and by moving through shallow, deep or filled
+ * locations.
+ *
+ * Note the player rests to "catch their breath", but may not do so in
+ * locations that are filled with a terrain type.
+ *
+ * Note that the player automatically catches their breath when searching,
+ * (With the same caveat), but searching takes a full turns energy, rather
+ * than a partial turn.
+ *
+ */
+
+bool set_rest(int v)
+{
+	int old_aux, new_aux;
+
+	bool notice = FALSE;
+
+	/* Hack -- Force good values */
+        v = (v > PY_REST_FULL) ? PY_REST_FULL : (v < 0) ? 0 : v;
+
+	/* Fainting / Starving */
+        if (p_ptr->rest < PY_REST_FAINT)
+	{
+		old_aux = 0;
+	}
+
+	/* Weak */
+        else if (p_ptr->rest < PY_REST_WEAK)
+	{
+		old_aux = 1;
+	}
+
+	/* Hungry */
+        else if (p_ptr->rest < PY_REST_ALERT)
+	{
+		old_aux = 2;
+	}
+
+	/* Normal */
+        else
+	{
+		old_aux = 3;
+	}
+
+	/* Fainting / Starving */
+        if (v < PY_REST_FAINT)
+	{
+		new_aux = 0;
+	}
+
+	/* Weak */
+        else if (v < PY_REST_WEAK)
+	{
+		new_aux = 1;
+	}
+
+	/* Hungry */
+        else if (v < PY_REST_ALERT)
+	{
+		new_aux = 2;
+	}
+
+	/* Normal */
+        else
+	{
+		new_aux = 3;
+	}
+
+        /* Rest increase */
+	if (new_aux > old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+
+			/* Normal */
+			case 3:
+			{
+                                msg_print("You are no longer tired.");
+				break;
+			}
+
+		}
+
+		/* Change */
+		notice = TRUE;
+	}
+
+	/* Food decrease */
+	else if (new_aux < old_aux)
+	{
+		/* Describe the state */
+		switch (new_aux)
+		{
+			/* Fainting / Starving */
+			case 0:
+			{
+                                msg_print("You are getting faint from exhaustion!");
+				break;
+			}
+
+			/* Weak */
+			case 1:
+			{
+                                msg_print("You are getting weak from exhaustion!");
+				break;
+			}
+
+			/* Hungry */
+			case 2:
+			{
+                                msg_print("You are getting short of breath.");
+				break;
+			}
+
+		}
+
+		/* Change */
+		notice = TRUE;
+	}
+
+	/* Use the value */
+        p_ptr->rest = v;
+
+	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw hunger */
+        p_ptr->redraw |= (PR_STATE);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
 
 
 /*

@@ -1542,7 +1542,7 @@ cptr option_text[OPT_MAX] =
 	"room_names",						/* xxx */
 	"verify_mana",						/* xxx */
 	"reseed_artifacts",						/* xxx */
-	NULL,						/* xxx */
+        "easy_autos",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1584,7 +1584,7 @@ cptr option_text[OPT_MAX] =
         "variant_fast_floor",                                           /* xxx */
         "variant_fast_equip",                                           /* xxx */
         "variant_belt_slot",                                           /* xxx */
-	NULL,						/* xxx */
+        "variant_fast_moves",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1691,8 +1691,8 @@ cptr option_text[OPT_MAX] =
 	"score_xtra",				/* OPT_score_xtra */
 	"score_know",				/* OPT_score_know */
 	"score_live",				/* OPT_score_live */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+        "score_lore",                                           /* xxx */
+        "score_auto",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1806,7 +1806,7 @@ cptr option_desc[OPT_MAX] =
 	"Display room names",						/* xxx */
 	"Verify critical mana",						/* xxx */
 	"Reseed random artifacts on death",						/* xxx */
-	NULL,										/* xxx */
+        "Prompt to inscribe all objects",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1848,7 +1848,7 @@ cptr option_desc[OPT_MAX] =
         "Use objects faster from floor",                                                                           /* xxx */
         "Use objects faster when wielded",
         "Add belt slot to equipment",                                                                           /* xxx */
-	NULL,										/* xxx */
+        "Move faster but get tired",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1955,8 +1955,8 @@ cptr option_desc[OPT_MAX] =
 	"Score: Peek into something else",			/* OPT_score_xtra */
 	"Score: Know complete monster info",		/* OPT_score_know */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+        "Score: Know complete artifact/ego info",                                               /* xxx */
+        "Score: Auto-inscribe items as if known",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2070,7 +2070,7 @@ bool option_norm[OPT_MAX] =
         TRUE,           /* OPT_room_names */
         FALSE,          /* OPT_verify_mana */
 	TRUE,		/* OPT_reseed_artifacts */
-	FALSE,		/* xxx */
+        TRUE,           /* OPT_easy_autos */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2112,7 +2112,7 @@ bool option_norm[OPT_MAX] =
         TRUE,          /* OPT_variant_fast_floor */
         TRUE,           /* OPT_variant_fast_equip */
         FALSE,          /* OPT_variant_belt_slot */
-	FALSE,		/* xxx */
+        TRUE,          /* OPT_variant_fast_moves */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2276,7 +2276,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_ring_bell,
 		OPT_stack_force_pvals,
 		OPT_stack_force_times,
-                255,
+                OPT_easy_autos,
                 255
 	},
 
@@ -2427,7 +2427,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_many_rings,
                 OPT_variant_fast_floor,
                 OPT_variant_fast_equip,
-                255
+                OPT_variant_fast_moves
 	},
 
         /*** Variant save-file ***/
@@ -2441,7 +2441,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_town,
 		OPT_variant_room_info,
                 OPT_variant_belt_slot,
-		255,
+                255,
 		255,
 		255,
 		255,

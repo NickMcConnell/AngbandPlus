@@ -31,7 +31,7 @@ V:2.9.2
 
 N:1:0:100
 A:Magic Missile
-B:MISSILE:MISSILF:3d4+0
+B:MISSILE:MISSILE:3d4+0
 
 N:2:0:100
 A:Detect Monsters

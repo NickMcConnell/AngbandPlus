@@ -1122,8 +1122,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
-	wr_s16b(p_ptr->food);
-	wr_s16b(0);	/* old "food_digested" */
+        wr_s16b(p_ptr->food);
+        wr_s16b(p_ptr->rest);     /* old "food_digested" */
 	wr_s16b(0);	/* old "protection" */
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
@@ -1519,9 +1519,8 @@ static bool wr_savefile_new(void)
 
                 if (variant_usage_id) wr_s16b(a_ptr->i_artifact.usage);
 
-                /* Oops */
-                if (variant_learn_id) wr_byte(0);
-                if (variant_learn_id) wr_byte(0);
+                /* Save number found */
+                if (variant_learn_id) wr_u16b(a_ptr->found);
 #endif
 	}
 

@@ -823,9 +823,14 @@ void object_known(object_type *o_ptr)
                         o_ptr->i_object.can_flags2,
                         o_ptr->i_object.can_flags3);
 
+	object_may_flags(o_ptr,o_ptr->i_object.may_flags1,
+                        o_ptr->i_object.may_flags2,
+                        o_ptr->i_object.may_flags3);
+
 	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
                         o_ptr->i_object.not_flags2,
                         o_ptr->i_object.not_flags3);
+
 
 #endif
 
@@ -848,16 +853,19 @@ void object_bonus(object_type *o_ptr)
 	o_ptr->ident |= (IDENT_BONUS);
 
 	/* Is this all we need to know */
-	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF) ||
-	    (o_ptr->tval == TV_ROD))
+	if (!(o_ptr->name1) && ((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)))
 	{
-		object_known(o_ptr);
+		/* Still need to know pval */
+	}
+
+	/* Is this all we need to know */
+        else if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
+	{
+		if (object_aware_p(o_ptr)) object_known(o_ptr);
 	}
 
 	/* Sense the item (if appropriate) */
-	else if ((o_ptr->discount == 0) &&
-                (o_ptr->discount<=INSCRIP_NULL) &&
-		!(object_known_p(o_ptr)))
+	else if (!object_known_p(o_ptr))
 	{
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
@@ -1882,6 +1890,11 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 
 	/* Hack -- Blend "notes" */
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
+
+	/* Hack -- Blend flags */
+	object_not_flags(o_ptr,j_ptr->i_object.not_flags1,j_ptr->i_object.not_flags2,j_ptr->i_object.not_flags3);
+	object_may_flags(o_ptr,j_ptr->i_object.may_flags1,j_ptr->i_object.may_flags2,j_ptr->i_object.may_flags3);
+	object_can_flags(o_ptr,j_ptr->i_object.can_flags1,j_ptr->i_object.can_flags2,j_ptr->i_object.can_flags3);
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
@@ -3533,10 +3546,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		{
 			j_ptr->number = damroll(6, 7);
                 }
-                case TV_FOOD:
-                {
-                        if (j_ptr->sval < SV_FOOD_MIN_FOOD) j_ptr->number = damroll(1,3);
-                }
 	}
 
 	/* Notice "okay" out-of-depth objects */
@@ -5126,12 +5135,20 @@ s16b inven_takeoff(int item, int amt)
                 act = "You were enchanted with";
 	}
 
-
-	/* Take off instrument */
-	else if (i_ptr->tval == TV_INSTRUMENT)
+	/* Where is the item now */
+        else if (((item == INVEN_WIELD) && (i_ptr->number > 1)) || (item == INVEN_BELT))
 	{
-		act = "You were playing";
-		p_ptr->held_song = 0;
+                act = "You were carrying";
+	}
+        else if ((i_ptr->tval == TV_SWORD) || (i_ptr->tval == TV_POLEARM)
+                        || (i_ptr->tval == TV_HAFTED))
+        {
+                act = "You were wielding";
+                if (item == INVEN_ARM) act = "You were wielding off-handed";
+        }
+        else if (item == INVEN_WIELD)
+	{
+                act = "You were using";
 	}
 
 	/* Took off weapon */
@@ -5217,12 +5234,6 @@ void inven_drop(int item, int amt)
 	}
 
         
-#ifdef ALLOW_OBJECT_INFO
-
-        drop_may_flags(o_ptr);
-
-#endif
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -5260,6 +5271,12 @@ void inven_drop(int item, int amt)
 		/* Set stack count */
 		i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
         }
+
+	/* Forget information on dropped object */
+	drop_may_flags(i_ptr);
+
+	/* Forget guessed information */
+	if (o_ptr->number == amt) inven_drop_flags(o_ptr);
 
 	/* Describe local object */
 	object_desc(o_name, i_ptr, TRUE, 3);

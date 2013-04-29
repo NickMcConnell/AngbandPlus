@@ -2742,9 +2742,6 @@ bool identify_fully_aux(object_type *o_ptr)
  */
 char index_to_label(int i)
 {
-        /* Indexes for pocket are a hack */
-        if (i == INVEN_BELT) return (I2A(INVEN_TOTAL - INVEN_WIELD));
-
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_WIELD) return (I2A(i));
 
@@ -2984,7 +2981,20 @@ cptr mention_use(int i)
 		o_ptr = &inventory[i];
 
                 /* Multiple wielded items */
-                if (o_ptr->number > 1) p = "In hands";
+                if (o_ptr->number > 1) p = "Carrying";
+
+                /* Describe use better */
+                else switch (o_ptr->tval)
+		{
+                        case TV_SWORD:
+                        case TV_POLEARM:
+                        case TV_HAFTED:
+                                break;
+
+                        default:
+                                p = "Using";
+                                break;
+		}
         }
 	/* Hack -- Non-shield item */
         else if (i == INVEN_ARM)
@@ -3434,6 +3444,12 @@ void object_guess_name(object_type *o_ptr)
 
 void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
+	u32b if1 = o_ptr->i_object.may_flags1 &= (f1);
+	u32b if2 = o_ptr->i_object.may_flags2 &= (f2);
+	u32b if3 = o_ptr->i_object.may_flags3 &= (f3);
+
+	int i;
+
         /* Variant? */
         if (!variant_learn_id) return;
 
@@ -3442,10 +3458,20 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	o_ptr->i_object.not_flags2 &= ~(f2);
 	o_ptr->i_object.not_flags3 &= ~(f3);
 
-	/* Clear may flags */
-	o_ptr->i_object.may_flags1 &= ~(f1);
-	o_ptr->i_object.may_flags2 &= ~(f2);
-	o_ptr->i_object.may_flags3 &= ~(f3);
+	/* Clear may flags on all kit - include inventory */
+        for (i = 0; i < INVEN_TOTAL+1; i++)
+	{
+                object_type *i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		/* Clear may flags */
+		o_ptr->i_object.may_flags1 &= ~(if1);
+		o_ptr->i_object.may_flags2 &= ~(if2);
+		o_ptr->i_object.may_flags3 &= ~(if3);
+
+	}
 
 	/* Mark can flags */
 	o_ptr->i_object.can_flags1 |= (f1);
@@ -3497,23 +3523,30 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
                 e_ptr->i_ego_item.not_flags2 &= ~(f2);
                 e_ptr->i_ego_item.not_flags3 &= ~(f3);
 
-		if (o_ptr->xtra1)
+		if (!o_ptr->xtra1)
 		{
-	                e_ptr->i_ego_item.may_flags1 |= f1;
-	                e_ptr->i_ego_item.may_flags2 |= f2;
-	                e_ptr->i_ego_item.may_flags3 |= f3;
+	                e_ptr->i_ego_item.can_flags1 |= f1;
+        	        e_ptr->i_ego_item.can_flags2 |= f2;
+                	e_ptr->i_ego_item.can_flags3 |= f3;
 		}
-		else
+		else if ((e_ptr->i_ego_item.can_flags1) || (e_ptr->i_ego_item.can_flags2) || (e_ptr->i_ego_item.can_flags3))
 		{
-	                e_ptr->i_ego_item.may_flags1 &= ~(f1);
-	                e_ptr->i_ego_item.may_flags2 &= ~(f2);
-	                e_ptr->i_ego_item.may_flags3 &= ~(f3);
+			f1 &= ~(e_ptr->i_ego_item.may_flags1);
+			f2 &= ~(e_ptr->i_ego_item.may_flags2);
+			f3 &= ~(e_ptr->i_ego_item.may_flags3);
 
 	                e_ptr->i_ego_item.can_flags1 |= f1;
 	                e_ptr->i_ego_item.can_flags2 |= f2;
 	                e_ptr->i_ego_item.can_flags3 |= f3;
-
 		}
+		else
+		{
+	                e_ptr->i_ego_item.may_flags1 |= f1;
+        	        e_ptr->i_ego_item.may_flags2 |= f2;
+                	e_ptr->i_ego_item.may_flags3 |= f3;
+		}
+
+
 	}
 #if 0
 	/* Kind */
@@ -3678,7 +3711,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	}
 
 	/* Artifact */
-	if (o_ptr->name1)
+	if (o_ptr->name1) 
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -3717,16 +3750,17 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_sustain));
 			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
 
-                        object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
+			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
 					e_ptr->i_ego_item.can_flags3);
 
 			e_ptr->i_ego_item.may_flags1 = 0x0L;
 			e_ptr->i_ego_item.may_flags2 = one_sustain;
 			e_ptr->i_ego_item.may_flags3 = 0x0L;
+
 		}
 		else if ((e_ptr->i_ego_item.may_flags2 & (f2)) && (f2 & one_resist))
 		{
-			/* One sustain */
+			/* One resist */
 			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
 			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_resist));
 			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
@@ -3755,88 +3789,78 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 
 	}
 
+
 }
 
 /*
- * Object forgets may flags
+ * Object may have these flags. If only object in equipment
+ * to do so, will have these flags. Use for object absorbtion.
  */
+void object_may_flags(object_type *o_ptr, u32b f1,u32b f2,u32b f3)
+{
+	int i;
 
-static void object_may_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+	int n=-1;
+	int count=0;
+
+	object_type *i_ptr;
+
+        /* Variant? */
+        if (!variant_learn_id) return;
+
+	/* Mark may flags */
+	o_ptr->i_object.may_flags1 |= (f1);
+	o_ptr->i_object.may_flags2 |= (f2);
+	o_ptr->i_object.may_flags3 |= (f3);
+
+	/* Hack --- exclude racial flags */
+	f1 &= ~(rp_ptr->flags1);
+	f2 &= ~(rp_ptr->flags2);
+	f3 &= ~(rp_ptr->flags3);
+
+	/* Check for flags - include inventory */
+        for (i = 0; i < INVEN_TOTAL+1; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		if (object_xnot_flags(i_ptr, f1, f2, f3))
+		{
+			count++;
+
+			/* Hack -- track last item */
+			n = i;
+		}
+
+	}
+
+	/* Only 1 item can, therefore it must */
+        if (count == 1)
+	{
+		/* Update and inform the player */
+                update_slot_flags(n,f1,f2,f3);
+
+	}
+
+}
+
+/*
+ * Object forgets all may flags
+ */
+void drop_may_flags(object_type *o_ptr)
 {
 
 	/* Clear may flags */
-        o_ptr->i_object.may_flags1 &= ~(f1);
-        o_ptr->i_object.may_flags2 &= ~(f2);
-        o_ptr->i_object.may_flags3 &= ~(f3);
-
-        /* Guess the object name */
-        if (!object_known_p(o_ptr))
-	{
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-                if (!k_ptr->aware) object_guess_name(o_ptr);
-	}
+        o_ptr->i_object.may_flags1 = 0L;
+        o_ptr->i_object.may_flags2 = 0L;
+        o_ptr->i_object.may_flags3 = 0L;
 
 	return;	
 
 }
 
-
-
-/*
- * Equipment dropped off (forget all equipped/inventory may flags
- * on objects still held)
- */
-
-void drop_may_flags(object_type *o_ptr)
-{
-	int i;
-	u32b f1 = o_ptr->i_object.may_flags1;
-	u32b f2 = o_ptr->i_object.may_flags2;
-	u32b f3 = o_ptr->i_object.may_flags3;
-
-	object_type *i_ptr;
-
-	/* Clear equipment may flags*/
-        for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		i_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!i_ptr->k_idx) continue;
-
-                object_may_flags(i_ptr,f1,f2,f3);
-
-	}
-
-}
-
-/*
- * Equipment dropped off (forget all equipped/inventory may flags
- * on objects still held)
- */
-
-void clear_may_flags(void)
-{
-	int i;
-
-	object_type *i_ptr;
-
-	/* Clear equipment may flags*/
-        for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		i_ptr = &inventory[i];
-
-		/* Skip non-objects */
-		if (!i_ptr->k_idx) continue;
-
-		i_ptr->i_object.may_flags1 = 0x0L;
-		i_ptr->i_object.may_flags2 = 0x0L;
-		i_ptr->i_object.may_flags3 = 0x0L;
-
-	}
-
-}
 
 /*
  * Usage count for an object
@@ -3852,6 +3876,8 @@ void object_usage(int slot)
 
 	if (slot >=0) o_ptr =&inventory[slot];
 	else o_ptr=&o_list[0-slot];
+
+        if (!o_ptr->k_idx) return;
 
         if ((o_ptr->i_object.usage)<MAX_SHORT) o_ptr->i_object.usage++;
 
@@ -3876,9 +3902,6 @@ void object_usage(int slot)
 		object_known(o_ptr);
 		object_mental(o_ptr);
 
-		/* Clear may flags */
-		clear_may_flags();
-
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -3892,7 +3915,7 @@ void object_usage(int slot)
 	}
 
 	/* Hack --- know most things */
-        if ((o_ptr->i_object.usage) > 20000)
+        if ((o_ptr->i_object.usage) > 5000)
 	{
 
 		/* Describe what we know */
@@ -3928,9 +3951,6 @@ void object_usage(int slot)
 		/* Mark the item as partially known */
 		object_bonus(o_ptr);
 
-		/* Clear may flags */
-		clear_may_flags();
-		
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -3988,9 +4008,6 @@ void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
 	{
 		msg_format("%s",info[j]);
 	}
-
-	/* Clear may flags */
-        drop_may_flags(i_ptr);
 
 }
 
@@ -4100,6 +4117,36 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3)
 
 }
 
+
+/*
+ * Equipment dropped off (forget all equipped/inventory may flags
+ * on objects still held)
+ */
+
+void inven_drop_flags(object_type *o_ptr)
+{
+	int i;
+	u32b f1 = o_ptr->i_object.may_flags1;
+	u32b f2 = o_ptr->i_object.may_flags2;
+	u32b f3 = o_ptr->i_object.may_flags3;
+
+	object_type *i_ptr;
+
+	/* Clear equipment may flags*/
+        for (i = 0; i < INVEN_TOTAL+1; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+                o_ptr->i_object.may_flags1 &= ~(f1);
+                o_ptr->i_object.may_flags2 &= ~(f2);
+                o_ptr->i_object.may_flags3 &= ~(f3);
+
+	}
+
+}
 
 
 
@@ -5069,13 +5116,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	e2 = INVEN_TOTAL - 1;
 
         /* Allow equipment */
-        if (((variant_belt_slot) || (variant_fast_equip)) && (use_inven)) use_equip = TRUE;
+        if ((variant_belt_slot) && (use_inven)) use_equip = TRUE;
 
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;
 
         /* Hack -- belt slot */
-        if (variant_belt_slot && (mode & (USE_EQUIP | USE_INVEN))) e2 = INVEN_TOTAL;
+        if (variant_belt_slot && use_equip) e2 = INVEN_TOTAL;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;

@@ -797,6 +797,9 @@ static void py_pickup_aux(int o_idx)
                         if (!get_check(out_val)) return;
                 }
 
+                /* Take turn */
+                p_ptr->energy_use = 100;
+
                 /* Artifacts cannot be destroyed */
                 if (artifact_p(o_ptr))
                 {
@@ -826,9 +829,6 @@ static void py_pickup_aux(int o_idx)
                         return;
 
                 }
-
-                /* Take turn */
-                p_ptr->energy_use = 100;
 
                 /* Message */
                 msg_format("You destroy %s.", o_name);
@@ -1658,6 +1658,18 @@ void move_player(int dir, int jumping)
 		/* Continuous Searching */
 		if (p_ptr->searching)
 		{
+                        /* Catch breath */
+                        if (!(f_ptr->flags2 & (FF2_FILLED)))
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+                        }
+                        else
+                        {
+                                /* Rest the player */
+                                set_rest(p_ptr->rest - p_ptr->tiring);
+                        }
+
 			search();
 		}
 
@@ -2424,7 +2436,8 @@ void run_step(int dir)
 	p_ptr->running--;
 
 	/* Take time */
-	p_ptr->energy_use = 100;
+        if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 	/* Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);

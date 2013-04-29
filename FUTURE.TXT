@@ -1,15 +1,5 @@
 HANDS
 
-Prevent a player wielding a weapon, shield, light source and missile
-weapon at the same time. Only allow 2 out of 4 of these slots to be
-filled at anyone time.
-
-Also allow a 2nd weapon to be wielded in the shield slot provided:
-i.	The player gets multiple blows.
-ii.	The second weapon is equal to or lighter than the 1st weapon.
-Every 2nd blow is taken by the second weapon. They are swapped as per
-rings.
-
 If a character is not carrying anything in their hands (no weapon,
 shield, missile weapon or light source), they may swim or climb, 
 allowing them to ignore water damage or falling into terrain. This
@@ -38,14 +28,8 @@ a radius 1 light. To prevent problems "dragging" light into a room
 
 FOG OF WAR
 
-Make detection spells work on a less than 100% basis. eg 80%-90%. This
-way, there can be no way of being exactly sure of whether or not a
-secret door is found or trap etc. These can still be detected safely by
-using indirect methods, such as a monster opening the door or hitting
-the trap.
-
-Maybe do the same for telepathy. Have anti-detection rooms and anti-
-telepathy rooms. Also perma-dark rooms, anti-magic rooms etc.
+Have anti-detection rooms and anti-telepathy rooms. Also perma-dark
+rooms, anti-magic rooms etc.
 
 NEW SPELL BOOKS/SPELLS
 
@@ -1213,58 +1197,12 @@ Z
 
 ROOM DESCRIPTIONS
 
-Specify a d_info file with room descriptions, but not layout. 
-Such rooms more commonly generate objects/monsters of a particular flavour.
-Some such rooms contain more traps/monsters/objects.
-Lots of room descriptions: can be for vaults/unusual shaped rooms as well.
 Allow unusually shaped rooms with larger interiors/pillars. 
 Allow other shapes of maze rooms (Spiral/maze generators/tessilated). 
 Allow larger rooms subdivided into smaller areas. 
 Allow wider corridors (2 or 3 width) deep in dungeon, sometimes with pillars 
 or lit. 
-
-NEW ITEMS
-
-Many more ego items:
-BR_CUTS, BR_STUN, BR_POIS, BR_CONF weapons
-Note that CUTS and STUN only increase chance, not automatic
-Weapons
-of Venom (Poison, no resistance)
-of Ice (Cut, Cold, Resist Cold)
-of Confusion (Conf, Res Conf)
-of Thunder (Stun, Electricity, Resist Sound)
-(Acid Wit) (Acid, Resist Acid, Cut, Wisdom)
-(Thunder Head) (Elec, Resist Elec, Stun, Intelligence)
-(Flame Tongue) (Fire, Resist Fire, Cut, Charisma)
-(Frost Heart) (Cold, Resist Cold, Stun, Constitution)
-(Enchanted) (Intelligence, High Resist)
-of Suns (Fire, Electricity, Res_Fire, Res_elec)
-of Comets (Fire, Cold, ResFire, ResCold)
-of Stars (Light, Res Light, Res Darkness)
-of Shattering (Cut, Stun)
-
-Ammunition
-of Sharpness (Cut)
-of Impact (Stun)
-of Light (Light)
-of Confusing (Conf)
-
-Helmets
-of Brilliance (Intelligence, Resist Light)
-of Shades (Wisdom, Resist Darkness)
-of Song (Resist Sound)
-
-Gauntlets
-of Defence
-
-Shields
-of Endure various high resists
-
-Armour
-of Resist various high resists
-
-Rings
-of Resist various high resists
+Allow pits/nests to be describe with room descriptions.
 
 EGO OBJECTS:
 
@@ -1306,11 +1244,11 @@ worth more than unknown coins and have a set (old) gold piece value.
 
 			Weight (1/100ths of pound)
 half-penny	1 gp		1
-penny		2 gp		2
-farthing	6 gp		2
-shilling	12 gp		4
-half-crown	144 gp		3
-crown		288 gp		5
+penny           2 gp            1
+farthing        6 gp            1
+shilling        12 gp           1
+half-crown      144 gp          1
+crown           288 gp          1
 pound sterling	300 gp		1
 pound aurum	5760 gp		1
 
