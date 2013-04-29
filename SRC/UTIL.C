@@ -2956,6 +2956,9 @@ s16b get_quantity(cptr prompt, int max)
  * The "prompt" should take the form "Query? "
  *
  * Note that "[y/n]" is appended to the prompt.
+ *
+ * Hack -- make 0 say no and 7 say yes. (From
+ * roguelike keyset finger positioning).
  */
 bool get_check(cptr prompt)
 {
@@ -2978,7 +2981,7 @@ bool get_check(cptr prompt)
 		ch = inkey();
 		if (quick_messages) break;
 		if (ch == ESCAPE) break;
-		if (strchr("YyNn", ch)) break;
+                if (strchr("YyNn07", ch)) break;
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
@@ -2986,7 +2989,7 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
+        if ((ch != 'Y') && (ch != 'y') && (ch != '7')) return (FALSE);
 
 	/* Success */
 	return (TRUE);

@@ -30,7 +30,7 @@ M:A:136
 M:E:128
 
 # Maximum number of monster races
-M:R:1208
+M:R:1218
 
 # Maximum number of vaults
 M:V:35
@@ -54,7 +54,7 @@ M:H:145
 M:C:10
 
 # Maximum number of weapon style lines
-M:W:130
+M:W:127
 
 # Maximum number of spells
 M:S:256

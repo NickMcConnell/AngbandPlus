@@ -449,6 +449,9 @@ static void regen_monsters(void)
 			/* Hack -- Some monsters regenerate quickly */
 			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
 
+			/* Uniques recover faster */
+                        if (r_ptr->flags1 & (RF1_UNIQUE)) frac *= 2;
+
 			/* Hack -- Regenerate */
 			m_ptr->hp += frac;
 
@@ -1103,7 +1106,7 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-                        if (!(o_ptr->pval))
+                        if (!(o_ptr->timeout))
                         {
                                 char o_name[80];
 

@@ -1508,10 +1508,13 @@
 #define SV_DRAGON_RED                   4
 #define SV_DRAGON_GREEN                 5
 #define SV_DRAGON_MULTIHUED             6
-#define SV_DRAGON_SHINING               10
+#define SV_DRAGON_ETHER               10
 #define SV_DRAGON_LAW                   12
+#define SV_DRAGON_COPPER		13
 #define SV_DRAGON_BRONZE                14
+#define SV_DRAGON_SILVER		15
 #define SV_DRAGON_GOLD                  16
+#define SV_DRAGON_BRASS			17
 #define SV_DRAGON_CHAOS                 18
 #define SV_DRAGON_BALANCE               20
 #define SV_DRAGON_POWER                 30
@@ -1577,7 +1580,7 @@
 #define SV_RING_NENYA                   35
 #define SV_RING_VILYA                   36
 #define SV_RING_POWER                   37
-
+#define SV_RING_LIGHTNING		38
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS               0

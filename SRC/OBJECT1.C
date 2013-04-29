@@ -2139,11 +2139,8 @@ cptr item_activation(object_type *o_ptr)
 		return (act_description[a_ptr->activation]);
 	}
 
-	/* Require dragon scale mail */
-	if (o_ptr->tval != TV_DRAG_ARMOR) return (NULL);
-
 	/* Branch on the sub-type */
-	switch (o_ptr->sval)
+	if (o_ptr->tval == TV_DRAG_ARMOR) switch (o_ptr->sval)
 	{
 		case SV_DRAGON_BLUE:
 		{
@@ -2171,11 +2168,23 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			return "breathe confusion (120) every 450+d450 turns";
+			return "breathe confusion (120) or fire (240) every 450+d450 turns";
 		}
 		case SV_DRAGON_GOLD:
 		{
-			return "breathe sound (130) every 450+d450 turns";
+			return "breathe sound (130) or poison gas (260) every 450+d450 turns";
+		}
+		case SV_DRAGON_SILVER:
+		{
+			return "breathe fear (110) or frost (220) every 450+d450 turns";
+		}
+		case SV_DRAGON_COPPER:
+		{
+			return "breathe nexus (90) or lightning (180) every 450+d450 turns";
+		}
+		case SV_DRAGON_BRASS:
+		{
+			return "breathe disenchantment (100) or acid (200) every 450+d450 turns";
 		}
 		case SV_DRAGON_CHAOS:
 		{
@@ -2189,9 +2198,9 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "breathe balance (250) every 300+d300 turns";
 		}
-		case SV_DRAGON_SHINING:
+		case SV_DRAGON_ETHER:
 		{
-			return "breathe light/darkness (200) every 300+d300 turns";
+			return "breathe light/darkness/confusion (200) every 300+d300 turns";
 		}
 		case SV_DRAGON_POWER:
 		{
@@ -2199,6 +2208,30 @@ cptr item_activation(object_type *o_ptr)
 		}
 	}
 
+	/* Hack -- some Rings can be activated for double resist and element ball */
+	else if (o_ptr->tval == TV_RING)
+	{
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
+		{
+			case SV_RING_ACID:
+			{
+				return "acid ball (70) and resist acid (20+d20 turns) every 50+d50 turns";
+			}
+			case SV_RING_FLAMES:
+			{
+				return "fire ball (80) and resist fire (20+d20 turns) every 50+d50 turns";
+			}
+			case SV_RING_ICE:
+			{
+				return "ice ball (75) and resist cold (20+d20 turns) every 50+d50 turns";
+			}
+			case SV_RING_LIGHTNING:
+			{
+				return "lightning ball (85) and resist lightning (20+d20 turns) every 50+d50 turns";
+			}
+		}
+	}
 
 	/* Oops */
 	return NULL;

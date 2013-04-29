@@ -1,3 +1,38 @@
+13-12-2001 Unangband 0.4.5e Bugfix release
+- Fixed bug where rings of flame/acid/frost were still getting
+base AC from k_info.txt. (Reported by Sean Lester).
+- Fixed bug where charging artifacts would report themselves as
+charged every turn (Reported by Sean Lester).
+- Fixed bug where activating a stack of rings would cause all items
+in the stack to start charging (Reported by Sean Lester).
+
+12-12-2001
+- Made metallic dragon armour have 2 resists, and activate for
+one of 2 breaths (Lower elemental breath does double damage). Also
+added brass/copper/silver dragon armor.
+- Made rings report their activations when *identified*. (Reported
+by Sean Lester).
+- Added trees from a post I recovered from back in the day (Thanks
+Google).
+- Upgraded Werewolf speed/vision/alertness to equal that of wolf,
+and added some spells (Suggestion from same post).
+- Made normal elementals FORCE_MAXHP.
+- Make get_check accept '0' as no, and '7' as yes. This allows you
+to almost completely free yourself to use the numeric keypad while
+exploring. Finger positioning adopted from rogue keyset. (eg 'y'
+is northwest, and 'n' is in same finger position as 0 key).
+- Removed extra blow from paladins/extra shot from rangers and
+set warriors to blows speed as paladins (But note almost all
+warriors get one extra blow) (Suggested from newsgroup by Timo
+Pietilä).
+- Modified monster saving throws so that sleep/slow/fear/
+confusion can affect uniques unless specifically excepted, and
+have a harder saving throw (Suggested from newsgroup by Joseph
+William Dixon). Should probably go through and add NO_ flags to
+uniques where appropriate.
+- Made uniques recover faster from the above effects, also heal
+more rapidly, to balance out the above change.
+
 10-12-2001 Unangband 0.4.5d Bugfix release
 - Fixed bug with transmute rock to mud messages (Reported by
 Larry Bassel).

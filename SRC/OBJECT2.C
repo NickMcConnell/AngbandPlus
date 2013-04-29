@@ -3503,7 +3503,11 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		case TV_BOLT:
 		{
 			j_ptr->number = damroll(6, 7);
-		}
+                }
+                case TV_FOOD:
+                {
+                        if (j_ptr->sval < SV_FOOD_MIN_FOOD) j_ptr->number = damroll(1,3);
+                }
 	}
 
 	/* Notice "okay" out-of-depth objects */

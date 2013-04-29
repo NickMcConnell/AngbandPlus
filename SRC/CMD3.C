@@ -1198,7 +1198,7 @@ static cptr ident_info[] =
 	/* "9:unused", */
 	"::Rubble (or deep water/lava/acid etc)",
 	";:A glyph (or shallow lava/acid/mud)",
-	"<:An up staircase (or falls)",
+	"<:An up staircase (or falls/trees)",
 	"=:A ring",
 	">:A down staircase (or chasm)",
 	"?:A scroll",

@@ -3372,7 +3372,7 @@ D:A tall shaggy, furry humanoid, it could call the yeti brother.
 
 N:252:Werewolf
 G:C:D
-I:110:20d22:15:30:70
+I:120:20d22:30:30:20
 W:20:1:0:150
 B:BITE:HURT:1d6
 B:BITE:HURT:1d6
@@ -3380,6 +3380,8 @@ B:BITE:HURT:1d10
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:ANIMAL | EVIL
+S:1_IN_9 | 
+S:BLINK | CAUSE_2 | HOLD | BO_FIRE
 D:It is a huge wolf with eyes that glow with manly intelligence.
 
 N:254:Bolg, Son of Azog
@@ -4883,7 +4885,7 @@ I:120:30d8:12:50:50
 W:33:2:0:350
 B:HIT:FIRE:4d6
 B:HIT:FIRE:4d6
-F:FORCE_SLEEP | RAND_25 | 
+F:FORCE_SLEEP | RAND_25 | FORCE_MAXHP |
 F:EMPTY_MIND | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_FIRE | IM_POIS | 
@@ -4899,7 +4901,7 @@ W:33:2:0:325
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
 B:HIT:HURT:1d10
-F:FORCE_SLEEP | RAND_25 | 
+F:FORCE_SLEEP | RAND_25 | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_BODY | KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_POIS | CAN_SWIM |
@@ -5017,7 +5019,7 @@ W:34:2:0:375
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
-F:FORCE_SLEEP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | CAN_DIG |
 F:KILL_ITEM | KILL_BODY | PASS_WALL | POWERFUL | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK | 
@@ -5033,7 +5035,7 @@ W:34:2:0:390
 B:HIT:HURT:1d10
 B:HIT:CONFUSE:1d4
 B:HIT:HURT:1d10
-F:FORCE_SLEEP | RAND_25 | 
+F:FORCE_SLEEP | RAND_25 | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | CAN_FLY |
 F:KILL_BODY | KILL_ITEM | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
@@ -5208,7 +5210,7 @@ W:35:3:0:300
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
 B:TOUCH:ACID:1d10
-F:FORCE_SLEEP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_ACID | IM_FIRE | CAN_DIG |
@@ -5224,7 +5226,7 @@ I:130:15d10:10:80:90
 W:35:3:0:375
 B:BITE:HURT:2d6
 B:BITE:HURT:2d6
-F:FORCE_SLEEP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_FLY |
@@ -5555,7 +5557,7 @@ W:36:2:0:650
 B:TOUCH:COLD:1d3
 B:HIT:HURT:4d6
 B:TOUCH:COLD:1d3
-F:FORCE_SLEEP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | 
 F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
 F:EVIL | IM_COLD | IM_ELEC | 
@@ -5674,7 +5676,7 @@ W:37:2:0:950
 B:HIT:FIRE:3d7
 B:HIT:HURT:4d6
 B:HIT:FIRE:3d7
-F:FORCE_SLEEP | 
+F:FORCE_SLEEP | FORCE_MAXHP |
 F:EMPTY_MIND | 
 F:KILL_ITEM | KILL_BODY | PASS_WALL | POWERFUL | 
 F:EVIL | IM_FIRE | IM_ELEC | 
@@ -9255,7 +9257,7 @@ F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:An gargantuan undead bat that flies at you. It could bite your head off!
 
-N:641:Were bat
+N:641:Werebat
 G:b:B
 I:130:20d8:5:15:100
 W:20:6:0:50
@@ -14704,8 +14706,8 @@ W:6:5:0:221
 B:TOUCH:PARALYZE
 B:TOUCH:PARALYZE
 B:CRUSH:HURT:2d12
-S:1_IN_10
-S:TELE_TO
+S:1_IN_8
+S:TELE_TO | HOLD | BLIND | SCARE | DRAIN_MANA | DARKNESS 
 F:ANIMAL | NEVER_MOVE | COLD_BLOOD |
 F:EMPTY_MIND | UNIQUE | FORCE_MAXHP | FORCE_SLEEP |
 F:IM_POIS | IM_ACID
@@ -14851,7 +14853,7 @@ D:and regimenting life in the Shire.
 N:1078:Bert, the Stone troll
 G:T:W
 I:110:23d10:20:40:50
-W:9:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -14866,7 +14868,7 @@ D:Bill and Tom.
 N:1079:Bill, the Stone troll
 G:T:W
 I:110:23d10:20:40:50
-W:9:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -14881,7 +14883,7 @@ D:Bill and Tom.
 N:1080:Tom, the Stone troll
 G:T:W
 I:110:23d10:20:40:50
-W:9:1:0:85
+W:7:1:0:85
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 B:BITE:HURT:3d4
@@ -16458,6 +16460,118 @@ D:armor and slaves to Morgoth. Once numerous, there constant
 D:wars with other races at Morgoth's command has left only the 
 D:strongest of fighters behind.
 
+N:1208:Apple tree
+G:<:G
+I:90:10d10:0:20:10
+W:0:1:0:0
+F:NEVER_MOVE | FRIENDS | FORCE_MAXHP | NEVER_BLOW |
+F:STUPID | EMPTY_MIND | 
+F:ANIMAL |  NO_CONF | NO_SLEEP | NO_FEAR
+D:It is growing apples.
+
+N:1209:Cockroach
+G:F:D
+I:110:1d1:20:1:5
+W:0:3:0:0
+B:BITE:HURT:1d1
+F:RAND_50 | FRIENDS | 
+F:ANIMAL
+D:This insect used to live in the inn.
+
+N:1210:Faerie light
+G:E:W
+I:120:1d1:6:1:0
+W:0:3:0:0
+F:FORCE_SLEEP | 
+F:NEVER_BLOW | 
+F:ANIMAL | EMPTY_MIND 
+S:1_IN_12 | 
+S:BR_LITE | BR_DARK 
+D:A shimmering ball of light which dances around town.
+
+N:1211:Crab apple tree
+G:<:g
+I:90:10d10:0:20:10
+W:2:1:0:1
+B:HIT:HURT:1d1
+F:NEVER_MOVE  | FRIENDS | FORCE_MAXHP |
+F:STUPID | EMPTY_MIND | 
+F:ANIMAL |  NO_CONF | NO_SLEEP | NO_FEAR
+D:It is growing sour apples.  It is also in the way.
+
+N:1212:Black willow
+G:<:D
+I:100:20d10:6:20:10
+W:4:1:0:8
+F:NEVER_MOVE| NEVER_BLOW | FRIENDS | DROP_60 | FORCE_MAXHP |
+F:STUPID | EMPTY_MIND | 
+F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_4 | HOLD | BLIND | SCARE | DRAIN_MANA | DARKNESS 
+D:It is a twisted black-barked tree.
+
+N:1213:Thorn tree
+G:<:U
+I:110:20d10:2:20:0
+W:6:1:0:10
+B:BITE:HURT:1d4
+B:SHOOT:ARROW:1d6
+F:NEVER_MOVE | FRIENDS | DROP_60 | FORCE_MAXHP |
+F:STUPID | EMPTY_MIND | 
+F:ANIMAL | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_2 | SHOOT 
+D:It has branches covered with cruel-looking thorns.
+
+N:1214:Mandrake
+G:<:u
+I:110:20d10:6:20:10
+W:10:1:0:30
+B:WAIL:TERRIFY
+B:WAIL:LOSE_INT
+F:NEVER_MOVE | FRIENDS | DROP_60 | FORCE_MAXHP |
+F:STUPID | EMPTY_MIND | 
+F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR | IM_POIS
+S:1_IN_4 | SHRIEK | DRAIN_MANA | DARKNESS  
+D:It is a tree twisted into the shape of a man.
+
+N:1215:Wormwood
+G:<:G
+I:100:30d10:6:20:0
+W:35:1:0:100
+B:CRAWL:POISON:2d3
+B:CRUSH:HURT:2d10
+F:RAND_25 | FRIENDS | DROP_60 | FORCE_MAXHP |
+F:MULTIPLY |
+F:STUPID | EMPTY_MIND | KILL_WALL | POWERFUL | 
+F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR | IM_POIS
+S:1_IN_9 | BA_POIS 
+D:It is a disgusting mass of roots and branches.
+
+N:1216:Black oak
+G:<:D
+I:110:50d10:6:20:10
+W:37:1:0:250
+B:TOUCH:PARALYZE
+B:TOUCH:PARALYZE
+B:CRUSH:HURT:2d12
+F:NEVER_MOVE| FRIENDS | DROP_60 | FORCE_MAXHP |
+F:STUPID | EMPTY_MIND | 
+F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_3 | HOLD | BLIND | SCARE | DRAIN_MANA | DARKNESS
+S:S_UNDEAD | TELE_TO
+D:It is a twisted black-barked tree.
+
+N:1217:Kudzu
+G:<:g
+I:120:30d10:6:20:0
+W:39:1:0:100
+B:CRUSH:HURT:2d8
+F:RAND_25 | FRIENDS | FORCE_MAXHP |
+F:MULTIPLY | NEVER_MOVE |
+F:STUPID | EMPTY_MIND | POWERFUL | KILL_BODY |
+F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a dangerous mass of razor sharp branches, growing furiously.
+
+
 #The Giant Hunter Ant:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 1600 feet, and moves at normal speed.
@@ -16995,4 +17109,5 @@ D:strongest of fighters behind.
 #fairly observant of intruders, which it may notice from 200 feet. It may carry
 #up to 3 objects or treasures. It can hit to attack with damage 1d12, hit to
 #attack with damage 1d12, and touch to lower experience.
+
 

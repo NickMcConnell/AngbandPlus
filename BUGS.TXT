@@ -29,21 +29,13 @@ objects, especially with a NEVER_GET flag.
 - We cannot swim underwater yet. (Or climb for that matter).
 - Increasing number of objects and monsters has rendered the much-needed save
 file import compatibility with Angband gone. But RR has broken this by saving
-artifacts with the new version. I haven't decided how to resolve this. Save
-file compatibility between versions of UnAngband will take a hammering.
-Sorry. But its OK, because I only release a new version every 6 months.  ;-)
+artifacts with the new version. I haven't decided how to resolve this.
 - (Style bug) Don't try reading code for monster movement now. Its damn hard
 to understand.
 - We are (again) 2 point releases behind the Angband code state of the play.
 Does anyone have a list of patches in order to get the code up to 2.9.3.
 - Its a shame because it would look good, but monster lite code is not in
 this version. Because I think its a nasty hack.
-- Two-weapon style is available, but we can't wield two weapons yet.
-- Need to implement options so that we can play as close to the Vanilla game
-as possible, so that people can test the various settings.
-- Need to update Dragon armors.
-- Have said that ego items can use tvals other than their wield slot. This
-is not implemented in the code yet.
 
 04-11-2000
 - Monsters are not correctly summoned/created on terrain type which is not
