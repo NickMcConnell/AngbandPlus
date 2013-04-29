@@ -2,7 +2,7 @@
  * File: z-form.c
  * Purpose: Low-level text formatting (snprintf() replacement)
  *
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997-2009 Ben Harrison, Jeff Greene
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:

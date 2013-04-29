@@ -4,11 +4,18 @@
  * of what items are sold in the stores, prepare stores, inventory, and 
  * many other things, some error text, startup initializations.
  *
- * Copyright (c) 1997 Ben Harrison
+ * Copyright (c) 1997-2009 Nick McConnell, Andi Sidwell, Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1430,21 +1437,21 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
   {
     /* Magic-User store. */
     
-    { TV_RING, SV_RING_SEARCHING },
-    { TV_RING, SV_RING_FEATHER_FALL },
-    { TV_RING, SV_RING_PROTECTION },
-    { TV_AMULET, SV_AMULET_CHARISMA },
-    { TV_AMULET, SV_AMULET_SLOW_DIGEST },
-    { TV_AMULET, SV_AMULET_RESIST_ACID },
+    { TV_WAND, SV_WAND_STONE_TO_MUD },
+    { TV_WAND, SV_WAND_LITE },
+    { TV_WAND, SV_WAND_DISARMING },
+    { TV_STAFF, SV_STAFF_DETECT_TRAP },
+    { TV_STAFF, SV_STAFF_DETECT_TRAP },
+    { TV_STAFF, SV_STAFF_DETECT_DOOR },
     { TV_WAND, SV_WAND_SLOW_MONSTER },
     { TV_WAND, SV_WAND_CONFUSE_MONSTER },
     
     { TV_WAND, SV_WAND_SLEEP_MONSTER },
     { TV_WAND, SV_WAND_MAGIC_MISSILE },
     { TV_WAND, SV_WAND_STINKING_CLOUD },
-    { TV_RING, SV_RING_RESIST_COLD },
-    { TV_RING, SV_RING_RESIST_FIRE },
-    { TV_RING, SV_RING_SLOW_DIGESTION },
+    { TV_RING, SV_RING_PEWTER },
+    { TV_AMULET, SV_AMULET_MALACHITE },
+    { TV_WAND, SV_WAND_MAGIC_MISSILE },
     { TV_STAFF, SV_STAFF_DETECT_TRAP },
     { TV_STAFF, SV_STAFF_DETECT_DOOR },
     
@@ -1463,8 +1470,8 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
     { TV_WAND, SV_WAND_POLYMORPH },
     { TV_STAFF, SV_STAFF_LITE },
     { TV_STAFF, SV_STAFF_MAPPING },
-    { TV_STAFF, SV_ROD_DETECT_TRAP },
-    { TV_STAFF, SV_ROD_DETECT_DOOR }
+    { TV_ROD, SV_ROD_DETECT_TRAP },
+    { TV_ROD, SV_ROD_DETECT_DOOR }
   },
   
   {
@@ -1839,9 +1846,8 @@ static errr init_other(void)
   /* Hack -- Just call the "format()" function */
   (void)format("%s (%s).", "Nick McConnell", MAINTAINER);
   
-  
   /* Success */
-	return (0);
+  return (0);
 }
 
 
@@ -2774,7 +2780,7 @@ void init_angband(void)
   note("[Initializing arrays... (other)]");
   if (init_other()) quit("Cannot initialize other stuff");
   
-	/* Initialize some other arrays */
+  /* Initialize some other arrays */
   note("[Initializing arrays... (alloc)]");
   if (init_alloc()) quit("Cannot initialize alloc stuff");
   

@@ -6,11 +6,19 @@
  * tions.  Sorting, targetting, what and how squares appear when looked at,
  * prompting for a direction to aim at and move in.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -2342,8 +2350,8 @@ void monster_death(int m_idx)
       lore_treasure(m_idx, dump_item, dump_gold);
     }
   
-  /* Update monster list window */
-  p_ptr->window |= PW_MONLIST;
+  /* Update monster, item list windows */
+  p_ptr->window |= (PW_MONLIST | PW_ITEMLIST);
   
   
   /* If the player kills a unique, write a note.*/
@@ -2396,8 +2404,8 @@ void monster_death(int m_idx)
   if (r_ptr->level == 100)
     build_quest_stairs(y, x, "staircase");
   
-  /* ...or a portal for ironmen */
-  else if (adult_ironman)
+  /* ...or a portal for ironmen and dungeon-only games */
+  else if ((adult_ironman) || (adult_dungeon))
     build_quest_stairs(y, x, "portal"); 
   
   /* or a path out of Nan Dungortheb */
@@ -2634,6 +2642,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 	  /* Count kills this life */
 	  if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
+
+	  /* Add to score if the first time */
+	  if (l_ptr->pkills == 1) p_ptr->score += new_exp;
 	  
 	  /* Count kills in all lives */
 	  if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;

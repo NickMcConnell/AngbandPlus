@@ -3,6 +3,19 @@
 /* Purpose: Sample visual module for Angband 2.8.1 */
 
 /*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
+ *
  * This file written by "Ben Harrison (benh@phial.com)".
  *
  * This file is intended to show one way to build a "visual module"

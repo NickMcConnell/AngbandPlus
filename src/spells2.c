@@ -329,6 +329,7 @@ bool do_dec_stat(int stat)
 		 desc_stat_neg[stat]);
       
       /* Notice effect */
+      notice_obj((OBJECT_RAND_BASE_SUSTAIN << stat), 0);
       return (TRUE);
     }
   
@@ -422,6 +423,14 @@ void identify_object(object_type *o_ptr)
   /* Identify it fully */
   object_aware(o_ptr);
   object_known(o_ptr);
+  o_ptr->id_obj = o_ptr->flags_obj;
+  notice_other(0xffffffff, 0, o_ptr);
+
+  /* Get sensation ID (id_other is already done by the notice_other call) */
+  if ((o_ptr == &inventory[INVEN_LEFT]) || 
+      (o_ptr == &inventory[INVEN_RIGHT]) ||
+      (o_ptr == &inventory[INVEN_NECK]))
+    p_ptr->id_obj |= o_ptr->id_obj;
   
   /* Check for known curses */
   if ((o_ptr->flags_obj & OF_SHOW_CURSE) ||
@@ -478,13 +487,8 @@ void identify_object(object_type *o_ptr)
    * except for variable rings and amulets, fully known. */
   if (k_ptr->flavor)
     {
-      if (((o_ptr->tval == TV_RING) || 
-	   (o_ptr->tval == TV_AMULET)) && 
-	  (k_ptr->flags_kind & (KF_EASY_KNOW))) 
-	k_ptr->known_effect = TRUE;
-
-      else if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
-	       (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+      if ((o_ptr->tval == TV_FOOD) || (o_ptr->tval == TV_STAFF) || 
+	  (o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
 	k_ptr->known_effect = TRUE;
     }
 }
@@ -639,6 +643,7 @@ static bool remove_curse_aux(int good)
 
   /* Fragile now */
   o_ptr->flags_obj |= (OF_FRAGILE);
+  o_ptr->id_obj |= (OF_FRAGILE);
   
   /* Known objects get free curse notification now */
   if (object_known_p(o_ptr))
@@ -3488,7 +3493,7 @@ bool listen_to_natural_creatures(void)
 /*
  * Grow some trees and grass in player's line of sight
  */
-void grow_trees_and_grass(void)
+void grow_trees_and_grass(bool powerful)
 {
   int y, x;
   int py = p_ptr->py, px = p_ptr->px;
@@ -3506,19 +3511,19 @@ void grow_trees_and_grass(void)
 	if (!player_has_los_bold(y, x)) continue;
 
 	/* Skip grids with objects */
-	if (cave_o_idx[y][x] > 0) continue;
+	if ((cave_o_idx[y][x] > 0) && (!powerful)) continue;
 
 	/* Skip grids that aren't floor */
 	if (cave_feat[y][x] != FEAT_FLOOR) continue;
 
 	/* Skip grids that have monsters */
-	if (cave_m_idx[y][x] > 0) continue;
+	if ((cave_m_idx[y][x] > 0) && (!powerful)) continue;
 
 	/* Maybe grow something */
-	if (rand_int(dist + 2) != 0) continue;
+	if ((rand_int(dist + 2) != 0) && (!powerful)) continue;
 
 	/* Probably grass, otherwise a tree */
-	if (rand_int(4) == 0) 
+	if ((rand_int(4) == 0) || powerful)
 	  {
 	    if (p_ptr->depth < 40)
 	      cave_set_feat(y, x, FEAT_TREE);
@@ -3905,6 +3910,30 @@ bool hold_undead(void)
 }
 
 /*
+ * Put all monsters into stasis. 
+ */
+bool hold_all(void)
+{
+  return (project_hack(GF_HOLD, 0));
+}
+
+/*
+ * Put all monsters into stasis. 
+ */
+bool poly_all(int dam)
+{
+  return (project_hack(GF_OLD_POLY, dam));
+}
+
+/*
+ * Put all monsters into stasis. 
+ */
+bool teleport_all(int dam)
+{
+  return (project_hack(GF_AWAY_ALL, dam));
+}
+
+/*
  * Sound blast monsters in line of sight.
  */
 bool cacophony(int dam)
@@ -4250,6 +4279,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 	{
 	  /* Become blind */
 	  (void)set_blind(p_ptr->blind + 10 + randint(10));
+	}
+      else 
+	{
+	  notice_other(IF_RES_LITE, 0, NULL);
+	  notice_obj(OF_SEEING, 0);
 	}
     }
   

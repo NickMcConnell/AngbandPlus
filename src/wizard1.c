@@ -6,9 +6,16 @@
  *
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -786,11 +793,11 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
   if (use_metric) sprintf(misc_desc, "Level %u, Rarity %u, %d.%d kgs, "
 			  "%ld Gold", a_ptr->level, a_ptr->rarity,
 			  make_metric(a_ptr->weight) / 10, 
-			  make_metric(a_ptr->weight) % 10, a_ptr->cost);
+			  make_metric(a_ptr->weight) % 10, (long) a_ptr->cost);
   
   else sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, "
 	       "%ld Gold", a_ptr->level, a_ptr->rarity,
-	       a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	       a_ptr->weight / 10, a_ptr->weight % 10, (long) a_ptr->cost);
 }
 
 /*

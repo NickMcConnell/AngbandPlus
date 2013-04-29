@@ -6,9 +6,16 @@
  * 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -151,17 +158,63 @@ void do_cmd_go_up(void)
   /* Hack -- take a turn */
   p_ptr->energy_use = 100;
   
-  /* Success */
+   /* Success */
   if (pstair == FEAT_LESS)
     {
+      /* Magical portal for dungeon-only games */
+      if (adult_dungeon && (p_ptr->depth != 1) &&
+	  ((stage_map[p_ptr->stage][LOCALITY]) !=
+	   (stage_map[stage_map[p_ptr->stage][UP]][LOCALITY])))
+	{
+	  /* Land properly */
+	  p_ptr->last_stage = NOWHERE;
+	  
+	  /* Portal */
+	  message(MSG_STAIRS_UP, 0, "You trigger a magic portal.");
+	  
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][UP];
+	  
+	  /* New depth */
+	  p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+	  
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+	  
+	  return;
+	}
+  
       /* stairs */
       message(MSG_STAIRS_DOWN, 0, "You enter a maze of up staircases.");
-
+      
       /* make the way back */
       p_ptr->create_stair = FEAT_MORE;
     }
   else if (pstair == FEAT_LESS_SHAFT)
     {
+      /* Magical portal for dungeon-only games */
+      if (adult_dungeon && (p_ptr->depth != 2) &&
+	  ((stage_map[p_ptr->stage][LOCALITY]) !=
+	   (stage_map[stage_map[stage_map[p_ptr->stage][UP]][UP]][LOCALITY])))
+	{
+	  /* Land properly */
+	  p_ptr->last_stage = NOWHERE;
+
+	  /* Portal */
+	  message(MSG_STAIRS_UP, 0, "You trigger a magic portal.");
+
+	  /* New stage */
+	  p_ptr->stage = stage_map[stage_map[p_ptr->stage][UP]][UP];
+	  
+	  /* New depth */
+	  p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+	  
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+
+	  return;
+	}
+
       /* shaft */
       message(MSG_STAIRS_DOWN, 0, "You enter a maze of up staircases.");
 
@@ -305,6 +358,29 @@ void do_cmd_go_down(void)
 	  return;
 	}
 
+      /* Magical portal for dungeon-only games */
+      if (adult_dungeon && (p_ptr->depth) &&
+	  ((stage_map[p_ptr->stage][LOCALITY]) !=
+	   (stage_map[stage_map[p_ptr->stage][DOWN]][LOCALITY])))
+	{
+	  /* Land properly */
+	  p_ptr->last_stage = NOWHERE;
+
+	  /* Portal */
+	  message(MSG_STAIRS_DOWN, 0, "You trigger a magic portal.");
+
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+	  
+	  /* New depth */
+	  p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+	  
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+
+	  return;
+	}
+
       /* stairs */
       message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
@@ -316,6 +392,29 @@ void do_cmd_go_down(void)
     }
   else if (pstair == FEAT_MORE_SHAFT)
     {
+      /* Magical portal for dungeon-only games */
+      if (adult_dungeon && 
+	  ((stage_map[p_ptr->stage][LOCALITY]) !=
+	   (stage_map[stage_map[stage_map[p_ptr->stage][DOWN]][DOWN]][LOCALITY])))
+	{
+	  /* Land properly */
+	  p_ptr->last_stage = NOWHERE;
+
+	  /* Portal */
+	  message(MSG_STAIRS_DOWN, 0, "You trigger a magic portal.");
+
+	  /* New stage */
+	  p_ptr->stage = stage_map[stage_map[p_ptr->stage][DOWN]][DOWN];
+	  
+	  /* New depth */
+	  p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+	  
+	  /* Leaving */
+	  p_ptr->leaving = TRUE;
+
+	  return;
+	}
+
       /* stairs */
       message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
@@ -367,6 +466,29 @@ void do_cmd_go_down(void)
   /* Set the depth */
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
   
+  /* Check for quests */
+  if ((adult_dungeon) && is_quest(p_ptr->stage) && 
+      !stage_map[p_ptr->stage][DOWN] && (p_ptr->depth < 100))
+    {
+      int i;
+      monster_race *r_ptr = NULL;
+      char buf[80];
+
+      /* Find the questor */
+      for (i = 0; i < z_info->r_max; i++)
+	{
+	  r_ptr = &r_info[i];
+	  if ((r_ptr->flags1 & RF1_QUESTOR) && (r_ptr->level == p_ptr->depth))
+	    break;
+	}
+
+      /* Give the option */
+      msg_format("This level is home to %s.", r_name + r_ptr->name);
+      strnfmt(buf, sizeof(buf), "Do you wish to be able to avoid fighting %s?",
+	      (r_ptr->flags1 & RF1_FEMALE ? "her" : "him"));
+      if (get_check(buf)) stage_map[p_ptr->stage][DOWN] = p_ptr->stage + 1;
+    }
+
   /* Leaving */
   p_ptr->leaving = TRUE;
   
@@ -913,6 +1035,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 	{
 	  (void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
 	}
+      else notice_obj(OF_FREE_ACT, 0);
     }
   
   /* Summon monsters */
@@ -1051,8 +1174,11 @@ static void chest_trap(int y, int x, s16b o_idx)
 		    (void)set_paralyzed(p_ptr->paralyzed + 2 + 
 					rand_int(6));
 		  else 
-		    (void)set_stun(p_ptr->stun + 10 + 
-				   rand_int(100));
+		    {
+		      (void)set_stun(p_ptr->stun + 10 + rand_int(100));
+		      notice_obj(OF_FREE_ACT, 0);
+		    }
+
 		}
 	      else if (rand_int(3) == 0) apply_disenchant(0);
 	      else if (rand_int(2) == 0)

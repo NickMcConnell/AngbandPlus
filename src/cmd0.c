@@ -2,7 +2,7 @@
  * File: cmd0.c
  * Purpose: Deal with command processing.
  *
- * Copyright (c) 2007 Andrew Sidwell, Ben Harrison
+ * Copyright (c) 2009 Nick McConnell, Andrew Sidwell, Ben Harrison
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -36,7 +36,8 @@ typedef void do_cmd_type(void);
 
 /* Forward declare these, because they're really defined later */
 static do_cmd_type do_cmd_wizard, do_cmd_try_debug, do_cmd_quit, 
-            do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_reshape;
+            do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_itemlist, 
+            do_cmd_reshape;
 #ifdef ALLOW_BORG
 static do_cmd_type do_cmd_try_borg;
 #endif
@@ -125,6 +126,7 @@ static command_type cmd_info[] =
   { "Interact with options",        '=', do_cmd_xxx_options },
   { "Check knowledge",              '~', do_cmd_knowledge },
   { "Display visible monster list", '[', do_cmd_monlist },
+  { "Display visible item list", KTRL('I'), do_cmd_itemlist },
   { "Repeat level feeling",   KTRL('F'), do_cmd_feeling },
   { "Show previous message",  KTRL('O'), do_cmd_message_one },
   { "Show previous messages", KTRL('P'), do_cmd_messages },
@@ -419,8 +421,7 @@ void do_cmd_show_obj(void)
     }
 
   /* Activate equipment */
-  if ((object_known_p(o_ptr)) && (o_ptr->activation)
-      && (item >= INVEN_WIELD))
+  if ((o_ptr->activation) && (item >= INVEN_WIELD))
     {
       comm[poss] = 'A';
       comm_descr[poss++] = "Activate";
@@ -615,9 +616,6 @@ static bool item_tester_hook_handle(object_type *o_ptr)
   if ((slot >= INVEN_WIELD) && (&inventory[slot] == o_ptr))
     {
       /* The item is equipped. Test if players knows that it can be activated */
-      
-      /* Not known */
-      if (!object_known_p(o_ptr)) return (FALSE);
       
       /* Check activation flag */
       if (o_ptr->activation) return (TRUE);
@@ -1803,6 +1801,23 @@ static void do_cmd_monlist(void)
 	/* Save the screen and display the list */
 	screen_save();
 	display_monlist();
+
+	/* Wait */
+	inkey_ex();
+
+	/* Return */
+	screen_load();
+}
+
+
+/*
+ * Display the main-screen monster list.
+ */
+static void do_cmd_itemlist(void)
+{
+	/* Save the screen and display the list */
+	screen_save();
+	display_itemlist();
 
 	/* Wait */
 	inkey_ex();

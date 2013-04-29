@@ -8,11 +8,19 @@
  * generate objects (inc. Acquirement code) and treasures, object &
  * inventory routines, inventory sorting, equipment.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Si Griffin, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -172,6 +180,9 @@ void delete_object_idx(int o_idx)
   
   /* Count objects */
   o_cnt--;
+
+  /* Update item list */
+  p_ptr->window |= PW_ITEMLIST;
 }
 
 
@@ -210,6 +221,9 @@ void delete_object(int y, int x)
   
   /* Visual update */
   lite_spot(y, x);
+
+  /* Update item list */
+  p_ptr->window |= PW_ITEMLIST;
 }
 
 
@@ -442,6 +456,9 @@ void compact_objects(int size)
       /* Compress "o_max" */
       o_max--;
     }
+
+  /* Update item list */
+  p_ptr->window |= PW_ITEMLIST;
 }
 
 
@@ -735,6 +752,9 @@ s16b get_obj_num(int level)
       /* Keep the "best" one */
       if (table[i].level < table[j].level) i = j;
     }
+
+  /* Hack - keep level for jewellery generation */
+  j_level = table[i].level;
   
   /* Result */
   return (table[i].index);
@@ -770,6 +790,13 @@ void object_known(object_type *o_ptr)
   
   /* Now we know about the item */
   o_ptr->ident |= (IDENT_KNOWN);
+  
+  /* ID knowledge is better than wearing knowledge */
+  o_ptr->ident |= (IDENT_WORN);
+
+  /* Get all the id flags */
+  o_ptr->id_obj = o_ptr->flags_obj;
+  o_ptr->id_other = flags_other(o_ptr);
 }
 
 
@@ -875,10 +902,10 @@ static s32b object_value_base(object_type *o_ptr)
       /* Un-aware Rods */
     case TV_ROD: return (200L);
       
-      /* Un-aware Rings */
+      /* Un-aware Rings (shouldn't happen) */
     case TV_RING: return (45L);
       
-      /* Un-aware Amulets */
+      /* Un-aware Amulets (shouldn't happen) */
     case TV_AMULET: return (45L);
     }
   
@@ -931,7 +958,7 @@ static s32b object_value_real(object_type *o_ptr)
     }
   
   /* Ego-Item */
-  else if (o_ptr->name2)
+  else if (has_ego_properties(o_ptr))
     {
       ego_item_type *e_ptr = &e_info[o_ptr->name2];
       
@@ -960,131 +987,163 @@ static s32b object_value_real(object_type *o_ptr)
     case TV_AMULET:
     case TV_RING:
       {
+
 	/* Give credit for resists */
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_ACID]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_ELEC]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_FIRE]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_COLD]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_POIS]) * 120L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_LITE]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_DARK]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_CONFU]) * 90L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_SOUND]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_SHARD]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_NEXUS]) * 60L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_NETHR]) * 90L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_CHAOS]) * 90L;
-	value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_DISEN]) * 120L;
+	if (o_ptr->id_other & IF_RES_ACID)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_ACID]) * 60L;
+	if (o_ptr->id_other & IF_RES_ELEC)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_ELEC]) * 60L;
+	if (o_ptr->id_other & IF_RES_FIRE)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_FIRE]) * 60L;
+	if (o_ptr->id_other & IF_RES_COLD)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_COLD]) * 60L;
+	if (o_ptr->id_other & IF_RES_POIS)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_POIS]) * 120L;
+	if (o_ptr->id_other & IF_RES_LITE)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_LITE]) * 60L;
+	if (o_ptr->id_other & IF_RES_DARK)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_DARK]) * 60L;
+	if (o_ptr->id_other & IF_RES_CONFU)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_CONFU]) * 90L;
+	if (o_ptr->id_other & IF_RES_SOUND)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_SOUND]) * 60L;
+	if (o_ptr->id_other & IF_RES_SHARD)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_SHARD]) * 60L;
+	if (o_ptr->id_other & IF_RES_NEXUS)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_NEXUS]) * 60L;
+	if (o_ptr->id_other & IF_RES_NETHR)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_NETHR]) * 90L;
+	if (o_ptr->id_other & IF_RES_CHAOS)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_CHAOS]) * 90L;
+	if (o_ptr->id_other & IF_RES_DISEN)
+	  value += (RES_LEVEL_BASE - o_ptr->percent_res[P_RES_DISEN]) * 120L;
 
-	/* Give credit for stat bonuses. */
-	for (i = 0; i < A_MAX; i++)
+	/* Wearing shows all bonuses */
+	if (o_ptr->ident & IDENT_WORN)
 	  {
-	    if (o_ptr->bonus_stat[i] > BONUS_BASE) 
-	      value += (((o_ptr->bonus_stat[i] + 1) * 
-			 (o_ptr->bonus_stat[i] + 1)) * 100L);
-	    else if (o_ptr->bonus_stat[i] < BONUS_BASE) 
-	      value -= (o_ptr->bonus_stat[i] * o_ptr->bonus_stat[i] * 100L);
-	  }
-	
-	/* Give credit for magic items bonus. */
-	value += (o_ptr->bonus_other[P_BONUS_M_MASTERY] * 600L);
-	
-	/* Give credit for stealth and searching */
-	value += (o_ptr->bonus_other[P_BONUS_STEALTH] * 100L);
-	value += (o_ptr->bonus_other[P_BONUS_SEARCH] * 40L);
-	
-	/* Give credit for infra-vision */
-	value += (o_ptr->bonus_other[P_BONUS_INFRA] * 50L);
-	
-	/* Give credit for tunneling bonus above that which a	
-	 * digger possesses intrinsically.
-	 */
-	value += ((o_ptr->bonus_other[P_BONUS_TUNNEL] - 
-		   k_ptr->bonus_other[P_BONUS_TUNNEL]) * 50L);
+	    /* Give credit for stat bonuses. */
+	    for (i = 0; i < A_MAX; i++)
+	      {
+		if (o_ptr->bonus_stat[i] > BONUS_BASE) 
+		  value += (((o_ptr->bonus_stat[i] + 1) * 
+			     (o_ptr->bonus_stat[i] + 1)) * 100L);
+		else if (o_ptr->bonus_stat[i] < BONUS_BASE) 
+		  value -= (o_ptr->bonus_stat[i] * o_ptr->bonus_stat[i] * 100L);
+	      }
+	    
+	    /* Give credit for magic items bonus. */
+	    value += (o_ptr->bonus_other[P_BONUS_M_MASTERY] * 600L);
+	    
+	    /* Give credit for stealth and searching */
+	    value += (o_ptr->bonus_other[P_BONUS_STEALTH] * 100L);
+	    value += (o_ptr->bonus_other[P_BONUS_SEARCH] * 40L);
+	    
+	    /* Give credit for infra-vision */
+	    value += (o_ptr->bonus_other[P_BONUS_INFRA] * 50L);
+	    
+	    /* Give credit for tunneling bonus above that which a	
+	     * digger possesses intrinsically.
+	     */
+	    value += ((o_ptr->bonus_other[P_BONUS_TUNNEL] - 
+		       k_ptr->bonus_other[P_BONUS_TUNNEL]) * 50L);
       
       
-	/* Give credit for speed bonus.   Formula changed to avoid
-	 * excessively valuable low-speed items.
-	 */
-	if (o_ptr->bonus_other[P_BONUS_SPEED] > 0)
-	  value += (o_ptr->bonus_other[P_BONUS_SPEED] * 
-		    o_ptr->bonus_other[P_BONUS_SPEED] * 5000L);
-	else if (o_ptr->bonus_other[P_BONUS_SPEED] < 0)
-	  value -= (o_ptr->bonus_other[P_BONUS_SPEED] * 
-		    o_ptr->bonus_other[P_BONUS_SPEED] * 2000L);
+	    /* Give credit for speed bonus.   Formula changed to avoid
+	     * excessively valuable low-speed items.
+	     */
+	    if (o_ptr->bonus_other[P_BONUS_SPEED] > 0)
+	      value += (o_ptr->bonus_other[P_BONUS_SPEED] * 
+			o_ptr->bonus_other[P_BONUS_SPEED] * 5000L);
+	    else if (o_ptr->bonus_other[P_BONUS_SPEED] < 0)
+	      value -= (o_ptr->bonus_other[P_BONUS_SPEED] * 
+			o_ptr->bonus_other[P_BONUS_SPEED] * 2000L);
+	    
+	    /* Give credit for extra shots */
+	    value += (o_ptr->bonus_other[P_BONUS_SHOTS] * 8000L);
+	    
+	    /* Give credit for extra might */
+	    value += (o_ptr->bonus_other[P_BONUS_MIGHT] * 6000L);
+	  }	
 
-	/* Give credit for extra shots */
-	value += (o_ptr->bonus_other[P_BONUS_SHOTS] * 8000L);
-	
-	/* Give credit for extra might */
-	value += (o_ptr->bonus_other[P_BONUS_MIGHT] * 6000L);
-	
 	/* Give credit for slays */
-	value += (o_ptr->multiple_slay[P_SLAY_ANIMAL] - MULTIPLE_BASE) * 150L;
-	value += (o_ptr->multiple_slay[P_SLAY_EVIL]   - MULTIPLE_BASE) * 500L;
-	value += (o_ptr->multiple_slay[P_SLAY_UNDEAD] - MULTIPLE_BASE) * 200L;
-	value += (o_ptr->multiple_slay[P_SLAY_DEMON]  - MULTIPLE_BASE) * 200L;
-	value += (o_ptr->multiple_slay[P_SLAY_ORC]    - MULTIPLE_BASE) * 100L;
-	value += (o_ptr->multiple_slay[P_SLAY_TROLL]  - MULTIPLE_BASE) * 150L;
-	value += (o_ptr->multiple_slay[P_SLAY_GIANT]  - MULTIPLE_BASE) * 100L;
-	value += (o_ptr->multiple_slay[P_SLAY_DRAGON] - MULTIPLE_BASE) * 200L;
+	if (o_ptr->id_other & IF_SLAY_ANIMAL)
+	  value += (o_ptr->multiple_slay[P_SLAY_ANIMAL] - MULTIPLE_BASE) * 150L;
+	if (o_ptr->id_other & IF_SLAY_EVIL)
+	  value += (o_ptr->multiple_slay[P_SLAY_EVIL]   - MULTIPLE_BASE) * 500L;
+	if (o_ptr->id_other & IF_SLAY_UNDEAD)
+	  value += (o_ptr->multiple_slay[P_SLAY_UNDEAD] - MULTIPLE_BASE) * 200L;
+	if (o_ptr->id_other & IF_SLAY_DEMON)
+	  value += (o_ptr->multiple_slay[P_SLAY_DEMON]  - MULTIPLE_BASE) * 200L;
+	if (o_ptr->id_other & IF_SLAY_ORC)
+	  value += (o_ptr->multiple_slay[P_SLAY_ORC]    - MULTIPLE_BASE) * 100L;
+	if (o_ptr->id_other & IF_SLAY_TROLL)
+	  value += (o_ptr->multiple_slay[P_SLAY_TROLL]  - MULTIPLE_BASE) * 150L;
+	if (o_ptr->id_other & IF_SLAY_GIANT)
+	  value += (o_ptr->multiple_slay[P_SLAY_GIANT]  - MULTIPLE_BASE) * 100L;
+	if (o_ptr->id_other & IF_SLAY_DRAGON)
+	  value += (o_ptr->multiple_slay[P_SLAY_DRAGON] - MULTIPLE_BASE) * 200L;
       
 	/* Give credit for brands */
-	value += (o_ptr->multiple_brand[P_BRAND_ACID] - MULTIPLE_BASE) * 300L;
-	value += (o_ptr->multiple_brand[P_BRAND_ELEC] - MULTIPLE_BASE) * 300L;
-	value += (o_ptr->multiple_brand[P_BRAND_FIRE] - MULTIPLE_BASE) * 200L;
-	value += (o_ptr->multiple_brand[P_BRAND_COLD] - MULTIPLE_BASE) * 200L;
-	value += (o_ptr->multiple_brand[P_BRAND_POIS] - MULTIPLE_BASE) * 150L;
+	if (o_ptr->id_other & IF_BRAND_ACID)
+	  value += (o_ptr->multiple_brand[P_BRAND_ACID] - MULTIPLE_BASE) * 300L;
+	if (o_ptr->id_other & IF_BRAND_ELEC)
+	  value += (o_ptr->multiple_brand[P_BRAND_ELEC] - MULTIPLE_BASE) * 300L;
+	if (o_ptr->id_other & IF_BRAND_FIRE)
+	  value += (o_ptr->multiple_brand[P_BRAND_FIRE] - MULTIPLE_BASE) * 200L;
+	if (o_ptr->id_other & IF_BRAND_COLD)
+	  value += (o_ptr->multiple_brand[P_BRAND_COLD] - MULTIPLE_BASE) * 200L;
+	if (o_ptr->id_other & IF_BRAND_POIS)
+	  value += (o_ptr->multiple_brand[P_BRAND_POIS] - MULTIPLE_BASE) * 150L;
 
 	/* Give credit for object flags */
-	if (o_ptr->flags_obj & OF_SUSTAIN_STR)    value += 500L;
-	if (o_ptr->flags_obj & OF_SUSTAIN_INT)    value += 300L;
-	if (o_ptr->flags_obj & OF_SUSTAIN_WIS)    value += 300L;
-	if (o_ptr->flags_obj & OF_SUSTAIN_DEX)    value += 400L;
-	if (o_ptr->flags_obj & OF_SUSTAIN_CON)    value += 400L;
-	if (o_ptr->flags_obj & OF_SUSTAIN_CHR)    value += 50L;
-	if (o_ptr->flags_obj & OF_SLOW_DIGEST) value += 200L;
-	if (o_ptr->flags_obj & OF_FEATHER)     value += 200L;
-	if (o_ptr->flags_obj & OF_REGEN)       value += 400L;
-	if (o_ptr->flags_obj & OF_TELEPATHY)   value += 5000L;
-	if (o_ptr->flags_obj & OF_SEE_INVIS)   value += 700L;
-	if (o_ptr->flags_obj & OF_FREE_ACT)    value += 800L;
-	if (o_ptr->flags_obj & OF_HOLD_LIFE)   value += 700L;
-	if (o_ptr->flags_obj & OF_SEEING)      value += 700L;
-	if (o_ptr->flags_obj & OF_FEARLESS)    value += 500L;
-	if (o_ptr->flags_obj & OF_LITE)        value += 300L;
-	if (o_ptr->flags_obj & OF_BLESSED)     value += 1000L;
-	if (o_ptr->flags_obj & OF_IMPACT)      value += 50L;
-	if (o_ptr->flags_obj & OF_ACID_PROOF)  value += 100L;
-	if (o_ptr->flags_obj & OF_ELEC_PROOF)  value += 100L;
-	if (o_ptr->flags_obj & OF_FIRE_PROOF)  value += 100L;
-	if (o_ptr->flags_obj & OF_COLD_PROOF)  value += 100L;
-	if (o_ptr->flags_obj & OF_DARKNESS)    value += 1000L;
+	if (o_ptr->id_obj & OF_SUSTAIN_STR)    value += 500L;
+	if (o_ptr->id_obj & OF_SUSTAIN_INT)    value += 300L;
+	if (o_ptr->id_obj & OF_SUSTAIN_WIS)    value += 300L;
+	if (o_ptr->id_obj & OF_SUSTAIN_DEX)    value += 400L;
+	if (o_ptr->id_obj & OF_SUSTAIN_CON)    value += 400L;
+	if (o_ptr->id_obj & OF_SUSTAIN_CHR)    value += 50L;
+	if (o_ptr->id_obj & OF_SLOW_DIGEST) value += 200L;
+	if (o_ptr->id_obj & OF_FEATHER)     value += 200L;
+	if (o_ptr->id_obj & OF_REGEN)       value += 400L;
+	if (o_ptr->id_obj & OF_TELEPATHY)   value += 5000L;
+	if (o_ptr->id_obj & OF_SEE_INVIS)   value += 700L;
+	if (o_ptr->id_obj & OF_FREE_ACT)    value += 800L;
+	if (o_ptr->id_obj & OF_HOLD_LIFE)   value += 700L;
+	if (o_ptr->id_obj & OF_SEEING)      value += 700L;
+	if (o_ptr->id_obj & OF_FEARLESS)    value += 500L;
+	if (o_ptr->id_obj & OF_LITE)        value += 300L;
+	if (o_ptr->id_obj & OF_BLESSED)     value += 1000L;
+	if (o_ptr->id_obj & OF_IMPACT)      value += 50L;
+	if (o_ptr->id_obj & OF_ACID_PROOF)  value += 100L;
+	if (o_ptr->id_obj & OF_ELEC_PROOF)  value += 100L;
+	if (o_ptr->id_obj & OF_FIRE_PROOF)  value += 100L;
+	if (o_ptr->id_obj & OF_COLD_PROOF)  value += 100L;
+	if (o_ptr->id_obj & OF_DARKNESS)    value += 1000L;
 
 	/* Give 'credit' for curse flags */
-	if (o_ptr->flags_curse & CF_TELEPORT)       value -= 200L;
-	if (o_ptr->flags_curse & CF_NO_TELEPORT)    value -= 1000L;
-	if (o_ptr->flags_curse & CF_AGGRO_PERM)     value -= 2000L;
-	if (o_ptr->flags_curse & CF_AGGRO_RAND)     value -= 700L;
-	if (o_ptr->flags_curse & CF_SLOW_REGEN)     value -= 200L;
-	if (o_ptr->flags_curse & CF_AFRAID)         value -= 500L;
-	if (o_ptr->flags_curse & CF_HUNGRY)         value -= 200L;
-	if (o_ptr->flags_curse & CF_POIS_RAND)      value -= 200L;
-	if (o_ptr->flags_curse & CF_POIS_RAND_BAD)  value -= 500L;
-	if (o_ptr->flags_curse & CF_CUT_RAND)       value -= 200L;
-	if (o_ptr->flags_curse & CF_CUT_RAND_BAD)   value -= 400L;
-	if (o_ptr->flags_curse & CF_HALLU_RAND)     value -= 800L;
-	if (o_ptr->flags_curse & CF_DROP_WEAPON)    value -= 500L;
-	if (o_ptr->flags_curse & CF_ATTRACT_DEMON)  value -= 800L;
-	if (o_ptr->flags_curse & CF_ATTRACT_UNDEAD) value -= 900L;
-	if (o_ptr->flags_curse & CF_STICKY_WIELD)   value -= 2500L;
-	if (o_ptr->flags_curse & CF_STICKY_CARRY)   value -= 1000L;
-	if (o_ptr->flags_curse & CF_PARALYZE)       value -= 800L;
-	if (o_ptr->flags_curse & CF_PARALYZE_ALL)   value -= 2000L;
-	if (o_ptr->flags_curse & CF_DRAIN_EXP)      value -= 800L;
-	if (o_ptr->flags_curse & CF_DRAIN_MANA)     value -= 1000L;
-	if (o_ptr->flags_curse & CF_DRAIN_STAT)     value -= 1500L;
-	if (o_ptr->flags_curse & CF_DRAIN_CHARGE)   value -= 1500L;
+	if (o_ptr->id_curse & CF_TELEPORT)       value -= 200L;
+	if (o_ptr->id_curse & CF_NO_TELEPORT)    value -= 1000L;
+	if (o_ptr->id_curse & CF_AGGRO_PERM)     value -= 2000L;
+	if (o_ptr->id_curse & CF_AGGRO_RAND)     value -= 700L;
+	if (o_ptr->id_curse & CF_SLOW_REGEN)     value -= 200L;
+	if (o_ptr->id_curse & CF_AFRAID)         value -= 500L;
+	if (o_ptr->id_curse & CF_HUNGRY)         value -= 200L;
+	if (o_ptr->id_curse & CF_POIS_RAND)      value -= 200L;
+	if (o_ptr->id_curse & CF_POIS_RAND_BAD)  value -= 500L;
+	if (o_ptr->id_curse & CF_CUT_RAND)       value -= 200L;
+	if (o_ptr->id_curse & CF_CUT_RAND_BAD)   value -= 400L;
+	if (o_ptr->id_curse & CF_HALLU_RAND)     value -= 800L;
+	if (o_ptr->id_curse & CF_DROP_WEAPON)    value -= 500L;
+	if (o_ptr->id_curse & CF_ATTRACT_DEMON)  value -= 800L;
+	if (o_ptr->id_curse & CF_ATTRACT_UNDEAD) value -= 900L;
+	if (o_ptr->id_curse & CF_STICKY_WIELD)   value -= 2500L;
+	if (o_ptr->id_curse & CF_STICKY_CARRY)   value -= 1000L;
+	if (o_ptr->id_curse & CF_PARALYZE)       value -= 800L;
+	if (o_ptr->id_curse & CF_PARALYZE_ALL)   value -= 2000L;
+	if (o_ptr->id_curse & CF_DRAIN_EXP)      value -= 800L;
+	if (o_ptr->id_curse & CF_DRAIN_MANA)     value -= 1000L;
+	if (o_ptr->id_curse & CF_DRAIN_STAT)     value -= 1500L;
+	if (o_ptr->id_curse & CF_DRAIN_CHARGE)   value -= 1500L;
 
 	break;
       }
@@ -1093,21 +1152,34 @@ static s32b object_value_real(object_type *o_ptr)
     case TV_BOLT:
       {
 	/* Give credit for slays */
-	value += (o_ptr->multiple_slay[P_SLAY_ANIMAL] - MULTIPLE_BASE) * 15L;
-	value += (o_ptr->multiple_slay[P_SLAY_EVIL]   - MULTIPLE_BASE) * 50L;
-	value += (o_ptr->multiple_slay[P_SLAY_UNDEAD] - MULTIPLE_BASE) * 20L;
-	value += (o_ptr->multiple_slay[P_SLAY_DEMON]  - MULTIPLE_BASE) * 20L;
-	value += (o_ptr->multiple_slay[P_SLAY_ORC]    - MULTIPLE_BASE) * 10L;
-	value += (o_ptr->multiple_slay[P_SLAY_TROLL]  - MULTIPLE_BASE) * 15L;
-	value += (o_ptr->multiple_slay[P_SLAY_GIANT]  - MULTIPLE_BASE) * 10L;
-	value += (o_ptr->multiple_slay[P_SLAY_DRAGON] - MULTIPLE_BASE) * 20L;
+	if (o_ptr->id_other & IF_SLAY_ANIMAL)
+	  value += (o_ptr->multiple_slay[P_SLAY_ANIMAL] - MULTIPLE_BASE) * 15L;
+	if (o_ptr->id_other & IF_SLAY_EVIL)
+	  value += (o_ptr->multiple_slay[P_SLAY_EVIL]   - MULTIPLE_BASE) * 50L;
+	if (o_ptr->id_other & IF_SLAY_UNDEAD)
+	  value += (o_ptr->multiple_slay[P_SLAY_UNDEAD] - MULTIPLE_BASE) * 20L;
+	if (o_ptr->id_other & IF_SLAY_DEMON)
+	  value += (o_ptr->multiple_slay[P_SLAY_DEMON]  - MULTIPLE_BASE) * 20L;
+	if (o_ptr->id_other & IF_SLAY_ORC)
+	  value += (o_ptr->multiple_slay[P_SLAY_ORC]    - MULTIPLE_BASE) * 10L;
+	if (o_ptr->id_other & IF_SLAY_TROLL)
+	  value += (o_ptr->multiple_slay[P_SLAY_TROLL]  - MULTIPLE_BASE) * 15L;
+	if (o_ptr->id_other & IF_SLAY_GIANT)
+	  value += (o_ptr->multiple_slay[P_SLAY_GIANT]  - MULTIPLE_BASE) * 10L;
+	if (o_ptr->id_other & IF_SLAY_DRAGON)
+	  value += (o_ptr->multiple_slay[P_SLAY_DRAGON] - MULTIPLE_BASE) * 20L;
       
 	/* Give credit for brands */
-	value += (o_ptr->multiple_brand[P_BRAND_ACID] - MULTIPLE_BASE) * 30L;
-	value += (o_ptr->multiple_brand[P_BRAND_ELEC] - MULTIPLE_BASE) * 30L;
-	value += (o_ptr->multiple_brand[P_BRAND_FIRE] - MULTIPLE_BASE) * 20L;
-	value += (o_ptr->multiple_brand[P_BRAND_COLD] - MULTIPLE_BASE) * 20L;
-	value += (o_ptr->multiple_brand[P_BRAND_POIS] - MULTIPLE_BASE) * 15L;
+	if (o_ptr->id_other & IF_BRAND_ACID)
+	  value += (o_ptr->multiple_brand[P_BRAND_ACID] - MULTIPLE_BASE) * 30L;
+	if (o_ptr->id_other & IF_BRAND_ELEC)
+	  value += (o_ptr->multiple_brand[P_BRAND_ELEC] - MULTIPLE_BASE) * 30L;
+	if (o_ptr->id_other & IF_BRAND_FIRE)
+	  value += (o_ptr->multiple_brand[P_BRAND_FIRE] - MULTIPLE_BASE) * 20L;
+	if (o_ptr->id_other & IF_BRAND_COLD)
+	  value += (o_ptr->multiple_brand[P_BRAND_COLD] - MULTIPLE_BASE) * 20L;
+	if (o_ptr->id_other & IF_BRAND_POIS)
+	  value += (o_ptr->multiple_brand[P_BRAND_POIS] - MULTIPLE_BASE) * 15L;
      
 	break;
       }
@@ -1144,7 +1216,12 @@ static s32b object_value_real(object_type *o_ptr)
     case TV_AMULET:
       {
 	/* Give credit for bonuses */
-	value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+	if (o_ptr->id_other & IF_TO_H)
+	  value += o_ptr->to_h * 100L; 
+	if (o_ptr->id_other & IF_TO_D)
+	  value += o_ptr->to_d * 100L; 
+	if (o_ptr->id_other & IF_TO_A)
+	  value += o_ptr->to_a * 100L;
 	
 	/* Done */
 	break;
@@ -1165,11 +1242,15 @@ static s32b object_value_real(object_type *o_ptr)
 	 * (this penalty must be in the range +0 to -12), give a debit or 
 	 * credit for any modification to Skill. -LM-
 	 */
-	if ((o_ptr->to_h != k_ptr->to_h) || (o_ptr->to_h < -12) || 
-	    (o_ptr->to_h > 0)) value += (o_ptr->to_h * 100L);
+	if (((o_ptr->to_h != k_ptr->to_h) || (o_ptr->to_h < -12) || 
+	     (o_ptr->to_h > 0)) && (o_ptr->id_other & IF_TO_H)) 
+	  value += (o_ptr->to_h * 100L);
 	
 	/* Standard debit or credit for to_d and to_a bonuses. */
-	value += ((o_ptr->to_d + o_ptr->to_a) * 100L);
+	if (o_ptr->id_other & IF_TO_D)
+	  value += (o_ptr->to_d) * 100L;
+	if (o_ptr->id_other & IF_TO_A)
+	  value += (o_ptr->to_a) * 100L;
 	
 	/* Done */
 	break;
@@ -1181,7 +1262,7 @@ static s32b object_value_real(object_type *o_ptr)
     case TV_POLEARM:
       {
 	/* Blessed */
-	if (o_ptr->flags_obj & OF_BLESSED) value += 400L;
+	if (o_ptr->id_obj & OF_BLESSED) value += 400L;
 
 	/* Fall through */
       }
@@ -1195,28 +1276,32 @@ static s32b object_value_real(object_type *o_ptr)
 	 * yields results that match the increase in the weapon's
 	 * combat power.  -LM-
 	 */
-	value += (((o_ptr->to_h + 10) * (o_ptr->to_d + 10) - 100)
-		  * (k_ptr->cost + 1000L) / 250) + (o_ptr->to_a * 100);
+	int hit = (o_ptr->id_other & IF_TO_H) ? o_ptr->to_h : 0;
+	int dam = (o_ptr->id_other & IF_TO_D) ? o_ptr->to_d : 0;
+	int arm = (o_ptr->id_other & IF_TO_A) ? o_ptr->to_a : 0;
+	value += (((hit + 10) * (dam + 10) - 100) * 
+		  (k_ptr->cost + 1000L) / 250) + (arm * 100);
       
 	
 	/* Hack -- Factor in improved damage dice.  If you want to buy
 	 * one of the truly dangerous weapons, be prepared to pay for it.
 	 */
-	if ((o_ptr->ds > k_ptr->ds) && (o_ptr->dd == k_ptr->dd))
+	if ((o_ptr->ds > k_ptr->ds) && (o_ptr->dd == k_ptr->dd)
+	    && (o_ptr->id_other & IF_DD_DS))
 	  {
 	    value += (o_ptr->ds - k_ptr->ds) * (o_ptr->ds - k_ptr->ds) 
 	      * o_ptr->dd * o_ptr->dd * 16L;
 	    
 	    /* Naturally, ego-items with high base dice should be 
 	     * very expensive. */
-	    if (o_ptr->name2)
+	    if (has_ego_properties(o_ptr))
 	      {
 		value += (5 * value / 2);
 	      }
 	  }
 	
 	/* Give credit for perfect balance. */
-	if (o_ptr->flags_obj & OF_PERFECT_BALANCE) value += o_ptr->dd * 200L;
+	if (o_ptr->id_obj & OF_PERFECT_BALANCE) value += o_ptr->dd * 200L;
 	
 	/* Done */
 	break;
@@ -1228,17 +1313,20 @@ static s32b object_value_real(object_type *o_ptr)
     case TV_BOLT:
       {
 	/* Factor in the bonuses */
-	value += ((o_ptr->to_h + o_ptr->to_d) * 2L);
+	if (o_ptr->id_other & IF_TO_H)
+	  value += o_ptr->to_h * 2L; 
+	if (o_ptr->id_other & IF_TO_D)
+	  value += o_ptr->to_d * 2L;
 	
 	
 	/* Hack -- Factor in improved damage dice. -LM- */
-	if (o_ptr->ds > k_ptr->ds)
+	if ((o_ptr->ds > k_ptr->ds) && (o_ptr->id_other & IF_DD_DS))
 	  {
 	    value += (1 + o_ptr->ds - k_ptr->ds) * 
 	      (2 + o_ptr->ds - k_ptr->ds) * 1L;
 	    
 	    /* Naturally, ego-items with high base dice should be expensive. */
-	    if (o_ptr->name2)
+	    if (has_ego_properties(o_ptr))
 	      {
 		value += (5 * value / 2);
 	      }
@@ -1332,7 +1420,7 @@ s32b object_value(object_type *o_ptr)
   
   
   /* Known items -- acquire the actual value */
-  if (object_known_p(o_ptr))
+  if (object_known_p(o_ptr) || ((wield_slot(o_ptr) > 0) && !artifact_p(o_ptr)))
     {
       /* Real value (see above) */
       value = object_value_real(o_ptr);
@@ -1388,8 +1476,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
   /* Require identical object types */
   if (o_ptr->k_idx != j_ptr->k_idx) return (FALSE);
 
-  /* Activatable items don't stack */
-  if (o_ptr->activation || j_ptr->activation) return (FALSE);
+  /* Require identical activations */
+  if (o_ptr->activation != j_ptr->activation) return (FALSE);
   
   /* Require identical flags */
   if (o_ptr->flags_obj != j_ptr->flags_obj) return (FALSE);
@@ -1459,13 +1547,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
     case TV_RING:
     case TV_AMULET:
     case TV_LITE:
-      {
-	/* Require full knowledge of both items */
-	if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (FALSE);
-	
-	/* Fall through */
-      }
-      
       /* Weapons and Armor */
     case TV_BOW:
     case TV_DIGGING:
@@ -2304,193 +2385,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 
 
-/*
- * Apply magic to an item known to be a "ring" or "amulet"
- *
- * Hack -- note special rating boost for ring of speed
- * Hack -- note special rating boost for amulet of the magi
- * Hack -- note special "pval boost" code for ring of speed
- * Hack -- note that some items must be cursed (or blessed)
- *
- * Modified in FAangband 1.0.0 so that more objects can be dealt with 
- * purely from the object.txt file.
- */
-static void a_m_aux_3(object_type *o_ptr, int level, int power)
-{
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-  int i;
-  
-  /* Stat bonuses  */
-  for (i = 0; i < A_MAX; i++)
-    if (k_ptr->bonus_stat[i] > 0)
-      {
-	o_ptr->bonus_stat[i] = 1 + m_bonus(k_ptr->bonus_stat[i], level);
-	if (power < 0) o_ptr->bonus_stat[i] = 0 - o_ptr->bonus_stat[i];
-      }
-    else if (k_ptr->bonus_stat[i] < 0)
-      o_ptr->bonus_stat[i] = 0 - (1 + m_bonus(-k_ptr->bonus_stat[i], level));
-  
-  /* Other bonuses - note speed is overwritten later */
-  for (i = 0; i < MAX_P_BONUS; i++)
-    if (k_ptr->bonus_other[i] > 0)
-      {
-	o_ptr->bonus_other[i] = 1 + m_bonus(k_ptr->bonus_other[i], level);
-	if (power < 0) o_ptr->bonus_other[i] = 0 - o_ptr->bonus_other[i];
-      }
-    else if (k_ptr->bonus_other[i] < 0)
-      o_ptr->bonus_other[i] = 0 - (1 + m_bonus(-k_ptr->bonus_other[i], level));
-
-  /* Armour class */
-  if (k_ptr->to_a > 0)
-    { 
-      o_ptr->to_a += randint(k_ptr->to_a) + m_bonus(2 * (k_ptr->to_a), level);
-      if (power < 0) o_ptr->to_a = 0 - o_ptr->to_a;
-    }
-  else if (k_ptr->to_a < 0)
-    { 
-      o_ptr->to_a -= randint(-k_ptr->to_a) + m_bonus(2 * (-k_ptr->to_a), level);
-    }
-
-  /* Skill */
-  if (k_ptr->to_h > 0) 
-    {
-      o_ptr->to_h += 1 + randint(k_ptr->to_h) + m_bonus(2 * k_ptr->to_h, level);
-      if (power < 0) o_ptr->to_h = 0 - o_ptr->to_h;
-    }
-  else if (k_ptr->to_h < 0) 
-    {
-      o_ptr->to_h -= randint(-k_ptr->to_h) + m_bonus(2 * (-k_ptr->to_h), level);
-    }
-
-  /* Deadliness */			     
-  if (k_ptr->to_d > 0) 
-    {
-      o_ptr->to_d += 1 + randint(k_ptr->to_d) + m_bonus(2 * k_ptr->to_d, level);
-      if (power < 0) o_ptr->to_d = 0 - o_ptr->to_d;
-    }
-  else if (k_ptr->to_d < 0) 
-    {
-      o_ptr->to_d -= randint(-k_ptr->to_d) + m_bonus(2 * (-k_ptr->to_d), level);
-    }
-			     
-  /* Apply magic according to type for powerful items */
-  switch (o_ptr->tval)
-    {
-    case TV_RING:
-      {
-	/* Analyze */
-	switch (o_ptr->sval)
-	  {
-	    /* Ring of Speed! */
-	  case SV_RING_SPEED:
-	    {
-	      /* Base speed (1 to 10) */
-	      o_ptr->bonus_other[P_BONUS_SPEED] = 
-		randint(5) + m_bonus(5, level);
-	      
-	      /* Super-charge the ring + SJGU - miffed at never 
-	       * finding good speed rings */
-	      while (rand_int(100) < 55) o_ptr->bonus_other[P_BONUS_SPEED]++;
-	      
-	      /* Bad Ring */
-	      if (power < 0)
-		{
-		  /* Reverse pval */
-		  o_ptr->bonus_other[P_BONUS_SPEED] = 
-		    0 - (o_ptr->bonus_other[P_BONUS_SPEED]);
-		  
-		  break;
-		}
-
-	      /* Only increase rating if good */
-	      if (power >= 0)
-		  {
-		    /* Rating boost */
-		    rating += 10 + 3 * o_ptr->bonus_other[P_BONUS_SPEED];
-		  }
-	      
-	      /* Mention the item */
-	      if (cheat_peek) object_mention(o_ptr);
-	      
-	      break;
-	    }
-	    
-	    /* Ring of Eregion */
-	  case SV_RING_EREGION:
-	    {
-	      /* Speed (1 to 7) */
-	      o_ptr->bonus_other[P_BONUS_SPEED] = 
-		randint(3) + m_bonus(4, level);
-	      
-	      /* Rating boost */
-	      rating += 20 + o_ptr->bonus_other[P_BONUS_SPEED];
-	      
-	      /* Mention the item */
-	      if (cheat_peek) object_mention(o_ptr);
-	      
-	      break;
-	    }
-	    
-	    /* Ring of Warfare */
-	  case SV_RING_WARFARE:
-	    {
-	      /* Speed (1 to 10) */
-	      o_ptr->bonus_other[P_BONUS_SPEED] = 
-		randint(5) + m_bonus(5, level);
-	      
-	      /* Bonus to both Deadliness and to Skill */
-	      o_ptr->to_d = 3 + randint(2) + m_bonus(5, level);
-	      o_ptr->to_h = 3 + randint(2) + m_bonus(5, level);
-	      
-	      /* Rating boost */
-	      rating += 15 + 3 * o_ptr->bonus_other[P_BONUS_SPEED];
-	      
-	      /* Mention the item */
-	      if (cheat_peek) object_mention(o_ptr);
-	      
-	      break;
-	    }
-	    
-	  }
-	
-	break;
-      }
-      
-    case TV_AMULET:
-      {
-	/* Analyze */
-	switch (o_ptr->sval)
-	  {
-	    /* Amulet of the Magi -- never bad */
-	  case SV_AMULET_THE_MAGI:
-	    {
-	      /* Boost the rating */
-	      rating += 5;
-	      
-	      /* Mention the item */
-	      if (cheat_peek) object_mention(o_ptr);
-	      
-	      break;
-	    }
-	    
-	    /* Amulet of trickery. */
-	  case SV_AMULET_TRICKERY:
-	    {
-	      /* Boost the rating */
-	      rating += 15;
-	      
-	      /* Mention the item */
-	      if (cheat_peek) object_mention(o_ptr);
-	      
-	      break;
-	    }
-	  }
-	
-	break;
-      }
-    }
-}
-
 
 /*
  * Apply magic to miscellanious items
@@ -2688,10 +2582,14 @@ extern void apply_resistances(object_type *o_ptr, int lev, u32b flags)
     }
 
   /* Low resist means object is proof against that element */
-  if (o_ptr->percent_res[P_RES_ACID] < 100) o_ptr->flags_obj |= OF_ACID_PROOF;
-  if (o_ptr->percent_res[P_RES_ELEC] < 100) o_ptr->flags_obj |= OF_ELEC_PROOF;
-  if (o_ptr->percent_res[P_RES_FIRE] < 100) o_ptr->flags_obj |= OF_FIRE_PROOF;
-  if (o_ptr->percent_res[P_RES_COLD] < 100) o_ptr->flags_obj |= OF_COLD_PROOF;
+  if (o_ptr->percent_res[P_RES_ACID] < RES_LEVEL_BASE) 
+    o_ptr->flags_obj |= OF_ACID_PROOF;
+  if (o_ptr->percent_res[P_RES_ELEC] < RES_LEVEL_BASE) 
+    o_ptr->flags_obj |= OF_ELEC_PROOF;
+  if (o_ptr->percent_res[P_RES_FIRE] < RES_LEVEL_BASE) 
+    o_ptr->flags_obj |= OF_FIRE_PROOF;
+  if (o_ptr->percent_res[P_RES_COLD] < RES_LEVEL_BASE) 
+    o_ptr->flags_obj |= OF_COLD_PROOF;
 }
 
 /*
@@ -2835,7 +2733,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       rating += 15;
       
       /* Mega-Hack -- increase the rating again */
-	  rating += a_ptr->cost / 2000;
+      rating += a_ptr->cost / 2000;
       
       /* Set the good item flag */
       good_item_flag = TRUE;
@@ -2978,9 +2876,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
     case TV_RING:
     case TV_AMULET:
       {
-	if (!power && (rand_int(100) < 50)) power = -1;
-	a_m_aux_3(o_ptr, lev, power);
-	break;
+	/* Ignore power, generate, then we're done */
+	design_ring_or_amulet(o_ptr, lev);
+	return;
       }
       
     default:
@@ -3269,30 +3167,18 @@ static bool kind_is_good(int k_idx)
 	return (FALSE);
       }
       
-      /* Rings -- Rings of Speed and of Telepathy are good, as are any 
-       * with a high enough value.
-       */
+      /* Rings -- any with a high enough value. */
     case TV_RING:
       {
-	
-	if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
-	if (k_ptr->sval == SV_RING_ESP) return (TRUE);
 	
 	if (k_ptr->cost >= 500 + p_ptr->depth * 90) return (TRUE);
 	
 	return (FALSE);
       }
       
-      /* Amulets -- Amulets of the Magi, of Escaping and of the Lion are 
-       * good, as are any with a high enough value.
-       */
+      /* Amulets --  any with a high enough value. */
     case TV_AMULET:
       {
-	if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
-	if (k_ptr->sval == SV_AMULET_ESCAPING) return (TRUE);
-	if (k_ptr->sval == SV_AMULET_LION) return (TRUE);
-	if (k_ptr->sval == SV_AMULET_TRICKERY) return (TRUE);
-	
 	if (k_ptr->cost >= 500 + p_ptr->depth * 90) return (TRUE);
 	
 	return (FALSE);
@@ -3618,6 +3504,9 @@ bool make_gold(object_type *j_ptr)
   /* Treasure can be worth between 1/2 and the full maximal value. */
   j_ptr->pval = k_info[treasure].cost / 2 + 
     randint((k_info[treasure].cost + 1) / 2);
+
+  /* Hack - double for no selling */
+  if (adult_no_sell) j_ptr->pval *= 2;
   
   /* Success */
   return (TRUE);
@@ -3694,6 +3583,9 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
       
       /* Redraw */
       lite_spot(y, x);
+
+      /* Redo item list */
+      p_ptr->window |= PW_ITEMLIST;
     }
   
   /* Result */
@@ -5796,5 +5688,257 @@ const char *tval_find_name(int tval)
 	}
 
 	return "unknown";
+}
+
+/**
+ * Sort comparator for objects using only tval and sval.
+ * -1 if o1 should be first
+ *  1 if o2 should be first
+ *  0 if it doesn't matter
+ */
+static int compare_types(const object_type *o1, const object_type *o2)
+{
+  if (o1->tval == o2->tval)
+    if (o1->sval > o2->sval) return 1;
+    else return -1;
+  else
+    if (o1->tval > o2->tval) return 1;
+    else return -1;
+}
+
+/**
+ * Sort comparator for objects
+ * -1 if o1 should be first
+ *  1 if o2 should be first
+ *  0 if it doesn't matter
+ *
+ * The sort order is designed with the "list items" command in mind.
+ */
+static int compare_items(object_type *o1, object_type *o2)
+{
+	/* known artifacts will sort first */
+  if (artifact_p(o1) && object_known_p(o1) && 
+      artifact_p(o2) && object_known_p(o1))
+    return compare_types(o1, o2);
+  if (artifact_p(o1) && object_known_p(o1)) return -1;
+  if (artifact_p(o2) && object_known_p(o2)) return 1;
+
+  /* unknown objects will sort next */
+  if (!object_aware_p(o1) && !object_aware_p(o2))
+    return compare_types(o1, o2);
+  if (!object_aware_p(o1)) return -1;
+  if (!object_aware_p(o2)) return 1;
+
+  /* if only one of them is worthless, the other comes first */
+  if ((object_value(o1) == 0) && (object_value(o2) > 0)) return 1;
+  if ((object_value(o1) > 0) && (object_value(o2) == 0)) return 1;
+
+  /* otherwise, just compare tvals and svals */
+  /* NOTE: arguably there could be a better order than this */
+  return compare_types(o1, o2);
+}
+
+/*
+ * Display visible items, similar to display_monlist
+ */
+void display_itemlist(void)
+{
+  int max;
+  int mx, my;
+  int num;
+  int line = 1, x = 0;
+  int cur_x;
+  unsigned i;
+  unsigned disp_count = 0;
+  byte a;
+  char c;
+  
+  object_type *types[MAX_ITEMLIST];
+  int counts[MAX_ITEMLIST];
+  unsigned counter = 0;
+  
+  int dungeon_hgt = p_ptr->depth == 0 ? DUNGEON_HGT / 3 : DUNGEON_HGT;
+  int dungeon_wid = p_ptr->depth == 0 ? DUNGEON_WID / 3 : DUNGEON_WID;
+  
+  byte attr;
+  char buf[80];
+  
+  int floor_list[MAX_FLOOR_STACK];
+  
+  /* Set major town flag if necessary */
+  if (p_ptr->stage > 150) dungeon_wid /= 2;
+  
+  /* Clear the term if in a subwindow, set x otherwise */
+  if (Term != angband_term[0])
+    {
+      clear_from(0);
+      max = Term->hgt - 1;
+    }
+  else
+    {
+      x = 13;
+      max = Term->hgt - 2;
+    }
+  
+  /* Look at each square of the dungeon for items */
+  for (my = 0; my < dungeon_hgt; my++)
+    {
+      for (mx = 0; mx < dungeon_wid; mx++)
+	{
+	  (void) scan_floor(floor_list, &num, my, mx, 0x02);
+	  
+	  /* Iterate over all the items found on this square */
+	  for (i = 0; i < num; i++)
+	    {
+	      object_type *o_ptr = &o_list[floor_list[i]];
+	      unsigned j;
+	      
+	      /* Skip gold/squelched */
+	      if (o_ptr->tval == TV_GOLD || squelch_hide_item(o_ptr))
+		continue;
+	      
+	      /* See if we've already seen a similar item; if so, just add */
+	      /* to its count */
+	      for (j = 0; j < counter; j++)
+		{
+		  if (object_similar(o_ptr, types[j]))
+		    {
+		      counts[j] += o_ptr->number;
+		      break;
+		    }
+		}
+	      
+	      /* We saw a new item. So insert it at the end of the list and */
+	      /* then sort it forward using compare_items(). The types list */
+	      /* is always kept sorted. */
+	      if (j == counter)
+		{
+		  types[counter] = o_ptr;
+		  counts[counter] = o_ptr->number;
+		  
+		  while (j > 0 && compare_items(types[j - 1], types[j]) > 0)
+		    {
+		      object_type *tmp_o = types[j - 1];
+		      int tmpcount;
+		      
+		      types[j - 1] = types[j];
+		      types[j] = tmp_o;
+		      tmpcount = counts[j - 1];
+		      counts[j - 1] = counts[j];
+		      counts[j] = tmpcount;
+		      j--;
+		    }
+		  counter++;
+		}
+	    }
+	}
+    }
+  
+  /* Note no visible items */
+  if (!counter)
+    {
+      /* Clear display and print note */
+      c_prt(TERM_SLATE, "You see no items.", 0, 0);
+      if (Term == angband_term[0])
+	Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
+      
+      /* Done */
+      return;
+    }
+  else
+    {
+      /* Reprint Message */
+      prt(format("You can see %d item%s:",
+		 counter, (counter > 1 ? "s" : "")), 0, 0);
+    }
+  
+  for (i = 0; i < counter; i++)
+    {
+      /* o_name will hold the object_desc() name for the object. */
+      /* o_desc will also need to put a (x4) behind it. */
+      /* can there be more than 999 stackable items on a level? */
+      char o_name[80];
+      char o_desc[86];
+      
+      object_type *o_ptr = types[i];
+      
+      /* We shouldn't list coins or squelched items */
+      if (o_ptr->tval == TV_GOLD || squelch_hide_item(o_ptr))
+	continue;
+      
+      object_desc(o_name, o_ptr, 0, 3);
+      if (counts[i] > 1)
+	sprintf(o_desc, "%s (x%d)", o_name, counts[i]);
+      else
+	sprintf(o_desc, "%s", o_name);
+      
+      /* Reset position */
+      cur_x = x;
+      
+      /* See if we need to scroll or not */
+      if (Term == angband_term[0] && (line == max) && disp_count != counter)
+	{
+	  prt("-- more --", line, x);
+	  anykey();
+	  
+	  /* Clear the screen */
+	  for (line = 1; line <= max; line++)
+	    prt("", line, x);
+	  
+	  /* Reprint Message */
+	  prt(format("You can see %d item%s:",
+		     counter, (counter > 1 ? "s" : "")), 0, 0);
+	  
+	  /* Reset */
+	  line = 1;
+	}
+      else if (line == max)
+	{
+	  continue;
+	}
+      
+      /* Note that the number of items actually displayed */
+      disp_count++;
+      
+      if (artifact_p(o_ptr) && object_known_p(o_ptr))
+	/* known artifact */
+	attr = TERM_VIOLET;
+      else if (!object_aware_p(o_ptr))
+	/* unaware of kind */
+	attr = TERM_RED;
+      else if (object_value(o_ptr) == 0)
+	/* worthless */
+	attr = TERM_SLATE;
+      else
+	/* default */
+	attr = TERM_WHITE;
+      
+      a = object_type_attr(o_ptr->k_idx);
+      c = object_type_char(o_ptr->k_idx);
+      
+      /* Display the pict */
+      Term_putch(cur_x++, line, a, c);
+      if (use_bigtile) Term_putch(cur_x++, line, 255, -1);
+      Term_putch(cur_x++, line, TERM_WHITE, ' ');
+      
+      /* Print and bump line counter */
+      c_prt(attr, o_desc, line, cur_x);
+      line++;
+    }
+  
+  if (disp_count != counter)
+    {
+      /* Print "and others" message if we've run out of space */
+      strnfmt(buf, sizeof buf, "  ...and %d others.", counter - disp_count);
+      c_prt(TERM_WHITE, buf, line, x);
+    }
+  else
+    {
+      /* Otherwise clear a line at the end, for main-term display */
+      prt("", line, x);
+    }
+  
+  if (Term == angband_term[0])
+    Term_addstr(-1, TERM_WHITE, "  (Press any key to continue.)");
 }
 

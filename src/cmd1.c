@@ -5,13 +5,18 @@
  *
  * Tim Baker's easy patch installed.
  *
- * Mouse menus - NRM -
- *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -414,11 +419,22 @@ extern void py_pickup_aux(int o_idx)
 	}
     }
 
+  /* Notice dice and other obvious stuff */
+  notice_other(IF_DD_DS, slot + 1, NULL);
+  o_ptr->id_obj |= ((o_ptr->flags_obj) & OF_OBVIOUS_MASK);
+
+  /* Average things are average */
+  if (o_ptr->feel == FEEL_AVERAGE)
+    {
+      if (is_weapon(o_ptr)) notice_other((IF_TO_H | IF_TO_D), slot + 1, NULL);
+      if (is_armour(o_ptr)) notice_other((IF_AC | IF_TO_A), slot + 1, NULL);
+    }
+
   /* Recalculate the bonuses */
   p_ptr->update |= (PU_BONUS);
   
   /* Window stuff */
-  p_ptr->window |= (PW_EQUIP | PW_INVEN);
+  p_ptr->window |= (PW_EQUIP | PW_INVEN | PW_ITEMLIST);
 
   /* Describe the object */
   object_desc(o_name, o_ptr, TRUE, 3);
@@ -871,6 +887,7 @@ void hit_trap(int y, int x)
 	msg_print("You fall through a trap door!");
 	if (p_ptr->ffall)
 	  {
+	    notice_obj(OF_FEATHER, 0);
 	    msg_print("You float gently down to the next level.");
 	  }
 	else
@@ -925,6 +942,7 @@ void hit_trap(int y, int x)
 	    
 	    if (p_ptr->ffall)
 	      {
+		notice_obj(OF_FEATHER, 0);
 		msg_print("You float gently to the floor of the pit.");
 		msg_print("You carefully avoid setting off the daggers.");
 	      }
@@ -996,6 +1014,7 @@ void hit_trap(int y, int x)
 	    
 	    if (p_ptr->ffall)
 	      {
+		notice_obj(OF_FEATHER, 0);
 		msg_print("You float gently to the floor of the pit.");
 		msg_print("You carefully avoid touching the spikes.");
 	      }
@@ -1037,6 +1056,7 @@ void hit_trap(int y, int x)
 	    
 	    if (p_ptr->ffall)
 	      {
+		notice_obj(OF_FEATHER, 0);
 		msg_print("You float gently to the floor of the pit.");
 		msg_print("You carefully avoid touching the spikes.");
 	      }
@@ -1070,6 +1090,7 @@ void hit_trap(int y, int x)
 	    msg_print("You fall into a pit!");
 	    if (p_ptr->ffall)
 	      {
+		notice_obj(OF_FEATHER, 0);
 		msg_print("You float gently to the bottom of the pit.");
 	      }
 	    else
@@ -1263,6 +1284,7 @@ void hit_trap(int y, int x)
 		Rand_quick = TRUE;
 	      }
 	  }
+	else notice_obj(OF_SEEING, 0);
 	
 	/* confusing trap. */
 	if (selection == 2)
@@ -1276,6 +1298,7 @@ void hit_trap(int y, int x)
 		
 		Rand_quick = TRUE;
 	      }
+	    else notice_other(IF_RES_CONFU, 0, NULL);
 	  }
 	
 	/* poisoning trap. */
@@ -1298,6 +1321,7 @@ void hit_trap(int y, int x)
 	      {
 		(void)set_paralyzed(p_ptr->paralyzed + rand_int(10) + 5);
 	      }
+	    else notice_obj(OF_FREE_ACT, 0);
 	  }
 	
 	break;
@@ -1577,10 +1601,13 @@ void hit_trap(int y, int x)
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 	      }
+	    else notice_other(IF_RES_CONFU, 0, NULL);
+
 	    if (!p_resist_good(P_RES_CHAOS))
 	      {
 		(void)set_image(p_ptr->image + randint(40));
 	      }
+	    else notice_other(IF_RES_CHAOS, 0, NULL);
 	    
 	    /* XXX (hard coded) summon 3-6 bugs. */
 	    k = randint(4) + 2;
@@ -1901,6 +1928,7 @@ void fall_off_cliff(void)
 
       if (p_ptr->ffall)
 	{
+	  notice_obj(OF_FEATHER, 0);
 	  dam = damroll(2, 8);
 	  set_stun(p_ptr->stun + damroll(2, 8));
 	  set_cut(p_ptr->cut + damroll(2, 8));
@@ -1924,6 +1952,7 @@ void fall_off_cliff(void)
 	  p_ptr->depth++;
 	  if (p_ptr->ffall)
 	    {
+	      notice_obj(OF_FEATHER, 0);
 	      dam = damroll(2, 8);
 	      set_stun(p_ptr->stun + damroll(2, 8));
 	      set_cut(p_ptr->cut + damroll(2, 8));
@@ -1935,8 +1964,33 @@ void fall_off_cliff(void)
 	      set_cut(p_ptr->cut + damroll(4, 8));
 	    }
 	  take_hit(dam, "falling off a precipice");
-	  if (p_ptr->depth == 80) break;
+	  if (p_ptr->depth == 70) break;
 	}
+
+      /* Check for quests */
+      if ((adult_dungeon) && is_quest(p_ptr->stage) && 
+	  !stage_map[p_ptr->stage][DOWN] && (p_ptr->depth < 100))
+	{
+	  int i;
+	  monster_race *r_ptr = NULL;
+	  char buf[80];
+	  
+	  /* Find the questor */
+	  for (i = 0; i < z_info->r_max; i++)
+	    {
+	      r_ptr = &r_info[i];
+	      if ((r_ptr->flags1 & RF1_QUESTOR) && 
+		  (r_ptr->level == p_ptr->depth))
+		break;
+	    }
+	  
+	  /* Give the option */
+	  msg_format("This level is home to %s.", r_name + r_ptr->name);
+	  strnfmt(buf, sizeof(buf), "Do you wish to be able to avoid fighting %s?",
+		  (r_ptr->flags1 & RF1_FEMALE ? "her" : "him"));
+	  if (get_check(buf)) stage_map[p_ptr->stage][DOWN] = p_ptr->stage + 1;
+	}
+
     }
   
   /* Leaving */
@@ -2196,7 +2250,11 @@ void move_player(int dir, int do_pickup)
 		    can_move = TRUE;
 		    
 		    /* Feather fall makes one lightfooted. */
-		    if (p_ptr->ffall) temp = 49 + randint(51);
+		    if (p_ptr->ffall) 
+		      {
+			notice_obj(OF_FEATHER, 0);
+			temp = 49 + randint(51);
+		      }
 		    else temp = 124 + randint(126);
 		    
 		    /* Will take serious fire damage. */

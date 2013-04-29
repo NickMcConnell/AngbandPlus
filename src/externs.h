@@ -93,6 +93,7 @@ extern byte spell_range_RF6[32];
 extern byte spell_range_RF7[32];
 extern cptr specialty_names[TOTAL_SPECIALTIES];
 extern int stage_map[NUM_STAGES][9];
+extern int dungeon_map[NUM_STAGES][9];
 extern cptr locality_name[MAX_LOCALITIES];
 extern cptr short_locality_name[MAX_LOCALITIES];
 extern int towns[10];
@@ -160,6 +161,7 @@ extern bool inkey_flag;
 extern s16b coin_type;
 extern bool magic_throw;
 extern bool opening_chest;
+extern u16b j_level;
 extern bool shimmer_monsters;
 extern bool shimmer_objects;
 extern bool repair_mflag_show;
@@ -434,11 +436,6 @@ extern void run_step(int dir);
 
 
 /* dungeon.c */
-extern bool item_dubious(const object_type *o_ptr, bool unknown);
-extern int value_check_aux1(object_type *o_ptr);
-/* SJGU */
-extern int value_check_aux2(object_type *o_ptr);
-extern void notice_curse(u32b curse_flag, int item);
 extern void play_game(bool new_game);
 
 /* files.c */
@@ -460,25 +457,32 @@ extern void process_player_name(bool sf);
 extern bool get_name(bool sf);
 extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
-extern long total_points(void);
 extern void display_scores(int from, int to);
-extern errr predict_score(void);
-void show_scores(void);
 extern void close_game(void);
 extern void exit_game_panic(void);
 extern errr get_rnd_line(char *file_name, char *output);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
-extern void display_scores_aux(int from, int to, int note, high_score *score);
 
 /* generate.c */
 extern void destroy_level(bool new_level);
 extern void generate_cave(void);
 
+/* identify.c */
+extern bool item_dubious(const object_type *o_ptr, bool unknown);
+extern int value_check_aux1(object_type *o_ptr);
+/* SJGU */
+extern int value_check_aux2(object_type *o_ptr);
+extern bool has_ego_properties(object_type *o_ptr);
+extern u32b flags_other(object_type *o_ptr);
+extern void notice_curse(u32b curse_flag, int item);
+extern void notice_obj(u32b obj_flag, int item);
+extern void notice_other(u32b other_flag, int item, object_type *o_ptr);
+
 /* info.c */
 extern char *obj_class_info[101];
-extern char *obj_special_info[6][50];
+extern char *obj_special_info[4][50];
 extern char *spell_tips[];
 extern char *specialty_tips[TOTAL_SPECIALTIES];
 extern void output_dam(object_type *o_ptr, int mult, const char *against, 
@@ -506,6 +510,9 @@ extern void init_file_paths(const char *path);
 extern void create_user_dirs(void);
 extern void init_angband(void);
 extern void cleanup_angband(void);
+
+/* jewel.c */
+extern bool design_ring_or_amulet(object_type *o_ptr, int lev);
 
 /* load.c */
 extern errr rd_savefile_new(void);
@@ -539,6 +546,7 @@ extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern s16b get_mon_num_quick(int level);
 extern void display_monlist(void);
+extern void display_itemlist(void);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern void monster_desc_race(char *desc, size_t max, int r_idx);
 extern void lore_do_probe(int m_idx);
@@ -680,6 +688,11 @@ extern void initialize_random_artifacts(void);
 extern bool save_player(void);
 extern bool load_player(void);
 
+/* score.c */
+extern void enter_score(time_t *death_time);
+extern void show_scores(void);
+extern void predict_score(void);
+
 /* spells1.c */
 extern bool check_save(int roll);
 extern s16b poly_r_idx(int r_idx, bool shapechange);
@@ -747,7 +760,7 @@ extern bool recharge(int num);
 extern void tap_magical_energy(void);
 extern void do_starlight(int burst_number, int dam, bool strong);
 extern bool listen_to_natural_creatures(void);
-extern void grow_trees_and_grass(void);
+extern void grow_trees_and_grass(bool powerful);
 extern void unmake(int dir);
 extern void ele_air_smite(void);
 extern bool project_los_not_player(int y1, int x1, int dam, int typ);
@@ -769,6 +782,9 @@ extern bool dispel_small_monsters(int dam);
 extern bool dispel_living(int dam);
 extern bool dispel_light_hating(int dam);
 extern bool hold_undead(void);
+extern bool hold_all(void);
+extern bool poly_all(int dam);
+extern bool teleport_all(int dam);
 extern bool cacophony(int dam);
 extern bool aggravate_monsters(int who, bool entire_level);
 extern bool genocide(void);

@@ -10,23 +10,24 @@
  *
  * Copyright (c) 1998 Leon Marrick
  *
- * I owe thanks to Greg Wooledge for his support and string-handling code 
+ * Thanks to Greg Wooledge for his support and string-handling code 
  * and to W. Sheldon Simms for his Tolkienesque random name generator.
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Copyright (c) 2009 Nick McConnell, Si Griffin
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
-
-/* Variables for the number of rings and amulets created */
-static int num_rings = 0;
-static int num_amulets = 0;
-
-/* Limits to the number of rings and amulets */
-#define MAX_RING_IDX        5
-#define MAX_AMULET_IDX      3
 
 /* A global variable whose contents will be bartered to acquire powers. */
 static int potential = 0;
@@ -1157,24 +1158,17 @@ static void initialize_artifact(int a_idx)
       if (!k_ptr->name) continue;
       
       /* Skip objects that are not weapons or armour. */
-      /* Or jewellery -NRM- */
       if ((k_ptr->tval != TV_BOW) && (k_ptr->tval != TV_HAFTED) && 
 	  (k_ptr->tval != TV_POLEARM) && (k_ptr->tval != TV_SWORD) && 
 	  (k_ptr->tval != TV_BOOTS) && (k_ptr->tval != TV_GLOVES) && 
 	  (k_ptr->tval != TV_HELM) && (k_ptr->tval != TV_CROWN)&& 
 	  (k_ptr->tval != TV_SHIELD) && (k_ptr->tval != TV_CLOAK) && 
 	  (k_ptr->tval != TV_SOFT_ARMOR) && (k_ptr->tval != TV_HARD_ARMOR) 
-	  && (k_ptr->tval != TV_DRAG_ARMOR) && (k_ptr->tval != TV_AMULET) &&
-	  (k_ptr->tval != TV_RING))
+	  && (k_ptr->tval != TV_DRAG_ARMOR))
 	{
 	  continue;
 	}
       
-      /* Make sure not too many rings or amulets */
-      if ((k_ptr->tval == TV_RING) && (num_rings > MAX_RING_IDX)) continue;
-      if ((k_ptr->tval == TV_AMULET) && (num_amulets > MAX_AMULET_IDX)) 
-	continue;
-
       /* Make melee weapons a bit less frequent -NRM- */
       if (((k_ptr->tval == TV_HAFTED) || (k_ptr->tval != TV_POLEARM) ||
 	  (k_ptr->tval != TV_SWORD)) && (randint(3) == 1))
@@ -1320,16 +1314,6 @@ static void initialize_artifact(int a_idx)
 	  }
 	break;
       }
-    case TV_AMULET:
-      {
-	/* All wiped anyway */
-	break;
-      }
-    case TV_RING:
-      {
-	/* All wiped anyway */
-	break;
-      }
     }
   
   
@@ -1340,55 +1324,29 @@ static void initialize_artifact(int a_idx)
    * Rings and amulets are started again from scratch, and assigned a special
    * sval. -NRM-
    */
-  if ((k_ptr->tval != TV_AMULET) && (k_ptr->tval != TV_RING))
-    {
-      a_ptr->tval = k_ptr->tval;
-      a_ptr->sval = k_ptr->sval;
-      a_ptr->to_h = k_ptr->to_h / 2;
-      a_ptr->to_d = k_ptr->to_d / 2;
-      a_ptr->to_a = k_ptr->to_a / 2;
-      a_ptr->ac = k_ptr->ac;
-      a_ptr->dd = k_ptr->dd;
-      a_ptr->ds = k_ptr->ds;
-      if (k_ptr->cost > 4999) a_ptr->cost = k_ptr->cost;
-      a_ptr->weight = k_ptr->weight;
-      a_ptr->flags_obj = k_ptr->flags_obj;
-      a_ptr->flags_curse = k_ptr->flags_curse;
-      for (i = 0; i < MAX_P_RES; i++)
-	a_ptr->percent_res[i] = k_ptr->percent_res[i];
-      for (i = 0; i < A_MAX; i++)
-	a_ptr->bonus_stat[i] = k_ptr->bonus_stat[i];
-      for (i = 0; i < MAX_P_BONUS; i++)
-	a_ptr->bonus_other[i] = k_ptr->bonus_other[i];
-      for (i = 0; i < MAX_P_SLAY; i++)
-	a_ptr->multiple_slay[i] = k_ptr->multiple_slay[i];
-      for (i = 0; i < MAX_P_BRAND; i++)
-	a_ptr->multiple_brand[i] = k_ptr->multiple_brand[i];
+  a_ptr->tval = k_ptr->tval;
+  a_ptr->sval = k_ptr->sval;
+  a_ptr->to_h = k_ptr->to_h / 2;
+  a_ptr->to_d = k_ptr->to_d / 2;
+  a_ptr->to_a = k_ptr->to_a / 2;
+  a_ptr->ac = k_ptr->ac;
+  a_ptr->dd = k_ptr->dd;
+  a_ptr->ds = k_ptr->ds;
+  if (k_ptr->cost > 4999) a_ptr->cost = k_ptr->cost;
+  a_ptr->weight = k_ptr->weight;
+  a_ptr->flags_obj = k_ptr->flags_obj;
+  a_ptr->flags_curse = k_ptr->flags_curse;
+  for (i = 0; i < MAX_P_RES; i++)
+    a_ptr->percent_res[i] = k_ptr->percent_res[i];
+  for (i = 0; i < A_MAX; i++)
+    a_ptr->bonus_stat[i] = k_ptr->bonus_stat[i];
+  for (i = 0; i < MAX_P_BONUS; i++)
+    a_ptr->bonus_other[i] = k_ptr->bonus_other[i];
+  for (i = 0; i < MAX_P_SLAY; i++)
+    a_ptr->multiple_slay[i] = k_ptr->multiple_slay[i];
+  for (i = 0; i < MAX_P_BRAND; i++)
+    a_ptr->multiple_brand[i] = k_ptr->multiple_brand[i];
 
-
-    }
-  else
-    {
-      a_ptr->tval = k_ptr->tval;
-      a_ptr->sval = (k_ptr->tval == TV_RING ? SV_RING_ARTIFACT_0 + num_rings: 
-		     SV_AMULET_ARTIFACT_0 + num_amulets);
-      a_ptr->to_h = 0;
-      a_ptr->to_d = 0;
-      a_ptr->to_a = 0;
-      a_ptr->ac = 0;
-      a_ptr->dd = 0;
-      a_ptr->ds = 0;
-      a_ptr->cost = 0;
-      a_ptr->weight = k_ptr->weight;
-      a_ptr->flags_obj = 0L;
-      a_ptr->flags_curse = 0L;
-
-
-      /* Increment the ring or amulet count */
-      if (a_ptr->tval == TV_RING) num_rings++;
-      else num_amulets++;
-
-    }
 
   /* Ignore everything */
   a_ptr->flags_obj |= (OF_ACID_PROOF);
@@ -1469,16 +1427,8 @@ static void initialize_artifact(int a_idx)
   
   
   /* Determine the base object depth and rarity (use all indexes). */
-  if ((k_ptr->tval != TV_AMULET) && (k_ptr->tval != TV_RING))
-  {
-    base_object_depth = k_ptr->locale[0];
-    base_object_rarity = k_ptr->chance[0];
-  }
-  else
-  {
-    base_object_depth = 50;
-    base_object_rarity = 1;
-  }
+  base_object_depth = k_ptr->locale[0];
+  base_object_rarity = k_ptr->chance[0];
     
   /* Paranoia. */
   if (base_object_rarity == 0) base_object_rarity = 1;
@@ -3196,329 +3146,6 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(3) != 1)
 	      get_quality(FALSE, FREE_ACT, 0, a_idx);
 	  }
-	break;
-      }
-      /* I'm an amulet... */
-    case TV_AMULET:
-      {
-	/* ...which helps the magic device user */
-	if (selection < 20)
-	  {
-	    /* Bonus to magical item mastery */
-	    get_quality(FALSE, MAGIC_MASTERY, randint(4), a_idx);
-
-	    /* Protection for the devices */
-	    if (randint(2) == 1)
-	      get_quality(TRUE, RES_ELEC, 0, a_idx);
-	    if (randint(2) == 1)
-	      get_quality(TRUE, RES_FIRE, 0, a_idx);
-	    if (randint(2) == 1)
-	      get_quality(TRUE, RES_ACID, 0, a_idx);
-
-	    /* Sometimes vulnerable to nexus */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_NEXUS, 0, a_idx);
-	  }
-
-	/* ...which deepens wisdom */
-	else if (selection < 40)
-	  {
-	    /* Some wisdom */
-	    get_quality(TRUE, ADD_WIS, randint(4), a_idx);
-
-	    /* And maybe some charisma */
-	    if (randint(3) == 1)
-	      get_quality(TRUE, ADD_CHR, randint(4), a_idx);
-	    
-	    /* Maybe an activation */
-	    if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_BLESS;
-	    else if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_HEROISM;
-	    if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_PROT_FROM_EVIL;
-
-	    /* Sometimes vulnerable to dark and/or cold */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_COLD, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_DARK, 0, a_idx);
-	  }
-
-	/* ...which sharpens intelligence */
-	else if (selection < 60)
-	  {
-	    /* Some intelligence */
-	    get_quality(TRUE, ADD_INT, randint(4), a_idx);
-
-	    /* And maybe some charisma */
-	    if (randint(3) == 1)
-	      get_quality(TRUE, ADD_CHR, randint(4), a_idx);
-	    
-	    /* Maybe an activation */
-	    if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_IDENTIFY;
-	    else if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_DETECT_MONSTERS;
-	    if (randint(5) == 1)
-	      a_ptr->activation = ACT_RANDOM_DETECT_D_S_T;
-
-	    /* Sometimes vulnerable to electricity and/or light */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_ELEC, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_LITE, 0, a_idx);
-	  }
-
-	/* ...which enables the wearer to act */
-	else if (selection < 75)
-	  {
-	    /* This is an exclusive club */
-	    if (potential < 3500) break;
-
-	    /* Freedom of action */
-	    get_quality(FALSE, RES_BLIND, 0, a_idx);	    
-	    get_quality(FALSE, RES_CONFU, 0, a_idx);	    
-	    get_quality(FALSE, FREE_ACT, 0, a_idx);	    
-	    get_quality(FALSE, SEE_INVIS, 0, a_idx);
-
-	    /* Sometimes the lock */
-	    if (randint(4) == 1)
-	      get_quality(TRUE, RES_SOUND, 0, a_idx);
-
-	    /* Sometimes vulnerable to nether and/or disenchantment */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_NETHR, 0, a_idx);
-	    else if (randint(8) == 1) get_quality(FALSE, VUL_DISEN, 0, a_idx);
-	  }
-
-	/* ...which frees the wearer for combat */
-	else if (selection < 90)
-	  {
-	    /* This is an exclusive club */
-	    if (potential < 3500) break;
-
-	    /* Safe to get up close */
-	    get_quality(FALSE, RES_FEAR, 0, a_idx);
-	    get_quality(FALSE, RES_DISEN, 0, a_idx);
-	    get_quality(FALSE, HOLD_LIFE, 0, a_idx);	
-
-	    /* Combat bonuses */    
-	    temp = 6 + randint(4);
-	    get_quality(TRUE, ADD_DEADLINESS, temp, a_idx);
-	    get_quality(TRUE, ADD_SKILL, temp, a_idx);
-
-	    /* Sometimes vulnerable to confusion or chaos */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
-	    else if (randint(8) == 1) get_quality(FALSE, VUL_CHAOS, 0, a_idx);
-	  }
-
-	/* ...which nourishes body and soul */
-	else if (selection < 100)
-	  {
-	    /* This is an exclusive club */
-	    if (potential < 4500) break;
-
-	    /* Nice resists */
-	    get_quality(FALSE, RES_POIS, 0, a_idx);
-	    get_quality(FALSE, RES_NETHR, 0, a_idx);
-	    get_quality(FALSE, RES_CHAOS, 0, a_idx);	
- 	    get_quality(FALSE, HOLD_LIFE, 0, a_idx);	
-
-	    /* And an activation */
-	    temp = randint(3);
-	    if (temp == 1) a_ptr->activation = ACT_RANDOM_REGAIN;
-	    else if (temp == 2) a_ptr->activation = ACT_RANDOM_RESTORE;
-	    else a_ptr->activation = ACT_RANDOM_RESIST_ALL;
-	    potential -= 750;
-	  }
-	break;    
-      }
-      /* I'm a ring... */
-    case TV_RING:
-      {
-	/* ...that helps the fighter */
-	if (selection < 10)
-	  {
-	    /* Combat bonuses */
-	    temp = 1 + randint(5) + potential / 1250;
-	    get_quality(TRUE, ADD_SKILL, temp, a_idx);
-	    get_quality(TRUE, ADD_DEADLINESS, temp, a_idx);
-
-	    /* Maybe some stat boosts */
-	    if (randint(2) == 1) get_quality(TRUE, ADD_STR, randint(4), a_idx);
-	    if (randint(2) == 1) get_quality(TRUE, ADD_DEX, randint(4), a_idx);
-
-	    /* And fearlessness */
-	    get_quality(TRUE, RES_FEAR, 0, a_idx);
-
-	    /* Sometimes vulnerable to confusion */
-	    if (randint(5) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
-	  }
-
-	/* ...that aids free movement */
-	else if (selection < 20)
-	  {
-	    /* Free action and see invisible */
-	    get_quality(TRUE, FREE_ACT, 0, a_idx);	    
-	    get_quality(TRUE, SEE_INVIS, 0, a_idx);
-
-	    /* Sometimes a spellcaster's resist */
-	    temp = randint(4);
-	    if (temp == 1) get_quality(TRUE, RES_BLIND, 0, a_idx);
-	    else if (temp == 2) get_quality(TRUE, RES_CONFU, 0, a_idx);
-
-	    /* And a handy activation */
-	    temp = randint(12);
-	    if (temp < 3) a_ptr->activation = ACT_RANDOM_DETECT_MONSTERS;
-	    else if (temp < 5) a_ptr->activation = ACT_RANDOM_DETECT_EVIL;
-	    else if (temp < 7) a_ptr->activation = ACT_RANDOM_DETECT_D_S_T;
-	    else if (temp < 9) a_ptr->activation = ACT_RANDOM_MAGIC_MAP;
-	    else if (temp < 10) a_ptr->activation = ACT_RANDOM_DETECT_ALL;
-
-	    /* Sometimes vulnerable to nexus and/or shards*/
-	    if (randint(8) == 1) get_quality(FALSE, VUL_SHARD, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_NEXUS, 0, a_idx);
-	  }
-
-	/* ...that is generally useful */
-	else if (selection < 30)
-	  {
-	    /* Searching and magic mastery */
-	    get_quality(TRUE, SEARCH, randint(4), a_idx);
-	    get_quality(TRUE, MAGIC_MASTERY, randint(4), a_idx);
-	    
-	    /* And some other useful stuff */
-	    if (randint(3) < 3) get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-	    if (randint(3) < 3) get_quality(FALSE, FEATHER, 0, a_idx);
-	    if (randint(3) < 3) get_quality(FALSE, LITE, 1, a_idx);
-	    if (randint(3) < 3) get_quality(FALSE, REGEN, 0, a_idx);
-	  
-	    /* And maybe a useful activation */
-	    temp = randint(6);
-	    if (temp == 1) a_ptr->activation = ACT_RANDOM_IDENTIFY;
-	    if (temp == 2) a_ptr->activation = ACT_RANDOM_DISARM;
-	    if (temp == 3) a_ptr->activation = ACT_RANDOM_RECALL;
-
-	  }
-
-	    
-	/* ...that gives magical protection */
-	else if (selection < 40)
-	  {
-	    /* This is an exclusive club */
-	    if (potential < 2500) break;
-
-	    /* Armour class */
-	    a_ptr->to_a += 5 + potential/800 + randint(8);
-
-	    /* Boost to constitution */
-	    get_quality(TRUE, ADD_CON, randint(4), a_idx);
-
-	    /* Maybe some low resists */
-	    if (randint(4) == 1) get_quality(TRUE, RES_ACID, 0, a_idx);
-	    if (randint(4) == 1) get_quality(TRUE, RES_FIRE, 0, a_idx);
-	    if (randint(4) == 1) get_quality(TRUE, RES_COLD, 0, a_idx);
-	    if (randint(4) == 1) get_quality(TRUE, RES_ELEC, 0, a_idx);
-
-	    /* And perhaps even a high one */
-	    if (randint(10) == 1) get_quality(TRUE, RES_POIS, 0, a_idx);
-	    else if (randint(10) == 1) get_quality(TRUE, RES_LITE, 0, a_idx);
-	    else if (randint(10) == 1) get_quality(TRUE, RES_DARK, 0, a_idx);
-	    else if (randint(10) == 1) get_quality(TRUE, RES_NETHR, 0, a_idx);
-
-	    /* Sometimes vulnerable to nexus */
-	    if (randint(5) == 1) get_quality(FALSE, VUL_NEXUS, 0, a_idx);
-	  }
-
-	/* ...of power! */
-	else if (selection < 100)
-	  {
-	    /* These are mighty artifacts */
-	    potential *= 2;
-	    if (potential > max_potential) potential = max_potential;
-	    a_ptr->level = potential / 100;
-	    a_ptr->rarity = potential / 150;
-
-	    /* Bonuses to Deadliness, Skill and Armour Class*/
-	    temp = 3 + randint(5) + potential / 2000;
-	    a_ptr->to_d += temp;
-	    a_ptr->to_h += temp;
-	    a_ptr->to_a += 3 + randint(5) + potential / 1000;
-
-	    /* Power over an element */
-	    temp = randint(4);
-
-	    /* About half will be very powerful */
-	    if (potential >= 6000)
-	      {
-		/* Immunity and large ball */
-		if (temp == 1) 
-		  {
-		    get_quality(FALSE, IM_ACID, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_ACID3;
-		  }
-		if (temp == 2) 
-		  {
-		    get_quality(FALSE, IM_FIRE, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_FIRE3;
-		  }
-		if (temp == 3) 
-		  {
-		    get_quality(FALSE, IM_COLD, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_COLD3;
-		  }
-		if (temp == 4) 
-		  {
-		    get_quality(FALSE, IM_ELEC, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_ELEC3;
-		  }
-	      }
-
-	    /* Most of the rest will be moderately powerful */
-	    else if (potential >= 4000)
-	      {
-		/* Resistance and smaller ball */
-		if (temp == 1) 
-		  {
-		    get_quality(FALSE, RES_ACID, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_ACID2;
-		  }
-		if (temp == 2) 
-		  {
-		    get_quality(FALSE, RES_FIRE, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_FIRE2;
-		  }
-		if (temp == 3) 
-		  {
-		    get_quality(FALSE, RES_COLD, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_COLD2;
-		  }
-		if (temp == 4) 
-		  {
-		    get_quality(FALSE, RES_ELEC, 0, a_idx);
-		    a_ptr->activation = ACT_RANDOM_ELEC2;
-		  }
-	      }
-
-	    /* The 12% that failed their first roll */
-	    else
-	      {
-		/* Free poison resistance and attack  
-		 * SJGU don't think this can happen any more */
-		get_quality(FALSE, RES_POIS, 0, a_idx);
-		a_ptr->activation = ACT_RANDOM_POIS2;
-	      }
-
-	    /* Sometimes vulnerable to high elements... */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_NEXUS, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_NETHR, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_CHAOS, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_DISEN, 0, a_idx);
-
-	    /* ...but likely to sustain stats */
-	    if (randint(3) == 1) get_quality(FALSE, SUST_STR, 0, a_idx);
-	    if (randint(3) == 1) get_quality(FALSE, SUST_INT, 0, a_idx);
-	    if (randint(3) == 1) get_quality(FALSE, SUST_WIS, 0, a_idx);
-	    if (randint(3) == 1) get_quality(FALSE, SUST_DEX, 0, a_idx);
-	    if (randint(3) == 1) get_quality(FALSE, SUST_CON, 0, a_idx);
-	    if (randint(3) == 1) get_quality(FALSE, SUST_CHR, 0, a_idx);
-	  }
-	
 	break;
       }
     default:

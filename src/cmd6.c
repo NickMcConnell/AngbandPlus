@@ -7,9 +7,16 @@
  *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -174,6 +181,7 @@ void do_cmd_eat_food(void)
 		ident = TRUE;
 	      }
 	  }
+	else if (object_aware_p(o_ptr)) notice_obj(OF_SEEING, 0);
 	break;
       }
       
@@ -186,6 +194,7 @@ void do_cmd_eat_food(void)
 		ident = TRUE;
 	      }
 	  }
+	else if (object_aware_p(o_ptr)) notice_obj(OF_FEARLESS, 0);
 	break;
       }
       
@@ -197,6 +206,11 @@ void do_cmd_eat_food(void)
 	      {
 		ident = TRUE;
 	      }
+	  }
+	else 
+	  {
+	    notice_other(IF_RES_CONFU, 0, NULL);
+	    ident = TRUE;
 	  }
 	break;
       }
@@ -210,6 +224,11 @@ void do_cmd_eat_food(void)
 		ident = TRUE;
 	      }
 	  }
+	else 
+	  {
+	    notice_other(IF_RES_CHAOS, 0, NULL);
+	    ident = TRUE;
+	  }
 	break;
       }
       
@@ -221,6 +240,11 @@ void do_cmd_eat_food(void)
 	      {
 		ident = TRUE;
 	      }
+	  }
+	else 
+	  {
+	    notice_obj(OF_FREE_ACT, 0);
+	    ident = TRUE;
 	  }
 	break;
 		}
@@ -525,6 +549,7 @@ void do_cmd_quaff_potion(void)
 		ident = TRUE;
 	      }
 	  }
+	else if (object_aware_p(o_ptr)) notice_obj(OF_SEEING, 0);
 	break;
       }
       
@@ -537,6 +562,11 @@ void do_cmd_quaff_potion(void)
 		ident = TRUE;
 	      }
 	  }
+	else 
+	  {
+	    notice_other(IF_RES_CONFU, 0, NULL);
+	    ident = TRUE;
+	  }
 	break;
       }
       
@@ -548,6 +578,11 @@ void do_cmd_quaff_potion(void)
 	      {
 		ident = TRUE;
 	      }
+	  }
+	else 
+	  {
+	    notice_obj(OF_FREE_ACT, 0);
+	    ident = TRUE;
 	  }
 	break;
       }
@@ -1188,6 +1223,7 @@ void do_cmd_read_scroll(void)
 	  {
 	    (void)set_blind(p_ptr->blind + 3 + randint(5));
 	  }
+	else if (object_aware_p(o_ptr)) notice_obj(OF_SEEING, 0);
 	if (unlite_area(10, 3)) ident = TRUE;
 	break;
       }
@@ -1261,7 +1297,7 @@ void do_cmd_read_scroll(void)
       
     case SV_SCROLL_TELEPORT_LEVEL:
       {
-	(void)teleport_player_level(FALSE);
+	(void)teleport_player_level(TRUE);
 	ident = TRUE;
 	break;
       }
@@ -1739,6 +1775,7 @@ void do_cmd_use_staff(void)
 	  {
 	    if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
 	  }
+	else if (object_aware_p(o_ptr)) notice_obj(OF_SEEING, 0);
 	if (unlite_area(10, 3)) ident = TRUE;
 	break;
       }
@@ -2147,7 +2184,7 @@ void do_cmd_use_staff(void)
       k_ptr->known_effect = TRUE;
       
       /* If we actually give more information now, let the player know. */
-      if (strlen(obj_special_info[3][o_ptr->sval]))
+      if (strlen(obj_special_info[1][o_ptr->sval]))
 	{
 	  if (artifact_p(o_ptr))
 	    msg_format("You feel you know more about the Staff %s.",
@@ -2607,7 +2644,7 @@ void do_cmd_aim_wand(void)
       k_ptr->known_effect = TRUE;
       
       /* If we actually give more information now, let the player know. */
-      if (strlen(obj_special_info[4][o_ptr->sval]))
+      if (strlen(obj_special_info[2][o_ptr->sval]))
 	{
 	  if (artifact_p(o_ptr))
 	    msg_format("You feel you know more about the Wand %s.",
@@ -3097,7 +3134,7 @@ void do_cmd_zap_rod(void)
       k_ptr->known_effect = TRUE;
       
       /* If we actually give more information now, let the player know. */
-      if (strlen(obj_special_info[5][o_ptr->sval]))
+      if (strlen(obj_special_info[3][o_ptr->sval]))
 	{
 	  if (artifact_p(o_ptr))
 	    msg_format("You feel you know more about the Rod %s.",
@@ -3214,11 +3251,10 @@ void do_cmd_activate(void)
   chance = chance - (((2 * lev / 3) > 75) ? 75 : 2 * lev / 3);
 
   
-  /* Give everyone a (slight) chance, more for ordinary rings, amulets. */
+  /* Give everyone a (slight) chance, more for rings, amulets. */
   if ((chance < USE_DEVICE))
     {
-      if ((!(o_ptr->name1)) && ((o_ptr->tval == TV_RING) || 
-				(o_ptr->tval == TV_AMULET)))
+      if ((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))
 	{
 	  if (randint(3) >= 2) chance = USE_DEVICE * 2;
 	}
@@ -3867,6 +3903,342 @@ void do_cmd_activate(void)
       }
       
       
+      /* Activations for dragon scale mails. */
+    case ACT_DRAGON_BLACK:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become an acidic dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_ACID);
+	    msg_print("You breathe acid.");
+	    fire_arc(GF_ACID, dir, (plev/10 + 1) * 45, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_BLUE:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a storm dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_ELEC);
+	    msg_print("You breathe lightning.");
+	    fire_arc(GF_ELEC, dir, (plev/10 + 1) * 40, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_WHITE:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become an icy dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    msg_print("You breathe frost.");
+	    fire_arc(GF_COLD, dir, (plev/10 + 1) * 45, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_RED:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a fire dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_FIRE);
+	    msg_print("You breathe fire.");
+	    fire_arc(GF_FIRE, dir, (plev/10 + 1) * 50, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_GREEN:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a poisonous dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_GAS);
+	    msg_print("You breathe poison gas.");
+	    fire_arc(GF_POIS, dir, (plev/10 + 1) * 45, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_MULTIHUED:
+      {
+	static const struct
+	{
+	  int sound;
+	  const char *msg;
+	  int typ;
+	} mh[] =
+	    {
+	      { MSG_BR_ELEC,  "lightning",  GF_ELEC },
+	      { MSG_BR_FROST, "frost",      GF_COLD },
+	      { MSG_BR_ACID,  "acid",       GF_ACID },
+	      { MSG_BR_GAS,   "poison gas", GF_POIS },
+	      { MSG_BR_FIRE,  "fire",       GF_FIRE }
+	    };
+	
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a powerful dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    chance = rand_int(5);
+	    sound(mh[chance].sound);
+	    msg_format("You breathe %s.",
+		       ((chance == 1) ? "lightning" :
+			((chance == 2) ? "frost" :
+			 ((chance == 3) ? "acid" :
+			  ((chance == 4) ? "poison gas" : "fire")))));
+	    fire_arc(((chance == 1) ? GF_ELEC :
+		      ((chance == 2) ? GF_COLD :
+		       ((chance == 3) ? GF_ACID :
+			((chance == 4) ? GF_POIS : GF_FIRE)))),
+		     dir, (plev/10 + 1) * 60, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_SHINING:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a glowing dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    chance = rand_int(2);
+	    sound(((chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK)));
+	    msg_format("You breathe %s.",
+		       ((chance == 0 ? "light" : "darkness")));
+	    fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 
+		     (plev/10 + 1) * 50, 10, 40);
+	  }			
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_LAW:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a dragon of Order.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    chance = rand_int(2);
+	    sound(((chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS)));
+	    msg_format("You breathe %s.",
+		       ((chance == 1 ? "sound" : "shards")));
+	    fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
+		     dir, (plev/10 + 1) * 60, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_BRONZE:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a mystifying dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_CONF);
+	    msg_print("You breathe confusion.");
+	    fire_arc(GF_CONFUSION, dir, (plev/10 + 1) * 40, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_GOLD:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a dragon with a deafening roar.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_SOUND);
+	    msg_print("You breathe sound.");
+	    fire_arc(GF_SOUND, dir, (plev/10 + 1) * 40, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_CHAOS:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a dragon of Chaos.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    chance = rand_int(2);
+	    sound(((chance == 1 ? MSG_BR_CHAOS : MSG_BR_DISENCHANT)));
+	    msg_format("You breathe %s.",
+		       ((chance == 1 ? "chaos" : "disenchantment")));
+	    fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
+		     dir, (plev/10 + 1) * 55, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_BALANCE:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a dragon of Balance.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    chance = rand_int(4);
+	    sound(((chance == 1) ? MSG_BR_CHAOS :
+		   ((chance == 2) ? MSG_BR_DISENCHANT :
+		    ((chance == 3) ? MSG_BR_SOUND : MSG_BR_SHARDS))));
+	    msg_format("You breathe %s.",
+		       ((chance == 1) ? "chaos" :
+			((chance == 2) ? "disenchantment" :
+			 ((chance == 3) ? "sound" : "shards"))));
+	    fire_arc(((chance == 1) ? GF_CHAOS :
+		      ((chance == 2) ? GF_DISENCHANT :
+		       ((chance == 3) ? GF_SOUND : GF_SHARD))),
+		     dir, (plev/10 + 1) * 65, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+    case ACT_DRAGON_POWER:
+      {
+	if ((p_ptr->schange) != SHAPE_WYRM)
+	  {
+	    msg_print("You become a wonderous dragon.");
+	    shapechange(SHAPE_WYRM);
+	  }
+	else
+	  {
+	    if (!get_aim_dir(&dir)) return;
+	    sound(MSG_BR_ELEMENTS);
+	    msg_print("You breathe the elements.");
+	    fire_arc(GF_ALL, dir, (plev/10 + 1) * 75, 10, 40);
+	  }
+	o_ptr->timeout = rand_int(50) + 50;
+	break;
+      }
+      
+      /* Activations for rings. */
+    case ACT_RING_ACID:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_ACID, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+    case ACT_RING_ELEC:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_ELEC, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+    case ACT_RING_FIRE:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_FIRE, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+    case ACT_RING_COLD:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_COLD, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+    case ACT_RING_POIS:
+      {
+	if (!get_aim_dir(&dir)) return;
+	fire_ball(GF_POIS, dir, 45 + 3 * plev / 2, 3, FALSE);
+	(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+	o_ptr->timeout = rand_int(100) + 50;
+	break;
+      }
+      
+      
+      /* Activations for amulets. */
+    case ACT_AMULET_ESCAPING:
+      {
+	teleport_player(40,TRUE);
+	o_ptr->timeout = rand_int(40) + 40;
+	break;
+      }
+      
+    case ACT_AMULET_LION:
+      {
+	/* Already a Lion */
+	if (p_ptr->schange == SHAPE_LION) break;
+	
+	msg_print("You become a fierce Lion.");
+	shapechange(SHAPE_LION);
+	o_ptr->timeout = 200;
+	break;
+      }
+      
+    case ACT_AMULET_METAMORPH:
+      {
+	/* Already changed */
+	if (p_ptr->schange) break;
+	
+	shapechange(randint(MAX_SHAPE));
+	o_ptr->timeout = 300;
+	break;
+      }
+      
+      
       /* Activations for random artifacts, and available for use elsewhere. */
     case ACT_RANDOM_FIRE1:
       {
@@ -4454,340 +4826,345 @@ void do_cmd_activate(void)
       }
     case ACT_RANDOM_SLOW_FOES:
       {
-	msg_print("A opaque cloud blankets the area...");
+	msg_print("An opaque cloud blankets the area...");
 	if (slow_monsters(3 * plev / 2)) 
 	  msg_print("...and dissipates, along with your opponents' strength!");
 	else msg_print("...and dissipates without effect.");
 	o_ptr->timeout = 300;
 	break;
       }
+
+      /* Activations for rings of power */
+    case ACT_POWER_ACID_BLAST:
+      {
+	/* Acid, confusion, fear */
+	msg_print("A blast of corrosion strikes your foes!");
+	fire_sphere(GF_ACID, 0, randint(100) + 100, 5, 20);
+	(void)confu_monsters(100);
+	(void)fear_monsters(100);
+
+	o_ptr->timeout = 1500;
+	break;
+      }
+    case ACT_POWER_CHAIN_LIGHTNING:
+      {
+	int strikes = 2 + randint(10);
+	int y, x, target;
+	int targ_y, targ_x;
+	int cur_y = p_ptr->py, cur_x = p_ptr->px, cur_mon = -1;
+	int flag = PROJECT_STOP | PROJECT_KILL;
+	int avail_mon[100], avail_mon_num;
+
+	msg_print("The lightning of Manwe leaps from your hands!");
+
+	/* Initialise */
+	for (i = 0; i < 100; i++) avail_mon[i] = 0;
+	targ_y = cur_y;
+	targ_x = cur_x;
+
+	/* Start striking */
+	for (i = 0; i < strikes; i++)
+	  {
+	    /* No targets yet */
+	    avail_mon_num = 0;
+
+	    /* Find something in range */
+	    for (y = cur_y - 5; y <= cur_y + 5; y++)
+	      for (x = cur_x - 5; x <= cur_x + 5; x++)
+		{
+		  int dist = distance(cur_y, cur_x, y, x);
+
+		  /* Skip distant grids */
+		  if (dist > 5) continue;
+
+		  /* Skip grids that are out of bounds */
+		  if (!in_bounds_fully(y, x)) continue;
+	      
+		  /* Skip grids that are not projectable */
+		  if (projectable(cur_y, cur_x, y, x, flag) != PROJECT_CLEAR)
+		    continue;
+	      
+		  /* Skip grids with no monster (including player) */
+		  if (!cave_m_idx[y][x]) continue;
+
+		  /* Record the monster */
+		  avail_mon[avail_mon_num++] = cave_m_idx[y][x];
+		}
+
+	    /* Maybe we're at a dead end */
+	    if (!avail_mon_num) break;
+
+	    /* Pick a target... */
+	    target = rand_int(avail_mon_num);
+	    if (avail_mon[target] == -1) 
+	      {
+		targ_y = p_ptr->py;
+		targ_x = p_ptr->px;
+	      }
+	    else
+	      {
+		targ_y = m_list[avail_mon[target]].fy;
+		targ_x = m_list[avail_mon[target]].fx;
+	      }
+	  
+	    /* Paranoia */
+	    if (!cave_m_idx[targ_y][targ_x]) break;
+
+	    /* ...and hit it */
+	    project(cur_mon, 1, targ_y, targ_x, damroll(30, 4), GF_ELEC, flag, 
+		    0, 0);
+
+	    /* Set current monster (may be dead) */
+	    cur_y = targ_y;
+	    cur_x = targ_x;
+	    cur_mon = avail_mon[target];
+	  }
       
-      
-      
-      /* Activations for dragon scale mails. */
-    case ACT_DRAGON_BLACK:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become an acidic dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_ACID);
-	    msg_print("You breathe acid.");
-	    fire_arc(GF_ACID, dir, (plev/10 + 1) * 45, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
+	o_ptr->timeout = 2000;
 	break;
       }
-    case ACT_DRAGON_BLUE:
+    case ACT_POWER_LAVA_POOL:
       {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a storm dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_ELEC);
-	    msg_print("You breathe lightning.");
-	    fire_arc(GF_ELEC, dir, (plev/10 + 1) * 40, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_WHITE:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become an icy dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    msg_print("You breathe frost.");
-	    fire_arc(GF_COLD, dir, (plev/10 + 1) * 45, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_RED:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a fire dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_FIRE);
-	    msg_print("You breathe fire.");
-	    fire_arc(GF_FIRE, dir, (plev/10 + 1) * 50, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_GREEN:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a poisonous dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_GAS);
-	    msg_print("You breathe poison gas.");
-	    fire_arc(GF_POIS, dir, (plev/10 + 1) * 45, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_MULTIHUED:
-      {
-	static const struct
-	{
-	  int sound;
-	  const char *msg;
-	  int typ;
-	} mh[] =
+	int y, x;
+	int py = p_ptr->py, px = p_ptr->px;
+
+	msg_print("Lava wells around you!");
+	
+	/* Everything in range */
+	for (y = py - 7; y <= py + 7; y++)
+	  for (x = px - 7; x <= px + 7; x++)
 	    {
-	      { MSG_BR_ELEC,  "lightning",  GF_ELEC },
-	      { MSG_BR_FROST, "frost",      GF_COLD },
-	      { MSG_BR_ACID,  "acid",       GF_ACID },
-	      { MSG_BR_GAS,   "poison gas", GF_POIS },
-	      { MSG_BR_FIRE,  "fire",       GF_FIRE }
-	    };
+	      int dist = distance(py, px, y, x);
+	      feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+	      /* Skip distant grids */
+	      if (dist > 7) continue;
+
+	      /* Skip grids that are out of bounds */
+	      if (!in_bounds_fully(y, x)) continue;
+	      
+	      /* Skip grids that are permanent */
+	      if (f_ptr->flags & TF_PERMANENT) continue;
+	      
+	      /* Skip grids in vaults */
+	      if (cave_info[y][x] & CAVE_ICKY) continue;
+	      
+	      /* Lava now */
+	      cave_set_feat(y, x, FEAT_LAVA);
+	    }
+      
+	o_ptr->timeout = 2000;
+	break;
+      }
+    case ACT_POWER_ICE_WHIRLPOOL:
+      {
+	/* Unleash a whirlpool. */
+	msg_print("A howling vortex of ice rises in wrath around you.");
+	fire_sphere(GF_ICE, 0, randint(100) + 100, 5, 10);
 	
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a powerful dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    chance = rand_int(5);
-	    sound(mh[chance].sound);
-	    msg_format("You breathe %s.",
-		       ((chance == 1) ? "lightning" :
-			((chance == 2) ? "frost" :
-			 ((chance == 3) ? "acid" :
-			  ((chance == 4) ? "poison gas" : "fire")))));
-	    fire_arc(((chance == 1) ? GF_ELEC :
-		      ((chance == 2) ? GF_COLD :
-		       ((chance == 3) ? GF_ACID :
-			((chance == 4) ? GF_POIS : GF_FIRE)))),
-		     dir, (plev/10 + 1) * 60, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_SHINING:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a glowing dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    chance = rand_int(2);
-	    sound(((chance == 0 ? MSG_BR_LIGHT : MSG_BR_DARK)));
-	    msg_format("You breathe %s.",
-		       ((chance == 0 ? "light" : "darkness")));
-	    fire_arc((chance == 0 ? GF_LITE : GF_DARK), dir, 
-		     (plev/10 + 1) * 50, 10, 40);
-	  }			
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_LAW:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a dragon of Order.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    chance = rand_int(2);
-	    sound(((chance == 1 ? MSG_BR_SOUND : MSG_BR_SHARDS)));
-	    msg_format("You breathe %s.",
-		       ((chance == 1 ? "sound" : "shards")));
-	    fire_arc((chance == 1 ? GF_SOUND : GF_SHARD),
-		     dir, (plev/10 + 1) * 60, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_BRONZE:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a mystifying dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_CONF);
-	    msg_print("You breathe confusion.");
-	    fire_arc(GF_CONFUSION, dir, (plev/10 + 1) * 40, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_GOLD:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a dragon with a deafening roar.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_SOUND);
-	    msg_print("You breathe sound.");
-	    fire_arc(GF_SOUND, dir, (plev/10 + 1) * 40, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_CHAOS:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a dragon of Chaos.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    chance = rand_int(2);
-	    sound(((chance == 1 ? MSG_BR_CHAOS : MSG_BR_DISENCHANT)));
-	    msg_format("You breathe %s.",
-		       ((chance == 1 ? "chaos" : "disenchantment")));
-	    fire_arc((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-		     dir, (plev/10 + 1) * 55, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_BALANCE:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a dragon of Balance.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    chance = rand_int(4);
-	    sound(((chance == 1) ? MSG_BR_CHAOS :
-		   ((chance == 2) ? MSG_BR_DISENCHANT :
-		    ((chance == 3) ? MSG_BR_SOUND : MSG_BR_SHARDS))));
-	    msg_format("You breathe %s.",
-		       ((chance == 1) ? "chaos" :
-			((chance == 2) ? "disenchantment" :
-			 ((chance == 3) ? "sound" : "shards"))));
-	    fire_arc(((chance == 1) ? GF_CHAOS :
-		      ((chance == 2) ? GF_DISENCHANT :
-		       ((chance == 3) ? GF_SOUND : GF_SHARD))),
-		     dir, (plev/10 + 1) * 65, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-    case ACT_DRAGON_POWER:
-      {
-	if ((p_ptr->schange) != SHAPE_WYRM)
-	  {
-	    msg_print("You become a wonderous dragon.");
-	    shapechange(SHAPE_WYRM);
-	  }
-	else
-	  {
-	    if (!get_aim_dir(&dir)) return;
-	    sound(MSG_BR_ELEMENTS);
-	    msg_print("You breathe the elements.");
-	    fire_arc(GF_ALL, dir, (plev/10 + 1) * 75, 10, 40);
-	  }
-	o_ptr->timeout = rand_int(50) + 50;
-	break;
-      }
-      
-      /* Activations for rings. */
-    case ACT_RING_ACID:
-      {
-	if (!get_aim_dir(&dir)) return;
-	fire_ball(GF_ACID, dir, 45 + 3 * plev / 2, 3, FALSE);
-	(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-	o_ptr->timeout = rand_int(100) + 50;
-	break;
-      }
-    case ACT_RING_ELEC:
-      {
-	if (!get_aim_dir(&dir)) return;
-	fire_ball(GF_ELEC, dir, 45 + 3 * plev / 2, 3, FALSE);
-	(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-	o_ptr->timeout = rand_int(100) + 50;
-	break;
-      }
-    case ACT_RING_FIRE:
-      {
-	if (!get_aim_dir(&dir)) return;
-	fire_ball(GF_FIRE, dir, 45 + 3 * plev / 2, 3, FALSE);
-	(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-	o_ptr->timeout = rand_int(100) + 50;
-	break;
-      }
-    case ACT_RING_COLD:
-      {
-	if (!get_aim_dir(&dir)) return;
-	fire_ball(GF_COLD, dir, 45 + 3 * plev / 2, 3, FALSE);
-	(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-	o_ptr->timeout = rand_int(100) + 50;
-	break;
-      }
-    case ACT_RING_POIS:
-      {
-	if (!get_aim_dir(&dir)) return;
-	fire_ball(GF_POIS, dir, 45 + 3 * plev / 2, 3, FALSE);
-	(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-	o_ptr->timeout = rand_int(100) + 50;
-	break;
-      }
-      
-      
-      /* Activations for amulets. */
-    case ACT_AMULET_ESCAPING:
-      {
-	teleport_player(40,TRUE);
-	o_ptr->timeout = rand_int(40) + 40;
-	break;
-      }
-      
-    case ACT_AMULET_LION:
-      {
-	/* Already a Lion */
-	if (p_ptr->schange == SHAPE_LION) break;
+	/* Whisk around and slow the nearby monsters. */
+	fire_ball(GF_AWAY_ALL, 0, 12, 6, FALSE);
+	slow_monsters(50);
 	
-	msg_print("You become a fierce Lion.");
-	shapechange(SHAPE_LION);
-	o_ptr->timeout = 200;
+	o_ptr->timeout = 1000;
 	break;
       }
+    case ACT_POWER_GROW_FOREST:
+      {
+	msg_print("A leafy forest surrounds you!");
+	grow_trees_and_grass(TRUE);
+	o_ptr->timeout = 2000;
+	break;
+      }
+    case ACT_POWER_RESTORE_AND_ENHANCE:
+      {
+	msg_print("You feel life flow through your body!");
+	restore_level();
+	(void)set_poisoned(0);
+	(void)set_blind(0);
+	(void)set_confused(0);
+	(void)set_image(0);
+	(void)set_stun(0);
+	(void)set_cut(0);
+	(void)do_res_stat(A_STR);
+	(void)do_res_stat(A_CON);
+	(void)do_res_stat(A_DEX);
+	(void)do_res_stat(A_WIS);
+	(void)do_res_stat(A_INT);
+	(void)do_res_stat(A_CHR);
+	hp_player(2000);
+	if (p_ptr->black_breath)
+	  {
+	    msg_print("The hold of the Black Breath on you is broken!");
+	  }
+	p_ptr->black_breath = FALSE;
+	(void)set_afraid(0);
+	(void)set_hero(p_ptr->hero + randint(25) + 25);
+	(void)set_shero(p_ptr->shero + randint(25) + 25);
+	(void)set_blessed(p_ptr->blessed + randint(25) + 25);
+	(void)set_protevil(p_ptr->protevil + randint(25) + 25);
+	o_ptr->timeout = 3000;
+	break;
+      }
+    case ACT_POWER_ZONE_OF_CHAOS:
+      {
+	int y, x;
+	int py = p_ptr->py, px = p_ptr->px;
+
+	msg_print("The forces of chaos surround you!");
+
+	/* Everything in range */
+	for (y = py - 10; y <= py + 10; y++)
+	  for (x = px - 10; x <= px + 10; x++)
+	    {
+	      int dist = distance(py, px, y, x);
+
+	      /* Skip distant grids */
+	      if (dist > 10) continue;
+
+	      /* 20% chance */
+	      if (randint(5) == 1) continue;
+
+	      /* Hit it */
+	      (void)fire_meteor(-1, GF_CHAOS, y, x, 50, 0, FALSE);
+	    }
+
+	o_ptr->timeout = 3000;
+	break;
+      }
+    case ACT_POWER_PRESSURE_WAVE:
+      {
+	msg_print("Your foes are thrown backward!");
+	fire_ball(GF_FORCE, 0, 50, 20, FALSE);
+
+	o_ptr->timeout = 1500;
+	break;
+      }
+    case ACT_POWER_ENERGY_DRAIN:
+      {
+	int y, x;
+	int py = p_ptr->py, px = p_ptr->px;
+	monster_type *m_ptr;
+
+	msg_print("Your foes slow, and you seem to have an eternity to act...");
+	
+	/* Everything in range */
+	for (y = py - 5; y <= py + 5; y++)
+	  for (x = px - 5; x <= px + 5; x++)
+	    {
+	      int dist = distance(py, px, y, x);
+
+	      /* Skip distant grids */
+	      if (dist > 5) continue;
+
+	      /* Skip grids with no monster */
+	      if (cave_m_idx[y][x] <= 0) continue;
+
+	      /* Skip grids without LOS */
+	      if (!player_has_los_bold(y, x)) continue;
+
+	      /* Get the monster */
+	      m_ptr = &m_list[cave_m_idx[y][x]];
+	      
+	      /* Take the energy */
+	      p_ptr->energy += m_ptr->energy;
+	      m_ptr->energy = 0;
+	    }
+      
+	o_ptr->timeout = 3000;
+	break;
+      }
+    case ACT_POWER_MASS_STASIS:
+      {
+	msg_print("You command your foes to be still!");
+	hold_all();
+	o_ptr->timeout = 1000;
+	break;
+      }
+    case ACT_POWER_LIGHT_FROM_ABOVE:
+      {
+	int y, x;
+	int py = p_ptr->py, px = p_ptr->px;
+
+	msg_print("The light of the Valar shines from above!");
+
+	/* Everything in range */
+	for (y = py - 10; y <= py + 10; y++)
+	  for (x = px - 10; x <= px + 10; x++)
+	    {
+	      int dist = distance(py, px, y, x);
+
+	      /* Skip distant grids */
+	      if (dist > 10) continue;
+
+	      /* Skip grids with no monster */
+	      if (cave_m_idx[y][x] <= 0) continue;
+
+	      /* Hit it */
+	      (void)fire_meteor(-1, GF_LITE, y, x, 100, 1, FALSE);
+	    }
+
+	o_ptr->timeout = 1500;
+	break;
+      }
+    case ACT_POWER_MASS_POLYMORPH:
+      {
+	msg_print("Reality warps...");
+	poly_all(p_ptr->depth);
+
+	o_ptr->timeout = 2500;
+	break;
+      }
+    case ACT_POWER_GRAVITY_WAVE:
+      {
+	msg_print("Gravity crushes, then releases, your foes!");
+	fire_ball(GF_GRAVITY, 0, 100, 20, FALSE);
+
+	o_ptr->timeout = 2000;
+	break;
+      }
+    case ACT_POWER_ENLIST_EARTH:
+      {
+	int m_idx, targ_y, targ_x, group;
+
+	msg_print("You call on the Earth to bring forth allies!");
+
+	/* Must target a monster */
+	if (!get_aim_dir(&dir)) return;
+	if (p_ptr->target_who <= 0) 
+	  {
+	    msg_print("You must target a monster.");
+	    return;
+	  }
+
+	targ_y = m_list[p_ptr->target_who].fy;
+	targ_x = m_list[p_ptr->target_who].fx;
+	group = m_list[p_ptr->target_who].group;
+
+	/* Summon golems */
+	summon_specific(targ_y, targ_x,	FALSE, p_ptr->depth, SUMMON_GOLEM);
+
+	/* Hack - make all local golems hostile to the target */
+	for (m_idx = 0; m_idx < z_info->m_max; m_idx++)
+	  {
+	    monster_type *m_ptr = &m_list[m_idx];
+	    monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	    if ((distance(targ_y, targ_x, m_ptr->fy, m_ptr->fx) < 7) &&
+		(r_ptr->d_char = 'g') && (!(r_ptr->flags3 & RF3_DRAGON)))
+	      m_ptr->hostile = p_ptr->target_who;
+	  }
+
+	o_ptr->timeout = 3000;
+	break;
+      }
+    case ACT_POWER_TELEPORT_ALL:
+      {
+	teleport_all(80);
+	o_ptr->timeout = 2000;
+	break;
+      }
+      
       
       
       /* Activations for ego-items. */

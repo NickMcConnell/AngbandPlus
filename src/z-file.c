@@ -2,7 +2,8 @@
  * File: z-file.c
  * Purpose: Low-level file (and directory) handling
  *
- * Copyright (c) 1997-2007 Ben Harrison, pelpel, Andrew Sidwell, Matthew Jones
+ * Copyright (c) 1997-2009 Ben Harrison, pelpel, Andrew Sidwell, Matthew Jones,
+ * Nick McConnell
  *
  * This work is free software; you can redistribute it and/or modify it
  * under the terms of either:
@@ -662,15 +663,7 @@ bool file_readc(ang_file *f, byte *b)
 	*b = (byte)i;
 	return TRUE;
 }
-#if 0
-/*
- * Write a single, 8-bit character 'b' to file 'f'.
- */
-bool file_writec(ang_file *f, byte b)
-{
-	return file_write(f, (const char *)&b, 1);
-}
-#endif
+
 /* 
  * Write a single, 8-bit character 'b' to file 'f'.
  */

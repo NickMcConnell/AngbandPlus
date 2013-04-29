@@ -1,150 +1,30 @@
 /* File: dungeon.c */
 
-/* Pseusdo-ID, char & monster regeneration, town and dungeon management,
+/* Char & monster regeneration, town and dungeon management,
  * all timed character, monster, and object states, entry into Wizard, 
  * debug, and borg mode, definitions of user commands, process player, 
  * the basic function for interacting with the dungeon (including what 
  * happens when a wizard cheats death).
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997-2009 Nick McConnell, Ben Harrison, James E. Wilson, 
+ * Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 #include "z-file.h"
 #include "cmds.h"
 
-
-/* 
- * Test an item for any negative qualities
- */
-bool item_dubious(const object_type *o_ptr, bool unknown)
-{
-  int i;
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-  /* Resists, bonuses, multiples */
-  for (i = 0; i < MAX_P_RES; i++)
-    if (o_ptr->percent_res[i] > RES_LEVEL_BASE) return TRUE;
-  for (i = 0; i < A_MAX; i++)
-    if (o_ptr->bonus_stat[i] < BONUS_BASE) return TRUE;
-  for (i = 0; i < MAX_P_BONUS; i++)
-    if (o_ptr->bonus_other[i] < BONUS_BASE) return TRUE;
-  for (i = 0; i < MAX_P_SLAY; i++)
-    if (o_ptr->multiple_slay[i] < MULTIPLE_BASE) return TRUE;
-  for (i = 0; i < MAX_P_BRAND; i++)
-    if (o_ptr->multiple_brand[i] < MULTIPLE_BASE) return TRUE;
-
-  /* To skill, to deadliness, to AC */
-  if (o_ptr->to_h + o_ptr->to_d < k_ptr->to_h) return TRUE;
-  if (o_ptr->to_a < 0) return TRUE;
-
-  /* Only check curses if NOT known, so we can infer dubious items with
-   * no other bad properties must be cursed */
-  if (unknown)
-    {
-      /* Cursed */
-      if (cursed_p(o_ptr)) return TRUE;
-    }
-  
-  /* Must be OK */
-  return FALSE;
-}
-
-
-/*
- * Return a "feeling" (or FEEL_NONE) about an item.  Method 1 (Heavy).
- */
-int value_check_aux1(object_type *o_ptr)
-{
-  int slot = wield_slot(o_ptr);
-  object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-  /* Wieldable? */
-  if (slot < 0) return FEEL_NONE;
-
-  /* No pseudo for lights */
-  if (slot == INVEN_LITE) return FEEL_NONE;
-
-  /* Artifacts */
-  if (artifact_p(o_ptr))
-    {
-      /* All return special now */
-      return FEEL_SPECIAL;
-    }
-  
-  /* Ego-Items */
-  if (ego_item_p(o_ptr) || (k_ptr->flags_kind & KF_POWERFUL))
-    {
-      /* Dubious egos */
-      if (item_dubious(o_ptr, TRUE)) return FEEL_PERILOUS;
-      
-      /* Normal */
-      o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
-      return FEEL_EXCELLENT;
-    }
-  
-  /* Dubious items */
-  if (item_dubious(o_ptr, TRUE)) return FEEL_DUBIOUS_STRONG;
-  
-  /* Known not cursed now */
-  o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
-
-  /* No average jewellery */
-  if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK)) return FEEL_GOOD_STRONG;
-
-  /* Good "armor" bonus */
-  if (o_ptr->to_a > 0) return FEEL_GOOD_STRONG;
-  
-  /* Good "weapon" bonus */
-  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_STRONG;
-  
-  /* Default to "average" */
-  return FEEL_AVERAGE;
-}
-
-
-/*
- * Return a "feeling" (or FEEL_NONE) about an item.  Method 2 (Light).
- */
-int value_check_aux2(object_type *o_ptr)
-{
-  int slot = wield_slot(o_ptr);
-
-  /* Wieldable? */
-  if (slot < 0) return FEEL_NONE;
-
-  /* No pseudo for lights */
-  if (slot == INVEN_LITE) return FEEL_NONE;
-
-  /* Dubious items (all of them) */
-  if (item_dubious(o_ptr, TRUE)) return FEEL_DUBIOUS_WEAK;
-
-  /* Known not cursed now */  
-  o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
-
-  /* Artifacts -- except dubious ones */
-  if (artifact_p(o_ptr)) return FEEL_GOOD_WEAK;
-  
-  /* Ego-Items -- except dubious ones */
-  if (ego_item_p(o_ptr)) return FEEL_GOOD_WEAK;
-  
-  /* No average jewellery */
-  if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK)) return FEEL_GOOD_WEAK;
-
-  /* Good armor bonus */
-  if (o_ptr->to_a > 0) return FEEL_GOOD_WEAK;
-  
-  /* Good weapon bonuses */
-  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_WEAK;
-
-/* SJGU */
-  /* Default to "average" */
-  return FEEL_AVERAGE;
-}
 
 
 /*
@@ -320,39 +200,6 @@ void sun_banish(void)
     msg_print("Creatures of the darkness flee from the sunlight!");
 }
 
-/* 
- * Notice random effect curses
- */
-void notice_curse(u32b curse_flag, int item)
-{
-  object_type *o_ptr;
-  int i;
-
-  if (item > 0) 
-    {
-      o_ptr = &inventory[item - 1];
-      if (o_ptr->flags_curse & curse_flag) 
-	{
-	  o_ptr->id_curse |= curse_flag;
-	  o_ptr->ident |= IDENT_CURSED;
-	}
-      return;
-    }
-
-  for (i = INVEN_WIELD; i <= INVEN_FEET; i++)
-    {
-      o_ptr = &inventory[i];
-      
-      /* Look for curses */
-      if (o_ptr->flags_curse & curse_flag)
-	{ 
-	  /* Found one */
-	  o_ptr->id_curse |= curse_flag;
-	  o_ptr->ident |= IDENT_CURSED;
-	}
-    }
-}
-
 
 static void play_ambient_sound(void)
 {
@@ -480,7 +327,6 @@ static void process_world(void)
       if (!(turn % ((s32b) autosave_freq * 10 )))
         {
           is_autosave = TRUE;
-          msg_print("Autosaving the game...");
           do_cmd_save_game();
           is_autosave = FALSE;
           msg_print(NULL);
@@ -611,7 +457,7 @@ static void process_world(void)
           /* Regeneration takes more food */
           if (p_ptr->regenerate) i += 30;
           
-	  /* Fast digestion takes less food */
+	  /* Fast digestion takes more food */
 	  if (p_ptr->fast_digest) 
 	    {
 	      notice_curse(CF_HUNGRY, 0);
@@ -619,7 +465,11 @@ static void process_world(void)
 	    }
 	  
 	  /* Slow digestion takes less food */
-	  if (p_ptr->slow_digest) i -= 10;
+	  if (p_ptr->slow_digest) 
+	    {
+	      notice_obj(OF_SLOW_DIGEST, 0);
+	      i -= 10;
+	    }
 	  
 	  /* Minimal digestion */
 	  if (i < 1) i = 1;
@@ -692,6 +542,7 @@ static void process_world(void)
   /* Regeneration ability.  A lesser effect on mana in Oangband. */
   if (p_ptr->regenerate)
     {
+      notice_obj(OF_REGEN, 0);
       regen_amount = regen_amount * 2;
       mana_regen_amount = 3 * regen_amount / 2;
     }
@@ -1895,7 +1746,7 @@ static void process_player(void)
       if (show_lists) p_ptr->command_see = TRUE;      
 
       /* Hack - update visible monster list */
-      p_ptr->window |= PW_MONLIST;
+      p_ptr->window |= (PW_MONLIST | PW_ITEMLIST);
 
       /* Assume free turn */
       p_ptr->energy_use = 0;
@@ -2253,7 +2104,7 @@ static void dungeon(void)
   p_ptr->window |= (PW_MONSTER);
   
   /* Window stuff */
-  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_ITEMLIST);
   
   /* Redraw stuff */
   redraw_stuff();
@@ -2627,7 +2478,7 @@ void play_game(bool new_game)
       player_birth();
       
       /* Start in home town  - or on the stairs to Angband */
-      p_ptr->stage = (adult_thrall ? 135 : p_ptr->home);
+      p_ptr->stage = (adult_thrall ? (adult_dungeon ? 87 : 135) : p_ptr->home);
       p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
       
       /* Hack -- enter the world */

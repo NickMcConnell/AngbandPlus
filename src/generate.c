@@ -1254,7 +1254,8 @@ static void place_random_stairs(int y, int x)
     {
       place_down_stairs(y, x);
     }
-  else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
+  else if ((is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN])) && 
+	   !(adult_dungeon && stage_map[p_ptr->stage][DOWN]))
     {
       place_up_stairs(y, x);
     }
@@ -1327,8 +1328,9 @@ static void alloc_stairs(int feat, int num, int walls)
 	    }
 	  
 	  /* Bottom of dungeon, quest or underworld -- must go up */
-	  else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN])
-		   || (underworld))
+	  else if ((is_quest(p_ptr->stage) && 
+		    !(adult_dungeon && stage_map[p_ptr->stage][DOWN]))
+		   || (!stage_map[p_ptr->stage][DOWN]) || (underworld))
 	    {
 	      /* Clear previous contents, add up stairs */
 	      if (feat != FEAT_LESS_SHAFT) cave_set_feat(y, x, FEAT_LESS);
@@ -9958,6 +9960,25 @@ static void valley_gen(void)
 	    cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
     }
+
+  /* Maybe place a few random portals. */
+  if (adult_dungeon && (p_ptr->depth == 70) && stage_map[p_ptr->stage][DOWN])
+    {
+      feature_type *f_ptr = NULL;
+
+      k = randint(3) + 1;
+      while(k > 0)
+	{
+	  y = randint(DUNGEON_HGT -1);
+	  x = randint(DUNGEON_WID - 1);
+	  f_ptr = &f_info[cave_feat[y][x]];
+	  if (f_ptr->flags & TF_TREE) 
+	    {
+	      cave_set_feat(y, x, FEAT_MORE);
+	      k--;
+	    }
+	}
+    }
 }
 
 
@@ -10090,7 +10111,7 @@ static void town_gen_hack(void)
   int stage = p_ptr->stage;
   int last_stage = p_ptr->last_stage;
   
-  int rooms[MAX_STORES_BIG];
+  int rooms[MAX_STORES_BIG + 1];
   
   bool place = FALSE;
   bool major = FALSE;
@@ -10102,9 +10123,11 @@ static void town_gen_hack(void)
   for (i = 0;i < 10; i++)
     if (stage == towns[i])
       Rand_value = seed_town[i];
+
+  if (adult_dungeon) Rand_value = seed_town[0];
   
   /* Set major town flag if necessary */
-  if (stage > 150)
+  if ((stage > 150) || adult_dungeon)
     major = TRUE;
   
   /* Hack - reduce width for minor towns */
@@ -10123,14 +10146,16 @@ static void town_gen_hack(void)
       n = 4;
     }
 
+  if (adult_dungeon) rooms[n++] = 9;
+
   /* No stores for ironmen away from home */
   if ((!adult_ironman) || (p_ptr->stage == p_ptr->home))
     {  
       /* Place two rows of stores */
       for (y = 0; y < 2; y++)
 	{
-	  /* Place two or four stores per row */
-	  for (x = 0; x < 4; x++)
+	  /* Place two, four or five stores per row */
+	  for (x = 0; x < (adult_dungeon ? 5 : 4); x++)
 	    {
 	      /* Pick a random unplaced store */
 	      k = ((n <= 1) ? 0 : rand_int(n));
@@ -10147,67 +10172,91 @@ static void town_gen_hack(void)
 	    }
 	}
       /* Hack -- Build the 9th store.  Taken from Zangband */
-      if (major)
+      if (major && !adult_dungeon)
 	build_store(rooms[0], rand_int(2), 4, stage);
     }
       
-  /* Place the paths */
-  for (n = 2; n < 6; n++)
+  if (adult_dungeon)
     {
-      /* Pick a path direction for the player if not obvious */
-      if (((!last_stage) || (last_stage == 255)) && (stage_map[stage][n]))
-	last_stage = stage_map[stage][n];
-      
-      /* Where did we come from? */
-      if ((last_stage) && (last_stage == stage_map[stage][n]))
-	place = TRUE;
-      
-      /* Pick a location at least "three" from the corners */
-      y = (DUNGEON_HGT / 3) + rand_range(3, qy - 4);
-      x = (DUNGEON_WID / 3) + rand_range(3, qx - 4);
-      
-      /* Shove it to the wall, place the path */
-      switch (n)
-	{
-	case NORTH: 
-	  {
-	    y = (DUNGEON_HGT / 3) + 1;
-	    if (stage_map[stage][n])
-	      cave_set_feat(y, x, FEAT_MORE_NORTH);
-	    break;
-	  }
-	case EAST: 
-	  {
-	    x = (DUNGEON_WID / 3) + qx - 2;
-	    if (stage_map[stage][n])
-	      cave_set_feat(y, x, FEAT_MORE_EAST);
-	    break;
-	  }
-	case SOUTH: 
-	  {
-	    y = (DUNGEON_HGT / 3) + qy - 2;
-	    if (stage_map[stage][n])
-	      cave_set_feat(y, x, FEAT_MORE_SOUTH);
-	    break;
-	  }
-	case WEST: 
-	  {
-	    x = (DUNGEON_WID / 3) + 1;
-	    if (stage_map[stage][n])
-	      cave_set_feat(y, x, FEAT_MORE_WEST);
-	  }
-	}
-      if (place)
-	{
-	  py = y;
-	  px = x;
-	  place = FALSE;
-	}
+        /* Place the stairs */
+        while (TRUE)
+        {
+                /* Pick a location at least "three" from the outer walls */
+                y = qy + rand_range(3, DUNGEON_HGT / 3 - 4);
+                x = qx + rand_range(3, DUNGEON_WID / 3 - 4);
+
+                /* Require a "naked" floor grid */
+                if (cave_naked_bold(y, x)) break;
+        }
+
+        /* Clear previous contents, add down stairs */
+        cave_set_feat(y, x, FEAT_MORE);
+
+
+        /* Place the player */
+        player_place(y, x);
     }
-  
-  /* Place the player */
-  player_place(py, px);
-  
+
+  else
+    {
+
+      /* Place the paths */
+      for (n = 2; n < 6; n++)
+	{
+	  /* Pick a path direction for the player if not obvious */
+	  if (((!last_stage) || (last_stage == 255)) && (stage_map[stage][n]))
+	    last_stage = stage_map[stage][n];
+	  
+	  /* Where did we come from? */
+	  if ((last_stage) && (last_stage == stage_map[stage][n]))
+	    place = TRUE;
+	  
+	  /* Pick a location at least "three" from the corners */
+	  y = (DUNGEON_HGT / 3) + rand_range(3, qy - 4);
+	  x = (DUNGEON_WID / 3) + rand_range(3, qx - 4);
+	  
+	  /* Shove it to the wall, place the path */
+	  switch (n)
+	    {
+	    case NORTH: 
+	      {
+		y = (DUNGEON_HGT / 3) + 1;
+		if (stage_map[stage][n])
+		  cave_set_feat(y, x, FEAT_MORE_NORTH);
+		break;
+	      }
+	    case EAST: 
+	      {
+		x = (DUNGEON_WID / 3) + qx - 2;
+		if (stage_map[stage][n])
+		  cave_set_feat(y, x, FEAT_MORE_EAST);
+		break;
+	      }
+	    case SOUTH: 
+	      {
+		y = (DUNGEON_HGT / 3) + qy - 2;
+		if (stage_map[stage][n])
+		  cave_set_feat(y, x, FEAT_MORE_SOUTH);
+		break;
+	      }
+	    case WEST: 
+	      {
+		x = (DUNGEON_WID / 3) + 1;
+		if (stage_map[stage][n])
+		  cave_set_feat(y, x, FEAT_MORE_WEST);
+	      }
+	    }
+	  if (place)
+	    {
+	      py = y;
+	      px = x;
+	      place = FALSE;
+	    }
+	}
+      
+      /* Place the player */
+      player_place(py, px);
+    }
   
   /* Hack -- use the "complex" RNG */
   Rand_quick = FALSE;
@@ -10248,11 +10297,11 @@ static void town_gen(void)
   bool cave = FALSE;
   
   /* Hack - some towns are underground */
-  if ((stage > 150) && (stage < 154))
+  if (((stage > 150) && (stage < 154)) || adult_dungeon)
     cave = TRUE;
   
   /* Hack - smaller for minor towns */
-  if (stage < 151)
+  if ((stage < 151) && (!adult_dungeon))
     width = qx/2;
   
   

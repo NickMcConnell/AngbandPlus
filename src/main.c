@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -17,7 +24,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#if !defined(MACINTOSH) && !(defined(WINDOWS) && !defined(USE_SDL)) && !defined(ACORN)
 
 #ifdef USE_SCRIPT
 
@@ -40,10 +47,6 @@ static const struct module modules[] =
 	{ "gtk", help_gtk, init_gtk },
 #endif /* USE_GTK */
 
-#ifdef USE_XAW
-	{ "xaw", help_xaw, init_xaw },
-#endif /* USE_XAW */
-
 #ifdef USE_X11
 	{ "x11", help_x11, init_x11 },
 #endif /* USE_X11 */
@@ -52,33 +55,6 @@ static const struct module modules[] =
 	{ "gcu", help_gcu, init_gcu },
 #endif /* USE_GCU */
 
-#ifdef USE_CAP
-	{ "cap", help_cap, init_cap },
-#endif /* USE_CAP */
-	    
-#ifdef USE_DOS
-	{ "dos", help_dos, init_dos },
-#endif /* USE_DOS */
-	    
-#ifdef USE_IBM
-	{ "ibm", help_ibm, init_ibm }, 
-#endif /* USE_IBM */
-	    
-#ifdef USE_SLA
-	{ "sla", help_sla, init_sla }, 
-#endif /* USE_SLA */
-	    
-#ifdef USE_LSL
-	{ "lsl", help_lsl, init_lsl }, 
-#endif /* USE_LSL */
-	    
-#ifdef USE_AMI
-	{ "ami", help_ami, init_ami }, 
-#endif /* USE_AMI */
-	    
-#ifdef USE_VME
-	{ "vme", help_vme, init_vme }, 
-#endif /* USE_VME */
 };
 
 /*
@@ -117,14 +93,6 @@ static void quit_hook(cptr s)
 }
 
 
-
-/*
- * Set the stack size (for the Amiga)
- */
-#ifdef AMIGA
-# include <dos.h>
-__near long __stack = 32768L;
-#endif
 
 
 /*
@@ -383,11 +351,6 @@ int main(int argc, char *argv[])
   /* Get the user id (?) */
   player_uid = getuid();
 
-#ifdef VMS
-  /* Mega-Hack -- Factor group id */
-  player_uid += (getgid() * 1000);
-#endif
-
 # ifdef SAFE_SETUID
 
 #  ifdef _POSIX_SAVED_IDS
@@ -398,23 +361,6 @@ int main(int argc, char *argv[])
   
 #  endif
 
-#  if 0	/* XXX XXX XXX */
-
-	/* Redundant setting necessary in case root is running the game */
-	/* If not root or game not setuid the following two calls do nothing */
-  
-  if (setgid(getegid()) != 0)
-    {
-      quit("setgid(): cannot set permissions correctly!");
-    }
-  
-  if (setuid(geteuid()) != 0)
-    {
-      quit("setuid(): cannot set permissions correctly!");
-    }
-
-#  endif
-  
 # endif
 
 #endif
@@ -670,7 +616,7 @@ int main(int argc, char *argv[])
       /* Hack -- If requested, display scores and quit */
       if (show_score > 0) 
 	{
-	  display_scores(0, show_score);
+	  show_scores();
 	  game_start = FALSE;
 	}
       

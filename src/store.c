@@ -6,11 +6,19 @@
  * stores (entering, haggling, buying, selling, leaving, getting kicked
  * out, etc.).  Shuffle store owners.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Ben Harrison, James E. Wilson, 
+ * Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1931,7 +1939,7 @@ static void store_sell(void)
   int item, item_pos;
   int amt;
   
-  s32b price, value, dummy;
+  s32b price = 0, value, dummy;
   
   object_type *o_ptr;
   
@@ -2047,28 +2055,32 @@ static void store_sell(void)
     {
       bool aware = FALSE;
       
-      /* Get the price */
-      price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
-      
-      /* Confirm sale */
-      msg_format("Selling %s (%c) for %d gold.", o_name, index_to_label(item), 
-		 price);
-
-      /* Confirm sale */
-      if (!get_check(format("Accept %d gold?", price)))
+      /* No selling */
+      if (!adult_no_sell)
 	{
-	  return;
+	  /* Get the price */
+	  price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
+	  
+	  /* Confirm sale */
+	  msg_format("Selling %s (%c) for %d gold.", o_name, index_to_label(item), 
+		     price);
+	  
+	  /* Confirm sale */
+	  if (!get_check(format("Accept %d gold?", price)))
+	    {
+	      return;
+	    }
+	  
+	  /* Say "okay" */
+	  say_comment_0();
+	  
+	  /* Get some money */
+	  p_ptr->au += price;
+      
+	  /* Limit to avoid buffer overflow */
+	  if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
 	}
 
-      /* Say "okay" */
-      say_comment_0();
-      
-      /* Get some money */
-      p_ptr->au += price;
-      
-      /* Limit to avoid buffer overflow */
-      if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
-	    
       /* Update the display */
       store_prt_gold();
       
@@ -2119,16 +2131,26 @@ static void store_sell(void)
       
       /* Get the "actual" value */
       value = object_value(i_ptr) * i_ptr->number;
-      
+	  
       /* Get the description all over again */
       object_desc(o_name, i_ptr, TRUE, 3);
-      
-      /* Describe the result (in message buffer) */
-      msg_format("You sold %s (%c) for %ld gold.",
-		 o_name, index_to_label(item), (long)price);
-      
-      /* Analyze the prices (and comment verbally) */
-      purchase_analyze(price, value, dummy);
+	  
+      /* No selling */
+      if (adult_no_sell)
+	{      
+	  /* Describe the result (in message buffer) */
+	  msg_format("You gave over %s (%c).",
+		     o_name, index_to_label(item));
+	}
+      else
+	{
+	  /* Describe the result (in message buffer) */
+	  msg_format("You sold %s (%c) for %ld gold.",
+		     o_name, index_to_label(item), (long)price);
+	  
+	  /* Analyze the prices (and comment verbally) */
+	  purchase_analyze(price, value, dummy);
+	}
       
       
       /* Hack -- Allocate charges between those wands or rods sold 
@@ -2912,19 +2934,19 @@ void do_cmd_store(void)
 
 	  switch(cave_feat[py][px])
 	    {
-	    case FEAT_SHOP_HEAD + 3:
+	    case FEAT_SHOP_HEAD + STORE_TEMPLE:
 	      /* Temple */
 	      {
 		which += 1;
 		break;
 	      }
-	    case FEAT_SHOP_HEAD + 4:
+	    case FEAT_SHOP_HEAD + STORE_ALCH:
 	      /* Alchemist */
 	      {
 		which += 2;
 		break;
 	      }
-	    case FEAT_SHOP_HEAD + 7:
+	    case FEAT_SHOP_HEAD + STORE_HOME:
 	      /* Home */
 	      {
 		which += 3;
@@ -2970,8 +2992,16 @@ void do_cmd_store(void)
   /* Oops */
   if (which == MAX_STORES)
     {
-      msg_print("You see no store here.");
-      return;
+      if (adult_dungeon) 
+	{
+	  if (cave_feat[py][px] == FEAT_SHOP_HEAD + STORE_MERCH) which = 0;
+	  else which = cave_feat[py][px] - FEAT_SHOP_HEAD + 4 * NUM_TOWNS_SMALL;
+	}
+      else
+	{
+	  msg_print("You see no store here.");
+	  return;
+	}
     }
   
   /* Hack -- Check the "locked doors" */

@@ -4,9 +4,18 @@
  * All code to handle *_info.txt files.  Lists all monster and object flags
  * that *_info.txt files contain, translation of colors.
  * 
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * Copyright (c) 1997-2009 Nick McConnell, Andi Sidwell, Ben Harrison
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -610,6 +619,46 @@ static cptr kind_flags[] =
     "XXX2",
     "XXX1",
   };
+
+/* 
+ * Miscellaneous ID flags 
+ */
+static cptr id_other_flags[] = 
+  {
+    "RES_ACID",
+    "RES_ELEC",
+    "RES_FIRE",
+    "RES_COLD",
+    "RES_POIS",
+    "RES_LITE",
+    "RES_DARK",
+    "RES_CONFU",
+    "RES_SOUND",
+    "RES_SHARD",
+    "RES_NEXUS",
+    "RES_NETHR",
+    "RES_CHAOS",
+    "RES_DISEN",
+    "SLAY_ANIMAL",
+    "SLAY_EVIL",
+    "SLAY_UNDEAD",
+    "SLAY_DEMON",
+    "SLAY_ORC",
+    "SLAY_TROLL",
+    "SLAY_GIANT",
+    "SLAY_DRAGON",
+    "BRAND_ACID",
+    "BRAND_ELEC",
+    "BRAND_FIRE",
+    "BRAND_COLD",
+    "BRAND_POIS",
+    "TO_H",
+    "TO_D",
+    "TO_A",
+    "AC",
+    "DD_DS"
+  };
+
 
 /*
  * Percentage resists
@@ -2610,6 +2659,49 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
   return (PARSE_ERROR_GENERIC);
 }
 
+/*
+ * Grab one id flag in a ego-item_type from a textual string
+ */
+static bool grab_one_ego_item_id_flag(ego_item_type *e_ptr, cptr what)
+{
+  int i;
+  
+  /* Check object flags */
+  for (i = 0; i < 32; i++)
+    {
+      if (streq(what, object_flags[i]))
+        {
+          e_ptr->id_obj |= (1L << i);
+          return (0);
+        }
+    }
+  
+  /* Check curse flags */
+  for (i = 0; i < 32; i++)
+    {
+      if (streq(what, curse_flags[i]))
+	{
+	  e_ptr->id_curse |= (1L << i);
+	  return (0);
+	}
+    }
+  
+  /* Check other flags */
+  for (i = 0; i < 32; i++)
+    {
+      if (streq(what, id_other_flags[i]))
+	{
+	  e_ptr->id_other |= (1L << i);
+	  return (0);
+	}
+    }
+  
+  /* Oops */
+  msg_format("Unknown ego item id flag '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
 
 /*
  * Grab one value in an object_kind from a textual string
@@ -2911,7 +3003,33 @@ errr parse_e_info(char *buf, header *head)
 	  s = t;
 	}
     }
-  
+  /* Hack -- Process 'I' for ID flags */
+  else if (buf[0] == 'I')
+    {
+      /* There better be a current e_ptr */
+      if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while ((*t == ' ') || (*t == '|')) t++;
+	    }
+	  
+	  /* Parse this entry */
+	  if (0 != grab_one_ego_item_id_flag(e_ptr, s)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+	  s = t;
+	}
+    }
   else
     {
       /* Oops */

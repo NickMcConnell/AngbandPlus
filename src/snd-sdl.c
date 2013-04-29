@@ -17,7 +17,6 @@
  *    are included in all such copies.  Other copyrights may also apply.
  */
 #include "angband.h"
-#define SOUND_SDL 1 
 
 #ifdef SOUND_SDL
 
@@ -29,19 +28,17 @@
 /* Don't cache audio */
 static bool no_cache_audio = FALSE;
 
-/* Path to sound files */
-static const char *ANGBAND_DIR_XTRA_SOUND;
 
 
 
 /* Arbitary limit on number of samples per event */
-#define MAX_SAMPLES      8
+#define MAX_SAMPLES      16
 
 /* Struct representing all data about an event sample */
 typedef struct
 {
 	int num;                        /* Number of samples for this event */
-	Mix_Chunk *wavs[MAX_SAMPLES];   /* Sample array */
+	Mix_Music *wavs[MAX_SAMPLES];   /* Sample array */
 	char *paths[MAX_SAMPLES]; /* Relative pathnames for samples */
 } sample_list;
 
@@ -68,7 +65,7 @@ static void close_audio(void)
 		/* Nuke all samples */
 		for (j = 0; j < smp->num; j++)
 		{
-			Mix_FreeChunk(smp->wavs[j]);
+			Mix_FreeMusic(smp->wavs[j]);
 			string_free(smp->paths[j]);
 		}
 	}
@@ -220,7 +217,7 @@ static bool sound_sdl_init(bool no_cache)
 			else
 			{
 				/* Load the file now */
-				samples[event].wavs[num] = Mix_LoadWAV(path);
+				samples[event].wavs[num] = Mix_LoadMUS(path);
 				if (!samples[event].wavs[num])
 				{
 					plog_fmt("%s: %s", SDL_GetError(), strerror(errno));
@@ -268,7 +265,7 @@ static bool sound_sdl_init(bool no_cache)
  */
 static void play_sound(int event)
 {
-	Mix_Chunk *wave = NULL;
+	Mix_Music *wave = NULL;
 	int s;
 
 	/* Paranoia */
@@ -289,7 +286,7 @@ static void play_sound(int event)
 		if (!file_exists(filename)) return;
 
 		/* Load */
-		wave = Mix_LoadWAV(filename);
+		wave = Mix_LoadMUS(filename);
 	}
 
 	/* Check to see if we have a wave again */
@@ -300,7 +297,7 @@ static void play_sound(int event)
 	}
 
 	/* Actually play the thing */
-	Mix_PlayChannel(-1, wave, 0);
+	Mix_PlayMusic(wave, 1);
 }
 
 

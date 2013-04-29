@@ -3,9 +3,16 @@
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -573,7 +580,7 @@ static void get_level(void)
 {
 
   /* Check if they're an "advanced race" */
-  if ((rp_ptr->start_lev - 1) && (!adult_thrall))
+  if ((rp_ptr->start_lev - 1) && (!adult_thrall) && (!adult_dungeon))
     {
       /* Add the experience */
       p_ptr->exp = player_exp[rp_ptr->start_lev - 2];
@@ -595,7 +602,9 @@ static void get_level(void)
     }
 
   /* Set home town */
-  p_ptr->home = (adult_thrall ? 0 : towns[rp_ptr->hometown]);
+  if (adult_thrall) p_ptr->home = 0;
+  else if (adult_dungeon) p_ptr->home = 1;
+  else p_ptr->home = towns[rp_ptr->hometown];
 }
 
 
@@ -728,6 +737,9 @@ static void player_wipe(bool really_wipe)
   
   /* Morgoth */
   q_list[4].stage = 384;
+
+  /* Start with no score */
+  p_ptr->score = 0;
   
   /* Reset the "objects" */
   for (i = 1; i < z_info->k_max; i++)
@@ -771,6 +783,10 @@ static void player_wipe(bool really_wipe)
   
   /* None of the spells have been learned yet */
   for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+
+  /* Player has no sensation ID knowledge */
+  p_ptr->id_obj = 0L;
+  p_ptr->id_other = 0L;
 
   /* Wipe the notes */
   for (i = 0; i < NOTES_MAX_LINES; i++)
@@ -860,6 +876,9 @@ static void object_upgrade(object_type *o_ptr)
 	      /* Get the slay value */
 	      o_ptr->multiple_brand[i] = e_ptr->multiple_brand[i];
 	    }
+	  /* Hack - Now we know about the ego-item type */
+	  e_ptr->everseen = TRUE;
+
 	}
     }
 }
@@ -995,7 +1014,7 @@ static void player_outfit(void)
 	  i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
           
           /* Nasty hack for "advanced" races -NRM- */
-          if (!adult_thrall) object_upgrade(i_ptr);
+          if ((!adult_thrall) && (!adult_dungeon)) object_upgrade(i_ptr);
           
           object_aware(i_ptr);
           object_known(i_ptr);
@@ -1008,17 +1027,10 @@ static void player_outfit(void)
   /* Dungeon gear for escaping thralls */
   if (adult_thrall)
     {
-      /* Telepathy */
-      object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_ESP));
-      object_aware(i_ptr);
-      object_known(i_ptr);
-      apply_autoinscription(i_ptr);
-      (void)inven_carry(i_ptr);
-      k_info[i_ptr->k_idx].everseen = TRUE;
-
-      /* Magic mastery */
-      object_prep(i_ptr, lookup_kind(TV_AMULET, SV_AMULET_MAGIC_MASTERY));
-      i_ptr->pval = 4;
+      /* Nice amulet */
+      object_prep(i_ptr, lookup_kind(TV_AMULET, SV_AMULET_AMETHYST));
+      i_ptr->bonus_other[P_BONUS_M_MASTERY] = 4;
+      i_ptr->flags_obj |= OF_TELEPATHY;
       object_aware(i_ptr);
       object_known(i_ptr);
       apply_autoinscription(i_ptr);
@@ -1121,25 +1133,27 @@ static void race_aux_hook(int race, void *db, const region *reg)
   Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
   strnfmt(s, sizeof(s), "Infravision: %d ft ", p_info[race].infra * 10);
   Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
-  strnfmt(s, sizeof(s),"Difficulty: ");
-  Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
-  
-  /* Race difficulty factor */
-  strnfmt(s, sizeof(s), "Level %d       ",p_info[race].difficulty );
-  
-  /* Color code difficulty factor */
-  if (p_info[race].difficulty < 3) color = TERM_GREEN;
-  else if (p_info[race].difficulty < 15) color = TERM_ORANGE;
-  else color = TERM_RED;
-  
-  Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, color, s);
-  strnfmt(s, sizeof(s),"Home town: ");
-  Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
-  strnfmt(s, sizeof(s), "%-15s", locality_name[stage_map
-					       [towns[p_info[race].hometown]]
-					       [LOCALITY]]);
-  
-  Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 5, -1, color, s);
+  if (!adult_dungeon)
+    {
+      strnfmt(s, sizeof(s),"Difficulty: ");
+      Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+      
+      /* Race difficulty factor */
+      strnfmt(s, sizeof(s), "Level %d       ",p_info[race].difficulty );
+      
+      /* Color code difficulty factor */
+      if (p_info[race].difficulty < 3) color = TERM_GREEN;
+      else if (p_info[race].difficulty < 15) color = TERM_ORANGE;
+      else color = TERM_RED;
+      
+      Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, color, s);
+      strnfmt(s, sizeof(s),"Home town: ");
+      Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 4, -1, TERM_WHITE, s);
+      strnfmt(s, sizeof(s), "%-15s", 
+	      locality_name[stage_map[towns[p_info[race].hometown]][LOCALITY]]);
+      
+      Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 5, -1, color, s);
+    }
 }
 
 
@@ -1298,6 +1312,7 @@ static bool roller_handler(char cmd, void *db, int oid)
 }
 
 /* MODE */
+static byte mode_type = 0;
 static void display_mode(menu_type *menu, int oid, bool cursor,
 			   int row, int col, int width)
 {
@@ -1305,44 +1320,39 @@ static void display_mode(menu_type *menu, int oid, bool cursor,
   const char *str = NULL;
   
   if (oid == 0)
-    str = "Standard game";
+    str = "Use current options";
   else if (oid == 1)
-    str = "Ironman mode";
-  else if (oid == 2)
-    str = "Thrall mode";
-  else if (oid == 3)
-    str = "Ironman thrall";
-  else if (oid == 4)
-    str = "Small device mode";
-  else if (oid == 5)
-    str = "Small device ironman";
-  else if (oid == 6)
-    str = "Small device thrall";
-  else if (oid == 7)
-    str = "The lot";
+    str = "Go to option screen";
   
   c_prt(attr, str, row, col);
 }
 
 
-static byte mode_type = 0;
-#define MODE_IRONMAN      0x01
-#define MODE_THRALL       0x02
-#define MODE_SMALL_DEVICE 0x04
-
 static bool mode_handler(char cmd, void *db, int oid)
 {
+  int i;
+
   if (cmd == '\xff' || cmd == '\r')
     {
       mode_type = oid;
-      op_ptr->opt[OPT_birth_ironman]       = (mode_type & MODE_IRONMAN);
-      op_ptr->opt[OPT_birth_thrall]        = (mode_type & MODE_THRALL);
-      op_ptr->opt[OPT_birth_small_device]  = (mode_type & MODE_SMALL_DEVICE);
+    }
+  else if (cmd == '=')
+    {
+      do_cmd_options();
     }
   else if(cmd == KTRL('X'))
     quit(NULL);
   else
     return FALSE;
+
+  if (mode_type == 1) do_cmd_options();
+	  
+  /* Set adult options from birth options */
+  for (i = OPT_birth_start; i < OPT_birth_end + 1; i++)
+    {
+      op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = 
+	op_ptr->opt[i];
+    }
   
   return TRUE;
 }
@@ -1365,7 +1375,7 @@ static const menu_iter menu_defs[] = {
 #define AMODE 4
 
 
-static bool choose_character()
+static bool choose_character(void)
 {
   int i = 0;
   
@@ -1386,8 +1396,8 @@ static bool choose_character()
       "and various other intrinsic factors and bonuses.",
       "Your choice of character generation.",
       "Point-based is recommended.",
-      "Birth options are ironman mode, thrall mode",
-      "and small device mode (all off by default)."
+      "If you want to change birth options, go to the",
+      "options screen and choose 'b'."
     };
   
   typedef void (*browse_f) (int oid, void *, const region *loc);
@@ -1413,10 +1423,10 @@ static bool choose_character()
   limits[ARACE] = z_info->p_max;
   limits[ACLASS] = z_info->c_max;
   limits[AROLL] = 3;
-  limits[AMODE] = 8;
+  limits[AMODE] = 2;
   
   WIPE(&menu, menu);
-  menu.cmd_keys = "?*\r\n\x18";		 /* ?, *, \n, <ctl-X> */
+  menu.cmd_keys = "?*=\r\n\x18";		 /* ?, *, =, \n, <ctl-X> */
   menu.selections = lower_case;
   
   /* Set up buttons */
@@ -1425,6 +1435,7 @@ static bool choose_character()
   add_button("Exit", KTRL('X'));
   add_button("ESC", ESCAPE);
   add_button("Help",'?');
+  add_button("Options",'=');
   add_button("Random",'*');
   update_statusline();
 
@@ -1472,6 +1483,7 @@ static bool choose_character()
   kill_button(ESCAPE);
   kill_button(KTRL('X'));
   kill_button('?');
+  kill_button('=');
   kill_button('*');
   update_statusline();
   
@@ -2336,6 +2348,7 @@ static void player_birth_aux(void)
  */
 void player_birth(void)
 {
+  int i, j;
   char long_day[25];
   
 #ifdef _WIN32_WCE
@@ -2392,6 +2405,30 @@ void player_birth(void)
 	
   /* Hack -- outfit the player */
   player_outfit();
+
+  /* Set map, quests */
+  if (adult_dungeon)
+    {
+      for (i = 0; i < NUM_STAGES; i++)
+	for (j = 0; j < 9; j++)
+	  stage_map[i][j] = dungeon_map[i][j];
+
+      /* Mim */
+      q_list[0].stage = 31;
+      
+      /* Glaurung */
+      q_list[1].stage = 56;
+      
+      /* Ungoliant */
+      q_list[2].stage = 71;
+      
+      /* Sauron */
+      q_list[3].stage = 86;
+      
+      /* Morgoth */
+      q_list[4].stage = 101;
+    }
+	
   
   /* Initialize shops */
   store_init();

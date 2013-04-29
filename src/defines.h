@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.0.2"
+#define VERSION_STRING	"1.1.0"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	0
-#define VERSION_PATCH	2
+#define VERSION_MINOR	1
+#define VERSION_PATCH	0
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -784,6 +784,7 @@
 #define SUMMON_VORTEX		34
 #define SUMMON_HYBRID		35
 #define SUMMON_BIRD		36
+#define SUMMON_GOLEM            37
 #define SUMMON_THIEF		38
 
 
@@ -1476,6 +1477,37 @@
 #define EGO_WOUNDING		124
 #define EGO_BACKBITING		125
 
+/* Rings */
+#define EGO_RING_ELEMENTS       128
+#define EGO_RING_PHYSICAL       129
+#define EGO_RING_COMBAT         130
+#define EGO_RING_MOBILITY       131
+#define EGO_RING_ARCANE_RES     132
+#define EGO_RING_UTILITY        133
+#define EGO_RING_BASIC_RES      134
+#define EGO_RING_HINDRANCE      135
+#define EGO_RING_DAWN           136
+#define EGO_RING_SPEED          137
+#define EGO_RING_WOE            138
+#define EGO_RING_FICKLENESS     139
+#define EGO_RING_POWER          140
+
+/* Amulets */
+
+#define EGO_AMULET_MENTAL       160
+#define EGO_AMULET_DOOM         161
+#define EGO_AMULET_BASIC_RES    162
+#define EGO_AMULET_MAGIC_MAST   163
+#define EGO_AMULET_CLARITY      164
+#define EGO_AMULET_SHADOWS      165
+#define EGO_AMULET_METAMORPH    166
+#define EGO_AMULET_SUSTENANCE   167
+#define EGO_AMULET_TRICKERY     168
+#define EGO_AMULET_WEAPONMAST   169
+#define EGO_AMULET_VITALITY     170
+#define EGO_AMULET_INSIGHT      171
+
+
 /*** Activation Indexes.  Max is 255. -LM- ***/
 /* Special Artifact activations. */
 #define ACT_GWINDOR			1
@@ -1559,7 +1591,33 @@
 #define ACT_BUCKLAND			101
 
 
+/* Dragon Scale Mails */
+#define ACT_DRAGON_BLUE			110
+#define ACT_DRAGON_WHITE		111
+#define ACT_DRAGON_BLACK		112
+#define ACT_DRAGON_GREEN		113
+#define ACT_DRAGON_RED			114
+#define ACT_DRAGON_MULTIHUED		115
+#define ACT_DRAGON_BRONZE		116
+#define ACT_DRAGON_GOLD			117
+#define ACT_DRAGON_CHAOS		118
+#define ACT_DRAGON_LAW			119
+#define ACT_DRAGON_BALANCE		120
+#define ACT_DRAGON_SHINING		121
+#define ACT_DRAGON_POWER		122
+
+/* Rings and Amulets */
+#define ACT_RING_ACID			125
+#define ACT_RING_ELEC			126
+#define ACT_RING_FIRE			127
+#define ACT_RING_COLD			128
+#define ACT_RING_POIS			129
+#define ACT_AMULET_ESCAPING		130
+#define ACT_AMULET_LION			131
+#define ACT_AMULET_METAMORPH		132
+
 /* Random Artifacts */
+#define ACT_RANDOM_BASE                 135
 #define ACT_RANDOM_FIRE1		135
 #define ACT_RANDOM_FIRE2		136
 #define ACT_RANDOM_FIRE3		137
@@ -1625,30 +1683,24 @@
 #define ACT_RANDOM_SLEEP_FOES		197
 #define ACT_RANDOM_TURN_FOES		198
 #define ACT_RANDOM_SLOW_FOES		199
-
-/* Dragon Scale Mails */
-#define ACT_DRAGON_BLUE			200
-#define ACT_DRAGON_WHITE		201
-#define ACT_DRAGON_BLACK		202
-#define ACT_DRAGON_GREEN		203
-#define ACT_DRAGON_RED			204
-#define ACT_DRAGON_MULTIHUED		205
-#define ACT_DRAGON_BRONZE		206
-#define ACT_DRAGON_GOLD			207
-#define ACT_DRAGON_CHAOS		208
-#define ACT_DRAGON_LAW			209
-#define ACT_DRAGON_BALANCE		210
-#define ACT_DRAGON_SHINING		211
-#define ACT_DRAGON_POWER		212
-
-/* Rings and Amulets */
-#define ACT_RING_ACID			220
-#define ACT_RING_ELEC			221
-#define ACT_RING_FIRE			222
-#define ACT_RING_COLD			223
-#define ACT_RING_POIS			224
-#define ACT_AMULET_ESCAPING		225
-#define ACT_AMULET_LION			226
+#define ACT_RANDOM_MAX                  199
+#define ACT_POWER_BASE                  200
+#define ACT_POWER_ACID_BLAST            200
+#define ACT_POWER_CHAIN_LIGHTNING       201
+#define ACT_POWER_LAVA_POOL             202
+#define ACT_POWER_ICE_WHIRLPOOL         203
+#define ACT_POWER_GROW_FOREST           204
+#define ACT_POWER_RESTORE_AND_ENHANCE   205
+#define ACT_POWER_ZONE_OF_CHAOS         206
+#define ACT_POWER_PRESSURE_WAVE         207
+#define ACT_POWER_ENERGY_DRAIN          208
+#define ACT_POWER_MASS_STASIS           209
+#define ACT_POWER_LIGHT_FROM_ABOVE      210
+#define ACT_POWER_MASS_POLYMORPH        211
+#define ACT_POWER_GRAVITY_WAVE          212
+#define ACT_POWER_ENLIST_EARTH          213
+#define ACT_POWER_TELEPORT_ALL          214
+#define ACT_POWER_MAX                   214
 
 /* Ego-items */
 #define ACT_BALROG_WHIP			245
@@ -1894,73 +1946,28 @@
 #define SV_STONE_LORE		15
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM			0
-#define SV_AMULET_TELEPORT		1
-#define SV_AMULET_INTELLIGENCE	        2
-#define SV_AMULET_SLOW_DIGEST		3
-#define SV_AMULET_RESIST_ACID		4
-#define SV_AMULET_MAGIC_MASTERY	        5
-#define SV_AMULET_WISDOM		6
-#define SV_AMULET_CHARISMA		7
-#define SV_AMULET_THE_MAGI		8
-#define SV_AMULET_ESCAPING		9
-#define SV_AMULET_CARLAMMAS		10
-#define SV_AMULET_INGWE			11
-#define SV_AMULET_DWARVES		12
-#define SV_AMULET_BOROMIR		13
-#define SV_AMULET_ELESSAR		14
-#define SV_AMULET_LION		        15
-#define SV_AMULET_ARTIFACT_0            16
-#define SV_AMULET_ARTIFACT_1            17
-#define SV_AMULET_ARTIFACT_2            18
-#define SV_AMULET_ARTIFACT_3            19
-#define SV_AMULET_TRICKERY              20
+#define SV_AMULET_CHALCEDONY		0
+#define SV_AMULET_MALACHITE		1
+#define SV_AMULET_OPAL  	        2
+#define SV_AMULET_GARNET		3
+#define SV_AMULET_PEARL 		4
+#define SV_AMULET_AMETHYST	        5
+#define SV_AMULET_SAPPHIRE		6
+#define SV_AMULET_RUBY  		7
+#define SV_AMULET_EMERALD		8
+#define SV_AMULET_DIAMOND		9
 
 /* The sval codes for TV_RING */
-#define SV_RING_WOE			0
-#define SV_RING_AGGRAVATION		1
-#define SV_RING_WEAKNESS		2
-#define SV_RING_STUPIDITY		3
-#define SV_RING_TELEPORTATION		4
-#define SV_RING_ESP			5
-#define SV_RING_SLOW_DIGESTION	        6
-#define SV_RING_FEATHER_FALL		7
-#define SV_RING_RESIST_FIRE		8
-#define SV_RING_RESIST_COLD		9
-#define SV_RING_SUST_STR_CHR		10
-#define SV_RING_SUST_INT_WIS		11
-#define SV_RING_SUST_DEX_CON		12
-#define SV_RING_RESIST_NETHER		13
-#define SV_RING_RESIST_LIGHT_DARK	14
-#define SV_RING_ELEC			15
-#define SV_RING_PROTECTION		16
-#define SV_RING_ACID			17
-#define SV_RING_FLAMES			18
-#define SV_RING_ICE			19
-#define SV_RING_RESIST_POIS		20
-#define SV_RING_FREE_ACTION		21
-#define SV_RING_SEE_INVIS		22
-#define SV_RING_SEARCHING		23
-#define SV_RING_STR			24
-#define SV_RING_VENOM			25
-#define SV_RING_DEX			26
-#define SV_RING_CON			27
-#define SV_RING_SKILL			28
-#define SV_RING_DEADLINESS		29
-#define SV_RING_COMBAT			30
-#define SV_RING_SPEED			31
-#define SV_RING_BARAHIR			32
-#define SV_RING_TULKAS			33
-/* xxx */
-/* xxx */
-#define SV_RING_EREGION			40
-#define SV_RING_WARFARE			41
-#define SV_RING_ARTIFACT_0              42
-#define SV_RING_ARTIFACT_1              43
-#define SV_RING_ARTIFACT_2              44
-#define SV_RING_ARTIFACT_3              45
-#define SV_RING_ARTIFACT_4              46
-#define SV_RING_ARTIFACT_5              47
+#define SV_RING_STEEL			0
+#define SV_RING_PEWTER  		1
+#define SV_RING_GALVORN 		2
+#define SV_RING_BRASS   		3
+#define SV_RING_BRONZE  		4
+#define SV_RING_COPPER			5
+#define SV_RING_SILVER  	        6
+#define SV_RING_GOLD    		7
+#define SV_RING_ADAMANT 		8
+#define SV_RING_MITHRIL 		9
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS		0
@@ -2548,7 +2555,7 @@
 #define PW_DUNGEON      0x00000400L     /* Display dungeon view */
 #define PW_SNAPSHOT	0x00000800L	/* Display snap-shot */
 #define PW_MONLIST      0x00001000L     /* Display monster list */
-/* xxx */
+#define PW_ITEMLIST     0x00002000L     /* Display item list */
 #define PW_BORG_1	0x00004000L	/* Display borg messages */
 #define PW_BORG_2	0x00008000L	/* Display borg status */
 
@@ -2680,6 +2687,7 @@
 #define IDENT_CURSED      0x10  /* Item is known to be cursed */
 #define IDENT_UNCURSED    0x20  /* Item is known not to be cursed */
 #define IDENT_KNOW_CURSES 0x40  /* Item curses are all known */
+#define IDENT_WORN	  0x80	/* Item has been wielded or worn */
 
 /*
  * Game-generated feelings.  Used for inscriptions.
@@ -2773,6 +2781,9 @@
 #define OF_DARKNESS             0x40000000L    /* Gives unlight properties */
 #define OF_CHAOTIC              0x80000000L    /* Produces chaotic effects */
 
+#define OF_OBVIOUS_MASK \
+        (OF_THROWING | OF_PERFECT_BALANCE | OF_TWO_HANDED_REQ | \
+         OF_TWO_HANDED_DES | OF_SHOW_MODS )
 /* 
  * New curse flags 
  */
@@ -2848,6 +2859,44 @@
 #define KF_XXX2                 0x40000000L    /* Unused */
 #define KF_XXX1                 0x80000000L    /* Unused */
 
+/* 
+ * New identify flags - keep track of which non-flag properties of an object
+ * have been identified by use.  Resists, brands and slays need to be in the 
+ * same order as in the object_type.
+ */
+#define IF_RES_ACID             0x00000001L    /* Resist Acid */
+#define IF_RES_ELEC             0x00000002L    /* Resist Electricity */
+#define IF_RES_FIRE             0x00000004L    /* Resist Fire */
+#define IF_RES_COLD             0x00000008L    /* Resist Cold */
+#define IF_RES_POIS             0x00000010L    /* Resist Poison */
+#define IF_RES_LITE             0x00000020L    /* Resist Light */
+#define IF_RES_DARK             0x00000040L    /* Resist Dark */
+#define IF_RES_CONFU            0x00000080L    /* Resist Confusion */
+#define IF_RES_SOUND            0x00000100L    /* Resist Sound */
+#define IF_RES_SHARD            0x00000200L    /* Resist Shards */
+#define IF_RES_NEXUS            0x00000400L    /* Resist Nexus */
+#define IF_RES_NETHR            0x00000800L    /* Resist Nether */
+#define IF_RES_CHAOS            0x00001000L    /* Resist Chaos */
+#define IF_RES_DISEN            0x00002000L    /* Resist Disenchantment */
+#define IF_SLAY_ANIMAL          0x00004000L    /* Slay Animal */
+#define IF_SLAY_EVIL            0x00008000L    /* Slay Evil */
+#define IF_SLAY_UNDEAD          0x00010000L    /* Slay Undead */
+#define IF_SLAY_DEMON           0x00020000L    /* Slay Demon */
+#define IF_SLAY_ORC             0x00040000L    /* Slay Orc */
+#define IF_SLAY_TROLL           0x00080000L    /* Slay Troll */
+#define IF_SLAY_GIANT           0x00100000L    /* Slay Giant */
+#define IF_SLAY_DRAGON          0x00200000L    /* Slay Dragon */
+#define IF_BRAND_ACID           0x00400000L    /* Acid Brand */
+#define IF_BRAND_ELEC           0x00800000L    /* Lightning Brand */
+#define IF_BRAND_FIRE           0x01000000L    /* Fire Brand */
+#define IF_BRAND_COLD           0x02000000L    /* Frost Brand */
+#define IF_BRAND_POIS           0x04000000L    /* Poison Brand */
+#define IF_TO_H                 0x08000000L    /* Skill bonus */
+#define IF_TO_D                 0x10000000L    /* Deadliness bonus */
+#define IF_TO_A                 0x20000000L    /* Armour class bonus */
+#define IF_AC                   0x40000000L    /* Armour class */
+#define IF_DD_DS                0x80000000L    /* Damage dice */
+
 
 /*
  * Random object kind flag info (base flag value)
@@ -2863,7 +2912,12 @@
 #define OBJECT_RAND_SIZE_CURSE	        23
 #define OBJECT_RAND_SIZE_POWER		10
 
-
+/* 
+ * Object ID flag info (base flag value)
+ */
+#define OBJECT_ID_BASE_RESIST           IF_RES_ACID
+#define OBJECT_ID_BASE_SLAY             IF_SLAY_ANIMAL
+#define OBJECT_ID_BASE_BRAND            IF_BRAND_ACID
 
 /*** Monster flags ***/
 
@@ -3357,10 +3411,11 @@
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
 #define OPT_birth_take_notes            130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
-#define OPT_birth_notes_save            132/*(OPT_BIRTH_START+4)*/
+#define OPT_birth_no_sell               132/*(OPT_BIRTH_START+4)*/
 #define OPT_birth_ironman               133/*(OPT_BIRTH_START+5)*/
 #define OPT_birth_thrall                134/*(OPT_BIRTH_START+6)*/
 #define OPT_birth_small_device          135/*(OPT_BIRTH_START+7)*/
+#define OPT_birth_dungeon               136/*(OPT_BIRTH_START+8)*/
 
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
 #define OPT_cheat_hear                  161        /*(OPT_CHEAT+1)*/
@@ -3373,10 +3428,11 @@
 #define OPT_adult_auto_roller           193/*(OPT_ADULT_START+1)*/
 #define OPT_adult_take_notes            194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
-#define OPT_adult_notes_save            196/*(OPT_ADULT_START+4)*/
+#define OPT_adult_no_sell               196/*(OPT_ADULT_START+4)*/
 #define OPT_adult_ironman               197/*(OPT_ADULT_START+5)*/
 #define OPT_adult_thrall                198/*(OPT_ADULT_START+6)*/
 #define OPT_adult_small_device          199/*(OPT_ADULT_START+7)*/
+#define OPT_adult_dungeon               200/*(OPT_ADULT_START+8)*/
 
 /* xxx xxx */
 #define OPT_score_peek                  224      /*  (OPT_SCORE+0)*/
@@ -3477,10 +3533,11 @@
 #define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]     
 #define birth_take_notes                op_ptr->opt[OPT_birth_take_notes]      
 #define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
-#define birth_notes_save                op_ptr->opt[OPT_birth_notes_save]     
-#define birth_ironman                   op_ptr->opt[OPT_birth_point_based]     
-#define birth_thrall                    op_ptr->opt[OPT_birth_auto_roller]     
+#define birth_no_sell                   op_ptr->opt[OPT_birth_no_sell]     
+#define birth_ironman                   op_ptr->opt[OPT_birth_ironman]     
+#define birth_thrall                    op_ptr->opt[OPT_birth_thrall]     
 #define birth_small_device              op_ptr->opt[OPT_birth_small_device]     
+#define birth_dungeon                   op_ptr->opt[OPT_birth_dungeon]     
 
 #define cheat_peek			op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear			op_ptr->opt[OPT_cheat_hear]	
@@ -3493,10 +3550,11 @@
 #define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]    
 #define adult_take_notes                op_ptr->opt[OPT_adult_take_notes]    
 #define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
-#define adult_notes_save                op_ptr->opt[OPT_adult_notes_save]     
+#define adult_no_sell                   op_ptr->opt[OPT_adult_no_sell]     
 #define adult_ironman                   op_ptr->opt[OPT_adult_ironman]     
 #define adult_thrall                    op_ptr->opt[OPT_adult_thrall]    
 #define adult_small_device              op_ptr->opt[OPT_adult_small_device]     
+#define adult_dungeon                   op_ptr->opt[OPT_adult_dungeon]     
 
 #define score_peek			op_ptr->opt[OPT_score_peek]
 #define score_hear			op_ptr->opt[OPT_score_hear]	
@@ -3552,7 +3610,17 @@
 	 ((T)->tval == TV_ARROW)  || \
 	 ((T)->tval == TV_BOLT))
 
+/*
+ * Object is armour
+ */
+#define is_weapon(T) \
+  (((T)->tval >= TV_SHOT) && ((T)->tval <= TV_SWORD))
 
+/*
+ * Object is armour
+ */
+#define is_armour(T) \
+  (((T)->tval >= TV_BOOTS) && ((T)->tval <= TV_DRAG_ARMOR))
 
 /*
  * Determine if the attr and char should consider the item's flavor
@@ -4377,3 +4445,7 @@ enum
  * Maximum rune mana reserve 
  */
 #define MAX_MANA_RESERVE 200
+
+/* Max number of items in the itemlist */
+#define MAX_ITEMLIST 256
+

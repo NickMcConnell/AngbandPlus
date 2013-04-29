@@ -8,11 +8,19 @@
  * the player.  Includes all racial and class attributes, effects of Bless
  * and the like, encumbrance, blows table inputs, and over-heavy weapons.
  *
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
+ * Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
@@ -1526,6 +1534,38 @@ static void fix_monlist(void)
     }
 }
 
+/*
+ * Hack -- display monsters in sub-windows
+ */
+static void fix_itemlist(void)
+{
+  int j;
+  
+  /* Scan windows */
+  for (j = 0; j < 8; j++)
+    {
+      term *old = Term;
+      
+      /* No window */
+      if (!angband_term[j]) continue;
+      
+      /* No relevant flags */
+      if (!(op_ptr->window_flag[j] & (PW_ITEMLIST))) continue;
+      
+      /* Activate */
+      Term_activate(angband_term[j]);
+      
+      /* Display visible monsters */
+      display_itemlist();
+      
+      /* Fresh */
+      Term_fresh();
+      
+      /* Restore */
+      Term_activate(old);
+    }
+}
+
 
 
 /*
@@ -2363,7 +2403,11 @@ static void calc_torch(void)
   p_ptr->cur_lite = 0;
   
   /* Player is glowing */
-  if (p_ptr->lite) p_ptr->cur_lite += 1;
+  if (p_ptr->lite) 
+    {
+      notice_obj(OF_LITE, 0);
+      p_ptr->cur_lite += 1;
+    }
   
   /* Examine actual lites */
   if (o_ptr->tval == TV_LITE)
@@ -2403,7 +2447,11 @@ static void calc_torch(void)
   if (check_ability(SP_HOLY_LIGHT)) p_ptr->cur_lite++;
   
   /* Special ability Unlight */
-  if (check_ability(SP_UNLIGHT) || p_ptr->darkness) p_ptr->cur_lite--;
+  if (check_ability(SP_UNLIGHT) || p_ptr->darkness) 
+    {
+      notice_obj(OF_DARKNESS, 0);
+      p_ptr->cur_lite--;
+    }
   
   /* Reduce lite when running if requested */
   if (p_ptr->running && view_reduce_lite)
@@ -3368,12 +3416,9 @@ extern void calc_bonuses(bool inspect)
 	apply_resist(&p_ptr->res_list[j], o_ptr->percent_res[j]);
       
       /* Known resistance and immunity flags */
-      if (object_known_p(o_ptr))
-	{
-	  for (j = 0; j < MAX_P_RES; j++)
-	    apply_resist(&p_ptr->dis_res_list[j], o_ptr->percent_res[j]);
-      	}
-      
+      for (j = 0; j < MAX_P_RES; j++)
+	if (o_ptr->id_other & (OBJECT_ID_BASE_RESIST << j))
+	  apply_resist(&p_ptr->dis_res_list[j], o_ptr->percent_res[j]);
       /* End item resistances; do bounds check on resistance levels */
       resistance_limits();
       
@@ -3404,8 +3449,7 @@ extern void calc_bonuses(bool inspect)
       p_ptr->to_a += temp_armour;
       
       /* Apply the mental bonuses to armor class, if known */
-      if (object_known_p(o_ptr)) p_ptr->dis_to_a += temp_armour;
-      
+      if (o_ptr->id_other & IF_TO_A) p_ptr->dis_to_a += temp_armour;
       
       /* Hack -- do not apply "weapon" bonuses */
       if (i == INVEN_WIELD) continue;
@@ -3418,8 +3462,8 @@ extern void calc_bonuses(bool inspect)
       p_ptr->to_d += o_ptr->to_d;
       
       /* Apply the mental bonuses tp hit/damage, if known */
-      if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
-      if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+      if (o_ptr->id_other & IF_TO_H) p_ptr->dis_to_h += o_ptr->to_h;
+      if (o_ptr->id_other & IF_TO_D) p_ptr->dis_to_d += o_ptr->to_d;
     }
   
   /* Hack -- clear a few flags for certain races. */
@@ -4314,9 +4358,10 @@ extern void calc_bonuses(bool inspect)
       if (p_ptr->icky_wield)
 	{
 	  msg_print("You do not feel comfortable with your weapon.");
-		}
+	}
       else if (inventory[INVEN_WIELD].k_idx)
 	{
+	  notice_obj(OF_BLESSED, INVEN_WIELD + 1);
 	  msg_print("You feel comfortable with your weapon.");
 	}
       else
@@ -4765,6 +4810,13 @@ void window_stuff(void)
     {
       p_ptr->window &= ~(PW_MONLIST);
       fix_monlist();
+    }
+  
+  /* Display monster list */
+  if (p_ptr->window & (PW_ITEMLIST))
+    {
+      p_ptr->window &= ~(PW_ITEMLIST);
+      fix_itemlist();
     }
   
   /* Display equipment */
