@@ -4,10 +4,8 @@ various files and ideas.
 
 For a start, here are the current bugs:
 
-- Campaign mode is broken.
-	There are 2 issues here:
-	Stores need to be implemented for the new store types.
-	Surface generation needs to be improved. I'll probably
+-	Surface generation needs to be improved for campaign mode,
+and there are still some software bugs that seem to occur. I'll probably
 do a re-write of the town generation routines (Especially for cities),
 and import some wilderness generation routines from Pernband (Or if
 I can, Zangband).
@@ -31,13 +29,7 @@ break highscore compatibility for people. :(
 
 - Not all the monsters from the future.txt file are created yet.
 	Just requires a big sit down. Adding any more monsters or
-altering
-
-- Also the Zangband monsters imported still need massaging to fit.
-	This is primarily an issue because they were imported from
-a version of Zangband which uses Oangband combat, and so they are
-underpowered. Also, as Eytan Zweig has noted, Zangband uses
-EXP rather than EXP/LVL for monster power.
+altering them affects rand arts however.
 
 - Need to notify the player they are singing/playing.
 	Also want to have DTraps as implemented in Oangband.

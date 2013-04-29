@@ -929,7 +929,7 @@ struct store_type
 	char x_char;            /* Desired feature character */
 
 	byte level;
-	byte tval;
+        byte stval;
 
 	byte owner;                             /* Owner index */
 	byte extra;                             /* Unused for now */
@@ -943,9 +943,9 @@ struct store_type
 
 	s32b store_wrap;                /* Unused for now */
 
-	s16b table_num;                 /* Table -- Number of entries */
-	s16b table_size;                /* Table -- Total Size of Array */
-	s16b *table;                    /* Table -- Legal item kinds */
+	byte tval[STORE_CHOICES];
+	byte sval[STORE_CHOICES];
+	s16b count[STORE_CHOICES];
 
 	byte stock_num;                 /* Stock -- Number of entries */
 	s16b stock_size;                /* Stock -- Total Size of Array */
@@ -1437,6 +1437,7 @@ struct player_type
         bool esp_dragon;
         bool esp_undead;
         bool esp_demon;
+	bool esp_nature;
 
 	bool impact;            /* Earthquake blows */
 	bool aggravate;         /* Aggravate monsters */

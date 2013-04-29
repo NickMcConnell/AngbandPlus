@@ -340,7 +340,7 @@ static byte convert_old_names[180] =
 	EGO_RESIST_ELEC,		/* 5 = SN_RL */
 	EGO_HA,					/* 6 = SN_HA */
 	EGO_DF,					/* 7 = SN_DF */
-	EGO_SLAY_ANIMAL,		/* 8 = SN_SA */
+        EGO_SLAY_NATURE,                /* 8 = SN_SA */
 	EGO_SLAY_DRAGON,		/* 9 = SN_SD */
 	EGO_SLAY_EVIL,			/* 10 = SN_SE */
 	EGO_SLAY_UNDEAD,		/* 11 = SN_SU */
@@ -387,7 +387,7 @@ static byte convert_old_names[180] =
 	0,						/* 52 = SN_MULTIPLE_TRAPS */
 	0,						/* 53 = SN_DISARMED */
 	0,						/* 54 = SN_UNLOCKED */
-        EGO_SLAY_ANIMAL,                /* 55 = SN_SLAY_ANIMAL */
+        EGO_SLAY_NATURE,                /* 55 = SN_SLAY_ANIMAL */
 	ART_GROND + 128,		/* 56 = SN_GROND */
 	ART_RINGIL + 128,		/* 57 = SN_RINGIL */
 	ART_AEGLOS + 128,		/* 58 = SN_AEGLOS */
@@ -1213,9 +1213,9 @@ static errr rd_item_old(object_type *o_ptr)
 			{
 				o_ptr->name2 = EGO_FROST;
 			}
-			else if (o_ptr->name2 == EGO_SLAY_ANIMAL)
+                        else if (o_ptr->name2 == EGO_SLAY_NATURE)
 			{
-                                o_ptr->name2 = EGO_SLAY_ANIMAL;
+                                o_ptr->name2 = EGO_SLAY_NATURE;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_EVIL)
 			{

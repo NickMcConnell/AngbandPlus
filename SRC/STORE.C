@@ -305,9 +305,20 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 
 
 /*
- * We store the current "store number" here so everyone can access it
+ * We store the current index "store number" here so everyone can access it
  */
 static int store_num = 7;
+
+
+/*
+ * We store the current fake "store number" here so everyone can access it
+ */
+static int store_num_fake = 7;
+
+/*
+ * We store the current actual "store number" here so everyone can access it
+ */
+static int store_num_real = 7;
 
 /*
  * We store the current "store page" here so everyone can access it
@@ -315,9 +326,14 @@ static int store_num = 7;
 static int store_top = 0;
 
 /*
- * We store the current "store pointer" here so everyone can access it
+ * We store the current fake "store pointer" here so everyone can access it
  */
 static store_type *st_ptr = NULL;
+
+/*
+ * We store the current actual "store pointer" here so everyone can access it
+ */
+static store_type *su_ptr = NULL;
 
 /*
  * We store the current "owner type" here so everyone can access it
@@ -379,7 +395,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust > 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == STORE_B_MARKET) price = price / 2;
+		if (store_num_fake == STORE_B_MARKET) price = price / 2;
 	}
 
 	/* Shop is selling */
@@ -392,7 +408,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		if (adjust < 100) adjust = 100;
 
 		/* Mega-Hack -- Black market sucks */
-		if (store_num == STORE_B_MARKET) price = price * 2;
+		if (store_num_fake == STORE_B_MARKET) price = price * 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -647,7 +663,7 @@ static bool store_check_num(object_type *o_ptr)
 	if (st_ptr->stock_num < st_ptr->stock_size) return TRUE;
 
 	/* The "home" acts like the player */
-	if (store_num == STORE_HOME)
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
 		/* Check all the objects */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -702,10 +718,10 @@ static bool is_blessed(object_type *o_ptr)
 static bool store_will_buy(object_type *o_ptr)
 {
 	/* Hack -- The Home is simple */
-	if (store_num == STORE_HOME) return (TRUE);
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1)) return (TRUE);
 
 	/* Switch on the store */
-	switch (store_num)
+	switch (store_num_fake)
 	{
 		/* General Store */
 		case STORE_GENERAL:
@@ -1077,7 +1093,7 @@ static void store_item_optimize(int item)
 	object_wipe(&st_ptr->stock[j]);
 }
 
-
+#if 0
 /*
  * This function will keep 'crap' out of the black market.
  * Crap is defined as any object that is "available" elsewhere
@@ -1115,7 +1131,7 @@ static bool black_market_crap(object_type *o_ptr)
 	/* Assume okay */
 	return (FALSE);
 }
-
+#endif
 
 /*
  * Attempt to delete (some of) a random object from the store
@@ -1160,6 +1176,7 @@ static void store_delete(void)
 static void store_create(void)
 {
 	int k_idx, tries, level;
+	int choice, total, i;
 
 	object_type *i_ptr;
 	object_type object_type_body;
@@ -1168,15 +1185,26 @@ static void store_create(void)
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
+	/* Total choices in store */
+	total = 0;
+
+		for (i = 0;i < STORE_CHOICES;i++)
+		{
+			if (su_ptr->tval[i])
+			{
+				total += su_ptr->count[i];
+			}
+		}
+
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
 		/* Black Market */
-		if (store_num == STORE_B_MARKET)
+                if (total == 0)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = su_ptr->level + rand_int(su_ptr->level);
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
@@ -1188,11 +1216,26 @@ static void store_create(void)
 		/* Normal Store */
 		else
 		{
-			/* Hack -- Pick an object kind to sell */
-			k_idx = st_ptr->table[rand_int(st_ptr->table_num)];
+                        k_idx = 0;
+
+			choice = rand_int(total);
+
+			for (i = 0; i < STORE_CHOICES;i++)
+			{
+				choice -= su_ptr->count[i];
+
+				if (choice >= 0) continue;
+
+				/* Hack -- Pick an object kind to sell */
+				k_idx = lookup_kind(su_ptr->tval[i],su_ptr->sval[i]);
+
+				break;
+			}
+
+                        if (!k_idx) continue;
 
 			/* Hack -- fake level for apply_magic() */
-			level = rand_range(1, STORE_OBJ_LEVEL);
+			level = rand_range(1, STORE_OBJ_LEVEL+su_ptr->level);
 		}
 
 
@@ -1215,7 +1258,7 @@ static void store_create(void)
 
 		/* The object is "known" */
 		object_known(i_ptr);
-
+#if 0
 		/* Prune the black market */
 		if (store_num == STORE_B_MARKET)
 		{
@@ -1231,6 +1274,7 @@ static void store_create(void)
 
 		/* Prune normal stores */
 		else
+#endif
 		{
 			/* No "worthless" items */
 			if (object_value(i_ptr) <= 0) continue;
@@ -1335,7 +1379,7 @@ static void display_entry(int item)
 	prt(out_val, y, 0);
 
 	/* Describe an object in the home */
-	if (store_num == STORE_HOME)
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
 		byte attr;
 
@@ -1496,10 +1540,11 @@ static void display_store(void)
 	Term_clear();
 
 	/* The "Home" is special */
-	if (store_num == STORE_HOME)
+        if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
+
 		/* Put the owner name */
-		put_str("Your Home", 3, 30);
+		put_str(u_name + su_ptr->name, 3, 30);
 
 		/* Label the object descriptions */
 		put_str("Item Description", 5, 3);
@@ -1514,7 +1559,7 @@ static void display_store(void)
 	/* Normal stores */
 	else
 	{
-		cptr store_name = (f_name + f_info[FEAT_SHOP_HEAD + store_num].name);
+		cptr store_name = (u_name + su_ptr->name);
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
 		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
 
@@ -2318,9 +2363,9 @@ static void store_purchase(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == STORE_HOME)
+                if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 		{
-			msg_print("Your home is empty.");
+			msg_print("There is nothing here.");
 		}
 		else
 		{
@@ -2331,7 +2376,7 @@ static void store_purchase(void)
 
 
 	/* Prompt */
-	if (store_num == STORE_HOME)
+        if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 	{
 		sprintf(out_val, "Which item do you want to take? ");
 	}
@@ -2369,7 +2414,7 @@ static void store_purchase(void)
 	}
 
 	/* Attempt to buy it */
-	if (store_num != STORE_HOME)
+	if ((store_num_fake != STORE_HOME) && (store_num_fake != -1))
 	{
 		/* Describe the object (fully) */
 		object_desc_store(o_name, i_ptr, TRUE, 3);
@@ -2604,7 +2649,7 @@ static void store_sell(void)
 	q = "Drop which item? ";
 
 	/* Real store */
-	if (store_num != STORE_HOME)
+	if ((store_num_fake != STORE_HOME) && (store_num_fake != -1))
 	{
 		/* New prompt */
 		q = "Sell which item? ";
@@ -2662,9 +2707,9 @@ static void store_sell(void)
 	/* Is there room in the store (or the home?) */
 	if (!store_check_num(i_ptr))
 	{
-		if (store_num == STORE_HOME)
+		if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 		{
-			msg_print("Your home is full.");
+			msg_print("There is no room here to drop it.");
 		}
 		else
 		{
@@ -2675,7 +2720,7 @@ static void store_sell(void)
 
 
 	/* Real store */
-	if (store_num != STORE_HOME)
+	if ((store_num_fake != STORE_HOME) && (store_num_fake != -1))
 	{
 		/* Describe the transaction */
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
@@ -2814,9 +2859,9 @@ static void store_examine(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
-		if (store_num == STORE_HOME)
+                if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
 		{
-			msg_print("Your home is empty.");
+			msg_print("There is nothing here.");
 		}
 		else
 		{
@@ -3192,6 +3237,48 @@ static void store_process_command(void)
 }
 
 
+static void set_store(int which)
+{
+
+	/* Save the store number */
+	store_num = which;
+
+	/* Save the fake and real store numbers */
+	store_num_real = t_info[p_ptr->town].store[store_num];
+	
+	if ((u_info[store_num_real].d_char >='1' ) && (u_info[store_num_real].d_char <= '8'))
+	{
+		store_num_fake = u_info[store_num_real].d_char - '1';
+	}
+	else
+	{
+		store_num_fake = -1;
+	}
+
+        if (store_num_fake == STORE_HOME)
+        {
+                /* Save the store pointers */
+                st_ptr = &store[STORE_HOME];
+        }
+        else
+        {
+                /* Save the store and owner pointers */
+                st_ptr = &store[store_num];
+        }
+
+        if (store_num_fake >= 0)
+        {
+                ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
+        }
+        else
+        {
+                ot_ptr = &b_info[0];
+        }
+
+	su_ptr = &u_info[store_num_real];
+
+}
+
 /*
  * Enter a store, and interact with it.
  *
@@ -3246,7 +3333,7 @@ void do_cmd_store(void)
 		p_ptr->town = p_ptr->dungeon;		
 
 		/* Initialise the stores -- except for home */
-		for (i = 0; i<STORE_HOME-1;i++)
+                for (i = 0; i<STORE_HOME-1;i++)
 		{
 			store_init(i);
 
@@ -3282,13 +3369,7 @@ void do_cmd_store(void)
 	p_ptr->command_new = 0;
 
 
-	/* Save the store number */
-	store_num = which;
-
-	/* Save the store and owner pointers */
-	st_ptr = &store[store_num];
-	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
+	set_store(which);
 
 	/* Start at the beginning */
 	store_top = 0;
@@ -3353,7 +3434,7 @@ void do_cmd_store(void)
 			object_type *o_ptr = &inventory[item];
 
 			/* Hack -- Flee from the store */
-			if (store_num != STORE_HOME)
+			if ((store_num_fake != STORE_HOME) && (store_num_fake != -1))
 			{
 				/* Message */
 				msg_print("Your pack is so full that you flee the store...");
@@ -3366,7 +3447,7 @@ void do_cmd_store(void)
 			else if (!store_check_num(o_ptr))
 			{
 				/* Message */
-				msg_print("Your pack is so full that you flee your home...");
+				msg_print("Your pack is so full that you flee from here...");
 
 				/* Leave */
 				leave_store = TRUE;
@@ -3479,16 +3560,9 @@ void store_shuffle(int which)
 {
 	int i, j;
 
+	set_store(which);
 
-	/* Ignore home */
-	if (which == STORE_HOME) return;
-
-
-	/* Save the store index */
-	store_num = which;
-
-	/* Activate that store */
-	st_ptr = &store[store_num];
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1)) return;
 
 	/* Pick a new owner */
 	for (j = st_ptr->owner; j == st_ptr->owner; )
@@ -3497,7 +3571,7 @@ void store_shuffle(int which)
 	}
 
 	/* Activate the new owner */
-	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
+        ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 
 
 	/* Reset the owner data */
@@ -3533,25 +3607,17 @@ void store_maint(int which)
 
 	int old_rating = rating;
 
+	set_store(which);
 
-	/* Ignore home */
-	if (which == STORE_HOME) return;
-
-
-	/* Save the store index */
-	store_num = which;
-
-	/* Activate that store */
-	st_ptr = &store[store_num];
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1)) return;
 
 	/* Activate the owner */
-	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
+        ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
 
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
 
-
+#if 0
 	/* Mega-Hack -- prune the black market */
 	if (store_num == STORE_B_MARKET)
 	{
@@ -3569,7 +3635,7 @@ void store_maint(int which)
 			}
 		}
 	}
-
+#endif
 
 	/* Choose the number of slots to keep */
 	j = st_ptr->stock_num;
@@ -3622,19 +3688,20 @@ void store_init(int which)
 	int k;
 
 
-	/* Save the store index */
-	store_num = which;
-
-	/* Activate that store */
-	st_ptr = &store[store_num];
-
+	set_store(which);
 
 	/* Pick an owner */
 	st_ptr->owner = (byte)rand_int(z_info->b_max);
 
-	/* Activate the new owner */
-	ot_ptr = &b_info[(store_num * z_info->b_max) + st_ptr->owner];
-
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+	{
+		ot_ptr = &b_info[0];
+	}
+	else
+	{
+                /* Activate the new owner */
+                ot_ptr = &b_info[(store_num_fake * z_info->b_max) + st_ptr->owner];
+	}
 
 	/* Initialize the store */
 	st_ptr->store_open = 0;
@@ -3650,4 +3717,11 @@ void store_init(int which)
 	{
 		object_wipe(&st_ptr->stock[k]);
 	}
+
+	if ((store_num_fake == STORE_HOME) || (store_num_fake == -1))
+	{
+		/* Create some new items */
+		while (st_ptr->stock_num < 5) store_create();
+	}
+
 }

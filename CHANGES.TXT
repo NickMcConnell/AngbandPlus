@@ -1,3 +1,29 @@
+13-01-2001 Unangband 0.4.8g Bugfix release
+
+- Fixed stores so that they should work in
+campaign mode correctly now. We should still
+ensure that you get great items as quest rewards,
+currently, they are just generated as very deep
+items.
+- You can now specify what items a store sells
+in u_info.txt and with what frequency these items
+are chosen. Note that you must specify at least
+15 items per store.
+- Added more monsters.
+- Made ogres also orcs, dragonflies also dragons
+and dragon bats also dragons.
+- Changed monster recall so that mixes of two
+monster types are displayed e.g "mix of orc
+and giant".
+- Added insects and plants, which are hurt by
+slay animal weapons, but not summoned by summon
+animal spells.
+- Add sense natural creatures flag to slay
+animal weapons and 2 artifacts.
+- Added 'correct' identification of when you
+have an item that provides telepathy/sensing,
+but this may cause a big slow down.
+
 13-01-2001 Unangband 0.4.8f Bugfix release
 
 - Fixed a problem where monsters would get stuck

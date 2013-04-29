@@ -318,7 +318,7 @@ static byte convert_ego_item[128] =
 	EGO_RESIST_ELEC,	/* 5 = EGO_RESIST_E (XXX) */
 	EGO_HA,				/* 6 = EGO_HA */
 	EGO_DF,				/* 7 = EGO_DF */
-	EGO_SLAY_ANIMAL,	/* 8 = EGO_SLAY_ANIMAL */
+        EGO_SLAY_NATURE,        /* 8 = EGO_SLAY_NATURE */
 	EGO_SLAY_DRAGON,	/* 9 = EGO_SLAY_DRAGON */
 	EGO_SLAY_EVIL,		/* 10 = EGO_SLAY_EVIL (XXX) */
 	EGO_SLAY_UNDEAD,	/* 11 = EGO_SLAY_UNDEAD (XXX) */
@@ -365,7 +365,7 @@ static byte convert_ego_item[128] =
 	EGO_FROST,			/* 52 = EGO_AMMO_SLAYING */
 	0,					/* 53 */
 	0,					/* 54 */
-        EGO_SLAY_ANIMAL,        /* 55 = EGO_AMMO_ANIMAL */
+        EGO_SLAY_NATURE,        /* 55 = EGO_AMMO_ANIMAL */
 	0,					/* 56 */
 	0,					/* 57 */
 	0,					/* 58 */
@@ -693,9 +693,9 @@ static void rd_item(object_type *o_ptr)
 			{
 				o_ptr->name2 = EGO_FROST;
 			}
-			else if (o_ptr->name2 == EGO_SLAY_ANIMAL)
+                        else if (o_ptr->name2 == EGO_SLAY_NATURE)
 			{
-                                o_ptr->name2 = EGO_SLAY_ANIMAL;
+                                o_ptr->name2 = EGO_SLAY_NATURE;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_EVIL)
 			{

@@ -62,6 +62,7 @@
 
 # Spirit nagas should be worth 160.
 
+l
 Boggle
 Pookah
 Leprachaun
@@ -81,78 +82,11 @@ Mermaid
 Merman
 Selkie
 
+N
 Nightslither
 Nightstealer
 Nightshadow
 Nightswimmer
-
-O
-Green ogre
-Mountain ogre
-Grey ogre
-Forest ogre
-Mirkwood ogre
-Swamp ogre
-Night ogre
-Ogre witchdoctor
-Ogre warrior
-Ogre captain
-Ogre chieftan
-Ogre priest
-Ogre archer
-Half ogre
-
-p
-Archer
-Mercenary
-Soldier
-Rogue
-Novice thief
-Master archer
-Seedy looking human
-King
-Baron
-Count
-Bishop
-Black bishop
-Black baron
-Dark knight
-Grey knight
-Green knight
-Red knight
-Blue knight
-
-
-P
-Mountain giant
-Water giant
-Forest giant
-Swamp giant
-River giant
-Green giant
-Grey giant
-Black giant
-Sea giant
-Red giant
-Blue giant
-Night giant
-Firbolg
-Formian
-Two-headed giant
-Cyclops
-Half giant
-
-q
-
-
-
-Novice druid
-Chronomancer
-Pyromancer
-Hydromancer
-Geomancer
-Jade mystic
-Pearl mystic
 
 Q
 Giant weasel
@@ -171,40 +105,6 @@ Giant seahorse
 Black mare
 Death mare
 Grey mare
-
-
-r
-Giant brown mouse
-Giant field mouse
-Giant grey mouse
-Giant black mouse
-Giant ship rat
-Giant black rat
-Giant pink rat
-
-R
-Giant blue frog
-Giant yellow frog
-Giant brown frog
-Giant black frog
-Giant grey frog
-Giant pink toad
-Giant green toad
-Giant yellow toad
-Giant brown toad
-Giant black toad
-Black lizard
-Werelizard
-Lizardman
-Lizardman witchdoctor
-Lizardman shaman
-Lizardman warrior
-Lizardman chieftan
-Troglodyte
-Troglodyte witchdoctor
-Troglodyte shaman
-Troglodyte warrior
-Troglodyte chieftan
 
 s
 Floating claw
@@ -278,41 +178,23 @@ Friendly child
 Rustic farmer
 Starving wretch
 
-N:11:Wide-eyed tourist
-G:t:y
-I:110:3d3:10:5:10
-W:0:5:0:0
-B:BEG
-F:MALE | 
-F:ONLY_GOLD | DROP_60 | DROP_90 | HAS_LITE |
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-D:This shill seems a little out of place and down on his luck.
+Archer
+Mercenary
+Soldier
+Rogue
+Novice thief
+Master archer
+Seedy looking human
+King
+Baron
+Count
+Black baron
+Dark knight
+Grey knight
+Green knight
+Red knight
+Blue knight
 
-N:37:Bumbling priest
-G:t:g
-I:110:5d4:20:10:10
-W:0:5:0:0
-B:HIT:HURT:1d5
-F:MALE | 
-F:FORCE_SLEEP | RAND_25 |
-F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
-S:1_IN_12 | 
-S:HEAL | SCARE
-D:He is bumbling and ineffectual at the best of times.
-
-N:38:Cross-eyed mage
-G:t:r
-I:110:4d4:20:6:5
-W:0:5:0:0
-B:HIT:HURT:1d3
-F:MALE | RAND_50 |
-F:FORCE_SLEEP | 
-F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
-S:1_IN_12 | 
-S:BLINK | CONF
-D:He can't see straight, let alone cast spells straight.
 
 T
 River troll
@@ -476,7 +358,6 @@ Dark wraith
 Dragon wight
 
 X
-Xerna
 
 y
 
@@ -544,45 +425,6 @@ Mummified troglodyte
 Mummified frog
 Mummified ape
 Mummified giant
-
-Z
-
-
-Ghoul
-Night ghoul
-Death ghoul
-Nether ghoul
-Black ghoul
-Grave ghoul
-Pit ghoul
-Crypt ghoul
-Emporer ghoul
-Guardian ghoul
-Spirit ghoul
-Master ghoul
-Forest ghoul
-Mountain ghoul
-Bog ghoul
-River ghoul
-Tunnel ghoul
-Ghast
-Night ghast
-Death ghast
-Nether ghast
-Black ghast
-Grave ghast
-Crypt ghast
-Pit ghast
-Gaunt
-Night gaunt
-Death gaunt
-Nether gaunt
-Black gaunt
-Grave gaunt
-Crypt gaunt
-Pit gaunt
-Gaurdian gaunt
-Spirit gaunt
 
 
 

@@ -2,28 +2,16 @@ Note that these are play balance bugs only, there are no known stability
 bugs (Fingers crossed). 
 
 06-01-2001
-- Names of some artifacts when random artifacts is off are prematurely
-shortened.
-- Chests are not handled 100% yet (You never hit a trap on them).
 - You should be able to traverse rubble. But requiring 2 moves.
 - Monsters need more information saved.
-
-15-12-2001
-- Campaign mode is broken.
-
-23-07-2001
-- Mushroom weirdness from mushroom patch drops.
 
 12-07-2001
 - Death and high scores do not record styles and sub-styles.
 - Updated birth.txt is incomplete.
 - Should add kobolds from JLE's patch.
-- Not all the monsters from the future.txt file are created yet. Also the
-Zangband monsters imported still need massaging to fit.
+- Not all the monsters from the future.txt file are created yet.
 - Need to notify the player they are singing/playing.
 - We are (now) many point releases behind the Angband code state of the play.
-- Its a shame because it would look good, but monster lite code is not in
-this version.
 
 04-11-2000
 - We can generate unconnected spaces as part of lake generation. Should

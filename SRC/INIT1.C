@@ -494,8 +494,8 @@ static cptr r_info_flags3[] =
 	"XXX4X3",
 	"HURT_LITE",
 	"HURT_ROCK",
-	"HURT_FIRE",
-	"HURT_COLD",
+	"PLANT",
+	"INSECT",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -792,7 +792,7 @@ static cptr k_info_flags1[] =
 	"BLOWS",
 	"SHOTS",
 	"MIGHT",
-	"SLAY_ANIMAL",
+	"SLAY_NATURAL",
 	"SLAY_EVIL",
 	"SLAY_UNDEAD",
 	"SLAY_DEMON",
@@ -882,7 +882,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"ESP_NATURE",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -6264,6 +6264,9 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			/* Advance the index */
                         u_head->name_size += strlen(s);
 
+			/* Reset the count */
+			cur_t = 0;
+
 			/* Next... */
 			continue;
 		}
@@ -6331,20 +6334,20 @@ errr init_u_info_txt(FILE *fp, char *buf)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-                        int level, tval;
+                        int level, stval;
 
 			/* Scan for the values */
                         if (2 != sscanf(buf+2, "%d:%d",
-                                        &level, &tval)) return (PARSE_ERROR_GENERIC);
+                                        &level, &stval)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
                         u_ptr->level=level;
-                        u_ptr->tval=tval;
+                        u_ptr->stval=stval;
 
 			/* Next... */
 			continue;
 		}
-#if 0
+
                 /* Process 'O' for "Offered" (up to thirty two lines) */
                 if (buf[0] == 'O')
 		{
@@ -6354,6 +6357,9 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			if (3 != sscanf(buf+2, "%d:%d:%d",
                                         &tval, &sval, &count)) return (PARSE_ERROR_GENERIC);
 
+			/* only thirty two O: lines allowed */
+                        if (cur_t >= STORE_CHOICES) return (PARSE_ERROR_GENERIC);
+
 			/* Save the values */
                         u_ptr->tval[cur_t] = (byte)tval;
                         u_ptr->sval[cur_t] = (byte)sval;
@@ -6362,14 +6368,10 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			/* increase counter for 'possible tval' index */
 			cur_t++;
 
-			/* only five T: lines allowed */
-                        if (cur_t > STORE_CHOICES) return (PARSE_ERROR_GENERIC);
-
 			/* Next... */
 			continue;
 		}
 
-#endif
 
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);

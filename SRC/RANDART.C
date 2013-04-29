@@ -1578,7 +1578,7 @@ static s32b slay_power(int a_idx)
 	 * but this could be added
 	 */
 
-	if (a_ptr->flags1 & TR1_SLAY_ANIMAL) s_index |= 0x0001;
+	if (a_ptr->flags1 & TR1_SLAY_NATURAL) s_index |= 0x0001;
 	if (a_ptr->flags1 & TR1_SLAY_EVIL) s_index |= 0x0002;
 	if (a_ptr->flags1 & TR1_SLAY_UNDEAD) s_index |= 0x0004;
 	if (a_ptr->flags1 & TR1_SLAY_DEMON) s_index |= 0x0008;
@@ -1622,8 +1622,8 @@ static s32b slay_power(int a_idx)
 		 * multiple is retained
 		 */
 
-		if ( (r_ptr->flags3 & RF3_ANIMAL)
-			&& (a_ptr->flags1 & TR1_SLAY_ANIMAL) )
+		if ( (r_ptr->flags3 & (RF3_ANIMAL | RF3_INSECT | RF3_PLANT))
+			&& (a_ptr->flags1 & TR1_SLAY_NATURAL) )
 				mult = 2;
 		if ( (r_ptr->flags3 & RF3_EVIL)
 			&& (a_ptr->flags1 & TR1_SLAY_EVIL) )
@@ -1699,7 +1699,7 @@ static s32b slay_power(int a_idx)
 		if (a_ptr->flags1 & TR1_KILL_DRAGON) fprintf(randart_log,"XDr ");
 		if (a_ptr->flags1 & TR1_KILL_DEMON) fprintf(randart_log,"XDm ");
 		if (a_ptr->flags1 & TR1_KILL_UNDEAD) fprintf(randart_log,"XUn ");
-		if (a_ptr->flags1 & TR1_SLAY_ANIMAL) fprintf(randart_log,"Ani ");
+		if (a_ptr->flags1 & TR1_SLAY_NATURAL) fprintf(randart_log,"Nat ");
 		if (a_ptr->flags1 & TR1_SLAY_UNDEAD) fprintf(randart_log,"Und ");
 		if (a_ptr->flags1 & TR1_SLAY_DRAGON) fprintf(randart_log,"Drg ");
 		if (a_ptr->flags1 & TR1_SLAY_DEMON) fprintf(randart_log,"Dmn ");
@@ -2202,6 +2202,7 @@ static s32b artifact_power(int a_idx)
         ADD_POWER("sense demons",        4, TR3_ESP_DEMON, 3,);
         ADD_POWER("sense undead",        5, TR3_ESP_UNDEAD, 3,);
         ADD_POWER("sense dragons",       5, TR3_ESP_DRAGON, 3,);
+        ADD_POWER("sense nature",        4, TR3_ESP_NATURE, 3,);
 /*** End of ESP powers ARD_ESP */
         ADD_POWER("telepathy",          18, TR3_TELEPATHY, 3,);
 	ADD_POWER("slow digestion",	 1, TR3_SLOW_DIGEST, 3,);
@@ -2834,6 +2835,9 @@ static void parse_frequencies ()
                                 if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+
+
 
 				/* Add these to the frequency count */
                                 artprobs[ART_IDX_BOW_SENSE] += temp;
@@ -2947,6 +2951,9 @@ static void parse_frequencies ()
                                 if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+
+
 
 				/* Add these to the frequency count */
                                 artprobs[ART_IDX_NONWEAPON_SENSE] += temp;
@@ -2982,7 +2989,7 @@ static void parse_frequencies ()
 				if (a_ptr->flags1 & TR1_KILL_DRAGON) temp++;
 				if (a_ptr->flags1 & TR1_KILL_DEMON) temp++;
 				if (a_ptr->flags1 & TR1_KILL_UNDEAD) temp++;
-				if (a_ptr->flags1 & TR1_SLAY_ANIMAL) temp++;
+				if (a_ptr->flags1 & TR1_SLAY_NATURAL) temp++;
 				if (a_ptr->flags1 & TR1_SLAY_UNDEAD) temp++;
 				if (a_ptr->flags1 & TR1_SLAY_DRAGON) temp++;
 				if (a_ptr->flags1 & TR1_SLAY_DEMON) temp++;
@@ -3013,6 +3020,8 @@ static void parse_frequencies ()
                                 if (a_ptr->flags3 & TR3_ESP_DRAGON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_DEMON) temp++;
                                 if (a_ptr->flags3 & TR3_ESP_UNDEAD) temp++;
+                                if (a_ptr->flags3 & TR3_ESP_NATURE) temp++;
+
 
 				/* Add these to the frequency count */
                                 artprobs[ART_IDX_MELEE_SENSE] += temp;
@@ -4277,6 +4286,15 @@ static bool add_sense_undead(artifact_type *a_ptr)
         return (TRUE);
 }
 
+static bool add_sense_nature(artifact_type *a_ptr)
+{
+        if (a_ptr->flags3 & TR3_ESP_NATURE) return FALSE;
+        a_ptr->flags3 |= TR3_ESP_NATURE;
+        LOG_PRINT("Adding ability: sense nature\n");
+        return (TRUE);
+}
+
+
 static void add_sense_slay(artifact_type *a_ptr)
 {
         /* Pick a sense at random, as long as the weapon has the slay */
@@ -4291,7 +4309,7 @@ static void add_sense_slay(artifact_type *a_ptr)
 
 	while ( (!success) & (count < MAX_TRIES) )
 	{
-                r = rand_int(9);
+                r = rand_int(10);
                 if ((r == 0) && (a_ptr->flags1 & TR1_SLAY_ORC)) success = add_sense_orc(a_ptr);
                 else if ((r == 1) && (a_ptr->flags1 & TR1_SLAY_GIANT)) success = add_sense_giant(a_ptr);
                 else if ((r == 2) && (a_ptr->flags1 & TR1_SLAY_TROLL)) success = add_sense_troll(a_ptr);
@@ -4301,6 +4319,7 @@ static void add_sense_slay(artifact_type *a_ptr)
                 else if ((r == 6) && (a_ptr->flags1 & TR1_KILL_DRAGON)) success = add_sense_dragon(a_ptr);
                 else if ((r == 7) && (a_ptr->flags1 & TR1_KILL_DEMON)) success = add_sense_demon(a_ptr);
                 else if ((r == 8) && (a_ptr->flags1 & TR1_KILL_UNDEAD)) success = add_sense_undead(a_ptr);
+		    else if ((r == 9) && (a_ptr->flags1 & TR1_SLAY_NATURAL)) success = add_sense_nature(a_ptr);
 
 		count++;
 	}
@@ -4323,13 +4342,14 @@ static void add_sense_rand(artifact_type *a_ptr)
 
 	while ( (!success) & (count < MAX_TRIES) )
 	{
-                r = rand_int(9);
+                r = rand_int(10);
                 if (r < 2) success = add_sense_dragon(a_ptr);
                 else if (r < 4) success = add_sense_demon(a_ptr);
                 else if (r < 6) success = add_sense_undead(a_ptr);
                 else if (r == 6) success = add_sense_orc(a_ptr);
                 else if (r == 7) success = add_sense_giant(a_ptr);
                 else if (r == 8) success = add_sense_troll(a_ptr);
+                else if (r == 9) success = add_sense_nature(a_ptr);
 
 		count++;
 	}
@@ -4355,10 +4375,10 @@ static void add_hold_life(artifact_type *a_ptr)
 	LOG_PRINT("Adding ability: hold life\n");
 }
 
-static bool add_slay_animal(artifact_type *a_ptr)
+static bool add_slay_natural(artifact_type *a_ptr)
 {
-	if (a_ptr->flags1 & TR1_SLAY_ANIMAL) return FALSE;
-	a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+	if (a_ptr->flags1 & TR1_SLAY_NATURAL) return FALSE;
+	a_ptr->flags1 |= TR1_SLAY_NATURAL;
 	LOG_PRINT("Adding ability: slay animal\n");
 	return TRUE;
 }
@@ -4496,7 +4516,7 @@ static void add_brand_or_slay(artifact_type *a_ptr)
 		r = rand_int(16);
 		if (r == 0) success = add_slay_evil(a_ptr);
 		else if (r == 1) success = add_kill_dragon(a_ptr);
-		else if (r == 2) success = add_slay_animal(a_ptr);
+		else if (r == 2) success = add_slay_natural(a_ptr);
 		else if (r == 3) success = add_slay_undead(a_ptr);
 		else if (r == 4) success = add_slay_dragon(a_ptr);
 		else if (r == 5) success = add_slay_demon(a_ptr);

@@ -479,7 +479,7 @@ static flag_desc pval_flags1_desc[] =
 
 static flag_desc slay_flags_desc[] =
 {
-	{ TR1_SLAY_ANIMAL,        "Animal" },
+	{ TR1_SLAY_NATURAL,        "Natural" },
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
 	{ TR1_SLAY_DEMON,         "Demon" },
@@ -572,6 +572,7 @@ static const flag_desc misc_flags3_desc[] =
         { TR3_ESP_DRAGON,         "Sense Dragon" },
         { TR3_ESP_DEMON,          "Sense Demon" },
         { TR3_ESP_UNDEAD,         "Sense Undead" },
+	 { TR3_ESP_NATURE,	 "Sense Nature" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_FREE_ACT,           "Free Action" },
 	{ TR3_HOLD_LIFE,          "Hold Life" },
@@ -1979,8 +1980,6 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
 
 		if (vn)
 		{

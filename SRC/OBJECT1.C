@@ -2198,7 +2198,7 @@ int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
 		info[i++] = "It affects your shooting power.";
 	}
 
-	if (f1 & (TR1_SLAY_ANIMAL))
+	if (f1 & (TR1_SLAY_NATURAL))
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
 	}
@@ -2432,6 +2432,11 @@ int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
         if (f3 & (TR3_ESP_UNDEAD))
 	{
                 info[i++] = "It senses when undead are near.";
+	}
+
+        if (f3 & (TR3_ESP_NATURE))
+	{
+                info[i++] = "It senses when natural creatures are near.";
 	}
 
 	if (f3 & (TR3_SEE_INVIS))

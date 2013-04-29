@@ -2298,6 +2298,7 @@ static void calc_bonuses(void)
 
         int old_esp_demon;
         int old_esp_undead;
+	int old_esp_nature;
 
 	int old_dis_ac;
 	int old_dis_to_a;
@@ -2331,7 +2332,7 @@ static void calc_bonuses(void)
 
         old_esp_undead = p_ptr->esp_undead;
         old_esp_demon = p_ptr->esp_demon;
-
+	old_esp_nature = p_ptr->esp_nature;
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
@@ -2395,6 +2396,7 @@ static void calc_bonuses(void)
         p_ptr->esp_dragon = FALSE;
         p_ptr->esp_undead = FALSE;
         p_ptr->esp_dragon = FALSE;
+	p_ptr->esp_nature = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -2476,6 +2478,7 @@ static void calc_bonuses(void)
         if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
         if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
         if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
+	if (f3 & (TR3_ESP_NATURE)) p_ptr->esp_nature = TRUE;
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
@@ -2579,6 +2582,7 @@ static void calc_bonuses(void)
                 if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
                 if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
                 if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
+			if (f3 & (TR3_ESP_NATURE)) p_ptr->esp_nature = TRUE;
                 if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
                 if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
@@ -3378,6 +3382,14 @@ static void calc_bonuses(void)
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);
 	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_nature != old_esp_nature)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
 
 	/* Hack -- See Invis Change */
 	if (p_ptr->see_inv != old_see_inv)

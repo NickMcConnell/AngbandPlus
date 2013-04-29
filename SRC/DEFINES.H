@@ -1506,7 +1506,7 @@
 /* xxx */
 
 /* Ammo */
-#define EGO_SLAY_ANIMAL         112
+#define EGO_SLAY_NATURE         112
 #define EGO_SLAY_EVIL           113
 #define EGO_SLAY_UNDEAD         114
 #define EGO_SLAY_DEMON          115
@@ -2474,7 +2474,7 @@
 #define TR1_BLOWS                       0x00002000L     /* Blows += "pval" */
 #define TR1_SHOTS                       0x00004000L     /* Shots += "pval" */
 #define TR1_MIGHT                       0x00008000L     /* Might += "pval" */
-#define TR1_SLAY_ANIMAL         0x00010000L     /* Weapon slays animals */
+#define TR1_SLAY_NATURAL         0x00010000L     /* Weapon slays animals, plants, insects */
 #define TR1_SLAY_EVIL           0x00020000L     /* Weapon slays evil */
 #define TR1_SLAY_UNDEAD         0x00040000L     /* Weapon slays undead */
 #define TR1_SLAY_DEMON          0x00080000L     /* Weapon slays demon */
@@ -2552,7 +2552,7 @@
 #define TR3_EASY_KNOW           0x02000000L     /* Item is known if aware */
 #define TR3_HIDE_TYPE           0x04000000L     /* Item hides description */
 #define TR3_SHOW_MODS           0x08000000L     /* Item shows Tohit/Todam */
-#define TR3_XXX7                        0x10000000L     /* (reserved) */
+#define TR3_ESP_NATURE          0x10000000L     /* Sense natural */
 #define TR3_LIGHT_CURSE         0x20000000L     /* Item has Light Curse */
 #define TR3_HEAVY_CURSE         0x40000000L     /* Item has Heavy Curse */
 #define TR3_PERMA_CURSE         0x80000000L     /* Item has Perma Curse */
@@ -2730,14 +2730,14 @@
 #define RF3_NONLIVING                   0x00000800      /* Non-Living */
 #define RF3_HURT_LITE           0x00001000      /* Hurt by lite */
 #define RF3_HURT_ROCK           0x00002000      /* Hurt by rock remover */
-#define RF3_HURT_FIRE           0x00004000      /* Hurt badly by fire */
-#define RF3_HURT_COLD           0x00008000      /* Hurt badly by cold */
+#define RF3_PLANT           0x00004000      /* Plant */
+#define RF3_INSECT           0x00008000      /* Insect */
 #define RF3_IM_ACID                     0x00010000      /* Resist acid a lot */
 #define RF3_IM_ELEC                     0x00020000      /* Resist elec a lot */
 #define RF3_IM_FIRE                     0x00040000      /* Resist fire a lot */
 #define RF3_IM_COLD                     0x00080000      /* Resist cold a lot */
 #define RF3_IM_POIS                     0x00100000      /* Resist poison a lot */
-#define RF3_XXX5                        0x00200000      /* Immune to (?) */
+#define RF3_IM_XXX1                       0x00200000      /* Immune to ??? */
 #define RF3_RES_NETH            0x00400000      /* Resist nether a lot */
 #define RF3_RES_WATE            0x00800000      /* Resist water */
 #define RF3_RES_PLAS            0x01000000      /* Resist plasma */

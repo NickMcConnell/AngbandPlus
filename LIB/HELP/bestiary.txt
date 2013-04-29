@@ -280,15 +280,15 @@ of a reduced save file.
             i   Icky-Thing          I   Insect
             j   Jelly               J   Snake
             k   Goblin              K   Killer Beetle
-            l   Elves               L   Lich
+            l   Elf                 L   Lich
             m   Mold                M   Maia
             n   Naga                N   Nightsbane
             o   Orc                 O   Ogre
-            p   Human "person"      P   Giant "person"
-            q   Human "spellcaster" Q   Quadreped
+            p   Human "priest"      P   Giant "person"
+            q   Human "mage" 	    Q   Quadreped
             r   Rodent              R   Reptile/Amphibian
             s   Skeleton            S   Spider/Scorpion/Tick
-            t   Human "thief"       T   Troll
+            t   Human "warrior"     T   Troll
             u   Minor Demon         U   Major Demon
             v   Vortex              V   Vampire
             w   Worm or Worm Mass   W   Wight/Wraith
@@ -331,11 +331,13 @@ Ancient Dragon (A)
 
 Giant Bat (b)
 	Giant Bats congregate in large flocks in the dungeon, looking for
-	a tasty morsel on which to feed.
+	a tasty morsel on which to feed. There are also hybrids of bat and
+	dragonnish blood, which have the breath of their parent dragon.
 
 Bird (B)
 	Many birds from the ancient bloodlines have fallen under Morgoth's
-	sway, and act as spys and messengers for him and his minions.
+	sway, and act as spys and fast moving messengers for him and his
+	minions.
 
 Giant Centipede (c)
 	These multi-legged predators are quick moving and hungry. There are
@@ -344,13 +346,13 @@ Giant Centipede (c)
 
 Canine (C)
 	Dogs and wolves have both worked alongside and been the bane of
-	mankind. These slavering beasts usually appear in packs, and attack
-	all at once.
+	mankind. These slavering beasts usually appear in packs, move quickly
+	and attack all at once.
 
 Young Dragon (d)
 	Baby and young dragons struggle down from hatcheries near the surface
 	to feed on the larger prey deeper in the dungeon. Do not dismiss them,
-	they are still dangerous to the unprepared.
+	they are still dangerous to the unprepared and unskilled.
 
 Mature Dragon (D)
 	These feared beasts of legend have powerful attacks and a deadly
@@ -369,5 +371,58 @@ Elemental (E)
 	as well as invisible servitors constructed from pure elemental force.
 
 Felines (f)
+	Sauron, one of Morgoth's most powerful servants, often appeared in
+	the shape of a cat. And the many felines in Angband are testament
+	to the quickness and deadliness of such a form.
+
+Fish (F)
+	Dangerous fish and marine mammals lurk in the underground waters, silent
+	and deadly predators. Only a few, rare magical forms, are encountered
+	outside these waters, however.
+
+Golems (g)
+	Animated statues of various materials, golems often move slowly
+	and can easily be avoided. Their creators have given some golems
+	the ability to use a few dangerous spells. Do not fall victim to
+	the powerful blows of their stoney limbs.
+
+Ghosts (G)
+	Insubstantial spirits of the damned wandering the dungeon, ghosts come
+	in three varieties: various noisesome spirits, who are invisible,
+	and insubstantial but whose presence is betrayed by the sound of their
+	voice, disturbed souls, who are invisible and insubstantial, and whose
+	touch reflects their fate in life, and various apparitions, who are
+	visible and insubstantial, and whose terrifying appearance often spells
+	a quite fate at hand.
+
+Hobbits, Dwarfs and Gnomes (h)
+	These three races have no great inclination to good or evil, and many
+	have fallen into the pay, or worse, of darker powers. Many different
+	professions of these races may be encountered, but their natural
+	tendencies will predominate.
+
+Hybrids (H)
+	Mixes of mammal, bird and reptile, hybrids include the dangerous
+	mythological beasts of legend, and cross-bred horrors in which
+	so many beasts are intermingled, they become indistinguishable masses
+	of claws, fangs, and flesh.
+
+Icky-things (i)
+	Small, semi-intelligent slimy creatures, these may be under-estimated
+	in their abilities, especially in never-before encountered varieties.
+
+Insects (I)
+	Giant insects and insect swarms threaten you with their painful stings
+	and bites. Be particularly wary of lice and other fast-breeding pests,
+	with can be individually defeated very easily, but which quickly fill the
+	dungeon with their swarms, and dragonflies, which use the breath
+	of dragons against you.
+
+
+
+
+
+	
+	
 		
 	

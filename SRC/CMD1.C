@@ -194,24 +194,26 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_STAFF:
 		{
 			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) &&
-			    (r_ptr->flags3 & (RF3_ANIMAL)))
+			if ((f1 & (TR1_SLAY_NATURAL)) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL | RF3_PLANT | RF3_INSECT)))
 			{
 				if (m_ptr->ml)
 				{
 #ifdef ALLOW_OBJECT_INFO
-					object_can_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
 #endif
 
-					l_ptr->r_flags3 |= (RF3_ANIMAL);
+					if (r_ptr->flags3 & RF3_ANIMAL) l_ptr->r_flags3 |= (RF3_ANIMAL);
+					if (r_ptr->flags3 & RF3_PLANT) l_ptr->r_flags3 |= (RF3_PLANT);
+					if (r_ptr->flags3 & RF3_INSECT) l_ptr->r_flags3 |= (RF3_INSECT);
 				}
 
 				if (mult < 2) mult = 2;
 			}
 #ifdef ALLOW_OBJECT_INFO
-			else if ((r_ptr->flags3 & (RF3_ANIMAL)) && (m_ptr->ml))
+			else if ((r_ptr->flags3 & (RF3_ANIMAL | RF3_PLANT | RF3_INSECT)) && (m_ptr->ml))
 			{
-                                if (rand_int(100)<tdam*2) object_not_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+                                if (rand_int(100)<tdam*2) object_not_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
 			}
 #endif
 			/* Slay Evil */

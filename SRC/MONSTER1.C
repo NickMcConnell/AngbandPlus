@@ -249,6 +249,8 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
+                if (r_ptr->flags3 & (RF3_INSECT)) flags3 |= (RF3_INSECT);
+                if (r_ptr->flags3 & (RF3_PLANT)) flags3 |= (RF3_PLANT);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -545,17 +547,44 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the "quality" */
-		if (flags3 & (RF3_ANIMAL)) roff(" natural");
 		if (flags3 & (RF3_EVIL)) roff(" evil");
 		if (flags3 & (RF3_UNDEAD)) roff(" undead");
 
+	/* Collect races */
+	vn = 0;
+
 		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON)) roff(" dragon");
-		else if (flags3 & (RF3_DEMON)) roff(" demon");
-		else if (flags3 & (RF3_GIANT)) roff(" giant");
-		else if (flags3 & (RF3_TROLL)) roff(" troll");
-		else if (flags3 & (RF3_ORC)) roff(" orc");
-		else roff(" creature");
+		if (flags3 & (RF3_ANIMAL)) vp[vn++] ="animal";
+		if (flags3 & (RF3_ORC)) vp[vn++] ="orc";
+		if (flags3 & (RF3_TROLL)) vp[vn++] ="troll";
+		if (flags3 & (RF3_GIANT)) vp[vn++] ="giant";
+		if (flags3 & (RF3_DRAGON)) vp[vn++] ="dragon";
+		if (flags3 & (RF3_DEMON)) vp[vn++] ="demon";
+		if (flags3 & (RF3_PLANT)) vp[vn++] ="plant";
+		if (flags3 & (RF3_INSECT)) vp[vn++] ="insect";
+
+	/* Describe "races" */
+	if (vn)
+	{
+		/* Intro */
+                if (vn > 1) roff(" mix of");
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) roff(" ");
+			else if (n < vn-1) roff(", ");
+			else roff(" and ");
+			/* Dump */
+			roff(vp[n]);
+		}
+	}
+	else
+	{
+		roff(" creature");
+	}
+
 
 		/* calculate the integer exp part */
 		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
@@ -923,8 +952,6 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
 	if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
-	if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
-	if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
 
 	/* Describe susceptibilities */
 	if (vn)

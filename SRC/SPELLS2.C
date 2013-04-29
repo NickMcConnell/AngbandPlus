@@ -1444,19 +1444,19 @@ void self_knowledge(void)
 		}
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if (f1 & (TR1_SLAY_NATURAL))
 		{
-			info[i++] = "Your weapon strikes at animals with extra force.";
+			info[i++] = "Your weapon strikes at natural creatures with extra force.";
 #ifdef ALLOW_OBJECT_INFO
 			/* Always notice */
-			object_can_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+			object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
 #endif
 		}
 		else
 		{
 #ifdef ALLOW_OBJECT_INFO
 			/* Always notice */
-			object_not_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+			object_not_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L);
 #endif
 		}
 		if (f1 & (TR1_SLAY_EVIL))

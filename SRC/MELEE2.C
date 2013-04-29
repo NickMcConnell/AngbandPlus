@@ -6973,7 +6973,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
                                         if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
                                         if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
                                         if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
-                                        if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+                                        if (f1 & (TR1_SLAY_NATURAL)) flg3 |= (RF3_ANIMAL | RF3_PLANT | RF3_INSECT);
                                         if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
         
                                         /* The object cannot be picked up by the monster */

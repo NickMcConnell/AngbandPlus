@@ -1569,7 +1569,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
 			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
+				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
 			{
 				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_time_stacks) return (0);
@@ -1628,7 +1628,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
 			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
+				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
 			{
 				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_time_stacks) return (0);
@@ -1700,7 +1700,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				if ((!stack_force_pvals) &&
                                         ((o_ptr->pval != j_ptr->pval-1) || (o_ptr->stackc))  &&
                                         ((o_ptr->pval != j_ptr->pval+1) || (j_ptr->stackc))
-					&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr)))) return (0);			}
+					&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);			}
 
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
@@ -1713,7 +1713,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
                         if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
+				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
 			{
                                 if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_pval_stacks) return (0);
@@ -1750,7 +1750,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	if (o_ptr->note != j_ptr->note)
 	{
 		/* Normally require matching inscriptions */
-		if (!stack_force_notes && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
+		if (!stack_force_notes && !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);
 
 		/* Never combine different inscriptions */
 		if (o_ptr->note && j_ptr->note) return (0);
@@ -1773,7 +1773,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		         (j_ptr->discount >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
-			if (!stack_force_notes && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
+			if (!stack_force_notes && !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);
 
 			/* Hack -- Never merge a special inscription with a discount */
 			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
@@ -1783,7 +1783,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		else
 		{
 			/* Normally require matching discounts */
-			if (!stack_force_costs && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (0);
+                        if (!stack_force_costs && !auto_stack_okay(o_ptr) && !auto_stack_okay(j_ptr)) return (0);
 		}
 	}
 
