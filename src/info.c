@@ -799,7 +799,7 @@ extern void display_weapon_damage(object_type *o_ptr)
   /* Ok now the hackish stuff, we replace the current weapon with this one */
   object_copy(old_ptr, &inventory[INVEN_WIELD]);
   object_copy(&inventory[INVEN_WIELD], o_ptr);
-  calc_bonuses();
+  calc_bonuses(TRUE);
   show_m_tohit = p_ptr->dis_to_h;
   if (object_known_p(o_ptr)) show_m_tohit += o_ptr->to_h;
  
@@ -853,7 +853,7 @@ extern void display_weapon_damage(object_type *o_ptr)
   
   /* get our weapon back */
   object_copy(&inventory[INVEN_WIELD], old_ptr);
-  calc_bonuses();
+  calc_bonuses(TRUE);
 }
 
 /*

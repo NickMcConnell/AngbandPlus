@@ -347,6 +347,8 @@ extern byte num_glyph_on_level;
 extern int *artifact_normal, *artifact_special;
 extern int artifact_normal_cnt, artifact_special_cnt;
 extern bool angband_keymap_flag;
+extern char pf_result[MAX_PF_LENGTH];
+extern int pf_result_index;
 
 /*
  * Automatically generated "function declarations"
@@ -370,6 +372,7 @@ extern void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp);
 #else /* USE_TRANSPARENCY */
 extern void map_info(int y, int x, byte *ap, char *cp);
 #endif /* USE_TRANSPARENCY */
+extern void map_info_default(int y, int x, byte *ap, char *cp);
 extern void move_cursor_relative(int y, int x);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
@@ -422,6 +425,7 @@ extern bool do_cmd_spike_test(int y, int x);
 extern void do_cmd_spike(void);
 extern void do_cmd_walk(void);
 extern void do_cmd_jump(void);
+extern void do_cmd_pathfind(int y, int x);
 extern void do_cmd_run(void);
 extern void do_cmd_hold(void);
 extern void do_cmd_pickup(void);
@@ -894,6 +898,7 @@ extern errr macro_add(cptr pat, cptr act);
 extern errr macro_init(void);
 extern void flush(void);
 extern char inkey(void);
+extern key_event inkey_ex(void);
 extern void bell(cptr reason);
 extern void sound(int val);
 extern s16b quark_add(cptr str);
@@ -929,6 +934,7 @@ extern s16b get_quantity(cptr prompt, int max);
 extern bool get_check(cptr prompt);
 extern int get_check_other(cptr prompt, char other);
 extern bool get_com(cptr prompt, char *command);
+extern bool get_com_ex(cptr prompt, key_event *command);
 extern void pause_line(int row);
 extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
@@ -944,6 +950,8 @@ extern byte get_angle_to_grid[41][41];
 extern cptr get_ext_color_name(byte ext_color);
 extern int color_text_to_attr(cptr name);
 extern cptr attr_to_text(byte a);
+extern bool is_valid_pf(int y, int x);
+extern bool findpath(int y, int x);
 
 #ifdef SUPPORT_GAMMA
 extern byte gamma_table[256];
@@ -953,7 +961,7 @@ extern void build_gamma_table(int gamma);
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
 extern s16b modify_stat_value(int value, int amount);
-extern void calc_bonuses(void);
+extern void calc_bonuses(bool inspect);
 extern void notice_stuff(void);
 extern void update_stuff(void);
 extern void redraw_stuff(void);
@@ -1045,6 +1053,12 @@ extern int stricmp(cptr a, cptr b);
 extern int usleep(huge usecs);
 # endif
 extern void user_name(char *buf, int id);
+#endif
+
+#ifdef MACH_O_CARBON
+extern u32b _fcreator;
+extern u32b _ftype;
+extern void fsetfileinfo(cptr path, u32b fcreator, u32b ftype);
 #endif
 
 #ifdef MACINTOSH

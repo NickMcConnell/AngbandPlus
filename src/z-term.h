@@ -157,6 +157,14 @@ struct term_win
 
 typedef struct term term;
 
+typedef struct key_event key_event;
+
+struct key_event
+{
+	int mousex, mousey;
+	char mousebutton, key;
+};
+
 struct term
 {
 	vptr user;
@@ -183,7 +191,7 @@ struct term
 	byte attr_blank;
 	char char_blank;
 
-	char *key_queue;
+	key_event *key_queue;
 
 	u16b key_head;
 	u16b key_tail;
@@ -311,8 +319,9 @@ extern errr Term_what(int x, int y, byte *a, char *c);
 
 extern errr Term_flush(void);
 extern errr Term_keypress(int k);
+extern errr Term_mousepress(int x, int y, int button);
 extern errr Term_key_push(int k);
-extern errr Term_inkey(char *ch, bool wait, bool take);
+extern errr Term_inkey(key_event *ke, bool wait, bool take);
 
 extern errr Term_save(void);
 extern errr Term_load(void);

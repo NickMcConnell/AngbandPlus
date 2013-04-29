@@ -48,14 +48,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.2.0"
+#define VERSION_STRING	"0.2.1"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	2
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -332,6 +332,18 @@
  * average of three times, and has an average length of 48
  */
 #define MESSAGE_BUF	32768
+
+/*
+ * Defines for graphics mode - mostly unused -NRM-
+ */
+
+#define GRAPHICS_NONE           0
+#define GRAPHICS_ORIGINAL       1
+#define GRAPHICS_ADAM_BOLT      2
+#define GRAPHICS_DAVID_GERVAIS  3
+#define GRAPHICS_PSEUDO         4
+
+
 
 
 /*
@@ -3158,6 +3170,7 @@
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
 #define OPT_birth_take_notes            130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
+#define OPT_birth_notes_save            132/*(OPT_BIRTH_START+4)*/
 /* No Ironman options */
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
 #define OPT_cheat_hear                  161        /*(OPT_CHEAT+1)*/
@@ -3170,6 +3183,7 @@
 #define OPT_adult_auto_roller           193/*(OPT_ADULT_START+1)*/
 #define OPT_adult_take_notes            194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
+#define OPT_adult_notes_save            196/*(OPT_ADULT_START+4)*/
 /* No Ironman options */
 /* xxx xxx */
 #define OPT_score_peek                  224      /*  (OPT_SCORE+0)*/
@@ -3266,6 +3280,7 @@
 #define birth_auto_roller               op_ptr->opt[OPT_birth_auto_roller]     
 #define birth_take_notes                op_ptr->opt[OPT_birth_take_notes]      
 #define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
+#define birth_notes_save                op_ptr->opt[OPT_birth_notes_save]     
 
 #define cheat_peek			op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear			op_ptr->opt[OPT_cheat_hear]	
@@ -3278,6 +3293,7 @@
 #define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]    
 #define adult_take_notes                op_ptr->opt[OPT_adult_take_notes]    
 #define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
+#define adult_notes_save                op_ptr->opt[OPT_adult_notes_save]     
 
 #define score_peek			op_ptr->opt[OPT_score_peek]
 #define score_hear			op_ptr->opt[OPT_score_hear]	
@@ -3419,6 +3435,18 @@
 #define GRID_X(G) \
 	((int)((G) % 256U))
 
+
+/*
+ * Convert a "key event" into a "location" (Y)
+ */
+#define KEY_GRID_Y(K) \
+	((int) ((panel_row_min) + ( ((K.mousey) - ROW_MAP))))
+
+/*
+ * Convert a "key event" into a "location" (X)
+ */
+#define KEY_GRID_X(K) \
+	((int) ((panel_col_min) + ( ((K.mousex) - COL_MAP))))
 
 /*
  * Determines if a map location is "meaningful"
@@ -3943,4 +3971,14 @@ extern int PlayerUID;
  * Number of shades, including the shade 0 (base colors)
  */
 #define MAX_SHADES 8
+
+/*
+ * Maximum size around the player to consider in the pathfinder
+ */
+#define MAX_PF_RADIUS 50
+
+/*
+ * Maximum distance to consider in the pathfinder
+ */
+#define MAX_PF_LENGTH 250
 

@@ -3271,6 +3271,20 @@ void do_cmd_gain_specialty(void)
 	      p_ptr->new_specialties--;
 	      p_ptr->old_specialties = p_ptr->new_specialties;
 	      
+	      /* Write a note */
+	      if (adult_take_notes)
+		{
+		  char buf[120];
+	  
+		  /* Specialty taken */
+		  sprintf(buf, "Gained the %s specialty.", 
+			  specialty_names[choices[cur]]);
+	  
+		  /* Write message */
+		  do_cmd_note(buf,  p_ptr->stage);
+	  
+		}
+      
 	      /* In case we have more to learn, go to the head of the list */
 	      cur = 0;
 	      

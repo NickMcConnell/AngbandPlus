@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.2.0
+V:0.2.1
 
 
 #N: monster index: name
@@ -340,8 +340,8 @@ N:30:Grey mold
 G:m:s
 I:110:1d2:2:2:0
 W:1:1:0:3
-B:HIT:HURT:1d4
-B:HIT:HURT:1d4
+B:SPORE:HURT:1d4
+B:SPORE:HURT:1d4
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
@@ -688,7 +688,7 @@ N:65:Yellow mold
 G:m:y
 I:110:5d9:2:4:99
 W:3:1:0:5
-B:HIT:HURT:1d4
+B:SPORE:HURT:1d4
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
@@ -1103,7 +1103,7 @@ N:105:Brown mold
 G:m:u
 I:110:5d19:2:12:99
 W:6:1:0:20
-B:HIT:CONFUSE:1d4
+B:SPORE:CONFUSE:1d4
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
@@ -1390,7 +1390,7 @@ N:132:Green mold
 G:m:g
 I:110:10d19:2:14:75
 W:8:2:0:26
-B:HIT:TERRIFY:1d4
+B:SPORE:TERRIFY:1d4
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_ACID | IM_POIS | 
@@ -1720,7 +1720,7 @@ N:160:Hairy mold
 G:m:o
 I:110:10d11:2:6:70
 W:10:2:0:32
-B:HIT:POISON:1d3
+B:SPORE:POISON:1d3
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
@@ -4827,8 +4827,8 @@ N:424:Venom mold
 G:m:G
 I:120:10d45:6:11:30
 W:38:1:0:95
-B:HIT:POISON:4d10
-B:HIT:POISON:4d10
+B:TOUCH:POISON:4d10
+B:TOUCH:POISON:4d10
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | 
 F:IM_POIS | 
@@ -6580,10 +6580,10 @@ N:559:Death mold
 G:m:D
 I:140:20d59:10:24:0
 W:57:2:0:3000
-B:HIT:UN_BONUS:7d7
-B:HIT:UN_BONUS:7d7
-B:HIT:UN_BONUS:7d7
-B:HIT:EXP_80:5d5
+B:SPORE:UN_BONUS:7d7
+B:SPORE:UN_BONUS:7d7
+B:SPORE:UN_BONUS:7d7
+B:TOUCH:EXP_80:5d5
 F:FORCE_SLEEP | NEVER_MOVE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
@@ -9430,7 +9430,7 @@ S:BLINK | TPORT | TELE_LEVEL | BLIND | CONF | SCARE | WOUND |
 S:BRAIN_SMASH | FORGET | ADD_MANA | DISPEL | 
 S:BRTH_POIS | BRTH_CHAOS | BRTH_ACID | 
 S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD
-D:Sauron's form as a serpent: poisonous, biting, spitting, and threatening to
+D:Sauron's form as a serpent: poisonous, biting, spitting, and threatening to 
 D:crush you in its mighty coils.
 
 N:774:Vampire-Sauron

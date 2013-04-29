@@ -356,13 +356,23 @@ errr path_build(char *buf, int max, cptr path, cptr file)
  */
 FILE *my_fopen(cptr file, cptr mode)
 {
+   FILE *fff;
   char buf[1024];
   
   /* Hack -- Try to parse the path */
   if (path_parse(buf, 1024, file)) return (NULL);
   
   /* Attempt to fopen the file anyway */
-  return (fopen(buf, mode));
+  fff = fopen(buf, mode);
+  
+#ifdef MACH_O_CARBON
+  
+  /* Set file creator and type */
+  if (fff && strchr(mode, 'w')) fsetfileinfo(buf, _fcreator, _ftype);
+  
+#endif
+  
+  return fff;
 }
 
 
@@ -594,15 +604,22 @@ errr fd_copy(cptr file, cptr what)
 int fd_make(cptr file, int mode)
 {
   char buf[1024];
-  
+  int fd = 0;
+
   /* Hack -- Try to parse the path */
   if (path_parse(buf, 1024, file)) return (-1);
   
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(WINDOWS)
   
   /* Create the file, fail if exists, write-only, binary */
   return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode /* TNB */));
   
+#elif defined(MACINTOSH) || defined(MACH_O_CARBON)
+ 
+  /* Set file creator and type */
+  fd =open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode /* TNB */);
+  if (fd >= 0) fsetfileinfo(buf, _fcreator, _ftype);
+  return fd;
   
   
 #else
@@ -1340,30 +1357,39 @@ static bool parse_under = FALSE;
  * macro trigger, 500 milliseconds must pass before the key sequence is
  * known not to be that macro trigger.  XXX XXX XXX
  */
-static char inkey_aux(void)
+static key_event inkey_aux(void)
 {
   int k = 0, n, p = 0, w = 0;
   
+  key_event ke, ke0;
   char ch;
   
   cptr pat, act;
   
   char buf[1024];
   
+  /* Initialize the no return */
+  ke0.key = 0;
+  ke0.mousebutton = 0; /* To fix GCC warnings on X11 */
+  ke0.mousey = 0;
+  ke0.mousex = 0;
+ 
   /* Wait for a keypress */
-  (void)(Term_inkey(&ch, TRUE, TRUE));
+  (void)(Term_inkey(&ke, TRUE, TRUE));
+  ch = ke.key;
   
   /* End "macro action" */
-  if (ch == 30) parse_macro = FALSE;
+  if ((ch == 30) || (ch == '\xff'))
+    {
+      parse_macro = FALSE;
+      return (ke);
+    }
   
   /* Inside "macro action" */
-  if (ch == 30) return (ch);
-  
-  /* Inside "macro action" */
-  if (parse_macro) return (ch);
+  if (parse_macro) return (ke);
   
   /* Inside "macro trigger" */
-  if (parse_under) return (ch);
+  if (parse_under) return (ke);
   
 
   /* Save the first key, advance */
@@ -1375,7 +1401,7 @@ static char inkey_aux(void)
   k = macro_find_check(buf);
   
   /* No macro pending */
-  if (k < 0) return (ch);
+  if (k < 0) return (ke);
   
   
   /* Wait for a macro, or a timeout */
@@ -1388,10 +1414,10 @@ static char inkey_aux(void)
       if (k < 0) break;
       
       /* Check for (and remove) a pending key */
-      if (0 == Term_inkey(&ch, FALSE, TRUE))
+      if (0 == Term_inkey(&ke, FALSE, TRUE))
 	{
 	  /* Append the key */
-	  buf[p++] = ch;
+	  buf[p++] = ke.key;
 	  buf[p] = '\0';
 	  
 	  /* Restart wait */
@@ -1423,14 +1449,14 @@ static char inkey_aux(void)
       while (p > 0)
 	{
 	  /* Push the key, notice over-flow */
-	  if (Term_key_push(buf[--p])) return (0);
+	  if (Term_key_push(buf[--p])) return (ke0);
 	}
       
       /* Wait for (and remove) a pending key */
-      (void)Term_inkey(&ch, TRUE, TRUE);
+      (void)Term_inkey(&ke, TRUE, TRUE);
       
       /* Return the key */
-      return (ch);
+      return (ke);
     }
   
   
@@ -1444,7 +1470,7 @@ static char inkey_aux(void)
   while (p > n)
     {
       /* Push the key, notice over-flow */
-      if (Term_key_push(buf[--p])) return (0);
+      if (Term_key_push(buf[--p])) return (ke0);
     }
   
   
@@ -1452,7 +1478,7 @@ static char inkey_aux(void)
   parse_macro = TRUE;
   
   /* Push the "end of macro action" key */
-  if (Term_key_push(30)) return (0);
+  if (Term_key_push(30)) return (ke0);
   
   
   /* Access the macro action */
@@ -1465,12 +1491,12 @@ static char inkey_aux(void)
   while (n > 0)
     {
       /* Push the key, notice over-flow */
-      if (Term_key_push(act[--n])) return (0);
+      if (Term_key_push(act[--n])) return (ke0);
     }
   
   
   /* Hack -- Force "inkey()" to call us again */
-  return (0);
+  return (ke0);
 }
 
 
@@ -1561,231 +1587,269 @@ char (*inkey_hack)(int flush_first) = NULL;
  * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
  * control of the keyboard from the user.
  */
-char inkey(void)
+key_event inkey_ex(void)
 {
-  int v;
-  
-  char kk;
-  
-  char ch = 0;
-  
-  bool done = FALSE;
-  
-  term *old = Term;
-  
-  
-  /* Hack -- Use the "inkey_next" pointer */
-  if (inkey_next && *inkey_next && !inkey_xtra)
-    {
-      /* Get next character, and advance */
-      ch = *inkey_next++;
-      
-      /* Cancel the various "global parameters" */
-      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-      
-      /* Accept result */
-      return (ch);
-    }
-  
-  /* Forget pointer */
-  inkey_next = NULL;
-  
-  
+	int cursor_state;
+
+	key_event kk;
+
+	key_event ke;
+
+	bool done = FALSE;
+
+	term *old = Term;
+
+
+	/* Initialise keypress */
+	ke.key = 0;
+
+	/* Hack -- Use the "inkey_next" pointer */
+	if (inkey_next && *inkey_next && !inkey_xtra)
+	{
+		/* Get next character, and advance */
+		ke.key = *inkey_next++;
+
+		/* Cancel the various "global parameters" */
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+		/* Accept result */
+		return (ke);
+	}
+
+	/* Forget pointer */
+	inkey_next = NULL;
+
+
 #ifdef ALLOW_BORG
-  
-  /* Mega-Hack -- Use the special hook */
-  if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
-    {
-      /* Cancel the various "global parameters" */
-      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-      
-      /* Accept result */
-      return (ch);
-    }
-  
+
+	/* Mega-Hack -- Use the special hook */
+	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
+	{
+		/* Cancel the various "global parameters" */
+		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+		/* Accept result */
+		return (ke);
+	}
+
 #endif /* ALLOW_BORG */
 
-  
-  /* Hack -- handle delayed "flush()" */
-  if (inkey_xtra)
-    {
-      /* End "macro action" */
-      parse_macro = FALSE;
-      
-      /* End "macro trigger" */
-      parse_under = FALSE;
-      
-      /* Forget old keypresses */
-      Term_flush();
-    }
-  
-  
-  /* Access cursor state */
-  (void)Term_get_cursor(&v);
-  
-  /* Show the cursor if waiting, except sometimes in "command" mode */
-  if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
-    {
-      /* Show the cursor */
-      (void)Term_set_cursor(1);
-    }
-  
-  
-  /* Hack -- Activate main screen */
-  Term_activate(angband_term[0]);
-  
-  /* Get a key */
-  while (!ch)
-    {
-      /* Hack -- Handle "inkey_scan" */
-      if (!inkey_base && inkey_scan &&
-	  (0 != Term_inkey(&kk, FALSE, FALSE)))
-	{
-	  break;
-	}
-      
-      
-      /* Hack -- Flush output once when no key ready */
-      if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
-	{
-	  /* Hack -- activate proper term */
-	  Term_activate(old);
-	  
-	  /* Flush output */
-	  Term_fresh();
-	  
-	  /* Hack -- activate main screen */
-	  Term_activate(angband_term[0]);
-	  
-	  /* Mega-Hack -- reset saved flag */
-	  character_saved = FALSE;
-	  
-	  /* Mega-Hack -- reset signal counter */
-	  signal_count = 0;
-	  
-	  /* Only once */
-	  done = TRUE;
-	}
-      
-      /* Hack -- Handle "inkey_base" */
-      if (inkey_base)
-	{
-	  int w = 0;
-	  
-	  /* Wait forever */
-	  if (!inkey_scan)
-	    {
-	      /* Wait for (and remove) a pending key */
-	      if (0 == Term_inkey(&ch, TRUE, TRUE))
-		{
-		  /* Done */
-		  break;
-		}
-	      
-	      /* Oops */
-	      break;
-	    }
-	  
-	  /* Wait */
-	  while (TRUE)
-	    {
-	      /* Check for (and remove) a pending key */
-	      if (0 == Term_inkey(&ch, FALSE, TRUE))
-		{
-		  /* Done */
-		  break;
-		}
-	      
-	      /* No key ready */
-	      else
-		{
-		  /* Increase "wait" */
-		  w += 10;
-		  
-		  /* Excessive delay */
-		  if (w >= 100) break;
-		  
-		  /* Delay */
-		  Term_xtra(TERM_XTRA_DELAY, w);
-		}
-	    }
-	  
-	  /* Done */
-	  break;
-	}
-      
-      
-      /* Get a key (see above) */
-      ch = inkey_aux();
-      
-      
-      /* Handle "control-right-bracket" */
-      if (ch == 29)
-	{
-	  /* Strip this key */
-	  ch = 0;
-	  
-	  /* Continue */
-	  continue;
-	}
-      
-      
-      /* Treat back-quote as escape */
-      if (ch == '`') ch = ESCAPE;
-      
-      
-      /* End "macro trigger" */
-      if (parse_under && (ch <= 32))
-	{
-	  /* Strip this key */
-	  ch = 0;
-	  
-	  /* End "macro trigger" */
-	  parse_under = FALSE;
-	}
-      
-      
-      /* Handle "control-caret" */
-      if (ch == 30)
-	{
-	  /* Strip this key */
-	  ch = 0;
-	}
-      
-      /* Handle "control-underscore" */
-      else if (ch == 31)
-	{
-	  /* Strip this key */
-	  ch = 0;
-	  
-	  /* Begin "macro trigger" */
-	  parse_under = TRUE;
-	}
-      
-      /* Inside "macro trigger" */
-      else if (parse_under)
-	{
-	  /* Strip this key */
-	  ch = 0;
-	}
-    }
-  
-  /* Hack -- restore the term */
-  Term_activate(old);
-  
-  
-  /* Restore the cursor */
-  Term_set_cursor(v);
 
-  
-  /* Cancel the various "global parameters" */
-  inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-  
-  
-  /* Return the keypress */
-  return (ch);
+	/* Hack -- handle delayed "flush()" */
+	if (inkey_xtra)
+	{
+		/* End "macro action" */
+		parse_macro = FALSE;
+
+		/* End "macro trigger" */
+		parse_under = FALSE;
+
+		/* Forget old keypresses */
+		Term_flush();
+	}
+
+
+	/* Get the cursor state */
+	(void)Term_get_cursor(&cursor_state);
+
+	/* Show the cursor if waiting, except sometimes in "command" mode */
+	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+	{
+		/* Show the cursor */
+		(void)Term_set_cursor(TRUE);
+	}
+
+
+	/* Hack -- Activate main screen */
+	Term_activate(term_screen);
+
+
+	/* Get a key */
+	while (!ke.key)
+	{
+		/* Hack -- Handle "inkey_scan" */
+		if (!inkey_base && inkey_scan &&
+		    (0 != Term_inkey(&kk, FALSE, FALSE)))
+		{
+			break;
+		}
+
+
+		/* Hack -- Flush output once when no key ready */
+		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
+		{
+			/* Hack -- activate proper term */
+			Term_activate(old);
+
+			/* Flush output */
+			Term_fresh();
+
+			/* Hack -- activate main screen */
+			Term_activate(term_screen);
+
+			/* Mega-Hack -- reset saved flag */
+			character_saved = FALSE;
+
+			/* Mega-Hack -- reset signal counter */
+			signal_count = 0;
+
+			/* Only once */
+			done = TRUE;
+		}
+
+
+		/* Hack -- Handle "inkey_base" */
+		if (inkey_base)
+		{
+			int w = 0;
+
+			/* Wait forever */
+			if (!inkey_scan)
+			{
+				/* Wait for (and remove) a pending key */
+				if (0 == Term_inkey(&ke, TRUE, TRUE))
+				{
+					/* Done */
+					break;
+				}
+
+				/* Oops */
+				break;
+			}
+
+			/* Wait */
+			while (TRUE)
+			{
+				/* Check for (and remove) a pending key */
+				if (0 == Term_inkey(&ke, FALSE, TRUE))
+				{
+					/* Done */
+					break;
+				}
+
+				/* No key ready */
+				else
+				{
+					/* Increase "wait" */
+					w += 10;
+
+					/* Excessive delay */
+					if (w >= 100) break;
+
+					/* Delay */
+					Term_xtra(TERM_XTRA_DELAY, w);
+				}
+			}
+
+			/* Done */
+			break;
+		}
+
+
+		/* Get a key (see above) */
+		ke = inkey_aux();
+
+
+		/* Handle "control-right-bracket" */
+		if (ke.key == 29)
+		{
+			/* Strip this key */
+			ke.key = 0;
+
+			/* Continue */
+			continue;
+		}
+
+
+		/* Treat back-quote as escape */
+		if (ke.key == '`') ke.key = ESCAPE;
+
+
+		/* End "macro trigger" */
+		if (parse_under && (ke.key <= 32))
+		{
+			/* Strip this key */
+			ke.key = 0;
+
+			/* End "macro trigger" */
+			parse_under = FALSE;
+		}
+
+
+		/* Handle "control-caret" */
+		if (ke.key == 30)
+		{
+			/* Strip this key */
+			ke.key = 0;
+		}
+
+		/* Handle "control-underscore" */
+		else if (ke.key == 31)
+		{
+			/* Strip this key */
+			ke.key = 0;
+
+			/* Begin "macro trigger" */
+			parse_under = TRUE;
+		}
+
+		/* Inside "macro trigger" */
+		else if (parse_under)
+		{
+			/* Strip this key */
+			ke.key = 0;
+		}
+	}
+
+
+	/* Hack -- restore the term */
+	Term_activate(old);
+
+
+	/* Restore the cursor */
+	Term_set_cursor(cursor_state);
+
+
+	/* Cancel the various "global parameters" */
+	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+
+
+	/* Return the keypress */
+	return (ke);
 }
 
+
+/*
+ * Get a keypress or mouse click from the user.
+ */
+key_event anykey(void)
+{
+	key_event ke;
+
+	/* Only accept a keypress or mouse click*/
+	do
+	{
+		ke = inkey_ex();
+	} while ((ke.key == '\xff') && !(ke.mousebutton));
+
+	return ke;
+}
+
+/*
+ * Get a keypress from the user.
+ */
+char inkey(void)
+{
+	key_event ke;
+
+	/* Only accept a keypress */
+	do
+	{
+		ke = inkey_ex();
+	} while (ke.key == '\xff');
+
+	return ke.key;
+}
 
 
 
@@ -2844,12 +2908,13 @@ bool askfor_aux(char *buf, int len)
 {
   int y, x;
   
-  int i = 0;
-  
   int k = 0;
+  
+  key_event ke;
   
   bool done = FALSE;
   
+  ke.key = '\0';
   
   /* Locate the cursor */
   Term_locate(&x, &y);
@@ -2881,10 +2946,10 @@ bool askfor_aux(char *buf, int len)
       Term_gotoxy(x + k, y);
       
       /* Get a key */
-      i = inkey();
+      ke = inkey_ex();
       
       /* Analyze the key */
-      switch (i)
+      switch (ke.key)
 	{
 	case ESCAPE:
 	  {
@@ -2908,11 +2973,30 @@ bool askfor_aux(char *buf, int len)
 	    break;
 	  }
 	  
+	case '\xff':
+	  {
+	    if ((ke.mousebutton) && !(k))
+	      {
+		if (ke.mousebutton == 1)
+		  {
+		    k = strlen(buf);
+		    done = TRUE;
+		  }
+		else if (ke.mousebutton == 2)
+		  {
+		    ke.key = ESCAPE;
+		    done = TRUE;
+		  }
+		break;
+	      }
+	    else continue;
+	  }
+	  
 	default:
 	  {
-	    if ((k < len - 1) && (isprint(i)))
+	    if ((k < len - 1) && (isprint(ke.key)))
 	      {
-		buf[k++] = i;
+		buf[k++] = ke.key;
 	      }
 	    else
 	      {
@@ -2931,7 +3015,7 @@ bool askfor_aux(char *buf, int len)
     }
   
   /* Aborted */
-  if (i == ESCAPE) return (FALSE);
+  if (ke.key == ESCAPE) return (FALSE);
   
   /* Success */
   return (TRUE);
@@ -3153,6 +3237,28 @@ int get_check_other(cptr prompt, char other)
  */
 bool get_com(cptr prompt, char *command)
 {
+  key_event ke;
+  bool result;
+
+  result = get_com_ex(prompt, &ke);
+  *command = ke.key;
+
+  if (ke.key == '\xff')
+    bell("Potential loss of mouse input");
+  return result;
+}
+
+/*
+ * Prompts for a keypress or mouse press
+ *
+ * The "prompt" should take the form "Command: "
+ *
+ * Returns TRUE unless the character is "Escape"
+ */
+bool get_com_ex(cptr prompt, key_event *command)
+{
+  key_event ke;
+  
   /* Paranoia XXX XXX XXX */
   msg_print(NULL);
   
@@ -3160,13 +3266,16 @@ bool get_com(cptr prompt, char *command)
   prt(prompt, 0, 0);
   
   /* Get a key */
-  *command = inkey();
+  ke = inkey_ex();
   
   /* Clear the prompt */
   prt("", 0, 0);
   
+  /* Save the command */
+  *command = ke;
+
   /* Handle "cancel" */
-  if (*command == ESCAPE) return (FALSE);
+  if (ke.key == ESCAPE) return (FALSE);
   
   /* Success */
   return (TRUE);
@@ -3219,7 +3328,7 @@ void request_command(bool shopping)
 {
   int i;
   
-  char cmd;
+  key_event ke;
   
   int mode;
   
@@ -3259,7 +3368,7 @@ void request_command(bool shopping)
 	  msg_print(NULL);
 	  
 	  /* Use auto-command */
-	  cmd = (char)p_ptr->command_new;
+	  ke.key = (char)p_ptr->command_new;
 	  
 	  /* Forget it */
 	  p_ptr->command_new = 0;
@@ -3275,15 +3384,15 @@ void request_command(bool shopping)
 	  inkey_flag = TRUE;
 	  
 	  /* Get a command */
-	  cmd = inkey();
+	  ke = inkey_ex();
 	}
       
       /* Clear top line */
-      prt("", 0, 0);
+      if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
 
       
       /* Command Count */
-      if (cmd == '0')
+      if (ke.key == '0')
 	{
 	  int old_arg = p_ptr->command_arg;
 	  
@@ -3297,10 +3406,10 @@ void request_command(bool shopping)
 	  while (1)
 	    {
 	      /* Get a new keypress */
-	      cmd = inkey();
+	      ke.key = inkey();
 	      
 	      /* Simple editing (delete or backspace) */
-	      if ((cmd == 0x7F) || (cmd == KTRL('H')))
+	      if ((ke.key == 0x7F) || (ke.key == KTRL('H')))
 		{
 		  /* Delete a digit */
 		  p_ptr->command_arg = p_ptr->command_arg / 10;
@@ -3310,7 +3419,7 @@ void request_command(bool shopping)
 		}
 	      
 	      /* Actual numeric data */
-	      else if (cmd >= '0' && cmd <= '9')
+	      else if (ke.key >= '0' && ke.key <= '9')
 		{
 		  /* Stop count at 9999 */
 		  if (p_ptr->command_arg >= 1000)
@@ -3326,7 +3435,8 @@ void request_command(bool shopping)
 		  else
 		    {
 		      /* Incorporate that digit */
-		      p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(cmd);
+		      p_ptr->command_arg = p_ptr->command_arg * 10 + 
+			D2I(ke.key);
 		    }
 		  
 		  /* Show current count */
@@ -3361,10 +3471,10 @@ void request_command(bool shopping)
 	    }
 	  
 	  /* Hack -- white-space means "enter command now" */
-	  if ((cmd == ' ') || (cmd == '\n') || (cmd == '\r'))
+	  if ((ke.key == ' ') || (ke.key == '\n') || (ke.key == '\r'))
 	    {
 	      /* Get a real command */
-	      if (!get_com("Command: ", &cmd))
+	      if (!get_com("Command: ", &ke.key))
 		{
 		  /* Clear count */
 		  p_ptr->command_arg = 0;
@@ -3377,10 +3487,10 @@ void request_command(bool shopping)
       
       
       /* Allow "keymaps" to be bypassed */
-      if (cmd == '\\')
+      if (ke.key == '\\')
 	{
 	  /* Get a real command */
-	  (void)get_com("Command: ", &cmd);
+	  (void)get_com("Command: ", &ke.key);
 	  
 	  /* Hack -- bypass keymaps */
 	  if (!inkey_next) inkey_next = "";
@@ -3388,15 +3498,15 @@ void request_command(bool shopping)
       
       
       /* Allow "control chars" to be entered */
-      if (cmd == '^')
+      if (ke.key == '^')
 	{
 	  /* Get a new command and controlify it */
-	  if (get_com("Control: ", &cmd)) cmd = KTRL(cmd);
+	  if (get_com("Control: ", &ke.key)) ke.key = KTRL(ke.key);
 	}
       
       
       /* Look up applicable keymap */
-      act = keymap_act[mode][(byte)(cmd)];
+      act = keymap_act[mode][(byte)(ke.key)];
       
       /* Apply keymap if not inside a keymap already */
       if (act && !inkey_next)
@@ -3413,11 +3523,12 @@ void request_command(bool shopping)
       
       
       /* Paranoia */
-      if (!cmd) continue;
+      if (ke.key == '\0') continue;
       
       
       /* Use command */
-      p_ptr->command_cmd = cmd;
+      p_ptr->command_cmd = ke.key;
+      p_ptr->command_cmd_ex = ke;
       
       /* Done */
       break;
@@ -3492,7 +3603,10 @@ void request_command(bool shopping)
     }
   
   /* Hack -- erase the message line. */
-  prt("", 0, 0);
+  if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
+  
+  /* Hack again -- apply the modified key command */
+  p_ptr->command_cmd_ex.key = p_ptr->command_cmd;
 }
 
 
@@ -4054,5 +4168,195 @@ cptr attr_to_text(byte a)
 #endif
 
   return (base);
+}
+
+/* Purpose: Path finding algorithm */
+static int terrain[MAX_PF_RADIUS][MAX_PF_RADIUS];
+static int ox, oy, ex, ey;
+
+bool is_valid_pf(int y, int x)
+{
+  int feat;
+  
+  /* Hack -- assume unvisited is permitted */
+  if (!(cave_info[y][x] & (CAVE_MARK))) return (TRUE);
+  
+  /* Get mimiced feat */
+  feat = f_info[cave_feat[y][x]].mimic;
+  
+  /* Optionally alter known traps/doors on movement */
+  if (((easy_open) && (feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
+      ((easy_disarm) && (feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL)))
+    {
+      return (TRUE);
+    }
+  
+  /* Require moveable space */
+  if ((feat >= FEAT_MAGMA) && (feat <= FEAT_PERM_SOLID)) return (FALSE);
+
+  /* Don't move over lava, web or void */
+  if ((feat == FEAT_LAVA) || (feat == FEAT_WEB) || (feat == FEAT_VOID)) 
+    return (FALSE);
+
+  /* Otherwise good */
+  return (TRUE);
+}
+
+static void fill_terrain_info(void)
+{
+  int i,j;
+  
+  ox = MAX(p_ptr->px - MAX_PF_RADIUS / 2,0);
+  oy = MAX(p_ptr->py - MAX_PF_RADIUS / 2,0);
+
+  ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1,DUNGEON_WID);
+  ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1,DUNGEON_HGT);
+	
+  for (i = 0; i < MAX_PF_RADIUS * MAX_PF_RADIUS; i++)
+    terrain[0][i] = -1;
+
+  for (j = oy; j < ey; j++)
+    for (i = ox; i < ex; i++)
+      if (is_valid_pf(j, i))
+	terrain[j - oy][i - ox] = MAX_PF_LENGTH;
+  
+  terrain[p_ptr->py - oy][p_ptr->px - ox] = 1;
+}
+
+#define MARK_DISTANCE(c,d) if ((c <= MAX_PF_LENGTH) && (c > d)) { c = d; try_again = (TRUE); }
+
+bool findpath(int y, int x)
+{
+  int i, j, k, dir, starty = 0, startx = 0, startdir, start_index;
+  bool try_again;
+  int cur_distance;
+  int findir[] = {1, 4, 7, 8, 9, 6, 3, 2};
+
+  fill_terrain_info();
+
+  terrain[p_ptr->py - oy][p_ptr->px - ox] = 1;
+
+  if ((x >= ox) && (x < ex) && (y >= oy) && (y < ey))
+    {
+      if ((cave_m_idx[y][x] > 0) && (m_list[cave_m_idx[y][x]].ml))
+	{
+	  terrain[y - oy][x - ox] = MAX_PF_LENGTH;
+	}
+      /* else if (terrain[y - oy][x - ox] != MAX_PF_LENGTH)
+	{
+	bell("Target blocked");
+	return (FALSE);
+	}*/
+      terrain[y - oy][x - ox] = MAX_PF_LENGTH;
+    }
+  else
+    {
+      bell("Target out of range.");
+      return (FALSE);
+    }
+  
+  if (terrain[y - oy][x - ox] == -1)
+    {
+      bell("Target space forbidden");
+      return (FALSE);
+    }
+  
+  
+  /* 
+   * And now starts the very naive and very 
+   * inefficient pathfinding algorithm
+   */
+  do
+    {
+      try_again = (FALSE);
+      for (j = oy + 1; j < ey - 1; j++)
+	for (i = ox + 1; i < ex - 1; i++)
+	  {
+	    cur_distance = terrain[j - oy][i - ox] + 1;
+	    if ((cur_distance > 0) && (cur_distance < MAX_PF_LENGTH))
+	      {
+		for (dir = 1; dir < 10; dir++)
+		  {
+		    if (dir == 5)
+		      dir++;
+		    MARK_DISTANCE(terrain[j - oy + ddy[dir]][i - ox +ddx[dir]],
+				  cur_distance);
+		  } 
+	      } 
+	  } 
+      if (terrain[y - oy][x - ox] < MAX_PF_LENGTH)
+	try_again = (FALSE);
+    } while (try_again);
+  
+  /* Failure */
+  if (terrain[y - oy][x - ox] == MAX_PF_LENGTH)
+	{
+	  bell("Target space unreachable.");
+	  return (FALSE);
+	}
+
+  /* Success */
+  i = x;
+  j = y;
+  
+  pf_result_index = 0;
+  
+  while ((i != p_ptr->px) || (j != p_ptr->py))
+    {
+      int xdiff = i - p_ptr->px, ydiff = j - p_ptr->py;
+      
+      cur_distance = terrain[j - oy][i - ox] - 1;
+
+      /* Starting direction */
+      if (xdiff < 0) startx = -1;
+      else if (xdiff > 0) startx = 1;
+
+      if (ydiff < 0) starty = -1;
+      else if (ydiff > 0) starty = 1;
+
+      if (startx * xdiff < 2 * starty * ydiff) startx = 0;
+      if (starty * ydiff < 2 * startx * xdiff) starty = 0;
+
+      for (dir = 1; dir < 10; dir++)
+	if ((ddx[dir] == startx) && (ddy[dir] == starty)) break;
+
+      /* Should never happend */
+      if ((dir % 5) == 0)
+	{
+	  bell("Wtf ?");
+	  return (FALSE);
+	}
+      
+      for (start_index = 0; findir[start_index % 8] != dir; start_index++) 
+	;
+
+      for (k = 0; k < 5; k++)
+	{
+	  dir = findir[(start_index + k) % 8];
+	  if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
+	      == cur_distance)
+	    break; 
+	  dir = findir[(8 + start_index - k) % 8];
+	  if (terrain[j - oy + ddy[dir]][i - ox + ddx[dir]] 
+	      == cur_distance)
+	    break; 
+	}
+
+      /* Should never happend */
+      if (k == 5)
+	{
+	  bell("Heyyy !");
+	  return (FALSE);
+	}
+      
+      pf_result[pf_result_index++] = '0' + (char)(10 - dir);
+      i += ddx[dir];
+      j += ddy[dir];
+      starty = 0;
+      startx = 0;
+      startdir = 0;
+    }
+  pf_result_index--;
+  return (TRUE);
 }
 

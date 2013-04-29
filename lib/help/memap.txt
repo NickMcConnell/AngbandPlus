@@ -3,7 +3,7 @@
 Below is a rough diagram of the linkages between the regions of Middle
 Earth which your character can visit.  Dungeons are shown in brackets under
 the region where their entrance lies (Nan Dungortheb is not strictly a dungeon,
-but acts like on in some ways).  Some towns are clearly marked; for the
+but acts like one in some ways).  Some towns are clearly marked; for the
 others and for a description of towns, see "town.txt".  For more information
 about wilderness and dungeons, see "wild-dun.txt".
 

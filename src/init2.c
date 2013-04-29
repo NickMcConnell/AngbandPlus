@@ -3744,12 +3744,12 @@ static byte store_table[MAX_STORE_TYPES][STORE_CHOICES][2] =
 
     { TV_FLASK, 0 },
     { TV_FLASK, 0 },
-    { TV_FLASK, 0 },
     { TV_SHOT, SV_AMMO_NORMAL },
     { TV_ARROW, SV_AMMO_NORMAL },
     { TV_BOLT, SV_AMMO_NORMAL },
     { TV_DIGGING, SV_SHOVEL },
     { TV_DIGGING, SV_PICK },
+    { TV_BOW, SV_SLING},
 
     { TV_CLOAK, SV_CLOAK },
     { TV_CLOAK, SV_CLOAK },

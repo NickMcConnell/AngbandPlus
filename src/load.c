@@ -1135,8 +1135,25 @@ static errr rd_notes(void)
   
   if (alive && adult_take_notes)
     {
-      /* Create the tempfile (notes_file & notes_fname are global) */
-      notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+      /* Notes file needs to go in the savefile directory */
+      if (adult_notes_save)
+	{
+	  char temp[128];
+	  
+	  /* Name the notes file, using the base name */
+	  sprintf(temp, "%s.txt", op_ptr->base_name);
+	  
+	  /* Build the filename */
+	  path_build(notes_fname, 1024, ANGBAND_DIR_SAVE, temp);
+
+	  notes_file = my_fopen(notes_fname, "w");
+	}
+      
+      else
+	{
+	  /* Create the tempfile (notes_file & notes_fname are global) */
+	  notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+	}
       
       if (!notes_file)
 	{

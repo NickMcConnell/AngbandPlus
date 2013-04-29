@@ -235,11 +235,6 @@ char *message__buf;
  */
 u16b *message__type;
 
-/*
- * The array[MESSAGE_MAX] of u16b for the count of messages
- */
-static u16b *message__count;
-
 
 /*
  * Table of colors associated to message-types
@@ -289,7 +284,29 @@ byte angband_color_table[256][4] =
   {0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
   {0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
   {0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-  {0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+  {0x00, 0xC0, 0x80, 0x40},	/* TERM_L_UMBER */
+
+  /*
+   * Values for shades at compile time, taken from shades.prf
+   * Hack -- TERM_WHITE (Shade 1) comes from font-x11.prf, because
+   * we must ensure that all colors are different.
+   */
+  {0x00, 0x00, 0x00, 0x00},	/* TERM_DARK	(Shade 1) */
+  {0x00, 0xAF, 0xFF, 0xFF},	/* TERM_WHITE 	(Shade 1) */
+  {0x00, 0xA0, 0xA0, 0xA0},	/* TERM_SLATE 	(Shade 1) */
+  {0x00, 0xDC, 0x64, 0x00},	/* TERM_ORANGE 	(Shade 1) */
+  {0x00, 0xF0, 0x00, 0x00},	/* TERM_RED 	(Shade 1) */
+  {0x00, 0x00, 0x70, 0x00},	/* TERM_GREEN 	(Shade 1) */
+  {0x00, 0x00, 0x80, 0xFF},	/* TERM_BLUE 	(Shade 1) */
+  {0x00, 0xC8, 0x64, 0x00},	/* TERM_UMBER 	(Shade 1) */
+  {0x00, 0x78, 0x64, 0x64},	/* TERM_L_DARK 	(Shade 1) */
+  {0x00, 0xE8, 0xD0, 0xC0},	/* TERM_L_WHITE	(Shade 1) */
+  {0x00, 0xA5, 0x00, 0xFF},	/* TERM_VIOLET 	(Shade 1) */
+  {0x00, 0xC8, 0xC8, 0x00},	/* TERM_YELLOW 	(Shade 1) */
+  {0x00, 0xB4, 0x46, 0x32},	/* TERM_L_RED 	(Shade 1) */
+  {0x00, 0x00, 0xDC, 0x64},	/* TERM_L_GREEN (Shade 1) */
+  {0x00, 0x64, 0xAA, 0xC8},	/* TERM_L_BLUE  (Shade 1) */
+  {0x00, 0xC8, 0xAA, 0x46} 	/* TERM_L_UMBER (Shade 1) */
 };
 
 
@@ -866,3 +883,9 @@ byte num_glyph_on_level;
 
 /* XXX Mega-Hack - See main-win.c */
 bool angband_keymap_flag = TRUE;
+
+/* Path finding variables
+ *
+ */
+char pf_result[MAX_PF_LENGTH];
+int pf_result_index;

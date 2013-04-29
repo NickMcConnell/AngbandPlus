@@ -3020,7 +3020,8 @@ static int store_order_aux(void)
   char buf[160];
   byte color;
 
-  bool ordered = FALSE, avail = FALSE, only_four = FALSE;
+  bool ordered = FALSE, only_four = FALSE;
+  int avail = 0;
   
   /* Clear screen */
   Term_clear();
@@ -3144,25 +3145,21 @@ static int store_order_aux(void)
       if ((num < 0) || (num >= max_num)) return (1);
       
       /* Check to see if ordered or not */
-      avail = FALSE;
+      avail = 0;
       for (i = 24; i < 32; i++)
 	{
 	  /* Ordered */
 	  if (st_ptr->table[i] == choice[num]) break;
 
-	  /* A free slot */
-	  if (st_ptr->table[i] == 0) 
-	    {
-	      avail = TRUE;
-	      break;
-	    }
+	  /* First free slot */
+	  if ((st_ptr->table[i] == 0) && (!avail)) avail = i;
 	}
       
       /* Cancel order */
-      if ((i < 32) && (!avail)) st_ptr->table[i] = 0;
+      if (i < 32) st_ptr->table[i] = 0;
 
       /* New order */
-      else if (avail) st_ptr->table[i] = choice[num];
+      else if (avail) st_ptr->table[avail] = choice[num];
 
       /* No more orders */
       else return (1); 
@@ -3288,13 +3285,6 @@ static void store_process_command(void)
 	break;
       }
       
-      /* Order an item */
-    case 'o':
-      {
-	store_order();
-	break;
-      }
-
       /* Ignore return */
     case '\r':
       {
@@ -3522,6 +3512,16 @@ static void store_process_command(void)
       }
       
       
+      /* Order an item */
+    case 'o':
+      {
+	if (st_ptr->type == STORE_MERCH)
+	    store_order();
+	else
+	  msg_print("You cannot order from this store.");
+	break;
+      }
+
       /* Hack -- Unknown command */
     default:
       {

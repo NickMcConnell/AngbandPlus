@@ -2002,6 +2002,47 @@ static void process_command(void)
 	break;
       }
       
+      /* Mouse interaction */
+    case '\xff':
+      {
+	int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
+	int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+	
+	/* Hack -- we could try various things here like travelling or 
+	 * going up/down stairs  - or pickup -NRM-*/
+	if ((p_ptr->py == y) && (p_ptr->px == x)) 
+	  {
+	    if (p_ptr->command_cmd_ex.mousebutton == 1)
+	      do_cmd_rest();
+	    else
+	      do_cmd_hold();
+	  }
+
+	else if (p_ptr->command_cmd_ex.mousebutton == 1)
+	  {
+	    if (p_ptr->confused)
+	      {
+		do_cmd_walk();
+	      }
+	    else
+	      {
+		do_cmd_pathfind(y, x);
+	      }
+	  }
+	else if (p_ptr->command_cmd_ex.mousebutton == 2)
+	  {
+	    target_set_location(y, x);
+	    msg_print("Target set.");
+	  }
+	else
+	  {
+#if 0
+	    target_set_interactive_aux(y, x, TARGET_PEEK, (use_mouse ? "*,left-click to move to, right-click to target" : "*"));
+#endif
+	  }
+	break;
+      }
+      
       /* Hack -- Unknown command */
     default:
       {

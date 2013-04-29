@@ -2740,7 +2740,7 @@ cptr option_text[OPT_MAX] =
     "birth_auto_roller",	      /* OPT_birth_auto_roller */
     "birth_take_notes",		      /* OPT_birth_take_notes */	
     "birth_preserve",		      /* OPT_birth_preserve */	   
-    NULL,	 
+    "birth_notes_save",	              /* OPT_birth_notes_save */
     NULL,
     NULL,
     NULL,
@@ -2772,7 +2772,7 @@ cptr option_text[OPT_MAX] =
     "adult_auto_roller",		/* OPT_adult_auto_roller */	     
     "adult_take_notes",                 /* OPT_adult_take_notes */
     "adult_preserve",		        /* OPT_adult_preserve */
-    NULL,
+    "adult_notes_save",                 /* OPT_adult_notes_save */
     NULL,
     NULL,
     NULL,
@@ -2892,7 +2892,7 @@ cptr option_desc[OPT_MAX] =
     "Birth: Use Autoroller if rolling for stats",  /* OPT_birth_auto_roller */
     "Birth: Have notes written to a file",         /* OPT_birth_take_notes */
     "Birth: No special feelings/artifacts preserved",/* OPT_birth_preserve */ 
-    NULL,
+    "Birth: Write notes file in savefile directory",/* OPT_birth_notes_save */
     NULL,
     NULL,
     NULL,
@@ -2924,7 +2924,7 @@ cptr option_desc[OPT_MAX] =
     "Adult: Use Autoroller if rolling for stats",  /* OPT_adult_auto_roller */
     "Adult: Have notes written to a file",         /* OPT_adult_take_notes */
     "Adult: Artifacts preserved & no special feelings",/* OPT_adult_preserve*/ 
-    NULL,
+    "Adult: Write notes file in savefile directory",/* OPT_adult_notes_save */
     NULL,
     NULL,
     NULL, 
@@ -3044,7 +3044,7 @@ bool option_norm[OPT_MAX] =
     FALSE,		 /* OPT_birth_auto_roller */
     TRUE,                /* OPT_birth_take_notes */
     TRUE,	         /* OPT_birth_preserve */      
-    FALSE,
+    FALSE,               /* OPT_birth_notes_save */
     FALSE,
     FALSE,
     FALSE,
@@ -3211,7 +3211,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_birth_auto_roller,	      
       OPT_birth_take_notes,
       OPT_birth_preserve, 
-      255,
+      OPT_birth_notes_save,
       255,
       255,
       255,

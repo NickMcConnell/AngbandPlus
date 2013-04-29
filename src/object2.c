@@ -3696,9 +3696,18 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
   
   /* Extract plural */
   if (j_ptr->number != 1) plural = TRUE;
-  
+
   /* Describe object */
   object_desc(o_name, j_ptr, FALSE, 0);
+  
+  /* Special case for treasure objects */
+  if (j_ptr->tval == TV_GOLD)
+    {
+      i = 0;
+      while (o_name[i] != '\0') i++;
+      if (o_name[i - 1] == 's')
+	plural = TRUE;
+    }
   
   
   /* Handle normal "breakage" */
@@ -3753,7 +3762,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	  /* Require floor space */
 	  if ((cave_feat[ty][tx] != FEAT_FLOOR) && 
 	      (cave_feat[ty][tx] != FEAT_GRASS) &&
-	      (cave_feat[ty][tx] != FEAT_TREE)) continue;
+	      (cave_feat[ty][tx] != FEAT_TREE) &&
+	      (cave_feat[ty][tx] != FEAT_RUBBLE)) continue;
 	  
 	  /* No objects */
 	  k = 0;
@@ -3852,14 +3862,16 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
       /* Require floor space */
       if ((cave_feat[ty][tx] != FEAT_FLOOR) && 
 	  (cave_feat[ty][tx] != FEAT_GRASS) &&
-	  (cave_feat[ty][tx] != FEAT_TREE))continue;
+	  (cave_feat[ty][tx] != FEAT_TREE) &&
+	  (cave_feat[ty][tx] != FEAT_RUBBLE))continue;
       
       /* Bounce to that location */
       by = ty;
       bx = tx;
       
       /* Require floor space */
-      if ((!cave_clean_bold(by, bx)) && (cave_feat[by][bx] != FEAT_TREE)) 
+      if ((!cave_clean_bold(by, bx)) && (cave_feat[by][bx] != FEAT_TREE) &&
+	  (cave_feat[by][bx] != FEAT_RUBBLE)) 
 	  continue;
       
       /* Okay */
@@ -3888,12 +3900,13 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
   sound(SOUND_DROP);
   
   /* Mega-Hack -- no message if "dropped" by player */
-  /* Message when an object falls under the player or in trees */
+  /* Message when an object falls under the player or in trees or rubble */
   if (chance && (cave_m_idx[by][bx] < 0))
     {
       msg_print("You feel something roll beneath your feet.");
     }
-  else if (cave_feat[by][bx] == FEAT_TREE)
+  else if (((cave_feat[by][bx] == FEAT_TREE) || 
+	    (cave_feat[by][bx] == FEAT_RUBBLE)) && (!p_ptr->blind))
     msg_format("The %s disappear%s from view.", o_name, (plural ? "" : "s"));
 }
 

@@ -251,6 +251,7 @@
  * Include the "windows" support file
  */
 #include <windows.h>
+#include <windowsx.h>
 
 #ifdef USE_SOUND
 
@@ -352,6 +353,11 @@ unsigned _cdecl _dos_getfileattr(const char *, unsigned *);
  * Forward declare
  */
 typedef struct _term_data term_data;
+
+static int yOldPos = 0;
+static int xOldPos = 0;
+static bool term_initialised = FALSE;
+
 
 /*
  * Extra "term" data
@@ -2524,7 +2530,7 @@ static void windows_map_aux(void)
 static void windows_map(void)
 {
 	term_data *td = &data[0];
-	char ch;
+	key_event ke;
 
 	/* Only in graphics mode since the fonts can't be scaled */
 	if (!use_graphics) return;
@@ -2538,7 +2544,7 @@ static void windows_map(void)
 	windows_map_aux();
 
 	/* Wait for a keypress, flush key buffer */
-	Term_inkey(&ch, TRUE, TRUE);
+	Term_inkey(&ke, TRUE, TRUE);
 	Term_flush();
 
 	/* Switch off the map display */
@@ -2789,6 +2795,10 @@ static void init_windows(void)
 
 	/* Process pending messages */
 	(void)Term_xtra_win_flush();
+
+	/* Initialised */
+	term_initialised = TRUE;
+
 }
 
 
@@ -3595,6 +3605,7 @@ void handle_wm_paint(HWND hWnd)
 }
 
 
+
 #ifdef __MWERKS__
 LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                   WPARAM wParam, LPARAM lParam);
@@ -3609,6 +3620,8 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	term_data *td;
 	int i;
 
+
+	int xPos, yPos, button;
 
 	/* Acquire proper "term_data" info */
 	td = (term_data *)GetWindowLong(hWnd, 0);
@@ -3708,6 +3721,58 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			Term_keypress(wParam);
 			return 0;
 		}
+
+		case WM_MBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+		case WM_LBUTTONDOWN:
+		{
+			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt))
+			{
+				/* Get the text grid */
+				xPos = GET_X_LPARAM(lParam);
+				yPos = GET_Y_LPARAM(lParam);
+				xPos /= td->tile_wid;
+				yPos /= td->tile_hgt;
+
+				/* XXX TODO Translate iso-coords back to normal if required */
+
+				if (uMsg == WM_LBUTTONDOWN)
+					button = 1;
+				else if (uMsg == WM_RBUTTONDOWN)
+					button = 2;
+				else
+					button = 3;
+				Term_mousepress(xPos,yPos,button);
+			}
+
+			break;
+		}
+
+
+		case WM_MOUSEMOVE:
+		{
+
+			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt))
+			{
+				/* Get the text grid */
+				xPos = GET_X_LPARAM(lParam);
+				yPos = GET_Y_LPARAM(lParam);
+				xPos /= td->tile_wid;
+				yPos /= td->tile_hgt;
+
+				/* Have we changed grid? */
+				if ((xPos != xOldPos) ||
+					(xPos != yOldPos))
+				{
+					Term_mousepress(xPos,yPos,0);
+				}
+
+				/* Save last location */
+				xOldPos = xPos;
+				yOldPos = yPos;
+			}
+		}
+
 
 		case WM_INITMENU:
 		{
@@ -4099,6 +4164,10 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 #define MOUSE_SENS 40
 
+#endif /* USE_SAVER */
+
+
+
 #ifdef __MWERKS__
 LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
                                     WPARAM wParam, LPARAM lParam);
@@ -4184,8 +4253,6 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 	/* Oops */
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
-
-#endif /* USE_SAVER */
 
 
 

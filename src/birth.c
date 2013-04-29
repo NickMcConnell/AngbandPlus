@@ -1881,8 +1881,25 @@ void player_birth(void)
       char long_day[25];
       time_t ct = time((time_t*)0);
       
-      /* Open the file (notes_file and notes_fname are global) */
-      notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+      /* Notes file needs to go in the savefile directory */
+      if (adult_notes_save)
+	{
+	  char temp[128];
+	  
+	  /* Name the notes file, using the base name */
+	  sprintf(temp, "%s.txt", op_ptr->base_name);
+	  
+	  /* Build the filename */
+	  path_build(notes_fname, 1024, ANGBAND_DIR_SAVE, temp);
+
+	  notes_file = my_fopen(notes_fname, "w");
+	}
+
+      else
+	{
+	  /* Open the file (notes_file and notes_fname are global) */
+	  notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
+	}
       
       if (!notes_file) quit("Can't create the notes file");
       

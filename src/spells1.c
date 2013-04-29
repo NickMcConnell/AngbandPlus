@@ -597,6 +597,11 @@ void teleport_player(int dis, bool safe)
 	  msg_print("You land in molten lava!");
 	  fire_dam(damroll(4, 100), "thrown into molten lava");
 	}
+      else if (cave_feat[y][x] == FEAT_VOID)
+	{
+	  msg_print("You land in mid-air!");
+	  fall_off_cliff();
+	}
     }
   
   /* Clear the cave_temp flag (the "project()" code may have set it). */
@@ -637,8 +642,9 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 	  if (in_bounds_fully(y, x)) break;
 	}
       
-      /* Consider all unoccupied floor grids */
-      if ((cave_feat[y][x] == FEAT_FLOOR) && (cave_m_idx[y][x] == 0))
+      /* Consider all unoccupied floor or grass grids */
+      if (((cave_feat[y][x] == FEAT_FLOOR) || (cave_feat[y][x] == FEAT_GRASS)) 
+	  && (cave_m_idx[y][x] == 0))
 	{
 	  /* Calculate distance between target and current grid */
 	  dist = distance(ny, nx, y, x);
@@ -758,7 +764,7 @@ void teleport_player_level(bool friendly)
   /* Remember where we came from */
   p_ptr->last_stage = p_ptr->stage;
   
-  if (stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE)
+  if (stage_map[p_ptr->stage][STAGE_TYPE] == CAVE)
     {
       if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
 	{

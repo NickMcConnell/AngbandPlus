@@ -3800,10 +3800,28 @@ static void display_object_group_list(int col, int row, int wid, int per_page,
  */
 static int collect_artifacts(int grp_cur, int object_idx[])
 {
+  int k, which = 0;  
   int i, object_cnt = 0;
   bool *okay;
   
-  store_type *st_ptr = &store[STORE_HOME];
+  store_type *st_ptr;
+  
+  /* Get the store number of the home */
+  for (k = 0; k < NUM_TOWNS; k++)
+    {
+      /* Found the town */
+      if (p_ptr->home == towns[k])
+	{
+	  which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
+	  break;
+	}
+      /* Next town */
+      else
+	which += (k < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
+    }
+
+  /* Activate the store */
+  st_ptr = &store[which];
   
   /* make a list of artifacts not found */
   /* Allocate the "object_idx" array */
@@ -4509,7 +4527,7 @@ static cptr monster_group_text[] =
     "Dragon Flies",			/*'F'*/
     "Golems",				/*'g'*/
     "Ghosts",				/*'G'*/
-    "Hobbits/Elves/Dwarves",		/*'h'*/
+    "Humanoids",        		/*'h'*/
     "Hybrids",				/*'H'*/
     "Icky Things",			/*'i'*/
     "Insects",				/*'I'*/
@@ -4791,9 +4809,12 @@ static void display_monster_list(int col, int row, int per_page,
       /* Display kills */
       if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
-	  /*use alive/dead for uniques*/
-	  put_str(format("%s", (r_ptr->max_num == 0) ? "dead" : "alive"),
-		  row + i, 73);
+	  /* Ignore status of shapechange only monsters */
+	  if (!(r_ptr->flags2 & (RF2_NO_PLACE))) 
+
+	    /* use alive/dead for uniques */
+	    put_str(format("%s", (r_ptr->max_num == 0) ? "dead" : "alive"),
+		    row + i, 73);
 	}
       else put_str(format("%5d", l_ptr->pkills), row + i, 73);
       

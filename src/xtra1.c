@@ -2906,7 +2906,7 @@ static void shape_change_main(void)
  *
  * This function induces various "status" messages.
  */
-extern void calc_bonuses(void)
+extern void calc_bonuses(bool inspect)
 {
   int i, j, hold;
   
@@ -4158,7 +4158,7 @@ extern void calc_bonuses(void)
     }
   
   /* Hack -- handle "xtra" mode */
-  if (character_xtra) return;
+  if (character_xtra || inspect) return;
   
   /* Take note when player moves his shield on and off his back. */
   if (p_ptr->evasion_chance != p_ptr->old_evasion_chance)
@@ -4309,7 +4309,7 @@ void update_stuff(void)
   if (p_ptr->update & (PU_BONUS))
     {
       p_ptr->update &= ~(PU_BONUS);
-      calc_bonuses();
+      calc_bonuses(FALSE);
     }
   
   if (p_ptr->update & (PU_TORCH))

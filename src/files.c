@@ -2291,6 +2291,7 @@ void display_player(int mode)
       put_str("Sex     :", 3, 1);
       put_str("Race    :", 4, 1);
       put_str("Class   :", 5, 1);
+      if (p_ptr->total_winner) put_str("***WINNER***", 6, 1);
       
       c_put_str(TERM_L_BLUE, op_ptr->full_name, 2, 11);
       c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 11);
@@ -2429,7 +2430,9 @@ errr file_character(cptr name, bool full)
   
   FILE *fff = NULL;
   
-  store_type *st_ptr = &store[STORE_HOME];
+  int k, which = 0;  
+
+  store_type *st_ptr;
   
   char o_name[120];
   
@@ -2480,6 +2483,23 @@ errr file_character(cptr name, bool full)
       return (-1);
     }
   
+  
+  /* Get the store number of the home */
+  for (k = 0; k < NUM_TOWNS; k++)
+    {
+      /* Found the town */
+      if (p_ptr->home == towns[k])
+	{
+	  which += (k < NUM_TOWNS_SMALL ? 3 : STORE_HOME);
+	  break;
+	}
+      /* Next town */
+      else
+	which += (k < NUM_TOWNS_SMALL ? MAX_STORES_SMALL : MAX_STORES_BIG);
+    }
+
+  /* Activate the store */
+  st_ptr = &store[which];
   
   /* Begin dump */
   fprintf(fff, "  [FAangband %d.%d.%d Character Dump]\n\n",
@@ -4780,10 +4800,10 @@ static void close_game_aux(void)
 
   /* Prompt */
   if (adult_take_notes) 
-    q = "['a' to add a comment to the notes file, 'c' for a character dump]";
+    q = "['a' to add a comment to the notes file, 'c' for a character dump, 't' for scores]";
   else
-    q = "['c' for a character dump]";
-  p = "['i' for character info, 't' for scores, 'x' to examine items, or ESC]";
+    q = "['c' for a character dump, 't' for scores]";
+  p = "['i' for character info, 'm' for messages, 'x' to examine items, or ESC]";
 
   /* Handle retirement */
   if (p_ptr->total_winner) kingly();
@@ -4881,6 +4901,20 @@ static void close_game_aux(void)
 
 	  /* Show the scores */
 	  top_twenty();
+
+
+	  /* Load screen */
+	  screen_load();
+	}
+
+      /* Show top scores */
+      else if (ch == 'm')
+	{
+	  /* Save screen */
+	  screen_save();
+
+	  /* Show the scores */
+	  do_cmd_messages();
 
 
 	  /* Load screen */
@@ -5450,6 +5484,9 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
   int wid, hgt;
   int screen_wid, screen_hgt;
   
+  int x = col - COL_MAP + panel_col_min;
+  int y = row - ROW_MAP + panel_row_min;
+
   /* Retrieve current screen size */
   Term_get_size(&wid, &hgt);
   
@@ -5460,6 +5497,27 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
   /* Get the tile from the screen */
   a = Term->scr->a[row][col];
   c = Term->scr->c[row][col];
+  
+  /* Convert the map display to the default characters */
+  if (!character_icky &&
+      ((col - COL_MAP) >= 0) && ((col - COL_MAP) < screen_wid) &&
+      ((row - ROW_MAP) >= 0) && ((row - ROW_MAP) < screen_hgt))
+    {
+      /* Convert dungeon map into default attr/chars */
+      if (in_bounds(y, x))
+	{
+	  /* Retrieve default attr/char */
+	  map_info_default(y, x, &a, &c);
+	}
+      else
+	{
+	  /* "Out of bounds" is empty */
+	  a = TERM_WHITE;
+	  c = ' ';
+	}
+      
+      if (c == '\0') c = ' ';
+    }
   
   /* Filter out remaining graphics */
   if (a & 0xf0)
@@ -5530,6 +5588,9 @@ void html_screenshot(cptr name)
 	  /* Get the ASCII tile */
 	  get_default_tile(y, x, &a, &c);
 	  
+	  /* Hack - show base color in dump */
+	  a &= 0x0F;
+
 	  /* Color change */
 	  if (oa != a)
 	    {

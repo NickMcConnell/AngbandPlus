@@ -70,6 +70,20 @@ void do_cmd_move_house(void)
       /* Set the new town */
       p_ptr->home = p_ptr->stage;
       msg_print("Your home will be here when you return.");
+
+      /* Write a note */
+      if (adult_take_notes)
+	{
+	  char buf[120];
+	  
+	  /* Moved house */
+	  sprintf(buf, "Moved house to %s.", town);
+	  
+	  /* Write message */
+	  do_cmd_note(buf,  p_ptr->stage);
+	  
+	}
+      
     }
   else
     msg_print("You can only move to another town!");
@@ -2984,6 +2998,48 @@ void do_cmd_run(void)
   run_step(dir);
 }
 
+
+
+/*
+ * Start running with pathfinder.
+ *
+ * Note that running while confused is not allowed.
+ */
+void do_cmd_pathfind(int y, int x)
+{
+  int py = p_ptr->py;
+  int px = p_ptr->px;
+
+  /* Must not be 0 or 5 */
+  int dummy = 1;
+
+  /* Hack XXX XXX XXX */
+  if (p_ptr->confused)
+    {
+      msg_print("You are too confused!");
+      return;
+    }
+  
+  /* Hack -- handle stuck players */
+  if (cave_feat[py][px] == FEAT_WEB)
+    {
+      /* Tell the player */
+      msg_print("You are stuck!");
+      
+      return;
+    }
+  
+  if (findpath(y, x))
+    {
+      p_ptr->running = 1000;
+
+      /* Calculate torch radius */
+      p_ptr->update |= (PU_TORCH);
+
+      p_ptr->running_withpathfind = TRUE;
+      run_step(0);
+    }
+}
 
 
 /*

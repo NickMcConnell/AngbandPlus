@@ -123,7 +123,10 @@ static cptr desc_sneer[] =
   "says he can hear someone imprisoned in the rock.",
   "wonders how a trapdoor can take you to a different dungeon.",
   "babbles about mirages in the swamp.",
-  "theorises that time is standing still."
+  "theorises that time is standing still.",
+  "tries to give you an order for pizza.",
+  "requests some help with map-reading.",
+  "claims he can see through walls."
 };
 
 /*
@@ -619,7 +622,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			
 		      case RBM_SNEER:
 			{
-			  act = desc_sneer[rand_int(8)];
+			  act = desc_sneer[rand_int(11)];
 			  break;
 			}
 			
