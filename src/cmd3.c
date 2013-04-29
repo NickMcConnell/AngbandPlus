@@ -2144,6 +2144,14 @@ void py_steal(int y, int x)
 
   bool thief = FALSE;
   bool success = FALSE;
+
+  /* Check intent */
+  if ((m_ptr->hostile != -1) && 
+      !get_check("Do you want to steal from this being?"))
+    {
+      py_attack(y, x, FALSE);
+      return;
+    }
   
   /* Hard limit on theft. */
   if (number_of_thefts_on_level > 4)
@@ -2242,7 +2250,9 @@ void py_steal(int y, int x)
       m_ptr->csleep = 0;
       m_ptr->mflag |= (MFLAG_ACTV);
       if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
-      
+
+      /* Become hostile */
+      m_ptr->hostile = -1;      
       
       /* Occasionally, amuse the player with a message. */
       if ((randint(5) == 1) && (purse) && (r_ptr->flags2 & (RF2_SMART)))

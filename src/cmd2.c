@@ -1693,11 +1693,11 @@ void do_cmd_open(void)
       msg_print("There is a monster in the way!");
       
       /* Attack */
-      py_attack(y, x);
+      if (py_attack(y, x, TRUE)) return;
     }
   
   /* Chest */
-  else if (o_idx)
+  if (o_idx)
     {
       /* Open the chest */
       more = do_cmd_open_chest(y, x, o_idx);
@@ -1737,6 +1737,16 @@ static bool do_cmd_close_test(int y, int x)
       /* Message */
       msg_print("You see nothing there to close.");
       
+      /* Nope */
+      return (FALSE);
+    }
+  
+  /* Monster */
+  if (cave_m_idx[y][x] > 0)
+    {
+      /* Message */
+      msg_print("There is a monster in the way!");
+
       /* Nope */
       return (FALSE);
     }
@@ -1846,23 +1856,9 @@ void do_cmd_close(void)
       p_ptr->command_arg = 0;
     }
   
-  /* Monster */
-  if (cave_m_idx[y][x] > 0)
-    {
-      /* Message */
-      msg_print("There is a monster in the way!");
-      
-      /* Attack */
-      py_attack(y, x);
-    }
-  
-  /* Door */
-  else
-    {
-      /* Close door */
-      more = do_cmd_close_aux(y, x);
-    }
-  
+  /* Close door */
+  more = do_cmd_close_aux(y, x);
+    
   /* Cancel repeat unless told not to */
   if (!more) disturb(0, 0);
 }
@@ -2183,10 +2179,7 @@ void do_cmd_tunnel(void)
 	  msg_print("There is a monster in the way!");
 	  
 	  /* Attack */
-	  py_attack(y, x);
-
-	  /* Done */
-	  return;
+	  if (py_attack(y, x, TRUE)) return;
 	}
   
       if (cave_feat[y][x] == FEAT_WEB)
@@ -2237,16 +2230,12 @@ void do_cmd_tunnel(void)
       msg_print("There is a monster in the way!");
       
       /* Attack */
-      py_attack(y, x);
+      if (py_attack(y, x, TRUE)) return;
     }
   
-  /* Walls */
-  else
-    {
-      /* Tunnel through walls */
-      more = do_cmd_tunnel_aux(y, x);
-    }
-  
+  /* Tunnel through walls */
+  more = do_cmd_tunnel_aux(y, x);
+    
   /* Cancel repetition unless we can continue */
   if (!more) disturb(0, 0);
 }
@@ -2481,11 +2470,11 @@ void do_cmd_disarm(void)
       msg_print("There is a monster in the way!");
       
       /* Attack */
-      py_attack(y, x);
+      if (py_attack(y, x, TRUE)) return;
     }
   
   /* Chest */
-  else if (o_idx)
+  if (o_idx)
     {
       /* Disarm the chest */
       more = do_cmd_disarm_chest(y, x, o_idx);
@@ -2689,18 +2678,11 @@ void do_cmd_bash(void)
       msg_print("There is a monster in the way!");
       
       /* Attack */
-      py_attack(y, x);
-      
-      /* Done */
-      return;
+      if (py_attack(y, x, TRUE)) return;
     }
   
-  /* Door */
-  else
-    {
-      /* Bash the door */
-      more = do_cmd_bash_aux(y, x);
-    }
+  /* Bash the door */
+  more = do_cmd_bash_aux(y, x);
   
   /* Cancel repeat unless told not to */
   if (!more) disturb(0, 0);
@@ -2781,9 +2763,9 @@ void do_cmd_alter(void)
 	{
 	  m_ptr = &m_list[cave_m_idx[y][x]];
 	  if (m_ptr->ml) py_steal(y, x);
-	  else py_attack(y, x);
+	  else (void) py_attack(y, x, FALSE);
 	}
-      else py_attack(y, x);
+      else (void) py_attack(y, x, FALSE);
     }
 
   /*
@@ -2791,6 +2773,9 @@ void do_cmd_alter(void)
    */
   else if ((check_ability(SP_TRAP)) && (cave_trappable_bold(y, x)))
     {
+      /* Make sure not to repeat */
+      p_ptr->command_rep = 0;
+
       if (!py_set_trap(y, x)) return;
     }
   
@@ -2973,7 +2958,7 @@ void do_cmd_spike(void)
       p_ptr->energy_use += 60;
       
       /* Attack */
-      py_attack(y, x);
+      if (py_attack(y, x, TRUE)) return;
     }
   
   /* Go for it */

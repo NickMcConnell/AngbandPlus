@@ -1906,7 +1906,8 @@ void object_info_detail(object_type *o_ptr)
   
   
   /* Nastyness. */
-  if (known_cursed_p(o_ptr))
+  if (known_cursed_p(o_ptr) || 
+      ((o_ptr->ident & IDENT_STORE) && (o_ptr->flags_obj & OF_SHOW_CURSE)))
     {
       /* Clear number of items to list, and items listed. */
       attr_num = 0;

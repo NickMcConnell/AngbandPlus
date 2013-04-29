@@ -2402,7 +2402,7 @@ void monster_death(int m_idx)
     }
 
   /* Hack -- Mark Sauron's other forms as dead */
-  if ((r_ptr->level = 85) && (r_ptr->flags1 & (RF1_QUESTOR)))
+  if ((r_ptr->level == 85) && (r_ptr->flags1 & (RF1_QUESTOR)))
     for (i = 1; i < 4; i++) r_info[m_ptr->r_idx - i].max_num--;
 
   /* Make a staircase for Morgoth */
@@ -2763,6 +2763,8 @@ bool change_panel(int dy, int dx)
 {
   int y, x;
   int y_min, x_min, y_max, x_max;
+
+  bool small_town = ((p_ptr->stage < 151) && (!adult_dungeon));
   
   /* Apply the motion */
   y = panel_row_min + dy * (SCREEN_HGT / 2);
@@ -2773,7 +2775,7 @@ bool change_panel(int dy, int dx)
   x_min = (p_ptr->depth ? 0 : DUNGEON_WID / 3);
   y_max = (p_ptr->depth ? DUNGEON_HGT : 2 * DUNGEON_HGT / 3);
   x_max = (p_ptr->depth ? DUNGEON_WID : 2 * DUNGEON_WID / 3);
-  if ((!p_ptr->depth) && (p_ptr->stage < 151)) x_max = DUNGEON_WID / 2;
+  if ((!p_ptr->depth) && small_town) x_max = DUNGEON_WID / 2;
   
   /* Bounds */
   if (y > y_max - SCREEN_HGT) y = y_max - SCREEN_HGT;

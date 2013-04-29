@@ -1009,7 +1009,7 @@ static void apply_deadliness(long *die_average, int deadliness)
  * Successful hits may induce various special effects, including earthquakes, 
  * confusion blows, monsters panicking, and so on.
  */
-void py_attack(int y, int x)
+bool py_attack(int y, int x, bool can_push)
 {
   /* Damage */
   long damage;
@@ -1052,6 +1052,19 @@ void py_attack(int y, int x)
   r_ptr = &r_info[m_ptr->r_idx];
   l_ptr = &l_list[m_ptr->r_idx];
   
+  /* Just push past town monsters */
+  if ((m_ptr->hostile != -1) && can_push)
+    {
+      /* Get monster name (or "something") */
+      monster_desc(m_name, m_ptr, 0);
+      
+      /* Message */
+      msg_format("You push past %s.", m_name);
+
+      return (FALSE);
+    }
+  
+
   /*
    * If the monster is sleeping and visible, it can be hit more easily.
    */
@@ -1095,7 +1108,7 @@ void py_attack(int y, int x)
 	}
       
       /* Done */
-      return;
+      return (TRUE);
     }
   
   /* Hack - Monsters in stasis are invulnerable. */
@@ -1113,7 +1126,7 @@ void py_attack(int y, int x)
 	}
       
       /* Done */
-      return;
+      return (TRUE);
     }
   
   /* Become hostile */
@@ -1255,7 +1268,7 @@ void py_attack(int y, int x)
 	    }
 	  
 	  /* Fight's over. */
-	  return;
+	  return (TRUE);
 	}
       
       /* Stunning. */
@@ -1574,7 +1587,7 @@ void py_attack(int y, int x)
 		}
 	      
 	      /* Fight's over. */
-	      return;
+	      return (TRUE);
 	    }
 	  
 	  /* Chaotic attack. */
@@ -1585,7 +1598,7 @@ void py_attack(int y, int x)
 		{
 		  /* May not still be something there to hit */
 		  notice_obj(OF_CHAOTIC, 0);
-		  if (!chaotic_effects(m_ptr)) return;
+		  if (!chaotic_effects(m_ptr)) return (TRUE);
 		}
 	    }
 
@@ -1640,6 +1653,8 @@ void py_attack(int y, int x)
       
       earthquake(py, px, 4, FALSE);
     }
+
+  return (TRUE);
 }
 
 

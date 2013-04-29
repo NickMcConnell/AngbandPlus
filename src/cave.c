@@ -486,54 +486,62 @@ static byte multi_hued_attr(monster_race *r_ptr)
 }
 
 /**
- * Hack -- Legal monster codes
- */
-static const char image_monster_hack[] = \
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-/**
  * Hack -- Hallucinatory monster
  */
 static u16b image_monster(void)
 {
+  monster_race *r_ptr;
+  
   byte a;
   char c;
   
-  /* Random symbol from set above (not including final nul) */
-  c = image_monster_hack[rand_int(sizeof(image_monster_hack) - 1)];
-  
-  /* Random color */
-  a = randint(15);
-  
-  /* Encode */
-  return (PICT(a,c));
+  while (1)
+    {
+      /* Select a random monster */
+      r_ptr = &r_info[rand_int(z_info->r_max)];
+      
+      /* Skip non-entries */
+      if (!r_ptr->name) continue;
+      
+      /* Retrieve attr/char */
+      a = r_ptr->x_attr;
+      c = r_ptr->x_char;
+      
+      /* Encode */
+      return (PICT(a,c));
+    }
 }
 
-
-/**
- * Hack -- Legal object codes
- */
-static const char image_object_hack[] = \
-"?/|\\\"!$()_-=[]{},~"; /* " */
 
 /**
  * Hack -- Hallucinatory object
  */
 static u16b image_object(void)
 {
+  object_kind *k_ptr;
+  
   byte a;
   char c;
   
-  /* Random symbol from set above (not including final nul) */
-  c = image_object_hack[rand_int(sizeof(image_object_hack) - 1)];
-  
-  /* Random color */
-  a = randint(15);
-  
-  /* Encode */
-  return (PICT(a,c));
+  while (1)
+    {
+      /* Select a random object */
+      k_ptr = &k_info[rand_int(z_info->k_max - 1) + 1];
+      
+      /* Skip non-entries */
+      if (!k_ptr->name) continue;
+      
+      /* Retrieve attr/char (HACK - without flavors) */
+      a = k_ptr->x_attr;
+      c = k_ptr->x_char;
+      
+      /* HACK - Skip empty entries */
+      if ((a == 0) || (c == 0)) continue;
+      
+      /* Encode */
+      return (PICT(a,c));
+    }
 }
-
 
 /**
  * Hack -- Random hallucination

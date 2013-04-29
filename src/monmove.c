@@ -3510,6 +3510,9 @@ static void apply_monster_trap(monster_type *m_ptr, int y, int x, bool *death)
 	  note_dies = " is destroyed.";
 	}
       
+      /* Monster becomes hostile */
+      m_ptr->hostile = -1;
+
       /* Players sees the monster */
       if (m_ptr->ml) msg_format("%^s sets off your cunning trap!", m_name);
       

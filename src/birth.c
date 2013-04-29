@@ -715,6 +715,7 @@ static void player_wipe(bool really_wipe)
     {
       artifact_type *a_ptr = &a_info[i];
       a_ptr->creat_turn = 0;
+      a_ptr->p_level = 0;
     }
   
   
