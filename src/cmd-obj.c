@@ -325,6 +325,13 @@ void textui_obj_wield(object_type * o_ptr, int item)
 {
     int slot = wield_slot(o_ptr);
 
+    /* Deal with throwing weapons */
+    if ((slot == INVEN_WIELD) && of_has(o_ptr->flags_obj, OF_THROWING))
+    {
+	if (get_check("Equip in throwing belt?")) 
+	    slot = wield_slot_ammo(o_ptr);
+    }
+
     /* Usually if the slot is taken we'll just replace the item in the slot,
      * but in some cases we need to ask the user which slot they actually want
      * to replace */

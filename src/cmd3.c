@@ -141,7 +141,7 @@ void wield_item(object_type *o_ptr, int item, int slot)
     flags_init(f, OF_SIZE, OF_OBVIOUS_MASK, FLAG_END);
 
     /* If we are stacking things in the quiver */
-    if (obj_is_quiver_obj(o_ptr))
+    if (obj_is_quiver_obj(o_ptr) && (slot >= QUIVER_START))
     {
 	num = o_ptr->number;
 	combine_quiver = object_similar(o_ptr, &p_ptr->inventory[slot],
@@ -253,6 +253,7 @@ void wield_item(object_type *o_ptr, int item, int slot)
     /* Notice dice, AC, jewellery sensation ID and other obvious stuff */
     notice_other(IF_AC, slot + 1);
     notice_other(IF_DD_DS, slot + 1);
+    of_inter(f, o_ptr->flags_obj);
     of_union(o_ptr->id_obj, f);
     if (is_armour(o_ptr) && (k_info[o_ptr->k_idx].to_h.base))
 	notice_other(IF_TO_H, slot + 1);
@@ -505,6 +506,7 @@ void textui_cmd_destroy(void)
 
 	    /* set to squelch */
 	    k_ptr->squelch = TRUE;
+	    p_ptr->notice |= PN_SQUELCH;
 
 	    /* Message - no good routine for extracting the plain name */
 	    msg_format("All %^s will always be squelched.", o_name2);

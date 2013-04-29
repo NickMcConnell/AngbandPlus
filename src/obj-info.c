@@ -793,10 +793,17 @@ static bool describe_misc_magic(textblock *tb, const object_type *o_ptr,
     bool full = mode & OINFO_FULL;
     size_t i;
     bool printed = FALSE;
+    bitflag objflags[OF_SIZE];
+
+    of_wipe(objflags);
+    of_copy(objflags, o_ptr->flags_obj);
+    if (!full)
+	of_inter(objflags, o_ptr->id_obj);
+	
 
     for (i = 0; i < N_ELEMENTS(misc_flags); i++)
     {
-	if (of_has(full ? o_ptr->flags_obj : o_ptr->id_obj, misc_flags[i].flag))
+	if (of_has(objflags, misc_flags[i].flag))
 	{
 	    if (!printed) textblock_append(tb, "\nPowers:  ");
 	    textblock_append(tb, "%s.  ", misc_flags[i].name);
@@ -1207,7 +1214,7 @@ static bool describe_combat(textblock *tb, const object_type *o_ptr,
 
     /* Print range damage info */
     if (is_missile(o_ptr) || of_has(o_ptr->flags_obj, OF_THROWING))
-	combat = combat || describe_ammo_damage(tb, o_ptr, mode);
+	combat = describe_ammo_damage(tb, o_ptr, mode) || combat;
 
     return combat;
 }
@@ -1393,7 +1400,7 @@ static bool describe_effect(textblock *tb, const object_type *o_ptr,
 	/* Sometimes only print activation info */
 	if (terse) return FALSE;
 
-	if (object_aware_p(o_ptr) || kf_has(k_ptr->flags_kind, KF_EASY_KNOW) 
+	if ((object_aware_p(o_ptr) && kf_has(k_ptr->flags_kind, KF_EASY_KNOW)) 
 	    || full) {
 	    effect = o_ptr->effect;
 	    timeout = o_ptr->time;
