@@ -5626,26 +5626,34 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	   !(r_ptr->flags4 & (RF4_BRTH_SOUND)) &&
 	   !(r_ptr->flags4 & (RF4_BRTH_FORCE)))
     {
-      /* Obvious */
-      if (seen) obvious = TRUE;
+      if (r_ptr->flags3 & (RF3_NO_STUN))
+        {
+          if (seen) l_ptr->flags3 |= (RF3_NO_STUN);
+        }
+      else if (randint(dam) > r_ptr->level) /* Saving throw */
+        {
+        
+          /* Obvious */
+          if (seen) obvious = TRUE;
       
-      /* Tone down a bit for uniques */
-      if (r_ptr->flags1 & (RF1_UNIQUE)) do_stun /= 2;
+          /* Tone down a bit for uniques */
+          if (r_ptr->flags1 & (RF1_UNIQUE)) do_stun /= 2;
 	
-      /* Get stunned */
-      if (m_ptr->stunned)
-	{
-	  note = " is more dazed.";
-	  tmp = m_ptr->stunned + (do_stun / 2);
-	}
-      else
-	{
-	  note = " is dazed.";
-	  tmp = do_stun;
-	}
+          /* Get stunned */
+          if (m_ptr->stunned)
+	    {
+	      note = " is more dazed.";
+	      tmp = m_ptr->stunned + (do_stun / 2);
+	    }
+          else
+	    {
+	      note = " is dazed.";
+	      tmp = do_stun;
+	    }
       
-      /* Apply stun */
-      m_ptr->stunned = (tmp < 200) ? tmp : 200;
+          /* Apply stun */
+          m_ptr->stunned = (tmp < 200) ? tmp : 200;
+        }
     }
   
   /* Confusion and Chaos breathers (and sleepers) never confuse */
@@ -5921,7 +5929,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || (typ == GF_PLASMA) || 
 	    (typ == GF_DRAGONFIRE)) terrain_adjustment -= dam / 4;
 	else if ((typ == GF_WATER) || (typ == GF_STORM)) 
-	  terrain_adjustment = dam / 2;
+	  terrain_adjustment = dam / 4;
 	else terrain_adjustment = dam / 10;
 	break;
       }
@@ -7029,7 +7037,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  {
 	    /* Lightning strikes. */
 	    msg_print("You are struck by lightning!");
-	    elec_dam(dam, killer);
+	    elec_dam(dam / 2, killer);
 	  }
 	/* Lightning doesn't strike - at least not directly. */
 	else elec_dam(dam / 4, killer);
@@ -7409,7 +7417,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
     affect_player = TRUE;
   
   /* Projection will be affecting a monster. */
-  if ((flg & (PROJECT_KILL)) && (cave_m_idx[y][x] > 0))
+  if ((flg & (PROJECT_KILL)) && (cave_m_idx[y][x] > 0) && (cave_m_idx[y][x] != who))
     {
       affect_monster = TRUE;
       m_ptr = &m_list[cave_m_idx[y][x]];
@@ -7693,7 +7701,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	  }
 
 	/* Now have fun with the surroundings */
-	if (dam > randint(300));
+	if (dam > randint(300))
 	  {
 	    int i;
 	    byte terrain_type[7] = {FEAT_FLOOR, FEAT_RUBBLE, FEAT_WATER,

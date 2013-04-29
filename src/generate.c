@@ -1302,6 +1302,7 @@ static void alloc_stairs(int feat, int num, int walls)
 			is_quest(stage_map[p_ptr->stage][DOWN]) ||
 			is_quest(p_ptr->stage));
   bool no_up_shaft = (!stage_map[stage_map[p_ptr->stage][UP]][UP]);
+  bool morgy = is_quest(p_ptr->stage) && stage_map[p_ptr->stage][DEPTH] == 100;
   
   
   /* Place "num" stairs */
@@ -1349,8 +1350,8 @@ static void alloc_stairs(int feat, int num, int walls)
 	      if (feat != FEAT_MORE_SHAFT) cave_set_feat(y, x, FEAT_MORE);
 	    }
 	  
-	  /* Bottom of dungeon or underworld -- must go up */
-	  else if ((!stage_map[p_ptr->stage][DOWN]) || (underworld))
+	  /* Bottom of dungeon, Morgoth or underworld -- must go up */
+	  else if ((!stage_map[p_ptr->stage][DOWN]) || underworld || morgy)
 	    {
 	      /* Clear previous contents, add up stairs */
 	      if (feat != FEAT_LESS_SHAFT) cave_set_feat(y, x, FEAT_LESS);
@@ -4516,7 +4517,7 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 	      /* Up stairs (and player location in themed level).  */
 	    case '<':
 	      {
-		cave_set_feat(y, x, FEAT_LESS);
+		if (stage_map[p_ptr->stage][UP]) cave_set_feat(y, x, FEAT_LESS);
 		
 		/* Place player only in themed level, and only once. */
 		if ((p_ptr->themed_level) && (!placed))

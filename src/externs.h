@@ -986,7 +986,7 @@ extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
-extern cptr look_mon_desc(int m_idx);
+extern void look_mon_desc(int m_idx, char *buf, size_t max);
 extern void ang_sort_aux(vptr u, vptr v, int p, int q);
 extern void ang_sort(vptr u, vptr v, int n);
 extern sint target_dir(char ch);

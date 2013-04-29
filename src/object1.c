@@ -570,6 +570,79 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
 
 
 /**
+ * Build inscription for object description from a set of
+ * components. Automatically inserts comma separator, etc.
+ * The set of components is terminated with a NULL ptr.
+ */
+static char *make_inscription(char *buf, size_t buf_sz, int ncomponents, cptr components[]) {
+
+  int i;
+  cptr buf_tail = buf + buf_sz - 2; /* Minus 2 to compensate for terminating '}' and NUL. */
+  bool first = TRUE;
+
+  /* Early exit? */
+  if (ncomponents <= 0)
+    {
+      return buf;
+    }
+
+  /* Check if there are any inscription components. */
+  {
+    bool any = FALSE;
+    for (i=0; i<ncomponents; i++) 
+      {
+        if (components[i]) 
+          {
+            any = TRUE;
+          }
+      }
+    
+    if (!any) 
+      {
+        return buf;
+      }
+  }
+
+  /* Start inscription. */
+  if (buf < buf_tail) { *buf++ = ' '; }
+  if (buf < buf_tail) { *buf++ = '{'; }
+
+  /* Build the inscription. */
+  for (i=0; i<ncomponents; i++) 
+    {
+      cptr component = components[i];
+      /* Skip NULL components. */
+      if (component == NULL)
+        {
+          continue;
+        }
+
+      /* Append component to output inscription */
+      if (first) 
+        {
+          first = FALSE;
+        }
+      else 
+        {
+          /* Separator. */
+          if (buf < buf_tail) { *buf++ = ','; }
+          if (buf < buf_tail) { *buf++ = ' '; }
+        }
+
+      /* Append the component. */
+      while ((buf < buf_tail) && *component) 
+        {
+          *buf++ = *component++;
+        }
+    }
+
+  /* Terminate the inscription */
+  *buf++ = '}';
+  *buf++ = '\0';
+  return buf;
+}
+
+/**
  * Creates a description of the item "o_ptr", and stores it in "out_val".
  *
  * One can choose the "verbosity" of the description, including whether
@@ -636,7 +709,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
  *
  *  New mode - 4 - is like 3 but for small screen
  */
-void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
+static void object_desc_full(char *buf, object_type *o_ptr, int pref, int mode, bool unaware_in_store)
 {
   char *basenm, *modstr;
   
@@ -665,12 +738,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   char *t;
   
   cptr s;
-  cptr u;	
-  cptr v = NULL;
   
   char p1 = '(', p2 = ')';
   char b1 = '[', b2 = ']';
-  char c1 = '{', c2 = '}';
   char a1 = '<', a2 = '>';
   
   char discount_buf[80];
@@ -1632,6 +1702,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   /* Extra details, step 3 */
   if (mode > 2)
     {
+
+      cptr inscriptions[] = { NULL, NULL, NULL };
+      int ninscriptions = 0;
       
       /* Hack - truncate overly long descriptions here to avoid overruns. */
       if (t - buf > (mode == 4 ? 46 : 78))
@@ -1670,45 +1743,34 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	      if (strlen(insc_buf))
 		{
 		  /* The remaining portion becomes the inscription. */
-		  u = insc_buf;
-		}
-	      else
-		{
-		  /* No remaining portion, so no inscription. */
-		  u = NULL;
+		  inscriptions[ninscriptions++] = insc_buf;
 		}
 	    }
 	  else /* No fake artifact inscription. */
 	    {
-	      u = quark_str(o_ptr->note);
+	      inscriptions[ninscriptions++] = quark_str(o_ptr->note);
 	    }
-	}
-      
-      /* Use nothing */
-      else
-	{
-	  u = NULL;
 	}
       
       
       /* Use special inscription, if any */
       if (o_ptr->feel)
 	{
-	  v = feel_text[o_ptr->feel];
+	  inscriptions[ninscriptions++] = feel_text[o_ptr->feel];
 	}
       
       /* Hack -- Use "empty" for empty wands/staffs */
       else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
-	  v = "empty";
+	  inscriptions[ninscriptions++] = "empty";
 	}
       
       /* Use "tried" if the object has been tested unsuccessfully */
       else if (!aware && object_tried_p(o_ptr))
 	{
-	  v = "tried";
+	  inscriptions[ninscriptions++] = "tried";
 	}
-      
+
       /* Use the discount, if any   No annoying inscription for homemade 
        * branded items.
        */
@@ -1718,48 +1780,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	  object_desc_num_macro(q, o_ptr->discount);
 	  object_desc_str_macro(q, "% off");
 	  *q = '\0';
-	  v = discount_buf;
+	  inscriptions[ninscriptions++] = discount_buf;
 	}
       
-      /* Nothing */
-      else
-	{
-	  v = NULL;
-	}
-      
-      
-      /* Inscription */
-      if (u || v)
-	{
-	  /* Begin the inscription */
-	  *t++ = ' ';
-	  *t++ = c1;
-	  
-	  /* Standard inscription */
-	  if (u)
-	    {
-	      /* Append the inscription */
-	      while ((t < b + (mode == 4 ? 46 : 78)) && *u) *t++ = *u++;
-	    }
-	  
-	  /* Special inscription too */
-	  if (u && v && (t < b + (mode == 4 ? 46 : 78)))
-	    {
-	      /* Separator */
-	      *t++ = ',';
-	      *t++ = ' ';
-	    }
-	  
-	  /* Special inscription */
-	  if (v)
-	    {
-	      /* Append the inscription */
-	      while ((t < b + (mode == 4 ? 46 : 78)) && *v) *t++ = *v++;
-	    }
-	  
-	  /* Terminate the inscription */
-	  *t++ = c2;
-	}
+      /* If we're in a store, we want to display if user is aware of the flavor or not. */
+      if (unaware_in_store)
+        {
+          inscriptions[ninscriptions++] = "unseen";
+        }
+
+      /* Make inscription */
+      {
+        int sz = (mode == 4 ? 46 : 78) - (t - buf);
+        t = make_inscription(t, sz, 3, inscriptions);
+      }
     }
   
   
@@ -1789,6 +1823,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       return;
     }
   
+}
+
+
+/**
+ * For backward compatibility with callers.
+ */
+void object_desc(char *buf, object_type *o_ptr, int pref, int mode) 
+{
+  object_desc_full(buf, o_ptr, pref, mode, FALSE); 
 }
 
 
@@ -1838,8 +1881,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
   
   
   /* Describe the object */
-  object_desc(buf, o_ptr, pref, mode);
-  
+  object_desc_full(buf, o_ptr, pref, mode, !hack_aware);
   
   /* Restore "flavor" value */
   k_info[o_ptr->k_idx].flavor = hack_flavor;
