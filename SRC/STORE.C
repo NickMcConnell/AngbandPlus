@@ -2397,7 +2397,7 @@ static void store_purchase(void)
 	}
 
 	/* Attempt to buy it */
-	if (store_home(store_num))
+	if (!store_home(store_num))
 	{
 		/* Describe the object (fully) */
 		object_desc_store(o_name, i_ptr, TRUE, 3);
@@ -2632,7 +2632,7 @@ static void store_sell(void)
 	q = "Drop which item? ";
 
 	/* Real store */
-	if (store_home(store_num))
+	if (!store_home(store_num))
 	{
 		/* New prompt */
 		q = "Sell which item? ";
@@ -2703,7 +2703,7 @@ static void store_sell(void)
 
 
 	/* Real store */
-	if (store_home(store_num))
+	if (!store_home(store_num))
 	{
 		/* Describe the transaction */
 		msg_format("Selling %s (%c).", o_name, index_to_label(item));
