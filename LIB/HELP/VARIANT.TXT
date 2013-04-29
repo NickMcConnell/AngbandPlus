@@ -1,3 +1,378 @@
+=== Introduction to Unnamed Angband ===
+
+This document provides an overview of the additional gameplay features that
+Unangband adds to regular Angband play. It is intended primarily to highlight
+the differences for experienced Angband players and to complement the exist-
+ing Angband documentation.
+
+=== New Classes ===
+
+=== Weapon, Spell and Object Styles ===
+
+=== New Spells ===
+
+=== Identify Magics ===
+
+Unangband increases the range of identification types, but restricts access
+to identify and *identify* magics.
+
+Analyze Magic is available as a scroll and spell. It identifies potions only.
+
+Read Magic is available as a scroll and spell. It identifies scrolls only.
+
+Gauge Magic is available as a scroll, spell and rod. It identifies the to-
+hit, damage and ac bonuses on an item and the number of charges it has left.
+It also senses the item, if it can be inscribed with a sense inscription.
+
+Detect Magic is expanded in its powers. In addition to detecting all magic
+objects on the current panel, it senses all magic objects, if they can be
+inscribed with a sense inscription, and are not cursed. There are scrolls,
+spells and rods of Detect Magic.
+
+Detect Curse is the complement to Detect Magic. It detects all cursed objects
+on the current panel, and senses them, if they can be inscribed with a sense
+inscription. There are scrolls, spells and staves of Detect Curse.
+
+Legend Lore is a limited *Identify* in that it reveals some of the flags that
+an object has, provided it is known to be an artifact or ego item (Either by
+sensing it as such, or identifying it). Legend Lore may eventually *Identify*
+the item. There are scrolls and spells of Legend Lore.
+
+Identify scrolls are no longer sold in the Alchemy shop (Replaced by scrolls
+of Detect Magic, Gauge Magic and Read and Analyze Magic), and only occur
+deeper in the dungeon (As well as scrolls of *Identify*), as well as removed
+from the basic spell books. Staffs of Perception occur much deeper in the
+dungeon, and Rods of Perception are no longer available.
+
+=== Identify Abilities ===
+
+Instead of identify magics, Unangband encourages experimenting with monster
+attacks and cursed potions in order to determine what flags are possessed
+by equipment. Unangband automatically keeps track of which objects may or
+do not have a particular power, and uses this information to automatically
+update information about object abilities, provided the variant_learn_id
+option is active (Which is in Variant Save-File as it modifies the save file
+format).
+
+Dropping or destroying an object in your inventory that you have worn resets
+resets some of the guesswork and tracking information that Unangband uses,
+in order not to generate 'false positive' information. Throwing an item or
+having it stolen does likewise.
+
+Once some flags are known to be held by an object, Unangband will suggest a
+possible object kind or ego or artifact type that is known to possess this
+particular flag. This is activated with the variant_guess_id.
+
+Guesses are based on object lore known to the player and their ancestors,
+with the flags of various object kinds always known. If an ego item or
+artifact is identified, any flags it currently possesses and any new flags
+learnt are used to update the object lore information, when the
+variant_learn_id option is active. Similarly, when an ego item or artifact
+is identified, any information known from the object lore is added to the
+object details.
+
+An object usage count tracks the number of times an object is used,
+in order that the to-hit, damage and ac bonuses are eventually learnt.
+Eventually, by using an object a large number of times, it will be
+identified regardless. Object usage requires the variant_usage_id option.
+
+Sensing quality is also expanded. In addition to {good} inscriptions for
+non-ego, non-artifact magic items, {very good} and {great} inscriptions are
+used to indicate increasing to-hit, damage and armor class bonuses. And
+in addition to {excellent} inscriptions on ego items, {superb} inscriptions
+indicate the ego item is of a type that has a random high resist, ability
+or sustain. Furthermore, items are inscribed as {ungettable} if a monter
+attempts to pick up an object that has a flag preventing it from doing so.
+The sense quality expansion requires the variant_great_id option to be set.
+
+Shop owners now take into account the sense inscription, and put a minimum
+fair value on an inscribed object. So you can sell lesser sensed items
+for what could be close to a reasonable value.
+
+The cheat_lore option will give you full information about identified ego
+items and artifacts, and use this information to help guess which ego item
+or artifact you may possess.
+
+=== Object Stacking ===
+
+Unangband allows objects with similar pvals and charging timeouts to stack,
+where this would not be permitted in vanilla Angband. In addition,
+unidentified wands, staffs, rings and rods are permitted to stack in many
+instances.
+
+Similar pvals are defined as being of the same sign, and only one pval
+difference. This allows you to stack wands, staffs and many rings together
+without messing up the charges or pvals (Which you experience in many other
+Angband variants) with the variant_pval_stacks option set. The pval or
+charges displayed is the higher of the two values in the stack. Rods are
+treated as timeout objects even though they use pvals for their timeout.
+
+Similar timeouts are defined as being all charged, plus 1 charging item.
+This allows you to stack the elemental rings, and rods, so that even one
+charginge item will be in the same stack, when you have the variant_time_
+stacks option set. The charging indicator tells you how many items are
+charging of the total in the stack.
+
+With the force_stack_pvals option, even disimilar pvals and charges will
+stack, provided they have the same sign. In this instance, pvals and charges
+will change between seperate items, and a stack of the same items. You will
+never be able to recover the original item charges or pvals out of the stack:
+instead it will be treated as an individual collection of items with the
+average pval/charge count of items put into the stack.
+
+With the force_stack_times, more than 1 charging rod or elemental ring is
+permitted in a stack. The timeout however, is always of the highest timeout
+in the stack. That means if you activate another item, even if you only have
+1 turn remaining to charge an existing item in the stack, all charging items
+will end up with the same timeout. This still does not have the far reaching
+consequences of the force_stack_pvals.
+
+You can force an object to stack with similar objects, merging inscriptions,
+discounts, pvals and timeouts by inscribing it with '=s' (Mnemonic: s for
+stack).
+
+Multiple rings may be worn on each hand (Up to 5) provided that they stack.
+Multiple rings on one hand will not confer any more advantage however, except
+that stacked elemental rings may contain charging and charged items.
+
+=== Playing without Identify ===
+
+Some tips:
+
+Use Detect Magic and/or Gauge Magic when you would have used Identify. Then
+equip the item and use it for a while, preferrably against a variety of
+different monsters. If you have 'bad' potions with effects you can recover
+from, quaff them to determine if you have any additional abilities.
+
+Trial only one new item at a time. This will maximise you chances of noticing
+new abilities.
+
+Refrain from dropping or destroying any previously worn equipment during a
+trial. Many offensive abilities on weapons will be noticed regardless, but
+it takes a little more patience to determine stat modifiers, resistances
+and sensory improvements.
+
+Play with the same save file, to preserve your object memory as well as your
+monster memory.
+
+Take advantage of wand and staff stacking to the maximum, especially when
+they are not identified.
+
+Get used to losing money, selling to stores. Selling wands and staffs with
+charge counts provided by Gauge Magic will provide as much money as vanilla
+Angband, but armor and weapons are less likely to be worth much. Multiple
+rings will be a good portable money source.
+
+=== Using Items Quickly ===
+
+In Unangband, using an item from the floor, only takes half the energy of
+using an item in your backpack. You may want to drop useful items if you
+expect to be needing them during a critical fight. Ammunition for shooting
+and thrown weapons also receive this speed advantage. This ability is
+activated with the variant_fast_floor option.
+
+The variant_fast_equip option makes the same apply to equipment you are
+wielding. In order to take advantage of this, with this option active, you
+can wield any item into your first equipment slot, if it cannot be otherwise
+equipped. This also allows multiple items to be carried in this slot. Note
+however, that you will only be able to fight by kicking your opponents if
+the item you are wielding is not a weapon or digging tool.
+
+You also have a belt slot that you can put an item into by wielding it from
+your equipment (As opposed to inventory). The belt appears on your
+equipment list but does not apply any flags to you, and is otherwise
+treated like an inventory slot (eg can contain multiple items). The belt slot
+receives the speed advantage if you have variant_fast_equip active, and is
+enabled through the variant_belt_slot option.
+
+=== Inscription Extensions ===
+
+Unangband adds several extensions to the the Angband inscription abilities.
+These in combination with the auto-inscribe facility, described below, allow
+you to mimic the various auto-squelch options that other Angband variants
+implement, and the auto-pickup filters that several Japanese Angband variants
+(Such as Hengband) implement.
+
+You can force an object to stack with similar objects, merging inscriptions,
+discounts, pvals and timeouts by inscribing it with '=s' (Mnemonic: s for
+stack). You can force an object to never to be picked up by inscribing it
+with '=d' (Mnemonic: d for drop). You can force an object to never be marked
+by inscribing it with '=i' (Mnenomic: i for ignore). You can force an object
+to be destroyed rather than picked up with '=k' (Mnemonic: k for kill).
+
+[In future version of Unangband, you will be able to specify any action
+to perform instead of getting an object, and include additional key presses,
+much like a macro.]
+
+=== Auto-Inscribe Pref ===
+
+Auto-Inscribe is a preference you may set up to automatically inscribe
+objects with as they are discovered. Auto-Inscribe may be applied to object
+kinds, ego items, artifacts and sense special inscriptions. Unfortunately
+at this stage, Auto-Inscribe cannot be restricted to a combination of these
+types. Instead, precednce of application is artifacts followed by ego items,
+followed by special inscriptions, followed by object kinds. Any existing
+inscription will not be overwritten.
+
+You can set an auto-inscription for an object kind. When an object is created
+of this kind (and you are aware of it), it will automatically be inscribed
+with the inscription you set. You can inscribe it with '=i=d' to ignore the
+object completely (Never encountering it), or '=k=g' to automatically destroy
+the object when you walk on it, or '@k1' to destroy it by pressing 'k1y'
+(Which you can set up as a macro), or any other inscription you desire (Such
+as '!*').
+
+When you gain awareness of an object kind, all such objects on the level or
+in your inventory will be inscribed. Stores and your home are not affected
+by auto-inscriptions.
+
+Similarly, you can auto-inscribe objects of an ego-type, and artifacts. These
+objects will only be inscribed when you identify them.
+
+The cheat option cheat_auto can be set to automatically auto-inscribe an
+object assuming you had ful knowledge of it at creation time.
+
+[In a future version of Unangband, there will be some special inscription
+extensions that are only applied if they are set as auto-inscriptions. You
+can force an object to be inscribed with the location you found it by
+setting an auto-inscription of '=w'. This will be replaced by the monster
+name if it is dropped by a monster, or {floor} if you find it on the floor,
+followed by the level you encounter it on. You can force an object to be
+inscribed with a random name (As per Drangband slime molds) by setting an
+auto-inscription of '=n', or a random food description (As per Drangband
+rations) with an auto-inscription of '=f'. You will shortly be able to create
+auto-inscriptions for objects you sense to be {cursed}, {good}, {excellent}
+and so on, which will be inscribed when you sense an item with a particular
+inscription.]
+
+Auto-inscription setup is saved and loaded with .prf files, to allow easy
+set up and transfer between games. The auto-inscription menu is accessed via
+the '$' key.
+
+=== Ego Items ===
+
+Ego items are permitted on much wider types of equipment before, and as a
+result, some duplicate entries have been eliminated.
+
+New ego items include Seven League boots, which are speed boots with a
+teleport curse, and high brand elemental weapons, which have an elemental
+brand, plus improve a stat and have a random ability, and enchanted weapons,
+which improve intelligence and have a random ability.
+
+Defender weapons now Slay Evil. Boots and cloaks of Elvenkind are now
+distinguished by different names.
+
+=== New Monsters ===
+
+Unangband has added and changed a huge number of monsters, too numerous
+to mention here, and attempted to revise the uniques in a more Tolkien-like
+manner. New monsters are for the most part, just existing monsters,
+copied and re-flavored, with one or two additional abilities, or created
+as an intermediate step between 2 existing monsters of that type. Some
+monsters have been imported from other variants, and probably still need
+considerable work rebalancing them. New uniques are either from other
+variants, or work in progress based on the research of Shawn McHorse.
+
+In order to facilitate as many new monsters as possible, there has been
+a reorganisation of the monster graphics. The kobolds (k) were renamed
+goblins, and the high-level yeeks (y) merged with them. The multi-headed
+hydras (M) became the hydras (y). The angels (A) were renamed and become the
+Maiar (M), with one high level unique added from another category, with the
+ability to summon his fellows. The Quylthulgs (Q) are removed. The quadrepeds
+(q) became quadrepeds (Q). The spellcasting people (p) were moved to
+spellcasters (q). The lice (l) are added to the insects (I), and the elves
+(l) split from the demihumans (h). The flies (F) are added to the insects,
+and fish (F) becomes a new category. The Ancient dragons (D) become Ancient
+dragons (A) and mature dragons and drakes (D) are split from the young
+dragons (d). The Nightsbane (N) split from the wights and wraiths. The trees
+(<) were added.
+
+This results in the following:
+
+ a - ants              A - Ancient dragons
+ b - bats              B - Birds
+ c - centipedes        C - Canines
+ d - young dragons     D - mature Dragons/drakes
+ e - eyes              E - Elementals
+ f - felines           F - Fish
+ g - golems            G - Ghosts
+ h - demihumans        H - Hybrids
+ i - icky things       I - Insects
+ j - jellies           J - snakes
+ k - goblins           K - beetles
+ l - elves             L - ghouls/Liches
+ m - molds             M - Maiar
+ n - naga              N - Nightsbane
+ o - orcs              O - Ogres
+ p - people            P - giants
+ q - people (spellcasters) Q - Quadrepeds
+ r - rodents           R - reptiles
+ s - skeletons         S - Spiders/ticks
+ t - townspeople       T - trolls
+ u - minor demons      U - major demons
+ v - vortices          V - vampires
+ w - worms             W - Wights/Wraiths
+ x - unused            X - Xorn
+ y - hydra             Y - apes/Yeti
+ z - zombies/mummies   Z - Zephyr hounds
+ , - mushrooms/slimes  < - trees
+ $ - creeping coins
+
+The "people" (p & q), get a revised "color scheme" to account for the
+splitting of spell casters from non-spell casters. This matches some of
+the previous colour scheme.
+
+ 'r' Novice mage 'R' Experienced mage 'v' Expert mage
+ 'w' Novice druid 's' Experienced druid 'D' Expert druid
+ 'W' Novice priest 'g' Experienced priest 'G' Expert priest
+ 'u' Novice mystic 'U' Experienced mystic 'o' Expert mystic
+ 'b' Novice mage (varient) 'B' Experienced mage (varient) 'y' Expert mage (varient)
+
+ 'b' Rogue 'B' Experienced rogue 'y' Expert rogue
+ 'w' Paladin 's' Experienced paladin 'D' Expert paladin
+ 'W' Ranger 'g' Experienced ranger 'G' Expert ranger
+ 'u' Warrior 'U' Experience warrior 'o' Expert warrior
+ 'r' Thief 'R' Experienced thief 'v' Expert thief
+
+
+=== Existing Monsters ===
+
+For the most part, if an existing monster is renamed, and gets any new
+abilities, it has been moved out of the existing vanilla Angband monster
+list. If it has just been renamed, it remains in its existing position.
+
+Elementals of all types are 10 speed faster. The pure elementals also have
+a second spell or breath weapon of the appropriate elemental type. They
+should be less like golems as a result.
+
+Werewolves are upgraded. Bats appear with friends. All insects are now
+cold-blooded, along with all worms (Fiery insects and worms excepted).
+
+Metallic dragons of all types have a 2nd breath weapon of a base type and
+the corresponding immunity. Gold have BR_POIS and IM_POIS and bronze have
+BR_FIRE and IM_FIRE. Dragon flies of the related type do not, but
+dragon bats, when added will do so. The dragon armors have been modified to
+breath the appropriate attacks, and provide the appropriate resistances
+(Some are significantly improved).
+
+Spirit nagas should be worth 160.
+
+=== New Features ===
+
+
+
+=== New Monster Abilities ===
+
+
+=== Campaign Mode ===
+
+=== Random Artifacts ===
+
+=== Random Uniques ===
+
+
+
+
 === Version Information ===
 
 This file was last updated for Angband 2.9.1.
@@ -465,5 +840,6 @@ Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
 Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
 Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
 Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra
+
 
 

@@ -2721,8 +2721,9 @@ void do_cmd_fire(void)
 
 
 	/* Take a (partial) turn */
-	p_ptr->energy_use = (100 / thits);
-
+        if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = (50 / thits);
+        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = (50 / thits);
+        else p_ptr->energy_use = (100 / thits);
 
 	/* Start at the player */
 	y = py;
@@ -3045,8 +3046,10 @@ void do_cmd_throw(void)
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Take a (partial) turn */
+        if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 
 	/* Start at the player */

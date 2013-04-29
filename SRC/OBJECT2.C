@@ -777,6 +777,16 @@ void object_known(object_type *o_ptr)
 	o_ptr->guess1 = 0;
 	o_ptr->guess2 = 0;
 
+        /* Auto-inscribe */
+        if (o_ptr->name1)
+        {
+                if (!o_ptr->note) o_ptr->note = a_info[o_ptr->name1].note;
+        }
+        else if (o_ptr->name2)
+        {
+                if (!o_ptr->note) o_ptr->note = e_info[o_ptr->name2].note;
+        }
+
 	/* The object kind is not guessed */
         k_info[o_ptr->k_idx].guess = 0; 
 
@@ -934,6 +944,9 @@ void object_aware(object_type *o_ptr)
 
 	/* No longer tried */
 	k_ptr->tried = FALSE;
+
+        /* Auto-inscribe */
+        if (!o_ptr->note) o_ptr->note = k_info[o_ptr->k_idx].note;
 
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
@@ -2215,6 +2228,10 @@ static bool make_ego_item(object_type *o_ptr, bool cursed, bool great)
 
 	/* We have one */
 	o_ptr->name2 = (byte)table[i].index;
+
+        /* Auto-inscribe if necessary */
+        if (cheat_auto) o_ptr->note = e_info[o_ptr->name2].note;
+
 	return (TRUE);
 }
 
@@ -2288,6 +2305,9 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
 
+                /* Auto-inscribe if necessary */
+                if (cheat_auto) o_ptr->note = a_info[o_ptr->name1].note;
+
 		/* Success */
 		return (TRUE);
 	}
@@ -2348,6 +2368,9 @@ static bool make_artifact(object_type *o_ptr)
 
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
+
+                /* Auto-inscribe if necessary */
+                if (cheat_auto) o_ptr->note = a_info[o_ptr->name1].note;
 
 		/* Success */
 		return (TRUE);
@@ -3454,6 +3477,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
 
+                /* Auto-inscribe if necessary */
+                if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
+
         }
 
 	/* Generate a special artifact, or a normal object */
@@ -3489,6 +3515,9 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 
 		/* Prepare the object */
 		object_prep(j_ptr, k_idx);
+
+                /* Auto-inscribe if necessary */
+                if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
 	}
 
 	/* Apply magic (allow artifacts) */

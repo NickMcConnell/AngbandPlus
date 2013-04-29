@@ -1,3 +1,25 @@
+15-12-2001 Unangband 0.4.6 "Under New Management" release
+- Added ability to wield any item for half the energy use when
+using it (Such as casting spells, firing ammo, throwing etc).
+- Added belt slot, which allows any item to be wielded into it
+from equipment, with the same advantages.
+- Added auto-inscription facility designed to allow objects/
+ego items/artifacts to be automatically inscribed when id'ed
+or generated aware.
+- Added '=k' inscription to destroy item when picked up, '=d'
+inscription to not pick up an item, '=i' inscription to not
+mark an item. Use in conjunction with auto-inscription (Above)
+to mimic auto-squeltch from other variants.
+- Inscribe/uninscribe/destroy commands now request if inscription
+is to be applied to all objects of that type.
+- Made unarmed combat apply whenever object wielded that is not
+a weapon/digger, and use gloves/boots as weapon. Should make
+gauntlets of slaying very useful for martial artist types now.
+- Fixed bug preventing guessing of artifacts and ego items.
+- Started work on variant.txt help file.
+- Fixed bug preventing wielding of swords without removing shield
+first.
+
 13-12-2001 Unangband 0.4.5e Bugfix release
 - Fixed bug where rings of flame/acid/frost were still getting
 base AC from k_info.txt. (Reported by Sean Lester).

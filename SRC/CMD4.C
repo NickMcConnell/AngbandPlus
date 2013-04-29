@@ -1114,6 +1114,7 @@ static errr macro_dump(cptr fname)
 }
 
 
+
 /*
  * Hack -- ask for a "trigger" (see below)
  *
@@ -2360,6 +2361,218 @@ void do_cmd_colors(void)
 	/* Load screen */
 	screen_load();
 }
+
+/*
+ * Hack -- append all current auto-inscriptions to the given file
+ */
+static errr autos_dump(cptr fname)
+{
+	int i;
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "a");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+
+	/* Start dumping */
+        fprintf(fff, "# Automatic auto-inscription dump\n\n");
+
+	/* Dump them */
+        for (i = 0; i < z_info->k_max; i++)
+	{
+                if (k_info[i].note)
+                {
+
+                        /* Start the macro */
+                        fprintf(fff, "# Kind '%s'\n\n", k_name + k_info[i].name);
+
+                        /* Dump the kind */
+                        fprintf(fff, "I:K:%d:%s\n", i, quark_str(k_info[i].note));
+
+                        /* End the inscription */
+                        fprintf(fff, "\n\n");
+
+                }
+	}
+
+
+        /* Dump them */
+        for (i = 0; i < z_info->a_max; i++)
+	{
+                if (a_info[i].note)
+                {
+
+                        /* Start the macro */
+                        fprintf(fff, "# Artifact '%s'\n\n", a_name + a_info[i].name);
+
+                        /* Dump the kind */
+                        fprintf(fff, "I:A:%d:%s\n", i, quark_str(a_info[i].note));
+
+                        /* End the inscription */
+                        fprintf(fff, "\n\n");
+
+                }
+	}
+
+        /* Dump them */
+        for (i = 0; i < z_info->e_max; i++)
+	{
+                if (e_info[i].note)
+                {
+
+                        /* Start the macro */
+                        fprintf(fff, "# Ego item '%s'\n\n", e_name + e_info[i].name);
+
+                        /* Dump the kind */
+                        fprintf(fff, "I:E:%d:%s\n", i, quark_str(e_info[i].note));
+
+                        /* End the inscription */
+                        fprintf(fff, "\n\n");
+
+                }
+	}
+
+
+
+	/* Start dumping */
+	fprintf(fff, "\n\n\n\n");
+
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Interact with "auto-inscriptions"
+ */
+void do_cmd_autos(void)
+{
+	int ch;
+	int cx;
+
+	int i;
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Interact until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Ask for a choice */
+                prt("Interact with Auto-Inscriptions", 2, 0);
+
+		/* Give some choices */
+		prt("(1) Load a user pref file", 4, 5);
+                prt("(2) Dump auto-inscriptions", 5, 5);
+#if 0
+                prt("(3) Inscribe by quality", 5, 5);
+                prt("(4) Inscribe by kind", 6, 5);
+                prt("(5) Inscribe by ego-item", 7, 5);
+                prt("(6) Inscribe by artifact", 8, 5);
+                prt("(7) Inscribe by value", 9, 5);
+#endif
+
+		/* Prompt */
+		prt("Command: ", 8, 0);
+
+		/* Prompt */
+		ch = inkey();
+
+		/* Done */
+		if (ch == ESCAPE) break;
+
+		/* Load a user pref file */
+		if (ch == '1')
+		{
+			/* Ask for and load a user pref file */
+			do_cmd_pref_file_hack(8);
+
+			/* Could skip the following if loading cancelled XXX XXX XXX */
+
+			/* Mega-Hack -- Redraw physical windows */
+			Term_redraw();
+		}
+
+		/* Dump colors */
+		else if (ch == '2')
+		{
+			char ftmp[80];
+
+			/* Prompt */
+                        prt("Command: Dump auto-inscriptions", 8, 0);
+
+			/* Prompt */
+			prt("File: ", 10, 0);
+
+			/* Default filename */
+			sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(ftmp, 80)) continue;
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Dump the macros */
+                        (void)autos_dump(ftmp);
+
+			/* Grab priv's */
+			safe_setuid_grab();
+                   
+			/* Message */
+                        msg_print("Appended auto-inscriptions.");
+		}
+
+
+		/* Unknown option */
+		else
+		{
+                        bell("Illegal command for auto-inscriptions");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+
+	/* Load screen */
+	screen_load();
+}
+
 
 
 /*

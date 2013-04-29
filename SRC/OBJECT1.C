@@ -2742,6 +2742,9 @@ bool identify_fully_aux(object_type *o_ptr)
  */
 char index_to_label(int i)
 {
+        /* Indexes for pocket are a hack */
+        if (i == INVEN_BELT) return (I2A(INVEN_TOTAL - INVEN_WIELD));
+
 	/* Indexes for "inven" are easy */
 	if (i < INVEN_WIELD) return (I2A(i));
 
@@ -2782,11 +2785,15 @@ s16b label_to_equip(int c)
 {
 	int i;
 
+        int inven_max = INVEN_TOTAL;
+
+        if (variant_belt_slot) inven_max++;
+
 	/* Convert */
 	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
 
 	/* Verify the index */
-	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
+        if ((i < INVEN_WIELD) || (i >= inven_max)) return (-1);
 
 	/* Empty slots can never be chosen */
 	if (!inventory[i].k_idx) return (-1);
@@ -2802,62 +2809,71 @@ s16b label_to_equip(int c)
  */
 s16b wield_slot(object_type *o_ptr)
 {
-	/* Slot for equipment */
+        /* Slot for equipment */
 	switch (o_ptr->tval)
 	{
 		case TV_SWORD:
 			/* Two-weapon combat -- Wielding a light stabbing weapon */
-                        if ((!inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
-                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+                        if ((inventory[INVEN_WIELD].k_idx)
+                                && ((inventory[INVEN_WIELD].tval == TV_SWORD)
+                                        || (inventory[INVEN_WIELD].tval == TV_HAFTED)
+                                                || (inventory[INVEN_WIELD].tval == TV_HAFTED)))
 			{
-				object_type *i_ptr = &inventory[INVEN_WIELD];
-
-				if ((i_ptr->k_idx) && (o_ptr->weight < 100)) return (INVEN_ARM);
+                                if (o_ptr->weight < 100) return (INVEN_ARM);
 			}
 
 			/* Fall through */
 		case TV_HAFTED:
 		case TV_POLEARM:
-			/* Two-weapon combat -- identical weapons are "balanced" */
-                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
-                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+  			/* Two-weapon combat -- identical weapons are "balanced" */
+                        if ((inventory[INVEN_WIELD].k_idx)
+                                && ((inventory[INVEN_WIELD].tval == TV_SWORD)
+                                        || (inventory[INVEN_WIELD].tval == TV_HAFTED)
+                                                || (inventory[INVEN_WIELD].tval == TV_HAFTED)))
 			{
 				object_type *i_ptr = &inventory[INVEN_WIELD];
 
-				if ((i_ptr->k_idx) && (i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_ARM);
+                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_ARM);
 			}
 
 			/* Two-weapon combat -- primary weapon */
-                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
-                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+                        if ((inventory[INVEN_ARM].k_idx)
+                                && ((inventory[INVEN_ARM].tval == TV_SWORD)
+                                        || (inventory[INVEN_ARM].tval == TV_POLEARM)
+                                                || (inventory[INVEN_ARM].tval == TV_HAFTED)))
 			{
 				object_type *i_ptr = &inventory[INVEN_ARM];
 
 				/* Wielding a light stabbing weapon */
-				if ((i_ptr->k_idx) && (i_ptr->tval == TV_SWORD) && (i_ptr->weight < 100)) return (INVEN_WIELD);
+                                if ((i_ptr->tval == TV_SWORD) && (i_ptr->weight < 100)) return (INVEN_WIELD);
 
 				/* Identical weapons are "balanced" */
-				if ((i_ptr->k_idx) && (i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_WIELD);
+                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_WIELD);
 
 				/* Hack -- too unbalanced to wield */
-				return (-1);
+                                return (-1);
 			}
 
                         /* Wield in primary hand */
 			return (INVEN_WIELD);
+                        break;
 
 
                 case TV_INSTRUMENT:
 		case TV_DIGGING:
+                {
 			/* Two-weapon combat not allowed */
-                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)) return (-1);
+                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].tval != TV_SHIELD)) return (-1);
 
 			/* Wield in primary hand */
 			return (INVEN_WIELD);
                         break;
-
+                }
 		case TV_BOW:
 		{
+                        /* Hack -- use belt slot */
+                        if ((variant_belt_slot) && (!inventory[INVEN_BELT].k_idx)) return (INVEN_BELT);
+
 			return (INVEN_BOW);
 		}
 
@@ -2912,10 +2928,20 @@ s16b wield_slot(object_type *o_ptr)
 		{
 			return (INVEN_FEET);
 		}
+
+                default:
+                {
+			/* Wield in primary hand */
+                        if ((variant_fast_equip) &&
+                         (!(inventory[INVEN_ARM].k_idx) ||
+                                (inventory[INVEN_ARM].tval == TV_SHIELD))) return (INVEN_WIELD);
+                        break;
+                }
+
 	}
 
 	/* No slot available */
-	return (-1);
+        return (-1);
 }
 
 
@@ -2941,6 +2967,7 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
+                case INVEN_BELT:  p = "On belt"; break;
 		default:          p = "In pack"; break;
 	}
 
@@ -2951,7 +2978,16 @@ cptr mention_use(int i)
 	if ((i == INVEN_BOW) && (p_ptr->heavy_shoot)) p = "Just holding";
 
 	/* Hack -- Non-shield item */
-	if (i == INVEN_ARM)
+        if (i == INVEN_WIELD)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+
+                /* Multiple wielded items */
+                if (o_ptr->number > 1) p = "In hands";
+        }
+	/* Hack -- Non-shield item */
+        else if (i == INVEN_ARM)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
@@ -2989,6 +3025,7 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
+                case INVEN_BELT:  p = "carrying on your belt"; break;
 		default:          p = "carrying in your pack"; break;
 	}
 
@@ -2999,6 +3036,38 @@ cptr describe_use(int i)
 
 	/* Hack -- Heavy bow */
 	if ((i == INVEN_BOW) && (p_ptr->heavy_shoot)) p = "Just holding";
+
+	/* Hack -- Non-shield item */
+        if (i == INVEN_WIELD)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+
+                /* Multiple wielded items */
+                if (o_ptr->number > 1) p = "carrying in your hands";
+
+                /* Describe use better */
+                else switch (o_ptr->tval)
+		{
+                        case TV_DIGGING:
+                                p = "digging with";
+                                break;
+
+                        case TV_INSTRUMENT:
+                                p = "playing music with";
+                                break;
+
+                        case TV_SWORD:
+                        case TV_POLEARM:
+                        case TV_HAFTED:
+                                break;
+
+                        default:
+                                p = "using in your hands";
+                                break;
+		}
+	}
+
 
 	/* Hack -- Non-shield item */
 	if (i == INVEN_ARM)
@@ -3043,9 +3112,6 @@ void object_guess_name(object_type *o_ptr)
 
 		/* Skip "empty" items */
 		if (!e_ptr->name) continue;
-
-		/* Must have knowledge of artifact existence */
-		if (e_ptr->found == 0) continue;
 
 		/* Test if this is a legal ego-item type for this object */
 		for (ii = 0; ii < 3; ii++)
@@ -3222,9 +3288,6 @@ void object_guess_name(object_type *o_ptr)
 
 		/* Must have the correct sval or be a special artifact */
                 if ((i<ART_MIN_NORMAL) || (a_ptr->sval != o_ptr->sval)) continue;
-
-		/* Must have knowledge of artifact existence */
-		if (a_ptr->found == 0) continue;
 
 		/* Must possess powers */
 		if (o_ptr->i_object.not_flags1 & a_ptr->i_artifact.can_flags1) continue;
@@ -4225,9 +4288,12 @@ void display_equip(void)
 
 	char o_name[80];
 
+        int inven_max = INVEN_TOTAL;
+
+        if (variant_belt_slot) inven_max++;
 
 	/* Display the equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        for (i = INVEN_WIELD; i < inven_max; i++)
 	{
 		/* Examine the item */
 		o_ptr = &inventory[i];
@@ -4281,7 +4347,7 @@ void display_equip(void)
 	}
 
 	/* Erase the rest of the window */
-	for (i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
+        for (i = inven_max - INVEN_WIELD; i < Term->hgt; i++)
 	{
 		/* Clear that line */
 		Term_erase(0, i, 255);
@@ -4309,7 +4375,6 @@ void show_inven(void)
 	int out_index[24];
 	byte out_color[24];
 	char out_desc[24][80];
-
 
 	/* Default length */
 	len = 79 - 50;
@@ -4426,6 +4491,11 @@ void show_equip(void)
 	char out_desc[24][80];
 
 
+        int inven_max = INVEN_TOTAL;
+
+        if (variant_belt_slot) inven_max++;
+
+
 	/* Default length */
 	len = 79 - 50;
 
@@ -4439,7 +4509,7 @@ void show_equip(void)
 	if (show_weights) lim -= 9;
 
 	/* Scan the equipment list */
-	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+        for (k = 0, i = INVEN_WIELD; i < inven_max; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -4802,9 +4872,13 @@ static int get_tag(int *cp, char tag)
 	int i;
 	cptr s;
 
+        int inven_max = INVEN_TOTAL;
+
+        if (variant_belt_slot) inven_max++;
+
 
 	/* Check every object */
-	for (i = 0; i < INVEN_TOTAL; ++i)
+        for (i = 0; i < inven_max; ++i)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -4994,8 +5068,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
 
+        /* Allow equipment */
+        if (((variant_belt_slot) || (variant_fast_equip)) && (use_inven)) use_equip = TRUE;
+
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;
+
+        /* Hack -- belt slot */
+        if (variant_belt_slot && (mode & (USE_EQUIP | USE_INVEN))) e2 = INVEN_TOTAL;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;

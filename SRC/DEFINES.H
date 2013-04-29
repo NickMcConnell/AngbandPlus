@@ -409,6 +409,7 @@
 #define INVEN_HEAD      33
 #define INVEN_HANDS     34
 #define INVEN_FEET      35
+#define INVEN_BELT	36
 
 /*
  * Total number of inventory slots (hard-coded).
@@ -2913,7 +2914,7 @@
 #define OPT_cheat_know                          (OPT_CHEAT+4)
 #define OPT_cheat_live                          (OPT_CHEAT+5)
 #define OPT_cheat_lore                          (OPT_CHEAT+6)
-
+#define OPT_cheat_auto                          (OPT_CHEAT+7)
 #define OPT_adult_point_based           (OPT_ADULT+0)
 #define OPT_adult_auto_roller           (OPT_ADULT+1)
 #define OPT_adult_maximize                      (OPT_ADULT+2)
@@ -2954,6 +2955,10 @@
 #define OPT_variant_dis_attacks         (OPT_VARIANT+21)
 #define OPT_variant_time_stacks	(OPT_VARIANT+22)
 #define OPT_variant_many_rings  (OPT_VARIANT+23)
+#define OPT_variant_fast_floor  (OPT_VARIANT+24)
+#define OPT_variant_fast_equip  (OPT_VARIANT+25)
+#define OPT_variant_belt_slot   (OPT_VARIANT+26)
+
 
 /*
  * Hack -- Option symbols
@@ -3058,6 +3063,7 @@
 #define cheat_know                              op_ptr->opt[OPT_cheat_know]
 #define cheat_live                              op_ptr->opt[OPT_cheat_live]
 #define cheat_lore				op_ptr->opt[OPT_cheat_lore]
+#define cheat_auto                              op_ptr->opt[OPT_cheat_auto]
 /* xxx xxx */
 #define adult_point_based               op_ptr->opt[OPT_adult_point_based]
 #define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]
@@ -3099,6 +3105,9 @@
 #define variant_dis_attacks                        op_ptr->opt[OPT_variant_dis_attacks]
 #define variant_time_stacks                     op_ptr->opt[OPT_variant_time_stacks]
 #define variant_many_rings			op_ptr->opt[OPT_variant_many_rings]
+#define variant_fast_floor                      op_ptr->opt[OPT_variant_fast_floor]
+#define variant_fast_equip                      op_ptr->opt[OPT_variant_fast_equip]
+#define variant_belt_slot                       op_ptr->opt[OPT_variant_belt_slot]
 
 /*
  * Information for "do_cmd_options()".

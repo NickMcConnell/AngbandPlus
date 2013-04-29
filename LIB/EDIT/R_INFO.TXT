@@ -16571,7 +16571,6 @@ F:STUPID | EMPTY_MIND | POWERFUL | KILL_BODY |
 F:EVIL | NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a dangerous mass of razor sharp branches, growing furiously.
 
-
 #The Giant Hunter Ant:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 1600 feet, and moves at normal speed.
@@ -16579,6 +16578,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #character. It has an armor rating of 40 and a life rating of 12d8. It is
 #vigilant for intruders, which it may notice from 160 feet. It can bite to
 #attack with damage 4d8.
+
+
+N:1218:Giant hunter ant
+G:a:W
+I:110:12d8:16:40:10
+W:32:2:0:0
+B:BITE:HURT:4d8
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:A large ant with powerful mandibles.
+
 
 #The Giant Static Ant:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16589,6 +16599,15 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #which it may notice from 100 feet. It can bite to shoot lightning with damage
 #5d5.
 
+N:1219:Giant blue ant
+G:a:b
+I:110:8d8:10:40:60
+W:30:2:0:0
+B:BITE:ELEC:5d5
+F:WEIRD_MIND | BASH_DOOR | RAND_25 | IM_ELEC |
+F:ANIMAL
+D:It is large and has shocking mandibles.
+
 #The Giant Ebony Ant:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 750 feet, and moves at normal speed.
@@ -16596,6 +16615,15 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #character. It has an armor rating of 24 and a life rating of 3d4. It can breed
 #explosively. It tends to overlook intruders, which it may notice from 120 feet.
 #It can bite to attack with damage 2d3.
+
+N:1220:Giant ebony ant
+G:a:D
+I:110:3d4:12:24:60
+W:15:2:0:22
+B:BITE:HURT:2d3
+F:WEIRD_MIND | BASH_DOOR | MULTIPLY |
+F:ANIMAL
+D:It is large and has venomous mandibles.
 
 #The Giant Clear Ant:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16605,6 +16633,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #invisibly. It tends to overlook intruders, which it may notice from 120 feet.
 #It can bite to attack with damage 1d4.
 
+
+N:1221:Giant clear ant
+G:a:w
+I:110:3d7:12:18:60
+W:12:2:0:22
+B:BITE:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | ATTR_CLEAR | INVISIBLE |
+F:ANIMAL
+D:It is large and has venomous mandibles.
+
+
 #The Giant Mottled Ant Lion:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 1800 feet, and moves a bit
@@ -16613,6 +16652,19 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #rating of 24d8. It can kill weaker creatures. It is susceptible to frost and
 #fire. It takes quite a while to see intruders, which it may notice from 140
 #feet. It can bite to attack with damage 2d10.
+
+
+N:1222:Giant mottled ant
+G:a:o
+I:120:24d8:14:50:40
+W:36:1:0:90
+B:BITE:HURT:2d10
+F:RAND_25 | KILL_BODY | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is an ant encased in shaggy grey fur.
+
+
 
 #The Giant Lightning Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16624,6 +16676,19 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #to shoot lightning with damage 3d8, claw to attack with damage 1d5, and claw to
 #attack with damage 1d5.
 
+
+N:1223:Giant lightning bat
+G:b:b
+I:120:8d8:15:34:30
+W:30:1:0:10
+B:BITE:ELEC:3d8
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY | IM_ELEC
+D:It screeches as it attacks.
+
+
 #The Giant Fire Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 1450 feet, and moves erratically, and
@@ -16633,6 +16698,19 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #blooded. It is fairly observant of intruders, which it may notice from 140
 #feet. It can bite to shoot flames with damage 3d6, claw to attack with damage
 #1d4, and claw to attack with damage 1d4.
+
+N:1224:Giant fire bat
+G:b:r
+I:120:5d8:14:30:30
+W:29:1:0:10
+B:BITE:FIRE:3d8
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY | IM_FIRE
+D:It screeches as it attacks.
+
+
 
 #The Giant Red Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16644,6 +16722,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #attack with damage 1d7, claw to attack with damage 1d3, and claw to attack with
 #damage 1d3.
 
+N:1225:Giant red bat
+G:b:r
+I:120:8d8:12:24:30
+W:20:1:0:10
+B:BITE:HURT:1d7
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
 #The Green Dragon Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 800 feet, and moves erratically, and
@@ -16652,6 +16741,18 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #rating of 22 and a life rating of 2d7. It is susceptible to frost and bright
 #light. It is warm blooded. It tends to overlook intruders, which it may notice
 #from 120 feet. It can bite to poison with damage 1d3.
+
+N:1226:Green dragon bat
+G:b:r
+I:130:2d7:12:22:50
+W:16:1:0:60
+B:BITE:POISON:1d3
+F:FORCE_SLEEP | RAND_50 | 
+F:BASH_DOOR | 
+F:ANIMAL | IM_FIRE  | FRIENDS | CAN_FLY | MUST_FLY
+S:1_IN_4 | 
+S:BR_POIS
+D:It is a sharp-tailed bat, rank with venom.
 
 #The Giant Tan Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16663,6 +16764,19 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #to terrify with damage 1d2, claw to attack with damage 1d1, and claw to attack
 #with damage 1d1.
 
+N:1227:Giant tan bat
+G:b:U
+I:120:3d8:12:18:30
+W:15:1:0:10
+B:BITE:TERRIFY:1d2
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+B:CLAW:HURT:1d1
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
+
 #The Huge White Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 750 feet, and moves erratically, and
@@ -16671,6 +16785,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #explosively. It is susceptible to fire, poison and bright light. It is warm
 #blooded. It takes quite a while to see intruders, which it may notice from 70
 #feet. It can bite to attack with damage 1d6.
+
+N:1228:Huge white bat
+G:b:w
+I:120:3d8:7:12:30
+W:15:1:0:10
+B:BITE:HURT:1d6
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY |
+F:MULTIPLY
+D:It screeches as it attacks.
+
 
 #The Giant Grey Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16682,6 +16807,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #attack with damage 1d6, claw to attack with damage 1d2, and claw to attack with
 #damage 1d2.
 
+N:1229:Giant grey bat
+G:b:s
+I:130:4d8:12:22:30
+W:15:1:0:10
+B:BITE:HURT:1d6
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
 #The Giant Long-Eared Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 650 feet, and moves erratically, and
@@ -16692,6 +16828,18 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #attack with damage 1d4, claw to attack with damage 1d2, and claw to attack with
 #damage 1d2.
 
+N:1230:Giant long-eared bat
+G:b:o
+I:130:5d8:12:22:30
+W:13:1:0:10
+B:BITE:HURT:1d4
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
+
 #The Giant Black Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 450 feet, and moves erratically, and
@@ -16700,6 +16848,16 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #susceptible to fire, poison and bright light. It is warm blooded. It takes a
 #while to see intruders, which it may notice from 120 feet. It can bite to
 #attack with damage 1d6.
+
+N:1231:Giant black bat
+G:b:D
+I:130:2d8:12:18:30
+W:9:1:0:10
+B:BITE:HURT:1d6
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
 
 #The Huge Brown Bat:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16710,6 +16868,16 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #quite a while to see intruders, which it may notice from 80 feet. It can bite
 #to attack with damage 1d2.
 
+N:1232:Huge brown bat
+G:b:s
+I:130:2d6:8:12:30
+W:3:1:0:10
+B:BITE:HURT:1d2
+F:RAND_50 | 
+F:ANIMAL | FRIENDS | CAN_FLY | MUST_FLY
+D:It screeches as it attacks.
+
+
 #The Giant Red Centipede:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 500 feet, and moves quickly. A kill
@@ -16717,6 +16885,16 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #has an armor rating of 26 and a life rating of 3d8. It tends to overlook
 #intruders, which it may notice from 120 feet. It can bite to attack with damage
 #1d2, and sting to poison with damage 1d2.
+
+N:1233:Giant red centipede
+G:c:r
+I:120:3d8:12:26:40
+W:10:1:0:2
+B:BITE:HURT:1d2
+B:STING:POISON:1d2
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about six feet long and carnivorous.
 
 #The Giant Blue Centipede:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16726,6 +16904,16 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #intruders, which it may notice from 80 feet. It can bite to attack with damage
 #1d3, and sting to attack with damage 1d4.
 
+N:1234:Giant blue centipede
+G:c:b
+I:110:4d8:8:10:40
+W:4:1:0:2
+B:BITE:HURT:1d3
+B:STING:HURT:1d4
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about five feet long and carnivorous.
+
 #The Giant Black Centipede:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 200 feet, and moves a bit erratically
@@ -16733,6 +16921,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #40th level character. It has an armor rating of 20 and a life rating of 5d8. It
 #takes quite a while to see intruders, which it may notice from 80 feet. It can
 #bite to attack with damage 1d2, and sting to attack with damage 1d2.
+
+N:1235:Giant black centipede
+G:c:w
+I:110:5d8:8:10:40
+W:4:1:0:2
+B:BITE:HURT:1d2
+B:STING:HURT:1d2
+F:RAND_25 | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL
+D:It is about five feet long and carnivorous.
 
 #The Giant Red Speckled Frog:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16742,6 +16941,19 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #is susceptible to fire and acid. It takes quite a while to see intruders, which
 #it may notice from 120 feet. It can bite to attack with damage 3d4.
 
+
+N:1236:Giant red speckled frog
+G:R:r
+I:110:6d8:12:20:50
+W:13:1:0:16
+B:BITE:HURT:3d4
+F:RAND_25 | 
+F:BASH_DOOR | 
+F:ANIMAL | CAN_SWIM
+D:It looks poisonous.
+
+
+
 #The Giant Black Frog:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 250 feet, and moves a bit erratically
@@ -16749,6 +16961,17 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #40th level character. It has an armor rating of 18 and a life rating of 4d8. It
 #is susceptible to fire and acid. It takes quite a while to see intruders, which
 #it may notice from 120 feet. It can bite to attack with damage 1d6.
+
+N:1237:Giant black frog
+G:R:D
+I:110:4d8:12:18:50
+W:5:1:0:16
+B:BITE:HURT:1d6
+F:RAND_25 | 
+F:BASH_DOOR | 
+F:ANIMAL | CAN_SWIM
+D:It looks poisonous.
+
 
 #The Giant Red Dragon Fly:
 #At least 99 of these creatures have been killed by contributors to your monster
@@ -16759,6 +16982,20 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #blooded. It tends to overlook intruders, which it may notice from 200 feet. It
 #can bite to terrify with damage 1d6.
 
+
+N:1238:Giant red dragon fly
+G:I:g
+I:110:7d8:20:24:50
+W:16:2:0:70
+B:BITE:TERRIFY:1d6
+F:FORCE_SLEEP | RAND_50 | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
+F:ANIMAL | IM_FIRE
+S:1_IN_8 | 
+S:BR_FIRE
+D:A vast, fiery-bright dragonfly.
+
+
 #The Giant Blue Dragon Fly:
 #At least 99 of these creatures have been killed by contributors to your monster
 #memory. It is normally found at depths of 1250 feet, and moves erratically at
@@ -16767,6 +17004,18 @@ D:It is a dangerous mass of razor sharp branches, growing furiously.
 #of 24 and a life rating of 6d8. It is susceptible to frost, fire and poison. It
 #tends to overlook intruders, which it may notice from 200 feet. It can bite to
 #attack with damage 1d6.
+
+N:1239:Giant blue dragon fly
+G:I:g
+I:110:6d8:20:24:50
+W:25:2:0:70
+B:BITE:HURT:1d6
+F:FORCE_SLEEP | RAND_50 | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
+F:ANIMAL | IM_FIRE
+S:1_IN_9 | 
+S:BR_ELEC
+D:A vast, lightning-struck dragonfly.
 
 #The Giant Green Fly:
 #At least 99 of these creatures have been killed by contributors to your monster

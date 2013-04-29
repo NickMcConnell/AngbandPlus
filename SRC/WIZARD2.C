@@ -1037,11 +1037,15 @@ static void wiz_create_item(void)
 	/* Return if failed */
 	if (!k_idx) return;
 
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
 	/* Create the item */
 	object_prep(i_ptr, k_idx);
+
+        /* Apply inscription */
+        i_ptr->note = k_info[k_idx].note;
 
 	/* Apply magic (no messages, no artifacts) */
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);

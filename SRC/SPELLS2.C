@@ -1979,6 +1979,34 @@ bool detect_objects_gold(void)
 	return (detect);
 }
 
+/*
+ * Determine if the object has "=i" in its inscription.
+ */
+static bool auto_pickup_ignore(object_type *o_ptr)
+{
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+                /* Auto-ignore on "=i" */
+                if (s[1] == 'i') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+        /* Don't auto destroy */
+	return (FALSE);
+}
+
+
 
 /*
  * Detect all "normal" objects on the current panel
@@ -1989,8 +2017,7 @@ bool detect_objects_normal(void)
 
 	bool detect = FALSE;
 
-
-	/* Scan objects */
+        /* Scan objects */
 	for (i = 1; i < o_max; i++)
 	{
 		object_type *o_ptr = &o_list[i];
@@ -2012,7 +2039,7 @@ bool detect_objects_normal(void)
 		if (o_ptr->tval != TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
+                        if (!auto_pickup_ignore) o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);

@@ -710,6 +710,61 @@ static bool auto_pickup_okay(object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Determine if the object has a "=d" in its inscription.
+ */
+static bool auto_pickup_never(object_type *o_ptr)
+{
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+                /* Never pickup on "=d" */
+                if (s[1] == 'd') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+        /* Can pickup */
+	return (FALSE);
+}
+
+
+
+/*
+ * Determine if the object can be destroyed, and has "=k" in its inscription.
+ */
+static bool auto_pickup_destroy(object_type *o_ptr)
+{
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+                /* Auto-destroy on "=k" */
+                if (s[1] == 'k') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+        /* Don't auto destroy */
+	return (FALSE);
+}
 
 /*
  * Helper routine for py_pickup() and py_pickup_floor().
@@ -726,6 +781,63 @@ static void py_pickup_aux(int o_idx)
 	object_type *o_ptr;
 
 	o_ptr = &o_list[o_idx];
+
+        /* Check for auto-destroy */
+        if (auto_pickup_destroy(o_ptr))
+        {
+                char out_val[160];
+
+                /* Describe the object */
+                object_desc(o_name, o_ptr, TRUE, 3);
+
+                /* Verify destruction */
+                if (verify_destroy)
+                {
+                        sprintf(out_val, "Really destroy %s? ", o_name);
+                        if (!get_check(out_val)) return;
+                }
+
+                /* Artifacts cannot be destroyed */
+                if (artifact_p(o_ptr))
+                {
+
+                        /* Message */
+                        msg_format("You cannot destroy %s.", o_name);
+
+                        /* Sense the object if allowed, don't sense ID'ed stuff */
+                        if ((o_ptr->discount == 0)
+                                && !(o_ptr->ident & (IDENT_SENSE))
+                                 && !(object_known_p(o_ptr)))
+                        {
+                                o_ptr->discount = INSCRIP_UNBREAKABLE;
+
+                                /* The object has been "sensed" */
+                                o_ptr->ident |= (IDENT_SENSE);
+
+                                /* Combine the pack */
+                                p_ptr->notice |= (PN_COMBINE);
+
+                                /* Window stuff */
+                                p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+                        }
+
+                        /* Done */
+                        return;
+
+                }
+
+                /* Take turn */
+                p_ptr->energy_use = 100;
+
+                /* Message */
+                msg_format("You destroy %s.", o_name);
+
+                /* Delete the object directly */
+                delete_object_idx(o_idx);
+
+                return;
+        }
 
 	/* Carry the object */
 	slot = inven_carry(o_ptr);
@@ -824,10 +936,10 @@ void py_pickup(int pickup)
 		if (easy_floor)
 		{
 			/* Pickup if possible */
-			if (pickup && inven_carry_okay(o_ptr))
+                        if (pickup && inven_carry_okay(o_ptr))
 			{
 				/* Pick up if allowed */
-				if (!carry_query_flag)
+                                if ((!carry_query_flag) && !auto_pickup_never(o_ptr))
 				{
 					/* Pick up the object */
 					py_pickup_aux(this_o_idx);
@@ -861,33 +973,43 @@ void py_pickup(int pickup)
 #endif /* ALLOW_EASY_FLOOR */
 
 		/* Describe the object */
-		if (!pickup)
+                if ((!pickup) || auto_pickup_never(o_ptr))
 		{
-			msg_format("You see %s.", o_name);
-
-			/* Check the next object */
-			continue;
-		}
-
-		/* Note that the pack is too full */
-		if (!inven_carry_okay(o_ptr))
-		{
-			msg_format("You have no room for %s.", o_name);
+                        /* Tell the player */
+                        msg_format("You see %s.", o_name);
 
 			/* Check the next object */
 			continue;
 		}
 
 		/* Query before picking up */
-		if (carry_query_flag)
+                if ((carry_query_flag) && (auto_pickup_destroy(o_ptr)))
 		{
 			char out_val[160];
-			sprintf(out_val, "Pick up %s? ", o_name);
+                        sprintf(out_val, "Destroy %s? ", o_name);
+			if (!get_check(out_val)) continue;
+		}
+
+		/* Note that the pack is too full */
+                else if (!inven_carry_okay(o_ptr) && !auto_pickup_never(o_ptr))
+		{
+                        /* Tell the player */
+                        msg_format("You have no room for %s.", o_name);
+
+			/* Check the next object */
+			continue;
+		}
+
+		/* Query before picking up */
+                else if (carry_query_flag)
+		{
+			char out_val[160];
+                        sprintf(out_val, "Pick up %s? ", o_name);
 			if (!get_check(out_val)) continue;
 		}
 
 		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
+                py_pickup_aux(this_o_idx);
 	}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -907,8 +1029,8 @@ void py_pickup(int pickup)
 				/* Describe the object */
 				object_desc(o_name, o_ptr, TRUE, 3);
 
-				/* Message */
-				msg_format("You see %s.", o_name);
+                                /* Tell the player */
+                                msg_format("You see %s.", o_name);
 			}
 
 			/* Multiple objects */
@@ -935,7 +1057,7 @@ void py_pickup(int pickup)
 				object_desc(o_name, o_ptr, TRUE, 3);
 
 				/* Message */
-				msg_format("You have no room for %s.", o_name);
+                                msg_format("You have no room for %s.", o_name);
 			}
 
 			/* Multiple objects */
@@ -1212,7 +1334,6 @@ void py_attack(int y, int x)
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
-
 		/* Deliver a blow */
 		blows++;
 
@@ -1222,8 +1343,23 @@ void py_attack(int y, int x)
 		/* Get secondary weapon instead */
 		if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) o_ptr = &inventory[INVEN_ARM];
 
+                /* Get the unarmed weapon */
+                if (melee_style & (1L << WS_UNARMED))
+                {
+                        /* Use feet because hands are full */
+                        if (o_ptr->k_idx) o_ptr = &inventory[INVEN_FEET];
+
+                        /* Alternate hands and feet */
+                        else if (!(blows %2)) o_ptr = &inventory[INVEN_FEET];
+
+                        /* Use hands */
+                        else o_ptr = &inventory[INVEN_HANDS];
+                }
+
 		/* Calculate the "attack quality" */
-		bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
+                if (o_ptr->k_idx) bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
+                else bonus = p_ptr->to_h + style_hit;
+
 		chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 		/* Test for hit */
@@ -1243,7 +1379,7 @@ void py_attack(int y, int x)
                                 message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
                         }
 
-			/* Handle normal weapon */
+                        /* Handle normal weapon/gauntlets/boots */
 			if (o_ptr->k_idx)
 			{
 #ifdef ALLOW_OBJECT_INFO
@@ -1289,7 +1425,7 @@ void py_attack(int y, int x)
 #endif
 
 			}
-			/* Handle unarmed attack */
+                        /* Handle bare-hand/bare-foot attack */
 			else
 			{
                                 k = 1;

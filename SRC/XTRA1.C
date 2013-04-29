@@ -2950,7 +2950,7 @@ static void calc_bonuses(void)
 	/* Check weapon preference styles */
 	o_ptr = &inventory[INVEN_WIELD];
 
-	if (!o_ptr->k_idx)
+        if ((!o_ptr->k_idx) || (o_ptr->number > 1))
 	{
                 p_ptr->cur_style |= (1L << WS_UNARMED);
 	}
@@ -2959,12 +2959,6 @@ static void calc_bonuses(void)
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
-
-			case TV_INSTRUMENT:
-                        {
-                                p_ptr->cur_style |= (1L << WS_INSTRUMENT);
-				break;
-                        }
 			case TV_HAFTED:
                         {
                                 p_ptr->cur_style |= (1L << WS_HAFTED);
@@ -2979,6 +2973,19 @@ static void calc_bonuses(void)
                         {
                                 p_ptr->cur_style |= (1L << WS_POLEARM);
 				break;
+                        }
+			case TV_INSTRUMENT:
+                        {
+                                p_ptr->cur_style |= (1L << WS_INSTRUMENT);
+                                p_ptr->cur_style |= (1L << WS_UNARMED);
+				break;
+                        }
+                        case TV_DIGGING:
+                                break;
+                        default:
+                        {
+                                p_ptr->cur_style |= (1L << WS_UNARMED);
+                                break;
                         }
 		}
 	}
@@ -3022,8 +3029,7 @@ static void calc_bonuses(void)
 	/* Check if unarmed */
         if (p_ptr->cur_style & (1L <<WS_UNARMED))
 	{
-		/* Hack --- not unarmed if carrying a shield */
-		if (o_ptr->k_idx) p_ptr->cur_style &= ~(1L << WS_UNARMED);
+                /* Nothing */
 	}
 	/* Not carrying a shield */
 	else if (!o_ptr->k_idx)

@@ -444,7 +444,7 @@ struct object_kind
 #ifdef ALLOW_OBJECT_INFO
         object_info i_kind;
 #endif
-	s16b found;		/* Number encountered */
+        u16b note;             /* Auto-inscription */
 };
 
 
@@ -494,7 +494,7 @@ struct artifact_type
 #ifdef ALLOW_OBJECT_INFO
 	object_info i_artifact;
 #endif
-	s16b found;		/* Number encountered */
+        u16b note;             /* Auto-inscription */
 };
 
 
@@ -532,7 +532,7 @@ struct ego_item_type
 #ifdef ALLOW_OBJECT_INFO
         object_info i_ego_item;
 #endif
-	s16b found;		/* Number encountered */
+        u16b note;             /* Auto-inscription */
 };
 
 

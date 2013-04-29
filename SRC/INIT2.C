@@ -4639,7 +4639,7 @@ static errr init_other(void)
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL, object_type);
+        C_MAKE(inventory, INVEN_TOTAL+1, object_type);
 
 
 	/*** Prepare the stores ***/

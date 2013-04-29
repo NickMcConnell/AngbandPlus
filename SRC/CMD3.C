@@ -154,6 +154,9 @@ void do_cmd_wield(void)
         u32b n3 = 0x0L;
 #endif
 
+        /* Hack -- Allow items to be swapped in/out of belt */
+        bool swap = FALSE;
+
         /* Hack -- Allow multiple rings to be wielded */
         int amt=1;
         int rings = 0;
@@ -184,7 +187,50 @@ void do_cmd_wield(void)
         /* Hack -- slot not allowed */
         if (slot < 0) return;
 
-        if ((variant_many_rings) && (o_ptr->tval == TV_RING))
+        /* Hack -- wield from belt to equip */
+        if ((variant_belt_slot) && (item == INVEN_BELT))
+        {
+                /* Swap items? */
+                if (inventory[slot].k_idx) swap = TRUE;
+        }
+        /* Hack -- wield from equip to belt */
+        else if ((variant_belt_slot) && (item > INVEN_PACK))
+        {
+                /* Pick the slot */
+                slot = INVEN_BELT;
+
+                /* Swap items? */
+                if ((inventory[INVEN_BELT].k_idx) &&
+                    (wield_slot(&inventory[INVEN_BELT]) == item)) swap = TRUE;
+
+        }
+
+        /* Hack -- wield amount */
+        if ((variant_fast_equip) && (slot == INVEN_WIELD))
+        {
+                /* Get a quantity */
+                amt = get_quantity(NULL, o_ptr->number);
+
+                /* Allow user abort */
+                if (amt <= 0) return;
+
+                /* Cancel swap items */
+                if (amt < o_ptr->number) swap = FALSE;
+        }
+        /* Hack -- belt amount */
+        else if ((variant_belt_slot) && (slot == INVEN_BELT))
+        {
+                /* Get a quantity */
+                amt = get_quantity(NULL, o_ptr->number);
+
+                /* Allow user abort */
+                if (amt <= 0) return;
+
+                /* Cancel swap items */
+                if (amt < o_ptr->number) swap = FALSE;
+        }
+        /* Hack -- multiple rings */
+        else if ((variant_many_rings) && (o_ptr->tval == TV_RING))
         {
                 i_ptr = &inventory[slot];
 
@@ -201,8 +247,11 @@ void do_cmd_wield(void)
                 if (amt <= 0) return;
         }
 
+        /* Source and destination identical */
+        if (item == slot) return;
+
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]))
+        if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
@@ -214,9 +263,24 @@ void do_cmd_wield(void)
 		/* Cancel the command */
 		return;
 	}
+        /* Prevent wielding from cursed slot */
+        else if (cursed_p(&inventory[item]) && (item > INVEN_PACK) && (item != INVEN_BELT))
+	{
+		/* Describe it */
+                object_desc(o_name, &inventory[item], FALSE, 0);
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+		/* Message */
+		msg_format("The %s you are %s appears to be cursed.",
+                           o_name, describe_use(item));
+
+		/* Cancel the command */
+		return;
+	}
+
+	/* Take a (partial) turn */
+        if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -259,8 +323,24 @@ void do_cmd_wield(void)
 	/* Get the wield slot */
 	o_ptr = &inventory[slot];
 
+        /* Swap existing item. Note paranoia check (item > INVEN_PACK). */
+        if ((o_ptr->k_idx) && (swap) && (item > INVEN_PACK))
+        {
+                /* Get the old slot */
+                object_type *j_ptr = &inventory[item];
+
+                /* Swap the items */
+                object_copy(j_ptr, o_ptr);
+
+        }
+        /* Drop existing item */
+        else if ((o_ptr->k_idx) && (p_ptr->energy_use == 50))
+        {
+		/* Take off existing item */
+                (void)inven_drop(slot, 255);
+        }
 	/* Take off existing item */
-        if ((o_ptr->k_idx) && (!rings))
+        else if ((o_ptr->k_idx) && (!rings))
 	{
 		/* Take off existing item */
 		(void)inven_takeoff(slot, 255);
@@ -557,8 +637,10 @@ void do_cmd_destroy(void)
 		if (!get_check(out_val)) return;
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Take a (partial) turn */
+        if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+        else if ((variant_fast_equip) && (item > INVEN_PACK)) p_ptr->energy_use = 50;
+        else p_ptr->energy_use = 100;
 
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
@@ -607,7 +689,37 @@ void do_cmd_destroy(void)
 		floor_item_increase(0 - item, -amt);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
-	}
+        }
+
+        /* Do we destroy all these ego items? */
+        if (object_known_p(o_ptr) && (o_ptr->name2) && !(e_info[o_ptr->name2].note))
+        {
+                char outval[160];
+                
+                /* Prepare prompt */
+                sprintf(outval,"Always destroy items of %s? ",
+                        e_name + e_info[o_ptr->name2].name);
+
+                if (get_check(outval)) e_info[o_ptr->name1].note = quark_add("=k");
+        }
+        /* Do we destroy all these object kinds? */
+        else if (object_aware_p(o_ptr) && !(k_info[o_ptr->k_idx].note))
+        {
+                char o_name[80];
+
+                char outval[160];
+
+		/* Describe it */
+                object_desc(o_name, o_ptr, FALSE, 0);
+                
+                /* Prepare prompt */
+                sprintf(outval,"Always destroy %s%s?",
+                        (o_ptr->number != 1 ? "" : (is_a_vowel(o_name[0]) ? "an " : "a ")),
+                         o_name);
+
+                if (get_check(outval)) k_info[o_ptr->k_idx].note = quark_add("=k");
+        }
+
 }
 
 
@@ -702,6 +814,52 @@ void do_cmd_uninscribe(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+        /* Do we un-inscribe all these artifacts? */
+        if (object_known_p(o_ptr) && (o_ptr->name1) && (a_info[o_ptr->name1].note))
+        {
+                char o_name[80];
+
+                char outval[160];
+
+		/* Describe it */
+                object_desc(o_name, o_ptr, FALSE, 0);
+                
+                /* Prepare prompt */
+                sprintf(outval,"Remove auto-inscription from the %s? ",
+                        o_name);
+
+                if (get_check(outval)) a_info[o_ptr->name1].note = 0;
+        }
+        /* Do we inscribe all these ego items? */
+        else if (object_known_p(o_ptr) && (o_ptr->name2) && (e_info[o_ptr->name2].note))
+        {
+                char outval[160];
+                
+                /* Prepare prompt */
+                sprintf(outval,"Remove auto-inscription from items of %s? ",
+                        e_name + e_info[o_ptr->name2].name);
+
+                if (get_check(outval)) e_info[o_ptr->name1].note = 0;
+        }
+        /* Do we inscribe all these object kinds? */
+        else if (object_aware_p(o_ptr) && (k_info[o_ptr->k_idx].note))
+        {
+                char o_name[80];
+
+                char outval[160];
+
+		/* Describe it */
+                object_desc(o_name, o_ptr, FALSE, 0);
+                
+                /* Prepare prompt */
+                sprintf(outval,"Remove auto-inscription from %s%s?",
+                        (o_ptr->number != 1 ? "" : (is_a_vowel(o_name[0]) ? "an " : "a ")),
+                         o_name);
+
+                if (get_check(outval)) k_info[o_ptr->k_idx].note = 0;
+        }
+
 }
 
 
@@ -767,6 +925,51 @@ void do_cmd_inscribe(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
+
+        /* Do we inscribe all these artifacts? */
+        if (object_known_p(o_ptr) && (o_ptr->name1))
+        {
+                char o_name[80];
+
+                char outval[160];
+
+		/* Describe it */
+                object_desc(o_name, o_ptr, FALSE, 0);
+                
+                /* Prepare prompt */
+                sprintf(outval,"Always inscribe the %s with {%s}? ",
+                        o_name,tmp);
+
+                if (get_check(outval)) a_info[o_ptr->name1].note = o_ptr->note;
+        }
+        /* Do we inscribe all these ego items? */
+        else if (object_known_p(o_ptr) && (o_ptr->name2))
+        {
+                char outval[160];
+                
+                /* Prepare prompt */
+                sprintf(outval,"Always inscribe items of %s with {%s}? ",
+                        e_name + e_info[o_ptr->name2].name,tmp);
+
+                if (get_check(outval)) e_info[o_ptr->name1].note = o_ptr->note;
+        }
+        /* Do we inscribe all these object kinds? */
+        else if (object_aware_p(o_ptr))
+        {
+                char o_name[80];
+
+                char outval[160];
+
+		/* Describe it */
+                object_desc(o_name, o_ptr, FALSE, 0);
+                
+                /* Prepare prompt */
+                sprintf(outval,"Always inscribe %s%s with {%s}? ",
+                        (o_ptr->number != 1 ? "" : (is_a_vowel(o_name[0]) ? "an " : "a ")),
+                         o_name,tmp);
+
+                if (get_check(outval)) k_info[o_ptr->k_idx].note = o_ptr->note;
+        }
 }
 
 

@@ -1934,6 +1934,13 @@ static void process_command(void)
 			break;
 		}
 
+                /* Interact with auto-inscriptions */
+                case '$':
+		{
+                        do_cmd_autos();
+			break;
+		}
+                
 
 		/*** Misc Commands ***/
 

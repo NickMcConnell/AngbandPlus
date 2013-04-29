@@ -299,6 +299,10 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *
  * Specify colors for message-types.
  *   M:<type>:<attr>
+ *
+ * Specify auto-inscriptions for object kinds/ego items/artifacts
+ *   I:<type>:<num>:<str>
+ * 
  */
 errr process_pref_file_aux(char *buf)
 {
@@ -430,7 +434,7 @@ errr process_pref_file_aux(char *buf)
 
 		char tmp[1024];
 
-		if (tokenize(buf+2, 2, zz) != 2) return (1);
+                if (tokenize(buf+2, 2, zz) != 2) return (1);
 
 		mode = strtol(zz[0], NULL, 0);
 		if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
@@ -547,6 +551,45 @@ errr process_pref_file_aux(char *buf)
 			/* Success */
 			return (0);
 		}
+	}
+
+        /* Process "I:<typ>:<num>:<str>" -- create auto-inscription */
+        else if (buf[0] == 'I')
+	{
+
+                if (tokenize(buf+2, 2, zz) != 3) return (1);
+
+                i = strtol(zz[1], NULL, 0);
+
+                switch(buf[2])
+                {
+                        case 'A':
+                        {
+                                if ((i < 0) || (i >= z_info->a_max)) return (1);
+
+                                a_info[i].note = quark_add(zz[2]);
+
+                                return (0);
+                        }
+
+                        case 'E':
+                        {
+                                if ((i < 0) || (i >= z_info->e_max)) return (1);
+
+                                e_info[i].note = quark_add(zz[2]);
+
+                                return (0);
+                        }
+
+                        case 'K':
+                        {
+                                if ((i < 0) || (i >= z_info->k_max)) return (1);
+
+                                k_info[i].note = quark_add(zz[2]);
+
+                                return (0);
+                        }
+                }
 	}
 
 
@@ -2207,7 +2250,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-        fprintf(fff, "  [Unangband 0.4.5e Character Dump]\n\n");
+        fprintf(fff, "  [Unangband 0.4.6 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);
@@ -3227,9 +3270,12 @@ static void death_knowledge(void)
 
 	store_type *st_ptr = &store[STORE_HOME];
 
+        int inven_max = INVEN_TOTAL;
+
+        if (variant_belt_slot) inven_max++;
 
 	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
+        for (i = 0; i < inven_max; i++)
 	{
 		o_ptr = &inventory[i];
 

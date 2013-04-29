@@ -1581,9 +1581,9 @@ cptr option_text[OPT_MAX] =
         "variant_dis_attacks",                                           /* xxx */
         "variant_time_stacks",                                          /* xxx */
 	"variant_many_rings",						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+        "variant_fast_floor",                                           /* xxx */
+        "variant_fast_equip",                                           /* xxx */
+        "variant_belt_slot",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1628,7 +1628,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
 	"cheat_lore",						/* xxx */
-	NULL,						/* xxx */
+        "cheat_auto",                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1845,9 +1845,9 @@ cptr option_desc[OPT_MAX] =
         "Monsters use ranged attacks",							/* xxx */
         "Object timeout stacking (rods)",                                               /* xxx */
 	"Wield multiple rings",								/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+        "Use objects faster from floor",                                                                           /* xxx */
+        "Use objects faster when wielded",
+        "Add belt slot to equipment",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1892,7 +1892,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
 	"Cheat: Know complete artifact/ego info",						/* xxx */
-	NULL,										/* xxx */
+        "Cheat: Auto-inscribe items as if known",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2109,9 +2109,9 @@ bool option_norm[OPT_MAX] =
         TRUE,           /* OPT_variant_dis_attacks */
         FALSE,          /* OPT_variant_time_stacks */
 	TRUE,		/* OPT_variant_many_rings */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+        TRUE,          /* OPT_variant_fast_floor */
+        TRUE,           /* OPT_variant_fast_equip */
+        FALSE,          /* OPT_variant_belt_slot */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2155,7 +2155,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_cheat_xtra */
 	FALSE,		/* OPT_cheat_know */
 	FALSE,		/* OPT_cheat_live */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_cheat_auto */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2390,7 +2390,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_know,
 		OPT_cheat_live,
 		OPT_cheat_lore,
-		255,
+                OPT_cheat_auto,
 		255,
 		255,
 		255,
@@ -2425,8 +2425,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_big_feats,
 		OPT_variant_great_id,
                 OPT_variant_many_rings,
-                255,
-                255,
+                OPT_variant_fast_floor,
+                OPT_variant_fast_equip,
                 255
 	},
 
@@ -2440,7 +2440,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_time_stacks,
                 OPT_variant_town,
 		OPT_variant_room_info,
-                255,
+                OPT_variant_belt_slot,
 		255,
 		255,
 		255,

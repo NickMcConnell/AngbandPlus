@@ -1170,6 +1170,33 @@ void print_rel(char c, byte a, int y, int x)
 
 }
 
+/*
+ * Determine if the object has "=i" in its inscription.
+ */
+static bool auto_pickup_ignore(object_type *o_ptr)
+{
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+                /* Auto-ignore on "=i" */
+                if (s[1] == 'i') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+        /* Don't auto destroy */
+	return (FALSE);
+}
+
 
 
 
@@ -1188,6 +1215,9 @@ void print_rel(char c, byte a, int y, int x)
  * that feature HIDE_ITEM. However, they are not displayed at any point
  * until we walk over them, so this should hopefully not interfere with the
  * optimisations dealt with below.
+ *
+ * Note we also don't mark items that have '=i' inscriptions. This may be
+ * expensive, CPU-wise.
  *
  * The automatic memorization of all objects and non-floor terrain features
  * as soon as they are displayed allows incredible amounts of optimization
@@ -1220,7 +1250,6 @@ void note_spot(int y, int x)
 	/* Require "seen" flag */
 	if (!(info & (CAVE_SEEN))) return;
 
-
 	/* Hack -- memorize objects */
 	/* ANDY -- Only memorise objects if they are not hidden by the feature */
 	if (!(f_info[cave_feat[y][x]].flags2 & (FF2_HIDE_ITEM)))
@@ -1233,7 +1262,7 @@ void note_spot(int y, int x)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Memorize objects */
-			o_ptr->marked = TRUE;
+                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 		}
 	}
 

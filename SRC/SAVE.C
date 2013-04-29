@@ -409,6 +409,16 @@ static errr wr_savefile(void)
 		wr_item(o_ptr);
 	}
 
+        /* Write the belt slot */
+        if ((variant_belt_slot) && (inventory[INVEN_BELT].k_idx))
+	{
+		/* Dump index */
+                wr_u16b(INVEN_BELT);
+
+		/* Dump object */
+                wr_item(&inventory[INVEN_BELT]);
+	}      
+
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);
 
@@ -1509,7 +1519,9 @@ static bool wr_savefile_new(void)
 
                 if (variant_usage_id) wr_s16b(a_ptr->i_artifact.usage);
 
-                if (variant_learn_id) wr_s16b(a_ptr->found);
+                /* Oops */
+                if (variant_learn_id) wr_byte(0);
+                if (variant_learn_id) wr_byte(0);
 #endif
 	}
 
@@ -1539,7 +1551,9 @@ static bool wr_savefile_new(void)
 
                 if (variant_usage_id) wr_s16b(e_ptr->i_ego_item.usage);
 
-                if (variant_learn_id) wr_s16b(e_ptr->found);
+                /* Oops */
+                if (variant_learn_id) wr_byte(0);
+                if (variant_learn_id) wr_byte(0);
 
 #endif
 	}
@@ -1586,6 +1600,16 @@ static bool wr_savefile_new(void)
 		/* Dump object */
 		wr_item(o_ptr);
 	}
+
+        /* Write the belt slot */
+        if ((variant_belt_slot) && (inventory[INVEN_BELT].k_idx))
+	{
+		/* Dump index */
+                wr_u16b(INVEN_BELT);
+
+		/* Dump object */
+                wr_item(&inventory[INVEN_BELT]);
+	}      
 
 	/* Add a sentinel */
 	wr_u16b(0xFFFF);

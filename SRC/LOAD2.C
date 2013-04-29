@@ -1596,7 +1596,8 @@ static errr rd_inventory(void)
 		}
 
 		/* Warning -- backpack is full */
-		else if (p_ptr->inven_cnt == INVEN_PACK)
+                else if ((p_ptr->inven_cnt > INVEN_PACK) ||
+                         (!(variant_belt_slot) && (p_ptr->inven_cnt == INVEN_PACK)))
 		{
 			/* Oops */
 			note("Too many items in the inventory!");
@@ -2916,7 +2917,10 @@ static errr rd_savefile_new_aux(void)
 
                 }
                 if (variant_usage_id) rd_s16b(&a_ptr->i_artifact.usage);
-                if (variant_learn_id) rd_s16b(&a_ptr->found);
+
+                /* Oops */
+                if (variant_learn_id) rd_byte(&tmp8u);
+                if (variant_learn_id) rd_byte(&tmp8u);
 
 	}
 
@@ -2957,7 +2961,10 @@ static errr rd_savefile_new_aux(void)
                         }
 
                         if (variant_usage_id) rd_s16b(&e_ptr->i_ego_item.usage);
-                        if (variant_learn_id) rd_s16b(&e_ptr->found);
+
+                        /* Oops */
+                        if (variant_learn_id) rd_byte(&tmp8u);
+                        if (variant_learn_id) rd_byte(&tmp8u);
 		}
 
 	}
