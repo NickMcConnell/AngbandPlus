@@ -754,6 +754,20 @@ void monster_desc(char *desc, monster_type *m_ptr, int mode)
 			strcat(desc, "'s");
 		}
 
+                /* Mention "hidden" monsters XXX XXX */
+                /* Note we only see "hidden" monsters with detection,
+                   or telepathy, and this is different to non-visible
+                   monsters handled above.
+                   We need to warn players because otherwise they
+                   will try and target these monsters.*/
+
+                /* XXX Perhaps we should use a different attr/char */
+                if (m_ptr->mflag & (MFLAG_HIDE))
+		{
+			/* Append special notation */
+                        strcat(desc, " (hidden)");
+		}
+
 		/* Mention "offscreen" monsters XXX XXX */
 		if (!panel_contains(m_ptr->fy, m_ptr->fx))
 		{

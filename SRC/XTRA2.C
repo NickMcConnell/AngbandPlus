@@ -2428,6 +2428,9 @@ static void room_info_top(int room)
  */
 void screen_room_info(int room)
 {
+
+        if (!character_dungeon) return;
+
 	/* Flush messages */
 	msg_print(NULL);
 
@@ -2435,19 +2438,19 @@ void screen_room_info(int room)
 	Term_erase(0, 1, 255);
 
 	/* Describe room */
-	if (room_info[room].text_visible)
+        if (strlen(room_info[room].text_visible))
 	{
 		/* Recall monster */
 		roff(room_info[room].text_visible);
 
-		if (room_info[room].text_always)
+                if (strlen(room_info[room].text_always))
 		{
 			roff("  ");
                         roff(room_info[room].text_always);
 		}
 
 	}
-	else if (room_info[room].text_always)
+        else if (strlen(room_info[room].text_always))
 	{
 		roff(room_info[room].text_always);
 	}
@@ -2468,6 +2471,9 @@ void display_room_info(int room)
 {
 	int y;
 
+	/* Hack -- handle "xtra" mode */
+        if (!character_dungeon) return;
+
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)
 	{
@@ -2479,19 +2485,19 @@ void display_room_info(int room)
 	Term_gotoxy(0, 1);
 
 	/* Describe room */
-	if (room_info[room].text_visible)
+        if (strlen(room_info[room].text_visible))
 	{
 		/* Recall monster */
 		roff(room_info[room].text_visible);
 
-		if (room_info[room].text_always)
+                if (strlen(room_info[room].text_always))
 		{
 			roff("  ");
 			roff(room_info[room].text_always);
 		}
 
 	}
-	else if (room_info[room].text_always)
+        else if (strlen(room_info[room].text_always))
 	{
 		roff(room_info[room].text_always);
 	}
@@ -2514,17 +2520,20 @@ void describe_room(void)
         int bx = p_ptr->px / BLOCK_WID;
 	int room = dun_room[by][bx];
 
+	/* Hack -- handle "xtra" mode */
+        if (!character_dungeon) return;
+
         if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
          && ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
                !(p_ptr->depth)))
 	{
-		if (room_info[room].seen)
+                if (room_info[room].seen)
 		{
 			msg_format("You have entered %s %s.",
 				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
 					room_info[room].name);
 		}
-		else if ((room_info[room].text_visible) && (room_info[room].text_always))
+                else if ((strlen(room_info[room].text_visible)) && (strlen(room_info[room].text_always)))
 		{
 			/* Message */
 			msg_format("You have entered %s %s. %s %s",
@@ -2536,7 +2545,7 @@ void describe_room(void)
 			/* Now seen */
 			room_info[room].seen = TRUE;
 		}
-		else if (room_info[room].text_visible)
+                else if (strlen(room_info[room].text_visible))
 		{
 			/* Message */
 			msg_format("You have entered %s %s. %s",
@@ -2547,7 +2556,7 @@ void describe_room(void)
 			/* Now seen */
 			room_info[room].seen = TRUE;
 		}
-		else if (room_info[room].text_always)
+                else if (strlen(room_info[room].text_always))
 		{
 			/* Message */
 			msg_format("You have entered %s %s. %s",
@@ -2566,7 +2575,7 @@ void describe_room(void)
 					room_info[room].name);
 		}
 	}
-        else if ((room_info[room].text_always) &&
+        else if ((strlen(room_info[room].text_always)) &&
           ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
           !(p_ptr->depth)))
 	{

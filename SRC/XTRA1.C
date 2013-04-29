@@ -3324,6 +3324,12 @@ void update_stuff(void)
 		update_monsters(FALSE);
 	}
 
+	if (p_ptr->update & (PU_PANEL))
+	{
+		p_ptr->update &= ~(PU_PANEL);
+		verify_panel();
+	}
+
 #ifdef ALLOW_ROOMDESC
 	if (p_ptr->update & (PU_ROOM_INFO))
 	{
@@ -3332,11 +3338,7 @@ void update_stuff(void)
 	}
 #endif
 
-	if (p_ptr->update & (PU_PANEL))
-	{
-		p_ptr->update &= ~(PU_PANEL);
-		verify_panel();
-	}
+
 }
 
 
@@ -3606,13 +3608,6 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_OBJECT);
 		fix_object();
-	}
-
-        /* Display room info recall */
-        if (p_ptr->window & (PW_ROOM_INFO))
-	{
-                p_ptr->window &= ~(PW_ROOM_INFO);
-                fix_room_info();
 	}
 
 }

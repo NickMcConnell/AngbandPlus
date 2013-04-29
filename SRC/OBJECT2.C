@@ -3120,7 +3120,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
                         if (!(f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP))) continue;
 
 			/* Don't like non-floor space */
-                        if (!(f_info[cave_feat[ty][tx]].flags2 & (FF1_FLOOR)) && (rand_int(100)<80)) continue;
+                        if (!(f_info[cave_feat[ty][tx]].flags1 & (FF1_FLOOR)) && (rand_int(100)<80)) continue;
 
 			/* No objects */
 			k = 0;

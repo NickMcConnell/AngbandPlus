@@ -349,7 +349,8 @@ S:YES
 N:1:2:42:1
 A:
 B:
-D:Broken statues line 
+D:Broken statues line
+F:49
 S:YES
 
 N:1:2:43:4
@@ -972,7 +973,7 @@ N:6:7:33:0
 A:dirt-filled
 B:
 D:caked with dirt.  
-F:134
+F:135
 S:YES
 
 N:6:7:34:3
@@ -1121,13 +1122,13 @@ S:NO
 N:9:10:5:0
 A:
 B:
-D:A warm breeze blows
+D:A warm breeze blows 
 S:NO
 
 N:9:10:10:0
 A:
 B:
-D:A cool breeze blows
+D:A cool breeze blows 
 S:NO
 
 N:9:10:15:40
@@ -1140,14 +1141,14 @@ S:NO
 N:9:10:20:30
 A:windy
 B:
-D:A cold wind blows
+D:A cold wind blows 
 L:ICE | CHASM
 S:NO
 
 N:9:10:22:40
 A:windy
 B:
-D:A howling gale blows
+D:A howling gale blows 
 L:CHASM
 S:NO
 
@@ -1404,7 +1405,7 @@ S:YES
 N:14:3:80:0
 A:
 B:
-D:stone covers 
+D:stonework covers 
 S:YES
 
 N:14:3:90:20

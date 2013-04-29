@@ -1895,6 +1895,10 @@ static errr rd_dungeon_old(void)
 	byte iy[512];
 
 
+#ifdef ALLOW_ROOMDESC
+        int by,bx;
+#endif
+
 	/* Header info */
 	rd_s16b(&depth);
 	rd_s16b(&py);
@@ -2148,6 +2152,34 @@ static errr rd_dungeon_old(void)
 	/* Save depth */
 	p_ptr->depth = depth;
 
+#ifdef ALLOW_ROOMDESC
+
+	/* Initialize the room table */
+        for (by = 0; by < MAX_ROOMS_ROW; by++)
+	{
+                for (bx = 0; bx < MAX_ROOMS_COL; bx++)
+		{
+			dun_room[by][bx] = 0;
+		}
+	}
+
+        if (p_ptr->depth)
+        {
+                /* Hack -- Initialise 'zeroeth' room description */
+                strcpy(room_info[0].name, "empty room");
+                strcpy(room_info[0].text_visible, "");
+                strcpy(room_info[0].text_always, "");
+                room_info[0].seen = FALSE;
+        }
+        else
+        {
+                /* Initialise 'zeroeth' room description */
+                strcpy(room_info[0].name, "town");
+                strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
+                strcpy(room_info[0].text_always, "It feels like home.");
+                room_info[0].seen = FALSE;
+        }
+#endif
 	/* Place player in dungeon */
 	if (!player_place(py, px))
 	{

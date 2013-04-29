@@ -958,8 +958,8 @@ void py_attack(int y, int x)
 	/* Check melee styles only */
 	melee_style = p_ptr->cur_style & (WS_WIELD_FLAGS);
 
-	/* Check backstab if monster sleeping */
-        if ((m_ptr->csleep) && (p_ptr->cur_style & (WS_SWORD))) melee_style |= (WS_BACKSTAB);
+        /* Check backstab if monster sleeping or fleeing */
+        if (((m_ptr->csleep)||(m_ptr->monfear)) && (p_ptr->cur_style & (WS_SWORD))) melee_style |= (WS_BACKSTAB);
 
 	/* Check slay orc if monster is an orc */
         if (r_ptr->flags3 & (RF3_ORC)) melee_style |= (WS_SLAY_ORC);
@@ -1016,6 +1016,15 @@ void py_attack(int y, int x)
                         }
 		}
 
+	}
+
+
+        /* Only allow criticals against living opponents */
+	if ((r_ptr->flags3 & (RF3_DEMON)) ||
+			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+			 (strchr("Evg", r_ptr->d_char)))
+	{
+                style_crit = 0;
 	}
 
 
@@ -1756,7 +1765,8 @@ static bool run_test(void)
                         if ((notice) && (f_info[feat].flags1 & (FF1_MOVE)))
                         {
 
-                                if ((run_ignore_doors) && (f_info[feat].flags1 & (FF1_DOOR)))
+                                if ((run_ignore_doors) && (f_info[feat].flags1 & (FF1_DOOR)) &&
+				(f_info[feat].flags1 & (FF1_CLOSE)))
 				{
 					/* Option -- ignore */
 					notice = FALSE;
@@ -1861,7 +1871,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-                            (f_info[feat].flags1 & (FF1_WALL)) )
+                            (!(f_info[feat].flags1 & (FF1_WALL))) )
 			{
 				/* Looking to break right */
 				if (p_ptr->run_break_right)
@@ -1899,7 +1909,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-                            (f_info[feat].flags1 & (FF1_WALL)))
+                            (!(f_info[feat].flags1 & (FF1_WALL))))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

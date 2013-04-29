@@ -2446,26 +2446,6 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
-
-#ifdef ALLOW_ROOMDESC
-        if (p_ptr->depth)
-        {
-                /* Hack -- Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "empty room");
-                strcpy(room_info[0].text_visible, "");
-                strcpy(room_info[0].text_always, "");
-                room_info[0].seen = FALSE;
-        }
-        else
-        {
-                /* Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "town");
-                strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
-                strcpy(room_info[0].text_always, "It feels like home.");
-                room_info[0].seen = FALSE;
-        }
-#endif
-
 	/* Choose panel */
 	verify_panel();
 
@@ -2523,17 +2503,15 @@ static void dungeon(void)
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
 
-
 	/* Update stuff */
-	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+        p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_ROOM_INFO);
 
 	/* Combine / Reorder the pack */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-#ifdef ALLOW_ROOMDESC
-        /* Provide room info */
+
+	/* Window stuff */
         p_ptr->window |= (PW_ROOM_INFO);
-        p_ptr->update |= (PU_ROOM_INFO);
-#endif
+
 	/* Notice stuff */
 	notice_stuff();
 
@@ -2552,7 +2530,6 @@ static void dungeon(void)
 
 	/* Handle delayed death */
 	if (p_ptr->is_dead) return;
-
 
 	/* Announce (or repeat) the feeling */
 	if (p_ptr->depth) do_cmd_feeling();

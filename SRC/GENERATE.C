@@ -1666,9 +1666,12 @@ static void vault_monsters(int y1, int x1, int num)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
-			monster_level = p_ptr->depth + 2;
+                        monster_level = p_ptr->depth + 4;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = p_ptr->depth;
+
+                        /* Check we have number */
+                        if (++k>=num) break;
 		}
 	}
 }
@@ -1952,8 +1955,8 @@ static void get_room_info(int y, int x)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-			/* Place the monsters */
-			vault_monsters(y,x,randint(6));
+                        /* Place the monster */
+                        vault_monsters(y,x,randint(3));
 
 			get_mon_num_hook = NULL;
 
@@ -2587,8 +2590,11 @@ static void build_type4(int y0, int x0)
 		}
 	}
 #ifdef ALLOW_ROOMDESC
-	/* Pretty description and maybe more monsters/objects/traps*/
-	get_room_info(y0,x0);
+	/* Initialise room description */
+        strcpy(room_info[dun->cent_n+1].name, "large chamber");
+        strcpy(room_info[dun->cent_n+1].text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
+        strcpy(room_info[dun->cent_n+1].text_always, "");
+        room_info[dun->cent_n+1].seen = FALSE;
 #endif
 }
 
@@ -2899,11 +2905,11 @@ static void build_type5(int y0, int x0)
 	}
 #ifdef ALLOW_ROOMDESC
 	/* Initialise room description */
-	strcpy(room_info[0].name, name);
-	strcat(room_info[0].name, " monster nest");
-	strcpy(room_info[0].text_visible, "Morgoth lures monsters of a particular type here with powerful magic to trap the unware adventurer.");
-	strcpy(room_info[0].text_always, "");
-	room_info[0].seen = FALSE;
+        strcpy(room_info[dun->cent_n+1].name, name);
+        strcat(room_info[dun->cent_n+1].name, " monster nest");
+        strcpy(room_info[dun->cent_n+1].text_visible, "Morgoth lures monsters of a particular type here with powerful magic to trap the unware adventurer.");
+        strcpy(room_info[dun->cent_n+1].text_always, "");
+        room_info[dun->cent_n+1].seen = FALSE;
 #endif
 	/* Increase the level rating */
 	rating += 10;
@@ -3283,13 +3289,13 @@ static void build_type6(int y0, int x0)
 	}
 #ifdef ALLOW_ROOMDESC
 	/* Initialise room description */
-	strcpy(room_info[0].name, name);
-	strcat(room_info[0].name, " pit");
+        strcpy(room_info[dun->cent_n+1].name, name);
+        strcat(room_info[dun->cent_n+1].name, " pit");
 	
-	strcpy(room_info[0].text_visible, "Morgoth breeds his most evil creatures in great pits deep beneath the earth. ");
-	strcpy(room_info[0].text_visible, "You fear you have stumbled across one such place.");
-	strcpy(room_info[0].text_always, "");
-	room_info[0].seen = FALSE;
+        strcpy(room_info[dun->cent_n+1].text_visible, "Morgoth breeds his most evil creatures in great pits deep beneath the earth. ");
+        strcpy(room_info[dun->cent_n+1].text_visible, "You fear you have stumbled across one such place.");
+        strcpy(room_info[dun->cent_n+1].text_always, "");
+        room_info[dun->cent_n+1].seen = FALSE;
 #endif
 	/* Increase the level rating */
 	rating += 10;
@@ -3541,11 +3547,11 @@ static void build_type7(int y0, int x0)
 
 #ifdef ALLOW_ROOMDESC
 	/* Initialise room description */
-	strcpy(room_info[0].name, "lesser vault");
-	strcpy(room_info[0].text_visible, "This vault is larger than most you have seen and contains more than ");
-	strcat(room_info[0].text_visible, "its share of monsters and treasure.");
-	strcpy(room_info[0].text_always, "");
-	room_info[0].seen = FALSE;
+        strcpy(room_info[dun->cent_n+1].name, "lesser vault");
+        strcpy(room_info[dun->cent_n+1].text_visible, "This vault is larger than most you have seen and contains more than ");
+        strcat(room_info[dun->cent_n+1].text_visible, "its share of monsters and treasure.");
+        strcpy(room_info[dun->cent_n+1].text_always, "");
+        room_info[dun->cent_n+1].seen = FALSE;
 #endif
 
 	/* Boost the rating */
@@ -3586,11 +3592,11 @@ static void build_type8(int y0, int x0)
 
 #ifdef ALLOW_ROOMDESC
 	/* Initialise room description */
-	strcpy(room_info[0].name, "greater vault");
-	strcpy(room_info[0].text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
-	strcat(room_info[0].text_visible, "deadly monsters and rich treasure.");
-	strcpy(room_info[0].text_always, "Beware!");
-	room_info[0].seen = FALSE;
+        strcpy(room_info[dun->cent_n+1].name, "greater vault");
+        strcpy(room_info[dun->cent_n+1].text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+        strcat(room_info[dun->cent_n+1].text_visible, "deadly monsters and rich treasure.");
+        strcpy(room_info[dun->cent_n+1].text_always, "Beware!");
+        room_info[dun->cent_n+1].seen = FALSE;
 #endif
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -4144,6 +4150,14 @@ static void cave_gen(void)
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
 	dun->col_rooms = DUNGEON_WID / BLOCK_WID;
 
+#ifdef ALLOW_ROOMDESC
+        /* Initialise 'zeroeth' room description */
+        strcpy(room_info[0].name, "the dungeon");
+        strcpy(room_info[0].text_visible, "It is a dangerous maze of corridors and rooms.");
+        strcpy(room_info[0].text_always, "");
+        room_info[0].seen = FALSE;
+#endif
+
 	/* Initialize the room table */
 	for (by = 0; by < dun->row_rooms; by++)
 	{
@@ -4661,7 +4675,6 @@ static void town_gen_hack(void)
 	/* Clear previous contents, add down stairs */
 	cave_set_feat(y, x, FEAT_MORE);
 
-
 	/* Place the player */
 	player_place(y, x);
 
@@ -4701,6 +4714,24 @@ static void town_gen(void)
 
 	bool daytime;
 
+#ifdef ALLOW_ROOMDESC
+        int by,bx;
+
+	/* Initialize the room table */
+        for (by = 0; by < MAX_ROOMS_ROW; by++)
+	{
+                for (bx = 0; bx < MAX_ROOMS_COL; bx++)
+		{
+			dun_room[by][bx] = 0;
+		}
+	}
+
+        /* Initialise 'zeroeth' room description */
+        strcpy(room_info[0].name, "town");
+        strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
+        strcpy(room_info[0].text_always, "It feels like home.");
+        room_info[0].seen = FALSE;
+#endif
 
 	/* Day time */
 	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
