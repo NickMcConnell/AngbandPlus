@@ -585,6 +585,15 @@ void do_cmd_study(void)
 		if (p_ptr->spell_order[i] == 0) break;
 	}
 
+	/* Paranoia */
+	if (i == PY_MAX_SPELLS)
+	{
+		/* Message */
+		msg_format("You cannot learn any more %ss.", p);
+
+		return;
+	}
+
 	/* Add the spell to the known list */
 	p_ptr->spell_order[i] = spell;
 
@@ -1168,6 +1177,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			return;
 		}
 	}
+#if 0
 	/* Verify "warning" spells */
         else if ((p_ptr->csp - sc_ptr->mana) < (p_ptr->msp * op_ptr->hitpoint_warn) / 10)
 	{
@@ -1182,7 +1192,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			return;
 		}
 	}
-
+#endif 
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
@@ -1204,7 +1214,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		/* Spells.  */
 		switch (spell)
 		{
-			case 1+0:
+                       case 1+0:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
@@ -1493,7 +1503,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
-				          70 + (plev), 3);
+				          70 + (plev*2), 3);
 				break;
 			}
 
@@ -1501,7 +1511,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_METEOR, dir,
-				          65 + (plev), 3);
+				          65 + (plev*2), 3);
 				break;
 			}
 
@@ -1627,7 +1637,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 60+1:
 			{
-				(void)hp_player(damroll(2, 10) + plev);
+				(void)hp_player(damroll(2, 10));
 				(void)set_cut(p_ptr->cut - 10);
 				break;
 			}
@@ -1684,7 +1694,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 60+10:
 			{
-				(void)hp_player(damroll(4, 10) + plev);
+				(void)hp_player(damroll(4, 10));
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
@@ -1739,7 +1749,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 60+18:
 			{
-				(void)hp_player(damroll(8, 10) + plev + (plev /2));
+                                (void)hp_player(damroll(8, 10));
 				(void)set_cut(0);
 				break;
 			}
@@ -1770,7 +1780,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 60+23:
 			{
-				(void)hp_player(damroll(10, 10) + 2 * plev);
+				(void)hp_player(damroll(10, 10));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -1857,14 +1867,14 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 60+36:
 			{
-				(void)hp_player(damroll(6, 10) + plev);
+				(void)hp_player(damroll(6, 10));
 				(void)set_cut(0);
 				break;
 			}
 
 			case 60+37:
 			{
-				(void)hp_player(damroll(10, 10) + 2*plev);
+				(void)hp_player(damroll(12, 10));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -2180,7 +2190,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 138:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, damroll(2, 10) + plev);
+				drain_life(dir, damroll(2, 10));
 				break;
 			}
 
@@ -2188,7 +2198,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 139:
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)confuse_monster(dir, plev);
+                                (void)blind_monster(dir);
 				break;
 			}
 
@@ -2196,7 +2206,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 140:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, damroll(2, 10) + (plev/2));
+				drain_life(dir, damroll(4, 10));
 				break;
 			}
 
@@ -2211,14 +2221,14 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 142:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, damroll(3, 10) + ( plev/2));
+				drain_life(dir, damroll(6, 10));
 				break;
 			}
 
 			case 143:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, damroll(4, 10) + plev);
+				drain_life(dir, damroll(8, 10));
 				break;
 			}
 
@@ -2232,7 +2242,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 145:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, damroll(5, 10) + plev);
+				drain_life(dir, damroll(12, 10));
 				break;
 			}
 
@@ -2311,7 +2321,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir,
-				          95 + (plev), 3);
+				          95 + (plev*2), 3);
 				break;
 			}
 
@@ -2376,7 +2386,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ACID, dir,
-				          65 + (plev), 3);
+				          65 + (plev*2), 3);
 				break;
 			}
 
@@ -2480,7 +2490,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ELEC, dir,
-				          115 + (plev), 2);
+				          115 + (plev*2), 2);
 				break;
 			}
 
@@ -2573,7 +2583,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 179:
 			{
 				if (!get_rep_dir(&dir)) return;
-				fire_blast(GF_OLD_CONF,dir,plev);
+                                fire_blast(GF_OLD_CONF,dir,plev);
 				break;
 			}
 
@@ -2604,7 +2614,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 183:
 			{
 				(void)set_poisoned(0);
-				(void)hp_player(damroll(4, 10) + plev);
+				(void)hp_player(damroll(4, 8));
 				(void)set_cut(0);
 				break;
 			}
@@ -2745,28 +2755,28 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 				if (choice < 20)
 				{
 					fire_ball(GF_FIRE, dir,
-					          55 + (plev), 2);
+					          55 + (plev*2), 2);
 				}
 				else if (choice < 40)
 				{
 					fire_ball(GF_COLD, dir,
-					          30 + (plev), 2);
+					          30 + (plev*2), 2);
 				}
 				else if (choice < 60)
 				{
 					fire_ball(GF_ELEC, dir,
-					          45 + (plev), 2);
+					          45 + (plev*2), 2);
 				}
 				else if (choice < 80)
 				{
 					fire_ball(GF_ACID, dir,
-					          40 + (plev), 2);
+					          40 + (plev*2), 2);
 
 				}
 				else
 				{
 					fire_ball(GF_POIS, dir,
-					          35 + (plev), 2);
+					          35 + (plev*2), 2);
 
 				}
 				break;
@@ -2924,7 +2934,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
-				          10 + (plev / 2), (plev/10) + 2);
+				          20 + (plev / 2), (plev/10) + 2);
 				break;
 
 			}
@@ -2932,7 +2942,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ACID, dir,
-				          10 + (plev / 2), (plev/10) + 2);
+				          30 + (plev / 2), (plev/10) + 2);
 				break;
 
 			}
@@ -2941,7 +2951,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ELEC, dir,
-				          10 + (plev / 2), (plev/10) + 2);
+				          40 + (plev / 2), (plev/10) + 2);
 				break;
 
 			}
@@ -2956,7 +2966,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir,
-				          10 + (plev / 2), (plev/10) + 2);
+				          50 + (plev / 2), (plev/10) + 2);
 				break;
 			}
 
@@ -2964,7 +2974,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			case 226:
 			{
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir,
+				fire_ball(GF_POIS, dir,
 				          80+plev, (plev/10) + 2);
 				break;
 			}
@@ -3019,7 +3029,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_WATER, dir,
-				          60+plev, 3);
+				          60+(plev*2), 3);
 				break;
 			}
 
@@ -3096,14 +3106,14 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 			case 245:
 			{
-				(void)hp_player(damroll(6, 10) + plev);
+				(void)hp_player(damroll(6, 8));
 				(void)set_cut(0);
 				break;
 			}
 
 			case 246:
 			{
-				(void)hp_player(damroll(10, 10) + 2*plev);
+				(void)hp_player(damroll(12, 8));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -3181,8 +3191,11 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 		}
 
 
+		/* Paranoia */
+		if (i==PY_MAX_SPELLS) ;
+
 		/* A spell was cast */ 
-		if (!((i < 32) ?
+		else if (!((i < 32) ?
 		      (p_ptr->spell_worked1 & (1L << i)) :
 		      (p_ptr->spell_worked2 & (1L << (i - 32)))))
 		{
@@ -3414,26 +3427,64 @@ void do_cmd_cast(void)
 				break;
 			}
 			case WS_AMULET:
+			{
 				if (!(o_ptr->tval == TV_AMULET)) break;
 				plev += (p_ptr->lev - w_info[i].level);
 				break;
+			}
 			case WS_RING:
+			{
 				if (!(o_ptr->tval == TV_RING)) break;
 				plev += (p_ptr->lev - w_info[i].level);
 				break;
+			}
 			case WS_MAGIC_BOOK:
-				if (!(o_ptr->tval == TV_MAGIC_BOOK)) break;
-                                if (o_ptr->sval == p_ptr->psval) plev += (p_ptr->lev - w_info[i].level);
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
 				break;
+			}
 			case WS_PRAYER_BOOK:
-				if (!(o_ptr->tval == TV_PRAYER_BOOK)) break;
-                                if (o_ptr->sval == p_ptr->psval) plev += (p_ptr->lev - w_info[i].level);
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
 				break;
+			}
 			case WS_SONG_BOOK:
-				if (!(o_ptr->tval == TV_SONG_BOOK)) break;
-                                if (o_ptr->sval == p_ptr->psval) plev += (p_ptr->lev - w_info[i].level);
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
 				break;
+			}
 			case WS_INSTRUMENT:
+			{
 				if (!(p_ptr->cur_style & (1L << WS_INSTRUMENT))) break;
 
                                 /* Line 1 - has item wielded */
@@ -3452,10 +3503,12 @@ void do_cmd_cast(void)
                                 (o_ptr->sval == inventory[INVEN_ARM].sval))
                                         plev += (p_ptr->lev - w_info[i].level);
 				break;
-
+			}
 			default:
+			{
                                 if (w_info[i].styles & p_ptr->cur_style) plev += (p_ptr->lev - w_info[i].level);
 				break;
+			}
 		}
 
 	}

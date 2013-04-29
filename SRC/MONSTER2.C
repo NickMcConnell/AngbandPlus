@@ -999,6 +999,11 @@ void update_mon(int m_idx, bool full)
 				if (r_ptr->flags2 & (RF2_SMART)) l_ptr->r_flags2 |= (RF2_SMART);
 				if (r_ptr->flags2 & (RF2_STUPID)) l_ptr->r_flags2 |= (RF2_STUPID);
 			}
+
+#ifdef ALLOW_OBJECT_INFO_MORE
+			/* Visible */
+                        if (flag) equip_can_flags(0x0L,0x0L,TR3_TELEPATHY);
+#endif
 		}
 
 		/* Normal line of sight, and not blind */
@@ -1006,7 +1011,9 @@ void update_mon(int m_idx, bool full)
 		{
 			bool do_invisible = FALSE;
 			bool do_cold_blood = FALSE;
-
+#ifdef ALLOW_OBJECT_INFO_MORE
+                        bool do_warm_blood = FALSE;
+#endif
 			/* Hidden */
 			if (m_ptr->mflag & (MFLAG_HIDE))
 			{
@@ -1024,7 +1031,10 @@ void update_mon(int m_idx, bool full)
 				/* Handle "warm blooded" monsters */
 				else
 				{
-
+#ifdef ALLOW_OBJECT_INFO_MORE
+					/* Take note */
+                                        do_warm_blood = TRUE;
+#endif
 					/* Easy to see */
 					easy = flag = TRUE;
 				}
@@ -1065,8 +1075,21 @@ void update_mon(int m_idx, bool full)
 			if (flag)
 			{
 				/* Memorize flags */
-				if (do_invisible) l_ptr->r_flags2 |= (RF2_INVISIBLE);
+                                if (do_invisible)
+                                {
+                                        l_ptr->r_flags2 |= (RF2_INVISIBLE);
+#ifdef ALLOW_OBJECT_INFO_MORE
+                                        if (p_ptr->see_inv) equip_can_flags(0x0L,0x0L,TR3_SEE_INVIS);
+#endif
+                                }
 				if (do_cold_blood) l_ptr->r_flags2 |= (RF2_COLD_BLOOD);
+#ifdef ALLOW_OBJECT_INFO_MORE
+                                if (do_warm_blood)
+                                {
+                                        if ((!rp_ptr->infra)&&(!p_ptr->tim_infra)) equip_can_flags(TR1_INFRA,0x0L,0x0L);
+                                }
+#endif
+
 			}
 		}
 	}
@@ -2535,7 +2558,11 @@ bool summon_specific(int y1, int x1, int lev, int type)
 
 
 	/* Pick a monster, using the level calculation */
-	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5);
+	/* XXX Calculation changed from average to minimum. This should
+	prevent out-of-depth monsters having as great an impact when
+	they summon, and weak summoning monsters from being as dangerous
+	deep in the dungeon. */
+	r_idx = get_mon_num(MIN(p_ptr->depth,lev)+ 5);
 
 
 	/* Remove restriction */
@@ -2795,6 +2822,8 @@ void update_smart_learn(int m_idx, int what)
 		case DRS_RES_FEAR:
 		{
 			if (p_ptr->resist_fear) m_ptr->smart |= (SM_RES_FEAR);
+			if (p_ptr->hero) m_ptr->smart |= (SM_RES_FEAR);
+			if (p_ptr->shero) m_ptr->smart |= (SM_RES_FEAR);
 			break;
 		}
 

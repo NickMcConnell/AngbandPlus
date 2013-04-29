@@ -550,224 +550,776 @@ void self_knowledge(void)
 	if (p_ptr->slow_digest)
 	{
 		info[i++] = "Your appetite is small.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
+#endif
 	}
 	if (p_ptr->ffall)
 	{
 		info[i++] = "You land gently.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 	}
 	if (p_ptr->lite)
 	{
 		info[i++] = "You are glowing with light.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_LITE);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_LITE);
+#endif
 	}
 	if (p_ptr->regenerate)
 	{
 		info[i++] = "You regenerate quickly.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_REGEN);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_REGEN);
+#endif
 	}
 	if (p_ptr->telepathy)
 	{
 		info[i++] = "You have ESP.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_TELEPATHY);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_TELEPATHY);
+#endif
 	}
 	if (p_ptr->see_inv)
 	{
 		info[i++] = "You can see invisible creatures.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_SEE_INVIS);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_SEE_INVIS);
+#endif
 	}
 	if (p_ptr->free_act)
 	{
 		info[i++] = "You have free action.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 	}
 	if (p_ptr->hold_life)
 	{
 		info[i++] = "You have a firm hold on your life force.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 	}
+	else if (p_ptr->blessed)
+	{
+		info[i++] = "You have a temporary hold on your life force.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
+	}
+
 
 	if (p_ptr->immune_acid)
 	{
+
 		info[i++] = "You are completely immune to acid.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_ACID,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_acid) && (p_ptr->oppose_acid))
 	{
 		info[i++] = "You resist acid exceptionally well.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
+		equip_can_flags(0x0L,TR2_RES_ACID,0x0L);
+#endif
+
 	}
 	else if ((p_ptr->resist_acid) || (p_ptr->oppose_acid))
 	{
 		info[i++] = "You are resistant to acid.";
+
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
+		if(!p_ptr->oppose_acid) equip_can_flags(0x0L,TR2_RES_ACID,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ACID,0x0L);
+		equip_not_flags(0x0L,TR2_RES_ACID,0x0L);
+#endif
 	}
 
 	if (p_ptr->immune_elec)
 	{
 		info[i++] = "You are completely immune to lightning.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_ELEC,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_elec) && (p_ptr->oppose_elec))
 	{
 		info[i++] = "You resist lightning exceptionally well.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
+		equip_can_flags(0x0L,TR2_RES_ELEC,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_elec) || (p_ptr->oppose_elec))
 	{
 		info[i++] = "You are resistant to lightning.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
+		if(!p_ptr->oppose_elec) equip_can_flags(0x0L,TR2_RES_ELEC,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_ELEC,0x0L);
+		equip_not_flags(0x0L,TR2_RES_ELEC,0x0L);
+#endif
 	}
 
 	if (p_ptr->immune_fire)
 	{
 		info[i++] = "You are completely immune to fire.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_FIRE,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_fire) && (p_ptr->oppose_fire))
 	{
 		info[i++] = "You resist fire exceptionally well.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
+		equip_can_flags(0x0L,TR2_RES_FIRE,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_fire) || (p_ptr->oppose_fire))
 	{
 		info[i++] = "You are resistant to fire.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
+		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_FIRE,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_FIRE,0x0L);
+		equip_not_flags(0x0L,TR2_RES_FIRE,0x0L);
+#endif
 	}
 
 	if (p_ptr->immune_cold)
 	{
 		info[i++] = "You are completely immune to cold.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_COLD,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_cold) && (p_ptr->oppose_cold))
 	{
 		info[i++] = "You resist cold exceptionally well.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
+		equip_can_flags(0x0L,TR2_RES_COLD,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_cold) || (p_ptr->oppose_cold))
 	{
 		info[i++] = "You are resistant to cold.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
+		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_COLD,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_IM_COLD,0x0L);
+		equip_not_flags(0x0L,TR2_RES_COLD,0x0L);
+#endif
 	}
 
 	if ((p_ptr->resist_pois) && (p_ptr->oppose_pois))
 	{
 		info[i++] = "You resist poison exceptionally well.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 	}
 	else if ((p_ptr->resist_pois) || (p_ptr->oppose_pois))
 	{
 		info[i++] = "You are resistant to poison.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		if(!p_ptr->oppose_cold) equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 	}
 
 	if (p_ptr->resist_fear)
 	{
 		info[i++] = "You are completely fearless.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
+	}
+	else if ((p_ptr->hero)||(p_ptr->shero))
+	{
+		info[i++] = "You are temporarily fearless.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
 	}
 
 	if (p_ptr->resist_lite)
 	{
 		info[i++] = "You are resistant to bright light.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_LITE,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_LITE,0x0L);
+#endif
 	}
 	if (p_ptr->resist_dark)
 	{
 		info[i++] = "You are resistant to darkness.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_DARK,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_DARK,0x0L);
+#endif
 	}
 	if (p_ptr->resist_blind)
 	{
 		info[i++] = "Your eyes are resistant to blindness.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 	}
 	if (p_ptr->resist_confu)
 	{
 		info[i++] = "You are resistant to confusion.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 	}
 	if (p_ptr->resist_sound)
 	{
 		info[i++] = "You are resistant to sonic attacks.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 	}
 	if (p_ptr->resist_shard)
 	{
 		info[i++] = "You are resistant to blasts of shards.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 	}
 	if (p_ptr->resist_nexus)
 	{
 		info[i++] = "You are resistant to nexus attacks.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
 	}
 	if (p_ptr->resist_nethr)
 	{
 		info[i++] = "You are resistant to nether forces.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
 	}
 	if (p_ptr->resist_chaos)
 	{
 		info[i++] = "You are resistant to chaos.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
 	}
 	if (p_ptr->resist_disen)
 	{
 		info[i++] = "You are resistant to disenchantment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
 	}
 
 	if (p_ptr->sustain_str)
 	{
 		info[i++] = "Your strength is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_STR,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_STR,0x0L);
+#endif
 	}
 	if (p_ptr->sustain_int)
 	{
 		info[i++] = "Your intelligence is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_INT,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_INT,0x0L);
+#endif
 	}
 	if (p_ptr->sustain_wis)
 	{
 		info[i++] = "Your wisdom is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_WIS,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_WIS,0x0L);
+#endif
 	}
 	if (p_ptr->sustain_con)
 	{
 		info[i++] = "Your constitution is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_CON,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_CON,0x0L);
+#endif
 	}
 	if (p_ptr->sustain_dex)
 	{
 		info[i++] = "Your dexterity is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_DEX,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_DEX,0x0L);
+#endif
 	}
 	if (p_ptr->sustain_chr)
 	{
 		info[i++] = "Your charisma is sustained.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_SUST_CHR,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,TR2_SUST_CHR,0x0L);
+#endif
 	}
 
 	if (f1 & (TR1_STR))
 	{
 		info[i++] = "Your strength is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_STR,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_STR,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_INT))
 	{
 		info[i++] = "Your intelligence is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_INT,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_INT,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_WIS))
 	{
 		info[i++] = "Your wisdom is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_WIS,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_WIS,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_DEX))
 	{
 		info[i++] = "Your dexterity is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_DEX,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_DEX,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_CON))
 	{
 		info[i++] = "Your constitution is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_CON,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_CON,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_CHR))
 	{
 		info[i++] = "Your charisma is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+                equip_can_flags(TR1_CHR,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+                equip_not_flags(TR1_CHR,0x0L,0x0L);
+#endif
 	}
 
 	if (f1 & (TR1_STEALTH))
 	{
 		info[i++] = "Your stealth is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_STEALTH,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_STEALTH,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_SEARCH))
 	{
 		info[i++] = "Your searching ability is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_SEARCH,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_SEARCH,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_INFRA))
 	{
 		info[i++] = "Your infravision is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_INFRA,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_INFRA,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_TUNNEL))
 	{
 		info[i++] = "Your digging ability is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_TUNNEL,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_TUNNEL,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_SPEED))
 	{
 		info[i++] = "Your speed is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_SPEED,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_SPEED,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_BLOWS))
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_BLOWS,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_BLOWS,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_SHOTS))
 	{
 		info[i++] = "Your shooting speed is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_SHOTS,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_SHOTS,0x0L,0x0L);
+#endif
 	}
 	if (f1 & (TR1_MIGHT))
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(TR1_MIGHT,0x0L,0x0L);
+#endif
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(TR1_MIGHT,0x0L,0x0L);
+#endif
 	}
 
 
@@ -781,63 +1333,217 @@ void self_knowledge(void)
 		if (f1 & (TR1_BRAND_POIS))
 		{
 			info[i++] = "Your weapon poisons your foes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
 		}
 		/* Special "Attack Bonuses" */
 		if (f1 & (TR1_BRAND_ACID))
 		{
 			info[i++] = "Your weapon melts your foes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_BRAND_ELEC))
 		{
 			info[i++] = "Your weapon shocks your foes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_BRAND_FIRE))
 		{
 			info[i++] = "Your weapon burns your foes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
+#endif
 		}
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
 			info[i++] = "Your weapon strikes at demons with holy wrath.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
 			info[i++] = "Your weapon is especially deadly against orcs.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_TROLL))
 		{
 			info[i++] = "Your weapon is especially deadly against trolls.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_GIANT))
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
+#endif
 		}
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
+#endif
 		}
 
 		/* Special "kill" flags */
 		if (f1 & (TR1_KILL_DRAGON))
 		{
 			info[i++] = "Your weapon is a great bane of dragons.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+#endif
 		}
 
 
@@ -845,12 +1551,34 @@ void self_knowledge(void)
 		if (f3 & (TR3_BLESSED))
 		{
 			info[i++] = "Your weapon has been blessed by the gods.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+#endif
 		}
 
 		/* Hack */
 		if (f3 & (TR3_IMPACT))
 		{
 			info[i++] = "Your weapon can induce earthquakes.";
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_IMPACT);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+                        object_not_flags(o_ptr,0x0L,0x0L,TR3_IMPACT);
+#endif
 		}
 	}
 
@@ -1348,12 +2076,12 @@ bool detect_objects_magic(void)
 		/* Skip objects */
 		if (!okay) continue;
 
-		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
-
+		/* It already has a discount */
+		if ((o_ptr->discount > 0)&&(o_ptr->discount<=INSCRIP_NULL)) continue;
+#if 0
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
-
+#endif
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
@@ -1458,11 +2186,11 @@ bool detect_objects_magic(void)
 		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
-
+		if ((o_ptr->discount > 0)&&(o_ptr->discount<=INSCRIP_NULL)) continue;
+#if 0
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
-
+#endif
 		/* It is fully known, no information needed */
 		if (object_known_p(o_ptr)) continue;
 
@@ -3313,6 +4041,24 @@ void destroy_area(int y1, int x1, int r, bool full)
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+
+			/* Always notice */
+			equip_not_flags(0x0L,TR2_RES_LITE,0x0L);
+#endif
+
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+			/* Sometimes notice */
+			if ((p_ptr->resist_blind) && (rand_int(100)<30)) equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+
+			/* Sometimes notice */
+			if ((p_ptr->resist_lite) && (rand_int(100)<30)) equip_can_flags(0x0L,TR2_RES_LITE,0x0L);
+#endif
 		}
 	}
 
@@ -4254,6 +5000,13 @@ bool confuse_monster(int dir, int plev)
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
 }
+
+bool blind_monster(int dir)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+        return (project_hook(GF_BLIND, dir, damroll(3,8), flg));
+}
+
 
 bool poly_monster(int dir)
 {

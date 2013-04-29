@@ -245,6 +245,13 @@
  */
 #define ALLOW_OBJECT_INFO
 
+/*
+ * OPTION: Expand object memory. This may be a performance hit on older
+ * machines.
+ */
+#ifdef ALLOW_OBJECT_INFO
+#define ALLOW_OBJECT_INFO_MORE
+#endif
 
 /*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes

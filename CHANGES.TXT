@@ -1,3 +1,46 @@
+27-07-2001 Unangband 0.4.3 "Final Fantasy fix"
+- Modify store mass produce cost limits to allow multiple scrolls of
+identify scrolls to be created in stores. Some minor fiddling with scroll
+costs (Identify/Detect Magic/Curse cheaper, Remove curse slightly more
+expensive). However, we reduce the numbers of low cost stock generated.
+This may make scrolls of phase door (Probably the most useful of the
+low cost items) harder to stockpile. Also has effect of making enchant
+scrolls and cure critical wounds easier to stockpile. But high level
+priests could already max out their weapons... so this shouldn't be
+hugely unbalancing and probably beneficial for warriors.
+- Brought back staff of perceptions... at level 45.
+- Should have tracked down most if not all missing locations in code for
+object info being updated.
+- Swapped location of books of Transformations and Destruction.
+- You don't get experience now for monsters killed in traps, as this
+was open to much abuse. (Reported by Franklin Bratcher).
+- Fixed stupid loop resulting from confused monster trying to cast a
+spell (Reported by Eytan Zweig).
+- Changed book styles so that player receives bonus for spell if it
+appears in their style book even if they are casting it from 
+another book. This should help many specialists at low level.
+- New spells now will display info when browsing or selecting, if
+relevant.
+- Changed book styles so that the player also can cast spells some
+levels lower if the spell is in their book style, so that many styles
+eg of Power, of Lore, are actually useful now. This may be unbalancing
+in some instances (ie create gold at level 36), note however that
+the mana costs remain unchanged.
+- There were user interface issues with listing spells once you learnt
+your 33rd spell, which have been fixed (Reported by Christopher Pollard)
+- The same bug was preventing studying of more than 33 spells.
+(Reported by Christopher Pollard)
+- Unimplemented spells should now be illegible.
+- Blessing/prayer/chant provides temporary hold life.
+- Fixed bug where heroism/beserk strength would mark equipment as having
+resist fear.
+- Add notifications for detecting flags when wielding/shooting/meleeing
+with an object.
+- Fix last known crasher due to an uninitialised variable (Reported
+by Sean Lester).
+- Removed low mana warning until we implement an option for this
+(Reported by Franklin Bratcher).
+
 25-07-2001 Unangband 0.4.2 "Magic Mushroom fix"
 - Added object info. This tries to be smart about what we notice from hitting
 monsters and attack effects on us, and notifies the player in instances where

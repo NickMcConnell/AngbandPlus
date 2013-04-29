@@ -857,9 +857,11 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				else sprintf(temp,"%s",k_name+k_ptr->name);
 				if (long_name) sprintf(temp,"Magi %s",k_name+k_ptr->name);
                                 if (sval == 1) strcpy(temp,"Conjuror");
+                                if (sval == 1) strcpy(temp,"Invoker");
                                 if (sval == 3) strcpy(temp,"Sorcerer");
                                 if (sval == 6) strcpy(temp,"Archmage");
-                                if (sval == 8) strcpy(temp,"Warlock");
+                                if (sval == 7) strcpy(temp,"Warlock");
+				if (sval == 8) strcpy(temp,"War mage");
                                 if (sval == 22) strcpy(temp,"Enchanter");
                                 if (sval == 24) strcpy(temp,"Healer");
                                 if (sval == 21) strcpy(temp,"Runesmith");
@@ -872,7 +874,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
                                 if (sval == 25) strcpy(temp,"Artificer");
                                 if (sval == 23) strcpy(temp,"Sage");
                                 if (sval == 15) strcpy(temp,"Beastmaster");
-                                if (sval == 15) strcpy(temp,"Illusionist");
+                                if (sval == 16) strcpy(temp,"Illusionist");
 
 			}
 			break;
@@ -1460,10 +1462,10 @@ static void calc_spells(void)
 {
 	int i, ii, j, k, levels;
 	int num_allowed, num_known;
-
+#if 0
 	bool spells_done = FALSE;
 	bool spells_bad = FALSE;
-
+#endif
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
 
@@ -1532,7 +1534,7 @@ static void calc_spells(void)
 	/* Assume none known */
 	num_known = 0;
 
-	/* Count the number of spells we know */
+        /* Count the number of spells we know */
 	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Count known spells */
@@ -1541,15 +1543,18 @@ static void calc_spells(void)
 		    (p_ptr->spell_learned2 & (1L << (j - 32))))
 		{
 			num_known++;
+
 		}
+#if 0
 		else if (p_ptr->spell_order[j] == 99)
 		{
 
 			if (spells_done) spells_bad = TRUE;
 			spells_done = TRUE;
 		}
+#endif
 	}
-
+#if 0
 	/* Fix spells, spell order and so forth for old characters. */
 	if (spells_bad)
 	{
@@ -1611,12 +1616,12 @@ static void calc_spells(void)
 
 		}
 	}
-
+#endif
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;
 
 	/* Forget spells which are too hard */
-	for (i = 63; i >= 0; i--)
+	for (i = PY_MAX_SPELLS-1; i >= 0; i--)
 	{
 		/* Efficiency -- all done */
 		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
@@ -1639,8 +1644,9 @@ static void calc_spells(void)
 			}
 		}
 
+
 		/* Skip spells we are allowed to know */
-		if (sc_ptr->level <= p_ptr->lev) continue;
+                if (spell_level(j) <= p_ptr->lev) continue;
 
 		/* Is it known? */
 		if ((i < 32) ?
@@ -1677,7 +1683,7 @@ static void calc_spells(void)
 	}
 
 	/* Forget spells if we know too many spells */
-	for (i = 63; i >= 0; i--)
+	for (i = PY_MAX_SPELLS-1; i >= 0; i--)
 	{
 		/* Stop when possible */
 		if (p_ptr->new_spells >= 0) break;
@@ -1747,7 +1753,7 @@ static void calc_spells(void)
 		s_ptr = &s_info[j];
 
 		/* Get the spell details */
-		for (ii=0;ii<4;ii++)
+                for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
 		{
 			if (s_ptr->cast[ii].class == p_ptr->pclass)
 			{
@@ -1756,7 +1762,7 @@ static void calc_spells(void)
 		}
 
 		/* Skip spells we cannot remember */
-		if (sc_ptr->level > p_ptr->lev) continue;
+                if (spell_level(j) > p_ptr->lev) continue;
 
 		/* First set of spells */
 		if ((i < 32) ?
@@ -2038,8 +2044,13 @@ static void calc_torch(void)
 	p_ptr->cur_lite = 0;
 
 	/* Player is glowing */
-	if (p_ptr->lite) p_ptr->cur_lite = 1;
-
+        if (p_ptr->lite)
+        {
+#ifdef ALLOW_OBJECT_INFO_MORE
+                equip_can_flags(0x0L,0x0L,TR3_LITE);
+#endif
+                p_ptr->cur_lite = 1;
+        }
 
 	/* Examine actual lites */
 	if (o_ptr->tval == TV_LITE)
@@ -2615,15 +2626,6 @@ static void calc_bonuses(void)
 	if (p_ptr->tim_infra)
 	{
 		p_ptr->see_infra++;
-	}
-
-
-	/*** Special flags ***/
-
-	/* Hack -- Hero/Shero -> Res fear */
-	if (p_ptr->hero || p_ptr->shero)
-	{
-		p_ptr->resist_fear = TRUE;
 	}
 
 

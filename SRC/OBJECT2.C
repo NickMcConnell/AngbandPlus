@@ -4954,6 +4954,114 @@ void fill_book(object_type *o_ptr, byte *book, int *num)
 }
 
 /*
+ * Returns level for a spell
+ */
+s16b spell_level(int spell)
+{
+        int i;
+
+        s16b level;
+
+        spell_type *s_ptr;
+
+	spell_cast *sc_ptr = &(s_info[0].cast[0]);
+
+        bool legible = FALSE;
+
+	/* Paranoia -- must be literate */
+	if (c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL) return (100);
+
+	/* Get the spell */
+	s_ptr = &s_info[spell];
+
+	/* Get casting information */
+        for (i=0;i<MAX_SPELL_CASTERS;i++)
+	{
+		if (s_ptr->cast[i].class == p_ptr->pclass)
+		{
+			legible = TRUE;
+			sc_ptr=&(s_ptr->cast[i]);
+		}
+	}
+
+	/* Illegible */
+	if (!legible) return (100);
+
+
+        /* Get the level */
+        level = sc_ptr->level;
+
+        /* Modify the level */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
+
+                if (w_info[i].benefit != WB_POWER) continue;
+
+		switch (p_ptr->pstyle)
+		{
+			case WS_MAGIC_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+                                                 level -= (level - w_info[i].level)/5;
+					}
+
+				}
+				break;
+			}
+			case WS_PRAYER_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+                                                 level -= (level - w_info[i].level)/5;
+					}
+
+				}
+				break;
+			}
+			case WS_SONG_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+                                                 level -= (level - w_info[i].level)/5;
+					}
+
+				}
+				break;
+			}
+			default:
+			{
+                                if (w_info[i].styles & p_ptr->cur_style) level -= (level - w_info[i].level)/5;
+				break;
+			}
+		}
+
+	}
+        return(level);
+}
+
+
+/*
  * Returns chance of failure for a spell
  */
 s16b spell_chance(int spell)
@@ -4991,7 +5099,7 @@ s16b spell_chance(int spell)
 	chance = sc_ptr->fail;
 
 	/* Reduce failure rate by "effective" level adjustment */
-	chance -= 3 * (p_ptr->lev - sc_ptr->level);
+        chance -= 3 * (p_ptr->lev - spell_level(spell));
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[c_info[p_ptr->pclass].sp_stat]] - 1);
@@ -5064,13 +5172,19 @@ bool spell_okay(int spell, bool known)
 	/* Spell is illegible */
 	if (!legible) return (FALSE);
 
+
+
+
 	/* Spell is illegal */
-	if (sc_ptr->level > p_ptr->lev) return (FALSE);
+        if (spell_level(spell) > p_ptr->lev) return (FALSE);
 
 	for (i=0;i<PY_MAX_SPELLS;i++)
 	{
 		if (p_ptr->spell_order[i] == spell) break;
 	}
+
+        /* Spell okay to study, not to cast */
+        if (i == PY_MAX_SPELLS) return (!known);
 
 	/* Spell is forgotten */
 	if ((i < 32) ?
@@ -5108,10 +5222,81 @@ bool spell_okay(int spell, bool known)
  */
 void spell_info(char *p, int spell)
 {
+	int i;
+
 	int plev = p_ptr->lev;
 
 	/* See below */
 	int orb = (plev / (c_info[p_ptr->pclass].sp_pow ? 2 : 4));
+
+	/* Modify the spell power */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
+
+                if (w_info[i].benefit != WB_POWER) continue;
+
+		switch (p_ptr->pstyle)
+		{
+			case WS_MAGIC_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			case WS_PRAYER_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			case WS_SONG_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			default:
+			{
+                                if (w_info[i].styles & p_ptr->cur_style) plev += (p_ptr->lev - w_info[i].level);
+				break;
+			}
+		}
+
+	}
+
+
 
 	/* Default */
 	strcpy(p, "");
@@ -5134,8 +5319,8 @@ void spell_info(char *p, int spell)
 		case 1+38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
 		case 1+39: sprintf(p, " dam %d", 40 + plev/2); break;
 		case 1+40: sprintf(p, " dam %d", 40 + plev); break;
-		case 1+41: sprintf(p, " dam %d", 70 + plev); break;
-		case 1+42: sprintf(p, " dam %d", 65 + plev); break;
+		case 1+41: sprintf(p, " dam %d", 70 + plev*2); break;
+		case 1+42: sprintf(p, " dam %d", 65 + plev*2); break;
 		case 1+43: sprintf(p, " dam %d", 300 + plev*2); break;
 		case 1+49: strcpy(p, " dur 20+d20"); break;
 		case 1+50: strcpy(p, " dur 20+d20"); break;
@@ -5151,27 +5336,113 @@ void spell_info(char *p, int spell)
 		case 60+1: strcpy(p, " heal 2d10"); break;
 		case 60+2: strcpy(p, " dur 12+d12"); break;
 		case 60+9: sprintf(p, " range %d", 3*plev); break;
-		case 60+10: strcpy(p, " heal 4d10"); break;
+                case 60+10: strcpy(p, " heal 4d10"); break;
 		case 60+11: strcpy(p, " dur 24+d24"); break;
 		case 60+15: strcpy(p, " dur 10+d10"); break;
 		case 60+17: sprintf(p, " %d+3d6", plev + orb); break;
-		case 60+18: strcpy(p, " heal 6d10"); break;
+		case 60+18: strcpy(p, " heal 8d10"); break;
 		case 60+19: strcpy(p, " dur 24+d24"); break;
 		case 60+20: sprintf(p, " dur %d+d25", 3*plev); break;
-		case 60+23: strcpy(p, " heal 8d10"); break;
+		case 60+23: sprintf(p, " heal 10d%d",10+plev/4); break;
 		case 60+25: strcpy(p, " dur 48+d48"); break;
 		case 60+26: sprintf(p, " dam d%d", 3*plev); break;
 		case 60+27: strcpy(p, " heal 300"); break;
 		case 60+28: sprintf(p, " dam d%d", 3*plev); break;
 		case 60+30: strcpy(p, " heal 1000"); break;
-		case 60+36: strcpy(p, " heal 4d10"); break;
-		case 60+37: strcpy(p, " heal 8d10"); break;
+		case 60+36: strcpy(p, " heal 6d10"); break;
+		case 60+37: strcpy(p, " heal 12d10"); break;
 		case 60+38: strcpy(p, " heal 2000"); break;
 		case 60+41: sprintf(p, " dam d%d", 4*plev); break;
 		case 60+42: sprintf(p, " dam d%d", 4*plev); break;
 		case 60+45: strcpy(p, " dam 200"); break;
 		case 60+52: strcpy(p, " range 10"); break;
 		case 60+53: sprintf(p, " range %d", 8*plev); break;
+
+		
+		case 118: strcpy(p, " dur 30+d20"); break;
+		case 119: strcpy(p, " dur 48+d48"); break;
+		case 120: strcpy(p, " dur 48+d48"); break;
+		case 121: strcpy(p, " dur 8+d8"); break;
+		case 122: strcpy(p, " dam 6d8"); break;
+		case 123: strcpy(p, " dur 48+d48"); break;
+		case 124: strcpy(p, " dur 48+d48"); break;
+		case 125: sprintf(p, " dam %d",55+plev); break;
+		case 135: strcpy(p, " dam 6d8"); break;
+		case 136: strcpy(p, " dur 20+d20"); break;
+		case 137: strcpy(p, " dur 20+d20"); break;
+		case 138: strcpy(p, " dam 2d10"); break;
+                case 139: strcpy(p, " dam 3d8"); break;
+		case 140: strcpy(p, " dam 4d10"); break;
+		case 142: strcpy(p, " dam 6d10"); break;
+		case 143: strcpy(p, " dam 8d10"); break;
+		case 145: strcpy(p, " dam 12d10"); break;
+		case 146: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
+		case 147: strcpy(p, " dam 4d6"); break;
+		case 148: strcpy(p, " dur d48+48"); break;
+		case 150: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
+		case 151: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
+		case 152: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
+		case 153: sprintf(p, " dam %d", 95+plev*2); break;
+		case 154: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
+		case 155: strcpy(p, " dam 4d6"); break;
+		case 156: strcpy(p, " dur d48+48"); break;
+		case 157: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+		case 159: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+		case 160: sprintf(p, " dam %d", 65+plev*2); break;
+		case 161: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+		case 162: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
+		case 163: strcpy(p, " dur d20+20"); break;
+		case 164: strcpy(p, " dam 4d6"); break;
+		case 165: strcpy(p, " dur d48+48"); break;
+		case 166: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
+		case 167: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
+		case 168: sprintf(p, " dam %d", 95+plev); break;
+		case 169: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
+		case 170: sprintf(p, " dam %d", 115+plev*2); break;
+		case 171: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
+		case 172: strcpy(p, " dam 4d6"); break;
+		case 173: strcpy(p, " dur d48+48"); break;
+		case 174: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+		case 176: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+		case 177: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
+                case 179: sprintf(p, " lvl %d", plev); break;
+		case 180: strcpy(p, " dur d25+25"); break;
+		case 182: strcpy(p, " dur d20+20"); break;
+		case 183: strcpy(p, " heal 4d8"); break;
+                case 184: sprintf(p, " dam 2d10+%d", plev); break;
+		case 185: strcpy(p, " dur d25+25"); break;
+                case 186: sprintf(p, " dam d%d", plev*4); break;
+		case 194: strcpy(p, " lvl d100"); break;
+		case 195: strcpy(p, " dur d20+20"); break;
+                case 196: sprintf(p, " dam d25+%d", 30+(plev*2)); break;
+		case 212: strcpy(p, " dur d200+200"); break;
+		case 213: strcpy(p, " dam 6d8"); break;
+		case 214: sprintf(p, " dam 4d%d",plev/2); break;
+		case 215: sprintf(p, " dam %dd8",10+(plev-5)/4); break;
+                case 216: strcpy(p, " dur d100+100"); break;
+		case 219: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
+		case 220: strcpy(p, " dam 6d8"); break;
+		case 221: sprintf(p, " dam %d", 20 + (plev / 2)); break;
+		case 222: sprintf(p, " dam %d", 30 + (plev / 2)); break;
+		case 223: sprintf(p, " dam %d", 40 + (plev / 2)); break;
+		case 225: sprintf(p, " dam %d", 50 + (plev / 2)); break;
+		case 226: sprintf(p, " dam %d", 80 + plev); break;
+                case 228: sprintf(p, " dam 2d%d",plev/2); break;
+		case 229: sprintf(p, " dam 2d%d",plev/2); break;
+		case 230: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
+		case 232: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
+		case 233: sprintf(p, " dam %d", 60 + plev*2); break;
+		case 236: sprintf(p, " dam %d", 10 + plev); break;
+		case 237: strcpy(p, " dur d200+200"); break;
+                case 238: sprintf(p, " dam %d", 20 + plev*2); break;
+		case 239: sprintf(p, " lvl %d",plev); break;
+		case 245: strcpy(p, " heal 6d8"); break;
+		case 246: strcpy(p, " heal 12d8"); break;
+		case 253: strcpy(p, " dur d48+48"); break;
+		case 254: sprintf(p, " dam 4d10+%d", plev); break;
+		case 255: sprintf(p, " dam %dd8",8+(plev-5)/4); break;
+
+
 	}
 }
 
@@ -5196,7 +5467,6 @@ void print_spells(byte *book, int num, int y, int x)
 	spell_type *s_ptr;
 
 	spell_cast *sc_ptr;
-
 
 	/* Title the list */
 	prt("", y, x);
@@ -5252,9 +5522,21 @@ void print_spells(byte *book, int num, int y, int x)
 
 		}
 
-
-		/* Analyze the spell */
-		if ((ii < 32) ?
+		/* Analyze the spell */                
+                if (ii==PY_MAX_SPELLS)
+                {
+			if (sc_ptr->level <= p_ptr->lev)
+			{
+				comment = " unknown";
+				line_attr = TERM_L_BLUE;
+			}
+			else
+			{
+				comment = " difficult";
+				line_attr = TERM_RED;
+			}
+                }
+                else if ((ii < 32) ?
 		    ((p_ptr->spell_forgotten1 & (1L << ii))) :
 		    ((p_ptr->spell_forgotten2 & (1L << (ii - 32)))))
 		{
@@ -5287,7 +5569,7 @@ void print_spells(byte *book, int num, int y, int x)
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), s_name + s_ptr->name,
-		        sc_ptr->level, sc_ptr->mana, spell_chance(spell), comment);
+                        spell_level(spell), sc_ptr->mana, spell_chance(spell), comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 

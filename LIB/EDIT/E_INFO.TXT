@@ -234,6 +234,12 @@
 # more possible combinations to fill out the gaps. This should make higher
 # level characters have more varied combinations of equipment.
 
+# Added resist fire/acid to dwarven armour and res cold/elec to elven armour
+# so that it is easier to cover the low resistances. Also add resist poison
+# to crown/robes of the magi.
+
+# 
+
 V:2.9.1
 
 
@@ -309,12 +315,13 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:9:(Elven)
 X:30:25:2
-W:0:4:0:2000
+W:0:4:0:4000
 C:0:0:10:3
 T:35:0:99
 T:36:0:99
 T:37:0:99
 F:STEALTH | DEX |
+F:RES_ELEC | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:10:of Vulnerability
@@ -330,7 +337,7 @@ F:LIGHT_CURSE
 
 N:11:of Permanence
 X:30:30:2
-W:0:2:0:20000
+W:0:2:0:15000
 C:0:0:20:0
 T:35:0:99
 T:36:2:2
@@ -344,7 +351,7 @@ X:32:18:0
 W:0:2:0:3000
 C:0:0:15:2
 T:37:3:99
-F:IGNORE_ACID | IGNORE_FIRE |  
+F:IGNORE_ACID | IGNORE_FIRE | RES_ACID | RES_FIRE |
 F:STR | CON | INFRA | HIDE_TYPE
 
 ### Shields/Robes/Cloaks ###
@@ -436,21 +443,22 @@ F:CHR | SUST_CHR
 
 N:27:of the Magi
 X:33:19:3
-W:0:4:0:7500
+W:0:4:0:12500
 C:0:0:0:3
 T:33:0:99
 T:36:2:2
 F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_POIS
 
-#Crown/Helmet
+#Crown/Helmet/Gauntlets
 
 N:28:of Might
 X:33:19:0
 W:0:4:0:2000
 C:0:0:0:3
 T:33:0:99
+T:31:2:99
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT 
 
 N:29:of Lordliness

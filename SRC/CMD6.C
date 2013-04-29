@@ -119,7 +119,19 @@ void do_cmd_eat_food(void)
 				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
 				{
 					ident = TRUE;
+
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)) && (p_ptr->resist_pois) && (rand_int(100)<30))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 			}
 			break;
 		}
@@ -131,19 +143,42 @@ void do_cmd_eat_food(void)
 				if (set_blind(p_ptr->blind + rand_int(200) + 200))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 			}
 			break;
 		}
 
 		case SV_FOOD_PARANOIA:
 		{
-			if (!p_ptr->resist_fear)
+			if ((!p_ptr->resist_fear)&&(!p_ptr->hero)&&(!p_ptr->shero))
 			{
 				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					if (p_ptr->resist_fear) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
+
 			}
 			break;
 		}
@@ -155,7 +190,18 @@ void do_cmd_eat_food(void)
 				if (set_confused(p_ptr->confused + rand_int(10) + 10))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 			}
 			break;
 		}
@@ -167,7 +213,18 @@ void do_cmd_eat_food(void)
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
 			}
 			break;
 		}
@@ -179,7 +236,18 @@ void do_cmd_eat_food(void)
 				if (set_paralyzed(p_ptr->paralyzed + rand_int(10) + 10))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 			}
 			break;
 		}
@@ -456,7 +524,18 @@ void do_cmd_quaff_potion(void)
 				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)) && (p_ptr->resist_pois) && (rand_int(100)<30))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 			}
 			break;
 		}
@@ -468,7 +547,18 @@ void do_cmd_quaff_potion(void)
 				if (set_blind(p_ptr->blind + rand_int(100) + 100))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 			}
 			break;
 		}
@@ -480,7 +570,18 @@ void do_cmd_quaff_potion(void)
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 			}
 			break;
 		}
@@ -492,18 +593,36 @@ void do_cmd_quaff_potion(void)
 				if (set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4))
 				{
 					ident = TRUE;
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 			}
 			break;
 		}
 
 		case SV_POTION_LOSE_MEMORIES:
 		{
-			if (!p_ptr->hold_life && (p_ptr->exp > 0))
+			if (!p_ptr->hold_life && !p_ptr->blessed && (p_ptr->exp > 0))
 			{
 				msg_print("You feel your memories fade.");
 				lose_exp(p_ptr->exp / 4);
 				ident = TRUE;
+			}
+			else if ((object_aware_p(o_ptr)))
+			{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 			}
 			break;
 		}
@@ -1646,13 +1765,14 @@ void do_cmd_use_staff(void)
 		{
                         if (detect_objects_cursed()) ident = TRUE;
 			break;
-/* Hack --- was a staff of identify */
-#if 0
+
+		}
+
+		case SV_STAFF_IDENTIFY:
+		{
 			if (!ident_spell()) use_charge = FALSE;
 			ident = TRUE;
 			break;
-
-#endif
 		}
 
 		case SV_STAFF_REMOVE_CURSE:

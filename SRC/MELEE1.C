@@ -429,21 +429,21 @@ bool make_attack_normal(int m_idx)
 			/* Check for usage */
 			if (rand_int(100)<damage)
 			{
-                                object_type *o_ptr=&inventory[INVEN_WIELD];
+                                int slot;
 
 				/* Pick a (possibly empty) inventory slot */
 				switch (randint(6))
 				{
-					case 1: o_ptr = &inventory[INVEN_BODY]; break;
-					case 2: o_ptr = &inventory[INVEN_ARM]; break;
-					case 3: o_ptr = &inventory[INVEN_OUTER]; break;
-					case 4: o_ptr = &inventory[INVEN_HANDS]; break;
-					case 5: o_ptr = &inventory[INVEN_HEAD]; break;
-					case 6: o_ptr = &inventory[INVEN_FEET]; break;
+					case 1: slot = INVEN_BODY; break;
+					case 2: slot = INVEN_ARM; break;
+					case 3: slot = INVEN_OUTER; break;
+					case 4: slot = INVEN_HANDS; break;
+					case 5: slot = INVEN_HEAD; break;
+					case 6: slot = INVEN_FEET; break;
 				}
 
 				/* Object used? */
-				object_usage(o_ptr);
+				object_usage(INVEN_WIELD);
 			}
 
 #endif

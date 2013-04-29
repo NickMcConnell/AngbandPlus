@@ -2657,6 +2657,255 @@ bool identify_fully_aux(object_type *o_ptr)
 	return (TRUE);
 }
 
+
+/*
+ * Convert an inventory index into a one character label.
+ *
+ * Note that the label does NOT distinguish inven/equip.
+ */
+char index_to_label(int i)
+{
+	/* Indexes for "inven" are easy */
+	if (i < INVEN_WIELD) return (I2A(i));
+
+	/* Indexes for "equip" are offset */
+	return (I2A(i - INVEN_WIELD));
+}
+
+
+/*
+ * Convert a label into the index of an item in the "inven".
+ *
+ * Return "-1" if the label does not indicate a real item.
+ */
+s16b label_to_inven(int c)
+{
+	int i;
+
+	/* Convert */
+	i = (islower(c) ? A2I(c) : -1);
+
+	/* Verify the index */
+	if ((i < 0) || (i > INVEN_PACK)) return (-1);
+
+	/* Empty slots can never be chosen */
+	if (!inventory[i].k_idx) return (-1);
+
+	/* Return the index */
+	return (i);
+}
+
+
+/*
+ * Convert a label into the index of a item in the "equip".
+ *
+ * Return "-1" if the label does not indicate a real item.
+ */
+s16b label_to_equip(int c)
+{
+	int i;
+
+	/* Convert */
+	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
+
+	/* Verify the index */
+	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
+
+	/* Empty slots can never be chosen */
+	if (!inventory[i].k_idx) return (-1);
+
+	/* Return the index */
+	return (i);
+}
+
+
+
+/*
+ * Determine which equipment slot (if any) an item likes
+ */
+s16b wield_slot(object_type *o_ptr)
+{
+	/* Slot for equipment */
+	switch (o_ptr->tval)
+	{
+                case TV_INSTRUMENT:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		{
+			return (INVEN_WIELD);
+		}
+
+		case TV_BOW:
+		{
+			return (INVEN_BOW);
+		}
+
+		case TV_RING:
+		{
+			/* Use the right hand first */
+			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
+
+			/* Use the left hand for swapping (by default) */
+			return (INVEN_LEFT);
+		}
+
+		case TV_AMULET:
+		{
+			return (INVEN_NECK);
+		}
+
+		case TV_LITE:
+		{
+			return (INVEN_LITE);
+		}
+
+		case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		{
+			return (INVEN_BODY);
+		}
+
+		case TV_CLOAK:
+		{
+			return (INVEN_OUTER);
+		}
+
+		case TV_SHIELD:
+		{
+			return (INVEN_ARM);
+		}
+
+		case TV_CROWN:
+		case TV_HELM:
+		{
+			return (INVEN_HEAD);
+		}
+
+		case TV_GLOVES:
+		{
+			return (INVEN_HANDS);
+		}
+
+		case TV_BOOTS:
+		{
+			return (INVEN_FEET);
+		}
+	}
+
+	/* No slot available */
+	return (-1);
+}
+
+
+/*
+ * Return a string mentioning how a given item is carried
+ */
+cptr mention_use(int i)
+{
+	cptr p;
+
+	/* Examine the location */
+	switch (i)
+	{
+		case INVEN_WIELD: p = "Wielding"; break;
+		case INVEN_BOW:   p = "Shooting"; break;
+		case INVEN_LEFT:  p = "On left hand"; break;
+		case INVEN_RIGHT: p = "On right hand"; break;
+		case INVEN_NECK:  p = "Around neck"; break;
+		case INVEN_LITE:  p = "Light source"; break;
+		case INVEN_BODY:  p = "On body"; break;
+		case INVEN_OUTER: p = "About body"; break;
+		case INVEN_ARM:   p = "On arm"; break;
+		case INVEN_HEAD:  p = "On head"; break;
+		case INVEN_HANDS: p = "On hands"; break;
+		case INVEN_FEET:  p = "On feet"; break;
+		default:          p = "In pack"; break;
+	}
+
+	/* Hack -- Heavy weapon */
+	if (i == INVEN_WIELD)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		{
+			p = "Just lifting";
+		}
+	}
+
+	/* Hack -- Heavy bow */
+	if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		{
+			p = "Just holding";
+		}
+	}
+
+	/* Return the result */
+	return (p);
+}
+
+
+/*
+ * Return a string describing how a given item is being worn.
+ * Currently, only used for items in the equipment, not inventory.
+ */
+cptr describe_use(int i)
+{
+	cptr p;
+
+	switch (i)
+	{
+		case INVEN_WIELD: p = "attacking monsters with"; break;
+		case INVEN_BOW:   p = "shooting missiles with"; break;
+		case INVEN_LEFT:  p = "wearing on your left hand"; break;
+		case INVEN_RIGHT: p = "wearing on your right hand"; break;
+		case INVEN_NECK:  p = "wearing around your neck"; break;
+		case INVEN_LITE:  p = "using to light the way"; break;
+		case INVEN_BODY:  p = "wearing on your body"; break;
+		case INVEN_OUTER: p = "wearing on your back"; break;
+		case INVEN_ARM:   p = "wearing on your arm"; break;
+		case INVEN_HEAD:  p = "wearing on your head"; break;
+		case INVEN_HANDS: p = "wearing on your hands"; break;
+		case INVEN_FEET:  p = "wearing on your feet"; break;
+		default:          p = "carrying in your pack"; break;
+	}
+
+	if (i<0) p = "using from the ground";
+
+	/* Hack -- Heavy weapon */
+	if (i == INVEN_WIELD)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		{
+			p = "just lifting";
+		}
+	}
+
+	/* Hack -- Heavy bow */
+	if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		{
+			p = "just holding";
+		}
+	}
+
+	/* Return the result */
+	return p;
+}
+
+
 #ifdef ALLOW_OBJECT_INFO
 /*
  * Object does have flags.
@@ -2958,9 +3207,14 @@ void clear_may_flags(void)
 /*
  * Usage count for an object
  */
-void object_usage(object_type *o_ptr)
+void object_usage(int slot)
 {
+	object_type *o_ptr;
+
 	char o_name[80];
+
+	if (slot >=0) o_ptr =&inventory[slot];
+	else o_ptr=&o_list[0-slot];
 
         if ((o_ptr->i_object.usage)<MAX_SHORT) o_ptr->i_object.usage++;
 
@@ -2979,7 +3233,7 @@ void object_usage(object_type *o_ptr)
 	{
 
 		/* Describe what we know */
-                msg_format("You feel you know everything about the %s.",o_name);
+                msg_format("You feel you know everything about the %s you are %s.",o_name,describe_use(slot));
 
 		/* Identify it fully */
 		object_aware(o_ptr);
@@ -3008,7 +3262,7 @@ void object_usage(object_type *o_ptr)
 	{
 
 		/* Describe what we know */
-                msg_format("You feel you recognize the %s.",o_name);
+                msg_format("You feel you recognize the %s you are %s.",o_name,describe_use(slot));
 
 		/* Identify it fully */
 		object_aware(o_ptr);
@@ -3032,7 +3286,7 @@ void object_usage(object_type *o_ptr)
 	{
 
 		/* Describe what we know */
-                msg_format("You feel you know more about the %s.",o_name);
+                msg_format("You feel you know more about the %s you are %s.",o_name,describe_use(slot));
 
 		/* Identify the kind */
 		object_aware(o_ptr);
@@ -3057,7 +3311,52 @@ void object_usage(object_type *o_ptr)
 }
 
 /*
- * Equipment must have these flags
+ * Slot holds an object with these flags. Inform the player.
+ */
+
+void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
+{
+
+	cptr info[128];
+
+	char o_name[80];
+
+	int j,k;
+
+	object_type *i_ptr;
+
+	/* Nothing to update */
+	if (!(f1) && !(f2) && !(f3)) return;
+
+	/* Get the item */
+	if (slot >=0) i_ptr =&inventory[slot];
+	else i_ptr=&o_list[0-slot];
+
+	/* Update the object */
+	object_can_flags(i_ptr,f1,f2,f3);
+
+	/* Describe the object */
+        object_desc(o_name, i_ptr, FALSE, 0);
+
+	/* Describe what we now know */
+        msg_format("You feel you know the %s you are %s better...",o_name, describe_use(slot));
+
+	k= identify_fully_desc(info,f1,f2,f3);
+
+	for (j = 0; j < k; j++)
+	{
+		msg_format("%s",info[j]);
+	}
+
+	/* Clear may flags */
+        drop_may_flags(i_ptr);
+
+}
+
+/*
+ * Equipment must have these flags.
+ * Note with ALLOW_OBJECT_INFO_MORE, this is
+ * an efficiency bottleneck.
  */
 void equip_can_flags(u32b f1,u32b f2,u32b f3)
 {
@@ -3095,72 +3394,9 @@ void equip_can_flags(u32b f1,u32b f2,u32b f3)
 	/* Only 1 item can, therefore it must */
         if (count == 1)
 	{
-		cptr info[128];
+		/* Update and inform the player */
+                update_slot_flags(n,f1,f2,f3);
 
-		cptr act;
-
-		char o_name[80];
-
-		int j,k;
-
-		i_ptr= &inventory[n];
-
-		object_can_flags(i_ptr,f1,f2,f3);
-
-		/* Describe the object */
-                object_desc(o_name, i_ptr, FALSE, 0);
-
-		/* Destroy spell */
-		if (i_ptr->tval == TV_SPELL)
-		{
-        	        act = "enchanted with";
-		}
-
-
-		/* Take off instrument */
-		else if (i_ptr->tval == TV_INSTRUMENT)
-		{
-			act = "playing";
-			p_ptr->held_song = 0;
-		}
-
-		/* Took off weapon */
-                else if (n == INVEN_WIELD)
-		{
-			act = "wielding";
-		}
-
-		/* Took off bow */
-                else if (n == INVEN_BOW)
-		{
-			act = "holding";
-		}
-
-		/* Took off light */
-                else if (n == INVEN_LITE)
-		{
-			act = "holding";
-		}
-
-		/* Took off something */
-		else
-		{
-			act = "wearing";
-		}
-
-		/* Describe what we know */
-                msg_format("You feel you know the %s you are %s better...",o_name, act);
-
-		k= identify_fully_desc(info,f1,f2,f3);
-
-		for (j = 0; j < k; j++)
-		{
-			msg_format("%s",info[j]);
-		}
-
-
-		/* Clear may flags */
-                drop_may_flags(i_ptr);
 	}
 
 }
@@ -3212,32 +3448,8 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3)
 	/* Only 1 item can, therefore it must */
         if (count == 1)
 	{
-		cptr info[128];
-
-		cptr act="carrying in your pack";
-
-		char o_name[80];
-
-		int j,k;
-
-		i_ptr= &inventory[n];
-
-		object_can_flags(i_ptr,f1,f2,f3);
-
-		/* Describe the object */
-                object_desc(o_name, i_ptr, FALSE, 0);
-
-		/* Describe what we know */
-                msg_format("You feel you know the %s you are %s better...",o_name, act);
-
-		k= identify_fully_desc(info,f1,f2,f3);
-
-		for (j = 0; j < k; j++)
-		{
-			msg_format("%s",info[j]);
-		}
-
-
+		/* Update and inform the player */
+                update_slot_flags(n,f1,f2,f3);
 	}
 
 }
@@ -3247,254 +3459,6 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3)
 
 
 #endif
-
-/*
- * Convert an inventory index into a one character label.
- *
- * Note that the label does NOT distinguish inven/equip.
- */
-char index_to_label(int i)
-{
-	/* Indexes for "inven" are easy */
-	if (i < INVEN_WIELD) return (I2A(i));
-
-	/* Indexes for "equip" are offset */
-	return (I2A(i - INVEN_WIELD));
-}
-
-
-/*
- * Convert a label into the index of an item in the "inven".
- *
- * Return "-1" if the label does not indicate a real item.
- */
-s16b label_to_inven(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower(c) ? A2I(c) : -1);
-
-	/* Verify the index */
-	if ((i < 0) || (i > INVEN_PACK)) return (-1);
-
-	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
-
-	/* Return the index */
-	return (i);
-}
-
-
-/*
- * Convert a label into the index of a item in the "equip".
- *
- * Return "-1" if the label does not indicate a real item.
- */
-s16b label_to_equip(int c)
-{
-	int i;
-
-	/* Convert */
-	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
-
-	/* Verify the index */
-	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
-
-	/* Empty slots can never be chosen */
-	if (!inventory[i].k_idx) return (-1);
-
-	/* Return the index */
-	return (i);
-}
-
-
-
-/*
- * Determine which equipment slot (if any) an item likes
- */
-s16b wield_slot(object_type *o_ptr)
-{
-	/* Slot for equipment */
-	switch (o_ptr->tval)
-	{
-                case TV_INSTRUMENT:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		{
-			return (INVEN_WIELD);
-		}
-
-		case TV_BOW:
-		{
-			return (INVEN_BOW);
-		}
-
-		case TV_RING:
-		{
-			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
-
-			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
-		}
-
-		case TV_AMULET:
-		{
-			return (INVEN_NECK);
-		}
-
-		case TV_LITE:
-		{
-			return (INVEN_LITE);
-		}
-
-		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		{
-			return (INVEN_BODY);
-		}
-
-		case TV_CLOAK:
-		{
-			return (INVEN_OUTER);
-		}
-
-		case TV_SHIELD:
-		{
-			return (INVEN_ARM);
-		}
-
-		case TV_CROWN:
-		case TV_HELM:
-		{
-			return (INVEN_HEAD);
-		}
-
-		case TV_GLOVES:
-		{
-			return (INVEN_HANDS);
-		}
-
-		case TV_BOOTS:
-		{
-			return (INVEN_FEET);
-		}
-	}
-
-	/* No slot available */
-	return (-1);
-}
-
-
-/*
- * Return a string mentioning how a given item is carried
- */
-cptr mention_use(int i)
-{
-	cptr p;
-
-	/* Examine the location */
-	switch (i)
-	{
-		case INVEN_WIELD: p = "Wielding"; break;
-		case INVEN_BOW:   p = "Shooting"; break;
-		case INVEN_LEFT:  p = "On left hand"; break;
-		case INVEN_RIGHT: p = "On right hand"; break;
-		case INVEN_NECK:  p = "Around neck"; break;
-		case INVEN_LITE:  p = "Light source"; break;
-		case INVEN_BODY:  p = "On body"; break;
-		case INVEN_OUTER: p = "About body"; break;
-		case INVEN_ARM:   p = "On arm"; break;
-		case INVEN_HEAD:  p = "On head"; break;
-		case INVEN_HANDS: p = "On hands"; break;
-		case INVEN_FEET:  p = "On feet"; break;
-		default:          p = "In pack"; break;
-	}
-
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "Just lifting";
-		}
-	}
-
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "Just holding";
-		}
-	}
-
-	/* Return the result */
-	return (p);
-}
-
-
-/*
- * Return a string describing how a given item is being worn.
- * Currently, only used for items in the equipment, not inventory.
- */
-cptr describe_use(int i)
-{
-	cptr p;
-
-	switch (i)
-	{
-		case INVEN_WIELD: p = "attacking monsters with"; break;
-		case INVEN_BOW:   p = "shooting missiles with"; break;
-		case INVEN_LEFT:  p = "wearing on your left hand"; break;
-		case INVEN_RIGHT: p = "wearing on your right hand"; break;
-		case INVEN_NECK:  p = "wearing around your neck"; break;
-		case INVEN_LITE:  p = "using to light the way"; break;
-		case INVEN_BODY:  p = "wearing on your body"; break;
-		case INVEN_OUTER: p = "wearing on your back"; break;
-		case INVEN_ARM:   p = "wearing on your arm"; break;
-		case INVEN_HEAD:  p = "wearing on your head"; break;
-		case INVEN_HANDS: p = "wearing on your hands"; break;
-		case INVEN_FEET:  p = "wearing on your feet"; break;
-		default:          p = "carrying in your pack"; break;
-	}
-
-	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just lifting";
-		}
-	}
-
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just holding";
-		}
-	}
-
-	/* Return the result */
-	return p;
-}
-
-
-
 
 
 /*

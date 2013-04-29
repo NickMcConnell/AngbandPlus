@@ -367,6 +367,7 @@ static byte spell_color(int type)
 		case GF_NEXUS:          return (TERM_L_RED);
 		case GF_CONFUSION:      return (TERM_L_UMBER);
 		case GF_SOUND:          return (TERM_YELLOW);
+		case GF_TERRIFY:        return (TERM_L_WHITE);
 		case GF_SHARD:          return (TERM_UMBER);
 		case GF_FORCE:          return (TERM_UMBER);
 		case GF_INERTIA:        return (TERM_L_WHITE);
@@ -3604,7 +3605,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* If another monster did the damage, hurt the monster by hand */
-	if (who > 0)
+        if (who >= 0)
 	{
 		/* Redraw (later) if needed */
 		if (p_ptr->health_who == cave_m_idx[y][x]) p_ptr->redraw |= (PR_HEALTH);
@@ -3852,10 +3853,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 #ifdef ALLOW_OBJECT_INFO
                                 /* Always notice */
-                                equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+                                if(!(p_ptr->resist_pois)) equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
 #endif
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
 			}
+			else if (p_ptr->resist_pois)
+			{
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
+			}
+
 
 			break;
 		}
@@ -3896,7 +3905,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 #ifdef ALLOW_OBJECT_INFO
 				/* Sometimes notice */
-				if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
 #endif
 				(void)set_stun(p_ptr->stun + k);
 			}
@@ -3904,7 +3913,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Sometimes notice */
-				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+				if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
 #endif
 			}
 			break;
@@ -3929,21 +3938,21 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
 #endif
 
-				if (p_ptr->hold_life && (rand_int(100) < 75))
+				if ((p_ptr->hold_life||p_ptr->blessed) && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+					if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 				}
-				else if (p_ptr->hold_life)
+				else if (p_ptr->hold_life||p_ptr->blessed)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(200 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+					if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 				}
 				else
@@ -4056,21 +4065,21 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				/* Sometimes notice */
 				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
 #endif
-				if (p_ptr->hold_life && (rand_int(100) < 75))
+				if ((p_ptr->hold_life||p_ptr->blessed) && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+					if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 				}
-				else if (p_ptr->hold_life)
+				else if (p_ptr->hold_life||p_ptr->blessed)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+					if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 				}
 				else
@@ -4768,11 +4777,11 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 
 			/* Apply resistance */
-			if (p_ptr->resist_fear)
+			if ((p_ptr->resist_fear)||(p_ptr->hero)||(p_ptr->shero))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Sometimes notice */
-                                if(rand_int(100)<dam)equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+                                if((p_ptr->resist_fear)&&(rand_int(100)<dam))equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
 #endif
 				dam *= 5; dam /= (randint(6) + 6);
 			}
@@ -4781,11 +4790,11 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Increase "afraid" */
-			if (p_ptr->resist_fear)
+			if ((p_ptr->resist_fear)||(p_ptr->hero)||(p_ptr->shero))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Sometimes notice */
-                                if (rand_int(100)<30) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+                                if ((p_ptr->resist_fear) &&(rand_int(100)<30)) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
 #endif
 				msg_print("You stand your ground!");
 				obvious = TRUE;
@@ -5016,24 +5025,24 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Take damage */
 			take_hit(dam, killer);
 
-			if (p_ptr->hold_life && (rand_int(100) < 95))
+			if ((p_ptr->hold_life ||p_ptr->blessed)  && (rand_int(100) < 95))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Always notice */
                                 equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
-				msg_print("You keep hold of your life force!");
+				if (p_ptr->hold_life) msg_print("You keep hold of your life force!");
 			}
 			else
 			{
 				s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-				if (p_ptr->hold_life)
+				if (p_ptr->hold_life || p_ptr->blessed)
 				{
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
                                         equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
-					msg_print("You feel your life slipping away!");
+					if (p_ptr->hold_life) msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
 				}
 				else
@@ -5057,23 +5066,23 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Take damage */
 			take_hit(dam, killer);
 
-			if (p_ptr->hold_life && (rand_int(100) < 90))
+			if ((p_ptr->hold_life||p_ptr->blessed) && (rand_int(100) < 90))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Always notice */
                                 equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
-				msg_print("You keep hold of your life force!");
+				if (p_ptr->hold_life) msg_print("You keep hold of your life force!");
 			}
 			else
 			{
 				s32b d = damroll(20, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-				if (p_ptr->hold_life)
+				if (p_ptr->hold_life||p_ptr->blessed) 
 				{
 					msg_print("You feel your life slipping away!");
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+                                        if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 					lose_exp(d/10);
 				}
@@ -5098,22 +5107,22 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Take damage */
 			take_hit(dam, killer);
 
-			if (p_ptr->hold_life && (rand_int(100) < 75))
+			if ((p_ptr->hold_life||p_ptr->blessed) && (rand_int(100) < 75))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Always notice */
                                 equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
-				msg_print("You keep hold of your life force!");
+				if (p_ptr->hold_life) msg_print("You keep hold of your life force!");
 			}
 			else
 			{
 				s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-				if (p_ptr->hold_life)
+				if (p_ptr->hold_life||p_ptr->blessed) 
 				{
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+                                        if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 					msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
@@ -5139,22 +5148,22 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Take damage */
 			take_hit(dam, killer);
 
-			if (p_ptr->hold_life && (rand_int(100) < 50))
+			if ((p_ptr->hold_life||p_ptr->blessed) && (rand_int(100) < 50))
 			{
 #ifdef ALLOW_OBJECT_INFO
 				/* Always notice */
                                 equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
-				msg_print("You keep hold of your life force!");
+				if (p_ptr->hold_life) msg_print("You keep hold of your life force!");
 			}
 			else
 			{
 				s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
-				if (p_ptr->hold_life)
+				if (p_ptr->hold_life||p_ptr->blessed) 
 				{
 #ifdef ALLOW_OBJECT_INFO
 					/* Always notice */
-                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+                                        if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
 #endif
 					msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
@@ -5288,12 +5297,20 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 					if (p_ptr->resist_pois || p_ptr->oppose_pois)
 					{
 						msg_print("The poison does not affect you!");
+#ifdef ALLOW_OBJECT_INFO
+                                		/* Always notice */
+                                                if(p_ptr->resist_pois) equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 					}
 
 					else
 					{
 						dam = dam * 2;
 						(void)set_poisoned(p_ptr->poisoned + randint(dam));
+#ifdef ALLOW_OBJECT_INFO
+                                		/* Always notice */
+                                                if(!(p_ptr->resist_pois)) equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 					}
 				}
 

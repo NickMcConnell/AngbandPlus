@@ -391,6 +391,17 @@ static void chest_trap(int y, int x, s16b o_idx)
 		if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 		{
 			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
+#ifdef ALLOW_OBJECT_INFO
+                        /* Always notice */
+			if(!(p_ptr->resist_pois)) equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
+		}
+		else if (p_ptr->resist_pois)
+		{
+#ifdef ALLOW_OBJECT_INFO
+                        /* Sometimes notice */
+			equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 		}
 	}
 
@@ -401,6 +412,17 @@ static void chest_trap(int y, int x, s16b o_idx)
 		if (!p_ptr->free_act)
 		{
 			(void)set_paralyzed(p_ptr->paralyzed + 10 + randint(20));
+#ifdef ALLOW_OBJECT_INFO
+                        /* Always notice */
+			equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
+		}
+		else
+		{
+#ifdef ALLOW_OBJECT_INFO
+                        /* Always notice */
+			equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 		}
 	}
 
@@ -2429,10 +2451,9 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-
 #ifdef ALLOW_OBJECT_INFO
-		/* Check usage */
-		object_usage(j_ptr);
+	/* Check usage */
+	object_usage(INVEN_BOW);;
 #endif
 
 	/* Get local object */
@@ -2470,12 +2491,6 @@ void do_cmd_fire(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
-
-
-#ifdef ALLOW_OBJECT_INFO
-		/* Check usage */
-		object_usage(i_ptr);
-#endif
 
 	/* Check shooting styles only */
 	shoot_style = p_ptr->cur_style & (WS_SHOOT_FLAGS);
@@ -2605,6 +2620,16 @@ void do_cmd_fire(void)
 			/* Did we hit it (penalize distance travelled) */
 			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
 			{
+
+#ifdef ALLOW_OBJECT_INFO
+				u32b k1 = i_ptr->i_object.can_flags1;
+				u32b k2 = i_ptr->i_object.can_flags2;
+				u32b k3 = i_ptr->i_object.can_flags3;
+
+                                u32b n1 = 0x0L;
+                                u32b n2 = 0x0L;
+                                u32b n3 = 0x0L;
+#endif
 				bool fear = FALSE;
 
 				/* Assume a default death */
@@ -2690,6 +2715,21 @@ void do_cmd_fire(void)
 							       "%^s flees in terror!", m_name);
 					}
 				}
+
+#ifdef ALLOW_OBJECT_INFO
+				/* Check flags */
+				n1 = o_ptr->i_object.can_flags1 & ~(k1);
+				n2 = o_ptr->i_object.can_flags2 & ~(k2);
+				n3 = o_ptr->i_object.can_flags3 & ~(k3);
+
+				/* Update the object */
+				update_slot_flags(item,n1,n2,n3);
+
+				/* Check usage */
+				object_usage(item);
+#endif
+
+
 			}
 
 			/* Stop looking */
@@ -2763,7 +2803,6 @@ void do_cmd_throw(void)
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2891,6 +2930,17 @@ void do_cmd_throw(void)
 			/* Did we hit it (penalize range) */
 			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
 			{
+
+
+#ifdef ALLOW_OBJECT_INFO
+				u32b k1 = i_ptr->i_object.can_flags1;
+				u32b k2 = i_ptr->i_object.can_flags2;
+				u32b k3 = i_ptr->i_object.can_flags3;
+
+                                u32b n1 = 0x0L;
+                                u32b n2 = 0x0L;
+                                u32b n3 = 0x0L;
+#endif
 				bool fear = FALSE;
 
 				/* Assume a default death */
@@ -2976,6 +3026,21 @@ void do_cmd_throw(void)
 							       "%^s flees in terror!", m_name);
 					}
 				}
+
+
+#ifdef ALLOW_OBJECT_INFO
+				/* Check flags */
+				n1 = o_ptr->i_object.can_flags1 & ~(k1);
+				n2 = o_ptr->i_object.can_flags2 & ~(k2);
+				n3 = o_ptr->i_object.can_flags3 & ~(k3);
+
+				/* Update the object */
+				update_slot_flags(item,n1,n2,n3);
+
+				/* Check usage */
+				object_usage(item);
+#endif
+
 			}
 
 			/* Stop looking */

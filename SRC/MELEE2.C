@@ -553,6 +553,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (p_ptr->resist_cold) smart |= (SM_RES_COLD);
 		if (p_ptr->resist_pois) smart |= (SM_RES_POIS);
 		if (p_ptr->resist_fear) smart |= (SM_RES_FEAR);
+		if (p_ptr->hero) smart |= (SM_RES_FEAR);
+		if (p_ptr->shero) smart |= (SM_RES_FEAR);
 		if (p_ptr->resist_lite) smart |= (SM_RES_LITE);
 		if (p_ptr->resist_dark) smart |= (SM_RES_DARK);
 		if (p_ptr->resist_blind) smart |= (SM_RES_BLIND);
@@ -2777,14 +2779,47 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					if (!p_ptr->resist_blind)
 					{
 						(void)set_blind(p_ptr->blind + 8 + rand_int(8));
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+      			                        equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
+					}
+					else
+					{
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+                                                equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 					}
 					if (!p_ptr->resist_confu)
 					{
 						(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+      			                        equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+					}
+					else
+					{
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+                                                equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 					}
 					if (!p_ptr->free_act)
 					{
 						(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+      			                        equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
+					}
+					else
+					{
+#ifdef ALLOW_OBJECT_INFO
+     		                           	/* Always notice */
+                                                equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 					}
 					(void)set_slow(p_ptr->slow + rand_int(4) + 4);
 				}
@@ -3238,6 +3273,11 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (p_ptr->resist_fear)
 				{
 					msg_print("You refuse to be frightened.");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Sometimes notice */
+                                        if (rand_int(100) < 30) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
+
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3246,6 +3286,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					(void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
 				}
 				if (who > 0) update_smart_learn(who, DRS_RES_FEAR);
 			}
@@ -3274,6 +3318,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (p_ptr->resist_blind)
 				{
 					msg_print("You are unaffected!");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+                                        if (rand_int(100)<30) equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3282,6 +3330,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					(void)set_blind(12 + rand_int(4));
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				}
 				if (who > 0) update_smart_learn(who, DRS_RES_BLIND);
 	
@@ -3313,6 +3365,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (p_ptr->resist_confu)
 				{
 					msg_print("You disbelieve the feeble spell.");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Sometimes notice */
+                                        if (rand_int(100)<30) equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3321,6 +3377,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				}
 				if (who > 0) update_smart_learn(who, DRS_RES_CONFU);
 	
@@ -3346,11 +3406,15 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s drains power from %s muscles.", m_name, t_poss);
 			}
 
-			if (target > 0)
+			if (target < 0)
 			{
 				if (p_ptr->free_act)
 				{
 					msg_print("You are unaffected!");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3359,10 +3423,14 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
 				if (who > 0) update_smart_learn(who, DRS_FREE);
 			}
-			else if (target < 0)
+			else if (target > 0)
 			{
 				/* Hack --- Use GF_OLD_SLOW */
 				project_m(who, 0, y, x, rlev, GF_OLD_SLOW);                             
@@ -3382,11 +3450,15 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s stares deeply into %s muscles.", m_name, t_poss);
 			}
 
-			if (target > 0)
+			if (target < 0)
 			{
 				if (p_ptr->free_act)
 				{
 					msg_print("You are unaffected!");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3395,10 +3467,14 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				}
 				if (who > 0) update_smart_learn(who, DRS_FREE);
 			}
-			else if (target < 0)
+			else if (target > 0)
 			{
 				/* Hack --- Use GF_OLD_SLEEP */
 				project_m(who, 0, y, x, rlev, GF_OLD_SLEEP);                            
@@ -3610,6 +3686,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (p_ptr->resist_nexus)
 				{
 					msg_print("You are unaffected!");
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+                                        equip_can_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
 				}
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
@@ -3618,6 +3698,10 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else
 				{
 					teleport_player_level();
+#ifdef ALLOW_OBJECT_INFO
+   		                        /* Always notice */
+      			                equip_not_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
 				}
 				update_smart_learn(who, DRS_RES_NEXUS);
 			}
@@ -3667,10 +3751,12 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
 
-
-			if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and then cackles evilly.", m_name);
-			else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a spell and cackles evilly.", m_name);
-			else if (known) msg_format("%^s casts a spell at %s and cackles evilly.",m_name,t_name);
+			if (who > 0)
+			{
+				if (((blind) && (known)) && (target < 0)) msg_format("%^s mumbles, and then cackles evilly.", m_name);
+				else if ((target < 0) || ((target ==0) && (known))) msg_format("%^s casts a spell and cackles evilly.", m_name);
+				else if (known) msg_format("%^s casts a spell at %s and cackles evilly.",m_name,t_name);
+			}
 
 			(void)project(-1, 1, y, x, 0, GF_MAKE_TRAP, flg);
 
@@ -4278,11 +4364,11 @@ bool make_attack_spell(int m_idx)
 		if (!f4 && !f5 && !f6) return (FALSE);
 
 		/* Hack --- handle confusion XXX XXX */
-		while (in_bounds_fully(y,x))
+		do
 		{
 			y = m_ptr->fy + randint(11) - 6;
 			x = m_ptr->fx + randint(11) - 6;
-		}
+                } while (!in_bounds_fully(y,x));
 
 	}
 
@@ -5744,6 +5830,9 @@ static void process_monster(int m_idx)
 		/* Start feeling desperate */
 		desperate = TRUE;
 
+                /* Get moves */
+                (void)get_moves(m_idx, mm);
+
 		/* Process moves */
 		for (i = 0; i < 5; i++)
 		{
@@ -5753,13 +5842,14 @@ static void process_monster(int m_idx)
 			/* Get the destination */
 			ny = oy + ddy[d];
 			nx = ox + ddx[d];
-		
+
 			/* Hack --- require safe floor to not be desperate XXX XXX*/
-			if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_MOVE)) && 
-				(place_monster_here(ny,nx,m_ptr->r_idx)))
+                        if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_MOVE)) && 
+                                (place_monster_here(ny,nx,m_ptr->r_idx)))
 			{
 					desperate = FALSE;
 			}
+
 		}
 
 		if (desperate) {
@@ -5770,13 +5860,15 @@ static void process_monster(int m_idx)
 			/* Try again in any direction*/
 			for (i = 0; i < 8; i++)
 			{
+                                d = ddd[i];
+
 				/* Get the destination */
-				ny = oy + ddy[i];
-				nx = ox + ddx[i];
-		
+                                ny = oy + ddy[d];
+                                nx = ox + ddx[d];
+
 				/* Hack --- require safe floor not to be desperate XXX XXX*/
-				if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_MOVE)) && 
-					(place_monster_here(ny,nx,m_ptr->r_idx)))
+                                if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_MOVE)) && 
+                                        (place_monster_here(ny,nx,m_ptr->r_idx)))
 				{
 						desperate = FALSE;
 				}

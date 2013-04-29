@@ -145,7 +145,12 @@ void do_cmd_wield(void)
 	char o_name[80];
 
 #ifdef ALLOW_OBJECT_INFO
-	u32b f1,f2,f3;
+        u32b f1,f2,f3;
+        u32b k1,k2,k3;
+
+        u32b n1 = 0x0L;
+        u32b n2 = 0x0L;
+        u32b n3 = 0x0L;
 #endif
 
 	/* Restrict the choices */
@@ -273,58 +278,71 @@ void do_cmd_wield(void)
 	}
 
 #ifdef ALLOW_OBJECT_INFO
+        k1 = o_ptr->i_object.can_flags1;
+        k2 = o_ptr->i_object.can_flags2;
+        k3 = o_ptr->i_object.can_flags3;
 
-	/* Some flags are instantly known */
+        /* Some flags are instantly known */
 	object_flags(o_ptr,&f1,&f2,&f3);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
-	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+        if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
+        else object_not_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
 
-	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+        if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
+        else object_not_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
 
+#ifndef ALLOW_OBJECT_INFO_MORE
 	/* Hack --- we do these here, because they are too computationally expensive in the 'right' place */
-	if (f1 & (TR1_INFRA)) object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+	if (f1 & (TR1_INFRA))
+	{
+		object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+
+		/* Warn the player */
+		msg_print("Your eyes begin to tingle.");
+
+	}
 	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
 
 	if (f3 & (TR3_LITE))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+        	object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
 		
 		/* Warn the player */
-		msg_print("It glows with an inner light!");
+		msg_print("It glows with an inner light.");
 	}
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE);
 
-
-	if (f3 & (TR3_TELEPATHY)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
+	/* Hack --- also computationally expensive. But note we notice these only if we don't already */
+	/* have these abilities */
+        if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
 
-	if (f3 & (TR3_SEE_INVIS)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
+        if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
-
+#endif
 	/* Hack --- the following are either obvious or (relatively) unimportant */
 	if (f3 & (TR3_BLESSED))
 	{
 		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
 
 		/* Warn the player */
-		msg_print("It has been blessed by the gods!");
+		msg_print("It has been blessed by the gods.");
 	}
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
 
 	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 
-	if (f3 & (TR3_HEAVY_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
+        /* Check flags */
+        n1 = o_ptr->i_object.can_flags1 & ~(k1);
+        n2 = o_ptr->i_object.can_flags2 & ~(k2);
+        n3 = o_ptr->i_object.can_flags3 & ~(k3);
 
-	if (f3 & (TR3_PERMA_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
+	/* Update collected flags */
+	update_slot_flags(slot,n1,n2,n3);
 
 #endif
-
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

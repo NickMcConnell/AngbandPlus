@@ -449,11 +449,13 @@ static void mass_produce(object_type *o_ptr)
 			break;
 		}
 
+/* XXX Changed these limits to make detect magic/identify a little
+more frequent while expensive */
 		case TV_POTION:
 		case TV_SCROLL:
 		{
-			if (cost <= 60L) size += mass_roll(3, 5);
-			if (cost <= 240L) size += mass_roll(1, 5);
+                        if (cost <= 140L) size += mass_roll(1, 5);
+                        if (cost <= 280L) size += mass_roll(1, 3);
 			break;
 		}
 

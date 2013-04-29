@@ -670,10 +670,32 @@ static void process_world(void)
 			if (!p_ptr->resist_sound)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_confu)
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 			}
 
 			water_dam(damroll(4,6),name);

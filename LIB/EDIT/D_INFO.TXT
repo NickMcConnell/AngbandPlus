@@ -600,6 +600,7 @@ N:4:5:9:45
 A:
 B:throneroom
 D:An iron throne 
+G:p
 K:33
 S:YES
 
@@ -607,6 +608,7 @@ N:4:5:10:45
 A:
 B:throneroom
 D:A gold-leafed throne 
+G:q
 K:33
 S:YES
 

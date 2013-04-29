@@ -1563,6 +1563,8 @@
 #define SV_STAFF_GENOCIDE               27
 #define SV_STAFF_EARTHQUAKES    28
 #define SV_STAFF_DESTRUCTION    29
+#define SV_STAFF_IDENTIFY    30
+
 
 /* The "sval" codes for TV_WAND */
 #define SV_WAND_HEAL_MONSTER    0

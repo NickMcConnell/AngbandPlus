@@ -373,7 +373,6 @@ static errr wr_savefile(void)
 		wr_s16b(player_hp[i]);
 	}
 
-
 	/* Write spell data */
 	wr_u32b(spell_learned1);
 	wr_u32b(spell_learned2);
