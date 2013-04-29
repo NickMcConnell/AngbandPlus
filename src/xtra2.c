@@ -2410,11 +2410,11 @@ void monster_death(int m_idx)
     build_quest_stairs(y, x, "staircase");
   
   /* ...or a portal for ironmen wilderness games */
-  else if (adult_ironman && !adult_dungeon)
+  else if (adult_ironman && !adult_dungeon && (p_ptr->depth != 100))
     build_quest_stairs(y, x, "portal"); 
   
-  /* or a path out of Nan Dungortheb */
-  else if ((r_ptr->level == 70) && (p_ptr->depth == 70))
+  /* or a path out of Nan Dungortheb for wilderness games*/
+  else if ((r_ptr->level == 70) && (p_ptr->depth == 70) && !adult_dungeon)
     {
       /* Make a path */
       for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)
@@ -2649,7 +2649,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	  if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
 	  /* Add to score if the first time */
-	  if (l_ptr->pkills == 1) p_ptr->score += new_exp;
+	  if (l_ptr->pkills == 1) p_ptr->score += (check_ability(SP_DIVINE) ? new_exp / 2 : new_exp);
 	  
 	  /* Count kills in all lives */
 	  if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
@@ -2946,7 +2946,7 @@ void verify_panel(void)
 /**
  * Monster health description
  */
-cptr look_mon_desc(int m_idx)
+void look_mon_desc(int m_idx, char *buf, size_t max)
 {
   monster_type *m_ptr = &m_list[m_idx];
   monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2966,42 +2966,77 @@ cptr look_mon_desc(int m_idx)
     {
       /* No damage */
       if (small_screen)
-	return (living ? "unht" : "undm");
+	my_strcpy(buf, living ? "unht" : "undm", max);
       else
-	return (living ? "unhurt" : "undamaged");
+	my_strcpy(buf, (living ? "unhurt" : "undamaged"), max);
     }
-  
-  
-  /* Calculate a health "percentage" */
-  perc = 100L * m_ptr->hp / m_ptr->maxhp;
-  
-  if (perc >= 60)
+  else 
     {
-      if (small_screen)
-	return (living ? "slwd" : "sldm");
-      else
-	return (living ? "somewhat wounded" : "somewhat damaged");
-    }
+      /* Calculate a health "percentage" */
+      perc = 100L * m_ptr->hp / m_ptr->maxhp;
   
-  if (perc >= 25)
-    {
-      if (small_screen)
-	return (living ? "wnd" : "dmg");
-      else
-	return (living ? "wounded" : "damaged");
+      if (perc >= 60)
+        {
+          if (small_screen) {
+            my_strcpy(buf, (living ? "slwd" : "sldm"), max);
+          } else {
+            my_strcpy(buf, living ? "somewhat wounded" : "somewhat damaged", max);
+          }
+        }
+      else if (perc >= 25)
+        {
+          if (small_screen)
+            my_strcpy(buf, (living ? "wnd" : "dmg"), max);
+          else
+            my_strcpy(buf, living ? "wounded" : "damaged", max);
+        }
+      else if (perc >= 10)
+        {
+          if (small_screen) {
+            my_strcpy(buf, (living ? "bdwd" : "bddm"), max);
+          } else {
+            my_strcpy(buf, (living ? "badly wounded" : "badly damaged"), max);
+          }
+        }
+      else 
+        {
+          if (small_screen) {
+            my_strcpy(buf, "aldd", max);
+          } else {
+            my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
+          }
+        }
     }
-  
-  if (perc >= 10)
-    {
-      if (small_screen)
-	return (living ? "bdwd" : "bddm");
-      else
-	return (living ? "badly wounded" : "badly damaged");
+
+  /* Append monster status */
+  if (m_ptr->csleep) {
+    if (small_screen) {
+      my_strcat(buf, ",aslp", max);
+    } else {
+      my_strcat(buf, ",asleep", max);
     }
-  if (small_screen)
-    return ("aldd");
-  else
-    return (living ? "almost dead" : "almost destroyed");
+  }
+  if (m_ptr->confused) {
+    if (small_screen) {
+      my_strcat(buf, ",conf", max);
+    } else {
+      my_strcat(buf, ",confused", max);
+    }
+  }
+  if (m_ptr->monfear) {
+    if (small_screen) {
+      my_strcat(buf, ",afrd", max);
+    } else {
+      my_strcat(buf, ",afraid", max);
+    }
+  }
+  if (m_ptr->stunned) {
+    if (small_screen) {
+      my_strcat(buf, ",stun", max);
+    } else {
+      my_strcat(buf, ",stunned", max);
+    }
+  }
 }
 
 /**
@@ -3916,11 +3951,13 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		  /* Normal */
 		  else
 		    {
+                      char m_desc[80];
 		      /* Describe, and prompt for recall */
 		      if (small_screen) cut_down(m_name);
+                      look_mon_desc(cave_m_idx[y][x], m_desc, sizeof(m_desc));
 		      sprintf(out_val, "%s%s%s%s (%s%s) [r,%s]",
 			      s1, s2, s3, m_name, 
-			      look_mon_desc(cave_m_idx[y][x]), 
+			      m_desc, 
 			      look_mon_host(cave_m_idx[y][x]), info);
 		      prt(out_val, 0, 0);
 		      

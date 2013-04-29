@@ -40,9 +40,10 @@ ifdef CONSOLE
   #PDCURSES_INC = ../../pdcurses/include
   #PDCURSES_LIB = ../../pdcurses/lib/pdcurses.a
 else
-  CFLAGS = -DWINDOWS
-  IOBJS = $(BASEOBJS) win/angband.res main-win.o win/readdib.o
-  LIBS = -s -mwindows -lwinmm
+  CFLAGS = -lmingw32 -mwindows -DWINDOWS -DUSE_SDL -I/usr/include/SDL/
+  LDFLAGS = -lwinmm -lmingw32 -mwindows -lSDL -lSDLmain
+  IOBJS = $(BASEOBJS) win/angband.res main-sdl.o
+  LIBS = -s -mwindows /usr/lib/libSDL.a
 endif
 
 CC = $(CROSS)gcc
