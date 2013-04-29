@@ -910,6 +910,7 @@ bool recall_menu(void)
   event_type evt = { EVT_NONE, 0, 0, 0, 0 };
   int cursor = 0;
   int num_entries;
+  int num_poss = adult_dungeon ? 1 : 4;
   
   size_t i;
   
@@ -917,10 +918,10 @@ bool recall_menu(void)
 
   /* See how many recall points - show exactly one Nowhere if going home */
   num_points = 0;
-  for (i = 0; i < 4; i++)
+  for (i = 0; i < num_poss; i++)
     if (p_ptr->recall[i]) num_points++;
 
-  if (inward && (num_points < 4)) num_points++;
+  if (inward && (num_points < num_poss)) num_points++;
   if (inward) num_entries = num_points + 1;
   else num_entries = num_points;
   

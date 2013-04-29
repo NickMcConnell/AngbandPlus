@@ -5096,48 +5096,6 @@ void reorder_pack(void)
 
 
 /**
- * Copy of "get_tag" (in object1.c) that looks only at the given 
- * inventory slot, and accepts any letter between '@' and the number.
- * Stores the number found.
- */
-static bool get_tag_num(int i, int *tag_num)
-{
-  cptr s;
-  
-  object_type *o_ptr = &inventory[i];
-  
-  /* Skip non-objects */
-  if (!o_ptr->k_idx) return (FALSE);
-  
-  /* Skip empty inscriptions */
-  if (!o_ptr->note) return (FALSE);
-  
-  /* Find a '@' */
-  s = strchr(quark_str(o_ptr->note), '@');
-  
-  /* Process all tags */
-  while (s)
-    {
-      /* Check the tags */
-      if (isdigit(s[1]) || isdigit(s[2]))
-	{
-	  /* Store tag */
-	  if (isdigit(s[1])) *tag_num = D2I(s[1]);
-	  else if (isdigit(s[2])) *tag_num = D2I(s[2]);
-	  
-	  /* Success */
-	  return (TRUE);
-	}
-      
-      /* Find another '@' */
-      s = strchr(s + 1, '@');
-    }
-  
-  /* No tag of the type we're looking for */
-  return (FALSE);
-}
-
-/**
  * Count number of missiles in the quiver slots.
  */
 int quiver_count(void)
@@ -5190,8 +5148,7 @@ void find_quiver_size(void)
  */
 int process_quiver(int num_new, object_type *o_ptr)
 {
-  int i, j, k, num;
-  int tag_num;
+  int i, j, k;
   
   int slot=0;
   
