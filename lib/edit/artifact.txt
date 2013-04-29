@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -105,12 +105,12 @@ D:of evil could stand.
 
 N:6:of the Dwarves
 I:40:12:3
-W:80:90:3:1000000
+W:80:90:3:100000
 P:0:1d1:0:0:0:6
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
 F:ACTIVATE | SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
-D:The Nauglamir; the carencet of gold set with a multitude of shining gems of 
+D:The Nauglamir; the carcanet of gold set with a multitude of shining gems of 
 D:Valinor is but a setting.  The true power lies in the Silmaril of Feanor at 
 D:it's centre, shining forth the light of the Two Trees of Valinor.  Its 
 D:beauty and desirability are equalled only by its revealing power.
@@ -125,8 +125,9 @@ P:0:0d0:0:18:0:7
 F:STR | SHOW_MODS | HIDE_TYPE | 
 F:SUST_STR | RES_FEAR | ACTIVATE | 
 F:INSTA_ART
-D:A massive golden torque, made of innumerable strands of gold and steel 
-D:intermingled, with great golden hounds set at either end.
+D:The massive golden torque of Boromir, first Lord of Dorthonion, whose people 
+D:dwelt ever in sight of Thangordrim.  It is woven of innumerable strands of 
+D:gold and steel intermingled, with great golden hounds set at either end.
 
 # The Elfstone 'Elessar'
 
@@ -138,7 +139,7 @@ F:STR | WIS | CHR | SPEED | RES_FIRE
 F:RES_POIS | RES_FEAR | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE
 F:IGNORE_COLD | ACTIVATE | INSTA_ART | HIDE_TYPE
 D:Crafted by Enerdhil of Gondolin, a jewel as green as leaves within which the 
-D:clear light of the sun is imprisoned.  The hand of one who holds it bring 
+D:clear light of the sun is imprisoned.  The hands of one who holds it bring 
 D:to all that they touch healing from hurt.
 
 
@@ -152,7 +153,8 @@ F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
 F:RES_POIS | 
 F:INSTA_ART
 D:A ring shaped into twinned serpents with eyes of emerald meeting beneath 
-D:a crown of flowers, an ancient treasure of Isildur's house.
+D:a crown of flowers.  It was given by Finrod Felagund to Barahir as a token 
+D:of friendship after the Dagor Bragollach.
 
 
 # The Ring of Tulkas
@@ -279,7 +281,7 @@ D:A shimmering suit of true-silver, forged by dwarven smiths for Celeborn of
 D:the Teleri.  It gleams with purest white as you gaze upon it, and mighty are 
 D:its powers to protect and banish.
 
-#The Chain Mail (Dwarven) of the Mormegil (Set Item)
+# The Chain Mail (Dwarven) of the Mormegil (Set Item)
 
 N:31:(Dwarven) of the Mormegil
 I:37:4:2
@@ -366,15 +368,15 @@ D:of the Elements.
 
 # Artifact 44 is unused
 
-# The Large Leather Shield of Celegorm
+# The Large Leather Shield of Haleth
 
-N:45:of Celegorm
+N:45:of Haleth
 I:34:4:0
 W:30:4:110:18000
 P:6:1d4:0:0:20:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
-D:This shield emblazoned with a multitude of creatures unseen for ages 
-D:once protected Celegorm, Lord of Himlad; around it a mystic balance lies, 
+D:This shield was used by the Lady Haleth to protect her people when besieged 
+D:by an orc raid from Angband; around it a mystic balance lies, 
 D:containing the conflicts of the elements.
 
 
@@ -669,14 +671,14 @@ D:These gloves glow so brightly as to light the way for the player and cast
 D:magical bolts with great frequency.
 
 
-# The Set of Steel Gauntlets of Eol
+# The Set of Steel Gauntlets of Maeglin
 
-N:79:of Eol
+N:79:of Maeglin
 I:31:3:3
 W:55:35:25:40000
 P:3:1d1:0:0:15:53
 F:MAGIC_MASTERY | FREE_ACT | FEATHER | RES_ELEC | RES_DARK | ACTIVATE
-D:The iron-shod gauntlets of the Dark Elven smith Eol, tingling with magics 
+D:The iron-shod gauntlets of Maeglin son of Eol, tingling with magics 
 D:that he could channel in battle.
 
 
@@ -1068,7 +1070,7 @@ D:of dismay to creatures natural and unnatural.
 
 # The Small Sword of Idril
 
-N:121:'Sting'
+N:121:of Idril
 I:23:8:2
 W:20:18:50:80000
 P:0:2d6:7:8:0:0
@@ -1286,17 +1288,17 @@ D:A superbly crafted double-bladed axe once borne by a commander
 D:of the Rangers of Eriador.
 
 
-# The Battle Axe 'Mundwine'
+# The Battle Axe of the Marches
 
-N:145:'Mundwine'
+N:145:of the Marches
 I:22:22:0
 W:40:20:250:30000
 P:0:3d10:12:17:0:0
 F:TWO_HANDED_DES | SLAY_EVIL | RES_ACID | RES_ELEC | RES_FIRE | 
 F:RES_COLD | SHOW_MODS
-D:A massive axe with twin razor-sharp heads, so large that it usually 
-D:requires two hands to wield, with spells to ward off the elements 
-D:intricately engraved upon its surface in filleted gold.
+D:A massive axe with twin razor-sharp heads, used by the Marchwardens of
+D:Doriath.  So large that it usually requires two hands to wield, it has 
+D:spells to ward off the elements intricately engraved upon its surface.
 
 
 # The Broad Axe 'Barukkheled'
@@ -1356,8 +1358,15 @@ D:Binding elemental powers whose struggles turn this weapon red and purest
 D:white, this shining reaper bears within it a power of going forth and 
 D:returning.
 
+# The Dart of Eol
 
-# Artifact 150 is unused
+N:150:of Eol
+I:22:28:3
+W:10:10:60:30000
+P:0:2d5:8:8:0:0
+F:THROWING | PERFECT_BALANCE | HIDE_TYPE | BRAND_POIS | RES_POIS
+D:A small throwing javelin with a poisoned tip, crafted by the master of 
+D:trickery.
 
 # Artifact 151 is unused
 
@@ -1484,15 +1493,15 @@ D:Named for a fiery star and set with gems of great worth binding mystic
 D:virtues of protection and thought.
 
 
-# The Quarterstaff 'Eriril'
+# The Magestaff 'Eriril'
 
 N:166:'Eriril'
-I:21:3:4
-W:30:18:150:70000
-P:10:1d7:16:6:0:92
+I:21:1:4
+W:30:18:50:75000
+P:10:2d3:16:6:0:92
 F:INT | WIS | HIDE_TYPE | 
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | 
-F:TWO_HANDED_REQ | SHOW_MODS
+F:SHOW_MODS
 D:The radiant golden staff of a Maia of legend; this wizard's companion 
 D:grants keen sight and clear knowledge of many hidden things.
 
@@ -1622,15 +1631,15 @@ D:A hunter's bow used for sport and war across the plains of East
 D:Beleriand.  It remembers the fury of the sons of Feanor.
 
 
-# The Short Bow of Amras
+# The Short Bow of Celegorm
 
-N:184:of Amras
+N:184:of Celegorm
 I:19:12:1
 W:25:10:30:9000
 P:0:2d1:12:15:0:0
 F:INT | WIS | DEX | SHOTS | MIGHT1 | SPEED |
 F:RES_FIRE | RES_ELEC | RES_COLD | SLOW_DIGEST
-D:A cunningly bow, crafted by the Noldor of old.  It remembers the 
+D:A cunning bow, crafted by the Noldor of old.  It remembers the 
 D:wiles of the sons of Feanor.
 
 

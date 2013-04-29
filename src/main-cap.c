@@ -1066,7 +1066,7 @@ errr init_cap(void)
 	panel_col_max = 0;
 
 	/* Reset the panels */
-	map_panel_size();
+	verify_panel();
 
 	/* Success */
 	return (0);

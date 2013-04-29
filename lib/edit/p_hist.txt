@@ -33,7 +33,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 
@@ -412,7 +412,7 @@ N:63:64:100:50
 D:plaited 
 
 N:64:66:20:50
-D:drak-brown hair, 
+D:dark-brown hair, 
 N:64:66:40:50
 D:steel-grey hair, 
 N:64:66:100:50

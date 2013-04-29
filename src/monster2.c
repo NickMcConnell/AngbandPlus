@@ -533,6 +533,11 @@ s16b get_mon_num(int level)
 	      (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
 	    continue;
 	  
+	  /* Hack - choose flying monsters for mountaintop */
+	  if ((stage_map[p_ptr->stage][LOCALITY] == MOUNTAIN_TOP) && 
+	      !(r_ptr->flags2 & (RF2_FLYING)))
+	    continue;
+      
 	  /* Accept */
 	  table[i].prob3 = table[i].prob2;
 
@@ -728,13 +733,27 @@ void display_monlist(void)
       Term_addstr(-1, TERM_WHITE, "')");
       n += 6;
       
-      /* Append the "optional" attr/char info */
-      Term_addstr(-1, TERM_WHITE, "/('");
-      
-      Term_addch(r_ptr->x_attr, r_ptr->x_char);
-      
-      Term_addstr(-1, TERM_WHITE, "'):");
-      n += 7;
+      /* Monster graphic on one line */
+      if (!(use_dbltile) && !(use_trptile))
+	{
+	  /* Append the "optional" attr/char info */
+	  Term_addstr(-1, TERM_WHITE, "/('");
+	  
+	  Term_addch(r_ptr->x_attr, r_ptr->x_char);
+
+	  if (use_bigtile)
+	    {
+	      if (r_ptr->x_attr & 0x80)
+		Term_addch(255, -1);
+	      else
+		Term_addch(0, ' ');
+	      
+	      n++;
+	    }
+	  
+	  Term_addstr(-1, TERM_WHITE, "'):");
+	  n += 7;
+	}
       
       /* Add race count */
       sprintf(buf, "%d", race_counts[m_ptr->r_idx]);
@@ -1439,6 +1458,34 @@ s16b monster_carry(int m_idx, object_type *j_ptr)
   return (o_idx);
 }
 
+/* See whether all surrounding squares are trap detected */
+bool is_detected(int y, int x)
+{
+  int d, xx, yy;
+  
+  /* Check around (and under) the character */
+  for (d = 0; d < 9; d++)
+    {
+      /* Extract adjacent (legal) location */
+      yy = y + ddy_ddd[d];
+      xx = x + ddx_ddd[d];
+      
+      /* Paranoia */
+      if (!in_bounds_fully(yy, xx)) continue;
+      
+      /* Only check trappable grids */
+      if (!cave_floor_bold(yy, xx)) continue;
+      
+      /* Return false if undetected */
+      if ((cave_info2[yy][xx] & (CAVE2_DTRAP)) == 0) return (FALSE);
+    }
+  
+  /* Must be OK */
+  return (TRUE);
+}
+
+
+
 
 /*
  * Swap the players/monsters (if any) at two locations XXX XXX XXX
@@ -1510,13 +1557,12 @@ void monster_swap(int y1, int x1, int y2, int x2)
     {
       bool old_dtrap, new_dtrap;
       
-      /* Calculat changes in dtrap status */
-      old_dtrap = ((cave_info2[y1][x1] & (CAVE2_DTRAP)) != 0);
-      new_dtrap = ((cave_info2[y2][x2] & (CAVE2_DTRAP)) != 0);
+      /* Calculate changes in dtrap status */
+      old_dtrap = cave_info2[y1][x1] & (CAVE2_DTRAP);
+      new_dtrap = is_detected(y2, x2);
       
       /* Note the change in the detect status */
-      if (old_dtrap != new_dtrap)
-	p_ptr->redraw |= (PR_DTRAP);
+      p_ptr->redraw |= (PR_DTRAP);
       
       /* Update the panel */
       p_ptr->update |= (PU_PANEL);
@@ -1531,7 +1577,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
       if (disturb_trap_detect && old_dtrap && !new_dtrap)
 	{
 	  /* Disturb to break runs */
-	  msg_print("*Leaving trap detect region!*");
+	  msg_print("*Edge of trap detect region!*");
 	  disturb(0, 0);
 	}
     }
@@ -1661,7 +1707,9 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   /* No light hating monsters in daytime */
   if ((r_ptr->flags3 & (RF3_HURT_LITE)) && 	
       ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) &&
-      (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE)) 
+      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY))
+ 
     return (FALSE);
   
   /* The monster must be able to exist in this grid */
@@ -1735,6 +1783,10 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 	   (p_ptr->depth) && (!character_dungeon))
     n_ptr->csleep += 20;
   
+  /* Enforce no sleeping if needed */
+  if ((stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAINTOP) &&
+      (cave_feat[y][x] == FEAT_VOID))
+    n_ptr->csleep = 0;
   
   /* Assign maximal hitpoints */
   if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -1759,7 +1811,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
   else n_ptr->harass = LOW_HARASS;
   
   /* Initialize mana */
-  n_ptr->mana=r_ptr->mana;
+  n_ptr->mana = r_ptr->mana;
   
   /* And start out fully healthy */
   n_ptr->hp = n_ptr->maxhp;
@@ -2171,12 +2223,14 @@ bool alloc_monster(int dis, bool slp, bool quick)
       /* Pick a location */
       y = rand_int(DUNGEON_HGT);
       x = rand_int(DUNGEON_WID);
-      
+
       /* Require a grid that the monster can exist in. */
       if (!cave_exist_mon(r_ptr, y, x, FALSE)) continue;
 
-      /* Make sure no sleeping in the air */
-      if (cave_feat[y][x] == FEAT_VOID) continue;
+      /* Monsters flying only on mountaintop */
+      if ((cave_feat[y][x] == FEAT_VOID) && 
+	  (stage_map[p_ptr->stage][STAGE_TYPE] != MOUNTAINTOP)) 
+	continue;
       
       /* Do not put random monsters in marked rooms. */
       if ((!character_dungeon) && (cave_info[y][x] & (CAVE_TEMP))) 
@@ -2348,13 +2402,14 @@ static bool summon_specific_okay(int r_idx)
 	break;
       }
       
-    case SUMMON_BERTBILLTOM:
+    case SUMMON_SWAMP:
       {
-	okay = ((r_ptr->d_char == 'T') &&
-		(r_ptr->flags1 & (RF1_UNIQUE)) &&
-		((strstr((r_name + r_ptr->name), "Bert")) || 
-		 (strstr((r_name + r_ptr->name), "Bill")) || 
-		 (strstr((r_name + r_ptr->name), "Tom" ))));
+	okay = ((r_ptr->d_char == 'i') ||
+		(r_ptr->d_char == 'j') ||
+		(r_ptr->d_char == 'm') ||
+		(r_ptr->d_char == 'I') ||
+		(r_ptr->d_char == 'F') ||
+		(r_ptr->d_char == ','));
 	break;
       }
     }
@@ -2586,6 +2641,12 @@ int assess_shapechange(int m_idx, monster_type *m_ptr)
 	    case RF7_S_THIEF:
 	      {
 		type = SUMMON_THIEF;
+		break;
+	      }
+	      
+	    case RF7_S_SWAMP:
+	      {
+		type = SUMMON_SWAMP;
 		break;
 	      }
 	      

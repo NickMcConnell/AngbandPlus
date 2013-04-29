@@ -770,7 +770,7 @@ static bool store_will_buy(object_type *o_ptr)
   /* Switch on the store */
   switch (st_ptr->type)
     {
-      /* General Store or Travelling Merchant */
+      /* General Store */
     case 0:
       {
 	/* Analyze the type */
@@ -1309,7 +1309,7 @@ static void store_create(void)
 	  /* Hack -- Pick an object kind to sell */
 	  int i = rand_int(num);
 
-	  while (st_ptr->table[i] == 0)
+	  while ((st_ptr->table[i] == 0) || (st_ptr->table[i] > MAX_K_IDX))
 	    i = rand_int(num);
 
 	  k_idx = st_ptr->table[i];
@@ -1464,13 +1464,13 @@ static void display_entry(int item)
     {
       byte attr;
       
-      maxwid = 75;
+      maxwid = (small_screen ? 43 : 75);
       
       /* Leave room for weights, if necessary -DRS- */
       if (show_weights) maxwid -= 10;
       
       /* Describe the object */
-      object_desc(o_name, o_ptr, TRUE, 3);
+      object_desc(o_name, o_ptr, TRUE, 4);
       o_name[maxwid] = '\0';
       
       /* Acquire inventory color.  Apply spellbook hack. */
@@ -1490,7 +1490,7 @@ static void display_entry(int item)
 		    make_metric(wgt) % 10);
 	  else sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
 
-	  put_str(out_val, y, 67);
+	  put_str(out_val, y, (small_screen ? 30 : 67));
 	}
     }
   
@@ -1500,13 +1500,13 @@ static void display_entry(int item)
       byte attr;
       
       /* Must leave room for the "price" */
-      maxwid = 65;
+      maxwid = (small_screen ? 33 : 65);
       
       /* Leave room for weights, if necessary -DRS- */
       if (show_weights) maxwid -= 7;
       
       /* Describe the object (fully) */
-      object_desc_store(o_name, o_ptr, TRUE, 3);
+      object_desc_store(o_name, o_ptr, TRUE, 4);
       o_name[maxwid] = '\0';
       
       /* Acquire inventory color.  Apply spellbook hack. */
@@ -1524,7 +1524,7 @@ static void display_entry(int item)
 	    sprintf(out_val, "%3d.%d kg", make_metric(wgt) / 10, 
 		    make_metric(wgt) % 10);
 	  else sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-	  put_str(out_val, y, 61);
+	  put_str(out_val, y, (small_screen ? 30 : 61));
 	}
       
       /* Display a "fixed" cost */
@@ -1535,7 +1535,7 @@ static void display_entry(int item)
 	  
 	  /* Actually draw the price (not fixed) */
 	  sprintf(out_val, "%9ld F", (long)x);
-	  put_str(out_val, y, 67);
+	  put_str(out_val, y, (small_screen ? 35 : 67));
 	}
       
       /* Display a "taxed" cost */
@@ -1552,7 +1552,7 @@ static void display_entry(int item)
 	    sprintf(out_val, "%9ld avg", (long)x);
 	  else sprintf(out_val, "%9ld  ", (long)x);
 	  
-	  put_str(out_val, y, 67);
+	  put_str(out_val, y, (small_screen ? 35 : 67));
 	}
       
       /* Display a "haggle" cost */
@@ -1563,7 +1563,7 @@ static void display_entry(int item)
 	  
 	  /* Actually draw the price (not fixed) */
 	  sprintf(out_val, "%9ld  ", (long)x);
-	  put_str(out_val, y, 67);
+	  put_str(out_val, y, (small_screen ? 35 : 67));
 	}
     }
 }
@@ -1598,7 +1598,7 @@ static void display_inventory(void)
   if (st_ptr->stock_num > store_per)
     {
       /* Show "more" reminder (after the last object ) */
-      prt("-more-", k + 6, 3);
+      prt("-more-", 18, 3);
       
       /* Indicate the "current page" */
       put_str(format("(Page %d)", store_top/store_per + 1), 5, 20);
@@ -1613,10 +1613,10 @@ static void store_prt_gold(void)
 {
   char out_val[64];
   
-  prt("Gold Remaining: ", 19, 53);
+  prt("Gold Remaining: ", 19, (small_screen ? 21 : 53));
   
   sprintf(out_val, "%9ld", (long)p_ptr->au);
-  prt(out_val, 19, 67);
+  prt(out_val, 19, (small_screen ? 35 : 67));
 }
 
 
@@ -1635,7 +1635,7 @@ static void display_store(void)
   if (st_ptr->type == STORE_HOME)
     {
       /* Put the owner name */
-      put_str("Your Home", 3, 30);
+      put_str("Your Home", 3, (small_screen ? 15 : 30));
       
       /* Label the object descriptions */
       put_str("Item Description", 5, 3);
@@ -1643,7 +1643,7 @@ static void display_store(void)
       /* If showing weights, show label */
       if (show_weights)
 	{
-	  put_str("Weight", 5, 70);
+	  put_str("Weight", 5, (small_screen ? 38 : 70));
 	}
     }
   
@@ -1657,12 +1657,36 @@ static void display_store(void)
       
 
       /* Put the owner name and race */
-      sprintf(buf, "%s (%s)", owner_name, race_name);
-      put_str(buf, 3, 10);
+      if (small_screen)
+	{
+	  sprintf(buf, "%s ", owner_name);
+	  buf[15] = '\0';
+	  put_str(buf, 3, 0);
+	  sprintf(buf, " (%s)", race_name);
+	  buf[11] = ')';
+	  buf[12] = '\0';
+	  put_str(buf, 3, 15);
+	}
+      else
+	{
+	  sprintf(buf, "%s (%s)", owner_name, race_name);
+	  put_str(buf, 3, 10);
+	}
       
       /* Show the max price in the store (above prices) */
-      sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
-      prt(buf, 3, 50);
+      if (small_screen)
+	{
+	  sprintf(buf, " %s", store_name);
+	  prt(buf, 3, 27);
+	  buf[13] = '\0';
+	  sprintf(buf, " (%ld)", (long)(ot_ptr->max_cost));
+	  prt(buf, 3, 40);
+	}
+      else
+	{
+	  sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
+	  prt(buf, 3, 50);
+	}
       
       /* Label the object descriptions */
       put_str("Item Description", 5, 3);
@@ -1670,11 +1694,11 @@ static void display_store(void)
       /* If showing weights, show label */
       if (show_weights)
 	{
-	  put_str("Weight", 5, 60);
+	  put_str("Weight", 5, (small_screen ? 30 : 60));
 	}
       
       /* Label the asking price (in stores) */
-      put_str("Price", 5, 71);
+      put_str("Price", 5, (small_screen ? 39 : 71));
       
     }
   
@@ -1696,7 +1720,7 @@ static bool get_stock(int *com_val, cptr pmt)
 {
   int item;
   
-  char which;
+  key_event which;
   
   char buf[160];
   
@@ -1734,17 +1758,31 @@ static bool get_stock(int *com_val, cptr pmt)
   /* Ask until done */
   while (TRUE)
     {
-      int ver;
+      int ver = 0;
       
       /* Escape */
-      if (!get_com(buf, &which)) return (FALSE);
+      if (!get_com_ex(buf, &which)) return (FALSE);
       
       /* Extract "query" setting */
-      ver = isupper(which);
-      which = tolower(which);
+      if (isalpha(which.key))
+	{
+	  ver = isupper(which.key);
+	  which.key = tolower(which.key);
+	}
       
       /* Convert response to item */
-      item = label_to_store(which);
+      if (which.key == '\xff')
+	{
+	  if (!which.mousey) return(FALSE);
+	  else if ((which.mousey > 5) && (which.mousey < 18)) 
+	    item = which.mousey + store_top - 6;
+	  else
+	    item = -1;
+	  if (item >= st_ptr->stock_num)
+	    item = -1;
+	}  
+      else
+	item = label_to_store(which.key);
       
       /* Oops */
       if (item < 0)
@@ -1918,7 +1956,18 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
       strcpy(out_val, "");
       
       /* Ask the user for a response */
-      if (!get_string(buf, out_val, 81)) return (FALSE);
+      if (final) 
+	{
+	  if (get_check(buf)) 
+	    {
+	      *poffer = price;
+	      last_inc = 0L;
+	      break;
+	    }
+	  else
+	    return (FALSE);
+	}
+      else if (!get_string(buf, out_val, 81)) return (FALSE);
       
       /* Skip leading spaces */
       for (p = out_val; *p == ' '; p++) /* loop */;
@@ -2961,6 +3010,9 @@ static void store_sell(void)
 	  display_inventory();
 	}
     }
+  /* Reset hook */
+  item_tester_hook = NULL;
+
 }
 
 
@@ -3009,11 +3061,12 @@ static char head[4] =
 static int store_order_aux(void)
 {
   int i, j, temp, num, max_num;
-  int col, row;
+  int col, row, col2;
   int typeval;
   int book = mp_ptr->spell_book;
   int typevals[3] = {TV_POTION, TV_SCROLL, mp_ptr->spell_book};
-  char ch, sq;
+  char sq;
+  key_event ke;
   
   int choice[60];
   
@@ -3033,10 +3086,14 @@ static int store_order_aux(void)
     prt("[c] Magic Book", row++, 0);
   
   /* Choose! */
-  if (!get_com("What type of item would you like to order?", &ch)) return (0);
+  if (!get_com_ex("What type of item would you like to order?", &ke)) 
+    return (0);
   
   /* Analyze choice */
-  num = ch-'a';
+  if (ke.key == '\xff')
+    num = ke.mousey - 3;
+  else
+    num = ke.key - 'a';
       
   /* Bail out if choice is illegal */
   if ((num < 0) || (num > 2)) return (0);
@@ -3057,6 +3114,9 @@ static int store_order_aux(void)
   while (1) 
     {
       Term_clear();
+	  
+      /* Column width */
+      col2 = (small_screen ? 15 : 30);
 	  
       /* First sort based on value */
       /* Step 1: Read into choice array */
@@ -3102,8 +3162,8 @@ static int store_order_aux(void)
 	    {
 	      /* Prepare it */
 	      row = 3 + (num % 20);
-	      col = 30 * (num / 20);
-	      ch = head[num/26] + (num%26);
+	      col = col2 * (num / 20);
+	      ke.key = head[num/26] + (num%26);
 	      
 	      /* Acquire the "name" of object "i" */
 	      strip_name(buf, choice[num]);
@@ -3121,7 +3181,7 @@ static int store_order_aux(void)
 	      color = (ordered ? TERM_RED : TERM_L_GREEN);
 	      
 	      /* Print it */
-	      prt(format("[%c%c] ", ch, sq), row, col);
+	      prt(format("[%c%c] ", ke.key, sq), row, col);
 	      c_put_str(color, buf, row, col+5);
 	    }
 	  
@@ -3131,16 +3191,26 @@ static int store_order_aux(void)
 	}
 	  
       /* Choose! */
-      if (!get_com("Order or cancel order (only 8 items can be ordered at once)", &ch)) return (1);
+      if (!get_com_ex("Order or cancel order (only 8 items can be ordered at once)", &ke)) return (1);
 	  
       /* Analyze choice */
-      num = -1;
-      if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
-      if ((ch >= head[1]) && (ch < head[1] + 26)) 
-	num = ch - head[1] + 26;
-      if ((ch >= head[2]) && (ch < head[2] + 17)) 
-	num = ch - head[2] + 52;
-      
+      if (ke.key == '\xff')
+	{
+	  num = ke.mousex / col2;
+	  num = MIN(ke.mousey - 3, 19) + 20 * num;
+	  if ((ke.mousey < 3) || (ke.mousey > 22)) num = -1;
+	}
+      else
+	{
+	  num = -1;
+	  if ((ke.key >= head[0]) && (ke.key < head[0] + 26)) 
+	    num = ke.key - head[0];
+	  if ((ke.key >= head[1]) && (ke.key < head[1] + 26)) 
+	    num = ke.key - head[1] + 26;
+	  if ((ke.key >= head[2]) && (ke.key < head[2] + 17)) 
+	    num = ke.key - head[2] + 52;
+	}
+
       /* Bail out if choice is "illegal" */
       if ((num < 0) || (num >= max_num)) return (1);
       
@@ -3326,7 +3396,7 @@ static void store_process_command(void)
       /* Inventory list */
     case 'i':
       {
-	do_cmd_inven();
+	show_obj();
 	break;
       }
       
@@ -3757,26 +3827,54 @@ void do_cmd_store(void)
       clear_from(21);
       
       /* Basic commands */
-      prt(" ESC) Exit from Building.", 22, 0);
-      
-      /* Browse if necessary */
-      if (st_ptr->stock_num > 12)
+      if (small_screen)
 	{
-	  prt(" SPACE) Next page of stock", 23, 0);
-	}
-      
-      /* Commands */
-      prt(" g) Get/Purchase an item.", 22, 29);
-      prt(" d) Drop/Sell an item.", 23, 29);
-      
-      prt("   l) Look at an item.", 22, 55);
- 
-      if ((st_ptr->type == STORE_MERCH) && 
-	  (which < MAX_STORES_SMALL * NUM_TOWNS_SMALL))
-	prt("   o) Order an item.", 23, 55);
-     
-      /* Prompt */
-      prt("You may: ", 21, 0);
+	  /* Prompt */
+	  prt("You may: ", 21, 0);
+	  
+	  /* Commands */
+	  prt(" RET) Continue", 21, 18);
+	  prt("   i) inven", 21, 36);
+	  prt(" ESC) Exit ", 22, 0);
+	  
+	  /* Browse if necessary */
+	  if (st_ptr->stock_num > 12)
+	    {
+	      prt(" SPACE) Next page", 23, 0);
+	    }
+	  
+	  /* More commands */
+	  prt(" g) Get/Purchase", 22, 20);
+	  prt(" d) Drop/Sell", 23, 20);
+	  prt("   l) Look ", 22, 36);
+	  if ((st_ptr->type == STORE_MERCH) && 
+	      (which < MAX_STORES_SMALL * NUM_TOWNS_SMALL))
+	    prt("   o) Order ", 23, 36);
+     	}
+      else
+	{
+	  /* Prompt */
+	  prt("You may: ", 21, 0);
+
+	  /* Commands */
+	  prt(" RET) Continue", 21, 27);
+	  prt("   i) Player inventory", 21, 55);
+	  prt(" ESC) Exit from Building.", 22, 0);
+	  
+	  /* Browse if necessary */
+	  if (st_ptr->stock_num > 12)
+	    {
+	      prt(" SPACE) Next page of stock", 23, 0);
+	    }
+	  
+	  /* More commands */
+	  prt(" g) Get/Purchase an item.", 22, 29);
+	  prt(" d) Drop/Sell an item.", 23, 29);
+	  prt("   l) Look at an item.", 22, 55);
+	  if ((st_ptr->type == STORE_MERCH) && 
+	      (which < MAX_STORES_SMALL * NUM_TOWNS_SMALL))
+	    prt("   o) Order an item.", 23, 55);
+     	}
       
       /* Get a command */
       request_command(TRUE);

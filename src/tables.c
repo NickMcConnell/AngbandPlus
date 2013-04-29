@@ -2695,8 +2695,8 @@ cptr option_text[OPT_MAX] =
     "auto_more",			/* OPT_auto_more */
     "dungeon_stair",			/* OPT_dungeon_stair */
     "strong_squelch",                   /* OPT_strong_squelch */
-    NULL,
-    NULL,
+    "bottom_status",                    /* OPT_bottom_status */
+    "mouse_buttons",                    /* OPT_mouse_buttons */
     NULL,
     NULL,
     "smart_cheat",			/* OPT_smart_cheat */
@@ -2723,6 +2723,7 @@ cptr option_text[OPT_MAX] =
     "hp_changes_colour",		/* OPT_hp_changes_colour */
     "show_detect",			/* OPT_show_detect */
     "disturb_trap_detect",		/* OPT_disturb_trap_detect */
+    "show_lists",                       /* OPT_show_lists */
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL, /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
@@ -2734,7 +2735,6 @@ cptr option_text[OPT_MAX] =
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL, /*120*/
     NULL,	NULL,		NULL,		NULL,		NULL,
-    NULL,
     NULL,
     "birth_point_based",	      /* OPT_birth_point_based */
     "birth_auto_roller",	      /* OPT_birth_auto_roller */
@@ -2795,7 +2795,7 @@ cptr option_text[OPT_MAX] =
     NULL,	NULL,	NULL,	NULL,	NULL, /*240*/
     NULL,	NULL,	NULL,	NULL,	NULL,
     NULL,	NULL,	NULL,	NULL,	NULL,
-    NULL,	NULL,	NULL,	NULL,	NULL
+    NULL,	NULL,	NULL,	NULL,   NULL
   };
 
 
@@ -2825,7 +2825,7 @@ cptr option_desc[OPT_MAX] =
     "When running, cut corners",	    /* OPT_run_cut_corners */
     "When running, use corners",	    /* OPT_run_use_corners */
     "Disturb whenever any monster moves",   /* OPT_disturb_move */	/*20*/
-    "Disturb whenever viewable monster moves",/* OPT_disturb_near */
+    "Disturb whenever viewable monster moves", /* OPT_disturb_near */
     "Disturb whenever map panel changes",   /* OPT_disturb_panel */
     "Disturb whenever player state changes",  /* OPT_disturb_state */
     "Disturb whenever boring things happen",  /* OPT_disturb_minor */
@@ -2835,20 +2835,20 @@ cptr option_desc[OPT_MAX] =
     "Verify destruction of objects",	    /* OPT_verify_destroy */
     "Verify use of special commands",	    /* OPT_verify_special */
     "Audible bell (on errors, etc)",	    /* OPT_ring_bell */
-    "Verify destruction of worthless objects",/* OPT_verify_destroy_junk */
+    "Verify destruction of worthless objects", /* OPT_verify_destroy_junk */
     "Auto-haggle in stores",		    /* OPT_auto_haggle */
     "Auto-scum for good levels",	    /* OPT_auto_scum */
     "Open and close doors automatically",   /* OPT_easy_open  -TBN- */
     "Disarm traps automatically",	    /* OPT_easy_disarm   -TNB- */
     "Expand the power of the look command", /* OPT_expand_look */
-    "Expand the power of the list commands",/* OPT_expand_list */
+    "Expand the power of the list commands", /* OPT_expand_list */
     "Map remembers all perma-lit grids",    /* OPT_view_perma_grids */
     "Map remembers all torch-lit grids",    /* OPT_view_torch_grids */
     "Automatically clear '-more-' prompts", /* OPT_auto_more */	
-    "Generate dungeons with connected stairs",/* OPT_dungeon_stair */
+    "Generate dungeons with connected stairs", /* OPT_dungeon_stair */
     "Auto-squelched items are immediately destroyed", /*OPT_strong_squelch */
-    NULL,
-    NULL,
+    "Status is shown at the bottom of the screen", /* OPT_bottom_status */
+    "Buttons for common mouse commands are shown", /* OPT_mouse_buttons */
     NULL,
     NULL,
     "Monsters exploit players weaknesses",  /* OPT_smart_cheat */
@@ -2875,6 +2875,7 @@ cptr option_desc[OPT_MAX] =
     "Player colour indicates low hit points", /* OPT_hp_changes_colour */	
     "Show region affected by using detection spells", /* OPT_show_detect */
     "Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
+    "Automatically show lists for commands", /* OPT_show_lists */
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,  /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
@@ -2886,7 +2887,6 @@ cptr option_desc[OPT_MAX] =
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,  /*120*/
     NULL,	NULL,		NULL,		NULL,		NULL,
-    NULL,
     NULL,
     "Birth: Use point based character generation", /* OPT_birth_point_based */
     "Birth: Use Autoroller if rolling for stats",  /* OPT_birth_auto_roller */
@@ -2999,8 +2999,8 @@ bool option_norm[OPT_MAX] =
     FALSE,		/* OPT_auto_more */
     TRUE,		/* OPT_dungeon_stair */
     FALSE,              /* OPT_strong_squelch */
-    FALSE,
-    FALSE,
+    FALSE,              /* OPT_bottom_status */
+    TRUE,               /* OPT_mouse_buttons */
     FALSE,
     FALSE,
     FALSE,		/* OPT_smart_cheat */
@@ -3027,7 +3027,8 @@ bool option_norm[OPT_MAX] =
     FALSE,		/* OPT_hp_changes_colour */
     TRUE,			  /* OPT_show_detect */
     TRUE,		/* OPT_disturb_trap_detect */
-    FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
+    FALSE,              /* OPT_show_lists */
+    FALSE,		FALSE,		FALSE,		FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,	/*80*/
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
@@ -3116,17 +3117,17 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_always_pickup,
       OPT_always_repeat,
       OPT_depth_in_feet,
-      OPT_stack_force_notes,
-      OPT_stack_force_costs,
       OPT_show_labels,
       OPT_show_weights,
       OPT_show_choices,
       OPT_show_details,
+      OPT_show_lists,
+      OPT_bottom_status,
       OPT_metric,
       OPT_show_flavors,
       OPT_show_detect,
       OPT_hp_changes_colour,
-      255,
+      OPT_mouse_buttons,
       255
     },
 
@@ -3169,11 +3170,11 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       255,
       OPT_dungeon_stair,
       OPT_strong_squelch,
-      255,
-      255,
-      255,
-      255,
+      OPT_stack_force_notes,
+      OPT_stack_force_costs,
       OPT_smart_cheat,
+      255,
+      255,
       255,
       255,
       255,
@@ -3419,7 +3420,7 @@ byte mana_cost_RF7[32]=
     0, 			/* RF7_XXX6 */
     0, 			/* RF7_XXX7 */
     15,			/* RF7_S_THIEF */ /* Summon - 6 */
-    5, 			/* RF7_S_BERTBILLTOM */ /* Summon - 2 */
+    15,			/* RF7_S_SWAMP */ /* Summon - 2 */
     0, 			/* RF7_XXX8 */
     0, 			/* RF7_XXX9 */
     0, 			/* RF7_XX10 */
@@ -3588,7 +3589,7 @@ byte spell_desire_RF7[32][8] =
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX6	    */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX7	    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_THIEF   */
-    { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_BERTBILLTOM*/
+    { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_SWAMP   */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX8	    */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XXX9	    */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX10	    */
@@ -3659,7 +3660,8 @@ cptr specialty_names[TOTAL_SPECIALTIES]=
     "Power Strike",
     "Martial Arts",
     "Mana Burn",
-    "","","","","","","","","","","","",
+    "Rapid Fire",
+    "","","","","","","","","","","",
     "Beguile",				/* Magic and Mana */
     "Enhance Magic",
     "Fast Casting",
@@ -3776,11 +3778,11 @@ int stage_map[NUM_STAGES][9] =
   /* 19  */ {ERED_LUIN       ,  18,  20,   0,  18,   0,   0,   0,   MOUNTAIN},
   /* 20  */ {ERED_LUIN       ,  19,  21,   0,  19,   0,   0,   0,   MOUNTAIN},
   /* 21  */ {ERED_LUIN       ,  20,  22,   0,  20,   0,   0,   0,   MOUNTAIN},
-  /* 22  */ {ERED_LUIN       ,  21,  23,   0,  21,   0,   0,   0,   MOUNTAIN},
-  /* 23  */ {ERED_LUIN       ,  22,  24,   0,  22,   0,   0,   0,   MOUNTAIN},
-  /* 24  */ {ERED_LUIN       ,  23,   0,   0,  23,  25,   0,   0,   MOUNTAIN},
-  /* 25  */ {ERED_LUIN       ,  24,  26,  24,   0,   0,   0,   0,   MOUNTAIN},
-  /* 26  */ {ERED_LUIN       ,  25,   0,   0,  25, 136,   0,   0,   MOUNTAIN},
+  /* 22  */ {ERED_LUIN       ,  22,  23,   0,  21,   0,   0,   0,   MOUNTAIN},
+  /* 23  */ {ERED_LUIN       ,  24,  24,   0,  22,   0,   0,   0,   MOUNTAIN},
+  /* 24  */ {ERED_LUIN       ,  26,   0,   0,  23,  25,   0,   0,   MOUNTAIN},
+  /* 25  */ {ERED_LUIN       ,  28,  26,  24,   0,   0,   0,   0,   MOUNTAIN},
+  /* 26  */ {ERED_LUIN       ,  30,   0,   0,  25, 136,   0,   0,   MOUNTAIN},
   /* 27  */ {OSSIRIAND       ,   9,  11,   0,  28,   0,   0,   0,   FOREST},
   /* 28  */ {OSSIRIAND       ,   8,  27,   0,  29,   0,   0,   0,   FOREST},
   /* 29  */ {OSSIRIAND       ,   7,  28,   0,   0,  30,   0,   0,   FOREST},
@@ -3841,24 +3843,24 @@ int stage_map[NUM_STAGES][9] =
   /* 84  */ {DORIATH         ,  18,  85,   0,  83,   0,   0,   0,   FOREST},
   /* 85  */ {DORIATH         ,  19, 153,   0,  84,   0,   0,   0,   FOREST},
   /* 86  */ {DORIATH         ,  20,  87,   0, 153,   0,   0,   0,   FOREST},
-  /* 87  */ {DORIATH         ,  21,  88,   0,  86,   0,   0,   0,   FOREST},
-  /* 88  */ {DORIATH         ,  22,  93,   0,  87,   0,   0,   0,   FOREST},
-  /* 89  */ {HIMLAD          ,  21,   0,  64,   0,  90,   0,   0,   PLAIN},
-  /* 90  */ {HIMLAD          ,  22,   0,  89,   0,  91,   0,   0,   PLAIN},
-  /* 91  */ {HIMLAD          ,  23,   0,  90,   0,  92,   0,   0,   PLAIN},
-  /* 92  */ {HIMLAD          ,  24,   0,  91,   0,  95,   0,   0,   PLAIN},
-  /* 93  */ {DOR_DINEN       ,  23,  94,   0,  88,   0,   0,   0,   PLAIN},
-  /* 94  */ {DOR_DINEN       ,  24,  95,   0,  93,   0,   0,   0,   PLAIN},
-  /* 95  */ {DOR_DINEN       ,  25,  96,  92,  94,   0,   0,   0,   PLAIN},
-  /* 96  */ {DORTHONION      ,  26,  97,   0,  95,   0,   0,   0,   MOUNTAIN},
-  /* 97  */ {DORTHONION      ,  27,  98,   0,  96,   0,   0,   0,   MOUNTAIN},
-  /* 98  */ {DORTHONION      ,  28,   0,   0,  97,  99,   0,   0,   FOREST},
-  /* 99  */ {DORTHONION      ,  29,   0,  98, 171, 100,   0,   0,   FOREST},
-  /* 100 */ {DORTHONION      ,  30,   0,  99,   0, 101,   0,   0,   FOREST},
-  /* 101 */ {DORTHONION      ,  31,   0, 100,   0, 102,   0,   0,   FOREST},
-  /* 102 */ {DORTHONION      ,  32,   0, 101,   0, 103,   0,   0,   FOREST},
-  /* 103 */ {DORTHONION      ,  33, 104, 102,   0,   0,   0,   0,   FOREST},
-  /* 104 */ {DORTHONION      ,  34,   0,   0, 103, 131,   0,   0,   PLAIN},
+  /* 87  */ {DORIATH         ,  22,  88,   0,  86,   0,   0,   0,   FOREST},
+  /* 88  */ {DORIATH         ,  24,  93,   0,  87,   0,   0,   0,   FOREST},
+  /* 89  */ {HIMLAD          ,  22,   0,  64,   0,  90,   0,   0,   PLAIN},
+  /* 90  */ {HIMLAD          ,  24,   0,  89,   0,  91,   0,   0,   PLAIN},
+  /* 91  */ {HIMLAD          ,  26,   0,  90,   0,  92,   0,   0,   PLAIN},
+  /* 92  */ {HIMLAD          ,  28,   0,  91,   0,  95,   0,   0,   PLAIN},
+  /* 93  */ {DOR_DINEN       ,  26,  94,   0,  88,   0,   0,   0,   PLAIN},
+  /* 94  */ {DOR_DINEN       ,  28,  95,   0,  93,   0,   0,   0,   PLAIN},
+  /* 95  */ {DOR_DINEN       ,  30,  96,  92,  94,   0,   0,   0,   PLAIN},
+  /* 96  */ {DORTHONION      ,  32,  97,   0,  95,   0,   0,   0,   MOUNTAIN},
+  /* 97  */ {DORTHONION      ,  34,  98,   0,  96,   0,   0,   0,   MOUNTAIN},
+  /* 98  */ {DORTHONION      ,  36,   0,   0,  97,  99,   0,   0,   FOREST},
+  /* 99  */ {DORTHONION      ,  38,   0,  98, 181, 100,   0,   0,   FOREST},
+  /* 100 */ {DORTHONION      ,  40,   0,  99,   0, 101,   0,   0,   FOREST},
+  /* 101 */ {DORTHONION      ,  42,   0, 100,   0, 102,   0,   0,   FOREST},
+  /* 102 */ {DORTHONION      ,  44,   0, 101,   0, 103,   0,   0,   FOREST},
+  /* 103 */ {DORTHONION      ,  46, 104, 102,   0,   0,   0,   0,   FOREST},
+  /* 104 */ {DORTHONION      ,  48,   0,   0, 103, 131,   0,   0,   PLAIN},
   /* 105 */ {TALATH_DIRNEN   ,  20,   0, 115, 106,   0,   0,   0,   PLAIN},
   /* 106 */ {TALATH_DIRNEN   ,  21, 105,   0,   0, 107,   0,   0,   PLAIN},
   /* 107 */ {TALATH_DIRNEN   ,  22,   0, 106, 108,   0,   0,   0,   PLAIN},
@@ -3871,44 +3873,44 @@ int stage_map[NUM_STAGES][9] =
   /* 114 */ {TALATH_DIRNEN   ,  29,   0, 113,   0,   0,   0, 222,   RIVER},
   /* 115 */ {EPHEL_BRANDIR   ,   0, 116,   0,  81, 105,   0,   0,   TOWN},
   /* 116 */ {BRETHIL         ,  20, 117,   0, 115,   0,   0,   0,   FOREST},
-  /* 117 */ {BRETHIL         ,  21, 118,   0, 116,   0,   0,   0,   FOREST},
-  /* 118 */ {BRETHIL         ,  22, 119,   0, 117,   0,   0,   0,   FOREST},
-  /* 119 */ {BRETHIL         ,  23, 120,   0, 118,   0,   0,   0,   FOREST},
-  /* 120 */ {SIRION_VALE     ,  24, 121,   0, 119,   0,   0,   0,   PLAIN},
-  /* 121 */ {SIRION_VALE     ,  25, 122, 154, 120,   0,   0,   0,   RIVER},
-  /* 122 */ {SIRION_VALE     ,  26, 123,   0, 121,   0,   0,   0,   RIVER},
-  /* 123 */ {SIRION_VALE     ,  27, 124,   0, 122,   0,   0,   0,   RIVER},
-  /* 124 */ {SIRION_VALE     ,  28, 125,   0, 123,   0,   0,   0,   RIVER},
-  /* 125 */ {SIRION_VALE     ,  29, 126,   0, 124,   0,   0, 263,   RIVER},
-  /* 126 */ {SIRION_VALE     ,  30, 127,   0, 125,   0,   0,   0,   RIVER},
-  /* 127 */ {FEN_OF_SERECH   ,  31, 128,   0, 126,   0,   0,   0,   SWAMP},
-  /* 128 */ {FEN_OF_SERECH   ,  32, 129,   0, 127,   0,   0,   0,   SWAMP},
-  /* 129 */ {ANFAUGLITH      ,  33, 130,   0, 128,   0,   0,   0,   DESERT},
-  /* 130 */ {ANFAUGLITH      ,  34, 131,   0, 129,   0,   0,   0,   DESERT},
-  /* 131 */ {ANFAUGLITH      ,  35, 132, 104, 130,   0,   0,   0,   DESERT},
-  /* 132 */ {ANFAUGLITH      ,  36, 133,   0, 131,   0,   0,   0,   DESERT},
-  /* 133 */ {ANFAUGLITH      ,  37, 134,   0, 132,   0,   0,   0,   DESERT},
-  /* 134 */ {ANFAUGLITH      ,  38, 135,   0, 133,   0,   0,   0,   DESERT},
-  /* 135 */ {ANFAUGLITH      ,  39,   0, 148, 134,   0,   0, 324,   DESERT},
-  /* 136 */ {LOTHLANN        ,  26, 137,  26,   0,   0,   0,   0,   DESERT},
-  /* 137 */ {LOTHLANN        ,  27,   0,   0, 136, 138,   0,   0,   DESERT},
-  /* 138 */ {LOTHLANN        ,  28, 139, 137,   0,   0,   0,   0,   DESERT},
-  /* 139 */ {LOTHLANN        ,  29,   0,   0, 138, 140,   0,   0,   DESERT},
-  /* 140 */ {LOTHLANN        ,  30,   0, 139,   0, 141,   0,   0,   DESERT},
-  /* 141 */ {LOTHLANN        ,  31,   0, 140,   0, 142,   0,   0,   DESERT},
-  /* 142 */ {LOTHLANN        ,  32,   0, 141,   0, 143,   0,   0,   DESERT},
-  /* 143 */ {LOTHLANN        ,  33,   0, 142,   0, 144,   0,   0,   DESERT},
-  /* 144 */ {LOTHLANN        ,  34,   0, 143,   0, 145,   0,   0,   DESERT},
-  /* 145 */ {LOTHLANN        ,  35,   0, 144,   0, 146,   0,   0,   DESERT},
-  /* 146 */ {LOTHLANN        ,  36,   0, 145,   0, 147,   0,   0,   DESERT},
-  /* 147 */ {LOTHLANN        ,  37,   0, 146,   0, 148,   0,   0,   DESERT},
-  /* 148 */ {LOTHLANN        ,  38,   0, 147,   0, 135,   0,   0,   DESERT},
+  /* 117 */ {BRETHIL         ,  22, 118,   0, 116,   0,   0,   0,   FOREST},
+  /* 118 */ {BRETHIL         ,  24, 119,   0, 117,   0,   0,   0,   FOREST},
+  /* 119 */ {BRETHIL         ,  26, 120,   0, 118,   0,   0,   0,   FOREST},
+  /* 120 */ {SIRION_VALE     ,  28, 121, 154, 119,   0,   0,   0,   PLAIN},
+  /* 121 */ {SIRION_VALE     ,  30, 122,   0, 120,   0,   0,   0,   RIVER},
+  /* 122 */ {SIRION_VALE     ,  32, 123,   0, 121,   0,   0,   0,   RIVER},
+  /* 123 */ {SIRION_VALE     ,  34, 124,   0, 122,   0,   0,   0,   RIVER},
+  /* 124 */ {SIRION_VALE     ,  36, 125,   0, 123,   0,   0,   0,   RIVER},
+  /* 125 */ {SIRION_VALE     ,  38, 126,   0, 124,   0,   0, 273,   RIVER},
+  /* 126 */ {SIRION_VALE     ,  40, 127,   0, 125,   0,   0,   0,   RIVER},
+  /* 127 */ {FEN_OF_SERECH   ,  42, 128,   0, 126,   0,   0,   0,   SWAMP},
+  /* 128 */ {FEN_OF_SERECH   ,  44, 129,   0, 127,   0,   0,   0,   SWAMP},
+  /* 129 */ {ANFAUGLITH      ,  46, 130,   0, 128,   0,   0,   0,   DESERT},
+  /* 130 */ {ANFAUGLITH      ,  48, 131,   0, 129,   0,   0,   0,   DESERT},
+  /* 131 */ {ANFAUGLITH      ,  50, 132, 104, 130,   0,   0,   0,   DESERT},
+  /* 132 */ {ANFAUGLITH      ,  52, 133,   0, 131,   0,   0,   0,   DESERT},
+  /* 133 */ {ANFAUGLITH      ,  54, 134,   0, 132,   0,   0,   0,   DESERT},
+  /* 134 */ {ANFAUGLITH      ,  56, 135,   0, 133,   0,   0,   0,   DESERT},
+  /* 135 */ {ANFAUGLITH      ,  58,   0, 148, 134,   0,   0, 344,   DESERT},
+  /* 136 */ {LOTHLANN        ,  32, 137,  26,   0,   0,   0,   0,   DESERT},
+  /* 137 */ {LOTHLANN        ,  34,   0,   0, 136, 138,   0,   0,   DESERT},
+  /* 138 */ {LOTHLANN        ,  36, 139, 137,   0,   0,   0,   0,   DESERT},
+  /* 139 */ {LOTHLANN        ,  38,   0,   0, 138, 140,   0,   0,   DESERT},
+  /* 140 */ {LOTHLANN        ,  40,   0, 139,   0, 141,   0,   0,   DESERT},
+  /* 141 */ {LOTHLANN        ,  42,   0, 140,   0, 142,   0,   0,   DESERT},
+  /* 142 */ {LOTHLANN        ,  44,   0, 141,   0, 143,   0,   0,   DESERT},
+  /* 143 */ {LOTHLANN        ,  46,   0, 142,   0, 144,   0,   0,   DESERT},
+  /* 144 */ {LOTHLANN        ,  48,   0, 143,   0, 145,   0,   0,   DESERT},
+  /* 145 */ {LOTHLANN        ,  50,   0, 144,   0, 146,   0,   0,   DESERT},
+  /* 146 */ {LOTHLANN        ,  52,   0, 145,   0, 147,   0,   0,   DESERT},
+  /* 147 */ {LOTHLANN        ,  54,   0, 146,   0, 148,   0,   0,   DESERT},
+  /* 148 */ {LOTHLANN        ,  56,   0, 147,   0, 135,   0,   0,   DESERT},
   /* 149 */ {ANDUIN_VALE     ,   1,   0, 150,   0,   1,   0,   0,   PLAIN},
   /* 150 */ {GLADDEN_FIELDS  ,   0,   0,   0,   0, 149,   0,   0,   TOWN},
   /* 151 */ {KHAZAD_DUM      ,   0,   0,   1,   0,   2,   0,   0,   TOWN},
   /* 152 */ {BELEGOST        ,   0,  12,  10,  11,  65,   0,   0,   TOWN},
   /* 153 */ {MENEGROTH       ,   0,  86,   0,  85,   0,   0,   0,   TOWN},
-  /* 154 */ {GONDOLIN        ,   0,   0,   0,   0, 121,   0,   0,   TOWN},
+  /* 154 */ {GONDOLIN        ,   0,   0,   0,   0, 120,   0,   0,   TOWN},
   /* 155 */ {AMON_RUDH       ,  15,  78,   0,  77,   0,   0, 156,   MOUNTAIN},
   /* 156 */ {AMON_RUDH       ,  16,   0,   0,   0,   0, 155, 157,   CAVE},
   /* 157 */ {AMON_RUDH       ,  17,   0,   0,   0,   0, 156, 158,   CAVE},
@@ -3925,16 +3927,16 @@ int stage_map[NUM_STAGES][9] =
   /* 168 */ {AMON_RUDH       ,  28,   0,   0,   0,   0, 167, 169,   CAVE},
   /* 169 */ {AMON_RUDH       ,  29,   0,   0,   0,   0, 168, 170,   CAVE},
   /* 170 */ {AMON_RUDH       ,  30,   0,   0,   0,   0, 169,   0,   CAVE},
-  /* 171 */ {NAN_DUNGORTHEB  ,  30,   0,   0, 172,   0,   0,   0,   VALLEY},
-  /* 172 */ {NAN_DUNGORTHEB  ,  31,   0,   0, 173,   0,   0,   0,   VALLEY},
-  /* 173 */ {NAN_DUNGORTHEB  ,  32,   0,   0, 174,   0,   0,   0,   VALLEY},
-  /* 174 */ {NAN_DUNGORTHEB  ,  33,   0,   0, 175,   0,   0,   0,   VALLEY},
-  /* 175 */ {NAN_DUNGORTHEB  ,  34,   0,   0, 176,   0,   0,   0,   VALLEY},
-  /* 176 */ {NAN_DUNGORTHEB  ,  35,   0,   0, 177,   0,   0,   0,   VALLEY},
-  /* 177 */ {NAN_DUNGORTHEB  ,  36,   0,   0, 178,   0,   0,   0,   VALLEY},
-  /* 178 */ {NAN_DUNGORTHEB  ,  37,   0,   0, 179,   0,   0,   0,   VALLEY},
-  /* 179 */ {NAN_DUNGORTHEB  ,  38,   0,   0, 180,   0,   0,   0,   VALLEY},
-  /* 180 */ {NAN_DUNGORTHEB  ,  39,   0,   0, 181,   0,   0,   0,   VALLEY},
+  /* 171 */ {NOWHERE         ,  30,   0,   0,   0,   0,   0,   0,   0},
+  /* 172 */ {NOWHERE         ,  31,   0,   0,   0,   0,   0,   0,   0},
+  /* 173 */ {NOWHERE         ,  32,   0,   0,   0,   0,   0,   0,   0},
+  /* 174 */ {NOWHERE         ,  33,   0,   0,   0,   0,   0,   0,   0},
+  /* 175 */ {NOWHERE         ,  34,   0,   0,   0,   0,   0,   0,   0},
+  /* 176 */ {NOWHERE         ,  35,   0,   0,   0,   0,   0,   0,   0},
+  /* 177 */ {NOWHERE         ,  36,   0,   0,   0,   0,   0,   0,   0},
+  /* 178 */ {NOWHERE         ,  37,   0,   0,   0,   0,   0,   0,   0},
+  /* 179 */ {NOWHERE         ,  38,   0,   0,   0,   0,   0,   0,   0},
+  /* 180 */ {NOWHERE         ,  39,   0,   0,   0,   0,   0,   0,   0},
   /* 181 */ {NAN_DUNGORTHEB  ,  40,   0,   0, 182,   0,   0,   0,   VALLEY},
   /* 182 */ {NAN_DUNGORTHEB  ,  41,   0,   0, 183,   0,   0,   0,   VALLEY},
   /* 183 */ {NAN_DUNGORTHEB  ,  42,   0,   0, 184,   0,   0,   0,   VALLEY},
@@ -3965,17 +3967,17 @@ int stage_map[NUM_STAGES][9] =
   /* 208 */ {NAN_DUNGORTHEB  ,  67,   0,   0, 209,   0,   0,   0,   VALLEY},
   /* 209 */ {NAN_DUNGORTHEB  ,  68,   0,   0, 210,   0,   0,   0,   VALLEY},
   /* 210 */ {NAN_DUNGORTHEB  ,  69,   0,   0, 211,   0,   0,   0,   VALLEY},
-  /* 211 */ {NAN_DUNGORTHEB  ,  70,   0,   0, 212,   0,   0,   0,   VALLEY},
-  /* 212 */ {NAN_DUNGORTHEB  ,  71,   0,   0, 213,   0,   0,   0,   VALLEY},
-  /* 213 */ {NAN_DUNGORTHEB  ,  72,   0,   0, 214,   0,   0,   0,   VALLEY},
-  /* 214 */ {NAN_DUNGORTHEB  ,  73,   0,   0, 215,   0,   0,   0,   VALLEY},
-  /* 215 */ {NAN_DUNGORTHEB  ,  74,   0,   0, 216,   0,   0,   0,   VALLEY},
-  /* 216 */ {NAN_DUNGORTHEB  ,  75,   0,   0, 217,   0,   0,   0,   VALLEY},
-  /* 217 */ {NAN_DUNGORTHEB  ,  76,   0,   0, 218,   0,   0,   0,   VALLEY},
-  /* 218 */ {NAN_DUNGORTHEB  ,  77,   0,   0, 219,   0,   0,   0,   VALLEY},
-  /* 219 */ {NAN_DUNGORTHEB  ,  78,   0,   0, 220,   0,   0,   0,   VALLEY},
-  /* 220 */ {NAN_DUNGORTHEB  ,  79,   0,   0, 221,   0,   0,   0,   VALLEY},
-  /* 221 */ {NAN_DUNGORTHEB  ,  80,   0,   0,  88,   0,   0,   0,   VALLEY},
+  /* 211 */ {NAN_DUNGORTHEB  ,  70,   0,   0,  88,   0,   0,   0,   VALLEY},
+  /* 212 */ {NOWHERE         ,  71,   0,   0,   0,   0,   0,   0,   0},
+  /* 213 */ {NOWHERE         ,  72,   0,   0,   0,   0,   0,   0,   0},
+  /* 214 */ {NOWHERE         ,  73,   0,   0,   0,   0,   0,   0,   0},
+  /* 215 */ {NOWHERE         ,  74,   0,   0,   0,   0,   0,   0,   0},
+  /* 216 */ {NOWHERE         ,  75,   0,   0,   0,   0,   0,   0,   0},
+  /* 217 */ {NOWHERE         ,  76,   0,   0,   0,   0,   0,   0,   0},
+  /* 218 */ {NOWHERE         ,  77,   0,   0,   0,   0,   0,   0,   0},
+  /* 219 */ {NOWHERE         ,  78,   0,   0,   0,   0,   0,   0,   0},
+  /* 220 */ {NOWHERE         ,  79,   0,   0,   0,   0,   0,   0,   0},
+  /* 221 */ {NOWHERE         ,  80,   0,   0,   0,   0,   0,   0,   0},
   /* 222 */ {NARGOTHROND     ,  30,   0,   0,   0,   0, 114, 223,   CAVE},
   /* 223 */ {NARGOTHROND     ,  31,   0,   0,   0,   0, 222, 224,   CAVE},
   /* 224 */ {NARGOTHROND     ,  32,   0,   0,   0,   0, 223, 225,   CAVE},
@@ -4007,27 +4009,27 @@ int stage_map[NUM_STAGES][9] =
   /* 250 */ {ERIADOR_SOUTH   ,   3,   0, 249, 251,   0,   0,   0,   PLAIN},
   /* 251 */ {ERIADOR_SOUTH   ,   2, 250,   0,   0, 252,   0,   0,   PLAIN},
   /* 252 */ {ERIADOR_SOUTH   ,   1,   0, 251,   0,  37,   0,   0,   MOUNTAIN},
-  /* 253 */ {0     ,  61,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 254 */ {0     ,  62,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 255 */ {0     ,  63,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 256 */ {0     ,  64,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 257 */ {0     ,  65,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 258 */ {0     ,  66,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 259 */ {0     ,  67,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 260 */ {0     ,  68,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 261 */ {0     ,  69,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 262 */ {0     ,  70,   0,   0,   0,   0, 0, 0,   CAVE},
-  /* 263 */ {TOL_IN_GAURHOTH ,  30,   0,   0,   0,   0, 125, 264,   CAVE},
-  /* 264 */ {TOL_IN_GAURHOTH ,  31,   0,   0,   0,   0, 263, 265,   CAVE},
-  /* 265 */ {TOL_IN_GAURHOTH ,  32,   0,   0,   0,   0, 264, 266,   CAVE},
-  /* 266 */ {TOL_IN_GAURHOTH ,  33,   0,   0,   0,   0, 265, 267,   CAVE},
-  /* 267 */ {TOL_IN_GAURHOTH ,  34,   0,   0,   0,   0, 266, 268,   CAVE},
-  /* 268 */ {TOL_IN_GAURHOTH ,  35,   0,   0,   0,   0, 267, 269,   CAVE},
-  /* 269 */ {TOL_IN_GAURHOTH ,  36,   0,   0,   0,   0, 268, 270,   CAVE},
-  /* 270 */ {TOL_IN_GAURHOTH ,  37,   0,   0,   0,   0, 269, 271,   CAVE},
-  /* 271 */ {TOL_IN_GAURHOTH ,  38,   0,   0,   0,   0, 270, 272,   CAVE},
-  /* 272 */ {TOL_IN_GAURHOTH ,  39,   0,   0,   0,   0, 271, 273,   CAVE},
-  /* 273 */ {TOL_IN_GAURHOTH ,  40,   0,   0,   0,   0, 272, 274,   CAVE},
+  /* 253 */ {NOWHERE         ,  61,   0,   0,   0,   0,   0,   0,   0},
+  /* 254 */ {NOWHERE         ,  62,   0,   0,   0,   0,   0,   0,   0},
+  /* 255 */ {UNDERWORLD      ,   0,   0,   0,   0,   0,   0,   0,   CAVE},
+  /* 256 */ {MOUNTAIN_TOP    ,   0,   0,   0,   0,   0,   0,   0, MOUNTAINTOP},
+  /* 257 */ {NOWHERE         ,  65,   0,   0,   0,   0,   0,   0,   0},
+  /* 258 */ {NOWHERE         ,  66,   0,   0,   0,   0,   0,   0,   0},
+  /* 259 */ {NOWHERE         ,  67,   0,   0,   0,   0,   0,   0,   0},
+  /* 260 */ {NOWHERE         ,  68,   0,   0,   0,   0,   0,   0,   0},
+  /* 261 */ {NOWHERE         ,  69,   0,   0,   0,   0,   0,   0,   0},
+  /* 262 */ {NOWHERE         ,  70,   0,   0,   0,   0,   0,   0,   0},
+  /* 263 */ {NOWHERE         ,  30,   0,   0,   0,   0,   0,   0,   0},
+  /* 264 */ {NOWHERE         ,  31,   0,   0,   0,   0,   0,   0,   0},
+  /* 265 */ {NOWHERE         ,  32,   0,   0,   0,   0,   0,   0,   0},
+  /* 266 */ {NOWHERE         ,  33,   0,   0,   0,   0,   0,   0,   0},
+  /* 267 */ {NOWHERE         ,  34,   0,   0,   0,   0,   0,   0,   0},
+  /* 268 */ {NOWHERE         ,  35,   0,   0,   0,   0,   0,   0,   0},
+  /* 269 */ {NOWHERE         ,  36,   0,   0,   0,   0,   0,   0,   0},
+  /* 270 */ {NOWHERE         ,  37,   0,   0,   0,   0,   0,   0,   0},
+  /* 271 */ {NOWHERE         ,  38,   0,   0,   0,   0,   0,   0,   0},
+  /* 272 */ {NOWHERE         ,  39,   0,   0,   0,   0,   0,   0,   0},
+  /* 273 */ {TOL_IN_GAURHOTH ,  40,   0,   0,   0,   0, 125, 274,   CAVE},
   /* 274 */ {TOL_IN_GAURHOTH ,  41,   0,   0,   0,   0, 273, 275,   CAVE},
   /* 275 */ {TOL_IN_GAURHOTH ,  42,   0,   0,   0,   0, 274, 276,   CAVE},
   /* 276 */ {TOL_IN_GAURHOTH ,  43,   0,   0,   0,   0, 275, 277,   CAVE},
@@ -4072,33 +4074,33 @@ int stage_map[NUM_STAGES][9] =
   /* 315 */ {TOL_IN_GAURHOTH ,  82,   0,   0,   0,   0, 314, 316,   CAVE},
   /* 316 */ {TOL_IN_GAURHOTH ,  83,   0,   0,   0,   0, 315, 317,   CAVE},
   /* 317 */ {TOL_IN_GAURHOTH ,  84,   0,   0,   0,   0, 316, 318,   CAVE},
-  /* 318 */ {TOL_IN_GAURHOTH ,  85,   0,   0,   0,   0, 317, 319,   CAVE},
-  /* 319 */ {TOL_IN_GAURHOTH ,  86,   0,   0,   0,   0, 318, 320,   CAVE},
-  /* 320 */ {TOL_IN_GAURHOTH ,  87,   0,   0,   0,   0, 319, 321,   CAVE},
-  /* 321 */ {TOL_IN_GAURHOTH ,  88,   0,   0,   0,   0, 320, 322,   CAVE},
-  /* 322 */ {TOL_IN_GAURHOTH ,  89,   0,   0,   0,   0, 321, 323,   CAVE},
-  /* 323 */ {TOL_IN_GAURHOTH ,  90,   0,   0,   0,   0, 322,   0,   CAVE},
-  /* 324 */ {ANGBAND         ,  40,   0,   0,   0,   0, 135, 325,   CAVE},
-  /* 325 */ {ANGBAND         ,  41,   0,   0,   0,   0, 324, 326,   CAVE},
-  /* 326 */ {ANGBAND         ,  42,   0,   0,   0,   0, 325, 327,   CAVE},
-  /* 327 */ {ANGBAND         ,  43,   0,   0,   0,   0, 326, 328,   CAVE},
-  /* 328 */ {ANGBAND         ,  44,   0,   0,   0,   0, 327, 329,   CAVE},
-  /* 329 */ {ANGBAND         ,  45,   0,   0,   0,   0, 328, 330,   CAVE},
-  /* 330 */ {ANGBAND         ,  46,   0,   0,   0,   0, 329, 331,   CAVE},
-  /* 331 */ {ANGBAND         ,  47,   0,   0,   0,   0, 330, 332,   CAVE},
-  /* 332 */ {ANGBAND         ,  48,   0,   0,   0,   0, 331, 333,   CAVE},
-  /* 333 */ {ANGBAND         ,  49,   0,   0,   0,   0, 332, 334,   CAVE},
-  /* 334 */ {ANGBAND         ,  50,   0,   0,   0,   0, 333, 335,   CAVE},
-  /* 335 */ {ANGBAND         ,  51,   0,   0,   0,   0, 334, 336,   CAVE},
-  /* 336 */ {ANGBAND         ,  52,   0,   0,   0,   0, 335, 337,   CAVE},
-  /* 337 */ {ANGBAND         ,  53,   0,   0,   0,   0, 336, 338,   CAVE},
-  /* 338 */ {ANGBAND         ,  54,   0,   0,   0,   0, 337, 339,   CAVE},
-  /* 339 */ {ANGBAND         ,  55,   0,   0,   0,   0, 338, 340,   CAVE},
-  /* 340 */ {ANGBAND         ,  56,   0,   0,   0,   0, 339, 341,   CAVE},
-  /* 341 */ {ANGBAND         ,  57,   0,   0,   0,   0, 340, 342,   CAVE},
-  /* 342 */ {ANGBAND         ,  58,   0,   0,   0,   0, 341, 343,   CAVE},
-  /* 343 */ {ANGBAND         ,  59,   0,   0,   0,   0, 342, 344,   CAVE},
-  /* 344 */ {ANGBAND         ,  60,   0,   0,   0,   0, 343, 345,   CAVE},
+  /* 318 */ {TOL_IN_GAURHOTH ,  85,   0,   0,   0,   0, 317,   0,   CAVE},
+  /* 319 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 320 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 321 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 322 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 323 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 324 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 325 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 326 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 327 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 328 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 329 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 330 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 331 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 332 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 333 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 334 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 335 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 336 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 337 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 338 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 339 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 340 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 341 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 342 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 343 */ {NOWHERE         ,   0,   0,   0,   0,   0,   0,   0,   0},
+  /* 344 */ {ANGBAND         ,  60,   0,   0,   0,   0, 135, 345,   CAVE},
   /* 345 */ {ANGBAND         ,  61,   0,   0,   0,   0, 344, 346,   CAVE},
   /* 346 */ {ANGBAND         ,  62,   0,   0,   0,   0, 345, 347,   CAVE},
   /* 347 */ {ANGBAND         ,  63,   0,   0,   0,   0, 346, 348,   CAVE},
@@ -4206,7 +4208,53 @@ cptr locality_name[MAX_LOCALITIES] =
     "Ephel Brandir",
     "Gondolin",
     "Ent Path",
-    "Eriador South"
+    "Eriador South",
+    "Underworld",
+    "Mountain Top"
+  };
+
+
+/* Names of localities */
+
+cptr short_locality_name[MAX_LOCALITIES] = 
+  {
+    "Nowhere",
+    "Hith",
+    "Eriad",
+    "ErLu",
+    "ErLuS",
+    "Ossir",
+    "T-I-D",
+    "EBel",
+    "Andr",
+    "WBel",
+    "Tharg",
+    "Drath",
+    "Hmld",
+    "DrDin",
+    "Drthn",
+    "TDirn",
+    "Breth",
+    "SVale",
+    "FenSh",
+    "Anfau",
+    "Lothl",
+    "ARudh",
+    "NDng",
+    "Narg",
+    "T-I-G",
+    "Ang",
+    "AVale",
+    "GladFlds",
+    "KhazdDum",
+    "Belegost",
+    "Menegrth",
+    "EBrandir",
+    "Gondolin",
+    "EntP",
+    "EriaS",
+    "Uwrld",
+    "MtnTp"
   };
 
 

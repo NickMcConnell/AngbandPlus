@@ -10,7 +10,7 @@ Options you may want to change to your preferences include:
   roguelike games.
 - Pick things up by default.  Toggle this on if you like instant pickup, but
   consider turning it off when pack space becomes an issue.
-- Alert user to critical hitpoints.  This can save your character's life.  Don't 
+- Alert user to critical hitpoints.  This can save your character's life.  Don't
   forget to increase the HP warning.
 - Set the delay factor to two or more if you want to see pretty ball explosions 
   and whatnot.
@@ -72,17 +72,8 @@ Repeat obvious commands    [always_repeat]
 
 Show dungeon level in feet (or meters)    [depth_in_feet]
      Display dungeon depths in feet (meters if the "Use metric (SI) measure-
-     ments" option is used) instead of levels.
-
-Merge inscriptions when stacking    [stack_force_notes]
-     Force otherwise identical objects to merge, even if one has an empty
-     inscription and the other does not.  The resulting stack keeps the 
-     non-empty inscription.
-
-Merge discounts when stacking    [stack_force_costs]
-     Force otherwise identical objects to merge, even if they have different
-     discounts.  The resulting stack keeps the largest discount.  This option
-     may cause you to lose value, but will give you optimal pack usage.
+     ments" option is used) instead of levels.  This looks a bit silly in 
+     wilderness.
 
 Show labels in equipment listings    [show_labels]
      Display "labels" (what an object is being used for) for objects in all
@@ -103,6 +94,14 @@ Show details in monster descriptions    [show_details]
      Display "details" (including number of monsters killed, and textual
      descriptions) in monster descriptions.
 
+Automatically show lists for commands   [show_lists]
+     Automatically bring up a menu to choose from whenever appropriate.
+
+Status is shown at the bottom of the screen   [bottom_status]
+     Character titles, statistics et cetera are displayed at the bottom of the
+     screen instead of the left side.  This is particularly useful when playing
+     on portable devices in portrait mode.
+
 Use Metric (SI) measurements    [use_metric]
      Display a variety of measurable quantities using metric measurements.
      Conversions are:  3 meters ~ 10 feet, 1.0 kilograms ~ 2.2 pounds.
@@ -116,6 +115,15 @@ Show region affected by using detection spells   [show_detect]
      Display a circular flash on the screen that helps show where the 
      detection radius ends.
 
+Player colour indicates low hit points    [hp_changes_colour]
+     The '@' player symbol (in non-graphics mode) changes from white to yellow
+     to orange to red as the player's hitpoints fall.
+
+Buttons for common mouse commands are shown    [mouse_buttons]
+     Text "buttons" are shown in the status area for common commands that are
+     otherwise hard to perform with the mouse - repeat, return, stand still and
+     escape.  See the help file "mouse.txt" for more information about mouse
+     commands.
 
 
 === Option Set 2 -- Disturbance ===
@@ -189,6 +197,9 @@ Verify use of special commands    [verify_special]
 Ring bell on error    [ring_bell]
      Attempt to make a "bell" sound upon various failures or illegal inputs.
 
+Automatically clear '-more-' prompts   [auto_more]	
+     Don't wait for user input before clearing the message line.  Turning this 
+     option on might lead to missing important messages.
 
 === Option Set 3 -- Game-play ===
 
@@ -246,6 +257,20 @@ Generate dungeons with connected stairs    [dungeon_stair]
      Always generate a staircase back to the level you came from, if you used
      a staircase to get to the level.  This is more "realistic", and "safer",
      but less of a "challenge" for some people.
+
+Auto-squelched items are immediately destroyed   [strong_squelch]
+     Items set to be squelched (either through the squelch menus or on the
+     destroy prompt) are destroyed immediately the player steps on them.
+
+Merge inscriptions when stacking    [stack_force_notes]
+     Force otherwise identical objects to merge, even if one has an empty
+     inscription and the other does not.  The resulting stack keeps the 
+     non-empty inscription.
+
+Merge discounts when stacking    [stack_force_costs]
+     Force otherwise identical objects to merge, even if they have different
+     discounts.  The resulting stack keeps the largest discount.  This option
+     may cause you to lose value, but will give you optimal pack usage.
 
 Monsters exploit players weaknesses    [smart_cheat]
      Allow monsters to know what spell attacks you are resistant to,
@@ -397,10 +422,6 @@ Display inven/equip
 Display equip/inven
      Display the player equipment (and sometimes the inventory).
 
-Display player flags
-     Display a special description of the character, including some of the
-     "flags" which pertain to a character, broken down by equipment item.
-
 Display player screen
      Display a brief description of the character, including a breakdown
      of the current player "skills" (including attacks/shots per round).
@@ -429,11 +450,17 @@ Display object recall
 Display snap-shot
      This window flag is currently unused.
 
+Display monster list
+     Display a list of all monsters currently detected by the player.  This is 
+     particularly useful in wilderness when visible monsters may be offscreen.
+
 Display borg messages
      This window flag is currently used only by the Borg.
+     There is currently no Borg for FAangband.
 
 Display borg status
      This window flag is currently used only by the Borg.
+     There is currently no Borg for FAangband.
 
 === Item squleching menus ===
 
@@ -474,6 +501,11 @@ for using red to display both hitpoints and mana.
 The "delay_factor" value, if non-zero, will slow down the visual effects used
 for missile, bolt, beam, and ball attacks.  The actual time delay is equal to
 "delay_factor" squared, in milliseconds.
+
+The "panel_change" value alters the pont at which the map will automatically
+scroll to centre the player.  A value of 0 will scroll the map when the player 
+is within 2 of the top or bottom or within 4 of the sides;  every increase of 1
+in the value will add 2 to the top/bottom distance and 4 to the side distance.
 
 You may set FAangband to save your character every so often by using the auto-
 save option.  Set the option itself to "yes" and tweak the timer until you are 

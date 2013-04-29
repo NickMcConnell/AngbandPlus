@@ -34,7 +34,7 @@ typedef struct term_win term_win;
 
 struct term_win
 {
-	bool cu, cv;
+	bool cu,  cv;
 	byte cx, cy;
 
 	byte **a;
@@ -98,8 +98,11 @@ struct term_win
  *	- Flag "always_text"
  *	  Use the "Term_text()" routine for invisible text
  *
- *	- Flag "unused_flag"
- *	  Reserved for future use
+ *	- Flag "always_draw"
+ *	  Always redraw grids
+ *
+ *	- Flag "notice_grid"
+ *	  Call the "TERM_XTRA_GRIDS" action when grid layout changes
  *
  *	- Flag "never_bored"
  *	  Never call the "TERM_XTRA_BORED" action
@@ -184,7 +187,8 @@ struct term
 	bool always_pict;
 	bool higher_pict;
 	bool always_text;
-	bool unused_flag;
+	bool always_draw;
+	bool notice_grid;
 	bool never_bored;
 	bool never_frosh;
 
@@ -221,6 +225,8 @@ struct term
 	errr (*xtra_hook)(int n, int v);
 
 	errr (*curs_hook)(int x, int y);
+
+	errr (*bigcurs_hook)(int x, int y);
 
 	errr (*wipe_hook)(int x, int y, int n);
 
@@ -259,6 +265,8 @@ struct term
  * The "TERM_XTRA_ALIVE" action uses "v" to "activate" (or "close")
  * The "TERM_XTRA_LEVEL" action uses "v" to "resume" (or "suspend")
  * The "TERM_XTRA_DELAY" action uses "v" as a "millisecond" value
+ * The "TERM_XTRA_GRIDS" action uses "v" to indicate where grids are layed on 
+ * the screen
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
@@ -275,6 +283,7 @@ struct term
 #define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
 #define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
 #define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_GRIDS 14	/* Screen about to save / has been saved */
 
 
 /**** Available Variables ****/

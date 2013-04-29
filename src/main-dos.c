@@ -168,6 +168,13 @@ static term_data data[MAX_TERM_DATA];
 #ifdef USE_GRAPHICS
 
 /*
+ * Available graphic modes
+ */
+#define GRAPHICS_NONE       0
+#define GRAPHICS_ORIGINAL   1
+#define GRAPHICS_ADAM_BOLT  2
+
+/*
  * Are graphics already initialized ?
  */
 static bool graphics_initialized = FALSE;

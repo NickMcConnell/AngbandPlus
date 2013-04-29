@@ -16,7 +16,10 @@
 
 #include <stdio.h>
 #include <ctype.h>
+#ifdef _WIN32_WCE
+#else
 #include <errno.h>
+#endif
 
 #if defined(NeXT)
 # include <libc.h>
@@ -43,8 +46,10 @@
 #endif
 
 
+#ifdef _WIN32_WCE
+#else
 #include <time.h>
-
+#endif
 
 
 #if defined(MACINTOSH) && defined(__MWERKS__)
@@ -52,7 +57,10 @@
 #endif
 
 #if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
+#ifdef _WIN32_WCE
+#else
 # include <io.h>
+#endif
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
@@ -66,7 +74,10 @@
 
 
 #if !defined(NeXT) && !defined(RISCOS)
+#ifdef _WIN32_WCE
+#else
 # include <fcntl.h>
+#endif
 #endif
 
 

@@ -48,14 +48,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.2.1"
+#define VERSION_STRING	"0.2.2"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	2
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -77,29 +77,35 @@
 
 /*
  * Number of grids in each panel (vertically)
- * Must be a multiple of BLOCK_HGT
  */
-#define PANEL_HGT	11
+#define PANEL_HGT	(use_trptile ? 3 : (use_dbltile ? 5 : 11))
 
 /*
  * Number of grids in each panel (horizontally)
- * Must be a multiple of BLOCK_WID
  */
-#define PANEL_WID	33
+#define PANEL_WID ((use_trptile && use_bigtile) ?  5 : (use_trptile ? 11 : \
+		  ((use_dbltile && use_bigtile) ? 8 : ((use_dbltile || \
+                  use_bigtile) ? 16 : 33))))
 
+
+/*
+ * Number of text rows in each map screen, regardless of tile size
+ */
+#define SCREEN_ROWS	(Term->hgt - ROW_MAP  - (panel_extra_rows ? 3 : 1) \
+                          - (bottom_status ? 6 : 0)) 
 
 /*
  * Number of grids in each screen (vertically)
- * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define OLD_SCREEN_HGT	22
+#define SCREEN_HGT    SCREEN_ROWS / (use_trptile ? 3 : (use_dbltile ? 2 : 1))
 
 /*
  * Number of grids in each screen (horizontally)
- * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define OLD_SCREEN_WID	66
-
+#define SCREEN_WID	((Term->wid - COL_MAP - 1) / ((use_trptile && \
+                        use_bigtile) ?  6 : (use_trptile ? 3 : \
+			((use_dbltile && use_bigtile) ? 4 :((use_dbltile \
+                        || use_bigtile) ? 2 : 1)))))
 
 /*
  * Number of grids in each dungeon (from top to bottom)
@@ -209,11 +215,16 @@
 #define MAX_A_IDX	250	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
 #define MAX_R_IDX	800	/* Max size for "r_info[]" */
-#define MAX_V_IDX	150	/* Max size for "v_info[]" */
+#define MAX_V_IDX	300	/* Max size for "v_info[]" */
 #define MAX_H_IDX	223	/* Max size for "h_info[]" */
 #define MAX_B_IDX	14	/* Max size for "b_info[]" */
 #define MAX_P_IDX	14	/* Max size for "p_info[]" */
 #define MAX_S_IDX	7	/* Max size for "s_info[]" */
+#define MAX_FL_IDX      401     /* Max size for "flavor_info[]" */
+
+
+
+#define MAX_TITLES     60	/* Used with scrolls (min 48) */
 
 /*
  * Size of the "fake" array for reading in names of monsters, objects,
@@ -344,6 +355,10 @@
 #define GRAPHICS_PSEUDO         4
 
 
+/* 
+ * Given an array, determine how many elements are in the array.
+ */
+#define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
 
 
 /*
@@ -638,72 +653,80 @@
  * That leaves a "border" around the "stat" values.
  */
 
-#define ROW_RACE	1
+#define ROW_RACE	(bottom_status ? SCREEN_ROWS + 1 : 1)
 #define COL_RACE	0	/* <race name> */
 
-#define ROW_CLASS	2
+#define ROW_CLASS	(bottom_status ? SCREEN_ROWS + 2 : 2)
 #define COL_CLASS	0	/* <class name> */
 
-#define ROW_TITLE	3
+#define ROW_TITLE	(bottom_status ? SCREEN_ROWS + 3 : 3)
 #define COL_TITLE	0	/* <title> or <mode> */
 
-#define ROW_LEVEL	4
+#define ROW_LEVEL	(bottom_status ? SCREEN_ROWS + 4 : 4)
 #define COL_LEVEL	0	/* "LEVEL xxxxxx" */
 
-#define ROW_EXP		5
+#define ROW_EXP		(bottom_status ? SCREEN_ROWS + 5 : 5)
 #define COL_EXP		0	/* "EXP xxxxxxxx" */
 
-#define ROW_GOLD	6
+#define ROW_GOLD	(bottom_status ? SCREEN_ROWS + 6 : 6)
 #define COL_GOLD	0	/* "AU xxxxxxxxx" */
 
-#define ROW_STAT	8
-#define COL_STAT	0	/* "xxx   xxxxxx" */
+#define ROW_STAT	(bottom_status ? SCREEN_ROWS + 1 : 8)
+#define COL_STAT	(bottom_status ? 14 : 0)	/* "xxx   xxxxxx" */
 
-#define ROW_SHAPE	14
-#define COL_SHAPE	0	/* "Mouse" (or whatever) */
+#define ROW_SHAPE	(bottom_status ? SCREEN_ROWS + 1 : 14)
+#define COL_SHAPE	(bottom_status ? 28 : 0)    /* "Mouse" (or whatever) */
 
-#define ROW_AC		15
-#define COL_AC		0	/* "Cur AC xxxxx" */
+#define ROW_AC		(bottom_status ? SCREEN_ROWS + 2 : 15)
+#define COL_AC		(bottom_status ? 28 : 0)	/* "Cur AC xxxxx" */
 
-#define ROW_HP		16
-#define COL_HP		0	/* "HP xxxxx" */
+#define ROW_HP		(bottom_status ? SCREEN_ROWS + 3 : 16)
+#define COL_HP		(bottom_status ? 28 : 0)	/* "HP xxxxx" */
 
-#define ROW_SP		17
-#define COL_SP		0	/* "SP xxxxx" */
+#define ROW_SP		(bottom_status ? SCREEN_ROWS + 4 : 17)
+#define COL_SP		(bottom_status ? 28 : 0)	/* "SP xxxxx" */
 
-#define ROW_INFO	18
-#define COL_INFO	0	/* "xxxxxxxxxxxx" (the monster health bar) */
+#define ROW_INFO	(bottom_status ? SCREEN_ROWS + 5 : 18)
+#define COL_INFO	(bottom_status ? 28 : 0)	/* "xxxxxxxxxxxx"  */
 
-#define ROW_MON_MANA	19
-#define COL_MON_MANA	0	/* "xxxxxxxxxxxx" (the monster mana bar) */
+#define ROW_MON_MANA	(bottom_status ? SCREEN_ROWS + 6 : 19)
+#define COL_MON_MANA	(bottom_status ? 28 : 0)	/* "xxxxxxxxxxxx"  */
 
-#define ROW_CUT		21
-#define COL_CUT		0	/* <cut> */
+#define ROW_CUT		(bottom_status ? SCREEN_ROWS + 1 : 21)
+#define COL_CUT		(bottom_status ? 41 : 0)	/* <cut> */
 
-#define ROW_STUN	22
-#define COL_STUN	0	/* <stun> */
+#define ROW_STUN	(bottom_status ? SCREEN_ROWS + 2 : 22)
+#define COL_STUN	(bottom_status ? 41 : 0)	/* <stun> */
 
 #define COL_HUNGRY      0       /* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define COL_BLIND       7       /* "Blind" */
+#define COL_BLIND       (small_screen ? 7 : 6)      /* "Blind" */
 
-#define COL_CONFUSED    12      /* "Confused" */
+#define COL_CONFUSED    (small_screen ? 10 : 12)      /* "Confused" */
 
-#define COL_AFRAID      16      /* "Afraid" */
+#define COL_AFRAID      (small_screen ? 13 : 16)      /* "Afraid" */
 
-#define COL_POISONED	22      /* "Poisoned" */
+#define COL_POISONED	(small_screen ? 16 : 22)      /* "Poisoned" */
 
-#define COL_STATE       27      /* <state> */
+#define COL_STATE       (small_screen ? 19 : 27)      /* <state> */
 
-#define COL_SPEED       38      /* "Slow (-NN)" or "Fast (+NN)" */
+#define COL_SPEED       (small_screen ? 24 : 38)      /* "Slow (-NN)" or "Fast (+NN)" */
 
-#define COL_DTRAP       47      /* "DTrap" */
+#define COL_DTRAP       (small_screen ? 32 : 47)      /* "DTrap" */
 
-#define COL_STUDY       53      /* "Study" */
+#define COL_STUDY       (small_screen ? 34 : 53)      /* "Study" */
 
 #define ROW_MAP		1
-#define COL_MAP		13
+#define COL_MAP		(bottom_status ? 0 : (use_dbltile || use_trptile ? 12 : 13))
 
+/* From Unangband */
+#define SIDEBAR_WID	(bottom_status ? 0 : (use_dbltile || use_trptile ? 12 : 13))
+
+/* For mouse buttons */
+#define ROW_STAND       (bottom_status ? SCREEN_ROWS + 3 : 20)
+#define ROW_REPEAT      (bottom_status ? SCREEN_ROWS + 4 : 21)
+#define ROW_RETURN      (bottom_status ? SCREEN_ROWS + 5 : 22)
+#define ROW_ESCAPE      (bottom_status ? SCREEN_ROWS + 6 : 23)
 
 /*** General index values ***/
 
@@ -717,7 +740,7 @@
 #define SUMMON_SPIDER		12
 #define SUMMON_HOUND		13
 #define SUMMON_ANIMAL		14
-#define SUMMON_BERTBILLTOM     	15
+#define SUMMON_SWAMP     	15
 #define SUMMON_DEMON		16
 #define SUMMON_UNDEAD		17
 #define SUMMON_DRAGON		18
@@ -2127,6 +2150,13 @@
 #define SV_GOLD_MAX		11
 
 
+/*
+ * Special "sval" value -- unknown "sval"
+ */
+#define SV_UNKNOWN			255
+
+
+
 /*** Monster blow constants ***/
 
 
@@ -2948,7 +2978,7 @@
 #define RF7_XXX6		0x00001000	/*  */
 #define RF7_XXX7		0x00002000	/*  */
 #define RF7_S_THIEF		0x00004000	/* Summon Thieves */
-#define RF7_S_BERTBILLTOM	0x00008000	/* Summon Bert, Bill, and Tom */
+#define RF7_S_SWAMP     	0x00008000	/* Summon swamp creatures */
 #define RF7_XXX8		0x00010000	/*  */
 #define RF7_XXX9		0x00020000	/*  */
 #define RF7_XX10		0x00040000	/*  */
@@ -3137,8 +3167,8 @@
 #define OPT_auto_more			40
 #define OPT_dungeon_stair		41
 #define OPT_strong_squelch              42
-/* xxx */
-/* xxx */
+#define OPT_bottom_status               43
+#define OPT_mouse_buttons               44
 /* xxx */
 /* xxx */
 #define OPT_smart_cheat			47
@@ -3165,6 +3195,7 @@
 #define OPT_hp_changes_colour           68
 #define OPT_show_detect                 69 /*This is really quite out of order -BR-*/
 #define OPT_disturb_trap_detect         70 /*This is really quite out of order -BR-*/
+#define OPT_show_lists                  71
 
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
@@ -3247,8 +3278,8 @@
 #define auto_more			op_ptr->opt[OPT_auto_more]
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define strong_squelch                  op_ptr->opt[OPT_strong_squelch]
-/* xxx */
-/* xxx */
+#define bottom_status                   op_ptr->opt[OPT_bottom_status]
+#define mouse_buttons                   op_ptr->opt[OPT_mouse_buttons]
 /* xxx */
 /* xxx */
 #define smart_cheat			op_ptr->opt[OPT_smart_cheat]
@@ -3274,6 +3305,7 @@
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
 #define show_piles                      op_ptr->opt[OPT_show_piles]
+#define show_lists                      op_ptr->opt[OPT_show_lists]
 
 
 #define birth_point_based               op_ptr->opt[OPT_birth_point_based]     
@@ -3349,15 +3381,39 @@
 	 ((T)->tval == TV_ARROW)  || \
 	 ((T)->tval == TV_BOLT))
 
+
+
+/*
+ * Determine if the attr and char should consider the item's flavor
+ *
+ * Identified scrolls should use their own tile.
+ */
+#define use_flavor_glyph(T) \
+	((k_info[(T)->k_idx].flavor) && \
+	 !((k_info[(T)->k_idx].tval == TV_SCROLL) && object_aware_p(T) \
+             && arg_graphics))
+
+
 /*
  * Return the "attr" for a given item.
  * Use "flavor" if available.
  * Default to user definitions.
  */
 #define object_attr(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_attr[k_info[(T)->k_idx].flavor]) : \
+	(use_flavor_glyph(T) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].x_attr) : \
 	 (k_info[(T)->k_idx].x_attr))
+
+
+/*
+ * Return the "attr" for a k_idx.
+ * Use "flavor" if available.
+ * Default to user definitions.
+ */
+#define object_type_attr(T) \
+	((k_info[T].flavor) ? \
+	 (flavor_info[k_info[T].flavor].x_attr) : \
+	 (k_info[T].x_attr))
 
 /*
  * Return the "char" for a given item.
@@ -3365,11 +3421,39 @@
  * Default to user definitions.
  */
 #define object_char(T) \
-	((k_info[(T)->k_idx].flavor) ? \
-	 (misc_to_char[k_info[(T)->k_idx].flavor]) : \
+	(use_flavor_glyph(T) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].x_char) : \
 	 (k_info[(T)->k_idx].x_char))
 
+/*
+ * Return the "attr" for a given item.
+ * Use "flavor" if available.
+ * Use default definitions.
+ */
+#define object_attr_default(T) \
+	((k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].d_attr) : \
+	 (k_info[(T)->k_idx].d_attr))
 
+/*
+ * Return the "char" for a given item.
+ * Use "flavor" if available.
+ * Use default definitions.
+ */
+#define object_char_default(T) \
+	((k_info[(T)->k_idx].flavor) ? \
+	 (flavor_info[k_info[(T)->k_idx].flavor].d_char) : \
+	 (k_info[(T)->k_idx].d_char))
+
+/*
+ * Return the "char" for a k_idx.
+ * Use "flavor" if available.
+ * Default to user definitions.
+ */
+#define object_type_char(T) \
+	((k_info[T].flavor) ? \
+	 (flavor_info[k_info[T].flavor].x_char) : \
+	 (k_info[T].x_char))
 
 
 /*
@@ -3440,13 +3524,15 @@
  * Convert a "key event" into a "location" (Y)
  */
 #define KEY_GRID_Y(K) \
-	((int) ((panel_row_min) + ( ((K.mousey) - ROW_MAP))))
+	((int) ((panel_row_min) + ( ((K.mousey) - ROW_MAP)/ \
+		(use_trptile ? 3 : (use_dbltile ? 2 : 1)) )))
 
 /*
  * Convert a "key event" into a "location" (X)
  */
 #define KEY_GRID_X(K) \
-	((int) ((panel_col_min) + ( ((K.mousex) - COL_MAP))))
+	((int) ((panel_col_min) + ( ((K.mousex) - COL_MAP) / \
+		((use_trptile ? 3 : (use_dbltile ? 2 : 1)) * (use_bigtile ? 2 : 1)) )))
 
 /*
  * Determines if a map location is "meaningful"
@@ -3767,6 +3853,7 @@ extern int PlayerUID;
 					 * Better Attacks (Druids) */
 #define SP_MARTIAL_ARTS		26	/* Druid-like Unarmed Combat */
 #define SP_MANA_BURN		27	/* Reduce Mana with Melee Criticals */
+#define SP_RAPID_FIRE           28      /* Trade accuracy for more shote */
 
 /* Magic and Mana */
 #define SP_BEGUILE		40	/* More effective monster status 
@@ -3869,7 +3956,7 @@ extern int PlayerUID;
 
 /* Number of localities */
 
-#define MAX_LOCALITIES 35
+#define MAX_LOCALITIES 37
 
 
 /* Localities -NRM- */
@@ -3909,10 +3996,12 @@ extern int PlayerUID;
 #define GONDOLIN               32
 #define ENT_PATH               33
 #define ERIADOR_SOUTH          34
+#define UNDERWORLD             35
+#define MOUNTAIN_TOP           36
 
 /* Number of stage types */
 
-#define NUM_STAGE_TYPES 9
+#define NUM_STAGE_TYPES 10
 
 /* types of stage -NRM- */
 
@@ -3925,6 +4014,7 @@ extern int PlayerUID;
 #define DESERT                 6
 #define CAVE                   7
 #define VALLEY                 8
+#define MOUNTAINTOP            9
 
 /* Fields for stage_map array */
 #define LOCALITY               0
@@ -3982,3 +4072,19 @@ extern int PlayerUID;
  */
 #define MAX_PF_LENGTH 250
 
+/*
+ * Mouse click region names
+ */
+#define MOUSE_NULL    0
+#define MOUSE_MAP     1
+#define MOUSE_CHAR    2
+#define MOUSE_HP      3
+#define MOUSE_SP      4
+#define MOUSE_STUDY   5
+#define MOUSE_MESSAGE 6
+#define MOUSE_PLACE   7
+#define MOUSE_OBJECTS 8
+#define MOUSE_STAND   9
+#define MOUSE_REPEAT 10
+#define MOUSE_RETURN 11
+#define MOUSE_ESCAPE 12

@@ -4765,9 +4765,8 @@ static void recover_monster(monster_type *m_ptr, bool regen)
 	  m_ptr->r_idx = m_ptr->orig_idx;
 	  m_ptr->orig_idx = 0;
 
-	  /* Hack - do a complete redraw */
-	  do_cmd_redraw();
-	  
+	  /* Hack - do a complete redraw  -- unnecessary? */
+	  p_ptr->redraw |= PR_MAP;
 	}
     }
   

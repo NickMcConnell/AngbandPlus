@@ -1497,11 +1497,20 @@ void do_cmd_fire(void)
   /* Require proper missile */
   item_tester_tval = p_ptr->ammo_tval;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) {
+    item = handle_item();
+    if (!get_item_allow(item)) return;
+  }
+
   /* Get an item */
-  q = "Fire which item? ";
-  s = "You have nothing to fire.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Fire which item? ";
+      s = "You have nothing to fire.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+    }
+
   /* Access the item (if in the pack) */
   if (item >= 0)
     {
@@ -1902,6 +1911,10 @@ void do_cmd_fire(void)
   
   /* Drop (or break) near that location */
   drop_near(i_ptr, break_chance, y, x);
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -1958,11 +1971,21 @@ void do_cmd_throw(bool magic)
   u32b f1, f2, f3;
   
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Throw which item? ";
-  s = "You have nothing to throw.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Throw which item? ";
+      s = "You have nothing to throw.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+    }
+
   /* Access the item (if in the pack) */
   if (item >= 0)
     {

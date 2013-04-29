@@ -186,11 +186,21 @@ void do_cmd_wield(void)
   /* Restrict the choices */
   item_tester_hook = item_tester_hook_wear;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Wear/Wield which item? ";
-  s = "You have nothing you can wear or wield.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    { 
+      q = "Wear/Wield which item? ";
+      s = "You have nothing you can wear or wield.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -232,12 +242,8 @@ void do_cmd_wield(void)
        (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) &&
       (f1 & TR1_THROWING))
     {
-      char answer;
-      
       /* Stick it in the belt? */
-      msg_print("Equip in throwing belt? (y/n)");
-      answer = inkey();
-      if ((answer == 'Y') || (answer == 'y')) slot = INVEN_Q0;
+      if (get_check("Equip in throwing belt?")) slot = INVEN_Q0;
       
       /* Flush */
       msg_print(NULL);
@@ -503,10 +509,20 @@ void do_cmd_takeoff(void)
     }
   
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Take off which item? ";
-  s = "You are not wearing anything to take off.";
-  if (!get_item(&item, q, s, (USE_EQUIP))) return;
+  else
+    {
+      q = "Take off which item? ";
+      s = "You are not wearing anything to take off.";
+      if (!get_item(&item, q, s, (USE_EQUIP))) return;
+    }
   
   /* Get the item (in the pack) */
   if (item >= 0)
@@ -555,16 +571,26 @@ void do_cmd_drop(void)
   cptr q, s;
   
   
-  /* Get an item */
-  q = "Drop which item? ";
-  s = "You have nothing to drop.";
-  if (SCHANGE)
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
     {
-      if (!get_item(&item, q, s, (USE_INVEN))) return;
+      item = handle_item();
+      if (!get_item_allow(item)) return;
     }
+
+  /* Get an item */
   else
     {
-      if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+      q = "Drop which item? ";
+      s = "You have nothing to drop.";
+      if (SCHANGE)
+	{
+	  if (!get_item(&item, q, s, (USE_INVEN))) return;
+	}
+      else
+	{
+	  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
+	}
     }
   
   /* Get the item (in the pack) */
@@ -624,10 +650,21 @@ void do_cmd_destroy(void)
   
   cptr q, s;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Destroy which item? ";
-  s = "You have nothing to destroy.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | CAN_SQUELCH))) return;
+  else
+    {
+      q = "Destroy which item? ";
+      s = "You have nothing to destroy.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | CAN_SQUELCH))) 
+	return;
+    }
   
   /* Try to destroy all items marked SQUELCH */
   if (item == ALL_SQUELCHED)
@@ -821,10 +858,21 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
   /* If not called in a store, we must get an object to inspect. */
   if (!o_ptr)
     {
+      /* Do we have an item? */
+      if (p_ptr->command_item) 
+	{
+	  item = handle_item();
+	  if (!get_item_allow(item)) return;
+	}
+
       /* Get an item */
-      q = "Examine which item? ";
-      s = "You have nothing to examine.";
-      if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+      else
+	{
+	  q = "Examine which item? ";
+	  s = "You have nothing to examine.";
+	  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+	    return;
+	}
       
       /* Get the item (in the pack) */
       if (item >= 0)
@@ -1001,7 +1049,7 @@ void do_cmd_observe(object_type *o_ptr, bool in_store)
   
   /* The exit sign. */
   roff("(Press any key to continue.)", 25, 0);
-  (void)inkey();
+  (void)inkey_ex();
   
   /* Load screen */
   screen_load();
@@ -1024,11 +1072,21 @@ void do_cmd_uninscribe(void)
   cptr q, s;
   
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Un-inscribe which item? ";
-  s = "You have nothing to un-inscribe.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Un-inscribe which item? ";
+      s = "You have nothing to un-inscribe.";
+      if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1078,11 +1136,21 @@ void do_cmd_inscribe(void)
   cptr q, s;
   
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Inscribe which item? ";
-  s = "You have nothing to inscribe.";
-  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Inscribe which item? ";
+      s = "You have nothing to inscribe.";
+      if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1164,11 +1232,21 @@ static void do_cmd_refill_lamp(void)
   /* Restrict the choices */
   item_tester_hook = item_tester_refill_lantern;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Refill with which flask? ";
-  s = "You have no flasks of oil.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Refill with which flask? ";
+      s = "You have no flasks of oil.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1266,11 +1344,21 @@ static void do_cmd_refill_torch(void)
   /* Restrict the choices */
   item_tester_hook = item_tester_refill_torch;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Refuel with which torch? ";
-  s = "You have no extra torches.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Refuel with which torch? ";
+      s = "You have no extra torches.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1412,19 +1500,9 @@ void do_cmd_look(void)
 void do_cmd_locate(void)
 {
   int dir, y1, x1, y2, x2;
-  int wid, hgt;
   char tmp_val[80];
   char out_val[160];
   
-  
-  /* Get size */
-  Term_get_size(&wid, &hgt);
-  
-  /* Offset */
-  wid -= COL_MAP + 1;
-  hgt -= ROW_MAP + 1;
-  
-  if (panel_extra_rows) hgt -= 2;
   
   /* Start at current panel */
   y2 = y1 = panel_row_min;
@@ -1440,16 +1518,26 @@ void do_cmd_locate(void)
 	}
       else
 	{
-	  sprintf(tmp_val, "%s%s of",
-		  ((y2 < y1) ? " North" : (y2 > y1) ? " South" : ""),
-		  ((x2 < x1) ? " West" : (x2 > x1) ? " East" : ""));
+	  if (small_screen)
+	    sprintf(tmp_val, " %s%s of",
+		    ((y2 < y1) ? "N" : (y2 > y1) ? "S" : ""),
+		    ((x2 < x1) ? "W" : (x2 > x1) ? "E" : ""));
+	  else
+	    sprintf(tmp_val, "%s%s of",
+		    ((y2 < y1) ? " North" : (y2 > y1) ? " South" : ""),
+		    ((x2 < x1) ? " West" : (x2 > x1) ? " East" : ""));
 	}
       
       /* Prepare to ask which way to look */
-      sprintf(out_val,
-	      "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction?",
-	      y2 / (hgt / 2), y2 % (hgt / 2),
-	      x2 / (wid / 2), x2 % (wid / 2), tmp_val);
+      if (small_screen)
+	sprintf(out_val, "Sector [%d(%02d),%d(%02d)], %s yours.  Dir or ESC?",
+	      y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
+	      x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
+
+      else
+	sprintf(out_val, "Map sector [%d(%02d),%d(%02d)], which is%s your sector.  Direction or ESC?",
+		y2 / (SCREEN_HGT / 2), y2 % (SCREEN_HGT / 2),
+		x2 / (SCREEN_WID / 2), x2 % (SCREEN_WID / 2), tmp_val);
 
       /* Assume no direction */
       dir = 0;
@@ -1457,13 +1545,19 @@ void do_cmd_locate(void)
       /* Get a direction */
       while (!dir)
 	{
-	  char command;
+	  key_event ke;
 	  
 	  /* Get a command (or Cancel) */
-	  if (!get_com(out_val, &command)) break;
+	  if (!get_com_ex(out_val, &ke)) break;
 	  
 	  /* Extract the action (if any) */
-	  dir = target_dir(command);
+	  if (ke.key == '\xff')
+	    {
+	      if (!ke.mousey) break;
+	      dir = mouse_dir(ke, TRUE);
+	    }
+	  else
+	    dir = target_dir(ke.key);
 	  
 	  /* Error */
 	  if (!dir) bell(NULL);
@@ -1741,15 +1835,19 @@ static void roff_top(int r_idx)
   /* Dump the name */
   Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
   
-  /* Append the "standard" attr/char info */
-  Term_addstr(-1, TERM_WHITE, " ('");
-  Term_addch(a1, c1);
-  Term_addstr(-1, TERM_WHITE, "')");
-  
-  /* Append the "optional" attr/char info */
-  Term_addstr(-1, TERM_WHITE, "/('");
-  Term_addch(a2, c2);
-  Term_addstr(-1, TERM_WHITE, "'):");
+  if (!use_dbltile && !use_trptile)
+    {
+      /* Append the "standard" attr/char info */
+      Term_addstr(-1, TERM_WHITE, " ('");
+      Term_addch(a1, c1);
+      Term_addstr(-1, TERM_WHITE, "')");
+      
+      /* Append the "optional" attr/char info */
+      Term_addstr(-1, TERM_WHITE, "/('");
+      Term_addch(a2, c2);
+      if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+      Term_addstr(-1, TERM_WHITE, "'):");
+    }
 }
 
 
@@ -2276,49 +2374,92 @@ void py_set_trap(int y, int x)
  */
 bool choose_mtrap(byte *choice)
 {
-  int num, temp=0;
+  int j, num, temp=0, tile_hgt;
   
   char c;
+  key_event ke;
   
   bool done=FALSE;
   bool chosen=FALSE;
   
   /* Save screen */
   screen_save();
-  
-  prt("        Choose an advanced monster trap (ESC to cancel):", 1, 8);
+
+  if (small_screen)
+    prt("Choose an advanced monster trap (ESC to cancel):", 1, 0);
+  else
+    prt("        Choose an advanced monster trap (ESC to cancel):", 1, 8);
   
   
   if (check_ability(SP_EXTRA_TRAP)) num = 1 + (p_ptr->lev / 4);
   else num = 1 + (p_ptr->lev / 6);
   
-  prt("        a) Sturdy Trap      (less likely to break)", 2, 8);
-  if (num >= 2) 
-    prt("        b) Netted Trap      (effective versus flyers)", 3, 8);
-  if (num >= 3) 
-    prt("        c) Confusion Trap   (confuses monsters)", 4, 8);
-  if (num >= 4) 
-    prt("        d) Poison Gas Trap  (creates a toxic cloud)", 5, 8);
-  if (num >= 5) 
-    prt("        e) Spirit Trap      (effective versus insubstantial monsters)", 6, 8);
-  if (num >= 6) 
-    prt("        f) Lightning Trap   (shoots a lightning bolt)", 7, 8);
-  if (num >= 7) 
-    prt("        g) Explosive Trap   (causes area damage)", 8, 8);
-  if (num >= 8) 
-    prt("        h) Portal Trap      (teleports monsters)", 9, 8);
-  if (num >= 9) 
-    prt("        i) Stasis Trap      (freezes time for a monster)", 10, 8);
-  if (num >= 10) 
-    prt("        j) Drain Life Trap  (hurts living monsters)", 11, 8);
-  if (num >= 11) 
-    prt("        k) Unmagic Trap     (deals damage and reduces mana)", 12, 8);
-  if (num >= 12) 
-    prt("        l) Dispelling Trap  (hurts all monster in sight)", 13, 8);
+  if (small_screen)
+    {
+      prt("a) Sturdy Trap      (less likely to break)", 2, 0);
+      if (num >= 2) 
+	prt("b) Netted Trap      (effective versus flyers)", 3, 0);
+      if (num >= 3) 
+	prt("c) Confusion Trap   (confuses monsters)", 4, 0);
+      if (num >= 4) 
+	prt("d) Poison Gas Trap  (creates a toxic cloud)", 5, 0);
+      if (num >= 5) 
+	prt("e) Spirit Trap      (effective versus spirits)", 6, 0);
+      if (num >= 6) 
+	prt("f) Lightning Trap   (shoots a lightning bolt)", 7, 0);
+      if (num >= 7) 
+	prt("g) Explosive Trap   (causes area damage)", 8, 0);
+      if (num >= 8) 
+	prt("h) Portal Trap      (teleports monsters)", 9, 0);
+      if (num >= 9) 
+	prt("i) Stasis Trap      (freezes time for a monster)", 10, 0);
+      if (num >= 10) 
+	prt("j) Drain Life Trap  (hurts living monsters)", 11, 0);
+      if (num >= 11) 
+	prt("k) Unmagic Trap     (damages and reduces mana)", 12, 0);
+      if (num >= 12) 
+	prt("l) Dispelling Trap  (hurts all monsters in sight)", 13, 0);
+    }
+  else
+    {
+      prt("        a) Sturdy Trap      (less likely to break)", 2, 8);
+      if (num >= 2) 
+	prt("        b) Netted Trap      (effective versus flyers)", 3, 8);
+      if (num >= 3) 
+	prt("        c) Confusion Trap   (confuses monsters)", 4, 8);
+      if (num >= 4) 
+	prt("        d) Poison Gas Trap  (creates a toxic cloud)", 5, 8);
+      if (num >= 5) 
+	prt("        e) Spirit Trap      (effective versus insubstantial monsters)", 6, 8);
+      if (num >= 6) 
+	prt("        f) Lightning Trap   (shoots a lightning bolt)", 7, 8);
+      if (num >= 7) 
+	prt("        g) Explosive Trap   (causes area damage)", 8, 8);
+      if (num >= 8) 
+	prt("        h) Portal Trap      (teleports monsters)", 9, 8);
+      if (num >= 9) 
+	prt("        i) Stasis Trap      (freezes time for a monster)", 10, 8);
+      if (num >= 10) 
+	prt("        j) Drain Life Trap  (hurts living monsters)", 11, 8);
+      if (num >= 11) 
+	prt("        k) Unmagic Trap     (deals damage and reduces mana)", 12, 8);
+      if (num >= 12) 
+	prt("        l) Dispelling Trap  (hurts all monsters in sight)", 13, 8);
+    }
+
+  /* Hack - delete exact graphics rows */
+  if (use_trptile || use_dbltile)
+    { 
+      j = num + 1;
+      tile_hgt = (use_trptile ? 3 : 2);
+      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	prt("", ++j, small_screen ? 0 : 8);
+    }
 
   while (!done)
     {
-      c = inkey();
+      ke = inkey_ex();
+      c = ke.key;
       
       /* Letters are used for selection */
       if (isalpha(c))
@@ -2345,9 +2486,19 @@ bool choose_mtrap(byte *choice)
 	      bell("Illegal response to question!");
 	    }
 	}
+
+      /* Mouse selection */
+      else if ((c == '\xff') && (ke.mousey > 1) && (ke.mousey - 2 < num))
+	{
+	  done = TRUE;
+	  *choice = (byte) ke.mousey - 2;
+	  chosen = TRUE;
+	}
       
       /* Allow user to exit the fuction */
-      else if (c == ESCAPE)
+      else if ((c == ESCAPE) || ((ke.mousey == 1) && 
+				 (ke.mousex > (small_screen ? 31 : 48)) &&
+				 (ke.mousex < 62)))
 	{
 	  *choice = 0;
 	  done = TRUE;

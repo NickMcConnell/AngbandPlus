@@ -25,7 +25,11 @@
  * OPTION: Compile on a Windows machine
  */
 #ifndef WINDOWS
-/* #define WINDOWS */
+# ifdef _WIN32_WCE
+#  define WINDOWS
+# else
+/*#define WINDOWS */
+# endif
 #endif
 
 /*

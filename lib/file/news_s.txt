@@ -1,0 +1,46 @@
+                                                
+    ****************************************    
+    * FAangband 0.2.2 ** First Age Angband *    
+    ****************************************    
+                                                                               
+Based on: Moria     : Robert Alan Koeneke       
+Umoria              : James E. Wilson           
+Angband 2.0 - 3.0.6 : Alex Cutler, Andy Astrand,
+  Sean Marsh, Geoff Hill, Charles Teague,       
+  Charles Swiger, Ben Harrison, Robert Ruehlmann
+Oangband 0.1.0-0.4.0: Leon Marrick              
+Oangband 0.5.0-1.1.0: Bahman Rabii              
+NPPangband 0.4.1    : Jeff Greene and           
+                      Diego Gonzalez            
+                                                
+FAangband 0.1.0-0.2.2: Copyright (c) 2005-2007  
+                           Nick McConnell       
+                                                
+Send comments, etc. to nckmccnnll@yahoo.com.au  
+FAangband page:http://angband.oook.cz/faangband 
+Angband usenet:news:rec.games.roguelike.angband   
+          '?' for online help.                  
+
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwbbbbbbbbbbbbbbbwwwwbbbbbbbbbbbbbbbbbwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+DDDDDDDDDDDDDDDDDDDDDDwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+bbbbbbbbbbbbbbbbbbbbbbwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBww
+wwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBw
+wwwwwwwwwwwwwwwBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBw
+wwwwwwwwwwwGwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww

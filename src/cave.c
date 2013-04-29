@@ -551,7 +551,7 @@ static u16b image_random(void)
  */
 bool feat_supports_lighting(byte feat)
 {
-  if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
+  if ((feat >= FEAT_LAVA) && (feat <= FEAT_WEB))
     return TRUE;
   
   switch (feat)
@@ -771,8 +771,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
   
   int floor_num = 0;
   
-  /* Hack -- Assume that "new" means "Adam Bolt Tiles" */
-  bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
+  /* Hack -- Assume that "new" means "Adam Bolt Tiles" (or DG - NRM) */
+  bool graf_new = (use_graphics && (streq(ANGBAND_GRAF, "new") || 
+				    streq(ANGBAND_GRAF, "david")));
 
   bool daylight;
   
@@ -836,10 +837,28 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		  /* Only lit by "torch" lite */
 		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && (!daylight))
 		    {
-		      if (graf_new)
+		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+			if ((check_ability(SP_UNLIGHT)) && 
+			    (p_ptr->cur_lite <= 0))
+			  {
+			    /* "Dark radius" */
+			  }
+			else
+			  {
+			    c -= 1;
+			  }
+		      else if (graf_new)
 			{
-			  /* Use a brightly lit tile */
-			  c += 2;
+			  if ((check_ability(SP_UNLIGHT)) && 
+			      (p_ptr->cur_lite <= 0))
+			    {
+			      /* "Dark radius" */
+			    }
+			  else
+			    {
+			      /* Use a brightly lit tile */
+			      c += 2;
+			    }
 			}
 		      else if (o_ptr->k_idx == 733)
 			{
@@ -947,10 +966,28 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		  if (view_yellow_lite && !(info & (CAVE_GLOW))
 		      && (a == TERM_WHITE) && (!daylight))
 		    {
-		      if (graf_new)
+		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+			if ((check_ability(SP_UNLIGHT)) && 
+			    (p_ptr->cur_lite <= 0))
+			  {
+			    /* "Dark radius" */
+			  }
+			else
+			  {
+			    c -= 1;
+			  }
+		      else if (graf_new)
 			{
-			  /* Use a brightly lit tile */
-			  c += 2;
+			  if ((check_ability(SP_UNLIGHT)) && 
+			      (p_ptr->cur_lite <= 0))
+			    {
+			      /* "Dark radius" */
+			    }
+			  else
+			    {
+			      /* Use a brightly lit tile */
+			      c += 2;
+			    }
 			}
 		      else if (o_ptr->k_idx == 733)
 			{
@@ -1051,11 +1088,12 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	  c = f_ptr->x_char;
 	  
 	  /* Special lighting effects (walls only) */
-	  if (view_granite_lite && 
-	      (((a == TERM_WHITE) && !use_transparency && 
-		(feat >= FEAT_SECRET)) ||
-	       (use_transparency && feat_supports_lighting(feat))))
-	    {
+#ifdef USE_TRANSPARENCY
+	  if (view_granite_lite && feat_supports_lighting(feat))
+#else
+	  if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
+#endif
+	      {
 	      /* Handle "seen" grids */
 	      if (info & (CAVE_SEEN))
 		{
@@ -1318,7 +1356,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	  TERM_VIOLET		-% of HP remaining
       */
       
-      if (hp_changes_colour)
+      if ((hp_changes_colour) && (arg_graphics == GRAPHICS_NONE))
 	{
 	  switch(p_ptr->chp * 10 / p_ptr->mhp)
 	    {
@@ -1394,9 +1432,6 @@ void map_info_default(int y, int x, byte *ap, char *cp)
   
   int floor_num = 0;
   
-  /* Hack -- Assume that "new" means "Adam Bolt Tiles" */
-  bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
-
   bool daylight;
   
   /* Monster/Player */
@@ -1451,7 +1486,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	  c = f_ptr->d_char;
 	  
 	  /* Special lighting effects */
-	  if (view_special_lite && ((a == TERM_WHITE) || graf_new))
+	  if (view_special_lite && (a == TERM_WHITE))
 	    {
 	      /* Handle "seen" grids */
 	      if (info & (CAVE_SEEN))
@@ -1459,12 +1494,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		  /* Only lit by "torch" lite */
 		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && (!daylight))
 		    {
-		      if (graf_new)
-			{
-			  /* Use a brightly lit tile */
-			  c += 2;
-			}
-		      else if (o_ptr->k_idx == 733)
+		      if (o_ptr->k_idx == 733)
 			{
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
@@ -1486,49 +1516,25 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	      /* Handle "blind" */
 	      else if (p_ptr->blind)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "dark gray" */
-		      a = TERM_L_DARK;
-		    }
+		  /* Use "dark gray" */
+		  a = TERM_L_DARK;
 		}
 	      
 	      /* Handle "dark" grids */
 	      else if (!(info & (CAVE_GLOW)))
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "dark gray" */
-		      a = TERM_L_DARK;
-		    }
+		  /* Use "dark gray" */
+		  a = TERM_L_DARK;
 		}
 	      
 	      /* Handle "view_bright_lite" */
 	      else if (view_bright_lite)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "gray" */
-		      a = TERM_SLATE;
-		    }
+		  /* Use "gray" */
+		  a = TERM_SLATE;
 		}
 	    }
-	}
+	      }
       
       /* Unknown */
       else
@@ -1570,12 +1576,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		  if (view_yellow_lite && !(info & (CAVE_GLOW))
 		      && (a == TERM_WHITE) && (!daylight))
 		    {
-		      if (graf_new)
-			{
-			  /* Use a brightly lit tile */
-			  c += 2;
-			}
-		      else if (o_ptr->k_idx == 733)
+		      if (o_ptr->k_idx == 733)
 			{
 			  /* Hack for Lamp of Gwindor */
 			  a = TERM_L_BLUE;
@@ -1597,46 +1598,22 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	      /* Handle "blind" */
 	      else if (p_ptr->blind)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "dark gray" */
-		      a = TERM_L_DARK;
-		    }
+		  /* Use "dark gray" */
+		  a = TERM_L_DARK;
 		}
 	      
 	      /* Handle "dark" grids */
 	      else if (!(info & (CAVE_GLOW)))
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "dark gray" */
-		      a = TERM_L_DARK;
-		    }
+		  /* Use "dark gray" */
+		  a = TERM_L_DARK;
 		}
 	      
 	      /* Handle "view_bright_lite" */
 	      else if (view_bright_lite)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "gray" */
-		      a = TERM_SLATE;
-		    }
+		  /* Use "gray" */
+		  a = TERM_SLATE;
 		}
 	    }
 	}
@@ -1674,64 +1651,34 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	  c = f_ptr->d_char;
 	  
 	  /* Special lighting effects (walls only) */
-	  if (view_granite_lite && 
-	      (((a == TERM_WHITE) && !use_transparency && 
-		(feat >= FEAT_SECRET)) ||
-	       (use_transparency && feat_supports_lighting(feat))))
+#ifdef USE_TRANSPARENCY
+	  if (view_granite_lite && feat_supports_lighting(feat))
+#else
+	  if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
+#endif
 	    {
 	      /* Handle "seen" grids */
 	      if (info & (CAVE_SEEN))
 		{
-		  if (graf_new)
-		    {
-		      /* Use a lit tile */
-		    }
-		  else
-		    {
-		      /* Use "white" */
-		    }
+		  /* Use "white" */
 		}
 	      
 	      /* Handle "blind" */
 	      else if (p_ptr->blind)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a dark tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "dark gray" */
-		      a = TERM_L_DARK;
-		    }
+		  /* Use "dark gray" */
+		  a = TERM_L_DARK;
 		}
 	      
 	      /* Handle "view_bright_lite" */
 	      else if (view_bright_lite)
 		{
-		  if (graf_new)
-		    {
-		      /* Use a lit tile */
-		      c += 1;
-		    }
-		  else
-		    {
-		      /* Use "gray" */
-		      a = TERM_SLATE;
-		    }
+		  /* Use "gray" */
+		  a = TERM_SLATE;
 		}
 	      else
 		{
-		  if (graf_new)
-		    {
-		      /* Use a brightly lit tile */
-		      c += 2;
-		    }
-		  else
-		    {
-		      /* Use "white" */
-		    }
+		  /* Use "white" */
 		}
 	    }
 	}
@@ -1987,19 +1934,246 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 /*
  * Move the cursor to a given map location.
  *
- * The main screen will always be at least 24x80 in size.
  */
 void move_cursor_relative(int y, int x)
 {
-  /* Real coordinates convert to screen positions */
-  y -= panel_row_prt;
-  x -= panel_col_prt;
+  unsigned ky, kx;
+  unsigned vy, vx;
+  
+  /* Location relative to panel */
+  ky = (unsigned)(y - panel_row_min);
+  
+  /* Verify location */
+  if (ky >= (unsigned)(SCREEN_HGT)) return;
+  
+  /* Location relative to panel */
+  kx = (unsigned)(x - panel_col_min);
+  
+  /* Verify location */
+  if (kx >= (unsigned)(SCREEN_WID)) return;
+  
+  /* Location in window */
+  vy = ky + ROW_MAP;
+  
+  /* Location in window */
+  vx = kx + COL_MAP;
+  
+  if (use_trptile)
+    {
+      vx += (use_bigtile ? 5 : 2) * kx;
+      vy += 2 * ky;
+    }
+  else if (use_dbltile)
+    {
+      vx += (use_bigtile ? 3 : 1) * kx;
+      vy += ky;
+    }
+  else if (use_bigtile) vx += kx;
   
   /* Go there */
-  Term_gotoxy(x, y);
+  Term_gotoxy(vx, vy);
 }
 
+#ifdef USE_TRANSPARENCY
 
+void big_queue_char(int x, int y, byte a, char c, byte a1, char c1)
+{
+  /* Avoid warning */
+  (void)c;
+
+  /* Paranoia */
+  if (use_bigtile || use_dbltile || use_trptile)
+    {
+      /* Mega-Hack : Queue dummy char */
+      if (a & 0x80)
+	Term_queue_char(x + 1, y, 255, -1, 0, 0);
+      else
+	Term_queue_char(x + 1, y, TERM_WHITE, ' ', a1, c1);
+      
+      /* Mega-Hack : Queue more dummy chars */
+      if (use_dbltile || use_trptile)
+	{
+	  if (a & 0x80)
+	    {
+	      if (use_bigtile || use_trptile) 
+		Term_queue_char(x + 2, y, 255, -1, 0, 0);
+	      if (use_bigtile) 
+		Term_queue_char(x + 3, y, 255, -1, 0, 0);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_queue_char(x + 4, y, 255, -1, 0, 0);
+		  Term_queue_char(x + 5, y, 255, -1, 0, 0);
+		}
+	      
+	      Term_queue_char(x , y + 1, 255, -1, 0, 0);
+	      Term_queue_char(x + 1, y + 1, 255, -1, 0, 0);
+	      
+	      if (use_bigtile || use_trptile) 
+		Term_queue_char(x + 2, y + 1, 255, -1, 0, 0);
+	      if (use_bigtile) 
+		Term_queue_char(x + 3, y + 1, 255, -1, 0, 0);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_queue_char(x + 4, y + 1, 255, -1, 0, 0);
+		  Term_queue_char(x + 5, y + 1, 255, -1, 0, 0);
+		}
+	      
+	      if (use_trptile)
+		{
+		  Term_queue_char(x , y + 2, 255, -1, 0, 0);
+		  Term_queue_char(x + 1, y + 2, 255, -1, 0, 0);
+		  Term_queue_char(x + 2, y + 2, 255, -1, 0, 0);
+		  
+		  if (use_bigtile)
+		    {
+		      Term_queue_char(x + 3, y + 2, 255, -1, 0, 0);
+		      Term_queue_char(x + 4, y + 2, 255, -1, 0, 0);
+		      Term_queue_char(x + 5, y + 2, 255, -1, 0, 0);
+		    }
+		}
+	    }
+	  else
+	    {
+	      if (use_bigtile || use_trptile) 
+		Term_queue_char(x + 2, y, TERM_WHITE, ' ', a1, c1);
+	      if (use_bigtile) 
+		Term_queue_char(x + 3, y, TERM_WHITE, ' ', a1, c1);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_queue_char(x + 4, y, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(x + 5, y, TERM_WHITE, ' ', a1, c1);
+		}
+	      
+	      Term_queue_char(x , y + 1, TERM_WHITE, ' ', a1, c1);
+	      Term_queue_char(x + 1, y + 1, TERM_WHITE, ' ', a1, c1);
+	      
+	      if (use_bigtile || use_trptile) 
+		Term_queue_char(x + 2, y + 1, TERM_WHITE, ' ', a1, c1);
+	      if (use_bigtile) 
+		Term_queue_char(x + 3, y + 1, TERM_WHITE, ' ', a1, c1);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_queue_char(x + 4, y + 1, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(x + 5, y + 1, TERM_WHITE, ' ', a1, c1);
+		}
+	      
+	      if (use_trptile)
+		{
+		  Term_queue_char(x , y + 2, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(x + 1, y + 2, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(x + 2, y + 2, TERM_WHITE, ' ', a1, c1);
+		  
+		  if (use_bigtile)
+		    {
+		      Term_queue_char(x + 3, y + 2, TERM_WHITE, ' ', a1, c1);
+		      Term_queue_char(x + 4, y + 2, TERM_WHITE, ' ', a1, c1);
+		      Term_queue_char(x + 5, y + 2, TERM_WHITE, ' ', a1, c1);
+		    }
+		}
+	    }
+	}
+    }
+}
+
+void big_putch(int x, int y, byte a, char c)
+{
+  /* Avoid warning */
+  (void)c;
+  
+  /* Paranoia */
+  if (use_bigtile || use_dbltile || use_trptile)
+    {
+      /* Mega-Hack : Queue dummy char */
+      if (a & 0x80)
+	Term_putch(x + 1, y, 255, -1);
+      else
+	Term_putch(x + 1, y, TERM_WHITE, ' ');
+      
+      /* Mega-Hack : Queue more dummy chars */
+      if (use_dbltile || use_trptile)
+	{
+	  if (a & 0x80)
+	    {
+	      if (use_bigtile || use_trptile) 
+		Term_putch(x + 2, y, 255, -1);
+	      if (use_bigtile) 
+		Term_putch(x + 3, y, 255, -1);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_putch(x + 4, y, 255, -1);
+		  Term_putch(x + 5, y, 255, -1);
+		}
+
+	      Term_putch(x , y + 1, 255, -1);
+	      Term_putch(x + 1, y + 1, 255, -1);
+	      
+	      if (use_bigtile || use_trptile) 
+		Term_putch(x + 2, y + 1, 255, -1);
+	      if (use_bigtile) 
+		Term_putch(x + 3, y + 1, 255, -1);
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_putch(x + 4, y + 1, 255, -1);
+		  Term_putch(x + 5, y + 1, 255, -1);
+		}
+	      
+	      if (use_trptile)
+		{
+		  Term_putch(x , y + 2, 255, -1);
+		  Term_putch(x + 1, y + 2, 255, -1);
+		  Term_putch(x + 2, y + 2, 255, -1);
+		  
+		  if (use_bigtile)
+		    {
+		      Term_putch(x + 3, y + 2, 255, -1);
+		      Term_putch(x + 4, y + 2, 255, -1);
+		      Term_putch(x + 5, y + 2, 255, -1);
+		    }
+		}
+	    }
+	  else
+	    {
+	      if (use_bigtile || use_trptile) 
+		Term_putch(x + 2, y, TERM_WHITE, ' ');
+	      if (use_bigtile) 
+		Term_putch(x + 3, y, TERM_WHITE, ' ');
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_putch(x + 4, y, TERM_WHITE, ' ');
+		  Term_putch(x + 5, y, TERM_WHITE, ' ');
+		}
+	      
+	      Term_putch(x , y + 1, TERM_WHITE, ' ');
+	      Term_putch(x + 1, y + 1, TERM_WHITE, ' ');
+	      
+	      if (use_bigtile || use_trptile) 
+		Term_putch(x + 2, y + 1, TERM_WHITE, ' ');
+	      if (use_bigtile) 
+		Term_putch(x + 3, y + 1, TERM_WHITE, ' ');
+	      if (use_bigtile && use_trptile)
+		{
+		  Term_putch(x + 4, y + 1, TERM_WHITE, ' ');
+		  Term_putch(x + 5, y + 1, TERM_WHITE, ' ');
+		}
+	      
+	      if (use_trptile)
+		{
+		  Term_putch(x , y + 2, TERM_WHITE, ' ');
+		  Term_putch(x + 1, y + 2, TERM_WHITE, ' ');
+		  Term_putch(x + 2, y + 2, TERM_WHITE, ' ');
+		  
+		  if (use_bigtile)
+		    {
+		      Term_putch(x + 3, y + 2, TERM_WHITE, ' ');
+		      Term_putch(x + 4, y + 2, TERM_WHITE, ' ');
+		      Term_putch(x + 5, y + 2, TERM_WHITE, ' ');
+		    }
+		}
+	    }
+	}
+    }
+}
+#endif
 
 /*
  * Display an attr/char pair at the given map location
@@ -2012,12 +2186,56 @@ void move_cursor_relative(int y, int x)
  */
 void print_rel(char c, byte a, int y, int x)
 {
-  /* Only do "legal" locations */
-  if (panel_contains(y, x))
+  unsigned ky, kx;
+  unsigned vy, vx;
+
+  /* Location relative to panel */
+  ky = (unsigned)(y - panel_row_min);
+
+  /* Verify location */
+  if (ky >= (unsigned)(SCREEN_HGT)) return;
+  
+  /* Location relative to panel */
+  kx = (unsigned)(x - panel_col_min);
+
+  /* Verify location */
+  if (kx >= (unsigned)(SCREEN_WID)) return;
+  
+  /* Location in window */
+  vy = ky + ROW_MAP;
+
+  /* Location in window */
+  vx = kx + COL_MAP;
+
+#ifdef USE_TRANSPARENCY
+  if (use_trptile)
     {
-      /* Draw the char using the attr */
-      Term_draw(x-panel_col_prt, y-panel_row_prt, a, c);
+      vx += (use_bigtile ? 5 : 2) * kx;
+      vy += 2 * ky;
     }
+  else if (use_dbltile)
+    {
+      vx += (use_bigtile ? 3 : 1) * kx;
+      vy += ky;
+    }
+  else if (use_bigtile) vx += kx;
+  
+  /* Hack -- Queue it */
+  Term_queue_char(vx, vy, a, c, 0, 0);
+#else
+  /* Hack -- Queue it */
+  Term_queue_char(vx, vy, a, c);
+#endif
+  
+#ifdef USE_TRANSPARENCY
+  if (use_bigtile || use_dbltile || use_trptile)
+    {
+      /* Mega-Hack : Queue dummy char */
+      big_queue_char(vx, vy, a, c, 0, 0);
+    }
+#endif
+  
+  return;
 }
 
 /*
@@ -2114,10 +2332,45 @@ void lite_spot(int y, int x)
       byte a;
       char c;
       
+      unsigned ky, kx;
+      unsigned vy, vx;
+
 #ifdef USE_TRANSPARENCY
       byte ta;
       char tc;
+#endif
       
+      /* Location relative to panel */
+      ky = (unsigned)(y - panel_row_min);
+      
+      /* Verify location */
+      if (ky >= (unsigned)(SCREEN_HGT)) return;
+
+      /* Location relative to panel */
+      kx = (unsigned)(x - panel_col_min);
+
+      /* Verify location */
+      if (kx >= (unsigned)(SCREEN_WID)) return;
+
+      /* Location in window */
+      vy = ky + ROW_MAP;
+
+      /* Location in window */
+      vx = kx + COL_MAP;
+
+      if (use_trptile)
+	{
+	  vx += (use_bigtile ? 5 : 2) * kx;
+	  vy += 2 * ky;
+	}
+      else if (use_dbltile)
+	{
+	  vx += (use_bigtile ? 3 : 1) * kx;
+	  vy += ky;
+	}
+      else if (use_bigtile) vx += kx;
+      
+#ifdef USE_TRANSPARENCY
       /* Examine the grid */
       map_info(y, x, &a, &c, &ta, &tc);
 #else /* USE_TRANSPARENCY */
@@ -2127,154 +2380,82 @@ void lite_spot(int y, int x)
       
 #ifdef USE_TRANSPARENCY
       /* Hack -- Queue it */
-      Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c, ta, tc);
+      Term_queue_char(vx, vy, a, c, ta, tc);
+
+      if (use_bigtile || use_dbltile || use_trptile)
+	{
+	  big_queue_char(vx, vy, a, c, TERM_WHITE, ' ');
+	}
+
 #else /* USE_TRANSPARENCY */
       /* Hack -- Queue it */
-      Term_queue_char(x - panel_col_prt, y - panel_row_prt, a, c);
+      Term_queue_char(vx, vy, a, c);
 #endif /* USE_TRANSPARENCY */
     }
 }
 
 
-/*
- * Prints the map of the dungeon
- *
- * Note that, for efficiency, we contain an "optimized" version
- * of both "lite_spot()" and "print_rel()", and that we use the
- * "lite_spot()" function to display the player grid, if needed.
- */
+
 void prt_map(void)
 {
-  int x, y;
-  int v, n;
-  
-  /* map bounds */
-  s16b xmin, xmax, ymin, ymax;
-  
-  int wid, hgt;
-  
-  /* Temp variables to speed up deletion loops */
-  s16b l1, l2, l3;
-  
-  byte *pa;
-  char *pc;
-  
+  byte a;
+  char c;
 #ifdef USE_TRANSPARENCY
-  byte *pta;
-  char *ptc;
+  byte ta;
+  char tc;
 #endif /* USE_TRANSPARENCY */
   
+  int y, x;
+  int vy, vx;
+  int ty, tx;
   
-  /* Get size */
-  Term_get_size(&wid, &hgt);
-  
-  /* Remove map offset */
-  wid -= COL_MAP + 1;
-  hgt -= ROW_MAP + 1;
-  
-  if (panel_extra_rows) hgt -= 2;
-  
-  /* Access the cursor state */
-  (void)Term_get_cursor(&v);
-  
-  /* Hide the cursor */
-  (void)Term_set_cursor(0);
-  
-  
-  /* Get bounds */
-  xmin = (0 < panel_col_min) ? panel_col_min : 0;
-  xmax = (DUNGEON_WID - 1 > panel_col_max) ? panel_col_max : DUNGEON_WID - 1;
-  ymin = (0 < panel_row_min) ? panel_row_min : 0;
-  ymax = (DUNGEON_HGT - 1 > panel_row_max) ? panel_row_max : DUNGEON_HGT - 1;
-  
-  /* Bottom section of screen */
-  for (y = 1; y <= ymin - panel_row_prt; y++)
-    {
-      /* Erase the section */
-      Term_erase(COL_MAP, y, wid);
-    }
-  
-  /* Top section of screen */
-  for (y = ymax - panel_row_prt; y <= hgt; y++)
-    {
-      /* Erase the section */
-      Term_erase(COL_MAP, y, wid);
-    }
-  
-  /* Sides of screen */
-  /* Left side */
-  l1 = xmin - panel_col_min;
-  
-  /* Right side */
-  l2 = xmax - panel_col_prt;
-  l3 = Term->wid - l2;
-  
-  for (y = ymin - panel_row_prt; y <= ymax - panel_row_prt; y++)
-    {
-      /* Erase the sections */
-      Term_erase(COL_MAP, y, l1);
-      Term_erase(l2, y, l3);
-    }
-  
-  /* Pointers to current position in the string */
-  pa = mp_a;
-  pc = mp_c;
-  
-#ifdef USE_TRANSPARENCY
-  pta = mp_ta;
-  ptc = mp_tc;
-#endif /* USE_TRANSPARENCY */
-  
-  
+  /* Assume screen */
+  ty = panel_row_min + SCREEN_HGT;
+  tx = panel_col_min + SCREEN_WID;
+
   /* Dump the map */
-  for (y = ymin; y <= ymax; y++)
+  for (y = panel_row_min, vy = ROW_MAP; y < ty; vy++, y++)
     {
-      /* No characters yet */
-      n = 0;
-      
-      /* Scan the columns of row "y" */
-      for (x = xmin; x <= xmax; x++)
+      for (x = panel_col_min, vx = COL_MAP; x < tx; vx++, x++)
 	{
+	  /* Check bounds */
+	  if (!in_bounds(y, x)) continue;
+	  
 #ifdef USE_TRANSPARENCY
 	  /* Determine what is there */
-	  map_info(y, x, pa++, pc++, pta++, ptc++);
-	  
+	  map_info(y, x, &a, &c, &ta, &tc);
 #else /* USE_TRANSPARENCY */
+      /* Determine what is there */
+	  map_info(y, x, &a, &c);
+#endif /* USE_TRANSPARENCY */
 	  
-	  /* Determine what is there */
-	  map_info(y, x, pa++, pc++);
+#ifdef USE_TRANSPARENCY
+	  /* Hack -- Queue it */
+	  Term_queue_char(vx, vy, a, c, ta, tc);
 	  
+	  if (use_bigtile || use_dbltile || use_trptile)
+	    {
+	      big_queue_char(vx, vy, a, c, TERM_WHITE, ' ');
+	      
+	      if (use_trptile)
+		{
+		  vx += (use_bigtile ? 5 : 2);
+		}
+	      else
+		vx+= ((use_dbltile && use_bigtile) ? 3 : 1);
+	    }
+#else /* USE_TRANSPARENCY */
+          /* Hack -- Queue it */
+	  Term_queue_char(vx, vy, a, c);
 #endif /* USE_TRANSPARENCY */
 	}
       
+      if (use_trptile)
+	vy++;
       
-#ifdef USE_TRANSPARENCY
-      
-      /* Point to start of line */
-      pa = mp_a;
-      pc = mp_c;
-      pta = mp_ta;
-      ptc = mp_tc;
-      
-      /* Efficiency -- Redraw that row of the map */
-      Term_queue_line(xmin - panel_col_prt, y - panel_row_prt, xmax - xmin + 1
-		      , pa, pc, pta, ptc);
-      
-#else /* USE_TRANSPARENCY */
-      
-      /* Point to start of line */
-      pa = mp_a;
-      pc = mp_c;
-      
-      /* Efficiency -- Redraw that row of the map */
-      Term_queue_line(xmin - panel_col_prt, y - panel_row_prt, xmax - xmin + 1
-		      , pa, pc);
-      
-#endif /* USE_TRANSPARENCY */
+      if (use_dbltile || use_trptile)
+	vy++;
     }
-  
-  /* Restore the cursor */
-  (void)Term_set_cursor(v);
 }
 
 
@@ -2300,11 +2481,15 @@ static byte priority_table[][2] =
   /* Dark */
   { FEAT_NONE, 2 },
   
-  /* Floors */
+  /* Floors, grass */
   { FEAT_FLOOR, 5 },
+  { FEAT_GRASS, 5 },
   
   /* Water. */
   { FEAT_WATER, 6 },
+
+  /* Shop walls */
+  { FEAT_PERM_EXTRA, 7},
   
   /* Walls */
   { FEAT_SECRET, 10 },
@@ -2328,14 +2513,51 @@ static byte priority_table[][2] =
   
   /* Closed doors */
   { FEAT_DOOR_HEAD + 0x00, 17 },
-  
+
+  /* Shops */  
+  { FEAT_SHOP_HEAD + 0x00, 17},
+  { FEAT_SHOP_HEAD + 0x01, 17},
+  { FEAT_SHOP_HEAD + 0x02, 17},
+  { FEAT_SHOP_HEAD + 0x03, 17},
+  { FEAT_SHOP_HEAD + 0x04, 17},
+  { FEAT_SHOP_HEAD + 0x05, 17},
+  { FEAT_SHOP_HEAD + 0x06, 17},
+  { FEAT_SHOP_HEAD + 0x07, 17},
+  { FEAT_SHOP_HEAD + 0x08, 17},
+  { FEAT_SHOP_HEAD + 0x09, 17},
+
   /* Hidden gold */
   { FEAT_QUARTZ_K, 19 },
   { FEAT_MAGMA_K, 19 },
   
+  /* Monster traps */
+  { FEAT_MTRAP_HEAD, 20},
+  { FEAT_MTRAP_TAIL, 20},
+  { FEAT_MTRAP_BASE, 20},
+  { FEAT_MTRAP_STURDY, 20},
+  { FEAT_MTRAP_NET, 20},
+  { FEAT_MTRAP_CONF, 20},
+  { FEAT_MTRAP_POISON, 20},
+  { FEAT_MTRAP_SPIRIT, 20},
+  { FEAT_MTRAP_ELEC, 20},
+  { FEAT_MTRAP_EXPLOSIVE, 20},
+  { FEAT_MTRAP_PORTAL, 20},
+  { FEAT_MTRAP_STASIS, 20},
+  { FEAT_MTRAP_DRAIN_LIFE, 20},
+  { FEAT_MTRAP_UNMAGIC, 20},
+  { FEAT_MTRAP_DISPEL_M, 20},
+
   /* Stairs */
   { FEAT_LESS, 25 },
   { FEAT_MORE, 25 },
+  { FEAT_LESS_NORTH, 25 },
+  { FEAT_MORE_NORTH, 25 },
+  { FEAT_LESS_EAST, 25 },
+  { FEAT_MORE_EAST, 25 },
+  { FEAT_LESS_SOUTH, 25 },
+  { FEAT_MORE_SOUTH, 25 },
+  { FEAT_LESS_WEST, 25 },
+  { FEAT_MORE_WEST, 25 },
   
   /* End */
   { 0, 0 }
@@ -2365,6 +2587,11 @@ static byte priority(byte a, char c)
       
       /* Access the feature */
       f_ptr = &f_info[p0];
+
+      /* Hack - floor more important in wilderness */
+      if ((stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) && 
+	  (stage_map[p_ptr->stage][STAGE_TYPE] != TOWN) && (p0 == FEAT_FLOOR))
+	p1 = 19;
       
       /* Check character and attribute, accept matches */
       if ((f_ptr->x_char == c) && (f_ptr->x_attr == a)) return (p1);
@@ -2424,158 +2651,202 @@ void display_map(int *cy, int *cx)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
-  
-  int i, j, x, y;
+
+  int map_hgt, map_wid;
+  int dungeon_hgt, dungeon_wid, top_row, left_col;
+  int row, col;
+
+  int x, y;
   
   byte ta;
   char tc;
   
+#ifdef USE_TRANSPARENCY
+  byte sa;
+  char sc;
+#endif 
+
+
   byte tp;
   
-  byte **ma;
-  char **mc;
+  /* Large array on the stack */
+  byte mp[DUNGEON_HGT][DUNGEON_WID];
+
+  bool old_view_special_lite;
+  bool old_view_granite_lite;
+  bool old_dbltile;
+  bool old_trptile;
+
+  monster_race *r_ptr = &r_info[0];
+
+  /* Desired map height */
+  map_hgt = Term->hgt - 2;
+  map_wid = Term->wid - 2;
   
-  byte **mp;
+  /* Adjust for town */
+  dungeon_hgt = (p_ptr->depth ? DUNGEON_HGT : 2 * DUNGEON_HGT / 3);
+  dungeon_wid = (p_ptr->depth ? DUNGEON_WID : 2 * DUNGEON_WID / 3);
+  if (!(p_ptr->depth) && (p_ptr->stage < 151)) dungeon_wid = DUNGEON_WID / 2;
+  top_row = (p_ptr->depth ? 0 : DUNGEON_HGT / 3);
+  left_col = (p_ptr->depth ? 0 : DUNGEON_WID / 3);
   
-  bool old_view_special_lite = view_special_lite;
-  bool old_view_granite_lite = view_granite_lite;
+  /* Prevent accidents */
+  if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
+  if (map_wid > dungeon_wid) map_wid = dungeon_wid;
   
-  int hgt, wid, yrat, xrat, xfactor, yfactor;
+  /* Prevent accidents */
+  if ((map_wid < 1) || (map_hgt < 1)) return;
   
-  /* Get size */
-  Term_get_size(&wid, &hgt);
-  hgt -= 2;
-  wid -= 14;
+
+  /* Save lighting effects */
+  old_view_special_lite = view_special_lite;
+  old_view_granite_lite = view_granite_lite;
+  old_dbltile = use_dbltile;
+  old_trptile = use_trptile;
   
   /* Disable lighting effects */
   view_special_lite = FALSE;
   view_granite_lite = FALSE;
   
-  /* Allocate the maps */
-  C_MAKE(ma, (hgt + 2), byte_ptr);
-  C_MAKE(mc, (hgt + 2), char_ptr);
-  C_MAKE(mp, (hgt + 2), byte_ptr);
+  /* Change the way the grids are displayed */
+  if (Term->notice_grid) Term_xtra(TERM_XTRA_GRIDS, 2);
   
-  /* Allocate and wipe each line map */
-  for (i = 0; i < (hgt + 2); i++)
-    {
-      /* Allocate one row each array */
-      C_MAKE(ma[i], (wid + 2), byte);
-      C_MAKE(mc[i], (wid + 2), char);
-      C_MAKE(mp[i], (wid + 2), byte);
-    }
+  /* Nothing here */
+  ta = TERM_WHITE;
+  tc = ' ';
   
-  /* Clear the chars and attributes */
-  for (y = 0; y < hgt + 2; ++y)
+  /* Clear the priorities */
+  for (y = 0; y < map_hgt; ++y)
     {
-      for (x = 0; x < wid + 2; ++x)
+      for (x = 0; x < map_wid; ++x)
 	{
-	  /* Nothing here */
-	  ma[y][x] = TERM_WHITE;
-	  mc[y][x] = ' ';
-	  
 	  /* No priority */
 	  mp[y][x] = 0;
 	}
     }
   
-  /* Get scaling factors */
-  yfactor = ((DUNGEON_HGT / hgt < 4) && (DUNGEON_HGT > hgt)) ? 10 : 1;
-  xfactor = ((DUNGEON_WID / wid < 4) && (DUNGEON_WID > wid)) ? 10 : 1;
+  /* Clear the screen (but don't force a redraw) */
+  clear_from(0);
   
-  yrat = (DUNGEON_HGT * yfactor + hgt - 1) / hgt;
-  xrat = (DUNGEON_WID * xfactor + wid - 1) / wid;
+  /* Corners */
+  x = map_wid + 1;
+  y = map_hgt + 1;
   
-  /* Player location in dungeon */
-  (*cy) = py * yfactor / yrat + ROW_MAP;
-  (*cx) = px * xfactor / xrat + COL_MAP;
+  /* Draw the corners */
+  Term_putch(0, 0, ta, '+');
+  Term_putch(x, 0, ta, '+');
+  Term_putch(0, y, ta, '+');
+  Term_putch(x, y, ta, '+');
   
-  /* Fill in the map of dungeon */
-  for (i = 0; i < DUNGEON_WID; ++i)
+  /* Draw the horizontal edges */
+  for (x = 1; x <= map_wid; x++)
     {
-      for (j = 0; j < DUNGEON_HGT; ++j)
+      Term_putch(x, 0, ta, '-');
+      Term_putch(x, y, ta, '-');
+    }
+  
+  /* Draw the vertical edges */
+  for (y = 1; y <= map_hgt; y++)
+    {
+      Term_putch(0, y, ta, '|');
+      Term_putch(x, y, ta, '|');
+    }
+  
+  
+  /* Analyze the actual map */
+  for (y = top_row; y < dungeon_hgt; y++)
+    {
+      for (x = left_col; x < dungeon_wid; x++)
 	{
-	  /* Location */
-	  x = i * xfactor / xrat + 1;
-	  y = j * yfactor / yrat + 1;
+	  row = ((y - top_row) * map_hgt / dungeon_hgt);
+	  col = ((x - left_col) * map_wid / dungeon_wid);
 	  
-	  /* Priority zero */
-	  tp = 0;
+	  if (use_trptile)
+	    {
+	      col = col - (col % (use_bigtile ? 6 : 3));
+	      row = row - (row % 3);
+	    }
+	  else if (use_dbltile)
+	    {
+	      col = col & ~(use_bigtile ? 3 : 1);
+	      row = row & ~1;
+	    }
+	  else if (use_bigtile)
+	    col = col & ~1;
 	  
-	  /* Extract the current attr/char at that map location */
-#ifdef USE_TRANSPARENCY	
-	  map_info(j, i, &ta, &tc, &ta, &tc);
-#else /* USE_TRANSPARENC*/
-	  map_info(j, i, &ta, &tc);
-#endif /* USE_TRANSPAREN */
-	  
-	  /* Extract the priority of that attr/char */
-	  tp += priority(ta, tc);
+#ifdef USE_TRANSPARENCY
+	  /* Get the attr/char at that map location */
+	  map_info(y, x, &ta, &tc, &sa, &sc);
+#else
+	  /* Get the attr/char at that map location */
+	  map_info(y, x, &ta, &tc);
+#endif
+	  /* Get the priority of that attr/char */
+	  tp = priority(ta, tc);
 	  
 	  /* Save "best" */
-	  if (mp[y][x] < tp)
+	  if (mp[row][col] < tp)
 	    {
-	      /* Save the char */
-	      mc[y][x] = tc;
+	      /* Add the character */
+	      Term_putch(col + 1, row + 1, ta, tc);
 	      
-	      /* Save the attr */
-	      ma[y][x] = ta;
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(col + 1, row + 1, ta, tc);
+		}
+#endif
 	      
 	      /* Save priority */
-	      mp[y][x] = tp;
+	      mp[row][col] = tp;
 	    }
 	}
     }
   
-  /* Corners */
-  i = wid + 1;
-  j = hgt + 1;
   
-  /* Draw the corners */
-  mc[0][0] = mc[0][i] = mc[j][0] = mc[j][i] = '+';
+  /* Player location */
+  row = ((py - top_row) * map_hgt / dungeon_hgt);
+  col = ((px - left_col) * map_wid / dungeon_wid);
   
-  /* Draw the horizontal edges */
-  for (i = 1; i <= wid; i++) mc[0][i] = mc[j][i] = '-';
-  
-  /* Draw the vertical edges */
-  for (j = 1; j <= hgt; j++) mc[j][0] = mc[j][i] = '|';
-  
-  
-  /* Display each map line in order */
-  for (j = 0; j < hgt + 2; ++j)
+  if (use_trptile)
     {
-      /* Start a new line */
-      Term_gotoxy(COL_MAP - 1, j);
-      
-      /* Display the line */
-      for (i = 0; i < wid + 2; ++i)
-	{
-	  ta = ma[j][i];
-	  tc = mc[j][i];
-	  
-	  /* Add the character */
-	  Term_addch(ta, tc);
-	}
+      col = col - (col % (use_bigtile ? 6 : 3));
+      row = row - (row % 3);
     }
+  else if (use_dbltile)
+    {
+      col = col & ~(use_bigtile ? 3 : 1);
+      row = row & ~1;
+    }
+  else if (use_bigtile)
+    col = col & ~1;
+  
+  /*** Make sure the player is visible ***/
+  
+  /* Get the "player" attr */
+  ta = r_ptr->x_attr;
+  
+  /* Get the "player" char */
+  tc = r_ptr->x_char;
+  
+  /* Draw the player */
+  Term_putch(col + 1, row + 1, ta, tc);
+  
+#ifdef USE_TRANSPARENCY
+  if (use_bigtile || use_dbltile || use_trptile)
+    {
+      big_putch(col + 1, row + 1, ta, tc);
+    }
+#endif /* USE_TRANSPARENCY */
+  
+  /* Return player location */
+  if (cy != NULL) (*cy) = row + 1;
+  if (cx != NULL) (*cx) = col + 1;
   
   
   /* Restore lighting effects */
   view_special_lite = old_view_special_lite;
   view_granite_lite = old_view_granite_lite;
-  
-  /* Free each line map */
-  for (i = 0; i < (hgt + 2); i++)
-    {
-      /* Free one row each array */
-      C_FREE(ma[i], (wid + 2), byte);
-      C_FREE(mc[i], (wid + 2), char);
-      C_FREE(mp[i], (wid + 2), byte);
-    }
-  
-  /* Free the maps */
-  C_FREE(ma, (hgt + 2), byte_ptr);
-  C_FREE(mc, (hgt + 2), char_ptr);
-  C_FREE(mp, (hgt + 2), byte_ptr);
 }
 
 /*
@@ -2583,7 +2854,12 @@ void display_map(int *cy, int *cx)
  */
 void regional_map(int num, int size)
 {
-  int i, j, stage[size];
+  int i, j, col, row;
+#ifdef _WIN32_WCE
+  int *stage = malloc( size * sizeof (*stage) );
+#else
+  int stage[size];
+#endif
   int north, east, south, west;
   cptr lev;
 
@@ -2628,8 +2904,8 @@ void regional_map(int num, int size)
       if (!stage[i]) continue;
 
       /* Get the place */
-      int col = (i % num) * 10 + COL_MAP;
-      int row = (i / num) * 4 + ROW_MAP;
+      col = (i % num) * 10 + COL_MAP;
+      row = (i / num) * 4 + ROW_MAP;
       
       /* Get the level string */
       lev = format("Level %d", stage_map[stage[i]][DEPTH]);
@@ -2685,12 +2961,59 @@ void regional_map(int num, int size)
       if (stage_map[stage[i]][EAST]) 
 	c_put_str(TERM_WHITE, "-", row + 1, col + 8);
       if (stage_map[stage[i]][DOWN]) 
-	c_put_str(TERM_L_RED, "(Dungeon)", row + 2, col);
+	{
+	  if (stage_map[stage[i]][STAGE_TYPE] == MOUNTAINTOP)
+	    switch (stage_map[stage_map[stage[i]][DOWN]][STAGE_TYPE])
+	      {
+	      case TOWN:
+		{
+		  c_put_str(TERM_SLATE, "(Town)", row + 2, col);
+		  break;
+		}
+	      case PLAIN:
+		{
+		  c_put_str(TERM_UMBER, "(Plain)", row + 2, col);
+		  break;
+		}
+	      case FOREST:
+		{
+		  c_put_str(TERM_GREEN, "(Forest)", row + 2, col);
+		  break;
+		}
+	      case MOUNTAIN:
+		{
+		  c_put_str(TERM_L_DARK, "(Mountain)", row + 2, col);
+		  break;
+		}
+	      case RIVER:
+		{
+		  c_put_str(TERM_BLUE, "(River)", row + 2, col);
+		  break;
+		}
+	      case DESERT:
+		{
+		  c_put_str(TERM_L_UMBER, "(Desert)", row + 2, col);
+		  break;
+		}
+	      case VALLEY:
+		{
+		  c_put_str(TERM_RED, "(Valley)", row + 2, col);
+		  break;
+		}
+	      default:
+		break;
+	      }
+	  else
+	    c_put_str(TERM_L_RED, "(Dungeon)", row + 2, col);
+	}
       if (stage_map[stage[i]][SOUTH]) 
 	c_put_str(TERM_WHITE, "|", row + 3, col + 3);
       if ((stage_map[stage[i]][SOUTH]) && (!stage_map[stage[i]][DOWN])) 
 	c_put_str(TERM_WHITE, "|", row + 2, col + 3);
     }
+#ifdef _WIN32_WCE
+  free(stage);
+#endif
 
 }
 
@@ -2734,7 +3057,7 @@ void do_cmd_view_map(void)
   move_cursor(cy, cx);
   
   /* Get any key */
-  (void)inkey();
+  (void)inkey_ex();
 
   /* Regional map if not in the dungeon */
   if (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)
@@ -2753,7 +3076,7 @@ void do_cmd_view_map(void)
       put_str("Hit any key to continue", hgt - 1, (wid - COL_MAP) / 2);
   
       /* Get any key */
-      (void)inkey();
+      (void)inkey_ex();
     }
   
   /* Load screen */
@@ -4570,7 +4893,8 @@ void map_area(int y, int x, bool extended)
 	  if (distance(y_c, x_c, y, x) > rad) continue;
 	  
 	  /* All non-walls, trees, and rubble are "checked" */
-	  if (cave_feat[y][x] < FEAT_SECRET)
+	  if ((cave_feat[y][x] < FEAT_SECRET) ||
+	      (cave_feat[y][x] == FEAT_RUBBLE))
 	    {
 	      /* Memorize normal features */
 	      if (cave_feat[y][x] > FEAT_INVIS)
@@ -4585,9 +4909,8 @@ void map_area(int y, int x, bool extended)
 		  int yy = y + ddy_ddd[i];
 		  int xx = x + ddx_ddd[i];
 		  
-		  /* All non-walls are "checked" */
-		  if ((cave_feat[y][x] < FEAT_SECRET) || 
-		      (cave_feat[y][x] == FEAT_RUBBLE))
+		  /* All walls are "checked" */
+		  if (cave_feat[yy][xx] >= FEAT_SECRET) 
 		    {
 		      /* Memorize the walls */
 		      cave_info[yy][xx] |= (CAVE_MARK);
@@ -5353,7 +5676,7 @@ void disturb(int stop_search, int unused_flag)
       p_ptr->running = 0;
       
       /* Recenter the panel when running stops */
-      if (center_player && !center_running && p_ptr->depth) verify_panel();
+      if (center_player && !center_running ) verify_panel();
       
       /* Calculate torch radius */
       p_ptr->update |= (PU_TORCH);

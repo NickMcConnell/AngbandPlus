@@ -19,7 +19,7 @@
 
 void do_cmd_move_house(void)
 {
-  char answer;
+  char buf[80];
   int old_home = 0, new_home = 0, i = 0;
   store_type temp;
   
@@ -34,14 +34,10 @@ void do_cmd_move_house(void)
 	  flush();
 	  return;
 	}
-      msg_format("Do you really want to move to %s? (y/n)", town);
-      answer = inkey();
-      if ((answer != 'Y') && (answer != 'y')) 
-	{
-	  /* Flush messages */
-	  flush();
-	  return;
-	}
+
+      /* Check */
+      sprintf(buf, "Do you really want to move to %s?", town);
+      if (!get_check(buf)) return;
 
       /* Get the current home */
       while (1)
@@ -105,8 +101,6 @@ void do_cmd_go_up(void)
   
   byte pstair = cave_feat[py][px];
   
-  char answer;
-  
   /* Check for paths first  */
   if (pstair >= FEAT_LESS_NORTH)
     {
@@ -130,12 +124,9 @@ void do_cmd_go_up(void)
   
   /* Make certain the player really wants to leave a themed level. -LM- */
   if (p_ptr->themed_level)
-    {
-      msg_print("This level will never appear again.  Really leave? (y/n)");
-      answer = inkey();
-      if ((answer != 'Y') && (answer != 'y')) return;
-    }
-  
+    if (!get_check("This level will never appear again.  Really leave?")) 
+      return;
+      
   
   /* Hack -- take a turn */
   p_ptr->energy_use = 100;
@@ -145,7 +136,7 @@ void do_cmd_go_up(void)
     {
       /* stairs */
       message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
-      
+
       /* make the way back */
       p_ptr->create_stair = FEAT_MORE;
     }
@@ -166,7 +157,19 @@ void do_cmd_go_up(void)
     p_ptr->stage = stage_map[p_ptr->stage][2 + (pstair - FEAT_LESS_NORTH)/2];
   else
     p_ptr->stage = stage_map[p_ptr->stage][UP];
-  
+
+  /* Handle underworld stuff */
+  if (stage_map[p_ptr->last_stage][LOCALITY] == UNDERWORLD)
+    {  
+      /* Reset */
+      stage_map[255][UP] = 0;
+      stage_map[p_ptr->stage][DOWN] = 0;
+      stage_map[255][DEPTH] = 0;
+
+      /* No way back */
+      p_ptr->create_stair = 0;
+    }
+
   /* Record the non-obvious exit coordinate */
   if (pstair & 0x02)
     p_ptr->path_coord = py;
@@ -182,14 +185,11 @@ void do_cmd_go_up(void)
   /* If the new level is not a quest level, or the town, or wilderness
    * there is a 33% chance of going up another level. -LM- -NRM-
    */
-  if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][6])
-      && (stage_map[p_ptr->stage][1] != 0) && (randint(3) == 1)
+  if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][UP])
+      && (stage_map[p_ptr->stage][DEPTH] != 0) && (randint(3) == 1)
       && (pstair == FEAT_LESS))
     {
-      msg_print("The stairs continue up.  Go up another level? (y/n)");
-      
-      answer = inkey();
-      if ((answer == 'Y') || (answer == 'y')) 
+      if (get_check("The stairs continue up.  Go up another level?"))
 	p_ptr->stage = stage_map[p_ptr->stage][UP];
     }
   
@@ -214,8 +214,6 @@ void do_cmd_go_down(void)
   
   byte pstair = cave_feat[py][px];
   
-  char answer;
-  
   /* Check for paths first  */
   if (pstair >= FEAT_LESS_NORTH)
     {
@@ -239,11 +237,8 @@ void do_cmd_go_down(void)
   
   /* Make certain the player really wants to leave a themed level. -LM- */
   if (p_ptr->themed_level)
-    {
-      msg_print("This level will never appear again.  Really leave? (y/n)");
-      answer = inkey();
-      if ((answer != 'Y') && (answer != 'y')) return;
-    }
+    if (!get_check("This level will never appear again.  Really leave?")) 
+      return;
   
   
   /* Hack -- take a turn */
@@ -288,6 +283,18 @@ void do_cmd_go_down(void)
       
     }
   
+  /* Handle mountaintop stuff */
+  if (stage_map[p_ptr->last_stage][LOCALITY] == MOUNTAIN_TOP)
+    {  
+      /* Reset */
+      stage_map[256][DOWN] = 0;
+      stage_map[p_ptr->stage][UP] = 0;
+      stage_map[256][DEPTH] = 0;
+
+      /* No way back */
+      p_ptr->create_stair = 0;
+    }
+
   /* Record the non-obvious exit coordinate */
   if (pstair & 0x02)
     p_ptr->path_coord = py;
@@ -307,10 +314,8 @@ void do_cmd_go_down(void)
   if ((is_quest(p_ptr->stage) == FALSE) && (stage_map[p_ptr->stage][DOWN])
       && (randint(2) == 1) && (pstair == FEAT_MORE))
     {
-      msg_print("The stairs continue down.  Go down another level? (y/n)");
-      
-      answer = inkey();
-      if ((answer == 'Y') || (answer == 'y')) p_ptr->stage++;
+      if (get_check("The stairs continue down.  Go down another level?"))
+	p_ptr->stage = stage_map[p_ptr->stage][DOWN];
     }
   
   /* Revert to use of the "complex" RNG. */
@@ -1243,7 +1248,7 @@ static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
  * Return the number of chests around (or under) the character. -TNB-
  * If requested, count only trapped chests.
  */
-static int count_chests(int *y, int *x, bool trapped)
+extern int count_chests(int *y, int *x, bool trapped)
 {
   int d, count, o_idx;
   
@@ -1743,7 +1748,7 @@ static bool twall(int y, int x)
   sound(SOUND_DIG);
   
   /* Forget the wall */
-  cave_info[y][x] &= ~(CAVE_MARK);
+  cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
   
   /* Remove the feature */
   cave_set_feat(y, x, FEAT_FLOOR);
@@ -3010,9 +3015,6 @@ void do_cmd_pathfind(int y, int x)
   int py = p_ptr->py;
   int px = p_ptr->px;
 
-  /* Must not be 0 or 5 */
-  int dummy = 1;
-
   /* Hack XXX XXX XXX */
   if (p_ptr->confused)
     {
@@ -3111,16 +3113,33 @@ void do_cmd_hold(void)
  */
 void do_cmd_pickup(void)
 {
-  int energy_cost;
+  int energy_cost = 1, item;
   
-  /* Pick up floor objects, forcing a menu for multiple objects. */
-  energy_cost = py_pickup(2, p_ptr->py, p_ptr->px) * 10;
-  
-  /* Maximum time expenditure is a full turn. */
-  if (energy_cost > 100) energy_cost = 100;
-  
-  /* Charge this amount of energy. */
-  p_ptr->energy_use = energy_cost;
+  /* Do we have an item? */
+  if (p_ptr->command_item)
+    {
+      /* Get the item */
+      item = handle_item();
+
+      /* Pick it up */
+      py_pickup_aux(0 - item);
+
+      /* Charge some energy. */
+      p_ptr->energy_use = energy_cost;
+    }
+
+  /* Get items */
+  else
+    {
+      /* Pick up floor objects, forcing a menu for multiple objects. */
+      energy_cost = py_pickup(2, p_ptr->py, p_ptr->px) * 10;
+      
+      /* Maximum time expenditure is a full turn. */
+      if (energy_cost > 100) energy_cost = 100;
+      
+      /* Charge this amount of energy. */
+      p_ptr->energy_use = energy_cost;
+    }
 }
 
 
@@ -3132,9 +3151,13 @@ void do_cmd_rest(void)
   /* Prompt for time if needed */
   if (p_ptr->command_arg <= 0)
     {
-      cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
-      
+      cptr p;
       char out_val[80];
+      
+      if (small_screen)
+	p  = "Rest ('*': HP/SP, '&': needed, '$': sun): ";
+      else
+	p  = "Rest (0-9999, '*' for HP/SP, '&' as needed, '$' until sunrise/set): ";
       
       /* Default */
       strcpy(out_val, "&");
@@ -3146,6 +3169,12 @@ void do_cmd_rest(void)
       if (out_val[0] == '&')
 	{
 	  p_ptr->command_arg = (-2);
+	}
+      
+      /* Rest all night (or day) */
+      else if (out_val[0] == '$')
+	{
+	  p_ptr->command_arg = (-3);
 	}
       
       /* Rest a lot */

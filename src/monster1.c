@@ -328,7 +328,11 @@ static void roff_aux(int r_idx)
       fd = fd_open(buf, O_RDONLY);
       
       /* Use file */
+#ifdef _WIN32_WCE
+      if (fd != INVALID_HANDLE_VALUE)
+#else
       if (fd >= 0)
+#endif
 	{
 	  huge pos;
 	  
@@ -1094,7 +1098,7 @@ static void roff_aux(int r_idx)
       if (flags7 & (RF7_S_HOUND))	vp[vn++] = "hounds";
       if (flags7 & (RF7_S_ANIMAL))	vp[vn++] = "natural creatures";
       if (flags7 & (RF7_S_THIEF))	vp[vn++] = "thieves";
-      if (flags7 & (RF7_S_BERTBILLTOM))	vp[vn++] = "his friends";
+      if (flags7 & (RF7_S_SWAMP))	vp[vn++] = "swamp creatures";
       if (flags7 & (RF7_S_DRAGON))	vp[vn++] = "a dragon";
       if (flags7 & (RF7_S_HI_DRAGON))	vp[vn++] = "Ancient Dragons";
       if (flags7 & (RF7_S_DEMON))	vp[vn++] = "a demon";
@@ -1823,15 +1827,19 @@ static void roff_top(int r_idx)
   /* For all other monsters, dump the racial name. */
   else Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
   
-  /* Append the "standard" attr/char info */
-  Term_addstr(-1, TERM_WHITE, " ('");
-  Term_addch(a1, c1);
-  Term_addstr(-1, TERM_WHITE, "')");
+  if (!use_dbltile && !use_trptile)
+    {
+      /* Append the "standard" attr/char info */
+      Term_addstr(-1, TERM_WHITE, " ('");
+      Term_addch(a1, c1);
+      Term_addstr(-1, TERM_WHITE, "')");
   
-  /* Append the "optional" attr/char info */
-  Term_addstr(-1, TERM_WHITE, "/('");
-  Term_addch(a2, c2);
-  Term_addstr(-1, TERM_WHITE, "'):");
+      /* Append the "optional" attr/char info */
+      Term_addstr(-1, TERM_WHITE, "/('");
+      Term_addch(a2, c2);
+      if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+      Term_addstr(-1, TERM_WHITE, "'):");
+    }
 }
 
 

@@ -39,7 +39,7 @@ static void warrior_probe_desc(void)
   roff("\n", 0, 0);
   
   /* Wait for it. */
-  (void)inkey();
+  (void)inkey_ex();
   
   /* Load screen */
   screen_load();
@@ -141,6 +141,10 @@ static void pseudo_probe(void)
 void shapechange(s16b shape)
 {
   char *shapedesc = "";
+  bool landing;
+
+  /* Were we flying? */
+  landing = ((p_ptr->schange == SHAPE_BAT) || (p_ptr->schange == SHAPE_WYRM));
   
   /* Wonder Twin powers -- Activate! */
   p_ptr->schange = (byte) shape;
@@ -205,6 +209,44 @@ void shapechange(s16b shape)
   
   /* Show or hide shapechange on main window. */
   p_ptr->redraw |= (PR_SHAPE);
+  
+  if (landing)
+    {
+      int y = p_ptr->py, x = p_ptr->px;
+ 
+      if (cave_feat[y][x] == FEAT_VOID)
+	{
+	  fall_off_cliff();
+	}
+      
+      else if ((cave_feat[y][x] == FEAT_INVIS) ||
+	       (cave_feat[y][x] == FEAT_GRASS_INVIS))
+	{
+	  /* Disturb */
+	  disturb(0, 0);
+	  
+	  /* Message */
+	  msg_print("You stumble upon a trap!");
+	  
+	  /* Pick a trap */
+	  pick_trap(y, x);
+	  
+	  /* Hit the floor trap. */
+	  hit_trap(y, x);
+	}
+      
+      /* Set off a visible trap */
+      else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) && 
+	       (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+	  /* Disturb */
+	  disturb(0, 0);
+	  
+	  /* Hit the floor trap. */
+	  hit_trap(y, x);
+	}
+      
+    }
 }
 
 
@@ -216,6 +258,7 @@ static void choose_ele_attack(void)
   int num;
   
   char choice;
+  key_event ke;
   
   /* Save screen */
   screen_save();
@@ -238,11 +281,14 @@ static void choose_ele_attack(void)
   
   prt("", 6, 14);
   prt("", 7, 14);
-  prt("", 8, 14);
-  prt("", 9, 14);
   
-  choice = inkey();
+  ke = inkey_ex();
+  choice = ke.key;
   
+  /* Mouse input */
+  if ((choice = '\xff') && (ke.mousey - 2 < num))
+    choice = ke.mousey - 2 + 'a';
+
   if ((choice == 'a') || (choice == 'A')) 
     set_ele_attack(ATTACK_FIRE, 200);
   else if (((choice == 'b') || (choice == 'B')) && (num >= 2))
@@ -427,18 +473,20 @@ int get_channeling_boost(void)
  */
 static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 {
-  int i;
+  int i, j;
   
   int spell = -1;
   
-  int first_spell, after_last_spell;
+  int first_spell, after_last_spell, lines, tile_hgt;
   
   int ver;
   
   int total_heighten;
+
+  int st_click;
   
   bool flag, redraw, okay;
-  char choice;
+  key_event choice;
   
   magic_type *s_ptr;
   
@@ -507,6 +555,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   /* Find the first spell in the next book. */
   after_last_spell = mp_ptr->book_start_index[sval+1];
   
+  /* Hack - Determine how far the spell list extends down */
+  lines = after_last_spell - first_spell + 2;
+  
   /* Check for "okay" spells */
   for (i = first_spell; i < after_last_spell; i++)
     {
@@ -526,16 +577,47 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   /* No redraw yet */
   redraw = FALSE;
   
-  
+  /* Mega-hack -- show lists */
+  if (show_lists) p_ptr->command_see = TRUE;      
+
   /* Build a prompt (accept all spells) */
   strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %s%^s which %s? ",
 	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
+
+  /* Get the list click spot */
+  st_click = strlen(p) + 7;
   
+  /* Lists in small screen */
+  if (show_lists)
+    {
+      /* Show list */
+      redraw = TRUE;
+      
+      /* Save screen */
+      screen_save();
+      
+      /* Clear lines */
+      for (j = 0; j < lines; j++)
+	Term_erase((small_screen ? 0 : 12), j, 255);
+      
+      if ((use_trptile || use_dbltile) && (prompt != "browse"))
+	{
+	  tile_hgt = (use_trptile ? 3 : 2);
+	  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	    Term_erase((small_screen ? 0 : 12), ++j, 255);
+	}
+
+      /* Print spells */
+      print_spells(tval, sval, 1, (small_screen ? 0 : 12));
+    }
+
   /* Get a spell from the user */
-  while (!flag && get_com(out_val, &choice))
+  while (!flag && get_com_ex(out_val, &choice))
     {
       /* Request redraw */
-      if ((choice == ' ') || (choice == '*') || (choice == '?'))
+      if ((choice.key == ' ') || (choice.key == '*') || (choice.key == '?') ||
+	  ((choice.key == '\xff') && (!choice.mousey) && 
+	   (choice.mousex > st_click) && (choice.mousex < st_click + 7)))
 	{
 	  /* Hide the list */
 	  if (redraw)
@@ -556,33 +638,68 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	      /* Save screen */
 	      screen_save();
 	      
+	      /* Clear lines */
+	      for (j = 0; j < lines; j++)
+		Term_erase((small_screen ? 0 : 12), j, 255);
+
+	      if ((use_trptile || use_dbltile) && (prompt != "browse"))
+		{
+		  tile_hgt = (use_trptile ? 3 : 2);
+		  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+		    Term_erase((small_screen ? 0 : 12), ++j, 255);
+		}
+
 	      /* Display a list of spells */
-	      print_spells(tval, sval, 1, 14);
+	      print_spells(tval, sval, 1, (small_screen ? 0 : 12));
 	    }
 	  
 	  /* Ask again */
 	  continue;
 	}
       
-      
-      /* Note verify */
-      ver = (isupper(choice));
-      
-      /* Lowercase */
-      choice = tolower(choice);
-      
-      /* Extract request */
-      i = (islower(choice) ? A2I(choice) : -1);
-      
-      /* Totally Illegal */
-      if ((i < 0) || (i >= after_last_spell - first_spell))
+      /* Handle mouse input */      
+      else if (choice.key == '\xff')
 	{
-	  bell("Illegal spell choice!");
-	  continue;
+	  /* Mouse on a valid spell */
+	  if ((choice.mousey > 2) && (choice.mousey < after_last_spell - 
+				      first_spell + 3))
+	    {
+	      /* Convert to spell index */
+	      spell = choice.mousey - 3 + first_spell;
+
+	      /* No need to verify */
+	      ver = FALSE;
+	    }
+	  /* Mouse elsewhere means ask again */
+	  else
+	    
+	    break;
+	      
 	}
+
+      /* Keyboard input */	 
+      else
+	{
+
+	  /* Note verify */
+	  ver = (isupper(choice.key));
+	  
+	  /* Lowercase */
+	  choice.key = tolower(choice.key);
+	  
+	  /* Extract request */
+	  i = (islower(choice.key) ? A2I(choice.key) : -1);
+	  
+	  /* Totally Illegal */
+	  if ((i < 0) || (i >= after_last_spell - first_spell))
+	    {
+	      bell("Illegal spell choice!");
+	      continue;
+	    }
       
-      /* Convert spellbook number to spell index. */
-      spell = i + first_spell;
+	  /* Convert spellbook number to spell index. */
+	  spell = i + first_spell;
+	}
       
       /* Require "okay" spells */
       if (!spell_okay(spell, known))
@@ -647,7 +764,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
  */
 void do_cmd_browse(void)
 {
-  int item, spell, lines;
+  int j, item, spell, lines, tile_hgt;
   
   object_type *o_ptr;
   
@@ -669,31 +786,41 @@ void do_cmd_browse(void)
   /* Restrict choices to "useful" books */
   item_tester_tval = mp_ptr->spell_book;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get a realm-flavored description. */
-  if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+  else
     {
-      q = "Browse which magic book? ";
-      s = "You have no magic books that you can read.";
+      if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+	{
+	  q = "Browse which magic book? ";
+	  s = "You have no magic books that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+	  q = "Browse which holy book? ";
+	  s = "You have no holy books that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_DRUID_BOOK)
+	{
+	  q = "Browse which stone of lore? ";
+	  s = "You have no stones that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_NECRO_BOOK)
+	{
+	  q = "Browse which tome? ";
+	  s = "You have no tomes that you can read.";
+	}
+      
+      /* Get an item */
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
     }
-  if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-    {
-      q = "Browse which holy book? ";
-      s = "You have no holy books that you can read.";
-    }
-  if (mp_ptr->spell_book == TV_DRUID_BOOK)
-    {
-      q = "Browse which stone of lore? ";
-      s = "You have no stones that you can read.";
-    }
-  if (mp_ptr->spell_book == TV_NECRO_BOOK)
-    {
-      q = "Browse which tome? ";
-      s = "You have no tomes that you can read.";
-    }
-  
-  /* Get an item */
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -717,7 +844,7 @@ void do_cmd_browse(void)
   screen_save();
   
   /* Display the spells */
-  print_spells(o_ptr->tval, o_ptr->sval, 1, 14);
+  print_spells(o_ptr->tval, o_ptr->sval, 1, (small_screen ? 0 : 12));
   
   /* Prompt for a command */
   put_str("(Browsing) Choose a spell, or ESC: ", 0, 0);
@@ -729,10 +856,24 @@ void do_cmd_browse(void)
   lines = mp_ptr->book_start_index[o_ptr->sval + 1] - 
     mp_ptr->book_start_index[o_ptr->sval] + 3;
   
+  /* Clear lines, position cursor (really should use strlen here) */
+  if (use_trptile || use_dbltile)
+    { 
+      j = lines + 2;
+      tile_hgt = (use_trptile ? 3 : 2);
+      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	Term_erase(12, ++j, 255);
+    }
+  Term_erase(12, lines + 2, 255);
+  Term_erase(12, lines + 1, 255);
+  Term_erase(12, lines, 255);
+
   
   /* Keep browsing spells.  Exit browsing on cancel. */
   while(TRUE)
     {
+      key_event ke;
+
       /* Ask for a spell, allow cancel */
       if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE))
 	{
@@ -743,20 +884,31 @@ void do_cmd_browse(void)
 	  c_put_str(TERM_SLATE, "No spells to browse     ", 0, 11);
 	  
 	  /* Any key cancels if no spells are available. */
-	  if (inkey()) break;
+	  ke = inkey_ex();
+	  if (ke.key) break;
 	}
       
       /* Clear lines, position cursor (really should use strlen here) */
-      Term_erase(14, lines + 2, 255);
-      Term_erase(14, lines + 1, 255);
-      Term_erase(14, lines, 255);
-      
+      if (use_trptile || use_dbltile)
+	{ 
+	  j = lines + 2;
+	  tile_hgt = (use_trptile ? 3 : 2);
+	  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	    Term_erase(12, ++j, 255);
+	}
+      Term_erase(12, lines + 2, 255);
+      Term_erase(12, lines + 1, 255);
+      Term_erase(12, lines, 255);
+
       /* Access the spell */
       s_ptr = &mp_ptr->info[spell];
       
       /* Display that spell's information. */
       c_roff(TERM_L_BLUE, spell_tips[s_ptr->index], 16, 0);
     }
+  
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
   
   /* Load screen */
   screen_load();
@@ -827,31 +979,41 @@ void do_cmd_study(void)
   /* Restrict choices to "useful" books */
   item_tester_tval = mp_ptr->spell_book;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get a realm-flavored description. */
-  if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+  else
     {
-      q = "Study which magic book? ";
-      s = "You have no magic books that you can read.";
+      if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+	{
+	  q = "Study which magic book? ";
+	  s = "You have no magic books that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+	  q = "Study which holy book? ";
+	  s = "You have no holy books that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_DRUID_BOOK)
+	{
+	  q = "Study which stone of lore? ";
+	  s = "You have no stones that you can read.";
+	}
+      if (mp_ptr->spell_book == TV_NECRO_BOOK)
+	{
+	  q = "Study which tome? ";
+	  s = "You have no tomes that you can read.";
+	}
+      
+      /* Get an item */
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
     }
-  if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-    {
-      q = "Study which holy book? ";
-      s = "You have no holy books that you can read.";
-    }
-  if (mp_ptr->spell_book == TV_DRUID_BOOK)
-    {
-      q = "Study which stone of lore? ";
-      s = "You have no stones that you can read.";
-    }
-  if (mp_ptr->spell_book == TV_NECRO_BOOK)
-    {
-      q = "Study which tome? ";
-      s = "You have no tomes that you can read.";
-    }
-  
-  /* Get an item */
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -973,6 +1135,9 @@ void do_cmd_study(void)
   /* Redraw Study Status */
   p_ptr->redraw |= (PR_STUDY);
   
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -1070,31 +1235,41 @@ void do_cmd_cast_or_pray(void)
   item_tester_tval = mp_ptr->spell_book;
   
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get a realm-flavored description. */
-  if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+  else
     {
-      q = "Use which magic book? ";
-      s = "You have no magic books that you can use.";
+      if (mp_ptr->spell_book == TV_MAGIC_BOOK) 
+	{
+	  q = "Use which magic book? ";
+	  s = "You have no magic books that you can use.";
+	}
+      if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+	  q = "Use which holy book? ";
+	  s = "You have no holy books that you can use.";
+	}
+      if (mp_ptr->spell_book == TV_DRUID_BOOK)
+	{
+	  q = "Use which stone of lore? ";
+	  s = "You have no stones that you can use.";
+	}
+      if (mp_ptr->spell_book == TV_NECRO_BOOK)
+	{
+	  q = "Use which tome? ";
+	  s = "You have no tomes that you can use.";
+	}
+      
+      /* Get an item */
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
     }
-  if (mp_ptr->spell_book == TV_PRAYER_BOOK)
-    {
-      q = "Use which holy book? ";
-      s = "You have no holy books that you can use.";
-    }
-  if (mp_ptr->spell_book == TV_DRUID_BOOK)
-    {
-      q = "Use which stone of lore? ";
-      s = "You have no stones that you can use.";
-    }
-  if (mp_ptr->spell_book == TV_NECRO_BOOK)
-    {
-      q = "Use which tome? ";
-      s = "You have no tomes that you can use.";
-    }
-  
-  /* Get an item */
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1189,7 +1364,7 @@ void do_cmd_cast_or_pray(void)
 	  {
 	    if (!get_aim_dir(&dir)) return;
 	    fire_bolt(GF_MANA, dir,
-		      damroll(2, 4 + plev / 10));
+		      damroll(4 + plev / 10, 3));
 	    break;
 	  }
 	case 1:	/* Detect Monsters */
@@ -1938,12 +2113,26 @@ void do_cmd_cast_or_pray(void)
 	    char answer;
 	    
 	    /* Query */
-	    msg_print("Would you like to enchant a 'W'eapon or 'A'rmour (w/a)");
+	    if (small_screen) msg_print("Enchant a 'W'eapon or 'A'rmour (w/a)");
+	    else 
+	      msg_print("Would you like to enchant a 'W'eapon or 'A'rmour (w/a)");
 	    
 	    /* Interact and enchant. */
 	    while(1)
 	      {
-		answer = inkey();
+		key_event ke;
+
+		ke = inkey_ex();
+		answer = ke.key;
+
+		if ((answer == '\xff') && (!ke.mousey))
+		  {
+		    if (ke.mousex == (small_screen ? 32 : 50)) 
+		      answer = 'w';
+		    else if (ke.mousex == (small_screen ? 34 : 52)) 
+		      answer = 'a';
+		    else answer = ESCAPE;
+		  }
 		if ((answer == 'W') || (answer == 'w'))
 		  {
 		    (void)enchant_spell(rand_int(4) + 1, 
@@ -1956,7 +2145,6 @@ void do_cmd_cast_or_pray(void)
 		    break;
 		  }
 		else if (answer == ESCAPE) return;
-		else msg_print("Please type 'w' to enhant a weapon, 'a' to enchant armour, or ESC to cancel");
 	      }
 
 	    break;
@@ -2974,6 +3162,9 @@ void do_cmd_cast_or_pray(void)
   /* Window stuff */
   p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
   
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 /*
@@ -3069,6 +3260,7 @@ void do_cmd_gain_specialty(void)
   int choices[255];
   int hgt;
   char c;
+  key_event ke;
   char buf[80];
   bool done_one, done_all, use_cur;
   
@@ -3119,7 +3311,11 @@ void do_cmd_gain_specialty(void)
       if (hgt > j) hgt = j;
       
       /* Prompt choices */
-      sprintf(buf, "(Specialties: %c-%c, ESC=exit) Gain which specialty (%d available)? ", I2A(0), I2A(j-1), p_ptr->new_specialties);
+      if (small_screen)
+	sprintf(buf, "(Specialties: %c-%c, ESC) Gain which (%d left)? ", I2A(0), I2A(j-1), p_ptr->new_specialties);
+      else
+	sprintf(buf, "(Specialties: %c-%c, ESC=exit) Gain which specialty (%d available)? ", I2A(0), I2A(j-1), p_ptr->new_specialties);
+
       Term_putstr(5, 0, 66, TERM_WHITE, buf);
       
       /* No valid selection yet */
@@ -3153,6 +3349,8 @@ void do_cmd_gain_specialty(void)
 	  
 	  /* Display that specialty's information. */
 	  roff("",5,0);
+	  Term_erase(5, hgt + 7, 255);
+	  Term_erase(5, hgt + 6, 255);
 	  Term_erase(5, hgt + 5, 255);
 	  Term_erase(5, hgt + 4, 255);
 	  Term_erase(5, hgt + 3, 255);
@@ -3162,7 +3360,8 @@ void do_cmd_gain_specialty(void)
 	  put_str("", 2 + cur - top, 5);
 	  
 	  /* get input */
-	  c = inkey();
+	  ke = inkey_ex();
+	  c = ke.key;
 	  
 	  /* Numbers are used for scolling */
 	  if (isdigit(c))
@@ -3193,6 +3392,37 @@ void do_cmd_gain_specialty(void)
 		    {
 		      /* Move selection */
 		      cur++;
+		    }
+		  
+		  if ((top + hgt - 1 < (j - 1)) && ((top + hgt - 1 - cur) < 4))
+		    {
+		      /* Scroll down */
+		      top++;
+		    }
+		}
+	    }
+	  
+	  else if ((ke.key == '\xff') && (ke.mousey >= 2) && 
+		   (ke.mousey < Term->hgt))
+	    {
+	      /* Select... */
+	      if (cur == ke.mousey - 2 + top)
+		{
+		  /* Use current */
+		  use_cur = TRUE;
+		  
+		  /* Done this selection */
+		  done_one = TRUE;
+		}
+	      
+	      /* ...or place the cursor */
+	      else if (ke.mousey - 2 + top < hgt)
+		{
+		  cur = ke.mousey - 2 + top;	  
+		  if ((top > 0) && ((cur - top) < 4))
+		    {
+		      /* Scroll up */
+		      top--;
 		    }
 		  
 		  if ((top + hgt - 1 < (j - 1)) && ((top + hgt - 1 - cur) < 4))
@@ -3246,7 +3476,8 @@ void do_cmd_gain_specialty(void)
 	    }
 	  
 	  /* Allow user to exit the fuction */
-	  else if (c == ESCAPE)
+	  else if ((c == ESCAPE) || ((!ke.mousey) && (ke.mousex > 23) && 
+				     (ke.mousex < 32)))
 	    {
 	      done_one = TRUE;
 	      done_all = TRUE;
@@ -3315,33 +3546,43 @@ void do_cmd_gain_specialty(void)
  */
 void do_cmd_specialty(void)
 {
-  char answer;
+  key_event answer;
   
   /* Might want to gain a new ability or browse old ones */
   if (p_ptr->new_specialties > 0)
     {
       /* Query */
       /* Interact and choose. */
-      while(get_com("'V'iew your abilities or 'L'earn specialty (l/v/ESC)?", 
-		    &answer))
+      while(get_com_ex("View abilities or Learn specialty ('l'/'v'/ESC)?",
+		       &answer))
 	{
+	  /* Mouse input */
+	  if ((answer.key == '\xff') && (!answer.mousey))
+	    {
+	      if ((answer.mousex > 34) && (answer.mousex < 38)) 
+		answer.key = 'l';
+	      if ((answer.mousex > 38) && (answer.mousex < 42)) 
+		answer.key = 'v';
+	      if ((answer.mousex > 42) && (answer.mousex < 46)) 
+		answer.key = ESCAPE;
+	    }
 	  
 	  /* New ability */
-	  if ((answer == 'L') || (answer == 'l'))
+	  if ((answer.key == 'L') || (answer.key == 'l'))
 	    {
 	      do_cmd_gain_specialty();
 	      return;
 	    }
 	  
 	  /* View Current */
-	  if ((answer == 'V') || (answer == 'v'))
+	  if ((answer.key == 'V') || (answer.key == 'v'))
 	    {
 	      do_cmd_view_abilities();
 	      return;
 	    }
 	  
 	  /* Exit */
-	  else if (answer == ESCAPE) return;
+	  else if (answer.key == ESCAPE) return;
 	  
 	  
 	}

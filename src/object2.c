@@ -1520,18 +1520,23 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
   
   /* Hack -- blend "known" status */
   if (object_known_p(j_ptr)) object_known(o_ptr);
+  if (object_known_p(o_ptr)) object_known(j_ptr);
   
   /* Hack -- blend "rumour" status */
   if (j_ptr->ident & (IDENT_RUMOUR)) o_ptr->ident |= (IDENT_RUMOUR);
+  if (o_ptr->ident & (IDENT_RUMOUR)) j_ptr->ident |= (IDENT_RUMOUR);
   
   /* Hack -- blend "mental" status */
   if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
+  if (o_ptr->ident & (IDENT_MENTAL)) j_ptr->ident |= (IDENT_MENTAL);
   
   /* Hack -- blend "feelings" */
   if (j_ptr->feel) o_ptr->feel = j_ptr->feel;
+  if (o_ptr->feel) j_ptr->feel = o_ptr->feel;
   
   /* Hack -- blend "inscriptions" */
   if (j_ptr->note) o_ptr->note = j_ptr->note;
+  if (o_ptr->note) j_ptr->note = o_ptr->note;
   
   /* Hack -- could average discounts XXX XXX XXX */
   /* Hack -- save largest discount XXX XXX XXX */
@@ -4039,14 +4044,15 @@ void pick_trap(int y, int x)
 	    if (is_quest(p_ptr->stage)) trap_is_okay = FALSE;
 	    
 	    /* Hack -- no trap doors at the bottom of dungeons */
-	    if (!stage_map[p_ptr->stage][DOWN])  
+	    if ((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) && 
+		(!stage_map[p_ptr->stage][DOWN]))  
 	      trap_is_okay = FALSE;
 	    
 	    /* No trap doors at level 1 (instadeath risk). */
 	    if (p_ptr->depth < 2) trap_is_okay = FALSE;
 	    
-	    /* Trap doors only in dungeons */
-	    if (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE)
+	    /* Trap doors only in dungeons or normal wilderness */
+	    if (stage_map[p_ptr->stage][STAGE_TYPE] > CAVE)
 	      trap_is_okay = FALSE;
 	    
 	    break;
@@ -5504,7 +5510,7 @@ void display_koff(int k_idx)
   if (i_ptr->tval == mp_ptr->spell_book)
     {
       /* Print spells */
-      print_spells(i_ptr->tval, i_ptr->sval, 1, 14);
+      print_spells(i_ptr->tval, i_ptr->sval, 1, (small_screen ? 0 : 14));
     }
 }
 

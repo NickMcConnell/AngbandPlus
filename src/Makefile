@@ -90,7 +90,7 @@ bin_PROGRAMS =  faangband$(EXEEXT)
 PROGRAMS =  $(bin_PROGRAMS)
 
 
-DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I.
+DEFS = -DHAVE_CONFIG_H -DUSE_TRANSPARENCY -I. -I$(srcdir) -I.
 CPPFLAGS = 
 LDFLAGS =   -L/usr/X11R6/lib
 LIBS = -lXaw -lXext  -lSM -lICE -lXmu -lXt -lX11  -lncurses 
@@ -108,7 +108,7 @@ init2.o randart.o squelch.o info.o attack.o
 faangband_LDADD = $(LDADD)
 faangband_DEPENDENCIES = 
 faangband_LDFLAGS = 
-CFLAGS = -g -O2 -fno-strength-reduce  -I/usr/X11R6/include
+CFLAGS = -Wall -g -O2 -fno-strength-reduce  -I/usr/X11R6/include
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@

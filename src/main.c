@@ -396,6 +396,14 @@ int main(int argc, char *argv[])
 	    break;
 	  }
 	  
+	case 'G':
+	case 'g':
+	  {
+	    /* Default graphics tile */
+	    arg_graphics = GRAPHICS_ADAM_BOLT;
+	    break;
+	  }
+	  
 	case 'R':
 	case 'r':
 	  {
@@ -407,6 +415,13 @@ int main(int argc, char *argv[])
 	case 'o':
 	  {
 	    arg_force_original = TRUE;
+	    break;
+	  }
+	  
+	case 'L':
+	case 'l':
+	  {
+	    small_screen = TRUE;
 	    break;
 	  }
 	  
@@ -473,6 +488,7 @@ int main(int argc, char *argv[])
 	    puts("  -g       Request graphics mode");
 	    puts("  -o       Request original keyset");
 	    puts("  -r       Request rogue-like keyset");
+	    puts("  -l       Request small screen mode");
 	    puts("  -M       Request monochrome mode");
 	    puts("  -s<num>  Show <num> high scores");
 	    puts("  -u<who>  Use your <who> savefile");
@@ -481,23 +497,33 @@ int main(int argc, char *argv[])
 #ifdef USE_XAW
 	    puts("  -mxaw    To use XAW");
 	    puts("  --       Sub options");
-	    puts("  -- -d    Set display name");
-	    puts("  -- -s    Turn off smoothscaling graphics");
-	    puts("  -- -n#   Number of terms to use");
+	    puts("    -- -d    Set display name");
+	    puts("    -- -s    Turn off smoothscaling graphics");
+	    puts("    -- -b    Bigtile"); 
+	    puts("    -- -o    original graphics");
+	    puts("    -- -a    Adam Bolt's tiles"); 
+	    puts("    -- -g    David Gervais' tiles");
+	    puts("    -- -n#   Number of terms to use");
 #endif /* USE_XAW */
 	    
 #ifdef USE_X11
 	    puts("  -mx11    To use X11");
 	    puts("  --       Sub options");
-	    puts("  -- -d    Set display name");
-	    puts("  -- -s    Turn off smoothscaling graphics");
-	    puts("  -- -n#   Number of terms to use");
+	    puts("    -- -d    Set display name");
+	    puts("    -- -s    Turn off smoothscaling graphics");
+	    puts("    -- -b    Bigtile"); 
+	    puts("    -- -o    original graphics");
+	    puts("    -- -a    Adam Bolt's tiles"); 
+	    puts("    -- -g    David Gervais' tiles");
+	    puts("    -- -w    double size tiles");
+	    puts("    -- -t    triple size tiles");
+	    puts("    -- -n#   Number of terms to use");
 #endif /* USE_X11 */
 	    
 #ifdef USE_GCU
 	    puts("  -mgcu    To use GCU (GNU Curses)");
 	    puts("  --       Sub options");
-	    puts("  -- -x    No extra sub-windows");
+	    puts("    -- -x    No extra sub-windows");
 #endif /* USE_GCU */
 	    
 #ifdef USE_CAP

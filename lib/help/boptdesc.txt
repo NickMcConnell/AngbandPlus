@@ -41,3 +41,10 @@ Other option sets are described in their own documentation file.
 	 Record all the main life milestones of your character automatically 
 	 in a notes file.  If selected, the notes file can be viewed from the
 	 '~' knowledge menu, and will appear in character dumps.
+
+     Notes in save directory (Default - OFF):
+
+         Keep the temporary notes file in the savefile directory.  This option
+	 may be necessary when the user does not have full write priveleges to
+	 the usual temporary file directory.  Turn it on if the game is giving
+	 you notes file errors.

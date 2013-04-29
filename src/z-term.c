@@ -187,6 +187,7 @@
  *   Term->user_hook = Perform user actions
  *   Term->xtra_hook = Perform extra actions
  *   Term->curs_hook = Draw (or Move) the cursor
+ *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
  *   Term->wipe_hook = Draw some blank spaces
  *   Term->text_hook = Draw some text in the window
  *   Term->pict_hook = Draw some attr/chars in the window
@@ -523,8 +524,12 @@ void Term_queue_char(int x, int y, byte a, char c)
   byte *scr_taa = &scrn->ta[y][x];
   char *scr_tcc = &scrn->tc[y][x];
 	
+	/* Don't change is the terrain value is 0 */
+	if (!ta) ta = *scr_taa;
+	if (!tc) tc = *scr_tcc;
+
   /* Hack -- Ignore non-changes */
-  if ((*scr_aa == a) && (*scr_cc == c) &&
+  if (!(Term->always_draw) && (*scr_aa == a) && (*scr_cc == c) &&
       (*scr_taa == ta) && (*scr_tcc == tc)) return;
   
 #else /* USE_TRANSPARENCY */
@@ -686,7 +691,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
       int otc = scr_tcc[x];
       
       /* Hack -- Ignore non-changes */
-      if ((oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
+      if (!(Term->always_draw) && (oa == a) && (oc == *s) && (ota == 0) && (otc == 0)) continue;
       
 #else /* USE_TRANSPARENCY */
       
@@ -793,7 +798,8 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
       ntc = scr_tcc[x];
       
       /* Handle unchanged grids */
-      if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+      if (!(Term->always_draw) && (na == oa) && (nc == oc) && (nta == ota) 
+	  && (ntc == otc))
 	
 #else /* USE_TRANSPARENCY */
 	
@@ -915,7 +921,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
       ntc = scr_tcc[x];
       
       /* Handle unchanged grids */
-      if ((na == oa) && (nc == oc) && (nta == ota) && (ntc == otc))
+      if (!(Term->always_draw) && (na == oa) && (nc == oc) && (nta == ota) 
+	  && (ntc == otc))
 	
 #else /* USE_TRANSPARENCY */
 	
@@ -960,7 +967,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 #endif /* USE_TRANSPARENCY */
       
       /* Handle high-bit attr/chars */
-      if (na & 0x80)
+      if ((na & 0x80) && (nc & 0x80))
 	{
 	  /* Flush */
 	  if (fn)
@@ -981,6 +988,9 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 	      fn = 0;
 	    }
 	  
+	  /* 2nd byte of bigtile */
+	  if ((na == 255) && (nc == -1)) continue;
+
 #ifdef USE_TRANSPARENCY
 	  
 	  /* Hack -- Draw the special attr/char pair */
@@ -1316,6 +1326,7 @@ errr Term_fresh(void)
   
   /* Paranoia -- use "fake" hooks to prevent core dumps */
   if (!Term->curs_hook) Term->curs_hook = Term_curs_hack;
+  if (!Term->bigcurs_hook) Term->bigcurs_hook = Term->curs_hook;
   if (!Term->wipe_hook) Term->wipe_hook = Term_wipe_hack;
   if (!Term->text_hook) Term->text_hook = Term_text_hack;
   if (!Term->pict_hook) Term->pict_hook = Term_pict_hack;
@@ -1416,7 +1427,7 @@ errr Term_fresh(void)
 	    }
 	  
 	  /* Hack -- use "Term_pict()" sometimes */
-	  else if (Term->higher_pict && (oa & 0x80))
+	  else if (Term->higher_pict && (oa & 0x80) && (oc & 0x80))
 	    {
 #ifdef USE_TRANSPARENCY
 	      (void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
@@ -1521,8 +1532,16 @@ errr Term_fresh(void)
       /* Draw the cursor */
       if (!scr->cu && scr->cv)
 	{
-	  /* Call the cursor display routine */
-	  (void)((*Term->curs_hook)(scr->cx, scr->cy));
+	  if ((scr->cx + 1 < w) && (old->a[scr->cy][scr->cx + 1] == 255))
+	    {
+	      /* Double width cursor for the Bigtile mode */
+	      (void)((*Term->bigcurs_hook)(scr->cx, scr->cy));
+	    }
+	  else
+	    {
+	      /* Call the cursor display routine */
+	      (void)((*Term->curs_hook)(scr->cx, scr->cy));
+	    }
 	}
     }
   
@@ -1828,6 +1847,12 @@ errr Term_erase(int x, int y, int n)
   scr_tcc = Term->scr->tc[y];
 #endif /* USE_TRANSPARENCY */
   
+	if ((n > 0) && (scr_cc[x] == -1) && (scr_aa[x] == 255))
+	{
+		x--;
+		n++;
+	}
+
   /* Scan every column */
   for (i = 0; i < n; i++, x++)
     {
@@ -1973,6 +1998,9 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
   /* Set the x limits */
   for (i = Term->y1; i <= Term->y2; i++)
     {
+		if ((x1 > 0) && (Term->old->a[i][x1] == 255))
+			x1--;
+
       Term->x1[i] = x1;
       Term->x2[i] = x2;
       
@@ -2096,6 +2124,7 @@ errr Term_keypress(int k)
   
   /* Store the char, advance the queue */
   Term->key_queue[Term->key_head++].key = k;
+  Term->key_queue[Term->key_head].mousebutton = 0;
   
   /* Circular queue, handle wrap */
   if (Term->key_head == Term->key_size) Term->key_head = 0;
@@ -2247,6 +2276,9 @@ errr Term_save(void)
   /* Grab */
   term_win_copy(Term->mem, Term->scr, w, h);
   
+	/* Tell term we're not displaying the main map */
+	if (Term->notice_grid) Term_xtra(TERM_XTRA_GRIDS, 0);
+
   /* Success */
   return (0);
 }
@@ -2277,6 +2309,9 @@ errr Term_load(void)
   /* Load */
   term_win_copy(Term->scr, Term->mem, w, h);
   
+	/* Tell term we're displaying the main map */
+	if (Term->notice_grid) Term_xtra(TERM_XTRA_GRIDS, 1);
+
   /* Assume change */
   for (y = 0; y < h; y++)
     {

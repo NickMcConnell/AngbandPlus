@@ -413,6 +413,175 @@ static void get_history(void)
 	  }
 }
 
+/* 
+ * Get a stat for the autoroller - adapted from askfor_aux() -NRM- 
+ */
+void get_stat(char *buf, int val)
+{
+  int y, x, wid, minval, len = 9;
+  
+  int k = 0;
+  
+  key_event ke;
+  
+  bool changed = FALSE;
+  bool done = FALSE;
+
+  /* Set max width */
+  wid = (small_screen ? 48 : 80);
+
+  /* Convert to local format */
+  if (val > 18) val = 18 + (val - 18) / 10;
+  minval = val;
+  
+  ke.key = '\0';
+  
+  /* Locate the cursor */
+  Term_locate(&x, &y);
+  
+  /* Paranoia -- check len */
+  if (len < 1) len = 1;
+  
+  /* Paranoia -- check column */
+  if ((x < 0) || (x >= wid)) x = 0;
+  
+  /* Restrict the length */
+  if (x + len > wid) len = wid - x;
+  
+  /* Paranoia -- Clip the default entry */
+  buf[len-1] = '\0';
+  
+  /* Display the default answer */
+  Term_erase(x, y, len);
+  Term_putstr(x, y, -1, TERM_YELLOW, buf);
+  
+  /* Process input */
+  while (!done)
+    {
+      char *s;
+      char temp[10];
+
+      /* Place cursor */
+      Term_gotoxy(x + k, y);
+      
+      /* Get a key */
+      ke = inkey_ex();
+      
+      /* Analyze the key */
+      switch (ke.key)
+	{
+	case ESCAPE:
+	  {
+	    k = 0;
+	    done = TRUE;
+	    break;
+	  }
+	  
+	case '\n':
+	case '\r':
+	  {
+	    k = strlen(buf);
+	    done = TRUE;
+	    break;
+	  }
+	  
+	case 0x7F:
+	case '\010':
+	  {
+	    if (k > 0) k--;
+	    break;
+	  }
+	  
+	case '\xff':
+	  {
+	    if (ke.mousey == 10)
+	      {
+		if ((ke.mousex > 22) && (ke.mousex < 25) && (val)) 
+		  {
+		    val--;
+		    changed = TRUE;
+		    break;
+		  }
+		else if ((ke.mousex > 25) && (ke.mousex < 28)) 
+		  {
+		    val++;
+		    changed = TRUE;
+		    break;
+		  }
+		else if ((ke.mousex > 28) && (ke.mousex < 31))
+		  {
+		    k = strlen(buf);
+		    done = TRUE;
+		    break;
+		  }
+	      }
+	    continue;
+	  }
+	  
+	default:
+	  {
+	    if ((k < len - 1) && (isprint(ke.key)))
+	      {
+		buf[k++] = ke.key;
+		buf[k] = '\0';
+	      }
+	    else
+	      {
+		bell("Illegal edit key!");
+	      }
+	    break;
+	  }
+	}
+      
+      /* Look for changes */
+      if (changed)
+	{
+	  if (val > 18)
+	    {
+	      sprintf(buf, "18/%01d0", (val - 18));
+	    }
+	  else
+	    {
+	      sprintf(buf, "%2d", val);
+	    }
+	  changed = FALSE;
+	  k = strlen(buf);
+	}
+
+      /* Terminate */
+      buf[k] = '\0';
+
+      /* Re-synchronise */
+      strcpy(temp, buf);
+
+      /* Hack -- add a fake slash */
+      strcat(temp, "/");
+      
+      /* Hack -- look for the "slash" */
+      s = strchr(temp, '/');
+      
+      /* Hack -- Nuke the slash */
+      *s++ = '\0';
+      
+      /* Hack -- Extract an input */
+      val = atoi(temp) + atoi(s) / 10;
+
+      /* Check it */
+      if (val > minval + 9)
+	{
+	  val = minval + 9;
+	  k = 0;
+	  done = FALSE;
+	  buf[k] = '\0';
+	}
+      
+      /* Update the entry */
+      Term_erase(x, y, len);
+      Term_putstr(x, y, -1, TERM_WHITE, buf);
+    }
+}
+
+
 /*
  * Sets the character's starting level -NRM-
  */
@@ -547,13 +716,13 @@ static void player_wipe(void)
   q_list[0].stage = 170;
   
   /* Glaurung */
-  q_list[1].stage = 262;
+  q_list[1].stage = 247;
   
   /* Ungoliant */
-  q_list[2].stage = 221;
+  q_list[2].stage = 211;
   
   /* Sauron */
-  q_list[3].stage = 323;
+  q_list[3].stage = 318;
   
   /* Morgoth */
   q_list[4].stage = 384;
@@ -688,17 +857,17 @@ static void player_outfit(void)
 }
 
 /* Locations of the tables on the screen */
-#define HEADER_ROW              1
+
+#define HEADER_ROW      1
 #define INSTRUCT_ROW    3
 #define QUESTION_ROW    7
-#define TABLE_ROW               10
-
-#define QUESTION_COL    2
-#define SEX_COL                 2
-#define RACE_COL                14
-#define RACE_AUX_COL    29
-#define CLASS_COL               29
-#define CLASS_AUX_COL   50
+#define TABLE_ROW       10
+#define QUESTION_COL    (small_screen ? 0 : 2)
+#define SEX_COL         (small_screen ? 0 : 2)
+#define RACE_COL        (small_screen ? 10 : 14)
+#define RACE_AUX_COL    (small_screen ? 24 : 29)
+#define CLASS_COL       (small_screen ? 24 : 29)
+#define CLASS_AUX_COL   (small_screen ? 38 : 50)
 
 #define INVALID_CHOICE 255
 
@@ -726,7 +895,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 {
   int top = 0, cur = 0;
   int i, dir;
-  char c;
+  key_event ke;
   char buf[80];
   bool done = FALSE;
   int hgt;
@@ -752,15 +921,15 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 	{
 	  if (i + top < 26)
 	    {
-	      sprintf(buf, "%c) %s", I2A(i + top), choices[i + top].name);
+	      sprintf(buf, "%c)%s%s", I2A(i + top), 
+		      (small_screen ? "" : " "), choices[i + top].name);
 	    }
 	  else
 	    {
 	      /* ToDo: Fix the ASCII dependency */
-	      sprintf(buf, "%c) %s", 'A' + (i + top - 26), 
-		      choices[i + top].name);
+	      sprintf(buf, "%c)%s%s", 'A' + (i + top - 26), 
+		      (small_screen ? "" : " "), choices[i + top].name);
 	    }
-	  
 	  /* Clear */
 	  Term_erase(col, i + TABLE_ROW, wid);
 	  
@@ -788,18 +957,63 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
       /* Move the cursor */
       put_str("", TABLE_ROW + cur - top, col);
       
-      c = inkey();
+      ke = inkey_ex();
+
+      /* Mouse input for top descriptions */
+      if (ke.key == '\xff')
+	{
+	  if (small_screen)
+	    {
+	      if (ke.mousey == INSTRUCT_ROW)
+		if (ke.mousex == QUESTION_COL + 1) ke.key = '*';
+	      
+	      if (ke.mousey == INSTRUCT_ROW)
+		if (ke.mousex == QUESTION_COL + 29) ke.key = 'S';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 1)
+		if (ke.mousex == QUESTION_COL + 22) ke.key = '=';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 2)
+		if (ke.mousex == QUESTION_COL + 1) ke.key = '?';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 2)
+		if ((ke.mousex > QUESTION_COL + 17) &&
+		    (ke.mousex < QUESTION_COL + 24)) ke.key = KTRL('X');
+	    }
+	  else
+	    {
+	      if (ke.mousey == INSTRUCT_ROW)
+		if ((ke.mousex > QUESTION_COL + 41) && 
+		    (ke.mousex < QUESTION_COL + 47)) ke.key = '\r';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 1)
+		if (ke.mousex == QUESTION_COL + 12) ke.key = '*';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 1)
+		if (ke.mousex == QUESTION_COL + 40) ke.key = 'S';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 2)
+		if (ke.mousex == QUESTION_COL + 12) ke.key = '=';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 2)
+		if (ke.mousex == QUESTION_COL + 32) ke.key = '?';
+	      
+	      if (ke.mousey == INSTRUCT_ROW + 2)
+		if ((ke.mousex > QUESTION_COL + 48) &&
+		    (ke.mousex < QUESTION_COL + 55)) ke.key = KTRL('X');
+	    }
+	}
       
-      if (c == KTRL('X'))
+      if (ke.key == KTRL('X'))
 	{
 	  quit(NULL);
 	}
-      if (c == 'S')
+      if (ke.key == 'S')
 	{
 	  /* Mega Hack - go back. */
 	  return (INVALID_CHOICE);
 	}
-      if (c == '*')
+      if (ke.key == '*')
 	{
 	  /* Select at random */
 	  cur = rand_int(num);
@@ -813,16 +1027,14 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 	  /* Done */
 	  done = TRUE;
 	}
-      else if (c == '?')
+      else if (ke.key == '?')
 	{
-	  //sprintf(buf, "%s#%s", helpfile, choices[cur].name);
 	  
 	  screen_save();
-	  //(void)show_file(buf, NULL, 0, 0);
 	  (void)show_file("raceclas.txt", NULL, 0, 0);
 	  screen_load();
 	}
-      else if (c == '=')
+      else if (ke.key == '=')
 	{
 	  /* Interact with options */
 	  do_cmd_options();
@@ -835,15 +1047,15 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 	    }
 	  
 	}
-      else if ((c == '\n') || (c == '\r'))
+      else if ((ke.key == '\n') || (ke.key == '\r'))
 	{
 	  /* Done */
 	  return (cur);
 	}
-      else if (isdigit(c))
+      else if (isdigit(ke.key))
 	{
 	  /* Get a direction from the key */
-	  dir = target_dir(c);
+	  dir = target_dir(ke.key);
 	  
 	  /* Going up? */
 	  if (dir == 8)
@@ -878,17 +1090,43 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 	    }
 	}
       
-      else if (isalpha(c))
+      else if ((ke.key == '\xff') && (ke.mousex >= col) && 
+	       (ke.mousex < col + wid) && (ke.mousey >= TABLE_ROW) && 
+	       (ke.mousey < Term->hgt))
+	{
+	  /* Select... */
+	  if (cur == ke.mousey - TABLE_ROW + top)
+	    return (cur);
+
+	  /* ...or place the cursor */
+	  else if (ke.mousey - TABLE_ROW + top < num)
+	    {
+	      cur = ke.mousey - TABLE_ROW + top;	  
+	      if ((top > 0) && ((cur - top) < 4))
+		{
+		  /* Scroll up */
+		  top--;
+		}
+	      
+	      if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+		{
+		  /* Scroll down */
+		  top++;
+		}
+	    }
+	}
+      
+      else if (isalpha(ke.key))
 	{
 	  int choice;
 	  
-	  if (islower(c))
+	  if (islower(ke.key))
 	    {
-	      choice = A2I(c);
+	      choice = A2I(ke.key);
 	    }
 	  else
 	    {
-	      choice = c - 'A' + 26;
+	      choice = ke.key - 'A' + 26;
 	    }
 	  
 	  /* Validate input */
@@ -1051,8 +1289,12 @@ static bool get_player_race()
   birth_menu races[MAX_P_IDX];
   
   /* Extra info */
-  Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-	      "Your 'race' determines various intrinsic factors and bonuses.");
+  if (small_screen)
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Your race determines various intrinsic factors.");
+  else
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Your 'race' determines various intrinsic factors and bonuses.");
   
   Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
 	      "It also determines which town you start in.");
@@ -1105,9 +1347,15 @@ static void class_aux_hook(birth_menu c_str)
 	      cp_info[class].c_adj[i] + rp_info[p_ptr->prace].r_adj[i]);
       Term_putstr(CLASS_AUX_COL, TABLE_ROW + i, -1, TERM_WHITE, s);
     }
-  
-  sprintf(s, "Hit die: %d ", 
-	  cp_info[class].c_mhp + rp_info[p_ptr->prace].r_mhp);
+
+  if (small_screen)
+    sprintf(s, "Hit die:%2d",
+	    cp_info[class].c_mhp + rp_info[p_ptr->prace].r_mhp);
+  else  
+    sprintf(s, "Hit die: %d ",
+	    cp_info[class].c_mhp + rp_info[p_ptr->prace].r_mhp);
+
+	  
   Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX, -1, TERM_WHITE, s);
 }
 
@@ -1120,10 +1368,17 @@ static bool get_player_class(void)
   birth_menu classes[MAX_CLASS];
   
   /* Extra info */
-  Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-	     "Your class determines various intrinsic abilities and bonuses.");
+  if (small_screen)
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Your class determines intrinsic abilities.");
+  /*	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
+	"Greyed-out entries are disfavored by your race."); */
+  else
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Your class determines various intrinsic abilities and bonuses.");
   /*	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
 	"Greyed-out entries are disfavored by your 'race'."); */
+
   
   /* Tabulate classes */
   for (i = 0; i < MAX_CLASS; i++)
@@ -1161,8 +1416,12 @@ static bool get_player_sex(void)
   birth_menu genders[MAX_SEXES];
   
   /* Extra info */
-  Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
-	      "Females start with slightly more gold.  Males are heavier.");
+  if (small_screen)
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Females start with more gold; males are heavier.");
+  else  
+    Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
+		"Females start with slightly more gold.  Males are heavier.");
   
   /* Tabulate genders */
   for (i = 0; i < MAX_SEXES; i++)
@@ -1200,27 +1459,45 @@ static bool player_birth_aux_1(void)
   
   /* Clear screen */
   Term_clear();
-  
+
   /* Display some helpful information */
   Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_L_BLUE,
 	      "Please select your character from the menu below:");
-  Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
-	      "Use the movement keys to scroll the menu, Enter to select the current");
-  Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
-	      "menu item, '*' for a random menu item, 'S' to restart the character");
-  Term_putstr(QUESTION_COL, INSTRUCT_ROW + 2, -1, TERM_WHITE,
-	      "selection, '=' to set options, '?' for help, or 'Ctrl-X' to quit.");
-  
-  /* Hack - highlight the key names */
-  Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, - 1, TERM_L_GREEN, 
-	      "movement keys");
-  Term_putstr(QUESTION_COL + 42, INSTRUCT_ROW, - 1, TERM_L_GREEN, "Enter");
-  Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "*");
-  Term_putstr(QUESTION_COL + 40, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "S");
-  Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "=");
-  Term_putstr(QUESTION_COL + 32, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
-  Term_putstr(QUESTION_COL + 49, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
-  
+  if (small_screen)
+    {  
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
+		  "'*' for a random menu item, 'S' to restart the");
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
+		  "character selection, '=' to set options,");
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW + 2, -1, TERM_WHITE,
+		  "'?' for help, or 'Ctrl-X' to quit.");
+      
+      /* Hack - highlight the key names */
+      Term_putstr(QUESTION_COL + 1, INSTRUCT_ROW, - 1, TERM_L_GREEN, "*");
+      Term_putstr(QUESTION_COL + 29, INSTRUCT_ROW, - 1, TERM_L_GREEN, "S");
+      Term_putstr(QUESTION_COL + 22, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "=");
+      Term_putstr(QUESTION_COL + 1, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
+      Term_putstr(QUESTION_COL + 18, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
+    }
+  else
+    {
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW, -1, TERM_WHITE,
+		  "Use the movement keys to scroll the menu, Enter to select the current");
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW + 1, -1, TERM_WHITE,
+		  "menu item, '*' for a random menu item, 'S' to restart the character");
+      Term_putstr(QUESTION_COL, INSTRUCT_ROW + 2, -1, TERM_WHITE,
+		  "selection, '=' to set options, '?' for help, or 'Ctrl-X' to quit.");
+      
+      /* Hack - highlight the key names */
+      Term_putstr(QUESTION_COL + 8, INSTRUCT_ROW, - 1, TERM_L_GREEN, 
+		  "movement keys");
+      Term_putstr(QUESTION_COL + 42, INSTRUCT_ROW, - 1, TERM_L_GREEN, "Enter");
+      Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "*");
+      Term_putstr(QUESTION_COL + 40, INSTRUCT_ROW + 1, - 1, TERM_L_GREEN, "S");
+      Term_putstr(QUESTION_COL + 12, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "=");
+      Term_putstr(QUESTION_COL + 32, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "?");
+      Term_putstr(QUESTION_COL + 49, INSTRUCT_ROW + 2, - 1, TERM_L_GREEN, "Ctrl-X");
+    }
   /* Choose the player's sex */
   if (!get_player_sex()) return (FALSE);
   
@@ -1284,9 +1561,13 @@ static bool player_birth_aux_2(void)
   int cost;
   
   char ch;
+  key_event ke;
   
   char buf[80];
   
+  /* Set row, column */
+  row = (small_screen ? 4 : 2);
+  col = (small_screen ? 11 : 42);
   
   /* Initialize stats */
   for (i = 0; i < A_MAX; i++)
@@ -1372,14 +1653,33 @@ static bool player_birth_aux_2(void)
       
       
       /* Prompt XXX XXX XXX */
-      sprintf(buf, "Total Cost %2d/%2d.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost, BUY_POINTS);
-      prt(buf, 0, 0);
+      if (small_screen)
+	{
+	  sprintf(buf, "Cost %2d/%2d.  2/8 move, 4/6 modify, ESC accept.", cost, BUY_POINTS);
+	  c_put_str(TERM_VIOLET, buf, 2, 0);
+	}
+      else
+	{
+	  sprintf(buf, "Total Cost %2d/%2d.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost, BUY_POINTS);
+	  prt(buf, 0, 0);
+	}
       
       /* Place cursor just after cost of current stat */
       Term_gotoxy(col + 36, row + stat);
       
       /* Get key */
-      ch = inkey();
+      ke = inkey_ex();
+      ch = ke.key;
+
+      /* Mouse input */
+      if ((ke.key == '\xff') && (ke.mousey == (small_screen ? 2 : 0)))
+	{
+	  if (ke.mousex == (small_screen ? 13 : 23)) ch = '2';
+	  if (ke.mousex == (small_screen ? 15 : 25)) ch = '8'; 
+	  if (ke.mousex == (small_screen ? 23 : 36)) ch = '4'; 
+	  if (ke.mousex == (small_screen ? 25 : 38)) ch = '6';
+	  if (ke.mousex > (small_screen ? 34 : 50)) ch = ESCAPE;
+	} 
       
       /* Quit */
       if (ch == 'Q') quit(NULL);
@@ -1437,6 +1737,7 @@ static bool player_birth_aux_3(void)
   bool flag;
   bool prev = FALSE;
   
+  key_event ke;
   char ch;
   
   char b1 = '[';
@@ -1461,23 +1762,29 @@ static bool player_birth_aux_3(void)
   /* Initialize */
   if (adult_auto_roller)
     {
-      int mval[A_MAX];
+      int maxval[A_MAX];
+      int minval[A_MAX];
+      int indent = (small_screen ? 0 : 5);
       
       char inp[80];
       
       
       /* Extra info */
-      Term_putstr(5, 10, -1, TERM_WHITE,
-		  "The auto-roller will automatically ignore characters which do");
-      Term_putstr(5, 11, -1, TERM_WHITE,
-		  "not meet the minimum values for any stats specified below.");
-      Term_putstr(5, 12, -1, TERM_WHITE,
-		  "Note that stats are not independant, so it is not possible to");
-      Term_putstr(5, 13, -1, TERM_WHITE,
-		  "get perfect (or even high) values for all your stats.");
+      Term_putstr(indent, 3, -1, TERM_WHITE,
+		  "The auto-roller will automatically ignore"); 
+      Term_putstr(indent, 4, -1, TERM_WHITE,
+		  "characters which do not meet the minimum values");
+      Term_putstr(indent, 5, -1, TERM_WHITE,
+		  "for any stats specified below.  Note that stats");
+      Term_putstr(indent, 6, -1, TERM_WHITE,
+		  "are not independent, so it is not possible to");
+      Term_putstr(indent, 7, -1, TERM_WHITE,
+		  "get perfect (or even high) values for all"); 
+      Term_putstr(indent, 8, -1, TERM_WHITE,
+		  "your stats.");
       
       /* Prompt for the minimum stats */
-      put_str("Enter minimum value for: ", 15, 2);
+      put_str("Enter minimum value (-- ++ OK) for: ", 10, 2);
       
       /* Output the maximum stats */
       for (i = 0; i < A_MAX; i++)
@@ -1492,11 +1799,11 @@ static bool player_birth_aux_3(void)
 	  m = adjust_stat(17, j, TRUE);
 	  
 	  /* Save the maximum */
-	  mval[i] = m;
+	  maxval[i] = m;
 	  
-	  /* Extract a textual format */
-	  /* cnv_stat(m, inp); */
-	  
+	  /* Obtain the "minimal" stat */
+	  minval[i] = adjust_stat(8, j, TRUE);
+
 	  /* Above 18 */
 	  if (m > 18)
 	    {
@@ -1513,7 +1820,7 @@ static bool player_birth_aux_3(void)
 	  sprintf(buf, "%-5s%-20s", stat_names[i], inp);
 	  
 	  /* Dump the prompt */
-	  put_str(buf, 16 + i, 5);
+	  put_str(buf, 11 + i, 15);
 	}
       
       /* Input the minimum stats */
@@ -1525,13 +1832,24 @@ static bool player_birth_aux_3(void)
 	      char *s;
 	      
 	      /* Move the cursor */
-	      put_str("", 16 + i, 30);
+	      put_str("", 11 + i, 40);
 	      
-	      /* Default */
-	      strcpy(inp, "");
+	      /* Extract a textual format */
+	      
+	      /* Above 18 */
+	      if (minval[i] > 18)
+		{
+		  sprintf(inp, "18/%02d", (minval[i] - 18));
+		}
+	      
+	      /* From 3 to 18 */
+	      else
+		{
+		  sprintf(inp, "%2d", minval[i]);
+		}
 	      
 	      /* Get a response (or escape) */
-	      if (!askfor_aux(inp, 9)) inp[0] = '\0';
+	      get_stat(inp, minval[i]);
 	      
 	      /* Hack -- add a fake slash */
 	      strcat(inp, "/");
@@ -1546,7 +1864,7 @@ static bool player_birth_aux_3(void)
 	      v = atoi(inp) + atoi(s);
 	      
 	      /* Break on valid input */
-	      if (v <= mval[i]) break;
+	      if (v <= maxval[i]) break;
 	    }
 	  
 	  /* Save the minimum stat */
@@ -1565,7 +1883,7 @@ static bool player_birth_aux_3(void)
   /* Roll */
   while (TRUE)
     {
-      int col = 42;
+      int col = (small_screen ? 10 : 42);
       
       /* Feedback */
       if (adult_auto_roller)
@@ -1676,7 +1994,7 @@ static bool player_birth_aux_3(void)
 		  inkey_scan = TRUE;
 		  
 		  /* Check for a keypress */
-		  if (inkey()) break;
+		  if (anykey()) break;
 		}
 	    }
 	}
@@ -1736,7 +2054,21 @@ static bool player_birth_aux_3(void)
 	  Term_addch(TERM_WHITE, b2);
 	  
 	  /* Prompt and get a command */
-	  ch = inkey();
+	  ke = inkey_ex();
+	  ch = ke.key;
+
+	  /* Mouse input */
+	  if ((ch == '\xff') && (ke.mousey == 23))
+	    {
+	      if ((ke.mousex > 2) && (ke.mousex < 16)) ch = 'r';
+	      if (prev)
+		{
+		  if ((ke.mousex > 17) && (ke.mousex < 30)) ch = 'p';
+		  if ((ke.mousex > 34) && (ke.mousex < 48)) ch = ESCAPE;
+		}
+	      else
+		  if ((ke.mousex > 20) && (ke.mousex < 34)) ch = ESCAPE;
+	    }
 	  
 	  /* Quit */
 	  if (ch == 'Q') quit(NULL);
@@ -1793,7 +2125,7 @@ static bool player_birth_aux_3(void)
  */
 static bool player_birth_aux(void)
 {
-  char ch;
+  key_event ke;
   
   /* Wipe the player */
   player_wipe();
@@ -1822,16 +2154,30 @@ static bool player_birth_aux(void)
   display_player(0);
   
   /* Prompt for it */
-  prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
+  if (small_screen)
+    prt("['Q': suicide, 'S': restart, ESC: continue]", 23, 0);
+  else
+    prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
+
   
   /* Get a key */
-  ch = inkey();
+  ke = inkey_ex();
+
+  /* Mouse input */
+  if ((ke.key == '\xff') && (ke.mousey == 23))
+    {
+      if ((ke.mousex > (small_screen ? 0 : 10)) && 
+	  (ke.mousex < (small_screen ? 13 : 25))) ke.key = 'Q';
+      if ((ke.mousex > (small_screen ? 14 : 26)) && 
+	   (ke.mousex < (small_screen ? 27 : 41))) ke.key = 'S';
+    }
+	  
   
   /* Quit */
-  if (ch == 'Q') quit(NULL);
+  if (ke.key == 'Q') quit(NULL);
   
   /* Start over */
-  if (ch == 'S') return (FALSE);
+  if (ke.key == 'S') return (FALSE);
   
   /* Accept */
   return (TRUE);
@@ -1879,7 +2225,13 @@ void player_birth(void)
       
       /* Variables */
       char long_day[25];
+#ifdef _WIN32_WCE
+      unsigned long fake_time(unsigned long* fake_time_t);
+      time_t ct = fake_time(0);
+      
+#else
       time_t ct = time((time_t*)0);
+#endif
       
       /* Notes file needs to go in the savefile directory */
       if (adult_notes_save)
@@ -1904,7 +2256,15 @@ void player_birth(void)
       if (!notes_file) quit("Can't create the notes file");
       
       /* Get date */
+#ifdef _WIN32_WCE
+      {
+	char* fake_ctime(const unsigned long* fake_time_t);
+	sprintf(long_day, "%-.6s %-.2s",
+	        fake_ctime(&ct) + 4, fake_ctime(&ct) + 22);
+      }
+#else
       (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+#endif
       
       /* Add in "character start" information */
       fprintf(notes_file, "%s the %s %s\n", op_ptr->full_name,

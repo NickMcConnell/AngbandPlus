@@ -380,7 +380,7 @@ static cptr r_info_flags7[] =
     "XXX6",
     "XXX7",
     "S_THIEF",
-    "S_BERTBILLTOM",
+    "S_SWAMP",
     "XXX8",
     "XXX9",
     "XX10",
@@ -407,7 +407,7 @@ static cptr player_flags_sp[] =
     "ARMOR_MAST","SHIELD_MAST","ARMOR_PROFICIENCY","EVASION","MAGIC_RESIST","PHASEWALK","UNLIGHT","XXX",
     "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
     "XXX","XXX","XXX","XXX","ARMSMAN","FAST_ATTACK","MARKSMAN","PIERCE_SHOT",
-    "MIGHTY_THROW","POWER_STRIKE","MARTIAL_ARTS","MANA_BURN","XXX","XXX","XXX","XXX",
+    "MIGHTY_THROW","POWER_STRIKE","MARTIAL_ARTS","MANA_BURN","RAPID_FIRE","XXX","XXX","XXX",
     "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
     "BEGUILE","ENHANCE_MAGIC","FAST_CAST","POWER_SIPHON","HEIGHTEN_MAGIC","SOUL_SIPHON","HARMONY","",
     "CHANNELING","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
@@ -4276,6 +4276,195 @@ errr init_g_info_txt(FILE *fp, char *buf)
   /* Success */
   return (0);
 }
+
+/*
+ * Initialize the "flavor_info" array, by parsing an ascii "template" file
+ */
+errr init_flavor_info_txt(FILE *fp, char *buf)
+{
+  int i;
+  
+  char *s;
+  
+  /* Not ready yet */
+  bool okay = FALSE;
+  
+  /* Current entry */
+  static flavor_type *flavor_ptr;
+  
+  /* Just before the first record */
+  error_idx = -1;
+  
+  /* Just before the first line */
+  error_line = -1;
+  
+  
+  /* Prepare the "fake" stuff */
+  flavor_head->name_size = 0;
+  
+  /* Parse */
+  while (0 == my_fgets(fp, buf, 1024))
+    {
+      /* Advance the line number */
+      error_line++;
+      
+      /* Skip comments and blank lines */
+      if (!buf[0] || (buf[0] == '#')) continue;
+      
+      /* Verify correct "colon" format */
+      if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+      
+      
+      /* Hack -- Process 'V' for "Version" */
+      if (buf[0] == 'V')
+	{
+	  int v1, v2, v3;
+	  
+	  /* Scan for the values */
+	  if ((3 != sscanf(buf, "V:%d.%d.%d", &v1, &v2, &v3)) ||
+	      (v1 != flavor_head->v_major) ||
+	      (v2 != flavor_head->v_minor) ||
+	      (v3 != flavor_head->v_patch))
+	    {
+	      return (PARSE_ERROR_OBSOLETE_FILE);
+	    }
+	  
+	  /* Okay to proceed */
+	  okay = TRUE;
+	  
+	  /* Continue */
+	  continue;
+	}
+      
+      /* No version yet */
+      if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+      
+      
+      /* Process 'N' for "Number" */
+      if (buf[0] == 'N')
+	{
+	  int tval, sval;
+	  int result;
+	  
+	  /* Scan the value */
+	  result = sscanf(buf, "N:%d:%d:%d", &i, &tval, &sval);
+	  
+	  /* Either two or three values */
+	  if ((result != 2) && (result != 3)) return (PARSE_ERROR_GENERIC);
+	  
+	  /* Verify information */
+	  if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+	  
+	  /* Verify information */
+	  if (i >= flavor_head->info_num) 
+	    return (PARSE_ERROR_GENERIC);
+	  
+	  /* Save the index */
+	  error_idx = i;
+	  
+	  /* Point at the "info" */
+	  flavor_ptr = &flavor_info[i];
+	  
+	  /* Save the tval */
+	  flavor_ptr->tval = (byte)tval;
+	  
+	  /* Save the sval */
+	  if (result == 2)
+	    {
+	      /* Megahack - unknown sval */
+	      flavor_ptr->sval = SV_UNKNOWN;
+	    }
+	  else
+	    flavor_ptr->sval = (byte)sval;
+	  
+	  /* Continue */
+	  continue;
+	}
+      
+      /* Process 'G' for "Graphics" */
+      if (buf[0] == 'G')
+	{
+	  char d_char;
+	  int d_attr;
+	  
+	  /* There better be a current flavor_ptr */
+	  if (!flavor_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+	  
+	  /* Paranoia */
+	  if (!buf[2]) return (PARSE_ERROR_GENERIC);
+	  if (!buf[3]) return (PARSE_ERROR_GENERIC);
+	  if (!buf[4]) return (PARSE_ERROR_GENERIC);
+	  
+	  /* Extract d_char */
+	  d_char = buf[2];
+	  
+	  /* If we have a longer string than expected ... */
+	  if (buf[5])
+	    {
+	      /* Advance "buf" on by 4 */
+	      buf += 4;
+	      
+	      /* Extract the colour */
+	      d_attr = color_text_to_attr(buf);
+	    }
+	  else
+	    {
+	      /* Extract the attr */
+	      d_attr = color_char_to_attr(buf[4]);
+	    }
+	  
+	  /* Paranoia */
+	  if (d_attr < 0) return (PARSE_ERROR_GENERIC);
+	  
+	  /* Save the values */
+	  flavor_ptr->d_attr = d_attr;
+	  flavor_ptr->d_char = d_char;
+	  
+	  /* Continue */
+	  continue;
+	}
+      
+      /* Process 'D' for "Description" */
+      if (buf[0] == 'D')
+	{
+	  /* Acquire the text */
+	  s = buf + 2;
+	  
+	  /* Hack -- Verify space */
+	  if (flavor_head->text_size + strlen(s) + 8 > FAKE_TEXT_SIZE) 
+	    return (7);
+	  
+	  /* Advance and Save the text index */
+	  if (!flavor_ptr->text) flavor_ptr->text = ++flavor_head->text_size;
+	  
+	  /* Append chars to the name */
+	  strcpy(flavor_text + flavor_head->text_size, s);
+	  
+	  /* Advance the index */
+	  flavor_head->text_size += strlen(s);
+	  
+	  /* Next... */
+	  continue;
+	}
+      
+      /* Oops */
+      return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+    }
+  
+  
+  /* Complete the "name" and "text" sizes */
+  ++flavor_head->name_size;
+  
+  
+  /* No version yet */
+  if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+  
+  
+  
+  /* Success */
+  return (0);
+}
+
 
 #else	/* ALLOW_TEMPLATES */
 

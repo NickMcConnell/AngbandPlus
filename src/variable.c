@@ -58,6 +58,7 @@ bool arg_fiddle;		/* Command arg -- Request fiddle mode */
 bool arg_wizard;		/* Command arg -- Request wizard mode */
 bool arg_sound;			/* Command arg -- Request special sounds */
 bool arg_graphics;		/* Command arg -- Request graphics mode */
+bool arg_graphics_nice;	        /* Command arg -- Request nice graphics mode */
 bool arg_monochrome;		/* Command arg -- Request monochrome mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
@@ -89,7 +90,11 @@ s32b do_feeling;		/* Hack -- Level feeling indicator */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
-
+bool use_graphics_nice;	        /* The 'nice' "graphics" mode is enabled */
+bool use_trptile = FALSE;       /* The triple tile mode is enabled */
+bool use_dbltile = FALSE;       /* The double tile mode is enabled */
+bool use_bigtile = FALSE;       /* The bigtile mode is enabled */
+bool small_screen = FALSE;      /* Small screen mode for portables */
 bool use_transparency = FALSE;  /* Use transparent tiles */
 char notes_fname[1024];         /* Buffer to hold current notes file name */
 FILE *notes_file;               /* Notes file */
@@ -124,9 +129,9 @@ s16b m_cnt = 0;			/* Number of live monsters */
 
 /*
  * Height of dungeon map on screen.
- */
+ * Moved to defines.h -NRM-
 s16b SCREEN_HGT = 22;
-s16b SCREEN_WID = 66;
+s16b SCREEN_WID = 66; */
 
 /*
  * Dungeon variables
@@ -150,14 +155,6 @@ s16b panel_row_min, panel_row_max;
 s16b panel_col_min, panel_col_max;
 s16b panel_col_prt, panel_row_prt;
 bool panel_extra_rows=FALSE;
-
-byte *mp_a = NULL;
-char *mp_c = NULL;
-	
-#ifdef USE_TRANSPARENCY
-byte *mp_ta = NULL;
-char *mp_tc = NULL;
-#endif /* USE_TRANSPARENCY */
 
 /*
  * Player info
@@ -681,6 +678,15 @@ byte *g_info;
 
 
 /*
+ * The object flavor arrays
+ */
+header *flavor_head;
+flavor_type *flavor_info;
+char *flavor_name;
+char *flavor_text;
+
+
+/*
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
@@ -745,6 +751,12 @@ cptr ANGBAND_DIR_HELP;
  * These files are portable between platforms
  */
 cptr ANGBAND_DIR_INFO;
+
+/*
+ * Standard "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
 
 /*
  * Savefiles for current characters (binary)

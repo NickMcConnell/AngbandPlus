@@ -126,7 +126,11 @@ static cptr desc_sneer[] =
   "theorises that time is standing still.",
   "tries to give you an order for pizza.",
   "requests some help with map-reading.",
-  "claims he can see through walls."
+  "claims he can see through walls.",
+  "decries the standard of today's arrows.",
+  "questions the presence of vorpal bunnies in Beleriand.",
+  "gasps that he's just drunk a wooden potion.",
+  "relates his problems with running in the right direction."
 };
 
 /*
@@ -622,7 +626,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			
 		      case RBM_SNEER:
 			{
-			  act = desc_sneer[rand_int(11)];
+			  act = desc_sneer[rand_int(15)];
 			  break;
 			}
 			
@@ -3805,8 +3809,8 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	/* Set the shapechange counter */
 	m_ptr->schange = 5 + damroll(2, 5);
 	
-	/* Hack - do a complete redraw */
-	do_cmd_redraw();
+	/* Hack - do a complete redraw - unnecessary? */
+	p_ptr->redraw |= PR_MAP;
 
 	break;
       }
@@ -4092,19 +4096,19 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	break;
       }
       
-      /* Summon Bert, Bill, and Tom */
-      /* No messages unless sucessful */
-      /* RF7_S_BERTBILLTOM */
+      /* Summon swamp creatures */
+      /* RF7_S_SWAMP */
     case 192 + 15:
       {
+	disturb(1, 0);
+	if (blind) msg_format("%^s mumbles.", m_name);
+	else msg_format("%^s magically summons swamp creatures.", m_name);
 	for (k = 0; k < 2; k++)
 	  {
-	    count += summon_specific(y, x, FALSE, rlev, SUMMON_BERTBILLTOM);
+	    count += summon_specific(y, x, FALSE, rlev, SUMMON_SWAMP);
 	  }
 	if (blind && count) 
-	  msg_print("You hear heavy footsteps approaching.");
-	else if (count) 
-	  msg_format("%^s calls up his friends!", m_name);
+	  msg_print("You hear many squishy things appear nearby.");
 	break;
       }
       

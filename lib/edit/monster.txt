@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 
 #N: monster index: name
@@ -5087,9 +5087,17 @@ S:CONF | SCARE |
 S:BRTH_CONFU
 D:A large dragon with scales of rich bronze.
 
-N:444:()
-I:110:1d1:0:0:0
-W:0:0:0:0
+N:444:Swamp quylthulg
+G:Q:U
+I:110:10d14:15:0:1
+W:40:2:120:900
+F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW | 
+F:INVISIBLE | EMPTY_MIND | ANIMAL | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | 
+S:1_IN_2 | POW_0 |
+S:BLINK | TPORT |
+S:S_SWAMP
+D:It is a squishy, stinking mound of flesh.
 
 N:445:()
 I:110:1d1:0:0:0
@@ -7927,7 +7935,7 @@ S:HEAL | SLOW | TRAPS | BOLT_COLD | BALL_POIS
 D:He's been spying for his brother Uldor, and doesn't mind making a profit 
 D:for himself.
 
-N:670:Balcmeg the Cave Orc
+N:670:Balcmeg, the Cave Orc
 G:o:G1
 I:110:14d10:20:20:30
 W:8:2:0:80
@@ -9128,12 +9136,12 @@ D:A violent icy whirlpool, brought from the frozen wastes of the Helcaraxe by
 D:Morgoth as guard and entertainment.  Smaller vortices arise on its edges, 
 D:and you feel as if you will never be free of its deafening roar.
 
-# Ungoliant only appears on level 80 of Nan Dungortheb
+# Ungoliant only appears on level 70 of Nan Dungortheb
 
 N:757:Ungoliant, the Unlight
 G:S:D
 I:120:65d100:8:62:80
-W:80:1:152:35000
+W:70:1:152:35000
 B:BITE:POISON:3d9
 B:BITE:POISON:3d9
 B:STING:POISON:2d5
@@ -9455,12 +9463,12 @@ S:BOLT_MANA | BALL_FIRE | BALL_STORM | BEAM_NETHR | BALL_DARK |
 S:S_MONSTERS | S_HI_DRAGON | S_HI_DEMON | S_HI_UNDEAD
 D:Sauron's form as a vampire, great as a dark cloud across the moon.
 
-# Sauron appears only on level 90 of Tol-In-Gaurhoth.
+# Sauron appears only on level 85 of Tol-In-Gaurhoth.
 
 N:775:Sauron, the Sorcerer
 G:p:v1
 I:130:68d100:100:64:0
-W:90:1:202:50000
+W:85:1:202:50000
 B:HIT:UN_BONUS:10d12
 B:HIT:UN_BONUS:10d12
 B:TOUCH:UN_POWER

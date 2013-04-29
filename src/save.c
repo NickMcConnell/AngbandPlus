@@ -229,7 +229,14 @@ static errr wr_savefile(void)
   /*** Hack -- extract some data ***/
   
   /* Hack -- Acquire the current time */
+#ifdef _WIN32_WCE
+  {
+    unsigned long fake_time(unsigned long* fake_time_t);
+    now = fake_time(NULL);
+  }
+#else
   now = time((time_t*)(NULL));
+#endif
   
   /* Note the operating system */
   sf_xtra = 0L;
@@ -403,7 +410,11 @@ static errr rd_savefile(void)
   data_fd = fd_open(savefile, O_RDONLY);
   
   /* No file */
+#ifdef _WIN32_WCE
+  if (data_fd == INVALID_HANDLE_VALUE) return (1);
+#else
   if (data_fd < 0) return (1);
+#endif
   
   /* Strip the first four bytes (see below) */
   if (fd_read(data_fd, (char*)(fake), 4)) return (1);
@@ -1308,8 +1319,14 @@ static bool wr_savefile_new(void)
   
   
   /* Guess at the current time */
+#ifdef _WIN32_WCE
+  {
+    unsigned long fake_time(unsigned long* fake_time_t);
+    now = fake_time(NULL);
+  }
+#else
   now = time((time_t *)0);
-  
+#endif
   
   /* Note the operating system */
   sf_xtra = 0L;
@@ -1586,7 +1603,11 @@ static bool save_player_aux(char *name)
   fd = fd_make(name, mode);
   
   /* File is okay */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Close the "fd" */
       fd_close(fd);
@@ -1867,7 +1888,11 @@ bool load_player(void)
       fd = fd_open(savefile, O_RDONLY);
       
       /* No file */
+#ifdef _WIN32_WCE
+      if (fd == -1) err = -1;
+#else
       if (fd < 0) err = -1;
+#endif
       
       /* Message (below) */
       if (err) what = "Cannot open savefile";

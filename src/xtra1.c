@@ -107,8 +107,11 @@ s16b modify_stat_value(int value, int amount)
  */
 static void prt_field(cptr info, int row, int col)
 {
+  /* Dump 12 spaces to clear */
+  if (SIDEBAR_WID == 12) c_put_str(TERM_WHITE, "            ", row, col);
+
   /* Dump 13 spaces to clear */
-  c_put_str(TERM_WHITE, "             ", row, col);
+  else c_put_str(TERM_WHITE, "             ", row, col);
   
   /* Dump the info itself */
   c_put_str(TERM_L_BLUE, info, row, col);
@@ -127,7 +130,7 @@ static void prt_stat(int stat)
   /* Display "injured" stat */
   if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
     {
-      put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
+      put_str(stat_names_reduced[stat], ROW_STAT + stat, COL_STAT);
       cnv_stat(p_ptr->stat_use[stat], tmp);
       c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
     }
@@ -135,7 +138,7 @@ static void prt_stat(int stat)
   /* Display "healthy" stat */
   else
     {
-      put_str(stat_names[stat], ROW_STAT + stat, 0);
+      put_str(stat_names[stat], ROW_STAT + stat, COL_STAT);
       cnv_stat(p_ptr->stat_use[stat], tmp);
       c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
     }
@@ -143,7 +146,7 @@ static void prt_stat(int stat)
   /* Indicate natural maximum */
   if (p_ptr->stat_max[stat] == 18+100)
     {
-      put_str("!", ROW_STAT + stat, 3);
+      put_str("!", ROW_STAT + stat, COL_STAT + 3);
     }
 }
 
@@ -231,7 +234,7 @@ static void prt_exp(void)
   else
     {
       put_str("NEXT ", ROW_EXP, 0);
-      c_put_str(TERM_L_GREEN, "******* ", ROW_EXP, COL_EXP + 5);
+      c_put_str(TERM_L_GREEN, "*******", ROW_EXP, COL_EXP + 5);
     }
 }
 
@@ -403,11 +406,20 @@ static void prt_depth(void)
   
   level = stage_map[p_ptr->stage][DEPTH];
   
-  if (level)
-    sprintf(loc, "%s %d", locality_name[region], level);
+  if (small_screen)
+    {
+      if (level)
+	sprintf(loc, "%s%3d", short_locality_name[region], level);
+      else
+	sprintf(loc, "%s", short_locality_name[region]);
+    }
   else
-    sprintf(loc, "%s", locality_name[region]);
-  
+    {
+      if (level)
+	sprintf(loc, "%s %d", locality_name[region], level);
+      else
+	sprintf(loc, "%s", locality_name[region]);
+    }
   
   /* Get color of level based on feeling  -JSV- */
   if ((p_ptr->depth) && (do_feeling))
@@ -426,7 +438,11 @@ static void prt_depth(void)
     }
   
   /* Right-Adjust the "depth", and clear old values */
-  c_prt(attr, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
+  if (small_screen)
+    c_prt(attr, format("%8s", loc), Term->hgt - 1, Term->wid - 9);
+  else
+    c_prt(attr, format("%19s", loc), Term->hgt - 1, Term->wid - 22);
+
 }
 
 
@@ -458,7 +474,10 @@ static void prt_hunger(void)
   /* Normal */
   else if (p_ptr->food < PY_FOOD_FULL)
     {
-      c_put_str(TERM_L_GREEN, "      ", Term->hgt - 1, COL_HUNGRY);
+      if ((mouse_buttons) && (!bottom_status) && (Term->hgt - 1 == ROW_ESCAPE))
+	c_put_str(TERM_L_DARK, "[ESC] ", Term->hgt - 1, COL_HUNGRY);
+      else
+	c_put_str(TERM_L_GREEN, "      ", Term->hgt - 1, COL_HUNGRY);
     }
   
   /* Full */
@@ -514,11 +533,11 @@ static void prt_afraid(void)
 {
   if (p_ptr->afraid)
     {
-      c_put_str(TERM_ORANGE, "Afraid", Term->hgt - 1, COL_AFRAID);
+      c_put_str(TERM_ORANGE, (small_screen ? "Afr" : "Afraid"), Term->hgt - 1, COL_AFRAID);
     }
   else
     {
-      put_str("      ", Term->hgt - 1, COL_AFRAID);
+      put_str((small_screen ? "   " : "      "), Term->hgt - 1, COL_AFRAID);
     }
 }
 
@@ -558,7 +577,7 @@ static void prt_state(void)
     {
       attr = TERM_RED;
       
-      strcpy(text, "Paralyzed!");
+      strcpy(text, (small_screen ? "Prlz!" : "Paralyzed!"));
     }
   
   /* Resting */
@@ -568,7 +587,7 @@ static void prt_state(void)
       int n = p_ptr->resting;
       
       /* Start with "Rest" */
-      strcpy(text, "Rest      ");
+      strcpy(text, (small_screen ? "Rest " : "Rest      "));
       
       /* Extensive (timed) rest */
       if (n >= 1000)
@@ -624,6 +643,9 @@ static void prt_state(void)
 	{
 	  text[5] = text[6] = text[7] = text[8] = text[9] = '&';
 	}
+
+      /* Kill for small screen */
+      if (small_screen) text[5] = '\0';
     }
   
   /* Repeating */
@@ -631,24 +653,24 @@ static void prt_state(void)
     {
       if (p_ptr->command_rep > 999)
 	{
-	  sprintf(text, "Rep. %3d00", p_ptr->command_rep / 100);
+	  sprintf(text, (small_screen ? "Rep. " : "Rep. %3d00"), p_ptr->command_rep / 100);
 	}
       else
 	{
-	  sprintf(text, "Repeat %3d", p_ptr->command_rep);
+	  sprintf(text, (small_screen ? "Rp%3d" : "Repeat %3d"), p_ptr->command_rep);
 	}
     }
   
   /* Searching */
   else if (p_ptr->searching)
     {
-      strcpy(text, "Searching ");
+      strcpy(text, (small_screen ? "Srch " : "Searching "));
     }
   
   /* Nothing interesting */
   else
     {
-      strcpy(text, "          ");
+      strcpy(text, (small_screen ? "     " : "          "));
     }
   
   /* Display the info (or blanks) */
@@ -695,13 +717,13 @@ static void prt_dtrap(void)
   /* The player is in a trap-detected grid */
   if (info & (CAVE2_DTRAP))
     {
-      c_put_str(TERM_YELLOW, "DTrap", Term->hgt - 1, COL_DTRAP);
+      c_put_str(TERM_YELLOW, (small_screen ? "DT" : "DTrap"), Term->hgt - 1, COL_DTRAP);
     }
   
   /* Not in a trap-detected grid */
   else
     {
-      c_put_str(TERM_YELLOW, "     ", Term->hgt - 1, COL_DTRAP);
+      c_put_str(TERM_YELLOW, (small_screen ? "  " : "     "), Term->hgt - 1, COL_DTRAP);
     }
 }
 
@@ -722,6 +744,21 @@ static void prt_study(void)
     }
 }
 
+static void prt_buttons(void)
+{
+  if (bottom_status)
+    {
+      c_put_str(TERM_L_DARK, "[Stnd]", ROW_STAND, COL_CUT);
+      c_put_str(TERM_L_DARK, "[Rept]", ROW_REPEAT, COL_CUT);
+      c_put_str(TERM_L_DARK, "[Retn]", ROW_RETURN, COL_CUT);
+      c_put_str(TERM_L_DARK, "[ESC]", ROW_ESCAPE, COL_CUT);
+    }
+  else
+    {
+      c_put_str(TERM_L_DARK, "[Stand]", ROW_STAND, COL_CUT);
+      c_put_str(TERM_L_DARK, "[ESC]", ROW_ESCAPE, COL_CUT);
+    }    
+}    
 
 static void prt_cut(void)
 {
@@ -729,35 +766,46 @@ static void prt_cut(void)
   
   if (c > 1000)
     {
-      c_put_str(TERM_L_RED, "Mortal wound", ROW_CUT, COL_CUT);
+      c_put_str(TERM_L_RED, (bottom_status ? "Mtl wnd" : "Mortal wound"), 
+			     ROW_CUT, COL_CUT);
     }
   else if (c > 200)
     {
-      c_put_str(TERM_RED, "Deep gash   ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_RED, (bottom_status ? "Dp gash" : "Deep gash   "), 
+		ROW_CUT, COL_CUT);
     }
   else if (c > 100)
     {
-      c_put_str(TERM_RED, "Severe cut  ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_RED, (bottom_status ? "Svr cut" : "Severe cut  "), 
+		ROW_CUT, COL_CUT);
     }
   else if (c > 50)
     {
-      c_put_str(TERM_ORANGE, "Nasty cut   ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_ORANGE, (bottom_status ? "Nst cut" : "Nasty cut   "), 
+		ROW_CUT, COL_CUT);
     }
   else if (c > 25)
     {
-      c_put_str(TERM_ORANGE, "Bad cut     ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_ORANGE, (bottom_status ? "Bad cut" : "Bad cut     "), 
+		ROW_CUT, COL_CUT);
     }
   else if (c > 10)
     {
-      c_put_str(TERM_YELLOW, "Light cut   ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_YELLOW, (bottom_status ? "Lgt cut" : "Light cut   "), 
+		ROW_CUT, COL_CUT);
     }
   else if (c)
     {
-      c_put_str(TERM_YELLOW, "Graze       ", ROW_CUT, COL_CUT);
+      c_put_str(TERM_YELLOW, (bottom_status ? "Graze  " : "Graze       "), 
+		ROW_CUT, COL_CUT);
+    }
+  else if ((mouse_buttons) && (!bottom_status))
+    {
+      c_put_str(TERM_L_DARK, "[Repeat]", ROW_CUT, COL_CUT);
     }
   else
     {
-      put_str("            ", ROW_CUT, COL_CUT);
+      put_str((bottom_status ? "       " : "            "), ROW_CUT, COL_CUT);
     }
 }
 
@@ -769,19 +817,26 @@ static void prt_stun(void)
   
   if (s > 100)
     {
-      c_put_str(TERM_RED, "Knocked out ", ROW_STUN, COL_STUN);
+      c_put_str(TERM_RED, (bottom_status ? "Knc out" : "Knocked out "), 
+		ROW_STUN, COL_STUN);
     }
   else if (s > 50)
     {
-      c_put_str(TERM_ORANGE, "Heavy stun  ", ROW_STUN, COL_STUN);
+      c_put_str(TERM_ORANGE, (bottom_status ? "Hvy stn" : "Heavy stun  "), 
+		ROW_STUN, COL_STUN);
     }
   else if (s)
     {
-      c_put_str(TERM_ORANGE, "Stun        ", ROW_STUN, COL_STUN);
+      c_put_str(TERM_ORANGE, (bottom_status ? "Stun   " : "Stun        "), 
+		ROW_STUN, COL_STUN);
+    }
+  else if ((mouse_buttons) && (!bottom_status))
+    {
+      c_put_str(TERM_L_DARK, "[Return]", ROW_STUN, COL_STUN);
     }
   else
     {
-      put_str("            ", ROW_STUN, COL_STUN);
+      put_str((bottom_status ? "       " : "            "), ROW_STUN, COL_STUN);
     }
 }
 
@@ -793,11 +848,12 @@ static void prt_blank(void)
   
   j = (panel_extra_rows ? 2 : 0);
   
-  if (Term->hgt > (j + 24))
+  if ((Term->hgt > (j + 24)) && (!bottom_status))
     {
-      for (i=23; i < (Term->hgt - 1 - j); i++)
+      for (i = 23; i < (Term->hgt - 1 - j); i++)
 	{
-	  put_str("            ", i, 0);
+	  if ((!mouse_buttons) || (i != ROW_ESCAPE))
+	    put_str("            ", i, 0);
 	}
     }
 }
@@ -1032,7 +1088,7 @@ enum {
 typedef struct {
   int col, row;
   byte attr;
-  int width;
+  int width, sm_width;
 } status_type;
 
 /*
@@ -1043,30 +1099,30 @@ typedef struct {
  * The attr field may be overridden in prt_status().
  */
 status_type status_info[] = {
-  {0, 0, TERM_L_WHITE, 5}, /* Bless */
-  {0, 0, TERM_L_WHITE, 4}, /* Hero */
-  {0, 0, TERM_L_WHITE, 5}, /* Bersk */
-  {0, 0, TERM_WHITE, 6},   /* SpShot */
-  {0, 0, TERM_SLATE, 6},   /* RsAcid */
-  {0, 0, TERM_WHITE, 6},   /* RsCold */
-  {0, 0, TERM_BLUE, 6},    /* RsElec */
-  {0, 0, TERM_RED, 6},     /* RsFire */
-  {0, 0, TERM_GREEN, 6},   /* RsPois */
-  {0, 0, TERM_L_BLUE, 7},  /* PrtEvil */
-  {0, 0, TERM_L_BLUE, 6},  /* Shield */
-  {0, 0, TERM_L_GREEN, 5}, /* Haste */
-  {0, 0, TERM_L_UMBER, 6}, /* Slower */
-  {0, 0, TERM_L_BLUE, 5},  /* Infra */
-  {0, 0, TERM_L_BLUE, 6},  /* SInvis */
-  {0, 0, TERM_L_GREEN, 3}, /* ESP */
-  {0, 0, TERM_YELLOW, 6},  /* Halluc */
-  {0, 0, TERM_L_BLUE, 6},  /* Recall */
-  {0, 0, TERM_SLATE, 7},   /* AttConf */
-  {0, 0, TERM_WHITE, 7},   /* Att1234 */
-  {0, 0, TERM_WHITE, 7},   /* AttHoly or AttEvil */
-  {0, 0, TERM_BLUE, 6},    /* HitRun */
-  {0, 0, TERM_WHITE, 5},   /* MgDef */
-  {0, 0, TERM_L_DARK, 4},  /* Hide */
+  {0, 0, TERM_L_WHITE, 5, 2}, /* Bless */
+  {0, 0, TERM_L_WHITE, 4, 2}, /* Hero */
+  {0, 0, TERM_L_WHITE, 5, 2}, /* Bersk */
+  {0, 0, TERM_WHITE, 6, 3},   /* SpShot */
+  {0, 0, TERM_SLATE, 6, 3},   /* RsAcid */
+  {0, 0, TERM_WHITE, 6, 3},   /* RsCold */
+  {0, 0, TERM_BLUE, 6, 3},    /* RsElec */
+  {0, 0, TERM_RED, 6, 3},     /* RsFire */
+  {0, 0, TERM_GREEN, 6, 3},   /* RsPois */
+  {0, 0, TERM_L_BLUE, 7, 4},  /* PrtEvil */
+  {0, 0, TERM_L_BLUE, 6, 2},  /* Shield */
+  {0, 0, TERM_L_GREEN, 5, 2}, /* Haste */
+  {0, 0, TERM_L_UMBER, 6, 3}, /* Slower */
+  {0, 0, TERM_L_BLUE, 5, 3},  /* Infra */
+  {0, 0, TERM_L_BLUE, 6, 2},  /* SInvis */
+  {0, 0, TERM_L_GREEN, 3, 3}, /* ESP */
+  {0, 0, TERM_YELLOW, 6, 3},  /* Halluc */
+  {0, 0, TERM_L_BLUE, 6, 3},  /* Recall */
+  {0, 0, TERM_SLATE, 7, 4},   /* AttConf */
+  {0, 0, TERM_WHITE, 7, 5},   /* Att1234 */
+  {0, 0, TERM_WHITE, 7, 5},   /* AttHoly or AttEvil */
+  {0, 0, TERM_BLUE, 6, 4},    /* HitRun */
+  {0, 0, TERM_WHITE, 5, 3},   /* MgDef */
+  {0, 0, TERM_L_DARK, 4, 1},  /* Hide */
 };
 
 
@@ -1080,7 +1136,7 @@ static void init_status(void)
   
   col = 0;
   row = Term->hgt - 3;
-  
+
   /* Check each status message */
   for (i = 0; i < STATUS_MAX; i++)
     {
@@ -1094,13 +1150,14 @@ static void init_status(void)
       sp->row = row;
       
       /* Move past this message */
-      col += sp->width + 1;
+      col += (small_screen ? sp->sm_width : sp->width) + 1;
       
       /* This is not the last message */
       if (i < STATUS_MAX - 1)
 	{
 	  /* There isn't room for the next message on this line */
-	  if (col + status_info[i + 1].width >= 80)
+	  if (((!small_screen) && (col + status_info[i + 1].width >= 80)) ||
+	      ((small_screen) && (col + status_info[i + 1].sm_width >= 48)))
 	    {
 	      /* Wrap */
 	      col = 0;
@@ -1286,7 +1343,10 @@ static void prt_status(void)
       if (force) attr = TERM_L_DARK;
       
       /* Display */
-      Term_putstr(sp->col, sp->row, sp->width, attr, t);
+      if (small_screen)
+	Term_putstr(sp->col, sp->row, sp->sm_width, attr, t);
+      else
+	Term_putstr(sp->col, sp->row, sp->width, attr, t);
     }
 }
 
@@ -1343,6 +1403,9 @@ static void prt_frame_basic(void)
  */
 static void prt_frame_extra(void)
 {
+  /* Mouse buttons */
+  if (mouse_buttons) prt_buttons();
+
   /* Cut/Stun */
   prt_cut();
   prt_stun();
@@ -2061,6 +2124,9 @@ static void calc_mana(void)
   /* Hack -- Must possess some magical realm. */
   if (!mp_ptr->spell_realm) return;
   
+  /* Hack -- handle "xtra" mode */
+  if (character_xtra) return;
+  
   /* Extract "effective" player level */
   levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
   
@@ -2181,9 +2247,6 @@ static void calc_mana(void)
       p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
     }
   
-  
-  /* Hack -- handle "xtra" mode */
-  if (character_xtra) return;
   
   /* Take note when "glove state" changes */
   if (p_ptr->old_cumber_glove != p_ptr->cumber_glove)
@@ -2444,12 +2507,13 @@ sint add_special_missile_skill (byte pclass, s16b weight, object_type *o_ptr)
 {
   int add_skill = 0;
   
-  /* Nice bonus for most favored weapons */
-  if (((check_ability(SP_BOW_SPEED_GREAT)) && 
+  /* Nice bonus for most favored weapons - if no tradeoff */
+  if ((((check_ability(SP_BOW_SPEED_GREAT)) && 
        (p_ptr->ammo_tval == TV_ARROW)) ||
       ((check_ability(SP_SLING_SPEED_GREAT)) && 
        (p_ptr->ammo_tval == TV_SHOT)) ||
       ((check_ability(SP_XBOW_SPEED_GREAT)) && (p_ptr->ammo_tval == TV_BOLT)))
+      && (!check_ability(SP_RAPID_FIRE)))
     {
       /* Big bonus */
       add_skill = 3 + p_ptr->lev / 4;
@@ -3695,11 +3759,12 @@ extern void calc_bonuses(bool inspect)
   /* Extract the "weight limit" (in tenth pounds) */
   i = weight_limit();
   
-  /* Apply "encumbrance" from weight - more in water, except for Maiar */
+  /* Apply "encumbrance" from weight - more in water, except Maiar, flyers */
   if (j > i/2)
     { 
       if ((cave_feat[p_ptr->py][p_ptr->px] == FEAT_WATER) && 
-	  (!check_ability(SP_DIVINE)))
+	  (!check_ability(SP_DIVINE)) && !(p_ptr->schange == SHAPE_BAT) && 
+	  !(p_ptr->schange == SHAPE_WYRM))
 	p_ptr->pspeed -= 3 * ((j - (i/2)) / (i / 10));
       else
 	p_ptr->pspeed -= ((j - (i/2)) / (i / 10));
@@ -3902,8 +3967,12 @@ extern void calc_bonuses(bool inspect)
 	      ((check_ability(SP_XBOW_SPEED_GREAT)) && 
 	       (p_ptr->ammo_tval == TV_BOLT)))
 	    {
-	      /* Big bonus */
+	      /* Big bonus... */
 	      p_ptr->num_fire += dex_factor;
+
+	      /* ...and sometimes even more */
+	      if (check_ability(SP_RAPID_FIRE))
+		p_ptr->num_fire += dex_factor;
 	    }
 	  
 	  /* Like your launcher */
@@ -4401,7 +4470,12 @@ void redraw_stuff(void)
   /* Character is in "icky" mode, no screen updates */
   if (character_icky) return;
   
-  
+  /* Complete wipe - use with caution! -NRM- */
+  if (p_ptr->redraw & (PR_WIPE))
+    {
+      p_ptr->redraw &= ~(PR_WIPE);
+      clear_from(1);
+    }
   
   if (p_ptr->redraw & (PR_MAP))
     {
@@ -4473,7 +4547,7 @@ void redraw_stuff(void)
        * using this command when graphics mode is on
        * causes the character to be a black square.
        */
-      if (hp_changes_colour)
+      if ((hp_changes_colour) && (arg_graphics == GRAPHICS_NONE))
 	{
 	  lite_spot(p_ptr->py, p_ptr->px);
 	}

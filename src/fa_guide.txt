@@ -25,7 +25,7 @@ cave.c
 
 cmd1.c
 /* Searching, pickup, effects of traps, move one square (including special 
- * terrain effects), and the running algorithm.  
+ * terrain effects), and the running algorithm. Mouse input. 
 
 cmd2.c
 /* Going up and down stairs, items that a chest may contain, opening 

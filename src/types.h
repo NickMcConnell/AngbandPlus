@@ -99,6 +99,7 @@ typedef struct player_other player_other;
 typedef struct druid_blows druid_blows;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
+typedef struct flavor_type flavor_type;
 
 
 
@@ -220,7 +221,7 @@ struct object_kind
   byte x_attr;		/* Desired object attribute */
   char x_char;		/* Desired object character */
   
-  byte flavor;		/* Special object flavor (or zero) */
+  u16b flavor;		/* Special object flavor (or zero) */
   
   bool easy_know;	/* This object is always known (if aware) */
   bool aware;		/* The player is "aware" of the item's effects */
@@ -1140,6 +1141,7 @@ struct player_type
   s16b command_rep;	/* Gives repetition of current command */
   s16b command_dir;	/* Gives direction of current command */
   key_event command_cmd_ex; /* Gives extra information of current command */
+  s16b command_item;    /* Gives the item for the next command */
   
   s16b command_see;	/* See "cmd1.c" */
   s16b command_wrk;	/* See "cmd1.c" */
@@ -1303,5 +1305,21 @@ struct high_score
   char max_lev[4];	/* Max Player Level (number) */
 
   char how[32];		/* Method of death (string) */
+};
+
+/* From NPPAngband */
+
+struct flavor_type
+{
+	u32b text;      /* Text (offset) */
+
+	byte tval;      /* Associated object type */
+	byte sval;      /* Associated object sub-type */
+
+	byte d_attr;    /* Default flavor attribute */
+	char d_char;    /* Default flavor character */
+
+	byte x_attr;    /* Desired flavor attribute */
+	char x_char;    /* Desired flavor character */
 };
 

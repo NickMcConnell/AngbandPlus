@@ -318,6 +318,7 @@ struct infofnt
 	cptr name;
 
 	s16b wid;
+	s16b twid;
 	s16b hgt;
 	s16b asc;
 
@@ -1231,6 +1232,11 @@ static errr Infofnt_prepare(XFontStruct *info)
 	ifnt->wid = cs->width;
 #endif
 
+	if (use_bigtile)
+		ifnt->twid = 2 * cs->width;
+	else
+		ifnt->twid = cs->width;
+
 	/* Success */
 	return (0);
 }
@@ -1464,6 +1470,12 @@ struct term_data
 #endif
 
 };
+
+/*
+ * Stretch factor for double and triple tile -NRM-
+ */
+
+static int stretch = 1;
 
 
 /*
@@ -1959,7 +1971,7 @@ static errr CheckEvent(bool wait)
 		/* Move and/or Resize */
 		case ConfigureNotify:
 		{
-			int cols, rows, wid, hgt;
+			int cols, rows, wid, hgt, mincols;
 
 			int ox = Infowin->ox;
 			int oy = Infowin->oy;
@@ -1981,7 +1993,8 @@ static errr CheckEvent(bool wait)
 			if (window == 0)
 			{
 				/* Hack the main window must be at least 80x24 */
-				if (cols < 80) cols = 80;
+			        mincols = (small_screen ? 48 : 80);
+				if (cols < mincols) cols = mincols;
 				if (rows < 24) rows = 24;
 			}
 
@@ -2142,6 +2155,21 @@ static errr Term_curs_x11(int x, int y)
 
 
 /*
+ * Draw the double width cursor as a rectangular outline
+ */
+static errr Term_bigcurs_x11(int x, int y)
+{
+	XDrawRectangle(Metadpy->dpy, Infowin->win, xor->gc,
+			 x * Infofnt->wid + Infowin->ox,
+			 y * Infofnt->hgt + Infowin->oy,
+			 (Infofnt->twid - 1) * stretch, 
+		         (Infofnt->hgt - 1) * stretch);
+
+	/* Success */
+	return (0);
+}
+
+/*
  * Erase some characters.
  */
 static errr Term_wipe_x11(int x, int y, int n)
@@ -2184,108 +2212,124 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp, c
 static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 # endif /* USE_TRANSPARENCY */
 {
-	int i, x1, y1;
-
-	byte a;
-	char c;
-
-
+  int i;
+  int x1 = 0, y1 = 0;
+  
+  byte a;
+  char c;
+  
+  
 #ifdef USE_TRANSPARENCY
-	byte ta;
-	char tc;
-
-	int x2, y2;
-	int k,l;
-
-	unsigned long pixel, blank;
+  byte ta;
+  char tc;
+  
+  int x2, y2;
+  int k,l;
+  
+  unsigned long pixel, blank;
 #endif /* USE_TRANSPARENCY */
+  
+  term_data *td = (term_data*)(Term->data);
+  
+  /* Paranoia */
+  if (!use_graphics)
+    {
+      /* Erase the grids */
+      return (Term_wipe_x11(x, y, n));
+    }
 
-	term_data *td = (term_data*)(Term->data);
-
-	y *= Infofnt->hgt;
-	x *= Infofnt->wid;
-
-	/* Add in affect of window boundaries */
-	y += Infowin->oy;
-	x += Infowin->ox;
-
-	for (i = 0; i < n; ++i)
+  y *= Infofnt->hgt;
+  x *= Infofnt->wid;
+  
+  
+  /* Add in affect of window boundaries */
+  y += Infowin->oy;
+  x += Infowin->ox;
+  
+  for (i = 0; i < n; ++i)
+#if 0
+    for (i = n-1; i >= 0; i--)
+#endif
+    {
+      a = *ap++;
+      c = *cp++;
+      
+      /* For extra speed - cache these values */
+      x1 = (c&0x7F) * td->fnt->twid * stretch;
+      y1 = (a&0x7F) * td->fnt->hgt * stretch;
+      
+#ifdef USE_TRANSPARENCY
+      
+      ta = *tap++;
+      tc = *tcp++;
+      
+      /* For extra speed - cache these values */
+      x2 = (tc&0x7F) * td->fnt->twid * stretch;
+      y2 = (ta&0x7F) * td->fnt->hgt * stretch;
+      
+      /* Optimise the common case */
+      if (((x1 == x2) && (y1 == y2)) ||
+	  !(((byte)ta & 0x80) && ((byte)tc & 0x80)))
+	
 	{
-		a = *ap++;
-		c = *cp++;
-
-		/* For extra speed - cache these values */
-		x1 = (c&0x7F) * td->fnt->wid;
-		y1 = (a&0x7F) * td->fnt->hgt;
-
-#ifdef USE_TRANSPARENCY
-
-		ta = *tap++;
-		tc = *tcp++;
-
-		/* For extra speed - cache these values */
-		x2 = (tc&0x7F) * td->fnt->wid;
-		y2 = (ta&0x7F) * td->fnt->hgt;
-
-		/* Optimise the common case */
-		if ((x1 == x2) && (y1 == y2))
-		{
-			/* Draw object / terrain */
-			XPutImage(Metadpy->dpy, td->win->win,
-		  	        clr[0]->gc,
-		  	        td->tiles,
-		  	        x1, y1,
-		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
-		}
-		else
-		{
-
-			/* Mega Hack^2 - assume the top left corner is "black" */
-			blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6);
-
-			for (k = 0; k < td->fnt->wid; k++)
-			{
-				for (l = 0; l < td->fnt->hgt; l++)
-				{
-					/* If mask set... */
-					if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
-					{
-						/* Output from the terrain */
-						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
-					}
-
-					/* Store into the temp storage. */
-					XPutPixel(td->TmpImage, k, l, pixel);
-				}
-			}
-
-
-			/* Draw to screen */
-
-			XPutImage(Metadpy->dpy, td->win->win,
-		    	      clr[0]->gc,
-		     	     td->TmpImage,
-		     	     0, 0, x, y,
-		     	     td->fnt->wid, td->fnt->hgt);
-		}
-
-#else /* USE_TRANSPARENCY */
-
-		/* Draw object / terrain */
-		XPutImage(Metadpy->dpy, td->win->win,
-		          clr[0]->gc,
-		          td->tiles,
-		          x1, y1,
-		          x, y,
-		          td->fnt->wid, td->fnt->hgt);
-
-#endif /* USE_TRANSPARENCY */
-		x += td->fnt->wid;
+	  /* Draw object / terrain */
+	  XPutImage(Metadpy->dpy, td->win->win,
+		    clr[0]->gc,
+		    td->tiles,
+		    x1, y1,
+		    x, y,
+		    td->fnt->twid * stretch, td->fnt->hgt * stretch);
 	}
-
-	/* Success */
-	return (0);
+      else
+	{
+	  
+	  /* Mega Hack^2 - assume the top left corner is "black" */
+	  blank = XGetPixel(td->tiles, 0, td->fnt->hgt * 6 * stretch);
+	  
+	  for (k = 0; k < td->fnt->twid * stretch; k++)
+	    {
+	      for (l = 0; l < td->fnt->hgt * stretch; l++)
+		{
+		  /* If mask set... */
+		  if ((pixel = XGetPixel(td->tiles, x1 + k, y1 + l)) == blank)
+		    {
+		      /* Output from the terrain */
+		      pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
+		      
+		      if (pixel == blank)
+			pixel = 0L;
+		    }
+		  
+		  /* Store into the temp storage. */
+		  XPutPixel(td->TmpImage, k, l, pixel);
+		}
+	    }
+	  
+	  
+	  /* Draw to screen */
+	  XPutImage(Metadpy->dpy, td->win->win,
+		    clr[0]->gc,
+		    td->TmpImage,
+		    0, 0, x, y,
+		    td->fnt->twid * stretch, td->fnt->hgt * stretch);
+	}
+      
+#else /* USE_TRANSPARENCY */
+      
+      /* Draw object / terrain */
+      XPutImage(Metadpy->dpy, td->win->win,
+		clr[0]->gc,
+		td->tiles,
+		x1, y1,
+		x, y,
+		td->fnt->wid * stretch, td->fnt->hgt * stretch);
+      
+#endif /* USE_TRANSPARENCY */
+      x -= td->fnt->wid * stretch;
+    }
+  
+  /* Success */
+  return (0);
 }
 
 #endif /* USE_GRAPHICS */
@@ -2327,6 +2371,7 @@ static errr term_data_init(term_data *td, int i)
 
 	XSizeHints *sh;
 
+	cols = (small_screen ? 48 : 80);
 
 	/* Window specific font name */
 	sprintf(buf, "ANGBAND_X11_FONT_%d", i);
@@ -2414,7 +2459,8 @@ static errr term_data_init(term_data *td, int i)
 	/* Hack the main window must be at least 80x24 */
 	if (!i)
 	{
-		if (cols < 80) cols = 80;
+		if (cols < (small_screen ? 48 : 80)) 
+		  cols = (small_screen ? 48 : 80);
 		if (rows < 24) rows = 24;
 	}
 
@@ -2480,19 +2526,20 @@ static errr term_data_init(term_data *td, int i)
 	/* Oops */
 	if (sh == NULL) quit("XAllocSizeHints failed");
 
-	/* Main window has a differing minimum size */
+	/* Main window has a differing minimum size 
 	if (i == 0)
 	{
-		/* Main window min size is 80x24 */
+		 Main window min size is 80x24 
 		sh->flags = PMinSize | PMaxSize;
-		sh->min_width = 80 * td->fnt->wid + (ox + ox);
+		sh->min_width = (small_screen ? 48 : 80) * td->fnt->wid + 
+		(ox + ox);
 		sh->min_height = 24 * td->fnt->hgt + (oy + oy);
 		sh->max_width = 255 * td->fnt->wid + (ox + ox);
 		sh->max_height = 255 * td->fnt->hgt + (oy + oy);
 	}
 
-	/* Other windows can be shrunk to 1x1 */
-	else
+	 Other windows can be shrunk to 1x1 */
+/* else */
 	{
 		/* Other windows */
 		sh->flags = PMinSize | PMaxSize;
@@ -2536,6 +2583,7 @@ static errr term_data_init(term_data *td, int i)
 	/* Hooks */
 	t->xtra_hook = Term_xtra_x11;
 	t->curs_hook = Term_curs_x11;
+	t->bigcurs_hook = Term_bigcurs_x11;
 	t->wipe_hook = Term_wipe_x11;
 	t->text_hook = Term_text_x11;
 
@@ -2563,6 +2611,7 @@ errr init_x11(int argc, char *argv[])
 
 #ifdef USE_GRAPHICS
 
+	cptr bitmap_file;
 	char filename[1024];
 
 	int pict_wid = 0;
@@ -2591,6 +2640,47 @@ errr init_x11(int argc, char *argv[])
 			smoothRescaling = FALSE;
 			continue;
 		}
+
+		if (prefix(argv[i], "-o"))
+		{
+			arg_graphics = GRAPHICS_ORIGINAL;
+			continue;
+		}
+
+		if (prefix(argv[i], "-a"))
+		{
+			arg_graphics = GRAPHICS_ADAM_BOLT;
+			continue;
+		}
+
+		if (prefix(argv[i], "-g"))
+		{
+			arg_graphics = GRAPHICS_DAVID_GERVAIS;
+			continue;
+		}
+
+		if (prefix(argv[i], "-b"))
+		{
+			use_bigtile = TRUE;
+			continue;
+		}
+
+		if (prefix(argv[i], "-w"))
+		{
+		        smoothRescaling = FALSE;
+			use_dbltile = TRUE;
+			stretch = 2;
+			continue;
+		}
+
+		if (prefix(argv[i], "-t"))
+		{
+		        smoothRescaling = FALSE;
+			use_trptile = TRUE;
+			stretch = 3;
+			continue;
+		}
+
 #endif /* USE_GRAPHICS */
 
 		if (prefix(argv[i], "-n"))
@@ -2671,105 +2761,174 @@ errr init_x11(int argc, char *argv[])
 #ifdef USE_GRAPHICS
 
 	/* Try graphics */
-	if (arg_graphics)
-	{
-		/* Try the "16x16.bmp" file */
-		path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/16x16.bmp");
-
-		/* Use the "16x16.bmp" file if it exists */
-		if (0 == fd_close(fd_open(filename, O_RDONLY)))
+	switch (arg_graphics)
+	  {
+	  case GRAPHICS_ADAM_BOLT:
+	    {
+	      /* Use tile graphics of Adam Bolt */
+	      bitmap_file = "16x16.bmp";
+	      
+	      /* Try the "16x16.bmp" file */
+	      path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+			 format("graf/%s", bitmap_file));
+	      
+	      /* Use the "16x16.bmp" file if it exists */
+	      if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
-			/* Use graphics */
-			use_graphics = TRUE;
-
-			use_transparency = TRUE;
-
-			pict_wid = pict_hgt = 16;
-
-			ANGBAND_GRAF = "new";
+		  /* Use graphics */
+		  use_graphics = TRUE;
+		  use_transparency = TRUE;
+		  
+		  pict_wid = pict_hgt = 16;
+		  
+		  ANGBAND_GRAF = "new";
+		  
+		  break;
 		}
-		else
+	      /* Fall through */
+	    }
+	  case GRAPHICS_ORIGINAL:
+	    {
+	      /* Use original tile graphics */
+	      bitmap_file = "8x8.bmp";
+	      
+	      /* Try the "8x8.bmp" file */
+	      path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+			 format("graf/%s", bitmap_file));
+	    
+	      /* Use the "8x8.bmp" file if it exists */
+	      if (0 == fd_close(fd_open(filename, O_RDONLY)))
 		{
-			/* Try the "8x8.bmp" file */
-			path_build(filename, 1024, ANGBAND_DIR_XTRA, "graf/8x8.bmp");
-
-			/* Use the "8x8.bmp" file if it exists */
-			if (0 == fd_close(fd_open(filename, O_RDONLY)))
-			{
-				/* Use graphics */
-				use_graphics = TRUE;
-
-				pict_wid = pict_hgt = 8;
-
-				ANGBAND_GRAF = "old";
-			}
+		  /* Use graphics */
+		  use_graphics = TRUE;
+		  
+		  pict_wid = pict_hgt = 8;
+		  
+		  ANGBAND_GRAF = "old";
+		  break;
 		}
-	}
-
+	      break;
+	    }
+	    
+	  case GRAPHICS_DAVID_GERVAIS:
+	    {
+	      /* Use tile graphics of David Gervais */
+	      bitmap_file = "32x32.bmp";
+	      
+	      /* Use graphics */
+	      use_graphics = TRUE;
+	      use_transparency = TRUE;
+	      
+	      pict_wid = pict_hgt = 32;
+	      
+	      ANGBAND_GRAF = "david";
+	      break;
+	    }
+	  }
+	
 	/* Load graphics */
 	if (use_graphics)
-	{
-		Display *dpy = Metadpy->dpy;
+	  {
+	    Display *dpy = Metadpy->dpy;
+	    
+	    XImage *tiles_raw;
+	    
+	    /* Initialize */
+	    for (i = 0; i < num_term; i++)
+	      {
+		term_data *td = &data[i];
+		td->tiles = NULL;
+	      }
+	    
+	    path_build(filename, sizeof(filename), ANGBAND_DIR_XTRA, 
+		       format("graf/%s", bitmap_file));
+	    
+	    /* Load the graphical tiles */
+	    tiles_raw = ReadBMP(dpy, filename);
+	    
+	    /* Initialize the windows */
+	    for (i = 0; i < num_term; i++)
+	      {
+		int j;
+		bool same = FALSE;
 
-		XImage *tiles_raw;
-
-		/* Load the graphical tiles */
-		tiles_raw = ReadBMP(dpy, filename);
-
-		/* Initialize the windows */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-
-			term *t = &td->t;
-
-			/* Graphics hook */
-			t->pict_hook = Term_pict_x11;
-
-			/* Use graphics sometimes */
-			t->higher_pict = TRUE;
-
-			/* Resize tiles */
-			td->tiles =
-			ResizeImage(dpy, tiles_raw,
-			            pict_wid, pict_hgt,
-			            td->fnt->wid, td->fnt->hgt);
-		}
-
+		term_data *td = &data[i];
+		term_data *o_td = NULL;
+		
+		term *t = &td->t;
+		
+		/* Graphics hook */
+		t->pict_hook = Term_pict_x11;
+		
+		/* Use graphics sometimes */
+		t->higher_pict = TRUE;
+		
+		/* Look for another term with same font size */
+		for (j = 0; j < i; j++)
+		  {
+		    o_td = &data[j];
+		    
+		    if ((td->fnt->twid == o_td->fnt->twid) && 
+			(td->fnt->hgt == o_td->fnt->hgt))
+		      {
+			same = TRUE;
+			break;
+		      }
+		  }
+		
+		if (!same)
+		  {
+		    /* Resize tiles */
+		    td->tiles = ResizeImage(dpy, tiles_raw,
+					    pict_wid, pict_hgt,
+					    td->fnt->twid * stretch, 
+					    td->fnt->hgt * stretch);
+		  }
+		else
+		  {
+		    /* Use same graphics */
+		    td->tiles = o_td->tiles;
+		  }
+	      }
+	    
+	    
+	    
 #ifdef USE_TRANSPARENCY
-		/* Initialize the transparency masks */
-		for (i = 0; i < num_term; i++)
-		{
-			term_data *td = &data[i];
-			int ii, jj;
-			int depth = DefaultDepth(dpy, DefaultScreen(dpy));
-			Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
-			int total;
-
-
-			/* Determine total bytes needed for image */
-			ii = 1;
-			jj = (depth - 1) >> 2;
-			while (jj >>= 1) ii <<= 1;
-			total = td->fnt->wid * td->fnt->hgt * ii;
-
-
-			TmpData = (char *)malloc(total);
-
-			td->TmpImage = XCreateImage(dpy,visual,depth,
-				ZPixmap, 0, TmpData,
-				td->fnt->wid, td->fnt->hgt, 32, 0);
-
-		}
+	    /* Initialize the transparency masks */
+	    for (i = 0; i < num_term; i++)
+	      {
+		term_data *td = &data[i];
+		int ii, jj;
+		int depth = DefaultDepth(dpy, DefaultScreen(dpy));
+		Visual *visual = DefaultVisual(dpy, DefaultScreen(dpy));
+		int total;
+		
+		/* Determine total bytes needed for image */
+		ii = 1;
+		jj = (depth - 1) >> 2;
+		while (jj >>= 1) ii <<= 1;
+		total = td->fnt->twid * stretch * td->fnt->hgt * stretch * ii;
+		
+		
+		TmpData = (char *)malloc(total);
+		
+		td->TmpImage = XCreateImage(dpy,visual,depth,
+					    ZPixmap, 0, TmpData,
+					    td->fnt->twid * stretch, 
+					    td->fnt->hgt * stretch, 32, 0);
+		
+	      }
 #endif /* USE_TRANSPARENCY */
-
-
-		/* Free tiles_raw? XXX XXX */
-	}
-
+	    
+	    /* Free tiles_raw */
+	    FREE(tiles_raw, XImage);
+	  
+	    
+	  }
+	
 #endif /* USE_GRAPHICS */
-
-
+	
+	
 	/* Success */
 	return (0);
 }

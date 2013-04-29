@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.2.1
+V:0.2.2
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -87,6 +87,7 @@ G:.:g
 
 N:12:invisible trap
 G:.:g
+M:11
 
 # 0x0D --> special feature -- web
 

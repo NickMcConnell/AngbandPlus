@@ -9,6 +9,13 @@
  * are included in all such copies.  Other copyrights may also apply.
  */
 
+#ifdef _WIN32_WCE
+# define USE_TRANSPARENCY
+# ifndef WINDOWS
+#  define WINDOWS 1
+# endif
+#endif
+
 #ifndef INCLUDED_ANGBAND_H
 #define INCLUDED_ANGBAND_H
 
