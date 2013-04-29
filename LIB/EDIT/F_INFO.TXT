@@ -397,7 +397,7 @@ K:DEFAULT:1
 K:CLOSE:32
 K:BASH:5
 F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH
+F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x05 --> broken door
 
@@ -408,7 +408,7 @@ K:DEFAULT:1
 K:CLOSE:5
 D:The door appears broken.
 F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_FIRE |
-F:HURT_ACID | CLOSE | PLACE
+F:HURT_ACID | CLOSE | PLACE | CAN_FLY
 
 # 0x06 --> up stairs (perm)
 
@@ -416,7 +416,7 @@ N:6:up staircase
 G:<:w
 W:1:1:25:0
 F:LESS | STAIRS | PERMANENT | CAN_CLIMB | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE
+F:REMEMBER | NOTICE | PLACE | CAN_FLY
 
 # 0x07 --> down stairs (perm)
 
@@ -424,7 +424,7 @@ N:7:down staircase
 W:0:1:25:0
 G:>:w
 F:MORE | STAIRS | PERMANENT | CAN_CLIMB | LOS | MOVE | PROJECT |
-F:REMEMBER | NOTICE | PLACE
+F:REMEMBER | NOTICE | PLACE | CAN_FLY
 
 # 0x08 --> shop -- general store (perm)
 
@@ -566,7 +566,6 @@ N:22:discolored spot
 G:^:u
 W:4:1:20:0
 T:FIRE:4d6
-D:A small dart hits you.
 K:DEFAULT:1
 K:HIT_TRAP:22
 F:TRAP | HIT_TRAP | DISARM | CAN_CLIMB | CAN_FLY | PLACE |
@@ -1479,6 +1478,7 @@ N:95:loose rock
 G:^:v
 W:3:1:20:0
 D:You hear a click!
+T:HURT
 K:DEFAULT:1
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
@@ -1815,7 +1815,7 @@ G:<:B
 W:41:2:13:145
 T:ICE:4d4
 K:DEFAULT:145
-F:CAN_FLY | LESS | TUNNEL | HIT_TRAP | 
+F:LESS | TUNNEL | HIT_TRAP | 
 F:REMEMBER | LOS | ICE | BRIDGE | LAKE |
 F:POWER_16
 
@@ -1825,7 +1825,7 @@ W:41:2:13:153
 T:WATER_WEAK:4d6
 K:DEFAULT:126
 K:HURT_COLD:125
-F:CAN_FLY | LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
+F:LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
 F:REMEMBER | LOS | WATER | HURT_COLD | HIDE_SWIM
 
 N:127:falling acid
@@ -1833,7 +1833,7 @@ G:<:g
 W:79:2:13:157
 T:ACID:6d6
 K:DEFAULT:127
-F:CAN_FLY | LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
+F:LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM |
 F:REMEMBER | LOS | ACID | HIDE_SWIM
 
 N:128:loose rock
@@ -2022,7 +2022,7 @@ F:DROP | LOS | MOVE | PROJECT | PLACE | HURT_FIRE |
 F:FLOOR | LAKE | RIVER | ICE | REMEMBER |
 F:CAN_FLY
 
-N:146:ice floor (over water)
+N:146:deep water under an ice floor
 G:.:B
 M:145
 W:36:3:7:148
@@ -2035,7 +2035,7 @@ F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | REMEMBER | HURT_FIRE | WA
 
 #Stone bridge (over ice over deep water)
 
-N:147:stone bridge
+N:147:deep water under ice under a stone bridge
 G:':B
 M:140
 W:36:1:8:0
@@ -2089,7 +2089,7 @@ F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
 F:CAN_FLY | MORE | LOS | PROJECT | REMEMBER | PLACE |
 F:WATER | CHASM
 
-N:152:stone bridge (over deep water)
+N:152:deep water under a stone bridge
 G:':w
 W:27:1:8:0
 M:140
@@ -2135,7 +2135,7 @@ F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:WATER | HURT_COLD
 
-N:156:stone bridge (over deep acid)
+N:156:deep acid under a stone bridge
 G:':w
 W:78:1:7:0
 M:140
@@ -2357,7 +2357,7 @@ F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
 F:STREAMER | BRIDGE |
 F:CAN_CLIMB | CAN_FLY
 
-N:198:stone bridge (over deep mud)
+N:198:deep mud under a stone bridge
 G:':w
 W:48:1:8:0
 M:140
@@ -2425,7 +2425,7 @@ F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |
 F:CAN_FLY | HIDE_ITEM | CAN_DIG |
 F:HURT_COLD
 
-N:204:stone bridge (over boiling mud)
+N:204:boiling mud under a stone bridge
 G:':w
 W:60:1:8:0
 M:140
@@ -2457,7 +2457,7 @@ F:CAN_FLY | HIDE_ITEM | DROP |
 F:REMEMBER | NOTICE | LOS | MOVE | PROJECT | PLACE |
 F:LAVA
 
-N:207:stone bridge (over boiling water)
+N:207:boiling water under a stone bridge
 G:':w
 W:81:1:8:50
 M:140
@@ -2486,7 +2486,7 @@ W:51:2:7:0
 F:HIDE_ITEM | LAKE | DROP | LOS | MOVE | PROJECT | PLACE | CAN_CLIMB |
 F:LAKE | FLOOR | REMEMBER
 
-N:210:geothermal floor (over lava)
+N:210:deep lava under a geothermal floor
 G:.:v
 W:72:2:7:50
 M:209
@@ -2504,7 +2504,7 @@ K:BRIDGE:209
 D:You are surrounded by a burning green gas!
 T:POISON:4d6
 F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
-F:NOTICE | REMEMBER | TRAP | POWER_20
+F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:212:steam vent
 G:;:W
@@ -2512,7 +2512,7 @@ W:51:1:13:0
 K:BRIDGE:209
 T:BWATER:4d6
 F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP |
-F:NOTICE | REMEMBER | TRAP | POWER_20
+F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:213:lava vent
 G:;:R
@@ -2521,7 +2521,7 @@ K:DEFAULT:216
 K:BRIDGE:209
 T:FIRE:12d6
 F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP |
-F:NOTICE | REMEMBER | BRIDGE | GLOW | TRAP | POWER_20
+F:NOTICE | REMEMBER | BRIDGE | GLOW | TRAP | POWER_20 | CAN_FLY
 
 N:214:lava fall
 G:>:r
@@ -2534,7 +2534,7 @@ F:LAVA | DEEP | LOS | PROJECT | REMEMBER | PLACE | RIVER | LAKE |
 F:BRIDGE | CHASM | MOVE |
 F:CAN_FLY | MORE | GLOW
 
-N:215:stone bridge (over deep lava)
+N:215:deep lava under a stone bridge
 G:':w
 W:87:1:14:0
 M:140

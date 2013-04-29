@@ -103,7 +103,6 @@ A:
 B:
 D:Strange runes cover 
 F:20
-K:66
 S:YES
 
 N:1:2:9:5
@@ -111,7 +110,6 @@ A:
 B:
 D:Strange runes cover 
 F:21
-K:45
 S:YES
 
 N:1:2:10:0
@@ -349,7 +347,7 @@ S:YES
 N:1:2:42:1
 A:
 B:
-D:Broken statues line
+D:Broken statues line 
 F:49
 S:YES
 
@@ -688,6 +686,7 @@ N:4:5:22:1
 A:
 B:
 D:A large boulder 
+F:49
 S:YES
 
 N:4:5:24:1
@@ -907,7 +906,7 @@ N:6:7:24:1
 A:sooty
 B:
 D:covered with soot.  
-K:39
+K:77
 S:YES
 
 N:6:7:25:5
@@ -1108,7 +1107,7 @@ S:NO
 N:8:9:99:30
 A:freezing
 B:
-D:freezing cold.
+D:freezing cold.  
 L:ICE
 R:IM_COLD
 S:NO

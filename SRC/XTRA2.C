@@ -1662,6 +1662,112 @@ static cptr desc_stat_imp[] =
 	"cuter"
 };
 
+/*
+ * Mark items as aware as a result of gaining a level.
+ */
+void improve_aware(void)
+{
+        int i;
+
+        int aware_amulet=-1;
+        int aware_ring=-1;
+        int aware_wand=-1;
+        int aware_staff=-1;
+        int aware_potion=-1;
+        int aware_scroll=-1;
+
+        u32b aware_style;
+
+        /* Hack -- Check for id'ed */
+        for (i=1;i<z_info->w_max;i++)
+        {
+                if (w_info[i].benefit != WB_ID) continue;
+
+                if (w_info[i].class != p_ptr->pclass) continue;
+
+                if (w_info[i].level > p_ptr->lev) continue;
+
+                aware_style = (w_info[i].styles & (1L << p_ptr->pstyle));
+                                                                   
+                if (aware_style & (1L << WS_WAND)) aware_wand = 2*(p_ptr->lev - w_info[i].level)+1;
+
+                if (aware_style & (1L << WS_STAFF)) aware_staff = 2*(p_ptr->lev - w_info[i].level)+1;
+
+                if (aware_style & (1L << WS_POTION)) aware_potion = 2*(p_ptr->lev - w_info[i].level)+1;
+
+                if (aware_style & (1L << WS_SCROLL)) aware_scroll = 2*(p_ptr->lev - w_info[i].level)+1;
+
+                if (aware_style & (1L << WS_RING)) aware_ring = 2*(p_ptr->lev - w_info[i].level)+1;
+
+                if (aware_style & (1L << WS_AMULET)) aware_amulet = 2*(p_ptr->lev - w_info[i].level)+1;
+
+         }
+
+        /* Hack -- Check for id'ed */
+        for (i=1;i<z_info->k_max;i++)
+        {
+                /*Already aware */
+                if (k_info[i].aware) continue;
+
+                switch (k_info[i].tval)
+                {
+                        case TV_WAND:
+                        {
+                                if (k_info[i].level <= aware_wand)
+                                {
+                                        k_info[i].aware=TRUE;
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                        case TV_STAFF:
+                        {
+                                if (k_info[i].level <= aware_staff) 
+                                {
+                                        k_info[i].aware=TRUE;                                        
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                        case TV_POTION:
+                        {
+                                if (k_info[i].level <= aware_potion) 
+                                {
+                                        k_info[i].aware=TRUE;
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                        case TV_SCROLL:
+                        {
+                                if (k_info[i].level <= aware_scroll) 
+                                {
+                                        k_info[i].aware=TRUE;
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                        case TV_RING:
+                        {
+                                if (k_info[i].level <= aware_ring) 
+                                {
+                                        k_info[i].aware=TRUE;
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                        case TV_AMULET:
+                        {
+                                if (k_info[i].level <= aware_amulet) 
+                                {
+                                        k_info[i].aware=TRUE;
+                                        p_ptr->notice |= (PN_REORDER | PN_COMBINE);
+                                }
+                                break;
+                        }
+                }
+        }
+}
 
 /*
  * Improve one stat, preferring lowest stats
@@ -1787,6 +1893,9 @@ void check_experience(void)
 
 		/* Improve a stat */
 		if (p_ptr->lev > p_ptr->max_lev) improve_stat();
+
+                /* Improve awareness */
+                if (p_ptr->lev > p_ptr->max_lev) improve_aware();
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
@@ -2573,6 +2682,9 @@ void describe_room(void)
 			msg_format("You have entered %s %s. There is nothing remarkable about it.",
 				 (is_a_vowel(room_info[room].name[0]) ? "an" : "a"),
 					room_info[room].name);
+			/* Now seen */
+			room_info[room].seen = TRUE;
+
 		}
 	}
         else if ((strlen(room_info[room].text_always)) &&
@@ -3629,6 +3741,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Room description if needed */
                 if ((cave_info[y][x] & (CAVE_MARK)) &&
                         (cave_info[y][x] & (CAVE_ROOM)) &&
+                        (room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].seen) &&
                         (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||
                          ( dun_room[y/BLOCK_HGT][x/BLOCK_WID]!= dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID])) )
 		{

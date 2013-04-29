@@ -2411,6 +2411,14 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
+		case SV_ROD_DETECT_WATER:
+		{
+			if (detect_water()) ident = TRUE;
+			o_ptr->pval = 60;
+			break;
+		}
+
+
 		case SV_ROD_DETECT_DOOR:
 		{
 			if (detect_doors()) ident = TRUE;

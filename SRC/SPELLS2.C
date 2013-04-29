@@ -1255,8 +1255,6 @@ bool detect_objects_normal(void)
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
  * and "enchanted" items of the "good" variety.
  *
- * Should probably marked objects detected as cursed when appropriate.
- *
  * It can probably be argued that this function is now too powerful.
  *
  * Now also senses all magical objects in the inventory.
@@ -1271,6 +1269,10 @@ bool detect_objects_magic(void)
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
+		int feel = INSCRIP_AVERAGE;
+
+		bool okay = FALSE;
+
 		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
@@ -1306,18 +1308,35 @@ bool detect_objects_magic(void)
 			/* Detect */
 			detect = TRUE;
 		}
-	}
 
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
 
-	/* Sense inventory */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		int feel = INSCRIP_AVERAGE;
-
-                object_type *o_ptr = &inventory[i];
-
-		/* Skip empty slots */
-		if (!o_ptr->k_idx) continue;
+		/* Skip objects */
+		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;
@@ -1346,6 +1365,9 @@ bool detect_objects_magic(void)
 
 			/* Normal */
 			feel = INSCRIP_EXCELLENT;
+
+                        /* Superb */
+                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
 		}
 
 		/* Cursed items */
@@ -1353,6 +1375,127 @@ bool detect_objects_magic(void)
 
 		/* Broken items */
 		else if (broken_p(o_ptr)) continue;
+
+                /* Great "armor" bonus */
+                else if (o_ptr->to_a > 8) feel = INSCRIP_GREAT;
+
+                /* Great "weapon" bonus */
+                else if (o_ptr->to_h + o_ptr->to_d > 14) feel = INSCRIP_GREAT;
+
+                /* Very good "armor" bonus */
+                else if (o_ptr->to_a > 4) feel = INSCRIP_VERY_GOOD;
+
+                /* Very good "weapon" bonus */
+                else if (o_ptr->to_h + o_ptr->to_d > 7) feel = INSCRIP_VERY_GOOD;
+
+		/* Good "armor" bonus */
+		else if (o_ptr->to_a > 0) feel = INSCRIP_GOOD;
+
+		/* Good "weapon" bonus */
+		else if (o_ptr->to_h + o_ptr->to_d > 0)	feel = INSCRIP_GOOD;
+
+		/* Ignore if average */
+		if (feel == INSCRIP_AVERAGE) continue;
+
+		/* Sense the object */
+		o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+
+	}
+
+
+	/* Sense inventory */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		int feel = INSCRIP_AVERAGE;
+
+		bool okay = FALSE;
+
+                object_type *o_ptr = &inventory[i];
+
+		/* Skip empty slots */
+		if (!o_ptr->k_idx) continue;
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip objects */
+		if (!okay) continue;
+
+		/* It already has a discount or special inscription */
+		if (o_ptr->discount > 0) continue;
+
+		/* It has already been sensed, do not sense it again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Artifacts */
+		if (artifact_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+
+			/* Normal */
+			feel = INSCRIP_SPECIAL;
+		}
+
+		/* Ego-Items */
+		else if (ego_item_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
+
+			/* Normal */
+			feel = INSCRIP_EXCELLENT;
+
+                        /* Superb */
+                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
+		}
+
+		/* Cursed items */
+		else if (cursed_p(o_ptr)) continue;
+
+		/* Broken items */
+		else if (broken_p(o_ptr)) continue;
+
+                /* Great "armor" bonus */
+                else if (o_ptr->to_a > 8) feel = INSCRIP_GREAT;
+
+                /* Great "weapon" bonus */
+                else if (o_ptr->to_h + o_ptr->to_d > 14) feel = INSCRIP_GREAT;
+
+                /* Very good "weapon" bonus */
+                else if (o_ptr->to_h + o_ptr->to_d > 7) feel = INSCRIP_VERY_GOOD;
+
+                /* Very good "armor" bonus */
+                else if (o_ptr->to_a > 4) feel = INSCRIP_VERY_GOOD;
 
 		/* Good "armor" bonus */
 		else if (o_ptr->to_a > 0) feel = INSCRIP_GOOD;
@@ -1409,6 +1552,10 @@ bool detect_objects_cursed(void)
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
+                int feel = INSCRIP_AVERAGE;
+
+		bool okay = FALSE;
+
 		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
@@ -1436,6 +1583,83 @@ bool detect_objects_cursed(void)
 			/* Detect */
 			detect = TRUE;
 		}
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip objects */
+		if (!okay) continue;
+
+		/* It already has a discount or special inscription */
+		if (o_ptr->discount > 0) continue;
+
+		/* It has already been sensed, do not sense it again */
+		if (o_ptr->ident & (IDENT_SENSE)) continue;
+
+		/* It is fully known, no information needed */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Artifacts */
+		if (artifact_p(o_ptr))
+		{
+			/* Normal */
+			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+
+			/* Cursed */
+			feel = INSCRIP_TERRIBLE;
+		}
+
+		/* Ego-Items */
+		else if (ego_item_p(o_ptr))
+		{
+			/* Cursed/Broken */
+			if (!(cursed_p(o_ptr) || broken_p(o_ptr))) continue;
+
+			/* Normal */
+			feel = INSCRIP_WORTHLESS;
+		}
+
+		/* Cursed items */
+		else if (cursed_p(o_ptr)) feel = INSCRIP_CURSED;
+
+		/* Broken items */
+		else if (broken_p(o_ptr)) feel = INSCRIP_BROKEN;
+
+		/* Ignore if average */
+		if (feel == INSCRIP_AVERAGE) continue;
+
+		/* Detected */
+		detect = TRUE;
+
+		/* Sense the object */
+		o_ptr->discount = feel;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+
 	}
 
 	/* Sense inventory */
@@ -1443,10 +1667,42 @@ bool detect_objects_cursed(void)
 	{
 		int feel = INSCRIP_AVERAGE;
 
+		bool okay = FALSE;
+
                 object_type *o_ptr = &inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
+
+
+		/* Valid "tval" codes */
+		switch (o_ptr->tval)
+		{
+			case TV_SHOT:
+			case TV_ARROW:
+			case TV_BOLT:
+			case TV_BOW:
+			case TV_DIGGING:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_SWORD:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR:
+			{
+				okay = TRUE;
+				break;
+			}
+		}
+
+		/* Skip objects */
+		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;
@@ -2109,6 +2365,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 
 	/* Failure */
 	if (!res) return (FALSE);
+
+        /* Hack --- unsense the item */
+        o_ptr->ident &= ~(IDENT_SENSE);        
+
+	/* Remove special inscription, if any */
+	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

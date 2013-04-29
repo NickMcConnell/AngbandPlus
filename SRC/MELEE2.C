@@ -1055,12 +1055,25 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 			}
 
 		}
-		
-		/* Reveal the monster */
-		m_ptr->mflag &= ~(MFLAG_HIDE);
 
-		/* And update */
-		update_mon(m_idx,FALSE);        
+                /* Reveal the monster */
+                m_ptr->mflag &= ~(MFLAG_HIDE);
+
+                /* And update */
+                update_mon(m_idx,FALSE);        
+
+                /* Hack --- tell the player if something unhides */
+                if (m_ptr->ml)
+                {
+                        char m_name[80];
+
+                        /* Get the monster name */
+                        monster_desc(m_name, m_ptr, 0);
+
+                        msg_format("%^s emerges from %s%s.",m_name,
+                                ((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_FILLED))?"":"the "),
+                                f_name+f_info[cave_feat[m_ptr->fy][m_ptr->fx]].name);
+                }
 
 		/* Disturb on "move" */
 		if (m_ptr->ml &&
@@ -1239,7 +1252,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		{
 			if (!direct) break;
 			if (target < 0) disturb(1, 0);
-			if (who > 0) msg_format("%^s makes a high pitched shriek.", m_name);
+                        msg_format("%^s makes a high pitched shriek.", m_name);
 			aggravate_monsters(who);
 			break;
 		}
@@ -1267,12 +1280,12 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 					/* Hit with radiate attack */
-					(void)project(who, 2, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side, f_info[cave_feat[y][x]].blow.d_dice),
-						 f_info[cave_feat[y][x]].blow.effect, flg);
+                                        (void)project(who, 2, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                                 r_ptr->blow[i].effect, flg);
 
 				}
 			}
-			else
+                        else
 			{
 				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
@@ -1359,9 +1372,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
-					flg = PROJECT_JUMP | PROJECT_HIDE;
-
-
 					/* End of attacks */
 					if (!(r_ptr->blow[i].method)) break;
 
@@ -1371,22 +1381,41 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					/* Message */
 					if (known) msg_format("%^s wails at %s.", m_name,t_name);
 
-					/* Target the player with a bolt attack */
-					(void)project(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
-							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect, flg);
+					if (target < 0)
+					{
+
+						/* Target the player */
+						project_p(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect);
+					}
+					else if (target > 0)
+					{
+						/* Target the monster */
+						project_m(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+							 r_ptr->blow[i].d_dice),r_ptr->blow[i].effect);
+					}
 
 				}
 			}
 			else
 			{
-				flg = PROJECT_JUMP | PROJECT_HIDE;
-
 				/* Message */
 				if (known) msg_format("%^s wails at %s.", m_name,t_name);
 
-				/* Target the player with a bolt attack */
-				(void)project(who, 0, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side,
-						f_info[cave_feat[y][x]].blow.d_dice),f_info[cave_feat[y][x]].blow.effect, flg);
+				if (target < 0)
+				{
+
+					/* Target the player */
+					project_p(who, 0, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side,
+						f_info[cave_feat[y][x]].blow.d_dice),f_info[cave_feat[y][x]].blow.effect);
+				}
+				else if (target > 0)
+				{
+					/* Target the monster */
+					project_m(who, 0, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side,
+						f_info[cave_feat[y][x]].blow.d_dice),f_info[cave_feat[y][x]].blow.effect);
+
+				}                                       
 					
 			}
 			break;
@@ -3422,7 +3451,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		{
 			if (target <= 0) break;
 
-			disturb(1, 0);
+                        if (known) disturb(1, 0);
 
 			/* Message */
 			if ((blind) && (known))
@@ -5673,16 +5702,36 @@ static void process_monster(int m_idx)
 	/* Get hit by terrain continuously, but not traps */
 	if ((f_info[cave_feat[oy][ox]].blow.method) &&
 	    !(f_info[cave_feat[oy][ox]].flags1 & (FF1_HIT_TRAP)) &&
-	     (!place_monster_here(oy,ox,m_ptr->r_idx)))
+             !(place_monster_here(oy,ox,m_ptr->r_idx)) &&
+             !(m_ptr->mflag & (MFLAG_OVER)))
 	{
 
 		mon_hit_trap(oy,ox);
 
-		/* Unhide the monster */
-		m_ptr->mflag &= ~(MFLAG_HIDE);
+                /* Is the monster hidden?*/
+                if (m_ptr->mflag & (MFLAG_HIDE))
+                {
 
-		/* And reveal */
-		update_mon(m_idx,FALSE);
+                        /* Unhide the monster */
+                        m_ptr->mflag &= ~(MFLAG_HIDE);
+
+                        /* And reveal */
+                        update_mon(m_idx,FALSE);
+
+                        /* Hack --- tell the player if something unhides */
+                        if (m_ptr->ml)
+                        {
+
+                                char m_name[80];
+
+                                /* Get the monster name */
+                                monster_desc(m_name, m_ptr, 0);
+
+                                msg_format("%^s emerges from %s%s.",m_name,
+                                        ((f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_FILLED))?"":"the "),
+                                        f_name+f_info[cave_feat[m_ptr->fy][m_ptr->fx]].name);
+                        }
+                }
 
 		/* Start feeling desperate */
 		desperate = TRUE;
@@ -5883,6 +5932,19 @@ static void process_monster(int m_idx)
 
 				/* And reveal */
 				update_mon(m_idx,FALSE);
+
+                                /* Hack --- tell the player if something unhides */
+                                if (m_ptr->ml)
+                                {
+                                        char m_name[80];
+
+                                        /* Get the monster name */
+                                        monster_desc(m_name, m_ptr, 0);
+
+                                        msg_format("%^s emerges from %s%s.",m_name,
+                                        ((f_info[cave_feat[oy][ox]].flags2 & (FF2_FILLED))?"":"the "),
+                                        f_name+f_info[cave_feat[oy][ox]].name);
+                                }
 
 				/* We saw it, maybe */
 				did_bash_door = TRUE;
@@ -6182,7 +6244,7 @@ static void process_monster(int m_idx)
 			{
 				do_move = FALSE;
 			}
-			else if (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED))
+                        else if (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED))
 			{
 				if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[ny][nx]].flags1 & (FF1_BASH)))
 				{
@@ -6200,6 +6262,20 @@ static void process_monster(int m_idx)
 
 					/* And reveal */
 					update_mon(m_idx,FALSE);
+
+
+                                        /* Hack --- tell the player if something unhides */
+                                        if ((m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
+                                        {
+                                                char m_name[80];
+
+                                                /* Get the monster name */
+                                                monster_desc(m_name, m_ptr, 0);
+
+                                                msg_format("%^s emerges from %s%s.",m_name,
+                                                        ((f_info[cave_feat[oy][ox]].flags2 & (FF2_FILLED))?"":"the "),
+                                                        f_name+f_info[cave_feat[oy][ox]].name);
+                                        }
 
 					/* We saw it, maybe */
 					did_bash_door = TRUE;
@@ -6238,6 +6314,19 @@ static void process_monster(int m_idx)
 
 				/* Check if it is visible */
 				update_mon(m_idx,FALSE);
+
+                                /* Hack --- tell the player if something unhides */
+                                if (m_ptr->ml)
+                                {
+                                        char m_name[80];
+
+                                        /* Get the monster name */
+                                        monster_desc(m_name, m_ptr, 0);
+
+                                        msg_format("%^s emerges from %s%s.",m_name,
+                                                ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
+                                                f_name+f_info[cave_feat[ny][nx]].name);
+                                }
 
 				/* Disturb on "move" */
 				if (m_ptr->ml &&
@@ -6439,27 +6528,30 @@ static void process_monster(int m_idx)
 		{
 			s16b this_o_idx, next_o_idx = 0;
 
+                        /* Hidden ? */
+                        bool hidden = ((m_ptr->mflag & (MFLAG_HIDE))!=0);
+
 			/* Take a turn */
 			do_turn = TRUE;
 
 			/* Update flags */
-			if (((mmove == MM_FLY) || (mmove == MM_CLIMB)) && (m_ptr->mflag & (MFLAG_OVER)))
+                        if ((mmove == MM_FLY) || (mmove == MM_CLIMB))
 			{
 				m_ptr->mflag |= (MFLAG_OVER);
 			}
-			else
+                        else 
 			{
 				m_ptr->mflag &= ~(MFLAG_OVER);
 			}
 
 			/* Set hide flag if passing through floor/ceiling (phasing) */
-			if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_MOVE)) && (mmove == MM_PASS))
+                        if (mmove == MM_PASS)
 			{
 				m_ptr->mflag |=(MFLAG_HIDE);
 			}
 
 			/* Set hide flag if digging and HIDE_DIG */
-			if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_HIDE_DIG)) && (mmove == MM_DIG))
+                        else if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_HIDE_DIG)) && (mmove == MM_DIG))
 			{
 				m_ptr->mflag |=(MFLAG_HIDE);
 			}
@@ -6515,8 +6607,34 @@ static void process_monster(int m_idx)
 				m_ptr->mflag &= ~(MFLAG_HIDE);
 			}
 
+                        /* Hack --- tell the player if something hides */
+                        if (!(hidden) && (m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
+                        {
+                                        char m_name[80];
+
+                                        /* Get the monster name */
+                                        monster_desc(m_name, m_ptr, 0);
+
+                                        msg_format("%^s hides in %s%s.",m_name,
+                                        ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
+                                        f_name+f_info[cave_feat[ny][nx]].name);
+                        }
+
 			/* Move the monster */
 			monster_swap(oy, ox, ny, nx);
+
+                        /* Hack --- tell the player if something unhides */
+                        if ((hidden) && !(m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
+                        {
+                                        char m_name[80];
+
+                                        /* Get the monster name */
+                                        monster_desc(m_name, m_ptr, 0);
+
+                                        msg_format("%^s emerges from %s%s.",m_name,
+                                        ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
+                                        f_name+f_info[cave_feat[ny][nx]].name);
+                        }
 
 			/* Possible disturb */
 			if (m_ptr->ml &&
@@ -6535,7 +6653,8 @@ static void process_monster(int m_idx)
 				mon_hit_trap(ny,nx);
 			}
 			/* Hit other terrain */
-                        else if (!mon_resist_feat(cave_feat[ny][nx],m_ptr->r_idx))
+                        else if ((!mon_resist_feat(cave_feat[ny][nx],m_ptr->r_idx))&&
+				!(m_ptr->mflag & (MFLAG_OVER)))
 			{
 				mon_hit_trap(ny,nx);
 			}

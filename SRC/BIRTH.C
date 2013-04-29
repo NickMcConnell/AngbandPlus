@@ -294,7 +294,7 @@ static void get_extra(void)
 
 
 	/* Level one */
-	p_ptr->max_lev = p_ptr->lev = 1;
+        p_ptr->max_lev = p_ptr->lev = 1;
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + ((p_ptr->pstyle)?10:0);
@@ -1819,6 +1819,9 @@ void player_birth(void)
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
+
+        /* Hack --- give awareness of items */
+        improve_aware();
 }
 
 

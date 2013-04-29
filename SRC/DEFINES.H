@@ -602,7 +602,7 @@
 #define GF_FALL_SPIKE   71
 #define GF_FALL_POIS    72
 #define GF_BLIND                73
-#define GF_XX15         74
+#define GF_SLOW         74
 #define GF_TERRIFY      75
 #define GF_PARALYZE     76
 #define GF_LOSE_STR     77
@@ -1778,7 +1778,7 @@
 /*
  * Special "sval" limit -- first "aimed" rod
  */
-#define SV_ROD_MIN_DIRECTION    12
+#define SV_ROD_MIN_DIRECTION    13
 
 /*
  * Special "sval" limit -- first "large" chest
@@ -2045,11 +2045,14 @@
 #define INSCRIP_EXCELLENT       100+7
 #define INSCRIP_SPECIAL         100+8
 #define INSCRIP_UNCURSED        100+9
+#define INSCRIP_VERY_GOOD       100+10
+#define INSCRIP_GREAT           100+11
+#define INSCRIP_SUPERB          100+12
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP                     10
+#define MAX_INSCRIP                     13
 
 
 /*
@@ -2701,25 +2704,27 @@
 
 #define MAX_WEAP_STYLES         32
 
-#define WS_WIELD_FLAGS  0x01FF
-#define WS_SHOOT_FLAGS  0x1E00
+#define WS_WIELD_FLAGS  0x000001FF
+#define WS_SHOOT_FLAGS  0x00001E00
+#define WS_AWARE_FLAGS  0x00FC0000
 
 /* Weapon style improvements */
-#define WB_HIT			0
-#define WB_DAM                  1
-#define WB_AC			2
-#define WB_BLOW			3
-#define WB_SHOT			4
-#define WB_MIGHT		5
-#define WB_CRITICAL		6
-#define WB_ID	                7
-#define WB_POWER                8
-#define WB_ICKY_HANDS           9
-#define WB_ICKY_WIELD           10
-#define WB_BLESSED              11
-#define WB_HOLD_SONG		12
-#define WB_RES_FEAR		13
-#define MAX_WEAP_BENEFITS       14
+#define WB_NONE                 0
+#define WB_HIT                  1
+#define WB_DAM                  2
+#define WB_AC                   3
+#define WB_BLOW                 4
+#define WB_SHOT                 5
+#define WB_MIGHT                6
+#define WB_CRITICAL             7
+#define WB_ID                   8
+#define WB_POWER                9
+#define WB_ICKY_HANDS           10
+#define WB_ICKY_WIELD           11
+#define WB_BLESSED              12
+#define WB_HOLD_SONG            13
+#define WB_RES_FEAR             14
+#define MAX_WEAP_BENEFITS       15
 
 
 /* Spell flags */

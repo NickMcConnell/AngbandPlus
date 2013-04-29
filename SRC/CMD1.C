@@ -938,7 +938,7 @@ void py_attack(int y, int x)
 
 
 	/* Auto-Recall if possible and visible */
-	if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
+        if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
 
 	/* Track a new monster */
 	if (m_ptr->ml) health_track(cave_m_idx[y][x]);
@@ -959,31 +959,32 @@ void py_attack(int y, int x)
 	melee_style = p_ptr->cur_style & (WS_WIELD_FLAGS);
 
         /* Check backstab if monster sleeping or fleeing */
-        if (((m_ptr->csleep)||(m_ptr->monfear)) && (p_ptr->cur_style & (WS_SWORD))) melee_style |= (WS_BACKSTAB);
+        if (((m_ptr->csleep)||(m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
+          (p_ptr->pstyle ==WS_BACKSTAB)) melee_style |= (1L <<WS_BACKSTAB);
 
 	/* Check slay orc if monster is an orc */
-        if (r_ptr->flags3 & (RF3_ORC)) melee_style |= (WS_SLAY_ORC);
+        if (r_ptr->flags3 & (RF3_ORC)) melee_style |= (1L <<WS_SLAY_ORC);
 
 	/* Check slay troll if monster is a troll */
-        if (r_ptr->flags3 & (RF3_TROLL)) melee_style |= (WS_SLAY_TROLL);
+        if (r_ptr->flags3 & (RF3_TROLL)) melee_style |= (1L <<WS_SLAY_TROLL);
 
 	/* Check slay giant if monster is a giant */
-        if (r_ptr->flags3 & (RF3_GIANT)) melee_style |= (WS_SLAY_GIANT);
+        if (r_ptr->flags3 & (RF3_GIANT)) melee_style |= (1L <<WS_SLAY_GIANT);
 
 	/* Check slay dragon if monster is a dragon */
-        if (r_ptr->flags3 & (RF3_DRAGON)) melee_style |= (WS_SLAY_DRAGON);
+        if (r_ptr->flags3 & (RF3_DRAGON)) melee_style |= (1L <<WS_SLAY_DRAGON);
 
 	/* Check slay evil if monster is evil */
-        if (r_ptr->flags3 & (RF3_EVIL)) melee_style |= (WS_SLAY_EVIL);
+        if (r_ptr->flags3 & (RF3_EVIL)) melee_style |= (1L <<WS_SLAY_EVIL);
 
 	/* Check slay giant if monster is undead */
-        if (r_ptr->flags3 & (RF3_UNDEAD)) melee_style |= (WS_SLAY_UNDEAD);
+        if (r_ptr->flags3 & (RF3_UNDEAD)) melee_style |= (1L <<WS_SLAY_UNDEAD);
 
 	/* Check slay giant if monster is an animal */
-        if (r_ptr->flags3 & (RF3_ANIMAL)) melee_style |= (WS_SLAY_ANIMAL);
+        if (r_ptr->flags3 & (RF3_ANIMAL)) melee_style |= (1L <<WS_SLAY_ANIMAL);
 
 	/* Check slay giant if monster is a demon */
-        if (r_ptr->flags3 & (RF3_DEMON)) melee_style |= (WS_SLAY_DEMON);
+        if (r_ptr->flags3 & (RF3_DEMON)) melee_style |= (1L <<WS_SLAY_DEMON);
 
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
@@ -992,11 +993,8 @@ void py_attack(int y, int x)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-
 		/* Check for styles */
-                if (w_info[i].styles & (melee_style))
+                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (melee_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -1027,6 +1025,8 @@ void py_attack(int y, int x)
                 style_crit = 0;
 	}
 
+        /* Only allow criticals against visible opponents */
+        if (!(m_ptr->ml)) style_crit = 0;
 
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1046,8 +1046,19 @@ void py_attack(int y, int x)
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
-			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+
+                        /* Hack --- backstab */
+
+                        if (melee_style & (1L << WS_BACKSTAB))
+                        {
+                                /* Message */
+                                message_format(MSG_HIT, m_ptr->r_idx, "You backstab %s.", m_name);
+                        }
+                        else
+                        {
+                                /* Message */
+                                message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+                        }
 
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
@@ -1057,17 +1068,17 @@ void py_attack(int y, int x)
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h + (style_crit * 30), k);
 				k += o_ptr->to_d;
+
+
 			}
 			/* Handle unarmed attack */
 			else
 			{
-				k = 1 + style_dam;
+                                k = 1;
                                 k = critical_norm(c_info[p_ptr->pclass].blows_wgt, (style_crit * 30),k);
 			}
 
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d + style_dam;
+                                k += p_ptr->to_d + style_dam;
 
 			/* ANDY - On the road to making player and monster attacks
 			 * symetric. That is, we want monster damage to be applied
@@ -1195,7 +1206,7 @@ void move_player(int dir, int jumping)
 
 
 	/* Hack -- attack monsters */
-        if (cave_m_idx[y][x] > 0)
+        if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE)))
 	{
 		/* Attack */
 		py_attack(y, x);

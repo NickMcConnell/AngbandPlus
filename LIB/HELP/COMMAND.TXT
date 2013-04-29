@@ -241,7 +241,7 @@ Alter (+)
         command may take a count, is affected by the "always_repeat" option,
         requires a direction, and takes some energy.
 
---- Spell and Prayer Commands ---
+--- Spell Commands ---
 
 Browse a book (b) or Peruse a book (P)
         Only mages, rogues, and rangers can read magic books, and only
@@ -273,17 +273,7 @@ Cast a spell (m)
         spell from a book, you cannot be blind or confused while casting,
         and there must be some light present.  This command takes some energy.
 
-Pray a prayer (p)
-        To pray effectively, you must have previously learned the prayer
-        and must have in your inventory a book from which the prayer can
-        be read.  Each prayer has a chance of being ignored which starts
-        out fairly large but decreases as you gain levels.  If you don't
-        have enough mana to cast a spell, you will be prompted for
-        confirmation.  If you decide to go ahead, the chance of failure
-        is greatly increased, and you may lose a point of constitution.
-        Since you must read the prayer from a book, you cannot be blind
-        or confused while praying, and there must be some light present.
-        This command takes some energy.
+        You can also use this command to cancel singing a song.
 
 --- Object Manipulation Commands ---
 

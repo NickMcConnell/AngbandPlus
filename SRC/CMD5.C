@@ -423,6 +423,8 @@ void do_cmd_study(void)
 	if (c_info[p_ptr->pclass].sp_lvl > 50)
 	{
 		msg_print("You cannot read books.");
+
+                return;
 	}
 
 	if (p_ptr->blind || no_lite())
@@ -506,12 +508,15 @@ void do_cmd_study(void)
 
 				if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
 			    	(s_ptr->appears[ii].sval == o_ptr->sval) &&
-				(spell_okay(i,FALSE)) &&
-				(++k > 1) &&
-				(rand_int(k) ==0))
+                                (spell_okay(i,FALSE)))
+                                {
+                                        if ((++k == 1) || ((k > 1) &&
+                                                (rand_int(k) ==0)))
 					{
 						gift = i;
 					}
+
+                                }
 
 			}
 
@@ -3371,14 +3376,14 @@ void do_cmd_cast(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
-
 		/* Line 1 --- casting from a spell book */
 		/* Line 2 --- spell can be held */
 		/* Line 3 --- capable of holding song */
                 if ((o_ptr->tval == TV_SONG_BOOK) &&
 			(s_info[spell].flags & (SF_HOLD_SONG)) &&
 			 (w_info[i].benefit == WB_HOLD_SONG)) p_ptr->held_song = spell;
+
+		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
 
                 if (w_info[i].benefit != WB_POWER) continue;
 

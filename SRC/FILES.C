@@ -1367,10 +1367,8 @@ static void display_player_xtra_info(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
 		/* Check for styles */
-                if (w_info[i].styles & (p_ptr->cur_style & (WS_WIELD_FLAGS)))
+                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_WIELD_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -1421,10 +1419,8 @@ static void display_player_xtra_info(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
 		/* Check for styles */
-                if (w_info[i].styles & (p_ptr->cur_style & (WS_SHOOT_FLAGS)))
+                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (p_ptr->cur_style & ((WS_SHOOT_FLAGS)& (1L << p_ptr->pstyle)))))
 		{
 			switch (w_info[i].benefit)
 			{

@@ -2623,6 +2623,9 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"good",
 	"excellent",
 	"special",
-	"uncursed"
+        "uncursed",
+        "very good",
+        "great",
+        "superb"
 };
 

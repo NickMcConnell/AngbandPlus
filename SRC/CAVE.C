@@ -3668,12 +3668,12 @@ void cave_set_feat(int y, int x, int feat)
          * (Watching "Saving Private Ryan" as I'm typing this).
          */
 
-	if (f_info[feat].flags2 & (FF2_WATER)) level_flag &= (LF1_WATER);
-        if (f_info[feat].flags2 & (FF2_LAVA)) level_flag &= (LF1_LAVA);
-        if (f_info[feat].flags2 & (FF2_ICE)) level_flag &= (LF1_ICE);
-        if (f_info[feat].flags2 & (FF2_ACID)) level_flag &= (LF1_ACID);
-        if (f_info[feat].flags2 & (FF2_OIL)) level_flag &= (LF1_OIL);
-        if (f_info[feat].flags2 & (FF2_CHASM)) level_flag &= (LF1_CHASM);
+        if (f_info[feat].flags2 & (FF2_WATER)) level_flag |= (LF1_WATER);
+        if (f_info[feat].flags2 & (FF2_LAVA)) level_flag |= (LF1_LAVA);
+        if (f_info[feat].flags2 & (FF2_ICE)) level_flag |= (LF1_ICE);
+        if (f_info[feat].flags2 & (FF2_ACID)) level_flag |= (LF1_ACID);
+        if (f_info[feat].flags2 & (FF2_OIL)) level_flag |= (LF1_OIL);
+        if (f_info[feat].flags2 & (FF2_CHASM)) level_flag |= (LF1_CHASM);
 
         /*
          * ANDY - Handle removal of orphaned chasm edges. This is a pretting

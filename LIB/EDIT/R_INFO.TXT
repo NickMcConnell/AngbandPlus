@@ -2440,7 +2440,7 @@ G:K:u
 I:110:13d8:10:40:30
 W:13:2:0:38
 B:BITE:HURT:3d4
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
 D:It is a vicious insect with a tough carapace.
 
@@ -3698,7 +3698,7 @@ I:110:20d8:14:55:30
 W:23:1:0:85
 B:BITE:HURT:4d5
 F:RAND_25 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
 D:It is looking for prey.
 
@@ -4019,7 +4019,7 @@ I:110:20d8:14:50:30
 W:25:2:0:85
 B:BITE:LOSE_STR:4d4
 F:RAND_25 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
 D:It is a giant beetle with poisonous mandibles.
 
@@ -4141,7 +4141,7 @@ I:110:13d8:14:45:30
 W:27:1:0:95
 B:BITE:HURT:3d4
 B:SPIT:FIRE:4d5
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_FIRE
 S:1_IN_9 |
 S:SPIT
@@ -5926,7 +5926,7 @@ W:37:2:0:850
 B:CLAW:ELEC:1d12
 B:CLAW:ELEC:1d12
 B:GAZE:PARALYZE
-F:FORCE_MAXHP | ATTR_MULTI | 
+F:FORCE_MAXHP | ATTR_MULTI | CAN_FLY |
 F:WEIRD_MIND | BASH_DOOR | 
 F:ANIMAL | IM_ELEC
 S:1_IN_9 |
@@ -9393,7 +9393,7 @@ F:ANIMAL
 D:An armoured form moving with purpose.  Powerful on its own, flee when 
 D:hordes of them march.
 
-N:625:The Forgotten
+N:625:Forgotten
 G:M:o
 I:110:30d10:30:60:255
 W:26:6:0:220
@@ -9411,7 +9411,7 @@ D:One of the Maiar who never took up the original song and wanders,
 D:lonely and unknowing. He is disturbed by the harsh strains of reality 
 D:around him and seeks to return it to its primal discordance.
 
-N:626:The Lost
+N:626:Lost
 G:M:B
 I:110:40d10:30:68:255
 W:29:6:0:400
@@ -9429,7 +9429,7 @@ D:A Maiar who strayed early from the song and never heard
 D:the evil strains that Melkor imposed on the world. He is angry at the 
 D:twisting of magic but like an unknowing child, lashes out at all around him.
 
-N:627:The Bewitched
+N:627:Bewitched
 G:M:G
 I:120:45d10:30:68:255
 W:33:6:0:400
@@ -9450,7 +9450,7 @@ D:perpetuated and believes the sweet refrains to be the new truth of the world.
 D:He strikes out angrily at the ugliness around him, not realising the source 
 D:of its anguish
 
-N:628:The Betrayed
+N:628:Betrayed
 G:M:r
 I:120:50d10:30:68:255
 W:38:6:0:1800
@@ -9471,7 +9471,7 @@ D:on itself and was consumed, this Maiar sees nothing but bitterness
 D:and an ugly reality, and takes out his all consuming anger on everything 
 D:around him.
 
-N:629:The Fallen
+N:629:Fallen
 G:M:y
 I:130:100d35:30:140:255
 W:41:6:0:15000
@@ -12481,7 +12481,7 @@ I:110:20d8:14:55:30
 W:23:1:0:85
 B:BITE:HURT:4d6
 F:RAND_25 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
 D:It is looking for prey.
 
@@ -12491,7 +12491,7 @@ I:110:20d8:14:55:30
 W:23:1:0:85
 B:BITE:HURT:4d7
 F:RAND_25 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL
 D:It is looking for prey.
 
@@ -12502,7 +12502,7 @@ W:26:1:0:85
 B:BITE:HURT:3d4
 B:SPIT:ACID:4d4
 F:RAND_25 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | CAN_FLY |
 F:ANIMAL | IM_ACID
 S:1_IN_9 |
 S:SPIT
@@ -12513,7 +12513,7 @@ G:K:U
 I:110:20d8:14:45:30
 W:28:1:0:95
 B:BITE:CONFUSE:4d5
-F:WEIRD_MIND | BASH_DOOR | HAS_LITE | 
+F:WEIRD_MIND | BASH_DOOR | HAS_LITE | CAN_FLY |
 F:ANIMAL | IM_FIRE | NO_CONF
 D:It is a giant beetle of scintillating appearance.
 
@@ -12523,7 +12523,7 @@ I:110:20d8:14:45:30
 W:28:1:0:95
 B:BITE:HURT:3d4
 B:CRUSH:SOUND:4d4
-F:WEIRD_MIND | BASH_DOOR | HAS_LITE | 
+F:WEIRD_MIND | BASH_DOOR | HAS_LITE | CAN_FLY |
 F:ANIMAL | IM_POIS
 D:It is a giant beetle humming with noise.
 
@@ -13572,7 +13572,7 @@ D:It looks fantastic, yet frightening.
 N:929:Hunting hawk
 G:B:u
 I:120:8d8:30:15:10
-W:3:2:0:27
+W:5:2:0:27
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d3
 B:BITE:HURT:1d4
@@ -14419,8 +14419,7 @@ B:CLAW:LOSE_STR:3d4
 B:CLAW:LOSE_CON:3d4
 B:CLAW:LOSE_CON:3d4
 B:BITE:PARALYZE:3d5
-F:
-F:DROP_90 | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:DROP_90 | OPEN_DOOR | BASH_DOOR | 
 F:FORCE_MAXHP | ESCORT | FORCE_SLEEP |
 F:EVIL | UNDEAD | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP |
 F:COLD_BLOOD | HURT_LITE
@@ -14820,7 +14819,7 @@ B:HIT:TERRIFY:6d6
 B:HIT:EXP_80:4d6
 B:HIT:EXP_80:4d6
 F:MALE | 
-F:FORCE_MAXHP | CAN_SWIM
+F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | SMART |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
@@ -15057,7 +15056,7 @@ B:CLAW:HURT:3d12
 B:CRUSH:HURT:8d12
 B:CRUSH:HURT:8d12
 F:FORCE_SLEEP | FORCE_MAXHP |  
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | CAN_SWIM |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:BASH_DOOR | OPEN_DOOR | POWERFUL | MOVE_BODY | 
 F:NO_CONF | NO_SLEEP | EVIL 
 S:1_IN_3 |
@@ -15114,7 +15113,7 @@ G:w:o
 I:110:3d8:10:5:5
 W:20:4:0:76
 B:EXPLODE:FIRE:5d5
-F:RAND_50 | RAND_25 | CAN_SWIM | 
+F:RAND_50 | RAND_25 |  
 F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
 F:ANIMAL | HURT_LITE | NO_FEAR
 D:A seething mass of thick, glowing worms.

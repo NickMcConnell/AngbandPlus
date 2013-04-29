@@ -656,6 +656,7 @@ static void build_terrain(int y, int x, int feat)
 			case FEAT_FLOOR:
 			case FEAT_FLOOR_DUST:
 			case FEAT_FLOOR_EARTH:
+                        case FEAT_FLOOR_RUBBLE:
 			if (oldfeat == FEAT_ICE) newfeat = FEAT_FLOOR_ICE;
 			if (oldfeat == FEAT_ICE_C) newfeat = FEAT_FLOOR_ICE;
 			if (oldfeat == FEAT_LAVA) newfeat = FEAT_GEOTH;
@@ -1666,7 +1667,7 @@ static void vault_monsters(int y1, int x1, int num)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
-                        monster_level = p_ptr->depth + 4;
+                        monster_level = p_ptr->depth + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
 			monster_level = p_ptr->depth;
 
@@ -1956,7 +1957,7 @@ static void get_room_info(int y, int x)
 			get_mon_num_prep();
 
                         /* Place the monster */
-                        vault_monsters(y,x,randint(3));
+                        vault_monsters(y,x,1);
 
 			get_mon_num_hook = NULL;
 
@@ -3293,7 +3294,7 @@ static void build_type6(int y0, int x0)
         strcat(room_info[dun->cent_n+1].name, " pit");
 	
         strcpy(room_info[dun->cent_n+1].text_visible, "Morgoth breeds his most evil creatures in great pits deep beneath the earth. ");
-        strcpy(room_info[dun->cent_n+1].text_visible, "You fear you have stumbled across one such place.");
+        strcat(room_info[dun->cent_n+1].text_visible, "You fear you have stumbled across one such place.");
         strcpy(room_info[dun->cent_n+1].text_always, "");
         room_info[dun->cent_n+1].seen = FALSE;
 #endif
@@ -4030,13 +4031,6 @@ static bool room_build(int by0, int bx0, int typ)
 		default: return (FALSE);
 	}
 
-	/* Save the room location */
-	if (dun->cent_n < CENT_MAX)
-	{
-		dun->cent[dun->cent_n].y = y;
-		dun->cent[dun->cent_n].x = x;
-		dun->cent_n++;
-	}
 
 	/* Reserve some blocks */
 	for (by = by1; by <= by2; by++)
@@ -4046,10 +4040,18 @@ static bool room_build(int by0, int bx0, int typ)
 			dun->room_map[by][bx] = TRUE;
 
 #ifdef ALLOW_ROOMDESC
-                        dun_room[by][bx] = dun->cent_n;
+                        dun_room[by][bx] = dun->cent_n+1;
 #endif
 
 		}
+	}
+
+	/* Save the room location */
+	if (dun->cent_n < CENT_MAX)
+	{
+		dun->cent[dun->cent_n].y = y;
+		dun->cent[dun->cent_n].x = x;
+		dun->cent_n++;
 	}
 
 	/* Count "crowded" rooms */

@@ -226,6 +226,9 @@
 # high slay weapons more attractive and to differentiate various kinds of high
 # weapons.
 
+# Made Holy Avenger, Defender, Westernesse, Spiderthread, and high slay and
+# new elemental weapons only appear deeper in the dungeon.
+
 # These removals should make it harder to get a complete 'set' of resistances
 # without artifacts. But at the same time, we provide additional items to allow
 # more possible combinations to fill out the gaps. This should make higher
@@ -532,7 +535,7 @@ F:STR | DEX | CON | LIGHT_CURSE
 
 N:40:(Spiderthread)
 X:31:15:0
-W:0:2:0:1500
+W:20:2:0:1500
 C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
@@ -562,8 +565,9 @@ F:STEALTH | RES_DARK | HIDE_TYPE
 
 N:44:of Silence
 X:31:15:0
-W:0:4:0:1500
+W:20:4:0:3000
 C:0:0:0:5
+T:30:2:3
 T:35:0:99
 F:STEALTH | RES_SOUND | HIDE_TYPE
 
@@ -707,7 +711,7 @@ T:30:0:99
 
 N:64:(Holy Avenger)
 X:24:30:1
-W:0:10:0:10000
+W:30:10:0:10000
 C:6:6:4:4
 T:21:0:99
 T:22:0:99
@@ -717,7 +721,7 @@ F:BLESSED | RES_FEAR
 
 N:65:(Defender)
 X:24:25:1
-W:0:10:0:5000
+W:30:10:0:5000
 C:4:4:8:4
 T:21:0:99
 T:22:0:99
@@ -745,7 +749,7 @@ F:LITE | RES_DARK | IGNORE_ACID | IGNORE_FIRE
 
 N:68:of Westernesse
 X:24:20:0
-W:0:10:0:10000
+W:30:10:0:10000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
@@ -816,7 +820,7 @@ F:BRAND_COLD | RES_COLD | IGNORE_COLD
 N:76:(Acid wit)
 X:24:15:3
 C:6:6:0:4
-W:0:20:0:12000
+W:30:20:0:12000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -825,7 +829,7 @@ F:BRAND_ACID | RES_ACID | IGNORE_ACID | WIS
 N:77:(Thunderhead)
 X:24:15:3
 C:6:6:0:4
-W:0:20:0:8500
+W:30:20:0:8500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -834,7 +838,7 @@ F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | INT
 N:78:(Flame tongue)
 X:24:15:3
 C:6:6:0:3
-W:0:10:0:7000
+W:30:10:0:7000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -843,7 +847,7 @@ F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | CHR
 N:79:(Frost heart)
 X:24:15:3
 C:6:6:0:4
-W:0:10:0:7500
+W:30:10:0:7500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -919,7 +923,7 @@ F:SLAY_DRAGON
 
 N:88:of *Slay Animal*
 X:24:20:0
-W:0:25:0:6000
+W:20:25:0:6000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -928,7 +932,7 @@ F:INT | SLAY_ANIMAL | SLOW_DIGEST
 
 N:89:of *Slay Evil*
 X:24:20:3
-W:0:25:0:5000
+W:20:25:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -937,7 +941,7 @@ F:WIS | SLAY_EVIL | BLESSED
 
 N:90:of *Slay Undead*
 X:24:24:0
-W:0:25:0:8000
+W:20:25:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -946,7 +950,7 @@ F:WIS | SLAY_UNDEAD | SEE_INVIS
 
 N:91:of *Slay Demon*
 X:24:16:0
-W:0:25:0:4000
+W:20:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -955,7 +959,7 @@ F:INT | SLAY_DEMON | RES_FIRE
 
 N:92:of *Slay Orc*
 X:24:14:0
-W:0:25:0:4000
+W:20:25:0:4000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -964,7 +968,7 @@ F:DEX | SLAY_ORC | SUST_DEX
 
 N:93:of *Slay Troll*
 X:24:14:0
-W:0:25:0:4000
+W:20:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -973,7 +977,7 @@ F:STR | SLAY_TROLL | REGEN
 
 N:94:of *Slay Giant*
 X:24:16:0
-W:0:25:0:4000
+W:20:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -982,7 +986,7 @@ F:STR | SLAY_GIANT | SUST_STR
 
 N:95:of *Slay Dragon*
 X:24:24:0
-W:0:25:0:6000
+W:20:25:0:6000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99

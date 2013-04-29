@@ -805,6 +805,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_TWO_HANDED) strcpy(temp,"Samurai");
 			if (style == WS_TWO_WEAPON) strcpy(temp,"Gladiator");
                         if (style == WS_WEAPON_SHIELD) strcpy(temp,"Knight");
+                        if (style == WS_RING) strcpy(temp,"Ringbearer");
 			if ((style == WS_HAFTED) && (long_name))
 			{
 				strcpy(temp,"Weaponmaster (Hafted)");
@@ -822,13 +823,22 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 				strcpy(temp,"Weaponmaster");
 			}
 			if (style == WS_SWORD) strcpy(temp,"Swordmaster");
+			if (style == WS_THROWN) strcpy(temp,"Tribesman");
+			if (style == WS_BOW) strcpy(temp,"Nomad");
 			if (style == WS_SLAY_ORC) strcpy(temp,"Orckiller");
 			if (style == WS_SLAY_TROLL) strcpy(temp,"Trollkiller");
 			if (style == WS_SLAY_GIANT) strcpy(temp,"Giantkiller");
 			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonkiller");
+                        if (style == WS_RING) strcpy(temp,"Ringbearer");
 			break;
 
 		case 1:
+                        if (style == WS_POTION) strcpy(temp,"Herbalist");
+                        if (style == WS_SCROLL) strcpy(temp,"Sage");
+                        if (style == WS_WAND) strcpy(temp,"Magician");
+                        if (style == WS_STAFF) strcpy(temp,"Wizard");
+                        if (style == WS_AMULET) strcpy(temp,"Witch");
+                        if (style == WS_RING) strcpy(temp,"Ringwielder");
                         if ((style == WS_MAGIC_BOOK) && (sval >= 0))
 			{
 
@@ -843,11 +853,12 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
                                         if ((k_ptr->tval == TV_MAGIC_BOOK) && (k_ptr->sval == sval)) break;
 				}
 
-				if (short_name) strcpy(temp,"Wizard");
+				if (short_name) strcpy(temp,"Magi");
 				else sprintf(temp,"%s",k_name+k_ptr->name);
-				if (long_name) sprintf(temp,"Wizard %s",k_name+k_ptr->name);
+				if (long_name) sprintf(temp,"Magi %s",k_name+k_ptr->name);
                                 if (sval == 1) strcpy(temp,"Conjuror");
                                 if (sval == 3) strcpy(temp,"Sorcerer");
+                                if (sval == 6) strcpy(temp,"Archmage");
                                 if (sval == 8) strcpy(temp,"Warlock");
                                 if (sval == 22) strcpy(temp,"Enchanter");
                                 if (sval == 24) strcpy(temp,"Healer");
@@ -891,9 +902,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 		case 3:
 			if (style == WS_POTION) strcpy(temp,"Chemist");
 			if (style == WS_SCROLL) strcpy(temp,"Scholar");
-                        if (style == WS_WAND) strcpy(temp,"Magician");
-                        if (style == WS_STAFF) strcpy(temp,"Wizard");
-                        if (style == WS_AMULET) strcpy(temp,"Merchant");
+                        if (style == WS_AMULET) strcpy(temp,"Gypsy");
                         if (style == WS_RING) strcpy(temp,"Jeweler");
 			break;
 		case 4:
@@ -903,11 +912,20 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			if (style == WS_SLAY_ORC) strcpy(temp,"Orcslayer");
 			if (style == WS_SLAY_TROLL) strcpy(temp,"Trollslayer");
 			if (style == WS_SLAY_GIANT) strcpy(temp,"Giantslayer");
-			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonslayer");
 			if (style == WS_SLAY_ANIMAL) strcpy(temp,"Tracker");
 			break;
 
 		case 5:
+                        if (style == WS_ONE_HANDED) strcpy(temp,"Cavalier");
+                        if ((style == WS_WEAPON_SHIELD) && (long_name))
+			{
+                                strcpy(temp,"Knight Defender");
+			}
+                        else if (style == WS_WEAPON_SHIELD)
+			{
+                                strcpy(temp,"Defender");
+			}
+			if (style == WS_SLAY_DRAGON) strcpy(temp,"Dragonslayer");
                         if ((style == WS_PRAYER_BOOK) && (sval >= 0))
 			{
 
@@ -929,7 +947,17 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
 			break;
 		case 6:
 			if (style == WS_UNARMED) strcpy(temp,"Acrobat");
+                        if (style == WS_ONE_HANDED) strcpy(temp,"Highwayman");
+                        if (style == WS_TWO_HANDED) strcpy(temp,"Ninja");
+                        if (style == WS_TWO_WEAPON) strcpy(temp,"Enforcer");
+                        if (style == WS_THROWN) strcpy(temp,"Juggler");
 			if (style == WS_BACKSTAB) strcpy(temp,"Assassin");
+                        if (style == WS_POTION) strcpy(temp,"Poisoner");
+                        if (style == WS_SCROLL) strcpy(temp,"Archeologist");
+                        if (style == WS_AMULET) strcpy(temp,"Merchant");
+                        if (style == WS_RING) strcpy(temp,"Fence");
+                        if (style == WS_SLAY_UNDEAD) strcpy(temp,"Graverobber");
+                        if (style == WS_SLAY_DEMON) strcpy(temp,"Tombrobber");
 			break;
 
 		case 7:
@@ -1821,6 +1849,9 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
+        /* Assume player is not encumbered by gloves */
+        p_ptr->cumber_glove = FALSE;
+
         /* Check for icky_hands*/
 	for (i = 0;i< z_info->w_max;i++)
 	{
@@ -1830,10 +1861,8 @@ static void calc_mana(void)
 
                 if (w_info[i].benefit != WB_ICKY_HANDS) continue;
 
-                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-		/* Check for icky hands */
-                if (w_info[i].styles & (p_ptr->cur_style))
+		/* Check for styles */
+                if ((w_info[i].styles==(1L<<WS_NONE)) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
                         icky_hands=TRUE;
 		}
@@ -1841,12 +1870,9 @@ static void calc_mana(void)
 	}
 
 	/* Only mages are affected */
-        if (icky_hands);
+        if (icky_hands)
 	{
 		u32b f1, f2, f3;
-
-		/* Assume player is not encumbered by gloves */
-		p_ptr->cumber_glove = FALSE;
 
 		/* Get the gloves */
 		o_ptr = &inventory[INVEN_HANDS];
@@ -3007,10 +3033,8 @@ static void calc_bonuses(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-                if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
 		/* Check for styles */
-                if (w_info[i].styles & (p_ptr->cur_style))
+                if ((w_info[i].styles==(1L<<WS_NONE)) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{
@@ -3040,7 +3064,7 @@ static void calc_bonuses(void)
 					break;
 
 				case WB_ICKY_WIELD:
-					if (!p_ptr->bless_blade) p_ptr->icky_wield = TRUE;
+                                        if ((inventory[INVEN_WIELD].k_idx) && (!p_ptr->bless_blade)) p_ptr->icky_wield = TRUE;
 					break;
 
 				case WB_BLESSED:
@@ -3608,6 +3632,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_OBJECT);
 		fix_object();
+	}
+
+        /* Display room info */
+        if (p_ptr->window & (PW_ROOM_INFO))
+	{
+                p_ptr->window &= ~(PW_ROOM_INFO);
+                fix_room_info();
 	}
 
 }

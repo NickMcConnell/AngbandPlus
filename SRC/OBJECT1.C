@@ -1032,8 +1032,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	cptr u;
 	cptr v;
 
-	int i;
-
 	char p1 = '(', p2 = ')';
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
@@ -1133,30 +1131,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Amulets (including a few "Specials") */
 		case TV_AMULET:
 		{
-			/* Hack -- Check for id'ed */
-			if (p_ptr->pstyle == WS_AMULET)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
-
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
@@ -1171,31 +1145,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Rings (including a few "Specials") */
 		case TV_RING:
 		{
-
-			/* Hack -- Check for id'ed */
-			if (p_ptr->pstyle == WS_RING)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
-
 			/* Hack -- Known artifacts */
 			if (artifact_p(o_ptr) && aware) break;
 
@@ -1216,29 +1165,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Staffs */
 		case TV_STAFF:
 		{
-			/* Hack -- Check for id'ed */
-			if (p_ptr->pstyle == WS_STAFF)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
 
 			/* Color the object */
 			modstr = staff_adj[o_ptr->sval];
@@ -1251,29 +1177,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Wands */
 		case TV_WAND:
 		{
-			/* Hack -- Check for id'ed */
-			if (p_ptr->pstyle == WS_WAND)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
 
 			/* Color the object */
 			modstr = wand_adj[o_ptr->sval];
@@ -1297,29 +1200,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Scrolls */
 		case TV_SCROLL:
 		{
-			/* Hack -- Check for id'ed */
-                        if (p_ptr->pstyle == WS_SCROLL)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
 
 			/* Color the object */
 			modstr = scroll_adj[o_ptr->sval];
@@ -1332,29 +1212,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Potions */
 		case TV_POTION:
 		{
-			/* Hack -- Check for id'ed */
-			if (p_ptr->pstyle == WS_POTION)
-			{
-
-				for (i=1;i<z_info->w_max;i++)
-				{
-			                if (w_info[i].benefit != WB_ID) continue;
-
-					if (w_info[i].class != p_ptr->pclass) continue;
-
-					if (w_info[i].level > p_ptr->lev) continue;
-
-					if (!(w_info[i].styles & (1L << p_ptr->pstyle))) continue;
-
-                                        if ((2*p_ptr->lev - w_info[i].level) < (k_ptr->level)) continue;
-
-					aware = TRUE;				
-
-					if (!show_flavors) flavor = FALSE;
-
-				}
-
-			}
 
 			/* Color the object */
 			modstr = potion_adj[o_ptr->sval];

@@ -485,25 +485,25 @@ s16b get_mon_num(int level)
 		{
 			if (level_flag & (LF1_WATER))
 			{
-				if (!(r_ptr->flags2 & (RF2_CAN_SWIM))) table[i].prob3 /=3;
+                                if (!(r_ptr->flags2 & (RF2_CAN_SWIM))) table[i].prob3 /=3;
 			}
 			if (level_flag & (LF1_LAVA))
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=3;
-				if (!(r_ptr->flags4 & (RF4_BR_FIRE))) table[i].prob3 /=2;
+                                if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=3;
+                                if (!(r_ptr->flags4 & (RF4_BR_FIRE))) table[i].prob3 /=2;
 			}
 			if (level_flag & (LF1_ICE))
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=3;
+                                if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=3;
 			}
 			if (level_flag & (LF1_ACID))
 			{
-				if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=3;
+                                if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=3;
 			}
 			if (level_flag & (LF1_CHASM))
 			{
 				if (!(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
-					!(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=3;
+                                        !(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=3;
 			}
 		}
 
@@ -1007,7 +1007,6 @@ void update_mon(int m_idx, bool full)
 			/* Hidden */
 			if (m_ptr->mflag & (MFLAG_HIDE))
 			{
-
 			}
 			/* Use "infravision" */
 			else if (d <= p_ptr->see_infra)
@@ -1034,7 +1033,6 @@ void update_mon(int m_idx, bool full)
 				/* Hidden */
 				if (m_ptr->mflag & (MFLAG_HIDE))
 				{
-
 				}
 
 				/* Handle "invisible" monsters */
@@ -1478,7 +1476,7 @@ bool mon_resist_feat(int feat, int r_idx)
         /* Sometimes risk traps if not smart */
         if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
             !(r_ptr->flags2 & (RF2_SMART)) &&
-            (rand_int(100)<30)) return (TRUE);
+            (rand_int(100)<5)) return (TRUE);
 
 	if (f_ptr->blow.method)
 	{
@@ -1642,6 +1640,10 @@ int place_monster_here(int y, int x, int r_idx)
 	/* Race */
 	r_ptr = &r_info[r_idx];
 
+        /* Hack -- check for pass wall */
+        if ((mon_resist_feat(feat,r_idx)) &&
+                (r_ptr->flags2 & (RF2_PASS_WALL))) return (MM_PASS);
+
 	/* Hack -- check for swimming */
 	if ((mon_resist_feat(feat,r_idx)) &&
 		(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
@@ -1693,8 +1695,14 @@ int place_monster_here(int y, int x, int r_idx)
 
 	}
 
+        /* Get mimiced feat if covered/bridged */
+        if ((f_ptr->flags2 & (FF2_COVERED)) || (f_ptr->flags2 & (FF2_BRIDGED)))
+        {
+                feat = f_ptr->mimic;
+        }
+
 	/* XXX XXX Make monsters smarter about what they walk on */
-	if (mon_resist_feat(f_ptr->mimic,r_idx)) return(MM_WALK);
+        if (mon_resist_feat(feat,r_idx)) return(MM_WALK);
 
 	return(MM_FAIL);
 
@@ -1744,17 +1752,13 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		mmove = place_monster_here(y,x,m_ptr->r_idx);
 
 		/* Update flags */
-		if (((mmove == MM_FLY) || (mmove == MM_CLIMB)) && (m_ptr->mflag & (MFLAG_OVER)))
+                if ((mmove == MM_FLY) || (mmove == MM_CLIMB))
 		{
 			m_ptr->mflag |= (MFLAG_OVER);
 		}
-		else
-		{
-			m_ptr->mflag &= ~(MFLAG_OVER);
-		}
 
 		/* Set hide flag if passing through floor/ceiling (phasing) */
-		if ((f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) && (mmove == MM_PASS))
+                if (mmove == MM_PASS)
 		{
 			m_ptr->mflag |=(MFLAG_HIDE);
 		}
@@ -1849,7 +1853,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		return (FALSE);
 	}
 	/* Require monster can survive on terrain */
-	if (!place_monster_here(y, x, r_idx))
+        if (place_monster_here(y, x, r_idx)==MM_FAIL)
 	{
 		return (FALSE);
 	}
@@ -2068,7 +2072,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 			if (!cave_empty_bold(my, mx)) continue;
 
 			/* Hostile terrain will block flow */
-			if (!place_monster_here(my, mx, r_idx)) continue;
+                        if (place_monster_here(my, mx, r_idx)==MM_FAIL) continue;
 
 			/* Attempt to place another monster */
 			if (place_monster_one(my, mx, r_idx, slp))
@@ -2384,14 +2388,14 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HYDRA:
 		{
-			okay = ((r_ptr->d_char == 'M') &&
+                        okay = ((r_ptr->d_char == 'y') &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
 		case SUMMON_ANGEL:
 		{
-			okay = ((r_ptr->d_char == 'A') &&
+                        okay = ((r_ptr->d_char == 'M') &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
@@ -2434,7 +2438,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HI_DRAGON:
 		{
-			okay = (r_ptr->d_char == 'D');
+                        okay = (r_ptr->d_char == 'A');
 			break;
 		}
 

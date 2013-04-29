@@ -848,7 +848,6 @@ static int minus_ac(void)
 	/* No damage left to be done */
 	if (o_ptr->ac + o_ptr->to_a <= 0) return (FALSE);
 
-
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -1618,7 +1617,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Make traps */
+                /* Make traps */
 		case GF_MAKE_TRAP:
 		{
 			/* Require a "naked" floor grid */
@@ -3185,6 +3184,36 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+
+                /* Melee attack - slow */
+                case GF_SLOW:
+		{
+			if (seen) obvious = TRUE;
+
+			/* Attempt a saving throw */
+			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+			    (r_ptr->flags3 & (RF3_NO_SLEEP)) ||
+			    (r_ptr->level > randint((dam - 10) < 1 ? 1 : (dam - 10)) + 10))
+			{
+				/* Memorize a flag */
+				if (r_ptr->flags3 & (RF3_NO_SLEEP))
+				{
+					if (seen) l_ptr->r_flags3 |= (RF3_NO_SLEEP);
+				}
+
+				/* No obvious effect */
+				note = " is unaffected!";
+				obvious = FALSE;
+			}
+			else
+			{
+				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+				note = " starts moving slower.";
+			}
+
+			break;
+		}
+
 		/* Pits */
 		case GF_FALL:
 		case GF_FALL_SPIKE:
@@ -3595,7 +3624,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 	bool fuzzy = FALSE;
 
 	/* Source monster */
-	monster_type *m_ptr;
+        monster_type *m_ptr=NULL;
 
 	/* Monster name (for attacks) */
 	char m_name[80];
@@ -4454,6 +4483,35 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			break;
 		}
+
+                case GF_SLOW:
+                {
+			/* Take damage */
+			take_hit(dam, killer);
+
+			/* Increase "paralyzed" */
+			if (p_ptr->free_act)
+			{
+				msg_print("You are unaffected!");
+				obvious = TRUE;
+			}
+			else if (rand_int(100) < p_ptr->skill_sav)
+			{
+				msg_print("You resist the effects!");
+				obvious = TRUE;
+			}
+			else
+			{
+                                if (set_slow(p_ptr->slow + randint(25) + 15)) obvious = TRUE;
+				{
+					obvious = TRUE;
+				}
+			}
+
+			/* Learn about the player */
+			update_smart_learn(who, DRS_FREE);
+
+                }
 
 		case GF_LOSE_STR:
 		{

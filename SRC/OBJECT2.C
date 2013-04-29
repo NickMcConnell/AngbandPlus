@@ -3631,8 +3631,14 @@ void pick_trap(int y, int x)
 
         get_feat_num_prep();
 
+        /* Hack --- force dungeon traps in town */
+        if (!p_ptr->depth) object_level = 3;
+
 	/* Click! */
-	feat = get_feat_num(p_ptr->depth);
+        feat = get_feat_num(object_level);
+
+        /* Hack --- force dungeon traps in town */
+        if (!p_ptr->depth) object_level = 0;
 
 	/* More paranoia */
 	if (!feat) return;
@@ -3709,7 +3715,7 @@ void place_trapped_door(int y, int x)
         get_feat_num_prep();
 
         /* Click! */
-        feat = get_feat_num(p_ptr->depth);
+        feat = get_feat_num(object_level);
 
         /* More paranoia */
         if (!feat) return;
@@ -3740,7 +3746,7 @@ void place_closed_door(int y, int x)
                 get_feat_num_prep();
 
 		/* Click! */
-		feat = get_feat_num(p_ptr->depth);
+                feat = get_feat_num(object_level);
 
 		/* More paranoia */
 		if (!feat) return;

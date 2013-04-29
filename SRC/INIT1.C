@@ -203,7 +203,7 @@ static cptr r_info_blow_effect[] =
 	"POLYMORPH",
 	"HEAL",
 	"SPEED",
-	"SLOW",
+        "OLD_SLOW",
 	"OLD_CONFUSE",
 	"SLEEP",
 	"DRAIN_LIFE",
@@ -222,7 +222,7 @@ static cptr r_info_blow_effect[] =
 	"FALL_SPIKE",
 	"FALL_POISON",
 	"BLIND",
-	"XX15",
+        "SLOW",
 	"TERRIFY",
 	"PARALYZE",
 	"LOSE_STR",
@@ -772,6 +772,7 @@ static cptr w_info_style[] =
 
 static cptr w_info_benefit[] =
 {
+        "NONE",
 	"HIT",
 	"DAM",
 	"AC",

@@ -1,4 +1,61 @@
-16-07-2001
+23-07-2001 Unangband 0.4.1 Feature and bugfix release
+- Walking onto an invisible trap at level 0 would infinitely loop, never
+finding a trap. Now we force trap selection at level 3, if in town.
+- Actually make most melee/shooting styles work proper (Logic and flag errors).
+- Make climbing/flying monsters ignore terrain damage.
+- Get spore spells working, and make wail spells like gazes instead of spits.
+- Detect magic/curse now senses all items it detects, as opposed to just items
+in inventory. It will probably need to be balanced out some more (Comments
+welcome).
+- Added superb (Ego items with xtra powers), great (15+ combined to hit and
+damage, or 9+ AC), and very good (9+ combined to hit and damage or 5+ AC)
+feelings for detect magic/heavy inventory sensing. Superb isn't working at
+the moment however, will need to debug.
+- Monsters with pass wall now can hide in all terrain they can resist.
+- Player will be notified if a visible monster hides, or if a monster
+emerges from hiding to become visible
+- Rods of dowsing do something.
+- Fixed summon specifics for various changes in monster char types.
+- Add CAN_FLY to some killer beetles.
+- Make sure we only see descriptions while looking if we have already seen
+room.
+- Remove rods and rings from room descriptions. Change sooty rooms to have
+flasks of oil, instead of torches.
+- Made general store sell first 2 songbooks.
+- Bards should hold songs now.
+- Changed way id styles work so that aware items can be sold at correct
+prices.
+- Added more thief, warrior, paladin styles. Moved some rogue styles to
+mage and added other mage styles.
+- Walk through hidden monsters rather than attack them.
+
+19-07-2001 0.4.0c Bugfix release
+- Quartz and magma power was 10 too high in f_info.txt (Reported by Leon
+Marrick).
+- Made identify scrolls appear earlier in dungeon, and slightly cheaper
+(Requested by Leon Marrick). Also made Detect Magic scrolls cheaper. This
+may change again once object id code goes in.
+- Referencing wrong flags for checking to drop items, resulted in items
+frequently disappearing (Reported by Leon Marrick).
+- Running was not checking the right way for instances when touching some
+walls. (Reported by Leon Marrick).
+
+18-07-2001
+- Made a great number of features more commonly available as well as modified
+a number of them.
+- Thieves accidentally started with really bad stealth. Fixed.
+- Monsters were never climbing or flying.
+- Backstab now works against fleeing monsters. Criticals from styles do not
+work against non-living opponents.
+
+18-07-2001 0.4.0b Bugfix release
+- Angband was generating 9 monsters for every call to vault monster. Changed
+this to 1, but allowing a monster of up to 5 levels out of depth now.
+- Notified the player if they are dealing with a hidden monster.
+- Fixed many problems with room descriptions, particularly initialisation.
+
+
+17-07-2001 0.4.0a Bugfix release
 - Because I changed the logic of hitting traps and finding secrets to
 fix some bugs before releasing 0.4.0, I (mildly) broke some functionality.
 Walking on a SECRET damaging terrain would not discover the secret, although
@@ -7,13 +64,13 @@ the description was displayed. This is now fixed.
 breaking glyphs. This is for free, and so they don't 'waste' their time
 trying to disarm traps.
 - Fixed it so monsters were actually hit by traps and features (Logic bug
-in code). Not that they should ever get in this position (except from Raise
-Water spell).
+in code).
 - Fixed it so invisible trapped doors could activate a trap.
 - Allowed monsters to hit invisible traps and trapped doors. They must pick
 a trapped door so they don't get stuck in the door. We hackily allow
 out of knowledge invisible floor traps to not be activated.
-- Made trails more trail like...
+- Made trails more trail like... and inform the player if they travel through
+dusty locations.
 - Forget locations that become boring...
 - Made features scatter around a room more.
 - Had describe room in the wrong place in the lighting code. Comes of adding
@@ -21,6 +78,7 @@ a feature at the last minute and not testing (See above).
 - Fixed weird mana bug problem, and restricted spells learnable in a more
 clear manner. You will now think you can learn spells even if a book is not
 available for you to do so (This is probably a regression).
+- Made much more stuff climbable for monsters.
 
 16-07-2001 Unangband 0.4.0 "Mystery" release aka "War against the Angels"
 aka "Angry Young Man"

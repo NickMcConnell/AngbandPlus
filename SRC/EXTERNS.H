@@ -812,6 +812,7 @@ extern bool set_oppose_pois(int v);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
+extern void improve_aware(void);
 extern void check_experience(void);
 extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
