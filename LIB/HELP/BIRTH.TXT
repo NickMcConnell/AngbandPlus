@@ -654,6 +654,9 @@ have intrinsic abilities.
                roughly twice the effective power of a non-specialised
                priest.
 
+        Slay Dragon (Dragon Slayer)
+
+                XXX TO BE DONE
 
         Thief Styles
 
@@ -698,6 +701,9 @@ have intrinsic abilities.
 
                 XXX TO BE DONE
 
+        Amulets (Merchant)
+
+                XXX TO BE DONE
 
         Rings (Fence)
 

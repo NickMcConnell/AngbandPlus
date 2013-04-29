@@ -1398,7 +1398,7 @@ static void display_player_xtra_info(void)
         if (p_ptr->cur_style & (1L << WS_ONE_HANDED)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "1H");
         if ((p_ptr->pstyle == WS_TWO_HANDED)&&(p_ptr->cur_style & (1L << WS_TWO_HANDED))) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2H");
         if (p_ptr->cur_style & (1L << WS_TWO_WEAPON)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2W");
-        if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "2W");
+        if (p_ptr->cur_style & (1L << WS_WEAPON_SHIELD)) Term_putstr(col+7, 12, -1, TERM_YELLOW, "WS");
 
 	/* Range weapon */
 	o_ptr = &inventory[INVEN_BOW];

@@ -111,6 +111,8 @@ bool inkey_flag;                /* See the "inkey()" function */
 
 s16b coin_type;                 /* Hack -- force coin type */
 
+s16b food_type;                 /* Hack -- force food type */
+
 bool opening_chest;             /* Hack -- prevent chest generation */
 
 bool shimmer_monsters;  /* Hack -- optimize multi-hued monsters */

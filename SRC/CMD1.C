@@ -197,23 +197,41 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+#endif
+
 					l_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
 				if (mult < 2) mult = 2;
 			}
-
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_ANIMAL)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_ANIMAL,0x0L,0x0L);
+			}
+#endif
 			/* Slay Evil */
 			if ((f1 & (TR1_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
 				if (mult < 2) mult = 2;
 			}
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_EVIL)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_EVIL,0x0L,0x0L);
+			}
+#endif
 
 			/* Slay Undead */
 			if ((f1 & (TR1_SLAY_UNDEAD)) &&
@@ -221,11 +239,20 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 3) mult = 3;
 			}
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_UNDEAD)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+			}
+#endif
 
 			/* Slay Demon */
 			if ((f1 & (TR1_SLAY_DEMON)) &&
@@ -233,23 +260,41 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 3) mult = 3;
 			}
 
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_DEMON)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+			}
+#endif
 			/* Slay Orc */
 			if ((f1 & (TR1_SLAY_ORC)) &&
 			    (r_ptr->flags3 & (RF3_ORC)))
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_ORC);
 				}
 
 				if (mult < 3) mult = 3;
 			}
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_ORC)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L);
+			}
+#endif
 
 			/* Slay Troll */
 			if ((f1 & (TR1_SLAY_TROLL)) &&
@@ -257,11 +302,20 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
 				if (mult < 3) mult = 3;
 			}
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_TROLL)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L);
+			}
+#endif
 
 			/* Slay Giant */
 			if ((f1 & (TR1_SLAY_GIANT)) &&
@@ -269,23 +323,41 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
 				if (mult < 3) mult = 3;
 			}
 
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_GIANT)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L);
+			}
+#endif
 			/* Slay Dragon  */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 3) mult = 3;
 			}
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_DRAGON)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
+			}
+#endif
 
 			/* Execute Dragon */
 			if ((f1 & (TR1_KILL_DRAGON)) &&
@@ -293,12 +365,21 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+#endif
 					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 5) mult = 5;
 			}
 
+#ifdef ALLOW_OBJECT_INFO
+			else if ((r_ptr->flags3 & (RF3_ANIMAL)) && (m_ptr->ml))
+			{
+				if (rand_int(100)<tdam) object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+			}
+#endif
 			/* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
 			{
@@ -307,6 +388,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
+#ifdef ALLOW_OBJECT_INFO
+						object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
 						l_ptr->r_flags3 |= (RF3_IM_POIS);
 					}
 				}
@@ -314,6 +398,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L);
+#endif
 					if (mult < 3) mult = 3;
 				}
 			}
@@ -327,6 +414,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
+#ifdef ALLOW_OBJECT_INFO
+						object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
+#endif
 						l_ptr->r_flags3 |= (RF3_IM_ACID);
 					}
 				}
@@ -334,6 +424,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
+#endif
 					if (mult < 3) mult = 3;
 				}
 			}
@@ -346,6 +439,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
+#ifdef ALLOW_OBJECT_INFO
+						object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L);
+#endif
 						l_ptr->r_flags3 |= (RF3_IM_ELEC);
 					}
 				}
@@ -353,6 +449,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L);
+#endif
 					if (mult < 3) mult = 3;
 				}
 			}
@@ -365,6 +464,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
+#ifdef ALLOW_OBJECT_INFO
+						object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
+#endif
 						l_ptr->r_flags3 |= (RF3_IM_FIRE);
 					}
 				}
@@ -372,6 +474,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L);
+#endif
 					if (mult < 3) mult = 3;
 				}
 			}
@@ -384,6 +489,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
+#ifdef ALLOW_OBJECT_INFO
+						object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
+#endif
 						l_ptr->r_flags3 |= (RF3_IM_COLD);
 					}
 				}
@@ -391,6 +499,9 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L);
+#endif
 					if (mult < 3) mult = 3;
 				}
 			}
@@ -837,6 +948,13 @@ void hit_trap(int y, int x)
         /* Paranoia */
         if (!(f_ptr->spell) && !(f_ptr->blow.method)) return;
 
+        /* Hack -- fall onto trap */
+        if ((p_ptr->py != y) || (p_ptr->px !=x))
+        {
+		/* Move player */
+                monster_swap(p_ptr->py, p_ptr->px, y, x);
+        }
+
         /* Get the feature name */
         name = (f_name + f_ptr->name);
 
@@ -1043,6 +1161,10 @@ void py_attack(int y, int x)
 		/* Deliver a blow */
 		blows++;
 
+#ifdef ALLOW_OBJECT_INFO
+		/* Check usage */
+		object_usage(o_ptr);
+#endif
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{

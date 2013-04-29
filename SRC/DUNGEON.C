@@ -122,6 +122,16 @@ static void sense_inventory(void)
 
 	int feel;
 
+#ifdef ALLOW_OBJECT_INFO
+	u32b f1=0x0L;
+	u32b f2=0x0L;
+	u32b f3=0x0L;
+
+        u32b af1=0x0L;
+        u32b af2=0x0L;
+        u32b af3=0x0L;
+#endif
+
 	object_type *o_ptr;
 
 	char o_name[80];
@@ -146,6 +156,7 @@ static void sense_inventory(void)
 	/* Good sensing */
         if (0 != rand_int(id_turns / div)) return;
 
+
 	/*** Sense everything ***/
 
 	/* Check everything */
@@ -158,6 +169,34 @@ static void sense_inventory(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
+#ifdef ALLOW_OBJECT_INFO
+
+                /* Always sense flags to see if we have ability */
+                if (i >= INVEN_WIELD)
+		{
+			u32b if1,if2,if3;
+
+			object_flags(o_ptr,&if1,&if2,&if3);
+
+                        af1 |= if1;
+                        af2 |= if2;
+                        af3 |= if3;
+
+                }
+
+                /* Sometimes sense flags to see if we gain ability */
+                if ((rand_int(100)<30) && !(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD))
+		{
+			u32b if1,if2,if3;
+
+			object_flags(o_ptr,&if1,&if2,&if3);
+
+			f1 |= (if1 & ~(o_ptr->i_object.may_flags1)) & ~(o_ptr->i_object.can_flags1);
+			f2 |= (if2 & ~(o_ptr->i_object.may_flags2)) & ~(o_ptr->i_object.can_flags2);
+			f3 |= (if3 & ~(o_ptr->i_object.may_flags3)) & ~(o_ptr->i_object.can_flags3);
+		}
+
+#endif
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
 		{
@@ -242,6 +281,42 @@ static void sense_inventory(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
+
+#ifdef ALLOW_OBJECT_INFO
+        /* Hack --- silently notice stuff */
+        if ((f1 & (TR1_STR)) && (rand_int(100)<30)) equip_can_flags(TR1_STR,0x0L,0x0L);
+        else if (!(af1 & (TR1_STR))) equip_not_flags(TR1_STR,0x0L,0x0L);
+
+        if ((f1 & (TR1_INT)) && (rand_int(100)<30)) equip_can_flags(TR1_INT,0x0L,0x0L);
+        else if (!(af1 & (TR1_INT))) equip_not_flags(TR1_INT,0x0L,0x0L);
+
+        if ((f1 & (TR1_WIS)) && (rand_int(100)<30)) equip_can_flags(TR1_WIS,0x0L,0x0L);
+        else if (!(af1 & (TR1_WIS)) ) equip_not_flags(TR1_WIS,0x0L,0x0L);
+
+        if ((f1 & (TR1_DEX)) && (rand_int(100)<30)) equip_can_flags(TR1_DEX,0x0L,0x0L);
+        else if (!(af1 & (TR1_DEX)) ) equip_not_flags(TR1_DEX,0x0L,0x0L);
+
+        if ((f1 & (TR1_CON)) && (rand_int(100)<30)) equip_can_flags(TR1_CON,0x0L,0x0L);
+        else if (!(af1 & (TR1_CON)) ) equip_not_flags(TR1_CON,0x0L,0x0L);
+
+        if ((f1 & (TR1_CHR)) && (rand_int(100)<30)) equip_can_flags(TR1_CHR,0x0L,0x0L);
+        else if (!(af1 & (TR1_CHR)) ) equip_not_flags(TR1_CHR,0x0L,0x0L);
+
+        if ((f1 & (TR1_STEALTH)) && (rand_int(100)<30)) equip_can_flags(TR1_STEALTH,0x0L,0x0L);
+        else if (!(af1 & (TR1_STEALTH)) ) equip_not_flags(TR1_STEALTH,0x0L,0x0L);
+
+        if ((f1 & (TR1_SEARCH)) && (rand_int(100)<30)) equip_can_flags(TR1_SEARCH,0x0L,0x0L);
+        else if (!(af1 & (TR1_SEARCH)) ) equip_not_flags(TR1_SEARCH,0x0L,0x0L);
+
+        if ((f1 & (TR1_SPEED)) && (rand_int(100)<30)) equip_can_flags(TR1_SPEED,0x0L,0x0L);
+        else if (!(af1 & (TR1_SPEED))) equip_not_flags(TR1_SPEED,0x0L,0x0L);
+
+        if ((f3 & (TR3_SLOW_DIGEST)) && (rand_int(100)<30)) equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
+        else if (!(af3 & (TR3_SLOW_DIGEST))) equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
+
+        if ((f3 & (TR3_REGEN)) && (rand_int(100)<30)) equip_can_flags(0x0L,0x0L,TR3_REGEN);
+        else if (!(af3 & (TR3_REGEN))) equip_not_flags(0x0L,0x0L,TR3_REGEN);
+#endif
 }
 
 
@@ -979,6 +1054,14 @@ static void process_world(void)
 	{
 		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
 		{
+
+
+#ifdef ALLOW_OBJECT_INFO
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,TR3_DRAIN_EXP);
+#endif
+
+
 			p_ptr->exp--;
 			p_ptr->max_exp--;
 			check_experience();
@@ -1134,6 +1217,11 @@ static void process_world(void)
 	{
 		/* Teleport player */
 		teleport_player(40);
+
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,0x0L,TR3_TELEPORT);
+#endif
 	}
 
 	/* Delayed Word-of-Recall */

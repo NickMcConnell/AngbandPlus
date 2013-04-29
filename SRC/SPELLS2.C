@@ -170,6 +170,11 @@ bool do_dec_stat(int stat)
 		msg_format("You feel very %s for a moment, but the feeling passes.",
 		           desc_stat_neg[stat]);
 
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+                equip_can_flags(0x0L,(1L<<stat),0x0L);
+#endif
+
 		/* Notice effect */
 		return (TRUE);
 	}
@@ -179,6 +184,11 @@ bool do_dec_stat(int stat)
 	{
 		/* Message */
 		msg_format("You feel very %s.", desc_stat_neg[stat]);
+
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_not_flags(0x0L,(1L<<stat),0x0L);
+#endif
 
 		/* Notice effect */
 		return (TRUE);
@@ -2653,6 +2663,13 @@ bool identify_fully(void)
 	/* Identify it fully */
 	object_aware(o_ptr);
 	object_known(o_ptr);
+
+#ifdef ALLOW_OBJECT_INFO
+
+	/* Clear may flags */
+	clear_may_flags();
+
+#endif
 
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);

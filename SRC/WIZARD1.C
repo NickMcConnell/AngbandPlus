@@ -1895,6 +1895,7 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect special abilities. */
 		vn = 0;
+                if (flags2 & (RF2_HAS_LITE)) vp[vn++] = "illuminate the dungeon";
 		if (flags2 & (RF2_OPEN_DOOR)) vp[vn++] = "open doors";
 		if (flags2 & (RF2_BASH_DOOR)) vp[vn++] = "bash down doors";
 		if (flags2 & (RF2_PASS_WALL)) vp[vn++] = "pass through walls";
@@ -1903,6 +1904,11 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_KILL_BODY)) vp[vn++] = "destroy weaker monsters";
 		if (flags2 & (RF2_TAKE_ITEM)) vp[vn++] = "pick up objects";
 		if (flags2 & (RF2_KILL_ITEM)) vp[vn++] = "destroy objects";
+                if (flags3 & (RF3_TINY)) vp[vn++] = "crawl through tiny cracks";
+                if (flags2 & (RF2_CAN_CLIMB)) vp[vn++] = "climb on walls and ceilings";
+                if (flags2 & (RF2_CAN_DIG)) vp[vn++] = "dig through earth and rubble";
+                if ((flags2 & (RF2_CAN_SWIM)) && !(flags2 & (RF2_MUST_SWIM))) vp[vn++] = "swim under water";
+                if ((flags2 & (RF2_CAN_FLY)) && !(flags2 & (RF2_MUST_FLY))) vp[vn++] = "fly over obstacles";
 
 		if (vn)
 		{
@@ -1916,6 +1922,20 @@ static void spoil_mon_info(cptr fname)
 			}
 			spoil_out(".  ");
 		}
+
+                /* Describe special abilities. */
+                if (flags2 & (RF2_MUST_SWIM))
+                {
+                        spoil_out(wd_che[msex]);
+                        spoil_out(" must swim and cannot move out of water.  ");
+                }
+
+                /* Describe special abilities. */
+                if (flags2 & (RF2_MUST_FLY))
+                {
+                        spoil_out(wd_che[msex]);
+                        spoil_out(" must fly and cannot move underwater.  ");
+                }
 
 		if (flags2 & (RF2_INVISIBLE))
 		{
@@ -2093,18 +2113,22 @@ static void spoil_mon_info(cptr fname)
 			else if (flags1 & (RF1_ONLY_ITEM))
 			{
 				if (sin) spoil_out("n");
-				spoil_out(" object");
+                                if (get_food_type(r_ptr)) spoil_out(" mushroom");
+                                else spoil_out(" object");
 			}
 			else if (flags1 & (RF1_ONLY_GOLD))
 			{
-				spoil_out(" treasure");
+                                if (get_coin_type(r_ptr)) spoil_out(" precious metal");
+                                else spoil_out(" treasure");
 			}
 			else
 			{
 				if (sin) spoil_out("n");
-				spoil_out(" object");
+                                if (get_food_type(r_ptr)) spoil_out(" mushroom");
+                                else spoil_out(" object");
 				if (i > 1) spoil_out("s");
-				spoil_out(" or treasure");
+                                if (get_coin_type(r_ptr)) spoil_out(" or precious metal");
+                                else spoil_out(" or treasure");
 			}
 			if (i > 1) spoil_out("s");
 

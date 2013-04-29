@@ -285,6 +285,25 @@ void do_cmd_eat_food(void)
 			break;
 		}
 
+                case SV_FOOD_MANA:
+		{
+			if (p_ptr->csp < p_ptr->msp)
+			{
+                                p_ptr->csp = p_ptr->csp + damroll(2,5);
+                                if (p_ptr->csp >= p_ptr->msp)
+                                {
+                                        p_ptr->csp = p_ptr->msp;
+                                        p_ptr->csp_frac = 0;
+                                }
+                                msg_print("Your feel your head spin.");
+				p_ptr->redraw |= (PR_MANA);
+				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				ident = TRUE;
+			}
+			break;
+		}
+
+
 
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:

@@ -971,9 +971,11 @@ void update_mon(int m_idx, bool full)
 			/* Weird mind, occasional telepathy */
 			else if (r_ptr->flags2 & (RF2_WEIRD_MIND))
 			{
+
 				/* One in ten individuals are detectable */
 				if ((m_idx % 10) == 5)
 				{
+
 					/* Detectable */
 					flag = TRUE;
 
@@ -989,6 +991,7 @@ void update_mon(int m_idx, bool full)
 			/* Normal mind, allow telepathy */
 			else
 			{
+
 				/* Detectable */
 				flag = TRUE;
 
@@ -1021,6 +1024,7 @@ void update_mon(int m_idx, bool full)
 				/* Handle "warm blooded" monsters */
 				else
 				{
+
 					/* Easy to see */
 					easy = flag = TRUE;
 				}

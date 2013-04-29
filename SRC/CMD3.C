@@ -144,6 +144,9 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
+#ifdef ALLOW_OBJECT_INFO
+	u32b f1,f2,f3;
+#endif
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -268,6 +271,60 @@ void do_cmd_wield(void)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 	}
+
+#ifdef ALLOW_OBJECT_INFO
+
+	/* Some flags are instantly known */
+	object_flags(o_ptr,&f1,&f2,&f3);
+
+	/* Hack -- the following are obvious from the displayed combat statistics */
+	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+
+	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+
+	/* Hack --- we do these here, because they are too computationally expensive in the 'right' place */
+	if (f1 & (TR1_INFRA)) object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+
+	if (f3 & (TR3_LITE))
+	{
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+		
+		/* Warn the player */
+		msg_print("It glows with an inner light!");
+	}
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+
+
+	if (f3 & (TR3_TELEPATHY)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
+
+	if (f3 & (TR3_SEE_INVIS)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
+
+	/* Hack --- the following are either obvious or (relatively) unimportant */
+	if (f3 & (TR3_BLESSED))
+	{
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+
+		/* Warn the player */
+		msg_print("It has been blessed by the gods!");
+	}
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+
+	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
+
+	if (f3 & (TR3_HEAVY_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE);
+
+	if (f3 & (TR3_PERMA_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE);
+
+#endif
+
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

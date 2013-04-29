@@ -1362,169 +1362,135 @@ steels/irons: fine, goldplated, adamite, meteoric, dull, rusty,
 polished, dented, enamel, bloodstained, silverplated, dwarven, elven,
 broken, barbed, riveted, studded, ribbed, tarnished, runed, orcish,
 
-OBJECT MEMORY:
+QUESTS:
 
-Spot if attacked that you have fire/cold/confusion resistance etc. and
-make best "guess" as to object providing this ability. eg Ring of Resist Fire? 
-Spot if attacking that you have SLAY_ORC/BRAND_FIRE ability if you know
-enough about monster. 
-Spot if you have permalight.
-Support multiple types of object per flavour and guess the object based
-on whether object flavour has been found eg Potion of Cure Blindness
-rather than always known. 
-Guess at object flavour if you gain partial benefit rather than never
-know. eg Potion of Cure Light Wounds? if no more than light wounds healed.
+From q_info.txt file.
 
-Object memory should allow the following:
+#Quest structure.
 
-1. You have wielded 6 items and lose strength from an normally
-resistable attack. This clearly means none of these items sustain strength.
+#N:num:name (name is preceeded by 'You have ' in list of quests.)
+#U:race assigning quest
+#D:description
+#L:level
+#Q:quest number completed?
+#A:artifact given by player?
+#K:item given by player?
+#R:race:num killed (0 for seen) (up to 4 lines)
+#G:item:ego item:artifact:experience gifted to player
+#F:monster flag change (LEAVING | ENEMY | ALLY)
 
-2. You have wielded 6 items and notice that you sustain strength. You
-take off each item in turn, testing that you still possess this ability,
-until you notice that you lose this ability after removing an item. This
-item clearly provides this ability.
+# Random quests need to be balanced somehow... they usually use 3 lines
+# for given, failed and completed, although failed is optional...
 
-3. You have wielded 3 new items over the course of a period of
-adventuring. You then notice that you sustain strength, which you
-previously did not do. Then clearly, one or more items may sustain
-strength (In fact, at least 1 of these three must do).
-
-4. This should also apply to attacks which deliver known elemental
-damage, which either exceeded 1/3 of maximum damage (no resistance) or
-deliver less than 1/3 of minimum damage (resistance).
-
-5. This should also apply to feather fall, regeneration (after a number
- of turns of damage), free action, see invisible etc.
-
-For 6 & 7, we assume we can determine the damage done by the weapon.
-Either because we are assumed 'good' enough, or because we have killed
-enough creatures, or because we have killed enough creatures and the
-monster health bar is affected appropriately. If we make the third
-assumption, then in order for 7 to apply, we have to kill a creature in
-less than the minimum number of blows normally required. This is hard to
-track. I prefer option 2 because it allows for fast detects while
-fighting with the weapon against known creatures.
-
-6. For attacks, if we deliver low damage (less than 3x minimum damage)
-we know that the weapon does NOT_ have slays for the type of creature,
-and NOT_ brands for anything that creature is hurt by. This requires we
-know the weapon is not cursed, and so don't include bonus damage in the
-expected minimum damage, or that we have identified the weapon and can
-include bonuses. If we are wearing cursed items, we don't know minimums
-(as our stats may be reduced) and so can't perform this step.
-
-7. When you deliver very high (exceeds maximum) damage and attempt to
-guess from what you know of the creature you are fighting, what the
-source of the high damage might be. This means an item MAY_ slay a
-particular race (depending on what races an creature belongs to) and
-MAY_ brand a particular element (depending on what resistances/hurts a
-creature has). We can limit this to Execute Dragon and the brands for
-which we know a creature is hurt by if we deliver greater than 3 times
-damage. We include the highest allowed strength in our maximum damage
-calculation, because we don't know our real strength, and require that
-the weapon is at least identified (Otherwise we don't know its damage
-bonus), along with our rings and gauntlets. If all items we wear are
-identified and HAS_ strength bonus, or NOT_ strength bonus, then we can
-use our real strength in this calculation. If we restrict the possible
-brands by a creature being IMMUNE to all the brands except for those the
-weapon does NOT possess, and restrict the slays so that there is only
-one the creature belongs to except for those that the weapon does NOT
-possess, then clearly the weapon HAS that slay.
-Similiarly, if the weapon does NOT slay the races to which the creature
-belongs, and the creature is IMMUNE to all brands except for one other
-than those the weapon does NOT possess, then clearly the weapon the
-weapon HAS the excepted brand.
-Similiarly, if the creature is a dragon and > 3x max damage is
-delivered, and the creature is IMMUNE to all the brands except those
-that the weapon does NOT have, then the weapon is EXECUTE dragon.
-Similiarly, if the creature is not a dragon and > 3x max damage is
-delivered, and the creature is IMMUNE to all brands except one and
-those that the weapon does NOT have, then the weapon HAS that one brand.
-
-8. Trivially permanent light, extra blows/attacks, cursed should be
-noticed and memorised.
+# There are spying quests, recover item quests, and kill monster quests...
 
 
-The following rules are useful:
-When wielded, object is marked with NOT_CURSED, NOT_HEAVY_CURSED etc.
-unless cursed. Then, mark with HAS_CURSED. If {average} or identified
-non-ego/non-artifact item, memorise KIDX with NOT_ if not cursed,
-unless MAY or HAS in which case memorise with MAY_. Similarly for
-cursed items, identified ego items and identified artifacts.
+# With creatures killed, we set the kill counter to currently killed +
+# n and the seen counter (For 0 killed) to currently seen + 1.
 
-When notices does not have ability, all objects wielded are marked with
-NOT_ flag and this is memorised for K_IDX (or flavour if flavoured and
-unidentified) and identified ARTIFACT items. Identified EGO items are
-memorised with NOT_ unless they are already memorised with HAS_ or MAY_
-in which case this is replaced by MAY_.
+# Quest recall is:
 
-When notices has ability, all objects wielded marked with MAY_ flag,
-unless an {average} or identified non-ego/non-artifact KIDX (or flavour
-if flavoured and unidentified) marked with NOT_ flag, or identified
-artifact marked with NOT_ flag. If this leaves only one item, then item
-is marked with HAS_ flag instead, which marks an identified artifact
-with HAS_ if the KIDX (or flavour if flavoured and unidentified) is
-marked with NOT_, or marks an identified non-ego/non-artifact or
-{average} KIDX (or flavour if flavoured and unidentified) marked with
-HAS_ flag, or marks an identified ego item or artifact with HAS_ if the
-KIDX (or flavour if flavoured and unidentified) is marked with NOT_,
-unless the identified ego item is NOT_ or MAY_ in which case it is
-rememorised with MAY_ and marked with HAS_.
+# You have been told Farmer Maggot's story. Farmer Maggot seems sad
+# about something. Farmer Maggot allied himself with you. You were
+# given 1 experience for this action.
 
-When identified, if non-ego/non-artifact, KIDX is memorised with HAS_
-if object (or flavour) is marked with HAS_. If artifact and marked with
-HAS_, and KIDX is memorised with NOT_, then memorise artifact with HAS_.
-If ego item and marked with HAS_, and KIDX is memorised with NOT_ then
-memorise ego item with HAS_ unless ego item is memorised with NOT_ or
-MAY_. In this case, memorise as MAY_.
+# You have failed the quest for Maggot's missing dogs. Farmer Maggot
+# tells you to get off his land. You killed Grip, Farmer Maggot's dog,
+# Fang, Farmer Maggot's dog and Wolf, Farmer Maggot's dog, after
+# having been given the quest for Maggot's dogs. Farmer Maggot became
+# your enemy and left for elsewhere. You were given nothing for
+# this action.
 
-Memorise what MAY_ flags have been learned until an object is wielded
-or taken off. If an object is wielded, forget learned or put aside MAY_
-flags, except MAY_ flags where object is identified or {average} has
-matching KIDX NOT_ flags, or object is identified artifact with
-matching KIDX NOT_ flags and artifact NOT_ flags. If object is taken
-off, put aside MAY flags_ that are learned and mark object as put-aside.
-If a second object is taken off, get rid of this put aside information.
-However, if put-aside MAY_ flags exist, and it is noticed that the
-ability is no longer present, mark the put-aside object with a HAS_ flag
-instead.
-If a wielded or put aside item is identified and learned or put-aside
-flags exist, remove those objects from contention on the learned or put
-aside list, if it then becomes known that the object does NOT_ have the
-property, via KIDX and/or artifact as appropriate. Then if there exists
-only 1 remaining object that can contend (either the put aside object or
-a wielded object) for a flag on the list, then mark that object as HAS_
-that ability.
+# You have given the One Ring to Smeagol. Smeagol says 'My precious!'.
+# You gave the plain gold ring of Power 'The One Ring' to Smeagol
+# on level 100 or deeper. Smeagol became your enemy and left for
+# elsewhere. You were given 100000 experience for this action.
 
-When marked with HAS_ flag or MAY_, attempts to match an object to an
-EGO item or ARTIFACT in memory, guessing as to which item matches most
-closely for flags, and ending guess with '?' (or '??' with MAY_), and
-marking flavour_guess with the item if the item is flavoured.
 
-Flavours are unmemorised at death. All KIDX, ego and artifacts memory
-is persistant.
 
-With wands, potions, scrolls, rods, staves, attempt to guess item if
-not determined by effects applied from partial effects applied. ie if 8
-damage healed, will guess Cure Light Wounds? unless Cure Light Wounds
-flavour already known in which case guess Cure Serious Wounds? etc. If
-effect not determined, guess ('??') from those items that have unknown
-effects based on the result ie aimed at wall, not monster, and no
-obvious result, guess Wand of Slow Monster?? unless Slow Monster flavour
-already known etc. Guess {empty/charging} if all Wand/Rod/Staff KIDX are
-known this game. Must have KIDX in memory, and effects result from
-successful usage also in memory. Because of Wands of Wonder, any effect
-that potentially could be a Wand of Wonder is also guessed. ie Wand of
-Transmute Rock to Mud?
+# Farmer Maggot's quests.
 
-Also get {good}/{cursed} feelings about scrolls, wands, potions, staves,
-rods if mage, priest, rogue.
+# Have we talked to Mr. Maggot? He's sometimes a helpful chap...
 
-Once object memory is working, we may modify *IDENTIFY*'s powers
-somewhat, may be to provide an additional *LEGEND LORE* item, with the
-old identify's powers, and let *IDENTIFY* only pick 1 ability, or make
-Identify itself a lot less available.
+N:1:been told Farmer Maggot's story.
+U:14
+D:seems sad about something.
+G:0:0:0:1
+F:ALLY
+
+# More talking...
+
+N:2:been given the quest for Farmer Maggot's missing dogs.
+U:14
+Q:1
+D:asks if you have seen his dogs.
+G:0:0:0:1
+
+# Have we killed all the dogs?
+
+N:3:failed the quest for Farmer Maggot's missing dogs.
+U:14
+Q:2
+R:51:1
+R:52:1
+R:919:1
+D:tells you to get off his land.
+F:ENEMY | LEAVING
+G:0:0:0:0
+
+# Have we seen the dogs and not killed all of them?
+# Experience equal to that for killing all three dogs...
+
+N:4:been given the quest for Farmer Maggot's mushrooms.
+U:14
+Q:2
+R:51:0
+R:52:0
+R:919:0
+D:mumbles something about mushrooms.
+G:0:0:0:90
+
+# Gifts a potion of restore mana in return for a mushroom of mana
+# Should be D:leaves, his head spinning.... ;-)
+
+N:5:completed the Farmer Maggot quests.
+U:14
+K:28
+D:seems just a little happier.
+F:ALLY | LEAVING
+G:266:0:0:120
+
+
+
+# One Ring quest
+
+N:100:been asked for 'My precious' by Smeagol.
+U:68
+D:says 'Where'sss my preciousss... doesss it have it?'
+G:0:0:0:100
+F:ALLY
+
+N:101:given Sting to Frodo.
+U:xxx
+A:88
+D:says 'Its too heavy a burden for me to bear, anymore.'
+G:0:0:13:10000
+F:ALLY | LEAVING
+
+N:102:given the One Ring to Bilbo.
+U:xxx
+A:13
+D:says 'No, it's not for me. Not now.'
+G:0:0:13:50000
+F:ALLY | LEAVING
+
+N:103:given the One Ring to Smeagol.
+U:68
+A:13
+L:100
+D:says 'My precious!'
+G:0:0:0:100000
+F:ENEMY | LEAVING
 
 
 FRIENDLY MONSTERS/UNIQUES:

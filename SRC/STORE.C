@@ -723,6 +723,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
+                                case TV_INSTRUMENT:
 				break;
 				default:
 				return (FALSE);

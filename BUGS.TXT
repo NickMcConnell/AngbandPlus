@@ -1,6 +1,10 @@
 Note that these are play balance bugs only, there are no known stability
 bugs (Fingers crossed). 
 
+23-07-2001
+- Mushroom weirdness from mushroom patch drops.
+- Not detecting chest traps with detection spells.
+
 12-07-2001
 - Death and high scores do not record styles and sub-styles.
 - Updated birth.txt is incomplete.

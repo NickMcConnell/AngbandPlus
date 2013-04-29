@@ -1251,7 +1251,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		case 96+0:
 		{
 			if (!direct) break;
-			if (target < 0) disturb(1, 0);
+                        disturb(1, 0);
                         msg_format("%^s makes a high pitched shriek.", m_name);
 			aggravate_monsters(who);
 			break;
@@ -3233,7 +3233,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s casts a fearful illusion at %s.",m_name,t_name);
 			}
 
-			if (target > 0)
+                        if (target < 0)
 			{
 				if (p_ptr->resist_fear)
 				{
@@ -3249,7 +3249,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				}
 				if (who > 0) update_smart_learn(who, DRS_RES_FEAR);
 			}
-			else if (target < 0)
+                        else if (target > 0)
 			{
 				/* Hack --- Use GF_TERRIFY */
 				project_m(who, 0, y, x, rand_int(4)+4, GF_TERRIFY);
@@ -3269,7 +3269,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s casts a spell, burning %s eyes.", m_name, t_poss);
 			}
 
-			if (target > 0)
+                        if (target < 0)
 			{
 				if (p_ptr->resist_blind)
 				{
@@ -3286,7 +3286,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (who > 0) update_smart_learn(who, DRS_RES_BLIND);
 	
 			}
-			else if (target < 0)
+                        else if (target > 0)
 			{
 				/* Hack --- Use GF_OLD_CONF and monster level / feature power*/
 				project_m(who, 0, y, x, 12+rlev, GF_OLD_CONF);
@@ -3308,7 +3308,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				else if (known) msg_format("%^s creates a mesmerising illusion for %s.", m_name, t_poss);
 			}
 
-			if (target > 0)
+                        if (target < 0)
 			{
 				if (p_ptr->resist_confu)
 				{
@@ -3325,7 +3325,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				if (who > 0) update_smart_learn(who, DRS_RES_CONFU);
 	
 			}
-			else if (target < 0)
+                        else if (target > 0)
 			{
 				/* Hack --- Use GF_OLD_CONF + monster level / feature power*/
 				project_m(who, 0, y, x, rlev, GF_OLD_CONF);
@@ -3634,7 +3634,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 		case 160+12:
 		{
 			if (!direct) break;
-			if (target >= 0) break;
 			if (target < 0) disturb(1, 0);
 
 			if (who > 0)
@@ -5364,11 +5363,12 @@ static int compare_monsters(monster_type *m_ptr, monster_type *n_ptr)
 /*
  * Handle monster hitting a real trap
  */
-void mon_hit_trap(int y, int x)
+void mon_hit_trap(int m_idx, int y, int x)
 {
 	int dam;
 
 	feature_type *f_ptr;
+        monster_type *m_ptr = &m_list[m_idx];
 
         /* Hack --- don't activate unknown invisible traps */
         if ((cave_feat[y][x] == FEAT_INVIS) && !(cave_info[y][x] & (CAVE_MARK))) return;
@@ -5395,6 +5395,14 @@ void mon_hit_trap(int y, int x)
 
 	/* Paranoia */
         if (!(f_ptr->spell) && !(f_ptr->blow.method)) return;
+
+        /* Hack -- monster falls onto trap */
+        if ((m_ptr->fy!=y)|| (m_ptr->fx !=x))
+        {
+                /* Move monster */
+                monster_swap(m_ptr->fy, m_ptr->fx, y, x);
+        }
+
 
 	/* Apply the spell */
 	if (f_ptr->spell)
@@ -5706,7 +5714,7 @@ static void process_monster(int m_idx)
              !(m_ptr->mflag & (MFLAG_OVER)))
 	{
 
-		mon_hit_trap(oy,ox);
+                mon_hit_trap(m_idx,oy,ox);
 
                 /* Is the monster hidden?*/
                 if (m_ptr->mflag & (MFLAG_HIDE))
@@ -6650,13 +6658,13 @@ static void process_monster(int m_idx)
                         if (f_info[cave_feat[ny][nx]].flags1 & (FF1_HIT_TRAP) &&
 				!(m_ptr->mflag & (MFLAG_OVER)))
 			{
-				mon_hit_trap(ny,nx);
+                                mon_hit_trap(m_idx,ny,nx);
 			}
 			/* Hit other terrain */
                         else if ((!mon_resist_feat(cave_feat[ny][nx],m_ptr->r_idx))&&
 				!(m_ptr->mflag & (MFLAG_OVER)))
 			{
-				mon_hit_trap(ny,nx);
+                                mon_hit_trap(m_idx,ny,nx);
 			}
 
                         /* XXX XXX Note we don't hit the old monster with traps/terrain */
@@ -6827,8 +6835,14 @@ static void process_monster(int m_idx)
 		/* Monster is flying */
 		if (mmove == MM_FLY) l_ptr->r_flags2 |= (RF2_CAN_FLY);
 
+                /* Monster must swim */
+                if ((mmove == MM_FLY) && (r_ptr->flags2 & (RF2_MUST_FLY))) l_ptr->r_flags2 |= (RF2_MUST_FLY);
+
 		/* Monster is swimming */
 		if (mmove == MM_SWIM) l_ptr->r_flags2 |= (RF2_CAN_SWIM);
+
+                /* Monster must swim */
+                if ((mmove == MM_SWIM) && (r_ptr->flags2 & (RF2_MUST_SWIM))) l_ptr->r_flags2 |= (RF2_MUST_SWIM);
 
 		/* Monster is digging */
 		if (mmove == MM_DIG) l_ptr->r_flags2 |= (RF2_CAN_DIG);

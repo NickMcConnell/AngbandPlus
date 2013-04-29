@@ -235,6 +235,16 @@
  */
 #define ALLOW_ROOMDESC
 
+/*
+ * OPTION: Allow mushroom patches to drop 'appropriate' mushrooms when killed
+ */
+#define ALLOW_MUSHROOM_HACK
+
+/*
+ * OPTION: Allow object memory
+ */
+#define ALLOW_OBJECT_INFO
+
 
 /*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
@@ -408,6 +418,7 @@
  * OPTION: Allow the use of 'pretty' character names for various class + style combinations
  */
 #define USE_CLASS_PRETTY_NAMES
+
 
 
 /*

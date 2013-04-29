@@ -1954,6 +1954,49 @@ void lose_exp(s32b amount)
 }
 
 
+/*
+ * Hack -- Return the "automatic food type" of a monster race
+ * Used to allocate proper treasure when "Mushrooms" die
+ *
+ * Note the use of actual "monster names".  XXX XXX XXX
+ */
+int get_food_type(monster_race *r_ptr)
+{
+	cptr name = (r_name + r_ptr->name);
+
+        /* Analyze "food" monsters */
+        if ((r_ptr->d_char == ',') && (strstr(name,"mushroom")))
+	{
+
+#ifdef ALLOW_MUSHROOM_HACK
+		/* Look for textual clues */
+                if (strstr(name, "Spotted ")) return (SV_FOOD_POISON+1);
+                if (strstr(name, "Silver ")) return (SV_FOOD_BLINDNESS+1);
+                if (strstr(name, "Yellow ")) return (SV_FOOD_PARANOIA+1);
+                if (strstr(name, "Grey ")) return (SV_FOOD_CONFUSION+1);
+                if (strstr(name, "Copper ")) return (SV_FOOD_PARALYSIS+1);
+                if (strstr(name, "Pink ")) return (SV_FOOD_WEAKNESS+1);
+                if (strstr(name, "Purple ")) return (SV_FOOD_SICKNESS+1);
+                if (strstr(name, "Black ")) return (SV_FOOD_STUPIDITY+1);
+                if (strstr(name, "Green ")) return (SV_FOOD_NAIVETY+1);
+                if (strstr(name, "Rotting ")) return (SV_FOOD_UNHEALTH+1);
+                if (strstr(name, "Brown ")) return (SV_FOOD_DISEASE+1);
+#endif
+                if (strstr(name, "Shrieker ")) return (SV_FOOD_CURE_PARANOIA+1);
+                if (strstr(name, "Magic ")) return ((rand_int(100)<30?SV_FOOD_MANA+1:SV_FOOD_HALLUCINATION+1));
+
+                /* Force nothing */
+                return (-1);
+	}
+        /* Analyze "food" monsters */
+        else if (strstr(name,", Farmer Maggot"))
+        {
+                return (SV_FOOD_MANA+1);
+        }
+
+	/* Assume nothing */
+        return (0);
+}
 
 
 /*
@@ -1962,7 +2005,7 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(monster_race *r_ptr)
+int get_coin_type(monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -2027,6 +2070,7 @@ void monster_death(int m_idx)
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
+        int force_food = get_food_type(r_ptr);
 	int force_coin = get_coin_type(r_ptr);
 
 	object_type *i_ptr;
@@ -2113,6 +2157,9 @@ void monster_death(int m_idx)
 	if (r_ptr->flags1 & (RF1_DROP_3D2)) number += damroll(3, 2);
 	if (r_ptr->flags1 & (RF1_DROP_4D2)) number += damroll(4, 2);
 
+        /* Hack -- handle mushroom patches */
+        food_type = force_food;
+
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;
 
@@ -2154,6 +2201,9 @@ void monster_death(int m_idx)
 
 	/* Reset the object level */
 	object_level = p_ptr->depth;
+
+        /* Reset "food" type */
+        food_type = 0;
 
 	/* Reset "coin" type */
 	coin_type = 0;

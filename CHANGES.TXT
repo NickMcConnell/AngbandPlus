@@ -1,3 +1,33 @@
+25-07-2001 Unangband 0.4.2 "Magic Mushroom fix"
+- Added object info. This tries to be smart about what we notice from hitting
+monsters and attack effects on us, and notifies the player in instances where
+an object must provide a particular power.
+- Also hackily sets up some obvious flags for the player.
+- Also hackily gives timed information on some less obvious flags for the
+player. This is silently done, and requires that the player swap equipment
+around, and retain the older stuff.
+- Also provides hit/dam/ac information after an object has been used at least
+500 times (This value may be too low).
+- Also hackily identifies an object after it has been used a lot
+(At least 20000 times).
+
+24-07-2001
+- Currently, some stateful information about monster hidden/over is not
+recorded in the save file. This needs to be corrected.
+- Added mushrooms of mana which restore 2d5 mana when eaten. (Suggested on
+newsgroup).
+- Mushroom patches now drop mushrooms 'appropriate' to the patch type. As
+a result, all cursed mushrooms have a predictable flavour. This can be
+disabled via a pre-compile option.
+- And we finally implement drops for Farmer Maggot's dogs... a small
+kindness for mages. Note also now, a wand of clone monsters is useful for
+farming magic mushroom patches...
+- Instruments can be sold in stores.
+- Some minor tidy up of monsters.
+- Due to sign reversal, we were never confusing/scaring/slowing the player
+when monsters cast spells.
+- Gave druids magic missile, so they can be playable at lower levels.
+
 23-07-2001 Unangband 0.4.1 Feature and bugfix release
 - Walking onto an invisible trap at level 0 would infinitely loop, never
 finding a trap. Now we force trap selection at level 3, if in town.

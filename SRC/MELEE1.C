@@ -424,6 +424,30 @@ bool make_attack_normal(int m_idx)
 			/* Roll out the damage */
 			damage = damroll(d_dice, d_side);
 
+#ifdef ALLOW_OBJECT_INFO
+
+			/* Check for usage */
+			if (rand_int(100)<damage)
+			{
+                                object_type *o_ptr=&inventory[INVEN_WIELD];
+
+				/* Pick a (possibly empty) inventory slot */
+				switch (randint(6))
+				{
+					case 1: o_ptr = &inventory[INVEN_BODY]; break;
+					case 2: o_ptr = &inventory[INVEN_ARM]; break;
+					case 3: o_ptr = &inventory[INVEN_OUTER]; break;
+					case 4: o_ptr = &inventory[INVEN_HANDS]; break;
+					case 5: o_ptr = &inventory[INVEN_HEAD]; break;
+					case 6: o_ptr = &inventory[INVEN_FEET]; break;
+				}
+
+				/* Object used? */
+				object_usage(o_ptr);
+			}
+
+#endif
+
                         /* New result routine */
                         project_p(m_idx,0,p_ptr->py,p_ptr->px,damage,effect);
 

@@ -144,7 +144,7 @@
 # move.
 # FILLED:       Quadruple weight of load. Chance of sinking in feature and
 # losing move.
-# HURT_ROCK | CAN_CLIMB:    Destroyed by transmute rock to mud/rock remover.
+# HURT_ROCK:    Destroyed by transmute rock to mud/rock remover.
 # HURT_FIRE:    Destroyed by fire balls/bolts/breath.
 # HURT_COLD:    Destroyed by frost balls/bolts/breath.
 # HURT_ACID:    Destroyed by acid balls/bolts/breath.
@@ -828,7 +828,6 @@ D:The door appears to be stuck.
 K:DEFAULT:1
 K:BASH:5
 K:SECRET:41
-K:OPEN:41
 F:OPEN | BASH | SPIKE | DOOR | REMEMBER | NOTICE |
 F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB
 
@@ -1104,6 +1103,7 @@ G:^:s
 W:5:2:20:0
 T:FALL:6d6
 K:DEFAULT:1
+K:HIT_TRAP:64
 D:You fall into a deep pit!
 F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
 F:PROJECT | REMEMBER | NOTICE | PLACE |
@@ -1114,6 +1114,7 @@ N:65:pit
 G:^:s
 W:11:2:20:0
 K:DEFAULT:1
+K:HIT_TRAP:65
 T:FALL_SPIKE:12d6
 D:You fall into a deep spiked pit!
 F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
@@ -1126,6 +1127,7 @@ G:^:s
 W:13:2:20:0
 T:FALL_POISON:12d6
 K:DEFAULT:1
+K:HIT_TRAP:66
 D:You fall into a deep spiked pit!
 F:TRAP | HIT_TRAP |  HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
 F:PROJECT | REMEMBER | NOTICE | PLACE |

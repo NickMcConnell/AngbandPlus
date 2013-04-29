@@ -3914,6 +3914,19 @@ void cave_alter_feat(int y, int x, int action)
 		disturb(0, 0);
 	}
 
+        /* Jammed door */
+        else if (oldfeat == FEAT_DOOR_HEAD+9)
+	{
+		/* Pick a door */
+                place_jammed_door(y, x);
+
+		/* Update new feature */
+		newfeat = cave_feat[y][x];
+
+		/* Disturb */
+		disturb(0, 0);
+	}
+
 	/* Other stuff */
 	else {
 

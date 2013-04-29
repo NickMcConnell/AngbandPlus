@@ -1162,7 +1162,8 @@ static void roff_aux(int r_idx)
 
 			/* Dump "object(s)" */
 			if (p) roff(p);
-			roff(" object");
+                        if (get_food_type(r_ptr)) roff(" mushroom");
+                        else roff(" object");
 			if (n != 1) roff("s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
@@ -1181,7 +1182,8 @@ static void roff_aux(int r_idx)
 
 			/* Dump "treasure(s)" */
 			if (p) roff(p);
-			roff(" treasure");
+                        if (get_coin_type(r_ptr)) roff(" precious metal");
+                        else roff(" treasure");
 			if (n != 1) roff("s");
 		}
 

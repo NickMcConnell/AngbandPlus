@@ -952,7 +952,7 @@ void lookup_prettyname(char name[60], int style, int sval, bool long_name, bool 
                         if (style == WS_TWO_WEAPON) strcpy(temp,"Enforcer");
                         if (style == WS_THROWN) strcpy(temp,"Juggler");
 			if (style == WS_BACKSTAB) strcpy(temp,"Assassin");
-                        if (style == WS_POTION) strcpy(temp,"Poisoner");
+                        if (style == WS_POTION) strcpy(temp,"Apothecry");
                         if (style == WS_SCROLL) strcpy(temp,"Archeologist");
                         if (style == WS_AMULET) strcpy(temp,"Merchant");
                         if (style == WS_RING) strcpy(temp,"Fence");
@@ -2040,6 +2040,7 @@ static void calc_torch(void)
 	/* Player is glowing */
 	if (p_ptr->lite) p_ptr->cur_lite = 1;
 
+
 	/* Examine actual lites */
 	if (o_ptr->tval == TV_LITE)
 	{
@@ -2057,6 +2058,7 @@ static void calc_torch(void)
 
 		/* Artifact Lites provide permanent, bright, lite */
 		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+
 	}
 	/* Examine spells */
 	else if (o_ptr->tval == TV_SPELL)
@@ -2989,7 +2991,6 @@ static void calc_bonuses(void)
 	/* Check fighting styles */
 	o_ptr = &inventory[INVEN_ARM];
 
-
 	/* Check if unarmed */
         if (p_ptr->cur_style & (1L <<WS_UNARMED))
 	{
@@ -3015,14 +3016,17 @@ static void calc_bonuses(void)
 		switch(o_ptr->tval)
 		{
 			case TV_SHIELD:
+                        {
                                 p_ptr->cur_style |= (1L << WS_WEAPON_SHIELD);
 				break;
-
+                        }
 			case TV_HAFTED:
 			case TV_SWORD:
 			case TV_POLEARM:
+                        {
                                 p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
-				break;	
+                                break;
+                        }
 		}
 	}
 

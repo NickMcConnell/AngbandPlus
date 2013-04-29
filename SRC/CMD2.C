@@ -617,18 +617,12 @@ static int count_feats(int *y, int *x, int action)
 			if (!(f_ptr->flags1 & flag)) continue;                  
 		}
 
-		else if (action < FS_FLAGS3)
+                else if (action < FS_FLAGS_END)
 		{       
 			flag = bitzero << (action - FS_FLAGS2);
 			if (!(f_ptr->flags2 & flag)) continue;                  
 		}
 	
-		else if (action < FS_FLAGS_END)
-		{       
-			flag = bitzero << (action - FS_FLAGS3);
-			if (!(f_ptr->flags2 & flag)) continue;                  
-		}
-
 		/* Count it */
 		++count;
 
@@ -840,7 +834,7 @@ void do_cmd_open(void)
 	if (easy_open)
 	{
 		/* Handle a single closed door or locked chest */
-		if ((count_feats(&y, &x, FS_CLOSE) +
+                if ((count_feats(&y, &x, FS_OPEN) +
 		     count_chests(&y, &x, FALSE)) == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
@@ -993,7 +987,7 @@ void do_cmd_close(void)
 	if (easy_open)
 	{
 		/* Handle a single open door */
-		if (count_feats(&y, &x, FS_OPEN) == 1)
+                if (count_feats(&y, &x, FS_CLOSE) == 1)
 		{
 			/* Don't close door player is on */
 			if ((y != py) || (x != px))
@@ -2436,6 +2430,11 @@ void do_cmd_fire(void)
 	if (!get_aim_dir(&dir)) return;
 
 
+#ifdef ALLOW_OBJECT_INFO
+		/* Check usage */
+		object_usage(j_ptr);
+#endif
+
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -2471,6 +2470,12 @@ void do_cmd_fire(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
+
+
+#ifdef ALLOW_OBJECT_INFO
+		/* Check usage */
+		object_usage(i_ptr);
+#endif
 
 	/* Check shooting styles only */
 	shoot_style = p_ptr->cur_style & (WS_SHOOT_FLAGS);

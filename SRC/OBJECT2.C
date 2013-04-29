@@ -745,6 +745,9 @@ void object_known(object_type *o_ptr)
 	/* Clear the "Empty" info */
 	o_ptr->ident &= ~(IDENT_EMPTY);
 
+	/* The object is not "partially sensed" */
+	o_ptr->ident &= ~(IDENT_BONUS);
+
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
 }
@@ -1057,6 +1060,10 @@ static s32b object_value_real(object_type *o_ptr)
  * Never notice "unknown" bonuses or properties, including "curses",
  * since that would give the player information he did not have.
  *
+ * Now add a value for sensed items. This should be dependent on
+ * the minimum good item values in e_info.txt, but just uses a rule
+ * of thumb at this stage.
+ *
  * Note that discounted items stay discounted forever.
  */
 s32b object_value(object_type *o_ptr)
@@ -1064,7 +1071,7 @@ s32b object_value(object_type *o_ptr)
 	s32b value;
 
 
-	/* Unknown items -- acquire a base value */
+	/* Known items -- acquire the actual value */
 	if (object_known_p(o_ptr))
 	{
 		/* Broken items -- worthless */
@@ -1075,9 +1082,9 @@ s32b object_value(object_type *o_ptr)
 
 		/* Real value (see above) */
 		value = object_value_real(o_ptr);
-	}
+        }
 
-	/* Known items -- acquire the actual value */
+	/* Unknown items -- acquire a base value */
 	else
 	{
 		/* Hack -- Felt broken items */
@@ -1088,6 +1095,137 @@ s32b object_value(object_type *o_ptr)
 
 		/* Base value (see above) */
 		value = object_value_base(o_ptr);
+
+                /* Hack -- Partially identified items */
+                if (o_ptr->ident & (IDENT_BONUS))
+                {
+
+			switch(o_ptr->tval)
+			{
+				/* Rings/Amulets */
+				case TV_RING:
+				case TV_AMULET:
+				{
+					/* Hack -- negative bonuses are bad */
+					if (o_ptr->to_a < 0) return (0L);
+					if (o_ptr->to_h < 0) return (0L);
+					if (o_ptr->to_d < 0) return (0L);
+
+					/* Give credit for bonuses */
+					value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+
+					/* Done */
+					break;
+				}
+
+				/* Armor */
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_CLOAK:
+				case TV_CROWN:
+				case TV_HELM:
+				case TV_SHIELD:
+				case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
+
+				{
+					/* Give credit for hit bonus */
+                                        value += ((o_ptr->to_h) * 100L);
+
+					/* Give credit for damage bonus */
+                                        value += ((o_ptr->to_d) * 100L);
+
+					/* Give credit for armor bonus */
+					value += (o_ptr->to_a * 100L);
+
+					/* Done */
+					break;
+				}
+
+				/* Bows/Weapons */
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_SWORD:
+				case TV_POLEARM:
+
+				{
+					/* Hack -- negative hit/damage bonuses */
+					if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+
+					/* Factor in the bonuses */
+					value += ((o_ptr->to_h + o_ptr->to_d + o_ptr->to_a) * 100L);
+
+				}
+
+				/* Ammo */
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				{
+					/* Hack -- negative hit/damage bonuses */
+					if (o_ptr->to_h + o_ptr->to_d < 0) return (0L);
+
+					/* Factor in the bonuses */
+					value += ((o_ptr->to_h + o_ptr->to_d) * 5L);
+
+					/* Done */
+					break;
+				}
+			}
+
+		}
+                /* Hack -- Felt good items */
+                else if (o_ptr->ident & (IDENT_SENSE))
+                {
+                        s32b bonus=0L;
+
+                        switch (o_ptr->discount)
+                        {
+                                case INSCRIP_SPECIAL:
+                                {
+                                        bonus =10000;
+                                        break;
+                                }
+                                case INSCRIP_SUPERB:
+                                {
+                                        bonus =2000;
+                                        break;
+                                }
+                                case INSCRIP_EXCELLENT:
+                                {
+                                        bonus =400;
+                                        break;
+                                }
+                                case INSCRIP_GREAT:
+                                {
+                                        bonus =800;
+                                        break;
+                                }
+                                case INSCRIP_VERY_GOOD:
+                                {
+                                        bonus =400;
+                                        break;
+                                }
+                                case INSCRIP_GOOD:
+                                {
+                                        bonus =100;
+                                        break;
+                                }
+                        }
+
+                        if ((o_ptr->tval == TV_SHOT) ||
+                                (o_ptr->tval == TV_ARROW) || 
+                                (o_ptr->tval == TV_BOLT))
+                        {
+                                value += bonus/20;
+                        }
+                        else
+                        {
+                                value += bonus;
+                        }
+                }
 	}
 
 
@@ -1337,8 +1475,8 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Blend "known" status */
 	if (object_known_p(j_ptr)) object_known(o_ptr);
 
-	/* Hack -- Blend "rumour" status */
-	if (j_ptr->ident & (IDENT_RUMOUR)) o_ptr->ident |= (IDENT_RUMOUR);
+        /* Hack -- Blend "bonus" status */
+        if (j_ptr->ident & (IDENT_BONUS)) o_ptr->ident |= (IDENT_BONUS);
 
 	/* Hack -- Blend "mental" status */
 	if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
@@ -1437,6 +1575,21 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Hack -- cursed items are always "cursed" */
 	if (k_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+
+#ifdef ALLOW_OBJECT_INFO
+
+        o_ptr->i_object.can_flags1 = 0x0L;
+        o_ptr->i_object.can_flags2 = 0x0L;
+        o_ptr->i_object.can_flags3 = 0x0L;
+
+        o_ptr->i_object.may_flags1 = 0x0L;
+        o_ptr->i_object.may_flags2 = 0x0L;
+        o_ptr->i_object.may_flags3 = 0x0L;
+
+        o_ptr->i_object.not_flags1 = 0x0L;
+        o_ptr->i_object.not_flags2 = 0x0L;
+        o_ptr->i_object.not_flags3 = 0x0L;
+#endif
 }
 
 
@@ -2838,9 +2991,23 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	/* Base level for the object */
 	base = (good ? (object_level + 10) : object_level);
 
+        /* Hack -- mushrooms only drop themselves */
+        if (food_type)
+        {
+                int k_idx;
+
+                k_idx = lookup_kind(TV_FOOD,food_type-1);
+
+                /* Handle failure */
+		if (!k_idx) return (FALSE);
+
+		/* Prepare the object */
+		object_prep(j_ptr, k_idx);
+
+        }
 
 	/* Generate a special artifact, or a normal object */
-	if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
+        else if ((rand_int(prob) != 0) || !make_artifact_special(j_ptr))
 	{
 		int k_idx;
 
@@ -3692,36 +3859,11 @@ static bool vault_closed_door(int f_idx)
         /* Decline known trapped doors */
         if ((f_ptr->flags1 & (FF1_TRAP)) && !(f_ptr->flags1 & (FF1_SECRET))) return (FALSE);
 
-	/* Decline open doors */
+        /* Decline open/secret/known jammed doors/broken */
 	if (!(f_ptr->flags1 & (FF1_OPEN))) return (FALSE);
-
-	/* Decline broken doors */
-	if (f_idx == FEAT_BROKEN) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
-}
-
-/*
- * Place a random type of trapped door at the given location
- */
-void place_trapped_door(int y, int x)
-{
-	int feat;
-
-        /*Set the hook */
-        get_feat_num_hook = vault_closed_door;
-
-        get_feat_num_prep();
-
-        /* Click! */
-        feat = get_feat_num(object_level);
-
-        /* More paranoia */
-        if (!feat) return;
-
-        /* Activate the trap */
-        cave_set_feat(y, x, feat);
 }
 
 /*
@@ -3755,6 +3897,101 @@ void place_closed_door(int y, int x)
 		cave_set_feat(y, x, feat);
 	}
 
+}
+
+/*
+ * Helper function for "closed doors"
+ */
+static bool vault_trapped_door(int f_idx)
+{
+	feature_type *f_ptr = &f_info[f_idx];
+
+        /* Decline non-door */
+	if (!(f_ptr->flags1 & (FF1_DOOR))) return (FALSE);
+
+        /* Decline known trapped doors */
+        if ((f_ptr->flags1 & (FF1_TRAP)) && !(f_ptr->flags1 & (FF1_SECRET))) return (FALSE);
+
+        /* Decline open/secret/known jammed doors/broken */
+	if (!(f_ptr->flags1 & (FF1_OPEN))) return (FALSE);
+
+        /* Decline unlocked doors */
+        if (f_idx == FEAT_DOOR_HEAD) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
+ * Place a random type of trapped/locked door at the given location
+ */
+void place_trapped_door(int y, int x)
+{
+	int feat;
+
+        /*Set the hook */
+        get_feat_num_hook = vault_trapped_door;
+
+        get_feat_num_prep();
+
+        /* Click! */
+        feat = get_feat_num(object_level);
+
+        /* More paranoia */
+        if (!feat) return;
+
+        /* Activate the trap */
+        cave_set_feat(y, x, feat);
+}
+
+
+/*
+ * Helper function for "closed doors"
+ */
+static bool vault_jammed_door(int f_idx)
+{
+	feature_type *f_ptr = &f_info[f_idx];
+
+        /* Decline non-door */
+	if (!(f_ptr->flags1 & (FF1_DOOR))) return (FALSE);
+
+        /* Decline trapped doors */
+        if (f_ptr->flags1 & (FF1_TRAP)) return (FALSE);
+
+        /* Decline unjammed doors */
+        if (f_ptr->flags1 & (FF1_OPEN)) return (FALSE);
+
+        /* Decline secret/unknown jammed doors */
+        if (f_ptr->flags1 & (FF1_SECRET)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+
+
+/*
+ * Place a random type of jammed door at the given location.
+ */
+void place_jammed_door(int y, int x)
+{
+	int feat;
+
+        /*Set the hook */
+        get_feat_num_hook = vault_jammed_door;
+
+        get_feat_num_prep();
+
+        /* Click! */
+        feat = get_feat_num(object_level);
+
+        /* More paranoia */
+        if (!feat) return;
+
+        /* Activate the trap */
+        cave_set_feat(y, x, feat);
 }
 
 
@@ -3797,6 +4034,7 @@ void place_random_door(int y, int x)
 		place_closed_door(y, x);
 	}
 }
+
 
 
 /*
@@ -4087,6 +4325,29 @@ s16b inven_carry(object_type *o_ptr)
 	object_type *j_ptr;
 
 
+        int book_tval=0;
+
+	/* Hack -- for spell order, later */
+	switch (c_info[p_ptr->pclass].sp_stat)
+	{
+
+		case A_INT:
+		{
+			book_tval = TV_MAGIC_BOOK;
+			break;
+		}
+		case A_WIS:
+		{
+			book_tval = TV_PRAYER_BOOK;
+			break;
+		}
+                case A_CHR:
+		{
+			book_tval = TV_SONG_BOOK;
+			break;
+		}
+	}
+
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)
 	{
@@ -4153,6 +4414,10 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
+			if ((o_ptr->tval == book_tval) &&
+			    (j_ptr->tval != book_tval)) break;
+			if ((j_ptr->tval == book_tval) &&
+			    (o_ptr->tval != book_tval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;
@@ -4309,7 +4574,7 @@ s16b inven_takeoff(int item, int amt)
 
 
 	/* Take off instrument */
-	else if (i_ptr->tval == TV_SPELL)
+	else if (i_ptr->tval == TV_INSTRUMENT)
 	{
 		act = "You were playing";
 		p_ptr->held_song = 0;
@@ -4398,6 +4663,12 @@ void inven_drop(int item, int amt)
 		o_ptr = &inventory[item];
 	}
 
+        
+#ifdef ALLOW_OBJECT_INFO
+
+        drop_may_flags(o_ptr);
+
+#endif
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -4514,6 +4785,29 @@ void reorder_pack(void)
 
 	bool flag = FALSE;
 
+        int book_tval=0;
+
+	/* Hack -- for spell order, later */
+	switch (c_info[p_ptr->pclass].sp_stat)
+	{
+
+		case A_INT:
+		{
+			book_tval = TV_MAGIC_BOOK;
+			break;
+		}
+		case A_WIS:
+		{
+			book_tval = TV_PRAYER_BOOK;
+			break;
+		}
+                case A_CHR:
+		{
+			book_tval = TV_SONG_BOOK;
+			break;
+		}
+	}
+
 
 	/* Re-order the pack (forwards) */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -4540,6 +4834,10 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
+			if ((o_ptr->tval == book_tval) &&
+			    (j_ptr->tval != book_tval)) break;
+			if ((j_ptr->tval == book_tval) &&
+			    (o_ptr->tval != book_tval)) continue;
 
 			/* Objects sort by decreasing type */
 			if (o_ptr->tval > j_ptr->tval) break;

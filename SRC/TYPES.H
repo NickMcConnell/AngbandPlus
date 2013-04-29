@@ -83,6 +83,9 @@ typedef struct feature_state feature_state;
 typedef struct feature_blow feature_blow;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
+#ifdef ALLOW_OBJECT_INFO
+typedef struct object_info object_info;
+#endif
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
@@ -310,6 +313,33 @@ struct feature_type
 	char x_char;            /* Desired feature character */
 };
 
+#ifdef ALLOW_OBJECT_INFO
+/*
+ * Information known about objects.
+ *
+ * Note we should retain kind/ego item information from
+ * saved game to saved game, artifacts only if not random
+ * artifacts, and never objects.
+ */
+struct object_info
+{
+        u32b can_flags1;
+        u32b can_flags2;
+        u32b can_flags3;
+
+	u32b may_flags1;
+	u32b may_flags2;
+	u32b may_flags3;
+
+	u32b not_flags1;
+	u32b not_flags2;
+	u32b not_flags3;
+
+	s16b usage;
+	s16b fails;
+};
+#endif
+
 
 /*
  * Information about object "kinds", including player knowledge.
@@ -365,8 +395,11 @@ struct object_kind
 	bool aware;                     /* The player is "aware" of the item's effects */
 
 	bool tried;                     /* The player has "tried" one of the items */
-};
 
+#ifdef ALLOW_OBJECT_INFO
+        object_info i_kind;
+#endif
+};
 
 
 /*
@@ -411,6 +444,10 @@ struct artifact_type
 	byte activation;        /* Activation to use */
 	u16b time;                      /* Activation time */
 	u16b randtime;          /* Activation time dice */
+
+#ifdef ALLOW_OBJECT_INFO
+	object_info i_artifact;
+#endif
 };
 
 
@@ -444,6 +481,10 @@ struct ego_item_type
 	u32b flags1;            /* Ego-Item Flags, set 1 */
 	u32b flags2;            /* Ego-Item Flags, set 2 */
 	u32b flags3;            /* Ego-Item Flags, set 3 */
+
+#ifdef ALLOW_OBJECT_INFO
+        object_info i_ego_item;
+#endif
 };
 
 
@@ -665,6 +706,10 @@ struct object_type
 	s16b next_o_idx;        /* Next object in stack (if any) */
 
 	s16b held_m_idx;        /* Monster holding us (if any) */
+
+#ifdef ALLOW_OBJECT_INFO
+	object_info i_object;
+#endif
 };
 
 

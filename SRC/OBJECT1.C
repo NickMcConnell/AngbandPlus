@@ -25,8 +25,12 @@
 #define MAX_WOODS      32       /* Used with staffs (min 30) */
 #define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     60       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     50       /* Used with scrolls (min 48) */
+#ifdef ALLOW_MUSHROOM_HACK
+#define MAX_SHROOM     26       /* Used with mushrooms (min 21) */
+#else
+#define MAX_SHROOM     21       /* Used with mushrooms (min 21) */
+#endif
+#define MAX_TITLES     50       /* Used with scrolls (min 50) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 
@@ -150,13 +154,44 @@ static byte rod_col[MAX_METALS];
 /*
  * Mushrooms (adjectives and colors).
  */
+#ifdef ALLOW_MUSHROOM_HACK
+/* Note that we have changed most of the mushrooms flavours around so that
+   all cursed mushrooms have predictable flavours and are dropped by
+   the appropriate mushroom patch. This applies for the first 12 mushrooms.
+   We also hackily cause mushroom 20 to always be "Light Blue" as well.*/
+
+/* XXX If we don't use this hack -- then mushroom patches drop poisonous
+   mushrooms. */
+static cptr food_adj[MAX_SHROOM] =
+{
+        "Spotted", "Silver", "Yellow", "Grey", "Light Blue",
+        "Copper","Pink", "Purple", "Black", "Green",
+        "Rotting", "Brown","Blue", "Black Spotted", "Dark Blue",        
+        "Dark Green", "Dark Red", "Furry","Light Green", "Violet",
+        "Light Blue", /* Hack */
+        "Slimy", "Tan", "White", "White Spotted", "Wrinkled"
+
+};
+
+static byte food_col[MAX_SHROOM] =
+{
+        TERM_ORANGE, TERM_L_WHITE, TERM_YELLOW, TERM_SLATE, TERM_L_BLUE,
+        TERM_L_UMBER, TERM_L_RED, TERM_VIOLET, TERM_L_DARK, TERM_GREEN,
+        TERM_L_GREEN, TERM_UMBER, TERM_BLUE, TERM_L_DARK, TERM_BLUE,
+        TERM_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN, TERM_VIOLET,
+        TERM_L_BLUE, /* Hack */
+        TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+};
+
+#else
 
 static cptr food_adj[MAX_SHROOM] =
 {
 	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
 	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+        "Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+        "Purple"
 };
 
 static byte food_col[MAX_SHROOM] =
@@ -164,10 +199,11 @@ static byte food_col[MAX_SHROOM] =
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+        TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+        TERM_VIOLET
 };
 
-
+#endif
 /*
  * Color adjectives and colors, for potions.
  *
@@ -486,9 +522,19 @@ void flavor_init(void)
 	}
 
 	/* Foods (Mushrooms) */
-	for (i = 0; i < MAX_SHROOM; i++)
+#ifdef ALLOW_MUSHROOM_HACK
+        for (i = 12; i < MAX_SHROOM; i++)
+#else
+        for (i = 0; i < MAX_SHROOM; i++)
+#endif
 	{
-		j = rand_int(MAX_SHROOM);
+#ifdef ALLOW_MUSHROOM_HACK
+                j = rand_int(MAX_SHROOM-13)+12;
+                if (i==SV_FOOD_MANA) i++;
+                if (j>=SV_FOOD_MANA) j++;
+#else
+                j = rand_int(MAX_SHROOM);
+#endif
 		temp_adj = food_adj[i];
 		food_adj[i] = food_adj[j];
 		food_adj[j] = temp_adj;
@@ -694,6 +740,7 @@ void reset_visuals(bool unused)
 }
 
 
+
 /*
  * Modes of object_flags_aux()
  */
@@ -714,6 +761,15 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		/* Clear */
 		(*f1) = (*f2) = (*f3) = 0L;
 
+#ifdef ALLOW_OBJECT_INFO
+		if (mode != OBJECT_FLAGS_RANDOM)
+		{
+			/* Add flags object is known to have */
+			*f1 |= o_ptr->i_object.can_flags1;
+			*f2 |= o_ptr->i_object.can_flags2;
+			*f3 |= o_ptr->i_object.can_flags3;
+		}
+#endif
 		/* Must be identified */
 		if (!object_known_p(o_ptr)) return;
 	}
@@ -739,7 +795,12 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				(*f3) = a_ptr->flags3;
 			}
 		}
-
+#ifdef ALLOW_OBJECT_INFO
+		/* Add flags object is known to have */
+		*f1 |= o_ptr->i_object.can_flags1;
+		*f2 |= o_ptr->i_object.can_flags2;
+		*f3 |= o_ptr->i_object.can_flags3;
+#endif
 		/* Ego-item */
 		if (o_ptr->name2)
 		{
@@ -758,9 +819,9 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 				/* Obvious flags (pval) */
-				(*f1) = (a_ptr->flags1 & (TR1_PVAL_MASK));
+				(*f1) |= (a_ptr->flags1 & (TR1_PVAL_MASK));
 
-				(*f3) = (a_ptr->flags3 & (TR3_IGNORE_MASK));
+				(*f3) |= (a_ptr->flags3 & (TR3_IGNORE_MASK));
 			}
 		}
 	}
@@ -1582,7 +1643,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Add the weapon bonuses */
-	if (known)
+        if ((known) || (o_ptr->ident & (IDENT_BONUS)))
 	{
 		/* Show the tohit/todam on request */
 		if (show_weapon)
@@ -1616,7 +1677,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Add the armor bonuses */
-	if (known)
+        if ((known) || (o_ptr->ident & (IDENT_BONUS)))
 	{
 		/* Show the armor class info */
 		if (show_armour)
@@ -2099,9 +2160,8 @@ cptr item_activation(object_type *o_ptr)
 	return NULL;
 }
 
-
 /*
- * Fill an array with a description of the item flags.
+ * Fill an array with a (partial) description of the item flags.
  *
  * "info" must point to a cptr array that is big enough to store all
  * descriptions.
@@ -2113,42 +2173,10 @@ cptr item_activation(object_type *o_ptr)
  *
  * ToDo: Allow dynamic generation of strings.
  */
-bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
+
+int identify_fully_desc(cptr *info,u32b f1, u32b f2, u32b f3)
 {
-	int i = 0;
-
-	u32b f1, f2, f3;
-
-	/* Extract the "known" and "random" flags */
-	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
-
-
-	/* Mega-Hack -- describe activation */
-	if (f3 & (TR3_ACTIVATE))
-	{
-		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
-		info[i++] = "...if it is being worn.";
-	}
-
-
-	/* Hack -- describe lite's */
-	if (o_ptr->tval == TV_LITE)
-	{
-		if (artifact_p(o_ptr))
-		{
-			info[i++] = "It provides light (radius 3) forever.";
-		}
-		else if (o_ptr->sval == SV_LITE_LANTERN)
-		{
-			info[i++] = "It provides light (radius 2) when fueled.";
-		}
-		else
-		{
-			info[i++] = "It provides light (radius 1) when fueled.";
-		}
-	}
-
+	int i=0;
 
 	/* And then describe it fully */
 
@@ -2456,22 +2484,6 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 		info[i++] = "It has been blessed by the gods.";
 	}
 
-	if (object_known_p(o_ptr) && cursed_p(o_ptr))
-	{
-		if (f3 & (TR3_PERMA_CURSE))
-		{
-			info[i++] = "It is permanently cursed.";
-		}
-		else if (f3 & (TR3_HEAVY_CURSE))
-		{
-			info[i++] = "It is heavily cursed.";
-		}
-		else
-		{
-			info[i++] = "It is cursed.";
-		}
-	}
-
 	if (f3 & (TR3_IGNORE_ACID))
 	{
 		info[i++] = "It cannot be harmed by acid.";
@@ -2487,6 +2499,76 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	if (f3 & (TR3_IGNORE_COLD))
 	{
 		info[i++] = "It cannot be harmed by cold.";
+	}
+
+        return(i);
+}
+
+/*
+ * Fill an array with a description of the item flags.
+ *
+ * "info" must point to a cptr array that is big enough to store all
+ * descriptions.
+ *
+ * Returns the number of lines.
+ *
+ * ToDo: Check the len of the array to prevent buffer overflows
+ * (yes, this is paranoid).
+ *
+ * ToDo: Allow dynamic generation of strings.
+ */
+bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
+{
+	int i = 0;
+
+	u32b f1, f2, f3;
+
+	/* Extract the "known" and "random" flags */
+	object_flags_aux(mode, o_ptr, &f1, &f2, &f3);
+
+
+	/* Mega-Hack -- describe activation */
+	if (f3 & (TR3_ACTIVATE))
+	{
+		info[i++] = "It can be activated for...";
+		info[i++] = item_activation(o_ptr);
+		info[i++] = "...if it is being worn.";
+	}
+
+
+	/* Hack -- describe lite's */
+	if (o_ptr->tval == TV_LITE)
+	{
+		if (artifact_p(o_ptr))
+		{
+			info[i++] = "It provides light (radius 3) forever.";
+		}
+		else if (o_ptr->sval == SV_LITE_LANTERN)
+		{
+			info[i++] = "It provides light (radius 2) when fueled.";
+		}
+		else
+		{
+			info[i++] = "It provides light (radius 1) when fueled.";
+		}
+	}
+
+	i+=identify_fully_desc(&info[i],f1, f2, f3);
+
+	if (object_known_p(o_ptr) && cursed_p(o_ptr))
+	{
+		if (f3 & (TR3_PERMA_CURSE))
+		{
+			info[i++] = "It is permanently cursed.";
+		}
+		else if (f3 & (TR3_HEAVY_CURSE))
+		{
+			info[i++] = "It is heavily cursed.";
+		}
+		else
+		{
+			info[i++] = "It is cursed.";
+		}
 	}
 
 	/* Unknown extra powers (ego-item with random extras or artifact) */
@@ -2575,7 +2657,596 @@ bool identify_fully_aux(object_type *o_ptr)
 	return (TRUE);
 }
 
+#ifdef ALLOW_OBJECT_INFO
+/*
+ * Object does have flags.
+ */
 
+void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+{
+
+	/* Clear not flags */
+	o_ptr->i_object.not_flags1 &= ~(f1);
+	o_ptr->i_object.not_flags2 &= ~(f2);
+	o_ptr->i_object.not_flags3 &= ~(f3);
+
+	/* Clear may flags */
+	o_ptr->i_object.may_flags1 &= ~(f1);
+	o_ptr->i_object.may_flags2 &= ~(f2);
+	o_ptr->i_object.may_flags3 &= ~(f3);
+
+	/* Mark can flags */
+	o_ptr->i_object.can_flags1 |= (f1);
+	o_ptr->i_object.can_flags2 |= (f2);
+	o_ptr->i_object.can_flags3 |= (f3);
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;	
+
+	/* Artifact */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		a_ptr->i_artifact.not_flags1 &= ~(f1);
+		a_ptr->i_artifact.not_flags2 &= ~(f2);
+		a_ptr->i_artifact.not_flags3 &= ~(f3);
+
+		a_ptr->i_artifact.may_flags1 &= ~(f1);
+		a_ptr->i_artifact.may_flags2 &= ~(f2);
+		a_ptr->i_artifact.may_flags3 &= ~(f3);
+
+		a_ptr->i_artifact.can_flags1 |= (f1);
+		a_ptr->i_artifact.can_flags2 |= (f2);
+		a_ptr->i_artifact.can_flags3 |= (f3);
+
+	}
+
+	/* Ego item */
+	else if (o_ptr->name2)
+	{
+
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                e_ptr->i_ego_item.not_flags1 &= ~(f1);
+                e_ptr->i_ego_item.not_flags2 &= ~(f2);
+                e_ptr->i_ego_item.not_flags3 &= ~(f3);
+
+                e_ptr->i_ego_item.may_flags1 |= f1;
+                e_ptr->i_ego_item.may_flags2 |= f2;
+                e_ptr->i_ego_item.may_flags3 |= f3;
+
+	}
+	/* Kind */
+	else
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		k_ptr->i_kind.not_flags1 &= ~(f1);
+		k_ptr->i_kind.not_flags2 &= ~(f2);
+		k_ptr->i_kind.not_flags3 &= ~(f3);
+
+		k_ptr->i_kind.may_flags1 &= ~(f1);
+		k_ptr->i_kind.may_flags2 &= ~(f2);
+		k_ptr->i_kind.may_flags3 &= ~(f3);
+
+		k_ptr->i_kind.can_flags1 |= (f1);
+		k_ptr->i_kind.can_flags2 |= (f2);
+		k_ptr->i_kind.can_flags3 |= (f3);
+
+	}
+
+}
+
+
+/*
+ * One of these objects does. Return true if this is a possible object,
+ * or false if we already know this object, or know it cannot apply.
+ */
+
+bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+{
+
+	u32b if1=f1;
+	u32b if2=f2;
+	u32b if3=f3;
+
+	/* Clear bits with not flags */
+	if1 &= ~(o_ptr->i_object.not_flags1);
+	if2 &= ~(o_ptr->i_object.not_flags2);
+	if3 &= ~(o_ptr->i_object.not_flags3);
+
+        /* Clear bits with can flags */
+        if1 &= ~(o_ptr->i_object.can_flags1);
+        if2 &= ~(o_ptr->i_object.can_flags2);
+        if3 &= ~(o_ptr->i_object.can_flags3);
+
+	/* Mark may flags */
+	o_ptr->i_object.may_flags1 |= (if1);
+	o_ptr->i_object.may_flags2 |= (if2);
+	o_ptr->i_object.may_flags3 |= (if3);
+
+	return((if1!=0)||(if2!=0)||(if3!=0));	
+
+}
+
+/*
+ * One of these objects does. Return true if this is a possible object,
+ * or false if we already know this object, or know it cannot apply.
+ *
+ * Unlike the above routine... do not set the may flags.
+ */
+
+bool object_xnot_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+{
+
+	u32b if1=f1;
+	u32b if2=f2;
+	u32b if3=f3;
+
+	/* Clear bits with not flags */
+	if1 &= ~(o_ptr->i_object.not_flags1);
+	if2 &= ~(o_ptr->i_object.not_flags2);
+	if3 &= ~(o_ptr->i_object.not_flags3);
+
+#if 0
+        /* Clear bits with can flags */
+        if1 &= ~(o_ptr->i_object.can_flags1);
+        if2 &= ~(o_ptr->i_object.can_flags2);
+        if3 &= ~(o_ptr->i_object.can_flags3);
+#endif
+        /* Compare bits with may flags */
+        if1 &= (o_ptr->i_object.may_flags1);
+        if2 &= (o_ptr->i_object.may_flags2);
+        if3 &= (o_ptr->i_object.may_flags3);
+
+
+	return((if1!=0)||(if2!=0)||(if3!=0));	
+
+}
+
+
+
+
+/*
+ * Object does not have flags.
+ */
+void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+{
+
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+	/* Mark not flags */
+	o_ptr->i_object.not_flags1 |= (f1);
+	o_ptr->i_object.not_flags2 |= (f2);
+	o_ptr->i_object.not_flags3 |= (f3);
+
+	/* Clear may flags */
+	o_ptr->i_object.may_flags1 &= ~(f1);
+	o_ptr->i_object.may_flags2 &= ~(f2);
+	o_ptr->i_object.may_flags3 &= ~(f3);
+
+	/* Clear can flags */
+	o_ptr->i_object.can_flags1 &= ~(f1);
+	o_ptr->i_object.can_flags2 &= ~(f2);
+	o_ptr->i_object.can_flags3 &= ~(f3);
+
+	/* Must be aware */
+	if (!(k_ptr->aware)) return;
+
+	k_ptr->i_kind.not_flags1 &= ~(f1);
+	k_ptr->i_kind.not_flags2 &= ~(f2);
+	k_ptr->i_kind.not_flags3 &= ~(f3);
+
+	k_ptr->i_kind.may_flags1 &= ~(f1);
+	k_ptr->i_kind.may_flags2 &= ~(f2);
+	k_ptr->i_kind.may_flags3 &= ~(f3);
+
+	k_ptr->i_kind.can_flags1 |= (f1);
+	k_ptr->i_kind.can_flags2 |= (f2);
+	k_ptr->i_kind.can_flags3 |= (f3);
+
+	/* Must be identified */
+	if (!object_known_p(o_ptr)) return;	
+
+	/* Artifact */
+	if (o_ptr->name1)
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		a_ptr->i_artifact.not_flags1 |= f1;
+		a_ptr->i_artifact.not_flags2 |= f2;
+		a_ptr->i_artifact.not_flags3 |= f3;
+
+		a_ptr->i_artifact.may_flags1 &= ~(f1);
+		a_ptr->i_artifact.may_flags2 &= ~(f2);
+		a_ptr->i_artifact.may_flags3 &= ~(f3);
+
+		a_ptr->i_artifact.can_flags1 &= ~(f1);
+		a_ptr->i_artifact.can_flags2 &= ~(f2);
+		a_ptr->i_artifact.can_flags3 &= ~(f3);
+
+	}
+
+	/* Ego item */
+	if (o_ptr->name2)
+	{
+
+		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+
+                e_ptr->i_ego_item.can_flags1 &= ~(f1);
+                e_ptr->i_ego_item.can_flags2 &= ~(f2);
+                e_ptr->i_ego_item.can_flags3 &= ~(f3);
+
+	}
+
+}
+
+/*
+ * Object forgets may flags
+ */
+
+void object_may_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
+{
+
+	/* Clear may flags */
+        o_ptr->i_object.may_flags1 &= ~(f1);
+        o_ptr->i_object.may_flags2 &= ~(f2);
+        o_ptr->i_object.may_flags3 &= ~(f3);
+
+	return;	
+
+}
+
+
+
+/*
+ * Equipment dropped off (forget all equipped/inventory may flags
+ * on objects still held)
+ */
+
+void drop_may_flags(object_type *o_ptr)
+{
+	int i;
+	u32b f1 = o_ptr->i_object.may_flags1;
+	u32b f2 = o_ptr->i_object.may_flags2;
+	u32b f3 = o_ptr->i_object.may_flags3;
+
+	object_type *i_ptr;
+
+	/* Clear equipment may flags*/
+        for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+                object_may_flags(i_ptr,f1,f2,f3);
+
+	}
+
+}
+
+/*
+ * Equipment dropped off (forget all equipped/inventory may flags
+ * on objects still held)
+ */
+
+void clear_may_flags(void)
+{
+	int i;
+
+	object_type *i_ptr;
+
+	/* Clear equipment may flags*/
+        for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		i_ptr->i_object.may_flags1 = 0x0L;
+		i_ptr->i_object.may_flags2 = 0x0L;
+		i_ptr->i_object.may_flags3 = 0x0L;
+
+	}
+
+}
+
+/*
+ * Usage count for an object
+ */
+void object_usage(object_type *o_ptr)
+{
+	char o_name[80];
+
+        if ((o_ptr->i_object.usage)<MAX_SHORT) o_ptr->i_object.usage++;
+
+	/* Describe the object */
+        object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Don't identify if fully known */
+	if (o_ptr->ident & (IDENT_MENTAL)) return;
+
+	/* Describe the object */
+        object_desc(o_name, o_ptr, FALSE, 0);
+
+#if 0
+	/* Hack --- know everything */
+        if ((o_ptr->i_object.usage) == MAX_SHORT)
+	{
+
+		/* Describe what we know */
+                msg_format("You feel you know everything about the %s.",o_name);
+
+		/* Identify it fully */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		/* Clear may flags */
+		clear_may_flags();
+
+		/* Mark the item as fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+                return;
+	}
+#endif
+	/* Hack --- know most things */
+        if ((o_ptr->i_object.usage) > 20000)
+	{
+
+		/* Describe what we know */
+                msg_format("You feel you recognize the %s.",o_name);
+
+		/* Identify it fully */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+                return;
+
+	}
+
+        if (((o_ptr->i_object.usage) > 500) && (((o_ptr->i_object.usage) % 100) == 0)
+                && (o_ptr->ident & (IDENT_SENSE)) && (rand_int(100) <30))
+	{
+
+		/* Describe what we know */
+                msg_format("You feel you know more about the %s.",o_name);
+
+		/* Identify the kind */
+		object_aware(o_ptr);
+
+		/* Mark the item as partially known */
+		o_ptr->ident |= (IDENT_BONUS);
+
+		/* Clear may flags */
+		clear_may_flags();
+		
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Combine / Reorder the pack (later) */
+		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	}
+
+}
+
+/*
+ * Equipment must have these flags
+ */
+void equip_can_flags(u32b f1,u32b f2,u32b f3)
+{
+	int i;
+
+	int n=-1;
+	int count=0;
+
+	object_type *i_ptr;
+
+
+	/* Hack --- exclude racial flags */
+	f1 &= ~(rp_ptr->flags1);
+	f2 &= ~(rp_ptr->flags2);
+	f3 &= ~(rp_ptr->flags3);
+
+	/* Check for flags */
+        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		if (object_xcan_flags(i_ptr, f1, f2, f3))
+		{
+			count++;
+
+			/* Hack -- track last item */
+			n = i;
+		}
+
+	}
+
+	/* Only 1 item can, therefore it must */
+        if (count == 1)
+	{
+		cptr info[128];
+
+		cptr act;
+
+		char o_name[80];
+
+		int j,k;
+
+		i_ptr= &inventory[n];
+
+		object_can_flags(i_ptr,f1,f2,f3);
+
+		/* Describe the object */
+                object_desc(o_name, i_ptr, FALSE, 0);
+
+		/* Destroy spell */
+		if (i_ptr->tval == TV_SPELL)
+		{
+        	        act = "enchanted with";
+		}
+
+
+		/* Take off instrument */
+		else if (i_ptr->tval == TV_INSTRUMENT)
+		{
+			act = "playing";
+			p_ptr->held_song = 0;
+		}
+
+		/* Took off weapon */
+                else if (n == INVEN_WIELD)
+		{
+			act = "wielding";
+		}
+
+		/* Took off bow */
+                else if (n == INVEN_BOW)
+		{
+			act = "holding";
+		}
+
+		/* Took off light */
+                else if (n == INVEN_LITE)
+		{
+			act = "holding";
+		}
+
+		/* Took off something */
+		else
+		{
+			act = "wearing";
+		}
+
+		/* Describe what we know */
+                msg_format("You feel you know the %s you are %s better...",o_name, act);
+
+		k= identify_fully_desc(info,f1,f2,f3);
+
+		for (j = 0; j < k; j++)
+		{
+			msg_format("%s",info[j]);
+		}
+
+
+		/* Clear may flags */
+                drop_may_flags(i_ptr);
+	}
+
+}
+
+/*
+ * Equipment does not have these flags
+ */
+
+void equip_not_flags(u32b f1,u32b f2,u32b f3)
+{
+	int i;
+
+	int n=-1;
+	int count=0;
+
+	object_type *i_ptr;
+
+	/* Mark equipment with not flags*/
+        for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+		object_not_flags(i_ptr,f1,f2,f3);
+
+	}
+
+	/* Check inventory may flags*/
+        for (i = 0; i < INVEN_WIELD; i++)
+	{
+		i_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!i_ptr->k_idx) continue;
+
+                if (object_xnot_flags(i_ptr, f1, f2, f3))
+		{
+			count++;
+			
+			/* Hack -- track last item */
+			n = i;
+
+		}
+
+	}
+
+	/* Only 1 item can, therefore it must */
+        if (count == 1)
+	{
+		cptr info[128];
+
+		cptr act="carrying in your pack";
+
+		char o_name[80];
+
+		int j,k;
+
+		i_ptr= &inventory[n];
+
+		object_can_flags(i_ptr,f1,f2,f3);
+
+		/* Describe the object */
+                object_desc(o_name, i_ptr, FALSE, 0);
+
+		/* Describe what we know */
+                msg_format("You feel you know the %s you are %s better...",o_name, act);
+
+		k= identify_fully_desc(info,f1,f2,f3);
+
+		for (j = 0; j < k; j++)
+		{
+			msg_format("%s",info[j]);
+		}
+
+
+	}
+
+}
+
+
+
+
+
+#endif
 
 /*
  * Convert an inventory index into a one character label.

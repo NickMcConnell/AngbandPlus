@@ -942,7 +942,7 @@
 
 #define FS_FLAGS3       64
 
-#define FS_FLAGS_END    96
+#define FS_FLAGS_END    64
 
 
 
@@ -1760,6 +1760,7 @@
 #define SV_FOOD_RESTORE_STR             17
 #define SV_FOOD_RESTORE_CON             18
 #define SV_FOOD_RESTORING               19
+#define SV_FOOD_MANA                    20
 /* many missing mushrooms */
 #define SV_FOOD_BISCUIT                 32
 #define SV_FOOD_JERKY                   33
@@ -2026,7 +2027,7 @@
 #define IDENT_FIXED             0x02    /* Item has been "haggled" */
 #define IDENT_EMPTY             0x04    /* Item charges are known */
 #define IDENT_KNOWN             0x08    /* Item abilities are known */
-#define IDENT_RUMOUR    0x10    /* Item background is known */
+#define IDENT_BONUS    0x10    /* Item abilities are partially known */
 #define IDENT_MENTAL    0x20    /* Item information is known */
 #define IDENT_CURSED    0x40    /* Item is temporarily cursed */
 #define IDENT_BROKEN    0x80    /* Item is permanently worthless */

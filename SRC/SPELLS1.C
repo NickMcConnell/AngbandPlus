@@ -857,16 +857,32 @@ static int minus_ac(void)
 	/* Object resists */
 	if (f3 & (TR3_IGNORE_ACID))
 	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
+#endif
+
 		msg_format("Your %s is unaffected!", o_name);
 
 		return (TRUE);
 	}
+
+#ifdef ALLOW_OBJECT_INFO
+	/* Always notice */
+	object_not_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
+#endif
 
 	/* Message */
 	msg_format("Your %s is damaged!", o_name);
 
 	/* Damage the item */
 	o_ptr->to_a--;
+
+        /* Hack --- unsense the item */
+        o_ptr->ident &= ~(IDENT_SENSE);        
+
+	/* Remove special inscription, if any */
+	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 	/* Calculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -887,10 +903,31 @@ void acid_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Total Immunity */
-	if (p_ptr->immune_acid || (dam <= 0)) return;
+	if (p_ptr->immune_acid || (dam <= 0))
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_ACID,0x0L);
+#endif
+		return;
+	}
 
 	/* Resist the damage */
-	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
+	if (p_ptr->resist_acid)
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_ACID,0x0L);
+#endif
+		dam = (dam + 2) / 3;
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_ACID,0x0L);
+#endif
+	}
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
 
 	/* If any armor gets hit, defend the player */
@@ -912,11 +949,33 @@ void elec_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Total immunity */
-	if (p_ptr->immune_elec || (dam <= 0)) return;
+	if (p_ptr->immune_elec || (dam <= 0))
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_ELEC,0x0L);
+#endif
+		return;
+	}
+
 
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
-	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
+	if (p_ptr->resist_elec)
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_ELEC,0x0L);
+#endif
+		dam = (dam + 2) / 3;
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_ELEC,0x0L);
+#endif
+	}
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -936,10 +995,33 @@ void fire_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Totally immune */
-	if (p_ptr->immune_fire || (dam <= 0)) return;
+	if (p_ptr->immune_fire || (dam <= 0))
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_FIRE,0x0L);
+#endif
+		return;
+	}
+
 
 	/* Resist the damage */
-	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
+	if (p_ptr->resist_fire)
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_FIRE,0x0L);
+#endif
+		dam = (dam + 2) / 3;
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_FIRE,0x0L);
+#endif
+	}
+
 	if (p_ptr->oppose_fire) dam = (dam + 2) / 3;
 
 	/* Take damage */
@@ -958,10 +1040,32 @@ void cold_dam(int dam, cptr kb_str)
 	int inv = (dam < 30) ? 1 : (dam < 60) ? 2 : 3;
 
 	/* Total immunity */
-	if (p_ptr->immune_cold || (dam <= 0)) return;
+	if (p_ptr->immune_cold || (dam <= 0))
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		equip_can_flags(0x0L,TR2_IM_COLD,0x0L);
+#endif
+		return;
+	}
+
 
 	/* Resist the damage */
-	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
+	if (p_ptr->resist_cold)
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_COLD,0x0L);
+#endif
+		dam = (dam + 2) / 3;
+	}
+	else
+	{
+#ifdef ALLOW_OBJECT_INFO
+		/* Sometimes notice */
+		if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_COLD,0x0L);
+#endif
+	}
 	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 
 	/* Take damage */
@@ -1257,7 +1361,16 @@ bool apply_disenchant(int mode)
 		msg_format("Your %s (%c) resist%s disenchantment!",
 			   o_name, index_to_label(t),
 			   ((o_ptr->number != 1) ? "" : "s"));
+#ifdef ALLOW_OBJECT_INFO
+		/* Always notice */
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ELEC);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_FIRE);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_COLD);
 
+		/* Hack --- use this flag to mark as artifact */
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
+#endif
 		/* Notice */
 		return (TRUE);
 	}
@@ -1279,6 +1392,12 @@ bool apply_disenchant(int mode)
 	msg_format("Your %s (%c) %s disenchanted!",
 		   o_name, index_to_label(t),
 		   ((o_ptr->number != 1) ? "were" : "was"));
+
+        /* Hack --- unsense the item */
+        o_ptr->ident &= ~(IDENT_SENSE);        
+
+	/* Remove special inscription, if any */
+	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1581,7 +1700,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 
 			/* Destroy walls/doors */
-			if (f_info[cave_feat[y][x]].flags1 & (FF2_HURT_ROCK)) {
+			if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_ROCK)) {
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
@@ -1652,7 +1771,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                         int feat = cave_feat[y][x];
 
 			if (f_info[feat].flags2 & (FF2_WATER) && !((f_info[feat].flags1 & (FF1_MORE)) ||
-                                (f_info[feat].flags1 & (FF1_LESS)) || (f_info[feat].flags1 & (FF2_FILLED))))
+                                (f_info[feat].flags1 & (FF1_LESS)) || (f_info[feat].flags2 & (FF2_FILLED))))
 			{
                                 cave_set_feat(y,x,FEAT_WATER_K);
 			}
@@ -3718,13 +3837,26 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_POIS:
 		{
 			if (fuzzy) msg_print("You are hit by poison!");
-			if (p_ptr->resist_pois) dam = (dam + 2) / 3;
+			if (p_ptr->resist_pois)
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
+				dam = (dam + 2) / 3;
+			}
+
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
+#ifdef ALLOW_OBJECT_INFO
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+#endif
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
 			}
+
 			break;
 		}
 
@@ -3761,7 +3893,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
+
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + k);
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			break;
 		}
@@ -3772,23 +3916,44 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_nethr)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
+
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(200 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
 					lose_exp(200 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 			}
 			take_hit(dam, killer);
@@ -3801,12 +3966,35 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(40));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+			}
+
 			water_dam(dam, killer);
 
 			break;
@@ -3833,29 +4021,76 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_chaos)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
 				(void)set_image(p_ptr->image + randint(10));
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
+#endif
+			}
+
 			if (!p_ptr->resist_nethr && !p_ptr->resist_chaos)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
 					msg_print("You keep hold of your life force!");
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
 					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
 					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				}
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_NETHR,0x0L);
+#endif
+			}
+
 			take_hit(dam, killer);
 			break;
 		}
@@ -3866,10 +4101,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			if (p_ptr->resist_shard)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 				(void)set_cut(p_ptr->cut + dam);
 			}
 			take_hit(dam, killer);
@@ -3882,11 +4125,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if (!fuzzy) equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				dam *= 5; dam /= (randint(6) + 6);
 			}
 			else
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + k);
 			}
 			take_hit(dam, killer);
@@ -3899,10 +4150,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if (!fuzzy) equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				dam *= 5; dam /= (randint(6) + 6);
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if (!fuzzy) equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
 			take_hit(dam, killer);
@@ -3915,10 +4174,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_disen)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if ((!fuzzy)&&(rand_int(100)<dam)) equip_can_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+				if (rand_int(100)<dam) equip_not_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
 				(void)apply_disenchant(0);
 			}
 			take_hit(dam, killer);
@@ -3931,10 +4198,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something strange!");
 			if (p_ptr->resist_nexus)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if (!fuzzy) equip_can_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
 				dam *= 6; dam /= (randint(6) + 6);
 			}
 			else if (who > 0)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_NEXUS,0x0L);
+#endif
 				apply_nexus(m_ptr);
 			}
 			take_hit(dam, killer);
@@ -3947,6 +4222,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				if (!fuzzy) equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(20));
 			}
 			take_hit(dam, killer);
@@ -3968,10 +4247,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_lite)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_LITE,0x0L);
+#endif
 				dam *= 4; dam /= (randint(6) + 6);
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,(TR2_RES_BLIND|TR2_RES_LITE),0x0L);
+#endif
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
 			take_hit(dam, killer);
@@ -3984,10 +4271,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by something!");
 			if (p_ptr->resist_dark)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if (rand_int(100)<dam) equip_can_flags(0x0L,TR2_RES_DARK,0x0L);
+#endif
 				dam *= 4; dam /= (randint(6) + 6);
 			}
 			else if (!blind && !p_ptr->resist_blind)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,(TR2_RES_BLIND|TR2_RES_DARK),0x0L);
+#endif
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
 			take_hit(dam, killer);
@@ -4084,11 +4379,33 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			cold_dam(dam, killer);
 			if (!p_ptr->resist_shard)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(15));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			break;
 		}
@@ -4115,8 +4432,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Allow complete resist */
 			if (!p_ptr->resist_disen)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
 				/* Apply disenchantment */
 				if (apply_disenchant(0)) obvious = TRUE;
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if (rand_int(100)<30) equip_can_flags(0x0L,TR2_RES_DISEN,0x0L);
+#endif
 			}
 
 			break;
@@ -4271,7 +4599,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 				/* Skip non-objects */
 				if (!o_ptr->k_idx) continue;
-
+#ifdef ALLOW_OBJECT_INFO
+				/* Very rarely notice artifacts */
+				if ((rand_int(100)<3) && (artifact_p(o_ptr))) object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
+#endif
 				/* Skip artifacts */
 				if (artifact_p(o_ptr)) continue;
 
@@ -4387,7 +4718,12 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				/* Window stuff */
 				p_ptr->window |= (PW_EQUIP);
 			}
-
+			else if (artifact_p(o_ptr))
+			{
+#ifdef ALLOW_OBJECT_INFO
+				if (rand_int(100)<30) object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
+#endif
+			}
 			break;
 		}
 
@@ -4401,14 +4737,28 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Increase "blind" */
 			if (!p_ptr->resist_blind)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				if (set_blind(p_ptr->blind + 10 + randint(dam)))
 				{
 					obvious = TRUE;
 				}
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
+			}
 
-			/* Learn about the player */
-			update_smart_learn(who, DRS_RES_BLIND);
+			if (who > 0)
+			{
+				/* Learn about the player */
+				update_smart_learn(who, DRS_RES_BLIND);
+			}
 
 			break;
 		}
@@ -4420,6 +4770,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Apply resistance */
 			if (p_ptr->resist_fear)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if(rand_int(100)<dam)equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+#endif
 				dam *= 5; dam /= (randint(6) + 6);
 			}
 
@@ -4429,6 +4783,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Increase "afraid" */
 			if (p_ptr->resist_fear)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Sometimes notice */
+                                if (rand_int(100)<30) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
 				msg_print("You stand your ground!");
 				obvious = TRUE;
 			}
@@ -4439,14 +4797,21 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+#endif
 				if (set_afraid(p_ptr->afraid + 3 + randint(dam)))
 				{
 					obvious = TRUE;
 				}
 			}
 
-			/* Learn about the player */
-			update_smart_learn(who, DRS_RES_FEAR);
+			if (who > 0)
+			{
+				/* Learn about the player */
+				update_smart_learn(who, DRS_RES_FEAR);
+			}
 
 			break;
 		}
@@ -4462,6 +4827,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Increase "paralyzed" */
 			if (p_ptr->free_act)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				msg_print("You are unaffected!");
 				obvious = TRUE;
 			}
@@ -4472,14 +4841,21 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				if (set_paralyzed(p_ptr->paralyzed + 3 + randint(dam)))
 				{
 					obvious = TRUE;
 				}
 			}
 
-			/* Learn about the player */
-			update_smart_learn(who, DRS_FREE);
+			if (who > 0)
+			{
+				/* Learn about the player */
+				update_smart_learn(who, DRS_FREE);
+			}
 
 			break;
 		}
@@ -4492,6 +4868,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			/* Increase "paralyzed" */
 			if (p_ptr->free_act)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
 				msg_print("You are unaffected!");
 				obvious = TRUE;
 			}
@@ -4502,14 +4882,20 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+#endif
                                 if (set_slow(p_ptr->slow + randint(25) + 15)) obvious = TRUE;
 				{
 					obvious = TRUE;
 				}
 			}
-
-			/* Learn about the player */
-			update_smart_learn(who, DRS_FREE);
+			if (who > 0)
+			{
+				/* Learn about the player */
+				update_smart_learn(who, DRS_FREE);
+			}
 
                 }
 
@@ -4632,6 +5018,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			if (p_ptr->hold_life && (rand_int(100) < 95))
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				msg_print("You keep hold of your life force!");
 			}
 			else
@@ -4639,11 +5029,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				s32b d = damroll(10, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 				if (p_ptr->hold_life)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
 				}
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life draining away!");
 					lose_exp(d);
 				}
@@ -4661,6 +5059,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			if (p_ptr->hold_life && (rand_int(100) < 90))
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				msg_print("You keep hold of your life force!");
 			}
 			else
@@ -4669,10 +5071,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					lose_exp(d/10);
 				}
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life draining away!");
 					lose_exp(d);
 				}
@@ -4690,6 +5100,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			if (p_ptr->hold_life && (rand_int(100) < 75))
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				msg_print("You keep hold of your life force!");
 			}
 			else
@@ -4697,11 +5111,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				s32b d = damroll(40, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 				if (p_ptr->hold_life)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
 				}
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life draining away!");
 					lose_exp(d);
 				}
@@ -4719,6 +5141,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			if (p_ptr->hold_life && (rand_int(100) < 50))
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 				msg_print("You keep hold of your life force!");
 			}
 			else
@@ -4726,11 +5152,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				s32b d = damroll(80, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
 				if (p_ptr->hold_life)
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+                                        equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life slipping away!");
 					lose_exp(d/10);
 				}
 				else
 				{
+#ifdef ALLOW_OBJECT_INFO
+					/* Always notice */
+					equip_not_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+#endif
 					msg_print("You feel your life draining away!");
 					lose_exp(d);
 				}
@@ -4743,11 +5177,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 			if (p_ptr->ffall)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				msg_print("You float gently down to the bottom of the pit.");
 				dam=0;
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				take_hit(dam, killer);
 			}
 
@@ -4758,11 +5200,19 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (p_ptr->ffall)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				msg_print("You float gently down to the next level.");
 				dam = 0;
 			}
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				take_hit(dam, killer);
 			}
 
@@ -4780,12 +5230,20 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (p_ptr->ffall)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
 
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
@@ -4805,12 +5263,20 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (p_ptr->ffall)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				msg_print("You float gently to the floor of the pit.");
 				msg_print("You carefully avoid touching the spikes.");
 			}
 
 			else
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,0x0L,TR3_FEATHER);
+#endif
 				/* Extra spike damage */
 				if (rand_int(100) < 50)
 				{
@@ -4845,12 +5311,35 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			msg_print ("You are surrounded by lava!");
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(40));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+			}
+
 			fire_dam(dam, killer);
 
 			break;
@@ -4861,15 +5350,37 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			msg_print("You are scalded by boiling water.");
 
-			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(40));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+			}
+
 
 			water_dam((dam*2)/3,killer);
 			fire_dam(dam/3,killer);
@@ -4881,15 +5392,37 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			msg_print("You are splashed with boiling mud.");
 
-			if (fuzzy) msg_print("You are hit by something!");
 			if (!p_ptr->resist_sound)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 				(void)set_stun(p_ptr->stun + randint(40));
+			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_SOUND,0x0L);
+#endif
 			}
 			if (!p_ptr->resist_confu)
 			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
+			else
+			{
+#ifdef ALLOW_OBJECT_INFO
+				/* Always notice */
+				equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+#endif
+			}
+
 
 			water_dam((dam*2)/3,killer);
 			fire_dam(dam/3,killer);
@@ -4938,8 +5471,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
  * Allows a monster (or player) to project a beam/bolt/ball of a given kind
  * towards a given location (optionally passing over the heads of interposing
  * monsters), and have it do a given amount of damage to the monsters (and
- * optionally objects) within the given radius of the final location.
- *
+ * optionally objects) within the given radius of the final location. *
  * A "bolt" travels from source to target and affects only the target grid.
  * A "beam" travels from source to target, affecting all grids passed through.
  * A "ball" travels from source to the target, exploding at the target, and
