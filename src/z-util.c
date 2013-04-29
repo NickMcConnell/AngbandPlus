@@ -21,7 +21,7 @@
 /*
  * Convenient storage of the program name
  */
-cptr argv0 = NULL;
+char *argv0 = NULL;
 
 
 /*

@@ -1298,7 +1298,7 @@ player_magic magic_info[MAX_CLASS] =
       TV_MAGIC_BOOK,   A_INT,   REALM_SORCERY,   1,   250,  600,
       
       /* 64 spells in nine books. */
-      63,	{ 0, 9, 17, 25, 33, 39, 45, 51, 57, 64, 64 },
+      63,	{ 0, 9, 17, 25, 34, 40, 46, 52, 58, 64, 64 },
       
       {
 	/* Magic for Beginners (sval 0) */
@@ -1340,6 +1340,7 @@ player_magic magic_info[MAX_CLASS] =
 	{  29,	23,  7, 55,  12},	/* Slow Monster */
 	{  30,	25, 12, 60,  13},	/* Teleport Other */
 	{  31,	25, 12, 65,  15},	/* Haste Self */
+	{  58, 	30, 35, 60,  30},  	/* Rune of Magic Influence */
 	{  32,	35, 30, 80,  15},	/* Hold Monsters */
 	
 	/* Magical Defence (sval 4) */
@@ -1377,7 +1378,6 @@ player_magic magic_info[MAX_CLASS] =
 	/* Book of Runes (sval 8) */
 	
 	{  57, 	25, 20, 60,  20}, 	/* Rune of the Elements */
-	{  58, 	30, 35, 60,  30},  	/* Rune of Magic Influence */
 	{  59, 	30, 35, 50,  35},  	/* Rune of Instability */
 	{  60, 	33, 40, 65,  35},  	/* Rune of Mana */
 	{  61, 	36, 40, 70,  40},  	/* Rune of Protection */
@@ -2033,10 +2033,11 @@ cptr spell_names[255] =
     "Slow Monster",
     "Teleport Other",
     "Haste Self",
+    "Rune of Magic Influence",
     "Hold Monsters",
    
     /* Magical Defence (sval 4) */
-    "Clear Mind",						/* index 33 */
+    "Clear Mind",						/* index 34 */
     "Resist Element",
     "Shield",
     "Resistance",
@@ -2044,7 +2045,7 @@ cptr spell_names[255] =
     "Strengthen Defenses",
      
     /* Escapes and Trickery (sval 5) */
-    "Door Creation",						/* index 39 */
+    "Door Creation",						/* index 40 */
     "Stair Creation",
     "Teleport Level",
     "Word of Recall",
@@ -2052,7 +2053,7 @@ cptr spell_names[255] =
     "Dimension Door",
     
     /* Advanced Sorcery (sval 6) */
-    "Acid Bolt",						/* index 45 */
+    "Acid Bolt",						/* index 46 */
     "Polymorph Other",
     "Earthquake",
     "Beguiling",
@@ -2060,7 +2061,7 @@ cptr spell_names[255] =
     "Major Recharge",
     
     /* Power and Destruction (sval 7) */
-    "Cloud Kill",						/* index 51 */
+    "Cloud Kill",						/* index 52 */
     "Ice Storm",
     "Meteor Swarm",
     "Cacophony",
@@ -2068,8 +2069,7 @@ cptr spell_names[255] =
     "Wall of Force",
    
     /* Book of Runes (sval 8) */
-    "Rune of the Elements",					/* index 57 */
-    "Rune of Magical Defence",
+    "Rune of the Elements",					/* index 58 */
     "Rune of Instability",
     "Rune of Mana",
     "Rune of Protection",
@@ -2705,7 +2705,8 @@ cptr option_text[OPT_MAX] =
     "show_lists",                       /* OPT_show_lists */
     "hide_squelchable",                 /* OPT_hide_squelchable */
     "auto_squelch",                     /* OPT_auto_squelch */
-    NULL,		NULL,		NULL,
+    "use_sound",		        /* OPT_use_sound */
+    NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL, /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,
@@ -2859,7 +2860,8 @@ cptr option_desc[OPT_MAX] =
     "Automatically show lists for commands", /* OPT_show_lists */
     "Hide items set as squelchable",          	/* OPT_hide_squelchable */
     "Destroy items marked as squelch automatically",	/* OPT_auto_squelch */
-    NULL,		NULL,		NULL,
+    "Play sounds in game",		     /* OPT_use_sound */
+    NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,  /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,	
@@ -3011,7 +3013,10 @@ bool option_norm[OPT_MAX] =
     TRUE,			  /* OPT_show_detect */
     TRUE,		/* OPT_disturb_trap_detect */
     FALSE,              /* OPT_show_lists */
-    FALSE,		FALSE,		FALSE,		FALSE,
+    FALSE,		/* OPT_hide_squelchable */
+    FALSE,		/* OPT_auto_squelch */
+    FALSE,		/* OPT_use_sound */
+    FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,	/*80*/
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
@@ -3111,7 +3116,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_squelch_worthless,
       OPT_hide_squelchable,
       OPT_xchars_to_file,
-      OPT_NONE
+      OPT_use_sound
     },
 
     /*** Disturbance ***/

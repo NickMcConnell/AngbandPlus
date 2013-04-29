@@ -24,7 +24,7 @@
 /**** Available variables ****/
 
 /* A cptr to the name of the program */
-extern cptr argv0;
+extern char *argv0;
 
 
 /* Aux functions */

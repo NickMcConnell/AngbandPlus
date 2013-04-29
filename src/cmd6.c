@@ -4816,7 +4816,7 @@ void do_cmd_activate(void)
 	    msg_print("Magical power flows from your staff.");
 	    p_ptr->redraw |= (PR_MANA);
 	    p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-	    o_ptr->timeout = rand_int(5) + 10;
+	    o_ptr->timeout = rand_int(10) + 15;
 	  }
 	break;
       }

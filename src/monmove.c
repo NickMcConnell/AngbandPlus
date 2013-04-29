@@ -1604,7 +1604,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
   
   int lowest_cost = 250;
   
-  bool use_sound = FALSE;
+  bool use_psound = FALSE;
   bool use_scent = FALSE;
   
   monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -1642,7 +1642,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
   /* If we can hear noises, advance towards them */
   if (cave_cost[y1][x1])
     {
-      use_sound = TRUE;
+      use_psound = TRUE;
     }
   
   /* Otherwise, try to follow a scent trail */
@@ -1652,7 +1652,7 @@ static void get_move_advance(monster_type *m_ptr, int *ty, int *tx)
     }
   
   /* Otherwise, advance blindly */
-  if ((!use_sound) && (!use_scent))
+  if ((!use_psound) && (!use_scent))
     {
       /* Player is the target */
       if (m_ptr->hostile < 0)
@@ -4125,7 +4125,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	}
       
       /* Possible disturb */
-      else if (m_ptr->ml && 
+      else if (m_ptr->ml && (m_ptr->hostile == -1) &&
 	       (disturb_move || 
 		(disturb_near && 
 		 ((m_ptr->mflag & (MFLAG_VIEW)) ||

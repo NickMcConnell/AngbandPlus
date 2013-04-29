@@ -1232,7 +1232,7 @@ void update_mon(int m_idx, bool full)
   
   
   /* Nearby */
-  if (d <= (p_ptr->themed_level ? MAX_SIGHT / 2 : MAX_SIGHT))
+  if (d <= MAX_SIGHT)
     {
       /* Basic telepathy */
       if (p_ptr->telepathy || p_ptr->tim_esp)
@@ -1356,7 +1356,7 @@ void update_mon(int m_idx, bool full)
 	  if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
 	  
 	  /* Disturb on appearance */
-	  if (disturb_move) disturb(1, 0);
+	  if (disturb_move && (m_ptr->hostile == -1)) disturb(1, 0);
 	  
 	  /* Window stuff */
 	  p_ptr->window |= PW_MONLIST;
@@ -1381,7 +1381,7 @@ void update_mon(int m_idx, bool full)
 	    p_ptr->redraw |= (PR_HEALTH | PR_MON_MANA);
 	  
 	  /* Disturb on disappearance */
-	  if (disturb_move) disturb(1, 0);
+	  if (disturb_move && (m_ptr->hostile == -1)) disturb(1, 0);
 	  
 	  /* Window stuff */
 	  p_ptr->window |= PW_MONLIST;
@@ -1400,7 +1400,7 @@ void update_mon(int m_idx, bool full)
 	  m_ptr->mflag |= (MFLAG_VIEW);
 	  
 	  /* Disturb on appearance */
-	  if (disturb_near) disturb(1, 0);
+	  if (disturb_near && (m_ptr->hostile == -1)) disturb(1, 0);
 	}
     }
   
@@ -1414,7 +1414,7 @@ void update_mon(int m_idx, bool full)
 	  m_ptr->mflag &= ~(MFLAG_VIEW);
 	  
 	  /* Disturb on disappearance */
-	  if (disturb_near) disturb(1, 0);
+	  if (disturb_near && (m_ptr->hostile == -1)) disturb(1, 0);
 	}
     }
 }

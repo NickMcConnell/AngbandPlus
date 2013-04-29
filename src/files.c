@@ -2128,7 +2128,6 @@ void display_dump(char_attr_line *line, int top_line, int bottom_line, int col)
 errr file_character(cptr name, char_attr_line *line, int last_line)
 {
   int i;
-  ang_file *fd;
   char buf[100];
   
   /* Drop priv's */
@@ -2138,21 +2137,15 @@ errr file_character(cptr name, char_attr_line *line, int last_line)
   path_build(buf, 1024, ANGBAND_DIR_USER, name);
   
   /* Check for existing file */
-  fd = file_open(buf, MODE_WRITE, FTYPE_TEXT);
-  
-  /* Existing file */
-  if (fd)
+  if (file_exists(buf))
     {
       char out_val[160];
-      
-      /* Close the file */
-      file_close(fd);
       
       /* Build query */
       sprintf(out_val, "Replace existing file %s? ", buf);
       
       /* Ask */
-      if (get_check(out_val)) return (-1);
+      if (!get_check(out_val)) return (-1);
     }
   
   /* Open the non-existing file */
