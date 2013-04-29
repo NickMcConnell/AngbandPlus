@@ -218,11 +218,14 @@ struct maxima
  */
 struct dungeon_zone
 {
-	byte level;
+        s16b level;
         s16b fill;
+
         s16b big;
         s16b small;
+
 	u16b guard;
+        s16b tower;
 };
 
 

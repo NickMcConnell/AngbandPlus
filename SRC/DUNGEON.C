@@ -464,33 +464,34 @@ bool dun_level_mon(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
-        bool allowed = FALSE;
+        /* If no restriction, accept anything */
+        if (!(t_info[p_ptr->dungeon].r_char) && !(t_info[p_ptr->dungeon].r_flag)) return (TRUE);
 
-        /* Hack -- Prefer monsters with graphic */
-        if ((t_info[p_ptr->dungeon].r_char) && (r_ptr->d_char == t_info[p_ptr->dungeon].r_char)) allowed = TRUE;
+        /* Hack -- Accept monsters with graphic */
+        if ((t_info[p_ptr->dungeon].r_char) && (r_ptr->d_char == t_info[p_ptr->dungeon].r_char)) return (TRUE);
 
-        /* Hack -- Prefer monsters with flag */
+        /* Hack -- Accept monsters with flag */
         if (t_info[p_ptr->dungeon].r_flag)
         {
                 int mon_flag = t_info[p_ptr->dungeon].r_flag-1;
 
                 if ((mon_flag < 32) && 
-                        (r_ptr->flags1 & (1L << mon_flag))) allowed = TRUE;
+                        (r_ptr->flags1 & (1L << mon_flag))) return (TRUE);
 
                 if ((mon_flag >= 32) && 
                         (mon_flag < 64) && 
-                        (r_ptr->flags2 & (1L << (mon_flag -32)))) allowed = TRUE;
+                        (r_ptr->flags2 & (1L << (mon_flag -32)))) return (TRUE);
 
                 if ((mon_flag >= 64) && 
                         (mon_flag < 96) && 
-                        (r_ptr->flags3 & (1L << (mon_flag -64)))) allowed = TRUE;
+                        (r_ptr->flags3 & (1L << (mon_flag -64)))) return (TRUE);
 
                 if ((mon_flag >= 96) && 
                         (mon_flag < 128) && 
-                        (r_ptr->flags4 & (1L << (mon_flag -96)))) allowed = TRUE;
+                        (r_ptr->flags4 & (1L << (mon_flag -96)))) return (TRUE);
         }
 
-        return (allowed);
+        return (FALSE);
 
 }
 
@@ -639,21 +640,20 @@ static void process_world(void)
 	/* Check for creature generation */
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
+                /* Ensure wandering monsters suit the dungeon level */
+                get_mon_num_hook = dun_level_mon;
 
-	/* Ensure wandering monsters suit the dungeon level */
-			get_mon_num_hook = dun_level_mon;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
+                /* Prepare allocation table */
+                get_mon_num_prep();
 
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
 
-	/* Ensure wandering monsters suit the dungeon level */
-			get_mon_num_hook = NULL;
+                /* Ensure wandering monsters suit the dungeon level */
+                get_mon_num_hook = NULL;
 
-			/* Prepare allocation table */
-			get_mon_num_prep();
+                /* Prepare allocation table */
+                get_mon_num_prep();
 	}
 
 	/* Hack -- Check for creature regeneration */

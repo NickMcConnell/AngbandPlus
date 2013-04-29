@@ -2170,7 +2170,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CLAW:	p = "claw"; break;
 				case RBM_BITE:	p = "bite"; break;
 				case RBM_STING:	p = "sting"; break;
-				case RBM_XXX1:	break;
+                                case RBM_VOMIT: p = "vomit"; break;
 				case RBM_BUTT:	p = "butt"; break;
 				case RBM_CRUSH:	p = "crush"; break;
 				case RBM_ENGULF:	p = "engulf"; break;

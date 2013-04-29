@@ -125,9 +125,6 @@ void do_cmd_eat_food(void)
         /* Paranoia */
         if (power < 0) return;
 
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
-
         /* Apply food effect */
         if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
 
@@ -156,7 +153,7 @@ void do_cmd_eat_food(void)
 		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 	/* Destroy a food in the pack */
-	if (item >= 0)
+        else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -238,9 +235,6 @@ void do_cmd_quaff_potion(void)
 
         /* Paranoia */
         if (power < 0) return;
-
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
 
         /* Apply food effect */
         if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
@@ -374,9 +368,6 @@ void do_cmd_read_scroll(void)
         /* Paranoia */
         if (power < 0) return;
 
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
-
         /* Apply scroll effect */
         ident = process_spell(power, 0, &cancel);
 
@@ -454,6 +445,7 @@ void do_cmd_use_staff(void)
 
 	cptr q, s;
 
+        int i;
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_STAFF;
@@ -510,6 +502,22 @@ void do_cmd_use_staff(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
+        /* Check for speciality */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+                if (w_info[i].benefit != WB_ID) continue;
+
+		/* Check for styles */
+                if ((w_info[i].styles==WS_STAFF) && (p_ptr->pstyle == WS_STAFF))
+		{
+                        chance *=2;
+		}
+	}
+
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
@@ -564,9 +572,6 @@ void do_cmd_use_staff(void)
 
         /* Paranoia */
         if (power < 0) return;
-
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
 
 	/* Apply rod effect */
         ident = process_spell(power, 0, &cancel);
@@ -705,6 +710,8 @@ void do_cmd_aim_wand(void)
 
 	cptr q, s;
 
+        int i;
+
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
 
@@ -764,6 +771,23 @@ void do_cmd_aim_wand(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
+        /* Check for speciality */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+                if (w_info[i].benefit != WB_ID) continue;
+
+		/* Check for styles */
+                if ((w_info[i].styles==WS_WAND) && (p_ptr->pstyle == WS_WAND))
+		{
+                        chance *=2;
+		}
+	}
+
+
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
@@ -817,9 +841,6 @@ void do_cmd_aim_wand(void)
 
         /* Paranoia */
         if (power < 0) return;
-
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
 
         /* Apply wand effect */
         ident = process_spell(power, 0, &cancel);
@@ -1064,9 +1085,6 @@ void do_cmd_zap_rod(void)
         /* Paranoia */
         if (power < 0) return;
 
-	/* Inform the player */
-        if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
-
         /* Apply rod effect */
         ident = process_spell(power, 0, &cancel);
 
@@ -1208,6 +1226,8 @@ void do_cmd_activate(void)
 
         int tmpval;
 
+        int i;
+
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
@@ -1248,6 +1268,63 @@ void do_cmd_activate(void)
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
+
+        /* Check for speciality */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+                if (w_info[i].benefit != WB_ID) continue;
+
+		/* Check for styles */
+                if ((w_info[i].styles==WS_WAND) && (p_ptr->pstyle == WS_WAND) && (o_ptr->tval == TV_WAND))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_STAFF) && (p_ptr->pstyle == WS_STAFF) && (o_ptr->tval == TV_STAFF))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_AMULET) && (p_ptr->pstyle == WS_AMULET) && (o_ptr->tval == TV_AMULET))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_RING) && (p_ptr->pstyle == WS_RING)  && (o_ptr->tval == TV_RING))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_WEAPON_SHIELD) && (p_ptr->pstyle == WS_WEAPON_SHIELD)  && (o_ptr->tval == TV_SHIELD))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_HAFTED) && (p_ptr->pstyle == WS_HAFTED)  && (o_ptr->tval == TV_HAFTED))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_POLEARM) && (p_ptr->pstyle == WS_POLEARM)  && (o_ptr->tval == TV_POLEARM))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_SWORD) && (p_ptr->pstyle == WS_SWORD)  && (o_ptr->tval == TV_SWORD))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_BOW) && (p_ptr->pstyle == WS_BOW) && (o_ptr->tval == TV_BOW) && (o_ptr->tval / 10 == 1))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_XBOW) && (p_ptr->pstyle == WS_XBOW)  && (o_ptr->tval == TV_BOW) && (o_ptr->tval / 10 == 2))
+		{
+                        chance *=2;
+		}
+            else if ((w_info[i].styles==WS_SLING) && (p_ptr->pstyle == WS_SLING)  && (o_ptr->tval == TV_BOW) && (o_ptr->tval / 10 == 0))
+		{
+                        chance *=2;
+		}
+	}
+
 
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
@@ -1295,9 +1372,6 @@ void do_cmd_activate(void)
                         /* Paranoia */
                         if (power < 0) return;
         
-                        /* Inform the player */
-                      if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
-        
                         /* Apply object effect */
                         (void)process_spell(power, 0, &cancel);
 
@@ -1324,9 +1398,6 @@ void do_cmd_activate(void)
 
                 /* Paranoia */
                 if (power < 0) return;
-
-		/* Inform the player */
-	      if (strlen(s_text + s_info[power].text)) msg_format("%s",s_text + s_info[power].text);
 
         	/* Apply object effect */
         	(void)process_spell(power, 0, &cancel);

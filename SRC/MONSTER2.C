@@ -519,7 +519,7 @@ s16b get_mon_num(int level)
                         if (level_flag & (LF1_CHASM))
                         {
                                 if (!(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
-                                        !(r_ptr->flags2 & (RF2_CAN_FLY))) return(FALSE);
+                                        !(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=4;
                         }
                 }
 
@@ -2481,6 +2481,8 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 }
 
 
+bool (*old_mon_num_hook)(int r_idx);
+
 /*
  * Hack -- help pick an escort type
  */
@@ -2556,6 +2558,19 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 	/* Escorts for certain monsters */
 	if (r_ptr->flags1 & (RF1_ESCORT))
 	{
+
+                /* Set the escort index */
+                place_monster_idx = r_idx;
+#if 0
+                /* Hack -- store old monster hook */
+                old_mon_num_hook = get_mon_num_hook;
+#endif
+                /* Set the escort hook */
+                get_mon_num_hook = place_monster_okay;
+
+                /* Prepare allocation table */
+                get_mon_num_prep();
+
 		/* Try to place several "escorts" */
 		for (i = 0; i < 50; i++)
 		{
@@ -2567,26 +2582,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
-			/* Set the escort index */
-			place_monster_idx = r_idx;
-
-			/* Set the escort hook */
-			get_mon_num_hook = place_monster_okay;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
-
 			/* Pick a random race */
 			z = get_mon_num(r_ptr->level);
-
-
-			/* Remove restriction */
-			get_mon_num_hook = NULL;
-
-			/* Prepare allocation table */
-			get_mon_num_prep();
-
 
 			/* Handle failure */
 			if (!z) break;
@@ -2602,6 +2599,13 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 				(void)place_monster_group(ny, nx, z, slp);
 			}
 		}
+#if 0
+                /* Remove restriction */
+                get_mon_num_hook = old_mon_num_hook;
+#endif
+                /* Prepare allocation table */
+                get_mon_num_prep();
+
 	}
 
 
@@ -2703,11 +2707,15 @@ bool alloc_monster(int dis, bool slp)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int y, x;
+        int y, x, c;
+
+        c = 0;
 
 	/* Find a legal, distant, unoccupied, space */
 	while (1)
 	{
+                if (c++ > 2000) return (FALSE);
+
 		/* Pick a location */
 		y = rand_int(DUNGEON_HGT);
 		x = rand_int(DUNGEON_WID);
@@ -2904,7 +2912,7 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	}
 
 	/* Failure */
-	if (i == 20) return (FALSE);
+        if (i == 20) return (FALSE);
 
 	/* Save the "summon" type */
         summon_specific_type = type;

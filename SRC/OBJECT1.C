@@ -2725,9 +2725,6 @@ s16b wield_slot(object_type *o_ptr)
                 }
 		case TV_BOW:
 		{
-                        /* Hack -- use belt slot */
-                        if ((variant_belt_slot) && (!inventory[INVEN_BELT].k_idx)) return (INVEN_BELT);
-
 			return (INVEN_BOW);
 		}
 
@@ -4998,6 +4995,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
         /* Allow equipment */
         if ((variant_belt_slot) && (use_inven)) use_equip = TRUE;
+
+        /* Allow equipment */
+        if ((variant_fast_equip) && (use_inven)) use_equip = TRUE;
 
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;

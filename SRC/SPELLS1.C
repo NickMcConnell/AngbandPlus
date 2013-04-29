@@ -287,6 +287,8 @@ void teleport_player_to(int ny, int nx)
 
 /*
  * Teleport the player one level up or down (random when legal)
+ *
+ * Note hacks because we now support towers as well as dungeons.
  */
 void teleport_player_level(void)
 {
@@ -297,12 +299,21 @@ void teleport_player_level(void)
 	}
 
 
-	if (p_ptr->depth == min_depth(p_ptr->dungeon))
+        if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
+                message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
-		/* New depth */
-		p_ptr->depth++;
+                /* Hack -- tower level decreases depth */
+                if (t_info[p_ptr->dungeon].zone[0].tower)
+                {
+                        /* New depth */
+                        p_ptr->depth--;
+                }
+                else
+                {
+                        /* New depth */
+                        p_ptr->depth++;
+                }
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -310,7 +321,15 @@ void teleport_player_level(void)
 
 	else if (is_quest(p_ptr->depth) || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
 	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+                /* Hack -- tower level increases depth */
+                if (t_info[p_ptr->dungeon].zone[0].tower)
+                {
+                        message(MSG_TPLEVEL, 0, "You sink through the floor.");
+                }
+                else
+                {
+                        message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+                }
 
 		/* New depth */
 		p_ptr->depth--;
@@ -323,8 +342,17 @@ void teleport_player_level(void)
 	{
 		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
-		/* New depth */
-		p_ptr->depth--;
+                /* Hack -- tower level increases depth */
+                if (t_info[p_ptr->dungeon].zone[0].tower)
+                {
+                        /* New depth */
+                        p_ptr->depth++;
+                }
+                else
+                {
+                        /* New depth */
+                        p_ptr->depth--;
+                }
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -334,8 +362,17 @@ void teleport_player_level(void)
 	{
 		message(MSG_TPLEVEL, 0, "You sink through the floor.");
 
-		/* New depth */
-		p_ptr->depth++;
+                /* Hack -- tower level increases depth */
+                if (t_info[p_ptr->dungeon].zone[0].tower)
+                {
+                        /* New depth */
+                        p_ptr->depth--;
+                }
+                else
+                {
+                        /* New depth */
+                        p_ptr->depth++;
+                }
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -389,6 +426,7 @@ static byte spell_color(int type)
 		case GF_PLASMA:         return (TERM_RED);
 		case GF_METEOR:         return (TERM_RED);
 		case GF_ICE:            return (TERM_WHITE);
+                case GF_SALT_WATER:     return (TERM_L_GREEN); /* Heh heh heh */
 	}
 
 	/* Standard "color" */
@@ -1780,6 +1818,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			}
 			break;
                 }
+                
+
                 case GF_BWATER:
                 {
 
@@ -2328,6 +2368,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			case GF_WATER:
 			case GF_BWATER:
 			case GF_WATER_WEAK:
+                        case GF_SALT_WATER:
 			{
 				if (hates_water(o_ptr))
 				{
@@ -2712,7 +2753,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 			if ((r_ptr->flags2 & (RF2_ARMOR)) && (rand_int(100) < r_ptr->ac /3))
 			{
-				note = " is saved by a shield";
+                                note = " blocks it with a shield.";
 				dam = 0;
 			}
 			break;
@@ -2776,7 +2817,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 		/* Water damage -- Water spirits/elementals are immune */
                 case GF_WATER:
-                case GF_WATER_WEAK:
 		{
 			if (seen) obvious = TRUE;
 			if ((r_ptr->d_char == 'E') && prefix(name, "W"))
@@ -2784,15 +2824,65 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " is immune.";
 				dam = 0;
 			}
-			if (r_ptr->flags2 & (RF2_CAN_SWIM))
+                        else if (r_ptr->flags2 & (RF2_CAN_SWIM))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 				if (seen) l_ptr->r_flags2 |= (RF2_CAN_SWIM);
 			}
-
+                        else
+			{
+                                do_conf = (10 + randint(15) + r) / (r + 1);
+                                do_stun = (10 + randint(15) + r) / (r + 1);
+			}
 			break;
 		}
+                /* Weak water damage -- Heavily stunned/confused take damage */
+                /* Hack -- we stun monsters to make them slow down and drown */
+                case GF_WATER_WEAK:
+		{
+			if (seen) obvious = TRUE;
+                        if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) && ((m_ptr->stunned > 100) || (m_ptr->confused)))
+			{
+                                note = " is drowning.";
+                                do_conf = (10 + randint(15) + r) / (r + 1);
+                                do_stun = (10 + randint(15) + r) / (r + 1);
+			}
+                        else
+                        {
+                                dam = 0;
+                                do_stun = (10 + randint(15) + r) / (r + 1);
+                        }
+			break;
+		}
+
+                /* Weak water damage -- Heavily stunned/confused take damage */
+                /* Hack -- also worms that can't swim take lots of damage */
+                /* Hack -- we stun monsters to make them slow down and drown */
+                case GF_SALT_WATER:
+		{
+			if (seen) obvious = TRUE;
+                        if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) && (r_ptr->d_char == 'w'))
+                        {
+                               note = " curls up in pain.";
+                               dam *= 2;
+                               do_conf = (10 + randint(15) + r) / (r + 1);
+                               do_stun = (10 + randint(15) + r) / (r + 1);
+                        }
+                        else if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) && ((m_ptr->stunned > 100) || (m_ptr->confused)))
+			{
+                                note = " is drowning.";
+                                do_conf = (10 + randint(15) + r) / (r + 1);
+                                do_stun = (10 + randint(15) + r) / (r + 1);
+			}
+                        else
+                        {
+                                dam = 0;
+                                do_stun = (10 + randint(15) + r) / (r + 1);
+                        }
+			break;
+		}
+
 
 		/* Boiling water damage -- Water spirits/elementals are immune */
 		case GF_BWATER:
@@ -2802,6 +2892,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is immune.";
 				dam = 0;
+			}
+                        else if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) && ((m_ptr->stunned > 100) || (m_ptr->confused)))
+			{
+                                note = " is drowning.";
+                                do_conf = (10 + randint(15) + r) / (r + 1);
+                                do_stun = (10 + randint(15) + r) / (r + 1);
 			}
 			if (r_ptr->flags3 & (RF3_IM_FIRE))
 			{
@@ -2840,6 +2936,12 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is immune.";
 				dam = 0;
+			}
+                        else if (!(r_ptr->flags2 & (RF2_CAN_SWIM)) && ((m_ptr->stunned > 100) || (m_ptr->confused)))
+			{
+                                note = " is drowning.";
+                                do_conf = (10 + randint(15) + r) / (r + 1);
+                                do_stun = (10 + randint(15) + r) / (r + 1);
 			}
 			if (r_ptr->flags3 & (RF3_IM_FIRE))
 			{
@@ -4174,8 +4276,8 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 		/* Get the feature description */
-                strcpy (killer,(f_name + f_ptr->name));
-		
+                strcpy(killer,f_name + f_ptr->name);
+
 	}
 
 	/* Analyze the damage */
@@ -4429,6 +4531,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 
 		/* Weak water -- wet only */
+                case GF_SALT_WATER:
 		case GF_WATER_WEAK:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
@@ -5672,15 +5775,25 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				take_hit(dam, killer);
 			}
 
+                        /* Hack -- tower level decreases depth */
+                        if (t_info[p_ptr->dungeon].zone[0].tower)
+                        {
+                                /* New depth */
+                                p_ptr->depth--;
+
+                                /* Leaving */
+                                p_ptr->leaving = TRUE;
+
+                        }
                         /* Hack -- no chasm/trap doors/down stairs on quest levels */
-                        if (is_quest(p_ptr->depth) ||  (p_ptr->depth == max_depth(p_ptr->dungeon)))
+                        else if (is_quest(p_ptr->depth) || (p_ptr->depth == max_depth(p_ptr->dungeon)))
                         {
                                 int i = rand_int(8);
 
                                 int k = 0;
 
                                 /* Scan all neighbors */
-                                while (TRUE)
+                                while (cave_feat[y][x] != FEAT_CHASM)
 				{
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
@@ -5703,7 +5816,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
                         {
                                 /* New depth */
                                 p_ptr->depth++;
-        
+
                                 /* Leaving */
                                 p_ptr->leaving = TRUE;
                         }

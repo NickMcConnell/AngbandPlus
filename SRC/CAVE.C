@@ -4384,13 +4384,15 @@ void cave_set_feat(int y, int x, int feat)
 			int yy = y + ddy_ddd[i];
 			int xx = x + ddx_ddd[i];
 
-     			/* Ignore annoying locations */
+                        /* Ignore annoying locations */
                         if (!in_bounds_fully(yy, xx))
                         {
-                                cave_set_feat_aux(yy,xx,feat);
+                                /* Restore the grid */
+                                cave_set_feat_aux(y,x,feat);
 
                                 continue;
                         }
+
                         if ((cave_feat[yy][xx] != FEAT_NONE) &&
                             !((f_info[cave_feat[yy][xx]].flags2 & (FF2_CHASM))||
                               (f_info[cave_feat[yy][xx]].flags2 & (FF2_BRIDGED))))

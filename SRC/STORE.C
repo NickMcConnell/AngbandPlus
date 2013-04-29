@@ -1214,7 +1214,7 @@ static void store_create(void)
                         /* Get local object */
                         i_ptr = &object_type_body;
 
-                        make_object(i_ptr, TRUE, TRUE);
+                        if (!make_object(i_ptr, TRUE, TRUE)) continue;
 
                         /* Reset depth */
                         p_ptr->depth = depth;

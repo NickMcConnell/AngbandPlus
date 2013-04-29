@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   UnAngband 0.4.9e **    The Unnamed Angband  **
+              **   UnAngband 0.4.9g **    The Unnamed Angband  **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke

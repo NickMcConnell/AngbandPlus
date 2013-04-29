@@ -1536,35 +1536,6 @@ void py_attack(int y, int x)
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 
-			/* Confusion attack */
-			if (p_ptr->confusing)
-			{
-				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				msg_print("Your hands stop glowing.");
-
-				/* Confuse the monster */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-				{
-					if (m_ptr->ml)
-					{
-						l_ptr->r_flags3 |= (RF3_NO_CONF);
-					}
-
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else if (rand_int(100) < r_ptr->level)
-				{
-					msg_format("%^s is unaffected.", m_name);
-				}
-				else
-				{
-					msg_format("%^s appears confused.", m_name);
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
-				}
-			}
 		}
 
 		/* Player misses */
@@ -1943,7 +1914,7 @@ static int see_wall(int dir, int y, int x)
 	/* Illegal grids are not known walls XXX XXX XXX */
 	if (!in_bounds(y, x)) return (FALSE);
 
-	/* Non-wall grids are not known walls */
+        /* Non-wall grids are not known walls */
         if (!(f_info[f_info[cave_feat[y][x]].mimic].flags1 & (FF1_WALL))) return (FALSE);
 
 	/* Unknown walls are not known walls */
@@ -2487,7 +2458,7 @@ static bool run_test(void)
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
 			if (!(cave_info[row][col] & (CAVE_MARK)) ||
-                            (!(f_info[feat].flags1 & (FF1_WALL))))
+                            (!(f_info[feat].flags1 & (FF1_RUN))))
 			{
 				/* Looking to break left */
 				if (p_ptr->run_break_left)

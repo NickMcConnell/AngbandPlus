@@ -574,18 +574,6 @@ static void prt_state(void)
 		}
 	}
 
-	/* Searching */
-	else if (p_ptr->searching)
-	{
-		strcpy(text, "Searching ");
-	}
-
-	/* Searching */
-	else if (p_ptr->searching)
-	{
-		strcpy(text, "Searching ");
-	}
-
 	/* Fainting / Starving */
         else if (p_ptr->rest < PY_REST_FAINT)
 	{
@@ -612,6 +600,11 @@ static void prt_state(void)
 	{
 		strcpy(text, "          ");
 	}
+
+	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
+		if (p_ptr->searching) strcpy(text, "Searching ");
+		if (p_ptr->held_song) strcpy(text, "Singing   ");
+
 
 	/* Display the info (or blanks) */
 	c_put_str(attr, text, ROW_STATE, COL_STATE);

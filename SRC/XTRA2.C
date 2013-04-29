@@ -2425,10 +2425,8 @@ void monster_death(int m_idx)
 		lore_treasure(m_idx, dump_item, dump_gold);
 	}
 
-
 	/* Only process "Quest Monsters" */
 	if (!(r_ptr->flags1 & (RF1_QUESTOR))) return;
-
 
 	/* Hack -- Mark quests as complete */
 	for (i = 0; i < MAX_Q_IDX; i++)
@@ -2441,8 +2439,14 @@ void monster_death(int m_idx)
 	}
 
 
+	/* Hack -- campaign mode has quest monsters without stairs */
+        if ((adult_campaign) && ((p_ptr->depth !=max_depth(p_ptr->dungeon)) || (p_ptr->depth == min_depth(p_ptr->dungeon))) )
+	{
+		return;
+	}
+
 	/* Need some stairs */
-	if (total)
+	else if (total)
 	{
 		/* Stagger around */
 		while (!cave_valid_bold(y, x))
@@ -2931,6 +2935,12 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			strcpy(name, "lesser vault");
 			strcpy(text_visible, "This vault is larger than most you have seen and contains more than ");
 			strcat(text_visible, "its share of monsters and treasure.");
+			return;
+		}
+                case (ROOM_TOWER):
+		{
+                        strcpy(name, "tower");
+                        strcpy(text_visible, "This tower is filled with monsters and traps.");
 			return;
 		}
 		case (ROOM_NORMAL):
@@ -5098,6 +5108,9 @@ void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
         town_type *t_ptr = &t_info[dungeon];
         dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
+
+        /* Hack -- handle towers */
+        if (depth < min_depth(dungeon)) depth = 2 * min_depth(dungeon) - depth;
 
 	/* Get the zone */	
         for (i = 0;i<MAX_DUNGEON_ZONES;i++)

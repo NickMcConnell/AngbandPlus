@@ -16,7 +16,6 @@
 # F:flags
 # B: blow : flavour : dice d sides + bonus
 # L: lasts dice d sides + bonus
-# T: timeout dice d sides + bonus
 # S: other effects
 # D: description
 
@@ -29,42 +28,12 @@
 # The exception is rune stones, where the slot corresponds to the
 # second ('verb') runestone sval.
 
-# For spell books, slot refers to to the 
+# 'C' indicates the casting details listed by class. Note that currently
+# no more than 5 classes can cast a particular spell.
 
-# 'I' is for basic information. The tval is for the type of item, the
-# sval identifies the subtype and the pval indicates the amount of
-# effect the item has, if applicable.
+# 'L' indicates how long the duration component of the spell lasts.
 
-# 'W' is for extra information. Depth is the depth the object is
-# normally found at, rarity determines how common the object is,
-# weight is in tenth-pounds and cost is the item's value.
-
-# 'P' is for power information. The items base armor class, its base
-# damage and pluses to-hit, to-dam and to-ac.
-
-# 'F' is for flags. These are fairly self-explanatory. As many F:
-# lines may be used as are needed to specify all the flags and flags
-# are separated by the '|' symbol.
-
-# 'A' is for activation.  Activation is the effect the artifact
-# activates for. The recharge time calculates from the recharge time
-# plus a random value between 1 and the recharge time dice (if not 0).
-# If an activation is given then the artifact must also have the
-# ACTIVATE flag.
-
-### IMPORTANT NOTES ###
-# (1.) Any changes or additions to the file will have influence on randarts 
-# and may break savefile compatibility for old savegames with randarts.  If 
-# using random artifacts, finish your existing game before making any changes
-# to the artifact.txt file at all.
-# (2.) Removing any artifact, or changing its "base" type (as defined by 
-# the tval and sval entries in the "I:" line), will break savefile compatibility
-# for ALL savefiles.
-# (3.) Adding a new artifact, or changing the powers of existing ones, will NOT 
-# affect savefile compatibility for games with the standard artifact set: it is 
-# perfectly safe to do this. (If your new artifact is a new kind of object, or a 
-# new one at the end of the file, you must also amend object.txt or limits.txt.)
-
+# TO BE COMPLETED.
 
 # If dice is > 0 and sides == 0, we use dice * level + bonus.
 
@@ -97,6 +66,7 @@ C:8:2:2:35:2
 F:DETECT_MONSTER
 
 N:3:Phase Door
+A:70:8:1
 A:90:0:3
 A:90:5:1
 A:92:3:1
@@ -249,6 +219,7 @@ F:CURE_POIS
 
 N:15:Teleport Self
 A:55:4:1
+A:70:9:1
 A:90:1:6
 A:90:5:2
 A:92:3:3
@@ -354,6 +325,7 @@ B:AIM:POLYMORPH:1d0+0
 
 N:23:Identify
 A:55:30:1
+A:70:12:1
 A:90:23:8
 A:93:17:12
 C:1:13:7:50:6
@@ -498,6 +470,7 @@ C:8:19:22:40:21
 F:CREATE_STAIR
 
 N:36:Teleport Level
+A:70:9:1
 A:90:5:5
 A:92:3:5
 A:93:7:27
@@ -520,6 +493,7 @@ S:EARTHQUAKE:10
 
 N:38:Word of Recall
 A:66:3:1
+A:70:11:1
 A:90:5:7
 A:90:21:10
 A:92:3:6
@@ -932,6 +906,7 @@ F:CURE_FOOD
 
 N:74:Remove Curse
 A:55:6:1
+A:70:14:1
 A:91:1:7
 A:91:13:4
 A:92:4:4
@@ -1371,7 +1346,7 @@ C:8:35:35:75:13
 F:RECALL
 
 N:117:Alter Reality
-A:70:62:1
+A:70:63:1
 A:91:4:7
 A:92:9:7
 C:2:40:60:75:250
@@ -1390,7 +1365,7 @@ L:1d30+20
 F:SHIELD
 
 N:119:Hero's Prayer
-A:70:63:1
+A:70:64:1
 A:91:10:7
 A:92:5:7
 C:2:17:16:60:25
@@ -2004,7 +1979,7 @@ C:3:47:95:85:250
 S:CREATE_KIND:490
 
 N:189:Detect Undead
-A:70:64:1
+A:70:65:1
 A:90:14:1
 C:1:1:1:23:4
 C:3:5:1:50:1
@@ -2059,7 +2034,7 @@ F:EVIL
 S:SUMMON:16
 
 N:196:Detect Animals
-A:70:65:1
+A:70:66:1
 A:90:15:1
 A:92:6:1
 C:1:1:1:23:4
@@ -2470,6 +2445,7 @@ A:92:6:6
 #B:AIM:CHARM_ALL:1d0+0
 
 N:243:Read Magic
+A:70:19:1
 A:90:23:6
 A:90:21:4
 C:1:7:5:50:6
@@ -2479,6 +2455,7 @@ C:8:12:10:90:3
 S:IDENT_TVAL:70
 
 N:244:*Identify*
+A:70:13:1
 A:90:23:10
 C:1:35:50:80:230
 C:3:40:70:80:200
@@ -2653,25 +2630,24 @@ A:80:32:1
 A:80:33:1
 A:80:35:1
 A:80:36:1
-D:That tastes good
+D:That tastes good.
 
 N:282:Fine Wine
 A:80:38:1
 A:80:39:1
-D:That tastes good
+D:That tastes good.
 
 N:283:Waybread
 A:80:37:1
 F:CURE_POIS
 B:SELF:HEAL:4d8+0
-D:That tastes good
+D:That tastes good.
 
 # Additional Potion effects.
 
 N:284:Water
 A:75:0:1
-A:75:0:1
-A:75:0:1
+A:75:1:1
 D:You feel less thirsty.
 
 N:285:Slowness
@@ -2683,6 +2659,7 @@ F:SLOW
 N:286:Salt Water
 A:75:5:1
 F:DEC_FOOD
+B:VOMIT:SALT_WATER:2d6
 D:The potion makes you vomit!
 
 N:287:Sleep
@@ -2863,7 +2840,11 @@ N:324:Trap Creation
 A:70:7:1
 B:ADJACENT:MAKE_TRAP
 
-### 325 ###
+N:325:Burning Liquor
+A:80:42:1
+B:SPIT:FIRE:4d6+0
+B:SELF:FIRE:1d6+0
+D:You spit out the burning liquor.
 
 N:326:Enchant Weapon To-Hit
 A:70:17:1

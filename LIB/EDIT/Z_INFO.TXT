@@ -68,10 +68,10 @@ M:Y:30
 M:B:4
 
 # Maximum number of objects
-M:O:256
+M:O:512
 
 # Maximum number of monsters
-M:M:512
+M:M:1024
 
 
 #

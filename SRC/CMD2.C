@@ -169,15 +169,7 @@ static void do_cmd_travel(void)
 					journey = damroll(3,4);
 
 				}
-#if 0
-				if (t_info[t_ptr->bottom].top != p_ptr->dungeon)
-				{
-					msg_print("You are embarking on a dangerous quest.");
-					msg_print("Make sure you are prepared, as you are doubtful of your chances of return.");
 
-                                        if (!get_check("Continue the journey? ")) selection = p_ptr->dungeon;                                 
-				}
-#endif
 			}
                         else if ((zone2->guard) && (selection == p_ptr->dungeon))
 			{
@@ -267,22 +259,23 @@ void do_cmd_go_up(void)
 
         feature_type *f_ptr= &f_info[cave_feat[py][px]];
 
-	/* Travel if possible */
-        if ((adult_campaign) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
-	{
-                do_cmd_travel();
-		return;
-	}
-
 	/* Verify stairs */
         if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_LESS)))
 	{
+
+                /* Travel if possible */
+                if ((adult_campaign) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
+                {
+                        do_cmd_travel();
+                        return;
+                }
+
 		msg_print("I see no up staircase here.");
 		return;
 	}
 
 	/* Ironman */
-	if (adult_ironman)
+        if ((adult_ironman) && !(adult_campaign))
 	{
 		msg_print("Nothing happens!");
 		return;
@@ -297,8 +290,17 @@ void do_cmd_go_up(void)
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
 
-	/* New depth */
-	p_ptr->depth--;
+        /* Hack -- tower level increases depth */
+        if (t_info[p_ptr->dungeon].zone[0].tower)
+        {
+                /* New depth */
+                p_ptr->depth++;
+        }
+        else
+        {
+                /* New depth */
+                p_ptr->depth--;
+        }
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -325,17 +327,45 @@ void do_cmd_go_down(void)
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+        /* Hack -- travel through wilderness */
+        if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)))
+        {
 
-	/* Create a way back */
-	p_ptr->create_up_stair = TRUE;
+                message(MSG_STAIRS,0,format("You have found a way through %s.",t_name + t_info[p_ptr->dungeon].name));
 
-	/* New level */
-	p_ptr->depth++;
+                /* Change the dungeon */
+                p_ptr->dungeon = t_info[p_ptr->dungeon].distant;
 
-	/* Leaving */
-	p_ptr->leaving = TRUE;
+                /* Set the new depth */
+                p_ptr->depth = min_depth(p_ptr->dungeon);
+
+		/* Leaving */
+		p_ptr->leaving = TRUE;
+        }
+	else
+	{
+
+                /* Success */
+                message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+        
+                /* Create a way back */
+                p_ptr->create_up_stair = TRUE;
+        
+                /* Hack -- tower level decreases depth */
+                if (t_info[p_ptr->dungeon].zone[0].tower)
+                {
+                        /* New depth */
+                        p_ptr->depth--;
+                }
+                else
+                {
+                        /* New depth */
+                        p_ptr->depth++;
+                }
+
+                /* Leaving */
+                p_ptr->leaving = TRUE;
+	}
 }
 
 
@@ -387,6 +417,17 @@ void do_cmd_search(void)
  */
 void do_cmd_toggle_search(void)
 {
+
+	/* Hack - Check if we are holding a song */
+	if (p_ptr->held_song)
+	{
+		/* Verify */
+                if (!get_check("Continue singing?")) p_ptr->held_song = 0;
+
+		/* Hack -- need to be mutually exclusive as we are sharing 'display' space */
+		    else return;
+	}
+
 	/* Stop searching */
 	if (p_ptr->searching)
 	{

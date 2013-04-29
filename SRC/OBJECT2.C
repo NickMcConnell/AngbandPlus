@@ -1184,9 +1184,16 @@ static s32b object_value_real(object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
+		/* Staffs */
+		case TV_STAFF:
+		{
+			/* Give credit for bonuses */
+			value += ((o_ptr->to_h + o_ptr->to_d) * 100L);
+
+		/* Fall through */
+		}
 		/* Wands/Staffs */
 		case TV_WAND:
-		case TV_STAFF:
 		{
 			/* Pay extra for charges */
 			value += ((value / 20) * o_ptr->pval);
@@ -3539,7 +3546,7 @@ static void name_drop(object_type *j_ptr)
         j_ptr->dropped = 0 - p_ptr->depth;
 
         /* Are we done? */
-        if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG)
+        if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG) && (j_ptr->tval != TV_STATUE)
                 && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
                 (j_ptr->tval != TV_HOLD) && (j_ptr->tval != TV_FIGURE)) return;
 
@@ -3622,6 +3629,11 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
+		case TV_STAFF:
+		{
+			if (k_ptr->level < 50) return (FALSE);
+		/* Fall through */
+		}
 		/* Weapons -- Good unless damaged */
 		case TV_BOW:
 		case TV_SWORD:
@@ -4900,8 +4912,11 @@ s16b get_feat_num(int level)
 		/* Hack -- no chasm/trap doors/down stairs on quest levels */
 		if ((f_ptr->flags1 & (FF1_MORE)) && is_quest(p_ptr->depth)) continue;
 
+                /* Hack -- no chasm/trap doors/down stairs at the bottom of a tower dungeon */
+                if ((t_info[p_ptr->dungeon].zone[0].tower) && (p_ptr->depth == 1)) continue;
+
                 /* Hack -- no chasm/trap doors/down stairs on the deepest level */
-		if ((f_ptr->flags1 & (FF1_MORE)) && (p_ptr->depth == max_depth(p_ptr->dungeon))) continue;
+                else if ((f_ptr->flags1 & (FF1_MORE)) && (p_ptr->depth == max_depth(p_ptr->dungeon))) continue;
 
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
@@ -5843,6 +5858,17 @@ bool inven_carry_okay(object_type *o_ptr)
 		if (object_similar(j_ptr, o_ptr)) return (TRUE);
 	}
 
+        /* Hack -- check belt slot */
+        if ((variant_belt_slot)
+             && (inventory[INVEN_BELT].k_idx)
+                && (object_similar(&inventory[INVEN_BELT],o_ptr))) return (TRUE);
+
+        if ((variant_belt_slot)
+             && (inventory[INVEN_WIELD].k_idx)
+                && (object_similar(&inventory[INVEN_WIELD],o_ptr))
+                && (inventory[INVEN_WIELD].number > 1)) return (TRUE);
+
+
 	/* Nope */
 	return (FALSE);
 }
@@ -5906,6 +5932,52 @@ s16b inven_carry(object_type *o_ptr)
 		}
 
 	}
+
+        /* Hack -- check for combining - belt */
+        if ((variant_belt_slot)
+             && (inventory[INVEN_BELT].k_idx)
+                && (object_similar(&inventory[INVEN_BELT],o_ptr)))
+        {
+
+			/* Combine the items */
+                        object_absorb(&inventory[INVEN_BELT], o_ptr);
+
+			/* Increase the weight */
+			p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+
+			/* Success */
+                        return (INVEN_BELT);
+        }
+
+        /* Hack -- check for combining - wielded */
+        /* MegaHack -- only combine when wielding more than 1 */
+        if ((variant_belt_slot)
+             && (inventory[INVEN_WIELD].k_idx)
+                && (object_similar(&inventory[INVEN_WIELD],o_ptr))
+                && (inventory[INVEN_WIELD].number > 1))
+        {
+
+			/* Combine the items */
+                        object_absorb(&inventory[INVEN_WIELD], o_ptr);
+
+			/* Increase the weight */
+			p_ptr->total_weight += (o_ptr->number * o_ptr->weight);
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Window stuff */
+			p_ptr->window |= (PW_INVEN);
+
+			/* Success */
+                        return (INVEN_WIELD);
+        }
 
 
 	/* Paranoia */
@@ -6585,10 +6657,10 @@ s16b spell_level(int spell)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
-
                 if (w_info[i].benefit != WB_POWER) continue;
 
+		    /* Check for styles */
+                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		switch (p_ptr->pstyle)
 		{
 			case WS_MAGIC_BOOK:
@@ -6657,10 +6729,9 @@ s16b spell_power(int spell)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
-
                 if (w_info[i].benefit != WB_POWER) continue;
 
+                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		switch (p_ptr->pstyle)
 		{
 			case WS_MAGIC_BOOK:
@@ -6726,16 +6797,6 @@ s16b spell_power(int spell)
                                                  (s_info[spell].appears[j].tval == TV_SONG_BOOK))
                                         {
                                                 plev += (p_ptr->lev - w_info[i].level);
-                                        }
-                                        /* Line 1 - has item in off-hand */
-                                        /* Line 2 - item is instrument */
-                                        /* Line 3 - instrument sval matches spellbook sval */
-                                        else if ((inventory[INVEN_ARM].k_idx) &&
-                                                (inventory[INVEN_ARM].tval == TV_INSTRUMENT) &&
-                                                (s_info[spell].appears[j].sval == inventory[INVEN_ARM].sval) &&
-                                                 (s_info[spell].appears[j].tval == TV_SONG_BOOK))
-                                        {
-                                                 plev += (p_ptr->lev - w_info[i].level);
                                         }
         
 				}

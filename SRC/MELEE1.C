@@ -324,9 +324,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+                                case RBM_VOMIT:
 				{
-					act = "XXX1's you.";
+                                        act = "vomits on you.";
 					break;
 				}
 
@@ -547,7 +547,6 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_STING:
-				case RBM_XXX1:
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:

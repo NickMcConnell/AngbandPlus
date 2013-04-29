@@ -254,6 +254,7 @@
 #define ROOM_PIT_DEMON		13
 #define ROOM_LESSER_VAULT	14
 #define ROOM_GREATER_VAULT	15
+#define ROOM_TOWER              16
 
 
 
@@ -672,6 +673,7 @@
 #define GF_SHALLOW		90	/* Lower water */
 #define GF_PROBE		91
 #define GF_LOCK_DOOR		92
+#define GF_SALT_WATER           93      /* Weak water + kill worms */
 
 /*
  * Some constants for the "learn" code
@@ -908,6 +910,7 @@
 #define FEAT_FLOOR_ACID_T 309
 
 #define FEAT_GROUND 407
+#define FEAT_GRASS 411
 #define FEAT_TREE       419
 #define FEAT_TREE_BIG   420
 #define FEAT_TREE_HIDE  422
@@ -2148,7 +2151,7 @@
 #define RBM_CLAW        5
 #define RBM_BITE        6
 #define RBM_STING       7
-#define RBM_XXX1        8
+#define RBM_VOMIT       8
 #define RBM_BUTT        9
 #define RBM_CRUSH       10
 #define RBM_ENGULF      11
@@ -3730,13 +3733,12 @@
  * Determine if a "legal" grid is a valid starting grid for player
  */
 #define cave_start_bold(Y,X) \
-        (((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) || \
-         (f_info[cave_feat[Y][X]].flags3 & (FF3_EASY_CLIMB))) && \
+        ((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
          (((!(f_info[cave_feat[Y][X]].blow.method) && \
-         !(f_info[cave_feat[Y][X]].blow.effect))) || \
-         !(f_info[cave_feat[Y][X]].flags2 & (FF2_BRIDGED)) || \
-         !(f_info[cave_feat[Y][X]].flags2 & (FF2_COVERED))) && \
+         !(f_info[cave_feat[Y][X]].spell))) || \
+         (f_info[cave_feat[Y][X]].flags2 & (FF2_BRIDGED)) || \
+         (f_info[cave_feat[Y][X]].flags2 & (FF2_COVERED)) ) && \
          (cave_m_idx[Y][X] == 0))
 
 /*

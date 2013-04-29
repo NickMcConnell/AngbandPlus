@@ -1,6 +1,10 @@
+28-02-2002
+- For some reason, we are crashing sometimes when we die, under many
+circumstances. This has the effect of preserving the characters life.
+- We are crashing if you have to reinitialise your data files when you
+have a saved character.
+
 25-02-2002
-- Should not be able to brand an entire pile of items. It's too late in the
-day to bother fixing yet...
 - Cannot generate all objects to test in wizard mode because there are
 too many (Potions/scrolls).
 
@@ -13,7 +17,6 @@ too many (Potions/scrolls).
 - Updated birth.txt is incomplete.
 - Should add kobolds from JLE's patch.
 - Not all the monsters from the future.txt file are created yet.
-- Need to notify the player they are singing/playing.
 - We are (now) many point releases behind the Angband code state of the play.
 
 04-11-2000

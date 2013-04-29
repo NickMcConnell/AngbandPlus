@@ -35,10 +35,10 @@ V:2.9.2
 
 N:0:Angband
 X:0:0
-L:0:0:407:0:0
-L:1:56:0:0:0
-L:99:56:0:0:587
-L:100:56:0:0:588
+L:0:0:407:0:0:0
+L:1:56:0:0:0:0
+L:99:56:0:0:587:0
+L:100:56:0:0:588:0
 S:1:2:3:4:5:6:7:8
 D:It feels like home...
 
@@ -47,7 +47,7 @@ D:It feels like home...
 N:1:Hobbiton
 X:10:37
 G:h
-L:0:0:411:435:0
+L:0:0:411:435:0:0
 S:9:29:10:11:0:0:0:0
 D:Tip: Press '<' to travel elsewhere.
 
@@ -56,7 +56,8 @@ D:Tip: Press '<' to travel elsewhere.
 N:2:Rivendell
 X:39:3
 G:l
-L:0:0:420:126:0
+R:CAN_FLY
+L:0:0:420:126:0:0
 S:12:2:3:4:5:6:13:0
 
 # Misty Mountains are quite wet (Underground rivers etc).
@@ -64,15 +65,16 @@ S:12:2:3:4:5:6:13:0
 N:3:the Misty Mountains
 X:2:4
 G:k
-L:5:420:56:153:0
-L:6:56:0:153:68
-L:7:56:0:153:0
-L:13:56:0:154:185
+R:HURT_LITE
+L:5:420:56:56:0:0
+L:6:56:0:153:68:0
+L:7:56:0:153:0:0
+L:13:56:0:154:185:0
 
 N:4:the house of Beorn
 X:3:5
 R:ANIMAL
-L:10:0:411:0:325
+L:10:0:435:0:325:0
 S:14:0:0:0:0:0:0:0
 
 #Should be guarded by King of Wood Elves
@@ -80,15 +82,15 @@ S:14:0:0:0:0:0:0:0
 N:5:Mirkwood
 X:4:6
 G:l
-G:INSECT
-L:14:420:56:153:349
-L:15:56:0:0:0
-L:32:0:153:0:0
+R:CAN_CLIMB
+L:14:420:56:153:349:0
+L:15:56:0:0:0:0
+L:32:0:153:0:0:0
 S:15:16:17:4:5:18:19:0
 
 N:6:Lake-town
 X:5:7
-L:0:0:407:0:0
+L:0:0:407:0:0:0
 S:1:2:3:4:5:6:7:0
 
 # We disturb Smaug while entering his lair...
@@ -97,20 +99,21 @@ S:1:2:3:4:5:6:7:0
 N:7:the Lonely Mountain
 X:8:9
 R:DRAGON
-L:33:155:56:56:498
-L:34:56:0:0:0:0
-L:38:56:0:0:0:498
+#Was L:33. Need to fix by implementing flags eg RUINS
+L:20:435:56:154:498:0
+L:34:56:0:0:0:0:0
+L:38:56:0:0:0:498:0
 
 # With disasterous consequences.
 
 N:8:Lake-town
 X:7:9
 R:CAN_SWIM
-L:39:155:49:1:498
+L:39:155:407:49:498:0
 
 N:9:Lake-town, rebuilt
 X:14:0
-L:0:0:407:1:0
+L:0:0:407:1:0:0
 S:1:2:3:4:5:6:20:0
 
 #The following levels are from the Fellowship of the Ring.
@@ -122,16 +125,16 @@ N:10:Farmer Maggot's farm
 X:1:40
 G:,
 R:ANIMAL
-L:0:0:411:419:14
-L:1:114:0:0:0
-L:8:114:0:0:123
+L:0:0:435:419:14:0
+L:1:114:0:0:0:0
+L:8:114:0:0:123:0
 S:21:0:0:0:0:0:0:0
 
 #Uh. Very nasty. Potentially 32 levels out of depth. Can you make it to the store first?
 
 N:11:Bree
 X:41:12
-L:0:0:407:419:464
+L:0:0:407:419:464:0
 S:22:2:3:4:5:6:0:0
 
 #Characters will spend a lot of time in Weathertop, as they need to be able
@@ -139,192 +142,198 @@ S:22:2:3:4:5:6:0:0
 
 N:12:Weathertop
 X:41:13
-L:9:420:56:49:479
+L:9:420:56:49:479:0
 
 N:13:Trollshaw Forest
 X:12:14
-L:14:420:420:154:491
+L:14:420:420:154:491:0
 
 #Duplicate to allow acces to Moria.
 
 N:14:Rivendell
 X:13:15
 G:l
-L:0:0:420:126:0
+R:CAN_FLY
+L:0:0:420:126:0:0
 S:12:2:3:4:5:6:13:27
 
 #Even worse (26 levels out of depth)
 
-N:15:Redhorn Pass
+N:15:Caradras
 X:16:19
 R:IM_COLD
-L:21:56:144:145:494
-
-#Balrog is likely to be encountered before end of Moria. (10 levels shallower)
+L:20:56:144:145:494:0
 
 N:16:Moria
 X:17:18
-L:21:155:56:0:1048
-L:22:56:0:0:0
-L:45:56:1:0:0
-L:60:56:141:0:502
-
-#Even worse (55 levels out of depth)
+L:21:49:397:56:1048:0
+L:22:56:0:0:0:0
+L:45:56:1:0:0:0
+L:50:56:141:0:502:0
 
 N:17:Isengard
 X:16:20
-R:MAGE
-L:21:0:423:423:262
-L:22:56:0:0:0
-L:60:56:0:0:543
+G:q
+R:EVIL
+L:21:423:141:141:267:31
+L:22:56:0:0:0:31
+L:50:56:0:0:543:31
 S:23:2:3:4:5:6:7:0
 
 N:18:Lothlorien
 X:19:20
 G:l
-L:0:0:420:420:0
+L:0:0:420:420:0:0
 S:15:17:4:5:18:24:0:0
 
 N:19:Parth Galen
 X:20:24
-L:20:420:155:56:0
+L:20:420:155:56:0:0
 
 N:20:Fangorn
 X:21:23
 R:PLANT
-L:20:420:420:420:1043
+L:20:420:420:420:1043:0
 
 N:21:Edoras
 X:22:28
 G:t
 R:WARRIOR
-L:0:0:1:0:0
-L:1:56:0:0:1088
+L:0:0:407:0:0:0
+L:1:56:0:0:528:0
 S:1:2:3:4:5:6:25:0
 
-N:22:Battle of Helm's Deep
+N:22:the Battle of Helm's Deep
 X:21:23
-R:ESCORTS
-L:50:420:56:155:267
+G:o
+R:ESCORT
+L:50:420:56:155:267:0
 
 N:23:Isengard
 X:20:22
-R:MAGE
-L:60:423:141:141:543
+G:q
+R:EVIL
+L:50:425:141:141:528:31
+L:51:56:0:0:0:31
+L:81:56:0:0:543:31
 
-#Should be guarded by Faramir
-
-N:24:Marshes of the Dead
+N:24:the Marshes of the Dead
 X:19:25
 R:UNDEAD
-L:65:199:200:201:0
+L:65:199:200:201:0:0
+
+#Should be guarded by Faramir
 
 N:25:Ithilien
 X:26:27
 G:l
 R:EVIL
-L:20:420:155:199:0
-L:21:0:1:153:0
+L:20:420:155:199:0:0
+L:21:0:1:153:0:0
 S:26:26:26:0:0:0:0:0
 
 N:26:Minas Morgul
 X:25:31
-R:EVIL
-L:60:407:56:155:540
-L:61:56:0:0:0
-L:85:56:0:0:579
+G:C
+R:ESCORTS
+L:50:407:56:155:540:20
+L:51:56:0:0:0:20
+L:85:56:0:0:579:20
 
 N:27:Cirith Ungol
 X:26:31
-L:60:56:1:49:1099
-L:61:56:1:0:0
-L:75:56:1:0:565
+L:50:56:407:49:1099:0
+L:51:56:1:0:0:0
+L:75:56:1:0:565:0
 
 #King Denethor should guard Minas Tirith
 
 N:28:Minas Tirith
 X:29:30
 R:WARRIOR
-L:0:0:0:0:0
-L:1:0:0:0:0
+L:0:407:0:0:0:0
+L:1:56:0:0:0:0
 S:1:2:3:4:5:6:0:0
 
-N:29:Paths of the Dead
+N:29:the Paths of the Dead
 X:28:30
 G:W
 R:UNDEAD
-L:65:420:56:56:550
-L:66:56:0:0:0
-L:85:56:0:0:579
+L:55:436:56:56:550:0
+L:56:56:0:0:0:0
+L:85:56:0:0:579:0
 
-N:30:Battle of Five Armies
+N:30:the Battle of Five Armies
 X:27:31
+G:W
 R:ESCORTS
-L:70:420:407:56:575
+L:70:435:411:420:575:0
 
 N:31:Minas Tirith
 X:25:26
-L:0:0:1:0:0
-L:1:0:0:0:0
+L:0:0:407:0:0:0
+L:1:56:0:0:0:0
 S:1:2:3:4:5:6:24:0
 
 N:32:Mordor
 X:33:27
 G:o
-L:75:407:201:209:0
+L:75:407:201:209:0:0
 
 N:33:Orodruin
 X:56:34
 R:BR_FIRE
-L:79:210:214:217:0
-L:80:50:210:217:0
-L:98:50:214:217:68
-L:99:217:161:50:0
+L:79:210:214:217:0:0
+L:80:50:210:217:0:0
+L:98:50:214:217:68:0
+L:99:217:161:50:0:0
 
 N:34:Bara-dur
 X:33:35
-L:65:0:1:209:578
-L:66:56:1:209:0
-L:99:56:1:209:587
+G:M
+R:EVIL
+L:65:409:217:216:578:28
+L:66:56:217:216:0:28
+L:99:56:217:216:587:28
 
 N:35:Hobbiton
 X:0:36
 G:h
-L:60:0:407:199:543
+L:60:0:407:199:543:0
 S:2:3:7:11:0:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:39:42
 G:h
-L:0:0:407:419:0
+L:0:0:407:419:0:0
 S:9:29:10:11:0:0:0:0
 
 # The following are accessible from the first Hobbiton for consistency
 
 N:37:Bree
 X:38:39
-L:0:0:407:419:1083
+L:0:0:407:419:1083:0
 S:22:2:3:4:5:6:0:0
 
 # Need a barrow wight unique.
 
 N:38:Barrow-downs
 X:37:39
-L:1:407:407:56:0
-L:2:56:0:0:0
-L:20:56:0:0:0
+L:1:407:407:56:0:0
+L:2:56:0:0:0:0
+L:20:56:0:0:0:0
 
 N:39:Trollshaw Forest
 X:2:37
-L:1:420:420:155:1078
-L:2:56:0:0:1079
-L:3:56:0:0:1080
+L:1:420:420:155:1078:0
+L:2:56:0:0:1079:0
+L:3:56:0:0:1080:0
 
 N:40:the Old Forest
 X:10:11
 R:PLANT
-L:9:420:420:153:1069
-L:10:0:419:0:1089
+L:9:420:420:153:1069:0
+L:10:0:419:0:1089:0
 S:28:0:0:0:0:0:0:0
 
 # And the same dungeon accessible from the LOtR quest.
@@ -332,14 +341,14 @@ S:28:0:0:0:0:0:0:0
 
 N:41:Barrow-downs
 X:12:40
-L:1:420:420:56:0
-L:2:56:0:0:0
-L:20:56:0:0:0
+L:1:420:420:56:0:0
+L:2:56:0:0:0:0
+L:20:56:0:0:0:0
 
 # Other alternate dungeons should be placed here
 
 # Must always be last position
 N:42:the West
 G:M
-L:0:0:420:0:0
+L:0:0:420:0:0:0
 S:24:24:24:24:24:24:24:0

@@ -1043,9 +1043,6 @@ void do_cmd_cast(void)
                 if (!get_check("Continue singing?")) p_ptr->held_song = 0;
 	}
 
-	/* Stop singing - if started */
-	p_ptr->held_song = 0;
-
 	/* Cannot cast spells if illiterate */
 	if (c_info[p_ptr->pclass].sp_lvl > 50)
 	{
@@ -1161,6 +1158,43 @@ void do_cmd_cast(void)
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
         else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
+
+	/* Hold a song if possible */
+        if (s_info[spell].flags3 & (SF3_HOLD_SONG))
+	{
+		int i;
+
+                for (i = 0;i< z_info->w_max;i++)
+                {
+                        if (w_info[i].class != p_ptr->pclass) continue;
+        
+                        if (w_info[i].level > p_ptr->lev) continue;
+        
+                        if (w_info[i].benefit != WB_HOLD_SONG) continue;
+        
+                            /* Check for styles */       
+                        if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+                                {
+                                        p_ptr->held_song = spell;
+                                }
+				/* Hack - Cancel searching */
+	/* Stop searching */
+	if (p_ptr->searching)
+	{
+                /* Clear the searching flag */
+		p_ptr->searching = FALSE;
+
+                /* Clear the last disturb */
+                p_ptr->last_disturb = turn;
+	}
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+
+                }
+	}
 
 	/* Cast the spell - held songs get cast later*/
         if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);

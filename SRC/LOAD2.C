@@ -2443,7 +2443,7 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-        if ((depth < min_depth(dungeon)) || (depth > max_depth(dungeon)))
+        if ((depth < 0) || (depth > max_depth(dungeon)))
 	{
 		note(format("Ignoring illegal dungeon depth (%d)", depth));
 		return (0);

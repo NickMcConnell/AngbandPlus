@@ -1,3 +1,57 @@
+05-03-2002 Unangband 0.4.9g Bugfix release
+- Fixed bug where no 'wandering' monsters were generated
+in dungeons without set monster types.
+- Made it so that defeating a quest monster on the deepest
+level of a dungeon created stairs leading you to the surface,
+and no stairs created on any other level by a quest monster
+(Suggested by David B).
+- Fixed bug with scrolls of Opening having wrong effect.
+- Fixed bug with scrolls of Read magic not having any effect.
+- Fixed bug where bows always wielded to belt slot first
+(Reported by Sean Lester).
+- Make bards actually hold songs like they're supposed to.
+- Correctly compute spell power for all spells now.
+- You will only brand a single item, or up to 5 arrows/shots/
+bolts in a pile when you do branding of various kinds.
+- Gave wand specialists much better chance to activate wands,
+staff specialists staffs, ring specialists rings and so
+forth.
+- Fixed bugs with cancelling out of spells and item effects.
+- Now takes into account staff to hit and damage bonuses when
+pricing.
+- Made battle levels work a lot better. (Had to increase the
+maximum limit on number of monsters though).
+- Removed escorts from the high animal and insect uniques, but
+added summon kind (Otherwise they turn up on battlefields).
+- Made potions of salt water a little more 'fun'.
+- Added another food type (Pint of Orcish spirits).
+- Fixed non-working effects for potions of Water, Apple Juice
+and Slime Mold Juice.
+- Fixed bug with chasms causes software bug.
+- Fixed bug with chasms causing very few monsters to be
+generated on a level.
+- Added towers to campaign mode that have fixed floor plans
+and have to be climbed to be defeated.
+- Modified levels in campaign mode and tidied up appearance
+of a number of levels further.
+- Missed out a whole lot of important scroll definitions in
+s_info.txt (Reported by David B).
+- Made wield slot and belt slot stack items if appropriate
+(Suggested by Kieron Dunbar).
+- Allowed you to items carried in wield slot if you had not
+enabled the belt slot option.
+
+23-02-2002 Unangband 0.4.9f Bugfix release
+- More work on making campaign locations 'pretty' and with
+appropriate monster flavor.
+- Fixed bug where you could teleport into the middle of a
+chasm.
+- Fixed crasher bugs with Edoras.
+- Fixed long standing bug with Fletcher's shop.
+- Fixed crash bug with quest rewards.
+- Fixed bug where you could not drink from most water.
+- Tried to make water/other terrain a lot better looking.
+
 23-02-2002 Unangband 0.4.9e Bugfix release
 - Removed runes from strange rune traps, as this could lead
 to much abuse (Rune of escape => unlimited teleport staves +

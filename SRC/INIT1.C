@@ -137,7 +137,7 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
-	"XXX1",
+        "VOMIT",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -283,6 +283,7 @@ static cptr r_info_blow_effect[] =
         "LOWER",
 	"PROBE",
         "LOCK_DOOR",
+        "SALT_WATER",
 	NULL
 };
 
@@ -6382,14 +6383,14 @@ errr init_t_info_txt(FILE *fp, char *buf)
 		/* Process 'L' for "Levels" (up to four lines) */
 		if (buf[0] == 'L')
 		{
-			int level,fill,big,small,guard;
+                        int level,fill,big,small,guard,tower;
 
 			/* Oops, no more slots */
 			if (zone == 4) return (PARSE_ERROR_GENERIC);
 
 			/* Scan for the values */
-			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
-					&level, &fill, &big, &small, &guard)) return (PARSE_ERROR_GENERIC);
+                        if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+                                        &level, &fill, &big, &small, &guard, &tower)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
                         t_ptr->zone[zone].level=level;
@@ -6397,6 +6398,7 @@ errr init_t_info_txt(FILE *fp, char *buf)
                         t_ptr->zone[zone].big = big;
                         t_ptr->zone[zone].small = small;
                         t_ptr->zone[zone].guard = guard;
+                        t_ptr->zone[zone].tower = tower;
 
 			/* Find the next empty zone slot (if any) */
 			zone++;
