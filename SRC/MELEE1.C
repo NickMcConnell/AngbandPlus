@@ -1,11 +1,11 @@
 /* File: melee1.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Cofxright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.  Other copyrights may also apply.
+ * and not for profit purposes provided that this cofxright and statement
+ * are included in all such copies.  Other cofxrights may also apply.
  *
  * UnAngband (c) 2001 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
@@ -588,4 +588,469 @@ bool make_attack_normal(int m_idx)
 	return (TRUE);
 }
 
+#if 0
 
+/*
+ * The running algorithm  -CJS-
+ *
+ * Modified for monsters. This lets them navigate corridors 'quickly'
+ * and correctly turn corners. We use the monster run algorithm to
+ * move now.
+ *
+ * We should be careful not to to let a monster run past the player
+ * unless they are fleeing.
+ *
+ * We should be careful to 'disturb' the monster if they are in a room
+ * and the player becomes visible or moves while visible.
+ *
+ * Because monsters are effectively running, we should be careful to
+ * update the run parameters if they are 'staggering', and not let
+ * them run while confused.
+ *
+ */
+
+
+
+
+/*
+ * Hack -- allow quick "cycling" through the legal directions
+ */
+static byte cycle[] =
+{ 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
+
+/*
+ * Hack -- map each direction into the "middle" of the "cycle[]" array
+ */
+static byte chome[] =
+{ 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
+
+
+
+/*
+ * Initialize the running algorithm for a new direction.
+ *
+ * Diagonal Corridor -- allow diaginal entry into corridors.
+ *
+ * Blunt Corridor -- If there is a wall two spaces ahead and
+ * we seem to be in a corridor, then force a turn into the side
+ * corridor, must be moving straight into a corridor here. ???
+ *
+ * Diagonal Corridor    Blunt Corridor (?)
+ *       # #                  #
+ *       #x#                 @x#
+ *       @p.                  p
+ */
+static void mon_run_init(int dir)
+{
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
+	int i, row, col;
+
+	bool deepleft, deepright;
+	bool shortleft, shortright;
+
+	/* Save the direction */
+	m_ptr->run_cur_dir = dir;
+
+	/* Assume running straight */
+	m_ptr->run_old_dir = dir;
+
+	/* Assume looking for open area */
+	m_ptr->flags |= MON_RUN_OPEN_AREA;
+
+	/* Assume not looking for breaks */
+	m_ptr->flags &= ~(MON_RUN_BREAK_RIGHT);
+	m_ptr->flags &= ~(MON_RUN_BREAK_LEFT);
+
+	/* Assume no nearby walls */
+	deepleft = deepright = FALSE;
+	shortright = shortleft = FALSE;
+
+	/* Find the destination grid */
+	row = fy + ddy[dir];
+	col = fx + ddx[dir];
+
+	/* Extract cycle index */
+	i = chome[dir];
+
+	/* Check for nearby wall */
+	if (see_wall(cycle[i+1], fy, fx))
+	{
+		m_ptr->flags |= MON_RUN_BREAK_LEFT;
+		shortleft = TRUE;
+	}
+
+	/* Check for distant wall */
+	else if (see_wall(cycle[i+1], row, col))
+	{
+		m_ptr->flags |= MON_RUN_BREAK_LEFT;
+		deepleft = TRUE;
+	}
+
+	/* Check for nearby wall */
+	if (see_wall(cycle[i-1], fy, fx))
+	{
+		m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+		shortright = TRUE;
+	}
+
+	/* Check for distant wall */
+	else if (see_wall(cycle[i-1], row, col))
+	{
+		m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+		deepright = TRUE;
+	}
+
+	/* Looking for a break */
+	if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)) && (m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+	{
+		/* Not looking for open area */
+		m_ptr->flags &= ~(MON_RUN_OPEN_AREA);
+
+		/* Hack -- allow angled corridor entry */
+		if (dir & 0x01)
+		{
+			if (deepleft && !deepright)
+			{
+				m_ptr->run_old_dir = cycle[i - 1];
+			}
+			else if (deepright && !deepleft)
+			{
+				m_ptr->run_old_dir = cycle[i + 1];
+			}
+		}
+
+		/* Hack -- allow blunt corridor entry */
+		else if (see_wall(cycle[i], row, col))
+		{
+			if (shortleft && !shortright)
+			{
+				m_ptr->run_old_dir = cycle[i - 2];
+			}
+			else if (shortright && !shortleft)
+			{
+				m_ptr->run_old_dir = cycle[i + 2];
+			}
+		}
+	}
+}
+
+
+/*
+ * Update the current "run" path
+ *
+ * Return TRUE if the running should be stopped
+ */
+static bool run_test(void)
+{
+	int fy = m_ptr->fy;
+	int fx = m_ptr->fx;
+
+	int prev_dir;
+	int new_dir;
+	int check_dir = 0;
+
+	int row, col;
+        int i, max;
+	int option, option2;
+
+        int feat;
+
+	bool notice;
+
+	/* No options yet */
+	option = 0;
+	option2 = 0;
+
+	/* Where we came from */
+	prev_dir = m_ptr->run_old_dir;
+
+
+	/* Range of newly adjacent grids */
+	max = (prev_dir & 0x01) + 1;
+
+
+	/* Look at every newly adjacent square. */
+	for (i = -max; i <= max; i++)
+	{
+		s16b this_o_idx, next_o_idx = 0;
+
+
+		/* New direction */
+		new_dir = cycle[chome[prev_dir] + i];
+
+		/* New location */
+		row = fy + ddy[new_dir];
+		col = fx + ddx[new_dir];
+
+
+		/* Visible monsters abort running */
+		if (cave_m_idx[row][col] > 0)
+		{
+                        return (TRUE);
+		}
+
+		/* Analyze unknown grids and floors */
+                if (cave_floor_bold(row, col))
+		{
+			/* Looking for open area */
+                        if (m_ptr->flags & (MON_RUN_OPEN_AREA))
+			{
+				/* Nothing */
+			}
+
+			/* The first new direction. */
+			else if (!option)
+			{
+				option = new_dir;
+			}
+
+			/* Three new directions. Stop running. */
+			else if (option2)
+			{
+				return (TRUE);
+			}
+
+			/* Two non-adjacent new directions.  Stop running. */
+			else if (option != cycle[chome[prev_dir] + i - 1])
+			{
+				return (TRUE);
+			}
+
+			/* Two new (adjacent) directions (case 1) */
+			else if (new_dir & 0x01)
+			{
+				check_dir = cycle[chome[prev_dir] + i - 2];
+				option2 = new_dir;
+			}
+
+			/* Two new (adjacent) directions (case 2) */
+			else
+			{
+				check_dir = cycle[chome[prev_dir] + i + 1];
+				option2 = option;
+				option = new_dir;
+			}
+		}
+
+		/* Obstacle, while looking for open area */
+		else
+		{
+                        if (m_ptr->flags & (MON_RUN_OPEN_AREA))
+			{
+				if (i < 0)
+				{
+					/* Break to the right */
+					m_ptr->flags |= MON_RUN_BREAK_RIGHT;
+				}
+
+				else if (i > 0)
+				{
+					/* Break to the left */
+					m_ptr->flags |= MON_RUN_BREAK_LEFT;
+				}
+			}
+		}
+	}
+
+
+	/* Looking for open area */
+        if (m_ptr->flags & (MON_RUN_OPEN_AREA)run_open_area)
+	{
+		/* Hack -- look again */
+		for (i = -max; i < 0; i++)
+		{
+			new_dir = cycle[chome[prev_dir] + i];
+
+			row = fy + ddy[new_dir];
+			col = fx + ddx[new_dir];
+
+                        /* Get feature */
+                        feat = cave_feat[row][col];
+
+			/* Get mimiced feature */
+                        feat = f_info[feat].mimic;
+
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
+			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+                            (!(f_info[feat].flags1 & (FF1_WALL))) )
+			{
+				/* Looking to break right */
+				if ((m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+				{
+					return (TRUE);
+				}
+			}
+
+
+			/* Obstacle */
+			else
+			{
+				/* Looking to break left */
+				if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)))
+				{
+					return (TRUE);
+				}
+			}
+		}
+
+		/* Hack -- look again */
+		for (i = max; i > 0; i--)
+		{
+			new_dir = cycle[chome[prev_dir] + i];
+
+			row = fy + ddy[new_dir];
+			col = fx + ddx[new_dir];
+
+                        /* Get feature */
+                        feat = cave_feat[row][col];
+
+			/* Get mimiced feature */
+                        feat = f_info[feat].mimic;
+
+			/* Unknown grid or non-wall */
+			/* Was: cave_floor_bold(row, col) */
+			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+                            (!(f_info[feat].flags1 & (FF1_WALL))))
+			{
+				/* Looking to break left */
+				if ((m_ptr->flags & (MON_RUN_BREAK_LEFT)))
+				{
+					return (TRUE);
+				}
+			}
+
+			/* Obstacle */
+			else
+			{
+				/* Looking to break right */
+				if ((m_ptr->flags & (MON_RUN_BREAK_RIGHT)))
+				{
+					return (TRUE);
+				}
+			}
+		}
+	}
+
+
+	/* Not looking for open area */
+	else
+	{
+		/* No options */
+		if (!option)
+		{
+			return (TRUE);
+		}
+
+		/* One option */
+		else if (!option2)
+		{
+			/* Primary option */
+			m_ptr->run_cur_dir = option;
+
+			/* No other options */
+			m_ptr->run_old_dir = option;
+		}
+
+		/* Two options, examining corners */
+		else if (run_use_corners && !run_cut_corners)
+		{
+			/* Primary option */
+			m_ptr->run_cur_dir = option;
+
+			/* Hack -- allow curving */
+			m_ptr->run_old_dir = option2;
+		}
+
+		/* Two options, pick one */
+		else
+		{
+			/* Get next location */
+			row = fy + ddy[option];
+			col = fx + ddx[option];
+
+			/* Don't see that it is closed off. */
+			/* This could be a potential corner or an intersection. */
+			if (!see_wall(option, row, col) ||
+			    !see_wall(check_dir, row, col))
+			{
+				/* Can not see anything ahead and in the direction we */
+				/* are turning, assume that it is a potential corner. */
+				if (run_use_corners &&
+				    see_nothing(option, row, col) &&
+				    see_nothing(option2, row, col))
+				{
+					m_ptr->run_cur_dir = option;
+					m_ptr->run_old_dir = option2;
+				}
+
+				/* STOP: we are next to an intersection or a room */
+				else
+				{
+					return (TRUE);
+				}
+			}
+
+			/* This corner is seen to be enclosed; we cut the corner. */
+			else if (run_cut_corners)
+			{
+				m_ptr->run_cur_dir = option2;
+				m_ptr->run_old_dir = option2;
+			}
+
+			/* This corner is seen to be enclosed, and we */
+			/* deliberately go the long way. */
+			else
+			{
+				m_ptr->run_cur_dir = option;
+				m_ptr->run_old_dir = option2;
+			}
+		}
+	}
+
+
+	/* About to hit a known wall, stop */
+	if (see_wall(m_ptr->run_cur_dir, fy, fx))
+	{
+		return (TRUE);
+	}
+
+
+	/* Failure */
+	return (FALSE);
+}
+
+
+
+/*
+ * Take one step along the current "run" path
+ *
+ * Called with a real direction to begin a new run, and with zero
+ * to continue a run in progress.
+ */
+void mon_run_step(int dir)
+{
+	/* Start run */
+	if (dir)
+	{
+		/* Initialize */
+		run_init(dir);
+	}
+
+	/* Continue run */
+	else
+	{
+		/* Update run */
+		if (run_test())
+		{
+			/* Done */
+			return;
+		}
+	}
+
+}
+
+
+#endif

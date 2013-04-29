@@ -1724,12 +1724,11 @@ static void spoil_mon_info(cptr fname)
 			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+                if (flags1 & (RF1_FRIENDS))
 		{
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
-
 
 		/* Collect inate attacks */
 		vn = 0;

@@ -1,4 +1,25 @@
-17-12-2001
+21-12-2001 Unangband 0.4.6c Bugfix release
+- Saruman the Many-Colored was not multi-hued :(
+- Added ATTR_METAL for metallic/gem monsters, to flicker
+between 2 hues, rather than fully multi-hued.
+- Updated gem/metallic monsters to use this new flag.
+- Removed FORGET flag from 2 low level monsters who have
+it.
+- Fix bug with loading old characters resulting in
+exhaustion.
+- Changed variant_fast_moves to save-file option and
+defaulted to FALSE.
+- Added variant_unsummon option which slows summoning
+somewhat.
+- Potions of restoring had the wrong sval in k_info.txt.
+- Added option to allow spell casters to learn more
+than 64 spells (Up to limit allowed by intelligence).
+- Fixed problem where resting would use up a lot of
+turns (Reported by Larry Bassel).
+- Moved all unimplemented stuff into a todo folder under
+lib.
+
+17-12-2001 Unangband 0.4.6b Bugfix release
 - Detect curse now senses all cursed items.
 - Gauge magic was not correctly marking cursed items
 (Reported by Larry Bassel).

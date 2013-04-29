@@ -230,7 +230,6 @@ static errr wr_savefile(void)
 
 	byte fake[4];
 
-
 	/*** Hack -- extract some data ***/
 
 	/* Hack -- Get the current time */
@@ -390,9 +389,8 @@ static errr wr_savefile(void)
 	/* Dump the ordered spells */
 	for (i = 0; i < 64; i++)
 	{
-		wr_byte(spell_order[i]);
+                wr_byte(spell_order[i]);
 	}
-
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -806,6 +804,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
+        if (variant_unsummon) wr_byte(m_ptr->summoned);
 	wr_byte(0);
 }
 
@@ -1399,6 +1398,10 @@ static bool wr_savefile_new(void)
 
 	u16b tmp16u;
 
+        int max_spells = PY_MAX_SPELLS;
+
+        if (!variant_more_spells) max_spells = 64;
+
 
 	/* Guess at the current time */
 	now = time((time_t *)0);
@@ -1573,15 +1576,26 @@ static bool wr_savefile_new(void)
 	/* Write spell data */
 	wr_u32b(p_ptr->spell_learned1);
 	wr_u32b(p_ptr->spell_learned2);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_learned3);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_learned4);
 	wr_u32b(p_ptr->spell_worked1);
 	wr_u32b(p_ptr->spell_worked2);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_worked3);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_worked4);
 	wr_u32b(p_ptr->spell_forgotten1);
 	wr_u32b(p_ptr->spell_forgotten2);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_forgotten3);
+        if (variant_more_spells) wr_u32b(p_ptr->spell_forgotten4);
 
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+        for (i = 0; i < max_spells; i++)
 	{
-		wr_byte(p_ptr->spell_order[i]);
+                if (variant_more_spells) wr_s16b(p_ptr->spell_order[i]);
+                else if (p_ptr->spell_order[i] < 256)
+                {
+                        wr_byte(p_ptr->spell_order[i]);
+                }
+                else wr_byte(0);
 	}
 
 

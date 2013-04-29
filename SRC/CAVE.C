@@ -451,6 +451,33 @@ bool feat_supports_lighting(byte feat)
 
 
 /*
+ * Table lookup for 'metallic' attributes for all metal/gem monsters.
+ * These are 1 shade lighter, or yellow if already light.
+ */
+
+int metal_attr[16] =
+{
+	TERM_L_DARK,	/* TERM_DARK */
+	TERM_L_WHITE, 	/* TERM_WHITE - silver */
+	TERM_L_WHITE, 	/* TERM_SLATE - iron */
+	TERM_YELLOW, 	/* TERM_ORANGE - brass */
+	TERM_L_RED, 	/* TERM_RED - ruby */
+	TERM_L_GREEN, 	/* TERM_GREEN - emerald */
+	TERM_L_BLUE, 	/* TERM_BLUE - sapphire */
+	TERM_L_UMBER, 	/* TERM_UMBER - copper */
+	TERM_SLATE, 	/* TERM_L_DARK - coal */
+	TERM_WHITE, 	/* TERM_L_WHITE - diamond */
+	TERM_YELLOW, 	/* TERM_VIOLET - amethyst */
+	TERM_WHITE, 	/* TERM_YELLOW - gold */
+	TERM_YELLOW, 	/* TERM_L_RED */
+	TERM_YELLOW, 	/* TERM_L_GREEN - adamantite*/
+	TERM_YELLOW, 	/* TERM_L_BLUE - mithril*/
+	TERM_YELLOW 	/* TERM_L_UMBER - bronze */
+
+};
+
+
+/*
  * Extract the attr/char to display at the given (legal) map location
  *
  * Note that this function, since it is called by "lite_spot()" which
@@ -1031,6 +1058,18 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Normal char */
 				c = dc;
 			}
+
+			/* Metallic monster */
+			else if (r_ptr->flags1 & (RF1_ATTR_METAL))
+			{
+				/* Flickering metallic attr - predominate base color */
+                                if (!rand_int(3)) a = metal_attr[da];
+				else a = da;
+
+				/* Normal char */
+				c = dc;
+			}
+
 
 			/* Normal monster (not "clear" in any way) */
 			else if (!(r_ptr->flags1 & (RF1_ATTR_CLEAR | RF1_CHAR_CLEAR)))

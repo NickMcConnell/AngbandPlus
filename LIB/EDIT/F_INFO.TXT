@@ -1507,10 +1507,9 @@ F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM | SECRET
 
 # 0xxx --> pile of rubble (known item)
 
-
 N:97:pile of rubble
 W:1:9:13:0
-G:&:w
+G:*:w
 K:DEFAULT:1
 F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM 

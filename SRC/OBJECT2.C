@@ -5815,18 +5815,20 @@ bool spell_okay(int spell, bool known)
         if (i == PY_MAX_SPELLS) return (!known);
 
 	/* Spell is forgotten */
-	if ((i < 32) ?
-	    (p_ptr->spell_forgotten1 & (1L << i)) :
-	    (p_ptr->spell_forgotten2 & (1L << (i - 32))))
+        if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
+              ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
+              ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
+              (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
 	{
 		/* Never okay */
 		return (FALSE);
 	}
 
 	/* Spell is learned */
-	if ((i < 32) ?
-	    (p_ptr->spell_learned1 & (1L << i)) :
-	    (p_ptr->spell_learned2 & (1L << (i - 32))))
+        if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+              ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+              ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+              (p_ptr->spell_learned4 & (1L << (i - 96))))))
 	{
 		/* Okay to cast, not to study */
 		return (known);
@@ -6164,16 +6166,18 @@ void print_spells(byte *book, int num, int y, int x)
 				line_attr = TERM_RED;
 			}
                 }
-                else if ((ii < 32) ?
-		    ((p_ptr->spell_forgotten1 & (1L << ii))) :
-		    ((p_ptr->spell_forgotten2 & (1L << (ii - 32)))))
+                else if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
+                      (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
 		{
 			comment = " forgotten";
 			line_attr = TERM_YELLOW;
 		}
-		else if (!((ii < 32) ?
-		           (p_ptr->spell_learned1 & (1L << ii)) :
-		           (p_ptr->spell_learned2 & (1L << (ii - 32)))))
+                else if (!((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+                      (p_ptr->spell_learned4 & (1L << (i - 96)))))))
 		{
 			if (sc_ptr->level <= p_ptr->lev)
 			{
@@ -6186,9 +6190,10 @@ void print_spells(byte *book, int num, int y, int x)
 				line_attr = TERM_RED;
 			}
 		}
-		else if (!((ii < 32) ?
-		           (p_ptr->spell_worked1 & (1L << ii)) :
-		           (p_ptr->spell_worked2 & (1L << (ii - 32)))))
+                else if (!((i < 32) ? (p_ptr->spell_worked1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_worked3 & (1L << (i - 64))) :
+                      (p_ptr->spell_worked4 & (1L << (i - 96)))))))
 		{
 			comment = " untried";
 			line_attr = TERM_L_GREEN;

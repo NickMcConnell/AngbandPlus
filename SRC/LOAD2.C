@@ -905,6 +905,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+        if (variant_unsummon) rd_byte(&m_ptr->summoned);
 	rd_byte(&tmp8u);
 }
 
@@ -1277,6 +1278,11 @@ static errr rd_extra(void)
 
 	u32b randart_version;
 
+        int max_spells = PY_MAX_SPELLS;
+
+        if (!variant_more_spells) max_spells = 64;
+
+
 	rd_string(op_ptr->full_name, 32);
 
 	rd_string(p_ptr->died_from, 80);
@@ -1383,7 +1389,12 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->paralyzed);
 	rd_s16b(&p_ptr->confused);
 	rd_s16b(&p_ptr->food);
-        rd_s16b(&p_ptr->rest);
+        if (variant_fast_moves) rd_s16b(&p_ptr->rest);
+        else
+        {
+                strip_bytes(2);
+                p_ptr->rest = PY_REST_FULL;
+        }
         strip_bytes(2); /* Old "food_digested" / "protection" */
 	rd_s16b(&p_ptr->energy);
 	rd_s16b(&p_ptr->fast);
@@ -1520,15 +1531,27 @@ static errr rd_extra(void)
 	/* Read spell info */
 	rd_u32b(&p_ptr->spell_learned1);
 	rd_u32b(&p_ptr->spell_learned2);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_learned3);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_learned4);
 	rd_u32b(&p_ptr->spell_worked1);
 	rd_u32b(&p_ptr->spell_worked2);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_worked3);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_worked4);
 	rd_u32b(&p_ptr->spell_forgotten1);
 	rd_u32b(&p_ptr->spell_forgotten2);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_forgotten3);
+        if (variant_more_spells) rd_u32b(&p_ptr->spell_forgotten4);
 
-	for (i = 0; i < PY_MAX_SPELLS; i++)
+        for (i = 0; i < max_spells; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
-	}
+                if (variant_more_spells) rd_s16b(&p_ptr->spell_order[i]);
+                else
+                {
+                        rd_byte(&tmp8u);
+
+                        p_ptr->spell_order[i] = tmp8u;
+                }
+        }       
 
 	return (0);
 }

@@ -806,6 +806,9 @@ struct monster_type
 
 #endif
 
+        byte summoned;          /* Monster is/has summoned */
+        byte unused1;
+        s16b unused2;
 };
 
 
@@ -1223,12 +1226,18 @@ struct player_type
 
 	u32b spell_learned1;    /* Spell flags */
 	u32b spell_learned2;    /* Spell flags */
+        u32b spell_learned3;    /* Spell flags */
+        u32b spell_learned4;    /* Spell flags */
 	u32b spell_worked1;             /* Spell flags */
 	u32b spell_worked2;             /* Spell flags */
+        u32b spell_worked3;             /* Spell flags */
+        u32b spell_worked4;             /* Spell flags */
 	u32b spell_forgotten1;  /* Spell flags */
 	u32b spell_forgotten2;  /* Spell flags */
+        u32b spell_forgotten3;  /* Spell flags */
+        u32b spell_forgotten4;  /* Spell flags */
 
-	byte spell_order[PY_MAX_SPELLS];   /* Spell order */
+        s16b spell_order[PY_MAX_SPELLS];   /* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];   /* HP Array */
 

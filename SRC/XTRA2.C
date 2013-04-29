@@ -1672,7 +1672,7 @@ bool set_rest(int v)
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
-        v = (v > PY_REST_FULL) ? PY_REST_FULL : (v < 0) ? 0 : v;
+        v = (v > PY_REST_MAX) ? PY_REST_MAX : (v < 0) ? 0 : v;
 
 	/* Fainting / Starving */
         if (p_ptr->rest < PY_REST_FAINT)

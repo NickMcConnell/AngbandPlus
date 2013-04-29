@@ -1764,7 +1764,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 
 			/* Destroy traps */
-			if (f_info[cave_feat[y][x]].flags1 & (FF1_DOOR)) {
+			if (f_info[cave_feat[y][x]].flags1 & (FF1_DOOR | FF1_TRAP)) {
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{

@@ -1585,9 +1585,9 @@ cptr option_text[OPT_MAX] =
         "variant_fast_equip",                                           /* xxx */
         "variant_belt_slot",                                           /* xxx */
         "variant_fast_moves",                                           /* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+        "variant_unsummon",                                           /* xxx */
+        "variant_friendly",                                           /* xxx */
+        "variant_more_spells",                                           /* xxx */
 	NULL,						/* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
@@ -1849,9 +1849,9 @@ cptr option_desc[OPT_MAX] =
         "Use objects faster when wielded",
         "Add belt slot to equipment",                                                                           /* xxx */
         "Move faster but get tired",                                                                           /* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+        "Limit power of summoning",                                                                           /* xxx */
+        "Generate friendly uniques",                                                                           /* xxx */
+        "Learn more than 64 spells",                                                                           /* xxx */
 	NULL,										/* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
@@ -2112,10 +2112,10 @@ bool option_norm[OPT_MAX] =
         TRUE,          /* OPT_variant_fast_floor */
         TRUE,           /* OPT_variant_fast_equip */
         FALSE,          /* OPT_variant_belt_slot */
-        TRUE,          /* OPT_variant_fast_moves */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_variant_fast_moves */
+        FALSE,          /* OPT_variant_unsummon */
+        FALSE,          /* OPT_variant_friendly */
+        FALSE,          /* OPT_variant_more_spells */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
@@ -2427,7 +2427,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_many_rings,
                 OPT_variant_fast_floor,
                 OPT_variant_fast_equip,
-                OPT_variant_fast_moves
+                255
 	},
 
         /*** Variant save-file ***/
@@ -2441,9 +2441,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_town,
 		OPT_variant_room_info,
                 OPT_variant_belt_slot,
-                255,
-		255,
-		255,
+                OPT_variant_fast_moves,
+                OPT_variant_unsummon,
+                OPT_variant_more_spells,
 		255,
 		255,
 		255,

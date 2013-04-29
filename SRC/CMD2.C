@@ -2345,6 +2345,8 @@ static void do_cmd_hold_or_stay(int pickup)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+        /* Get the feature */
+        feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2362,6 +2364,20 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Take time */
         if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
+
+        /* Catch breath */
+        if (!(f_ptr->flags2 & (FF2_FILLED)))
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+        }
+        else
+        {
+                /* Rest the player */
+                set_rest(p_ptr->rest - p_ptr->tiring);
+        }
+
+
 
 	/* Spontaneous Searching */
 	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))

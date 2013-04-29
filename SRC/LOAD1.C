@@ -2653,6 +2653,7 @@ static errr rd_savefile_old_aux(void)
 {
 	int i;
 
+        byte tmp8u;
 	u16b tmp16u;
 	u32b tmp32u;
 
@@ -2826,7 +2827,8 @@ static errr rd_savefile_old_aux(void)
 	/* Read spell order */
 	for (i = 0; i < 64; i++)
 	{
-		rd_byte(&p_ptr->spell_order[i]);
+                rd_byte(&tmp8u);
+                p_ptr->spell_order[i] = tmp8u;
 	}
 
 	note("Loaded spell information");

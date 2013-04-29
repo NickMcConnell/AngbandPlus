@@ -1992,6 +1992,12 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
 		n_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
 
+        /* Hack -- Enforce no summoning if needed */
+        if (!slp && variant_unsummon)
+	{
+                n_ptr->summoned = 100;
+	}
+
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))

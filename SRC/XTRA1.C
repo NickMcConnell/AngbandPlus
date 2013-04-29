@@ -1510,7 +1510,10 @@ static void calc_spells(void)
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
 
+        int max_spells = PY_MAX_SPELLS;
         cptr p;
+
+        if (!variant_more_spells) max_spells = 64;
 
         /* Hack --- We don't know which book it comes from */
         switch (c_info[p_ptr->pclass].sp_stat)
@@ -1550,7 +1553,7 @@ static void calc_spells(void)
 		       levels / 2);
 
         /* Hack --- adjust num_allowed */
-        if (num_allowed > PY_MAX_SPELLS) num_allowed = PY_MAX_SPELLS;
+        if (num_allowed > max_spells) num_allowed = max_spells;
 
         /* Hack --- Assume no spells available */
 	k = 0;
@@ -1579,9 +1582,10 @@ static void calc_spells(void)
 	for (j = 0; j < PY_MAX_SPELLS; j++)
 	{
 		/* Count known spells */
-		if ((j < 32) ?
-		    (p_ptr->spell_learned1 & (1L << j)) :
-		    (p_ptr->spell_learned2 & (1L << (j - 32))))
+                if ((j < 32) ? (p_ptr->spell_learned1 & (1L << j)) :
+                      ((j < 64) ? (p_ptr->spell_learned2 & (1L << (j - 32))) :
+                      ((j < 96) ? (p_ptr->spell_learned3 & (1L << (j - 64))) :
+                      (p_ptr->spell_learned4 & (1L << (j - 96))))))
 		{
 			num_known++;
 
@@ -1610,7 +1614,7 @@ static void calc_spells(void)
 		msg_print("Converting from old spell format...");
 
 		/* Count the number of spells we know */
-		for (j = 0; j < PY_MAX_SPELLS; j++)
+                for (j = 0; j < max_spells; j++)
 		{
 
 			if (p_ptr->spell_order[j] == 99)
@@ -1690,18 +1694,27 @@ static void calc_spells(void)
                 if (spell_level(j) <= p_ptr->lev) continue;
 
 		/* Is it known? */
-		if ((i < 32) ?
-		    (p_ptr->spell_learned1 & (1L << i)) :
-		    (p_ptr->spell_learned2 & (1L << (i - 32))))
+                if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+                      (p_ptr->spell_learned4 & (1L << (i - 96))))))
 		{
 			/* Mark as forgotten */
 			if (i < 32)
 			{
 				p_ptr->spell_forgotten1 |= (1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
 				p_ptr->spell_forgotten2 |= (1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_forgotten3 |= (1L << (i - 64));
+			}
+                        else
+			{
+                                p_ptr->spell_forgotten4 |= (1L << (i - 96));
 			}
 
 			/* No longer known */
@@ -1709,9 +1722,17 @@ static void calc_spells(void)
 			{
 				p_ptr->spell_learned1 &= ~(1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
 				p_ptr->spell_learned2 &= ~(1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_learned3 &= ~(1L << (i - 64));
+			}
+			else
+			{
+                                p_ptr->spell_learned4 &= ~(1L << (i - 96));
 			}
 
 			/* Message */
@@ -1742,18 +1763,27 @@ static void calc_spells(void)
 		s_ptr = &s_info[j];
 
 		/* Forget it (if learned) */
-		if ((i < 32) ?
-		    (p_ptr->spell_learned1 & (1L << i)) :
-		    (p_ptr->spell_learned2 & (1L << (i - 32))))
+                if ((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
+                      (p_ptr->spell_learned4 & (1L << (i - 96))))))
 		{
 			/* Mark as forgotten */
 			if (i < 32)
 			{
 				p_ptr->spell_forgotten1 |= (1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
 				p_ptr->spell_forgotten2 |= (1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_forgotten3 |= (1L << (i - 64));
+			}
+                        else
+			{
+                                p_ptr->spell_forgotten4 |= (1L << (i - 96));
 			}
 
 			/* No longer known */
@@ -1761,9 +1791,17 @@ static void calc_spells(void)
 			{
 				p_ptr->spell_learned1 &= ~(1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
 				p_ptr->spell_learned2 &= ~(1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_learned3 &= ~(1L << (i - 64));
+			}
+			else
+			{
+                                p_ptr->spell_learned4 &= ~(1L << (i - 96));
 			}
 
 			/* Message */
@@ -1806,28 +1844,45 @@ static void calc_spells(void)
                 if (spell_level(j) > p_ptr->lev) continue;
 
 		/* First set of spells */
-		if ((i < 32) ?
-		    (p_ptr->spell_forgotten1 & (1L << i)) :
-		    (p_ptr->spell_forgotten2 & (1L << (i - 32))))
+                if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
+                      (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
 		{
-			/* No longer forgotten */
+                        /* No longer forgotten */
 			if (i < 32)
 			{
-				p_ptr->spell_forgotten1 &= ~(1L << i);
+                                p_ptr->spell_forgotten1 &= ~(1L << i);
+			}
+                        else if (i < 64)
+			{
+                                p_ptr->spell_forgotten2 &= ~(1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_forgotten3 &= ~(1L << (i - 64));
 			}
 			else
 			{
-				p_ptr->spell_forgotten2 &= ~(1L << (i - 32));
+                                p_ptr->spell_forgotten4 &= ~(1L << (i - 96));
 			}
 
-			/* Known once more */
+                        /* Mark as remembered */
 			if (i < 32)
 			{
-				p_ptr->spell_learned1 |= (1L << i);
+                                p_ptr->spell_learned1 |= (1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
-				p_ptr->spell_learned2 |= (1L << (i - 32));
+                                p_ptr->spell_learned2 |= (1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_learned3 |= (1L << (i - 64));
+			}
+                        else
+			{
+                                p_ptr->spell_learned4 |= (1L << (i - 96));
 			}
 
 			/* Message */

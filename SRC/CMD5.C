@@ -419,6 +419,10 @@ void do_cmd_study(void)
 
         spell_type *s_ptr;
 
+        int max_spells = PY_MAX_SPELLS;
+
+        if (!variant_more_spells) max_spells = 64;
+
 	/* Cannot cast spells if illiterate */
 	if (c_info[p_ptr->pclass].sp_lvl > 50)
 	{
@@ -579,14 +583,14 @@ void do_cmd_study(void)
         p_ptr->energy_use = 100;
 
 	/* Find the next open entry in "spell_order[]" */
-	for (i = 0; i < PY_MAX_SPELLS; i++)
+        for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
 		if (p_ptr->spell_order[i] == 0) break;
 	}
 
 	/* Paranoia */
-	if (i == PY_MAX_SPELLS)
+        if (i >= max_spells)
 	{
 		/* Message */
 		msg_format("You cannot learn any more %ss.", p);
@@ -602,10 +606,18 @@ void do_cmd_study(void)
 	{
 		p_ptr->spell_learned1 |= (1L << i);
 	}
-	else
-	{
-		p_ptr->spell_learned2 |= (1L << (i - 32));
-	}
+        else if (i < 64)
+        {
+                p_ptr->spell_learned2 |= (1L << (i - 32));
+        }
+        else if (i < 96)
+        {
+                p_ptr->spell_learned3 |= (1L << (i - 64));
+        }
+        else
+        {
+                p_ptr->spell_learned4 |= (1L << (i - 96));
+        }
 
         /*Set to spell*/
         s_ptr = &(s_info[spell]);
@@ -3197,8 +3209,11 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 
 		/* A spell was cast */ 
 		else if (!((i < 32) ?
-		      (p_ptr->spell_worked1 & (1L << i)) :
-		      (p_ptr->spell_worked2 & (1L << (i - 32)))))
+                      (p_ptr->spell_worked1 & (1L << i)) :
+                      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
+                      ((i < 96) ? (p_ptr->spell_worked3 & (1L << (i - 64))) :
+                      (p_ptr->spell_worked4 & (1L << (i - 96)))))))
+
 		{
                         int e = sc_ptr->level;
 
@@ -3207,9 +3222,17 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 			{
 				p_ptr->spell_worked1 |= (1L << i);
 			}
-			else
+                        else if (i < 64)
 			{
 				p_ptr->spell_worked2 |= (1L << (i - 32));
+			}
+                        else if (i < 96)
+			{
+                                p_ptr->spell_worked3 |= (1L << (i - 64));
+			}
+                        else if (i < 128)
+			{
+                                p_ptr->spell_worked2 |= (1L << (i - 96));
 			}
 
 			/* Gain experience */

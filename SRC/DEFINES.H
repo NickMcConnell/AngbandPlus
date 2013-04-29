@@ -361,7 +361,7 @@
 #define PY_MAX_EXP      99999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
 #define PY_MAX_LEVEL    50              /* Maximum level */
-#define PY_MAX_SPELLS	64		/* Maximum spells */
+#define PY_MAX_SPELLS   128              /* Maximum spells */
 
 /*
  * Player "food" crucial values
@@ -376,6 +376,7 @@
 /*
  * Player "rest" crucial values
  */
+#define PY_REST_MAX     600    /* Rest value (Maximum) */
 #define PY_REST_FULL    500    /* Rest value (Normal) */
 #define PY_REST_ALERT   300    /* Rest value (Tired) */
 #define PY_REST_WEAK    200    /* Rest value (Weak) */
@@ -2375,7 +2376,7 @@
 #define RF1_FORCE_MAXHP         0x00000200      /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400      /* Start out sleeping */
 #define RF1_FORCE_EXTRA         0x00000800      /* Start out something */
-#define RF1_FRIEND                      0x00001000      /* Arrive with a friend */
+#define RF1_ATTR_METAL          0x00001000      /* Lightens color occasionally */
 #define RF1_FRIENDS                     0x00002000      /* Arrive with some friends */
 #define RF1_ESCORT                      0x00004000      /* Arrive with an escort */
 #define RF1_ESCORTS                     0x00008000      /* Arrive with some escorts */
@@ -2971,6 +2972,9 @@
 #define OPT_variant_fast_equip  (OPT_VARIANT+25)
 #define OPT_variant_belt_slot   (OPT_VARIANT+26)
 #define OPT_variant_fast_moves  (OPT_VARIANT+27)
+#define OPT_variant_unsummon    (OPT_VARIANT+28)
+#define OPT_variant_friendly    (OPT_VARIANT+29)
+#define OPT_variant_more_spells (OPT_VARIANT+30)
 
 /*
  * Hack -- Option symbols
@@ -3126,6 +3130,10 @@
 #define variant_fast_equip                      op_ptr->opt[OPT_variant_fast_equip]
 #define variant_belt_slot                       op_ptr->opt[OPT_variant_belt_slot]
 #define variant_fast_moves                      op_ptr->opt[OPT_variant_fast_moves]
+#define variant_unsummon                      op_ptr->opt[OPT_variant_unsummon]
+#define variant_friendly                      op_ptr->opt[OPT_variant_friendly]
+#define variant_more_spells                      op_ptr->opt[OPT_variant_more_spells]
+
 
 /*
  * Information for "do_cmd_options()".
