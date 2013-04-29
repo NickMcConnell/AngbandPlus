@@ -376,8 +376,8 @@ static byte convert_old_names[180] =
 	EGO_VULNERABILITY,		/* 41 = SN_VULNERABILITY */
 	EGO_ENVELOPING,			/* 42 = SN_ENVELOPING */
 	EGO_BRAND_FIRE,			/* 43 = SN_FIRE */
-	EGO_HURT_EVIL,			/* 44 = SN_SLAY_EVIL */
-	EGO_HURT_DRAGON,		/* 45 = SN_DRAGON_SLAYING */
+        EGO_SLAY_EVIL,                  /* 44 = SN_SLAY_EVIL */
+        EGO_SLAY_DRAGON,                /* 45 = SN_DRAGON_SLAYING */
 	0,						/* 46 = SN_EMPTY */
 	0,						/* 47 = SN_LOCKED */
 	0,						/* 48 = SN_POISON_NEEDLE */
@@ -387,7 +387,7 @@ static byte convert_old_names[180] =
 	0,						/* 52 = SN_MULTIPLE_TRAPS */
 	0,						/* 53 = SN_DISARMED */
 	0,						/* 54 = SN_UNLOCKED */
-	EGO_HURT_ANIMAL,		/* 55 = SN_SLAY_ANIMAL */
+        EGO_SLAY_ANIMAL,                /* 55 = SN_SLAY_ANIMAL */
 	ART_GROND + 128,		/* 56 = SN_GROND */
 	ART_RINGIL + 128,		/* 57 = SN_RINGIL */
 	ART_AEGLOS + 128,		/* 58 = SN_AEGLOS */
@@ -1215,15 +1215,15 @@ static errr rd_item_old(object_type *o_ptr)
 			}
 			else if (o_ptr->name2 == EGO_SLAY_ANIMAL)
 			{
-				o_ptr->name2 = EGO_HURT_ANIMAL;
+                                o_ptr->name2 = EGO_SLAY_ANIMAL;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_EVIL)
 			{
-				o_ptr->name2 = EGO_HURT_EVIL;
+                                o_ptr->name2 = EGO_SLAY_EVIL;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_DRAGON)
 			{
-				o_ptr->name2 = EGO_HURT_DRAGON;
+                                o_ptr->name2 = EGO_SLAY_DRAGON;
 			}
 		}
 

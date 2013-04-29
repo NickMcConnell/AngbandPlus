@@ -253,9 +253,12 @@ I:80:20:500
 W:10:0:1:75
 A:15/1
 
-
-## XXX 29 XXX ##
-
+N:29:& Apple~
+G:,:g
+I:80:40:3000
+W:1:0:4:2
+A:1/1
+P:0:1d1:0:0:0
 
 ##### Edged Weapons #####
 
@@ -1547,7 +1550,11 @@ I:70:39:0
 W:10:0:5:50
 A:10/1
 
-## XXX 205 XXX ##
+N:205:Enchant Armor To-Resist
+G:?:d
+I:70:49:0
+W:50:0:5:500
+A:50/1
 
 N:206:Recharging
 G:?:d
@@ -1969,8 +1976,11 @@ W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
 
-## XXX 268 XXX ##
-
+N:268:Enchant Weapon Brand
+G:?:d
+I:70:50:0
+W:50:0:5:500
+A:50/1
 
 ##### Wands #####
 
@@ -2147,7 +2157,11 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 293 XXX ##
+N:293:Bless Weapon
+G:?:d
+I:70:51:0
+W:50:0:5:500
+A:50/1
 
 N:294:Acid Bolts
 G:-:d
@@ -2195,217 +2209,233 @@ G:_:d
 I:55:30:0
 W:45:0:50:3000
 A:45/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:300:Trap Location
 G:_:d
 I:55:12:0
 W:10:0:50:350
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:301:Treasure Location
 G:_:d
 I:55:10:0
 W:5:0:50:200
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:302:Object Location
 G:_:d
 I:55:11:0
 W:5:0:50:200
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:303:Teleportation
 G:_:d
 I:55:4:0
 W:20:0:50:2000
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:304:Earthquakes
 G:_:d
 I:55:28:0
 W:40:0:50:350
 A:40/1
-P:0:1d2:0:0:0
+P:0:2d6:0:0:0
+F:IMPACT
 
 N:305:Summoning
 G:_:d
 I:55:3:0
 W:10:0:50:0
 A:10/1:50/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:306:Light
 G:_:d
 I:55:8:0
 W:5:0:50:250
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:LITE
 
 N:307:*Destruction*
 G:_:d
 I:55:29:0
 W:50:0:50:2500
 A:50/1:70/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:308:Starlight
 G:_:d
 I:55:7:0
 W:20:0:50:800
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:RES_LITE
 
 N:309:Haste Monsters
 G:_:d
 I:55:2:0
 W:10:0:50:0
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:310:Slow Monsters
 G:_:d
 I:55:21:0
 W:10:0:50:800
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:311:Sleep Monsters
 G:_:d
 I:55:20:0
 W:10:0:50:700
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:312:Cure Light Wounds
 G:_:d
 I:55:16:0
 W:5:0:50:350
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:313:Detect Invisible
 G:_:d
 I:55:14:0
 W:5:0:50:200
 A:5/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:SEE_INVIS
 
 N:314:Speed
 G:_:d
 I:55:22:0
 W:40:0:50:1000
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:315:Slowness
 G:_:d
 I:55:1:0
 W:40:0:50:0
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:316:Door/Stair Location
 G:_:d
 I:55:13:0
 W:10:0:50:350
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:317:Remove Curse
 G:_:d
 I:55:6:0
 W:40:0:50:500
 A:40/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:318:Detect Evil
 G:_:d
 I:55:15:0
 W:20:0:50:350
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:SLAY_EVIL
 
 N:319:Curing
 G:_:d
 I:55:17:0
 W:25:0:50:1000
 A:25/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:320:Dispel Evil
 G:_:d
 I:55:24:0
 W:50:0:50:1200
 A:50/1
-P:0:1d2:0:0:0
+P:0:2d6:0:0:0
+F:SLAY_EVIL
 
 N:321:Probing
 G:_:d
 I:55:23:0
 W:30:0:50:2000
 A:30/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:322:Darkness
 G:_:d
 I:55:0:0
 W:5:0:50:0
 A:5/1:50/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:RES_DARK
 
 N:323:Genocide
 G:_:d
 I:55:27:0
 W:70:0:50:3500
 A:70/2
-P:0:1d2:0:0:0
+P:0:2d6:0:0:0
+F:SLAY_ANIMAL
 
 N:324:Power
 G:_:d
 I:55:25:0
 W:70:0:50:4000
 A:70/2
-P:0:1d2:0:0:0
+P:0:2d6:0:0:0
+F:SUST_WIS | SUST_CHR | RES_FEAR
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:325:the Magi
 G:_:d
 I:55:19:0
 W:70:0:50:4500
 A:70/2
-P:0:1d2:0:0:0
+P:0:2d6:0:0:0
+F:SUST_INT | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:326:Detect Curse
 G:_:d
 I:55:5:0
 W:10:0:50:400
 A:10/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 N:327:Holiness
 G:_:d
 I:55:26:0
 W:70:0:50:4500
 A:70/2
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
+F:SEE_INVIS | BLESSED | RES_FEAR
 
 N:328:Enlightenment
 G:_:d
 I:55:9:0
 W:20:0:50:750
 A:20/1
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
+F:SUST_INT | SUST_WIS
 
 N:329:Healing
 G:_:d
 I:55:18:0
 W:70:0:50:5000
 A:70/2
-P:0:1d2:0:0:0
+P:0:1d6:0:0:0
 
 
 ##### Basic Books #####
@@ -2470,33 +2500,33 @@ P:0:1d1:0:0:0
 ##### Various Stuff #####
 
 N:338:& handful~ of Sand
-G:.:y
-I:78:1:0
-W:0:0:10:0
+G:~:U
+I:3:9:0
+W:0:0:5:0
 P:0:1d1:0:0:0
 
 N:339:& handful~ of Earth
-G:.:u
-I:78:2:0
-W:0:0:10:0
+G:~:U
+I:3:10:0
+W:0:0:5:0
 P:0:1d1:0:0:0
 
 N:340:& handful~ of Mud
-G:.:u
-I:78:3:0
-W:0:0:10:0
+G:~:U
+I:3:11:0
+W:0:0:5:0
 P:0:1d1:0:0:0
 
 N:341:& handful~ of Dust
-G:.:W
-I:78:4:0
-W:0:0:10:0
+G:~:U
+I:3:12:0
+W:0:0:5:0
 P:0:1d1:0:0:0
 
 N:342:& handful~ of Ice
-G:.:B
-I:78:5:0
-W:0:0:10:0
+G:~:U
+I:3:13:0
+W:0:0:5:0
 P:0:1d1:0:0:0
 
 N:343:& empty Flask~
@@ -2835,7 +2865,6 @@ A:100/4
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-
 ##### Junk #####
 
 N:389:& Shard~ of Pottery
@@ -2846,7 +2875,7 @@ A:0/1
 P:0:1d1:0:0:0
 
 N:390:& Broken Stick~
-G:~:r
+G:~:U
 I:3:6:0
 W:0:0:3:0
 A:0/1
@@ -2887,7 +2916,7 @@ P:0:1d1:0:0:0
 N:395:& # Statue~
 G:9:W
 I:11:5:0
-W:0:0:3000:0
+W:0:0:2000:0
 A:15/1:25/1:45/1
 P:0:1d1:0:0:0
 
@@ -3857,7 +3886,6 @@ I:6:1:0
 W:0:0:100:0
 P:0:1d1:0:0:0
 
-
 N:579:& # Head~
 G:~:r
 I:6:2:0
@@ -3865,14 +3893,12 @@ W:0:0:15:0
 A:1/1
 P:0:1d1:0:0:0
 
-
 N:580:& # Hand~
 G:~:r
 I:6:3:0
 W:0:0:5:0
 A:1/1
 P:0:1d1:0:0:0
-
 
 N:581:& # Arm~
 G:~:r
@@ -3891,7 +3917,6 @@ W:1:0:15:0
 A:1/1
 P:0:1d1:0:0:0
 
-
 N:584:& # Wing~
 G:~:r
 I:6:7:0
@@ -3900,12 +3925,11 @@ A:2/1
 P:0:1d1:0:0:0
 
 N:587:& # Stump~
-G:~:r
+G:~:U
 I:6:10:0
 W:0:0:300:0
 A:1/1
 P:0:1d1:0:0:0
-
 
 N:588:& # Branch~
 G:~:r
@@ -3914,7 +3938,6 @@ W:1:0:30:0
 A:1/1
 P:0:1d1:0:0:0
 
-
 N:590:& # Skin~
 G:~:G
 I:8:1:0
@@ -3922,8 +3945,7 @@ W:1:0:20:0
 A:1/1:20/1
 P:0:1d1:0:0:0
 
-
-N:591:& Handful of # Scales
+N:591:& handful~ of # Scales
 G:~:G
 I:8:2:0
 W:9:0:2:0
@@ -3965,3 +3987,17 @@ W:0:0:4:0
 A:2/2:9/2:21/2:31/2
 P:0:1d1:0:0:0
 
+# Large rock
+
+N:598:& large Rock~
+G:~:U
+I:3:7:0
+W:0:0:2000:0
+A:15/1
+P:0:1d1:0:0:0
+
+N:599:& handful~ of Berries
+G:,:g
+I:80:41:3000
+W:1:0:4:2
+A:1/1

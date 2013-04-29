@@ -157,6 +157,25 @@ static cptr r_info_blow_method[] =
 	"TRAP",
 	"SHOOT",
 	"AURA",
+        "SELF",
+        "ADJACENT",
+        "HANDS",
+        "MISSILE",
+        "BOLT_10",
+        "BOLT",
+        "BEAM",
+        "BLAST",
+        "WALL",
+        "BALL",
+        "CLOUD",
+        "STORM",
+        "BREATH",
+        "AREA",
+        "LOS",
+        "LINE",
+        "AIM",
+        "ORB",
+        "STAR",
 	NULL
 };
 
@@ -166,8 +185,7 @@ static cptr r_info_blow_method[] =
  */
 static cptr r_info_blow_effect[] =
 {
-	"",
-	"XXX1",
+        "",
 	"ARROW",
 	"MISSILE",
 	"MANA",
@@ -198,7 +216,7 @@ static cptr r_info_blow_effect[] =
 	"NETHER",
 	"CHAOS",
 	"DISENCHANT",
-	"XXX4",
+        "EXPLODE",
 	"KILL_WALL",
 	"KILL_DOOR",
 	"KILL_TRAP",
@@ -206,7 +224,7 @@ static cptr r_info_blow_effect[] =
 	"MAKE_WALL",
 	"MAKE_DOOR",
 	"MAKE_TRAP",
-	"XXX5",
+        "BRIDGE",
 	"XXX6",
 	"AWAY_UNDEAD",
 	"AWAY_EVIL",
@@ -214,15 +232,16 @@ static cptr r_info_blow_effect[] =
 	"TURN_UNDEAD",
 	"TURN_EVIL",
 	"TURN_ALL",
-	"DISPEL_UNDEAD",
-	"DISPEL_EVIL",
-	"DISPEL_ALL",
+        "DISPEL_UNDEAD",
+        "DISPEL_EVIL",
+        "DISPEL_ALL",
+        "XXX7",
 	"CLONE",
 	"POLYMORPH",
 	"HEAL",
 	"SPEED",
-        "OLD_SLOW",
-	"OLD_CONFUSE",
+        "SLOW_WEAK",
+        "CONFUSE_WEAK",
 	"SLEEP",
 	"DRAIN_LIFE",
 	"BWATER",
@@ -238,7 +257,7 @@ static cptr r_info_blow_effect[] =
 	"FALL",
 	"FALL_MORE",
 	"FALL_SPIKE",
-	"FALL_POISON",
+        "FALL_POISON",
 	"BLIND",
         "SLOW",
 	"TERRIFY",
@@ -255,6 +274,8 @@ static cptr r_info_blow_effect[] =
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+        "RAISE",
+        "LOWER",
 	NULL
 };
 
@@ -356,19 +377,19 @@ static cptr f_info_flags3[] =
         "USE_FEAT",
         "GET_FEAT",
         "CAN_HIDE",
-        "HIDE_FLY",
+        "GROUND",
         "OUTSIDE",
         "EASY_CLIMB",
-        "HURT_ROOM",
+        "NEED_TREE",
         "NEED_WALL",
         "TOWN",
-        "ATTR_FACE",
-        "FACE_EAST",
-        "FACE_WEST",
-        "FACE_NORTH",
-        "FACE_SOUTH",
-        "NO_MANA",
-        "NO_LITE",
+        "BLOOD",
+        "DUST",
+        "SLIME",
+        "TREE",
+        "TREE_BIG",
+        "XXX3",
+        "XXX4",
         "COLLAPSE",
         "ERUPT",
         "STRIKE",
@@ -442,7 +463,7 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
+        "SNEAKY",
 	"BRAIN_2",
 	"BRAIN_3",
 	"BRAIN_4",
@@ -594,7 +615,7 @@ static cptr r_info_flags6[] =
 	"S_HI_DEMON",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+        "S_ANIMAL",
 	"S_SPIDER",
 	"S_HOUND",
 	"S_HYDRA",
@@ -839,10 +860,10 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
+        "ESP_ORC",
+        "ESP_GIANT",
+        "ESP_TROLL",
+        "ESP_DRAGON",
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
@@ -851,8 +872,8 @@ static cptr k_info_flags3[] =
 	"IGNORE_ELEC",
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
-	"XXX5",
-	"XXX6",
+        "ESP_DEMON",
+        "ESP_UNDEAD",
 	"BLESSED",
 	"ACTIVATE",
 	"INSTA_ART",
@@ -988,10 +1009,163 @@ static cptr w_info_benefit[] =
  *
  */
 
-static cptr s_info_flags[] =
+static cptr s_info_flags1[] =
 {
-	"HOLD_SONG",
-	"EVIL"
+        "DETECT_DOORS",
+        "DETECT_TRAPS",
+        "DETECT_STAIRS",
+        "DETECT_WATER",
+        "DETECT_GOLD",
+        "DETECT_OBJECT",
+        "DETECT_MAGIC",
+        "DETECT_CURSE",
+        "DETECT_MONSTER",
+        "DETECT_EVIL",
+        "DETECT_INVIS",
+        "DETECT_ANIMAL",
+        "DETECT_UNDEAD",
+        "DETECT_DEMON",
+        "MAP_AREA",
+        "WIZ_LITE",
+        "LITE_ROOM",
+        "DARK_ROOM",
+        "FORGET",
+        "SELF_KNOW",
+        "IDENT",
+        "IDENT_PACK",
+        "IDENT_SENSE",
+        "IDENT_BONUS",
+        "IDENT_RUMOR",
+        "IDENT_FULLY",
+        "AQUIREMENT",
+        "STAR_AQUIREMENT",
+        "ENCHANT_TOH",
+        "ENCHANT_TOD",
+        "ENCHANT_TOA",
+        "ENCHANT_HIGH"
+};
+
+/* SF2 - timed abilities and modifying level */
+/*
+ *
+ */
+
+static cptr s_info_flags2[] =
+{
+        "AGGRAVATE",
+        "CURSE_WEAPON",
+        "CURSE_ARMOR",
+        "CREATE_STAIR",
+        "TELE_LEVEL",
+        "ALTER_LEVEL",
+        "GENOCIDE",
+        "MASS_GENOCIDE",
+        "CUT",
+        "STUN",
+        "POISON",
+        "PARALYZE",
+        "HALLUC",
+        "SLOW",
+        "BLIND",
+        "CONFUSE",
+        "FEAR",
+        "INFRA",
+        "HASTE",
+        "HERO",
+        "SHERO",
+        "BLESS",
+        "SHIELD",
+        "INVULN",
+        "SEE_INVIS",
+        "PROT_EVIL",
+        "RECALL",
+        "OPP_FIRE",
+        "OPP_COLD",
+        "OPP_ACID",
+        "OPP_ELEC",
+        "OPP_POIS"
+};
+
+/* SF3 - healing self, and untimed improvements */
+/*
+ *
+ */
+
+static cptr s_info_flags3[] =
+{
+
+        "INC_STR",
+        "INC_INT",
+        "INC_WIS",
+        "INC_DEX",
+        "INC_CON",
+        "INC_CHR",
+        "CURE_STR",
+        "CURE_INT",
+        "CURE_WIS",
+        "CURE_DEX",
+        "CURE_CON",
+        "CURE_CHR",
+        "INC_EXP",
+        "CURE_EXP",
+        "SLOW_MANA",
+        "CURE_MANA",
+        "SLOW_CURSE",
+        "CURE_CURSE",
+        "SLOW_POIS",
+        "CURE_POIS",
+        "SLOW_CUTS",
+        "CURE_CUTS",
+        "CURE_STUN",
+        "CURE_CONF",
+        "CURE_FOOD",
+        "CURE_FEAR",
+        "CURE_BLIND",
+        "DEC_FOOD",
+        "DEC_EXP",
+        "CONF_HANDS",
+        "HOLD_SONG",
+        "EVIL"
+};
+
+static cptr s_info_types[] =
+{
+        "RECHARGE",
+        "IDENT_TVAL",
+        "ENCHANT_TVAL",
+        "BRAND_WEAPON",
+        "BRAND_ARMOR",
+        "WARD_GLYPH",
+        "WARD_TRAP",
+        "SUMMON",
+        "SUMMON_R",
+        "CREATE_TVAL",
+        "CREATE_KIND",
+        "EARTHQUAKE",
+        "DESTRUCTION",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "XXX1",
+        "INVEN_WIELD",
+        "INVEN_BOW",
+        "INVEN_LEFT",
+        "INVEN_RIGHT",
+        "INVEN_NECK",
+        "INVEN_LITE",
+        "INVEN_BODY",
+        "INVEN_OUTER",
+        "INVEN_ARM",
+        "INVEN_HEAD",
+        "INVEN_HANDS",
+        "INVEN_FEET",
+        "INVEN_BELT"
 };
 
 
@@ -2186,6 +2360,9 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			/* Default "mimic" */
 			f_ptr->mimic = i;
 
+			/* Default "unseen" */
+                        f_ptr->unseen = i;
+
 			/* Set default power */
 			f_ptr->power=0;
 
@@ -2250,6 +2427,21 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'U' for "Unseen" (one line only) */
+                if (buf[0] == 'U')
+		{
+                        int unseen;
+
+			/* Scan for the values */
+			if (1 != sscanf(buf+2, "%d",
+                                        &unseen)) return (1);
+
+			/* Save the values */
+                        f_ptr->unseen = unseen;
+
+			/* Next... */
+			continue;
+		}
 
 		/* Process 'G' for "Graphics" (one line only) */
 		if (buf[0] == 'G')
@@ -4966,8 +5158,6 @@ errr init_w_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
-
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
@@ -4989,12 +5179,32 @@ static errr grab_one_cast_flag(spell_type *s_ptr, cptr what)
 {
 	int i;
 
-	/* Check flags */
-	for (i = 0; i < 8; i++)
+        /* Check flags1 */
+        for (i = 0; i < 32; i++)
 	{
-		if (streq(what, s_info_flags[i]))
+                if (streq(what, s_info_flags1[i]))
 		{
-			s_ptr->flags |= (1L << i);
+                        s_ptr->flags1 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags */
+        for (i = 0; i < 32; i++)
+	{
+                if (streq(what, s_info_flags2[i]))
+		{
+                        s_ptr->flags2 |= (1L << i);
+			return (0);
+		}
+	}
+
+	/* Check flags */
+        for (i = 0; i < 32; i++)
+	{
+                if (streq(what, s_info_flags3[i]))
+		{
+                        s_ptr->flags3 |= (1L << i);
 			return (0);
 		}
 	}
@@ -5227,6 +5437,134 @@ errr init_s_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'B' for "Blows" (up to four lines) */
+		if (buf[0] == 'B')
+		{
+			int n1, n2;
+
+			/* Find the next empty blow slot (if any) */
+                        for (i = 0; i < 4; i++) if (!s_ptr->blow[i].method) break;
+
+			/* Oops, no more slots */
+			if (i == 4) return (PARSE_ERROR_GENERIC);
+
+			/* Analyze the first field */
+			for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+			/* Analyze the method */
+			for (n1 = 0; r_info_blow_method[n1]; n1++)
+			{
+				if (streq(s, r_info_blow_method[n1])) break;
+			}
+
+			/* Invalid method */
+			if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
+
+
+			/* Analyze the second field */
+			for (s = t; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+			/* Analyze effect */
+			for (n2 = 0; r_info_blow_effect[n2]; n2++)
+			{
+				if (streq(s, r_info_blow_effect[n2])) break;
+			}
+
+			/* Invalid effect */
+			if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
+
+			/* Analyze the third field */
+			for (s = t; *t && (*t != 'd'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+			/* Save the method */
+                        s_ptr->blow[i].method = n1;
+
+			/* Save the effect */
+                        s_ptr->blow[i].effect = n2;
+
+                        /* Extract the damage dice */
+                        s_ptr->blow[i].d_dice = atoi(s);
+
+                        /* Analyze the fourth field */
+                        for (s = t; *t && (*t != '+'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+                        /* Extract the damage sides and plus */
+                        s_ptr->blow[i].d_side = atoi(s);
+                        s_ptr->blow[i].d_plus = atoi(t);
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'S' for "Spell" */
+                if (buf[0] == 'S')
+		{
+                        int n1;
+
+			/* Analyze the first field */
+			for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+                        
+                        /* Analyze the type */
+                        for (n1 = 0; s_info_types[n1]; n1++)
+			{
+                                if (streq(s, s_info_types[n1])) break;
+			}
+
+                        /* Invalid type */
+                        if (!s_info_types[n1]) return (PARSE_ERROR_GENERIC);
+
+                        /* Store the type */
+                        s_ptr->type=n1;
+
+                        /* Store the parameter */
+                        s_ptr->param=atoi(t); 
+
+			/* Next... */
+			continue;
+
+                }
+
+                /* Process 'L' for "Lasts" */
+                if (buf[0] == 'L')
+		{
+			/* Analyze the first field */
+                        for (s = t = buf+2; *t && (*t != 'd'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+                        /* Extract the lasts dice */
+                        s_ptr->l_dice = atoi(s);
+
+                        /* Analyze the second field */
+                        for (s = t; *t && (*t != '+'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+                        /* Extract the damage sides and plus */
+                        s_ptr->l_side = atoi(s);
+                        s_ptr->l_plus = atoi(t);
+
+			/* Next... */
+			continue;
+		}
+
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
 	}
@@ -5238,7 +5576,6 @@ errr init_s_info_txt(FILE *fp, char *buf)
 
 	/* No version yet */
 	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
-
 
 	/* Success */
 	return (0);

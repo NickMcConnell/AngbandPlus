@@ -2099,7 +2099,6 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_JUNK:
 		case TV_SKIN:
                 case TV_FIGURE:
-		case TV_FEATS:
 		{
 			return (100);
 		}

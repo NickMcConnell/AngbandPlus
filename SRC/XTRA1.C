@@ -2145,7 +2145,7 @@ static void calc_torch(void)
 #ifdef ALLOW_OBJECT_INFO_MORE
                 equip_can_flags(0x0L,0x0L,TR3_LITE);
 #endif
-                p_ptr->cur_lite = 1;
+                p_ptr->cur_lite = 2;
         }
 
 	/* Examine actual lites */
@@ -2269,6 +2269,14 @@ static void calc_bonuses(void)
 	int old_telepathy;
 	int old_see_inv;
 
+        int old_esp_orc;
+        int old_esp_giant;
+        int old_esp_troll;
+        int old_esp_dragon;
+
+        int old_esp_demon;
+        int old_esp_undead;
+
 	int old_dis_ac;
 	int old_dis_to_a;
 
@@ -2293,6 +2301,15 @@ static void calc_bonuses(void)
 	/* Save the old vision stuff */
 	old_telepathy = p_ptr->telepathy;
 	old_see_inv = p_ptr->see_inv;
+
+        old_esp_orc = p_ptr->esp_orc;
+        old_esp_giant = p_ptr->esp_giant;
+        old_esp_dragon = p_ptr->esp_dragon;
+        old_esp_troll = p_ptr->esp_troll;
+
+        old_esp_undead = p_ptr->esp_undead;
+        old_esp_demon = p_ptr->esp_demon;
+
 
 	/* Save the old armor class */
 	old_dis_ac = p_ptr->dis_ac;
@@ -2350,6 +2367,12 @@ static void calc_bonuses(void)
 	p_ptr->ffall = FALSE;
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
+        p_ptr->esp_orc = FALSE;
+        p_ptr->esp_giant = FALSE;
+        p_ptr->esp_troll = FALSE;
+        p_ptr->esp_dragon = FALSE;
+        p_ptr->esp_undead = FALSE;
+        p_ptr->esp_dragon = FALSE;
 	p_ptr->lite = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
@@ -2424,7 +2447,13 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 	if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 	if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-	if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+        if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+        if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
+        if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
+        if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
+        if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
+        if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
+        if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 	if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
@@ -2469,7 +2498,6 @@ static void calc_bonuses(void)
 	if (f2 & (TR2_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 	if (f2 & (TR2_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f2 & (TR2_SUST_CHR)) p_ptr->sustain_chr = TRUE;
-
 
 	/*** Analyze equipment ***/
 
@@ -2524,7 +2552,13 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_FEATHER)) p_ptr->ffall = TRUE;
 		if (f3 & (TR3_LITE)) p_ptr->lite = TRUE;
 		if (f3 & (TR3_REGEN)) p_ptr->regenerate = TRUE;
-		if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+                if (f3 & (TR3_TELEPATHY)) p_ptr->telepathy = TRUE;
+                if (f3 & (TR3_ESP_ORC)) p_ptr->esp_orc = TRUE;
+                if (f3 & (TR3_ESP_GIANT)) p_ptr->esp_giant = TRUE;
+                if (f3 & (TR3_ESP_TROLL)) p_ptr->esp_troll = TRUE;
+                if (f3 & (TR3_ESP_DRAGON)) p_ptr->esp_dragon = TRUE;
+                if (f3 & (TR3_ESP_UNDEAD)) p_ptr->esp_undead = TRUE;
+                if (f3 & (TR3_ESP_DEMON)) p_ptr->esp_demon = TRUE;
 		if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 		if (f3 & (TR3_FREE_ACT)) p_ptr->free_act = TRUE;
 		if (f3 & (TR3_HOLD_LIFE)) p_ptr->hold_life = TRUE;
@@ -3058,6 +3092,7 @@ static void calc_bonuses(void)
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
+                        case TV_STAFF:
 			case TV_HAFTED:
                         {
                                 p_ptr->cur_style |= (1L << WS_HAFTED);
@@ -3275,6 +3310,48 @@ static void calc_bonuses(void)
 
 	/* Hack -- Telepathy Change */
 	if (p_ptr->telepathy != old_telepathy)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_orc != old_esp_orc)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_giant != old_esp_giant)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_troll != old_esp_troll)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_dragon != old_esp_dragon)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_demon != old_esp_demon)
+	{
+		/* Update monster visibility */
+		p_ptr->update |= (PU_MONSTERS);
+	}
+
+        /* Hack -- ESP Change */
+        if (p_ptr->esp_undead != old_esp_undead)
 	{
 		/* Update monster visibility */
 		p_ptr->update |= (PU_MONSTERS);

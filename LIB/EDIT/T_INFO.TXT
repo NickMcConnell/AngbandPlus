@@ -35,7 +35,7 @@ V:2.9.2
 
 N:0:Angband
 X:0:0
-L:0:0:1:0:0
+L:0:0:407:0:0
 L:1:56:0:0:0
 L:99:56:0:0:587
 L:100:56:0:0:588
@@ -47,7 +47,7 @@ D:It feels like home...
 N:1:Hobbiton
 X:10:37
 G:h
-L:0:0:135:162:0
+L:0:0:411:435:0
 S:9:10:11:0:0:0:0:0
 D:In a hole in the ground, there lived a hobbit.
 
@@ -56,7 +56,7 @@ D:In a hole in the ground, there lived a hobbit.
 N:2:Rivendell
 X:1:3
 G:l
-L:0:0:162:153:0
+L:0:0:420:126:0
 S:12:2:3:4:5:6:13:0
 
 # Misty Mountains are quite wet (Underground rivers etc).
@@ -64,7 +64,7 @@ S:12:2:3:4:5:6:13:0
 N:3:the Misty Mountains
 X:2:4
 G:k
-L:2:135:56:153:0
+L:2:407:56:126:0
 L:3:56:0:153:68
 L:4:56:0:0:0
 L:13:56:0:154:185
@@ -72,7 +72,7 @@ L:13:56:0:154:185
 N:4:the house of Beorn
 X:3:5
 G:Q
-L:0:0:162:0:325
+L:0:0:420:0:325
 S:14:0:0:0:0:0:0:0
 
 #Should be guarded by King of Wood Elves
@@ -80,7 +80,7 @@ S:14:0:0:0:0:0:0:0
 N:5:Mirkwood
 X:4:6
 G:l
-L:14:135:162:153:349
+L:14:407:420:153:349
 L:15:56:0:0:0
 L:56:0:153:0:0
 S:15:16:17:4:5:18:19:0
@@ -120,7 +120,7 @@ N:10:Farmer Maggot's farm
 X:1:11
 G:,
 R:ANIMAL
-L:0:0:135:162:14
+L:0:0:407:420:14
 L:1:114:0:0:0
 L:8:114:0:0:123
 S:21:0:0:0:0:0:0:0
@@ -130,7 +130,7 @@ S:21:0:0:0:0:0:0:0
 N:11:Bree
 X:10:12
 G:p
-L:0:0:135:162:464
+L:0:0:407:420:464
 S:22:2:3:4:5:6:0:0
 
 #Characters will spend a lot of time in Weathertop, as they need to be able
@@ -138,20 +138,20 @@ S:22:2:3:4:5:6:0:0
 
 N:12:Weathertop
 X:11:13
-L:9:135:0:49:479
+L:9:407:0:49:479
 L:10:56:0:0:0
 L:19:56:0:0:479
 
 N:13:Trollshaw Forest
 X:12:14
-L:14:135:162:154:491
+L:14:407:420:154:491
 
 #Duplicate to allow acces to Moria.
 
 N:14:Rivendell
 X:13:15
 G:l
-L:0:0:162:153:0
+L:0:0:420:126:0
 S:12:2:3:4:5:6:13:0
 #Note tval 11 does not exist, so no items sold here.
 
@@ -183,18 +183,18 @@ S:23:2:3:4:5:6:7:0
 N:18:Lothlorien
 X:19:20
 G:l
-L:0:0:162:162:0
+L:0:0:420:420:0
 S:15:17:4:5:18:24:0:0
 
 N:19:Parth Galen
 X:20:24
 R:EVIL
-L:14:162:155:56:0
+L:14:420:155:56:0
 
 N:20:Fangorn
 X:21:23
 R:ANIMAL
-L:14:162:162:162:1043
+L:14:420:420:420:1043
 
 N:21:Edoras
 X:22:28
@@ -205,7 +205,7 @@ S:1:2:3:4:5:6:25:0
 
 N:22:Battle of Helm's Deep
 X:21:23
-L:50:135:162:56:267
+L:50:407:420:56:267
 
 N:23:Isengard
 X:20:22
@@ -221,14 +221,14 @@ L:65:199:200:201:0
 
 N:25:Ithilien
 X:26:27
-L:14:135:162:199:0
+L:14:407:420:199:0
 L:15:0:1:153:0
 S:26:27:28:29:30:31:32:0
 
 N:26:Minas Morgul
 X:25:31
 R:EVIL
-L:60:135:56:155:540
+L:60:407:56:155:540
 L:61:56:0:0:0
 L:85:56:0:0:579
 
@@ -252,13 +252,13 @@ N:29:Paths of the Dead
 X:28:30
 G:W
 R:UNDEAD
-L:65:135:1:56:550
+L:65:407:1:56:550
 L:66:56:0:0:0
 L:85:56:0:0:579
 
 N:30:Battle of Five Armies
 X:27:31
-L:70:135:162:56:575
+L:70:407:420:56:575
 
 N:31:Minas Tirith
 X:25:26
@@ -270,7 +270,7 @@ S:1:2:3:4:5:6:24:0
 N:32:Mordor
 X:33:27
 G:o
-L:75:135:201:209:0
+L:75:407:201:209:0
 
 N:33:Orodruin
 X:56:34
@@ -290,13 +290,13 @@ N:35:Hobbiton
 X:0:36
 G:h
 R:EVIL
-L:60:0:135:199:543
+L:60:0:407:199:543
 S:2:3:11:0:0:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:39:0
 G:h
-L:0:0:135:162:0
+L:0:0:407:420:0
 S:9:10:11:0:0:0:0:0
 
 # The following are accessible from the first Hobbiton for consistency
@@ -304,14 +304,14 @@ S:9:10:11:0:0:0:0:0
 N:37:Bree
 X:2:38
 G:p
-L:0:0:135:162:0
+L:0:0:407:420:0
 S:22:2:3:4:5:6:0:0
 
 # And an alternate early dungeon...
 
 N:38:Barrow-downs
 X:37:38
-L:1:135:162:56:0
+L:1:407:420:56:0
 L:11:56:0:0:0:0
 
 # Other alternate dungeons should be placed here
@@ -319,5 +319,5 @@ L:11:56:0:0:0:0
 # Must always be last position
 N:39:the West
 G:M
-L:0:0:135:162:0
+L:0:0:407:420:0
 S:24:24:24:24:24:24:24:0

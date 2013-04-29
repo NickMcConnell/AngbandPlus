@@ -105,6 +105,7 @@ typedef struct player_class player_class;
 typedef struct weapon_style weapon_style;
 typedef struct spell_appears spell_appears;
 typedef struct spell_cast spell_cast;
+typedef struct spell_blow spell_blow;
 typedef struct spell_type spell_type;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
@@ -210,9 +211,9 @@ struct maxima
 struct dungeon_zone
 {
 	byte level;
-        byte fill;
-        byte big;
-        byte small;
+        s16b fill;
+        s16b big;
+        s16b small;
 	u16b guard;
 };
 
@@ -339,6 +340,7 @@ struct feature_type
 	feature_state state[MAX_FEAT_STATES];
 
         s16b k_idx;            /* Object at this location */
+        s16b unseen;
 
 	byte spell;
 	byte power;
@@ -1075,6 +1077,21 @@ struct spell_cast
 };
 
 /*
+ * Spell blow structure
+ *
+ *      - Book (RBM_*)
+ *      - Slot (RBE_*)
+ */
+struct spell_blow
+{
+        byte method;
+        byte effect;
+        byte d_dice;
+        byte d_side;
+        s16b d_plus;
+};
+
+/*
  * Spell type info
  */
 struct spell_type
@@ -1082,12 +1099,20 @@ struct spell_type
 	u32b name;
 	u32b text;
 
+        u32b flags1;
+        u32b flags2;
+        u32b flags3;
+
+        s16b type;
+        s16b param;
+
+        byte l_dice;
+        byte l_side;
+        s16b l_plus;
+
 	spell_appears appears[MAX_SPELL_APPEARS];
 	spell_cast cast[MAX_SPELL_CASTERS];
-
-	byte flags; /* Hold song or evil */
-
-
+        spell_blow blow[4];
 };
 
 
@@ -1379,6 +1404,13 @@ struct player_type
 	bool see_inv;           /* See invisible */
 	bool free_act;          /* Free action */
 	bool hold_life;         /* Hold life */
+
+        bool esp_orc;           /* Magical sensing */
+        bool esp_giant;
+        bool esp_troll;
+        bool esp_dragon;
+        bool esp_undead;
+        bool esp_demon;
 
 	bool impact;            /* Earthquake blows */
 	bool aggravate;         /* Aggravate monsters */

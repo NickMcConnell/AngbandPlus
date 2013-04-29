@@ -14,13 +14,13 @@
 V:2.9.2
 
 # Maximum number of feature types
-M:F:407
+M:F:465
 
 # Maximum number of room description lines
 M:D:255
 
 # Maximum number of object kinds
-M:K:598
+M:K:600
 
 # Maximum number of artifacts
 M:A:136
@@ -56,7 +56,7 @@ M:C:10
 M:W:127
 
 # Maximum number of spells
-M:S:256
+M:S:330
 
 # Maximum number of owners per store
 M:B:4

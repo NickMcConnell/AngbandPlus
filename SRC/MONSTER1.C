@@ -742,7 +742,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_KIN))               vp[vn++] = "summon similar monsters";
 	if (flags6 & (RF6_S_MONSTER))           vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))  vp[vn++] = "summon monsters";
-	if (flags6 & (RF6_S_ANT))               vp[vn++] = "summon ants";
+        if (flags6 & (RF6_S_ANIMAL))               vp[vn++] = "summon animals";
 	if (flags6 & (RF6_S_SPIDER))            vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))             vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA))             vp[vn++] = "summon hydras";

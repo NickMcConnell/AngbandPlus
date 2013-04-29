@@ -59,9 +59,6 @@
  */
 
 
-
-
-
 /*
  * Eat some food (from the pack or floor)
  */
@@ -1556,7 +1553,7 @@ void do_cmd_read_scroll(void)
                 case SV_SCROLL_LEGEND_LORE:
 		{
 			ident = TRUE;
-			if (!ident_spell_name()) used_up = FALSE;
+                        if (!ident_spell_rumor()) used_up = FALSE;
 			break;
 		}
 
@@ -1786,6 +1783,48 @@ void do_cmd_read_scroll(void)
                         guess = SV_SCROLL_ACQUIREMENT;
 			break;
 		}
+
+                case SV_SCROLL_ENCHANT_WEAPON_BRAND:
+                {
+                        int k = rand_int(100);
+
+                        if (k<25)
+                        {
+                                if (!brand_weapon(EGO_FLAME,"glows with a fiery aura")) used_up = FALSE;
+                        }
+                        else
+                        {
+                                if (!brand_weapon(EGO_FROST,"glows with an ice blue aura")) used_up = FALSE;
+                        }
+                        ident = TRUE;
+                        break;
+                }
+
+                case SV_SCROLL_ENCHANT_ARMOR_BRAND:
+                {
+                        int k = rand_int(100);
+
+                        if (k<33)
+                        {
+                                if (!brand_armor(EGO_RESIST_FIRE,"glows with a fiery aura")) used_up = FALSE;
+                        }
+                        else if (k<66)
+                        {
+                                if (!brand_armor(EGO_RESIST_COLD,"glows with an ice blue aura")) used_up = FALSE;
+                        }
+                        else
+                        {
+                                if (!brand_armor(EGO_RESIST_ELEC,"glows with electricity")) used_up = FALSE;
+                        }
+                        ident = TRUE;
+                        break;
+                }
+                case SV_SCROLL_ENCHANT_WEAPON_BLESS:
+                {
+                        if (!brand_weapon(EGO_BLESS,"is blessed by the gods")) used_up = FALSE;
+                        ident = TRUE;
+                        break;
+                }
 	}
 
 
@@ -2316,7 +2355,7 @@ void do_cmd_use_staff(void)
 	o_ptr->stackc++;
 
 	/* No spare charges */	
-	if (o_ptr->stackc == o_ptr->number)
+        if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
 		o_ptr->pval--;
@@ -2820,7 +2859,7 @@ void do_cmd_aim_wand(void)
 	o_ptr->stackc++;
 
 	/* No spare charges */	
-	if (o_ptr->stackc == o_ptr->number)
+        if (o_ptr->stackc >= o_ptr->number)
 	{
 		/* Use a charge off the stack */
 		o_ptr->pval--;

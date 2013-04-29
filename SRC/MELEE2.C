@@ -3242,7 +3242,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			}
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_ANT);
+                                count += summon_specific(y, x, rlev, SUMMON_ANIMAL);
 			}
 			if (blind && count && (target < 0))
 			{
@@ -6112,98 +6112,26 @@ static void process_monster(int m_idx)
 		/* Creature has been allowed move */
 		if (do_move)
 		{
-			s16b this_o_idx, next_o_idx = 0;
-
                         /* Hidden ? */
                         bool hidden = ((m_ptr->mflag & (MFLAG_HIDE))!=0);
 
 			/* Take a turn */
 			do_turn = TRUE;
 
-			/* Update flags */
-                        if ((mmove == MM_FLY) || (mmove == MM_CLIMB))
-			{
-				m_ptr->mflag |= (MFLAG_OVER);
-			}
-                        else 
-			{
-				m_ptr->mflag &= ~(MFLAG_OVER);
-			}
-
-			/* Set hide flag if passing through floor/ceiling (phasing) */
-                        if (mmove == MM_PASS)
-			{
-				m_ptr->mflag |=(MFLAG_HIDE);
-			}
-
-			/* Set hide flag if digging and HIDE_DIG */
-                        else if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_HIDE_DIG)) && (mmove == MM_DIG))
-			{
-				m_ptr->mflag |=(MFLAG_HIDE);
-			}
-			/* Set hide flag if swimming and HIDE_SWIM */
-			else if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_HIDE_SWIM)) && (mmove == MM_SWIM))
-			{
-				m_ptr->mflag |=(MFLAG_HIDE);
-			}
-
-			/* Set hide flag if HIDE_DEEP and resistant, with conditions */
-			else if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_HIDE_DEEP))
-				&& (mon_resist_feat(cave_feat[ny][nx],m_ptr->r_idx)))
-			{
-				if (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED))
-				{
-					if (f_info[cave_feat[oy][ox]].flags2 & (FF2_COVERED))
-					{
-						/* No change */
-					}
-					/* Walking under cover if can't pop-up to it */
-					else if ((m_ptr->mflag & (MFLAG_HIDE)) && (place_monster_here(oy,ox,m_ptr->r_idx) == MM_WALK))
-					{
-						m_ptr->mflag |=(MFLAG_HIDE);
-					}
-					else
-					{
-						m_ptr->mflag &= ~(MFLAG_HIDE);
-					}
-
-				}
-				/* Covered/bridged features are special */
-				else if (f_info[cave_feat[ny][nx]].flags2 & (FF2_BRIDGED))
-				{
-
-					/* Walking under bridges if can't pop-up to it */
-					if ((m_ptr->mflag & (MFLAG_HIDE)) && (place_monster_here(oy,ox,m_ptr->r_idx) == MM_WALK))
-					{
-						m_ptr->mflag |=(MFLAG_HIDE);
-					}
-					else
-					{
-						m_ptr->mflag &= ~(MFLAG_HIDE);
-					}
-				}
-				else
-				{
-						m_ptr->mflag |=(MFLAG_HIDE);
-				}
-
-			}
-			else
-			{
-				m_ptr->mflag &= ~(MFLAG_HIDE);
-			}
+                        /* Hide monster if allowed */
+                        monster_hide(ny,nx,mmove,m_ptr);
 
                         /* Hack --- tell the player if something hides */
                         if (!(hidden) && (m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
                         {
-                                        char m_name[80];
+                                char m_name[80];
 
-                                        /* Get the monster name */
-                                        monster_desc(m_name, m_ptr, 0);
+                                /* Get the monster name */
+                                monster_desc(m_name, m_ptr, 0);
 
-                                        msg_format("%^s hides in %s%s.",m_name,
-                                        ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
-                                        f_name+f_info[cave_feat[ny][nx]].name);
+                                msg_format("%^s hides in %s%s.",m_name,
+                                ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
+                                f_name+f_info[cave_feat[ny][nx]].name);
                         }
 
 			/* Move the monster */
@@ -6212,14 +6140,14 @@ static void process_monster(int m_idx)
                         /* Hack --- tell the player if something unhides */
                         if ((hidden) && !(m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
                         {
-                                        char m_name[80];
+                                char m_name[80];
 
-                                        /* Get the monster name */
-                                        monster_desc(m_name, m_ptr, 0);
+                                /* Get the monster name */
+                                monster_desc(m_name, m_ptr, 0);
 
-                                        msg_format("%^s emerges from %s%s.",m_name,
-                                        ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
-                                        f_name+f_info[cave_feat[ny][nx]].name);
+                                msg_format("%^s emerges from %s%s.",m_name,
+                                ((f_info[cave_feat[ny][nx]].flags2 & (FF2_FILLED))?"":"the "),
+                                f_name+f_info[cave_feat[ny][nx]].name);
                         }
 
 			/* Possible disturb */
@@ -6260,130 +6188,154 @@ static void process_monster(int m_idx)
                                         cave_set_feat(ny, nx, FEAT_FLOOR_SLIME_T);
                         }
 
-			/* Scan all objects in the grid */
-			for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
-			{
-				object_type *o_ptr;
-				/* Get the object */
-				o_ptr = &o_list[this_o_idx];
+                        /* Can we get the objects */
+                        if ((f_info[cave_feat[ny][nx]].flags1 & (FF1_DROP)) &&
+                                !(m_ptr->mflag & (MFLAG_OVER)))
+                        {
+				s16b this_o_idx, next_o_idx = 0;
 
-				/* Get the next object */
-				next_o_idx = o_ptr->next_o_idx;
+                                /* Scan all objects in the grid */
+                                for (this_o_idx = cave_o_idx[ny][nx]; this_o_idx; this_o_idx = next_o_idx)
+                                {
+                                        object_type *o_ptr;
+                                        /* Get the object */
+                                        o_ptr = &o_list[this_o_idx];
+        
+                                        /* Get the next object */
+                                        next_o_idx = o_ptr->next_o_idx;
+        
+                                        /* Skip gold */
+                                        if (o_ptr->tval == TV_GOLD) continue;
 
-				/* Skip gold */
-				if (o_ptr->tval == TV_GOLD) continue;
+                                        /* Sneaky monsters hide behind big objects */
+                                        if ((o_ptr->weight > 1500)
+                                                && (r_ptr->flags2 & (RF2_SNEAKY))
+                                                && !(m_ptr->mflag & (MFLAG_HIDE)))
+                                        {
+                                                char m_name[80];
+                                                char o_name[80];
+                
+                                                /* Get the monster name */
+                                                monster_desc(m_name, m_ptr, 0);
 
-				/* Take or Kill objects on the floor */
-				if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
-				    (r_ptr->flags2 & (RF2_KILL_ITEM)))
-				{
-					u32b f1, f2, f3;
+                                                /* Get the object name */
+                                                object_desc(o_name, o_ptr, TRUE, 3);
 
-					u32b flg3 = 0L;
+                                                msg_format("%^s hides behind %s.",m_name, o_name);
+                                        }
 
-					char m_name[80];
-					char o_name[80];
-
-					/* Extract some flags */
-					object_flags(o_ptr, &f1, &f2, &f3);
-
-					/* Get the object name */
-					object_desc(o_name, o_ptr, TRUE, 3);
-
-					/* Get the monster name */
-					monster_desc(m_name, m_ptr, 0x04);
-
-					/* React to objects that hurt the monster */
-					if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
-					if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
-					if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
-					if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
-					if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
-					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
-					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
-					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
-
-					/* The object cannot be picked up by the monster */
-					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
-					{
-						/* Only give a message for "take_item" */
-						if (r_ptr->flags2 & (RF2_TAKE_ITEM))
-						{
-							/* Take note */
-							did_take_item = TRUE;
-
-							/* Describe observable situations */
-							if (m_ptr->ml && player_has_los_bold(ny, nx))
-							{
-								/* Dump a message */
-								msg_format("%^s tries to pick up %s, but fails.",
-									   m_name, o_name);
-
-								/* Mark object as ungettable? */
-								if ((o_ptr->discount == 0) &&
-									!(o_ptr->ident & (IDENT_SENSE))
-                                                                        && !(object_known_p(o_ptr)))
-								{
-
-									/* Sense the object */
-									o_ptr->discount = INSCRIP_UNGETTABLE;
-
-									/* The object has been "sensed" */
-									o_ptr->ident |= (IDENT_SENSE);
-								}
-
-								/* XXX Flag object with correct flag? */
-							}
-						}
-					}
-
-					/* Pick up the item */
-					else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
-					{
-						object_type *i_ptr;
-						object_type object_type_body;
-
-						/* Take note */
-						did_take_item = TRUE;
-
-						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
-							/* Dump a message */
-							msg_format("%^s picks up %s.", m_name, o_name);
-						}
-
-						/* Get local object */
-						i_ptr = &object_type_body;
-
-						/* Obtain local object */
-						object_copy(i_ptr, o_ptr);
-
-						/* Delete the object */
-						delete_object_idx(this_o_idx);
-
-						/* Carry the object */
-						(void)monster_carry(m_idx, i_ptr);
-					}
-
-					/* Destroy the item */
-					else
-					{
-						/* Take note */
-						did_kill_item = TRUE;
-
-						/* Describe observable situations */
-						if (player_has_los_bold(ny, nx))
-						{
-							/* Dump a message */
-							msg_format("%^s crushes %s.", m_name, o_name);
-						}
-
-						/* Delete the object */
-						delete_object_idx(this_o_idx);
-					}
-				}
+                                        /* Take or Kill objects on the floor */
+                                        if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
+                                            (r_ptr->flags2 & (RF2_KILL_ITEM)))
+                                        {
+                                                u32b f1, f2, f3;
+        
+                                                u32b flg3 = 0L;
+        
+                                                char m_name[80];
+                                                char o_name[80];
+        
+                                                /* Extract some flags */
+                                                object_flags(o_ptr, &f1, &f2, &f3);
+        
+                                                /* Get the object name */
+                                                object_desc(o_name, o_ptr, TRUE, 3);
+        
+                                                /* Get the monster name */
+                                                monster_desc(m_name, m_ptr, 0x04);
+        
+                                                /* React to objects that hurt the monster */
+                                                if (f1 & (TR1_KILL_DRAGON)) flg3 |= (RF3_DRAGON);
+                                                if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+                                                if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
+                                                if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
+                                                if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+                                                if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
+                                                if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+                                                if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
+                                                if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+        
+                                                /* The object cannot be picked up by the monster */
+                                                if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
+                                                {
+                                                        /* Only give a message for "take_item" */
+                                                        if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+                                                        {
+                                                                /* Take note */
+                                                                did_take_item = TRUE;
+        
+                                                                /* Describe observable situations */
+                                                                if (m_ptr->ml && player_has_los_bold(ny, nx))
+                                                                {
+                                                                        /* Dump a message */
+                                                                        msg_format("%^s tries to pick up %s, but fails.",
+                                                                                   m_name, o_name);
+        
+                                                                        /* Mark object as ungettable? */
+                                                                        if ((o_ptr->discount == 0) &&
+                                                                                !(o_ptr->ident & (IDENT_SENSE))
+                                                                                && !(object_known_p(o_ptr)))
+                                                                        {
+        
+                                                                                /* Sense the object */
+                                                                                o_ptr->discount = INSCRIP_UNGETTABLE;
+        
+                                                                                /* The object has been "sensed" */
+                                                                                o_ptr->ident |= (IDENT_SENSE);
+                                                                        }
+        
+                                                                        /* XXX Flag object with correct flag? */
+                                                                }
+                                                        }
+                                                }
+        
+                                                /* Pick up the item */
+                                                else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+                                                {
+                                                        object_type *i_ptr;
+                                                        object_type object_type_body;
+        
+                                                        /* Take note */
+                                                        did_take_item = TRUE;
+        
+                                                        /* Describe observable situations */
+                                                        if (player_has_los_bold(ny, nx))
+                                                        {
+                                                                /* Dump a message */
+                                                                msg_format("%^s picks up %s.", m_name, o_name);
+                                                        }
+        
+                                                        /* Get local object */
+                                                        i_ptr = &object_type_body;
+        
+                                                        /* Obtain local object */
+                                                        object_copy(i_ptr, o_ptr);
+        
+                                                        /* Delete the object */
+                                                        delete_object_idx(this_o_idx);
+        
+                                                        /* Carry the object */
+                                                        (void)monster_carry(m_idx, i_ptr);
+                                                }
+        
+                                                /* Destroy the item */
+                                                else
+                                                {
+                                                        /* Take note */
+                                                        did_kill_item = TRUE;
+        
+                                                        /* Describe observable situations */
+                                                        if (player_has_los_bold(ny, nx))
+                                                        {
+                                                                /* Dump a message */
+                                                                msg_format("%^s crushes %s.", m_name, o_name);
+                                                        }
+        
+                                                        /* Delete the object */
+                                                        delete_object_idx(this_o_idx);
+                                                }
+                                        }
+                                }
 			}
 		}
 

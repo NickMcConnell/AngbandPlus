@@ -2798,6 +2798,70 @@ bool detect_monsters_animal(void)
 	return (flag);
 }
 
+/*
+ * Detect all "demon" monsters on current panel
+ */
+bool detect_monsters_demon(void)
+{
+	int i, y, x;
+
+	bool flag = FALSE;
+
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+		monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Detect evil monsters */
+                if (r_ptr->flags3 & (RF3_DEMON))
+		{
+			/* Take note that they are evil */
+                        l_ptr->r_flags3 |= (RF3_DEMON);
+
+			/* Update monster recall window */
+			if (p_ptr->monster_race_idx == m_ptr->r_idx)
+			{
+				/* Window stuff */
+				p_ptr->window |= (PW_MONSTER);
+			}
+
+			/* Optimize -- Repair flags */
+			repair_mflag_mark = repair_mflag_show = TRUE;
+
+			/* Detect the monster */
+			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+			/* Update the monster */
+			update_mon(i, FALSE);
+
+			/* Detect */
+			flag = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+                msg_print("You sense the presence of demons!");
+	}
+
+	/* Result */
+	return (flag);
+}
 
 
 /*
@@ -2877,6 +2941,25 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_ARROW:
 		case TV_SHOT:
+                case TV_STAFF:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+/*
+ * Hook to specify a strict "weapon"
+ */
+static bool item_tester_hook_weapon_strict(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
 		{
 			return (TRUE);
 		}
@@ -2985,7 +3068,7 @@ static bool item_tester_unknown_star(object_type *o_ptr)
  * Note for the following function, the player must know it is an artifact
  * or ego item, either by sensing or identifying it.
  */
-static bool item_tester_known_name(object_type *o_ptr)
+static bool item_tester_known_rumor(object_type *o_ptr)
 {
 	if (o_ptr->ident & IDENT_MENTAL)
 		return FALSE;
@@ -3175,7 +3258,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	cptr q, s;
 
-
 	/* Assume enchant weapon */
 	item_tester_hook = item_tester_hook_weapon;
 
@@ -3198,7 +3280,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
@@ -3226,6 +3307,128 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	/* Something happened */
 	return (TRUE);
 }
+
+
+/*
+ * Brand the current weapon
+ */
+bool brand_weapon(int brand, cptr act)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+        /* Only brand weapons */
+        item_tester_hook = item_tester_hook_weapon_strict;
+
+	/* Get an item */
+        q = "Enchant which item? ";
+        s = "You have nothing to enchant.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Describe */
+        msg_format("%s %s %s!",
+                   ((item >= 0) ? "Your" : "The"), o_name, act);
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+        if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+            (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+                o_ptr->name2 = brand;
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+                msg_print("The branding failed.");
+	}
+
+	/* Something happened */
+        return (TRUE);
+}
+
+/*
+ * Brand the current armor
+ */
+bool brand_armor(int brand, cptr act)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+        /* Only brand armor */
+        item_tester_hook = item_tester_hook_armour;
+
+	/* Get an item */
+        q = "Enchant which item? ";
+        s = "You have nothing to enchant.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Describe */
+        msg_format("%s %s %s!",
+                   ((item >= 0) ? "Your" : "The"), o_name, act);
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+        if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+            (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+                o_ptr->name2 = brand;
+
+                enchant(o_ptr, rand_int(3) + 4, ENCH_TOAC);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+                msg_print("The branding failed.");
+	}
+
+	/* Something happened */
+        return (TRUE);
+}
+
 
 
 /*
@@ -3379,7 +3582,7 @@ bool ident_spell_bonus(void)
  * Reveal some powers of a known artifact or ego item.
  * Returns TRUE if something was attempted, else FALSE.
  */
-bool ident_spell_name(void)
+bool ident_spell_rumor(void)
 {
 	int item;
 
@@ -3394,7 +3597,7 @@ bool ident_spell_name(void)
         u32b f1,f2,f3;
 
 	/* Only un-id'ed items */
-	item_tester_hook = item_tester_known_name;
+        item_tester_hook = item_tester_known_rumor;
 
 	/* Get an item */
 	q = "Learn legends about which item? ";
@@ -3708,9 +3911,6 @@ bool identify_fully(void)
 	/* Success */
 	return (TRUE);
 }
-
-
-
 
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
@@ -5207,7 +5407,7 @@ bool fire_blast(int typ, int dir, int dam)
 /*
  * Affect an adjacent monster with an attack 
  */
-bool fire_touch(int typ, int dir, int dam)
+bool fire_hands(int typ, int dir, int dam)
 {
 	int ty = p_ptr->py +ddy[dir];
 	int tx = p_ptr->px +ddx[dir];
@@ -5364,4 +5564,1333 @@ bool sleep_monsters_touch(void)
 
 	int flg = PROJECT_KILL | PROJECT_HIDE;
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
+}
+
+
+/*
+ * Create a (wielded) spell item
+ */
+static void wield_spell(int item, int sval, int time)
+{
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+        cptr act;
+
+        char o_name[80];
+
+	/* Get the wield slot */
+        object_type *o_ptr = &inventory[item];
+
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Create the spell */
+	object_prep(i_ptr, lookup_kind(TV_SPELL, sval));
+        i_ptr->timeout = time;
+	object_aware(i_ptr);
+	object_known(i_ptr);
+
+	/* Take off existing item */
+	if (o_ptr->k_idx)
+	{
+
+		/* Check if same spell */
+		if ((o_ptr->tval == TV_SPELL) && (o_ptr->sval))
+		{
+			/* Reset duration */
+			if (o_ptr->pval < time) o_ptr->pval = time;
+
+			/* And done */
+			return;
+
+		}
+
+		/* Take off existing item */
+                (void)inven_takeoff(item, 255);
+
+                /* Oops. Cursed... */
+                if (inventory[item].k_idx) return;
+	}
+
+	/* 'Wear' the spell */
+	object_copy(o_ptr,i_ptr);
+
+	/* Increment the equip counter by hand */
+	p_ptr->equip_cnt++;
+
+	/* Where is the item now */
+        if (item == INVEN_WIELD)
+	{
+		act = "You are wielding";
+	}
+        else if (item == INVEN_BOW)
+	{
+		act = "You are shooting with";
+	}
+        else if (item == INVEN_LITE)
+	{
+		act = "Your light source is";
+	}
+	else
+	{
+		act = "You are wearing";
+	}
+
+	/* Describe the result */
+	object_desc(o_name, o_ptr, TRUE, 3);
+
+	/* Message */
+        msg_format("%s %s (%c).", act, o_name, index_to_label(item));
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+}
+
+
+/*
+ * Enchant item --- a big pile of (fun) hack
+ *
+ * Basically we select an adjacent item of the same tval,
+ * compare the difference in levels between the two, and 
+ * if randint(plev) > difference, polymorph the item.
+ * Otherwise scan until we encounter a 0 value item
+ * of the same tval and polymorph the item into that, or
+ * generate some junk (50% chance of each).
+ * We need to generate junk or caster could infinitely
+ * polymorph their items until getting exceedingly good
+ * stuff.
+ * Note it is dangerous to allow enchant scroll...
+ */
+static void enchant_item(byte tval, int plev)
+{
+
+	object_type *o_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	cptr q,s;
+	int dirs,kind,i;
+
+        int item;
+
+        /* Get the local item */
+        i_ptr = &object_type_body;
+
+        q = "Enchant which item?";
+        s = "You have no items to enchant.";
+
+	/* Restrict choices */
+	item_tester_tval = tval;
+
+	/* Get an item */
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Start with same kind */
+        i = o_ptr->k_idx;
+
+	/* Randomly increase or decrease */
+	if (rand_int(100)<50)
+	{
+		if (k_info[i-1].tval == tval) dirs = -1;
+		else dirs = 1;
+	}
+	else
+	{
+		if (k_info[i-1].tval == tval) dirs = 1;
+		else dirs = -1;
+	}
+
+	/* Check for improvement */
+        if (randint(plev) > (k_info[i+dirs].level - k_info[i].level))
+	{
+		/*Success*/
+		kind = i+dirs;
+	}
+        else if (randint(100) < 50)
+	{
+		/* Pick bad failure */
+		while ((k_info[i].cost) && (k_info[i].tval == tval))
+		{
+			/* Keep trying */
+			i+=dirs;
+		}
+
+		/* No bad items downwards */
+		if (k_info[i].tval != tval)
+		{
+			/* Try other direction */
+                        i = o_ptr->k_idx;
+                        dirs = -dirs;
+
+			/* Pick bad failure */
+			while ((k_info[i].cost) && (k_info[i].tval == tval))
+			{
+				/* Keep trying */
+				i+=dirs;
+			}
+		}
+					
+		/* No bad items at all */
+		if (k_info[i].tval !=tval)
+		{
+                        i = o_ptr->k_idx;
+		}
+
+                /* No change */
+		kind = i;
+	}
+        else
+        {
+
+        /* Pick some junk*/
+                switch (tval)
+                {
+                        case TV_POTION:
+                        {
+                                kind = lookup_kind(TV_HOLD,1);
+                                break;
+                        }
+                /* XXX Really need some junk for each of these */
+                case TV_WAND:
+                case TV_STAFF:
+		case TV_ROD:
+                        {
+                                kind = lookup_kind(TV_JUNK,6);
+                                break;
+                        }
+                /* XXX Odd junk, but can't be food */
+		case TV_FOOD:
+                        {
+                                kind = lookup_kind(TV_JUNK,3);
+                                break;
+                        }
+                /* XXX Pick meaningless junk */
+                default:
+                        {
+                                kind = lookup_kind(TV_JUNK,3);
+                                break;
+                        }
+                }
+        }
+        
+
+	/* Ta da! */
+	msg_print("There is a blinding flash!");
+
+	/* Destroy an item in the pack */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Create the new object */
+	object_prep(i_ptr, kind);
+
+	/* Carry the object */
+        item = inven_carry(i_ptr);
+
+        /* Describe the new object */
+        inven_item_describe(item);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+}
+
+/*
+ * Create gold
+ */
+static void create_gold(void)
+{
+	object_type *i_ptr;
+	object_type object_type_body;
+
+        int base;
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+        /* Create the gold */
+        object_prep(i_ptr, lookup_kind(TV_GOLD, 10));
+
+	/* Hack -- Base coin cost */
+        base = k_info[i_ptr->k_idx].cost;
+
+	/* Determine how much the treasure is "worth" */
+        i_ptr->pval = (base + (8L * randint(base)) + randint(8));
+
+        /* Floor carries the item */
+        drop_near(i_ptr, 0, p_ptr->py, p_ptr->px);
+
+        /* XXX To do thesis on inflation in Angband economies. */
+}
+
+
+/*
+ * Curse the players armor
+ */
+static bool curse_armor(void)
+{
+	object_type *o_ptr;
+
+	char o_name[80];
+
+
+	/* Curse the body armor */
+	o_ptr = &inventory[INVEN_BODY];
+
+	/* Nothing to curse */
+	if (!o_ptr->k_idx) return (FALSE);
+
+
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 3);
+
+	/* Attempt a saving throw for artifacts */
+	if (artifact_p(o_ptr) && (rand_int(100) < 50))
+	{
+		/* Cool */
+		msg_format("A %s tries to %s, but your %s resists the effects!",
+		           "terrible black aura", "surround your armor", o_name);
+	}
+
+	/* not artifact or failed save... */
+	else
+	{
+		/* Oops */
+		msg_format("A terrible black aura blasts your %s!", o_name);
+
+		/* Blast the armor */
+		o_ptr->name1 = 0;
+		o_ptr->name2 = EGO_BLASTED;
+		o_ptr->to_a = 0 - randint(5) - randint(5);
+		o_ptr->to_h = 0;
+		o_ptr->to_d = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	return (TRUE);
+}
+
+
+/*
+ * Curse the players weapon
+ */
+static bool curse_weapon(void)
+{
+	object_type *o_ptr;
+
+	char o_name[80];
+
+
+	/* Curse the weapon */
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* Nothing to curse */
+	if (!o_ptr->k_idx) return (FALSE);
+
+
+	/* Describe */
+	object_desc(o_name, o_ptr, FALSE, 3);
+
+	/* Attempt a saving throw */
+	if (artifact_p(o_ptr) && (rand_int(100) < 50))
+	{
+		/* Cool */
+		msg_format("A %s tries to %s, but your %s resists the effects!",
+		           "terrible black aura", "surround your weapon", o_name);
+	}
+
+	/* not artifact or failed save... */
+	else
+	{
+		/* Oops */
+		msg_format("A terrible black aura blasts your %s!", o_name);
+
+		/* Shatter the weapon */
+		o_ptr->name1 = 0;
+		o_ptr->name2 = EGO_SHATTERED;
+		o_ptr->to_h = 0 - randint(5) - randint(5);
+		o_ptr->to_d = 0 - randint(5) - randint(5);
+		o_ptr->to_a = 0;
+		o_ptr->ac = 0;
+		o_ptr->dd = 0;
+		o_ptr->ds = 0;
+
+		/* Curse it */
+		o_ptr->ident |= (IDENT_CURSED);
+
+		/* Break it */
+		o_ptr->ident |= (IDENT_BROKEN);
+
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Recalculate mana */
+		p_ptr->update |= (PU_MANA);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	}
+
+	/* Notice */
+	return (TRUE);
+}
+
+
+/*
+ *      Process a spell.
+ *
+ *      Returns -1 iff the spell did something obvious.
+ *
+ *      Level is set to 0 for most objects, and player level for spells.
+ *
+ *      *abort is set to TRUE if the user aborts before any spell effects
+ *      occur. The return value reflects whether or not they were able to
+ *      determine what effect the item has (Currently enchantment and
+ *      identify items).
+ *
+ *      We should choose any item for enchant/curse/identify spells before
+ *      calling this routine, when we are using an unknown object, and
+ *      only apply the spell, and make the effect obvious, if the object
+ *      is correctly chosen. XXX
+ *
+ *      We should allow useful spells to be cast on adjacent monsters. XXX
+ *
+ *      We should make summoned monsters friendly if plev is > 0. XXX
+ *
+ */
+bool process_spell_flags(int spell, int level, bool *cancel)
+{
+        spell_type *s_ptr = &s_info[spell];
+
+        bool obvious = FALSE;
+
+        int lasts;
+
+	int ench_toh = 0;
+	int ench_tod = 0;
+	int ench_toa = 0;
+
+        /* Roll out the duration */
+        if ((s_ptr->l_dice) && (s_ptr->l_side))
+        {
+                lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+        }
+        else
+        {
+                lasts = s_ptr->l_plus;
+        }
+
+        /* Process the flags that apply to equipment */
+        if (s_ptr->flags1 & (SF1_IDENT_SENSE)) obvious = TRUE;
+        if (s_ptr->flags1 & (SF1_IDENT_BONUS))
+        {
+                if (!ident_spell_bonus() && (*cancel)) return (TRUE);
+                *cancel = FALSE;
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_IDENT))
+        {
+                if (!ident_spell() && (*cancel)) return (TRUE);
+                *cancel = FALSE;
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_IDENT_RUMOR))
+        {
+                if (!ident_spell_rumor() && (*cancel)) return (TRUE);
+                *cancel = FALSE;
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_IDENT_FULLY))
+        {
+                if (!identify_fully() && (*cancel)) return (TRUE);
+                *cancel = FALSE;
+                obvious = TRUE;
+        }
+
+	/* Process enchantment */
+        if (s_ptr->flags1 & (SF1_ENCHANT_TOH))
+        {
+                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toh = 3+rand_int(4);
+                else ench_toh = 1;
+        }
+        if (s_ptr->flags1 & (SF1_ENCHANT_TOD))
+        {
+                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_tod = 3+rand_int(4);
+                else ench_tod = 1;
+        }
+        if (s_ptr->flags1 & (SF1_ENCHANT_TOA))
+        {
+                if (s_ptr->flags1 & (SF1_ENCHANT_HIGH)) ench_toa = 3+rand_int(4);
+                else ench_toa = 1;
+        }
+
+	/* Apply enchantment */
+	if (ench_toh || ench_tod || ench_toa)
+	{
+                if (!(enchant_spell(ench_toh, ench_tod, ench_toa)) && (*cancel))
+		{
+                        return (TRUE);
+		}
+		
+                *cancel = FALSE;
+		obvious = TRUE;
+	}
+
+        /* Process the flags */
+        if ((s_ptr->flags1 & (SF1_DETECT_DOORS)) && (detect_doors())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_TRAPS)) && (detect_traps())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_STAIRS)) && (detect_stairs())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_WATER)) && (detect_water())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_GOLD)) && ((detect_treasure() || detect_objects_gold))) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_OBJECT)) && ((detect_objects_buried() || detect_objects_normal))) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_MAGIC)) && (detect_objects_magic())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_CURSE)) && (detect_objects_cursed())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_MONSTER)) && (detect_monsters_normal())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters_evil())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_INVIS)) && (detect_monsters_invis())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_ANIMAL)) && (detect_monsters_animal())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_UNDEAD)) && (detect_monsters_undead())) obvious = TRUE;
+        if ((s_ptr->flags1 & (SF1_DETECT_DEMON)) && (detect_monsters_demon())) obvious = TRUE;
+
+        if (s_ptr->flags1 & (SF1_MAP_AREA))
+        {
+                map_area();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_WIZ_LITE))
+        {
+                wiz_lite();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_LITE_ROOM))
+        {
+                lite_room(p_ptr->py,p_ptr->px);
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_DARK_ROOM))
+        {
+                unlite_room(p_ptr->py,p_ptr->px);
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_FORGET))
+        {
+                lose_all_info();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_SELF_KNOW))
+        {
+                self_knowledge();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_IDENT_PACK))
+        {
+                identify_pack();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_ACQUIREMENT))
+        {
+                acquirement(p_ptr->py,p_ptr->px, 1, TRUE);
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags1 & (SF1_STAR_ACQUIREMENT))
+        {
+                acquirement(p_ptr->py,p_ptr->px, rand_int(2)+1, TRUE);
+                obvious = TRUE;
+        }
+
+
+/* SF2 - timed abilities and modifying level */
+        if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_INFRA)) && (set_tim_infra(p_ptr->tim_infra + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_HERO)) && (set_hero(p_ptr->hero + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_SHERO)) && (set_shero(p_ptr->shero + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_BLESS)) && (set_blessed(p_ptr->blessed + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_INVULN)) && (set_invuln(p_ptr->invuln + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (set_oppose_fire(p_ptr->oppose_fire + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (set_oppose_cold(p_ptr->oppose_cold + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (set_oppose_acid(p_ptr->oppose_acid + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (set_oppose_elec(p_ptr->oppose_elec + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (set_oppose_pois(p_ptr->oppose_pois + lasts))) obvious = TRUE;
+
+        if (s_ptr->flags2 & (SF2_AGGRAVATE))
+        {
+                aggravate_monsters(0);
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_CREATE_STAIR))
+        {
+                stair_creation();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_TELE_LEVEL))
+        {
+                (void)teleport_player_level();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_TELE_LEVEL))
+        {
+                p_ptr->leaving = TRUE;
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_GENOCIDE))
+        {
+                (void)genocide();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_MASS_GENOCIDE))
+        {
+                mass_genocide();
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags2 & (SF2_CUT))
+        {
+                if (!p_ptr->resist_shard)
+                {
+                        if (set_cut(p_ptr->cut + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_SHARD,0x0L);
+                        }
+                }
+                else
+                {
+                        /* Always notice */
+                        equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_STUN))
+        {
+                if (!p_ptr->resist_sound)
+                {
+                        if (set_stun(p_ptr->stun + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_SOUND,0x0L);
+                        }
+                }
+                else
+                {
+                        /* Always notice */
+                        equip_can_flags(0x0L,TR2_RES_SHARD,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_POISON))
+        {
+                if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
+                {
+                        if (set_poisoned(p_ptr->poisoned + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_POIS,0x0L);
+                        }
+                }
+                else
+                {
+                        /* Always notice */
+                        equip_can_flags(0x0L,TR2_RES_POIS,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_BLIND))
+        {
+                if (!p_ptr->resist_blind)
+                {
+                        if (set_blind(p_ptr->blind + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_BLIND,0x0L);
+                        }
+                }
+                else
+                {
+                        /* Always notice */
+                        equip_can_flags(0x0L,TR2_RES_BLIND,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_FEAR))
+        {
+                if ((!p_ptr->resist_fear)&&(!p_ptr->hero)&&(!p_ptr->shero))
+                {
+                        if (set_afraid(p_ptr->afraid + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_FEAR,0x0L);
+                        }
+                }
+                else
+                {
+                        /* Always notice */
+                        if (p_ptr->resist_fear) equip_can_flags(0x0L,TR2_RES_FEAR,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_CONFUSE))
+        {
+                if (!p_ptr->resist_confu)
+                {
+                        if (set_confused(p_ptr->confused + lasts))
+                        {
+                                obvious = TRUE;
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_CONFU,0x0L);
+                        }
+                }
+                else
+                {
+                                /* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_CONFU,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_HALLUC))
+        {
+                if (!p_ptr->resist_chaos)
+                {
+                        if (set_image(p_ptr->image + lasts))
+                        {
+                                obvious = TRUE;
+
+                                /* Always notice */
+                                equip_not_flags(0x0L,TR2_RES_CHAOS,0x0L);
+                        }
+                }
+                else
+                {
+                                /* Always notice */
+                                equip_can_flags(0x0L,TR2_RES_CHAOS,0x0L);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_PARALYZE))
+        {
+
+                if (!p_ptr->free_act)
+                {
+                        if (set_paralyzed(p_ptr->paralyzed + lasts))
+                        {
+                                obvious = TRUE;
+                                /* Always notice */
+                                equip_not_flags(0x0L,0x0L,TR3_FREE_ACT);
+                        }
+                }
+                else
+                {
+                                /* Always notice */
+                                equip_can_flags(0x0L,0x0L,TR3_FREE_ACT);
+                }
+        }
+
+        if (s_ptr->flags2 & (SF2_HASTE))
+	{
+		if ((p_ptr->fast) && (set_fast(p_ptr->fast + rand_int(s_ptr->l_side/3)))) obvious = TRUE;
+        	else if (set_fast(p_ptr->fast + lasts + level)) obvious = TRUE;
+	}
+
+
+
+/* SF3 - healing self, and untimed improvements */
+
+        if ((s_ptr->flags3 & (SF3_INC_STR)) && (do_inc_stat(A_STR))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_INC_INT)) && (do_inc_stat(A_INT))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_INC_WIS)) && (do_inc_stat(A_WIS))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_INC_DEX)) && (do_inc_stat(A_DEX))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_INC_CON)) && (do_inc_stat(A_CON))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_INC_CHR)) && (do_inc_stat(A_CHR))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_STR)) && (do_res_stat(A_STR))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_INT)) && (do_res_stat(A_INT))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_WIS)) && (do_res_stat(A_WIS))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_DEX))  && (do_res_stat(A_DEX))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_CON))  && (do_res_stat(A_CON))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_CHR))  && (do_res_stat(A_CHR))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_EXP)) && (restore_level())) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_SLOW_CURSE)) && (remove_curse())) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_SLOW_POIS)) && (set_poisoned(p_ptr->poisoned / 2))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_POIS)) && (set_poisoned(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_SLOW_CUTS)) && (set_cut(p_ptr->cut / 2))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_CUTS)) && (set_cut(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_STUN)) && (set_stun(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_CONF)) && (set_confused(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_FOOD)) && (set_food(PY_FOOD_MAX -1))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_afraid(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (set_blind(0))) obvious = TRUE;
+
+        if (s_ptr->flags3 & (SF3_DEC_EXP))
+        {
+                if (!p_ptr->hold_life && !p_ptr->blessed && (p_ptr->exp > 0))
+                {
+                        lose_exp(p_ptr->exp / 4);
+                        obvious = TRUE;
+                }
+                else
+                {
+                        /* Always notice */
+                        if (p_ptr->hold_life) equip_can_flags(0x0L,0x0L,TR3_HOLD_LIFE);
+                }
+        }
+
+	
+
+        if (s_ptr->flags3 & (SF3_DEC_FOOD))
+	{
+		(void)set_food(PY_FOOD_STARVE - 1);
+		obvious = TRUE;
+	}
+
+        if ((s_ptr->flags3 & (SF3_CONF_HANDS)) && !(p_ptr->confusing))
+	{
+                p_ptr->confusing = TRUE;
+		obvious = TRUE;
+	}
+
+        if (s_ptr->flags3 & (SF3_INC_EXP))
+        {
+                s32b ee = (p_ptr->exp / 2) + 10;
+                if (ee > 100000L) ee = 100000L;
+                gain_exp(ee);
+                obvious = TRUE;
+        }
+
+        if (s_ptr->flags3 & (SF3_SLOW_MANA))
+        {
+                if (p_ptr->csp < p_ptr->msp)
+                {
+                        p_ptr->csp = p_ptr->csp + damroll(2,5);
+                        if (p_ptr->csp >= p_ptr->msp)
+                        {
+                                p_ptr->csp = p_ptr->msp;
+                                p_ptr->csp_frac = 0;
+                        }
+                        p_ptr->redraw |= (PR_MANA);
+                        p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+        
+                        obvious = TRUE;
+                }
+        }
+
+        if (s_ptr->flags3 & (SF3_CURE_MANA))
+        {
+
+                if (p_ptr->csp < p_ptr->msp)
+                {
+                        p_ptr->csp = p_ptr->msp;
+                        p_ptr->csp_frac = 0;
+                        p_ptr->redraw |= (PR_MANA);
+                        p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+                        obvious = TRUE;
+                }
+        }
+
+        if (s_ptr->flags3 & (SF3_CURE_CURSE))
+        {
+                remove_all_curse();
+                obvious = TRUE;
+        }
+
+
+        /* Hack -- we should really only set this here */
+        *cancel = FALSE;
+
+        return (obvious);
+
+}
+
+bool process_spell_blows(int spell, int level, bool *cancel)
+{
+
+        spell_type *s_ptr = &s_info[spell];
+
+        bool obvious = FALSE;
+        int ap_cnt;
+        int dir;
+
+	/* Scan through all four blows */
+	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+	{
+		int damage = 0;
+
+		/* Extract the attack infomation */
+                int effect = s_ptr->blow[ap_cnt].effect;
+                int method = s_ptr->blow[ap_cnt].method;
+                int d_dice = s_ptr->blow[ap_cnt].d_dice;
+                int d_side = s_ptr->blow[ap_cnt].d_side;
+                int d_plus = s_ptr->blow[ap_cnt].d_plus;
+
+		/* Hack -- no more attacks */
+		if (!method) break;
+
+                /* Hack -- use level as modifier */
+                if (!d_side)
+                {
+                        d_plus += level * d_dice;
+                }
+
+                /* Roll out the damage */
+                if ((d_dice) && (d_side))
+                {
+                        damage = damroll(d_dice, d_side) + d_plus;
+                }
+                else
+                {
+                        damage = d_plus;
+                }
+
+                /* Apply spell method */
+                switch (method)
+                {
+                        case RBM_SHOOT:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_bolt(effect, dir, damage)) obvious = TRUE;
+                                break;
+                        }
+
+                        /* Radius 2, centred on self */
+                        case RBM_AURA:
+                        {
+                                int py = p_ptr->py;
+                                int px = p_ptr->px;
+                        
+                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+                                if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
+                                break;
+                        }
+
+                        /* Affect self directly */
+                        case RBM_SELF:
+                        {
+                                int py = p_ptr->py;
+                                int px = p_ptr->px;
+
+                                if (project_p(0, 0, py, px, damage, effect)) obvious = TRUE;
+                                break;
+                        }
+
+                        /* Radius 1, centred on self */
+                        case RBM_ADJACENT:
+                        {
+                                int py = p_ptr->py;
+                                int px = p_ptr->px;
+                        
+                                int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+                                if (project(-1, 1, py, px, damage, effect, flg)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_HANDS:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_rep_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 5) && (d_side)) damage+= damroll((level-1)/5, d_side);
+
+                                if (fire_hands(effect, dir, damage)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_MISSILE:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
+
+                                if (fire_bolt(effect, dir, damage)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_BOLT_10:
+                        {
+				int beam;
+
+				if (c_info[p_ptr->pclass].sp_pow) beam = level;
+				else beam = level/2;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+                                
+                                if (fire_bolt_or_beam(beam - 10, effect, dir, damage)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_BOLT:
+                        {
+				int beam;
+
+				if (c_info[p_ptr->pclass].sp_pow) beam = level;
+				else beam = level/2;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+                                
+                                if (fire_bolt_or_beam(beam, effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_BEAM:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+
+                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_BLAST:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_rep_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                damage += level;
+
+                                if (fire_blast(effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_WALL:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
+                                
+                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_BALL:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, damage, 2)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_CLOUD:
+                        {
+                                int rad = 2;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_STORM:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, damage, 3)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_BREATH:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 3)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_AREA:
+                        {
+                                if (project_hack(effect, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_LOS:
+                        {
+                                if (project_hack(effect, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_LINE:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_beam(effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_AIM:
+                        {
+                                int flg = PROJECT_STOP | PROJECT_KILL;
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (project_hook(effect, dir, level, flg)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_ORB:
+                        {
+				int rad = (level < 30 ? 2 : 3);
+
+				if (c_info[p_ptr->pclass].sp_pow) damage += level + level/2;
+				else damage += level + level/4;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, damage, rad)) obvious = TRUE;
+
+                                break;
+                        }
+                        case RBM_STAR:
+                        {
+                                int k;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+                                
+                                for (k = 0; k < 8; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
+
+                                break;
+                        }
+                        default:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_rep_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_hands(effect, dir, damage)) obvious = TRUE;
+
+                                break;
+                        }
+                }
+        }
+
+        /* Return result */
+        return (obvious);
+
+}
+
+
+
+bool process_spell_types(int spell, int level, bool *cancel)
+{
+
+        spell_type *s_ptr = &s_info[spell];
+
+        bool obvious = FALSE;
+
+        int lasts;
+
+        int dir;
+
+        /* Roll out the duration */
+        if ((s_ptr->l_dice) && (s_ptr->l_side))
+        {
+                lasts = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+        }
+        else
+        {
+                lasts = s_ptr->l_plus;
+        }
+
+        /* Has another effect? */
+        if (s_ptr->type)
+        {
+                /* Process the effects */
+                switch(s_ptr->type)
+                {
+                        case SPELL_RECHARGE:
+                        {
+                                if ((!recharge(s_ptr->param)) && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_IDENT_TVAL:
+                        {
+                                if ((!ident_spell_tval(s_ptr->param)) && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_ENCHANT_TVAL:
+                        {
+                                enchant_item(s_ptr->param,level);
+                                break;
+                        }
+                        case SPELL_BRAND_WEAPON:
+                        {
+                                if ((!brand_weapon(s_ptr->param, s_text + s_ptr->text)) && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_BRAND_ARMOR:
+                        {
+                                if ((!brand_armor(s_ptr->param, s_text + s_ptr->text)) && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_WARD_GLYPH:
+                        {
+                                warding_glyph();
+                                break;
+                        }
+                        case SPELL_WARD_TRAP:
+                        {
+                                if ((!get_rep_dir(&dir)) && (cancel)) return (FALSE);
+                                else warding_trap(s_ptr->param,dir);
+                                break;
+                        }
+                        case SPELL_SUMMON:
+                        {
+                                if (summon_specific(p_ptr->py, p_ptr->px, p_ptr->depth+5, s_ptr->param)) obvious = TRUE;
+                                break;
+                        }
+                        case SPELL_SUMMON_R:
+                        {
+                                if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param)) obvious = TRUE;
+                                break;
+                        }
+                        case SPELL_CREATE_TVAL:
+                        {
+                                break;
+                        }
+                        case SPELL_CREATE_KIND:
+                        {
+                                create_gold();
+                                break;
+                        }
+                        case SPELL_EARTHQUAKE:
+                        {
+                                earthquake(p_ptr->py,p_ptr->px, s_ptr->param);
+                                break;
+                        }
+                        case SPELL_DESTRUCTION:
+                        {
+                                destroy_area(p_ptr->py,p_ptr->px, s_ptr->param, TRUE);
+                                break;
+                        }
+                        default:
+                        {
+                                wield_spell(s_ptr->type,s_ptr->param,lasts);
+                                break;
+                        }
+        
+                }
+
+                /* Haven't canceled */
+                cancel = FALSE;
+
+                /* These effects are obvious */
+                obvious = TRUE;
+        }
+
+        /* Return result */
+        return (obvious);
+}
+
+bool process_spell(int spell, int level, bool *cancel)
+{
+        bool obvious = FALSE;
+
+        if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
+        if (process_spell_blows(spell,level,cancel)) obvious = TRUE;
+        if (process_spell_types(spell,level,cancel)) obvious = TRUE;
+
+        /* Return result */
+        return (obvious);
 }

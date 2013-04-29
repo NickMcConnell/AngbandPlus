@@ -1568,7 +1568,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_ACID:
 			/* Destroy hurt by acid */
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_ACID))  &&
-			       (dam > (f_info[cave_feat[y][x]].power*10))) {
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
@@ -1590,7 +1591,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
                         int i;
 
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE)) &&
-			       (dam > (f_info[cave_feat[y][x]].power*10))) {
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
@@ -1644,7 +1646,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_COLD:
 		case GF_ICE:
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_HURT_COLD)) &&
-			       (dam > (f_info[cave_feat[y][x]].power*10))) {
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
@@ -1663,10 +1666,12 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_METEOR:
 		case GF_SHARD:
 		case GF_FORCE:
+		case GF_MANA:
 		case GF_SOUND:
 			if ((f_info[cave_feat[y][x]].flags2 & (FF2_KILL_HUGE)) &&
-			       (dam > (f_info[cave_feat[y][x]].power*10))) {
-				/* Check line of sight */
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
+                                /* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
 					msg_format("The %s shatters.",f);
@@ -1680,9 +1685,87 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_alter_feat(y, x, FS_KILL_HUGE);
 			}
 			break;
-		/* Ignore some effects */
+                /* Electricity */
 		case GF_ELEC:
-		case GF_MANA:
+                {
+                        if ((f_info[cave_feat[y][x]].flags3 & (FF3_HURT_ELEC)) &&
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+                                        msg_format("The %s is struck by lightening.",f);
+					obvious = TRUE;
+				}
+				/* Forget the feature */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Destroy the feature */
+                                cave_alter_feat(y, x, FS_HURT_ELEC);
+			}
+			break;
+                }
+                /* Water */
+                case GF_WATER:
+                {
+                        if ((f_info[cave_feat[y][x]].flags3 & (FF3_HURT_WATER)) &&
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+                                        msg_format("The %s floods.",f);
+					obvious = TRUE;
+				}
+				/* Forget the feature */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Destroy the feature */
+                                cave_alter_feat(y, x, FS_HURT_WATER);
+			}
+			break;
+                }
+                case GF_BWATER:
+                {
+
+                        if ((f_info[cave_feat[y][x]].flags3 & (FF3_HURT_BWATER)) &&
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+                                        msg_format("The %s boils.",f);
+					obvious = TRUE;
+				}
+				/* Forget the feature */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Destroy the feature */
+                                cave_alter_feat(y, x, FS_HURT_BWATER);
+			}
+			break;
+                }
+                case GF_POIS:
+                {
+                        if ((f_info[cave_feat[y][x]].flags3 & (FF3_HURT_POIS)) &&
+                               (dam > (f_info[cave_feat[y][x]].power*10)))
+                        {
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+                                        msg_format("The %s is poisoned.",f);
+					obvious = TRUE;
+				}
+				/* Forget the feature */
+				cave_info[y][x] &= ~(CAVE_MARK);
+
+				/* Destroy the feature */
+                                cave_alter_feat(y, x, FS_HURT_POIS);
+			}
+			break;
+                }
+
+		/* Ignore some effects */
 		case GF_HOLY_ORB:
 		{
 			break;
@@ -1718,7 +1801,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-				cave_alter_feat(y, x, FS_TRAP);
+                                cave_alter_feat(y, x, FS_DISARM);
 			}
 
 			/* Disarm other traps */
@@ -1734,7 +1817,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-				cave_alter_feat(y, x, FS_DISARM);
+                                cave_alter_feat(y, x, FS_TUNNEL);
 			}
 
 			/* Locked doors are unlocked */
@@ -1771,7 +1854,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				cave_info[y][x] &= ~(CAVE_MARK);
 
 				/* Destroy the trap */
-				cave_alter_feat(y, x, FS_DOOR);
+                                cave_alter_feat(y, x, FS_TUNNEL);
 			}
 
 			break;
@@ -1852,7 +1935,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
                         int feat = cave_feat[y][x];
 
-			if (f_info[feat].flags2 & (FF2_WATER) && !((f_info[feat].flags1 & (FF1_MORE)) ||
+                        if (f_info[feat].flags2 & (FF2_WATER) && !((f_info[feat].flags2 & (FF2_CHASM)) ||
                                 (f_info[feat].flags1 & (FF1_LESS)) || (f_info[feat].flags2 & (FF2_FILLED))))
 			{
                                 cave_set_feat(y,x,FEAT_WATER_K);
@@ -3482,9 +3565,24 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
-                        note = " falls from sight.";
+                        /* Hack -- no chasm/trap doors/down stairs on quest levels */
+                        if (is_quest(p_ptr->depth) ||  (p_ptr->depth == max_depth(p_ptr->dungeon)))
+                        {
+                                note = "falls into a chasm.";
 
-			do_more = TRUE;
+                                /* Hack -- prevent 'weird' messages */
+                                if (dam == 0) obvious = FALSE;
+
+                                /* Should probably make the monster fall back
+                                 * into the chasm.
+                                 */
+                        }
+                        else
+                        {
+                                note = " falls from sight.";
+
+                                do_more = TRUE;
+                        }
 
 			break;
 		}
@@ -3931,7 +4029,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
 		/* Get the feature description */
-		strcpy (killer,(f_text + f_ptr->name));
+                strcpy (killer,(f_name + f_ptr->name));
 		
 	}
 
@@ -5385,13 +5483,41 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				take_hit(dam, killer);
 			}
 
+                        /* Hack -- no chasm/trap doors/down stairs on quest levels */
+                        if (is_quest(p_ptr->depth) ||  (p_ptr->depth == max_depth(p_ptr->dungeon)))
+                        {
+                                int i = rand_int(8);
 
-			/* New depth */
-			p_ptr->depth++;
+                                int k = 0;
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+                                /* Scan all neighbors */
+                                while (TRUE)
+				{
+					int yy = y + ddy_ddd[i];
+					int xx = x + ddx_ddd[i];
 
+                                        /* Hack -- bounds check */
+                                        if (++k>30) break;
+
+                                        i = rand_int(8);
+
+                                        if (cave_feat[yy][xx] != FEAT_CHASM) continue;
+
+                                        /* Hack -- fall back into the chasm */
+                                        monster_swap(p_ptr->py,p_ptr->px,yy,xx);
+
+                                        break;
+                                }
+
+                        }
+                        else
+                        {
+                                /* New depth */
+                                p_ptr->depth++;
+        
+                                /* Leaving */
+                                p_ptr->leaving = TRUE;
+                        }
 			break;
 		}
 
@@ -5607,6 +5733,23 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+                /* Heal the player */
+                case GF_OLD_HEAL:
+                {
+                        (void)hp_player(dam);
+                        dam = 0;
+
+                        break;
+                }
+
+                /* Teleport the player -- use dam as power*/
+                case GF_AWAY_ALL:
+                {
+                        (void)teleport_player(dam);
+                        dam = 0;         
+                        break;
+
+                }
 
 		/* Default */
 		default:

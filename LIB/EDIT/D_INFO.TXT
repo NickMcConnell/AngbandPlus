@@ -93,6 +93,7 @@ A:frescoed
 B:
 D:Faded frescoes cover 
 S:SEEN
+F:439
 
 N:1:2:6:0
 A:painted
@@ -121,17 +122,11 @@ D:Strange runes cover
 F:21
 S:SEEN | PORTAL
 
-N:1:2:10:0
+N:1:2:11:0
 A:candle-lit
 B:
 D:Candles line 
 F:405
-S:SEEN
-
-N:1:2:11:0
-A:curtained
-B:
-D:Rotted curtains cover 
 S:SEEN
 
 N:1:2:12:0
@@ -139,27 +134,30 @@ A:curtained
 B:
 D:Thick curtains cover 
 S:SEEN
+F:443
 
 N:1:2:13:4
 A:
 B:
-D:Spiderwebs cover 
+D:Ornate curtains frame  
 G:S
 S:SEEN
+F:444
 
 N:1:2:14:0
 A:
 B:
 D:Dusty cobwebs cover 
-F:134
+F:447
 S:SEEN
 
 N:1:2:15:12
 A:
 B:
-D:Giant spiderwebs cover 
+D:Giant spider webs cover 
 G:S
 S:SEEN
+F:446
 
 #Note race flag to force only mushroom patches.
 
@@ -184,6 +182,7 @@ A:mildewed
 B:
 D:Mildew covers 
 S:SEEN
+F:306
 
 N:1:2:19:1
 A:
@@ -332,22 +331,7 @@ L:ICE
 F:132
 S:SEEN
 
-N:1:2:38:0
-A:
-B:
-D:Slime covers 
-F:306
-S:SEEN
-
-N:1:2:39:12
-A:
-B:
-D:Slime covers 
-F:306
-G:,
-S:SEEN
-
-N:1:2:40:11
+N:1:2:38:11
 A:
 B:
 D:Acid marks cover 
@@ -378,6 +362,7 @@ B:crypt
 D:Stone caskets line 
 R:UNDEAD
 S:SEEN
+K:2
 
 N:1:2:44:11
 A:
@@ -405,6 +390,7 @@ A:
 B:
 D:Wooden panels cover 
 S:SEEN
+K:449
 
 N:1:2:48:0
 A:
@@ -412,6 +398,7 @@ B:kitchen
 D:Cupboards cover 
 K:80
 S:SEEN
+F:450
 
 N:1:13:49:0
 A:
@@ -580,6 +567,7 @@ A:
 B:
 D:A wooden platform 
 S:SEEN
+F:438
 
 N:4:5:4:0
 A:
@@ -593,11 +581,13 @@ B:temple
 D:A sacrificial stone 
 R:UNDEAD
 S:SEEN
+K:598
 
 N:4:5:6:9
 A:
 B:tomb
 D:A great sarcophagus 
+K:2
 R:UNDEAD
 S:SEEN
 
@@ -636,6 +626,7 @@ A:
 B:
 D:A giant stone head 
 S:SEEN
+K:3
 
 N:4:5:12:3
 A:
@@ -643,12 +634,14 @@ B:
 D:A shallow grave 
 R:UNDEAD
 S:SEEN
+F:135
 
 N:4:5:13:0
 A:sunken
 B:
-D:A sunken area 
+D:A sunken pit 
 S:SEEN
+F:445
 
 N:4:5:14:0
 A:
@@ -692,24 +685,30 @@ B:
 D:A huge spiderweb 
 G:S
 S:SEEN
+F:446
 
 N:4:5:20:1
 A:
 B:cell
 D:An iron cage 
 S:SEEN
+F:314
+K:6
 
 N:4:5:21:1
 A:
 B:torture room
 D:A torture rack 
 S:SEEN
+F:313
+K:6
 
 N:4:5:22:1
 A:
 B:
 D:A large boulder 
 F:49
+K:3
 S:SEEN
 
 N:4:5:24:1
@@ -758,7 +757,36 @@ F:391
 D:A stone well 
 S:SEEN
 
-N:4:6:40:0
+N:4:5:30:0
+A:
+B:
+F:427
+D:A fallen tree 
+S:SEEN
+
+N:4:5:31:0
+A:
+B:
+F:422
+D:A hollow tree 
+S:SEEN
+
+N:4:5:32:0
+A:
+B:
+F:426
+D:An apple tree 
+S:SEEN
+
+N:4:5:33:1
+A:
+B:pen
+D:A wooden cage 
+S:SEEN
+F:314
+R:ANIMAL
+
+N:4:6:50:0
 A:
 B:
 D:The floor is 
@@ -811,7 +839,7 @@ N:6:7:2:3
 A:rocky
 B:
 D:littered with loose rocks.  
-F:95
+K:3
 S:SEEN
 
 N:6:7:3:0
@@ -825,13 +853,14 @@ N:6:7:4:0
 A:
 B:cellar
 D:littered with broken pottery.  
-K:2
+K:3
 S:SEEN
 
 N:6:7:5:0
 A:tiled
 B:
 D:decorated with a tile mosaic.  
+F:439
 S:SEEN
 
 N:6:7:6:15
@@ -859,6 +888,7 @@ N:6:7:9:0
 A:sunken
 B:
 D:sunken in places.  
+F:445
 S:SEEN
 
 N:6:7:10:15
@@ -1073,19 +1103,52 @@ D:covered with bat guano.
 G:b
 S:SEEN
 
-N:6:7:100:0
+N:6:7:39:3
+A:
+B:garden
+D:planted with thorny bushes.  
+F:440
+S:SEEN
+
+N:6:7:40:8
+A:
+B:garden
+D:planted with thorny bushes.  
+F:441
+S:SEEN
+
+N:6:7:41:8
+A:
+B:garden
+D:planted with thorny bushes.  
+F:448
+S:SEEN
+
+N:6:7:42:0
 A:dusty
 B:
 D:covered in dust.  
 F:134
 S:SEEN
 
-N:7:8:60:0
+N:6:7:70:0
+A:old
+B:
+D:weathered with age.  
+S:SEEN
+
+N:6:7:100:0
+A:
+B:
+D:unmarked by time.  
+S:SEEN
+
+N:7:8:80:0
 A:
 B:
 D:The air here is 
 
-N:7:9:61:0
+N:7:9:81:25
 A:magic
 B:
 D:There is a static feeling in the air. 
@@ -1096,87 +1159,87 @@ A:
 B:
 D:
 
-
-N:8:9:15:51
+N:8:9:10:51
 A:humid
 B:
 D:hot and humid.  
 
-
-N:8:9:25:72
+N:8:9:30:72
 A:hot
 B:
 D:hot and dry.  
 L:LAVA
 
-
-N:8:9:30:72
+N:8:9:45:72
 A:hot
 B:
 D:stiffling hot.  
 R:IM_FIRE
 L:LAVA
 
-
-N:8:9:45:0
+N:8:9:60:0
 A:damp
 B:
 D:cool and damp.  
 
-
-N:8:9:50:0
+N:8:9:70:0
 A:
 B:
 D:cool and dry.  
 
-
-N:8:9:51:1
+N:8:9:71:1
 A:dusty
 B:
 D:thick with dust.  
 F:134
 
-
-N:8:9:52:1
+N:8:9:72:10
 A:steamy
 B:
-D:thick with steam.  
-F:209
+D:filled with steam.  
+F:173
 
-
-N:8:9:53:3
+N:8:9:73:16
 A:
 B:
-D:thick with gas.  
-F:30
+D:filled with gas.  
+F:181
 
-
-N:8:9:54:4
+N:8:9:74:4
 A:
 B:
 D:smokey with incense.  
 G:q
 
-
-N:8:9:55:9
+N:8:9:75:9
 A:
 B:
 D:rank with sulphur.  
 R:DEMON
 
-
-N:8:9:56:9
+N:8:9:76:9
 A:
 B:
 D:ripe with decay.  
 R:UNDEAD
 
-
-N:8:9:57:0
+N:8:9:77:0
 A:mildewed
 B:
 D:rank with mildew.  
+F:306
 
+N:8:9:78:12
+A:
+B:
+D:filled with smoke.  
+F:162
+
+N:8:9:79:14
+A:
+B:
+D:filled with acidic vapour.  
+F:165
 
 N:8:9:99:30
 A:freezing
@@ -1185,12 +1248,10 @@ D:freezing cold.
 L:ICE
 R:IM_COLD
 
-
 N:8:9:100:10
 A:
 B:
 D:stale.  
-
 
 N:9:10:5:0
 A:
@@ -1204,21 +1265,22 @@ B:
 D:A cool breeze blows 
 
 
-N:9:10:15:40
-A:windy
+N:9:10:20:40
+A:
 B:
 D:A hot wind blows 
 L:LAVA | CHASM
 
 
-N:9:10:20:30
-A:windy
+N:9:10:30:30
+A:
 B:
 D:A cold wind blows 
 L:ICE | CHASM
 
+# Skip noises.
 
-N:9:10:22:40
+N:9:15:35:40
 A:windy
 B:
 D:A howling gale blows 
@@ -1260,24 +1322,20 @@ A:
 B:
 D:around the room.  
 
-
-N:11:12:40:0
+N:11:12:50:0
 A:
 B:
 D:You hear 
 
-
 N:11:15:100:0
 A:
 B:
-
 
 N:12:15:1:15
 A:
 B:
 D:the clank of machinery...
 F:2
-
 
 N:12:15:2:51
 A:
@@ -1298,13 +1356,11 @@ B:
 D:quiet footsteps...
 G:G
 
-
 N:12:15:5:3
 A:rat-infested
 B:
 D:a sudden scampering...
 G:r
-
 
 N:12:15:6:3
 A:
@@ -1324,7 +1380,6 @@ A:haunted
 B:
 D:something whispering...
 R:UNDEAD
-
 
 N:12:15:9:3
 A:
@@ -1360,12 +1415,10 @@ B:
 D:something behind you!
 R:INVISIBLE
 
-
 N:12:15:14:10
 A:windy
 B:
 D:the wind whistling through a distant chasm...
-
 
 N:12:15:25:40
 A:windy

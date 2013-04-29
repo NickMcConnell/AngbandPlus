@@ -26,7 +26,7 @@
 #define MAX_METALS     32       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     60       /* Used with potions (min 60) */
 #define MAX_SHROOM     26       /* Used with mushrooms (min 21) */
-#define MAX_TITLES     50       /* Used with scrolls (min 50) */
+#define MAX_TITLES     55       /* Used with scrolls (min 50) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 
@@ -357,7 +357,6 @@ static bool object_easy_know(int i)
 		case TV_EGG:
                 case TV_FIGURE:
                 case TV_STATUE:
-                case TV_FEATS:
 		{
 			return (TRUE);
 		}
@@ -1136,7 +1135,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_FLASK:
                 case TV_INSTRUMENT:
 		case TV_SPELL:
-                case TV_FEATS:
 		{
 			break;
 		}
@@ -1218,7 +1216,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			modstr = staff_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
-
 			break;
 		}
 
@@ -1552,9 +1549,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->guess1];
 
-			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, " (");
 			object_desc_str_macro(t, (a_name + a_ptr->name));
-			object_desc_chr_macro(t, '?');			
+			object_desc_str_macro(t, "?)");			
 		}
 
 		/* Grab any ego-item name */
@@ -1562,9 +1559,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			ego_item_type *e_ptr = &e_info[o_ptr->guess2];
 
-			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, " (");
 			object_desc_str_macro(t, (e_name + e_ptr->name));
-			object_desc_chr_macro(t, '?');
+			object_desc_str_macro(t, "?)");
 		}
 
 		/* Grab any kind name */
@@ -1572,9 +1569,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			object_kind *k1_ptr = &k_info[lookup_kind(o_ptr->tval,k_ptr->guess-1)];
 
-			object_desc_str_macro(t, " of ");
+			object_desc_str_macro(t, " (of ");
 			object_desc_str_macro(t, (k_name + k1_ptr->name));
-			object_desc_chr_macro(t, '?');
+			object_desc_str_macro(t, "?)");
 		}
 	}
 
@@ -1780,7 +1777,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 	/* Dump "pval" flags for wearable items */
-	if (known && (f1 & (TR1_PVAL_MASK)))
+	if ((known || (o_ptr->ident & (IDENT_BONUS))) && (f1 & (TR1_PVAL_MASK)))
 	{
 		cptr tail = "";
 		cptr tail2 = "";
@@ -1794,6 +1791,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		/* Do not display the "pval" flags */
 		if (f3 & (TR3_HIDE_TYPE))
+		{
+			/* Nothing */
+		}
+
+		/* Do not display the "pval" flags */
+		else if (!known)
 		{
 			/* Nothing */
 		}
@@ -1875,11 +1878,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         /* Indicate "charging" artifacts/rods */
         if (((known) || (o_ptr->ident & (IDENT_BONUS))) && o_ptr->timeout)
 	{
-
-                u32b f1, f2, f3;
-
-                /* Get the flags */
-                object_flags(o_ptr,&f1, &f2, &f3);
 
                 if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
                 {
@@ -3155,7 +3153,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if ((cheat_lore) || !(e_ptr->xtra))
 			{
 	                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
         	                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
@@ -3170,7 +3168,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if ((cheat_lore) || !(e_ptr->xtra))
 			{
 	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
         	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
@@ -3185,7 +3183,7 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if (cheat_lore)
+			if ((cheat_lore) || !(e_ptr->xtra))
 			{
 	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
         	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
@@ -3204,7 +3202,7 @@ void object_guess_name(object_type *o_ptr)
 			guess2 = i;
 		}
                 /* Hack -- force lowest depth items */
-                else if ((score == high) && (guess2))
+                else if ((score) && (score == high) && (guess2))
                 {
                         ego_item_type *e2_ptr = &e_info[guess2];
 
@@ -3271,7 +3269,7 @@ void object_guess_name(object_type *o_ptr)
                         guess3 = k_ptr->sval+1;
 		}
                 /* Hack -- force lowest depth items */
-                else if ((score == high) && (guess3))
+                else if ((score) && (score == high) && (guess3))
                 {
                         object_kind *k2_ptr = &k_info[lookup_kind(o_ptr->tval,guess3-1)];
 

@@ -28,7 +28,7 @@
  * reminders, not complete descriptions, and even a complete knowledge
  * of the source may not be sufficient to fully understand the effects
  * of changing certain definitions.
- *
+ * 
  * Lastly, note that the code does not always use the symbolic constants
  * below, and sometimes uses various hard-coded values that may not even
  * be defined in this file, but which may be related to definitions here.
@@ -547,7 +547,7 @@
 /*
  * Legal restrictions for "summon_specific()"
  */
-#define SUMMON_ANT                      11
+#define SUMMON_ANIMAL           11
 #define SUMMON_SPIDER           12
 #define SUMMON_HOUND            13
 #define SUMMON_HYDRA            14
@@ -569,7 +569,7 @@
  * Spell types used by project(), and related functions.
  */
 #define GF_NOTHING      0
-#define GF_XXX1                 1
+#define GF_XXX1                1
 #define GF_ARROW        2
 #define GF_MISSILE      3
 #define GF_MANA         4
@@ -618,7 +618,7 @@
 #define GF_DISP_UNDEAD  47
 #define GF_DISP_EVIL    48
 #define GF_DISP_ALL             49
-#define GF_XXX7                 50
+#define GF_XXX7               50
 #define GF_OLD_CLONE    51
 #define GF_OLD_POLY             52
 #define GF_OLD_HEAL             53
@@ -846,7 +846,6 @@
 #define FEAT_ACID_K     159
 #define FEAT_BWATER_FALLS 160
 #define FEAT_LAVA_FALLS 161
-#define FEAT_TREE	162
 
 
 /* Dummy features */
@@ -895,12 +894,22 @@
 #define FEAT_FLOOR_FIRE_T 308
 #define FEAT_FLOOR_ACID_T 309
 
-#define FEAT_CHEST_SW_H 316
-#define FEAT_CHEST_SW   317
+#define FEAT_GROUND 407
+#define FEAT_TREE       419
+#define FEAT_TREE_BIG   420
+#define FEAT_TREE_HIDE  422
+#define FEAT_TREE_APPLE         426
+#define FEAT_TREE_BROKEN        427
+#define FEAT_TREE_SHADE         421
+#define FEAT_TREE_SHADE_C       456
+#define FEAT_TREE_SHADE_W       453
+#define FEAT_TREE_BIG_S         461
+#define FEAT_TREE_SHADE_S       462
 
-#define FEAT_CHEST_LW_H 327
-#define FEAT_CHEST_LW   328
-
+#define FEAT_BUSH       435
+#define FEAT_BUSH_HURT  436
+#define FEAT_BUSH_FOOD  440
+#define FEAT_BUSH_HURT_P 441
 
 /* Level flags - extracted from feature flags */
 #define LF1_WATER 0x01
@@ -997,19 +1006,19 @@
 #define FF3_USE_FEAT    0x00001000
 #define FF3_GET_FEAT    0x00002000
 #define FF3_CAN_HIDE    0x00004000
-#define FF3_HIDE_FLY    0x00008000
+#define FF3_GROUND      0x00008000
 #define FF3_OUTSIDE     0x00010000
 #define FF3_EASY_CLIMB  0x00020000
-#define FF3_HURT_ROOM   0x00040000
+#define FF3_NEED_TREE   0x00040000
 #define FF3_NEED_WALL   0x00080000
 #define FF3_TOWN        0x00100000
-#define FF3_ATTR_FACE   0x00200000
-#define FF3_FACE_EAST   0x00400000
-#define FF3_FACE_WEST   0x00800000
-#define FF3_FACE_NORTH  0x01000000
-#define FF3_FACE_SOUTH  0x02000000
-#define FF3_XXX1        0x04000000
-#define FF3_XXX2        0x08000000
+#define FF3_BLOOD       0x00200000
+#define FF3_DUST        0x00400000
+#define FF3_SLIME       0x00800000
+#define FF3_TREE        0x01000000
+#define FF3_TREE_BIG    0x02000000
+#define FF3_XXX8        0x04000000
+#define FF3_XXX9        0x08000000
 #define FF3_COLLAPSE    0x10000000
 #define FF3_ERUPT       0x20000000
 #define FF3_STRIKE      0x40000000
@@ -1027,8 +1036,9 @@
 #define FS_DISARM       12
 #define FS_ENTER        13
 #define FS_TUNNEL       14
-#define FS_DOOR         18 /* Destroy doors */
-#define FS_TRAP         19 /* Destroy traps */
+#define FS_DOOR         18
+#define FS_TRAP         19
+#define FS_STAIRS       20
 #define FS_GLYPH        21              
 #define FS_LESS         22
 #define FS_MORE         23
@@ -1037,10 +1047,19 @@
 
 #define FS_FLAGS2       32
 #define FS_BRIDGE       32
+#define FS_WATER        39
+#define FS_LAVA         40
+#define FS_SHALLOW      41
+#define FS_DEEP         42
+#define FS_FILLED       43
 #define FS_HURT_ROCK    44
 #define FS_HURT_FIRE    45
 #define FS_HURT_COLD    46
 #define FS_HURT_ACID    47
+#define FS_ACID         48
+#define FS_ICE          49
+#define FS_OIL          50
+#define FS_CHASM        51
 #define FS_KILL_HUGE    62
 #define FS_KILL_MOVE    63
 
@@ -1051,10 +1070,147 @@
 #define FS_HURT_BWATER	75
 #define FS_USE_FEAT	76
 #define FS_GET_FEAT	77
-#define FS_NEED_WALL	84
+#define FS_GROUND       79
+#define FS_TREE         81
+#define FS_NEED_WALL    82
 
 #define FS_FLAGS_END    96
 
+
+/*** Spell flags ***/
+/* Also used for object/artifact effects */
+
+/* SF1 - informational and prompted equipment */
+
+#define SF1_DETECT_DOORS        0x00000001
+#define SF1_DETECT_TRAPS        0x00000002
+#define SF1_DETECT_STAIRS       0x00000004
+#define SF1_DETECT_WATER        0x00000008
+#define SF1_DETECT_GOLD         0x00000010
+#define SF1_DETECT_OBJECT       0x00000020
+#define SF1_DETECT_MAGIC        0x00000040
+#define SF1_DETECT_CURSE        0x00000080
+#define SF1_DETECT_MONSTER      0x00000100
+#define SF1_DETECT_EVIL         0x00000200
+#define SF1_DETECT_INVIS        0x00000400
+#define SF1_DETECT_ANIMAL       0x00000800
+#define SF1_DETECT_UNDEAD       0x00001000
+#define SF1_DETECT_DEMON        0x00002000
+#define SF1_MAP_AREA            0x00004000
+#define SF1_WIZ_LITE            0x00008000
+#define SF1_LITE_ROOM           0x00010000
+#define SF1_DARK_ROOM           0x00020000
+#define SF1_FORGET              0x00040000
+#define SF1_SELF_KNOW           0x00080000
+#define SF1_IDENT               0x00100000
+#define SF1_IDENT_PACK          0x00200000
+#define SF1_IDENT_SENSE         0x00400000
+#define SF1_IDENT_BONUS         0x00800000
+#define SF1_IDENT_RUMOR         0x01000000
+#define SF1_IDENT_FULLY         0x02000000
+#define SF1_ACQUIREMENT          0x04000000
+#define SF1_STAR_ACQUIREMENT     0x08000000
+#define SF1_ENCHANT_TOH         0x10000000
+#define SF1_ENCHANT_TOD         0x20000000
+#define SF1_ENCHANT_TOA         0x40000000
+#define SF1_ENCHANT_HIGH        0x80000000
+
+/* SF2 - timed abilities and modifying level */
+
+#define SF2_AGGRAVATE           0x00000001
+#define SF2_CURSE_WEAPON        0x00000002
+#define SF2_CURSE_ARMOR         0x00000004
+#define SF2_CREATE_STAIR        0x00000008
+#define SF2_TELE_LEVEL          0x00000010
+#define SF2_ALTER_LEVEL         0x00000020
+#define SF2_GENOCIDE            0x00000040
+#define SF2_MASS_GENOCIDE       0x00000080
+#define SF2_CUT                 0x00000100
+#define SF2_STUN                0x00000200
+#define SF2_POISON              0x00000400
+#define SF2_PARALYZE            0x00000800
+#define SF2_HALLUC              0x00001000
+#define SF2_SLOW                0x00002000
+#define SF2_BLIND               0x00004000
+#define SF2_CONFUSE             0x00008000
+#define SF2_FEAR                0x00010000
+#define SF2_INFRA               0x00020000
+#define SF2_HASTE               0x00040000
+#define SF2_HERO                0x00080000
+#define SF2_SHERO               0x00100000
+#define SF2_BLESS               0x00200000
+#define SF2_SHIELD              0x00400000
+#define SF2_INVULN              0x00800000
+#define SF2_SEE_INVIS           0x01000000
+#define SF2_PROT_EVIL           0x02000000
+#define SF2_RECALL              0x04000000
+#define SF2_OPP_FIRE            0x08000000
+#define SF2_OPP_COLD            0x10000000
+#define SF2_OPP_ACID            0x20000000
+#define SF2_OPP_ELEC            0x40000000
+#define SF2_OPP_POIS            0x80000000
+
+/* SF3 - healing self, and untimed improvements */
+
+#define SF3_INC_STR             0x00000001
+#define SF3_INC_INT             0x00000002
+#define SF3_INC_WIS             0x00000004
+#define SF3_INC_DEX             0x00000008
+#define SF3_INC_CON             0x00000010
+#define SF3_INC_CHR             0x00000020
+#define SF3_CURE_STR            0x00000040
+#define SF3_CURE_INT            0x00000080
+#define SF3_CURE_WIS            0x00000100
+#define SF3_CURE_DEX            0x00000200
+#define SF3_CURE_CON            0x00000400
+#define SF3_CURE_CHR            0x00000800
+#define SF3_INC_EXP             0x00001000
+#define SF3_CURE_EXP            0x00002000
+#define SF3_SLOW_MANA           0x00004000
+#define SF3_CURE_MANA           0x00008000
+#define SF3_SLOW_CURSE          0x00010000
+#define SF3_CURE_CURSE          0x00020000
+#define SF3_SLOW_POIS           0x00040000
+#define SF3_CURE_POIS           0x00080000
+#define SF3_SLOW_CUTS           0x00100000
+#define SF3_CURE_CUTS           0x00200000
+#define SF3_CURE_STUN           0x00400000
+#define SF3_CURE_CONF           0x00800000
+#define SF3_CURE_FOOD           0x01000000
+#define SF3_CURE_FEAR           0x02000000
+#define SF3_CURE_BLIND          0x04000000
+#define SF3_DEC_FOOD          	0x08000000
+#define SF3_DEC_EXP             0x10000000
+#define SF3_CONF_HANDS          0x20000000
+#define SF3_HOLD_SONG           0x40000000
+#define SF3_EVIL                0x80000000
+
+#define SPELL_RECHARGE          1
+#define SPELL_IDENT_TVAL        2
+#define SPELL_ENCHANT_TVAL      3
+#define SPELL_BRAND_WEAPON      4
+#define SPELL_BRAND_ARMOR       5
+#define SPELL_WARD_GLYPH        6
+#define SPELL_WARD_TRAP         7
+#define SPELL_SUMMON            8
+#define SPELL_SUMMON_R          9
+#define SPELL_CREATE_TVAL     10
+#define SPELL_CREATE_KIND     11
+#define SPELL_EARTHQUAKE      12
+#define SPELL_DESTRUCTION     13
+#define SPELL_INVEN_WIELD     24
+#define SPELL_INVEN_BOW       25
+#define SPELL_INVEN_LEFT      26
+#define SPELL_INVEN_RIGHT     27
+#define SPELL_INVEN_NECK      28
+#define SPELL_INVEN_LITE      29
+#define SPELL_INVEN_BODY      30
+#define SPELL_INVEN_OUTER     31
+#define SPELL_INVEN_ARM       32
+#define SPELL_INVEN_HEAD      33
+#define SPELL_INVEN_HANDS     34
+#define SPELL_INVEN_FEET      35
+#define SPELL_INVEN_BELT      36
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1310,14 +1466,6 @@
 /* xxx */
 /* xxx */
 /* xxx */
-#define EGO_SLAY_ANIMAL         80
-#define EGO_SLAY_EVIL           81
-#define EGO_SLAY_UNDEAD         82
-#define EGO_SLAY_DEMON          83
-#define EGO_SLAY_ORC            84
-#define EGO_SLAY_TROLL          85
-#define EGO_SLAY_GIANT          86
-#define EGO_SLAY_DRAGON         87
 #define EGO_KILL_ANIMAL         88
 #define EGO_KILL_EVIL           89
 #define EGO_KILL_UNDEAD         90
@@ -1330,6 +1478,7 @@
 /* xxx */
 /* xxx */
 /* xxx */
+#define EGO_BLESS               99
 #define EGO_DIGGING                     100
 /* xxx */
 #define EGO_MORGUL                      102
@@ -1346,14 +1495,14 @@
 /* xxx */
 
 /* Ammo */
-#define EGO_HURT_ANIMAL         112
-#define EGO_HURT_EVIL           113
-#define EGO_HURT_UNDEAD         114
-#define EGO_HURT_DEMON          115
-#define EGO_HURT_ORC            116
-#define EGO_HURT_TROLL          117
-#define EGO_HURT_GIANT          118
-#define EGO_HURT_DRAGON         119
+#define EGO_SLAY_ANIMAL         112
+#define EGO_SLAY_EVIL           113
+#define EGO_SLAY_UNDEAD         114
+#define EGO_SLAY_DEMON          115
+#define EGO_SLAY_ORC            116
+#define EGO_SLAY_TROLL          117
+#define EGO_SLAY_GIANT          118
+#define EGO_SLAY_DRAGON         119
 /* xxx */
 /* xxx */
 #define EGO_FLAME                       122
@@ -1420,7 +1569,6 @@
 #define TV_SCROLL       70
 #define TV_POTION       75
 #define TV_FLASK        77
-#define TV_FEATS	78	/* Handfuls of a feature */
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
@@ -1831,6 +1979,9 @@
 #define SV_SCROLL_ACQUIREMENT                   46
 #define SV_SCROLL_STAR_ACQUIREMENT              47
 #define SV_SCROLL_LEGEND_LORE			48
+#define SV_SCROLL_ENCHANT_ARMOR_BRAND           49
+#define SV_SCROLL_ENCHANT_WEAPON_BRAND          50
+#define SV_SCROLL_ENCHANT_WEAPON_BLESS          51
 
 /* The "sval" codes for TV_POTION and TV_FOUNTAIN */
 #define SV_POTION_WATER                         0
@@ -1982,6 +2133,25 @@
 #define RBM_TRAP        25
 #define RBM_SHOOT       26
 #define RBM_AURA        27
+#define RBM_SELF        28
+#define RBM_ADJACENT    29
+#define RBM_HANDS       30
+#define RBM_MISSILE     31
+#define RBM_BOLT_10     32
+#define RBM_BOLT        33
+#define RBM_BEAM        34
+#define RBM_BLAST       35
+#define RBM_WALL        36
+#define RBM_BALL        37
+#define RBM_CLOUD       38
+#define RBM_STORM       39
+#define RBM_BREATH      40
+#define RBM_AREA        41
+#define RBM_LOS         42
+#define RBM_LINE        43
+#define RBM_AIM         44
+#define RBM_ORB         45
+#define RBM_STAR        46
 
 
 /*** Function flags ***/
@@ -2342,10 +2512,10 @@
 #define TR3_SEE_INVIS           0x00000020L     /* See Invis */
 #define TR3_FREE_ACT            0x00000040L     /* Free action */
 #define TR3_HOLD_LIFE           0x00000080L     /* Hold life */
-#define TR3_XXX1                        0x00000100L
-#define TR3_XXX2                        0x00000200L
-#define TR3_XXX3                        0x00000400L
-#define TR3_XXX4                        0x00000800L
+#define TR3_ESP_ORC                        0x00000100L /* Sense orcs */
+#define TR3_ESP_GIANT                        0x00000200L /* Sense giants */
+#define TR3_ESP_TROLL                        0x00000400L /* Sense trolls */
+#define TR3_ESP_DRAGON                        0x00000800L /* Sense dragons */
 #define TR3_IMPACT                      0x00001000L     /* Earthquake blows */
 #define TR3_TELEPORT            0x00002000L     /* Random teleportation */
 #define TR3_AGGRAVATE           0x00004000L     /* Aggravate monsters */
@@ -2354,8 +2524,8 @@
 #define TR3_IGNORE_ELEC         0x00020000L     /* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE         0x00040000L     /* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD         0x00080000L     /* Item ignores Cold Damage */
-#define TR3_XXX5                0x00100000L     /* (reserved) */
-#define TR3_XXX6                0x00200000L     /* (reserved) */
+#define TR3_ESP_DEMON                0x00100000L     /* Sense demons */
+#define TR3_ESP_UNDEAD                0x00200000L     /* Sense undead */
 #define TR3_BLESSED             0x00400000L     /* Item has been blessed */
 #define TR3_ACTIVATE            0x00800000L     /* Item can be activated */
 #define TR3_INSTA_ART           0x01000000L     /* Item makes an artifact */
@@ -2507,7 +2677,7 @@
 #define RF2_KILL_BODY           0x00200000      /* Monster can kill monsters */
 #define RF2_TAKE_ITEM           0x00400000      /* Monster can pick up items */
 #define RF2_KILL_ITEM           0x00800000      /* Monster can crush items */
-#define RF2_BRAIN_1                     0x01000000
+#define RF2_SNEAKY                      0x01000000 /* Monster hides a lot of actions */
 #define RF2_BRAIN_2                     0x02000000
 #define RF2_BRAIN_3                     0x04000000
 #define RF2_BRAIN_4                     0x08000000
@@ -2647,7 +2817,7 @@
 #define RF6_S_HI_DEMON          0x00020000      /* Summon Greater Demons */
 #define RF6_S_MONSTER           0x00040000      /* Summon Monster */
 #define RF6_S_MONSTERS          0x00080000      /* Summon Monsters */
-#define RF6_S_ANT                       0x00100000      /* Summon Ants */
+#define RF6_S_ANIMAL                       0x00100000      /* Summon Ants */
 #define RF6_S_SPIDER            0x00200000      /* Summon Spiders */
 #define RF6_S_HOUND                     0x00400000      /* Summon Hounds */
 #define RF6_S_HYDRA                     0x00800000      /* Summon Hydras */
@@ -2711,7 +2881,7 @@
 	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
 	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
 	 RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | \
-         RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+         RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
 	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
 	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DEMON | \
 	 RF6_S_WRAITH | RF6_S_UNIQUE)
@@ -2776,7 +2946,7 @@
 	(0L)
 
 #define RF6_SUMMON_MASK \
-	(RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+        (RF6_S_KIN | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | \
 	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
 	 RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
 	 RF6_S_HI_DEMON | RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
@@ -3469,8 +3639,7 @@
  * Line 6 -- forbid player/monsters
  */
 #define cave_naked_bold(Y,X) \
-	((f_info[cave_feat[Y][X]].flags1 & (FF1_FLOOR)) && \
-	 (f_info[cave_feat[Y][X]].flags1 & (FF1_PLACE)) && \
+        ((f_info[cave_feat[Y][X]].flags1 & (FF1_PLACE)) && \
 	 (f_info[cave_feat[Y][X]].flags1 & (FF1_DROP)) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
 	 (cave_o_idx[Y][X] == 0) && \

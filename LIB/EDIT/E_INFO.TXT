@@ -613,7 +613,7 @@ F:STEALTH | FREE_ACT | SEE_INVIS | FEATHER | REGEN | SLAY_EVIL |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:66:(Blessed)
+N:66:(*Blessed*)
 X:24:20:2
 W:0:10:0:5000
 C:0:0:0:3
@@ -741,13 +741,11 @@ T:22:0:99
 T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD | STR
 
-# The "Slay" weapons (8)
-
-# Heavily discounted, so they might be purchased and used at low levels.
+# The "Slay" weapons (8) have been removed almost completely (rarity 1000)
 
 N:80:of Slay Animal
 X:24:18:0
-W:0:6:0:600
+W:0:100:0:300
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -755,7 +753,7 @@ F:SLAY_ANIMAL
 
 N:81:of Slay Evil
 X:24:18:0
-W:0:6:0:600
+W:0:100:0:300
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -763,7 +761,7 @@ F:SLAY_EVIL
 
 N:82:of Slay Undead
 X:24:18:0
-W:0:6:0:700
+W:0:100:0:350
 T:21:0:18
 T:22:0:99
 T:23:0:99
@@ -771,7 +769,7 @@ F:SLAY_UNDEAD
 
 N:83:of Slay Demon
 X:24:14:0
-W:0:6:0:700
+W:0:100:0:350
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -779,7 +777,7 @@ F:SLAY_DEMON
 
 N:84:of Slay Orc
 X:24:10:0
-W:0:6:0:500
+W:0:100:0:250
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -787,7 +785,7 @@ F:SLAY_ORC
 
 N:85:of Slay Troll
 X:24:10:0
-W:0:6:0:500
+W:0:100:0:250
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -795,7 +793,7 @@ F:SLAY_TROLL
 
 N:86:of Slay Giant
 X:24:14:0
-W:0:6:0:500
+W:0:100:0:250
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -803,11 +801,12 @@ F:SLAY_GIANT
 
 N:87:of Slay Dragon
 X:24:18:0
-W:0:6:0:700
+W:0:100:0:350
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_DRAGON
+
 
 # The *Slay* weapons (8)
 
@@ -836,7 +835,7 @@ C:0:0:0:2
 T:21:0:18
 T:22:0:99
 T:23:0:99
-F:KILL_UNDEAD | WIS | SEE_INVIS
+F:KILL_UNDEAD | WIS | SEE_INVIS | ESP_UNDEAD
 
 N:91:of *Slay Demon*
 X:24:16:0
@@ -845,7 +844,7 @@ C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:KILL_DEMON | INT | RES_FIRE
+F:KILL_DEMON | INT | RES_FIRE | ESP_DEMON
 
 N:92:of *Slay Orc*
 X:24:14:0
@@ -854,7 +853,7 @@ C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:DEX | SLAY_ORC | SUST_DEX
+F:DEX | SLAY_ORC | SUST_DEX | ESP_ORC
 
 N:93:of *Slay Troll*
 X:24:14:0
@@ -863,7 +862,7 @@ C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STR | SLAY_TROLL | REGEN
+F:STR | SLAY_TROLL | REGEN | ESP_TROLL
 
 N:94:of *Slay Giant*
 X:24:16:0
@@ -872,7 +871,7 @@ C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STR | SLAY_GIANT | SUST_STR
+F:STR | SLAY_GIANT | SUST_STR | ESP_GIANT
 
 N:95:of *Slay Dragon*
 X:24:24:0
@@ -881,9 +880,9 @@ C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:CON | KILL_DRAGON | RES_FEAR
+F:CON | KILL_DRAGON | RES_FEAR | ESP_DRAGON
 
-N:96:(Enchanted)
+N:96:(*Enchanted*)
 X:24:20:3
 W:0:10:0:5000
 C:0:0:0:3
@@ -901,7 +900,15 @@ T:22:0:99
 T:23:0:99
 F:BRAND_POIS | RES_POIS | CON
 
-# 99 (unused)
+N:99:(Blessed)
+X:24:20:0
+W:0:4:0:300
+C:0:0:0:0
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BLESSED
+
 
 ### Digging Tools
 
@@ -989,7 +996,6 @@ W:127:1:0:0
 C:10:10:0:0
 T:19:0:99
 F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS
-
 
 ### Ammo ###
 

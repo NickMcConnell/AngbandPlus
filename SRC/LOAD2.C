@@ -354,8 +354,8 @@ static byte convert_ego_item[128] =
 	0,					/* 41 */
 	0,					/* 42 */
 	EGO_BRAND_FIRE,		/* 43 = EGO_FIRE (XXX) */
-	EGO_HURT_EVIL,		/* 44 = EGO_AMMO_EVIL */
-	EGO_HURT_DRAGON,	/* 45 = EGO_AMMO_DRAGON */
+        EGO_SLAY_EVIL,          /* 44 = EGO_AMMO_EVIL */
+        EGO_SLAY_DRAGON,        /* 45 = EGO_AMMO_DRAGON */
 	0,					/* 46 */
 	0,					/* 47 */
 	0,					/* 48 */
@@ -365,7 +365,7 @@ static byte convert_ego_item[128] =
 	EGO_FROST,			/* 52 = EGO_AMMO_SLAYING */
 	0,					/* 53 */
 	0,					/* 54 */
-	EGO_HURT_ANIMAL,	/* 55 = EGO_AMMO_ANIMAL */
+        EGO_SLAY_ANIMAL,        /* 55 = EGO_AMMO_ANIMAL */
 	0,					/* 56 */
 	0,					/* 57 */
 	0,					/* 58 */
@@ -695,15 +695,15 @@ static void rd_item(object_type *o_ptr)
 			}
 			else if (o_ptr->name2 == EGO_SLAY_ANIMAL)
 			{
-				o_ptr->name2 = EGO_HURT_ANIMAL;
+                                o_ptr->name2 = EGO_SLAY_ANIMAL;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_EVIL)
 			{
-				o_ptr->name2 = EGO_HURT_EVIL;
+                                o_ptr->name2 = EGO_SLAY_EVIL;
 			}
 			else if (o_ptr->name2 == EGO_SLAY_DRAGON)
 			{
-				o_ptr->name2 = EGO_HURT_DRAGON;
+                                o_ptr->name2 = EGO_SLAY_DRAGON;
 			}
 		}
 

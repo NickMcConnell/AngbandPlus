@@ -521,11 +521,10 @@ static void process_world(void)
 		}
 	}
 
-
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
-	if (p_ptr->depth==min_depth(p_ptr->dungeon))
+        if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
 		/* Hack -- Daybreak/Nighfall in town */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
@@ -540,6 +539,7 @@ static void process_world(void)
 			{
 				/* Message */
 				msg_print("The sun has risen.");
+
 			}
 
 			/* Night falls */
@@ -2572,7 +2572,6 @@ static void dungeon(void)
 	/* Not leaving */
 	p_ptr->leaving = FALSE;
 
-
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
 	p_ptr->command_new = 0;
@@ -3099,6 +3098,7 @@ void play_game(bool new_game)
 
 		/* Hack -- enter the world */
 		turn = 1;
+
 	}
 
 	/* Normal machine (process player name) */

@@ -876,6 +876,9 @@ void py_pickup(int pickup)
 		/* Get the object */
 		o_ptr = &o_list[this_o_idx];
 
+                /* Mark the object */
+                o_ptr->marked = TRUE;
+
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
 
@@ -1560,6 +1563,7 @@ void move_player(int dir, int jumping)
 	         (cave_info[y][x] & (CAVE_MARK)) &&
                  ( (f_ptr->flags1 & (FF1_DISARM)) ||
                  ( !(f_ptr->flags1 & (FF1_MOVE)) &&
+                 !(f_ptr->flags3 & (FF3_EASY_CLIMB)) && 
                  ( (f_ptr->flags1 & (FF1_BASH)) ||               
                    (f_ptr->flags1 & (FF1_OPEN)) ))))
 	{
@@ -1584,7 +1588,10 @@ void move_player(int dir, int jumping)
 #endif /* ALLOW_EASY_ALTER */
 
 	/* Player can not walk through "walls" */
-	else if (!(f_ptr->flags1 & (FF1_MOVE)) || (f_ptr->flags2 & (FF2_FILLED)))
+        /* Also cannot climb over unknown "trees/rubble" */
+        else if (!(f_ptr->flags1 & (FF1_MOVE))
+                && (!(f_ptr->flags3 & (FF3_EASY_CLIMB))
+                        || !(cave_info[y][x] & (CAVE_MARK))))
 	{
 		/* Disturb the player */
 		disturb(0, 0);

@@ -1,3 +1,44 @@
+02-01-2001 Unangband 0.4.7c Bugfix release
+- Race specific ESP has been implemented, added to
+the high slay weapons and the occasional artifact.
+- Slayers and killers occasionally sense monsters
+that they get bonuses against.
+- The low slay weapons were removed because they
+were not useful enough.
+- Some staffs give you abilities while wielded...
+they are also fairly good weapons (1d6, 5 lbs),
+not much worse than whips. You'll have to enchant
+them up yourself though.
+- A lot of internal tidy up to do with features.
+- And a lot more features.
+- Glowing players now have radius 2 light.
+- Improved boundary condition checking for wand/staff
+charges (Reported by Larry Bassel).
+- Goblin wizard was wrong graphic (Reported by Larry
+Bassel).
+- Brand weapon/bless weapon/enchant weapon to resist
+allowed a lot earlier, in fact before similar enchant
+weapon/armor spells. This is because they can only
+be used once per weapon/armor and not on ego equipment.
+- Created scrolls of brand weapon/armor/bless weapon.
+- Bard hold songs not aborted if they cast another
+spell. However they still have the option to abort if
+they try to cast a spell (Idea from Pernband). This
+allows them to do one powerful spell and keep back-
+ground singing.
+- Fixed multiple problems with spell list display
+including issues with displaying specialist spells
+as difficult even when learnt (Reported by Larry
+Bassel).
+- Update s_info.txt file to include spell definitions.
+This will be expanded to include object powers
+and activations in the next release.
+- Was always guessing an item/ego item, if we
+had made a guess for the item. This would overwrite
+existing guesses (Reported by Larry Bassel).
+- We were allowing hands to be generated for any
+monster.
+
 27-12-2001 Unangband 0.4.7b Bugfix release
 - Fixed long-standing bug in lake generation routine
 that was cause of significant crashes in previous

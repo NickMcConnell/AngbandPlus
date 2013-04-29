@@ -190,7 +190,6 @@
 # HURT_ELEC:    Destroyed by electricity.
 # HURT_WATER:   Destroyed by water/lava/bwater (But not weak water).
 # HURT_BWATER:	Destroyed by steam & fire balls/bolts/breath.
-# CAN_HIDE:     Monsters with CAN_HIDE/player can hide in this location.
 # USE_FEAT:     Use object from floor.
 # GET_FEAT:     Get object from floor.
 # HIDE_FLY:	Hide climbers/flyers unless adjacent.
@@ -198,19 +197,10 @@
 # OUTSIDE:      Climbers/flyers treated automatically HIDE on town level
 # unless player is on an OUTSIDE location or climbing. Only locations with
 # this flag are lit during daytime, and darken at night.
-# EASY_CLIMB:   If moved from OUTSIDE to inside, set MFLAG_OVER or start
-# climbing. If player is climbing, and moved from inside to OUTSIDE, stop
-# climbing. Also stop climbing if not flyer/climber.
-# HURT_ROOM:	Remove from locations next to rooms.
+# CAN_HIDE:    Monsters and player can hide in this location.
+# EASY_CLIMB:   Monsters and player can climb this location.
 # NEED_WALL:	If next to an OUTSIDE location, needs at least one non NEED_WALL
 # location next to it, otherwise it is destroyed.
-# ATTR_FACE: 	If using extended colour attributes, make FACE_NORTH
-# squares one colour lighter, FACE_EAST & WEST squares the same colour, and
-# FACE_SOUTH squares one colour darker.
-# FACE_EAST:	Can open/disarm freely from specified direction.
-# FACE_WEST:	Can open/disarm freely from specified direction.
-# FACE_NORTH:	Can open/disarm freely from specified direction.
-# FACE_SOUTH:	Can open/disarm freely from specified direction.
 # COLLAPSE:     Destroy feature if adjacent feature is destroyed.
 # ERUPT:	Erupt as radius 2 ball spell of blow type occasionally.
 # STRIKE:	Erupt as bolt/beam spell of blow type occasionally.
@@ -407,8 +397,10 @@ F:LOS
 
 N:1:open floor
 G:.:w
-W:24:10:15:0
+U:56
+W:24:1:15:0
 K:DEFAULT:1
+K:CHASM:141
 F:LOS | MOVE | PROJECT | PLACE | DROP | LAKE | ATTR_LITE |
 F:CAN_CLIMB | CAN_FLY | FLOOR | RUN
 
@@ -418,6 +410,7 @@ F:CAN_CLIMB | CAN_FLY | FLOOR | RUN
 N:2:invisible trap
 G:x:D
 M:1
+U:56
 W:1:1:5:0
 D:You have found a trap.
 K:DEFAULT:1
@@ -427,6 +420,7 @@ F:CAN_CLIMB | CAN_FLY | RUN | HIT_TRAP
 # 0x03 --> glyph of warding
 N:3:glyph of warding
 G:;:y
+U:56
 W:0:1:20:0
 K:DEFAULT:1
 F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLYPH | CAN_CLIMB
@@ -434,6 +428,7 @@ F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLYPH | CAN_CLIMB
 # 0x04 --> open door
 N:4:open door
 G:':U
+U:56
 W:1:1:15:0
 K:DEFAULT:1
 K:CLOSE:32
@@ -445,6 +440,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 N:5:broken door
 G:':u
+U:56
 W:1:1:15:0
 K:DEFAULT:1
 K:CLOSE:5
@@ -456,6 +452,7 @@ F:HURT_ACID | CLOSE | PLACE | CAN_FLY
 
 N:6:up staircase
 G:<:w
+U:56
 W:1:1:25:0
 F:LESS | STAIRS | PERMANENT | CAN_CLIMB | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE | CAN_FLY
@@ -464,6 +461,7 @@ F:REMEMBER | NOTICE | PLACE | CAN_FLY
 
 N:7:down staircase
 W:0:1:25:0
+#U:56
 G:>:w
 F:MORE | STAIRS | PERMANENT | CAN_CLIMB | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE | CAN_FLY
@@ -527,6 +525,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 # 0x10 --> visible trap -- trap door
 
 N:16:trap door
+U:56
 G:^:w
 W:5:1:20:0
 T:FALL_MORE:6d6
@@ -540,6 +539,7 @@ F:POWER_5
 # 0x11 --> visible trap -- open pit
 
 N:17:pit
+U:56
 G:^:s
 W:1:1:20:0
 T:FALL:2d6
@@ -553,6 +553,7 @@ F:POWER_5
 # 0x12 --> visible trap -- spiked pit
 
 N:18:pit
+U:56
 G:^:s
 W:3:1:20:0
 T:FALL_SPIKE:4d6
@@ -566,6 +567,7 @@ F:POWER_5
 # 0x13 --> visible trap -- poison pit
 
 N:19:pit
+U:56
 G:^:s
 W:4:1:20:0
 T:FALL_POISON:4d6
@@ -579,6 +581,7 @@ F:POWER_5
 # 0x14 --> visible trap -- rune -- summon
 
 N:20:strange rune
+U:56
 G:^:o
 W:6:1:20:0
 S:S_MONSTERS
@@ -591,6 +594,7 @@ F:POWER_6
 # 0x15 --> visible trap -- rune -- teleport
 
 N:21:strange rune
+U:56
 G:^:o
 W:2:1:20:0
 S:TELE_AWAY
@@ -605,6 +609,7 @@ F:POWER_5
 # 0x16 --> visible trap -- spot -- fire
 
 N:22:discolored spot
+U:56
 G:^:u
 W:4:1:20:0
 T:FIRE:4d6
@@ -617,6 +622,7 @@ F:POWER_5
 # 0x17 --> visible trap -- spot -- acid
 
 N:23:discolored spot
+U:56
 G:^:u
 W:4:1:20:0
 T:ACID:4d6z
@@ -629,6 +635,7 @@ F:POWER_5
 # 0x18 --> visible trap -- dart -- slow
 
 N:24:dart trap
+U:56
 G:^:r
 W:1:1:20:0
 T:SLOW:1d4
@@ -642,6 +649,7 @@ F:POWER_5
 # 0x19 --> visible trap -- dart -- lose str
 
 N:25:dart trap
+U:56
 G:^:r
 W:2:1:20:0
 T:LOSE_STR:1d4
@@ -656,6 +664,7 @@ F:POWER_5
 # 0x1A --> visible trap -- dart -- lose dex
 
 N:26:dart trap
+U:56
 G:^:r
 W:3:1:20:0
 T:LOSE_DEX:1d4
@@ -670,6 +679,7 @@ F:POWER_5
 # 0x1B --> visible trap -- dart -- lose con
 
 N:27:dart trap
+U:56
 G:^:r
 W:4:1:20:0
 T:LOSE_CON:1d4
@@ -684,6 +694,7 @@ F:POWER_5
 # 0x1C --> visible trap -- gas -- blind
 
 N:28:gas trap
+U:56
 G:^:g
 W:2:1:20:0
 T:BLIND
@@ -698,6 +709,7 @@ F:POWER_5
 # 0x1D --> visible trap -- gas -- confuse
 
 N:29:gas trap
+U:56
 G:^:g
 W:1:1:20:0
 T:CONFUSE
@@ -712,6 +724,7 @@ F:POWER_5
 # 0x1E --> visible trap -- gas -- poison
 
 N:30:gas trap
+U:56
 G:^:g
 W:3:1:20:0
 T:POISON
@@ -726,6 +739,7 @@ F:POWER_5
 # 0x1F --> visible trap -- gas -- sleep
 
 N:31:gas trap
+U:56
 G:^:g
 W:4:1:20:0
 T:PARALYZE
@@ -739,6 +753,7 @@ F:POWER_5
 # 0x2x --> locked door (power 0)
 
 N:32:door
+U:56
 G:+:U
 W:1:1:17:0
 M:32
@@ -754,6 +769,7 @@ F:POWER_0
 # 0x2x --> locked door (power 1)
 
 N:33:locked door
+U:56
 G:+:U
 W:1:1:17:0
 M:32
@@ -769,6 +785,7 @@ F:POWER_1
 # 0x2x --> locked door (power 2)
 
 N:34:locked door
+U:56
 G:+:U
 W:2:1:17:0
 M:32
@@ -784,6 +801,7 @@ F:POWER_2 |
 # 0x2x --> locked door (power 3)
 
 N:35:locked door
+U:56
 G:+:U
 W:3:1:17:0
 M:32
@@ -799,6 +817,7 @@ F:POWER_3
 # 0x2x --> locked door (power 4)
 
 N:36:locked door
+U:56
 G:+:U
 W:4:1:17:0
 M:32
@@ -815,6 +834,7 @@ F:POWER_4
 # 0x2x --> locked door (power 5)
 
 N:37:locked door
+U:56
 G:+:U
 W:5:1:17:0
 M:32
@@ -831,6 +851,7 @@ F:POWER_5
 # 0x2x --> locked door (power 6)
 
 N:38:locked door
+U:56
 G:+:U
 W:6:1:17:0
 M:32
@@ -846,6 +867,7 @@ F:POWER_6
 # 0x2x --> locked door (power 7)
 
 N:39:locked door
+U:56
 G:+:U
 W:7:1:17:0
 M:32
@@ -866,6 +888,7 @@ F:POWER_7
 # 0x2x --> jammed door (hidden)
 
 N:40:jammed door
+U:56
 G:+:U
 W:2:1:17:0
 M:32
@@ -879,6 +902,7 @@ F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB
 # 0x2x --> jammed door (power 1)
 
 N:41:jammed door
+U:56
 G:+:u
 W:2:1:17:0
 K:DEFAULT:1
@@ -892,6 +916,7 @@ F:POWER_1
 # 0x2x --> jammed door (power 2)
 
 N:42:jammed door
+U:56
 G:+:u
 W:3:1:17:0
 K:DEFAULT:1
@@ -905,6 +930,7 @@ F:POWER_2
 # 0x2x --> jammed door (power 3)
 
 N:43:jammed door
+U:56
 G:+:u
 W:4:1:17:0
 K:DEFAULT:1
@@ -918,6 +944,7 @@ F:POWER_3
 # 0x2x --> jammed door (power 4)
 
 N:44:jammed door
+U:56
 G:+:u
 W:5:1:17:0
 K:DEFAULT:1
@@ -931,6 +958,7 @@ F:POWER_4
 # 0x2x --> jammed door (power 5)
 
 N:45:jammed door
+U:56
 G:+:u
 W:6:1:17:0
 K:DEFAULT:1
@@ -944,6 +972,7 @@ F:POWER_5
 # 0x2x --> jammed door (power 6)
 
 N:46:jammed door
+U:56
 G:+:u
 W:7:1:17:0
 K:DEFAULT:1
@@ -957,6 +986,7 @@ F:POWER_6
 # 0x2x --> jammed door (power 7)
 
 N:47:jammed door
+U:56
 G:+:u
 W:8:1:17:0
 K:DEFAULT:1
@@ -970,6 +1000,7 @@ F:POWER_7
 # 0x30 --> secret door
 
 N:48:secret door
+U:56
 W:2:1:10:0
 G:#:w
 M:56
@@ -987,15 +1018,18 @@ N:49:pile of rubble
 G:::w
 W:1:1:13:0
 K:DEFAULT:1
-F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG | ALLOC |
-F:REMEMBER | HURT_ROCK | CAN_CLIMB | POWER_10
+F:TUNNEL | CAN_PASS | CAN_TINY | CAN_DIG | ALLOC | EASY_CLIMB |
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | POWER_10 | OUTSIDE
+F:PLACE | DROP
 
 # 0x32 --> magma vein
 
 N:50:magma vein
+U:56
 W:15:8:12:0
 G:%:s
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | CAN_PASS | STREAMER | LAKE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_10
@@ -1004,9 +1038,11 @@ F:POWER_10
 # 0x33 --> quartz vein
 
 N:51:quartz vein
+U:56
 W:4:6:11:0
 G:%:w
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | CAN_PASS | STREAMER |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | LAKE |
 F:POWER_20
@@ -1015,6 +1051,7 @@ F:POWER_20
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
+U:56
 W:5:1:12:0
 G:%:s
 M:50
@@ -1027,6 +1064,7 @@ F:POWER_10
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
+U:56
 W:1:1:11:0
 G:%:w
 M:51
@@ -1040,6 +1078,7 @@ F:POWER_20
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
+U:56
 W:5:1:19:0
 G:*:o
 K:DEFAULT:1
@@ -1050,6 +1089,7 @@ F:POWER_10
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
+U:56
 W:1:1:19:0
 G:*:o
 K:DEFAULT:1
@@ -1061,9 +1101,11 @@ F:POWER_20
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
+U:56
 W:1:1:10:0
 G:#:w
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | CAN_PASS | LAKE | ATTR_LITE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
@@ -1074,12 +1116,12 @@ N:57:granite wall
 W:1:1:10:0
 G:#:w
 M:56
+U:56
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | INNER | CAN_PASS | ATTR_LITE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
-
-
 
 # 0x3A --> granite wall -- outer
 
@@ -1087,12 +1129,12 @@ N:58:granite wall
 W:1:1:10:0
 G:#:w
 M:56
+U:56
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | OUTER | CAN_PASS | ATTR_LITE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
-
-
 
 # 0x3B --> granite wall -- solid
 
@@ -1100,7 +1142,9 @@ N:59:granite wall
 W:1:1:10:0
 G:#:w
 M:56
+U:56
 K:DEFAULT:1
+K:CHASM:141
 F:TUNNEL | WALL | SOLID | CAN_PASS | ATTR_LITE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB |
 F:POWER_40
@@ -1112,6 +1156,7 @@ N:60:permanent wall
 W:0:1:10:0
 G:#:w
 M:56
+U:56
 D:This seems to be permanent rock.
 F:TUNNEL | WALL | PERMANENT | REMEMBER | CAN_CLIMB | ATTR_LITE
 
@@ -1122,6 +1167,7 @@ N:61:permanent wall
 G:#:w
 W:0:1:10:0
 M:56
+U:56
 D:This seems to be permanent rock.
 F:TUNNEL | WALL | INNER | PERMANENT | REMEMBER | CAN_CLIMB |  ATTR_LITE
 
@@ -1132,6 +1178,7 @@ N:62:permanent wall
 W:0:1:10:0
 G:#:w
 M:56
+U:56
 D:This seems to be permanent rock.
 F:TUNNEL | WALL | PERMANENT | OUTER | REMEMBER | CAN_CLIMB | ATTR_LITE
 
@@ -1141,10 +1188,12 @@ N:63:permanent wall
 G:#:w
 W:0:1:10:0
 M:56
+U:56
 D:This seems to be permanent rock.
 F:TUNNEL | WALL | PERMANENT | SOLID | REMEMBER | CAN_CLIMB | ATTR_LITE
 
 N:64:pit
+U:56
 G:^:s
 W:5:2:20:0
 T:FALL:6d6
@@ -1157,6 +1206,7 @@ F:CAN_CLIMB | CAN_FLY | DISARM |
 F:POWER_5
 
 N:65:pit
+U:56
 G:^:s
 W:11:2:20:0
 K:DEFAULT:1
@@ -1169,6 +1219,7 @@ F:CAN_CLIMB | CAN_FLY | DISARM |
 F:POWER_11
 
 N:66:pit
+U:56
 G:^:s
 W:13:2:20:0
 T:FALL_POISON:12d6
@@ -1181,6 +1232,7 @@ F:CAN_CLIMB | CAN_FLY | DISARM |
 F:POWER_13
 
 N:67:strange rune
+U:56
 G:^:o
 W:12:2:20:0
 K:DEFAULT:1
@@ -1192,6 +1244,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_12
 
 N:68:strange rune
+U:56
 G:^:o
 W:18:2:20:0
 K:DEFAULT:1
@@ -1203,6 +1256,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_18
 
 N:69:strange rune
+U:56
 G:^:o
 W:24:2:20:0
 K:DEFAULT:1
@@ -1217,30 +1271,33 @@ F:POWER_24
 # --> visible trap -- stone idol
 
 N:70:stone idol
+U:56
 G:^:W
 W:2:2:20:0
 T:TERRIFY
 D:It gazes at you.
 K:DEFAULT:1
 K:HIT_TRAP:70
-F:TRAP | HIT_TRAP | DISARM  | LOS | MOVE | PROJECT |
+F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:71:stone idol
+U:56
 G:^:W
 W:3:2:20:0
 T:LOSE_CHR
 D:It gazes at you.
 K:DEFAULT:1
 K:HIT_TRAP:71
-F:TRAP | HIT_TRAP | DISARM  | LOS | MOVE | PROJECT |
+F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:72:stone idol
+U:56
 G:^:W
 W:4:2:20:0
 T:LOSE_WIS
@@ -1252,6 +1309,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:POWER_5
 
 N:73:stone idol
+U:56
 G:^:W
 W:5:2:20:0
 T:LOSE_INT
@@ -1264,6 +1322,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:74:stone idol
+U:56
 G:^:W
 W:10:2:20:0
 D:It gazes at you.
@@ -1276,6 +1335,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_10
 
 N:75:stone idol
+U:56
 G:^:W
 W:15:2:20:0
 D:It gazes at you.
@@ -1288,6 +1348,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_15
 
 N:76:stone idol
+U:56
 G:^:W
 W:20:2:20:0
 D:It gazes at you.
@@ -1303,6 +1364,7 @@ F:POWER_20
 # ---> visible trap -- tripwire
 
 N:77:tripwire
+U:56
 G:^:y
 W:2:2:20:0
 K:DEFAULT:1
@@ -1313,8 +1375,8 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-
 N:78:tripwire
+U:56
 G:^:y
 W:4:2:20:0
 T:ELEC:4d6
@@ -1326,6 +1388,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:79:tripwire
+U:56
 G:^:y
 W:6:2:20:0
 T:UN_BONUS
@@ -1337,6 +1400,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_6
 
 N:80:tripwire
+U:56
 G:^:y
 W:8:2:20:0
 T:UN_POWER
@@ -1350,6 +1414,7 @@ F:POWER_8
 # ---> visible trap -- magic symbol
 
 N:81:magic symbol
+U:56
 G:^:B
 W:2:3:20:0
 T:EAT_FOOD
@@ -1361,6 +1426,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:82:magic symbol
+U:56
 G:^:B
 W:3:3:20:0
 T:EAT_LITE
@@ -1372,6 +1438,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:83:magic symbol
+U:56
 G:^:B
 W:8:3:20:0
 T:HURT:20d1
@@ -1383,6 +1450,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_8
 
 N:84:magic symbol
+U:56
 G:^:B
 W:5:3:20:0
 T:EAT_GOLD
@@ -1394,6 +1462,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:85:magic symbol
+U:56
 G:^:B
 W:6:3:20:0
 T:EAT_ITEM
@@ -1407,6 +1476,7 @@ F:POWER_6
 # ---> visible trap -- eldritch sign
 
 N:86:eldritch sign
+U:56
 G:^:G
 W:2:3:20:0
 S:DARKNESS
@@ -1419,6 +1489,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_2
 
 N:87:eldritch sign
+U:56
 G:^:G
 W:4:3:20:0
 S:FORGET
@@ -1431,6 +1502,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
 N:88:eldritch sign
+U:56
 G:^:G
 W:8:3:20:0
 S:DRAIN_MANA
@@ -1443,6 +1515,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_8
 
 N:89:eldritch sign
+U:56
 G:^:G
 W:16:3:20:0
 S:MIND_BLAST
@@ -1455,6 +1528,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_16
 
 N:90:eldritch sign
+U:56
 G:^:G
 W:24:3:20:0
 S:BRAIN_SMASH
@@ -1470,6 +1544,7 @@ F:POWER_24
 # ---> visible trap -- arrow trap
 
 N:91:arrow trap
+U:56
 G:^:R
 W:2:1:20:0
 T:ARROW:1d6
@@ -1483,6 +1558,7 @@ F:POWER_5
 
 
 N:92:arrow trap
+U:56
 G:^:R
 W:5:1:20:0
 T:ARROW:3d6
@@ -1494,8 +1570,8 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-
 N:93:arrow trap
+U:56
 G:^:R
 W:8:1:20:0
 T:ARROW:5d6
@@ -1508,6 +1584,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_8
 
 N:94:arrow trap
+U:56
 G:^:R
 W:11:1:20:0
 T:ARROW:7d6
@@ -1522,6 +1599,7 @@ F:POWER_11
 # -> visible trap -- loose rock -- no effect
 
 N:95:loose rock
+U:56
 G:^:v
 W:3:1:20:0
 D:You hear a click!
@@ -1544,8 +1622,10 @@ K:DEFAULT:1
 K:SECRET:97
 K:GET_FEAT:96
 O:82
-F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG | GET_FEAT |
+F:TUNNEL | CAN_PASS | CAN_TINY | CAN_DIG | GET_FEAT | OUTSIDE |
+F:EASY_CLIMB |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM | SECRET
+F:PLACE | DROP
 
 # 0xxx --> pile of rubble (known item)
 
@@ -1555,12 +1635,15 @@ G:*:w
 K:DEFAULT:1
 K:GET_FEAT:97
 O:82
-F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | HIDE_DIG | GET_FEAT |
+F:TUNNEL | CAN_PASS | CAN_TINY | CAN_DIG | GET_FEAT | OUTSIDE |
+F:EASY_CLIMB |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | HIDE_ITEM | POWER_10 | HAS_ITEM 
+F:PLACE | DROP
 
 # trapped door (undetected) - treat as closed door
 
 N:98:trapped door
+U:56
 G:+:U
 W:11:3:17:0
 M:32
@@ -1575,6 +1658,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:99:trapped door (trap door)
+U:56
 G:+:w
 W:15:9:20:0
 K:DEFAULT:1
@@ -1587,6 +1671,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:100:trapped door (pit)
+U:56
 G:+:s
 W:11:3:20:0
 K:DEFAULT:1
@@ -1599,6 +1684,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:101:trapped door (strange rune)
+U:56
 G:+:o
 W:16:3:20:0
 K:DEFAULT:1
@@ -1611,6 +1697,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:102:trapped door (stone idol)
+U:56
 G:+:W
 W:22:10:20:0
 K:DEFAULT:1
@@ -1623,6 +1710,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:103:trapped door (tripwire)
+U:56
 G:+:y
 W:13:10:20:0
 K:DEFAULT:1
@@ -1635,6 +1723,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:104:trapped door (magic symbol)
+U:56
 G:+:B
 W:14:11:20:0
 K:DEFAULT:1
@@ -1647,6 +1736,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:105:trapped door (eldritch sign)
+U:56
 G:+:G
 W:18:11:20:0
 K:DEFAULT:1
@@ -1659,6 +1749,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:106:trapped door (arrow trap)
+U:56
 G:+:R
 W:12:9:20:0
 K:DEFAULT:1
@@ -1671,6 +1762,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:107:trapped door (loose rock)
+U:56
 G:+:v
 W:13:9:20:0
 K:DEFAULT:1
@@ -1683,6 +1775,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:108:trapped door (discoloured spot)
+U:56
 G:+:u
 W:12:9:20:0
 K:DEFAULT:1
@@ -1695,6 +1788,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:109:trapped door (dart trap)
+U:56
 G:+:r
 W:11:1:20:0
 K:DEFAULT:1
@@ -1707,6 +1801,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:110:trapped door (gas trap)
+U:56
 G:+:g
 W:13:9:20:0
 K:DEFAULT:1
@@ -1719,25 +1814,31 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
 N:111:limestone features
+U:56
 G:%:W
 W:3:3:11:0
 K:DEFAULT:1
+K:CHASM:141
 F:WALL | STREAMER | CAN_CLIMB | TUNNEL | CAN_PASS | LAKE | WATER |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | POWER_4
 
 N:112:sandstone
+U:56
 G:%:y
 W:3:2:11:0
 K:DEFAULT:1
+K:CHASM:141
 F:WALL | STREAMER | CAN_CLIMB | TUNNEL | CAN_PASS | 
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | LAKE | POWER_8
 
 N:113:cracked granite wall
+U:56
 G:%:w
 W:3:3:12:0
 K:DEFAULT:1
+K:CHASM:141
 F:WALL | CAN_TINY | STREAMER | CAN_PASS | ATTR_LITE |
-F:HURT_ROCK | CAN_CLIMB | TUNNEL | CAN_CLIMB  | BRIDGE | LAKE
+F:HURT_ROCK | CAN_CLIMB | TUNNEL | CAN_CLIMB | BRIDGE | LAKE
 F:REMEMBER |
 F:POWER_20
 
@@ -1745,15 +1846,18 @@ N:114:earth
 G:#:u
 W:1:2:12:0
 K:DEFAULT:135
+K:CHASM:141
 F:WALL | TUNNEL | CAN_PASS | CAN_DIG | LAKE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE |
 F:POWER_5
 
 N:115:cracked ice wall
 G:%:B
+U:148
 W:30:12:12:0
 T:ICE:4d4
 K:DEFAULT:145
+K:CHASM:125
 F:WALL | CAN_TINY | STREAMER | CAN_PASS |
 F:TUNNEL |
 F:REMEMBER | ICE | HIT_TRAP |
@@ -1761,9 +1865,11 @@ F:POWER_16
 
 N:116:cracked ice wall over a geothermal floor
 G:%:B
+U:148
 M:115
 W:30:2:12:0
 K:DEFAULT:209
+K:CHASM:125
 K:SECRET:117
 T:ICE:4d4
 F:WALL | STREAMER | TUNNEL | REMEMBER | CAN_PASS |
@@ -1772,20 +1878,23 @@ F:POWER_16
 
 N:117:cracked ice wall over a geothermal floor
 G:#:v
+U:148
 W:30:2:12:0
-M:116
 K:DEFAULT:209
+K:CHASM:125
 T:ICE:2d4
 F:WALL | TUNNEL | REMEMBER | CAN_PASS | ICE | CAN_TINY | HIT_TRAP |
 F:POWER_16
 
 N:118:water under a cracked ice wall
 G:%:B
+U:148
 T:WATER_WEAK:4d6
 W:60:3:12:0
 M:115
 K:TUNNEL:155
 K:BRIDGE:153
+K:CHASM:151
 K:SECRET:119
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | MOVE |
 F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET |
@@ -1794,10 +1903,12 @@ F:POWER_16
 
 N:119:water under a cracked ice wall
 G:%:b
+U:148
 T:WATER_WEAK:4d6
 W:60:3:13:0
 K:TUNNEL:155
 K:BRIDGE:153
+K:CHASM:151
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | MOVE |
 F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | BRIDGE | SECRET | DROP |
 F:REMEMBER | PLACE | ICE |
@@ -1806,56 +1917,66 @@ F:POWER_36
 N:120:underwater
 G:#:b
 M:56
+U:56
 W:60:2:13:0
 T:WATER_WEAK:4d6
 K:DEFAULT:155
 K:BRIDGE:154
 K:SECRET:121
 K:HURT_COLD:150
+K:CHASM:151
 O:224
 F:FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
 F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
 
 N:121:underwater
 G:#:b
+U:56
 W:60:2:13:0
 K:DEFAULT:155
 K:BRIDGE:154
 K:HURT_COLD:150
+K:CHASM:151
 K:USE_FEAT:120
 O:224
 T:WATER_WEAK:4d6
 F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | MOVE | USE_FEAT |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | PLACE |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | PLACE |
 F:REMEMBER | WATER | HURT_COLD |
 F:POWER_36
 
 N:122:oil shale
 G:%:s
+U:56
 W:10:3:12:0
 K:DEFAULT:219
+K:CHASM:141
 F:TUNNEL | CAN_PASS | LAKE |
-F:HIDE_ITEM  | HIDE_SWIM | HIDE_DEEP | HURT_ROCK | CAN_CLIMB |
+F:HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | HURT_ROCK | CAN_CLIMB |
 F:REMEMBER | OIL | WALL |
 F:POWER_32
 
 N:123:coal
 G:%:D
+U:56
 W:10:3:12:0
 K:DEFAULT:222
 K:HURT_FIRE:124
 K:HURT_ROCK:1
+K:CHASM:141
 F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_FIRE | LAKE |
 F:REMEMBER | HURT_ROCK | CAN_CLIMB | BRIDGE | OIL |
 F:POWER_16
 
 N:124:burning coal
 G:%:o
+U:56
 W:10:3:13:0
 K:DEFAULT:223
 K:HURT_ROCK:1
+K:CHASM:141
 T:FIRE:8d6
 F:WALL | STREAMER | TUNNEL | CAN_PASS | HURT_ROCK | CAN_CLIMB |
 F:REMEMBER |
@@ -1863,34 +1984,40 @@ F:POWER_16
 
 N:125:ice fall
 G:<:B
+U:148
 W:41:2:13:145
 T:ICE:4d4
 K:DEFAULT:145
 F:LESS | TUNNEL | HIT_TRAP | 
-F:REMEMBER | LOS | ICE | BRIDGE | LAKE |
+F:REMEMBER | LOS | ICE | BRIDGE | LAKE | OUTSIDE |
 F:POWER_16
 
 N:126:falling water
 G:<:b
+U:151
 W:41:2:13:153
 T:WATER_WEAK:4d6
 K:DEFAULT:126
+K:CHASM:151
 K:HURT_COLD:125
 O:224
 F:LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM | USE_FEAT |
-F:REMEMBER | LOS | WATER | HURT_COLD | HIDE_SWIM
+F:REMEMBER | LOS | WATER | HURT_COLD | HIDE_SWIM | OUTSIDE
 
 N:127:falling acid
 G:<:g
 W:79:2:13:157
 O:344
+U:56
 T:ACID:6d6
+K:CHASM:126
 K:DEFAULT:127
 F:LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM | USE_FEAT |
 F:REMEMBER | LOS | ACID | HIDE_SWIM
 
 N:128:loose rock
 G:^:v
+U:56
 W:6:1:20:0
 S:TRAPS
 K:DEFAULT:1
@@ -1901,6 +2028,7 @@ F:POWER_6
 
 N:129:loose rock
 G:^:v
+U:56
 W:4:1:20:0
 T:HURT:4d6
 K:DEFAULT:1
@@ -1912,6 +2040,7 @@ F:POWER_5
 
 N:130:loose rock
 G:^:v
+U:56
 W:14:1:20:0
 K:DEFAULT:1
 T:SHATTER:16d6
@@ -1923,6 +2052,7 @@ F:POWER_14
 
 N:131:loose rock
 G:^:v
+U:56
 W:1:1:20:0
 K:DEFAULT:1
 D:Hmm... there was something under this rock.
@@ -1935,6 +2065,7 @@ F:POWER_1
 
 N:132:gas trap
 G:^:g
+U:56
 W:4:1:20:0
 K:DEFAULT:1
 K:HIT_TRAP:132
@@ -1945,36 +2076,42 @@ F:LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | HIT_TRAP |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:133:ice over deep water
+# Known deep water under ice
+
+N:133:deep water under ice
 G:::B
-M:145
 W:36:3:7:148
 K:DEFAULT:155
 K:BRIDGE:147
 K:HURT_FIRE:154
+K:CHASM:151
 T:WATER_WEAK:4d6
-F:BASH | COVERED | CAN_SWIM | HIDE_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE |
-F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | WATER | REMEMBER | HURT_FIRE
+O:341
+F:BASH | COVERED | CAN_SWIM | HIDE_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE | GET_FEAT |
+F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | HURT_FIRE | WATER | OUTSIDE
 
-N:134:open floor (dusty)
+N:134:dusty floor
 G:.:w
 W:15:3:7:0
 M:1
+U:56
 D:The floor is thick with dust.
 O:341
 K:DEFAULT:1
 K:KILL_MOVE:137
 K:BRIDGE:137
-K:TUNNEL:136
 K:GET_FEAT:134
+K:CHASM:141
 F:LOS | MOVE | PROJECT |
 F:PLACE | DROP | KILL_MOVE | FLOOR | RUN | BRIDGE | GET_FEAT |
 F:CAN_CLIMB | CAN_FLY | LAKE
 
 N:135:earth floor
 G:.:u
+U:114
 W:6:3:7:114
 K:DEFAULT:135
+K:CHASM:141
 K:KILL_HUGE:138
 O:339
 F:LOS | MOVE | PLACE | DROP | PROJECT | HIDE_DIG | GET_FEAT |
@@ -1983,38 +2120,42 @@ F:CAN_FLY
 
 N:136:broken floor
 G:.:s
+U:56
 W:15:3:7:50
 O:82
 K:DEFAULT:136
+K:CHASM:141
 F:LOS | MOVE | PLACE | DROP | PROJECT | HIDE_DIG | GET_FEAT |
 F:FLOOR |
 F:CAN_CLIMB | CAN_FLY | LAKE
 
 N:137:dusty trail
+U:56
 G:.:W
 W:12:1:6:0
 O:341
 K:DEFAULT:137
-K:TUNNEL:136
+K:CHASM:141
 F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR | GET_FEAT |
 F:CAN_CLIMB | CAN_FLY
 
 N:138:pile of earth
 W:3:1:6:114
 G:::U
+K:CHASM:141
+U:114
 O:339
 F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | HIDE_ITEM | GET_FEAT |
 F:CAN_FLY | HIDE_DIG | CAN_CLIMB
 
-# Note the following is not a floor. So we have to remember it.
-
-N:139:open floor (over chasm)
+N:139:open floor over chasm
 G:.:w
 W:40:2:5:0
 M:1
+U:56
 K:DEFAULT:141
 K:BRIDGE:140
-F:DROP | LOS | MOVE | PROJECT | PLACE | REMEMBER | BRIDGE |
+F:DROP | LOS | MOVE | PROJECT | PLACE | BRIDGE |
 F:KILL_HUGE | CAN_FLY | CAN_CLIMB | LAKE | RUN | CHASM
 
 #stone bridge (over chasm)
@@ -2025,9 +2166,19 @@ W:40:1:8:0
 K:DEFAULT:141
 K:BRIDGE:140
 F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | BRIDGED |
-F:CAN_FLY | CAN_CLIMB | BRIDGE | RUN
+F:CAN_FLY | CAN_CLIMB | BRIDGE | RUN | OUTSIDE
 
-#Chasm center
+#Chasm center. Note that we don't do any damage, but do fall the player.
+#This allows us to generate a chasm on the bottom of the dungeon, or on
+#the surface of non-dungeon locations.
+#In such locations, we prevent a character falling down to the next level.
+#They can then wander around the 'bottom' of the chasm.
+#They take falling damage climbing back out, and are moved back down
+#into the chasm.
+
+#Its still not 100%, because we should create lava-filled chasms and
+#so forth. This would also require stone bridge over lava-filled chasms...
+#and a re-jig of the chasm generation algorithm.
 
 N:141:chasm
 G: :D
@@ -2035,8 +2186,9 @@ W:60:2:1:142
 D:You fall into the chasm!
 K:DEFAULT:141
 K:BRIDGE:140
-T:FALL_MORE:10d6
-F:BRIDGE | MORE | MOVE |
+K:CHASM:142
+T:FALL_MORE:0d0
+F:BRIDGE | MOVE | OUTSIDE
 F:CAN_FLY | LOS | PROJECT | REMEMBER | PLACE | CHASM
 
 #Chasm edge
@@ -2048,8 +2200,8 @@ D:You fall into the chasm!
 K:DEFAULT:141
 K:BRIDGE:140
 T:FALL_MORE:10d6
-F:CAN_FLY | MORE |  BRIDGE | MOVE | LAKE | RIVER |
-F:LOS | PROJECT | PLACE | CHASM |
+F:CAN_FLY |   BRIDGE | MOVE | LAKE | RIVER |
+F:LOS | PROJECT | PLACE | CHASM | OUTSIDE
 F:REMEMBER
 
 #Ice floor (over chasm)
@@ -2057,6 +2209,7 @@ F:REMEMBER
 N:143:ice floor
 G:.:B
 M:145
+U:148
 W:66:3:7:148
 K:DEFAULT:144
 F:DROP | LOS | MOVE | PROJECT | PLACE | HURT_FIRE | KILL_HUGE |
@@ -2070,29 +2223,36 @@ T:FALL_MORE:10d6
 D:You fall into the chasm!
 K:DEFAULT:144
 K:BRIDGE:140
-F:CAN_FLY | MORE | MOVE | LAKE | RIVER |
+F:CAN_FLY |  MOVE | LAKE | RIVER | OUTSIDE
 F:REMEMBER | LOS | PROJECT | PLACE | ICE | CHASM | BRIDGE
 
-N:145:ice floor
+N:145:ice
 G:.:B
 W:33:3:7:148
 K:HURT_FIRE:153
+K:CHASM:144
 O:341
 F:DROP | LOS | MOVE | PROJECT | PLACE | HURT_FIRE | GET_FEAT |
-F:FLOOR | LAKE | RIVER | ICE | 
+F:FLOOR | LAKE | RIVER | ICE | OUTSIDE |
 F:CAN_FLY
 
-N:146:deep water under an ice floor
+# Hidden deep water under ice
+
+N:146:deep water under ice
 G:.:B
 M:145
+U:145
 W:36:3:7:148
 O:341
 K:DEFAULT:155
 K:BRIDGE:145
 K:HURT_FIRE:154
+K:SECRET:139
+K:CHASM:151
 T:WATER_WEAK:4d6
+D:The ice looks thin here.
 F:BASH | COVERED | CAN_SWIM | HIDE_SWIM | DROP | LOS | MOVE | PROJECT | FLOOR | PLACE | GET_FEAT |
-F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | HURT_FIRE | WATER
+F:CAN_FLY | KILL_HUGE | COVERED | LAKE | RIVER | ICE | HURT_FIRE | WATER | SECRET | OUTSIDE
 
 #Stone bridge (over ice over deep water)
 
@@ -2102,37 +2262,45 @@ M:140
 W:36:1:8:0
 K:DEFAULT:133
 K:BRIDGE:147
+K:HURT_FIRE:155
+K:CHASM:151
 O:341
 T:WATER_WEAK:6d6
 F:CAN_FLY | CAN_SWIM | HURT_FIRE | BRIDGE | ICE | WATER | GET_FEAT |
 F:KILL_HUGE | HIDE_SWIM | HIDE_DEEP | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
-F:BRIDGED | CAN_CLIMB | HURT_FIRE | RUN
+F:BRIDGED | CAN_CLIMB | HURT_FIRE | RUN | OUTSIDE
 
 N:148:ice wall
 G:#:B
+U:148
 W:30:2:12:0
 K:DEFAULT:145
+K:CHASM:144
 K:KILL_HUGE:115
 T:ICE:4d4
 F:WALL | STREAMER | LAKE | TUNNEL | REMEMBER | CAN_PASS | HIT_TRAP |
 F:BRIDGE | ICE | KILL_HUGE |
 F:POWER_40
 
-N:149:ice wall over geothermal floor
+N:149:geothermal floor under an ice wall
 G:#:v
+U:148
 W:30:1:12:0
+K:CHASM:144
 K:DEFAULT:209
 K:KILL_HUGE:118
 T:ICE:4d4
 F:WALL | TUNNEL | REMEMBER | CAN_PASS | ICE | HIT_TRAP | KILL_HUGE |
 F:POWER_36
 
-N:150:deep water under ice
+N:150:deep water under an ice wall
+U:149
 G:%:b
 T:ICE:4d4
 W:60:3:12:0
 K:DEFAULT:155
 K:BRIDGE:153
+K:CHASM:151
 K:KILL_HUGE:119
 O:341
 F:FILLED | CAN_SWIM |  TUNNEL | CAN_PASS | LAKE | RIVER | HIT_TRAP | MOVE | GET_FEAT |
@@ -2149,35 +2317,39 @@ K:DEFAULT:151
 K:BRIDGE:140
 F:WATER | DEEP | MOVE | RIVER | LAKE |
 F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
-F:CAN_FLY | MORE | LOS | PROJECT | REMEMBER | PLACE |
-F:WATER | CHASM
+F:CAN_FLY |  LOS | PROJECT | REMEMBER | PLACE |
+F:WATER | CHASM | OUTSIDE
 
 N:152:deep water under a stone bridge
 G:':w
 W:27:1:8:0
 M:140
 K:DEFAULT:155
+K:CHASM:151
 K:BRIDGE:152
 K:USE_FEAT:152
 K:HURT_COLD:147
 O:224
 F:CAN_FLY | CAN_CLIMB | CAN_SWIM | BRIDGED | CAN_CLIMB | BRIDGE | USE_FEAT |
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | HIDE_SWIM | HIDE_DEEP |
-F:WATER | RUN | HURT_COLD
+F:WATER | RUN | HURT_COLD | OUTSIDE
 
 N:153:water
 G:;:b
 W:18:2:7:0
+K:CHASM:151
 K:HURT_COLD:145
 F:BRIDGE | WATER | SHALLOW | RIVER | LAKE | HIDE_SWIM |
 F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | HURT_COLD |
+F:HIDE_ITEM | DROP | HURT_COLD | OUTSIDE |
 F:WATER
 
 N:154:deep water
 G:;:b
 W:45:2:7:0
 M:153
+U:153
+K:CHASM:151
 T:WATER_WEAK:4d6
 K:DEFAULT:154
 K:BRIDGE:153
@@ -2187,28 +2359,31 @@ D:The water is deeper than it looks.
 F:WATER | DEEP | RIVER | LAKE | DROP |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | SECRET |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
+F:WATER | HURT_COLD | OUTSIDE
 
 N:155:deep water
 G:::b
 W:27:2:12:0
 T:WATER_WEAK:4d6
 K:DEFAULT:155
+K:CHASM:151
 K:BRIDGE:152
 K:HURT_COLD:146
 F:WATER | DEEP |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
+F:WATER | HURT_COLD | OUTSIDE
 
 N:156:deep acid under a stone bridge
 G:':w
+U:56
 W:78:1:7:0
 M:140
 T:ACID:4d6
 O:344
 K:DEFAULT:159
 K:BRIDGE:156
+K:CHASM:151
 K:USE_FEAT:156
 F:CAN_FLY | CAN_CLIMB | USE_FEAT |
 F:LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | BRIDGED | CAN_CLIMB | CAN_SWIM | HIDE_SWIM | HIDE_DEEP |
@@ -2216,21 +2391,25 @@ F:ACID | BRIDGE | RUN
 
 N:157:acid
 G:;:g
+U:56
 W:75:2:13:51
 T:ACID:2d6
 O:344
 K:DEFAULT:157
+K:CHASM:226
 F:SHALLOW | RIVER | LAKE | USE_FEAT |
 F:CAN_FLY | CAN_SWIM | DROP | HIDE_SWIM |
-F:HIDE_ITEM  | LOS | MOVE | PROJECT | REMEMBER | PLACE |
+F:HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:ACID
 
 N:158:deep acid
 G:;:g
 W:81:3:13:51
-M:158
+M:157
+U:56
 O:344
 K:DEFAULT:158
+K:CHASM:226
 K:BRIDGE:157
 K:SECRET:159
 T:ACID:4d6
@@ -2244,9 +2423,11 @@ N:159:deep acid
 G:::g
 W:78:2:14:51
 K:DEFAULT:159
+K:CHASM:226
 K:BRIDGE:156
 K:USE_FEAT:159
 O:344
+U:56
 T:ACID:4d6
 F:DEEP | RIVER | LAKE | USE_FEAT |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP | 
@@ -2257,129 +2438,378 @@ F:ACID
 
 N:160:falling boiling water
 G:<:v
+U:227
 W:82:3:14:136
 K:DEFAULT:160
+K:CHASM:227
 T:BWATER:6d6
 F:LAVA | DEEP | LAKE | LESS |
 F:HIDE_ITEM | DROP | HIDE_SWIM | HIDE_DEEP |
-F:GLOW | MOVE | REMEMBER | PLACE
+F:GLOW | MOVE | REMEMBER | PLACE | OUTSIDE
 
 N:161:falling lava
 G:<:r
+U:214
 W:91:1:14:136
 K:DEFAULT:161
 K:BRIDGE:210
+K:CHASM:214
 T:LAVA:24d10
 F:LAVA | DEEP | LAKE | LESS |
 F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP |
-F:GLOW |  MOVE | REMEMBER | PLACE
+F:GLOW |  MOVE | REMEMBER | PLACE | OUTSIDE
 
-# Hack -- trees. Not how we want them long term, but
-# here to keep wilderness locations interesting.
-# Note the nasty hacks in the code to make them
-# a little more treelike.
+N:162:smoke
+G:':D
+U:56
+T:FIRE:2d4
+K:DEFAULT:163
+K:CHASM:141
+K:HURT_FIRE:1
+F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_FIRE |
+F:DYNAMIC 
 
-N:162:tree
-G:<:g
-W:0:1:17:0
-K:DEFAULT:1
-F:BASH | REMEMBER | NOTICE | MOVE |
-F:CAN_PASS | HURT_FIRE | CAN_CLIMB |
-F:POWER_10
+N:163:smoke over a broken floor
+G:':D
+U:56
+K:DEFAULT:163
+K:HURT_FIRE:136
+K:CHASM:141
+T:FIRE:2d4
+F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG | HURT_FIRE |
+F:CAN_CLIMB | CAN_FLY | DYNAMIC
 
-# Place holders - should never be generated.
+N:164:smoke over an open floor over a chasm
+G:':D
+U:56
+M:162
+T:FIRE:2d4
+K:DEFAULT:141
+K:HURT_FIRE:139
+F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_FIRE | DYNAMIC
 
-N:163:nothing
-G: :w
+N:165:acidic vapour
+G:':G
+U:56
+T:ACID:2d4
+K:DEFAULT:166
+K:CHASM:141
+K:HURT_ACID:1
+F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_ACID | DYNAMIC
 
-N:164:nothing
-G: :w
+N:166:acidic vapour over a broken floor
+G:':G
+U:56
+T:ACID:2d4
+K:DEFAULT:166
+K:CHASM:141
+K:HURT_ACID:136
+F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG | HURT_ACID |
+F:CAN_CLIMB | CAN_FLY | DYNAMIC
 
-N:165:nothing
-G: :w
+N:167:acidic vapour over an open floor over a chasm
+G:':G
+U:56
+M:165
+T:ACID:2d4
+K:DEFAULT:141
+K:CHASM:141
+K:HURT_ACID:139
+F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_ACID | DYNAMIC
 
-N:166:nothing
-G: :w
+N:168:acidic vapour around a stone bridge
+G:':G
+U:56
+T:ACID:8d6
+K:DEFAULT:168
+K:CHASM:226
+K:HURT_ACID:156
+F:CAN_FLY | CAN_CLIMB | HURT_ROCK |
+F:MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | BRIDGED | CAN_SWIM | HIDE_SWIM | HURT_ACID | DYNAMIC
 
-N:167:nothing
-G: :w
+#Acidic vapours over acid - SECRET
 
-N:168:nothing
-G: :w
+N:169:acidic vapour over acid
+G:':G
+U:56
+M:165
+T:ACID:4d6
+K:DEFAULT:169
+K:CHASM:226
+K:SECRET:171
+K:HURT_ACID:157
+D:The acidic vapours conceal a pool of acid.
+F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+F:CAN_FLY | CAN_SWIM |   HURT_ACID |
+F:HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DYNAMIC
 
-N:169:nothing
-G: :w
+#Acidic vapours over deep acid - SECRET
 
-N:170:nothing
-G: :w
+N:170:acidic vapour over deep acid
+G:':G
+U:56
+M:165
+K:DEFAULT:170
+K:CHASM:226
+K:BRIDGE:168
+K:SECRET:172
+K:HURT_ACID:158
+T:ACID:4d6
+D:The acidic vapours conceal a pool of deep acid.
+F:WATER | DEEP | NOTICE | RIVER | LAKE | HURT_ACID |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DYNAMIC
 
-N:171:nothing
-G: :w
+N:171:acidic vapour over acid
+G:;:G
+U:56
+T:ACID:4d6
+K:DEFAULT:171
+K:CHASM:226
+K:HURT_ACID:157
+F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+F:CAN_FLY | CAN_SWIM |   HURT_ACID |
+F:HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DYNAMIC
 
-N:172:nothing
-G: :w
+N:172:acidic vapour over deep acid
+G:::G
+U:56
+K:DEFAULT:172
+K:BRIDGE:168
+K:CHASM:141
+K:HURT_ACID:159
+T:ACID:4d6
+F:WATER | DEEP | NOTICE | RIVER | LAKE | HURT_ACID |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DYNAMIC
 
-N:173:nothing
-G: :w
+N:173:steam
+G:':W
+U:56
+T:BWATER:1d3
+K:DEFAULT:174
+K:CHASM:141
+K:HURT_BWATER:1
+F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_BWATER | DYNAMIC | CAN_CLIMB
 
-N:174:nothing
-G: :w
+N:174:steam over a broken floor
+G:':W
+U:56
+M:277
+T:BWATER:1d3
+K:DEFAULT:172
+K:CHASM:141
+K:HURT_BWATER:136
+F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG | HURT_BWATER | DYNAMIC |
+F:CAN_CLIMB | CAN_FLY
 
-N:175:nothing
-G: :w
+N:175:steam over an open floor over a chasm
+G:':W
+U:56
+M:173
+T:BWATER:1d3
+K:DEFAULT:141
+K:CHASM:141
+K:HURT_BWATER:139
+F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:KILL_HUGE | CAN_FLY | CAN_CLIMB | HURT_BWATER | HURT_BWATER | DYNAMIC |
+F:COLLAPSE
 
-N:176:nothing
-G: :w
+N:176:steam around a stone bridge
+G:':W
+T:BWATER:3d6
+K:CHASM:227
+K:DEFAULT:176
+K:HURT_BWATER:207
+F:CAN_FLY | CAN_CLIMB | HURT_ROCK |
+F:MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | BRIDGED | CAN_SWIM | HIDE_SWIM |
+F:NOTICE | REMEMBER | NOTICE | HURT_BWATER | OUTSIDE
 
-N:177:nothing
-G: :w
+N:177:steam over geothermal floor
+U:56
+G:':W
+T:BWATER:1d3
+K:CHASM:141
+K:DEFAULT:177
+K:HURT_BWATER:209
+F:HIDE_ITEM | RIVER | LAKE | DROP | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DYNAMIC | HURT_BWATER
 
-N:178:nothing
-G: :w
+N:178:steam over geothermal floor over lava
+G:':W
+U:56
+M:135
+K:DEFAULT:178
+K:BRIDGE:177
+K:CHASM:214
+K:HURT_BWATER:210
+T:FIRE:20d6
+F:BASH | CAN_FLY | KILL_HUGE | HIDE_ITEM | LAVA |
+F:DROP | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | HURT_BWATER |
+F:NOTICE | REMEMBER | NOTICE | COVERED
 
-N:179:nothing
-G: :w
+#Steam over boiling water -SECRET
 
-N:180:nothing
-G: :w
+N:179:steam over boiling water
+G:':W
+M:173
+U:173
+T:BWATER:3d6
+K:DEFAULT:179
+K:CHASM:227
+K:HURT_BWATER:208
+K:SECRET:180
+K:BRIDGE:176
+D:The steam conceals a pool of boiling water.
+F:WATER | SHALLOW | NOTICE | RIVER | LAKE |
+F:CAN_FLY | CAN_SWIM |  
+F:HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:DYNAMIC | SECRET | HURT_BWATER | OUTSIDE
 
-N:181:nothing
-G: :w
+N:180:steam over boiling water
+G:::W
+U:173
+K:DEFAULT:180
+K:BRIDGE:207
+K:CHASM:227
+K:HURT_BWATER:208
+T:BWATER:3d6
+F:WATER | DEEP | NOTICE | RIVER | LAKE |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM |  
+F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:DYNAMIC | HURT_BWATER | OUTSIDE
 
-N:182:nothing
-G: :w
+N:181:poison gas
+G:':v
+U:56
+T:POISON:3d4
+K:DEFAULT:182
+K:CHASM:141
+K:HURT_POIS:1
+F:MOVE | PROJECT | REMEMBER | NOTICE | PLACE | DROP | CAN_FLY | HURT_POIS | DYNAMIC | CAN_CLIMB
 
-N:183:nothing
-G: :w
+N:182:poison gas over broken floor
+G:':v
+U:56
+M:286
+T:POISON:3d4
+K:DEFAULT:182
+K:CHASM:141
+K:HURT_POIS:136
+F:MOVE | PLACE | DROP | PROJECT | REMEMBER | NOTICE | HIDE_DIG |
+F:CAN_CLIMB | CAN_FLY | DYNAMIC
 
-N:184:nothing
-G: :w
+N:183:poison gas over open floor over a chasm
+G:':v
+U:56
+M:181
+T:POISON:3d4
+K:DEFAULT:141
+K:CHASM:141
+K:HURT_POIS:139
+F:BRIDGE | DROP | MOVE | PROJECT | REMEMBER | NOTICE | PLACE |
+F:KILL_HUGE | CAN_FLY | CAN_CLIMB |
+F:COLLAPSE | DYNAMIC
 
-N:185:nothing
-G: :w
+N:184:burning oil
+U:56
+G:::o
+W:20:2:14:0
+K:CHASM:141
+T:FIRE:4d6
+F:MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM | DYNAMIC |
+F:CAN_FLY | HURT_FIRE | GLOW | DROP
 
-N:186:nothing
-G: :w
+N:185:burning coal dust
+G:::o
+U:56
+W:20:2:13:0
+K:CHASM:141
+T:FIRE:4d6
+F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM | DYNAMIC |
+F:CAN_FLY | GLOW | DROP
 
-N:187:nothing
-G: :w
+N:186:burning oil fall
+U:56
+G:>:o
+W:66:1:13:0
+T:FALL_MORE:10d6
+K:DEFAULT:186
+K:BRIDGE:140
+F:OIL | DEEP | MOVE | DYNAMIC |
+F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
+F:CAN_FLY |  PROJECT | REMEMBER | NOTICE | PLACE |
+F:CHASM | GLOW | OUTSIDE
 
-N:188:nothing
-G: :w
+N:187:burning oil under a stone bridge
+U:56
+G:':w
+W:27:1:8:0
+M:184
+K:DEFAULT:187
+K:CHASM:186
+F:CAN_FLY | CAN_CLIMB | DYNAMIC | BRIDGED | BRIDGE |
+F:HURT_ROCK | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | HIDE_DEEP |
+F:OIL | OUTSIDE
 
-N:189:nothing
-G: :w
+N:188:deep burning oil
+U:56
+G:::o
+W:27:2:7:0
+M:184
+T:FIRE:4d6
+K:DEFAULT:188
+K:BRIDGE:187
+K:CHASM:186
+K:SECRET:189
+D:The burning oil is deeper than it looks.
+F:OIL | GLOW | DYNAMIC | DEEP | DROP | 
+F:BRIDGE | HIDE_DEEP | SECRET |
+F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | OUTSIDE
 
-N:190:nothing
-G: :w
+N:189:deep burning oil
+U:56
+G:::o
+W:45:4:12:0
+T:FIRE:4d6
+K:CHASM:186
+K:DEFAULT:189
+K:BRIDGE:187
+F:OIL | GLOW | DYNAMIC | DEEP |
+F:BRIDGE | HIDE_DEEP | DROP |
+F:CAN_FLY | HIDE_ITEM | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | OUTSIDE
 
-N:191:nothing
-G: :w
+N:190:falling oil
+U:56
+G:<:D
+W:51:2:13:153
+T:WATER_WEAK:4d6
+K:DEFAULT:190
+K:CHASM:220
+K:HURT_FIRE:191
+K:USE_FEAT:190
+O:348
+F:LESS | DEEP | MOVE | CAN_SWIM | LAKE | DROP | HIDE_ITEM | USE_FEAT | DYNAMIC |
+F:REMEMBER | LOS | OIL | HURT_COLD | HIDE_SWIM | COLLAPSE
+
+N:191:falling burning oil
+U:56
+G:<:o
+W:51:2:13:153
+T:FIRE:10d6
+K:CHASM:186
+K:DEFAULT:191
+O:224
+F:LESS | DEEP | MOVE | CAN_SWIM | DROP | HIDE_ITEM | DYNAMIC |
+F:REMEMBER | LOS | OIL | HURT_COLD | HIDE_SWIM
 
 N:192:sand
+U:56
 G:.:y
 W:16:2:7:0
 K:DEFAULT:192
+K:CHASM:141
 K:KILL_MOVE:194
 K:BRIDGE:194
 O:338
@@ -2393,35 +2823,44 @@ N:193:deep sand
 G:.:y
 W:22:3:7:0
 M:192
+U:192
 K:DEFAULT:193
 K:KILL_MOVE:195
+K:CHASM:141
 K:BRIDGE:195
+K:HURT_WATER:400
 O:338
-F:HIDE_DIG | LOS | MOVE | PLACE | DROP | PROJECT | FLOOR | KILL_MOVE | GET_FEAT |
-F:LAKE | BRIDGE |
+F:HIDE_DIG | LOS | MOVE | PLACE | DROP | PROJECT | KILL_MOVE | GET_FEAT |
+F:LAKE | BRIDGE | OUTSIDE | HURT_WATER | CAN_DIG |
 F:CAN_CLIMB | CAN_FLY
 
 N:194:sandy trail
+U:56
 G:.:o
 W:6:1:6:0
 K:DEFAULT:194
+K:CHASM:141
 O:338
-F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | GET_FEAT |
+F:LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | GET_FEAT | FLOOR |
 F:CAN_CLIMB | CAN_FLY
 
 N:195:deep sandy trail
+U:194
 G:.:o
 W:12:1:6:0
 M:194
 K:DEFAULT:195
+K:CHASM:141
+K:HURT_WATER:400
 O:338
 F:HIDE_DIG | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER | GET_FEAT |
-F:CAN_CLIMB | CAN_FLY
+F:CAN_CLIMB | CAN_FLY | OUTSIDE | HURT_WATER | CAN_DIG
 
 # quicksand (SECRET)
 
 N:196:quicksand
 G:.:y
+U:194
 W:30:4:7:0
 M:192
 T:WATER_WEAK:4d6
@@ -2430,13 +2869,15 @@ K:DEFAULT:193
 K:SECRET:197
 K:KILL_MOVE:197
 K:GET_FEAT:196
+K:CHASM:141
 D:The sand is more dangerous than it looks.
 F:WATER | DEEP | HIDE_DIG | HIDE_DEEP | GET_FEAT | HURT_COLD |
 F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | FLOOR |
 F:STREAMER | SECRET | LAKE | BRIDGE |
-F:CAN_CLIMB | CAN_FLY
+F:CAN_CLIMB | CAN_FLY | OUTSIDE
 
 N:197:quicksand
+U:194
 G:::y
 W:20:2:13:0
 T:WATER_WEAK:4d6
@@ -2445,7 +2886,7 @@ K:GET_FEAT:197
 O:338
 F:WATER | DEEP | HIDE_DIG | HIDE_DEEP | HURT_COLD | GET_FEAT |
 F:HIDE_ITEM | LOS | MOVE | PLACE | DROP | PROJECT | REMEMBER |
-F:STREAMER | BRIDGE |
+F:STREAMER | BRIDGE | OUTSIDE |
 F:CAN_CLIMB | CAN_FLY
 
 N:198:deep mud under a stone bridge
@@ -2454,11 +2895,12 @@ W:48:1:8:0
 M:140
 K:DEFAULT:201
 K:BRIDGE:198
+K:CHASM:141
 K:GET_FEAT:198
 O:340
 F:HURT_ROCK | CAN_CLIMB |  LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | GET_FEAT |
 F:CAN_FLY | CAN_CLIMB | BRIDGED | BRIDGE | CAN_DIG | HIDE_DIG | HIDE_DEEP |
-F:REMEMBER | RUN
+F:REMEMBER | RUN | OUTSIDE
 
 N:199:mud
 G:;:u
@@ -2466,31 +2908,29 @@ W:21:3:7:0
 T:WATER_WEAK:4d6
 K:KILL_MOVE:202
 K:BRIDGE:202
-K:HURT_COLD:135
+K:CHASM:141
 K:GET_FEAT:199
 O:340
 F:WATER | SHALLOW | LAKE | KILL_MOVE | CAN_DIG | GET_FEAT |
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | SECRET | DROP | HURT_COLD | BRIDGE |
-F:REMEMBER
+F:REMEMBER | OUTSIDE
 
 N:200:deep mud
 G:;:u
 W:48:3:7:0
 M:199
+U:199
 T:WATER_WEAK:4d6
 K:BRIDGE:202
 K:KILL_MOVE:203
+K:CHASM:141
 K:SECRET:201
-K:HURT_COLD:135
 O:340
 D:The mud is deeper than it looks.
 F:WATER | DEEP | LAKE | HIDE_DIG | HIDE_DEEP | KILL_MOVE | DROP |
 F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
-F:CAN_FLY | HIDE_ITEM | SECRET | CAN_DIG | HURT_COLD
-
-# Note - we don't trail through known deep mud. This could otherwise cause confusion
-# with burning oil/boiling mud.
+F:CAN_FLY | HIDE_ITEM | SECRET | CAN_DIG | HURT_COLD | OUTSIDE
 
 N:201:deep mud
 G:::u
@@ -2498,35 +2938,40 @@ W:54:3:13:0
 T:WATER_WEAK:4d6
 O:340
 K:DEFAULT:201
+K:CHASM:141
 K:BRIDGE:198
-K:HURT_COLD:135
 K:GET_FEAT:201
 F:WATER | DEEP | LAKE | HIDE_DIG | HIDE_DEEP | DROP | GET_FEAT |
-F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
+F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER | OUTSIDE |
 F:CAN_FLY | HIDE_ITEM | CAN_DIG | HURT_COLD
 
 N:202:muddy trail
-G:;:o
+G:.:o
+U:199
 W:21:1:6:0
 K:DEFAULT:202
-K:HURT_COLD:135
+K:CHASM:141
 K:GET_FEAT:202
 O:340
 F:WATER | SHALLOW | DROP | HURT_COLD | GET_FEAT |
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM  | CAN_DIG |
+F:HIDE_ITEM | CAN_DIG | OUTSIDE
 
 N:203:deep muddy trail
-G:;:o
+G:.:o
+M:199
+U:199
 W:48:1:6:0
 T:WATER_WEAK:4d6
 O:340
 K:DEFAULT:203
-K:HURT_COLD:135
+K:CHASM:141
+K:SECRET:201
+D:The muddy trail is deeper than it looks.
 F:WATER | DEEP | HIDE_DIG | HIDE_DEEP | DROP | GET_FEAT |
 F:BRIDGE | LOS | MOVE | PROJECT | REMEMBER |  
-F:CAN_FLY | HIDE_ITEM | CAN_DIG |
-F:HURT_COLD
+F:CAN_FLY | HIDE_ITEM | CAN_DIG | SECRET |
+F:HURT_COLD | OUTSIDE
 
 N:204:boiling mud under a stone bridge
 G:':w
@@ -2534,20 +2979,22 @@ W:60:1:8:0
 M:140
 T:BMUD:6d6
 K:DEFAULT:205
+K:CHASM:141
 K:BRIDGE:204
 F:CAN_FLY | CAN_CLIMB | BRIDGE | CAN_DIG | DROP | BRIDGED |
 F:REMEMBER | LOS | MOVE | PROJECT | DROP | PLACE | HIDE_DIG | HIDE_DEEP |
-F:LAVA | WATER | RUN
+F:LAVA | WATER | RUN | OUTSIDE
 
 N:205:boiling mud
 G:::o
 W:60:2:13:0
 T:BMUD:6d6
 K:DEFAULT:205
+K:CHASM:141
 K:BRIDGE:204
 F:DEEP | BRIDGE | HIDE_DIG | HIDE_DEEP | CAN_DIG |
-F:CAN_FLY | HIDE_ITEM  | LAKE | LAVA | DROP |
-F:REMEMBER | LOS | MOVE | PROJECT | REMEMBER | PLACE
+F:CAN_FLY | HIDE_ITEM | LAKE | LAVA | DROP |
+F:REMEMBER | LOS | MOVE | PROJECT | REMEMBER | PLACE | OUTSIDE
 
 N:206:boiling water geyser
 G:;:v
@@ -2557,7 +3004,7 @@ K:DEFAULT:206
 K:BRIDGE:204
 F:DEEP | BRIDGE |
 F:CAN_FLY | HIDE_ITEM | DROP |
-F:REMEMBER | NOTICE | LOS | MOVE | PROJECT | PLACE |
+F:REMEMBER | NOTICE | LOS | MOVE | PROJECT | PLACE | OUTSIDE |
 F:LAVA
 
 N:207:boiling water under a stone bridge
@@ -2566,10 +3013,11 @@ W:81:1:8:50
 M:140
 T:BWATER:6d6
 K:DEFAULT:208
-K:DEFAULT:207
+K:CHASM:141
+K:BRIDGE:207
 F:CAN_FLY | CAN_CLIMB | HURT_ROCK | BRIDGE |
 F:LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE |
-F:CAN_SWIM | HIDE_SWIM | HIDE_DEEP | BRIDGED |
+F:CAN_SWIM | HIDE_SWIM | HIDE_DEEP | BRIDGED | OUTSIDE |
 F:LAVA | RUN
 
 N:208:boiling water
@@ -2577,24 +3025,29 @@ G:::v
 W:81:2:14:50
 T:BWATER:6d6
 K:DEFAULT:208
+K:CHASM:151
 K:BRIDGE:207
 F:DEEP | BRIDGE | CAN_SWIM | HIDE_ITEM | LAKE | DROP |
 F:CAN_FLY | HIDE_ITEM | HIDE_SWIM | HIDE_DEEP | LOS | MOVE |
-F:PROJECT | REMEMBER | PLACE |
+F:PROJECT | REMEMBER | PLACE | OUTSIDE |
 F:LAVA
 
 N:209:geothermal floor
+U:56
 G:.:v
 W:51:2:7:0
 K:DEFAULT:209
+K:CHASM:141
 F:HIDE_ITEM | LAKE | DROP | LOS | MOVE | PROJECT | PLACE | CAN_CLIMB |
 F:LAKE | FLOOR
 
 N:210:deep lava under a geothermal floor
+U:56
 G:.:v
 W:72:2:7:50
 M:209
 K:DEFAULT:216
+K:CHASM:214
 K:BRIDGE:209
 T:FIRE:24d10
 F:BASH | CAN_FLY | KILL_HUGE | HIDE_ITEM | LAVA | LAKE |
@@ -2603,7 +3056,9 @@ F:COVERED | BRIDGE
 
 N:211:gas vent
 G:;:G
+U:56
 W:51:1:13:0
+K:CHASM:141
 K:BRIDGE:209
 D:You are surrounded by a burning green gas!
 T:POISON:4d6
@@ -2612,19 +3067,23 @@ F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:212:steam vent
 G:;:W
+U:56
 W:51:1:13:0
 K:BRIDGE:209
+K:CHASM:141
 T:BWATER:4d6
 F:STREAMER | HIDE_ITEM | MOVE | PROJECT | BRIDGE | DROP | LOS |
 F:NOTICE | REMEMBER | TRAP | POWER_20 | CAN_FLY
 
 N:213:lava vent
 G:;:R
+U:56
 W:72:1:14:0
 K:DEFAULT:216
 K:BRIDGE:209
+K:CHASM:141
 T:FIRE:12d6
-F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP | LOS |
+F:STREAMER | HIDE_ITEM | LAVA | MOVE | PROJECT | DROP | LOS
 F:NOTICE | REMEMBER | BRIDGE | GLOW | TRAP | POWER_20 | CAN_FLY
 
 N:214:lava fall
@@ -2635,29 +3094,31 @@ T:FALL_MORE:24d10
 K:DEFAULT:214
 K:BRIDGE:140
 F:LAVA | DEEP | LOS | PROJECT | REMEMBER | PLACE | RIVER | LAKE |
-F:BRIDGE | CHASM | MOVE |
-F:CAN_FLY | MORE | GLOW
+F:BRIDGE | CHASM | MOVE | OUTSIDE |
+F:CAN_FLY |  GLOW
 
 N:215:deep lava under a stone bridge
 G:':w
 W:87:1:14:0
 M:140
 T:LAVA:24d6
+K:CHASM:214
 K:BRIDGE:215
 K:DEFAULT:217
 M:140
 F:CAN_FLY | CAN_CLIMB | BRIDGED |
-F:BRIDGE | LAVA | MOVE | PLACE | DROP |
+F:BRIDGE | LAVA | MOVE | PLACE | DROP | OUTSIDE |
 F:REMEMBER
 
 N:216:lava
 G:;:r
 W:87:1:14:50
 T:LAVA:24d10
+K:CHASM:214
 K:DEFAULT:216
 K:BRIDGE:210
 F:LAVA | SHALLOW | STREAMER | RIVER | LAKE | RIVER |
-F:BRIDGE | HIDE_ITEM |
+F:BRIDGE | HIDE_ITEM | OUTSIDE |
 F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER | PLACE
 
 # deep lava - SECRET
@@ -2666,70 +3127,145 @@ N:217:deep lava
 G:;:r
 W:90:1:14:50
 M:216
+U:216
 K:DEFAULT:217
+K:CHASM:214
 K:BRIDGE:210
 K:SECRET:218
 T:LAVA:24d10
 D:The lava is deeper than it looks.
 F:LAVA | DEEP | STREAMER | LAKE | RIVER | PLACE |
-F:BRIDGE | HIDE_ITEM | SECRET |
+F:BRIDGE | HIDE_ITEM | SECRET | OUTSIDE |
 F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER
 
 N:218:deep lava
 G:::r
 W:84:1:14:50
 K:DEFAULT:218
+K:CHASM:214
 K:BRIDGE:215
 T:LAVA:24d10
 F:LAVA | DEEP | STREAMER | LAKE | RIVER |
-F:BRIDGE | HIDE_ITEM | PLACE | 
+F:BRIDGE | HIDE_ITEM | PLACE | OUTSIDE |
 F:CAN_FLY |  GLOW | LOS | MOVE | PROJECT | REMEMBER
 
-# Hack - slightly out of order for oil because we don't support deep oil with only 256 features.
-
 N:219:oil
-G:.:D
+U:56
+G:;:D
 W:20:2:13:0
 K:DEFAULT:219
-K:HURT_FIRE:220
+K:HURT_FIRE:184
+K:CHASM:141
 K:USE_FEAT:219
 O:348
 F:LOS | MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM | USE_FEAT |
-F:CAN_FLY | HURT_FIRE | OIL | DROP
+F:CAN_FLY | HURT_FIRE | OIL | DROP | COLLAPSE
 
-# Hack - Note we 'pretend' burning oil/coal dust is deep, just to avoid confusion with trails
-
-N:220:burning oil
-G:::o
-W:20:2:14:0
-T:FIRE:4d6
-F:LOS | MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
-F:CAN_FLY | HURT_FIRE | GLOW | DROP
+N:220:oil fall
+U:56
+G:>:D
+W:66:1:13:0
+T:FALL_MORE:10d6
+K:DEFAULT:220
+K:BRIDGE:223
+K:HURT_FIRE:183
+F:OIL | HURT_FIRE | COLLAPSE | DEEP | MOVE |
+F:BRIDGE | HIDE_SWIM | HIDE_DEEP | COLLAPSE |
+F:CAN_FLY |  LOS | PROJECT | REMEMBER | NOTICE | PLACE |
+F:CHASM | OUTSIDE
 
 N:221:coal dust
-G:.:D
+U:56
+G:;:D
 W:20:2:7:0
 K:DEFAULT:221
-K:HURT_FIRE:223
+K:CHASM:141
+K:HURT_FIRE:185
 K:KILL_MOVE:222
 K:BRIDGE:222
 F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM | BRIDGE |
-F:CAN_FLY | HURT_FIRE |  OIL | DROP
+F:CAN_FLY | HURT_FIRE |  OIL | DROP | COLLAPSE
 
 N:222:coal dust trail
+U:56
 G:.:o
 W:20:2:6:0
 K:DEFAULT:222
-K:HURT_FIRE:223
+K:CHASM:141
+K:HURT_FIRE:185
 F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
-F:CAN_FLY | HURT_FIRE | OIL | DROP
+F:CAN_FLY | HURT_FIRE | OIL | DROP | COLLAPSE
 
-N:223:burning coal dust
-G:::o
-W:20:2:13:0
-T:FIRE:4d6
-F:LOS |  MOVE | PLACE | PROJECT | REMEMBER | HIDE_ITEM |
-F:CAN_FLY | GLOW | DROP
+N:223:deep oil under a stone bridge
+G:':w
+U:56
+W:27:1:8:0
+M:140
+K:DEFAULT:223
+K:HURT_FIRE:187
+K:CHASM:141
+K:USE_FEAT:223
+O:348
+F:CAN_FLY | CAN_CLIMB | BRIDGED | BRIDGE | USE_FEAT |
+F:HURT_ROCK | LOS | MOVE | PROJECT | REMEMBER | NOTICE | DROP | PLACE | HIDE_DEEP |
+F:OIL | HURT_FIRE | COLLAPSE | OUTSIDE | COLLAPSE
+
+N:224:deep oil
+U:56
+G:;:D
+W:27:2:7:0
+M:228
+T:WATER_WEAK:4d6
+K:DEFAULT:224
+K:CHASM:220
+K:BRIDGE:219
+K:SECRET:225
+K:HURT_FIRE:188
+D:The oil is deeper than it looks.
+F:OIL | HURT_FIRE | COLLAPSE | DEEP | RIVER | LAKE | DROP |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | SECRET | COLLAPSE |
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | OUTSIDE
+
+N:225:deep oil
+U:56
+G:::D
+W:45:4:12:0
+T:WATER_WEAK:4d6
+K:DEFAULT:22
+K:BRIDGE:223
+K:CHASM:220
+K:HURT_FIRE:189
+K:USE_FEAT:225
+O:348
+F:OIL | HURT_FIRE | COLLAPSE | DEEP | USE_FEAT | COLLAPSE |
+F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
+F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | NOTICE | PLACE | OUTSIDE
+
+N:226:acid fall
+G:>:g
+U:56
+W:86:3:13:129
+T:FALL_MORE:10d6
+D:You fall into the chasm!
+K:DEFAULT:226
+K:BRIDGE:156
+F:WATER | DEEP | MOVE | RIVER | LAKE |
+F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
+F:CAN_FLY |  LOS | PROJECT | REMEMBER | PLACE |
+F:ACID | CHASM | OUTSIDE
+
+N:227:boiling waterfall
+G:>:v
+U:56
+W:86:3:13:129
+T:FALL_MORE:10d6
+D:You fall into the chasm!
+K:DEFAULT:226
+K:BRIDGE:156
+F:WATER | DEEP | MOVE | RIVER | LAKE |
+F:BRIDGE | HIDE_SWIM | HIDE_DEEP |
+F:CAN_FLY |  LOS | PROJECT | REMEMBER | PLACE |
+F:LAVA | CHASM | OUTSIDE
 
 #128 LOS features, 66 non-LOS features, 33 place holders
 
@@ -2740,6 +3276,7 @@ F:CAN_FLY | GLOW | DROP
 
 # 0x04 --> open door
 N:257:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2751,6 +3288,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:258:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2762,6 +3300,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:259:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2773,6 +3312,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:260:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2784,6 +3324,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:261:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2795,6 +3336,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:262:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2806,6 +3348,7 @@ F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # 0x04 --> open door
 N:263:open door
+U:56
 G:':U
 M:4
 W:1:1:15:0
@@ -2816,9 +3359,11 @@ F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE |
 F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY
 
 # Following stores allow us to have up to 16 stores in a city.
+# Note that these stores have to be found...
 
 N:264:General Store
 W:0:1:20:0
+U:56
 G:1:U
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2826,6 +3371,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:265:Armoury
 W:0:1:20:0
+U:56
 G:2:s
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2833,6 +3379,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:266:Weapon Smiths
 W:0:1:20:0
+U:56
 G:3:w
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2840,6 +3387,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:267:Temple
 W:0:1:20:0
+U:56
 G:4:g
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2847,6 +3395,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:268:Alchemy Shop
 W:0:1:20:0
+U:56
 G:5:b
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2854,6 +3403,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:269:Magic Shop
 W:0:1:20:0
+U:56
 G:6:r
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2861,6 +3411,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 N:270:Black Market
 W:0:1:20:0
+U:56
 G:7:D
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
@@ -2869,11 +3420,13 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 N:271:Home
 W:0:1:20:0
 G:8:y
+U:56
 F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 # Here follow some deep traps.
 
 N:272:stone idol
+U:56
 G:^:W
 W:30:2:20:0
 S:BA_ACID
@@ -2885,6 +3438,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_30
 
 N:273:stone idol
+U:56
 G:^:W
 W:15:2:20:0
 S:BA_ELEC
@@ -2896,6 +3450,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_15
 
 N:274:stone idol
+U:56
 G:^:W
 W:25:2:20:0
 S:BA_FIRE
@@ -2908,6 +3463,7 @@ F:POWER_25
 
 N:275:stone idol
 G:^:W
+U:56
 W:20:2:20:0
 S:BA_COLD
 K:DEFAULT:1
@@ -2919,6 +3475,7 @@ F:POWER_20
 
 N:276:stone idol
 G:^:W
+U:56
 W:10:2:20:0
 S:BA_POIS
 K:DEFAULT:1
@@ -2931,6 +3488,7 @@ F:POWER_10
 N:277:stone idol
 G:^:W
 W:60:2:20:0
+U:56
 S:BA_NETH
 K:DEFAULT:1
 K:HIT_TRAP:277
@@ -2943,6 +3501,7 @@ N:278:stone idol
 G:^:W
 W:80:2:20:0
 S:BA_MANA
+U:56
 K:DEFAULT:1
 K:HIT_TRAP:278
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
@@ -2953,6 +3512,7 @@ F:POWER_80
 N:279:stone idol
 G:^:W
 W:70:2:20:0
+U:56
 S:BA_DARK
 K:DEFAULT:1
 K:HIT_TRAP:279
@@ -2965,6 +3525,7 @@ F:POWER_70
 
 N:280:eldritch sign
 G:^:G
+U:56
 W:6:3:20:0
 S:CAUSE_1
 K:DEFAULT:1
@@ -2977,6 +3538,7 @@ F:POWER_6
 # ---> visible trap -- eldritch sign - cause wounds 2
 
 N:281:eldritch sign
+U:56
 G:^:G
 W:12:3:20:0
 S:CAUSE_2
@@ -2990,6 +3552,7 @@ F:POWER_12
 # ---> visible trap -- eldritch sign - cause wounds 3
 
 N:282:eldritch sign
+U:56
 G:^:G
 W:18:3:20:0
 S:CAUSE_3
@@ -3003,6 +3566,7 @@ F:POWER_18
 # ---> visible trap -- eldritch sign - cause wounds 4
 
 N:283:eldritch sign
+U:56
 G:^:G
 W:24:3:20:0
 S:CAUSE_4
@@ -3016,6 +3580,7 @@ F:POWER_24
 # visible trap -- rune -- teleport
 
 N:284:strange rune
+U:56
 G:^:o
 W:10:1:20:0
 S:TELE_LEVEL
@@ -3027,6 +3592,7 @@ F:PROJECT | REMEMBER | NOTICE | LOS | MOVE |
 F:POWER_10
 
 N:285:strange rune
+U:56
 G:^:o
 W:80:2:20:0
 K:DEFAULT:1
@@ -3038,6 +3604,7 @@ F:CAN_CLIMB | CAN_FLY |
 F:POWER_80
 
 N:286:strange rune
+U:56
 G:^:o
 W:6:2:20:0
 K:DEFAULT:1
@@ -3050,6 +3617,7 @@ F:POWER_6
 
 N:287:strange rune
 G:^:o
+U:56
 W:60:2:20:0
 K:DEFAULT:1
 S:S_HI_DRAGON
@@ -3061,6 +3629,7 @@ F:POWER_60
 
 N:288:strange rune
 G:^:o
+U:56
 W:70:2:20:0
 K:DEFAULT:1
 S:S_HI_DRAGON
@@ -3074,6 +3643,7 @@ F:POWER_70
 
 N:289:loose rock
 G:^:v
+U:56
 W:8:1:20:0
 D:A wooden cage falls from the ceiling!
 T:HURT
@@ -3090,6 +3660,7 @@ F:POWER_8
 
 N:290:loose rock
 G:^:v
+U:56
 W:32:1:20:0
 D:An iron cage falls from the ceiling!
 T:HURT
@@ -3104,6 +3675,7 @@ F:POWER_32
 
 N:291:pit
 G:^:s
+U:56
 W:13:2:20:0
 T:FALL:6d6
 K:DEFAULT:1
@@ -3117,6 +3689,7 @@ F:POWER_13
 # Pit 
 
 N:292:pit
+U:56
 G:^:s
 W:14:2:20:0
 T:FALL:6d6
@@ -3132,6 +3705,7 @@ F:POWER_14
 
 N:293:pit
 G:^:s
+U:56
 W:15:2:20:0
 T:FALL:6d6
 K:DEFAULT:1
@@ -3147,6 +3721,7 @@ F:POWER_15
 N:294:pit
 G:^:s
 W:16:2:20:0
+U:56
 T:FALL:6d6
 K:DEFAULT:1
 K:HIT_TRAP:158
@@ -3161,6 +3736,7 @@ F:POWER_16
 N:295:eldritch sign
 G:^:G
 W:2:3:20:0
+U:56
 T:PLASMA:8d6
 K:DEFAULT:1
 K:HIT_TRAP:327
@@ -3172,6 +3748,7 @@ F:POWER_5
 # ---> visible trap -- eldritch sign
 
 N:296:eldritch sign
+U:56
 G:^:G
 W:36:3:20:0
 T:GRAVITY:8d6
@@ -3185,6 +3762,7 @@ F:POWER_36
 # ---> visible trap -- eldritch sign
 
 N:297:eldritch sign
+U:56
 G:^:G
 W:33:3:20:0
 T:INERTIA:8d6
@@ -3198,6 +3776,7 @@ F:POWER_33
 # ---> visible trap -- eldritch sign
 
 N:298:eldritch sign
+U:56
 G:^:G
 W:30:3:20:0
 T:FORCE:8d6
@@ -3211,6 +3790,7 @@ F:POWER_30
 # ---> visible trap -- eldritch sign
 
 N:299:eldritch sign
+U:56
 G:^:G
 W:27:3:20:0
 T:TIME:8d6
@@ -3224,6 +3804,7 @@ F:POWER_27
 # ---> visible trap -- eldritch sign
 
 N:300:eldritch sign
+U:56
 G:^:G
 W:12:3:20:0
 T:SOUND:8d6
@@ -3237,6 +3818,7 @@ F:POWER_12
 # ---> visible trap -- eldritch sign
 
 N:301:eldritch sign
+U:56
 G:^:G
 W:18:3:20:0
 T:SHARD:8d6
@@ -3250,6 +3832,7 @@ F:POWER_18
 # ---> visible trap -- eldritch sign
 
 N:302:eldritch sign
+U:56
 G:^:G
 W:15:3:20:0
 T:NEXUS:8d6
@@ -3263,6 +3846,7 @@ F:POWER_15
 # ---> visible trap -- eldritch sign
 
 N:303:eldritch sign
+U:56
 G:^:G
 W:24:3:20:0
 T:CHAOS:8d6
@@ -3276,6 +3860,7 @@ F:POWER_24
 # ---> visible trap -- eldritch sign
 
 N:304:eldritch sign
+U:56
 G:^:G
 W:21:3:20:0
 T:DISENCHANT:8d6
@@ -3291,44 +3876,46 @@ F:POWER_21
 
 N:305:blood-stained floor
 G:.:r
+U:56
 W:12:1:6:0
 K:DEFAULT:1
-K:TUNNEL:136
+K:CHASM:141
 F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
 F:CAN_CLIMB | CAN_FLY
 
 N:306:slimy trail
+U:56
 G:.:W
 W:12:1:6:0
 K:DEFAULT:1
-K:TUNNEL:136
+K:CHASM:141
 F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
 F:CAN_CLIMB | CAN_FLY
 
 N:307:wet floor
+U:56
 G:.:b
 W:18:2:7:0
 K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
+K:CHASM:141
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | DROP | HURT_FIRE
 
 N:308:burn marks
+U:56
 G:.:o
 W:18:2:7:0
 K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
+K:CHASM:141
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | DROP | HURT_FIRE
 
 N:309:acid marks
+U:56
 G:.:o
 W:18:2:7:0
 K:DEFAULT:1
-K:TUNNEL:136
-F:BRIDGE | 
+K:CHASM:141
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | DROP | HURT_FIRE
 
@@ -3336,10 +3923,12 @@ F:HIDE_ITEM | DROP | HURT_FIRE
 # situations.
 
 N:310:stagnant water
+U:56
 G:;:b
 W:18:2:7:0
 K:DEFAULT:310
 K:HURT_COLD:145
+K:CHASM:141
 K:USE_FEAT:310
 O:239
 F:BRIDGE | SHALLOW | LAKE | HIDE_SWIM | USE_FEAT |
@@ -3352,15 +3941,17 @@ W:27:2:7:0
 T:WATER_WEAK:4d6
 K:DEFAULT:155
 K:BRIDGE:153
+K:CHASM:151
 K:HURT_COLD:146
 K:USE_FEAT:311
 O:224
 F:WATER | DEEP | LAKE | DROP | USE_FEAT |
 F:BRIDGE | CAN_SWIM |
 F:CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
+F:WATER | HURT_COLD | OUTSIDE
 
 N:312:broken cage
+U:56
 G:0:u
 W:10:1:17:0
 K:DEFAULT:1
@@ -3372,6 +3963,7 @@ F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_9
 
 N:313:wooden cage
+U:56
 G:0:U
 W:10:1:17:0
 K:DEFAULT:1
@@ -3383,6 +3975,7 @@ F:CAN_PASS | HURT_FIRE | HURT_ACID | TUNNEL | HURT_ROCK | CAN_CLIMB |
 F:POWER_9
 
 N:314:iron cage
+U:56
 G:0:D
 W:20:1:17:0
 K:DEFAULT:1
@@ -3409,6 +4002,7 @@ F:POWER_18
 
 N:315:broken chest
 G:*:D
+U:56
 W:1:1:15:0
 K:DEFAULT:1
 K:CLOSE:32
@@ -3418,6 +4012,7 @@ F:HURT_FIRE | HURT_ACID | PLACE | CAN_FLY | CHEST |
 
 N:316:small wooden chest
 G:*:u
+U:56
 W:5:1:19:0
 D:The chest is not trapped.
 K:DEFAULT:1
@@ -3432,6 +4027,7 @@ F:POWER_5
 N:317:small wooden chest
 G:*:u
 W:5:1:19:0
+U:56
 M:350
 D:You have discovered a trap on the chest.
 K:DEFAULT:1
@@ -3446,6 +4042,7 @@ F:POWER_5
 
 N:318:small wooden chest (locked)
 G:*:u
+U:56
 W:5:1:19:0
 K:DEFAULT:1
 K:OPEN:319
@@ -3456,8 +4053,9 @@ F:HIDE_ITEM | HAS_GOLD | HAS_ITEM | CHEST |
 F:DROP_2D2 |
 F:POWER_5
 
-N:319:small wooden chest (empty)
+N:319:small wooden chest (open)
 G:*:u
+U:56
 W:5:1:15:0
 K:DEFAULT:1
 K:CLOSE:318
@@ -3469,6 +4067,7 @@ F:POWER_5
 
 N:320:small wooden chest (multiple traps)
 G:*:v
+U:56
 W:5:1:20:0
 K:DEFAULT:1
 K:OPEN:319
@@ -3482,6 +4081,7 @@ F:POWER_5
 
 N:321:small wooden chest (arrow trap)
 G:*:R
+U:56
 W:5:1:20:0
 K:DEFAULT:1
 K:OPEN:319
@@ -3495,6 +4095,7 @@ F:POWER_5
 
 N:322:small wooden chest (dart trap)
 G:*:r
+U:56
 W:5:1:20:0
 K:DEFAULT:1
 K:OPEN:319
@@ -3508,6 +4109,7 @@ F:POWER_5
 
 N:323:small wooden chest (gas trap)
 G:*:g
+U:56
 W:5:1:20:0
 K:DEFAULT:1
 K:OPEN:319
@@ -3520,6 +4122,7 @@ F:DROP_2D2 |
 F:POWER_5
 
 N:324:small wooden chest (explosive trap)
+U:56
 G:*:b
 W:5:1:20:0
 K:DEFAULT:1
@@ -3533,6 +4136,7 @@ F:DROP_2D2 |
 F:POWER_5
 
 N:325:trapped door (explosive trap)
+U:56
 G:+:b
 W:11:3:20:0
 K:DEFAULT:1
@@ -3545,6 +4149,7 @@ F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP |
 F:POWER_5
 
 N:326:explosive trap
+U:56
 G:^:b
 W:10:1:20:0
 S:EXPLODE
@@ -3554,6 +4159,7 @@ F:PROJECT | REMEMBER | NOTICE | LOS | MOVE | CHEST |
 F:POWER_10
 
 N:327:large wooden chest
+U:56
 G:*:U
 W:15:1:19:0
 D:The chest is not trapped.
@@ -3567,6 +4173,7 @@ F:DROP_1D2 | DROP_2D2 | ALLOC |
 F:POWER_7
 
 N:328:large wooden chest
+U:56
 G:*:U
 W:15:1:19:0
 M:350
@@ -3582,6 +4189,7 @@ F:DROP_1D2 | DROP_2D2 |
 F:POWER_7
 
 N:329:large wooden chest (locked)
+U:56
 G:*:U
 W:15:1:19:0
 K:DEFAULT:1
@@ -3593,17 +4201,19 @@ F:HIDE_ITEM | CHEST |
 F:DROP_1D2 | DROP_2D2 |
 F:POWER_7
 
-N:330:large wooden chest (empty)
+N:330:large wooden chest (open)
+U:56
 G:*:u
 W:15:1:15:0
 K:DEFAULT:1
 K:CLOSE:329
 K:BASH:315
 F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
+F:HURT_FIRE | HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP | 
 F:POWER_7
 
 N:331:large wooden chest (multiple traps)
+U:56
 G:*:v
 W:15:1:20:0
 K:DEFAULT:1
@@ -3617,6 +4227,7 @@ F:DROP_1D2 | DROP_2D2 |
 F:POWER_7
 
 N:332:large wooden chest (arrow trap)
+U:56
 G:*:R
 W:15:1:20:0
 K:DEFAULT:1
@@ -3631,6 +4242,7 @@ F:POWER_7
 
 N:333:large wooden chest (dart trap)
 G:*:r
+U:56
 W:15:1:20:0
 K:DEFAULT:1
 K:OPEN:330
@@ -3645,6 +4257,7 @@ F:POWER_7
 N:334:large wooden chest (gas trap)
 G:*:g
 W:15:1:20:0
+U:56
 K:DEFAULT:1
 K:OPEN:330
 K:BASH:315
@@ -3657,6 +4270,7 @@ F:POWER_7
 
 N:335:large wooden chest (explosive trap)
 G:*:b
+U:56
 W:15:1:20:0
 K:DEFAULT:1
 K:OPEN:330
@@ -3669,6 +4283,7 @@ F:DROP_1D2 | DROP_2D2 |
 F:POWER_7
 
 N:336:small iron chest
+U:56
 G:*:s
 W:25:1:19:0
 D:The chest is not trapped.
@@ -3682,6 +4297,7 @@ F:DROP_2D2 | DROP_GOOD | CHEST | ALLOC |
 F:POWER_12
 
 N:337:small iron chest
+U:56
 G:*:s
 W:25:1:19:0
 M:350
@@ -3697,6 +4313,7 @@ F:DROP_2D2 | DROP_GOOD |
 F:POWER_12
 
 N:338:small iron chest (locked)
+U:56
 G:*:s
 W:25:1:19:0
 K:DEFAULT:1
@@ -3708,17 +4325,19 @@ F:HIDE_ITEM | CHEST |
 F:DROP_2D2 | DROP_GOOD |
 F:POWER_12
 
-N:339:small iron chest (empty)
+N:339:small iron chest (open)
+U:56
 G:*:s
 W:25:1:15:0
 K:DEFAULT:1
 K:CLOSE:338
 K:BASH:315
 F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
-F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP |
+F:HURT_ACID | CLOSE | PLACE | BASH | CAN_FLY | DROP | 
 F:POWER_12
 
 N:340:small iron chest (multiple traps)
+U:56
 G:*:v
 W:25:1:20:0
 K:DEFAULT:1
@@ -3732,6 +4351,7 @@ F:DROP_2D2 | DROP_GOOD |
 F:POWER_12
 
 N:341:small iron chest (magic symbol)
+U:56
 G:*:B
 W:25:1:20:0
 K:DEFAULT:1
@@ -3745,6 +4365,7 @@ F:DROP_2D2 | DROP_GOOD |
 F:POWER_12
 
 N:342:small iron chest (tripwire)
+U:56
 G:*:y
 W:25:1:20:0
 K:DEFAULT:1
@@ -3759,6 +4380,7 @@ F:POWER_12
 
 N:343:small iron chest (discolored spot)
 G:*:u
+U:56
 W:25:1:20:0
 K:DEFAULT:1
 K:OPEN:339
@@ -3772,6 +4394,7 @@ F:POWER_12
 
 N:344:small iron chest (explosive trap)
 G:*:b
+U:56
 W:25:1:20:0
 K:DEFAULT:1
 K:OPEN:339
@@ -3785,6 +4408,7 @@ F:POWER_12
 
 N:345:large iron chest
 G:*:W
+U:56
 W:35:1:19:0
 D:The chest is not trapped.
 K:DEFAULT:1
@@ -3797,6 +4421,7 @@ F:POWER_17
 
 N:346:large iron chest
 G:*:W
+U:56
 W:35:1:19:0
 M:350
 D:You have discovered a trap on the chest.
@@ -3812,6 +4437,7 @@ F:POWER_17
 
 N:347:large iron chest (locked)
 G:*:W
+U:56
 W:35:1:19:0
 K:DEFAULT:1
 K:OPEN:348
@@ -3822,8 +4448,9 @@ F:HIDE_ITEM | CHEST |
 F:DROP_1D2 | DROP_2D2 | DROP_GOOD |
 F:POWER_17
 
-N:348:large iron chest (empty)
+N:348:large iron chest (open)
 G:*:W
+U:56
 W:35:1:15:0
 K:DEFAULT:1
 K:CLOSE:347
@@ -3836,6 +4463,7 @@ F:POWER_17
 N:349:large iron chest (multiple traps)
 G:*:v
 W:35:1:20:0
+U:56
 K:DEFAULT:1
 K:OPEN:348
 K:BASH:315
@@ -3849,6 +4477,7 @@ F:POWER_17
 N:350:large iron chest (magic symbol)
 G:*:B
 W:35:1:20:0
+U:56
 K:DEFAULT:1
 K:OPEN:348
 K:BASH:315
@@ -3861,6 +4490,7 @@ F:POWER_17
 
 N:351:large iron chest (tripwire)
 G:*:y
+U:56
 W:35:1:20:0
 K:DEFAULT:1
 K:OPEN:348
@@ -3874,6 +4504,7 @@ F:POWER_17
 
 N:352:large iron chest (discolored spot)
 G:*:u
+U:56
 W:35:1:20:0
 K:DEFAULT:1
 K:OPEN:348
@@ -3887,6 +4518,7 @@ F:POWER_17
 
 N:353:large iron chest (explosive trap)
 G:*:b
+U:56
 W:35:1:20:0
 K:DEFAULT:1
 K:OPEN:348
@@ -3901,6 +4533,7 @@ F:POWER_17
 N:354:small steel chest
 G:*:s
 W:45:1:19:0
+U:56
 D:The chest is not trapped.
 K:DEFAULT:1
 K:OPEN:357
@@ -3914,6 +4547,7 @@ F:POWER_22
 N:355:small steel chest
 G:*:s
 W:45:1:19:0
+U:56
 M:354
 D:You have discovered a trap on the chest.
 K:DEFAULT:1
@@ -3928,6 +4562,7 @@ F:POWER_22
 
 N:356:small steel chest (locked)
 G:*:s
+U:56
 W:45:1:19:0
 K:DEFAULT:1
 K:OPEN:357
@@ -3938,9 +4573,10 @@ F:HIDE_ITEM | CHEST |
 F:DROP_2D2 | DROP_GREAT |
 F:POWER_22
 
-N:357:small steel chest (empty)
+N:357:small steel chest (open)
 G:*:s
 W:45:1:15:0
+U:56
 K:DEFAULT:1
 K:CLOSE:357
 K:BASH:315
@@ -3950,6 +4586,7 @@ F:POWER_22
 
 N:358:small steel chest (multiple traps)
 G:*:v
+U:56
 W:45:1:20:0
 K:DEFAULT:1
 K:OPEN:357
@@ -3963,6 +4600,7 @@ F:POWER_22
 
 N:359:small steel chest (eldritch sign)
 G:*:G
+U:56
 W:45:1:20:0
 K:DEFAULT:1
 K:OPEN:357
@@ -3976,6 +4614,7 @@ F:POWER_22
 
 N:360:small steel chest (stone idol)
 G:*:W
+U:56
 W:45:1:20:0
 K:DEFAULT:1
 K:OPEN:357
@@ -3989,6 +4628,7 @@ F:POWER_22
 
 N:361:small steel chest (strange rune)
 G:*:o
+U:56
 W:45:1:20:0
 K:DEFAULT:1
 K:OPEN:357
@@ -4002,6 +4642,7 @@ F:POWER_22
 
 N:362:small steel chest (explosive trap)
 G:*:b
+U:56
 W:45:1:20:0
 K:DEFAULT:1
 K:OPEN:357
@@ -4015,6 +4656,7 @@ F:POWER_22
 
 N:363:large steel chest
 G:*:W
+U:56
 W:55:1:19:0
 D:The chest is not trapped.
 K:DEFAULT:1
@@ -4028,6 +4670,7 @@ F:POWER_27
 
 N:364:large steel chest
 G:*:W
+U:56
 W:55:1:19:0
 M:350
 D:You have discovered a trap on the chest.
@@ -4043,6 +4686,7 @@ F:POWER_27
 
 N:365:large steel chest (locked)
 G:*:W
+U:56
 W:55:1:19:0
 K:DEFAULT:1
 K:OPEN:366
@@ -4053,10 +4697,11 @@ F:HIDE_ITEM | CHEST |
 F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
 F:POWER_27
 
-N:366:large steel chest (empty)
+N:366:large steel chest (open)
 G:*:W
 W:55:1:15:0
 K:DEFAULT:1
+U:56
 K:CLOSE:365
 K:BASH:315
 F:DOOR | CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | CHEST |
@@ -4066,6 +4711,7 @@ F:POWER_27
 N:367:large steel chest (multiple traps)
 G:*:v
 W:55:1:20:0
+U:56
 K:DEFAULT:1
 K:OPEN:365
 K:HIT_TRAP:128
@@ -4078,6 +4724,7 @@ F:POWER_27
 
 N:368:large steel chest (eldritch sign)
 G:*:B
+U:56
 W:55:1:20:0
 K:DEFAULT:1
 K:OPEN:365
@@ -4091,6 +4738,7 @@ F:POWER_27
 
 N:369:large steel chest (stone idol)
 G:*:W
+U:56
 W:55:1:20:0
 K:DEFAULT:1
 K:OPEN:365
@@ -4104,6 +4752,7 @@ F:POWER_27
 
 N:370:large steel chest (strange rune)
 G:*:o
+U:56
 W:55:1:20:0
 K:DEFAULT:1
 K:OPEN:365
@@ -4118,6 +4767,7 @@ F:POWER_27
 N:371:large steel chest (explosive trap)
 G:*:b
 W:55:1:20:0
+U:56
 K:DEFAULT:1
 K:OPEN:365
 K:HIT_TRAP:371
@@ -4134,6 +4784,7 @@ F:POWER_27
 # broken altar - equivelent to Prayer Book of Laying of Hands
 
 N:372:broken altar
+U:56
 G:0:D
 W:20:1:20:0
 K:DEFAULT:1
@@ -4144,35 +4795,38 @@ F:USE_FEAT | POWER_2 | ALLOC
 # wooden altar - equivelent to Prayer Book of the Way of God
 
 N:373:wooden altar
+U:56
 G:0:U
 W:30:1:20:0
 K:DEFAULT:1
 K:BASH:372
 O:384
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | HURT_FIRE | HURT_ACID |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | BASH | HURT_FIRE | HURT_ACID |
 F:USE_FEAT | POWER_6 | ALLOC | USE_FEAT
 
 # stone altar - equivelent to Prayer Book of Abjurations
 
 N:374:stone altar
+U:56
 G:0:w
 W:17:1:20:0
 K:DEFAULT:1
 K:HURT_FIRE:378
 O:537
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
 F:USE_FEAT | POWER_10 | ALLOC
 
 #  blood-stained altar - equivelent to Prayer Book of Accursed Ways
 
 N:375:blood-stained altar
+U:56
 G:0:r
 W:40:1:20:0
 K:DEFAULT:1
 K:HURT_WATER:374
 K:HURT_FIRE:378
 O:539
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
 F:HURT_WATER | ALLOC
 F:USE_FEAT | POWER_10
 
@@ -4180,12 +4834,13 @@ F:USE_FEAT | POWER_10
 
 N:376:dusty altar
 G:0:W
+U:56
 W:40:2:20:0
 K:DEFAULT:1
 K:HURT_WATER:374
 K:HURT_FIRE:378
 O:387
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | HURT_ROCK | HURT_ACID | HURT_FIRE |
 F:HURT_WATER | ALLOC | USE_FEAT |
 F:USE_FEAT | POWER_10
 
@@ -4193,70 +4848,77 @@ F:USE_FEAT | POWER_10
 
 N:377:corroded altar
 G:0:g
+U:56
 W:50:4:20:0
 K:DEFAULT:1
 O:388
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | ALLOC |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | ALLOC |
 F:USE_FEAT | POWER_8
 
 #  ashen altar - equivelent to Prayer Book of Retribution
 
 N:378:ashen altar
 G:0:D
+U:56
 W:35:2:20:0
 K:DEFAULT:1
 K:HURT_WATER:374
 O:541
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_WATER | ALLOC
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | HURT_ROCK | HURT_WATER | ALLOC
 F:USE_FEAT | POWER_9
 
 #  golden altar - equivelent to Prayer Book of Miracles
 
 N:379:golden altar
 G:0:y
+U:56
 W:22:1:20:0
 K:DEFAULT:1
 O:538
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | ALLOC |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | ALLOC |
 F:USE_FEAT | POWER_9
 
 #  iron altar - equivelent to Prayer Book of Battle Hymns
 
 N:380:iron altar
 G:0:s
+U:56
 W:45:2:20:0
 K:DEFAULT:1
 K:HURT_ACID:377
 O:542
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ACID | ALLOC |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | HURT_ACID | ALLOC |
 F:USE_FEAT | POWER_10
 
 #  bone altar - equivelent to Prayer Book of the Dead
 
 N:381:bone altar
 G:0:w
+U:56
 W:22:1:20:0
 K:DEFAULT:1
 K:BASH:372
 O:540
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | HURT_ACID | ALLOC |
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | BASH | HURT_ACID | ALLOC |
 F:USE_FEAT | POWER_6
 
 #  glass altar - equivelent to Prayer Book of Divine Insights
 
 N:382:glass altar
 G:0:G
+U:56
 W:25:1:20:0
 K:DEFAULT:1
 K:BASH:372
 O:385
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | BASH | ALLOC |
+F:CAN_CLIMB | LOS | MOVE | REMEMBER | NOTICE | BASH | ALLOC |
 F:USE_FEAT | POWER_3
 
 # broken fountain
 
 N:383:broken fountain
 G:':b
+U:56
 K:DEFAULT:1
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | ALLOC
 
@@ -4264,6 +4926,7 @@ F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | ALLOC
 
 N:384:empty fountain
 G:':b
+U:56
 W:1:1:20:0
 K:DEFAULT:1
 K:HURT_WATER:385
@@ -4274,6 +4937,7 @@ F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | HURT_WATER 
 
 N:385:clear fountain
 G:0:B
+U:56
 W:1:1:20:0
 K:DEFAULT:1
 K:BASH:383
@@ -4286,6 +4950,7 @@ F:POWER_10
 # cloudy fountain - equivelent to potion of lose memories
 
 N:386:cloudy fountain
+U:56
 G:0:B
 W:10:3:20:0
 K:DEFAULT:1
@@ -4299,6 +4964,7 @@ F:POWER_10
 # bubbling fountain - equivelent to potion of cure critical wounds
 
 N:387:bubbling fountain
+U:56
 G:0:B
 W:10:3:20:0
 K:DEFAULT:1
@@ -4312,6 +4978,7 @@ F:USE_FEAT
 # misty fountain - equivelent to potion of restoring
 
 N:388:misty fountain
+U:56
 G:0:B
 W:30:3:20:0
 K:DEFAULT:1
@@ -4324,6 +4991,7 @@ F:USE_FEAT
 # smoky fountain - equivelent to potion of enlightenment
 
 N:389:smoky fountain
+U:56
 G:0:B
 W:20:3:20:0
 K:DEFAULT:1
@@ -4333,26 +5001,25 @@ O:256
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH | ALLOC |
 F:USE_FEAT
 
-# Following is left after rock to mud spells.
-
 N:390:muddy floor
 G:.:o
+U:56
 W:12:1:6:0
 K:DEFAULT:1
-K:TUNNEL:136
 F:LOS | MOVE | PROJECT | REMEMBER | PLACE | DROP | FLOOR |
 F:CAN_CLIMB | CAN_FLY
 
 # well - equivelent to unlimited potion of water, plus can climb down
 
 N:391:stone well
+U:56
 G:0:b
 W:0:1:20:0
 K:DEFAULT:1
 K:USE_FEAT:391
 O:224
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | ALLOC |
-F:USE_FEAT | MORE | STAIRS
+F:USE_FEAT | MORE | STAIRS | CAN_HIDE
 F:POWER_10
 
 #various undrinkable waters. Perculiarly, freezing them
@@ -4360,6 +5027,7 @@ F:POWER_10
 #sickliness
 
 N:392:underwater
+U:56
 G:#:b
 M:56
 W:69:2:13:0
@@ -4367,24 +5035,27 @@ T:WATER_WEAK:4d6
 K:DEFAULT:397
 K:BRIDGE:396
 K:SECRET:393
+K:CHASM:151
 K:HURT_COLD:150
 O:293
 F:FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
 F:REMEMBER | WATER | HURT_COLD | USE_FEAT |
 F:POWER_36
 
 N:393:underwater
 G:#:b
+U:56
 W:69:2:13:0
 K:DEFAULT:397
 K:BRIDGE:396
 K:HURT_COLD:150
+K:CHASM:151
 K:USE_FEAT:393
 O:293
 T:WATER_WEAK:4d6
 F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | PLACE |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | PLACE |
 F:REMEMBER | WATER | HURT_COLD | USE_FEAT |
 F:POWER_36
 
@@ -4392,32 +5063,40 @@ N:394:deep water under a stone bridge
 G:':w
 W:36:1:8:0
 M:140
+U:140
 K:DEFAULT:397
+K:CHASM:151
 K:BRIDGE:394
 K:USE_FEAT:394
 K:HURT_COLD:147
 O:293
 F:CAN_FLY | CAN_CLIMB | CAN_SWIM | BRIDGED | CAN_CLIMB | BRIDGE |
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | HIDE_SWIM | HIDE_DEEP |
-F:WATER | RUN | USE_FEAT | HURT_COLD
+F:WATER | RUN | USE_FEAT | HURT_COLD | OUTSIDE
 
 N:395:water
 G:;:b
 W:27:2:7:0
+M:153
+U:153
 K:HURT_COLD:145
+K:CHASM:151
 K:USE_FEAT:395
 O:293
 F:BRIDGE | WATER | SHALLOW | RIVER | LAKE | HIDE_SWIM |
 F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
 F:HIDE_ITEM | DROP | HURT_COLD | USE_FEAT |
-F:WATER
+F:WATER | OUTSIDE
 
 N:396:deep water
+U:153
 G:;:b
 W:36:2:7:0
 M:153
+U:153
 T:WATER_WEAK:4d6
 K:DEFAULT:396
+K:CHASM:151
 K:BRIDGE:395
 K:SECRET:397
 K:HURT_COLD:146
@@ -4426,13 +5105,16 @@ D:The water is deeper than it looks.
 F:WATER | DEEP | RIVER | LAKE | DROP | USE_FEAT |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | SECRET |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
+F:WATER | HURT_COLD | OUTSIDE
 
 N:397:deep water
 G:::b
+M:155
+U:155
 W:54:2:12:0
 T:WATER_WEAK:4d6
 K:DEFAULT:397
+K:CHASM:151
 K:BRIDGE:394
 K:HURT_COLD:146
 K:USE_FEAT:397
@@ -4440,15 +5122,16 @@ O:293
 F:WATER | DEEP | USE_FEAT |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | HURT_COLD
+F:WATER | HURT_COLD | OUTSIDE
 
 #various undrinkable waters. Perculiarly, freezing them
 #renders them drinkable... equivelent to potion of 
 #salt water. Also salt water doesn't freeze.
 
-N:398:undersea
+N:398:underwater
 G:#:b
 M:56
+U:56
 W:69:2:13:0
 T:WATER_WEAK:4d6
 K:DEFAULT:403
@@ -4456,12 +5139,13 @@ K:BRIDGE:402
 K:SECRET:399
 O:255
 F:FILLED | CAN_SWIM | TUNNEL | CAN_PASS | LAKE | RIVER | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | SECRET | PLACE | DROP |
 F:REMEMBER | WATER |
 F:POWER_36
 
-N:399:undersea
+N:399:underwater
 G:#:b
+U:56
 W:69:2:13:0
 K:DEFAULT:403
 K:BRIDGE:402
@@ -4469,37 +5153,41 @@ K:USE_FEAT:399
 O:255
 T:WATER_WEAK:4d6
 F:WATER | FILLED | CAN_SWIM | TUNNEL | CAN_PASS | DROP | MOVE |
-F:HIDE_ITEM | BRIDGE  | HIDE_SWIM | HIDE_DEEP | PLACE |
+F:HIDE_ITEM | BRIDGE | HIDE_SWIM | HIDE_DEEP | PLACE |
 F:REMEMBER | WATER | USE_FEAT |
 F:POWER_36
 
-N:400:deep salt water under a stone bridge
-G:':w
-W:36:1:8:0
-M:140
-K:DEFAULT:403
-K:BRIDGE:400
-K:USE_FEAT:400
-O:255
-F:CAN_FLY | CAN_CLIMB | CAN_SWIM | BRIDGED | CAN_CLIMB | BRIDGE | USE_FEAT |
-F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | DROP | PLACE | HIDE_SWIM | HIDE_DEEP |
-F:WATER | RUN
+N:400:wet sand
+G:.:b
+W:22:3:7:0
+M:192
+U:192
+K:DEFAULT:193
+K:KILL_MOVE:195
+K:BRIDGE:195
+K:CHASM:403
+K:HURT_WATER:193
+O:338
+F:HIDE_DIG | LOS | MOVE | PLACE | DROP | PROJECT | FLOOR | KILL_MOVE | GET_FEAT |
+F:BRIDGE | OUTSIDE | HURT_WATER
+F:CAN_CLIMB | CAN_FLY
 
 N:401:salt water
 G:;:b
 W:27:2:7:0
 K:DEFAULT:401
+K:CHASM:403
 K:USE_FEAT:401
 O:255
 F:BRIDGE | WATER | SHALLOW | RIVER | LAKE | HIDE_SWIM |
 F:CAN_FLY | CAN_SWIM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:HIDE_ITEM | DROP | USE_FEAT |
+F:HIDE_ITEM | DROP | USE_FEAT | OUTSIDE
 F:WATER
 
 N:402:deep salt water
 G:;:b
+U:401
 W:36:2:7:0
-M:153
 T:WATER_WEAK:4d6
 K:DEFAULT:402
 K:BRIDGE:401
@@ -4510,42 +5198,670 @@ D:The water is deeper than it looks.
 F:WATER | DEEP | RIVER | LAKE | DROP |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | SECRET | USE_FEAT |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | USE_FEAT
+F:WATER | USE_FEAT | OUTSIDE
+
+# Note: never bridged.
 
 N:403:deep salt water
 G:::b
-W:54:2:12:0
+W:54:2:12:401
 T:WATER_WEAK:4d6
 K:DEFAULT:403
-K:BRIDGE:401
-K:USE_FEAT:403
 O:255
 F:WATER | DEEP |
 F:BRIDGE | CAN_SWIM | HIDE_SWIM | HIDE_DEEP | DROP |
 F:CAN_FLY | HIDE_ITEM | LOS | MOVE | PROJECT | REMEMBER | PLACE |
-F:WATER | USE_FEAT
+F:WATER | USE_FEAT | OUTSIDE
 
 # 0x01 --> open floor
 
 N:404:burning torch
 G:~:u
+U:56
 W:1:1:15:0
 K:DEFAULT:1
 O:346
 F:LOS | MOVE | PROJECT | PLACE | DROP | GLOW | GET_FEAT
-F:CAN_CLIMB | CAN_FLY | FLOOR | RUN | HURT_FIRE
+F:CAN_CLIMB | CAN_FLY | FLOOR | RUN | HURT_FIRE | REMEMBER | NOTICE
 
 N:405:flickering candle
+U:56
 G:~:R
 W:1:1:15:0
 K:DEFAULT:1
 F:LOS | MOVE | PROJECT | PLACE | DROP | GLOW |
-F:CAN_CLIMB | CAN_FLY | FLOOR | RUN | HURT_FIRE
+F:CAN_CLIMB | CAN_FLY | FLOOR | RUN | HURT_FIRE | REMEMBER | NOTICE
 
 N:406:magical light
+U:56
 G:~:B
 W:1:1:15:0
 K:DEFAULT:1
-F:LOS | MOVE | PROJECT | PLACE | DROP | GLOW |
+F:LOS | MOVE | PROJECT | PLACE | DROP | GLOW | REMEMBER | NOTICE
 F:CAN_CLIMB | CAN_FLY | FLOOR | RUN | PERMANENT
 
+# 0x01 --> open floor
+
+N:407:open ground
+W:0:1:15:0
+G:.:u
+K:DEFAULT:407
+K:CHASM:141
+K:BRIDGE:408
+F:LOS | MOVE | PROJECT | PLACE | DROP |
+F:CAN_CLIMB | CAN_FLY | OUTSIDE | GROUND
+
+#Note -- open trail through open ground
+
+N:408:open trail
+W:0:1:16:0
+G:.:o
+U:407
+K:DEFAULT:408
+K:CHASM:141
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB |
+F:HIDE_DIG | BRIDGE | PLACE | DROP |  RUN | REMEMBER | NOTICE | GROUND
+
+N:409:broken ground
+W:0:1:15:0
+G:.:s
+O:82
+K:DEFAULT:409
+K:BRIDGE:410
+K:CHASM:141
+K:GET_FEAT:409
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | GET_FEAT
+F:HIDE_DIG | BRIDGE | PLACE | DROP | GROUND
+
+N:410:broken trail
+W:0:1:16:0
+G:.:o
+U:409
+O:82
+K:DEFAULT:410
+K:CHASM:141
+K:GET_FEAT:410
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | GET_FEAT |
+F:HIDE_DIG | BRIDGE | PLACE | DROP |  RUN | REMEMBER | NOTICE | GROUND
+
+N:411:grass
+W:0:1:15:0
+G:.:G
+K:BRIDGE:412
+K:CHASM:141
+K:HURT_FIRE:44
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_ITEM |
+F:HIDE_DIG | BRIDGE | HURT_FIRE | PLACE | DROP | GROUND
+F:CAN_HIDE
+
+#Note -- open trail through grass
+
+N:412:grassy trail
+W:0:1:16:0
+G:.:o
+U:411
+K:BRIDGE:412
+K:CHASM:141
+K:HURT_FIRE:415
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | 
+F:HIDE_DIG | HURT_FIRE | BRIDGE | PLACE | DROP |  RUN
+F:CAN_HIDE | REMEMBER | NOTICE | GROUND
+
+# Deep grass - hidden
+
+N:413:deep grass
+W:0:1:15:0
+G:.:G
+M:411
+U:411
+K:DEFAULT:414
+K:BRIDGE:412
+K:CHASM:141
+K:HURT_FIRE:417
+F:OUTSIDE | MOVE | PROJECT | SECRET | KILL_MOVE | HURT_FIRE | BRIDGE
+F:CAN_HIDE | GROUND
+
+N:414:deep grass
+W:0:1:15:0
+G:::G
+U:411
+K:BRIDGE:412
+K:CHASM:141
+K:HURT_FIRE:416
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | CAN_HIDE | BRIDGE | GROUND
+
+N:415:grass fire
+W:0:1:17:0
+G:':D
+U:162
+T:FIRE:2d6
+K:CHASM:141
+K:HURT_FIRE:418
+F:OUTSIDE | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG |
+F:BRIDGE | GLOW | REMEMBER | NOTICE | GROUND
+
+# Deep grass fire - hidden
+
+N:416:grass fire
+W:0:1:17:0
+T:FIRE:3d6
+G:':D
+U:162
+M:415
+K:HURT_FIRE:418
+K:CHASM:141
+K:SECRET:417
+F:OUTSIDE | MOVE | PROJECT | SECRET | REMEMBER | NOTICE
+F:KILL_MOVE | HURT_FIRE | DYNAMIC | CAN_FLY  | GROUND
+
+N:417:deep grass fire
+W:0:1:17:0
+T:FIRE:3d6
+G:':o
+U:162
+K:CHASM:141
+T:FIRE:418
+F:OUTSIDE | MOVE | PROJECT | GLOW |
+F:HURT_FIRE | DYNAMIC | CAN_FLY | REMEMBER | NOTICE | GROUND
+
+N:418:burnt ground
+W:0:1:17:0
+G:.:D
+U:162
+K:CHASM:141
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_FLY | PLACE |
+F:DROP | FLOOR  | GROUND
+
+# There are small trees and big trees
+# Trees block projection, but not sight, and the trunks
+# can be climbed. The shade surrounding them also blocks
+# sunlight, treating them as inside.
+
+N:419:tree
+W:20:2:17:0
+G:<:G
+K:DEFAULT:427
+K:BRIDGE:419
+K:HURT_FIRE:423
+K:CHASM:454
+F:LOS | OUTSIDE | CAN_FLY | TREE | EASY_CLIMB | LAKE |
+F:BRIDGE | HURT_FIRE | BASH | POWER_10 | REMEMBER | NOTICE
+F:PLACE | DROP
+
+N:420:trunk of a large tree
+W:0:1:17:0
+G:<:g
+U:419
+K:DEFAULT:427
+K:BRIDGE:420
+K:HURT_FIRE:423
+K:CHASM:455
+F:LOS | EASY_CLIMB | CAN_FLY | TREE_BIG | TREE |
+F:BRIDGE | HURT_FIRE | COLLAPSE | BASH | POWER_20 | REMEMBER | NOTICE
+F:PLACE | DROP
+
+N:421:shade of a tree
+W:0:1:16:0
+G:.:g
+U:419
+K:DEFAULT:407
+K:BRIDGE:421
+K:HURT_FIRE:424
+K:CHASM:456
+F:LOS | MOVE | PROJECT | CAN_CLIMB | HURT_FIRE | NEED_TREE | TREE |
+F:CAN_FLY | BRIDGE
+F:PLACE | DROP
+
+N:422:hollow tree
+W:0:1:17:0
+G:<:s
+U:419
+K:DEFAULT:427
+K:BRIDGE:422
+K:HURT_FIRE:423
+K:CHASM:141
+F:LOS | EASY_CLIMB | CAN_FLY | HURT_FIRE | HIDE_ITEM | TREE_BIG | TREE | CAN_HIDE |
+F:BRIDGE | BASH | POWER_20 | HURT_FIRE | REMEMBER | NOTICE
+F:PLACE | DROP
+
+N:423:burning tree
+W:0:1:16:0
+G:':o
+U:162
+T:FIRE:2d6
+K:HURT_FIRE:425
+K:CHASM:141
+K:BASH:427
+F:LOS | CAN_FLY | GLOW | DYNAMIC | BASH | POWER_10 | EASY_CLIMB | REMEMBER | NOTICE
+F:TREE
+
+N:424:forest fire
+G:':o
+U:162
+T:FIRE:4d6
+K:CHASM:141
+K:HURT_FIRE:425
+F:LOS | MOVE | PROJECT | CAN_CLIMB | CAN_FLY | GLOW | NEED_TREE | DYNAMIC |
+F:REMEMBER | NOTICE | TREE
+
+N:425:burnt tree
+G:<:D
+K:CHASM:141
+U:162
+F:LOS | MOVE | PROJECT | CAN_CLIMB | CAN_FLY | GLOW | TREE | REMEMBER
+F:NOTICE
+
+N:426:apple tree
+W:0:1:17:0
+G:<:R
+U:419
+O:29
+K:DEFAULT:427
+K:BRIDGE:419
+K:CHASM:454
+K:GET_FEAT:426
+F:LOS | EASY_CLIMB | OUTSIDE | CAN_FLY | TREE | GET_FEAT |
+F:BRIDGE | HURT_FIRE | BASH | POWER_10 | REMEMBER | NOTICE
+F:PLACE | DROP
+
+N:427:fallen tree
+W:0:1:17:0
+G:':g
+U:407
+K:CHASM:141
+K:BRIDGE:419
+F:LOS | PROJECT | OUTSIDE | CAN_FLY | EASY_CLIMB |
+F:BRIDGE | REMEMBER | NOTICE |
+F:PLACE | DROP
+
+N:428:snow
+G:.:W
+W:0:1:17:0
+K:BRIDGE:429
+K:CHASM:141
+K:KILL_MOVE:429
+F:OUTSIDE | LOS | MOVE | PROJECT | BRIDGE | CAN_FLY | KILL_MOVE | ICE
+F:PLACE | DROP | HIDE_ITEM | GROUND
+
+N:429:snowy trail
+G:.:B
+U:428
+W:0:1:17:0
+K:CHASM:141
+K:BRIDGE:429
+F:OUTSIDE | LOS | MOVE | PROJECT | BRIDGE | CAN_FLY | RUN | ICE | REMEMBER | NOTICE
+F:PLACE | DROP | GROUND
+
+N:430:deep snowy trail
+G:.:B
+U:428
+W:0:1:17:0
+K:CHASM:141
+K:BRIDGE:430
+F:OUTSIDE | LOS | MOVE | PROJECT | HIDE_DEEP | BRIDGE | CAN_FLY
+F:ICE | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | GROUND 
+
+N:431:geothermal ground
+G:.:v
+W:51:2:7:0
+K:CHASM:141
+K:BRIDGE:433
+F:HIDE_ITEM | DROP | LOS | MOVE | PROJECT | PLACE | OUTSIDE |
+F:REMEMBER | OUTSIDE | BRIDGE
+F:PLACE | DROP | GROUND
+
+N:432:deep lava under geothermal ground
+G:.:v
+W:72:2:7:50
+M:431
+U:431
+K:DEFAULT:216
+K:CHASM:214
+K:BRIDGE:63
+T:FIRE:24d10
+F:BASH | CAN_FLY | KILL_HUGE | HIDE_ITEM | LAVA | OUTSIDE |
+F:DROP | LOS | MOVE | PROJECT |  PLACE | REMEMBER |
+F:COVERED | BRIDGE | OUTSIDE
+F:PLACE | DROP
+
+N:433:geothermal trail
+G:.:o
+U:431
+W:0:1:17:0
+K:CHASM:141
+K:BRIDGE:63
+F:BASH | CAN_FLY | HIDE_ITEM |
+F:DROP | LOS | MOVE | PROJECT |  PLACE | REMEMBER |
+F:BRIDGE | OUTSIDE | REMEMBER | NOTICE
+F:PLACE | DROP | GROUND
+
+N:434:snow covered bush
+W:0:1:15:0
+G:::W
+K:CHASM:141
+K:BRIDGE:430
+F:OUTSIDE | LOS | MOVE | PROJECT | HIDE_DEEP | BRIDGE | CAN_FLY | ICE | CAN_HIDE
+F:HURT_FIRE | REMEMBER | NOTICE | TREE
+F:PLACE | DROP | HIDE_ITEM | GROUND
+
+N:435:bush
+W:0:1:15:0
+G:::g
+K:BRIDGE:407
+K:CHASM:141
+K:HURT_FIRE:437
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:436:thorny bush
+W:0:1:15:0
+T:HURT:1d4
+G:::g
+U:435
+M:435
+D:This bush is full of sharp thorns.
+K:BRIDGE:407
+K:HURT_FIRE:437
+K:CHASM:141  
+K:SECRET:448
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | CAN_HIDE | SECRET | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:437:bush fire
+W:0:1:17:0
+T:FIRE:3d6
+G:':o
+U:162
+K:CHASM:141
+K:HURT_FIRE:418
+F:OUTSIDE | MOVE | PROJECT | GLOW
+F:HURT_FIRE | DYNAMIC | CAN_FLY | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:438:wooden platform
+G:.:U
+W:24:10:15:0
+K:DEFAULT:1
+K:HURT_FIRE:162
+K:CHASM:459
+F:LOS | MOVE | PROJECT | PLACE | DROP | HURT_FIRE |
+F:CAN_CLIMB | CAN_FLY |  RUN | CAN_HIDE | OUTSIDE | REMEMBER | NOTICE
+F:PLACE | DROP
+
+N:439:tiled floor
+G:.:R
+U:56
+W:24:10:15:0
+K:DEFAULT:1
+K:CHASM:141
+F:LOS | MOVE | PROJECT | PLACE | DROP | ATTR_LITE | HURT_FIRE |
+F:CAN_CLIMB | CAN_FLY |  RUN | REMEMBER
+F:PLACE | DROP
+
+N:440:blackberry bush
+W:0:1:15:0
+T:HURT:1d4
+G:::g
+U:435
+M:435
+O:599
+K:DEFAULT:436
+K:BRIDGE:407
+K:HURT_FIRE:437
+K:CHASM:141
+D:These berries look good.
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | USE_FEAT | SECRET | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:441:poisonous bush
+W:0:1:15:0
+T:POISON:2d4
+G:::g
+U:435
+K:BRIDGE:407
+K:HURT_FIRE:437
+K:SECRET:442
+K:CHASM:141
+D:This bush is full of poisonous thorns.
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | USE_FEAT | SECRET | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:442:poisonous bush
+W:0:1:15:0
+T:POISON:2d4
+G:::R
+U:435
+K:BRIDGE:435
+K:CHASM:141
+K:HURT_FIRE:437
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | USE_FEAT | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:443:curtain
+G:':r
+U:56
+W:5:1:20:0
+K:DEFAULT:1
+K:CHASM:141
+K:OPEN:444
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | ALLOC |
+F:CAN_HIDE | HURT_FIRE | OPEN
+F:PLACE | DROP | HIDE_ITEM
+
+N:444:open curtain
+G:':R
+U:56
+W:5:1:20:0
+K:DEFAULT:1
+K:CHASM:141
+K:CLOSE:443
+F:CAN_CLIMB | MOVE | REMEMBER | NOTICE | ALLOC |
+F:CAN_HIDE | HURT_FIRE | CLOSE
+F:PLACE | DROP
+
+N:445:sunken pit
+U:56
+G:^:s
+W:5:2:20:0
+K:CHASM:141
+K:DEFAULT:1
+F:CAN_HIDE | LOS | MOVE |
+F:PROJECT | REMEMBER | NOTICE | PLACE |
+F:CAN_CLIMB | CAN_FLY
+F:DROP
+
+N:446:giant spider web
+G:::s
+W:25:3:7:0
+U:56
+K:DEFAULT:1
+K:HURT_FIRE:162
+F:LOS | MOVE | CAN_HIDE | HURT_FIRE | 
+F:KILL_MOVE | HIDE_ITEM | REMEMBER | NOTICE
+F:CAN_CLIMB
+F:PLACE | DROP | HIDE_ITEM
+
+N:447:dusty cobwebs
+G:':s
+W:15:3:7:0
+U:56
+O:341
+K:DEFAULT:1
+K:GET_FEAT:134
+F:LOS | MOVE | PROJECT | HURT_FIRE | HURT_WATER | REMEMBER | NOTICE
+F:PLACE | DROP | KILL_MOVE |  RUN | BRIDGE | GET_FEAT |
+F:CAN_CLIMB | CAN_FLY
+
+N:448:thorny bush
+W:0:1:15:0
+T:HURT:1d4
+G:::g
+U:435
+M:435
+D:This bush is full of sharp thorns.
+K:BRIDGE:435
+K:HURT_FIRE:437
+K:CHASM:141
+F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | CAN_HIDE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM | TREE
+
+N:449:cupboard
+G:*:U
+U:56
+W:24:10:15:0
+K:DEFAULT:1
+K:HURT_FIRE:162
+K:OPEN:450
+K:CHASM:141
+F:LOS | MOVE | PROJECT | PLACE | HURT_FIRE | HIDE_ITEM |
+F:CAN_CLIMB | CAN_FLY | CAN_HIDE | REMEMBER | NOTICE
+
+N:450:open cupboard
+G:':U
+U:56
+W:24:10:15:0
+K:DEFAULT:1
+K:HURT_FIRE:162
+K:CLOSE:449
+K:CHASM:141
+F:LOS | MOVE | PROJECT | PLACE | DROP | HURT_FIRE |
+F:CAN_CLIMB | CAN_FLY | REMEMBER | NOTICE
+
+#Deep snow - hidden
+
+N:451:deep snow
+G:.:W
+M:428
+U:428
+W:0:1:17:0
+K:DEFAULT:430
+K:KILL_MOVE:452
+K:SECRET:452
+K:CHASM:141
+F:OUTSIDE | LOS | MOVE | PROJECT | SECRET | DEEP | BRIDGE |
+F:CAN_FLY | POWER_5 | KILL_MOVE | ICE
+F:PLACE | DROP | HIDE_ITEM | GROUND
+
+N:452:deep snow
+G:::W
+U:428
+W:0:1:17:0
+K:DEFAULT:430
+K:CHASM:141
+F:OUTSIDE | LOS | MOVE | PROJECT | DEEP | BRIDGE | CAN_FLY | CAN_HIDE |
+F:TUNNEL | POWER_5 | ICE | GROUND
+F:PLACE | DROP | HIDE_ITEM
+
+N:453:shade over a granite wall
+W:0:1:16:0
+G:#:s
+U:419
+K:DEFAULT:421
+K:HURT_FIRE:58
+K:CHASM:456
+F:TUNNEL | WALL | CAN_PASS | ATTR_LITE |
+F:HURT_ROCK | CAN_CLIMB | HURT_FIRE | NEED_WALL | NEED_TREE | REMEMBER |
+F:POWER_40
+
+N:454:tree over a chasm
+W:0:1:17:0
+G:>:G
+K:DEFAULT:141
+K:BRIDGE:140
+F:LOS | OUTSIDE | CAN_FLY | TREE | CHASM | EASY_CLIMB |
+F:BRIDGE | HURT_FIRE | REMEMBER | NOTICE
+
+N:455:trunk of a large tree over a chasm
+W:0:1:17:421
+G:>:g
+U:454
+K:DEFAULT:141
+K:BRIDGE:140
+F:LOS | EASY_CLIMB | CAN_FLY | TREE_BIG | CHASM
+F:BRIDGE | HURT_FIRE | COLLAPSE | REMEMBER | NOTICE
+
+N:456:shade of a tree over a chasm
+W:0:1:16:0
+G:>:s
+U:454
+D:You fall into the chasm!
+K:DEFAULT:141
+K:BRIDGE:140
+T:FALL_MORE:10d6
+F:BRIDGE |  MOVE | OUTSIDE | REMEMBER | NOTICE | NEED_TREE | TREE |
+F:CAN_FLY | LOS | PROJECT | REMEMBER | PLACE | CHASM
+
+N:458:wooden platform over a chasm
+G:.:U
+W:24:10:15:0
+K:DEFAULT:141
+K:CHASM:438
+F:LOS | MOVE | PROJECT | PLACE | DROP | HURT_FIRE |
+F:CAN_CLIMB | CAN_FLY |  RUN | CAN_HIDE | COLLAPSE
+F:OUTSIDE | REMEMBER | NOTICE
+
+N:459:giant spider web over a chasm
+G:::s
+W:15:3:7:0
+K:DEFAULT:141
+K:CHASM:446
+F:LOS | MOVE | CAN_HIDE | HURT_FIRE |
+F:PLACE | DROP | HIDE_ITEM | KILL_MOVE | HIDE_ITEM | RUN |
+F:CAN_CLIMB | OUTSIDE | REMEMBER | NOTICE
+
+N:460:snow covered tree
+W:0:1:17:0
+G:<:W
+K:DEFAULT:427
+K:BRIDGE:460
+K:HURT_FIRE:423
+K:CHASM:141
+F:LOS | OUTSIDE | CAN_FLY | TREE | EASY_CLIMB |
+F:BRIDGE | HURT_FIRE | BASH | POWER_10 | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM
+
+N:461:trunk of a large tree
+W:0:1:17:421
+G:<:g
+U:460
+K:DEFAULT:427
+K:BRIDGE:461
+K:HURT_FIRE:423
+K:CHASM:141
+F:LOS | EASY_CLIMB | CAN_FLY | TREE_BIG |
+F:BRIDGE | HURT_FIRE | COLLAPSE | BASH | POWER_20 | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM
+
+N:462:shade of a tree
+W:0:1:16:0
+G:.:g
+U:460
+K:DEFAULT:407
+K:BRIDGE:462
+K:HURT_FIRE:424
+K:CHASM:141
+F:LOS | MOVE | PROJECT | CAN_CLIMB | HURT_FIRE | NEED_TREE | TREE |
+F:CAN_FLY |  BRIDGE | REMEMBER | NOTICE
+F:PLACE | DROP | HIDE_ITEM
+
+N:463:snow covered rubble
+G:::W
+W:1:1:13:0
+K:DEFAULT:1
+F:TUNNEL | WALL | CAN_PASS | CAN_TINY | CAN_DIG | ALLOC |
+F:OUTSIDE | EASY_CLIMB | REMEMBER | NOTICE
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | POWER_10 | EASY_CLIMB
+F:PLACE | DROP | HIDE_ITEM
+
+N:464:pile of ice rubble
+G:::B
+W:30:12:12:0
+T:ICE:2d4
+K:DEFAULT:145
+K:CHASM:125
+F:WALL | CAN_TINY | STREAMER | CAN_PASS | CAN_DIG |
+F:TUNNEL | EASY_CLIMB | OUTSIDE |
+F:REMEMBER | ICE | HIT_TRAP |
+F:POWER_16 | REMEMBER | NOTICE
+F:PLACE | DROP

@@ -12077,7 +12077,7 @@ F:EVIL | ORC
 D:He is an ugly, piratical looking humanoid armed with a hook.
 
 N:846:Goblin wizard
-G:y:B
+G:k:B
 I:110:12d9:18:24:10
 W:12:2:0:28
 B:HIT:HURT:1d8

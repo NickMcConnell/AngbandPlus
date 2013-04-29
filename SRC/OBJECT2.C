@@ -1580,7 +1580,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		}
 
 		/* Food and Potions and Scrolls */
-                case TV_FEATS:
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
@@ -1868,7 +1867,7 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
                 if ((o_ptr->stackc)) o_ptr->pval++;
 
 		/* Hack -- Fix stack count */
-                if (o_ptr->stackc > number) o_ptr->stackc = 0;
+                if (o_ptr->stackc >= number) o_ptr->stackc = 0;
 
                 /* Correction for negative pvals */
                 if (negative)
@@ -3488,7 +3487,7 @@ static bool name_drop_okay(int r_idx)
         {
                 /* Skip if monster does not have body part */
                 if ((j_ptr->sval == SV_BODY_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HEAD))) return (FALSE);
-                else if ((j_ptr->sval == SV_BODY_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HAND))) return (FALSE);
+                else if ((j_ptr->sval == SV_BODY_HAND) && !(r_ptr->flags7 & (RF7_HAS_HAND))) return (FALSE);
                 else if ((j_ptr->sval == SV_BODY_ARM) && !(r_ptr->flags7 & (RF7_HAS_ARM))) return (FALSE);
                 else if ((j_ptr->sval == SV_BODY_LEG) && !(r_ptr->flags7 & (RF7_HAS_LEG))) return (FALSE);
                 else if ((j_ptr->sval == SV_BODY_WING) && !(r_ptr->flags7 & (RF7_HAS_WING))) return (FALSE);
@@ -4659,7 +4658,7 @@ void feat_near(int feat, int y, int x)
 	}
 
         /* Give it to the floor */
-        cave_set_feat(y, x, feat);
+        if (flag) cave_set_feat(y, x, feat);
 }
 
 /*
@@ -7009,13 +7008,63 @@ void spell_info(char *p, int spell)
 	}
 }
 
+/*
+ * Print a list of powers (for selection).
+ */
+void print_powers(byte *book, int num, int y, int x)
+{
+        int i, spell;
+
+	cptr comment;
+
+	char info[80];
+
+	char out_val[160];
+
+	byte line_attr;
+
+	spell_type *s_ptr;
+
+	/* Title the list */
+	prt("", y, x);
+	put_str("Name", y, x + 5);
+
+	/* Dump the spells */
+	for (i = 0; i < num; i++)
+	{
+		/* Get the spell index */
+                spell = book[i];
+
+		/* Get the spell info */
+		s_ptr = &s_info[spell];
+
+		/* Get extra info */
+		spell_info(info, spell);
+
+		/* Use that info */
+		comment = info;
+
+		/* Assume spell is known and tried */
+		line_attr = TERM_WHITE;
+
+		/* Dump the spell --(-- */
+                sprintf(out_val, "  %c) %-36s %s",
+		        I2A(i), s_name + s_ptr->name,
+                        comment);
+		c_prt(line_attr, out_val, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+}
+
 
 /*
  * Print a list of spells (for browsing or casting or viewing).
  */
 void print_spells(byte *book, int num, int y, int x)
 {
-	int i, ii, spell;
+        int i, ii, spell, level;
 
 	bool legible;
 
@@ -7071,6 +7120,9 @@ void print_spells(byte *book, int num, int y, int x)
 		/* Get extra info */
 		spell_info(info, spell);
 
+                /* Get level */
+                level = spell_level(spell);
+
 		/* Use that info */
 		comment = info;
 
@@ -7088,7 +7140,7 @@ void print_spells(byte *book, int num, int y, int x)
 		/* Analyze the spell */                
                 if (ii==PY_MAX_SPELLS)
                 {
-			if (sc_ptr->level <= p_ptr->lev)
+                        if (level <= p_ptr->lev)
 			{
 				comment = " unknown";
 				line_attr = TERM_L_BLUE;
@@ -7099,20 +7151,20 @@ void print_spells(byte *book, int num, int y, int x)
 				line_attr = TERM_RED;
 			}
                 }
-                else if ((i < 32) ? (p_ptr->spell_forgotten1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_forgotten2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_forgotten3 & (1L << (i - 64))) :
-                      (p_ptr->spell_forgotten4 & (1L << (i - 96))))))
+                else if ((ii < 32) ? (p_ptr->spell_forgotten1 & (1L << ii)) :
+                      ((ii < 64) ? (p_ptr->spell_forgotten2 & (1L << (ii - 32))) :
+                      ((ii < 96) ? (p_ptr->spell_forgotten3 & (1L << (ii - 64))) :
+                      (p_ptr->spell_forgotten4 & (1L << (ii - 96))))))
 		{
 			comment = " forgotten";
 			line_attr = TERM_YELLOW;
 		}
-                else if (!((i < 32) ? (p_ptr->spell_learned1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_learned2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_learned3 & (1L << (i - 64))) :
-                      (p_ptr->spell_learned4 & (1L << (i - 96)))))))
+                else if (!((ii < 32) ? (p_ptr->spell_learned1 & (1L << ii)) :
+                      ((ii < 64) ? (p_ptr->spell_learned2 & (1L << (ii - 32))) :
+                      ((ii < 96) ? (p_ptr->spell_learned3 & (1L << (ii - 64))) :
+                      (p_ptr->spell_learned4 & (1L << (ii - 96)))))))
 		{
-			if (sc_ptr->level <= p_ptr->lev)
+                        if (level <= p_ptr->lev)
 			{
 				comment = " unknown";
 				line_attr = TERM_L_BLUE;
@@ -7123,10 +7175,10 @@ void print_spells(byte *book, int num, int y, int x)
 				line_attr = TERM_RED;
 			}
 		}
-                else if (!((i < 32) ? (p_ptr->spell_worked1 & (1L << i)) :
-                      ((i < 64) ? (p_ptr->spell_worked2 & (1L << (i - 32))) :
-                      ((i < 96) ? (p_ptr->spell_worked3 & (1L << (i - 64))) :
-                      (p_ptr->spell_worked4 & (1L << (i - 96)))))))
+                else if (!((ii < 32) ? (p_ptr->spell_worked1 & (1L << ii)) :
+                      ((ii < 64) ? (p_ptr->spell_worked2 & (1L << (ii - 32))) :
+                      ((ii < 96) ? (p_ptr->spell_worked3 & (1L << (ii - 64))) :
+                      (p_ptr->spell_worked4 & (1L << (ii - 96)))))))
 		{
 			comment = " untried";
 			line_attr = TERM_L_GREEN;
