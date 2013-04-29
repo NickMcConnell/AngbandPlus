@@ -2529,6 +2529,7 @@ DEP_CPP_JEWEL=\
 	".\src\h-define.h"\
 	".\src\h-system.h"\
 	".\src\h-type.h"\
+	".\src\jewel.h"\
 	".\src\ui.h"\
 	".\src\z-file.h"\
 	".\src\z-form.h"\
@@ -6387,6 +6388,10 @@ SOURCE=".\src\h-type.h"
 # Begin Source File
 
 SOURCE=.\src\init.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\jewel.h
 # End Source File
 # Begin Source File
 

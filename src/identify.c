@@ -1,6 +1,8 @@
-/* File: identify.c */
-
-/* Pseusdo-ID, ID by use.
+/** \file identify.c 
+    \brief Pseusdo-ID, ID by use.
+ 
+ * Feelings on items, dubious items, whether an item is an ego-item,
+ * noticing of item properties.
  *
  * Copyright (c) 2010 Nick McConnell, Si Griffin
  *
@@ -19,7 +21,7 @@
 #include "angband.h"
 
 
-/* 
+/**
  * Test an item for any negative qualities
  */
 bool item_dubious(const object_type *o_ptr, bool unknown)
@@ -56,7 +58,7 @@ bool item_dubious(const object_type *o_ptr, bool unknown)
 }
 
 
-/*
+/**
  * Return a "feeling" (or FEEL_NONE) about an item.  Method 1 (Heavy).
  */
 int value_check_aux1(object_type *o_ptr)
@@ -107,7 +109,7 @@ int value_check_aux1(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Return a "feeling" (or FEEL_NONE) about an item.  Method 2 (Light).
  */
 int value_check_aux2(object_type *o_ptr)
@@ -145,7 +147,7 @@ int value_check_aux2(object_type *o_ptr)
 
 
 
-/*
+/**
  * Determine if an item has the properties to be an ego item
  */
 bool has_ego_properties(object_type *o_ptr)
@@ -175,7 +177,7 @@ bool has_ego_properties(object_type *o_ptr)
 }
 
 
-/* 
+/** 
  * Label an item as an ego item if it has the required flags
  */
 void label_as_ego(object_type *o_ptr, int item)
@@ -240,7 +242,7 @@ void label_as_ego(object_type *o_ptr, int item)
     }
 }  
 
-/*
+/**
  * Show all the id_other flags an object is going to get
  */
 u32b flags_other(object_type *o_ptr)
@@ -284,7 +286,7 @@ u32b flags_other(object_type *o_ptr)
   return all_flags;
 }
 
-/* 
+/**
  * Does the item have stat or other bonuses?
  */
 bool has_bonuses(object_type *o_ptr)
@@ -303,7 +305,7 @@ bool has_bonuses(object_type *o_ptr)
   return FALSE;
 }
 
-/* 
+/**
  * Determine if all the properties of a wieldable item are known,
  * but it's not formally identified
  */
@@ -336,7 +338,7 @@ bool known_really(object_type *o_ptr)
 }
 
 
-/* 
+/**
  * Notice random effect curses
  */
 void notice_curse(u32b curse_flag, int item)
@@ -391,7 +393,7 @@ void notice_curse(u32b curse_flag, int item)
     }
 }
 
-/* 
+/**
  * Notice object flags
  */
 void notice_obj(u32b obj_flag, int item)
@@ -451,7 +453,7 @@ void notice_obj(u32b obj_flag, int item)
     }
 }
 
-/* 
+/**
  * Notice other properties
  */
 void notice_other(u32b other_flag, int item)

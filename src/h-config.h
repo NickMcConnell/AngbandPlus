@@ -1,9 +1,6 @@
-/* File: h-config.h */
-
-#ifndef INCLUDED_H_CONFIG_H
-#define INCLUDED_H_CONFIG_H
-
-/*
+/** \file h-config.h 
+    \brief Platform-based definitions
+ 
  * Choose the hardware, operating system, and compiler.
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
@@ -12,6 +9,9 @@
  * the "Makefile", the "project file", or something similar, and
  * should not be defined by the user.
  */
+
+#ifndef INCLUDED_H_CONFIG_H
+#define INCLUDED_H_CONFIG_H
 
 #include <limits.h>
 

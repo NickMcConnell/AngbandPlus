@@ -1,6 +1,7 @@
-/* File: z-term.c */
+/** \file z-term.c 
+    \brief Terminal writing package
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -13,15 +14,11 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
+ *
 
-/* Purpose: a generic, efficient, terminal window package -BEN- */
+ * Purpose: a generic, efficient, terminal window package -BEN- 
 
-#include "z-term.h"
-
-#include "z-virt.h"
-
-/*
+*
  * This file provides a generic, efficient, terminal window package,
  * which can be used not only on standard terminal environments such
  * as dumb terminals connected to a Unix box, but also in more modern
@@ -92,7 +89,7 @@
  * pair, with each ranging from 0 to 255, and makes very few assumptions
  * about the meaning of any attr/char values.  Normally, we assume that
  * "attr 0" is "black", with the semantics that "black" text should be
- * sent to "Term_wipe()" instead of "Term_text()", but this sematics is
+ * sent to Term_wipe() instead of Term_text(), but this sematics is
  * modified if either the "always_pict" or the "always_text" flags are
  * set.  We assume that "char 0" is "dangerous", since placing such a
  * "char" in the middle of a string "terminates" the string, and usually
@@ -129,9 +126,9 @@
  * such function allows this package to learn about user keypresses,
  * detected by one of the special "hooks".
  *
- * We provide, among other things, the functions "Term_keypress()"
- * to "react" to keypress events, and "Term_redraw()" to redraw the
- * entire window, plus "Term_resize()" to note a new size.
+ * We provide, among other things, the functions Term_keypress()
+ * to "react" to keypress events, and Term_redraw() to redraw the
+ * entire window, plus Term_resize() to note a new size.
  *
  *
  * Note that the current "term" contains two "window images".  One of
@@ -147,17 +144,17 @@
  * or in a "top to bottom" order.  In addition, a "cursor" is maintained,
  * and this cursor is updated along with the actual window contents.
  *
- * Currently, the "Term_fresh()" routine attempts to perform the "minimum"
+ * Currently, the Term_fresh() routine attempts to perform the "minimum"
  * number of physical updates, in terms of total "work" done by the hooks
  * Term_wipe(), Term_text(), and Term_pict(), making use of the fact that
  * adjacent characters of the same color can both be drawn together using
- * the "Term_text()" hook, and that "black" text can often be sent to the
- * "Term_wipe()" hook instead of the "Term_text()" hook, and if something
+ * the Term_text() hook, and that "black" text can often be sent to the
+ * Term_wipe() hook instead of the Term_text() hook, and if something
  * is already displayed in a window, then it is not necessary to display
  * it again.  Unfortunately, this may induce slightly non-optimal results
  * in some cases, in particular, those in which, say, a string of ten
  * characters needs to be written, but the fifth character has already
- * been displayed.  Currently, this will cause the "Term_text()" routine
+ * been displayed.  Currently, this will cause the Term_text() routine
  * to be called once for each half of the string, instead of once for the
  * whole string, which, on some machines, may be non-optimal behavior.
  *
@@ -186,15 +183,15 @@
  *
  * The "term" structure contains the following function "hooks":
  *
- *   Term->init_hook = Init the term
- *   Term->nuke_hook = Nuke the term
- *   Term->user_hook = Perform user actions
- *   Term->xtra_hook = Perform extra actions
- *   Term->curs_hook = Draw (or Move) the cursor
- *   Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
- *   Term->wipe_hook = Draw some blank spaces
- *   Term->text_hook = Draw some text in the window
- *   Term->pict_hook = Draw some attr/chars in the window
+ *  - Term->init_hook = Init the term
+ *  - Term->nuke_hook = Nuke the term
+ *  - Term->user_hook = Perform user actions
+ *  - Term->xtra_hook = Perform extra actions
+ *  - Term->curs_hook = Draw (or Move) the cursor
+ *  - Term->bigcurs_hook = Draw (or Move) the big cursor (bigtile mode)
+ *  - Term->wipe_hook = Draw some blank spaces
+ *  - Term->text_hook = Draw some text in the window
+ *  - Term->pict_hook = Draw some attr/chars in the window
  *
  * The "Term->user_hook" hook provides a simple hook to an implementation
  * defined function, with application defined semantics.  It is available
@@ -275,10 +272,14 @@
 
 
 
+#include "z-term.h"
+
+#include "z-virt.h"
 
 
 
-/*
+
+/**
  * The current "term"
  */
 term *Term = NULL;
@@ -289,7 +290,7 @@ term *Term = NULL;
 /*** Local routines ***/
 
 
-/*
+/**
  * Nuke a term_win (see below)
  */
 static errr term_win_nuke(term_win *s)
@@ -315,7 +316,7 @@ static errr term_win_nuke(term_win *s)
 }
 
 
-/*
+/**
  * Initialize a "term_win" (using the given window size)
  */
 static errr term_win_init(term_win *s, int w, int h)
@@ -353,7 +354,7 @@ static errr term_win_init(term_win *s, int w, int h)
 }
 
 
-/*
+/**
  * Copy a "term_win" from another
  */
 static errr term_win_copy(term_win *s, term_win *f, int w, int h)
@@ -400,7 +401,7 @@ static errr term_win_copy(term_win *s, term_win *f, int w, int h)
 /*** External hooks ***/
 
 
-/*
+/**
  * Execute the "Term->user_hook" hook, if available (see above).
  */
 errr Term_user(int n)
@@ -412,7 +413,7 @@ errr Term_user(int n)
   return ((*Term->user_hook)(n));
 }
 
-/*
+/**
  * Execute the "Term->xtra_hook" hook, if available (see above).
  */
 errr Term_xtra(int n, int v)
@@ -429,7 +430,7 @@ errr Term_xtra(int n, int v)
 /*** Fake hooks ***/
 
 
-/*
+/**
  * Hack -- fake hook for "Term_curs()" (see above)
  */
 static errr Term_curs_hack(int x, int y)
@@ -441,7 +442,7 @@ static errr Term_curs_hack(int x, int y)
   return (-1);
 }
 
-/*
+/**
  * Hack -- fake hook for "Term_wipe()" (see above)
  */
 static errr Term_wipe_hack(int x, int y, int n)
@@ -453,7 +454,7 @@ static errr Term_wipe_hack(int x, int y, int n)
   return (-1);
 }
 
-/*
+/**
  * Hack -- fake hook for "Term_text()" (see above)
  */
 static errr Term_text_hack(int x, int y, int n, byte a, char *cp)
@@ -465,7 +466,7 @@ static errr Term_text_hack(int x, int y, int n, byte a, char *cp)
   return (-1);
 }
 
-/*
+/**
  * Hack -- fake hook for "Term_pict()" (see above)
  */
 static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
@@ -477,7 +478,7 @@ static errr Term_pict_hack(int x, int y, int n, const byte *ap, const char *cp, 
   return (-1);
 }
 
-/*
+/**
  * Translate from ISO Latin-1 characters 128+ to 7-bit ASCII.
  *
  * We use this table to maintain compatibility with systems that cannot
@@ -505,7 +506,7 @@ const char seven_bit_translation[128] =
 };
 
 
-/*
+/**
  * Given a position in the ISO Latin-1 character set (which Angband uses
  * internally), return the correct display character on this system.
  * Assume ASCII-only if no special hook is available.  -LM-
@@ -533,7 +534,7 @@ char xchar_trans(byte c)
 /*** Efficient routines ***/
 
 
-/*
+/**
  * Mentally draw an attr/char at a given location
  *
  * Assumes given location and values are valid.
@@ -577,7 +578,7 @@ void Term_queue_char(term *t, int x, int y, byte a, char c, byte ta, char tc)
 
 
 
-/*
+/**
  * Mentally draw some attr/chars at a given location
  *
  * Assumes that (x,y) is a valid location, that the first "n" characters
@@ -637,7 +638,7 @@ void Term_queue_chars(int x, int y, int n, byte a, cptr s)
 /*** Refresh routines ***/
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_pict()"
@@ -733,7 +734,7 @@ static void Term_fresh_row_pict(int y, int x1, int x2)
 
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_text()" and "Term_wipe()",
@@ -905,7 +906,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 }
 
 
-/*
+/**
  * Flush a row of the current window (see "Term_fresh")
  *
  * Display text using "Term_text()" and "Term_wipe()"
@@ -1031,7 +1032,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 
 
 
-/*
+/**
  * Actually perform all requested changes to the window
  *
  * If absolutely nothing has changed, not even temporarily, or if the
@@ -1428,7 +1429,7 @@ errr Term_fresh(void)
 /*** Output routines ***/
 
 
-/*
+/**
  * Set the cursor visibility
  */
 errr Term_set_cursor(bool v)
@@ -1444,7 +1445,7 @@ errr Term_set_cursor(bool v)
 }
 
 
-/*
+/**
  * Place the cursor at a given location
  *
  * Note -- "illegal" requests do not move the cursor.
@@ -1470,7 +1471,7 @@ errr Term_gotoxy(int x, int y)
 }
 
 
-/*
+/**
  * At a given location, place an attr/char
  * Do not change the cursor position
  * No visual changes until "Term_fresh()".
@@ -1495,7 +1496,7 @@ errr Term_draw(int x, int y, byte a, char c)
 }
 
 
-/*
+/**
  * Using the given attr, add the given char at the cursor.
  *
  * We return "-2" if the character is "illegal". XXX XXX
@@ -1538,7 +1539,7 @@ errr Term_addch(byte a, char c)
 }
 
 
-/*
+/**
  * At the current location, using an attr, add a string
  *
  * We also take a length "n", using negative values to imply
@@ -1591,7 +1592,7 @@ errr Term_addstr(int n, byte a, cptr s)
 }
 
 
-/*
+/**
  * Move to a location and, using an attr, add a char
  */
 errr Term_putch(int x, int y, byte a, char c)
@@ -1609,7 +1610,7 @@ errr Term_putch(int x, int y, byte a, char c)
 }
 
 
-/*
+/**
  * Move to a location and, using an attr, add a string
  */
 errr Term_putstr(int x, int y, int n, byte a, cptr s)
@@ -1628,7 +1629,7 @@ errr Term_putstr(int x, int y, int n, byte a, cptr s)
 
 
 
-/*
+/**
  * Place cursor at (x,y), and clear the next "n" chars
  */
 errr Term_erase(int x, int y, int n)
@@ -1709,7 +1710,7 @@ errr Term_erase(int x, int y, int n)
 }
 
 
-/*
+/**
  * Clear the entire window, and move to the top left corner
  *
  * Note the use of the special "total_erase" code
@@ -1768,7 +1769,7 @@ errr Term_clear(void)
 
 
 
-/*
+/**
  * Redraw (and refresh) the whole window.
  */
 errr Term_redraw(void)
@@ -1784,7 +1785,7 @@ errr Term_redraw(void)
 }
 
 
-/*
+/**
  * Redraw part of a widow.
  */
 errr Term_redraw_section(int x1, int y1, int x2, int y2)
@@ -1834,7 +1835,7 @@ errr Term_redraw_section(int x1, int y1, int x2, int y2)
 /*** Access routines ***/
 
 
-/*
+/**
  * Extract the cursor visibility
  */
 errr Term_get_cursor(bool *v)
@@ -1847,7 +1848,7 @@ errr Term_get_cursor(bool *v)
 }
 
 
-/*
+/**
  * Extract the current window size
  */
 errr Term_get_size(int *w, int *h)
@@ -1861,7 +1862,7 @@ errr Term_get_size(int *w, int *h)
 }
 
 
-/*
+/**
  * Extract the current cursor location
  */
 errr Term_locate(int *x, int *y)
@@ -1878,7 +1879,7 @@ errr Term_locate(int *x, int *y)
 }
 
 
-/*
+/**
  * At a given location, determine the "current" attr and char
  * Note that this refers to what will be on the window after the
  * next call to "Term_fresh()".  It may or may not already be there.
@@ -1905,7 +1906,7 @@ errr Term_what(int x, int y, byte *a, char *c)
 /*** Input routines ***/
 
 
-/*
+/**
  * Flush and forget the input
  */
 errr Term_flush(void)
@@ -1922,7 +1923,7 @@ errr Term_flush(void)
 
 
 
-/*
+/**
  * Add a keypress to the "queue"
  */
 errr Term_keypress(int k)
@@ -1947,7 +1948,7 @@ errr Term_keypress(int k)
 }
 
 
-/*
+/**
  * Add a mouse event to the "queue"
  */
 errr Term_mousepress(int x, int y, char button)
@@ -1976,7 +1977,7 @@ errr Term_mousepress(int x, int y, char button)
 }
 
 
-/*
+/**
  * Add a keypress to the FRONT of the "queue"
  */
 errr Term_key_push(int k)
@@ -2020,7 +2021,7 @@ errr Term_event_push(const event_type *ke)
 
 
 
-/*
+/**
  * Check for a pending keypress on the key queue.
  *
  * Store the keypress, if any, in "ch", and return "0".
@@ -2082,7 +2083,7 @@ errr Term_inkey(event_type *ch, bool wait, bool take)
 /*** Extra routines ***/
 
 
-/*
+/**
  * Save the "requested" screen into the "memorized" screen
  *
  * Every "Term_save()" should match exactly one "Term_load()"
@@ -2112,7 +2113,7 @@ errr Term_save(void)
 }
 
 
-/*
+/**
  * Restore the "requested" contents (see above).
  *
  * Every "Term_save()" should match exactly one "Term_load()"
@@ -2160,7 +2161,7 @@ errr Term_load(void)
 
 
 
-/*
+/**
  * React to a new physical window size.
  */
 errr Term_resize(int w, int h)
@@ -2338,7 +2339,7 @@ errr Term_resize(int w, int h)
 
 
 
-/*
+/**
  * Activate a new Term (and deactivate the current Term)
  *
  * This function is extremely important, and also somewhat bizarre.
@@ -2380,7 +2381,7 @@ errr Term_activate(term *t)
 
 
 
-/*
+/**
  * Nuke a term
  */
 errr term_nuke(term *t)
@@ -2443,7 +2444,7 @@ errr term_nuke(term *t)
 }
 
 
-/*
+/**
  * Initialize a term, using a window of the given size.
  * Also prepare the "input queue" for "k" keypresses
  * By default, the cursor starts out "invisible"

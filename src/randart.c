@@ -1,6 +1,7 @@
-/* File: randart.c */
+/** \file randart.c 
+    \brief Random artifact generation
 
-/* Random artifacts.  Selling and providing qualities.  Choosing a object 
+ * Random artifacts.  Selling and providing qualities.  Choosing a object 
  * type and kind, determining the potential, depth and rarity of the 
  * artifact.  Selecting a theme, and the properties of all possible themes.  
  * Adding semi-random qualities until potential is all used up.  Cursing 
@@ -29,20 +30,20 @@
 
 #include "angband.h"
 
-/* A global variable whose contents will be bartered to acquire powers. */
+/** A global variable whose contents will be bartered to acquire powers. */
 static int potential = 0;
 
-/* The initial potential of the artifact. */
+/** The initial potential of the artifact. */
 static int initial_potential = 0;
 
-/* The maximum potential that that artifact could have possessed. */
+/** The maximum potential that that artifact could have possessed. */
 static int max_potential = 0;
 
-/* Global variable indicating that the random naming routine is unavailable. */
+/** Global variable indicating that the random naming routine is unavailable. */
 static bool find_all_names = FALSE;
 
 
-/* Percentage chance for an artifact to be terrible. */
+/** Percentage chance for an artifact to be terrible. */
 #define TERRIBLE_CHANCE		10
 
 
@@ -57,8 +58,9 @@ static bool find_all_names = FALSE;
 long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];	/* global, hence init to 0 */
 long ltotal[S_WORD+1][S_WORD+1];		/* global, hence init to 0 */
 
-/* Temporary space for names, while reading and randomizing them. */
-/*  - can handle up to 500 artifacts.  If z-info can not push
+/**
+ * Temporary space for names, while reading and randomizing them. 
+ *  - can handle up to 500 artifacts.  If z-info can not push
  * higher.
  */
 static char *names[500];
@@ -161,7 +163,7 @@ static char *names[500];
 
 
 
-/* 
+/**
  * Debit an artifact's account.
  */
 static bool take_money(bool on_credit, int cost)
@@ -186,7 +188,7 @@ static bool take_money(bool on_credit, int cost)
 
 
 
-/* 
+/**
  * Grant the quality asked for, if the artifact can afford it.
  */
 static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
@@ -1089,7 +1091,7 @@ static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
 
 
 
-/* 
+/**
  * Assign a tval and sval, grant a certain amount of potential to be used 
  * for acquiring powers, and determine rarity and native depth.
  */
@@ -1462,7 +1464,7 @@ static void initialize_artifact(int a_idx)
   a_ptr->rarity = artifact_rarity;
 }
 
-/* 
+/**
  * Pick an initial set of qualities, based on a theme.  Also add a bonus to 
  * armour class, Skill, and Deadliness.
  */
@@ -3179,7 +3181,7 @@ static void choose_basic_theme(int a_idx)
 
 
 
-/* 
+/**
  * Grant extra abilities, until object's units of exchange are all used up.  
  * This function can be quite random - indeed needs to be - because of all 
  * the possible themed random artifacts.
@@ -3775,7 +3777,7 @@ static void haggle_till_done(int a_idx)
 
 
 
-/* 
+/**
  * Envoke perilous magics, and curse the artifact beyound redemption!  I 
  * had such fun coding this...
  */
@@ -4039,7 +4041,7 @@ static void make_terrible(int a_idx)
 
 
 
-/* 
+/**
  * Clean up the artifact by removing illogical combinations of powers -  
  * curses win out every time.
  */
@@ -4073,7 +4075,7 @@ static void remove_contradictory(int a_idx)
 }
 
 
-/* 
+/**
  * String-handling function from Greg Wooledge's random artifact generator.
  */
 static char *my_strdup (const char *s)
@@ -4084,7 +4086,7 @@ static char *my_strdup (const char *s)
 }
 
 
-/* 
+/**
  * Use W. Sheldon Simms' random name generator.  This function builds
  * probability tables which are used later on for letter selection.  It
  * relies on the ASCII character set.
@@ -4139,7 +4141,8 @@ static void build_prob(void)
 
 
 
-/* Use W. Sheldon Simms' random name generator.  Generate a random word 
+/**
+ * Use W. Sheldon Simms' random name generator.  Generate a random word 
  * using the probability tables we built earlier.  Relies on the ASCII 
  * character set.  Relies on European vowels (a, e, i, o, u).  The generated 
  * name should be copied/used before calling this function again.
@@ -4206,7 +4209,7 @@ static char *make_word(void)
 }
 
 
-/* 
+/**
  * Find a name from any of various text files.
  */
 static char *find_word(int a_idx)
@@ -4261,7 +4264,7 @@ static char *find_word(int a_idx)
 }
 
 
-/* 
+/**
  * Name an artifact, using one of two methods.
  */
 static void name_artifact(int a_idx)
@@ -4296,7 +4299,7 @@ static void name_artifact(int a_idx)
 }
 
 
-/* 
+/**
  * Design a random artifact.
  */
 static void design_random_artifact(int a_idx)
@@ -4326,7 +4329,7 @@ static void design_random_artifact(int a_idx)
 
 
 
-/*
+/**
  * Fill in the temporary array of artifact names, and then convert it into 
  * an a_name structure.  Adapted from Greg Wooledge's random artifacts.
  */
@@ -4381,7 +4384,7 @@ static int convert_names(void)
 }
 
 
-/* 
+/**
  * Initialize all the random artifacts in the artifact array.  This function 
  * is only called when a player is born.  Because various sub-functions use 
  * player information, it must be called after the player has been generated 

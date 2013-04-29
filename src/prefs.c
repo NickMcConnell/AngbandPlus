@@ -1,6 +1,5 @@
-/*
- * File: prefs.c
- * Purpose: Pref file handling code
+/** \file prefs.c
+    \brief Pref file handling code
  *
  * Copyright (c) 2003 Takeshi Mogami, Robert Ruehlmann
  * Copyright (c) 2007 Pete Mack
@@ -23,13 +22,13 @@
 
 
 
-/*
+/**
  * Header and footer marker string for pref file dumps
  */
 static cptr dump_separator = "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#";
 
 
-/*
+/**
  * Remove old lines from pref files
  */
 static void remove_old_dump(const char *cur_fname, const char *mark)
@@ -119,7 +118,7 @@ static void remove_old_dump(const char *cur_fname, const char *mark)
 }
 
 
-/*
+/**
  * Output the header of a pref-file dump
  */
 static void pref_header(ang_file *fff, const char *mark)
@@ -131,7 +130,7 @@ static void pref_header(ang_file *fff, const char *mark)
 	file_putf(fff, "# Don't edit them; changes will be deleted and replaced automatically.\n");
 }
 
-/*
+/**
  * Output the footer of a pref-file dump
  */
 static void pref_footer(ang_file *fff, const char *mark)
@@ -144,7 +143,7 @@ static void pref_footer(ang_file *fff, const char *mark)
 }
 
 
-/*
+/**
  * Save autoinscription data to a pref file.
  */
 void autoinsc_dump(ang_file *fff)
@@ -167,7 +166,7 @@ void autoinsc_dump(ang_file *fff)
 	file_putf(fff, "\n");
 }
 
-/*
+/**
  * Save squelch data to a pref file.
  */
 void squelch_dump(ang_file *fff)
@@ -189,7 +188,7 @@ void squelch_dump(ang_file *fff)
 	file_putf(fff, "\n");
 }
 
-/*
+/**
  * Write all current options to a user preference file.
  */
 void option_dump(ang_file *fff)
@@ -253,7 +252,7 @@ void option_dump(ang_file *fff)
 
 #ifdef ALLOW_MACROS
 
-/*
+/**
  * Append all current macros to the given file
  */
 void macro_dump(ang_file *fff)
@@ -281,7 +280,7 @@ void macro_dump(ang_file *fff)
 
 
 
-/*
+/**
  * Hack -- Append all keymaps to the given file.
  *
  * Hack -- We only append the keymaps for the "active" mode.
@@ -334,7 +333,9 @@ void keymap_dump(ang_file *fff)
 
 
 
-/* Dump monsters */
+/**
+ * Dump monsters 
+ */
 void dump_monsters(ang_file *fff)
 {
 	int i;
@@ -353,7 +354,9 @@ void dump_monsters(ang_file *fff)
 	}
 }
 
-/* Dump objects */
+/**
+ * Dump objects 
+ */
 void dump_objects(ang_file *fff)
 {
 	int i;
@@ -372,7 +375,9 @@ void dump_objects(ang_file *fff)
 	}
 }
 
-/* Dump features */
+/**
+ * Dump features 
+ */
 void dump_features(ang_file *fff)
 {
 	int i;
@@ -394,7 +399,9 @@ void dump_features(ang_file *fff)
 	}
 }
 
-/* Dump flavors */
+/**
+ * Dump flavors 
+ */
 void dump_flavors(ang_file *fff)
 {
 	int i;
@@ -410,7 +417,9 @@ void dump_flavors(ang_file *fff)
 	}
 }
 
-/* Dump colors */
+/**
+ * Dump colors 
+ */
 void dump_colors(ang_file *fff)
 {
 	int i;
@@ -481,7 +490,7 @@ bool prefs_save(const char *path, void (*dump)(ang_file *), const char *title)
 
 
 
-/*
+/**
  * Extract the first few "tokens" from a buffer
  *
  * This function uses "colon" and "slash" as the delimeter characters.
@@ -541,7 +550,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
 
 
 
-/*
+/**
  * Parse a sub-file of the "extra info" (format shown below)
  *
  * Each "action" line has an "action symbol" in the first column,
@@ -561,7 +570,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  * Note that "monster zero" is used for the "player" attr/char, "object
  * zero" will be used for the "stack" attr/char, and "feature zero" is
  * used for the "nothing" attr/char.
- *
+ *<pre>
  * Specify the attr/char values for "monsters" by race index.
  *   R:<num>:<a>/<c>
  *
@@ -603,6 +612,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *
  * Specify the attr/char values for "flavors" by flavors index.
  *   L:<num>:<a>/<c>
+</pre>
  */
 errr process_pref_file_command(char *buf)
 {
@@ -1070,7 +1080,7 @@ errr process_pref_file_command(char *buf)
 }
 
 
-/*
+/**
  * Helper function for "process_pref_file()"
  *
  * Input:
@@ -1286,7 +1296,7 @@ static cptr process_pref_file_expr(char **sp, char *fp)
 }
 
 
-/*
+/**
  * Open the "user pref file" and parse it.
  */
 static errr process_pref_file_aux(cptr name)
@@ -1391,7 +1401,7 @@ static errr process_pref_file_aux(cptr name)
 
 
 
-/*
+/**
  * Process the "user pref file" with the given name
  *
  * See the functions above for a list of legal "commands".

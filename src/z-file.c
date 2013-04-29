@@ -1,7 +1,6 @@
-/*
- * File: z-file.c
- * Purpose: Low-level file (and directory) handling
- *
+/** \file z-file.c
+    \brief Low-level file (and directory) handling
+ 
  * Copyright (c) 1997-2009 Ben Harrison, pelpel, Andrew Sidwell, Matthew Jones,
  * Nick McConnell
  *
@@ -76,7 +75,7 @@ int player_egid;
 
 
 
-/*
+/**
  * Drop permissions
  */
 void safe_setuid_drop(void)
@@ -97,7 +96,7 @@ void safe_setuid_drop(void)
 }
 
 
-/*
+/**
  * Grab permissions
  */
 void safe_setuid_grab(void)
@@ -120,7 +119,7 @@ void safe_setuid_grab(void)
 
 
 
-/*
+/**
  * Apply special system-specific processing before dealing with a filename.
  */
 static void path_parse(char *buf, size_t max, cptr file)
@@ -206,7 +205,7 @@ static void path_process(char *buf, size_t len, size_t *cur_len, const char *pat
 
 
 
-/*
+/**
  * Create a new path string by appending a 'leaf' to 'base'.
  *
  * On Unixes, we convert a tidle at the beginning of a basename to mean the
@@ -264,7 +263,9 @@ size_t path_build(char *buf, size_t len, const char *base, const char *leaf)
 #endif
 
 
-/* Private structure to hold file pointers and useful info. */
+/**
+ * Private structure to hold file pointers and useful info. 
+ */
 struct ang_file
 {
 #ifdef _WIN32_WCE
@@ -281,7 +282,7 @@ struct ang_file
 
 /** Utility functions **/
 
-/*
+/**
  * Delete file 'fname'.
  */
 bool file_delete(const char *fname) 
@@ -307,7 +308,7 @@ bool file_delete(const char *fname)
 #endif
 }
 
-/*
+/**
  * Delete file 'fname' to 'newname'.
  */
 bool file_move(const char *fname, const char *newname)
@@ -338,7 +339,7 @@ bool file_move(const char *fname, const char *newname)
 }
 
 
-/*
+/**
  * Decide whether a file exists or not.
  */
 
@@ -385,7 +386,7 @@ bool file_exists(const char *fname)
 #ifndef RISCOS
 #ifdef HAVE_STAT
 
-/*
+/**
  * Return TRUE if first is newer than second, FALSE otherwise.
  */
 bool file_newer(const char *first, const char *second)
@@ -424,7 +425,7 @@ bool file_newer(const char *first, const char *second)
 
 /** File-handle functions **/
 
-/*
+/**
  * Open file 'fname', in mode 'mode', with filetype 'ftype'.
  * Returns file handle or NULL.
  */
@@ -554,7 +555,7 @@ ang_file *file_open(const char *fname, file_mode mode, file_type ftype)
 	return f;
 }
 #endif
-/*
+/**
  * Close file handle 'f'.
  */
 bool file_close(ang_file *f)
@@ -585,7 +586,7 @@ bool file_close(ang_file *f)
 
 /** Locking functions **/
 
-/*
+/**
  * Lock a file using POSIX locks, on platforms where this is supported.
  */
 void file_lock(ang_file *f)
@@ -601,7 +602,7 @@ void file_lock(ang_file *f)
 #endif /* HAVE_FCNTL_H && SET_UID */
 }
 
-/*
+/**
  * Unlock a file locked using file_lock().
  */
 void file_unlock(ang_file *f)
@@ -623,7 +624,7 @@ void file_unlock(ang_file *f)
 #if _WIN32_WCE
 #define FAILED_SEEK (DWORD)0xFFFFFFFF
 #endif
-/*
+/**
  * Seek to location 'pos' in file 'f'.
  */
 bool file_seek(ang_file *f, u32b pos)
@@ -647,7 +648,7 @@ bool file_seek(ang_file *f, u32b pos)
 #endif
 }
 
-/*
+/**
  * Read a single, 8-bit character from file 'f'.
  */
 bool file_readc(ang_file *f, byte *b)
@@ -664,7 +665,7 @@ bool file_readc(ang_file *f, byte *b)
 	return TRUE;
 }
 
-/* 
+/**
  * Write a single, 8-bit character 'b' to file 'f'.
  */
 bool file_writec(ang_file *f, byte b)
@@ -679,7 +680,7 @@ bool file_writec(ang_file *f, byte b)
 
 
 
-/*
+/**
  * Read 'n' bytes from file 'f' into array 'buf'.
  */
 
@@ -754,7 +755,7 @@ int file_read(ang_file *f, char *buf, size_t n)
 #endif /* HAVE_READ */
 
 
-/*
+/**
  * Append 'n' bytes of array 'buf' to file 'f'.
  */
 
@@ -829,7 +830,7 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 
 /** Line-based IO **/
 
-/*
+/**
  * Read a line of text from file 'f' into buffer 'buf' of size 'n' bytes.
  *
  * Support both \r\n and \n as line endings, but not the outdated \r that used
@@ -904,7 +905,7 @@ bool file_getl(ang_file *f, char *buf, size_t len)
 	return TRUE;
 }
 
-/*
+/**
  * Append a line of text 'buf' to the end of file 'f', using system-dependent
  * line ending.
  */
@@ -913,7 +914,7 @@ bool file_put(ang_file *f, const char *buf)
 	return file_write(f, buf, strlen(buf));
 }
 
-/*
+/**
  * Append a formatted line of text to the end of file 'f'.
  */
 bool file_putf(ang_file *f, const char *fmt, ...)
@@ -928,7 +929,7 @@ bool file_putf(ang_file *f, const char *fmt, ...)
 	return file_put(f, buf);
 }
 
-/*
+/**
  * Format and translate a string, then print it out to file.
  */
 void x_fprintf(ang_file *f, int encoding, cptr fmt, ...)
@@ -956,14 +957,16 @@ void x_fprintf(ang_file *f, int encoding, cptr fmt, ...)
 
 /*** Directory scanning API ***/
 
-/*
+/**
  * For information on what these are meant to do, please read the header file.
  */
 
 #ifdef WINDOWS
 
 
-/* System-specific struct */
+/**
+ * System-specific struct 
+ */
 struct ang_dir
 {
 	HANDLE h;
@@ -1046,7 +1049,9 @@ void my_dclose(ang_dir *dir)
 
 #ifdef HAVE_DIRENT_H
 
-/* Define our ang_dir type */
+/**
+ * Define our ang_dir type 
+ */
 struct ang_dir
 {
 	DIR *d;

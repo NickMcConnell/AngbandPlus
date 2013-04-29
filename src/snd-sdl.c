@@ -1,7 +1,6 @@
-/*
- * File: snd-sdl.c
- * Purpose: SDL sound support
- *
+/** \file snd-sdl.c
+    \brief SDL sound support
+ 
  * Copyright (c) 2004-2007 Brendon Oliver, Andrew Sidwell.
  * A large chunk of this file was taken and modified from main-ros.
  *
@@ -25,16 +24,22 @@
 #include "SDL_mixer.h"
 
 
-/* Don't cache audio */
+/**
+ * Don't cache audio 
+ */
 static bool no_cache_audio = FALSE;
 
 
 
 
-/* Arbitary limit on number of samples per event */
+/**
+ * Arbitary limit on number of samples per event 
+ */
 #define MAX_SAMPLES      16
 
-/* Struct representing all data about an event sample */
+/**
+ * Struct representing all data about an event sample 
+ */
 typedef struct
 {
 	int num;                        /* Number of samples for this event */
@@ -43,13 +48,13 @@ typedef struct
 } sample_list;
 
 
-/*
+/**
  * Just need an array of SampInfos
  */
 static sample_list samples[MSG_MAX];
 
 
-/*
+/**
  * Shut down the sound system and free resources.
  */
 static void close_audio(void)
@@ -78,7 +83,7 @@ static void close_audio(void)
 }
 
 
-/*
+/**
  * Initialise SDL and open the mixer
  */
 static bool open_audio(void)
@@ -112,7 +117,7 @@ static bool open_audio(void)
 
 
 
-/*
+/**
  * Read sound.cfg and map events to sounds; then load all the sounds into
  * memory to avoid I/O latency later.
  */
@@ -260,7 +265,7 @@ static bool sound_sdl_init(bool no_cache)
   return TRUE;
 }
 
-/*
+/**
  * Play a sound of type "event".
  */
 static void play_sound(int event)
@@ -301,7 +306,7 @@ static void play_sound(int event)
 }
 
 
-/*
+/**
  * Init the SDL sound "module".
  */
 errr init_sound_sdl(int argc, char **argv)

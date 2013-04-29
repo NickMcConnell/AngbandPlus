@@ -1,12 +1,6 @@
-/* CVS: Last edit by $Author: bahman $ on $Date: 2001/10/10 17:12:30 $ */
-/* File: h-type.h */
-
-#ifndef INCLUDED_H_TYPE_H
-#define INCLUDED_H_TYPE_H
-
-/*
- * Basic "types".
- *
+/** \file h-type.h 
+    \brief Basic "types".
+ 
  * Note the attempt to make all basic types have 4 letters.
  * This improves readibility and standardizes the code.
  *
@@ -26,6 +20,9 @@
  * These limits should be verified and coded into "h-constant.h".
  */
 
+
+#ifndef INCLUDED_H_TYPE_H
+#define INCLUDED_H_TYPE_H
 
 
 /*** Special 4 letter names for some standard types ***/

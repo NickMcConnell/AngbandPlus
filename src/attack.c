@@ -1,8 +1,7 @@
-/* File: attack.c */
+/** \file attack.c 
 
-/*
- * The non-magical attack code.
- *
+    \brief The non-magical attack code.
+ 
  * Hit chance, critical hits in melee and when shooting/throwing, calculate 
  * ego multiplier, calculate Deadliness adjustment.  Melee attacks (and shield 
  * bashes).  Chance of object breakage, the shooting code, the throwing code.
@@ -28,7 +27,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Determine if the player hits a monster (non-magical combat).
  *
  * 5% of all attacks are guaranteed to hit, and another 5% to miss.  
@@ -48,6 +47,9 @@ static bool test_hit_combat(int chance, int ac, int visible, int item1,
   /* Invisible monsters are harder to hit */
   if (!visible) chance = chance / 2;
 
+  /* Can't be negative */
+  if (chance < 0) chance = 0;
+
   /* Get power */
   power = rand_int(chance);
 
@@ -66,7 +68,7 @@ static bool test_hit_combat(int chance, int ac, int visible, int item1,
 }
 
 
-/*
+/**
  * Calculation of critical hits by the player in hand-to-hand combat.
  * -LM-
  *
@@ -219,7 +221,7 @@ static sint critical_melee(int chance, int sleeping_bonus, bool visible,
 
 
 
-/*
+/**
  * Calculation of critical hits for objects fired or thrown by the player.
  * -LM-
  *
@@ -324,7 +326,7 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 }
 
 
-/*
+/**
  * Handle all special adjustments to the damage done by a non-magical attack.
  *
  * At present, only weapons (including digging tools) and ammo have their 
@@ -830,7 +832,7 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
       
 
 
-/* 
+/** 
  * Calculate the damage done by a druid fighting barehanded, display an
  * appropriate message, and determine if the blow is capable of causing
  * monster confusion. -LM-
@@ -935,7 +937,7 @@ static int get_druid_damage(int plev, char m_name[], int power, int deadliness)
 }
 
 
-/*
+/**
  * Deadliness multiplies the damage done by a percentage, which varies 
  * from 0% (no damage done at all) to at most 355% (damage is multiplied 
  * by more than three and a half times!).
@@ -972,7 +974,7 @@ static void apply_deadliness(long *die_average, int deadliness)
 }
 
 
-/*
+/**
  * Player attacks a (poor, defenseless) creature in melee. 
  * -RAK-, -BEN-, -LM-
  *
@@ -1642,7 +1644,7 @@ void py_attack(int y, int x)
 
 
 
-/*
+/**
  * Determine the odds of an object breaking when thrown at a monster.
  *
  * Note that artifacts never break; see the "drop_near()" function.
@@ -1690,7 +1692,7 @@ static int breakage_chance(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Fire an object from the pack or floor.
  *
  * You may only fire items that match your missile launcher.  
@@ -2179,7 +2181,7 @@ void do_cmd_fire(void)
 	}
 
       /* Stop if it's a tree or rubble */
-      if (!cave_floor_bold(ny, nx)) break;
+      if (!cave_project(ny, nx)) break;
       
     }
   
@@ -2211,7 +2213,7 @@ void do_cmd_fire(void)
 
 
 
-/*
+/**
  * Throw an object from the pack or floor.
  *
  * Now allows for throwing weapons.  Unlike all other thrown objects, 
@@ -2643,7 +2645,7 @@ void do_cmd_throw(void)
 	}
 
       /* Stop if it's trees or rubble */
-      if (!cave_floor_bold(ny, nx)) break;
+      if (!cave_project(ny, nx)) break;
     }
   
   /* Reduce and describe inventory */

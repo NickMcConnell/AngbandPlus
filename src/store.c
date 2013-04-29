@@ -1,6 +1,7 @@
-/* File: store.c */
+/** \file store.c 
+    \brief Store handling
 
-/* Store comments, racial penalties, what an item will cost, store 
+ * Store comments, racial penalties, what an item will cost, store 
  * inventory management, what a store will buy (what stores will sell
  * is in init2.c, and store owners in tables.c), interacting with the
  * stores (entering, haggling, buying, selling, leaving, getting kicked
@@ -37,7 +38,7 @@ static cptr comment_0[MAX_COMMENT_0] =
   "Taken!"
 };
 
-/*
+/**
  * Successful haggle.
  */
 static void say_comment_0(void)
@@ -46,7 +47,7 @@ static void say_comment_0(void)
 }
 
 
-/*
+/**
  * Messages for reacting to purchase prices.
  */
 
@@ -91,7 +92,7 @@ static cptr comment_4 [MAX_COMMENT_4 ] =
 };
 
 
-/*
+/**
  * Let a shop-keeper React to a purchase
  *
  * We paid "price", it was worth "value", and we thought it was worth "guess"
@@ -143,37 +144,37 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 
 
 
-/*
+/**
  * We store the current "store number" here so everyone can access it
  */
 static int store_num = (MAX_STORES - 1);
 
-/*
+/**
  * We store the current town index here so everyone can access it
  */
 static int town = 0;
 
-/*
+/**
  * We store the current "store page" here so everyone can access it
  */
 static int store_top = 0;
 
-/*
+/**
  * We store the number of items per page here so everyone can access it
  */
 static int store_per = 12;
 
-/*
+/**
  * We store the current "store pointer" here so everyone can access it
  */
 static store_type *st_ptr = NULL;
 
-/*
+/**
  * We store the current "owner type" here so everyone can access it
  */
 static owner_type *ot_ptr = NULL;
 
-/*
+/**
  * We store the array of current owners here so everyone can access it
  */
 static byte owner[MAX_STORES] = 
@@ -183,7 +184,7 @@ static byte owner[MAX_STORES] =
    255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
   };
 
-/*
+/**
  * Determine the price of an object (qty one) in a store.  Altered in 
  * Oangband.
  *
@@ -254,7 +255,7 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 }
 
 
-/*
+/**
  * Special "mass production" computation
  */
 static int mass_roll(int num, int max)
@@ -268,7 +269,7 @@ static int mass_roll(int num, int max)
 }
 
 
-/*
+/**
  * Certain "cheap" objects should be created in "piles"
  * Some objects can be sold at a "discount" (in small piles)
  */
@@ -433,7 +434,7 @@ static void mass_produce(object_type *o_ptr)
 
 
 
-/*
+/**
  * Convert a store item index into a one character label
  *
  * We use labels "a"-"l" for page 1, and labels "m"-"x" for page 2.
@@ -445,7 +446,7 @@ static s16b store_to_label(int i)
 }
 
 
-/*
+/**
  * Convert a one character label into a store item index.
  *
  * Return "-1" if the label does not indicate a real store item.
@@ -466,7 +467,7 @@ static s16b label_to_store(int c)
 
 
 
-/*
+/**
  * Determine if a store object can "absorb" another object
  *
  * See "object_similar()" for the same function for the "player"
@@ -534,7 +535,7 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
 }
 
 
-/*
+/**
  * Allow a store object to absorb another object
  */
 static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
@@ -558,7 +559,7 @@ static void store_object_absorb(object_type *o_ptr, object_type *j_ptr)
 }
 
 
-/*
+/**
  * Check to see if the shop will be carrying too many objects
  *
  * Note that the shop, just like a player, will not accept things
@@ -608,7 +609,7 @@ static bool store_check_num(object_type *o_ptr)
 
 
 
-/*
+/**
  * Determine if the current store will purchase the given object
  *
  * Note that a shop-keeper must refuse to buy "worthless" objects
@@ -774,7 +775,7 @@ static bool store_will_buy(object_type *o_ptr)
 
 
 
-/*
+/**
  * Add an object to the inventory of the "Home"
  *
  * In all cases, return the slot (or -1) where the object was placed.
@@ -867,7 +868,7 @@ static int home_carry(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Add an object to a real stores inventory.
  *
  * If the object is "worthless", it is thrown away (except in the home).
@@ -968,7 +969,7 @@ static int store_carry(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Increase, by a given amount, the number of a certain item
  * in a certain store.  This can result in zero items.
  */
@@ -991,7 +992,7 @@ static void store_item_increase(int item, int num)
 }
 
 
-/*
+/**
  * Remove a slot if it is empty
  */
 static void store_item_optimize(int item)
@@ -1022,7 +1023,7 @@ static void store_item_optimize(int item)
 }
 
 
-/*
+/**
  * This function will keep 'crap' out of the black market.
  * Crap is defined as any object that is "available" elsewhere
  * Based on a suggestion by "Lee Vogt" <lvogt@cig.mcel.mot.com>
@@ -1064,7 +1065,7 @@ static bool black_market_crap(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Attempt to delete (some of) a random object from the store
  * Hack -- we attempt to "maintain" piles of items when possible.
  */
@@ -1107,7 +1108,7 @@ static void store_delete(void)
 }
 
 
-/*
+/**
  * Creates a random object and gives it to a store
  * This algorithm needs to be rethought.  A lot.
  * Currently, "normal" stores use a pre-built array.
@@ -1222,7 +1223,7 @@ static void store_create(void)
 }
 
 
-/*
+/**
  * Redisplay a single store entry
  */
 static void display_entry(int item)
@@ -1334,7 +1335,7 @@ static void display_entry(int item)
 }
 
 
-/*
+/**
  * Display a store's inventory
  *
  * All prices are listed as "per individual object"
@@ -1371,7 +1372,7 @@ static void display_inventory(void)
 }
 
 
-/*
+/**
  * Display players gold
  */
 static void store_prt_gold(void)
@@ -1385,7 +1386,7 @@ static void store_prt_gold(void)
 }
 
 
-/*
+/**
  * Display store (after clearing screen)
  */
 static void display_store(void)
@@ -1476,7 +1477,7 @@ static void display_store(void)
 
 
 
-/*
+/**
  * Get the index of a store object
  *
  * Return TRUE if an object was selected
@@ -1593,7 +1594,7 @@ static bool get_stock(int *com_val, cptr pmt)
 }
 
 
-/*
+/**
  * Return the quantity of a given item in the pack.
  */
 static int find_inven(object_type *o_ptr)
@@ -1620,7 +1621,7 @@ static int find_inven(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Buy an object from a store
  */
 static void store_purchase(void)
@@ -1931,7 +1932,7 @@ static void store_purchase(void)
 }
 
 
-/*
+/**
  * Sell an object to the store (or home)
  */
 static void store_sell(void)
@@ -2219,7 +2220,7 @@ static void store_sell(void)
 }
 
 
-/* 
+/**
  * Get an object in a store to inspect. Original code by -JDL- (from Zangband).
  */
 static void store_inspect(void)
@@ -2254,17 +2255,23 @@ static void store_inspect(void)
   object_info_screen(o_ptr, FALSE);
 }
 
-/* Structure to describe tval/description pairings. */
+/**
+ * Structure to describe tval/description pairings. 
+ */
 typedef struct
 {
   int tval;
   const char *desc;
 } tval_desc;
 
-/* First book entry in order_items */
+/**
+ * First book entry in order_items 
+ */
 #define BOOK_START 2
 
-/* Categories for store orderiing */
+/**
+ * Categories for store orderiing 
+ */
 static tval_desc order_types[] =
   {
     { TV_SCROLL,	"Scrolls" },
@@ -2275,7 +2282,7 @@ static tval_desc order_types[] =
     { TV_NECRO_BOOK,    "Necromantic Tomes"}
   };
 
-/*
+/**
  * Display an entry on the sval menu
  */
 static void order_item_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -2304,7 +2311,7 @@ static void order_item_display(menu_type *menu, int oid, bool cursor, int row,
     c_put_str(TERM_L_RED, "*", row, col + 1);
 }
 
-/*
+/**
  * Deal with events on the sval menu
  */
 static bool order_item_action(char cmd, void *db, int oid)
@@ -2343,7 +2350,7 @@ static bool order_item_action(char cmd, void *db, int oid)
   return FALSE;
 }
 
-/*
+/**
  * Display list of orderable item types
  */
 static bool order_menu(int tval, const char *desc)
@@ -2461,7 +2468,7 @@ static void display_order(menu_type *menu, int oid, bool cursor,
   c_prt(attr, order_types[choice[oid]].desc, row, col);
 }
 
-/*
+/**
  * Display and handle the main squelching menu.
  */
 void store_order(void)
@@ -2508,13 +2515,13 @@ void store_order(void)
   return;
 }
 
-/*
+/**
  * Hack -- set this to leave the store
  */
 static bool leave_store = FALSE;
 
 
-/*
+/**
  * Process a command in a store
  *
  * Note that we must allow the use of a few "special" commands
@@ -2819,7 +2826,7 @@ static void store_process_command(void)
 }
 
 
-/*
+/**
  * Activate the existing store owner, or pick a new one 
  */
 void get_owner(bool pick)
@@ -2892,7 +2899,7 @@ void get_owner(bool pick)
 
 }
 
-/*
+/**
  * Enter a store, and interact with it.
  *
  * Note that we use the standard "request_command()" function
@@ -3259,7 +3266,7 @@ void do_cmd_store(void)
   p_ptr->window |= (PW_OVERHEAD);
 }
 
-/*
+/**
  * Shuffle one of the stores.
  */
 void store_shuffle(int which)
@@ -3305,7 +3312,7 @@ void store_shuffle(int which)
 }
 
 
-/*
+/**
  * Maintain the inventory at the stores.
  */
 void store_maint(int which)
@@ -3390,7 +3397,7 @@ void store_maint(int which)
 	rating = old_rating;
 }
 
-/*
+/**
  * Maintain all the stores
  */
 
@@ -3464,7 +3471,7 @@ void stores_maint(int times)
 }
 
 
-/*
+/**
  * Initialize the stores
  */
 void store_init(void)

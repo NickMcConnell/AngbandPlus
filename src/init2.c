@@ -1,6 +1,7 @@
-/* File: init2.c */
+/** \file init2.c 
+    \brief Initialization of game data from data files
 
-/* Paths, initializiation of *_info arrays from the binary files, control 
+ * Paths, initializiation of *_info arrays from the binary files, control 
  * of what items are sold in the stores, prepare stores, inventory, and 
  * many other things, some error text, startup initializations.
  *
@@ -16,21 +17,17 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
+ *
 
-#include "angband.h"
 
-#include "init.h"
-#include "cmds.h"
-
-/*
+ *
  * This file is used to initialize various variables and arrays for the
- * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
- * the common limitation of "read()" and "write()" to only 32767 bytes
+ * Angband game.  Note the use of functions from z-file.c to bypass
+ * the common limitation of read() and write() to only 32767 bytes
  * at a time.
  *
  * Several of the arrays for Angband are built from "template" files in
- * the "lib/file" directory, from which quick-load binary "image" files
+ * the "lib/edit" directory, from which quick-load binary "image" files
  * are constructed whenever they are not present in the "lib/data"
  * directory, or if those files become obsolete, if we are allowed.
  *
@@ -39,16 +36,19 @@
  * be able to load any template file with more than 20K of names or 60K
  * of text, even though technically, up to 64K should be legal.
  *
- * The "init1.c" file is used only to parse the ascii template files,
+ * The init1.c file is used only to parse the ascii template files,
  * to create the binary image files.  If you include the binary image
  * files instead of the ascii template files, then you can undefine
- * "ALLOW_TEMPLATES", saving about 20K by removing "init1.c".  Note
+ * "ALLOW_TEMPLATES", saving about 20K by removing init1.c.  Note
  * that the binary image files are extremely system dependant.
  */
 
+#include "angband.h"
+#include "init.h"
+#include "cmds.h"
 
 
-/*
+/**
  * Find the default paths to all of our important sub-directories.
  *
  * The purpose of each sub-directory is described in "variable.c".
@@ -230,7 +230,7 @@ void init_file_paths(const char *path)
 
 #ifdef PRIVATE_USER_PATH
 
-/*
+/**
  * Create an ".angband/" directory in the users home directory.
  *
  * ToDo: Add error handling.
@@ -282,14 +282,14 @@ void create_user_dirs(void)
 #ifdef ALLOW_TEMPLATES
 
 
-/*
+/**
  * Hack -- help give useful error messages
  */
 int error_idx;
 int error_line;
 
 
-/*
+/**
  * Standard error message text
  */
 static cptr err_str[PARSE_ERROR_MAX] =
@@ -317,7 +317,7 @@ static cptr err_str[PARSE_ERROR_MAX] =
 
 
 
-/*
+/**
  * File headers
  */
 header z_head;
@@ -336,10 +336,9 @@ header flavor_head;
 header s_head;
 
 
-/*** Initialize from binary image files ***/
-
-
-
+/**
+ * Initialize from binary image files 
+ */
 static bool init_info_raw(const char *fname, header *head)
 {
 	header test;
@@ -394,7 +393,7 @@ static bool init_info_raw(const char *fname, header *head)
 }
 
 
-/*
+/**
  * Initialize the header of an *_info.raw file.
  */
 static void init_header(header *head, int num, int len)
@@ -423,7 +422,7 @@ static void init_header(header *head, int num, int len)
 
 #ifdef ALLOW_TEMPLATES
 
-/*
+/**
  * Display a parser error message.
  */
 static void display_parse_error(cptr filename, errr err, cptr buf)
@@ -446,7 +445,7 @@ static void display_parse_error(cptr filename, errr err, cptr buf)
 #endif /* ALLOW_TEMPLATES */
 
 
-/*
+/**
  * Initialize a "*_info" array
  *
  * Note that we let each entry have a unique "name" and "text" string,
@@ -601,7 +600,7 @@ static errr init_info(cptr filename, header *head)
 	return (0);
 }
 
-/*
+/**
  * Free the allocated memory for the info-, name-, and text- arrays.
  */
 static errr free_info(header *head)
@@ -620,7 +619,7 @@ static errr free_info(header *head)
 }
 
 
-/*
+/**
  * Initialize the "z_info" array
  */
 static errr init_z_info(void)
@@ -646,7 +645,7 @@ static errr init_z_info(void)
 }
 
 
-/*
+/**
  * Initialize the "f_info" array
  */
 static errr init_f_info(void)
@@ -675,7 +674,7 @@ static errr init_f_info(void)
 
 
 
-/*
+/**
  * Initialize the "k_info" array
  */
 static errr init_k_info(void)
@@ -704,7 +703,7 @@ static errr init_k_info(void)
 
 
 
-/*
+/**
  * In Angband, all of the "special" artifacts are first in the
  * artifact list. The first non-special artifact is at ART_MIN_NORMAL.
  * OAngband adds several new special artifacts greater than ART_MIN_NORMAL.
@@ -713,11 +712,11 @@ static errr init_k_info(void)
  * is defeated. -TNB-
  */
 
-/* Lists of normal and special a_info[] indexes */
+/** Lists of normal and special a_info[] indexes */
 int *artifact_normal, *artifact_special;
 int artifact_normal_cnt, artifact_special_cnt;
 
-/*
+/**
  * This routine separates all the normal and special artifacts into
  * separate lists for easy allocation later.
  */
@@ -785,7 +784,7 @@ void init_artifacts(void)
 }
 
 
-/*
+/**
  * Initialize the "a_info" array
  */
 static errr init_a_info(void)
@@ -814,7 +813,7 @@ static errr init_a_info(void)
 
 
 
-/*
+/**
  * Initialize the "e_info" array
  */
 static errr init_e_info(void)
@@ -843,7 +842,7 @@ static errr init_e_info(void)
 
 
 
-/*
+/**
  * Initialize the "r_info" array
  */
 static errr init_r_info(void)
@@ -883,7 +882,7 @@ static errr init_r_info(void)
 
 
 
-/*
+/**
  * Initialize the "v_info" array
  */
 static errr init_v_info(void)
@@ -911,7 +910,7 @@ static errr init_v_info(void)
 }
 
 
-/*
+/**
  * Initialize the "p_info" array
  */
 static errr init_p_info(void)
@@ -939,7 +938,7 @@ static errr init_p_info(void)
 }
 
 
-/*
+/**
  * Initialize the "c_info" array
  */
 static errr init_c_info(void)
@@ -968,7 +967,7 @@ static errr init_c_info(void)
 
 
 
-/*
+/**
  * Initialize the "h_info" array
  */
 static errr init_h_info(void)
@@ -996,7 +995,7 @@ static errr init_h_info(void)
 
 
 
-/*
+/**
  * Initialize the "b_info" array
  */
 static errr init_b_info(void)
@@ -1024,7 +1023,7 @@ static errr init_b_info(void)
 
 
 
-/*
+/**
  * Initialize the "g_info" array
  */
 static errr init_g_info(void)
@@ -1050,7 +1049,7 @@ static errr init_g_info(void)
 }
 
 
-/*
+/**
  * Initialize the "flavor_info" array
  */
 static errr init_flavor_info(void)
@@ -1079,7 +1078,7 @@ static errr init_flavor_info(void)
 
 
 
-/*
+/**
  * Initialize the "s_info" array
  */
 static errr init_s_info(void)
@@ -1107,7 +1106,7 @@ static errr init_s_info(void)
 }
 
 
-/*
+/**
  * Initialize the "t_info" array.  Code from "init_v_info". -LM-
  * Unlike other, similar arrays, that for themed levels is not written to a 
  * binary file, since themed levels are neither important enough to warrant 
@@ -1208,7 +1207,7 @@ errr init_t_info(byte chosen_level)
 #endif
 }
 
-/*
+/**
  * Release memory used to store information about a themed level. -LM-
  */
 void kill_t_info(void)
@@ -1225,10 +1224,10 @@ void kill_t_info(void)
 }
 
 
-/*** Initialize others ***/
+/**** Initialize others ***/
 
 
-/*
+/**
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  * Note code for initializing the stores, below.
  */
@@ -1645,7 +1644,7 @@ static void autoinscribe_init(void)
 
 #define BROKEN 1
 
-/*
+/**
  * Initialize some other arrays
  */
 static errr init_other(void)
@@ -1852,7 +1851,7 @@ static errr init_other(void)
 
 
 
-/*
+/**
  * Initialize some other arrays
  */
 static errr init_alloc(void)
@@ -2128,7 +2127,7 @@ static errr init_alloc(void)
 }
 
 
-/*
+/**
  * Initialize the racial probability array
  */
 static errr init_race_probs(void)
@@ -2344,7 +2343,7 @@ static errr init_race_probs(void)
 }      
     
 
-/*
+/**
  * Hack -- take notes on line 23
  */
 static void note(cptr str)
@@ -2356,7 +2355,7 @@ static void note(cptr str)
   Term_fresh();
 }
 
-/*
+/**
  * Hack -- Explain a broken "lib" folder and quit (see below).
  *
  * XXX XXX XXX This function is "messy" because various things
@@ -2381,7 +2380,7 @@ static void init_angband_aux(cptr why)
   quit("Fatal Error.");
 }
 
-/*
+/**
  * Hack - identify set item artifacts.
  *
  * Go through the list of Set Items and identify all artifacts in each set
@@ -2408,12 +2407,12 @@ void update_artifact_sets()
     }
 }
 
-/*
+/**
  * Encode the screen colors for the opening screen
  */
 static char hack[17] = "dwsorgbuDWvyRGBU";
 
-/*
+/**
  * Hack -- main Angband initialization entry point
  *
  * Verify some files, display the "news.txt" file, create

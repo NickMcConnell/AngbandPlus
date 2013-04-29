@@ -1,6 +1,7 @@
-/* File: spells1.c */
+/** \file spells1.c 
+    \brief Spell effects
 
-/* Polymorph, teleport monster, teleport player, colors and ascii 
+ * Polymorph, teleport monster, teleport player, colors and ascii 
  * graphics for spells, hurt and kill player, melting/burning/freezing/
  * electrocuting items, effects of these attacks on the player and his 
  * stuff, spells that increase, decrease, and restore stats, disenchant, 
@@ -29,7 +30,7 @@
 
 
 
-/*
+/**
  * Attempts a saving throw with a difficulty of "roll".
  *
  * Returns true on successful save.
@@ -39,7 +40,7 @@ bool check_save(int roll)
   return (rand_int(roll) < p_ptr->skill_sav);
 }
 
-/*
+/**
  * Return another race for a monster to polymorph into.
  *
  * Perform a modified version of "get_mon_num()", with exact minimum and
@@ -147,7 +148,7 @@ s16b poly_r_idx(int base_idx, bool shapechange)
 
 
 
-/*
+/**
  * Teleport a monster, normally up to "dis" grids away.
  *
  * Attempt to move the monster at least "dis/2" grids away.
@@ -222,7 +223,7 @@ void teleport_away(int m_idx, int dis)
 }
 
 
-/*
+/**
  * Thrust the player or a monster away from the source of a projection.   
  * Used for GF_FORCE only (GF_STORM and GF_GRAVITY blink the player in 
  * a random direction).  -LM-
@@ -356,7 +357,7 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
 	    }
 	  
 	  /* Check for obstruction. */
-	  if (!cave_floor_bold(yy, xx))
+	  if (!cave_project(yy, xx))
 	    {
 	      /* Some features allow entrance, but not exit. */
 	      if (cave_passable_bold(yy, xx))
@@ -485,7 +486,7 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
   cave_info[y][x] &= ~(CAVE_TEMP);
 }
 
-/*
+/**
  * Teleport the player to a location up to "dis" grids away.
  *
  * If no such spaces are readily available, the distance may increase.
@@ -632,7 +633,7 @@ void teleport_player(int dis, bool safe)
   if (safe) handle_stuff();
 }
 
-/*
+/**
  * Teleport monster to a grid near the given location.  This function is
  * used in the monster spell "TELE_SELF_TO", to allow monsters both to
  * suddenly jump near the character, and to make them "dance" around the
@@ -697,7 +698,7 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 
 
 
-/*
+/**
  * Teleport player to a grid near the given location
  *
  * This function is slightly obsessive about correctness.
@@ -768,7 +769,7 @@ void teleport_player_to(int ny, int nx, bool friendly)
   handle_stuff();
 }
 
-/*
+/**
  * Teleport the player one level up or down (random when legal)
  */
 void teleport_player_level(bool friendly)
@@ -938,7 +939,7 @@ void teleport_player_level(bool friendly)
   sound(MSG_TPLEVEL);
 }
 	
-/* 
+/** 
  * Effects of chaos on a monster, whether by spell or special attack
  *
  * Returns TRUE if there is still a monster on the starting grid
@@ -1304,7 +1305,7 @@ bool chaotic_effects(monster_type *m_ptr)
 
 
 
-/*
+/**
  * Return a color to use for the bolt/ball spells
  */
 static byte spell_color(int type)
@@ -1366,7 +1367,7 @@ static byte spell_color(int type)
 
 
 
-/*
+/**
  * Find the attr/char pair to use for a spell effect
  *
  * It is moving (or has moved) from (x,y) to (nx,ny).
@@ -1412,7 +1413,7 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 }
 
 
-/*
+/**
  * Increase the short term "heighten power".  Initially used for special
  * ability "Heighten Power".
  */
@@ -1432,7 +1433,7 @@ void add_heighten_power(int value)
     }
 }
 
-/*
+/**
  * Increase the short term "speed boost".  Initially used for special
  * ability "Fury".
  */
@@ -1455,7 +1456,7 @@ void add_speed_boost(int value)
     }
 }
 
-/*
+/**
  * Reduce dam by an amount appropriate to the players resistance to
  * the damage type.
  *
@@ -1494,7 +1495,7 @@ int resist_damage(int dam, byte resist, byte rand_factor)
   return (((dam * resist_percentage) + 99) / 100);
 }
 
-/*
+/**
  * Decreases players hit points and sets death flag if necessary
  *
  * Hack -- this function allows the user to save (or quit) the game
@@ -1617,7 +1618,7 @@ void take_hit(int dam, cptr kb_str)
 
 
 
-/*
+/**
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
@@ -1672,7 +1673,7 @@ static bool hates_acid(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Does a given object (usually) hate electricity?
  */
 static bool hates_elec(object_type *o_ptr)
@@ -1692,7 +1693,7 @@ static bool hates_elec(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Does a given object (usually) hate fire?
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
@@ -1743,7 +1744,7 @@ static bool hates_fire(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Does a given object (usually) hate cold?
  */
 static bool hates_cold(object_type *o_ptr)
@@ -1769,7 +1770,7 @@ static bool hates_cold(object_type *o_ptr)
 
 
 
-/*
+/**
  * Melt something
  */
 static int set_acid_destroy(object_type *o_ptr)
@@ -1780,7 +1781,7 @@ static int set_acid_destroy(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Electrical damage
  */
 static int set_elec_destroy(object_type *o_ptr)
@@ -1791,7 +1792,7 @@ static int set_elec_destroy(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Burn something
  */
 static int set_fire_destroy(object_type *o_ptr)
@@ -1802,7 +1803,7 @@ static int set_fire_destroy(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Freeze things
  */
 static int set_cold_destroy(object_type *o_ptr)
@@ -1815,12 +1816,12 @@ static int set_cold_destroy(object_type *o_ptr)
 
 
 
-/*
+/**
  * This seems like a pretty standard "typedef"
  */
 typedef int (*inven_func)(object_type *);
 
-/*
+/**
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
  * Destruction taken from "melee.c" code for "stealing".
@@ -1909,7 +1910,7 @@ static int inven_damage(inven_func typ, int perc)
 
 
 
-/*
+/**
  * Acid has hit the player, attempt to affect some armor, if the armor
  * is not melded with the player's body because of a shapechange.
  *
@@ -1989,7 +1990,7 @@ static int minus_ac(int dam)
 }
 
 
-/*
+/**
  * Hurt the player with Acid.  Resistances now reduce inventory
  * destruction.   Acid can reduce CHR, as in Zangband. -LM-
  */
@@ -2029,7 +2030,7 @@ void acid_dam(int dam, cptr kb_str)
 }
 
 
-/*
+/**
  * Hurt the player with electricity.  Resistances now reduce inventory
  * destruction.   Electricity can reduce DEX, as in Zangband.  Electricity can 
  * stun the player. -LM-
@@ -2074,7 +2075,7 @@ void elec_dam(int dam, cptr kb_str)
 }
 
 
-/*
+/**
  * Hurt the player with Fire.  Resistances now reduce inventory
  * destruction.   Fire can reduce STR. -LM-
  */
@@ -2111,7 +2112,7 @@ void fire_dam(int dam, cptr kb_str)
 }
 
 
-/*
+/**
  * Hurt the player with Cold.  Resistances now reduce inventory
  * destruction.   Cold can reduce CON. -LM-
  */
@@ -2148,7 +2149,7 @@ void cold_dam(int dam, cptr kb_str)
 }
 
 
-/*
+/**
  * Hurt the player with Poison.
  */
 void pois_dam(int dam, cptr kb_str)
@@ -2169,7 +2170,7 @@ void pois_dam(int dam, cptr kb_str)
 }
 
 
-/*
+/**
  * Add to the player's poison count.
  *
  * Returns true is poison added.
@@ -2210,7 +2211,7 @@ bool pois_hit(int pois_inc)
 
 
 
-/*
+/**
  * Increase a stat by one randomized level
  *
  * Most code will "restore" a stat before calling this function,
@@ -2280,7 +2281,7 @@ bool inc_stat(int stat, bool star)
 
 
 
-/*
+/**
  * Decreases a stat by an amount indended to vary from 0 to 100 percent.
  *
  * Note that "permanent" means that the *given* amount is permanent,
@@ -2397,7 +2398,7 @@ bool dec_stat(int stat, int amount, int permanent)
 }
 
 
-/*
+/**
  * Restore a stat.  Return TRUE only if this actually makes a difference.
  */
 bool res_stat(int stat)
@@ -2420,7 +2421,7 @@ bool res_stat(int stat)
 }
 
 
-/*
+/**
  * Hostile removal of player mana.
  *
  * "power" is the amount of mana to try to remove.
@@ -2447,7 +2448,7 @@ int remove_player_mana(int power)
 }
 
 
-/*
+/**
  * "Dispel Magic" - remove temporary enhancements from the player.
  *
  * "power" is the size of the dieroll for the saving throw vs each effect.
@@ -2588,7 +2589,7 @@ int apply_dispel(int power)
 }
 
 
-/*
+/**
  * Apply disenchantment to the player's stuff, unless it is melded with
  * his body because of a shapechange.
  *
@@ -2695,7 +2696,7 @@ bool apply_disenchant(int dam)
 }
 
 
-/*
+/**
  * Apply Nexus
  */
 static void apply_nexus(monster_type *m_ptr)
@@ -2767,7 +2768,7 @@ static void apply_nexus(monster_type *m_ptr)
     }
 }
 
-/*
+/**
  * Apply Chaos
  */
 static void apply_chaos(void)
@@ -2895,7 +2896,7 @@ static void apply_chaos(void)
 }
 
 
-/*
+/**
  * Mega-Hack -- track "affected" monsters (see "project()" comments)
  */
 static int project_m_n;
@@ -2904,7 +2905,7 @@ static int project_m_y;
 
 
 
-/*
+/**
  * We are called from "project()" to "damage" terrain features
  *
  * We are called both for "beam" effects and "ball" effects.
@@ -3308,7 +3309,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 }
 
 
-/*
+/**
  * We are called from "project()" to "damage" objects
  *
  * The "r" parameter is the "distance from ground zero".
@@ -3714,7 +3715,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 }
 
 
-/*
+/**
  * Helper function for "project()" below.
  *
  * Handle a beam/bolt/ball causing damage to a monster.
@@ -5823,7 +5824,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 }
 
 
-/*
+/**
  * Helper function for "project()" below.
  *
  * Handle a beam/bolt/ball causing damage to the player.
@@ -7342,7 +7343,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 }
 
 
-/*
+/**
  * Helper function for "project()" below.
  *
  * Handle movement of monsters and the player.  Handle the alteration of 
@@ -7829,7 +7830,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 
 
 
-/*
+/**
  * Generic "beam"/"bolt"/"ball" projection routine.  
  *   -BEN-, some changes by -LM-
  *
@@ -8306,7 +8307,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 	      if ((flg & (PROJECT_THRU)) || (cave_passable_bold(y, x)))
 		{
 		  /* If this is a wall grid, ... */
-		  if (!cave_floor_bold(y, x))
+		  if (!cave_project(y, x))
 		    {
 		      /* Check neighbors */
 		      for (i = 0, k = 0; i < 8; i++)
@@ -8327,7 +8328,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
 		}
 	      
 	      /* Most explosions are immediately stopped by walls. */
-	      else if (!cave_floor_bold(y, x)) continue;
+	      else if (!cave_project(y, x)) continue;
 	      
 	      /* Must be within maximum distance. */
 	      dist = (distance(y0, x0, y, x));

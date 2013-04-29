@@ -1,6 +1,7 @@
-/* File: monattk.c */
+/** \file monattk.c 
+    \brief Monster attacks
 
-/* Monster melee attacks.  Monster critical blows, whether a monster 
+ * Monster melee attacks.  Monster critical blows, whether a monster 
  * attack hits, insult messages.  The code used when a monster attacks 
  * an adjacent player, including descriptions and effects.
  *
@@ -25,7 +26,7 @@
 
 
 
-/*
+/**
  * Critical blow.  All hits that do 95% of total possible damage,
  * and which also do at least 20 damage, or, sometimes, N damage.
  * This is used only to determine "cuts" and "stuns".
@@ -66,7 +67,7 @@ static int monster_critical(int dice, int sides, int dam)
 
 
 
-/*
+/**
  * Determine if a monster attack against the player succeeds.
  * Now incorporates the effects of terrain and penalizes stunned monsters. -LM-
  * Always miss 5% of the time, Always hit 5% of the time.
@@ -102,7 +103,7 @@ static int check_hit(int power, int level, int terrain_bonus, int m_idx)
 
 
 
-/*
+/**
  * Hack -- possible "insult" messages
  */
 static cptr desc_insult[] =
@@ -119,7 +120,7 @@ static cptr desc_insult[] =
 
 
 
-/*
+/**
  * Hack -- possible "insult" messages
  */
 static cptr desc_sneer[] =
@@ -149,7 +150,7 @@ static cptr desc_sneer[] =
   "declares that wilderness pathways dilate time."
 };
 
-/*
+/**
  * Mega Hack, but I don't care --- Ask for and take some survival item, 
  * depending on what the player has, then give some money in exchange, 
  * teleport away, and delete the monster.
@@ -314,7 +315,7 @@ static void make_request(int m_idx)
 
 
 
-/*
+/**
  * Attack the player via physical attacks.
  */
 bool make_attack_normal(monster_type *m_ptr, int y, int x)
@@ -1725,7 +1726,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 /*********************************************************************/
 
 
-/*
+/**
  * Using an input value for average damage, and another that 
  * controls variability, return the actual base damage of a 
  * monster's attack spell.  The larger the value for "dice", the 
@@ -1765,7 +1766,7 @@ static int get_dam(int av_dam, int dice)
 }
 
 
-/*
+/**
  * Cast a bolt at the player
  * Stop if we hit a monster
  * Affect monsters and the player
@@ -1781,7 +1782,7 @@ static void mon_bolt(int m_idx, int typ, int dam)
   (void)project(m_idx, 0, py, px, dam, typ, flg, 0, 0);
 }
 
-/*
+/**
  * Cast a beam at the player, sometimes with limited range.
  * Do not stop if we hit a monster
  * Affect grids, monsters, and the player
@@ -1816,7 +1817,7 @@ static void mon_beam(int m_idx, int typ, int dam, int range)
     }
 }
 
-/*
+/**
  * Cast a ball spell at the player
  * Pass over any monsters that may be in the way
  * Affect grids, objects, monsters, and (specifically) the player
@@ -1832,7 +1833,7 @@ static void mon_ball(int m_idx, int typ, int dam, int rad)
   (void)project(m_idx, rad, py, px, dam, typ, flg, 0, 0);
 }
 
-/*
+/**
  * Breathe or cast an arc-shaped spell at the player.
  * Use an arc spell of specified range and width.
  * Optionally, do not harm monsters with the same r_idx.
@@ -1877,7 +1878,7 @@ static void mon_arc(int m_idx, int typ, bool noharm, int dam, int rad,
 }
 
 
-/*
+/**
  * Monster attempts to make a ranged (non-melee) attack.
  *
  * Determine if monster can attack at range, then see if it will.  Use 

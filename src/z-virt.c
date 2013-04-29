@@ -1,7 +1,6 @@
-/*
- * File: z-virt.c
- * Purpose: Memory management routines
- *
+/** \file z-virt.c
+    \brief Memory management routines
+ 
  * Copyright (c) 1997 Ben Harrison.
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -20,12 +19,12 @@
 
 
 
-/*
+/**
  * Optional auxiliary "rpanic" function
  */
 void* (*rpanic_aux)(size_t) = NULL;
 
-/*
+/**
  * The system is out of memory, so panic.  If "rpanic_aux" is set,
  * it can be used to free up some memory and do a new "ralloc()",
  * or if not, it can be used to save things, clean up, and exit.
@@ -44,13 +43,13 @@ void* rpanic(size_t len)
 }
 
 
-/*
+/**
  * Optional auxiliary "ralloc" function
  */
 void* (*ralloc_aux)(size_t) = NULL;
 
 
-/*
+/**
  * Allocate some memory
  */
 void* ralloc(size_t len)
@@ -74,13 +73,13 @@ void* ralloc(size_t len)
 }
 
 
-/*
+/**
  * Optional auxiliary "rnfree" function
  */
 void* (*rnfree_aux)(void*) = NULL;
 
 
-/*
+/**
  * Free some memory (allocated by ralloc), return NULL
  */
 void* rnfree(void *p)
@@ -98,13 +97,13 @@ void* rnfree(void *p)
 	return (NULL);
 }
 
-/*
+/**
  * Hooks for platform-specific memory allocation.
  */
 static mem_realloc_hook realloc_aux;
 
 
-/*
+/**
  * Set the hooks for the memory system.
  */
 bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook realloc)
@@ -121,7 +120,7 @@ bool mem_set_hooks(mem_alloc_hook alloc, mem_free_hook free, mem_realloc_hook re
 }
 
 
-/*
+/**
  * Allocate `len` bytes of memory.
  *
  * Returns:
@@ -148,7 +147,7 @@ void *mem_alloc(size_t len)
 }
 
 
-/*
+/**
  * Free the memory pointed to by `p`.
  *
  * Returns NULL.
@@ -167,7 +166,7 @@ void *mem_free(void *p)
 }
 
 
-/*
+/**
  * Allocate `len` bytes of memory, copying whatever is in `p` with it.
  *
  * Returns:
@@ -193,7 +192,7 @@ void *mem_realloc(void *p, size_t len)
 }
 
 
-/*
+/**
  * Allocate a constant string, containing the same thing as 'str'
  */
 char *string_make(const char *str)
@@ -216,7 +215,7 @@ char *string_make(const char *str)
 }
 
 
-/*
+/**
  * Un-allocate a string allocated above.
  */
 #undef string_free

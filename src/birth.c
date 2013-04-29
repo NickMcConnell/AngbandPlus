@@ -1,6 +1,7 @@
-/* File: birth.c */
+/** \file birth.c 
+    \brief Character birth
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -18,12 +19,12 @@
 #include "angband.h"
 #include "cmds.h"
 
-/*
+/**
  * Forward declare
  */
 typedef struct birther birther;
 
-/*
+/**
  * A structure to hold "rolled" information
  */
 struct birther
@@ -42,20 +43,20 @@ struct birther
 
 
 
-/*
+/**
  * The last character displayed
  */
 static birther prev;
 
 
-/*
+/**
  * Current stats (when rolling a character).
  */
 static s16b stat_use[A_MAX];
 
 
 
-/*
+/**
  * Save the currently rolled data for later.
  */
 static void save_prev_data(void)
@@ -86,7 +87,7 @@ static void save_prev_data(void)
 }
 
 
-/*
+/**
  * Load the previously rolled data.
  */
 static void load_prev_data(void)
@@ -162,7 +163,7 @@ static void load_prev_data(void)
 }
 
 
-/*
+/**
  * Adjust a stat by an amount.
  *
  * This just uses "modify_stat_value()".
@@ -177,7 +178,7 @@ static int adjust_stat(int value, int amount, int auto_roll)
 }
 
 
-/*
+/**
  * Roll for a characters stats
  * For efficiency, we include a chunk of "calc_bonuses()".
  */
@@ -227,7 +228,7 @@ static void get_stats(void)
 }
 
 
-/*
+/**
  * Roll for some info that the auto-roller ignores
  *
  * No characters will have HPs at level 50 that differ from the average.
@@ -309,7 +310,7 @@ static void get_extra(void)
   p_ptr->player_hp[PY_MAX_LEVEL-1] = final_hps;
 }
 
-/*
+/**
  * Get the racial history, and social class, using the "history charts".
  */
 static void get_history(void)
@@ -414,7 +415,7 @@ static void get_history(void)
     }
 }
 
-/* 
+/** 
  * Get a stat for the autoroller - adapted from askfor_aux() -NRM- 
  */
 bool get_stat(char *buf, int val)
@@ -572,7 +573,7 @@ bool get_stat(char *buf, int val)
 }
 
 
-/*
+/**
  * Sets the character's starting level -NRM-
  */
 
@@ -610,7 +611,7 @@ static void get_level(void)
 
 
 
-/*
+/**
  * Computes character's age, height, and weight
  */
 static void get_ahw(void)
@@ -636,7 +637,7 @@ static void get_ahw(void)
 
 
 
-/*
+/**
  * Get the player's starting money
  */
 static void get_money(void)
@@ -671,7 +672,7 @@ static void get_money(void)
 
 
 
-/*
+/**
  * Clear all the global "character" data
  */
 static void player_wipe(bool really_wipe)
@@ -795,7 +796,7 @@ static void player_wipe(bool really_wipe)
     }
 }
 
-/*
+/**
  * Upgrade weapons (and potentially other items) for "advanced" races 
  */
 static void object_upgrade(object_type *o_ptr)
@@ -885,7 +886,7 @@ static void object_upgrade(object_type *o_ptr)
 
 
 
-/*
+/**
  * Try to wield everything wieldable in the inventory.
  */
 static void wield_all(void)
@@ -949,7 +950,7 @@ static void wield_all(void)
   return;
 }
 
-/*
+/**
  * Init players with some belongings
  *
  * Having an item makes the player "aware" of its purpose.
@@ -1077,7 +1078,7 @@ static void player_outfit(void)
 }
 
 
-/* Locations of the tables on the screen */
+/** Locations of the tables on the screen */
 #define HEADER_ROW       (small_screen ? 0 : 1)
 #define QUESTION_ROW     (small_screen ? 8 : 7)
 #define TABLE_ROW        10
@@ -1093,7 +1094,7 @@ static void player_outfit(void)
 #define CLASS_COL_SML    19
 #define ROLLER_COL_SML   30
 
-/*
+/**
  * Clear the previous question
  */
 static void clear_question(void)
@@ -1110,7 +1111,7 @@ static void clear_question(void)
 
 /* gender/race/classs menu selector */
 
-/*
+/**
  * Display additional information about each race during the selection.
  */
 static void race_aux_hook(int race, void *db, const region *reg)
@@ -1157,7 +1158,7 @@ static void race_aux_hook(int race, void *db, const region *reg)
 }
 
 
-/*
+/**
  * Display additional information about each class during the selection.
  */
 static void class_aux_hook(int class_idx, void *db, const region *loc)
@@ -1194,7 +1195,7 @@ static region roller_region_sml = {ROLLER_COL_SML, TABLE_ROW, 21, -2};
 static region mode_region_sml = {ROLLER_COL_SML, TABLE_ROW + 4, 21, -2};
 
 
-/* Event handler implementation */
+/** Event handler implementation */
 static bool handler_aux(char cmd, int oid, byte *val, int max, int mask, 
 			cptr topic)
 {
@@ -1230,7 +1231,7 @@ static bool handler_aux(char cmd, int oid, byte *val, int max, int mask,
 }
 
 /* GENDER */
-/* Display a gender */
+/** Display a gender */
 static void display_gender(menu_type *menu, int oid, bool cursor,
 			   int row, int col, int width)
 {
@@ -1366,7 +1367,7 @@ static const menu_iter menu_defs[] = {
   { 0, 0, 0, display_mode, mode_handler },
 };
 
-/* Menu display and selector */
+/** Menu display and selector */
 
 #define ASEX 0
 #define ARACE 1
@@ -1491,7 +1492,7 @@ static bool choose_character(void)
 }
 
 
-/*
+/**
  * Helper function for 'player_birth()'.
  *
  * This function allows the player to select a sex, race, and class, and
@@ -1561,9 +1562,9 @@ static bool player_birth_aux_1(void)
   return (TRUE);
 }
 
-/* =================================================== */
+/** =================================================== */
 
-/*
+/**
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
 #define MIN_POINT_STAT_VALUE 10 /* Minimum stat value - no points used */
@@ -1571,14 +1572,14 @@ static bool player_birth_aux_1(void)
 #define BUY_POINTS 48 /* Number of points available to buy stats */
 #define GOLD_POINT 50 /* Each stat point is worth this much gold */
 
-/*
+/**
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
 static int birth_stat_costs[(MAX_POINT_STAT_VALUE-MIN_POINT_STAT_VALUE)+1] = 
   { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
-/*
+/**
  * Helper function for 'player_birth()'.
  *
  * This function handles "point-based" character creation.
@@ -1782,7 +1783,7 @@ static int player_birth_aux_2(void)
 }
 
 
-/*
+/**
  * Helper function for 'player_birth()'.
  *
  * This function handles "auto-rolling" and "random-rolling".
@@ -2223,7 +2224,7 @@ typedef enum
   } birth_stages;
 
 
-/*
+/**
  * Helper function for 'player_birth()'.
  *
  * See "display_player" for screen layout code.
@@ -2340,7 +2341,7 @@ static void player_birth_aux(void)
 }
 
 
-/*
+/**
  * Create a new character.
  *
  * Note that we may be called with "junk" leftover in the various

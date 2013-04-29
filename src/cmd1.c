@@ -1,6 +1,7 @@
-/* File: cmd1.c */
+/** \file cmd1.c
+    \brief Commands, part 1
 
-/* Searching, pickup, effects of traps, move one square (including special 
+ *  Searching, pickup, effects of traps, move one square (including special 
  * terrain effects), and the running algorithm.   
  *
  * Tim Baker's easy patch installed.
@@ -23,7 +24,7 @@
 
 
 
-/*
+/**
  * Search for hidden things
  */
 void search(void)
@@ -116,7 +117,7 @@ void search(void)
 }
 
 
-/*
+/**
  * Return TRUE if the given object is inscribed with "=g".
  *
  * Alternatively, also return TRUE if any similar item in the
@@ -194,7 +195,7 @@ static bool auto_pickup_check(object_type *o_ptr, bool check_pack)
 	return (FALSE);
 }
 
-/*
+/**
  * Automatically carry ammunition and throwing weapons in the quiver,
  * if it is inscribed with "=g", or it matches something already in
  * the quiver.
@@ -329,7 +330,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 }
 
 
-/*
+/**
  * Return TRUE if the given object can be automatically picked up
  */
 static bool auto_pickup_okay(object_type *o_ptr)
@@ -375,7 +376,7 @@ static bool auto_pickup_okay(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Carry an object and delete it.
  */
 extern void py_pickup_aux(int o_idx)
@@ -461,7 +462,7 @@ extern void py_pickup_aux(int o_idx)
 }
 
 
-/*
+/**
  * Pick up objects and treasure on the floor, now also used for telekinesis.
  *
  * Called with pickup:
@@ -814,7 +815,7 @@ byte py_pickup(int pickup, int y, int x)
 }
 
 
-/*
+/**
  * Determine if a trap affects the player.
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
@@ -852,7 +853,7 @@ static int check_trap_hit(int power)
 
 
 
-/*
+/**
  * Handle player hitting a real trap.  Rewritten in Oangband to allow a 
  * greater variety of traps, with effects controlled by dungeon level.  
  * To allow a trap to choose one of a variety of effects consistantly, 
@@ -1919,7 +1920,9 @@ void hit_trap(int y, int x)
   Rand_quick = FALSE;
 }
 
-/* Handle falling off cliffs */
+/**
+ * Handle falling off cliffs 
+ */
 void fall_off_cliff(void)
 {
   int i = 0, dam;
@@ -1982,12 +1985,10 @@ void fall_off_cliff(void)
 	}
 
       /* Check for quests */
-      if ((adult_dungeon) && is_quest(p_ptr->stage) && 
-	  !stage_map[p_ptr->stage][DOWN] && (p_ptr->depth < 100))
+      if ((adult_dungeon) && is_quest(p_ptr->stage) && (p_ptr->depth < 100))
 	{
 	  int i;
 	  monster_race *r_ptr = NULL;
-	  char buf[80];
 	  
 	  /* Find the questor */
 	  for (i = 0; i < z_info->r_max; i++)
@@ -1998,11 +1999,8 @@ void fall_off_cliff(void)
 		break;
 	    }
 	  
-	  /* Give the option */
+	  /* Announce */
 	  msg_format("This level is home to %s.", r_name + r_ptr->name);
-	  strnfmt(buf, sizeof(buf), "Do you wish to be able to avoid fighting %s?",
-		  (r_ptr->flags1 & RF1_FEMALE ? "her" : "him"));
-	  if (get_check(buf)) stage_map[p_ptr->stage][DOWN] = p_ptr->stage + 1;
 	}
 
     }
@@ -2012,7 +2010,7 @@ void fall_off_cliff(void)
 	
 }
 
-/*
+/**
  * Move player in the given direction, with the given "pickup" flag.
  *
  * This routine should only be called when energy has been expended.
@@ -2458,7 +2456,7 @@ void move_player(int dir, int do_pickup)
 }
 
 
-/*
+/**
  * Hack -- Check for a "known wall" (see below)
  */
 static int see_wall(int dir, int y, int x)
@@ -2482,7 +2480,7 @@ static int see_wall(int dir, int y, int x)
 }
 
 
-/*
+/**
  * Hack -- Check for an "unknown corner" (see below)
  */
 static int see_nothing(int dir, int y, int x)
@@ -2505,7 +2503,7 @@ static int see_nothing(int dir, int y, int x)
 
 
 
-/*
+/**
  * The running algorithm  -CJS-
  *
  * Basically, once you start running, you keep moving until something
@@ -2542,22 +2540,22 @@ static int see_nothing(int dir, int y, int x)
  * two on each side (marked 'L' and 'R').  If either one of the two
  * grids on a given side is a wall, then that side is considered to
  * be "closed".   Both sides enclosed yields a hallway.
- *
+ *<pre>
  *    LL		     @L
  *    @x      (normal)	     RxL   (diagonal)
  *    RR      (east)	      R	   (south-east)
- *
+ *</pre>
  * In the diagram below, in which the player is running east along a
  * hallway, he will stop as indicated before attempting to enter the
  * intersection (marked 'x').  Starting a new run in any direction
  * will begin a new hallway run.
- *
+ *<pre>
  * #.#
  * ##.##
  * o@x..
  * ##.##
  * #.#
- *
+ </pre>
  * Note that a minor hack is inserted to make the angled corridor
  * entry (with one side blocked near and the other side blocked
  * further away from the runner) work correctly. The runner moves
@@ -2569,13 +2567,13 @@ static int see_nothing(int dir, int y, int x)
  * and will stop in the grid (marked '1') before the intersection.
  * Continuing the run to the south-east would result in a long run
  * stopping at the end of the hallway (marked '2').
- *
+ *<pre>
  * ##################
  * o@x	     1
  * ########### ######
  * #2	       #
  * #############
- *
+ *</pre>
  * After each step, the surroundings are examined to determine if
  * the running should stop, and to determine if the running should
  * change direction.  We examine the new current player location
@@ -2585,12 +2583,12 @@ static int see_nothing(int dir, int y, int x)
  * Moving one grid in some direction places you adjacent to three
  * or five new grids (for straight and diagonal moves respectively)
  * to which you were not previously adjacent (marked as '!').
- *
+ *<pre>
  *   ...!	       ...
  *   .o@!  (normal)    .o.!  (diagonal)
  *   ...!  (east)      ..@!  (south east)
  *			!!!
- *
+ *</pre>
  * If any of the newly adjacent grids are "interesting" (monsters,
  * objects, some terrain features) then running stops.
  *
@@ -2609,11 +2607,11 @@ static int see_nothing(int dir, int y, int x)
  * two possible choices, separated by a grid which does not seem
  * to be open, then running stops.  Otherwise, as shown below, the
  * player has probably reached a "corner".
- *
+ *<pre>
  *    ###	      o##
  *    o@x  (normal)   #@!   (diagonal)
  *    ##!  (east)     ##x   (south east)
- *
+ *</pre>
  * In this situation, there will be two newly adjacent open grids,
  * one touching the player on a diagonal, and one directly adjacent.
  * We must consider the two "option" grids further out (marked '?').
@@ -2631,36 +2629,36 @@ static int see_nothing(int dir, int y, int x)
  * go straight, but we pretend that we got there by moving diagonally.
  * Below, we avoid the obvious grid (marked 'x') and cut the corner
  * instead (marked 'n').
- *
+ *<pre>
  *    ###:		 o##
  *    o@x#   (normal)	 #@n	(maybe?)
  *    ##n#   (east)	 ##x#
  *			 ####
- *
+ *</pre>
  * If one of the "option" grids is open, then we may have a choice, so
  * we check to see whether it is a potential corner or an intersection
  * (or room entrance).  If the grid two spaces straight ahead, and the
  * space marked with 's' are both open, then it is a potential corner
  * and we enter it if requested.  Otherwise, we stop, because it is
  * not a corner, and is instead an intersection or a room entrance.
- *
+ *<pre>
  *    ###
  *    o@x
  *    ##!#
- *
+ *</pre>
  * I do not think this documentation is correct.
  */
 
 
 
 
-/*
+/**
  * Hack -- allow quick "cycling" through the legal directions
  */
 static byte cycle[] =
 { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
 
-/*
+/**
  * Hack -- map each direction into the "middle" of the "cycle[]" array
  */
 static byte chome[] =
@@ -2668,7 +2666,7 @@ static byte chome[] =
 
 
 
-/*
+/**
  * Initialize the running algorithm for a new direction.
  *
  * Diagonal Corridor -- allow diaginal entry into corridors.
@@ -2784,7 +2782,7 @@ static void run_init(int dir)
 }
 
 
-/*
+/**
  * Update the current "run" path
  *
  * Return TRUE if the running should be stopped
@@ -3301,7 +3299,7 @@ static bool run_test(void)
 
 
 
-/*
+/**
  * Take one step along the current "run" path
  *
  * Called with a real direction to begin a new run, and with zero

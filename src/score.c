@@ -1,7 +1,6 @@
-/*
- * File: score.c
- * Purpose: Highscore handling for Angband
- *
+/** \file score.c
+    \brief Highscore handling for Angband
+ 
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -18,7 +17,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * Semi-Portable High Score List Entry (128 bytes)
  *
  * All fields listed below are null terminated ascii strings.
@@ -57,7 +56,7 @@ typedef struct
 } high_score;
 
 
-/*
+/**
  * Hack -- Calculates the max danger reached
  */
 static int max_depth(void)
@@ -74,7 +73,7 @@ static int max_depth(void)
 }
 
 
-/*
+/**
  * Hack -- Calculates the total number of points earned
 
 static long total_points(void)
@@ -83,7 +82,7 @@ static long total_points(void)
 } */
 
 
-/*
+/**
  * Read in a highscore file.
  */
 static size_t highscore_read(high_score scores[], size_t sz)
@@ -111,7 +110,7 @@ static size_t highscore_read(high_score scores[], size_t sz)
 }
 
 
-/*
+/**
  * Just determine where a new score *would* be placed
  * Return the location (0 is best) or -1 on failure
  */
@@ -158,7 +157,7 @@ static size_t highscore_count(const high_score scores[], size_t sz)
 }
 
 
-/*
+/**
  * Actually place an entry into the high score file
  * Return the location (0 is best) or -1 on "failure"
  */
@@ -244,7 +243,7 @@ static void highscore_write(const high_score scores[], size_t sz)
 
 
 
-/*
+/**
  * Display the scores in a given range.
  */
 static void display_scores_aux(const high_score scores[], int from, int to, int highlight)
@@ -428,7 +427,7 @@ static void build_score(high_score *entry, const char *died_from, time_t *death_
 
 
 
-/*
+/**
  * Enters a players name on a hi-score table, if "legal".
  *
  * Assumes "signals_ignore_tstp()" has been called.
@@ -497,7 +496,7 @@ void enter_score(time_t *death_time)
 }
 
 
-/*
+/**
  * Predict the players location, and display it.
  */
 void predict_score(void)
@@ -532,7 +531,7 @@ void predict_score(void)
 }
 
 
-/*
+/**
  * Show scores.
  */
 void show_scores(void)

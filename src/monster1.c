@@ -1,6 +1,7 @@
-/* File: monster1.c */
+/** \file monster1.c 
+    \brief Monster descriptions and info
 
-/* how the char gains new monster info and the monster recall, including 
+ * how the char gains new monster info and the monster recall, including 
  * all descriptions.  The player ghost code.
  *
  * Copyright (c) 2009 Nick McConnell, Leon Marrick & Bahman Rabii, 
@@ -21,15 +22,18 @@
 #include "angband.h"
 
 
-/*
+/**
  * Pronoun arrays, by gender.
  */
 static cptr wd_he[3] =
 { "it", "he", "she" };
+/**
+ * Pronoun arrays, by gender.
+ */
 static cptr wd_his[3] =
 { "its", "his", "her" };
 
-/*
+/**
  * Descriptions of monster rarity.
  */
 static char *wd_rarity(byte rarity, bool unique)
@@ -62,13 +66,13 @@ static char *wd_rarity(byte rarity, bool unique)
   return rarity_desc;
 }
 
-/*
+/**
  * Pluralizer.  Args(count, singular, plural)
  */
 #define plural(c,s,p) \
     (((c) == 1) ? (s) : (p))
 
-/*
+/**
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
  */
@@ -97,7 +101,7 @@ static bool know_armour(int r_idx)
 }
 
 
-/*
+/**
  * Determine if the "mana" is known
  * The higher the level, the fewer kills needed.
  */
@@ -128,7 +132,7 @@ static bool know_mana(int r_idx)
 }
 
 
-/*
+/**
  * Determine if the "damage" of the given attack is known
  * the higher the level of the monster, the fewer the attacks you need,
  * the more damage an attack does, the more attacks you need
@@ -166,7 +170,7 @@ static bool know_damage(int r_idx, int i)
 }
 
 
-/*
+/**
  * Hack -- display monster information using "roff()"
  *
  * Note that there is now a compiler option to only read the monster
@@ -1813,7 +1817,7 @@ static void roff_aux(int r_idx)
 
 
 
-/*
+/**
  * Hack -- Display the "name" and "attr/chars" of a monster race
  */
 extern void roff_top(int r_idx)
@@ -1881,7 +1885,7 @@ extern void roff_top(int r_idx)
 
 
 
-/*
+/**
  * Hack -- describe the given monster race at the top of the screen
  */
 void screen_roff(int r_idx)
@@ -1902,7 +1906,7 @@ void screen_roff(int r_idx)
 
 
 
-/*
+/**
  * Hack -- describe the given monster race in the current "term" window
  */
 void display_roff(int r_idx)
@@ -1927,7 +1931,7 @@ void display_roff(int r_idx)
 }
 
 
-/* 
+/** 
  * Add various player ghost attributes depending on race. -LM-
  */
 static void process_ghost_race(int ghost_race, monster_type *m_ptr)
@@ -2069,7 +2073,7 @@ static void process_ghost_race(int ghost_race, monster_type *m_ptr)
     }
 }
 
-/* 
+/** 
  * Add various player ghost attributes depending on class. -LM- 
  */
 static void process_ghost_class(int ghost_class, monster_type *m_ptr)
@@ -2411,7 +2415,7 @@ static void process_ghost_class(int ghost_class, monster_type *m_ptr)
     }
 }
 
-/*
+/**
  * Once a monster with the flag "PLAYER_GHOST" is generated, it needs 
  * to have a little color added, if it hasn't been prepared before.  
  * This function uses a bones file to get a name, give the ghost a 

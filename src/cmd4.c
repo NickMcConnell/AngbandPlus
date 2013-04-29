@@ -1,6 +1,7 @@
-/*
- * File: cmd4.c
- * Purpose: Various kinds of browsing functions.
+/** \file cmd4.c
+    \brief Commands, part 4
+
+ * Various kinds of browsing functions.
  *
  * Copyright (c) 1997-2007 Robert A. Koeneke, James E. Wilson, Ben Harrison,
  * Eytan Zweig, Andrew Doull, Pete Mack.
@@ -199,7 +200,7 @@ static struct
     { "v",              "Vortices" },
     { "W",              "Wights/Wraiths" },
     { "w",              "Worms/Worm Masses" },
-    { "X",              "Xorns/Xarens" },
+    { "X#",             "Xorns/Xarens" },
     { "Y",		"Yeti" },
     { "Z",		"Zephyr Hounds" },
     { "z",		"Zombies" },
@@ -279,7 +280,7 @@ int feat_order(int feat)
 }
 
 
-/* Emit a 'graphical' symbol and a padding character if appropriate */
+/** Emit a 'graphical' symbol and a padding character if appropriate */
 static void big_pad(int col, int row, byte a, byte c)
 {
   Term_putch(col, row, a, c);
@@ -348,7 +349,7 @@ static void display_group_member(menu_type *menu, int oid,
 
 #define swap(a, b) (swapspace = (void*)(a)), ((a) = (b)), ((b) = swapspace)
 
-/*
+/**
  * Interactive group by. 
  * Recognises inscriptions, graphical symbols, lore
  */
@@ -760,7 +761,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
   FREE(g_list);
 }
 
-/*
+/**
  * Display visuals.
  */
 static void display_visual_list(int col, int row, int height, int width, 
@@ -799,7 +800,7 @@ static void display_visual_list(int col, int row, int height, int width,
 }
 
 
-/*
+/**
  * Place the cursor at the collect position for visual mode
  */
 static void place_visual_list_cursor(int col, int row, byte a, byte c, 
@@ -816,7 +817,7 @@ static void place_visual_list_cursor(int col, int row, byte a, byte c,
 }
 
 
-/*
+/**
  *  Do visual mode command -- Change symbols
  */
 static bool visual_mode_command(event_type ke, bool *visual_list_ptr, 
@@ -1017,14 +1018,14 @@ static bool visual_mode_command(event_type ke, bool *visual_list_ptr,
 }
 
 
-/* The following sections implement "subclasses" of the
+/** The following sections implement "subclasses" of the
  * abstract classes represented by member_funcs and group_funcs
  */
 
-/* =================== MONSTERS ==================================== */
-/* Many-to-many grouping - use default auxiliary join */
+/** =================== MONSTERS ==================================== */
+/** Many-to-many grouping - use default auxiliary join */
 
-/*
+/**
  * Display a monster
  */
 static void display_monster(int col, int row, bool cursor, int oid)
@@ -1144,7 +1145,7 @@ static int count_known_monsters(void)
   return m_count;
 }
 
-/*
+/**
  * Display known monsters.
  */
 static void do_cmd_knowledge_monsters(void *obj, const char *name)
@@ -1209,7 +1210,7 @@ static void do_cmd_knowledge_monsters(void *obj, const char *name)
 /* =================== ARTIFACTS ==================================== */
 /* Many-to-one grouping */
 
-/*
+/**
  * Display an artifact label
  */
 static void display_artifact(int col, int row, bool cursor, int oid)
@@ -1237,7 +1238,7 @@ static void display_artifact(int col, int row, bool cursor, int oid)
   c_prt(attr, o_name, row, col);
 }
 
-/*
+/**
  * Show artifact lore
  */
 static void desc_art_fake(int a_idx)
@@ -1282,7 +1283,7 @@ static const char *kind_name(int gid) { return object_text_order[gid].name; }
 static int art2gid(int oid) { return obj_group_order[a_info[oid].tval]; }
 
 
-/* If 'artifacts' is NULL, it counts the number of known artifacts, otherwise
+/** If 'artifacts' is NULL, it counts the number of known artifacts, otherwise
    it collects the list of known artifacts into 'artifacts' as well. */
 static int collect_known_artifacts(int *artifacts, size_t artifacts_len)
 {
@@ -1324,7 +1325,7 @@ static int collect_known_artifacts(int *artifacts, size_t artifacts_len)
   return a_count;
 }
 
-/*
+/**
  * Display known artifacts
  */
 static void do_cmd_knowledge_artifacts(void *obj, const char *name)
@@ -1368,7 +1369,7 @@ static void display_ego_item(int col, int row, bool cursor, int oid)
   c_prt(attr, e_name + e_ptr->name, row, col);
 }
 
-/*
+/**
  * Describe fake ego item "lore"
  */
 static void desc_ego_fake(int oid)
@@ -1436,7 +1437,7 @@ static void desc_ego_fake(int oid)
   screen_load();
 }
 
-/* TODO? Currently ego items will order by e_idx */
+/** TODO? Currently ego items will order by e_idx */
 static int e_cmp_tval(const void *a, const void *b)
 {
   ego_item_type *ea = &e_info[default_join[*(int*)a].oid];
@@ -1450,7 +1451,7 @@ static int e_cmp_tval(const void *a, const void *b)
   return strcmp(e_name + ea->name, e_name + eb->name);
 }
 
-/*
+/**
  * Display known ego_items
  */
 static void do_cmd_knowledge_ego_items(void *obj, const char *name)
@@ -1495,7 +1496,7 @@ static void do_cmd_knowledge_ego_items(void *obj, const char *name)
 /* =================== ORDINARY OBJECTS  =================================== */
 /* Many-to-one grouping */
 
-/*
+/**
  * Display the objects in a group.
  */
 static void display_object(int col, int row, bool cursor, int oid)
@@ -1542,7 +1543,7 @@ static void display_object(int col, int row, bool cursor, int oid)
   big_pad(76, row, a, c);
 }
 
-/*
+/**
  * Describe fake object
  */
 static void desc_obj_fake(int k_idx)
@@ -1616,7 +1617,7 @@ static byte *o_xattr(int oid)
     return &flavor_info[k_ptr->flavor].x_attr;
 }
 
-/*
+/**
  * Display special prompt for object inscription.
  */
 static const char *o_xtra_prompt(int oid)
@@ -1639,7 +1640,7 @@ static const char *o_xtra_prompt(int oid)
   return no_insc;
 }
 
-/*
+/**
  * Special key actions for object inscription.
  */
 static void o_xtra_act(char ch, int oid)
@@ -1696,7 +1697,7 @@ static void o_xtra_act(char ch, int oid)
 /* Hack - stop short of special arts */
 #define LAST_NORMAL 730
 
-/*
+/**
  * Display known objects
  */
 void do_cmd_knowledge_objects(void *obj, const char *name)
@@ -1729,7 +1730,7 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
 /* =================== TERRAIN FEATURES ==================================== */
 /* Many-to-one grouping */
 
-/*
+/**
  * Display the features in a group.
  */
 static void display_feature(int col, int row, bool cursor, int oid )
@@ -1792,7 +1793,7 @@ static void feat_lore(int oid) {
   inkey_ex(); 
 }
 
-/*
+/**
  * Interact with feature visuals.
  */
 static void do_cmd_knowledge_features(void *obj, const char *name)
@@ -1832,7 +1833,7 @@ void do_cmd_knowledge_home()
 /* =================== END JOIN DEFINITIONS ================================ */
 
 
-/*
+/**
  * Hack -- redraw the screen
  *
  * This command performs various low level updates, clears all the "extra"
@@ -1918,7 +1919,7 @@ void do_cmd_redraw(void)
 }
 
 
-/*
+/**
  * Map resizing whenever the main term changes size
  */
 void resize_map(void)
@@ -1968,7 +1969,7 @@ void resize_map(void)
   Term_fresh();
 }
 
-/*
+/**
  * Redraw a term when it is resized
  */
 void redraw_window(void)
@@ -2000,7 +2001,7 @@ void redraw_window(void)
   Term_fresh();
 }
 
-/*
+/**
  * Hack -- change name
  */
 void do_cmd_change_name(void)
@@ -2152,7 +2153,7 @@ void do_cmd_change_name(void)
 }
 
 
-/*
+/**
  * Recall the most recent message
  */
 void do_cmd_message_one(void)
@@ -2162,7 +2163,7 @@ void do_cmd_message_one(void)
 }
 
 
-/*
+/**
  * Show previous messages to the user
  *
  * The screen format uses line 0 and 23 for headers and prompts,
@@ -2425,7 +2426,7 @@ void do_cmd_messages(void)
 
 
 
-/*
+/**
  * Ask for a "user pref line" and process it
  */
 void do_cmd_pref(void)
@@ -2443,7 +2444,7 @@ void do_cmd_pref(void)
 }
 
 
-/*
+/**
  * Ask for a "user pref file" and process it.
  *
  * This function should only be used by standard interaction commands,
@@ -2495,7 +2496,7 @@ static void display_option(menu_type *menu, int oid,
 	  row, col);
 }
 
-/*
+/**
  * Handle keypresses for an option entry.
  */
 static bool update_option(char key, void *pgdb, int oid)
@@ -2547,7 +2548,7 @@ static const menu_iter options_toggle_iter =
 static menu_type option_toggle_menu;
 
 
-/*
+/**
  * Interact with some options
  */
 static void do_cmd_options_aux(void *vpage, cptr info)
@@ -2610,7 +2611,7 @@ static void do_cmd_options_aux(void *vpage, cptr info)
 }
 
 
-/*
+/**
  * Modify the "window" options
  */
 static void do_cmd_options_win(void)
@@ -2787,7 +2788,7 @@ static void do_cmd_options_win(void)
 }
 
 
-/* Hack -- Base Delay Factor */
+/** Hack -- Base Delay Factor */
 void do_cmd_delay(void)
 {
   /* Prompt */
@@ -2819,7 +2820,7 @@ void do_cmd_delay(void)
   update_statusline();      
 }
 
-/* Hack -- hitpoint warning factor */
+/** Hack -- hitpoint warning factor */
 void do_cmd_hp_warn(void)
 {
   /* Prompt */
@@ -2850,7 +2851,7 @@ void do_cmd_hp_warn(void)
   update_statusline();      
 }
 
-/* Hack -- hitpoint warning factor */
+/** Hack -- hitpoint warning factor */
 void do_cmd_panel_change(void)
 {
   /* Prompt */
@@ -2882,7 +2883,7 @@ void do_cmd_panel_change(void)
   update_statusline();      
 }
 
-/*
+/**
  * Autosave options -- textual names
  */
 static cptr autosave_text[1] =
@@ -2890,7 +2891,7 @@ static cptr autosave_text[1] =
   "autosave"
 };
 
-/*
+/**
  * Autosave options -- descriptions
  */
 static cptr autosave_desc[1] =
@@ -2914,7 +2915,7 @@ s16b toggle_frequency(s16b current)
 }
 
 
-/*
+/**
  * Interact with autosave options.  From Zangband.
  */
 static void do_cmd_options_autosave(void)
@@ -3040,7 +3041,7 @@ static void do_cmd_options_autosave(void)
 #ifdef ALLOW_MACROS
 
 
-/*
+/**
  * Hack -- ask for a "trigger" (see below)
  *
  * Note the complex use of the "inkey()" function from "util.c".
@@ -3100,7 +3101,7 @@ static void do_cmd_macro_aux(char *buf)
 }
 
 
-/*
+/**
  * Hack -- ask for a keymap "trigger" (see below)
  *
  * Note that both "flush()" calls are extremely important.  This may
@@ -3135,7 +3136,7 @@ static void do_cmd_macro_aux_keymap(char *buf)
 #endif
 
 
-/*
+/**
  * Interact with "macros"
  *
  * Could use some helpful instructions on this page.  XXX XXX XXX
@@ -3478,7 +3479,7 @@ void do_cmd_macros(void)
 /* String used to show a color sample */
 #define COLOR_SAMPLE (small_screen ? "##" : "###")
 
-/*
+/**
  * Asks the player for an extended color. It is done in two steps:
  * 1. Asks for the base color.
  * 2. Asks for a specific shade.
@@ -3774,7 +3775,7 @@ event_action visual_menu_items [] =
 static menu_type visual_menu;
 
 
-/*
+/**
  * Interact with "visuals"
  */
 void do_cmd_visuals(void)
@@ -3933,7 +3934,7 @@ void do_cmd_visuals(void)
   screen_load();
 }
 
-/*
+/**
  * Asks to the user for specific color values.
  * Returns TRUE if the color was modified.
  */
@@ -4012,7 +4013,7 @@ static bool askfor_color_values(int idx)
 }
 
 
-/*
+/**
  * The screen used to modify the color table. Only 128 colors can be modified.
  * The remaining entries of the color table are reserved for graphic mode.
  */
@@ -4467,7 +4468,7 @@ static event_action color_events [] =
 static menu_type color_menu;
 
 
-/*
+/**
  * Interact with "colors"
  */
 void do_cmd_colors(void)
@@ -4534,7 +4535,7 @@ void do_cmd_colors(void)
 
 
 
-/*
+/**
  * Note something in the message recall or character notes file.  Lifted
  * from NPPangband, patch originally by Chris Kern.
  */
@@ -4544,7 +4545,7 @@ void do_cmd_note(void)
 }
   
   
-/*
+/**
  * Note something in the message recall or character notes file.  Lifted
  * from NPPangband, patch originally by Chris Kern.
  *
@@ -4608,7 +4609,7 @@ void make_note(char *note, int what_stage, byte note_type, s16b lev)
 }
 
 
-/*
+/**
  * Mention the current version
  */
 void do_cmd_version(void)
@@ -4639,7 +4640,7 @@ static const char *feeling_text[] =
 };
 
 
-/*
+/**
  * Note that "feeling" is set to zero unless some time has passed.
  * Note that this is done when the level is GENERATED, not entered.
  */
@@ -4692,7 +4693,7 @@ static cptr do_cmd_challenge_text[14] =
 
 
 
-/* 
+/** 
  * Personalize, randomize, and announce the challenge of a player ghost. -LM-
  */
 void ghost_challenge(void)
@@ -4705,13 +4706,13 @@ void ghost_challenge(void)
 
 
 
-/*
+/**
  * Encode the screen colors
  */
 static const char hack[BASIC_COLORS+1] = "dwsorgbuDWvyRGBU";
 
 
-/*
+/**
  * Hack -- load a screen dump from a file
  *
  * ToDo: Add support for loading/saving screen-dumps with graphics
@@ -4894,7 +4895,7 @@ void do_cmd_save_screen_text(void)
 }
 
 
-/*
+/**
  * Hack -- save a screen dump to a file in html format
  */
 void do_cmd_save_screen_html(int mode)
@@ -4948,7 +4949,7 @@ void do_cmd_save_screen_html(int mode)
 }
 
 
-/*
+/**
  * Hack -- save a screen dump to a file
  */
 void do_cmd_save_screen(void)
@@ -4978,7 +4979,7 @@ void do_cmd_save_screen(void)
   message_flush();
 }
 
-/* ISO C wrapper */
+/** ISO C wrapper */
 static void do_dump_options(void *not_a_function_pointer, const char *title)
 {
   dump_pref_file(option_dump, title, 15);
@@ -5056,7 +5057,7 @@ static const menu_iter options_iter =
   };
 
 
-/*
+/**
  * Display the options main menu.
  */
 void do_cmd_options(void)
@@ -5095,7 +5096,7 @@ void do_cmd_options(void)
 }
 
 
-/*
+/**
  * Definition of the "player knowledge" menu.
  */
 static menu_item knowledge_actions[] =
@@ -5110,7 +5111,7 @@ static menu_item knowledge_actions[] =
 static menu_type knowledge_menu;
 
 
-/*
+/**
  * Display the "player knowledge" menu.
  */
 void do_cmd_knowledge(void)
@@ -5162,14 +5163,14 @@ void do_cmd_knowledge(void)
 }
 
 
-/* Keep macro counts happy. */
+/** Keep macro counts happy. */
 static void cleanup_cmds(void)
 {
   FREE(obj_group_order);
 }
 
 
-/*
+/**
  * Initialise all menus used here.
  */
 void init_cmd4_c(void)
@@ -5268,7 +5269,7 @@ void init_cmd4_c(void)
 
 
 
-/*
+/**
  * Display the time and date
  */
 void do_cmd_time(void)

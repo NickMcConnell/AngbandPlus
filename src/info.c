@@ -1,6 +1,7 @@
-/* File: info.c */
+/** \file info.c 
+    \brief Object information
 
-/*
+
  * Tables containing object kind descriptions, extra numerical info.  
  * Detailed info on spells.  Text for extended object descriptions of 
  * various kinds, artifact and DSM activation and flag descriptions.  Self 
@@ -26,7 +27,7 @@
 
 
 
-/*
+/**
  * General information about classes of objects. -LM-
  * 
  * Index is tval.
@@ -67,7 +68,7 @@ char *obj_class_info[101] =
 };
 
 
-/*
+/**
  * Extra numerical information about magical devices. -LM-
  * 
  * Y-coordinate:  Dragon Scale Mails = 0,  
@@ -249,7 +250,7 @@ char *obj_special_info[4][50] =
 };
 
 
-/*
+/**
  * Prints "User's tips" for various spells.  User's tips only appear after 
  * a learnt spell is browsed. -LM-
  */
@@ -511,7 +512,7 @@ char *spell_tips[255] =
   "Grants any non-artifact throwing weapon perfect balance.  Be careful about using this spell on weapons that have a hidden quality (use the 'I'nspect command)."
 };
 
-/*
+/**
  * Prints information about specialty abilties
  */
 char *specialty_tips[TOTAL_SPECIALTIES]=
@@ -616,7 +617,7 @@ char *specialty_tips[TOTAL_SPECIALTIES]=
   "","","","","","","","","","","","","","",""                 /* 240 - 255 */
 };
 
-/*
+/**
  * Output numerical values for magical device damages, healing, etc., for 
  * an item belonging to an object class whose effects are fully known.  The 
  * only way this information can appear is through *identifying*, or by 
@@ -654,7 +655,7 @@ static char *extra_data(object_type *o_ptr)
   if ((first)) { (first) = FALSE; text_out_to_screen(TERM_WHITE, (txt)); } \
   else text_out_to_screen(TERM_WHITE, ", ");
 
-/*
+/**
  * Display the damage done with a multiplier
  */
 extern void output_dam(object_type *o_ptr, int mult, const char *against, bool *first)
@@ -701,7 +702,7 @@ extern void output_dam(object_type *o_ptr, int mult, const char *against, bool *
   text_out_to_screen(TERM_WHITE, format(" against %s", against));
 }
 
-/*
+/**
  * Outputs the damage we do/would do with the weapon
  */
 extern void display_weapon_damage(object_type *o_ptr)
@@ -788,7 +789,7 @@ extern void display_weapon_damage(object_type *o_ptr)
   calc_bonuses(TRUE);
 }
 
-/*
+/**
  * Display the ammo damage done with a multiplier
  */
 extern void output_ammo_dam(object_type *o_ptr, int mult, const char *against, 
@@ -854,7 +855,7 @@ extern void output_ammo_dam(object_type *o_ptr, int mult, const char *against,
   text_out_to_screen(TERM_WHITE, format(" against %s", against));
 }
 
-/*
+/**
  * Outputs the damage we do/would do with the current bow and this ammo
  */
 extern void display_ammo_damage(object_type *o_ptr)
@@ -986,7 +987,7 @@ void display_device_chance(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Extract and return extended information about an object, including 
  * (usually) flavor, (sometimes) damage information for magical items, 
  * and (if appropriate) ego and artifact lore. -LM-
@@ -1270,7 +1271,7 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
     }
 }
 
-/*
+/**
  * Describe an item.  Rewritten for FAangband 1.1 to fit ID by use.
  */
 void object_info_detail(object_type *o_ptr)
@@ -2117,7 +2118,7 @@ void object_info_detail(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Place an item description on the screen.
  */
 void object_info_screen(object_type *o_ptr, bool fake)
@@ -2274,7 +2275,7 @@ void object_info_screen(object_type *o_ptr, bool fake)
   
 }
 
-/*
+/**
  * Item description for character sheet/dump.
  * Not used yet - needs new function for displaying this stuff.
  * I have a nasty feeling this whole file needs rewriting...
@@ -2327,7 +2328,7 @@ void object_info_dump(object_type *o_ptr)
   
 }
 
-/*
+/**
  * Describe the "Activation" (if any) for an object or artifact.
  * Return a string, or NULL for "no activation"
  */
@@ -3025,16 +3026,16 @@ char *item_activation(object_type *o_ptr)
 
 
 
-/*
+/**
  * Hack -- acquire self knowledge.  Idea originally from Nethack.
  *
  * List various information about the player and/or his current equipment.
  *
- * See also "identify_fully()".
+ * See also identify_fully().
  *
- * Use the "roff()" routines, perhaps.  XXX XXX XXX
+ * Use the roff() routines, perhaps.  XXX XXX XXX
  *
- * Use the "show_file()" method, perhaps.  XXX XXX XXX
+ * Use the show_file() method, perhaps.  XXX XXX XXX
  */
 void self_knowledge(bool spoil)
 {
@@ -3559,7 +3560,7 @@ void self_knowledge(bool spoil)
 
 
 
-/*
+/**
  * Returns chance of failure for a spell
  */
 s16b spell_chance(int spell)
@@ -3609,7 +3610,7 @@ s16b spell_chance(int spell)
 
 
 
-/*
+/**
  * Determine if a spell is "okay" for the player to cast or study
  * The spell must be legible, not forgotten, and also, to cast,
  * it must be known, and to study, it must not be known.
@@ -3649,7 +3650,7 @@ bool spell_okay(int spell, bool known)
 
 
 
-/*
+/**
  * Extra information on a spell		-DRS-
  *
  * We can use up to 20 characters of the buffer 'p'
@@ -3828,7 +3829,7 @@ void spell_info(char *p, int spell_index)
 }
 
 
-/*
+/**
  * Print out a list of available spells for any spellbook given.
  * Revised by -LM-
  *
@@ -3976,7 +3977,7 @@ void print_spells(int tval, int sval, int y, int x)
   }
 
 
-/*
+/**
  * For a string describing the player's intrinsic racial flags.
  */
 static char *view_abilities_aux(char *desc)
@@ -4324,7 +4325,9 @@ static char *view_abilities_aux(char *desc)
 
 
 
-/* View specialty code */
+/*
+ * View specialty code 
+ */
 int race_start, class_start, race_other_start;
 int total_known, spec_known, racial_known, class_known; 
 byte racial_list[32];
@@ -4336,7 +4339,7 @@ static char view_spec_tag(menu_type *menu, int oid)
   return I2A(oid);
 }
 
-/*
+/**
  * Display an entry on the gain specialty menu
  */
 void view_spec_display(menu_type *menu, int oid, bool cursor, int row, 
@@ -4400,7 +4403,7 @@ void view_spec_display(menu_type *menu, int oid, bool cursor, int row,
 }
 
 
-/*
+/**
  * Display list available specialties.
  */
 void view_spec_menu(void)
@@ -4440,7 +4443,7 @@ void view_spec_menu(void)
   return;
 }
 
-/*
+/**
  * Browse known specialty abilities -BR-
  * Adapted from birth.c get_player_choice
  */

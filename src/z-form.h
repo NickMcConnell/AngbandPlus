@@ -1,28 +1,29 @@
-/* File z-form.h */
+/** \file z-form.h 
+    \brief Low-level formatting include
 
-/*
+ *
  * Copyright (c) 1997 Ben Harrison
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.
+ *
+
+ *
+ * This file provides functions very similar to "sprintf()", but which
+ * not only parse some additional "format sequences", but also enforce
+ * bounds checking, and allow repeated "appends" to the same buffer.
+ *
+ * See z-form.c for more detailed information about the routines,
+ * including a list of the legal "format sequences".
+ *
+ * This file makes use of both z-util.c and z-virt.c
  */
 
 #ifndef INCLUDED_Z_FORM_H
 #define INCLUDED_Z_FORM_H
 
 #include "h-basic.h"
-
-/*
- * This file provides functions very similar to "sprintf()", but which
- * not only parse some additional "format sequences", but also enforce
- * bounds checking, and allow repeated "appends" to the same buffer.
- *
- * See "z-form.c" for more detailed information about the routines,
- * including a list of the legal "format sequences".
- *
- * This file makes use of both "z-util.c" and "z-virt.c"
- */
 
 /*
  * Modes of operation for the "xstr_trans()" function.
@@ -32,7 +33,7 @@
 #define ASCII 2
 
 
-/*
+/**
  * An extended character translation.  Using a tag,
  * get a 8-bit character.  Or, using an 8-bit character,
  * get a tag.
@@ -49,40 +50,40 @@ struct xchar_type
 
 extern void xchar_trans_hook(char *s, int encoding);
 
-/* Get encodes in a string */
+/** Get encodes in a string */
 extern bool get_encode(char *str, char *c);
 
-/* Translate an ASCII string into Latin-1, etc., using encodes */
+/** Translate an ASCII string into Latin-1, etc., using encodes */
 extern void xstr_trans(char *str, int encoding);
 
-/* Translate a Latin-1 string into escaped ASCII */
+/** Translate a Latin-1 string into escaped ASCII */
 extern void escape_latin1(char *dest, size_t max, cptr src);
 
-/* Format arguments into given bounded-length buffer */
+/** Format arguments into given bounded-length buffer */
 extern size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp);
 
-/* Simple interface to "vstrnfmt()" */
+/** Simple interface to "vstrnfmt()" */
 extern size_t strnfmt(char *buf, size_t max, cptr fmt, ...);
 
-/* Format arguments into a static resizing buffer */
+/** Format arguments into a static resizing buffer */
 extern char *vformat(cptr fmt, va_list vp);
 
-/* Free the memory allocated for the format buffer */
+/** Free the memory allocated for the format buffer */
 extern void vformat_kill(void);
 
-/* Append a formatted string to another string */
+/** Append a formatted string to another string */
 extern void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...);
 
-/* Simple interface to "vformat()" */
+/** Simple interface to "vformat()" */
 extern char *format(cptr fmt, ...);
 
-/* Vararg interface to "plog()", using "format()" */
+/** Vararg interface to "plog()", using "format()" */
 extern void plog_fmt(cptr fmt, ...);
 
-/* Vararg interface to "quit()", using "format()" */
+/** Vararg interface to "quit()", using "format()" */
 extern void quit_fmt(cptr fmt, ...);
 
-/* Vararg interface to "core()", using "format()" */
+/** Vararg interface to "core()", using "format()" */
 extern void core_fmt(cptr fmt, ...);
 
 
@@ -103,7 +104,7 @@ extern void core_fmt(cptr fmt, ...);
 #define CHAR_VOWEL  0x40
 #define CHAR_XXXX3  0x80
 
-/* Character information table */
+/** Character information table */
 extern byte char_tables[256][CHAR_TABLE_SLOTS];
 
 

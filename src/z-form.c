@@ -1,7 +1,6 @@
-/*
- * File: z-form.c
- * Purpose: Low-level text formatting (snprintf() replacement)
- *
+/** \file z-form.c
+    \brief Low-level text formatting (snprintf() replacement)
+ 
  * Copyright (c) 1997-2009 Ben Harrison, Jeff Greene
  *
  * This work is free software; you can redistribute it and/or modify it
@@ -14,16 +13,8 @@
  *    This software may be copied and distributed for educational, research,
  *    and not for profit purposes provided that this copyright and statement
  *    are included in all such copies.  Other copyrights may also apply.
- */
-#include "z-form.h"
-#include "z-type.h"
-
-#include "z-util.h"
-#include "z-virt.h"
-#include "z-term.h"
-
-
-/*
+ *
+ *
  * Here is some information about the routines in this file.
  *
  * In general, the following routines take a "buffer", a "max length",
@@ -146,7 +137,15 @@
  */
 
 
-/*
+#include "z-form.h"
+#include "z-type.h"
+
+#include "z-util.h"
+#include "z-virt.h"
+#include "z-term.h"
+
+
+/**
  * Character translations and definitions.  -JG-
  *
  * Upper case and lower case equivalents of a given ISO Latin-1 character.
@@ -433,7 +432,7 @@ byte char_tables[256][CHAR_TABLE_SLOTS] =
 
 
 
-/*
+/**
  * Translate from encodes to extended 8-bit characters and back again.
  */
 static const xchar_type latin1_encode[] =
@@ -474,7 +473,7 @@ static const xchar_type latin1_encode[] =
 };
 
 
-/*
+/**
  * Link to the xchar_trans function.
  */
 void xchar_trans_hook(char *s, int encoding)
@@ -493,7 +492,7 @@ void xchar_trans_hook(char *s, int encoding)
 }
 
 
-/*
+/**
  * Given what we think is an encode, return a Latin-1 character position.
  */
 static byte encode_to_xchar(char *encode)
@@ -512,7 +511,7 @@ static byte encode_to_xchar(char *encode)
  	return (0);
 }
 
-/*
+/**
  * Read an encode.  Return the Latin-1 character position if successful.
  */
 bool get_encode(char *str, char *c)
@@ -552,7 +551,7 @@ bool get_encode(char *str, char *c)
 
 
 
-/*
+/**
  * Take a 7-bit ASCII string and use any encodes in it to insert 8-bit
  * characters.  Use the Latin-1 (ISO) standard by default.  -LM-
  *
@@ -659,7 +658,7 @@ void xstr_trans(char *str, int encoding)
 	}
 }
 
-/*
+/**
  *  Translate a Latin-1 string into escaped ASCII
  *  We assume that the contents of the source string use the Latin-1 encoding
  */
@@ -721,7 +720,7 @@ void escape_latin1(char *dest, size_t max, cptr src)
 	dest[i] = '\0';
 }
 
-/*
+/**
  * Basic "vararg" format function.
  *
  * This function takes a buffer, a max byte count, a format string, and
@@ -1230,7 +1229,7 @@ size_t vstrnfmt(char *buf, size_t max, cptr fmt, va_list vp)
 }
 
 
-/*
+/**
  * Add a formatted string to the end of a string
  */
 void strnfcat(char *str, size_t max, size_t *end, cptr fmt, ...)
@@ -1260,7 +1259,7 @@ static char *format_buf = NULL;
 static size_t format_len = 0;
 
 
-/*
+/**
  * Do a vstrnfmt (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  */
@@ -1303,7 +1302,7 @@ void vformat_kill(void)
 }
 
 
-/*
+/**
  * Do a vstrnfmt (see above) into a buffer of a given size.
  */
 size_t strnfmt(char *buf, size_t max, cptr fmt, ...)
@@ -1326,7 +1325,7 @@ size_t strnfmt(char *buf, size_t max, cptr fmt, ...)
 }
 
 
-/*
+/**
  * Do a vstrnfmt() into (see above) into a (growable) static buffer.
  * This buffer is usable for very short term formatting of results.
  * Note that the buffer is (technically) writable, but only up to
@@ -1353,7 +1352,7 @@ char *format(cptr fmt, ...)
 
 
 
-/*
+/**
  * Vararg interface to plog()
  */
 void plog_fmt(cptr fmt, ...)
@@ -1376,7 +1375,7 @@ void plog_fmt(cptr fmt, ...)
 
 
 
-/*
+/**
  * Vararg interface to quit()
  */
 void quit_fmt(cptr fmt, ...)

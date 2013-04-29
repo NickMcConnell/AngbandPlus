@@ -1,6 +1,5 @@
-/*
- * File: cmd0.c
- * Purpose: Deal with command processing.
+/** \file cmd0.c
+    \brief Deal with command processing.
  *
  * Copyright (c) 2009 Nick McConnell, Andrew Sidwell, Ben Harrison
  *
@@ -18,7 +17,7 @@
 #include "angband.h"
 #include "cmds.h"
 
-/*
+/**
  * This file contains (several) big lists of commands, so that they can be
  * easily maniuplated for e.g. help displays, or if a port wants to provide a
  * native menu containing a command list.
@@ -30,11 +29,15 @@
 
 /*** Big list of commands ***/
 
-/* Useful typedef */
+/**
+ * Useful typedef 
+ */
 typedef void do_cmd_type(void);
 
 
-/* Forward declare these, because they're really defined later */
+/**
+ * Forward declare these, because they're really defined later 
+ */
 static do_cmd_type do_cmd_wizard, do_cmd_try_debug, do_cmd_quit, 
             do_cmd_xxx_options, do_cmd_menu, do_cmd_monlist, do_cmd_itemlist, 
             do_cmd_reshape;
@@ -43,7 +46,7 @@ static do_cmd_type do_cmd_try_borg;
 #endif
 
 
-/*
+/**
  * Holds a generic command.
  */
 typedef struct
@@ -54,7 +57,9 @@ typedef struct
 } command_type;
 
 
-/* Magic use */
+/**
+ * Magic use 
+ */
 static command_type cmd_magic[] =
 {
   { "Cast a spell",               'm', do_cmd_cast_or_pray },
@@ -63,7 +68,9 @@ static command_type cmd_magic[] =
   { "Gain new spells or prayers", 'G', do_cmd_study }
 };
 
-/* General actions */
+/**
+ * General actions 
+ */
 static command_type cmd_action[] =
 {
   { "Disarm a trap or chest",             'D', do_cmd_disarm },
@@ -84,7 +91,9 @@ static command_type cmd_action[] =
   { "Move house",                         'H', do_cmd_move_house} 
 };
 
-/* Item use commands */
+/**
+ * Item use commands 
+ */
 static command_type cmd_item_use[] =
 {
   { "Fire your missile weapon",   'f', do_cmd_fire },
@@ -99,7 +108,9 @@ static command_type cmd_item_use[] =
   { "Fuel your light source",     'F', do_cmd_refill }
 };
 
-/* Item management commands */
+/**
+ * Item management commands 
+ */
 static command_type cmd_item_manage[]  =
 {
   { "Display equipment listing", 'e', do_cmd_equip },
@@ -114,7 +125,9 @@ static command_type cmd_item_manage[]  =
   { "Uninscribe an object",      '}', do_cmd_uninscribe }
 };
 
-/* Information access commands */
+/**
+ * Information access commands 
+ */
 static command_type cmd_info[] =
 {
   { "Check/learn specialties",      'O', do_cmd_specialty }, 
@@ -133,7 +146,9 @@ static command_type cmd_info[] =
   { "Show the time of day",   KTRL('T'), do_cmd_time }
 };
 
-/* Utility/assorted commands */
+/**
+ * Utility/assorted commands 
+ */
 static command_type cmd_util[] =
 {
   { "Save and don't quit",  KTRL('S'), do_cmd_save_game },
@@ -144,7 +159,9 @@ static command_type cmd_util[] =
   { "Save \"screen dump\"",       ')', do_cmd_save_screen }
 };
 
-/* Commands that shouldn't be shown to the user */ 
+/**
+ * Commands that shouldn't be shown to the user 
+ */ 
 static command_type cmd_hidden[] =
 {
   { "Take notes",                      ':', do_cmd_note },
@@ -170,7 +187,7 @@ static command_type cmd_hidden[] =
 
 
 
-/*
+/**
  * A categorised list of all the command lists.
  */
 typedef struct
@@ -192,7 +209,9 @@ static command_list cmds_all[] =
 };
 
 
-/* Divide up the screen into mousepress regions */
+/**
+ * Divide up the screen into mousepress regions 
+ */
 
 int click_area(event_type ke)
 {
@@ -236,19 +255,25 @@ int click_area(event_type ke)
   else return MOUSE_NULL;
 }
 
-/*** Menu functions ***/
+/**
+ * Menu functions 
+ */
 char comm[22];
 cptr comm_descr[22];
 int poss;
 
-/* Item tag/command key */
+/**
+ * Item tag/command key 
+ */
 static char show_tag(menu_type *menu, int oid)
 {
   /* Caution - could be a problem here if KTRL commands were used */
   return comm[oid];
 }
 
-/* Display an entry on a command menu */
+/**
+ * Display an entry on a command menu 
+ */
 static void show_display(menu_type *menu, int oid, bool cursor, int row, 
 			  int col, int width)
 {
@@ -259,7 +284,9 @@ static void show_display(menu_type *menu, int oid, bool cursor, int row,
 }
 
 
-/* Handle user input from a command menu */
+/**
+ * Handle user input from a command menu 
+ */
 static bool show_action(char cmd, void *db, int oid)
 {
   /* Handle enter and mouse */
@@ -270,7 +297,7 @@ static bool show_action(char cmd, void *db, int oid)
   return TRUE;
 }
 
-/*
+/**
  * Display a list of commands.
  */
 void show_cmd_menu(bool object)
@@ -296,7 +323,7 @@ void show_cmd_menu(bool object)
   evt = menu_select(&menu, &cursor, 0);
 }
 
-/* 
+/**
  * Bring up objects to act on 
  */
 void do_cmd_show_obj(void)
@@ -545,7 +572,7 @@ void do_cmd_show_obj(void)
 
 /* Hugo Kornelis' item handling patch */
 
-/*
+/**
  * Allow user to "prevent" certain choices.
  *
  * This is a slightly modified copy of get_item_allow in object1.c
@@ -596,7 +623,7 @@ bool handle_item_allow(int item, s16b command)
 }
 
 
-/*
+/**
  * Hook to determine if an object can be handled
  *
  * Accept all items on floor and in inventory, but only activateable items 
@@ -628,7 +655,7 @@ static bool item_tester_hook_handle(object_type *o_ptr)
 }
 
 
-/*
+/**
  * Handle an item (generic use command)
  *
  * Accepts all items in inventory, equipment or floor;
@@ -1258,7 +1285,7 @@ void do_cmd_handle(void)
     }
 }
 
-/*
+/**
  * Return the features around (or under) the character
  */
 void get_feats(int *surroundings)
@@ -1295,7 +1322,7 @@ void get_feats(int *surroundings)
 }
 
 
-/* 
+/**
  * Bring up player actions 
  */
 void show_player(void)
@@ -1518,7 +1545,7 @@ void show_player(void)
 }    
 
 
-/* 
+/**
  * Mouse commands in general play - mostly just mimics a keypress
  */
 void do_cmd_mousepress(void)
@@ -1614,7 +1641,7 @@ void do_cmd_mousepress(void)
 
 
 
-/*
+/**
  * Verify use of "wizard" mode
  */
 static bool enter_wizard_mode(void)
@@ -1643,7 +1670,7 @@ static bool enter_wizard_mode(void)
 
 
 
-/*
+/**
  * Toggle wizard mode
  */
 static void do_cmd_wizard(void)
@@ -1675,7 +1702,7 @@ static void do_cmd_wizard(void)
 
 #ifdef ALLOW_DEBUG
 
-/*
+/**
  * Verify use of "debug" mode
  */
 static bool verify_debug_mode(void)
@@ -1709,7 +1736,7 @@ static bool verify_debug_mode(void)
 }
 
 
-/*
+/**
  * Verify use of "debug" mode
  */
 static void do_cmd_try_debug(void)
@@ -1729,7 +1756,7 @@ static void do_cmd_try_debug(void)
 
 #ifdef ALLOW_BORG
 
-/*
+/**
  * Verify use of "borg" mode
  */
 static bool do_cmd_try_borg(void)
@@ -1759,7 +1786,7 @@ static bool do_cmd_try_borg(void)
 
 
 
-/*
+/**
  * Quit the game.
  */
 static void do_cmd_quit(void)
@@ -1772,7 +1799,7 @@ static void do_cmd_quit(void)
 }
 
 
-/*
+/**
  * Display the options and redraw afterward.
  */
 static void do_cmd_xxx_options(void)
@@ -1782,7 +1809,7 @@ static void do_cmd_xxx_options(void)
 }
 
 
-/*
+/**
  * Display the options and redraw afterward.
  */
 static void do_cmd_reshape(void)
@@ -1796,7 +1823,7 @@ static void do_cmd_reshape(void)
 }
 
 
-/*
+/**
  * Display the main-screen monster list.
  */
 static void do_cmd_monlist(void)
@@ -1813,7 +1840,7 @@ static void do_cmd_monlist(void)
 }
 
 
-/*
+/**
  * Display the main-screen monster list.
  */
 static void do_cmd_itemlist(void)
@@ -1830,7 +1857,7 @@ static void do_cmd_itemlist(void)
 }
 
 
-/*
+/**
  * Invoked when the command isn't recognised.
  */
 static void do_cmd_unknown(void)
@@ -1841,13 +1868,15 @@ static void do_cmd_unknown(void)
 
 
 
-/* List indexed by char */
+/** List indexed by char */
 do_cmd_type *converted_list[UCHAR_MAX+1];
 
 
 /*** Menu functions ***/
 
-/* Display an entry on a command menu */
+/** 
+ * Display an entry on a command menu 
+ */
 static void cmd_sub_entry(menu_type *menu, int oid, bool cursor, int row, 
 			  int col, int width)
 {
@@ -1876,7 +1905,9 @@ static void cmd_sub_entry(menu_type *menu, int oid, bool cursor, int row,
 }
 
 
-/* Handle user input from a command menu */
+/** 
+ * Handle user input from a command menu 
+ */
 static bool cmd_sub_action(char cmd, void *db, int oid)
 {
   /* Only handle enter */
@@ -1890,7 +1921,7 @@ static bool cmd_sub_action(char cmd, void *db, int oid)
     }
 }
 
-/*
+/**
  * Display a list of commands.
  */
 static bool cmd_menu(command_list *list, void *selection_p)
@@ -1956,7 +1987,7 @@ static void cmd_list_entry(menu_type *menu, int oid, bool cursor, int row,
   Term_putstr(col, row, -1, attr, cmds_all[oid].name);
 }
 
-/*
+/**
  * Display a list of command types, allowing the user to select one.
  */
 static void do_cmd_menu(void)
@@ -1999,7 +2030,7 @@ static void do_cmd_menu(void)
 
 /*** Exported functions ***/
 
-/*
+/**
  * Initialise the command list.
  */
 void cmd_init(void)
@@ -2045,7 +2076,7 @@ void cmd_init(void)
 }
 
 
-/*
+/**
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
  */

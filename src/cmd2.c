@@ -1,6 +1,7 @@
-/* File: cmd2.c */
+/** \file cmd2.c 
+    \brief Commands, part 2
 
-/* Going up and down stairs, items that a chest may contain, opening 
+ * Going up and down stairs, items that a chest may contain, opening 
  * chests, tunnelling, disarming, opening doors, alter adjacent grid, 
  * spiking, starting various movement and resting routines, moving house.
  * 
@@ -20,7 +21,7 @@
 
 #include "angband.h"
 
-/* 
+/** 
  * Move house to the current town
  */
 
@@ -95,7 +96,7 @@ void do_cmd_move_house(void)
 }
 
 
-/*
+/**
  * Go to less danger
  */
 void do_cmd_go_up(void)
@@ -267,7 +268,7 @@ void do_cmd_go_up(void)
 }
 
 
-/*
+/**
  * Go to greater danger
  */
 void do_cmd_go_down(void)
@@ -466,12 +467,11 @@ void do_cmd_go_down(void)
   /* Set the depth */
   p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
   
-  /* Check for avoidable quests */
+  /* Check for quests */
   if ((adult_dungeon) && is_quest(p_ptr->stage) && (p_ptr->depth < 100))
     {
       int i;
       monster_race *r_ptr = NULL;
-      char buf[80];
 
       /* Find the questor */
       for (i = 0; i < z_info->r_max; i++)
@@ -481,15 +481,8 @@ void do_cmd_go_down(void)
 	    break;
 	}
 
-      /* Give the option */
+      /* Give the info */
       msg_format("This level is home to %s.", r_name + r_ptr->name);
-      strnfmt(buf, sizeof(buf), "Do you wish to be able to avoid fighting %s?",
-	      (r_ptr->flags1 & RF1_FEMALE ? "her" : "him"));
-      if (get_check(buf)) 
-	{
-	  for (i = 0; i < 5; i++)
-	    if (q_list[i].stage == p_ptr->stage) q_list[i].stage = 0;
-	}
     }
 
   /* Leaving */
@@ -498,7 +491,7 @@ void do_cmd_go_down(void)
 }
 
 
-/*
+/**
  * Simple command to "search" for one turn
  */
 void do_cmd_search(void)
@@ -524,7 +517,7 @@ void do_cmd_search(void)
 }
 
 
-/*
+/**
  * Hack -- toggle search mode
  */
 void do_cmd_toggle_search(void)
@@ -558,7 +551,7 @@ void do_cmd_toggle_search(void)
 
 
 
-/*
+/**
  * Determine if a grid contains a chest
  */
 static s16b chest_check(int y, int x)
@@ -588,7 +581,8 @@ static s16b chest_check(int y, int x)
   return (0);
 }
 
-/* A function that returns the tval of the items that will be generated
+/**
+ * A function that returns the tval of the items that will be generated
  * when a chest is opened. -LM-
  */
 static byte get_choice(void)
@@ -798,7 +792,7 @@ static byte get_choice(void)
   return (0);
 }
 
-/*
+/**
  * Allocate objects upon opening a chest.
  *
  * Disperse treasures from the given chest, centered at (x,y).
@@ -984,7 +978,7 @@ static void chest_death(bool scatter, int y, int x, s16b o_idx)
 }
 
 
-/*
+/**
  * Chests have traps too.  High-level chests can be very dangerous, no 
  * matter what level they are opened at.  Various traps added in Oangband. -LM-
  *
@@ -1200,7 +1194,7 @@ static void chest_trap(int y, int x, s16b o_idx)
 }
 
 
-/*
+/**
  * Attempt to open the given chest at the given location
  *
  * Assume there is no monster blocking the destination
@@ -1273,7 +1267,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 }
 
 
-/*
+/**
  * Attempt to disarm the chest at the given location
  *
  * Assume there is no monster blocking the destination
@@ -1349,7 +1343,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 }
 
 
-/*
+/**
  * Return TRUE if the given feature is an open door
  */
 static bool is_open(int feat)
@@ -1358,7 +1352,7 @@ static bool is_open(int feat)
 }
 
 
-/*
+/**
  * Return TRUE if the given feature is a closed door
  */
 static bool is_closed(int feat)
@@ -1368,7 +1362,7 @@ static bool is_closed(int feat)
 }
 
 
-/*
+/**
  * Return TRUE if the given feature is a trap
  */
 static bool is_trap(int feat)
@@ -1377,7 +1371,7 @@ static bool is_trap(int feat)
 }
 
 
-/*
+/**
  * Return the number of doors/traps around (or under) the character
  */
 static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
@@ -1420,7 +1414,7 @@ static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
   return count;
 }
 
-/*
+/**
  * Return the number of chests around (or under) the character. -TNB-
  * If requested, count only trapped chests.
  */
@@ -1467,7 +1461,7 @@ extern int count_chests(int *y, int *x, bool trapped)
   return count;
 }
 
-/*
+/**
  * Convert an adjacent location to a direction.
  */
 static int coords_to_dir(int y, int x)
@@ -1490,7 +1484,7 @@ static int coords_to_dir(int y, int x)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "opened"
  */
 static bool do_cmd_open_test(int y, int x)
@@ -1521,7 +1515,7 @@ static bool do_cmd_open_test(int y, int x)
 }
 
 
-/*
+/**
  * Perform the basic "open" command on doors
  *
  * Assume there is no monster blocking the destination
@@ -1617,7 +1611,7 @@ static bool do_cmd_open_aux(int y, int x)
 
 
 
-/*
+/**
  * Open a closed/locked/jammed door or a closed/locked chest.
  *
  * Unlocking a locked door/chest is worth one experience point.
@@ -1721,7 +1715,7 @@ void do_cmd_open(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "closed"
  */
 static bool do_cmd_close_test(int y, int x)
@@ -1752,7 +1746,7 @@ static bool do_cmd_close_test(int y, int x)
 }
 
 
-/*
+/**
  * Perform the basic "close" command
  *
  * Assume there is no monster blocking the destination
@@ -1793,7 +1787,7 @@ static bool do_cmd_close_aux(int y, int x)
 }
 
 
-/*
+/**
  * Close an open door.
  */
 void do_cmd_close(void)
@@ -1875,7 +1869,7 @@ void do_cmd_close(void)
 
 
 
-/*
+/**
  * Determine if a given grid may be "tunneled"
  */
 static bool do_cmd_tunnel_test(int y, int x)
@@ -1907,7 +1901,7 @@ static bool do_cmd_tunnel_test(int y, int x)
 }
 
 
-/*
+/**
  * Tunnel through wall.   Assumes valid location.
  *
  * Note that it is impossible to "extend" rooms past their
@@ -1940,7 +1934,7 @@ static bool twall(int y, int x)
 }
 
 
-/*
+/**
  * Perform the basic "tunnel" command
  *
  * Assumes that no monster is blocking the destination
@@ -2133,7 +2127,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 }
 
 
-/*
+/**
  * Tunnel through "walls" (including rubble and secret doors)
  *
  * Digging is very difficult without a "digger" weapon, but can be
@@ -2258,7 +2252,7 @@ void do_cmd_tunnel(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "disarmed"
  */
 static bool do_cmd_disarm_test(int y, int x)
@@ -2293,7 +2287,7 @@ static bool do_cmd_disarm_test(int y, int x)
 }
 
 
-/*
+/**
  * Perform the basic "disarm" command on a trap or glyph.
  *
  * Assume there is no monster blocking the destination (tested by 
@@ -2403,7 +2397,7 @@ static bool do_cmd_disarm_aux(int y, int x)
 }
 
 
-/*
+/**
  * Disarms a trap, a glyph, or a chest.
  */
 void do_cmd_disarm(void)
@@ -2509,7 +2503,7 @@ void do_cmd_disarm(void)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "bashed"
  */
 static bool do_cmd_bash_test(int y, int x)
@@ -2540,7 +2534,7 @@ static bool do_cmd_bash_test(int y, int x)
 }
 
 
-/*
+/**
  * Perform the basic "bash" command
  *
  * Assume there is no monster blocking the destination
@@ -2627,7 +2621,7 @@ static bool do_cmd_bash_aux(int y, int x)
 }
 
 
-/*
+/**
  * Bash open a door, success based on character strength
  *
  * For a closed door, pval is positive if locked; negative if stuck.
@@ -2714,7 +2708,7 @@ void do_cmd_bash(void)
 
 
 
-/*
+/**
  * Manipulate an adjacent grid in some way
  *
  * Attack monsters, tunnel through walls, disarm traps, open doors, 
@@ -2857,7 +2851,7 @@ void do_cmd_alter(void)
 }
 
 
-/*
+/**
  * Find the index of some "spikes", if possible.
  *
  * XXX XXX XXX Let user choose a pile of spikes, perhaps?
@@ -2890,7 +2884,7 @@ static bool get_spike(int *ip)
 }
 
 
-/*
+/**
  * Determine if a given grid may be "spiked"
  */
 bool do_cmd_spike_test(int y, int x)
@@ -2921,7 +2915,7 @@ bool do_cmd_spike_test(int y, int x)
 }
 
 
-/*
+/**
  * Jam a closed door with a spike.  Now takes only 4/10ths normal energy
  * if no monster is in the way. -LM-
  *
@@ -3012,7 +3006,7 @@ void do_cmd_spike(void)
 
 
 
-/*
+/**
  * Determine if a given grid may be "walked"
  */
 static bool do_cmd_walk_test(int y, int x)
@@ -3078,7 +3072,7 @@ static bool do_cmd_walk_test(int y, int x)
 }
 
 
-/*
+/**
  * Helper function for the "walk" and "jump" commands
  */
 static void do_cmd_walk_or_jump(int pickup)
@@ -3134,7 +3128,7 @@ static void do_cmd_walk_or_jump(int pickup)
 }
 
 
-/*
+/**
  * Walk into a grid (pick up objects as set by the auto-pickup option)
  */
 void do_cmd_walk(void)
@@ -3144,7 +3138,7 @@ void do_cmd_walk(void)
 }
 
 
-/*
+/**
  * Jump into a grid (flip pickup mode)
  */
 void do_cmd_jump(void)
@@ -3154,7 +3148,7 @@ void do_cmd_jump(void)
 }
 
 
-/*
+/**
  * Start running.
  *
  * Note that running while confused is not allowed.
@@ -3193,7 +3187,7 @@ void do_cmd_run(void)
 
 
 
-/*
+/**
  * Start running with pathfinder.
  *
  * Note that running while confused is not allowed.
@@ -3232,7 +3226,7 @@ void do_cmd_pathfind(int y, int x)
 }
 
 
-/*
+/**
  * Stay still.  Search.   Enter stores.
  * Pick up treasure and objects if "pickup" is true.
  */
@@ -3290,7 +3284,7 @@ static void do_cmd_hold_or_stay(int pickup)
 }
 
 
-/*
+/**
  * Hold still (usually pickup)
  */
 void do_cmd_hold(void)
@@ -3300,7 +3294,7 @@ void do_cmd_hold(void)
 }
 
 
-/*
+/**
  * Pick up objects on the floor beneath you. -LM-
  */
 void do_cmd_pickup(void)
@@ -3335,7 +3329,7 @@ void do_cmd_pickup(void)
 }
 
 
-/*
+/**
  * Rest (restores hit points and mana and such)
  */
 void do_cmd_rest(void)

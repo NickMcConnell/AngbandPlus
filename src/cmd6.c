@@ -1,6 +1,7 @@
-/* File: cmd6.c */
+/** \file cmd6.c 
+    \brief Command, part 6
 
-/* Code for eating food, drinking potions, reading scrolls, aiming wands, 
+ * Code for eating food, drinking potions, reading scrolls, aiming wands, 
  * using staffs, zapping rods, and activating anything that can be 
  * activated.  Also defines all effects of the items listed, and all 
  * activations.  Ending a druid shapechange.
@@ -22,7 +23,7 @@
 #include "angband.h"
 
 
-/*
+/**
  * If a spell/wand/rod/etc calls fire_bolt() followed by fire_cloud()
  * and the targetted monster is killed by the first fire_bolt(), then
  * the target is cleared and the second fire_cloud() will start at
@@ -107,7 +108,7 @@
  */
 
 
-/*
+/**
  * Eat some food (from the pack or floor)
  */
 void do_cmd_eat_food(void)
@@ -450,7 +451,7 @@ void do_cmd_eat_food(void)
 
 
 
-/*
+/**
  * Quaff a potion (from the pack or the floor)
  */
 void do_cmd_quaff_potion(void)
@@ -1133,7 +1134,7 @@ void do_cmd_quaff_potion(void)
 }
 
 
-/*
+/**
  * Read a scroll (from the pack or floor).
  *
  * Certain scrolls can be "aborted" without losing the scroll.  These
@@ -1650,7 +1651,7 @@ void do_cmd_read_scroll(void)
 }
 
 
-/*
+/**
  * Use a staff.  Staffs may be fully identified through use.
  *
  * One charge of one staff disappears.
@@ -2201,7 +2202,7 @@ void do_cmd_use_staff(void)
 }
 
 
-/*
+/**
  * Aim a wand (from the pack or floor).  Wands may be fully identified 
  * through use.
  *
@@ -2661,7 +2662,7 @@ void do_cmd_aim_wand(void)
 }
 
 
-/*
+/**
  * Activate (zap) a Rod.    Rods may be fully identified through use 
  * (although it's not easy).  Rods now use timeouts to determine charging 
  * status, and pvals have become the cost of zapping a rod (how long it 
@@ -3152,7 +3153,7 @@ void do_cmd_zap_rod(void)
 
 
 
-/*
+/**
  * Hook to determine if an object is activatable.  Revised in Oangband.
  */
 static bool item_tester_hook_activate(object_type *o_ptr)
@@ -3175,7 +3176,7 @@ static bool item_tester_hook_activate(object_type *o_ptr)
 
 
 
-/*
+/**
  * Activate a wielded object.  Wielded objects never stack.
  * And even if they did, activatable objects never stack.
  *
@@ -4446,7 +4447,6 @@ void do_cmd_activate(void)
       }
     case ACT_RANDOM_HEAL1:
       {
-	msg_print("You feel somewhat better.");
 	(void)hp_player(damroll(5, 20));
 	(void)set_cut(p_ptr->cut - 5);
 	(void)set_poisoned(p_ptr->poisoned - 5);
@@ -4455,7 +4455,6 @@ void do_cmd_activate(void)
       }
     case ACT_RANDOM_HEAL2:
       {
-	msg_print("You feel better.");
 	(void)hp_player(damroll(7, 40));
 	(void)set_cut((p_ptr->cut / 2) - 5);
 	(void)set_poisoned((p_ptr->poisoned / 2) - 5);
@@ -4464,7 +4463,6 @@ void do_cmd_activate(void)
       }
     case ACT_RANDOM_HEAL3:
       {
-	msg_print("You feel much better.");
 	(void)hp_player(damroll(10, 60));
 	(void)set_cut(0);
 	(void)set_poisoned(0);

@@ -1,6 +1,7 @@
-/* File: variable.c */
+/** \file variable.c 
+    \brief Definitions of global variables
 
-/* The copyright.  Definitions for a large number of variables, arrays,
+ * The copyright.  Definitions for a large number of variables, arrays,
  * and pointers, plus the color table and sound names. 
  *
  * Copyright (c) 2009 Nick McConnell, Andi Sidwell, Leon Marrick, Bahman Rabii, 
@@ -50,7 +51,7 @@ byte version_extra = VERSION_EXTRA;
 /*
  * Savefile version 
  */
-byte sf_major;		/* Savefile's "version_major" */
+byte sf_major;		/**< Savefile's "version_major" */
 byte sf_minor;		/* Savefile's "version_minor" */
 byte sf_patch;		/* Savefile's "version_patch" */
 byte sf_extra;		/* Savefile's "version_extra". Used for enryption */
@@ -181,88 +182,88 @@ int player_euid;
 int player_egid;
 
 
-/*
+/**
  * Buffer to hold the current savefile name
  */
 char savefile[1024];
 
 
-/*
+/**
  * Number of active macros.
  */
 s16b macro__num;
 
-/*
+/**
  * Array of macro patterns [MACRO_MAX]
  */
 char **macro__pat;
 
-/*
+/**
  * Array of macro actions [MACRO_MAX]
  */
 char **macro__act;
 
 
-/*
+/**
  * The number of quarks (first quark is NULL)
  */
 s16b quark__num = 1;
 
-/*
+/**
  * The array[QUARK_MAX] of pointers to the quarks
  */
 char **quark__str;
 
 
-/*
+/**
  * The next "free" index to use
  */
 u16b message__next;
 
-/*
+/**
  * The index of the oldest message (none yet)
  */
 u16b message__last;
 
-/*
+/**
  * The next "free" offset
  */
 u16b message__head;
 
-/*
+/**
  * The offset to the oldest used char (none yet)
  */
 u16b message__tail;
 
-/*
+/**
  * The array[MESSAGE_MAX] of offsets, by index
  */
 u16b *message__ptr;
 
-/*
+/**
  * The array[MESSAGE_BUF] of chars, by offset
  */
 char *message__buf;
 
-/*
+/**
  * The array[MESSAGE_MAX] of u16b for the types of messages
  */
 u16b *message__type;
 
 
-/*
+/**
  * Table of colors associated to message-types
  */
 byte message__color[MSG_MAX];
 
 
-/*
+/**
  * The array[TERM_WIN_MAX] of window pointers
  */
 term *angband_term[TERM_WIN_MAX];
 
 
-/*
+/**
  * The array[TERM_WIN_MAX] of window names (modifiable?)
  */
 char angband_term_name[TERM_WIN_MAX][16] =
@@ -288,7 +289,7 @@ char *macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
 
-/*
+/**
  * Global table of color definitions (mostly zeros)
  */
 byte angband_color_table[256][4] =
@@ -334,7 +335,7 @@ byte angband_color_table[256][4] =
 };
 
 
-/*
+/**
  * Standard sound names (modifiable?)
  */
 char angband_sound_name[SOUND_MAX][16] =
@@ -492,7 +493,7 @@ char angband_sound_name[SOUND_MAX][16] =
 };
 
 
-/*
+/**
  * Array[VIEW_MAX] used by "update_view()"
  */
 sint view_n = 0;
@@ -525,13 +526,13 @@ u16b (*adjacency)[NUM_STAGES];
 u16b (*stage_path)[NUM_STAGES];
 u16b (*temp_path)[NUM_STAGES];
 
-/* 
+/** 
  * Array[NUM_STAGES][32] of racial probability boosts for each stage; will need
  * to be expanded if z_info->p_max goes above 32.
  */
 u16b (*race_prob)[32];
 
-/*
+/**
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
  *
  * These arrays are padded to a width of 256 to allow fast access to elements
@@ -540,13 +541,13 @@ u16b (*race_prob)[32];
 byte (*cave_info)[256];
 byte (*cave_info2)[256];
 
-/*
+/**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
  */
 byte (*cave_feat)[DUNGEON_WID];
 
 
-/*
+/**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid object indexes
  *
  * Note that this array yields the index of the top object in the stack of
@@ -559,7 +560,7 @@ byte (*cave_feat)[DUNGEON_WID];
  */
 s16b (*cave_o_idx)[DUNGEON_WID];
 
-/*
+/**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid monster indexes
  *
  * Note that this array yields the index of the monster or player in a grid,
@@ -574,19 +575,19 @@ s16b (*cave_m_idx)[DUNGEON_WID];
 
 #ifdef MONSTER_FLOW
 
-/*
+/**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "cost" values
  * Used to simulate character noise.
  */
 byte (*cave_cost)[DUNGEON_WID];
 
-/*
+/**
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid flow "when" stamps.
  * Used to store character scent trails.
  */
 byte (*cave_when)[DUNGEON_WID];
 
-/*
+/**
  * Current scent age marker.  Counts down from 250 to 0 and then loops.
  */
 int scent_when = 250;
@@ -600,81 +601,81 @@ int flow_center_x;
 int update_center_y;
 int update_center_x;
 
-/*
+/**
  * Flow cost at the center grid of the current update.
  */
 int cost_at_center = 0;
 
 #endif	/* MONSTER_FLOW */
 
-/*
+/**
  * Array[z_info->o_max] of dungeon objects
  */
 object_type *o_list;
 
-/*
+/**
  * Array[z_info->m_max] of dungeon monsters
  */
 monster_type *m_list;
 
-/*
+/**
  * Array[z_info->m_max] of monster lore
  */
 monster_lore *l_list;
 
-/*
+/**
  * Hack -- Array[MAX_Q_IDX] of quests
  */
 quest *q_list;
 
-/*
+/**
  * Hack -- Array[NOTES_MAX_LINES] of note records
  */
 note_info *notes;
 
 
-/*
+/**
  * Array[MAX_STORES] of stores
  */
 store_type *store;
 
-/*
+/**
  * Array[INVEN_TOTAL] of objects in the player's inventory
  */
 object_type *inventory;
 
 
-/*
+/**
  * The size of "alloc_kind_table" (at most z_info->k_max * 4)
  */
 s16b alloc_kind_size;
 
-/*
+/**
  * The array[alloc_kind_size] of entries in the "kind allocator table"
  */
 alloc_entry *alloc_kind_table;
 
-/*
+/**
  * The size of the "alloc_ego_table"
  */
 s16b alloc_ego_size;
 
-/*
+/**
  * The array[alloc_ego_size] of entries in the "ego allocator table"
  */
 alloc_entry *alloc_ego_table;
 
-/*
+/**
  * The size of "alloc_race_table" (at most z_info->r_max)
  */
 s16b alloc_race_size;
 
-/*
+/**
  * The array[alloc_race_size] of entries in the "race allocator table"
  */
 alloc_entry *alloc_race_table;
 
-/*
+/**
  * The total of all final monster generation probabilities 
  */
 u32b alloc_race_total;
@@ -687,20 +688,20 @@ byte misc_to_attr[256];
 char misc_to_char[256];
 
 
-/*
+/**
  * Specify color for inventory item text display (by tval)
  * Be sure to use "index & 0x7F" to avoid illegal access
  */
 byte tval_to_attr[128];
 
 
-/*
+/**
  * Current (or recent) macro action
  */
 char macro_buffer[1024];
 
 
-/*
+/**
  * Keymaps for each "mode" associated with each keypress.
  */
 char *keymap_act[KEYMAP_MODES][256];
@@ -709,7 +710,7 @@ char *keymap_act[KEYMAP_MODES][256];
 
 /*** Player information ***/
 
-/*
+/**
  * Pointer to the player tables (sex, race, class, magic)
  */
 player_sex *sp_ptr;
@@ -717,27 +718,27 @@ player_race *rp_ptr;
 player_class *cp_ptr;
 player_magic *mp_ptr;
 
-/*
+/**
  * The player other record (static)
  */
 static player_other player_other_body;
 
-/*
+/**
  * Pointer to the player other record
  */
 player_other *op_ptr = &player_other_body;
 
-/*
+/**
  * The player info record (static)
  */
 static player_type player_type_body;
 
-/*
+/**
  * Pointer to the player info record
  */
 player_type *p_ptr = &player_type_body;
 
-/*
+/**
  * The character generates both directed (extra) noise (by doing noisy 
  * things) and ambiant noise (the combination of directed and innate 
  * noise).  Directed noise can immediately wake up monsters in LOS. 
@@ -750,68 +751,68 @@ player_type *p_ptr = &player_type_body;
 int add_wakeup_chance = 0;
 u32b total_wakeup_chance = 0;
 
-/*
+/**
  * Structure (not array) of size limits
  */
 maxima *z_info;
 
-/*
+/**
  * The vault generation arrays
  */
 vault_type *v_info;
 char *v_name;
 char *v_text;
 
-/*
+/**
  * The themed level generation arrays. -LM-
  */
 vault_type *t_info;
 char *t_name;
 char *t_text;
 
-/*
+/**
  * The terrain feature arrays
  */
 feature_type *f_info;
 char *f_name;
 char *f_text;
 
-/*
+/**
  * The object kind arrays
  */
 object_kind *k_info;
 char *k_name;
 char *k_text;
 
-/*
+/**
  * The artifact arrays
  */
 artifact_type *a_info;
 char *a_name;
 char *a_text;
 
-/*
+/**
  * The set item arrays
  */
 set_type *s_info;
 char *s_name;
 char *s_text;
 
-/*
+/**
  * The ego-item arrays
  */
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
-/*
+/**
  * The monster race arrays
  */
 monster_race *r_info;
 char *r_name;
 char *r_text;
 
-/*
+/**
  * The player race arrays
  */
 player_race *p_info;
@@ -819,7 +820,7 @@ char *p_name;
 char *p_text;
 
 
-/*
+/**
  * The player class arrays
  */
 player_class *c_info;
@@ -827,25 +828,25 @@ char *c_name;
 char *c_text;
 
 
-/*
+/**
  * The player history arrays
  */
 hist_type *h_info;
 char *h_text;
 
-/*
+/**
  * The shop owner arrays
  */
 owner_type *b_info;
 char *b_name;
 
-/*
+/**
  * The racial price adjustment arrays
  */
 byte *g_info;
 
 
-/*
+/**
  * The object flavor arrays
  */
 flavor_type *flavor_info;
@@ -853,97 +854,97 @@ char *flavor_name;
 char *flavor_text;
 
 
-/*
+/**
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 const char *ANGBAND_SYS = "xxx";
 
-/*
+/**
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
 const char *ANGBAND_GRAF = "old";
 
-/*
+/**
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
 char *ANGBAND_DIR;
 
-/*
+/**
  * High score files (binary)
  * These files may be portable between platforms
  */
 char *ANGBAND_DIR_APEX;
 
-/*
+/**
  * Bone files for player ghosts (ascii)
  * These files are portable between platforms
  */
 char *ANGBAND_DIR_BONE;
 
-/*
+/**
  * Binary image files for the "*_info" arrays (binary)
  * These files are not portable between platforms
  */
 char *ANGBAND_DIR_DATA;
 
-/*
+/**
  * Textual template files for the "*_info" arrays (ascii)
  * These files are portable between platforms
  */
 char *ANGBAND_DIR_EDIT;
 
-/*
+/**
  * Script files
  * These files are portable between platforms.
  */
 char *ANGBAND_DIR_SCRIPT;
 
-/*
+/**
  * Various extra files (ascii)
  * These files may be portable between platforms
  */
 char *ANGBAND_DIR_FILE;
 
-/*
+/**
  * Help files (normal) for the online help (ascii)
  * These files are portable between platforms
  */
 char *ANGBAND_DIR_HELP;
 
-/*
+/**
  * Miscellanious text files, also contains any spoilers.
  * These files are portable between platforms
  */
 char *ANGBAND_DIR_INFO;
 
-/*
+/**
  * Standard "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 char *ANGBAND_DIR_PREF;
 
-/*
+/**
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
 char *ANGBAND_DIR_SAVE;
 
-/*
+/**
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 char *ANGBAND_DIR_USER;
 
-/*
+/**
  * Various extra files (binary)
  * These files are rarely portable between platforms
  */
 char *ANGBAND_DIR_XTRA;
 
-/* 
+/** 
  * Various xtra/ subdirectories.
  */
 char *ANGBAND_DIR_XTRA_FONT;
@@ -952,21 +953,21 @@ char *ANGBAND_DIR_XTRA_SOUND;
 char *ANGBAND_DIR_XTRA_HELP;
 
 
-/*
+/**
  * Total Hack -- allow all items to be listed (even empty ones)
  * This is only used by "do_cmd_inven_e()" and is cleared there.
  */
 bool item_tester_full;
 
 
-/*
+/**
  * Here is a "pseudo-hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
 byte item_tester_tval;
 
 
-/*
+/**
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
@@ -974,124 +975,124 @@ bool (*item_tester_hook)(object_type*);
 
 
 
-/*
+/**
  * Current "comp" function for ang_sort()
  */
 bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
 
-/*
+/**
  * Current "swap" function for ang_sort()
  */
 void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 
 
-/*
+/**
  * Hack -- function hook to restrict "get_mon_num_prep()" function
  */
 bool (*get_mon_num_hook)(int r_idx);
 
-/*
+/**
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
 bool (*get_obj_num_hook)(int k_idx);
 
-/*
+/**
  * Hack - the destination file for text_out_to_file.
  */
 ang_file *text_out_file = NULL;
 
 
-/*
+/**
  * Hack -- function hook to output (colored) text to the
  * screen or to a file.
  */
 void (*text_out_hook)(byte a, char *str);
 
 
-/*
+/**
  * Hack -- Where to wrap the text when using text_out().  Use the default
  * value (for example the screen width) when 'text_out_wrap' is 0.
  */
 int text_out_wrap = 0;
 
 
-/*
+/**
  * Hack -- Indentation for the text when using text_out().
  */
 int text_out_indent = 0;
 
 
-/*
+/**
  * Hack - the destination row for dump_line_screen.
  */
 int dump_row = 0;
 
-/*
+/**
  * Hack - the destination file for dump_line_file.
  */
 ang_file *dump_out_file = NULL;
 
-/*
+/**
  * Hack - the destination address for  dump_line_mem.
  */
 char_attr *dump_ptr = NULL;
 
-/*
+/**
  * Hack -- function hook for new line dump functions.
  */
 void (*dump_line_hook)(char_attr *this_line);
 
-/* 
+/** 
  * Array for character screen/dump
  */
 char_attr_line *dumpline;
 
-/* 
+/** 
  * Arrays for display player subwindows
  */
 char_attr_line *pline0;
 char_attr_line *pline1;
 
-/*
+/**
  * The "highscore" file descriptor, if available.
  */
 ang_file *highscore_fd;
 
-/*
+/**
  * Themed levels generate their own feeling mesaages. -LM-
  */
 char themed_feeling[80];
 
-/*
+/**
  * The type of object the item generator should make, if specified. -LM-
  */
 byte required_tval = 0;
 
-/* The bones file a restored player ghost should use to collect extra 
+/** The bones file a restored player ghost should use to collect extra 
  * flags, a sex, and a unique name.  This also indicates that there is 
  * a ghost active.  -LM-
  */
 byte bones_selector;
 
-/*
+/**
  * The player ghost template index. -LM-
  */
 int r_ghost;
 
-/* 
+/** 
  * The player ghost name is stored here for quick reference by the 
  * description function.  -LM-
  */
 char ghost_name[80];
 
-/*
+/**
  * The type (if any) of the player ghost's personalized string, and 
  * the string itself. -LM-
  */
 int ghost_string_type = 0;
 char ghost_string[80];
 
-/*
+/**
  * Variable to insure that ghosts say their special message only once.  
  * This variable is deliberately not saved, so reloaded ghosts may speak 
  * again. -LM-
@@ -1107,7 +1108,7 @@ bool autosave;				/* Timed autosave */
 s16b autosave_freq;			/* Autosave frequency */
 
 
-/*
+/**
  * Is the player partly through trees or rubble and, if so, in which 
  * direction is he headed?  Monsters are handled more simply:  They have 
  * a 33% or 50% chance of walking through. -LM-
@@ -1126,7 +1127,7 @@ byte num_runes_on_level[MAX_RUNE];
 int mana_reserve = 0;
 
 
-/* XXX Mega-Hack - See main-win.c */
+/** XXX Mega-Hack - See main-win.c */
 bool angband_keymap_flag = TRUE;
 
 /* Path finding variables
@@ -1135,7 +1136,7 @@ bool angband_keymap_flag = TRUE;
 char pf_result[MAX_PF_LENGTH];
 int pf_result_index;
 
-/*
+/**
  * Sound hook (for playing FX).
  */
 void (*sound_hook)(int sound);

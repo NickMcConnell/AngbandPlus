@@ -1,6 +1,6 @@
-/*
- * File: randname.c
- * Purpose: Random name generation
+/** \file randname.c
+    \brief Random name generation
+
  * Based on W. Sheldon Simms name generator originally in randart.c
  *
  * Copyright (c) 2007 Antony Sidwell and others
@@ -19,7 +19,7 @@
 #include "angband.h"
 #include "randname.h"
 
-/* 
+/**
  * Arrays of purely alphabetical, lower-case strings to teach 
  * the name generator with. 
  */
@@ -127,7 +127,9 @@ static cptr tolkien_names[] =
 	NULL
 };
 
-/* These are (mostly) picked at random from a Latin word list. */
+/**
+ * These are (mostly) picked at random from a Latin word list. 
+ */
 static cptr scroll_names[] =
 {
 	"abracadabra", "piffpaffpouf", "izzy", "wizzy", "letsgetsbusy",
@@ -235,7 +237,7 @@ static cptr scroll_names[] =
 
 typedef unsigned short name_probs[S_WORD+1][S_WORD+1][TOTAL+1];
 
-/*
+/**
  * This function builds probability tables from a list of purely alphabetical
  * lower-case words, and puts them into the supplied name_probs object.
  * The array of names should have a NULL entry at the end of the list.
@@ -272,7 +274,7 @@ static void build_prob(name_probs probs, cptr *learn)
 	}
 }
 
-/*
+/**
  * Use W. Sheldon Simms' random name generator algorithm (Markov Chain stylee).
  * 
  * Generate a random word using the probability tables we built earlier.  
@@ -383,7 +385,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 }
 
 
-/* 
+/**
  * To run standalone tests, #define RANDNAME_TESTING and link with
  *  with just z-rand.c from Angband. 
  */

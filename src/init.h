@@ -1,6 +1,6 @@
-/* File: init.h */
+/** \file init.h 
+    \brief Initialization include file
 
-/*
  * Copyright (c) 2000 Robert Ruehlmann
  *
  * This software may be copied and distributed for educational, research,
@@ -43,7 +43,7 @@ typedef errr (*eval_info_post_func)(header *head);
 typedef errr (*emit_info_txt_index_func)(ang_file *fp, header *head, int i);
 typedef errr (*emit_info_txt_always_func)(ang_file *fp, header *head);
 
-/*
+/**
  * Template file header information (see "init.c").  16 bytes.
  *
  * Note that the sizes of many of the "arrays" are between 32768 and

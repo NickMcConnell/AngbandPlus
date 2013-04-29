@@ -1,6 +1,6 @@
-/*
- * File: randname.h
- * Purpose: Random name generation
+/** \file randname.h
+    \brief Random name generation
+
  * Based on W. Sheldon Simms name generator originally in randart.c
  *
  * Copyright (c) 2007 Antony Sidwell and others

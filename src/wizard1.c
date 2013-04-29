@@ -1,6 +1,7 @@
-/* File: wizard1.c */
+/** \file wizard1.c 
+    \brief Spoilers
 
-/* Generation of object, artifact, and monster spoilers.
+ * Generation of object, artifact, and monster spoilers.
  *
  * This file has been updated to work with Oangband 0.5.1.
  *
@@ -24,7 +25,7 @@
 #ifdef ALLOW_SPOILERS
 
 
-/*
+/**
  * The spoiler file being created
  */
 static ang_file *fff = NULL;
@@ -43,7 +44,7 @@ static ang_file *fff = NULL;
 
 
 
-/*
+/**
  * Describe the kind
  */
 static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, 
@@ -145,7 +146,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val,
 }
 
 
-/*
+/**
  * Create a spoiler file for items
  */
 static void spoil_obj_desc(cptr fname)
@@ -275,13 +276,13 @@ static void spoil_obj_desc(cptr fname)
  */
 
 
-/*
+/**
  * Returns a "+" string if a number is non-negative and an empty
  * string if negative
  */
 #define POSITIZE(v) (((v) >= 0) ? "+" : "")
 
-/*
+/**
  * These are used to format the artifact spoiler file. INDENT1 is used
  * to indent all but the first line of an artifact spoiler. INDENT2 is
  * used when a line "wraps". (Bladeturner's resistances cause this.)
@@ -289,13 +290,13 @@ static void spoil_obj_desc(cptr fname)
 #define INDENT1 "    "
 #define INDENT2 "      "
 
-/*
+/**
  * MAX_LINE_LEN specifies when a line should wrap.
  */
 #define MAX_LINE_LEN 75
 
 
-/*
+/**
  * The artifacts categorized by type
  */
 static grouper group_artifact[] =
@@ -325,7 +326,7 @@ static grouper group_artifact[] =
 
 
 
-/*
+/**
  * Pair together a constant flag with a textual description.
  *
  * Used by both "init.c" and "wiz-spo.c".
@@ -345,7 +346,7 @@ struct flag_desc
 
 
 
-/*
+/**
  * These are used for "+3 to STR, DEX", etc. These are separate from
  * the other pval affected traits to simplify the case where an object
  * affects all stats.  In this case, "All stats" is used instead of
@@ -362,7 +363,7 @@ const char *stat_desc[] =
   "CHR" 
 };
 
-/*
+/**
  * Besides stats, these are the other player traits
  * which may be affected by an object's pval
  */
@@ -380,7 +381,7 @@ const char *bonus_desc[] =
 };
 
 
-/*
+/**
  * Slaying preferences for weapons
  */
 
@@ -396,7 +397,7 @@ const char *slay_desc[] =
   "Dragon"
 };
 
-/*
+/**
  * Elemental brands for weapons
  */
 const char *brand_desc[] =
@@ -408,7 +409,7 @@ const char *brand_desc[] =
   "Poison Brand"
 };
 
-/*
+/**
  * The basic resistances
  */
 
@@ -430,7 +431,7 @@ const char *resist_desc[] =
   "Disenchantment"
 };
 
-/*
+/**
  * Sustain stats -  these are given their "own" line in the
  * spoiler file, mainly for simplicity
  */
@@ -491,7 +492,7 @@ static flag_desc flags_curse_desc[] =
   { CF_DRAIN_CHARGE,      "Drains magic devices" },
 };
 
-/*
+/**
  * An "object analysis structure"
  *
  * It will be filled with descriptive strings detailing an object's
@@ -538,7 +539,7 @@ typedef struct
 
 
 
-/*
+/**
  * Write out `n' of the character `c' to the spoiler file
  */
 static void spoiler_out_n_chars(int n, char c)
@@ -546,7 +547,7 @@ static void spoiler_out_n_chars(int n, char c)
   while (--n >= 0) fputc(c, (FILE *)fff);
 }
 
-/*
+/**
  * Write out `n' blank lines to the spoiler file
  */
 static void spoiler_blanklines(int n)
@@ -554,7 +555,7 @@ static void spoiler_blanklines(int n)
   spoiler_out_n_chars(n, '\n');
 }
 
-/*
+/**
  * Write a line to the spoiler file and then "underline" it with hypens
  */
 static void spoiler_underline(cptr str)
@@ -566,7 +567,7 @@ static void spoiler_underline(cptr str)
 
 
 
-/*
+/**
  * These functions do most of the actual "analysis". Given a set of bit flags
  * (which will be from one of the flags fields from the object in question),
  * or directly the integer fields of the object
@@ -632,7 +633,7 @@ static cptr *spoiler_frac_aux(const int *values, const int base,
 }
 
 
-/*
+/**
  * Acquire a "basic" description "The Cloak of Death [1,+10]"
  */
 static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
@@ -641,7 +642,7 @@ static void analyze_general (object_type *o_ptr, char *desc_x_ptr)
   object_desc_store(desc_x_ptr, o_ptr, TRUE, 1);
 }
 
-/*
+/**
  * List stat bonuses.
  */
 static void analyze_stats(object_type *o_ptr, cptr *stat_list)
@@ -654,7 +655,7 @@ static void analyze_stats(object_type *o_ptr, cptr *stat_list)
   *stat_list = NULL;
 }
 
-/*
+/**
  * List other bonuses.
  */
 static void analyze_bonus(object_type *o_ptr, cptr *bonus_list)
@@ -667,7 +668,9 @@ static void analyze_bonus(object_type *o_ptr, cptr *bonus_list)
   *bonus_list = NULL;
 }
 
-/* Note the slaying specialties of a weapon */
+/**
+ * Note the slaying specialties of a weapon 
+ */
 static void analyze_slay (object_type *o_ptr, cptr *slay_list)
 {
   slay_list = spoiler_frac_aux(o_ptr->multiple_slay, MULTIPLE_BASE, slay_desc,
@@ -677,7 +680,9 @@ static void analyze_slay (object_type *o_ptr, cptr *slay_list)
   *slay_list = NULL;
 }
 
-/* Note an object's elemental brands */
+/**
+ * Note an object's elemental brands 
+ */
 static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 {
   brand_list = spoiler_frac_aux(o_ptr->multiple_brand, MULTIPLE_BASE, 
@@ -688,7 +693,9 @@ static void analyze_brand (object_type *o_ptr, cptr *brand_list)
 }
 
 
-/* Note the resistances granted by an object */
+/**
+ * Note the resistances granted by an object 
+ */
 
 static void analyze_resist (object_type *o_ptr, cptr *resist_list)
 {
@@ -699,7 +706,9 @@ static void analyze_resist (object_type *o_ptr, cptr *resist_list)
   *resist_list = NULL;
 }
 
-/* Note which stats an object sustains */
+/**
+ * Note which stats an object sustains 
+ */
 
 static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 {
@@ -726,7 +735,7 @@ static void analyze_sustains (object_type *o_ptr, cptr *sustain_list)
 }
 
 
-/*
+/**
  * Note miscellaneous powers bestowed by an artifact such as see invisible,
  * free action, permanent light, etc.
  */
@@ -754,7 +763,7 @@ static void analyze_powers (object_type *o_ptr, cptr *power_list)
   *power_list = NULL;
 }
 
-/*
+/**
  * Note artifact curses
  */
 
@@ -781,7 +790,7 @@ static void analyze_curses (object_type *o_ptr, cptr *curse_list)
 
 
 
-/*
+/**
  * Determine the minimum depth an artifact can appear, its rarity, its weight,
  * and its value in gold pieces
  */
@@ -800,7 +809,7 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
 	       a_ptr->weight / 10, a_ptr->weight % 10, (long) a_ptr->cost);
 }
 
-/*
+/**
  * Fill in an object description structure for a given object
  */
 
@@ -878,11 +887,15 @@ static void print_header(void)
  * but that's not relevant to line wrapping and indention.)
  */
 
-/* ITEM_SEP separates items within a list */
+/**
+ * ITEM_SEP separates items within a list 
+ */
 #define ITEM_SEP ','
 
 
-/* LIST_SEP separates lists */
+/**
+ * LIST_SEP separates lists 
+ */
 #define LIST_SEP ';'
 
 
@@ -978,7 +991,9 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 }
 
 
-/* Create a spoiler file entry for an artifact */
+/**
+ * Create a spoiler file entry for an artifact 
+ */
 
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
@@ -1015,7 +1030,7 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 }
 
 
-/*
+/**
  * Hack -- Create a "forged" artifact
  */
 bool make_fake_artifact(object_type *o_ptr, int name1)
@@ -1079,7 +1094,7 @@ bool make_fake_artifact(object_type *o_ptr, int name1)
 
 
 
-/*
+/**
  * Show what object kinds appear on the current level
  */
 static void spoil_obj_gen(cptr fname)
@@ -1230,7 +1245,7 @@ static void spoil_obj_gen(cptr fname)
 
 
 
-/*
+/**
  * Show what monster races appear on the current level
  */
 static void spoil_mon_gen(cptr fname)
@@ -1379,7 +1394,7 @@ static void spoil_mon_gen(cptr fname)
 
 
 
-/*
+/**
  * Create a spoiler file for artifacts
  */
 static void spoil_artifact(cptr fname)
@@ -1461,7 +1476,7 @@ static void spoil_artifact(cptr fname)
 
 
 
-/*
+/**
  * Create a spoiler file for monsters
  */
 static void spoil_mon_desc(cptr fname)
@@ -1614,15 +1629,18 @@ static void spoil_mon_desc(cptr fname)
  * Adapted from the "monster_desc()" code in "monster1.c"
  */
 
-/*
- * Pronoun arrays
+/**
+ * Pronoun array
  */
 static cptr wd_che[3] =
   { "It", "He", "She" };
+/**
+ * Pronoun array
+ */
 static cptr wd_lhe[3] =
   { "it", "he", "she" };
 
-/*
+/**
  * Buffer text to the given file. (-SHAWN-)
  * This is basically c_roff() from util.c with a few changes.
  */
@@ -1692,7 +1710,7 @@ static void spoil_out(cptr str)
 }
 
 
-/*
+/**
  * Create a spoiler file for monsters (-SHAWN-)
  */
 static void spoil_mon_info(cptr fname)
@@ -2631,12 +2649,12 @@ static void spoil_mon_info(cptr fname)
 
 
 
-/*
+/**
  * Forward declare
  */
 extern void do_cmd_spoilers(void);
 
-/*
+/**
  * Create Spoiler files
  */
 void do_cmd_spoilers(void)
