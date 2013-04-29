@@ -1885,31 +1885,16 @@ static bool room_info_kind(int k_idx)
  */
 static void get_room_info(int y, int x)
 {
-	int i, n, chart, roll;
+	int i, j, chart, roll;
 
-        int room = dun->cent_n+1;
-	char *s;
-
-	char buf_text1[240];
-	char buf_text2[240];
-        char buf_name1[16];
-        char buf_name2[16];
-
-	/* Clear the history text */
-	buf_text1[0] = '\0';
-	buf_text2[0] = '\0';
-
-	/* Clear the name1 text */
-	buf_name1[0] = '\0';
-
-	/* Clear the name2 text */
-	buf_name2[0] = '\0';
+	int room = dun->cent_n+1;
 
 	/* Initialise chart */
 	chart = 1;
+	j = 0;
 
 	/* Process the description */
-	while (chart)
+	while (chart && (j < ROOM_DESC_SECTIONS - 1))
 	{
 		/* Start over */
 		i = 0;
@@ -1921,34 +1906,19 @@ static void get_room_info(int y, int x)
 		while ((chart != d_info[i].chart) || (roll > d_info[i].roll)) i++;
 
 		/* If not allowed on this level, drop to maximum result */
-		if ((p_ptr->depth < d_info[i].level) || (d_info[i].l_flag != (d_info[i].l_flag & (level_flag))))
+		if (p_ptr->depth < d_info[i].level)
 		{
 			while ((chart != d_info[i].chart) || (100 > d_info[i].roll)) i++;
 		}
 
-		/* Visible description or always present? */
-		if (d_info[i].seen)
-		{
-			/* Get the textual history */
-			strcat(buf_text1, (d_text + d_info[i].text));
-		}
-		else
-		{
-			/* Get the textual history */
-			strcat(buf_text2, (d_text + d_info[i].text));
-		}
-
-		/* Get the name1 text if needed */
-                if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[i].name1));
-
-		/* Get the name2 text if needed */
-                if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[i].name2));
-
+		/* Save index */
+		room_info[room].section[j++] = i;
+		
 		/* Place monster if needed */
-		if ((d_info[i].r_flag) || (d_info[i].r_char))
+		if ((d_info[i].r_flag) || (d_info[i].r_s_flag) || (d_info[i].r_char))
 		{
 			room_info_mon_flag = d_info[i].r_flag -1;
-
+			room_info_mon_s_flag = d_info[i].r_s_flag -1;
 			room_info_mon_char = d_info[i].r_char;
 
 			get_mon_num_hook = room_info_mon;
@@ -1956,24 +1926,20 @@ static void get_room_info(int y, int x)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-                        /* Place the monster */
-                        vault_monsters(y,x,1);
+			/* Place the monster */
+			vault_monsters(y,x,1);
 
 			get_mon_num_hook = NULL;
 
 			/* Prepare allocation table */
 			get_mon_num_prep();
+
+			/* Lower the level's monster count */
+			if (mon_gen) mon_gen--;
 		}
 
-                /* Hack --- make treasure */
-                if (d_info[i].tval == TV_GOLD)
-                {
-			/* Place the monsters */
-                        vault_treasure(y,x,randint(6));
-
-                }
 		/* Place objects if needed */
-                else if (d_info[i].tval)
+		if (d_info[i].tval)
 		{
 			room_info_kind_tval = d_info[i].tval;
 
@@ -1982,85 +1948,49 @@ static void get_room_info(int y, int x)
 			/* Prepare allocation table */
 			get_obj_num_prep();
 
-                        /* Place the items */
-                        vault_items(y,x,randint(6));
+			/* Place the items */
+			vault_items(y, x, randint(6));
 
 			get_obj_num_hook = NULL;
 
 			/* Prepare allocation table */
 			get_obj_num_prep();
-		
+
+			/* Lower the level's object count */
+			if (obj_gen) obj_gen--;
 		}
 			
 		/* Place features if needed */
 		if (d_info[i].feat)
 		{
-
 			int ii, y1, x1;
 
 			/* Try nine locations */
-                        for (ii = 0; ii < 9; ii++)
+			for (ii = 0; ii < 9; ii++)
 			{
-                                int d = 3;
+				int d = 3;
 
 				/* Pick a nearby location */
-				scatter(&y1, &x1, y, x, d, 0);
+				scatter(&y1, &x1, y, x, d);
 
 				/* Require "empty" grid */
-				if (!cave_empty_bold(y1, x1)) continue;
+				if (!cave_naked_bold(y1, x1)) continue;
 
 				cave_set_feat(y1,x1,d_info[i].feat);
 			}
-	
 		}
 
 		/* Enter the next chart */
 		chart = d_info[i].next;
 	}
 
-	/* Skip leading spaces */
-	for (s = buf_text1; *s == ' '; s++) /* loop */;
+	/* Type */
+	room_info[room].type = ROOM_NORMAL;
 
-	/* Get apparent length */
-	n = strlen(s);
+	/* Terminate index list */
+	room_info[room].section[j] = -1;
 
-	/* Kill trailing spaces */
-	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-	/* Set the visible description */
-        strcpy(room_info[room].text_visible, s);
-
-	/* Skip leading spaces */
-	for (s = buf_text2; *s == ' '; s++) /* loop */;
-
-	/* Get apparent length */
-	n = strlen(s);
-
-	/* Kill trailing spaces */
-	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-	/* Set the visible description */
-        strcpy(room_info[room].text_always, s);
-
-	/* Set room name */
-        if (strlen(buf_name1)) strcpy(room_info[room].name, buf_name1);
-
-	/* And add second room name if necessary */
-        if (strlen(buf_name2))
-	{
-                if (strlen(buf_name1))
-		{
-                        strcat(room_info[room].name," ");
-                        strcat(room_info[room].name,buf_name2);
-		}
-		else
-		{
-                        strcpy(room_info[room].name, buf_name2);
-		}
-
-	}
-
-        room_info[room].seen = FALSE;
+	room_info[room].seen = FALSE;
 
 }
 
@@ -2592,10 +2522,8 @@ static void build_type4(int y0, int x0)
 	}
 #ifdef ALLOW_ROOMDESC
 	/* Initialise room description */
-        strcpy(room_info[dun->cent_n+1].name, "large chamber");
-        strcpy(room_info[dun->cent_n+1].text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
-        strcpy(room_info[dun->cent_n+1].text_always, "");
-        room_info[dun->cent_n+1].seen = FALSE;
+	room_info[dun->cent_n+1].type = ROOM_LARGE;
+	room_info[dun->cent_n+1].seen = FALSE;
 #endif
 }
 
@@ -2808,6 +2736,7 @@ static void build_type5(int y0, int x0)
 
 	int light = FALSE;
 
+	int rating_bonus;
 
 	/* Large room */
 	y1 = y0 - 4;
@@ -2850,6 +2779,14 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to jelly */
 		get_mon_num_hook = vault_aux_jelly;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 25 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		/* Initialise room description */
+		room_info[dun->cent_n+1].type = ROOM_NEST_UNDEAD;
+#endif
 	}
 
 	/* Monster nest (animal) */
@@ -2860,6 +2797,15 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to animal */
 		get_mon_num_hook = vault_aux_animal;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 45 - p_ptr->depth;
+
+
+#ifdef ALLOW_ROOMDESC
+		/* Initialise room description */
+		room_info[dun->cent_n+1].type = ROOM_NEST_UNDEAD;
+#endif
 	}
 
 	/* Monster nest (undead) */
@@ -2870,6 +2816,14 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to undead */
 		get_mon_num_hook = vault_aux_undead;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 85 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		/* Initialise room description */
+		room_info[dun->cent_n+1].type = ROOM_NEST_UNDEAD;
+#endif
 	}
 
 	/* Prepare allocation table */
@@ -2904,16 +2858,13 @@ static void build_type5(int y0, int x0)
 		/* Room type */
 		msg_format("Monster nest (%s)", name);
 	}
+
 #ifdef ALLOW_ROOMDESC
-	/* Initialise room description */
-        strcpy(room_info[dun->cent_n+1].name, name);
-        strcat(room_info[dun->cent_n+1].name, " monster nest");
-        strcpy(room_info[dun->cent_n+1].text_visible, "Morgoth lures monsters of a particular type here with powerful magic to trap the unware adventurer.");
-        strcpy(room_info[dun->cent_n+1].text_always, "");
-        room_info[dun->cent_n+1].seen = FALSE;
+	/* Initialize room description */
+	room_info[dun->cent_n+1].seen = FALSE;
 #endif
 	/* Increase the level rating */
-	rating += 10;
+	if (rating_bonus > 0) rating += rating_bonus;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
 	if ((p_ptr->depth <= 40) &&
@@ -2987,6 +2938,8 @@ static void build_type6(int y0, int x0)
 
 	int i, j, y, x, y1, x1, y2, x2;
 
+	int rating_bonus;
+
 	bool empty = FALSE;
 
 	int light = FALSE;
@@ -3035,6 +2988,14 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_orc;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 30 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		room_info[dun->cent_n+1].type = ROOM_PIT_ORC;
+#endif
+
 	}
 
 	/* Troll pit */
@@ -3045,6 +3006,14 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_troll;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 35 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		room_info[dun->cent_n+1].type = ROOM_PIT_TROLL;
+#endif
+
 	}
 
 	/* Giant pit */
@@ -3055,6 +3024,13 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_giant;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 65 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		room_info[dun->cent_n+1].type = ROOM_PIT_GIANT;
+#endif
 	}
 
 	/* Dragon pit */
@@ -3210,7 +3186,15 @@ static void build_type6(int y0, int x0)
 				break;
 			}
 
+
 		}
+
+		/* Appropriate rating bonus */
+		rating_bonus = 75 - p_ptr->depth;
+
+#ifdef ALLOW_ROOMDESC
+		room_info[dun->cent_n+1].type = ROOM_PIT_DRAGON;
+#endif
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_dragon;
@@ -3288,18 +3272,9 @@ static void build_type6(int y0, int x0)
 		/* Room type */
 		msg_format("Monster pit (%s)", name);
 	}
-#ifdef ALLOW_ROOMDESC
-	/* Initialise room description */
-        strcpy(room_info[dun->cent_n+1].name, name);
-        strcat(room_info[dun->cent_n+1].name, " pit");
-	
-        strcpy(room_info[dun->cent_n+1].text_visible, "Morgoth breeds his most evil creatures in great pits deep beneath the earth. ");
-        strcat(room_info[dun->cent_n+1].text_visible, "You fear you have stumbled across one such place.");
-        strcpy(room_info[dun->cent_n+1].text_always, "");
-        room_info[dun->cent_n+1].seen = FALSE;
-#endif
+
 	/* Increase the level rating */
-	rating += 10;
+	if (rating_bonus>0) rating += rating_bonus;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
 	if ((p_ptr->depth <= 40) &&
@@ -3547,12 +3522,9 @@ static void build_type7(int y0, int x0)
 	if (cheat_room) msg_print("Lesser Vault");
 
 #ifdef ALLOW_ROOMDESC
-	/* Initialise room description */
-        strcpy(room_info[dun->cent_n+1].name, "lesser vault");
-        strcpy(room_info[dun->cent_n+1].text_visible, "This vault is larger than most you have seen and contains more than ");
-        strcat(room_info[dun->cent_n+1].text_visible, "its share of monsters and treasure.");
-        strcpy(room_info[dun->cent_n+1].text_always, "");
-        room_info[dun->cent_n+1].seen = FALSE;
+	/* Initialize room description */
+	room_info[dun->cent_n+1].type = ROOM_LESSER_VAULT;
+	room_info[dun->cent_n+1].seen = FALSE;
 #endif
 
 	/* Boost the rating */
@@ -3592,12 +3564,9 @@ static void build_type8(int y0, int x0)
 	if (cheat_room) msg_print("Greater Vault");
 
 #ifdef ALLOW_ROOMDESC
-	/* Initialise room description */
-        strcpy(room_info[dun->cent_n+1].name, "greater vault");
-        strcpy(room_info[dun->cent_n+1].text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
-        strcat(room_info[dun->cent_n+1].text_visible, "deadly monsters and rich treasure.");
-        strcpy(room_info[dun->cent_n+1].text_always, "Beware!");
-        room_info[dun->cent_n+1].seen = FALSE;
+	/* Initialize room description */
+	room_info[dun->cent_n+1].type = ROOM_GREATER_VAULT;
+	room_info[dun->cent_n+1].seen = FALSE;
 #endif
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -4154,9 +4123,6 @@ static void cave_gen(void)
 
 #ifdef ALLOW_ROOMDESC
         /* Initialise 'zeroeth' room description */
-        strcpy(room_info[0].name, "the dungeon");
-        strcpy(room_info[0].text_visible, "It is a dangerous maze of corridors and rooms.");
-        strcpy(room_info[0].text_always, "");
         room_info[0].seen = FALSE;
 #endif
 
@@ -4729,9 +4695,6 @@ static void town_gen(void)
 	}
 
         /* Initialise 'zeroeth' room description */
-        strcpy(room_info[0].name, "town");
-        strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
-        strcpy(room_info[0].text_always, "It feels like home.");
         room_info[0].seen = FALSE;
 #endif
 

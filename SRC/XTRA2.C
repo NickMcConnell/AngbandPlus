@@ -2557,12 +2557,214 @@ bool change_panel(int dir)
 }
 
 #ifdef ALLOW_ROOMDESC
+
+/* 
+ * Hack - generate the current room description 
+ */
+static void get_room_desc(int room, char *name, char *text_visible, char *text_always)
+{
+	/* Initialize text */
+	strcpy(text_always, "");
+	strcpy(text_visible, "");
+
+	/* Town or not in room */
+	if (!room)
+	{
+		if (!p_ptr->depth)
+		{
+			/* Initialise town description */
+			strcpy(name, "town");
+			strcpy(text_always, "It feels like home.");
+		}
+		else
+		{
+			strcpy(name, "the dungeon");
+			strcpy(text_visible, "It is a dangerous maze of corridors and rooms.");
+		}
+
+		return;
+	}
+	
+	/* In room */
+	switch (room_info[room].type)
+	{
+		case (ROOM_LARGE):
+		{
+			strcpy(name, "large chamber");
+			strcpy(text_visible, "This chamber contains an inner room with its own monsters, treasures and traps.");
+			return;
+		}
+
+		case (ROOM_NEST_JELLY):
+		{
+			strcpy(name, "jelly pit");
+			strcpy(text_always, "An overpowering stench pervades the air here, which is unnaturally humid.");
+			return;
+		}
+
+		case (ROOM_NEST_ANIMAL):
+		{
+			strcpy(name, "zoo");
+			strcpy(text_visible, "This room contains a wide assortment of animals, probably collected by some mad spellcaster.");
+			return;
+		}
+
+		case (ROOM_NEST_UNDEAD):
+		{
+			strcpy(name, "graveyard");
+			strcpy(text_visible, "This room is full of corpses. Some of them don't seem to be still.");
+			return;
+		}
+		case (ROOM_PIT_ORC):
+		{
+			strcpy(name, "orc pit");
+			strcpy(text_visible, "You have stumbled into the barracks of a group of war-hungry orcs.");
+			return;
+		}
+		case (ROOM_PIT_TROLL):
+		{
+			strcpy(name, "troll pit");
+			strcpy(text_visible, "You have stumbled into a conclave of several troll clans. Filth lines the walls, ");
+			strcat(text_visible, "and the floor is covered with crushed bones and mangled equipment.");
+			strcpy(text_always, "The stink is unbearable.");
+			return;
+		}
+
+		case (ROOM_PIT_GIANT):
+		{
+			strcat(name, "dragon cavern");
+			strcpy(text_visible, "You have entered a room used as a breeding ground for dragons. ");
+			return;
+		}
+		case (ROOM_PIT_DRAGON):
+		{
+			strcpy(name, "demon pit");
+			strcpy(text_visible, "You have entered a chamber full of arcane symbols, and an overpowering smell of brimstone.");
+			return;
+		}
+
+		case (ROOM_GREATER_VAULT):
+		{
+			strcpy(name, "greater vault");
+			strcpy(text_visible, "This vast sealed chamber is amongst the largest of its kind and is filled with ");
+			strcat(text_visible, "deadly monsters and rich treasure.");
+			strcpy(text_always, "Beware!");
+			return;
+		}
+		case (ROOM_LESSER_VAULT):
+		{
+			strcpy(name, "lesser vault");
+			strcpy(text_visible, "This vault is larger than most you have seen and contains more than ");
+			strcat(text_visible, "its share of monsters and treasure.");
+			return;
+		}
+		case (ROOM_NORMAL):
+		{
+			int i, j, n;
+
+			char *s;
+
+			char buf_text1[240];
+			char buf_text2[240];
+			char buf_name1[16];
+			char buf_name2[16];
+
+			/* Clear the history text */
+			buf_text1[0] = '\0';
+			buf_text2[0] = '\0';
+
+			/* Clear the name1 text */
+			buf_name1[0] = '\0';
+
+			/* Clear the name2 text */
+			buf_name2[0] = '\0';
+			
+			i = 0;
+
+			while ((j = room_info[room].section[i++]) != -1)
+			{
+				/* Visible description or always present? */
+				if (d_info[j].seen)
+				{
+					/* Get the textual history */
+					strcat(buf_text1, (d_text + d_info[j].text));
+				}
+				else
+				{
+					/* Get the textual history */
+					strcat(buf_text2, (d_text + d_info[j].text));
+				}
+
+				/* Get the name1 text if needed */
+				if (!strlen(buf_name1)) strcpy(buf_name1, (d_name + d_info[j].name1));
+
+				/* Get the name2 text if needed */
+				if (!strlen(buf_name2)) strcpy(buf_name2, (d_name + d_info[j].name2));
+			}
+
+			/* Skip leading spaces */
+			for (s = buf_text1; *s == ' '; s++) /* loop */;
+
+			/* Get apparent length */
+			n = strlen(s);
+
+			/* Kill trailing spaces */
+			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+			/* Set the visible description */
+			strcpy(text_visible, s);
+
+			/* Skip leading spaces */
+			for (s = buf_text2; *s == ' '; s++) /* loop */;
+
+			/* Get apparent length */
+			n = strlen(s);
+
+			/* Kill trailing spaces */
+			while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+			/* Set the visible description */
+			strcpy(text_always, s);
+
+			/* Set room name */
+			if (strlen(buf_name1)) strcpy(name, buf_name1);
+
+			/* And add second room name if necessary */
+			if (strlen(buf_name2))
+			{
+				if (strlen(buf_name1))
+				{
+					strcat(name, " ");
+					strcat(name, buf_name2);
+				}
+				else
+				{
+					strcpy(name, buf_name2);
+				}
+
+			}
+
+			return;
+		}
+	}
+}
+
+
 /*
  * Hack -- Display the "name" of a given room
  */
 static void room_info_top(int room)
 {
 	char first[2];
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
+
+	/* Hack -- handle "xtra" mode */
+	if (!character_dungeon) return;
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -2587,8 +2789,16 @@ static void room_info_top(int room)
  */
 void screen_room_info(int room)
 {
-
         if (!character_dungeon) return;
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
+
+	/* Hack -- handle "xtra" mode */
+	if (!character_dungeon) return;
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
 
 	/* Flush messages */
 	msg_print(NULL);
@@ -2629,9 +2839,12 @@ void screen_room_info(int room)
 void display_room_info(int room)
 {
 	int y;
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
 
 	/* Hack -- handle "xtra" mode */
-        if (!character_dungeon) return;
+	if (!character_dungeon) return;
 
 	/* Erase the window */
 	for (y = 0; y < Term->hgt; y++)
@@ -2642,6 +2855,9 @@ void display_room_info(int room)
 
 	/* Begin recall */
 	Term_gotoxy(0, 1);
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
 
 	/* Describe room */
         if (strlen(room_info[room].text_visible))
@@ -2678,9 +2894,18 @@ void describe_room(void)
 	int by = p_ptr->py / BLOCK_HGT;
         int bx = p_ptr->px / BLOCK_WID;
 	int room = dun_room[by][bx];
+	char name[32];
+	char text_visible[240];
+	char text_always[240];
 
 	/* Hack -- handle "xtra" mode */
-        if (!character_dungeon) return;
+	if (!character_dungeon) return;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_ROOM_INFO);
+
+	/* Get the actual room description */
+	get_room_desc(room, name, text_visible, text_always);
 
         if ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))
          && ((cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ||

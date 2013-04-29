@@ -47,14 +47,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING  "2.9.1"
+#define VERSION_STRING  "2.9.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR   2
 #define VERSION_MINOR   9
-#define VERSION_PATCH   1
+#define VERSION_PATCH   2
 #define VERSION_EXTRA   0
 
 
@@ -228,6 +228,34 @@
  * Maximum value storable in a "s16b" (hard-coded)
  */
 #define MAX_SHORT       32767
+
+
+/*
+ * Maximum amount of sections in room description.
+ */
+#define ROOM_DESC_SECTIONS 15
+
+/*
+ * Dungeon room types 
+ */
+#define ROOM_NORMAL			0 
+#define ROOM_LARGE			1
+
+#define ROOM_NEST_JELLY		3
+
+#define ROOM_NEST_ANIMAL	5
+
+#define ROOM_NEST_UNDEAD	7
+#define ROOM_PIT_ORC		8
+#define ROOM_PIT_TROLL		9
+
+#define ROOM_PIT_GIANT		11
+#define ROOM_PIT_DRAGON		12
+#define ROOM_PIT_DEMON		13
+#define ROOM_LESSER_VAULT	14
+#define ROOM_GREATER_VAULT	15
+
+
 
 
 /*
@@ -2140,8 +2168,8 @@
 #define TR1_SLAY_GIANT          0x00400000L     /* Weapon slays giant */
 #define TR1_SLAY_DRAGON         0x00800000L     /* Weapon slays dragon */
 #define TR1_KILL_DRAGON         0x01000000L     /* Weapon kills dragon */
-#define TR1_XXX5                        0x02000000L
-#define TR1_XXX6                        0x04000000L
+#define TR1_KILL_DEMON                        0x02000000L
+#define TR1_KILL_UNDEAD                        0x04000000L
 #define TR1_BRAND_POIS                        0x08000000L
 #define TR1_BRAND_ACID          0x10000000L     /* Weapon has acid brand */
 #define TR1_BRAND_ELEC          0x20000000L     /* Weapon has elec brand */

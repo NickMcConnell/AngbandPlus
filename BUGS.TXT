@@ -14,7 +14,6 @@ Zangband monsters imported still need massaging to fit.
 - Summon spells don't summon anything... this will be waiting on the next
 feature release as there is no(t much) point summoning a monster if all it
 does is attack you.
-- Room descriptions are not saved. This is currently by design...
 - Come to mention it, flow code is broken for fleeing monsters. We should
 choose a path that doesn't lead to dead ends. Fleeing monsters currently
 have no preference in this regard.

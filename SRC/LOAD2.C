@@ -570,6 +570,29 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->xtra2);
 	}
 
+	if (older_than(2,9,2))
+	{
+
+	}
+
+	else
+	{
+		/* Knowledge */
+		rd_u32b(&o_ptr->i_object.can_flags1);
+		rd_u32b(&o_ptr->i_object.can_flags1);
+		rd_u32b(&o_ptr->i_object.can_flags1);
+
+		rd_u32b(&o_ptr->i_object.may_flags1);
+		rd_u32b(&o_ptr->i_object.may_flags1);
+		rd_u32b(&o_ptr->i_object.may_flags1);
+
+		rd_u32b(&o_ptr->i_object.not_flags1);
+		rd_u32b(&o_ptr->i_object.not_flags1);
+		rd_u32b(&o_ptr->i_object.not_flags1);
+
+		rd_s16b(&o_ptr->i_object.usage);
+		rd_s16b(&o_ptr->i_object.fails);
+	}
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -1865,6 +1888,15 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 
 	/* Save depth */
 	p_ptr->depth = depth;
+
+	/* Place player in dungeon */
+	if (!player_place(py, px))
+	{
+		note(format("Cannot place player (%d,%d)!", py, px));
+		return (162);
+	}
+
+	/*** Room descriptions */
 #ifdef ALLOW_ROOMDESC
 
 	/* Initialize the room table */
@@ -1876,35 +1908,9 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		}
 	}
 
-        /* Hack --- initialize room descriptions */
-
-        if (p_ptr->depth)
-        {
-                /* Hack -- Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "empty room");
-                strcpy(room_info[0].text_visible, "");
-                strcpy(room_info[0].text_always, "");
-                room_info[0].seen = FALSE;
-        }
-        else
-        {
-                /* Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "town");
-                strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
-                strcpy(room_info[0].text_always, "It feels like home.");
-                room_info[0].seen = FALSE;
-        }
-
-
+        /* Initialise 'zeroeth' room description */
+        room_info[0].seen = FALSE;
 #endif
-
-	/* Place player in dungeon */
-	if (!player_place(py, px))
-	{
-		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
-	}
-
 
 	/*** Objects ***/
 
@@ -2488,41 +2494,60 @@ static errr rd_dungeon(void)
 	/* Save depth */
 	p_ptr->depth = depth;
 
-#ifdef ALLOW_ROOMDESC
-
-	/* Initialize the room table */
-        for (by = 0; by < MAX_ROOMS_ROW; by++)
-	{
-                for (bx = 0; bx < MAX_ROOMS_COL; bx++)
-		{
-			dun_room[by][bx] = 0;
-		}
-	}
-
-        if (p_ptr->depth)
-        {
-                /* Hack -- Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "empty room");
-                strcpy(room_info[0].text_visible, "");
-                strcpy(room_info[0].text_always, "");
-                room_info[0].seen = FALSE;
-        }
-        else
-        {
-                /* Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "town");
-                strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
-                strcpy(room_info[0].text_always, "It feels like home.");
-                room_info[0].seen = FALSE;
-        }
-#endif
-
 	/* Place player in dungeon */
 	if (!player_place(py, px))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (162);
 	}
+
+	/*** Room descriptions ***/
+#ifdef ALLOW_ROOMDESC
+
+	if (older_than(2,9,2))
+	{
+		/* Initialize the room table */
+	        for (by = 0; by < MAX_ROOMS_ROW; by++)
+		{
+	                for (bx = 0; bx < MAX_ROOMS_COL; bx++)
+			{
+				dun_room[by][bx] = 0;
+			}
+		}
+
+	        /* Initialise 'zeroeth' room description */
+	        room_info[0].seen = FALSE;
+
+	}
+	else
+	{
+
+		for (bx = 0; bx < MAX_ROOMS_ROW; bx++)
+		{
+			for (by = 0; by < MAX_ROOMS_COL; by++)
+			{
+				rd_byte(&dun_room[bx][by]);
+			}
+		}
+
+		for (i = 1; i < DUN_ROOMS; i++)
+		{
+			rd_byte(&room_info[i].type);
+			rd_byte(&room_info[i].seen);
+
+			if (room_info[i].type == ROOM_NORMAL)
+			{
+				for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+				{
+					rd_s16b(&room_info[i].section[j]);
+
+					if (room_info[i].section[j] == -1) break;
+				}
+			}
+		}
+	}
+
+#endif
 
 
 	/*** Objects ***/
@@ -2811,6 +2836,7 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -2855,9 +2881,75 @@ static errr rd_savefile_new_aux(void)
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
+
+		if (older_than(2,9,2))
+		{
+	
+		}
+
+		else
+		{
+			artifact_type *a_ptr = &a_info[i];
+
+			/* Knowledge */
+			rd_u32b(&a_ptr->i_artifact.can_flags1);
+			rd_u32b(&a_ptr->i_artifact.can_flags2);
+			rd_u32b(&a_ptr->i_artifact.can_flags3);
+
+			rd_u32b(&a_ptr->i_artifact.not_flags1);
+			rd_u32b(&a_ptr->i_artifact.not_flags2);
+			rd_u32b(&a_ptr->i_artifact.not_flags3);
+
+			rd_s16b(&a_ptr->i_artifact.usage);
+			rd_s16b(&a_ptr->i_artifact.fails);
+		}
+
 	}
+
 	if (arg_fiddle) note("Loaded Artifacts");
 
+	if (older_than(2,9,2))
+	{
+	
+	}
+	else
+	{
+		/* Load the Ego items */
+		rd_u16b(&tmp16u);
+
+		/* Incompatible save files */
+		if (tmp16u > z_info->e_max)
+		{
+			note(format("Too many (%u) ego items!", tmp16u));
+			return (24);
+		}
+
+		/* Read the ego item flags */
+		for (i = 0; i < tmp16u; i++)
+		{
+
+			ego_item_type *e_ptr = &e_info[i];
+
+			/* Knowledge */
+			rd_u32b(&e_ptr->i_ego_item.can_flags1);
+			rd_u32b(&e_ptr->i_ego_item.can_flags2);
+			rd_u32b(&e_ptr->i_ego_item.can_flags3);
+
+			rd_u32b(&e_ptr->i_ego_item.may_flags1);
+			rd_u32b(&e_ptr->i_ego_item.may_flags2);
+			rd_u32b(&e_ptr->i_ego_item.may_flags3);
+
+			rd_u32b(&e_ptr->i_ego_item.not_flags1);
+			rd_u32b(&e_ptr->i_ego_item.not_flags2);
+			rd_u32b(&e_ptr->i_ego_item.not_flags3);
+
+			rd_s16b(&e_ptr->i_ego_item.usage);
+			rd_s16b(&e_ptr->i_ego_item.fails);
+		}
+
+	}
+
+	if (arg_fiddle) note("Loaded Ego Items");
 
 	/* Read the extra stuff */
 	if (rd_extra()) return (25);

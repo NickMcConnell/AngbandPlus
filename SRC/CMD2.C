@@ -2503,7 +2503,7 @@ void do_cmd_fire(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (shoot_style & (1L << p_ptr->pstyle))))
+                if ((w_info[i].styles==0) || (w_info[i].styles & (shoot_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{

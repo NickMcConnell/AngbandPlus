@@ -1,3 +1,62 @@
+13-11-2001 Unangband 0.4.4 "Lost Legends"
+- Lots of changes lost because I had my laptop stolen :( Lesson. Back
+up to ftp when you are doing stuff (The Linus backup technique).
+- Lost changes (Just to make you guys sick): Another 600-700 monsters.
+Another 200-300 items. Updates to Unangband to include to JLE 2.9.3
+patch. Work on Unangband borg. Implementation of some of what I did
+on todo list on web site (And discovered a lot of it doesn't add to
+game play much). Two weapon combat (Easy enough to reimplement).
+- Stuff I lost that annoys me: Bug fixes.
+- Decided to change direction. Rather than running off and creating 
+a full fledged varient, I will maintain Unangband pretty much in its
+current form, but continue to update it to match the latest version of
+Angband.
+- I will wait until Angband 2.9.4 comes out before updating however,
+as I want the random artifact code and big screen patches.
+- However, I don't want scripting (At this stage). So I'll probably
+roll back lua changes.
+- Will try and get feature flag code and item memory code into main
+tree as these are the two most wide ranging changes (From a code
+point of view), and will create the most work for me to keep updating.
+They are also most 'value-add' to Angband as far as I can tell.
+- I suspect item memory code will be 'impossible' because of lua
+changes however.
+- I'll consider proposing to Oangband guys to work on incorporating
+Unangband features into Oangband code base. This varient seems to
+be the most progressive in terms of maintaining play balance while
+improving the game.
+- If I could I'd spend as much time developing as Dark God and friends
+and come out with the full fledged varient with wilderness, allies,
+quests etc. But I can't (At least not until I retire in 50+ years).
+Sorry guys.
+ACTUAL CHANGES CONTINUE FROM HERE:
+- Made Druids get Magic Missle at level 1.
+- Changed it so that the smart monster spell selection randomly
+resolves tie breakers.
+- Made warriors of all types get 1 extra blow at level 1 in their
+speciality (Except missile weapons, who get 1 extra shot),
+as well as rangers, paladins and archers. Non-specialists always
+get an extra blow (or shot for archers).
+- Made druids get icky weapon penalties, when not using
+their preferred weapon, or when otherwise specialised.
+- Made bards only get icky hands if instrument.
+- Made thieves of all types get 1 extra critical at level 1 in their
+speciality. Non-specialists always get this benefit.
+- Added object information and room description to save files.
+- Added 2.9.4-alpha version of the JLE artifact and ego item patches,
+including addition of Slay Evil to Defender weapons.
+- If you want to dust off any pre 2.9.2 Angband save files, this version
+should be (mostly) compatible. Ego items will be a problem in some
+instances (Boots/cloaks/shields particularly).
+- Ego items memory guesses one ability/sustain/resist abilities now,
+and hackily always knows what items do not have xtra abilities.
+- Objects such as blades of chaos don't taint ego item memory.
+- Ego item and artifact memory should be retained from game to game.
+- Allow DROP_GOOD monsters to drop deep scrolls and potions.
+- Require ego items dropped by DROP_GREAT monsters to have at least
+a minimum level of 1, or minimum 1000 gp cost.
+- Modify the depths of ego items to provide a smoother power curve.
+
 27-07-2001 Unangband 0.4.3 "Final Fantasy fix"
 - Modify store mass produce cost limits to allow multiple scrolls of
 identify scrolls to be created in stores. Some minor fiddling with scroll

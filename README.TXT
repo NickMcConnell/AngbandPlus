@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   UnAngband 0.4.2 **    The Unnamed Angband  **
+              **   UnAngband 0.4.4 **    The Unnamed Angband  **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -28,6 +28,8 @@
 aka "Angry Young Man"
 
 This is the README file for Unnamed Angband 0.4.0 for 14 July, 2001.
+
+For a more recent list of changes, read changes.txt.
 
 Unnamed Angband adds over 100 class/style combinations to Angband,
 130 new spells, 60 new spell books and spell related objects, over

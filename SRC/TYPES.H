@@ -228,9 +228,8 @@ struct desc_type
 
 struct room_info_type
 {
-	char name[32];
-	char text_visible[240];
-	char text_always[240];
+	byte type;							/* Type of room (normal/pit) */
+	s16b section[ROOM_DESC_SECTIONS];	/* Array of room descriptions */
 
 	bool seen;
 };

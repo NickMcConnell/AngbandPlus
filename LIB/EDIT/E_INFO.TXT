@@ -1,12 +1,12 @@
-# File: e_info.txt
+# File: ego_item.txt
 
 
-# This file is used to initialize the "lib/raw/e_info.raw" file, which is
+# This file is used to initialize the "lib/data/ego_item.raw" file, which is
 # used to initialize the "ego-item" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
+# After modifying this file, delete the "lib/data/ego_item.raw" file.
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
@@ -16,234 +16,85 @@
 # created from items that belong to a certain "slot" in the equipment, if
 # one assumes that "ammo" belongs to an imaginary slot (23).
 #
+# Note that the above is not true and was not true even before my patch. 
+# The 'slot' seems very useless to me right now. -MWK-
+#
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
-#   Changes made by Jonathan Ellis...
+# === Understanding ego_item.txt ===
 
-#   Elemental brands have been renamed to Fire, Frost, Lightning and Acid. 
-#   Bow of "Velocity" renamed to "Power": Velocity means "speed" where I come
-# from, and I don't see any speed bonuses on that particular ego-bow, nor should
-# there be.
-#   Ammo slays are now "Slay" instead of "Hurt": the same flag was used, not 
-# much point in the different name... 
+# N: serial number : ego type
+# X: inventory slot : rating : xtra
+# C: max to-hit : max to-dam : max to-ac : pval
+# W: depth : rarity : weight : cost
+# T: tval : min_sval : max_sval
+# F: flag | flag | etc
 
-#   From OAngband: Helmets of Serenity (resist confusion and sound.) Helmets
-# of Infravision have gone to make room (Helmets of Seeing now give 
-# infravision in addition to their original powers.) 
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
 
-#   Cloaks of Protection now give shard resistance. Took this idea from 
-# OAngband where there are Cloaks of Shard Protection. The cloaks are, however,
-# rarer than they used to be. And more expensive... (If it's any help, visualise
-# a cloak made of an exceptionally durable material that isn't slashed up easily,
-# either by weapons or by shrapnel.)
+# 'X' is for extra information - inventory slot and rating. Slots
+# range from 23 (for ammunition) to 35 (for boots). Rating affects
+# level feelings.  The xtra value determines random extra flags for
+# the ego-item.  Nothing happens with a value of 0, 1 stands for
+# "one random extra sustain", 2 is "one random extra resist", and
+# 3 is "one random extra ability".
 
-#    Acid and Lightning branded arrows.
+# 'C' is for creation bonusses - maximum to-hit, to-dam, to-ac, and
+# pval. Cursed ego-items will negate the given value.
 
-#    Weapons of Morgul are now usable by players, if you are willing to live
-# with the penalties... A weapon of Morgul will prevent most other monsters
-# from draining your life, and indeed is the only non-artifact that can do so
-# (hence, resist nether and hold life.) And this weapon, a weapon of the 
-# undead, also grants power over the undead (slay undead.) However, to use it
-# puts the wielder in danger of his very soul (it drains experience) and alerts
-# the netherworld to the presence of the wielder (aggravate monster.) Add to
-# this the fact that it may have penalties to-hit and to-dam...
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
 
-#    Holy Avengers, crowns of Lordliness and Serenity resist fear.
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
 
-#    Change by Matthias Kurzke: I have adapted this file for usage with my
-# 'dyanmic e_info' patch. It should produce a nearly identical ego-item 
-# distribution as Jonathan Ellis' original. (Differences are less than 1%,
-# mostly 0%).
+# 'T' is for possible 'tval' and 'sval' values of the base-item.
+# Up to three 'T' entries are possible for a single object. The
+# ego-item can only be generated from items of this tval, with sval
+# in the specified range.
 
-# Further changes since then, made by Jonathan Ellis (JLE):
+# New ego-items added by JLE are:
+# 10: Armor of Vulnerability (cursed ego-type for armor)
+# 12: Dwarven Armor (heavy metal armor only)
+# 21: Shield of Elvenkind (returning from Angband 2.7.8 and previous versions)
+# 22: Shield of Preservation
+# 23: Shield of Vulnerability (cursed ego-type for shields)
+# 36: Crown of Serenity (adapted from OAngband: replaces Helm of Stupidity)
+# 37: Crown of Night & Day (partially adapted from an OAngband ego-item)
+# 43: Cloak of the Magi
+# 52: Gloves of Thievery (leather gloves only)
+# 53: Gauntlets of Combat (gauntlets and cesti only)
+# 60: Boots of Stability (from OAngband)
+# 61: Boots of Elvenkind (replaces Boots of Noise - too many cursed types of boot)
+# 67: Weapon of Gondolin (rarer and more powerful than Westernesse)
+# 70: Weapon of Fury (nastier than a Weapon of Extra Attacks, but also aggravates)
+# 76: Weapon of Venom (Poison Brand: does NOT, however, provide poison resist)
+# 101: Shovel/Pick of Impact
+# 106: Bow of Lothlorien
+# 107: Crossbow of the Haradrim
+# 110: Sling of Buckland
+# 111: Bow/Crossbow of the Nazgul (cursed bow ego-type)
+# 120: Ammo of Holy Might (seeker, silver and mithril stuff only)
+# 121: Ammo of Venom
 
-#    Some item rarities have been tweaked. JLE thought that the shields should
-# be like the armor in that all four of the "standard" four single-resist ego-
-# types should be about the same rarity.
+# Changes for Unangband.
 
-#    Which items can be helmets and crowns has also been redone. It works as 
-# follows:
-# - single-stat helms are only caps/helmets, not crowns. Light and Regeneration
-#   likewise belong to helms only.
-# - Crowns of Might, Lordliness and the Magi can only be crowns, not helmets. A 
-#   new ego-type (of Night and Day) can also only be crowns.
-# - Telepathy, Seeing and Serenity apply to both crowns and helms.
-# - Of the cursed items: Teleportation is helms only, Dullness is crowns only, 
-#   Sickliness is both.
-
-#    Boots of Stability -  resist nexus and feather fall. Rarer than any other
-# boots except speed.
-
-#    *Slay* extra bonuses have been reworked. *Slay Demon* provides resistance
-# to fire, as many demons use fire attacks, in addition to its int bonus. *Slay 
-# Undead* keeps its see invis and blessed state. *Slay Troll* allows you to 
-# regenerate like a troll and increases your strength. *Slay Giant* gives you
-# the strength of a giant and sustains that strength. *Slay Orc* gives you 
-# sustain dexterity as well as a dex bonus. *Slay Dragon* of course has kill 
-# dragon and constitution. *Slay Animal* allows you to go for days without food,
-# like many hunting animals, as well as giving you intelligence. *Slay Evil* is
-# blessed and has a wisdom bonus.
-
-#    A "bad" ego-type for both armor and shields: Vulnerability (in both cases.)
-# This has been added in case anybody ever wants to adopt JLE's suggestion of 
-# changing pseudo-ID so that "cursed" items can masquerade as "good" items
-# until magically identified (i.e. both "good" and "cursed" pseudo-ID as "magic", 
-# both "excellent" and "worthless" become "extraordinary", both "special" and
-# "terrible" become "unique") in accordance with the long-held AD&D principle - 
-# so that you can't automatically put on an "extraordinary" armor knowing that 
-# there is no cursed type of armor. Vulnerability cloaks no longer exist.
-
-#    Boots of Annoyance no longer exist, and the helmets of Stupidity, Naivety
-# and Ugliness have been combined into one of "Dullness". This is to make way 
-# for the potential creation of more ego-types of helmet.
-
-#    A "bad" ego-type for bows as well: the bows of the Nazgul are cursed and
-# drain experience, but permit the player to see into the wraith-world (see 
-# invisible.) So now, every type of item has either one or two "bad" ego-types:
-# crowns and helms have three between them, but one is only applicable to 
-# crowns (Dullness) and one to helms (Teleportation): both can get Sickliness.
-
-#    Ammo no longer slays orcs or trolls, only the more wide-ranging x2 slays
-# (animal and evil) and the "big three" x3 slays - demons, undead and dragons.
-# Slay Giant has also been retained for the benefit of Titans, and Wounding is 
-# of course common.
-
-#    The Gauntlets formerly known as Power are now "of Combat" (so as to avoid
-# confusion with missile launchers of Power) and are only for gauntlets and 
-# cesti, not leather gloves. Think big metal gauntlets with spikes... And they 
-# have a minimum depth as well.
-
-#    Pinched from OAngband (like so many other of my ideas :-) Dwarven Armor.
-# May only be heavy armor, metal scale mail and upwards - not rusty chain mail 
-# as dwarven stuff does not rust. In fact, it cannot be damaged by anything, 
-# and furthermore provides a big AC bonus, free action and small bonuses to 
-# strength and constitution.
-
-#    Normal missile launchers of Extra Might can only have a +1 bonus. No more 
-# Heavy Crossbows of Extra Might (+2) that are really (x6). But look at what else 
-# you're getting (see below.) Only the new, rarer and special types of missile 
-# launcher can have the +2 bonus to extra might.
-
-### Some new ego-items have been added that are depth-dependent. They are 
-### usually rarer than other ego-types. And often more powerful...
-
-#    Shield of Preservation: preserves the character's body, life force and 
-# magical equipment (sustain str, con and dex, hold life, disenchantment
-# resistance, one other random resist.)
-
-#    Crown of Night and Day: basically an improvement on a Cap of Light, in 
-# that it grants resistance to light and darkness as well as providing 
-# permanent light.
-
-#    Gloves of Thievery: only leather gloves, not gauntlets or cesti. Provide
-# dexterity, free action, searching and feather fall, and a bonus to-hit but 
-# not to-dam.
-
-#    Boots of Elvenkind - speed (up to +5), stealth, feather fall. Leather 
-# boots only, not metal shod. Boot rarities have been tweaked to make sure 
-# that boots providing speed are no more common than they used to be. (Now 
-# 3 in 60 rather than what I originally remember as being 1 in 25, but one
-# of the types of speed-providing boot can only give up to +5. This leaves
-# the *average* plus to-speed, counted across all ego-boots, at 0.23 - as 
-# opposed to 0.22 before the changes. Don't go calling me generous, now...)
-
-#    Blade of Gondolin: slays demon, orc, troll and dragon. Provides one 
-# random ability, plus permanent light (it shines when there are enemies 
-# about - which is *everywhere* in Angband) and resist darkness. Sharp 
-# (non-priestly) weapons only.
-
-#    Weapon of Fury: heavy weapons only, give up to 2 extra attacks and have 
-# big to-hit and to-damage bonuses and resist fear. But they aggravate. It is 
-# intended to give them a penalty to-AC if someone can be bothered to tweak the 
-# code to allow negative bonuses to non-cursed items - and positive bonuses to
-# cursed items. This already exists in SAngband and OAngband (hint, hint.) And
-# if anyone knows how to give this item an activation for Berserk Fury...
-
-#    Sling of Buckland: gives up to +2 dex, extra might and shots. A sling, at last,
-# which can compete with bows and crossbows in the later stages of the game. No 
-# special to-hit or damage bonuses, though, unlike the new ego bows and crossbows.
-# The chance of getting +2 extra shots with a x4 sling is enough - even if you do
-# consider that the ammo's base damage is no more than 1d3 for iron shots.
-
-#    Bow of Lothlorien: up to +2 extra might and dex, random ability, free 
-# action, and +10 each to-hit and to-dam.
-
-#    Crossbow of the Haradrim: a simple yet unsubtle damage machine, extra might 
-# *and* shots (but only +1), damage bonus higher than normal.
-
-#    Ammo of Holy Might - can only be heavy ammo (seeker bolts, iron shots, 
-# seeker arrows): slay demon, undead, evil, fire brand.
+# Added Slay Evil to Defender. Made Blessed weapons have a high resist rather than
+# special ability (Should make them more useful sometimes, except for telepathy).
+# Moved some of these items around for compatibility with Unangband save files.
+# Heavily discounted basic slay weapons and made more common, so that low level
+# characters are more likely to find and use them.
+# Added 4 additional 'branded' ego weapons, Enchanted weapon, and other ego items.
 
 # Version stamp (required)
 
-# Changes for Unangband
+V:2.9.2
 
-# Combined armour and shields, so that X: slot is now
-# ignored, and the tval of the weapon is the only determining factor. There are
-# a number of items that are expanded to multiple types, particularly cursed items.
-
-# Removed aggravation from Vulneribility, so that negative AC is the only penalty.
-# Removed speed from boots/cloaks of Elvenkind, and made a lot more common.
-
-# Weapons of Venom: Poison brand, but no resistance.
-
-# Enchanted weapons: Add to intelligence and have a special ability. Blessed now has
-# a random high resist.
-
-# Acid wit weapons: Acid brand, resist acid, wisdom, slow digestion, random
-# special ability.
-# Thunder head weapons: Lightening brand, resist electricity, intelligence,
-# random special ability.
-# Flame tongue weapons: Fire brand, resist fire, charisma, random special
-# ability.
-# Frost heart weapons: Frost brand, resist cold, constitution, random special
-# ability.
-
-# Armour/Shields of Resist Shards
-# Armour/Shields of Resist Nether
-# Armour/Shields of Resist Nexus
-
-# Helms/Crowns of Brilliance: Intelligence, Light, Resist Light.
-# Cloak of Shadows: Resist Dark, high Stealth.
-# Cloak of Silence: Resist Sound, high Stealth.
-# Shield/Robe/Cloak of Deflection: High AC, ignore acid.
-# Crown of Purity: Resist poison.
-# Gloves of Defence: High ac.
-
-# Seven league boots: Old Elvenkind speed bonus, Teleport, Free Action, not
-# cursed.
-# Spiderthread cloak: Old Protection.
-# Elven armour/cloaks: Old Elvenkind (To distinguish from boots) and Dexterity.
-# Note that no longer has low resists.
-
-# Removed low resists from Preservation/Permanence robes/shields/cloaks
-# and Defender weapons and decreased cost/rarity. Increased rarity of 
-# Resistance items.
-
-# Removed see invisible from Holy Avenger, Defender, of Gondolin, of Westernesse,
-# wisdom from Holy Avenger, Free action from Westernesse, (Dwarven) to make
-# high slay weapons more attractive and to differentiate various kinds of high
-# weapons.
-
-# Made Holy Avenger, Defender, Westernesse, Spiderthread, and high slay and
-# new elemental weapons only appear deeper in the dungeon.
-
-# These removals should make it harder to get a complete 'set' of resistances
-# without artifacts. But at the same time, we provide additional items to allow
-# more possible combinations to fill out the gaps. This should make higher
-# level characters have more varied combinations of equipment.
-
-# Added resist fire/acid to dwarven armour and res cold/elec to elven armour
-# so that it is easier to cover the low resistances. Also add resist poison
-# to crown/robes of the magi.
-
-# 
-
-V:2.9.1
-
-
-### Body Armor / Shields ###
+### Body Armor & Shields ###
 
 N:1:of Resist Shards
 X:30:20:0
@@ -303,7 +154,7 @@ F:RES_COLD | IGNORE_COLD
 
 N:8:of Resistance
 X:30:20:0
-W:0:4:0:12500
+W:10:2:0:12500
 C:0:0:10:0
 T:34:0:99
 T:36:0:99
@@ -311,48 +162,51 @@ T:37:0:99
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# Armour/Cloaks
+### Body Armor & Cloaks ###
 
 N:9:(Elven)
 X:30:25:2
-W:0:4:0:4000
+W:20:4:0:15000
 C:0:0:10:3
 T:35:0:99
 T:36:0:99
 T:37:0:99
-F:STEALTH | DEX |
-F:RES_ELEC | RES_COLD |
+F:STEALTH | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:10:of Vulnerability
 X:30:0:0
-W:0:4:0:0
+W:127:1:0:0
 C:0:0:50:0
 T:35:0:99
 T:36:0:99
 T:37:0:99
 F:LIGHT_CURSE
 
-### Robes/Cloaks ###
+### Robes only ###
 
 N:11:of Permanence
 X:30:30:2
-W:0:2:0:15000
+W:40:4:0:30000
 C:0:0:20:0
-T:35:0:99
 T:36:2:2
 F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | 
+F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-### Heavy metal armor ###
+### Heavy metal armor only, not rusty & heavy shields ###
 
 N:12:(Dwarven)
-X:32:18:0
-W:0:2:0:3000
+X:30:18:0
+W:20:2:0:5000
 C:0:0:15:2
+T:35:5:99
 T:37:3:99
-F:IGNORE_ACID | IGNORE_FIRE | RES_ACID | RES_FIRE |
-F:STR | CON | INFRA | HIDE_TYPE
+F:IGNORE_ACID | IGNORE_FIRE | 
+F:FREE_ACT | 
+F:STR | CON | INFRA | HIDE_TYPE | 
+
 
 ### Shields/Robes/Cloaks ###
 
@@ -375,25 +229,30 @@ T:35:0:99
 T:36:2:2
 F:IGNORE_ACID
 
-# Body Armour / Shields
-
-N:15:of Resist Heat and Cold
+N:15:of Resist Heat & Cold
 X:30:14:0
-W:0:2:0:1200
+W:5:2:0:1200
 T:34:0:99
+T:35:0:99
 T:36:0:99
-T:37:0:99
 F:RES_FIRE | IGNORE_FIRE | RES_COLD | IGNORE_COLD
 
 # Crown
 
 N:16:of Purity
 X:33:6:0
-W:0:2:0:2000
+W:10:2:0:2000
+C:0:0:0:4
 T:33:0:99
-F:RES_POIS
+F:RES_POIS | CHA
 
-# 17 unused
+N:17:of Brilliance
+X:33:11:0
+W:10:2:0:1000
+C:0:0:0:5
+T:32:0:99
+T:33:0:99
+F:LITE | RES_LITE | INT | SUST_INT
 
 # 18 unused
 
@@ -405,16 +264,15 @@ F:RES_POIS
 
 # 22 unused
 
-# Cursed Armour/Shields
-
 N:23:of Aggravation
-X:30:0:0
-W:0:4:0:0
-C:0:0:25:6
+X:32:0:0
+W:127:1:0:0
+C:0:0:50:6
 T:34:0:99
 T:36:0:99
 T:37:0:99
-F:AGGRAVATE | LIGHT_CURSE | CHR
+F:AGGRAVATE | LIGHT_CURSE | CHA
+
 
 ### Crowns and Helms ###
 
@@ -442,91 +300,91 @@ F:CHR | SUST_CHR
 #Robes/Crown
 
 N:27:of the Magi
-X:33:19:3
-W:0:4:0:12500
+X:33:15:3
+W:20:4:0:7500
 C:0:0:0:3
 T:33:0:99
 T:36:2:2
 F:INT | SUST_INT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_POIS
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#Crown/Helmet/Gauntlets
+#Crown/Gauntlets
 
 N:28:of Might
-X:33:19:0
-W:0:4:0:2000
+X:33:19:3
+W:10:4:0:7500
 C:0:0:0:3
-T:33:0:99
 T:31:2:99
-F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT 
+T:33:0:99
+F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:29:of Lordliness
-X:33:17:0
-W:0:4:0:2000
+X:33:17:3
+W:10:2:0:7500
 C:0:0:0:3
 T:33:0:99
 F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FEAR
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:30:of Seeing
 X:33:8:0
-W:0:2:0:1000
+W:0:2:0:2000
 C:0:0:0:5
 T:33:0:99
 T:32:0:99
-F:SEARCH | RES_BLIND | SEE_INVIS | INFRA
+F:SEARCH | RES_BLIND | SEE_INVIS
 
-N:31:of Light
+N:31:of Infravision
 X:33:11:0
 W:0:2:0:500
 C:0:0:0:5
 T:32:0:99
-F:LITE
+F:INFRA | HIDE_TYPE
 
-N:32:of Regeneration
+N:32:of Light
 X:33:6:0
-W:0:2:0:500
+W:0:2:0:1000
 T:32:0:99
-F:REGEN
+F:LITE | RES_LITE
 
 N:33:of Telepathy
 X:33:20:0
-W:0:6:0:50000
+W:20:6:0:50000
 T:32:0:99
 T:33:0:99
 F:TELEPATHY
 
-N:34:of Serenity
-X:33:20:0
-W:0:6:0:4000
+N:34:of Regeneration
+X:33:10:0
+W:0:4:0:1500
 T:32:0:99
+T:33:0:99
+F:REGEN
+
+N:35:of Teleportation
+X:33:0:0
+W:0:2:0:0
+T:32:0:99
+F:TELEPORT | LIGHT_CURSE
+
+N:36:of Serenity
+X:33:20:0
+W:20:6:0:4000
 T:33:0:99
 F:RES_SOUND | RES_CONFU | RES_FEAR
 
-N:35:of Night and Day
+N:37:of Night and Day
 X:33:18:0
-W:35:6:0:3000
+W:35:6:0:4000
 T:33:0:99
-F:RES_LITE | RES_DARK | LITE
-
-N:36:of Brilliance
-X:33:11:0
-W:0:2:0:500
-C:0:0:0:5
-T:32:0:99
-T:33:0:99
-F:LITE | RES_LITE | INT | SUST_INT
-
-N:37:of Teleportation
-X:33:0:0
-W:0:3:0:0
-T:32:0:99
-F:TELEPORT | LIGHT_CURSE
+F:RES_LITE | RES_DARK | LITE | SEE_INVIS | RES_BLIND | IGNORE_ACID
 
 N:38:of Dullness
 X:33:0:0
 C:0:0:0:5
-W:0:4:0:0
+W:0:2:0:0
 T:32:0:99
 T:33:0:99
 F:INT | WIS | CHR | LIGHT_CURSE
@@ -534,7 +392,7 @@ F:INT | WIS | CHR | LIGHT_CURSE
 N:39:of Sickliness
 X:33:0:0
 C:0:0:0:5
-W:0:5:0:0
+W:0:2:0:0
 T:33:0:99
 F:STR | DEX | CON | LIGHT_CURSE
 
@@ -543,7 +401,7 @@ F:STR | DEX | CON | LIGHT_CURSE
 
 N:40:(Spiderthread)
 X:31:15:0
-W:20:2:0:1500
+W:0:2:0:1500
 C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | RES_SHARD
@@ -553,23 +411,25 @@ X:31:10:0
 W:0:1:0:500
 C:0:0:0:3
 T:35:0:99
-T:30:0:99
-F:STEALTH | HIDE_TYPE
+F:STEALTH
 
 N:42:of Aman
 X:31:20:2
-W:0:7:0:4000
-C:0:0:20:4
+W:20:6:0:4000
+C:0:0:20:3
 T:35:0:99
 F:STEALTH | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:43:of Shadows
 X:31:15:0
-W:0:4:0:1500
+W:10:4:0:1500
 C:0:0:0:5
 T:35:0:99
 F:STEALTH | RES_DARK | HIDE_TYPE
+
+
+# Cloaks/Boots
 
 N:44:of Silence
 X:31:15:0
@@ -578,8 +438,6 @@ C:0:0:0:5
 T:30:2:3
 T:35:0:99
 F:STEALTH | RES_SOUND | HIDE_TYPE
-
-# Cloaks/Boots
 
 N:45:of Elvenkind
 X:31:15:0
@@ -614,11 +472,9 @@ F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 N:48:of Free Action
 X:34:11:0
 F:FREE_ACT
-W:0:3:0:1000
-T:31:0:99
+W:5:4:0:1000
 T:30:0:99
-
-### Gloves ###
+T:31:0:99
 
 N:49:of Slaying
 X:34:17:0
@@ -634,39 +490,41 @@ C:0:0:0:5
 T:31:0:99
 F:DEX | HIDE_TYPE
 
-N:51:of Combat
+N:51:of Power
 X:34:22:0
-W:30:12:0:2500
-C:5:7:0:5
-T:31:2:99
+W:0:6:0:2500
+C:5:5:0:5
+T:31:0:99
 F:STR | SHOW_MODS | HIDE_TYPE
 
 N:52:of Thievery
 X:34:22:0
-W:30:12:0:5000
-C:10:0:0:5
+W:40:12:0:5000
+C:8:3:0:5
 T:31:1:1
 F:DEX | SEARCH | SHOW_MODS | FEATHER | FREE_ACT | HIDE_TYPE
 
-N:52:of Defence
-X:34:12:0
-W:30:12:0:300
-C:0:0:20:5
-T:31:1:1
+N:53:of Combat
+X:34:22:0
+W:50:12:0:7000
+C:3:8:0:2
+T:31:2:99
+F:STR | CON | SHOW_MODS | AGGRAVATE | HIDE_TYPE
 
 N:54:of Weakness
 X:34:0:0
-W:0:6:0:0
+W:0:2:0:0
 C:0:0:0:10
 T:31:0:99
 F:STR | LIGHT_CURSE | HIDE_TYPE
 
 N:55:of Clumsiness
 X:34:0:0
-W:0:6:0:0
+W:0:2:0:0
 C:0:0:0:10
 T:31:0:99
 F:DEX | LIGHT_CURSE | HIDE_TYPE
+
 
 ### Boots ###
 
@@ -676,65 +534,73 @@ W:0:5:0:250
 T:30:0:99
 F:FEATHER
 
-N:59:of Speed
-X:35:25:0
-W:0:25:0:100000
-C:0:0:0:10
-T:30:0:99
-F:SPEED | HIDE_TYPE
+# 57 unused
 
-# Cloak/Boots
-
-N:60:of Stability
-X:35:20:0
-W:0:11:0:5000
-T:30:0:99
-T:35:0:99
-F:RES_NEXUS | FEATHER
-
-# Boots
-
-N:61:(Seven League)
+N:58:(Seven League)
 X:35:30:0
-W:65:40:0:100000
+W:35:40:0:50000
 C:0:0:0:5
 T:35:0:99
 F:SPEED | STEALTH | TELEPORT | FREE_ACT
 
+N:59:of Speed
+X:35:25:0
+W:0:24:0:100000
+C:0:0:0:10
+T:30:0:99
+F:SPEED | HIDE_TYPE
+
+#Cloak/Boots
+
+N:60:of Stability
+X:35:20:0
+W:20:10:0:5000
+T:30:0:99
+F:RES_NEXUS | FEATHER
+
+N:61:of *Elvenkind*
+X:35:30:0
+W:60:30:0:200000
+C:0:0:0:5
+T:30:2:3
+F:STEALTH | SPEED | HIDE_TYPE | FEATHER | IGNORE_ACID | IGNORE_FIRE
+
 N:62:of Slowness
 X:35:0:0
-W:0:10:0:0
+W:0:5:0:0
 C:0:0:0:5
 F:SPEED | LIGHT_CURSE | HIDE_TYPE
 T:30:0:99
 
-N:63:of Noise
+N:63:of Annoyance
 X:35:0:0
 W:0:10:0:0
-C:0:0:0:5
-F:STEALTH | AGGRAVATE | LIGHT_CURSE | HIDE_TYPE
+C:0:0:0:10
+F:SPEED | STEALTH | AGGRAVATE | LIGHT_CURSE | HIDE_TYPE
 T:30:0:99
 
 ### Weapons ###
 
 N:64:(Holy Avenger)
 X:24:30:1
-W:30:10:0:10000
+W:30:12:0:20000
 C:6:6:4:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
+F:WIS | 
 F:SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
-F:BLESSED | RES_FEAR
+F:SEE_INVIS | BLESSED | RES_FEAR
 
 N:65:(Defender)
 X:24:25:1
-W:30:10:0:5000
+W:20:12:0:15000
 C:4:4:8:4
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:STEALTH | FREE_ACT | FEATHER | REGEN | 
+F:STEALTH | FREE_ACT | SEE_INVIS | FEATHER | REGEN | SLAY_EVIL |
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:66:(Blessed)
@@ -748,54 +614,58 @@ F:WIS | BLESSED
 
 N:67:of Gondolin
 X:24:30:3
-W:30:25:0:20000
+W:40:20:0:25000
 C:7:7:0:0
+T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_DEMON | SLAY_ORC | SLAY_TROLL | SLAY_DRAGON | 
-F:LITE | RES_DARK | IGNORE_ACID | IGNORE_FIRE
+F:LITE | RES_DARK | SEE_INVIS | FREE_ACT | 
+F:IGNORE_ACID | IGNORE_FIRE
 
 N:68:of Westernesse
 X:24:20:0
-W:30:10:0:10000
+W:30:10:0:20000
 C:5:5:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:STR | DEX | CON | 
-F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | 
+F:FREE_ACT | SEE_INVIS
 
 N:69:of Extra Attacks
 X:24:20:0
-W:0:10:0:10000
+W:20:10:0:10000
+C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:0:0:0:2
 F:BLOWS | HIDE_TYPE
 
 N:70:of Fury
 X:24:30:0
-W:40:33:0:20000
+W:40:20:0:20000
 T:21:12:99
 T:22:10:99
 T:23:16:99
-C:10:10:0:2
-F:BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE | IGNORE_ACID | IGNORE_FIRE
+C:10:10:0:2 
+F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE | 
+F:IGNORE_ACID | IGNORE_FIRE
+
+# The "Branded" weapons (9)
 
 N:71:of Venom
 X:24:15:0
-W:0:10:0:2000
+W:5:8:0:2000
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_POIS
 
-# The "Elemental" brands (4)
-
 N:72:of Acid
-X:24:15:0
-W:0:10:0:8000
+X:24:20:0
+W:10:10:0:5000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -803,15 +673,15 @@ F:BRAND_ACID | RES_ACID | IGNORE_ACID
 
 N:73:of Lightning
 X:24:20:0
-W:0:10:0:4500
+W:10:10:0:4500
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC
 
 N:74:of Flame
-X:24:20:0
-W:0:10:0:3000
+X:24:15:0
+W:5:8:0:3500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -819,7 +689,7 @@ F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE
 
 N:75:of Frost
 X:24:15:0
-W:0:10:0:2500
+W:5:8:0:3000
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -861,11 +731,13 @@ T:22:0:99
 T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD | CON
 
-# The "Slay" brands (8)
+# The "Slay" weapons (8)
+
+# Heavily discounted, so they might be purchased and used at low levels.
 
 N:80:of Slay Animal
 X:24:18:0
-W:0:6:0:3500
+W:0:6:0:600
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -873,7 +745,7 @@ F:SLAY_ANIMAL
 
 N:81:of Slay Evil
 X:24:18:0
-W:0:6:0:3500
+W:0:6:0:600
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -881,15 +753,15 @@ F:SLAY_EVIL
 
 N:82:of Slay Undead
 X:24:18:0
-W:0:6:0:3500
-T:21:0:99
+W:0:6:0:700
+T:21:0:18
 T:22:0:99
 T:23:0:99
 F:SLAY_UNDEAD
 
 N:83:of Slay Demon
 X:24:14:0
-W:0:6:0:2500
+W:0:6:0:700
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -897,7 +769,7 @@ F:SLAY_DEMON
 
 N:84:of Slay Orc
 X:24:10:0
-W:0:6:0:2500
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -905,7 +777,7 @@ F:SLAY_ORC
 
 N:85:of Slay Troll
 X:24:10:0
-W:0:6:0:2500
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -913,7 +785,7 @@ F:SLAY_TROLL
 
 N:86:of Slay Giant
 X:24:14:0
-W:0:6:0:2500
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -921,17 +793,17 @@ F:SLAY_GIANT
 
 N:87:of Slay Dragon
 X:24:18:0
-W:0:6:0:3500
+W:0:6:0:700
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SLAY_DRAGON
 
-# The "Kill" brands (8)
+# The *Slay* weapons (8)
 
 N:88:of *Slay Animal*
 X:24:20:0
-W:20:25:0:6000
+W:10:20:0:6000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -940,7 +812,7 @@ F:INT | SLAY_ANIMAL | SLOW_DIGEST
 
 N:89:of *Slay Evil*
 X:24:20:3
-W:20:25:0:5000
+W:10:20:0:5000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -949,34 +821,34 @@ F:WIS | SLAY_EVIL | BLESSED
 
 N:90:of *Slay Undead*
 X:24:24:0
-W:20:25:0:8000
+W:10:20:0:8000
 C:0:0:0:2
-T:21:0:99
+T:21:0:18
 T:22:0:99
 T:23:0:99
-F:WIS | SLAY_UNDEAD | SEE_INVIS
+F:KILL_UNDEAD | WIS | SEE_INVIS
 
 N:91:of *Slay Demon*
 X:24:16:0
-W:20:25:0:4000
+W:10:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-F:INT | SLAY_DEMON | RES_FIRE
+F:KILL_DEMON | INT | RES_FIRE
 
 N:92:of *Slay Orc*
 X:24:14:0
-W:20:25:0:4000
+W:10:20:0:4000
+C:0:0:0:2
 T:21:0:99
 T:22:0:99
 T:23:0:99
-C:0:0:0:2
 F:DEX | SLAY_ORC | SUST_DEX
 
 N:93:of *Slay Troll*
 X:24:14:0
-W:20:25:0:4000
+W:10:20:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -985,7 +857,7 @@ F:STR | SLAY_TROLL | REGEN
 
 N:94:of *Slay Giant*
 X:24:16:0
-W:20:25:0:4000
+W:10:25:0:4000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -994,7 +866,7 @@ F:STR | SLAY_GIANT | SUST_STR
 
 N:95:of *Slay Dragon*
 X:24:24:0
-W:20:25:0:6000
+W:10:20:0:8000
 C:0:0:0:2
 T:21:0:99
 T:22:0:99
@@ -1010,31 +882,41 @@ T:22:0:99
 T:23:0:99
 F:INT
 
-N:101:of Morgul
+# 97 (unused)
+
+# 98 (unused)
+
+# 99 (unused)
+
+### Digging Tools
+
+N:100:of Digging
+X:24:4:0
+W:0:1:0:500
+C:0:0:0:4
+T:20:0:99
+F:TUNNEL | BRAND_ACID
+
+N:101:of Earthquakes
+X:24:8:0
+W:20:4:0:3000
+C:10:10:0:6
+T:20:0:99
+F:STR | TUNNEL | BRAND_ACID | IMPACT | HIDE_TYPE
+
+### Cursed Weapons
+
+N:102:of Morgul
 X:24:0:0
-W:20:16:0:0
+W:127:1:0:1
 C:0:0:0:0
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE | 
-F:RES_NETHR | HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD
+F:HOLD_LIFE | DRAIN_EXP | SLAY_UNDEAD | BRAND_POIS
 
-### Digging Implements ###
-
-N:102:of Digging
-X:24:4:0
-W:0:1:0:500
-C:0:0:0:4
-T:20:0:99
-F:TUNNEL | 
-
-N:103:of Earthquakes
-X:24:8:0
-W:20:4:0:3000
-C:10:10:0:6
-T:20:0:99
-F:STR | TUNNEL | IMPACT
+# 103 (unused)
 
 
 ### Missile Launchers ###
@@ -1042,53 +924,53 @@ F:STR | TUNNEL | IMPACT
 N:104:of Accuracy
 X:25:10:0
 W:0:1:0:1000
-C:15:0:0:0
+C:15:5:0:0
 T:19:0:99
 
 N:105:of Power
 X:25:10:0
 W:0:1:0:1000
-C:0:15:0:0
+C:5:15:0:0
 T:19:0:99
 
 N:106:of Lothlorien
 X:25:30:3
-W:60:6:0:20000
+W:50:4:0:20000
 C:10:10:0:2
 T:19:12:13
-F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE
+F:DEX | MIGHT | FREE_ACT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:107:of the Haradrim
 X:25:30:0
-W:40:6:0:20000
+W:50:4:0:20000
 C:5:15:0:1
 T:19:23:24
-F:MIGHT | SHOTS | IGNORE_ACID | IGNORE_FIRE
+F:MIGHT | SHOTS | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:108:of Extra Might
 X:25:20:0
-W:0:3:0:10000
+W:0:2:0:10000
 C:5:10:0:1
-F:MIGHT
+F:MIGHT | HIDE_TYPE
 T:19:0:99
 
 N:109:of Extra Shots
 X:25:20:0
-W:0:3:0:10000
+W:0:2:0:10000
 C:10:5:0:1
-F:SHOTS
+F:SHOTS | HIDE_TYPE
 T:19:0:99
 
 N:110:of Buckland
 X:25:25:0
-W:40:6:0:20000
-C:0:0:0:2
+W:40:4:0:20000
+C:8:8:0:2
 T:19:1:1
-F:DEX | SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE
+F:DEX | SHOTS | MIGHT | IGNORE_ACID | IGNORE_FIRE | HIDE_TYPE
 
 N:111:of the Nazgul
 X:25:0:0
-W:0:3:0:0
+W:127:1:0:0
 C:10:10:0:0
 T:19:0:99
 F:LIGHT_CURSE | DRAIN_EXP | SEE_INVIS
@@ -1106,10 +988,10 @@ F:SLAY_ANIMAL
 
 N:113:of Slay Evil
 X:23:10:0
-W:0:6:0:20
-T:16:0:99
-T:17:0:99
-T:18:0:99
+W:10:6:0:20
+T:16:0:2
+T:17:0:2
+T:18:0:2
 F:SLAY_EVIL
 
 N:114:of Slay Undead
@@ -1128,15 +1010,23 @@ T:17:0:99
 T:18:0:99
 F:SLAY_DEMON
 
-N:116:of Slay Dragon
+N:116:of Acid
 X:23:10:0
-W:0:8:0:40
+W:20:9:0:50
 T:16:0:99
 T:17:0:99
 T:18:0:99
-F:SLAY_DRAGON
+F:BRAND_ACID | IGNORE_ACID
 
-N:117:of Slay Giant
+N:117:of Lightning
+X:23:10:0
+W:20:9:0:45
+T:16:0:99
+T:17:0:99
+T:18:0:99
+F:BRAND_ELEC | IGNORE_ELEC
+
+N:118:of Slay Giant
 X:23:10:0
 W:0:8:0:25
 T:16:0:99
@@ -1144,38 +1034,36 @@ T:17:0:99
 T:18:0:99
 F:SLAY_GIANT
 
-N:118:of Holy Might
+N:119:of Slay Dragon
+X:23:10:0
+W:0:8:0:40
+T:16:0:99
+T:17:0:99
+T:18:0:99
+F:SLAY_DRAGON
+
+N:120:of Holy Might
 X:23:20:0
 W:40:15:0:60
 C:10:10:0:0
-T:16:1:1
-T:17:2:2
-T:18:2:2
+T:16:2:99
+T:17:2:99
+T:18:2:99
 F:SLAY_EVIL | SLAY_DEMON | SLAY_UNDEAD | BRAND_FIRE | BLESSED
 F:IGNORE_FIRE | IGNORE_ACID
 
-# 119 (unused)
-
-N:120:of Acid
+N:121:of Venom
 X:23:10:0
-W:0:10:0:35
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:BRAND_ACID | IGNORE_ACID
-
-N:121:of Lightning
-X:23:10:0
-W:0:10:0:30
-T:16:0:99
-T:17:0:99
-T:18:0:99
-F:BRAND_ELEC | IGNORE_ELEC
+W:0:6:0:40
+T:16:0:2
+T:17:0:2
+T:18:0:2
+F:BRAND_POIS
 
 N:122:of Flame
 X:23:10:0
 F:BRAND_FIRE | IGNORE_FIRE
-W:0:10:0:30
+W:10:6:0:35
 T:16:0:99
 T:17:0:99
 T:18:0:99
@@ -1183,7 +1071,7 @@ T:18:0:99
 N:123:of Frost
 X:23:10:0
 F:BRAND_COLD | IGNORE_COLD
-W:0:10:0:25
+W:10:6:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
@@ -1198,7 +1086,7 @@ T:18:0:99
 
 N:125:of Backbiting
 X:23:0:0
-W:0:10:0:0
+W:127:1:0:0
 C:50:50:0:0
 T:16:0:99
 T:17:0:99
@@ -1206,6 +1094,9 @@ T:18:0:99
 F:LIGHT_CURSE
 
 ### Special Broken Items ###
+
+# these won't be generated by the make_ego_item code as long as
+# they keep their rarity of 0 and nobody adds 'T' lines for them. 
 
 # Destroyed Weapon
 N:126:(Shattered)

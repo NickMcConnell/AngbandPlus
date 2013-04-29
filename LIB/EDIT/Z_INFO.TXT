@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # Maximum number of feature types
@@ -24,7 +24,7 @@ M:D:231
 M:K:578
 
 # Maximum number of artifacts
-M:A:129
+M:A:136
 
 # Maximum number of ego-item types
 M:E:128
@@ -45,7 +45,7 @@ M:H:145
 M:C:10
 
 # Maximum number of weapon style lines
-M:W:120
+M:W:130
 
 # Maximum number of spells
 M:S:256

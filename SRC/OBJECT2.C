@@ -750,6 +750,20 @@ void object_known(object_type *o_ptr)
 
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_KNOWN);
+
+#ifdef ALLOW_OBJECT_INFO
+
+	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
+				o_ptr,o_ptr->i_object.can_flags2,
+				o_ptr,o_ptr->i_object.can_flags3);
+
+	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
+				o_ptr,o_ptr->i_object.not_flags2,
+				o_ptr,o_ptr->i_object.not_flags3);
+
+#endif
+
+
 }
 
 
@@ -1715,7 +1729,7 @@ static void object_mention(object_type *o_ptr)
  * Better only called by apply_magic()
  * The return value is currently unused, but a wizard might be interested in it.
  */
-static bool make_ego_item(object_type *o_ptr, bool cursed)
+static bool make_ego_item(object_type *o_ptr, bool cursed, bool great)
 {
 	int i, j, level;
 
@@ -1726,7 +1740,6 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 	ego_item_type *e_ptr;
 
 	alloc_entry *table = alloc_ego_table;
-
 
 	/* Fail if object already is ego or artifact */
 	if (o_ptr->name1) return (FALSE);
@@ -1777,6 +1790,9 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 		if (!cursed && (e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 		if (cursed && !(e_ptr->flags3 & TR3_LIGHT_CURSE)) continue;
 
+		/* Test if this is a great item or continue */
+		if (great && (e_ptr->cost < 1000) && (e_ptr->level == 0)) continue;
+
 		/* Test if this is a legal ego-item type for this object */
 		for (j = 0; j < 3; j++)
 		{
@@ -1789,6 +1805,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed)
 					/* Require sval in bounds, upper */
 					if (o_ptr->sval <= e_ptr->max_sval[j])
 					{
+
 						/* Accept */
 						table[i].prob3 = table[i].prob2;
 					}
@@ -2617,6 +2634,9 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
 
 
+
+
+
 /*
  * Complete the "creation" of an object by applying "magic" to the item
  *
@@ -2769,7 +2789,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		{
 			if (power) a_m_aux_1(o_ptr, lev, power);
 			if (((power > 1) ? TRUE : FALSE) || ((power < -1) ? TRUE : FALSE))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
+				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE),great);
 			break;
 		}
 
@@ -2785,7 +2805,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		{
 			if (power) a_m_aux_2(o_ptr, lev, power);
 			if (((power > 1) ? TRUE : FALSE) || (power < -1))
-				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE));
+				(void)make_ego_item(o_ptr, (bool)((power < 0) ? TRUE : FALSE),great);
 			break;
 		}
 
@@ -2963,11 +2983,22 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 			return (FALSE);
 		}
+
+		/* Scrolls/Potions -- Deep is good */
+		case TV_SCROLL:
+		case TV_POTION:
+		{
+			if (k_ptr->level >= 50) return (TRUE);
+			return (FALSE);
+		}
+
 	}
 
 	/* Assume not good */
 	return (FALSE);
 }
+
+
 
 
 
@@ -5049,11 +5080,7 @@ s16b spell_level(int spell)
 				}
 				break;
 			}
-			default:
-			{
-                                if (w_info[i].styles & p_ptr->cur_style) level -= (level - w_info[i].level)/5;
-				break;
-			}
+
 		}
 
 	}
@@ -5171,9 +5198,6 @@ bool spell_okay(int spell, bool known)
 
 	/* Spell is illegible */
 	if (!legible) return (FALSE);
-
-
-
 
 	/* Spell is illegal */
         if (spell_level(spell) > p_ptr->lev) return (FALSE);

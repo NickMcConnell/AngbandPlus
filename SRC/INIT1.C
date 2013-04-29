@@ -584,8 +584,8 @@ static cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
+	"KILL_DEMON",
+	"KILL_UNDEAD",
 	"BRAND_POIS",
 	"BRAND_ACID",
 	"BRAND_ELEC",
@@ -731,7 +731,7 @@ static cptr a_info_act[] =
  */
 static cptr w_info_style[] =
 {
-	"ALL",
+	"NONE",
 	"UNARMED",
 	"ONE-HANDED",
 	"TWO-HANDED",
@@ -4583,7 +4583,7 @@ errr init_w_info_txt(FILE *fp, char *buf)
 
 			ws_ptr->class = class;
 			ws_ptr->level = level;
-
+			ws_ptr->styles = 0;
 
 			/* Next... */
 			continue;

@@ -367,9 +367,6 @@ byte (*cave_feat)[DUNGEON_WID];
 /*
  * Array of room information
  *
- * This assumes that room descriptions will never exceed 240 visible characters +
- * 240 invisible characters. Currently we do no bounds checking.
- *
  */
 room_info_type room_info[DUN_ROOMS];
 

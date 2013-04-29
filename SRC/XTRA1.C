@@ -1868,7 +1868,7 @@ static void calc_mana(void)
                 if (w_info[i].benefit != WB_ICKY_HANDS) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==(1L<<WS_NONE)) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
                         icky_hands=TRUE;
 		}
@@ -3040,7 +3040,7 @@ static void calc_bonuses(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==(1L<<WS_NONE)) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+                if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{

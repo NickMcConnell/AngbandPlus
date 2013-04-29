@@ -1051,6 +1051,14 @@ byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
+
+/* Note that this table is now in half blows - ANDY */
+/* Note that all classes, except mages get 1 additional half-blow     */
+/* And warriors get 2 additional half-blows, except when the class is */
+/* wielding a weapon they are not specialised in.                     */
+/* Note that table should be adjusted so that even moderately low dex */
+/* individuals get an additional half-blow with light weapons. */
+
 byte blows_table[12][12] =
 {
 	/* P/D */
@@ -1092,6 +1100,7 @@ byte blows_table[12][12] =
 	/* 11+ */
 	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
 };
+
 
 
 #if 0
@@ -1274,220 +1283,6 @@ player_sex sex_info[MAX_SEXES] =
 	}
 };
 
-
-
-/*
- * Spells in each book (mage spells then priest spells)
- */
-u32b spell_flags[2][9][2] =
-{
-	{
-		/*** Mage spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x003e0000 },
-		{ 0x00000000, 0x0000003e },
-		{ 0x00000000, 0x0001f000 },
-		{ 0x00000000, 0x07c00000 },
-		{ 0x00000000, 0x00000fc0 }
-	},
-
-	{
-		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 }
-	}
-};
-
-
-/*
- * Names of the spells (mage spells then priest spells)
- */
-cptr spell_names[2][64] =
-{
-	/*** Mage Spells ***/
-
-	{
-		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Cure Light Wounds",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-
-		/* Conjurings and Tricks (sval 1) */
-		"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Turn Stone to Mud",
-
-		/* Incantations and Illusions (sval 2) */
-		"Satisfy Hunger",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Sleep III",
-		"Fire Bolt",
-		"Slow Monster",
-
-		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Genocide",
-
-		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Earthquake",
-		"Word of Recall",
-
-		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
-
-		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
-
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
-
-		/* Tenser's transformations... (sval 7) */
-		"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
-
-
-	/*** Priest Spells ***/
-
-	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
-
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
-
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
-
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	}
-};
 
 
 

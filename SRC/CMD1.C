@@ -367,7 +367,12 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				if (m_ptr->ml)
 				{
 #ifdef ALLOW_OBJECT_INFO
-                                        if (rand_int(100)<tdam) object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+                                        if (rand_int(100)<tdam)
+					{
+						object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
+						object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
+					}
+					else object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L);
 #endif
 					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
@@ -381,6 +386,62 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
                                 if (rand_int(100)<tdam*5) object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L);
 			}
 #endif
+
+
+			/* Execute Demon */
+			if ((f1 & (TR1_KILL_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+#ifdef ALLOW_OBJECT_INFO
+                                        if (rand_int(100)<tdam)
+					{
+						object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L);
+						object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+					}
+					else object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L);
+#endif
+					l_ptr->r_flags3 |= (RF3_DEMON);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+#ifdef ALLOW_OBJECT_INFO
+                        else if ((r_ptr->flags3 & (RF3_DEMON)) && (m_ptr->ml))
+			{
+                                if (rand_int(100)<tdam*5) object_not_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L);
+			}
+#endif
+
+			/* Execute Undead */
+			if ((f1 & (TR1_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+#ifdef ALLOW_OBJECT_INFO
+                                        if (rand_int(100)<tdam)
+					{
+						object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L);
+						object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+					}
+					else object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L);
+#endif
+					l_ptr->r_flags3 |= (RF3_UNDEAD);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+#ifdef ALLOW_OBJECT_INFO
+                        else if ((r_ptr->flags3 & (RF3_DEMON)) && (m_ptr->ml))
+			{
+                                if (rand_int(100)<tdam*5) object_not_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L);
+			}
+#endif
+
 			/* Brand (Poison) */
 			if (f1 & (TR1_BRAND_POIS))
 			{
@@ -1113,7 +1174,7 @@ void py_attack(int y, int x)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-                if ((w_info[i].styles==WS_NONE) || (w_info[i].styles & (melee_style & (1L << p_ptr->pstyle))))
+                if ((w_info[i].styles==0) || (w_info[i].styles & (melee_style & (1L << p_ptr->pstyle))))
 		{
 			switch (w_info[i].benefit)
 			{

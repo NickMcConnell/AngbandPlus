@@ -70,7 +70,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -215,11 +215,13 @@ N:22:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
+A:0/1
 
 N:23:& Strip~ of Beef Jerky
 G:,:u
 I:80:33:1500
 W:0:0:2:2
+A:0/2
 
 N:24:& Slime Mold~
 G:,:g
@@ -237,11 +239,13 @@ N:26:& Pint~ of Fine Ale
 G:,:y
 I:80:38:500
 W:0:0:5:1
+A:0/2
 
 N:27:& Pint~ of Fine Wine
 G:,:r
 I:80:39:1000
 W:0:0:10:2
+A:0/2
 
 N:28:Mana
 G:,:d
@@ -1408,13 +1412,13 @@ A:0/1:3/1:10/1
 N:182:Read Magic
 G:?:d
 I:70:19:0
-W:1:0:5:75
+W:3:0:5:75
 A:3/1:10/1:30/1
 
 N:183:Analyze Magic
 G:?:d
 I:70:23:0
-W:1:0:5:75
+W:3:0:5:75
 A:3/1:10/1:30/1
 
 N:184:Summon Monster

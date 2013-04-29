@@ -335,6 +335,12 @@ static errr wr_savefile(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
+#ifdef ALLOW_OBJECT_INFO
+
+	/* Do we dump info about all objects here? */
+
+#endif
+
 
 	/* Hack -- Dump the quests */
 	tmp16u = MAX_Q_IDX;
@@ -357,6 +363,8 @@ static errr wr_savefile(void)
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
+
+
 	}
 
 
@@ -734,6 +742,26 @@ static void wr_item(object_type *o_ptr)
 	/* Extra information */
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
+
+#ifdef ALLOW_OBJECT_INFO
+
+	wr_u32b(o_ptr->i_object.can_flags1);
+	wr_u32b(o_ptr->i_object.can_flags2);
+	wr_u32b(o_ptr->i_object.can_flags3);
+
+	wr_u32b(o_ptr->i_object.may_flags1);
+	wr_u32b(o_ptr->i_object.may_flags2);
+	wr_u32b(o_ptr->i_object.may_flags3);
+
+	wr_u32b(o_ptr->i_object.not_flags1);
+	wr_u32b(o_ptr->i_object.not_flags2);
+	wr_u32b(o_ptr->i_object.not_flags3);
+
+	wr_s16b(o_ptr->i_object.usage);
+	wr_s16b(o_ptr->i_object.fails);
+
+#endif
+
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -1266,6 +1294,32 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
+#ifdef ALLOW_ROOMDESC
+	/*** Dump room descriptions ***/
+	for (x = 0; x < MAX_ROOMS_ROW; x++)
+	{
+		for (y = 0; y < MAX_ROOMS_COL; y++)
+		{
+			wr_byte(dun_room[x][y]);
+		}
+	}
+
+	for (i = 1; i < DUN_ROOMS; i++)
+	{
+		wr_byte(room_info[i].type);
+		wr_byte(room_info[i].seen);
+
+		if (room_info[i].type == ROOM_NORMAL)
+		{
+			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
+			{
+				wr_s16b(room_info[i].section[j]);
+
+				if (room_info[i].section[j] == -1) break;
+			}
+		}
+	}
+#endif
 
 	/*** Compact ***/
 
@@ -1425,9 +1479,59 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
+
+#ifdef ALLOW_OBJECT_INFO
+
+		wr_u32b(a_ptr->i_artifact.can_flags1);
+		wr_u32b(a_ptr->i_artifact.can_flags2);
+		wr_u32b(a_ptr->i_artifact.can_flags3);
+
+		wr_u32b(a_ptr->i_artifact.may_flags1);
+		wr_u32b(a_ptr->i_artifact.may_flags2);
+		wr_u32b(a_ptr->i_artifact.may_flags3);
+
+		wr_u32b(a_ptr->i_artifact.not_flags1);
+		wr_u32b(a_ptr->i_artifact.not_flags2);
+		wr_u32b(a_ptr->i_artifact.not_flags3);
+
+		wr_s16b(a_ptr->i_artifact.usage);
+		wr_s16b(a_ptr->i_artifact.fails);
+
+#endif
+
 	}
 
+	/* Hack -- Dump the ego items */
+	tmp16u = z_info->e_max;
+	wr_u16b(tmp16u);
+	for (i = 0; i < tmp16u; i++)
+	{
+		ego_item_type *e_ptr = &e_info[i];
+		wr_byte(a_ptr->cur_num);
+		wr_byte(0);
+		wr_byte(0);
+		wr_byte(0);
 
+#ifdef ALLOW_OBJECT_INFO
+
+		wr_u32b(e_ptr->i_ego_item.can_flags1);
+		wr_u32b(e_ptr->i_ego_item.can_flags2);
+		wr_u32b(e_ptr->i_ego_item.can_flags3);
+
+		wr_u32b(e_ptr->i_ego_item.may_flags1);
+		wr_u32b(e_ptr->i_ego_item.may_flags2);
+		wr_u32b(e_ptr->i_ego_item.may_flags3);
+
+		wr_u32b(e_ptr->i_ego_item.not_flags1);
+		wr_u32b(e_ptr->i_ego_item.not_flags2);
+		wr_u32b(e_ptr->i_ego_item.not_flags3);
+
+		wr_s16b(e_ptr->i_ego_item.usage);
+		wr_s16b(e_ptr->i_ego_item.fails);
+
+#endif
+
+	}
 
 	/* Write the "extra" information */
 	wr_extra();

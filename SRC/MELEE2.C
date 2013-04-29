@@ -440,7 +440,7 @@ s16b max_attack_perc [] =
 20      /* RF5_SCARE */,
 70      /* RF5_BLIND */,
 50      /* RF5_CONF */,
-20      /* RF5_SLOW */,
+40      /* RF5_SLOW */,
 100     /* RF5_HOLD */,
 0       /* RF6_HASTE */,
 0       /* RF6_XXX1X6 */,
@@ -488,6 +488,8 @@ s16b max_attack_perc [] =
  * attack.
  * Note that we could weight the function so that player 'incapacitation' is considered
  * alongside player damage.
+ *
+ * Note this function will always return one spell.
  */
 static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 {
@@ -502,18 +504,17 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 	s16b max,dam;   
 
-	int i, choice;
+	int i, choice,choices;
 
 	u32b bitzero=0x01;
 
 
 	/* Too stupid to know anything */
-	if (r_ptr->flags2 & (RF2_STUPID)) return;
+	if (r_ptr->flags2 & (RF2_STUPID)) return(-1);
 
 
 	/* Must be cheating or learning */
-	if (!smart_cheat && !smart_learn) return;
-
+	if (!smart_cheat && !smart_learn) return(-1);
 
 	/* Update acquired knowledge */
 	if (smart_learn)
@@ -590,7 +591,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 
 	max = 0;
-	choice = 0;     
+	choice = -1;
+	choices = 1;     
 
 	/* Extract the "innate" spells */
 	for (i = 0; i < 96; i++)
@@ -731,9 +733,30 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 			break;
 		}
 
-		/* Spell is not good enough */
-		if ((dam==0) || (dam < max)) {
+		/* Tie breaker */
+		if ((max < dam) || ((max == dam) && (rand_int(choices)==0)))
+		{
 
+			if (choice >=0)
+			{
+				/* Monster doesn't try old choice */
+				if (choice<32) f4 &= ~(bitzero << (choice));
+
+				/* Monster doesn't try old choice */
+				if ((choice>=32) && (choice<64)) f5 &= ~(bitzero << (choice-32));
+
+				/* Monster doesn't try old choice */
+				if ((choice>=64) && (choice<32)) f6 &= ~(bitzero << (choice-64));               
+			}
+			choice = i;
+
+			if (max == dam) choices ++;
+			else choices = 1;
+		}
+
+		/* Spell is not good enough */
+		else
+		{
 			/* Monster doesn't try spell */
 			if (i<32) f4 &= ~(bitzero << (i));
 
@@ -750,18 +773,8 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 
 		max = dam;
 
-		/* Monster doesn't try old choice */
-		if (choice<32) f4 &= ~(bitzero << (choice));
-
-		/* Monster doesn't try old choice */
-		if ((choice>=32) && (choice<64)) f5 &= ~(bitzero << (choice-32));
-
-		/* Monster doesn't try old choice */
-		if ((choice>=64) && (choice<32)) f6 &= ~(bitzero << (choice-64));               
-
-		choice = i;
-
 	}
+	return(choice);
 }
 
 #endif

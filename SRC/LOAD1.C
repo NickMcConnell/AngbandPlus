@@ -2152,6 +2152,14 @@ static errr rd_dungeon_old(void)
 	/* Save depth */
 	p_ptr->depth = depth;
 
+	/* Place player in dungeon */
+	if (!player_place(py, px))
+	{
+		note(format("Cannot place player (%d,%d)!", py, px));
+		return (162);
+	}
+
+	/*** Room descriptions */
 #ifdef ALLOW_ROOMDESC
 
 	/* Initialize the room table */
@@ -2163,29 +2171,10 @@ static errr rd_dungeon_old(void)
 		}
 	}
 
-        if (p_ptr->depth)
-        {
-                /* Hack -- Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "empty room");
-                strcpy(room_info[0].text_visible, "");
-                strcpy(room_info[0].text_always, "");
-                room_info[0].seen = FALSE;
-        }
-        else
-        {
-                /* Initialise 'zeroeth' room description */
-                strcpy(room_info[0].name, "town");
-                strcpy(room_info[0].text_visible, "It is ramshackle collection of decrepit buildings.");
-                strcpy(room_info[0].text_always, "It feels like home.");
-                room_info[0].seen = FALSE;
-        }
+        /* Initialise 'zeroeth' room description */
+        room_info[0].seen = FALSE;
 #endif
-	/* Place player in dungeon */
-	if (!player_place(py, px))
-	{
-		note(format("Cannot place player (%d,%d)!", py, px));
-		return (162);
-	}
+
 
 
 	/*** Objects ***/

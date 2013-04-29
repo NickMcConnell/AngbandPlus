@@ -2930,7 +2930,13 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	o_ptr->i_object.can_flags3 |= (f3);
 
 	/* Must be identified */
-	if (!object_known_p(o_ptr)) return;	
+	if (!object_known_p(o_ptr)) return;
+
+	/* Hack -- Remove kind flags */
+	/* This prevents Blades of Chaos 'tainting' ego items etc. */
+	f1 &= ~(k_info[o_ptr->kind].flags1);
+	f2 &= ~(k_info[o_ptr->kind].flags2);
+	f3 &= ~(k_info[o_ptr->kind].flags3);
 
 	/* Artifact */
 	if (o_ptr->name1)
@@ -2961,11 +2967,25 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
                 e_ptr->i_ego_item.not_flags2 &= ~(f2);
                 e_ptr->i_ego_item.not_flags3 &= ~(f3);
 
-                e_ptr->i_ego_item.may_flags1 |= f1;
-                e_ptr->i_ego_item.may_flags2 |= f2;
-                e_ptr->i_ego_item.may_flags3 |= f3;
+		if (o_ptr->xtra1)
+		{
+	                e_ptr->i_ego_item.may_flags1 |= f1;
+	                e_ptr->i_ego_item.may_flags2 |= f2;
+	                e_ptr->i_ego_item.may_flags3 |= f3;
+		}
+		else
+		{
+	                e_ptr->i_ego_item.may_flags1 &= ~(f1);
+	                e_ptr->i_ego_item.may_flags2 &= ~(f2);
+	                e_ptr->i_ego_item.may_flags3 &= ~(f3);
 
+	                e_ptr->i_ego_item.can_flags1 |= f1;
+	                e_ptr->i_ego_item.can_flags2 |= f2;
+	                e_ptr->i_ego_item.can_flags3 |= f3;
+		}
 	}
+#if 0
+
 	/* Kind */
 	else
 	{
@@ -2984,7 +3004,7 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		k_ptr->i_kind.can_flags3 |= (f3);
 
 	}
-
+#endif
 }
 
 
@@ -3123,9 +3143,57 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 
 		ego_item_type *e_ptr = &e_info[o_ptr->name2];
 
+		u32b one_ability = OBJECT_XTRA_BASE_ABILITY + (1L<<OBJECT_XTRA_SIZE_ABILITY) -1;
+		u32b one_sustain = OBJECT_XTRA_BASE_SUSTAIN + (1L<<OBJECT_XTRA_SIZE_SUSTAIN) -1;
+		u32b one_resist = OBJECT_XTRA_BASE_POWER + (1L<<OBJECT_XTRA_SIZE_POWER) -1;
+
                 e_ptr->i_ego_item.can_flags1 &= ~(f1);
                 e_ptr->i_ego_item.can_flags2 &= ~(f2);
                 e_ptr->i_ego_item.can_flags3 &= ~(f3);
+
+		if ((e_ptr->i_ego_item.may_flags2 & (f2)) && (f2 & one_sustain))
+		{
+			/* One sustain */
+			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
+			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_sustain));
+			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
+
+`			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
+					e_ptr->i_ego_item.can_flags3);
+
+
+			e_ptr->i_ego_item.may_flags1 = 0x0L;
+			e_ptr->i_ego_item.may_flags2 = one_sustain;
+			e_ptr->i_ego_item.may_flags3 = 0x0L;
+		}
+		else if ((e_ptr->i_ego_item.may_flags2 & (f2)) && (f2 & one_resist))
+		{
+			/* One sustain */
+			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
+			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_resist));
+			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
+
+			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
+					e_ptr->i_ego_item.can_flags3);
+
+			e_ptr->i_ego_item.may_flags1 = 0x0L;
+			e_ptr->i_ego_item.may_flags2 = one_sustain;
+			e_ptr->i_ego_item.may_flags3 = 0x0L;
+		}
+		else if (e_ptr->i_ego_item.may_flags3 & (f3))
+		{
+			/* One ability */
+			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
+			e_ptr->i_ego_item.can_flags2 |= e_ptr->i_ego_item.may_flags2;
+			e_ptr->i_ego_item.can_flags3 |= (e_ptr->i_ego_item.may_flags3 & ~(one_ability));
+
+			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
+					e_ptr->i_ego_item.can_flags3);
+
+			e_ptr->i_ego_item.may_flags1 = 0x0L;
+			e_ptr->i_ego_item.may_flags2 = 0x0L;
+			e_ptr->i_ego_item.may_flags3 = one_ability;
+		}
 
 	}
 
