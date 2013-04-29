@@ -747,7 +747,8 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		    /* Apply disenchantment */
 		    if (apply_disenchant(0)) obvious = TRUE;
 		  }
-		
+		else notice_other(IF_RES_DISEN, 0, NULL);		
+
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_DISEN);
 		
@@ -1216,6 +1217,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			  }
 		      }
 		  }
+		else notice_obj(OF_SEEING, 0);
 		
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_BLIND);
@@ -1248,6 +1250,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 			  }
 		      }
 		  }
+		else notice_other(IF_RES_CONFU, 0, NULL);
 		
 		/* Learn about the player */
 		update_smart_learn(m_idx, LRN_CONFU);
@@ -1264,6 +1267,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		/* Increase "afraid" */
 		if (p_ptr->no_fear)
 		  {
+		    notice_obj(OF_FEARLESS, 0);
 		    msg_print("You stand your ground!");
 		    obvious = TRUE;
 		  }
@@ -1311,6 +1315,8 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		  {
 		    msg_print("You are unaffected!");
 		    obvious = TRUE;
+		    notice_obj(OF_FREE_ACT, 0);
+
 		  }
 		else if (check_save(100))
 		  {
@@ -1453,6 +1459,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		
 		if (p_ptr->hold_life && (rand_int(100) < 95))
 		  {
+		    notice_obj(OF_HOLD_LIFE, 0);
 		    msg_print("You keep hold of your life force!");
 		  }
 		else
@@ -1461,6 +1468,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		      (p_ptr->exp/100) * MON_DRAIN_LIFE;
 		    if (p_ptr->hold_life)
 		      {
+			notice_obj(OF_HOLD_LIFE, 0);
 			msg_print("You feel your life slipping away!");
 			lose_exp(d/10);
 		      }
@@ -1483,6 +1491,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		
 		if (p_ptr->hold_life && (rand_int(100) < 90))
 		  {
+		    notice_obj(OF_HOLD_LIFE, 0);
 		    msg_print("You keep hold of your life force!");
 		  }
 		else
@@ -1491,6 +1500,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		      (p_ptr->exp/100) * MON_DRAIN_LIFE;
 		    if (p_ptr->hold_life)
 		      {
+			notice_obj(OF_HOLD_LIFE, 0);
 			msg_print("You feel your life slipping away!");
 			lose_exp(d/10);
 		      }
@@ -1513,6 +1523,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		
 		if (p_ptr->hold_life && (rand_int(100) < 75))
 		  {
+		    notice_obj(OF_HOLD_LIFE, 0);
 		    msg_print("You keep hold of your life force!");
 		  }
 		else
@@ -1521,6 +1532,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		      (p_ptr->exp/100) * MON_DRAIN_LIFE;
 		    if (p_ptr->hold_life)
 		      {
+			notice_obj(OF_HOLD_LIFE, 0);
 			msg_print("You feel your life slipping away!");
 			lose_exp(d/10);
 		      }
@@ -1543,6 +1555,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		
 		if (p_ptr->hold_life && (rand_int(100) < 50))
 		  {
+		    notice_obj(OF_HOLD_LIFE, 0);
 		    msg_print("You keep hold of your life force!");
 		  }
 		else
@@ -1551,6 +1564,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
 		      (p_ptr->exp/100) * MON_DRAIN_LIFE;
 		    if (p_ptr->hold_life)
 		      {
+			notice_obj(OF_HOLD_LIFE, 0);
 			msg_print("You feel your life slipping away!");
 			lose_exp(d/10);
 		      }
@@ -3600,6 +3614,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_resist_good(P_RES_NEXUS))
 	  {
 	    msg_print("You are unaffected!");
+	    notice_other(IF_RES_NEXUS, 0, NULL);
 	  }
 	else if (check_save(100))
 	  {
@@ -3771,6 +3786,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 	      }
+	    else notice_other(IF_RES_CONFU, 0, NULL);
 	    take_hit(damroll(8, 8), ddesc);
 	  }
 	break;
@@ -3801,14 +3817,17 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	      {
 		(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 	      }
+	    else notice_obj(OF_SEEING, 0);
 	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 	      }
+	    else notice_other(IF_RES_CONFU, 0, NULL);
 	    if (!p_ptr->free_act)
 	      {
 		(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 	      }
+	    else notice_obj(OF_FREE_ACT, 0);
 	    (void)set_slow(p_ptr->slow + rand_int(4) + 4);
 	  }
 	break;
@@ -3987,6 +4006,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	else msg_format("%^s casts a fearful illusion.", m_name);
 	if (p_ptr->no_fear)
 	  {
+	    notice_obj(OF_FEARLESS, 0);
 	    msg_print("You refuse to be frightened.");
 	  }
 	else if (check_save(100))
@@ -4008,6 +4028,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	else msg_format("%^s casts a spell, burning your eyes!", m_name);
 	if (p_ptr->no_blind)
 	  {
+	    notice_obj(OF_SEEING, 0);
 	    msg_print("You are unaffected!");
 	  }
 	else if (check_save(100))
@@ -4031,6 +4052,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_resist_good(P_RES_CONFU))
 	  {
 	    msg_print("You disbelieve the feeble spell.");
+	    notice_other(IF_RES_CONFU, 0, NULL);
 	  }
 	else if (check_save(100))
 	  {
@@ -4051,6 +4073,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_ptr->free_act)
 	  {
 	    msg_print("You are unaffected!");
+	    notice_obj(OF_FREE_ACT, 0);
 	  }
 	else if (check_save(100))
 	  {
@@ -4072,6 +4095,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	if (p_ptr->free_act)
 	  {
 	    msg_print("You are unaffected!");
+	    notice_obj(OF_FREE_ACT, 0);
 	  }
 	else if (check_save(100))
 	  {

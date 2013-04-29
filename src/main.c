@@ -24,7 +24,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#if !defined(MACINTOSH) && !(defined(WINDOWS) && !defined(USE_SDL)) && !defined(ACORN)
 
 #ifdef USE_SCRIPT
 
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
       /* Hack -- If requested, display scores and quit */
       if (show_score > 0) 
 	{
-	  display_scores(0, show_score);
+	  show_scores();
 	  game_start = FALSE;
 	}
       

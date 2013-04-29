@@ -34,9 +34,10 @@
  * 5% of all attacks are guaranteed to hit, and another 5% to miss.  
  * The remaining 90% compare attack chance to armour class.
  */
-static bool test_hit_combat(int chance, int ac, int visible)
+static bool test_hit_combat(int chance, int ac, int visible, int item1, 
+			    int item2)
 {
-  int k;
+  int k, power;
   
   /* Percentile dice */
   k = rand_int(100);
@@ -46,9 +47,19 @@ static bool test_hit_combat(int chance, int ac, int visible)
   
   /* Invisible monsters are harder to hit */
   if (!visible) chance = chance / 2;
+
+  /* Get power */
+  power = rand_int(chance);
+
+  /* Just hit tells to_h bonus */
+  if (power == ac) 
+    {
+      notice_other(IF_TO_H, item1, NULL);
+      if (item2) notice_other(IF_TO_H, item2, NULL);
+    }
   
   /* Power competes against armor */
-  if ((chance > 0) && (rand_int(chance) >= ac)) return (TRUE);
+  if ((chance > 0) && (power >= ac)) return (TRUE);
   
   /* Assume miss */
   return (FALSE);
@@ -332,7 +343,7 @@ static sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
  * temporary brands to missiles.  A nasty hack, but necessary. -LM-
  */
 static sint adjust_dam(long *die_average, object_type *o_ptr, 
-		       monster_type *m_ptr)
+		       monster_type *m_ptr, int item)
 {
   monster_race *r_ptr = &r_info[m_ptr->r_idx];
   monster_lore *l_ptr = &l_list[m_ptr->r_idx];
@@ -340,6 +351,8 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
   object_type *i_ptr;
   int i, j, slay[MAX_P_SLAY], brand[MAX_P_BRAND]; 
   
+  bool notice_launcher = FALSE, notice_ring = FALSE;
+
   /*
    * Assume no special adjustments to damage.  We normally multiply damage 
    * by 10 for accuracy.
@@ -370,6 +383,9 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      slay[i] = MAX(i_ptr->multiple_slay[i], slay[i]);
 	    for (i = 0; i < MAX_P_BRAND; i++)
 	      brand[i] = MAX(i_ptr->multiple_brand[i],brand[i]);
+
+	    /* Prepare to notice */
+	    notice_launcher = TRUE;
 	  }
 	break;
       }
@@ -391,6 +407,9 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		  slay[i] = MAX(i_ptr->multiple_slay[i], slay[i]);
 		for (i = 0; i < MAX_P_BRAND; i++)
 		  brand[i] = MAX(i_ptr->multiple_brand[i],brand[i]);
+
+		/* Prepare to notice */
+		notice_ring = TRUE;
 	      }
 	  }
 	
@@ -443,6 +462,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_ANIMAL]) mul = slay[P_SLAY_ANIMAL];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_ANIMAL, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_ANIMAL, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_ANIMAL, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_ANIMAL, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Evil */
@@ -457,6 +486,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 
 	    if (mul < slay[P_SLAY_EVIL]) mul = slay[P_SLAY_EVIL];
 	    if ((p_ptr->special_attack & (ATTACK_HOLY)) && (mul < 15)) mul = 15;
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_EVIL, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_EVIL, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_EVIL, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_EVIL, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	
@@ -469,6 +508,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_UNDEAD]) mul = slay[P_SLAY_UNDEAD];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_UNDEAD, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_UNDEAD, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_UNDEAD, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_UNDEAD, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Demon */
@@ -480,6 +529,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_DEMON]) mul = slay[P_SLAY_DEMON];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_DEMON, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_DEMON, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_DEMON, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_DEMON, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Orc */
@@ -491,6 +550,15 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_ORC]) mul = slay[P_SLAY_ORC];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_ORC, item + 1, NULL);
+	    if (notice_launcher) notice_other(IF_SLAY_ORC, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_ORC, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_ORC, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Troll */
@@ -502,6 +570,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_TROLL]) mul = slay[P_SLAY_TROLL];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_TROLL, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_TROLL, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_TROLL, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_TROLL, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Giant */
@@ -513,6 +591,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_GIANT]) mul = slay[P_SLAY_GIANT];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_GIANT, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_GIANT, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_GIANT, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_GIANT, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Slay Dragon */
@@ -524,6 +612,16 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    if (mul < slay[P_SLAY_DRAGON]) mul = slay[P_SLAY_DRAGON];
+
+	    /* Notice slay */
+	    notice_other(IF_SLAY_DRAGON, item + 1, NULL);
+	    if (notice_launcher) 
+	      notice_other(IF_SLAY_DRAGON, INVEN_BOW + 1, NULL);
+	    if (notice_ring) 
+	      {
+		notice_other(IF_SLAY_DRAGON, INVEN_RIGHT + 1, NULL);
+		notice_other(IF_SLAY_DRAGON, INVEN_LEFT + 1, NULL);
+	      }
 	  }
 	
 	/* Brand (Acid) */
@@ -539,7 +637,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < brand[P_BRAND_ACID]) mul = brand[P_BRAND_ACID];
+	    else if (mul < brand[P_BRAND_ACID]) 
+	      {
+		mul = brand[P_BRAND_ACID];
+		
+		/* Notice brand */
+		notice_other(IF_BRAND_ACID, item + 1, NULL);
+		if (notice_launcher) 
+		  notice_other(IF_BRAND_ACID, INVEN_BOW + 1, NULL);
+		if (notice_ring) 
+		  {
+		    notice_other(IF_BRAND_ACID, INVEN_RIGHT + 1, NULL);
+		    notice_other(IF_BRAND_ACID, INVEN_LEFT + 1, NULL);
+		  }
+	      }
 	  }
 	
 	/* Brand (Elec) */
@@ -555,7 +666,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < brand[P_BRAND_ELEC]) mul = brand[P_BRAND_ELEC];
+	    else if (mul < brand[P_BRAND_ELEC]) 
+	      {
+		mul = brand[P_BRAND_ELEC];
+		
+		/* Notice brand */
+		notice_other(IF_BRAND_ELEC, item + 1, NULL);
+		if (notice_launcher) 
+		  notice_other(IF_BRAND_ELEC, INVEN_BOW + 1, NULL);
+		if (notice_ring) 
+		  {
+		    notice_other(IF_BRAND_ELEC, INVEN_RIGHT + 1, NULL);
+		    notice_other(IF_BRAND_ELEC, INVEN_LEFT + 1, NULL);
+		  }
+	      }
 	  }
 	
 	/* Brand (Fire) */
@@ -571,7 +695,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < brand[P_BRAND_FIRE]) mul = brand[P_BRAND_FIRE];
+	    else if (mul < brand[P_BRAND_FIRE]) 
+	      {
+		mul = brand[P_BRAND_FIRE];
+		
+		/* Notice brand */
+		notice_other(IF_BRAND_FIRE, item + 1, NULL);
+		if (notice_launcher) 
+		  notice_other(IF_BRAND_FIRE, INVEN_BOW + 1, NULL);
+		if (notice_ring) 
+		  {
+		    notice_other(IF_BRAND_FIRE, INVEN_RIGHT + 1, NULL);
+		    notice_other(IF_BRAND_FIRE, INVEN_LEFT + 1, NULL);
+		  }
+	      }
 	  }
 	
 	/* Brand (Cold) */
@@ -587,7 +724,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < brand[P_BRAND_COLD]) mul = brand[P_BRAND_COLD];
+	    else if (mul < brand[P_BRAND_COLD]) 
+	      {
+		mul = brand[P_BRAND_COLD];
+
+		/* Notice brand */
+		notice_other(IF_BRAND_COLD, item + 1, NULL);
+		if (notice_launcher) 
+		  notice_other(IF_BRAND_COLD, INVEN_BOW + 1, NULL);
+		if (notice_ring) 
+		  {
+		    notice_other(IF_BRAND_COLD, INVEN_RIGHT + 1, NULL);
+		    notice_other(IF_BRAND_COLD, INVEN_LEFT + 1, NULL);
+		  }
+	      }
 	  }
 	
 	/* Brand (Poison) */
@@ -603,7 +753,20 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	      }
 	    
 	    /* Otherwise, take extra damage */
-	    else if (mul < brand[P_BRAND_POIS]) mul = brand[P_BRAND_POIS];
+	    else if (mul < brand[P_BRAND_POIS]) 
+	      {
+		mul = brand[P_BRAND_POIS];
+
+		/* Notice brand */
+		notice_other(IF_BRAND_POIS, item + 1, NULL);
+		if (notice_launcher) 
+		  notice_other(IF_BRAND_POIS, INVEN_BOW + 1, NULL);
+		if (notice_ring) 
+		  {
+		    notice_other(IF_BRAND_POIS, INVEN_RIGHT + 1, NULL);
+		    notice_other(IF_BRAND_POIS, INVEN_LEFT + 1, NULL);
+		  }
+	      }
 	  }
 	
 	/* Additional bonus for Holy Light */
@@ -1038,6 +1201,9 @@ void py_attack(int y, int x)
       
       /* Calculate damage.  Big shields are deadly. */
       bash_dam = damroll(inventory[INVEN_ARM].dd, inventory[INVEN_ARM].ds);
+
+      /* Notice dice */
+      notice_other(IF_DD_DS, INVEN_ARM + 1, NULL);
       
       /* Multiply by quality and experience factors */
       bash_dam *= bash_quality / 20 + p_ptr->lev / 7;
@@ -1148,7 +1314,7 @@ void py_attack(int y, int x)
       
       /* Test for hit */
       if (test_hit_combat(chance + sleeping_bonus, r_ptr->ac + terrain_bonus, 
-			  m_ptr->ml))
+			  m_ptr->ml, INVEN_WIELD + 1, 0))
 	{
 	  /* Sound */
 	  sound(MSG_HIT);
@@ -1211,7 +1377,7 @@ void py_attack(int y, int x)
 	      die_average = (10 * (o_ptr->ds + 1)) / 2;
 	      
 	      /* Adjust the average for slays and brands. (10x inflation) */
-	      add = adjust_dam(&die_average, o_ptr, m_ptr);
+	      add = adjust_dam(&die_average, o_ptr, m_ptr, INVEN_WIELD);
 	      
 	      /* Apply deadliness to average. (100x inflation) */
 	      apply_deadliness(&die_average, total_deadliness);
@@ -1227,6 +1393,10 @@ void py_attack(int y, int x)
 	      
 	      /* Roll out the damage. */
 	      damage = damroll(dice, (s16b)sides);
+
+	      /* Maxroll tells to_d bonus */
+	      if (damage == dice * sides) 
+		notice_other(IF_TO_D, INVEN_WIELD + 1, NULL);
 	      
 	      /* Apply any special additions to damage. */
 	      damage += add;
@@ -1258,7 +1428,11 @@ void py_attack(int y, int x)
 	  if (damage < 0) damage = 0;
 	  
 	  /* Hack -- check for earthquake. */
-	  if (p_ptr->impact && (damage > 49)) do_quake = TRUE;
+	  if (p_ptr->impact && (damage > 49)) 
+	    {
+	      notice_obj(OF_IMPACT, INVEN_WIELD + 1);
+	      do_quake = TRUE;
+	    }
 	  
 	  /* The verbose wizard message has been moved to mon_take_hit. */
 	  
@@ -1408,6 +1582,7 @@ void py_attack(int y, int x)
 	      if (rand_int(10) == 0) 
 		{
 		  /* May not still be something there to hit */
+		  notice_obj(OF_CHAOTIC, 0);
 		  if (!chaotic_effects(m_ptr)) return;
 		}
 	    }
@@ -1623,21 +1798,6 @@ void do_cmd_fire(void)
   /* Single object */
   i_ptr->number = 1;
   
-  /* Reduce and describe inventory */
-  if (item >= 0)
-    {
-      inven_item_increase(item, -1);
-      inven_item_describe(item);
-      inven_item_optimize(item);
-    }
-  
-  /* Reduce and describe floor item */
-  else
-    {
-      floor_item_increase(0 - item, -1);
-      floor_item_optimize(0 - item);
-    }
-  
   /* Take a (partial) turn */
   p_ptr->energy_use = (1000 / p_ptr->num_fire);
   
@@ -1647,13 +1807,16 @@ void do_cmd_fire(void)
   /* Missile launchers of Velocity sometimes "supercharge" */
   if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(5) == 0))
     {
+      /* Learn the to-dam (and maybe ego) */
+      notice_other(IF_TO_D, INVEN_BOW + 1, NULL);
+
       object_desc(o_name, o_ptr, FALSE, 0);
       
       /* Set special damage */
       special_dam = TRUE;
       
       /* Give a hint to the player. */
-      if (!object_known_p(o_ptr)) 
+      if (!has_ego_properties(o_ptr)) 
 	msg_format("You feel a strange aura of power around your %s.", o_name);
       else msg_format("Your %s feels very powerful.", o_name);
     }
@@ -1661,13 +1824,16 @@ void do_cmd_fire(void)
   /* Missile launchers of Accuracy sometimes "supercharge" */
   if ((o_ptr->name2 == EGO_ACCURACY) && (rand_int(5) == 0))
     {
+      /* Learn the to-hit (and maybe ego) */
+      notice_other(IF_TO_H, INVEN_BOW + 1, NULL);
+
       object_desc(o_name, o_ptr, FALSE, 0);
       
       /* Set special accuracy */
       special_hit = TRUE;
       
       /* Give a hint to the player. */
-      if (!object_known_p(o_ptr)) 
+      if (!has_ego_properties(o_ptr)) 
 	msg_format("You feel a strange aura of power around your %s.", o_name);
       else msg_format("Your %s feels very accurate.", o_name);
     }
@@ -1675,6 +1841,10 @@ void do_cmd_fire(void)
   /* Fire ammo of backbiting, and it will turn on you.  -LM- */
   if (i_ptr->name2 == EGO_BACKBITING)
     {
+      /* Learn to-hit (!) */
+      if (item >= 0) notice_other(IF_TO_H, item + 1, NULL);
+      else  notice_other(IF_TO_H, item, NULL);
+
       /* Message. */
       msg_print("Your missile turns in midair and strikes you!");
       
@@ -1838,7 +2008,8 @@ void do_cmd_fire(void)
 	  if (special_hit) armour /= 3;
 	  
 	  /* Did we miss it (penalize distance travelled) */
-	  if (!(test_hit_combat(chance2 + sleeping_bonus, armour, m_ptr->ml)))
+	  if (!(test_hit_combat(chance2 + sleeping_bonus, armour, m_ptr->ml,
+				INVEN_BOW + 1, ((item < 0) ? item : item + 1))))
 	    {
 	      did_miss = TRUE;
 	      
@@ -1894,7 +2065,7 @@ void do_cmd_fire(void)
 	  die_average *= p_ptr->ammo_mult;
 	  
 	  /* Adjust the average for slays and brands. (10x inflation) */
-	  add = adjust_dam(&die_average, i_ptr, m_ptr);
+	  add = adjust_dam(&die_average, i_ptr, m_ptr, item);
 	  
 	  /* Apply deadliness to average. (100x inflation) */
 	  apply_deadliness(&die_average, total_deadliness);
@@ -1910,6 +2081,14 @@ void do_cmd_fire(void)
 	  
 	  /* Roll out the damage. */
 	  damage = damroll(dice, (s16b)sides);
+
+	  /* Max roll tells to_d bonus (launcher and missile) */
+	  if (damage == dice * sides) 
+	    {
+	      notice_other(IF_TO_D, INVEN_BOW + 1, NULL);
+	      if (item >= 0) notice_other(IF_TO_D, item + 1, NULL);
+	      else  notice_other(IF_TO_D, item, NULL);
+	    }
 	  
 	  /* Apply any special additions to damage. */
 	  damage += add;
@@ -2002,6 +2181,21 @@ void do_cmd_fire(void)
       /* Stop if it's a tree or rubble */
       if (!cave_floor_bold(ny, nx)) break;
       
+    }
+  
+  /* Reduce and describe inventory */
+  if (item >= 0)
+    {
+      inven_item_increase(item, -1);
+      inven_item_describe(item);
+      inven_item_optimize(item);
+    }
+  
+  /* Reduce and describe floor item */
+  else
+    {
+      floor_item_increase(0 - item, -1);
+      floor_item_optimize(0 - item);
     }
   
   /* Chance of breakage (during attacks) */
@@ -2134,22 +2328,6 @@ void do_cmd_throw(void)
   
   /* Single object */
   i_ptr->number = 1;
-  
-  /* Reduce and describe inventory */
-  if (item >= 0)
-    {
-      inven_item_increase(item, -1);
-      inven_item_describe(item);
-      inven_item_optimize(item);
-    }
-  
-  /* Reduce and describe floor item */
-  else
-    {
-      floor_item_increase(0 - item, -1);
-      floor_item_optimize(0 - item);
-    }
-  
   
   /* Description */
   object_desc(o_name, i_ptr, FALSE, 3);
@@ -2323,7 +2501,8 @@ void do_cmd_throw(void)
 	  
 	  /* Did we miss it (penalize range)? */
 	  if (!(test_hit_combat(chance2 + sleeping_bonus, 
-				r_ptr->ac + terrain_bonus, m_ptr->ml)))
+				r_ptr->ac + terrain_bonus, m_ptr->ml, 
+				((item < 0) ? item : item + 1), 0)))
 	    {
 	      /* Keep Going - magical throw always hits visible monsters */
 	      if (!(magic_throw) || !m_ptr->ml) break;
@@ -2405,7 +2584,7 @@ void do_cmd_throw(void)
 	  die_average = (10 * (i_ptr->ds + 1)) / 2;
 	  
 	  /* Adjust the average for slays and brands. (10x inflation) */
-	  add = adjust_dam(&die_average, i_ptr, m_ptr);
+	  add = adjust_dam(&die_average, i_ptr, m_ptr, item);
 	  
 	  /* Apply deadliness to average. (100x inflation) */
 	  apply_deadliness(&die_average, total_deadliness);
@@ -2422,6 +2601,9 @@ void do_cmd_throw(void)
 	  /* Roll out the damage. */
 	  damage = damroll(dice, (s16b)sides);
 	  
+	  /* Max roll gives to_d bonus */
+	  if (damage == dice * sides) 
+	    notice_other(IF_TO_D, ((item < 0) ? item : item + 1), NULL);
 	  
 	  /* Apply any special additions to damage. */
 	  damage += add;
@@ -2463,6 +2645,22 @@ void do_cmd_throw(void)
       /* Stop if it's trees or rubble */
       if (!cave_floor_bold(ny, nx)) break;
     }
+  
+  /* Reduce and describe inventory */
+  if (item >= 0)
+    {
+      inven_item_increase(item, -1);
+      inven_item_describe(item);
+      inven_item_optimize(item);
+    }
+  
+  /* Reduce and describe floor item */
+  else
+    {
+      floor_item_increase(0 - item, -1);
+      floor_item_optimize(0 - item);
+    }
+  
   
   /* Chance of breakage.   Throwing weapons are designed not to break. */
   if (i_ptr->flags_obj & OF_PERFECT_BALANCE) break_chance = 0;

@@ -32,7 +32,7 @@ static bool no_cache_audio = FALSE;
 
 
 /* Arbitary limit on number of samples per event */
-#define MAX_SAMPLES      8
+#define MAX_SAMPLES      16
 
 /* Struct representing all data about an event sample */
 typedef struct

@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:1.0.3
+V:1.1.0
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -509,7 +509,7 @@ W:6:0:50:400
 A:6/1
 P:4:1d3:0:0:0:250
 F:LITE | SHOW_MODS
-D:A slender birch staff, enchanted to give light from the tip, which can be
+D:A slender birch staff, enchanted to give light from the tip, which can be 
 D:activated by mages and necromancers to restore a little mana. It can be used 
 D:for attack or defence in an emergency.
 
@@ -1763,289 +1763,120 @@ D:all hurt and harm from you.
 
 ##### Rings #####
 
-N:260:Woe
-G:=:d
+N:260:Steel
+G:=:s1
 I:45:0:0
-W:50:0:2:0
-A:50/3
-B:WIS[-5] | CHR[-5] | RES_NEXUS[40] 
-F:STICKY_WIELD | TELEPORT | POWERFUL | 
-F:SHOW_CURSE | FREE_ACT
-D:with dreadful hexes of wretchedness and wandering laid upon it.  You 
-D:will follow its path, and none other.
-
-N:261:Aggravation
-G:=:d
-I:45:1:0
-W:5:0:2:1600
-A:5/2
-F:FEARLESS | AGGRO_PERM | PERMA_CURSE | SHOW_CURSE | EASY_KNOW
-D:that fills you and the monsters with the urge to fight.
-
-N:262:Weakness
-G:=:d
-I:45:2:0
-W:5:0:2:0
-A:5/3
-B:STR[-5] 
-F:STICKY_WIELD | SHOW_CURSE 
-D:that saps your strength.
-
-N:263:Stupidity
-G:=:d
-I:45:3:-5
-W:5:0:2:0
-A:5/3
-B:INT[-5]
-F:STICKY_WIELD | SHOW_CURSE 
-D:that renders you slow-witted.
-
-N:264:Teleportation
-G:=:d
-I:45:4:0
-W:5:0:2:0
-A:5/3
-F:TELEPORT | PERMA_CURSE | SHOW_CURSE | EASY_KNOW
-D:that seizes control of your movement.
-
-N:265:Telepathy
-G:=:d
-I:45:5:0
-W:80:0:2:30000
-A:80/6
-F:TELEPATHY | POWERFUL | EASY_KNOW 
-D:that makes you able to see the minds of your intelligent foes.
-
-N:266:Slow Digestion
-G:=:d
-I:45:6:0
-W:5:0:2:0
-A:5/2
-F:SLOW_DIGEST | EASY_KNOW
-D:that reduces the number of meals you must eat.
-
-N:267:Feather Falling
-G:=:d
-I:45:7:0
-W:5:0:2:0
-A:5/2
-F:FEATHER | EASY_KNOW
-D:that makes you light on your feet.
-
-N:268:Resist Fire
-G:=:d
-I:45:8:0
-W:10:0:2:20
-A:10/2
-B:RES_FIRE[40] 
-F:EASY_KNOW
-D:that protects you from fire.
-
-N:269:Resist Cold
-G:=:d
-I:45:9:0
-W:10:0:2:20
-A:10/2
-B:RES_COLD[40]
-F:EASY_KNOW
-D:that protects you from frost.
-
-N:270:Physical Endurance
-G:=:d
-I:45:10:0
-W:38:0:2:1000
-A:38/2
-B:STR[1] | DEX[1] | CON[1] 
-F:SUST_STR | SUST_DEX | SUST_CON 
-D:that provides physical endurance.
-
-N:271:Mental Strength
-G:=:d
-I:45:11:0
-W:38:0:2:1000
-A:38/2
-B:INT[1] | WIS[1] | CHR[1] 
-F:SUST_INT | SUST_WIS | SUST_CHR 
-D:that provides mental strength.
-
-N:272:Darkness
-G:=:d
-I:45:12:0
-W:40:0:2:2000
-A:40/2
-B:RES_LITE[-20] | RES_DARK[50] | STEALTH[2]
-F:DARKNESS | EASY_KNOW
-D:that relishes darkness, but fears the light.
-
-N:273:Nether Resistance
-G:=:d
-I:45:13:0
-W:55:0:2:4000
-A:55/2
-B:RES_NETHR[40]
-F:EASY_KNOW
-D:that provides resistance to nether forces.
-
-N:274:the Dawn
-G:=:d
-I:45:14:0
-W:40:0:2:3000
-A:40/2
-B:RES_LITE[40] | RES_DARK[40] 
-F:SEEING | EASY_KNOW
-D:that calls a truce around you between the powers of Dark and Light.
-
-N:275:Electricity
-G:=:d
-I:45:15:0
-W:65:0:2:7000
-A:65/3
-P:0:0d0:0:0:5:221
-B:RES_ELEC[40] | BRAND_ELEC[14]
-D:with an aura of electric protection that may sometimes be temporarily 
-D:enhanced.  It may also cast lightning balls~.
-
-N:276:Protection
-G:=:d
-I:45:16:0
-W:14:0:2:100
-P:0:0d0:0:0:5:0
-A:14/1
-F:RAND_RES_SML
-D:that magically effects your armour.
-
-N:277:Acid
-G:=:d
-I:45:17:0
-W:65:0:2:7000
-A:65/3
-P:0:0d0:0:0:5:220
-B:RES_ACID[40] | BRAND_ACID[14]
-D:with an aura of acidic protection that may sometimes be temporarily 
-D:enhanced.  It may also cast acid balls~.
-
-N:278:Flames
-G:=:d
-I:45:18:0
-W:65:0:2:7000
-A:65/3
-P:0:0d0:0:0:5:222
-B:RES_FIRE[40] | BRAND_FIRE[14]
-D:with an aura of fiery protection that may sometimes be temporarily 
-D:enhanced.  It may also cast fire balls~.
-
-N:279:Ice
-G:=:d
-I:45:19:0
-W:65:0:2:7000
-A:65/3
-P:0:0d0:0:0:5:223
-B:RES_COLD[40] | BRAND_COLD[14] 
-D:with an aura of frosty protection that may sometimes be temporarily 
-D:enhanced.  It may also cast cold balls~.
-
-N:280:Poison Resistance
-G:=:d
-I:45:20:0
-W:48:0:2:5000
-A:48/3
-B:RES_POIS[40] 
-F:EASY_KNOW
-D:that protects you from poison.
-
-N:281:Free Action
-G:=:d
-I:45:21:0
-W:20:0:2:500
-A:18/2
-F:FREE_ACT | EASY_KNOW
-D:that protects you from becoming paralyzed.
-
-N:282:See Invisible
-G:=:d
-I:45:22:0
-W:34:0:2:10
-A:28/2
-F:SEE_INVIS | EASY_KNOW
-D:that grants sight beyond sight.
-
-N:283:Searching
-G:=:d
-I:45:23:0
 W:5:0:2:20
-A:5/2
-B:SEARCH[5]
-D:that affects your ability to find traps and secret doors.
+A:5/3:10/3
+D:A shining steel ring.
 
-N:284:Strength
-G:=:d
-I:45:24:0
-W:36:0:2:60
-A:36/1
-B:STR[5]
-D:that affects your strength.
+N:261:Pewter
+G:=:D1
+I:45:1:0
+W:15:0:2:50
+A:15/3:20/3
+D:A ring of worked pewter.
 
-N:285:Venom
-G:=:d
-I:45:25:0
-W:65:0:2:7000
-A:65/3
-P:0:0d0:0:0:5:224
-B:RES_POIS[40] | BRAND_POIS[14] 
-D:with an aura of poisonous protection that may sometimes be temporarily 
-D:enhanced.  It may also cast poison balls~.
+N:262:Galvorn
+G:=:D
+I:45:2:0
+W:25:0:2:70
+A:25/3:30/3
+D:A ring made from the black metal of the Dark Elf.
 
-N:286:Dexterity
-G:=:d
-I:45:26:0
-W:36:0:2:60
-A:36/1
-B:DEX[5]
-D:that affects your dexterity.
+N:263:Brass
+G:=:U1
+I:45:3:0
+W:35:0:2:100
+A:35/3:40/3
+D:A ring of polished brass.
 
-N:287:Constitution
-G:=:d
-I:45:27:0
-W:36:0:2:60
-A:36/1
-B:CON[5]
-D:that affects your constitution.
+N:264:Bronze
+G:=:u
+I:45:4:0
+W:45:0:2:120
+A:45/3:50/3
+D:A ring crafted of deep burnished bronze.
 
-N:288:Skill
-G:=:d
-I:45:28:0
-W:25:0:2:500
-A:25/1
-P:0:0d0:5:0:0:0
-D:that makes you highly accurate (or inaccurate) whether fighting or 
-D:shooting.
+N:265:Copper
+G:=:u1
+I:45:5:0
+W:55:0:2:300
+A:55/3:60/3
+D:A circle of beaten copper.
 
-N:289:Deadliness
-G:=:d
-I:45:29:0
-W:25:0:2:500
-A:25/1
-P:0:0d0:0:5:0:0
-D:that influences how forceful your blows are in melee or in archery.
+N:266:Silver
+G:=:W
+I:45:6:0
+W:65:0:2:700
+A:65/3:70/3
+D:A ring of bright shining silver, polished to a mirror sheen.
 
-N:290:Combat
-G:=:d
-I:45:30:0
-W:50:0:2:1000
-A:50/1
-P:0:0d0:3:3:0:0
-F:SHOW_MODS
-D:that effects both how well you aim and how hard you hit in melee or when 
-D:shooting.
+N:267:Gold
+G:=:y
+I:45:7:0
+W:75:0:2:1200
+A:75/3:80/3
+D:A ring of rich pure gold, glowing with an inner fire.
 
-N:291:Speed
-G:=:d
-I:45:31:0
-W:80:0:2:10000
-A:80/4
-B:SPEED[5]
-F:POWERFUL
-D:that affects your speed.
+N:268:Adamantite
+G:=:G
+I:45:8:0
+W:85:0:2:2000
+A:85/3:90/3
+D:A lovingly crafted ring of mighty adamantite.
+
+N:269:Mithril
+G:=:B
+I:45:9:0
+W:95:0:2:5000
+A:95/3:100/3
+D:A precious ring of brightest mithril from the mines of the dwarves.
+
+
+## XXX 270 XXX ##
+
+## XXX 271 XXX ##
+
+## XXX 272 XXX ##
+
+## XXX 273 XXX ##
+
+## XXX 274 XXX ##
+
+## XXX 275 XXX ##
+
+## XXX 276 XXX ##
+
+## XXX 277 XXX ##
+
+## XXX 278 XXX ##
+
+## XXX 279 XXX ##
+
+## XXX 280 XXX ##
+
+## XXX 281 XXX ##
+
+## XXX 282 XXX ##
+
+## XXX 283 XXX ##
+
+## XXX 284 XXX ##
+
+## XXX 285 XXX ##
+
+## XXX 286 XXX ##
+
+## XXX 287 XXX ##
+
+## XXX 288 XXX ##
+
+## XXX 289 XXX ##
+
+## XXX 290 XXX ##
+
+## XXX 291 XXX ##
 
 ## XXX 292 XXX ##
 
@@ -2063,145 +1894,88 @@ D:that affects your speed.
 
 ## XXX 299 XXX ##
 
-# Gets a random power
-N:300:Eregion
-G:=:d
-I:45:40:0
-W:80:0:2:10000
-A:80/5
-B:SPEED[3] 
-F:RAND_RES_XTRA | RAND_POWER | POWERFUL
-D:forged by the Noldor of Eregion; it grants speed as well as a 
-D:hidden power and resistances.
-
-N:301:Warfare
-G:=:d
-I:45:41:0
-W:80:0:2:10000
-A:80/5
-P:0:0d0:2:2:0:0
-B:SPEED[3]
-F:POWERFUL | SHOW_MODS
-D:that grants both speed and combat ability.
-
 
 ##### Amulets #####
 
-N:302:DOOM
-G:":d
+N:300:Chalcedony
+G:":r
 I:40:0:0
-W:50:0:3:0
-A:50/3
-B:STR[-5] | INT[-5] | WIS[-5] | DEX[-5] | CON[-5] | CHR[-5] 
-F:STICKY_WIELD | SHOW_CURSE | POWERFUL
-D:that calls a terrible curse upon you.
+W:5:0:3:100
+A:5/3:10/3
+D:A necklet of deep red chalcedony.
 
-N:303:Teleportation
-G:":d
+N:301:Malachite
+G:":g1
 I:40:1:0
-W:15:0:3:0
-A:15/3
-F:TELEPORT | SHOW_CURSE | EASY_KNOW
-D:that seizes control of your movement.
+W:15:0:3:120
+A:15/3:20/3
+D:A green malachite amulet.
 
-N:304:Intelligence
-G:":d
+N:302:Opal
+G:":b
 I:40:2:0
-W:30:0:3:50
-A:30/1
-B:INT[5]
-D:that effects your intelligence.
+W:25:0:3:250
+A:25/3:30/3
+D:A fiery opal set in silver filigree.
 
-N:305:Slow Digestion
-G:":d
+N:303:Garnet
+G:":r
 I:40:3:0
-W:15:0:3:20
-A:15/1
-F:SLOW_DIGEST | EASY_KNOW
-D:that reduces your need to eat.
+W:35:0:3:400
+A:35/3:40/3
+D:A necklace with a chain of rich garnets.
 
-N:306:Resist Acid
-G:":d
+N:304:Pearl
+G:":s1
 I:40:4:0
-W:15:0:3:30
-A:15/2
-B:RES_ACID[40]
-F:EASY_KNOW
-D:that provides protection from acid.
+W:45:0:3:750
+A:45/3:50/3
+D:An amulet featuring a gleaming pearl form the Bay of Balar.
 
-N:307:Magical Item Mastery
-G:":d
+N:305:Amethyst
+G:":v1
 I:40:5:0
-W:35:0:3:500
-A:35/4
-B:MAGIC_MASTERY[5]
-D:that effects your ability to use magical objects.
+W:55:0:3:1000
+A:55/3:60/3
+D:A choker set with deep violet amethyst from the mines of the Ered Luin.
 
-N:308:Wisdom
-G:":d
+N:306:Sapphire
+G:":b
 I:40:6:0
-W:30:0:3:50
-A:30/1
-B:WIS[5]
-D:that effects your wisdom.
+W:65:0:3:1500
+A:65/3:70/3
+D:A pure blue sapphire on a golden chain.
 
-N:309:Charisma
-G:":d
+N:307:Ruby
+G:":r1
 I:40:7:0
-W:20:0:3:50
-A:20/1
-B:CHR[5] 
-D:that effects your charisma.
+W:75:0:3:2500
+A:75/3:80/3
+D:A fiery ruby from Khazad D[^u]m sparkling from a clasp of mithril.
 
-N:310:the Magi
-G:":d
+N:308:Emerald
+G:":g
 I:40:8:0
-W:75:0:3:10000
-A:75/8
-P:0:0d0:0:0:3:0
-B:RES_CONFU[40] 
-F:FREE_ACT | SEE_INVIS | SEEING  | POWERFUL | 
-F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF
-D:that bears powerful enchantments to see the unseen, and to render you clear 
-D:of mind and eye against even the most powerful of dark magics.
+W:85:0:3:5000
+A:85/3:90/3
+D:An amulet set with an emerald as green as the grass of Valinor.
 
-N:311:Escaping
+N:309:Diamond
 G:":d
 I:40:9:0
-W:65:0:3:10000
-A:65/4
-P:0:0d0:0:0:0:225
-F:EASY_KNOW
-D:that allows quick escapes from tight spots.
+W:95:0:3:10000
+A:95/3:100/3
+D:A chain of entwined precious metals blazing with diamonds.
 
-N:312:the Lion
-G:":d
-I:40:15:0
-W:80:0:3:25000
-A:80/5
-P:0:0d0:0:0:0:226
-F:EASY_KNOW
-D:that can turn you into the king of beasts.
+## XXX 310 XXX ##
 
-N:313:Sustenance
-G:":d
-I:40:21:0
-W:60:0:3:10000
-A:60/6
-F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | 
-F:HOLD_LIFE | SLOW_DIGEST | EASY_KNOW | 
-F:ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF
-D:that sustains your life and stats.
+## XXX 311 XXX ##
 
-N:314:Trickery
-G:":d
-I:40:20:1
-W:70:0:3:20000
-A:70/8
-B:DEX[2] | STEALTH[2] | SPEED[2] | SEARCH[2] | 
-B:INFRA[2] | RES_NEXUS[40] | RES_POIS[40]
-F:SUST_DEX | POWERFUL 
-D:that makes you tricky.
+## XXX 312 XXX ##
+
+## XXX 313 XXX ##
+
+## XXX 314 XXX ##
 
 ## XXX 315 XXX ##
 
@@ -4410,7 +4184,7 @@ I:39:1:7500
 W:3:0:50:35
 A:3/2
 P:0:1d1:0:0:0:0
-F:EASY_KNOW | FIRE_PROOF
+F:EASY_KNOW 
 D:The standard portable light source; it requires oil to operate.
 
 N:629:& Flask~ of oil
@@ -5142,19 +4916,7 @@ F:INSTA_ART
 
 # The Amulet of Carlammas -- see artifact list
 
-N:736:& Amulet~
-G:":d
-I:40:10:0
-W:50:0:3:60000
-F:INSTA_ART
-
 # The Amulet of Ingwe -- see artifact list
-
-N:737:& Amulet~
-G:":d
-I:40:11:0
-W:65:0:3:90000
-F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
 
@@ -5166,11 +4928,6 @@ F:INSTA_ART
 
 # The Torque of Boromir -- see artifact list
 
-N:739:& Torque~
-G:":b
-I:40:13:0
-W:30:0:3:25000
-F:INSTA_ART
 
 # The Elfstone 'Elessar' -- see artifact list
 
@@ -5183,19 +4940,9 @@ F:INSTA_ART
 
 # The Ring of Barahir -- see artifact list
 
-N:741:& Ring~
-G:=:d
-I:45:32:0
-W:50:0:2:65000
-F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
 
-N:742:& Ring~
-G:=:d
-I:45:33:0
-W:60:0:2:150000
-F:INSTA_ART
 
 # The Stone of Lore -- see artifact list
 
@@ -5207,67 +4954,9 @@ F:INSTA_ART
 
 # Placeholders for random artifact amulets
 
-N:744:& Amulet~
-G:":d
-I:40:16:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:745:& Amulet~
-G:":d
-I:40:17:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:746:& Amulet~
-G:":d
-I:40:18:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:747:& Amulet~
-G:":d
-I:40:19:0
-W:70:0:15:20000
-F:INSTA_ART
 
 # Placeholder for random artifact rings
 
-N:748:& Ring~
-G:=:d
-I:45:42:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:749:& Ring~
-G:=:d
-I:45:43:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:750:& Ring~
-G:=:d
-I:45:44:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:751:& Ring~
-G:=:d
-I:45:45:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:752:& Ring~
-G:=:d
-I:45:46:0
-W:70:0:15:20000
-F:INSTA_ART
-
-N:753:& Ring~
-G:=:d
-I:45:47:0
-W:70:0:15:20000
-F:INSTA_ART
 
 ##### Reserved locations for future special artifacts #####
 
@@ -5275,11 +4964,5 @@ F:INSTA_ART
 ## XXX 754 XXX ##
 
 # The Amulet of Denethor -- see artifact list
-
-N:754:& Amulet~
-G:":b
-I:40:22:0
-W:30:0:3:25000
-F:INSTA_ART
 
 

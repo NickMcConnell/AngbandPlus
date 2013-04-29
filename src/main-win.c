@@ -2027,6 +2027,9 @@ static void Term_xtra_win_sound(int v)
 #ifdef USE_SOUND
 	int i;
 	char buf[1024];
+	MCI_OPEN_PARMS op;
+	MCI_PLAY_PARMS pp;
+	MCIDEVICEID pDevice;
 #endif /* USE_SOUND */
 
 	/* Illegal sound */
@@ -2047,8 +2050,23 @@ static void Term_xtra_win_sound(int v)
 	/* Build the path */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, sound_file[v][Rand_simple(i)]);
 
-	/* Play the sound, catch errors */
-	PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);
+	op.dwCallback = 0;
+	op.lpstrDeviceType = (char*)MCI_ALL_DEVICE_ID;
+	op.lpstrElementName = buf;
+	op.lpstrAlias = NULL;
+
+	/* Open command */
+	mciSendCommand(0, MCI_OPEN, MCI_OPEN_ELEMENT | MCI_WAIT, (DWORD)&op);
+	pDevice = op.wDeviceID;
+
+	/* Play command */
+	pp.dwCallback = 0;
+	pp.dwFrom = 0;
+	mciSendCommand(pDevice, MCI_PLAY, MCI_NOTIFY | MCI_FROM, 
+		       (DWORD)&pp);
+
+	/* Play the sound, catch errors 
+	PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);*/
 
 #else /* USE_SOUND */
 
@@ -3243,47 +3261,9 @@ static void process_menus(WORD wCmd)
                 /* Show scores */
                 case IDM_FILE_SCORE:
                 {
-                        char buf[1024];
+		  show_scores();
 
-                        /* Build the filename */
-                        path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-                        /* Open the binary high score file, for reading */
-                        highscore_fd = file_open(buf, MODE_READ, FTYPE_RAW);
-
-                        /* Paranoia -- No score file */
-                        if (highscore_fd == NULL)
-                        {
-                                msg_print("Score file unavailable.");
-                        }
-                        else
-                        {
-                                /* Save Screen */
-                                screen_save();
-
-                                /* Clear screen */
-                                Term_clear();
-
-                                /* Display the scores */
-                                if (game_in_progress && character_generated)
-                                        predict_score();
-                                else
-                                        display_scores_aux(0, MAX_HISCORES, -1, NULL);
-
-                                /* Shut the high score file */
-                                (void)file_close(highscore_fd);
-
-                                /* Forget the high score fd */
-                                highscore_fd = NULL;
-
-                                /* Load screen */
-                                screen_load();
-
-                                /* Hack - Flush it */
-                                Term_fresh();
-                        }
-
-                        break;
+		  break;
                 }
 
                 /* Exit */

@@ -2,12 +2,12 @@
 ========================== Wilderness and Dungeons ==========================
 
      Once you venture out of your home town, you will find yourself in 
-wilderness.  The region of Middle Earth you are in and the danger level (1 is
-the lowest outside towns) will be shown at the bottom of the screen.  Take 
-careful note of the danger level outside your town - some regions are very
-deadly.  As a general rule, the closer to Morgoth's fortress of Angband you
-get, the more dangerous it is.  Look at the file "memap.txt" to get some idea
-of the layout of Middle Earth.
+wilderness (unless you are playing in dungeon only mode).  The region of 
+Middle Earth you are in and the danger level (1 is the lowest outside towns) 
+will be shown at the bottom of the screen.  Take careful note of the danger 
+level outside your town - some regions are very deadly.  As a general rule, 
+the closer to Morgoth's fortress of Angband you get, the more dangerous it is.  
+Look at the file "memap.txt" to get some idea of the layout of Middle Earth.
     Each region will appear as a large rectangle with paths off some sides 
 leading to other regions, and sometimes with stairs leading down into a 
 dungeon.  Each time you visit a region it will appear different, as there is a 
@@ -127,7 +127,7 @@ Level Feelings:
      the dungeon), a player ghost, or an artifact.
 
 Themed Levels:
-          If you are deep enough in the dungeon, and have spent a bit of time 
+          If you are in a dangerous enough area, and have spent a bit of time 
      on the previous level, you may very rarely find a themed level, filled 
      with monsters of a given type.  Such levels only appear once in a 
      lifetime, so don't leave them unless you really want to.  Vision range is 

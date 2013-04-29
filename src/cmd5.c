@@ -3135,7 +3135,7 @@ void do_cmd_cast_or_pray(void)
 	  }
 	case 189: /* Song of growth */
 	  {
-	    grow_trees_and_grass();
+	    grow_trees_and_grass(FALSE);
 	    break;
 	  }
 	case 190: /* Song of preservation */

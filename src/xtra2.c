@@ -2350,8 +2350,8 @@ void monster_death(int m_idx)
       lore_treasure(m_idx, dump_item, dump_gold);
     }
   
-  /* Update monster list window */
-  p_ptr->window |= PW_MONLIST;
+  /* Update monster, item list windows */
+  p_ptr->window |= (PW_MONLIST | PW_ITEMLIST);
   
   
   /* If the player kills a unique, write a note.*/
@@ -2404,8 +2404,8 @@ void monster_death(int m_idx)
   if (r_ptr->level == 100)
     build_quest_stairs(y, x, "staircase");
   
-  /* ...or a portal for ironmen */
-  else if (adult_ironman)
+  /* ...or a portal for ironmen and dungeon-only games */
+  else if ((adult_ironman) || (adult_dungeon))
     build_quest_stairs(y, x, "portal"); 
   
   /* or a path out of Nan Dungortheb */
@@ -2642,6 +2642,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	{
 	  /* Count kills this life */
 	  if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
+
+	  /* Add to score if the first time */
+	  if (l_ptr->pkills == 1) p_ptr->score += new_exp;
 	  
 	  /* Count kills in all lives */
 	  if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;

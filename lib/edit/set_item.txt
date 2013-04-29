@@ -8,7 +8,7 @@
 
 # Version stamp required
 
-V:1.0.3
+V:1.1.0
 
 #N: set index:name
 #C: number of items to gain bonus
@@ -18,16 +18,6 @@ V:1.0.3
 
 # Holy Fire Set
 
-N:1:Flame of Wrath
-C:2
-D:It is part of a set of items infused with holy fire
-# The Amulet of Carlammas
-P:4:1
-B:WIS[3] | CON[3] | RES_FIRE[100] 
-F:FEARLESS
-# The Morning Star 'Firestar'
-P:162:4
-B:STR[4] | SLAY_EVIL[17] | SLAY_UNDEAD[25] | SPEED[4]
 # Light/Dark Set
 
 N:2:Shadow Ward
@@ -92,18 +82,6 @@ B:SLAY_TROLL[25] | SLAY_EVIL[17] | SLAY_GIANT[25] | SLAY_ORC[25] |
 B:SLAY_DEMON[25] | RES_DARK[35] | SPEED[4] 
 
 # Beren's Set
-
-N:6:Beren's Items
-C:2
-D:It was borne by Beren One-Hand in Tol-In-Gaurhoth and Angband
-# The Ring of Barahir
-P:9:1
-B:RES_NETHR[50] | SPEED[1]
-F:SUST_STR | SUST_CON 
-# The Dagger 'Angrist'
-P:98:0
-B:SLAY_EVIL[17] | SLAY_TROLL[25] | SLAY_DRAGON[25] | SLAY_ANIMAL[20] | 
-B:SLAY_UNDEAD[25] 
 
 
 # Mablung's Set

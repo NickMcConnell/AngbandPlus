@@ -17,13 +17,13 @@ divided into dungeon features, objects, and monsters:
   .   A floor space                   1   Entrance to General Store
   .   A trap (hidden)                 2   Entrance to Armoury
   ^   A trap (known)                  3   Entrance to Weapon Smith
-  ;   A glyph of warding              4   Entrance to Temple
+  ;   A rune                          4   Entrance to Temple
   '   An open door                    5   Entrance to Alchemy Shop
   '   A broken door                   6   Entrance to Magic Shop
-  <   A staircase up                  7   Entrance to the Black Market
-  >   A staircase down                8   Entrance to your Home
+  <   A stair/path to less danger     7   Entrance to the Black Market
+  >   A stair/path to greater danger  8   Entrance to your Home
   .   Water                           9   Entrance to the Bookseller
-  #   Lava (red)
+  #   Lava (red)                      0   Entrance to the Travelling Merchant
   .   Grass (green)
   %   Web (yellow)
 
@@ -33,8 +33,7 @@ divided into dungeon features, objects, and monsters:
   +   A closed door                   %   A mineral vein
   +   A locked door                   *   A mineral vein with treasure
   +   A jammed door                   :   A pile of rubble
-  +   Tree                            #   Lava
-
+  +   Tree (green)                    .   Sand dune (yellow)
 
                              Objects
  

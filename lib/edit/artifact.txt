@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:1.0.3
+V:1.1.0
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -76,38 +76,21 @@ D:small but clear, as with the eyes of eagles.
 
 # The Amulet of Carlammas (Set Item)
 
-N:4:of Carlammas
-I:40:10:2
-W:50:20:3:60000
-P:0:1d1:0:0:0:4
-B:CON[2] | RES_FIRE[50] | RES_NETHR[30] 
-F:INSTA_ART
-D:A fiery circle of bronze, with mighty spells to ward off and banish evil.
-
 
 # The Amulet of Ingwe
-
-N:5:of Ingw["e]
-I:40:11:3
-W:65:30:3:90000
-P:0:1d1:0:0:0:5
-B:WIS[3] | CHR[3] | INFRA[3] |  
-B:RES_ACID[40] | RES_COLD[40] | RES_ELEC[40]  
-F:SEE_INVIS | FREE_ACT | 
-F:INSTA_ART
-D:The ancient heirloom of Ingw["e], high lord of the Vanyar, against whom 
-D:nothing of evil could stand.
 
 
 # The Necklace of the Dwarves
 
 N:6:of the Dwarves
 I:40:12:3
-W:80:90:3:100000
+W:100:90:3:100000
 P:0:1d1:0:0:0:6
-B:STR[3] | INT[3] | WIS[3] | DEX[3] | CON[3] | CHR[3] | INFRA[3]  
-F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
-F:INSTA_ART
+B:STR[3] | INT[3] | WIS[3] | DEX[3] | CON[3] | CHR[3] | INFRA[3] |
+B:RES_LITE[40] | RES_DARK[40] | RES_CONFU[40] | 
+F:SEE_INVIS | FREE_ACT | REGEN | LITE | TELEPATHY | HOLD_LIFE | SEEING |
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR |
+F:FEARLESS | INSTA_ART
 D:The Nauglam['i]r; the carcanet of gold set with a multitude of shining gems 
 D:of Valinor is but a setting.  The true power lies in the Silmaril of 
 D:F["e]anor at its centre, shining forth the light of the Two Trees of 
@@ -117,16 +100,6 @@ D:power.
 
 # The Torque of Boromir
 
-N:7:of Boromir
-I:40:13:2
-W:30:35:2:25000
-P:0:0d0:0:18:0:7
-B:STR[2] 
-F:SHOW_MODS | SUST_STR | FEARLESS |  
-F:INSTA_ART
-D:The massive golden torque of Boromir, first Lord of Dorthonion, whose people 
-D:dwelt ever in sight of Thangordrim.  It is woven of innumerable strands of 
-D:gold and steel intermingled, with great golden hounds set at either end.
 
 # The Elfstone 'Elessar'
 
@@ -144,37 +117,8 @@ D:to all that they touch healing from hurt.
 
 # The Ring of Barahir (Set Item)
 
-N:9:of Barahir
-I:45:32:1
-W:50:20:2:35000
-P:0:1d1:0:0:0:0
-B:STR[1] | INT[1] | WIS[1] | DEX[1] | CON[1] | CHR[1] | STEALTH[1] | 
-B:RES_POIS[50] 
-F:INSTA_ART
-D:A ring shaped into twinned serpents with eyes of emerald meeting beneath 
-D:a crown of flowers.  It was given by Finrod Felagund to Barahir as a token 
-D:of friendship after the Dagor Bragollach.
-
-
 # The Ring of Tulkas
 
-N:10:of Tulkas
-I:45:33:4
-W:60:40:2:150000
-P:0:1d1:0:0:0:10
-B:STR[4] | DEX[4] | CON[4]
-F:INSTA_ART
-D:The treasure of Tulkas, most fleet and wrathful of the Valar.
-
-N:11:of Denethor
-I:40:22:2
-W:30:35:2:25000
-P:0:0d0:18:0:0:0
-B:STEALTH[2] | RES_CONFU[45]
-F:SHOW_MODS | SUST_DEX |  
-F:INSTA_ART
-D:A slim neckpiece of True-silver, with quiet spells to aid and 
-D:protect the wearer.
 
 # Artifacts 12 - 14  are unused
 
@@ -201,7 +145,7 @@ D:understanding as you stare into its depths.
 
 N:23:'Razorback'
 I:38:6:10
-W:90:9:400:400000
+W:90:9:200:400000
 P:30:2d4:-4:0:25:22
 B:RES_ELEC[100] | SPEED[10] |
 B:RES_ACID[40] | RES_FIRE[40] | RES_COLD[40] | 

@@ -133,6 +133,8 @@ static void wr_item(object_type *o_ptr)
   wr_u32b(o_ptr->flags_obj);	/* New object flags -NRM- */
   wr_u32b(o_ptr->flags_curse);	/* New curse flags  -NRM- */
   wr_u32b(o_ptr->id_curse);	/* New curse id  -NRM- */
+  wr_u32b(o_ptr->id_obj);	/* New object flags id  -NRM- */
+  wr_u32b(o_ptr->id_other);	/* New object other id  -NRM- */
 
   /* Resists, bonuses, multiples -NRM- */
   for (i = 0; i < MAX_P_RES; i++)
@@ -677,7 +679,7 @@ static void wr_extra(void)
   
   /* Special stuff */
   wr_u16b(p_ptr->quests);
-  wr_u16b(p_ptr->panic_save);
+  wr_u32b(p_ptr->score);
   wr_u16b(p_ptr->total_winner);
   wr_u16b(p_ptr->noscore);
   
@@ -1138,6 +1140,10 @@ static bool wr_savefile_new(void)
     {
       wr_byte(p_ptr->spell_order[i]);
     }
+  
+  /* Write sensation ID data */
+  wr_u32b(p_ptr->id_obj);
+  wr_u32b(p_ptr->id_other);
   
   /* Write the notes */
   wr_notes();

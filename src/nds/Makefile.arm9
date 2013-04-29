@@ -77,8 +77,10 @@ ANGFILES = \
 	dungeon.o \
 	files.o \
 	generate.o \
+	identify.o \
 	init1.o \
 	init2.o \
+	jewel.o \
 	load.o \
 	monmove.o \
 	monattk.o \
@@ -91,6 +93,7 @@ ANGFILES = \
 	randart.o \
 	randname.o \
 	save.o \
+	score.o \
 	spells1.o \
 	spells2.o \
 	squelch.o \

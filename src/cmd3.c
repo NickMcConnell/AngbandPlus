@@ -536,6 +536,9 @@ void do_cmd_wield(void)
 
     /* And we autoinscribe here too */
     apply_autoinscription(o_ptr);
+
+    /* And notice dice and AC */
+
   }
 
   /* Where is the item now */
@@ -560,6 +563,26 @@ void do_cmd_wield(void)
       act = "You have readied";
     }
   
+  /* Notice dice, AC, jewellery sensation ID and other obvious stuff */
+  notice_other((IF_DD_DS | IF_AC), slot + 1, NULL);
+  o_ptr->id_obj |= ((o_ptr->flags_obj) & OF_OBVIOUS_MASK);
+  if (is_armour(o_ptr)) notice_other(IF_TO_H, slot + 1, NULL);
+  if ((slot == INVEN_RIGHT) || (slot == INVEN_LEFT) || (slot == INVEN_NECK))
+    {
+      notice_obj(p_ptr->id_obj, slot + 1);
+      notice_other(p_ptr->id_other, slot + 1, NULL);
+    }
+
+  /* Average things are average */
+  if (o_ptr->feel == FEEL_AVERAGE)
+    {
+      if (is_weapon(o_ptr)) notice_other((IF_TO_H | IF_TO_D), slot + 1, NULL);
+      if (is_armour(o_ptr)) notice_other((IF_AC | IF_TO_A), slot + 1, NULL);
+    }
+
+  /* Object has been worn */
+  o_ptr->ident |= IDENT_WORN;
+
   /* Describe the result */
   object_desc(o_name, o_ptr, TRUE, 3);
   
@@ -607,7 +630,8 @@ void do_cmd_wield(void)
   p_ptr->update |= (PU_MANA);
   
   /* Window stuff */
-  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+  p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 
+		    | PW_ITEMLIST);
 }
 
 

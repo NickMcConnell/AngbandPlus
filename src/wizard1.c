@@ -793,11 +793,11 @@ static void analyze_misc (object_type *o_ptr, char *misc_desc)
   if (use_metric) sprintf(misc_desc, "Level %u, Rarity %u, %d.%d kgs, "
 			  "%ld Gold", a_ptr->level, a_ptr->rarity,
 			  make_metric(a_ptr->weight) / 10, 
-			  make_metric(a_ptr->weight) % 10, a_ptr->cost);
+			  make_metric(a_ptr->weight) % 10, (long) a_ptr->cost);
   
   else sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, "
 	       "%ld Gold", a_ptr->level, a_ptr->rarity,
-	       a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+	       a_ptr->weight / 10, a_ptr->weight % 10, (long) a_ptr->cost);
 }
 
 /*

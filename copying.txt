@@ -39,6 +39,9 @@ some exceptions:
    McConnell, all of whom have agreed to their Angband work being released
    under the GPL.
 
+ * buzzkill's world map may be redistributed and used for any purpose, 
+   with or without modification.
+
 
 It is considered good practice to retain this statement for derivatives, rather
 than (e.g.) redistributing Adam Bolt's tiles under the GPL, or choosing to make

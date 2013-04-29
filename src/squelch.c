@@ -107,6 +107,7 @@ enum
   SQUELCH_NONE,
   SQUELCH_CURSED,
   SQUELCH_DUBIOUS,
+  SQUELCH_DUBIOUS_NON,
   SQUELCH_NON_EGO,
   SQUELCH_AVERAGE,
   SQUELCH_GOOD_STRONG,
@@ -124,6 +125,7 @@ static const char *quality_names[SQUELCH_MAX] =
   "none",				             /* SQUELCH_NONE */
   "cursed (objects known to have a curse)",    	     /* SQUELCH_CURSED */
   "dubious (all dubious items)",                     /* SQUELCH_DUBIOUS */
+  "dubious non-ego (strong pseudo-ID)",              /* SQUELCH_DUBIOUS_NON */
   "non-ego (all but ego-items - strong pseudo-ID)",  /* SQUELCH_NON_EGO */
   "average (everything not good or better)",         /* SQUELCH_AVERAGE */
   "good (strong pseudo-ID or identify)",             /* SQUELCH_GOOD_STRONG */
@@ -147,8 +149,6 @@ static tval_desc sval_dependent[] =
   { TV_ROD,		"Rods" },
   { TV_SCROLL,		"Scrolls" },
   { TV_POTION,		"Potions" },
-  { TV_RING,		"Rings" },
-  { TV_AMULET,		"Amulets" },
   { TV_FOOD,		"Food" },
   { TV_MAGIC_BOOK,	"Magic books" },
   { TV_PRAYER_BOOK,	"Prayer books" },
@@ -411,7 +411,7 @@ extern bool squelch_item_ok(object_type *o_ptr)
     }
   
   /* Squelch some ego items if known */
-  if (fullid && (ego_item_p(o_ptr)) && (e_info[o_ptr->name2].squelch))
+  if (has_ego_properties(o_ptr) && (e_info[o_ptr->name2].squelch))
     {
       return TRUE;
     }
@@ -454,6 +454,16 @@ extern bool squelch_item_ok(object_type *o_ptr)
       {
 	if ((feel == FEEL_DUBIOUS_WEAK) || (feel == FEEL_PERILOUS) ||
 	    (feel == FEEL_DUBIOUS_STRONG))
+	  {
+	    return TRUE;
+	  }
+	
+	break;
+      }
+      
+    case SQUELCH_DUBIOUS_NON:
+      {
+	if (feel == FEEL_DUBIOUS_STRONG)
 	  {
 	    return TRUE;
 	  }

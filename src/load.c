@@ -264,6 +264,18 @@ static void rd_item(object_type *o_ptr)
       rd_u32b(&o_ptr->id_curse);	/* New curse id  -NRM- */
     }
 
+  if (!older_than(1, 1, 0))
+    {
+      rd_u32b(&o_ptr->id_obj);	/* New object flags id  -NRM- */
+      rd_u32b(&o_ptr->id_other);	/* New object other id  -NRM- */
+    }
+  else if (object_known_p(o_ptr))
+    {
+      o_ptr->id_obj = o_ptr->flags_obj;
+      o_ptr->id_other = flags_other(o_ptr);
+      o_ptr->ident |= IDENT_WORN;
+    }
+
   /* Percentage resists -NRM- */
   if (older_than(0, 3, 0))
     {
@@ -967,8 +979,9 @@ static int rd_squelch(void)
 	  
 	  /* Read and extract the flag */
 	  rd_byte(&flags);
-	  if (!older_than(0, 3, 2)) e_info[i].squelch |= (flags & 0x01);
-	  e_info[i].everseen |= (flags & 0x02);
+	  if (!older_than(0, 3, 2)) 
+	    e_info[i].squelch = (flags & 0x01) ? TRUE : FALSE;
+	  e_info[i].everseen = (flags & 0x02) ? TRUE : FALSE;
 	}
     }
   
@@ -1192,7 +1205,12 @@ static errr rd_extra(void)
   
   /* Special stuff */
   rd_u16b(&p_ptr->quests);
-  rd_u16b(&p_ptr->panic_save);
+  if (!older_than(1, 1, 0)) rd_u32b(&p_ptr->score);
+  else 
+    {
+      rd_u16b(&tmp16u);
+      p_ptr->score = (u32b) tmp16u;
+    }
   rd_u16b(&p_ptr->total_winner);
   rd_u16b(&p_ptr->noscore);
   
@@ -1239,6 +1257,13 @@ static errr rd_extra(void)
   for (i = 0; i < 64; i++)
     {
       rd_byte(&p_ptr->spell_order[i]);
+    }
+  
+  /* Read sensation ID data */
+  if (!older_than(1, 1, 0))
+    {
+      rd_u32b(&p_ptr->id_obj);
+      rd_u32b(&p_ptr->id_other);
     }
   
   return (0);
@@ -1349,6 +1374,13 @@ static errr rd_inventory(void)
 	  
 	  /* One more item */
 	  p_ptr->equip_cnt++;
+
+	  /* Mark as worn for old savefiles */
+	  if (older_than(1, 1, 0)) inventory[n].ident |= IDENT_WORN;
+
+	  /* Notice dice and other obvious stuff */
+	  notice_other(IF_DD_DS, n + 1, NULL);
+	  inventory[n].id_obj |= ((inventory[n].flags_obj) & OF_OBVIOUS_MASK);
 	}
       
       /* Warning -- backpack is full */
@@ -1375,6 +1407,10 @@ static errr rd_inventory(void)
 	  
 	  /* One more item */
 	  p_ptr->inven_cnt++;
+
+	  /* Notice dice and other obvious stuff */
+	  notice_other(IF_DD_DS, n + 1, NULL);
+	  inventory[n].id_obj |= ((inventory[n].flags_obj) & OF_OBVIOUS_MASK);
 	}
     }
   
@@ -1428,7 +1464,7 @@ static void rd_messages(void)
  */
 static errr rd_dungeon(void)
 {
-  int i, y, x;
+  int i, n, y, x;
   
   s16b stage;
   s16b last_stage;
@@ -1444,6 +1480,16 @@ static errr rd_dungeon(void)
   
   /*** Basic info ***/
   
+  /* Hack - rewrite stage_map if necessary */
+  if (adult_dungeon)
+    {
+      for (i = 0; i < NUM_STAGES; i++)
+	for (n = 0; n < 9; n++)
+	  stage_map[i][n] = dungeon_map[i][n];
+    }
+
+
+
   /* Header info */
   rd_s16b(&stage);
   rd_s16b(&last_stage);

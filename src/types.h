@@ -345,6 +345,10 @@ struct ego_item_type
   u32b flags_obj;	/* New object flags -NRM-*/
   u32b flags_curse;	/* New curse flags  -NRM- */
   u32b flags_kind;      /* New object kind flags -NRM- */
+
+  u32b id_curse;	/* Curse ID flags  */
+  u32b id_obj;	        /* Object ID flags  */
+  u32b id_other;	/* Miscellaneous ID flags  */
   
   int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
   int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
@@ -579,6 +583,8 @@ struct object_type
 
   byte ident;		/* ID flags  */
   u32b id_curse;	/* Curse ID flags  */
+  u32b id_obj;	        /* Object ID flags  */
+  u32b id_other;	/* Miscellaneous ID flags  */
 
   u32b flags_obj;	/* New object flags -NRM-*/
   u32b flags_curse;	/* New curse flags  -NRM- */
@@ -1123,6 +1129,9 @@ struct player_type
   
   byte spell_order[64];	/* Spell order */
   
+  u32b id_obj;          /* "Sensation" object id flags */
+  u32b id_other;        /* "Sensation" other id flags */
+
   s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
   
   char died_from[80];	/* Cause of death */
@@ -1130,7 +1139,7 @@ struct player_type
   
   u16b quests;          /* Number of quests finished */
   u16b total_winner;	/* Total winner */
-  u16b panic_save;	/* Panic save */
+  u32b score;	        /* Current score (new!) */
   
   u16b noscore;		/* Cheating flags */
   
@@ -1325,46 +1334,6 @@ struct player_type
   s16b mana_gain;	/* Mana gained by special means this turn */
   byte evasion_chance;	/* Percentage to avoid attacks with evasion */
   byte old_evasion_chance;   /* Old percentage to avoid attacks with evasion */
-};
-
-/*
- * Semi-Portable High Score List Entry (128 bytes)
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-  char what[8];		/* Version info (string) */
-
-  char pts[10];		/* Total Score (number) */
-
-  char gold[10];	/* Total Gold (number) */
-
-  char turns[10];	/* Turns Taken (number) */
-
-  char day[10];		/* Time stamp (string) */
-
-  char who[16];		/* Player Name (string) */
-
-  char uid[8];		/* Player UID (number) */
-
-  char sex[2];		/* Player Sex (string) */
-  char p_r[3];		/* Player Race (number) */
-  char p_c[3];		/* Player Class (number) */
-
-  char cur_lev[4];	/* Current Player Level (number) */
-  char cur_dun[25];	/* Current Stage and Level */
-  char max_lev[4];	/* Max Player Level (number) */
-
-  char how[32];		/* Method of death (string) */
 };
 
 /* From NPPAngband */

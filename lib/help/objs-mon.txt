@@ -135,6 +135,16 @@ Cursed Objects:
      immediately on identification, but there are other items where the curses
      need to be discovered by use or by a Scroll of Reveal Curses.
 
+ID by Use:
+          Most objects - particularly those which can be worn or wielded - can 
+     be learnt about by using them.  Once you have learnt all the properties 
+     of an item it will be marked as fully known; if you're in more of a hurry, 
+     you can use the Identify spell.
+
+Sensation ID:
+	  Most rings and amulets have magical properties.  Once you are aware
+     of a property of a ring or amulet you are wearing, you will be able to
+     recognise that property on other jewellery items.
 
 
 === Monsters: Monster Memories, Stealth, and Player Ghosts ===

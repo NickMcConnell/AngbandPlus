@@ -4401,45 +4401,7 @@ static void process_menus(WORD wCmd)
                 /* Show scores */
                 case IDM_FILE_SCORE:
                 {
-                        char buf[1024];
-
-                        /* Build the filename */
-                        path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
-
-                        /* Open the binary high score file, for reading */
-                        highscore_fd = file_open(buf, MODE_READ, FTYPE_RAW);
-
-			/* Paranoia -- No score file */
-			if (highscore_fd == NULL)
-			{
-				msg_print("Score file unavailable.");
-			}
-			else
-			{
-				/* Save Screen */
-				screen_save();
-
-                                /* Clear screen */
-                                Term_clear();
-
-                                /* Display the scores */
-                                if (game_in_progress && character_generated)
-                                        predict_score();
-                                else
-                                        display_scores_aux(0, MAX_HISCORES, -1, NULL);
-
-                                /* Shut the high score file */
-                                (void)file_close(highscore_fd);
-
-                                /* Forget the high score fd */
-                                highscore_fd = NULL;
-
-                                /* Load screen */
-                                screen_load();
-
-                                /* Hack - Flush it */
-                                Term_fresh();
-                        }
+		  show_scores();
 
                         break;
                 }

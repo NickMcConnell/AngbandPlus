@@ -69,6 +69,10 @@ depgen:
   h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
   main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
   z-type.h z-util.h z-virt.h
+./identify.o: identify.c angband.h cmds.h config.h defines.h externs.h \
+  h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
+  main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
+  z-type.h z-util.h z-virt.h
 ./info.o: info.c angband.h cmds.h config.h defines.h externs.h \
   h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
   main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
@@ -80,6 +84,10 @@ depgen:
 ./init2.o: init2.c angband.h cmds.h config.h defines.h externs.h \
   h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
   main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
+  z-type.h z-util.h z-virt.h
+./jewel.o: jewel.c angband.h cmds.h config.h defines.h externs.h \
+  h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
+  main.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
   z-type.h z-util.h z-virt.h
 ./load.o: load.c angband.h cmds.h config.h defines.h externs.h \
   h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
@@ -122,6 +130,10 @@ depgen:
   main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
   z-type.h z-util.h z-virt.h
 ./save.o: save.c angband.h cmds.h config.h defines.h externs.h \
+  h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
+  main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
+  z-type.h z-util.h z-virt.h
+./score.o: files.c angband.h cmds.h config.h defines.h externs.h \
   h-basic.h h-config.h h-define.h h-system.h h-type.h init.h \
   main.h randname.h types.h ui.h z-file.h z-form.h z-rand.h z-term.h \
   z-type.h z-util.h z-virt.h

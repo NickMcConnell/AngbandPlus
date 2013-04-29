@@ -1244,137 +1244,139 @@ static sound_sample_list samples[MSG_MAX];
  */
 static void load_sounds(void)
 {
-        char path[2048];
-        char buffer[2048];
-        ang_file *fff;
+  char path[2048];
+  char buffer[2048];
+  ang_file *fff;
+  
+  /* Build the "sound" path */
+  path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
+  ANGBAND_DIR_XTRA_SOUND = string_make(path);
+  
+  /* Find and open the config file */
+  path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+  fff = file_open(path, MODE_READ, -1);
+  
+  /* Handle errors */
+  if (!fff)
+    {
+      mac_warning("The sound configuration file could not be opened.");
+      return;
+    }
+  
+  plog("Sound configuration file opened");
 
-        /* Build the "sound" path */
-        path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
-        ANGBAND_DIR_XTRA_SOUND = string_make(path);
-
-        /* Find and open the config file */
-        path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
-        fff = file_open(path, MODE_READ, -1);
-
-        /* Handle errors */
-        if (!fff)
-        {
-                mac_warning("The sound configuration file could not be opened.");
-                return;
+  /* Instantiate an autorelease pool for use by NSSound */
+  NSAutoreleasePool *autorelease_pool;
+  autorelease_pool = [[NSAutoreleasePool alloc] init];
+  
+  /*
+   * This loop may take a while depending on the count and size of samples
+   * to load.
+   */
+  
+  /* Parse the file */
+  /* Lines are always of the form "name = sample [sample ...]" */
+  while (file_getl(fff, buffer, sizeof(buffer)))
+    {
+      char *msg_name;
+      char *cfg_sample_list;
+      char *search;
+      char *cur_token;
+      char *next_token;
+      int event;
+      
+      /* Skip anything not beginning with an alphabetic character */
+      if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
+      
+      /* Split the line into two: message name, and the rest */
+      search = strchr(buffer, ' ');
+      cfg_sample_list = strchr(search + 1, ' ');
+      if (!search) continue;
+      if (!cfg_sample_list) continue;
+      
+      /* Set the message name, and terminate at first space */
+      msg_name = buffer;
+      search[0] = '\0';
+      
+      /* Make sure this is a valid event name */
+      for (event = MSG_MAX - 1; event >= 0; event--)
+	{
+	  if (strcmp(msg_name, angband_sound_name[event]) == 0)
+	    break;
+	}
+      if (event < 0) continue;
+      
+      /* Advance the sample list pointer so it's at the beginning of text */
+      cfg_sample_list++;
+      if (!cfg_sample_list[0]) continue;
+      
+      /* Terminate the current token */
+      cur_token = cfg_sample_list;
+      search = strchr(cur_token, ' ');
+      if (search)
+	{
+	  search[0] = '\0';
+	  next_token = search + 1;
         }
-        
-        /* Instantiate an autorelease pool for use by NSSound */
-        NSAutoreleasePool *autorelease_pool;
-        autorelease_pool = [[NSAutoreleasePool alloc] init];
-
-        /*
-         * This loop may take a while depending on the count and size of samples
-         * to load.
-         */
-
-        /* Parse the file */
-        /* Lines are always of the form "name = sample [sample ...]" */
-        while (file_getl(fff, buffer, sizeof(buffer)))
-        {
-                char *msg_name;
-                char *cfg_sample_list;
-                char *search;
-                char *cur_token;
-                char *next_token;
-                int event;
-
-                /* Skip anything not beginning with an alphabetic character */
-                if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
-
-                /* Split the line into two: message name, and the rest */
-                search = strchr(buffer, ' ');
-        cfg_sample_list = strchr(search + 1, ' ');
-                if (!search) continue;
-        if (!cfg_sample_list) continue;
-
-                /* Set the message name, and terminate at first space */
-                msg_name = buffer;
-                search[0] = '\0';
-
-                /* Make sure this is a valid event name */
-                for (event = MSG_MAX - 1; event >= 0; event--)
+      else
+	{
+	  next_token = NULL;
+	}
+      
+      /*
+       * Now we find all the sample names and add them one by one
+       */
+      while (cur_token)
+	{
+	  int num = samples[event].num;
+	  
+	  /* Don't allow too many samples */
+	  if (num >= MAX_SAMPLES) break;
+	  
+	  /* Build the path to the sample */
+	  path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
+	  if (file_exists(path)) {
+	    
+	    /* Load the sound into memory */
+	    samples[event].sound[num] = [[NSSound alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path] byReference:NO];
+	    if (samples[event].sound[num] != nil) {
+	      
+	      /* Imcrement the sample count */
+	      samples[event].num++;
+	    }
+	  }
+	  
+	  /* Figure out next token */
+	  cur_token = next_token;
+	  if (next_token)
+	    {
+	      /* Try to find a space */
+	      search = strchr(cur_token, ' ');
+	      
+	      /* If we can find one, terminate, and set new "next" */
+	      if (search)
+		{
+		  search[0] = '\0';
+		  next_token = search + 1;
+		}
+	      else
                 {
-                        if (strcmp(msg_name, angband_sound_name[event]) == 0)
-                            break;
+		  /* Otherwise prevent infinite looping */
+		  next_token = NULL;
                 }
-        if (event < 0) continue;
-
-                /* Advance the sample list pointer so it's at the beginning of text */
-                cfg_sample_list++;
-                if (!cfg_sample_list[0]) continue;
-
-                /* Terminate the current token */
-                cur_token = cfg_sample_list;
-                search = strchr(cur_token, ' ');
-                if (search)
-                {
-                        search[0] = '\0';
-                        next_token = search + 1;
-        }
-                else
-                {
-                        next_token = NULL;
+	    }
+	}
+    }
+  
+  /* Release the autorelease pool */
+  [autorelease_pool release];
+  
+  /* Close the file */
+  file_close(fff);
+  
+  /* Register the sound hook */
+  sound_hook = play_sound;
 }
-
-/*
-         * Now we find all the sample names and add them one by one
- */
-        while (cur_token)
-{
-            int num = samples[event].num;
-
-                        /* Don't allow too many samples */
-                        if (num >= MAX_SAMPLES) break;
-
-                        /* Build the path to the sample */
-                        path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
-                        if (file_exists(path)) {
-
-                                /* Load the sound into memory */
-                                samples[event].sound[num] = [[NSSound alloc] initWithContentsOfFile:[NSString stringWithUTF8String:path] byReference:NO];
-                                if (samples[event].sound[num] != nil) {
-
-                                        /* Imcrement the sample count */
-                                        samples[event].num++;
-                                }
-}
-
-                        /* Figure out next token */
-                        cur_token = next_token;
-                        if (next_token)
-{
-                                /* Try to find a space */
-                                search = strchr(cur_token, ' ');
-
-                                /* If we can find one, terminate, and set new "next" */
-                                if (search)
-        {
-                                        search[0] = '\0';
-                                        next_token = search + 1;
-        }
-                                else
-                {
-                                        /* Otherwise prevent infinite looping */
-                                        next_token = NULL;
-                }
-        }
-}
-                                }
-        
-        /* Release the autorelease pool */
-        [autorelease_pool release];
-
-        /* Close the file */
-        file_close(fff);
-        
-        /* Register the sound hook */
-        sound_hook = play_sound;
-                        }
 
 
 

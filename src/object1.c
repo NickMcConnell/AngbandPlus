@@ -193,8 +193,6 @@ void flavor_init(void)
   
   flavor_assign_fixed();
   
-  flavor_assign_random(TV_RING);
-  flavor_assign_random(TV_AMULET);
   flavor_assign_random(TV_STAFF);
   flavor_assign_random(TV_WAND);
   flavor_assign_random(TV_ROD);
@@ -641,7 +639,7 @@ void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
  */
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
-  cptr basenm, modstr;
+  char *basenm, *modstr;
   
   int i, power;
   int num_bonus = 0;
@@ -650,6 +648,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   bool easy_know;
   bool aware;
   bool known;
+  bool worn;
   
   bool flavor;
   
@@ -684,6 +683,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   
   /* See if the object is "known" */
   known = object_known_p(o_ptr) || (o_ptr->ident & IDENT_STORE);
+  
+  /* See if the object has been wielded */
+  worn = (o_ptr->ident & IDENT_WORN) || (o_ptr->ident & IDENT_STORE);
   
   easy_know = FALSE;
   
@@ -782,12 +784,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (artifact_p(o_ptr) && aware) break;
 	
 	/* Color the object */
-	modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-	if (aware) append_name = TRUE;
-	basenm = (flavor ? "& # Amulet~" : "& Amulet~");
+	modstr = k_name + k_ptr->name;
+	basenm = (show_flavors || !(o_ptr->ident & IDENT_WORN) ? 
+		   "& # Amulet" : "& Amulet");
 
 	/* Get the short description */
-	if ((mode == 4) && (aware)) basenm = "& \"";
+	if (mode == 4) basenm = "& \"";
 	
 	break;
       }
@@ -799,12 +801,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (artifact_p(o_ptr) && aware) break;
 	
 	/* Color the object */
-	modstr = flavor_text + flavor_info[k_ptr->flavor].text;
-	if (aware) append_name = TRUE;
-	basenm = (flavor ? "& # Ring~" : "& Ring~");
+	modstr = (k_name + k_ptr->name);
+	basenm = (show_flavors || !(o_ptr->ident & IDENT_WORN) ? 
+		  "& # Ring" : "& Ring");
 	
 	/* Get the short description */
-	if ((mode == 4) && (aware)) basenm = "& =";
+	if (mode == 4) basenm = "& =";
 	
 	break;
       }
@@ -1073,7 +1075,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   /* Non-artifact perfectly balanced throwing weapons are indicated. */
   if ((o_ptr->flags_obj & (OF_PERFECT_BALANCE)) && 
       (o_ptr->flags_obj & (OF_THROWING)) && 
-      (known) && (!o_ptr->name1))
+      (!o_ptr->name1) && (o_ptr->id_obj & OF_PERFECT_BALANCE))
     {
       object_desc_str_macro(t, "Well-balanced ");
     }
@@ -1136,19 +1138,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	  object_desc_chr_macro(t, ' ');
 	  object_desc_str_macro(t, (a_name + a_ptr->name));
 	}
-      
-      /* Grab any ego-item name */
-      else if (o_ptr->name2)
-	{
-	  ego_item_type *e_ptr = &e_info[o_ptr->name2];
-	  
-	  object_desc_chr_macro(t, ' ');
-	  object_desc_str_macro(t, (e_name + e_ptr->name));
-	  
-	  /* Hack - Now we know about the ego-item type */
-	  e_info[o_ptr->name2].everseen = TRUE;
-	}
     }
+
+  /* Grab any ego-item name */
+  if (has_ego_properties(o_ptr))
+    {
+      ego_item_type *e_ptr = &e_info[o_ptr->name2];
+      
+      object_desc_chr_macro(t, ' ');
+      object_desc_str_macro(t, (e_name + e_ptr->name));
+      
+      /* Hack - Now we know about the ego-item type */
+      e_info[o_ptr->name2].everseen = TRUE;
+    }
+    
   
   /* Append a 'fake' artifact name, if any, as if it were a real artifact 
    * name. */
@@ -1263,7 +1266,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       /* Display the item like armour */
       if (o_ptr->ac) show_armour = TRUE;
       
-      
       /* Dump base weapon info */
       switch (o_ptr->tval)
 	{
@@ -1282,12 +1284,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_DIGGING:
 	  {
 	    /* Append a "damage" string */
-	    object_desc_chr_macro(t, ' ');
-	    object_desc_chr_macro(t, p1);
-	    object_desc_num_macro(t, o_ptr->dd);
-	    object_desc_chr_macro(t, 'd');
-	    object_desc_num_macro(t, o_ptr->ds);
-	    object_desc_chr_macro(t, p2);
+	    if (o_ptr->id_other & IF_DD_DS)
+	      {
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_num_macro(t, o_ptr->dd);
+		object_desc_chr_macro(t, 'd');
+		object_desc_num_macro(t, o_ptr->ds);
+		object_desc_chr_macro(t, p2);
+	      }
 	    
 	    /* All done */
 	    break;
@@ -1300,17 +1305,20 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	    power = (o_ptr->dd);
 	    
 	    /* Modify the power, if the weapon is known. */
-	    if (known)
+	    if (worn)
 	      {
 		power += o_ptr->bonus_other[P_BONUS_MIGHT];
 	      }
 	    
 	    /* Append a "power" string */
-	    object_desc_chr_macro(t, ' ');
-	    object_desc_chr_macro(t, p1);
-	    object_desc_chr_macro(t, 'x');
-	    object_desc_num_macro(t, power);
-	    object_desc_chr_macro(t, p2);
+	    if (o_ptr->id_other & IF_DD_DS)
+	      {
+		object_desc_chr_macro(t, ' ');
+		object_desc_chr_macro(t, p1);
+		object_desc_chr_macro(t, 'x');
+		object_desc_num_macro(t, power);
+		object_desc_chr_macro(t, p2);
+	      }
 	    
 	    /* All done */
 	    break;
@@ -1319,93 +1327,105 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       
       
       /* Add the weapon bonuses */
-      if (known)
+      /* Show the tohit/todam on request */
+      /* Hack - delay displaying ring and amulet bonuses */
+      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
+	  !((o_ptr->id_other & IF_TO_H) || (o_ptr->id_other & IF_TO_D)))
+	;
+	      
+      else if (show_weapon)
 	{
-	  /* Show the tohit/todam on request */
-	  if (show_weapon)
-	    {
-	      object_desc_chr_macro(t, ' ');
-	      object_desc_chr_macro(t, p1);
-	      object_desc_int_macro(t, o_ptr->to_h);
-	      object_desc_chr_macro(t, ',');
-	      object_desc_int_macro(t, o_ptr->to_d);
-	      object_desc_chr_macro(t, p2);
-	    }
-	  
-	  /* Show the tohit if needed */
-	  else if (o_ptr->to_h)
-	    {
-	      object_desc_chr_macro(t, ' ');
-	      object_desc_chr_macro(t, p1);
-	      object_desc_int_macro(t, o_ptr->to_h);
-	      object_desc_chr_macro(t, p2);
-	    }
-	  
-	  /* Show the todam if needed */
-	  else if (o_ptr->to_d)
-	    {
-	      object_desc_chr_macro(t, ' ');
-	      object_desc_chr_macro(t, p1);
-	      object_desc_int_macro(t, o_ptr->to_d);
-	      object_desc_chr_macro(t, p2);
-	    }
+	  object_desc_chr_macro(t, ' ');
+	  object_desc_chr_macro(t, p1);
+	  if (o_ptr->id_other & IF_TO_H) object_desc_int_macro(t, o_ptr->to_h);
+	  else object_desc_chr_macro(t, '?');
+	  object_desc_chr_macro(t, ',');
+	  if (o_ptr->id_other & IF_TO_D) object_desc_int_macro(t, o_ptr->to_d);
+	  else object_desc_chr_macro(t, '?');
+	  object_desc_chr_macro(t, p2);
 	}
+	  
+      /* Show the tohit if needed */
+      else if (o_ptr->to_h)
+	{
+	  object_desc_chr_macro(t, ' ');
+	  object_desc_chr_macro(t, p1);
+	  if (o_ptr->id_other & IF_TO_H) object_desc_int_macro(t, o_ptr->to_h);
+	  else object_desc_chr_macro(t, '?');
+	  object_desc_chr_macro(t, p2);
+	}
+	  
+      /* Show the todam if needed */
+      else if (o_ptr->to_d)
+	{
+	  object_desc_chr_macro(t, ' ');
+	  object_desc_chr_macro(t, p1);
+	  if (o_ptr->id_other & IF_TO_D) object_desc_int_macro(t, o_ptr->to_d);
+	  else object_desc_chr_macro(t, '?');
+	  object_desc_chr_macro(t, p2);
+	}
+	
       
       
       /* Add the armor bonuses */
-      if (known)
+      /* Show the armor class info */
+      /* Hack - delay displaying ring and amulet bonuses */
+      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
+	  !((o_ptr->id_other & IF_AC) || (o_ptr->id_other & IF_TO_A)))
+	;
+	      
+      else if (show_armour)
 	{
-	  /* Show the armor class info */
-	  if (show_armour)
+	  /* Hack - Special case to make it clear what wearing a 
+	   * shield on the back does to its protective value. -LM-
+	   */
+	  if ((p_ptr->shield_on_back) && (o_ptr == &inventory[INVEN_ARM]))
 	    {
-	      /* Hack - Special case to make it clear what wearing a 
-	       * shield on the back does to its protective value. -LM-
-	       */
-	      if ((p_ptr->shield_on_back) && (o_ptr == &inventory[INVEN_ARM]))
+	      object_desc_chr_macro(t, ' ');
+	      object_desc_chr_macro(t, b1);
+	      if (o_ptr->id_other & IF_AC)
 		{
-		  object_desc_chr_macro(t, ' ');
-		  object_desc_chr_macro(t, b1);
 		  object_desc_num_macro(t, o_ptr->ac / 3);
 		  object_desc_chr_macro(t, p1);
 		  object_desc_num_macro(t, o_ptr->ac);
 		  object_desc_chr_macro(t, p2);
-		  object_desc_chr_macro(t, ',');
+		}
+	      else object_desc_chr_macro(t, '?');
+	      object_desc_chr_macro(t, ',');
+	      if (o_ptr->id_other & IF_TO_A)
+		{
 		  object_desc_int_macro(t, o_ptr->to_a / 2);
 		  object_desc_chr_macro(t, p1);
 		  object_desc_int_macro(t, o_ptr->to_a);
 		  object_desc_chr_macro(t, p2);
-		  object_desc_chr_macro(t, b2);
 		}
-	      else
-		{
-		  object_desc_chr_macro(t, ' ');
-		  object_desc_chr_macro(t, b1);
-		  object_desc_num_macro(t, o_ptr->ac);
-		  object_desc_chr_macro(t, ',');
-		  object_desc_int_macro(t, o_ptr->to_a);
-		  object_desc_chr_macro(t, b2);
-		}
+	      else object_desc_chr_macro(t, '?');
+	      object_desc_chr_macro(t, b2);
 	    }
-	  
-	  /* No base armor, but does increase armor */
-	  else if (o_ptr->to_a)
+	  else
 	    {
 	      object_desc_chr_macro(t, ' ');
 	      object_desc_chr_macro(t, b1);
-	      object_desc_int_macro(t, o_ptr->to_a);
+	      if (o_ptr->id_other & IF_AC) object_desc_num_macro(t, o_ptr->ac);
+	      else object_desc_chr_macro(t, '?');
+	      object_desc_chr_macro(t, ',');
+	      if (o_ptr->id_other & IF_TO_A) 
+		object_desc_int_macro(t, o_ptr->to_a);
+	      else object_desc_chr_macro(t, '?');
 	      object_desc_chr_macro(t, b2);
 	    }
 	}
-      
-      /* Hack -- always show base armor */
-      else if (show_armour)
+	  
+      /* No base armor, but does increase armor */
+      else if (o_ptr->id_other & IF_TO_A)
 	{
 	  object_desc_chr_macro(t, ' ');
 	  object_desc_chr_macro(t, b1);
-	  object_desc_num_macro(t, o_ptr->ac);
+	  object_desc_int_macro(t, o_ptr->to_a);
 	  object_desc_chr_macro(t, b2);
 	}
     }
+  
   
   /* Additional details, step 2 */
   if (mode > 1)
@@ -1488,7 +1508,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
       /* Check for stats */
       for (i = 0; i < A_MAX; i++)
-	if ((o_ptr->bonus_stat[i] != 0) && (num_bonus < 3))
+	if ((o_ptr->bonus_stat[i] != 0) && (num_bonus < 4))
 	  {
 	    int j;
 	    bool already = FALSE;
@@ -1520,7 +1540,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	      }
 	  }
       
-      if (known && num_bonus)
+      if (worn && num_bonus)
 	{
 	  cptr tail = "";
 	  cptr tail2 = "";
@@ -2003,14 +2023,8 @@ s16b wield_slot(object_type *o_ptr)
 	return (INVEN_Q0);
       }
 
-      /* Flasks and some mushrooms now go into the quiver */
-    case TV_FLASK:
-    case TV_FOOD:
-      {
-	if (o_ptr->flags_obj & OF_THROWING) return (INVEN_Q0);
-      }
     }
-
+  
   /* No slot available */
   return (-1);
 }
@@ -4158,8 +4172,7 @@ char *object_adj(int tval, int sval)
 
   switch (tval)
     {
-    case TV_AMULET: case TV_RING: case TV_STAFF: case TV_WAND: 
-    case TV_ROD: case TV_POTION: 
+    case TV_STAFF: case TV_WAND: case TV_ROD: case TV_POTION: 
       return flavor_text + flavor_info[k_ptr->flavor].text;
     case TV_SCROLL: 
       return scroll_adj[sval];

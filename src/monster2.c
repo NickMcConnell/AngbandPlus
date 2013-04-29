@@ -701,7 +701,7 @@ s16b get_mon_num_quick(int level)
  */
 void display_monlist(void)
 {
-  int idx, n;
+  int idx, n, i;
   int line = 0;
   
   char *m_name;
@@ -710,10 +710,11 @@ void display_monlist(void)
   monster_type *m_ptr;
   monster_race *r_ptr;
   
-  u16b *race_counts;
+  u16b *race_counts, *neutral_counts;
   
-  /* Allocate the array */
+  /* Allocate the arrays */
   C_MAKE(race_counts, z_info->r_max, u16b);
+  C_MAKE(neutral_counts, z_info->r_max, u16b);
   
   /* Iterate over m_list */
   for (idx = 1; idx < z_info->m_max; idx++)
@@ -725,12 +726,17 @@ void display_monlist(void)
       
       /* Bump the count for this race */
       race_counts[m_ptr->r_idx]++;
+
+      /* Check neutrality */
+      if (m_ptr->hostile >= 0) neutral_counts[m_ptr->r_idx]++;
     }
   
   
   /* Iterate over m_list ( again :-/ ) */
   for (idx = 1; idx < z_info->m_max; idx++)
     {
+      int attitudes = 1;
+
       m_ptr = &m_list[idx];
       
       /* Only visible monsters */
@@ -752,56 +758,81 @@ void display_monlist(void)
       if (Term->xchar_hook)
 	xstr_trans(m_name, (Term->xchar_hook(128) == 128));
 
-      /* Display the entry itself */
-      Term_putstr(0, line, n, TERM_WHITE, m_name);
-      
-      /* Append the "standard" attr/char info */
-      Term_addstr(-1, TERM_WHITE, " ('");
-      Term_addch(r_ptr->d_attr, r_ptr->d_char);
-      Term_addstr(-1, TERM_WHITE, "')");
-      n += 6;
-      
-      /* Monster graphic on one line */
-      if (!(use_dbltile) && !(use_trptile))
-	{
-	  /* Append the "optional" attr/char info */
-	  Term_addstr(-1, TERM_WHITE, "/('");
-	  
-	  Term_addch(r_ptr->x_attr, r_ptr->x_char);
+      /* See if there are any neutrals */
+      if (neutral_counts[m_ptr->r_idx] > 0) attitudes++;
 
-	  if (use_bigtile)
+      /* Extract hostile count */
+      race_counts[m_ptr->r_idx] -= neutral_counts[m_ptr->r_idx];
+
+      /* Display the entry itself */
+      for (i = 0; i < attitudes; i++)
+	{
+	  /* Skip straight to neutrals if no hostiles, finish if no neutrals */
+	  if ((race_counts[m_ptr->r_idx] == 0) && (i == 0)) continue;
+	  if ((neutral_counts[m_ptr->r_idx] == 0) && (i == 1)) break;
+
+	  /* Name */
+	  Term_putstr(0, line, n, TERM_WHITE, m_name);
+
+	  /* Attitude */
+	  if (attitudes > 1) 
 	    {
-	      if (r_ptr->x_attr & 0x80)
-		Term_addch(255, -1);
-	      else
-		Term_addch(0, ' ');
-	      
-	      n++;
+	      Term_addstr(-1, TERM_WHITE, 
+			  (i == 0) ? " (hostile)" : " (neutral)");
+	      n += 10;
 	    }
+      
+	  /* Append the "standard" attr/char info */
+	  Term_addstr(-1, TERM_WHITE, " ('");
+	  Term_addch(r_ptr->d_attr, r_ptr->d_char);
+	  Term_addstr(-1, TERM_WHITE, "')");
+	  n += 6;
+      
+	  /* Monster graphic on one line */
+	  if (!(use_dbltile) && !(use_trptile))
+	    {
+	      /* Append the "optional" attr/char info */
+	      Term_addstr(-1, TERM_WHITE, "/('");
+	      
+	      Term_addch(r_ptr->x_attr, r_ptr->x_char);
+	      
+	      if (use_bigtile)
+		{
+		  if (r_ptr->x_attr & 0x80)
+		    Term_addch(255, -1);
+		  else
+		    Term_addch(0, ' ');
+		  
+		  n++;
+		}
+	      
+	      Term_addstr(-1, TERM_WHITE, "'):");
+	      n += 7;
+	    }
+
+	  /* Add race count */
+	  if (i == 0) sprintf(buf, "%d", race_counts[m_ptr->r_idx]);
+	  else sprintf(buf, "%d", neutral_counts[m_ptr->r_idx]);
+	  Term_addch(TERM_WHITE, '[');
+	  Term_addstr(strlen(buf), TERM_WHITE, buf);
+	  Term_addch(TERM_WHITE, ']');
+	  n += strlen(buf) + 2;
+      
+	  /* Don't do this race again */
+	  if (i == 0) race_counts[m_ptr->r_idx] = 0;
+	  else neutral_counts[m_ptr->r_idx] = 0;
+      
+	  /* Erase the rest of the line */
+	  Term_erase(n, line, 255);
 	  
-	  Term_addstr(-1, TERM_WHITE, "'):");
-	  n += 7;
+	  /* Bump line counter */
+	  line++;
 	}
-      
-      /* Add race count */
-      sprintf(buf, "%d", race_counts[m_ptr->r_idx]);
-      Term_addch(TERM_WHITE, '[');
-      Term_addstr(strlen(buf), TERM_WHITE, buf);
-      Term_addch(TERM_WHITE, ']');
-      n += strlen(buf) + 2;
-      
-      /* Don't do this race again */
-      race_counts[m_ptr->r_idx] = 0;
-      
-      /* Erase the rest of the line */
-      Term_erase(n, line, 255);
-      
-      /* Bump line counter */
-      line++;
     }
   
   /* Free the race counters */
   FREE(race_counts); 
+  FREE(neutral_counts); 
   
   /* Erase the rest of the window */
   for (idx = line; idx < Term->hgt; idx++)
@@ -1259,6 +1290,7 @@ void update_mon(int m_idx, bool full)
 	      if (((turn / 10) % 10) == (m_idx % 10))
 		{
 		  /* Detectable */
+		  notice_obj(OF_TELEPATHY, 0);
 		  flag = TRUE;
 		  
 		  /* Memorize flags */
@@ -1276,6 +1308,7 @@ void update_mon(int m_idx, bool full)
 	  else
 	    {
 	      /* Detectable */
+	      notice_obj(OF_TELEPATHY, 0);
 	      flag = TRUE;
 	      
 	      /* Hack -- Memorize mental flags */
@@ -1321,6 +1354,7 @@ void update_mon(int m_idx, bool full)
 		  if (p_ptr->see_inv)
 		    {
 		      /* Easy to see */
+		      notice_obj(OF_SEE_INVIS, 0);
 		      easy = flag = TRUE;
 		    }
 		}
@@ -2596,6 +2630,12 @@ static bool summon_specific_okay(int r_idx)
     case SUMMON_BIRD:
       {
 	okay = (r_ptr->d_char == 'B');
+	break;
+      }
+
+    case SUMMON_GOLEM:
+      {
+	okay = ((r_ptr->d_char == 'g') && (!(r_ptr->flags3 & RF3_DRAGON)));
 	break;
       }
       

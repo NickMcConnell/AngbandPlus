@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([FAangband], [1.0.x], [nckmccnnll@yahoo.com.au], [faangband])
+AC_INIT([FAangband], [1.1.x], [nckmccnnll@yahoo.com.au], [faangband])
 AC_PREREQ([2.59])
 
 AC_CONFIG_HEADER(src/autoconf.h)

@@ -4972,7 +4972,7 @@ void wiz_lite(bool wizard)
   p_ptr->redraw |= (PR_MAP);
   
   /* Window stuff */
-  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST );
+  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_ITEMLIST);
 }
 
 
@@ -5018,7 +5018,7 @@ void wiz_dark(void)
   p_ptr->redraw |= (PR_MAP);
   
   /* Window stuff */
-  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_ITEMLIST);
 }
 
 
@@ -5123,7 +5123,7 @@ void town_illuminate(bool daytime, bool cave)
   p_ptr->redraw |= (PR_MAP);
   
   /* Window stuff */
-  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+  p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_ITEMLIST);
 }
 
 
