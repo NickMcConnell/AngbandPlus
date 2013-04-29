@@ -15,11 +15,13 @@
 #include "angband.h"
 
 
-/*max length of note output*/
+/* max length of note output */
 #define LINEWRAP	75
 
-/*used for knowledge display*/
-#define BROWSER_ROWS			16
+/* used for knowledge display */
+int browser_rows = 16;
+int knowledge_row = 2;
+int header_row = 4;
 
 typedef struct monster_list_entry monster_list_entry;
 /*
@@ -49,6 +51,12 @@ void do_cmd_redraw(void)
   
   term *old = Term;
   
+  /* Low level flush */
+  Term_flush();
+  
+  /* Reset "inkey()" */
+  flush();
+
   /* Hack -- react to changes */
   Term_xtra(TERM_XTRA_REACT, 0);
   
@@ -81,6 +89,9 @@ void do_cmd_redraw(void)
   p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_DUNGEON | PW_MONSTER | 
 		    PW_OBJECT);
   
+  /* Clear screen */
+  Term_clear();
+
   /* Hack -- update */
   handle_stuff();
   
@@ -119,9 +130,6 @@ void resize_map(void)
   panel_row_max = 0;
   panel_col_min = 0;
   panel_col_max = 0;
-  
-  /* Reset the panels */
-  map_panel_size();
   
   if (character_dungeon)
     {
@@ -196,14 +204,17 @@ void redraw_window(void)
  */
 void do_cmd_change_name(void)
 {
-  char c;
+  key_event ke;
   
   int mode = 0;
   
   cptr p;
   
   /* Prompt */
-  p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
+  if (small_screen)
+    p = "['c' change name,'f' file,'h' next mode,ESC]";
+  else
+    p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
   
   /* Save screen */
   screen_save();
@@ -218,19 +229,39 @@ void do_cmd_change_name(void)
       Term_putstr(2, 23, -1, TERM_WHITE, p);
       
       /* Query */
-      c = inkey();
+      ke = inkey_ex();
       
       /* Exit */
-      if (c == ESCAPE) break;
+      if (ke.key == ESCAPE) break;
       
+      /* Mouse input */
+      if (ke.key == '\xff')
+	{ 
+	  if (ke.mousey == 23)
+	    {
+	      if ((ke.mousex > 2) && 
+		  (ke.mousex < (small_screen ? 18 : 21))) ke.key = 'c';
+	      if ((ke.mousex > (small_screen ? 18 : 22)) && 
+		  (ke.mousex < (small_screen ? 27 : 34))) ke.key = 'f';
+	      if ((ke.mousex > (small_screen ? 27 : 35)) && 
+		  (ke.mousex < (small_screen ? 41 : 54))) ke.key = 'h';
+	      if ((ke.mousex > (small_screen ? 41 : 58)) && 
+		  (ke.mousex < (small_screen ? 45 : 62))) break;
+	    }
+	  else
+	    /* Default to 'h' */
+	    ke.key = 'h';
+	}
+
+	    
       /* Change name */
-      if (c == 'c')
+      if (ke.key == 'c')
 	{
 	  get_name();
 	}
       
       /* File dump */
-      else if (c == 'f')
+      else if (ke.key == 'f')
 	{
 	  char tmp[81];
 	  
@@ -246,10 +277,12 @@ void do_cmd_change_name(void)
 	}
       
       /* Toggle mode.  Changed back to 2.8.2 format. */
-      else if (c == 'h')
+      else if (ke.key == 'h')
 	{
 	  mode++;
 	}
+
+      
       
       /* Oops */
       else
@@ -293,8 +326,9 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-  s16b i, j, k, n;
+  s16b i, j, n;
   int q;
+  key_event ke;
   
   char shower[80];
   char finder[80];
@@ -367,19 +401,29 @@ void do_cmd_messages(void)
 		 i, i + j - 1, n, q), 0, 0);
       
       /* Display prompt (not very informative) */
-      prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt-1, 0);
+
+      if (small_screen)
+
+	prt("[Press '-' for older, '+' for newer, ..., or ESCAPE]", hgt-1, 0);
+
+      else
+
+	prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt-1, 0);
+
+
       
       /* Get a command */
-      k = inkey();
+      ke = inkey_ex();
       
       /* Exit on Escape */
-      if (k == ESCAPE) break;
+      if (((ke.mousex > 45) && (ke.mousex < 52) && 
+	   (ke.mousey == Term->hgt - 1)) || (ke.key == ESCAPE)) break;
       
       /* Hack -- Save the old index */
       j = i;
       
       /* Horizontal scroll */
-      if (k == '4')
+      if (ke.key == '4')
 	{
 	  /* Scroll left */
 	  q = (q >= wid / 2) ? (q - wid / 2) : 0;
@@ -389,7 +433,7 @@ void do_cmd_messages(void)
 	}
       
       /* Horizontal scroll */
-      if (k == '6')
+      if (ke.key == '6')
 	{
 	  /* Scroll right */
 	  q = q + wid / 2;
@@ -399,7 +443,7 @@ void do_cmd_messages(void)
 	}
       
       /* Hack -- handle show */
-      if (k == '=')
+      if (ke.key == '=')
 	{
 	  /* Prompt */
 	  prt("Show: ", hgt-1, 0);
@@ -412,7 +456,7 @@ void do_cmd_messages(void)
 	}
       
       /* Hack -- handle find */
-      if (k == '/')
+      if (ke.key == '/')
 	{
 	  s16b z;
 	  
@@ -443,42 +487,55 @@ void do_cmd_messages(void)
 	}
       
       /* Recall 1 older message */
-      if ((k == '8') || (k == '\n') || (k == '\r'))
+      if ((ke.key == '8') || (ke.key == '\n') || (ke.key == '\r'))
 	{
 	  /* Go newer if legal */
 	  if (i + 1 < n) i += 1;
 	}
       
       /* Recall 10 older messages */
-      if (k == '+')
+
+      if (small_screen)
 	{
-	  /* Go older if legal */
-	  if (i + 10 < n) i += 10;
+	  if (((ke.mousex > 6) && (ke.mousex < 20) && 
+	       (ke.mousey == Term->hgt - 1)) || (ke.key == '+'))
+	    {
+	      /* Go older if legal */
+	      if (i + 10 < n) i += 10;
+	    }
+	  
+	  /* Recall 10 newer messages */
+	  if (((ke.mousex > 21) && (ke.mousex < 35) && 
+	       (ke.mousey == Term->hgt - 1)) || (ke.key == '-'))
+	    {
+	      /* Go newer (if able) */
+	      i = (i >= 10) ? (i - 10) : 0;
+	    }
 	}
-      
-      /* Recall 20 older messages */
-      if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
+      else
 	{
-	  /* Go older if legal */
-	  if (i + 20 < n) i += 20;
+	  /* Recall 20 older messages */
+	  if ((ke.key == 'p') || (ke.key == KTRL('P')) || (ke.key == ' ') || 
+	      ((ke.mousex > 6) && (ke.mousex < 20) &&
+	       (ke.mousey == Term->hgt - 1)))
+	    {
+	      /* Go older if legal */
+	      if (i + 20 < n) i += 20;
+	    }
+	  
+	  /* Recall 20 newer messages */
+	  if ((ke.key == 'n') || (ke.key == KTRL('N')) || 
+	      ((ke.mousex > 21) && (ke.mousex < 35) &&
+	       (ke.mousey == Term->hgt - 1)))
+	    {
+	      /* Go newer (if able) */
+	      i = (i >= 20) ? (i - 20) : 0;
+	    }
 	}
-      
-      /* Recall 20 newer messages */
-      if ((k == 'n') || (k == KTRL('N')))
-	{
-	  /* Go newer (if able) */
-	  i = (i >= 20) ? (i - 20) : 0;
-	}
-      
-      /* Recall 10 newer messages */
-      if (k == '-')
-	{
-	  /* Go newer (if able) */
-	  i = (i >= 10) ? (i - 10) : 0;
-	}
+
       
       /* Recall 1 newer messages */
-      if (k == '2')
+      if (ke.key == '2')
 	{
 	  /* Go newer (if able) */
 	  i = (i >= 1) ? (i - 1) : 0;
@@ -624,6 +681,7 @@ static void do_cmd_options_autosave(cptr info)
 	    autosave_freq = toggle_frequency(autosave_freq);
 	    prt(format("Timed autosave frequency: every %d turns",
 		       autosave_freq), 5, 0);
+	    break;
 	  }
 	  
 	default:
@@ -702,7 +760,7 @@ static bool do_cmd_pref_file_hack(int row)
  */
 static void do_cmd_options_aux(int page, cptr info)
 {
-  char ch;
+  key_event ke;
   
   int i, k = 0, n = 0;
   
@@ -729,9 +787,22 @@ static void do_cmd_options_aux(int page, cptr info)
   while (TRUE)
     {
       /* Prompt XXX XXX XXX */
-      sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
-      prt(buf, 0, 0);
-      
+
+      if (small_screen)
+	{
+	  sprintf(buf, "%s ", info);
+	  prt(buf, 0, 0);
+	  prt("(RET to advance, y/n to set, ESC to accept) ", 1, 0);
+	}
+      else
+	{	
+	  sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", 
+		  info);
+	  prt(buf, 0, 0);
+	  prt("                                            ", 1, 0);
+	}
+
+
       /* Display the options */
       for (i = 0; i < n; i++)
 	{
@@ -741,21 +812,51 @@ static void do_cmd_options_aux(int page, cptr info)
 	  if (i == k) a = TERM_L_BLUE;
 	  
 	  /* Display the option text */
-	  sprintf(buf, "%-48s: %s  (%s)",
-		  option_desc[opt[i]],
-		  op_ptr->opt[opt[i]] ? "yes" : "no ",
-		  option_text[opt[i]]);
-	  c_prt(a, buf, i + 2, 0);
+
+	  if (small_screen)
+	    {
+	      sprintf(buf, "%-22s: %s", option_text[opt[i]],
+		      op_ptr->opt[opt[i]] ? "yes" : "no "); 
+	      c_prt(a, buf, i + 2, 0);
+	    }
+	  else
+	    {  
+	      sprintf(buf, "%-48s: %s  (%s)", 
+		      option_desc[opt[i]],
+		      op_ptr->opt[opt[i]] ? "yes" : "no ", 
+		      option_text[opt[i]]);
+	      c_prt(a, buf, i + 2, 0);
+	    }
+
+
 	}
-      
+
       /* Hilite current option */
-      move_cursor(k + 2, 50);
-      
+      move_cursor(k + 2, (small_screen ? 24 : 50));
+ 
       /* Get a key */
-      ch = inkey();
+      ke = inkey_ex();
+
+      /* Mouse input */
+      if ((ke.key == '\xff') && (ke.mousey == (small_screen ? 1 : 0)))
+	{
+	  int base; 
+
+	  base = (small_screen ? -1 : strlen(info));
+	  
+	  if ((ke.mousex > base + 1) && (ke.mousex < base + 16))
+	    ke.key = '\r';
+	  else if (ke.mousex == base + 18)
+	    ke.key = 'y';
+	  else if (ke.mousex == base + 20)
+	    ke.key = 'n';
+	  else if ((ke.mousex > base + 29) && (ke.mousex < base + 43))
+	    ke.key = ESCAPE;
+	}
+	    
       
       /* Analyze */
-      switch (ch)
+      switch (ke.key)
 	{
 	case ESCAPE:
 	  {
@@ -811,7 +912,25 @@ static void do_cmd_options_aux(int page, cptr info)
 	    k = (k + 1) % n;
 	    break;
 	  }
-	  
+	
+	case '\xff':
+	  {
+	    if ((ke.mousey > 1) && (ke.mousey < n + 2))
+	      {
+		k = ke.mousey - 2;
+
+		if (ke.mousex > (small_screen ? 22 : 48)) 
+		    op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+
+		break;
+	      }
+	    else
+	      {
+		/* Fall through */
+	      }
+
+	  }
+  
 	default:
 	  {
 	    bell("Illegal command for normal options!");
@@ -833,8 +952,10 @@ static void do_cmd_options_win(void)
   int x = 0;
   
   char ch;
+  key_event ke;
   
   u32b old_flag[8];
+
   
   
   /* Memorize old flags */
@@ -906,7 +1027,43 @@ static void do_cmd_options_win(void)
       Term_gotoxy(35 + x * 5, y + 5);
       
       /* Get key */
-      ch = inkey();
+      ke = inkey_ex();
+      ch = ke.key;
+
+      /* Mouse input */
+      if (ch == '\xff')
+	{
+	  /* Prompt line first */
+	  if (!ke.mousey)
+	    {
+	      if ((ke.mousex > 28) && (ke.mousex < 42))
+		ch = 't';
+	      else if ((ke.mousex > 46) && (ke.mousex < 50))
+		ch = ESCAPE;
+	    }
+
+
+	  /* Get location */
+	  for (i = 0; i < 16; i++)
+	    for (j = 0; j < 8; j++)
+	      {
+		if ((ke.mousex == 35 + j * 5) && (ke.mousey == i + 5))
+		  {
+		    if ((ke.mousex == 35 + x * 5) && (ke.mousey == y + 5))
+		      ch = 't';
+		    else
+		      {
+			Term_gotoxy(ke.mousex, ke.mousey);
+			x = j;
+			y = i;
+			continue;
+		      }
+		  }
+	      }
+	}
+
+      /* Hack - done with the mouse */
+      if (ch == '\xff') continue;
       
       /* Allow escape */
       if ((ch == ESCAPE) || (ch == 'q')) break;
@@ -923,13 +1080,13 @@ static void do_cmd_options_win(void)
 	  /* Toggle flag (off) */
 	  else if (op_ptr->window_flag[x] & (1L << y))
 	    {
-	      op_ptr->window_flag[x] &= ~(1L << y);
+	      op_ptr->window_flag[x] = 0;
 	    }
 	  
 	  /* Toggle flag (on) */
 	  else
 	    {
-	      op_ptr->window_flag[x] |= (1L << y);
+	      op_ptr->window_flag[x] = (1L << y);
 	    }
 	  
 	  /* Continue */
@@ -1080,7 +1237,7 @@ static errr option_dump(cptr fname)
  */
 void do_cmd_options(void)
 {
-  int k;
+  key_event ke;
   
   
   /* Save screen */
@@ -1093,46 +1250,256 @@ void do_cmd_options(void)
       /* Clear screen */
       Term_clear();
       
-      /* Why are we here */
-      prt("FAangband options", 2, 0);
-      
-      /* Give some choices */
-      prt("(1) User Interface Options", 4, 5);
-      prt("(2) Disturbance Options", 5, 5);
-      prt("(3) Game-Play Options", 6, 5);
-      prt("(4) Efficiency Options", 7, 5);
-      prt("(5) Birth Options - For Character Creation (Only)", 8, 5);
-      
-      /* Cheating */
-      prt("(6) Cheat Options", 9, 5);
-      
-      /* Window flags */
-      prt("(W) Window flags", 11, 5);
-      
-      /* Squelch Menus */
-      prt("(I) Item squelching menus", 12, 5);
-      
-      /* Special choices */
-      prt("(D) Base Delay Factor", 13, 5);
-      prt("(H) Hitpoint Warning", 14, 5);
-      prt("(P) Panel Change Factor", 15, 5);
-      prt("(A) Autosave Options", 16, 5);
-      
-      /* Load and Save */
-      prt("(R) Load a user pref file", 4, 40);
-      prt("(S) Append options to a file", 5, 40);
-      
-      /* Prompt */
-      prt("Command: ", 18, 0);
-      
+      if (small_screen)
+	{
+	  /* Why are we here */
+	  prt("FAangband options (ESC to quit)", 0, 0);
+	  
+	  /* Give some choices */
+	  prt("(1) User Interface", 1, 5);
+	  prt("(2) Disturbance Options", 2, 5);
+	  prt("(3) Game-Play Options", 3, 5);
+	  prt("(4) Efficiency Options", 4, 5);
+	  prt("(5) Birth Options", 5, 5);
+	  
+	  /* Cheating */
+	  prt("(6) Cheat Options", 6, 5);
+	  
+	  /* Squelch Menus */
+	  prt("(I) Item squelching", 7, 5);
+	  
+	  /* Special choices */
+	  prt("(D) Base Delay Factor", 8, 5);
+	  prt("(H) Hitpoint Warning", 9, 5);
+	  prt("(P) Panel Change Factor", 10, 5);
+	  prt("(A) Autosave Options", 11, 5);
+	  
+	  /* Load and Save */
+	  prt("(R) Load a pref file", 12, 5);
+	  prt("(S) Options to a file", 13, 5);
+	}
+      else
+	{
+	  /* Why are we here */
+	  prt("FAangband options (ESC to quit)", 2, 0);
+	  
+	  /* Give some choices */
+	  prt("(1) User Interface Options", 4, 5);
+	  prt("(2) Disturbance Options", 5, 5);
+	  prt("(3) Game-Play Options", 6, 5);
+	  prt("(4) Efficiency Options", 7, 5);
+	  prt("(5) Birth Options - For Character Creation (Only)", 8, 5);
+	  
+	  /* Cheating */
+	  prt("(6) Cheat Options", 9, 5);
+	  
+	  /* Window flags */
+	  prt("(W) Window flags", 11, 5);
+	  
+	  /* Squelch Menus */
+	  prt("(I) Item squelching menus", 12, 5);
+	  
+	  /* Special choices */
+	  prt("(D) Base Delay Factor", 13, 5);
+	  prt("(H) Hitpoint Warning", 14, 5);
+	  prt("(P) Panel Change Factor", 15, 5);
+	  prt("(A) Autosave Options", 16, 5);
+	  
+	  /* Load and Save */
+	  prt("(R) Load a user pref file", 4, 40);
+	  prt("(S) Append options to a file", 5, 40);
+	  
+	  /* Prompt */
+	  prt("Command: ", 18, 0);
+	}
+
+
       /* Get command */
-      k = inkey();
+      ke = inkey_ex();
       
       /* Exit */
-      if (k == ESCAPE) break;
+      if (ke.key == ESCAPE) break;
+
+      /* Mouse input */
+      if (ke.key == '\xff')
+	{      
+	  if (small_screen)
+	    {
+	      switch (ke.mousey)
+		{
+		  
+		case 0:
+		  {
+		    if ((ke.mousex > 17) && (ke.mousex < 31)) 
+		      {
+			/* Flush messages */
+			msg_print(NULL);
+			
+			/* Load screen */
+			screen_load();
+			
+			return;
+		      }
+		  }
+		case 1:
+		  {
+		    ke.key = '1';
+		    break;
+		  }
+		case 2:
+		  {
+		    ke.key = '2';
+		    break;
+		  }
+		case 3:
+		  {
+		    ke.key = '3';
+		    break;
+		  }
+		case 4:
+		  {
+		    ke.key = '4';
+		    break;
+		  }
+		case 5:
+		  {
+		    ke.key = '5';
+		    break;
+		  }
+		case 6:
+		  {
+		    ke.key = '6';
+		    break;
+		  }
+		case 7:
+		  {
+		    ke.key = 'I';
+		    break;
+		  }
+		case 8:
+		  {
+		    ke.key = 'D';
+		    break;
+		  }
+		case 9:
+		  {
+		    ke.key = 'H';
+		    break;
+		  }
+		case 10:
+		  {
+		    ke.key = 'P';
+		    break;
+		  }
+		case 11:
+		  {
+		    ke.key = 'A';
+		    break;
+		  }
+		case 12:
+		  {
+		    ke.key = 'R';
+		    break;
+		  }
+		case 13:
+		  {
+		    ke.key = 'S';
+		    break;
+		  }
+		}
+	    }
+	  else
+	    {
+	      switch (ke.mousey)
+		{
+		case 2:
+		  {
+		    if ((ke.mousex > 17) && (ke.mousex < 31)) 
+		      {
+			/* Flush messages */
+			msg_print(NULL);
+			
+			/* Load screen */
+			screen_load();
+			
+			return;
+		      }
+		    break;
+		  }
+		case 4:
+		  {
+		    if (ke.mousex < 40)
+		      ke.key = '1';
+		    else
+		      ke.key = 'R';
+		    break;
+		  }
+		case 5:
+		  {
+		    if (ke.mousex < 40)
+		      ke.key = '2';
+		    else
+		      ke.key = 'S';
+		    break;
+		  }
+		case 6:
+		  {
+		    ke.key = '3';
+		    break;
+		  }
+		case 7:
+		  {
+		    ke.key = '4';
+		    break;
+		  }
+		case 8:
+		  {
+		    ke.key = '5';
+		    break;
+		  }
+		case 9:
+		  {
+		    ke.key = '6';
+		    break;
+		  }
+		case 11:
+		  {
+		    ke.key = 'W';
+		    break;
+		  }
+		case 12:
+		  {
+		    ke.key = 'I';
+		    break;
+		  }
+		case 13:
+		  {
+		    ke.key = 'D';
+		    break;
+		  }
+		case 14:
+		  {
+		    ke.key = 'H';
+		    break;
+		  }
+		case 15:
+		  {
+		    ke.key = 'P';
+		    break;
+		  }
+		case 16:
+		  {
+		    ke.key = 'A';
+		    break;
+		  }
+		}
+	    }
+	  
+	  
+	}
       
       /* Analyze */
-      switch (k)
+      switch (ke.key)
 	{
 	  /* General Options */
 	case '1':
@@ -1206,18 +1573,46 @@ void do_cmd_options(void)
 	case 'd':
 	  {
 	    /* Prompt */
-	    prt("Command: Base Delay Factor", 18, 0);
+
+	    if (!small_screen)
+	      prt("Command: Base Delay Factor", 18, 0);
 	    
+
 	    /* Get a new value */
 	    while (1)
 	      {
+		int line = 22, dd = 2;
 		int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-		prt(format("Current base delay factor: %d (%d msec)",
-			   op_ptr->delay_factor, msec), 22, 0);
-		prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
-		k = inkey();
-		if (k == ESCAPE) break;
-		if (isdigit(k)) op_ptr->delay_factor = D2I(k);
+		prt(format("Current factor: %d (%d msec)",
+			   op_ptr->delay_factor, msec), line, 0);
+
+		if (small_screen)
+		  {
+		    line = 15;
+		    dd = 1;
+		    prt("Delay Factor (-- or ++)", line - dd, 0);
+		  }
+		else
+		  {
+		    prt("Delay Factor (-- or ++)/(0-9 or ESC to accept): ", 
+			line -dd, 0);
+		  }
+
+
+		ke = inkey_ex();
+		if (ke.key == ESCAPE) break;
+		if (isdigit(ke.key)) op_ptr->delay_factor = D2I(ke.key);
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 14) || (ke.mousex == 15)) &&
+			 (op_ptr->delay_factor))
+		  op_ptr->delay_factor--;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 20) || (ke.mousex == 21)) &&
+			 (op_ptr->delay_factor < 9))
+		  op_ptr->delay_factor++;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 (ke.mousex > 31) && (ke.mousex < 35))
+		  break;
 		else bell("Illegal delay factor!");
 	      }
 	    
@@ -1229,55 +1624,113 @@ void do_cmd_options(void)
 	case 'p':
 	  {
 	    /* Prompt */
-	    prt("Command: Panel Change Factor", 18, 0);
+
+	    if (!small_screen)
+	      prt("Command: Panel Change Factor", 18, 0);
+
 	    
 	    /* Get a new value */
 	    while (1)
 	      {
 		int pdist = (op_ptr->panel_change + 1) * 2;
-		prt(format("Current panel change factor: %d (%d from top/bottom, %d from sides)",
-			   op_ptr->panel_change, pdist, pdist * 2), 22, 0);
-		prt("Panel Change Factor (0-4 or ESC to accept): ", 20, 0);
-		k = inkey();
-		if (k == ESCAPE) break;
-		if (isdigit(k) && (D2I(k) < 5)) op_ptr->panel_change = D2I(k);
-		else bell("Illegal delay factor!");
+		int line = 22, dd = 2;
+
+		if (small_screen) 
+		  {
+		    line = 15;
+		    dd = 1;
+		    prt(format("Current change: %d (%d/%d)", 
+			       op_ptr->panel_change, pdist, pdist * 2), 15, 0);
+		    prt("Panel Change (-- or ++)", 14, 0);
+		  }
+		else
+		  {  
+		    prt(format("Current panel change factor: %d (%d from top/bottom, %d from sides)",
+			       op_ptr->panel_change, pdist, pdist * 2), 22, 0);
+		    prt("Panel Change (-- or ++)/(0-4 or ESC to accept): ", 
+			20, 0);
+		  }
+
+
+		ke = inkey_ex();
+		if (ke.key == ESCAPE) break;
+		if (isdigit(ke.key) && (D2I(ke.key) < 5)) 
+		  op_ptr->panel_change = D2I(ke.key);
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 14) || (ke.mousex == 15)) &&
+			 (op_ptr->panel_change))
+		  op_ptr->panel_change--;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 20) || (ke.mousex == 21)) &&
+			 (op_ptr->panel_change < 4))
+		  op_ptr->panel_change++;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 (ke.mousex > 31) && (ke.mousex < 35))
+		  break;
+		else bell("Illegal panel change!");
 	      }
 	    
 	    break;
 	  }
-	  
 	  /* Hack -- hitpoint warning factor */
 	case 'H':
 	case 'h':
 	  {
 	    /* Prompt */
-	    prt("Command: Hitpoint Warning", 18, 0);
+	    if (!small_screen)
+	      prt("Command: Hitpoint Warning", 18, 0);
+
+
 	    
 	    /* Get a new value */
 	    while (1)
 	      {
-		prt(format("Current hitpoint warning: %2d%%",
-			   op_ptr->hitpoint_warn * 10), 22, 0);
-		prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
-		k = inkey();
-		if (k == ESCAPE) break;
-		if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
+		int line = 22, dd = 2;
+		
+		prt(format("Current hitpoint warning:%2d%%",
+			   op_ptr->hitpoint_warn * 10), line, 0);
+
+		if (small_screen) 
+		  {
+		    line = 15;
+		    dd = 1;
+		    prt("Hitpoint Warning (-- or ++)", 14, 0);
+		  }
+		else
+		  {
+		    prt("Hitpoint Warning (-- or ++)/(0-9 or ESC to accept): ", 
+			20, 0);
+		  }
+
+		
+		ke = inkey_ex();
+		if (ke.key == ESCAPE) break;
+		if (isdigit(ke.key)) op_ptr->hitpoint_warn = D2I(ke.key);
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 18) || (ke.mousex == 19)) &&
+			 (op_ptr->hitpoint_warn))
+		  op_ptr->hitpoint_warn--;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex == 24) || (ke.mousex == 25)) &&
+			 (op_ptr->hitpoint_warn < 9))
+		  op_ptr->hitpoint_warn++;
+		else if ((ke.key == '\xff') && (ke.mousey == line - dd) && 
+			 ((ke.mousex > 35) || (ke.mousex < 39)))
+		  break;
 		else bell("Illegal hitpoint warning!");
 	      }
 	    
 	    break;
-	    
-	  case 'a':
-	  case 'A':
-	    {
-	      (void) do_cmd_options_autosave("Autosave");
-	      break;
-	    }
-	    
-	    
+	  }  
+	case 'a':
+	case 'A':
+	  {
+	    (void) do_cmd_options_autosave("Autosave");
+	    break;
 	  }
 	  
+	  
+	  	  
 	case 'r':
 	case 'R':
 	  {
@@ -1340,6 +1793,9 @@ void do_cmd_options(void)
   
   /* Load screen */
   screen_load();
+
+  /* Hack - update panel in case of screen, frame option changes */
+  verify_panel();
 }
 
 
@@ -1600,6 +2056,8 @@ static errr keymap_dump(cptr fname)
 void do_cmd_macros(void)
 {
   int i;
+
+  key_event ke;
   
   char tmp[1024];
   
@@ -1636,38 +2094,52 @@ void do_cmd_macros(void)
       Term_clear();
       
       /* Describe */
-      prt("Interact with Macros", 2, 0);
+      prt("Interact with Macros", 1, 0);
+      prt("ESC to quit", 2, 0);
       
       
       /* Describe that action */
-      prt("Current action (if any) shown below:", 20, 0);
+      prt("Current action (if any) shown below:", 16, 0);
       
       /* Analyze the current action */
       ascii_to_text(buf, macro_buffer);
       
       /* Display the current action */
-      prt(buf, 22, 0);
+      prt(buf, 17, 0);
       
       
       /* Selections */
-      prt("(1) Load a user pref file", 4, 5);
+      prt("(1) Load a user pref file", 3, 5);
 #ifdef ALLOW_MACROS
-      prt("(2) Append macros to a file", 5, 5);
-      prt("(3) Query a macro", 6, 5);
-      prt("(4) Create a macro", 7, 5);
-      prt("(5) Remove a macro", 8, 5);
-      prt("(6) Append keymaps to a file", 9, 5);
-      prt("(7) Query a keymap", 10, 5);
-      prt("(8) Create a keymap", 11, 5);
-      prt("(9) Remove a keymap", 12, 5);
-      prt("(0) Enter a new action", 13, 5);
+      prt("(2) Append macros to a file", 4, 5);
+      prt("(3) Query a macro", 5, 5);
+      prt("(4) Create a macro", 6, 5);
+      prt("(5) Remove a macro", 7, 5);
+      prt("(6) Append keymaps to a file", 8, 5);
+      prt("(7) Query a keymap", 9, 5);
+      prt("(8) Create a keymap", 10, 5);
+      prt("(9) Remove a keymap", 11, 5);
+      prt("(0) Enter a new action", 12, 5);
 #endif /* ALLOW_MACROS */
       
       /* Prompt */
-      prt("Command: ", 16, 0);
+      prt("Command: ", 13, 0);
       
       /* Get a command */
-      i = inkey();
+      ke = inkey_ex();
+      i = ke.key;
+
+      /* Mouse input */
+      if (i == '\xff')
+	{
+	  if (ke.mousey == 2) 
+	    i = ESCAPE;
+	  else if ((ke.mousey > 1) && (ke.mousey < 13))
+	    {
+	      i = I2D((ke.mousey - 2) % 10);
+	      prt("(keyboard input only!)", 3, 0);
+	    }
+	}
       
       /* Leave */
       if (i == ESCAPE) break;
@@ -1676,7 +2148,7 @@ void do_cmd_macros(void)
       else if (i == '1')
 	{
 	  /* Ask for and load a user pref file */
-	  (void) do_cmd_pref_file_hack(16);
+	  (void) do_cmd_pref_file_hack(13);
 	}
       
 #ifdef ALLOW_MACROS
@@ -1685,10 +2157,10 @@ void do_cmd_macros(void)
       else if (i == '2')
 	{
 	  /* Prompt */
-	  prt("Command: Append macros to a file", 16, 0);
+	  prt("Command: Append macros to a file", 13, 0);
 	  
 	  /* Prompt */
-	  prt("File: ", 18, 0);
+	  prt("File: ", 15, 0);
 	  
 	  /* Default filename */
 	  sprintf(tmp, "%s.prf", op_ptr->base_name);
@@ -1715,10 +2187,10 @@ void do_cmd_macros(void)
 	  int k;
 	  
 	  /* Prompt */
-	  prt("Command: Query a macro", 16, 0);
+	  prt("Command: Query a macro", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Trigger: ", 18, 0);
+	  prt("Trigger: ", 15, 0);
 	  
 	  /* Get a macro trigger */
 	  do_cmd_macro_aux(buf);
@@ -1743,7 +2215,7 @@ void do_cmd_macros(void)
 	      ascii_to_text(buf, macro_buffer);
 	      
 	      /* Display the current action */
-	      prt(buf, 22, 0);
+	      prt(buf, 17, 0);
 	      
 	      /* Prompt */
 	      msg_print("Found a macro.");
@@ -1754,19 +2226,19 @@ void do_cmd_macros(void)
       else if (i == '4')
 	{
 	  /* Prompt */
-	  prt("Command: Create a macro", 16, 0);
+	  prt("Command: Create a macro", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Trigger: ", 18, 0);
+	  prt("Trigger: ", 15, 0);
 	  
 	  /* Get a macro trigger */
 	  do_cmd_macro_aux(buf);
 	  
 	  /* Clear */
-	  clear_from(20);
+	  clear_from(17);
 	  
 	  /* Prompt */
-	  prt("Action: ", 20, 0);
+	  prt("Action: ", 17, 0);
 	  
 	  /* Convert to text */
 	  ascii_to_text(tmp, macro_buffer);
@@ -1789,10 +2261,10 @@ void do_cmd_macros(void)
       else if (i == '5')
 	{
 	  /* Prompt */
-	  prt("Command: Remove a macro", 16, 0);
+	  prt("Command: Remove a macro", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Trigger: ", 18, 0);
+	  prt("Trigger: ", 15, 0);
 	  
 	  /* Get a macro trigger */
 	  do_cmd_macro_aux(buf);
@@ -1808,10 +2280,10 @@ void do_cmd_macros(void)
       else if (i == '6')
 	{
 	  /* Prompt */
-	  prt("Command: Append keymaps to a file", 16, 0);
+	  prt("Command: Append keymaps to a file", 13, 0);
 	  
 	  /* Prompt */
-	  prt("File: ", 18, 0);
+	  prt("File: ", 15, 0);
 	  
 	  /* Default filename */
 	  sprintf(tmp, "%s.prf", op_ptr->base_name);
@@ -1838,10 +2310,10 @@ void do_cmd_macros(void)
 	  cptr act;
 	  
 	  /* Prompt */
-	  prt("Command: Query a keymap", 16, 0);
+	  prt("Command: Query a keymap", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Keypress: ", 18, 0);
+	  prt("Keypress: ", 15, 0);
 	  
 	  /* Get a keymap trigger */
 	  do_cmd_macro_aux_keymap(buf);
@@ -1866,7 +2338,7 @@ void do_cmd_macros(void)
 	      ascii_to_text(buf, macro_buffer);
 	      
 	      /* Display the current action */
-	      prt(buf, 22, 0);
+	      prt(buf, 17, 0);
 	      
 	      /* Prompt */
 	      msg_print("Found a keymap.");
@@ -1877,19 +2349,19 @@ void do_cmd_macros(void)
       else if (i == '8')
 	{
 	  /* Prompt */
-	  prt("Command: Create a keymap", 16, 0);
+	  prt("Command: Create a keymap", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Keypress: ", 18, 0);
+	  prt("Keypress: ", 15, 0);
 	  
 	  /* Get a keymap trigger */
 	  do_cmd_macro_aux_keymap(buf);
 	  
 	  /* Clear */
-	  clear_from(20);
+	  clear_from(16);
 	  
 	  /* Prompt */
-	  prt("Action: ", 20, 0);
+	  prt("Action: ", 16, 0);
 	  
 	  /* Convert to text */
 	  ascii_to_text(tmp, macro_buffer);
@@ -1917,10 +2389,10 @@ void do_cmd_macros(void)
       else if (i == '9')
 	{
 	  /* Prompt */
-	  prt("Command: Remove a keymap", 16, 0);
+	  prt("Command: Remove a keymap", 13, 0);
 	  
 	  /* Prompt */
-	  prt("Keypress: ", 18, 0);
+	  prt("Keypress: ", 15, 0);
 	  
 	  /* Get a keymap trigger */
 	  do_cmd_macro_aux_keymap(buf);
@@ -1941,10 +2413,10 @@ void do_cmd_macros(void)
       else if (i == '0')
 	{
 	  /* Prompt */
-	  prt("Command: Enter a new action", 16, 0);
+	  prt("Command: Enter a new action", 13, 0);
 	  
 	  /* Go to the correct location */
-	  Term_gotoxy(0, 22);
+	  Term_gotoxy(0, 17);
 	  
 	  /* Hack -- limit the value */
 	  tmp[80] = '\0';
@@ -1976,7 +2448,7 @@ void do_cmd_macros(void)
 
 
 /* String used to show a color sample */
-#define COLOR_SAMPLE "###"
+#define COLOR_SAMPLE (small_screen ? "##" : "###")
 
 /*
  * Asks the player for an extended color. It is done in two steps:
@@ -1990,7 +2462,7 @@ static void askfor_shade(byte *attr, int y)
   byte base, shade, temp;
   bool changed = FALSE;
   char *msg, *pos;
-  int ch;
+  key_event ke;
   
   /* Start with the given base color */
   base = GET_BASE_COLOR(*attr);
@@ -2000,39 +2472,57 @@ static void askfor_shade(byte *attr, int y)
     {
       /* Clear the line */
       Term_erase(0, y, 255);
+      Term_erase(0, y + 1, 255);
+      
+      /* Prompt */
+      c_put_str(TERM_WHITE, "1. Choose base color (use arrows or ++/--/done):"
+		, y, 0);
       
       /* Format the query */
-      msg = format("1. Choose base color (use arrows) " COLOR_SAMPLE
-		   " %s (attr = %d) ", color_names[base], base);
+      msg = format("%s %s (attr = %d) ", COLOR_SAMPLE, 
+		   color_names[base], base);
       
       /* Display it */
-      c_put_str(TERM_WHITE, msg, y, 0);
+      c_put_str(TERM_WHITE, msg, y + 1, 3);
       
       /* Find the sample */
       pos = strstr(msg, COLOR_SAMPLE);
       
       /* Show it using the proper color */
-      c_put_str(base, COLOR_SAMPLE, y, pos - msg);
+      c_put_str(base, COLOR_SAMPLE, y + 1, pos - msg + 3);
       
       /* Place the cursor at the end of the message */
-      Term_gotoxy(strlen(msg), y);
+      Term_gotoxy(strlen(msg) + 3, y + 1);
       
       /* Get a command */
-      ch = inkey();
+      ke = inkey_ex();
+
+      /* Mouse Input */
+      if (ke.key == '\xff')
+	{
+	  if (ke.mousey == 3) ke.key = ESCAPE;
+	  else if (ke.mousey == y)
+	    {
+	      if ((ke.mousex > 35) && (ke.mousex < 38)) ke.key = '6';
+	      if ((ke.mousex > 38) && (ke.mousex < 41)) ke.key = '4';
+	      if ((ke.mousex > 41) && (ke.mousex < 46)) ke.key = '\r';
+	    }
+	}
       
       /* Cancel */
-      if (ch == ESCAPE)
+      if (ke.key == ESCAPE)
     	{
 	  /* Clear the line */
 	  Term_erase(0, y, 255);
+	  Term_erase(0, y + 1, 255);
 	  return;
     	}
       
       /* Accept the current base color */
-      if ((ch == '\r') || (ch == '\n')) break;
+      if ((ke.key == '\r') || (ke.key == '\n')) break;
       
       /* Move to the previous color if possible */
-      if ((ch == '4') && (base > 0))
+      if (((ke.key == '4') || (ke.key == '-')) && (base > 0))
     	{
 	  --base;
 	  /* Reset the shade, see below */
@@ -2041,7 +2531,7 @@ static void askfor_shade(byte *attr, int y)
     	}
       
       /* Move to the next color if possible */
-      if ((ch == '6') && (base < MAX_BASE_COLORS - 1))
+      if (((ke.key == '6') || (ke.key == '+')) && (base < MAX_BASE_COLORS - 1))
     	{
 	  ++base;
 	  /* Reset the shade, see below */
@@ -2060,49 +2550,67 @@ static void askfor_shade(byte *attr, int y)
     {
       /* Clear the line */
       Term_erase(0, y, 255);
+      Term_erase(0, y + 1, 255);
       
       /* Create the real color */
       temp = MAKE_EXTENDED_COLOR(base, shade);
       
+      /* Prompt */
+      c_put_str(TERM_WHITE, "2. Choose shade (use arrows or ++/--/done):"
+		, y, 0);
+      
       /* Format the message */
-      msg = format("2. Choose shade (use arrows) " COLOR_SAMPLE
-		   " %s (attr = %d) ", get_ext_color_name(temp), temp);
+      msg = format("%s %s (attr = %d) ", COLOR_SAMPLE, 
+		   get_ext_color_name(temp), temp);
       
       /* Display it */
-      c_put_str(TERM_WHITE, msg, y, 0);
+      c_put_str(TERM_WHITE, msg, y + 1, 3);
       
       /* Find the sample */
       pos = strstr(msg, COLOR_SAMPLE);
       
       /* Show it using the proper color */
-      c_put_str(temp, COLOR_SAMPLE, y, pos - msg);
+      c_put_str(temp, COLOR_SAMPLE, y + 1, pos - msg + 3);
       
       /* Place the cursor at the end of the message */
-      Term_gotoxy(strlen(msg), y);
+      Term_gotoxy(strlen(msg) + 3, y + 1);
       
       /* Get a command */
-      ch = inkey();
+      ke = inkey_ex();
+      
+      /* Mouse Input */
+      if (ke.key == '\xff')
+	{
+	  if (ke.mousey == 3) ke.key = ESCAPE;
+	  else if (ke.mousey == y)
+	    {
+	      if ((ke.mousex > 30) && (ke.mousex < 33)) ke.key = '6';
+	      if ((ke.mousex > 33) && (ke.mousex < 36)) ke.key = '4';
+	      if ((ke.mousex > 36) && (ke.mousex < 41)) ke.key = '\r';
+	    }
+	}
       
       /* Cancel */
-      if (ch == ESCAPE)
+      if (ke.key == ESCAPE)
     	{
 	  /* Clear the line */
 	  Term_erase(0, y, 255);
+	  Term_erase(0, y + 1, 255);
 	  return;
     	}
       
       /* Accept the current shade */
-      if ((ch == '\r') || (ch == '\n')) break;
+      if ((ke.key == '\r') || (ke.key == '\n')) break;
       
       /* Move to the previous shade if possible */
-      if ((ch == '4') && (shade > 0))
+      if (((ke.key == '4') || (ke.key == '-')) && (shade > 0))
     	{
 	  --shade;
 	  continue;
     	}
       
       /* Move to the next shade if possible */
-      if ((ch == '6') && (shade < MAX_SHADES - 1))
+      if (((ke.key == '6') || (ke.key == '+')) && (shade < MAX_SHADES - 1))
     	{
 	  ++shade;
 	  continue;
@@ -2114,6 +2622,7 @@ static void askfor_shade(byte *attr, int y)
   
   /* Clear the line. It is needed to fit in the current UI */
   Term_erase(0, y, 255);
+  Term_erase(0, y + 1, 255);
 }
 
 /*
@@ -2122,6 +2631,8 @@ static void askfor_shade(byte *attr, int y)
 void do_cmd_visuals(void)
 {
   int i;
+
+  key_event ke;
   
   FILE *fff;
   
@@ -2129,6 +2640,33 @@ void do_cmd_visuals(void)
   
   char buf[1024];
   
+  const char *empty_symbol = "<< ? >>";
+  const char *empty_symbol2 = "\0";
+  const char *empty_symbol3 = "\0";
+  
+  if (use_trptile && use_bigtile)
+    {
+      empty_symbol = "// ?????? \\\\";
+      empty_symbol2 = "   ??????   ";
+      empty_symbol3 = "\\\\ ?????? //";
+    }
+  else if (use_dbltile && use_bigtile)
+    {
+      empty_symbol = "// ???? \\\\";
+      empty_symbol2 = "\\\\ ???? //";
+    }
+  else if (use_trptile)
+    {
+      empty_symbol = "// ??? \\\\";
+      empty_symbol2 = "   ???   ";
+      empty_symbol3 = "\\\\ ??? //";
+    }
+  else if (use_dbltile)
+    {
+      empty_symbol = "// ?? \\\\";
+      empty_symbol2 = "\\\\ ?? //";
+    }
+  else if (use_bigtile) empty_symbol = "<< ?? >>";
   
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -2146,6 +2684,7 @@ void do_cmd_visuals(void)
       
       /* Ask for a choice */
       prt("Interact with Visuals", 2, 0);
+      prt("ESC to quit", 3, 0);
       
       /* Give some choices */
       prt("(1) Load a user pref file", 4, 5);
@@ -2153,11 +2692,11 @@ void do_cmd_visuals(void)
       prt("(2) Dump monster attr/chars", 5, 5);
       prt("(3) Dump object attr/chars", 6, 5);
       prt("(4) Dump feature attr/chars", 7, 5);
-      prt("(5) (unused)", 8, 5);
+		prt("(5) Dump flavor attr/chars", 8, 5);
       prt("(6) Change monster attr/chars", 9, 5);
       prt("(7) Change object attr/chars", 10, 5);
       prt("(8) Change feature attr/chars", 11, 5);
-      prt("(9) (unused)", 12, 5);
+		prt("(9) Change flavor attr/chars", 12, 5);
 #endif
       prt("(0) Reset visuals", 13, 5);
       
@@ -2165,7 +2704,17 @@ void do_cmd_visuals(void)
       prt("Command: ", 15, 0);
       
       /* Prompt */
-      i = inkey();
+      ke = inkey_ex();
+      i = ke.key;
+
+      /* Mouse input */
+      if (i == '\xff')
+	{
+	  if (ke.mousey == 3) 
+	    i = ESCAPE;
+	  else if ((ke.mousey > 3) && (ke.mousey < 14))
+	    i = I2D((ke.mousey - 3) % 10);
+	}
       
       /* Done */
       if (i == ESCAPE) break;
@@ -2359,6 +2908,71 @@ void do_cmd_visuals(void)
 	  msg_print("Dumped feature attr/chars.");
 	}
       
+      /* Dump flavor attr/chars */
+      else if (i == '5')
+	{
+	  char ftmp[80];
+	  
+	  /* Prompt */
+	  prt("Command: Dump flavor attr/chars", 15, 0);
+	  
+	  /* Prompt */
+	  prt("File: ", 17, 0);
+	  
+	  /* Default filename */
+	  strnfmt(ftmp, sizeof(ftmp), "%s.prf", op_ptr->base_name);
+	  
+	  /* Get a filename */
+	  if (!askfor_aux(ftmp, sizeof(ftmp))) continue;
+	  
+	  /* Build the filename */
+	  path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+	  
+	  /* Drop priv's */
+	  safe_setuid_drop();
+	  
+	  /* Append to the file */
+	  fff = my_fopen(buf, "a");
+	  
+	  /* Grab priv's */
+	  safe_setuid_grab();
+	  
+	  /* Failure */
+	  if (!fff) continue;
+	  
+	  /* Start dumping */
+	  fprintf(fff, "\n\n");
+	  fprintf(fff, "# Flavor attr/char definitions\n\n");
+	  
+	  /* Skip some lines */
+	  fprintf(fff, "\n\n");
+	  
+	  /* Start dumping */
+	  fprintf(fff, "# Flavor attr/char definitions\n\n");
+	  
+	  /* Dump flavors */
+	  for (i = 0; i < MAX_FL_IDX; i++)
+	    {
+	      flavor_type *flavor_ptr = &flavor_info[i];
+	      
+	      /* Dump a comment */
+	      fprintf(fff, "# %s\n", (flavor_text + flavor_ptr->text));
+	      
+	      /* Dump the flavor attr/char info */
+	      fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
+		      (byte)(flavor_ptr->x_attr), (byte)(flavor_ptr->x_char));
+	    }
+	  
+	  /* All done */
+	  fprintf(fff, "\n\n\n\n");
+	  
+	  /* Close */
+	  my_fclose(fff);
+	  
+	  /* Message */
+	  msg_print("Dumped flavor attr/chars.");
+	}
+      
       /* Modify monster attr/chars */
       else if (i == '6')
 	{
@@ -2377,29 +2991,70 @@ void do_cmd_visuals(void)
 	      byte ca = (byte)(r_ptr->x_attr);
 	      byte cc = (byte)(r_ptr->x_char);
 	      
+	      int linec = (use_trptile ? 20: (use_dbltile ? 19 : 18));
+
 	      /* Label the object */
-	      Term_putstr(5, 17, -1, TERM_WHITE,
+	      Term_putstr(3, 16, -1, TERM_WHITE,
 			  format("Monster = %d, Name = %-40.40s",
 				 r, (r_name + r_ptr->name)));
 	      
 	      /* Label the Default values */
-	      Term_putstr(10, 19, -1, TERM_WHITE,
+	      Term_putstr(5, 17, -1, TERM_WHITE,
 			  format("Default attr/char = %3u / %3u", da, dc));
-	      Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 19, da, dc);
+	      Term_putstr(35, 17, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, 18, -1, TERM_WHITE, empty_symbol2);
+	      if (use_trptile) 
+		Term_putstr (35, 19, -1, TERM_WHITE, empty_symbol3);
+	      
+	      Term_putch(38, 17, da, dc);
+	      
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, 17, da, dc);
+		}
+#endif
 	      
 	      /* Label the Current values */
-	      Term_putstr(10, 20, -1, TERM_WHITE,
+	      Term_putstr(5, linec, -1, TERM_WHITE,
 			  format("Current attr/char = %3u / %3u", ca, cc));
-	      Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 20, ca, cc);
+	      Term_putstr(35, linec, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, linec + 1, -1, TERM_WHITE, empty_symbol2); 
+	      if (use_trptile) 
+		Term_putstr (35, linec + 2, -1, TERM_WHITE, empty_symbol3); 
+	      Term_putch(38, linec, ca, cc);
+
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, linec++, ca, cc);
+		}
+#endif
 	      
 	      /* Prompt */
-	      Term_putstr(0, 22, -1, TERM_WHITE,
-			  "Command (n/N/a/A/c/C/'s'hade): ");
-	      
+	      Term_putstr(0, linec + 2, -1, TERM_WHITE,
+			  "Command (n/N/a/A/c/C): ");
+
 	      /* Get a command */
-	      i = inkey();
+	      ke = inkey_ex();
+	      i = ke.key;
+
+	      /* Mouse input */
+	      if (i == '\xff')
+		{
+		  if (ke.mousey == 3) i = ESCAPE;
+		  if (ke.mousey == linec + 2)
+		    {
+		      if (ke.mousex == 9) i = 'n';
+		      if (ke.mousex == 11) i = 'N';
+		      if (ke.mousex == 13) i = 'a';
+		      if (ke.mousex == 15) i = 'A';
+		      if (ke.mousex == 17) i = 'c';
+		      if (ke.mousex == 19) i = 'C';
+		    }
+		}
 	      
 	      /* All done */
 	      if (i == ESCAPE) break;
@@ -2412,11 +3067,11 @@ void do_cmd_visuals(void)
 	      if (i == 'c') r_ptr->x_char = (byte)(cc + 1);
 	      if (i == 'C') r_ptr->x_char = (byte)(cc - 1);
 	      if (i == 's') askfor_shade(&r_ptr->x_attr, 22);
-	    
+	      
 	    }
 	}
       
-	  /* Modify object attr/chars */
+      /* Modify object attr/chars */
       else if (i == '7')
 	{
 	  static int k = 0;
@@ -2434,29 +3089,70 @@ void do_cmd_visuals(void)
 	      byte ca = (byte)k_ptr->x_attr;
 	      byte cc = (byte)k_ptr->x_char;
 	      
+	      int linec = (use_trptile ? 20: (use_dbltile ? 19 : 18));
+
 	      /* Label the object */
-	      Term_putstr(5, 17, -1, TERM_WHITE,
-			  format("Object = %d, Name = %-40.40s",
-				 k, (k_name + k_ptr->name)));
+	      Term_putstr(5, 16, -1, TERM_WHITE,
+	      	  format("Object = %d, Name = %-40.40s",
+	      		 k, (k_name + k_ptr->name)));
 	      
 	      /* Label the Default values */
-	      Term_putstr(10, 19, -1, TERM_WHITE,
-			  format("Default attr/char = %3d / %3d", da, dc));
-	      Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 19, da, dc);
+	      Term_putstr(5, 17, -1, TERM_WHITE,
+			  format("Default attr/char = %3u / %3u", da, dc));
+	      Term_putstr(35, 17, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, 18, -1, TERM_WHITE, empty_symbol2);
+	      if (use_trptile) 
+		Term_putstr (35, 19, -1, TERM_WHITE, empty_symbol3);
+	      
+	      Term_putch(38, 17, da, dc);
+	      
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, 17, da, dc);
+		}
+#endif
 	      
 	      /* Label the Current values */
-	      Term_putstr(10, 20, -1, TERM_WHITE,
-			  format("Current attr/char = %3d / %3d", ca, cc));
-	      Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 20, ca, cc);
+	      Term_putstr(5, linec, -1, TERM_WHITE,
+			  format("Current attr/char = %3u / %3u", ca, cc));
+	      Term_putstr(35, linec, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, linec + 1, -1, TERM_WHITE, empty_symbol2); 
+	      if (use_trptile) 
+		Term_putstr (35, linec + 2, -1, TERM_WHITE, empty_symbol3); 
+	      Term_putch(38, linec, ca, cc);
+
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, linec++, ca, cc);
+		}
+#endif
 	      
 	      /* Prompt */
-	      Term_putstr(0, 22, -1, TERM_WHITE,
-			  "Command (n/N/a/A/c/C/'s'hade): ");
-	      
+	      Term_putstr(0, linec + 2, -1, TERM_WHITE,
+			  "Command (n/N/a/A/c/C): ");
+
 	      /* Get a command */
-	      i = inkey();
+	      ke = inkey_ex();
+	      i = ke.key;
+
+	      /* Mouse input */
+	      if (i == '\xff')
+		{
+		  if (ke.mousey == 3) i = ESCAPE;
+		  if (ke.mousey == linec + 2)
+		    {
+		      if (ke.mousex == 9) i = 'n';
+		      if (ke.mousex == 11) i = 'N';
+		      if (ke.mousex == 13) i = 'a';
+		      if (ke.mousex == 15) i = 'A';
+		      if (ke.mousex == 17) i = 'c';
+		      if (ke.mousex == 19) i = 'C';
+		    }
+		}
 	      
 	      /* All done */
 	      if (i == ESCAPE) break;
@@ -2490,29 +3186,71 @@ void do_cmd_visuals(void)
 	      byte ca = (byte)f_ptr->x_attr;
 	      byte cc = (byte)f_ptr->x_char;
 	      
+	      int linec = (use_trptile ? 20: (use_dbltile ? 19 : 18));
+
 	      /* Label the object */
-	      Term_putstr(5, 17, -1, TERM_WHITE,
+	      Term_putstr(5, 16, -1, TERM_WHITE,
 			  format("Terrain = %d, Name = %-40.40s",
 				 f, (f_name + f_ptr->name)));
 	      
 	      /* Label the Default values */
-	      Term_putstr(10, 19, -1, TERM_WHITE,
-			  format("Default attr/char = %3d / %3d", da, dc));
-	      Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 19, da, dc);
+	      Term_putstr(5, 17, -1, TERM_WHITE,
+			  format("Default attr/char = %3u / %3u", da, dc));
+	      Term_putstr(35, 17, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, 18, -1, TERM_WHITE, empty_symbol2);
+	      if (use_trptile) 
+		Term_putstr (35, 19, -1, TERM_WHITE, empty_symbol3);
+	      
+	      Term_putch(38, 17, da, dc);
+	      
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, 17, da, dc);
+		}
+#endif
 	      
 	      /* Label the Current values */
-	      Term_putstr(10, 20, -1, TERM_WHITE,
-			  format("Current attr/char = %3d / %3d", ca, cc));
-	      Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
-	      Term_putch(43, 20, ca, cc);
+	      Term_putstr(5, linec, -1, TERM_WHITE,
+			  format("Current attr/char = %3u / %3u", ca, cc));
+	      Term_putstr(35, linec, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, linec + 1, -1, TERM_WHITE, empty_symbol2); 
+	      if (use_trptile) 
+		Term_putstr (35, linec + 2, -1, TERM_WHITE, empty_symbol3); 
+	      Term_putch(38, linec, ca, cc);
+
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, linec++, ca, cc);
+		}
+#endif
 	      
 	      /* Prompt */
-	      Term_putstr(0, 22, -1, TERM_WHITE,
+	      Term_putstr(0, linec + 2, -1, TERM_WHITE,
 			  "Command (n/N/a/A/c/C/'s'hade): ");
-	      
+
 	      /* Get a command */
-	      i = inkey();
+	      ke = inkey_ex();
+	      i = ke.key;
+
+	      /* Mouse input */
+	      if (i == '\xff')
+		{
+		  if (ke.mousey == 3) i = ESCAPE;
+		  if (ke.mousey == linec + 2)
+		    {
+		      if (ke.mousex == 9) i = 'n';
+		      if (ke.mousex == 11) i = 'N';
+		      if (ke.mousex == 13) i = 'a';
+		      if (ke.mousex == 15) i = 'A';
+		      if (ke.mousex == 17) i = 'c';
+		      if (ke.mousex == 19) i = 'C';
+		      if ((ke.mousex > 20) && (ke.mousex < 28)) i = 's';
+		    }
+		}
 	      
 	      /* All done */
 	      if (i == ESCAPE) break;
@@ -2525,6 +3263,105 @@ void do_cmd_visuals(void)
 	      if (i == 'c') f_info[f].x_char = (byte)(cc + 1);
 	      if (i == 'C') f_info[f].x_char = (byte)(cc - 1);
 	      if (i == 's') askfor_shade(&f_info[f].x_attr, 22);
+	    }
+	}
+      
+      /* Modify flavor attr/chars */
+      else if (i == '9') 
+	{
+	  static int f = 0;
+	  
+	  /* Prompt */
+	  prt("Command: Change flavor attr/chars", 15, 0);
+	  
+	  /* Hack -- query until done */
+	  while (1)
+	    {
+	      flavor_type *flavor_ptr = &flavor_info[f];
+	      
+	      byte da = (byte)(flavor_ptr->d_attr);
+	      byte dc = (byte)(flavor_ptr->d_char);
+	      byte ca = (byte)(flavor_ptr->x_attr);
+	      byte cc = (byte)(flavor_ptr->x_char);
+	      
+	      int linec = (use_trptile ? 20: (use_dbltile ? 19 : 18));
+
+	      /* Label the object */
+	      Term_putstr(5, 16, -1, TERM_WHITE,
+			  format("Flavor = %d, Text = %-40.40s",
+				 f, (flavor_text + flavor_ptr->text)));
+	      
+	      /* Label the Default values */
+	      Term_putstr(10, 17, -1, TERM_WHITE,
+			  format("Default attr/char = %3u / %3u", da, dc));
+	      Term_putstr(35, 17, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, 18, -1, TERM_WHITE, empty_symbol2);
+	      if (use_trptile) 
+		Term_putstr (35, 19, -1, TERM_WHITE, empty_symbol3);
+	      
+	      Term_putch(38, 17, da, dc);
+	      
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, 17, da, dc);
+		}
+#endif
+	      
+	      /* Label the Current values */
+	      Term_putstr(5, linec, -1, TERM_WHITE,
+			  format("Current attr/char = %3u / %3u", ca, cc));
+	      Term_putstr(35, linec, -1, TERM_WHITE, empty_symbol);
+	      if (use_dbltile || use_trptile) 
+		Term_putstr (35, linec + 1, -1, TERM_WHITE, empty_symbol2); 
+	      if (use_trptile) 
+		Term_putstr (35, linec + 2, -1, TERM_WHITE, empty_symbol3); 
+	      Term_putch(38, linec, ca, cc);
+	      
+#ifdef USE_TRANSPARENCY
+	      if (use_bigtile || use_dbltile || use_trptile)
+		{
+		  big_putch(38, linec++, ca, cc);
+		}
+#endif
+	      if (use_trptile) linec++;
+	      
+	      /* Prompt */
+	      Term_putstr(0, linec + 2, -1, TERM_WHITE,
+			  "Command (n/N/a/A/c/C/'s'hade): ");
+	      
+	      /* Get a command */
+	      ke = inkey_ex();
+	      i = ke.key;
+	      
+	      /* Mouse input */
+	      if (i == '\xff')
+		{
+		  if (ke.mousey == 3) i = ESCAPE;
+		  if (ke.mousey == linec + 2)
+		    {
+		      if (ke.mousex == 9) i = 'n';
+		      if (ke.mousex == 11) i = 'N';
+		      if (ke.mousex == 13) i = 'a';
+		      if (ke.mousex == 15) i = 'A';
+		      if (ke.mousex == 17) i = 'c';
+		      if (ke.mousex == 19) i = 'C';
+		      if ((ke.mousex > 20) && (ke.mousex < 28)) i = 's';
+		    }
+		}
+	      
+	      /* All done */
+	      if (i == ESCAPE) break;
+	      
+	      /* Analyze */
+	      if (i == 'n') f = (f + MAX_FL_IDX + 1) % MAX_FL_IDX;
+	      if (i == 'N') f = (f + MAX_FL_IDX - 1) % MAX_FL_IDX;
+	      if (i == 'a') flavor_info[f].x_attr = (byte)(ca + 1);
+	      if (i == 'A') flavor_info[f].x_attr = (byte)(ca - 1);
+	      if (i == 'c') flavor_info[f].x_char = (byte)(cc + 1);
+	      if (i == 'C') flavor_info[f].x_char = (byte)(cc - 1);
+	      if (i == 's') askfor_shade(&flavor_info[f].x_attr, 22);
 	    }
 	}
       
@@ -2636,7 +3473,7 @@ static bool askfor_color_values(int idx)
 
 
 /* These two are used to place elements in the grid */
-#define COLOR_X(idx) (((idx) / MAX_BASE_COLORS) * 5 + 1)
+#define COLOR_X(idx) (((idx) / MAX_BASE_COLORS) * (small_screen ? 3 : 5) + 1)
 #define COLOR_Y(idx) ((idx) % MAX_BASE_COLORS + 6)
 
 /* We only can edit a portion of the color table */
@@ -2648,7 +3485,7 @@ static bool askfor_color_values(int idx)
  (int)angband_color_table[idx][3] == 0)
 
 /* We show black as dots to see the shape of the grid */
-#define BLACK_SAMPLE "..."
+#define BLACK_SAMPLE (small_screen ? ".." : "...")
 
 /*
  * The screen used to modify the color table. Only 128 colors can be modified.
@@ -2657,7 +3494,7 @@ static bool askfor_color_values(int idx)
 static void modify_colors(void)
 {
   int x, y, idx, old_idx;
-  char ch;
+  key_event ke;
   char msg[100];
   
   /* Flags */
@@ -2679,21 +3516,43 @@ static void modify_colors(void)
     }
   
   /* Show screen commands and help */
-  y = 2;
-  x = 42;
-  c_put_str(TERM_WHITE, "Commands:", y, x);
-  c_put_str(TERM_WHITE, "ESC: Return", y + 2, x);
-  c_put_str(TERM_WHITE, "Arrows: Move to color", y + 3, x);
-  c_put_str(TERM_WHITE, "k,K: Incr,Decr extra value", y + 4, x);
-  c_put_str(TERM_WHITE, "r,R: Incr,Decr red value", y + 5, x);
-  c_put_str(TERM_WHITE, "g,G: Incr,Decr green value", y + 6, x);
-  c_put_str(TERM_WHITE, "b,B: Incr,Decr blue value", y + 7, x);
-  c_put_str(TERM_WHITE, "c: Copy from color", y + 8, x);
-  c_put_str(TERM_WHITE, "v: Set specific values", y + 9, x);
-  c_put_str(TERM_WHITE, "First column: base colors", y + 11, x);
-  c_put_str(TERM_WHITE, "Second column: first shade, etc.", y + 12, x);  
-  c_put_str(TERM_WHITE, "Shades look like base colors in 16 color ports.",
-	    23, 0);
+  if (small_screen)
+    {
+      y = 2;
+      x = 26;
+      c_put_str(TERM_WHITE, "Commands:", y, x);
+      c_put_str(TERM_WHITE, "ESC: Return", y + 1, x);
+      c_put_str(TERM_WHITE, "Arrows: Move to color", y + 3, x);
+      c_put_str(TERM_WHITE, "k,K: Incr,Decr extra", y + 4, x);
+      c_put_str(TERM_WHITE, "r,R: Incr,Decr red", y + 5, x);
+      c_put_str(TERM_WHITE, "g,G: Incr,Decr green", y + 6, x);
+      c_put_str(TERM_WHITE, "b,B: Incr,Decr blue", y + 7, x);
+      c_put_str(TERM_WHITE, "c: Copy from color", y + 8, x);
+      c_put_str(TERM_WHITE, "v: Set specific vals", y + 9, x);
+      c_put_str(TERM_WHITE, "Column 1: base colors", y + 11, x);
+      c_put_str(TERM_WHITE, "Column 2: first shade", y + 12, x);  
+      c_put_str(TERM_WHITE, "etc.", y + 13, x);  
+      c_put_str(TERM_WHITE, "Shades look like base colors in 16 color ports.",
+		23, 0);
+    }
+  else
+    {
+      y = 2;
+      x = 42;
+      c_put_str(TERM_WHITE, "Commands:", y, x);
+      c_put_str(TERM_WHITE, "ESC: Return", y + 2, x);
+      c_put_str(TERM_WHITE, "Arrows: Move to color", y + 3, x);
+      c_put_str(TERM_WHITE, "k,K: Incr,Decr extra value", y + 4, x);
+      c_put_str(TERM_WHITE, "r,R: Incr,Decr red value", y + 5, x);
+      c_put_str(TERM_WHITE, "g,G: Incr,Decr green value", y + 6, x);
+      c_put_str(TERM_WHITE, "b,B: Incr,Decr blue value", y + 7, x);
+      c_put_str(TERM_WHITE, "c: Copy from color", y + 8, x);
+      c_put_str(TERM_WHITE, "v: Set specific values", y + 9, x);
+      c_put_str(TERM_WHITE, "First column: base colors", y + 11, x);
+      c_put_str(TERM_WHITE, "Second column: first shade, etc.", y + 12, x);  
+      c_put_str(TERM_WHITE, "Shades look like base colors in 16 color ports.",
+		23, 0);
+    }
   
   /* Hack - We want to show the fake cursor */
   do_move = TRUE;
@@ -2720,7 +3579,7 @@ static void modify_colors(void)
 	      
 	      /* Draw spaces */
 	      c_put_str(TERM_WHITE, " ", y, x);
-	      c_put_str(TERM_WHITE, " ", y, x + 4);
+	      c_put_str(TERM_WHITE, " ", y, x + (small_screen ? 3 : 4));
 	    }
 	  
 	  /* Show the current fake cursor */
@@ -2730,7 +3589,7 @@ static void modify_colors(void)
 	  
 	  /* Draw the cursor */
 	  c_put_str(TERM_WHITE, ">", y, x);
-	  c_put_str(TERM_WHITE, "<", y, x + 4);
+	  c_put_str(TERM_WHITE, "<", y, x + (small_screen ? 3 : 4));
 	  
 	  /* Format the name of the color */
 	  my_strcpy(msg, format("Color = %d (0x%02X), Name = %s", idx, idx,
@@ -2782,9 +3641,92 @@ static void modify_colors(void)
       old_idx = -1;
       
       /* Get a command */
-      if (!get_com("Command: Modify colors ", &ch)) break;
+      if (!get_com_ex("Command: Modify colors ", &ke)) break;
+
+      /* Mouse input */
+      if (ke.key == '\xff')
+	{
+	  /* Escape */
+	  if (ke.mousey == (small_screen ? 3 : 4)) break;
+
+	  /* Set divider */
+	  x = (small_screen ? 26 : 42);
+	  if (ke.mousex < x)
+	    {
+	      /* Remember cursor */
+	      old_idx = idx;
+
+	      /* Look for new location */
+	      for (idx = 0; idx < MAX_COLORS; idx++)
+		{
+		  if ((ke.mousey == COLOR_Y(idx)) && (ke.mousex > COLOR_X(idx))
+		      && (ke.mousex < COLOR_X(idx) + 4)) 
+		    {
+		      /* Found it */
+		      do_move = TRUE;
+		      break;
+		    }
+		}
+	      /* Didn't find it */
+	      if (idx == MAX_COLORS)
+		{
+		  idx = old_idx;
+		  old_idx = -1;
+		}
+	    }
+
+	  else
+	    {
+	      switch(ke.mousey)
+		{
+		  /* k, K */
+		case 6:
+		  {
+		    if (((ke.mousex > x + 4) && (ke.mousex < x + 9)) ||
+			(ke.mousex == x)) ke.key = 'k';
+		    if (((ke.mousex > x + 9) && (ke.mousex < x + 14)) ||
+			(ke.mousex == x + 2)) ke.key = 'K';
+		    break;
+		  }
+		case 7:
+		  {
+		    if (((ke.mousex > x + 4) && (ke.mousex < x + 9)) ||
+			(ke.mousex == x)) ke.key = 'r';
+		    if (((ke.mousex > x + 9) && (ke.mousex < x + 14)) ||
+			(ke.mousex == x + 2)) ke.key = 'R';
+		    break;
+		  }
+		case 8:
+		  {
+		    if (((ke.mousex > x + 4) && (ke.mousex < x + 9)) ||
+			(ke.mousex == x)) ke.key = 'g';
+		    if (((ke.mousex > x + 9) && (ke.mousex < x + 14)) ||
+			(ke.mousex == x + 2)) ke.key = 'G';
+		    break;
+		  }
+		case 9:
+		  {
+		    if (((ke.mousex > x + 4) && (ke.mousex < x + 9)) ||
+			(ke.mousex == x)) ke.key = 'b';
+		    if (((ke.mousex > x + 9) && (ke.mousex < x + 14)) ||
+			(ke.mousex == x + 2)) ke.key = 'B';
+		    break;
+		  }
+		case 10:
+		  {
+		    ke.key = 'c';
+		    break;
+		  }
+		case 11:
+		  {
+		    ke.key = 'v';
+		    break;
+		  }
+		}
+	    }
+	}
       
-      switch(ch)
+      switch(ke.key)
 	{
 	  /* Down */
 	case '2':
@@ -3020,6 +3962,8 @@ static void modify_colors(void)
 void do_cmd_colors(void)
 {
   int i;
+
+  key_event ke;
   
   FILE *fff;
   
@@ -3044,6 +3988,7 @@ void do_cmd_colors(void)
       
       /* Ask for a choice */
       prt("Interact with Colors", 2, 0);
+      prt("ESC to exit", 3, 0);
       
       /* Give some choices */
       prt("(1) Load a user pref file", 4, 5);
@@ -3056,7 +4001,18 @@ void do_cmd_colors(void)
       prt("Command: ", 8, 0);
       
       /* Prompt */
-      i = inkey();
+      ke = inkey_ex();
+      i = ke.key;
+
+      /* Mouse input */
+      if (i == '\xff')
+	{
+	  if (ke.mousey == 3) 
+	    i = ESCAPE;
+	  else if ((ke.mousey > 3) && (ke.mousey < 7))
+	    i = I2D(ke.mousey - 3);
+	}
+      
       
       /* Done */
       if (i == ESCAPE) break;
@@ -3679,16 +4635,66 @@ void do_cmd_save_screen_old(void)
 /*
  * Move the cursor in a browser window
  */
-static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
-			   int *list_cur, int list_cnt)
+static void browser_cursor(key_event ke, int *column, int max, int *grp_cur, 
+			   int grp_cnt, int grp_top, int *list_cur, 
+			   int list_cnt, int list_top)
 {
   int d;
   int col = *column;
   int grp = *grp_cur;
   int list = *list_cur;
+  int mult = 1;
+
+  /* Set the multplier */
+  if (use_dbltile) mult = 2;
+  else if (use_trptile) mult = 3;
   
+  /* Mouse input */
+  if (ke.key == '\xff')
+    {
+      if (ke.mousey == header_row + 1)
+	{
+	  /* Do scrolling */
+	  if (ke.mousex == 0) ke.key = '4';
+	  else if (ke.mousex == 1) ke.key = '8';
+	  else if (ke.mousex == 2) ke.key = '6';
+	  else if (ke.mousex == 3) ke.key = '2';
+	  else return;
+	}
+      else if (ke.mousey > header_row + 1)
+	{
+	  /* Don't go past the end of the list */
+	  if (ke.mousey > header_row + browser_rows + 1)
+	    ke.mousey = header_row + browser_rows + 1;
+	  
+	  /* Group column */
+	  if (((!small_screen) && (ke.mousex < max + 2)) || 
+	      ((small_screen) && (col == 0)))
+	    {
+	      int old_grp = grp;
+	      col = 0;
+	      grp = ke.mousey - header_row - 2 + grp_top;
+	      if (grp >= grp_cnt)	grp = grp_cnt - 1;
+	      if (grp != old_grp)	list = 0;
+	    }
+	  /* List column */
+	  else 
+	    {
+	      col = 1;
+	      list = (ke.mousey - header_row - 2 + list_top) / mult;
+	      if (list < 0) list = 0;
+	      if (list >= list_cnt) list = list_cnt - 1;
+	    }
+	  (*grp_cur) = grp;
+	  (*list_cur) = list;
+	  (*column) = col;
+	  return;
+	}
+      else return;
+    }
+
   /* Extract direction */
-  d = target_dir(ch);
+  d = target_dir(ke.key);
   
   if (!d) return;
   
@@ -3701,7 +4707,7 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
 	  int old_grp = grp;
 	  
 	  /* Move up or down */
-	  grp += ddy[d] * BROWSER_ROWS;
+	  grp += ddy[d] * browser_rows;
 	  
 	  /* Verify */
 	  if (grp >= grp_cnt)	grp = grp_cnt - 1;
@@ -3713,7 +4719,7 @@ static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
       else
 	{
 	  /* Move up or down */
-	  list += ddy[d] * BROWSER_ROWS;
+	  list += ddy[d] * browser_rows / mult;
 	  
 	  /* Verify */
 	  if (list >= list_cnt) list = list_cnt - 1;
@@ -4018,9 +5024,12 @@ static void display_artifact_list(int col, int row, int per_page,
       
       if (cheat_know)
 	{
-	  c_prt(attr, format ("%3d", a_idx), row + i, 68);
-	  c_prt(attr, format ("%3d", a_ptr->level), row + i, 72);
-	  c_prt(attr, format ("%3d", a_ptr->rarity), row + i, 76);
+	  c_prt(attr, format ("%3d", a_idx), row + i, 
+		(small_screen ? 36 : 68));
+	  c_prt(attr, format ("%3d", a_ptr->level), row + i, 
+		(small_screen ? 40 : 72));
+	  c_prt(attr, format ("%3d", a_ptr->rarity), row + i, 
+		(small_screen ? 44 : 76));
 	}
       
     }
@@ -4071,7 +5080,7 @@ static void do_cmd_knowledge_artifacts(void)
 	  grp_idx[grp_cnt++] = i;
 	}
     }
-  
+      
   /* Terminate the list */
   grp_idx[grp_cnt] = -1;
   
@@ -4084,56 +5093,82 @@ static void do_cmd_knowledge_artifacts(void)
   
   while (!flag)
     {
-      char ch;
+      key_event ke;
       
       if (redraw)
 	{
 	  clear_from(0);
 	  
-	  prt("Knowledge - artifacts", 2, 0);
-	  prt("Group", 4, 0);
-	  prt("Name", 4, max + 3);
-	  
-	  if (cheat_know)
+	  prt("Knowledge - artifacts", knowledge_row, 0);
+	  prt("ESC to quit", knowledge_row + 1, 0);
+
+	  if (small_screen)
 	    {
-	      prt("Idx", 4, 68);
-	      prt("Dep", 4, 72);
-	      prt("Rar", 4, 76);
+	      if (!column)
+		prt("Group", header_row, 0);
+	      else
+		prt("Name", header_row, 3);
+	    }
+	  else
+	    {
+	      prt("Group", header_row, 0);
+	      prt("Name", header_row, max + 3);
 	    }
 	  
-	  for (i = 0; i < 78; i++)
+	  if (cheat_know && ((!small_screen) || (column)))
+	    {
+	      prt("Idx", header_row, (small_screen ? 36 : 68));
+	      prt("Dep", header_row, (small_screen ? 40 : 72));
+	      prt("Rar", header_row, (small_screen ? 44 : 76));
+	    }
+	  
+	  Term_putstr(0, 5, 4, TERM_WHITE, "<^>v");
+	  for (i = 4; i < (small_screen ? 46 : 78); i++)
 	    {
 	      Term_putch(i, 5, TERM_WHITE, '=');
 	    }
-	  
-	  for (i = 0; i < BROWSER_ROWS; i++)
+
+	  if (small_screen)
 	    {
-	      Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  clear_from(6 + i);
+		}
 	    }
-	  
-	  redraw = FALSE;
+	  else
+	    {
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+		}
+	      
+	      redraw = FALSE;
+	    }
 	}
       
       /* Scroll group list */
       if (grp_cur < grp_top) grp_top = grp_cur;
-      if (grp_cur >= grp_top + BROWSER_ROWS) 
-	grp_top = grp_cur - BROWSER_ROWS + 1;
+      if (grp_cur >= grp_top + browser_rows) 
+	grp_top = grp_cur - browser_rows + 1;
       
       /* Scroll artifact list */
       if (artifact_cur < artifact_top) artifact_top = artifact_cur;
-      if (artifact_cur >= artifact_top + BROWSER_ROWS) 
-	artifact_top = artifact_cur - BROWSER_ROWS + 1;
+      if (artifact_cur >= artifact_top + browser_rows) 
+	artifact_top = artifact_cur - browser_rows + 1;
 
       /* Display a list of object groups */
-      display_object_group_list(0, 6, max, BROWSER_ROWS, grp_idx, group_item, 
-				grp_cur, grp_top);
+      if ((!small_screen) || (!column))
+	display_object_group_list(0, 6, (small_screen ? 48 : max), 
+				  browser_rows, grp_idx, 
+				  group_item, grp_cur, grp_top);
       
       /* Get a list of objects in the current group */
       artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
       
       /* Display a list of objects in the current group */
-      display_artifact_list(max + 3, 6, BROWSER_ROWS, artifact_idx, 
-			    artifact_cur, artifact_top);
+      if ((!small_screen) || (column))
+	display_artifact_list((small_screen ? 0 : max) + 3, 6, browser_rows, 
+			      artifact_idx, artifact_cur, artifact_top);
       
       /* The "current" object changed */
       if (artifact_old != artifact_idx[artifact_cur])
@@ -4145,7 +5180,7 @@ static void do_cmd_knowledge_artifacts(void)
 	  artifact_old = artifact_idx[artifact_cur];
 	}
       
-      if (!column)
+      if ((!column) || small_screen)
 	{
 	  Term_gotoxy(0, 6 + (grp_cur - grp_top));
 	}
@@ -4154,9 +5189,13 @@ static void do_cmd_knowledge_artifacts(void)
 	  Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
 	}
       
-      ch = inkey();
+      ke = inkey_ex();
+
+      /* Mouse escape */
+      if ((ke.key == '\xff') && (ke.mousey == knowledge_row + 1))
+	ke.key = ESCAPE;
       
-      switch (ch)
+      switch (ke.key)
 	{
 	case ESCAPE:
 	  {
@@ -4167,8 +5206,8 @@ static void do_cmd_knowledge_artifacts(void)
 	default:
 	  {
 	    /* Move the cursor */
-	    browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, 
-			   artifact_cnt);
+	    browser_cursor(ke, &column, max, &grp_cur, grp_cnt, grp_top, 
+			   &artifact_cur, artifact_cnt, artifact_top);
 	    break;
 	  }
 	}
@@ -4225,7 +5264,7 @@ static int collect_objects(int grp_cur, int object_idx[])
 	  /* Check for artifact in the group */
 	  if (k_ptr->tval == group_tval)
 	    {
-	      /* Add the artifact */
+	      /* Add the objecct */
 	      object_idx[object_cnt++] = i;
 	    }
 	}
@@ -4234,8 +5273,8 @@ static int collect_objects(int grp_cur, int object_idx[])
   /* Terminate the list */
   object_idx[object_cnt] = 0;
   
-  /* Return the number of races */
-	return object_cnt;
+  /* Return the number of objects */
+  return object_cnt;
 }
 
 
@@ -4247,7 +5286,13 @@ static void display_object_list(int col, int row, int per_page,
 				int object_top)
 {
   int i;
-  
+  byte a, c;
+  int disp_row = 0;
+  int mult;
+
+  /* Set the multiplier */
+  mult = (use_trptile ? 3 : (use_dbltile ? 2 : 1));
+      
   /* Display lines until done */
   for (i = 0; i < per_page && (object_idx[i] != 0); i++)
     {
@@ -4266,25 +5311,44 @@ static void display_object_list(int col, int row, int per_page,
       
       /* Acquire the basic "name" of the object*/
       strip_name(buf, k_idx);
+
+      /* Get the display row */
+      disp_row =  mult * i;
       
       /* Display the name */
-      c_prt(attr, buf, row + i, col);
+      c_prt(attr, buf, row + disp_row, col);
       
-      if (cheat_know) c_prt(attr, format ("%d", k_idx), row + i, 70);
+      if (cheat_know) c_prt(attr, format ("%d", k_idx), row + disp_row, 
+			    (small_screen ? 36 : 68));
       
+      /* Clear the symbol area */
+      Term_erase((small_screen ? 40 : 72), row + disp_row, 20);
+      if (use_dbltile || use_trptile) 
+	Term_erase((small_screen ? 40 : 72), row + disp_row + 1, 20);
+      if (use_trptile)
+	Term_erase((small_screen ? 40 : 72), row + disp_row + 2, 20);
+      
+      /* Obtain attr/char */
       if (k_ptr->aware)
 	{
-	  /* Obtain attr/char */
-	  byte a = k_ptr->flavor ? (k_ptr->flavor & 0x0F) : k_ptr->d_attr;
-	  byte c = k_ptr->d_char;
-	  
+	  a = (k_ptr->flavor) && (k_ptr->tval != TV_SCROLL) ? 
+	    (flavor_info[k_ptr->flavor].x_attr) : k_ptr->x_attr;
+	  c = k_ptr->flavor  && (k_ptr->tval != TV_SCROLL) ? 
+	    (flavor_info[k_ptr->flavor].x_char): k_ptr->x_char;
+	
 	  /* Display symbol */
-	  Term_putch(76, row + i, a, c);
+	  Term_putch((small_screen ? 40 : 72), row + disp_row, a, c);
+#ifdef USE_TRANSPARENCY
+	  if (use_bigtile || use_dbltile || use_trptile)
+	    {
+	      big_putch((small_screen ? 40 : 72), row + disp_row, a, c);
+	    }
+#endif
 	}
     }
   
   /* Clear remaining lines */
-  for (; i < per_page; i++)
+  for (i = disp_row + mult; i < per_page * mult; i++)
     {
       Term_erase(col, row + i, 255);
     }
@@ -4343,51 +5407,88 @@ static void do_cmd_knowledge_objects(void)
   
   while (!flag)
     {
-      char ch;
+      key_event ke;
+      int mult = 1;
+      
+      /* Set the multiplier */
+      if (use_dbltile) mult = 2;
+      else if (use_trptile) mult = 3;
       
       if (redraw)
 	{
 	  clear_from(0);
 	  
-	  prt("Knowledge - objects", 2, 0);
-	  prt("Group", 4, 0);
-	  prt("Name", 4, max + 3);
-	  if (cheat_know) prt("Idx", 4, 70);
-	  prt("Sym", 4, 75);
+	  prt("Knowledge - objects", knowledge_row, 0);
+	  prt("ESC to quit", knowledge_row + 1, 0);
+	  if (small_screen)
+	    {
+	      if (!column)
+		prt("Group", header_row, 0);
+	      else
+		prt("Name", header_row, 3);
+	    }
+	  else
+	    {
+	      prt("Group", header_row, 0);
+	      prt("Name", header_row, max + 3);
+	    }
+	  if ((!small_screen) || (column))
+	    {
+	      if (cheat_know) 
+		prt("Idx", header_row, (small_screen ? 36 : 68));
+	      prt("Sym", header_row, (small_screen ? 41 : 73));
+	    }
 	  
-	  for (i = 0; i < 78; i++)
+	  Term_putstr(0, 5, 4, TERM_WHITE, "<^>v");
+	  for (i = 4; i < (small_screen ? 46 : 78); i++)
 	    {
 	      Term_putch(i, 5, TERM_WHITE, '=');
 	    }
-	  
-	  for (i = 0; i < BROWSER_ROWS; i++)
+
+	  if (small_screen)
 	    {
-	      Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  clear_from(6 + i);
+		}
 	    }
-	  
-	  redraw = FALSE;
+	  else
+	    {
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+		}
+	      
+	      redraw = FALSE;
+	    }
 	}
       
       /* Scroll group list */
       if (grp_cur < grp_top) grp_top = grp_cur;
-      if (grp_cur >= grp_top + BROWSER_ROWS) 
-	grp_top = grp_cur - BROWSER_ROWS + 1;
+      if (grp_cur >= grp_top + browser_rows) 
+	grp_top = grp_cur - browser_rows + 1;
       
       /* Scroll monster list */
       if (object_cur < object_top) object_top = object_cur;
-      if (object_cur >= object_top + BROWSER_ROWS) 
-	object_top = object_cur - BROWSER_ROWS + 1;
+      if (object_cur >= object_top + browser_rows / mult)
+	{ 
+	  object_top = object_cur - (browser_rows / mult) + 1;
+	  if (object_top < 0) object_top = 0;
+	}
       
       /* Display a list of object groups */
-      display_object_group_list(0, 6, max, BROWSER_ROWS, grp_idx, group_item, 
-				grp_cur, grp_top);
+      if ((!small_screen) || (!column))
+	display_object_group_list(0, 6, max, browser_rows, grp_idx, 
+				  group_item, grp_cur, grp_top);
       
       /* Get a list of objects in the current group */
       object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
       
       /* Display a list of objects in the current group */
-      display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, 
-			  object_top);
+      if ((!small_screen) || (column))
+	display_object_list((small_screen ? 0 : max) + 3, 6, 
+			    browser_rows / mult, object_idx, object_cur, 
+			    object_top);
       
       /* Mega Hack -- track this monster race */
       if (object_cnt) object_kind_track(object_idx[object_cur]);
@@ -4402,18 +5503,22 @@ static void do_cmd_knowledge_objects(void)
 	  object_old = object_idx[object_cur];
 	}
       
-      if (!column)
+      if ((!column) || (small_screen))
 	{
 	  Term_gotoxy(0, 6 + (grp_cur - grp_top));
 	}
       else
 	{
-	  Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+	  Term_gotoxy(max + 3, 6 + mult *(object_cur - object_top));
 	}
       
-      ch = inkey();
+      ke = inkey_ex();
       
-      switch (ch)
+      /* Mouse escape */
+      if ((ke.key == '\xff') && (ke.mousey == knowledge_row + 1))
+	ke.key = ESCAPE;
+      
+      switch (ke.key)
 	{
 	case ESCAPE:
 	  {
@@ -4424,8 +5529,8 @@ static void do_cmd_knowledge_objects(void)
 	default:
 	  {
 	    /* Move the cursor */
-	    browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, 
-			   object_cnt);
+	    browser_cursor(ke, &column, max, &grp_cur, grp_cnt, grp_top, 
+			   &object_cur, object_cnt, object_top);
 	    break;
 	  }
 	}
@@ -4490,7 +5595,7 @@ static void do_cmd_knowledge_home(void)
 	  o_ptr = &st_ptr->stock[k];
 	  
 	  /* Acquire object description */
-	  object_desc(o_name, o_ptr, TRUE, 3);
+	  object_desc(o_name, o_ptr, TRUE, 4);
 	  
 	  /* Print a message */
 	  fprintf(fff, "     %s\n", o_name);
@@ -4514,7 +5619,7 @@ static cptr monster_group_text[] =
   {
     "Uniques",			       	/*All uniques, all letters*/
     "Ants",  				/*'a'*/
-    "Ainur/Maiar",			/*'A'*/
+    /* Unused */			/*'A'*/
     "Bats",				/*'b'*/
     "Birds",				/*'B'*/
     "Centipedes",			/*'c'*/
@@ -4578,7 +5683,7 @@ static cptr monster_group_char[] =
 {
   (char *) -1L,
   "a",
-  "A",
+  /*"A",  Unused*/
   "b",
   "B",
   "c",
@@ -4659,7 +5764,7 @@ static int collect_monsters(int grp_cur, monster_list_entry *mon_idx, int mode)
       bool unique = (r_ptr->flags1 & (RF1_UNIQUE));
       
       /* Skip empty race */
-      if (!r_ptr->name) continue;
+      if (!r_ptr->aaf) continue;
       
       /* No Player Ghosts, unless active */
       if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) 
@@ -4721,10 +5826,12 @@ static void display_monster_list(int col, int row, int per_page,
 				 int mon_cur, int mon_top, int grp_cur)
 {
   int i;
+  int disp_row = 0;
+  int mult;
   
   u32b known_uniques, dead_uniques, slay_count;
   
-  /* Start with 0 kills*/
+  /* Start with 0 kills */
   known_uniques = dead_uniques = slay_count = 0;
   
   /* Count up monster kill counts */
@@ -4736,11 +5843,11 @@ static void display_monster_list(int col, int row, int per_page,
       /* Require non-unique monsters */
       if (r_ptr->flags1 & RF1_UNIQUE)
 	{
-	  /*No active player ghosts*/
+	  /* No active player ghosts */
 	  if ((r_ptr->flags2 & (RF2_PLAYER_GHOST)) && (r_ptr->cur_num == 0)) 
 	    continue;
 	  
-	  /*Count if we have seen the unique*/
+	  /* Count if we have seen the unique */
 	  if (l_ptr->sights)
 	    {
 	      known_uniques++;
@@ -4758,6 +5865,9 @@ static void display_monster_list(int col, int row, int per_page,
       /* Collect "appropriate" monsters */
       else slay_count += l_ptr->pkills;
     }
+
+  /* Set the multiplier */
+  mult = (use_trptile ? 3 : (use_dbltile ? 2 : 1));
   
   /* Display lines until done */
   for (i = 0; i < per_page && mon_idx[i].r_idx; i++)
@@ -4795,17 +5905,37 @@ static void display_monster_list(int col, int row, int per_page,
       /* Choose a color */
       attr = ((i + mon_top == mon_cur) ? TERM_L_BLUE : TERM_WHITE);
       
+      /* Get the display row */
+      disp_row = mult * i;
+      
       /* Display the name */
-      c_prt(attr, race_name, row + i, col);
+      c_prt(attr, race_name, row + disp_row, col);
       
       if (cheat_know)
 	{
-	  c_prt(attr, format ("%d", r_idx), row + i, 60);
+	  c_prt(attr, format ("%d", r_idx), row + disp_row, 
+		(small_screen ? 28 : 60));
 	}
       
+      /* Clear the symbol area */
+      Term_erase((small_screen ? 35 : 67), row + disp_row, 20);
+      if (use_dbltile || use_trptile) 
+	Term_erase((small_screen ? 35 : 67), row + disp_row + 1, 20);
+      if (use_trptile)
+	Term_erase((small_screen ? 35 : 67), row + disp_row + 2, 20);
+  
       /* Display symbol */
-      Term_putch(68, row + i, r_ptr->x_attr, r_ptr->x_char);
+      Term_putch((small_screen ? 35 : 67), row + disp_row, 
+		  r_ptr->x_attr, r_ptr->x_char);
       
+#ifdef USE_TRANSPARENCY
+      if (use_bigtile || use_dbltile || use_trptile)
+	{
+	  big_putch((small_screen ? 35 : 67), row + disp_row, r_ptr->x_attr,
+		    r_ptr->x_char);
+	}
+#endif
+
       /* Display kills */
       if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
@@ -4813,20 +5943,21 @@ static void display_monster_list(int col, int row, int per_page,
 	  if (!(r_ptr->flags2 & (RF2_NO_PLACE))) 
 
 	    /* use alive/dead for uniques */
-	    put_str(format("%s", (r_ptr->max_num == 0) ? "dead" : "alive"),
-		    row + i, 73);
+	    put_str(format("%5s", (r_ptr->max_num == 0) ? "dead" : "alive"),
+		    row + disp_row, (small_screen ? 41 : 73));
 	}
-      else put_str(format("%5d", l_ptr->pkills), row + i, 73);
+      else put_str(format("%5d", l_ptr->pkills), row + disp_row, 
+		   (small_screen ? 41 : 73));
       
     }
   
   /* Clear remaining lines */
-  for (; i < per_page; i++)
+  for (i = disp_row + mult; i < per_page * mult; i++)
     {
       Term_erase(col, row + i, 255);
     }
   
-  /*Clear the monster count line*/
+  /* Clear the monster count line */
   Term_erase(0, 22, 255);
   
   if (monster_group_char[grp_cur] != (char *) -1L)
@@ -4896,51 +6027,89 @@ static void do_cmd_knowledge_monsters(void)
   
   while (!flag)
     {
-      char ch;
+      key_event ke;
+      int mult = 1;
+
+      /* Set the multiplier */
+      if (use_dbltile) mult = 2;
+      else if (use_trptile) mult = 3;
       
       if (redraw)
 	{
 	  clear_from(0);
 	  
-	  prt("Knowledge - Monsters", 2, 0);
-	  prt("Group", 4, 0);
-	  prt("Name", 4, max + 3);
-	  if (cheat_know) prt("Idx", 4, 60);
-	  prt("Sym   Kills", 4, 67);
+	  prt("Knowledge - Monsters", knowledge_row, 0);
+	  prt("ESC to quit", knowledge_row + 1, 0);
+	  if (small_screen)
+	    {
+	      if (!column)
+		prt("Group", header_row, 0);
+	      else
+		{
+		  prt("Name", header_row, 3);
+		  if (cheat_know) 
+		    prt("Idx", header_row, 28);
+		  prt("Sym   Kills", header_row, 35);
+		}
+	    }
+	  else
+	    {
+	      prt("Group", header_row, 0);
+	      prt("Name", header_row, max + 3);
+	      if (cheat_know) prt("Idx", header_row, 60);
+	      prt("Sym   Kills", header_row, 67);
+	    }
 	  
-	  for (i = 0; i < 78; i++)
+	  Term_putstr(0, 5, 4, TERM_WHITE, "<^>v");
+	  for (i = 4; i < (small_screen ? 46 : 78); i++)
 	    {
 	      Term_putch(i, 5, TERM_WHITE, '=');
 	    }
 	  
-	  for (i = 0; i < BROWSER_ROWS; i++)
+	  if (small_screen)
 	    {
-	      Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  clear_from(6 + i);
+		}
 	    }
-	  
-	  redraw = FALSE;
+	  else
+	    {
+	      for (i = 0; i < browser_rows; i++)
+		{
+		  Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+		}
+	      
+	      redraw = FALSE;
+	    }
 	}
       
       /* Scroll group list */
       if (grp_cur < grp_top) grp_top = grp_cur;
-      if (grp_cur >= grp_top + BROWSER_ROWS) 
-	grp_top = grp_cur - BROWSER_ROWS + 1;
+      if (grp_cur >= grp_top + browser_rows) 
+	grp_top = grp_cur - browser_rows + 1;
       
       /* Scroll monster list */
       if (mon_cur < mon_top) mon_top = mon_cur;
-      if (mon_cur >= mon_top + BROWSER_ROWS) 
-	mon_top = mon_cur - BROWSER_ROWS + 1;
+      if (mon_cur >= mon_top + browser_rows / mult) 
+	{
+	  mon_top = mon_cur - browser_rows / mult + 1;
+	  if (mon_top < 0) mon_top = 0;
+	}
       
       /* Display a list of monster groups */
-      display_group_list(0, 6, max, BROWSER_ROWS, grp_idx, monster_group_text, 
-			 grp_cur, grp_top);
+      if ((!small_screen) || (!column))
+	display_group_list(0, 6, (small_screen ? 48 : max), browser_rows, 
+			   grp_idx, monster_group_text, grp_cur, grp_top);
       
       /* Get a list of monsters in the current group */
       monster_count = collect_monsters(grp_idx[grp_cur], mon_idx, 0x00);
       
       /* Display a list of monsters in the current group */
-      display_monster_list(max + 3, 6, BROWSER_ROWS, mon_idx, mon_cur, 
-			   mon_top, grp_cur);
+      if ((!small_screen) || (column))
+	display_monster_list((small_screen ? 0 : max) + 3, 6, 
+			     browser_rows / mult, 
+			     mon_idx, mon_cur, mon_top, grp_cur);
       
       /* Track selected monster, to enable recall in sub-win*/
       p_ptr->monster_race_idx = mon_idx[mon_cur].r_idx;
@@ -4951,18 +6120,28 @@ static void do_cmd_knowledge_monsters(void)
       /* Hack -- handle stuff */
       handle_stuff();
       
-      if (!column)
+      if ((!column) || (small_screen))
 	{
 	  Term_gotoxy(0, 6 + (grp_cur - grp_top));
 	}
       else
 	{
-	  Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
+	  Term_gotoxy(max + 3, 6 + mult * (mon_cur - mon_top));
 	}
       
-      ch = inkey();
+      ke = inkey_ex();
       
-      switch (ch)
+      /* Mouse input */
+      if (ke.key == '\xff') 
+	{
+	  if ((ke.mousey == knowledge_row + 1) ||
+	      ((ke.mousey == 23) && (ke.mousex > 21) && (ke.mousex < 25)))
+	    ke.key = ESCAPE;
+	  else if ((ke.mousey == 23) && (ke.mousex > 6) && (ke.mousex < 20))
+	    ke.key = 'r';
+	}
+
+      switch (ke.key)
 	{
 	case ESCAPE:
 	  {
@@ -4978,7 +6157,7 @@ static void do_cmd_knowledge_monsters(void)
 	      {
 		screen_roff(mon_idx[mon_cur].r_idx);
 		
-		(void) inkey();
+		(void) inkey_ex();
 		
 		redraw = TRUE;
 	      }
@@ -4988,10 +6167,10 @@ static void do_cmd_knowledge_monsters(void)
 	default:
 	  {
 	    /* Move the cursor */
-	    browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, 
-			   monster_count);
+	    browser_cursor(ke, &column, max, &grp_cur, grp_cnt, grp_top, 
+			   &mon_cur, monster_count, mon_top);
 	    
-	    /*Update to a new monster*/
+	    /* Update to a new monster */
 	    p_ptr->window |= (PW_MONSTER);
 	    
 	    break;
@@ -5055,7 +6234,7 @@ static void do_cmd_knowledge_kills(void)
       monster_lore *l_ptr = &l_list[who[i]];
       
       /* Print a message */
-      fprintf(fff, "     %-40s  %5d\n",
+      fprintf(fff, "%-36s  %5d\n",
 	      (r_name + r_ptr->name), l_ptr->pkills);
     }
   
@@ -5091,7 +6270,7 @@ static void do_cmd_knowledge_notes(void)
  */
 void do_cmd_knowledge(void)
 {
-  char ch;
+  key_event ke;
   
   /* File type is "TEXT" */
   FILE_TYPE(FILE_TYPE_TEXT);
@@ -5130,71 +6309,83 @@ void do_cmd_knowledge(void)
       Term_clear();
       
       /* Ask for a choice */
-      prt("Display current knowledge", 2, 0);
+      prt("Display current knowledge", knowledge_row, 0);
       
       /* Give some choices */
-      prt("(1) Display known artifacts", 4, 5);
-      prt("(2) Display known monsters", 5, 5);
-      prt("(3) Display known objects", 6, 5);
-      prt("(4) Display hall of fame", 7, 5);
-      prt("(5) Display kill counts", 8, 5);
+      prt("(1) Display known artifacts", header_row, 5);
+      prt("(2) Display known monsters", header_row + 1, 5);
+      prt("(3) Display known objects", header_row + 2, 5);
+      prt("(4) Display hall of fame", header_row + 3, 5);
+      prt("(5) Display kill counts", header_row + 4, 5);
       
       /*allow the player to see the notes taken if that option is selected*/
       c_put_str((adult_take_notes ? TERM_WHITE : TERM_SLATE) ,
-		"(6) Display character notes file", 9, 5);
+		"(6) Display character notes file", header_row + 5, 5);
       
       /*give player option to see home inventory if there is anything there */
       c_put_str((st_ptr->stock_num ? TERM_WHITE : TERM_SLATE) ,
-		"(7) Display contents of your home", 10, 5);
+		"(7) Display contents of your home", header_row + 6, 5);
+
+      /* Quit */
+      prt("ESC to exit", header_row + 7, 5);
       
       /* Prompt */
-      prt("Command: ", 12, 0);
+      prt("Command: ", header_row + 8, 0);
       
       /* Prompt */
-      ch = inkey();
-      
+      ke = inkey_ex();
+
+      /* Mouse input */
+      if (ke.key == '\xff')
+	{
+	  if ((ke.mousey > 3) && (ke.mousey < 11))
+	    ke.key = I2D(ke.mousey - 3);
+	  else
+	    ke.key = ESCAPE;
+	}
+          
       /* Done */
-      if (ch == ESCAPE) break;
+      if (ke.key == ESCAPE) break;
       
       /* Artifacts */
-      if (ch == '1')
+      if (ke.key == '1')
 	{
 	  do_cmd_knowledge_artifacts();
 	}
       
       /* Uniques */
-      else if (ch == '2')
+      else if (ke.key == '2')
 	{
 	  do_cmd_knowledge_monsters();
 	}
       
       /* Objects */
-      else if (ch == '3')
+      else if (ke.key == '3')
 	{
 	  do_cmd_knowledge_objects();
 	}
       
       /* Scores */
-      else if (ch == '4')
+      else if (ke.key == '4')
 	{
 	  show_scores();
 	}
       
       /* Scores */
-      else if (ch == '5')
+      else if (ke.key == '5')
 	{
 	  do_cmd_knowledge_kills();
 	}
       
       /* Ntoes file, if one exists */
-      else if ((ch == '6') && (adult_take_notes))
+      else if ((ke.key == '6') && (adult_take_notes))
 	{
 	  /* Spawn */
 	  do_cmd_knowledge_notes();
 	}
       
       /* Home inventory, if there is anything in the house */
-      else if ((ch == '7') && (st_ptr->stock_num))
+      else if ((ke.key == '7') && (st_ptr->stock_num))
 	{
 	  /* Spawn */
 	  do_cmd_knowledge_home();

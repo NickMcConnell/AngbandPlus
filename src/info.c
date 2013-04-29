@@ -603,7 +603,8 @@ cptr specialty_tips[TOTAL_SPECIALTIES]=
   "Gives you a stronger barehanded attack.",
   "Gives you a powerful unarmed attack.",
   "Allows you to burn monster mana in melee.  Mana burned adds to melee damage.",
-  "","","","","","","","","","","","",
+  "Trades some shooting accuracy for faster shooting, even faster with increasing dexterity.",
+  "","","","","","","","","","","",
   "Enhances your power to slow, sleep, confuse, or turn your enemies.",
   "Increases the effects and durations of beneficial magical effects.",
   "Increases spell casting speed, especially for low level spells from high level casters.",
@@ -1405,8 +1406,10 @@ void object_info(char buf[2048], object_type *o_ptr, bool in_store)
       /* Extra info for ego items. */
       if ((o_ptr->name2) && (object_known_p(o_ptr)))
 	{
-	  cptr divider = "                                   ---";
-	  
+	  cptr divider = (small_screen ? "                    ---" :
+			  "                                   ---");
+
+
 	  /* Insert a return, a divider, and another return. */
 	  *t++ = '\n';
 	  for (x = divider; *x; x++) *t++ = *x;
@@ -3320,7 +3323,7 @@ void self_knowledge(void)
       if ((k == Term->hgt - 2) && (j+1 < i))
 	{
 	  prt("-- more --", k, 0);
-	  inkey();
+	  inkey_ex();
 	  
 	  /* Clear the screen */
 	  Term_clear();
@@ -3335,7 +3338,7 @@ void self_knowledge(void)
   
   /* Pause */
   prt("[Press any key to continue]", k, 0);
-  (void)inkey();
+  (void)inkey_ex();
   
   
   /* Load screen */
@@ -3636,7 +3639,7 @@ void print_spells(int tval, int sval, int y, int x)
 {
   int i, left_justi;
   int j = 0;
-  int first_spell, after_last_spell;
+  int first_spell, after_last_spell, tile_hgt;
   
   magic_type *s_ptr;
   
@@ -3685,7 +3688,7 @@ void print_spells(int tval, int sval, int y, int x)
   after_last_spell = mp_ptr->book_start_index[sval+1];
   
   /* Choose a left margin for the spellbook name. */
-  left_justi = ((80 - x) - strlen(basenm)) / 2;
+  left_justi = (small_screen ? 0 : ((80 - x) - strlen(basenm))) / 2;
   
   /* Center the spellbook name */
   prt("", y, x);
@@ -3770,10 +3773,7 @@ void print_spells(int tval, int sval, int y, int x)
 		     s_ptr->smana, spell_chance(i)), y + j + 1, x + 35);
       c_put_str(attr_extra, format("%s", comment), y + j + 1, x + 47);
     }
-  
-  /* Clear the bottom line */
-  prt("", y + j + 2, x);
-}
+  }
 
 
 /*
@@ -4096,6 +4096,7 @@ void do_cmd_view_abilities(void)
   int total_known = 0;
   int race_start, class_start, race_other_start;
   char c;
+  key_event ke;
   int hgt;
   byte racial_list[32];
   byte class_list[32];
@@ -4230,7 +4231,8 @@ void do_cmd_view_abilities(void)
       put_str("", 2 + cur - top, 5);
       
       /* get input */
-      c = inkey();
+      ke = inkey_ex();
+      c = ke.key;
       
       /* Numbers are used for scolling */
       if (isdigit(c))
@@ -4272,6 +4274,28 @@ void do_cmd_view_abilities(void)
 	    }
 	}
       
+      else if ((ke.key == '\xff') && (ke.mousey >= 2) && 
+	       (ke.mousey < Term->hgt))
+	{
+	  /* Place the cursor */
+	  if (ke.mousey - 2 + top < hgt)
+	    {
+	      cur = ke.mousey - 2 + top;	  
+	      if ((top > 0) && ((cur - top) < 4))
+		{
+		  /* Scroll up */
+		  top--;
+		}
+	      
+	      if ((top + hgt - 1 < (total_known - 1)) && 
+		  ((top + hgt - 1 - cur) < 4))
+		{
+		  /* Scroll down */
+		  top++;
+		}
+	    }
+	}
+      
       /* Letters are used for selection */
       else if (isalpha(c))
 	{
@@ -4299,7 +4323,8 @@ void do_cmd_view_abilities(void)
 	}
       
       /* Allow user to exit the fuction */
-      else if (c == ESCAPE)
+      else if ((c == ESCAPE) || ((!ke.mousey) && (ke.mousex > 49) && 
+				     (ke.mousex < 58)))
 	{
 	  done = TRUE;
 	}

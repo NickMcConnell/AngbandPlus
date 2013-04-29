@@ -183,11 +183,12 @@ static int value_check_aux1(object_type *o_ptr)
 static int do_cmd_squelch_aux(void)
 {
   int i, j, temp, num, max_num;
-  int col, row;
+  int col, row, col2;
   int typeval;
   cptr tval_desc;
   char ch, sq;
-  
+  key_event ke;
+
   int choice[60];
   
   char buf[160];
@@ -202,6 +203,8 @@ static int do_cmd_squelch_aux(void)
    * This uses the above arrays.  I combined a few of the 
    * tvals into single typevals.
    */
+
+  prt("(Q: Secondary Menu for Weapons and Armour)", 1, 0);
   
   for (num = 0; (num<60) && typevals[num].tval; num++)
     {
@@ -216,9 +219,11 @@ static int do_cmd_squelch_aux(void)
   max_num = num;
   
   /* Choose! */
-  if (!get_com("Squelch what type of object? (Q: Secondary Menu for Weapons and Armour) ", &ch)) return (0);
+  if (!get_com_ex("Squelch what type of object (ESC to quit)? ", &ke)) 
+    return (0);
+  ch = ke.key;
   
-  if (ch=='Q') 
+  if ((ch=='Q') || (ke.mousey == 1)) 
     {
       /* Switch to secondary squelching menu */
       do_qual_squelch();
@@ -227,7 +232,10 @@ static int do_cmd_squelch_aux(void)
     {
       
       /* Analyze choice */
-      num = ch-'a';
+      if (ch == '\xff')
+	num = ke.mousey - 3;
+      else
+	num = ch-'a';
       
       /* Bail out if choice is illegal */
       if ((num < 0) || (num >= max_num)) return (0);
@@ -244,6 +252,9 @@ static int do_cmd_squelch_aux(void)
       while (1) 
 	{
 	  Term_clear();
+
+	  /* Column width */
+	  col2 = (small_screen ? 15 : 30);
 	  
 	  /* First sort based on value */
 	  /* Step 1: Read into choice array */
@@ -263,13 +274,13 @@ static int do_cmd_squelch_aux(void)
 	  max_num = num;
 	  
 	  /* Step 2: Simple bubble sort */
-	  for (i=0; i<max_num; i++)
+	  for (i = 0; i < max_num; i++)
 	    { 
-	      for (j=i; j<max_num; j++) 
+	      for (j = i; j < max_num; j++) 
 		{
-		  if ((k_info[choice[i]].tval>k_info[choice[j]].tval) ||
-		      ((k_info[choice[i]].tval==k_info[choice[j]].tval) &&
-		       (k_info[choice[i]].cost>k_info[choice[j]].cost))) 
+		  if ((k_info[choice[i]].tval > k_info[choice[j]].tval) ||
+		      ((k_info[choice[i]].tval == k_info[choice[j]].tval) &&
+		       (k_info[choice[i]].cost > k_info[choice[j]].cost))) 
 		    {
 		      temp = choice[i];
 		      choice[i] = choice[j];
@@ -289,8 +300,8 @@ static int do_cmd_squelch_aux(void)
 		  
 		  /* Prepare it */
 		  row = 3 + (num % 20);
-		  col = 30 * (num / 20);
-		  ch = head[num/26] + (num%26);
+		  col = col2 * (num / 20);
+		  ch = head[num / 26] + (num % 26);
 		  
 		  /* Acquire the "name" of object "i" */
 		  strip_name(buf, choice[num]);
@@ -311,23 +322,27 @@ static int do_cmd_squelch_aux(void)
 	      prt("'*': Squelch           ' ': Do not squelch", 1, 0);
 	      
 	    }
-	  
+
+	  prt("(^A: Squelch all  ^U: Unsquelch all)", 1, 0);  
 	  /* Choose! */
-	  if (!get_com(format("%s : Command? (^A: Squelch all  ^U: Unsquelch all)", tval_desc), &ch)) return (1);
+	  if (!get_com_ex(format("%s : Command? ", tval_desc), &ke)) 
+	    return (1);
+	  ch = ke.key;
 	  
-	  if (ch==KTRL('A')) 
+	  if (ch==KTRL('A') || ((ke.mousey == 1) && (ke.mousex < 16))) 
 	    {
 	      /* ^A --> Squelch all items */
-	      for (i=0; i<max_num; i++) 
+	      for (i = 0; i < max_num; i++) 
 		{
 		  k_info[choice[i]].squelch = TRUE;
 		  sq_info[choice[i]] = TRUE;
 		}
 	    } 
-	  else if (ch==KTRL('U')) 
+	  else if (ch==KTRL('U') || ((ke.mousey == 1) && (ke.mousex > 17) &&
+				     (ke.mousex < 36))) 
 	    {
 	      /* ^U --> Unsquelch all items */
-	      for (i=0; i<max_num; i++) 
+	      for (i = 0; i < max_num; i++) 
 		{
 		  k_info[choice[i]].squelch = FALSE;
 		  sq_info[choice[i]] = FALSE;
@@ -336,12 +351,22 @@ static int do_cmd_squelch_aux(void)
 	  else 
 	    {
 	      /* Analyze choice */
-	      num = -1;
-	      if ((ch >= head[0]) && (ch < head[0] + 26)) num = ch - head[0];
-	      if ((ch >= head[1]) && (ch < head[1] + 26)) 
-		num = ch - head[1] + 26;
-	      if ((ch >= head[2]) && (ch < head[2] + 17)) 
-		num = ch - head[2] + 52;
+	      if (ch == '\xff')
+		{
+		  num = ke.mousex / col2;
+		  num = MIN(ke.mousey - 3, 19) + 20 * num;
+		  if ((ke.mousey < 3) || (ke.mousey > 22)) num = -1;
+		}
+	      else
+		{
+		  num = -1;
+		  if ((ch >= head[0]) && (ch < head[0] + 26)) 
+		    num = ch - head[0];
+		  if ((ch >= head[1]) && (ch < head[1] + 26)) 
+		    num = ch - head[1] + 26;
+		  if ((ch >= head[2]) && (ch < head[2] + 17)) 
+		    num = ch - head[2] + 52;
+		}
 	      
 	      /* Bail out if choice is "illegal" */
 	      if ((num < 0) || (num >= max_num)) return (1);
@@ -364,8 +389,8 @@ static int do_cmd_squelch_aux(void)
 static int do_qual_squelch(void)
 {
   int i, index;
-  int col, row;
-  char ch;
+  int col, row, col2;
+  key_event ke;
   
   char squelch_str[5] = "NCVGA";
   
@@ -380,7 +405,7 @@ static int do_qual_squelch(void)
       Term_clear();
       
       /* Print all tval's and their descriptions */
-      for (num = 0; (num<60) && tvals[num].tval; num++)
+      for (num = 0; (num < 60) && tvals[num].tval; num++)
 	{
 	  row = 2 + (num % 20);
 	  col = 30 * (num / 20);
@@ -390,32 +415,134 @@ static int do_qual_squelch(void)
 	}
       
       /* Print out the rest of the screen */
-      prt("Legend:", 2, 30);
-      prt("N     : Squelch Nothing", 4, 30);
-      prt("C     : Squelch Cursed Items", 5, 30);
-      prt("V     : Squelch Average and Below", 6, 30);
-      prt("G     : Squelch Good and Below", 7, 30);
-      prt("A     : Squelch All but Artifacts", 8, 30);
+      col2 = (small_screen ? 15 : 30);
+      prt("Legend:", 2, col2);
+      prt("N     : Squelch Nothing", 4, col2);
+      prt("C     : Squelch Cursed Items", 5, col2);
+      prt("V     : Squelch Average and Below", 6, col2);
+      prt("G     : Squelch Good and Below", 7, col2);
+      prt("A     : Squelch All but Artifacts", 8, col2);
       
-      prt("Commands:", 11, 30);
-      prt("Arrows: Move and adjust settings", 13, 30);
-      prt("ncvga : Change a single setting", 14, 30);
-      prt("NCVGA : Change all settings", 15, 30);
-      prt("ESC   : Exit Secondary Menu", 17, 30);
+      prt("Commands:", 11, col2);
+      prt("Arrows: Move and adjust settings", 13, col2);
+      prt("ncvga : Change a single setting", 14, col2);
+      prt("NCVGA : Change all settings", 15, col2);
+      prt("ESC   : Exit Secondary Menu", 17, col2);
       prt("Secondary Squelching Menu: Weapons/Armor (Squelch only after identify)", 0,0);
       
       /* Need to know maximum index */
-      max_num=num;
+      max_num = num;
       
       /* Place the cursor */
-      move_cursor(index+ 2, 1);
+      move_cursor(index + 2, 1);
       
       /* Get a key */
-      ch = inkey();
+      ke = inkey_ex();
       
-      /* Analyze */
-      switch (ch)
+      /* Mouse input */
+      if (ke.key == '\xff')
 	{
+	  int old_index = index;
+	  
+	  /* Cursor is in the types column */
+	  if (ke.mousex < col2) 
+	    {
+	      /* Find the cursor */
+	      if ((ke.mousey < max_num + 2) && (ke.mousey > 2))
+		index = ke.mousey - 2;
+	      
+	      /* Invalid */
+	      else
+		{
+		  return 0;
+		}
+	      
+	      /* Move the cursor */
+	      if (index != old_index)
+		{
+		  continue;
+		}
+	      /* Rotate */
+	      else
+		ke.key = '6';
+	    }
+
+	  /* Right hand side */
+	  else
+	    {
+	      /* Click on small letters */
+	      if (ke.mousey == 14)
+		{
+		  switch (ke.mousex - col2)
+		    {
+		    case 0:
+		      {
+			ke.key = 'n';
+			break;
+		      }
+		    case 1:
+		      {
+			ke.key = 'c';
+			break;
+		      }
+		    case 2:
+		      {
+			ke.key = 'v';
+			break;
+		      }
+		    case 3:
+		      {
+			ke.key = 'g';
+			break;
+		      }
+		    case 4:
+		      {
+			ke.key = 'a';
+			break;
+		      }
+		    }
+		}
+	      /* Click on big letters */
+	      else if (ke.mousey == 15)
+		{
+		  switch (ke.mousex)
+		    {
+		    case 0:
+		      {
+			ke.key = 'N';
+			break;
+		      }
+		    case 1:
+		      {
+			ke.key = 'C';
+			break;
+		      }
+		    case 2:
+		      {
+			ke.key = 'V';
+			break;
+		      }
+		    case 3:
+		      {
+			ke.key = 'G';
+			break;
+		      }
+		    case 4:
+		      {
+			ke.key = 'A';
+			break;
+		      }
+		    }
+		}
+	      else
+		return 0;
+	    }
+	}
+ 
+      /* Analyze */
+      switch (ke.key)
+	{
+
 	case ESCAPE:
 	  {
 	    return 0;
@@ -429,7 +556,7 @@ static int do_qual_squelch(void)
 	  
 	case 'N':
 	  {
-	    for (i=0; i<24; i++) 
+	    for (i = 0; i < 24; i++) 
 	      {
 		squelch_level[i] = SQUELCH_NONE;
 	      }
@@ -444,7 +571,7 @@ static int do_qual_squelch(void)
 	  
 	case 'C':
 	  {
-	    for (i=0; i<24; i++) 
+	    for (i = 0; i < 24; i++) 
 	      {
 		squelch_level[i] = SQUELCH_CURSED;
 	      }
@@ -459,7 +586,7 @@ static int do_qual_squelch(void)
 	  
 	case 'V':
 	  {
-	    for (i=0; i<24; i++) 
+	    for (i = 0; i < 24; i++) 
 	      {
 		squelch_level[i] = SQUELCH_AVERAGE;
 	      }
@@ -474,7 +601,7 @@ static int do_qual_squelch(void)
 	  
 	case 'G':
 	  {
-	    for (i=0; i<24; i++) 
+	    for (i = 0; i < 24; i++) 
 	      {
 		squelch_level[i] = SQUELCH_GOOD;
 	      }
@@ -489,7 +616,7 @@ static int do_qual_squelch(void)
 	  
 	case 'A':
 	  {
-	    for (i=0; i<24; i++) 
+	    for (i = 0; i < 24; i++) 
 	      {
 		squelch_level[i] = SQUELCH_ALL;
 	      }
@@ -614,22 +741,22 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
   
   
   /* Check to see if the object is eligible for squelching on id. */
-  num=-1;
-  for (i=0; tvals[i].tval; i++) 
+  num = -1;
+  for (i = 0; tvals[i].tval; i++) 
     {
-      if (tvals[i].tval==o_ptr->tval) 
+      if (tvals[i].tval == o_ptr->tval) 
 	{
-	  num=i;
+	  num = i;
 	}
     }
-  if (num==-1) return result;
+  if (num == -1) return result;
   
   /* 
    * Get the "feeling" of the object.  If the object is being identified
    * get the feeling returned by a heavy pseudoid.
    */
   feel = feeling;
-  if (fullid==1) 
+  if (fullid == 1) 
     feel = value_check_aux1(o_ptr);
   
   /* Get result based on the feeling and the squelch_level */
@@ -643,31 +770,31 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
       
     case SQUELCH_CURSED:
       {
-	result = (((feel==FEEL_BROKEN) ||
-		   (feel==FEEL_TERRIBLE) ||
-		   (feel==FEEL_WORTHLESS) ||
-		   (feel==FEEL_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
+	result = (((feel == FEEL_BROKEN) ||
+		   (feel == FEEL_TERRIBLE) ||
+		   (feel == FEEL_WORTHLESS) ||
+		   (feel == FEEL_CURSED)) ? SQUELCH_YES : SQUELCH_NO);
 	break;
       }
       
     case SQUELCH_AVERAGE:
       {
-	result = (((feel==FEEL_BROKEN) ||
-		   (feel==FEEL_TERRIBLE) ||
-		   (feel==FEEL_WORTHLESS) ||
-		   (feel==FEEL_CURSED) ||
-		   (feel==FEEL_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
+	result = (((feel == FEEL_BROKEN) ||
+		   (feel == FEEL_TERRIBLE) ||
+		   (feel == FEEL_WORTHLESS) ||
+		   (feel == FEEL_CURSED) ||
+		   (feel == FEEL_AVERAGE)) ? SQUELCH_YES : SQUELCH_NO);
 	break;
       }
       
     case SQUELCH_GOOD:
       {
-	result = (((feel==FEEL_BROKEN) ||
-		   (feel==FEEL_TERRIBLE) ||
-		   (feel==FEEL_WORTHLESS) ||
-		   (feel==FEEL_CURSED) ||
-		   (feel==FEEL_AVERAGE) ||
-		   (feel==FEEL_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
+	result = (((feel == FEEL_BROKEN) ||
+		   (feel == FEEL_TERRIBLE) ||
+		   (feel == FEEL_WORTHLESS) ||
+		   (feel == FEEL_CURSED) ||
+		   (feel == FEEL_AVERAGE) ||
+		   (feel == FEEL_GOOD)) ? SQUELCH_YES : SQUELCH_NO);
 	break;
       }
       
@@ -679,7 +806,7 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
     }
   
   
-  if (result==SQUELCH_NO) return result;
+  if (result == SQUELCH_NO) return result;
   
   /* Extra Paranoia */
   if (artifact_p(o_ptr))

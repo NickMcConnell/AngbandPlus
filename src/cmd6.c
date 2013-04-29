@@ -115,11 +115,21 @@ void do_cmd_eat_food(void)
   /* Restrict choices to food */
   item_tester_tval = TV_FOOD;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Eat which item? ";
-  s = "You have nothing to eat.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Eat which item? ";
+      s = "You have nothing to eat.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -406,6 +416,10 @@ void do_cmd_eat_food(void)
       floor_item_describe(0 - item);
       floor_item_optimize(0 - item);
     }
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -426,11 +440,21 @@ void do_cmd_quaff_potion(void)
   /* Restrict choices to potions */
   item_tester_tval = TV_POTION;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Quaff which potion? ";
-  s = "You have no potions to quaff.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Quaff which potion? ";
+      s = "You have no potions to quaff.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1065,6 +1089,10 @@ void do_cmd_quaff_potion(void)
       floor_item_describe(0 - item);
       floor_item_optimize(0 - item);
     }
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -1108,11 +1136,21 @@ void do_cmd_read_scroll(void)
   /* Restrict choices to scrolls */
   item_tester_tval = TV_SCROLL;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Read which scroll? ";
-  s = "You have no scrolls to read.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Read which scroll? ";
+      s = "You have no scrolls to read.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1521,8 +1559,11 @@ void do_cmd_read_scroll(void)
   
   
   /* Hack -- allow certain scrolls to be "preserved" */
-  if (!used_up) return;
-  
+  if (!used_up) 
+    {
+      item_tester_tval = 0;
+      return;
+    } 
   
   /* Destroy a scroll in the pack */
   if (item >= 0)
@@ -1539,6 +1580,10 @@ void do_cmd_read_scroll(void)
       floor_item_describe(0 - item);
       floor_item_optimize(0 - item);
     }
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -1568,11 +1613,21 @@ void do_cmd_use_staff(void)
   /* Restrict choices to staffs */
   item_tester_tval = TV_STAFF;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Use which staff? ";
-  s = "You have no staff to use.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Use which staff? ";
+      s = "You have no staff to use.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -1590,6 +1645,7 @@ void do_cmd_use_staff(void)
   if ((item < 0) && (o_ptr->number > 1))
     {
       msg_print("You must first pick up the staffs.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -1624,6 +1680,7 @@ void do_cmd_use_staff(void)
     {
       if (flush_failure) flush();
       msg_print("You failed to use the staff properly.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -1637,6 +1694,7 @@ void do_cmd_use_staff(void)
       /* Combine / Reorder the pack (later) */
       p_ptr->notice |= (PN_COMBINE | PN_REORDER);
       p_ptr->window |= (PW_INVEN);
+      item_tester_tval = 0;
       return;
     }
   
@@ -1996,7 +2054,11 @@ void do_cmd_use_staff(void)
   
   
   /* Hack -- some uses are "free" */
-  if (!use_charge) return;
+  if (!use_charge) 
+    {
+      item_tester_tval = 0;
+      return;
+    }
   
   
   /* Use a single charge */
@@ -2063,6 +2125,9 @@ void do_cmd_use_staff(void)
 	}
     }
   
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -2098,11 +2163,21 @@ void do_cmd_aim_wand(void)
     /* Restrict choices to wands */
     item_tester_tval = TV_WAND;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Aim which wand? ";
-  s = "You have no wand to aim.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Aim which wand? ";
+      s = "You have no wand to aim.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -2117,7 +2192,11 @@ void do_cmd_aim_wand(void)
   
   
   /* Allow direction to be cancelled for free */
-  if (!get_aim_dir(&dir)) return;
+  if (!get_aim_dir(&dir)) 
+    {
+      item_tester_tval = 0;
+      return;
+    }
   
   k_ptr = &k_info[o_ptr->k_idx];
   
@@ -2150,6 +2229,7 @@ void do_cmd_aim_wand(void)
     {
       if (flush_failure) flush();
       msg_print("You failed to use the wand properly.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -2162,6 +2242,7 @@ void do_cmd_aim_wand(void)
       
       /* Combine / Reorder the pack (later) */
       p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+      item_tester_tval = 0;
       return;
     }
   
@@ -2501,6 +2582,10 @@ void do_cmd_aim_wand(void)
 			  k_name + k_ptr->name);
 	}
     }
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -2530,11 +2615,21 @@ void do_cmd_zap_rod(void)
   /* Restrict choices to rods */
   item_tester_tval = TV_ROD;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Zap which rod? ";
-  s = "You have no rod to zap.";
-  if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-  
+  else
+    {
+      q = "Zap which rod? ";
+      s = "You have no rod to zap.";
+      if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -2557,7 +2652,11 @@ void do_cmd_zap_rod(void)
       !object_aware_p(o_ptr))
     {
       /* Get a direction, allow cancel */
-      if (!get_aim_dir(&dir)) return;
+      if (!get_aim_dir(&dir)) 
+	{
+	  item_tester_tval = 0;
+	  return;
+	}
     }
   
   
@@ -2590,6 +2689,7 @@ void do_cmd_zap_rod(void)
     {
       if (flush_failure) flush();
       msg_print("You failed to use the rod properly.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -2598,6 +2698,7 @@ void do_cmd_zap_rod(void)
     {
       if (flush_failure) flush();
       msg_print("The rod is still charging.");
+      item_tester_tval = 0;
       return;
     }
   /* A stack of rods lacks enough energy. */
@@ -2605,6 +2706,7 @@ void do_cmd_zap_rod(void)
     {
       if (flush_failure) flush();
       msg_print("The rods are all still charging.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -2945,6 +3047,7 @@ void do_cmd_zap_rod(void)
   if (!use_charge)
     {
       o_ptr->timeout -= k_ptr->pval;
+      item_tester_tval = 0;
       return;
     }
   
@@ -2967,6 +3070,10 @@ void do_cmd_zap_rod(void)
 			  k_name + k_ptr->name);
 	}
     }
+
+  /* Forget the item_tester_tval restriction */
+  item_tester_tval = 0;
+  
 }
 
 
@@ -3082,11 +3189,21 @@ void do_cmd_activate(void)
     /* Prepare the hook */
     item_tester_hook = item_tester_hook_activate;
   
+  /* Do we have an item? */
+  if (p_ptr->command_item) 
+    {
+      item = handle_item();
+      if (!get_item_allow(item)) return;
+    }
+
   /* Get an item */
-  q = "Activate which item? ";
-  s = "You have nothing to activate.";
-  if (!get_item(&item, q, s, (USE_EQUIP))) return;
-  
+  else
+    {
+      q = "Activate which item? ";
+      s = "You have nothing to activate.";
+      if (!get_item(&item, q, s, (USE_EQUIP))) return;
+    }
+
   /* Get the item (in the pack) */
   if (item >= 0)
     {
@@ -3139,6 +3256,7 @@ void do_cmd_activate(void)
     {
       if (flush_failure) flush();
       msg_print("You failed to activate it properly.");
+      item_tester_tval = 0;
       return;
     }
   
@@ -3146,6 +3264,7 @@ void do_cmd_activate(void)
   if (o_ptr->timeout)
     {
       msg_print("It whines, glows and fades...");
+      item_tester_tval = 0;
       return;
     }
   
@@ -4733,6 +4852,9 @@ void do_cmd_activate(void)
 		     o_name);
 	}
     }
+
+    /* Free the hook */
+    item_tester_hook = NULL;
   
   /* Success */
   return;

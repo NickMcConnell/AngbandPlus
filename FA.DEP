@@ -1,0 +1,4442 @@
+# eMbedded Visual C++ Dependency File, included by FA.VCN
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\angband.rc : \
+	".\src\FAangband.ico"\
+	".\src\newres.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\angband.rc : \
+	".\src\FAangband.ico"\
+	".\src\newres.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\angband.rc : \
+	".\src\FAangband.ico"\
+	".\src\newres.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\angband.rc : \
+	".\src\FAangband.ico"\
+	".\src\newres.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\angbandcw.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\angbandcw.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\angbandcw.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\angbandcw.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\attack.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\attack.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\attack.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\attack.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\birth.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\birth.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\birth.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\birth.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cave.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cave.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cave.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cave.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd3.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd3.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd3.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd3.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd4.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd4.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd4.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd4.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd5.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd5.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd5.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd5.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\cmd6.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\cmd6.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\cmd6.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\cmd6.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\dungeon.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\dungeon.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\dungeon.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\dungeon.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\emulfunc.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\emulfunc.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\emulfunc.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\emulfunc.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\files.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\files.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\files.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\files.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\generate.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\generate.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\generate.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\generate.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\info.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\info.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\info.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\info.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\init1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\init1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\init1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\init1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\init2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\init2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\init2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\init2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\load.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\load.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\load.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\load.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\main-wce.c" : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"htmlhelp.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	{$(INCLUDE)}"vibrate.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\main-wce.c" : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\main-wce.c" : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"aygshell.h"\
+	{$(INCLUDE)}"htmlhelp.h"\
+	{$(INCLUDE)}"sipapi.h"\
+	{$(INCLUDE)}"winuserm.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\main-wce.c" : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\main.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\main.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\main.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\main.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\monattk.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\monattk.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\monattk.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\monattk.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\monmove.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\monmove.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\monmove.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\monmove.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\monster1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\monster1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\monster1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\monster1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\monster2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\monster2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\monster2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\monster2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\object1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\object1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\object1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\object1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\object2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\object2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\object2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\object2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\randart.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\randart.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\randart.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\randart.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\readdib.c : \
+	".\src\readdib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\readdib.c : \
+	".\src\readdib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\readdib.c : \
+	".\src\readdib.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\readdib.c : \
+	".\src\readdib.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\save.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\save.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\save.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\save.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\spells1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\spells1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\spells1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\spells1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\spells2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\spells2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\spells2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\spells2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\squelch.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\squelch.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\squelch.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\squelch.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\store.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\store.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\store.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\store.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\tables.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\tables.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\tables.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\tables.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\util.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\util.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\util.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\util.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\variable.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\variable.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\variable.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\variable.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\wizard1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\wizard1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\wizard1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\wizard1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\wizard2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\wizard2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\wizard2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\wizard2.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\xtra1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\xtra1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\xtra1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\xtra1.c : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+.\src\xtra2.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+.\src\xtra2.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+.\src\xtra2.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+.\src\xtra2.c : \
+	".\src\angband.h"\
+	".\src\angbandcw.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\readdib.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\z-form.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\z-form.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\z-form.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\z-form.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\z-rand.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-rand.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\z-rand.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-rand.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\z-rand.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-rand.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\z-rand.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-rand.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\z-term.c" : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\z-term.c" : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\z-term.c" : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\z-term.c" : \
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\z-util.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\z-util.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\z-util.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\z-util.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	
+
+!ENDIF 
+
+!IF  "$(CFG)" == "FA - Win32 (WCE emulator) Release"
+
+".\src\z-virt.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	{$(INCLUDE)}"_ansi.h"\
+	{$(INCLUDE)}"cygwin\config.h"\
+	{$(INCLUDE)}"cygwin\sys_time.h"\
+	{$(INCLUDE)}"getopt.h"\
+	{$(INCLUDE)}"machine\ieeefp.h"\
+	{$(INCLUDE)}"netdb.h"\
+	{$(INCLUDE)}"newlib.h"\
+	{$(INCLUDE)}"pwd.h"\
+	{$(INCLUDE)}"sys\_types.h"\
+	{$(INCLUDE)}"sys\cdefs.h"\
+	{$(INCLUDE)}"sys\config.h"\
+	{$(INCLUDE)}"sys\features.h"\
+	{$(INCLUDE)}"sys\file.h"\
+	{$(INCLUDE)}"sys\lock.h"\
+	{$(INCLUDE)}"sys\param.h"\
+	{$(INCLUDE)}"sys\select.h"\
+	{$(INCLUDE)}"sys\time.h"\
+	{$(INCLUDE)}"sys\unistd.h"\
+	{$(INCLUDE)}"unistd.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE emulator) Debug"
+
+".\src\z-virt.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
+
+".\src\z-virt.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
+
+".\src\z-virt.c" : \
+	".\src\autoconf.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+
+!ENDIF 
+

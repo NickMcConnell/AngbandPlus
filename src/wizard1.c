@@ -291,11 +291,6 @@ static void spoil_obj_desc(cptr fname)
 #define MAX_LINE_LEN 75
 
 /*
- * Given an array, determine how many elements are in the array
- */
-#define N_ELEMENTS(a) (sizeof (a) / sizeof ((a)[0]))
-
-/*
  * The artifacts categorized by type
  */
 static grouper group_artifact[] =
@@ -2245,7 +2240,7 @@ static void spoil_mon_info(cptr fname)
       if (flags7 & (RF7_S_HOUND))	vp[vn++] = "summon hounds";
       if (flags7 & (RF7_S_ANIMAL))	vp[vn++] = "summon natural creatures";
       if (flags7 & (RF7_S_THIEF))	vp[vn++] = "summon thieves";
-      if (flags7 & (RF7_S_BERTBILLTOM))	vp[vn++] = "summon his friends";
+      if (flags7 & (RF7_S_SWAMP))	vp[vn++] = "summon swamp creatures";
       if (flags7 & (RF7_S_DRAGON))	vp[vn++] = "summon a dragon";
       if (flags7 & (RF7_S_HI_DRAGON))	vp[vn++] = "summon Ancient Dragons";
       if (flags7 & (RF7_S_DEMON))	vp[vn++] = "summon a demon";

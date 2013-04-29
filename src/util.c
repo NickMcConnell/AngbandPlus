@@ -12,6 +12,9 @@
 
 #include "angband.h"
 
+#ifdef _WIN32_WCE
+#include "angbandcw.h"
+#endif /* _WIN32_WCE */
 
 
 #ifndef HAS_MEMSET
@@ -285,6 +288,10 @@ errr path_parse(char *buf, int max, cptr file)
  */
 extern errr path_temp(char *buf, int max)
 {
+#ifdef _WIN32_WCE
+	//SJG Should no longer be called for WINCE
+	return (0);
+#else  
 	cptr s;
 
 	/* Temp file */
@@ -298,6 +305,7 @@ extern errr path_temp(char *buf, int max)
 
 	/* Success */
 	return (0);
+#endif
 }
 
 #endif /* HAVE_MKSTEMP */
@@ -418,11 +426,25 @@ FILE *my_fopen_temp(char *buf, size_t max)
 
 FILE *my_fopen_temp(char *buf, size_t max)
 {
-	/* Generate a temporary filename */
-	if (path_temp(buf, max)) return (NULL);
-
-	/* Open the file */
-	return (my_fopen(buf, "w"));
+#ifdef _WIN32_WCE
+  TCHAR wcBuf[1024]; 
+  TCHAR wcTmp[1024];
+  TCHAR wcPref[1024];
+  mbstowcs(wcPref, "ang", 1024);
+  /* Get the temp path */
+  if (GetTempPath(max, wcTmp) > max) return (NULL);
+  /* Generate a temporary filename */
+  if (GetTempFileName(wcTmp, wcPref, 0, wcBuf) == 0) return (NULL);
+  wcstombs(buf, wcBuf, 1024);
+  /* Open the file */
+  return (my_fopen(buf, "w"));
+#else
+  /* Generate a temporary filename */
+  if (path_temp(buf, max)) return (NULL);
+  
+  /* Open the file */
+  return (my_fopen(buf, "w"));
+#endif
 }
 
 #endif /* HAVE_MKSTEMP */
@@ -538,12 +560,23 @@ errr my_fputs(FILE *fff, cptr buf, huge n)
 errr fd_kill(cptr file)
 {
   char buf[1024];
-  
+
   /* Hack -- Try to parse the path */
   if (path_parse(buf, 1024, file)) return (-1);
   
+#ifdef _WIN32_WCE
+  {
+    TCHAR wcBuf[1024];
+    mbstowcs( wcBuf, buf, 1024);
+    
+    DeleteFile(wcBuf);
+  }
+  
+#else
   /* Remove */
   (void)remove(buf);
+
+#endif
 
   /* Assume success XXX XXX XXX */
   return (0);
@@ -564,8 +597,19 @@ errr fd_move(cptr file, cptr what)
   /* Hack -- Try to parse the path */
   if (path_parse(aux, 1024, what)) return (-1);
   
+#ifdef _WIN32_WCE
+  {
+    TCHAR wcBuf[1024];
+    TCHAR wcAux[1024];
+    mbstowcs( wcBuf, buf, 1024);
+    mbstowcs( wcAux, aux, 1024);
+    
+    MoveFile(wcBuf, wcAux);
+  }
+#else
   /* Rename */
   (void)rename(buf, aux);
+#endif
   
   /* Assume success XXX XXX XXX */
   return (0);
@@ -604,11 +648,20 @@ errr fd_copy(cptr file, cptr what)
 int fd_make(cptr file, int mode)
 {
   char buf[1024];
-  int fd = 0;
 
   /* Hack -- Try to parse the path */
   if (path_parse(buf, 1024, file)) return (-1);
   
+#ifdef _WIN32_WCE
+  {
+    TCHAR wcBuf[1024];
+    mbstowcs( wcBuf, buf, 1024);
+    
+    return (CreateFile(wcBuf, GENERIC_WRITE, 0, NULL, CREATE_NEW, 
+		       FILE_ATTRIBUTE_NORMAL, 0));
+  }
+#else
+
 #if defined(WINDOWS)
   
   /* Create the file, fail if exists, write-only, binary */
@@ -628,6 +681,7 @@ int fd_make(cptr file, int mode)
   return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode));
 
 #endif
+#endif /* WCE */
 
 }
 
@@ -644,6 +698,18 @@ int fd_open(cptr file, int flags)
   /* Hack -- Try to parse the path */
   if (path_parse(buf, 1024, file)) return (-1);
   
+#ifdef _WIN32_WCE
+
+  {
+    TCHAR wcBuf[1024];
+    mbstowcs( wcBuf, buf, 1024);
+    
+    return (CreateFile(wcBuf, GENERIC_READ | GENERIC_WRITE, 
+		       FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, 
+		       OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0));
+  }
+#else
+
 #if defined(MACINTOSH) || defined(WINDOWS)
   
   /* Attempt to open the file */
@@ -655,7 +721,7 @@ int fd_open(cptr file, int flags)
   return (open(buf, flags | O_BINARY, 0));
 
 #endif
-
+#endif /* WCE */
 }
 
 
@@ -667,7 +733,11 @@ int fd_open(cptr file, int flags)
 errr fd_lock(int fd, int what)
 {
   /* Verify the fd */
+#ifdef _WIN32_WCE
+  if (fd == -1) return (-1);
+#else
   if (fd < 0) return (-1);
+#endif
 
 #ifdef SET_UID
 
@@ -727,6 +797,22 @@ errr fd_seek(int fd, huge n)
 {
   long p;
   
+#ifdef _WIN32_WCE
+  /* Verify fd */
+  if (fd == INVALID_HANDLE_VALUE) return (-1);
+  
+  /* Seek to the given position */
+  p = SetFilePointer(fd, n, NULL, FILE_BEGIN); 
+  
+  /* Failure */
+  if (p < 0) return (1);
+  
+  /* Failure */
+  if (p != n) return (1);
+  
+  /* Success */
+  return (0);
+#else
   /* Verify fd */
   if (fd < 0) return (-1);
   
@@ -741,6 +827,7 @@ errr fd_seek(int fd, huge n)
   
   /* Success */
   return (0);
+#endif
 }
 
 
@@ -766,6 +853,51 @@ errr fd_chop(int fd, huge n)
  */
 errr fd_read(int fd, char *buf, huge n)
 {
+#ifdef _WIN32_WCE
+  DWORD numBytesRead;
+  
+  /* Verify the fd */
+  if (fd == INVALID_HANDLE_VALUE) return (-1);
+  
+#ifndef SET_UID
+  
+  /* Read pieces */
+  while (n >= 16384)
+    {
+      /* Read a piece */
+      if (!ReadFile(fd, buf, 16384, &numBytesRead, NULL))
+	{
+	  return (1);
+	}
+      
+      if (numBytesRead != 16384)
+	{
+	  return (1);
+	}
+      
+      /* Shorten the task */
+      buf += 16384;
+      
+      /* Shorten the task */
+      n -= 16384;
+    }
+  
+#endif
+  
+  /* Read the final piece */
+  if (!ReadFile(fd, buf, n, &numBytesRead, NULL))
+    {
+      return (1);
+    }
+  
+  if (numBytesRead != n)
+    {
+      return (1);
+    }
+  
+  /* Success */
+  return (0);
+#else
   /* Verify the fd */
   if (fd < 0) return (-1);
   
@@ -791,6 +923,7 @@ errr fd_read(int fd, char *buf, huge n)
   
   /* Success */
   return (0);
+#endif /* WCE */
 }
 
 
@@ -799,6 +932,52 @@ errr fd_read(int fd, char *buf, huge n)
  */
 errr fd_write(int fd, cptr buf, huge n)
 {
+#ifdef _WIN32_WCE
+  DWORD numBytesWrite;
+  
+  /* Verify the fd */
+  if (fd == INVALID_HANDLE_VALUE) return (-1);
+  
+#ifndef SET_UID
+  
+  /* Write pieces */
+  while (n >= 16384)
+    {
+      /* Write a piece */
+      if (!WriteFile(fd, buf, 16384, &numBytesWrite, NULL))
+	{
+	  return (1);
+	}
+      
+      if (numBytesWrite != 16384)
+	{
+	  return (1);
+	}
+      
+      /* Shorten the task */
+      buf += 16384;
+      
+      /* Shorten the task */
+      n -= 16384;
+    }
+  
+#endif
+  
+  /* Write the final piece */
+  if (!WriteFile(fd, buf, n, &numBytesWrite, NULL))
+    {
+      return (1);
+    }
+  
+  if (numBytesWrite != n)
+    {
+      return (1);
+    }
+  
+  /* Success */
+  return (0);
+  
+#else
   /* Verify the fd */
   if (fd < 0) return (-1);
   
@@ -824,6 +1003,7 @@ errr fd_write(int fd, cptr buf, huge n)
   
   /* Success */
   return (0);
+#endif
 }
 
 
@@ -832,6 +1012,18 @@ errr fd_write(int fd, cptr buf, huge n)
  */
 errr fd_close(int fd)
 {
+#ifdef _WIN32_WCE
+  /* Verify the fd */
+  if (fd == INVALID_HANDLE_VALUE) return (-1);
+  
+  /* Close */
+  if (!CloseHandle(fd))
+    {
+      return (-1);
+    }
+  
+  return (0);
+#else
   /* Verify the fd */
   if (fd < 0) return (-1);
   
@@ -841,6 +1033,7 @@ errr fd_close(int fd)
   
   /* Assume success XXX XXX XXX */
   return (0);
+#endif
 }
 
 
@@ -848,13 +1041,18 @@ errr fd_close(int fd)
 # ifdef MACINTOSH
 #  include <stat.h>
 # else
+#  ifdef _WIN32_WCE
+#  else
 #  include <sys/types.h>
 #  include <sys/stat.h>
+#  endif /* _WIN32_WCE */
 # endif /* MACINTOSH */
 
 
 errr check_modification_date(int fd, cptr template_file)
 {
+#ifdef _WIN32_WCE
+#else
   char buf[1024];
   
   struct stat txt_stat, raw_stat;
@@ -881,7 +1079,7 @@ errr check_modification_date(int fd, cptr template_file)
       /* Reprocess text file */
       return (-1);
     }
-  
+#endif  
   return (0);
 }
 
@@ -1589,250 +1787,250 @@ char (*inkey_hack)(int flush_first) = NULL;
  */
 key_event inkey_ex(void)
 {
-	int cursor_state;
-
-	key_event kk;
-
-	key_event ke;
-
-	bool done = FALSE;
-
-	term *old = Term;
-
-
-	/* Initialise keypress */
-	ke.key = 0;
-
-	/* Hack -- Use the "inkey_next" pointer */
-	if (inkey_next && *inkey_next && !inkey_xtra)
-	{
-		/* Get next character, and advance */
-		ke.key = *inkey_next++;
-
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-		/* Accept result */
-		return (ke);
-	}
-
-	/* Forget pointer */
-	inkey_next = NULL;
-
-
+  int cursor_state;
+  
+  key_event kk;
+  
+  key_event ke;
+  
+  bool done = FALSE;
+  
+  term *old = Term;
+  
+  
+  /* Initialise keypress */
+  ke.key = 0;
+  
+  /* Hack -- Use the "inkey_next" pointer */
+  if (inkey_next && *inkey_next && !inkey_xtra)
+    {
+      /* Get next character, and advance */
+      ke.key = *inkey_next++;
+      
+      /* Cancel the various "global parameters" */
+      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+      
+      /* Accept result */
+      return (ke);
+    }
+  
+  /* Forget pointer */
+  inkey_next = NULL;
+  
+  
 #ifdef ALLOW_BORG
-
-	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
-	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-		/* Accept result */
-		return (ke);
-	}
-
+  
+  /* Mega-Hack -- Use the special hook */
+  if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
+    {
+      /* Cancel the various "global parameters" */
+      inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+      
+      /* Accept result */
+      return (ke);
+    }
+  
 #endif /* ALLOW_BORG */
-
-
-	/* Hack -- handle delayed "flush()" */
-	if (inkey_xtra)
+  
+  
+  /* Hack -- handle delayed "flush()" */
+  if (inkey_xtra)
+    {
+      /* End "macro action" */
+      parse_macro = FALSE;
+      
+      /* End "macro trigger" */
+      parse_under = FALSE;
+      
+      /* Forget old keypresses */
+      Term_flush();
+    }
+  
+  
+  /* Get the cursor state */
+  (void)Term_get_cursor(&cursor_state);
+  
+  /* Show the cursor if waiting, except sometimes in "command" mode */
+  if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+    {
+      /* Show the cursor */
+      (void)Term_set_cursor(TRUE);
+    }
+  
+  
+  /* Hack -- Activate main screen */
+  Term_activate(term_screen);
+  
+  
+  /* Get a key */
+  while (!ke.key)
+    {
+      /* Hack -- Handle "inkey_scan" */
+      if (!inkey_base && inkey_scan &&
+	  (0 != Term_inkey(&kk, FALSE, FALSE)))
 	{
-		/* End "macro action" */
-		parse_macro = FALSE;
-
-		/* End "macro trigger" */
-		parse_under = FALSE;
-
-		/* Forget old keypresses */
-		Term_flush();
+	  break;
 	}
-
-
-	/* Get the cursor state */
-	(void)Term_get_cursor(&cursor_state);
-
-	/* Show the cursor if waiting, except sometimes in "command" mode */
-	if (!inkey_scan && (!inkey_flag || hilite_player || character_icky))
+      
+      
+      /* Hack -- Flush output once when no key ready */
+      if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
 	{
-		/* Show the cursor */
-		(void)Term_set_cursor(TRUE);
+	  /* Hack -- activate proper term */
+	  Term_activate(old);
+	  
+	  /* Flush output */
+	  Term_fresh();
+	  
+	  /* Hack -- activate main screen */
+	  Term_activate(term_screen);
+	  
+	  /* Mega-Hack -- reset saved flag */
+	  character_saved = FALSE;
+	  
+	  /* Mega-Hack -- reset signal counter */
+	  signal_count = 0;
+	  
+	  /* Only once */
+	  done = TRUE;
 	}
-
-
-	/* Hack -- Activate main screen */
-	Term_activate(term_screen);
-
-
-	/* Get a key */
-	while (!ke.key)
+      
+      
+      /* Hack -- Handle "inkey_base" */
+      if (inkey_base)
 	{
-		/* Hack -- Handle "inkey_scan" */
-		if (!inkey_base && inkey_scan &&
-		    (0 != Term_inkey(&kk, FALSE, FALSE)))
+	  int w = 0;
+	  
+	  /* Wait forever */
+	  if (!inkey_scan)
+	    {
+	      /* Wait for (and remove) a pending key */
+	      if (0 == Term_inkey(&ke, TRUE, TRUE))
 		{
-			break;
+		  /* Done */
+		  break;
 		}
-
-
-		/* Hack -- Flush output once when no key ready */
-		if (!done && (0 != Term_inkey(&kk, FALSE, FALSE)))
+	      
+	      /* Oops */
+	      break;
+	    }
+	  
+	  /* Wait */
+	  while (TRUE)
+	    {
+	      /* Check for (and remove) a pending key */
+	      if (0 == Term_inkey(&ke, FALSE, TRUE))
 		{
-			/* Hack -- activate proper term */
-			Term_activate(old);
-
-			/* Flush output */
-			Term_fresh();
-
-			/* Hack -- activate main screen */
-			Term_activate(term_screen);
-
-			/* Mega-Hack -- reset saved flag */
-			character_saved = FALSE;
-
-			/* Mega-Hack -- reset signal counter */
-			signal_count = 0;
-
-			/* Only once */
-			done = TRUE;
+		  /* Done */
+		  break;
 		}
-
-
-		/* Hack -- Handle "inkey_base" */
-		if (inkey_base)
+	      
+	      /* No key ready */
+	      else
 		{
-			int w = 0;
-
-			/* Wait forever */
-			if (!inkey_scan)
-			{
-				/* Wait for (and remove) a pending key */
-				if (0 == Term_inkey(&ke, TRUE, TRUE))
-				{
-					/* Done */
-					break;
-				}
-
-				/* Oops */
-				break;
-			}
-
-			/* Wait */
-			while (TRUE)
-			{
-				/* Check for (and remove) a pending key */
-				if (0 == Term_inkey(&ke, FALSE, TRUE))
-				{
-					/* Done */
-					break;
-				}
-
-				/* No key ready */
-				else
-				{
-					/* Increase "wait" */
-					w += 10;
-
-					/* Excessive delay */
-					if (w >= 100) break;
-
-					/* Delay */
-					Term_xtra(TERM_XTRA_DELAY, w);
-				}
-			}
-
-			/* Done */
-			break;
+		  /* Increase "wait" */
+		  w += 10;
+		  
+		  /* Excessive delay */
+		  if (w >= 100) break;
+		  
+		  /* Delay */
+		  Term_xtra(TERM_XTRA_DELAY, w);
 		}
-
-
-		/* Get a key (see above) */
-		ke = inkey_aux();
-
-
-		/* Handle "control-right-bracket" */
-		if (ke.key == 29)
-		{
-			/* Strip this key */
-			ke.key = 0;
-
-			/* Continue */
-			continue;
-		}
-
-
-		/* Treat back-quote as escape */
-		if (ke.key == '`') ke.key = ESCAPE;
-
-
-		/* End "macro trigger" */
-		if (parse_under && (ke.key <= 32))
-		{
-			/* Strip this key */
-			ke.key = 0;
-
-			/* End "macro trigger" */
-			parse_under = FALSE;
-		}
-
-
-		/* Handle "control-caret" */
-		if (ke.key == 30)
-		{
-			/* Strip this key */
-			ke.key = 0;
-		}
-
-		/* Handle "control-underscore" */
-		else if (ke.key == 31)
-		{
-			/* Strip this key */
-			ke.key = 0;
-
-			/* Begin "macro trigger" */
-			parse_under = TRUE;
-		}
-
-		/* Inside "macro trigger" */
-		else if (parse_under)
-		{
-			/* Strip this key */
-			ke.key = 0;
-		}
+	    }
+	  
+	  /* Done */
+	  break;
 	}
-
-
-	/* Hack -- restore the term */
-	Term_activate(old);
-
-
-	/* Restore the cursor */
-	Term_set_cursor(cursor_state);
-
-
-	/* Cancel the various "global parameters" */
-	inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-
-	/* Return the keypress */
-	return (ke);
+      
+      
+      /* Get a key (see above) */
+      ke = inkey_aux();
+      
+      
+      /* Handle "control-right-bracket" */
+      if (ke.key == 29)
+	{
+	  /* Strip this key */
+	  ke.key = 0;
+	  
+	  /* Continue */
+	  continue;
+	}
+      
+      
+      /* Treat back-quote as escape */
+      if (ke.key == '`') ke.key = ESCAPE;
+      
+      
+      /* End "macro trigger" */
+      if (parse_under && (ke.key <= 32))
+	{
+	  /* Strip this key */
+	  ke.key = 0;
+	  
+	  /* End "macro trigger" */
+	  parse_under = FALSE;
+	}
+      
+      
+      /* Handle "control-caret" */
+      if (ke.key == 30)
+	{
+	  /* Strip this key */
+	  ke.key = 0;
+	}
+      
+      /* Handle "control-underscore" */
+      else if (ke.key == 31)
+	{
+	  /* Strip this key */
+	  ke.key = 0;
+	  
+	  /* Begin "macro trigger" */
+	  parse_under = TRUE;
+	}
+      
+      /* Inside "macro trigger" */
+      else if (parse_under)
+	{
+	  /* Strip this key */
+	  ke.key = 0;
+	}
+    }
+  
+  
+  /* Hack -- restore the term */
+  Term_activate(old);
+  
+  
+  /* Restore the cursor */
+  Term_set_cursor(cursor_state);
+  
+  
+  /* Cancel the various "global parameters" */
+  inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
+  
+  
+  /* Return the keypress */
+  return (ke);
 }
 
 
 /*
  * Get a keypress or mouse click from the user.
  */
-key_event anykey(void)
+char anykey(void)
 {
-	key_event ke;
-
-	/* Only accept a keypress or mouse click*/
-	do
-	{
-		ke = inkey_ex();
-	} while ((ke.key == '\xff') && !(ke.mousebutton));
-
-	return ke;
+  key_event ke;
+  
+  /* Only accept a keypress or mouse click*/
+  do
+    {
+      ke = inkey_ex();
+    } while ((ke.key == '\xff') && !(ke.mousebutton));
+  
+  return ke.key;
 }
 
 /*
@@ -2396,10 +2594,13 @@ static void msg_flush(int x)
   /* Get an acceptable keypress */
   while (1)
     {
-      int cmd = inkey();
+      key_event cmd = inkey_ex();
       if (quick_messages) break;
-      if ((cmd == ESCAPE) || (cmd == ' ')) break;
-      if ((cmd == '\n') || (cmd == '\r')) break;
+      if ((cmd.key == '\xff') && (cmd.mousex >= x) && 
+	  (cmd.mousex < x + 6) && (!cmd.mousey)) 
+	break;
+      if ((cmd.key == ESCAPE) || (cmd.key == ' ')) break;
+      if ((cmd.key == '\n') || (cmd.key == '\r')) break;
       bell("Illegal response to a 'more' prompt!");
     }
   
@@ -2437,11 +2638,19 @@ static void msg_print_aux(u16b type, cptr msg)
 {
   static int p = 0;
   int n;
+  int trunc_len, check_len;
   char *t;
   char buf[1024];
   byte color = TERM_WHITE;
   
   
+  /* Set length to try and truncate */
+  trunc_len = Term->wid - 8;
+
+  /* Set length to start looking for split ponts */
+  check_len = Term->wid - 40;
+  if (check_len < 0) check_len = 6;
+
   /* Hack -- Reset */
   if (!msg_flag) p = 0;
   
@@ -2449,7 +2658,7 @@ static void msg_print_aux(u16b type, cptr msg)
   n = (msg ? strlen(msg) : 0);
   
   /* Hack -- flush when requested or needed */
-  if (p && (!msg || ((p + n) > 72)))
+  if (p && (!msg || ((p + n) > trunc_len)))
     {
       /* Flush */
       msg_flush(p);
@@ -2501,17 +2710,17 @@ static void msg_print_aux(u16b type, cptr msg)
   if (color == TERM_DARK) color = TERM_WHITE;
   
   /* Split message */
-  while (n > 72)
+  while (n > trunc_len)
     {
       char oops;
       
       int check, split;
       
       /* Default split */
-      split = 72;
+      split = trunc_len;
       
       /* Find the "best" split point */
-      for (check = 40; check < 72; check++)
+      for (check = check_len; check < trunc_len; check++)
 	{
 	  /* Found a valid split point */
 	  if (t[check] == ' ') split = check;
@@ -2655,9 +2864,13 @@ void screen_load(void)
   /* Hack -- Flush messages */
   msg_print(NULL);
   
+  /* Hack - wipe screen for big graphics */
+  //if (use_dbltile || use_trptile)
+  //clear_from(0); 
+  
   /* Load the screen (if legal) */
   if (--screen_depth == 0) Term_load();
-  
+
   /* Decrease "icky" depth */
   character_icky--;
   
@@ -2906,13 +3119,16 @@ void clear_from(int row)
  */
 bool askfor_aux(char *buf, int len)
 {
-  int y, x;
+  int y, x, wid;
   
   int k = 0;
   
   key_event ke;
   
   bool done = FALSE;
+
+  /* Set max width */
+  wid = (small_screen ? 48 : 80);
   
   ke.key = '\0';
   
@@ -2924,10 +3140,10 @@ bool askfor_aux(char *buf, int len)
   if (len < 1) len = 1;
   
   /* Paranoia -- check column */
-  if ((x < 0) || (x >= 80)) x = 0;
+  if ((x < 0) || (x >= wid)) x = 0;
   
   /* Restrict the length */
-  if (x + len > 80) len = 80 - x;
+  if (x + len > wid) len = wid - x;
   
   
   /* Paranoia -- Clip the default entry */
@@ -2975,7 +3191,14 @@ bool askfor_aux(char *buf, int len)
 	  
 	case '\xff':
 	  {
-	    if ((ke.mousebutton) && !(k))
+	    /* Horriblest hack in world history */
+	    if ((!ke.mousey) && (ke.mousex > (small_screen ? 30 : 43)))
+	      {
+		buf[0] = '$';
+		k = strlen(buf);
+		done = TRUE;
+	      }
+	    else if ((ke.mousebutton) && !(k))
 	      {
 		if (ke.mousebutton == 1)
 		  {
@@ -3082,34 +3305,188 @@ s16b get_quantity(cptr prompt, int max)
 #endif /* ALLOW_REPEAT */
   
   
-  /* Prompt if needed */
+  /* Prompt if needed - changed for mouse -NRM- */
   else if (max != 1)
     {
       char tmp[80];
       
-      char buf[80];
+      char buf[6];
       
+      int y, x;
+  
+      int d, j, k = 0, c = 0;
+  
+      key_event ke;
+  
+      bool done = FALSE;
+  
+      ke.key = '\0';
+
+      /* Get the click offset */
+      for (j = 10; j < 1000000; j *=10)
+	if (max >= j) c++;
+  
       /* Build a prompt if needed */
       if (!prompt)
 	{
 	  /* Build a prompt */
-	  sprintf(tmp, "Quantity (0-%d): ", max);
+	  sprintf(tmp, "Quantity (0-%d) ++/--/ESC: ", max);
 	  
 	  /* Use that prompt */
 	  prompt = tmp;
 	}
       
+      /* Paranoia XXX XXX XXX */
+      msg_print(NULL);
+      
+      /* Display prompt */
+      prt(prompt, 0, 0);
+  
       /* Build the default */
       sprintf(buf, "%d", amt);
       
-      /* Ask for a quantity */
-      if (!get_string(prompt, buf, 6)) return (0);
+      /* Ask for a quantity 
+	 if (!get_string(prompt, buf, 6)) return (0); */
+
+      /* Locate the cursor */
+      Term_locate(&x, &y);
+  
+      /* Paranoia -- check column */
+      if ((x < 0) || (x >= 80)) x = 0;
+  
+      /* Paranoia -- Clip the default entry */
+      buf[5] = '\0';
+  
+  
+      /* Display the default answer */
+      Term_erase(x, y, 6);
+      Term_putstr(x, y, -1, TERM_YELLOW, buf);
+  
+  
+      /* Process input */
+      while (!done)
+	{
+	  /* Place cursor */
+	  Term_gotoxy(x + k, y);
+	  
+	  /* Get a key */
+	  ke = inkey_ex();
+	  
+	  /* Analyze the key */
+	  switch (ke.key)
+	    {
+	    case ESCAPE:
+	      {
+		k = 0;
+		done = TRUE;
+		break;
+	      }
+	      
+	    case '\n':
+	    case '\r':
+	      {
+		k = strlen(buf);
+		done = TRUE;
+		break;
+	      }
+	      
+	    case 0x7F:
+	    case '\010':
+	      {
+		if (k > 0) k--;
+		break;
+	      }
+	      
+	    case '\xff':
+	      {
+		if (!ke.mousey)
+		  {
+		    if ((ke.mousex > 14 + c) && (ke.mousex < 17 + c))
+		      {
+			bool writing = FALSE;
+
+			k = 0;
+			amt++;
+			if (amt > max) amt = 0;
+			for(j = 100000; j >= 1; j /= 10)
+			  {
+			    if ((amt >= j) || (writing))
+			      {
+				writing = TRUE;
+				d = amt / j;
+				amt -= d * j;
+				buf[k++] = I2D(d);
+			      }
+			  }
+			buf[k] = '\0';
+			break;
+		      }
+		    else if ((ke.mousex > 17 + c) && (ke.mousex < 20 + c))
+		      {
+			bool writing = FALSE;
+
+			k = 0;
+			amt--;
+			if (amt < 0) amt = max;
+			for(j = 100000; j >= 1; j /= 10)
+			  {
+			    if ((amt >= j) || (writing))
+			      {
+				writing = TRUE;
+				d = amt / j;
+				amt -= d * j;
+				buf[k++] = I2D(d);
+			      }
+			  }
+			buf[k] = '\0';
+			break;
+		      }
+		    else if ((ke.mousex > 20 + c) && (ke.mousex < 24 + c))
+		      {
+			k = 0;
+			done = TRUE;
+			break;
+		      }
+		    else continue;
+		  }
+		else		  
+		  {
+		    k = strlen(buf);
+		    done = TRUE;
+		    break;
+		  }
+	      }
+	      
+	    default:
+	      {
+		if ((k < 5) && (isdigit(ke.key)))
+		  {
+		    buf[k++] = ke.key;
+		  }
+		else
+		  {
+		    bell("Illegal edit key!");
+		  }
+		break;
+	      }
+
+	    }
+	  
+	  /* Terminate */
+	  buf[k] = '\0';
+	  
+	  /* Extract a number */
+	  amt = atoi(buf);
+
+	  /* Update the entry */
+	  Term_erase(x, y, 6);
+	  Term_putstr(x, y, -1, TERM_WHITE, buf);
+	}
+      
       
       /* Extract a number */
       amt = atoi(buf);
       
-      /* A letter means "all" */
-      if (isalpha(buf[0])) amt = max;
     }
   
   /* Enforce the maximum */
@@ -3123,6 +3500,9 @@ s16b get_quantity(cptr prompt, int max)
   if (amt) repeat_push(amt);
   
 #endif /* ALLOW_REPEAT */
+  
+  /* Clear prompt */
+  prt("", 0, 0);
   
   /* Return the result */
   return (amt);
@@ -3138,7 +3518,7 @@ s16b get_quantity(cptr prompt, int max)
  */
 bool get_check(cptr prompt)
 {
-  int i;
+  key_event ke;
   
   char buf[80];
   
@@ -3146,7 +3526,10 @@ bool get_check(cptr prompt)
   msg_print(NULL);
   
   /* Hack -- Build a "useful" prompt */
-  strnfmt(buf, 78, "%.70s[y/n] ", prompt);
+  if (small_screen)
+    strnfmt(buf, 48, "%.38s ['y'/'n']", prompt);
+  else
+    strnfmt(buf, 78, "%.70s ['y'/'n']", prompt);
   
   /* Prompt for it */
   prt(buf, 0, 0);
@@ -3154,10 +3537,18 @@ bool get_check(cptr prompt)
   /* Get an acceptable answer */
   while (TRUE)
     {
-      i = inkey();
+      ke = inkey_ex();
+      if ((ke.key == '\xff') && (!ke.mousey))
+	{
+	  if ((ke.mousex > strlen(buf) - 9) && (ke.mousex < strlen(buf) - 5))
+	    ke.key = 'y';
+	  else if ((ke.mousex > strlen(buf) - 5) && 
+		   (ke.mousex < strlen(buf) - 1))
+	    ke.key = 'n';
+	}
+      if (ke.key == ESCAPE) break;
+      if (strchr("YyNn", ke.key)) break;
       if (quick_messages) break;
-      if (i == ESCAPE) break;
-      if (strchr("YyNn", i)) break;
       bell("Illegal response to a 'yes/no' question!");
     }
   
@@ -3165,7 +3556,7 @@ bool get_check(cptr prompt)
   prt("", 0, 0);
   
   /* Normal negation */
-  if ((i != 'Y') && (i != 'y')) return (FALSE);
+  if ((ke.key != 'Y') && (ke.key != 'y')) return (FALSE);
   
   /* Success */
   return (TRUE);
@@ -3186,18 +3577,21 @@ bool get_check(cptr prompt)
  */
 int get_check_other(cptr prompt, char other)
 {
-  char ch;
+  key_event ke;
   
   char buf[80];
   
-  /*default set to no*/
+  /* default set to no */
   int result = 0;
   
   /* Paranoia XXX XXX XXX */
   msg_print(NULL);
-  
+
   /* Hack -- Build a "useful" prompt */
-  strnfmt(buf, 78, "%.70s[y/n/%c] ", prompt, other);
+  if (small_screen)
+    strnfmt(buf, 48, "%.34s ['y'/'n'/'%c']", prompt, other);
+  else
+    strnfmt(buf, 78, "%.64s ['y'/'n'/'%c']", prompt, other);
   
   /* Prompt for it */
   prt(buf, 0, 0);
@@ -3205,12 +3599,23 @@ int get_check_other(cptr prompt, char other)
   /* Get an acceptable answer */
   while (TRUE)
     {
-      ch = inkey();
+      ke = inkey_ex();
+      if ((ke.key == '\xff') && (!ke.mousey))
+	{
+	  if ((ke.mousex > strlen(buf) - 13) && (ke.mousex < strlen(buf) - 9))
+	    ke.key = 'y';
+	  else if ((ke.mousex > strlen(buf) - 9) && 
+		   (ke.mousex < strlen(buf) - 5))
+	    ke.key = 'n';
+	  else if ((ke.mousex > strlen(buf) - 5) && 
+		   (ke.mousex < strlen(buf) - 1))
+	    ke.key = other;
+	}
+      if (ke.key == ESCAPE) break;
+      if (strchr("YyNn", ke.key)) break;
+      if (ke.key == toupper(other)) break;
+      if (ke.key == tolower(other)) break;
       if (quick_messages) break;
-      if (ch == ESCAPE) break;
-      if (strchr("YyNn", ch)) break;
-      if (ch == toupper(other)) break;
-      if (ch == tolower(other)) break;
       bell("Illegal response to question!");
     }
   
@@ -3218,9 +3623,10 @@ int get_check_other(cptr prompt, char other)
   prt("", 0, 0);
   
   /* Normal negation */
-  if ((ch == 'Y') || (ch == 'y')) result = 1;
+  if ((ke.key == 'Y') || (ke.key == 'y')) result = 1;
   /*other option*/
-  else if ((ch == toupper(other)) || (ch == tolower(other))) result = 2;
+  else if ((ke.key == toupper(other)) || (ke.key == tolower(other))) 
+    result = 2;
   /*all else default to no*/
   
   /* Success */
@@ -3289,10 +3695,9 @@ bool get_com_ex(cptr prompt, key_event *command)
  */
 void pause_line(int row)
 {
-  int i;
   prt("", row, 0);
-  put_str("[Press any key to continue]", row, 23);
-  i = inkey();
+  put_str("[Press any key to continue]", row, (small_screen ? 11 : 23));
+  (void) inkey_ex();
   prt("", row, 0);
 }
 
@@ -3400,13 +3805,13 @@ void request_command(bool shopping)
 	  p_ptr->command_arg = 0;
 	  
 	  /* Begin the input */
-	  prt("Count: ", 0, 0);
+	  prt("Count (-- ++): ", 0, 0);
 	  
 	  /* Get a command count */
 	  while (1)
 	    {
 	      /* Get a new keypress */
-	      ke.key = inkey();
+	      ke = inkey_ex();
 	      
 	      /* Simple editing (delete or backspace) */
 	      if ((ke.key == 0x7F) || (ke.key == KTRL('H')))
@@ -3415,7 +3820,7 @@ void request_command(bool shopping)
 		  p_ptr->command_arg = p_ptr->command_arg / 10;
 		  
 		  /* Show current count */
-		  prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+		  prt(format("Count (-- ++): %d", p_ptr->command_arg), 0, 0);
 		}
 	      
 	      /* Actual numeric data */
@@ -3440,14 +3845,50 @@ void request_command(bool shopping)
 		    }
 		  
 		  /* Show current count */
-		  prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+		  prt(format("Count (-- ++): %d", p_ptr->command_arg), 0, 0);
 		}
 	      
+	      /* Mousepress data */
+	      else if (ke.key == '\xff')
+		{
+		  /* Increment or decrement */
+		  if (!ke.mousey)
+		    {
+		      if ((ke.mousex > 6) && (ke.mousex < 9))
+			{
+			  if (p_ptr->command_arg == 0)
+			    {
+			      /* Warn */
+			      bell("Invalid repeat count!");
+			    }
+			  else
+			    {
+			      p_ptr->command_arg--;
+			    }
+			}
+		      else if ((ke.mousex > 9) && (ke.mousex < 12))
+			{
+			  if (p_ptr->command_arg == 9999)
+			    {
+			      /* Warn */
+			      bell("Invalid repeat count!");
+			    }
+			  else
+			    {
+			      p_ptr->command_arg++;
+			    }
+			}
+		    }  
+		  /* Show current count */
+		  prt(format("Count (-- ++): %d", p_ptr->command_arg), 0, 0);
+		
+		}
 	      /* Exit on "unusable" input */
 	      else
 		{
 		  break;
 		}
+	      
 	    }
 	  
 	  /* Hack -- Handle "zero" */
@@ -3457,7 +3898,7 @@ void request_command(bool shopping)
 	      p_ptr->command_arg = 99;
 	      
 	      /* Show current count */
-	      prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+	      prt(format("Count (-- ++): %d", p_ptr->command_arg), 0, 0);
 	    }
 	  
 	  /* Hack -- Handle "old_arg" */
@@ -3467,7 +3908,7 @@ void request_command(bool shopping)
 	      p_ptr->command_arg = old_arg;
 	      
 	      /* Show current count */
-	      prt(format("Count: %d", p_ptr->command_arg), 0, 0);
+	      prt(format("Count (-- ++): %d", p_ptr->command_arg), 0, 0);
 	    }
 	  
 	  /* Hack -- white-space means "enter command now" */
@@ -3529,7 +3970,12 @@ void request_command(bool shopping)
       /* Use command */
       p_ptr->command_cmd = ke.key;
       p_ptr->command_cmd_ex = ke;
-      
+
+      /* Hack - avoid warning message in shops */
+      if ((ke.key == '\xff') && (shopping) && (ke.mousey != 18) &&
+	  (ke.mousey != 21) && (ke.mousey != 22) && (ke.mousey != 23)) 
+	continue;
+
       /* Done */
       break;
     }
@@ -3549,6 +3995,41 @@ void request_command(bool shopping)
   /* Shopping */
   if (shopping)
     {
+      /* Take mouse input */
+      if (ke.key == '\xff')
+	{
+	  if (ke.mousey == 18)
+	    p_ptr->command_cmd = ' ';
+	  if (ke.mousey == 21)
+	    {
+	      if ((ke.mousex > (small_screen ? 20 : 28)) && 
+		  (ke.mousex < (small_screen ? 36 : 55))) 
+		p_ptr->command_cmd = '\r';
+	      if (ke.mousex > (small_screen ? 36 : 54)) 
+		p_ptr->command_cmd = 'i';
+	    }
+	  if (ke.mousey == 22)
+	    {
+	      if (ke.mousex < (small_screen ? 20 : 29)) 
+		p_ptr->command_cmd = ESCAPE;
+	      if ((ke.mousex > (small_screen ? 20 : 28)) && 
+		  (ke.mousex < (small_screen ? 36 : 55))) 
+		p_ptr->command_cmd = 'g';
+	      if (ke.mousex > (small_screen ? 36 : 54)) 
+		p_ptr->command_cmd = 'l';
+	    }
+	  if (ke.mousey == 23)
+	    {
+	      if (ke.mousex < (small_screen ? 20 : 29)) 
+		p_ptr->command_cmd = ' ';
+	      if ((ke.mousex > (small_screen ? 20 : 28)) && 
+		  (ke.mousex < (small_screen ? 36 : 55))) 
+		p_ptr->command_cmd = 'd';
+	      if (ke.mousex > (small_screen ? 36 : 54)) 
+		p_ptr->command_cmd = 'o';
+	    }
+	}
+
       /* Hack -- Convert a few special keys */
       switch (p_ptr->command_cmd)
 	{
@@ -3561,6 +4042,7 @@ void request_command(bool shopping)
 	  /* Command "s" -> "sell" (drop) */
 	case 's': p_ptr->command_cmd = 'd'; break;
 	}
+
     }
   
   
@@ -3601,7 +4083,7 @@ void request_command(bool shopping)
 	  s = strchr(s + 1, '^');
 	}
     }
-  
+
   /* Hack -- erase the message line. */
   if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
   
@@ -3642,7 +4124,7 @@ int get_recall_pt(cptr reason, bool extra)
   
   int i, region, level, new = 0;
   
-  char choice;
+  key_event choice;
   
   char *abcd[5] = {"a", "b", "c", "d", "e"};
   
@@ -3667,16 +4149,29 @@ int get_recall_pt(cptr reason, bool extra)
       else
 	sprintf(stage, "%s     ", locality_name[region]);	      
       
-      put_str(format(" %s) %20s     ", abcd[i], stage), i + 1, 30);
+      put_str(format(" %s) %20s     ", abcd[i], stage), i + 1, (small_screen ? 10 : 30));
     }
   if (extra)
-    put_str(format(" e) Don't replace     ", stage), i + 1, 30);
+    put_str(format(" e) Don't replace     ", stage), i + 1, (small_screen ? 10 : 30));
   
   
   while(!valid){
-    if (get_com(reason, &choice))
+    if (get_com_ex(reason, &choice))
       {
-	switch (choice)
+	/* Mouse input */
+	if (choice.key == '\xff') {
+	  if (!choice.mousey)
+	    {
+	      /* ESC */
+	      new = 0;
+	      screen_load();
+	      return 0;
+	    }
+	  else 
+	    choice.key = 'a' + choice.mousey - 1;
+	}
+
+	switch (choice.key)
 	  {
 	  case 'a':
 	    {
@@ -3812,9 +4307,11 @@ void repeat_check(void)
   if (p_ptr->command_cmd == ' ') return;
   if (p_ptr->command_cmd == '\r') return;
   if (p_ptr->command_cmd == '\n') return;
-  
+
   /* Repeat Last Command */
-  if (p_ptr->command_cmd == 'n')
+  if ((p_ptr->command_cmd == 'n') || 
+      ((mouse_buttons) && (p_ptr->command_cmd_ex.key == '\xff') &&
+       (click_area(p_ptr->command_cmd_ex) == MOUSE_REPEAT)))
     {
       /* Reset */
       repeat__idx = 0;
@@ -3840,6 +4337,29 @@ void repeat_check(void)
       repeat_push(what);
     }
 }
+
+/*
+ * Deal with pre-selected items from the item menu
+ */
+int handle_item(void)
+{
+  int item;
+
+  /* Set the item */
+  item = p_ptr->command_item;
+  if (item == 100) item = 0;
+
+  /* Handle repeat */  
+  repeat_push(item);
+
+  /* Reset */
+  p_ptr->command_item = 0;
+  p_ptr->command_new = 0;
+
+  /* Done */
+  return(item);
+}
+
 
 
 /* 
@@ -4170,7 +4690,9 @@ cptr attr_to_text(byte a)
   return (base);
 }
 
-/* Purpose: Path finding algorithm */
+/* 
+ * Path finding algorithm variables 
+ */
 static int terrain[MAX_PF_RADIUS][MAX_PF_RADIUS];
 static int ox, oy, ex, ey;
 
@@ -4206,11 +4728,11 @@ static void fill_terrain_info(void)
 {
   int i,j;
   
-  ox = MAX(p_ptr->px - MAX_PF_RADIUS / 2,0);
-  oy = MAX(p_ptr->py - MAX_PF_RADIUS / 2,0);
+  ox = MAX(p_ptr->px - MAX_PF_RADIUS / 2, 0);
+  oy = MAX(p_ptr->py - MAX_PF_RADIUS / 2, 0);
 
-  ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1,DUNGEON_WID);
-  ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1,DUNGEON_HGT);
+  ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1, DUNGEON_WID);
+  ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1, DUNGEON_HGT);
 	
   for (i = 0; i < MAX_PF_RADIUS * MAX_PF_RADIUS; i++)
     terrain[0][i] = -1;
@@ -4223,7 +4745,8 @@ static void fill_terrain_info(void)
   terrain[p_ptr->py - oy][p_ptr->px - ox] = 1;
 }
 
-#define MARK_DISTANCE(c,d) if ((c <= MAX_PF_LENGTH) && (c > d)) { c = d; try_again = (TRUE); }
+#define MARK_DISTANCE(c,d) if ((c <= MAX_PF_LENGTH) && (c > d)) \
+                              { c = d; try_again = (TRUE); }
 
 bool findpath(int y, int x)
 {
@@ -4277,8 +4800,7 @@ bool findpath(int y, int x)
 	      {
 		for (dir = 1; dir < 10; dir++)
 		  {
-		    if (dir == 5)
-		      dir++;
+		    if (dir == 5) dir++;
 		    MARK_DISTANCE(terrain[j - oy + ddy[dir]][i - ox +ddx[dir]],
 				  cur_distance);
 		  } 
@@ -4290,10 +4812,10 @@ bool findpath(int y, int x)
   
   /* Failure */
   if (terrain[y - oy][x - ox] == MAX_PF_LENGTH)
-	{
-	  bell("Target space unreachable.");
-	  return (FALSE);
-	}
+    {
+      bell("Target space unreachable.");
+      return (FALSE);
+    }
 
   /* Success */
   i = x;
@@ -4308,14 +4830,13 @@ bool findpath(int y, int x)
       cur_distance = terrain[j - oy][i - ox] - 1;
 
       /* Starting direction */
-      if (xdiff < 0) startx = -1;
-      else if (xdiff > 0) startx = 1;
+      if (xdiff < 0) startx = 1;
+      else if (xdiff > 0) startx = -1;
+      else startx = 0;
 
-      if (ydiff < 0) starty = -1;
-      else if (ydiff > 0) starty = 1;
-
-      if (startx * xdiff < 2 * starty * ydiff) startx = 0;
-      if (starty * ydiff < 2 * startx * xdiff) starty = 0;
+      if (ydiff < 0) starty = 1;
+      else if (ydiff > 0) starty = -1;
+      else starty = 0;
 
       for (dir = 1; dir < 10; dir++)
 	if ((ddx[dir] == startx) && (ddy[dir] == starty)) break;

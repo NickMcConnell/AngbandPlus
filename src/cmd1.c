@@ -5,6 +5,8 @@
  *
  * Tim Baker's easy patch installed.
  *
+ * Mouse menus - NRM -
+ *
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -129,6 +131,19 @@ static bool auto_pickup_check(object_type *o_ptr, bool check_pack)
 		{
 			/* =g ('g'et) means auto pickup */
 			if (s[1] == 'g') return (TRUE);
+
+			/* Find another '=' */
+			s = strchr(s + 1, '=');
+		}
+
+		/* Throwing weapons and ammo need no extra inscription */
+		s = strchr(quark_str(o_ptr->note), '@');
+
+		/* Process preventions */
+		while (s)
+		{
+			/* =g ('g'et) means auto pickup */
+			if ((s[1] == 'f') || (s[1] == 'v')) return (TRUE);
 
 			/* Find another '=' */
 			s = strchr(s + 1, '=');
@@ -343,7 +358,7 @@ static bool auto_pickup_okay(object_type *o_ptr)
 /*
  * Carry an object and delete it.
  */
-static void py_pickup_aux(int o_idx)
+extern void py_pickup_aux(int o_idx)
 {
   int slot;
   
@@ -636,6 +651,9 @@ byte py_pickup(int pickup, int y, int x)
       /* Telekinesis */
       if (telekinesis)
 	{
+	  /* Restrict the choices */
+	  item_tester_hook = inven_carry_okay;
+      
 	  if (get_item_tk(&item, q, s, y, x))
 	    {
 	      this_o_idx = 0 - item;
@@ -766,7 +784,8 @@ void hit_trap(int y, int x)
 	Rand_quick = FALSE;
 	
 	/* Paranoia  -NRM- */
-	if (!stage_map[p_ptr->stage][DOWN])
+	if ((stage_map[p_ptr->stage][STAGE_TYPE] >= CAVE) &&
+	    (!stage_map[p_ptr->stage][DOWN]))
 	  {
 	    cave_info[y][x] &= ~(CAVE_MARK);
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -785,12 +804,23 @@ void hit_trap(int y, int x)
 	    dam = damroll(2, 8);
 	    take_hit(dam, name);
 	  }
+	/* Remember where we came from */
+	p_ptr->last_stage = p_ptr->stage;
+
+	if (!stage_map[p_ptr->stage][DOWN])
+	  {
+	    /* Set the ways forward and back */
+	    stage_map[255][UP] = p_ptr->stage;
+	    stage_map[p_ptr->stage][DOWN] = 255;
+	    stage_map[255][DEPTH] = p_ptr->depth + 1;
+	  }
+	  
+	/* New stage */
+	p_ptr->stage = stage_map[p_ptr->stage][DOWN];
 	
 	/* New depth */
-	p_ptr->last_stage = p_ptr->stage;
-	p_ptr->stage = stage_map[p_ptr->stage][DOWN];
-	p_ptr->depth++;
-	
+	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 	
@@ -1729,11 +1759,17 @@ void fall_off_cliff(void)
   /* Where we fell from */
   p_ptr->last_stage = p_ptr->stage;
 
-  /* Fall at least one level */
-  for (i = 0; i < 1; i = rand_int(3))
+  /* From the mountaintop */
+  if (stage_map[p_ptr->stage][LOCALITY] == MOUNTAIN_TOP)
     {
-      p_ptr->stage = stage_map[p_ptr->stage][SOUTH];
-      p_ptr->depth++;
+      p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+      p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+
+      /* Reset */
+      stage_map[256][DOWN] = 0;
+      stage_map[p_ptr->stage][UP] = 0;
+      stage_map[256][DEPTH] = 0;
+
       if (p_ptr->ffall)
 	{
 	  dam = damroll(2, 8);
@@ -1747,9 +1783,33 @@ void fall_off_cliff(void)
 	  set_cut(p_ptr->cut + damroll(4, 8));
 	}
       take_hit(dam, "falling off a precipice");
-      if (p_ptr->depth == 80) break;
     }
-	
+
+  /* Nan Dungortheb */
+  else
+    {
+      /* Fall at least one level */
+      for (i = 0; i < 1; i = rand_int(3))
+	{
+	  p_ptr->stage = stage_map[p_ptr->stage][SOUTH];
+	  p_ptr->depth++;
+	  if (p_ptr->ffall)
+	    {
+	      dam = damroll(2, 8);
+	      set_stun(p_ptr->stun + damroll(2, 8));
+	      set_cut(p_ptr->cut + damroll(2, 8));
+	    }
+	  else
+	    {
+	      dam = damroll(4, 8);
+	      set_stun(p_ptr->stun + damroll(4, 8));
+	      set_cut(p_ptr->cut + damroll(4, 8));
+	    }
+	  take_hit(dam, "falling off a precipice");
+	  if (p_ptr->depth == 80) break;
+	}
+    }
+  
   /* Leaving */
   p_ptr->leaving = TRUE;
 	
@@ -1775,6 +1835,9 @@ void move_player(int dir, int do_pickup)
 
   /* Player is jumping off a cliff */
   bool falling = FALSE;
+
+  /* Player hits a trap (always unless flying) */
+  bool trapped = TRUE;
   
   int temp;
   int y, x;
@@ -1913,6 +1976,11 @@ void move_player(int dir, int do_pickup)
 		/* Dwarves move easily through rubble */
 		if (check_ability(SP_DWARVEN)) 
 		  can_move = TRUE;
+
+		/* Bats, dragons can fly */
+		else if ((p_ptr->schange == SHAPE_BAT) || 
+		    (p_ptr->schange == SHAPE_WYRM))
+		  can_move = TRUE;
 				
 		else if (player_is_crossing == dir) 
 		  can_move = TRUE;
@@ -1934,6 +2002,11 @@ void move_player(int dir, int do_pickup)
 		if ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))) 
 		  can_move = TRUE;
 		
+		/* Bats, dragons can fly */
+		else if ((p_ptr->schange == SHAPE_BAT) || 
+		    (p_ptr->schange == SHAPE_WYRM))
+		  can_move = TRUE;
+
 		/* Allow movement only if partway through already. */
 		else if (player_is_crossing == dir) 
 		  can_move = TRUE;
@@ -2004,8 +2077,9 @@ void move_player(int dir, int do_pickup)
 	      }
 	    case FEAT_VOID:
 	      {
-		/* Bats can fly */
-		if (p_ptr->schange == SHAPE_BAT)
+		/* Bats, dragons can fly */
+		if ((p_ptr->schange == SHAPE_BAT) || 
+		    (p_ptr->schange == SHAPE_WYRM))
 		  can_move = TRUE;
 		else
 		  {
@@ -2101,9 +2175,23 @@ void move_player(int dir, int do_pickup)
 		  p_ptr->command_new = '_';
 		}
 	      
+	      /* Flying players have a chance to miss traps */
+	      if ((p_ptr->schange == SHAPE_BAT) || 
+		  (p_ptr->schange == SHAPE_WYRM))
+		{
+		  if (((cave_feat[y][x] == FEAT_INVIS) ||
+		       (cave_feat[y][x] == FEAT_GRASS_INVIS)) && 
+		      (rand_int(3) != 0))
+		    trapped = FALSE;
+		  else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+			   (cave_feat[y][x] <= FEAT_TRAP_TAIL) &&
+			   (rand_int(10) != 0))
+		    trapped = FALSE;
+		}
+
 	      /* Discover invisible traps */
-	      else if ((cave_feat[y][x] == FEAT_INVIS) ||
-		       (cave_feat[y][x] == FEAT_GRASS_INVIS))
+	      else if (((cave_feat[y][x] == FEAT_INVIS) ||
+			(cave_feat[y][x] == FEAT_GRASS_INVIS)) && trapped)
 		{
 		  /* Disturb */
 		  disturb(0, 0);
@@ -2120,7 +2208,7 @@ void move_player(int dir, int do_pickup)
 	      
 	      /* Set off a visible trap */
 	      else if ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-		       (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+		       (cave_feat[y][x] <= FEAT_TRAP_TAIL) && trapped)
 		{
 		  /* Disturb */
 		  disturb(0, 0);
@@ -2991,6 +3079,9 @@ void run_step(int dir)
   /* Start run */
   if (dir)
     {
+      /* Paranoia */
+      p_ptr->running_withpathfind = 0;
+
       /* Initialize */
       run_init(dir);
       
@@ -3069,8 +3160,8 @@ void run_step(int dir)
 		}
 	      
 	      /* Get step after */
-	      y = y + ddy[pf_result[pf_result_index-1] - '0'];
-	      x = x + ddx[pf_result[pf_result_index-1] - '0'];
+	      y = y + ddy[pf_result[pf_result_index - 1] - '0'];
+	      x = x + ddx[pf_result[pf_result_index - 1] - '0'];
 	      
 	      /* Known wall */
 	      if ((cave_info[y][x] & (CAVE_MARK)) && !is_valid_pf(y,x))
@@ -3096,4 +3187,758 @@ void run_step(int dir)
   
   /* Move the player, using the "pickup" flag */
   move_player(p_ptr->run_cur_dir, always_pickup);
+}
+
+/* Divide up the screen into mousepress regions */
+
+int click_area(key_event ke)
+{
+
+  if ((ke.mousey) && (ke.mousex > COL_MAP) && 
+      (ke.mousey < Term->hgt - (panel_extra_rows ? 2 : 0) - 
+       (bottom_status ? 6 : 0) - 1))
+    return MOUSE_MAP;
+  else if ((ke.mousey >= ROW_RACE) && (ke.mousey < ROW_RACE + 6) && 
+	   (ke.mousex < 12))
+    return MOUSE_CHAR;
+  else if ((ke.mousey == ROW_HP) && (ke.mousex > COL_HP) && 
+	   (ke.mousex < COL_HP + 12))
+    return MOUSE_HP;
+  else if ((ke.mousey == ROW_SP) && (ke.mousex > COL_SP) &&
+	   (ke.mousex < COL_SP + 12))
+    return MOUSE_SP;
+  else if ((ke.mousey == Term->hgt - 1) && (ke.mousex >= COL_STUDY) &&
+	   (ke.mousex < COL_STUDY + 5))
+    return MOUSE_STUDY;
+  else if (!ke.mousey)
+    return MOUSE_MESSAGE;
+  else if ((ke.mousey == Term->hgt - 1) && 
+	   (ke.mousex > Term->wid - (small_screen ? 8 : 21)))
+    return MOUSE_PLACE;
+  else if ((ke.mousey >= ROW_STAT) && (ke.mousey < ROW_STAT + 6) && 
+	   (ke.mousex >= COL_STAT) && (ke.mousex < COL_STAT + 12))
+    return MOUSE_OBJECTS;
+  else if ((ke.mousey == ROW_STAND) && (ke.mousex >= COL_CUT) && 
+	   (ke.mousex < COL_CUT + (bottom_status ? 6 : 7)))
+    return MOUSE_STAND;
+  else if ((ke.mousey == ROW_REPEAT) && (ke.mousex >= COL_CUT) && 
+	   (ke.mousex < COL_CUT + (bottom_status ? 6 : 8)))
+    return MOUSE_REPEAT;
+  else if ((ke.mousey == ROW_RETURN) && (ke.mousex >= COL_CUT) && 
+	   (ke.mousex < COL_CUT + (bottom_status ? 6 : 8 )))
+    return MOUSE_RETURN;
+  else if ((ke.mousey == ROW_ESCAPE) && (ke.mousex >= COL_CUT) && 
+	   (ke.mousex < COL_CUT + 5))
+    return MOUSE_ESCAPE;
+  else return MOUSE_NULL;
+}
+
+/* 
+ * Bring up objects to act on 
+ */
+void show_obj(void)
+{
+  key_event ke;
+  char comm[22];
+  cptr q, s;
+  cptr comm_descr[22];
+  int j, item, tile_hgt, poss = 0;
+  object_type *o_ptr;
+
+  char o_name[120];
+  byte out_color;
+  
+  /* Set to display list */
+  p_ptr->command_see = TRUE;
+
+  /* No item */
+  p_ptr->command_item = 0;
+
+  /* No command */
+  p_ptr->command_new = 0;
+
+  /* No restrictions */
+  item_tester_tval = 0;
+  item_tester_hook = NULL;
+
+  /* See what's available */
+  q = "Pick an item to use:";
+  s = "You have no items to hand.";
+  if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+
+  /* Got it */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
+  
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+  
+  /* Is it really an item? */
+  if (!o_ptr->k_idx)
+    return;
+
+  /* Describe the object */
+  object_desc(o_name, o_ptr, TRUE, 4);
+      
+  /* Hack -- enforce max length */
+  o_name[Term->wid - 3] = '\0';
+      
+  /* Acquire inventory color.  Apply spellbook hack. */
+  out_color = proc_list_color_hack(o_ptr);
+      
+  /* Wear/wield */
+  if ((wield_slot(o_ptr) >= INVEN_WIELD) && (!SCHANGE) && (item < INVEN_WIELD))
+    {
+      comm[poss] = 'w';
+      comm_descr[poss++] = "wield";
+    }
+      
+  /* Take off equipment */
+  if ((item >= INVEN_WIELD) && (item < INVEN_TOTAL) && (!SCHANGE))
+    {
+      comm[poss] = 't';
+      comm_descr[poss++] = "take off";
+    }
+      
+  /* Drop an item */
+  if ((item >= 0) && ((item < INVEN_WIELD) || (!SCHANGE)))
+    {
+      comm[poss] = 'd';
+      comm_descr[poss++] = "drop";
+    }
+      
+      
+  /* Destroy an item */
+  if (item < INVEN_WIELD)
+    {
+      comm[poss] = 'k';
+      comm_descr[poss++] = "destroy";
+    }
+      
+      
+  /* Identify an object */
+  comm[poss] = 'I';
+  comm_descr[poss++] = "inspect";
+  
+  /* Pick up an object */
+  if ((item < 0) && inven_carry_okay(o_ptr))
+    {
+      comm[poss] = 'g';
+      comm_descr[poss++] = "pick up";
+    }
+
+  /* Book learnin' */
+  if (mp_ptr->spell_book == o_ptr->tval)
+    {
+      if (p_ptr->new_spells)
+	{
+	  comm[poss] = 'G';
+	  comm_descr[poss++] = "gain a spell";
+	}
+      comm[poss] = 'b';
+      comm_descr[poss++] = "browse";
+      comm[poss] = 'm';
+      comm_descr[poss++] = "cast a spell";
+    }
+
+  /* Inscribe an object */
+  comm[poss] =  '{';
+  comm_descr[poss++] = "inscribe";
+      
+  /* Uninscribe an object */
+  if (o_ptr->note)
+    {
+      comm[poss] = '}';
+      comm_descr[poss++] = "uninscribe";
+    }
+
+  /* Activate equipment */
+  if ((object_known_p(o_ptr)) && (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
+      && (item >= INVEN_WIELD))
+    {
+      comm[poss] = 'A';
+      comm_descr[poss++] = "activate";
+    }
+      
+  /* Eat some food */
+  if (o_ptr->tval == TV_FOOD)
+    {
+      comm[poss] = 'E';
+      comm_descr[poss++] = "eat";
+    }
+      
+  if ((item < INVEN_WIELD) && ((o_ptr->tval == TV_LITE) || 
+			       (o_ptr->tval == TV_FLASK)))
+    {
+       object_type *o1_ptr = &inventory[INVEN_LITE];
+
+       if (((o1_ptr->sval == SV_LITE_LANTERN) && 
+	    ((o_ptr->tval == TV_FLASK) || ((o_ptr->tval == TV_LITE) &&
+					   (o_ptr->sval == SV_LITE_LANTERN))))
+	   || ((o1_ptr->sval == SV_LITE_TORCH) && (o_ptr->tval == TV_LITE)
+	       && (o_ptr->sval == SV_LITE_TORCH)))
+ 
+	 {
+	   comm[poss] = 'F';
+	   comm_descr[poss++] = "refuel";
+	 }
+    }
+      
+  /* Fire an item */
+  if (p_ptr->ammo_tval == o_ptr->tval)
+    {
+      comm[poss] = 'f';
+      comm_descr[poss++] = "fire";
+    }
+  
+  /* Throw an item */
+  if ((item < INVEN_WIELD) || (!SCHANGE))
+    {
+      comm[poss] = 'v';
+      comm_descr[poss++] = "throw";
+    }
+      
+  /* Aim a wand */
+  if (o_ptr->tval == TV_WAND)
+    {
+      comm[poss] = 'a';
+      comm_descr[poss++] = "aim";
+    }
+      
+  /* Zap a rod */
+  if (o_ptr->tval == TV_ROD)
+    {
+      comm[poss] = 'z';
+      comm_descr[poss++] = "zap";
+    }
+      
+  /* Quaff a potion */
+  if (o_ptr->tval == TV_POTION)
+    {
+      comm[poss] = 'q';
+      comm_descr[poss++] = "quaff";
+    }
+      
+  /* Read a scroll */
+  if (o_ptr->tval == TV_SCROLL)
+    {
+      comm[poss] = 'r';
+      comm_descr[poss++] = "read";
+    }
+      
+  /* Use a staff */
+  if (o_ptr->tval == TV_STAFF)
+    {
+      comm[poss] = 'u';
+      comm_descr[poss++] = "use";
+    }
+
+  /* Save screen */
+  screen_save();
+
+  /* Now do the list */
+  put_str("Choose a command, or ESC:", 0, 0); 
+  
+  /* Clear the line */
+  prt("", 1, 0);
+      
+  /* Display the item */
+  c_put_str(out_color, o_name, 1, 0);
+      
+  /* Output each entry */
+  for (j = 0; j < poss; j++)
+    {
+      /* Clear the line */
+      prt("", j + 2, 0);
+      
+      /* Display the entry itself */
+      put_str(format("%c  %s", comm[j], comm_descr[j]), j + 2, 5);
+    }
+
+  /* Clear a shadow */
+  prt("", poss + 2, 0);
+      
+  /* Hack - delete exact graphics rows */
+  if (use_trptile || use_dbltile)
+    { 
+      j = poss + 2;
+      tile_hgt = (use_trptile ? 3 : 2);
+      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	prt("", ++j, 0);
+    }
+
+  /* Get a choice */
+  ke = inkey_ex();
+
+  /* Load screen */
+  screen_load();
+
+  /* Valid mousepress */
+  if ((ke.key == '\xff') && (ke.mousey <= poss + 1) && (ke.mousey))
+    p_ptr->command_new = comm[ke.mousey - 2];
+
+  /* Valid keypress */
+  for (j = 0; j <= poss; j++)
+    if (ke.key == comm[j])
+      {
+	p_ptr->command_new = ke.key;
+	break;
+      }
+
+#ifdef ALLOW_REPEAT /* TNB */
+  
+  if (p_ptr->command_new) repeat_push(p_ptr->command_new);
+  
+#endif /* ALLOW_REPEAT */
+  
+  /* Now set the item if valid */
+  if (p_ptr->command_new)
+    {
+      p_ptr->command_item = item;
+      
+      /* Hack for first in inventory */
+      if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+    }
+
+  /* Turn off lists */
+  p_ptr->command_see = FALSE;
+
+}    
+
+
+/*
+ * Return the features around (or under) the character
+ */
+void get_feats(int *surroundings)
+{
+  int d;
+  int xx, yy;
+  int count;
+  
+  /* Count how many matches */
+  count = 0;
+  
+  /* Check around (and under) the character */
+  for (d = 0; d < 9; d++)
+    {
+      /* Initialise */
+      surroundings[d] = FEAT_FLOOR;
+
+      /* Extract adjacent (legal) location */
+      yy = p_ptr->py + ddy_ddd[d];
+      xx = p_ptr->px + ddx_ddd[d];
+      
+      /* Paranoia */
+      if (!in_bounds_fully(yy, xx)) continue;
+      
+      /* Must have knowledge */
+      if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
+      
+      /* Record the feature */
+      surroundings[d] = cave_feat[yy][xx];
+    }
+  
+  /* All done */
+  return;
+}
+
+
+/* 
+ * Bring up player actions 
+ */
+void show_player(void)
+{
+  key_event ke;
+  char comm[22];
+  cptr comm_descr[22];
+  int i, j, fy, fx, tile_hgt, poss = 0;
+  int adj_grid[9];
+  bool exist_rock_or_web = FALSE;
+  bool exist_door = FALSE;
+  bool exist_open_door = FALSE;
+  bool exist_trap = FALSE;
+  bool exist_mtrap = FALSE;
+  bool exist_floor = FALSE;
+  bool exist_monster = FALSE;
+
+  /* Set to display list */
+  p_ptr->command_see = TRUE;
+
+  /* No command */
+  p_ptr->command_new = 0;
+
+  /* Get surroundings */
+  get_feats(adj_grid);
+
+  /* Analyze surroundings */
+  for (i = 0; i < 8; i++)
+    {
+      if ((adj_grid[i] >= FEAT_TRAP_HEAD) && (adj_grid[i] <= FEAT_TRAP_TAIL))
+	exist_trap = TRUE;
+      if ((adj_grid[i] >= FEAT_DOOR_HEAD) && (adj_grid[i] <= FEAT_DOOR_TAIL))
+	exist_door = TRUE;
+      if ((adj_grid[i] == FEAT_WEB) || ((adj_grid[i] >= FEAT_SECRET) &&
+					(adj_grid[i] <= FEAT_PERM_SOLID)))
+	exist_rock_or_web = TRUE;
+      if ((adj_grid[i] >= FEAT_MTRAP_HEAD) && (adj_grid[i] <= FEAT_MTRAP_TAIL))
+	exist_mtrap = TRUE;
+      if (adj_grid[i] == FEAT_OPEN)
+	exist_open_door = TRUE;
+      if (cave_naked_bold(p_ptr->py + ddy_ddd[i], p_ptr->px + ddx_ddd[i]))
+	exist_floor = TRUE;
+      if (cave_m_idx[ddy_ddd[i]][ddx_ddd[i]] > 0) 
+	exist_monster = TRUE;
+    }
+
+  /* In a web? */
+  if (adj_grid[8] == FEAT_WEB) exist_rock_or_web = TRUE;
+  
+  /* Alter a grid */
+  if (exist_trap || exist_door || exist_rock_or_web || exist_mtrap || 
+      exist_open_door || count_chests(&fy, &fx, TRUE) || 
+      count_chests(&fy, &fx, FALSE) || (check_ability(SP_TRAP) && exist_floor)
+      || (check_ability(SP_STEAL) && exist_monster && (!SCHANGE)))
+    {
+      comm[poss] = '+';
+      comm_descr[poss++] = "alter";
+    }
+  
+  /* Dig a tunnel */
+  if (exist_door || exist_rock_or_web)
+    {
+      comm[poss] = 'T';
+      comm_descr[poss++] = "tunnel";
+    }
+      
+  /* Begin Running -- Arg is Max Distance */
+  {
+    comm[poss] = '.';
+    comm_descr[poss++] = "run";
+  }
+      
+  /* Hold still for a turn.  Pickup objects if auto-pickup is true. */
+  {
+    comm[poss] = ',';
+    comm_descr[poss++] = "stand still";
+  }
+      
+  /* Pick up objects. */
+  if (cave_o_idx[p_ptr->py][p_ptr->px])
+  {
+    comm[poss] = 'g';
+    comm_descr[poss++] = "pick up";
+  }
+      
+  /* Rest -- Arg is time */
+  {
+    comm[poss] = 'R';
+    comm_descr[poss++] = "rest";
+  }
+      
+  /* Search for traps/doors */
+  {
+    comm[poss] = 's';
+    comm_descr[poss++] = "search";
+  }
+      
+  /* Look around */
+  {
+    comm[poss] = 'l';
+    comm_descr[poss++] = "look";
+  }
+      
+  /* Scroll the map */
+  {
+    comm[poss] = 'L';
+    comm_descr[poss++] = "scroll map";
+  }
+      
+  /* Show the map */
+  {
+    comm[poss] = 'M';
+    comm_descr[poss++] = "level map";
+  }
+      
+  /* Knowledge */
+  {
+    comm[poss] = '~';
+    comm_descr[poss++] = "knowledge";
+  }
+      
+  /* Options */
+  {
+    comm[poss] = '=';
+    comm_descr[poss++] = "options";
+  }
+      
+  /* Toggle search mode */
+  {
+    comm[poss] = 'S';
+    comm_descr[poss++] = "toggle searching";
+  }
+      
+  
+  /* Go up staircase */
+  if ((adj_grid[8] == FEAT_LESS) || ((adj_grid[8] >= FEAT_LESS_NORTH) && 
+				     (!(adj_grid[8] % 2))))
+  {
+    comm[poss] = '<';
+    comm_descr[poss++] = "take stair/path";
+  }
+      
+  /* Go down staircase */
+  if ((adj_grid[8] == FEAT_MORE) || ((adj_grid[8] >= FEAT_LESS_NORTH) && 
+				     (adj_grid[8] % 2)))
+  {
+    comm[poss] = '>';
+    comm_descr[poss++] = "take stair/path";
+  }
+      
+  /* Open a door or chest */
+  if (exist_door || count_chests(&fy, &fx, TRUE) || 
+      count_chests(&fy, &fx, FALSE))
+    {
+      comm[poss] = 'o';
+      comm_descr[poss++] = "open";
+    }
+  
+  /* Close a door */
+  if (exist_open_door)
+    {
+      comm[poss] = 'c';
+      comm_descr[poss++] = "close";
+    }
+      
+    /* Jam a door with spikes */
+  if (exist_door)
+    {
+      comm[poss] = 'j';
+      comm_descr[poss++] = "jam";
+    }
+      
+  /* Bash a door */
+  if (exist_door)
+    {
+      comm[poss] = 'B';
+      comm_descr[poss++] = "bash";
+    }
+      
+  /* Disarm a trap or chest */
+  if (count_chests(&fy, &fx, TRUE) || exist_trap || exist_mtrap)
+    {
+      comm[poss] = 'D';
+      comm_descr[poss++] = "disarm";
+    }
+
+  /* Shapechange */
+  if ((SCHANGE) || (check_ability(SP_BEARSKIN))) 
+    {
+      comm[poss] = ']';
+      comm_descr[poss++] = "shapechange";
+    }
+      
+  /* Save screen */
+  screen_save();
+
+  /* Now do the list */
+  put_str("Choose a command, or ESC:", 0, 0); 
+  
+  /* Output each entry */
+  for (j = 0; j < poss; j++)
+    {
+      /* Clear the line */
+      prt("", j + 1, 0);
+      
+      /* Display the entry itself */
+      put_str(format("%c  %s", comm[j], comm_descr[j]), j + 1, 5);
+    }
+
+  /* Clear a shadow */
+  prt("", poss + 1, 0);
+      
+  /* Hack - delete exact graphics rows */
+  if (use_trptile || use_dbltile)
+    { 
+      j = poss + 1;
+      tile_hgt = (use_trptile ? 3 : 2);
+      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
+	prt("", ++j, 0);
+    }
+
+  /* Get a choice */
+  ke = inkey_ex();
+
+  /* Load screen */
+  screen_load();
+
+  /* Valid mousepress */
+  if ((ke.key == '\xff') && (ke.mousey <= poss) && (ke.mousey))
+    p_ptr->command_new = comm[ke.mousey - 1];
+
+  /* Valid keypress */
+  for (j = 0; j < poss; j++)
+    if (ke.key == comm[j])
+      {
+	p_ptr->command_new = ke.key;
+	break;
+      }
+
+#ifdef ALLOW_REPEAT /* TNB */
+  
+  if (p_ptr->command_new) repeat_push(p_ptr->command_new);
+  
+#endif /* ALLOW_REPEAT */
+  
+  /* Turn off lists */
+  p_ptr->command_see = FALSE;
+
+}    
+
+
+/* 
+ * Mouse commands in general play - mostly just mimics a keypress
+ */
+void do_cmd_mousepress(void)
+{
+  int area, i;
+  int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
+  int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+  
+  /* Find out where we've clicked */
+  area = click_area(p_ptr->command_cmd_ex);
+
+  /* Hack - cancel repeat and do manually */
+  if (!((mouse_buttons) && (area == MOUSE_REPEAT)))
+    repeat_clear();
+
+  /* Hack - cancel the item testers */
+  item_tester_tval = 0;
+  item_tester_hook = NULL;
+
+  /* Click on player -NRM-*/
+  if ((p_ptr->py == y) && (p_ptr->px == x)) 
+    {
+      show_player();
+    }
+  
+  /* Click next to player */
+  else if ((ABS(p_ptr->py - y) <= 1) && (ABS(p_ptr->px - x) <= 1)) 
+    {
+      /* Get the direction */
+      for (i = 0; i < 10; i++)
+	if ((ddx[i] == (x - p_ptr->px)) && (ddy[i] == (y - p_ptr->py))) break;
+
+      /* Take it */
+      Term_keypress(I2D(i));
+    }
+  
+  else if (p_ptr->command_cmd_ex.mousebutton == 1)
+    {
+      switch (area)
+	{
+	case MOUSE_MAP:
+	  {
+	    if (p_ptr->confused)
+	      {
+		p_ptr->command_dir = mouse_dir(p_ptr->command_cmd_ex, FALSE);
+		if (p_ptr->command_dir)	do_cmd_walk();
+	      }
+	    else
+	      {
+		do_cmd_pathfind(y, x);
+	      }
+	    break;
+	  }
+	case MOUSE_CHAR:
+	  {
+	    Term_keypress('C');
+	    break;
+	  }
+	case MOUSE_HP:
+	  {
+	    Term_keypress('R');
+	    break;
+	  }
+	case MOUSE_SP:
+	  {
+	    Term_keypress('m');
+	    break;
+	  }
+	case MOUSE_STUDY:
+	  {
+	    /* Spec. */
+	    if (p_ptr->new_specialties)
+	      Term_keypress('O');
+
+	    /* Study */
+	    else if ((mp_ptr->spell_book) || (p_ptr->new_spells))
+	      Term_keypress('G');
+	    break;
+	  }
+	case MOUSE_MESSAGE:
+	  {
+	    Term_keypress(KTRL('P'));
+	    break;
+	  }
+	case MOUSE_PLACE:
+	  {
+	    if (p_ptr->depth)
+	      Term_keypress(KTRL('F'));
+	    else
+	      Term_keypress('H');
+	    break;
+	  }
+	case MOUSE_OBJECTS:
+	  {
+	    show_obj();
+	    break;
+	  }
+	case MOUSE_STAND:
+	  {
+	    if (mouse_buttons)
+	      {
+		Term_keypress('5');
+		break;
+	      }
+	  }
+	case MOUSE_REPEAT:
+	  {
+	    if (mouse_buttons)
+	      {
+		repeat_check();
+		break;
+	      }
+	  }
+	case MOUSE_RETURN:
+	  {
+	    if (mouse_buttons)
+	      {
+		Term_keypress('\r');
+		break;
+	      }
+	  }
+	case MOUSE_ESCAPE:
+	  {
+	    if (mouse_buttons)
+	      {
+		Term_keypress(ESCAPE);
+		break;
+	      }
+	  }
+	default:
+	  {
+	    bell("Illegal mouse area!"); 
+	  }
+	}
+    }
+  else if (p_ptr->command_cmd_ex.mousebutton == 2)
+    {
+      target_set_location(y, x);
+      msg_print("Target set.");
+    }
 }

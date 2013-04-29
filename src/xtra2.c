@@ -15,7 +15,9 @@
 
 #include "angband.h"
 
-
+#ifdef _WIN32_WCE
+#include "angbandcw.h"
+#endif /* _WIN32_WCE */
 
 /*
  * Set "p_ptr->blind", notice observable changes
@@ -2523,7 +2525,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	    {
 	      sprintf(path, "%s/bone.%03d", ANGBAND_DIR_BONE, 
 		      bones_selector);
-	      remove(path);
+#ifdef _WIN32_WCE
+	      {
+		TCHAR wcpath[1024];
+		mbstowcs(wcpath, path, 1024);
+		
+		DeleteFile(wcpath);
+	      }
+#else
+ 	      remove(path);
+#endif
 	    }
 	}
       
@@ -2623,17 +2634,14 @@ void panel_recalc_bounds(void)
   /* Get size */
   Term_get_size(&wid, &hgt);
   
-  panel_row_max = panel_row_min + hgt - ROW_MAP - 2;
-  panel_row_prt = panel_row_min - 1;
-  panel_col_max = panel_col_min + wid - COL_MAP - 2;
-  panel_col_prt = panel_col_min - 13;
-  
-  if (hgt > 25) 
+  if (hgt > (bottom_status ? 31 : 25)) 
     {
-      panel_row_max -= 2;
       panel_extra_rows = TRUE;
     }
   else panel_extra_rows = FALSE;
+  
+  panel_row_max = panel_row_min + SCREEN_HGT - 1;
+  panel_col_max = panel_col_min + SCREEN_WID - 1;
 }
 
 
@@ -2647,33 +2655,25 @@ void panel_recalc_bounds(void)
 bool change_panel(int dy, int dx)
 {
   int y, x;
-  int wid, hgt;
-  
-  /* Get size */
-  Term_get_size(&wid, &hgt);
-  
-  /* Offset */
-  hgt -= ROW_MAP + 1;
-  wid -= COL_MAP + 1;
-  
-  if (panel_extra_rows) hgt -= 2;
+  int y_min, x_min, y_max, x_max;
   
   /* Apply the motion */
-  y = panel_row_min + dy * (hgt / 2);
-  x = panel_col_min + dx * (wid / 2);
+  y = panel_row_min + dy * (SCREEN_HGT / 2);
+  x = panel_col_min + dx * (SCREEN_WID / 2);
+
+  /* Desired bounds */
+  y_min = (p_ptr->depth ? 0 : DUNGEON_HGT / 3);
+  x_min = (p_ptr->depth ? 0 : DUNGEON_WID / 3);
+  y_max = (p_ptr->depth ? DUNGEON_HGT : 2 * DUNGEON_HGT / 3);
+  x_max = (p_ptr->depth ? DUNGEON_WID : 2 * DUNGEON_WID / 3);
+  if ((!p_ptr->depth) && (p_ptr->stage < 151)) x_max = DUNGEON_WID / 2;
   
   /* Bounds */
-  if (y > DUNGEON_HGT - hgt) y = DUNGEON_HGT - hgt;
-  if (y < 0) y = 0;
-  if (x > DUNGEON_WID - wid) x = DUNGEON_WID - wid;
-  if (x < 0) x = 0;
+  if (y > y_max - SCREEN_HGT) y = y_max - SCREEN_HGT;
+  if (y < y_min) y = y_min;
+  if (x > x_max - SCREEN_WID) x = x_max - SCREEN_WID;
+  if (x < x_min) x = x_min;
 	
-  if (!p_ptr->depth)
-    {
-      x = 65 - wid / 2;
-      y = 75 - hgt / 2;
-    }
-  
   /* Handle "changes" */
   if ((y != panel_row_min) || (x != panel_col_min))
     {
@@ -2692,6 +2692,9 @@ bool change_panel(int dy, int dx)
       
       /* Handle stuff */
       handle_stuff();
+
+      /* Redraw for big graphics */
+      if (use_dbltile || use_trptile) redraw_stuff();
       
       /* Success */
       return (TRUE);
@@ -2710,7 +2713,7 @@ void verify_panel(void)
   int y = py;
   int x = px;
   
-  int wid, hgt;
+  int y_min, x_min, y_max, x_max;
   
   int prow_min;
   int pcol_min;
@@ -2720,28 +2723,25 @@ void verify_panel(void)
   
   int change_col = 4 * (1 + op_ptr->panel_change);
   int change_row = 2 * (1 + op_ptr->panel_change);
-  
 
-  /* Get size */
-  Term_get_size(&wid, &hgt);
+  /* This seems a good idea with all the config options now -NRM- */
+  panel_recalc_bounds();
   
-  /* Offset */
-  hgt -= ROW_MAP + 1;
-  wid -= COL_MAP + 1;
-  
-  if (panel_extra_rows) hgt -= 2;
-  
-  /* Hack - in town  */
-  if (!p_ptr->depth)
+  /* Hack - in town */
+  if (!p_ptr->depth && !small_screen && (SCREEN_HGT >= (DUNGEON_HGT / 3) - 1) 
+      && (((p_ptr->stage < 151) && (SCREEN_WID >= (DUNGEON_WID / 6))) || 
+	  ((p_ptr->stage > 150) && (SCREEN_WID >= (DUNGEON_WID / 3)))))
     {
-      prow_min = DUNGEON_HGT/3;
-      pcol_min = DUNGEON_WID/3;
+      
+      prow_min = DUNGEON_HGT / 3;
+      pcol_min = DUNGEON_WID / 3;
+
     }
   
   else
     {
-      max_prow_min = DUNGEON_HGT - hgt;
-      max_pcol_min = DUNGEON_WID - wid;
+      max_prow_min = DUNGEON_HGT - SCREEN_HGT;
+      max_pcol_min = DUNGEON_WID - SCREEN_WID;
       
       /* Bounds checking */
       if (max_prow_min < 0) max_prow_min = 0;
@@ -2751,12 +2751,12 @@ void verify_panel(void)
       if (center_player && (center_running || !p_ptr->running))
 	{
 	  /* Center vertically */
-	  prow_min = y - hgt / 2;
+	  prow_min = y - SCREEN_HGT / 2;
 	  if (prow_min < 0) prow_min = 0;
 	  else if (prow_min > max_prow_min) prow_min = max_prow_min;
 	  
 	  /* Center horizontally */
-	  pcol_min = x - wid / 2;
+	  pcol_min = x - SCREEN_WID / 2;
 	  if (pcol_min < 0) pcol_min = 0;
 	  else if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
 	}
@@ -2774,7 +2774,7 @@ void verify_panel(void)
 	      (y < panel_row_min + change_row))
 	    {
 	      /* Center vertically */
-	      prow_min = y - hgt / 2;
+	      prow_min = y - SCREEN_HGT / 2;
 	      if (prow_min < 0) prow_min = 0;
 	      else if (prow_min > max_prow_min) prow_min = max_prow_min;
 	    }
@@ -2784,11 +2784,29 @@ void verify_panel(void)
 	      (x < panel_col_min + change_col))
 	    {
 	      /* Center horizontally */
-	      pcol_min = x - wid / 2;
+	      pcol_min = x - SCREEN_WID / 2;
 	      if (pcol_min < 0) pcol_min = 0;
 	      else if (pcol_min > max_pcol_min) pcol_min = max_pcol_min;
 	    }
       	}
+
+      /* Hack - inefficient anti-scrolling for town */
+      if (!p_ptr->depth)
+	{
+	  /* Desired bounds */
+	  y_min = DUNGEON_HGT / 3;
+	  x_min = DUNGEON_WID / 3;
+	  y_max = 2 * DUNGEON_HGT / 3 - SCREEN_HGT;
+	  x_max = (p_ptr->stage < 151) ? (DUNGEON_WID / 2) - SCREEN_WID
+	    : (2 * DUNGEON_WID / 3) - SCREEN_WID;
+      
+	  /* Bounds */
+	  if ((prow_min > y_max) && (py > y_max)) prow_min = y_max;
+	  if (prow_min < y_min) prow_min = y_min;
+	  if ((pcol_min > x_max) && (px > x_max)) pcol_min = x_max;
+	  if (pcol_min < x_min) pcol_min = x_min;
+	}
+	
     }
   /* Check for "no change" */
   if ((prow_min == panel_row_min) && (pcol_min == panel_col_min)) return;
@@ -2796,67 +2814,6 @@ void verify_panel(void)
   /* Save the new panel info */
   panel_row_min = prow_min;
   panel_col_min = pcol_min;
-  
-  /* Hack -- optional disturb on "panel change" */
-  if (disturb_panel && !center_player) disturb(0, 0);
-  
-  /* Recalculate the boundaries */
-  panel_recalc_bounds();
-  
-  /* Update stuff */
-  p_ptr->update |= (PU_MONSTERS);
-  
-  /* Redraw map */
-  p_ptr->redraw |= (PR_MAP);
-  
-  /* Window stuff */
-  p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
-}
-
-/*
- * Center the dungeon display around the player
- */
-
-void panel_center(void)
-{
-  int wid, hgt;
-  int new_panel_row, new_panel_col;
-  
-  /* Hack - in town - do not move the screen */
-  if (!p_ptr->depth)
-    {
-      (void)change_panel(0, 0);
-      return;
-    }
-  
-  /* Get the screen size */
-  Term_get_size(&wid, &hgt);
-  
-  /* Calculate the dimensions of the displayed map */
-  hgt -= ROW_MAP + 1;
-  wid -= COL_MAP + 1;
-  
-  if (panel_extra_rows) hgt -= 2;
-  
-  /* Center the map around the player */
-  new_panel_row = p_ptr->py - (hgt / 2);
-  new_panel_col = p_ptr->px - (wid / 2);
-  
-  /* Move the map so that it only shows the dungeon */
-  if (new_panel_row + hgt > DUNGEON_HGT) new_panel_row = DUNGEON_HGT - hgt;
-  if (new_panel_col + wid > DUNGEON_WID) new_panel_col = DUNGEON_WID - wid;
-  
-  /* Verify the lower panel bounds */
-  if (new_panel_row < 0) new_panel_row = 0;
-  if (new_panel_col < 0) new_panel_col = 0;
-  
-  /* Check for "no change" */
-  if ((new_panel_row == panel_row_min) && (new_panel_col == 
-					   panel_col_min)) return;
-  
-  /* Save the new panel info */
-  panel_row_min = new_panel_row;
-  panel_col_min = new_panel_col;
   
   /* Hack -- optional disturb on "panel change" */
   if (disturb_panel && !center_player) disturb(0, 0);
@@ -2897,7 +2854,10 @@ cptr look_mon_desc(int m_idx)
   if (m_ptr->hp >= m_ptr->maxhp)
     {
       /* No damage */
-      return (living ? "unhurt" : "undamaged");
+      if (small_screen)
+	return (living ? "unht" : "undm");
+      else
+	return (living ? "unhurt" : "undamaged");
     }
   
   
@@ -2906,20 +2866,31 @@ cptr look_mon_desc(int m_idx)
   
   if (perc >= 60)
     {
-      return (living ? "somewhat wounded" : "somewhat damaged");
+      if (small_screen)
+	return (living ? "slwd" : "sldm");
+      else
+	return (living ? "somewhat wounded" : "somewhat damaged");
     }
   
   if (perc >= 25)
     {
-      return (living ? "wounded" : "damaged");
+      if (small_screen)
+	return (living ? "wnd" : "dmg");
+      else
+	return (living ? "wounded" : "damaged");
     }
   
   if (perc >= 10)
     {
-      return (living ? "badly wounded" : "badly damaged");
+      if (small_screen)
+	return (living ? "bdwd" : "bddm");
+      else
+	return (living ? "badly wounded" : "badly damaged");
     }
-  
-  return (living ? "almost dead" : "almost destroyed");
+  if (small_screen)
+    return ("aldd");
+  else
+    return (living ? "almost dead" : "almost destroyed");
 }
 
 
@@ -3054,6 +3025,68 @@ sint target_dir(char ch)
 
 
 /*
+ * Extract a direction (or zero) from a mousepress
+ */
+extern sint mouse_dir(key_event ke, bool locating)
+{
+  int i, y, x;
+
+  int gy = KEY_GRID_Y(ke), gx = KEY_GRID_X(ke);
+
+  int py = p_ptr->py, px = p_ptr->px;
+
+  if (locating) 
+    {
+      gy = ke.mousey;
+      gx = ke.mousex;
+      py = Term->hgt / 2;
+      px = Term->wid / 2;
+    }
+  
+  y = ABS(gy - py);
+  x = ABS(gx - px);
+
+  if ((y == 0) && (x == 0)) return (0);
+
+  /* Click next to player */
+  if ((y <= 1) && (x <= 1)) 
+    {
+      /* Get the direction */
+      for (i = 0; i < 10; i++)
+	if ((ddx[i] == (gx - px)) && (ddy[i] == (gy - py))) break;
+
+      /* Take it */
+      return (i);
+    }
+  
+  if (2 * y < x) 
+    {
+      y = 0;
+      x = (x / (gx - px));
+    }
+  else if (2 * x < y) 
+    {
+      x = 0;
+      y = (y / (gy - py));
+    }
+  else
+    {
+      y = (y / (gy - py));
+      x = (x / (gx - px));
+    }
+
+  for (i = 0; i < 10; i++)
+    if ((ddy[i] == y) && (ddx[i] == x)) break;
+
+  /* paranoia */
+  if ((i % 5) == 0) i = 0;
+
+  return (i);
+}
+
+
+
+/*
  * Determine is a monster makes a reasonable target
  *
  * The concept of "targetting" was stolen from "Morgul" (?)
@@ -3171,7 +3204,7 @@ bool target_okay(void)
   if (!p_ptr->target_set) return (FALSE);
   
   /* Accept "location" targets */
-  if ((p_ptr->target_who == 0) && (p_ptr->target_what)) return (TRUE);
+  if ((p_ptr->target_who == 0) && (p_ptr->target_what == 0)) return (TRUE);
   
   /* Check "monster" targets */
   if (p_ptr->target_who > 0)
@@ -3563,6 +3596,62 @@ static void target_set_interactive_prepare(int mode)
   ang_sort(temp_x, temp_y, temp_n);
 }
 
+/* 
+ * Abbreviated monster names for small screen
+ */
+void cut_down(char *name)
+{
+  bool kill = FALSE;
+  bool copy = TRUE;
+  bool had_space = FALSE;
+
+  int i, j = 0;
+
+  char new[80];
+
+  for (i = 0; name[i] != '\0'; i++)
+    {
+      /* Record first space, skip subsequent ones */
+      if (name[i] == ' ')
+	{
+	  copy = !had_space;
+	  kill = FALSE;
+	  had_space = TRUE;
+	}
+
+      /* Add non-space non-letters */ 
+      else if (!isalpha(name[i])) 
+	{
+	  copy = TRUE;
+	  kill = FALSE;
+	}
+
+      /* Add initials and letters before the first space */
+      else if (!kill)
+	{
+	  copy = TRUE;
+	  kill = had_space;
+	}
+
+      /* Non-initial letters */
+      else 
+	{
+	  copy = FALSE;
+	  kill = TRUE;
+	}
+
+      /* Copy */
+      if (copy) new[j++] = name[i];
+    }
+
+  /* Terminate */
+  new[j] = '\0';
+
+  /* Shortened name */
+  for (i = 0; i < j + 1; i++) name[i] = new[i];
+}
+
+
 
 /*
  * Examine a grid, return a keypress.
@@ -3703,6 +3792,7 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
 		  else
 		    {
 		      /* Describe, and prompt for recall */
+		      if (small_screen) cut_down(m_name);
 		      sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
 			      s1, s2, s3, m_name, 
 			      look_mon_desc(cave_m_idx[y][x]), info);
@@ -3713,6 +3803,10 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
 		      
 		      /* Command */
 		      query = inkey_ex();
+
+		      /* Check for mouse recall */
+		      if ((query.key == '\xff') && (KEY_GRID_Y(query) == y) &&
+			  (KEY_GRID_X(query) == x)) query.key = 'r';
 		    }
 		  
 		  /* Normal commands */
@@ -3829,6 +3923,8 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
 		   (query.key == '*') || (query.key == '?')))
 		
 		{
+		  key_event tmp;
+
 		  /* Save screen */
 		  screen_save();
 		  
@@ -3839,7 +3935,7 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
 		  prt("Hit any key to continue", 0, 0);
 		  
 		  /* Wait */
-		  (void) inkey();
+		  tmp = inkey_ex();
 		  
 		  /* Load screen */
 		  screen_load();
@@ -4000,6 +4096,8 @@ static int draw_path(u16b *path, char *c, byte *a,
   int i;
   int max;
   bool on_screen;
+  char c1;
+  byte a1;
   
   /* Find the path. */
   max = project_path(path, MAX_RANGE, y1, x1, y2, x2, PROJECT_THRU);
@@ -4070,8 +4168,12 @@ static int draw_path(u16b *path, char *c, byte *a,
 	  colour = TERM_WHITE;
 	}
       
+      /* Hack - Obtain attr/char */
+      a1 = misc_to_attr[0x30 + colour];
+      c1 = misc_to_char[0x30 + colour];
+
       /* Draw the path segment */
-      (void)Term_addch(colour, '*');
+      print_rel(c1, a1, y, x);
     }
   return i;
 }
@@ -4150,7 +4252,7 @@ bool target_set_interactive(int mode)
   bool done = FALSE;
   
   bool flag = TRUE;
-  
+
   bool failure_message = FALSE;
 
   key_event query;
@@ -4162,12 +4264,6 @@ bool target_set_interactive(int mode)
   char path_char[MAX_RANGE];
   byte path_attr[MAX_RANGE];
   int max = 0;
-  
-  int wid, hgt;
-  
-  /* Get size */
-  Term_get_size(&wid, &hgt);
-  if (panel_extra_rows) hgt -= 2;
   
   /* Cancel target */
   target_set_monster(0);
@@ -4206,13 +4302,13 @@ bool target_set_interactive(int mode)
 	      ((mode & TARGET_OBJ) && (cave_o_idx[y][x] > 0) && 
 	       target_able_obj(cave_o_idx[y][x])))
 	    {
-	      strcpy(info, "q,t,p,o,+,-,<dir>");
+	      strcpy(info, "q,t,p,o,+,-,<dir>, ESC");
 	    }
 	  
 	  /* Dis-allow target */
 	  else
 	    {
-	      strcpy(info, "q,p,o,+,-,<dir>");
+	      strcpy(info, "q,p,o,+,-,<dir>, ESC");
 	    }
 	  
 	  /* Draw the path in "target" mode. If there is one */
@@ -4282,12 +4378,24 @@ bool target_set_interactive(int mode)
 	      
 	    case '\xff':
 	      {
-		x = query.mousex + panel_col_min;
-		y = query.mousey + panel_row_min;
-		target_set_location(y, x);
-		done = TRUE;
-		break;
+		x = KEY_GRID_X(query);
+		y = KEY_GRID_Y(query);
+		if (!query.mousey)
+		  {
+		    done = TRUE;
+		    break;
+		  }
+		else if (!(mode & (TARGET_KILL | TARGET_OBJ)))
+		  {
+		    /*		    target_set_location(y, x);
+				    done = TRUE;*/
+		    flag = FALSE;
+		    break;
+		  }
+		else;
+		/* Fall through */
 	      }
+	    
 
 	    case 't':
 	    case '5':
@@ -4414,7 +4522,7 @@ bool target_set_interactive(int mode)
       else
 	{
 	  /* Default prompt */
-	  strcpy(info, "q,t,p,m,+,-,<dir>");
+	  strcpy(info, "q,t,p,m,+,-,<dir>, ESC");
 	  
 	  /* Draw the path in "target" mode. If there is one */
 	  if (mode & (TARGET_KILL))
@@ -4439,7 +4547,7 @@ bool target_set_interactive(int mode)
 	    case 'q':
 	      {
 		done = TRUE;
-					break;
+		break;
 	      }
 	      
 	    case ' ':
@@ -4469,8 +4577,29 @@ bool target_set_interactive(int mode)
  
 	    case '\xff':
 	      {
-		x = query.mousex + panel_col_min;
-		y = query.mousey + panel_row_min;
+		/* Escape */
+		if (!query.mousey)
+		  {
+		    done = TRUE;
+		  }
+		/* Double click selects target */
+		else if ((x == KEY_GRID_X(query)) && (y == KEY_GRID_Y(query)))
+		  {
+		    target_set_location(y, x);
+		    done = TRUE;
+		    break;
+		  }      
+		/* Look here */
+		else
+		  {
+		    if (query.mousex > COL_MAP)
+		      {
+			x = KEY_GRID_X(query);
+			y = KEY_GRID_Y(query);
+			flag = FALSE;
+		      }
+		  }
+		break;
 	      }
 	      
 	    case 't':
@@ -4514,22 +4643,22 @@ bool target_set_interactive(int mode)
 	      y += dy;
 	      
 	      /* Do not move horizontally if unnecessary */
-	      if (((x < panel_col_min + (wid - 14) / 2) && (dx > 0)) ||
-		  ((x > panel_col_min + (wid - 14) / 2) && (dx < 0)))
+	      if (((x < panel_col_min + SCREEN_WID / 2) && (dx > 0)) ||
+		  ((x > panel_col_min + SCREEN_WID / 2) && (dx < 0)))
 		{
 		  dx = 0;
 		}
 	      
 	      /* Do not move vertically if unnecessary */
-	      if (((y < panel_row_min + (hgt - 2) / 2) && (dy > 0)) ||
-		  ((y > panel_row_min + (hgt - 2) / 2) && (dy < 0)))
+	      if (((y < panel_row_min + SCREEN_HGT / 2) && (dy > 0)) ||
+		  ((y > panel_row_min + SCREEN_HGT / 2) && (dy < 0)))
 		{
 		  dy = 0;
 		}
 	      
 	      /* Apply the motion */
-	      if ((y >= panel_row_min + hgt - 2) || (y < panel_row_min) ||
-		  (x >= panel_col_min + wid - 14) || (x < panel_col_min))
+	      if ((y >= panel_row_min + SCREEN_HGT) || (y < panel_row_min) ||
+		  (x >= panel_col_min + SCREEN_WID) || (x < panel_col_min))
 		{
 		  if (change_panel(dy, dx)) 
 		    target_set_interactive_prepare(mode);
@@ -4764,15 +4893,38 @@ bool get_aim_dir(int *dp)
       /* Choose a prompt */
       if (!target_okay())
 	{
-	  p = "Direction ('*' choose target; '.' closest; Esc cancel)?";
+	  p = "Direction ('*' choose target; '.' closest; ESC)?";
 	}
       else
 	{
-	  p = "Direction ('5' target; '*' re-target; '.' closest; Esc cancel)? ";
+	  if (small_screen)
+	    p = "Dir('5' target;'*' re-target;'.' closest; ESC)?";
+	  else
+	    p = "Direction ('5' target; '*' re-target; '.' closest; ESC)?";
 	}
       
       /* Get a command (or Cancel) */
       if (!get_com_ex(p, &ke)) break;
+
+      /* Mouse on the prompt */
+      if ((ke.key == '\xff') && (ke.mousey == 0))
+	{
+	  if ((ke.mousex > (small_screen ? 3 : 10)) && 
+	      (ke.mousex < (small_screen ? 14 : 21)) && (target_okay()))
+	    ke.key = '5';
+	  else if (((ke.mousex > (small_screen ? 14 : 22)) && 
+		    (ke.mousex < (small_screen ? 28 : 36)) && (target_okay())) ||
+	      ((ke.mousex > 10) && (ke.mousex < 28) && (!target_okay())))
+	    ke.key = '*';
+	  else if (((ke.mousex > (small_screen ? 28 : 37)) && 
+		    (ke.mousex < (small_screen ? 40 : 49)) && (target_okay())) ||
+	      ((ke.mousex > 29) && (ke.mousex < 41) && (!target_okay())))
+	    ke.key = '.';
+	  else if (((ke.mousex > (small_screen ? 41 : 50)) && 
+		    (ke.mousex < (small_screen ? 45 : 54)) && (target_okay())) ||
+	      ((ke.mousex > 42) && (ke.mousex < 46) && (!target_okay())))
+	    break;
+	}
       
       /* Analyze */
       switch (ke.key)
@@ -4780,10 +4932,46 @@ bool get_aim_dir(int *dp)
 	  /* Mouse aiming */
 	case '\xff':
 	  {
-	    target_set_location(ke.mousey + panel_row_min, 
-				ke.mousex + panel_col_min);
-	    dir = 5;
-	    break;
+	    int y = KEY_GRID_Y(ke);
+	    int x = KEY_GRID_X(ke);
+	    
+	    /* Monster */
+	    if (cave_m_idx[y][x] > 0)
+	      {
+		/* Get monster index */
+		int m_idx = cave_m_idx[y][x];
+		    
+		/* Monster must be in line of fire */
+		if (target_able(m_idx))
+		  {
+		    health_track(m_idx);
+		    target_set_monster(m_idx);
+		    dir = 5;
+		    break;
+		  }
+	      }
+
+	    /* Next to player */
+	    else if ((ABS(p_ptr->py - y) <= 1) && (ABS(p_ptr->px - x) <= 1)) 
+	      {
+		/* Get the direction */
+		for (dir = 0; dir < 10; dir++)
+		  if ((ddx[dir] == (x - p_ptr->px)) && 
+		      (ddy[dir] == (y - p_ptr->py))) 
+		    break;
+
+		/* Take it */
+		break;
+	      }
+	    
+	    
+	    /* No monster */
+	    else
+	      {
+		target_set_location(y, x);
+		dir = 5;
+		break;
+	      }
 	  }
 	  
 	  /* Set new target, use target if legal */
@@ -4910,7 +5098,7 @@ bool get_rep_dir(int *dp)
 {
   int dir;
   
-  char ch;
+  key_event ke;
   
   cptr p;
   
@@ -4936,10 +5124,13 @@ bool get_rep_dir(int *dp)
       p = "Direction (Escape to cancel)? ";
       
       /* Get a command (or Cancel) */
-      if (!get_com(p, &ch)) break;
+      if (!get_com_ex(p, &ke)) break;
       
       /* Convert keypress into a direction */
-      dir = target_dir(ch);
+      if (ke.key == '\xff')
+	dir = mouse_dir(ke, FALSE);
+      else
+	dir = target_dir(ke.key);
       
       /* Oops */
       if (!dir) bell("Illegal repeatable direction!");

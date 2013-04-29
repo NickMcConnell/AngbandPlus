@@ -483,6 +483,7 @@ static void process_world(void)
 	  msg_print("Autosaving the game...");
 	  do_cmd_save_game(TRUE);
 	  is_autosave = FALSE;
+	  msg_print(NULL);
 	}
     }
   
@@ -2005,41 +2006,7 @@ static void process_command(void)
       /* Mouse interaction */
     case '\xff':
       {
-	int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
-	int x = KEY_GRID_X(p_ptr->command_cmd_ex);
-	
-	/* Hack -- we could try various things here like travelling or 
-	 * going up/down stairs  - or pickup -NRM-*/
-	if ((p_ptr->py == y) && (p_ptr->px == x)) 
-	  {
-	    if (p_ptr->command_cmd_ex.mousebutton == 1)
-	      do_cmd_rest();
-	    else
-	      do_cmd_hold();
-	  }
-
-	else if (p_ptr->command_cmd_ex.mousebutton == 1)
-	  {
-	    if (p_ptr->confused)
-	      {
-		do_cmd_walk();
-	      }
-	    else
-	      {
-		do_cmd_pathfind(y, x);
-	      }
-	  }
-	else if (p_ptr->command_cmd_ex.mousebutton == 2)
-	  {
-	    target_set_location(y, x);
-	    msg_print("Target set.");
-	  }
-	else
-	  {
-#if 0
-	    target_set_interactive_aux(y, x, TARGET_PEEK, (use_mouse ? "*,left-click to move to, right-click to target" : "*"));
-#endif
-	  }
+	do_cmd_mousepress();
 	break;
       }
       
@@ -2235,6 +2202,27 @@ static void process_player(void)
 	      disturb(0, 0);
 	    }
 	}
+
+      /* Resting until sunrise/set */
+      else if (p_ptr->resting == -3)
+	{
+	  bool day;
+	  
+	  day = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
+	    
+	  /* Stop resting */
+	  if ((p_ptr->chp == p_ptr->mhp) &&
+	      (p_ptr->csp == p_ptr->msp) &&
+	      !p_ptr->blind && !p_ptr->confused &&
+	      !p_ptr->poisoned && !p_ptr->afraid &&
+	      !p_ptr->stun && !p_ptr->cut &&
+	      !p_ptr->slow && !p_ptr->paralyzed &&
+	      !p_ptr->image && !p_ptr->word_recall && 
+	      (day != ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+	    {
+	      disturb(0, 0);
+	    }
+	}
     }
   
   /* Handle "abort" */
@@ -2256,7 +2244,7 @@ static void process_player(void)
 	  inkey_scan = TRUE;
 	  
 	  /* Check for a key */
-	  if (inkey())
+	  if (anykey())
 	    {
 	      /* Flush input */
 	      flush();
@@ -2353,7 +2341,10 @@ static void process_player(void)
       /* Hack -- cancel "lurking browse mode" */
       if (!p_ptr->command_new) p_ptr->command_see = FALSE;
       
-      
+      /* Mega-hack -- show lists */
+      if (show_lists) p_ptr->command_see = TRUE;      
+
+
       /* Assume free turn */
       p_ptr->energy_use = 0;
       
@@ -2425,6 +2416,12 @@ static void process_player(void)
 	  
 	  /* Process the command */
 	  process_command();
+
+	  /* Mega hack - complete redraw if big graphics */
+	  if (use_dbltile || use_trptile) 
+	    p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP 
+			      | PR_EQUIPPY);
+  
 	}
       
       /*** Hack - squelching ***/
@@ -2694,7 +2691,7 @@ static void dungeon(void)
     set_superstealth(0);
   
   /* Update stuff */
-  p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SPECIALTY);
+  p_ptr->update |= (PU_BONUS | PU_HP | PU_SPELLS | PU_SPECIALTY);
   
   /* Calculate torch radius */
   p_ptr->update |= (PU_TORCH);
@@ -2962,12 +2959,13 @@ void play_game(bool new_game)
 	  angband_term[i]->resize_hook = redraw_window;
 	}
     }
-  
+
   /* Verify minimum size */
-  if ((Term->hgt < 24) || (Term->wid < 80))
+  if ((Term->hgt < 24) || (Term->wid < (small_screen ? 48 : 80)))
     {
       quit("main window is too small");
     }
+
   
   /* Hack -- turn off the cursor */
   (void)Term_set_cursor(0);
@@ -3004,7 +3002,12 @@ void play_game(bool new_game)
       u32b seed;
       
       /* Basic seed */
+#ifdef _WIN32_WCE
+      unsigned long fake_time(unsigned long* fake_time_t);
+      seed = fake_time(NULL);
+#else
       seed = (time(NULL));
+#endif
       
 #ifdef SET_UID
       
@@ -3166,6 +3169,9 @@ void play_game(bool new_game)
   /* Process some user pref files */
   process_some_user_pref_files();
   
+  /* Hack - load prefs properly */
+  reset_visuals(TRUE);
+
   /* Set or clear "rogue_like_commands" if requested */
   if (arg_force_original) rogue_like_commands = FALSE;
   if (arg_force_roguelike) rogue_like_commands = TRUE;
@@ -3191,9 +3197,6 @@ void play_game(bool new_game)
   
   /* Hack -- Enforce "delayed death" */
   if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
-  
-  /* Resize / init the map */
-  map_panel_size();
   
   /* Verify the (possibly resized) panel */
   verify_panel();

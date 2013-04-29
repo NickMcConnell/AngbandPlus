@@ -1,4 +1,4 @@
-/* File: load2.c */
+/* File: load.c */
 
 /* Up-to-date savefile handling.
  *
@@ -896,6 +896,47 @@ static int convert_saved_names(void)
 }
 
 
+/* Convert a pre-0.2.2 stage */
+int conv_stage(int old)
+{
+  int new = old;
+  
+  /* Ered Luin */
+  if ((old > 21) && (old < 27)) new = 21 + ((old - 21) / 2);
+
+  /* Doriath */
+  if (old == 88) new = 87;
+
+  /* Himlad */
+  if ((old > 88) && (old < 93)) new = 88 + ((old - 88) / 2);
+
+  /* Dor Dinen, Dorthonion */
+  if ((old > 92) && (old < 105)) new = 92 + ((old - 92) / 2);
+
+  /* Brethil to Angband */
+  if ((old > 116) && (old < 136)) new = 116 + ((old - 116) / 2);
+
+  /* Lothlann */
+  if ((old > 135) && (old < 149)) new = 135 + ((old - 135) / 2);
+
+  /* Nan Dungortheb */
+  if ((old > 170) && (old < 181)) new = 181;
+  if ((old > 209) && (old < 221)) new = 210;
+  if (old == 221) new = 211;
+
+  /* Tol-In-Gaurhoth */
+  if ((old > 262) && (old < 273)) new = 273;
+  if ((old > 317) && (old < 323)) new = 317;
+  if (old == 323) new = 318;
+
+  /* Angband */
+  if ((old > 323) && (old < 344)) new = 344;
+  if ((old > 317) && (old < 323)) new = 317;
+  if (old == 323) new = 318;
+
+  return (new);
+}
+
 
 /*
  * Read the "extra" information
@@ -959,12 +1000,20 @@ static errr rd_extra(void)
   rd_s16b(&p_ptr->max_lev);
   for (i = 0; i < 4; i++)	rd_s16b(&p_ptr->recall[i]);
   rd_s16b(&p_ptr->recall_pt);
-  
+
+  if (older_than(0, 2, 2))
+    {
+      /* Convert recall points */
+      for (i = 0; i < 4; i++)
+	{
+	  p_ptr->recall[i] = conv_stage(p_ptr->recall[i]);
+	}
+      p_ptr->recall_pt = conv_stage(p_ptr->recall_pt);
+    }
+
   /* Hack -- Repair maximum player level */
   if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
   
-  /* Hack -- Repair maximum dungeon level */
-  /* if (p_ptr->max_depth < 0) p_ptr->max_depth = 1; */
   
   /* More info */
   rd_s16b(&p_ptr->speed_boost);
@@ -1464,8 +1513,9 @@ static errr rd_dungeon(void)
   /*** Player ***/
   
   /* Save stage */
-  p_ptr->stage = stage;
-  p_ptr->last_stage = last_stage;
+  p_ptr->stage = (older_than(0, 2, 2) ? conv_stage(stage) : stage);
+  p_ptr->last_stage = (older_than(0, 2, 2) ? conv_stage(last_stage) : 
+		       last_stage);
   
   /* Place player in dungeon */
   if (!player_place(py, px))
@@ -1474,6 +1524,20 @@ static errr rd_dungeon(void)
       return (162);
     }
   
+  /* Hack -- Repair dungeon level */
+  if (stage_map[p_ptr->stage][LOCALITY] == UNDERWORLD) 
+    {
+      stage_map[p_ptr->stage][UP] = p_ptr->last_stage;
+      stage_map[p_ptr->last_stage][DOWN] = p_ptr->stage;
+      stage_map[p_ptr->stage][DEPTH] = stage_map[p_ptr->last_stage][DEPTH] + 1;
+    }
+  else if (stage_map[p_ptr->stage][LOCALITY] == MOUNTAIN_TOP) 
+    {
+      stage_map[p_ptr->stage][DOWN] = p_ptr->last_stage;
+      stage_map[p_ptr->last_stage][UP] = p_ptr->stage;
+      stage_map[p_ptr->stage][DEPTH] = stage_map[p_ptr->last_stage][DEPTH] + 1;
+    }
+
   
   /*** Objects ***/
   
@@ -2101,7 +2165,11 @@ errr rd_version_info(void)
   fd = fd_open(savefile, O_RDONLY);
   
   /* No file.  Report error. */
+#ifdef _WIN32_WCE
+  if (fd == -1) return (-1);
+#else
   if (fd < 0) return (-1);
+#endif
   
   fd_read(fd, (char*)&sf_major, 1);
   fd_read(fd, (char*)&sf_minor, 1);

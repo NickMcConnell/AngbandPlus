@@ -90,6 +90,7 @@ void init_file_paths(char *path)
   string_free(ANGBAND_DIR_FILE);
   string_free(ANGBAND_DIR_HELP);
   string_free(ANGBAND_DIR_INFO);
+  string_free(ANGBAND_DIR_PREF);
   string_free(ANGBAND_DIR_SAVE);
   string_free(ANGBAND_DIR_USER);
   string_free(ANGBAND_DIR_XTRA);
@@ -117,6 +118,7 @@ void init_file_paths(char *path)
   ANGBAND_DIR_FILE = string_make("");
   ANGBAND_DIR_HELP = string_make("");
   ANGBAND_DIR_INFO = string_make("");
+  ANGBAND_DIR_PREF = string_make("");
   ANGBAND_DIR_SAVE = string_make("");
   ANGBAND_DIR_USER = string_make("");
   ANGBAND_DIR_XTRA = string_make("");
@@ -155,6 +157,10 @@ void init_file_paths(char *path)
   strcpy(tail, "info");
   ANGBAND_DIR_INFO = string_make(path);
   
+  /* Build a path name */
+  strcpy(tail, "pref");
+  ANGBAND_DIR_PREF = string_make(path);
+
   /* Build a path name */
   strcpy(tail, "save");
   ANGBAND_DIR_SAVE = string_make(path);
@@ -351,7 +357,11 @@ static errr init_f_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -436,7 +446,11 @@ static errr init_f_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(f_head), f_head->head_size);
@@ -476,7 +490,11 @@ static errr init_f_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'terrain.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'terrain.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_f_info_raw(fd);
@@ -603,7 +621,11 @@ static errr init_k_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -688,7 +710,11 @@ static errr init_k_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(k_head), k_head->head_size);
@@ -728,7 +754,11 @@ static errr init_k_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'object.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'object.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_k_info_raw(fd);
@@ -838,7 +868,11 @@ static errr init_h_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -918,7 +952,11 @@ static errr init_h_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(h_head), h_head->head_size);
@@ -954,7 +992,11 @@ static errr init_h_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'p_hist.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'p_hist.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_h_info_raw(fd);
@@ -1066,7 +1108,11 @@ static errr init_b_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
 
@@ -1146,7 +1192,11 @@ static errr init_b_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(b_head), b_head->head_size);
@@ -1182,7 +1232,11 @@ static errr init_b_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'cost_adj.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'cost_adj.raw' file.");
+#endif
 
   /* Attempt to parse the "raw" file */
   err = init_b_info_raw(fd);
@@ -1288,7 +1342,11 @@ static errr init_g_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -1363,7 +1421,11 @@ static errr init_g_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(g_head), g_head->head_size);
@@ -1393,7 +1455,11 @@ static errr init_g_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'shop_own.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'shop_own.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_g_info_raw(fd);
@@ -1603,7 +1669,11 @@ static errr init_a_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -1688,7 +1758,11 @@ static errr init_a_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(a_head), a_head->head_size);
@@ -1728,7 +1802,11 @@ static errr init_a_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot open 'artifact.raw' file.");
+#else
   if (fd < 0) quit("Cannot open 'artifact.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_a_info_raw(fd);
@@ -1855,7 +1933,11 @@ static errr init_s_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -1940,7 +2022,11 @@ static errr init_s_info(void)
   fd = fd_make(buf, mode);
 
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(s_head), s_head->head_size);
@@ -1980,7 +2066,11 @@ static errr init_s_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot open 'set_item.raw' file.");
+#else
   if (fd < 0) quit("Cannot open 'set_item.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_s_info_raw(fd);
@@ -2107,7 +2197,11 @@ static errr init_e_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -2192,7 +2286,11 @@ static errr init_e_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(e_head), e_head->head_size);
@@ -2232,7 +2330,11 @@ static errr init_e_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'ego_item.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'ego_item.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_e_info_raw(fd);
@@ -2359,7 +2461,11 @@ static errr init_r_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -2444,7 +2550,11 @@ static errr init_r_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(r_head), r_head->head_size);
@@ -2484,7 +2594,11 @@ static errr init_r_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'monster.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'monster.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_r_info_raw(fd);
@@ -2610,7 +2724,11 @@ static errr init_v_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -2695,7 +2813,11 @@ static errr init_v_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(v_head), v_head->head_size);
@@ -2735,7 +2857,11 @@ static errr init_v_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'vault.raw' file.");
+#else
   if (fd < 0) quit("Cannot load 'vault.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_v_info_raw(fd);
@@ -2860,7 +2986,11 @@ static errr init_rp_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -2941,7 +3071,11 @@ static errr init_rp_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(rp_head), rp_head->head_size);
@@ -2982,7 +3116,11 @@ static errr init_rp_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'p_race.raw' file.");
+#else
   if (fd < 0) quit("Cannot open 'p_race.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_rp_info_raw(fd);
@@ -3107,7 +3245,11 @@ static errr init_cp_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
 #ifdef CHECK_MODIFICATION_TIME
       
@@ -3188,7 +3330,11 @@ static errr init_cp_info(void)
   fd = fd_make(buf, mode);
   
   /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
   if (fd >= 0)
+#endif
     {
       /* Dump it */
       fd_write(fd, (char*)(cp_head), cp_head->head_size);
@@ -3229,7 +3375,11 @@ static errr init_cp_info(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'p_class.raw' file.");
+#else
   if (fd < 0) quit("Cannot open 'p_class.raw' file.");
+#endif
   
   /* Attempt to parse the "raw" file */
   err = init_cp_info_raw(fd);
@@ -3239,6 +3389,256 @@ static errr init_cp_info(void)
   
   /* Error */
   if (err) quit("Cannot parse 'p_class.raw' file.");
+  
+  /* Success */
+  return (0);
+}
+
+/*
+ * Initialize the "flavor_info" array, by parsing a binary "image" file
+ */
+static errr init_flavor_info_raw(int fd)
+{
+  header test;
+  
+  
+  /* Read and Verify the header */
+  if (fd_read(fd, (char*)(&test), sizeof(header)) ||
+      (test.v_major != flavor_head->v_major) ||
+      (test.v_minor != flavor_head->v_minor) ||
+      (test.v_patch != flavor_head->v_patch) ||
+      (test.v_extra != flavor_head->v_extra) ||
+      (test.info_num != flavor_head->info_num) ||
+      (test.info_len != flavor_head->info_len) ||
+      (test.head_size != flavor_head->head_size) ||
+      (test.info_size != flavor_head->info_size))
+    {
+      /* Error */
+      return (-1);
+    }
+  
+  
+  /* Accept the header */
+  (*flavor_head) = test;
+  
+  
+  /* Allocate the "flavor_info" array */
+  C_MAKE(flavor_info, flavor_head->info_num, flavor_type);
+  
+  /* Read the "flavor_info" array */
+  fd_read(fd, (char*)(flavor_info), flavor_head->info_size);
+  
+  
+  /* Allocate the "flavor_name" array */
+  C_MAKE(flavor_name, flavor_head->name_size, char);
+  
+  /* Read the "flavor_name" array */
+  fd_read(fd, (char*)(flavor_name), flavor_head->name_size);
+  
+  
+  /* Allocate the "p_text" array */
+  C_MAKE(flavor_text, flavor_head->text_size, char);
+  
+  /* Read the "p_text" array */
+  fd_read(fd, (char*)(flavor_text), flavor_head->text_size);
+  
+  
+  /* Success */
+  return (0);
+}
+
+
+
+/*
+ * Initialize the "flavor_info" array
+ */
+static errr init_flavor_info(void)
+{
+  int fd;
+  
+  int mode = 0644;
+  
+  errr err = 0;
+  
+  FILE *fp;
+  
+  /* General buffer */
+  char buf[1024];
+  
+  /*** Make the "header" ***/
+  
+  /* Allocate the "header" */
+  MAKE(flavor_head, header);
+  
+  /* Save the "version" */
+  flavor_head->v_major = VERSION_MAJOR;
+  flavor_head->v_minor = VERSION_MINOR;
+  flavor_head->v_patch = VERSION_PATCH;
+  flavor_head->v_extra = VERSION_EXTRA;
+  
+  /* Save the "record" information */
+  flavor_head->info_num = MAX_FL_IDX;
+  flavor_head->info_len = sizeof(flavor_type);
+  
+  /* Save the size of "p_head" and "cp_info" */
+  flavor_head->head_size = sizeof(header);
+  flavor_head->info_size = flavor_head->info_num * flavor_head->info_len;
+  
+  
+#ifdef ALLOW_TEMPLATES
+
+  /*** Load the binary image file ***/
+  
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_DATA, "flavor.raw");
+  
+  /* Attempt to open the "raw" file */
+  fd = fd_open(buf, O_RDONLY);
+  
+  /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
+  if (fd >= 0)
+#endif
+    {
+#ifdef CHECK_MODIFICATION_TIME
+      
+      err = check_modification_date(fd, "flavor.txt");
+      
+#endif /* CHECK_MODIFICATION_TIME */
+      
+      /* Attempt to parse the "raw" file */
+      if (!err)
+	err = init_flavor_info_raw(fd);
+      
+      /* Close it */
+      fd_close(fd);
+      
+      /* Success */
+      if (!err) return (0);
+    }
+  
+  
+  /*** Make the fake arrays ***/
+  
+  /* Allocate the "flavor_info" array */
+  C_MAKE(flavor_info, flavor_head->info_num, flavor_type);
+  
+  /* Hack -- make "fake" arrays */
+  C_MAKE(flavor_name, FAKE_NAME_SIZE, char);
+  C_MAKE(flavor_text, FAKE_TEXT_SIZE, char);
+  
+  
+  /*** Load the ascii template file ***/
+  
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_EDIT, "flavor.txt");
+  
+  /* Open the file */
+  fp = my_fopen(buf, "r");
+  
+  /* Parse it */
+  if (!fp) quit("Cannot open 'flavor.txt' file.");
+  
+  /* Parse the file */
+  err = init_flavor_info_txt(fp, buf);
+  
+  /* Close it */
+  my_fclose(fp);
+  
+  /* Errors */
+  if (err)
+    {
+      cptr oops;
+      
+      /* Error string */
+      oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
+      
+      /* Oops */
+      msg_format("Error %d at line %d of 'flavor.txt'.", err, error_line);
+      msg_format("Record %d contains a '%s' error.", error_idx, oops);
+      msg_format("Parsing '%s'.", buf);
+      msg_print(NULL);
+      
+      /* Quit */
+      quit("Error in 'flavor.txt' file.");
+    }
+  
+  
+  /*** Dump the binary image file ***/
+  
+  /* File type is "DATA" */
+  FILE_TYPE(FILE_TYPE_DATA);
+  
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_DATA, "flavor.raw");
+  
+  /* Kill the old file */
+  fd_kill(buf);
+  
+  /* Attempt to create the raw file */
+  fd = fd_make(buf, mode);
+  
+  /* Dump to the file */
+#ifdef _WIN32_WCE
+  if (fd != -1)
+#else
+  if (fd >= 0)
+#endif
+    {
+      /* Dump it */
+      fd_write(fd, (char*)(flavor_head), flavor_head->head_size);
+      
+      /* Dump the "flavor_info" array */
+      fd_write(fd, (char*)(flavor_info), flavor_head->info_size);
+      
+      /* Dump the "flavor_name" array */
+      fd_write(fd, (char*)(flavor_name), flavor_head->name_size);
+      
+      /* Dump the "flavor_text" array */
+      fd_write(fd, (char*)(flavor_text), flavor_head->text_size);
+      
+      /* Close */
+      fd_close(fd);
+    }
+  
+  
+  /*** Kill the fake arrays ***/
+  
+  /* Free the "flavor_info" array */
+  C_KILL(flavor_info, flavor_head->info_num, flavor_type);
+  
+  /* Hack -- Free the "fake" arrays */
+  C_KILL(flavor_name, FAKE_NAME_SIZE, char);
+  C_KILL(flavor_text, FAKE_TEXT_SIZE, char);
+  
+  
+#endif /* ALLOW_TEMPLATES */
+
+  /*** Load the binary image file ***/
+  
+  /* Build the filename */
+  path_build(buf, 1024, ANGBAND_DIR_DATA, "flavor.raw");
+  
+  /* Attempt to open the "raw" file */
+  fd = fd_open(buf, O_RDONLY);
+  
+  /* Process existing "raw" file */
+#ifdef _WIN32_WCE
+  if (fd == -1) quit("Cannot load 'flavor.raw' file.");
+#else
+  if (fd < 0) quit("Cannot open 'flavor.raw' file.");
+#endif
+  
+  /* Attempt to parse the "raw" file */
+  err = init_flavor_info_raw(fd);
+  
+  /* Close it */
+  fd_close(fd);
+  
+  /* Error */
+  if (err) quit("Cannot parse 'flavor.raw' file.");
   
   /* Success */
   return (0);
@@ -3883,6 +4283,9 @@ static errr init_other(void)
       
       /* Assume full table */
       st_ptr->table_size = STORE_CHOICES;
+
+      /* Nothing there yet */
+      st_ptr->table_num = 0;
       
       /* Allocate the stock */
       C_MAKE(st_ptr->table, st_ptr->table_size, s16b);
@@ -3891,6 +4294,7 @@ static errr init_other(void)
       for (k = 0; k < STORE_CHOICES; k++)
 	{
 	  int k_idx;
+	  int tv, sv;
 	  
 	  /* Cut short for the merchant */
 	  if ((st_ptr->type == STORE_MERCH) && (k >= STORE_CHOICES - 8))
@@ -3900,8 +4304,8 @@ static errr init_other(void)
 	    }	  
 	  
 	  /* Extract the tval/sval codes */
-	  int tv = store_table[st_ptr->type][k][0];
-	  int sv = store_table[st_ptr->type][k][1];
+	  tv = store_table[st_ptr->type][k][0];
+	  sv = store_table[st_ptr->type][k][1];
 	  
 	  /* Look for it */
 	  for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
@@ -4367,7 +4771,11 @@ void init_angband(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Failure */
+#ifdef _WIN32_WCE
+  if (fd == -1)
+#else
   if (fd < 0)
+#endif
     {
       char why[1024];
       
@@ -4388,7 +4796,7 @@ void init_angband(void)
   Term_clear();
   
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_FILE, "splash.txt");
+  path_build(buf, 1024, ANGBAND_DIR_FILE, (small_screen ? "splash_s.txt" : "splash.txt"));
   
   /* Open the News file */
   fp = my_fopen(buf, "r");
@@ -4483,7 +4891,7 @@ void init_angband(void)
   Term_fresh();
 
   /* Get any key */
-  (void)inkey();
+  (void)inkey_ex();
   
   /*** Display the "news" file ***/
   
@@ -4491,7 +4899,7 @@ void init_angband(void)
   Term_clear();
   
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+  path_build(buf, 1024, ANGBAND_DIR_FILE, (small_screen ? "news_s.txt" : "news.txt"));
   
   /* Open the News file */
   fp = my_fopen(buf, "r");
@@ -4593,7 +5001,11 @@ void init_angband(void)
   fd = fd_open(buf, O_RDONLY);
   
   /* Failure */
+#ifdef _WIN32_WCE
+  if (fd == -1)
+#else
   if (fd < 0)
+#endif
     {
       /* File type is "DATA" */
       FILE_TYPE(FILE_TYPE_DATA);
@@ -4660,6 +5072,10 @@ void init_angband(void)
   /* Initialize class info */
   note("[Initializing arrays... (classes)]");
   if (init_cp_info()) quit("Cannot initialize classes");
+  
+  /* Initialize class info */
+  note("[Initializing arrays... (flavors)]");
+  if (init_flavor_info()) quit("Cannot initialize flavors");
   
   /* Initialize price info */
   note("[Initializing arrays... (prices)]");

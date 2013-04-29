@@ -617,11 +617,21 @@ bool set_recall(int v)
 	{
 	  if (p_ptr->stage != p_ptr->home)
 	    {
-	      message = "Which recall point would you like to replace?";
+	      int stage;
+
+	      message = "Which recall point will you replace (or ESC)?";
 	      spot = get_recall_pt(message, TRUE);
+	      if (!spot) return (FALSE);
+
+	      /* Set the point, being careful about underworld etc */
+	      if ((p_ptr->stage == 255) || (p_ptr->stage == 256))
+		stage = p_ptr->last_stage;
+	      else 
+		stage = p_ptr->stage;
+
 	      if ((spot) && (spot < 5))
-		p_ptr->recall[spot - 1] = p_ptr->stage;
-	      p_ptr->recall_pt = p_ptr->stage;
+		p_ptr->recall[spot - 1] = stage;
+	      p_ptr->recall_pt = stage;
 	    }
 	  else
 	    {
@@ -676,6 +686,8 @@ static void animate_detect(int rad)
   int px = p_ptr->px;
   
   int x, y;
+
+  byte a, c;
   
   int msec = op_ptr->delay_factor * op_ptr->delay_factor;
   
@@ -700,8 +712,12 @@ static void animate_detect(int rad)
 	  /* Only show the region that the player can see */
 	  if (panel_contains(y, x))
 	    {
+	      /* Hack - Obtain attr/char */
+	      a = misc_to_attr[0x3B];
+	      c = misc_to_char[0x3B];
+
 	      /* Hack -- Visual effects -- Display a yellow star */
-	      print_rel('*', TERM_YELLOW, y, x);
+	      print_rel(c, a, y, x);
 	    }
 	}
     }
@@ -1908,6 +1924,9 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
   /* Assume enchant weapon */
   item_tester_hook = item_tester_hook_weapon;
   
+  /* Don't restrict choices */
+  item_tester_tval = 0;
+  
   /* Enchant armor if requested */
   if (num_ac) item_tester_hook = item_tester_hook_armour;
   
@@ -2291,6 +2310,9 @@ bool ident_spell(void)
   /* Only un-id'ed items */
   item_tester_hook = item_tester_unknown;
   
+  /* Don't restrict choices */
+  item_tester_tval = 0;
+  
   /* Get an item */
   q = "Identify which item? ";
   s = "You have nothing to identify.";
@@ -2419,6 +2441,9 @@ bool identify_fully(void)
   
   /* Only un-*id*'ed items */
   item_tester_hook = item_tester_unknown_star;
+  
+  /* Don't restrict choices */
+  item_tester_tval = 0;
   
   /* Get an item.   */
   q = "*Identify* which item? ";
@@ -2578,7 +2603,10 @@ bool recharge(int power)
   /* Only accept legal items */
   item_tester_hook = item_tester_hook_recharge;
   
-  /* Get an item */
+   /* Don't restrict choices */
+  item_tester_tval = 0;
+  
+ /* Get an item */
   q = "Recharge which item? ";
   s = "You have nothing to recharge.";
   if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return (FALSE);

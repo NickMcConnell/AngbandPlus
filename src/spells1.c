@@ -403,7 +403,8 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
 	  msg_print("You are thrown into molten lava!");
 	  fire_dam(damroll(4, 100), "burnt up in molten lava");
 	}
-      if ((cave_feat[y][x] == FEAT_VOID) && (p_ptr->schange != SHAPE_BAT))
+      if ((cave_feat[y][x] == FEAT_VOID) && (p_ptr->schange != SHAPE_BAT) &&
+	  (p_ptr->schange != SHAPE_WYRM))
 	{
 	  msg_print("You are hurled over the cliff!");
 	  fall_off_cliff();
@@ -582,20 +583,20 @@ void teleport_player(int dis, bool safe)
       if ((cave_feat[y][x] == FEAT_TREE) && (rand_int(2) == 0))
 	{
 	  msg_print("You hit a tree!");
-	  take_hit(damroll(2, 8), "hurtled into a tree by gravity");
+	  take_hit(damroll(2, 8), "being hurtled into a tree");
 	  if (rand_int(3) != 0) set_stun(p_ptr->stun + damroll(2, 8));
 	}
       else if ((cave_feat[y][x] == FEAT_RUBBLE) && (rand_int(2) == 0))
 	{
 	  msg_print("You slam into jagged rock!");
-	  take_hit(damroll(2, 14), "slammed into rubble by gravity");
+	  take_hit(damroll(2, 14), "being slammed into rubble");
 	  if (rand_int(3) == 0) set_stun(p_ptr->stun + damroll(2, 14));
 	  if (rand_int(3) != 0) set_cut(p_ptr->cut + damroll(2, 14) * 2);
 	}
       else if (cave_feat[y][x] == FEAT_LAVA)
 	{
 	  msg_print("You land in molten lava!");
-	  fire_dam(damroll(4, 100), "thrown into molten lava");
+	  fire_dam(damroll(4, 100), "landing in molten lava");
 	}
       else if (cave_feat[y][x] == FEAT_VOID)
 	{
@@ -773,11 +774,6 @@ void teleport_player_level(bool friendly)
 	  /* New stage */
 	  p_ptr->stage = stage_map[p_ptr->stage][UP];
 	  
-	  /* New depth */
-	  p_ptr->depth--;
-	  
-	  /* Leaving */
-	  p_ptr->leaving = TRUE;
 	}
       
       else 
@@ -790,11 +786,6 @@ void teleport_player_level(bool friendly)
 	      /* New stage */
 	      p_ptr->stage = stage_map[p_ptr->stage][UP];
 	      
-	      /* New depth */
-	      p_ptr->depth--;
-	      
-	      /* Leaving */
-	      p_ptr->leaving = TRUE;
 	    }
 	  
 	  else
@@ -803,33 +794,105 @@ void teleport_player_level(bool friendly)
 	      
 	      /* New stage */
 	      p_ptr->stage = stage_map[p_ptr->stage][DOWN];
-	      
-	      /* New depth */
-	      p_ptr->depth++;
-	      
-	      /* Leaving */
-	      p_ptr->leaving = TRUE;
+
 	    }
 	}
     }  
-  else /* Note - can't enter a dungeon this way -NRM- */
+  
+  /* Caution - assumes Nan Dungortheb levels are contiguous South */
+  else if (stage_map[p_ptr->stage][STAGE_TYPE] == VALLEY)
     {
       message(MSG_TPSTAGE, 0, "You fly through the air.");
       
-      poss = rand_int(4) + 2;
-      while (stage_map[p_ptr->stage][poss] == NOWHERE)
-	poss = rand_int(4) + 2;
+      /* Got to go up */
+      if (stage_map[p_ptr->stage + 1][STAGE_TYPE] != VALLEY)
+	p_ptr->stage--;
       
-      /* New stage */
-      p_ptr->stage = stage_map[p_ptr->stage][poss];
+      /* Got to go down */
+      else if (stage_map[p_ptr->stage - 1][STAGE_TYPE] != VALLEY)
+	p_ptr->stage++;
       
-      /* New depth */
-      p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
-      
-      /* Leaving */
-      p_ptr->leaving = TRUE;
+      else
+	{
+	  /* We have a choice */
+	  poss = rand_int(2);
+	  
+	  /* New stage */
+	  if (poss) p_ptr->stage++;
+	      else p_ptr->stage--;
+	}
     }
   
+  /* Heh heh */  
+  else if ((p_ptr->stage != 255) && (p_ptr->stage != 256))
+    {
+      if ((rand_int(100) < 50) && 
+	  !(stage_map[p_ptr->stage][STAGE_TYPE] == SWAMP) &&
+	  !(stage_map[p_ptr->stage][STAGE_TYPE] == TOWN))
+	{
+	  message(MSG_TPSTAGE, 0, "You rise into the air.");
+
+	  /* Set the ways forward and back */
+	  stage_map[256][DOWN] = p_ptr->stage;
+	  stage_map[p_ptr->stage][UP] = 256;
+	  stage_map[256][DEPTH] = p_ptr->depth + 1;
+	  
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][UP];
+	  
+	}
+      
+      else
+	{
+	  message(MSG_TPSTAGE, 0, "You sink through the ground.");
+	  
+	  /* Set the ways forward and back, if not there already */
+	  if (!stage_map[p_ptr->stage][DOWN])
+	    {
+	      stage_map[255][UP] = p_ptr->stage;
+	      stage_map[p_ptr->stage][DOWN] = 255;
+	      stage_map[255][DEPTH] = p_ptr->depth + 1;
+	    }
+	  
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+	  
+	}
+      
+
+    }
+
+  /* Got to go back */
+  else
+    {
+      if (p_ptr->stage == 255)
+	{
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][UP];
+	  
+	  /* Reset */
+	  stage_map[255][UP] = 0;
+	  stage_map[p_ptr->stage][DOWN] = 0;
+	  stage_map[255][DEPTH] = 0;
+	}
+
+      else if (p_ptr->stage == 256)
+	{
+	  /* New stage */
+	  p_ptr->stage = stage_map[p_ptr->stage][DOWN];
+	  
+	  /* Reset */
+	  stage_map[256][DOWN] = 0;
+	  stage_map[p_ptr->stage][UP] = 0;
+	  stage_map[256][DEPTH] = 0;
+	}
+    }
+  
+  /* New depth */
+  p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
+  
+  /* Leaving */
+  p_ptr->leaving = TRUE;
   
   /* Sound */
   sound(SOUND_TPLEVEL);
@@ -1065,6 +1128,19 @@ void take_hit(int dam, cptr kb_str)
       message(MSG_DEATH, 0, "You die.");
       msg_print(NULL);
       
+      /* Ask for a screen dump */
+      if (get_check("Would you like to dump the final screen? "))
+	{
+	  /* Flush the messages */
+	  msg_print(NULL);
+
+	  /* Redraw */
+	  redraw_stuff();
+  
+	  /* Dump the screen */
+	  do_cmd_save_screen();
+	}
+      
       /* Note cause of death */
       strcpy(p_ptr->died_from, kb_str);
       
@@ -1080,12 +1156,25 @@ void take_hit(int dam, cptr kb_str)
       /* Write a note */
       if (adult_take_notes)
 	{
+#ifdef _WIN32_WCE
+	  unsigned long fake_time(unsigned long* fake_time_t);
+	  time_t ct = fake_time(0);
+#else
 	  time_t ct = time((time_t*)0);
+#endif
 	  char long_day[25];
 	  char buf[120];
 	  
 	  /* Get time */
+#ifdef _WIN32_WCE
+	  {
+	    char* fake_ctime(const unsigned long* fake_time_t);
+	    sprintf(long_day, "%-.6s %-.2s",
+		    fake_ctime(&ct) + 4, fake_ctime(&ct) + 22);
+	  }
+#else
 	  (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
+#endif
 	  
 	  /* Add note */
 	  
@@ -2487,7 +2576,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	      }
 	    
 	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK);
+	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 	    
 	    /* Destroy the wall */
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -2505,7 +2594,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	      }
 	    
 	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK);
+	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 	    
 	    /* Destroy the wall */
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -2525,7 +2614,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	      }
 	    
 	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK);
+	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 	    
 	    /* Destroy the wall */
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -2542,7 +2631,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	      }
 	    
 	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK);
+	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 	    
 	    /* Destroy the rubble */
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -2573,7 +2662,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	      }
 	    
 	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK);
+	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
 	    
 	    /* Destroy the feature */
 	    cave_set_feat(y, x, FEAT_FLOOR);
@@ -4872,8 +4961,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
   bool fuzzy = FALSE;
   
   /* Source monster and its race */
-  monster_type *m_ptr;
-  monster_race *r_ptr;
+  monster_type *m_ptr = NULL;
+  monster_race *r_ptr = NULL;
   
   /* Monster name (for attacks) */
   char m_name[80];

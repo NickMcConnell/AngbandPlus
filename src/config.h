@@ -93,6 +93,7 @@
 /* #define USE_NCURSES */
 
 
+
 /*
  * OPTION: for multi-user machines running the game setuid to some other
  * user (like 'games') this SAFE_SETUID option allows the program to drop
@@ -322,12 +323,15 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+#ifdef _WIN32_WCE
+#else
+ #define USE_SOUND
+#endif
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-/* #define USE_GRAPHICS TNB */
+#define USE_GRAPHICS /* TNB */
 
 
 /*
