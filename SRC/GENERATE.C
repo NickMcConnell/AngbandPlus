@@ -732,7 +732,7 @@ static void build_terrain(int y, int x, int feat)
 	else if (f_ptr->flags2 & (FF2_LAVA))
 	{
 		if ((f2_ptr->flags2 & (FF2_ICE)) && (f2_ptr->flags1 & (FF1_WALL)) &&
-			(f2_ptr->flags2 & (FF2_CAN_TINY)))
+                        (f2_ptr->flags2 & (FF2_CAN_OOZE)))
 		{
 			newfeat = FEAT_ICE_GEOTH_HC;
 		}
@@ -756,7 +756,7 @@ static void build_terrain(int y, int x, int feat)
 	else if (f2_ptr->flags2 & (FF2_LAVA))
 	{
 		if ((f_ptr->flags2 & (FF2_ICE)) && (f_ptr->flags1 & (FF1_WALL)) &&
-			(f_ptr->flags2 & (FF2_CAN_TINY)))
+                        (f_ptr->flags2 & (FF2_CAN_OOZE)))
 		{
 			newfeat = FEAT_ICE_GEOTH_HC;
 		}
@@ -784,7 +784,7 @@ static void build_terrain(int y, int x, int feat)
 	else if (f_ptr->flags2 & (FF2_ICE))
 	{
 		/* Handle case of ice wall over underwater */
-		if ((f_ptr->flags1 & (FF1_WALL)) && (f_ptr->flags2 & (FF2_CAN_TINY)))
+                if ((f_ptr->flags1 & (FF1_WALL)) && (f_ptr->flags2 & (FF2_CAN_OOZE)))
 		{
 			if ((f2_ptr->flags2 & (FF2_WATER)) && (f2_ptr->flags2 & (FF2_FILLED))
 			 && (f2_ptr->flags1 & (FF1_SECRET)))
@@ -808,7 +808,7 @@ static void build_terrain(int y, int x, int feat)
 	else if (f2_ptr->flags2 & (FF2_ICE))
 	{
 		/* Handle case of ice wall over underwater */
-		if ((f2_ptr->flags1 & (FF1_WALL)) && (f2_ptr->flags2 & (FF2_CAN_TINY)))
+                if ((f2_ptr->flags1 & (FF1_WALL)) && (f2_ptr->flags2 & (FF2_CAN_OOZE)))
 		{
 			if ((f_ptr->flags2 & (FF2_WATER)) && (f_ptr->flags2 & (FF2_FILLED))
 			 && (f_ptr->flags1 & (FF1_SECRET)))

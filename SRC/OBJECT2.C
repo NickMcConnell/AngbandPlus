@@ -818,14 +818,13 @@ void object_known(object_type *o_ptr)
 			o_ptr->can_flags2,
 			o_ptr->can_flags3);
 
-	object_may_flags(o_ptr,o_ptr->may_flags1,
-			o_ptr->may_flags2,
-			o_ptr->may_flags3);
-
 	object_not_flags(o_ptr,o_ptr->not_flags1,
 			o_ptr->not_flags2,
 			o_ptr->not_flags3);
 
+	object_may_flags(o_ptr,o_ptr->may_flags1,
+			o_ptr->may_flags2,
+			o_ptr->may_flags3);
 
 }
 
@@ -1945,9 +1944,9 @@ void object_absorb(object_type *o_ptr, const object_type *j_ptr)
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
 
 	/* Hack -- Blend flags */
+	object_can_flags(o_ptr,j_ptr->can_flags1,j_ptr->can_flags2,j_ptr->can_flags3);
 	object_not_flags(o_ptr,j_ptr->not_flags1,j_ptr->not_flags2,j_ptr->not_flags3);
 	object_may_flags(o_ptr,j_ptr->may_flags1,j_ptr->may_flags2,j_ptr->may_flags3);
-	object_can_flags(o_ptr,j_ptr->can_flags1,j_ptr->can_flags2,j_ptr->can_flags3);
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
@@ -4401,7 +4400,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		}
 
 		/* Message */
-		msg_format("The %s disappear%s.",
+                msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -4509,7 +4508,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!flag && !artifact_p(j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+                msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -4553,7 +4552,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (!floor_carry(by, bx, j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+                msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -4571,7 +4570,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	if (f_info[cave_feat[by][bx]].flags2 & (FF2_HIDE_ITEM))
 	{
 		/* Message */
-		msg_format("The %s disappear%s from view.",
+                msg_format("The %s disappear%s from view.",
 			   o_name, (plural ? "" : "s"));
 	}
 
@@ -5569,7 +5568,6 @@ void inven_item_describe(int item)
 	msg_format("You have %s (%c).", o_name, index_to_label(item));
 }
 
-
 /*
  * Increase the "number" of an item in the inventory
  */
@@ -5586,6 +5584,9 @@ void inven_item_increase(int item, int num)
 
 	/* Un-apply */
 	num -= o_ptr->number;
+
+	/* Forget about item */
+        if (!num) inven_drop_flags(o_ptr);
 
 	/* Change the number and weight */
 	if (num)
@@ -6191,6 +6192,9 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were wearing";
 	}
 
+	/* Hack -- clear may flags to avoid forgetting them */
+	drop_may_flags(o_ptr);
+
 	/* Modify, Optimize */
 	inven_item_increase(item, -amt);
 	inven_item_optimize(item);
@@ -6742,9 +6746,9 @@ s16b spell_power(int spell)
 					/* Line 2 - item is instrument */
 					/* Line 3 - instrument sval matches spellbook sval */
 					/* Line 4 - appears in spellbook */
-					if ((inventory[INVEN_WIELD].k_idx) &&
-						(inventory[INVEN_WIELD].tval == TV_INSTRUMENT) &&
-						(s_info[spell].appears[j].sval == inventory[INVEN_WIELD].sval) &&
+					if ((inventory[INVEN_BOW].k_idx) &&
+						(inventory[INVEN_BOW].tval == TV_INSTRUMENT) &&
+						(s_info[spell].appears[j].sval == inventory[INVEN_BOW].sval) &&
 						 (s_info[spell].appears[j].tval == TV_SONG_BOOK))
 					{
 						plev += (p_ptr->lev - w_info[i].level);

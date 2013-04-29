@@ -1832,7 +1832,7 @@ cptr mention_use(int i)
 		else switch (o_ptr->tval)
 		{
 			case TV_SWORD:
-				case TV_STAFF:
+			case TV_STAFF:
 			case TV_POLEARM:
 			case TV_HAFTED:
 				break;
@@ -1852,6 +1852,18 @@ cptr mention_use(int i)
 			p = "In off-hand";
 		}
 	}
+
+	/* Hack -- Instrument */
+	else if (i == INVEN_BOW)
+	{
+		object_type *o_ptr;
+		o_ptr = &inventory[i];
+		if (o_ptr->tval == TV_INSTRUMENT)
+		{
+                        p = "Playing";
+		}
+	}
+
 
 
 	/* Return the result */
@@ -1910,7 +1922,7 @@ cptr describe_use(int i)
 				break;
 
 			case TV_SWORD:
-                        case TV_STAFF:
+			case TV_STAFF:
 			case TV_POLEARM:
 			case TV_HAFTED:
 				break;
@@ -1922,7 +1934,7 @@ cptr describe_use(int i)
 	}
 
 	/* Hack -- Non-shield item */
-	if (i == INVEN_ARM)
+	else if (i == INVEN_ARM)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
@@ -1932,8 +1944,8 @@ cptr describe_use(int i)
 		}
 	}
 
-        /* Hack -- Instrument */
-        if (i == INVEN_BOW)
+	/* Hack -- Instrument */
+	else if (i == INVEN_BOW)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];

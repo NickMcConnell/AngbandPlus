@@ -4,23 +4,10 @@ various files and ideas.
 
 For a start, here are the current bugs:
 
-- You should be able to traverse rubble. But requiring 2 moves.
-	Also iron and wooden cages. Provided you are not stuck
-in them.
-
-- Monsters need more information saved.
-	Also the code should be cleaned up more.
 
 - Death and high scores do not record styles and sub-styles.
 	Trivial fix. Just haven't got around to it. But it will
 break highscore compatibility for people. :(
-
-- Updated birth.txt is incomplete.
-	Documentation in general needs an overhaul.
-
-- Not all the monsters from the future.txt file are created yet.
-	Just requires a big sit down. Adding any more monsters or
-altering them affects rand arts however.
 
 And new features:
 - Implement Ego lights, and monster bleeding/poisoning from

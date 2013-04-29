@@ -1493,14 +1493,14 @@ void do_cmd_apply_rune(void)
 
 	object_type *o_ptr;
 	object_type *j_ptr;
-object_type *i_ptr;
-object_type object_type_body;
+	object_type *i_ptr;
+	object_type object_type_body;
 
 	cptr q, s;
 
 	int i,ii;
 
-int rune;
+	int rune;
 
 	/* Restrict the choices */
 	item_tester_tval = TV_RUNESTONE;
@@ -1522,7 +1522,7 @@ int rune;
 		o_ptr = &o_list[0 - item];
 	}
 
-rune = o_ptr->sval;
+	rune = o_ptr->sval;
 
 	/* Get an item to fill */
 	q = "Apply rune to which item? ";
@@ -1533,16 +1533,16 @@ rune = o_ptr->sval;
 	/* Get the item (in the pack) */
 	if (item2 >= 0)
 	{
-j_ptr = &inventory[item2];
+		j_ptr = &inventory[item2];
 	}
 
 	/* Get the item (on the floor) */
 	else
 	{
-j_ptr = &o_list[0 - item2];
+		j_ptr = &o_list[0 - item2];
 	}
 
-if ((artifact_p(o_ptr)) || ((j_ptr->xtra1) && (j_ptr->xtra1 < OBJECT_XTRA_MIN_RUNES)))
+	if ((artifact_p(o_ptr)) || ((j_ptr->xtra1) && (j_ptr->xtra1 < OBJECT_XTRA_MIN_RUNES)))
 	{
 		msg_print("It has hidden powers that prevent this.");
 
@@ -1550,7 +1550,7 @@ if ((artifact_p(o_ptr)) || ((j_ptr->xtra1) && (j_ptr->xtra1 < OBJECT_XTRA_MIN_RU
 		return;
 	}
 
-if ((j_ptr->xtra1 > OBJECT_XTRA_MIN_RUNES) && (j_ptr->xtra1 != OBJECT_XTRA_MIN_RUNES + rune))
+	if ((j_ptr->xtra1 > OBJECT_XTRA_MIN_RUNES) && (j_ptr->xtra1 != OBJECT_XTRA_MIN_RUNES + rune))
 	{
 		/* Warning */
 		msg_print("It has other runes applied to it.");
@@ -1565,17 +1565,17 @@ if ((j_ptr->xtra1 > OBJECT_XTRA_MIN_RUNES) && (j_ptr->xtra1 != OBJECT_XTRA_MIN_R
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-/* Get local object */
-i_ptr = &object_type_body;
+	/* Get local object */
+	i_ptr = &object_type_body;
 
-/* Obtain a local object */
-object_copy(i_ptr, j_ptr);
+	/* Obtain a local object */
+	object_copy(i_ptr, j_ptr);
 
-/* Modify quantity */
-i_ptr->number = 1;
+	/* Modify quantity */
+	i_ptr->number = 1;
 
-/* Reset stack counter */
-i_ptr->stackc = 0;
+	/* Reset stack counter */
+	i_ptr->stackc = 0;
 
 	/* Decrease the item (in the pack) */
 	if (item >= 0)
@@ -1583,57 +1583,56 @@ i_ptr->stackc = 0;
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 
-/* Hack -- handle deletion of item slot */
-if ((inventory[item].number == 0)
-   && (item < item2)
-&& (item2 < INVEN_WIELD)) item2--;
+		/* Hack -- handle deletion of item slot */
+		if ((inventory[item].number == 0)
+		   && (item < item2)
+			&& (item2 < INVEN_WIELD)) item2--;
 
-inven_item_optimize(item);
-}
+		inven_item_optimize(item);
+	}
 	/* Decrease the item (from the floor) */
 	else
 	{
 		floor_item_increase(0 - item, -1);
-floor_item_describe(0 - item);
-floor_item_optimize(0 - item);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
 	}
 
 	/* Decrease the item (in the pack) */
-if (item2 >= 0)
+	if (item2 >= 0)
 	{
-inven_item_increase(item2, -1);
-inven_item_optimize(item2);
-}
+		inven_item_increase(item2, -1);
+		inven_item_optimize(item2);
+	}
 	/* Decrease the item (from the floor) */
 	else
 	{
-floor_item_increase(0 - item2, -1);
-floor_item_optimize(item2);
+		floor_item_increase(0 - item2, -1);
+		floor_item_optimize(item2);
 	}
 
-
-if (i_ptr->xtra1 == OBJECT_XTRA_MIN_RUNES + rune)
+	if (i_ptr->xtra1 == OBJECT_XTRA_MIN_RUNES + rune)
 	{
-i_ptr->xtra2++;
+		i_ptr->xtra2++;
 	}
-else if ((i_ptr->name2) && (e_info[i_ptr->name2].runest == rune))
+	else if ((i_ptr->name2) && (e_info[i_ptr->name2].runest == rune))
 	{
-i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-i_ptr->xtra2 = e_info[i_ptr->name2].runesc + 1;
+		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+		i_ptr->xtra2 = e_info[i_ptr->name2].runesc + 1;
 	}
-else if (k_info[i_ptr->k_idx].runest == rune)
+	else if (k_info[i_ptr->k_idx].runest == rune)
 	{
-i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-i_ptr->xtra2 = k_info[i_ptr->k_idx].runesc + 1;
+		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+		i_ptr->xtra2 = k_info[i_ptr->k_idx].runesc + 1;
 	}
 	else
 	{
-i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-i_ptr->xtra2 = 1;
+		i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+		i_ptr->xtra2 = 1;
 	}
 
-/* Update bonuses */
-p_ptr->update |= (PU_BONUS);
+	/* Update bonuses */
+	p_ptr->update |= (PU_BONUS);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1641,39 +1640,39 @@ p_ptr->update |= (PU_BONUS);
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-for (i = 0; i<z_info->k_max; i++)
+	for (i = 0; i<z_info->k_max; i++)
 	{
-object_kind *k_ptr = &k_info[i];
+		object_kind *k_ptr = &k_info[i];
 
-if ((k_ptr->tval == i_ptr->tval) && (k_ptr->runest == rune) && (k_ptr->runesc == i_ptr->xtra2))
+		if ((k_ptr->tval == i_ptr->tval) && (k_ptr->runest == rune) && (k_ptr->runesc == i_ptr->xtra2))
 		{
 			msg_print("It glows brightly.");
 
 			/* Polymorph the item */
-/* XXX We assume weight is the same ? */
-object_prep(i_ptr, i);
+			/* XXX We assume weight is the same ? */
+			object_prep(i_ptr, i);
 
-/* Apply magic (allow artifacts) */
-apply_magic(i_ptr, object_level, TRUE, FALSE, FALSE);
+			/* Apply magic (allow artifacts) */
+			apply_magic(i_ptr, object_level, TRUE, FALSE, FALSE);
 
-/* Add runes */
-i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
-i_ptr->xtra2 = k_ptr->runesc;
+			/* Add runes */
+			i_ptr->xtra1 = OBJECT_XTRA_MIN_RUNES + rune;
+			i_ptr->xtra2 = k_ptr->runesc;
 
-/* Remove special inscription, if any */
-if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
+			/* Remove special inscription, if any */
+			if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
 
-/* Hack -- Clear the "felt" flag */
-i_ptr->ident &= ~(IDENT_SENSE);
+			/* Hack -- Clear the "felt" flag */
+			i_ptr->ident &= ~(IDENT_SENSE);
 
-/* Hack -- Clear the "bonus" flag */
-i_ptr->ident &= ~(IDENT_BONUS);
+			/* Hack -- Clear the "bonus" flag */
+			i_ptr->ident &= ~(IDENT_BONUS);
 
-/* Hack -- Clear the "known" flag */
-i_ptr->ident &= ~(IDENT_KNOWN);
+			/* Hack -- Clear the "known" flag */
+			i_ptr->ident &= ~(IDENT_KNOWN);
 
-/* Hack -- Clear the "empty" flag */
-i_ptr->ident &= ~(IDENT_EMPTY);
+			/* Hack -- Clear the "empty" flag */
+			i_ptr->ident &= ~(IDENT_EMPTY);
 
 			break;
 		}
@@ -1681,100 +1680,103 @@ i_ptr->ident &= ~(IDENT_EMPTY);
 
 	for (i= 0; i<z_info->e_max; i++)
 	{
-ego_item_type *e_ptr = &e_info[i];
+		ego_item_type *e_ptr = &e_info[i];
 
-if ((e_ptr->runest == rune) && (e_ptr->runesc == i_ptr->xtra2))
+		if ((e_ptr->runest == rune) && (e_ptr->runesc == i_ptr->xtra2))
 		{
 			for (ii = 0;ii < 3; ii++)
 			{
-if ((e_ptr->tval[ii] == i_ptr->tval)
- && (e_ptr->min_sval[ii]<= i_ptr->sval)
-  && (e_ptr->max_sval[ii] >= i_ptr->sval))
+				if ((e_ptr->tval[ii] == i_ptr->tval)
+				 && (e_ptr->min_sval[ii]<= i_ptr->sval)
+				  && (e_ptr->max_sval[ii] >= i_ptr->sval))
 				{
 					msg_print("It glows brightly.");
 
 					/* Ego-ize the item */
-i_ptr->name2 = i;
+					i_ptr->name2 = i;
 
-/* Extra powers */
-if (e_ptr->xtra)
-{
-i_ptr->xtra1 = e_ptr->xtra;
-i_ptr->xtra2 = (byte)rand_int(object_xtra_size[e_ptr->xtra]);
-}
+					/* Extra powers */
+					if (e_ptr->xtra)
+					{
+						i_ptr->xtra1 = e_ptr->xtra;
+						i_ptr->xtra2 = (byte)rand_int(object_xtra_size[e_ptr->xtra]);
+					}
 
-/* Hack -- acquire "broken" flag */
-if (!e_ptr->cost) i_ptr->ident |= (IDENT_BROKEN);
+					/* Forget about it */
+					drop_all_flags(o_ptr);
 
-/* Hack -- acquire "cursed" flag */
-if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) i_ptr->ident |= (IDENT_CURSED);
+					/* Hack -- acquire "broken" flag */
+					if (!e_ptr->cost) i_ptr->ident |= (IDENT_BROKEN);
 
-/* Hack -- apply extra penalties if needed */
-if (cursed_p(i_ptr) || broken_p(i_ptr))
-{
-/* Hack -- obtain bonuses */
-if (e_ptr->max_to_h > 0) i_ptr->to_h = MIN(i_ptr->to_h,-randint(e_ptr->max_to_h));
-else i_ptr->to_h = MIN(i_ptr->to_h,0);
+					/* Hack -- acquire "cursed" flag */
+					if (e_ptr->flags3 & (TR3_LIGHT_CURSE)) i_ptr->ident |= (IDENT_CURSED);
 
-if (e_ptr->max_to_d > 0) i_ptr->to_d = MIN(i_ptr->to_d,-randint(e_ptr->max_to_d));
-else i_ptr->to_d = MIN(i_ptr->to_d,0);
+					/* Hack -- apply extra penalties if needed */
+					if (cursed_p(i_ptr) || broken_p(i_ptr))
+					{
+						/* Hack -- obtain bonuses */
+						if (e_ptr->max_to_h > 0) i_ptr->to_h = MIN(i_ptr->to_h,-randint(e_ptr->max_to_h));
+						else i_ptr->to_h = MIN(i_ptr->to_h,0);
 
-if (e_ptr->max_to_a > 0) i_ptr->to_a = MIN(i_ptr->to_a,-randint(e_ptr->max_to_a));
-else i_ptr->to_a = MIN(i_ptr->to_a,0);
+						if (e_ptr->max_to_d > 0) i_ptr->to_d = MIN(i_ptr->to_d,-randint(e_ptr->max_to_d));
+						else i_ptr->to_d = MIN(i_ptr->to_d,0);
 
-/* Hack -- obtain pval */
-if (e_ptr->max_pval > 0) i_ptr->pval = MIN(i_ptr->pval,-randint(e_ptr->max_pval));
-}
+						if (e_ptr->max_to_a > 0) i_ptr->to_a = MIN(i_ptr->to_a,-randint(e_ptr->max_to_a));
+						else i_ptr->to_a = MIN(i_ptr->to_a,0);
 
-/* Hack -- apply extra bonuses if needed */
-else
-{
-/* Hack -- obtain bonuses */
-if (e_ptr->max_to_h > 0) i_ptr->to_h = MAX(i_ptr->to_h,randint(e_ptr->max_to_h));
-else i_ptr->to_h = MIN(i_ptr->to_h,0);
+						/* Hack -- obtain pval */
+						if (e_ptr->max_pval > 0) i_ptr->pval = MIN(i_ptr->pval,-randint(e_ptr->max_pval));
+					}
 
-if (e_ptr->max_to_d > 0) i_ptr->to_d = MAX(i_ptr->to_d,randint(e_ptr->max_to_d));
-else i_ptr->to_d = MIN(i_ptr->to_d,0);
+					/* Hack -- apply extra bonuses if needed */
+					else
+					{
+						/* Hack -- obtain bonuses */
+						if (e_ptr->max_to_h > 0) i_ptr->to_h = MAX(i_ptr->to_h,randint(e_ptr->max_to_h));
+						else i_ptr->to_h = MIN(i_ptr->to_h,0);
 
-if (e_ptr->max_to_a > 0) i_ptr->to_a = MAX(i_ptr->to_a,randint(e_ptr->max_to_a));
-else i_ptr->to_a = MIN(i_ptr->to_a,0);
+						if (e_ptr->max_to_d > 0) i_ptr->to_d = MAX(i_ptr->to_d,randint(e_ptr->max_to_d));
+						else i_ptr->to_d = MIN(i_ptr->to_d,0);
 
-/* Hack -- obtain pval */
-if (e_ptr->max_pval > 0) i_ptr->pval = MAX(1,MIN(i_ptr->pval,randint(e_ptr->max_pval)));
-else i_ptr->pval = MIN(i_ptr->pval,0);
-}
+						if (e_ptr->max_to_a > 0) i_ptr->to_a = MAX(i_ptr->to_a,randint(e_ptr->max_to_a));
+						else i_ptr->to_a = MIN(i_ptr->to_a,0);
 
-/* Remove special inscription, if any */
-if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
+						/* Hack -- obtain pval */
+						if (e_ptr->max_pval > 0) i_ptr->pval = MAX(1,MIN(i_ptr->pval,randint(e_ptr->max_pval)));
+						else i_ptr->pval = MIN(i_ptr->pval,0);
+					}
 
-/* Hack -- Clear the "felt" flag */
-i_ptr->ident &= ~(IDENT_SENSE);
+					/* Remove special inscription, if any */
+					if (i_ptr->discount >= INSCRIP_NULL) i_ptr->discount = 0;
 
-/* Hack -- Clear the "bonus" flag */
-i_ptr->ident &= ~(IDENT_BONUS);
+					/* Hack -- Clear the "felt" flag */
+					i_ptr->ident &= ~(IDENT_SENSE);
 
-/* Hack -- Clear the "known" flag */
-i_ptr->ident &= ~(IDENT_KNOWN);
+					/* Hack -- Clear the "bonus" flag */
+					i_ptr->ident &= ~(IDENT_BONUS);
 
-/* Hack -- Clear the "empty" flag */
-i_ptr->ident &= ~(IDENT_EMPTY);
+					/* Hack -- Clear the "known" flag */
+					i_ptr->ident &= ~(IDENT_KNOWN);
 
-break;
+					/* Hack -- Clear the "empty" flag */
+					i_ptr->ident &= ~(IDENT_EMPTY);
+
+					break;
 				}
 			}
 		}
 	}
 
-/* Carry the new item */
-if (item2 >= 0)
-{
-item = inven_carry(i_ptr);
+	/* Carry the new item */
+	if (item2 >= 0)
+	{
+		item = inven_carry(i_ptr);
 		inven_item_describe(item);
-}
-else
-{
-item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
-floor_item_describe(item);
-}
+	}
+	else
+	{
+		item = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+		floor_item_describe(item);
+	}
 
 }

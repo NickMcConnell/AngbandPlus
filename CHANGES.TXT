@@ -1,3 +1,17 @@
+Unangband 0.5.1c Bugfix release
+- Fixed bug where instruments in bow slot did not provide
+benefits to instrument specialists.
+- Fixed bug with Minas Tirith.
+- Fixed bugs with items being sold/polymorphed/destroyed
+not correctly updating may flags in inventory.
+- Rewrote object learning routines to allow multiple flags
+to be passed through at once, correctly.
+- Now displays information about what an object may do,
+and does not do, when you 'I'nspect it.
+- Wall spells now create walls of features...
+- Trees, rubble and webs now take 2 turns to move through.
+
+Unangband 0.5.1b Bugfix release
 - Instruments now wield in the bow slot (Taken from ToME).
 - Paladins and mages can now learn instrument style.
 - Items are no longer flavoured by monster drops unless

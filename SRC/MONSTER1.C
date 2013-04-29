@@ -682,9 +682,11 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_EXP_20: q = "lower experience (by 20d6+)"; break;
 			case GF_EXP_40: q = "lower experience (by 40d6+)"; break;
 			case GF_EXP_80: q = "lower experience (by 80d6+)"; break;
-			case GF_DEEP:		q = "raise water"; break;
-			case GF_SHALLOW:		q = "lower water"; break;
+                        case GF_RAISE:           q = "raise water"; break;
+                        case GF_LOWER:                q = "lower water"; break;
 			case GF_LOCK_DOOR:	q = "lock doors"; break;
+                        case GF_HALLU:          q = "create hallucinations"; break;
+                        case GF_FEATURE:        q = "surround you with something"; break;
 		}
 
 
@@ -778,7 +780,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags2 & RF2_KILL_BODY) vp[vn++] = "destroy weaker monsters";
 	if (l_ptr->flags2 & RF2_TAKE_ITEM) vp[vn++] = "pick up objects";
 	if (l_ptr->flags2 & RF2_KILL_ITEM) vp[vn++] = "destroy objects";
-	if (l_ptr->flags3 & RF3_TINY) vp[vn++] = "crawl through tiny cracks";
+        if (l_ptr->flags3 & RF3_OOZE) vp[vn++] = "ooze through tiny cracks";
 	if (l_ptr->flags2 & RF2_CAN_CLIMB) vp[vn++] = "climb on walls and ceilings";
 	if (l_ptr->flags2 & RF2_CAN_DIG) vp[vn++] = "dig through earth and rubble";
 	if (l_ptr->flags2 & RF2_SNEAKY) vp[vn++] = "hide in unusual places";
@@ -850,6 +852,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	vn = 0;
 	if (l_ptr->flags3 & RF3_HURT_ROCK) vp[vn++] = "rock remover";
 	if (l_ptr->flags3 & RF3_HURT_LITE) vp[vn++] = "bright light";
+        if (l_ptr->flags3 & RF3_HURT_WATER) vp[vn++] = "water remover";
 
 	/* Describe susceptibilities */
 	if (vn)
@@ -881,6 +884,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags3 & RF3_IM_FIRE) vp[vn++] = "fire";
 	if (l_ptr->flags3 & RF3_IM_COLD) vp[vn++] = "cold";
 	if (l_ptr->flags3 & RF3_IM_POIS) vp[vn++] = "poison";
+        if (l_ptr->flags3 & RF3_IM_WATER) vp[vn++] = "water";
 
 	/* Describe immunities */
 	if (vn)
@@ -908,7 +912,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	/* Collect resistances */
 	vn = 0;
 	if (l_ptr->flags3 & RF3_RES_NETH) vp[vn++] = "nether";
-	if (l_ptr->flags3 & RF3_RES_WATE) vp[vn++] = "water";
+        if (l_ptr->flags3 & RF3_RES_LAVA) vp[vn++] = "lava";
 	if (l_ptr->flags3 & RF3_RES_PLAS) vp[vn++] = "plasma";
 	if (l_ptr->flags3 & RF3_RES_NEXU) vp[vn++] = "nexus";
 	if (l_ptr->flags3 & RF3_RES_DISE) vp[vn++] = "disenchantment";

@@ -2,16 +2,8 @@
 - Cannot generate all objects to test in wizard mode because there are
 too many (Potions/scrolls).
 
-06-01-2002
-- You should be able to traverse rubble. But requiring 2 moves.
-- Monsters need more information saved.
-
 12-07-2001
 - Death and high scores do not record styles and sub-styles.
-- Updated birth.txt is incomplete.
-- Should add kobolds from JLE's patch.
-- Not all the monsters from the future.txt file are created yet.
-- We are (now) many point releases behind the Angband code state of the play.
 
 04-11-2000
 - We can generate unconnected spaces as part of lake generation. Should

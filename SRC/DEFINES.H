@@ -598,36 +598,36 @@
  * Spell types used by project(), and related functions.
  */
 #define GF_NOTHING      0
-#define GF_XXX1  1
-#define GF_ARROW 2
+#define GF_XXX1		1
+#define GF_ARROW	2
 #define GF_MISSILE      3
-#define GF_MANA  4
+#define GF_MANA		4
 #define GF_HOLY_ORB     5
 #define GF_LITE_WEAK    6
 #define GF_DARK_WEAK    7
 #define GF_WATER_WEAK   8
 #define GF_PLASMA       9
 #define GF_METEOR       10
-#define GF_ICE   11
+#define GF_ICE		11
 #define GF_GRAVITY      12
 #define GF_INERTIA      13
-#define GF_FORCE 14
-#define GF_TIME  15
-#define GF_ACID  16
-#define GF_ELEC  17
-#define GF_FIRE  18
-#define GF_COLD  19
-#define GF_POIS  20
-#define GF_XXX2  21
-#define GF_LITE  22
-#define GF_DARK  23
-#define GF_WATER 24
+#define GF_FORCE	14
+#define GF_TIME		15
+#define GF_ACID		16
+#define GF_ELEC		17
+#define GF_FIRE		18
+#define GF_COLD		19
+#define GF_POIS		20
+#define GF_XXX2		21
+#define GF_LITE		22
+#define GF_DARK		23
+#define GF_WATER	24
 #define GF_CONFUSION    25
-#define GF_SOUND 26
-#define GF_SHARD 27
-#define GF_NEXUS 28
+#define GF_SOUND	26
+#define GF_SHARD	27
+#define GF_NEXUS	28
 #define GF_NETHER       29
-#define GF_CHAOS 30
+#define GF_CHAOS	30
 #define GF_DISENCHANT   31
 #define GF_EXPLODE      32
 #define GF_KILL_WALL    33
@@ -637,41 +637,41 @@
 #define GF_MAKE_DOOR    37
 #define GF_MAKE_TRAP    38
 #define GF_BRIDGE       39
-#define GF_XXX6   40
+#define GF_XXX6		40
 #define GF_AWAY_UNDEAD  41
 #define GF_AWAY_EVIL    42
-#define GF_AWAY_ALL      43
+#define GF_AWAY_ALL	43
 #define GF_TURN_UNDEAD  44
 #define GF_TURN_EVIL    45
-#define GF_TURN_ALL      46
+#define GF_TURN_ALL	46
 #define GF_DISP_UNDEAD  47
 #define GF_DISP_EVIL    48
-#define GF_DISP_ALL      49
-#define GF_XXX7 50
+#define GF_DISP_ALL	49
+#define GF_XXX7		50
 #define GF_OLD_CLONE    51
-#define GF_OLD_POLY      52
-#define GF_OLD_HEAL      53
+#define GF_OLD_POLY	52
+#define GF_OLD_HEAL	53
 #define GF_OLD_SPEED    54
-#define GF_OLD_SLOW      55
-#define GF_OLD_CONF      56
+#define GF_OLD_SLOW	55
+#define GF_OLD_CONF	56
 #define GF_OLD_SLEEP    57
 #define GF_OLD_DRAIN    58
-#define GF_BWATER  59
-#define GF_BMUD  60
-#define GF_HURT  61
-#define GF_LAVA  62
+#define GF_BWATER  	59
+#define GF_BMUD  	60
+#define GF_HURT  	61
+#define GF_LAVA  	62
 #define GF_UN_BONUS     63
 #define GF_UN_POWER     64
 #define GF_EAT_GOLD     65
 #define GF_EAT_ITEM     66
 #define GF_EAT_FOOD     67
 #define GF_EAT_LITE     68
-#define GF_FALL  69
+#define GF_FALL  	69
 #define GF_FALL_MORE    70
 #define GF_FALL_SPIKE   71
 #define GF_FALL_POIS    72
-#define GF_BLIND  73
-#define GF_SLOW  74
+#define GF_BLIND  	73
+#define GF_SLOW  	74
 #define GF_TERRIFY      75
 #define GF_PARALYZE     76
 #define GF_LOSE_STR     77
@@ -682,16 +682,17 @@
 #define GF_LOSE_CHR     82
 #define GF_LOSE_ALL     83
 #define GF_SHATTER      84
-#define GF_EXP_10 85
-#define GF_EXP_20 86
-#define GF_EXP_40 87
-#define GF_EXP_80 88
-#define GF_DEEP			89	/* Raise water */
-#define GF_SHALLOW		90	/* Lower water */
-#define GF_PROBE		91
-#define GF_LOCK_DOOR		92
-#define GF_SALT_WATER    93      /* Weak water + kill worms */
-
+#define GF_EXP_10 	85
+#define GF_EXP_20 	86
+#define GF_EXP_40 	87
+#define GF_EXP_80 	88
+#define GF_RAISE	89
+#define GF_LOWER	90
+#define GF_PROBE	91
+#define GF_LOCK_DOOR	92
+#define GF_SALT_WATER	93
+#define GF_HALLU	94
+#define	GF_FEATURE	95
 
 /*
  * Some constants for the "learn" code
@@ -927,6 +928,9 @@
 #define FEAT_FLOOR_FIRE_T 308
 #define FEAT_FLOOR_ACID_T 309
 
+#define FEAT_FLOOR_WEB 446
+#define FEAT_CHASM_WEB 459
+
 #define FEAT_GROUND 407
 #define FEAT_GRASS 411
 #define FEAT_TREE       419
@@ -1018,7 +1022,7 @@
 #define FF2_CAN_FLY     0x00200000
 #define FF2_CAN_SWIM    0x00400000
 #define FF2_CAN_PASS    0x00800000
-#define FF2_CAN_TINY    0x01000000
+#define FF2_CAN_OOZE    0x01000000
 #define FF2_CAN_DIG     0x02000000
 #define FF2_HIDE_ITEM   0x04000000
 #define FF2_HIDE_DEEP   0x08000000
@@ -2625,6 +2629,7 @@
 #define MM_DIG 0x10     /* Monster will dig through terrain */
 #define MM_DEEP 0x20    /* Monster is deep in terrain */
 #define MM_PASS 0x40    /* Monster is pass wall */
+#define MM_OOZE 0x80     /* Monster will ooze through terrain */
 
 
 /*
@@ -2666,21 +2671,21 @@
 /*
  * New monster race bit flags
  */
-#define RF2_STUPID 0x00000001      /* Monster is stupid */
-#define RF2_SMART  0x00000002      /* Monster is smart */
-#define RF2_CAN_DIG   0x00000004      /* (?) */
-#define RF2_HAS_LITE       0x00000008      /* (?) */
-#define RF2_INVISIBLE    0x00000010      /* Monster avoids vision */
-#define RF2_COLD_BLOOD   0x00000020      /* Monster avoids infra */
-#define RF2_EMPTY_MIND   0x00000040      /* Monster avoids telepathy */
-#define RF2_WEIRD_MIND   0x00000080      /* Monster avoids telepathy? */
-#define RF2_MULTIPLY     0x00000100      /* Monster reproduces */
-#define RF2_REGENERATE   0x00000200      /* Monster regenerates */
-#define RF2_CAN_SWIM      0x00000400      /* (?) */
-#define RF2_MUST_SWIM     0x00000800      /* (?) */
-#define RF2_POWERFUL     0x00001000      /* Monster has strong breath */
-#define RF2_CAN_CLIMB     0x00002000      /* (?) */
-#define RF2_CAN_FLY       0x00004000      /* (?) */
+#define RF2_STUPID	0x00000001      /* Monster is stupid */
+#define RF2_SMART	0x00000002      /* Monster is smart */
+#define RF2_CAN_DIG	0x00000004      /* (?) */
+#define RF2_HAS_LITE	0x00000008      /* (?) */
+#define RF2_INVISIBLE	0x00000010      /* Monster avoids vision */
+#define RF2_COLD_BLOOD	0x00000020      /* Monster avoids infra */
+#define RF2_EMPTY_MIND	0x00000040      /* Monster avoids telepathy */
+#define RF2_WEIRD_MIND	0x00000080      /* Monster avoids telepathy? */
+#define RF2_MULTIPLY	0x00000100      /* Monster reproduces */
+#define RF2_REGENERATE	0x00000200      /* Monster regenerates */
+#define RF2_CAN_SWIM	0x00000400      /* (?) */
+#define RF2_MUST_SWIM	0x00000800      /* (?) */
+#define RF2_POWERFUL	0x00001000      /* Monster has strong breath */
+#define RF2_CAN_CLIMB	0x00002000      /* (?) */
+#define RF2_CAN_FLY	0x00004000      /* (?) */
 #define RF2_MUST_FLY      0x00008000      /* (?) */
 #define RF2_OPEN_DOOR    0x00010000      /* Monster can open doors */
 #define RF2_BASH_DOOR    0x00020000      /* Monster can bash doors */
@@ -2690,14 +2695,14 @@
 #define RF2_KILL_BODY    0x00200000      /* Monster can kill monsters */
 #define RF2_TAKE_ITEM    0x00400000      /* Monster can pick up items */
 #define RF2_KILL_ITEM    0x00800000      /* Monster can crush items */
-#define RF2_SNEAKY 0x01000000 /* Monster hides a lot of actions */
-#define RF2_HAS_AURA      0x02000000 /* Monster radiates an aura attack */
-#define RF2_PRIEST 0x04000000 /* Monster has access to priest spells ? */
-#define RF2_MAGE   0x08000000 /* Monster has access to mage spells ? */
-#define RF2_ARMOR  0x10000000 /* Monster is fully armoured (Reduces acid damage/stops some arrows) */
-#define RF2_GENIUS 0x20000000 /* Monster deduces player resistances */
-#define RF2_BRAIN_7       0x40000000
-#define RF2_BRAIN_8       0x80000000
+#define RF2_SNEAKY 	0x01000000 /* Monster hides a lot of actions */
+#define RF2_ARMOR	0x02000000 /* Monster is fully armoured (Reduces acid damage/stops some arrows) */
+#define RF2_PRIEST 	0x04000000 /* Monster has access to priest spells ? */
+#define RF2_MAGE   	0x08000000 /* Monster has access to mage spells ? */
+#define RF2_HAS_AURA  	0x10000000 /* Monster radiates an aura attack */
+#define RF2_HAS_WEB	0x20000000 /* Monster leaves a trail of webs */
+#define RF2_BRAIN_7	0x40000000
+#define RF2_BRAIN_8	0x80000000
 
 /*
  * New monster race bit flags
@@ -2710,7 +2715,7 @@
 #define RF3_UNDEAD 0x00000020      /* Undead */
 #define RF3_EVIL   0x00000040      /* Evil */
 #define RF3_ANIMAL 0x00000080      /* Animal */
-#define RF3_TINY   0x00000100      /* (?) */
+#define RF3_OOZE   0x00000100      /* (?) */
 #define RF3_HUGE   0x00000200      /* (?) */
 #define RF3_NONVOCAL      0x00000400      /* Non-Vocal */
 #define RF3_NONLIVING     0x00000800      /* Non-Living */
@@ -2723,13 +2728,13 @@
 #define RF3_IM_FIRE       0x00040000      /* Resist fire a lot */
 #define RF3_IM_COLD       0x00080000      /* Resist cold a lot */
 #define RF3_IM_POIS       0x00100000      /* Resist poison a lot */
-#define RF3_IM_XXX1  0x00200000      /* Immune to ??? */
+#define RF3_IM_WATER      0x00200000      /* Resist water a lot */
 #define RF3_RES_NETH     0x00400000      /* Resist nether a lot */
-#define RF3_RES_WATE     0x00800000      /* Resist water */
+#define RF3_RES_LAVA     0x00800000      /* Resist lava */
 #define RF3_RES_PLAS     0x01000000      /* Resist plasma */
 #define RF3_RES_NEXU     0x02000000      /* Resist nexus */
 #define RF3_RES_DISE     0x04000000      /* Resist disenchantment */
-#define RF3_XXX6   0x08000000      /* Resist (?) */
+#define RF3_HURT_WATER   0x08000000        /* Hurt by water remover */
 #define RF3_NO_FEAR       0x10000000      /* Cannot be scared */
 #define RF3_NO_STUN       0x20000000      /* Cannot be stunned */
 #define RF3_NO_CONF       0x40000000      /* Cannot be confused */
@@ -3648,8 +3653,8 @@
 #define cave_clean_bold(Y,X) \
 	((f_info[cave_feat[Y][X]].flags1 & (FF1_DROP)) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
-  !(f_info[cave_feat[Y][X]].blow.method) && \
-  !(f_info[cave_feat[Y][X]].blow.effect) && \
+	!(f_info[cave_feat[Y][X]].blow.method) && \
+	!(f_info[cave_feat[Y][X]].blow.effect) && \
 	 (cave_o_idx[Y][X] == 0))
 
 /*
@@ -3666,13 +3671,13 @@
  * Determine if a "legal" grid is a valid starting grid for player
  */
 #define cave_start_bold(Y,X) \
- ((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) && \
+	((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
-  (((!(f_info[cave_feat[Y][X]].blow.method) && \
-  !(f_info[cave_feat[Y][X]].spell))) || \
-  (f_info[cave_feat[Y][X]].flags2 & (FF2_BRIDGED)) || \
-  (f_info[cave_feat[Y][X]].flags2 & (FF2_COVERED)) ) && \
-  (cave_m_idx[Y][X] == 0))
+	(((!(f_info[cave_feat[Y][X]].blow.method) && \
+	!(f_info[cave_feat[Y][X]].spell))) || \
+	(f_info[cave_feat[Y][X]].flags2 & (FF2_BRIDGED)) || \
+	(f_info[cave_feat[Y][X]].flags2 & (FF2_COVERED)) ) && \
+	(cave_m_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "naked" floor grid

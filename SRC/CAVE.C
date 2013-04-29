@@ -4104,24 +4104,25 @@ next_o_idx = o_ptr->next_o_idx;
 
 
 	/* Check if los has changed */
-	if ((los) && (player_has_los_bold(y,x)) && !(cave_floor_bold(y,x)))
-{
+        if ((los) && (player_has_los_bold(y,x)) && !(cave_floor_bold(y,x)))
+        {
 		/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+                p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	}
-else if ((!los) && (player_has_los_bold(y,x)) && (cave_floor_bold(y,x)))
+        else if ((!los) && (player_has_los_bold(y,x)) && (cave_floor_bold(y,x)))
 	{
 		/* Update the visuals */
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 	}
-else
-{
-/* Notice */
-note_spot(y, x);
 
-/* Redraw */
-lite_spot(y, x);
-}
+        if (player_has_los_bold(y,x))
+        {
+                /* Notice */
+                note_spot(y, x);
+
+                /* Redraw */
+                lite_spot(y, x);
+        }
 
 }
 

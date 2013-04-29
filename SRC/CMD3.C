@@ -145,19 +145,19 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
-        u32b f1,f2,f3;
-        u32b k1,k2,k3;
+	u32b f1,f2,f3;
+	u32b k1,k2,k3;
 
-        u32b n1 = 0x0L;
-u32b n2 = 0x0L;
-u32b n3 = 0x0L;
+	u32b n1 = 0x0L;
+	u32b n2 = 0x0L;
+	u32b n3 = 0x0L;
 
-/* Hack -- Allow items to be swapped in/out of belt */
-bool swap = FALSE;
+	/* Hack -- Allow items to be swapped in/out of belt */
+	bool swap = FALSE;
 
-/* Hack -- Allow multiple rings to be wielded */
-int amt=1;
-int rings = 0;
+	/* Hack -- Allow multiple rings to be wielded */
+	int amt=1;
+	int rings = 0;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -171,9 +171,9 @@ int rings = 0;
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-object_type object_type_body;
+		object_type object_type_body;
 
-o_ptr = &object_type_body;
+		o_ptr = &object_type_body;
 
 		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -192,84 +192,83 @@ o_ptr = &object_type_body;
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
-/* Hack -- slot not allowed */
-if (slot < 0) return;
+	/* Hack -- slot not allowed */
+	if (slot < 0) return;
 
-/* Hack -- wield from belt to equip */
-if ((variant_belt_slot) && (item == INVEN_BELT))
-{
-/* Swap items? */
-if (inventory[slot].k_idx) swap = TRUE;
-}
-/* Hack -- wield from equip to belt */
-else if ((variant_belt_slot) && (item >= INVEN_WIELD) && (item < INVEN_TOTAL+1))
-{
-/* Pick the slot */
-slot = INVEN_BELT;
+	/* Hack -- wield from belt to equip */
+	if ((variant_belt_slot) && (item == INVEN_BELT))
+	{
+		/* Swap items? */
+		if (inventory[slot].k_idx) swap = TRUE;
+	}
+	/* Hack -- wield from equip to belt */
+	else if ((variant_belt_slot) && (item >= INVEN_WIELD) && (item < INVEN_TOTAL+1))
+	{
+		/* Pick the slot */
+		slot = INVEN_BELT;
 
-/* Swap items? */
-if ((inventory[INVEN_BELT].k_idx) &&
-    (wield_slot(&inventory[INVEN_BELT]) == item)) swap = TRUE;
+		/* Swap items? */
+		if ((inventory[INVEN_BELT].k_idx) &&
+		    (wield_slot(&inventory[INVEN_BELT]) == item)) swap = TRUE;
+	}
 
-}
-
-	  /* Hack -- don't dual wield */
-	  if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD))
-	  {
+	/* Hack -- don't dual wield */
+	if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD))
+	{
 		if (!get_check("Wield it in your off-hand? "))
 		{
 			slot = INVEN_WIELD;
 		}
-	  }
+	}
 
-/* Hack -- wield amount */
-else if ((variant_fast_equip) && (slot == INVEN_WIELD))
-{
+	/* Hack -- wield amount */
+	else if ((variant_fast_equip) && (slot == INVEN_WIELD))
+	{
 
-/* Get a quantity */
-amt = get_quantity(NULL, o_ptr->number);
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
 
-/* Allow user abort */
-if (amt <= 0) return;
+		/* Allow user abort */
+		if (amt <= 0) return;
 
-/* Cancel swap items */
-if (amt < o_ptr->number) swap = FALSE;
-}
-/* Hack -- belt amount */
-else if ((variant_belt_slot) && (slot == INVEN_BELT))
-{
-/* Get a quantity */
-amt = get_quantity(NULL, o_ptr->number);
+		/* Cancel swap items */
+		if (amt < o_ptr->number) swap = FALSE;
+	}
+	/* Hack -- belt amount */
+	else if ((variant_belt_slot) && (slot == INVEN_BELT))
+	{
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
 
-/* Allow user abort */
-if (amt <= 0) return;
+		/* Allow user abort */
+		if (amt <= 0) return;
 
-/* Cancel swap items */
-if (amt < o_ptr->number) swap = FALSE;
-}
-/* Hack -- multiple rings */
-else if ((variant_many_rings) && (o_ptr->tval == TV_RING))
-{
-i_ptr = &inventory[slot];
+		/* Cancel swap items */
+		if (amt < o_ptr->number) swap = FALSE;
+	}
+	/* Hack -- multiple rings */
+	else if ((variant_many_rings) && (o_ptr->tval == TV_RING))
+	{
+		i_ptr = &inventory[slot];
 
-/* Wear multiple rings */
-if (object_similar(o_ptr,i_ptr)) rings = 5-i_ptr->number;
+		/* Wear multiple rings */
+		if (object_similar(o_ptr,i_ptr)) rings = 5-i_ptr->number;
 
-/* Get a quantity - take off existing rings */
-if (!rings) amt = get_quantity(NULL, (o_ptr->number < 5) ? o_ptr->number : 5);
+		/* Get a quantity - take off existing rings */
+		if (!rings) amt = get_quantity(NULL, (o_ptr->number < 5) ? o_ptr->number : 5);
 
-/* Get a quantity - add to existing rings */
-else amt = get_quantity(NULL, (o_ptr->number < rings) ? o_ptr->number : rings);
+		/* Get a quantity - add to existing rings */
+		else amt = get_quantity(NULL, (o_ptr->number < rings) ? o_ptr->number : rings);
 
-/* Allow user abort */
-if (amt <= 0) return;
-}
+		/* Allow user abort */
+		if (amt <= 0) return;
+	}
 
-/* Source and destination identical */
-if (item == slot) return;
+	/* Source and destination identical */
+	if (item == slot) return;
 
 	/* Prevent wielding into a cursed slot */
-if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
+	if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
 	{
 		/* Describe it */
 		object_desc(o_name, &inventory[slot], FALSE, 0);
@@ -281,24 +280,24 @@ if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
 		/* Cancel the command */
 		return;
 	}
-/* Prevent wielding from cursed slot */
-else if (cursed_p(&inventory[item]) && (item >= INVEN_WIELD) && (item != INVEN_BELT))
+	/* Prevent wielding from cursed slot */
+	else if (cursed_p(&inventory[item]) && (item >= INVEN_WIELD) && (item != INVEN_BELT))
 	{
 		/* Describe it */
-object_desc(o_name, &inventory[item], FALSE, 0);
+		object_desc(o_name, &inventory[item], FALSE, 0);
 
 		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
-   o_name, describe_use(item));
+		   o_name, describe_use(item));
 
 		/* Cancel the command */
 		return;
 	}
 
 	/* Take a (partial) turn */
-if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-else p_ptr->energy_use = 100;
+	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -307,29 +306,33 @@ else p_ptr->energy_use = 100;
 	object_copy(i_ptr, o_ptr);
 
 	/* Modify quantity */
-i_ptr->number = amt;
+	i_ptr->number = amt;
 
-/* Reset stackc */
-i_ptr->stackc = 0;
+	/* Reset stackc */
+	i_ptr->stackc = 0;
 
-/* Sometimes use lower stack object */
-if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
-{
-if (amt >= o_ptr->stackc)
-{
-i_ptr->stackc = o_ptr->stackc;
+	/* Sometimes use lower stack object */
+	if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+	{
+		if (amt >= o_ptr->stackc)
+		{
+			i_ptr->stackc = o_ptr->stackc;
 
-o_ptr->stackc = 0;
-}
-else
-{
-if (i_ptr->pval) i_ptr->pval--;
-if (i_ptr->timeout) i_ptr->timeout = 0;
+			o_ptr->stackc = 0;
+		}
+		else
+		{
+			if (i_ptr->pval) i_ptr->pval--;
+			if (i_ptr->timeout) i_ptr->timeout = 0;
 
-o_ptr->stackc -= amt;
-}
-}
+			o_ptr->stackc -= amt;
+		}
+	}
 
+	/* Hack -- clear may flags to avoid forgetting them */
+	/* This also prevents 2 identical stacks of the same item */
+	/* preventing identification of the wielded one */
+	drop_may_flags(o_ptr);
 
 	/* Decrease the feature */
 	if (item >= INVEN_TOTAL+1)
@@ -339,69 +342,73 @@ o_ptr->stackc -= amt;
 	/* Decrease the item (from the pack) */
 	else if (item >= 0)
 	{
-inven_item_increase(item, -amt);
+		inven_item_increase(item, -amt);
 		inven_item_optimize(item);
 	}
-
 	/* Decrease the item (from the floor) */
 	else
 	{
-floor_item_increase(0 - item, -amt);
+		floor_item_increase(0 - item, -amt);
 		floor_item_optimize(0 - item);
 	}
 
 	/* Get the wield slot */
 	o_ptr = &inventory[slot];
 
-/* Swap existing item. Note paranoia check (item >= INVEN_WIELD). */
-if ((o_ptr->k_idx) && (swap) && (item >= INVEN_WIELD))
-{
-/* Get the old slot */
-object_type *j_ptr = &inventory[item];
+	/* Swap existing item. Note paranoia check (item >= INVEN_WIELD). */
+	if ((o_ptr->k_idx) && (swap) && (item >= INVEN_WIELD))
+	{
+		/* Get the old slot */
+		object_type *j_ptr = &inventory[item];
 
-/* Swap the items */
-object_copy(j_ptr, o_ptr);
+		/* Swap the items */
+		object_copy(j_ptr, o_ptr);
 
-}
-/* Drop existing item */
-else if ((o_ptr->k_idx) && (p_ptr->energy_use == 50))
-{
+	}
+	/* Drop existing item */
+	else if ((o_ptr->k_idx) && (p_ptr->energy_use == 50))
+	{
 		/* Take off existing item */
-(void)inven_drop(slot, 255);
-}
+		(void)inven_drop(slot, 255);
+	}
 	/* Take off existing item */
-else if ((o_ptr->k_idx) && (!rings))
+	else if ((o_ptr->k_idx) && (!rings))
 	{
 		/* Take off existing item */
 		(void)inven_takeoff(slot, 255);
 	}
 
-/* Wear the new rings */
-if (rings) object_absorb(o_ptr, i_ptr);
+	/* Wear the new rings */
+	if (rings) object_absorb(o_ptr, i_ptr);
 
-/* Wear the new stuxff */
-else object_copy(o_ptr, i_ptr);
+	/* Wear the new stuxff */
+	else object_copy(o_ptr, i_ptr);
 
-/* Increase the weight */
-p_ptr->total_weight += i_ptr->weight * amt;
+	/* Increase the weight */
+	p_ptr->total_weight += i_ptr->weight * amt;
 
-/* Increment the equip counter by hand */
-p_ptr->equip_cnt++;
+	/* Increment the equip counter by hand */
+	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-if (((slot == INVEN_WIELD) && (o_ptr->number > 1)) || (slot == INVEN_BELT))
+	if (((slot == INVEN_WIELD) && (o_ptr->number > 1)) || (slot == INVEN_BELT))
 	{
-act = "You are carrying";
+		act = "You are carrying";
 	}
-else if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
-|| (o_ptr->tval == TV_HAFTED))
-{
-act = "You are wielding";
-if (slot == INVEN_ARM) act = "You are wielding off-handed";
-}
-else if (slot == INVEN_WIELD)
+	else if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
+		|| (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF) ||
+		(o_ptr->tval == TV_DIGGING))
 	{
-act = "You are using";
+		act = "You are wielding";
+		if (slot == INVEN_ARM) act = "You are wielding off-handed";
+	}
+	else if (slot == INVEN_WIELD)
+	{
+		act = "You are using";
+	}
+	else if (o_ptr->tval == TV_INSTRUMENT)
+	{
+		act = "You are playing music with";
 	}
 	else if (slot == INVEN_BOW)
 	{
@@ -439,11 +446,11 @@ act = "You are using";
 
 	}
 
-k1 = o_ptr->can_flags1;
-k2 = o_ptr->can_flags2;
-k3 = o_ptr->can_flags3;
+	k1 = o_ptr->can_flags1;
+	k2 = o_ptr->can_flags2;
+	k3 = o_ptr->can_flags3;
 
-/* Some flags are instantly known */
+	/* Some flags are instantly known */
 	object_flags(o_ptr,&f1,&f2,&f3);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
@@ -452,6 +459,10 @@ k3 = o_ptr->can_flags3;
 
 	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
 	else object_not_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
+
+	/* Hack -- the following are obvious from the displayed combat statistics */
+        if (f1 & (TR1_SPEED)) object_can_flags(o_ptr,TR1_SPEED,0x0L,0x0L);
+        else object_not_flags(o_ptr,TR1_SPEED,0x0L,0x0L);
 
 	/* Hack -- the following are obvious from the displayed stats */
 	if (f1 & (TR1_STR)) object_can_flags(o_ptr,TR1_STR,0x0L,0x0L);
@@ -477,19 +488,12 @@ k3 = o_ptr->can_flags3;
 	if (f1 & (TR1_INFRA))
 	{
 		object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
-
-		/* Warn the player */
-		msg_print("Your eyes begin to tingle.");
-
 	}
 	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
 
 	if (f3 & (TR3_LITE))
 	{
 		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
-		
-		/* Warn the player */
-		msg_print("It glows with an inner light.");
 	}
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE);
 
@@ -506,19 +510,16 @@ k3 = o_ptr->can_flags3;
 	if (f3 & (TR3_BLESSED))
 	{
 		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
-
-		/* Warn the player */
-		msg_print("It has been blessed by the gods.");
 	}
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
 
 	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 
-/* Check flags */
-n1 = o_ptr->can_flags1 & ~(k1);
-n2 = o_ptr->can_flags2 & ~(k2);
-n3 = o_ptr->can_flags3 & ~(k3);
+	/* Check flags */
+	n1 = o_ptr->can_flags1 & ~(k1);
+	n2 = o_ptr->can_flags2 & ~(k2);
+	n3 = o_ptr->can_flags3 & ~(k3);
 
 	/* Update collected flags */
 	update_slot_flags(slot,n1,n2,n3);
@@ -754,9 +755,6 @@ void do_cmd_destroy(void)
                         o_ptr->stackc -= amt;
                 }
         }
-
-	/* Forget guessed flags */
-	if (amt == o_ptr->number) inven_drop_flags(o_ptr);
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)

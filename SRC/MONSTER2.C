@@ -1847,7 +1847,7 @@ bool mon_resist_feat(int feat, int r_idx)
 			break;
 
 			case GF_LAVA:
-			if (!(r_ptr->flags4 & (RF4_BR_FIRE))) return (FALSE);
+                        if (!(r_ptr->flags3 & (RF3_RES_LAVA))) return (FALSE);
 			break;
 
 			case GF_WATER_WEAK:
@@ -1855,11 +1855,11 @@ bool mon_resist_feat(int feat, int r_idx)
 			if (r_ptr->flags3 & (RF3_NONLIVING))  return (TRUE);
 			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
 			{
-
+                                return (TRUE);
 			}
 			else if ((r_ptr->flags2 & (RF2_CAN_DIG)) && (f_ptr->flags2 & (FF2_CAN_DIG)))
 			{
-
+                                return (TRUE);
 			}
 			else
 			{
@@ -1983,6 +1983,14 @@ int place_monster_here(int y, int x, int r_idx)
 	if ((mon_resist_feat(feat,r_idx)) &&
 		(r_ptr->flags2 & (RF2_PASS_WALL))) return (MM_PASS);
 
+	/* Hack -- check for climbing */
+	if ((mon_resist_feat(feat,r_idx)) &&
+		(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
+		(f_ptr->flags3 & (FF3_EASY_CLIMB)))
+	{
+		return(MM_CLIMB);
+	}
+
 	/* Hack -- check for swimming */
 	if ((mon_resist_feat(feat,r_idx)) &&
 		(r_ptr->flags2 & (RF2_CAN_SWIM)) &&
@@ -2002,6 +2010,15 @@ int place_monster_here(int y, int x, int r_idx)
 	{
 		return(MM_DIG);
 	}
+
+	/* Hack -- check for oozing */
+	if ((mon_resist_feat(feat,r_idx)) &&
+                (r_ptr->flags3 & (RF3_OOZE)) &&
+                (f_ptr->flags2 & (FF2_CAN_OOZE)))
+	{
+                return(MM_OOZE);
+	}
+
 
 	/* Hack -- check for flying. */
 	if ((r_ptr->flags2 & (RF2_CAN_FLY)) &&

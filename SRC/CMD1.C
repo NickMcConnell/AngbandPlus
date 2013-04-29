@@ -1534,7 +1534,6 @@ bool stuck_player(int dir)
 	if (dir == 5) return (FALSE);
 
 	/* Player can not walk through "walls" */
-	/* Also cannot climb over unknown "trees/rubble" */
 	if (!(f_ptr->flags1 & (FF1_MOVE))
 	&& !(f_ptr->flags3 & (FF3_EASY_CLIMB)))
 	{
@@ -1720,6 +1719,29 @@ void move_player(int dir, int jumping)
 		}
 	}
 
+	/* Partial movement */
+	else if (!(f_ptr->flags1 & (FF1_MOVE))
+        && (f_ptr->flags3 & (FF3_EASY_CLIMB))
+	&& (dir !=p_ptr->climbing))
+	{
+		/* Get the mimiced feature */
+		mimic = f_ptr->mimic;
+
+		/* Get the feature name */
+		name = (f_name + f_info[mimic].name);
+
+		/* Tell the player */
+		msg_format("You climb %s%s.",
+				((f_ptr->flags2 & (FF2_FILLED)) ? "" : "the "), name);
+
+		p_ptr->climbing = dir;
+
+                /* Automate 2nd movement command */
+		p_ptr->command_cmd = 59;
+		p_ptr->command_rep = 1;
+		p_ptr->command_dir = dir;
+  	}
+
 	/* Normal movement */
 	else
 	{
@@ -1733,6 +1755,8 @@ void move_player(int dir, int jumping)
 		y = py = p_ptr->py;
 		x = px = p_ptr->px;
 
+		/* No longer climbing */
+		p_ptr->climbing = 0;
 
 		/* Spontaneous Searching */
 		if ((p_ptr->skill_fos >= 50) ||
@@ -1827,7 +1851,7 @@ void move_player(int dir, int jumping)
 
 			/* Tell the player */
 			msg_format("You feel you are %s%s.",
-				((f_ptr->flags2 & (FF2_FILLED)) ? "" : "in"), name);
+				((f_ptr->flags2 & (FF2_FILLED)) ? "" : "in "), name);
 
 			cave_info[y][x] |= (CAVE_MARK);
 

@@ -1553,10 +1553,9 @@ static void calc_spells(void)
 {
 	int i, ii, j, k, levels;
 	int num_allowed, num_known;
-#if 0
 	bool spells_done = FALSE;
 	bool spells_bad = FALSE;
-#endif
+
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
 
@@ -1581,8 +1580,6 @@ static void calc_spells(void)
 		break;
 
 	}
-
-
 
 	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL) return;
 
@@ -1640,78 +1637,35 @@ static void calc_spells(void)
 			num_known++;
 
 		}
-#if 0
 		else if (p_ptr->spell_order[j] == 99)
 		{
 
 			if (spells_done) spells_bad = TRUE;
 			spells_done = TRUE;
 		}
-#endif
 	}
-#if 0
 	/* Fix spells, spell order and so forth for old characters. */
 	if (spells_bad)
 	{
+                /* Hack -- forget all spells */
+                p_ptr->spell_learned1 = 0;
+                p_ptr->spell_learned2 = 0;
+                p_ptr->spell_learned3 = 0;
+                p_ptr->spell_learned4 = 0;
 
-		u32b spell_learned1 = 0L;
-		u32b spell_learned2 = 0L;
-		u32b spell_forgotten1 = 0L;
-		u32b spell_forgotten2 = 0L;
-		u32b spell_worked1 = 0L;
-		u32b spell_worked2 = 0L;
+                /* Hack -- unlearn all spells */
+                p_ptr->spell_forgotten1 = 0;
+                p_ptr->spell_forgotten2 = 0;
+                p_ptr->spell_forgotten3 = 0;
+                p_ptr->spell_forgotten4 = 0;
 
-		msg_print("Converting from old spell format...");
+                /* Hack -- unlearn all spells */
+                for (j = 0; j < PY_MAX_SPELLS; j++) p_ptr->spell_order[j] = 0;
 
-		/* Count the number of spells we know */
-		for (j = 0; j < max_spells; j++)
-		{
+                /* Hack -- unlearn all spells */
+                num_known = 0;
+        }
 
-			if (p_ptr->spell_order[j] == 99)
-			{
-				p_ptr->spell_order[j]= 0;
-			}
-			else
-			{
-				if ((j< 32) && (p_ptr->spell_order[j]<32))
-				{
-					spell_learned1 |= (p_ptr->spell_learned1 && (1L << p_ptr->spell_order[j]) ? (1L << j):0L);
-					spell_forgotten1 |= (p_ptr->spell_forgotten1 && (1L << p_ptr->spell_order[j]) ? (1L << j):0L);
-					spell_worked1 |= (p_ptr->spell_forgotten1 && (1L << p_ptr->spell_order[j]) ? (1L << j):0L);
-				}
-				else if (j< 32)
-				{
-					spell_learned1 |= (p_ptr->spell_learned2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << j):0L);
-					spell_forgotten1 |= (p_ptr->spell_forgotten2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << j):0L);
-					spell_worked1 |= (p_ptr->spell_forgotten2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << j):0L);
-				}
-				else if (p_ptr->spell_order[j]<32)
-				{
-					spell_learned2 |= (p_ptr->spell_learned1 && (1L << p_ptr->spell_order[j]) ? (1L << (j-32)):0L);
-					spell_forgotten2 |= (p_ptr->spell_forgotten1 && (1L << p_ptr->spell_order[j]) ? (1L << (j-32)):0L);
-					spell_worked2 |= (p_ptr->spell_forgotten1 && (1L << p_ptr->spell_order[j]) ? (1L << (j-32)):0L);
-				}
-				else
-				{
-					spell_learned2 |= (p_ptr->spell_learned2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << (j-32)):0L);
-					spell_forgotten2 |= (p_ptr->spell_forgotten2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << (j-32)):0L);
-					spell_worked2 |= (p_ptr->spell_forgotten2 && (1L << (p_ptr->spell_order[j]-32)) ? (1L << (j-32)):0L);
-				}
-
-				if ((p_ptr->pclass == 2) || (p_ptr->pclass == 5))
-				{
-					p_ptr->spell_order[j] += 60;
-				}
-				else
-				{
-					p_ptr->spell_order[j] += 1;
-				}
-
-			}
-
-		}
-	}
-#endif
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;
 
@@ -1719,7 +1673,7 @@ static void calc_spells(void)
 	for (i = PY_MAX_SPELLS-1; i >= 0; i--)
 	{
 		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
+                if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2 && !p_ptr->spell_learned3 && !p_ptr->spell_learned4) break;
 
 		/* Get the spell */
 		j = p_ptr->spell_order[i];
@@ -1738,7 +1692,6 @@ static void calc_spells(void)
 				sc_ptr=&(s_ptr->cast[ii]);
 			}
 		}
-
 
 		/* Skip spells we are allowed to know */
 		if (spell_level(j) <= p_ptr->lev) continue;
@@ -1801,7 +1754,7 @@ static void calc_spells(void)
 		if (p_ptr->new_spells >= 0) break;
 
 		/* Efficiency -- all done */
-		if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2) break;
+                if (!p_ptr->spell_learned1 && !p_ptr->spell_learned2 && !p_ptr->spell_learned3 && !p_ptr->spell_learned4) break;
 
 		/* Get the (i+1)th spell learned */
 		j = p_ptr->spell_order[i];
@@ -1870,7 +1823,7 @@ static void calc_spells(void)
 		if (p_ptr->new_spells <= 0) break;
 
 		/* Efficiency -- all done */
-		if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2) break;
+                if (!p_ptr->spell_forgotten1 && !p_ptr->spell_forgotten2 && !p_ptr->spell_forgotten3 && !p_ptr->spell_forgotten4) break;
 
 		/* Get the next spell we learned */
 		j = p_ptr->spell_order[i];

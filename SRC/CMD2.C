@@ -1418,7 +1418,7 @@ find_secret(y,x);
 	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
 
 	/* Extract door power */
-temp = f_info[cave_feat[y][x]].power;
+	temp = f_info[cave_feat[y][x]].power;
 
 	/* Compare bash power to door power XXX XXX XXX */
 	temp = (bash - (temp * 10));
@@ -1814,25 +1814,25 @@ if (count_feats(&y, &x, FS_SPIKE)==1)
 
 
 		/* Trapped door */
-if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
+		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
 		{
 			hit_trap(y,x);
 
-/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
 
 
 		/* Secrets on door/permanent doors */
-else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+		else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 			(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 		{
 			/* Stuck */
-find_secret(y,x);
+		find_secret(y,x);
 
-/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+		/* Update the visuals */
+		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
 
@@ -1841,8 +1841,8 @@ p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 		{
 			cave_alter_feat(y,x,FS_SPIKE);
 
-/* Update the visuals */
-p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
 
@@ -2329,7 +2329,7 @@ object_type object_type_feat;
 	j_ptr = &inventory[INVEN_BOW];
 
 	/* Require a usable launcher */
-	if (!j_ptr->tval || !p_ptr->ammo_tval)
+        if (!(j_ptr->tval == TV_BOW) || !p_ptr->ammo_tval)
 	{
 		msg_print("You have nothing to fire with.");
 		return;
@@ -2366,7 +2366,7 @@ o_ptr = &object_type_feat;
 	if (!get_aim_dir(&dir)) return;
 
 	/* Check usage */
-	object_usage(INVEN_BOW);;
+        object_usage(INVEN_BOW);
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2377,32 +2377,30 @@ o_ptr = &object_type_feat;
 	/* Single object */
 	i_ptr->number = 1;
 
-/* Reset stack counter */
-i_ptr->stackc = 0;
+	/* Reset stack counter */
+	i_ptr->stackc = 0;
 
-/* Sometimes use lower stack object */
-if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
-{
-if (i_ptr->pval) i_ptr->pval--;
+	/* Sometimes use lower stack object */
+	if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+	{
+		if (i_ptr->pval) i_ptr->pval--;
 
-if (i_ptr->timeout) i_ptr->timeout = 0;
+		if (i_ptr->timeout) i_ptr->timeout = 0;
 
-o_ptr->stackc--;
-}
+		o_ptr->stackc--;
+	}
 
 	/* Forget information on dropped object */
-drop_may_flags(i_ptr);
-
-	/* Forget guessed information */
-	if ((item >=0) && (item < INVEN_TOTAL+1) && (o_ptr->number == 1)) inven_drop_flags(o_ptr);
+	drop_may_flags(i_ptr);
 
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
+
 	/* Reduce and describe inventory */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -2751,29 +2749,26 @@ o_ptr = &object_type_feat;
 	/* Single object */
 	i_ptr->number = 1;
 
-/* Reset stack count*/
-i_ptr->stackc = 0;
+	/* Reset stack count*/
+	i_ptr->stackc = 0;
 
-/* Sometimes use lower stack object */
-if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
-{
-if (i_ptr->pval) i_ptr->pval--;
+	/* Sometimes use lower stack object */
+	if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+	{
+		if (i_ptr->pval) i_ptr->pval--;
 
-if (i_ptr->timeout) i_ptr->timeout = 0;
+		if (i_ptr->timeout) i_ptr->timeout = 0;
 
-o_ptr->stackc--;
-}
+		o_ptr->stackc--;
+	}
 
 	/* Forget information on dropped object */
-inven_drop_flags(i_ptr);
-
-	/* Forget guessed information */
-	if ((item >=0) && (item < INVEN_TOTAL+1) && (o_ptr->number == 1)) inven_drop_flags(o_ptr);
+	drop_may_flags(i_ptr);
 
 	/* Reduce and describe inventory */
 	if (item >= INVEN_TOTAL+1)
 	{
-cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 	else if (item >= 0)
 	{

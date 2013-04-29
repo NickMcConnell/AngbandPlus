@@ -6396,7 +6396,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 	/* The monster is stuck in terrain */
 	if (!(m_ptr->mflag & (MFLAG_OVER)) && !(f_info[cave_feat[oy][ox]].flags1 & (FF1_MOVE)) &&
-		!(f_info[cave_feat[oy][ox]].flags3 & (FF3_EASY_CLIMB)) && (mmove != MM_PASS))
+		!place_monster_here(oy,ox,m_ptr->r_idx) && (mmove != MM_PASS))
 	{
 		if (((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[oy][ox]].flags1 & (FF1_BASH)))
 				|| (r_ptr->flags2 & (RF2_KILL_WALL)))
@@ -6852,12 +6852,19 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		{
 			if (!(m_ptr->mflag & (MFLAG_OVER))) cave_alter_feat(ny, nx, FS_KILL_MOVE);
 		}
-		else if (f_info[cave_feat[ny][nx]].flags1 & (FF1_FLOOR))
+		else if (f_info[cave_feat[oy][ox]].flags1 & (FF1_FLOOR))
 		{
 			if ((r_ptr->flags7 & (RF7_HAS_BLOOD)) && (m_ptr->hp < m_ptr->maxhp/3) && (rand_int(100)<30))
-				cave_set_feat(ny, nx, FEAT_FLOOR_BLOOD_T);
+				cave_set_feat(oy, ox, FEAT_FLOOR_BLOOD_T);
 			else if (r_ptr->flags7 & (RF7_HAS_SLIME))
-				cave_set_feat(ny, nx, FEAT_FLOOR_SLIME_T);
+				cave_set_feat(oy, ox, FEAT_FLOOR_SLIME_T);
+			else if (r_ptr->flags2 & (RF2_HAS_WEB))
+				cave_set_feat(oy, ox, FEAT_FLOOR_WEB);
+		}
+                else if (f_info[cave_feat[oy][ox]].flags2 & (FF2_CHASM))
+		{
+			if (r_ptr->flags2 & (RF2_HAS_WEB))
+				cave_set_feat(oy, ox, FEAT_CHASM_WEB);
 		}
 
 		/*
@@ -7130,6 +7137,9 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
 		/* Monster is digging */
 		if (mmove == MM_DIG) l_ptr->flags2 |= (RF2_CAN_DIG);
+
+                /* Monster is oozing */
+                if (mmove == MM_OOZE) l_ptr->flags3 |= (RF3_OOZE);
 
 		/* Monster is passing */
 		if (mmove == MM_PASS) l_ptr->flags2 |= (RF2_PASS_WALL);

@@ -1279,7 +1279,7 @@ struct player_type
 	s16b rest;      /* Current rest */
 	s16b water;     /* Current water */
 
-	byte confusing; /* Glowing hands */
+	byte climbing; /* Glowing hands */
 	byte searching; /* Currently searching */
 
 	u32b spell_learned1;    /* Spell flags */

@@ -2552,7 +2552,8 @@ static void strip_name(char *buf, int k_idx)
 	/* Copy useful chars */
 	for (t = buf; *str; str++)
 	{
-		if (*str != '~') *t++ = *str;
+                if (prefix(str,"# ")) str++; /* Skip following space */
+                else if (*str != '~') *t++ = *str;
 	}
 
 	/* Terminate the new name */
@@ -3435,7 +3436,7 @@ static void do_cmd_knowledge_artifacts(void)
 	flag = FALSE;
 	redraw = TRUE;
 
-	while (!flag)
+        while ((!flag) && (grp_cnt))
 	{
 		char ch;
 
@@ -3530,6 +3531,8 @@ static void do_cmd_knowledge_artifacts(void)
 			}
 		}
 	}
+        /* Prompt */
+        if (!grp_cnt) prt("No artifacts known.", 14, 0);
 
 	/* XXX XXX Free the "object_idx" array */
         FREE(object_idx);
@@ -3625,7 +3628,7 @@ static void do_cmd_knowledge_monsters(void)
 	flag = FALSE;
 	redraw = TRUE;
 
-	while (!flag)
+        while ((!flag) && (grp_cnt))
 	{
 		char ch;
 
@@ -3724,6 +3727,9 @@ static void do_cmd_knowledge_monsters(void)
 		}
 	}
 
+        /* Prompt */
+        if (!grp_cnt) prt("No monsters known.", 14, 0);
+
 	/* XXX XXX Free the "mon_idx" array */
         FREE(mon_idx);
 }
@@ -3783,12 +3789,11 @@ static void desc_ego_fake(int e_idx)
 	/* Begin recall */
 	Term_gotoxy(0, 1);
 
-	list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3);
+        /* List can flags */
+        list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3,1);
 
-	if ((n_ptr->may_flags1) || (n_ptr->may_flags2) || (n_ptr->may_flags3))
-	{
-		text_out("It has hidden powers.");
-	}
+        /* List may flags */
+        list_object_flags(n_ptr->may_flags1,n_ptr->may_flags2,n_ptr->may_flags3,2);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -3856,7 +3861,7 @@ static void do_cmd_knowledge_ego_items(void)
 	flag = FALSE;
 	redraw = TRUE;
 
-	while (!flag)
+        while ((!flag) && (grp_cnt))
 	{
 		char ch;
 
@@ -3880,7 +3885,7 @@ static void do_cmd_knowledge_ego_items(void)
 			}
 
 			redraw = FALSE;
-		}
+		}                
 
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
@@ -4054,6 +4059,9 @@ static void do_cmd_knowledge_ego_items(void)
 		}
 	}
 
+        /* Prompt */
+        if (!grp_cnt)  prt("No ego items known.", 14, 0);
+
 	/* XXX XXX Free the "object_idx" array */
         FREE(object_idx);
 }
@@ -4197,7 +4205,7 @@ static void do_cmd_knowledge_objects(void)
 	flag = FALSE;
 	redraw = TRUE;
 
-	while (!flag)
+        while ((!flag) && (grp_cnt))
 	{
 		char ch;
 
@@ -4408,6 +4416,9 @@ static void do_cmd_knowledge_objects(void)
 			}
 		}
 	}
+
+        /* Prompt */
+        if (!grp_cnt) prt("No object kinds known.", 14, 0);
 
 	/* XXX XXX Free the "object_idx" array */
         FREE(object_idx);

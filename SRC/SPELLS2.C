@@ -61,7 +61,8 @@ bool hp_player(int num)
 		}
 
 		/* Heal 35+ */
-		else		{
+                else
+                {
 			msg_print("You feel very good.");
 		}
 
@@ -572,7 +573,7 @@ void self_knowledge(void)
 	{
 		text_out("Your race affects you.  ");
 
-		list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1);
+                list_object_flags(rp_ptr->flags1,rp_ptr->flags1,rp_ptr->flags1,1);
 	}
 
 	/* Get player flags */
@@ -588,7 +589,7 @@ void self_knowledge(void)
 	{
 		text_out("Your training affects you.  ");
 
-		list_object_flags(f1,f2,f3);
+                list_object_flags(f1,f2,f3,1);
 
 	}
 
@@ -614,7 +615,7 @@ void self_knowledge(void)
 	{
 		text_out("Your equipment affects you.  ");
 
-		list_object_flags(f1,f2,f3);
+                list_object_flags(f1,f2,f3,1);
 
 		equip_can_flags(f1,f2,f3);
 
@@ -637,7 +638,7 @@ void self_knowledge(void)
 		{
 			text_out("Your weapon has special powers.  ");
 	
-			list_object_flags(f1,f2,f3);
+                        list_object_flags(f1,f2,f3,1);
 	
 			object_can_flags(o_ptr,f1,f2,f3);
 	
@@ -2769,7 +2770,7 @@ bool ident_spell_rumor(void)
 	else if (f1 | f2 | f3)
 	{
 		/* Describe the new stuff learnt */
-		list_object_flags(f1,f2,f3);
+                list_object_flags(f1,f2,f3,1);
 	}
 
 	/* Something happened */
@@ -3365,13 +3366,13 @@ void destroy_area(int y1, int x1, int r, bool full)
 				{
 					cave_alter_feat(y,x,FS_HURT_FIRE);
 				}
-			/* Chasm */
+				/* Chasm */
 				else if (f_info[cave_feat[y][x]].flags2 & (FF2_CHASM))
 				{
 					/* Nothing */
 				}
-			/* Rubble */
-			else if (rand_int(100) < 15)
+				/* Rubble */
+				else if (rand_int(100) < 15)
 				{
 					/* Create magma vein */
 					cave_set_feat(y,x,FEAT_RUBBLE);
@@ -3679,7 +3680,7 @@ void earthquake(int cy, int cx, int r)
 							if (!cave_empty_bold(y, x)) continue;
 
 							/* Hack -- no safety on glyph of warding */
-							if (cave_feat[y][x] == FEAT_GLYPH) continue;
+							if (f_info[cave_feat[y][x]].flags1 & (FF1_GLYPH)) continue;
 
 							/* Important -- Skip "quake" grids */
 							if (map[16+y-cy][16+x-cx]) continue;
@@ -4263,7 +4264,6 @@ static void wield_spell(int item, int sval, int time)
 	/* Get the wield slot */
 	object_type *o_ptr = &inventory[item];
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -4302,15 +4302,30 @@ static void wield_spell(int item, int sval, int time)
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (item == INVEN_WIELD)
+        if (((item == INVEN_WIELD) && (o_ptr->number > 1)) || (item == INVEN_BELT))
+	{
+		act = "You are carrying";
+	}
+	else if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
+		|| (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF) ||
+		(o_ptr->tval == TV_DIGGING))
 	{
 		act = "You are wielding";
+                if (item == INVEN_ARM) act = "You are wielding off-handed";
 	}
-	else if (item == INVEN_BOW)
+        else if (item == INVEN_WIELD)
+	{
+		act = "You are using";
+	}
+	else if (o_ptr->tval == TV_INSTRUMENT)
+	{
+		act = "You are playing music with";
+	}
+        else if (item == INVEN_BOW)
 	{
 		act = "You are shooting with";
 	}
-	else if (item == INVEN_LITE)
+        else if (item == INVEN_LITE)
 	{
 		act = "Your light source is";
 	}
@@ -4318,6 +4333,8 @@ static void wield_spell(int item, int sval, int time)
 	{
 		act = "You are wearing";
 	}
+
+
 
 	/* Describe the result */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -4447,7 +4464,7 @@ static void enchant_item(byte tval, int plev)
 	else
 	{
 
-	/* Pick some junk*/
+		/* Pick some junk*/
 		switch (tval)
 		{
 			case TV_POTION:
@@ -4588,6 +4605,10 @@ static bool curse_armor(void)
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
 
+		/* Forget about it */
+		inven_drop_flags(o_ptr);
+		drop_all_flags(o_ptr);
+
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
 
@@ -4651,6 +4672,10 @@ static bool curse_weapon(void)
 		o_ptr->ac = 0;
 		o_ptr->dd = 0;
 		o_ptr->ds = 0;
+
+		/* Drop all flags */
+		inven_drop_flags(o_ptr);
+		drop_all_flags(o_ptr);
 
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
@@ -5425,10 +5450,7 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 
 				/* Allow direction to be cancelled for free */
 				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
-					  
-
-
-					if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
+                                if (project_hook(effect, dir, damage, flg)) obvious = TRUE;
 				break;
 			}
 			case RBM_AIM:

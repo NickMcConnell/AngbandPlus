@@ -790,6 +790,7 @@ if ((++k == 1) || ((k > 1) &&
 
 	/* Redraw object recall */
 	p_ptr->window |= (PW_OBJECT);
+
 }
 
 
@@ -1068,15 +1069,15 @@ if (!get_check(format("Continue singing %s?", s_name + s_info[p_ptr->held_song].
 
 	/* Get an item */
 	q = "Use which book? ";
-s = "You have nothing you have studied!";
+	s = "You have nothing you have studied!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
-object_type object_type_body;
+		object_type object_type_body;
 
-o_ptr = &object_type_body;
+		o_ptr = &object_type_body;
 
 		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
@@ -1098,31 +1099,31 @@ o_ptr = &object_type_body;
 	handle_stuff();
 
 	/* Cast, recite, sing or play */
-switch (o_ptr->tval)
+	switch (o_ptr->tval)
 	{
 
-case TV_MAGIC_BOOK:
+		case TV_MAGIC_BOOK:
 		{
-p="cast";
-t="spell";
+			p="cast";
+			t="spell";
 			
 			break;
 		}
-case TV_RUNESTONE:
+		case TV_RUNESTONE:
 		{
-p="apply";
-t="rune";
+			p="apply";
+			t="rune";
 			
 			break;
 		}
-case TV_PRAYER_BOOK:
+		case TV_PRAYER_BOOK:
 		{
-       	p="recite";
+       		p="recite";
 			t="prayer";
 			
 			break;
 		}
-case TV_SONG_BOOK:
+		case TV_SONG_BOOK:
 		{
 			if (p_ptr->pstyle == WS_INSTRUMENT)
 			{
@@ -1133,15 +1134,15 @@ case TV_SONG_BOOK:
 				p="sing";
 			}
 			t = "song";
-	break;
+			break;
 		}
 
-default:
+		default:
 		{
-p="use";
-t="power";
+			p="use";
+			t="power";
 			break;		
-	}
+		}
 	}
 
 	/* Ask for a spell */
@@ -1152,50 +1153,52 @@ t="power";
 	}
 
 	/* Take a (partial) turn */
-if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-else p_ptr->energy_use = 100;
+	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
+	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
+	else p_ptr->energy_use = 100;
 
 	/* Hold a song if possible */
-if (s_info[spell].flags3 & (SF3_HOLD_SONG))
+	if (s_info[spell].flags3 & (SF3_HOLD_SONG))
 	{
 		int i;
 
-for (i = 0;i< z_info->w_max;i++)
-{
-if (w_info[i].class != p_ptr->pclass) continue;
+		for (i = 0;i< z_info->w_max;i++)
+		{
+			if (w_info[i].class != p_ptr->pclass) continue;
 
-if (w_info[i].level > p_ptr->lev) continue;
+			if (w_info[i].level > p_ptr->lev) continue;
 
-if (w_info[i].benefit != WB_HOLD_SONG) continue;
+			if (w_info[i].benefit != WB_HOLD_SONG) continue;
 
-    /* Check for styles */       
-if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
-{
-		/* Verify */
-if (get_check(format("Continue singing %s?", s_name + s_info[spell].name))) p_ptr->held_song = spell;
-}
-				/* Hack - Cancel searching */
-	/* Stop searching */
-	if (p_ptr->searching)
-	{
-/* Clear the searching flag */
-		p_ptr->searching = FALSE;
+			/* Check for styles */       
+			if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+			{
+				/* Verify */
+				if (get_check(format("Continue singing %s?", s_name + s_info[spell].name))) p_ptr->held_song = spell;
+			}
 
-/* Clear the last disturb */
-p_ptr->last_disturb = turn;
-	}
-		/* Recalculate bonuses */
-		p_ptr->update |= (PU_BONUS);
+			/* Hack - Cancel searching */
+			/* Stop searching */
+			if (p_ptr->searching)
+			{
+				/* Clear the searching flag */
+				p_ptr->searching = FALSE;
 
-		/* Redraw the state */
-		p_ptr->redraw |= (PR_STATE);
+				/* Clear the last disturb */
+				p_ptr->last_disturb = turn;
+			}
 
-}
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+
+			/* Redraw the state */
+			p_ptr->redraw |= (PR_STATE);
+
+		}
 	}
 
 	/* Cast the spell - held songs get cast later*/
-if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
+	if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
 	
 }
 
