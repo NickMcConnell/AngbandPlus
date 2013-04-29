@@ -3947,8 +3947,7 @@ bool aggravate_monsters(int who, bool the_entire_level)
       else 
 	{
 	  /* Wake up nearby sleeping monsters */
-	  if (m_ptr->cdis < (p_ptr->themed_level ? 
-			     MAX_SIGHT : MAX_SIGHT * 2))
+	  if (m_ptr->cdis < MAX_SIGHT)
 	    {
 	      /* Wake up */
 	      if (m_ptr->csleep)

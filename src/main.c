@@ -645,6 +645,17 @@ int main(int argc, char *argv[])
   if (!done) quit("Unable to prepare any 'display module'!");
 #endif
 
+#ifdef USE_SOUND
+
+	/* Try the modules in the order specified by sound_modules[] */
+	for (i = 0; i < (int)N_ELEMENTS(sound_modules) - 1; i++)
+	{
+		if (0 == sound_modules[i].init(argc, argv))
+			break;
+	}
+
+#endif
+
   /* Catch nasty signals */
   signals_init();
   

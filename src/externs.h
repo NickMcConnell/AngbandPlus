@@ -142,7 +142,6 @@ extern char summon_kin_type;
 extern s32b turn;
 extern bool is_daylight;
 extern s32b old_turn;
-extern bool use_sound;
 extern int use_graphics;
 extern bool use_transparency;
 extern bool use_graphics_nice;

@@ -9,7 +9,7 @@ DATA = flvr-dvg.prf  font-nds.prf  graf-ibm.prf  graf-xxx.prf  pref-win.prf \
        font-ext.prf  font-xxx.prf  graf.prf      pref-gcu.prf  xtra-dvg.prf \
        font-gtk.prf  graf-ami.prf  graf-sdl.prf  pref-mac.prf  xtra-new.prf \
        font-ibm.prf  graf-dvg.prf  graf-win.prf  pref.prf      xtra-xxx.prf \
-       font-mac.prf  graf-gcu.prf  graf-x11.prf  pref-sdl.prf
+       font-mac.prf  graf-gcu.prf  graf-x11.prf  pref-sdl.prf  font-gcu.prf
 
 PACKAGE = ${PACKAGE_NAME}/pref
 

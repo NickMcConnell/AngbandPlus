@@ -91,7 +91,6 @@ bool is_daylight;               /* If there is natural light */
 
 s32b do_feeling;		/* Hack -- Level feeling indicator */
 
-bool use_sound;			/* The "sound" mode is enabled */
 int use_graphics;		/* "graphics" mode */
 bool use_graphics_nice;	        /* The 'nice' "graphics" mode is enabled */
 bool use_trptile = FALSE;       /* The triple tile mode is enabled */

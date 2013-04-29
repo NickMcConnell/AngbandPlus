@@ -173,7 +173,6 @@
 #define IDM_OPTIONS_TRPTILE         407
 #define IDM_OPTIONS_DBLTILE         408
 #define IDM_OPTIONS_BIGTILE         409
-#define IDM_OPTIONS_SOUND               410
 #define IDM_OPTIONS_LOW_PRIORITY    420
 #define IDM_OPTIONS_MAP             440
 #define IDM_OPTIONS_SMALL_SCREEN        450
@@ -989,10 +988,6 @@ static void save_prefs(void)
         strcpy(buf, use_bigtile ? "1" : "0");
         WritePrivateProfileString("Angband", "Bigtile", buf, ini_file);
 
-        /* Save the "arg_sound" flag */
-        strcpy(buf, arg_sound ? "1" : "0");
-        WritePrivateProfileString("Angband", "Sound", buf, ini_file);
-
         /* Save the "small_screen" flag */
         strcpy(buf, small_screen ? "1" : "0");
         WritePrivateProfileString("Angband", "Small_Screen", buf, ini_file);
@@ -1071,8 +1066,6 @@ static void load_prefs(void)
         /* Extract the "use_bigtile" flag */
         use_bigtile = GetPrivateProfileInt("Angband", "Bigtile", FALSE, ini_file);
 
-        /* Extract the "arg_sound" flag */
-        arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
         /* Extract the "small_screen" flag */
         small_screen = (GetPrivateProfileInt("Angband", "Small_Screen", 0, ini_file) != 0);
 
@@ -1803,22 +1796,15 @@ static errr Term_xtra_win_react(void)
 
 #ifdef USE_SOUND
 
-        /* Handle "arg_sound" */
-        if (use_sound != arg_sound)
-        {
-                /* Initialize (if needed) */
-                if (arg_sound && !init_sound())
+	/* Initialize (if needed) */
+	if (use_sound && !init_sound())
         {
                 /* Warning */
                 plog("Cannot initialize sound!");
 
                 /* Cannot enable */
-                        arg_sound = FALSE;
-                }
-
-                /* Change setting */
-                use_sound = arg_sound;
-        }
+		use_sound = FALSE;
+	}
 
 #endif /* USE_SOUND */
 
@@ -2269,7 +2255,7 @@ static errr Term_wipe_win(int x, int y, int n)
  * what color it should be using to draw with, but perhaps simply changing
  * it every time is not too inefficient.  XXX XXX XXX
  */
-static errr Term_text_win(int x, int y, int n, byte a, cptr s)
+static errr Term_text_win(int x, int y, int n, byte a, char *s)
 {
 	term_data *td = (term_data*)(Term->data);
 	RECT rc;
@@ -3047,8 +3033,6 @@ static void setup_menus(void)
                        MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
         EnableMenuItem(hm, IDM_OPTIONS_BIGTILE,
                        MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
-        EnableMenuItem(hm, IDM_OPTIONS_SOUND,
-                       MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
         EnableMenuItem(hm, IDM_OPTIONS_SMALL_SCREEN,
                        MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 
@@ -3076,8 +3060,6 @@ static void setup_menus(void)
                       (use_dbltile ? MF_CHECKED : MF_UNCHECKED));
         CheckMenuItem(hm, IDM_OPTIONS_BIGTILE,
                       (use_bigtile ? MF_CHECKED : MF_UNCHECKED));
-        CheckMenuItem(hm, IDM_OPTIONS_SOUND,
-                      (arg_sound ? MF_CHECKED : MF_UNCHECKED));
         CheckMenuItem(hm, IDM_OPTIONS_SMALL_SCREEN,
                       (small_screen ? MF_CHECKED : MF_UNCHECKED));
 
@@ -3096,10 +3078,6 @@ static void setup_menus(void)
         }
 #endif /* USE_GRAPHICS */
 
-#ifdef USE_SOUND
-        /* Menu "Options", Item "Sound" */
-        EnableMenuItem(hm, IDM_OPTIONS_SOUND, MF_ENABLED);
-#endif /* USE_SOUND */
         EnableMenuItem(hm, IDM_OPTIONS_SMALL_SCREEN, MF_ENABLED);
 
         EnableMenuItem(hm, IDM_OPTIONS_LOW_PRIORITY,
@@ -3267,7 +3245,7 @@ static void process_menus(WORD wCmd)
                         highscore_fd = file_open(buf, MODE_READ, FTYPE_RAW);
 
                         /* Paranoia -- No score file */
-                        if (highscore_fd < 0)
+                        if (highscore_fd == NULL)
                         {
                                 msg_print("Score file unavailable.");
                         }
@@ -3712,27 +3690,6 @@ static void process_menus(WORD wCmd)
 
                         break;
                                 }
-
-                case IDM_OPTIONS_SOUND:
-                                {
-                        /* Paranoia */
-                        if (!inkey_flag)
-                        {
-                                plog("You may not do that right now.");
-                                break;
-                        }
-
-                        /* Toggle "arg_sound" */
-                        arg_sound = !arg_sound;
-
-                        /* React to changes */
-                        Term_xtra_win_react();
-
-                        /* Hack -- Force redraw */
-                        Term_key_push(KTRL('R'));
-
-                        break;
-                }
 
                 case IDM_OPTIONS_SMALL_SCREEN:
                 {

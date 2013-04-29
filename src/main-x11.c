@@ -2795,7 +2795,8 @@ static errr term_data_init(term_data *td, int i)
 const char help_x11[] = "Basic X11, subopts -d<display> -n<windows>"
 #ifdef USE_GRAPHICS
 " -s(moothRescale)"
-"\n           -b(Bigtile) -o(original) -a(AdamBolt) -g(David Gervais)"
+"\n           -o(original) -a(AdamBolt) -g(David Gervais)"
+"\n           -b(Bigtile) -w(DoubleTile) -t(TripleTile)"
 #endif
                         ;
 

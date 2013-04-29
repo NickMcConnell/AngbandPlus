@@ -1050,7 +1050,10 @@ void display_device_chance(object_type *o_ptr)
       prob *= 2; 
       prob /= (USE_DEVICE * (USE_DEVICE + 1 - chance));
     }
-  else prob *= (1 - (USE_DEVICE - 1) / chance);
+  else 
+    {
+      prob -= prob * (USE_DEVICE - 1) / chance;
+    }
   prob /= 100;
 
   /* Display */
@@ -2183,7 +2186,7 @@ char *item_activation(object_type *o_ptr)
       }
     case ACT_MAGESTAFF:
       {
-	return "restore 10 spell points every 10+d5 turns";
+	return "restore 10 spell points every 15+d10 turns";
       }
     default:
       {
@@ -3666,7 +3669,7 @@ void spell_info(char *p, int spell_index)
     case 9: sprintf(p, " dam %dd8, beam %d%%", (2+((plev-5)/5)), beam); 
       break;
     case 13: sprintf(p, " range %d", 50 + plev * 2); break;
-    case 15: sprintf(p, " dam 5 + %d", plev); break;
+    case 15: sprintf(p, " dam %d", 5 + plev); break;
     case 20: sprintf(p, " range %d", 5 + plev/10); break;
     case 26: sprintf(p, " dam %dd%d, beam %d%%", 6 + (plev / 10), 8, beam); 
       break;

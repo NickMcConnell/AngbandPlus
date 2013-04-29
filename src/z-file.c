@@ -662,15 +662,7 @@ bool file_readc(ang_file *f, byte *b)
 	*b = (byte)i;
 	return TRUE;
 }
-#if 0
-/*
- * Write a single, 8-bit character 'b' to file 'f'.
- */
-bool file_writec(ang_file *f, byte b)
-{
-	return file_write(f, (const char *)&b, 1);
-}
-#endif
+
 /* 
  * Write a single, 8-bit character 'b' to file 'f'.
  */

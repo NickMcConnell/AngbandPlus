@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.0.0"
+#define VERSION_STRING	"1.0.1"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -490,8 +490,10 @@
 #define MAX_RANGE_LGE   20      /* Maximum projection range */
 #define MAX_SIGHT_SML   10      /* Maximum view distance (small devices) */
 #define MAX_RANGE_SML   10      /* Maximum projection range (small devices) */
-#define MAX_SIGHT (adult_small_device ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
-#define MAX_RANGE (adult_small_device ? MAX_RANGE_SML : MAX_RANGE_LGE)
+#define MAX_SIGHT ((adult_small_device || (p_ptr->themed_level != 0))	\
+		    ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
+#define MAX_RANGE ((adult_small_device || (p_ptr->themed_level != 0))	\
+		    ? MAX_RANGE_SML : MAX_RANGE_LGE)
 
 
 /*
@@ -3351,6 +3353,7 @@
 #define OPT_show_lists                  71
 #define OPT_hide_squelchable		72
 #define OPT_auto_squelch		73
+#define OPT_use_sound   		74
 
 #define OPT_birth_point_based           128/*(OPT_BIRTH_START+0)*/
 #define OPT_birth_auto_roller           129/*(OPT_BIRTH_START+1)*/
@@ -3411,6 +3414,7 @@
 #define show_detect    		        op_ptr->opt[OPT_show_detect]
 #define hide_squelchable		op_ptr->opt[OPT_hide_squelchable]
 #define auto_squelch			op_ptr->opt[OPT_auto_squelch]
+#define use_sound			op_ptr->opt[OPT_use_sound]
 
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]

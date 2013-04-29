@@ -2705,7 +2705,8 @@ cptr option_text[OPT_MAX] =
     "show_lists",                       /* OPT_show_lists */
     "hide_squelchable",                 /* OPT_hide_squelchable */
     "auto_squelch",                     /* OPT_auto_squelch */
-    NULL,		NULL,		NULL,
+    "use_sound",		        /* OPT_use_sound */
+    NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL, /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,
@@ -2859,7 +2860,8 @@ cptr option_desc[OPT_MAX] =
     "Automatically show lists for commands", /* OPT_show_lists */
     "Hide items set as squelchable",          	/* OPT_hide_squelchable */
     "Destroy items marked as squelch automatically",	/* OPT_auto_squelch */
-    NULL,		NULL,		NULL,
+    "Play sounds in game",		     /* OPT_use_sound */
+    NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,  /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,	
@@ -3011,7 +3013,10 @@ bool option_norm[OPT_MAX] =
     TRUE,			  /* OPT_show_detect */
     TRUE,		/* OPT_disturb_trap_detect */
     FALSE,              /* OPT_show_lists */
-    FALSE,		FALSE,		FALSE,		FALSE,
+    FALSE,		/* OPT_hide_squelchable */
+    FALSE,		/* OPT_auto_squelch */
+    FALSE,		/* OPT_use_sound */
+    FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,	/*80*/
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
     FALSE,	FALSE,		FALSE,		FALSE,		FALSE,
@@ -3111,7 +3116,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_squelch_worthless,
       OPT_hide_squelchable,
       OPT_xchars_to_file,
-      OPT_NONE
+      OPT_use_sound
     },
 
     /*** Disturbance ***/

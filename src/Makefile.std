@@ -36,13 +36,13 @@ SYS_gcu = -DUSE_GCU -DUSE_NCURSES -lncurses
 #SYS_gtk = -rdynamic -export-dynamic -DUSE_GTK $(shell pkg-config libglade-2.0 gtk+-2.0 --libs --cflags)
 
 # Support SDL frontend
-SYS_sdl = -DUSE_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_ttf -lSDL_image
+SYS_sdl = -DUSE_SDL -DHAVE_DIRENT_H $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_ttf -lSDL_image
 
 
 
 
 ## Support SDL_mixer for sound
-#SOUND_sdl = -DSOUND_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_mixer
+SOUND_sdl = -DSOUND_SDL $(shell sdl-config --cflags) $(shell sdl-config --libs) -lSDL_mixer
 
 
 
@@ -59,7 +59,7 @@ LIBS =
 
 
 # Version info
-EXE = angband
+EXE = faangband
 
 
 
@@ -79,7 +79,7 @@ LIBS += $(patsubst -D%,,$(patsubst -I%,, $(MODULES)))
 
 # Object definitions
 GTKOBJS = gtk/main-gtk.o gtk/cairo-utils.o
-MAINOBJS = main.o main-gcu.o main-x11.o main-sdl.o snd-sdl.o $(GTKOBJS)
+MAINOBJS = main.o main-gcu.o main-x11.o main-sdl.o snd-sdl.o maid-x11.o $(GTKOBJS)
 OBJS = $(BASEOBJS) $(MAINOBJS)
 
 
