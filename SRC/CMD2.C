@@ -449,6 +449,11 @@ static int count_feats(int *y, int *x, int action)
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
 
+        /* If stuck in something, we can only modify it */
+      if (!(f_info[cave_feat[p_ptr->py][p_ptr->px]].flags1 & (FF1_MOVE))
+                && !(f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_EASY_CLIMB))
+		&& (d!=9)) continue;
+
 		/* Get the feature */
 		feat = cave_feat[yy][xx];
 
@@ -649,8 +654,11 @@ void do_cmd_open(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
@@ -794,14 +802,17 @@ void do_cmd_close(void)
 	if (variant_fast_moves) p_ptr->energy_use = 50;
 	else p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
-	}
 
+	}
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1028,15 +1039,17 @@ void do_cmd_tunnel(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
+
 	}
-
-
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -1204,16 +1217,17 @@ void do_cmd_disarm(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
 
 	}
-
-
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -1414,14 +1428,17 @@ void do_cmd_bash(void)
 	if (variant_fast_moves) p_ptr->energy_use = 50;
 	else p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
-	}
 
+	}
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1501,14 +1518,17 @@ void do_cmd_alter(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
 	/* Apply confusion */
-	if (confuse_dir(&dir))
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
-	}
 
+	}
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -1666,12 +1686,16 @@ void do_cmd_spike(void)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Confuse direction */
-	if (confuse_dir(&dir))
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
+	/* Apply confusion */
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
+
 	}
 
 
@@ -1810,12 +1834,16 @@ static void do_cmd_walk_or_jump(int jumping)
         if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
-	/* Confuse direction */
-	if (confuse_dir(&dir))
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
+
+	/* Apply confusion */
+	else if (confuse_dir(&dir))
 	{
 		/* Get location */
 		y = py + ddy[dir];
 		x = px + ddx[dir];
+
 	}
 
 
@@ -1881,7 +1909,6 @@ void do_cmd_run(void)
 		return;
 	}
 
-
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
 
@@ -1889,6 +1916,8 @@ void do_cmd_run(void)
 	y = py + ddy[dir];
 	x = px + ddx[dir];
 
+	/* Hack -- handle stuck players */
+	if (stuck_player(dir)) return;
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;

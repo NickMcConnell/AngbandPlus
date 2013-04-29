@@ -1030,6 +1030,9 @@ void do_cmd_inscribe(void)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 	}
 
+        /* Inscribe */
+        if ((item < 0) && (auto_pickup_ignore(o_ptr))) o_ptr->marked = FALSE;
+
         /* Prompt to always inscribe? */
         if (!easy_autos) return;
 
@@ -1063,8 +1066,11 @@ void do_cmd_inscribe(void)
 
                         /* Auto-inscribe */
                         if (object_known_p(i_ptr) || cheat_auto) i_ptr->note = e_info[o_ptr->name2].note;
-                }
 
+                        /* Ignore */
+                        if (auto_pickup_ignore(o_ptr)) o_ptr->marked = FALSE;
+
+                }
 
         }
         /* Do we inscribe all these object kinds? */

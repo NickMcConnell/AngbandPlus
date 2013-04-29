@@ -340,9 +340,11 @@ extern sint critical_norm(int weight, int plus, int dam);
 extern sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr);
 extern void find_secret(int y, int x);
 extern void search(void);
+extern bool auto_pickup_ignore(object_type *o_ptr);
 extern void py_pickup(int pickup);
 extern void hit_trap(int y, int x);
 extern void py_attack(int y, int x);
+extern bool stuck_player(int dir);
 extern void move_player(int dir, int jumping);
 extern void run_step(int dir);
 

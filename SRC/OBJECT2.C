@@ -3517,6 +3517,9 @@ static bool name_drop_okay(int r_idx)
                 /* Skip stupid */
                 if (r_ptr->flags2 & (RF2_STUPID)) return (FALSE);
 
+                /* Hack -- force unique statues */
+                if ((j_ptr->tval == TV_STATUE) && (r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+
         }
 
         /* Accept */
@@ -4444,8 +4447,8 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Require drop space */
                         if (!(f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP))) continue;
 
-			/* Don't like non-floor space */
-                        if (!(f_info[cave_feat[ty][tx]].flags1 & (FF1_FLOOR)) && (rand_int(100)<80)) continue;
+                        /* Don't like hiding items space */
+                        if ((f_info[cave_feat[ty][tx]].flags2 & (FF2_HIDE_ITEM)) && (rand_int(100)<80)) continue;
 
 			/* No objects */
 			k = 0;
@@ -5037,9 +5040,6 @@ static bool vault_trap_door(int f_idx)
 	/* Decline non-traps */
 	if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
 
-        /* Decline traps we have to pick */
-        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
-
         /* Decline allocated */
         if (f_ptr->flags3 & (FF3_ALLOC)) return (FALSE);
 
@@ -5068,19 +5068,16 @@ static bool vault_trap_chest(int f_idx)
         bool test_has_item = (f_ptr->flags1 & (FF1_HAS_ITEM)) ? TRUE : FALSE;
         bool test_has_gold = (f_ptr->flags1 & (FF1_HAS_GOLD)) ? TRUE : FALSE;
 
-	/* Decline non-doors */
-	if (!(f_ptr->flags1 & (FF1_DOOR))) return (FALSE);
+        /* Decline non-chests */
+        if (!(f_ptr->flags3 & (FF3_CHEST))) return (FALSE);
 
 	/* Decline non-traps */
 	if (!(f_ptr->flags1 & (FF1_TRAP))) return (FALSE);
 
-        /* Decline pick traps */
-        if (f_ptr->flags3 & (FF3_PICK_TRAP)) return (FALSE);
-
         /* Decline allocated */
         if (f_ptr->flags3 & (FF3_ALLOC)) return (FALSE);
 
-	/* Must match chest drops */
+        /* Must match chest drops */
 	if (test_drop_good != chest_drop_good) return (FALSE);
 	if (test_drop_great != chest_drop_great) return (FALSE);
 	if (test_has_item != chest_has_item) return (FALSE);

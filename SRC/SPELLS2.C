@@ -1959,7 +1959,7 @@ bool detect_objects_gold(void)
 		if (o_ptr->tval == TV_GOLD)
 		{
 			/* Hack -- memorize it */
-			o_ptr->marked = TRUE;
+                        o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -1977,33 +1977,6 @@ bool detect_objects_gold(void)
 
 	/* Result */
 	return (detect);
-}
-
-/*
- * Determine if the object has "=i" in its inscription.
- */
-static bool auto_pickup_ignore(object_type *o_ptr)
-{
-	cptr s;
-
-	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
-
-	/* Process inscription */
-	while (s)
-	{
-                /* Auto-ignore on "=i" */
-                if (s[1] == 'i') return (TRUE);
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
-
-        /* Don't auto destroy */
-	return (FALSE);
 }
 
 
@@ -2039,7 +2012,7 @@ bool detect_objects_normal(void)
 		if (o_ptr->tval != TV_GOLD)
 		{
 			/* Hack -- memorize it */
-                        if (!auto_pickup_ignore) o_ptr->marked = TRUE;
+                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2210,7 +2183,7 @@ bool detect_objects_magic(void)
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
-			o_ptr->marked = TRUE;
+                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);
@@ -2396,7 +2369,7 @@ bool detect_objects_cursed(void)
                 if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
 			/* Memorize the item */
-			o_ptr->marked = TRUE;
+                        if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 			/* Redraw */
 			lite_spot(y, x);

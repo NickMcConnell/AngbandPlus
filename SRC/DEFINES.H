@@ -2759,7 +2759,7 @@
 #define RF4_SPIT                        0x00000010      /* Spit */
 #define RF4_SHOOT                       0x00000020      /* Fire an arrow */
 #define RF4_EXPLODE                     0x00000040      /* Explode */
-#define RF4_XXX2                        0x00000080      /* XXX2 */
+#define RF4_AURA                        0x00000080      /* Radiate aura */
 #define RF4_BR_ACID                     0x00000100      /* Breathe Acid */
 #define RF4_BR_ELEC                     0x00000200      /* Breathe Elec */
 #define RF4_BR_FIRE                     0x00000400      /* Breathe Fire */
@@ -3638,10 +3638,14 @@
  * Line 1 -- forbid non-drops
  * Line 2 -- forbid permanents
  * Line 3 -- forbid normal objects
+ * Line 4 -- forbid dangerous terrain
+ * Line 5 -- forbid dangerous terrain
  */
 #define cave_clean_bold(Y,X) \
 	((f_info[cave_feat[Y][X]].flags1 & (FF1_DROP)) && \
 	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
+         !(f_info[cave_feat[Y][X]].blow.method) && \
+         !(f_info[cave_feat[Y][X]].blow.effect) && \
 	 (cave_o_idx[Y][X] == 0))
 
 /*

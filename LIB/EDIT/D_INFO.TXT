@@ -687,7 +687,7 @@ G:S
 S:SEEN
 F:446
 
-N:4:5:20:1
+N:4:5:20:20
 A:
 B:cell
 D:An iron cage 
@@ -695,7 +695,7 @@ S:SEEN
 F:314
 K:6
 
-N:4:5:21:1
+N:4:5:21:10
 A:
 B:torture room
 D:A torture rack 
@@ -778,12 +778,12 @@ F:426
 D:An apple tree 
 S:SEEN
 
-N:4:5:33:1
+N:4:5:33:10
 A:
 B:pen
 D:A wooden cage 
 S:SEEN
-F:314
+F:313
 R:ANIMAL
 
 N:4:6:50:0
@@ -1671,3 +1671,4 @@ B:cave
 N:16:0:100:1
 A:
 B:room
+F:364

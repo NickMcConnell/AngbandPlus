@@ -1331,35 +1331,6 @@ void print_rel(char c, byte a, int y, int x)
 
 }
 
-/*
- * Determine if the object has "=i" in its inscription.
- */
-static bool auto_pickup_ignore(object_type *o_ptr)
-{
-	cptr s;
-
-	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
-
-	/* Process inscription */
-	while (s)
-	{
-                /* Auto-ignore on "=i" */
-                if (s[1] == 'i') return (TRUE);
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
-
-        /* Don't auto destroy */
-	return (FALSE);
-}
-
-
-
 
 /*
  * Memorize interesting viewable object/features in the given grid
@@ -4088,6 +4059,13 @@ static void cave_set_feat_aux(int y, int x, int feat)
         /* Check for change to boring grid */
         if (!(f_ptr->flags1 & (FF1_REMEMBER))) cave_info[y][x] &= ~(CAVE_MARK);
 
+        /* Check for change to out of sight grid */
+        else if (!(player_can_see_bold(y,x))) cave_info[y][x] &= ~(CAVE_MARK);
+
+        /* Grid is no longer safe */
+        cave_info[y][x] &= ~(CAVE_SAFE);
+
+
 	/* Check to see if monster exposed by change */
 	if (cave_m_idx[y][x] > 0)
 	{
@@ -4503,6 +4481,62 @@ void cave_set_feat(int y, int x, int feat)
                         }
                 }            
 	}
+
+	/* Handle gold/items */
+        /* Probably unnecessarily complicated */
+        if (((f_ptr->flags1 & FF1_HAS_ITEM) && !(f_ptr2->flags1 & (FF1_HAS_ITEM))) ||
+           ((f_ptr->flags1 & FF1_HAS_GOLD) && !(f_ptr2->flags1 & (FF1_HAS_GOLD))))
+	{
+                int number = 0;
+                int j;
+
+                bool good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
+                bool great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
+
+                bool do_gold = (!(f_ptr->flags1 & (FF1_HAS_ITEM)));
+                bool do_item = (!(f_ptr->flags1 & (FF1_HAS_GOLD)));
+
+                object_type *i_ptr;
+                object_type object_type_body;
+
+                if (f_ptr->flags1 & (FF3_DROP_1D2)) number += damroll(1, 2);
+                if (f_ptr->flags1 & (FF3_DROP_2D2)) number += damroll(2, 2);
+
+                /* Always drop something */
+                if (!number) number = 1;
+
+                /* Drop some objects */
+                for (j = 0; j < number; j++)
+                {
+                        /* Get local object */
+                        i_ptr = &object_type_body;
+        
+                        /* Wipe the object */
+                        object_wipe(i_ptr);
+        
+                        /* Make Gold */
+                        if (do_gold && (!do_item || (rand_int(100) < 50)))
+                        {
+                                /* Make some gold */
+                                if (!make_gold(i_ptr)) continue;
+                        }
+        
+                        /* Make Object */
+                        else
+                        {
+                                /* Make an object */
+                                if (!make_object(i_ptr, good, great)) continue;
+                        }
+        
+                        /* Note who dropped it */
+                        i_ptr->dropped = 0-p_ptr->depth;
+        
+                        /* Drop it in the dungeon */
+                        drop_near(i_ptr, -1, y, x);
+                }
+
+	}
+
 }
 
 int feat_state(int feat, int action)
@@ -4587,62 +4621,6 @@ void cave_alter_feat(int y, int x, int action)
         /* Redraw */
         lite_spot(y, x);
 
-	/* Handle gold/items */
-        /* Probably unnecessarily complicated */
-        if (((f_info[oldfeat].flags1 & FF1_HAS_ITEM) && !(f_info[newfeat].flags1 & (FF1_HAS_ITEM))) ||
-           ((f_info[oldfeat].flags1 & FF1_HAS_GOLD) && !(f_info[newfeat].flags1 & (FF1_HAS_GOLD))))
-	{
-                feature_type *f_ptr = &f_info[oldfeat];
-
-                int number = 0;
-                int j;
-
-                bool good = (f_ptr->flags3 & (FF3_DROP_GOOD)) ? TRUE : FALSE;
-                bool great = (f_ptr->flags3 & (FF3_DROP_GREAT)) ? TRUE : FALSE;
-
-                bool do_gold = (!(f_ptr->flags1 & (FF1_HAS_ITEM)));
-                bool do_item = (!(f_ptr->flags1 & (FF1_HAS_GOLD)));
-
-                object_type *i_ptr;
-                object_type object_type_body;
-
-                if (f_ptr->flags1 & (FF3_DROP_1D2)) number += damroll(1, 2);
-                if (f_ptr->flags1 & (FF3_DROP_2D2)) number += damroll(2, 2);
-
-                /* Always drop something */
-                if (!number) number = 1;
-
-                /* Drop some objects */
-                for (j = 0; j < number; j++)
-                {
-                        /* Get local object */
-                        i_ptr = &object_type_body;
-        
-                        /* Wipe the object */
-                        object_wipe(i_ptr);
-        
-                        /* Make Gold */
-                        if (do_gold && (!do_item || (rand_int(100) < 50)))
-                        {
-                                /* Make some gold */
-                                if (!make_gold(i_ptr)) continue;
-                        }
-        
-                        /* Make Object */
-                        else
-                        {
-                                /* Make an object */
-                                if (!make_object(i_ptr, good, great)) continue;
-                        }
-        
-                        /* Note who dropped it */
-                        i_ptr->dropped = 0-p_ptr->depth;
-        
-                        /* Drop it in the dungeon */
-                        drop_near(i_ptr, -1, y, x);
-                }
-
-	}
 }                                             
 
 

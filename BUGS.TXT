@@ -5,10 +5,6 @@ bugs (Fingers crossed).
 - Names of some artifacts when random artifacts is off are prematurely
 shortened.
 - Chests are not handled 100% yet (You never hit a trap on them).
-- Features are almost always referred to using the wrong pronoun.
-- You should not be able to pick up an item in a location that does
-not have the DROP flag, and not be able to move if you are on a
-location that does not have an EASY_CLIMB or MOVE flag.
 - You should be able to traverse rubble. But requiring 2 moves.
 - Monsters need more information saved.
 

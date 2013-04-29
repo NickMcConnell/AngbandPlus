@@ -1,3 +1,38 @@
+07-01-2001 Unangband 0.4.8c Bugfix release
+
+- Updated monster memory to include information
+about auras, monster lites and sneaky monsters.
+- Made powerful monsters have a radius 2 aura.
+- Fixed descriptions for looking at features
+(Hopefully I have got all exceptions).
+- Implemented players and monsters getting stuck
+in some kinds of terrain.  In particular,
+you can get stuck in cages, by teleporting/
+phase dooring around them. So always have
+an alternative escape mechanism. Unless you 
+want monsters throwing bananas at you...
+- Room flags were never getting initialised
+properly, resulting in room descriptions always
+being visible.
+- Changes to out of line of sight grids should
+correctly obscure the grid now.
+- Changed open chest colors to match broken
+chests.
+- All statues will be of uniques now.
+- Fix bug preventing chests being opened.
+- Fix bug where closing a chest then reopening
+would create 'free items'.
+- Fix bug with opening and relocking locked doors
+eventually resulting in a store. Now also prevent
+infinite experience from locking and unlocking them.
+- Fixed bug where objects not detect with
+object detection spell.
+- Honor '=i' inscription in more places in code.
+- Fixed chest traps. Still need some work to
+support multiple trap chests properly.
+- Fixed bug where you could teleport into deep
+water/lava/acid etc. This was bad...
+
 06-01-2001 Unangband 0.4.8b Bugfix release
 
 - Tidied up fire/lava/plasma damage information

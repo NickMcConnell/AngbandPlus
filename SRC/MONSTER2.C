@@ -1281,7 +1281,7 @@ void update_mon(int m_idx, bool full)
                                         if ((!rp_ptr->infra)&&(!p_ptr->tim_infra)) equip_can_flags(TR1_INFRA,0x0L,0x0L);
                                 }
 #endif
-
+                                if (r_ptr->flags2 & (RF2_HAS_LITE)) l_ptr->r_flags2 |= (RF2_HAS_LITE);
 			}
 		}
 	}
@@ -1496,26 +1496,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
                 /* Some monsters radiate damage when moving */
                 if (r_ptr->flags2 & (RF2_HAS_AURA))
                 {
-                        int i;
-        
-                        /* Scan through all four blows */
-                        for (i = 0; i < 4; i++)
-                        {
-                                int flg;
-        
-                                /* End of attacks */
-                                if (!(r_ptr->blow[i].method)) break;
-        
-                                /* Skip if not spores */
-                                if (r_ptr->blow[i].method != (RBM_AURA)) continue;
-        
-                                flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-        
-                                /* Hit with radiate attack */
-                                (void)project(m1, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
-                                         r_ptr->blow[i].effect, flg);
-                        }
-        
+                        (void)make_attack_spell_aux(m1,y2,x2,96+7);
                 }
 
 		/* Update monster */
@@ -1574,26 +1555,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
                 /* Some monsters radiate damage when moving */
                 if (r_ptr->flags2 & (RF2_HAS_AURA))
                 {
-                        int i;
-        
-                        /* Scan through all four blows */
-                        for (i = 0; i < 4; i++)
-                        {
-                                int flg;
-        
-                                /* End of attacks */
-                                if (!(r_ptr->blow[i].method)) break;
-        
-                                /* Skip if not spores */
-                                if (r_ptr->blow[i].method != (RBM_AURA)) continue;
-        
-                                flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-        
-                                /* Hit with radiate attack */
-                                (void)project(m2, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
-                                         r_ptr->blow[i].effect, flg);
-                        }
-        
+                        (void)make_attack_spell_aux(m2,y1,x1,96+7);
+
                 }
 
 
@@ -2005,6 +1968,14 @@ void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
                && (mmove != MM_PASS))
         {
                 /* Nothing -- we are stuck inside */
+        }
+        /* Update flags */
+        else if (((m_ptr->mflag & (MFLAG_OVER))==0)
+               && !(f_info[cave_feat[y][x]].flags1 & (FF1_MOVE))
+		   && !(f_info[cave_feat[y][x]].flags3 & (FF3_EASY_CLIMB))
+               && (mmove != MM_PASS))
+        {
+                /* Nothing -- we are stuck inside a terrain feature */
         }
         else if ((mmove == MM_FLY) || (mmove == MM_CLIMB))
         {

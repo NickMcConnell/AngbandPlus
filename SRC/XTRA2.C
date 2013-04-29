@@ -3079,7 +3079,7 @@ void screen_room_info(int room)
 	Term_erase(0, 1, 255);
 
 	/* Describe room */
-        if (strlen(text_visible))
+        if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
 	{
 		/* Recall monster */
                 roff(text_visible);
@@ -3132,7 +3132,7 @@ void display_room_info(int room)
 	get_room_desc(room, name, text_visible, text_always);
 
 	/* Describe room */
-        if (strlen(text_visible))
+        if ((strlen(text_visible)) && (room_info[room].flags & (ROOM_SEEN)))
 	{
 		/* Recall monster */
                 roff(text_visible);
@@ -3188,12 +3188,10 @@ void describe_room(void)
                 if (!(room_descriptions) || (room_info[room].flags & (ROOM_SEEN)))
                 {
                 }
-                else
-
-		if ((strlen(text_visible)) && (strlen(text_always)))
+                else if ((strlen(text_visible)) && (strlen(text_always)))
 		{
 			/* Message */
-                        msg_format("%s %s", text_visible, text_always);
+                        msg_format("%s  %s", text_visible, text_always);
 
 			/* Now seen */
 			room_info[room].flags |= ROOM_SEEN;
@@ -4225,38 +4223,41 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			if (feat == FEAT_NONE) name = "unknown grid";
 
 			/* Pick a prefix */
-                        if ((*s2) && ((f_info[feat].flags1 & (FF1_DOOR)) ||
-			    (f_info[feat].flags1 & (FF1_TRAP)) ||
-			    (f_info[feat].flags1 & (FF1_STAIRS)) ||
-			    (f_info[feat].flags1 & (FF1_FLOOR)) ||
-			    (f_info[feat].flags2 & (FF2_BRIDGED))))
-			{
-				s2 = "on ";
-			}
-
-                        else if (*s2)
+                        if ((*s2) && ((!(f_info[feat].flags1 & (FF1_MOVE)) && !(f_info[feat].flags3 & (FF3_EASY_CLIMB))) ||
+			    !(f_info[feat].flags1 & (FF1_LOS)) ||
+			    (f_info[feat].flags1 & (FF1_ENTER)) ||
+			    (f_info[feat].flags2 & (FF2_SHALLOW)) ||
+			    (f_info[feat].flags2 & (FF2_DEEP)) ||
+			    (f_info[feat].flags2 & (FF2_FILLED)) ||
+			    (f_info[feat].flags2 & (FF2_CHASM)) ||
+			    (f_info[feat].flags3 & (FF3_CAN_HIDE)) ||
+			    (f_info[feat].flags3 & (FF3_NEED_TREE)) ))
 			{
 				s2 = "in ";
 			}
 
-			/* Pick proper indefinite article */
-			if ((f_info[feat].flags1 & (FF1_DOOR)) ||
-			    (f_info[feat].flags1 & (FF1_TRAP)) ||
-			    (f_info[feat].flags1 & (FF1_STAIRS)) ||
-			    (f_info[feat].flags1 & (FF1_FLOOR)) ||
-			    (f_info[feat].flags1 & (FF1_WALL)) ||
-			    (f_info[feat].flags2 & (FF2_BRIDGED)) ||
-                            (f_info[feat].flags2 & (FF2_CHASM)) ||
-                            (f_info[feat].flags3 & (FF3_CHEST)) ||
-                            (f_info[feat].flags3 & (FF3_ALLOC)) ||
-                            (f_info[feat].flags3 & (FF3_TREE)))
+                        else if (*s2)
 			{
-				s3 = (is_a_vowel(name[0]) ? "an " : "a ");
+				s2 = "on ";
 			}
-			else
+
+			/* Pick a prefix */
+                        if ((f_info[feat].flags2 & (FF2_SHALLOW)) ||
+                            (f_info[feat].flags2 & (FF2_DEEP)) ||
+                            (f_info[feat].flags2 & (FF2_FILLED)) ||
+			    (f_info[feat].flags3 & (FF3_GROUND)) )
 			{
 				s3 = "";
 			}
+
+                        else
+			{
+				/* Pick proper indefinite article */
+				s3 = (is_a_vowel(name[0]) ? "an " : "a ");
+			}
+
+			/* Hack -- already a 'the' prefix */
+			if (prefix(name, "the ")) s3 = "";
 
 			/* Hack -- special introduction for filled areas */
                         if (*s2 && (f_info[feat].flags2 & (FF2_FILLED))) s2 = "";

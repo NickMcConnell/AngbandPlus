@@ -465,8 +465,8 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-      "SNEAKY",
-	"HAS_AURA",
+        "SNEAKY",
+        "HAS_AURA",
         "BRAIN_3",
 	"BRAIN_4",
 	"BRAIN_5",
@@ -526,7 +526,7 @@ static cptr r_info_flags4[] =
 	"SPIT",
 	"SHOOT",
         "EXPLODE",
-	"XXX2X4",
+	"AURA",
 	"BR_ACID",
 	"BR_ELEC",
 	"BR_FIRE",
@@ -1755,7 +1755,7 @@ static errr grab_one_room_special_flag(desc_type *d_ptr, cptr what)
 	{
 		if (streq(what, d_info_special_flag[i]))
 		{
-			d_ptr->l_flag |= (1L << i);
+                        d_ptr->flags |= (1L << i);
 			return (0);
 		}
 	}

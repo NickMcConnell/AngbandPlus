@@ -752,6 +752,35 @@ static bool auto_pickup_destroy(object_type *o_ptr)
 }
 
 /*
+ * Determine if the object has "=i" in its inscription.
+ */
+bool auto_pickup_ignore(object_type *o_ptr)
+{
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return (FALSE);
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+                /* Auto-ignore on "=i" */
+                if (s[1] == 'i') return (TRUE);
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+        /* Don't auto destroy */
+	return (FALSE);
+}
+
+
+
+/*
  * Helper routine for py_pickup() and py_pickup_floor().
  *
  * Add the given dungeon object to the character's inventory.
@@ -777,74 +806,73 @@ static void py_pickup_aux(int o_idx)
 	{
 		o_ptr = &o_list[o_idx];
 
-        /* Check for auto-destroy */
-        if (auto_pickup_destroy(o_ptr))
-        {
-                char out_val[160];
-
-                /* Describe the object */
-                object_desc(o_name, o_ptr, TRUE, 3);
-
-                /* Verify destruction */
-                if (verify_destroy)
+                /* Check for auto-destroy */
+                if (auto_pickup_destroy(o_ptr))
                 {
-                        sprintf(out_val, "Really destroy %s? ", o_name);
-                        if (!get_check(out_val)) return;
-                }
-
-                /* Take turn */
-                p_ptr->energy_use = 100;
-
-                /* Containers release contents */
-                if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
-                {
-                        if (animate_object(-o_idx)) return;
+                        char out_val[160];
         
-                        /* Message */
-                        msg_format("You cannot destroy %s.", o_name);
+                        /* Describe the object */
+                        object_desc(o_name, o_ptr, TRUE, 3);
         
-                        return;
-                }
-
-                /* Artifacts cannot be destroyed */
-                if (artifact_p(o_ptr))
-                {
-
-                        /* Message */
-                        msg_format("You cannot destroy %s.", o_name);
-
-                        /* Sense the object if allowed, don't sense ID'ed stuff */
-                        if ((o_ptr->discount == 0)
-                                && !(o_ptr->ident & (IDENT_SENSE))
-                                 && !(object_known_p(o_ptr)))
+                        /* Verify destruction */
+                        if (verify_destroy)
                         {
-                                o_ptr->discount = INSCRIP_UNBREAKABLE;
-
-                                /* The object has been "sensed" */
-                                o_ptr->ident |= (IDENT_SENSE);
-
-                                /* Combine the pack */
-                                p_ptr->notice |= (PN_COMBINE);
-
-                                /* Window stuff */
-                                p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
+                                sprintf(out_val, "Really destroy %s? ", o_name);
+                                if (!get_check(out_val)) return;
                         }
-
-                        /* Done */
+        
+                        /* Take turn */
+                        p_ptr->energy_use = 100;
+        
+                        /* Containers release contents */
+                        if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
+                        {
+                                if (animate_object(-o_idx)) return;
+                
+                                /* Message */
+                                msg_format("You cannot destroy %s.", o_name);
+                
+                                return;
+                        }
+        
+                        /* Artifacts cannot be destroyed */
+                        if (artifact_p(o_ptr))
+                        {
+        
+                                /* Message */
+                                msg_format("You cannot destroy %s.", o_name);
+        
+                                /* Sense the object if allowed, don't sense ID'ed stuff */
+                                if ((o_ptr->discount == 0)
+                                        && !(o_ptr->ident & (IDENT_SENSE))
+                                         && !(object_known_p(o_ptr)))
+                                {
+                                        o_ptr->discount = INSCRIP_UNBREAKABLE;
+        
+                                        /* The object has been "sensed" */
+                                        o_ptr->ident |= (IDENT_SENSE);
+        
+                                        /* Combine the pack */
+                                        p_ptr->notice |= (PN_COMBINE);
+        
+                                        /* Window stuff */
+                                        p_ptr->window |= (PW_INVEN | PW_EQUIP);
+        
+                                }
+        
+                                /* Done */
+                                return;
+        
+                        }
+        
+                        /* Message */
+                        msg_format("You destroy %s.", o_name);
+        
+                        /* Delete the object directly */
+                        delete_object_idx(o_idx);
+        
                         return;
-
                 }
-
-                /* Message */
-                msg_format("You destroy %s.", o_name);
-
-                /* Delete the object directly */
-                delete_object_idx(o_idx);
-
-                return;
-        }
-
 	}
 
 	/* Carry the object */
@@ -889,6 +917,9 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
+        /* Are we allowed to pick up anything here? */
+        if (!(f_info[cave_feat[py][px]].flags1 & (FF1_DROP))) return;
+
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -896,7 +927,7 @@ void py_pickup(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
                 /* Mark the object */
-                o_ptr->marked = TRUE;
+                if (!auto_pickup_ignore(o_ptr)) o_ptr->marked = TRUE;
 
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
@@ -1119,18 +1150,25 @@ void hit_trap(int y, int x)
 
 	cptr text;
 
+        int feat = cave_feat[y][x];
+
         /* Get feature */
-        f_ptr = &f_info[cave_feat[y][x]];
+        f_ptr = &f_info[feat];
 
         /* Hack --- trapped doors/chests */
         /* XXX XXX Dangerous */
-        while (!(f_ptr->spell) && !(f_ptr->blow.method) && (f_ptr->flags1 & (FF1_TRAP)))
+        while (f_ptr->flags3 & (FF3_PICK_TRAP))
         {
                 /* Get the trap */
                 pick_trap(y,x);
 
+                /* Error */
+                if (cave_feat[y][x] == feat) break;
+
+                feat = cave_feat[y][x];
+
                 /* Get feature */
-                f_ptr = &f_info[cave_feat[y][x]];
+                f_ptr = &f_info[feat];
         }
 
         /* Use covered or bridged if necessary */
@@ -1257,26 +1295,9 @@ void py_attack(int y, int x)
 
 
 	/* Some monsters radiate damage when attacked */
-	if (r_ptr->flags2 & (RF2_HAS_AURA))
+        if (r_ptr->flags2 & (RF2_HAS_AURA))
 	{
-				/* Scan through all four blows */
-				for (i = 0; i < 4; i++)
-				{
-                                        int flg;
-
-					/* End of attacks */
-					if (!(r_ptr->blow[i].method)) break;
-
-					/* Skip if not spores */
-					if (r_ptr->blow[i].method != (RBM_AURA)) continue;
-
-					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-
-					/* Hit with radiate attack */
-                                        (void)project_p(cave_m_idx[y][x], m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
-                                                 r_ptr->blow[i].effect, flg);
-				}
-
+                        (void)make_attack_spell_aux(cave_m_idx[y][x],p_ptr->py,p_ptr->px,96+7);
 	}
 
 
@@ -1561,6 +1582,89 @@ void py_attack(int y, int x)
 }
 
 
+/*
+ * Player is stuck inside terrain.
+ *
+ * This routine should only be called when energy has been expended.
+ *
+ */
+
+bool stuck_player(int dir)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+        feature_type *f_ptr = &f_info[cave_feat[py][px]];
+
+	int mimic;
+
+	cptr name;
+
+
+	/* Hack -- allowed to move nowhere */
+	if (dir == 5) return (FALSE);
+
+	/* Player can not walk through "walls" */
+        /* Also cannot climb over unknown "trees/rubble" */
+        if (!(f_ptr->flags1 & (FF1_MOVE))
+                && !(f_ptr->flags3 & (FF3_EASY_CLIMB)))
+	{
+		/* Disturb the player */
+		disturb(0, 0);
+
+		/* Notice unknown obstacles */
+                if (!(cave_info[py][px] & (CAVE_MARK)))
+		{
+
+                        /* Get hit by terrain/traps */
+                        if ((f_ptr->flags1 & (FF1_HIT_TRAP)) ||
+                                (f_ptr->spell) || (f_ptr->blow.method))
+                        {
+        
+                                /* Hit the trap */
+                                hit_trap(py, px);
+                        }
+
+			/* Get the mimiced feature */
+			mimic = f_ptr->mimic;
+
+			/* Get the feature name */
+			name = (f_name + f_info[mimic].name);
+
+			/* Tell the player */
+			msg_format("You feel you are stuck %s%s.",
+                                ((f_ptr->flags2 & (FF2_FILLED)) ? "" :
+						(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
+
+                        cave_info[py][px] |= (CAVE_MARK);
+
+                        lite_spot(py, px);
+
+		}
+
+		/* Mention known obstacles */
+		else
+		{
+			/* Get the mimiced feature */
+			mimic = f_ptr->mimic;
+
+			/* Get the feature name */
+			name = (f_name + f_info[mimic].name);
+
+			/* Tell the player */
+                        msg_format("You are stuck %s%s.",
+                                ((f_ptr->flags2 & (FF2_FILLED)) ? "" :
+						(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
+		}
+
+		return (TRUE);
+
+	}
+
+	return (FALSE);
+
+}
+
 
 
 
@@ -1599,6 +1703,11 @@ void move_player(int dir, int jumping)
 	{
 		/* Attack */
 		py_attack(y, x);
+	}
+
+        else if (stuck_player(dir))
+	{
+		/* Do nothing */
 	}
 
 #ifdef ALLOW_EASY_ALTER
@@ -1644,6 +1753,16 @@ void move_player(int dir, int jumping)
 		/* Notice unknown obstacles */
 		if (!(cave_info[y][x] & (CAVE_MARK)))
 		{
+
+                        /* Get hit by terrain/traps */
+                        if ((f_ptr->flags1 & (FF1_HIT_TRAP)) ||
+                                (f_ptr->spell) || (f_ptr->blow.method))
+                        {
+        
+                                /* Hit the trap */
+                                hit_trap(y, x);
+                        }
+
 			/* Get the mimiced feature */
 			mimic = f_ptr->mimic;
 
@@ -1651,7 +1770,10 @@ void move_player(int dir, int jumping)
 			name = (f_name + f_info[mimic].name);
 
 			/* Tell the player */
-			msg_format("You feel a %s blocking your way.",name);
+			msg_format("You feel %s%s blocking your way.",
+                                ((f_ptr->flags2 & (FF2_FILLED)) ? "" :
+						(is_a_vowel(name[0]) ? "an " : "a ")),name);
+
 
 			cave_info[y][x] |= (CAVE_MARK);
 
@@ -1669,7 +1791,9 @@ void move_player(int dir, int jumping)
 			name = (f_name + f_info[mimic].name);
 
 			/* Tell the player */
-			msg_format("There is a %s blocking your way.",name);
+			msg_format("There is &s%s blocking your way.",
+                                ((f_ptr->flags2 & (FF2_FILLED)) ? "" :
+						(is_a_vowel(name[0]) ? "an " : "a ")),name);
 		}
 	}
 
@@ -1763,6 +1887,28 @@ void move_player(int dir, int jumping)
 
 
                         cave_alter_feat(y,x, FS_KILL_MOVE);
+                }
+
+                /* Reveal when you are on shallow, deep or filled terrain */
+                if (!(cave_info[y][x] & (CAVE_MARK)) &&
+                        ((f_ptr->flags2 & (FF2_SHALLOW)) ||
+                        (f_ptr->flags2 & (FF2_DEEP)) ||
+                        (f_ptr->flags2 & (FF2_FILLED)) ))
+                {
+        
+                                /* Get the mimiced feature */
+                                mimic = f_ptr->mimic;
+        
+                                /* Get the feature name */
+                                name = (f_name + f_info[mimic].name);
+        
+                                /* Tell the player */
+                                msg_format("You feel you are %s%s.",
+                                        ((f_ptr->flags2 & (FF2_FILLED)) ? "" : "in"), name);
+        
+                                cave_info[y][x] |= (CAVE_MARK);
+        
+                                lite_spot(y, x);
                 }
 	}
 }

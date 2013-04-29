@@ -226,7 +226,6 @@ static void roff_aux(int r_idx)
 	flags5 = (r_ptr->flags5 & l_ptr->r_flags5);
 	flags6 = (r_ptr->flags6 & l_ptr->r_flags6);
 
-
 	/* Assume some "obvious" flags */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) flags1 |= (RF1_UNIQUE);
 	if (r_ptr->flags1 & (RF1_QUESTOR)) flags1 |= (RF1_QUESTOR);
@@ -614,7 +613,7 @@ static void roff_aux(int r_idx)
 	if (flags4 & (RF4_SPIT))             vp[vn++] = "spit on you";
 	if (flags4 & (RF4_SHOOT))             vp[vn++] = "shoot at you";
         if (flags4 & (RF4_EXPLODE))             vp[vn++] = "explode";
-	if (flags4 & (RF4_XXX2))             vp[vn++] = "do something";
+	if (flags4 & (RF4_AURA))         vp[vn++] = "radiate a powerful aura";
 
 	/* Describe inate attacks */
 	if (vn)
@@ -857,6 +856,7 @@ static void roff_aux(int r_idx)
 	if (flags3 & (RF3_TINY)) vp[vn++] = "crawl through tiny cracks";
 	if (flags2 & (RF2_CAN_CLIMB)) vp[vn++] = "climb on walls and ceilings";
 	if (flags2 & (RF2_CAN_DIG)) vp[vn++] = "dig through earth and rubble";
+	if (flags2 & (RF2_SNEAKY)) vp[vn++] = "hide in unusual places";
 	if ((flags2 & (RF2_CAN_SWIM)) && !(flags2 & (RF2_MUST_SWIM))) vp[vn++] = "swim under water";
 	if ((flags2 & (RF2_CAN_FLY)) && !(flags2 & (RF2_MUST_FLY))) vp[vn++] = "fly over obstacles";
 
@@ -891,7 +891,7 @@ static void roff_aux(int r_idx)
 	/* Describe special abilities. */
 	if (flags2 & (RF2_MUST_FLY))
 	{
-		roff(format("%^s must fly and cannot move underwater.  ", wd_he[msex]));
+		roff(format("%^s must fly and cannot move underwater or through webs.  ", wd_he[msex]));
 	}
 
 	/* Describe special abilities. */
@@ -919,8 +919,6 @@ static void roff_aux(int r_idx)
 	{
 		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
-
-
 	/* Collect susceptibilities */
 	vn = 0;
 	if (flags3 & (RF3_HURT_ROCK)) vp[vn++] = "rock remover";
@@ -1297,6 +1295,7 @@ static void roff_aux(int r_idx)
 			case GF_MAKE_WALL: q = "create walls";break;
 			case GF_MAKE_DOOR: q = "create doors";break;
 			case GF_MAKE_TRAP: q = "create traps";break;
+			case GF_BRIDGE: q = "create a stone bridge"; break;
 			case GF_AWAY_UNDEAD: q = "teleport away undead";break;
 			case GF_AWAY_EVIL: q = "teleport away evil";break;
 			case GF_AWAY_ALL: q = "teleport away";break;
@@ -1343,7 +1342,8 @@ static void roff_aux(int r_idx)
 			case GF_EXP_20: q = "lower experience (by 20d6+)"; break;
 			case GF_EXP_40: q = "lower experience (by 40d6+)"; break;
 			case GF_EXP_80: q = "lower experience (by 80d6+)"; break;
-
+			case GF_DEEP:		q = "raise water"; break;
+			case GF_SHALLOW:		q = "lower water"; break;
 		}
 
 

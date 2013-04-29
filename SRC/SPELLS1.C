@@ -1554,6 +1554,9 @@ static bool temp_lite(int y, int x)
                         /* Temporarily seen */
                         cave_info[y][x] &= ~(CAVE_SEEN);
 
+                        /* Light? */
+                        lite_spot(y,x);
+
                         /* Get monster */
                         if (cave_m_idx[y][x] > 0 )
                         {

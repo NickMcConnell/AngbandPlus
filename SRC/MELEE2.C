@@ -616,6 +616,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 	monster_type *m_ptr,*n_ptr;
 	monster_race *r_ptr,*s_ptr;
+        monster_lore *l_ptr;
 
 	char m_name[80];
 	char m_poss[80];
@@ -676,6 +677,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 	if (who <= 0)
 	{
 		m_ptr = &m_list[0];
+                l_ptr = &l_list[0];
 		r_ptr = &r_info[0];
 
 		strcpy(m_name,"it");
@@ -702,6 +704,7 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 	else
 	{
 		m_ptr = &m_list[who];
+                l_ptr = &l_list[m_ptr->r_idx];
 		r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Get the monster name (or "it") */
@@ -782,6 +785,8 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			if (who > 0)
 			{
+				bool obvious;
+
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
@@ -798,9 +803,22 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 					/* Hit with radiate attack */
-                                        (void)project(who, 2, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                        obvious = project(who, 2, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
                                                  r_ptr->blow[i].effect, flg);
 
+                                        /* Analyze "visible" monsters only */
+                                        if (seen)
+                                        {                        
+                                                /* Count "obvious" attacks */
+                                                if (obvious || (l_ptr->r_blows[i] > 10))
+                                                {
+                                                        /* Count attacks of this type */
+                                                        if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                        {
+                                                                l_ptr->r_blows[i]++;
+                                                        }
+                                                }
+                                        }
 				}
 			}
                         else
@@ -813,7 +831,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				/* Hit with radiate attack */
 				(void)project(who, 2, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side, f_info[cave_feat[y][x]].blow.d_dice),
 					 f_info[cave_feat[y][x]].blow.effect, flg);
-					
 			}
 			break;
 		}
@@ -828,6 +845,8 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			if (who > 0)
 			{
+				bool obvious;
+
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
@@ -845,8 +864,23 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					{
 
 						/* Target the player */
-						project_p(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+						obvious = project_p(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
 							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect);
+
+                                                /* Analyze "visible" monsters only */
+                                                if (seen)
+                                                {
+                                
+                                                        /* Count "obvious" attacks */
+                                                        if (obvious || (l_ptr->r_blows[i] > 10))
+                                                        {
+                                                                /* Count attacks of this type */
+                                                                if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                                {
+                                                                        l_ptr->r_blows[i]++;
+                                                                }
+                                                        }                                
+                                                }
 					}
 					else if (target > 0)
 					{
@@ -854,7 +888,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 						project_m(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
 							 r_ptr->blow[i].d_dice),r_ptr->blow[i].effect);
 					}
-
 				}
 			}
 			else
@@ -889,6 +922,8 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			if (who > 0)
 			{
+				bool obvious;
+
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
@@ -905,8 +940,24 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					{
 
 						/* Target the player */
-						project_p(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+						obvious = project_p(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
 							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect);
+
+                                                /* Analyze "visible" monsters only */
+                                                if (seen)
+                                                {
+                                
+                                                        /* Count "obvious" attacks */
+                                                        if (obvious || (l_ptr->r_blows[i] > 10))
+                                                        {
+                                                                /* Count attacks of this type */
+                                                                if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                                {
+                                                                        l_ptr->r_blows[i]++;
+                                                                }
+                                                        }
+                                
+                                                }
 					}
 					else if (target > 0)
 					{
@@ -951,11 +1002,12 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 
 			if (who > 0)
 			{
+                                bool obvious;
+
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
 					flg = PROJECT_STOP | PROJECT_KILL;
-
 
 					/* End of attacks */
 					if (!(r_ptr->blow[i].method)) break;
@@ -967,9 +1019,23 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					if (known) msg_format("%^s spits at %s.", m_name,t_name);
 
 					/* Target the player with a bolt attack */
-					(void)project(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+					obvious = project(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
 							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect, flg);
 
+                                        /* Analyze "visible" monsters only */
+                                        if (seen)
+                                        {
+                        
+                                                /* Count "obvious" attacks */
+                                                if (obvious || (l_ptr->r_blows[i] > 10))
+                                                {
+                                                        /* Count attacks of this type */
+                                                        if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                        {
+                                                                l_ptr->r_blows[i]++;
+                                                        }
+                                                }                        
+                                        }                        
 				}
 			}
 			else
@@ -993,7 +1059,9 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			if (target < 0) disturb(1,0);
 
 			if (who > 0)
-			{
+                        {
+                                bool obvious;
+
 				/* Scan through all four blows */
 				for (i = 0; i < 4; i++)
 				{
@@ -1012,9 +1080,24 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 					else if (known) msg_format("%^s fires an arrow at %s!", m_name, t_name);
 
 					/* Target the player with a bolt attack */
-					(void)project(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
+                                        obvious = project(who, 0, y, x, damroll(r_ptr->blow[i].d_side,
 							r_ptr->blow[i].d_dice),r_ptr->blow[i].effect, flg);
 
+                                        /* Analyze "visible" monsters only */
+                                        if (seen)
+                                        {
+                        
+                                                /* Count "obvious" attacks */
+                                                if (obvious || (l_ptr->r_blows[i] > 10))
+                                                {
+                                                        /* Count attacks of this type */
+                                                        if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                        {
+                                                                l_ptr->r_blows[i]++;
+                                                        }
+                                                }
+                        
+                                        }
 				}
 			}
 			else
@@ -1029,7 +1112,6 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 				/* Target the player with a bolt attack */
 				(void)project(who, 0, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side,
 						f_info[cave_feat[y][x]].blow.d_dice),f_info[cave_feat[y][x]].blow.effect, flg);
-					
 			}
 			break;
 		}
@@ -1058,9 +1140,62 @@ bool make_attack_spell_aux(int who, int y, int x, int spell)
 			break;
 		}
 
-		/* RF4_XXX1X4 */
+		/* RF4_AURA */
 		case 96+7:
-		{
+                {
+                        if (!variant_dis_attacks) break;
+			if (target < 0) disturb(1,0);
+
+			if (who > 0)
+			{
+				bool obvious;
+
+                                int rad;
+
+				/* Determine the radius of the blast */
+                                rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 2 : 1;
+
+				/* Scan through all four blows */
+				for (i = 0; i < 4; i++)
+				{
+
+					/* End of attacks */
+					if (!(r_ptr->blow[i].method)) break;
+
+					/* Skip if not spores */
+                                        if (r_ptr->blow[i].method != (RBM_AURA)) continue;
+
+					flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+					/* Hit with radiate attack */
+                                        obvious = project(who, rad, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
+                                                 r_ptr->blow[i].effect, flg);
+
+                                        /* Analyze "visible" monsters only */
+                                        if (seen)
+                                        {
+                        
+                                                /* Count "obvious" attacks */
+                                                if (obvious || (l_ptr->r_blows[i] > 10))
+                                                {
+                                                        /* Count attacks of this type */
+                                                        if (l_ptr->r_blows[i] < MAX_UCHAR)
+                                                        {
+                                                                l_ptr->r_blows[i]++;
+                                                        }
+                                                }
+                                        }
+				}
+			}
+                        else
+			{
+				flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+				/* Hit with radiate attack */
+                                (void)project(who, 1, y, x, damroll(f_info[cave_feat[y][x]].blow.d_side, f_info[cave_feat[y][x]].blow.d_dice),
+					 f_info[cave_feat[y][x]].blow.effect, flg);
+					
+			}
 			break;
 		}
 
@@ -5588,11 +5723,13 @@ void mon_hit_trap(int m_idx, int y, int x)
 	feature_type *f_ptr;
         monster_type *m_ptr = &m_list[m_idx];
 
+        int feat = cave_feat[y][x];
+
 	/* Option */
 	if (!variant_hit_traps) return;
 
         /* Hack --- don't activate unknown invisible traps */
-        if ((cave_feat[y][x] == FEAT_INVIS) && !(cave_info[y][x] & (CAVE_MARK))) return;
+        if (cave_feat[y][x] == FEAT_INVIS) return;
 
 	/* Get feature */
 	f_ptr = &f_info[cave_feat[y][x]];
@@ -5603,8 +5740,13 @@ void mon_hit_trap(int m_idx, int y, int x)
         {
                 pick_trap(y,x);
 
-                /* Get feature (again) */
-                f_ptr = &f_info[cave_feat[y][x]];
+                /* Error */
+                if (cave_feat[y][x] == feat) break;
+
+                feat = cave_feat[y][x];
+
+                /* Get feature */
+                f_ptr = &f_info[feat];
 
         }
 
@@ -6238,17 +6380,69 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	/* Get the move */
 	mmove = place_monster_here(ny,nx,m_ptr->r_idx);
 
+	/* The monster is stuck in terrain */
+        if (!(m_ptr->mflag & (MFLAG_OVER)) && !(f_info[cave_feat[oy][ox]].flags1 & (FF1_MOVE)) &&
+                !(f_info[cave_feat[oy][ox]].flags3 & (FF3_EASY_CLIMB)) && (mmove != MM_PASS))
+	{
+                if (((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[oy][ox]].flags1 & (FF1_BASH)))
+				|| (r_ptr->flags2 & (RF2_KILL_WALL)))
+                {
+                        /* Bash through the terrain */
+                        cave_alter_feat(oy, ox, FS_BASH);
+
+                        /* Unhide the monster */
+                        m_ptr->mflag &= ~(MFLAG_HIDE);
+
+                        /* And reveal */
+                        update_mon(m_idx,FALSE);
+
+                        /* Hack --- tell the player if something unhides */
+                        if (m_ptr->ml)
+                        {
+                                char m_name[80];
+
+                                /* Get the monster name */
+                                monster_desc(m_name, m_ptr, 0);
+
+                                msg_format("%^s emerges from %s%s.",m_name,
+                                ((f_info[cave_feat[oy][ox]].flags2 & (FF2_FILLED))?"":"the "),
+                                f_name+f_info[cave_feat[oy][ox]].name);
+                        }
+
+                        /* We saw it, maybe */
+                        if (r_ptr->flags2 & (RF2_KILL_WALL)) did_kill_wall = TRUE;
+				else did_bash_door = TRUE;
+
+                        /* Disturb on "move" */
+                        if (m_ptr->ml &&
+                            (disturb_move ||
+                             ((m_ptr->mflag & (MFLAG_VIEW)) &&
+                              disturb_near)))
+                        {
+                                /* Disturb */
+                                disturb(0, 0);
+                        }
+
+                        do_move = FALSE;
+                }
+			else
+			{
+				do_move = FALSE;
+			}
+			
+	}
+
         /* The monster is under covered terrain, moving to uncovered terrain. */
-        if ((m_ptr->mflag & (MFLAG_HIDE)) && (f_info[cave_feat[oy][ox]].flags2 & (FF2_COVERED)) &&
+        else if ((m_ptr->mflag & (MFLAG_HIDE)) && (f_info[cave_feat[oy][ox]].flags2 & (FF2_COVERED)) &&
                 !(f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) && (mmove != MM_FAIL))
         {
-
-
-                if ((mmove == MM_SWIM) || (mmove == MM_DIG))
+                if ((mmove == MM_SWIM) || (mmove == MM_DIG) || (mmove == MM_PASS))
                 {
+				/* Move harmlessly */
                 }
 
-                else if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[oy][ox]].flags1 & (FF1_BASH)))
+                else if (((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[oy][ox]].flags1 & (FF1_BASH)))
+				|| (r_ptr->flags2 & (RF2_KILL_WALL)))
                 {
                         /* Bash through the floor */
                         cave_alter_feat(oy, ox, FS_BASH);
@@ -6273,7 +6467,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
                         }
 
                         /* We saw it, maybe */
-                        did_bash_door = TRUE;
+                        if (r_ptr->flags2 & (RF2_KILL_WALL)) did_kill_wall = TRUE;
+				else did_bash_door = TRUE;
 
                         /* Disturb on "move" */
                         if (m_ptr->ml &&
@@ -6291,7 +6486,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
         /* Monster is on covered terrain, moving to covered terrain */
         else if (!(m_ptr->mflag & (MFLAG_HIDE)) && (f_info[cave_feat[oy][ox]].flags2 & (FF2_COVERED)) &&
-                (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) && ((mmove == MM_SWIM) || (mmove == MM_DIG)))
+                (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) &&
+			((mmove == MM_SWIM) || (mmove == MM_DIG)))
         {
 
                 if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[ny][nx]].flags1 & (FF1_BASH)))
@@ -6347,13 +6543,17 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
                 {
                         mmove = MM_WALK;
                 }
+			else
+			{
+				do_move = FALSE;
+			}
          
         }
 
         else if (mmove == MM_FAIL)
 	{
                 /* Glyphs */
-                if (feat == FEAT_GLYPH)
+                if (f_info[feat].flags1 & (FF1_GLYPH))
                 {
                         /* Describe observable breakage */
                         if (cave_info[ny][nx] & (CAVE_MARK))
@@ -6370,11 +6570,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
                 }
 
                 /* Doors */
-		if (((feat >= FEAT_DOOR_HEAD) && (feat <= FEAT_DOOR_TAIL)) ||
+		if ((f_info[feat].flags1 & (FF1_BASH)) || (f_info[feat].flags1 & (FF1_OPEN)) ||
 		          (feat == FEAT_SECRET))
 		{
 			/* Monster bashes the door down */
-			if (bash)
+                        if ((bash) & (f_info[feat].flags1 & (FF1_BASH)))
 			{
 				/* Character is not too far away */
 				if (m_ptr->cdis < 30)
@@ -6407,7 +6607,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 			}
 
 			/* Monster opens the door */
-			else
+			else if (f_info[feat].flags1 & (FF1_OPEN))
 			{
 					/* Unlock the door */
 					cave_alter_feat(ny, nx, FS_OPEN);
@@ -7334,28 +7534,9 @@ static void recover_monster(int m_idx, bool regen)
 	}
 
 	/* Some monsters radiate damage when awake */
-	if (!(m_ptr->csleep) && (r_ptr->flags2 & (RF2_HAS_AURA)))
+        if (!(m_ptr->csleep) && (r_ptr->flags2 & (RF2_HAS_AURA)))
 	{
-                int i;
-
-                /* Scan through all four blows */
-                for (i = 0; i < 4; i++)
-                {
-                        int flg;
-
-                        /* End of attacks */
-                        if (!(r_ptr->blow[i].method)) break;
-
-                        /* Skip if not spores */
-                        if (r_ptr->blow[i].method != (RBM_AURA)) continue;
-
-                        flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-
-                        /* Hit with radiate attack */
-                        (void)project(m_idx, 1, m_ptr->fy, m_ptr->fx, damroll(r_ptr->blow[i].d_side, r_ptr->blow[i].d_dice),
-                                 r_ptr->blow[i].effect, flg);
-                }
-
+                (void)make_attack_spell_aux(m_idx,m_ptr->fy,m_ptr->fx,96+7);
 	}
 
 

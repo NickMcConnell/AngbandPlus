@@ -1747,7 +1747,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_SPIT)) vp[vn++] = "spit something";
 		if (flags4 & (RF4_SHOOT)) vp[vn++] = "shoot something";
                 if (flags4 & (RF4_EXPLODE)) vp[vn++] = "explode";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "fire missiles";
+                if (flags4 & (RF4_AURA)) vp[vn++] = "radiate an aura";
 
 		if (vn)
 		{
