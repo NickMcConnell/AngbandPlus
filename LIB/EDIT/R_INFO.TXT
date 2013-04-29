@@ -3897,7 +3897,7 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 B:BITE:HURT:3d4
 F:MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
+F:FORCE_SLEEP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | REGENERATE | 
 F:EVIL | TROLL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
@@ -16470,15 +16470,6 @@ D:armor and slaves to Morgoth. Once numerous, there constant
 D:wars with other races at Morgoth's command has left only the 
 D:strongest of fighters behind.
 
-N:1208:Apple tree
-G:<:G
-I:90:10d10:0:20:10
-W:0:1:0:0
-F:NEVER_MOVE | FRIENDS | FORCE_MAXHP | NEVER_BLOW |
-F:STUPID | EMPTY_MIND | 
-F:ANIMAL |  NO_CONF | NO_SLEEP | NO_FEAR
-D:It is growing apples.
-
 N:1209:Cockroach
 G:I:D
 I:110:1d1:20:1:5
@@ -16496,16 +16487,6 @@ F:FORCE_SLEEP |
 F:NEVER_BLOW | RAND_25 | RAND_50
 F:EMPTY_MIND | HAS_LITE
 D:A shimmering ball of light which dances around town.
-
-N:1211:Crab apple tree
-G:<:g
-I:90:10d10:0:20:10
-W:2:1:0:1
-B:HIT:HURT:1d1
-F:NEVER_MOVE  | FRIENDS | FORCE_MAXHP |
-F:STUPID | EMPTY_MIND | 
-F:ANIMAL |  NO_CONF | NO_SLEEP | NO_FEAR
-D:It is growing sour apples.  It is also in the way.
 
 N:1212:Black willow
 G:<:D

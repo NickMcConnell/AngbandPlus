@@ -4,6 +4,9 @@
 
 V:2.9.2
 
+N:0:(unflavored)
+G: :d
+
 N:1:Alexandrite
 G: :g
 T:45:0:99
@@ -761,313 +764,313 @@ D:set with a crystal
 
 N:116:Clear
 G: :w
-T:77:0:0
+T:75:0:0
 D:clear
 
 N:117:Light Brown
 G: :U
-T:77:1:1
+T:75:1:1
 D:light brown
 
 N:118:Icky Green
 G: :g    
-T:77:2:2
+T:75:2:2
 D:icky green
 
 N:119:Azure
 G: :B
-T:77:4:99
+T:75:4:99
 D:azure
 
 N:120:Blue
 G: :b
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:blue
 
 N:121:Blue Speckled
 G: :b
-T:77:4:99
+T:75:4:99
 D:blue speckled
 
 N:122:Black
 G: :D
-T:77:4:99
+T:75:4:99
 T:80:8:8
 D:black
 
 N:123:Brown
 G: :u
-T:77:4:99
+T:75:4:99
 T:80:11:11
 D:brown
 
 N:124:Brown Speckled
 G: :u
-T:77:4:99
+T:75:4:99
 D:brown speckled
 
 N:125:Bubbling
 G: :W
-T:77:4:99
+T:75:4:99
 D:bubbling
 
 N:126:Chartreuse
 G: :G
-T:77:4:99
+T:75:4:99
 D:chartreuse
 
 N:127:Cloudy
 G: :w
-T:77:4:99
+T:75:4:99
 D:cloudy
 
 N:128:Copper Speckled
 G: :U
-T:77:4:99
+T:75:4:99
 D:copper speckled
 
 N:129:Crimson
 G: :r
-T:77:4:99
+T:75:4:99
 D:crimson
 
 N:130:Cyan
 G: :B
-T:77:4:99
+T:75:4:99
 D:cyan
 
 N:131:Dark Blue
 G: :b
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:dark blue
 
 N:132:Dark Green
 G: :g
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:dark green
 
 N:133:Dark Red
 G: :r
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:dark red
 
 N:134:Gold Speckled
 G: :y
-T:77:4:99
+T:75:4:99
 D:gold speckled
 
 N:135:Green
 G: :g
-T:77:4:99
+T:75:4:99
 T:80:9:9
 D:green
 
 N:136:Green Speckled
 G: :g
-T:77:4:99
+T:75:4:99
 D:green speckled
 
 N:137:Grey
 G: :s
-T:77:4:99
+T:75:4:99
 T:80:3:3
 D:grey
 
 N:138:Grey Speckled
 G: :s
-T:77:4:99
+T:75:4:99
 D:grey speckled
 
 N:139:Hazy
 G: :W
-T:77:4:99
+T:75:4:99
 D:hazy
 
 N:140:Indigo
 G: :v
-T:77:4:99
+T:75:4:99
 D:indigo
 
 N:141:Light Blue
 G: :B
-T:77:4:99
+T:75:4:99
 T:80:4:4
 T:80:20:20
 D:light blue
 
 N:142:Light Green
 G: :G
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:light green
 
 N:143:Magenta
 G: :r
-T:77:4:99
+T:75:4:99
 D:magenta
 
 N:144:Metallic Blue
 G: :b
-T:77:4:99
+T:75:4:99
 D:metallic blue
 
 N:145:Metallic Red
 G: :r
-T:77:4:99
+T:75:4:99
 D:metallic red
 
 N:146:Metallic Green
 G: :g
-T:77:4:99
+T:75:4:99
 D:metallic green
 
 N:147:Metallic Purple
 G: :v
-T:77:4:99
+T:75:4:99
 D:metallic purple
 
 N:148:Misty
 G: :W
-T:77:4:99
+T:75:4:99
 D:misty
 
 N:149:Orange
 G: :o
-T:77:4:99
+T:75:4:99
 D:orange
 
 N:150:Orange Speckled
 G: :o
-T:77:4:99
+T:75:4:99
 D:orange speckled
 
 N:151:Pink
 G: :R
-T:77:4:99
+T:75:4:99
 T:80:6:6
 D:pink
 
 N:152:Pink Speckled
 G: :R
-T:77:4:99
+T:75:4:99
 D:pink speckled
 
 N:153:Puce
 G: :v
-T:77:4:99
+T:75:4:99
 D:puce
 
 N:154:Purple
 G: :v
-T:77:4:99
+T:75:4:99
 T:80:7:7
 D:purple
 
 N:155:Purple Speckled
 G: :v
-T:77:4:99
+T:75:4:99
 D:purple speckled
 
 N:156:Red
 G: :r
-T:77:4:99
+T:75:4:99
 D:red
 
 N:157:Red Speckled
 G: :r
-T:77:4:99
+T:75:4:99
 D:red speckled
 
 N:158:Silver Speckled
 G: :W
-T:77:4:99
+T:75:4:99
 D:silver speckled
 
 N:159:Smoky
 G: :D
-T:77:4:99
+T:75:4:99
 D:smoky
 
 N:160:Tangerine
 G: :o
-T:77:4:99
+T:75:4:99
 D:tangerine
 
 N:161:Violet
 G: :v
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:violet
 
 N:162:Vermilion
 G: :r
-T:77:4:99
+T:75:4:99
 D:vermilion
 
 N:163:White
 G: :w
-T:77:4:99
+T:75:4:99
 T:80:12:19
 D:white
 
 N:164:Yellow
 G: :y
-T:77:4:99
+T:75:4:99
 T:80:2:2
 D:yellow
 
 N:165:Violet Speckled
 G: :v
-T:77:4:99
+T:75:4:99
 D:violet speckled
 
 N:166:Pungent
 G: :R
-T:77:4:99
+T:75:4:99
 D:pungent
 
 N:167:Clotted Red
 G: :r
-T:77:4:99
+T:75:4:99
 D:clotted red
 
 N:168:Viscous Pink
 G: :R
-T:77:4:99
+T:75:4:99
 D:viscous pink
 
 N:169:Oily Yellow
 G: :y
-T:77:4:99
+T:75:4:99
 D:oily yellow
 
 N:170:Gloopy Green
 G: :g
-T:77:4:99
+T:75:4:99
 D:gloopy green
 
 N:171:Shimmering
 G: :v
-T:77:4:99
+T:75:4:99
 D:shimmering
 
 N:172:Coagulated Crimson
 G: :r
-T:77:4:99
+T:75:4:99
 D:coagulated crimson
 
 N:173:Yellow Speckled
 G: :y
-T:77:4:99
+T:75:4:99
 D:yellow speckled
 
 N:174:Gold
 G: :y
-T:77:4:99
+T:75:4:99
 D:gold-colored
 
 N:175:Spotted

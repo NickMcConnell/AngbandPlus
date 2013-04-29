@@ -248,6 +248,9 @@ void flavor_init(void)
 {
 	int i, j;
 
+        cptr p = x_name + x_info[0].name;
+        byte a = x_info[0].d_attr;
+
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
 
@@ -255,13 +258,13 @@ void flavor_init(void)
 	Rand_value = seed_flavor;
 
         /* Hack -- initialise using fake blank indicator */
-        for (i = 0;i<MAX_RINGS;i++) ring_col[i]=255;
-        for (i = 0;i<MAX_AMULETS;i++) amulet_col[i]=255;
-        for (i = 0;i<MAX_RODS;i++) rod_col[i]=255;
-        for (i = 0;i<MAX_STAFFS;i++) staff_col[i]=255;
-        for (i = 0;i<MAX_WANDS;i++) wand_col[i]=255;
-        for (i = 0;i<MAX_SHROOMS;i++) food_col[i]=255;
-        for (i = 0;i<MAX_POTIONS;i++) potion_col[i]=255;
+        for (i = 0;i<MAX_RINGS;i++) { ring_adj[i]= p;ring_col[i]=a;}
+        for (i = 0;i<MAX_AMULETS;i++) { amulet_adj[i] = p;amulet_col[i]=a;}
+        for (i = 0;i<MAX_RODS;i++) { rod_adj[i]= p;rod_col[i]=a;}
+        for (i = 0;i<MAX_STAFFS;i++) { staff_adj[i] = p;staff_col[i]=a;}
+        for (i = 0;i<MAX_WANDS;i++) { wand_adj[i] = p;wand_col[i]=a;}
+        for (i = 0;i<MAX_SHROOMS;i++) { food_adj[i] = p;food_col[i]=a;}
+        for (i = 0;i<MAX_POTIONS;i++) { potion_adj[i] = p; potion_col[i]=a;}
 
         /* Analyze flavors */
         for (i = 0; i<z_info->x_max;i++)
@@ -282,7 +285,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (ring_col[k]!=255)) k++;
+                                        while ((k<max) && (ring_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -301,7 +304,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (amulet_col[k]!=255)) k++;
+                                        while ((k<max) && (amulet_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -320,7 +323,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (rod_col[k]!=255)) k++;
+                                        while ((k<max) && (rod_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -339,7 +342,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (staff_col[k]!=255)) k++;
+                                        while ((k<max) && (staff_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -358,7 +361,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (wand_col[k]!=255)) k++;
+                                        while ((k<max) && (wand_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -377,7 +380,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (food_col[k]!=255)) k++;
+                                        while ((k<max) && (food_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {
@@ -396,7 +399,7 @@ void flavor_init(void)
                                         int k = min;
                                         int pick = min;
 
-                                        while ((k<max) && (potion_col[k]!=255)) k++;
+                                        while ((k<max) && (potion_col[k]!=a)) k++;
 
                                         if (k > min)
                                         {

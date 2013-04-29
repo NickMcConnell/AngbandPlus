@@ -2172,12 +2172,12 @@ static void calc_torch(void)
 		}
 
 		/* Artifact Lites provide permanent, bright, lite */
-                if ((artifact_p(o_ptr)) && (f3 & (TR3_LITE)))
+                if (artifact_p(o_ptr))
                 {
                         p_ptr->cur_lite = 3;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-                        object_can_flags(o_ptr,0x0L,0x0L,(TR3_LITE|TR3_INSTA_ART));
+                        object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
 #endif
 
                 }
@@ -2186,7 +2186,6 @@ static void calc_torch(void)
         /* Examine spells */
         else if (o_ptr->tval == TV_SPELL)
 	{
-                /* Wizard Lites provide bright, lite */
                 if (f3 & (TR3_LITE))
                 {
                         p_ptr->cur_lite = 3;
@@ -2195,6 +2194,10 @@ static void calc_torch(void)
                         object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
 #endif
                 }
+                else
+                {             
+                        p_ptr->cur_lite = 1;
+                }             
 	}
 
 	/* Reduce lite when running if requested */

@@ -2193,16 +2193,17 @@ static s32b artifact_power(int a_idx)
 	ADD_POWER("hold life",		 6, TR3_HOLD_LIFE, 3,);
 	ADD_POWER("feather fall",	 0, TR3_FEATHER, 3,); /* was 2 */
         ADD_POWER("permanent light",     2, TR3_LITE, 3,); /* was 2 */
+
 	ADD_POWER("see invisible",	 4, TR3_SEE_INVIS, 3,);
 /*** Start of ESP powers ARD_ESP */
         ADD_POWER("sense orcs",          1, TR3_ESP_ORC, 3,);
         ADD_POWER("sense trolls",        1, TR3_ESP_TROLL, 3,);
-        ADD_POWER("sense giants",        1, TR3_ESP_GIANT, 3,);
-        ADD_POWER("sense demons",        3, TR3_ESP_DEMON, 3,);
+        ADD_POWER("sense giants",        2, TR3_ESP_GIANT, 3,);
+        ADD_POWER("sense demons",        4, TR3_ESP_DEMON, 3,);
         ADD_POWER("sense undead",        5, TR3_ESP_UNDEAD, 3,);
         ADD_POWER("sense dragons",       5, TR3_ESP_DRAGON, 3,);
 /*** End of ESP powers ARD_ESP */
-	ADD_POWER("telepathy",		16, TR3_TELEPATHY, 3,);
+        ADD_POWER("telepathy",          18, TR3_TELEPATHY, 3,);
 	ADD_POWER("slow digestion",	 1, TR3_SLOW_DIGEST, 3,);
 	/* Digging moved to general section since it can be on anything now */
 	ADD_POWER("tunnelling",	 a_ptr->pval, TR1_TUNNEL, 1,);
@@ -2224,6 +2225,7 @@ static s32b artifact_power(int a_idx)
 
 	ADD_POWER("regeneration",	 4, TR3_REGEN, 3,);
 	ADD_POWER("blessed",		 1, TR3_BLESSED, 3,);
+
 
 	if (a_ptr->flags3 & TR3_TELEPORT)
 	{
@@ -3413,10 +3415,10 @@ static void parse_frequencies ()
 
 		if (a_ptr->flags3 & TR3_LITE)
 		{
-			/* Handle permanent light */
-			LOG_PRINT("Adding 1 for permanent light - general.\n");
+                        /* Handle permanent light */
+                        LOG_PRINT("Adding 1 for permanent light - general.\n");
 
-			(artprobs[ART_IDX_GEN_LITE])++;
+                        (artprobs[ART_IDX_GEN_LITE])++;
 		}
 
 		if (a_ptr->flags3 & TR3_SEE_INVIS)
@@ -4777,6 +4779,7 @@ static void build_freq_table(artifact_type *a_ptr, s16b *freq)
 			f_temp[art_idx_armor[j]] = artprobs[art_idx_armor[j]];
 		}
 	}
+
 	/* General abilities - no constraint */
 	for (j = 0; j < ART_IDX_GEN_COUNT; j++)
 	{

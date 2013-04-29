@@ -1,3 +1,19 @@
+12-01-2001 Unangband 0.4.8e Bugfix release
+
+- Removed apple tree and crab apple tree monsters,
+and FORCE_MAXHP from troll priests.
+- Added palantir back as a source of light. It
+was causing too many problems with the randarts
+code otherwise.
+- Fixed crash bug due to incorrect tval in x_info.txt
+for potion flavors.
+- Made flavor code a lot safer so it'll report an
+item as (unflavored) rather than crashing.
+- Removed generation of chests in rooms (Was
+debugging code).
+- Fixed chests so cannot find a secret on a known
+trapped chest.
+
 12-01-2001 Unangband 0.4.8d Bugfix release
 
 - Added x_info.txt flavor file, and code support.

@@ -6164,6 +6164,8 @@ errr init_u_info_txt(FILE *fp, char *buf)
 {
 	int i;
 
+        int cur_t = 0;
+
         char *s;
 
 	/* Not ready yet */
@@ -6342,7 +6344,7 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
+#if 0
                 /* Process 'O' for "Offered" (up to thirty two lines) */
                 if (buf[0] == 'O')
 		{
@@ -6367,7 +6369,7 @@ errr init_u_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
-
+#endif
 
 		/* Oops */
 		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
