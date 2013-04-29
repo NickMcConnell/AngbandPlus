@@ -1,0 +1,1738 @@
+# File: room.txt
+
+
+# This file is used to initialize the "lib/data/room.raw" file, which
+# is used to initialize the "room" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/room.raw" file.
+
+# Room descriptions (see below)
+
+# XXX XXX XXX This table *must* be correct or drastic errors may occur!
+
+#All S:SEEN descriptions start 'You have entered a/an name1 name2. ' This is
+#why we provide name entries at the end without a description.
+
+#All descriptions are supplied if the character is not blind, and
+#enters a lit room or lights a dark room. Without the SEEN flag,
+# descriptions are supplied if the character enters a dark room or a
+#room while blind.
+
+# Note that the "spacing" in the "description" lines is very important!
+
+# N: this: next : percentage : minimum level
+# A: name of room
+# B: type of room
+# D: description
+
+# F: feature
+# Generate extra features for this room
+
+# G: graphic
+# Generate extra creatures with this graphic for this room.
+
+# K: item
+# Generate extra items of this tval for this room.
+
+# L: ACID | OIL | CHASM | LAVA | ICE | WATER | DARK
+# Only generate on levels marked as this.
+
+# DARK - only generate in dark rooms.
+
+# NORTH: Line north wall of this room with items | feature.
+# SOUTH: Line south wall of this room with items | feature.
+# EAST: Line east wall of this room with items | feature.
+# WEST: Line west wall of this room with items | feature.
+# CENTRE: Fill centre (Excluding walls) of this room with items | feature.
+
+
+# R: flag
+# Generate extra monsters with this flag for this room.
+
+# S:SEEN | ICKY
+# Room special flags as follows:
+# SEEN: This description is only given if room is lit.
+# ICKY: This is an anti-teleport room
+
+
+# For all the above, use the first encountered.
+
+# Version stamp (required)
+
+V:2.9.6
+
+# 20% of rooms have at least one kind of visible feature
+
+N:1:17:20:0
+A:
+B:
+D:
+
+# another 20% of rooms have one kind of visible feature
+
+N:1:4:10:0
+A:
+B:
+D:
+
+
+# 80% may only have non-visible features
+
+N:1:7:100:0
+A:
+B:
+D:
+
+N:2:18:15:0
+A:
+B:
+D:the north wall.  
+S:SEEN
+
+N:2:18:30:0
+A:
+B:
+D:the east wall.  
+S:SEEN
+
+N:2:18:45:0
+A:
+B:
+D:the west wall.  
+S:SEEN
+
+N:2:18:60:0
+A:
+B:
+D:the south wall.  
+S:SEEN
+
+N:2:18:65:0
+A:
+B:
+D:the walls and ceiling.  
+S:SEEN
+
+N:2:18:66:0
+A:
+B:
+D:every available surface.  
+S:SEEN
+
+N:2:3:67:0
+A:
+B:
+D:a nook in 
+S:SEEN
+
+N:2:3:68:0
+A:
+B:
+D:a recess in 
+S:SEEN
+
+N:2:3:69:0
+A:
+B:
+D:a cranny in 
+S:SEEN
+
+N:2:3:70:0
+A:
+B:
+D:an alcove in 
+S:SEEN
+
+N:2:3:71:0
+A:
+B:
+D:an cupboard in 
+S:SEEN
+
+N:2:18:100:0
+A:
+B:
+D:the walls.  
+S:SEEN
+
+N:3:18:25:0
+A:
+B:
+D:the north wall.  
+S:SEEN
+
+N:3:18:50:0
+A:
+B:
+D:the east wall.  
+S:SEEN
+
+N:3:18:75:0
+A:
+B:
+D:the west wall.  
+S:SEEN
+
+N:3:18:100:0
+A:
+B:
+D:the south wall.  
+S:SEEN
+
+N:4:5:3:0
+A:
+B:
+D:A wooden platform 
+S:SEEN
+F:438
+
+N:4:5:4:0
+A:
+B:
+D:A stone dais 
+S:SEEN
+
+N:4:5:5:4
+A:
+B:temple
+D:A sacrificial stone 
+R:UNDEAD
+S:SEEN
+K:598
+
+N:4:5:6:9
+A:
+B:tomb
+D:A great sarcophagus 
+K:2
+R:UNDEAD
+S:SEEN
+
+N:4:5:7:0
+A:
+B:feasthall
+D:A stone table 
+K:80
+S:SEEN
+
+N:4:5:8:0
+A:
+B:dining room
+D:A wooden table 
+K:80
+S:SEEN
+
+N:4:5:9:45
+A:
+B:throneroom
+D:An iron throne 
+R:WARRIOR
+K:33
+S:SEEN
+
+N:4:5:10:45
+A:
+B:throneroom
+D:A gold-leafed throne 
+R:MAGE
+K:33
+S:SEEN
+
+N:4:5:11:2
+A:
+B:
+D:A giant stone head 
+S:SEEN
+K:3
+
+N:4:5:12:3
+A:
+B:
+D:A shallow grave 
+R:UNDEAD
+S:SEEN
+F:135
+
+N:4:5:13:0
+A:sunken
+B:
+D:A sunken pit 
+S:SEEN
+F:445
+
+N:4:5:14:0
+A:
+B:plaza
+D:An broken fountain 
+S:SEEN
+F:383
+
+N:4:5:15:0
+A:
+B:plaza
+D:An empty fountain 
+S:SEEN
+F:384
+
+N:4:5:16:5
+A:
+B:mine
+D:A deep shaft 
+K:20
+F:64
+S:SEEN
+
+N:4:5:17:40
+A:
+B:nest
+D:A huge nest 
+G:B
+S:SEEN
+K:8
+
+N:4:5:18:25
+A:
+B:cocoon
+D:A huge cocoon 
+S:SEEN
+
+N:4:5:19:12
+A:
+B:
+D:A huge spiderweb 
+G:S
+S:SEEN
+F:446
+
+N:4:5:20:20
+A:
+B:cell
+D:An iron cage 
+S:SEEN
+F:314
+K:6
+
+N:4:5:21:10
+A:
+B:torture room
+D:A torture rack 
+S:SEEN
+F:313
+K:6
+
+N:4:5:22:1
+A:
+B:
+D:A large boulder 
+F:49
+K:3
+S:SEEN
+
+N:4:5:24:1
+A:
+B:
+D:A fallen statue 
+K:11
+S:SEEN
+
+N:4:5:25:30
+A:
+B:chapel
+F:373
+R:PRIEST
+D:A wooden altar 
+S:SEEN
+
+N:4:5:26:20
+A:
+B:temple
+F:374
+R:PRIEST
+D:A stone altar 
+S:SEEN
+
+N:4:5:27:20
+A:unholy
+B:temple
+F:375
+R:PRIEST
+D:A blood-stained altar 
+S:SEEN
+
+N:4:5:28:40
+A:
+B:shrine
+F:376
+D:A dusty altar 
+S:SEEN
+
+N:4:5:29:0
+A:
+B:well
+F:391
+D:A stone well 
+S:SEEN
+
+N:4:5:30:0
+A:
+B:
+F:427
+D:A fallen tree 
+S:SEEN
+
+N:4:5:31:0
+A:
+B:
+F:422
+D:A hollow tree 
+S:SEEN
+
+N:4:5:32:0
+A:
+B:
+F:426
+D:An apple tree 
+S:SEEN
+
+N:4:5:33:10
+A:
+B:pen
+D:A wooden cage 
+S:SEEN
+F:313
+R:ANIMAL
+
+N:4:6:50:0
+A:
+B:
+D:The floor is 
+S:SEEN
+
+N:4:7:100:0
+A:
+B:
+D:
+S:SEEN
+
+N:5:6:15:0
+A:
+B:
+D:against the north wall is 
+S:SEEN
+
+N:5:6:30:0
+A:
+B:
+D:against the east wall is 
+S:SEEN
+
+N:5:6:45:0
+A:
+B:
+D:aginst the west wall is 
+S:SEEN
+
+N:4:6:70:0
+A:
+B:
+D:against the south wall is 
+S:SEEN
+
+N:5:6:100:0
+A:
+B:
+D:in the centre of the room is 
+S:SEEN
+
+N:6:7:1:0
+A:
+B:
+D:littered with broken bones.  
+K:1
+S:SEEN
+
+N:6:7:2:3
+A:rocky
+B:
+D:littered with loose rocks.  
+K:3
+S:SEEN
+
+N:6:7:3:0
+A:
+B:junkyard
+D:strewn with junk.  
+K:3
+S:SEEN
+
+N:6:7:4:0
+A:
+B:cellar
+D:littered with broken pottery.  
+K:3
+S:SEEN
+
+N:6:7:5:0
+A:tiled
+B:
+D:decorated with a tile mosaic.  
+F:439
+S:SEEN
+
+N:6:7:6:15
+A:
+B:
+D:decorated with a checkerboard pattern.  
+F:2
+S:SEEN
+
+N:6:7:7:25
+A:
+B:
+D:decorated with protective glyphs.  
+F:3
+S:SEEN
+
+N:6:7:8:14
+A:
+B:
+D:inlaid with precious metal.  
+K:100
+S:SEEN
+
+N:6:7:9:0
+A:sunken
+B:
+D:sunken in places.  
+F:445
+S:SEEN
+
+N:6:7:10:15
+A:uneven
+B:
+D:broken and uneven in places.  
+F:136
+S:SEEN
+
+N:6:7:11:0
+A:damp
+B:
+D:slick with moisture.
+F:307
+S:SEEN
+
+N:6:7:12:0
+A:water-filled
+B:
+D:flooded with stagnant water.  
+F:310
+S:SEEN
+
+N:6:7:13:0
+A:water-filled
+B:
+D:flooded with water.  
+F:153
+L:WATER
+S:SEEN
+
+N:6:7:14:0
+A:
+B:
+D:criss-crossed with rays of light.  
+F:2
+S:SEEN
+
+N:6:7:15:12
+A:
+B:
+D:covered in slime.  
+G:,
+S:SEEN
+F:306
+K:8
+
+N:6:7:16:10
+A:
+B:
+D:badly burned by powerful fire.  
+R:BR_FIRE
+S:SEEN
+F:308
+
+N:6:2:17:11
+A:
+B:
+D:badly melted by powerful acid.  
+R:BR_ACID
+S:SEEN
+F:309
+
+N:6:2:18:11
+A:
+B:
+D:covered in a thick layer of frost.  
+R:BR_COLD
+S:SEEN
+F:132
+
+N:6:7:19:3
+A:
+B:hatchery
+D:littered with broken egg shells.  
+G:R
+S:SEEN
+K:9
+
+N:6:7:20:3
+A:
+B:hatchery
+D:littered with broken egg shells.  
+G:J
+S:SEEN
+K:9
+
+N:6:7:21:11
+A:
+B:hatchery
+D:littered with broken egg shells.  
+G:d
+S:SEEN
+K:9
+
+N:6:7:22:4
+A:
+B:nest
+D:nested with twigs and feathers.  
+G:B
+S:SEEN
+K:8
+
+N:6:7:23:2
+A:broken arrow
+B:
+D:littered with broken arrows.  
+K:17
+S:SEEN
+
+N:6:7:24:1
+A:sooty
+B:
+D:covered with soot.  
+K:77
+S:SEEN
+
+N:6:7:25:5
+A:dusty
+B:
+D:covered with coal dust.  
+F:221
+L:OIL
+S:SEEN
+
+N:6:7:26:5
+A:
+B:
+D:slick with oil.  
+F:219
+L:OIL
+S:SEEN
+
+N:6:7:27:72
+A:
+B:
+D:covered with volcanic ash.  
+F:209
+L:LAVA
+S:SEEN
+
+N:6:7:28:51
+A:
+B:
+D:covered with sulpher deposits.  
+S:SEEN
+
+N:6:7:29:8
+A:sandy
+B:
+D:covered with sand.  
+F:192
+S:SEEN
+
+N:6:7:30:75
+A:
+B:
+D:covered with acid.  
+F:157
+L:ACID
+S:SEEN
+
+N:6:7:31:30
+A:icy
+B:
+D:covered in ice.  
+F:145
+L:ICE
+S:SEEN
+
+N:6:7:32:0
+A:bloody
+B:
+D:spattered with dried blood.  
+S:SEEN
+K:6
+F:305
+
+N:6:7:33:0
+A:dirt-filled
+B:
+D:caked with dirt.  
+F:135
+S:SEEN
+
+N:6:7:34:3
+A:muddy
+B:
+D:covered in mud.  
+F:199
+L:WATER
+S:SEEN
+
+N:6:7:35:0
+A:rubble-filled
+B:
+D:covered in rubble.  
+F:96
+S:SEEN
+
+N:6:7:36:1
+A:dirt-filled
+B:
+D:covered with piles of dirt.  
+F:138
+S:SEEN
+
+N:6:7:38:3
+A:
+B:
+D:covered with bat guano.  
+G:b
+S:SEEN
+
+N:6:7:39:3
+A:
+B:garden
+D:planted with thorny bushes.  
+F:440
+S:SEEN
+
+N:6:7:40:8
+A:
+B:garden
+D:planted with thorny bushes.  
+F:441
+S:SEEN
+
+N:6:7:41:8
+A:
+B:garden
+D:planted with thorny bushes.  
+F:448
+S:SEEN
+
+N:6:7:70:0
+A:dusty
+B:
+D:covered in dust.  
+F:134
+S:SEEN
+
+N:6:7:100:0
+A:old
+B:
+D:weathered with age.  
+S:SEEN
+
+N:7:8:80:0
+A:
+B:
+D:The air here is 
+
+N:7:9:81:25
+A:magic
+B:
+D:There is a static feeling in the air. 
+S:STATIC
+
+N:7:9:100:0
+A:
+B:
+D:
+
+N:8:9:10:51
+A:humid
+B:
+D:hot and humid.  
+
+N:8:9:30:72
+A:hot
+B:
+D:hot and dry.  
+L:LAVA
+
+N:8:9:45:72
+A:hot
+B:
+D:stiffling hot.  
+R:IM_FIRE
+L:LAVA
+
+N:8:9:60:0
+A:damp
+B:
+D:cool and damp.  
+
+N:8:9:70:0
+A:
+B:
+D:cool and dry.  
+
+N:8:9:71:1
+A:dusty
+B:
+D:thick with dust.  
+F:134
+
+N:8:9:72:10
+A:steamy
+B:
+D:filled with steam.  
+F:177
+
+N:8:9:73:16
+A:
+B:
+D:filled with gas.  
+F:181
+
+N:8:9:74:4
+A:smokey
+B:
+D:smokey with incense.  
+R:PRIEST
+
+N:8:9:75:9
+A:
+B:
+D:rank with sulphur.  
+R:DEMON
+
+N:8:9:76:9
+A:
+B:
+D:ripe with decay.  
+R:UNDEAD
+
+N:8:9:77:0
+A:mildewed
+B:
+D:rank with mildew.  
+F:306
+
+N:8:9:78:12
+A:
+B:
+D:filled with smoke.  
+F:162
+
+N:8:9:79:14
+A:
+B:
+D:filled with acidic vapour.  
+F:165
+
+N:8:9:99:30
+A:freezing
+B:
+D:freezing cold.  
+L:ICE
+R:IM_COLD
+
+N:8:9:100:10
+A:
+B:
+D:stale.  
+
+N:9:10:5:0
+A:
+B:
+D:A warm breeze blows 
+
+
+N:9:10:10:0
+A:
+B:
+D:A cool breeze blows 
+
+
+N:9:10:20:40
+A:
+B:
+D:A hot wind blows 
+L:LAVA | CHASM
+
+
+N:9:10:30:30
+A:
+B:
+D:A cold wind blows 
+L:ICE | CHASM
+
+# Skip noises.
+
+N:9:15:35:40
+A:windy
+B:
+D:A howling gale blows 
+L:CHASM
+
+
+N:9:11:100:0
+A:
+B:
+D:
+
+
+N:10:11:15:0
+A:
+B:
+D:from the north.  
+
+
+N:10:11:30:0
+A:
+B:
+D:from the east.  
+
+
+N:10:11:45:0
+A:
+B:
+D:from the west.   
+
+
+N:10:11:60:0
+A:
+B:
+D:from the south.  
+
+
+N:10:11:100:0
+A:
+B:
+D:around the room.  
+
+N:11:12:50:0
+A:
+B:
+D:You hear 
+
+N:11:15:100:0
+A:
+B:
+
+N:12:15:1:15
+A:
+B:
+D:the clank of machinery...
+F:2
+
+N:12:15:2:51
+A:
+B:
+D:the earth trembling deep beneath you.
+
+
+N:12:15:3:3
+A:
+B:kennels
+D:howling...
+G:C
+
+
+N:12:15:4:5
+A:haunted
+B:
+D:quiet footsteps...
+G:G
+
+N:12:15:5:3
+A:rat-infested
+B:
+D:a sudden scampering...
+G:r
+
+N:12:15:6:3
+A:
+B:
+D:slithering noises...
+G:J
+
+
+N:12:15:7:3
+A:
+B:
+D:a sudden hissing...
+G:J
+
+N:12:15:8:5
+A:haunted
+B:
+D:something whispering...
+R:UNDEAD
+
+N:12:15:9:3
+A:
+B:antfarm
+D:a faint chittering...
+G:a
+
+
+N:12:15:10:4
+A:
+B:
+D:a faint chittering...
+G:S
+
+
+N:12:15:11:14
+A:
+B:
+D:distant chanting...
+R:MAGE
+
+
+N:12:15:12:40
+A:
+B:
+D:distant echoes...
+L:CHASM
+
+
+N:12:15:13:3
+A:creepy
+B:
+D:something behind you!
+R:INVISIBLE
+
+N:12:15:14:10
+A:windy
+B:
+D:the wind whistling through a distant chasm...
+
+N:12:15:25:40
+A:windy
+B:
+D:the wind whistling through a nearby chasm...
+L:CHASM
+
+
+N:12:15:26:1
+A:
+B:
+D:the drip of water...
+
+
+N:12:15:30:3
+A:
+B:
+D:the drip of water...
+L:WATER
+
+
+N:12:15:35:18
+A:
+B:
+D:running water.
+L:WATER
+
+
+N:12:15:40:27
+A:
+B:
+D:rushing water.
+L:WATER
+
+
+N:12:15:60:40::
+D:the thunder of a nearby waterfall...
+L:WATER | CHASM
+
+
+N:12:15:75:60
+A:
+B:
+D:bubbling mud.
+L:LAVA
+
+
+N:12:15:85:81
+A:
+B:
+D:the earth trembling all around you.
+L:LAVA
+
+N:12:15:98:71
+A:
+B:
+D:the roar of a nearby volcano...
+L:LAVA
+
+N:12:15:99:30
+A:silent
+B:
+D:nothing, not even your footsteps.
+S:SILENT
+
+N:12:15:100:0
+A:quiet
+B:
+D:nothing.
+
+N:13:14:30:0
+A:black
+B:
+D:black 
+S:SEEN
+
+N:13:14:35:0
+A:blue
+B:
+D:blue 
+S:SEEN
+
+N:13:14:55:0
+A:white
+B:
+D:white 
+S:SEEN
+
+N:13:14:60:0
+A:green
+B:
+D:green 
+S:SEEN
+
+N:13:14:65:0
+A:yellow
+B:
+D:yellow 
+S:SEEN
+
+N:13:14:95:0
+A:grey
+B:
+D:grey 
+S:SEEN
+
+N:13:14:100:0
+A:brown
+B:
+D:brown 
+S:SEEN
+
+N:14:3:80:0
+A:
+B:
+D:stonework covers 
+S:SEEN
+
+N:14:3:90:20
+A:
+B:
+D:metal covers 
+S:SEEN
+
+N:14:3:95:0
+A:
+B:
+D:wood covers 
+S:SEEN
+
+N:14:3:96:0
+A:frescoed
+B:
+D:fresco covers 
+S:SEEN
+
+N:14:3:97:0
+A:muralled
+B:
+D:mural covers 
+S:SEEN
+
+N:14:3:98:0
+A:painted
+B:
+D:painting covers 
+S:SEEN
+
+N:14:3:100:0
+A:curtained
+B:
+D:curtain covers 
+S:SEEN
+
+N:15:16:3:0
+A:low-ceilinged
+B:
+
+N:15:16:6:0
+A:high-ceilinged
+B:
+
+N:15:16:9:0
+A:brightly-lit
+B:
+
+N:15:16:15:0
+A:gloomy
+B:
+S:GLOOMY
+L:DARK
+
+N:15:16:18:0
+A:shadowy
+B:
+
+N:15:16:21:0
+A:half-lit
+B:
+
+N:15:16:24:0
+A:dusty
+B:
+F:134
+
+N:15:16:27:0
+A:forgotten
+B:
+
+N:15:16:30:0
+A:abandoned
+B:
+
+N:15:16:33:0
+A:cramped
+B:
+
+N:15:16:36:0
+A:small
+B:
+
+N:15:16:39:0
+A:ancient
+B:
+
+N:15:16:100:0
+A:empty
+B:
+
+N:16:0:20:1
+A:
+B:chamber
+
+N:16:0:30:1
+A:
+B:antechamber
+
+N:16:0:35:1
+A:
+B:foyer
+
+N:16:0:40:1
+A:
+B:guardroom
+
+N:16:0:45:1
+A:
+B:store room
+K:3
+
+N:16:0:65:1
+A:
+B:hall
+
+N:16:0:80:1
+A:
+B:cave
+
+N:16:0:100:1
+A:
+B:room
+
+N:17:2:1:3
+A:
+B:graveyard
+D:Animal skulls line 
+K:1
+R:ANIMAL
+S:SEEN
+
+N:17:2:2:0
+A:
+B:mausoleum
+D:Skulls line 
+K:1
+S:SEEN
+
+N:17:2:3:0
+A:grafittied
+B:
+D:Crude grafitti covers 
+S:SEEN
+
+N:17:2:4:4
+A:
+B:
+D:Claw marks cover 
+G:H
+S:SEEN
+
+N:17:2:5:0
+A:frescoed
+B:
+D:Faded frescoes cover 
+S:SEEN
+F:439
+
+N:17:2:6:0
+A:painted
+B:
+D:Faded cave paintings 
+S:SEEN
+
+N:17:2:7:9
+A:
+B:
+D:Hieroglyphics cover 
+G:z
+S:SEEN
+
+N:17:2:8:60
+A:
+B:
+D:Strange runes cover 
+F:20
+S:SEEN | CURSED
+
+N:17:2:9:40
+A:
+B:
+D:Strange runes cover 
+F:21
+S:SEEN | PORTAL
+
+N:17:2:11:0
+A:candle-lit
+B:
+D:Candles line 
+F:405
+S:SEEN
+L:DARK
+
+N:17:2:12:0
+A:curtained
+B:
+D:Thick curtains cover 
+S:SEEN
+F:443
+
+N:17:2:13:4
+A:
+B:
+D:Ornate curtains frame 
+G:S
+S:SEEN
+F:444
+
+N:17:2:14:0
+A:
+B:
+D:Dusty cobwebs cover 
+F:447
+S:SEEN
+
+N:17:2:15:12
+A:
+B:
+D:Giant spider webs cover 
+G:S
+S:SEEN
+F:446
+
+#Note race flag to force only mushroom patches.
+
+N:17:2:16:3
+A:
+B:
+D:Delicate mushrooms cover 
+G:,
+R:ONLY_ITEM
+K:80
+S:SEEN
+
+N:17:2:17:3
+A:moldy
+B:
+D:Mold covers 
+G:m
+S:SEEN
+
+N:17:2:18:0
+A:mildewed
+B:
+D:Mildew covers 
+S:SEEN
+F:306
+
+N:17:2:19:1
+A:
+B:library
+D:Empty bookshelves line 
+K:70
+S:SEEN
+
+N:17:2:20:4
+A:
+B:library
+D:Crowded bookshelves line 
+K:90
+R:MAGE
+S:SEEN
+
+N:17:2:21:4
+A:
+B:library
+D:Crowded bookshelves line 
+K:91
+R:PRIEST
+S:SEEN
+
+N:17:2:22:4
+A:
+B:laboratory
+D:Laboratory equipment lines 
+K:75
+R:MAGE
+S:SEEN
+
+N:17:2:23:5
+A:
+B:weapons room
+D:Weapon racks line 
+K:21
+R:WARRIOR
+S:SEEN
+
+N:17:2:24:7
+A:
+B:weapons room
+D:Weapon racks line 
+K:22
+R:WARRIOR
+S:SEEN
+
+N:17:2:25:4
+A:
+B:weapons room
+D:Weapon racks line 
+K:23
+R:WARRIOR
+S:SEEN
+
+N:17:2:26:1
+A:
+B:cloakroom
+D:Cloaks hang from 
+K:35
+S:SEEN
+
+N:17:2:27:3
+A:
+B:armoury
+D:Leather armour lines 
+K:36
+S:SEEN
+
+N:17:2:28:25
+A:
+B:armoury
+D:Metal armour lines 
+K:37
+S:SEEN
+
+N:17:2:29:3
+A:
+B:armoury
+D:Battered shields hang from 
+K:34
+S:SEEN
+
+N:17:2:30:5
+A:
+B:closet
+D:Empty chests line 
+F:319
+S:SEEN
+
+N:17:2:31:3
+A:
+B:
+D:Banners hang from 
+K:32
+S:SEEN
+
+N:17:2:32:6
+A:
+B:
+D:Burn marks cover 
+R:IM_FIRE
+F:308
+S:SEEN
+
+N:17:2:33:6
+A:
+B:
+D:Acid marks cover 
+R:IM_ACID
+F:309
+S:SEEN
+
+N:17:2:34:30
+A:
+B:
+D:Frost covers 
+R:IM_COLD
+F:132
+L:ICE
+S:SEEN
+
+N:17:2:35:10
+A:
+B:
+D:Burn marks cover 
+R:BR_FIRE
+F:308
+S:SEEN
+
+N:17:2:36:11
+A:
+B:
+D:Acid marks cover 
+R:BR_ACID
+F:309
+S:SEEN
+
+N:17:2:37:11
+A:
+B:
+D:Frost covers 
+R:BR_COLD
+L:ICE
+F:132
+S:SEEN
+
+N:17:2:38:11
+A:
+B:
+D:Acid marks cover 
+R:IM_ACID
+F:309
+G:j
+S:SEEN
+
+N:17:2:41:5
+A:
+B:
+D:Ancient statues line 
+R:WARRIOR
+S:SEEN
+K:11
+
+N:17:2:42:1
+A:
+B:
+D:Broken statues line 
+F:49
+S:SEEN
+K:11
+
+N:17:2:43:4
+A:
+B:crypt
+D:Stone caskets line 
+R:UNDEAD
+S:SEEN
+K:2
+
+N:17:2:44:11
+A:
+B:
+D:Deep gouges cover 
+R:DRAGON
+S:SEEN
+
+N:17:2:45:4
+A:
+B:
+D:Scratch marks cover 
+G:f
+S:SEEN
+
+N:17:2:46:14
+A:
+B:
+D:Gold inlay covers 
+K:100
+S:SEEN
+
+N:17:2:47:0
+A:
+B:
+D:Wooden panels cover 
+S:SEEN
+K:449
+
+N:17:2:48:0
+A:
+B:kitchen
+D:Cupboards cover 
+K:80
+S:SEEN
+F:450
+
+N:17:13:49:0
+A:
+B:
+D:A worn 
+S:SEEN
+
+N:17:13:50:5
+A:
+B:
+D:A mottled 
+S:SEEN
+
+N:17:13:51:40
+A:
+B:
+D:A strange 
+S:SEEN | PORTAL
+
+N:17:13:52:30
+A:
+B:
+D:A gleaming  
+S:SEEN | ICKY
+
+N:17:13:53:50
+A:
+B:
+D:A glistening 
+S:SEEN | BLOODY
+
+N:17:13:54:60
+A:
+B:
+D:A glowing 
+S:SEEN | CURSED
+
+N:17:2:55:40
+A:
+B:
+D:Blood seeps from
+S:SEEN | BLOODY
+F:305
+
+# Note flag to force only slimes.
+
+N:17:2:56:15
+A:
+B:
+D:Slime covers 
+G:,
+R:FRIENDS
+F:306
+S:SEEN
+
+N:17:2:57:0
+A:
+B:cell
+D:Rusted manacles hang from 
+K:1
+F:312
+S:SEEN
+
+N:17:2:65:0
+A:torch-lit
+B:
+D:Torches line 
+F:404
+L:DARK
+S:SEEN
+
+N:17:2:68:10
+A:magical
+B:
+D:Magical lights line 
+F:406
+L:DARK
+S:SEEN
+
+N:17:2:58:2
+A:thieves
+B:
+D:Loot covers 
+K:100
+S:SEEN
+R:SNEAKY
+
+N:17:2:59:3
+A:thieves
+B:
+D:Stolen goods cover 
+F:317
+S:SEEN
+R:SNEAKY
+
+N:17:2:60:3
+A:thieves
+B:
+D:Stolen goods cover 
+F:316
+S:SEEN
+R:SNEAKY
+
+N:17:4:100:0
+A:
+B:
+D:
+S:SEEN
+
+# 10% of these rooms have a second feature
+
+N:18:4:10:0
+A:
+B:
+D:
+
+# Remainder may only have non-visible features
+
+N:18:7:100:0
+A:
+B:
+D:
+

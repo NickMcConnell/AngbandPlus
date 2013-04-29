@@ -1,0 +1,3396 @@
+# File: spell.txt
+
+
+# This file is used to initialize the "lib/data/spell.raw" file, which
+# is used to initialize the "spell" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/spell.raw" file.
+
+# Note that all spells, object effects and artifact activations are
+# now specified in this file.
+
+# === Understanding spell.txt ===
+
+# N: number : name
+# A: tval : sval:slot
+# C: class: level:mana:failure:min failure
+# F: flags
+# B: attack method : attack effect : damage
+# L: duration
+# S: other effect : parameter
+# D: description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'A' is for appears in which objects, referenced by tval and sval.
+# Slot must be unique for objects which have multiple spells
+# associated with them, and slots must be numbered from 1 upwards.
+# The exception is rune stones, where the slot corresponds to the
+# second ('verb') runestone sval.
+
+# 'C' indicates the casting details listed by class. Note that currently
+# no more than 5 classes can cast a particular spell.
+
+# 'F' flags indicating many effects that take place when the spell is
+# cast.
+
+# 'B' indicates the attack effect of the spell similar to monster attacks.
+# Note that blow specifies whether a directional parameter is needed,
+# and the increase in spell effect based on player level.
+# Note that we can specify a constant bonus to damage in this file, and
+# up to 4 blows are permitted.
+
+# If dice is > 0 and sides == 0, we use dice * level + bonus, or
+# dice * 25 + bonus, if the spell is the result of using an object.
+
+# 'L' indicates how long the duration component of the spell lasts.
+
+# 'S' indicates another parametised effect. The parameter value
+# depends on the effect in question.
+
+# 'D' description indicates the description display when the spell
+# takes effect. If an item has a description, it will be identified
+# as a part of the activation of the item.
+
+# ToDo: Explain the other monster and spell flags.  But maybe in another file.
+
+
+# Version stamp (required)
+
+V:2.9.6
+
+N:0:(illegible)
+C:0:99:99:100:100
+
+N:1:Magic Missile
+A:65:15:1
+A:65:24:15
+A:90:0:1
+A:93:2:2
+C:1:1:1:22:4
+C:4:3:1:30:1
+C:8:1:1:30:1
+B:MISSILE:MISSILE:3d4+0
+
+N:2:Detect Monsters
+A:90:0:2
+A:90:23:1
+A:93:12:15
+C:1:1:1:23:4
+C:3:5:1:50:1
+C:4:3:2:35:2
+C:8:2:2:35:2
+F:DETECT_MONSTER
+
+N:3:Phase Door
+A:70:8:1
+A:90:0:3
+A:90:5:1
+A:92:3:1
+A:93:7:7
+C:1:1:2:24:4
+C:3:7:2:55:1
+C:4:3:2:35:2
+C:8:2:2:35:2
+C:9:7:2:55:1
+F:HOLD_SONG
+B:SELF:AWAY_ALL:0d0+10
+
+N:4:Light Area
+A:90:0:4
+A:90:17:1
+A:92:0:7
+A:93:21:14
+C:1:1:2:26:4
+C:3:9:3:60:1
+C:4:5:3:35:1
+C:8:1:2:26:4
+C:9:5:3:35:1
+F:HOLD_SONG
+B:AREA:LITE_WEAK:2d0+0
+F:LITE_ROOM
+
+N:5:Treasure Detection
+A:55:10:1
+A:70:26:1
+A:90:0:5
+A:90:18:1
+A:90:23:3
+A:92:2:2
+A:93:12:25
+C:3:10:3:60:1
+C:8:10:3:60:1
+C:9:10:3:60:1
+F:DETECT_GOLD
+
+N:6:Cure Light Wounds
+A:55:16:1
+A:90:0:6
+A:90:24:1
+A:93:3:21
+C:1:3:3:25:3
+C:3:11:4:65:1
+C:4:5:3:40:1
+C:8:3:3:25:3
+B:SELF:HEAL:3d8+0
+
+N:7:Object Detection
+A:55:11:1
+A:70:27:1
+A:90:0:7
+A:90:23:4
+A:92:2:4
+A:93:12:20
+C:3:12:4:65:1
+C:9:12:4:65:1
+F:DETECT_OBJECT
+
+N:8:Find Hidden Traps/Doors
+A:90:0:8
+A:90:23:2
+A:92:0:9
+A:93:12:7
+C:1:3:3:25:1
+C:3:13:5:70:1
+C:4:5:4:45:2
+C:8:5:4:45:2
+C:9:9:5:60:1
+F:DETECT_DOORS | DETECT_TRAPS | DETECT_STAIRS
+
+N:9:Stinking Cloud
+A:65:14:1
+A:65:24:14
+A:90:0:9
+A:90:19:1
+A:93:4:4
+C:1:3:3:27:3
+C:4:7:5:40:3
+C:8:7:5:40:3
+B:CLOUD:POISON:0d0+10
+
+N:10:Confuse Monster
+A:65:10:1
+A:65:24:10
+A:90:1:1
+A:90:16:1
+A:90:22:1
+A:92:0:8
+A:93:4:12
+C:1:3:4:30:1
+C:3:15:6:75:1
+C:4:7:6:40:2
+C:8:7:6:40:2
+C:9:7:6:40:2
+B:AIM:CONFUSE_WEAK:1d0+0
+
+N:11:Lightning Bolt
+A:65:17:1
+A:65:24:17
+A:66:21:1
+A:90:1:2
+A:90:12:4
+A:93:22:19
+C:1:5:4:30:4
+C:4:9:7:40:3
+C:8:5:4:30:4
+B:BOLT_10:ELEC:3d8+0
+
+N:12:Trap/Door Destruction
+A:70:39:1
+A:90:1:3
+A:92:11:1
+A:93:1:7
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:9:8:45:3
+C:9:9:8:45:3
+B:ADJACENT:KILL_DOOR
+
+N:13:Sleep Monster
+A:65:8:1
+A:65:24:8
+A:66:16:1
+A:90:1:4
+A:90:22:2
+A:92:1:2
+A:93:16:12
+C:1:5:5:30:4
+C:3:19:8:85:1
+C:4:11:8:40:3
+C:9:11:8:40:3
+B:AIM:SLEEP:1
+
+N:14:Cure Poison
+A:75:27:1
+A:80:12:1
+A:90:1:5
+A:90:24:2
+C:1:5:5:35:4
+C:3:21:9:90:1
+C:4:11:9:45:3
+C:8:5:5:35:4
+F:CURE_POIS
+
+N:15:Teleport Self
+A:55:4:1
+A:70:9:1
+A:90:1:6
+A:90:5:2
+A:92:3:3
+A:93:15:15
+C:1:7:6:35:5
+C:3:22:9:50:1
+C:4:13:10:45:3
+C:8:13:10:45:3
+C:9:13:10:45:3
+B:SELF:AWAY_ALL:5d0+0
+
+
+N:16:Spear of Light
+A:65:7:1
+A:65:24:7
+A:66:15:1
+A:90:1:7
+A:90:17:3
+A:92:0:10
+A:93:21:26
+C:1:7:6:30:5
+C:3:23:10:95:1
+C:4:13:11:55:4
+C:8:7:6:30:5
+C:9:13:11:55:4
+B:LINE:LITE_WEAK:6d8+0
+D:A line of blue shimmering light appears.
+
+N:17:Frost Bolt
+A:65:19:1
+A:65:24:19
+A:66:23:1
+A:90:1:8
+A:90:11:5
+A:93:14:19
+C:1:7:6:40:6
+C:4:15:12:50:4
+C:8:7:6:40:6
+B:BOLT_10:COLD:5d8+0
+
+N:18:Turn Stone to Mud
+A:65:6:1
+A:65:24:6
+A:90:1:9
+A:90:18:2
+A:93:25:26
+C:1:9:7:44:8
+C:3:24:11:70:1
+C:4:15:13:50:4
+C:8:9:7:44:8
+B:LINE:KILL_WALL:6d8+0
+
+N:19:Satisfy Hunger
+A:70:32:1
+A:90:2:1
+A:90:24:4
+A:92:4:6
+A:93:3:19
+C:1:9:7:45:8
+C:3:25:12:95:1
+C:4:17:17:55:3
+C:8:9:7:45:8
+C:9:17:17:55:3
+F:CURE_FOOD
+
+N:20:Gauge Magic
+A:66:7:1
+A:70:43:1
+A:90:2:2
+A:90:25:1
+A:93:17:17
+C:1:9:7:75:9
+C:3:27:15:99:1
+C:4:17:17:90:4
+C:8:17:17:90:4
+F:IDENT_BONUS
+
+N:21:Sleep Monsters
+A:90:2:3
+A:90:22:4
+A:92:1:4
+A:93:16:16
+C:1:9:7:45:8
+C:4:21:17:55:3
+C:8:21:17:55:3
+C:9:13:10:50:5
+B:ADJACENT:SLEEP:1d0+0
+
+N:22:Polymorph Other
+A:65:13:1
+A:65:24:13
+A:66:19:1
+A:90:2:4
+A:90:7:3
+A:92:9:3
+A:93:28:12
+C:1:11:7:45:8
+C:4:21:19:60:3
+C:8:16:13:50:5
+C:9:21:19:60:3
+B:AIM:POLYMORPH:1d0+0
+
+N:23:Identify
+A:55:30:1
+A:70:12:1
+A:90:23:8
+A:93:17:12
+C:1:13:7:50:6
+C:3:28:18:50:2
+C:4:23:25:90:3
+C:8:18:16:70:4
+F:IDENT
+
+N:24:*Sleep Monsters*
+A:55:20:1
+A:90:2:6
+A:90:22:5
+A:92:1:6
+A:93:16:15
+C:1:13:7:50:6
+C:4:23:20:60:3
+C:8:23:20:60:3
+C:9:18:14:55:5
+F:HOLD_SONG
+B:LOS:SLEEP:1d0+0
+
+N:25:Fire Bolt
+A:65:18:1
+A:65:24:18
+A:66:22:1
+A:90:2:7
+A:90:9:5
+A:93:13:23
+C:1:15:9:50:6
+C:4:25:20:60:3
+C:8:15:9:50:6
+B:BOLT:FIRE:8d8+0
+
+N:26:Slow Monster
+A:65:9:1
+A:65:24:9
+A:66:17:1
+A:90:2:8
+A:92:1:5
+A:93:25:12
+C:1:17:9:50:7
+C:4:25:21:65:3
+C:8:17:9:50:7
+C:9:17:9:50:7
+B:AIM:SLOW_WEAK:1d0+0
+
+N:27:Frost Ball
+A:65:23:1
+A:65:24:23
+A:66:27:1
+A:90:3:1
+A:90:11:7
+A:93:14:19
+C:1:19:12:55:8
+C:4:27:21:65:3
+C:8:19:12:55:8
+B:BALL:ELEC:1d0+30
+
+N:28:Recharging
+A:90:3:2
+A:90:25:4
+A:93:18:17
+C:1:21:12:90:8
+C:3:30:20:99:6
+C:4:29:23:95:3
+S:RECHARGE:40
+
+N:29:Teleport Other
+A:65:3:1
+A:65:24:3
+A:66:13:1
+A:90:3:3
+A:92:3:4
+A:93:7:28
+C:1:23:12:60:8
+C:3:31:25:70:3
+C:4:25:25:80:12
+C:9:25:25:80:12
+B:AIM:AWAY_ALL:1d0+0
+
+N:30:Haste Self
+A:55:22:1
+A:66:11:1
+A:90:3:4
+A:92:5:5
+A:93:27:3
+C:1:25:12:65:10
+C:3:32:25:70:6
+C:4:33:25:75:4
+C:8:33:25:75:4
+C:9:25:12:65:10
+F:HASTE
+L:1d20+20
+
+N:31:Fire Ball
+A:65:22:1
+A:65:24:22
+A:66:26:1
+A:90:3:5
+A:90:9:9
+A:93:14:14
+C:1:29:18:65:12
+C:4:35:25:80:5
+C:8:29:18:65:12
+B:BALL:FIRE:1d0+55
+
+N:32:Word of Destruction
+A:70:41:1
+A:90:21:12
+A:90:3:6
+A:92:10:6
+A:93:11:25
+C:1:33:21:80:15
+C:4:37:30:95:10
+C:8:37:30:95:10
+C:9:37:30:95:10
+S:DESTRUCTION:15
+
+N:33:Genocide
+A:55:27:1
+A:90:3:7
+C:1:37:25:95:21
+C:8:37:25:95:21
+F:GENOCIDE
+
+N:34:Door Creation
+A:90:5:3
+A:93:7:25
+C:1:7:7:20:28
+C:3:7:7:20:25
+C:4:8:17:20:25
+B:ADJACENT:MAKE_DOOR
+
+N:35:Stair Creation
+A:90:5:4
+A:93:7:24
+C:1:9:12:40:44
+C:3:9:12:40:45
+C:4:19:22:40:21
+C:8:19:22:40:21
+F:CREATE_STAIR
+
+N:36:Teleport Level
+A:70:10:1
+A:90:5:5
+A:92:3:5
+A:93:7:27
+C:1:15:17:60:29
+C:3:15:17:60:30
+C:4:25:27:60:17
+C:8:30:40:75:133
+C:9:25:27:60:17
+F:TELE_LEVEL
+
+N:37:Earthquake
+A:55:28:1
+A:90:5:6
+A:90:18:6
+A:93:25:14
+C:1:20:18:60:24
+C:4:30:28:60:16
+C:8:11:9:55:5
+S:EARTHQUAKE:10
+
+N:38:Word of Recall
+A:66:3:1
+A:70:11:1
+A:90:5:7
+A:90:21:10
+A:92:3:6
+A:93:15:3
+C:1:25:25:75:19
+C:3:30:35:75:15
+C:4:35:35:75:13
+C:8:35:35:75:13
+C:9:35:35:75:13
+F:RECALL
+
+N:39:Acid Bolt
+A:65:16:1
+A:66:20:1
+A:90:20:1
+A:90:8:1
+A:90:10:5
+A:93:1:23
+C:1:10:6:50:12
+C:4:20:16:50:6
+C:8:13:16:50:10
+B:BOLT:ACID:6d8+0
+
+N:40:Cloud Kill
+A:65:29:1
+A:90:8:2
+A:90:19:3
+A:93:4:22
+C:1:12:9:60:16
+C:4:22:19:60:9
+C:8:18:20:60:10
+B:STORM:POISON:0d0+20
+
+N:41:Acid Ball
+A:65:20:1
+A:65:24:20
+A:66:24:1
+A:90:8:3
+A:90:10:7
+A:93:1:13
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:BALL:ACID:1d0+40
+
+N:42:Ice Storm
+A:65:30:1
+A:90:8:4
+A:93:14:22
+C:1:27:25:75:29
+C:4:33:35:75:25
+C:8:27:25:75:29
+B:STORM:COLD:2d0+70
+
+N:43:Meteor Storm
+A:65:31:1
+A:90:8:5
+A:90:17:7
+A:93:21:23
+C:1:35:35:85:34
+C:4:35:45:85:35
+C:8:35:35:85:34
+B:STORM:METEOR:2d0+65
+
+N:44:Mana Storm
+A:90:8:6
+A:93:17:22
+C:1:42:45:95:200
+B:STORM:MANA:2d0+300
+
+N:45:Detect Evil
+A:55:15:1
+A:90:6:1
+A:90:23:5
+A:93:12:23
+C:1:5:5:50:8
+C:3:5:5:50:10
+C:4:10:15:50:4
+C:8:5:5:50:8
+F:DETECT_EVIL
+
+N:46:Detect Magic
+A:66:2:1
+A:70:31:1
+A:90:2:5
+A:90:6:2
+A:90:23:7
+A:90:25:2
+A:92:2:5
+A:93:12:2
+C:1:10:10:70:40
+C:3:10:10:70:40
+C:4:15:20:70:25
+C:8:15:20:70:25
+C:9:15:20:70:25
+F:DETECT_MAGIC
+
+N:47:*Recharging*
+A:90:6:3
+A:90:25:5
+A:93:24:17
+C:1:25:30:95:160
+C:3:35:40:95:100
+C:4:35:60:95:115
+C:8:35:60:95:115
+S:RECHARGE:100
+
+N:48:Genocide
+A:70:44:1
+A:90:6:4
+A:90:24:7
+A:93:18:3
+C:1:30:50:70:40
+C:8:35:60:80:50
+F:GENOCIDE
+
+N:49:Mass Genocide
+A:70:45:1
+A:90:6:5
+A:90:24:8
+A:93:24:3
+C:1:40:75:80:100
+C:8:45:85:90:120
+F:MASS_GENOCIDE
+
+N:50:Resist Fire
+A:75:30:1
+A:90:4:1
+A:90:9:2
+A:92:5:1
+A:93:13:20
+C:1:4:5:50:20
+C:3:10:12:50:40
+C:4:8:15:50:30
+C:8:4:5:50:20
+C:9:8:15:50:30
+F:OPP_FIRE
+L:1d20+20
+
+N:51:Resist Cold
+A:75:31:1
+A:90:4:2
+A:90:11:2
+A:93:14:20
+C:1:4:5:50:20
+C:3:10:12:50:40
+C:4:8:15:50:30
+C:8:4:5:50:20
+F:OPP_COLD
+L:1d20+20
+
+N:52:Resist Acid
+A:75:61:1
+A:90:4:3
+A:90:10:2
+A:93:1:20
+C:1:4:5:50:20
+C:3:10:12:50:40
+C:4:8:15:50:30
+C:8:4:5:50:20
+F:OPP_ACID
+L:1d20+20
+
+N:53:Resist Poison
+A:75:62:1
+A:90:4:4
+A:90:24:3
+A:93:4:20
+C:1:8:10:75:40
+C:3:15:20:75:60
+C:4:16:25:75:50
+C:8:8:10:75:40
+F:OPP_POIS | CURE_POIS
+L:1d20+20
+
+N:54:Resistance
+A:75:63:1
+A:90:4:6
+A:90:7:5
+A:92:5:6
+A:93:3:8
+C:1:15:20:85:60
+C:3:25:30:85:80
+C:4:25:40:85:70
+C:8:15:20:85:60
+C:9:25:40:85:70
+F:OPP_FIRE | OPP_COLD | OPP_ACID | OPP_ELEC | OPP_POIS
+L:1d20+20
+
+N:55:Heroism
+A:75:32:1
+A:90:7:1
+A:92:5:2
+A:93:3:23
+C:1:5:5:50:80
+C:3:10:11:50:40
+C:4:10:15:50:40
+C:8:10:15:50:40
+C:9:10:11:50:40
+B:SELF:HEAL:0d0+10
+F:CURE_FEAR | HERO
+L:1d20+20
+
+N:56:Shield
+A:70:59:1
+A:90:7:2
+A:90:4:5
+A:92:3:20
+A:93:20:20
+C:1:10:12:75:120
+C:3:15:20:75:80
+C:4:15:20:75:80
+C:8:15:20:75:80
+C:9:15:20:75:80
+F:SHIELD
+L:1d20+30
+
+N:57:Beserker
+A:75:33:1
+A:90:7:4
+A:92:9:2
+A:93:3:13
+C:1:15:20:80:200
+C:3:20:25:80:160
+C:4:25:30:80:125
+C:8:15:20:80:200
+C:9:20:25:80:160
+B:SELF:HEAL:0d0+30
+F:CURE_FEAR | SHERO
+L:1d25+25
+
+N:58:Essence of Speed
+A:75:29:1
+A:90:7:6
+A:90:13:8
+A:93:27:27
+C:1:22:30:50:250
+C:3:26:30:50:250
+C:4:32:50:50:250
+F:HASTE
+L:1d30+30
+
+N:59:Globe of Invulneribility
+A:90:7:7
+A:93:3:25
+C:1:45:70:75:250
+F:INVULN
+L:1d8+8
+
+N:60:Detect Evil
+A:91:0:1
+A:91:13:1
+A:92:0:3
+A:93:12:23
+C:2:1:1:10:4
+C:5:1:1:30:4
+C:8:5:5:50:8
+C:9:3:3:30:4
+F:HOLD_SONG
+F:DETECT_EVIL
+
+N:61:Cure Light Wounds
+A:75:34:1
+A:91:0:2
+A:91:6:1
+A:92:0:5
+C:2:1:2:15:4
+C:5:2:2:35:4
+C:8:3:3:25:3
+C:9:3:3:35:4
+F:HOLD_SONG | CURE_BLIND
+B:SELF:HEAL:3d10+0
+
+N:62:Bless
+A:70:33:1
+A:91:0:3
+A:91:10:1
+A:92:0:4
+A:93:5:23
+C:2:1:2:20:4
+C:5:3:3:35:4
+C:8:3:3:35:4
+C:9:3:3:35:4
+F:BLESS
+L:1d12+12
+
+N:63:Remove Fear
+A:75:28:1
+A:80:14:1
+A:91:0:4
+A:91:13:2
+A:92:0:2
+A:93:23:3
+C:2:1:2:25:4
+C:5:5:3:35:4
+C:8:5:3:35:4
+C:9:1:2:25:4
+F:HOLD_SONG
+F:CURE_FEAR
+
+N:64:Call Light
+A:91:0:6
+A:91:5:1
+A:93:22:18
+C:2:3:2:25:1
+C:5:5:4:35:4
+C:8:1:2:26:4
+B:AREA:LITE_WEAK:2d0+0
+F:LITE_ROOM
+
+N:65:Find Traps
+A:55:12:1
+A:66:0:1
+A:70:28:1
+A:91:0:7
+A:91:5:3
+A:93:12:1
+C:2:3:3:27:2
+C:5:7:5:40:3
+C:8:7:5:40:3
+F:DETECT_TRAPS
+
+N:66:Detect Doors/Stairs
+A:55:13:1
+A:66:1:1
+A:70:29:1
+A:91:0:8
+A:91:5:4
+C:2:3:3:27:2
+C:5:7:5:40:3
+C:8:7:5:40:3
+F:DETECT_DOORS | DETECT_STAIRS
+
+N:67:Neutralize Poison
+A:91:0:9
+A:91:9:2
+A:92:4:1
+A:93:4:3
+C:2:3:3:28:4
+C:5:9:7:40:3
+C:8:5:5:35:4
+C:9:5:5:35:4
+F:HOLD_SONG
+F:CURE_POIS
+
+N:68:Scare Monster
+A:65:11:1
+A:65:24:11
+A:91:1:1
+A:91:12:2
+A:92:0:6
+A:93:23:12
+C:2:5:4:29:3
+C:5:9:7:40:3
+C:8:5:4:29:3
+C:9:5:4:29:3
+B:AIM:TURN_ALL:1d0+0
+
+N:69:Portal
+A:91:1:2
+A:91:4:2
+A:92:3:2
+A:93:7:15
+C:2:5:4:30:4
+C:5:9:8:40:3
+C:8:9:8:40:3
+C:9:9:8:40:3
+B:SELF:AWAY_ALL:3d0+0
+
+N:70:Cure Moderate Wounds
+A:91:1:3
+A:91:6:2
+A:92:4:2
+A:93:3:24
+C:2:5:4:32:4
+C:5:11:9:40:3
+C:8:9:6:36:3
+C:9:11:9:40:3
+F:HOLD_SONG
+B:SELF:HEAL:5d10+0
+F:SLOW_CUTS | CURE_BLIND
+
+N:71:Chant
+A:70:34:1
+A:91:1:4
+A:91:10:2
+A:92:1:3
+A:93:5:19
+C:2:5:5:34:4
+C:5:11:10:45:3
+C:8:8:7:40:4
+C:9:11:10:45:3
+F:BLESS
+L:1d24+24
+
+N:72:Sanctuary
+A:70:60:1
+A:91:1:5
+A:91:10:3
+A:92:1:1
+A:93:16:20
+C:2:7:5:36:3
+C:5:11:10:45:3
+C:8:9:7:40:3
+C:9:9:7:40:3
+B:ADJACENT:SLEEP:1d0+0
+
+N:73:Satisfy Hunger
+A:91:1:6
+A:91:6:3
+C:2:7:5:38:4
+C:5:13:10:45:3
+C:8:9:7:45:8
+F:CURE_FOOD
+
+N:74:Remove Curse
+A:55:6:1
+A:70:14:1
+A:91:1:7
+A:91:13:4
+A:92:4:4
+A:93:5:20
+C:2:7:6:38:5
+C:5:13:11:45:4
+C:8:11:8:42:5
+C:9:13:11:45:4
+F:SLOW_CURSE
+
+N:75:Resist Heat and Cold
+A:75:60:1
+A:91:1:8
+A:91:9:3
+A:93:8:20
+C:2:7:7:38:5
+C:5:15:13:45:4
+C:8:7:7:38:5
+F:OPP_FIRE | OPP_COLD
+L:1d10+10
+
+N:76:Resist Poison
+A:91:2:1
+A:91:9:4
+A:92:4:5
+A:92:6:2
+A:93:4:20
+C:2:9:6:38:4
+C:5:15:15:50:4
+C:8:8:10:75:40
+C:9:15:15:50:4
+F:OPP_POIS
+L:1d20+20
+
+N:77:Orb of Draining
+A:91:2:2
+A:91:11:2
+A:93:5:13
+C:2:9:7:38:4
+C:5:17:15:50:4
+C:8:13:11:44:4
+B:ORB:HOLY_ORB:3d6+0
+
+N:78:Cure Critical Wounds
+A:91:2:4
+A:91:6:5
+A:93:3:18
+C:2:9:7:40:4
+C:5:17:15:50:4
+C:8:13:11:45:4
+B:SELF:HEAL:12d10+0
+F:CURE_CUTS
+
+N:79:Sense Invisible
+A:75:25:1
+A:91:2:5
+A:91:12:3
+A:92:2:6
+A:93:12:18
+C:2:11:8:42:4
+C:5:19:15:50:4
+C:8:15:12:46:4
+C:9:15:12:46:4
+F:SEE_INVIS
+L:1d24+24
+
+N:80:Protection from Evil
+A:70:37:1
+A:91:2:6
+A:91:10:4
+A:91:13:5
+A:92:5:4
+A:93:23:20
+C:2:11:8:42:4
+C:5:19:15:50:4
+C:8:11:8:42:4
+C:9:19:15:50:4
+F:PROT_EVIL
+L:1d25
+
+N:81:Earthquake
+A:91:2:7
+A:91:11:3
+A:92:11:3
+C:2:11:9:55:5
+C:5:21:17:50:3
+C:8:11:9:55:5
+C:9:21:17:50:3
+F:HOLD_SONG
+S:EARTHQUAKE:10
+
+N:82:Sense Surroundings
+A:55:9:1
+A:66:5:1
+A:70:25:1
+A:91:2:8
+A:93:12:14
+C:2:13:10:45:4
+C:5:23:17:50:3
+C:8:13:10:45:4
+F:MAP_AREA
+
+N:83:Cure Mortal Wounds
+A:91:2:9
+A:93:3:5
+C:2:13:11:45:4
+C:5:25:20:50:3
+C:8:19:15:47:4
+B:SELF:HEAL:15d10+0
+F:CURE_CUTS | CURE_STUN
+
+N:84:Turn Undead
+A:91:2:3
+A:91:12:4
+A:92:8:3
+A:93:18:23
+C:2:9:8:40:5
+C:5:17:21:50:3
+C:8:13:15:45:4
+C:9:17:21:50:3
+F:HOLD_SONG
+B:LOS:TURN_UNDEAD:1d0+0
+
+N:85:Prayer
+A:70:35:1
+A:91:3:1
+A:91:10:6
+A:92:8:4
+A:93:5:24
+C:2:15:14:50:5
+C:5:29:22:50:3
+C:8:22:18:50:5
+C:9:22:18:50:5
+F:BLESS
+L:1d48+48
+
+N:86:Dispel Undead
+A:70:42:1
+A:91:3:2
+A:92:8:6
+A:93:18:14
+C:2:17:14:55:7
+C:5:31:24:60:3
+C:8:19:19:55:6
+C:9:31:24:60:3
+F:HOLD_SONG
+B:LOS:DISPEL_UNDEAD:3d0+0
+
+N:87:Heal
+A:91:3:3
+A:93:3:3
+C:2:21:16:60:7
+C:5:33:28:60:3
+C:8:27:22:60:5
+B:SELF:HEAL:0d0+300
+F:CURE_CUTS | CURE_STUN
+
+N:88:Dispel Evil
+A:55:24:1
+A:91:3:4
+A:92:10:4
+A:93:23:14
+C:2:25:20:70:12
+C:5:35:32:70:4
+C:8:25:20:70:12
+C:9:35:32:70:4
+F:HOLD_SONG
+B:LOS:DISPEL_EVIL:3d0+0
+
+N:89:Glyph of Warding
+A:70:38:1
+A:91:3:5
+A:91:13:8
+A:93:27:20
+C:2:33:55:90:15
+C:5:37:70:90:5
+C:8:37:70:90:5
+S:WARD_GLYPH:3
+
+N:90:Holy Word
+A:91:3:6
+A:91:11:7
+A:93:19:5
+C:2:39:32:95:20
+C:5:39:38:95:10
+C:8:39:38:95:10
+B:LOS:DISPEL_EVIL:4d0+0
+B:SELF:HEAL:0d0+1000
+F:CURE_FEAR | CURE_POIS | CURE_CUTS | CURE_STUN
+
+N:91:Detect Monsters
+A:91:5:2
+A:92:2:1
+A:93:12:15
+C:2:3:3:50:2
+C:5:5:5:50:1
+C:8:2:2:35:2
+C:9:5:5:50:1
+F:HOLD_SONG
+F:DETECT_MONSTER
+
+N:92:Detection
+A:66:6:1
+A:70:61:1
+A:91:5:5
+A:92:2:7
+A:93:12:27
+C:2:10:10:80:20
+C:5:15:15:80:12
+C:8:15:15:80:12
+C:9:15:15:80:12
+F:HOLD_SONG
+F:DETECT_DOORS | DETECT_TRAPS | DETECT_STAIRS | DETECT_MONSTER | DETECT_EVIL | DETECT_INVIS | DETECT_GOLD |
+F:DETECT_WATER | DETECT_OBJECT
+
+N:93:Perception
+A:92:2:8
+A:93:17:12
+C:2:20:20:80:20
+C:5:25:25:80:16
+C:8:18:16:70:4
+C:9:35:35:100:20
+F:IDENT
+
+N:94:Probing
+A:55:23:1
+A:91:5:7
+A:93:12:3
+C:2:25:10:80:150
+C:5:30:15:80:135
+C:8:25:10:80:150
+B:LOS:PROBE
+
+N:95:Clairvoyance
+A:75:56:1
+A:91:5:8
+A:93:12:17
+C:2:35:50:80:230
+C:5:37:55:80:215
+C:8:37:55:80:215
+F:WIZ_LITE
+D:An image of your surroundings forms in your mind...
+
+N:96:Cure Serious Wounds
+A:75:35:1
+A:80:16:1
+A:91:6:4
+A:92:4:3
+A:92:3:2
+C:2:7:5:38:4
+C:5:13:10:45:3
+C:8:10:8:41:4
+C:9:13:10:45:3
+F:HOLD_SONG
+B:SELF:HEAL:8d10+0
+F:CURE_CUTS | CURE_BLIND | CURE_CONF
+
+N:97:Cure Mortal Wounds
+A:75:65:1
+A:91:6:6
+C:2:17:7:60:45
+C:5:23:25:60:35
+C:8:20:16:60:40
+B:SELF:HEAL:15d10+0
+F:CURE_CUTS | CURE_STUN | CURE_BLIND | CURE_CONF
+
+N:98:*Heal*
+A:55:18:1
+A:91:6:7
+C:2:30:50:80:130
+C:5:35:60:80:115
+C:8:33:55:80:125
+B:SELF:HEAL:0d0+2000
+F:CURE_CUTS | CURE_STUN
+
+N:99:Restoration
+A:66:10:1
+A:75:54:1
+A:80:19:1
+A:91:6:8
+A:91:12:7
+A:93:27:3
+C:2:35:70:90:230
+C:5:40:80:90:200
+C:8:37:75:90:215
+F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
+
+N:100:Remembrance
+A:75:41:1
+A:91:6:9
+A:91:12:8
+A:92:8:7
+A:93:27:12
+C:2:35:70:90:250
+C:5:40:80:90:250
+C:8:37:75:90:250
+C:9:40:80:90:250
+F:HOLD_SONG
+F:CURE_EXP
+
+N:101:Dispel Undead
+A:91:8:1
+A:91:12:5
+A:93:18:14
+C:2:15:7:70:25
+C:5:20:13:70:20
+C:8:15:7:70:25
+B:LOS:DISPEL_UNDEAD:4d0+0
+
+N:102:Dispel Evil
+A:91:8:2
+A:91:13:6
+A:93:23:14
+C:2:20:10:75:60
+C:5:30:20:75:40
+C:8:20:10:75:60
+B:LOS:DISPEL_EVIL:4d0+0
+
+N:103:Banishment
+A:91:8:3
+A:91:13:7
+A:92:10:5
+A:93:23:15
+C:2:25:25:80:250
+C:5:30:35:80:200
+C:8:25:25:80:250
+C:9:35:40:80:200
+F:HOLD_SONG
+B:LOS:AWAY_EVIL
+D:The power of your god banishes evil.
+
+N:104:Word of Destruction
+A:55:29:1
+A:91:8:4
+A:93:11:19
+C:2:35:35:80:115
+C:5:40:40:80:100
+C:8:37:30:95:10
+S:DESTRUCTION:15
+
+N:105:Annihilation
+A:65:25:1
+A:91:8:5
+A:91:14:9
+A:93:18:12
+C:2:45:60:75:250
+C:5:47:70:75:250
+C:8:46:75:75:250
+B:AIM:DRAIN_LIFE:2d0+200
+
+N:106:Unbarring Ways
+A:70:62:1
+A:91:7:1
+A:93:7:18
+C:2:5:6:50:40
+C:5:10:16:50:20
+C:8:9:8:45:3
+B:ADJACENT:KILL_DOOR
+
+N:107:Recharging
+A:91:7:2
+A:92:1:7
+A:93:18:17
+C:2:15:20:80:25
+C:5:25:30:80:15
+C:8:25:30:80:15
+C:9:25:30:80:15
+S:RECHARGE:15
+
+N:108:Dispel Curse
+A:70:15:1
+A:91:7:4
+A:93:5:8
+C:2:25:40:80:160
+C:5:30:50:80:130
+C:8:25:40:80:160
+F:CURE_CURSE
+
+N:109:Enchant Weapon
+A:91:7:5
+A:92:10:7
+C:2:35:50:80:230
+C:5:40:70:80:200
+C:9:40:70:80:200
+F:ENCHANT_TOH | ENCHANT_TOD
+
+N:110:Enchant Armour
+A:70:16:1
+A:91:7:6
+A:92:10:8
+C:2:37:60:85:250
+C:5:42:80:85:250
+C:9:42:80:85:250
+F:ENCHANT_TOA
+
+N:111:Enchant Weapon Brand
+A:70:50:1
+A:91:7:9
+C:2:45:95:85:250
+C:5:47:95:85:250
+C:8:45:95:85:250
+S:BRAND_WEAPON:8
+
+N:112:Blink
+A:91:4:1
+C:2:3:3:50:6
+C:5:7:7:50:2
+C:8:2:2:35:2
+B:SELF:AWAY_ALL:0d0+10
+
+N:113:Teleport Self
+A:91:4:3
+C:2:10:10:50:8
+C:5:20:20:50:4
+C:8:13:10:45:3
+B:SELF:AWAY_ALL:8d0+0
+
+N:114:Teleport Other
+A:91:4:4
+C:2:20:20:80:16
+C:5:25:25:80:12
+C:8:25:25:80:12
+B:AIM:AWAY_ALL:1d0+0
+
+N:115:Teleport Level
+A:91:4:5
+C:2:30:40:75:133
+C:5:35:50:75:115
+C:8:30:40:75:133
+F:TELE_LEVEL
+
+N:116:Word of Recall
+A:91:4:6
+C:2:35:50:75:11
+C:5:40:60:75:10
+C:8:35:35:75:13
+F:RECALL
+
+N:117:Alter Reality
+A:70:63:1
+A:91:4:7
+A:92:9:7
+C:2:40:60:75:250
+C:5:45:70:75:250
+C:8:45:70:75:250
+C:9:45:70:75:250
+F:ALTER_LEVEL
+
+N:118:Shield
+A:91:10:5
+C:2:13:12:75:120
+C:5:18:20:75:80
+C:8:15:20:75:80
+L:1d30+20
+F:SHIELD
+
+N:119:Hero's Prayer
+A:70:64:1
+A:91:10:7
+A:92:5:7
+C:2:17:16:60:25
+C:5:31:24:60:35
+C:8:24:20:60:35
+C:9:31:24:60:35
+L:1d48+48
+B:SELF:HEAL:0d0+10
+F:HERO | CURE_FEAR | BLESS
+
+N:120:Righteous Fury
+A:91:10:8
+A:92:5:8
+C:1:19:20:80:200
+C:5:33:30:80:125
+C:8:19:20:80:200
+C:9:33:30:80:125
+L:1d48+48
+B:SELF:HEAL:0d0+30
+F:SHERO | CURE_FEAR | BLESS
+
+N:121:Armour of God
+A:91:10:9
+C:2:45:70:75:250
+L:1d8+8
+F:INVULN
+
+N:122:Ray of Light
+A:91:11:1
+C:2:9:6:30:5
+C:5:13:11:55:4
+C:8:7:6:30:5
+B:LINE:LITE_WEAK:6d8+0
+D:A line of blue shimmering light appears.
+
+N:123:Spiritual Hammer
+A:91:11:4
+C:2:13:9:42:4
+C:5:21:16:50:4
+C:8:17:13:46:4
+S:INVEN_WIELD:569
+L:1d48+48
+
+N:124:Hexen Hammer
+A:91:11:5
+C:2:21:13:45:8
+C:5:26:23:60:3
+C:8:26:23:60:3
+S:INVEN_WIELD:570
+
+N:125:Flame Strike
+A:91:11:6
+C:2:9:7:38:4
+C:5:17:15:50:4
+C:8:13:11:44:4
+B:STRIKE:FIRE:1d0+55
+
+N:126:Summon Avatar
+A:91:11:8
+#C:2:45:60:75:250
+#C:5:47:70:75:250
+#C:8:47:70:75:250
+#S:SUMMON_RACE:979
+
+N:127:Detect Undead
+A:91:12:1
+A:92:8:1
+C:2:1:1:10:4
+C:5:1:1:30:4
+C:8:1:1:10:4
+C:9:1:1:30:4
+F:HOLD_SONG
+F:DETECT_UNDEAD
+
+N:128:Summon Ghost
+A:91:12:6
+A:92:8:5
+#C:2:25:30:70:12
+#C:5:35:42:70:4
+#C:8:25:30:70:12
+#C:9:35:42:70:4
+#S:SUMMON_RACE:343
+
+N:129:Raise Dead
+A:91:12:5
+A:92:4:8
+#C:2:33:55:90:15
+#C:5:37:70:90:5
+#C:8:33:55:90:15
+#C:9:37:70:90:5
+#B:STRIKE:RAISE_DEAD:0d0+1
+
+N:130:Detect Curse
+A:55:5:1
+A:70:40:1
+A:91:5:6
+A:91:13:3
+A:92:2:3
+C:2:5:4:32:4
+C:5:11:9:40:3
+C:8:5:4:32:4
+C:9:11:9:40:3
+F:DETECT_CURSE
+
+N:131:Enchant Food
+A:91:7:3
+C:2:19:30:75:150
+C:5:24:30:75:150
+C:8:19:30:75:150
+S:ENCHANT_TVAL:80
+
+N:132:Bless Weapon
+A:70:51:1
+A:91:7:7
+C:2:39:60:85:250
+C:5:44:80:85:250
+S:BRAND_WEAPON:6
+
+N:133:Enchant Armour To-Resist
+A:70:49:1
+A:91:7:8
+C:2:43:95:85:250
+C:5:45:95:85:250
+C:8:43:95:85:250
+S:BRAND_ARMOR:2
+
+N:134:Slow Poison
+A:75:26:1
+A:91:0:5
+A:91:9:1
+A:92:0:1
+C:2:1:2:25:4
+C:5:5:3:35:4
+C:8:1:2:25:4
+C:9:1:2:25:4
+F:HOLD_SONG
+F:SLOW_POIS
+
+N:135:Part Water
+A:91:9:5
+A:92:7:3
+C:2:9:7:44:8
+C:5:24:11:70:1
+C:8:9:7:44:8
+C:9:24:11:70:1
+B:LINE:LOWER:6d8+0
+
+N:136:Resist Lightning
+A:91:9:6
+A:92:7:1
+C:2:9:10:75:40
+C:5:15:20:75:60
+C:8:4:5:50:20
+C:9:15:20:75:60
+F:OPP_ELEC
+L:1d20+20
+
+N:137:Resistance
+A:91:9:7
+C:2:15:20:85:60
+C:5:25:40:85:70
+C:8:15:20:85:60
+F:OPP_ELEC | OPP_POIS | OPP_FIRE | OPP_COLD | OPP_ACID
+L:1d20+20
+
+N:138:Cause Light Wounds
+A:91:14:1
+C:2:3:3:20:5
+C:5:5:3:40:5
+C:8:4:3:30:5
+F:EVIL
+B:AIM:DRAIN_LIFE:2d10+0
+
+N:139:Blind Monster
+A:65:32:1
+A:91:14:2
+C:2:5:5:35:6
+C:5:9:7:45:7
+C:8:7:6:40:7
+F:EVIL
+B:AIM:BLIND:1d0+0
+
+N:140:Cause Moderate Wounds
+A:91:14:3
+C:2:7:6:37:6
+C:5:13:11:45:5
+C:8:10:9:42:5
+F:EVIL
+B:AIM:DRAIN_LIFE:3d10+0
+
+N:141:Animate Dead
+A:91:14:4
+A:92:8:2
+#C:2:9:7:40:7
+#C:5:13:11:45:8
+#C:8:9:7:40:7
+#C:9:13:11:45:8
+#F:HOLD_SONG | EVIL
+#B:AREA:ANIM_DEAD
+
+N:142:Cause Serious Wounds
+A:91:14:5
+C:2:9:7:43:7
+C:5:15:12:50:6
+C:8:12:10:47:7
+F:EVIL
+B:AIM:DRAIN_LIFE:4d10+0
+
+N:143:Cause Critical Wounds
+A:91:14:6
+C:2:11:9:45:8
+C:5:19:18:55:8
+C:8:15:13:50:8
+F:EVIL
+B:AIM:DRAIN_LIFE:5d10+0
+
+N:144:Summon Ghoul
+A:91:14:7
+#C:2:15:19:55:29
+#C:5:23:33:60:24
+#C:8:15:19:55:29
+#F:EVIL
+#S:SUMMON_RACE:994
+
+N:145:Cause Mortal Wounds
+A:91:14:8
+C:2:19:9:65:50
+C:5:25:27:65:40
+C:8:22:18:65:45
+F:EVIL
+B:AIM:DRAIN_LIFE:6d10+0
+
+N:146:Burning Hands
+A:90:9:1
+A:93:13:16
+C:1:1:2:26:4
+C:4:5:3:35:1
+C:8:1:2:26:4
+B:HANDS:FIRE:3d8+0
+
+N:147:Fire Trap
+A:90:9:3
+A:90:21:1
+A:93:13:1
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:5:5:30:6
+S:WARD_TRAP:22
+
+N:148:Flame Blade
+A:90:9:4
+A:93:13:23
+C:1:9:6:35:7
+C:3:17:7:75:2
+C:4:11:6:50:4
+C:8:9:6:35:7
+S:INVEN_WIELD:574
+L:1d48+48
+
+N:149:Summon Fire Elemental
+#A:90:9:6
+A:92:11:6
+A:93:13:15
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:30:30:99:6
+#S:SUMMON_RACE:363
+
+N:150:Wall of Fire
+A:90:9:7
+A:93:13:25
+C:1:23:12:60:8
+C:4:31:25:70:3
+C:8:31:25:70:3
+B:LINE:FEATURE:0d0+228
+
+N:151:Fire Bolt II
+A:65:33:1
+A:90:9:8
+A:93:13:18
+C:1:25:19:60:12
+C:4:35:41:70:9
+C:8:25:19:60:12
+B:BOLT:FIRE:8d8
+B:BOLT:FIRE:8d8
+
+N:152:Fire Bolt III
+A:65:34:1
+A:90:9:10
+A:93:13:24
+C:1:35:28:70:18
+C:4:45:61:80:15
+C:8:35:28:70:18
+B:BOLT:FIRE:8d8
+B:BOLT:FIRE:8d8
+B:BOLT:FIRE:8d8
+
+N:153:Fire Storm
+A:65:35:1
+A:90:9:11
+A:93:13:22
+C:1:37:37:80:18
+C:4:43:51:95:11
+C:8:37:37:80:18
+B:STORM:FIRE:2d0+95
+
+N:154:Melting Hands
+A:90:10:1
+A:93:1:16
+C:1:1:2:26:4
+C:4:5:3:35:1
+C:8:3:3:29:2
+B:HANDS:ACID:3d8
+
+N:155:Acid Trap
+A:90:10:3
+A:93:1:1
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:7:5:37:5
+S:WARD_TRAP:23
+
+N:156:Acid Blade
+A:90:10:4
+A:93:1:23
+C:1:9:6:35:7
+C:3:17:7:75:2
+C:4:11:6:50:4
+C:8:9:6:35:7
+S:INVEN_WIELD:572
+L:1d48+48
+
+N:157:Acid Bolt II
+A:65:36:1
+A:90:10:6
+A:93:1:18
+C:1:20:13:60:18
+C:4:30:33:60:12
+C:8:25:23:60:15
+B:BOLT:ACID:6d8
+B:BOLT:ACID:6d8
+
+N:158:Summon Ooze Elemental
+#A:90:10:8
+A:93:1:15
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:21:22:90:8
+#S:SUMMON_RACE:388
+
+N:159:Wall of Acid
+A:90:10:9
+A:93:1:25
+C:1:23:12:60:8
+C:4:31:25:70:3
+C:8:27:18:65:5
+B:LINE:ACID:0d0+127
+
+N:160:Acid Storm
+A:65:37:1
+A:90:10:10
+A:93:1:22
+C:1:28:31:85:26
+C:4:38:51:85:19
+C:8:33:41:85:23
+B:STORM:ACID:2d0+65
+
+N:161:Acid Bolt III
+A:65:38:1
+A:90:10:11
+A:93:1:24
+C:1:30:19:70:24
+C:4:40:49:70:18
+C:1:35:34:70:21
+B:BOLT:ACID:6d8
+B:BOLT:ACID:6d8
+
+N:162:Shocking Hands
+A:90:12:1
+A:93:22:16
+C:1:1:2:26:4
+C:4:5:3:35:1
+C:8:1:2:26:4
+B:HANDS:ELEC:3d8
+
+N:163:Resist Electricity
+A:75:64:1
+A:90:12:2
+A:93:22:20
+C:1:4:5:50:20
+C:3:10:12:50:40
+C:4:8:15:50:30
+C:8:4:5:50:20
+F:OPP_ELEC
+L:1d20+20
+
+N:164:Lightning Trap
+A:90:12:3
+A:90:21:2
+A:93:22:1
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:5:5:30:6
+S:WARD_TRAP:78
+
+N:165:Storm Blade
+A:90:12:5
+A:93:22:23
+C:1:9:6:35:7
+C:3:17:7:75:2
+C:4:11:6:50:4
+C:8:9:6:35:7
+S:INVEN_WIELD:573
+L:1d48+48
+
+N:166:Lightning Bolt II
+A:65:39:1
+A:90:12:6
+A:93:22:18
+C:1:15:9:40:10
+C:4:19:15:50:9
+C:8:15:9:40:10
+B:BOLT_10:ELEC:3d8
+B:BOLT_10:ELEC:3d8
+
+N:167:Wall of Lightning
+A:90:12:7
+A:93:22:25
+C:1:23:12:60:8
+C:4:31:25:70:3
+C:8:23:12:60:8
+B:LINE:FEATURE:0d0+229
+
+N:168:Ball Lightning
+A:90:12:8
+A:93:22:13
+C:1:24:15:60:10
+C:4:31:23:75:4
+C:8:24:15:60:10
+B:BALL:ELEC:1d0+90
+
+N:169:Lightning Bolt III
+A:65:40:1
+A:90:12:9
+A:93:22:24
+C:1:25:13:50:16
+C:4:29:22:60:15
+C:8:25:13:50:16
+B:BOLT_10:ELEC:3d8
+B:BOLT_10:ELEC:3d8
+B:BOLT_10:ELEC:3d8
+
+N:170:Lightning Storm
+A:65:41:1
+A:90:12:10
+A:93:22:22
+C:1:32:31:75:16
+C:4:39:47:90:10
+C:8:32:31:75:16
+B:STORM:ELEC:2d0+115
+
+N:171:Freezing Hands
+A:90:11:1
+A:93:14:16
+C:1:1:2:26:4
+C:4:5:3:35:1
+C:8:1:2:26:4
+B:HANDS:COLD:3d8
+
+N:172:Frost Trap
+A:90:11:3
+A:93:14:1
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:5:5:30:6
+S:WARD_TRAP:132
+
+N:173:Frost Blade
+A:90:11:4
+A:93:14:23
+C:1:9:6:35:7
+C:3:17:7:75:2
+C:4:11:6:50:4
+C:8:9:6:35:7
+S:INVEN_WIELD:575
+L:1d48+48
+
+N:174:Frost Bolt II
+A:65:42:1
+A:90:11:6
+A:93:14:18
+C:1:17:13:50:12
+C:4:25:25:60:10
+C:8:17:13:50:12
+B:BOLT_10:COLD:5d8
+B:BOLT_10:COLD:5d8
+
+N:175:Summon Ice Elemental
+A:90:11:8
+A:93:14:15
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#S:SUMMON_RACE:410
+
+N:176:Frost Bolt III
+A:65:43:1
+A:90:11:9
+A:93:14:24
+C:1:27:19:60:18
+C:4:35:37:70:16
+C:8:27:19:60:18
+B:BOLT_10:COLD:5d8
+B:BOLT_10:COLD:5d8
+B:BOLT_10:COLD:5d8
+
+N:177:Wall of Ice
+A:90:11:10
+A:93:14:25
+C:1:28:15:75:18
+C:4:36:28:85:12
+C:8:28:15:75:18
+B:LINE:FEATURE:0d0+115
+
+N:178:Stone tell
+A:90:18:3
+A:92:11:4
+C:1:13:10:45:4
+C:3:23:17:50:3
+C:4:23:17:50:3
+C:8:13:10:45:4
+C:9:23:17:50:3
+F:MAP_AREA | DETECT_GOLD
+
+N:179:Dust of Sneezing
+A:90:13:1
+C:1:3:4:30:1
+C:3:15:6:75:1
+C:4:7:6:40:2
+C:8:7:6:40:2
+B:BLAST:CONFUSE_WEAK:0d0+10
+
+N:180:Philtre of Heroism
+A:90:13:2
+C:1:5:5:50:80
+C:3:10:11:50:40
+C:4:10:15:50:40
+C:8:10:15:50:40
+B:SELF:HEAL:0d0+10
+F:HERO | CURE_FEAR
+L:1d25+25
+
+N:181:Analyze Magic
+A:70:23:1
+A:90:13:3
+C:1:7:5:50:6
+C:3:14:12:50:2
+C:4:12:10:90:3
+C:8:12:10:90:3
+S:IDENT_TVAL:75
+
+N:182:Balm of Heat and Cold
+A:90:13:4
+C:1:9:7:38:5
+C:3:17:13:45:4
+C:4:15:13:45:4
+C:8:15:13:45:4
+F:OPP_FIRE | OPP_COLD
+L:1d20+20
+
+N:183:Healing Salve
+A:90:13:5
+C:1:9:7:38:5
+C:3:17:13:45:4
+C:4:15:13:45:4
+C:8:15:13:45:4
+F:CURE_POIS | CURE_CUTS
+B:SELF:HEAL:4d10
+
+N:184:Blasting Powder
+A:90:13:6
+C:1:15:10:50:8
+C:4:23:17:60:3
+B:BLAST:FIRE:2d10+0
+B:BLAST:SOUND:2d10+0
+
+N:185:Strength Serum
+A:90:13:7
+C:1:15:20:80:200
+C:3:20:25:80:160
+C:4:25:30:80:125
+C:8:25:30:80:125
+F:SHERO | CURE_FEAR | CURE_STR
+B:SELF:HEAL:0d0+30
+L:1d25+25
+
+N:186:Pill of Perception
+A:90:13:9
+C:1:35:50:80:230
+C:3:37:55:80:215
+C:4:37:55:80:215
+C:8:37:55:80:215
+F:WIZ_LITE
+
+N:187:Enchant Potion
+A:90:13:10
+C:1:35:50:80:230
+C:3:40:70:80:200
+S:ENCHANT_TVAL:75
+
+N:188:Create Gold
+A:90:13:11
+C:1:45:95:85:250
+C:3:47:95:85:250
+S:CREATE_KIND:490
+
+N:189:Detect Undead
+A:70:65:1
+A:90:14:1
+C:1:1:1:23:4
+C:3:5:1:50:1
+C:4:3:2:35:2
+C:8:1:1:10:4
+F:DETECT_UNDEAD
+
+N:190:Animate Dead
+A:90:14:2
+#C:1:9:7:40:7
+#C:4:13:11:45:8
+#C:8:9:7:40:7
+#B:AREA:ANIM_DEAD
+
+N:191:*Turn Undead*
+A:90:14:3
+C:1:11:10:40:5
+C:3:19:21:50:3
+C:4:19:21:50:3
+C:8:13:15:45:4
+F:HOLD_SONG
+B:LOS:TURN_UNDEAD:2d0+0
+
+N:192:Dispel Undead
+A:90:14:4
+C:1:19:16:55:7
+C:3:33:27:60:3
+C:8:15:7:70:25
+B:LOS:DISPEL_UNDEAD:4d0+0
+
+N:193:Summon Ghost
+A:90:14:5
+#C:1:25:30:70:12
+#C:4:35:42:70:4
+#C:8:25:30:70:12
+#S:SUMMON_RACE:343
+
+N:194:Banishment
+A:90:14:6
+C:1:27:27:80:250
+C:3:33:37:80:200
+C:4:35:39:80:200
+C:8:25:25:80:250
+B:LOS:AWAY_EVIL:0d0+100
+D:The power of your magic banishes evil.
+
+N:195:Summon Demon
+A:90:14:7
+#C:1:40:85:80:100
+#C:8:45:95:90:120
+#F:EVIL
+#S:SUMMON:16
+
+N:196:Detect Animals
+A:70:66:1
+A:90:15:1
+A:92:6:1
+C:1:1:1:23:4
+C:3:5:1:50:1
+C:4:3:2:35:2
+C:1:1:1:10:4
+C:9:3:2:35:2
+F:DETECT_ANIMAL
+
+N:197:Find Familiar
+A:90:15:2
+#C:1:7:6:40:7
+#C:3:10:13:50:3
+#C:4:15:18:55:3
+#C:8:7:6:40:7
+#S:SUMMON_RACE:????
+
+N:198:Summon Animal
+A:90:15:3
+A:92:6:3
+#C:1:12:19:50:7
+#C:3:15:26:60:3
+#C:4:20:31:65:3
+#C:8:12:19:50:7
+#C:9:20:16:65:3
+#F:HOLD_SONG
+#S:SUMMON:11
+
+N:199:Charm Person or Animal
+A:90:15:4
+A:92:6:4
+#C:1:17:9:50:7
+#C:4:25:21:65:3
+#C:8:17:9:50:7
+#C:9:17:9:50:7
+#B:AIM:CHARM_ANIMAL
+
+N:200:Dragon's Flame
+A:65:26:1
+A:65:28:1
+A:90:15:6
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:FIRE:2d0+50
+
+N:201:Dragonscales
+A:90:15:5
+A:92:6:5
+C:1:25:17:85:120
+C:3:30:25:85:80
+C:4:30:25:85:80
+C:8:25:17:85:120
+C:9:30:25:85:80
+S:INVEN_WIELD:577
+
+N:202:Creeping Death
+A:90:15:7
+#C:1:35:27:105:140
+#C:3:40:35:105:100
+#C:4:40:35:105:100
+#C:8:35:27:105:140
+#S:SUMMON_RACE:978
+
+N:203:Summon Dragon
+A:90:15:8
+A:92:6:7
+#C:1:40:70:75:250
+#C:4:45:80:75:250
+#C:8:45:80:75:250
+#C:9:45:80:75:250
+#S:SUMMON:18
+
+N:204:Mirror Image
+A:90:16:2
+A:92:9:1
+#C:1:7:6:40:7
+#C:3:10:13:50:3
+#C:4:15:18:55:3
+#C:8:7:6:40:7
+#C:9:10:13:50:3
+#F:HOLD_SONG
+#S:SUMMON_RACE:953
+
+N:205:Fear
+A:90:16:3
+A:92:9:4
+C:1:11:6:40:8
+C:4:21:14:50:5
+C:8:21:14:50:5
+C:9:21:14:50:5
+F:HOLD_SONG
+B:LOS:TURN_ALL:1d0+0
+
+N:206:Confusion
+A:90:16:4
+A:92:9:5
+C:1:17:9:60:8
+C:4:27:22:70:5
+C:8:27:22:70:5
+C:9:27:22:70:5
+F:HOLD_SONG
+B:LOS:CONFUSE_WEAK:1d0+0
+
+N:207:Unseen Servant
+A:90:16:5
+#C:1:17:9:50:7
+#C:3:20:16:60:5
+#C:4:25:21:65:3
+#C:8:20:16:60:5
+#S:SUMMON_RACE:724
+
+N:208:Wizard Eye
+A:90:16:6
+#C:1:22:12:60:10
+#C:3:25:19:70:8
+#C:4:30:24:75:6
+#C:8:25:12:60:10
+#S:SUMMON_RACE:721
+
+N:209:Phantasmal Force
+A:90:16:7
+A:92:9:6
+#C:1:27:15:70:13
+#C:3:30:22:80:11
+#C:4:35:27:85:9
+#C:8:30:22:70:11
+#C:9:35:27:85:9
+#F:HOLD_SONG
+#S:SUMMON_RACE:954
+
+N:210:Summon Shadow
+A:90:16:8
+#C:1:32:28:80:16
+#C:3:35:35:90:14
+#C:4:40:40:95:12
+#C:8:32:28:90:14
+#S:SUMMON_RACE:399
+
+N:211:Alter Reality
+A:90:16:9
+C:1:40:60:75:250
+C:3:45:70:75:250
+C:4:45:70:75:250
+C:8:45:70:75:250
+F:ALTER_LEVEL
+
+N:212:Wizard Light
+A:90:17:2
+C:1:5:5:30:4
+C:3:19:8:85:1
+C:4:11:8:40:3
+C:8:5:5:30:4
+S:INVEN_LITE:570
+
+N:213:Starlight
+A:55:7:1
+A:90:17:4
+A:92:10:2
+C:1:13:7:50:6
+C:4:23:20:60:3
+C:3:27:24:95:3
+C:8:13:7:50:6
+C:9:27:24:95:3
+F:HOLD_SONG
+B:STAR:LITE_WEAK:6d8+0
+
+N:214:Sunburst
+A:90:17:5
+A:92:10:3
+C:1:17:9:50:7
+C:4:25:21:65:3
+C:8:17:9:50:7
+C:9:30:25:75:5
+F:HOLD_SONG
+B:AREA:LITE:4d0+0
+
+N:215:Shooting Star
+A:65:44:1
+A:90:17:6
+C:1:22:17:50:11
+C:4:32:27:60:8
+C:8:22:17:50:11
+B:BOLT:METEOR:10d8
+
+N:216:Stoneskin
+A:90:18:4
+C:1:15:12:75:120
+C:3:20:20:75:80
+C:4:20:20:75:80
+C:8:15:12:75:120
+S:INVEN_BODY:576
+
+N:217:Bridge of Stone
+A:90:18:5
+C:1:17:11:70:6
+C:3:27:24:90:3
+C:4:27:24:90:3
+C:8:17:11:70:6
+B:LINE:BRIDGE
+
+N:218:Summon Earth Elemental
+A:90:18:7
+A:92:11:7
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:30:30:99:6
+#S:SUMMON_RACE:373
+
+N:219:Wall of Stone
+A:90:18:8
+C:1:33:22:90:16
+C:4:41:35:100:6
+C:3:41:35:100:6
+C:8:33:22:90:16
+B:LINE:FEATURE:0d0+50
+
+N:220:Turn Water to Air
+A:90:19:2
+C:1:9:7:44:8
+C:3:24:11:70:1
+C:4:15:13:50:4
+C:8:9:7:44:8
+B:LINE:LOWER:6d8
+
+N:221:Freezing Cloud
+A:65:45:1
+A:90:19:4
+C:1:14:9:45:5
+C:4:22:18:55:2
+C:8:14:9:45:5
+B:STORM:COLD:0d0+20
+
+N:222:Acidic Cloud
+A:65:46:1
+A:90:19:5
+C:1:15:13:60:7
+C:4:25:22:60:3
+C:8:15:13:60:7
+B:STORM:ACID:0d0+30
+
+N:223:Storm Cloud
+A:65:47:1
+A:90:19:6
+A:92:7:5
+C:1:19:15:60:10
+C:4:26:23:75:4
+C:8:19:15:60:10
+C:9:26:23:75:4
+B:STORM:ELEC:0d0+40
+
+N:224:Summon Air Elemental
+A:90:19:7
+A:92:7:6
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:29:33:95:3
+#S:SUMMON_RACE:374
+
+N:225:Burning Cloud
+A:65:48:1
+A:90:19:8
+C:1:25:13:55:10
+C:4:30:22:70:4
+C:1:27:17:60:7
+B:STORM:FIRE:0d0+50
+
+N:226:Death Fog
+A:90:19:9
+C:1:45:60:75:250
+C:4:47:70:75:250
+C:1:46:65:75:250
+B:STORM:POISON:0d0+80
+
+N:227:Find Water
+A:66:12:1
+A:90:20:1
+C:1:3:3:25:1
+C:3:13:5:70:1
+C:4:5:4:45:2
+C:8:3:3:25:1
+F:DETECT_WATER
+
+N:228:Lower Water
+A:90:20:2
+A:92:7:4
+C:1:9:7:45:8
+C:3:25:12:95:1
+C:4:17:17:55:3
+C:8:9:7:45:8
+C:9:25:12:95:1
+F:HOLD_SONG
+B:AREA:LOWER:2d0+0
+
+N:229:Raise Water
+A:90:20:3
+A:92:7:2
+C:1:13:11:50:6
+C:4:23:20:60:3
+C:8:13:11:50:6
+C:9:23:20:60:3
+F:HOLD_SONG
+B:AREA:RAISE:2d0+0
+
+N:230:Water Bolt
+A:65:49:1
+A:90:20:4
+C:1:17:13:50:12
+C:4:25:25:60:10
+C:8:17:13:50:12
+B:BOLT:WATER:6d8
+
+N:231:Summon Water Elemental
+#A:90:20:5
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#S:SUMMON_RACE:365
+
+N:232:Wall of Water
+A:90:20:6
+C:1:28:15:75:18
+C:4:36:28:85:12
+C:8:28:15:75:18
+B:LINE:FEATURE:0d0+126
+
+N:233:Whirlpool
+A:65:50:1
+A:90:20:7
+A:92:7:7
+C:1:35:35:85:34
+C:4:35:45:85:35
+C:8:35:35:85:34
+C:9:35:35:85:34
+B:STORM:WATER:2d0+60
+
+N:234:Word of Opening
+A:90:21:5
+A:92:10:1
+C:1:9:7:50:40
+C:4:13:16:50:20
+C:8:13:16:50:20
+C:9:13:16:50:20
+B:ADJACENT:KILL_DOOR
+
+N:235:Power Word Sleep
+A:90:21:7
+A:92:4:7
+C:1:15:9:60:10
+C:3:20:15:65:10
+C:4:25:22:70:6
+C:8:25:22:70:6
+C:9:25:22:70:6
+F:HOLD_SONG
+B:LOS:SLEEP
+
+N:236:Symbol of Pain
+A:90:21:8
+C:1:17:14:55:7
+C:4:31:24:60:3
+C:8:25:23:65:6
+B:LOS:DRAIN_LIFE:1d0+10
+
+N:237:Runestaff
+A:90:21:9
+C:1:25:14:95:10
+C:3:35:22:104:8
+C:4:34:25:100:5
+C:8:25:14:95:10
+S:INVEN_WIELD:571
+L:1d200+200
+
+N:238:Power Word Kill
+A:90:21:11
+A:92:11:8
+C:1:29:16:100:12
+C:4:38:27:105:7
+C:8:29:16:100:12
+C:9:39:24:110:10
+F:HOLD_SONG
+B:LOS:DRAIN_LIFE:2d0+20
+
+N:239:Scare Monster
+A:90:22:3
+C:1:5:4:29:3
+C:3:9:7:40:3
+C:4:9:7:40:3
+C:8:5:4:29:3
+B:AIM:TURN_ALL:1d0+0
+
+N:240:Charm Person
+A:90:22:6
+A:92:1:8
+#C:1:17:9:50:7
+#C:4:25:21:65:3
+#C:9:25:21:65:3
+#B:AIM:CHARM_PERSON:1d0+0
+
+N:241:Charisma
+A:90:22:8
+C:1:25:30:95:160
+C:3:35:40:95:100
+C:4:35:60:95:115
+F:INC_CHR
+
+N:242:Charm Monster
+A:90:22:9
+A:92:6:6
+#C:1:30:50:70:40
+#C:8:30:50:70:40
+#C:8:36:65:85:30
+#B:AIM:CHARM_ALL:1d0+0
+
+N:243:Read Magic
+A:70:19:1
+A:90:23:6
+A:90:21:4
+C:1:7:5:50:6
+C:3:14:12:50:2
+C:4:12:10:90:3
+C:8:12:10:90:3
+S:IDENT_TVAL:70
+
+N:244:*Identify*
+A:70:13:1
+A:90:23:10
+C:1:35:50:80:230
+C:3:40:70:80:200
+C:8:40:70:80:200
+F:IDENT_FULLY
+
+N:245:Cure Serious Wounds
+A:90:24:5
+C:1:10:8:48:8
+C:3:16:13:55:7
+C:4:16:13:55:7
+C:8:10:8:41:4
+F:CURE_CUTS
+B:SELF:HEAL:8d10+0
+
+N:246:Cure Mortal Wounds
+A:90:24:6
+C:1:20:10:70:55
+C:3:26:28:70:45
+C:4:26:28:70:45
+C:8:19:15:47:4
+F:CURE_CUTS | CURE_STUN
+B:SELF:HEAL:15d10+0
+
+N:247:Create Golem
+A:90:25:3
+A:90:21:6
+C:1:11:22:90:8
+C:3:20:30:99:6
+C:4:19:33:95:3
+C:8:11:22:90:8
+S:CREATE_RACE:235
+
+N:248:Enchant Wand
+A:90:25:6
+C:1:35:50:80:230
+C:3:40:70:80:200
+S:ENCHANT_TVAL:65
+
+N:249:Enchant Staff
+A:90:25:7
+C:1:37:60:85:250
+C:3:42:80:85:250
+C:8:42:80:85:250
+S:ENCHANT_TVAL:55
+
+N:250:Enchant Rod
+A:90:25:8
+C:1:45:95:85:250
+C:3:47:95:85:250
+S:ENCHANT_TVAL:66
+
+N:251:Rune of Escape
+A:90:21:3
+C:1:5:6:35:5
+C:3:20:9:50:1
+C:4:11:10:45:3
+C:8:11:10:45:3
+S:WARD_TRAP:21
+
+N:252:Glyph of Warding
+A:90:21:13
+C:1:37:55:90:15
+C:3:41:70:90:5
+C:4:41:70:90:5
+C:8:33:55:90:15
+S:WARD_GLYPH:3
+
+N:253:Psychic Crown
+A:90:23:9
+A:90:22:8
+C:1:25:18:90:8
+C:3:35:27:99:6
+C:4:33:26:95:3
+C:8:25:18:90:8
+S:INVEN_HEAD:568
+L:1d48+48
+
+N:254:Shout
+A:92:11:2
+C:9:19:12:55:8
+B:BLAST:SOUND:4d10+0
+
+N:255:Sound Bolt
+A:65:51:1
+A:92:11:5
+C:9:25:20:60:3
+B:BOLT:SOUND:8d8+0
+
+# Additional Food effects.
+
+N:256:Poison
+A:75:6:1
+A:80:0:1
+L:1d10+10
+F:POISON
+
+N:257:Blindness
+A:75:7:1
+A:80:1:1
+L:1d200+200
+F:BLIND
+
+N:258:Paranoia
+A:80:2:1
+L:1d10+10
+F:FEAR
+
+N:259:Confusion
+A:75:9:1
+A:80:3:1
+L:1d10+10
+F:CONFUSE
+
+N:260:Hallucination
+A:80:4:1
+L:1d10+10
+F:HALLUC
+
+N:261:Paralyzation
+A:80:5:1
+L:1d10+10
+F:PARALYZE
+
+N:262:Poisonous Food
+A:80:6:1
+B:SELF:LOSE_STR:6d6+0
+
+N:263:Poisonous Food
+A:80:7:1
+B:SELF:LOSE_CON:6d6+0
+
+N:264:Poisonous Food
+A:80:9:1
+B:SELF:LOSE_WIS:8d6+0
+
+N:265:Poisonous Food
+A:80:8:1
+B:SELF:LOSE_INT:8d6+0
+
+N:266:Poisonous Food
+A:80:10:1
+B:SELF:LOSE_CON:10d10+0
+
+N:267:Poisonous Food
+A:80:11:1
+B:SELF:LOSE_STR:10d10+0
+
+N:268:Cure Blindness
+A:80:13:1
+F:CURE_BLIND
+
+N:269:Cure Confusion
+A:80:15:1
+F:CURE_CONF
+
+N:270:Restore Strength
+A:75:42:1
+A:80:17:1
+F:CURE_STR
+
+N:271:Restore Constition
+A:75:46:1
+A:80:18:1
+F:CURE_CON
+
+N:280:Mana
+A:80:20:1
+F:SLOW_MANA
+
+N:281:Ration
+A:80:32:1
+A:80:33:1
+A:80:35:1
+A:80:36:1
+D:That tastes good.
+
+N:282:Fine Wine
+A:80:38:1
+A:80:39:1
+D:That tastes good.
+
+N:283:Waybread
+A:80:37:1
+F:CURE_POIS
+B:SELF:HEAL:4d8+0
+D:That tastes good.
+
+# Additional Potion effects.
+
+N:284:Water
+A:75:0:1
+A:75:1:1
+D:You feel less thirsty.
+
+N:285:Slowness
+A:55:1:1
+A:75:4:1
+L:1d10+10
+F:SLOW
+
+N:286:Salt Water
+A:75:5:1
+F:DEC_FOOD
+B:VOMIT:SALT_WATER:2d6
+D:The potion makes you vomit!
+
+N:287:Sleep
+A:75:11:1
+L:1d4+4
+F:PARALYZE
+D:You fall asleep.
+
+N:288:Lose Memories
+A:75:13:1
+D:You feel your memories fade.
+F:DEC_EXP
+
+N:289:Ruination
+A:75:15:1
+B:SELF:LOSE_ALL:10d10+0
+D:Your nerves and muscles feel weak and lifeless.
+
+N:290:Weakness
+A:75:16:1
+B:SELF:LOSE_STR
+
+N:291:Stupidity
+A:75:17:1
+B:SELF:LOSE_INT
+
+N:292:Naivity
+A:75:18:1
+B:SELF:LOSE_WIS
+
+N:293:Clumsiness
+A:75:19:1
+B:SELF:LOSE_DEX
+
+N:294:Sickliness
+A:75:20:1
+B:SELF:LOSE_CON
+
+N:295:Ugliness
+A:75:21:1
+B:SELF:LOSE_CHR
+
+N:296:Detonations
+A:75:22:1
+B:AURA:EXPLODE:50d20+0
+L:1d100+0
+F:CUT | STUN
+D:Massive explosions rupture your body.
+
+N:297:Death
+A:65:52:1
+A:75:23:1
+B:AIM:DRAIN_LIFE:0d0+5000
+D:A feeling of Death flows through your body.
+
+N:298:Infravision
+A:75:24:1
+L:1d100+100+1
+F:INFRA
+
+N:299:Cure Critical Wounds
+A:75:36:1
+B:SELF:HEAL:12d10+0
+F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF
+
+N:300:Healing
+A:75:37:1
+B:SELF:HEAL:0d0+300
+F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF
+
+N:301:*Healing*
+A:75:38:1
+B:SELF:HEAL:0d0+1200
+F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF
+
+N:302:Life
+A:75:39:1
+B:SELF:HEAL:0d0+5000
+F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF | CURE_IMAGE
+F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
+D:You feel life flow through your body.
+
+N:303:Restore Mana
+A:75:40:1
+F:CURE_MANA
+D:You feel your head clear.
+
+N:304:Restore Intelligence
+A:75:43:1
+F:CURE_INT
+
+N:305:Restore Wisdom
+A:75:44:1
+F:CURE_INT
+
+N:306:Restore Dexterity
+A:75:45:1
+F:CURE_DEX
+
+N:307:Restore Charisma
+A:75:47:1
+F:CURE_CHR
+
+N:308:Strength
+A:75:48:1
+F:INC_STR
+
+N:309:Intelligence
+A:75:49:1
+F:INC_INT
+
+N:310:Wisdom
+A:75:50:1
+F:INC_WIS
+
+N:311:Dexterity
+A:75:51:1
+F:INC_DEX
+
+N:312:Constitution
+A:75:52:1
+F:INC_CON
+
+N:313:Charisma
+A:75:53:1
+F:INC_CHR
+
+N:314:Augmentation
+A:75:55:1
+F:INC_STR | INC_INT | INC_WIS | INC_DEX | INC_CON | INC_CHR
+
+N:315:*Enlightenment*
+A:75:57:1
+F:INC_INT | INC_WIS |
+F:WIZ_LITE | DETECT_DOORS | DETECT_STAIRS | DETECT_GOLD | DETECT_OBJECT
+F:DETECT_TRAPS | IDENT_PACK | SELF_KNOW
+D:You begin to feel more enlightened...
+
+N:316:Self Knowledge
+A:75:58:1
+F:SELF_KNOW
+D:You feel you know yourself a little better...
+
+N:317:Experience
+A:75:59:1
+F:SELF_KNOW
+D:You feel more experienced.
+
+# Additional Scroll Effects
+
+N:318:Darkness
+A:55:0:1
+A:70:0:1
+B:SELF:BLIND
+F:DARK_ROOM
+
+N:319:Aggravate Monster
+A:70:1:1
+F:AGGRAVATE
+
+N:320:Curse Weapon
+A:70:2:1
+F:CURSE_WEAPON
+
+N:321:Curse Armor
+A:70:3:1
+F:CURSE_ARMOR
+
+N:322:Summon Monster
+A:55:3:1
+A:70:4:1
+S:SUMMON:0
+
+N:323:Summon Undead
+A:70:5:1
+S:SUMMON:17
+
+N:324:Trap Creation
+A:70:7:1
+B:ADJACENT:MAKE_TRAP
+
+N:325:Burning Liquor
+A:80:42:1
+B:SPIT:FIRE:4d6+0
+B:SELF:FIRE:1d6+0
+D:You spit out the burning liquor.
+
+N:326:Enchant Weapon To-Hit
+A:70:17:1
+F:ENCHANT_TOH
+
+N:327:Enchant Weapon To-Dam
+A:70:18:1
+F:ENCHANT_TOD
+
+N:328:*Enchant Armour*
+A:70:20:1
+F:ENCHANT_TOA | ENCHANT_HIGH
+
+N:329:*Enchant Weapon*
+A:70:21:1
+F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH
+
+N:331:Recharging
+A:70:22:1
+S:RECHARGE:60
+
+N:332:Detect Invisible
+A:55:14:1
+A:70:30:1
+F:DETECT_INVIS
+
+N:333:Acquirement
+A:70:46:1
+F:ACQUIREMENT
+
+N:334:*Acquirement*
+A:70:47:1
+F:STAR_ACQUIREMENT
+
+N:335:Legend Lore
+A:70:48:1
+F:IDENT_RUMOR
+
+N:336:Illumination
+A:55:8:1
+A:66:4:1
+A:70:24:1
+B:AREA:LITE_WEAK:2d8+0
+F:LITE_ROOM
+
+N:337:Curing
+A:55:17:1
+A:66:8:1
+F:CURE_BLIND | CURE_POIS | CURE_CONF | CURE_STUN | CURE_CUTS
+
+N:338:Healing
+A:66:9:1
+B:SELF:HEAL:0d0+500
+F:CURE_CUTS | CURE_STUN
+
+N:339:Disarming
+A:65:4:1
+A:65:24:4
+A:66:14:1
+B:BEAM:KILL_TRAP
+
+N:340:Drain Life
+A:65:12:1
+A:65:24:12
+A:66:18:1
+B:AIM:DRAIN_LIFE:0d0+125
+
+N:341:Lightning Ball
+A:65:21:1
+A:65:24:21
+A:66:25:1
+C:1:29:18:65:12
+C:4:35:25:80:5
+C:8:29:18:65:12
+B:BALL:ELEC:1d0+15
+
+N:342:Heal Monster
+A:65:0:1
+A:65:24:24
+B:BOLT:HEAL:4d6+0
+
+N:343:Haste Monster
+A:65:1:1
+A:65:24:1
+B:BOLT:HASTE
+
+N:344:Clone Monster
+A:65:2:1
+A:65:24:2
+B:BOLT:CLONE
+
+N:345:Trap/Door Destruction
+A:65:5:1
+A:65:24:5
+B:BOLT:KILL_DOOR
+
+N:346:Dragon's Frost
+A:65:27:1
+A:65:28:2
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:FIRE:2d0+30
+
+N:347:Dragon's Storm
+A:65:28:3
+A:65:53:1
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:ELEC:2d0+30
+
+N:348:Dragon's Bile
+A:65:28:4
+A:65:54:1
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:ACID:2d0+50
+
+N:349:Dragon's Venom
+A:65:28:5
+A:65:55:1
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:POISON:2d0+10
+
+N:350:Haste Monsters
+A:55:2:1
+B:LOS:HASTE
+
+N:351:The Magi
+A:55:19:1
+F:CURE_MANA | CURE_INT
+D:You feel your head clear.
+
+N:352:Slow Monsters
+A:55:21:1
+B:LOS:SLOW_WEAK:1d0+0
+
+N:353:Power
+A:55:25:1
+B:LOS:DISPEL_ALL:5d0+0
+
+N:354:Holiness
+A:55:26:1
+B:LOS:DISPEL_EVIL:4d0+0
+B:SELF:HEAL:0d0+50
+F:CURE_FEAR | CURE_POIS | CURE_CUTS | CURE_STUN | PROT_EVIL
+L:1d25+0
+
+# Additional artifact activations
+
+N:355:*Dispel Evil*
+F:HOLD_SONG
+B:LOS:DISPEL_EVIL:5d0+125
+
+N:356:*Haste Self*
+F:HASTE
+L:1d75+75
+
+N:357:*Ice Storm*
+B:STORM:COLD:3d0+125
+
+N:358:*Lightning Storm*
+B:STORM:ELEC:3d0+175
+
+N:359:Cure All Wounds
+A:75:66:1
+B:SELF:HEAL:0d0+500
+F:CURE_CUTS
+
+N:360:*Cure All Wounds*
+A:75:67:1
+B:SELF:HEAL:0d0+1000
+F:CURE_CUTS
+
+N:361:Lightning Star
+B:STAR:ELEC:2d0+100
+
+N:362:Rage/Bless/Resist
+F:SHERO | BLESS | OPP_FIRE | OPP_COLD | OPP_ELEC | OPP_ACID | OPP_POIS
+L:1d50+50
+
+N:363:*Starlight*
+F:HOLD_SONG
+B:STAR:LITE_WEAK:6d8+0
+
+N:364:Mana bolt
+A:65:56:1
+B:BOLT:MANA:4d0+0
+
+N:365:Magical Arrow
+A:65:57:1
+B:BOLT:ARROW:6d0+0
+
+N:366:Remove Fear & Poison
+A:75:68:1
+F:CURE_FEAR | CURE_POIS
+
+# Dragon armor activations
+
+N:367:Breathe Lightning
+A:38:2:1
+A:38:6:1
+A:38:13:1
+A:75:70:1
+B:BREATH:ELEC:3d0+25
+F:OPP_ELEC
+L:1d20+20
+D:You breathe lightning.
+
+N:368:Breathe Frost
+A:38:3:1
+A:38:6:2
+A:38:15:1
+A:75:70:2
+B:BREATH:COLD:3d0+35
+F:OPP_COLD
+L:1d20+20
+D:You breathe frost.
+
+N:369:Breathe Acid
+A:38:1:1
+A:38:6:3
+A:38:17:1
+A:75:70:3
+B:BREATH:ACID:3d0+55
+F:OPP_ACID
+L:1d20+20
+D:You breathe acid.
+
+N:370:Breathe Poison
+A:38:5:1
+A:38:6:4
+A:38:16:1
+A:75:70:4
+B:BREATH:POISON:3d0+75
+F:OPP_POIS
+L:1d20+20
+D:You breathe poison.
+
+N:371:Breathe Fire
+A:38:4:1
+A:38:6:5
+A:38:14:1
+A:75:69:1
+A:75:70:5
+B:BREATH:FIRE:3d0+125
+F:OPP_FIRE
+L:1d20+20
+D:You breathe fire.
+
+N:372:Breathe Confusion
+A:38:14:2
+A:38:10:1
+B:BREATH:CONFUSE:3d0+45
+F:CURE_CONF
+D:You breathe confusion.
+
+N:373:Breathe Sound
+A:38:16:2
+A:38:12:1
+A:38:20:1
+B:BREATH:SOUND:3d0+55
+F:CURE_STUN
+D:You breathe sound.
+
+N:374:Breathe Fear
+A:38:15:2
+F:CURE_FEAR
+B:BREATH:TERRIFY:3d0+35
+D:You breathe fear.
+
+N:375:Breathe Disenchantment
+A:38:17:2
+A:38:18:1
+A:38:20:2
+B:BREATH:DISENCHANT:3d0+25
+D:You breathe disenchantment.
+
+N:376:Breathe Nexus
+A:38:13:2
+B:BREATH:NEXUS:3d0+15
+D:You breathe nexus.
+
+N:377:Breathe Chaos
+A:38:18:2
+A:38:20:3
+F:CURE_IMAGE
+B:BREATH:CHAOS:3d0+145
+D:You breathe chaos.
+
+N:378:Breathe Shards
+A:38:12:2
+A:38:20:4
+F:CURE_CUTS
+B:BREATH:SHARD:3d0+155
+D:You breathe shards.
+
+N:379:Breathe Darkness
+A:38:10:2
+B:BREATH:DARK:3d0+125
+F:BLIND
+L:1d20+20
+D:You breathe darkness.
+
+N:380:Breathe Light
+A:38:10:3
+B:BREATH:LITE:3d0+75
+F:CURE_BLIND
+D:You breathe light.
+
+N:381:Breathe Power
+A:38:30:1
+B:BREATH:MISSILE:3d0+225
+D:You breathe the elements.
+
+# Elemental ring activations
+
+N:382:Conjure Flames
+A:45:18:1
+A:65:58:1
+B:BALL:FIRE:2d0+30
+F:OPP_FIRE
+L:1d20+20
+D:You conjure up flames.
+
+N:383:Conjure Acid
+A:45:17:1
+A:65:59:1
+B:BALL:ACID:2d0+20
+F:OPP_ACID
+L:1d20+20
+D:You conjure up acid.
+
+N:384:Conjure Ice
+A:45:19:1
+A:65:60:1
+B:BALL:COLD:2d0+35
+F:OPP_COLD
+L:1d20+20
+D:You conjure up ice.
+
+N:385:Conjure Lightning
+A:45:38:1
+A:65:61:1
+B:BALL:ELEC:2d0+25
+F:OPP_ELEC
+L:1d20+20
+D:You conjure up lightning.
+
+# Missed Cubragol branding.
+
+N:386:Enchant Bolts Brand
+A:70:58:1
+S:BRAND_AMMO:8
+
+# Additional effects from normal items
+# Note these have been made into spells as well.
+
+N:387:Torch Flame
+A:39:0:1
+A:90:9:12
+A:93:13:7
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:5:5:30:6
+B:ADJACENT:FIRE:2d6+0
+
+N:388:Burning Oil
+A:39:1:1
+A:77:0:1
+A:90:13:12
+C:1:3:4:30:1
+C:3:15:6:75:1
+C:4:7:6:40:2
+C:8:7:6:40:2
+B:ADJACENT:FIRE:3d6+0
+
+N:389:Acid Splash
+A:77:2:1
+A:90:10:12
+A:90:13:13
+A:93:1:7
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:7:5:37:5
+B:ADJACENT:ACID:3d6+0
+
+# New spells
+
+N:390:Poison Weapon
+A:70:67:1
+A:90:13:14
+A:93:4:23
+C:1:22:30:50:250
+C:3:26:30:50:250
+C:4:22:30:50:250
+C:8:26:30:50:250
+S:BRAND_WEAPON:9
+
+N:391:Poison Arrows
+A:70:68:1
+A:90:13:15
+A:93:4:2
+C:1:15:20:80:200
+C:3:20:25:80:160
+C:4:25:30:80:125
+C:8:15:20:80:200
+S:BRAND_AMMO:9
+
+N:392:Continual Light
+A:70:53:1
+A:90:17:8
+C:1:17:9:50:7
+C:4:25:21:65:3
+C:8:17:9:50:7
+S:BRAND_ITEM:10
+
+N:393:Acid Proofing
+A:70:54:1
+A:90:10:8
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:21:22:90:8
+S:BRAND_ITEM:11
+
+N:394:Fire Proofing
+A:70:55:1
+A:90:9:6
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+C:9:30:30:99:6
+S:BRAND_ITEM:12
+
+N:395:Water Proofing
+A:70:56:1
+A:90:20:5
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+S:BRAND_ITEM:13
+
+N:396:Theft Proofing
+A:70:57:1
+A:90:4:7
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+S:BRAND_ITEM:14
+
+# Basic wizard defense spell
+
+N:397:Wizard Lock
+A:90:0:10
+A:93:7:16
+C:1:1:2:26:4
+C:3:9:3:60:1
+C:4:5:3:35:1
+C:8:5:3:35:1
+C:9:5:3:35:1
+B:STRIKE:LOCK_DOOR
+
+# Intermediate priest attack spell
+
+N:398:Striking
+A:65:62:1
+A:91:1:9
+C:2:5:4:30:4
+C:5:9:8:40:3
+C:8:9:8:40:3
+B:STRIKE:HOLY_ORB:3d6+0
+
+N:399:Ring of Power (Bad)
+A:45:37:1
+A:45:37:2
+B:SELF:LOSE_ALL:10d10+0
+F:DEC_EXP
+D:You are surrounded by a malignant aura.
+
+N:400:Ring of Power (Powerful)
+A:45:37:3
+B:LOS:DISPEL_ALL:0d0+1000
+D:You are surrounded by a powerful aura.
+
+N:401:Ring of Power (Mana Ball)
+A:45:37:4
+A:45:37:5
+A:45:37:6
+B:STORM:MANA:0d0+300
+
+N:402:Ring of Power (Mana Bolt)
+A:45:37:7
+A:45:37:8
+A:45:37:9
+A:45:37:10
+B:BOLT:MANA:0d0+250

@@ -1,0 +1,1231 @@
+# This file initialises the flavors.
+
+# Version stamp (required)
+
+V:2.9.6
+
+N:0:(unflavored)
+G: :w
+
+N:1:Alexandrite
+G: :g
+T:45:0:99
+T:66:0:99
+D:set with an alexandrite gem
+
+N:2:Amethyst
+G: :v
+T:45:0:99
+T:66:0:99
+D:set with an amethyst gem
+
+N:3:Aquamarine
+G: :B
+T:45:0:99
+T:66:0:99
+D:set with an aquamarine gem
+
+N:4:Azurite
+G: :B
+T:45:0:99
+T:66:0:99
+D:set with an azurite gem
+
+N:5:Beryl
+G: :G
+T:45:0:99
+T:66:0:99
+D:set with a beryl gem
+
+N:6:Bloodstone
+G: :r
+T:45:0:99
+T:66:0:99
+D:set with a bloodstone gem
+
+N:7:Calcite
+G: :w
+T:45:0:99
+T:66:0:99
+D:set with a calcite gem
+
+N:8:Carnelian
+G: :r
+T:45:0:99
+T:66:0:99
+D:set with a carnelian gem
+
+N:9:Corundum
+G: :s
+T:45:0:99
+T:66:0:99
+D:set with a corundum gem
+
+N:10:Diamond
+G: :w
+T:45:0:99
+T:66:0:99
+D:set with a diamond
+
+N:11:Emerald
+G: :g
+T:45:0:99
+T:66:0:99
+D:set with an emerald
+
+N:12:Fluorite
+G: :G
+T:45:0:99
+T:66:0:99
+D:set with a fluorite gem
+
+N:13:Garnet
+G: :r
+T:45:0:99
+T:66:0:99
+D:set with a garnet gem
+
+N:14:Granite
+G: :W
+T:45:0:99
+T:66:0:99
+D:carved from granite
+
+N:15:Jade
+G: :G
+T:45:0:99
+T:66:0:99
+D:carved from jade
+
+N:16:Jasper
+G: :u
+T:45:0:99
+T:66:0:99
+D:set with a jasper gem
+
+N:17:Lapis Lazuli
+G: :b
+T:45:0:99
+T:66:0:99
+D:set with a lapis lazuli gem
+
+N:18:Malachite
+G: :g
+T:45:0:99
+T:66:0:99
+D:set with a malachite gem
+
+N:19:Marble
+G: :w
+T:45:0:99
+T:66:0:99
+D:carved from marble
+
+N:20:Moonstone
+G: :W
+T:45:0:99
+T:66:0:99
+D:set with a moonstone gem
+
+N:21:Onyx
+G: :R
+T:45:0:99
+T:66:0:99
+D:set with an onyx gem
+
+N:22:Opal
+G: :W
+T:45:0:99
+T:66:0:99
+D:set with an opal gem
+
+N:23:Pearl
+G: :w
+T:45:0:99
+T:66:0:99
+D:set with a pearl
+
+N:24:Quartz
+G: :W
+T:45:0:99
+T:66:0:99
+D:carved from quartz
+
+N:25:Quartzite
+G: :W
+T:45:0:99
+T:66:0:99
+D:set with a quartzite gem
+
+N:26:Rhodonite
+G: :R
+T:45:0:99
+T:66:0:99
+D:set with a rhodonite gem
+
+N:27:Ruby
+G: :r
+T:45:0:99
+T:66:0:99
+D:set with a ruby
+
+N:28:Sapphire
+G: :b
+T:45:0:99
+T:66:0:99
+D:set with a sapphire
+
+N:29:Tiger Eye
+G: :y
+T:45:0:99
+T:66:0:99
+D:set with a tiger eye gem
+
+N:30:Topaz
+G: :y
+T:45:0:99
+T:66:0:99
+D:set with a topaz gem
+
+N:31:Turquoise
+G: :B
+T:45:0:99
+T:66:0:99
+D:set with a turquoise gem
+
+N:32:Zircon
+G: :w
+T:45:0:99
+T:66:0:99
+D:set with a zircon gem
+
+N:33:Signet
+G: :U
+T:45:0:99
+T:66:0:99
+D:set with a signet
+
+N:34:Wedding
+G: :y
+T:45:0:99
+T:66:0:99
+D:unadorned
+
+N:35:Obsidian
+G: :D
+T:45:0:99
+T:66:0:99
+T:40:0:99
+D:carved from obsidian
+
+N:36:Tortoise Shell
+G: :u
+T:45:0:99
+T:66:0:99
+T:40:0:99
+D:set with tortoise shell
+
+N:37:Mithril
+G: :B
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from mithril
+
+N:38:Jet
+G: :D
+T:45:0:99
+T:66:0:99
+D:set with a jet gem
+
+N:39:Engagement
+G: :y
+T:45:0:99
+T:66:0:99
+D:encrusted with diamonds
+
+N:40:Aspen
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from aspen
+
+N:41:Balsa
+G: :U
+T:55:0:99
+D:carved from balsa wood
+
+N:42:Banyan
+G: :U
+T:55:0:99
+D:carved from a banyan tree
+
+N:43:Birch
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from birch
+
+N:44:Cedar
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from cedar
+
+N:45:Cottonwood
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from cottonwood
+
+N:46:Cypress
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from cypress
+
+N:47:Dogwood
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from dogwood
+
+N:48:Elm
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from elm
+
+N:49:Eucalyptus
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from eucalyptus
+
+N:50:Hemlock
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from hemlock
+
+N:51:Hickory
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from hickory
+
+N:52:Ironwood
+G: :u
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from ironwood
+
+N:53:Locust
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from locust
+
+N:54:Mahogany
+G: :u
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from mahogany
+
+N:55:Maple
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from maple
+
+N:56:Mulberry
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from mulberry
+
+N:57:Oak
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from oak
+
+N:58:Pine
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from pine
+
+N:59:Redwood
+G: :r
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from redwood
+
+N:60:Rosewood
+G: :r
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from rosewood
+
+N:61:Spruce
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from spruce
+
+N:62:Sycamore
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from sycamore
+
+N:63:Teak
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from teak
+
+N:64:Walnut
+G: :u
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from walnut
+
+N:65:Mistletoe
+G: :g
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from mistletoe
+
+N:66:Hawthorn
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from hawthorn
+
+N:67:Bamboo
+G: :U
+T:55:0:99
+D:made of bamboo
+
+N:68:Runed
+G: :u
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:engraved with strange runes
+
+N:69:Golden
+G: :y
+T:55:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:carved from golden wood
+
+N:70:Ashen
+G: :s
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from ashen wood
+
+N:71:Gnarled
+G: :s
+T:55:0:99
+D:carved from gnarled wood
+
+N:72:Ivory
+G: :w
+T:55:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:carved from ivory
+
+N:73:Willow
+G: :U
+T:55:0:99
+T:65:0:99
+T:66:0:99
+D:carved from willow
+
+N:74:Aluminum
+G: :B
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from aluminum
+
+N:75:Cast Iron
+G: :D
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:made of cast iron
+
+N:76:Chromium
+G: :w
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from chromium
+
+N:77:Copper
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:forged from copper
+
+N:78:Gold
+G: :y
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from gold
+
+N:79:Iron
+G: :s
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from iron
+
+N:80:Magnesium
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from magnesium
+
+N:81:Molybdenum
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from molybdenum
+
+N:82:Nickel
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from nickel
+
+N:83:Rusty
+G: :r
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:rusted with age
+
+N:84:Silver
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:forged from silver
+
+N:85:Steel
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from fine steel
+
+N:86:Tin
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from tin
+
+N:87:Titanium
+G: :w
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from titanium
+
+N:88:Tungsten
+G: :w
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from tungsten
+
+N:89:Zirconium
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from zirconium
+
+N:90:Zinc
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from zinc
+
+N:91:Aluminum-Plated
+G: :B
+T:45:0:99
+T:65:0:99                                     
+T:66:0:99
+D:covered with a thin layer of aluminum
+
+N:92:Copper-Plated
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of copper
+
+N:93:Gold-Plated
+G: :y
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of gold
+
+N:94:Nickel-Plated
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of nickel
+
+N:95:Silver-Plated
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of silver
+
+N:96:Steel-Plated
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of steel
+
+N:97:Tin-Plated
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of tin
+
+N:98:Zinc-Plated
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of zinc
+
+N:99:Mithril-Plated
+G: :B
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of mithril
+
+N:100:Adamantite
+G: :B
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from adamantite
+
+N:101:Engraved
+G: :u
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:engraved with a faded message
+
+N:102:Bronze
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:forged from bronze
+
+N:103:Brass
+G: :U
+T:45:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:forged from brass
+
+N:104:Platinum
+G: :w
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from platinum
+
+N:105:Lead
+G: :s
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:forged from lead
+
+N:106:Lead-Plated
+G: :s
+T:45:0:99
+T:65:0:99
+T:66:0:99
+D:covered with a thin layer of lead
+
+N:107:Jewelled
+G: :v
+T:45:0:99
+T:65:0:99
+T:40:0:99
+T:66:0:99
+D:encrusted with gems
+
+N:108:Pewter
+G: :W
+T:45:0:99
+T:65:0:99
+T:66:0:99
+T:40:0:99
+D:made of pewter
+
+N:109:Amber
+G: :y
+T:40:0:99
+D:carved from amber
+
+N:110:Driftwood
+G: :U
+T:40:0:99
+T:65:0:99
+D:carved from driftwood
+
+N:111:Coral
+G: :w
+T:40:0:99
+D:made of coral
+
+N:112:Agate
+G: :W
+T:40:0:99
+D:carved from agate
+
+N:113:Bone
+G: :w
+T:40:0:99
+T:65:0:99
+D:made of bone
+
+N:114:Azure
+G: :B
+T:40:0:99
+D:set with azure
+
+N:115:Crystal
+G: :w
+T:40:0:99
+T:65:0:99
+D:set with a crystal
+
+N:116:Clear
+G: :w
+T:75:0:0
+D:clear
+
+N:117:Light Brown
+G: :U
+T:75:1:1
+D:light brown
+
+N:118:Icky Green
+G: :g    
+T:75:2:2
+D:icky green
+
+N:119:Azure
+G: :B
+T:75:4:99
+D:azure
+
+N:120:Blue
+G: :b
+T:65:0:99
+T:75:4:99
+T:80:12:19
+D:blue
+
+N:121:Blue Speckled
+G: :b
+T:75:4:99
+D:speckled blue
+
+N:122:Black
+G: :D
+T:65:0:99
+T:75:4:99
+T:80:8:8
+D:black
+
+N:123:Brown
+G: :u
+T:75:4:99
+T:80:11:11
+D:brown
+
+N:124:Brown Speckled
+G: :u
+T:75:4:99
+D:speckled brown
+
+N:125:Bubbling
+G: :W
+T:75:4:99
+D:bubbling
+
+N:126:Chartreuse
+G: :G
+T:75:4:99
+D:chartreuse
+
+N:127:Cloudy
+G: :w
+T:75:4:99
+D:cloudy
+
+N:128:Copper Speckled
+G: :U
+T:75:4:99
+D:speckled copper
+
+N:129:Crimson
+G: :r
+T:75:4:99
+D:crimson
+
+N:130:Cyan
+G: :B
+T:75:4:99
+D:cyan
+
+N:131:Dark Blue
+G: :b
+T:75:4:99
+T:80:12:19
+D:dark blue
+
+N:132:Dark Green
+G: :g
+T:75:4:99
+T:80:12:19
+D:dark green
+
+N:133:Dark Red
+G: :r
+T:75:4:99
+T:80:12:19
+D:dark red
+
+N:134:Gold Speckled
+G: :y
+T:75:4:99
+D:speckled gold
+
+N:135:Green
+G: :g
+T:65:0:99
+T:75:4:99
+T:80:9:9
+D:green
+
+N:136:Green Speckled
+G: :g
+T:75:4:99
+D:speckled green
+
+N:137:Grey
+G: :s
+T:75:4:99
+T:80:3:3
+D:grey
+
+N:138:Grey Speckled
+G: :s
+T:75:4:99
+D:speckled grey
+
+N:139:Hazy
+G: :W
+T:75:4:99
+D:hazy
+
+N:140:Indigo
+G: :v
+T:75:4:99
+D:indigo
+
+N:141:Light Blue
+G: :B
+T:75:4:99
+T:80:4:4
+T:80:20:20
+D:light blue
+
+N:142:Light Green
+G: :G
+T:75:4:99
+T:80:12:19
+D:light green
+
+N:143:Magenta
+G: :r
+T:75:4:99
+D:magenta
+
+N:144:Metallic Blue
+G: :b
+T:75:4:99
+D:metallic blue
+
+N:145:Metallic Red
+G: :r
+T:75:4:99
+D:metallic red
+
+N:146:Metallic Green
+G: :g
+T:75:4:99
+D:metallic green
+
+N:147:Metallic Purple
+G: :v
+T:75:4:99
+D:metallic purple
+
+N:148:Misty
+G: :W
+T:75:4:99
+D:misty
+
+N:149:Orange
+G: :o
+T:75:4:99
+D:orange
+
+N:150:Orange Speckled
+G: :o
+T:75:4:99
+D:speckled orange
+
+N:151:Pink
+G: :R
+T:75:4:99
+T:80:6:6
+D:pink
+
+N:152:Pink Speckled
+G: :R
+T:75:4:99
+D:speckled pink
+
+N:153:Puce
+G: :v
+T:75:4:99
+D:puce
+
+N:154:Purple
+G: :v
+T:75:4:99
+T:80:7:7
+D:purple
+
+N:155:Purple Speckled
+G: :v
+T:75:4:99
+D:speckled purple
+
+N:156:Red
+G: :r
+T:65:0:99
+T:75:4:99
+T:80:12:19
+D:red
+
+N:157:Red Speckled
+G: :r
+T:75:4:99
+D:speckled red
+
+N:158:Silver Speckled
+G: :W
+T:75:4:99
+D:speckled silver
+
+N:159:Smoky
+G: :D
+T:75:4:99
+D:smoky
+
+N:160:Tangerine
+G: :o
+T:75:4:99
+D:tangerine
+
+N:161:Violet
+G: :v
+T:65:0:99
+T:75:4:99
+T:80:12:19
+D:violet
+
+N:162:Vermilion
+G: :r
+T:75:4:99
+D:vermilion
+
+N:163:White
+G: :w
+T:65:0:99
+T:75:4:99
+T:80:12:19
+D:white
+
+N:164:Yellow
+G: :y
+T:65:0:99
+T:75:4:99
+T:80:2:2
+D:yellow
+
+N:165:Violet Speckled
+G: :v
+T:75:4:99
+D:speckled violet
+
+N:166:Pungent
+G: :R
+T:75:4:99
+D:pungent
+
+N:167:Clotted Red
+G: :r
+T:75:4:99
+D:clotted red
+
+N:168:Viscous Pink
+G: :R
+T:75:4:99
+D:viscous pink
+
+N:169:Oily Yellow
+G: :y
+T:75:4:99
+D:oily yellow
+
+N:170:Gloopy Green
+G: :g
+T:75:4:99
+D:gloopy green
+
+N:171:Shimmering
+G: :v
+T:75:4:99
+D:shimmering
+
+N:172:Coagulated Crimson
+G: :r
+T:75:4:99
+D:coagulated crimson
+
+N:173:Yellow Speckled
+G: :y
+T:75:4:99
+D:speckled yellow
+
+N:174:Gold
+G: :y
+T:75:4:99
+D:gold-colored
+
+N:175:Spotted
+G: :o
+T:75:4:99
+T:80:0:0
+D:spotted
+
+N:176:Silver
+G: :W
+T:75:4:99
+T:80:1:1
+D:silver-colored
+
+N:177:Copper
+G: :U
+T:75:4:99
+T:80:5:5
+D:copper-colored
+
+N:178:Rotting
+G: :G
+T:80:10:10
+D:rotting
+
+N:179:Black Spotted
+G: :D
+T:80:12:19
+D:black spotted
+
+N:180:Furry
+G: :W
+T:80:12:19
+D:furry
+
+N:181:Slimy
+G: :s
+T:75:4:99
+T:80:12:19
+D:slimy
+
+N:182:Tan
+G: :U
+T:75:4:99
+T:80:12:19
+D:tan
+
+N:183:White Spotted
+G: :w
+T:80:12:19
+D:white spotted
+
+N:184:Wrinkled
+G: :u
+T:80:12:19
+D:wrinkled
+
+N:185:Steamy
+G: :W
+T:75:4:99
+D:steamy
+
+N:186:Luke Warm
+G: :B
+T:75:4:99
+D:luke warm
+
+N:187:Boiling
+G: :v
+T:75:4:99
+D:boiling
+
+N:188:Tepid
+G: :B
+T:75:4:99
+D:tepid
+
+N:189:Foamy
+G: :W
+T:75:4:99
+D:foamy
+
+N:190:Bitter
+G: :g
+T:75:4:99
+D:bitter
+
+N:191:Rainbow
+G: :v
+T:75:4:99
+D:rainbow-colored
+
+N:192:Black & White
+G: :w
+T:75:4:99
+D:black and white-layered
+
+N:193:Chocolate
+G: :u
+T:75:4:99
+D:chocolate-coloured
+
+N:194:Evervescent
+G: :w
+T:75:4:99
+D:evervescent
+
+N:195:Sparkling
+G: :W
+T:75:4:99
+D:sparkling
+
+N:196:Fizzing
+G: :B
+T:75:4:99
+D:fizzing
+
+N:197:Surupy
+G: :r
+T:75:4:99
+D:surupy
+
+N:198:Slushy
+G: :R
+T:75:4:99
+D:slushy
+
+N:199:Ice Cold
+G: :b
+T:75:4:99
+D:ice cold
+
+N:200:Curdled
+G: :W
+T:75:4:99
+D:curdled
+
+N:201:Briny
+G: :B
+T:75:4:99
+D:briny
+
+#Hack -- this needs to be in this position.
+
+N:202:Paper
+G: :w
+D:made from paper

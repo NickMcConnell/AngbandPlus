@@ -1,0 +1,252 @@
+Andrew Sidwell has volunteered to help out while I'm
+on holiday, as a 'caretaker' rather than fully fledged
+variant maintainer. E-mail him your compliments and me
+your criticisim...
+
+Unangband 0.5.1d Bugfix release
+- Modified Mirkwood, the Lonely Mountain and Caradhras
+to keep them a little more interesting (Finish Mirkwood
+sooner, more monsters in Lonely Mountain and make
+Caradhras deeper).
+- Added the Dale so town available to visit during the
+Battle of Five Armies.
+- Marketplace now generates level 15 items.
+- Scrolls of Identify and Legend Lore more common in
+dungeon.
+- Scrolls of Gauge Magic and Identify more common in
+Alchemy store.
+- Fixed ranger/priest exp penalties.
+- Darts coloured red and now less common than daggers.
+- Added space to 'Empty chests line' room description.
+- Changed steam, smoke and acidic vapour so they do no
+item damage or special damage.
+- Added DROP_GOOD to stone troll uniques.
+- Added CAN_CLIMB to Mirkwood monsters so they will
+appear in Mirkwood.
+- Floors now marked by acid, fire and water, and steam
+and poison attacks result in clouds of steam or
+poisonous gas. At some point in the future, clouds and
+fire will need to move and disperse, as they are
+static at the moment (Use DYNAMIC flag).
+- Alchemist and magic shop now buy runestones.
+- Monsters should now emerge from previous location,
+instead of current location.
+- Hallucinate and boulder attacks implemented.
+- Hidden monsters can no longer be attacked.
+- Trapped doors should change into a door trap type
+when detected now.
+- Removed duplicate entries for red and blue from
+flavor.txt. Replaced with new potion flavors.
+- Fixed stun display.
+- Removed kobolds from monster info menu.
+- Fixed bug where monsters would be noted as being able
+to climb or push past other monsters, where instead this
+ability was a result of fleeing or moving over rubble,
+trees or webs.
+- No longer gets direction if you are aware of rod
+abilities, instead of needing to id it first.
+- Now sense instruments.
+- Always curse worthless staffs, never curse useful
+staffs.
+- Should always notify player and destroy object if
+we release a monster from an object now.
+- Reduced damage required to manipulate altars and
+destroy fountains.
+- Can now study from and cast from altars.
+- Now learn about artifact/item activation by activating
+the artifact.
+- Trap disarming now depends on the power of the trap.
+Power 5 traps have same difficulty as old trap difficulty.
+- Now clears belt slot when creating a new character.
+- Fixed problem where was not allocating space for new
+artifact lore in randarts.c.
+- Monsters on easy_climb locations on surface are no
+longer hidden if you are inside. This primarily affects someone
+fighting a monster on a tree trunk while they are under the
+branches.
+- Does not reveal ego item flags any more when inspecting
+an identified ego item.
+- Will not be notified when a monster out of sight fails to cast a
+spell or teleports.
+- Made innate and non-innate spells seperate. Now a monster with
+a single innate spell and many spells, will use the innate spell
+50% of the time, given the opportunity, and vice versa. A monster
+with 1_IN_2 and both innate attacks and spells, will use a spell
+or innate spell 75% of the time. At a later date, will allow
+SPELL_1_IN_x and INNATE_1_IN_x flags to be specified for monsters
+so that it is possible to fine tune frequency of abilities (eg
+high level archers with many frequent arrow attacks, and some
+miscellaneous spell abilities).
+- Modifying the fast_moves code slightly, so that you rest while
+running, and prevent you moving quickly on some terrain (Ice,
+snow, rubble etc.)
+- No longer auto-scum on surface.
+- Fix display of item properties for legend lore.
+- Fix notification of melee weapon and wielded equipment
+properties. (Bow and missile weapon seem less critical).
+- Added CAN_FLY flags from previous monster list.
+- Updated dragons to use 'd/D/A' graphic.
+- Tidied up some other monster colouration.
+- Added maps for sale at the Library at Rivendell.
+- Fixed bug preventing books from stacking sometimes.
+- Count usages of objects properly now.
+- Travelling now requires you are recovered from any cuts,
+poison, stun damage, confusion, blindness etc.
+- Added back improved Lances, Tridents and Two-Handed Maces -
+modified the artifact lance and tridents to match the newer
+stats.
+- Fixed campaign mode so victory is possible.
+- Amulets of infravision should now get pval.
+- Should now be able to cancel spells correctly.
+- Updated Main and Makefiles to 2.9.7-alpha1, and tried to
+remove LUA dependencies and add info.c. This may not be
+correct as I am working from the makefile itself, with no
+additional knowledge of the various makefile structures.
+- Fixed display of known/lost artifacts.
+
+Unangband 0.5.1c Bugfix release
+- Fixed bug where instruments in bow slot did not provide
+benefits to instrument specialists.
+- Fixed bug with Minas Tirith.
+- Fixed bugs with items being sold/polymorphed/destroyed
+not correctly updating may flags in inventory.
+- Rewrote object learning routines to allow multiple flags
+to be passed through at once, correctly.
+- Now displays information about what an object may do,
+and does not do, when you 'I'nspect it.
+- Wall spells now create walls of features...
+- Trees, rubble and webs now take 2 turns to move through.
+
+Unangband 0.5.1b Bugfix release
+- Instruments now wield in the bow slot (Taken from ToME).
+- Paladins and mages can now learn instrument style.
+- Items are no longer flavoured by monster drops unless
+visibly so.
+- Inscribing an object with '=k' will now destroy it when
+you walk over it, regardless of other inscriptions. This
+prevents a bug where you are prompted to destroy an object
+when you have a full inventory.
+- Some fixes to various items in dungeon.
+- Ego objects display in correct location now.
+- Improved object spoilers to include column for object power,
+this is also handy to debug problems with spell.txt file.
+- Made corrections to some more objects.
+
+Unangband 0.5.1 "'Oops. I did it again' again" release
+- Reordered monsters in monster file, rendering save file
+incompatible for the first time ever since Unangband released.
+However, it allows use of graphics in the game, using Angband
+2.9.6 pref files.
+- Fixed bug with loading dungeon in campaign mode.
+- Fixed bug causing visual weirdness due to tab replacement
+in strings.
+- Fixed bug preventing players learning spells that was
+introduced in upgrade to 2.9.6.
+- Fixed some minor monster changes.
+
+Unangband 0.5.0 "This is Dedicated" release
+- Updated help files to include new options.
+- Restructured help files to format similar to Eyangband.
+- Removed a number of monster AI options that are no longer
+used.
+- Made it so players descending to ground floor of tower, gets
+placed inside the tower.
+- Use revised knowledge code from Eyangband.
+- Change auto-inscription code to use the revised knowledge
+code (~) instead of the old auto-inscription menus ($). In
+particular, you can (c)opy and (p)aste auto-inscriptions,
+letting you very quickly configure large number of auto-
+inscriptions in a manner similar to many auto-squeltch
+implementations. (No "squeltching by quality" supported though).
+- You can now inscribe @x* on an item, where 'x' is any action,
+and that item will always be picked when you attempt to perform
+that action. This is very useful in 2 circumstances: when you
+want to duplicate the {SQUELTCH} inscription from many other
+variants, by setting up auto-inscriptions with @k*, and when
+you only have 1 stack of arrows/bolts, shots inscribed with @f*,
+saves you a keypress to fire.
+
+Unangband 0.5.0-pre1 Bugfix release
+- Added more dungeons and reorganised somewhat.
+- Added some more uniques to populate new dungeons.
+- Removed Red Deaths (Were from Kangband anyway).
+- Staves were losing to hit and damage bonuses.
+- Fixed major bug with campaign mode.
+- Scrolls of teleport level had incorrect s_info.txt entry
+(Should have been 10).
+- Made frogs slightly deeper and all toads spit at a distance.
+- Loose rocks not working properly because of paranoia.
+- Make metallic centipedes metallic.
+- Enchant armor and enchant armor to-resist had incorrect
+s_info entrys (should be 16 and 49).
+- Mushroom of mana has incorrect s_info.txt entry (Should
+be 20).
+- Improved curing from Cure Light/Serious/Cure Critical/Cure
+Mortal Wounds.
+- All goblins should be HURT_LITE.
+- Wooden chests only drop gold (At this depth, it is more
+valuable than garbage).
+- Broken cages should be MOVE and not TUNNEL.
+- Upgraded much of code base to Angband 2.9.6 (This excludes
+Lua however).
+- Changed self knowledge code slightly.
+- Removed ALLOW_OBJECT_INFO define as it is always on now.
+- Added improved ability to inspect objects from Eyangband.
+- Fixed long standing bug causing consistent crashing when
+attempting to load a save file with a dead character.
+
+Unangband 0.4.9h Bugfix release
+- Fixed spelling of Caradhras.
+- Caradhras, the Mountain now guards Caradhras.
+- Some other dragon flies were accidentally green. (Reported
+by Sean Lester).
+- Fixed various bugs with wands.
+- Added 34 additional wands.
+- Made wand/staff charges depend on object level rather
+than sval type.
+- Removed old changes information, as this was taking a lot
+of space.
+- Brought back old high resistance shields/body armor.
+- Changed town monster types in Bree and Rivendell.
+- Rods of Lightning were doing fire damage by mistake.
+- Now only apply song effects if we have a significant
+energy use.
+- Metallic monsters should shimmer a lot more frequently.
+- Was "fixing" rod timeout really badly in save file. Now
+fixing it correctly. Rods will have a recharge time now.
+- Added maps to various locations to allow non-campaign
+mode players to journey to some campaign locations; also
+to extend campaign mode by allowing some alternate dungeons.
+- Made all trees lose FRIENDS flag. They're too tough at
+their depth otherwise, and never looked good placed as
+FRIENDS.
+- Potions of infravision now work.
+- Recall is really working now.
+- Cancelling scrolls/staffs etc are really working now.
+- HURT_ROCK monsters should now drop bodies.
+- Staff of Detect curse now working.
+- Spells were displaying description twice. Fixed.
+- Bug accidentally marked people as winners after killing
+quest monster at bottom of a dungeon. Fixed.
+- Changed it so that you have to defeat the trolls
+to make it to Rivendell.
+- Ghosts/other passwall creatures now correctly hiding in
+terrain again.
+- Tidied up frog depths and renamed a duplicate frog.
+- Changed monster visibility when outside to correctly
+handle monsters travelling over buildings, also visibility
+at nighttime. When you are outside, you can see any
+flying/climbing monster during daytime, and any flying/
+climbing monster at night that is lit by torch/lantern
+light only. When you are inside, you cannot see any
+monster that is outside (This is a hack).
+- This should stop spurious hiding/emergence messages
+that you get while you are outside.
+- Also prevented player from attacking monsters on the roof
+of a building while they are inside it, and vice versa.
+- Note the above are all fairly ugly hacks to allow some
+three-dimensional movement while on the surface (Actually
+2 2d planes lying on top of each other).
+- Fixed a number of problems with spells, that were
+preventing many spell effects and items from working
+properly.
