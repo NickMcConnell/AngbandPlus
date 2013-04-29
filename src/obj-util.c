@@ -1798,7 +1798,7 @@ static s32b object_value_real(const object_type *o_ptr)
 	{
 	    /* Pay extra for charges, depending on standard number of charges */
 	    int temp_pval = randcalc(k_ptr->pval, k_ptr->level, RANDOMISE);
-	    value += (value * o_ptr->pval / (temp_pval * 2));
+	    value += (value * o_ptr->pval / o_ptr->number / (temp_pval * 2));
 
 	    /* Done */
 	    break;
@@ -2934,6 +2934,7 @@ void open_quiver_slot(int slot)
 void inven_item_optimize(int item)
 {
     object_type *o_ptr = &p_ptr->inventory[item];
+    int i, j, slot, limit;
 
     /* Save a possibly new quiver size */
     if (item >= QUIVER_START) save_quiver_size(p_ptr);
@@ -2941,57 +2942,62 @@ void inven_item_optimize(int item)
     /* Only optimize real items which are empty */
     if (!o_ptr->k_idx || o_ptr->number) return;
 
-    /* The item is in the pack */
-    if (item < INVEN_WIELD) 
+    /* Items in the pack are treated differently from other items */
+    if (item < INVEN_WIELD)
     {
-	int i;
-
-	/* One less item */
 	p_ptr->inven_cnt--;
-
-	/* Slide everything down */
-	for (i = item; i < INVEN_PACK; i++) 
-	{
-	    /* Hack -- slide object */
-	    (void) COPY(&p_ptr->inventory[i], &p_ptr->inventory[i + 1], object_type);
-	}
-
-	/* Hack -- wipe hole */
-	(void) WIPE(&p_ptr->inventory[i], object_type);
-
-	/* Redraw stuff */
-	p_ptr->redraw |= (PR_INVEN);
-
-	/* Inventory has changed, so disable repeat command */ 
-	cmd_disable_repeat();
+	p_ptr->redraw |= PR_INVEN;
+	limit = INVEN_MAX_PACK;
     }
 
-    /* The item is being wielded */
-    else 
+    /* Items in the quiver and equipped items are (mostly) treated similarly */
+    else
     {
-	/* One less item */
 	p_ptr->equip_cnt--;
+	p_ptr->redraw |= PR_EQUIP;
+	limit = item >= QUIVER_START ? QUIVER_END : 0;
+    }
 
+    /* If the item is equipped (but not in the quiver), there is no need to */
+    /* slide other items. Bonuses and such will need to be recalculated */
+    if (!limit)
+    {
 	/* Erase the empty slot */
 	object_wipe(&p_ptr->inventory[item]);
 
-	/* Reorder the quiver if necessary */
-	if (item >= QUIVER_START) sort_quiver();
-
-	/* Recalculate bonuses */
+	/* Recalculate stuff */
 	p_ptr->update |= (PU_BONUS);
-
-	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
-
-	/* Recalculate mana XXX */
 	p_ptr->update |= (PU_MANA);
 
-	/* Window stuff */
-	p_ptr->redraw |= (PR_EQUIP);
+	return;
     }
-}
 
+    /* Slide everything down */
+    for (j = item, i = item + 1; i < limit; i++)
+    {
+	if (limit == QUIVER_END && p_ptr->inventory[i].kind)
+	{
+	    /* If we have an item with an inscribed location (and it's in */
+	    /* that location) then we won't move it. */
+	    slot = get_inscribed_ammo_slot(&p_ptr->inventory[i]);
+	    if (slot && slot == i)
+		continue;
+	}
+	COPY(&p_ptr->inventory[j], &p_ptr->inventory[i], object_type);
+
+	j = i;
+    }
+
+    /* Reorder the quiver if necessary */
+    if (item >= QUIVER_START) sort_quiver();
+
+    /* Wipe the left-over object on the end */
+    object_wipe(&p_ptr->inventory[j]);
+
+    /* Inventory has changed, so disable repeat command */
+    cmd_disable_repeat();
+}
 
 
 /*
@@ -3207,7 +3213,7 @@ s16b inven_carry(struct player *p, struct object *o)
 	o_value = object_value(o);
 
 	/* Scan every occupied slot */
-	for (j = 0; j < INVEN_PACK; j++) {
+	for (j = 0; j < INVEN_MAX_PACK; j++) {
 	    j_ptr = &p->inventory[j];
 
 	    /* Use empty slots */
@@ -4225,7 +4231,13 @@ void display_itemlist(void)
 		/* We saw a new item. So insert it at the end of the list and */
 		/* then sort it forward using compare_items(). The types list */
 		/* is always kept sorted. */
+		/* If we have too many items, replace the last (normally least important) */
+		/* item in the list. */
 		if (j == counter) {
+			if (counter == MAX_ITEMLIST) {
+				counter -= 1;
+				j -= 1;	
+			}
 		    types[counter] = o_ptr;
 		    counts[counter] = o_ptr->number;
 		    dy[counter] = my - p_ptr->py;
@@ -4263,6 +4275,8 @@ void display_itemlist(void)
 
 	/* Done */
 	return;
+    } else if (counter == MAX_ITEMLIST) {
+	    c_prt(TERM_SLATE, "You see many items.", 0, 0);
     } else {
 	/* Reprint Message */
 	prt(format("You can see %d item%s:", counter, (counter > 1 ? "s" : "")),
@@ -4306,10 +4320,15 @@ void display_itemlist(void)
 		prt("", line, x);
 
 	    /* Reprint Message */
-	    prt(format
-		("You can see %d item%s:", counter, (counter > 1 ? "s" : "")),
-		0, 0);
-
+	    if (counter == MAX_ITEMLIST) {
+		    prt(format
+			("You can see many items:"),
+			0, 0);		
+		} else {
+		    prt(format
+			("You can see %d item%s:", counter, (counter > 1 ? "s" : "")),
+			0, 0);
+		}
 	    /* Reset */
 	    line = 1;
 	} else if (line == max) {
@@ -4347,9 +4366,13 @@ void display_itemlist(void)
     }
 
     if (disp_count != counter) {
-	/* Print "and others" message if we've run out of space */
-	strnfmt(buf, sizeof buf, "  ...and %d others.", counter - disp_count);
-	c_prt(TERM_WHITE, buf, line, x);
+		/* Print "and others" message if we've run out of space */
+		if (counter == MAX_ITEMLIST) {
+			strnfmt(buf, sizeof buf, "  ...and many others.");
+		} else {
+			strnfmt(buf, sizeof buf, "  ...and %d others.", counter - disp_count);
+		}
+		c_prt(TERM_WHITE, buf, line, x);
     } else {
 	/* Otherwise clear a line at the end, for main-term display */
 	prt("", line, x);
@@ -4707,21 +4730,23 @@ bool item_is_available(int item, bool(*tester) (const object_type *), int mode)
 
 /*
  * Returns whether the pack is holding the maximum number of items. The max
- * size is INVEN_PACK.
+ * size is INVEN_MAX_PACK, which is a macro since quiver size affects slots
+ * available.
  */
 bool pack_is_full(void)
 {
-    return p_ptr->inventory[INVEN_PACK - 1].k_idx ? TRUE : FALSE;
+    return p_ptr->inventory[INVEN_MAX_PACK - 1].k_idx ? TRUE : FALSE;
 }
 
 /*
  * Returns whether the pack is holding the more than the maximum number of
- * items. The max size is INVEN_PACK. If this is true, calling pack_overflow() 
- * will trigger a pack overflow.
+ * items. The max size is INVEN_MAX_PACK, which is a macro since quiver size
+ * affects slots available. If this is true, calling pack_overflow() will
+ * trigger a pack overflow.
  */
 bool pack_is_overfull(void)
 {
-    return p_ptr->inventory[INVEN_PACK].k_idx ? TRUE : FALSE;
+    return p_ptr->inventory[INVEN_MAX_PACK].k_idx ? TRUE : FALSE;
 }
 
 /*

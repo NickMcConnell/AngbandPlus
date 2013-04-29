@@ -409,7 +409,7 @@ static byte multi_hued_attr(monster_race * r_ptr)
 
     /* Monsters with no ranged attacks can be any color */
     if (!r_ptr->freq_ranged)
-	return (randint1(BASIC_COLORS));
+	return (randint1(BASIC_COLORS-1));
 
     /* Check breaths */
     for (i = 0; i < 32; i++) 
@@ -429,14 +429,14 @@ static byte multi_hued_attr(monster_race * r_ptr)
 
 	/* Monster can be of any color */
 	if (first_color == 255)
-	    return (randint1(BASIC_COLORS));
+	    return (randint1(BASIC_COLORS-1));
 
 	/* Increment the number of breaths */
 	breaths++;
 
 	/* Monsters with lots of breaths may be any color. */
 	if (breaths == 6)
-	    return (randint1(BASIC_COLORS));
+	    return (randint1(BASIC_COLORS-1));
 
 	/* Always store the first color */
 	for (j = 0; j < stored_colors; j++) 
@@ -463,7 +463,7 @@ static byte multi_hued_attr(monster_race * r_ptr)
 
     /* Monsters with no breaths may be of any color. */
     if (breaths == 0)
-	return (randint1(BASIC_COLORS));
+	return (randint1(BASIC_COLORS-1));
 
     /* If monster has one breath, store the second color too. */
     if (breaths == 1) 
@@ -479,7 +479,7 @@ static byte multi_hued_attr(monster_race * r_ptr)
 /**
  * Hack -- Hallucinatory monster
  */
-static void hallucinatory_monster(byte *a, wchar_t *c)
+static void hallucinatory_monster(int *a, wchar_t *c)
 {
     while (1) {
 	/* Select a random monster */
@@ -500,7 +500,7 @@ static void hallucinatory_monster(byte *a, wchar_t *c)
 /**
  * Hack -- Hallucinatory object
  */
-static void hallucinatory_object(byte *a, wchar_t *c)
+static void hallucinatory_object(int *a, wchar_t *c)
 {
     while (1) {
 	/* Select a random object */
@@ -582,7 +582,7 @@ bool dtrap_edge(int y, int x)
 /**
  * Apply text lighting effects
  */
-static void grid_get_attr(grid_data *g, byte *a)
+static void grid_get_attr(grid_data *g, int *a)
 {
     feature_type *f_ptr = &f_info[g->f_idx];
 
@@ -590,10 +590,7 @@ static void grid_get_attr(grid_data *g, byte *a)
     if (g->trapborder && tf_has(f_ptr->flags, TF_FLOOR) &&
 	!((int) g->trap < trap_max))
     {
-	if (g->in_view)
-	    *a = TERM_L_GREEN;
-	else
-	    *a = TERM_GREEN;
+	*a += MAX_COLORS * BG_TRAP;
     }
     else if (tf_has(f_ptr->flags, TF_TORCH))
     {
@@ -604,12 +601,28 @@ static void grid_get_attr(grid_data *g, byte *a)
 	    if (*a == TERM_WHITE)
 		*a = TERM_L_DARK;
 	}
+	if (OPT(hybrid_walls) && tf_has(f_ptr->flags, TF_WALL))
+	{
+	    *a = *a + (MAX_COLORS * BG_DARK);
+	}
+	else if (OPT(solid_walls) && tf_has(f_ptr->flags, TF_WALL))
+	{
+	    *a = *a + (MAX_COLORS * BG_SAME);
+	}
     }
     else
     {
 	if (g->lighting == FEAT_LIGHTING_DARK) {
 	    if (*a == TERM_WHITE)
 		*a = TERM_SLATE;
+	}
+	if (OPT(hybrid_walls) && tf_has(f_ptr->flags, TF_WALL))
+	{
+	    *a = *a + (MAX_COLORS * BG_DARK);
+	}
+	else if (OPT(solid_walls) && tf_has(f_ptr->flags, TF_WALL))
+	{
+	    *a = *a + (MAX_COLORS * BG_SAME);
 	}
     }
 }
@@ -650,15 +663,18 @@ static void grid_get_attr(grid_data *g, byte *a)
  * This will probably be done outside of the current text->graphics mappings
  * though.
  */
-void grid_data_as_text(grid_data *g, byte *ap, wchar_t *cp, byte *tap, wchar_t *tcp)
+void grid_data_as_text(grid_data *g, int *ap, wchar_t *cp, byte *tap, wchar_t *tcp)
 {
 	feature_type *f_ptr = &f_info[g->f_idx];
 	
-	byte a = f_ptr->x_attr[g->lighting];
+	int a = f_ptr->x_attr[g->lighting];
 	wchar_t c = f_ptr->x_char[g->lighting];
 
 	/* Don't display hidden objects */
 	bool ignore_objects = tf_has(f_ptr->flags, TF_HIDE_OBJ);
+
+	/* Neutral monsters get shaded background */
+	bool neutral = FALSE;
               
 	/* Check for trap detection boundaries */
 	if (use_graphics == GRAPHICS_NONE || use_graphics == GRAPHICS_PSEUDO)
@@ -727,6 +743,9 @@ void grid_data_as_text(grid_data *g, byte *ap, wchar_t *cp, byte *tap, wchar_t *
 			/* Desired attr & char */
 			da = r_ptr->x_attr;
 			dc = r_ptr->x_char;
+
+			/* Neutral monster get shaded background */
+			if (m_ptr->hostile >= 0) neutral = TRUE;
 
 			/* Special attr/char codes */
 			if (da & 0x80)
@@ -846,6 +865,10 @@ void grid_data_as_text(grid_data *g, byte *ap, wchar_t *cp, byte *tap, wchar_t *
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 	}
+
+	/* Shaded for neutrals */
+	if (neutral) 
+	    a += MAX_COLORS * BG_DARK;
 
 	/* Result */
 	(*ap) = a;
@@ -1295,7 +1318,7 @@ void light_spot(int y, int x)
 
 static void prt_map_aux(void)
 {
-	byte a;
+	int a;
 	wchar_t c;
 	byte ta;
 	wchar_t tc;
@@ -1359,7 +1382,7 @@ static void prt_map_aux(void)
  */
 void prt_map(void)
 {
-	byte a;
+	int a;
 	wchar_t c;
 	byte ta;
 	wchar_t tc;
@@ -1452,7 +1475,8 @@ void display_map(int *cy, int *cx)
     int x, y;
     grid_data g;
 
-    byte a, ta;
+    int a;
+    byte ta;
     wchar_t c, tc;
 
     byte tp;

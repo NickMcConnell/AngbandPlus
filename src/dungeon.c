@@ -1915,6 +1915,12 @@ static void dungeon(void)
     /* Track depth */
     p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
+    /* Autosave */
+    is_autosave = TRUE;
+    save_game();
+    is_autosave = FALSE;
+    message_flush();
+
     /* No stairs down from Quest */
     if ((is_quest(p_ptr->stage))
 	&& ((p_ptr->create_stair == FEAT_MORE)
@@ -2387,6 +2393,9 @@ void play_game(void)
 
     /* Flash a message */
     prt("Please wait...", 0, 0);
+
+    /* Initialize race probabilities */
+    if (init_race_probs()) quit("Cannot initialize race probs");
 
     /* Allow big cursor */
     smlcurs = FALSE;
