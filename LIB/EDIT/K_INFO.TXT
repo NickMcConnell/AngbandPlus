@@ -1170,7 +1170,7 @@ I:45:18:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE
+F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 
 N:147:Acid
 G:=:d
@@ -1178,7 +1178,7 @@ I:45:17:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID
+F:RES_ACID | IGNORE_ACID | ACTIVATE
 
 N:148:Ice
 G:=:d
@@ -1186,7 +1186,7 @@ I:45:19:0
 W:50:0:2:3000
 A:50/2
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD
+F:RES_COLD | IGNORE_COLD | ACTIVATE
 
 N:149:Woe
 G:=:d
@@ -1490,7 +1490,7 @@ A:5/1:10/1
 N:195:Gauge Magic
 G:?:d
 I:70:43:0
-W:5:0:5:150
+W:5:0:5:75
 A:5/1:15/1:35/1
 
 N:196:Legend Lore
@@ -3679,7 +3679,7 @@ W:15:0:80:250
 A:15/2
 P:0:1d1:0:0:0
 
-N:560:& Bugle~
+N:560:& Horn~
 G:|:y
 I:24:5:0
 W:15:0:80:140
@@ -3700,7 +3700,6 @@ W:20:0:80:240
 A:20/2
 P:0:1d1:0:0:0
 
-
 N:563:& set of Bagpipes~
 G:|:y
 I:24:8:0
@@ -3708,14 +3707,12 @@ W:20:0:80:350
 A:20/2
 P:0:1d1:0:0:0
 
-
 N:564:& set of Panpipes~
 G:|:y
 I:24:8:0
 W:20:0:80:150
 A:20/2
 P:0:1d1:0:0:0
-
 
 N:565:& Drum~
 G:|:y

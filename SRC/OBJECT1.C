@@ -816,13 +816,15 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 
 #ifdef SPOIL_ARTIFACTS
 		/* Full knowledge for some artifacts */
-		if (artifact_p(o_ptr)) spoil = TRUE;
+		if (artifact_p(o_ptr) || cheat_lore) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
 
 #ifdef SPOIL_EGO_ITEMS
 		/* Full knowledge for some ego-items */
-		if (ego_item_p(o_ptr)) spoil = TRUE;
+		if (ego_item_p(o_ptr) || cheat_lore) spoil = TRUE;
 #endif /* SPOIL_ARTIFACTS */
+
+		
 
 		/* Need full knowledge or spoilers */
 		if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
@@ -2770,14 +2772,56 @@ s16b wield_slot(object_type *o_ptr)
 	/* Slot for equipment */
 	switch (o_ptr->tval)
 	{
-                case TV_INSTRUMENT:
-		case TV_DIGGING:
+		case TV_SWORD:
+			/* Two-weapon combat -- Wielding a light stabbing weapon */
+                        if ((!inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
+                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+			{
+				object_type *i_ptr = &inventory[INVEN_WIELD];
+
+				if ((i_ptr->k_idx) && (o_ptr->weight < 100)) return (INVEN_ARM);
+			}
+
+			/* Fall through */
 		case TV_HAFTED:
 		case TV_POLEARM:
-		case TV_SWORD:
-		{
+			/* Two-weapon combat -- identical weapons are "balanced" */
+                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
+                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+			{
+				object_type *i_ptr = &inventory[INVEN_WIELD];
+
+				if ((i_ptr->k_idx) && (i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_ARM);
+			}
+
+			/* Two-weapon combat -- primary weapon */
+                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)
+                                && (inventory[INVEN_ARM].k_idx != TV_DIGGING) && (inventory[INVEN_ARM].k_idx != TV_INSTRUMENT))
+			{
+				object_type *i_ptr = &inventory[INVEN_ARM];
+
+				/* Wielding a light stabbing weapon */
+				if ((i_ptr->k_idx) && (i_ptr->tval == TV_SWORD) && (i_ptr->weight < 100)) return (INVEN_WIELD);
+
+				/* Identical weapons are "balanced" */
+				if ((i_ptr->k_idx) && (i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_WIELD);
+
+				/* Hack -- too unbalanced to wield */
+				return (-1);
+			}
+
+                        /* Wield in primary hand */
 			return (INVEN_WIELD);
-		}
+
+
+                case TV_INSTRUMENT:
+		case TV_DIGGING:
+			/* Two-weapon combat not allowed */
+                        if ((inventory[INVEN_ARM].k_idx) && (inventory[INVEN_ARM].k_idx != TV_SHIELD)) return (-1);
+
+			/* Wield in primary hand */
+			return (INVEN_WIELD);
+                        break;
 
 		case TV_BOW:
 		{
@@ -2868,26 +2912,22 @@ cptr mention_use(int i)
 	}
 
 	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
+	if ((i == INVEN_WIELD) && (p_ptr->heavy_wield)) p = "Just lifting";
+
+	/* Hack -- Heavy bow */
+	if ((i == INVEN_BOW) && (p_ptr->heavy_shoot)) p = "Just holding";
+
+	/* Hack -- Non-shield item */
+	if (i == INVEN_ARM)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (o_ptr->tval != TV_SHIELD)
 		{
-			p = "Just lifting";
+			p = "In off-hand";
 		}
 	}
 
-	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "Just holding";
-		}
-	}
 
 	/* Return the result */
 	return (p);
@@ -2922,24 +2962,19 @@ cptr describe_use(int i)
 	if (i<0) p = "using from the ground";
 
 	/* Hack -- Heavy weapon */
-	if (i == INVEN_WIELD)
-	{
-		object_type *o_ptr;
-		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
-		{
-			p = "just lifting";
-		}
-	}
+	if ((i == INVEN_WIELD) && (p_ptr->heavy_wield)) p = "Just lifting";
 
 	/* Hack -- Heavy bow */
-	if (i == INVEN_BOW)
+	if ((i == INVEN_BOW) && (p_ptr->heavy_shoot)) p = "Just holding";
+
+	/* Hack -- Non-shield item */
+	if (i == INVEN_ARM)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (o_ptr->tval != TV_SHIELD)
 		{
-			p = "just holding";
+			p = "using in your off-hand";
 		}
 	}
 
@@ -3010,22 +3045,46 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+	                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+	                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=1;
+			}
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=1;
+			}
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=1;
+			}
 		}
 
 		/* Do we have a match? */
@@ -3093,6 +3152,8 @@ void object_guess_name(object_type *o_ptr)
                         if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=1;
 		}
 
+
+
 		/* Do we have a match? */
                 if (score > high)
 		{
@@ -3148,23 +3209,48 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+                                if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+                                if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=1;
+			}
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+                                if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=3;
+                                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=1;
+			}
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=1;
+			if (cheat_lore)
+			{
+	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
+        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=1;
+			}
+			else
+			{
+                                if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=3;
+                                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=1;
+			}
 		}
+
 
 		/* Artifacts have a minimum match threshold */
 		if ((score > 6) && (score > high))

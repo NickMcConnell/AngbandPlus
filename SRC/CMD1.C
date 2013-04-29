@@ -86,7 +86,7 @@ sint critical_shot(int weight, int plus, int dam)
 	/* Critical hit */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(500);
+                k = weight + randint(500) + plus * 5;
 
 		if (k < 500)
 		{
@@ -1208,13 +1208,6 @@ void py_attack(int y, int x)
         /* Only allow criticals against visible opponents */
         if (!(m_ptr->ml)) style_crit = 0;
 
-	/* Get the weapon */
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
 
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
@@ -1222,6 +1215,16 @@ void py_attack(int y, int x)
 
 		/* Deliver a blow */
 		blows++;
+
+		/* Get the weapon */
+		o_ptr = &inventory[INVEN_WIELD];
+
+		/* Get secondary weapon instead */
+		if (!(blows % 2) && (melee_style & (1L << WS_TWO_WEAPON))) o_ptr = &inventory[INVEN_ARM];
+
+		/* Calculate the "attack quality" */
+		bonus = p_ptr->to_h + o_ptr->to_h + style_hit;
+		chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 		/* Test for hit */
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))

@@ -2180,7 +2180,7 @@ static int weight_limit(void)
  */
 static void calc_bonuses(void)
 {
-	int i, j, hold;
+	int i, j, hold, weight;
 
 	int old_speed;
 
@@ -2873,19 +2873,31 @@ static void calc_bonuses(void)
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
+	/* Get the weight */
+	if (o_ptr->k_idx) weight = o_ptr->weight;
+
+	/* Hack -- no weapon */
+	else weight = 0;
+
+	/* Examine the "secondary weapon" */
+        o_ptr = &inventory[INVEN_ARM];
+
+	/* Add weight of secondary weapon */
+	if (o_ptr->k_idx && (o_ptr->tval != TV_SHIELD)) weight += 2* o_ptr->weight;
+
 	/* It is hard to hold a heavy weapon */
-	if (hold < o_ptr->weight / 10)
+	if (hold < weight / 10)
 	{
 		/* Hard to wield a heavy weapon */
-		p_ptr->to_h += 2 * (hold - o_ptr->weight / 10);
-		p_ptr->dis_to_h += 2 * (hold - o_ptr->weight / 10);
+		p_ptr->to_h += 2 * (hold - weight / 10);
+		p_ptr->dis_to_h += 2 * (hold - weight / 10);
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
 	}
 
 	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+	if (weight && !p_ptr->heavy_wield)
 	{
 		int str_index, dex_index;
 
@@ -2895,7 +2907,7 @@ static void calc_bonuses(void)
 		int div;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+                div = ((weight < wgt) ? wgt : weight);
 
 		/* Get the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
@@ -2922,7 +2934,7 @@ static void calc_bonuses(void)
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 
 		/* Boost digging skill by weapon weight */
-		p_ptr->skill_dig += (o_ptr->weight / 10);
+                p_ptr->skill_dig += (weight / 10);
 	}
 
 
@@ -3037,8 +3049,8 @@ static void calc_bonuses(void)
 				break;
                         }
 			case TV_HAFTED:
-			case TV_SWORD:
 			case TV_POLEARM:
+			case TV_SWORD:
                         {
                                 p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
                                 break;

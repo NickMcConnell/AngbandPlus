@@ -3021,7 +3021,33 @@ void play_game(bool new_game)
 #ifdef GJW_RANDART
 
 		/* Hack -- seed for random artifacts */
-		seed_randart = rand_int(0x10000000);
+		if (reseed_artifacts) seed_randart = rand_int(0x10000000);
+
+		/* Hack -- clear artifact memory */
+		if (reseed_artifacts)
+		{
+			int i;
+
+			for (i = 0;i<z_info->a_max;i++)
+			{
+
+				artifact_type *a_ptr = &a_info[i];
+
+				a_ptr->i_artifact.can_flags1 = 0x0L;
+				a_ptr->i_artifact.can_flags1 = 0x0L;
+				a_ptr->i_artifact.can_flags1 = 0x0L;
+
+				a_ptr->i_artifact.may_flags1 = 0x0L;
+				a_ptr->i_artifact.may_flags1 = 0x0L;
+				a_ptr->i_artifact.may_flags1 = 0x0L;
+
+				a_ptr->i_artifact.not_flags1 = 0x0L;
+				a_ptr->i_artifact.not_flags1 = 0x0L;
+				a_ptr->i_artifact.not_flags1 = 0x0L;
+
+			}
+
+		}
 
 #endif
 

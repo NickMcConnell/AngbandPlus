@@ -89,6 +89,7 @@
 # Heavily discounted basic slay weapons and made more common, so that low level
 # characters are more likely to find and use them.
 # Added 4 additional 'branded' ego weapons, Enchanted weapon, and other ego items.
+# Added instruments of the Might/Lordliness/Serenity/Dullness.
 
 # Version stamp (required)
 
@@ -273,7 +274,6 @@ T:36:0:99
 T:37:0:99
 F:AGGRAVATE | LIGHT_CURSE | CHR
 
-
 ### Crowns and Helms ###
 
 N:24:of Intelligence
@@ -309,24 +309,30 @@ F:INT | SUST_INT |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-#Crown/Gauntlets
+#Crown/Gauntlets/Instruments
 
 N:28:of Might
 X:33:19:3
 W:10:4:0:7500
 C:0:0:0:3
+T:24:0:99
 T:31:2:99
 T:33:0:99
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
+#Crown/Instruments
+
 N:29:of Lordliness
 X:33:17:3
 W:10:2:0:7500
 C:0:0:0:3
+T:24:0:99
 T:33:0:99
 F:WIS | CHR | SUST_WIS | SUST_CHR | RES_FEAR
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+#Helmets/Crowns
 
 N:30:of Seeing
 X:33:8:0
@@ -369,9 +375,12 @@ W:0:2:0:0
 T:32:0:99
 F:TELEPORT | LIGHT_CURSE
 
+#Crowns/Instruments
+
 N:36:of Serenity
 X:33:20:0
 W:20:6:0:4000
+T:24:0:99
 T:33:0:99
 F:RES_SOUND | RES_CONFU | RES_FEAR
 
@@ -385,6 +394,7 @@ N:38:of Dullness
 X:33:0:0
 C:0:0:0:5
 W:0:2:0:0
+T:24:0:99
 T:32:0:99
 T:33:0:99
 F:INT | WIS | CHR | LIGHT_CURSE
@@ -427,7 +437,6 @@ W:10:4:0:1500
 C:0:0:0:5
 T:35:0:99
 F:STEALTH | RES_DARK | HIDE_TYPE
-
 
 # Cloaks/Boots
 
@@ -508,6 +517,7 @@ N:53:of Combat
 X:34:22:0
 W:50:12:0:7000
 C:3:8:0:2
+T:24:0:99
 T:31:2:99
 F:STR | CON | SHOW_MODS | AGGRAVATE | HIDE_TYPE
 
@@ -695,37 +705,37 @@ T:22:0:99
 T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 
-N:76:(Acid wit)
-X:24:15:3
+N:76:'Acid wit'
+X:24:25:3
 C:6:6:0:3
-W:20:20:0:12000
+W:20:15:0:12000
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_ACID | RES_ACID | IGNORE_ACID | WIS
 
-N:77:(Thunderhead)
-X:24:15:3
+N:77:'Thunderhead'
+X:24:25:3
+W:20:15:0:8000
 C:6:6:0:3
-W:20:20:0:8000
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | INT
 
-N:78:(Flametongue)
-X:24:15:3
-C:6:6:0:3
+N:78:'Flametongue'
+X:24:25:3
 W:20:10:0:7000
+C:6:6:0:3
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | CHR
 
-N:79:(Frostbite)
-X:24:15:3
-C:6:6:0:4
+N:79:'Frostbite'
+X:24:25:3
 W:20:10:0:7500
+C:6:6:0:3
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -882,16 +892,14 @@ T:22:0:99
 T:23:0:99
 F:INT
 
-N:97:(Foulheart)
-X:24:15:3
+N:97:'Foulheart'
+X:24:25:3
+W:30:15:0:10000
 C:6:6:0:3
-W:30:10:0:10000
 T:21:0:99
 T:22:0:99
 T:23:0:99
 F:BRAND_POIS | RES_POIS | CON
-
-# 98 (unused)
 
 # 99 (unused)
 

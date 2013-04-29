@@ -4620,12 +4620,21 @@ static errr init_other(void)
 	/* Lore */
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
-
 	/*** Prepare quest array ***/
 
 	/* Quests */
 	C_MAKE(q_list, MAX_Q_IDX, quest);
 
+#if 0
+	/* Eliminate fixed monsters from appearing randomly */
+	for (i = 0; i < z_info->t_max;i++)
+	{
+                for (k = 0; k < MAX_DUNGEON_ZONES;k++)
+		{
+			if (t_info[i].zone[k].guard) r_info[t_info[i].zone[k].guard].rarity = 0;
+		}
+	}
+#endif
 
 	/*** Prepare the inventory ***/
 
@@ -5326,8 +5335,6 @@ void init_angband(void)
         /* Initialize store info */
         note("[Initializing arrays... (stores)]");
         if (init_u_info()) quit("Cannot initialize stores");
-
-
 
 	/* Initialize owner info */
 	note("[Initializing arrays... (owners)]");

@@ -3883,7 +3883,8 @@ void cave_set_feat(int y, int x, int feat)
 	}
 
         /* Check for change to boring grid */
-        if ((f_ptr->flags1 & (FF1_REMEMBER))) cave_info[y][x] &= ~(CAVE_MARK);
+        if (!(f_ptr->flags1 & (FF1_REMEMBER))) cave_info[y][x] &= ~(CAVE_MARK);
+
 
 	/* Notice/Redraw */
 	if (character_dungeon)
@@ -4033,7 +4034,7 @@ void cave_alter_feat(int y, int x, int action)
 		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 	}
 
-}
+}                                             
 
 
 

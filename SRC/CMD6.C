@@ -2192,6 +2192,53 @@ void do_cmd_use_staff(void)
 		o_ptr->stackc = 0;
 	}
 
+	/* XXX Hack -- unstack if necessary */
+        if ((item >= 0) && (o_ptr->number > 1) &&
+                ((!variant_pval_stacks) || 
+                ((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
+                  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+                  (o_ptr->stackc != 1) && (o_ptr->pval > 2)))))
+	{
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+                /* Reset stack counter */
+                i_ptr->stackc = 0;
+ 
+ 		/* Unstack the used item */
+ 		o_ptr->number--;
+
+                /* Reduce the charges on the new item */
+                if (o_ptr->stackc > 1)
+                {
+                        i_ptr->pval-=2;
+                        o_ptr->stackc--;
+                }
+                else if (!o_ptr->stackc)
+                {
+                        i_ptr->pval--;
+                        o_ptr->pval++;
+                        o_ptr->stackc = o_ptr->number-1;
+                }
+
+                /* Adjust the weight and carry */
+                p_ptr->total_weight -= i_ptr->weight;
+		item = inven_carry(i_ptr);
+
+		/* Message */
+		msg_print("You unstack your staff.");
+	}
+
+
 	/* Describe charges in the pack */
 	if (item >= 0)
 	{
@@ -2562,8 +2609,8 @@ void do_cmd_aim_wand(void)
 		ident = FALSE;
 
 		if (k_info[o_ptr->k_idx].guess != sval) ident = TRUE;
-		if (k_info[lookup_kind(TV_SCROLL,sval)].aware) ident = TRUE;
-                if (k_info[lookup_kind(TV_SCROLL,SV_WAND_WONDER)].aware) ident = TRUE;
+                if (k_info[lookup_kind(TV_WAND,sval)].aware) ident = TRUE;
+                if (k_info[lookup_kind(TV_WAND,SV_WAND_WONDER)].aware) ident = TRUE;
 	}
 
 	/* A guess was made */
@@ -2605,6 +2652,52 @@ void do_cmd_aim_wand(void)
 
 		/* Reset the stack count */
 		o_ptr->stackc = 0;
+	}
+
+	/* XXX Hack -- unstack if necessary */
+        if ((item >= 0) && (o_ptr->number > 1) &&
+                ((!variant_pval_stacks) || 
+                ((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
+                  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
+                  (o_ptr->stackc != 1) && (o_ptr->pval > 2)))))
+	{
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+                /* Reset stack counter */
+                i_ptr->stackc = 0;
+ 
+ 		/* Unstack the used item */
+ 		o_ptr->number--;
+
+                /* Reduce the charges on the new item */
+                if (o_ptr->stackc > 1)
+                {
+                        i_ptr->pval-=2;
+                        o_ptr->stackc--;
+                }
+                else if (!o_ptr->stackc)
+                {
+                        i_ptr->pval--;
+                        o_ptr->pval++;
+                        o_ptr->stackc = o_ptr->number-1;
+                }
+
+                /* Adjust the weight and carry */
+                p_ptr->total_weight -= i_ptr->weight;
+		item = inven_carry(i_ptr);
+
+		/* Message */
+                msg_print("You unstack your wand.");
 	}
 
 	/* Describe the charges in the pack */
@@ -3232,6 +3325,7 @@ void do_cmd_activate(void)
 
 	cptr q, s;
 
+        int tmpval;
 
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
@@ -3287,11 +3381,15 @@ void do_cmd_activate(void)
 	}
 
 	/* Check the recharge */
-	if (o_ptr->timeout)
+        if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number)))
 	{
+		if (flush_failure) flush();
 		msg_print("It whines, glows and fades...");
 		return;
 	}
+
+        /* Store pval */
+        tmpval = o_ptr->pval;
 
 	/* Activate the artifact */
 	message(MSG_ZAP, 0, "You activate it...");
@@ -3433,7 +3531,7 @@ void do_cmd_activate(void)
 
                         case ACT_GENOCIDE:
 			{
-				msg_format("Your % glows deep blue...", o_name);
+				msg_format("Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
@@ -3713,13 +3811,11 @@ void do_cmd_activate(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Done */
-		return;
 	}
 
 
 	/* Hack -- Dragon Scale Mail can be activated as well */
-	if (o_ptr->tval == TV_DRAG_ARMOR)
+	else if (o_ptr->tval == TV_DRAG_ARMOR)
 	{
 		/* Get a direction for breathing (or abort) */
 		if (!get_aim_dir(&dir)) return;
@@ -3858,14 +3954,121 @@ void do_cmd_activate(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	}
 
-		/* Success */
+	/* Hack -- some Rings can be activated for double resist and element ball */
+	else if (o_ptr->tval == TV_RING)
+	{
+		/* Get a direction for firing (or abort) */
+		if (!get_aim_dir(&dir)) return;
+
+		/* Branch on the sub-type */
+		switch (o_ptr->sval)
+		{
+			case SV_RING_ACID:
+			{
+				msg_print("You conjure up acid.");
+				fire_ball(GF_ACID, dir, 70, 2);
+				set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				o_ptr->timeout = rand_int(50) + 50;
+				break;
+			}
+
+			case SV_RING_FLAMES:
+			{
+				msg_print("You conjure up flames.");
+				fire_ball(GF_FIRE, dir, 80, 2);
+				set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				o_ptr->timeout = rand_int(50) + 50;
+				break;
+			}
+
+			case SV_RING_ICE:
+			{
+				msg_print("You conjure up ice.");
+				fire_ball(GF_COLD, dir, 75, 2);
+				set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				o_ptr->timeout = rand_int(50) + 50;
+				break;
+			}
+#if 0
+			case SV_RING_LIGHTNING:
+			{
+				msg_print("You conjure up lightening .");
+				fire_ball(GF_ELEC, dir, 85, 2);
+				set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				o_ptr->timeout = rand_int(50) + 50;
+				break;
+			}
+#endif
+		}
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+	}
+	else
+	{
+		/* Mistake */
+		msg_print("Oops.  That object cannot be activated.");
+
+		/* Failure */
 		return;
 	}
 
+	/* Hack -- check if we are stacking rods */
+        if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+	{
+		/* Hack -- one more rod charging */
+		if (o_ptr->timeout) o_ptr->stackc++;
 
-	/* Mistake */
-	msg_print("Oops.  That object cannot be activated.");
+                /* Reset stack count */
+                if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+		/* Hack -- always use maximum timeout */
+		if (tmpval > o_ptr->timeout) o_ptr->timeout = tmpval;
+
+		return;
+	}
+
+	/* XXX Hack -- unstack if necessary */
+        if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->timeout > 0))
+	{
+		object_type *i_ptr;
+		object_type object_type_body;
+
+		char o_name[80];
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+                /* Clear stack counter */
+                i_ptr->stackc = 0;
+
+                /* Restore "charge" */
+                o_ptr->timeout = tmpval;
+
+		/* Unstack the used item */
+		o_ptr->number--;
+
+                /* Reset the stack if required */
+                if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+                p_ptr->total_weight -= i_ptr->weight;
+		item = inven_carry(i_ptr);
+
+		/* Describe */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		/* Message */
+		msg_format("You unstack your %s.",o_name);
+	}
+
 }
 
 

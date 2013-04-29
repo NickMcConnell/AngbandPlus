@@ -128,6 +128,7 @@ static bool item_tester_hook_wear(object_type *o_ptr)
 
 /*
  * Wield or wear a single item from the pack or floor
+ * Now supports wearing multiple rings.
  */
 void do_cmd_wield(void)
 {
@@ -153,6 +154,10 @@ void do_cmd_wield(void)
         u32b n3 = 0x0L;
 #endif
 
+        /* Hack -- Allow multiple rings to be wielded */
+        int amt=1;
+        int rings = 0;
+
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
 
@@ -173,9 +178,28 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+
+        /* Hack -- slot not allowed */
+        if (slot < 0) return;
+
+        if ((variant_many_rings) && (o_ptr->tval == TV_RING))
+        {
+                i_ptr = &inventory[slot];
+
+                /* Wear multiple rings */
+                if (object_similar(o_ptr,i_ptr)) rings = 5-i_ptr->number;
+
+                /* Get a quantity - take off existing rings */
+                if (!rings) amt = get_quantity(NULL, (o_ptr->number < 5) ? o_ptr->number : 5);
+
+                /* Get a quantity - add to existing rings */
+                else amt = get_quantity(NULL, (o_ptr->number < rings) ? o_ptr->number : rings);
+
+                /* Allow user abort */
+                if (amt <= 0) return;
+        }
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -191,7 +215,6 @@ void do_cmd_wield(void)
 		return;
 	}
 
-
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
@@ -202,22 +225,34 @@ void do_cmd_wield(void)
 	object_copy(i_ptr, o_ptr);
 
 	/* Modify quantity */
-	i_ptr->number = 1;
+        i_ptr->number = amt;
 
         /* Reset stackc */
         i_ptr->stackc = 0;
 
+        /* Sometimes use lower stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+
+                if (i_ptr->pval) i_ptr->pval--;
+
+                if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                o_ptr->stackc--;
+        }
+
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
-		inven_item_increase(item, -1);
+                inven_item_increase(item, -amt);
 		inven_item_optimize(item);
 	}
 
 	/* Decrease the item (from the floor) */
 	else
 	{
-		floor_item_increase(0 - item, -1);
+                floor_item_increase(0 - item, -amt);
 		floor_item_optimize(0 - item);
 	}
 
@@ -225,23 +260,26 @@ void do_cmd_wield(void)
 	o_ptr = &inventory[slot];
 
 	/* Take off existing item */
-	if (o_ptr->k_idx)
+        if ((o_ptr->k_idx) && (!rings))
 	{
 		/* Take off existing item */
 		(void)inven_takeoff(slot, 255);
 	}
 
-	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
+        /* Wear the new rings */
+        if (rings) object_absorb(o_ptr, i_ptr);
 
-	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+        /* Wear the new stuxff */
+        else object_copy(o_ptr, i_ptr);
 
-	/* Increment the equip counter by hand */
-	p_ptr->equip_cnt++;
+        /* Increase the weight */
+        p_ptr->total_weight += i_ptr->weight * amt;
+
+        /* Increment the equip counter by hand */
+        p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (slot == INVEN_WIELD)
+	if ((slot == INVEN_WIELD) || ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD)))
 	{
 		act = "You are wielding";
 	}

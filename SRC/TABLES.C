@@ -1541,7 +1541,7 @@ cptr option_text[OPT_MAX] =
 	"room_descriptions",						/* xxx */
 	"room_names",						/* xxx */
 	"verify_mana",						/* xxx */
-	NULL,						/* xxx */
+	"reseed_artifacts",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1580,7 +1580,7 @@ cptr option_text[OPT_MAX] =
 	"variant_great_id",						/* xxx */
         "variant_dis_attacks",                                           /* xxx */
         "variant_time_stacks",                                          /* xxx */
-	NULL,						/* xxx */
+	"variant_many_rings",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1627,7 +1627,7 @@ cptr option_text[OPT_MAX] =
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
-	NULL,						/* xxx */
+	"cheat_lore",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1805,6 +1805,7 @@ cptr option_desc[OPT_MAX] =
 	"Display room descriptions",						/* xxx */
 	"Display room names",						/* xxx */
 	"Verify critical mana",						/* xxx */
+	"Reseed random artifacts on death",						/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1820,31 +1821,30 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
-        "Play campaign mode (experimental)",                                                                           /* xxx */
-	"Magic mushroom patch",										/* xxx */
-	"Monsters hit traps",										/* xxx */
-	"Generate themed rooms",										/* xxx */
-	"Stat gain with each new level",										/* xxx */
-	"Kills don't waste blows",
-	"Scale down melee damage",										/* xxx */
-	"Scale down monster hit points",										/* xxx */
-        "Object pval stacking (wands/staffs)",                                                                         /* xxx */
-	"Monsters summon out of sight",										/* xxx */
-	"Monsters teleport out of sight",										/* xxx */
-	"Monsters heal out of sight",										/* xxx */
-	"Monsters aggravate out of sight",										/* xxx */
-	"Spells can destroy features",										/* xxx */
-	"Generate lakes and rivers",										/* xxx */
-	"Generate big lakes and rivers",										/* xxx */
-	"Generate trapped doors",										/* xxx */
-	"Object memory",										/* xxx */
-	"Object types guessed",										/* xxx */
-	"Object usage count",										/* xxx */
-	"Object sensing improved",										/* xxx */
-        "Monsters use ranged attacks",
-        "Object timeout stacking (rods)",                                                                           /* xxx */
-	NULL,										/* xxx */
+        "Play campaign mode (experimental)",                                            /* xxx */
+	"Magic mushroom patch",								/* xxx */
+	"Monsters hit traps",								/* xxx */
+	"Generate themed rooms",							/* xxx */
+	"Stat gain with each new level",						/* xxx */
+	"Kills don't waste blows",							/* xxx */
+	"Scale down melee damage",							/* xxx */
+	"Scale down monster hit points",						/* xxx */
+        "Object pval stacking (wands/staffs)",                                          /* xxx */
+	"Monsters summon out of sight",							/* xxx */
+	"Monsters teleport out of sight",						/* xxx */
+	"Monsters heal out of sight",							/* xxx */
+	"Monsters aggravate out of sight",						/* xxx */
+	"Spells can destroy features",							/* xxx */
+	"Generate lakes and rivers",							/* xxx */
+	"Generate big lakes and rivers",						/* xxx */
+	"Generate trapped doors",							/* xxx */
+	"Object memory",								/* xxx */
+	"Object types guessed",								/* xxx */
+	"Object usage count",								/* xxx */
+	"Object sensing improved",							/* xxx */
+        "Monsters use ranged attacks",							/* xxx */
+        "Object timeout stacking (rods)",                                               /* xxx */
+	"Wield multiple rings",								/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1891,7 +1891,7 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,										/* xxx */
+	"Cheat: Know complete artifact/ego info",						/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2069,7 +2069,7 @@ bool option_norm[OPT_MAX] =
         TRUE,           /* OPT_room_descriptions */
         TRUE,           /* OPT_room_names */
         FALSE,          /* OPT_verify_mana */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_reseed_artifacts */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2093,7 +2093,7 @@ bool option_norm[OPT_MAX] =
         TRUE,           /* OPT_variant_fast_kills */
         TRUE,           /* OPT_variant_scale_damage */
         TRUE,           /* OPT_variant_scale_hp */
-        FALSE,          /* OPT_variant_stack_pvals */
+        FALSE,          /* OPT_variant_pval_stacks */
         TRUE,           /* OPT_variant_oos_summons */
         TRUE,           /* OPT_variant_oos_teleports */
         TRUE,           /* OPT_variant_oos_heals */
@@ -2107,8 +2107,8 @@ bool option_norm[OPT_MAX] =
         FALSE,          /* OPT_variant_usage_id */
         TRUE,           /* OPT_variant_great_id */
         TRUE,           /* OPT_variant_dis_attacks */
-        FALSE,          /* OPT_variant_stack_times */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_variant_time_stacks */
+	TRUE,		/* OPT_variant_many_rings */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2327,7 +2327,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_floor,
 		OPT_show_piles,
                 OPT_view_safe_grids,
-		255
+		OPT_reseed_artifacts
 	},
 
 	/*** Efficiency ***/
@@ -2389,7 +2389,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		255,
+		OPT_cheat_lore,
 		255,
 		255,
 		255,
@@ -2424,7 +2424,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_lake_feats,
 		OPT_variant_big_feats,
 		OPT_variant_great_id,
-                255,
+                OPT_variant_many_rings,
                 255,
                 255,
                 255

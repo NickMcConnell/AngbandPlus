@@ -5171,6 +5171,79 @@ errr init_t_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 #endif
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+			/* Paranoia */
+			if (!buf[2]) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+			t_ptr->r_char = buf[2];
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'R' for "Race flag" (once only) */
+		if (buf[0] == 'R')
+		{
+			int n1;
+
+			/* Set to the first field */
+			s=buf+2;
+
+			/* Analyze the race flag */
+                        for (n1 = 0; r_info_flags2[n1]; n1++)
+			{
+                                if (streq(s, r_info_flags2[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                t_ptr->r_flag = n1+33;
+
+				continue;
+			}
+
+			/* Analyze the race flag */
+                        for (n1 = 0; r_info_flags3[n1]; n1++)
+			{
+                                if (streq(s, r_info_flags3[n1])) break;
+			}
+
+
+			if (n1<32)
+			{
+                                t_ptr->r_flag = n1 + 65;
+
+				continue;
+			}
+
+
+			/* Analyze the race flag */
+                        for (n1 = 0; r_info_flags4[n1]; n1++)
+			{
+                                if (streq(s, r_info_flags4[n1])) break;
+			}
+
+
+			if (n1<32)
+                        {                         
+                                t_ptr->r_flag = n1 + 97;
+
+				continue;
+			}
+
+			/* Oops */
+			msg_format("Unknown room race flag '%s'.", s);
+
+			/* Fail */
+                        return(PARSE_ERROR_GENERIC);
+		}
+
+
+
 		/* Process 'X' for "Xtra" (one line only) */
 		if (buf[0] == 'X')
 		{

@@ -1,3 +1,33 @@
+10-12-2001 Unangband 0.4.5d Bugfix release
+- Fixed bug with transmute rock to mud messages (Reported by
+Larry Bassel).
+- Added cheat_lore option, allowing full artifact/ego item information
+as if known. Use primarily as debug tool for guessing artifacts/ego
+items.
+- Added reseed_artifacts option, to allow multiple characters to
+play with same random artifact set if desired.
+
+7-12-2001
+- Added ring of ice/flames/acid activations from Angband 2.9.5-alpha.
+Removed AC bonus.
+- Added option to allow up to 5 rings to be worn on each hand.
+- Added ability to activate stacked items correctly.
+- Allow specification of preferred monsters (Flags and graphics) to
+t_info.txt.
+- Allowed 2-weapon combat. Weapons be same base type (ie same tval
+and sval) or secondary weapon must be a TV_SWORD of less than 10 lbs
+in weight. Blows computed from weight of primary weapon + twice
+weight of secondary weapon.
+- Fixed bug where slow attacks would also drain your strength.
+- Fixed a bug where deep pits could occur on level 1.
+- Fixed a bug where all new terrain was being defined as permanent,
+preventing stairs being placed under player.
+- Fixed a bug where piles of earth would appear in some tunnels
+through earth.
+
+6-12-2001
+- Added the ability to stack unidentified pval stacks again.
+
 4-12-2001 Unangband 0.4.5c Bugfix release
 - Added and modified a number of uniques in r_info.txt.
 - Lots of debugging and modification to stacking code. Should be 100% now.

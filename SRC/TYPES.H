@@ -230,6 +230,12 @@ struct town_type
         u16b near;
         u16b distant;
 
+	byte r_char;            /* Add races of this char */
+	byte unused;		/* Unused */
+
+	u16b r_flag;            /* Add races with this flag */
+
+
         u16b store[MAX_STORES];
         dungeon_zone zone[MAX_DUNGEON_ZONES];
 

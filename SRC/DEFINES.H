@@ -2889,6 +2889,7 @@
 #define OPT_room_descriptions			77
 #define OPT_room_names				78
 #define OPT_verify_mana			79
+#define OPT_reseed_artifacts		80
 /* xxx */
 /* xxx */
 /* xxx */
@@ -2908,6 +2909,7 @@
 #define OPT_cheat_xtra                          (OPT_CHEAT+3)
 #define OPT_cheat_know                          (OPT_CHEAT+4)
 #define OPT_cheat_live                          (OPT_CHEAT+5)
+#define OPT_cheat_lore                          (OPT_CHEAT+6)
 
 #define OPT_adult_point_based           (OPT_ADULT+0)
 #define OPT_adult_auto_roller           (OPT_ADULT+1)
@@ -2948,6 +2950,7 @@
 #define OPT_variant_great_id		(OPT_VARIANT+20)
 #define OPT_variant_dis_attacks         (OPT_VARIANT+21)
 #define OPT_variant_time_stacks	(OPT_VARIANT+22)
+#define OPT_variant_many_rings  (OPT_VARIANT+23)
 
 /*
  * Hack -- Option symbols
@@ -3032,6 +3035,7 @@
 #define verify_mana                           op_ptr->opt[OPT_verify_mana]
 #define room_descriptions                         op_ptr->opt[OPT_room_descriptions]
 #define room_names                           op_ptr->opt[OPT_room_names]
+#define reseed_artifacts			op_ptr->opt[OPT_reseed_artifacts]
 /* xxx */
 /* xxx */
 /* xxx xxx */
@@ -3050,6 +3054,7 @@
 #define cheat_xtra                              op_ptr->opt[OPT_cheat_xtra]
 #define cheat_know                              op_ptr->opt[OPT_cheat_know]
 #define cheat_live                              op_ptr->opt[OPT_cheat_live]
+#define cheat_lore				op_ptr->opt[OPT_cheat_lore]
 /* xxx xxx */
 #define adult_point_based               op_ptr->opt[OPT_adult_point_based]
 #define adult_auto_roller               op_ptr->opt[OPT_adult_auto_roller]
@@ -3090,7 +3095,7 @@
 #define variant_usage_id                        op_ptr->opt[OPT_variant_usage_id]
 #define variant_dis_attacks                        op_ptr->opt[OPT_variant_dis_attacks]
 #define variant_time_stacks                     op_ptr->opt[OPT_variant_time_stacks]
-
+#define variant_many_rings			op_ptr->opt[OPT_variant_many_rings]
 
 /*
  * Information for "do_cmd_options()".
@@ -3315,7 +3320,6 @@
  */
 #define cave_perma_bold(Y,X) \
 	((f_info[cave_feat[Y][X]].flags1  & (FF1_PERMANENT)) || \
-	(cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \

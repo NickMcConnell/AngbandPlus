@@ -2627,6 +2627,18 @@ void do_cmd_fire(void)
         /* Reset stack counter */
         i_ptr->stackc = 0;
 
+        /* Sometimes use lower stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+
+                if (i_ptr->pval) i_ptr->pval--;
+
+                if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                o_ptr->stackc--;
+        }
+
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
@@ -2977,6 +2989,18 @@ void do_cmd_throw(void)
 
         /* Reset stack count*/
         i_ptr->stackc = 0;
+
+        /* Sometimes use lower stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+
+                if (i_ptr->pval) i_ptr->pval--;
+
+                if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                o_ptr->stackc--;
+        }
 
 	/* Reduce and describe inventory */
 	if (item >= 0)

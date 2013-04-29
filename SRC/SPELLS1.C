@@ -1722,7 +1722,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				/* Check line of sight */
 				if (player_has_los_bold(y, x))
 				{
-					msg_format("The %s turns to mud.");
+					msg_format("The %s turns to mud.", f);
 					obvious = TRUE;
 				}
 
@@ -4693,6 +4693,18 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
                                 /* Reset stack counter */
                                 i_ptr->stackc = 0;
 
+                                /* Sometimes use lower stack object */
+                                if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+                                {
+                                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+
+                                        if (i_ptr->pval) i_ptr->pval--;
+
+                                        if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                                        o_ptr->stackc--;
+                                }
+
 				/* Carry the object */
 				if (who > 0)
 				{
@@ -4966,7 +4978,7 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				/* Learn about the player */
 				update_smart_learn(who, DRS_FREE);
 			}
-
+                        break;
                 }
 
 		case GF_LOSE_STR:

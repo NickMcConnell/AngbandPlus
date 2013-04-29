@@ -1981,6 +1981,16 @@ static void get_room_info(int y, int x)
 			room_info_mon_flag = d_info[i].r_flag -1;
 			room_info_mon_char = d_info[i].r_char;
 
+			/* Hack -- substitute some monster types */
+			if (t_info[p_ptr->dungeon].r_char) switch (room_info_mon_char)
+			{
+                                case 't':
+                                case 'p':
+                                case 'q':
+					room_info_mon_char = t_info[p_ptr->dungeon].r_char;
+					break;
+			}
+
 			get_mon_num_hook = room_info_mon;
 
 			/* Prepare allocation table */
@@ -4604,10 +4614,6 @@ static void cave_gen(void)
 		/* Daytime */
 		town_illuminate(TRUE);
 	}
-
-
-
-
 }
 
 
@@ -5087,7 +5093,6 @@ void generate_cave(void)
 
                 /* Hack -- no feeling on surface */
                 if (p_ptr->depth == min_depth(p_ptr->dungeon)) feeling = 0;
-
 
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)

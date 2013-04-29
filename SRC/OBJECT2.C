@@ -1517,10 +1517,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
-
-			/* Require knowledge */
-			/* Require full knowledge of both items */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			/* Require identical knowledge of both items */
+			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
 
 			/* Require 'similar' pvals */
 			if ((o_ptr->pval != j_ptr->pval))
@@ -2731,7 +2729,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 					break;
 				}
-
+#if 0
 				/* Flames, Acid, Ice */
 				case SV_RING_FLAMES:
 				case SV_RING_ACID:
@@ -2741,7 +2739,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
 					break;
 				}
-
+#endif
 				/* Weakness, Stupidity */
 				case SV_RING_WEAKNESS:
 				case SV_RING_STUPIDITY:
@@ -5060,12 +5058,31 @@ s16b inven_takeoff(int item, int amt)
 	/* Reset stack count */
 	i_ptr->stackc = 0;
 
+        /* Sometimes reverse the stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if (amt >= o_ptr->stackc)
+                {
+                        i_ptr->stackc = o_ptr->stackc;
+
+                        o_ptr->stackc = 0;
+                }
+                else
+                {
+                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+                        if (i_ptr->pval) i_ptr->pval--;
+                        if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                        o_ptr->stackc -= amt;
+                }
+        }
 	/* Get stack count */
-        if (amt >= (o_ptr->number - o_ptr->stackc))
+        else if (amt >= (o_ptr->number - o_ptr->stackc))
 	{
 		/* Set stack count */
 		i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
         }
+
 
 	/* Describe the object */
 	object_desc(o_name, i_ptr, TRUE, 3);
@@ -5185,8 +5202,27 @@ void inven_drop(int item, int amt)
 	/* Reset stack count */
 	i_ptr->stackc = 0;
 
+        /* Sometimes reverse the stack object */
+        if (!object_known_p(o_ptr) && (rand_int(o_ptr->number)< o_ptr->stackc))
+        {
+                if (amt >= o_ptr->stackc)
+                {
+                        i_ptr->stackc = o_ptr->stackc;
+
+                        o_ptr->stackc = 0;
+                }
+                else
+                {
+                        if ((i_ptr->pval) && (i_ptr->tval == TV_ROD)) i_ptr->pval = 0;
+                        if (i_ptr->pval) i_ptr->pval--;
+                        if (i_ptr->timeout) i_ptr->timeout = 0;
+
+                        o_ptr->stackc -= amt;
+                }
+        }
+
 	/* Get stack count */
-        if (amt >= (o_ptr->number - o_ptr->stackc))
+        else if (amt >= (o_ptr->number - o_ptr->stackc))
 	{
 		/* Set stack count */
 		i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
