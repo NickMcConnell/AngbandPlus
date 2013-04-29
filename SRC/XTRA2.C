@@ -2598,10 +2598,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
-			 (r_ptr->flags2 & (RF2_STUPID)) ||
-			 (strchr("Evg", r_ptr->d_char)))
+		else if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+			 (r_ptr->flags2 & (RF2_STUPID)))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -2857,6 +2855,13 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			return;
 		}
 
+                case (ROOM_NEST_THEME):
+		{
+                        strcpy(name, "monster den");
+                        strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
+			return;
+		}
+
 		case (ROOM_NEST_JELLY):
 		{
 			strcpy(name, "jelly pit");
@@ -2877,6 +2882,14 @@ static void get_room_desc(int room, char *name, char *text_visible, char *text_a
 			strcpy(text_visible, "This room is full of corpses. Some of them don't seem to be still.");
 			return;
 		}
+
+                case (ROOM_PIT_THEME):
+		{
+                        strcpy(name, "monster pit");
+                        strcpy(text_always, "This room is filled to overflowing with the inhabitants of the region.");
+			return;
+		}
+
 		case (ROOM_PIT_ORC):
 		{
 			strcpy(name, "orc pit");

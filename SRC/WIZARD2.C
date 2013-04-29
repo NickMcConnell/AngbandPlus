@@ -1259,7 +1259,7 @@ static void do_cmd_wiz_jump(void)
 {
 
         /* Ask for a town */
-        if (variant_town)
+        if (adult_campaign)
         {
 
                 /* Ask for level */
@@ -1270,7 +1270,7 @@ static void do_cmd_wiz_jump(void)
                         char tmp_val[160];
         
                         /* Prompt */
-                        sprintf(ppp, "Jump to dungeon (1-%d): ", z_info->t_max);
+                        sprintf(ppp, "Jump to dungeon (1-%d): ", z_info->t_max-1);
         
                         /* Default */
                         sprintf(tmp_val, "%d", p_ptr->dungeon);

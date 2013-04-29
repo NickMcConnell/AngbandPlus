@@ -1199,6 +1199,9 @@ static void store_create(void)
 	for (tries = 0; tries < 4; tries++)
 	{
 
+                /* Paranoia */
+                race_drop_idx = 0;
+
                 /* Quest rewards */
                 if ((total == 0) && (store_num_fake == -1))
                 {
@@ -1206,6 +1209,7 @@ static void store_create(void)
                         int depth = p_ptr->depth;
 
                         p_ptr->depth = su_ptr->level;
+                        object_level = su_ptr->level;
 
                         /* Get local object */
                         i_ptr = &object_type_body;
@@ -1214,6 +1218,7 @@ static void store_create(void)
 
                         /* Reset depth */
                         p_ptr->depth = depth;
+                        object_level = depth;
 
                         object_aware(i_ptr);
                         object_known(i_ptr);

@@ -185,11 +185,11 @@ static void sense_inventory(void)
 		{
 			u32b if1,if2,if3;
 
-			object_flags(o_ptr,&if1,&if2,&if3);
+                        object_flags(o_ptr,&if1,&if2,&if3);
 
-			f1 |= (if1 & ~(o_ptr->i_object.may_flags1)) & ~(o_ptr->i_object.can_flags1);
-			f2 |= (if2 & ~(o_ptr->i_object.may_flags2)) & ~(o_ptr->i_object.can_flags2);
-			f3 |= (if3 & ~(o_ptr->i_object.may_flags3)) & ~(o_ptr->i_object.can_flags3);
+                        f1 |= (if1 & ~(o_ptr->may_flags1)) & ~(o_ptr->can_flags1);
+                        f2 |= (if2 & ~(o_ptr->may_flags2)) & ~(o_ptr->can_flags2);
+                        f3 |= (if3 & ~(o_ptr->may_flags3)) & ~(o_ptr->can_flags3);
 		}
 
 		/* Valid "tval" codes */
@@ -457,6 +457,42 @@ static void regen_monsters(void)
 	}
 }
 
+/*
+ * Monster hook to use for 'wandering' monsters.
+ */
+bool dun_level_mon(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+        bool allowed = FALSE;
+
+        /* Hack -- Prefer monsters with graphic */
+        if ((t_info[p_ptr->dungeon].r_char) && (r_ptr->d_char == t_info[p_ptr->dungeon].r_char)) allowed = TRUE;
+
+        /* Hack -- Prefer monsters with flag */
+        if (t_info[p_ptr->dungeon].r_flag)
+        {
+                int mon_flag = t_info[p_ptr->dungeon].r_flag-1;
+
+                if ((mon_flag < 32) && 
+                        (r_ptr->flags1 & (1L << mon_flag))) allowed = TRUE;
+
+                if ((mon_flag >= 32) && 
+                        (mon_flag < 64) && 
+                        (r_ptr->flags2 & (1L << (mon_flag -32)))) allowed = TRUE;
+
+                if ((mon_flag >= 64) && 
+                        (mon_flag < 96) && 
+                        (r_ptr->flags3 & (1L << (mon_flag -64)))) allowed = TRUE;
+
+                if ((mon_flag >= 96) && 
+                        (mon_flag < 128) && 
+                        (r_ptr->flags4 & (1L << (mon_flag -96)))) allowed = TRUE;
+        }
+
+        return (allowed);
+
+}
 
 
 /*
@@ -603,8 +639,21 @@ static void process_world(void)
 	/* Check for creature generation */
 	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
 	{
+
+	/* Ensure wandering monsters suit the dungeon level */
+			get_mon_num_hook = dun_level_mon;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
+
 		/* Make a new monster */
 		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+
+	/* Ensure wandering monsters suit the dungeon level */
+			get_mon_num_hook = NULL;
+
+			/* Prepare allocation table */
+			get_mon_num_prep();
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -3042,10 +3091,6 @@ void play_game(bool new_game)
 		/* Start in town */
 		p_ptr->depth = 0;
 
-		/* Start in first dungeon */
-		if (variant_town) p_ptr->dungeon = 1;
-		else p_ptr->dungeon = 0;
-
 		/* Hack -- seed for flavors */
 		seed_flavor = rand_int(0x10000000);
 
@@ -3064,22 +3109,19 @@ void play_game(bool new_game)
 
 			for (i = 0;i<z_info->a_max;i++)
 			{
+                                object_lore *n_ptr = &a_list[i];
 
-				artifact_type *a_ptr = &a_info[i];
+                                n_ptr->can_flags1 = 0x0L;
+                                n_ptr->can_flags1 = 0x0L;
+                                n_ptr->can_flags1 = 0x0L;
 
-				a_ptr->i_artifact.can_flags1 = 0x0L;
-				a_ptr->i_artifact.can_flags1 = 0x0L;
-				a_ptr->i_artifact.can_flags1 = 0x0L;
+                                n_ptr->may_flags1 = 0x0L;
+                                n_ptr->may_flags1 = 0x0L;
+                                n_ptr->may_flags1 = 0x0L;
 
-				a_ptr->i_artifact.may_flags1 = 0x0L;
-				a_ptr->i_artifact.may_flags1 = 0x0L;
-				a_ptr->i_artifact.may_flags1 = 0x0L;
-
-				a_ptr->i_artifact.not_flags1 = 0x0L;
-				a_ptr->i_artifact.not_flags1 = 0x0L;
-				a_ptr->i_artifact.not_flags1 = 0x0L;
-
-                                a_ptr->found = 0;
+                                n_ptr->not_flags1 = 0x0L;
+                                n_ptr->not_flags1 = 0x0L;
+                                n_ptr->not_flags1 = 0x0L;
 			}
 
 		}
@@ -3093,6 +3135,7 @@ void play_game(bool new_game)
 
                 do_randart(seed_randart, TRUE);
 #endif
+        msg_print("Randomized artifacts...");
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -3126,7 +3169,7 @@ void play_game(bool new_game)
 	flavor_init();
 
         /* Mark the fixed monsters as quests */
-        if (variant_town)
+        if (adult_campaign)
         {
                 int i;
 
@@ -3174,10 +3217,8 @@ void play_game(bool new_game)
 	/* Character is now "complete" */
 	character_generated = TRUE;
 
-
 	/* Hack -- Decrease "icky" depth */
 	character_icky--;
-
 
 	/* Start playing */
 	p_ptr->playing = TRUE;
@@ -3188,6 +3229,7 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
+
 		/* Process the level */
 		dungeon();
 
@@ -3286,10 +3328,6 @@ void play_game(bool new_game)
 
 				/* New depth */
 				p_ptr->depth = 0;
-
-				/* New dungeon */
-				if (variant_town) p_ptr->dungeon = 1;
-				else p_ptr->dungeon = 0;
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;

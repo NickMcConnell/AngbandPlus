@@ -34,7 +34,6 @@ V:2.9.2
 # Default starting dungeon.
 
 N:0:Angband
-G:t
 X:0:0
 L:0:0:407:0:0
 L:1:56:0:0:0
@@ -49,8 +48,8 @@ N:1:Hobbiton
 X:10:37
 G:h
 L:0:0:411:435:0
-S:9:10:11:0:0:0:0:0
-D:In a hole in the ground, there lived a hobbit.
+S:9:29:10:11:0:0:0:0
+D:Tip: Press '<' to travel elsewhere.
 
 #The following quests are from the hobbit.
 
@@ -72,8 +71,8 @@ L:13:56:0:154:185
 
 N:4:the house of Beorn
 X:3:5
-G:Q
-L:0:0:411:0:325
+R:ANIMAL
+L:10:0:411:0:325
 S:14:0:0:0:0:0:0:0
 
 #Should be guarded by King of Wood Elves
@@ -81,9 +80,10 @@ S:14:0:0:0:0:0:0:0
 N:5:Mirkwood
 X:4:6
 G:l
+G:INSECT
 L:14:420:56:153:349
 L:15:56:0:0:0
-L:56:0:153:0:0
+L:32:0:153:0:0
 S:15:16:17:4:5:18:19:0
 
 N:6:Lake-town
@@ -96,7 +96,8 @@ S:1:2:3:4:5:6:7:0
 
 N:7:the Lonely Mountain
 X:8:9
-L:33:154:56:56:498
+R:DRAGON
+L:33:155:56:56:498
 L:34:56:0:0:0:0
 L:38:56:0:0:0:498
 
@@ -104,8 +105,8 @@ L:38:56:0:0:0:498
 
 N:8:Lake-town
 X:7:9
+R:CAN_SWIM
 L:39:155:49:1:498
-L:40:121:0:0:0
 
 N:9:Lake-town, rebuilt
 X:14:0
@@ -119,6 +120,7 @@ S:1:2:3:4:5:6:20:0
 
 N:10:Farmer Maggot's farm
 X:1:40
+G:,
 R:ANIMAL
 L:0:0:411:419:14
 L:1:114:0:0:0
@@ -129,7 +131,6 @@ S:21:0:0:0:0:0:0:0
 
 N:11:Bree
 X:41:12
-G:t
 L:0:0:407:419:464
 S:22:2:3:4:5:6:0:0
 
@@ -156,14 +157,15 @@ S:12:2:3:4:5:6:13:27
 
 N:15:Redhorn Pass
 X:16:19
-L:20:56:144:145:494
+R:IM_COLD
+L:21:56:144:145:494
 
 #Balrog is likely to be encountered before end of Moria. (10 levels shallower)
 
 N:16:Moria
 X:17:18
-L:20:155:56:1:1048
-L:21:56:0:0:0
+L:21:155:56:0:1048
+L:22:56:0:0:0
 L:45:56:1:0:0
 L:60:56:141:0:502
 
@@ -171,9 +173,9 @@ L:60:56:141:0:502
 
 N:17:Isengard
 X:16:20
-R:EVIL
-L:20:0:418:423:262
-L:21:56:0:0:0
+R:MAGE
+L:21:0:423:423:262
+L:22:56:0:0:0
 L:60:56:0:0:543
 S:23:2:3:4:5:6:7:0
 
@@ -185,29 +187,30 @@ S:15:17:4:5:18:24:0:0
 
 N:19:Parth Galen
 X:20:24
-R:EVIL
-L:14:420:155:56:0
+L:20:420:155:56:0
 
 N:20:Fangorn
 X:21:23
-R:ANIMAL
-L:14:420:420:420:1043
+R:PLANT
+L:20:420:420:420:1043
 
 N:21:Edoras
 X:22:28
 G:t
+R:WARRIOR
 L:0:0:1:0:0
 L:1:56:0:0:1088
 S:1:2:3:4:5:6:25:0
 
 N:22:Battle of Helm's Deep
 X:21:23
+R:ESCORTS
 L:50:420:56:155:267
 
 N:23:Isengard
 X:20:22
-R:EVIL
-L:60:418:423:49:543
+R:MAGE
+L:60:423:141:141:543
 
 #Should be guarded by Faramir
 
@@ -218,8 +221,10 @@ L:65:199:200:201:0
 
 N:25:Ithilien
 X:26:27
-L:14:420:155:199:0
-L:15:0:1:153:0
+G:l
+R:EVIL
+L:20:420:155:199:0
+L:21:0:1:153:0
 S:26:26:26:0:0:0:0:0
 
 N:26:Minas Morgul
@@ -231,7 +236,6 @@ L:85:56:0:0:579
 
 N:27:Cirith Ungol
 X:26:31
-G:S
 L:60:56:1:49:1099
 L:61:56:1:0:0
 L:75:56:1:0:565
@@ -240,7 +244,7 @@ L:75:56:1:0:565
 
 N:28:Minas Tirith
 X:29:30
-G:t
+R:WARRIOR
 L:0:0:0:0:0
 L:1:0:0:0:0
 S:1:2:3:4:5:6:0:0
@@ -255,11 +259,11 @@ L:85:56:0:0:579
 
 N:30:Battle of Five Armies
 X:27:31
+R:ESCORTS
 L:70:420:407:56:575
 
 N:31:Minas Tirith
 X:25:26
-G:t
 L:0:0:1:0:0
 L:1:0:0:0:0
 S:1:2:3:4:5:6:24:0
@@ -271,7 +275,7 @@ L:75:407:201:209:0
 
 N:33:Orodruin
 X:56:34
-R:EVIL
+R:BR_FIRE
 L:79:210:214:217:0
 L:80:50:210:217:0
 L:98:50:214:217:68
@@ -286,29 +290,29 @@ L:99:56:1:209:587
 N:35:Hobbiton
 X:0:36
 G:h
-R:EVIL
 L:60:0:407:199:543
-S:2:3:11:0:0:0:0:0
+S:2:3:7:11:0:0:0:0
 
 N:36:Hobbiton, rebuilt
-X:39:0
+X:39:42
 G:h
 L:0:0:407:419:0
-S:9:10:11:0:0:0:0:0
+S:9:29:10:11:0:0:0:0
 
 # The following are accessible from the first Hobbiton for consistency
 
 N:37:Bree
 X:38:39
-G:t
 L:0:0:407:419:1083
 S:22:2:3:4:5:6:0:0
+
+# Need a barrow wight unique.
 
 N:38:Barrow-downs
 X:37:39
 L:1:407:407:56:0
 L:2:56:0:0:0
-L:19:56:0:0:353
+L:20:56:0:0:0
 
 N:39:Trollshaw Forest
 X:2:37
@@ -318,18 +322,19 @@ L:3:56:0:0:1080
 
 N:40:the Old Forest
 X:10:11
-G:PLANT
+R:PLANT
 L:9:420:420:153:1069
 L:10:0:419:0:1089
 S:28:0:0:0:0:0:0:0
 
 # And the same dungeon accessible from the LOtR quest.
+# Need a barrow-wight unique.
 
 N:41:Barrow-downs
 X:12:40
 L:1:420:420:56:0
 L:2:56:0:0:0
-L:19:56:0:0:353
+L:20:56:0:0:0
 
 # Other alternate dungeons should be placed here
 

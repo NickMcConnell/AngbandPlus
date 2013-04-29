@@ -754,19 +754,19 @@ static void wr_item(object_type *o_ptr)
 #ifdef ALLOW_OBJECT_INFO
         if (variant_learn_id)
         {
-                wr_u32b(o_ptr->i_object.can_flags1);
-                wr_u32b(o_ptr->i_object.can_flags2);
-                wr_u32b(o_ptr->i_object.can_flags3);
+                wr_u32b(o_ptr->can_flags1);
+                wr_u32b(o_ptr->can_flags2);
+                wr_u32b(o_ptr->can_flags3);
 
-                wr_u32b(o_ptr->i_object.may_flags1);
-                wr_u32b(o_ptr->i_object.may_flags2);
-                wr_u32b(o_ptr->i_object.may_flags3);
+                wr_u32b(o_ptr->may_flags1);
+                wr_u32b(o_ptr->may_flags2);
+                wr_u32b(o_ptr->may_flags3);
 
-                wr_u32b(o_ptr->i_object.not_flags1);
-                wr_u32b(o_ptr->i_object.not_flags2);
-                wr_u32b(o_ptr->i_object.not_flags3);
+                wr_u32b(o_ptr->not_flags1);
+                wr_u32b(o_ptr->not_flags2);
+                wr_u32b(o_ptr->not_flags3);
         }
-        if (variant_usage_id) wr_s16b(o_ptr->i_object.usage);
+        if (variant_usage_id) wr_s16b(o_ptr->usage);
 
         if (variant_guess_id)
         {
@@ -1229,13 +1229,13 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	if (variant_town) wr_u16b(p_ptr->dungeon);
+        if (adult_campaign) wr_u16b(p_ptr->dungeon);
 	else wr_u16b(0);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-        if (variant_town) wr_u16b(p_ptr->town);
+        if (adult_campaign) wr_u16b(p_ptr->town);
 	else wr_u16b(0);
 	wr_u16b(0);
 
@@ -1293,7 +1293,8 @@ static void wr_dungeon(void)
 			/* Extract a byte */
                         tmp16u = cave_feat[y][x];
 
-                        if ((!variant_save_feats) & (tmp16u > 255)) tmp16u = 1;
+                        if ((!variant_save_feats) & (tmp16u == FEAT_ENTRANCE)) tmp16u = FEAT_MORE;
+                        else if ((!variant_save_feats) & (tmp16u > 255)) tmp16u = 1;
 
 			/* If the run is broken, or too full, flush it */
                         if ((tmp16u != prev_char) || (count == MAX_UCHAR))
@@ -1513,6 +1514,8 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
+                object_lore *n_ptr = &a_list[i];
+
 		wr_byte(a_ptr->cur_num);
 		wr_byte(0);
 		wr_byte(0);
@@ -1521,19 +1524,22 @@ static bool wr_savefile_new(void)
 #ifdef ALLOW_OBJECT_INFO
                 if (variant_learn_id)
                 {
-                        wr_u32b(a_ptr->i_artifact.can_flags1);
-                        wr_u32b(a_ptr->i_artifact.can_flags2);
-                        wr_u32b(a_ptr->i_artifact.can_flags3);
+                        wr_u32b(n_ptr->can_flags1);
+                        wr_u32b(n_ptr->can_flags2);
+                        wr_u32b(n_ptr->can_flags3);
 
-                        wr_u32b(a_ptr->i_artifact.not_flags1);
-                        wr_u32b(a_ptr->i_artifact.not_flags2);
-                        wr_u32b(a_ptr->i_artifact.not_flags3);
+                        wr_u32b(n_ptr->not_flags1);
+                        wr_u32b(n_ptr->not_flags2);
+                        wr_u32b(n_ptr->not_flags3);
                 }
 
-                if (variant_usage_id) wr_s16b(a_ptr->i_artifact.usage);
+                /* Oops */
+                if (variant_usage_id) wr_byte(0);
+                if (variant_usage_id) wr_byte(0);
 
-                /* Save number found */
-                if (variant_learn_id) wr_u16b(a_ptr->found);
+                /* Oops */
+                if (variant_learn_id) wr_byte(0);
+                if (variant_learn_id) wr_byte(0);
 #endif
 	}
 
@@ -1542,26 +1548,28 @@ static bool wr_savefile_new(void)
         if ((variant_learn_id) || (variant_usage_id)) wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		ego_item_type *e_ptr = &e_info[i];
+                object_lore *n_ptr = &e_list[i];
 
 #ifdef ALLOW_OBJECT_INFO
 
                 if (variant_learn_id)
                 {
-                        wr_u32b(e_ptr->i_ego_item.can_flags1);
-                        wr_u32b(e_ptr->i_ego_item.can_flags2);
-                        wr_u32b(e_ptr->i_ego_item.can_flags3);
+                        wr_u32b(n_ptr->can_flags1);
+                        wr_u32b(n_ptr->can_flags2);
+                        wr_u32b(n_ptr->can_flags3);
 
-                        wr_u32b(e_ptr->i_ego_item.may_flags1);
-                        wr_u32b(e_ptr->i_ego_item.may_flags2);
-                        wr_u32b(e_ptr->i_ego_item.may_flags3);
+                        wr_u32b(n_ptr->may_flags1);
+                        wr_u32b(n_ptr->may_flags2);
+                        wr_u32b(n_ptr->may_flags3);
 
-                        wr_u32b(e_ptr->i_ego_item.not_flags1);
-                        wr_u32b(e_ptr->i_ego_item.not_flags2);
-                        wr_u32b(e_ptr->i_ego_item.not_flags3);
+                        wr_u32b(n_ptr->not_flags1);
+                        wr_u32b(n_ptr->not_flags2);
+                        wr_u32b(n_ptr->not_flags3);
                 }
 
-                if (variant_usage_id) wr_s16b(e_ptr->i_ego_item.usage);
+                /* Oops */
+                if (variant_usage_id) wr_byte(0);
+                if (variant_usage_id) wr_byte(0);
 
                 /* Oops */
                 if (variant_learn_id) wr_byte(0);

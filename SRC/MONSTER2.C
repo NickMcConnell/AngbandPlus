@@ -343,7 +343,6 @@ s16b m_pop(void)
 	return (0);
 }
 
-
 /*
  * Apply a "monster restriction function" to the "monster allocation table"
  */
@@ -375,6 +374,8 @@ errr get_mon_num_prep(void)
 	/* Success */
 	return (0);
 }
+
+
 
 
 
@@ -453,7 +454,7 @@ s16b get_mon_num(int level)
 		/* Default */
 		table[i].prob3 = 0;
 
-		/* Hack -- No town monsters in dungeon */
+                /* No town monsters in dungeon */
 		if ((level > 0) && (table[i].level <= 0)) continue;
 
 		/* Get the "r_idx" of the chosen monster */
@@ -493,58 +494,34 @@ s16b get_mon_num(int level)
 		/* Accept */
 		table[i].prob3 = table[i].prob2;
 
-		/* Hack -- Prefer monsters with graphic */
-		if ((variant_town) && (t_info[p_ptr->dungeon].r_char) && (r_ptr->d_char != t_info[p_ptr->dungeon].r_char)) table[i].prob3 /= 3;
-
-		/* Hack -- Prefer monsters with flag */
-		if ((variant_town) && (t_info[p_ptr->dungeon].r_flag))
-		{
-			int mon_flag = t_info[p_ptr->dungeon].r_flag-1;
-
-			if ((mon_flag < 32) && 
-				!(r_ptr->flags1 & (1L << mon_flag))) table[i].prob3 /=3;
-
-			if ((mon_flag >= 32) && 
-				(mon_flag < 64) && 
-				!(r_ptr->flags2 & (1L << (mon_flag -32)))) table[i].prob3 /=3;
-
-			if ((mon_flag >= 64) && 
-				(mon_flag < 96) && 
-				!(r_ptr->flags3 & (1L << (mon_flag -64)))) table[i].prob3 /=3;
-
-		        if ((mon_flag >= 96) && 
-		                (mon_flag < 128) && 
-		                !(r_ptr->flags4 & (1L << (mon_flag -96)))) table[i].prob3 /=3;
-		}
-
-		/* Don't like monsters that don't 'suit' a particular level */
-		/* Currently we don't do this quite right because we should
-		   favour monsters that qualify for place_monster_here. XXX XXX */
-		if (level_flag & (LF1_WATER | LF1_LAVA | LF1_ICE | LF1_ACID | LF1_CHASM))
-		{
-			if (level_flag & (LF1_WATER))
-			{
-                                if (!(r_ptr->flags2 & (RF2_CAN_SWIM))) table[i].prob3 /=3;
-			}
-			if (level_flag & (LF1_LAVA))
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=3;
-                                if (!(r_ptr->flags4 & (RF4_BR_FIRE))) table[i].prob3 /=2;
-			}
-			if (level_flag & (LF1_ICE))
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=3;
-			}
-			if (level_flag & (LF1_ACID))
-			{
-                                if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=3;
-			}
-			if (level_flag & (LF1_CHASM))
-			{
-				if (!(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
-                                        !(r_ptr->flags2 & (RF2_CAN_FLY))) table[i].prob3 /=3;
-			}
-		}
+                /* Don't like monsters that don't 'suit' a particular level */
+                /* Currently we don't do this quite right because we should
+                   favour monsters that qualify for place_monster_here. XXX XXX */
+                if (level_flag & (LF1_WATER | LF1_LAVA | LF1_ICE | LF1_ACID | LF1_CHASM))
+                {
+                        if (level_flag & (LF1_WATER))
+                        {
+                                if (!(r_ptr->flags2 & (RF2_CAN_SWIM))&&
+                                        !(r_ptr->flags3 & (RF3_NONLIVING))) table[i].prob3 /=4;
+                        }
+                        if (level_flag & (LF1_LAVA))
+                        {
+                                if (!(r_ptr->flags3 & (RF3_IM_FIRE))) table[i].prob3 /=4;
+                        }
+                        if (level_flag & (LF1_ICE))
+                        {
+                                if (!(r_ptr->flags3 & (RF3_IM_COLD))) table[i].prob3 /=4;
+                        }
+                        if (level_flag & (LF1_ACID))
+                        {
+                                if (!(r_ptr->flags3 & (RF3_IM_ACID))) table[i].prob3 /=4;
+                        }
+                        if (level_flag & (LF1_CHASM))
+                        {
+                                if (!(r_ptr->flags2 & (RF2_CAN_CLIMB)) &&
+                                        !(r_ptr->flags2 & (RF2_CAN_FLY))) return(FALSE);
+                        }
+                }
 
 		/* Total */
 		total += table[i].prob3;
@@ -1791,8 +1768,6 @@ bool mon_resist_feat(int feat, int r_idx)
 	feature_type *f_ptr;
 	monster_race *r_ptr;
 
-	bool nonliving = FALSE;
-
 	/* Get feature info */
 	f_ptr= &f_info[feat];
 	
@@ -1801,14 +1776,6 @@ bool mon_resist_feat(int feat, int r_idx)
 
 	/* Race */
 	r_ptr = &r_info[r_idx];
-
-	/* Death by Physical attack -- non-living monster */
-	if ((r_ptr->flags3 & (RF3_DEMON)) ||
-			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
-			 (strchr("Evg", r_ptr->d_char)))
-	{
-		nonliving = TRUE;
-	}
 
         /* Always risk traps if stupid */
         if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
@@ -1860,7 +1827,7 @@ bool mon_resist_feat(int feat, int r_idx)
 
 			case GF_WATER_WEAK:
 			case GF_WATER:
-			if (nonliving) return (TRUE);
+			if (r_ptr->flags3 & (RF3_NONLIVING))  return (TRUE);
 			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
 			{
 
@@ -1877,7 +1844,7 @@ bool mon_resist_feat(int feat, int r_idx)
 			break;
 
 			case GF_BWATER:
-			if (nonliving && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags3 & (RF3_NONLIVING)) && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
 			if ((r_ptr->flags2 & (RF2_CAN_SWIM)) && (f_ptr->flags2 & (FF2_CAN_SWIM)))
 			{
 				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
@@ -1889,7 +1856,7 @@ bool mon_resist_feat(int feat, int r_idx)
 			break;
 
 			case GF_BMUD:
-			if (nonliving && (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
+			if ((r_ptr->flags3 & (RF3_NONLIVING))&& (r_ptr->flags3 & (RF3_IM_FIRE))) return (TRUE); 
 			if ((r_ptr->flags2 & (RF2_CAN_DIG)) && (f_ptr->flags2 & (FF2_CAN_DIG)))
 			{
 				if (!(r_ptr->flags3 & (RF3_IM_FIRE))) return (FALSE);
@@ -3087,6 +3054,8 @@ bool animate_object(int item)
                 case TV_BONE:
                         p = "come back from the dead!";
                         break;
+		    case TV_HOLD:
+				p = "broken open!";
                 default:
                         p = "come to life!";
                         break;

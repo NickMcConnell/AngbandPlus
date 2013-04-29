@@ -192,6 +192,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		case TV_STAFF:
+		case TV_GLOVES:
 		{
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_NATURAL)) &&
@@ -492,8 +493,19 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 #ifdef ALLOW_OBJECT_INFO
                                         if (rand_int(100)<tdam*3) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L);
 #endif
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF2_ARMOR))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags2 |= (RF2_ARMOR);
+					}
 
-					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
+						if (mult < 2 ) mult = 2;
+				}
+
+
+					else if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
 					{
 						if (mult < 2 ) mult = 2;
 					}
@@ -1324,7 +1336,7 @@ void py_attack(int y, int x)
 
         /* Check backstab if monster sleeping or fleeing */
         if (((m_ptr->csleep)||(m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
-          (p_ptr->pstyle ==WS_BACKSTAB)) melee_style |= (1L <<WS_BACKSTAB);
+          (p_ptr->pstyle ==WS_BACKSTAB) && (inventory[INVEN_WIELD].weight < 100)) melee_style |= (1L <<WS_BACKSTAB);
 
 	/* Check slay orc if monster is an orc */
         if (r_ptr->flags3 & (RF3_ORC)) melee_style |= (1L <<WS_SLAY_ORC);
@@ -1382,9 +1394,8 @@ void py_attack(int y, int x)
 
 
         /* Only allow criticals against living opponents */
-	if ((r_ptr->flags3 & (RF3_DEMON)) ||
-			 (r_ptr->flags3 & (RF3_UNDEAD)) ||
-			 (strchr("Evg", r_ptr->d_char)))
+	if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+			 (r_ptr->flags2 & (RF2_STUPID)))
 	{
                 style_crit = 0;
 	}
@@ -1427,7 +1438,7 @@ void py_attack(int y, int x)
 		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 		{
 
-                        /* Hack --- backstab */
+                        /* Hack --- backstab. Weapon of 10 lbs or less */
 
                         if (melee_style & (1L << WS_BACKSTAB))
                         {
@@ -1444,9 +1455,9 @@ void py_attack(int y, int x)
 			if (o_ptr->k_idx)
 			{
 #ifdef ALLOW_OBJECT_INFO
-				u32b k1 = o_ptr->i_object.can_flags1;
-				u32b k2 = o_ptr->i_object.can_flags2;
-				u32b k3 = o_ptr->i_object.can_flags3;
+                                u32b k1 = o_ptr->can_flags1;
+                                u32b k2 = o_ptr->can_flags2;
+                                u32b k3 = o_ptr->can_flags3;
 
                                 u32b n1 = 0x0L;
                                 u32b n2 = 0x0L;
@@ -1474,9 +1485,9 @@ void py_attack(int y, int x)
 
 #ifdef ALLOW_OBJECT_INFO
 				/* Check flags */
-				n1 = o_ptr->i_object.can_flags1 & ~(k1);
-				n2 = o_ptr->i_object.can_flags2 & ~(k2);
-				n3 = o_ptr->i_object.can_flags3 & ~(k3);
+                                n1 = o_ptr->can_flags1 & ~(k1);
+                                n2 = o_ptr->can_flags2 & ~(k2);
+                                n3 = o_ptr->can_flags3 & ~(k3);
 
 				/* Update the object */
 				update_slot_flags(INVEN_WIELD,n1,n2,n3);
@@ -1490,7 +1501,7 @@ void py_attack(int y, int x)
 			else
 			{
                                 k = 1;
-                                k = critical_norm(c_info[p_ptr->pclass].blows_wgt, (style_crit * 30),k);
+                                k = critical_norm(c_info[p_ptr->pclass].min_weight, (style_crit * 30),k);
 			}
 
                         k += p_ptr->to_d + style_dam;

@@ -25,7 +25,11 @@
  * If there are no legal choices, returns FALSE, and sets '*sn' to -2
  *
  * The "prompt" should be "cast", "recite", or "study"
- * The "known" should be TRUE for cast/pray/sing, FALSE for study
+ * The "known" should be TRUE for cast/pray/sing, FALSE for study if
+ * a book (eg magic book, prayer book, song book, runestone).
+ * For all others, "known" should be TRUE if the player is to be
+ * prompted to select an object power, or FALSE if a random power is
+ * to be chosen.
  *
  * Now also allows scrolls, potions etc. We do not require mana or
  * ability to read to use any of these.
@@ -55,8 +59,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
         cptr p;
 
-        bool cast = TRUE;
-
+        bool cast = FALSE;
 
         /* Spell */
         switch (o_ptr->tval)
@@ -127,6 +130,16 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		/* Look for "okay" spells */
 		if (spell_okay(book[i], known)) okay = TRUE;
 	}
+	/* Get a random spell */
+	else if (!known)
+	{
+		/* Get a random spell */
+		*sn = book[rand_int(num)];
+
+		/* Something happened */
+		return (TRUE);
+	}
+	else okay = TRUE;
 
 	/* No "okay" spells */
 	if (!okay) return (FALSE);
@@ -185,6 +198,19 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 				/* Display a list of spells */
 				print_spells(book, num, 1, 20);
+			}
+			
+			/* Show the list */
+			else
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save screen */
+				screen_save();
+
+				/* Display a list of spells */
+                                print_powers(book, num, 1, 20);
 			}
 
 			/* Ask again */
@@ -771,6 +797,11 @@ bool inven_cast_okay(object_type *o_ptr)
         int i,ii;
 
 	spell_type *s_ptr;
+
+        if ((o_ptr->tval != TV_MAGIC_BOOK) &&
+            (o_ptr->tval != TV_PRAYER_BOOK) &&
+            (o_ptr->tval != TV_RUNESTONE) &&
+            (o_ptr->tval != TV_SONG_BOOK)) return (0);
 
 	for (i=0;i<PY_MAX_SPELLS;i++)
 	{

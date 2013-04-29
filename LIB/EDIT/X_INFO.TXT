@@ -1075,16 +1075,19 @@ D:gold-colored
 
 N:175:Spotted
 G: :o
+T:75:4:99
 T:80:0:0
 D:spotted
 
 N:176:Silver
 G: :W
+T:75:4:99
 T:80:1:1
 D:silver-colored
 
 N:177:Copper
 G: :U
+T:75:4:99
 T:80:5:5
 D:copper-colored
 
@@ -1105,11 +1108,13 @@ D:furry
 
 N:181:Slimy
 G: :s
+T:75:4:99
 T:80:12:19
 D:slimy
 
 N:182:Tan
 G: :U
+T:75:4:99
 T:80:12:19
 D:tan
 
@@ -1122,4 +1127,80 @@ N:184:Wrinkled
 G: :u
 T:80:12:19
 D:wrinkled
+
+N:185:Steamy
+G: :W
+T:75:4:99
+D:steamy
+
+N:186:Luke Warm
+G: :B
+T:75:4:99
+D:luke warm
+
+N:187:Boiling
+G: :v
+T:75:4:99
+D:boiling
+
+N:188:Tepid
+G: :B
+T:75:4:99
+D:tepid
+
+N:189:Foamy
+G: :W
+T:75:4:99
+D:foamy
+
+N:190:Bitter
+G: :g
+T:75:4:99
+D:bitter
+
+N:191:Rainbow
+G: :v
+T:75:4:99
+D:rainbow-colored
+
+N:192:Black & White
+G: :w
+T:75:4:99
+D:black and white-layered
+
+N:193:Chocolate
+G: :u
+T:75:4:99
+D:chocolate-coloured
+
+N:194:Evervescent
+G: :w
+T:75:4:99
+D:evervescent
+
+N:195:Sparkling
+G: :W
+T:75:4:99
+D:sparkling
+
+N:196:Fizzing
+G: :B
+T:75:4:99
+D:fizzing
+
+N:197:Surupy
+G: :r
+T:75:4:99
+D:surupy
+
+N:198:Slushy
+G: :R
+T:75:4:99
+D:slushy
+
+N:199:Ice Cold
+G: :b
+T:75:4:99
+D:ice cold
+
 

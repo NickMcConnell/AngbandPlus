@@ -477,11 +477,26 @@ object_type *o_list;
  */
 monster_type *m_list;
 
-
 /*
  * Array[z_info->r_max] of monster lore
  */
 monster_lore *l_list;
+
+
+/*
+ * Array[z_info->a_max] of artifact lore
+ */
+object_lore *a_list;
+
+/*
+ * Array[z_info->e_max] of ego item lore
+ */
+object_lore *e_list;
+
+/*
+ * Array[z_info->k_max] of kind lore
+ */
+object_lore *k_list;
 
 
 /*

@@ -1733,7 +1733,7 @@ static errr init_x_info_raw(int fd)
 	fd_read(fd, (char*)(x_name), x_head->name_size);
 
 
-#ifndef DELAY_LOAD_x_TEXT
+#ifndef DELAY_LOAD_X_TEXT
 
 	/* Allocate the "x_text" array */
 	C_MAKE(x_text, x_head->text_size, char);
@@ -4867,6 +4867,15 @@ static errr init_other(void)
 	/* Lore */
 	C_MAKE(l_list, z_info->r_max, monster_lore);
 
+	/* Lore */
+        C_MAKE(a_list, z_info->a_max, object_lore);
+
+	/* Lore */
+        C_MAKE(e_list, z_info->e_max, object_lore);
+
+	/* Lore */
+        C_MAKE(k_list, z_info->k_max, object_lore);
+
 	/*** Prepare quest array ***/
 
 	/* Quests */
@@ -5392,7 +5401,6 @@ void init_angband(void)
 
 	char buf[1024];
 
-
 	/*** Verify the "news" file ***/
 
 	/* Build the filename */
@@ -5520,10 +5528,6 @@ void init_angband(void)
 	/* Initialize feature info */
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
-
-	/* Initialize level info */
-	note("[Initializing arrays... (levels)]");
-	if (init_k_info()) quit("Cannot initialize levels");
 
 	/* Initialize history info */
 	note("[Initializing arrays... (histories)]");

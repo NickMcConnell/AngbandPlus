@@ -27,7 +27,7 @@
 #define MAX_STAFFS      100
 #define MAX_POTIONS     100
 #define MAX_SHROOMS     100
-#define MAX_TITLES     55       /* Used with scrolls (min 50) */
+#define MAX_TITLES     75       /* Used with scrolls (min 65) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 static byte ring_col[MAX_RINGS];
@@ -637,9 +637,9 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		if (mode != OBJECT_FLAGS_RANDOM)
 		{
 			/* Add flags object is known to have */
-			*f1 |= o_ptr->i_object.can_flags1;
-			*f2 |= o_ptr->i_object.can_flags2;
-			*f3 |= o_ptr->i_object.can_flags3;
+                        *f1 |= o_ptr->can_flags1;
+                        *f2 |= o_ptr->can_flags2;
+                        *f3 |= o_ptr->can_flags3;
 		}
 #endif
 		/* Must be identified */
@@ -670,9 +670,9 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		}
 #ifdef ALLOW_OBJECT_INFO
 		/* Add flags object is known to have */
-		*f1 |= o_ptr->i_object.can_flags1;
-		*f2 |= o_ptr->i_object.can_flags2;
-		*f3 |= o_ptr->i_object.can_flags3;
+                *f1 |= o_ptr->can_flags1;
+                *f2 |= o_ptr->can_flags2;
+                *f3 |= o_ptr->can_flags3;
 #endif
 		/* Ego-item */
 		if (o_ptr->name2)
@@ -1112,6 +1112,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			modstr = staff_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
 			basenm = (flavor ? "& # Staff~" : "& Staff~");
+                        show_weapon = TRUE;
 			break;
 		}
 
@@ -1548,6 +1549,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_STAFF:
 		case TV_DIGGING:
 		{
 			/* Append a "damage" string */
@@ -2024,129 +2026,7 @@ cptr item_activation(object_type *o_ptr)
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
 
-	/* Artifact activations */
-	if (o_ptr->name1)
-	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
-
-#if 0
-		/*
-		 * ToDo: Put the recharge time back into the
-		 * artifact description.
-		 */
-		char turns[32];
-
-		/* Format the number of turns */
-		if (a_ptr->time && a_ptr->randtime)
-			sprintf(turns, " every %d+d%d turns",
-			        a_ptr->time, a_ptr->randtime);
-		else if (a_ptr->time)
-			sprintf(turns, " every %d turns", a_ptr->time);
-		else if (a_ptr->randtime)
-			sprintf(turns, " every d%d turns", a_ptr->randtime);
-#endif
-
-		/* Paranoia */
-		if (a_ptr->activation >= ACT_MAX)
-			return (NULL);
-
-		/* Some artifacts can be activated */
-		return (act_description[a_ptr->activation]);
-	}
-
-	/* Branch on the sub-type */
-	if (o_ptr->tval == TV_DRAG_ARMOR) switch (o_ptr->sval)
-	{
-		case SV_DRAGON_BLUE:
-		{
-			return "breathe lightning (100) every 450+d450 turns";
-		}
-		case SV_DRAGON_WHITE:
-		{
-			return "breathe frost (110) every 450+d450 turns";
-		}
-		case SV_DRAGON_BLACK:
-		{
-			return "breathe acid (130) every 450+d450 turns";
-		}
-		case SV_DRAGON_GREEN:
-		{
-			return "breathe poison gas (150) every 450+d450 turns";
-		}
-		case SV_DRAGON_RED:
-		{
-			return "breathe fire (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_MULTIHUED:
-		{
-			return "breathe multi-hued (250) every 225+d225 turns";
-		}
-		case SV_DRAGON_BRONZE:
-		{
-			return "breathe confusion (120) or fire (240) every 450+d450 turns";
-		}
-		case SV_DRAGON_GOLD:
-		{
-			return "breathe sound (130) or poison gas (260) every 450+d450 turns";
-		}
-		case SV_DRAGON_SILVER:
-		{
-			return "breathe fear (110) or frost (220) every 450+d450 turns";
-		}
-		case SV_DRAGON_COPPER:
-		{
-			return "breathe nexus (90) or lightning (180) every 450+d450 turns";
-		}
-		case SV_DRAGON_BRASS:
-		{
-			return "breathe disenchantment (100) or acid (200) every 450+d450 turns";
-		}
-		case SV_DRAGON_CHAOS:
-		{
-			return "breathe chaos/disenchant (220) every 300+d300 turns";
-		}
-		case SV_DRAGON_LAW:
-		{
-			return "breathe sound/shards (230) every 300+d300 turns";
-		}
-		case SV_DRAGON_BALANCE:
-		{
-			return "breathe balance (250) every 300+d300 turns";
-		}
-		case SV_DRAGON_ETHER:
-		{
-			return "breathe light/darkness/confusion (200) every 300+d300 turns";
-		}
-		case SV_DRAGON_POWER:
-		{
-			return "breathe the elements (300) every 300+d300 turns";
-		}
-	}
-
-	/* Hack -- some Rings can be activated for double resist and element ball */
-	else if (o_ptr->tval == TV_RING)
-	{
-		/* Branch on the sub-type */
-		switch (o_ptr->sval)
-		{
-			case SV_RING_ACID:
-			{
-				return "acid ball (70) and resist acid (20+d20 turns) every 50+d50 turns";
-			}
-			case SV_RING_FLAMES:
-			{
-				return "fire ball (80) and resist fire (20+d20 turns) every 50+d50 turns";
-			}
-			case SV_RING_ICE:
-			{
-				return "ice ball (75) and resist cold (20+d20 turns) every 50+d50 turns";
-			}
-			case SV_RING_LIGHTNING:
-			{
-				return "lightning ball (85) and resist lightning (20+d20 turns) every 50+d50 turns";
-			}
-		}
-	}
+        /* TODO: Redo activation code */
 
 	/* Oops */
 	return NULL;
@@ -2539,6 +2419,10 @@ int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
 	{
                 info[i++] = "It cannot be harmed by water.";
 	}
+        if (f2 & (TR2_IGNORE_THEFT))
+	{
+                info[i++] = "It cannot be stolen.";
+	}
 
         return(i);
 }
@@ -2775,39 +2659,51 @@ s16b wield_slot(object_type *o_ptr)
 			/* Two-weapon combat -- Wielding a light stabbing weapon */
                         if ((inventory[INVEN_WIELD].k_idx)
                                 && ((inventory[INVEN_WIELD].tval == TV_SWORD)
-                                        || (inventory[INVEN_WIELD].tval == TV_HAFTED)
+                                        || (inventory[INVEN_WIELD].tval == TV_STAFF)
+                                        || (inventory[INVEN_WIELD].tval == TV_POLEARM)
                                                 || (inventory[INVEN_WIELD].tval == TV_HAFTED)))
 			{
-                                if (o_ptr->weight < 100) return (INVEN_ARM);
+                                if ((inventory[INVEN_WIELD].weight < 200) && (o_ptr->weight < 100)) return (INVEN_ARM);
 			}
 
 			/* Fall through */
+		case TV_STAFF:
+  			/* Two-weapon combat -- all staffs are "identical" */
+                        if ((inventory[INVEN_WIELD].k_idx)
+                                && (inventory[INVEN_WIELD].tval == TV_STAFF))
+			{
+                                return (INVEN_ARM);
+			}
+			/* Fall through */
 		case TV_HAFTED:
 		case TV_POLEARM:
-  			/* Two-weapon combat -- identical weapons are "balanced" */
+  			/* Two-weapon combat -- identical weapons are "balanced" if less than 15 lbs*/
                         if ((inventory[INVEN_WIELD].k_idx)
                                 && ((inventory[INVEN_WIELD].tval == TV_SWORD)
-                                        || (inventory[INVEN_WIELD].tval == TV_HAFTED)
+                                        || (inventory[INVEN_WIELD].tval == TV_STAFF)
+                                        || (inventory[INVEN_WIELD].tval == TV_POLEARM)
                                                 || (inventory[INVEN_WIELD].tval == TV_HAFTED)))
 			{
 				object_type *i_ptr = &inventory[INVEN_WIELD];
 
-                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_ARM);
+                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval) 
+						&& (o_ptr->weight < 150)) return (INVEN_ARM);
 			}
 
 			/* Two-weapon combat -- primary weapon */
                         if ((inventory[INVEN_ARM].k_idx)
                                 && ((inventory[INVEN_ARM].tval == TV_SWORD)
+                                        || (inventory[INVEN_WIELD].tval == TV_STAFF)
                                         || (inventory[INVEN_ARM].tval == TV_POLEARM)
                                                 || (inventory[INVEN_ARM].tval == TV_HAFTED)))
 			{
 				object_type *i_ptr = &inventory[INVEN_ARM];
 
 				/* Wielding a light stabbing weapon */
-                                if ((i_ptr->tval == TV_SWORD) && (i_ptr->weight < 100)) return (INVEN_WIELD);
+                                if ((i_ptr->tval == TV_SWORD) && (o_ptr->weight < 200) && (i_ptr->weight < 100)) return (INVEN_WIELD);
 
-				/* Identical weapons are "balanced" */
-                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval)) return (INVEN_WIELD);
+				/* Identical weapons are "balanced" if less than 20 lbs */
+                                if ((i_ptr->tval == o_ptr->tval) && (i_ptr->sval == o_ptr->sval) && (o_ptr->weight < 150)) return (INVEN_WIELD);
 
 				/* Hack -- too unbalanced to wield */
                                 return (-1);
@@ -2817,8 +2713,7 @@ s16b wield_slot(object_type *o_ptr)
 			return (INVEN_WIELD);
                         break;
 
-
-                case TV_INSTRUMENT:
+            case TV_INSTRUMENT:
 		case TV_DIGGING:
                 {
 			/* Two-weapon combat not allowed */
@@ -2949,6 +2844,7 @@ cptr mention_use(int i)
                 else switch (o_ptr->tval)
 		{
                         case TV_SWORD:
+				case TV_STAFF:
                         case TV_POLEARM:
                         case TV_HAFTED:
                                 break;
@@ -3030,6 +2926,7 @@ cptr describe_use(int i)
                                 break;
 
                         case TV_SWORD:
+				case TV_STAFF:
                         case TV_POLEARM:
                         case TV_HAFTED:
                                 break;
@@ -3081,6 +2978,7 @@ void object_guess_name(object_type *o_ptr)
 		for (i = 1; i < z_info->e_max; i++)
 	{
 		ego_item_type *e_ptr = &e_info[i];
+                object_lore *n_ptr = &e_list[i];
 
 		/* Skip "empty" items */
 		if (!e_ptr->name) continue;
@@ -3101,14 +2999,14 @@ void object_guess_name(object_type *o_ptr)
 		}
 
 		/* Must possess powers */
-		if (o_ptr->i_object.not_flags1 & e_ptr->i_ego_item.can_flags1) continue;
-		if (o_ptr->i_object.not_flags2 & e_ptr->i_ego_item.can_flags2) continue;
-		if (o_ptr->i_object.not_flags3 & e_ptr->i_ego_item.can_flags3) continue;
+                if (o_ptr->not_flags1 & n_ptr->can_flags1) continue;
+                if (o_ptr->not_flags2 & n_ptr->can_flags2) continue;
+                if (o_ptr->not_flags3 & n_ptr->can_flags3) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->i_object.can_flags1 & e_ptr->i_ego_item.not_flags1) continue;
-		if (o_ptr->i_object.can_flags2 & e_ptr->i_ego_item.not_flags2) continue;
-		if (o_ptr->i_object.can_flags3 & e_ptr->i_ego_item.not_flags3) continue;
+                if (o_ptr->can_flags1 & n_ptr->not_flags1) continue;
+                if (o_ptr->can_flags2 & n_ptr->not_flags2) continue;
+                if (o_ptr->can_flags3 & n_ptr->not_flags3) continue;
 
 		/* Reset score */
 		score = 0;
@@ -3118,13 +3016,13 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-	                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-	                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags1 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=1;
 			}
 		}
 
@@ -3133,13 +3031,13 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags2 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=1;
 			}
 		}
 
@@ -3148,13 +3046,13 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (e_ptr->i_ego_item.can_flags3 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=1;
 			}
 		}
 
@@ -3190,14 +3088,14 @@ void object_guess_name(object_type *o_ptr)
                 if (k_ptr->aware) continue;
 
 		/* Must possess powers */
-		if (o_ptr->i_object.not_flags1 & k_ptr->flags1) continue;
-		if (o_ptr->i_object.not_flags2 & k_ptr->flags2) continue;
-		if (o_ptr->i_object.not_flags3 & k_ptr->flags3) continue;
+                if (o_ptr->not_flags1 & k_ptr->flags1) continue;
+                if (o_ptr->not_flags2 & k_ptr->flags2) continue;
+                if (o_ptr->not_flags3 & k_ptr->flags3) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->i_object.can_flags1 & ~(k_ptr->flags1)) continue;
-		if (o_ptr->i_object.can_flags2 & ~(k_ptr->flags2)) continue;
-		if (o_ptr->i_object.can_flags3 & ~(k_ptr->flags3)) continue;
+                if (o_ptr->can_flags1 & ~(k_ptr->flags1)) continue;
+                if (o_ptr->can_flags2 & ~(k_ptr->flags2)) continue;
+                if (o_ptr->can_flags3 & ~(k_ptr->flags3)) continue;
 
 		/* Reset score */
 		score = 0;
@@ -3205,22 +3103,22 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=1;
+                        if ((o_ptr->can_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=3;
+                        if ((o_ptr->may_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=1;
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=1;
+                        if ((o_ptr->can_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=3;
+                        if ((o_ptr->may_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=1;
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=3;
-                        if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=1;
+                        if ((o_ptr->can_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=3;
+                        if ((o_ptr->may_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=1;
 		}
 
 
@@ -3248,6 +3146,7 @@ void object_guess_name(object_type *o_ptr)
 		for (i = 1; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
+                object_lore *n_ptr = &a_list[i];
 
 		/* Skip "empty" items */
 		if (!a_ptr->name) continue;
@@ -3262,14 +3161,14 @@ void object_guess_name(object_type *o_ptr)
                 if ((i<ART_MIN_NORMAL) || (a_ptr->sval != o_ptr->sval)) continue;
 
 		/* Must possess powers */
-		if (o_ptr->i_object.not_flags1 & a_ptr->i_artifact.can_flags1) continue;
-		if (o_ptr->i_object.not_flags2 & a_ptr->i_artifact.can_flags2) continue;
-		if (o_ptr->i_object.not_flags3 & a_ptr->i_artifact.can_flags3) continue;
+                if (o_ptr->not_flags1 & n_ptr->can_flags1) continue;
+                if (o_ptr->not_flags2 & n_ptr->can_flags2) continue;
+                if (o_ptr->not_flags3 & n_ptr->can_flags3) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->i_object.can_flags1 & a_ptr->i_artifact.not_flags1) continue;
-		if (o_ptr->i_object.can_flags2 & a_ptr->i_artifact.not_flags2) continue;
-		if (o_ptr->i_object.can_flags3 & a_ptr->i_artifact.not_flags3) continue;
+                if (o_ptr->can_flags1 & n_ptr->not_flags1) continue;
+                if (o_ptr->can_flags2 & n_ptr->not_flags2) continue;
+                if (o_ptr->can_flags3 & n_ptr->not_flags3) continue;
 
 		/* Reset score */
 		score = 0;
@@ -3279,13 +3178,13 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-                                if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
-                                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-                                if ((o_ptr->i_object.can_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=3;
-                                if ((o_ptr->i_object.may_flags1 & (1L<<ii)) && (a_ptr->i_artifact.can_flags1 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=1;
 			}
 		}
 
@@ -3294,14 +3193,14 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-	                        if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-                                if ((o_ptr->i_object.can_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=3;
-                                if ((o_ptr->i_object.may_flags2 & (1L<<ii)) && (a_ptr->i_artifact.can_flags2 & (1L<<ii))) score +=1;
-			}
+                                if ((o_ptr->can_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=1;
+                        }                                              
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
@@ -3309,13 +3208,13 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-	                        if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
-        	                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-                                if ((o_ptr->i_object.can_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=3;
-                                if ((o_ptr->i_object.may_flags3 & (1L<<ii)) && (a_ptr->i_artifact.can_flags3 & (1L<<ii))) score +=1;
+                                if ((o_ptr->can_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
+                                if ((o_ptr->may_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=1;
 			}
 		}
 
@@ -3406,9 +3305,9 @@ void object_guess_name(object_type *o_ptr)
 
 void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
-	u32b if1 = o_ptr->i_object.may_flags1 &= (f1);
-	u32b if2 = o_ptr->i_object.may_flags2 &= (f2);
-	u32b if3 = o_ptr->i_object.may_flags3 &= (f3);
+        u32b if1 = o_ptr->may_flags1 &= (f1);
+        u32b if2 = o_ptr->may_flags2 &= (f2);
+        u32b if3 = o_ptr->may_flags3 &= (f3);
 
 	int i;
 
@@ -3416,9 +3315,9 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
         if (!variant_learn_id) return;
 
 	/* Clear not flags */
-	o_ptr->i_object.not_flags1 &= ~(f1);
-	o_ptr->i_object.not_flags2 &= ~(f2);
-	o_ptr->i_object.not_flags3 &= ~(f3);
+        o_ptr->not_flags1 &= ~(f1);
+        o_ptr->not_flags2 &= ~(f2);
+        o_ptr->not_flags3 &= ~(f3);
 
 	/* Clear may flags on all kit - include inventory */
         for (i = 0; i < INVEN_TOTAL+1; i++)
@@ -3429,16 +3328,16 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		if (!i_ptr->k_idx) continue;
 
 		/* Clear may flags */
-		o_ptr->i_object.may_flags1 &= ~(if1);
-		o_ptr->i_object.may_flags2 &= ~(if2);
-		o_ptr->i_object.may_flags3 &= ~(if3);
+                o_ptr->may_flags1 &= ~(if1);
+                o_ptr->may_flags2 &= ~(if2);
+                o_ptr->may_flags3 &= ~(if3);
 
 	}
 
 	/* Mark can flags */
-	o_ptr->i_object.can_flags1 |= (f1);
-	o_ptr->i_object.can_flags2 |= (f2);
-	o_ptr->i_object.can_flags3 |= (f3);
+        o_ptr->can_flags1 |= (f1);
+        o_ptr->can_flags2 |= (f2);
+        o_ptr->can_flags3 |= (f3);
 
 	/* Must be identified to continue */
         if (!object_known_p(o_ptr))
@@ -3456,80 +3355,99 @@ void object_can_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
         f2 &= ~(k_info[o_ptr->k_idx].flags2);
         f3 &= ~(k_info[o_ptr->k_idx].flags3);
 
+	/* Hack -- Remove 'user' enchanted hidden flags */
+	/* This prevents runes and enchantment spells 'tainting' ego items */
+		/* Rune powers */
+	if (o_ptr->xtra1 >= OBJECT_XTRA_MIN_RUNES)
+	{
+		int rune = o_ptr->xtra1 - OBJECT_XTRA_MIN_RUNES;
+		int i;
+
+		for (i = 0;i<MAX_RUNE_FLAGS;i++)
+		{
+                        if ((y_info[rune].count[i]) && (y_info[rune].count[i]<= o_ptr->xtra2))
+			{
+                                if (y_info[rune].flag[i] < 32) (f1) &= ~(1L << y_info[rune].flag[i]);
+                        
+                                if ((y_info[rune].flag[i] >= 32)
+                                 && (y_info[rune].flag[i] < 64)) (f2) &= ~(1L << (y_info[rune].flag[i]-32));
+
+                                if ((y_info[rune].flag[i] >= 64)
+                                 && (y_info[rune].flag[i] < 96)) (f3) &= ~(1L << (y_info[rune].flag[i]-64));
+			}
+		}
+	}
+	/* Extra powers */
+	else
+	{
+                if (object_xtra_what[o_ptr->xtra1] == 1)
+                {
+                        (f1) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+		}
+                else if (object_xtra_what[o_ptr->xtra1] == 2)
+                {
+                        (f2) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+		}
+                else if (object_xtra_what[o_ptr->xtra1] == 3)
+                {
+                        (f3) &= ~(object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+		}
+	}
+
+
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+                object_lore *n_ptr = &a_list[o_ptr->name1];
 
-		a_ptr->i_artifact.not_flags1 &= ~(f1);
-		a_ptr->i_artifact.not_flags2 &= ~(f2);
-		a_ptr->i_artifact.not_flags3 &= ~(f3);
+                n_ptr->not_flags1 &= ~(f1);
+                n_ptr->not_flags2 &= ~(f2);
+                n_ptr->not_flags3 &= ~(f3);
 
-		a_ptr->i_artifact.may_flags1 &= ~(f1);
-		a_ptr->i_artifact.may_flags2 &= ~(f2);
-		a_ptr->i_artifact.may_flags3 &= ~(f3);
+                n_ptr->may_flags1 &= ~(f1);
+                n_ptr->may_flags2 &= ~(f2);
+                n_ptr->may_flags3 &= ~(f3);
 
-		a_ptr->i_artifact.can_flags1 |= (f1);
-		a_ptr->i_artifact.can_flags2 |= (f2);
-		a_ptr->i_artifact.can_flags3 |= (f3);
+                n_ptr->can_flags1 |= (f1);
+                n_ptr->can_flags2 |= (f2);
+                n_ptr->can_flags3 |= (f3);
 
 	}
 
 	/* Ego item */
 	else if (o_ptr->name2)
 	{
+                object_lore *n_ptr = &e_list[o_ptr->name2];
 
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-                e_ptr->i_ego_item.not_flags1 &= ~(f1);
-                e_ptr->i_ego_item.not_flags2 &= ~(f2);
-                e_ptr->i_ego_item.not_flags3 &= ~(f3);
+                n_ptr->not_flags1 &= ~(f1);
+                n_ptr->not_flags2 &= ~(f2);
+                n_ptr->not_flags3 &= ~(f3);
 
 		if (!o_ptr->xtra1)
 		{
-	                e_ptr->i_ego_item.can_flags1 |= f1;
-        	        e_ptr->i_ego_item.can_flags2 |= f2;
-                	e_ptr->i_ego_item.can_flags3 |= f3;
+                        n_ptr->can_flags1 |= f1;
+                        n_ptr->can_flags2 |= f2;
+                        n_ptr->can_flags3 |= f3;
 		}
-		else if ((e_ptr->i_ego_item.can_flags1) || (e_ptr->i_ego_item.can_flags2) || (e_ptr->i_ego_item.can_flags3))
+                else if ((n_ptr->can_flags1) || (n_ptr->can_flags2) || (n_ptr->can_flags3))
 		{
-			f1 &= ~(e_ptr->i_ego_item.may_flags1);
-			f2 &= ~(e_ptr->i_ego_item.may_flags2);
-			f3 &= ~(e_ptr->i_ego_item.may_flags3);
+                        f1 &= ~(n_ptr->may_flags1);
+                        f2 &= ~(n_ptr->may_flags2);
+                        f3 &= ~(n_ptr->may_flags3);
 
-	                e_ptr->i_ego_item.can_flags1 |= f1;
-	                e_ptr->i_ego_item.can_flags2 |= f2;
-	                e_ptr->i_ego_item.can_flags3 |= f3;
+                        n_ptr->can_flags1 |= f1;
+                        n_ptr->can_flags2 |= f2;
+                        n_ptr->can_flags3 |= f3;
 		}
 		else
 		{
-	                e_ptr->i_ego_item.may_flags1 |= f1;
-        	        e_ptr->i_ego_item.may_flags2 |= f2;
-                	e_ptr->i_ego_item.may_flags3 |= f3;
+                        n_ptr->may_flags1 |= f1;
+                        n_ptr->may_flags2 |= f2;
+                        n_ptr->may_flags3 |= f3;
 		}
 
 
 	}
-#if 0
-	/* Kind */
-	else
-	{
-		object_kind *k_ptr = &k_info[o_ptr->k_idx];
-
-		k_ptr->i_kind.not_flags1 &= ~(f1);
-		k_ptr->i_kind.not_flags2 &= ~(f2);
-		k_ptr->i_kind.not_flags3 &= ~(f3);
-
-		k_ptr->i_kind.may_flags1 &= ~(f1);
-		k_ptr->i_kind.may_flags2 &= ~(f2);
-		k_ptr->i_kind.may_flags3 &= ~(f3);
-
-		k_ptr->i_kind.can_flags1 |= (f1);
-		k_ptr->i_kind.can_flags2 |= (f2);
-		k_ptr->i_kind.can_flags3 |= (f3);
-
-	}
-#endif
 }
 
 
@@ -3543,9 +3461,9 @@ static bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
         bool possible;
 
 	/* Clear bits with not flags */
-        f1 &= ~(o_ptr->i_object.not_flags1);
-        f2 &= ~(o_ptr->i_object.not_flags2);
-        f3 &= ~(o_ptr->i_object.not_flags3);
+        f1 &= ~(o_ptr->not_flags1);
+        f2 &= ~(o_ptr->not_flags2);
+        f3 &= ~(o_ptr->not_flags3);
 
         /* Hack -- do some smarter stuff if not ego/artifact */
         if ((object_known_p(o_ptr)) && !(o_ptr->name1) && !(o_ptr->name2))
@@ -3572,14 +3490,14 @@ static bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
         possible = ((f1!=0)||(f2!=0)||(f3!=0));
 
         /* Clear bits with can flags */
-        f1 &= ~(o_ptr->i_object.can_flags1);
-        f2 &= ~(o_ptr->i_object.can_flags2);
-        f3 &= ~(o_ptr->i_object.can_flags3);
+        f1 &= ~(o_ptr->can_flags1);
+        f2 &= ~(o_ptr->can_flags2);
+        f3 &= ~(o_ptr->can_flags3);
 
 	/* Mark may flags */
-        o_ptr->i_object.may_flags1 |= (f1);
-        o_ptr->i_object.may_flags2 |= (f2);
-        o_ptr->i_object.may_flags3 |= (f3);
+        o_ptr->may_flags1 |= (f1);
+        o_ptr->may_flags2 |= (f2);
+        o_ptr->may_flags3 |= (f3);
 
         /* Guess the object name */
         if (!object_known_p(o_ptr))
@@ -3603,14 +3521,14 @@ static bool object_xcan_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 static bool object_xnot_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 {
 	/* Clear bits with not flags */
-        f1 &= ~(o_ptr->i_object.not_flags1);
-        f2 &= ~(o_ptr->i_object.not_flags2);
-        f3 &= ~(o_ptr->i_object.not_flags3);
+        f1 &= ~(o_ptr->not_flags1);
+        f2 &= ~(o_ptr->not_flags2);
+        f3 &= ~(o_ptr->not_flags3);
 
         /* Compare bits with can or may flags */
-        f1 &= ((o_ptr->i_object.may_flags1)|(o_ptr->i_object.can_flags1));
-        f2 &= ((o_ptr->i_object.may_flags2)|(o_ptr->i_object.can_flags2));
-        f3 &= ((o_ptr->i_object.may_flags3)|(o_ptr->i_object.can_flags3));
+        f1 &= ((o_ptr->may_flags1)|(o_ptr->can_flags1));
+        f2 &= ((o_ptr->may_flags2)|(o_ptr->can_flags2));
+        f3 &= ((o_ptr->may_flags3)|(o_ptr->can_flags3));
 
         /* Hack -- do some smarter stuff if not ego/artifact */
         if ((object_known_p(o_ptr)) && !(o_ptr->name1) && !(o_ptr->name2))
@@ -3648,19 +3566,19 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
         if (!variant_learn_id) return;
 
 	/* Mark not flags */
-	o_ptr->i_object.not_flags1 |= (f1);
-	o_ptr->i_object.not_flags2 |= (f2);
-	o_ptr->i_object.not_flags3 |= (f3);
+        o_ptr->not_flags1 |= (f1);
+        o_ptr->not_flags2 |= (f2);
+        o_ptr->not_flags3 |= (f3);
 
 	/* Clear may flags */
-	o_ptr->i_object.may_flags1 &= ~(f1);
-	o_ptr->i_object.may_flags2 &= ~(f2);
-	o_ptr->i_object.may_flags3 &= ~(f3);
+        o_ptr->may_flags1 &= ~(f1);
+        o_ptr->may_flags2 &= ~(f2);
+        o_ptr->may_flags3 &= ~(f3);
 
 	/* Clear can flags */
-	o_ptr->i_object.can_flags1 &= ~(f1);
-	o_ptr->i_object.can_flags2 &= ~(f2);
-	o_ptr->i_object.can_flags3 &= ~(f3);
+        o_ptr->can_flags1 &= ~(f1);
+        o_ptr->can_flags2 &= ~(f2);
+        o_ptr->can_flags3 &= ~(f3);
 
 	/* Must be identified to continue */
         if (!object_known_p(o_ptr))
@@ -3675,78 +3593,77 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 	/* Artifact */
 	if (o_ptr->name1) 
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+                object_lore *n_ptr = &a_list[o_ptr->name1];
 
-		a_ptr->i_artifact.not_flags1 |= f1;
-		a_ptr->i_artifact.not_flags2 |= f2;
-		a_ptr->i_artifact.not_flags3 |= f3;
+                n_ptr->not_flags1 |= f1;
+                n_ptr->not_flags2 |= f2;
+                n_ptr->not_flags3 |= f3;
 
-		a_ptr->i_artifact.may_flags1 &= ~(f1);
-		a_ptr->i_artifact.may_flags2 &= ~(f2);
-		a_ptr->i_artifact.may_flags3 &= ~(f3);
+                n_ptr->may_flags1 &= ~(f1);
+                n_ptr->may_flags2 &= ~(f2);
+                n_ptr->may_flags3 &= ~(f3);
 
-		a_ptr->i_artifact.can_flags1 &= ~(f1);
-		a_ptr->i_artifact.can_flags2 &= ~(f2);
-		a_ptr->i_artifact.can_flags3 &= ~(f3);
+                n_ptr->can_flags1 &= ~(f1);
+                n_ptr->can_flags2 &= ~(f2);
+                n_ptr->can_flags3 &= ~(f3);
 
 	}
 
 	/* Ego item */
 	if (o_ptr->name2)
 	{
-
-		ego_item_type *e_ptr = &e_info[o_ptr->name2];
+                object_lore *n_ptr = &e_list[o_ptr->name2];
 
                 u32b one_resist = OBJECT_XTRA_BASE_RESIST + (1L<<OBJECT_XTRA_SIZE_RESIST) -1;
 		u32b one_sustain = OBJECT_XTRA_BASE_SUSTAIN + (1L<<OBJECT_XTRA_SIZE_SUSTAIN) -1;
                 u32b one_power = OBJECT_XTRA_BASE_POWER + (1L<<OBJECT_XTRA_SIZE_POWER) -1;
 
-                e_ptr->i_ego_item.can_flags1 &= ~(f1);
-                e_ptr->i_ego_item.can_flags2 &= ~(f2);
-                e_ptr->i_ego_item.can_flags3 &= ~(f3);
+                n_ptr->can_flags1 &= ~(f1);
+                n_ptr->can_flags2 &= ~(f2);
+                n_ptr->can_flags3 &= ~(f3);
 
-		if ((e_ptr->i_ego_item.may_flags2 & (f2)) && (f2 & one_sustain))
+                if ((n_ptr->may_flags2 & (f2)) && (f2 & one_sustain))
 		{
 			/* One sustain */
-			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
-			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_sustain));
-			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
+                        n_ptr->can_flags1 |= n_ptr->may_flags1;
+                        n_ptr->can_flags2 |= (n_ptr->may_flags2 & ~(one_sustain));
+                        n_ptr->can_flags3 |= n_ptr->may_flags3;
 
-			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
-					e_ptr->i_ego_item.can_flags3);
+                        object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
+                                        n_ptr->can_flags3);
 
-			e_ptr->i_ego_item.may_flags1 = 0x0L;
-			e_ptr->i_ego_item.may_flags2 = one_sustain;
-			e_ptr->i_ego_item.may_flags3 = 0x0L;
+                        n_ptr->may_flags1 = 0x0L;
+                        n_ptr->may_flags2 = one_sustain;
+                        n_ptr->may_flags3 = 0x0L;
 
 		}
-		else if ((e_ptr->i_ego_item.may_flags2 & (f2)) && (f2 & one_resist))
+                else if ((n_ptr->may_flags2 & (f2)) && (f2 & one_resist))
 		{
 			/* One resist */
-			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
-			e_ptr->i_ego_item.can_flags2 |= (e_ptr->i_ego_item.may_flags2 & ~(one_resist));
-			e_ptr->i_ego_item.can_flags3 |= e_ptr->i_ego_item.may_flags3;
+                        n_ptr->can_flags1 |= n_ptr->may_flags1;
+                        n_ptr->can_flags2 |= (n_ptr->may_flags2 & ~(one_resist));
+                        n_ptr->can_flags3 |= n_ptr->may_flags3;
 
-			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
-					e_ptr->i_ego_item.can_flags3);
+                        object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
+                                        n_ptr->can_flags3);
 
-			e_ptr->i_ego_item.may_flags1 = 0x0L;
-			e_ptr->i_ego_item.may_flags2 = one_resist;
-			e_ptr->i_ego_item.may_flags3 = 0x0L;
+                        n_ptr->may_flags1 = 0x0L;
+                        n_ptr->may_flags2 = one_resist;
+                        n_ptr->may_flags3 = 0x0L;
 		}
-                else if ((e_ptr->i_ego_item.may_flags3 & (f3)) && (f2 & one_power))
+                else if ((n_ptr->may_flags3 & (f3)) && (f2 & one_power))
 		{
 			/* One ability */
-			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
-			e_ptr->i_ego_item.can_flags2 |= e_ptr->i_ego_item.may_flags2;
-                        e_ptr->i_ego_item.can_flags3 |= (e_ptr->i_ego_item.may_flags3 & ~(one_power));
+                        n_ptr->can_flags1 |= n_ptr->may_flags1;
+                        n_ptr->can_flags2 |= n_ptr->may_flags2;
+                        n_ptr->can_flags3 |= (n_ptr->may_flags3 & ~(one_power));
 
-			object_can_flags(o_ptr,e_ptr->i_ego_item.can_flags1,e_ptr->i_ego_item.can_flags2,
-					e_ptr->i_ego_item.can_flags3);
+                        object_can_flags(o_ptr,n_ptr->can_flags1,n_ptr->can_flags2,
+                                        n_ptr->can_flags3);
 
-			e_ptr->i_ego_item.may_flags1 = 0x0L;
-			e_ptr->i_ego_item.may_flags2 = 0x0L;
-                        e_ptr->i_ego_item.may_flags3 = one_power;
+                        n_ptr->may_flags1 = 0x0L;
+                        n_ptr->may_flags2 = 0x0L;
+                        n_ptr->may_flags3 = one_power;
 		}
 
 	}
@@ -3770,9 +3687,9 @@ void object_may_flags(object_type *o_ptr, u32b f1,u32b f2,u32b f3)
         if (!variant_learn_id) return;
 
 	/* Mark may flags */
-	o_ptr->i_object.may_flags1 |= (f1);
-	o_ptr->i_object.may_flags2 |= (f2);
-	o_ptr->i_object.may_flags3 |= (f3);
+        o_ptr->may_flags1 |= (f1);
+        o_ptr->may_flags2 |= (f2);
+        o_ptr->may_flags3 |= (f3);
 
 	/* Hack --- exclude racial flags */
 	f1 &= ~(rp_ptr->flags1);
@@ -3814,9 +3731,9 @@ void drop_may_flags(object_type *o_ptr)
 {
 
 	/* Clear may flags */
-        o_ptr->i_object.may_flags1 = 0L;
-        o_ptr->i_object.may_flags2 = 0L;
-        o_ptr->i_object.may_flags3 = 0L;
+        o_ptr->may_flags1 = 0L;
+        o_ptr->may_flags2 = 0L;
+        o_ptr->may_flags3 = 0L;
 
 	return;	
 
@@ -3840,7 +3757,7 @@ void object_usage(int slot)
 
         if (!o_ptr->k_idx) return;
 
-        if ((o_ptr->i_object.usage)<MAX_SHORT) o_ptr->i_object.usage++;
+        if ((o_ptr->usage)<MAX_SHORT) o_ptr->usage++;
 
 	/* Describe the object */
         object_desc(o_name, o_ptr, FALSE, 0);
@@ -3852,7 +3769,7 @@ void object_usage(int slot)
         object_desc(o_name, o_ptr, FALSE, 0);
 
 	/* Hack --- know everything */
-        if ((o_ptr->i_object.usage) == MAX_SHORT)
+        if ((o_ptr->usage) == MAX_SHORT)
 	{
 
 		/* Describe what we know */
@@ -3876,7 +3793,7 @@ void object_usage(int slot)
 	}
 
 	/* Hack --- know most things */
-        if ((o_ptr->i_object.usage) > 5000)
+        if ((o_ptr->usage) > 5000)
 	{
 
 		/* Describe what we know */
@@ -3899,7 +3816,7 @@ void object_usage(int slot)
 
 	}
 
-        if (((o_ptr->i_object.usage) > 500) && (((o_ptr->i_object.usage) % 100) == 0)
+        if (((o_ptr->usage) > 500) && (((o_ptr->usage) % 100) == 0)
                 && (o_ptr->ident & (IDENT_SENSE)) && (rand_int(100) <30))
 	{
 
@@ -3947,9 +3864,9 @@ void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3)
 	else i_ptr=&o_list[0-slot];
 
         /* Clear bits with can flags */
-        f1 &= ~(i_ptr->i_object.can_flags1);
-        f2 &= ~(i_ptr->i_object.can_flags2);
-        f3 &= ~(i_ptr->i_object.can_flags3);
+        f1 &= ~(i_ptr->can_flags1);
+        f2 &= ~(i_ptr->can_flags2);
+        f3 &= ~(i_ptr->can_flags3);
 
 	/* Nothing to update */
 	if (!(f1) && !(f2) && !(f3)) return;
@@ -4087,9 +4004,9 @@ void equip_not_flags(u32b f1,u32b f2,u32b f3)
 void inven_drop_flags(object_type *o_ptr)
 {
 	int i;
-	u32b f1 = o_ptr->i_object.may_flags1;
-	u32b f2 = o_ptr->i_object.may_flags2;
-	u32b f3 = o_ptr->i_object.may_flags3;
+        u32b f1 = o_ptr->may_flags1;
+        u32b f2 = o_ptr->may_flags2;
+        u32b f3 = o_ptr->may_flags3;
 
 	object_type *i_ptr;
 
@@ -4101,9 +4018,9 @@ void inven_drop_flags(object_type *o_ptr)
 		/* Skip non-objects */
 		if (!i_ptr->k_idx) continue;
 
-                o_ptr->i_object.may_flags1 &= ~(f1);
-                o_ptr->i_object.may_flags2 &= ~(f2);
-                o_ptr->i_object.may_flags3 &= ~(f3);
+                o_ptr->may_flags1 &= ~(f1);
+                o_ptr->may_flags2 &= ~(f2);
+                o_ptr->may_flags3 &= ~(f3);
 
 	}
 

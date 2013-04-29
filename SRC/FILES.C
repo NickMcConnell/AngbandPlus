@@ -4054,8 +4054,7 @@ static void kingly(void)
 	p_ptr->depth = 0;
 
 	/* Hack -- retire in first dungeon */
-	if (variant_town) p_ptr->dungeon = 1;
-	else p_ptr->dungeon = 0;
+        p_ptr->dungeon = 0;
 
 	/* Fake death */
 	strcpy(p_ptr->died_from, "Ripe Old Age");

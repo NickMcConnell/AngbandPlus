@@ -180,6 +180,7 @@ static cptr r_info_blow_method[] =
 	"PANEL",
         "LEVEL",
         "CROSS",
+        "STRIKE",
 	NULL
 };
 
@@ -280,6 +281,8 @@ static cptr r_info_blow_effect[] =
 	"EXP_80",
         "RAISE",
         "LOWER",
+	"PROBE",
+        "LOCK_DOOR",
 	NULL
 };
 
@@ -469,10 +472,10 @@ static cptr r_info_flags2[] =
 	"KILL_ITEM",
         "SNEAKY",
         "HAS_AURA",
-        "BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
+        "PRIEST",
+	"MAGE",
+        "WARRIOR",
+	"GENIUS",
 	"BRAIN_7",
 	"BRAIN_8"
 };
@@ -722,9 +725,8 @@ static u32b hack_rf7_flags[52]=
          RF7_DROP_WEAPON | RF7_DROP_TOOL),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
-         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
-         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING |
-         RF7_DROP_RSW),
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING),
 /* i */ (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SLIME |
          RF7_DROP_JEWELRY | RF7_DROP_JUNK),
         (RF7_HAS_CORPSE | RF7_HAS_SLIME |
@@ -735,8 +737,8 @@ static u32b hack_rf7_flags[52]=
          RF7_DROP_TOOL | RF7_DROP_JUNK),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
-         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
-         RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_RSW | RF7_DROP_JEWELRY),
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_MISSILE |
+         RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_JEWELRY),
         (RF7_HAS_SPORE | RF7_DROP_JUNK),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_BLOOD | RF7_HAS_TEETH |
          RF7_HAS_SKIN |
@@ -748,18 +750,18 @@ static u32b hack_rf7_flags[52]=
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
          RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
-         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_JEWELRY),
+         RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_JEWELRY | RF7_DROP_WRITING),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
-         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_RSW | RF7_DROP_JEWELRY |
-         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_MUSIC),
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES | RF7_DROP_JEWELRY |
+         RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH |
          RF7_HAS_FUR | RF7_HAS_HEAD | RF7_HAS_LEG | RF7_HAS_BLOOD |
          RF7_DROP_CLOTHES | RF7_DROP_FOOD | RF7_DROP_JUNK | RF7_DROP_JEWELRY),
         (RF7_DROP_ARMOR | RF7_DROP_WEAPON | RF7_DROP_JEWELRY),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_SKELETON | RF7_HAS_TEETH | RF7_HAS_ARM |
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
-         RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
+         RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
          RF7_DROP_TOOL | RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_MUSIC | RF7_DROP_JEWELRY),
 /* u */ (RF7_HAS_SKULL |
          RF7_DROP_WEAPON | RF7_DROP_ARMOR | RF7_DROP_JEWELRY | RF7_DROP_WRITING),
@@ -828,7 +830,7 @@ static cptr k_info_flags2[] =
 	"IGNORE_FIRE",
 	"IGNORE_COLD",
         "IGNORE_WATER",
-        "IM_POIS",
+        "IGNORE_THEFT",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -864,85 +866,30 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-        "XXX1",
-        "XXX2",
-        "DRAIN_HP",
-        "DRAIN_MANA",
-	"IMPACT",
-	"TELEPORT",
-	"AGGRAVATE",
-	"DRAIN_EXP",
         "ESP_DEMON",
         "ESP_DRAGON",
         "ESP_GIANT",
         "ESP_ORC",
         "ESP_TROLL",
         "ESP_UNDEAD",
-	"BLESSED",
+	"ESP_NATURE",
+	"IMPACT",
+        "DRAIN_HP",
+        "DRAIN_MANA",
+	"DRAIN_EXP",
+	"AGGRAVATE",
+	"TELEPORT",
+        "RANDOM",
 	"ACTIVATE",
+	"BLESSED",
 	"INSTA_ART",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"ESP_NATURE",
+        "XXX1",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
-};
-
-
-/*
- * Activation type
- */
-static cptr a_info_act[] =
-{
-	"ILLUMINATION",
-	"MAGIC_MAP",
-	"CLAIRVOYANCE",
-	"PROT_EVIL",
-	"DISP_EVIL",
-	"HEAL1",
-	"HEAL2",
-	"CURE_WOUNDS",
-	"HASTE1",
-	"HASTE2",
-	"FIRE1",
-	"FIRE2",
-	"FIRE3",
-	"FROST1",
-	"FROST2",
-	"FROST3",
-	"FROST4",
-	"FROST5",
-	"ACID1",
-	"RECHARGE1",
-	"SLEEP",
-	"LIGHTNING_BOLT",
-	"ELEC2",
-	"GENOCIDE",
-	"MASS_GENOCIDE",
-	"IDENTIFY",
-	"DRAIN_LIFE1",
-	"DRAIN_LIFE2",
-	"BIZZARE",
-	"STAR_BALL",
-	"RAGE_BLESS_RESIST",
-	"PHASE",
-	"TRAP_DOOR_DEST",
-	"DETECT",
-	"RESIST",
-	"TELEPORT",
-	"RESTORE_LIFE",
-	"MISSILE",
-	"ARROW",
-	"REM_FEAR_POIS",
-	"STINKING_CLOUD",
-	"STONE_TO_MUD",
-	"TELE_AWAY",
-	"WOR",
-	"CONFUSE",
-	"PROBE",
-	"FIREBRAND"
 };
 
 /*
@@ -1125,9 +1072,9 @@ static cptr s_info_flags3[] =
         "CURE_FOOD",
         "CURE_FEAR",
         "CURE_BLIND",
+        "CURE_IMAGE",
         "DEC_FOOD",
         "DEC_EXP",
-        "CONF_HANDS",
         "HOLD_SONG",
         "EVIL"
 };
@@ -1141,6 +1088,7 @@ static cptr s_info_types[] =
         "BRAND_WEAPON",
         "BRAND_ARMOR",
         "BRAND_ITEM",
+        "BRAND_BOLTS",
         "WARD_GLYPH",
         "WARD_TRAP",
         "SUMMON",
@@ -1149,7 +1097,6 @@ static cptr s_info_types[] =
         "CREATE_KIND",
         "EARTHQUAKE",
         "DESTRUCTION",
-        "XXX1",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -3154,30 +3101,6 @@ static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 }
 
 
-/*
- * Grab one (spell) flag in a monster_race from a textual string
- */
-static errr grab_one_activation(artifact_type *a_ptr, cptr what)
-{
-	int i;
-
-	/* Scan activations */
-	for (i = 0; i < ACT_MAX ; i++)
-	{
-		if (streq(what, a_info_act[i]))
-		{
-			a_ptr->activation = i;
-			return (0);
-		}
-	}
-
-	/* Oops */
-	msg_format("Unknown artifact activation '%s'.", what);
-
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
-}
-
 
 
 /*
@@ -3410,28 +3333,14 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		/* Process 'A' for "Activation & time" */
 		if (buf[0] == 'A')
 		{
-			int time, rand;
-
-			/* Find the colon before the name */
-			s = strchr(buf + 2, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the name */
-			*s++ = '\0';
-
-			/* Paranoia -- require a name */
-			if (!*s) return (PARSE_ERROR_GENERIC);
-
-			/* Get the activation */
-			grab_one_activation(a_ptr, buf + 2);
+                        int act, time, rand;
 
 			/* Scan for the values */
-			if (2 != sscanf(s, "%d:%d",
-					&time, &rand)) return (PARSE_ERROR_GENERIC);
+                        if (3 != sscanf(buf + 2, "%d:%d:%d",
+                                        &act, &time, &rand)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
+                        a_ptr->activation = act;
 			a_ptr->time = time;
 			a_ptr->randtime = rand;
 
@@ -4277,6 +4186,14 @@ errr init_r_info_txt(FILE *fp, char *buf)
                                 r_ptr->flags7 |= hack_rf7_flags[r_ptr->d_char-'a'+26];
                         }
 
+				/* Hack -- nonliving monsters */
+                        /* Death by Physical attack -- non-living monster */
+                                if (strchr("Evg", r_ptr->d_char))
+                        {
+                                r_ptr->flags3 |= RF3_NONLIVING;
+                        }
+
+
 			/* Next... */
 			continue;
 		}
@@ -4426,6 +4343,31 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				/* Start the next entry */
 				s = t;
 			}
+
+                        /* Carries heavy armor*/
+                        if (r_ptr->flags2 & (RF2_ARMOR))
+                        {
+                                r_ptr->flags7 |= RF7_DROP_ARMOR;
+                        }
+
+                        /* Carries rod/staff/wand - priest and mages, but not shamans */
+                        if ((r_ptr->flags2 & (RF2_MAGE | RF2_PRIEST)) && !((r_ptr->flags2 & (RF2_PRIEST)) && (r_ptr->flags2 & (RF2_MAGE)) ))
+                        {
+                                r_ptr->flags7 |= (RF7_DROP_RSW);
+                        }
+
+                        /* Carries writing - priest and mages */
+                        if (r_ptr->flags2 & (RF2_MAGE | RF2_PRIEST))
+                        {
+                                r_ptr->flags7 |= (RF7_DROP_WRITING);
+                        }
+
+                        /* Death by Physical attack -- non-living monster */
+                        if ((r_ptr->flags3 & (RF3_DEMON)) ||
+                                         (r_ptr->flags3 & (RF3_UNDEAD)))
+                        {
+                                r_ptr->flags3 |= RF3_NONLIVING;
+                        }
 
 			/* Next... */
 			continue;
@@ -5128,17 +5070,18 @@ errr init_c_info_txt(FILE *fp, char *buf)
 		/* Process 'M' for "Magic Info" (one line only) */
 		if (buf[0] == 'M')
 		{
-                        int stat,pow,lvl,wgt;
+                        int stat,pow,lvl,wgt,book;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-                                        &stat,&pow,&lvl,&wgt)) return (PARSE_ERROR_GENERIC);
+                        if (5 != sscanf(buf+2, "%d:%d:%d:%d:%d",
+                                        &stat,&pow,&lvl,&wgt,&book)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
 			pc_ptr->sp_stat = stat;
 			pc_ptr->sp_pow = pow;
 			pc_ptr->sp_lvl = lvl;
-			pc_ptr->sp_wgt = wgt;
+                        pc_ptr->spell_weight = wgt;
+                        pc_ptr->spell_book = book;
 
 			/* Next... */
 			continue;
@@ -5155,9 +5098,9 @@ errr init_c_info_txt(FILE *fp, char *buf)
 					&num, &mul, &wgt)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
-			pc_ptr->blows_num = num;
-			pc_ptr->blows_mul = mul;
-			pc_ptr->blows_wgt = wgt;
+                        pc_ptr->max_attacks = num;
+                        pc_ptr->att_multiply = mul;
+                        pc_ptr->min_weight = wgt;
 
 			/* Next... */
 			continue;
@@ -6353,6 +6296,19 @@ errr init_t_info_txt(FILE *fp, char *buf)
 
 			/* Set to the first field */
 			s=buf+2;
+
+			/* Analyze the race flag */
+                        for (n1 = 0; r_info_flags1[n1]; n1++)
+			{
+                                if (streq(s, r_info_flags1[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                t_ptr->r_flag = n1+1;
+
+				continue;
+			}
 
 			/* Analyze the race flag */
                         for (n1 = 0; r_info_flags2[n1]; n1++)

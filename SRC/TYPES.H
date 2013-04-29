@@ -83,9 +83,7 @@ typedef struct feature_state feature_state;
 typedef struct feature_blow feature_blow;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
-#ifdef ALLOW_OBJECT_INFO
-typedef struct object_info object_info;
-#endif
+typedef struct object_lore object_lore;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct flavor_type flavor_type;
@@ -447,17 +445,33 @@ struct object_kind
 
 	bool tried;                     /* The player has "tried" one of the items. Tried */
 
-	byte guess;			/* The player guesses the item to be this sval */
-
-#ifdef ALLOW_OBJECT_INFO
-        object_info i_kind;
-#endif
         u16b note;             /* Auto-inscription */
 
         byte runest;           /* Rune type */
         byte runesc;           /* Rune count */
 
+        byte guess;
+
 };
+
+/*
+ * Lore about "objects".
+ */
+struct object_lore
+{
+        u32b can_flags1;
+        u32b can_flags2;
+        u32b can_flags3;
+
+	u32b may_flags1;
+	u32b may_flags2;
+	u32b may_flags3;
+
+	u32b not_flags1;
+	u32b not_flags2;
+	u32b not_flags3;
+};
+
 
 
 /*
@@ -499,16 +513,10 @@ struct artifact_type
 	byte cur_num;           /* Number created (0 or 1) */
 	byte max_num;           /* Unused (should be "1") */
 
-	byte activation;        /* Activation to use */
+	s16b activation;        /* Activation to use */
 	u16b time;                      /* Activation time */
 	u16b randtime;          /* Activation time dice */
-
-#ifdef ALLOW_OBJECT_INFO
-	object_info i_artifact;
-#endif
-        u16b found;             /* Number of times found */
 };
-
 
 /*
  * Information about "ego-items".
@@ -541,13 +549,11 @@ struct ego_item_type
 	u32b flags2;            /* Ego-Item Flags, set 2 */
 	u32b flags3;            /* Ego-Item Flags, set 3 */
 
-#ifdef ALLOW_OBJECT_INFO
-        object_info i_ego_item;
-#endif
         u16b note;             /* Auto-inscription */
 
         byte runest;           /* Rune type */
         byte runesc;           /* Rune count */
+
 };
 
 /*
@@ -561,6 +567,7 @@ struct flavor_type
 	byte tval[5];           /* Legal tval */
 	byte min_sval[5];       /* Minimum legal sval */
 	byte max_sval[5];       /* Maximum legal tval */
+        byte spare;
 
 	byte d_attr;            /* Default object attribute */
 	char d_char;            /* Default object character */
@@ -781,25 +788,35 @@ struct object_type
 
 	s16b timeout;           /* Timeout Counter */
 
-	byte ident;                     /* Special flags  */
+        byte ident;             /* Special flags  */
 
 	byte marked;            /* Object is marked */
 
-	u16b note;                      /* Inscription index */
+        u16b note;              /* Inscription index */
 
-        byte stackc;             /* Stack count */
+        byte stackc;            /* Stack count */
 
 	s16b next_o_idx;        /* Next object in stack (if any) */
 
 	s16b held_m_idx;        /* Monster holding us (if any) */
 
-#ifdef ALLOW_OBJECT_INFO
-	object_info i_object;
-#endif
-	byte guess1;		/* Guess this is artifact */
-	byte guess2;		/* Guess this is ego item */
-
         s16b dropped;           /* Race that dropped this item */
+
+        u32b can_flags1;
+        u32b can_flags2;
+        u32b can_flags3;
+
+	u32b may_flags1;
+	u32b may_flags2;
+	u32b may_flags3;
+
+	u32b not_flags1;
+	u32b not_flags2;
+	u32b not_flags3;
+
+        s16b usage;
+        byte guess1;
+        byte guess2;
 };
 
 
@@ -1065,14 +1082,15 @@ struct player_class
 	bool sp_pow;			/* Class casts powerful magic */
 	byte sp_lvl;			/* First level class gets spells */
 
-	s16b sp_wgt;			/* Weight that spells first affected */
+        s16b spell_weight;                    /* Weight that spells first affected */
 
-	s16b blows_num;			/* Maximum number of blows */
-	s16b blows_mul;			/* Blow multiplier */
-	s16b blows_wgt;			/* Minimum weight divider */
+        s16b max_attacks;                 /* Maximum number of blows */
+        s16b att_multiply;                 /* Blow multiplier */
+        s16b min_weight;                 /* Minimum weight divider */
 
         s16b outfit[6];                 /* Outfitted items */
 
+        byte spell_book;                /* Preferred spellbook */
 };
 
 /*

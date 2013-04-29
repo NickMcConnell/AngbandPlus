@@ -1,3 +1,102 @@
+23-02-2002 Unangband 0.4.9e Bugfix release
+- Removed runes from strange rune traps, as this could lead
+to much abuse (Rune of escape => unlimited teleport staves +
+money).
+- Fiddled with monster drops to make mages, warriors, priests
+etc. drop equipment more appropriate to their class.
+- Now actually learn about monster 'classes'.
+- Armored monsters now protected against acid-branded weapons
+and missiles.
+- Fixed bug where could not progress beyond the barrow-downs
+with out killing MAX_INT barrow wights (Or whatever is required
+to completely eliminate a race :)
+- Made some modifications to way monster distribution is
+handled in campaign mode and on levels with unusual terrain.
+- Made campaign mode a birth option now, as it appears to be
+a lot more stable.
+
+23-02-2002 Unangband 0.4.9d Bugfix release
+- Reimplemented Probing spell.
+- Switched potions/scrolls/food over to new results routine.
+- Weapons with an extra 'ability' can now get all the sense
+specific creature type abilities.
+- Removed scrolls of monster confusion.
+- Made staffs act completely like hafted weapons. Note that
+all staffs are considered 'identical' for the purposes of
+dual-wielding.
+- Fixed bug with polearms sometimes not behaving well when trying
+to wield as dual-weapons.
+- Added confirmation to dual-wield weapons (Suggested by Sean
+Lester).
+- Weapons must be < 20 lbs to qualify for 1-hand fighting style
+and >= 10 lbs to qualify for 2-hand fighting style. Intermediate
+weapons may be both.
+- Weapons must be < 15 lbs to be dual-wielded if identical and
+primary weapon otherwise must be < 20 lbs.
+- Made runestones slightly more common.
+- Fixed detect magic and gauge magic rods so they now time out.
+- Rod pval in k_info.txt now used to specify timeout.
+- Switched rods/staffs/wands over to new results routine.
+- Removed guessing items based on activations, for now.
+- Fixed Holy Word so it does everything it should do.
+- Switched artifacts/activateable objects over to new results routine.
+- Object pval in k_info.txt now used to specify activation timeout.
+- Dragon armor now allows you to choose which breath type to make:
+these vary in damage, but for vanilla dragon armors there is always one
+breath that does damage equal to original value (Except multi-hued
+dragon scale mail). Breaths also have another minor benefit.
+- Some thrown items will affect monsters as if they were used.
+This now includes torches/lanterns/flasks of acid/ flasks of oil and
+all items thrown by thrown weapon specialists.
+- Added IGNORE_THEFT flag so that items may also be made theftproof.
+- Sacks were being generated containing spell casters when they should
+not be. (Noted in character dump by Sean Lester).
+- Commented out most monster containers for the moment.
+- Statues were always being generated broken.
+- Added priest/mage/armoured flags to monsters. Armoured monsters
+are more resistant to armour and acid attacks (Just like the player).
+- Fixed bug where runes/spell brands would be 'taint' ego item memory.
+- Added further 13 potions and 13 scrolls.
+- Added additional potion flavors.
+- Fixed bug where some runestones did not have a graphic.
+
+23-02-2002 Unangband 0.4.9c Bugfix release
+- Made 'unusual' themed rooms much less frequent.
+- Made monsters more frequent in themed rooms.
+- Fixed bug where priests/mages would not be generated in
+non-campaign mode themed rooms.
+- Fixed some descriptions for themed rooms and reorganised others.
+- Fixed bug where chests could not be disarmed.
+- Fixed bug where levels would frequently generate disconnected
+areas (Reported by Sean Lester).
+- Fixed bug where mages instead of shamans could learn call light.
+- Updated artifact spears to use new spear statistics.
+- Made whips only do 1d4 damage.
+- Made staffs always list weapon stats.
+- Fixed set of broken teeth description.
+- Fixed random artifact option text.
+- Added Unangband borg to source distribution (Read borgread.txt
+for details).
+
+21-02-2002 Unangband 0.4.9b Bugfix release
+- Fixed bug where all artifacts provided immunity to fire/acid/
+lightning. (Reported by David B).
+- Fixed infinite loop in campaign mode level generation.
+- Fixed room names for jelly pits and zoos.
+- All pits now can appear much earlier.
+- Adopted modified character generation screen from Eyangband/
+Zangband, including allowing more than 26 magic/priest books now.
+- Spent a long time trying to track down why artifact/ego item
+names are getting prematurely shortened. Seems to be occur more
+frequently when Unangband run with initialisation of .raw files,
+and was related to loading with variant_learn_id enabled. Have
+minimised the problem, with an unsatisfactory solution (Rearranging
+data structures), suspect it is heap getting trashed in my
+(DOS) environment. I'd like to know if anyone can duplicate this
+issue after compiling in a Windows environment.
+- Added an additional store to Hobbiton with starting armours.
+- Made campaign mode rewards be deeper objects.
+
 11-02-2002 Unangband 0.4.9a Bugfix release
 - Changed apply rune to ^E in roguelike keyset.
 - Fixed generally filling/refueling weirdness.

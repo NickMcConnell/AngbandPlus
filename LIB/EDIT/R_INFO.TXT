@@ -332,7 +332,7 @@
 # 'b' Novice mage (variant) 'B' Experienced mage (variant) 'y' Expert mage (variant)
 
 # 'w' Novice paladin 's' Experienced paladin 'D' Expert paladin
-# 'W' Novice druid 'g' Experienced druid 'G' Expert druid
+# 'W' Novice shaman 'g' Experienced shaman 'G' Expert shaman
 # 'u' Novice mystic 'U' Experienced mystic 'o' Expert mystic
 # 'b' Novice priest 'B' Experienced priest 'y' Expert priest
 # 'r' Novice priest (variant) 'R' Experienced priest (variant) 'v' Expert priest (variant)
@@ -788,7 +788,7 @@ B:HIT:HURT:1d7
 B:HIT:HURT:1d7
 F:MALE | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
 D:He looks inexperienced but tough.
 
 N:36:Novice rogue
@@ -811,7 +811,7 @@ B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | PRIEST
 S:1_IN_12 | 
 S:HEAL | SCARE | CAUSE_1
 D:He is tripping over his priestly robes.
@@ -824,7 +824,7 @@ B:HIT:HURT:1d4
 F:MALE | 
 F:FORCE_SLEEP | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
@@ -1289,7 +1289,7 @@ B:HIT:HURT:1d4
 F:MALE | 
 F:FORCE_SLEEP | 
 F:FRIENDS | DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_12 | 
 S:BLINK | BLIND | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
@@ -1420,7 +1420,7 @@ B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | HAS_LITE |
 F:FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | PRIEST
 S:1_IN_12 | 
 S:HEAL | SCARE | CAUSE_1
 D:He is tripping over his priestly robes.
@@ -1433,7 +1433,7 @@ B:HIT:HURT:1d7
 B:HIT:HURT:1d7
 F:MALE | 
 F:FRIENDS | DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
 D:He looks inexperienced but tough.
 
 N:95:Novice rogue
@@ -1727,10 +1727,10 @@ F:EVIL
 S:1_IN_5 | 
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
 D:A squint-eyed southerner working with Bill Ferny as a spy in Bree.  He is
-D:an outlaw driven from Dunland, where many said that he had orc-blood in him.
-D:Originally a servant of Saruman in the Shire, he betrayed his master when
-D:interrogated on the road by the Lord of the Nazgul.  He was then sent to Bree
-D:as a spy in their service.
+D: an outlaw driven from Dunland, where many said that he had orc-blood in him.
+D:  Originally a servant of Saruman in the Shire, he betrayed his master when
+D: interrogated on the road by the Lord of the Nazgul.  He was then sent to Bree
+D: as a spy in their service.
 
 N:124:Lagduf, the Snaga of Cirith Ungol
 G:k:s
@@ -1804,7 +1804,7 @@ B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
+F:EVIL | ORC | HURT_LITE | PRIEST | MAGE
 S:1_IN_8 | 
 S:BLINK | CAUSE_1 | MISSILE
 D:An orc dressed in skins who gestures wildly.
@@ -1921,7 +1921,7 @@ S:BR_SOUN | BR_POIS
 D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
 D:its scales a pale gold.
 
-N:137:Cave bear
+N:137:Black bear
 G:Q:u
 I:110:8d8:10:35:10
 W:9:1:0:25
@@ -2191,7 +2191,7 @@ W:11:2:0:38
 B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL
 S:1_IN_4 | 
 S:BLINK | DARKNESS | BO_COLD | 
@@ -2254,7 +2254,7 @@ B:HIT:HURT:2d3
 F:MALE | 
 F:FORCE_SLEEP | 
 F:DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | PRIEST |
 F:EVIL
 S:1_IN_3 | 
 S:HEAL | SCARE | CAUSE_2 | 
@@ -2328,7 +2328,7 @@ B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:MALE | 
 F:DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
 D:A warrior of considerable skill.
 
 N:174:Stegocentipede
@@ -2425,13 +2425,13 @@ W:13:2:0:50
 B:HIT:HURT:2d2
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | BLINK | TPORT | BLIND | HOLD | SLOW | CONF | DARKNESS |
 D:A deceptive spell caster.
 
-N:182:Druid
+N:182:Shaman
 G:p:g
 I:110:12d12:20:10:10
 W:13:2:0:50
@@ -2439,7 +2439,7 @@ B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | PRIEST | MAGE
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | BLINK | BLIND | HOLD | SLOW | BO_FIRE | BO_ELEC | S_ANIMAL
@@ -2775,7 +2775,7 @@ W:15:2:0:40
 B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL
 S:1_IN_4 | 
 S:BLINK | DARKNESS | BO_COLD | 
@@ -3116,7 +3116,7 @@ B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:MALE | ESCORT | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | IM_POIS
+F:EVIL | ORC | IM_POIS | WARRIOR
 D:An armoured orc with an air of authority.
 
 N:233:Shambling mound
@@ -3345,7 +3345,7 @@ B:HIT:HURT:4d5
 B:HIT:HURT:4d5
 F:MALE | 
 F:DROP_1D2 | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WARRIOR
 S:1_IN_4 | 
 S:HEAL | CAUSE_1 | CAUSE_2 | SLOW | SCARE | BLIND
 D:A warrior for a holy cause. Unfortunately, his god is not yours, and there is 
@@ -3538,7 +3538,7 @@ B:HIT:HURT:1d12
 F:FORCE_SLEEP | ATTR_METAL |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | 
 S:1_IN_7 | 
 S:SLOW
 D:It is a massive metal statue that moves steadily towards you.
@@ -3603,7 +3603,7 @@ B:HIT:HURT:6d5
 B:HIT:HURT:6d5
 F:MALE | 
 F:DROP_1D2 | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL
 D:A scarred warrior who moves with confidence.
 
@@ -4120,7 +4120,7 @@ B:HIT:HURT:3d8
 F:FORCE_SLEEP | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ORC
+F:EVIL | GIANT | ORC | MAGE
 S:1_IN_4 | 
 S:HEAL | HOLD | TRAPS | SCARE | BA_COLD | BO_FIRE | 
 S:S_MONSTER
@@ -4168,7 +4168,7 @@ B:HIT:ELEC:3d8
 F:FORCE_SLEEP | 
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | 
 S:1_IN_3 | 
 S:BO_ELEC
 D:A man-shaped form of living lightning, sparks and shocks crackle all over 
@@ -4238,7 +4238,7 @@ B:HIT:HURT:5d5
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL
+F:EVIL | WARRIOR
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
 D:He is a figure encased in deep black plate armour; he looks at you 
@@ -4253,7 +4253,7 @@ B:HIT:HURT:2d5
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | MAGE
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | TPORT | TELE_TO | BLIND | CONF | 
@@ -4489,7 +4489,7 @@ B:HIT:HURT:3d8
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ESCORT | ORC
+F:EVIL | GIANT | ESCORT | ORC | PRIEST | MAGE
 S:1_IN_5 | 
 S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE | 
 S:S_MONSTER
@@ -4506,7 +4506,7 @@ B:HIT:HURT:5d5
 F:ONLY_GOLD | DROP_2D2 | ATTR_METAL |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:It is a massive statue of purest mithril.  It looks expensive!
 
 N:337:Skeleton troll
@@ -4713,7 +4713,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP | PRIEST | MAGE |
 S:1_IN_6 | 
 S:HEAL | 
 S:S_ANIMAL
@@ -5097,7 +5097,7 @@ B:HIT:HURT:6d6
 F:ONLY_GOLD | DROP_2D2 | 
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR 
 D:It is a massive deep brown statue, striding towards you with an 
 D:all-too-familiar purpose.  Your magic surprisingly feels much less 
 D:powerful now.
@@ -5127,7 +5127,7 @@ B:HIT:LOSE_STR:3d4
 B:HIT:POISON:3d4
 F:MALE | 
 F:DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | NO_CONF | NO_SLEEP
 D:A human warrior, moving with lightning speed.
 
@@ -5464,7 +5464,7 @@ F:FORCE_MAXHP |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | 
 F:IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR 
 D:An enormous construct resembling a titan made from stone.  It strides 
 D:purposefully towards you, swinging its slow fists with earth-shattering 
 D:power.
@@ -5588,7 +5588,7 @@ B:HIT:HURT:2d6
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL
 S:1_IN_3 | 
 S:HASTE | TPORT | TELE_TO | BLIND | HOLD | SCARE | CAUSE_3 | 
@@ -5606,7 +5606,7 @@ B:HIT:HURT:2d5
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL
 S:1_IN_2 | 
 S:TPORT | HOLD | 
@@ -5626,7 +5626,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | WARRIOR
 S:1_IN_4 | 
 S:TELE_TO | 
 S:S_MONSTERS
@@ -5853,7 +5853,7 @@ B:HIT:HURT:5d5
 F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_COLD
+F:EVIL | IM_COLD | WARRIOR
 S:1_IN_5 | 
 S:BLIND | SCARE | CAUSE_3 | BO_NETH | 
 S:S_MONSTERS 
@@ -6226,7 +6226,7 @@ B:HIT:HURT:2d8
 F:FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | MAGE |
 F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | 
@@ -6244,7 +6244,7 @@ B:HIT:HURT:3d5
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR |  PRIEST |
 F:EVIL | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CAUSE_3 | CAUSE_4 | 
@@ -6264,7 +6264,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | MAGE
 S:1_IN_2 | 
 S:BLINK | TELE_TO | BLIND | CAUSE_3 | TRAPS |
 S:BO_ACID | BA_FIRE | BA_COLD | 
@@ -6515,7 +6515,7 @@ B:HIT:UN_BONUS:6d8
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | WARRIOR
 F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:CAUSE_3 | BO_WATE | BO_MANA
@@ -6678,7 +6678,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | MAGE
 S:1_IN_5 | 
 S:S_MONSTER | S_MONSTERS | BLINK | TELE_TO
 D:A mage of cowardly manner, he summons others to do his fighting for him, and 
@@ -6733,7 +6733,7 @@ B:HIT:HURT:5d5
 F:MALE | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | SMART | 
-F:NO_CONF | NO_SLEEP | NO_FEAR 
+F:NO_CONF | NO_SLEEP | NO_FEAR | WARRIOR
 S:1_IN_4 | 
 S:HEAL | CAUSE_3 | CAUSE_4 | HASTE | SCARE | BLIND | S_ANGEL
 D:It seems that the more devout the person, the more likely they are to cross 
@@ -6773,7 +6773,7 @@ B:HIT:HURT:6d6
 F:MALE | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | KILL_BODY | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR | WARRIOR
 S:1_IN_4 | HASTE | SCARE
 D:Even the strongest of normal human warriors fears the Berserker - the one who 
 D:can drive himself into such a terrible battle-frenzy that he can take blows 
@@ -6973,7 +6973,7 @@ B:HIT:PARALYZE:15d1
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | PRIEST | MAGE |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
@@ -7360,7 +7360,7 @@ B:HIT:PARALYZE:15d1
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | PRIEST | MAGE |
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | MIND_BLAST | 
@@ -7536,7 +7536,7 @@ S:S_UNDEAD | S_DEMON | S_HI_DRAGON | S_MONSTERS
 D:He is a pathetic sniveling wretch. He has been spying for Saruman.
 
 N:529:Nightwing
-G:W:D
+G:N:D
 I:120:60d60:20:120:10
 W:58:4:0:10000
 B:TOUCH:POISON:6d5
@@ -7941,7 +7941,7 @@ D:with great multi-faceted eyes. Its tail is covered with razor-sharp
 D:spikes.
 
 N:552:Nightcrawler
-G:W:D
+G:N:D
 I:120:80d60:20:160:10
 W:69:4:0:15000
 B:STING:LOSE_CON:8d8
@@ -8022,7 +8022,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP | HAS_AURA
+F:HURT_LITE | NO_CONF | NO_SLEEP | HAS_AURA | WARRIOR
 S:1_IN_2 | 
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
 S:BA_FIRE | BA_COLD | BA_NETH | S_HI_UNDEAD 
@@ -8031,7 +8031,7 @@ D:in command of the fell Nazgul.  His great power and skill in combat is
 D:superseded only by that of the Lord of Morgul himself.
 
 N:559:Nightwalker
-G:W:D
+G:N:D
 I:130:50d65:20:175:10
 W:73:4:0:20000
 B:HIT:UN_BONUS:10d10
@@ -8042,7 +8042,7 @@ F:FORCE_SLEEP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:HURT_LITE | NO_CONF | NO_SLEEP
+F:HURT_LITE | NO_CONF | NO_SLEEP | WARRIOR
 S:1_IN_4 | 
 S:BLIND | SCARE | BRAIN_SMASH | 
 S:BO_MANA | BO_NETH | BA_NETH | 
@@ -8332,7 +8332,7 @@ B:HIT:HURT:8d8
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
-F:OPEN_DOOR | BASH_DOOR | KILL_WALL | MOVE_BODY | 
+F:OPEN_DOOR | BASH_DOOR | KILL_WALL | MOVE_BODY | WARRIOR |
 F:EVIL | IM_POIS | IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:S_MONSTERS | S_WRAITH | S_HI_UNDEAD | S_HI_DRAGON | S_HI_DEMON | S_UNIQUE
@@ -10740,7 +10740,7 @@ F:FORCE_SLEEP |
 F:DROP_1D2 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | ATTR_METAL |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR 
 S:1_IN_7 | 
 S:BO_ACID | BA_ACID
 D:It is a massive brass statue that moves steadily towards you.
@@ -10755,7 +10755,7 @@ F:FORCE_SLEEP |
 F:ONLY_GOLD | DROP_1D2 | ATTR_METAL |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR 
 S:1_IN_7 | 
 S:DARKNESS
 D:It is a massive silver statue that moves steadily towards you.
@@ -10770,7 +10770,7 @@ F:FORCE_SLEEP |
 F:ONLY_GOLD | DROP_2D2 | ATTR_METAL |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | 
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:NO_CONF | NO_SLEEP | NO_FEAR 
 D:It is a massive gold statue that moves steadily towards you.
 
 N:745:Coal golem
@@ -10782,7 +10782,7 @@ B:HIT:HURT:1d12
 F:FORCE_SLEEP | 
 F:DROP_1D2 |
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | ATTR_MULTI |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_7 | 
 S:DARKNESS | BA_FIRE
@@ -10796,7 +10796,7 @@ B:HIT:HURT:1d8
 B:HIT:ACID:2d4
 F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | ATTR_METAL |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | IM_ACID |
-F:HURT_ROCK | FRIENDS | CAN_CLIMB |
+F:FRIENDS | CAN_CLIMB |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_7 |
 S:SHRIEK
@@ -11373,7 +11373,7 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:MALE | 
 F:DROP_1D2 |
-F:OPEN_DOOR | BASH_DOOR | EVIL
+F:OPEN_DOOR | BASH_DOOR | EVIL | WARRIOR
 D:A warrior of short stature.
 
 N:787:Gnome rogue
@@ -11438,7 +11438,7 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:MALE | 
 F:DROP_1D2 |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
 D:A dwarven warrior with a three-foot beard.
 
 N:793:Dwarven ranger
@@ -11489,7 +11489,7 @@ B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | BO_ELEC | TPORT
 D:A elf, dressed all in grey, hurling spells at you.
@@ -11500,7 +11500,7 @@ I:110:10d11:20:16:20
 W:10:5:0:50
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
-F:MALE | 
+F:MALE | WARRIOR | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR
 D:An elf in armour and ready with his sword.
@@ -12770,7 +12770,7 @@ B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:MALE | ESCORT | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | ORC | IM_POIS
 D:A heavily armoured orc with the mantle of leadership.
 
@@ -12783,7 +12783,7 @@ B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 F:MALE | ESCORT | ESCORTS | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | ORC | IM_POIS
 D:A heavily armoured orc ruler who dominates his kin with his powerful blows.
 
@@ -12810,7 +12810,7 @@ B:HIT:HURT:3d4
 F:MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP | MAGE
 S:1_IN_5 | 
 S:BLINK | BLIND | CONF | MISSILE 
 D:An orc who is so bright he knows how to cast spells.
@@ -12932,7 +12932,7 @@ W:0:5:0:0
 B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP | RAND_25 |
-F:DROP_60 | HAS_LITE |
+F:DROP_60 | HAS_LITE | PRIEST |
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:HEAL | SCARE
@@ -12946,7 +12946,7 @@ B:HIT:HURT:1d3
 F:MALE | RAND_50 |
 F:FORCE_SLEEP | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_12 | 
 S:BLINK | CONF
 D:He can't see straight, let alone cast spells straight.
@@ -13175,7 +13175,7 @@ B:HIT:HURT:2d10
 B:HIT:HURT:2d10
 F:MALE |
 F:ESCORT | DROP_90 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | GIANT | ORC
 D:A massive armoured figure with an air of authority.
 
@@ -13189,7 +13189,7 @@ B:HIT:HURT:2d12
 B:HIT:HURT:2d12
 F:MALE |
 F:ESCORT | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | GIANT | ORC
 D:A massive, heavily armoured figure with the mantle of leadership.
 
@@ -13203,7 +13203,7 @@ B:HIT:HURT:3d12
 B:HIT:HURT:3d12
 F:MALE |
 F:ESCORT | ESCORTS | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | GIANT | ORC
 D:A massive, heavily armoured figure who dominates his kind.
 
@@ -13331,7 +13331,7 @@ S:1_IN_8 |
 S:CONF | SCARE | BO_WATE
 D:It is a twenty-four foot tall giant surrounded by waves.
 
-N:939:Novice druid
+N:939:Novice shaman
 G:p:W
 I:110:6d4:20:6:5
 W:3:1:0:8
@@ -13339,19 +13339,19 @@ B:HIT:HURT:1d4
 F:MALE | 
 F:FORCE_SLEEP | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | PRIEST | MAGE
 S:1_IN_12 | 
 S:BLINK | MISSILE | HEAL | S_ANIMAL | SCARE
 D:He is deeply concerned about the environment.
 
-N:940:Novice druid
+N:940:Novice shaman
 G:p:W
 I:110:6d4:20:6:10
 W:6:2:0:8
 B:HIT:HURT:1d4
 F:MALE | 
 F:FORCE_SLEEP | 
-F:FRIENDS | DROP_60 | HAS_LITE |
+F:FRIENDS | DROP_60 | HAS_LITE | PRIEST | MAGE
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
 S:BLINK | MISSILE | HEAL | S_ANIMAL | SCARE
@@ -13365,7 +13365,7 @@ B:HIT:HURT:4d2
 F:MALE | 
 F:FORCE_SLEEP | 
 F:DROP_60 | HAS_LITE |
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | PRIEST | MAGE
 S:1_IN_12 | 
 S:HEAL | S_ANIMAL
 D:He is dressed in robes and roman sandals.
@@ -13378,7 +13378,7 @@ B:HIT:HURT:4d2
 F:MALE | 
 F:FORCE_SLEEP | HAS_LITE |
 F:FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | PRIEST | MAGE
 S:1_IN_12 | 
 S:HEAL | S_ANIMAL
 D:He is dressed in robes and roman sandals.
@@ -13392,7 +13392,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | DROP_90 |
-F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:SMART | OPEN_DOOR | BASH_DOOR | PRIEST | WARRIOR |
 F:EVIL
 S:1_IN_5 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS | CAUSE_4 | HEAL | HOLD
@@ -13776,7 +13776,7 @@ I:110:2d3:10:1:0
 W:0:1:0:0
 B:BEG
 F:MALE | 
-F:RAND_50 | 
+F:RAND_50 | FRIENDS |
 F:ONLY_GOLD | DROP_60 | HAS_LITE |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He makes you glad to be sober.
@@ -13833,13 +13833,13 @@ D:No job is too low for him.
 N:981:Elven mage
 G:l:R
 I:120:7d10:20:16:250
-W:0:5:0:0
+W:0:2:0:0
 B:HIT:HURT:1d6
 B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | BO_ELEC | TPORT
 D:A elf, dressed all in grey, hurling spells at you.
@@ -13847,18 +13847,18 @@ D:A elf, dressed all in grey, hurling spells at you.
 N:982:Elven warrior
 G:l:U
 I:110:10d11:20:16:250
-W:0:5:0:0
+W:0:2:0:0
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:MALE | 
-F:DROP_1D2 | 
+F:DROP_1D2 | WARRIOR |
 F:OPEN_DOOR | BASH_DOOR
 D:An elf in armour and ready with his sword.
 
 N:983:Elven ranger
 G:l:g
 I:115:10d10:20:16:250
-W:0:5:0:0
+W:0:2:0:0
 B:HIT:HURT:1d7
 B:HIT:HURT:1d7
 B:SHOOT:ARROW:3d6
@@ -13873,7 +13873,7 @@ D:A elven ranger, with sword and bow quick to hand.
 N:984:Elven priest
 G:l:B
 I:120:7d10:20:30:250
-W:0:6:0:0
+W:0:2:0:0
 B:HIT:HURT:1d9
 B:HIT:HURT:1d10
 F:MALE | 
@@ -14299,7 +14299,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A strong and cunning orc warrior, a commander of Saruman's orcish horde.
 
@@ -14317,7 +14317,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A strong and cunning orc warrior, a commander of Sauron's orcish horde.
 
@@ -14646,7 +14646,7 @@ S:1_IN_10 |
 S:CONF | DARKNESS
 D:An elven figure.
 
-N:1128:Wood elf druid
+N:1128:Wood elf shaman
 G:l:g
 I:120:20d20:15:75:10
 W:25:3:0:500
@@ -14656,7 +14656,7 @@ B:HIT:HURT:3d8
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | PRIEST | MAGE |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | CONF | DARKNESS | 
@@ -14672,7 +14672,7 @@ B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | MAGE |
 F:IM_POIS
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
@@ -14686,7 +14686,7 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:MALE | 
 F:DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 D:An elven figure in armour and ready with his sword.
 
 N:1131:Wood elf priest
@@ -14712,7 +14712,7 @@ B:HIT:HURT:3d5
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | 
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
 S:1_IN_5 | 
 S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
 D:An elven figure in armour and radiating power.
@@ -14811,7 +14811,7 @@ G:q:u
 I:110:8d4:20:15:5
 W:4:1:0:6
 B:HIT:HURT:1d6
-F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE
+F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE | MAGE
 S:1_IN_10 |
 S:S_ANIMAL
 D:A barbarian trained in the ways of animal instincts.
@@ -14821,7 +14821,7 @@ G:q:U
 I:110:25d8:20:40:10
 W:28:1:0:160
 B:HIT:HURT:4d5
-F:MALE | DROP_1D2 | SMART | OPEN_DOOR | BASH_DOOR
+F:MALE | DROP_1D2 | SMART | OPEN_DOOR | BASH_DOOR | MAGE
 S:1_IN_5 |
 S:S_ANIMAL | S_HOUND
 D:Is it a beast or a man?
@@ -15238,7 +15238,7 @@ B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP  |
 F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE
+F:OPEN_DOOR | BASH_DOOR | SMART | HAS_LITE | MAGE
 S:1_IN_12 | 
 S:S_UNDEAD
 D:He stinks of rotten flesh.
@@ -15250,7 +15250,7 @@ W:8:2:0:7
 B:HIT:HURT:1d5
 F:MALE  |
 F:FORCE_SLEEP | 
-F:FRIENDS | DROP_60 | HAS_LITE |
+F:FRIENDS | DROP_60 | HAS_LITE | MAGE |
 F:OPEN_DOOR | BASH_DOOR | SMART
 S:1_IN_10 |
 S:S_UNDEAD
@@ -15342,7 +15342,7 @@ F:MALE | ATTR_MULTI |
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_USEFUL |
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | MAGE
 S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | CAUSE_4 | TRAPS |
 S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS
@@ -15389,7 +15389,7 @@ B:HIT:HURT:3d5
 B:HIT:HURT:3d5
 F:FORCE_MAXHP |
 F:DROP_90 | REGENERATE | FRIENDS |
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | WARRIOR |
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
 D:A massive troll, equipped with a scimitar and heavy armour.
 
@@ -15432,7 +15432,7 @@ B:HIT:HURT:3d8
 B:HIT:HURT:2d4
 B:HIT:HURT:2d4
 F:FORCE_SLEEP | FORCE_MAXHP |
-F:EVIL | MALE | SMART |
+F:EVIL | MALE | SMART | WARRIOR |
 F:IM_FIRE | IM_COLD | IM_ELEC | NO_CONF | NO_SLEEP
 F:DROP_2D2
 D:Easterlings are an evil warrior people, dressed in blood-red 

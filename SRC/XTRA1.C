@@ -2010,7 +2010,7 @@ static void calc_mana(void)
 	cur_wgt += inventory[INVEN_FEET].weight;
 
 	/* Determine the weight allowance */
-        max_wgt = pc_ptr->sp_wgt;
+        max_wgt = pc_ptr->spell_weight;
 
 	/* Heavy armor penalizes mana */
 	if (((cur_wgt - max_wgt) / 10) > 0)
@@ -3060,9 +3060,9 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = c_info[p_ptr->pclass].blows_num;
-		int wgt = c_info[p_ptr->pclass].blows_wgt;
-		int mul = c_info[p_ptr->pclass].blows_mul;
+                int num = c_info[p_ptr->pclass].max_attacks;
+                int wgt = c_info[p_ptr->pclass].min_weight;
+                int mul = c_info[p_ptr->pclass].att_multiply;
 		int div;
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -3115,10 +3115,16 @@ static void calc_bonuses(void)
 	}
 	else 
 	{
+		/* One-handed if less than 20 lbs */
+		if (o_ptr->weight < 200) p_ptr->cur_style |= (1L << WS_ONE_HANDED);
+
+		/* Two-handed if greater than or equal to 10 lbs */
+		if (o_ptr->weight >= 100) p_ptr->cur_style |= (1L << WS_TWO_HANDED);
+
 		/* Set weapon preference styles */
 		switch(o_ptr->tval)
 		{
-                        case TV_STAFF:
+                  case TV_STAFF:
 			case TV_HAFTED:
                         {
                                 p_ptr->cur_style |= (1L << WS_HAFTED);
@@ -3186,25 +3192,14 @@ static void calc_bonuses(void)
 	/* Check fighting styles */
 	o_ptr = &inventory[INVEN_ARM];
 
-	/* Check if unarmed */
-        if (p_ptr->cur_style & (1L <<WS_UNARMED))
+	/* Carrying a shield */
+	if (o_ptr->k_idx)
 	{
-                /* Nothing */
-	}
-	/* Not carrying a shield */
-	else if (!o_ptr->k_idx)
-	{
-		/* Hack --- both one handed */
-                p_ptr->cur_style |= (1L << WS_ONE_HANDED);
+		/* Shield is not one-handed */
+		p_ptr->cur_style &= ~(1L << WS_ONE_HANDED);
 
-		/* Hack --- and two handed */
-                p_ptr->cur_style |= (1L << WS_TWO_HANDED);
-
-	}
-	else
-	{
-		/* Shield is not unarmed */
-		p_ptr->cur_style &= ~(1L << WS_UNARMED);
+		/* Shield if not two-handed */
+		p_ptr->cur_style &= ~(1L << WS_TWO_HANDED);
 
 		/* Set fighting styles */
 		switch(o_ptr->tval)
@@ -3217,6 +3212,7 @@ static void calc_bonuses(void)
 			case TV_HAFTED:
 			case TV_POLEARM:
 			case TV_SWORD:
+			case TV_STAFF:
                         {
                                 p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
                                 break;

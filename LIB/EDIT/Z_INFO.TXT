@@ -14,13 +14,13 @@
 V:2.9.2
 
 # Maximum number of feature types
-M:F:471
+M:F:472
 
 # Maximum number of room description lines
 M:D:255
 
 # Maximum number of object kinds
-M:K:630
+M:K:658
 
 # Maximum number of artifacts
 M:A:136
@@ -29,7 +29,7 @@ M:A:136
 M:E:128
 
 # Maximum number of flavors
-M:X:185
+M:X:200
 
 # Maximum number of quests
 M:Q:6
@@ -44,7 +44,7 @@ M:V:35
 M:T:43
 
 # Maximum number of stores
-M:U:29
+M:U:30
 
 # Maximum number of player races
 M:P:10
@@ -59,7 +59,7 @@ M:C:10
 M:W:127
 
 # Maximum number of spells
-M:S:350
+M:S:403
 
 # Maximum number of runes
 M:Y:30
@@ -80,9 +80,9 @@ M:M:512
 
 # Size of the "fake" array for reading in names of monsters, objects,
 # artifacts, store-owners, player-races, ...
-M:N:30000
+M:N:20000
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories
-M:I:125000
+M:I:90000
 

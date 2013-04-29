@@ -1895,12 +1895,51 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 				}
 
-				/* Destroy the trap */
+				/* Destroy the door */
                                 cave_alter_feat(y, x, FS_TUNNEL);
 			}
 
 			break;
 		}
+
+		/* Jam Doors */
+		case GF_LOCK_DOOR:
+		{
+
+			/* Close doors/traps/chests */
+			if (f_info[cave_feat[y][x]].flags1 & (FF1_CLOSE))
+			{
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					obvious = TRUE;
+				}
+
+				/* Destroy the door */
+                                cave_alter_feat(y, x, FS_CLOSE);
+			}
+
+			/* Jam doors */
+			while (f_info[cave_feat[y][x]].flags1 & (FF1_SPIKE))
+			{
+				int feat = cave_feat[y][x];
+
+				/* Check line of sight */
+				if (player_has_los_bold(y, x))
+				{
+					obvious = TRUE;
+				}
+
+				/* Jam the door */
+                        cave_alter_feat(y, x, FS_SPIKE);
+
+				/* Paranoia */
+				if (feat == cave_feat[y][x]) break;
+			}
+
+			break;
+		}
+
 
 		/* Destroy walls (and doors) */
 		case GF_KILL_WALL:
@@ -2539,10 +2578,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Some monsters get "destroyed" */
-	if ((r_ptr->flags3 & (RF3_DEMON)) ||
-	    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-	    (r_ptr->flags2 & (RF2_STUPID)) ||
-	    (strchr("Evg", r_ptr->d_char)))
+	if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+	    (r_ptr->flags2 & (RF2_STUPID)))
 	{
 		/* Special note at death */
 		note_dies = " is destroyed.";
@@ -2573,15 +2610,18 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Hack -- halve acid damage in water */
 	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
 
-
-
-
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_IM_ACID))
 			{
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) l_ptr->r_flags3 |= (RF3_IM_ACID);
+			}
+			else if (r_ptr->flags3 & (RF2_ARMOR))
+			{
+				note = " has some armor damaged.";
+				dam /= 2;
+				if (seen) l_ptr->r_flags3 |= (RF2_ARMOR);
 			}
 			break;
 		}
@@ -2666,10 +2706,15 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Arrow -- no defense XXX */
+		/* Arrow -- armored monsters defend */
 		case GF_ARROW:
 		{
 			if (seen) obvious = TRUE;
+			if ((r_ptr->flags2 & (RF2_ARMOR)) && (rand_int(100) < r_ptr->ac /3))
+			{
+				note = " is saved by a shield";
+				dam = 0;
+			}
 			break;
 		}
 
@@ -3733,6 +3778,27 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Probe visible monsters */
+		case GF_PROBE:
+		{
+			if (m_ptr->ml)
+			{
+			char m_name[80];
+
+			/* Get "the monster" or "something" */
+			monster_desc(m_name, m_ptr, 0x04);
+
+			/* Describe the monster */
+			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
+
+			/* Learn all of the non-spell, non-treasure flags */
+                        lore_do_probe(cave_m_idx[y][x]);
+
+			/* Probe worked */
+			obvious = TRUE;
+			}
+		}
+
 		/* Default */
 		default:
 		{
@@ -4228,10 +4294,21 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Arrow -- no dodging XXX */
+		/* Shields have a % chance equal to total ac of stopping attack */
 		case GF_ARROW:
 		{
-			if (fuzzy) msg_print("You are hit by something sharp!");
-			take_hit(dam, killer);
+			object_type *i_ptr = &inventory[INVEN_ARM];
+
+			if ((i_ptr->k_idx) && (i_ptr->tval == TV_SHIELD) && (rand_int(100) < i_ptr->ac + i_ptr->to_a))
+			{
+				msg_print("Your shield stops an arrow.");
+				dam = 0; 
+			}
+			else
+			{
+				if (fuzzy) msg_print("You are hit by something sharp!");
+				take_hit(dam, killer);
+			}
 			break;
 		}
 
@@ -4941,6 +5018,10 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				object_type *i_ptr;
 				object_type object_type_body;
 
+				u32b f1;
+				u32b f2;
+				u32b f3;
+
 				/* Pick an item */
 				i = rand_int(INVEN_PACK);
 
@@ -4949,12 +5030,20 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 				/* Skip non-objects */
 				if (!o_ptr->k_idx) continue;
+
+                                /* Clear the flags */
+                                f1 = f2 = f3 = 0x0L;
+
+                                /* Get the flags */
+                                object_flags(o_ptr,&f1,&f2,&f3);
+
+
 #ifdef ALLOW_OBJECT_INFO
-				/* Very rarely notice artifacts */
-				if ((rand_int(100)<3) && (artifact_p(o_ptr))) object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
+				/* Sometimes notice theft-protection */
+				if ((rand_int(100)<10) && (f2 & (TR2_IGNORE_THEFT))) object_can_flags(o_ptr,0x0L,TR2_IGNORE_THEFT,0x0L);
 #endif
 				/* Skip artifacts */
-				if (artifact_p(o_ptr)) continue;
+				if (f2 & (TR2_IGNORE_THEFT)) continue;
 
 				/* Get a description */
 				object_desc(o_name, o_ptr, FALSE, 3);

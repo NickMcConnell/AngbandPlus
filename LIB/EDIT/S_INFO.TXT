@@ -1,12 +1,70 @@
+# File: s_info.txt
+
+
+# This file is used to initialize the "lib/data/s_info.raw" file, which
+# is used to initialize the "spell" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/s_info.raw" file.
+
+# === Understanding s_info.txt ===
+
 # N:number:name
 # A:tval:sval:slot
 # C:class:level:mana:failure:min failure
-# F:flags (HOLD_SONG or EVIL)
+# F:flags
 # B: blow : flavour : dice d sides + bonus
 # L: lasts dice d sides + bonus
 # T: timeout dice d sides + bonus
 # S: other effects
 # D: description
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'A' is for appears in which objects, referenced by tval and sval.
+# Slot must be unique for objects which have multiple spells
+# associated with them, and slots must be numbered from 1 upwards.
+# The exception is rune stones, where the slot corresponds to the
+# second ('verb') runestone sval.
+
+# For spell books, slot refers to to the 
+
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the item's value.
+
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'A' is for activation.  Activation is the effect the artifact
+# activates for. The recharge time calculates from the recharge time
+# plus a random value between 1 and the recharge time dice (if not 0).
+# If an activation is given then the artifact must also have the
+# ACTIVATE flag.
+
+### IMPORTANT NOTES ###
+# (1.) Any changes or additions to the file will have influence on randarts 
+# and may break savefile compatibility for old savegames with randarts.  If 
+# using random artifacts, finish your existing game before making any changes
+# to the artifact.txt file at all.
+# (2.) Removing any artifact, or changing its "base" type (as defined by 
+# the tval and sval entries in the "I:" line), will break savefile compatibility
+# for ALL savefiles.
+# (3.) Adding a new artifact, or changing the powers of existing ones, will NOT 
+# affect savefile compatibility for games with the standard artifact set: it is 
+# perfectly safe to do this. (If your new artifact is a new kind of object, or a 
+# new one at the end of the file, you must also amend object.txt or limits.txt.)
+
 
 # If dice is > 0 and sides == 0, we use dice * level + bonus.
 
@@ -19,6 +77,8 @@ N:0:(illegible)
 C:0:99:99:100:100
 
 N:1:Magic Missile
+A:65:15:1
+A:65:24:15
 A:90:0:1
 A:93:2:2
 C:1:1:1:22:4
@@ -63,6 +123,8 @@ B:AREA:LITE_WEAK:2d0+0
 F:LITE_ROOM
 
 N:5:Treasure Detection
+A:55:10:1
+A:70:26:1
 A:90:0:5
 A:90:18:1
 A:90:23:3
@@ -75,6 +137,7 @@ F:HOLD_SONG
 F:DETECT_GOLD
 
 N:6:Cure Light Wounds
+A:55:16:1
 A:90:0:6
 A:90:24:1
 A:93:3:21
@@ -83,9 +146,10 @@ C:3:11:4:65:1
 C:4:5:3:40:1
 C:8:3:3:25:3
 B:SELF:HEAL:2d8+0
-F:CURE_BLIND
 
 N:7:Object Detection
+A:55:11:1
+A:70:27:1
 A:90:0:7
 A:90:23:4
 A:92:2:4
@@ -108,6 +172,8 @@ C:9:9:5:60:1
 F:DETECT_DOORS | DETECT_TRAPS | DETECT_STAIRS
 
 N:9:Stinking Cloud
+A:65:14:1
+A:65:24:14
 A:90:0:9
 A:90:19:1
 A:93:4:4
@@ -117,6 +183,8 @@ C:8:7:5:40:3
 B:CLOUD:POISON:0d0+10
 
 N:10:Confuse Monster
+A:65:10:1
+A:65:24:10
 A:90:1:1
 A:90:16:1
 A:90:22:1
@@ -127,9 +195,12 @@ C:3:15:6:75:1
 C:4:7:6:40:2
 C:8:7:6:40:2
 C:9:7:6:40:2
-B:AIM:CONFUSE_WEAK:0d0+0
+B:AIM:CONFUSE_WEAK:1d0+0
 
-N:11:Lightening Bolt
+N:11:Lightning Bolt
+A:65:17:1
+A:65:24:17
+A:66:21:1
 A:90:1:2
 A:90:12:4
 A:93:22:19
@@ -139,6 +210,7 @@ C:8:5:4:30:4
 B:BOLT_10:ELEC:3d8+0
 
 N:12:Trap/Door Destruction
+A:70:39:1
 A:90:1:3
 A:92:11:1
 A:93:1:7
@@ -151,6 +223,9 @@ F:HOLD_SONG
 B:ADJACENT:KILL_DOOR
 
 N:13:Sleep Monster
+A:65:8:1
+A:65:24:8
+A:66:16:1
 A:90:1:4
 A:90:22:2
 A:92:1:2
@@ -162,6 +237,8 @@ C:9:11:8:40:3
 B:AIM:SLEEP:1
 
 N:14:Cure Poison
+A:75:27:1
+A:80:12:1
 A:90:1:5
 A:90:24:2
 C:1:5:5:35:4
@@ -171,6 +248,7 @@ C:8:5:5:35:4
 F:CURE_POIS
 
 N:15:Teleport Self
+A:55:4:1
 A:90:1:6
 A:90:5:2
 A:92:3:3
@@ -182,7 +260,11 @@ C:8:13:10:45:3
 C:9:13:10:45:3
 B:SELF:AWAY_ALL:5d0+0
 
+
 N:16:Spear of Light
+A:65:7:1
+A:65:24:7
+A:66:15:1
 A:90:1:7
 A:90:17:3
 A:92:0:10
@@ -196,6 +278,9 @@ B:LINE:LITE_WEAK:6d8+0
 D:A line of blue shimmering light appears.
 
 N:17:Frost Bolt
+A:65:19:1
+A:65:24:19
+A:66:23:1
 A:90:1:8
 A:90:11:5
 A:93:14:19
@@ -205,6 +290,8 @@ C:8:7:6:40:6
 B:BOLT_10:COLD:5d8+0
 
 N:18:Turn Stone to Mud
+A:65:6:1
+A:65:24:6
 A:90:1:9
 A:90:18:2
 A:93:25:26
@@ -212,9 +299,10 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:15:13:50:4
 C:8:9:7:44:8
-B:AIM:KILL_WALL:6d8+0
+B:BEAM:KILL_WALL:6d8+0
 
 N:19:Satisfy Hunger
+A:70:32:1
 A:90:2:1
 A:90:24:4
 A:92:4:6
@@ -227,6 +315,8 @@ C:9:17:17:55:3
 F:CURE_FOOD
 
 N:20:Gauge Magic
+A:66:7:1
+A:70:43:1
 A:90:2:2
 A:90:25:1
 A:93:17:17
@@ -249,6 +339,9 @@ F:HOLD_SONG
 B:ADJACENT:SLEEP:1d0+0
 
 N:22:Polymorph Other
+A:65:13:1
+A:65:24:13
+A:66:19:1
 A:90:2:4
 A:90:7:3
 A:92:9:3
@@ -260,6 +353,7 @@ C:9:21:19:60:3
 B:AIM:POLYMORPH:1d0+0
 
 N:23:Identify
+A:55:30:1
 A:90:23:8
 A:93:17:12
 C:1:13:7:50:6
@@ -269,6 +363,7 @@ C:8:18:16:70:4
 F:IDENT
 
 N:24:*Sleep Monsters*
+A:55:20:1
 A:90:2:6
 A:90:22:5
 A:92:1:6
@@ -281,6 +376,9 @@ F:HOLD_SONG
 B:LOS:SLEEP:1d0+0
 
 N:25:Fire Bolt
+A:65:18:1
+A:65:24:18
+A:66:22:1
 A:90:2:7
 A:90:9:5
 A:93:13:23
@@ -290,6 +388,9 @@ C:8:15:9:50:6
 B:BOLT:FIRE:8d8+0
 
 N:26:Slow Monster
+A:65:9:1
+A:65:24:9
+A:66:17:1
 A:90:2:8
 A:92:1:5
 A:93:25:12
@@ -300,6 +401,9 @@ C:9:17:9:50:7
 B:AIM:SLOW_WEAK:1d0+0
 
 N:27:Frost Ball
+A:65:23:1
+A:65:24:23
+A:66:27:1
 A:90:3:1
 A:90:11:7
 A:93:14:19
@@ -318,6 +422,9 @@ C:4:29:23:95:3
 S:RECHARGE:40
 
 N:29:Teleport Other
+A:65:3:1
+A:65:24:3
+A:66:13:1
 A:90:3:3
 A:92:3:4
 A:93:7:28
@@ -328,6 +435,8 @@ C:9:25:25:80:12
 B:AIM:AWAY_ALL:1d0+0
 
 N:30:Haste Self
+A:55:22:1
+A:66:11:1
 A:90:3:4
 A:92:5:5
 A:93:27:3
@@ -340,6 +449,9 @@ F:HASTE
 L:1d20+20
 
 N:31:Fire Ball
+A:65:22:1
+A:65:24:22
+A:66:26:1
 A:90:3:5
 A:90:9:9
 A:93:14:14
@@ -349,6 +461,7 @@ C:8:29:18:65:12
 B:BALL:FIRE:1d0+55
 
 N:32:Word of Destruction
+A:70:41:1
 A:90:21:12
 A:90:3:6
 A:92:10:6
@@ -361,6 +474,7 @@ F:HOLD_SONG
 S:DESTRUCTION:15
 
 N:33:Genocide
+A:55:27:1
 A:90:3:7
 C:1:37:25:95:21
 C:8:37:25:95:21
@@ -372,7 +486,7 @@ A:93:7:25
 C:1:7:7:20:28
 C:3:7:7:20:25
 C:4:8:17:20:25
-B:ADJACENT:MAKE_DOOR:0d0+0
+B:ADJACENT:MAKE_DOOR
 
 N:35:Stair Creation
 A:90:5:4
@@ -395,6 +509,7 @@ C:9:25:27:60:17
 F:TELE_LEVEL
 
 N:37:Earthquake
+A:55:28:1
 A:90:5:6
 A:90:18:6
 A:93:25:14
@@ -404,6 +519,7 @@ C:8:11:9:55:5
 S:EARTHQUAKE:10
 
 N:38:Word of Recall
+A:66:3:1
 A:90:5:7
 A:90:21:10
 A:92:3:6
@@ -416,6 +532,7 @@ C:9:35:35:75:13
 F:RECALL
 
 N:39:Acid Bolt
+A:90:20:1
 A:90:8:1
 A:90:10:5
 A:93:1:23
@@ -434,6 +551,9 @@ C:8:18:20:60:10
 B:STORM:POISON:0d0+20
 
 N:41:Acid Ball
+A:65:20:1
+A:65:24:20
+A:66:24:1
 A:90:8:3
 A:90:10:7
 A:93:1:13
@@ -448,7 +568,7 @@ A:93:14:22
 C:1:27:25:75:29
 C:4:33:35:75:25
 C:8:27:25:75:29
-B:STORM:ICE:2d0+70
+B:STORM:COLD:2d0+70
 
 N:43:Meteor Storm
 A:90:8:5
@@ -466,6 +586,7 @@ C:1:42:45:95:200
 B:STORM:MANA:2d0+300
 
 N:45:Detect Evil
+A:55:15:1
 A:90:6:1
 A:90:23:5
 A:93:12:23
@@ -476,12 +597,14 @@ C:8:5:5:50:8
 F:DETECT_EVIL
 
 N:46:Detect Magic
+A:66:2:1
+A:70:31:1
 A:90:2:5
 A:90:6:2
 A:90:23:7
 A:90:25:2
 A:92:2:5
-#A:93:12:17
+A:93:12:17
 C:1:10:10:70:40
 C:3:10:10:70:40
 C:4:15:20:70:25
@@ -500,6 +623,7 @@ C:8:35:60:95:115
 S:RECHARGE:100
 
 N:48:Genocide
+A:70:44:1
 A:90:6:4
 A:90:24:7
 A:93:18:3
@@ -508,6 +632,7 @@ C:8:35:60:80:50
 F:GENOCIDE
 
 N:49:Mass Genocide
+A:70:45:1
 A:90:6:5
 A:90:24:8
 A:93:24:3
@@ -516,6 +641,7 @@ C:8:45:85:90:120
 F:MASS_GENOCIDE
 
 N:50:Resist Fire
+A:75:30:1
 A:90:4:1
 A:90:9:2
 A:92:5:1
@@ -529,6 +655,7 @@ F:OPP_FIRE
 L:1d20+20
 
 N:51:Resist Cold
+A:75:31:1
 A:90:4:2
 A:90:11:2
 A:93:14:20
@@ -540,6 +667,7 @@ F:OPP_COLD
 L:1d20+20
 
 N:52:Resist Acid
+A:75:61:1
 A:90:4:3
 A:90:10:2
 A:93:1:20
@@ -551,6 +679,7 @@ F:OPP_ACID
 L:1d20+20
 
 N:53:Resist Poison
+A:75:62:1
 A:90:4:4
 A:90:24:3
 A:93:4:20
@@ -558,10 +687,11 @@ C:1:8:10:75:40
 C:3:15:20:75:60
 C:4:16:25:75:50
 C:8:8:10:75:40
-F:OPP_POIS
+F:OPP_POIS | CURE_POIS
 L:1d20+20
 
 N:54:Resistance
+A:75:63:1
 A:90:4:6
 A:90:7:5
 A:92:5:6
@@ -575,6 +705,7 @@ F:OPP_FIRE | OPP_COLD | OPP_ACID | OPP_ELEC | OPP_POIS
 L:1d20+20
 
 N:55:Heroism
+A:75:32:1
 A:90:7:1
 A:92:5:2
 A:93:3:23
@@ -588,6 +719,7 @@ F:CURE_FEAR | HERO
 L:1d20+20
 
 N:56:Shield
+A:70:59:1
 A:90:7:2
 A:90:4:5
 A:92:3:20
@@ -601,6 +733,7 @@ F:SHIELD
 L:1d20+30
 
 N:57:Beserker
+A:75:33:1
 A:90:7:4
 A:92:9:2
 A:93:3:13
@@ -614,6 +747,7 @@ F:CURE_FEAR | SHERO
 L:1d25+25
 
 N:58:Essence of Speed
+A:75:29:1
 A:90:7:6
 A:90:13:8
 A:93:27:27
@@ -643,6 +777,7 @@ F:HOLD_SONG
 F:DETECT_EVIL
 
 N:61:Cure Light Wounds
+A:75:34:1
 A:91:0:2
 A:91:6:1
 A:92:0:5
@@ -654,6 +789,7 @@ F:HOLD_SONG | CURE_BLIND
 B:SELF:HEAL:2d10+0
 
 N:62:Bless
+A:70:33:1
 A:91:0:3
 A:91:10:1
 A:92:0:4
@@ -666,6 +802,8 @@ F:BLESS
 L:1d12+12
 
 N:63:Remove Fear
+A:75:28:1
+A:80:14:1
 A:91:0:4
 A:91:13:2
 A:92:0:2
@@ -680,13 +818,16 @@ F:CURE_FEAR
 N:64:Call Light
 A:91:0:6
 A:91:5:1
+A:93:22:18
 C:2:3:2:25:1
 C:5:5:4:35:4
-C:1:1:2:26:4
+C:8:1:2:26:4
 B:AREA:LITE_WEAK:2d0+0
 F:LITE_ROOM
 
 N:65:Find Traps
+A:55:12:1
+A:66:0:1
 A:91:0:7
 A:91:5:3
 A:93:12:1
@@ -696,6 +837,9 @@ C:8:7:5:40:3
 F:DETECT_TRAPS
 
 N:66:Detect Doors/Stairs
+A:55:13:1
+A:66:1:1
+A:70:29:1
 A:91:0:8
 A:91:5:4
 C:2:3:3:27:2
@@ -716,6 +860,8 @@ F:HOLD_SONG
 F:CURE_POIS
 
 N:68:Scare Monster
+A:65:11:1
+A:65:24:11
 A:91:1:1
 A:91:12:2
 A:92:0:6
@@ -751,6 +897,7 @@ B:SELF:HEAL:4d10+0
 F:SLOW_CUTS | CURE_BLIND | CURE_CONF
 
 N:71:Chant
+A:70:34:1
 A:91:1:4
 A:91:10:2
 A:92:1:3
@@ -763,6 +910,7 @@ F:BLESS
 L:1d24+24
 
 N:72:Sanctuary
+A:70:60:1
 A:91:1:5
 A:91:10:3
 A:92:1:1
@@ -783,6 +931,7 @@ C:8:9:7:45:8
 F:CURE_FOOD
 
 N:74:Remove Curse
+A:55:6:1
 A:91:1:7
 A:91:13:4
 A:92:4:4
@@ -794,6 +943,7 @@ C:9:13:11:45:4
 F:SLOW_CURSE
 
 N:75:Resist Heat and Cold
+A:75:60:1
 A:91:1:8
 A:91:9:3
 A:93:8:20
@@ -836,6 +986,7 @@ B:SELF:HEAL:8d10+0
 F:CURE_CUTS
 
 N:79:Sense Invisible
+A:75:25:1
 A:91:2:5
 A:91:12:3
 A:92:2:6
@@ -848,6 +999,7 @@ F:SEE_INVIS
 L:1d24+24
 
 N:80:Protection from Evil
+A:70:37:1
 A:91:2:6
 A:91:10:4
 A:91:13:5
@@ -872,8 +1024,11 @@ F:HOLD_SONG
 S:EARTHQUAKE:10
 
 N:82:Sense Surroundings
+A:55:9:1
+A:66:5:1
+A:70:25:1
 A:91:2:8
-A:93:20:12
+A:93:12:14
 C:2:13:10:45:4
 C:5:23:17:50:3
 C:8:13:10:45:4
@@ -899,9 +1054,10 @@ C:5:17:21:50:3
 C:8:13:15:45:4
 C:9:17:21:50:3
 F:HOLD_SONG
-B:LOS:TURN_UNDEAD:0d0+0
+B:LOS:TURN_UNDEAD:1d0+0
 
 N:85:Prayer
+A:70:35:1
 A:91:3:1
 A:91:10:6
 A:92:8:4
@@ -914,6 +1070,7 @@ F:BLESS
 L:1d48+48
 
 N:86:Dispel Undead
+A:70:42:1
 A:91:3:2
 A:92:8:6
 A:93:18:14
@@ -934,6 +1091,7 @@ B:SELF:HEAL:0d0+300
 F:CURE_CUTS | CURE_STUN
 
 N:88:Dispel Evil
+A:55:24:1
 A:91:3:4
 A:92:10:4
 A:93:23:14
@@ -945,6 +1103,7 @@ F:HOLD_SONG
 B:LOS:DISPEL_EVIL:3d0+0
 
 N:89:Glyph of Warding
+A:70:38:1
 A:91:3:5
 A:91:13:8
 A:93:27:20
@@ -961,11 +1120,13 @@ C:2:39:32:95:20
 C:5:39:38:95:10
 C:8:39:38:95:10
 B:LOS:DISPEL_EVIL:4d0+0
-F:CURE_FEAR
+B:SELF:HEAL:0d0+1000
+F:CURE_FEAR | CURE_POIS | CURE_CUTS | CURE_STUN
 
 N:91:Detect Monsters
 A:91:5:2
 A:92:2:1
+A:93:12:15
 C:2:3:3:50:2
 C:5:5:5:50:1
 C:8:2:2:35:2
@@ -974,8 +1135,11 @@ F:HOLD_SONG
 F:DETECT_MONSTER
 
 N:92:Detection
+A:66:6:1
+A:70:61:1
 A:91:5:5
 A:92:2:7
+A:93:12:27
 C:2:10:10:80:20
 C:5:15:15:80:12
 C:8:15:15:80:12
@@ -986,6 +1150,7 @@ F:DETECT_WATER | DETECT_OBJECT
 
 N:93:Perception
 A:92:2:8
+A:93:17:12
 C:2:20:20:80:20
 C:5:25:25:80:16
 C:8:18:16:70:4
@@ -993,14 +1158,18 @@ C:9:35:35:100:20
 F:IDENT
 
 N:94:Probing
+A:55:23:1
 A:91:5:7
-#C:2:25:10:80:150
-#C:5:30:15:80:135
-#C:8:25:10:80:150
-#B:AIM:INFO_WEAK:0d0+0
+A:93:12:3
+C:2:25:10:80:150
+C:5:30:15:80:135
+C:8:25:10:80:150
+B:LOS:PROBE
 
 N:95:Clairvoyance
+A:75:56:1
 A:91:5:8
+A:93:12:17
 C:2:35:50:80:230
 C:5:37:55:80:215
 C:8:37:55:80:215
@@ -1008,8 +1177,11 @@ F:WIZ_LITE
 D:An image of your surroundings forms in your mind...
 
 N:96:Cure Serious Wounds
+A:75:35:1
+A:80:15:1
 A:91:6:4
 A:92:4:3
+A:92:3:2
 C:2:7:5:38:4
 C:5:13:10:45:3
 C:8:10:8:41:4
@@ -1019,14 +1191,16 @@ B:SELF:HEAL:8d10+0
 F:CURE_CUTS | CURE_BLIND | CURE_CONF
 
 N:97:Cure Mortal Wounds
+A:75:65:1
 A:91:6:6
 C:2:17:7:60:45
 C:5:23:25:60:35
 C:8:20:16:60:40
 B:SELF:HEAL:12d10+0
-F:CURE_CUTS | CURE_STUN
+F:CURE_CUTS | CURE_STUN | CURE_BLIND | CURE_CONF
 
-N:98:Healing
+N:98:*Heal*
+A:55:18:1
 A:91:6:7
 C:2:30:50:80:130
 C:5:35:60:80:115
@@ -1035,17 +1209,23 @@ B:SELF:HEAL:0d0+2000
 F:CURE_CUTS | CURE_STUN
 
 N:99:Restoration
+A:66:10:1
+A:75:54:1
+A:80:18:1
 A:91:6:8
 A:91:12:7
+A:93:27:3
 C:2:35:70:90:230
 C:5:40:80:90:200
 C:8:37:75:90:215
 F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
 
 N:100:Remembrance
+A:75:41:1
 A:91:6:9
 A:91:12:8
 A:92:8:7
+A:93:27:12
 C:2:35:70:90:250
 C:5:40:80:90:250
 C:8:37:75:90:250
@@ -1056,6 +1236,7 @@ F:CURE_EXP
 N:101:Dispel Undead
 A:91:8:1
 A:91:12:5
+A:93:18:14
 C:2:15:7:70:25
 C:5:20:13:70:20
 C:8:15:7:70:25
@@ -1064,6 +1245,7 @@ B:LOS:DISPEL_UNDEAD:4d0+0
 N:102:Dispel Evil
 A:91:8:2
 A:91:13:6
+A:93:23:14
 C:2:20:10:75:60
 C:5:30:20:75:40
 C:8:20:10:75:60
@@ -1073,16 +1255,19 @@ N:103:Banishment
 A:91:8:3
 A:91:13:7
 A:92:10:5
+A:93:23:15
 C:2:25:25:80:250
 C:5:30:35:80:200
 C:8:25:25:80:250
 C:9:35:40:80:200
 F:HOLD_SONG
-B:LOS:AWAY_EVIL:0d0+0
+B:LOS:AWAY_EVIL
 D:The power of your god banishes evil.
 
 N:104:Word of Destruction
+A:55:29:1
 A:91:8:4
+A:93:11:19
 C:2:35:35:80:115
 C:5:40:40:80:100
 C:8:37:30:95:10
@@ -1091,21 +1276,25 @@ S:DESTRUCTION:15
 N:105:Annihilation
 A:91:8:5
 A:91:14:9
+A:93:18:12
 C:2:45:60:75:250
 C:5:47:70:75:250
 C:8:46:75:75:250
 B:AIM:DRAIN_LIFE:2d0+200
 
 N:106:Unbarring Ways
+A:70:62:1
 A:91:7:1
+A:93:7:18
 C:2:5:6:50:40
 C:5:10:16:50:20
 C:8:9:8:45:3
-B:ADJACENT:KILL_DOOR:0d0+0
+B:ADJACENT:KILL_DOOR
 
 N:107:Recharging
 A:91:7:2
 A:92:1:7
+A:93:18:17
 C:2:15:20:80:25
 C:5:25:30:80:15
 C:8:25:30:80:15
@@ -1113,7 +1302,9 @@ C:9:25:30:80:15
 S:RECHARGE:15
 
 N:108:Dispel Curse
+A:70:15:1
 A:91:7:4
+A:93:5:8
 C:2:25:40:80:160
 C:5:30:50:80:130
 C:8:25:40:80:160
@@ -1128,6 +1319,7 @@ C:9:40:70:80:200
 F:ENCHANT_TOH | ENCHANT_TOD
 
 N:110:Enchant Armour
+A:70:49:1
 A:91:7:6
 A:92:10:8
 C:2:37:60:85:250
@@ -1136,6 +1328,7 @@ C:9:42:80:85:250
 F:ENCHANT_TOA
 
 N:111:Enchant Weapon Brand
+A:70:50:1
 A:91:7:9
 C:2:45:95:85:250
 C:5:47:95:85:250
@@ -1178,6 +1371,7 @@ C:8:35:35:75:13
 F:RECALL
 
 N:117:Alter Reality
+A:70:62:1
 A:91:4:7
 A:92:9:7
 C:2:40:60:75:250
@@ -1196,6 +1390,7 @@ L:1d30+20
 F:SHIELD
 
 N:119:Hero's Prayer
+A:70:63:1
 A:91:10:7
 A:92:5:7
 C:2:17:16:60:25
@@ -1248,10 +1443,10 @@ S:INVEN_WIELD:570
 
 N:125:Flame Strike
 A:91:11:6
-C:2:29:18:65:12
-C:5:35:25:80:5
-C:8:29:18:65:12
-B:BALL:FIRE:1d0+55
+C:2:9:7:38:4
+C:5:17:15:50:4
+C:8:13:11:44:4
+B:STRIKE:FIRE:1d0+55
 
 N:126:Summon Avatar
 A:91:11:8
@@ -1286,9 +1481,11 @@ A:92:4:8
 #C:5:37:70:90:5
 #C:8:33:55:90:15
 #C:9:37:70:90:5
-#B:AIM:RAISE_DEAD:0d0+1
+#B:STRIKE:RAISE_DEAD:0d0+1
 
 N:130:Detect Curse
+A:55:6:1
+A:70:40:1
 A:91:5:6
 A:91:13:3
 A:92:2:3
@@ -1307,6 +1504,7 @@ C:8:19:30:75:150
 S:ENCHANT_TVAL:80
 
 N:132:Bless Weapon
+A:70:51:1
 A:91:7:7
 C:2:39:60:85:250
 C:5:44:80:85:250
@@ -1320,6 +1518,7 @@ C:8:43:95:85:250
 S:BRAND_ARMOR:2
 
 N:134:Slow Poison
+A:75:26:1
 A:91:0:5
 A:91:9:1
 A:92:0:1
@@ -1339,7 +1538,7 @@ C:8:9:7:44:8
 C:9:24:11:70:1
 B:LINE:LOWER:6d8+0
 
-N:136:Resist Lightening
+N:136:Resist Lightning
 A:91:9:6
 A:92:7:1
 C:2:9:10:75:40
@@ -1389,7 +1588,7 @@ A:92:8:2
 #C:8:9:7:40:7
 #C:9:13:11:45:8
 #F:HOLD_SONG | EVIL
-#B:AREA:ANIM_DEAD:0d0+0
+#B:AREA:ANIM_DEAD
 
 N:142:Cause Serious Wounds
 A:91:14:5
@@ -1425,6 +1624,7 @@ B:AIM:DRAIN_LIFE:6d10+0
 
 N:146:Burning Hands
 A:90:9:1
+A:93:13:16
 C:1:1:2:26:4
 C:4:5:3:35:1
 C:8:1:2:26:4
@@ -1433,6 +1633,7 @@ B:HANDS:FIRE:3d8+0
 N:147:Fire Trap
 A:90:9:3
 A:90:21:1
+A:93:13:1
 C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
@@ -1441,6 +1642,7 @@ S:WARD_TRAP:22
 
 N:148:Flame Blade
 A:90:9:4
+A:93:13:23
 C:1:9:6:35:7
 C:3:17:7:75:2
 C:4:11:6:50:4
@@ -1449,8 +1651,9 @@ S:INVEN_WIELD:574
 L:1d48+48
 
 N:149:Summon Fire Elemental
-A:90:9:6
+#A:90:9:6
 A:92:11:6
+A:93:13:15
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -1460,6 +1663,7 @@ S:SUMMON_RACE:363
 
 N:150:Wall of Fire
 A:90:9:7
+A:93:13:25
 C:1:23:12:60:8
 C:4:31:25:70:3
 C:8:31:25:70:3
@@ -1467,6 +1671,7 @@ B:WALL:FIRE:8d8
 
 N:151:Fire Bolt II
 A:90:9:8
+A:93:13:18
 C:1:25:19:60:12
 C:4:35:41:70:9
 C:8:25:19:60:12
@@ -1475,6 +1680,7 @@ B:BOLT:FIRE:8d8
 
 N:152:Fire Bolt III
 A:90:9:10
+A:93:13:24
 C:1:35:28:70:18
 C:4:45:61:80:15
 C:8:35:28:70:18
@@ -1484,6 +1690,7 @@ B:BOLT:FIRE:8d8
 
 N:153:Fire Storm
 A:90:9:11
+A:93:13:22
 C:1:37:37:80:18
 C:4:43:51:95:11
 C:8:37:37:80:18
@@ -1491,6 +1698,7 @@ B:STORM:FIRE:2d0+95
 
 N:154:Melting Hands
 A:90:10:1
+A:93:1:16
 C:1:1:2:26:4
 C:4:5:3:35:1
 C:8:3:3:29:2
@@ -1498,6 +1706,7 @@ B:HANDS:ACID:3d8
 
 N:155:Acid Trap
 A:90:10:3
+A:93:1:1
 C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
@@ -1506,6 +1715,7 @@ S:WARD_TRAP:23
 
 N:156:Acid Blade
 A:90:10:4
+A:93:1:23
 C:1:9:6:35:7
 C:3:17:7:75:2
 C:4:11:6:50:4
@@ -1515,6 +1725,7 @@ L:1d48+48
 
 N:157:Acid Bolt II
 A:90:10:6
+A:93:1:18
 C:1:20:13:60:18
 C:4:30:33:60:12
 C:8:25:23:60:15
@@ -1522,7 +1733,8 @@ B:BOLT:ACID:6d8
 B:BOLT:ACID:6d8
 
 N:158:Summon Ooze Elemental
-A:90:10:8
+#A:90:10:8
+A:93:1:15
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -1531,6 +1743,7 @@ S:SUMMON_RACE:388
 
 N:159:Wall of Acid
 A:90:10:9
+A:93:1:25
 C:1:23:12:60:8
 C:4:31:25:70:3
 C:8:27:18:65:5
@@ -1538,6 +1751,7 @@ B:WALL:ACID:6d8
 
 N:160:Acid Storm
 A:90:10:10
+A:93:1:22
 C:1:28:31:85:26
 C:4:38:51:85:19
 C:8:33:41:85:23
@@ -1545,6 +1759,7 @@ B:STORM:ACID:2d0+65
 
 N:161:Acid Bolt III
 A:90:10:11
+A:93:1:24
 C:1:30:19:70:24
 C:4:40:49:70:18
 C:1:35:34:70:21
@@ -1553,13 +1768,16 @@ B:BOLT:ACID:6d8
 
 N:162:Shocking Hands
 A:90:12:1
+A:93:22:16
 C:1:1:2:26:4
 C:4:5:3:35:1
 C:8:1:2:26:4
 B:HANDS:ELEC:3d8
 
 N:163:Resist Electricity
+A:75:64:1
 A:90:12:2
+A:93:22:20
 C:1:4:5:50:20
 C:3:10:12:50:40
 C:4:8:15:50:30
@@ -1567,9 +1785,10 @@ C:8:4:5:50:20
 F:OPP_ELEC
 L:1d20+20
 
-N:164:Lightening Trap
+N:164:Lightning Trap
 A:90:12:3
 A:90:21:2
+A:93:22:1
 C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
@@ -1578,6 +1797,7 @@ S:WARD_TRAP:78
 
 N:165:Storm Blade
 A:90:12:5
+A:93:22:23
 C:1:9:6:35:7
 C:3:17:7:75:2
 C:4:11:6:50:4
@@ -1585,30 +1805,34 @@ C:8:9:6:35:7
 S:INVEN_WIELD:573
 L:1d48+48
 
-N:166:Lightening Bolt II
+N:166:Lightning Bolt II
 A:90:12:6
+A:93:22:18
 C:1:15:9:40:10
 C:4:19:15:50:9
 C:8:15:9:40:10
 B:BOLT_10:ELEC:3d8
 B:BOLT_10:ELEC:3d8
 
-N:167:Wall of Lightening
+N:167:Wall of Lightning
 A:90:12:7
+A:93:22:25
 C:1:23:12:60:8
 C:4:31:25:70:3
 C:8:23:12:60:8
 B:WALL:ELEC:3d8
 
-N:168:Ball Lightening
+N:168:Ball Lightning
 A:90:12:8
+A:93:22:13
 C:1:24:15:60:10
 C:4:31:23:75:4
 C:8:24:15:60:10
 B:BALL:ELEC:1d0+90
 
-N:169:Lightening Bolt III
+N:169:Lightning Bolt III
 A:90:12:9
+A:93:22:24
 C:1:25:13:50:16
 C:4:29:22:60:15
 C:8:25:13:50:16
@@ -1616,8 +1840,9 @@ B:BOLT_10:ELEC:3d8
 B:BOLT_10:ELEC:3d8
 B:BOLT_10:ELEC:3d8
 
-N:170:Lightening Storm
+N:170:Lightning Storm
 A:90:12:10
+A:93:22:22
 C:1:32:31:75:16
 C:4:39:47:90:10
 C:8:32:31:75:16
@@ -1625,6 +1850,7 @@ B:STORM:ELEC:2d0+115
 
 N:171:Freezing Hands
 A:90:11:1
+A:93:14:16
 C:1:1:2:26:4
 C:4:5:3:35:1
 C:8:1:2:26:4
@@ -1632,6 +1858,7 @@ B:HANDS:COLD:3d8
 
 N:172:Frost Trap
 A:90:11:3
+A:93:14:1
 C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
@@ -1640,6 +1867,7 @@ S:WARD_TRAP:132
 
 N:173:Frost Blade
 A:90:11:4
+A:93:14:23
 C:1:9:6:35:7
 C:3:17:7:75:2
 C:4:11:6:50:4
@@ -1649,6 +1877,7 @@ L:1d48+48
 
 N:174:Frost Bolt II
 A:90:11:6
+A:93:14:18
 C:1:17:13:50:12
 C:4:25:25:60:10
 C:8:17:13:50:12
@@ -1657,6 +1886,7 @@ B:BOLT_10:COLD:5d8
 
 N:175:Summon Ice Elemental
 A:90:11:8
+A:93:14:15
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -1665,6 +1895,7 @@ S:SUMMON_RACE:410
 
 N:176:Frost Bolt III
 A:90:11:9
+A:93:14:24
 C:1:27:19:60:18
 C:4:35:37:70:16
 C:8:27:19:60:18
@@ -1674,6 +1905,7 @@ B:BOLT_10:COLD:5d8
 
 N:177:Wall of Ice
 A:90:11:10
+A:93:14:25
 C:1:28:15:75:18
 C:4:36:28:85:12
 C:8:28:15:75:18
@@ -1708,6 +1940,7 @@ F:HERO | CURE_FEAR
 L:1d25+25
 
 N:181:Analyze Magic
+A:70:23:1
 A:90:13:3
 C:1:7:5:50:6
 C:3:14:12:50:2
@@ -1771,6 +2004,7 @@ C:3:47:95:85:250
 S:CREATE_KIND:490
 
 N:189:Detect Undead
+A:70:64:1
 A:90:14:1
 C:1:1:1:23:4
 C:3:5:1:50:1
@@ -1783,15 +2017,16 @@ A:90:14:2
 #C:1:9:7:40:7
 #C:4:13:11:45:8
 #C:8:9:7:40:7
-#B:AREA:ANIM_DEAD:0d0+0
+#B:AREA:ANIM_DEAD
 
-N:191:Turn Undead
+N:191:*Turn Undead*
 A:90:14:3
 C:1:11:10:40:5
 C:3:19:21:50:3
 C:4:19:21:50:3
 C:8:13:15:45:4
-B:LOS:TURN_UNDEAD:0d0+0
+F:HOLD_SONG
+B:LOS:TURN_UNDEAD:2d0+0
 
 N:192:Dispel Undead
 A:90:14:4
@@ -1824,6 +2059,7 @@ F:EVIL
 S:SUMMON:16
 
 N:196:Detect Animals
+A:70:65:1
 A:90:15:1
 A:92:6:1
 C:1:1:1:23:4
@@ -1859,7 +2095,7 @@ A:92:6:4
 #C:4:25:21:65:3
 #C:8:17:9:50:7
 #C:9:17:9:50:7
-#B:AIM:CHARM_ANIMAL:0d0+0
+#B:AIM:CHARM_ANIMAL
 
 N:200:Dragon's Flame
 A:90:15:6
@@ -1914,7 +2150,7 @@ C:4:21:14:50:5
 C:8:21:14:50:5
 C:9:21:14:50:5
 F:HOLD_SONG
-B:LOS:TURN_ALL:0d0+0
+B:LOS:TURN_ALL:1d0+0
 
 N:206:Confusion
 A:90:16:4
@@ -1924,7 +2160,7 @@ C:4:27:22:70:5
 C:8:27:22:70:5
 C:9:27:22:70:5
 F:HOLD_SONG
-B:LOS:CONFUSE_WEAK:0d0+0
+B:LOS:CONFUSE_WEAK:1d0+0
 
 N:207:Unseen Servant
 A:90:16:5
@@ -1978,6 +2214,7 @@ C:8:5:5:30:4
 S:INVEN_LITE:570
 
 N:213:Starlight
+A:55:7:1
 A:90:17:4
 A:92:10:2
 C:1:13:7:50:6
@@ -2019,7 +2256,7 @@ C:1:17:11:70:6
 C:3:27:24:90:3
 C:4:27:24:90:3
 C:8:17:11:70:6
-B:LINE:BRIDGE:0d0+0
+B:LINE:BRIDGE
 
 N:218:Summon Earth Elemental
 A:90:18:7
@@ -2095,6 +2332,7 @@ C:1:46:65:75:250
 B:STORM:POISON:0d0+80
 
 N:227:Find Water
+A:66:12:1
 A:90:20:1
 C:1:3:3:25:1
 C:3:13:5:70:1
@@ -2131,7 +2369,7 @@ C:8:17:13:50:12
 B:BOLT:WATER:6d8
 
 N:231:Summon Water Elemental
-A:90:20:5
+#A:90:20:5
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -2161,7 +2399,7 @@ C:1:9:7:50:40
 C:4:13:16:50:20
 C:8:13:16:50:20
 C:9:13:16:50:20
-B:ADJACENT:KILL_DOOR:0d0+0
+B:ADJACENT:KILL_DOOR
 
 N:235:Power Word Sleep
 A:90:21:7
@@ -2172,7 +2410,7 @@ C:4:25:22:70:6
 C:8:25:22:70:6
 C:9:25:22:70:6
 F:HOLD_SONG
-B:LOS:SLEEP:0d0+0
+B:LOS:SLEEP
 
 N:236:Symbol of Pain
 A:90:21:8
@@ -2253,7 +2491,7 @@ C:1:10:8:48:8
 C:3:16:13:55:7
 C:4:16:13:55:7
 C:8:10:8:41:4
-F:CURE_CUTS | CURE_CONF | CURE_BLIND
+F:CURE_CUTS
 B:SELF:HEAL:6d10+0
 
 N:246:Cure Mortal Wounds
@@ -2329,14 +2567,16 @@ A:92:11:5
 C:9:25:20:60:3
 B:BOLT:SOUND:8d8+0
 
-# Food effects.
+# Additional Food effects.
 
 N:256:Poison
+A:75:6:1
 A:80:0:1
 L:1d10+10
 F:POISON
 
 N:257:Blindness
+A:75:7:1
 A:80:1:1
 L:1d200+200
 F:BLIND
@@ -2347,6 +2587,7 @@ L:1d10+10
 F:FEAR
 
 N:259:Confusion
+A:75:7:1
 A:80:3:1
 L:1d10+10
 F:CONFUSE
@@ -2385,29 +2626,23 @@ N:267:Poisonous Food
 A:80:11:1
 B:SELF:LOSE_STR:10d10+0
 
-# Cure Poison 12
-
 N:268:Cure Blindness
 A:80:13:1
 F:CURE_BLIND
-
-# Remove Fear 14
 
 N:268:Cure Confusion
 A:80:13:1
 F:CURE_CONF
 
-# Cure Serious 15
-
 N:269:Restore Strength
+A:75:42:1
 A:80:16:1
 F:CURE_STR
 
 N:280:Restore Constition
+A:75:46:1
 A:80:17:1
 F:CURE_CON
-
-# Restoring 18
 
 N:280:Mana
 A:80:17:1
@@ -2431,7 +2666,7 @@ F:CURE_POIS
 B:SELF:HEAL:4d8+0
 D:That tastes good
 
-# Potion effects.
+# Additional Potion effects.
 
 N:284:Water
 A:75:0:1
@@ -2440,6 +2675,7 @@ A:75:0:1
 D:You feel less thirsty.
 
 N:285:Slowness
+A:55:1:1
 A:75:4:1
 L:1d10+10
 F:SLOW
@@ -2448,12 +2684,6 @@ N:286:Salt Water
 A:75:5:1
 F:DEC_FOOD
 D:The potion makes you vomit!
-
-# Poison 6
-
-# Blindness 7
-
-# Confusion 9
 
 N:287:Sleep
 A:75:11:1
@@ -2473,27 +2703,27 @@ D:Your nerves and muscles feel weak and lifeless.
 
 N:290:Weakness
 A:75:16:1
-B:SELF:LOSE_STR:0d0+0
+B:SELF:LOSE_STR
 
 N:291:Stupidity
 A:75:17:1
-B:SELF:LOSE_INT:0d0+0
+B:SELF:LOSE_INT
 
 N:292:Naivity
 A:75:18:1
-B:SELF:LOSE_WIS:0d0+0
+B:SELF:LOSE_WIS
 
 N:293:Clumsiness
 A:75:19:1
-B:SELF:LOSE_DEX:0d0+0
+B:SELF:LOSE_DEX
 
 N:294:Sickliness
 A:75:20:1
-B:SELF:LOSE_CON:0d0+0
+B:SELF:LOSE_CON
 
 N:295:Ugliness
 A:75:21:1
-B:SELF:LOSE_CHR:0d0+0
+B:SELF:LOSE_CHR
 
 N:296:Detonations
 A:75:22:1
@@ -2512,30 +2742,6 @@ A:75:24:1
 L:1d100+100+1
 D:INFRA
 
-# Detect Invisible 25
-
-# Slow Poison 26
-
-# Cure Poison 27
-
-# Remove Fear 28
-
-# Speed 28
-
-# Resist Heat 29
-
-# Resist Cold 30
-
-# Heroism 31
-
-# Beserk Strength 32
-
-# Cure light wounds 33
-
-# Cure serious 34
-
-# Cure critical 35
-
 N:299:Cure Critical Wounds
 A:75:36:1
 B:SELF:HEAL:8d8+0
@@ -2551,12 +2757,10 @@ A:75:38:1
 B:SELF:HEAL:0d0+1200
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF
 
-# Life needs CURE_IMAGE implemented.
-
 N:302:Life
 A:75:39:1
 B:SELF:HEAL:0d0+5000
-F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF
+F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF | CURE_IMAGE
 F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
 D:You feel life flow through your body.
 
@@ -2564,10 +2768,6 @@ N:303:Restore Mana
 A:75:40:1
 F:CURE_MANA
 D:You feel your head clear.
-
-# Restore Exp 41
-
-# Restore Strength 42
 
 N:304:Restore Intelligence
 A:75:43:1
@@ -2609,13 +2809,9 @@ N:313:Charisma
 A:75:53:1
 F:INC_CHR
 
-# Restoring 54
-
 N:314:Augmentation
 A:75:55:1
 F:INC_STR | INC_INT | INC_WIS | INC_DEX | INC_CON | INC_CHR
-
-# Enlightement 56
 
 N:315:*Enlightenment*
 A:75:57:1
@@ -2634,11 +2830,12 @@ A:75:59:1
 F:SELF_KNOW
 D:You feel more experienced.
 
-# Scrolls
+# Additional Scroll Effects
 
 N:318:Darkness
+A:55:0:1
 A:70:0:1
-B:SELF:BLIND:0d0+0
+B:SELF:BLIND
 F:DARK_ROOM
 
 N:319:Aggravate Monster
@@ -2654,6 +2851,7 @@ A:70:3:1
 F:CURSE_ARMOR
 
 N:322:Summon Monster
+A:55:3:1
 A:70:4:1
 S:SUMMON:0
 
@@ -2663,11 +2861,9 @@ S:SUMMON:17
 
 N:324:Trap Creation
 A:70:7:1
-B:ADJACENT:MAKE_TRAP:0d0+0
+B:ADJACENT:MAKE_TRAP
 
-N:325:Remove All Curses
-A:70:15:1
-F:CURE_CURSE
+### 325 ###
 
 N:326:Enchant Weapon To-Hit
 A:70:17:1
@@ -2685,41 +2881,16 @@ N:329:*Enchant Weapon*
 A:70:21:1
 F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH
 
-N:330:*Enchant Weapon*
-A:70:21:1
-F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH
+### 330 ###
 
 N:331:Recharging
 A:70:22:1
 S:RECHARGE:60
 
-# Analyze Magic 23
-
-# Light Area 24
-
-# Magic Mapping 25
-
-# Detect Gold 26
-
-#define SV_SCROLL_DETECT_ITEM                   27
-#define SV_SCROLL_DETECT_TRAP                   28
-#define SV_SCROLL_DETECT_DOOR                   29
-#define SV_SCROLL_DETECT_INVIS                  30
-#define SV_SCROLL_DETECT_MAGIC                  31
-#define SV_SCROLL_SATISFY_HUNGER                32
-#define SV_SCROLL_BLESSING                              33
-#define SV_SCROLL_HOLY_CHANT                    34
-#define SV_SCROLL_HOLY_PRAYER                   35
-#define SV_SCROLL_MONSTER_CONFUSION             36
-#define SV_SCROLL_PROTECTION_FROM_EVIL  37
-#define SV_SCROLL_RUNE_OF_PROTECTION    38
-#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
-#define SV_SCROLL_DETECT_CURSE          40
-#define SV_SCROLL_STAR_DESTRUCTION              41
-#define SV_SCROLL_DISPEL_UNDEAD                 42
-#define SV_SCROLL_GAUGE_MAGIC                    43
-#define SV_SCROLL_GENOCIDE                              44
-#define SV_SCROLL_MASS_GENOCIDE                 45
+N:332:Detect Invisible
+A:55:14:1
+A:70:30:1
+F:DETECT_INVIS
 
 N:333:Acquirement
 A:70:46:1
@@ -2733,87 +2904,64 @@ N:335:Legend Lore
 A:70:48:1
 F:IDENT_RUMOR
 
-#define SV_SCROLL_ENCHANT_ARMOR_BRAND           49
-#define SV_SCROLL_ENCHANT_WEAPON_BRAND          50
-#define SV_SCROLL_ENCHANT_WEAPON_BLESS          51
+N:336:Illumination
+A:66:4:1
+A:70:24:1
+B:AREA:LITE_WEAK:2d8+0
+F:LITE_ROOM
 
+N:337:Curing
+A:55:17:1
+A:66:8:1
+F:CURE_BLIND | CURE_POIS | CURE_CONF | CURE_STUN | CURE_CUTS
 
-#/* The "sval" codes for TV_ROD */
-#define SV_ROD_DETECT_TRAP              0
-#define SV_ROD_DETECT_DOOR              1
-#define SV_ROD_DETECT_MAGIC             2
-#define SV_ROD_RECALL                   3
-#define SV_ROD_ILLUMINATION             4
-#define SV_ROD_MAPPING                  5
-#define SV_ROD_DETECTION                6
-#define SV_ROD_GAUGE_MAGIC                  7 /* Was probing */
-#define SV_ROD_CURING                   8
-#define SV_ROD_HEALING                  9
-#define SV_ROD_RESTORATION              10
-#define SV_ROD_SPEED                    11
-#define SV_ROD_DETECT_WATER     12
-#define SV_ROD_TELEPORT_AWAY    13
-#define SV_ROD_DISARMING                14
-#define SV_ROD_LITE                             15
-#define SV_ROD_SLEEP_MONSTER    16
-#define SV_ROD_SLOW_MONSTER             17
+N:338:Healing
+A:66:9:1
+B:SELF:HEAL:0d0+500
+F:CURE_CUTS | CURE_STUN
 
-N:336:Drain Life
+N:339:Disarming
+A:65:4:1
+A:65:24:4
+A:66:14:1
+B:BEAM:KILL_TRAP
+
+N:340:Drain Life
+A:65:12:1
+A:65:24:12
 A:66:18:1
-B:AIM:DRAIN_LIFE:0d0+75
+B:AIM:DRAIN_LIFE:0d0+125
 
-#define SV_ROD_POLYMORPH                19
-#define SV_ROD_ACID_BOLT                20
-#define SV_ROD_ELEC_BOLT                21
-#define SV_ROD_FIRE_BOLT                22
-#define SV_ROD_COLD_BOLT                23
-#define SV_ROD_ACID_BALL                24
-#define SV_ROD_ELEC_BALL                25
-#define SV_ROD_FIRE_BALL                26
-#define SV_ROD_COLD_BALL                27
+N:341:Lightning Ball
+A:65:21:1
+A:65:24:21
+A:66:25:1
+C:1:29:18:65:12
+C:4:35:25:80:5
+C:8:29:18:65:12
+B:BALL:FIRE:1d0+15
 
+N:342:Heal Monster
+A:65:0:1
+A:65:24:24
+B:BOLT:HEAL:4d6+0
 
-#/* The "sval" codes for TV_WAND */
-#define SV_WAND_HEAL_MONSTER    0
+N:343:Haste Monster
+A:65:1:1
+A:65:24:1
+B:BOLT:HASTE
 
-N:337:Heal Monster
+N:344:Clone Monster
+A:65:2:1
+A:65:24:2
+B:BOLT:CLONE
 
-#define SV_WAND_HASTE_MONSTER   1
+N:345:Trap/Door Destruction
+A:65:5:1
+A:65:24:5
+B:BOLT:KILL_DOOR
 
-N:338:Haste Monster
-
-#define SV_WAND_CLONE_MONSTER   2
-
-N:339:Clone Monster
-
-
-#define SV_WAND_TELEPORT_AWAY   3
-#define SV_WAND_DISARMING               4
-#define SV_WAND_TRAP_DOOR_DEST  5
-#define SV_WAND_STONE_TO_MUD    6
-#define SV_WAND_LITE                    7
-#define SV_WAND_SLEEP_MONSTER   8
-#define SV_WAND_SLOW_MONSTER    9
-#define SV_WAND_CONFUSE_MONSTER 10
-#define SV_WAND_FEAR_MONSTER    11
-#define SV_WAND_DRAIN_LIFE              12
-#define SV_WAND_POLYMORPH               13
-#define SV_WAND_STINKING_CLOUD  14
-#define SV_WAND_MAGIC_MISSILE   15
-#define SV_WAND_ACID_BOLT               16
-#define SV_WAND_ELEC_BOLT               17
-#define SV_WAND_FIRE_BOLT               18
-#define SV_WAND_COLD_BOLT               19
-#define SV_WAND_ACID_BALL               20
-#define SV_WAND_ELEC_BALL               21
-#define SV_WAND_FIRE_BALL               22
-#define SV_WAND_COLD_BALL               23
-#define SV_WAND_WONDER                  24
-#define SV_WAND_ANNIHILATION    25
-#define SV_WAND_DRAGON_FIRE             26
-#define SV_WAND_DRAGON_COLD             27
-
-N:340:Dragon's Frost
+N:346:Dragon's Frost
 A:65:27:1
 A:65:28:2
 C:1:20:15:70:20
@@ -2821,90 +2969,395 @@ C:4:30:25:70:13
 C:8:25:20:70:16
 B:STORM:FIRE:2d0+30
 
-N:341:Dragon's Storm
+N:347:Dragon's Storm
 A:65:28:3
 C:1:20:15:70:20
 C:4:30:25:70:13
 C:8:25:20:70:16
 B:STORM:ELEC:2d0+30
 
-N:342:Dragon's Bile
+N:348:Dragon's Bile
 A:65:28:4
 C:1:20:15:70:20
 C:4:30:25:70:13
 C:8:25:20:70:16
 B:STORM:ACID:2d0+50
 
-N:343:Dragon's Venom
+N:349:Dragon's Venom
 A:65:28:5
 C:1:20:15:70:20
 C:4:30:25:70:13
 C:8:25:20:70:16
 B:STORM:POISON:2d0+10
 
-# Newer spells, plus missing older spells.
+N:350:Haste Monsters
+A:55:2:1
+B:LOS:HASTE
 
-#/* The "sval" codes for TV_STAFF */
-#define SV_STAFF_DARKNESS               0
-#define SV_STAFF_SLOWNESS               1
-#define SV_STAFF_HASTE_MONSTERS 2
-#define SV_STAFF_SUMMONING              3
-#define SV_STAFF_TELEPORTATION  4
-#define SV_STAFF_DETECT_CURSE               5
-#define SV_STAFF_REMOVE_CURSE   6
-#define SV_STAFF_STARLITE               7
-#define SV_STAFF_LITE                   8
-#define SV_STAFF_MAPPING                9
-#define SV_STAFF_DETECT_GOLD    10
-#define SV_STAFF_DETECT_ITEM    11
-#define SV_STAFF_DETECT_TRAP    12
-#define SV_STAFF_DETECT_DOOR    13
-#define SV_STAFF_DETECT_INVIS   14
-#define SV_STAFF_DETECT_EVIL    15
-#define SV_STAFF_CURE_LIGHT             16
-#define SV_STAFF_CURING                 17
-#define SV_STAFF_HEALING                18
-#define SV_STAFF_THE_MAGI               19
-#define SV_STAFF_SLEEP_MONSTERS 20
-#define SV_STAFF_SLOW_MONSTERS  21
-#define SV_STAFF_SPEED                  22
-#define SV_STAFF_PROBING                23
-#define SV_STAFF_DISPEL_EVIL    24
-#define SV_STAFF_POWER                  25
-#define SV_STAFF_HOLINESS               26
-#define SV_STAFF_GENOCIDE               27
-#define SV_STAFF_EARTHQUAKES    28
-#define SV_STAFF_DESTRUCTION    29
-#define SV_STAFF_IDENTIFY    30
+N:351:The Magi
+A:55:19:1
+F:CURE_MANA | CURE_INT
+D:You feel your head clear.
+
+N:352:Slow Monsters
+A:55:21:1
+B:LOS:SLOW_WEAK:1d0+0
+
+N:353:Power
+A:55:25:1
+B:LOS:DISPEL_ALL:5d0+0
+
+N:354:Holiness
+A:55:26:1
+B:LOS:DISPEL_EVIL:4d0+0
+B:SELF:HEAL:0d0+50
+F:CURE_FEAR | CURE_POIS | CURE_CUTS | CURE_STUN | PROT_EVIL
+L:1d25+0
+
+# Additional artifact activations
+
+N:355:*Dispel Evil*
+F:HOLD_SONG
+B:LOS:DISPEL_EVIL:5d0+125
+
+N:356:*Haste Self*
+F:HASTE
+L:1d75+75
+
+N:357:*Ice Storm*
+B:STORM:COLD:3d0+125
+
+N:358:*Lightning Storm*
+B:STORM:ELEC:3d0+175
+
+N:359:Cure All Wounds
+A:75:66:1
+B:SELF:HEAL:0d0+500
+F:CURE_CUTS
+
+N:360:*Cure All Wounds*
+A:75:67:1
+B:SELF:HEAL:0d0+1000
+F:CURE_CUTS
+
+N:361:Lightning Star
+B:STAR:ELEC:2d0+100
+
+N:362:Rage/Bless/Resist
+F:SHERO | BLESS | OPP_FIRE | OPP_COLD | OPP_ELEC | OPP_ACID | OPP_POIS
+L:1d50+50
+
+N:363:*Starlight*
+F:HOLD_SONG
+B:STAR:LITE_WEAK:6d8+0
+
+N:364:Mana bolt
+
+N:365:Magical Arrow
+B:BOLT:ARROW:6d0+0
+
+N:366:Remove Fear & Poison
+A:75:68:1
+F:CURE_FEAR | CURE_POIS
+
+# Dragon armor activations
+
+N:367:Breathe Lightning
+A:38:2:1
+A:38:6:1
+A:38:13:1
+A:75:70:1
+B:BREATH:ELEC:3d0+25
+D:You breathe lightning.
+
+N:368:Breathe Frost
+A:38:3:1
+A:38:6:2
+A:38:15:1
+A:75:70:2
+B:BREATH:COLD:3d0+35
+F:OPP_COLD
+L:1d20+20
+D:You breathe frost.
+
+N:369:Breathe Acid
+A:38:1:1
+A:38:6:3
+A:38:17:1
+A:75:70:3
+B:BREATH:ACID:3d0+55
+F:OPP_ACID
+L:1d20+20
+D:You breathe acid.
+
+N:370:Breathe Poison
+A:38:5:1
+A:38:6:4
+A:38:16:1
+A:75:70:4
+B:BREATH:POISON:3d0+75
+F:OPP_POIS
+L:1d20+20
+D:You breathe poison.
+
+N:371:Breathe Fire
+A:38:4:1
+A:38:6:5
+A:38:14:1
+A:75:69:1
+A:75:70:5
+B:BREATH:FIRE:3d0+125
+F:OPP_FIRE
+L:1d20+20
+D:You breathe fire.
+
+N:372:Breathe Confusion
+A:38:14:2
+A:38:10:1
+B:BREATH:CONFUSE:3d0+45
+F:CURE_CONF
+D:You breathe confusion.
+
+N:373:Breathe Sound
+A:38:16:2
+A:38:12:1
+A:38:20:1
+B:BREATH:SOUND:3d0+55
+F:CURE_STUN
+D:You breathe sound.
+
+N:374:Breathe Fear
+A:38:15:2
+F:CURE_FEAR
+B:BREATH:TERRIFY:3d0+35
+D:You breathe fear.
+
+N:375:Breathe Disenchantment
+A:38:17:2
+A:38:18:1
+A:38:20:2
+B:BREATH:DISENCHANT:3d0+25
+D:You breathe disenchantment.
+
+N:376:Breathe Nexus
+A:38:13:2
+B:BREATH:NEXUS:3d0+15
+D:You breathe nexus.
+
+N:377:Breathe Chaos
+A:38:18:2
+A:38:20:3
+F:CURE_IMAGE
+B:BREATH:CHAOS:3d0+145
+D:You breathe chaos.
+
+N:378:Breathe Shards
+A:38:12:2
+A:38:20:4
+F:CURE_CUTS
+B:BREATH:SHARD:3d0+155
+D:You breathe shards.
+
+N:379:Breathe Darkness
+A:38:10:2
+B:BREATH:DARK:3d0+125
+F:BLIND
+L:1d20+20
+D:You breathe darkness.
+
+N:380:Breathe Light
+A:38:10:3
+B:BREATH:LITE:3d0+75
+F:CURE_BLIND
+D:You breathe light.
+
+N:381:Breathe Power
+A:38:30:1
+B:BREATH:MISSILE:3d0+225
+D:You breathe the elements.
+
+# Elemental ring activations
+
+N:382:Conjure Flames
+A:45:18:1
+B:BALL:FIRE:2d0+30
+F:OPP_FIRE
+L:1d20+20
+D:You conjure up flames.
+
+N:383:Conjure Acid
+A:45:17:1
+B:BALL:ACID:2d0+20
+F:OPP_ACID
+L:1d20+20
+D:You conjure up acid.
+
+N:384:Conjure Ice
+A:45:19:1
+B:BALL:COLD:2d0+35
+F:OPP_COLD
+L:1d20+20
+D:You conjure up ice.
+
+N:385:Conjure Lightning
+A:45:38:1
+B:BALL:ELEC:2d0+25
+F:OPP_ELEC
+L:1d20+20
+D:You conjure up lightning.
+
+# Missed Cubragol branding.
+
+N:386:Enchant Bolts Brand
+A:70:58:1
+S:BRAND_BOLTS:8
+
+# Additional effects from normal items
+# Note these have been made into spells as well.
+
+N:387:Torch Flame
+A:39:0:1
+A:90:9:12
+A:93:13:7
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:5:5:30:6
+B:ADJACENT:FIRE:2d6+0
+
+N:388:Burning Oil
+A:39:1:1
+A:77:0:1
+A:90:13:12
+C:1:3:4:30:1
+C:3:15:6:75:1
+C:4:7:6:40:2
+C:8:7:6:40:2
+B:ADJACENT:FIRE:3d6+0
+
+N:389:Acid Splash
+A:77:2:1
+A:90:10:12
+A:90:13:13
+A:93:1:7
+C:1:5:5:30:6
+C:3:17:7:80:1
+C:4:9:8:45:3
+C:8:7:5:37:5
+B:ADJACENT:ACID:3d6+0
+
+# New spells
+
+N:390:Poison Weapon
+A:75:71:1
+A:90:13:14
+A:93:4:23
+C:1:22:30:50:250
+C:3:26:30:50:250
+C:4:22:30:50:250
+C:8:26:30:50:250
+S:BRAND_WEAPON:9
+
+N:391:Poison Bolts
+A:75:72:1
+A:90:13:15
+A:93:4:2
+C:1:15:20:80:200
+C:3:20:25:80:160
+C:4:25:30:80:125
+C:8:15:20:80:200
+S:BRAND_BOLTS:9
+
+N:392:Continual Light
+A:70:53:1
+A:90:17:8
+C:1:17:9:50:7
+C:4:25:21:65:3
+C:8:17:9:50:7
+S:BRAND_ITEM:10
+
+N:393:Acid Proofing
+A:70:54:1
+A:90:10:8
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:21:22:90:8
+S:BRAND_ITEM:11
+
+N:394:Fire Proofing
+A:70:55:1
+A:90:9:6
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+C:9:30:30:99:6
+S:BRAND_ITEM:12
+
+N:395:Water Proofing
+A:70:56:1
+A:90:20:5
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+S:BRAND_ITEM:13
+
+N:396:Theft Proofing
+A:70:57:1
+A:90:4:7
+C:1:21:22:90:8
+C:3:30:30:99:6
+C:4:29:33:95:3
+C:8:19:20:85:8
+S:BRAND_ITEM:14
+
+# Basic wizard defense spell
+
+N:397:Wizard Lock
+A:90:0:10
+A:93:7:16
+C:1:1:2:26:4
+C:3:9:3:60:1
+C:4:5:3:35:1
+C:9:5:3:35:1
+B:STRIKE:LOCK_DOOR
+F:LITE_ROOM
+
+# Intermediate priest attack spell
+
+N:398:Striking
+A:91:1:9
+C:2:5:4:30:4
+C:5:9:8:40:3
+C:8:9:8:40:3
+B:STRIKE:HOLY_ORB:3d6+0
+
+N:399:Ring of Power (Bad)
+A:45:37:1
+A:45:37:2
+B:SELF:LOSE_ALL:10d10+0
+F:DEC_EXP
+D:You are surrounded by a malignant aura.
+
+N:400:Ring of Power (Powerful)
+A:45:37:3
+B:LOS:DISPEL_ALL:0d0+1000
+D:You are surrounded by a powerful aura.
+
+N:401:Ring of Power (Mana Ball)
+A:45:37:4
+A:45:37:5
+A:45:37:6
+B:STORM:MANA:0d0+300
+
+N:402:Ring of Power (Mana Bolt)
+A:45:37:7
+A:45:37:8
+A:45:37:9
+A:45:37:10
+B:BOLT:MANA:0d0+250
 
 
-
-#Alchemy spell
-
-#N:247:Create Homonculous
-#C:1:11:22:90:8
-#C:3:20:30:99:6
-#C:4:19:33:95:3
-#C:8:11:22:90:8
-#S:SUMMON_RACE:235
-
-#Diabolical spell
-
-#N:248:Summon Imp
-#C:1:11:22:90:8
-#C:3:20:30:99:6
-#C:4:19:33:95:3
-#C:8:11:22:90:8
-#S:SUMMON_RACE:219
-#F:EVIL
-
-#Necromatic spell
-
-#N:249:Summon Quasit
-#C:1:11:22:90:8
-#C:3:20:30:99:6
-#C:4:19:33:95:3
-#C:8:11:22:90:8
-#S:SUMMON_RACE:217
-#F:EVIL
 

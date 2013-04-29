@@ -1468,7 +1468,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	"variant_town",						/* xxx */
+	NULL,						/* xxx */
 	"variant_mushrooms",						/* xxx */
 	"variant_hit_traps",						/* xxx */
 	"variant_room_info",						/* xxx */
@@ -1508,7 +1508,7 @@ cptr option_text[OPT_MAX] =
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	NULL,						/* xxx */
+        "birth_campaign",                               /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1572,7 +1572,7 @@ cptr option_text[OPT_MAX] =
 	"adult_no_stores",			/* OPT_adult_no_stores */
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
-	NULL,						/* xxx */
+        "adult_campaign",                                /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1732,7 +1732,7 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-        "Play campaign mode (experimental)",                                            /* xxx */
+	NULL,										/* xxx */
 	"Magic mushroom patch",								/* xxx */
 	"Monsters hit traps",								/* xxx */
 	"Generate themed rooms",							/* xxx */
@@ -1771,8 +1771,8 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
-	"Birth: Randomize some of the artifacts",	/* OPT_birth_rand_artifacts */
-	NULL,										/* xxx */
+        "Birth: Randomize all of the artifacts",       /* OPT_birth_rand_artifacts */
+        "Birth: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1835,8 +1835,8 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
-	"Adult: Randomize some of the artifacts",	/* OPT_adult_rand_artifacts */
-	NULL,										/* xxx */
+        "Adult: Randomize all of the artifacts",       /* OPT_adult_rand_artifacts */
+        "Adult: Play in Lord of the Rings campaign",   /* OPT_birth_campaign */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2036,7 +2036,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_birth_campaign */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2100,8 +2100,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_adult_campaign */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2277,7 +2276,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
-		255,
+                OPT_birth_campaign,
 		255,
 		255,
 		255,
@@ -2349,7 +2348,6 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_usage_id,
                 OPT_variant_pval_stacks,
 		OPT_variant_time_stacks,
-                OPT_variant_town,
 		OPT_variant_room_info,
                 OPT_variant_belt_slot,
                 OPT_variant_fast_moves,
@@ -2357,6 +2355,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_variant_more_spells,
                 OPT_variant_drop_body,
                 OPT_variant_save_feats,
+                255,
 		255,
 		255,
 		255,
@@ -2387,7 +2386,6 @@ cptr inscrip_text[MAX_INSCRIP] =
         "superb",
 	"unbreakable",
         "ungettable",
-        "nonmagical",
         "sustain",
         "high resist",
         "enchanted",
@@ -2397,10 +2395,11 @@ cptr inscrip_text[MAX_INSCRIP] =
         "slay",
         "branded",
         "poisoned",
-        "glowing",
+        "lite",
+        "acidproof",
         "fireproof",
         "waterproof",
-        "acidproof"
+	"theftproof"
 };
 
 int object_xtra_what[MAX_HIDDEN] =
@@ -2418,7 +2417,8 @@ int object_xtra_what[MAX_HIDDEN] =
         3,
         2,
         2,
-        2
+        2,
+	  2
 };
 
 u32b object_xtra_base[MAX_HIDDEN] =
@@ -2434,9 +2434,10 @@ u32b object_xtra_base[MAX_HIDDEN] =
         TR1_BRAND_COLD,
         TR1_BRAND_POIS,
         TR3_LITE,
+        TR2_IGNORE_ACID,
         TR2_IGNORE_FIRE,
         TR2_IGNORE_WATER,
-        TR2_IGNORE_WATER,
+	  TR2_IGNORE_THEFT
 };
 
 
@@ -2445,7 +2446,7 @@ int object_xtra_size[MAX_HIDDEN] =
         0,
         6,
         12,
-        8,
+        15,
         4,
         5,
         1,
@@ -2456,6 +2457,7 @@ int object_xtra_size[MAX_HIDDEN] =
         1,
         1,
         1,
+	1
 };
 
 

@@ -63,444 +63,59 @@
 
 V:2.9.2
 
-N:1:2:1:3
-A:
-B:graveyard
-D:Animal skulls line 
-K:1
-R:ANIMAL
-S:SEEN
+# 20% of rooms have at least one kind of visible feature
 
-N:1:2:2:0
-A:
-B:mausoleum
-D:Skulls line 
-K:1
-S:SEEN
-
-N:1:2:3:0
-A:grafittied
-B:
-D:Crude grafitti covers 
-S:SEEN
-
-N:1:2:4:4
-A:
-B:
-D:Claw marks cover 
-G:H
-S:SEEN
-
-N:1:2:5:0
-A:frescoed
-B:
-D:Faded frescoes cover 
-S:SEEN
-F:439
-
-N:1:2:6:0
-A:painted
-B:
-D:Faded cave paintings 
-S:SEEN
-
-N:1:2:7:9
-A:
-B:
-D:Hieroglyphics cover 
-G:z
-S:SEEN
-
-N:1:2:8:60
-A:
-B:
-D:Strange runes cover 
-F:20
-S:SEEN | CURSED
-
-N:1:2:9:40
-A:
-B:
-D:Strange runes cover 
-F:21
-S:SEEN | PORTAL
-
-N:1:2:11:0
-A:candle-lit
-B:
-D:Candles line 
-F:405
-S:SEEN
-L:DARK
-
-N:1:2:12:0
-A:curtained
-B:
-D:Thick curtains cover 
-S:SEEN
-F:443
-
-N:1:2:13:4
-A:
-B:
-D:Ornate curtains frame  
-G:S
-S:SEEN
-F:444
-
-N:1:2:14:0
-A:
-B:
-D:Dusty cobwebs cover 
-F:447
-S:SEEN
-
-N:1:2:15:12
-A:
-B:
-D:Giant spider webs cover 
-G:S
-S:SEEN
-F:446
-
-#Note race flag to force only mushroom patches.
-
-N:1:2:16:3
-A:
-B:
-D:Delicate mushrooms cover 
-G:,
-R:ONLY_ITEM
-K:80
-S:SEEN
-
-N:1:2:17:3
-A:moldy
-B:
-D:Mold covers 
-G:m
-S:SEEN
-
-N:1:2:18:0
-A:mildewed
-B:
-D:Mildew covers 
-S:SEEN
-F:306
-
-N:1:2:19:1
-A:
-B:library
-D:Empty bookshelves line 
-K:70
-S:SEEN
-
-N:1:2:20:4
-A:
-B:library
-D:Crowded bookshelves line 
-K:90
-G:q
-S:SEEN
-
-N:1:2:21:4
-A:
-B:library
-D:Crowded bookshelves line 
-K:91
-G:p
-S:SEEN
-
-N:1:2:22:4
-A:
-B:laboratory
-D:Laboratory equipment lines 
-K:75
-G:q
-S:SEEN
-
-N:1:2:23:5
-A:
-B:weapons room
-D:Weapon racks line 
-K:21
-G:t
-S:SEEN
-
-N:1:2:24:7
-A:
-B:weapons room
-D:Weapon racks line 
-K:22
-G:t
-S:SEEN
-
-N:1:2:25:4
-A:
-B:weapons room
-D:Weapon racks line 
-K:23
-G:t
-S:SEEN
-
-N:1:2:26:1
-A:
-B:cloakroom
-D:Cloaks hang from 
-K:35
-S:SEEN
-
-N:1:2:27:3
-A:
-B:armoury
-D:Leather armour lines 
-K:36
-S:SEEN
-
-N:1:2:28:25
-A:
-B:armoury
-D:Metal armour lines 
-K:37
-S:SEEN
-
-N:1:2:29:3
-A:
-B:armoury
-D:Battered shields hang from 
-K:34
-S:SEEN
-
-N:1:2:30:5
-A:
-B:closet
-D:Empty chests line
-F:319
-S:SEEN
-
-N:1:2:31:3
-A:
-B:
-D:Banners hang from 
-K:32
-S:SEEN
-
-N:1:2:32:6
-A:
-B:
-D:Burn marks cover 
-R:IM_FIRE
-F:308
-S:SEEN
-
-N:1:2:33:6
-A:
-B:
-D:Acid marks cover 
-R:IM_ACID
-F:309
-S:SEEN
-
-N:1:2:34:30
-A:
-B:
-D:Frost covers 
-R:IM_COLD
-F:132
-L:ICE
-S:SEEN
-
-N:1:2:35:10
-A:
-B:
-D:Burn marks cover 
-R:BR_FIRE
-F:308
-S:SEEN
-
-N:1:2:36:11
-A:
-B:
-D:Acid marks cover 
-R:BR_ACID
-F:309
-S:SEEN
-
-N:1:2:37:11
-A:
-B:
-D:Frost covers 
-R:BR_COLD
-L:ICE
-F:132
-S:SEEN
-
-N:1:2:38:11
-A:
-B:
-D:Acid marks cover 
-R:IM_ACID
-F:309
-G:j
-S:SEEN
-
-N:1:2:41:5
-A:
-B:
-D:Ancient statues line 
-G:t
-S:SEEN
-K:11
-
-N:1:2:42:1
-A:
-B:
-D:Broken statues line 
-F:49
-S:SEEN
-K:11
-
-N:1:2:43:4
-A:
-B:crypt
-D:Stone caskets line 
-R:UNDEAD
-S:SEEN
-K:2
-
-N:1:2:44:11
-A:
-B:
-D:Deep gouges cover 
-R:DRAGON
-S:SEEN
-
-N:1:2:45:4
-A:
-B:
-D:Scratch marks cover 
-G:f
-S:SEEN
-
-N:1:2:46:14
-A:
-B:
-D:Gold inlay covers 
-K:100
-S:SEEN
-
-N:1:2:47:0
-A:
-B:
-D:Wooden panels cover 
-S:SEEN
-K:449
-
-N:1:2:48:0
-A:
-B:kitchen
-D:Cupboards cover 
-K:80
-S:SEEN
-F:450
-
-N:1:13:49:0
-A:
-B:
-D:A worn 
-S:SEEN
-
-N:1:13:50:5
-A:
-B:
-D:A mottled 
-S:SEEN
-
-N:1:13:51:40
-A:
-B:
-D:A strange 
-S:SEEN | PORTAL
-
-N:1:13:52:30
-A:
-B:
-D:A gleaming  
-S:SEEN | ICKY
-
-N:1:13:53:50
-A:
-B:
-D:A glistening 
-S:SEEN | BLOODY
-
-N:1:13:54:60
-A:
-B:
-D:A glowing 
-S:SEEN | CURSED
-
-N:1:2:55:40
-A:
-B:
-D:Blood seeps from
-S:SEEN | BLOODY
-F:305
-
-# Note flag to force only slimes.
-
-N:1:2:56:15
-A:
-B:
-D:Slime covers 
-G:,
-R:FRIENDS
-F:306
-S:SEEN
-
-N:1:2:57:0
-A:
-B:cell
-D:Rusted manacles hang from 
-K:1
-
-N:1:4:100:0
+N:1:17:20:0
 A:
 B:
 D:
-S:SEEN
 
-N:2:4:15:0
+# another 20% of rooms have one kind of visible feature
+
+N:1:4:10:0
+A:
+B:
+D:
+
+
+# 80% may only have non-visible features
+
+N:1:7:100:0
+A:
+B:
+D:
+
+N:2:18:15:0
 A:
 B:
 D:the north wall.  
 S:SEEN
 
-N:2:4:30:0
+N:2:18:30:0
 A:
 B:
 D:the east wall.  
 S:SEEN
 
-N:2:4:45:0
+N:2:18:45:0
 A:
 B:
 D:the west wall.  
 S:SEEN
 
-N:2:4:60:0
+N:2:18:60:0
 A:
 B:
 D:the south wall.  
 S:SEEN
 
-N:2:4:65:0
+N:2:18:65:0
 A:
 B:
 D:the walls and ceiling.  
 S:SEEN
 
-N:2:4:66:0
+N:2:18:66:0
 A:
 B:
 D:every available surface.  
@@ -536,31 +151,31 @@ B:
 D:an cupboard in 
 S:SEEN
 
-N:2:4:100:0
+N:2:18:100:0
 A:
 B:
 D:the walls.  
 S:SEEN
 
-N:3:4:25:0
+N:3:18:25:0
 A:
 B:
 D:the north wall.  
 S:SEEN
 
-N:3:4:50:0
+N:3:18:50:0
 A:
 B:
 D:the east wall.  
 S:SEEN
 
-N:3:4:75:0
+N:3:18:75:0
 A:
 B:
 D:the west wall.  
 S:SEEN
 
-N:3:4:100:0
+N:3:18:100:0
 A:
 B:
 D:the south wall.  
@@ -613,7 +228,7 @@ N:4:5:9:45
 A:
 B:throneroom
 D:An iron throne 
-G:t
+R:WARRIOR
 K:33
 S:SEEN
 
@@ -621,7 +236,7 @@ N:4:5:10:45
 A:
 B:throneroom
 D:A gold-leafed throne 
-G:q
+R:MAGE
 K:33
 S:SEEN
 
@@ -726,7 +341,7 @@ N:4:5:25:30
 A:
 B:chapel
 F:373
-G:p
+R:PRIEST
 D:A wooden altar 
 S:SEEN
 
@@ -734,7 +349,7 @@ N:4:5:26:20
 A:
 B:temple
 F:374
-G:p
+R:PRIEST
 D:A stone altar 
 S:SEEN
 
@@ -742,8 +357,7 @@ N:4:5:27:20
 A:unholy
 B:temple
 F:375
-G:p
-R:EVIL
+R:PRIEST
 D:A blood-stained altar 
 S:SEEN
 
@@ -948,7 +562,7 @@ R:BR_FIRE
 S:SEEN
 F:308
 
-N:1:2:17:11
+N:6:2:17:11
 A:
 B:
 D:badly melted by powerful acid.  
@@ -956,7 +570,7 @@ R:BR_ACID
 S:SEEN
 F:309
 
-N:1:2:18:11
+N:6:2:18:11
 A:
 B:
 D:covered in a thick layer of frost.  
@@ -1128,23 +742,17 @@ D:planted with thorny bushes.
 F:448
 S:SEEN
 
-N:6:7:42:0
+N:6:7:70:0
 A:dusty
 B:
 D:covered in dust.  
 F:134
 S:SEEN
 
-N:6:7:70:0
+N:6:7:100:0
 A:old
 B:
 D:weathered with age.  
-S:SEEN
-
-N:6:7:100:0
-A:
-B:
-D:unmarked by time.  
 S:SEEN
 
 N:7:8:80:0
@@ -1210,10 +818,10 @@ D:filled with gas.
 F:181
 
 N:8:9:74:4
-A:
+A:smokey
 B:
 D:smokey with incense.  
-G:p
+R:PRIEST
 
 N:8:9:75:9
 A:
@@ -1403,7 +1011,7 @@ N:12:15:11:14
 A:
 B:
 D:distant chanting...
-G:q
+R:MAGE
 
 
 N:12:15:12:40
@@ -1589,22 +1197,15 @@ N:15:16:9:0
 A:brightly-lit
 B:
 
-N:15:16:12:0
-A:torch-lit
-B:
-F:404
-L:DARK
-
 N:15:16:15:0
 A:gloomy
 B:
 S:GLOOMY
+L:DARK
 
 N:15:16:18:0
 A:shadowy
 B:
-S:GLOOMY
-L:DARK
 
 N:15:16:21:0
 A:half-lit
@@ -1635,16 +1236,9 @@ N:15:16:39:0
 A:ancient
 B:
 
-N:15:16:42:10
-A:magical
-B:
-F:406
-L:DARK
-
 N:15:16:100:0
 A:empty
 B:
-
 
 N:16:0:20:1
 A:
@@ -1665,7 +1259,7 @@ B:guardroom
 N:16:0:45:1
 A:
 B:store room
-F:319
+K:3
 
 N:16:0:65:1
 A:
@@ -1678,3 +1272,467 @@ B:cave
 N:16:0:100:1
 A:
 B:room
+
+N:17:2:1:3
+A:
+B:graveyard
+D:Animal skulls line 
+K:1
+R:ANIMAL
+S:SEEN
+
+N:17:2:2:0
+A:
+B:mausoleum
+D:Skulls line 
+K:1
+S:SEEN
+
+N:17:2:3:0
+A:grafittied
+B:
+D:Crude grafitti covers 
+S:SEEN
+
+N:17:2:4:4
+A:
+B:
+D:Claw marks cover 
+G:H
+S:SEEN
+
+N:17:2:5:0
+A:frescoed
+B:
+D:Faded frescoes cover 
+S:SEEN
+F:439
+
+N:17:2:6:0
+A:painted
+B:
+D:Faded cave paintings 
+S:SEEN
+
+N:17:2:7:9
+A:
+B:
+D:Hieroglyphics cover 
+G:z
+S:SEEN
+
+N:17:2:8:60
+A:
+B:
+D:Strange runes cover 
+F:20
+S:SEEN | CURSED
+
+N:17:2:9:40
+A:
+B:
+D:Strange runes cover 
+F:21
+S:SEEN | PORTAL
+
+N:17:2:11:0
+A:candle-lit
+B:
+D:Candles line 
+F:405
+S:SEEN
+L:DARK
+
+N:17:2:12:0
+A:curtained
+B:
+D:Thick curtains cover 
+S:SEEN
+F:443
+
+N:17:2:13:4
+A:
+B:
+D:Ornate curtains frame 
+G:S
+S:SEEN
+F:444
+
+N:17:2:14:0
+A:
+B:
+D:Dusty cobwebs cover 
+F:447
+S:SEEN
+
+N:17:2:15:12
+A:
+B:
+D:Giant spider webs cover 
+G:S
+S:SEEN
+F:446
+
+#Note race flag to force only mushroom patches.
+
+N:17:2:16:3
+A:
+B:
+D:Delicate mushrooms cover 
+G:,
+R:ONLY_ITEM
+K:80
+S:SEEN
+
+N:17:2:17:3
+A:moldy
+B:
+D:Mold covers 
+G:m
+S:SEEN
+
+N:17:2:18:0
+A:mildewed
+B:
+D:Mildew covers 
+S:SEEN
+F:306
+
+N:17:2:19:1
+A:
+B:library
+D:Empty bookshelves line 
+K:70
+S:SEEN
+
+N:17:2:20:4
+A:
+B:library
+D:Crowded bookshelves line 
+K:90
+R:MAGE
+S:SEEN
+
+N:17:2:21:4
+A:
+B:library
+D:Crowded bookshelves line 
+K:91
+R:PRIEST
+S:SEEN
+
+N:17:2:22:4
+A:
+B:laboratory
+D:Laboratory equipment lines 
+K:75
+R:MAGE
+S:SEEN
+
+N:17:2:23:5
+A:
+B:weapons room
+D:Weapon racks line 
+K:21
+R:WARRIOR
+S:SEEN
+
+N:17:2:24:7
+A:
+B:weapons room
+D:Weapon racks line 
+K:22
+R:WARRIOR
+S:SEEN
+
+N:17:2:25:4
+A:
+B:weapons room
+D:Weapon racks line 
+K:23
+R:WARRIOR
+S:SEEN
+
+N:17:2:26:1
+A:
+B:cloakroom
+D:Cloaks hang from 
+K:35
+S:SEEN
+
+N:17:2:27:3
+A:
+B:armoury
+D:Leather armour lines 
+K:36
+S:SEEN
+
+N:17:2:28:25
+A:
+B:armoury
+D:Metal armour lines 
+K:37
+S:SEEN
+
+N:17:2:29:3
+A:
+B:armoury
+D:Battered shields hang from 
+K:34
+S:SEEN
+
+N:17:2:30:5
+A:
+B:closet
+D:Empty chests line
+F:319
+S:SEEN
+
+N:17:2:31:3
+A:
+B:
+D:Banners hang from 
+K:32
+S:SEEN
+
+N:17:2:32:6
+A:
+B:
+D:Burn marks cover 
+R:IM_FIRE
+F:308
+S:SEEN
+
+N:17:2:33:6
+A:
+B:
+D:Acid marks cover 
+R:IM_ACID
+F:309
+S:SEEN
+
+N:17:2:34:30
+A:
+B:
+D:Frost covers 
+R:IM_COLD
+F:132
+L:ICE
+S:SEEN
+
+N:17:2:35:10
+A:
+B:
+D:Burn marks cover 
+R:BR_FIRE
+F:308
+S:SEEN
+
+N:17:2:36:11
+A:
+B:
+D:Acid marks cover 
+R:BR_ACID
+F:309
+S:SEEN
+
+N:17:2:37:11
+A:
+B:
+D:Frost covers 
+R:BR_COLD
+L:ICE
+F:132
+S:SEEN
+
+N:17:2:38:11
+A:
+B:
+D:Acid marks cover 
+R:IM_ACID
+F:309
+G:j
+S:SEEN
+
+N:17:2:41:5
+A:
+B:
+D:Ancient statues line 
+R:WARRIOR
+S:SEEN
+K:11
+
+N:17:2:42:1
+A:
+B:
+D:Broken statues line 
+F:49
+S:SEEN
+K:11
+
+N:17:2:43:4
+A:
+B:crypt
+D:Stone caskets line 
+R:UNDEAD
+S:SEEN
+K:2
+
+N:17:2:44:11
+A:
+B:
+D:Deep gouges cover 
+R:DRAGON
+S:SEEN
+
+N:17:2:45:4
+A:
+B:
+D:Scratch marks cover 
+G:f
+S:SEEN
+
+N:17:2:46:14
+A:
+B:
+D:Gold inlay covers 
+K:100
+S:SEEN
+
+N:17:2:47:0
+A:
+B:
+D:Wooden panels cover 
+S:SEEN
+K:449
+
+N:17:2:48:0
+A:
+B:kitchen
+D:Cupboards cover 
+K:80
+S:SEEN
+F:450
+
+N:17:13:49:0
+A:
+B:
+D:A worn 
+S:SEEN
+
+N:17:13:50:5
+A:
+B:
+D:A mottled 
+S:SEEN
+
+N:17:13:51:40
+A:
+B:
+D:A strange 
+S:SEEN | PORTAL
+
+N:17:13:52:30
+A:
+B:
+D:A gleaming  
+S:SEEN | ICKY
+
+N:17:13:53:50
+A:
+B:
+D:A glistening 
+S:SEEN | BLOODY
+
+N:17:13:54:60
+A:
+B:
+D:A glowing 
+S:SEEN | CURSED
+
+N:17:2:55:40
+A:
+B:
+D:Blood seeps from
+S:SEEN | BLOODY
+F:305
+
+# Note flag to force only slimes.
+
+N:17:2:56:15
+A:
+B:
+D:Slime covers 
+G:,
+R:FRIENDS
+F:306
+S:SEEN
+
+N:17:2:57:0
+A:
+B:cell
+D:Rusted manacles hang from 
+K:1
+F:312
+S:SEEN
+
+N:17:2:65:0
+A:torch-lit
+B:
+D:Torches line 
+F:404
+L:DARK
+S:SEEN
+
+N:17:2:68:10
+A:magical
+B:
+D:Magical lights line 
+F:406
+L:DARK
+S:SEEN
+
+N:17:2:58:2
+A:thieves
+B:
+D:Loot covers 
+K:100
+S:SEEN
+R:SNEAKY
+
+N:17:2:59:3
+A:thieves
+B:
+D:Stolen goods cover 
+F:317
+S:SEEN
+R:SNEAKY
+
+N:17:2:60:3
+A:thieves
+B:
+D:Stolen goods cover 
+F:316
+S:SEEN
+R:SNEAKY
+
+N:17:4:100:0
+A:
+B:
+D:
+S:SEEN
+
+# 10% of these rooms have a second feature
+
+N:18:4:10:0
+A:
+B:
+D:
+
+# Remainder may only have non-visible features
+
+N:18:7:100:0
+A:
+B:
+D:
+

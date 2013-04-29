@@ -1,11 +1,20 @@
 ==== Differences from Vanilla ====
 
+Contents:
+
+1.	New Commands
+2.	Changed Commands
+3.	Attacking and Shooting
+4.	TO BE CONTINUED LATER
+
+==== New Commands ====
+
 The following commands are new to Unnamed Angband:
 
 Apply rune (y) or Engrave rune (^E)
 	Apply a rune from a runestone to an object. Applying runes to
-	objects can have various effects, from transforming an object to a to
-	a type more closely associated with that rune, to enchanting the object
+	objects can have various effects, from transforming an object to a 
+	type more closely associated with that rune, to enchanting the object
 	with a magical effect or even an ego power. More runes applied to an
 	object will have additional, and often cumulative effects, up to 4 or 5
 	runes on most objects. Current applying a rune to another rune acts like
@@ -21,6 +30,8 @@ Interact with auto-inscriptions ($)
 	auto-descriptions for all items of a particular type (tval), kind
 	or ego item type. In a future version, this will be expanded to
 	match the auto-squeltch functions of other variants.
+
+==== Changed Commands ====
 
 The following commands act differently from Vanilla Angband:
 
@@ -191,7 +202,7 @@ Uninscribe an object (})
 
 --- Magical Object Commands ---
 
-Activate an artifact (A)
+Activate an worn object (A)
 	The rings and dragon armours that may be activated may stack with 1
 	instance of a charging item of the same type, if these items would
 	normally stack if charged.
@@ -217,3 +228,82 @@ Look around (l) or Examine things (x)
 	You can look at yourself to see the room description of the room you are
 	in, and any object, monster or feature in a room other than the one you
 	are in.
+
+==== Attacking and Shooting ====
+
+Monster armour class now reduces the damage inflicted by your weapons in melee,
+at the same rate that your armor class reduces the effectiveness of some of their
+attacks. However, monster hit points are also scaled down internally by the same
+factor so that you will notice no difference in the effectiveness of your melee attacks.
+Currently, monster recall displays the unscaled hit points, but this will be
+changed in a future version.
+
+However, this is not the case with spells, missiles and thrown weapons. As a result,
+these attacks are up to 4 times as effective against more heavily armoured monsters,
+than in vanilla.
+
+To compensate, the multiplier from missile weapons is applied to the base missile
+damage, before critical hits, or missile shooter or ammunition damage bonus is added.
+This now makes the missile damage computation equivelent to melee damage. Missiles
+should be roughly as effective as before, if not more so in some instances
+(Remembering total damage is up to 4 times as effective, so only against the most
+heavily armoured creatures, only bows/crossbows with a multiplier of x5 or higher
+have the potential to be less effective than vanilla).
+
+This also has the effect of rendering breath weapons less damaging than vanilla.
+To compensate in a future version of Unangband, monsters will use a version of the
+smarter Oangband 4GAI in order to choose the most effective attack against you.
+
+Currently monsters do not use any additional information about player resistances
+to determine which attack to use, even when smart monster AI is switched on.
+
+Monster attacks now use the same routine as spells for damaging the player. This
+allows monsters to have a variety of attacks that may correspond to breath weapon
+types. In some instances for code simplicity, monster melee attacks may not
+correspond with old vanilla attacks, but the difference should not be too noticeable.
+
+Critical hit computation now takes account the weapon to hit bonus in order to
+determine the chance of a critical and the total critical effectiveness. Actual
+criticals have not been modified from vanilla, but may be so in a future verison
+of Unangband.
+
+Weapon styles will play an important for players who have chosen a particular weapon
+style to specialise in. Most weapon styles are self-explainatory, and are listed on
+the Character display screen with a 1 or 2 letter abbreviation.
+
+One-handed style indicates a weapon of less than 20 lbs wielded without a shield.
+Two-handed style indicates a weapon of 10 lbs or more wielded with a shield. If you
+can qualify for both one-handed and two-handed style, you will pick the most
+advantageous in your circumstances.
+
+Characters may backstab with a sword of less than 10 lbs against a fleeing or
+sleeping monster only.
+
+Two weapons may be wielded in the following instances: when the two weapons are
+the same specific type and of less than 15 lbs , or when the secondary weapon is a
+sword of less than 10 lbs and the primary weapon is less than 20 lbs in weight.
+The second weapon will be treated as twice as heavy, and the sum of weapon weights
+combined for the purpose of determining multiple blows, and the secondary weapon
+will be used to attack on every even numbered strike. Two-weapon combat provides
+only the advantages that the second weapon provides in the instance where
+no further style benefits are given. 
+
+In order to qualify for the unarmed style, the player must not be wielding a weapon,
+but may be carrying anything other than a weapon in their hands (In which case
+they will use their feet to kick). Note that carrying anything other than a weapon
+will not inhibit a skilled unarmed specialist from the advantages of their style.
+
+Staffs may now be wielded as hafted weapons, inflicting 1d6 damage. Whips now only
+do 1d4 damage. Darts are introduced as a 1d4 damage polearm equivelent to a dagger.
+
+Spears are upgraded in name, so that a javelin is the equivelent of the old
+spear, a spear is the equivelent of the old trident, and a two-handed spear is the
+equivelent of the old Lance, but 10 lbs lighter. The related artifact weapons are
+also upgraded, but have roughly the equivelent damage spread as previous. Currently
+the Tridents of Ulmo and Wrath, and Lance of Eorlinga, are Two-Handed Spears, but
+this will change in a future version.
+
+Shields have percentage chance of stopping arrows when wielded, equal to the total
+armour class bonus the shield provides. In a future version of Unangband, shields
+will be upgraded in armour protection to roughly that provided in Oangband.
+

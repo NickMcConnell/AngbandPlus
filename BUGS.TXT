@@ -1,7 +1,8 @@
-08-02-2002
-- There are still plenty of generation bugs for wilderness in campaign
-mode resulting in big crashes. This looks like it'll need a complete
-rewrite.
+25-02-2002
+- Should not be able to brand an entire pile of items. It's too late in the
+day to bother fixing yet...
+- Cannot generate all objects to test in wizard mode because there are
+too many (Potions/scrolls).
 
 06-01-2002
 - You should be able to traverse rubble. But requiring 2 moves.

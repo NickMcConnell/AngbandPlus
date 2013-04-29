@@ -132,6 +132,7 @@ static void do_cmd_travel(void)
 		if (p_ptr->food < PY_FOOD_FULL)
 		{
 			msg_print("You'll need a full stomach for the road ahead.");
+                        msg_print("Tip: Press 'E' to eat some food.");
 		}
 		else if (!edge_y && !edge_x && zone1->fill)
 		{
@@ -144,7 +145,7 @@ static void do_cmd_travel(void)
                         if (t_ptr->near != p_ptr->dungeon)
 			{
                                 msg_format("You see a well worn trail to %s.",t_name + t_info[t_ptr->near].name);
-                                if (get_check("Journey there?"))
+                                if (get_check("Journey there? "))
 				{
                                         selection = t_ptr->near;
 					
@@ -161,7 +162,7 @@ static void do_cmd_travel(void)
                                 else msg_format("By defeating %s, you have opened the way to %s.",
                                         r_name + r_info[zone2->guard].name, t_name + t_info[t_ptr->distant].name);
 
-                                if (get_check("Journey there?"))
+                                if (get_check("Journey there? "))
 				{
                                         selection = t_ptr->distant;
 
@@ -174,7 +175,7 @@ static void do_cmd_travel(void)
 					msg_print("You are embarking on a dangerous quest.");
 					msg_print("Make sure you are prepared, as you are doubtful of your chances of return.");
 
-                                        if (!get_check("Continue the journey?")) selection = p_ptr->dungeon;                                 
+                                        if (!get_check("Continue the journey? ")) selection = p_ptr->dungeon;                                 
 				}
 #endif
 			}
@@ -224,7 +225,7 @@ static void do_cmd_travel(void)
 #endif
 
 				/* Mega-hack */
-				if ((variant_town) && (p_ptr->dungeon == z_info->t_max))
+                                if ((adult_campaign) && (p_ptr->dungeon == z_info->t_max))
 				{
 
 					p_ptr->total_winner = TRUE;
@@ -267,7 +268,7 @@ void do_cmd_go_up(void)
         feature_type *f_ptr= &f_info[cave_feat[py][px]];
 
 	/* Travel if possible */
-        if ((variant_town) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
+        if ((adult_campaign) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
 	{
                 do_cmd_travel();
 		return;
@@ -2469,13 +2470,13 @@ void do_cmd_fire(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml))
 			{
 
 #ifdef ALLOW_OBJECT_INFO
-				u32b k1 = i_ptr->i_object.can_flags1;
-				u32b k2 = i_ptr->i_object.can_flags2;
-				u32b k3 = i_ptr->i_object.can_flags3;
+                                u32b k1 = i_ptr->can_flags1;
+                                u32b k2 = i_ptr->can_flags2;
+                                u32b k3 = i_ptr->can_flags3;
 
                                 u32b n1 = 0x0L;
                                 u32b n2 = 0x0L;
@@ -2487,10 +2488,8 @@ void do_cmd_fire(void)
 				cptr note_dies = " dies.";
 
 				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -2526,7 +2525,7 @@ void do_cmd_fire(void)
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
 
 				/* Apply critical damage */
-				tdam = critical_shot(i_ptr->weight, (i_ptr->to_h + style_crit *30), tdam);
+				tdam = critical_shot(i_ptr->weight, (i_ptr->to_h + j_ptr->to_h + style_crit *30), tdam);
 
 				/* Apply launcher and missile bonus */
 				tdam += i_ptr->to_d + j_ptr->to_d + style_dam;
@@ -2569,9 +2568,9 @@ void do_cmd_fire(void)
 
 #ifdef ALLOW_OBJECT_INFO
 				/* Check flags */
-				n1 = o_ptr->i_object.can_flags1 & ~(k1);
-				n2 = o_ptr->i_object.can_flags2 & ~(k2);
-				n3 = o_ptr->i_object.can_flags3 & ~(k3);
+                                n1 = o_ptr->can_flags1 & ~(k1);
+                                n2 = o_ptr->can_flags2 & ~(k2);
+                                n3 = o_ptr->can_flags3 & ~(k3);
 
 				/* Update the object */
 				update_slot_flags(item,n1,n2,n3);
@@ -2615,6 +2614,7 @@ void do_cmd_throw(void)
 	int i, j, y, x, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
+        int power;
 
 	object_type *o_ptr;
 
@@ -2809,14 +2809,14 @@ void do_cmd_throw(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml))
 			{
 
 
 #ifdef ALLOW_OBJECT_INFO
-				u32b k1 = i_ptr->i_object.can_flags1;
-				u32b k2 = i_ptr->i_object.can_flags2;
-				u32b k3 = i_ptr->i_object.can_flags3;
+                                u32b k1 = i_ptr->can_flags1;
+                                u32b k2 = i_ptr->can_flags2;
+                                u32b k3 = i_ptr->can_flags3;
 
                                 u32b n1 = 0x0L;
                                 u32b n2 = 0x0L;
@@ -2828,10 +2828,8 @@ void do_cmd_throw(void)
 				cptr note_dies = " dies.";
 
 				/* Some monsters get "destroyed" */
-				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -2908,12 +2906,65 @@ void do_cmd_throw(void)
 					}
 				}
 
+                                /* Get item effect */
+                                get_spell(&power, "use", o_ptr, FALSE);
+                        
+                                /* Has a power */
+					  /* Lites, potions and flasks always affect monsters */
+					  /* Food affects monsters if they are living and animals or stupid */
+					  /* Hack -- thrown weapon specialists get this effect with anything */
+                                if ((power > 0) && ((p_ptr->pstyle == WS_THROWN) 
+								      || (o_ptr->tval == TV_POTION)
+									|| (o_ptr->tval == TV_LITE)
+									|| (o_ptr->tval == TV_FLASK)
+									|| ((o_ptr->tval == TV_FOOD) && ((!(r_info[m_ptr->r_idx].flags3 & (RF3_NONLIVING)))
+                                                                                        && (r_info[m_ptr->r_idx].flags3 & (RF3_ANIMAL))
+                                                                                        && (r_info[m_ptr->r_idx].flags2 & (RF2_STUPID))))))
+                                {
+                                        spell_type *s_ptr = &s_info[power];
+                                
+                                        int ap_cnt;
+                                
+                                        /* Scan through all four blows */
+                                        for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+                                        {
+                                                int damage = 0;
+                                
+                                                /* Extract the attack infomation */
+                                                int effect = s_ptr->blow[ap_cnt].effect;
+                                                int method = s_ptr->blow[ap_cnt].method;
+                                                int d_dice = s_ptr->blow[ap_cnt].d_dice;
+                                                int d_side = s_ptr->blow[ap_cnt].d_side;
+                                                int d_plus = s_ptr->blow[ap_cnt].d_plus;
+
+                                                /* Hack -- no more attacks */
+                                                if (!method) break;
+                                
+                                                /* Mega hack -- dispel evil/undead objects */
+                                                if (!d_side)
+                                                {
+                                                        d_plus += 25 * d_dice;
+                                                }
+                                
+                                                /* Roll out the damage */
+                                                if ((d_dice) && (d_side))
+                                                {
+                                                        damage = damroll(d_dice, d_side) + d_plus;
+                                                }
+                                                else
+                                                {
+                                                        damage = d_plus;
+                                                }
+
+                                                (void)project_m(-1,0,y,x,damage, effect);
+                                        }
+                                }
 
 #ifdef ALLOW_OBJECT_INFO
 				/* Check flags */
-				n1 = o_ptr->i_object.can_flags1 & ~(k1);
-				n2 = o_ptr->i_object.can_flags2 & ~(k2);
-				n3 = o_ptr->i_object.can_flags3 & ~(k3);
+                                n1 = o_ptr->can_flags1 & ~(k1);
+                                n2 = o_ptr->can_flags2 & ~(k2);
+                                n3 = o_ptr->can_flags3 & ~(k3);
 
 				/* Update the object */
 				update_slot_flags(item,n1,n2,n3);

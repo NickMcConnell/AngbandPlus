@@ -960,7 +960,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				}
 			}
 			/* Mega hack -- fiddle with store graphics */
-                        else if ((variant_town) && (f_info[feat].flags1 & (FF1_ENTER)))
+                        else if ((adult_campaign) && (f_info[feat].flags1 & (FF1_ENTER)))
 			{
                                 int n = feat-FEAT_SHOP_HEAD;
                                 town_type *t_ptr = &t_info[p_ptr->dungeon];

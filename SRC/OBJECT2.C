@@ -721,13 +721,13 @@ void object_mental(object_type *o_ptr)
 	/* Now we know about the item */
 	o_ptr->ident |= (IDENT_MENTAL);
 
-	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
-                                o_ptr->i_object.can_flags2,
-                                o_ptr->i_object.can_flags3);
+        object_can_flags(o_ptr,o_ptr->can_flags1,
+                                o_ptr->can_flags2,
+                                o_ptr->can_flags3);
 
-	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
-                                o_ptr->i_object.not_flags2,
-                                o_ptr->i_object.not_flags3);
+        object_not_flags(o_ptr,o_ptr->not_flags1,
+                                o_ptr->not_flags2,
+                                o_ptr->not_flags3);
 
 }
 
@@ -753,8 +753,8 @@ void object_mental(object_type *o_ptr)
  */
 void object_known(object_type *o_ptr)
 {
-	/* Remove special inscription, if any */
-	if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+        /* Remove special inscription, except special inscriptions */
+        if ((o_ptr->discount >= INSCRIP_NULL) && (o_ptr->discount < INSCRIP_MIN_HIDDEN)) o_ptr->discount = 0;
 
 	/* The object is not "sensed" */
 	o_ptr->ident &= ~(IDENT_SENSE);
@@ -774,6 +774,10 @@ void object_known(object_type *o_ptr)
         {
                 if (!o_ptr->note) o_ptr->note = e_info[o_ptr->name2].note;
         }
+        else
+        {
+                if (!o_ptr->note) o_ptr->note = k_info[o_ptr->k_idx].note;
+        }
 
 	/* The object kind is not guessed */
         k_info[o_ptr->k_idx].guess = 0; 
@@ -784,38 +788,38 @@ void object_known(object_type *o_ptr)
 	/* Now we know what it is, update what we know about it from our artifact memory */
 	if (o_ptr->name1)
 	{
-		object_can_flags(o_ptr,a_info[o_ptr->name1].i_artifact.can_flags1,
-                                a_info[o_ptr->name1].i_artifact.can_flags2,
-                                a_info[o_ptr->name1].i_artifact.can_flags3);
+                object_can_flags(o_ptr,a_list[o_ptr->name1].can_flags1,
+                                a_list[o_ptr->name1].can_flags2,
+                                a_list[o_ptr->name1].can_flags3);
 
-                object_not_flags(o_ptr,a_info[o_ptr->name1].i_artifact.not_flags1,
-                                a_info[o_ptr->name1].i_artifact.not_flags2,
-                                a_info[o_ptr->name1].i_artifact.not_flags3);
+                object_not_flags(o_ptr,a_list[o_ptr->name1].not_flags1,
+                                a_list[o_ptr->name1].not_flags2,
+                                a_list[o_ptr->name1].not_flags3);
 	}
 	/* Now we know what it is, update what we know about it from our ego item memory */
 	else if (o_ptr->name2)
 	{
-                object_can_flags(o_ptr,e_info[o_ptr->name2].i_ego_item.can_flags1,
-                                e_info[o_ptr->name2].i_ego_item.can_flags2,
-                                e_info[o_ptr->name2].i_ego_item.can_flags3);
+                object_can_flags(o_ptr,e_list[o_ptr->name2].can_flags1,
+                                e_list[o_ptr->name2].can_flags2,
+                                e_list[o_ptr->name2].can_flags3);
 
-                object_not_flags(o_ptr,e_info[o_ptr->name2].i_ego_item.not_flags1,
-                                e_info[o_ptr->name2].i_ego_item.not_flags2,
-                                e_info[o_ptr->name2].i_ego_item.not_flags3);
+                object_not_flags(o_ptr,e_list[o_ptr->name2].not_flags1,
+                                e_list[o_ptr->name2].not_flags2,
+                                e_list[o_ptr->name2].not_flags3);
 	}
 
 	/* Now we know what it is, update what we know about it */
-	object_can_flags(o_ptr,o_ptr->i_object.can_flags1,
-                        o_ptr->i_object.can_flags2,
-                        o_ptr->i_object.can_flags3);
+        object_can_flags(o_ptr,o_ptr->can_flags1,
+                        o_ptr->can_flags2,
+                        o_ptr->can_flags3);
 
-	object_may_flags(o_ptr,o_ptr->i_object.may_flags1,
-                        o_ptr->i_object.may_flags2,
-                        o_ptr->i_object.may_flags3);
+        object_may_flags(o_ptr,o_ptr->may_flags1,
+                        o_ptr->may_flags2,
+                        o_ptr->may_flags3);
 
-	object_not_flags(o_ptr,o_ptr->i_object.not_flags1,
-                        o_ptr->i_object.not_flags2,
-                        o_ptr->i_object.not_flags3);
+        object_not_flags(o_ptr,o_ptr->not_flags1,
+                        o_ptr->not_flags2,
+                        o_ptr->not_flags3);
 
 
 }
@@ -839,7 +843,7 @@ void object_bonus(object_type *o_ptr)
 	if (!(o_ptr->name1) && ((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)))
 	{
 		/* Cursed/Broken */
-		if (!cursed_p(o_ptr) && !broken_p(o_ptr)) return;;
+                if (!cursed_p(o_ptr) && !broken_p(o_ptr)) return;
 
 		/* Remove special inscription, if any */
 		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -1933,15 +1937,15 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	if (j_ptr->note != 0) o_ptr->note = j_ptr->note;
 
 	/* Hack -- Blend flags */
-	object_not_flags(o_ptr,j_ptr->i_object.not_flags1,j_ptr->i_object.not_flags2,j_ptr->i_object.not_flags3);
-	object_may_flags(o_ptr,j_ptr->i_object.may_flags1,j_ptr->i_object.may_flags2,j_ptr->i_object.may_flags3);
-	object_can_flags(o_ptr,j_ptr->i_object.can_flags1,j_ptr->i_object.can_flags2,j_ptr->i_object.can_flags3);
+        object_not_flags(o_ptr,j_ptr->not_flags1,j_ptr->not_flags2,j_ptr->not_flags3);
+        object_may_flags(o_ptr,j_ptr->may_flags1,j_ptr->may_flags2,j_ptr->may_flags3);
+        object_can_flags(o_ptr,j_ptr->can_flags1,j_ptr->can_flags2,j_ptr->can_flags3);
 
 	/* Mega-Hack -- Blend "discounts" */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
 
 	/* Mega Hack -- Blend "usages" */
-	if (o_ptr->i_object.usage < j_ptr->i_object.usage) o_ptr->i_object.usage = j_ptr->i_object.usage;
+        if (o_ptr->usage < j_ptr->usage) o_ptr->usage = j_ptr->usage;
 
 }
 
@@ -2038,17 +2042,17 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 #ifdef ALLOW_OBJECT_INFO
 
-        o_ptr->i_object.can_flags1 = 0x0L;
-        o_ptr->i_object.can_flags2 = 0x0L;
-        o_ptr->i_object.can_flags3 = 0x0L;
+        o_ptr->can_flags1 = 0x0L;
+        o_ptr->can_flags2 = 0x0L;
+        o_ptr->can_flags3 = 0x0L;
 
-        o_ptr->i_object.may_flags1 = 0x0L;
-        o_ptr->i_object.may_flags2 = 0x0L;
-        o_ptr->i_object.may_flags3 = 0x0L;
+        o_ptr->may_flags1 = 0x0L;
+        o_ptr->may_flags2 = 0x0L;
+        o_ptr->may_flags3 = 0x0L;
 
-        o_ptr->i_object.not_flags1 = 0x0L;
-        o_ptr->i_object.not_flags2 = 0x0L;
-        o_ptr->i_object.not_flags3 = 0x0L;
+        o_ptr->not_flags1 = 0x0L;
+        o_ptr->not_flags2 = 0x0L;
+        o_ptr->not_flags3 = 0x0L;
 #endif
 }
 
@@ -2597,6 +2601,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
+                case TV_STAFF:
 		{
 			/* Very Good */
 			if (power > 1)
@@ -3030,7 +3035,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_4(object_type *o_ptr, int level, int power)
 {
-	/* Apply magic (good or bad) according to type */
+        /* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
 		case TV_LITE:
@@ -3260,6 +3265,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			break;
 		}
 
+                case TV_STAFF:
+                {
+			if (!power && (rand_int(100) < 50)) power = -1;
+			if (power) a_m_aux_1(o_ptr, lev, power);
+			a_m_aux_4(o_ptr, lev, power);
+                        break;
+                }
+
 		default:
 		{
 			a_m_aux_4(o_ptr, lev, power);
@@ -3484,7 +3497,7 @@ static bool name_drop_okay(int r_idx)
                 if ((j_ptr->sval == SV_HOLD_BOTTLE) && !(r_ptr->d_char == 'E') && !(r_ptr->d_char == 'v')) return (FALSE);
 
                 /* Only fit non-spellcasters in sacks */
-                else if ((j_ptr->sval == SV_HOLD_SACK) && !(r_ptr->flags4) && !(r_ptr->flags5) && !(r_ptr->flags6)) return (FALSE);
+                else if ((j_ptr->sval == SV_HOLD_SACK) && ((r_ptr->flags4) || (r_ptr->flags5) || (r_ptr->flags6))) return (FALSE);
 
                 /* Only fit undead in boxes */
                 else if ((j_ptr->sval == SV_HOLD_BOX) && !(r_ptr->flags3 & (RF3_UNDEAD))) return (FALSE);
@@ -3503,7 +3516,7 @@ static bool name_drop_okay(int r_idx)
                 if (r_ptr->flags2 & (RF2_STUPID)) return (FALSE);
 
                 /* Hack -- force unique statues */
-                if ((j_ptr->tval == TV_STATUE) && (r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
+                if ((j_ptr->tval == TV_STATUE) && !(r_ptr->flags1 & (RF1_UNIQUE))) return (FALSE);
 
         }
 
@@ -3693,21 +3706,35 @@ static bool kind_is_race(int k_idx)
                         if (r_ptr->flags7 & (RF7_DROP_ARMOR)) return (TRUE);
                         return (FALSE);
 		}
-
                 /* Soft armor/boots/cloaks/gloves */
-                case TV_SOFT_ARMOR:
+            case TV_SOFT_ARMOR:
+                {
+				/* Hack -- armored monsters don't carry soft armor */
+                        if (r_ptr->flags2 & (RF2_ARMOR)) return (FALSE);
+                }
+		case TV_GLOVES:
 		case TV_CLOAK:
 		case TV_BOOTS:
-		case TV_GLOVES:
                 {
                         if (r_ptr->flags7 & (RF7_DROP_CLOTHES)) return (TRUE);
                         return (FALSE);
                 }
                 /* Weapons */
 		case TV_SWORD:
-		case TV_HAFTED:
 		case TV_POLEARM:
 		{
+				/* Hack -- priests other than shamans only carry hafted weapons */
+				if ((r_ptr->flags2 & (RF2_PRIEST)) && !(r_ptr->flags2 & (RF2_MAGE))) return (FALSE);
+		/* Fall through */
+		}
+		case TV_HAFTED:
+		{
+				/* Hack -- mages/priests/thieves only carry weapons < 20 lbs */
+				if ((r_ptr->flags2 & (RF2_PRIEST | RF2_MAGE | RF2_SNEAKY)) && (k_ptr->weight >= 200)) return (FALSE);
+
+				/* Hack -- warriors only carry weapons >= 7 lbs */
+				if ((r_ptr->flags2 & (RF2_ARMOR)) && (k_ptr->weight < 70)) return (FALSE);
+
                         if (r_ptr->flags7 & (RF7_DROP_WEAPON)) return (TRUE);
                         return (FALSE);
 		}
@@ -3724,7 +3751,27 @@ static bool kind_is_race(int k_idx)
 
                 /* Books/Scrolls */
 		case TV_MAGIC_BOOK:
+		{
+				/* Hack -- priests other than shamans do not carry magic books*/
+				if ((r_ptr->flags2 & (RF2_PRIEST)) && !(r_ptr->flags2 & (RF2_MAGE))) return (FALSE);				
+
+				/* Mega hack -- priests and paladins other than shamans do not carry magic books */
+				if ((r_ptr->d_char == 'p') && !(r_ptr->flags2 & (RF2_MAGE))) return (FALSE);				
+
+                        if (r_ptr->flags7 & (RF7_DROP_WRITING)) return (TRUE);
+                        return (FALSE);
+		}
 		case TV_PRAYER_BOOK:
+		{
+				/* Hack -- mages other than shamans do not carry priest books*/
+				if ((r_ptr->flags2 & (RF2_MAGE)) && !(r_ptr->flags2 & (RF2_PRIEST))) return (FALSE);				
+
+				/* Mega hack -- mages and rangers other than shamans do not carry priest books */
+				if ((r_ptr->d_char == 'q') && !(r_ptr->flags2 & (RF2_PRIEST))) return (FALSE);				
+
+                        if (r_ptr->flags7 & (RF7_DROP_WRITING)) return (TRUE);
+                        return (FALSE);
+		}
                 case TV_SCROLL:
                 case TV_RUNESTONE:
 		{
@@ -5825,28 +5872,7 @@ s16b inven_carry(object_type *o_ptr)
 
 	object_type *j_ptr;
 
-        int book_tval=0;
-
-	/* Hack -- for spell order, later */
-	switch (c_info[p_ptr->pclass].sp_stat)
-	{
-
-		case A_INT:
-		{
-			book_tval = TV_MAGIC_BOOK;
-			break;
-		}
-		case A_WIS:
-		{
-			book_tval = TV_PRAYER_BOOK;
-			break;
-		}
-                case A_CHR:
-		{
-			book_tval = TV_SONG_BOOK;
-			break;
-		}
-	}
+        int book_tval= c_info[p_ptr->pclass].spell_book;
 
 	/* Check for combining */
 	for (j = 0; j < INVEN_PACK; j++)
@@ -6350,29 +6376,7 @@ void reorder_pack(void)
 
 	bool flag = FALSE;
 
-        int book_tval=0;
-
-	/* Hack -- for spell order, later */
-	switch (c_info[p_ptr->pclass].sp_stat)
-	{
-
-		case A_INT:
-		{
-			book_tval = TV_MAGIC_BOOK;
-			break;
-		}
-		case A_WIS:
-		{
-			book_tval = TV_PRAYER_BOOK;
-			break;
-		}
-                case A_CHR:
-		{
-			book_tval = TV_SONG_BOOK;
-			break;
-		}
-	}
-
+        int book_tval= c_info[p_ptr->pclass].spell_book;
 
 	/* Re-order the pack (forwards) */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -7295,6 +7299,7 @@ void spell_desc(int spell, cptr activate, int level)
         if (flags3 & (SF3_CURE_POIS)) vp[vn++]="poison";
         if (flags3 & (SF3_CURE_FOOD)) vp[vn++]="hunger";
         if (flags3 & (SF3_CURE_BLIND)) vp[vn++]="blindness";
+        if (flags3 & (SF3_CURE_IMAGE)) vp[vn++]="hallucinations";
         if (flags3 & (SF3_CURE_CONF)) vp[vn++]="confusion";
         if (flags3 & (SF3_CURE_FEAR)) vp[vn++]="fear";
 
@@ -7480,7 +7485,6 @@ void spell_desc(int spell, cptr activate, int level)
         if (flags1 & (SF1_DARK_ROOM)) vp[vn++] = "plunges the room you are in into darkness";
         if (flags1 & (SF1_FORGET)) vp[vn++] = "erases the knowledge of the entire level from your mind";
         if (flags1 & (SF1_SELF_KNOW)) vp[vn++] = "reveals all knowledge of yourself";
-        if (flags3 & (SF3_CONF_HANDS)) vp[vn++] = "makes your touch confuse monsters";
 
         /* Describe miscellaneous effects */
 	if (vn)
@@ -7576,6 +7580,8 @@ void spell_desc(int spell, cptr activate, int level)
                         case RBM_LINE: p = "creates a line"; t = "your enemies"; break;
                         case RBM_AIM: t = "one target"; break;
                         case RBM_ORB: p = "creates an orb"; t = "your enemies"; rad = (level < 30 ? 2 : 3); d3 += level/2; break;
+                        case RBM_CROSS: p = "creates an cross"; t = "your enemies"; break;
+                        case RBM_STRIKE: p = "strikes"; t = "an enemy"; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
                         case RBM_STAR: p = "creates a star"; t = "your enemies"; break;
                         case RBM_SPHERE: p = "creates a sphere";  t = "your enemies";  rad = (level/10)+2;break;
                         case RBM_PANEL: t = "the current panel"; break;
@@ -7675,7 +7681,9 @@ void spell_desc(int spell, cptr activate, int level)
                         case GF_EXP_40: q = "lower"; u="'s experience (by 40d6+)"; break;
                         case GF_EXP_80: q = "lower"; u="'s experience (by 80d6+)"; break;
                         case GF_DEEP:           q = "raise"; s = "water around"; break;
-                        case GF_SHALLOW:                q = "lower"; s = "water around"; q = NULL; break;
+                        case GF_SHALLOW:                q = "lower"; s = "water around"; break;
+                        case GF_PROBE: q = "probe"; q = NULL; break;
+                        case GF_LOCK_DOOR: q = "magically lock"; s = "doors on"; break;
 		}
 
 		/* Introduce the attack description */
@@ -7818,7 +7826,7 @@ void spell_desc(int spell, cptr activate, int level)
  *
  * Note they do not take account of modifiers to player level.
  */
-void spell_info(char *p, int spell)
+void spell_info(char *p, int spell, bool use_level)
 {
         cptr q;
 
@@ -7827,6 +7835,8 @@ void spell_info(char *p, int spell)
         int m,n,rad;
 
         int level = spell_power(spell);
+
+        if (!use_level) level = 0;
 
 	/* Default */
 	strcpy(p, "");
@@ -7875,6 +7885,12 @@ void spell_info(char *p, int spell)
                 d2 = s_ptr->blow[m].d_side;
                 d3 = s_ptr->blow[m].d_plus;
                 rad = 0;
+
+                /* Hack -- use level as modifier */
+                if ((!d2) && (!level))
+                {
+                        d3 += 25 * d1;
+                }
 
                 /* Hack -- use level as modifier */
                 if (!d2)
@@ -7972,7 +7988,7 @@ void print_powers(s16b *book, int num, int y, int x)
 		s_ptr = &s_info[spell];
 
 		/* Get extra info */
-		spell_info(info, spell);
+                spell_info(info, spell, FALSE);
 
 		/* Use that info */
 		comment = info;
@@ -7981,7 +7997,7 @@ void print_powers(s16b *book, int num, int y, int x)
 		line_attr = TERM_WHITE;
 
 		/* Dump the spell --(-- */
-                sprintf(out_val, "  %c) %-36s %s",
+                sprintf(out_val, "  %c) %-30s %s",
 		        I2A(i), s_name + s_ptr->name,
                         comment);
 		c_prt(line_attr, out_val, y + i + 1, x);
@@ -8051,7 +8067,7 @@ void print_spells(s16b *book, int num, int y, int x)
 		}
 
 		/* Get extra info */
-		spell_info(info, spell);
+                spell_info(info, spell, TRUE);
 
                 /* Get level */
                 level = spell_level(spell);

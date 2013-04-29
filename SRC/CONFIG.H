@@ -177,7 +177,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
+/*#define ALLOW_BORG*/
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -318,7 +318,7 @@
 /*
  * Allow "Borgs" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+/*#define SCORE_BORGS*/
 
 /*
  * Allow "Cheaters" to yield "high scores"
@@ -592,6 +592,6 @@
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-/* #  define ALLOW_BORG_GRAPHICS */
+/*#  define ALLOW_BORG_GRAPHICS*/
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */

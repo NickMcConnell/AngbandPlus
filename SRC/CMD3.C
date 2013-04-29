@@ -215,8 +215,17 @@ void do_cmd_wield(void)
 
         }
 
+	  /* Hack -- don't dual wield */
+	  if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD))
+	  {
+		if (!get_check("Wield it in your off-hand? "))
+		{
+			slot = INVEN_WIELD;
+		}
+	  }
+
         /* Hack -- wield amount */
-        if ((variant_fast_equip) && (slot == INVEN_WIELD))
+        else if ((variant_fast_equip) && (slot == INVEN_WIELD))
         {
 
                 /* Get a quantity */
@@ -433,9 +442,9 @@ void do_cmd_wield(void)
 	}
 
 #ifdef ALLOW_OBJECT_INFO
-        k1 = o_ptr->i_object.can_flags1;
-        k2 = o_ptr->i_object.can_flags2;
-        k3 = o_ptr->i_object.can_flags3;
+        k1 = o_ptr->can_flags1;
+        k2 = o_ptr->can_flags2;
+        k3 = o_ptr->can_flags3;
 
         /* Some flags are instantly known */
 	object_flags(o_ptr,&f1,&f2,&f3);
@@ -490,9 +499,9 @@ void do_cmd_wield(void)
 	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
 
         /* Check flags */
-        n1 = o_ptr->i_object.can_flags1 & ~(k1);
-        n2 = o_ptr->i_object.can_flags2 & ~(k2);
-        n3 = o_ptr->i_object.can_flags3 & ~(k3);
+        n1 = o_ptr->can_flags1 & ~(k1);
+        n2 = o_ptr->can_flags2 & ~(k2);
+        n3 = o_ptr->can_flags3 & ~(k3);
 
 	/* Update collected flags */
 	update_slot_flags(slot,n1,n2,n3);

@@ -240,6 +240,12 @@ static void roff_aux(int r_idx)
 	/* Killing a monster reveals some properties */
 	if (l_ptr->r_tkills)
 	{
+		/* Know "class" flags */
+		if (r_ptr->flags2 & (RF2_SNEAKY)) flags2 |= (RF2_SNEAKY);
+		if (r_ptr->flags2 & (RF2_MAGE)) flags2 |= (RF2_MAGE);
+		if (r_ptr->flags2 & (RF2_PRIEST)) flags2 |= (RF2_PRIEST);
+		if (r_ptr->flags2 & (RF2_ARMOR)) flags2 |= (RF2_ARMOR);
+
 		/* Know "race" flags */
 		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
 		if (r_ptr->flags3 & (RF3_TROLL)) flags3 |= (RF3_TROLL);
@@ -550,8 +556,8 @@ static void roff_aux(int r_idx)
 		if (flags3 & (RF3_EVIL)) roff(" evil");
 		if (flags3 & (RF3_UNDEAD)) roff(" undead");
 
-	/* Collect races */
-	vn = 0;
+                /* Collect races */
+                vn = 0;
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_ANIMAL)) vp[vn++] ="animal";
@@ -562,29 +568,41 @@ static void roff_aux(int r_idx)
 		if (flags3 & (RF3_DEMON)) vp[vn++] ="demon";
 		if (flags3 & (RF3_PLANT)) vp[vn++] ="plant";
 		if (flags3 & (RF3_INSECT)) vp[vn++] ="insect";
+        
+                /* Describe "races" */
+                if (vn)
+                {
+        
+                        /* Intro */
+                        if (vn > 1) roff(" mix of");
+        
+                        /* Scan */
+                        for (n = 0; n < vn; n++)
+                        {
+                                /* Intro */
+                                if (n == 0) roff(" ");
+                                else if (n < vn-1) roff(", ");
+                                else roff(" and ");
+                                /* Dump */
+                                roff(vp[n]);
+                        }
+        
+                }
 
-	/* Describe "races" */
-	if (vn)
-	{
-		/* Intro */
-                if (vn > 1) roff(" mix of");
+                /* Hack -- If not a mix, describe class */
+                if (vn < 2)
+                {
 
-		/* Scan */
-		for (n = 0; n < vn; n++)
-		{
-			/* Intro */
-			if (n == 0) roff(" ");
-			else if (n < vn-1) roff(", ");
-			else roff(" and ");
-			/* Dump */
-			roff(vp[n]);
-		}
-	}
-	else
-	{
-		roff(" creature");
-	}
+                        if (flags2 & (RF2_ARMOR)) roff(" warrior"); /* Hack */
 
+                        if ((flags2 & (RF2_PRIEST)) && (flags2 & (RF2_MAGE))) roff(" shaman");
+                        else if (flags2 & (RF2_PRIEST)) roff(" priest");
+                        else if (flags2 & (RF2_MAGE)) roff(" mage");
+                        else if (flags2 & (RF2_SNEAKY)) roff(" thief");
+                        else if (flags2 & (RF2_ARMOR)) {} /* Hack */
+                        else if ((!vn) && (strchr("pqt", r_ptr->d_char))) roff(" person");
+                        else if (!vn) roff(" creature");
+                }
 
 		/* calculate the integer exp part */
 		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
@@ -804,7 +822,9 @@ static void roff_aux(int r_idx)
 		roff(" magical, casting spells");
 
 		/* Adverb */
+		if (flags2 & (RF2_GENIUS)) roff(" extremely");
 		if (flags2 & (RF2_SMART)) roff(" intelligently");
+		else if (flags2 & (RF2_GENIUS)) roff(" perceptively");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)

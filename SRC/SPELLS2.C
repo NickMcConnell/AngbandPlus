@@ -2968,6 +2968,23 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	return (FALSE);
 }
 
+/*
+ * Hook to specify "bolts"
+ */
+static bool item_tester_hook_bolts(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_BOLT:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
+
+
 
 static bool item_tester_unknown(object_type *o_ptr)
 {
@@ -3293,157 +3310,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 	return (TRUE);
 }
 
-
-/*
- * Brand the current weapon
- */
-bool brand_weapon(int brand, cptr act)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	cptr q, s;
-
-        /* Only brand weapons */
-        item_tester_hook = item_tester_hook_weapon_strict;
-
-	/* Get an item */
-        q = "Enchant which item? ";
-        s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
-
-	/* Describe */
-        msg_format("%s %s %s!",
-                   ((item >= 0) ? "Your" : "The"), o_name, act);
-
-        /* you can never modify artifacts / ego-items with hidden powers*/
-        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
-	{
-                o_ptr->xtra1 = brand;
-                o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
-
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-                /* Remove special inscription, if any */
-                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-        
-                /* Take note if allowed */
-                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
-        
-                /* The object has been "sensed" */
-                o_ptr->ident |= (IDENT_SENSE);
-        
-                /* Recalculate bonuses */
-                p_ptr->update |= (PU_BONUS);
-        
-                /* Combine / Reorder the pack (later) */
-                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-	}
-	else
-	{
-		if (flush_failure) flush();
-                msg_print("The branding failed.");
-
-                /* Sense it? */
-	}
-
-	/* Something happened */
-        return (TRUE);
-}
-
-/*
- * Brand the current armor
- */
-bool brand_armor(int brand, cptr act)
-{
-	int item;
-
-	object_type *o_ptr;
-
-	char o_name[80];
-
-	cptr q, s;
-
-        /* Only brand armor */
-        item_tester_hook = item_tester_hook_armour;
-
-	/* Get an item */
-        q = "Enchant which item? ";
-        s = "You have nothing to enchant.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
-
-	/* Describe */
-        msg_format("%s %s %s!",
-                   ((item >= 0) ? "Your" : "The"), o_name, act);
-
-        /* you can never modify artifacts / ego-items with hidden powers*/
-        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
-	{
-                o_ptr->xtra1 = brand;
-                o_ptr->xtra2 = rand_int(object_xtra_size[brand]);
-
-                enchant(o_ptr, rand_int(4) + 3, ENCH_TOAC);
-
-                /* Remove special inscription, if any */
-                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-        
-                /* Take note if allowed */
-                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
-        
-                /* The object has been "sensed" */
-                o_ptr->ident |= (IDENT_SENSE);
-
-                /* Recalculate bonuses */
-                p_ptr->update |= (PU_BONUS);
-        
-                /* Combine / Reorder the pack (later) */
-                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-	}
-
-	else
-	{
-		if (flush_failure) flush();
-                msg_print("The branding failed.");
-	}
-
-	/* Something happened */
-        return (TRUE);
-}
-
 /*
  * Brand any item
  */
@@ -3487,7 +3353,18 @@ bool brand_item(int brand, cptr act)
                 o_ptr->xtra1 = brand;
                 o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
 
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+			if (object_xtra_what[brand] == 1)
+			{
+		    		object_can_flags(o_ptr,object_xtra_base[brand] << o_ptr->xtra2,0x0L,0x0L);
+			}
+			else if (object_xtra_what[brand] == 2)
+			{
+		    		object_can_flags(o_ptr,0x0L,object_xtra_base[brand] << o_ptr->xtra2,0x0L);
+			}
+			else if (object_xtra_what[brand] == 3)
+			{
+		    		object_can_flags(o_ptr,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2);
+			}
 
                 /* Remove special inscription, if any */
                 if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
@@ -3737,9 +3614,9 @@ bool ident_spell_rumor(void)
         object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Remove known flags */
-	f1 &= ~(o_ptr->i_object.can_flags1);
-	f2 &= ~(o_ptr->i_object.can_flags2);
-	f3 &= ~(o_ptr->i_object.can_flags3);	
+        f1 &= ~(o_ptr->can_flags1);
+        f2 &= ~(o_ptr->can_flags2);
+        f3 &= ~(o_ptr->can_flags3); 
 
 	/* We know everything? */
 	done = ((f1 | f2 | f3) ? FALSE : TRUE);
@@ -4223,92 +4100,6 @@ static bool project_hack(int typ, int dam)
 }
 
 
-/*
- * Speed monsters
- */
-bool speed_monsters(void)
-{
-	return (project_hack(GF_OLD_SPEED, p_ptr->lev));
-}
-
-/*
- * Slow monsters
- */
-bool slow_monsters(void)
-{
-	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
-}
-
-/*
- * Sleep monsters
- */
-bool sleep_monsters(void)
-{
-	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
-}
-
-/*
- * Confuse monsters
- */
-bool confuse_monsters(void)
-{
-	return (project_hack(GF_OLD_CONF, p_ptr->lev));
-}
-
-/*
- * Fear monsters
- */
-bool fear_monsters(void)
-{
-	return (project_hack(GF_TURN_ALL, p_ptr->lev));
-}
-
-
-/*
- * Banish evil monsters
- */
-bool banish_evil(int dist)
-{
-	return (project_hack(GF_AWAY_EVIL, dist));
-}
-
-
-/*
- * Turn undead
- */
-bool turn_undead(void)
-{
-	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
-}
-
-
-/*
- * Dispel undead monsters
- */
-bool dispel_undead(int dam)
-{
-	return (project_hack(GF_DISP_UNDEAD, dam));
-}
-
-/*
- * Dispel evil monsters
- */
-bool dispel_evil(int dam)
-{
-	return (project_hack(GF_DISP_EVIL, dam));
-}
-
-/*
- * Dispel all monsters
- */
-bool dispel_monsters(int dam)
-{
-	return (project_hack(GF_DISP_ALL, dam));
-}
-
-
-
-
 
 /*
  * Wake up all monsters, and speed up "los" monsters.
@@ -4449,61 +4240,6 @@ bool mass_genocide(void)
 
 
 /*
- * Probe nearby monsters
- */
-bool probing(void)
-{
-	int i;
-
-	bool probe = FALSE;
-
-
-	/* Probe all (nearby) monsters */
-	for (i = 1; i < m_max; i++)
-	{
-		monster_type *m_ptr = &m_list[i];
-
-		/* Paranoia -- Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Require line of sight */
-		if (!player_has_los_bold(m_ptr->fy, m_ptr->fx)) continue;
-
-		/* Probe visible monsters */
-		if (m_ptr->ml)
-		{
-			char m_name[80];
-
-			/* Start the message */
-			if (!probe) msg_print("Probing...");
-
-			/* Get "the monster" or "something" */
-			monster_desc(m_name, m_ptr, 0x04);
-
-			/* Describe the monster */
-			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
-
-			/* Learn all of the non-spell, non-treasure flags */
-			lore_do_probe(i);
-
-			/* Probe worked */
-			probe = TRUE;
-		}
-	}
-
-	/* Done */
-	if (probe)
-	{
-		msg_print("That's all.");
-	}
-
-	/* Result */
-	return (probe);
-}
-
-
-
-/*
  * The spell of destruction
  *
  * This spell "deletes" monsters (instead of "killing" them).
@@ -4554,8 +4290,27 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Delete the monster (if any) */
 			delete_monster(y, x);
 
+			/* Destroy "outside" grids */
+			if ((cave_valid_bold(y,x)) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
+			{
+				/* Delete objects */
+				delete_object(y, x);
+
+				/* Burn stuff */
+				if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
+				{
+					cave_alter_feat(y,x,FS_HURT_FIRE);
+				}
+                                /* Rubble */
+                                else if (rand_int(100) < 15)
+				{
+					/* Create magma vein */
+                                        cave_set_feat(y,x,FEAT_RUBBLE);
+				}
+
+			}
 			/* Destroy "valid" grids */
-			if (cave_valid_bold(y, x))
+			else if (cave_valid_bold(y, x))
 			{
 				int feat = FEAT_FLOOR;
 
@@ -4565,8 +4320,14 @@ void destroy_area(int y1, int x1, int r, bool full)
 				/* Wall (or floor) type */
 				t = rand_int(200);
 
+				/* Burn stuff */
+				if (f_info[cave_feat[y][x]].flags2 & (FF2_HURT_FIRE))
+				{
+                                        feat = feat_state(cave_feat[y][x], FS_HURT_FIRE);
+				}
+
 				/* Granite */
-				if (t < 20)
+                                else if (t < 20)
 				{
 					/* Create granite wall */
 					feat = FEAT_WALL_EXTRA;
@@ -4584,6 +4345,13 @@ void destroy_area(int y1, int x1, int r, bool full)
 				{
 					/* Create magma vein */
 					feat = FEAT_MAGMA;
+				}
+
+                                /* Rubble */
+                                else if (t < 130)
+				{
+					/* Create magma vein */
+                                        feat = FEAT_RUBBLE;
 				}
 
 				/* Change the feature */
@@ -4711,7 +4479,7 @@ void earthquake(int cy, int cx, int r)
 			map[16+yy-cy][16+xx-cx] = TRUE;
 
 			/* Hack -- Take note of player damage */
-			if ((yy == py) && (xx == px)) hurt = TRUE;
+			if ((yy == py) && (xx == px)  && !(f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE))) hurt = TRUE;
 		}
 	}
 
@@ -4824,7 +4592,8 @@ void earthquake(int cy, int cx, int r)
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
+				    !(r_ptr->flags2 & (RF2_PASS_WALL)) &&
+					!(f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE)))
 				{
 					char m_name[80];
 
@@ -4924,8 +4693,20 @@ void earthquake(int cy, int cx, int r)
 			/* Paranoia -- never affect player */
 			if ((yy == py) && (xx == px)) continue;
 
+			/* Destroy "outside" grids */
+			if ((cave_valid_bold(yy,xx)) && (f_info[cave_feat[yy][xx]].flags3 & (FF3_OUTSIDE)))
+			{
+				/* Delete objects */
+				delete_object(yy, xx);
+
+				/* Bash stuff */
+				if (f_info[cave_feat[yy][xx]].flags1 & (FF1_BASH))
+				{
+					cave_alter_feat(yy,xx,FS_BASH);
+				}
+			}
 			/* Destroy location (if valid) */
-			if (cave_valid_bold(yy, xx))
+			else if (cave_valid_bold(yy, xx))
 			{
 				int feat = FEAT_FLOOR;
 
@@ -5275,101 +5056,6 @@ void unlite_room(int y1, int x1)
 	cave_temp_room_unlite();
 }
 
-
-/*
- * Hack -- lower water around the player to none (earth/geothermal floor)
- * Affect all water monsters in the projection radius
- */
-bool lower_water(int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_HIDE;
-
-	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_SHALLOW, flg);
-
-	/* Assume seen */
-	return (TRUE);
-}
-
-/*
- * Hack -- raise water around the player to deep
- * Affect all water monsters in the projection radius
- */
-bool raise_water(int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_KILL | PROJECT_HIDE;
-
-	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_DEEP, flg);
-
-	/* Assume seen */
-	return (TRUE);
-}
-
-
-/*
- * Hack -- call light around the player
- * Affect all monsters in the projection radius
- */
-bool lite_area(int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_KILL;
-
-	/* Hack -- Message */
-	if (!p_ptr->blind)
-	{
-		msg_print("You are surrounded by a white light.");
-	}
-
-	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_LITE_WEAK, flg);
-
-	/* Lite up the room */
-	lite_room(py, px);
-
-	/* Assume seen */
-	return (TRUE);
-}
-
-
-/*
- * Hack -- call darkness around the player
- * Affect all monsters in the projection radius
- */
-bool unlite_area(int dam, int rad)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_KILL;
-
-	/* Hack -- Message */
-	if (!p_ptr->blind)
-	{
-		msg_print("Darkness surrounds you.");
-	}
-
-	/* Hook into the "project()" function */
-	(void)project(-1, rad, py, px, dam, GF_DARK_WEAK, flg);
-
-	/* Lite up the room */
-	unlite_room(py, px);
-
-	/* Assume seen */
-	return (TRUE);
-}
-
-
-
 /*
  * Cast a ball spell
  * Stop if we hit a monster, act as a "ball"
@@ -5495,158 +5181,6 @@ bool fire_hands(int typ, int dir, int dam)
 
 	return (project_m(-1, 0, ty, tx, dam, typ));
 }
-
-/*
- * Some of the old functions
- */
-
-bool lite_line(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-	return (project_hook(GF_LITE_WEAK, dir, damroll(6, 8), flg));
-}
-
-bool raise_bridge(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
-        return (project_hook(GF_BRIDGE, dir, 1, flg));
-}
-
-
-bool drain_life(int dir, int dam)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_DRAIN, dir, dam, flg));
-}
-
-bool water_to_air(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-        return (project_hook(GF_SHALLOW, dir, 20 + randint(30), flg));
-}
-
-
-bool wall_to_mud(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-	return (project_hook(GF_KILL_WALL, dir, 20 + randint(30), flg));
-}
-
-bool destroy_door(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_DOOR, dir, 0, flg));
-}
-
-bool disarm_trap(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_ITEM;
-	return (project_hook(GF_KILL_TRAP, dir, 0, flg));
-}
-
-bool heal_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_HEAL, dir, damroll(4, 6), flg));
-}
-
-bool speed_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SPEED, dir, p_ptr->lev, flg));
-}
-
-bool slow_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
-}
-
-bool sleep_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
-}
-
-bool confuse_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CONF, dir, plev, flg));
-}
-
-bool blind_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-        return (project_hook(GF_BLIND, dir, damroll(3,8), flg));
-}
-
-
-bool poly_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
-}
-
-bool clone_monster(int dir)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CLONE, dir, 0, flg));
-}
-
-bool fear_monster(int dir, int plev)
-{
-	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_TURN_ALL, dir, plev, flg));
-}
-
-bool teleport_monster(int dir)
-{
-	int flg = PROJECT_BEAM | PROJECT_KILL;
-	return (project_hook(GF_AWAY_ALL, dir, MAX_SIGHT * 5, flg));
-}
-
-
-
-/*
- * Hooks -- affect adjacent grids (radius 1 ball attack)
- */
-
-bool door_creation(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_DOOR, flg));
-}
-
-bool trap_creation(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_MAKE_TRAP, flg));
-}
-
-bool destroy_doors_touch(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(-1, 1, py, px, 0, GF_KILL_DOOR, flg));
-}
-
-bool sleep_monsters_touch(void)
-{
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
-}
-
 
 /*
  * Create a (wielded) spell item
@@ -6248,7 +5782,7 @@ bool process_spell_flags(int spell, int level, bool *cancel)
         }
 
 
-/* SF2 - timed abilities and modifying level */
+        /* SF2 - timed abilities and modifying level */
         if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_INFRA)) && (set_tim_infra(p_ptr->tim_infra + lasts))) obvious = TRUE;
@@ -6258,7 +5792,7 @@ bool process_spell_flags(int spell, int level, bool *cancel)
         if ((s_ptr->flags2 & (SF2_SHIELD)) && (set_shield(p_ptr->shield + lasts))) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_INVULN)) && (set_invuln(p_ptr->invuln + lasts))) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (set_tim_invis(p_ptr->tim_invis + lasts))) obvious = TRUE;
-        if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts))) obvious = TRUE;
+        if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (set_protevil(p_ptr->protevil + lasts + (level== 0 ? 3 * p_ptr->lev : 0)))) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (set_oppose_fire(p_ptr->oppose_fire + lasts))) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (set_oppose_cold(p_ptr->oppose_cold + lasts))) obvious = TRUE;
         if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (set_oppose_acid(p_ptr->oppose_acid + lasts))) obvious = TRUE;
@@ -6485,6 +6019,8 @@ bool process_spell_flags(int spell, int level, bool *cancel)
         if ((s_ptr->flags3 & (SF3_CURE_FOOD)) && (set_food(PY_FOOD_MAX -1))) obvious = TRUE;
         if ((s_ptr->flags3 & (SF3_CURE_FEAR)) && (set_afraid(0))) obvious = TRUE;
         if ((s_ptr->flags3 & (SF3_CURE_BLIND)) && (set_blind(0))) obvious = TRUE;
+        if ((s_ptr->flags3 & (SF3_CURE_IMAGE)) && (set_image(0))) obvious = TRUE;
+
 
         if (s_ptr->flags3 & (SF3_DEC_EXP))
         {
@@ -6505,12 +6041,6 @@ bool process_spell_flags(int spell, int level, bool *cancel)
         if (s_ptr->flags3 & (SF3_DEC_FOOD))
 	{
 		(void)set_food(PY_FOOD_STARVE - 1);
-		obvious = TRUE;
-	}
-
-        if ((s_ptr->flags3 & (SF3_CONF_HANDS)) && !(p_ptr->confusing))
-	{
-                p_ptr->confusing = TRUE;
 		obvious = TRUE;
 	}
 
@@ -6590,8 +6120,13 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 		/* Hack -- no more attacks */
 		if (!method) break;
 
+                /* Mega hack -- dispel evil/undead objects */
+                if ((!d_side) && (!level))
+                {
+                        d_plus += 25 * d_dice;
+                }
                 /* Hack -- use level as modifier */
-                if (!d_side)
+                else if (!d_side)
                 {
                         d_plus += level * d_dice;
                 }
@@ -6767,7 +6302,7 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                                 /* Allow direction to be cancelled for free */
                                 if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
 
-                                if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 3)) obvious = TRUE;
+                                if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
 
                                 break;
                         }
@@ -6843,7 +6378,7 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 
                                 break;
                         }
-                                case RBM_AURA:
+                        case RBM_AURA:
                         /* Radius 2, centred on self */
                         {
                                 int py = p_ptr->py;
@@ -6875,6 +6410,18 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                                 break;
                         }
 
+                        case RBM_STRIKE:
+                        {
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                /* Hack - scale damage */
+                                if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
+
+                                if (fire_ball(effect, dir, damage, 0)) obvious = TRUE;
+
+                                break;
+                        }
                         default:
                         {
                                 /* Allow direction to be cancelled for free */
@@ -6938,17 +6485,31 @@ bool process_spell_types(int spell, int level, bool *cancel)
                         }
                         case SPELL_BRAND_WEAPON:
                         {
-                                if (!brand_weapon(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
+                                /* Only brand weapons */
+                                item_tester_hook = item_tester_hook_weapon_strict;
+
+                                if (!brand_item(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
                                 break;
                         }
                         case SPELL_BRAND_ARMOR:
                         {
-                                if (!brand_armor(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
+                                /* Only brand weapons */
+                                item_tester_hook = item_tester_hook_armour;
+
+                                if (!brand_item(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
                                 break;
                         }
                         case SPELL_BRAND_ITEM:
                         {
-                                if (!brand_armor(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
+                                if (!brand_item(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_BRAND_BOLTS:
+                        {
+                                /* Only brand bolts */
+                                item_tester_hook = item_tester_hook_bolts;
+
+                                if (!brand_item(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
                                 break;
                         }
                         case SPELL_WARD_GLYPH:
@@ -7010,6 +6571,76 @@ bool process_spell_types(int spell, int level, bool *cancel)
         /* Return result */
         return (obvious);
 }
+
+/*
+ * Hack -- we process swallowed objects a little differently.
+ */
+bool process_spell_eaten(int spell, int level, bool *cancel)
+{
+        spell_type *s_ptr = &s_info[spell];
+
+        bool obvious = FALSE;
+
+        int ap_cnt;
+
+        /* Apply flags */
+        if (process_spell_flags(spell,level,cancel)) obvious = TRUE;
+
+	/* Scan through all four blows */
+	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
+	{
+		int damage = 0;
+
+                int dir;
+
+		/* Extract the attack infomation */
+                int effect = s_ptr->blow[ap_cnt].effect;
+                int method = s_ptr->blow[ap_cnt].method;
+                int d_dice = s_ptr->blow[ap_cnt].d_dice;
+                int d_side = s_ptr->blow[ap_cnt].d_side;
+                int d_plus = s_ptr->blow[ap_cnt].d_plus;
+
+		/* Hack -- no more attacks */
+		if (!method) break;
+
+                /* Mega hack -- dispel evil/undead objects */
+                if ((!d_side) && (!level))
+                {
+                        d_plus += 25 * d_dice;
+                }
+                /* Hack -- use level as modifier */
+                else if (!d_side)
+                {
+                        d_plus += level * d_dice;
+                }
+
+                /* Roll out the damage */
+                if ((d_dice) && (d_side))
+                {
+                        damage = damroll(d_dice, d_side) + d_plus;
+                }
+                else
+                {
+                        damage = d_plus;
+                }
+
+                /* Hack -- breath weapons act like a normal spell */
+                if ((method == RBM_BREATH) && (get_aim_dir(&dir)))
+                {
+                        if (fire_ball(effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
+                }
+                else
+                {
+                        if (project_p(0,0,p_ptr->py,p_ptr->px,damage, effect)) obvious = TRUE;
+                }
+        }
+
+        return (obvious);
+
+}
+
+
+
 
 bool process_spell(int spell, int level, bool *cancel)
 {
