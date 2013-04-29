@@ -743,7 +743,7 @@ struct object_type
 
 	u16b note;                      /* Inscription index */
 
-	byte pvals;		/* Pval stack index */
+        byte stackc;             /* Stack count */
 
 	s16b next_o_idx;        /* Next object in stack (if any) */
 

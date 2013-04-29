@@ -567,7 +567,6 @@ F:RAND_50 | DROP_90 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He doesn't take to strangers kindly.
 
-
 N:14:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
@@ -1194,7 +1193,7 @@ B:BITE:HURT:1d4
 F:ANIMAL | CAN_FLY
 D:Larger than a crow, and pitch black.
 
-N:73:Silver mouse
+N:73:Giant silver mouse
 G:r:W
 I:110:1d3:8:4:20
 W:4:1:0:1
@@ -1538,8 +1537,8 @@ F:TAKE_ITEM | BASH_DOOR |
 F:EVIL | CAN_SWIM
 D:A large red snake with a woman's torso.
 
-N:106:Red jelly
-G:j:r
+N:106:Pink jelly
+G:j:R
 I:110:26d8:2:1:99
 W:7:1:0:26
 B:TOUCH:LOSE_STR:1d5
@@ -1547,7 +1546,7 @@ F:NEVER_MOVE |
 F:STUPID | EMPTY_MIND | 
 F:HURT_LITE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:It is a large pulsating mound of red flesh.
+D:It is a large pulsating mound of pink flesh.
 
 N:107:Giant red frog
 G:R:r
@@ -1569,7 +1568,6 @@ F:EMPTY_MIND |
 F:IM_ACID
 D:It is a smallish, slimy, icky, acidic creature.
 
-
 N:110:Lost soul
 G:G:B
 I:110:2d8:12:10:10
@@ -1584,22 +1582,6 @@ S:1_IN_15 |
 S:TPORT | DRAIN_MANA
 D:It is almost insubstantial.
 
-N:111:Dark elf
-G:l:D
-I:110:7d10:20:16:20
-W:7:2:0:25
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-F:MALE | 
-F:FORCE_SLEEP | 
-F:DROP_90 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
-S:1_IN_10 | 
-S:CONF | DARKNESS
-D:An elven figure with jet black skin and white hair, his eyes are large and 
-D:twisted with evil.
-
 N:112:Night lizard
 G:R:D
 I:110:4d8:20:16:30
@@ -1609,7 +1591,7 @@ B:BITE:HURT:1d6
 F:ANIMAL
 D:It is a black lizard with overlapping scales and a powerful jaw.
 
-N:113:Mughash the Goblin Lord
+N:113:Radbug, the Goblin
 G:k:v
 I:110:15d10:20:20:20
 W:7:3:0:100
@@ -1719,8 +1701,10 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:He is after your cash!
 
-N:123:Wormtongue, Agent of Saruman
-G:q:R
+#A somewhat controversial change.
+
+N:123:The Dunlending Agent of the Nazgul
+G:o:R
 I:110:25d10:20:30:20
 W:8:1:0:150
 B:HIT:HURT:1d5
@@ -1733,10 +1717,13 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 S:1_IN_5 | 
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
-D:He's been spying for Saruman.  He is a snivelling wretch with no morals 
-D:and disgusting habits.
+D:A squint-eyed southerner working with Bill Ferny as a spy in Bree.  He is
+D:an outlaw driven from Dunland, where many said that he had orc-blood in him.
+D:Originally a servant of Saruman in the Shire, he betrayed his master when
+D:interrogated on the road by the Lord of the Nazgul.  He was then sent to Bree
+D:as a spy in their service.
 
-N:124:Lagduf, the Snaga
+N:124:Lagduf, the Snaga of Cirith Ungol
 G:o:y
 I:110:19d10:20:32:30
 W:8:2:0:80
@@ -1985,33 +1972,6 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_POIS | CAN_CLIMB
 D:It is a vast black spider whose bulbous body is bloated with poison.
 
-N:142:Dark elven mage
-G:l:r
-I:120:7d10:20:16:20
-W:10:1:0:50
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-F:MALE | 
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | HURT_LITE
-S:1_IN_5 | 
-S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
-D:A dark elven figure, dressed all in black, hurling spells at you.
-
-N:143:Dark elven warrior
-G:l:U
-I:110:10d11:20:16:20
-W:10:1:0:50
-B:HIT:HURT:1d8
-B:HIT:HURT:1d8
-F:MALE | 
-F:DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
-D:A dark elven figure in armour and ready with his sword.
-
 N:144:Clear mushroom patch
 G:,:w
 I:120:1d1:4:1:0
@@ -2141,7 +2101,7 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:He is eyeing your backpack.
 
-N:155:Grishnakh, the Hill Orc
+N:155:Gorgol the Butcher
 G:o:y
 I:110:23d10:20:20:20
 W:10:3:0:160
@@ -2155,16 +2115,14 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is a cunning and devious orc with a chaotic nature.
+D:He is a cunning and devious orc.
 
-N:156:Orfax, Son of Boldor
+N:156:Golfimbul, the Goblin King of Mount Gram
 G:k:B
 I:120:12d10:18:20:10
 W:10:3:0:80
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
-B:INSULT
-B:INSULT
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
@@ -2174,8 +2132,7 @@ F:ANIMAL | EVIL | ORC
 S:1_IN_4 | 
 S:HEAL | BLINK | TELE_TO | SLOW | CONF | 
 S:S_MONSTER
-D:He's just like his daddy!  He knows mighty spells, but fortunately he is a 
-D:goblin.
+D:A powerful goblin king.
 
 N:157:Baby multi-hued dragon
 G:d:v
@@ -2295,22 +2252,6 @@ S:HEAL | SCARE | CAUSE_2 |
 S:S_MONSTER
 D:A robed humanoid dedicated to his god.
 
-N:167:Dark elven priest
-G:l:g
-I:120:7d10:20:30:30
-W:12:1:0:50
-B:HIT:HURT:1d9
-B:HIT:HURT:1d10
-F:MALE | 
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_1D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
-S:1_IN_5 | 
-S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
-D:A dark elven figure, dressed all in black, chanting curses and waiting to 
-D:deliver your soul to hell.
-
 N:168:Air spirit
 G:E:B
 I:130:8d8:12:40:20
@@ -2405,7 +2346,8 @@ F:IM_ACID | IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A strange jelly thing, covered in discolored blotches.
 
-N:176:Golfimbul, the Hill Orc Chief
+
+N:176:Boldog, the Orc Captain
 G:o:y
 I:110:24d10:20:60:20
 W:12:3:0:230
@@ -2419,7 +2361,8 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-D:A leader of a band of raiding orcs, he picks on hobbits.
+D:A leader of a band of raiding orcs.  Morgoth has charged him with the task 
+D:of abducting Luthien from Doriath.
 
 N:177:Drider
 G:S:b
@@ -2520,7 +2463,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
 D:rests on.
 
-N:185:Boldor, King of the Goblins
+N:185:The Great Goblin of the Misty Mountains
 G:k:v
 I:120:18d10:18:24:10
 W:13:3:0:200
@@ -2536,7 +2479,7 @@ F:ANIMAL | EVIL | ORC
 S:1_IN_3 | 
 S:HEAL | BLINK | TPORT | BLIND | SLOW | 
 S:S_MONSTER
-D:A great goblin, powerful in magic and sorcery, but a goblin all the same.
+D:A great goblin, powerful in magic and sorcery.
 
 N:186:Giant flea
 G:I:s
@@ -2561,8 +2504,8 @@ S:1_IN_10 |
 S:BR_COLD
 D:It is a large fly that drips frost.
 
-N:188:Blue icky thing
-G:i:b
+N:188:Bright blue icky thing
+G:i:B
 I:100:10d6:15:20:20
 W:14:4:0:20
 B:CRAWL:POISON:1d4
@@ -3023,8 +2966,8 @@ F:EVIL | IM_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A whirlpool of sentient liquid.
 
-N:223:Giant red scorpion
-G:S:r
+N:223:Giant pink scorpion
+G:S:R
 I:110:11d8:12:44:20
 W:17:1:0:62
 B:BITE:HURT:2d4
@@ -3260,7 +3203,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is an orc of power and great cunning, leader of the garrison at Cirith Ungol.
+D:He is an orc of power and great cunning, leader of a garrison at Cirith Ungol.
 
 N:240:Gorbag, the Orc Captain
 G:o:g
@@ -3276,9 +3219,9 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is an orc of power and great cunning, leader of the garrison at Minas Morgul.
+D:He is an orc of power and great cunning, leader of a garrison at Cirith Ungol.
 
-N:241:Phase spider
+N:241:Blink spider
 G:S:B
 I:120:6d8:15:25:80
 W:20:2:0:60
@@ -3439,21 +3382,6 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | EVIL
 D:It is a huge wolf with eyes that glow with manly intelligence.
 
-N:253:Dark elven lord
-G:l:o
-I:120:18d15:20:40:30
-W:20:2:0:500
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-F:MALE | 
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_2D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
-S:1_IN_5 | 
-S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
-D:A dark elven figure in armour and radiating evil power.
-
 N:254:Bolg, Son of Azog
 G:o:v
 I:120:50d10:20:50:20
@@ -3468,8 +3396,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:A large and powerful orc.  He looks just like his daddy.  He is tall and 
-D:fast, but fortunately blessed with orcish brains.
+D:A large and powerful orc.  He is tall and fast, but fortunately blessed with orcish brains.
 
 N:255:Blue dragon bat
 G:b:b
@@ -3626,7 +3553,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is a giant scorpion with a sharp stinger.
 
-N:267:Ugluk, the Uruk
+N:267:Ugluk, Uruk Captain of the White Hand
 G:o:b
 I:110:72d10:20:95:20
 W:22:3:0:550
@@ -3640,7 +3567,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-D:A strong and cunning orc warrior, the commander of Saruman's orcish horde.
+D:A strong and cunning orc warrior, a commander of Saruman's orcish horde.
 
 N:268:Black ooze
 G:j:D
@@ -3724,7 +3651,7 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:A giant silver ant with a caustic bite.
 
-N:275:Azog, King of the Uruk-Hai
+N:275:Azog, Orc King of Moria
 G:o:v
 I:120:90d10:20:80:20
 W:23:5:0:1111
@@ -3941,23 +3868,6 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | GIANT
 D:A ten foot tall humanoid with powerful muscles.
 
-N:290:Dark elven druid
-G:l:s
-I:120:20d20:15:75:10
-W:25:3:0:500
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
-B:HIT:HURT:3d8
-F:MALE | 
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_6 | 
-S:HEAL | CONF | DARKNESS | 
-S:S_MONSTER | S_SPIDER
-D:A powerful dark elf, with mighty nature-controlling enchantments.
-
 N:291:Stone troll
 G:T:W
 I:110:23d10:20:40:50
@@ -4042,7 +3952,7 @@ F:ANIMAL
 D:It is an ant encased in shaggy grey fur.
 
 N:298:Displacer beast
-G:f:D
+G:H:D
 I:110:25d10:35:100:20
 W:26:2:0:100
 B:BITE:HURT:2d8
@@ -4088,26 +3998,6 @@ F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:SCARE | CAUSE_2 | DARKNESS
 D:It is a tangible but ghostly form made of white fog.
-
-N:302:Angel
-G:M:o
-I:110:30d10:30:60:255
-W:26:6:0:220
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-B:HIT:HURT:3d4
-F:FORCE_MAXHP | FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_2D2 | CAN_FLY |
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:BLIND | CONF | SCARE | FORGET
-D:Who knows why you are now facing an angel as an enemy? Is it a punishment 
-D:from your own god for your sins, or a test of your mettle, or has this angel 
-D:been sent by another god on behalf of someone who wishes to claim the glory 
-D:for his own god? Perhaps you will never know: but it is here, and you must 
-D:fight it.
 
 N:303:Ulwarth, Son of Ulfang
 G:p:U
@@ -4430,26 +4320,6 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:An evil and cunning man from the East.
 
-N:324:Draebor, the Imp
-G:u:v
-I:120:52d10:20:50:20
-W:28:5:0:750
-B:HIT:POISON:3d4
-B:HIT:POISON:3d4
-B:HIT:HURT:3d4
-B:INSULT
-F:UNIQUE | 
-F:FORCE_MAXHP | FORCE_SLEEP | 
-F:ESCORT | 
-F:RAND_25 | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:SMART | INVISIBLE | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
-S:1_IN_5 | 
-S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
-S:CONF | SCARE | S_KIN
-D:An intensely irritating git of a monster.
-
 N:325:Beorn, the Shape-Changer
 G:Q:D
 I:120:20d70:25:60:25
@@ -4468,7 +4338,7 @@ D:take kindly to strangers - and when in bear's shape, as on this occasion,
 D:the nature of the animal within asserts itself when his territory is 
 D:intruded upon.
 
-N:326:Purple worm
+N:326:Giant purple worm
 G:w:v
 I:110:65d8:14:65:30
 W:29:3:0:400
@@ -4479,23 +4349,6 @@ F:BASH_DOOR |
 F:ANIMAL | IM_ACID | IM_POIS | CAN_DIG
 D:It is a massive worm form, many feet in length.  Its vast maw drips acid 
 D:and poison.
-
-N:327:Archangel
-G:M:B
-I:110:40d10:30:68:255
-W:29:6:0:400
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:FORCE_MAXHP | FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_2D2 | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | CAN_SWIM
-S:1_IN_3 | 
-S:HEAL | HASTE | BLIND | CONF | SCARE
-D:An angel protected by an aura of holiness.  Its muscular form looks 
-D:extremely powerful next to your own frail body.
 
 N:328:Catoblepas
 G:Q:g
@@ -4775,7 +4628,7 @@ S:FORGET
 D:A mass of green vegetation.  You don't remember seeing anything like it 
 D:before.
 
-N:348:Lokkak, the Ogre Chieftain
+N:348:Ulbandi, the Ogre Chieftain
 G:O:v
 I:120:15d100:20:100:20
 W:32:2:0:1500
@@ -4788,10 +4641,10 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | GIANT | IM_POIS
-D:An ogre renowned for acts of surpassing cruelty, Lokkak quickly became the 
+D:An ogre renowned for acts of surpassing cruelty, Ulbandi quickly became the 
 D:leader of a large band of violent ogres.
 
-N:349:Shelob, Spider of Darkness
+N:349:The Great Spider of Mirkwood
 G:S:D
 I:110:12d100:8:80:80
 W:32:3:0:1200
@@ -4808,11 +4661,7 @@ F:ANIMAL | EVIL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:TRAPS | S_KIN
-D:Shelob is an enormous bloated spider, rumoured to have been one of the 
-D:brood of Ungoliant the Unlight.  Her poison is legendary, as is her ego, 
-D:which may be her downfall.  She normally guards the pass through Cirith 
-D:Ungol, but occasionally goes out foraging for food to feed her voracious
-D:appetite.
+D:The fattest and most bloated spider living in Mirkwood
 
 N:350:Cave troll
 G:T:u
@@ -5043,25 +4892,6 @@ S:1_IN_6 |
 S:BO_FIRE | BR_FIRE
 D:It is a towering inferno of flames.
 
-N:364:Cherub
-G:M:G
-I:120:45d10:30:68:255
-W:33:6:0:400
-B:HIT:HURT:4d3
-B:HIT:HURT:3d8
-B:HIT:HURT:4d3
-B:HIT:HURT:3d8
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | CAN_FLY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:HEAL | HASTE | BLIND | SCARE | MIND_BLAST | BO_FIRE | 
-S:S_MONSTERS 
-D:It is an angel moving very quickly, wielding a holy war hammer and casting 
-D:a volley of powerful spells in your direction.
-
 N:365:Water elemental
 G:E:s
 I:120:25d8:12:40:50
@@ -5226,54 +5056,6 @@ F:ANIMAL | EVIL | IM_FIRE
 S:1_IN_5 | 
 S:BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
-
-N:376:Bert the Stone Troll
-G:T:s
-I:110:11d100:20:70:50
-W:34:7:0:2000
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | REGENERATE | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bill and Tom.
-
-N:377:Bill the Stone Troll
-G:T:s
-I:110:11d100:20:70:50
-W:34:7:0:2000
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | REGENERATE | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bert and Tom.
-
-N:378:Tom the Stone Troll
-G:T:s
-I:110:11d100:20:70:50
-W:34:7:0:2000
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:BITE:HURT:2d10
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | 
-F:ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | REGENERATE | 
-F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE | HURT_ROCK
-D:Big, brawny, powerful and with a taste for hobbit.  He has friends called 
-D:Bert and Bill.
 
 N:379:Ulfang the Black
 G:p:U
@@ -6123,25 +5905,6 @@ S:HOLD | SCARE | CAUSE_3 | BO_NETH
 D:Your life force is torn from your body as this powerful unearthly being 
 D:approaches.
 
-N:432:Seraph
-G:M:r
-I:120:50d10:30:68:255
-W:38:6:0:1800
-B:HIT:HURT:4d6
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
-B:HIT:HURT:4d6
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | 
-F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | CAN_FLY |
-F:NO_CONF | NO_SLEEP
-S:1_IN_11 | 
-S:HEAL | HASTE | TELE_AWAY | CONF | BO_MANA | BO_PLAS | 
-S:S_MONSTERS | S_ANGEL | MIND_BLAST
-D:It is an angel, fast and strong.  You are stunned by its extreme holiness 
-D:and try to resist all desires to obey it.
-
 N:433:Black wraith
 G:W:D
 I:120:50d10:20:55:10
@@ -6176,7 +5939,7 @@ S:BLIND | CONF | BO_FIRE
 D:It is a lesser demon of female form; however, she takes little time to 
 D:show her true colours.
 
-N:435:Vargo, Tyrant of Fire
+N:435:The Tyrant of Fire
 G:E:r
 I:120:15d100:12:50:50
 W:38:3:0:3000
@@ -6192,7 +5955,7 @@ F:EVIL | IM_FIRE |
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BO_PLAS | BA_FIRE
-D:A towering fire elemental, Vargo burns everything beyond recognition.
+D:A towering fire elemental, it burns everything beyond recognition.
 
 N:436:Castamir the Usurper
 G:q:R
@@ -6245,7 +6008,7 @@ F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
 D:This troll's great strength and size have won it the place of chieftain of 
 D:its tribe.
 
-N:439:Waldern, King of Water
+N:439:The King of Water
 G:E:s
 I:120:20d100:12:40:50
 W:39:3:0:3250
@@ -6261,7 +6024,7 @@ F:EVIL | IM_POIS | CAN_SWIM |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
-D:A towering water elemental, Waldern is master of all things liquid. 
+D:A towering water elemental, it is master of all things liquid. 
 D:Wave after wave drowns your frail body.
 
 N:440:Ancient blue dragon
@@ -6633,7 +6396,7 @@ S:S_DEMON
 D:It is a demon of small stature, but its armoured frame moves with 
 D:lightning speed and its powers make it a tornado of death and destruction.
 
-N:464:Uvatha the Horseman
+N:464:The Black Rider at Bree
 G:W:D
 I:120:18d100:90:60:10
 W:40:3:0:10000
@@ -6646,8 +6409,7 @@ F:FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-D:A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs 
-D:to taste your blood.
+D:A tall black cloaked Ringwraith.
 
 N:465:Medusa, the Gorgon
 G:n:v
@@ -6690,25 +6452,6 @@ D:powerful elemental spells to use against you, in addition to his skills
 D:as an archer and a warrior. Furthermore, he is a master of camouflage, so 
 D:you will need magically enhanced seeing to spot him.
 
-N:467:Dark elven sorcerer
-G:l:v
-I:130:80d10:20:70:10
-W:41:2:0:3000
-B:HIT:HURT:2d8
-B:HIT:HURT:2d8
-B:HIT:HURT:2d8
-F:MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
-F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_2 | 
-S:HEAL | BLINK | TELE_TO | BLIND | CAUSE_3 | DARKNESS |
-S:BO_ACID | BA_FIRE | BA_COLD | 
-S:S_MONSTER | S_UNDEAD | S_DEMON
-D:A dark elven figure, dressed in deepest black.  Power seems to crackle 
-D:from his slender frame.
-
 N:468:Master lich
 G:L:r
 I:120:18d100:20:80:50
@@ -6742,25 +6485,6 @@ S:1_IN_9 |
 S:BO_FIRE | 
 S:S_DEMON
 D:It is a demon of lizard form with cruel-looking jaws.
-
-N:470:Archon
-G:M:y
-I:130:100d35:30:140:255
-W:41:6:0:15000
-B:GAZE:TERRIFY:4d4
-B:GAZE:TERRIFY:4d4
-B:HIT:HURT:8d6
-B:HIT:HURT:8d6
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | CAN_FLY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-S:1_IN_3 | 
-S:TELE_TO | BLIND | SCARE | CAUSE_2 | CAUSE_4 | BO_MANA | 
-S:S_ANGEL | GAZE
-D:Never a more heavenly being have you seen.  The very holiness of its 
-D:presence makes you deeply respect it.  Few creatures can match the powers 
-D:of an Archon; fewer still live to tell the tale after attacking one.
 
 N:471:Rogrog the Black Troll
 G:T:D
@@ -6887,7 +6611,7 @@ S:BO_FIRE |
 S:S_DEMON
 D:It is demon with arms and pincers, its form a true mockery of life.
 
-N:478:Quaker, Master of Earth
+N:478:The Master of Earth
 G:E:u
 I:110:18d100:10:97:90
 W:43:4:0:6000
@@ -6905,9 +6629,9 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_6 | 
 S:BO_ACID | BA_ACID
 D:A towering stone elemental stands before you.  The walls and ceiling are 
-D:reduced to rubble as Quaker advances.
+D:reduced to rubble as it advances.
 
-N:479:Adunaphel the Quiet
+N:479:The Black Rider at Weathertop
 G:W:D
 I:120:21d100:90:60:10
 W:43:3:0:13000
@@ -6918,15 +6642,14 @@ B:TOUCH:EXP_80:5d6
 F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY | 
+F:COLD_BLOOD | PASS_WALL | MOVE_BODY | 
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | 
 F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | FORGET | 
 S:BO_ACID | BO_FIRE | BO_COLD | BO_NETH | 
 S:S_MONSTER 
-D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the 
-D:power of the rings.
+D:A tall black cloaked Ringwraith.
 
 N:480:11-headed hydra
 G:y:R
@@ -7021,7 +6744,7 @@ D:powerful of the religious knightly orders, but noted for their intolerance.
 D:And thus it is Morgoth's will that is unwittingly done, as the forces of good 
 D:are set against each other.
 
-N:485:Ariel, Queen of Air
+N:485:The Queen of Air
 G:E:B
 I:130:27d100:12:50:50
 W:44:4:0:8000
@@ -7029,7 +6752,7 @@ B:HIT:HURT:4d6
 B:HIT:CONFUSE:1d4
 B:HIT:HURT:4d6
 B:HIT:CONFUSE:1d4
-F:UNIQUE | FEMALE | 
+F:UNIQUE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:RAND_25 | 
 F:EMPTY_MIND | COLD_BLOOD | CAN_FLY | 
@@ -7038,8 +6761,8 @@ F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:BO_ELEC | BA_COLD | BA_ELEC
-D:A towering air elemental, Ariel, the sorceress, avoids your blows 
-D:with her extreme speed.
+D:A towering air elemental, it avoids your blows 
+D:with its extreme speed.
 
 N:486:Berserker
 G:p:o
@@ -7133,7 +6856,7 @@ S:S_DEMON
 D:It is a large demon with the head of a giant boar.  Flames run up and down 
 D:its length.
 
-N:491:Akhorahil the Blind
+N:491:The Blackrider at the Ford to Rivendell
 G:W:D
 I:120:24d100:90:70:10
 W:45:3:0:15000
@@ -7150,9 +6873,7 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | DARKNESS | 
 S:BO_FIRE | BO_COLD | BO_NETH | WAIL |
 S:S_MONSTERS | GAZE
-D:A mighty sorcerer King, Akhorahil was blind in life.  With powerful 
-D:enchantments, he created jewelled eyes that enabled him to see better than 
-D:any ordinary man ever could.
+D:A tall black cloaked Ringwraith.
 
 N:492:Death mold
 G:m:D
@@ -7207,7 +6928,7 @@ S:BLIND | CAUSE_2 |
 S:S_DEMON
 D:She is a demon of female form with many arms, each bearing deadly weapons.
 
-N:495:Itangast the Fire Drake
+N:495:Glorund, the Worm of Greed
 G:A:R
 I:120:22d100:20:100:70
 W:47:4:0:20000
@@ -7223,8 +6944,8 @@ F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:CONF | CAUSE_3 | 
 S:BR_FIRE
-D:A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of 
-D:smoke curl up from his nostrils as he regards you with disdain.
+D:A powerful golden dragon of Morgoth.  One of the Uroloki, he is a 
+D:fire-drake of immense size and power.
 
 N:496:Winged Horror
 G:B:D
@@ -7284,7 +7005,7 @@ D:cunning and intelligence.  His speed through air is matched by few other
 D:dragons and his dragonfire is what legends are made of: he was believed to 
 D:have been the greatest dragon still surviving into the Third Age.
 
-N:499:Ren the Unclean
+N:499:One of the Nine
 G:W:D
 I:120:27d100:90:70:10
 W:48:3:0:18000
@@ -7301,11 +7022,9 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BO_FIRE | BO_NETH | BA_FIRE | 
 S:S_MONSTER | WAIL
-D:Ren was an insane eastern king who believed himself to be the son of a 
-D:volcano god.  At an early age his sanity was destroyed by a plague that 
-D:wiped out his family, and he never recovered.
+D:A tall black cloaked Ringwraith.
 
-N:500:Lesser Balrog
+N:500:Fire Demon
 G:U:v
 I:120:20d100:20:50:80
 W:49:3:0:10000
@@ -7343,7 +7062,7 @@ D:One of the darkest of the Dark Elves. He used his foul sorcery to seduce
 D:the Noldorin princess, Aredhel, and then murdered her when she sought 
 D:to escape back to Gondolin.
 
-N:502:The Balrog of Moria
+N:502:Durin's Bane, the Balrog of Khazad-dum
 G:U:v
 I:130:30d100:20:100:80
 W:50:3:0:30000
@@ -7362,9 +7081,13 @@ S:1_IN_4 |
 S:CONF | SCARE |
 S:BR_FIRE | 
 S:S_UNDEAD | S_DEMON
-D:A huge balrog surrounded by raging pillars of fire, this is indeed a 
-D:terrible opponent.  Wielding a great whip of fire and a blazing sword, his 
-D:fury blisters your skin and melts your flesh!
+D:A huge Balrog surrounded by raging pillars of fire, he is indeed a terrible 
+D:opponent.  The dark figure holds in its right hand a sword like a stabbing 
+D:tongue of fire and a flaming whip of many thongs in its left.  This Balrog 
+D:was entombed beneath Baranzibar for many years until the dwarves of Khazad-
+D:dum, while extending their mithril-mine, roused it from its sleep.  It is 
+D:known as Durin's Bane, the slayer of Durin VI, Lord of Moria.  Your death 
+D:is at hand.
 
 N:503:Nether hound
 G:Z:G
@@ -7437,7 +7160,7 @@ S:TRAPS
 D:He is a master of disguise, an expert of stealth, a genius at traps, and 
 D:moves with blinding speed.  Check your pockets!
 
-N:508:Ji Indur Dawndeath
+N:508:One of the Nine
 G:W:D
 I:120:32d100:90:70:10
 W:52:4:0:22000
@@ -7454,8 +7177,7 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
 S:S_UNDEAD
-D:This Ringwraith was a weak-minded sorcerer-king who fell easily under 
-D:Sauron's power.
+D:A tall black cloaked Ringwraith.
 
 N:509:Chaos vortex
 G:v:v
@@ -7606,7 +7328,7 @@ S:S_MONSTERS
 D:It is a humanoid figure thirty feet tall that gives off an aura of power 
 D:and hate.
 
-N:517:Dwar, Dog Lord of Waw
+N:517:The Messenger of Khamul
 G:W:D
 I:120:40d100:90:90:10
 W:56:3:0:25000
@@ -7623,8 +7345,9 @@ F:IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | BA_FIRE | BA_NETH | 
 S:S_MONSTERS | S_UNDEAD | S_HOUND | WAIL
-D:Dwar had a special affinity for dogs in life, and can still command them 
-D:at will.  He howls manically as he reaches out to destroy you.
+D:Once a powerful King among Men, he was enslaved by one of the Nine Rings 
+D:and became one of the chief servants of Sauron.  This Ringwraith serves 
+D:in Dol Goldur as the messenger of Khamul the Shadow of the East.
 
 N:518:Grand master mystic
 G:q:o
@@ -7789,14 +7512,16 @@ D:earned a high position in the church, and his skill with both weapon and
 D:spell only justify his position further.  His combination of both dwarven 
 D:strength and priestly wisdom are a true match for any adventurer.
 
-N:528:Saruman of Many Colours
+#Was Saruman. Slight promotion in power here.
+
+N:528:Grimma Wormtongue, Agent of Saruman
 G:q:v
 I:120:50d100:100:100:0
 W:60:1:0:35000
 B:HIT:UN_BONUS:6d8
 B:HIT:UN_BONUS:6d8
-B:HIT:HURT:5d5
-B:HIT:HURT:5d5
+B:HIT:EAT_ITEM:5d5
+B:HIT:EAT_ITEM:5d5
 F:UNIQUE | MALE | ATTR_MULTI | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
@@ -7806,12 +7531,9 @@ F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | MIND_BLAST | SCARE |
 S:CAUSE_4 | FORGET | TRAPS | 
-S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
+S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE |
 S:S_UNDEAD | S_DEMON | S_HI_DRAGON | S_MONSTERS
-D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
-D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
-D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
-D:world.
+D:He is a pathetic sniveling wretch. He has been spying for Saruman.
 
 N:529:Nightwing
 G:W:D
@@ -7853,28 +7575,6 @@ D:highly poisonous flatulence. And its insides are corrosive. All of which
 D:go together to make the single most repulsive sight - and smell - you have 
 D:ever experienced.
 
-N:531:Uriel, Angel of Fire
-G:M:r
-I:130:55d100:40:160:10
-W:61:3:0:25000
-B:HIT:FIRE:9d12
-B:HIT:FIRE:4d6
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | CAN_FLY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-S:1_IN_2 | 
-S:TELE_TO | BLIND | 
-S:BO_FIRE | BO_MANA | BO_PLAS | BA_FIRE | 
-S:BR_FIRE | BR_PLAS | 
-S:S_ANGEL
-D:A creature of godly appearance, you dare not challenge Uriel's supremacy.  
-D:Those who stood against him before are but a memory, cremated by his 
-D:mastery of elemental fire.
-
 N:532:Dreadlord
 G:G:r
 I:120:30d100:20:150:10
@@ -7896,28 +7596,6 @@ D:It is a massive form of animated death, its colour deeper than black.  It
 D:drinks in light, and space around it is twisted and torn by the weight of 
 D:its evil.  It is unlife and it knows nothing but the stealing of souls and 
 D:the stench of death.  Flee its hunger!
-
-N:533:Azriel, Angel of Death
-G:M:D
-I:130:60d100:40:170:10
-W:62:3:0:30000
-B:TOUCH:EXP_80
-B:HIT:BLIND:10d5
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_FLY |
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
-S:1_IN_2 | 
-S:TELE_TO | BLIND | 
-S:BO_MANA | BO_NETH | BA_NETH | 
-S:BR_NETH | S_ANGEL
-D:Azriel commands awesome power, his visage holy enough to shrivel your 
-D:soul.  You shriek with disbelief as his mastery of death draws you to your 
-D:grave.  It is truly beyond all but the mightiest of warriors to stand 
-D:against him and live.
 
 N:534:Great Storm Wyrm
 G:A:b
@@ -7995,27 +7673,6 @@ D:A dragon of great size and power. Its polished bronze scales reflect the
 D:light in strange and confusing patterns, and you find it hard to keep your 
 D:mind on the job of fighting for your life.
 
-N:538:Gabriel, the Messenger
-G:M:w
-I:130:75d100:40:180:10
-W:63:3:0:35000
-B:HIT:UN_BONUS:6d8
-B:HIT:FIRE:4d6
-B:HIT:HURT:10d10
-B:HIT:HURT:10d10
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_FLY |
-F:ESCORT | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS 
-S:1_IN_2 | 
-S:TELE_TO | BLIND | BO_MANA | S_KIN
-D:Commanding a legion of angels, Gabriel will destroy you for your sins.  He 
-D:will crush you like the pitiful insignificant being he sees you to be.  
-D:Your very soul will be taken into judgement by his supreme authority as he 
-D:cleanses the world of evil.
-
 N:539:Chaos hound
 G:Z:v
 I:120:60d30:30:100:0
@@ -8035,7 +7692,7 @@ D:A constantly changing canine form, this hound rushes towards you as if
 D:expecting mayhem and chaos ahead.  It appears to have an almost kamikaze 
 D:relish for combat.  You suspect all may not be as it seems.
 
-N:540:Hoarmurath of Dir
+N:540:Gothmog, the Lieutenant of Morgul
 G:W:D
 I:120:45d100:90:100:10
 W:64:3:0:30000
@@ -8053,8 +7710,9 @@ S:1_IN_3 |
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | MIND_BLAST | 
 S:BO_COLD | BA_COLD | BA_NETH | WAIL |
 S:S_UNDEAD
-D:A Ringwraith powerful in fell sorcery, he yearns for the life he has lost 
-D:for a life of everlasting torment.
+D:This Ringwraith was once a mighty King among Men before being enslaved
+D:by one of the Nine Rings.  Now a servant of Sauron, he serves as the
+D:lieutenant of Minas Morgul under the Lord of the Nazgul.
 
 N:541:Osyluth
 G:U:W
@@ -8094,8 +7752,10 @@ S:TPORT | HEAL | S_HI_UNDEAD | S_DEMON | BA_NETH
 D:A lich, who has reached its ultimate evolutionary stage: a completely 
 D:immaterial state.
 
-N:543:The Mouth of Sauron
-G:q:v
+#Was the Mouth of Sauron.
+
+N:543:Saruman of Many Colours
+G:M:v
 I:130:70d100:60:100:10
 W:65:3:0:38000
 B:HIT:UN_BONUS:6d8
@@ -8111,11 +7771,11 @@ F:IM_ELEC | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS | 
 S:BO_PLAS | BA_DARK | BA_MANA | BA_FIRE | BA_WATE | BA_NETH | 
-S:S_HI_DEMON | S_HI_DRAGON
-D:The Mouth of Sauron is a mighty spell caster.  So old that even he cannot 
-D:remember his own name, his power and evil are undeniable.  He believes 
-D:unshakeably that he is unbeatable and laughs as he weaves his awesome 
-D:spells.
+S:S_HI_DEMON | S_HI_DRAGON | S_MONSTERS
+D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
+D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
+D:searches forever for the One Ring, to become a mighty Sorcerer-King of the 
+D:world.
 
 N:544:Greater titan
 G:P:o
@@ -8136,7 +7796,7 @@ D:A forty foot tall humanoid that shakes the ground as it walks.  The power
 D:radiating from its frame shakes your courage, its hatred inspired by your 
 D:defiance.
 
-N:545:The Cat Lord
+N:545:Tevildo, Prince of Cats
 G:f:v
 I:130:48d100:100:200:0
 W:66:3:0:30000
@@ -8148,11 +7808,15 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | EVIL |
 F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TELE_TO | S_KIN
-D:Master of all things feline, the Cat Lord moves with unsurpassed stealth.
+D:Master of all things feline and mighty servant of Morgoth.  A great cat, 
+D:coal-black and evil to look upon.  His eyes are long and very narrow and 
+D:slanted, and gleam both red and green.  His great grey whiskers are as 
+D:stout and sharp as needles.  His purr is like the roll of drums and his 
+D:growl like thunder.
 
 N:546:Great Bile Wyrm
 G:A:s
@@ -8230,7 +7894,9 @@ S:BR_CHAO
 D:"Beware the Jabberwock, my son! The jaws that bite, the claws that catch!" 
 D:Run and run quickly, for death incarnate chases behind you!
 
-N:550:Tselakus, the Dreadlord
+#Was the Dreadlord.
+
+N:550:Baldor the Hapless
 G:G:R
 I:130:65d100:20:150:10
 W:68:2:0:35000
@@ -8248,12 +7914,10 @@ S:1_IN_3 |
 S:BLIND | HOLD | CONF | 
 S:BA_DARK | BA_NETH | 
 S:S_WRAITH | S_HI_UNDEAD | S_KIN
-D:This huge affront to existence twists and tears at the fabric of space.  A 
-D:master of mighty magic, Tselakus hungers for your tender flesh.  Darkness 
-D:itself recoils from the touch of Tselakus as he leaves a trail of death 
-D:and destruction.  Tselakus is a being of sneering contempt, laughing at 
-D:your pitiful efforts to defy him.  Mighty claws rend reality as he 
-D:annihilates all in his path to your soul!
+D:The eldest son of Brego, second King of Rohan.  At the feast held to 
+D:celebrate the completion of Meduseld, he made a rash vow to tread the 
+D:Paths of the Dead.  There he died and rose as one of the Dead, for the 
+D:Paths are closed to all save the Dead and the heirs of Isildur.
 
 N:551:Gelugon
 G:U:w
@@ -8345,7 +8009,7 @@ D:foes and friends alike when it flies into one of its berserk rages, the
 D:Horned Reaper will cut down anything in its path between it and you - 
 D:even the minions it has just summoned.
 
-N:558:Khamul, the Black Easterling
+N:558:Khamul the Shadow of the East
 G:W:D
 I:120:50d100:90:100:10
 W:72:3:0:40000
@@ -8362,8 +8026,9 @@ F:HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
 S:BA_FIRE | BA_COLD | BA_NETH | S_HI_UNDEAD 
-D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
-D:combat awesome and his form twisted by evil cunning.
+D:Once a great warrior-King of the East, the Black Easterling is second 
+D:in command of the fell Nazgul.  His great power and skill in combat is 
+D:superseded only by that of the Lord of Morgul himself.
 
 N:559:Nightwalker
 G:W:D
@@ -8387,26 +8052,6 @@ D:a dragon.  With terrible blows, it breaks your armour from your back,
 D:leaving you defenseless against its evil wrath.  It can smell your fear, 
 D:and you in turn smell the awful stench of death as this ghastly figure 
 D:strides towards you menacingly.
-
-N:560:Omarax the Eye Tyrant
-G:e:v
-I:130:65d100:30:80:10
-W:73:4:0:16000
-B:GAZE:EXP_40:4d6
-B:GAZE:PARALYZE:4d6
-B:GAZE:UN_POWER:4d6
-B:GAZE:LOSE_INT:4d6
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | CAN_FLY | 
-F:SMART | BASH_DOOR | 
-F:EVIL | IM_POIS | 
-F:NO_CONF | NO_SLEEP
-S:1_IN_2 | 
-S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | FORGET | MIND_BLAST | 
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | S_KIN | GAZE
-D:A disembodied eye, floating in the air.  His gaze seems to shred your 
-D:soul and his spells crush your will.  He is ancient, his history steeped 
-D:in forgotten evils, his atrocities numerous and sickening.
 
 N:561:Aether hound
 G:Z:v
@@ -8492,7 +8137,7 @@ D:A massive dragon of powerful intellect.  It seeks to dominate the universe
 D:and despises all other life.  It sees all who do not obey it as mere 
 D:insects to be crushed underfoot.
 
-N:565:Ungoliant, the Unlight
+N:565:Shelob, Spider of Darkness
 G:S:D
 I:120:130d100:8:160:80
 W:75:1:0:35000
@@ -8508,11 +8153,11 @@ F:ANIMAL | EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | DARKNESS | BA_DARK | 
 S:BR_POIS | BR_DARK | S_KIN
-D:This enormous, hideous spirit of void is in the form of a spider of 
-D:immense proportions.  She is surrounded by a cloud of Unlight as she sucks 
-D:in all living light into her bloated body.  She is always ravenously 
-D:hungry and would even eat herself to avoid starvation.  She is rumoured to 
-D:have a foul and deadly breath.
+D:Shelob is an enormous bloated spider, rumoured to have been one of the 
+D:brood of Ungoliant the Unlight.  Her poison is legendary, as is her ego, 
+D:which may be her downfall.  She normally guards the pass through Cirith 
+D:Ungol, but occasionally goes out foraging for food to feed her voracious
+D:appetite.
 
 N:567:Atlas, the Titan
 G:P:s
@@ -8550,7 +8195,9 @@ D:and massive fangs dripping a foul green liquid, the Pit Fiend is a
 D:dreadful enemy from the lowest depths of the hells. They are often the 
 D:commanders of vast demon armies.
 
-N:569:Feagwath, the Undead Sorcerer
+#Was Feagwath.
+
+N:569:The Lord of the Dead
 G:L:y
 I:130:50d100:20:85:50
 W:77:2:0:30000
@@ -8558,7 +8205,7 @@ B:TOUCH:EXP_80:6d12
 B:TOUCH:UN_POWER:6d12
 B:TOUCH:LOSE_DEX:6d12
 B:TOUCH:LOSE_DEX:6d12
-F:UNIQUE | MALE | 
+F:UNIQUE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
@@ -8570,8 +8217,9 @@ S:BLINK | TELE_TO | BLIND | HOLD | CONF | SCARE | CAUSE_3 | CAUSE_4 |
 S:BRAIN_SMASH | TRAPS | BA_MANA | 
 S:BO_MANA | BA_NETH | 
 S:S_MONSTERS | S_UNDEAD
-D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
-D:risen from the dead to continue his foul plots and schemes.
+D:The mightiest of the oath breakers who lie in the Paths of the Dead.  His
+D:powerful blows and fell magic rain down on you, for you are not an heir 
+D:of Isildur.
 
 N:570:Hellhound
 G:C:r
@@ -8629,7 +8277,7 @@ D:years old and seeks to maintain the Cosmic Balance.  It sees you as an
 D:upstart troublemaker without the wisdom to control your actions.  It will 
 D:destroy you.
 
-N:573:Greater Balrog
+N:573:Balrog
 G:U:v
 I:130:50d100:40:140:80
 W:79:3:0:25000
@@ -8650,7 +8298,7 @@ D:Originally of the semi-divine Maiar, this evil spirit swore allegiance
 D:to Morgoth at the beginning of time and is now one of his most terrible 
 D:demonic servants. With its flaming whip and sword it seeks to destroy you.
 
-N:575:The Witch-King of Angmar
+N:575:The Witch-King of Angmar, Lord of the Nazgul
 G:W:D
 I:130:60d100:90:120:10
 W:80:3:0:60000
@@ -8693,25 +8341,6 @@ D:and more. His greed for gold led him to betray the Hidden Kingdom of Gondolin
 D:to Morgoth's forces. He is a mighty warrior himself, and some of Morgoth's 
 D:greatest servants answer to his call.
 
-N:577:Pazuzu, Lord of Air
-G:U:b
-I:140:55d100:40:125:10
-W:82:2:0:30000
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
-B:HIT:ELEC:12d12
-F:UNIQUE | MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | CAN_FLY |
-F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
-F:IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC | S_HI_DEMON
-D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
-D:as he decides your fate.
-
 N:578:Draugluin, Sire of All Werewolves
 G:C:u
 I:130:70d100:80:90:90
@@ -8733,8 +8362,10 @@ S:S_MONSTERS | S_HOUND
 D:Draugluin provides Sauron with a fearsome personal guard.  He is an 
 D:enormous wolf inhabited with a human spirit.  He is chief of all his kind.
 
-N:579:Cantoras, the Skeletal Lord
-G:s:v
+#Was Cantoras.
+
+N:579:The Mouth of Sauron
+G:q:v
 I:140:75d100:20:120:80
 W:84:2:0:45000
 B:GAZE:EXP_80:5d5
@@ -8751,9 +8382,10 @@ S:1_IN_2 |
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | GAZE |
 S:S_HI_UNDEAD
-D:A legion of evil undead druj animating the skeleton of a once mighty 
-D:sorcerer.  His power is devastating and his speed unmatched in the 
-D:underworld.  Flee his wrath!
+D:The Mouth of Sauron is a mighty spell caster.  So old that even he cannot 
+D:remember his own name, his power and evil are undeniable.  He believes 
+D:unshakeably that he is unbeatable and laughs as he weaves his awesome 
+D:spells.
 
 N:580:Ancalagon the Black
 G:A:D
@@ -8858,27 +8490,34 @@ D:The first guard of Angband, Carcharoth, also known as 'The Red Maw', is
 D:the largest wolf to ever walk the earth.  He is highly intelligent and a 
 D:deadly opponent in combat.
 
-N:585:Vecna, the Emperor Lich
-G:L:v
-I:130:60d100:100:100:0
-W:92:3:0:45000
-B:HIT:EXP_80:7d12
-B:HIT:LOSE_DEX:7d12
-B:HIT:UN_POWER:7d12
-B:HIT:UN_POWER:7d12
+#Was Vecna. Change attack types from hit. Added breaths. Added 100d100 hp.
+#Increased armour class. Worth more xp. Don't want to fight this guy...
+
+N:585:Ungoliant, the Unlight
+G:S:v
+I:130:160d100:100:180:0
+W:92:3:0:55000
+B:BITE:EXP_80:7d12
+B:BITE:POISON:7d12
+B:STING:UN_POWER:7d12
+B:STING:UN_POWER:7d12
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
-F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | UNDEAD | 
+F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | CAN_CLIMB |
+F:EVIL |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_FIRE | BA_NETH | 
-S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_KIN
-D:The greatest of all undead sorcerers, even the gods once feared him.
-D:This ancient shadow of death wilts every living thing it passes.
+S:S_MONSTERS | S_HI_DEMON | S_HI_UNDEAD | S_KIN |
+S:BR_POIS | BR_DARK | BA_DARK
+D:This enormous, hideous spirit of void is in the form of a spider of 
+D:immense proportions.  She is surrounded by a cloud of Unlight as she sucks 
+D:in all living light into her bloated body.  She is always ravenously 
+D:hungry and would even eat herself to avoid starvation.  She is rumoured to 
+D:have a foul and deadly breath.
 
 N:586:Gothmog, the High Captain of Balrogs
 G:U:v
@@ -9654,8 +9293,8 @@ S:1_IN_5 |
 S:BR_FIRE
 D:It is a giant bat that glows with heat. Flames shoot from its wings.
 
-N:644:Giant white centipede
-G:c:w
+N:644:Giant green centipede
+G:c:g
 I:110:3d5:7:10:40
 W:1:4:0:2
 B:BITE:HURT:1d2
@@ -11793,22 +11432,6 @@ S:HEAL | HOLD | TRAPS | SCARE | BA_COLD | BO_FIRE |
 S:S_MONSTER
 D:A wizard of short stature.
 
-N:791:Dark elven ranger
-G:l:W
-I:115:10d10:20:16:20
-W:10:5:0:50
-B:HIT:HURT:1d7
-B:HIT:HURT:1d7
-B:SHOOT:ARROW:3d6
-F:MALE | 
-F:FORCE_SLEEP | 
-F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | HURT_LITE
-S:1_IN_5 | 
-S:BLIND | MISSILE | DARKNESS | SHOOT
-D:A dark elven figure, with sword and bow quick to hand.
-
 N:792:Dwarven warrior
 G:h:U
 I:110:10d10:18:30:10
@@ -13795,19 +13418,6 @@ B:HIT:HURT:6d3
 F:CAN_SWIM | MUST_SWIM |
 F:MALE
 D:A race of fair yet belligrent sea elves.
-
-N:953:Goblin sapper
-G:k:G
-I:111:6d8:20:16:30
-W:21:1:0:667
-B:HIT:HURT:1d8
-B:EXPLODE:HURT:20d2
-F:MALE | 
-F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | HURT_LITE
-D:He is one of the many weaker 'slave' orcs, often known as a 
-D:snaga. He is equipped with an explosive charge.
-
 N:954:Gibbering mouther
 G:j:o
 I:110:6d6:15:14:20
@@ -13871,14 +13481,12 @@ B:CRUSH:HURT:8d3
 F:RAND_25 | IM_COLD | CAN_SWIM | MUST_SWIM | ANIMAL
 D:It doesn't move very fast, but when it does - watch out!
 
-
 N:960:Flying skull
 G:s:s
 I:110:7d10:30:15:20
 W:24:3:0:457
 B:BITE:POISON:1d3
 B:BITE:LOSE_STR:1d4
-F:
 F:UNDEAD | EVIL | IM_POIS | IM_COLD | WEIRD_MIND | NO_FEAR | CAN_FLY |
 F:NO_CONF | NO_SLEEP | DROP_60 | BASH_DOOR | FRIENDS | COLD_BLOOD
 D:A skullpack animated by necromantic spells.
@@ -13909,7 +13517,7 @@ F:OPEN_DOOR | BASH_DOOR | HAS_LITE
 F:EVIL 
 D:Intelligent lizard beings from the depths.
 
-N:963:Hammerhead
+N:963:Giant hammerhead shark
 G:F:b
 I:115:11d10:20:30:20
 W:24:3:0:1371
@@ -13917,7 +13525,7 @@ B:BITE:HURT:4d4
 B:BUTT:HURT:4d4
 B:BITE:HURT:4d4
 F:ANIMAL | CAN_SWIM | MUST_SWIM
-D:A hungry shark with a strange head.
+D:A giant hungry shark with a strange head.
 
 N:964:Sphinx
 G:H:o
@@ -14040,16 +13648,15 @@ F:ANIMAL | CAN_SWIM | MUST_SWIM
 D:Although it looks like a fish and lives in water, it is in fact 
 D:a mammal. And it is huge!
 
-N:974:Electric eel
-G:J:B
+N:974:Giant electric eel
+G:F:B
 I:110:11d15:15:20:70
 W:31:2:0:2008
 B:TOUCH:ELEC:2d7
 B:TOUCH:ELEC:7d2
 B:TOUCH:ELEC:2d7
 F:CAN_SWIM | MUST_SWIM | ANIMAL | RAND_25 | IM_ELEC
-D:This cute little serpentine creature can create a deadly voltage. 
-D:Better watch out!
+D:A giant version of its electrified cousin.
 
 N:975:Arch-vile
 G:u:W
@@ -14091,16 +13698,6 @@ F:IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A mummified, undead great avian creature, who now serves as 
 D:a steed for mighty undead creatures.
-
-N:978:Killer whale
-G:l:w
-I:115:22d11:12:26:30
-W:31:1:0:2893
-B:BITE:HURT:8d3
-B:BITE:HURT:8d3
-F:CAN_SWIM | MUST_SWIM |
-F:ANIMAL
-D:An almost beautiful, deadly beast.
 
 N:980:Auto-roller
 G:g:s
@@ -14174,22 +13771,6 @@ F:OPEN_DOOR | BASH_DOOR | MOVE_BODY |
 F:ANIMAL 
 D:A horror from prehistory, reawakened by chaos.
 
-N:988:Silent watcher
-G:g:s
-I:110:60d20:42:40:10
-W:37:5:0:7917
-B:GAZE:TERRIFY
-B:GAZE:PARALYZE
-B:GAZE:LOSE_STR
-F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | NEVER_MOVE |
-F:IM_FIRE | IM_COLD | IM_POIS | EVIL |
-F:HURT_ROCK | HURT_LITE |
-F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_6 | 
-S:SHRIEK | S_MONSTER | S_MONSTERS | HOLD | CONF | MIND_BLAST | DRAIN_MANA
-D:A figure carved from stone, with three vulture faces. Their eyes glow 
-D:a malevolent light...
-
 N:989:Disenchanter beast
 G:q:w
 I:110:23d30:12:30:12
@@ -14242,13 +13823,12 @@ S:BLIND | CONF | TPORT
 D:A faithful servitor and a skilled warrior.
 
 N:994:Ghoul
-G:L:g
+G:z:g
 I:110:11d9:30:15:20
 W:38:1:0:3233
 B:CLAW:LOSE_CON:1d4
 B:CLAW:LOSE_CON:1d4
 B:BITE:PARALYZE:1d5
-F:
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | CAN_SWIM |
 F:EVIL | UNDEAD | FRIENDS | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP
 F:COLD_BLOOD | HURT_LITE
@@ -14410,13 +13990,12 @@ B:CRUSH:HURT:8d4
 B:CRUSH:HURT:8d4
 F:IM_ACID | CAN_SWIM | MUST_SWIM | ANIMAL | IM_COLD | MOVE_BODY
 F:FORCE_MAXHP
-S:1_IN_8
-S:BR_ELEC | BR_ACID | BR_POIS
-D:Besides being capable of dragging whole ships underwater, 
-D:this creature can also harm you with ranged attacks.
+S:1_IN_8 |
+S:DARKNESS
+D:Its capable of dragging whole ships underwater.
 
 N:1007:Ghoulking
-G:L:G
+G:z:G
 I:120:11d12:20:30:10
 W:53:2:0:19921
 B:CLAW:LOSE_STR:3d4
@@ -14458,18 +14037,6 @@ F:EVIL | IM_POIS | IM_COLD | NO_CONF | NO_SLEEP |
 S:1_IN_4
 S:HOLD | SCARE | BLIND | CAUSE_3 | TRAPS | DARKNESS | FORGET | HASTE
 D:An embodiment of all the cardinal vices, he beholds you scornfully.
-
-
-N:1011:Gas spore
-G:e:g
-I:110:25d7:30:1:5
-W:55:4:0:12467
-B:EXPLODE:LOSE_CON:40d2
-F:FORCE_SLEEP |
-F:STUPID | EMPTY_MIND | CAN_FLY | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
-D:From a distance, this creature is often mistaken for the 
-D:much more dangerous beholder.
 
 N:1012:Oriental vampire
 G:V:g
@@ -14603,22 +14170,6 @@ S:BO_FIRE
 D:Back from the grave, to wreak vengeance upon the living. A gaunt, tall, 
 D:skeletal figure wearing a ruined plate mail.
 
-
-
-N:1021:Dark elven assassin
-G:h:D
-I:125:14d13:20:30:10
-W:52:2:0:15815
-B:HIT:POISON:8d4
-B:HIT:POISON:8d4
-B:HIT:LOSE_CON:2d4
-F:MALE |
-F:DROP_90 | INVISIBLE |
-F:OPEN_DOOR | BASH_DOOR | HURT_LITE |
-F:EVIL | NO_CONF | NO_SLEEP
-D:A dark elven assassin, so stealthy that he is almost impossible to see.
-
-
 N:1022:Mezzodaemon
 G:u:o
 I:110:30d13:10:34:90
@@ -14710,8 +14261,7 @@ S:DRAIN_MANA | BRAIN_SMASH
 D:A skeletal form wrapped in priestly robes.  Before its un-death, it 
 D:was a monk in an evil order...
 
-
-N:1031:War troll
+N:1031:Giant war troll
 G:T:g
 I:120:50d7:20:50:50
 W:61:3:0:28079
@@ -14795,42 +14345,6 @@ F:ANIMAL | NO_CONF | NO_SLEEP | CAN_SWIM
 S:1_IN_8
 S:BR_POIS | BR_DARK | BR_NETH
 D:A large basilisk, whose shape resembles that of a great wyrm.
-
-N:1037:Charybdis
-G:l:r
-I:120:40d70:20:50:70
-W:57:1:0:60000
-B:ENGULF:HURT:10d8
-B:ENGULF:HURT:10d8
-B:ENGULF:HURT:10d8
-F:CAN_SWIM | MUST_SWIM | EVIL | UNIQUE | 
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_3D2 |
-F:SMART | POWERFUL | MOVE_BODY | NEVER_MOVE |
-F:IM_ACID | IM_COLD | 
-F:IM_POIS | NO_CONF | NO_SLEEP | NO_STUN |
-S:1_IN_5 | 
-S:BA_WATE 
-D:A monstrous dweller of the depths; its hungry maw has been the doom 
-D:of innumerable sailors!
-
-N:1038:Nazgul
-G:W:D
-I:120:66d50:90:55:10
-W:66:3:0:60000
-B:HIT:TERRIFY:6d6
-B:HIT:TERRIFY:6d6
-B:HIT:EXP_80:4d6
-B:HIT:EXP_80:4d6
-F:MALE | 
-F:FORCE_MAXHP |
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | SMART |
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
-S:1_IN_6 |
-S:SCARE | HOLD | DRAIN_MANA | BR_NETH
-D:A tall black cloaked Ringwraith, radiating an aura of fear.
-
 
 N:1039:Dragon-turtle
 G:D:g
@@ -14959,15 +14473,15 @@ S:BO_PLAS | BA_FIRE
 D:It is a belligrent minotaur with some destructive magical arsenal, armed 
 D:with a hammer.
 
-
-N:1048:Lesser kraken
+N:1048:The Watcher in the Water
 G:F:G
 I:120:112d22:30:75:80
-W:79:2:0:60000
+W:49:2:0:60000
 B:CRUSH:HURT:16d12
 B:CRUSH:HURT:16d12
 B:CRUSH:HURT:16d12
 B:CRUSH:HURT:16d12
+F:UNIQUE |
 F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM | MUST_SWIM |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | SMART | 
@@ -14975,8 +14489,10 @@ F:EVIL | IM_ELEC | NO_CONF | NO_SLEEP | IM_POIS | IM_FIRE
 S:1_IN_6 | 
 S:BLIND | CONF | SCARE | CAUSE_4 | CAUSE_3 |
 S:BA_WATE | DARKNESS | BR_DARK | TELE_TO 
-D:An enormously fearsome and powerful inhabitant of the depths. It 
-D:resembles a gargantuan octopus and its evil is almost tangible.
+D:A huge many-tentacled creature, this is the Kraken of Moria.  Its tentacles 
+D:are luminous and slimy green, and an inky stench comes from its fowl bulk.  
+D:It was accidentally released from its prison by the Dwarves when Durin's 
+D:Bane, the Balrog of Khazad-dum, was awakened.
 
 N:1050:Shadowlord
 G:G:b
@@ -14998,7 +14514,7 @@ S:BA_NETH | DARKNESS | SHRIEK
 D:An aura of hatred, cowardice and falsehood surrounds you as this 
 D:cloaked figure floats towards you.
 
-N:1051:Greater kraken
+N:1051:Kraken
 G:l:G
 I:120:40d70:30:62:80
 W:83:2:0:60000
@@ -15087,7 +14603,6 @@ S:S_DRAGON | S_HI_DRAGON |
 S:SCARE | BLIND
 D:The mightiest elemental dragon of air, it can destroy you with ease.
 
-
 N:1057:Great Wyrm of Power
 G:D:y
 I:130:83d111:20:55:70
@@ -15110,17 +14625,6 @@ S:BR_TIME | BR_INER | BR_GRAV | BR_SHAR | BR_PLAS |
 S:BR_WALL | BR_MANA
 D:The mightiest of all dragonkind, a great wyrm of power is seldom 
 D:encountered in our world. It can crush stars with its might.
-
-
-N:1062:Unstable worm mass
-G:w:o
-I:110:3d8:10:5:5
-W:20:4:0:76
-B:EXPLODE:FIRE:5d5
-F:RAND_50 | RAND_25 |  
-F:STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | 
-F:ANIMAL | HURT_LITE | NO_FEAR
-D:A seething mass of thick, glowing worms.
 
 N:1063:Storm Troll
 G:T:B
@@ -15158,26 +14662,7 @@ S:S_HI_DRAGON
 S:SCARE | BLINK | SHRIEK
 D:The tortured soul of a once powerful wyrm.
 
-N:1066:Dark elven shade
-G:l:w
-I:130:48d12:20:25:10
-W:72:2:0:60000
-B:TOUCH:EXP_80:1d16
-B:TOUCH:UN_POWER
-B:TOUCH:LOSE_DEX:8d8
-B:TOUCH:LOSE_INT:8d8
-F:MALE | 
-F:FORCE_SLEEP | FORCE_MAXHP
-F:ONLY_ITEM | DROP_2D2 | 
-F:SMART | INVISIBLE | COLD_BLOOD | UNDEAD |
-F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP |
-S:1_IN_2 | 
-S:HEAL | BLINK | BLIND | CONF | CAUSE_3 | DARKNESS | 
-S:SHRIEK | TELE_AWAY | BA_DARK | DRAIN_MANA |
-S:S_MONSTER | S_UNDEAD | S_DEMON | S_KIN |
-D:A dark elven figure that glows with an inner light.
-
-N:1067:Anti-magic hound
+N:1067:Disenchanter hound
 G:Z:v
 I:110:36d10:30:30:0
 W:49:4:0:9178
@@ -15185,7 +14670,6 @@ B:CLAW:HURT:3d3
 B:BITE:UN_BONUS:3d12
 B:CLAW:HURT:3d3
 B:BITE:UN_BONUS:3d12
-F:
 F:FORCE_SLEEP | FRIENDS | 
 F:BASH_DOOR | RES_DISE
 F:ANIMAL | NO_CONF | NO_SLEEP
@@ -15210,3 +14694,2305 @@ S:1_IN_8 |
 S:BR_MANA
 D:A powerful aura radiates from this canine creature. It feels 
 D:like... magic?
+
+#Needs to be a lot more powerful.
+
+N:1069:Old Man Willow
+G:<:s
+I:110:16d20:20:10:20
+W:6:5:0:221
+B:TOUCH:PARALYZE
+B:TOUCH:PARALYZE
+B:CRUSH:HURT:2d12
+S:1_IN_10
+S:TELE_TO
+F:ANIMAL | NEVER_MOVE | COLD_BLOOD |
+F:EMPTY_MIND | UNIQUE | FORCE_MAXHP | FORCE_SLEEP |
+F:IM_POIS | IM_ACID
+F:DROP_90 | DROP_GOOD | ONLY_ITEM
+D:A huge willow-tree, old and hoary.  It looks enormous, its sprawling branches 
+D:going up like reaching arms with many long-fingered hands, its knotted and 
+D:twisted trunk gaping in wide fissures that creak faintly as the bough moves. 
+D:Old Man Willow is the mightiest tree of his kind ever recorded, for he is 
+D:black-hearted, limb-lithe, and filled with a great enchanting power of song.
+
+N:1070:Meneldor the Swift
+G:B:u
+I:130:80d7:20:32:20
+W:16:5:0:945
+B:CLAW:HURT:7d3
+B:CLAW:HURT:7d3
+B:BITE:HURT:3d7
+F:CAN_FLY | UNIQUE | FORCE_MAXHP
+F:ANIMAL
+D:An agent of supernatural beings, this creature looks like a 
+D:huge eagle.
+
+N:1071:Gwaihir the Windlord
+G:B:u
+I:130:64d10:20:65:20
+W:19:5:0:2159
+B:CLAW:HURT:15d2
+B:CLAW:HURT:15d2
+B:BITE:HURT:3d10
+F:CAN_FLY | UNIQUE | FORCE_MAXHP
+F:ANIMAL
+D:An agent of supernatural beings, this creature looks like a 
+D:huge eagle.
+
+N:1072:Grendel
+G:O:g
+I:120:15d60:20:50:20
+W:41:2:0:39464
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR | CAN_SWIM |
+F:EVIL | GIANT | IM_POIS
+D:An ogre renowned for acts of surpassing cruelty.
+
+N:1073:Thorondor
+G:B:u
+I:130:64d12:20:32:20
+W:16:6:0:1087
+B:CLAW:HURT:16d2
+B:CLAW:HURT:16d2
+B:BITE:HURT:4d10
+F:CAN_FLY | UNIQUE | FORCE_MAXHP |
+F:ANIMAL
+D:An agent of supernatural being, Thorondor is the lord of eagles.
+
+#Note 2 Gandalfs. Neither of which we should really fight...
+
+N:1074:Gandalf the White
+G:M:w
+I:120:49d70:101:50:0
+W:79:7:0:1181382
+B:HIT:UN_BONUS:6d8
+B:HIT:UN_BONUS:6d8
+B:HIT:TERRIFY:5d5
+B:HIT:TERRIFY:5d5
+F:UNIQUE | MALE |
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD |
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:IM_FIRE | IM_COLD
+F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_2 | 
+S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
+S:CAUSE_4 | BRAIN_SMASH | FORGET | TRAPS | 
+S:BA_FIRE | BO_FIRE | BO_PLAS | BO_MANA | DARKNESS |
+S:S_MONSTER | S_ANGEL | S_DRAGON | S_KIN 
+D:The wizard who opposed Saruman, and in the end, was the only 
+D:one of the Istari to succeed in his task. Gandalf is very 
+D:wise and specializes in fire magic.
+
+N:1075:Eilinel the Entrapped
+G:G:D
+I:120:90d10:10:40:1
+W:42:10:0:3500
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:TOUCH:UN_POWER:3d3
+B:TOUCH:UN_BONUS:3d3
+F:UNIQUE |
+F:FORCE_MAXHP |
+F:DROP_1D2 | DROP_2D2 | DROP_3D2 | DROP_GOOD |
+F:SMART | OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | IM_COLD | IM_FIRE | NO_CONF | NO_SLEEP
+S:1_IN_2 |
+S:BLINK | TELE_TO | HEAL | S_MONSTER | BO_ACID | BO_MANA | CAUSE_3
+D:In life, she was the husband of Gorlim. In death, her shade was 
+D:entrapped by Morgoth and used to trick her husband into betraying 
+D:Barahir. Now she is totally entrapped by Morgoth's power, and uses
+D:her magic to do his bidding.
+
+#Needs new stats.  Using Bullroarer.
+
+N:1076:Bill Ferny, Agent of Saruman
+G:p:U
+I:120:6d10:16:8:10
+W:5:3:0:90
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:UNIQUE | MALE
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR
+D:A swarthy man of Bree.  He has heavy black brows and dark scornful 
+D:eyes; his large mouth is curled in a sneer.  He sells anything to
+D:anybody and enjoys making mischief for his personal amusement.
+
+#Needs new stats. Using Bullroarer.
+
+N:1077:Lotho Sackville-Baggins, Betrayer of the Shire
+G:h:U
+I:120:6d10:16:8:10
+W:5:3:0:90
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:UNIQUE | MALE
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR
+D:The `Chief Shiriff' of Bag End.  Using money obtained from Isengard and 
+D:the sale of pipe-weed, he bought up much property in the Shire and supported 
+D:the ruffians known as `The Chief's Men'.  After imprisoning Will Whitfoot, 
+D:the rightful Mayor of the Shire, Lotho took over and began industrializing 
+D:and regimenting life in the Shire.
+
+#These guys are now the same strength as stone trolls, and encountered a lot earlier.
+#Also note change in description.
+
+N:1078:Bert, the Stone troll
+G:T:W
+I:110:23d10:20:40:50
+W:9:1:0:85
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:3d4
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:DROP_1D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
+D:Bill and Tom.
+
+N:1079:Bill, the Stone troll
+G:T:W
+I:110:23d10:20:40:50
+W:9:1:0:85
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:3d4
+F:UNIQUE | MALE |
+F:FORCE_MAXHP | 
+F:DROP_1D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
+D:Bill and Tom.
+
+N:1080:Tom, the Stone troll
+G:T:W
+I:110:23d10:20:40:50
+W:9:1:0:85
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+B:BITE:HURT:3d4
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:DROP_1D2 | DROP_GOOD |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
+D:Bill and Tom.
+
+#Old Bert/Bill/Tom stats
+
+N:1081:Giant Troll
+G:T:s
+I:110:11d100:20:70:50
+W:37:7:0:2000
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:BITE:HURT:2d10
+F:MALE | 
+F:FORCE_MAXHP |  
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | REGENERATE | 
+F:EVIL | TROLL | IM_COLD | IM_POIS | HURT_LITE
+D:Big, brawny, powerful and with a taste for you.
+
+#Needs new stats. Using Farmer Maggot.
+
+N:1083:Harry Goatleaf, Gatekeeper of Bree
+G:p:w
+I:110:35d10:40:10:3
+W:0:4:0:0
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:NO_CONF | NO_SLEEP
+D:The suspicious and gruff keeper of the West-gate of Bree.  He betrayed 
+D:his people by letting Saruman's thugs into the city.
+
+#Needs new stats. Using Bullroarer.
+
+N:1084:Ted Sandyman the Miller
+G:h:s
+I:120:6d10:16:8:10
+W:5:3:0:90
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:UNIQUE | MALE
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+D:A surly grimy-faced and black-handed hobbit.
+
+#Probably needs new stats. Was Azriel. Removed breaths.
+
+N:1085:Palando the Blue
+G:M:b
+I:130:55d100:40:160:10
+W:61:3:0:25000
+B:HIT:FIRE:9d12
+B:HIT:FIRE:4d6
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | CAN_FLY |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+S:1_IN_2 | 
+S:TELE_TO | BLIND | 
+S:BO_FIRE | BO_MANA | BO_PLAS | BA_FIRE | 
+S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
+S:CAUSE_4 | BRAIN_SMASH | FORGET | TRAPS | 
+S:S_ANGEL
+D:Sent by Orome as one of the five Istari sent to Middle-earth by the Valar.  
+D:A powerful wizard, he traveled to the East with Saruman the White and his 
+D:companion Alatar the Blue.  There he was ensnared by Sauron and became one 
+D:of his servants, never returning to the West again.
+
+#Probably needs new stats. Was Uriel. Removed breaths.
+
+N:1086:Alatar the Blue
+G:M:B
+I:130:60d100:40:170:10
+W:62:3:0:30000
+B:TOUCH:EXP_80
+B:HIT:BLIND:10d5
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_FLY |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+S:1_IN_2 | 
+S:TELE_TO | BLIND | 
+S:BO_MANA | BO_NETH | BA_NETH | 
+S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
+S:CAUSE_4 | BRAIN_SMASH | FORGET | TRAPS |
+S:S_ANGEL
+D:Sent by Orome as one of the five Istari sent to Middle-earth by the Valar.  
+D:A powerful wizard, he traveled to the East with Saruman the White and his 
+D:companion Pallando the Blue.  There he was ensnared by Sauron and became one 
+D:of his servants, never returning to the West again.
+
+#Probably needs new stats. Was Gabriel. Removed breaths and escorts.
+
+N:1087:Gandalf the Grey
+G:M:w
+I:130:75d100:40:180:10
+W:63:3:0:35000
+B:HIT:UN_BONUS:6d8
+B:HIT:FIRE:4d6
+B:HIT:HURT:10d10
+B:HIT:HURT:10d10
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | CAN_FLY |
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS 
+S:1_IN_2 | 
+S:TELE_TO | BLIND |
+S:BA_FIRE | BO_FIRE | BO_PLAS | BO_MANA 
+S:HEAL | HASTE | TPORT | TELE_AWAY | CONF | SCARE | 
+S:CAUSE_4 | BRAIN_SMASH | FORGET | DARKNESS |
+S:S_ANGEL
+D:The wizard who opposed Saruman, and in the end, was the only 
+D:one of the Istari to succeed in his task. Gandalf is very 
+D:wise and specializes in fire magic.
+
+#Was Draebor. Needs description.
+
+N:1089:Tom Bombadil
+G:p:v
+I:120:52d10:20:50:20
+W:28:5:0:750
+B:HIT:POISON:3d4
+B:HIT:POISON:3d4
+B:HIT:HURT:3d4
+F:UNIQUE | 
+F:FORCE_MAXHP | FORCE_SLEEP |  
+F:RAND_25 | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:SMART | INVISIBLE | BASH_DOOR | 
+F:IM_FIRE | IM_POIS
+S:1_IN_5 | 
+S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
+S:CONF | SCARE | FORGET
+
+#Need new stats. Using Khim.
+
+N:1090:Orgof the Elf
+G:l:o
+I:110:82d10:20:80:10
+W:24:2:0:300
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:UN_BONUS
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
+S:1_IN_8 | 
+S:HEAL | SLOW | BO_FIRE
+D:An insulting and bitter Elf, his pride often outruns his prowess in arms.  
+D:His barbed wit and loose tongue have earned him more than his share of 
+D:enemies.
+
+#Need new stats (Using Mim).
+
+N:1091:Blodrin the Traitor
+G:l:o
+I:120:11d100:20:80:20
+W:27:4:0:1000
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:UN_BONUS
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | DROP_GREAT | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_6 | 
+S:HEAL | SCARE | BO_ACID | BA_ACID 
+D:Son of Bor, and an Elf from Turin's Band of Outlaws.  He lusts only for 
+D:blood and gold, caring nothing about those he robs of riches and life.
+
+N:1092:Gilim, the Giant of Eruman
+G:P:u
+I:110:11d83:20:35:50
+W:51:7:0:50029
+B:HIT:HURT:5d5
+B:BITE:HURT:2d10
+B:HIT:EAT_GOLD:2d2
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP |
+F:ESCORT | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:EVIL | GIANT | IM_COLD | IM_POIS 
+D:A fifty foot tall humanoid that shakes the very ground you stand on.  He 
+D:looks down on your pathetic figure with hate and disdain.
+
+#Need new stats. Using The Cat Lord
+
+N:1093:Oikeroi, Bodyguard of Tevildo
+G:f:v
+I:130:48d100:100:200:0
+W:66:3:0:30000
+B:HIT:CONFUSE:12d12
+B:TOUCH:LOSE_DEX:2d12
+B:HIT:BLIND:10d5
+B:HIT:PARALYZE:15d1
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ESCORT | ESCORTS | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | EVIL |
+F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:TELE_TO | S_KIN
+D:A fierce and warlike cat, serving as a bodyguard of Tevildo.  This giant 
+D:cat looks down upon you with disdain.
+
+#Need new stats. Using The Cat Lord
+
+N:1094:Umuiyan, Doorkeeper of Tevildo
+G:f:v
+I:130:48d100:100:200:0
+W:66:3:0:30000
+B:HIT:CONFUSE:12d12
+B:TOUCH:LOSE_DEX:2d12
+B:HIT:BLIND:10d5
+B:HIT:PARALYZE:15d1
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ESCORT | ESCORTS | 
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
+F:INVISIBLE | OPEN_DOOR | BASH_DOOR | EVIL |
+F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:TELE_TO | S_KIN
+D:A giant cat, and servant of Tevildo.  His yellow eyes look upon you with a 
+D:baleful stare.
+
+N:1095:Fluithuin the Ogress, Consort of Morgoth
+G:O:o
+I:130:35d70:30:60:30
+W:79:4:0:60000
+B:HIT:HURT:20d12
+B:HIT:HURT:20d12
+B:BITE:POISON:6d14
+F:UNIQUE | FEMALE |
+F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM
+F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | 
+F:REGENERATE | 
+F:OPEN_DOOR | BASH_DOOR
+F:EVIL | GIANT | IM_POIS | NO_CONF | NO_SLEEP |
+F:IM_ELEC | IM_FIRE |
+D:A powerful, fierce ogress, consort to Morgoth.
+
+#Needs new stats. Using Lagduf.
+
+N:1096:Muzgash, the Snaga of Cirith Ungol
+G:o:y
+I:110:19d10:20:32:30
+W:8:2:0:80
+B:HIT:HURT:1d10
+B:HIT:HURT:1d10
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC
+D:A captain of a regiment of weaker orcs.
+
+#Need new stats. Using Ugluk.
+
+N:1097:Mauhur, Uruk Captain of the White Hand
+G:o:b
+I:110:72d10:20:95:20
+W:22:3:0:550
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+D:A strong and cunning orc warrior, a commander of Saruman's orcish horde.
+
+#Need new stats. Using Ugluk. Probably much more poweful.
+
+N:1098:Grishnakh, the Orc Captain of Barad-dur
+G:o:b
+I:110:72d10:20:95:20
+W:22:3:0:550
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ESCORT | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+D:A strong and cunning orc warrior, a commander of Sauron's orcish horde.
+
+#Toughened up Silent watcher from Zangband. Probably needs balancing.
+
+N:1099:The Watcher of Cirith Ungol
+G:g:s
+I:120:60d200:42:40:10
+W:60:5:0:25000
+B:GAZE:TERRIFY:5d8
+B:GAZE:PARALYZE:5d8
+B:GAZE:LOSE_STR:5d8
+B:GAZE:CONFUSE:5d8
+F:UNIQUE |
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | NEVER_MOVE |
+F:IM_FIRE | IM_COLD | IM_POIS | IM_ACID |
+F:HURT_ROCK |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:SHRIEK | S_HI_UNDEAD | S_MONSTERS | MIND_BLAST | DRAIN_MANA | BRAIN_SMASH | CAUSE_4 | GAZE
+D:It looks like a great figure seated upon a throne, with three joined bodies 
+D:and three vulture-like heads.  It seems to be carved out of huge blocks of 
+D:stone, immovable, and yet strangely aware of your presence.  The black stones 
+D:of its eyes glitter with its dreadful will.  Visible or invisible, none shall 
+D:pass by this guardian.
+
+
+#Place holders for more uniques
+
+#N:1100:Freca of Rohan
+#G:p:
+#D:An insolent and contemptuous chieftain of Rohan, and a man of mixed Rohirric
+#D:and Dunlending blood.  Although distrusted by the King, he is both very rich
+#D:and powerful due to his large land holdings near the Adorn.
+
+
+#N:1101:Wulf, Invader of Rohan				[Human, Male]
+#
+#  The son of Freca and a renegade King of Rohan.  He is of mixed Rohirric and
+#  Dunlending blood, and invaded Rohan with the aid of other enemies of the
+#  Mark, including many Dunlendings.  There he slayed King Helm's son Haleth
+#  before the very doors of the Golden Hall.
+
+
+#N:1102:Ar-Adunakhor, Lord of the West			[Human, Male]
+#
+#  The twentieth King of Numenor.  He is the first King of Numenor to take
+#  the sceptre with a title in the Adunaic tongue.  He has completely forbidden
+#  the usage of Elven-tongues in his hearing.  His title is held by the Faithful
+#  to be blasphemous, for it it is generally used to name one of the great
+#  Valar only, Manwe especially.
+
+
+#N:1103:Ar-Gimilzor of Numenor				[Human, Male]
+
+#  The twenty-third King of Numenor.  He married Inzilbeth of Adunie despite
+#  her wishes; the two sons of their unhappy marriage are Tar-Palantir and
+#  Gimilkhad.  Ar-Gimilzor is a great enemy of the Faithful and has utterly
+#  forbidden the use of Eldarin tongues.  Nor does he permit any of the Eldar
+#  to come to the shores of Numenor, punishing those who welcome them.  He
+#  reveres nothing and has neglected both the White Tree Nimloth and the Hallow
+#  of Eru.
+
+
+#N:1104:Gimilkhad of Numenor				[Human, Male]
+
+#  He is the son of Ar-Gimilzor and brother to Tar-Palantir, the twenty-fourth
+#  King of Numenor.  A strong, harsh, and ungentle man, he became the leader of
+#  the King's Men when his brother Tar-Palantir came into power.  He opposes his
+#  brother the King at every turn, as much as he dares in the open and much more
+#  in secret.
+
+
+#N:1105:Ar-Pharazon the Golden				[Human, Male]
+
+#  The twenty-fifth King of Numenor.  He came into power by taking Queen Miriel
+#  as his wife against her will and against the laws of Numenor, for she is the
+#  daughter of his father's brother.  He then seized her sceptre into his own
+#  hand and declared himself King.  Although he once "defeated" Sauron and took
+#  him as hostage, Sauron eventually became his chief councillor.  Ar-Pharazon
+#  was gradually corrupted by the words of Sauron, who became the true ruler of
+#  Numenor.  Ar-Pharazon convinced his people to worship Morgoth and burned down
+#  the White Tree Nimloth at Sauron's bidding.
+
+
+#N:1106:Queen Beruthiel					[Human, Female]
+
+#  The nefarious, solitary, and loveless Queen of Tarannon Falastar, twelfth
+#  King of Gondor.  She hates all making, colors, and elaborate adornment,
+#  wearing only black and silver.  She has nine black cats and one white, her
+#  slaves with whom she converses.  She sets them to discover all the dark
+#  secrets, so that she may know those things that men wish to keep most hidden.
+
+
+#N:1107:The White Cat of Queen Beruthiel		[Cat, Female]
+
+#  The most powerful of the cats of Queen Beruthiel.  This cat is set by her
+#  to spy upon the nine black cats, tormenting them as well.
+
+#Each of following should be increasing in power, and 1 level deeper.
+
+N:1108:The First Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1109:The Second Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1110:The Third Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1111:The Fourth Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1112:The Fifth Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1113:The Sixth Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1114:The Seventh Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1115:The Eighth Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+N:1116:The Ninth Black Cat of Queen Beruthiel
+G:f:D
+I:110:25d10:35:100:20
+W:16:2:0:100
+B:BITE:HURT:2d8
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+F:UNIQUE | FORCE_MAXHP |
+F:INVISIBLE | BASH_DOOR | 
+F:ANIMAL
+D:It is a huge cat, black as night.
+
+#N:1117:Feanor, Leader of the Kinslaying		[Elf, Male]
+
+#  The eldest son of Finwe, half-brother of Fingolfin and Finarfin.  Feanor
+#  is the mightiest of the Noldor and in many ways the greatest of the Children
+#  of Iluvatar, especially in skill of mind and hands.  Unfortunately, Feanor
+#  is as quick to pride, jealousy, and anger as to invention.  Feanor grew
+#  overly fond of his work and when the Two Trees were poisoned, he refused to
+#  give up the Silmarils which preserved their light.  After Morgoth's murder of
+#  Finwe and theft of the Silmarils, he swore the terrible Oath of Feanor with
+#  his seven sons.  In his haste and pride he instigated the Kinslaying at
+#  Alqualonde, the first slaying of Elf by Elf.  He vows never to rest until the
+#  Silmarils are back in his hands.
+
+
+#N:1118:Maedhros the Tall, Eldest Son of Feanor		[Elf, Male]
+
+#  The eldest son of Feanor, creator of the Silmarils.  Maedhros swore the
+#  terrible Oath of Feanor with the rest of his brothers and joined the revolt
+#  of the Noldor.  More temperate than his father, he was a patient ruler and
+#  strong warrior for many years.  But he remained driven by the Oath and
+#  participated in the sacking of Doriath and the murders of Dior and Nimloth
+#  in the Thousand Caves, the second slaying of Elf by Elf.  Maedhros still
+#  vows never to rest until all three Silmarils are in the hands of his family.
+
+
+#N:1119:Maglor the Singer, Son of Feanor		[Elf, Male]
+
+#  The second son of Feanor, creator of the Silmarils.  Maglor swore the
+#  terrible Oath of Feanor with the rest of his brothers and joined the revolt
+#  of the Noldor.  More temperate than most of his brothers, he nevertheless
+#  joined them in the invasion of Doriath and the murders of Dior and Nimloth.
+#  This was the second slaying of Elf by Elf.  Maglor still vows never to rest
+#  until all three Silmarils are in the hands of his family.
+
+
+#N:1120:Celegorm the Fair, Son of Feanor		[Elf, Male]
+
+#  The third son of Feanor, creator of the Silmarils.  Celegorm swore the
+#  terrible Oath of Feanor with the rest of his brothers and joined the revolt
+#  of the Noldor.  Like his brothers, Celegorm is overly proud and acts more by
+#  force than deceit.  When Finrod desired to aid Beren in the Quest of the
+#  SIlmaril, Celegorm and his brother Curufin vowed their Oaths anew.  At
+#  Celegorm's instigation, he and the rest of his brothers invaded Doriath and
+#  murdered Dior and Nimloth in a vain attempt to regain a Silmaril.  This was
+#  the second slaying of Elf by Elf.  Celegorm still vows never to rest until
+#  all three Silmarils are in the hands of his family.
+
+
+#N:1121:Caranthir the Dark, Son of Feanor		[Elf, Male]
+
+#  The fourth son of Feanor, creator of the Silmarils.  Caranthir swore the
+#  terrible Oath of Feanor with the rest of his brothers and joined the revolt
+# # of the Noldor.  Caranthir is very haughty, the harshest and most quick to
+#  anger of the sons of Feanor.  He joined the rest of his brothers in the
+#  invasion of Doriath and murders of Dior and Nimloth, the second slaying of
+#  Elf by Elf.  Caranthir still vows never to rest until all three Silmarils
+#  are in the hands of his family.
+
+
+#N:1122:Curufin the Crafty, Son of Feanor		[Elf, Male]
+
+#  The fifth son of Feanor, creator of the Silmarils.  Curufin swore the
+#  terrible Oath of Feanor with the rest of his brothers and joined the revolt
+#  of the Noldor.  Of the sons of Feanor, Curufin inherited most of his father's
+#  skill, but was also cunning and treacherous.  When Finrod desired to aid
+#  Beren in the Quest of the Silmaril, Curufin and his brother Celegorm vowed
+#  their Oaths anew.  He joined th rest of his brothers in the invasion of
+#  Doriath and murder of Dior, the second slaying of Elf by Elf.  Curufin still
+#  vows never to rest until all three Silmarils are in the hands of his family.
+
+
+#N:1123:Amrod, Son of Feanor				[Elf, Male]
+
+#  The twin brother of Amras and son of Feanor, creator of the Silmarils.  Amrod
+#  swore the terrible Oath of Feanor with the rest of his brothers and joined
+#  the revolt of the Noldor.  He joined the rest of his brothers in the attempt
+#  to recover a Silmaril by force from Elwing at the Havens of Sirion.  He is
+#  alike to his twin brother in both appearance and temperament.  Amrod still
+#  vows never to rest until all three Silmarils are in the hands of his family.
+
+
+#N:1124:Amras, Son of Feanor				[Elf, Male]
+
+#  The twin brother of Amrod and son of Feanor, creator of the Silmarils.  Amras
+#  swore the terrible Oath of Feanor with the rest of his brothers and joined
+#  the revolt of the Noldor.  He joined the rest of his brothers in the attempt
+#  to recover a Silmaril by force from Elwing at the Havens of Sirion.  He is
+#  alike to his twin brother in both appearance and temperament.  Amras still
+#  vows never to rest until all three Silmarils are in the hands of his family.
+
+
+##N:1125:Herumor, the Black Numenorean			[Human, Male, Evil]
+
+#  A renegade Numenorean and ally of Sauron.  He was corrupted by Sauron's many
+#  gifts and promises of great power.  He rose to become a great lord among the
+#  Haradrim, a great and cruel people who dwell in the wide lands south of
+#  Mordor beyond the mouths of Anduin.
+
+
+##N:1126:Fuinur, the Black Numenorean			[Human, Male, Evil]
+
+#  A renegade Numenorean and ally of Sauron.  He was corrupted by Sauron's many
+#  gifts and promises of great power.  He rose to become a great lord among the
+#  Haradrim, a great and cruel people who dwell in the wide lands south of
+#  Mordor beyond the mouths of Anduin.
+
+N:1127:Wood elf
+G:l:G
+I:110:7d10:20:16:20
+W:7:2:0:25
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:DROP_90 | 
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_10 | 
+S:CONF | DARKNESS
+D:An elven figure.
+
+N:1128:Wood elf druid
+G:l:s
+I:120:20d20:15:75:10
+W:25:3:0:500
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:HIT:HURT:3d8
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_6 | 
+S:HEAL | CONF | DARKNESS | 
+S:S_MONSTER | S_SPIDER
+D:A powerful wood elf, with mighty nature-controlling enchantments.
+
+N:1129:Wood elf mage
+G:l:r
+I:120:7d10:20:16:20
+W:10:1:0:50
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:IM_POIS
+S:1_IN_5 | 
+S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
+D:An elven figure, hurling spells at you.
+
+N:1130:Wood elf warrior
+G:l:U
+I:110:10d11:20:16:20
+W:10:1:0:50
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE | 
+F:DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR
+D:An elven figure in armour and ready with his sword.
+
+N:1131:Wood elf priest
+G:l:g
+I:120:7d10:20:30:30
+W:12:1:0:50
+B:HIT:HURT:1d9
+B:HIT:HURT:1d10
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
+D:An elven figure, chanting curses.
+
+N:1132:Wood elf lord
+G:l:o
+I:120:18d15:20:40:30
+W:20:2:0:500
+B:HIT:HURT:3d8
+B:HIT:HURT:3d5
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_2D2 | 
+F:OPEN_DOOR | BASH_DOOR
+S:1_IN_5 | 
+S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
+D:An elven figure in armour and radiating power.
+
+N:1133:Wood elf sorcerer
+G:l:v
+I:130:80d10:20:70:10
+W:41:2:0:3000
+B:HIT:HURT:2d8
+B:HIT:HURT:2d8
+B:HIT:HURT:2d8
+F:MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
+F:SMART | OPEN_DOOR | BASH_DOOR | 
+F:NO_CONF | NO_SLEEP
+S:1_IN_2 | 
+S:HEAL | BLINK | TELE_TO | BLIND | CAUSE_3 | DARKNESS |
+S:BO_ACID | BA_FIRE | BA_COLD | 
+S:S_MONSTER | S_UNDEAD | S_DEMON
+D:A dark elven figure, dressed in deepest black.  Power seems to crackle 
+D:from his slender frame.
+
+N:1134:Wood elf ranger
+G:l:W
+I:115:10d10:20:16:20
+W:10:5:0:50
+B:HIT:HURT:1d7
+B:HIT:HURT:1d7
+B:SHOOT:ARROW:3d6
+F:MALE | 
+F:FORCE_SLEEP | 
+F:ONLY_ITEM | DROP_1D2 | 
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | IM_POIS | HURT_LITE
+S:1_IN_5 | 
+S:BLIND | MISSILE | DARKNESS | SHOOT
+D:An elven figure, with sword and bow quick to hand.
+
+N:1135:Wood elf assassin
+G:h:D
+I:125:14d13:20:30:10
+W:52:2:0:15815
+B:HIT:POISON:8d4
+B:HIT:POISON:8d4
+B:HIT:LOSE_CON:2d4
+F:MALE |
+F:DROP_90 | INVISIBLE |
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP
+D:An elven assassin, so stealthy that he is almost impossible to see.
+
+N:1136:Elven shade
+G:G:w
+I:130:48d12:20:25:10
+W:72:2:0:60000
+B:TOUCH:EXP_80:1d16
+B:TOUCH:UN_POWER
+B:TOUCH:LOSE_DEX:8d8
+B:TOUCH:LOSE_INT:8d8
+F:MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP
+F:ONLY_ITEM | DROP_2D2 | 
+F:SMART | INVISIBLE | COLD_BLOOD | UNDEAD |
+F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP |
+S:1_IN_2 | 
+S:HEAL | BLINK | BLIND | CONF | CAUSE_3 | DARKNESS | 
+S:SHRIEK | TELE_AWAY | BA_DARK | DRAIN_MANA |
+S:S_MONSTER | S_UNDEAD | S_DEMON | S_KIN |
+D:An elven figure that glows with an inner light.
+
+N:1137:Phase spider
+G:S:G
+I:120:6d8:15:25:80
+W:20:2:0:60
+B:BITE:HURT:1d8
+B:BITE:POISON:1d6
+B:BITE:POISON:1d6
+F:FRIENDS | 
+F:WEIRD_MIND | BASH_DOOR | 
+F:ANIMAL | IM_POIS | CAN_CLIMB | PASS_WALL
+D:A spider that never seems quite there.  Everywhere you look it is just 
+D:half-seen in the corner of one eye.
+
+N:1138:Phase cat
+G:f:G
+I:120:10d8:40:30:0
+W:16:2:0:50
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+F:BASH_DOOR | PASS_WALL |
+F:ANIMAL
+D:The cat who could walk through walls.
+
+N:1139:Novice beastmaster
+G:p:g
+I:110:8d4:20:15:5
+W:4:1:0:6
+B:HIT:HURT:1d6
+F:MALE | DROP_60 | OPEN_DOOR | BASH_DOOR | SMART
+S:1_IN_10 |
+S:S_MONSTER
+D:A barbarian trained in the ways of animal instincts.
+
+N:1140:Beastmaster
+G:p:g
+I:110:25d8:20:40:10
+W:28:1:0:160
+B:HIT:HURT:4d5
+F:MALE | DROP_1D2 | SMART | OPEN_DOOR | BASH_DOOR
+S:1_IN_5 |
+S:S_MONSTERS
+D:Is it a beast or a man?
+
+N:1141:Venus flytrap
+G:<:g
+I:85:10d20:25:35:5
+W:15:1:0:55
+B:ENGULF:HURT:5d8
+B:ENGULF:POISON:2d5
+B:ENGULF:PARALYZE
+F:STUPID | EMPTY_MIND |
+F:KILL_BODY | OPEN_DOOR | BASH_DOOR | 
+F:IM_POIS | NO_FEAR
+D:A strage looking plant. It has very sharp, dripping barbs.
+
+N:1142:Land anenome
+G:w:b
+I:95:100d6:10:25:5
+W:15:1:0:90
+B:ENGULF:HURT:2d6
+B:ENGULF:PARALYZE
+F:STUPID | EMPTY_MIND | NEVER_MOVE |
+F:IM_POIS | ANIMAL | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It's like the sea monster, except adapted to life on land.
+
+N:1143:Automaton
+G:g:s
+I:95:4d5:25:25:5
+W:23:1:0:20
+B:HIT:HURT:7d7
+F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR | MULTIPLY |
+F:DROP_60
+D:A contraption made of rusty metal.
+
+N:1144:Rock worm
+G:w:s
+I:110:10d2:20:15:5
+W:15:1:0:10
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | KILL_WALL | HURT_ROCK | MULTIPLY
+D:A worm-like creature, albeit made completely of stone.
+
+N:1145:Red Death
+G:G:r
+I:110:9d9:20:25:30
+W:8:1:0:25
+B:HIT:HURT:1d7
+B:GAZE:CONFUSE
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | UNDEAD | COLD_BLOOD | TAKE_ITEM | 
+F:IM_POIS | NO_CONF | NO_SLEEP | IM_COLD
+S:1_IN_15 | 
+S:BLIND | HOLD | DRAIN_MANA
+D:It is a evil undead blight on the land. 
+
+N:1147:Tapeworm
+G:w:W
+I:95:5d5:10:15:3
+W:10:1:0:10
+B:BITE:POISON:8d4
+F:MULTIPLY | STUPID | EMPTY_MIND | WEIRD_MIND | IM_POIS | 
+F:NO_FEAR | ANIMAL | RAND_50 | HURT_LITE
+D:A parastic worm waiting to bite into your flesh.
+
+N:1148:Python
+G:J:G
+I:120:30d8:10:32:1
+W:15:3:0:80
+B:BITE:HURT:4d4
+B:HIT:HURT:4d4
+F:BASH_DOOR | ANIMAL | CAN_SWIM
+D:It's a gigantic snake.
+
+N:1149:Landshark
+G:.:W
+I:120:90d10:50:60:0
+W:35:3:0:2500
+B:BITE:HURT:4d6
+B:BITE:HURT:4d6
+B:BITE:HURT:4d6
+F:BASH_DOOR | ANIMAL | WEIRD_MIND
+D:A relative of the shark adapted to life underground.
+
+N:1150:Skeletal dragon
+G:s:g
+I:110:120d10:20:55:50
+W:37:3:0:2100
+B:CLAW:HURT:1d20
+B:CLAW:HURT:1d20
+F:DROP_3D2 | OPEN_DOOR | BASH_DOOR | EVIL | DRAGON | UNDEAD | 
+F:NO_FEAR | NO_STUN |
+F:NO_CONF | NO_SLEEP
+S:1_IN_10
+S:BR_NETH
+D:An undead dragon skeleton.
+
+N:1151:Pike
+G:F:s
+I:125:2d7:80:35:0
+W:2:1:0:7
+B:BITE:HURT:2d3
+F:ANIMAL | CAN_SWIM | MUST_SWIM  | STUPID 
+D:It's a common fresh-water predatory fish. 
+
+N:1152:Electric eel
+G:F:B
+I:130:1d5:100:5:0
+W:3:2:0:3
+B:STING:ELEC:5d5
+F:ANIMAL | CAN_SWIM | MUST_SWIM  | STUPID 
+D:A small eel, albeit capable of producing very potent electrical 
+D:shocks.
+
+N:1153:Giant crayfish
+G:F:R
+I:90:4d10:6:100:20
+W:4:1:0:10
+B:CLAW:HURT:3d4
+B:CLAW:HURT:3d4
+F:ANIMAL | CAN_SWIM | MUST_SWIM  | STUPID | WEIRD_MIND
+D:A man-sized, heavily armored fresh-water relative of the lobster.
+
+N:1154:Mermaid
+G:h:G
+I:110:5d8:50:30:0
+W:15:1:0:20
+B:TOUCH:LOSE_WIS
+B:TOUCH:CONFUSE:2d3
+B:TOUCH:CONFUSE
+F:FEMALE | RAND_25 | DROP_60 | SMART | CAN_SWIM | MUST_SWIM | NO_CONF
+D:A green-skinned humanoid with a fishtail. Beware - There are rumours 
+D:of adventures losing their minds under the fearsome 
+D:charms of mermaids.
+
+N:1155:Merman
+G:h:G
+I:110:10d8:50:40:0
+W:15:1:0:20
+B:HIT:HURT:1d5
+B:BITE:HURT:1d5
+B:CLAW:HURT:1d5
+F:MALE | DROP_60 | SMART | CAN_SWIM | MUST_SWIM
+D:The male equivalent of the mermaid.
+
+N:1158:Pirahna
+G:F:W
+I:110:1d3:10:10:8
+W:5:1:0:7
+B:BITE:HURT:4d4
+F:ANIMAL | CAN_SWIM | MUST_SWIM | STUPID | FRIENDS | NO_FEAR 
+D:A small, yet terrifying fish -- it is said that a school of these can 
+D:devour a man in seconds.
+
+N:1159:Sahugin
+G:h:G
+I:110:7d4:30:5:5
+W:6:2:0:7
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:MALE | FRIENDS | DROP_60 | CAN_SWIM | MUST_SWIM | HURT_LITE | SMART
+D:A memeber of an intelligent species, inhabiting deep undersea 
+D:caves. Sometimes groups of desperate sahugin will invade the surface, 
+D:looking for easy loot from hapless adventurers.
+
+N:1160:Bullywug
+G:h:g
+I:110:6d10:20:15:0
+W:7:1:0:25
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:MALE | ONLY_ITEM | DROP_1D2 | SMART  | CAN_SWIM | MUST_SWIM
+D:A vaguely humanoid creature, it looks like a cross between a man and a 
+D:frog.
+
+N:1161:Bullywug warrior
+G:h:g
+I:110:8d10:20:15:0
+W:8:1:0:35
+B:HIT:HURT:2d5
+B:HIT:HURT:2d5
+F:MALE | ONLY_ITEM | DROP_1D2 | SMART  | CAN_SWIM | MUST_SWIM
+D:A member of the bullywug clan. He is weilding a long, sharp tooth.
+
+N:1162:Bullywug shaman
+G:h:g
+I:110:6d10:20:15:0
+W:9:1:0:35
+B:HIT:HURT:1d6
+B:HIT:HURT:1d6
+F:MALE | ONLY_ITEM | DROP_1D2 | SMART  | CAN_SWIM | MUST_SWIM
+S:1_IN_5 |
+S:BLIND | CONF | DARKNESS | BO_COLD | BR_SHAR
+D:A leader of a clan of frog-people, he is cloaked in a cloak made of 
+D:shark skin.
+
+N:1163:Sea anenome
+G:w:B
+I:100:5d5:20:15:30
+W:9:1:0:24
+B:TOUCH:POISON:8d5
+B:TOUCH:PARALYZE
+F:EMPTY_MIND | CAN_SWIM | MUST_SWIM | ANIMAL | STUPID | IM_POIS | ATTR_CLEAR | NEVER_MOVE
+D:One of the more primitive forms of ocean life, it is a fairly harmless 
+D:relative of the sponges and flatworms. Some are rumored to be 
+D:extremely poisonous.
+
+N:1164:Sand mite
+G:F:B
+I:110:3d10:5:25:80
+W:10:2:0:25
+B:BITE:POISON:3d6
+B:BITE:POISON:3d6
+F:CAN_SWIM | MUST_SWIM | ANIMAL | IM_POIS | FRIENDS | MULTIPLY | CHAR_CLEAR | ATTR_CLEAR
+D:A relative of crabs and shrimp, this is a tiny creature that inhabits sandy 
+D:bottoms. It has a pair of dangerous-looking claws.
+
+N:1165:Squid
+G:F:W
+I:125:90d5:30:25:0
+W:20:1:0:90
+B:CRUSH:HURT:5d6
+B:CRUSH:HURT:10d3
+F:CAN_SWIM | MUST_SWIM | SMART | WEIRD_MIND  | IM_POIS | ANIMAL | NO_CONF | 
+F:NO_SLEEP | NO_FEAR  
+S:1_IN_10
+S:DARKNESS
+D:A large squids, distantly related to the octopus.
+
+N:1166:Murk dweller
+G:S:s
+I:110:200d5:70:30:0
+W:27:3:0:800
+B:BITE:POISON:5d10
+B:CLAW:PARALYZE
+B:STING:LOSE_WIS:5d10
+B:STING:UN_BONUS
+F:CAN_SWIM | MUST_SWIM | ANIMAL | WEIRD_MIND | FORCE_MAXHP | HURT_LITE |
+F:EVIL | SMART   | NO_CONF | NO_SLEEP
+S:1_IN_5 | 
+S:BA_POIS | BR_DARK | BLIND | BR_POIS | SLOW | CONF | MIND_BLAST |
+S:BRAIN_SMASH | DARKNESS
+D:A gigantic aquatic monster, somewhat resembling a cross between a 
+D:lobster and a spider. It is coated in poisonous slime and noxious 
+D:parasites. This foul creature hides in the silt of the deep ocean floor, 
+D:waiting to trap unsuspecting prey.
+
+N:1167:Drowned soul
+G:G:s
+I:110:9d8:5:33:50
+W:11:1:0:30
+B:TOUCH:BLIND:3d3
+B:TOUCH:POISON:2d4
+B:WAIL:TERRIFY
+F:COLD_BLOOD | EMPTY_MIND | EVIL | CAN_SWIM | MUST_SWIM | UNDEAD | IM_COLD |
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR 
+S:1_IN_8
+S:BLIND | HOLD | CONF
+D:A ghastly victim of drowning, forever doomed to wander the ocean waters 
+D:looking for revenge.
+
+N:1168:Tiger shark
+G:F:g
+I:120:10d5:100:32:0
+W:12:1:0:40
+B:BITE:HURT:4d4
+F:RAND_25 | CAN_SWIM | MUST_SWIM | ANIMAL | STUPID
+D:A small species of shark, although the teeth are still as deadly.
+
+N:1169:Hammerhead shark
+G:F:g
+I:115:12d9:100:35:0
+W:14:1:0:60
+B:BITE:HURT:2d4
+B:BITE:HURT:2d4
+F:RAND_25 | CAN_SWIM | MUST_SWIM | ANIMAL | STUPID
+D:A species of shark with a distinctive shape of the head.
+
+N:1170:Shark
+G:F:W
+I:125:15d10:100:45:0
+W:16:2:0:85
+B:BITE:HURT:4d4
+B:BITE:HURT:4d4
+F:CAN_SWIM | MUST_SWIM | ANIMAL | STUPID
+D:The deadliest species of shark in existence.
+
+N:1171:Sea troll
+G:T:s
+I:110:20d10:50:20:0
+W:20:1:0:50
+B:HIT:HURT:1d9
+B:HIT:HURT:1d9
+B:HIT:HURT:2d2
+B:HIT:HURT:2d2
+F:MALE | CAN_SWIM | MUST_SWIM | FRIENDS | DROP_60 | TROLL | IM_COLD | HURT_LITE | REGENERATE
+D:A weird creature that resembles a troll with fish scales and webbed 
+D:feet.
+
+N:1172:Selkie
+G:h:b
+I:110:14d8:30:30:6
+W:8:1:0:25
+B:HIT:HURT:3d4
+F:MALE | CAN_SWIM | MUST_SWIM | SMART  |
+F:FRIENDS | DROP_60 
+D:A sleek form vaguely shaped like a dolphin, except with a humanoid 
+D:head and arms. The facial features are decidedly elven.
+
+N:1173:Selkie warrior
+G:h:b
+I:110:20d8:40:35:5
+W:10:1:0:35
+B:HIT:HURT:3d4
+B:HIT:HURT:3d4
+F:MALE | CAN_SWIM | MUST_SWIM | FRIENDS | SMART  | DROP_60 
+D:An selkie trained in all forms of combat.
+
+N:1174:Selkie shaman
+G:h:b
+I:110:12d8:30:30:6
+W:12:1:0:35
+B:TOUCH:UN_BONUS
+F:MALE | CAN_SWIM | MUST_SWIM | FRIENDS | SMART  | DROP_2D2 
+S:1_IN_12 |
+S:BO_MANA | BO_NETH | S_MONSTERS
+D:A selkie skilled in the magical arts. You can see an 
+D:irridescent film coating the water around him.
+
+N:1175:Flounder
+G:F:s
+I:100:10d5:5:25:30
+W:13:1:0:55
+B:BITE:HURT:2d6
+B:BITE:HURT:2d6
+F:CAN_SWIM | MUST_SWIM | ANIMAL | RAND_25 | INVISIBLE | ATTR_CLEAR 
+D:A flattened fish which is able to change body coloring for 
+D:camouflage.
+
+N:1176:Giant turtle
+G:R:G
+I:110:5d8:10:14:30
+W:7:1:0:30
+B:BITE:HURT:2d2
+B:BITE:HURT:2d2
+F:ANIMAL | CAN_SWIM | MUST_SWIM 
+D:A giant turle with flippers, adapted for life in the ocean.
+
+N:1177:Baby sea dragon
+G:d:W
+I:120:10d10:20:20:10
+W:9:1:0:35
+B:BITE:HURT:1d3
+B:BITE:HURT:1d3
+B:BITE:HURT:1d5
+F:FORCE_MAXHP | FORCE_SLEEP |
+F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
+F:EVIL | DRAGON  | CAN_SWIM | MUST_SWIM
+S:1_IN_11 | 
+S:BR_ACID | BR_POIS
+D:A newly-hatched sea dragon. It still hasn't grown scales.
+
+N:1178:Young sea dragon
+G:d:W
+I:120:27d10:20:50:10
+W:29:1:0:300
+B:BITE:HURT:1d4
+B:BITE:HURT:1d4
+B:BITE:HURT:1d6
+F:FORCE_SLEEP | FORCE_MAXHP  | 
+F:DROP_60 | DROP_90 | DROP_1D2 | 
+F:EVIL | DRAGON  | CAN_SWIM | MUST_SWIM
+S:1_IN_11 | 
+S:SCARE | 
+S:BR_ACID | BR_POIS
+D:A dragon inhabiting lightless reaches of ocean caves. It has a long neck 
+D:with a tiny head, and four massive flippers. It has a set of soft and 
+D:flexible scales.
+
+N:1179:Mature sea dragon
+G:D:W
+I:120:40d10:20:75:10
+W:36:1:0:1200
+B:BITE:HURT:1d8
+B:BITE:HURT:1d8
+B:BITE:HURT:2d10
+F:FORCE_SLEEP | FORCE_MAXHP |   | 
+F:DROP_60 | DROP_90 | DROP_2D2  |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP | CAN_SWIM | MUST_SWIM 
+S:1_IN_9 | 
+S:SCARE | 
+S:BR_ACID | BR_POIS
+D:A large sea dragon, covered with tough white scales. 
+
+N:1180:Ancient sea dragon
+G:A:W
+I:130:70d10:20:80:10
+W:38:1:0:1500
+B:BITE:HURT:1d8
+B:BITE:HURT:1d8
+B:BITE:HURT:2d8
+F:FORCE_SLEEP | FORCE_MAXHP |   | 
+F:DROP_1D2 | DROP_4D2  |
+F:SMART | CAN_SWIM | MUST_SWIM | POWERFUL | MOVE_BODY  |
+F:EVIL | DRAGON | NO_CONF | NO_SLEEP
+S:1_IN_9 | 
+S:BLIND | CONF | SCARE | 
+S:BR_ACID | BR_POIS
+D:A huge sea dragon. You can see many barnacles covering its body.
+
+N:1181:Dragon turtle
+G:R:W
+I:120:10d10:20:20:10
+W:9:1:0:20
+B:BITE:HURT:1d3
+B:BITE:HURT:1d3
+B:BITE:HURT:1d5
+F:ANIMAL | CAN_SWIM | MUST_SWIM
+D:A turtle that resembles a small sea dragon.
+
+N:1183:Killer whale
+G:F:s
+I:115:20d30:15:50:50
+W:20:1:0:350
+B:BITE:HURT:4d8
+B:BITE:HURT:4d8
+F:CAN_SWIM | MUST_SWIM | ANIMAL
+D:A relative of the whale, this aquatic mammal has rows of very sharp 
+D:teeth
+
+N:1184:Undead killer whale
+G:F:s
+I:115:20d30:15:50:50
+W:27:1:0:450
+B:BITE:HURT:4d8
+B:BITE:HURT:4d8
+F:CAN_SWIM | MUST_SWIM | UNDEAD | ANIMAL
+S:1_IN_13 |
+S:BR_NETH | BR_NEXU
+D:A killer whale brought back from the dead to act like a guard and 
+D:protector for a necromancer. Unfortunately, this one got loose.
+
+N:1185:Sea naga
+G:n:w
+I:110:30d10:10:55:10
+W:26:1:0:60
+B:CRUSH:HURT:2d8
+B:CRUSH:HURT:2d8
+B:BITE:POISON:2d8
+B:BITE:HURT:1d8
+F:FEMALE  |
+F:CAN_SWIM | MUST_SWIM |
+F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
+F:EVIL | NO_CONF | NO_SLEEP | SMART 
+S:1_IN_7 | 
+S:DARKNESS | CAUSE_4 | BO_ICEE
+D:A naga adapted to underwater life. She has a fish-like tail and a pair 
+D:of gills.
+
+N:1186:Manta ray
+G:F:D
+I:110:10d12:30:34:10
+W:9:1:0:40
+B:ENGULF:HURT:3d3
+B:BITE:HURT:3d3
+B:BUTT:HURT:3d4
+F:ANIMAL  | CAN_SWIM | MUST_SWIM
+D:A fearsome-looking ray, this giant fish has a large, gaping maw.
+
+N:1187:Undead manta ray
+G:F:D
+I:110:10d12:30:34:10
+W:12:1:0:60
+B:ENGULF:HURT:3d3
+B:BITE:HURT:3d3
+B:BUTT:HURT:3d4
+F:ANIMAL  | CAN_SWIM | MUST_SWIM | UNDEAD | INVISIBLE
+S:1_IN_9 |
+S:BR_NETH
+D:A manta ray from beyond the grave.
+
+N:1188:Ghostly bat
+G:b:W
+I:130:1d2:2:1:0
+W:10:3:0:1
+B:BITE:HURT:2d6
+B:BITE:TERRIFY
+F:IM_POIS | PASS_WALL | FRIENDS | 
+F:NO_CONF | NO_SLEEP | NO_FEAR | CAN_FLY
+D:This bat flies through the walls as it shrieks horribly.
+
+N:1189:Giant yellow mouse
+G:r:y
+I:120:2d6:8:12:30
+W:15:1:0:4
+B:BITE:HURT:1d6
+B:BITE:POISON:1d6
+B:BITE:EAT_FOOD
+F:ANIMAL | MULTIPLY | 
+D:It is about four feet long with large teeth.
+
+N:1190:Baboon
+G:Y:s
+I:110:2d6:90:10:0
+W:3:4:0:5
+B:HIT:HURT:1d6
+F:MALE | SMART 
+D:A squat, ugly humanoid covered with grime. He looks a bit like a 
+D:stunted chimpanzee.
+
+N:1191:Chimpanzee
+G:Y:s
+I:110:13d4:20:13:5
+W:6:2:0:9
+B:HIT:HURT:2d7
+B:HIT:HURT:2d6
+F:MALE  |
+F:FRIENDS |
+F:OPEN_DOOR | BASH_DOOR | SMART
+D:A squat, man-like ape covered with fur.
+
+N:1192:Gorilla
+G:Y:s
+I:110:20d6:20:15:10
+W:8:2:0:18
+B:HIT:HURT:4d8
+F:MALE  | OPEN_DOOR | BASH_DOOR | SMART
+D:A huge, lumbering humanoid covered with thick black fur. 
+
+N:1193:Orangutan
+G:Y:o
+I:115:15d6:20:15:10
+W:7:2:0:12
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:MALE  | OPEN_DOOR | BASH_DOOR | SMART
+D:A humanoid covered with orange fur. His arms are twice as long as his 
+D:legs.
+
+N:1194:Novice necromancer
+G:p:s
+I:110:7d4:20:10:10
+W:2:1:0:7
+B:HIT:HURT:1d5
+F:MALE | 
+F:FORCE_SLEEP  |
+F:DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | SMART
+S:1_IN_12 | 
+S:S_UNDEAD
+D:He stinks of rotten flesh.
+
+N:1195:Novice necromancer
+G:p:g
+I:110:7d4:20:10:5
+W:6:2:0:7
+B:HIT:HURT:1d5
+F:MALE  |
+F:FORCE_SLEEP | 
+F:FRIENDS | DROP_60 | 
+F:OPEN_DOOR | BASH_DOOR | SMART
+S:1_IN_10 |
+S:S_UNDEAD
+D:He stinks of rotten flesh.
+
+N:1196:Djinn
+G:E:b
+I:120:10d100:12:50:50
+W:38:4:0:3000
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+B:HIT:HURT:4d6
+F:RAND_25 | 
+F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL | 
+F:EVIL   
+F:NO_CONF | NO_SLEEP | SMART
+D:A powerful elemental, it is eternally angered at humanity. Flee it 
+D:while you can, for legends tell that a djinn cannot be hurt by 
+D:mere mortals.
+
+N:1197:Grand Master thief
+G:p:o
+I:130:15d100:50:75:40
+W:46:2:0:1500
+B:HIT:EAT_ITEM:5d5
+B:HIT:EAT_ITEM:5d5
+B:HIT:EAT_GOLD:5d5
+B:HIT:EAT_GOLD:5d5
+F:MALE | DROP_2D2 |
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL
+S:1_IN_2 |
+S:BLINK | TPORT | TELE_TO | CONF | TRAPS
+D:A class of its own: you are already too late to protect your possessions - 
+D:and he seems to have studied magic too, and is a master of setting traps.
+
+N:1198:Troll Clan Chief
+G:T:G
+I:120:30d30:30:50:20
+W:35:1:0:4000
+B:HIT:HURT:2d12
+B:HIT:HURT:2d12
+B:BITE:HURT:3d6
+B:BITE:HURT:3d6
+F:FORCE_MAXHP | ESCORT | OPEN_DOOR | DROP_1D2 |
+F:SMART | BASH_DOOR | TAKE_ITEM |
+F:EVIL | TROLL | IM_POIS
+D:This troll is Clan Chief: although he's still stupid, he is bigger, tougher 
+D:and stronger than most other trolls.
+
+N:1199:Troll King
+G:T:B
+I:120:30d50:30:75:20
+W:40:1:0:2000
+B:HIT:HURT:2d12
+B:HIT:HURT:2d12
+B:BITE:HURT:3d10
+B:BITE:HURT:3d10
+F:FORCE_MAXHP | ESCORT | OPEN_DOOR | DROP_2D2 |
+F:SMART | BASH_DOOR | TAKE_ITEM |
+F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+D:This troll is a King. He is one of the biggest and strongest of all his kind,
+D:but fortunately blessed with trollish brains.
+
+N:1200:Troll High Priest
+G:T:G
+I:120:30d80:30:80:20
+W:43:1:0:3000:0
+B:HIT:HURT:2d12
+B:HIT:HURT:2d12
+B:BITE:HURT:3d8
+B:BITE:HURT:3d8
+F:FORCE_MAXHP | ESCORT | OPEN_DOOR | DROP_2D2 |
+F:SMART | BASH_DOOR | TAKE_ITEM |
+F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_3 | BLINK | TELE_TO | CAUSE_3 | CAUSE_4
+D:This troll is High Priest, seems to be intelligent, and has great power. His 
+D:proficiency with spells alarms you as you flee his anger.
+
+N:1201:Master Sorcerer
+G:p:u
+I:130:52d25:20:60:10
+W:50:2:0:5000:0
+B:HIT:HURT:6d8
+B:HIT:HURT:6d8
+B:HIT:HURT:6d8
+F:MALE |
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_USEFUL |
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
+F:EVIL | NO_CONF | NO_SLEEP
+S:1_IN_2 |
+S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | CAUSE_4 | TRAPS |
+S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS
+S:S_MONSTER | S_UNDEAD | S_DRAGON | S_HI_DRAGON | S_HI_UNDEAD
+D:A human figure in robes, he moves with magically improved speed, and his
+D:hands are ablur with spell casting. You stagger at the mighty sound of his
+D:spells as they echo hollowly through the dungeon.
+
+N:1202:Spectator
+G:e:B
+I:110:10d13:30:1:5
+W:32:3:0:150
+B:GAZE:PARALYZE:1d4
+B:GAZE:CONFUSE:1d4
+B:GAZE:UN_BONUS
+F:FORCE_SLEEP |
+F:STUPID | EMPTY_MIND | 
+F:NO_CONF | NO_SLEEP | NO_FEAR
+S:1_IN_6 | 
+S:FORGET | CAUSE_2 | HOLD | SLOW
+D:It has two small eyestalks and a large central eye.
+
+N:1203:Incubus
+G:U:D
+I:110:24d10:20:50:80
+W:38:2:0:1000
+B:HIT:LOSE_STR:3d4
+B:TOUCH:PARALYZE:1d5
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_60 |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
+F:EVIL | DEMON | 
+F:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_7 | 
+S:BLIND | CONF | BO_FIRE
+D:It is a black, horned humanoid with wings.
+
+N:1204:War troll
+G:T:g
+I:120:50d10:20:100:50
+W:40:3:0:800
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
+F:FORCE_MAXHP |
+F:DROP_90 | REGENERATE | FRIENDS |
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+D:A massive troll, equipped with a scimitar and heavy armour.
+
+# This monster added by Jonathan Ellis
+N:1205:Black troll
+G:T:D
+I:110:45d10:20:60:50
+W:35:1:0:420
+B:HIT:HURT:2d7
+B:HIT:HURT:2d7
+B:BITE:HURT:2d5
+B:BITE:ACID:2d5
+F:CAN_SWIM | 
+F:MALE |
+F:FORCE_MAXHP | FRIENDS | DROP_90 |
+F:OPEN_DOOR | BASH_DOOR |
+F:EVIL | TROLL | IM_POIS | IM_ACID | HURT_LITE
+D:A massive and cruel troll, acidic drool drips down his hideous face.
+
+N:1206:Sea serpent
+G:d:b
+I:110:46d10:20:55:30
+W:37:1:0:1350
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:2d10
+F:CAN_SWIM | MUST_SWIM | CAN_SWIM | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:DROP_60 | DROP_90 | DROP_2D2 | 
+F:BASH_DOOR | 
+F:EVIL | DRAGON |  NO_CONF | NO_SLEEP
+D:A water-breathing sinuous form resembling a dragon.
+
+N:1207:Easterling
+G:p:R
+I:120:30d20:25:100:10
+W:38:5:0:800
+B:HIT:HURT:3d8
+B:HIT:HURT:3d8
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:EVIL | MALE | SMART |
+F:IM_FIRE | IM_COLD | IM_ELEC | NO_CONF | NO_SLEEP
+F:DROP_2D2
+D:Easterlings are an evil warrior people, dressed in blood-red 
+D:armor and slaves to Morgoth. Once numerous, there constant 
+D:wars with other races at Morgoth's command has left only the 
+D:strongest of fighters behind.
+
+#The Giant Hunter Ant:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1600 feet, and moves at normal speed.
+#A kill of this natural creature is worth 120.00 points for a 40th level
+#character. It has an armor rating of 40 and a life rating of 12d8. It is
+#vigilant for intruders, which it may notice from 160 feet. It can bite to
+#attack with damage 4d8.
+
+#The Giant Static Ant:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1500 feet, and moves a bit
+#erratically at normal speed. A kill of this natural creature is worth 60.00
+#points for a 40th level character. It is resistant to lightning. It has an
+#armor rating of 40 and a life rating of 8d8. It tends to overlook intruders,
+#which it may notice from 100 feet. It can bite to shoot lightning with damage
+#5d5.
+
+#The Giant Ebony Ant:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves at normal speed.
+#A kill of this natural creature is worth 1.13 points for a 40th level
+#character. It has an armor rating of 24 and a life rating of 3d4. It can breed
+#explosively. It tends to overlook intruders, which it may notice from 120 feet.
+#It can bite to attack with damage 2d3.
+
+#The Giant Clear Ant:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 600 feet, and moves at normal speed.
+#A kill of this natural creature is worth 7.20 points for a 40th level
+#character. It has an armor rating of 18 and a life rating of 3d7. It can move
+#invisibly. It tends to overlook intruders, which it may notice from 120 feet.
+#It can bite to attack with damage 1d4.
+
+#The Giant Mottled Ant Lion:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1800 feet, and moves a bit
+#erratically, and quickly. A kill of this natural creature is worth 315.00
+#points for a 40th level character. It has an armor rating of 50 and a life
+#rating of 24d8. It can kill weaker creatures. It is susceptible to frost and
+#fire. It takes quite a while to see intruders, which it may notice from 140
+#feet. It can bite to attack with damage 2d10.
+
+#The Giant Lightning Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1500 feet, and moves erratically, and
+#quickly. A kill of this natural creature is worth 60.00 points for a 40th level
+#character. It is resistant to lightning. It has an armor rating of 34 and a
+#life rating of 8d8. It is susceptible to poison. It is warm blooded. It is
+#fairly observant of intruders, which it may notice from 150 feet. It can bite
+#to shoot lightning with damage 3d8, claw to attack with damage 1d5, and claw to
+#attack with damage 1d5.
+
+#The Giant Fire Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1450 feet, and moves erratically, and
+#quickly. A kill of this natural creature is worth 61.63 points for a 40th level
+#character. It is resistant to fire. It has an armor rating of 30 and a life
+#rating of 5d8. It is susceptible to frost, poison and bright light. It is warm
+#blooded. It is fairly observant of intruders, which it may notice from 140
+#feet. It can bite to shoot flames with damage 3d6, claw to attack with damage
+#1d4, and claw to attack with damage 1d4.
+
+#The Giant Red Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1000 feet, and moves erratically, and
+#quickly. A kill of this natural creature is worth 20.00 points for a 40th level
+#character. It has an armor rating of 24 and a life rating of 5d8. It is
+#susceptible to fire, poison and bright light. It is warm blooded. It takes a
+#while to see intruders, which it may notice from 120 feet. It can bite to
+#attack with damage 1d7, claw to attack with damage 1d3, and claw to attack with
+#damage 1d3.
+
+#The Green Dragon Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 800 feet, and moves erratically, and
+#very quickly. A kill of this natural creature is worth 17.60 points for a 40th
+#level character. It can breathe poison gases; 1 time in 4. It has an armor
+#rating of 22 and a life rating of 2d7. It is susceptible to frost and bright
+#light. It is warm blooded. It tends to overlook intruders, which it may notice
+#from 120 feet. It can bite to poison with damage 1d3.
+
+#The Giant Tan Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves erratically, and
+#quickly. A kill of this natural creature is worth 6.75 points for a 40th level
+#character. It has an armor rating of 18 and a life rating of 3d8. It is
+#susceptible to fire, poison and bright light. It is warm blooded. It takes
+#quite a while to see intruders, which it may notice from 120 feet. It can bite
+#to terrify with damage 1d2, claw to attack with damage 1d1, and claw to attack
+#with damage 1d1.
+
+#The Huge White Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves erratically, and
+#quickly. A kill of this natural creature is worth 1.13 points for a 40th level
+#character. It has an armor rating of 12 and a life rating of 3d8. It can breed
+#explosively. It is susceptible to fire, poison and bright light. It is warm
+#blooded. It takes quite a while to see intruders, which it may notice from 70
+#feet. It can bite to attack with damage 1d6.
+
+#The Giant Grey Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves erratically, and
+#very quickly. A kill of this natural creature is worth 8.25 points for a 40th
+#level character. It has an armor rating of 22 and a life rating of 4d8. It is
+#susceptible to fire, poison and bright light. It is warm blooded. It takes a
+#while to see intruders, which it may notice from 120 feet. It can bite to
+#attack with damage 1d6, claw to attack with damage 1d2, and claw to attack with
+#damage 1d2.
+
+#The Giant Long-Eared Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 650 feet, and moves erratically, and
+#very quickly. A kill of this natural creature is worth 6.50 points for a 40th
+#level character. It has an armor rating of 20 and a life rating of 5d8. It is
+#susceptible to fire, poison and bright light. It is warm blooded. It takes a
+#while to see intruders, which it may notice from 120 feet. It can bite to
+#attack with damage 1d4, claw to attack with damage 1d2, and claw to attack with
+#damage 1d2.
+
+#The Giant Black Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 450 feet, and moves erratically, and
+#very quickly. A kill of this natural creature is worth 3.60 points for a 40th
+#level character. It has an armor rating of 18 and a life rating of 2d8. It is
+#susceptible to fire, poison and bright light. It is warm blooded. It takes a
+#while to see intruders, which it may notice from 120 feet. It can bite to
+#attack with damage 1d6.
+
+#The Huge Brown Bat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 150 feet, and moves very erratically,
+#and very quickly. A kill of this natural creature is worth 0.30 points for a
+#40th level character. It has an armor rating of 12 and a life rating of 2d6. It
+#is susceptible to fire, poison and bright light. It is warm blooded. It takes
+#quite a while to see intruders, which it may notice from 80 feet. It can bite
+#to attack with damage 1d2.
+
+#The Giant Red Centipede:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 500 feet, and moves quickly. A kill
+#of this natural creature is worth 6.00 points for a 40th level character. It
+#has an armor rating of 26 and a life rating of 3d8. It tends to overlook
+#intruders, which it may notice from 120 feet. It can bite to attack with damage
+#1d2, and sting to poison with damage 1d2.
+
+#The Giant Blue Centipede:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 200 feet, and moves at normal speed.
+#A kill of this natural creature is worth 1.00 point for a 40th level character.
+#It has an armor rating of 20 and a life rating of 4d8. It tends to overlook
+#intruders, which it may notice from 80 feet. It can bite to attack with damage
+#1d3, and sting to attack with damage 1d4.
+
+#The Giant Black Centipede:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 200 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 1.10 points for a
+#40th level character. It has an armor rating of 20 and a life rating of 5d8. It
+#takes quite a while to see intruders, which it may notice from 80 feet. It can
+#bite to attack with damage 1d2, and sting to attack with damage 1d2.
+
+#The Giant Red Speckled Frog:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 650 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 10.40 points for a
+#40th level character. It has an armor rating of 20 and a life rating of 6d8. It
+#is susceptible to fire and acid. It takes quite a while to see intruders, which
+#it may notice from 120 feet. It can bite to attack with damage 3d4.
+
+#The Giant Black Frog:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 250 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 1.50 points for a
+#40th level character. It has an armor rating of 18 and a life rating of 4d8. It
+#is susceptible to fire and acid. It takes quite a while to see intruders, which
+#it may notice from 120 feet. It can bite to attack with damage 1d6.
+
+#The Giant Red Dragon Fly:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1350 feet, and moves erratically at
+#normal speed. A kill of this natural creature is worth 50.63 points for a 40th
+#level character. It can breathe fire; 1 time in 8. It has an armor rating of 24
+#and a life rating of 7d8. It is susceptible to frost and poison. It is warm
+#blooded. It tends to overlook intruders, which it may notice from 200 feet. It
+#can bite to terrify with damage 1d6.
+
+#The Giant Blue Dragon Fly:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1250 feet, and moves erratically at
+#normal speed. A kill of this natural creature is worth 46.88 points for a 40th
+#level character. It can breathe lightning; 1 time in 9. It has an armor rating
+#of 24 and a life rating of 6d8. It is susceptible to frost, fire and poison. It
+#tends to overlook intruders, which it may notice from 200 feet. It can bite to
+#attack with damage 1d6.
+
+#The Giant Green Fly:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 350 feet, and moves very erratically,
+#and quickly. A kill of this natural creature is worth 2.63 points for a 40th
+#level character. It has an armor rating of 14 and a life rating of 3d8. It is
+#susceptible to fire and poison. It takes a while to see intruders, which it may
+#notice from 120 feet. It can bite to attack with damage 1d4.
+
+#The Giant House Fly:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 250 feet, and moves very erratically,
+#and very quickly. A kill of this natural creature is worth 1.25 points for a
+#40th level character. It has an armor rating of 16 and a life rating of 3d8. It
+#is susceptible to fire and poison. It takes a while to see intruders, which it
+#may notice from 120 feet. It can bite to attack with damage 1d2.
+
+#The Grey Harpy:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 300 feet, and moves erratically, and
+#quickly. A kill of this evil creature is worth 2.10 points for a 40th level
+#character. It has an armor rating of 20 and a life rating of 3d8. It is
+#susceptible to frost and fire. It is warm blooded. It is fairly observant of
+#intruders, which it may notice from 160 feet. It can claw to attack with damage
+#1d2, claw to attack with damage 1d2, and bite to attack with damage 1d2.
+
+#The Drooling Harpy:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 150 feet, and moves erratically at
+#normal speed. A kill of this evil creature is worth 0.53 points for a 40th
+#level character. It has an armor rating of 22 and a life rating of 2d8. It is
+#susceptible to frost and fire. It is warm blooded. It is fairly observant of
+#intruders, which it may notice from 160 feet. It can claw to attack with damage
+#1d1, claw to attack with damage 1d1, bite to attack with damage 1d2, and drool.
+
+#The Red Icky-Thing:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 400 feet, and moves erratically, and
+#quickly. A kill of this creature is worth 4.40 points for a 40th level
+#character. It is resistant to acid. It has an armor rating of 18 and a life
+#rating of 4d8. It is susceptible to fire. It takes a while to see intruders,
+#which it may notice from 140 feet. It can touch to attack with damage 1d3, and
+#breathe to shoot acid with damage 1d5.
+
+#The Blue Icky-Thing:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 300 feet, and moves erratically at
+#normal speed. A kill of this creature is worth 1.80 points for a 40th level
+#character. It is resistant to frost. It has an armor rating of 14 and a life
+#rating of 4d8. It is susceptible to fire. It takes a while to see intruders,
+#which it may notice from 140 feet. It can touch to freeze with damage 2d3.
+
+#The Killer Boring Beetle:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1050 feet, and moves a bit
+#erratically at normal speed. A kill of this natural creature is worth 36.75
+#points for a 40th level character. It has an armor rating of 48 and a life
+#rating of 18d8. It takes quite a while to see intruders, which it may notice
+#from 120 feet. It can bite to attack with damage 4d5.
+
+#The Killer Black Beetle:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 950 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 35.63 points for a
+#40th level character. It has an armor rating of 46 and a life rating of 18d8.
+#It takes quite a while to see intruders, which it may notice from 120 feet. It
+#can bite to attack with damage 4d5.
+
+#The Killer Green Beetle:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 700 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 16.10 points for a
+#40th level character. It has an armor rating of 45 and a life rating of 16d8.
+#It takes quite a while to see intruders, which it may notice from 120 feet. It
+#can bite to attack with damage 4d4.
+
+#The Emperor Lich:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 2000 feet, and moves quickly. A kill
+#of this evil undead creature is worth 10000.00 points for a 40th level
+#character. It is magical, casting spells which teleport short distances,
+#teleport long distances, teleport its prey, cause serious wounds, paralyse its
+#prey, induce blindness, confuse, terrify, slow its prey or drain mana; 1 time
+#in 2. It has an armor rating of 75 and a maximized life rating of 38d40. It can
+#open doors. It is susceptible to bright light. It cannot be charmed or slept.
+#It tends to overlook intruders, which it may notice from 200 feet. It may carry
+#up to 6 objects or treasures. It can touch to reduce dexterity with damage
+#2d12, touch to lower experience, and touch to absorb charges.
+
+#The King Lich:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1850 feet, and moves at normal speed.
+#A kill of this evil undead creature is worth 1295.00 points for a 40th level
+#character. It is magical, casting spells which teleport short distances,
+#teleport long distances, teleport its prey, cause serious wounds, paralyse its
+#prey, induce blindness, confuse, terrify, slow its prey or drain mana; 1 time
+#in 3. It has an armor rating of 65 and a maximized life rating of 52d8. It can
+#open doors. It is susceptible to bright light. It cannot be charmed or slept.
+#It tends to overlook intruders, which it may notice from 200 feet. It may carry
+#up to 4 objects or treasures. It can touch to reduce dexterity with damage
+#2d10, touch to lower experience, and touch to absorb charges.
+
+#The Wooden Mold:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1250 feet, and moves at normal speed,
+#but does not deign to chase intruders. A kill of this creature is worth 62.50
+#points for a 40th level character. It has an armor rating of 50 and a life
+#rating of 25d8. It is susceptible to fire and acid. It cannot be charmed or
+#slept. It tends to overlook intruders, which it may notice from 20 feet. It can
+#touch to poison with damage 2d6.
+
+#The Crimson Mold:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1150 feet, and moves at normal speed,
+#but does not deign to chase intruders. A kill of this creature is worth 37.38
+#points for a 40th level character. It has an armor rating of 18 and a life
+#rating of 16d8. It is susceptible to fire and acid. It cannot be charmed or
+#slept. It tends to overlook intruders, which it may notice from 20 feet. It can
+#hit to attack with damage 1d3, and touch to terrify.
+
+#The Black Mold:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1100 feet, and moves at normal speed,
+#but does not deign to chase intruders. A kill of this creature is worth 37.40
+#points for a 40th level character. It has an armor rating of 18 and a life
+#rating of 15d8. It is susceptible to fire and acid. It cannot be charmed or
+#slept. It tends to overlook intruders, which it may notice from 20 feet. It can
+#hit to attack with damage 4d3.
+
+#The Violet Mold:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves at normal speed,
+#but does not deign to chase intruders. A kill of this creature is worth 18.75
+#points for a 40th level character. It is magical, casting spells which drain
+#mana; 1 time in 9. It has an armor rating of 15 and a life rating of 17d8. It
+#is susceptible to fire and acid. It cannot be charmed or slept. It tends to
+#overlook intruders, which it may notice from 20 feet. It can hit to paralyse
+#with damage 1d2.
+
+#The Crystal Ooze:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 2000 feet, and moves a bit
+#erratically, and very slowly. A kill of this creature is worth 8.00 points for
+#a 40th level character. It is resistant to frost. It has an armor rating of 30
+#and a life rating of 12d8. It can move invisibly, open doors, kill weaker
+#creatures, pick up objects and breed explosively. It is susceptible to fire and
+#acid. It cannot be charmed or slept. It is vigilant for intruders, which it may
+#notice from 100 feet. It may sometimes carry a small object or treasure. It can
+#touch to freeze with damage 4d4.
+
+#The Clear Ooze:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1300 feet, and moves a bit
+#erratically at normal speed. A kill of this creature is worth 7.80 points for a
+#40th level character. It has an armor rating of 14 and a life rating of 4d8. It
+#can move invisibly, kill weaker creatures and pick up objects. It is
+#susceptible to frost, fire and acid. It cannot be charmed or slept. It is
+#vigilant for intruders, which it may notice from 100 feet. It may sometimes
+#carry a small object or treasure. It can touch to confuse with damage 1d8.
+
+#The Disenchanter Ooze:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 950 feet, and moves very erratically
+#at normal speed. A kill of this creature is worth 23.75 points for a 40th level
+#character. It has an armor rating of 15 and a life rating of 6d8. It can kill
+#weaker creatures and pick up objects. It is susceptible to frost, fire and
+#acid. It cannot be charmed or slept. It is vigilant for intruders, which it may
+#notice from 150 feet. It may sometimes carry a small object or treasure. It can
+#touch to disenchant.
+
+#The Dull Grey Ooze:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 950 feet, and moves very erratically
+#at normal speed. A kill of this creature is worth 19.00 points for a 40th level
+#character. It is resistant to frost. It has an armor rating of 10 and a life
+#rating of 6d8. It can kill weaker creatures and pick up objects. It is
+#susceptible to fire and acid. It cannot be charmed or slept. It is vigilant for
+#intruders, which it may notice from 150 feet. It may sometimes carry a small
+#object or treasure. It can touch to freeze with damage 2d6.
+
+
+#The Seedy Looking Human:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 400 feet, and moves at normal speed.
+#A kill of this evil creature is worth 4.40 points for a 40th level character.
+#It has an armor rating of 26 and a life rating of 8d8. It can open doors. It is
+#susceptible to frost and fire. It is warm blooded. It takes a while to see
+#intruders, which it may notice from 200 feet. It may carry one or two objects
+#or treasures. It can hit to attack with damage 3d4.
+
+#The Greedy Little Gnome:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 350 feet, and moves at normal speed.
+#A kill of this evil creature is worth 2.28 points for a 40th level character.
+#It has an armor rating of 14 and a life rating of 3d8. It can open doors and
+#pick up objects. It is susceptible to frost and fire. It is warm blooded. It is
+#fairly observant of intruders, which it may notice from 180 feet. It may often
+#carry a small object or treasure. It can hit to attack with damage 1d7, and
+#touch to steal things.
+
+#The Giant Glowing Rat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1450 feet, and moves a bit
+#erratically at normal speed. A kill of this natural creature is worth 2.90
+#points for a 40th level character. It is resistant to lightning. It has an
+#armor rating of 24 and a life rating of 3d3. It can breed explosively. It is
+#susceptible to frost, fire and poison. It is warm blooded. It takes a while to
+#see intruders, which it may notice from 80 feet. It can bite to shoot lightning
+#with damage 2d6.
+
+#The Giant Spotted Rat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 950 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 1.43 points for a
+#40th level character. It has an armor rating of 20 and a life rating of 4d3. It
+#can breed explosively. It is susceptible to frost, fire and poison. It is warm
+#blooded. It takes a while to see intruders, which it may notice from 80 feet.
+#It can bite to poison with damage 1d5.
+
+#The Giant Black Rat:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 800 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 1.20 points for a
+#40th level character. It has an armor rating of 16 and a life rating of 3d4. It
+#can breed explosively. It is susceptible to frost, fire and poison. It is warm
+#blooded. It takes a while to see intruders, which it may notice from 80 feet.
+#It can bite to poison with damage 1d5.
+
+#The Large Green Snake:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 150 feet, and moves a bit
+#erratically, and slowly. A kill of this natural creature is worth 0.75 points
+#for a 40th level character. It has an armor rating of 40 and a life rating of
+#6d8. It is susceptible to frost, fire and acid. It tends to overlook intruders,
+#which it may notice from 50 feet. It can bite to attack with damage 1d4, and
+#crush to attack with damage 1d6.
+
+#The Large Black Snake:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 100 feet, and moves a bit
+#erratically, and slowly. A kill of this natural creature is worth 0.45 points
+#for a 40th level character. It has an armor rating of 38 and a life rating of
+#4d8. It is susceptible to frost, fire and acid. It tends to overlook intruders,
+#which it may notice from 50 feet. It can bite to attack with damage 1d4, and
+#crush to attack with damage 1d6.
+
+#The Skeleton 2-Headed Troll:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1650 feet, and moves at normal speed.
+#A kill of this evil undead creature is worth 268.13 points for a 40th level
+#character. It has an armor rating of 48 and a maximized life rating of 20d8. It
+#can open doors. It cannot be charmed or slept. It takes a while to see
+#intruders, which it may notice from 200 feet. It can hit to attack with damage
+#1d9, hit to attack with damage 1d9, bite to attack with damage 1d5, and bite to
+#attack with damage 1d5.
+
+#The Skeleton Hobgoblin:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 700 feet, and moves at normal speed.
+#A kill of this evil undead creature is worth 16.10 points for a 40th level
+#character. It has an armor rating of 34 and a life rating of 13d8. It can open
+#doors. It cannot be charmed or slept. It takes quite a while to see intruders,
+#which it may notice from 200 feet. It can hit to attack with damage 2d5.
+
+#The Giant Red Scorpion:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1700 feet, and moves a bit
+#erratically, and quickly. A kill of this natural creature is worth 233.75
+#points for a 40th level character. It has an armor rating of 50 and a life
+#rating of 18d8. It takes quite a while to see intruders, which it may notice
+#from 120 feet. It can bite to attack with damage 1d6, and sting to poison with
+#damage 1d4.
+
+#The Giant Black Scorpion:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1300 feet, and moves a bit
+#erratically at normal speed. A kill of this natural creature is worth 55.25
+#points for a 40th level character. It has an armor rating of 50 and a life
+#rating of 13d8. It takes a while to see intruders, which it may notice from 120
+#feet. It can bite to attack with damage 1d10, and sting to poison with damage
+#2d5.
+
+#The Giant Brown Scorpion:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 850 feet, and moves a bit erratically
+#at normal speed. A kill of this natural creature is worth 26.35 points for a
+#40th level character. It has an armor rating of 44 and a life rating of 11d8.
+#It takes a while to see intruders, which it may notice from 120 feet. It can
+#bite to attack with damage 2d4, and sting to weaken with damage 1d7.
+
+#The Giant Yellow Tick:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 750 feet, and moves a bit
+#erratically, and slowly. A kill of this natural creature is worth 18.00 points
+#for a 40th level character. It has an armor rating of 48 and a life rating of
+#20d8. It is susceptible to fire. It takes a while to see intruders, which it
+#may notice from 120 feet. It can bite to poison with damage 3d9.
+
+#The Two-Headed Troll:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1600 feet, and moves at normal speed.
+#A kill of this evil creature is worth 220.00 points for a 40th level character.
+#It has an armor rating of 48 and a maximized life rating of 14d8. It can open
+#doors. It is susceptible to fire. It is warm blooded. It tends to overlook
+#intruders, which it may notice from 200 feet. It may often carry one or two
+#objects or treasures. It can hit to attack with damage 1d8, hit to attack with
+#damage 1d8, bite to attack with damage 1d6, and bite to attack with damage 1d6.
+
+
+#The Giant Troll:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1250 feet, and moves at normal speed.
+#A kill of this evil creature is worth 53.13 points for a 40th level character.
+#It has an armor rating of 40 and a life rating of 19d8. It can open doors. It
+#is susceptible to fire. It is warm blooded. It tends to overlook intruders,
+#which it may notice from 200 feet. It may often carry one or two objects or
+#treasures. It can hit to attack with damage 1d6, hit to attack with damage 1d6,
+#and bite to attack with damage 3d4.
+
+#The King Vampire:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1850 feet, and moves at normal speed.
+#A kill of this evil undead creature is worth 925.00 points for a 40th level
+#character. It is magical, casting spells which cause serious wounds, paralyse
+#its prey or terrify; 1 time in 7. It has an armor rating of 65 and a maximized
+#life rating of 38d8. It can open doors. It is susceptible to fire and bright
+#light. It cannot be charmed or slept. It is fairly observant of intruders,
+#which it may notice from 200 feet. It may carry up to 3 objects or treasures.
+#It can hit to attack with damage 1d6, hit to attack with damage 1d6, and touch
+#to lower experience.
+
+#The Emperor Wight:
+#At least 99 of these creatures have been killed by contributors to your monster
+#memory. It is normally found at depths of 1900 feet, and moves a bit
+#erratically, and quickly. A kill of this evil undead creature is worth 1520.00
+#points for a 40th level character. It is magical, casting spells which cause
+#serious wounds, paralyse its prey or terrify; 1 time in 6. It has an armor
+#rating of 40 and a maximized life rating of 48d8. It can open doors. It is
+#susceptible to fire and bright light. It cannot be charmed or slept. It is
+#fairly observant of intruders, which it may notice from 200 feet. It may carry
+#up to 3 objects or treasures. It can hit to attack with damage 1d12, hit to
+#attack with damage 1d12, and touch to lower experience.
+

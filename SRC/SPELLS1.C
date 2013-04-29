@@ -4690,8 +4690,8 @@ bool project_p(int who, int r, int y, int x, int dam, int typ)
 				/* Modify number */
 				i_ptr->number = 1;
 
-				/* Reset pvals */
-				i_ptr->pvals = 0;
+                                /* Reset stack counter */
+                                i_ptr->stackc = 0;
 
 				/* Carry the object */
 				if (who > 0)

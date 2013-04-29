@@ -30,7 +30,7 @@ M:A:136
 M:E:128
 
 # Maximum number of monster races
-M:R:1069
+M:R:1208
 
 # Maximum number of vaults
 M:V:35
@@ -75,7 +75,7 @@ M:M:512
 
 # Size of the "fake" array for reading in names of monsters, objects,
 # artifacts, store-owners, player-races, ...
-M:N:20480
+M:N:30000
 
 # Size of the "fake" array for reading in the descriptions of monsters,
 # vaults, and the player-histories

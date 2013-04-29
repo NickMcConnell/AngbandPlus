@@ -372,9 +372,10 @@ F:LOS | MOVE | PROJECT | PLACE | DROP | LAKE |
 F:CAN_CLIMB | CAN_FLY | FLOOR | RUN
 
 # 0x02 --> invisible trap (drawn as open floor)
+# Hack -- now used to mark CAVE_SAFE grids (back to front)
 
 N:2:invisible trap
-G:.:w
+G:x:y
 M:1
 W:1:1:5:0
 D:You have found a trap.

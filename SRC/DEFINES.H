@@ -2947,6 +2947,7 @@
 #define OPT_variant_usage_id		(OPT_VARIANT+19)
 #define OPT_variant_great_id		(OPT_VARIANT+20)
 #define OPT_variant_dis_attacks         (OPT_VARIANT+21)
+#define OPT_variant_time_stacks	(OPT_VARIANT+22)
 
 /*
  * Hack -- Option symbols
@@ -3088,6 +3089,7 @@
 #define variant_great_id                        op_ptr->opt[OPT_variant_great_id]
 #define variant_usage_id                        op_ptr->opt[OPT_variant_usage_id]
 #define variant_dis_attacks                        op_ptr->opt[OPT_variant_dis_attacks]
+#define variant_time_stacks                     op_ptr->opt[OPT_variant_time_stacks]
 
 
 /*

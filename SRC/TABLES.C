@@ -1579,7 +1579,7 @@ cptr option_text[OPT_MAX] =
 	"variant_usage_id",						/* xxx */
 	"variant_great_id",						/* xxx */
         "variant_dis_attacks",                                           /* xxx */
-	NULL,						/* xxx */
+        "variant_time_stacks",                                          /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1799,8 +1799,8 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
-	"Merge pvals when stacking (hack)",						/* xxx */
-	"Merge timeouts when stacking (hack)",						/* xxx */
+        "Merge pvals when stacking",                                             /* xxx */
+        "Merge timeouts when stacking",                                          /* xxx */
 	"Map marked by detect traps",						/* xxx */
 	"Display room descriptions",						/* xxx */
 	"Display room names",						/* xxx */
@@ -1829,7 +1829,7 @@ cptr option_desc[OPT_MAX] =
 	"Kills don't waste blows",
 	"Scale down melee damage",										/* xxx */
 	"Scale down monster hit points",										/* xxx */
-	"Object pval stacking",										/* xxx */
+        "Object pval stacking (wands/staffs)",                                                                         /* xxx */
 	"Monsters summon out of sight",										/* xxx */
 	"Monsters teleport out of sight",										/* xxx */
 	"Monsters heal out of sight",										/* xxx */
@@ -1843,7 +1843,7 @@ cptr option_desc[OPT_MAX] =
 	"Object usage count",										/* xxx */
 	"Object sensing improved",										/* xxx */
         "Monsters use ranged attacks",
-	NULL,										/* xxx */
+        "Object timeout stacking (rods)",                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2063,6 +2063,12 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
+        FALSE,          /* OPT_stack_force_pvals */
+        FALSE,          /* OPT_stack_force_times */
+        TRUE,           /* OPT_stack_view_safe_grids */
+        TRUE,           /* OPT_room_descriptions */
+        TRUE,           /* OPT_room_names */
+        FALSE,          /* OPT_verify_mana */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2079,35 +2085,29 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+        FALSE,          /* OPT_variant_town */
+        TRUE,           /* OPT_variant_mushroom */
+        TRUE,           /* OPT_variant_mon_hit_trap */
+        FALSE,          /* OPT_variant_room_info */
+        TRUE,           /* OPT_variant_free_stats */
+        TRUE,           /* OPT_variant_fast_kills */
+        TRUE,           /* OPT_variant_scale_damage */
+        TRUE,           /* OPT_variant_scale_hp */
+        FALSE,          /* OPT_variant_stack_pvals */
+        TRUE,           /* OPT_variant_oos_summons */
+        TRUE,           /* OPT_variant_oos_teleports */
+        TRUE,           /* OPT_variant_oos_heals */
+        TRUE,           /* OPT_variant_oos_xtra */
+        TRUE,           /* OPT_variant_hurt_feats */
+        TRUE,           /* OPT_variant_lake_feats */
+        TRUE,           /* OPT_variant_big_feats */
+        TRUE,           /* OPT_variant_new_feats */
+        FALSE,          /* OPT_variant_learn_id */
+        FALSE,          /* OPT_variant_guess_id */
+        FALSE,          /* OPT_variant_usage_id */
+        TRUE,           /* OPT_variant_great_id */
+        TRUE,           /* OPT_variant_dis_attacks */
+        FALSE,          /* OPT_variant_stack_times */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2299,9 +2299,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-                255,
-		255,
-		255,
+                OPT_verify_mana,
+                OPT_room_names,
+                OPT_room_descriptions,
 		255
 	},
 
@@ -2326,7 +2326,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_alter,
 		OPT_easy_floor,
 		OPT_show_piles,
-                255,
+                OPT_view_safe_grids,
 		255
 	},
 
@@ -2420,30 +2420,27 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_variant_oos_xtra,
                 OPT_variant_dis_attacks,
 		OPT_variant_hurt_feats,
-		OPT_variant_room_info,
                 OPT_variant_new_feats,
 		OPT_variant_lake_feats,
 		OPT_variant_big_feats,
-                OPT_variant_pval_stacks,
-                OPT_stack_force_pvals,
-                OPT_stack_force_times,
-                OPT_variant_town
+		OPT_variant_great_id,
+                255,
+                255,
+                255,
+                255
 	},
 
-        /*** Variant other ***/
+        /*** Variant save-file ***/
 
 	{
 		OPT_variant_learn_id,
 		OPT_variant_guess_id,
 		OPT_variant_usage_id,
-		OPT_variant_great_id,
-                OPT_view_safe_grids,
-                OPT_verify_mana,
-                OPT_room_names,
-                OPT_room_descriptions,
-                255, 
-		255,
-                255, 
+                OPT_variant_pval_stacks,
+		OPT_variant_time_stacks,
+                OPT_variant_town,
+		OPT_variant_room_info,
+                255,
 		255,
 		255,
 		255,
@@ -2452,8 +2449,10 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255,
 		255,
-		255
-
+                255,
+                255,
+                255,
+                255
 	}
 
 };

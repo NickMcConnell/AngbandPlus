@@ -1519,26 +1519,14 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		{
 
 			/* Require knowledge */
-			if (!(variant_pval_stacks) &&
-				(!object_known_p(o_ptr) || !object_known_p(j_ptr))) return (0);
+			/* Require full knowledge of both items */
+			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
 
-			/* Require identical knowledge of both items */
-			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
-
-			/* Fall through */
-
-
-		}
-
-		/* Staffs and Wands and Rods */
-		case TV_ROD:
-		{
-
-			/* Require 'similar' charges */
-			if (o_ptr->pval != j_ptr->pval)
+			/* Require 'similar' pvals */
+			if ((o_ptr->pval != j_ptr->pval))
 			{
-
-				if (!(variant_pval_stacks)) return (0);
+                                /* Check for stacks allowed */
+                                if (!variant_pval_stacks) return (0);
 
 				/* Check for sign difference */
 				if ((o_ptr->pval > 0)&&(j_ptr->pval <= 0)) return (0);
@@ -1549,10 +1537,28 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				/* Line 2 -- 1st pval is not 1 less than 2nd pval, or 1st pval is a pval stack */
 				/* Line 3 -- 1st pval is not 1 greater than 2nd pval, or 2nd pval is a pval stack */
                                 /* Line 4 -- an item has auto_stack */
-				if ((!stack_force_pvals) &&
-					((o_ptr->pval != j_ptr->pval-1) || (o_ptr->pvals))  &&
-					((o_ptr->pval != j_ptr->pval+1) || (j_ptr->pvals))
-					&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr)))) return (0);
+				if ((!stack_force_pvals)
+					&& ((o_ptr->pval != j_ptr->pval-1) || (o_ptr->stackc))
+					&& ((o_ptr->pval != j_ptr->pval+1) || (j_ptr->stackc))
+					&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr))) return (0);
+			}
+
+			/* Probably okay */
+			break;
+		}
+
+		/* Staffs and Wands and Rods */
+		case TV_ROD:
+		{
+			/* Require identical knowledge of both items */
+			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
+
+			/* Require 'similar' timeouts */
+			if ((o_ptr->pval != j_ptr->pval) && (!stack_force_times)
+				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
+			{
+				if ((o_ptr->pval != 0) && (j_ptr->pval != 0)) return (0);
+                                if (!variant_pval_stacks) return (0);
 			}
 
 			/* Probably okay */
@@ -1619,8 +1625,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				/* Line 3 -- 1st pval is not 1 greater than 2nd pval, or 2nd pval is a pval stack */
                                 /* Line 4 -- an item has auto_stack */
 				if ((!stack_force_pvals) &&
-					((o_ptr->pval != j_ptr->pval-1) || (o_ptr->pvals))  &&
-					((o_ptr->pval != j_ptr->pval+1) || (j_ptr->pvals))
+                                        ((o_ptr->pval != j_ptr->pval-1) || (o_ptr->stackc))  &&
+                                        ((o_ptr->pval != j_ptr->pval+1) || (j_ptr->stackc))
 					&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr)))) return (0);			}
 
 			/* Require identical "artifact" names */
@@ -1632,14 +1638,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			/* Hack -- Never stack "powerful" items */
 			if (o_ptr->xtra1 || j_ptr->xtra1) return (FALSE);
 
-			/* Hack -- Never stack recharging items */
-			if (o_ptr->timeout || j_ptr->timeout)
+			/* Require 'similar' timeouts */
+                        if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
+				&& (!(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))))
 			{
-				/* Hack -- do not stack charged and recharging items */
-				if (o_ptr->timeout == 0) return (FALSE);
-				if (j_ptr->timeout == 0) return (FALSE);
-
-				if (!stack_force_times && !(auto_stack_okay(o_ptr) || auto_stack_okay(j_ptr))) return (FALSE);
+                                if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
+                                if (!variant_pval_stacks) return (0);
 			}
 
 			/* Require identical "values" */
@@ -1747,31 +1751,111 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
  * wands and staves as we will not unstack a pile of same charge items
  * by using them until a wand is emptied completely.
  *
- * With stack_force_timeouts, timeouts are averaged across a stack of items.
+ * With stack_force_timeouts, timeouts are the maximum across a stack
+ * of items.
+ *
+ * Without, we allow 1 charging item to stack with charged items.
+ *
+ * Note we treat rods like timeout items rather than pval items. This
+ * unnecessarily complicates the code in a lot of places.
+ *
+ * We currently don't support stacking unknown items because of a bug
+ * somewhere in the stacking code. It also simplifies things a lot.
+ *
+ * Note for negative pval items, we don't use higher in the absolute
+ * sense, and we have to mess around because division and modulo on
+ * negative numbers is undefined in C.
  */
+
 void object_absorb(object_type *o_ptr, object_type *j_ptr)
 {
-        int pvalm;
-
 	int total = o_ptr->number + j_ptr->number;
 
 	int number = ((total < MAX_STACK_SIZE) ? total : (MAX_STACK_SIZE - 1));
 
-	/* Hack -- Blend "pval" if necessary*/
-	if (o_ptr->pval != j_ptr->pval)
+	/* Hack -- Rods use pval as timeout */
+	if ((o_ptr->tval == TV_ROD) && (o_ptr->pval != j_ptr->pval))
 	{
-                pvalm = ((o_ptr->pval * o_ptr->number) + (j_ptr->pval * j_ptr->number));
+		/* Hack -- Fix stack count */
+                if ((o_ptr->pval) && !(o_ptr->stackc)) o_ptr->stackc += o_ptr->number;
 
-                o_ptr->pval = pvalm/number;
-                o_ptr->pvals = pvalm%number;
+		/* Hack -- Fix stack count */
+                if ((j_ptr->pval) && !(j_ptr->stackc)) o_ptr->stackc += j_ptr->number;
 
-		/* Hack -- Bump up pval */
-		if (o_ptr->pvals) o_ptr->pval++;
+		/* Add stack count */
+                o_ptr->stackc += j_ptr->stackc;
+
+                /* Hack -- Fix stack count */
+		if (o_ptr->stackc == number) o_ptr->stackc = 0;
+
+		/* Hack -- Use Maximum timeout */
+		if (o_ptr->pval < j_ptr->pval) o_ptr->pval = j_ptr->pval;
 	}
 
-	/* Mega Hack -- Blend "timeouts" */
+	/* Blend "pval" if necessary*/
+	else if (o_ptr->pval != j_ptr->pval)
+	{
+                /* Weird calculation. But it works. */
+                s32b stackt = ((o_ptr->pval * o_ptr->number)
+                                + (j_ptr->pval * j_ptr->number)
+                                - o_ptr->stackc
+                                - j_ptr->stackc);
+
+                bool negative = (stackt < 0) ? TRUE : FALSE;
+
+                /* Modulo on negative signs undefined in C */
+                if (negative) stackt = -stackt;
+
+                /* Assign pval */
+                o_ptr->pval = stackt / total;
+                o_ptr->stackc = number - (stackt % total);
+
+                /* Fix pval */
+                if ((o_ptr->stackc)) o_ptr->pval++;
+
+		/* Hack -- Fix stack count */
+                if (o_ptr->stackc > number) o_ptr->stackc = 0;
+
+                /* Correction for negative pvals */
+                if (negative)
+                {
+                        /* Reverse sign */
+                        o_ptr->pval = -o_ptr->pval;
+
+                        /* Reverse stack count */
+                        o_ptr->stackc = number - o_ptr->stackc;
+
+                        /* Fix pval */
+                        if ((o_ptr->stackc)) o_ptr->pval++;
+
+                        /* Paranoia -- always ensure cursed items */
+                        if (o_ptr->pval >=0)
+                        {
+                                o_ptr->pval = -1;
+                                o_ptr->stackc = 0;
+                        }
+
+                }
+	}
+
+	/* Blend "timeout" if necessary */
 	if (o_ptr->timeout != j_ptr->timeout)
-		o_ptr->timeout = ((o_ptr->timeout * o_ptr->number) + (j_ptr->timeout * j_ptr->number))/number;
+	{
+		/* Hack -- Fix stack count */
+		if ((o_ptr->timeout) && !(o_ptr->stackc)) o_ptr->stackc = o_ptr->number;
+
+		/* Hack -- Fix stack count */
+                if ((j_ptr->timeout) && !(j_ptr->stackc)) o_ptr->stackc = j_ptr->number;
+
+		/* Add stack count */
+		o_ptr->stackc += j_ptr->stackc;
+
+                /* Hack -- Fix stack count */
+		if (o_ptr->stackc == number) o_ptr->stackc = 0;
+
+		/* Hack -- Use Maximum timeout */
+		if (o_ptr->timeout < j_ptr->timeout) o_ptr->timeout = j_ptr->timeout;
+	}
 
 	/* Add together the item counts */
 	o_ptr->number = number;
@@ -1864,6 +1948,9 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Default number */
 	o_ptr->number = 1;
+
+	/* Default stack count */
+	o_ptr->stackc = 0;
 
 	/* Default weight */
 	o_ptr->weight = k_ptr->weight;
@@ -4473,28 +4560,27 @@ void inven_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
-	/* Limit decrease to number of higher charge items */
-	if ((o_ptr->pvals) && (num < 0))
-	{
-		/* Limit */
-		if (o_ptr->pvals < -num) num = 0-o_ptr->pvals;
-	}
-
 	/* Change the number and weight */
 	if (num)
 	{
 		/* Add the number */
 		o_ptr->number += num;
 
-		/* Modify pvals */
-		if (o_ptr->pvals)
-		{
+                /* Check stack count overflow */
+                if (o_ptr->stackc >= o_ptr->number)
+                {
+                        /* Rods use pval as timeout */
+                        if (o_ptr->pval && (o_ptr->tval == TV_ROD)) o_ptr->pval = 0;
 
-			o_ptr->pvals+= num;
+                        /* Reset stack counter */
+                        o_ptr->stackc = 0;
 
-			if (!o_ptr->pvals) o_ptr->pval--;
+                        /* Decrease pval */
+                        if (o_ptr->pval) o_ptr->pval--;
 
-		}
+                        /* Reset timeout */
+                        if (o_ptr->timeout) o_ptr->timeout = 0;
+                }
 
 		/* Add the weight */
 		p_ptr->total_weight += (num * o_ptr->weight);
@@ -4637,26 +4723,24 @@ void floor_item_increase(int item, int num)
 	/* Un-apply */
 	num -= o_ptr->number;
 
-	/* Limit decrease to number of higher charge items */
-	if ((o_ptr->pvals) && (num < 0))
-	{
-		/* Limit */
-		if (o_ptr->pvals < -num) num = 0-o_ptr->pvals;
-	}
-
 	/* Change the number */
 	o_ptr->number += num;
 
-	/* Modify pvals */
-	if (o_ptr->pvals)
-	{
+        /* Check stack count overflow */
+        if (o_ptr->stackc >= o_ptr->number)
+        {
+                /* Rods use pval as timeout */
+                if (o_ptr->pval && (o_ptr->tval == TV_ROD)) o_ptr->pval = 0;
 
-		o_ptr->pvals+= num;
+                /* Reset stack counter */
+                o_ptr->stackc = 0;
 
-		if (!o_ptr->pvals) o_ptr->pval--;
+                /* Decrease pval */
+                if (o_ptr->pval) o_ptr->pval--;
 
-	}
-
+                /* Reset timeout */
+                if (o_ptr->timeout) o_ptr->timeout = 0;
+        }
 
 }
 
@@ -4964,9 +5048,6 @@ s16b inven_takeoff(int item, int amt)
 	/* Verify */
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
-	/* Not more than higher pval */
-	if (o_ptr->pvals && (amt > o_ptr->pvals)) amt = o_ptr->pvals;
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -4976,8 +5057,15 @@ s16b inven_takeoff(int item, int amt)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
-	/* Reset pvals */
-	i_ptr->pvals = 0;
+	/* Reset stack count */
+	i_ptr->stackc = 0;
+
+	/* Get stack count */
+        if (amt >= (o_ptr->number - o_ptr->stackc))
+	{
+		/* Set stack count */
+		i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
+        }
 
 	/* Describe the object */
 	object_desc(o_name, i_ptr, TRUE, 3);
@@ -5062,9 +5150,6 @@ void inven_drop(int item, int amt)
 	/* Error check */
 	if (amt <= 0) return;
 
-	/* Not more than higher pval */
-	if (o_ptr->pvals && (amt > o_ptr->pvals)) amt = o_ptr->pvals;
-
 	/* Not too many */
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
@@ -5097,8 +5182,15 @@ void inven_drop(int item, int amt)
 	/* Modify quantity */
 	i_ptr->number = amt;
 
-	/* Reset pvals */
-	i_ptr->pvals = 0;
+	/* Reset stack count */
+	i_ptr->stackc = 0;
+
+	/* Get stack count */
+        if (amt >= (o_ptr->number - o_ptr->stackc))
+	{
+		/* Set stack count */
+		i_ptr->stackc = amt - (o_ptr->number - o_ptr->stackc);
+        }
 
 	/* Describe local object */
 	object_desc(o_name, i_ptr, TRUE, 3);

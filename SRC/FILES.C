@@ -2207,9 +2207,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
+        fprintf(fff, "  [Unangband 0.4.5 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);

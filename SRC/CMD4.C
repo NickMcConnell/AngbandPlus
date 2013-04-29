@@ -866,7 +866,7 @@ void do_cmd_options(void)
 		prt("(5) Birth Options", 8, 5);
 		prt("(6) Cheat Options", 9, 5);
                 prt("(7) Variant Options (Game-Play)", 10, 5);
-                prt("(8) Variant Options (Other)", 11, 5);
+                prt("(8) Variant Options (Save-File)", 11, 5);
 
 		/* Window flags */
                 prt("(W) Window flags", 13, 5);
@@ -933,7 +933,7 @@ void do_cmd_options(void)
 		/* Variant Options */
                 else if (ch == '8')
 		{
-                        do_cmd_options_aux(7, "Variant Options (Other)");
+                        do_cmd_options_aux(7, "Variant Options (Save-File)");
 		}
 
 

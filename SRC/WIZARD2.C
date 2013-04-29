@@ -878,7 +878,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 		o_ptr->number = tmp_int;
 
 		/* Reset pvals */
-		if (o_ptr->number < o_ptr->pvals) o_ptr->pvals = 0;
+                if (o_ptr->number <= o_ptr->stackc) o_ptr->stackc = 0;
 	}
 }
 

@@ -1,3 +1,13 @@
+4-12-2001 Unangband 0.4.5c Bugfix release
+- Added and modified a number of uniques in r_info.txt.
+- Lots of debugging and modification to stacking code. Should be 100% now.
+- Changed option menus around to reflect options we can default to true,
+and options we default to false because we use these to add or subtract
+additional fields from the save file.
+- Guardian monsters only generate at night in town. During day, shops are
+accessible.
+- Updated character dump to display Unangband version (Hardcoded).
+
 30-11-2001 Unangband 0.4.5b Bugfix release
 - Fixed problem with crashing when updating stores by reverting to 0.4.3
 store code (again).

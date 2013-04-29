@@ -1,0 +1,92 @@
+
+>From: darkgod@ifrance.com
+>To: andrewdoull@hotmail.com
+>Subject: Unband
+>Date: Wed, 28 Nov 2001 21:37:23 +0100
+>
+>Hullo !
+>
+>I read in your cahnges.txt:
+>
+>- If I could I'd spend as much time developing as Dark God and
+>friends
+>and come out with the full fledged varient with wilderness, allies,
+>quests etc. But I can't (At least not until I retire in 50+ years).
+>Sorry guys.
+>
+>Im sorry to hear that you cant fully work on Un, but if you want you
+>can come helping us with PernAngband :) You have good ideas,
+>and good code, boths are a good thing(tm) ;)
+>
+>Anyway, good luck, your variant is a good thing :)
+>
+>PS: I saw your post about not having many people playing unband
+>.. thtas normal, it's still young, I hadnt many when I started either :)
+>
+>-----------------------+----------------------------------------------
+>DarkGod comes from     | Do not meddle in the affairs of wizards
+>the hells for YOU ! :) | because they are subtle and quick to anger.
+>-----------------------+----------------------------------------------
+>Pe W Olorin YSo L:50 DL:696 A+++ R+++ Sp++ w:Mage Staff of Mana(240%)
+>Pe*/M(Km)(Cr)(NH) D H- D c++ f- PV s- TT- d++ P++ M+ C- S++ I+++ So++ B/-
+>ac- GHB- SQ+ RQ V+++ F:Mage playing Mage-like(see Pernangband Sorcerors)
+>
+>______________________________________________________________________________
+>ifrance.com, l'email gratuit le plus complet de l'Internet !
+>vos emails depuis un navigateur, en POP3, sur Minitel, sur le WAP...
+>http://www.ifrance.com/_reloc/email.emailif
+>
+>
+
+
+
+Good to hear from you.
+
+After having written that comment, I ended up working on wilderness code , quest design etc. ;P
+
+Having said that, none of it works at the moment, which suggests I am going to have to go into debug mode for a while, and probably re-write generate.c and store.c. Not something I want to do anytime soon. (I've said as much on the newsgroup).
+
+My main development itch with Unangband is trying out different ways of doing things to other variants out there, while retaining compatibility with Angband. In fact, I have maintained save file inter-operability with regular Angband without publicising the fact. I could easily write a 'Maintain vanilla compatible save-file' option. It'd be better to do once Unangband is forward ported to Angband 2.9.3/4/5, if that ever happens, but I guess the save file format is going to change a couple more times yet.
+
+As for working on Pernband, I'm flattered, but I have a hunch I'll end up with more committments rather than less (ie doing my own variant, and yours), just because I don't think I'll stop working on mine.  I know what I want to do, I just don't have the time to implement it and test it.
+
+You are free to use anything you want from Unangband, because of the GPL/Angband dual-licensing. Eytan Zweig has already used the room description code in Eyangband. I'd especially like something of mine to make it into your variant (or vanilla ;). 
+
+Easy stuff would be:
+
+ *  New ego items
+ *  Unused blows after killing a monster not using up energy (Warning: Makes breeders easier for warriors in the early stages)
+
+Next step might be candidates might be:
+
+ *  Room descriptions (Which now allows CAVE_ICKY to be removed. I use CAVE_SAFE instead to indicate where detect traps has been cast). Don't have to include extra monsters/items etc. although they make Ironman versions more playable (A lot more food/light generated).
+ *  Identification code.
+ *  Merging of blows and spell attacks (Which allows monsters to use GRAVITY attacks, for instance).
+ *  Feature flags (Which are done much better than Zangband IMHO). Doesn't require the new features from Unangband, as I split those out from vanilla flags
+ *  New spell code (Allows up to 256 spells, using same data structures as vanilla Angband)
+
+What I don't recommend (I'm designing a variant for Christs sake):
+ *  Weapon/spell styles (Which was done just because I needed a feature to make people want to play Unangband and turned out to be a good idea).
+ *  Mushrooms dropping similiar mushroom types, and the Farmer Maggot and his dogs dropping mushrooms of mana, and magic mushrooms, well... :)
+ *  Gaining a stat with each level (Gets rid of that boring, tedious stat gain process. Heaven forbid!)
+ *  New features.
+ *  New monsters.
+
+What I'll be doing next in my variant (Don't recommend for vanilla):
+ *  Debug and fix campaign mode.
+ *  New flavour info.txt file (More expandable that vanilla).
+ *  Leon Marrick's AI code (At least the flow optimisations).
+ *  Using new randart code, but generating a mix of fixed and random artifacts.
+ *  Good uniques (Not followers) from Tolkein.
+ *  Fixed quest code (With heaps of Tolkein's quests).
+ *  Fountains/thrones/altars.
+
+In particular, I'd like designs for the good uniques from people out there. Build them as if they were attacking you, but remember that they'll be fighting monsters instead (Unless you're bad...). But they won't hang around for long (Maybe).
+
+Further away:
+ *  Finish monster list.
+ *  Ego item/artifact rings/amulets/other jewelery.
+ *  Wilderness features.
+ *  Scrolling, infinitely big wilderness, with fixed location and random location dungeons.
+ *  Algorithmic generation of monster experience.
+ *  Smarter item/ego item/artifact distribution.

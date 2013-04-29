@@ -206,8 +206,11 @@ static void do_cmd_travel(void)
 					/* XXX Fake a wilderness location? */
 				}
 
-				/* Get hungry/tired/sore */
+                                /* Hack -- Get hungry/tired/sore */
 				set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
+
+                                /* Hack -- Time passes (at 4* food use rate) */
+                                turn += PY_FOOD_FULL/10*journey*4;
 
 				/* Change the dungeon */
 				p_ptr->dungeon = selection;
@@ -2621,8 +2624,8 @@ void do_cmd_fire(void)
 	/* Single object */
 	i_ptr->number = 1;
 
-	/* Reset pvals */
-	i_ptr->pvals = 0;
+        /* Reset stack counter */
+        i_ptr->stackc = 0;
 
 	/* Reduce and describe inventory */
 	if (item >= 0)
@@ -2972,8 +2975,8 @@ void do_cmd_throw(void)
 	/* Single object */
 	i_ptr->number = 1;
 
-	/* Reset pvals*/
-	i_ptr->pvals = 0;
+        /* Reset stack count*/
+        i_ptr->stackc = 0;
 
 	/* Reduce and describe inventory */
 	if (item >= 0)

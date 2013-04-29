@@ -1103,7 +1103,23 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+                        if (!(o_ptr->pval))
+                        {
+                                char o_name[80];
+
+                                /* Notice count */
+                                j++;
+
+                                /* Reset stack */
+                                o_ptr->stackc = 0;
+
+                                /* Get an object description */
+                                object_desc(o_name, o_ptr, FALSE, 0);
+
+                                /* Message */
+                                msg_format("Your %s %s charged.", o_name,
+                                   ((o_ptr->number == 1) ? "has" : "have"));
+                        }
 		}
 	}
 
@@ -1112,6 +1128,9 @@ static void process_world(void)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
+
+                /* Disturb */
+                if (disturb_minor) disturb(1, 0);
 	}
 
 	/* Recharge rods */
@@ -1129,7 +1148,23 @@ static void process_world(void)
 			o_ptr->pval--;
 
 			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+                        if (!(o_ptr->pval))
+                        {
+                                char o_name[80];
+
+                                /* Notice count */
+                                j++;
+
+                                /* Reset stack */
+                                o_ptr->stackc = 0;
+
+                                /* Get an object description */
+                                object_desc(o_name, o_ptr, FALSE, 0);
+
+                                /* Message */
+                                msg_format("Your %s %s charged.", o_name,
+                                   ((o_ptr->number == 1) ? "has" : "have"));
+                        }
 		}
 	}
 
@@ -1141,6 +1176,9 @@ static void process_world(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN);
+
+                /* Disturb */
+                if (disturb_minor) disturb(1,0);
 	}
 
 

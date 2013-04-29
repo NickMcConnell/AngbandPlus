@@ -487,7 +487,7 @@ static void rd_item(object_type *o_ptr)
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
 
-        if (variant_pval_stacks) rd_byte(&o_ptr->pvals);
+        if ((variant_pval_stacks)||(variant_time_stacks)) rd_byte(&o_ptr->stackc);
 
 
 	/* Old method */

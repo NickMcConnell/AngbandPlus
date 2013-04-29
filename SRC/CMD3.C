@@ -204,9 +204,8 @@ void do_cmd_wield(void)
 	/* Modify quantity */
 	i_ptr->number = 1;
 
-	/* Reset pvals*/
-	i_ptr->pvals = 0;
-
+        /* Reset stackc */
+        i_ptr->stackc = 0;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)

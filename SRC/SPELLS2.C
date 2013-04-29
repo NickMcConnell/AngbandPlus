@@ -3840,6 +3840,10 @@ bool recharge(int num)
 				o_ptr->pval = 0;
 			}
 		}
+
+                /* Hack -- round up */
+                o_ptr->stackc = 0;
+
 	}
 
 	/* Recharge wand/staff */
@@ -3885,6 +3889,10 @@ bool recharge(int num)
 
 			/* Hack -- we no longer think the item is empty */
 			o_ptr->ident &= ~(IDENT_EMPTY);
+
+                        /* Hack -- round up */
+                        o_ptr->stackc = 0;
+
 		}
 	}
 

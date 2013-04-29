@@ -708,7 +708,7 @@ static void wr_item(object_type *o_ptr)
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
 
-        if (variant_pval_stacks) wr_byte(o_ptr->pvals);
+        if ((variant_pval_stacks) || (variant_time_stacks)) wr_byte(o_ptr->stackc);
 
 	wr_byte(o_ptr->discount);
 

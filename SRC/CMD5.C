@@ -948,7 +948,7 @@ static void enchant_item(byte tval, int plev)
 			break;
 		case TV_STAFF:
                         q = "Enchant which staff?";
-			s = "You have no staves to enchant.";
+			s = "You have no staffs to enchant.";
 			break;
 		case TV_FOOD:
                         q = "Enchant which food?";

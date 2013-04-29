@@ -1410,6 +1410,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+        /* Hack -- display debug stack info in cheat_xtra mode */
+        if ((cheat_xtra) && (o_ptr->stackc))
+        {
+                object_desc_str_macro(t, "(");
+                object_desc_num_macro(t,o_ptr->stackc);
+                object_desc_str_macro(t, ") ");
+        }
+
 
 	/* Paranoia XXX XXX XXX */
 	/* ASSERT(*s != '~'); */
@@ -1753,7 +1761,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Hack -- Dump " (charging)" if relevant */
 		if (o_ptr->pval)
 		{
-			object_desc_str_macro(t, " (charging)");
+			/* Hack -- variant rod stack */
+                        if (o_ptr->stackc)
+			{
+                                object_desc_str_macro(t," (");
+                                object_desc_num_macro(t, o_ptr->stackc);
+                                object_desc_str_macro(t," charging)");
+			}
+			else
+			{
+				object_desc_str_macro(t, " (charging)");
+			}
 		}
 	}
 
@@ -1863,10 +1881,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts */
 	if (known && o_ptr->timeout)
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		object_desc_str_macro(t, " (charging)");
+                /* Hack -- variant timeout stack */
+                if (o_ptr->stackc)
+                {
+                        object_desc_str_macro(t, " (");
+                        object_desc_num_macro(t, o_ptr->stackc);
+                        object_desc_str_macro(t, " charging)");
+                }
+                else
+                {
+                        object_desc_str_macro(t, " (charging)");
+                }
 	}
-
 
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;

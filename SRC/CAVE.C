@@ -755,28 +755,17 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 		}
 
-		/* Hack -- Safe cave grid -- currently use 'dark floor' */
+                /* Hack -- Safe cave grid -- now use 'invisible trap' */
 		else if (view_safe_grids && (info & (CAVE_SAFE)))
 		{
 			/* Get the darkness feature */
-			f_ptr = &f_info[FEAT_FLOOR];
+                        f_ptr = &f_info[FEAT_INVIS];
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
-
-			if (graf_new)
-			{
-				/* Use a dark tile */
-				c += 1;
-			}
-			else
-			{
-				/* Use "dark gray" */
-				a = TERM_L_DARK;
-			}
 		}
 
 		/* Unknown */
@@ -886,28 +875,17 @@ void map_info(int y, int x, byte *ap, char *cp)
 			}
 		}
 
-		/* Hack -- Safe cave grid -- currently use 'dark floor' */
+                /* Hack -- Safe cave grid -- now use 'invisible trap' */
 		else if (view_safe_grids && (info & (CAVE_SAFE)))
 		{
 			/* Get the darkness feature */
-			f_ptr = &f_info[FEAT_FLOOR];
+                        f_ptr = &f_info[FEAT_INVIS];
 
 			/* Normal attr */
 			a = f_ptr->x_attr;
 
 			/* Normal char */
 			c = f_ptr->x_char;
-
-			if (graf_new)
-			{
-				/* Use a dark tile */
-				c += 1;
-			}
-			else
-			{
-				/* Use "dark gray" */
-				a = TERM_L_DARK;
-			}
 		}
 
 
@@ -3551,6 +3529,11 @@ void town_illuminate(bool daytime)
 {
 	int y, x, i;
 
+        dungeon_zone *zone=&t_info[0].zone[0];
+
+
+        /* Get the zone */
+        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
 
 	/* Apply light or darkness */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -3622,6 +3605,24 @@ void town_illuminate(bool daytime)
 		}
 	}
 
+
+	/* Megahack --- darkness brings out the bad guys */
+        if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	{
+		int y, x;
+
+		/* Pick a location */
+		while (1)
+		{
+			y = rand_int(DUNGEON_HGT);
+			x = rand_int(DUNGEON_WID);
+
+			if (cave_naked_bold(y, x)) break;
+		}
+
+		/* Place the questor */
+                place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+	}
 
 	/* Fully update the visuals */
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);

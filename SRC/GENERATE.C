@@ -4579,8 +4579,7 @@ static void cave_gen(void)
 			}
 		}
 	}
-
-	/* Ensure guardian monsters */
+	/* Ensure guardian monsters --- only night time in towns */
         else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
 	{
 		int y, x;
@@ -4605,6 +4604,7 @@ static void cave_gen(void)
 		/* Daytime */
 		town_illuminate(TRUE);
 	}
+
 
 
 
@@ -4841,22 +4841,6 @@ static void town_gen_hack(void)
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
 
-	/* Ensure guardian monsters */
-        if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
-	{
-		/* Pick a location */
-		while (1)
-		{
-			y = qy + rand_range(3, SCREEN_HGT - 4);
-                        x = qx + rand_range(3, SCREEN_WID - 4);
-
-                        /* Require a "naked" floor grid */
-                        if (cave_naked_bold(y, x)) break;
-		}
-
-		/* Place the questor */
-                place_monster_aux(y, x, zone->guard, TRUE, TRUE);
-	}
 }
 
 
@@ -4891,6 +4875,12 @@ static void town_gen(void)
 
         int by,bx;
 
+        town_type *t_ptr = &t_info[p_ptr->dungeon];
+        dungeon_zone *zone=&t_ptr->zone[0];;
+
+	/* Get the zone */
+        get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
 	/* Initialize the room table */
         for (by = 0; by < MAX_ROOMS_ROW; by++)
 	{
@@ -4922,6 +4912,7 @@ static void town_gen(void)
 
 		/* Number of residents */
 		residents = MIN_M_ALLOC_TN;
+
 	}
 
 	/* Start with solid walls */
@@ -4951,12 +4942,30 @@ static void town_gen(void)
 	/* Apply illumination */
 	town_illuminate(daytime);
 
+	/* Ensure guardian monsters */
+        if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	{
+		/* Pick a location */
+		while (1)
+		{
+			y = qy + rand_range(3, SCREEN_HGT - 4);
+                        x = qx + rand_range(3, SCREEN_WID - 4);
+
+                        /* Require a "naked" floor grid */
+                        if (cave_naked_bold(y, x)) break;
+		}
+
+		/* Place the questor */
+                place_monster_aux(y, x, zone->guard, TRUE, TRUE);
+	}
+
 	/* Make some residents */
 	for (i = 0; i < residents; i++)
 	{
 		/* Make a resident */
 		(void)alloc_monster(3, TRUE);
 	}
+        
 }
 
 

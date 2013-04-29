@@ -11,7 +11,7 @@
 #L:level:fill with feature (0=town):big feature:small feature:small feature:quest monster
 #Currently up to 4 lines (ie up to 3 quest monsters per dungeon).
 #X:can go to easily:can go to after bottom level quest monster killed
-#R:race characters allowed
+#R:race characters not allowed
 #S:store1:store2:store3:store4:store5:store6:store7:store8
 #O:race idx:purse:maxgreed:mingreed:haggleper:tolerance:name
 
@@ -24,9 +24,19 @@
 #a number of great items (including possibly artifacts) as a 'reward' for the player. eg
 #quest rewards. As a result, towns containing these locations should not be re-entered.
 
+#It is recommended that only the following races be excluded.
+
+#R:AdDhklMoOpPqtT
+
+#The exceptions (below) are Moria, which has only Moria monsters,
+#Paths of the Dead, which has only undead monsters, and battles,
+#which exclude most animals.
+
+
 #Version information
 
 V:2.9.2
+
 
 # Default starting dungeon.
 
@@ -43,6 +53,7 @@ D:It feels like home...
 
 N:1:Hobbiton
 X:10:37
+#R:AdDklMoOpPqtT
 L:0:0:135:162:0
 S:9:10:11:0:0:0:0:0
 D:In a hole in the ground, there lived a hobbit.
@@ -51,6 +62,7 @@ D:In a hole in the ground, there lived a hobbit.
 
 N:2:Rivendell
 X:1:3
+#R:AdDhkMoOPtT
 L:0:0:162:153:0
 S:12:2:3:4:5:6:13:0
 
@@ -58,6 +70,7 @@ S:12:2:3:4:5:6:13:0
 
 N:3:the Misty Mountains
 X:2:4
+#R:AdDhlMoOpPqtT
 L:2:135:56:153:0
 L:3:56:0:153:68
 L:4:56:0:0:0
@@ -65,6 +78,7 @@ L:13:56:0:154:185
 
 N:4:the house of Beorn
 X:3:5
+#R:AdDhklMoOpPqtTuUEGLNsvVwWXzZ
 L:0:0:162:0:325
 S:14:0:0:0:0:0:0:0
 
@@ -72,13 +86,15 @@ S:14:0:0:0:0:0:0:0
 
 N:5:Mirkwood
 X:4:6
-L:14:135:162:153:0
+#R:AdDhkMoOpPqtT
+L:14:135:162:153:349
 L:15:56:0:0:0
 L:56:0:153:0:0
 S:15:16:17:4:5:18:19:0
 
 N:6:Lake-town
 X:5:7
+#R:AdDhklMoOPtT
 L:0:0:155:1:0
 S:1:2:3:4:5:6:7:0
 
@@ -87,6 +103,7 @@ S:1:2:3:4:5:6:7:0
 
 N:7:the Lonely Mountain
 X:8:9
+#R:AdDhklMoOpPqtT
 L:33:155:56:0:498
 L:34:56:0:0:0:0
 L:38:56:0:0:0:498
@@ -95,11 +112,13 @@ L:38:56:0:0:0:498
 
 N:8:Lake-town
 X:7:9
+#R:AdDhklMoOpPqt
 L:39:155:49:1:498
 L:40:121:0:0:0
 
 N:9:Lake-town, rebuilt
 X:14:0
+#R:AdDhklMoOpPqtT
 L:0:0:155:1:0
 S:1:2:3:4:5:6:20:0
 
@@ -110,6 +129,7 @@ S:1:2:3:4:5:6:20:0
 
 N:10:Farmer Maggot's farm
 X:1:11
+#R:AdDhklMoOpPqtT
 L:0:0:135:162:14
 L:1:114:0:0:0
 L:8:114:0:0:123
@@ -119,6 +139,7 @@ S:21:0:0:0:0:0:0:0
 
 N:11:Bree
 X:10:12
+#R:AdDklMoOPtT
 L:0:0:135:162:464
 S:22:2:3:4:5:6:0:0
 
@@ -127,18 +148,21 @@ S:22:2:3:4:5:6:0:0
 
 N:12:Weathertop
 X:11:13
+#R:AdDhklMoOpPqtT
 L:9:135:0:49:479
 L:10:56:0:0:0
 L:19:56:0:0:479
 
 N:13:Trollshaw Forest
 X:12:14
+#R:AdDM
 L:14:135:162:154:491
 
 #Duplicate to allow acces to Moria.
 
 N:14:Rivendell
 X:13:15
+#R:AdDhklMoOpPqtT
 L:0:0:162:153:0
 S:12:2:3:4:5:6:13:0
 #Note tval 11 does not exist, so no items sold here.
@@ -147,12 +171,14 @@ S:12:2:3:4:5:6:13:0
 
 N:15:Redhorn Pass
 X:16:19
+#R:M
 L:20:56:144:145:494
 
 #Balrog is likely to be encountered before end of Moria. (10 levels shallower)
 
 N:16:Moria
 X:17:18
+#R:FkMNQvYZ
 L:20:155:56:1:1048
 L:21:56:0:0:0
 L:45:56:1:0:0
@@ -162,92 +188,109 @@ L:60:56:141:0:502
 
 N:17:Isengard
 X:16:20
+#R:hlMt<
 L:20:0:1:0:262
 L:21:56:0:0:0
-L:60:56:0:0:528
+L:60:56:0:0:543
 S:23:2:3:4:5:6:7:0
 
 N:18:Lothlorien
 X:19:20
+#R:AdDhkMoOpPqtT
 L:0:0:162:162:0
 S:15:17:4:5:18:24:0:0
 
 N:19:Parth Galen
 X:20:24
+#R:hlMt
 L:14:162:155:56:0
 
 N:20:Fangorn
 X:21:23
+#R:AdDhklMoOpPqtT
 L:14:162:162:162:1043
 
 N:21:Edoras
 X:22:28
+#R:AdDhklMoOPtTabBceEfFHiIjJKmnvXyYZ,<$
 L:0:0:1:0:0
-L:8:56:0:0:123
+L:1:56:0:0:1088
 S:1:2:3:4:5:6:25:0
 
 N:22:Battle of Helm's Deep
 X:21:23
+#R:abBceEfFHiIjJKmnvXyYZ,<$
 L:50:135:162:56:267
 
 N:23:Isengard
 X:20:22
-L:60:56:1:0:528
+#R:hlMt<
+L:60:56:1:0:543
 
 #Should be guarded by Faramir
 
 N:24:Marshes of the Dead
 X:19:25
+#R:AdDhlMpPqtabBceEfFHiIjJKmnvXyYZ,<$
 L:65:199:200:201:0
 
 N:25:Ithilien
 X:26:27
+#R:AdDhlMPteEfFHiIjJKmnvXyYZ,<$
 L:14:135:162:199:0
 L:15:0:1:153:0
 S:26:27:28:29:30:31:32:0
 
 N:26:Minas Morgul
 X:25:31
-L:65:135:56:155:543
-L:66:56:0:0:0
-L:85:56:0:0:578
+#R:hlt<
+L:60:135:56:155:540
+L:61:56:0:0:0
+L:85:56:0:0:579
 
 N:27:Cirith Ungol
 X:26:31
-L:14:56:1:49:193
-L:15:56:1:0:329
-L:19:56:1:0:293
+#R:hlMt<
+L:60:56:1:49:1099
+L:61:56:1:0:0
+L:75:56:1:0:565
 
 #King Denethor should guard Minas Tirith
 
 N:28:Minas Tirith
 X:29:30
+#R:AdDhklMoOPtTabBceEfFHiIjJKmnvXyYZ,<$
 L:0:0:0:0:0
 L:1:0:0:0:0
 S:1:2:3:4:5:6:0:0
 
 N:29:Paths of the Dead
 X:28:30
-L:65:135:1:56:0
+#R:aAbBcCdDeEfFghHiIjJkKlmnoOpPqQrRStTvwXyYZ
+L:65:135:1:56:550
 L:66:56:0:0:0
-L:85:56:0:0:585
+L:85:56:0:0:579
 
 N:30:Battle of Five Armies
 X:27:31
+#R:abBceEfFHiIjJKmnvXyYZ,<$
 L:70:135:162:56:575
 
 N:31:Minas Tirith
 X:25:26
+#R:AdDhklMoOPtTabBceEfFHiIjJKmnvXyYZ,<$
 L:0:0:1:0:0
 L:1:0:0:0:0
 S:1:2:3:4:5:6:24:0
 
 N:32:Mordor
 X:33:27
+#R:hltabBcefFHiIjJKmnvXyY<$
 L:75:135:201:209:0
 
 N:33:Orodruin
 X:56:34
+#R:hltabBcefFHiIjJKmnvXyY,<$
 L:79:210:214:217:0
 L:80:50:210:217:0
 L:98:50:214:217:68
@@ -255,17 +298,20 @@ L:99:217:161:50:0
 
 N:34:Bara-dur
 X:33:35
+#R:hltabBcefFHiIjJKmnvXyY,<$
 L:65:0:1:209:578
 L:66:56:1:209:0
 L:99:56:1:209:587
 
 N:35:Hobbiton
 X:0:36
-L:60:0:135:199:528
+#R:AdDlM
+L:60:0:135:199:543
 S:2:3:11:0:0:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:39:0
+#R:AdDklMoOpPqtT
 L:0:0:135:162:0
 S:9:10:11:0:0:0:0:0
 
@@ -273,6 +319,7 @@ S:9:10:11:0:0:0:0:0
 
 N:37:Bree
 X:2:38
+#R:AdDklMoOPtT
 L:0:0:135:162:0
 S:22:2:3:4:5:6:0:0
 
@@ -287,5 +334,6 @@ L:11:56:0:0:0:0
 
 # Must always be last position
 N:39:the West
+#R:AdDhkMoOpPqtT
 L:0:0:135:162:0
 S:24:24:24:24:24:24:24:0

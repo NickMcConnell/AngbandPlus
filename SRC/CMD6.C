@@ -2180,58 +2180,17 @@ void do_cmd_use_staff(void)
 	if (!use_charge) return;
 
 	/* XXX Hack -- new unstacking code */
-	if (!o_ptr->pvals) o_ptr->pvals = o_ptr->number;
-
-	o_ptr->pvals--;
+	o_ptr->stackc++;
 
 	/* No spare charges */	
-	if (!o_ptr->pvals) o_ptr->pval--;
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 0) &&
-		(((o_ptr->pval == 1) && (o_ptr->pvals)) ||
-		  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) > o_ptr->pvals)) ||
-                  (!variant_pval_stacks)))
+	if (o_ptr->stackc == o_ptr->number)
 	{
-		object_type *i_ptr;
-		object_type object_type_body;
+		/* Use a charge off the stack */
+		o_ptr->pval--;
 
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Reset pvals*/
-		i_ptr->pvals = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-
-		/* Reduce the charges again on the new item */
-		if (o_ptr->pvals != o_ptr->number) i_ptr->pval=i_ptr->pval-2;
-
-		/* Restore the charges on the stack? */
-		if (!o_ptr->pvals) o_ptr->pval++;
-
-		/* Restore the count */
-		o_ptr->pvals++;
-
-		/* Fix the stack? */
-		if (o_ptr->pvals == o_ptr->number) o_ptr->pvals = 0;
-
-		/* Adjust the weight and carry */
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your staff.");
+		/* Reset the stack count */
+		o_ptr->stackc = 0;
 	}
-
-
 
 	/* Describe charges in the pack */
 	if (item >= 0)
@@ -2636,59 +2595,16 @@ void do_cmd_aim_wand(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	/* XXX Hack -- new unstacking code */
-	if (!o_ptr->pvals) o_ptr->pvals = o_ptr->number;
-
-	o_ptr->pvals--;
+	o_ptr->stackc++;
 
 	/* No spare charges */	
-	if (!o_ptr->pvals) o_ptr->pval--;
-
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 0) &&
-		(((o_ptr->pval == 1) && (o_ptr->pvals)) ||
-		  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) > o_ptr->pvals)) ||
-                  (!variant_pval_stacks)))
+	if (o_ptr->stackc == o_ptr->number)
 	{
-		object_type *i_ptr;
-		object_type object_type_body;
+		/* Use a charge off the stack */
+		o_ptr->pval--;
 
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Reset pvals*/
-		i_ptr->pvals = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-
-		/* Reduce the charges on the new item? */
-		if (o_ptr->pvals != o_ptr->number) i_ptr->pval=i_ptr->pval-2;
-
-		/* Restore the charges on the stack? */
-		if (!o_ptr->pvals) o_ptr->pval++;
-
-		/* Restore the count */
-		o_ptr->pvals++;
-
-		/* Fix the stack? */
-		if (o_ptr->pvals == o_ptr->number) o_ptr->pvals = 0;
-
-		/* Adjust the weight and carry */
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Adjust the weight and carry */
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your wand.");
+		/* Reset the stack count */
+		o_ptr->stackc = 0;
 	}
 
 	/* Describe the charges in the pack */
@@ -2726,6 +2642,8 @@ void do_cmd_zap_rod(void)
 	bool use_charge = TRUE;
 
 	cptr q, s;
+
+        int tmpval;
 
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
@@ -2797,17 +2715,18 @@ void do_cmd_zap_rod(void)
 	}
 
 	/* Still charging */
-	if (o_ptr->pval)
+        if ((o_ptr->pval) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number)))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
 		return;
 	}
 
+        /* Store pval */
+        tmpval = o_ptr->pval;
 
 	/* Sound */
 	sound(MSG_ZAP);
-
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -3088,13 +3007,29 @@ void do_cmd_zap_rod(void)
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)
 	{
-		o_ptr->pval = 0;
+                /* Restore charge */
+                o_ptr->pval = tmpval;
+
 		return;
 	}
 
+	/* Hack -- check if we are stacking rods */
+        if ((o_ptr->pval > 0) && (!(tmpval) || stack_force_times))
+	{
+		/* Hack -- one more rod charging */
+		if (o_ptr->pval) o_ptr->stackc++;
+
+                /* Reset stack count */
+                if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+		/* Hack -- always use maximum timeout */
+		if (tmpval > o_ptr->pval) o_ptr->pval = tmpval;
+
+		return;
+	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
+        if ((item >= 0) && (o_ptr->number > 1) && (o_ptr->pval > 0))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -3108,17 +3043,25 @@ void do_cmd_zap_rod(void)
 		/* Modify quantity */
 		i_ptr->number = 1;
 
-		/* Restore "charge" */
-		o_ptr->pval = 0;
+                /* Clear stack counter */
+                i_ptr->stackc = 0;
+
+                /* Restore "charge" */
+                o_ptr->pval = tmpval;
 
 		/* Unstack the used item */
 		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
+
+                /* Reset the stack if required */
+                if (o_ptr->stackc == o_ptr->number) o_ptr->stackc = 0;
+
+                p_ptr->total_weight -= i_ptr->weight;
 		item = inven_carry(i_ptr);
 
 		/* Message */
 		msg_print("You unstack your rod.");
 	}
+
 }
 
 
