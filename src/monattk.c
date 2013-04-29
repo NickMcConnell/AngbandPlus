@@ -344,7 +344,6 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
     s32b gold;
 
     object_type *o_ptr;
-    object_kind *k_ptr;
     feature_type *f_ptr = &f_info[cave_feat[y][x]];
 
     char o_name[120];
@@ -834,7 +833,6 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 
 		    /* Obtain the item */
 		    o_ptr = &p_ptr->inventory[i];
-		    k_ptr = &k_info[o_ptr->k_idx];
 
 		    /* use "tmp" to decide if a item can be uncharged.  By
 		     * default, assume it can't. */
@@ -1053,7 +1051,6 @@ bool make_attack_normal(monster_type * m_ptr, int y, int x)
 		     * timeouts or charges between those stolen and those
 		     * missed. -LM- */
 		    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
-			k_ptr = &k_info[o_ptr->k_idx];
 			i_ptr->pval = o_ptr->pval / o_ptr->number;
 			o_ptr->pval -= i_ptr->pval;
 		    }
@@ -3932,11 +3929,10 @@ bool make_attack_ranged(monster_type * m_ptr, int attack)
 	    } else {
 		/* If the old monster wasn't racial, we need a race */
 		if (!(rf_has(r_ptr->flags, RF_RACIAL))) {
-		    temp = randint0(race_prob[p_ptr->stage]
-				    [z_info->p_max - 1]);
+		    temp = randint0(race_prob[z_info->p_max - 1][p_ptr->stage]);
 
 		    for (k = 0; k < z_info->p_max; k++)
-			if (race_prob[p_ptr->stage][k] > temp) {
+			if (race_prob[k][p_ptr->stage] > temp) {
 			    m_ptr->p_race = k;
 			    break;
 			}

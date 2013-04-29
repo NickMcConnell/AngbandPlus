@@ -57,13 +57,6 @@ bool word_recall(int v)
  */
 void check_experience(void)
 {
-    int i;
-
-
-    /* Note current level */
-    i = p_ptr->lev;
-
-
     /* Hack -- lower limit */
     if (p_ptr->exp < 0)
 	p_ptr->exp = 0;
@@ -694,7 +687,8 @@ bool get_rep_dir(int *dp)
 	ke = inkey_ex();
 	inkey_scan = SCAN_OFF;
 
-	if (ke.type == EVT_KBRD && target_dir(ke.key) == 0) {
+	if (ke.type == EVT_NONE || 
+	    (ke.type == EVT_KBRD && target_dir(ke.key) == 0)) {
 	    prt("Direction or <click> (Escape to cancel)? ", 0, 0);
 	    ke = inkey_ex();
 	}

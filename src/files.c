@@ -37,122 +37,6 @@
 #include "ui-menu.h"
 
 
-#ifdef CHECK_TIME
-
-/**
- * Operating hours for ANGBAND (defaults to non-work hours)
- */
-static char days[7][29] = {
-    "SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
-    "MON:XXXXXXXX.........XXXXXXX",
-    "TUE:XXXXXXXX.........XXXXXXX",
-    "WED:XXXXXXXX.........XXXXXXX",
-    "THU:XXXXXXXX.........XXXXXXX",
-    "FRI:XXXXXXXX.........XXXXXXX",
-    "SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
-};
-
-/**
- * Restict usage (defaults to no restrictions)
- */
-static bool check_time_flag = FALSE;
-
-#endif
-
-
-/**
- * Handle CHECK_TIME
- */
-errr check_time(void)
-{
-
-#ifdef CHECK_TIME
-
-    time_t c;
-    struct tm *tp;
-
-    /* No restrictions */
-    if (!check_time_flag)
-	return (0);
-
-    /* Check for time violation */
-    c = time((time_t *) 0);
-    tp = localtime(&c);
-
-    /* Violation */
-    if (days[tp->tm_wday][tp->tm_hour + 4] != 'X')
-	return (1);
-
-#endif
-
-    /* Success */
-    return (0);
-}
-
-
-
-/**
- * Initialize CHECK_TIME
- */
-errr check_time_init(void)
-{
-
-#ifdef CHECK_TIME
-
-    FILE *fp;
-
-    char buf[1024];
-
-
-    /* Build the filename */
-    path_build(buf, 1024, ANGBAND_DIR_FILE, "time.txt");
-
-    /* Open the file */
-    fp = my_fopen(buf, "r");
-
-    /* No file, no restrictions */
-    if (!fp)
-	return (0);
-
-    /* Assume restrictions */
-    check_time_flag = TRUE;
-
-    /* Parse the file */
-    while (0 == my_fgets(fp, buf, 80)) {
-	/* Skip comments and blank lines */
-	if (!buf[0] || (buf[0] == '#'))
-	    continue;
-
-	/* Chop the buffer */
-	buf[29] = '\0';
-
-	/* Extract the info */
-	if (prefix(buf, "SUN:"))
-	    strcpy(days[0], buf);
-	if (prefix(buf, "MON:"))
-	    strcpy(days[1], buf);
-	if (prefix(buf, "TUE:"))
-	    strcpy(days[2], buf);
-	if (prefix(buf, "WED:"))
-	    strcpy(days[3], buf);
-	if (prefix(buf, "THU:"))
-	    strcpy(days[4], buf);
-	if (prefix(buf, "FRI:"))
-	    strcpy(days[5], buf);
-	if (prefix(buf, "SAT:"))
-	    strcpy(days[6], buf);
-    }
-
-    /* Close it */
-    my_fclose(fp);
-
-#endif
-
-    /* Success */
-    return (0);
-}
-
-
 /**
  * Hack -- pass color info around this file
  */
@@ -687,13 +571,11 @@ static const char *specialty_names[] = {
  */
 void display_player(int mode)
 {
-    int last_line = 0;
-
     /* Erase screen */
     clear_from(0);
 
     /* Make the array of lines */
-    last_line = make_dump(((mode == 0) ? pline0 : pline1), mode);
+    (void) make_dump(((mode == 0) ? pline0 : pline1), mode);
 
     /* Display the player */
     display_dump(((mode == 0) ? pline0 : pline1), 0, 25, 0);
@@ -2164,9 +2046,6 @@ bool show_file(const char *name, const char *what, int line, int mode)
     /* Sub-menu mouse position */
     int mouse[24];
 
-    /* Handle second half of screen */
-    bool line_finished = FALSE;
-
     /* mallocs */
     filename = malloc(MAX_BUF);
     path = malloc(MAX_BUF);
@@ -2377,16 +2256,8 @@ bool show_file(const char *name, const char *what, int line, int mode)
 	    /* Hack -- stop searching */
 	    find = NULL;
 
-	    /* Check if the line is finished */
-	    for (k = 0; k < 32; k++)
-		if (!buf[k])
-		    line_finished = TRUE;
-
 	    /* Dump the line */
 	    Term_putstr(0, i + 2, -1, TERM_WHITE, buf);
-
-	    /* Reset line */
-	    line_finished = FALSE;
 
 	    /* Hilight "shower" */
 	    if (shower[0]) {

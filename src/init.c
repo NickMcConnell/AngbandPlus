@@ -1960,10 +1960,8 @@ struct file_parser r_parser = {
 static enum parser_error parse_b_n(struct parser *p) {
     struct owner_type *h = parser_priv(p);
     struct owner_type *b = mem_alloc(sizeof *b);
-    int i;
     memset(b, 0, sizeof(*b));
     b->next = h;
-    i = parser_getuint(p, "shop");
     b->bidx = parser_getuint(p, "index");
     b->owner_name = string_make(parser_getstr(p, "name"));
     parser_setpriv(p, b);
@@ -1986,7 +1984,7 @@ struct parser *init_parse_b(void) {
     parser_setpriv(p, NULL);
 
     parser_reg(p, "V sym version", ignored);
-    parser_reg(p, "N uint shop uint index str name", parse_b_n);
+    parser_reg(p, "N uint index str name", parse_b_n);
     parser_reg(p, "I int race int gld int inf", parse_b_i);
     return p;
 }
@@ -3843,9 +3841,9 @@ static errr init_race_probs(void)
     /* General buffer */
     char buf[1024];
   
-    /* Make the array */  
+    /* Make the arrays */
     race_prob = C_ZNEW(32, u16b_stage);
-
+    dummy = C_ZNEW(32 * NUM_STAGES * sizeof(u16b), byte);
   
     /*** Load the binary image file ***/
   
@@ -3860,10 +3858,19 @@ static errr init_race_probs(void)
     {
 	/* Attempt to parse the "raw" file */
 	/* Read in the array */
-	file_read(fd, (char *)race_prob, 32 * sizeof(u16b_stage));
+	file_read(fd, (char *)dummy, 32 * NUM_STAGES * sizeof(u16b));
       
 	/* Close it */
 	file_close(fd);
+
+	for (i = 0; i < NUM_STAGES; i++)
+	{
+	    for (j = 0; j < 32; j++)
+	    {
+		int k = NUM_STAGES * j + 2 * i;
+		race_prob[j][i] = (u16b) ((dummy[k] << 8) | dummy[k + 1]);
+	    }
+	}
     }
   
     /* Do the matrix calculations? */
@@ -3952,20 +3959,20 @@ static errr init_race_probs(void)
 		/* Nobody lives nowhere */
 		if (stage_map[i][LOCALITY] == NOWHERE)
 		{
-		    race_prob[i][j] = 0;
+		    race_prob[j][i] = 0;
 		    continue;
 		}
 	      
 		/* Invalid race */
 		if (j >= z_info->p_max) 
 		{
-		    race_prob[i][j] = 0;
+		    race_prob[j][i] = 0;
 		    continue;
 		}
 	      
 		/* Enter the cumulative probability */
 		prob += 1 + stage_path[towns[p_info[j].hometown]][i];
-		race_prob[i][j] = prob;
+		race_prob[j][i] = prob;
 	    } 
 	}
       
@@ -3995,6 +4002,12 @@ static errr init_race_probs(void)
 		/* Complain */
 		plog_fmt("Cannot create the '%s' file!", buf);
 		
+		/* Free the temporary arrays */
+		FREE(temp_path);
+		FREE(adjacency);
+		FREE(stage_path);
+		FREE(dummy);
+
 		/* Continue */
 		return (0);
 	    }
@@ -4018,15 +4031,32 @@ static errr init_race_probs(void)
 	    /* Complain */
 	    plog_fmt("Cannot write the '%s' file!", buf);
 	  
+	    /* Free the temporary arrays */
+	    FREE(temp_path);
+	    FREE(adjacency);
+	    FREE(stage_path);
+	    FREE(dummy);
+
 	    /* Continue */
 	    return (0);
+	}
+
+	/* Fill the dummy array */
+	for (i = 0; i < NUM_STAGES; i++)
+	{
+	    for (j = 0; j < 32; j++)
+	    {
+		int k = NUM_STAGES * j + 2 * i;
+		dummy[k] = (byte) ((race_prob[j][i] >> 8) & 0xFF);
+		dummy[k + 1] = (byte) (race_prob[j][i] & 0xFF);
+	    }
 	}
       
 	/* Dump to the file */
 	if (fd)
 	{
 	    /* Dump it */
-	    file_write(fd, (const char *)race_prob, 32 * sizeof(u16b_stage));
+	    file_write(fd, (const char *)dummy, 32 * NUM_STAGES * sizeof(u16b));
 
 	    /* Close */
 	    file_close(fd);
@@ -4035,6 +4065,7 @@ static errr init_race_probs(void)
 	FREE(temp_path);
 	FREE(adjacency);
 	FREE(stage_path);
+	FREE(dummy);
     }
   
     return 0;     
