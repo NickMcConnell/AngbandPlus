@@ -6,7 +6,7 @@
 
 extern WINCEGLOBALS g_g;
 
-extern cptr ANGBAND_DIR_XTRA_GRAF;
+extern char *ANGBAND_DIR_XTRA_GRAF;
 
 #define SHGetSubMenu(hWndMB,ID_MENU) (HMENU)SendMessage((hWndMB), SHCMBM_GETSUBMENU, (WPARAM)0, (LPARAM)ID_MENU);
 

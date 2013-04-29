@@ -16,7 +16,7 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
+char *copyright[5] =
   {
     "Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
     "",
@@ -129,6 +129,8 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+u16b group_id = 1;              /* Number of group IDs allocated */    
+
 /*
  * Height of dungeon map on screen.
  * Moved to defines.h -NRM-
@@ -180,12 +182,12 @@ s16b macro__num;
 /*
  * Array of macro patterns [MACRO_MAX]
  */
-cptr *macro__pat;
+char **macro__pat;
 
 /*
  * Array of macro actions [MACRO_MAX]
  */
-cptr *macro__act;
+char **macro__act;
 
 
 /*
@@ -196,7 +198,7 @@ s16b quark__num = 1;
 /*
  * The array[QUARK_MAX] of pointers to the quarks
  */
-cptr *quark__str;
+char **quark__str;
 
 
 /*
@@ -265,11 +267,11 @@ char angband_term_name[TERM_WIN_MAX][16] =
 
 
 int max_macrotrigger = 0;
-cptr macro_template = NULL;
-cptr macro_modifier_chr;
-cptr macro_modifier_name[MAX_MACRO_MOD];
-cptr macro_trigger_name[MAX_MACRO_TRIGGER];
-cptr macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
+char *macro_template = NULL;
+char *macro_modifier_chr;
+char *macro_modifier_name[MAX_MACRO_MOD];
+char *macro_trigger_name[MAX_MACRO_TRIGGER];
+char *macro_trigger_keycode[2][MAX_MACRO_TRIGGER];
 
 
 
@@ -378,6 +380,18 @@ u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
 
+/* 
+ * Arrays[NUM_STAGES][NUM_STAGES] of numbers of paths between nearby stages
+ */
+u16b (*adjacency)[NUM_STAGES];
+u16b (*stage_path)[NUM_STAGES];
+u16b (*temp_path)[NUM_STAGES];
+
+/* 
+ * Array[NUM_STAGES][32] of racial probability boosts for each stage; will need
+ * to be expanded if z_info->p_max goes above 32.
+ */
+u16b (*race_prob)[32];
 
 /*
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)
@@ -551,7 +565,7 @@ char macro_buffer[1024];
 /*
  * Keymaps for each "mode" associated with each keypress.
  */
-cptr keymap_act[KEYMAP_MODES][256];
+char *keymap_act[KEYMAP_MODES][256];
 
 
 
@@ -705,91 +719,99 @@ char *flavor_text;
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
-cptr ANGBAND_SYS = "xxx";
+const char *ANGBAND_SYS = "xxx";
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-cptr ANGBAND_GRAF = "old";
+const char *ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
-cptr ANGBAND_DIR;
+char *ANGBAND_DIR;
 
 /*
  * High score files (binary)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_APEX;
+char *ANGBAND_DIR_APEX;
 
 /*
  * Bone files for player ghosts (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_BONE;
+char *ANGBAND_DIR_BONE;
 
 /*
  * Binary image files for the "*_info" arrays (binary)
  * These files are not portable between platforms
  */
-cptr ANGBAND_DIR_DATA;
+char *ANGBAND_DIR_DATA;
 
 /*
  * Textual template files for the "*_info" arrays (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_EDIT;
+char *ANGBAND_DIR_EDIT;
 
 /*
  * Script files
  * These files are portable between platforms.
  */
-cptr ANGBAND_DIR_SCRIPT;
+char *ANGBAND_DIR_SCRIPT;
 
 /*
  * Various extra files (ascii)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_FILE;
+char *ANGBAND_DIR_FILE;
 
 /*
  * Help files (normal) for the online help (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_HELP;
+char *ANGBAND_DIR_HELP;
 
 /*
  * Miscellanious text files, also contains any spoilers.
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_INFO;
+char *ANGBAND_DIR_INFO;
 
 /*
  * Standard "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_PREF;
+char *ANGBAND_DIR_PREF;
 
 /*
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_SAVE;
+char *ANGBAND_DIR_SAVE;
 
 /*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_USER;
+char *ANGBAND_DIR_USER;
 
 /*
  * Various extra files (binary)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_XTRA;
+char *ANGBAND_DIR_XTRA;
+
+/* 
+ * Various xtra/ subdirectories.
+ */
+char *ANGBAND_DIR_XTRA_FONT;
+char *ANGBAND_DIR_XTRA_GRAF;
+char *ANGBAND_DIR_XTRA_SOUND;
+char *ANGBAND_DIR_XTRA_HELP;
 
 
 /*
@@ -838,14 +860,14 @@ bool (*get_obj_num_hook)(int k_idx);
 /*
  * Hack - the destination file for text_out_to_file.
  */
-FILE *text_out_file = NULL;
+ang_file *text_out_file = NULL;
 
 
 /*
  * Hack -- function hook to output (colored) text to the
  * screen or to a file.
  */
-void (*text_out_hook)(byte a, cptr str);
+void (*text_out_hook)(byte a, char *str);
 
 
 /*
@@ -869,7 +891,7 @@ int dump_row = 0;
 /*
  * Hack - the destination file for dump_line_file.
  */
-FILE *dump_out_file = NULL;
+ang_file *dump_out_file = NULL;
 
 /*
  * Hack - the destination address for  dump_line_mem.
@@ -895,7 +917,7 @@ char_attr_line *pline1;
 /*
  * The "highscore" file descriptor, if available.
  */
-int highscore_fd = -1;
+ang_file *highscore_fd;
 
 /*
  * Themed levels generate their own feeling mesaages. -LM-
@@ -956,13 +978,14 @@ byte player_is_crossing;
 
 
 /*
- * Two variables that limit rogue stealing and creation of traps.  The 
- * third prevents Priests from using the "sea of runes" trick.  
- * Cleared when a level is created. -LM-
+ * Two variables that limit rogue stealing and creation of traps.  
+ * One array that limits the number of runes of any type.
+ * Mana reserve for runes of mana.
  */
 byte number_of_thefts_on_level;
 byte num_trap_on_level;
-byte num_glyph_on_level;
+byte num_runes_on_level[MAX_RUNE];
+int mana_reserve = 0;
 
 
 /* XXX Mega-Hack - See main-win.c */

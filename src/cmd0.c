@@ -86,7 +86,6 @@ static command_type cmd_action[] =
 /* Item use commands */
 static command_type cmd_item_use[] =
 {
-  //{ "Handle an item (automatic)", 'h', do_cmd_handle},
   { "Fire your missile weapon",   'f', do_cmd_fire },
   { "Throw an item",              'v', do_cmd_throw },
   { "Read a scroll",              'r', do_cmd_read_scroll },
@@ -420,7 +419,7 @@ void do_cmd_show_obj(void)
     }
 
   /* Activate equipment */
-  if ((object_known_p(o_ptr)) && (o_ptr->xtra1 == OBJECT_XTRA_TYPE_ACTIVATION)
+  if ((object_known_p(o_ptr)) && (o_ptr->activation)
       && (item >= INVEN_WIELD))
     {
       comm[poss] = 'A';
@@ -612,20 +611,16 @@ static bool item_tester_hook_handle(object_type *o_ptr)
   s16b slot = wield_slot(o_ptr);
   
   /* If the object kind is equippable at all, then compare item in equipment 
-   *slot with item to test - if the pointers are equal, it's the same item */
+   * slot with item to test - if the pointers are equal, it's the same item */
   if ((slot >= INVEN_WIELD) && (&inventory[slot] == o_ptr))
     {
       /* The item is equipped. Test if players knows that it can be activated */
-      u32b f1, f2, f3;
       
       /* Not known */
       if (!object_known_p(o_ptr)) return (FALSE);
       
-      /* Extract the flags */
-      object_flags(o_ptr, &f1, &f2, &f3);
-      
       /* Check activation flag */
-      if (f3 & (TR3_ACTIVATE)) return (TRUE);
+      if (o_ptr->activation) return (TRUE);
       
       /* Assume not */
       return (FALSE);

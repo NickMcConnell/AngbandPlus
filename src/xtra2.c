@@ -1786,6 +1786,7 @@ bool set_food(int v)
 	  /* Fainting / Starving */
 	case 0:
 	  {
+	    sound(MSG_HUNGRY);
 	    msg_print("You are getting faint from hunger!");
 	    break;
 	  }
@@ -1793,6 +1794,7 @@ bool set_food(int v)
 	  /* Weak */
 	case 1:
 	  {
+	    sound(MSG_HUNGRY);
 	    msg_print("You are getting weak from hunger!");
 	    break;
 	  }
@@ -1800,6 +1802,7 @@ bool set_food(int v)
 	  /* Hungry */
 	case 2:
 	  {
+	    sound(MSG_HUNGRY);
 	    msg_print("You are getting hungry.");
 	    break;
 	  }
@@ -1807,6 +1810,7 @@ bool set_food(int v)
 	  /* Normal */
 	case 3:
 	  {
+	    sound(MSG_NOTICE);
 	    msg_print("You are no longer full.");
 	    break;
 	  }
@@ -1814,6 +1818,7 @@ bool set_food(int v)
 	  /* Full */
 	case 4:
 	  {
+	    sound(MSG_NOTICE);
 	    msg_print("You are no longer gorged.");
 	    break;
 	  }
@@ -1933,7 +1938,7 @@ void check_experience(void)
 	}
       
       /* Sound */
-      sound(SOUND_LEVEL);
+      sound(MSG_LEVEL);
       
       /* Message */
       message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", 
@@ -2141,6 +2146,17 @@ void monster_death(int m_idx)
   object_type *i_ptr;
   object_type object_type_body;
   
+  /* If this monster was a group leader, others become leaderless */
+  for (i = m_max - 1; i >= 1; i--)
+    {
+      /* Access the monster */
+      monster_type *n_ptr = &m_list[i];
+
+      /* Check if this was the leader */
+      if (n_ptr->group_leader == m_idx) n_ptr->group_leader = 0;
+    }
+
+
   
   /* Get the location */
   y = m_ptr->fy;
@@ -2177,41 +2193,63 @@ void monster_death(int m_idx)
   m_ptr->hold_o_idx = 0;
   
   
-  /* Mega-Hack -- drop "winner" treasures */
+  /* Mega-Hack -- drop guardian treasures */
   if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
     {
-      /* Get local object */
-      i_ptr = &object_type_body;
-      
-      /* Mega-Hack -- Prepare to make "Grond" */
-      object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
-      
-      /* Mega-Hack -- Mark this item as "Grond" */
-      i_ptr->name1 = ART_GROND;
-      
-      /* Mega-Hack -- Actually create "Grond" */
-      apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
-      
-      /* Drop it in the dungeon */
-      drop_near(i_ptr, -1, y, x);
-      
-      
-      /* Get local object */
-      i_ptr = &object_type_body;
-      
-      /* Mega-Hack -- Prepare to make "Morgoth" */
-      object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-      
-      /* Mega-Hack -- Mark this item as "Morgoth" */
-      i_ptr->name1 = ART_MORGOTH;
-      
-      /* Mega-Hack -- Actually create "Morgoth" */
-      apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
-      
-      /* Drop it in the dungeon */
-      drop_near(i_ptr, -1, y, x);
-    }
-  
+      /* Morgoth */
+      if (r_ptr->level == 100)
+	{
+	  /* Get local object */
+	  i_ptr = &object_type_body;
+	  
+	  /* Mega-Hack -- Prepare to make "Grond" */
+	  object_prep(i_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+	  
+	  /* Mega-Hack -- Mark this item as "Grond" */
+	  i_ptr->name1 = ART_GROND;
+	  
+	  /* Mega-Hack -- Actually create "Grond" */
+	  apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+	  
+	  /* Drop it in the dungeon */
+	  drop_near(i_ptr, -1, y, x);
+	  
+	  
+	  /* Get local object */
+	  i_ptr = &object_type_body;
+	  
+	  /* Mega-Hack -- Prepare to make "Morgoth" */
+	  object_prep(i_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
+	  
+	  /* Mega-Hack -- Mark this item as "Morgoth" */
+	  i_ptr->name1 = ART_MORGOTH;
+	  
+	  /* Mega-Hack -- Actually create "Morgoth" */
+	  apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+	  
+	  /* Drop it in the dungeon */
+	  drop_near(i_ptr, -1, y, x);
+	}
+
+      /* Ungoliant */
+      else if (r_ptr->level == 70)
+	{
+	  /* Get local object */
+	  i_ptr = &object_type_body;
+	  
+	  /* Mega-Hack -- Prepare to make "Ungoliant" */
+	  object_prep(i_ptr, lookup_kind(TV_CLOAK, SV_UNLIGHT_CLOAK));
+	  
+	  /* Mega-Hack -- Mark this item as "Ungoliant" */
+	  i_ptr->name1 = ART_UNGOLIANT;
+	  
+	  /* Mega-Hack -- Actually create "Ungoliant" */
+	  apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
+	  
+	  /* Drop it in the dungeon */
+	  drop_near(i_ptr, -1, y, x);
+	}
+    } 
   
   /* Determine how much we can drop */
   if ((r_ptr->flags1 & (RF1_DROP_60)) && (rand_int(100) < 60)) number++;
@@ -2316,14 +2354,14 @@ void monster_death(int m_idx)
       char note2[120];
       char real_name[120];
       
-      /*write note for player ghosts*/
+      /* write note for player ghosts */
       if (r_ptr->flags2 & (RF2_PLAYER_GHOST))
 	{
 	  my_strcpy(note2, format("Destroyed %^s, the %^s", ghost_name, 
 				  r_name + r_ptr->name), sizeof (note2));
 	}
       
-      /*All other uniques*/
+      /* All other uniques */
       else
 	{
 	  /* Get the monster's real name for the notes file */
@@ -2363,7 +2401,7 @@ void monster_death(int m_idx)
     build_quest_stairs(y, x, "portal"); 
   
   /* or a path out of Nan Dungortheb */
-  else if (r_ptr->level == 70)
+  else if ((r_ptr->level == 70) && (p_ptr->depth == 70))
     {
       /* Make a path */
       for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)
@@ -2484,6 +2522,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	  /* Do the change */
 	  m_ptr->r_idx = m_ptr->orig_idx;
 	  m_ptr->orig_idx = 0;
+	  m_ptr->p_race = m_ptr->old_p_race;
+	  m_ptr->old_p_race = NON_RACIAL;
 	  r_ptr = &r_info[m_ptr->r_idx];
 
 	  /* Note the change */
@@ -2494,7 +2534,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
       monster_desc(m_name, m_ptr, 0);
       
       /* Make a sound */
-      sound(SOUND_KILL);
+      sound(MSG_KILL);
       
       /* Specialty Ability SOUL_SIPHON */
       if ((check_ability(SP_SOUL_SIPHON)) && 
@@ -2609,7 +2649,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
       (*fear) = FALSE;
       
       /* Monster is dead */
-		return (TRUE);
+      return (TRUE);
     }
   
   
@@ -2942,6 +2982,39 @@ cptr look_mon_desc(int m_idx)
     return ("aldd");
   else
     return (living ? "almost dead" : "almost destroyed");
+}
+
+/*
+ * Monster attitude description
+ */
+cptr look_mon_host(int m_idx)
+{
+  monster_type *m_ptr = &m_list[m_idx];
+  monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+  /* Non-racial - irrelevant */
+  if (!(r_ptr->flags3 & RF3_RACIAL))
+    return ("");
+  
+  /* Hostile monsters */
+  if (m_ptr->hostile < 0)
+    {
+      /* No damage */
+      if (small_screen)
+	return (",host");
+      else
+	return (",hostile");
+    }
+  
+  /* Not hostile to the player */
+  else 
+    {
+      if (small_screen)
+	return (",neut");
+      else
+	return (",neutral");
+    }
+  
 }
 
 
@@ -3825,9 +3898,10 @@ static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 		    {
 		      /* Describe, and prompt for recall */
 		      if (small_screen) cut_down(m_name);
-		      sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
+		      sprintf(out_val, "%s%s%s%s (%s%s) [r,%s]",
 			      s1, s2, s3, m_name, 
-			      look_mon_desc(cave_m_idx[y][x]), info);
+			      look_mon_desc(cave_m_idx[y][x]), 
+			      look_mon_host(cave_m_idx[y][x]), info);
 		      prt(out_val, 0, 0);
 		      
 		      /* Place cursor */
@@ -4291,15 +4365,9 @@ bool target_set_interactive(int mode)
   char info[80];
   
   /* These are used for displaying the path to the target */
-#ifdef _WIN32_WCE
   u16b *path = malloc(MAX_RANGE * sizeof(*path));
   char *path_char = malloc(MAX_RANGE * sizeof(*path_char));
   byte *path_attr = malloc(MAX_RANGE * sizeof(*path_attr));
-#else
-  u16b path[MAX_RANGE];
-  char path_char[MAX_RANGE];
-  byte path_attr[MAX_RANGE];
-#endif
   int max = 0;
   
   /* Cancel target */
@@ -4734,11 +4802,9 @@ bool target_set_interactive(int mode)
   /* Handle stuff */
   handle_stuff();
   
-#ifdef _WIN32_WCE
   free(path);
   free(path_char);
   free(path_attr);
-#endif
 
   /* Failure to set target */
   if (!p_ptr->target_set) 

@@ -156,9 +156,9 @@ void *mem_free(void *p);
 void *mem_realloc(void *p, size_t len);
 
 /* Create a "dynamic string" */
-extern cptr string_make(cptr str);
+extern char *string_make(const char *str);
 
 /* Free a string allocated with "string_make()" */
-extern errr string_free(cptr str);
+extern char *string_free(char *str);
 
 #endif /* INCLUDED_Z_VIRT_H */

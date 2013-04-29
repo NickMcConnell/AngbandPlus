@@ -37,10 +37,6 @@ static int initial_potential = 0;
 /* The maximum potential that that artifact could have possessed. */
 static int max_potential = 0;
 
-/* Two global variables to hold pval-dependant qualities. */
-static byte add_pval_later1 = 0;
-static byte add_pval_later2 = 0;
-
 /* Global variable indicating that the random naming routine is unavailable. */
 static bool find_all_names = FALSE;
 
@@ -81,9 +77,8 @@ static char *names[500];
 #define INFRA			12
 #define TUNNEL			13
 #define SPEED			14
-#define MIGHT2			15
+#define MIGHT			15
 #define SHOTS			16
-#define MIGHT1			17
 #define SLAY_ANIMAL		20
 #define SLAY_EVIL		21
 #define SLAY_UNDEAD		22
@@ -193,7 +188,7 @@ static bool take_money(bool on_credit, int cost)
 /* 
  * Grant the quality asked for, if the artifact can afford it.
  */
-static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
+static bool get_quality(bool on_credit, int purchase, int value, int a_idx)
 {
   artifact_type *a_ptr = &a_info[a_idx];
   int temp, i, choice;
@@ -203,9 +198,9 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
     {
     case ADD_STR:
       {
-	if (take_money(on_credit, (150 * pval) + (pval * pval * 8)))
+	if (take_money(on_credit, (150 * value) + (value * value * 8)))
 	  {
-	    a_ptr->flags1 |= TR1_STR;
+	    a_ptr->bonus_stat[A_STR] += value;
 	    return(TRUE);
 	  }
 	break;
@@ -214,17 +209,17 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (mp_ptr->spell_stat == A_WIS)
 	  {
-	    if (take_money(on_credit, (150 * pval) + (pval * pval * 8))) 
+	    if (take_money(on_credit, (150 * value) + (value * value * 8))) 
 	      {
-		a_ptr->flags1 |= TR1_WIS;
+		a_ptr->bonus_stat[A_WIS] += value;
 		return(TRUE);
 	      }
 	  }
 	else
 	  {
-	    if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+	    if (take_money(on_credit, (100 * value) + (value * value * 5))) 
 	      {
-		a_ptr->flags1 |= TR1_WIS;
+		a_ptr->bonus_stat[A_WIS] += value;
 		return(TRUE);
 	      }
 	  }
@@ -234,17 +229,17 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (mp_ptr->spell_stat == A_INT)
 	  {
-	    if (take_money(on_credit, (150 * pval) + (pval * pval * 8))) 
+	    if (take_money(on_credit, (150 * value) + (value * value * 8))) 
 	      {
-		a_ptr->flags1 |= TR1_INT;
+		a_ptr->bonus_stat[A_INT] += value;
 		return(TRUE);
 	      }
 	  }
 	else
 	  {
-	    if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+	    if (take_money(on_credit, (100 * value) + (value * value * 5))) 
 	      {
-		a_ptr->flags1 |= TR1_INT;
+		a_ptr->bonus_stat[A_INT] += value;
 		return(TRUE);
 	      }
 	  }
@@ -252,189 +247,171 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case ADD_DEX:
       {
-	if (take_money(on_credit, (130 * pval) + (pval * pval * 7))) 
+	if (take_money(on_credit, (130 * value) + (value * value * 7))) 
 	  {
-	    a_ptr->flags1 |= TR1_DEX;
+	    a_ptr->bonus_stat[A_DEX] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case ADD_CON:
       {
-	if (take_money(on_credit, (130 * pval) + (pval * pval * 7))) 
+	if (take_money(on_credit, (130 * value) + (value * value * 7))) 
 	  {
-	    a_ptr->flags1 |= TR1_CON;
+	    a_ptr->bonus_stat[A_CON] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case ADD_CHR:
       {
-	if (take_money(on_credit, (40 * pval) + (pval * pval * 2))) 
+	if (take_money(on_credit, (40 * value) + (value * value * 2))) 
 	  {
-	    a_ptr->flags1 |= TR1_CHR;
+	    a_ptr->bonus_stat[A_CHR] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case MAGIC_MASTERY:
       {
-	if (take_money(on_credit, (20 * pval) + (pval * pval * 1))) 
+	if (take_money(on_credit, (20 * value) + (value * value * 1))) 
 	  {
-	    a_ptr->flags1 |= TR1_MAGIC_MASTERY;
+	    a_ptr->bonus_other[P_BONUS_M_MASTERY] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case STEALTH:
       {
-	if (take_money(on_credit, (100 * pval) + (pval * pval * 5))) 
+	if (take_money(on_credit, (100 * value) + (value * value * 5))) 
 	  {
-	    a_ptr->flags1 |= TR1_STEALTH;
+	    a_ptr->bonus_other[P_BONUS_STEALTH] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SEARCH:
       {
-	if (take_money(on_credit, (20 * pval) + (pval * pval * 1))) 
+	if (take_money(on_credit, (20 * value) + (value * value * 1))) 
 	  {
-	    a_ptr->flags1 |= TR1_SEARCH;
+	    a_ptr->bonus_other[P_BONUS_SEARCH] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case INFRA:
       {
-	if (take_money(on_credit, (15 * pval) + (pval * pval * 1))) 
+	if (take_money(on_credit, (15 * value) + (value * value * 1))) 
 	  {
-	    a_ptr->flags1 |= TR1_INFRA;
+	    a_ptr->bonus_other[P_BONUS_INFRA] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case TUNNEL:
       {
-	if (take_money(on_credit, (25 * pval) + (pval * pval * 1))) 
+	if (take_money(on_credit, (25 * value) + (value * value * 1))) 
 	  {
-	    a_ptr->flags1 |= TR1_TUNNEL;
+	    a_ptr->bonus_other[P_BONUS_TUNNEL] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SPEED:
       {
-	if (take_money(on_credit, (360 * pval) + (pval * pval * 18))) 
+	if (take_money(on_credit, (360 * value) + (value * value * 18))) 
 	  {
-	    a_ptr->flags1 |= TR1_SPEED;
+	    a_ptr->bonus_other[P_BONUS_SPEED] += value;
 	    return(TRUE);
 	  }
 	break;
       }
-    case MIGHT2:
+    case MIGHT:
       {
-	if (take_money(on_credit, 2500)) 
+	if (take_money(on_credit, 1250 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_MIGHT2;
+	    a_ptr->bonus_other[P_BONUS_MIGHT] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SHOTS:
       {
-	if (take_money(on_credit, 1500)) 
+	if (take_money(on_credit, 1500 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SHOTS;
-	    return(TRUE);
-	  }
-	break;
-      }
-    case MIGHT1:
-      {
-	if (take_money(on_credit, 1250)) 
-	  {
-	    a_ptr->flags1 |= TR1_MIGHT1;
+	    a_ptr->bonus_other[P_BONUS_SHOTS] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_ANIMAL:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 60 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_ANIMAL;
+	    a_ptr->multiple_slay[P_SLAY_ANIMAL] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_EVIL:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_EVIL;
+	    a_ptr->multiple_slay[P_SLAY_EVIL] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_UNDEAD:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 60 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_UNDEAD;
+	    a_ptr->multiple_slay[P_SLAY_UNDEAD] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_DEMON:
       {
-	if (take_money(on_credit, 500)) 
+	if (take_money(on_credit, 50 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_DEMON;
+	    a_ptr->multiple_slay[P_SLAY_DEMON] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_ORC:
       {
-	if (take_money(on_credit, 400)) 
+	if (take_money(on_credit, 40 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_ORC;
+	    a_ptr->multiple_slay[P_SLAY_ORC] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_TROLL:
       {
-	if (take_money(on_credit, 500)) 
+	if (take_money(on_credit, 50 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_TROLL;
+	    a_ptr->multiple_slay[P_SLAY_TROLL] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_GIANT:
       {
-	if (take_money(on_credit, 400)) 
+	if (take_money(on_credit, 40 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_GIANT;
+	    a_ptr->multiple_slay[P_SLAY_GIANT] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case SLAY_DRAGON:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 60 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_SLAY_DRAGON;
-	    return(TRUE);
-	  }
-	break;
-      }
-    case SLAY_KILL:
-      {
-	if (take_money(on_credit, 400)) 
-	  {
-	    a_ptr->flags1 |= TR1_SLAY_KILL;
+	    a_ptr->multiple_slay[P_SLAY_DRAGON] += value;
 	    return(TRUE);
 	  }
 	break;
@@ -443,52 +420,52 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 500)) 
 	  {
-	    a_ptr->flags1 |= TR1_PERFECT_BALANCE;
+	    a_ptr->flags_obj |= OF_PERFECT_BALANCE;
 	    return(TRUE);
 	  }
 	break;
       }
     case BRAND_POIS:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_BRAND_POIS;
+	    a_ptr->multiple_brand[P_BRAND_POIS] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case BRAND_ACID:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_BRAND_ACID;
+	    a_ptr->multiple_brand[P_BRAND_ACID] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case BRAND_ELEC:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_BRAND_ELEC;
+	    a_ptr->multiple_brand[P_BRAND_ELEC] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case BRAND_FIRE:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_BRAND_FIRE;
+	    a_ptr->multiple_brand[P_BRAND_FIRE] += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case BRAND_COLD:
       {
-	if (take_money(on_credit, 600)) 
+	if (take_money(on_credit, 100 * value)) 
 	  {
-	    a_ptr->flags1 |= TR1_BRAND_COLD;
+	    a_ptr->multiple_brand[P_BRAND_COLD] += value;
 	    return(TRUE);
 	  }
 	break;
@@ -497,7 +474,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 550)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_STR;
+	    a_ptr->flags_obj |= OF_SUSTAIN_STR;
 	    return(TRUE);
 	  }
 	break;
@@ -506,7 +483,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 350)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_WIS;
+	    a_ptr->flags_obj |= OF_SUSTAIN_WIS;
 	    return(TRUE);
 	  }
 	break;
@@ -515,7 +492,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 350)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_INT;
+	    a_ptr->flags_obj |= OF_SUSTAIN_INT;
 	    return(TRUE);
 	  }
 	break;
@@ -524,7 +501,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 350)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_DEX;
+	    a_ptr->flags_obj |= OF_SUSTAIN_DEX;
 	    return(TRUE);
 	  }
 	break;
@@ -533,7 +510,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 350)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_CON;
+	    a_ptr->flags_obj |= OF_SUSTAIN_CON;
 	    return(TRUE);
 	  }
 	break;
@@ -542,7 +519,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 50)) 
 	  {
-	    a_ptr->flags2 |= TR2_SUST_CHR;
+	    a_ptr->flags_obj |= OF_SUSTAIN_CHR;
 	    return(TRUE);
 	  }
 	break;
@@ -551,7 +528,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 3500)) 
 	  {
-	    a_ptr->flags2 |= TR2_IM_ACID;
+	    a_ptr->percent_res[P_RES_ACID] = RES_BOOST_IMMUNE;
 	    return(TRUE);
 	  }
 	break;
@@ -560,7 +537,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 2750)) 
 	  {
-	    a_ptr->flags2 |= TR2_IM_ELEC;
+	    a_ptr->percent_res[P_RES_ELEC] = RES_BOOST_IMMUNE;
 	    return(TRUE);
 	  }
 	break;
@@ -569,7 +546,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 3250)) 
 	  {
-	    a_ptr->flags2 |= TR2_IM_FIRE;
+	    a_ptr->percent_res[P_RES_FIRE] = RES_BOOST_IMMUNE;
 	    return(TRUE);
 	  }
 	break;
@@ -578,7 +555,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 2750)) 
 	  {
-	    a_ptr->flags2 |= TR2_IM_COLD;
+	    a_ptr->percent_res[P_RES_COLD] = RES_BOOST_IMMUNE;
 	    return(TRUE);
 	  }
 	break;
@@ -588,7 +565,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_ACID;
 	    a_ptr->percent_res[P_RES_ACID] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -599,7 +575,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_ELEC;
 	    a_ptr->percent_res[P_RES_ELEC] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -610,7 +585,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_FIRE;
 	    a_ptr->percent_res[P_RES_FIRE] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -621,7 +595,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_COLD;
 	    a_ptr->percent_res[P_RES_COLD] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -632,7 +605,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 1200 - 100 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_POIS;
 	    a_ptr->percent_res[P_RES_POIS] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -642,7 +614,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 500)) 
 	  {
-	    a_ptr->flags3 |= TR3_FEARLESS;
+	    a_ptr->flags_obj |= OF_FEARLESS;
 	    return(TRUE);
 	  }
 	break;
@@ -652,7 +624,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 750 - 60 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_LITE;
 	    a_ptr->percent_res[P_RES_LITE] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -663,7 +634,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 750 - 60 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_DARK;
 	    a_ptr->percent_res[P_RES_DARK] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -673,7 +643,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 650)) 
 	  {
-	    a_ptr->flags3 |= TR3_SEEING;
+	    a_ptr->flags_obj |= OF_SEEING;
 	    return(TRUE);
 	  }
 	break;
@@ -683,7 +653,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 900 - 75 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_CONFU;
 	    a_ptr->percent_res[P_RES_CONFU] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -694,7 +663,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_SOUND;
 	    a_ptr->percent_res[P_RES_SOUND] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -705,7 +673,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_SHARD;
 	    a_ptr->percent_res[P_RES_SHARD] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -716,7 +683,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 600 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_NEXUS;
 	    a_ptr->percent_res[P_RES_NEXUS] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -727,7 +693,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 1000 - 80 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_NETHR;
 	    a_ptr->percent_res[P_RES_NETHR] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -738,7 +703,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 1000 - 80 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_CHAOS;
 	    a_ptr->percent_res[P_RES_CHAOS] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -749,7 +713,6 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	choice = rand_int(6);
 	if (take_money(on_credit, 1200 - 100 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_DISEN;
 	    a_ptr->percent_res[P_RES_DISEN] = 40 + 5 * choice;
 	    return(TRUE);
 	  }
@@ -759,7 +722,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 300)) 
 	  {
-	    a_ptr->flags3 |= TR3_SLOW_DIGEST;
+	    a_ptr->flags_obj |= OF_SLOW_DIGEST;
 	    return(TRUE);
 	  }
 	break;
@@ -768,7 +731,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 300)) 
 	  {
-	    a_ptr->flags3 |= TR3_FEATHER;
+	    a_ptr->flags_obj |= OF_FEATHER;
 	    return(TRUE);
 	  }
 	break;
@@ -777,7 +740,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 500)) 
 	  {
-	    a_ptr->flags3 |= TR3_LITE;
+	    a_ptr->flags_obj |= OF_LITE;
 	    return(TRUE);
 	  }
 	break;
@@ -786,7 +749,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 500)) 
 	  {
-	    a_ptr->flags3 |= TR3_REGEN;
+	    a_ptr->flags_obj |= OF_REGEN;
 	    return(TRUE);
 	  }
 	break;
@@ -795,7 +758,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 2500)) 
 	  {
-	    a_ptr->flags3 |= TR3_TELEPATHY;
+	    a_ptr->flags_obj |= OF_TELEPATHY;
 	    return(TRUE);
 	  }
 	break;
@@ -804,7 +767,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 700)) 
 	  {
-	    a_ptr->flags3 |= TR3_SEE_INVIS;
+	    a_ptr->flags_obj |= OF_SEE_INVIS;
 	    return(TRUE);
 	  }
 	break;
@@ -813,7 +776,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 700)) 
 	  {
-	    a_ptr->flags3 |= TR3_FREE_ACT;
+	    a_ptr->flags_obj |= OF_FREE_ACT;
 	    return(TRUE);
 	  }
 	break;
@@ -822,7 +785,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 1400)) 
 	  {
-	    a_ptr->flags3 |= TR3_HOLD_LIFE;
+	    a_ptr->flags_obj |= OF_HOLD_LIFE;
 	    return(TRUE);
 	  }
 	break;
@@ -831,7 +794,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       {
 	if (take_money(on_credit, 0)) 
 	  {
-	    a_ptr->flags3 |= TR3_IMPACT;
+	    a_ptr->flags_obj |= OF_IMPACT;
 	    return(TRUE);
 	  }
 	break;
@@ -843,7 +806,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	  {
 	    if (take_money(on_credit, 400)) 
 	      {
-		a_ptr->flags3 |= TR3_BLESSED;
+		a_ptr->flags_obj |= OF_BLESSED;
 		return(TRUE);
 	      }
 	  }
@@ -851,7 +814,7 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	  {
 	    if (take_money(on_credit, 0)) 
 	      {
-		a_ptr->flags3 |= TR3_BLESSED;
+		a_ptr->flags_obj |= OF_BLESSED;
 		return(TRUE);
 	      }
 	  }
@@ -859,18 +822,18 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case ADD_AC:
       {
-	if (take_money(on_credit, pval * 40))
+	if (take_money(on_credit, value * 40))
 	  {
-	    a_ptr->to_a += pval;
+	    a_ptr->to_a += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case IMPROVE_BASE_AC:
       {
-	if (take_money(on_credit, pval * 40))
+	if (take_money(on_credit, value * 40))
 	  {
-	    a_ptr->ac += pval;
+	    a_ptr->ac += value;
 	    return(TRUE);
 	  }
 	break;
@@ -882,10 +845,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 	oldds = a_ptr->ds;
 
 	/* Allow a portion of the budget for improvements. 
-	 * Use "pval" to control fraction.
+	 * Use "value" to control fraction.
 	 */
-	temp = potential / pval;
-	if ((pval > 1) && (temp > 1000)) temp = 1000;
+	temp = potential / value;
+	if ((value > 1) && (temp > 1000)) temp = 1000;
 	
 	/* If credit is extended, guarantee something to work with. */
 	if (on_credit)
@@ -934,7 +897,8 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
 		temp -= 100 * a_ptr->dd;
 	      }
 	    /* SJGU Hack. Prevent any weapons getting crazy ds. Boo Hiss */
-	    /* Note that ENHANCE_DICE can potentially be called more than once though */
+	    /* Note that ENHANCE_DICE can potentially be called more than once 
+	       though */
 	    /* In which case, Happy Birthday! */
 	    if (a_ptr->ds >= 2 * oldds) break;
 	  }
@@ -946,29 +910,28 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case ADD_SKILL:
       {
-	if (take_money(on_credit, pval * 40))
+	if (take_money(on_credit, value * 40))
 	  {
-	    a_ptr->to_h += pval;
+	    a_ptr->to_h += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case ADD_DEADLINESS:
       {
-	if (take_money(on_credit, pval * 40))
+	if (take_money(on_credit, value * 40))
 	  {
-	    a_ptr->to_d += pval;
+	    a_ptr->to_d += value;
 	    return(TRUE);
 	  }
 	break;
       }
     case VUL_ACID:
       {
-	if (a_ptr->flags2 & TR2_RES_ACID) return(FALSE);
+	if (a_ptr->percent_res[P_RES_ACID] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_ACID;
 	    a_ptr->percent_res[P_RES_ACID] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -976,11 +939,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_ELEC:
       {
-	if (a_ptr->flags2 & TR2_RES_ELEC) return(FALSE);
+	if (a_ptr->percent_res[P_RES_ELEC] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_ELEC;
 	    a_ptr->percent_res[P_RES_ELEC] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -988,11 +950,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_FIRE:
       {
-	if (a_ptr->flags2 & TR2_RES_FIRE) return(FALSE);
+	if (a_ptr->percent_res[P_RES_FIRE] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_FIRE;
 	    a_ptr->percent_res[P_RES_FIRE] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1000,11 +961,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_COLD:
       {
-	if (a_ptr->flags2 & TR2_RES_COLD) return(FALSE);
+	if (a_ptr->percent_res[P_RES_COLD] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_COLD;
 	    a_ptr->percent_res[P_RES_COLD] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1012,11 +972,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_POIS:
       {
-	if (a_ptr->flags2 & TR2_RES_POIS) return(FALSE);
+	if (a_ptr->percent_res[P_RES_POIS] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 100 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_POIS;
 	    a_ptr->percent_res[P_RES_POIS] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1024,11 +983,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_LITE:
       {
-	if (a_ptr->flags2 & TR2_RES_LITE) return(FALSE);
+	if (a_ptr->percent_res[P_RES_LITE] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 60 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_LITE;
 	    a_ptr->percent_res[P_RES_LITE] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1036,11 +994,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_DARK:
       {
-	if (a_ptr->flags2 & TR2_RES_DARK) return(FALSE);
+	if (a_ptr->percent_res[P_RES_DARK] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 60 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_DARK;
 	    a_ptr->percent_res[P_RES_DARK] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1048,11 +1005,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_CONFU:
       {
-	if (a_ptr->flags2 & TR2_RES_CONFU) return(FALSE);
+	if (a_ptr->percent_res[P_RES_CONFU] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 75 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_CONFU;
 	    a_ptr->percent_res[P_RES_CONFU] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1060,11 +1016,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_SOUND:
       {
-	if (a_ptr->flags2 & TR2_RES_SOUND) return(FALSE);
+	if (a_ptr->percent_res[P_RES_SOUND] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_SOUND;
 	    a_ptr->percent_res[P_RES_SOUND] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1072,11 +1027,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_SHARD:
       {
-	if (a_ptr->flags2 & TR2_RES_SHARD) return(FALSE);
+	if (a_ptr->percent_res[P_RES_SHARD] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_SHARD;
 	    a_ptr->percent_res[P_RES_SHARD] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1084,11 +1038,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_NEXUS:
       {
-	if (a_ptr->flags2 & TR2_RES_NEXUS) return(FALSE);
+	if (a_ptr->percent_res[P_RES_NEXUS] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 50 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_NEXUS;
 	    a_ptr->percent_res[P_RES_NEXUS] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1096,11 +1049,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_NETHR:
       {
-	if (a_ptr->flags2 & TR2_RES_NETHR) return(FALSE);
+	if (a_ptr->percent_res[P_RES_NETHR] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 80 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_NETHR;
 	    a_ptr->percent_res[P_RES_NETHR] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1108,11 +1060,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_CHAOS:
       {
-	if (a_ptr->flags2 & TR2_RES_CHAOS) return(FALSE);
+	if (a_ptr->percent_res[P_RES_CHAOS] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 80 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_CHAOS;
 	    a_ptr->percent_res[P_RES_CHAOS] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1120,11 +1071,10 @@ static bool get_quality(bool on_credit, int purchase, int pval, int a_idx)
       }
     case VUL_DISEN:
       {
-	if (a_ptr->flags2 & TR2_RES_DISEN) return(FALSE);
+	if (a_ptr->percent_res[P_RES_DISEN] < RES_LEVEL_BASE) return(FALSE);
 	choice = rand_int(6);
 	if (take_money(on_credit, 0 - 100 * choice)) 
 	  {
-	    a_ptr->flags2 |= TR2_RES_DISEN;
 	    a_ptr->percent_res[P_RES_DISEN] = RES_LEVEL_BASE + 5 * choice;
 	    return(TRUE);
 	  }
@@ -1151,7 +1101,6 @@ static void initialize_artifact(int a_idx)
   
   int power_of_base_object = 0;
   int base_object_activation = 0;
-  int fudge = 0;
   
   
   object_kind *k_ptr;
@@ -1161,7 +1110,6 @@ static void initialize_artifact(int a_idx)
   /* Wipe the artifact completely. */
   a_ptr->tval = 0;
   a_ptr->sval = 0;
-  a_ptr->pval = 0;
   
   a_ptr->to_h = 0;
   a_ptr->to_d = 0;
@@ -1174,13 +1122,24 @@ static void initialize_artifact(int a_idx)
   a_ptr->weight = 0;
   a_ptr->cost = 0;
   
-  a_ptr->flags1 = 0;
-  a_ptr->flags2 = 0;
-  a_ptr->flags3 = 0;
+  a_ptr->flags_obj = 0;
+  a_ptr->flags_curse = 0;
   
   a_ptr->level = 0;
   a_ptr->rarity = 0;
   a_ptr->activation = 0;
+  
+  /* Default resists, bonuses, multiples */
+  for (i = 0; i < MAX_P_RES; i++)
+    a_ptr->percent_res[i] = RES_LEVEL_BASE;
+  for (i = 0; i < A_MAX; i++)
+    a_ptr->bonus_stat[i] = BONUS_BASE;
+  for (i = 0; i < MAX_P_BONUS; i++)
+    a_ptr->bonus_other[i] = BONUS_BASE;
+  for (i = 0; i < MAX_P_SLAY; i++)
+    a_ptr->multiple_slay[i] = MULTIPLE_BASE;
+  for (i = 0; i < MAX_P_BRAND; i++)
+    a_ptr->multiple_brand[i] = MULTIPLE_BASE;
   
   
   /* Assign a tval and sval.  If the base object is powerful, an amount to 
@@ -1393,22 +1352,19 @@ static void initialize_artifact(int a_idx)
       a_ptr->ds = k_ptr->ds;
       if (k_ptr->cost > 4999) a_ptr->cost = k_ptr->cost;
       a_ptr->weight = k_ptr->weight;
-      a_ptr->flags1 = k_ptr->flags1;
-      a_ptr->flags2 = k_ptr->flags2;
-      a_ptr->flags3 = k_ptr->flags3;
-
-      /* Allocate percentages to resistances */
+      a_ptr->flags_obj = k_ptr->flags_obj;
+      a_ptr->flags_curse = k_ptr->flags_curse;
       for (i = 0; i < MAX_P_RES; i++)
-	{
-	  /* Hack - avoid Fear and Blindness */
-	  if ((i == 5) || (i == 7)) fudge++;
-	  
-	  if (a_ptr->flags2 & (1L << (16 + i + fudge)))
-	    /* Base resist is 40% */
-	    a_ptr->percent_res[i] = RES_BOOST_NORMAL;
-	  else
-	    a_ptr->percent_res[i] = RES_LEVEL_BASE;
-	}
+	a_ptr->percent_res[i] = k_ptr->percent_res[i];
+      for (i = 0; i < A_MAX; i++)
+	a_ptr->bonus_stat[i] = k_ptr->bonus_stat[i];
+      for (i = 0; i < MAX_P_BONUS; i++)
+	a_ptr->bonus_other[i] = k_ptr->bonus_other[i];
+      for (i = 0; i < MAX_P_SLAY; i++)
+	a_ptr->multiple_slay[i] = k_ptr->multiple_slay[i];
+      for (i = 0; i < MAX_P_BRAND; i++)
+	a_ptr->multiple_brand[i] = k_ptr->multiple_brand[i];
+
 
     }
   else
@@ -1424,9 +1380,8 @@ static void initialize_artifact(int a_idx)
       a_ptr->ds = 0;
       a_ptr->cost = 0;
       a_ptr->weight = k_ptr->weight;
-      a_ptr->flags1 = 0L;
-      a_ptr->flags2 = 0L;
-      a_ptr->flags3 = 0L;
+      a_ptr->flags_obj = 0L;
+      a_ptr->flags_curse = 0L;
 
 
       /* Increment the ring or amulet count */
@@ -1434,8 +1389,13 @@ static void initialize_artifact(int a_idx)
       else num_amulets++;
 
     }
-  a_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-		    TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+
+  /* Ignore everything */
+  a_ptr->flags_obj |= (OF_ACID_PROOF);
+  a_ptr->flags_obj |= (OF_ELEC_PROOF);
+  a_ptr->flags_obj |= (OF_FIRE_PROOF);
+  a_ptr->flags_obj |= (OF_COLD_PROOF);
+  
   a_ptr->activation = base_object_activation;
   
   /* The total potential of an artifact ranges from 1750 to 8750, 
@@ -1563,9 +1523,10 @@ static void choose_basic_theme(int a_idx)
   object_kind *k_ptr = &k_info[lookup_kind(a_ptr->tval, a_ptr->sval)];
   
   
-  /* Possibly make very powerful artifacts aggravate. */
+  /* Possibly make very powerful artifacts cursed. */
   if ((potential > 6000) && (potential > randint(30000)))
-    a_ptr->flags3 |= TR3_AGGRAVATE;
+    a_ptr->flags_curse 
+      |= (OBJECT_RAND_BASE_CURSE << rand_int(OBJECT_RAND_SIZE_CURSE));
   
   
   /* Frequently (but not always) assign a basic theme to the artifact. */
@@ -1595,15 +1556,22 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_FIRE1;
 	      }
 	    /* Brand the weapon with fire. */
-	    get_quality(TRUE, BRAND_FIRE, 0, a_idx);
+	    get_quality(TRUE, BRAND_FIRE, 7, a_idx);
 	    
 	    /* Grant either a resist or immunity to fire. */
 	    if ((potential >= 4500) && (randint(3) == 1)) 
 	      get_quality(FALSE, IM_FIRE, 0, a_idx);
 	    else get_quality(TRUE, RES_FIRE, 0, a_idx);
-
+	    
 	    /* Sometimes vulnerable to cold */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_COLD, 0, a_idx);
+
+	    /* Demons like fire */
+	    if (randint(4) == 1)
+	      {
+		a_ptr->flags_curse |= CF_ATTRACT_DEMON;
+		potential += 200;
+	      }
 	  }
 	/* ...of frost. */
 	else if (selection < 12)
@@ -1619,7 +1587,7 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_COLD1;
 	      }
 	    /* Brand the weapon with frost. */
-	    get_quality(TRUE, BRAND_COLD, 0, a_idx);
+	    get_quality(TRUE, BRAND_COLD, 7, a_idx);
 	    
 	    /* Grant either a resist or immunity to frost. */
 	    if ((potential >= 4500) && (randint(3) == 1)) 
@@ -1628,6 +1596,13 @@ static void choose_basic_theme(int a_idx)
 
 	    /* Sometimes vulnerable to fire */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_FIRE, 0, a_idx);
+
+	    /* Undead like cold */
+	    if (randint(4) == 1)
+	      {
+		a_ptr->flags_curse |= CF_ATTRACT_UNDEAD;
+		potential += 200;
+	      }
 	  }
 	/* ...of acid. */
 	else if (selection < 18)
@@ -1643,13 +1618,13 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_ACID1;
 	      }
 	    /* Brand the weapon with acid. */
-	    get_quality(TRUE, BRAND_ACID, 0, a_idx);
+	    get_quality(TRUE, BRAND_ACID, 7, a_idx);
 	    
 	    /* Grant either a resist or immunity to acid. */
 	    if ((potential >= 4500) && (randint(3) == 1)) 
 	      get_quality(FALSE, IM_ACID, 0, a_idx);
 	    else get_quality(TRUE, RES_ACID, 0, a_idx);
-
+	    
 	    /* Sometimes vulnerable to electricity */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_ELEC, 0, a_idx);
 	  }
@@ -1667,13 +1642,13 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_ELEC1;
 	      }
 	    /* Brand the weapon with electricity. */
-	    get_quality(TRUE, BRAND_ELEC, 0, a_idx);
+	    get_quality(TRUE, BRAND_ELEC, 7, a_idx);
 	    
 	    /* Grant either a resist or immunity to electricity.*/
 	    if ((potential >= 4500) && (randint(3) == 1)) 
 	      get_quality(FALSE, IM_ELEC, 0, a_idx);
 	    else get_quality(TRUE, RES_ELEC, 0, a_idx);
-
+	    
 	    /* Sometimes vulnerable to acid */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_ACID, 0, a_idx);
 	  }
@@ -1689,10 +1664,22 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_POIS1;
 	      }
 	    /* Brand the weapon with poison. */
-	    get_quality(TRUE, BRAND_POIS, 0, a_idx);
+	    get_quality(TRUE, BRAND_POIS, 7, a_idx);
 	    
 	    /* Grant resistance to poison. */
 	    get_quality(TRUE, RES_POIS, 0, a_idx);
+
+	    /* Comes with the territory */
+	    if (randint(3) == 1)
+	      {
+		a_ptr->flags_curse |= CF_POIS_RAND;
+		potential += 100;
+	      }
+	    else if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_POIS_RAND_BAD;
+		potential += 300;
+	      }
 	  }
 	/* ...of life-sustaining. */
 	else if (selection < 30)
@@ -1700,30 +1687,42 @@ static void choose_basic_theme(int a_idx)
 	    /* This is an exclusive club. */
 	    if (potential >= 4000)
 		{
-	    /* Possibly assign an activation for free. */
-	    if (randint(3) == 1)
-	      {
-		a_ptr->activation = ACT_RANDOM_REGAIN;
-	      }
-	    
-	    /* Grant hold life. */
-	    get_quality(FALSE, HOLD_LIFE, 0, a_idx);
-	    
-	    /* Probably slay evil. */
-	    if (randint(3) != 1)
-	      get_quality(FALSE, SLAY_EVIL, 0, a_idx);
-	    
-	    /* Possibly resist nether. */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, RES_NETHR, 0, a_idx);
-	    
-	    /* Possibly see invisible. */
-	    if (randint(2) == 1)
-	      get_quality(FALSE, SEE_INVIS, 0, a_idx);
-	    
-	    /* Possibly slay undead. */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_UNDEAD, 0, a_idx);
+		  /* Possibly assign an activation for free. */
+		  if (randint(3) == 1)
+		    {
+		      a_ptr->activation = ACT_RANDOM_REGAIN;
+		    }
+		  
+		  /* Grant hold life. */
+		  get_quality(FALSE, HOLD_LIFE, 0, a_idx);
+		  
+		  /* Probably slay evil. */
+		  if (randint(3) != 1)
+		    get_quality(FALSE, SLAY_EVIL, 5, a_idx);
+		  
+		  /* Possibly resist nether. */
+		  if (randint(3) == 1)
+		    get_quality(FALSE, RES_NETHR, 0, a_idx);
+		  
+		  /* Possibly see invisible. */
+		  if (randint(2) == 1)
+		    get_quality(FALSE, SEE_INVIS, 0, a_idx);
+		  
+		  /* Possibly slay undead. */
+		  if (randint(3) == 1)
+		    get_quality(FALSE, SLAY_UNDEAD, 10, a_idx);
+
+		  /* But can leave the user immobile */
+		  if (randint(8) == 1)
+		    {
+		      a_ptr->flags_curse |= CF_PARALYZE;
+		      potential += 700;
+		    }
+		  else if (randint(8) == 1)
+		    {
+		      a_ptr->flags_curse |= CF_PARALYZE_ALL;
+		      potential += 1000;
+		    }
 		}
 	  }
 	/* ...of retain stats. */
@@ -1758,6 +1757,18 @@ static void choose_basic_theme(int a_idx)
 	      get_quality(FALSE, SUST_CON, 0, a_idx);
 	    if ((mp_ptr->spell_stat == A_CHR) || (randint(2) == 1)) 
 	      get_quality(FALSE, SUST_CHR, 0, a_idx);
+
+	    /* May need to be handled with care */
+	    if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_CUT_RAND;
+		potential += 100;
+	      }
+	    else if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_CUT_RAND_BAD;
+		potential += 200;
+	      }
 	  }
 	/* ...that shines with holy light. */
 	else if (selection < 36)
@@ -1785,40 +1796,63 @@ static void choose_basic_theme(int a_idx)
 	    /* Load up on the slays. */
 	    if ((randint(6) == 1) && (potential >= 2000))
 	      {
-		get_quality(TRUE, SLAY_EVIL, 0, a_idx);
-		get_quality(TRUE, SLAY_ORC, 0, a_idx);
-		get_quality(TRUE, SLAY_TROLL, 0, a_idx);
-		get_quality(TRUE, SLAY_GIANT, 0, a_idx);
+		get_quality(TRUE, SLAY_EVIL, 
+			    (randint(3) == 1 ? 7 : 5), a_idx);
+		get_quality(TRUE, SLAY_ORC, 
+			    (randint(3) == 1 ? 15 : 10), a_idx);
+		get_quality(TRUE, SLAY_TROLL, 
+			    (randint(3) == 1 ? 15 : 10), a_idx);
+		get_quality(TRUE, SLAY_GIANT, 
+			    (randint(3) == 1 ? 15 : 10), a_idx);
 	      }
 	    else if ((randint(5) == 1) && (potential >= 2000))
 	      {
-		get_quality(TRUE, SLAY_EVIL, 0, a_idx);
-		get_quality(TRUE, SLAY_UNDEAD, 0, a_idx);
-		get_quality(TRUE, SLAY_DEMON, 0, a_idx);
+		get_quality(TRUE, SLAY_EVIL, 
+			    (randint(3) == 1 ? 7 : 5), a_idx);
+		get_quality(TRUE, SLAY_UNDEAD, 
+			    (randint(3) == 1 ? 15 : 10), a_idx);
+		get_quality(TRUE, SLAY_DEMON, 
+			    (randint(3) == 1 ? 15 : 10), a_idx);
 	      }
 	    else
 	      {
 		if (randint(2) == 1)
-		  get_quality(FALSE, SLAY_ANIMAL, 0, a_idx);
+		  get_quality(FALSE, SLAY_ANIMAL, 
+			      (randint(3) == 1 ? 10 : 7), a_idx);
 		if (randint(2) == 1)
-		  get_quality(FALSE, SLAY_DRAGON, 0, a_idx);
+		  get_quality(FALSE, SLAY_DRAGON, 
+			      (randint(3) == 1 ? 15 : 10), a_idx);
 		if (randint(4) == 1)
-		  get_quality(FALSE, SLAY_EVIL, 0, a_idx);
+		  get_quality(FALSE, SLAY_EVIL, 
+			      (randint(3) == 1 ? 7 : 5), a_idx);
 		if (randint(3) == 1)
-		  get_quality(FALSE, SLAY_ORC, 0, a_idx);
+		  get_quality(FALSE, SLAY_ORC, 
+			      (randint(3) == 1 ? 15 : 10), a_idx);
 		if (randint(3) == 1)
-		  get_quality(FALSE, SLAY_TROLL, 0, a_idx);
+		  get_quality(FALSE, SLAY_TROLL, 
+			      (randint(3) == 1 ? 15 : 10), a_idx);
 		if (randint(3) == 1)
-		  get_quality(FALSE, SLAY_DEMON, 0, a_idx);
+		  get_quality(FALSE, SLAY_DEMON, 
+			      (randint(3) == 1 ? 15 : 10), a_idx);
 		if (randint(3) == 1)
-		  get_quality(FALSE, SLAY_GIANT, 0, a_idx);
+		  get_quality(FALSE, SLAY_GIANT, 
+			      (randint(3) == 1 ? 15 : 10), a_idx);
 	      }
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
-
+	    
 	    /* Sometimes vulnerable to confusion */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
+
+	    /* Sometimes aggravate - but with compensation */
+	    if (randint(10) == 1) 
+	      {
+		a_ptr->flags_curse |= CF_AGGRO_PERM;
+		potential += 1000;
+	      }
+	    else if (randint(10) == 1) 
+	      {
+		a_ptr->flags_curse |= CF_AGGRO_RAND;
+		potential += 1000;
+	      }
 	  }
 	/* ...with enhanced damage dice. */
 	else if (selection < 46)
@@ -1827,6 +1861,13 @@ static void choose_basic_theme(int a_idx)
 	     * damage dice.
 	     */
 	    get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
+
+	    /* Not so good for spellcasters */
+	    if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_DRAIN_MANA;
+		potential += 300;
+	      }
 	  }
 	/* ...that a druid wants by his side. */
 	else if (selection < 50)
@@ -1841,8 +1882,8 @@ static void choose_basic_theme(int a_idx)
 	    get_quality(FALSE, REGEN, 0, a_idx);
 	    
 	    /* Mark the weapon for a later bonus to stealth. */
-	    add_pval_later1 = STEALTH;
-
+	    get_quality(FALSE, STEALTH, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to sound */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_SOUND, 0, a_idx);
 	  }
@@ -1858,12 +1899,20 @@ static void choose_basic_theme(int a_idx)
 	    /* Provide resistance to blindness. */
 	    get_quality(FALSE, RES_BLIND, 0, a_idx);
 	    
-	    /* Possibly mark the weapon for a later bonus to magic mastery. */
-	    if (randint(2) == 1) add_pval_later1 = MAGIC_MASTERY;
+	    /* Bonus to magic mastery. */
+	    if (randint(2) == 1) 
+	      get_quality(FALSE, MAGIC_MASTERY, rand_int(4), a_idx);
 
 	    /* Sometimes vulnerable to light or dark */
 	    if (randint(8) == 1) get_quality(FALSE, VUL_LITE, 0, a_idx);
 	    else if (randint(8) == 1) get_quality(FALSE, VUL_DARK, 0, a_idx);
+
+	    /* ...but sight can bring fear */
+	    if (randint(4) == 1) 
+	      {
+		a_ptr->flags_curse |= CF_AFRAID;
+		potential += 100;
+	      }
 	  }
 	/* ...that a priest prays for. */
 	else if (selection < 58)
@@ -1880,9 +1929,9 @@ static void choose_basic_theme(int a_idx)
 	    /* Bless the weapon. */
 	    get_quality(TRUE, BLESSED, 0, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to wisdom. */
-	    add_pval_later1 = ADD_WIS;
-
+	    /* Bonus to wisdom. */
+	    get_quality(FALSE, ADD_WIS, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to dark */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_DARK, 0, a_idx);
 	  }
@@ -1898,47 +1947,61 @@ static void choose_basic_theme(int a_idx)
 	    /* Provide resistance to confusion. */
 	    get_quality(FALSE, RES_CONFU, 0, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to intelligence. */
-	    add_pval_later1 = ADD_INT;
-
+	    /* Bonus to intelligence. */
+	    get_quality(FALSE, ADD_INT, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to light */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_LITE, 0, a_idx);
+
+	    /* Comes at a cost */
+	    if (randint(3) == 1)
+	      {
+		a_ptr->flags_curse |= CF_DRAIN_EXP;
+		potential += 600;
+	      }
 	  }
 	/* ...twisted with chaos. */
 	else if (selection < 65)
 	  {
 	    /* This is an exclusive club. */
 	    if (potential >= 4000)
-		{
-	    /* Assign an activation for free. */
-	    a_ptr->activation = ACT_RANDOM_CHAOS;
-	    
-	    /* Resist chaos and disenchantment. */
-	    get_quality(TRUE, RES_CHAOS, 0, a_idx);
-	    get_quality(TRUE, RES_DISEN, 0, a_idx);
+	      {
+		/* Assign an activation for free. */
+		a_ptr->activation = ACT_RANDOM_CHAOS;
+		
+		/* Resist chaos and disenchantment. */
+		get_quality(TRUE, RES_CHAOS, 0, a_idx);
+		get_quality(TRUE, RES_DISEN, 0, a_idx);
+		
+		/* Sometimes vulnerable to shards */
+		if (randint(5) == 1) get_quality(FALSE, VUL_SHARD, 0, a_idx);
 
-	    /* Sometimes vulnerable to shards */
-	    if (randint(5) == 1) get_quality(FALSE, VUL_SHARD, 0, a_idx);
-		}
+		/* Can be unreliable */
+		if (randint(4) == 1)
+		  {
+		    a_ptr->flags_curse |= CF_DROP_WEAPON;
+		    potential += 200;
+		  }
+	      }
 	  }
 	/* ...that is a strong champion of order. */
 	else if (selection < 68)
 	  {
 	    /* This is an exclusive club. */
 	    if (potential >= 4000)
-		{
-	    /* Assign an activation for free. */
-	    a_ptr->activation = ACT_RANDOM_SHARD_SOUND;
-	    
-	    /* Resist shards, sound, and confusion. */
-	    get_quality(TRUE, RES_SHARD, 0, a_idx);
-	    get_quality(TRUE, RES_SOUND, 0, a_idx);
-	    get_quality(TRUE, RES_CONFU, 0, a_idx);
-
-	    /* Sometimes vulnerable to chaos and/or disenchantment */
-	    if (randint(8) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
-	    if (randint(8) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
-		}
+	      {
+		/* Assign an activation for free. */
+		a_ptr->activation = ACT_RANDOM_SHARD_SOUND;
+		
+		/* Resist shards, sound, and confusion. */
+		get_quality(TRUE, RES_SHARD, 0, a_idx);
+		get_quality(TRUE, RES_SOUND, 0, a_idx);
+		get_quality(TRUE, RES_CONFU, 0, a_idx);
+		
+		/* Sometimes vulnerable to chaos and/or disenchantment */
+		if (randint(8) == 1) get_quality(FALSE, VUL_CHAOS, 0, a_idx);
+		if (randint(8) == 1) get_quality(FALSE, VUL_DISEN, 0, a_idx);
+	      }
 	  }
 	/* ...that smashes foes and dungeon alike. */
 	else if (selection < 72)
@@ -1951,25 +2014,34 @@ static void choose_basic_theme(int a_idx)
 	    
 	    /* Enhance the damage dice. */
 	    get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
-
-	    /* 75% of the time, an earthquake brand. SJGU but only if the dice are big enough */
-	    if ((a_ptr->dd * a_ptr->ds > 15) && (randint(4) != 1)) get_quality(TRUE, IMPACT, 0, a_idx);
+	    
+	    /* 75% of the time, an earthquake brand. 
+	       SJGU but only if the dice are big enough */
+	    if ((a_ptr->dd * a_ptr->ds > 15) && (randint(4) != 1)) 
+	      get_quality(TRUE, IMPACT, 0, a_idx);
 	    
 	    /* Grant either resistance or immunity to acid. */
 	    if ((potential >= 3500) && (randint(3) == 1)) 
 	      get_quality(FALSE, IM_ACID, 0, a_idx);
 	    else get_quality(TRUE, RES_ACID, 0, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to tunneling. */
-	    add_pval_later1 = TUNNEL;
+	    /* Bonus to tunneling. */
+	    get_quality(FALSE, TUNNEL, rand_int(4), a_idx);
 	    
-	    /* Sometimes mark the weapon for a later bonus to strength. */
+	    /* Sometimes bonus to strength. */
 	    if ((potential >= 750) && (randint(2) == 1))
-	      add_pval_later2 = ADD_STR;
-
+	      get_quality(FALSE, ADD_STR, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to chaos or confusion */
 	    if (randint(8) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
 	    else if (randint(8) == 1) get_quality(FALSE, VUL_CHAOS, 0, a_idx);
+
+	    /* ...and can make you see what isn't there */
+	    if (randint(4) == 1)
+	      {
+		a_ptr->flags_curse |= CF_HALLU_RAND;
+		potential += 400;
+	      }
 	  }
 	/* ...that hunts down all the children of nature. */
 	else if (selection < 76)
@@ -1980,22 +2052,22 @@ static void choose_basic_theme(int a_idx)
 		a_ptr->activation = ACT_RANDOM_DETECT_MONSTERS;
 	      }
 	    /* Naturally, the appropriate slay. */
-	    get_quality(TRUE, SLAY_ANIMAL, 0, a_idx);
-
+	    get_quality(TRUE, SLAY_ANIMAL, 7, a_idx);
+	    
 	    /* SJGU ...and can be a great bane */
 	    if (randint(2) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
+	      get_quality(FALSE, SLAY_ANIMAL, 3, a_idx);
 	    
 	    /* A pair of survival skills. */
 	    get_quality(FALSE, REGEN, 0, a_idx);
 	    get_quality(FALSE, FEATHER, 0, a_idx);
 	    
 	    /* Mark the weapon for a later bonus to charisma. */
-	    add_pval_later1 = ADD_CHR;
+	    get_quality(FALSE, ADD_CHR, randint(4), a_idx);
 	    
 	    /* Sometimes mark the weapon for a later bonus to infravision. */
 	    if (randint(2) == 1)
-	      add_pval_later2 = INFRA;
+	      get_quality(FALSE, INFRA, randint(4), a_idx);
 	  }
 	/* ...that Orcs and Trolls must fear. */
 	else if (selection < 79)
@@ -2009,12 +2081,8 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_LINE_LIGHT;
 	      }
 	    /* Naturally, the appropriate slays. */
-	    get_quality(TRUE, SLAY_ORC, 0, a_idx);
-	    get_quality(TRUE, SLAY_TROLL, 0, a_idx);
-
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
+	    get_quality(TRUE, SLAY_ORC, (randint(3) == 1 ? 15 : 10), a_idx);
+	    get_quality(TRUE, SLAY_TROLL, (randint(3) == 1 ? 15 : 10), a_idx);
 	    
 	    /* Often, grant a bonus to ac. */
 	    if (randint(2) == 1)
@@ -2022,11 +2090,11 @@ static void choose_basic_theme(int a_idx)
 	    
 	    /* Sometimes, slay giant. */
 	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_GIANT, 0, a_idx);
+	      get_quality(FALSE, SLAY_GIANT, 10, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to strength. */
-	    add_pval_later1 = ADD_STR;
-
+	    /* Bonus to strength. */
+	    get_quality(FALSE, ADD_STR, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to confusion */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_CONFU, 0, a_idx);
 	  }
@@ -2042,20 +2110,16 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_DISPEL_UNDEAD;
 	      }
 	    /* Grant slay undead and see invisible. */
-	    get_quality(TRUE, SLAY_UNDEAD, 0, a_idx);
+	    get_quality(TRUE, SLAY_UNDEAD, (randint(3) == 1 ? 15 : 10), a_idx);
 	    get_quality(TRUE, SEE_INVIS, 0, a_idx);
-
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
 	    
 	    /* Sometimes, hold life. */
 	    if (randint(3) == 1)
 	      get_quality(FALSE, HOLD_LIFE, 0, a_idx);
 	    
 	    /* Mark the weapon for a later bonus to wisdom. */
-	    add_pval_later1 = ADD_WIS;
-
+	    get_quality(FALSE, ADD_WIS, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to light */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_LITE, 0, a_idx);
 	  }
@@ -2077,11 +2141,7 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_DETECT_EVIL;
 	      }
 	    /* Naturally, the appropriate slay. */
-	    get_quality(TRUE, SLAY_EVIL, 0, a_idx);
-
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
+	    get_quality(TRUE, SLAY_EVIL, (randint(3) == 1 ? 7 : 5), a_idx);
 	    
 	    /* Bless the weapon if necessary. */
 	    if ((a_ptr->tval == TV_POLEARM) || (a_ptr->tval == TV_SWORD))
@@ -2095,9 +2155,9 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(6) == 1)
 	      get_quality(FALSE, RES_DARK, 0, a_idx);
 	    
-	    /* Possibly mark the weapon for a later bonus to intelligence. */
+	    /* Possibly bonus to intelligence. */
 	    if (randint(3) == 1)
-	      add_pval_later1 = ADD_INT;
+	      get_quality(FALSE, ADD_INT, randint(4), a_idx);
 	  }
 	/* ...that demons intensely hate. */
 	else if (selection < 93)
@@ -2108,11 +2168,7 @@ static void choose_basic_theme(int a_idx)
 		a_ptr->activation = ACT_RANDOM_SMITE_DEMON;
 	      }
 	    /* Naturally, the appropriate slay. */
-	    get_quality(TRUE, SLAY_DEMON, 0, a_idx);
-
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
+	    get_quality(TRUE, SLAY_DEMON, (randint(3) == 1 ? 15 : 10), a_idx);
 	    
 	    /* Sometimes, nip the spawn of hell with cold as well. */
 	    if (randint(2) == 1)
@@ -2121,9 +2177,9 @@ static void choose_basic_theme(int a_idx)
 	    /* Grant resistance to fire. */
 	    get_quality(FALSE, RES_FIRE, 0, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to dexerity. */
-	    add_pval_later1 = ADD_DEX;
-
+	    /* Bonus to dexerity. */
+	    get_quality(FALSE, ADD_DEX, randint(4), a_idx);
+	    
 	    /* Sometimes vulnerable to cold */
 	    if (randint(5) == 1) get_quality(FALSE, VUL_COLD, 0, a_idx);
 	  }
@@ -2136,27 +2192,23 @@ static void choose_basic_theme(int a_idx)
 		a_ptr->activation = ACT_RANDOM_SMITE_DRAGON;
 	      }
 	    /* Naturally, the appropriate slay. */
-	    get_quality(TRUE, SLAY_DRAGON, 0, a_idx);
-
-	    /* SJGU ...and can be a great bane */
-	    if (randint(3) == 1)
-	      get_quality(FALSE, SLAY_KILL, 0, a_idx);
+	    get_quality(TRUE, SLAY_DRAGON, (randint(3) == 1 ? 15 : 10), a_idx);
 	    
 	    /* And one of the five elemental brands. */
 	    temp = randint(5);
 	    if (temp == 1)
-	      get_quality(FALSE, BRAND_FIRE, 0, a_idx);
+	      get_quality(FALSE, BRAND_FIRE, 7, a_idx);
 	    if (temp == 2)
-	      get_quality(FALSE, BRAND_COLD, 0, a_idx);
+	      get_quality(FALSE, BRAND_COLD, 7, a_idx);
 	    if (temp == 3)
-	      get_quality(FALSE, BRAND_ACID, 0, a_idx);
+	      get_quality(FALSE, BRAND_ACID, 7, a_idx);
 	    if (temp == 4)
-	      get_quality(FALSE, BRAND_ELEC, 0, a_idx);
+	      get_quality(FALSE, BRAND_ELEC, 7, a_idx);
 	    if (temp == 5)
-	      get_quality(FALSE, BRAND_POIS, 0, a_idx);
+	      get_quality(FALSE, BRAND_POIS, 7, a_idx);
 	    
-	    /* Mark the weapon for a later bonus to constitution. */
-	    add_pval_later1 = ADD_CON;
+	    /* Bonus to constitution. */
+	    get_quality(FALSE, ADD_CON, randint(4), a_idx);
 	  }
 	/* ...that protects the wielder. */
 	else if (selection < 1000)
@@ -2193,8 +2245,10 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(4) != 1)
 	      get_quality(TRUE, REGEN, 0, a_idx);
 	  }
-	  /* HACK SJGU Any small dice weapon with big potential should get at least some dice upgrade */
-	  if (((a_ptr->dd * a_ptr->ds) < 9) && (initial_potential >= 3500)) get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
+	/* HACK SJGU Any small dice weapon with big potential should get 
+	   at least some dice upgrade */
+	if (((a_ptr->dd * a_ptr->ds) < 9) && (initial_potential >= 3500)) 
+	  get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
 	break;
       }
       
@@ -2209,22 +2263,22 @@ static void choose_basic_theme(int a_idx)
 	/* ...of extra shots. */
 	if (selection < 50)
 	  {
-	    get_quality(TRUE, SHOTS, 0, a_idx);
+	    get_quality(TRUE, SHOTS, 1, a_idx);
 	    
 	    /* Sometimes also grant extra might. */
 	    if ((potential >= 2000) && (randint(3) == 1))
-	      get_quality(FALSE, MIGHT1, 0, a_idx);
+	      get_quality(FALSE, MIGHT, 1, a_idx);
 	  }
 	/* ...of extra might. */
 	else
 	  {
 	    if ((potential >= 4000) && (randint(2) == 1))
-	      get_quality(TRUE, MIGHT2, 0, a_idx);
-	    else get_quality(TRUE, MIGHT1, 0, a_idx);
+	      get_quality(TRUE, MIGHT, 2, a_idx);
+	    else get_quality(TRUE, MIGHT, 1, a_idx);
 	    
 	    /* Sometimes also grant extra shots. */
 	    if ((potential >= 2250) && (randint(3) == 1))
-	      get_quality(FALSE, SHOTS, 0, a_idx);
+	      get_quality(FALSE, SHOTS, 1, a_idx);
 	  }
 	
 	/* Sometimes, assign an activation. */
@@ -2299,6 +2353,7 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(2) == 1)
 	      get_quality(FALSE, RES_CHAOS, 0, a_idx);
 	    }
+
 	    /* Collect a suite of basic resists. */
 	    if (randint(5) < 3)
 	      get_quality(TRUE, RES_ACID, 0, a_idx);
@@ -2308,6 +2363,13 @@ static void choose_basic_theme(int a_idx)
 	      get_quality(TRUE, RES_FIRE, 0, a_idx);
 	    if (randint(5) < 3)
 	      get_quality(TRUE, RES_COLD, 0, a_idx);
+
+	    /* But may stick too closely */
+	    if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_STICKY_WIELD;
+		potential += 500;
+	      }
 	  }
 	/* ...resistant to sound and confusion. */
 	else if (selection < 50)
@@ -2350,6 +2412,13 @@ static void choose_basic_theme(int a_idx)
 	      get_quality(TRUE, RES_FIRE, 0, a_idx);
 	    if (randint(5) < 3)
 	      get_quality(TRUE, RES_COLD, 0, a_idx);
+
+	    /* Sometimes cost regenarative power */
+	    if (randint(6) == 1) 
+	      {
+		a_ptr->flags_curse |= CF_SLOW_REGEN;
+		potential += 100;
+	      }
 	  }
 	/* ...that grants power over the realms of shadow. */
 	else if (selection < 74)
@@ -2366,8 +2435,8 @@ static void choose_basic_theme(int a_idx)
 	    /* Resist dark. */
 	    get_quality(TRUE, RES_DARK, 0, a_idx);
 	    
-	    /* Mark the armour for a later bonus to stealth. */
-	    add_pval_later1 = STEALTH;
+	    /* Bonus to stealth. */
+	    get_quality(TRUE, STEALTH, randint(4), a_idx);
 	    
 	    /* Grant see invisible. */
 	    get_quality(TRUE, SEE_INVIS, 0, a_idx);
@@ -2424,7 +2493,7 @@ static void choose_basic_theme(int a_idx)
 	      }
 	    
 	    /* Grant permanant light. */
-	    get_quality(TRUE, LITE, 0, a_idx);
+	    get_quality(TRUE, LITE, 1, a_idx);
 	    
 	    /* And resistance to light. */
 	    get_quality(TRUE, RES_LITE, 0, a_idx);
@@ -2458,6 +2527,13 @@ static void choose_basic_theme(int a_idx)
 		
 		/* Immunity. */
 		get_quality(TRUE, IM_FIRE, 0, a_idx);
+
+		/* Demons like fire */
+		if (randint(4) == 1)
+		  {
+		    a_ptr->flags_curse |= CF_ATTRACT_DEMON;
+		    potential += 100;
+		  }
 	      }
 	    /* ...cold. */
 	    if (temp == 2)
@@ -2470,6 +2546,13 @@ static void choose_basic_theme(int a_idx)
 		
 		/* Immunity. */
 		get_quality(TRUE, IM_COLD, 0, a_idx);
+
+		/* Undead like cold */
+		if (randint(4) == 1)
+		  {
+		    a_ptr->flags_curse |= CF_ATTRACT_UNDEAD;
+		    potential += 100;
+		  }
 	      }
 	    /* ...acid. */
 	    if (temp == 3)
@@ -2507,11 +2590,11 @@ static void choose_basic_theme(int a_idx)
 	      get_quality(TRUE, RES_COLD, 0, a_idx);
 	  }
 
-	/* SJGU Hack -- Dragon armour has SPEED, so force a pval */
-	if (!add_pval_later1 && (k_ptr->tval == TV_DRAG_ARMOR))
+	/* SJGU Hack -- Dragon armour has SPEED */
+	if (k_ptr->tval == TV_DRAG_ARMOR)
 	  {
 	    /* Should this be for free? */
-	    a_ptr->pval = potential / 2500 + randint(2);
+	    get_quality(FALSE, SPEED, potential / 2500 + randint(2), a_idx);
 	  }
 
 	break;
@@ -2548,10 +2631,10 @@ static void choose_basic_theme(int a_idx)
 	else if (selection < 30)
 	  {
 	    /* Mark the shield for a later bonus to constitution. */
-	    add_pval_later1 = ADD_CON;
+	    get_quality(FALSE, ADD_CON, randint(4), a_idx);
 	    
 	    /* Mark the shield for a later bonus to strength. */
-	    add_pval_later2 = ADD_STR;
+	    get_quality(FALSE, ADD_STR, randint(4), a_idx);
 	  }
 	/* ...that resists shards (+ to ac). */
 	else if (selection < 45)
@@ -2587,7 +2670,7 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(4) == 1)
 	      get_quality(FALSE, FEATHER, 0, a_idx);
 	    if (randint(4) == 1)
-	      get_quality(FALSE, REGEN, 0, a_idx);
+	      get_quality(FALSE, HOLD_LIFE, 0, a_idx);
 	    if (randint(4) == 1)
 	      get_quality(FALSE, SEE_INVIS, 0, a_idx);
 	    if (randint(4) == 1)
@@ -2603,34 +2686,40 @@ static void choose_basic_theme(int a_idx)
 	  {
 	    /* This is an exclusive club. */
 	    if (potential >= 5000)
-	    {
-	    temp = randint(4);
-	    
-	    /* ...fire. */
-	    if (temp == 1)
 	      {
-		/* Immunity. */
-		get_quality(TRUE, IM_FIRE, 0, a_idx);
+		temp = randint(4);
+		
+		/* ...fire. */
+		if (temp == 1)
+		  {
+		    /* Immunity. */
+		    get_quality(TRUE, IM_FIRE, 0, a_idx);
+		  }
+		/* ...cold. */
+		if (temp == 2)
+		  {
+		    /* Immunity. */
+		    get_quality(TRUE, IM_COLD, 0, a_idx);
+		  }
+		/* ...acid. */
+		if (temp == 3)
+		  {
+		    /* Immunity. */
+		    get_quality(TRUE, IM_ACID, 0, a_idx);
+		  }
+		/* ...electricity. */
+		if (temp == 4)
+		  {
+		    /* Immunity. */
+		    get_quality(TRUE, IM_ELEC, 0, a_idx);
+		  }
+		/* Can cost the unwary */
+		if (randint(6) == 1)
+		  {
+		    a_ptr->flags_curse |= CF_DRAIN_STAT;
+		    potential += 1000;
+		  }
 	      }
-	    /* ...cold. */
-	    if (temp == 2)
-	      {
-		/* Immunity. */
-		get_quality(TRUE, IM_COLD, 0, a_idx);
-	      }
-	    /* ...acid. */
-	    if (temp == 3)
-	      {
-		/* Immunity. */
-		get_quality(TRUE, IM_ACID, 0, a_idx);
-	      }
-	    /* ...electricity. */
-	    if (temp == 4)
-	      {
-		/* Immunity. */
-		get_quality(TRUE, IM_ELEC, 0, a_idx);
-	      }
-	    }
 	  }
 	
 	break;
@@ -2648,14 +2737,17 @@ static void choose_basic_theme(int a_idx)
 	  {
 	    /* This is an exclusive club. */
 	    if (potential >= 4500)
-	    {
-	    /* Calculate pval. */
-	    temp = 5 + damroll(3,2);
-	    
-	    /* Add a speed bonus immediately. */
-	    a_ptr->pval = temp;
-	    get_quality(TRUE, SPEED, temp, a_idx);
-	    }
+	      {
+		/* Add a speed bonus immediately. */
+		get_quality(TRUE, SPEED, 5 + damroll(3, 2), a_idx);
+	      }
+
+	    /* Speed can be tiring */
+	    if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_HUNGRY;
+		potential += 100;
+	      }
 	  }
 	/* ...that keeps a guy's feet on the ground. */
 	else if (selection < 35)
@@ -2663,6 +2755,13 @@ static void choose_basic_theme(int a_idx)
 	    /* Resist nexus and feather fall. */
 	    get_quality(TRUE, RES_NEXUS, 0, a_idx);
 	    get_quality(TRUE, FEATHER, 0, a_idx);
+
+	    /* Sometimes too much */
+	    if (randint(5) == 1)
+	      {
+		a_ptr->flags_curse |= CF_NO_TELEPORT;
+		potential += 300;
+	      }
 	  }
 	/* ...with unrivaled magical movement. */
 	else if (selection < 50)
@@ -2681,9 +2780,16 @@ static void choose_basic_theme(int a_idx)
 	    /* Resist nexus. */
 	    get_quality(TRUE, RES_NEXUS, 0, a_idx);
 	    
-	    /* Possibly mark the boots for a later bonus to dexerity. */
+	    /* Possibly bonus to dexerity. */
 	    if (potential >= 1000)
-	      add_pval_later1 = ADD_DEX;
+	      get_quality(FALSE, ADD_DEX, randint(4), a_idx);
+
+	    /* Sometimes too powerful */
+	    if (randint(5) == 1) 
+	      {
+		a_ptr->flags_curse |= CF_TELEPORT;
+		potential += 100;
+	      }
 	  }
 	/* ...that makes long marches easy. */
 	else if (selection < 60)
@@ -2702,8 +2808,8 @@ static void choose_basic_theme(int a_idx)
 	    /* Grant regenerative powers. */
 	    get_quality(TRUE, REGEN, 0, a_idx);
 	    
-	    /* Mark the boots for a later bonus to constitution. */
-	    add_pval_later1 = ADD_CON;
+	    /* Bonus to constitution. */
+	    get_quality(FALSE, ADD_CON, randint(4), a_idx);
 	  }
 	/* ...that dance up a storm. */
 	else if (selection < 70)
@@ -2715,8 +2821,8 @@ static void choose_basic_theme(int a_idx)
 	    /* Grant feather fall. */
 	    get_quality(TRUE, FEATHER, 0, a_idx);
 	    
-	    /* Mark the boots for a later bonus to dexterity. */
-	    add_pval_later1 = ADD_DEX;
+	    /* Bonus to dexterity. */
+	    get_quality(FALSE, ADD_DEX, randint(4), a_idx);
 	  }
 	/* ...worn by a famous ranger of old. */
 	else if (selection < 80)
@@ -2733,8 +2839,8 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(6) == 1)
 	      get_quality(FALSE, TELEPATHY, 0, a_idx);
 
-	    /* Mark the boots for a later bonus to stealth. */
-	    add_pval_later1 = STEALTH;
+	    /* Bonus to stealth. */
+	    get_quality(FALSE, STEALTH, randint(4), a_idx);
 	  }
 	
 	/* Possibly assign a speed activation for free. */
@@ -2761,8 +2867,8 @@ static void choose_basic_theme(int a_idx)
 	    if (randint(2) == 1)
 	      a_ptr->activation = ACT_RANDOM_SLEEP_FOES;
 	    
-	    /* Mark the cloak for a later bonus to stealth. */
-	    add_pval_later1 = STEALTH;
+	    /* Bonus to stealth. */
+	    get_quality(FALSE, STEALTH, randint(4), a_idx);
 	  }
 	/* ...that confuses and dismays foes. */
 	else if (selection < 30)
@@ -2814,8 +2920,8 @@ static void choose_basic_theme(int a_idx)
 		  a_ptr->activation = ACT_RANDOM_DETECT_D_S_T;
 	      }
 	    
-	    /* Mark the cloak for a later bonus to searching. */
-	    add_pval_later1 = SEARCH;
+	    /* Bonus to searching. */
+	    get_quality(FALSE, SEARCH, randint(4), a_idx);
 	  }
 	/* ...of necromantic powers. */
 	else if (selection < 65)
@@ -2830,15 +2936,22 @@ static void choose_basic_theme(int a_idx)
 	    else if (temp == 2) get_quality(FALSE, RES_NETHR, 0, a_idx);
 	    else if (temp == 3) get_quality(FALSE, RES_DARK, 0, a_idx);
 	    
-	    /* Mark the cloak for a later bonus to infravision. */
-	    add_pval_later1 = INFRA;
+	    /* Bonus to infravision. */
+	    get_quality(FALSE, INFRA, randint(4), a_idx);
+
+	    /* Costs the device user */
+	    if (randint(6) == 1)
+	      {
+		a_ptr->flags_curse |= CF_DRAIN_CHARGE;
+		potential += 800;
+	      }
 	  }
 	
-	/* Hack -- Elven Cloaks have STEALTH, so force a pval */
-	if (!add_pval_later1 && (k_ptr->sval == SV_ELVEN_CLOAK))
+	/* Hack -- Elven Cloaks have STEALTH */
+	if (k_ptr->sval == SV_ELVEN_CLOAK)
 	  {
 	    /* Should this be for free? */
-	    a_ptr->pval = potential / 2500 + randint(2);
+	    a_ptr->bonus_other[P_BONUS_STEALTH] += potential / 2500 + randint(2);
 	  }
 	
 	break;
@@ -2887,17 +3000,17 @@ static void choose_basic_theme(int a_idx)
 	    get_quality(FALSE, RES_BLIND, 0, a_idx);
 	    get_quality(FALSE, SEE_INVIS, 0, a_idx);
 	    
-	    /* Mark the headpiece for a later bonus to searching. */
-	    add_pval_later1 = SEARCH;	
+	    /* Bonus to searching. */
+	    get_quality(FALSE, SEARCH, randint(4), a_idx);	
 	  }
 	/* ...whose wearer stands taller in the eyes of men. */
 	else if (selection < 57)
 	  {
-	    /* Mark the headpiece for a later bonus to wisdom. */
-	    add_pval_later1 = ADD_WIS;
+	    /* Bonus to wisdom. */
+	    get_quality(FALSE, ADD_WIS, randint(4), a_idx);
 	    
-	    /* Mark the headpiece for a later bonus to charisma. */
-	    add_pval_later2 = ADD_CHR;
+	    /* Bonus to charisma. */
+	    get_quality(FALSE, ADD_CHR, randint(4), a_idx);
 	    
 	    /* Possibly add a bonus to base ac. */
 	    if (randint(3) == 1)
@@ -2915,11 +3028,11 @@ static void choose_basic_theme(int a_idx)
 	    /* No fear. */
 	    get_quality(TRUE, RES_FEAR, 0, a_idx);
 	    
-	    /* Mark the headpiece for a later bonus to strength. */
-	    add_pval_later1 = ADD_STR;
+	    /* Bonus to strength. */
+	    get_quality(FALSE, ADD_STR, randint(4), a_idx);
 	    
-	    /* Mark the headpiece for a later bonus to dexterity. */
-	    add_pval_later2 = ADD_DEX;
+	    /* Bonus to dexterity. */
+	    get_quality(FALSE, ADD_DEX, randint(4), a_idx);
 	    
 	    /* Sustain dexterity and strength. */
 	    get_quality(TRUE, SUST_DEX, 0, a_idx);
@@ -2992,10 +3105,12 @@ static void choose_basic_theme(int a_idx)
 	      get_quality(FALSE, FREE_ACT, 0, a_idx);
 	    
 	    
-	    /* Mark one of the combat stats for later acquisition. */
-	    if (randint(3) == 1) add_pval_later1 = ADD_STR;
-	    else if (randint(2) == 1) add_pval_later1 = ADD_DEX;
-	    else add_pval_later1 = ADD_CON;
+	    /* Bonus to one of the combat stats. */
+	    if (randint(3) == 1) 
+	      get_quality(FALSE, ADD_STR, randint(4), a_idx);
+	    else if (randint(2) == 1) 
+	      get_quality(FALSE, ADD_DEX, randint(4), a_idx);
+	    else get_quality(FALSE, ADD_CON, randint(4), a_idx);
 	    
 	    /* Possibly grant equal bonuses to Skill and Deadliness. */
 	    if ((potential >= 1500) && (randint(4) != 1))
@@ -3043,11 +3158,11 @@ static void choose_basic_theme(int a_idx)
 	    /* Assign an activation for free. */
 	    a_ptr->activation = ACT_RANDOM_DISARM;
 	    
-	    /* Mark the gloves for a later bonus to stealth. */
-	    add_pval_later1 = STEALTH;
+	    /* Bonus to stealth. */
+	    get_quality(FALSE, STEALTH, randint(4), a_idx);
 	    
-	    /* Mark the gloves for a later bonus to searching. */
-	    add_pval_later2 = SEARCH;
+	    /* Bonus to searching. */
+	    get_quality(FALSE, SEARCH, randint(4), a_idx);
 	    
 	    /* Often, acquire free action. */
 	    if (randint(3) != 1)
@@ -3060,7 +3175,7 @@ static void choose_basic_theme(int a_idx)
 	else if (selection < 90)
 	  {
 	    /* Mark the gloves for a later bonus to magic item mastery. */
-	    add_pval_later2 = MAGIC_MASTERY;
+	    get_quality(FALSE, MAGIC_MASTERY, randint(4), a_idx);
 	  }
 	/* ...with a deadly mastery of archery. */
 	else if (selection < 100)
@@ -3090,7 +3205,7 @@ static void choose_basic_theme(int a_idx)
 	if (selection < 20)
 	  {
 	    /* Bonus to magical item mastery */
-	    add_pval_later1 = MAGIC_MASTERY;
+	    get_quality(FALSE, MAGIC_MASTERY, randint(4), a_idx);
 
 	    /* Protection for the devices */
 	    if (randint(2) == 1)
@@ -3108,11 +3223,11 @@ static void choose_basic_theme(int a_idx)
 	else if (selection < 40)
 	  {
 	    /* Some wisdom */
-	    add_pval_later1 = ADD_WIS;
+	    get_quality(TRUE, ADD_WIS, randint(4), a_idx);
 
 	    /* And maybe some charisma */
 	    if (randint(3) == 1)
-	      add_pval_later2 = ADD_CHR;
+	      get_quality(TRUE, ADD_CHR, randint(4), a_idx);
 	    
 	    /* Maybe an activation */
 	    if (randint(5) == 1)
@@ -3131,11 +3246,11 @@ static void choose_basic_theme(int a_idx)
 	else if (selection < 60)
 	  {
 	    /* Some intelligence */
-	    add_pval_later1 = ADD_INT;
+	    get_quality(TRUE, ADD_INT, randint(4), a_idx);
 
 	    /* And maybe some charisma */
 	    if (randint(3) == 1)
-	      add_pval_later2 = ADD_CHR;
+	      get_quality(TRUE, ADD_CHR, randint(4), a_idx);
 	    
 	    /* Maybe an activation */
 	    if (randint(5) == 1)
@@ -3225,8 +3340,8 @@ static void choose_basic_theme(int a_idx)
 	    get_quality(TRUE, ADD_DEADLINESS, temp, a_idx);
 
 	    /* Maybe some stat boosts */
-	    if (randint(2) == 1) add_pval_later1 = ADD_STR;
-	    if (randint(2) == 1) add_pval_later2 = ADD_DEX;
+	    if (randint(2) == 1) get_quality(TRUE, ADD_STR, randint(4), a_idx);
+	    if (randint(2) == 1) get_quality(TRUE, ADD_DEX, randint(4), a_idx);
 
 	    /* And fearlessness */
 	    get_quality(TRUE, RES_FEAR, 0, a_idx);
@@ -3264,13 +3379,13 @@ static void choose_basic_theme(int a_idx)
 	else if (selection < 30)
 	  {
 	    /* Searching and magic mastery */
-	    add_pval_later1 = SEARCH;
-	    add_pval_later2 = MAGIC_MASTERY;
-
+	    get_quality(TRUE, SEARCH, randint(4), a_idx);
+	    get_quality(TRUE, MAGIC_MASTERY, randint(4), a_idx);
+	    
 	    /* And some other useful stuff */
 	    if (randint(3) < 3) get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
 	    if (randint(3) < 3) get_quality(FALSE, FEATHER, 0, a_idx);
-	    if (randint(3) < 3) get_quality(FALSE, LITE, 0, a_idx);
+	    if (randint(3) < 3) get_quality(FALSE, LITE, 1, a_idx);
 	    if (randint(3) < 3) get_quality(FALSE, REGEN, 0, a_idx);
 	  
 	    /* And maybe a useful activation */
@@ -3292,7 +3407,7 @@ static void choose_basic_theme(int a_idx)
 	    a_ptr->to_a += 5 + potential/800 + randint(8);
 
 	    /* Boost to constitution */
-	    add_pval_later1 = ADD_CON;
+	    get_quality(TRUE, ADD_CON, randint(4), a_idx);
 
 	    /* Maybe some low resists */
 	    if (randint(4) == 1) get_quality(TRUE, RES_ACID, 0, a_idx);
@@ -3383,8 +3498,9 @@ static void choose_basic_theme(int a_idx)
 	    /* The 12% that failed their first roll */
 	    else
 	      {
-		/* Free poison resistance and attack  SJGU don't think this can happen any more */
-		a_ptr->flags2 |= TR2_RES_POIS;
+		/* Free poison resistance and attack  
+		 * SJGU don't think this can happen any more */
+		get_quality(FALSE, RES_POIS, 0, a_idx);
 		a_ptr->activation = ACT_RANDOM_POIS2;
 	      }
 
@@ -3421,7 +3537,6 @@ static void choose_basic_theme(int a_idx)
       if ((randint(2) == 1) && (a_ptr->weight >= 30))
 	{
 	  a_ptr->weight += randint(a_ptr->weight / 10) * 5 + 5;
-/*	  a_ptr->weight = 5 * (a_ptr->weight + 50) / 4; */
 	  potential += (a_ptr->weight - old_weight) * 10;
 	}
       
@@ -3429,7 +3544,6 @@ static void choose_basic_theme(int a_idx)
       else if (a_ptr->weight >= 50)
 	{
 	  a_ptr->weight -= randint(a_ptr->weight / 10) * 5 + 5;
-/*	  a_ptr->weight = 2 * (a_ptr->weight - 20) / 3; */
 	  potential -= (old_weight - a_ptr->weight) * 10;
 	  if (potential < 0) potential = 0;
 	}
@@ -3450,91 +3564,65 @@ static void haggle_till_done(int a_idx)
   int i, rounds;
   int pval = 0;
   int choice = 0;
+  int limit = 20;
 
-  /* Firstly, determine pval, add some pval-dependant qualities, and 
-   * charge the account.  We assume that no pval-dependant qualities 
-   * have been added yet. 
-   */
-  
-  /* If qualities that depend on pval have been promised, add them. */
-  if ((add_pval_later1) || (add_pval_later2))
+  /* Rarely, and only if the artifact has a lot of potential, 
+   * add all the stats. */
+  if ((randint(6) == 1) && (potential >= 4500))
     {
-      a_ptr->pval = 2 + randint(potential / 2500);
-      if (add_pval_later1)
-	{
-	  get_quality(TRUE, add_pval_later1, a_ptr->pval, a_idx);
-	  add_pval_later1 = 0;
-	}
-      if (add_pval_later2)
-	{
-	  get_quality(TRUE, add_pval_later2, a_ptr->pval, a_idx);
-	  add_pval_later2 = 0;
-	}
+      get_quality(TRUE, ADD_STR, 1, a_idx);
+      get_quality(TRUE, ADD_WIS, 1, a_idx);
+      get_quality(TRUE, ADD_INT, 1, a_idx);
+      get_quality(TRUE, ADD_DEX, 1, a_idx);
+      get_quality(TRUE, ADD_CON, 1, a_idx);
+      get_quality(TRUE, ADD_CHR, 1, a_idx);
     }
-  /* SJGU - pval may already have been set and paid for on speed boots */
-  else if (a_ptr->pval < 7)
+  
+  /* Otherwise, if at least some potential remains, add a 
+   * pval-dependant quality or two with 67% probability. */
+  else if ((randint(3) != 1) && (potential >= 750))
     {
-      /* Rarely, and only if the artifact has a lot of potential, 
-       * add all the stats. */
-      if ((randint(6) == 1) && (potential >= 4500))
-	{
-	  get_quality(TRUE, ADD_STR, 1, a_idx);
-	  get_quality(TRUE, ADD_WIS, 1, a_idx);
-	  get_quality(TRUE, ADD_INT, 1, a_idx);
-	  get_quality(TRUE, ADD_DEX, 1, a_idx);
-	  get_quality(TRUE, ADD_CON, 1, a_idx);
-	  get_quality(TRUE, ADD_CHR, 1, a_idx);
-	  
-	  a_ptr->pval = 1;
-	}
+      /* Add the pval. */
+      pval = potential / 2000 + randint(2);
       
-      /* Otherwise, if at least some potential remains, add a 
-       * pval-dependant quality or two with 67% probability. */
-      else if ((randint(3) != 1) && (potential >= 750))
+      /* Determine number of loops. */
+      rounds = randint(2);
+      
+      for (i = 0; i < rounds; i++)
 	{
-	  /* Add the pval. */
-	  pval = potential / 2000 + randint(2);
-	  a_ptr->pval = pval;
 	  
-	  /* Determine number of loops. */
-	  rounds = randint(2);
+	  /* Only melee weapons can get a bonus to tunnelling. */
+	  if ((a_ptr->tval == TV_SWORD) || 
+	      (a_ptr->tval == TV_POLEARM) || 
+	      (a_ptr->tval == TV_HAFTED))
+	    choice = randint(11);
+	  else
+	    choice = randint(10);
 	  
-	  for (i = 0; i < rounds; i++)
-	    {
-	      
-	      /* Only melee weapons can get a bonus to tunnelling. */
-	      if ((a_ptr->tval == TV_SWORD) || 
-		  (a_ptr->tval == TV_POLEARM) || 
-		  (a_ptr->tval == TV_HAFTED))
-		choice = randint(11);
-	      else
-		choice = randint(10);
-	      
-	      if (choice == 1)
-		get_quality(TRUE, ADD_STR, pval, a_idx);
-	      if (choice == 2)
-		get_quality(TRUE, ADD_WIS, pval, a_idx);
-	      if (choice == 3)
-		get_quality(TRUE, ADD_INT, pval, a_idx);
-	      if (choice == 4)
-		get_quality(TRUE, ADD_DEX, pval, a_idx);
-	      if (choice == 5)
-		get_quality(TRUE, ADD_CON, pval, a_idx);
-	      if (choice == 6)
-		get_quality(TRUE, ADD_CHR, pval, a_idx);
-	      if (choice == 7)
-		get_quality(TRUE, INFRA, pval, a_idx);
-	      if (choice == 8)
-		get_quality(TRUE, STEALTH, pval, a_idx);
-	      if (choice == 9)
-		get_quality(TRUE, SEARCH, pval, a_idx);
-	      if (choice == 10)
-		get_quality(TRUE, SPEED, pval, a_idx);
-	      if (choice == 11)
-		get_quality(TRUE, TUNNEL, pval, a_idx);
-	      
-	      choice = 0;
-	    }
+	  if (choice == 1)
+	    get_quality(TRUE, ADD_STR, pval, a_idx);
+	  if (choice == 2)
+	    get_quality(TRUE, ADD_WIS, pval, a_idx);
+	  if (choice == 3)
+	    get_quality(TRUE, ADD_INT, pval, a_idx);
+	  if (choice == 4)
+	    get_quality(TRUE, ADD_DEX, pval, a_idx);
+	  if (choice == 5)
+	    get_quality(TRUE, ADD_CON, pval, a_idx);
+	  if (choice == 6)
+	    get_quality(TRUE, ADD_CHR, pval, a_idx);
+	  if (choice == 7)
+	    get_quality(TRUE, INFRA, pval, a_idx);
+	  if (choice == 8)
+	    get_quality(TRUE, STEALTH, pval, a_idx);
+	  if (choice == 9)
+	    get_quality(TRUE, SEARCH, pval, a_idx);
+	  if (choice == 10)
+	    get_quality(TRUE, SPEED, pval, a_idx);
+	  if (choice == 11)
+	    get_quality(TRUE, TUNNEL, pval, a_idx);
+	  
+	  choice = 0;
 	}
     }
   
@@ -3543,33 +3631,47 @@ static void haggle_till_done(int a_idx)
     {
       choice = randint(14);
 	      
-      if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
+      if ((choice == 1) && 
+	  (a_ptr->percent_res[P_RES_FIRE] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_FIRE, 0, a_idx);
-      if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
+      if ((choice == 2) && 
+	  (a_ptr->percent_res[P_RES_COLD] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_COLD, 0, a_idx);
-      if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
+      if ((choice == 3) && 
+	  (a_ptr->percent_res[P_RES_ACID] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_ACID, 0, a_idx);
-      if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
+      if ((choice == 4) && 
+	  (a_ptr->percent_res[P_RES_ELEC] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_ELEC, 0, a_idx);
-      if ((choice == 5) && (!(a_ptr->flags3 & TR2_RES_POIS)))
+      if ((choice == 5) && 
+	  (a_ptr->percent_res[P_RES_POIS] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_POIS, 0, a_idx);
-      if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
+      if ((choice == 6) && 
+	  (a_ptr->percent_res[P_RES_LITE] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_LITE, 0, a_idx);
-      if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
+      if ((choice == 7) && 
+	  (a_ptr->percent_res[P_RES_DARK] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_DARK, 0, a_idx);
-      if ((choice == 8) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
+      if ((choice == 8) && 
+	  (a_ptr->percent_res[P_RES_CONFU] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_CONFU, 0, a_idx);
-      if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
+      if ((choice == 9) && 
+	  (a_ptr->percent_res[P_RES_SOUND] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_SOUND, 0, a_idx);
-      if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
+      if ((choice == 10) && 
+	  (a_ptr->percent_res[P_RES_SHARD] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_SHARD, 0, a_idx);
-      if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
+      if ((choice == 11) && 
+	  (a_ptr->percent_res[P_RES_NEXUS] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_NEXUS, 0, a_idx);
-      if ((choice == 12) && (!(a_ptr->flags3 & TR2_RES_NETHR)))
+      if ((choice == 12) && 
+	  (a_ptr->percent_res[P_RES_NETHR] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_NETHR, 0, a_idx);
-      if ((choice == 13) && (!(a_ptr->flags3 & TR2_RES_CHAOS)))
+      if ((choice == 13) && 
+	  (a_ptr->percent_res[P_RES_CHAOS] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_CHAOS, 0, a_idx);
-      if ((choice == 14) && (!(a_ptr->flags3 & TR2_RES_DISEN)))
+      if ((choice == 14) && 
+	  (a_ptr->percent_res[P_RES_DISEN] == RES_LEVEL_BASE))
 	get_quality(TRUE, VUL_DISEN, 0, a_idx);
     }
 	  
@@ -3580,42 +3682,40 @@ static void haggle_till_done(int a_idx)
       choice = randint(5);
       
       /* ...among some tasty options. */
-      if ((choice == 1) && (!(a_ptr->flags3 & TR3_TELEPATHY)))
+      if ((choice == 1) && (!(a_ptr->flags_obj & OF_TELEPATHY)))
 	{
 	  get_quality(TRUE, TELEPATHY, 0, a_idx);
 	}
-      if ((choice == 2) && (!(a_ptr->flags3 & TR3_HOLD_LIFE)))
+      if ((choice == 2) && (!(a_ptr->flags_obj & OF_HOLD_LIFE)))
 	{
 	  get_quality(TRUE, HOLD_LIFE, 0, a_idx);
 	}
       if (choice == 3)
 	{
-	  if (!(a_ptr->flags2 & TR2_RES_CONFU))
+	  if (a_ptr->percent_res[P_RES_CONFU] >= RES_LEVEL_BASE)
 	    get_quality(TRUE, RES_CONFU, 0, a_idx);
-	  if (!(a_ptr->flags3 & TR3_SEEING))
+	  if (!(a_ptr->flags_obj & OF_SEEING))
 	    get_quality(TRUE, RES_BLIND, 0, a_idx);
 	}
       if (choice == 4)
 	{
-	  if ((randint(4) == 1) && (!(a_ptr->flags2 & TR2_RES_DISEN)))
+	  if ((randint(4) == 1) && 
+	      (a_ptr->percent_res[P_RES_DISEN] >= RES_LEVEL_BASE))
 	    get_quality(TRUE, RES_DISEN, 0, a_idx);
-	  else if ((randint(3) == 1) && (!(a_ptr->flags2 & TR2_RES_NETHR)))
+	  else if ((randint(3) == 1) && 
+		   (a_ptr->percent_res[P_RES_NETHR] >= RES_LEVEL_BASE))
 	    get_quality(TRUE, RES_NETHR, 0, a_idx);
-	  else if ((randint(2) == 1) && (!(a_ptr->flags2 & TR2_RES_CHAOS)))
+	  else if ((randint(2) == 1) && 
+		   (a_ptr->percent_res[P_RES_CHAOS] >= RES_LEVEL_BASE))
 	    get_quality(TRUE, RES_CHAOS, 0, a_idx);
-	  else if (!(a_ptr->flags2 & TR2_RES_POIS))
+	  else if (a_ptr->percent_res[P_RES_POIS] >= RES_LEVEL_BASE)
 	    get_quality(TRUE, RES_POIS, 0, a_idx);
 	}
       if ((choice == 5) && (potential > 4500))
 	{
-	  if ((randint(2) == 1) && (!(a_ptr->flags1 & TR1_SPEED)))
+	  if ((randint(2) == 1) && (a_ptr->bonus_other[P_BONUS_SPEED] == 0))
 	    {
-	      if (a_ptr->pval > 0) 
-		get_quality(TRUE, SPEED, a_ptr->pval, a_idx);
-	      
-	      /* Go for a +10 bonus to speed. */
-	      else if (get_quality(TRUE, SPEED, 10, a_idx)) 
-		a_ptr->pval = 10;
+	      get_quality(TRUE, SPEED, randint(10), a_idx);
 	    }
 	  else
 	    {
@@ -3628,57 +3728,47 @@ static void haggle_till_done(int a_idx)
 	    }
 	}
     }      
-      /* Sometimes, also add a new pval-dependant quality.  Infravision 
-       * and magical item mastery are not on offer.  Only melee
-       * weapons can get a bonus to tunnelling.
-       */
-      if (((randint(5) < 3) || (potential >= 2750)) && ((a_ptr->pval) && (a_ptr->pval < 7)))
-	{
-	  pval = a_ptr->pval;
-	  
-	  if ((a_ptr->tval == TV_SWORD) || 
-	      (a_ptr->tval == TV_POLEARM) || 
-	      (a_ptr->tval == TV_HAFTED))
-	    choice = randint(10);
-	  else
-	    choice = randint(9);
-	  
-	  if ((choice == 1) && (!(a_ptr->flags1 & TR1_STR)))
-	    get_quality(TRUE, ADD_STR, pval, a_idx);
-	  if ((choice == 2) && (!(a_ptr->flags1 & TR1_WIS)))
-	    get_quality(TRUE, ADD_WIS, pval, a_idx);
-	  if ((choice == 3) && (!(a_ptr->flags1 & TR1_INT)))
-	    get_quality(TRUE, ADD_INT, pval, a_idx);
-	  if ((choice == 4) && (!(a_ptr->flags1 & TR1_DEX)))
-	    get_quality(TRUE, ADD_DEX, pval, a_idx);
-	  if ((choice == 5) && (!(a_ptr->flags1 & TR1_CON)))
-	    get_quality(TRUE, ADD_CON, pval, a_idx);
-	  if ((choice == 6) && (!(a_ptr->flags1 & TR1_CHR)))
-	    get_quality(TRUE, ADD_CHR, pval, a_idx);
-	  if ((choice == 7) && (!(a_ptr->flags1 & TR1_STEALTH)))
-	    get_quality(TRUE, STEALTH, pval, a_idx);
-	  if ((choice == 8) && (!(a_ptr->flags1 & TR1_SEARCH)))
-	    get_quality(TRUE, SEARCH, pval, a_idx);
-  	  if ((choice == 9) && (!(a_ptr->flags1 & TR1_SPEED)))
-		get_quality(TRUE, SPEED, pval, a_idx);
-	  
-	  if ((choice == 10) && (!(a_ptr->flags1 & TR1_TUNNEL)))
-	    get_quality(TRUE, TUNNEL, pval, a_idx);
-	  
-	  choice = 0;
-	}
-
+  /* Sometimes, also add a new pval-dependant quality.  Infravision 
+   * and magical item mastery are not on offer.  Only melee
+   * weapons can get a bonus to tunnelling.
+   */
+  if (((randint(5) < 3) || (potential >= 2750)) && 
+      ((pval) && (pval < 7)))
+    {
+      pval = randint(3);
+      
+      if ((a_ptr->tval == TV_SWORD) || 
+	  (a_ptr->tval == TV_POLEARM) || 
+	  (a_ptr->tval == TV_HAFTED))
+	choice = randint(10);
+      else
+	choice = randint(9);
+      
+      if (choice == 1)  get_quality(TRUE, ADD_STR, pval, a_idx);
+      if (choice == 2)  get_quality(TRUE, ADD_WIS, pval, a_idx);
+      if (choice == 3)  get_quality(TRUE, ADD_INT, pval, a_idx);
+      if (choice == 4)  get_quality(TRUE, ADD_DEX, pval, a_idx);
+      if (choice == 5)  get_quality(TRUE, ADD_CON, pval, a_idx);
+      if (choice == 6)  get_quality(TRUE, ADD_CHR, pval, a_idx);
+      if (choice == 7)  get_quality(TRUE, STEALTH, pval, a_idx);
+      if (choice == 8)  get_quality(TRUE, SEARCH, pval, a_idx);
+      if (choice == 9)  get_quality(TRUE, SPEED, pval, a_idx);
+      if (choice == 10) get_quality(TRUE, TUNNEL, pval, a_idx);
+      
+      choice = 0;
+    }
   
   
-  /* Now, we enter Filene's Basement, and shop 'til we drop! */
-  while (potential >= 300)
+  
+  /* Now, we enter Filene's Basement, and shop 'til we drop! (well, nearly) */
+  while ((potential >= 300) && (limit-- > 0))
     {
       /* I'm a melee weapon. */
       if ((a_ptr->tval == TV_SWORD) || (a_ptr->tval == TV_POLEARM) || 
 	  (a_ptr->tval == TV_HAFTED))
 	{
 	  /* Some throwing weapons can be thrown hard and fast. */
-	  if ((a_ptr->flags1 & TR1_THROWING) && (randint(2) == 1))
+	  if ((a_ptr->flags_obj & OF_THROWING) && (randint(2) == 1))
 	    get_quality(TRUE, PERFECT_BALANCE, 0, a_idx);
 	  
 	  /* Some weapons already will have superb base damage. */
@@ -3704,7 +3794,8 @@ static void haggle_till_done(int a_idx)
 		    }
 		  }
 		  /* Sometimes spend everything to enhance 
-		   * the damage dice. SJGU assuming there wasn't too much to start with...
+		   * the damage dice. SJGU assuming there wasn't too 
+		   * much to start with...
 		   */
 		  if ((randint(3) == 1) && (initial_potential <= 4000)) 
 		    {
@@ -3729,7 +3820,8 @@ static void haggle_till_done(int a_idx)
 	    }
 	  
 	  /* Other weapons have enhanced damage dice in addition 
-	   * to other qualities. - SJGU increased chance of this as small dice are useless */
+	   * to other qualities. 
+	   * - SJGU increased chance of this as small dice are useless */
 	  else if ((randint(a_ptr->dd * a_ptr->ds) < 5) || (potential >= 2100))
 	    {
 	      get_quality(TRUE, ENHANCE_DICE, 3, a_idx);
@@ -3738,82 +3830,106 @@ static void haggle_till_done(int a_idx)
 	  /* Collect a slay or brand. */
 	  choice = randint(13);
 	  
-	  if ((choice == 1) && (!(a_ptr->flags1 & TR1_SLAY_ANIMAL)))
-	    get_quality(TRUE, SLAY_ANIMAL, 0, a_idx);
-	  if ((choice == 2) && (!(a_ptr->flags1 & TR1_SLAY_EVIL)))
-	    get_quality(TRUE, SLAY_EVIL, 0, a_idx);
-	  if ((choice == 3) && (!(a_ptr->flags1 & TR1_SLAY_UNDEAD)))
-	    get_quality(TRUE, SLAY_UNDEAD, 0, a_idx);
-	  if ((choice == 4) && (!(a_ptr->flags1 & TR1_SLAY_DEMON)))
-	    get_quality(TRUE, SLAY_DEMON, 0, a_idx);
-	  if ((choice == 5) && (!(a_ptr->flags1 & TR1_SLAY_ORC)))
-	    get_quality(TRUE, SLAY_ORC, 0, a_idx);
-	  if ((choice == 6) && (!(a_ptr->flags1 & TR1_SLAY_TROLL)))
-	    get_quality(TRUE, SLAY_TROLL, 0, a_idx);
-	  if ((choice == 7) && (!(a_ptr->flags1 & TR1_SLAY_GIANT)))
-	    get_quality(TRUE, SLAY_GIANT, 0, a_idx);
-	  if ((choice == 8) && (!(a_ptr->flags1 & TR1_SLAY_DRAGON)))
-	    get_quality(TRUE, SLAY_DRAGON, 0, a_idx);
-	  if ((choice == 9) && (!(a_ptr->flags1 & TR1_BRAND_FIRE)))
-	    get_quality(TRUE, BRAND_FIRE, 0, a_idx);
-	  if ((choice == 10) && (!(a_ptr->flags1 & TR1_BRAND_COLD)))
-	    get_quality(TRUE, BRAND_COLD, 0, a_idx);
-	  if ((choice == 11) && (!(a_ptr->flags1 & TR1_BRAND_ACID)))
-	    get_quality(TRUE, BRAND_ACID, 0, a_idx);
-	  if ((choice == 12) && (!(a_ptr->flags1 & TR1_BRAND_ELEC)))
-	    get_quality(TRUE, BRAND_ELEC, 0, a_idx);
-	  if ((choice == 13) && (!(a_ptr->flags1 & TR1_BRAND_POIS)))
-	    get_quality(TRUE, BRAND_POIS, 0, a_idx);
+	  if ((choice == 1) && 
+	      (a_ptr->multiple_slay[P_SLAY_ANIMAL] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_ANIMAL, 7, a_idx);
+	  if ((choice == 2) && 
+	      (a_ptr->multiple_slay[P_SLAY_EVIL] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_EVIL, 5, a_idx);
+	  if ((choice == 3) && 
+	      (a_ptr->multiple_slay[P_SLAY_UNDEAD] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_UNDEAD, 10, a_idx);
+	  if ((choice == 4) && 
+	      (a_ptr->multiple_slay[P_SLAY_DEMON] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_DEMON, 10, a_idx);
+	  if ((choice == 5) && 
+	      (a_ptr->multiple_slay[P_SLAY_ORC] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_ORC, 10, a_idx);
+	  if ((choice == 6) && 
+	      (a_ptr->multiple_slay[P_SLAY_TROLL] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_TROLL, 10, a_idx);
+	  if ((choice == 7) && 
+	      (a_ptr->multiple_slay[P_SLAY_GIANT] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_GIANT, 10, a_idx);
+	  if ((choice == 8) && 
+	      (a_ptr->multiple_slay[P_SLAY_DRAGON] == MULTIPLE_BASE))
+	    get_quality(TRUE, SLAY_DRAGON, 10, a_idx);
+	  if ((choice == 9) && 
+	      (a_ptr->multiple_brand[P_BRAND_FIRE] == MULTIPLE_BASE))
+	    get_quality(TRUE, BRAND_FIRE, 7, a_idx);
+	  if ((choice == 10) && 
+	      (a_ptr->multiple_brand[P_BRAND_COLD] == MULTIPLE_BASE))
+	    get_quality(TRUE, BRAND_COLD, 7, a_idx);
+	  if ((choice == 11) && 
+	      (a_ptr->multiple_brand[P_BRAND_ACID] == MULTIPLE_BASE))
+	    get_quality(TRUE, BRAND_ACID, 7, a_idx);
+	  if ((choice == 12) && 
+	      (a_ptr->multiple_brand[P_BRAND_ELEC] == MULTIPLE_BASE))
+	    get_quality(TRUE, BRAND_ELEC, 7, a_idx);
+	  if ((choice == 13) && 
+	      (a_ptr->multiple_brand[P_BRAND_POIS] == MULTIPLE_BASE))
+	    get_quality(TRUE, BRAND_POIS, 7, a_idx);
 	  
 	  /* Often, collect a miscellanious quality, if it is affordable. */
 	  if (randint(2) == 1)
 	    {
-	      choice = randint(6);
+	      choice = randint(8);
 	      
-	      if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
+	      if ((choice == 1) && (!(a_ptr->flags_obj & OF_SLOW_DIGEST)))
 		get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-	      if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
+	      if ((choice == 2) && (!(a_ptr->flags_obj & OF_FEATHER)))
 		get_quality(FALSE, FEATHER, 0, a_idx);
-	      if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
-		get_quality(FALSE, LITE, 0, a_idx);
-	      if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
+	      if ((choice == 3) && (!(a_ptr->flags_obj & OF_LITE)))
+		get_quality(FALSE, LITE, 1, a_idx);
+	      if ((choice == 4) && (!(a_ptr->flags_obj & OF_REGEN)))
 		get_quality(FALSE, REGEN, 0, a_idx);
-	      if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
+	      if ((choice == 5) && (!(a_ptr->flags_obj & OF_SEE_INVIS)))
 		get_quality(FALSE, SEE_INVIS, 0, a_idx);
-	      if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
+	      if ((choice == 6) && (!(a_ptr->flags_obj & OF_FREE_ACT)))
 		get_quality(FALSE, FREE_ACT, 0, a_idx);
+	      if ((choice == 7) && (!(a_ptr->flags_obj & OF_FEARLESS)))
+		get_quality(FALSE, RES_FEAR, 0, a_idx);
+	      if ((choice == 8) && (!(a_ptr->flags_obj & OF_SEEING)))
+		get_quality(FALSE, RES_BLIND, 0, a_idx);
 	    }
 	  
 	  /* Sometimes, collect a resistance, if it is affordable. */
 	  if (randint(3) == 1)
 	    {
-	      choice = randint(13);
+	      choice = randint(11);
 	      
-	      if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
+	      if ((choice == 1) && 
+		  (!(a_ptr->percent_res[P_RES_FIRE] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_FIRE, 0, a_idx);
-	      if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
+	      if ((choice == 2) && 
+		  (!(a_ptr->percent_res[P_RES_COLD] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_COLD, 0, a_idx);
-	      if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
+	      if ((choice == 3) && 
+		  (!(a_ptr->percent_res[P_RES_ACID] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_ACID, 0, a_idx);
-	      if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
+	      if ((choice == 4) && 
+		  (!(a_ptr->percent_res[P_RES_ELEC] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_ELEC, 0, a_idx);
-	      if ((choice == 5) && (!(a_ptr->flags3 & TR3_FEARLESS)))
-		get_quality(FALSE, RES_FEAR, 0, a_idx);
-	      if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
+	      if ((choice == 5) && 
+		  (!(a_ptr->percent_res[P_RES_LITE] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_LITE, 0, a_idx);
-	      if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
+	      if ((choice == 6) && 
+		  (!(a_ptr->percent_res[P_RES_DARK] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_DARK, 0, a_idx);
-	      if ((choice == 8) && (!(a_ptr->flags3 & TR3_SEEING)))
-		get_quality(FALSE, RES_BLIND, 0, a_idx);
-	      if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
+	      if ((choice == 7) && 
+		  (!(a_ptr->percent_res[P_RES_CONFU] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_CONFU, 0, a_idx);
-	      if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
+	      if ((choice == 8) && 
+		  (!(a_ptr->percent_res[P_RES_SOUND] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_SOUND, 0, a_idx);
-	      if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
+	      if ((choice == 9) && 
+		  (!(a_ptr->percent_res[P_RES_SHARD] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_SHARD, 0, a_idx);
-	      if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
+	      if ((choice == 10) && 
+		  (!(a_ptr->percent_res[P_RES_NEXUS] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_NEXUS, 0, a_idx);
-	      if ((choice == 13) && (!(a_ptr->flags2 & TR2_RES_DISEN)))
+	      if ((choice == 11) && 
+		  (!(a_ptr->percent_res[P_RES_DISEN] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_DISEN, 0, a_idx);
 	    }
 	  
@@ -3830,52 +3946,63 @@ static void haggle_till_done(int a_idx)
       /* I'm a missile weapon. */
       if (a_ptr->tval == TV_BOW)
 	{
-	  /* Collect a miscellanious quality. */
-	  choice = randint(6);
+	  choice = randint(8);
 	  
-	  if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
-	    get_quality(TRUE, SLOW_DIGEST, 0, a_idx);
-	  if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
-	    get_quality(TRUE, FEATHER, 0, a_idx);
-	  if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
-	    get_quality(TRUE, LITE, 0, a_idx);
-	  if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
-	    get_quality(TRUE, REGEN, 0, a_idx);
-	  if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
-	    get_quality(TRUE, SEE_INVIS, 0, a_idx);
-	  if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
-	    get_quality(TRUE, FREE_ACT, 0, a_idx);
+	  /* Collect a miscellanious quality. */
+	  if ((choice == 1) && (!(a_ptr->flags_obj & OF_SLOW_DIGEST)))
+	    get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
+	  if ((choice == 2) && (!(a_ptr->flags_obj & OF_FEATHER)))
+	    get_quality(FALSE, FEATHER, 0, a_idx);
+	  if ((choice == 3) && (!(a_ptr->flags_obj & OF_LITE)))
+	    get_quality(FALSE, LITE, 1, a_idx);
+	  if ((choice == 4) && (!(a_ptr->flags_obj & OF_REGEN)))
+	    get_quality(FALSE, REGEN, 0, a_idx);
+	  if ((choice == 5) && (!(a_ptr->flags_obj & OF_SEE_INVIS)))
+	    get_quality(FALSE, SEE_INVIS, 0, a_idx);
+	  if ((choice == 6) && (!(a_ptr->flags_obj & OF_FREE_ACT)))
+	    get_quality(FALSE, FREE_ACT, 0, a_idx);
+	  if ((choice == 7) && (!(a_ptr->flags_obj & OF_FEARLESS)))
+	    get_quality(FALSE, RES_FEAR, 0, a_idx);
+	  if ((choice == 8) && (!(a_ptr->flags_obj & OF_SEEING)))
+	    get_quality(FALSE, RES_BLIND, 0, a_idx);
 	  
 	  /* Sometimes, collect a resistance, if it is affordable. */
 	  if (randint(2) == 1)
 	    {
-	      choice = randint(13);
+	      choice = randint(11);
 	      
-	      if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
+	      if ((choice == 1) && 
+		  (!(a_ptr->percent_res[P_RES_FIRE] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_FIRE, 0, a_idx);
-	      if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
+	      if ((choice == 2) && 
+		  (!(a_ptr->percent_res[P_RES_COLD] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_COLD, 0, a_idx);
-	      if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
+	      if ((choice == 3) && 
+		  (!(a_ptr->percent_res[P_RES_ACID] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_ACID, 0, a_idx);
-	      if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
+	      if ((choice == 4) && 
+		  (!(a_ptr->percent_res[P_RES_ELEC] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_ELEC, 0, a_idx);
-	      if ((choice == 5) && (!(a_ptr->flags3 & TR3_FEARLESS)))
-		get_quality(FALSE, RES_FEAR, 0, a_idx);
-	      if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
+	      if ((choice == 5) && 
+		  (!(a_ptr->percent_res[P_RES_LITE] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_LITE, 0, a_idx);
-	      if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
+	      if ((choice == 6) && 
+		  (!(a_ptr->percent_res[P_RES_DARK] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_DARK, 0, a_idx);
-	      if ((choice == 8) && (!(a_ptr->flags3 & TR3_SEEING)))
-		get_quality(FALSE, RES_BLIND, 0, a_idx);
-	      if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
+	      if ((choice == 7) && 
+		  (!(a_ptr->percent_res[P_RES_CONFU] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_CONFU, 0, a_idx);
-	      if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
+	      if ((choice == 8) && 
+		  (!(a_ptr->percent_res[P_RES_SOUND] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_SOUND, 0, a_idx);
-	      if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
+	      if ((choice == 9) && 
+		  (!(a_ptr->percent_res[P_RES_SHARD] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_SHARD, 0, a_idx);
-	      if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
+	      if ((choice == 10) && 
+		  (!(a_ptr->percent_res[P_RES_NEXUS] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_NEXUS, 0, a_idx);
-	      if ((choice == 13) && (!(a_ptr->flags2 & TR2_RES_DISEN)))
+	      if ((choice == 11) && 
+		  (!(a_ptr->percent_res[P_RES_DISEN] == RES_LEVEL_BASE)))
 		get_quality(FALSE, RES_DISEN, 0, a_idx);
 	    }
 	  
@@ -3893,52 +4020,64 @@ static void haggle_till_done(int a_idx)
       else
 	{
 	  /* Collect a resistance. */
-	  choice = randint(13);
+	  choice = randint(11);
 	  
-	  if ((choice == 1) && (!(a_ptr->flags2 & TR2_RES_FIRE)))
+	  if ((choice == 1) && 
+	      (!(a_ptr->percent_res[P_RES_FIRE] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_FIRE, 0, a_idx);
-	  if ((choice == 2) && (!(a_ptr->flags2 & TR2_RES_COLD)))
+	  if ((choice == 2) && 
+	      (!(a_ptr->percent_res[P_RES_COLD] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_COLD, 0, a_idx);
-	  if ((choice == 3) && (!(a_ptr->flags2 & TR2_RES_ACID)))
+	  if ((choice == 3) && 
+	      (!(a_ptr->percent_res[P_RES_ACID] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_ACID, 0, a_idx);
-	  if ((choice == 4) && (!(a_ptr->flags2 & TR2_RES_ELEC)))
+	  if ((choice == 4) && 
+	      (!(a_ptr->percent_res[P_RES_ELEC] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_ELEC, 0, a_idx);
-	  if ((choice == 5) && (!(a_ptr->flags3 & TR3_FEARLESS)))
-	    get_quality(TRUE, RES_FEAR, 0, a_idx);
-	  if ((choice == 6) && (!(a_ptr->flags2 & TR2_RES_LITE)))
+	  if ((choice == 5) && 
+	      (!(a_ptr->percent_res[P_RES_LITE] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_LITE, 0, a_idx);
-	  if ((choice == 7) && (!(a_ptr->flags2 & TR2_RES_DARK)))
+	  if ((choice == 6) && 
+	      (!(a_ptr->percent_res[P_RES_DARK] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_DARK, 0, a_idx);
-	  if ((choice == 8) && (!(a_ptr->flags3 & TR3_SEEING)))
-	    get_quality(TRUE, RES_BLIND, 0, a_idx);
-	  if ((choice == 9) && (!(a_ptr->flags2 & TR2_RES_CONFU)))
+	  if ((choice == 7) && 
+	      (!(a_ptr->percent_res[P_RES_CONFU] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_CONFU, 0, a_idx);
-	  if ((choice == 10) && (!(a_ptr->flags2 & TR2_RES_SOUND)))
+	  if ((choice == 8) && 
+	      (!(a_ptr->percent_res[P_RES_SOUND] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_SOUND, 0, a_idx);
-	  if ((choice == 11) && (!(a_ptr->flags2 & TR2_RES_SHARD)))
+	  if ((choice == 9) && 
+	      (!(a_ptr->percent_res[P_RES_SHARD] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_SHARD, 0, a_idx);
-	  if ((choice == 12) && (!(a_ptr->flags2 & TR2_RES_NEXUS)))
+	  if ((choice == 10) && 
+	      (!(a_ptr->percent_res[P_RES_NEXUS] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_NEXUS, 0, a_idx);
-	  if ((choice == 13) && (!(a_ptr->flags2 & TR2_RES_DISEN)))
+	  if ((choice == 11) && 
+	      (!(a_ptr->percent_res[P_RES_DISEN] == RES_LEVEL_BASE)))
 	    get_quality(TRUE, RES_DISEN, 0, a_idx);
 	  
 	  /* Sometimes, collect a miscellaneous quality, if it is affordable. */
 	  if (randint(3) == 1)
 	    {
-	      choice = randint(6);
+	      choice = randint(8);
 	      
-	      if ((choice == 1) && (!(a_ptr->flags3 & TR3_SLOW_DIGEST)))
+	      /* Collect a miscellanious quality. */
+	      if ((choice == 1) && (!(a_ptr->flags_obj & OF_SLOW_DIGEST)))
 		get_quality(FALSE, SLOW_DIGEST, 0, a_idx);
-	      if ((choice == 2) && (!(a_ptr->flags3 & TR3_FEATHER)))
+	      if ((choice == 2) && (!(a_ptr->flags_obj & OF_FEATHER)))
 		get_quality(FALSE, FEATHER, 0, a_idx);
-	      if ((choice == 3) && (!(a_ptr->flags3 & TR3_LITE)))
-		get_quality(FALSE, LITE, 0, a_idx);
-	      if ((choice == 4) && (!(a_ptr->flags3 & TR3_REGEN)))
+	      if ((choice == 3) && (!(a_ptr->flags_obj & OF_LITE)))
+		get_quality(FALSE, LITE, 1, a_idx);
+	      if ((choice == 4) && (!(a_ptr->flags_obj & OF_REGEN)))
 		get_quality(FALSE, REGEN, 0, a_idx);
-	      if ((choice == 5) && (!(a_ptr->flags3 & TR3_SEE_INVIS)))
+	      if ((choice == 5) && (!(a_ptr->flags_obj & OF_SEE_INVIS)))
 		get_quality(FALSE, SEE_INVIS, 0, a_idx);
-	      if ((choice == 6) && (!(a_ptr->flags3 & TR3_FREE_ACT)))
+	      if ((choice == 6) && (!(a_ptr->flags_obj & OF_FREE_ACT)))
 		get_quality(FALSE, FREE_ACT, 0, a_idx);
+	      if ((choice == 7) && (!(a_ptr->flags_obj & OF_FEARLESS)))
+		get_quality(FALSE, RES_FEAR, 0, a_idx);
+	      if ((choice == 8) && (!(a_ptr->flags_obj & OF_SEEING)))
+		get_quality(FALSE, RES_BLIND, 0, a_idx);
 	    }
 	  
 	  /* Clean out the wallet. */
@@ -3956,43 +4095,40 @@ static void haggle_till_done(int a_idx)
   /* If an artifact affects a stat, it may also possibly sustain it. */
   choice = randint(6);
   
-  if ((choice == 1) && (a_ptr->flags1 & TR1_STR))
-    a_ptr->flags2 |= TR2_SUST_STR;
-  else if ((choice == 2) && (a_ptr->flags1 & TR1_WIS))
-    a_ptr->flags2 |= TR2_SUST_WIS;
-  else if ((choice == 3) && (a_ptr->flags1 & TR1_INT))
-    a_ptr->flags2 |= TR2_SUST_INT;
-  else if ((choice == 4) && (a_ptr->flags1 & TR1_DEX))
-    a_ptr->flags2 |= TR2_SUST_DEX;
-  else if ((choice == 5) && (a_ptr->flags1 & TR1_CON))
-    a_ptr->flags2 |= TR2_SUST_CON;
-  else if ((choice == 6) && (a_ptr->flags1 & TR1_CHR))
-    a_ptr->flags2 |= TR2_SUST_CHR;
+  if ((choice == 1) && (a_ptr->bonus_stat[A_STR] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_STR;
+  else if ((choice == 2) && (a_ptr->bonus_stat[A_WIS] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_WIS;
+  else if ((choice == 3) && (a_ptr->bonus_stat[A_INT] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_INT;
+  else if ((choice == 4) && (a_ptr->bonus_stat[A_DEX] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_DEX;
+  else if ((choice == 5) && (a_ptr->bonus_stat[A_CON] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_CON;
+  else if ((choice == 6) && (a_ptr->bonus_stat[A_CHR] > 0))
+    a_ptr->flags_obj |= OF_SUSTAIN_CHR;
   
   /* Armour gets a basic resist or low-level ability with 50% 
    * probability, and weapons with 25% probability.
    */
 
-#if 0 /* Oh not they don't! If this is ever reinstated it
-         needs percentage resists */
   if (((a_ptr->tval >= TV_BOOTS) && (randint(2) == 1)) || 
       (randint(4) == 1))
     {
       choice = randint(6);
       if (choice == 1)
-	a_ptr->flags2 |= TR2_RES_FIRE;
+	a_ptr->percent_res[P_RES_FIRE] /= 2;
       else if (choice == 2)
-	a_ptr->flags2 |= TR2_RES_COLD;
+	a_ptr->percent_res[P_RES_COLD] /= 2;
       else if (choice == 3)
-	a_ptr->flags2 |= TR2_RES_ACID;
+	a_ptr->percent_res[P_RES_ACID] /= 2;
       else if (choice == 4)
-	a_ptr->flags2 |= TR2_RES_ELEC;
+	a_ptr->percent_res[P_RES_ELEC] /= 2;
       else if (choice == 5)
-	a_ptr->flags3 |= TR3_SLOW_DIGEST;
+	a_ptr->flags_obj |= OF_SLOW_DIGEST;
       else if (choice == 6)
-	a_ptr->flags3 |= TR3_FEATHER;
+	a_ptr->flags_obj |= OF_FEATHER;
     }
-#endif
   
   /* Frequently neaten bonuses to Armour Class, Skill, and Deadliness. */
   {
@@ -4020,17 +4156,16 @@ static void make_terrible(int a_idx)
 {
   artifact_type *a_ptr = &a_info[a_idx];
   
-  int i, gauntlet_runs, wheel_of_doom, penalty;
+  int i, j, gauntlet_runs, wheel_of_doom, penalty;
   
-  bool heavy_curse = FALSE;
-  bool aggravation = FALSE;
+  int num_curses = 1;
   
   
   /* Determine whether the artifact's magics are perilous enough to warrant 
-   * a heavy curse or an aggravation.
+   * extra curses.
    */
-  if (potential >= 3000) heavy_curse = TRUE;
-  if ((potential >= 3500) && (randint(3) != 1)) aggravation = TRUE;
+  if (potential >= 3000) num_curses++;
+  if ((potential >= 3500) && (randint(3) != 1)) num_curses++;
 
   
   /* Greatly decrease the chance for an activation. */
@@ -4124,93 +4259,88 @@ static void make_terrible(int a_idx)
 	  
 	}
       
-      /* Make any positive pval negative, or strip all pval_dependant 
-       * values, add a random stat or three, and infict a large negative 
-       * pval. */
+      /* Make any bonuses negative, or strip all bonuses, 
+       * and add a random stat or three with large negative bonuses. */
       if (wheel_of_doom == 3)
 	{
-	  if ((randint(3) != 1) && (a_ptr->pval > 0))
+	  if (randint(3) != 1)
 	    {
-	      penalty = -(a_ptr->pval);
-	      a_ptr->pval = penalty;
+	      for (j = 0; j < A_MAX; j++)
+		{
+		  penalty = -(a_ptr->bonus_stat[j]);
+		  a_ptr->bonus_stat[j] = penalty;
+		  penalty = -(a_ptr->bonus_other[j]);
+		  a_ptr->bonus_other[j] = penalty;
+		}
 	      
 	      /* Artifact is highly unlikely to have any value. */
 	      a_ptr->cost -= 30000L;
 	      if (a_ptr->cost < 0) a_ptr->cost = 0;
 	    }
 	  
-	  else if (a_ptr->pval > 0)
+	  else
 	    {
-	      a_ptr->flags1 &= ~(TR1_STR);
-	      a_ptr->flags1 &= ~(TR1_WIS);
-	      a_ptr->flags1 &= ~(TR1_INT);
-	      a_ptr->flags1 &= ~(TR1_DEX);
-	      a_ptr->flags1 &= ~(TR1_CON);
-	      a_ptr->flags1 &= ~(TR1_CHR);
-	      a_ptr->flags1 &= ~(TR1_INFRA);
-	      a_ptr->flags1 &= ~(TR1_STEALTH);
-	      a_ptr->flags1 &= ~(TR1_SPEED);
-	      a_ptr->flags1 &= ~(TR1_MAGIC_MASTERY);
-	      a_ptr->flags1 &= ~(TR1_SEARCH);
-	      a_ptr->flags1 &= ~(TR1_TUNNEL);
-	      
-	      if (randint(5) == 1)
-		{
-		  a_ptr->flags1 |= (TR1_STR);
-		  a_ptr->flags1 |= (TR1_DEX);
-		  a_ptr->flags1 |= (TR1_CON);
-		}
-	      else if (randint(4) == 1)
-		{
-		  a_ptr->flags1 |= (TR1_WIS);
-		  a_ptr->flags1 |= (TR1_INT);
-		}
-	      else if (randint(6) == 1)
-		{
-		  a_ptr->flags1 |= (TR1_SPEED);
-		}
-	      else
-		{
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_STR);
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_DEX);
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_CON);
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_WIS);
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_INT);
-		  if (randint(4) == 1) a_ptr->flags1 |= (TR1_CHR);
-		}
-	      
 	      /* Iron Crown of Beruthiel, here we come... */
 	      penalty = -(randint(5)) - 3;
 	      if (randint(3) == 1) penalty *= 5;
-	      a_ptr->pval = penalty;
 	      
+	      for (j = 0; j < A_MAX; j++)
+		{
+		  a_ptr->bonus_stat[j] = 0;
+		  a_ptr->bonus_other[j] = 0;
+		}
+	      if (randint(5) == 1)
+		{
+		  a_ptr->bonus_stat[A_STR] = penalty;
+		  a_ptr->bonus_stat[A_DEX] = penalty;
+		  a_ptr->bonus_stat[A_CON] = penalty;
+		}
+	      else if (randint(4) == 1)
+		{
+		  a_ptr->bonus_stat[A_WIS] = penalty;
+		  a_ptr->bonus_stat[A_INT] = penalty;
+		}
+	      else if (randint(6) == 1)
+		{
+		  a_ptr->bonus_stat[P_BONUS_SPEED] = penalty;
+		}
+	      else
+		{
+		  for (j = 0; j < A_MAX; j++)
+		    if (randint(4) == 1) a_ptr->bonus_stat[j] = penalty;
+		}
+
+	      /* More curses for good measure... */
+	      num_curses += randint(2);
+
+	      /* ...and hard to get rid of */
+	      a_ptr->flags_curse |= CF_STICKY_CARRY;
 	      
 	      /* Artifact is highly unlikely to have any value. */
-	      if (a_ptr->pval < 0) a_ptr->cost -= 60000L;
+	      a_ptr->cost -= 60000L;
 	      if (a_ptr->cost < 0) a_ptr->cost = 0;
 	    }
 	}
       
-      /* Strip lots of non pval-dependant qualities. */
+      /* Strip lots of other qualities. */
       if (wheel_of_doom == 4)
 	{
-	  if (randint(4) == 1) a_ptr->flags1 &= ~(TR1_SHOTS);
-	  if (randint(4) == 1) a_ptr->flags1 &= ~(TR1_MIGHT2);
-	  if (randint(4) == 1) a_ptr->flags1 &= ~(TR1_MIGHT1);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_ANIMAL);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_EVIL);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_ORC);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_TROLL);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_GIANT);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_PERFECT_BALANCE);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_BRAND_POIS);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_BRAND_ACID);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_BRAND_ELEC);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_BRAND_FIRE);
-	  if (randint(3) == 1) a_ptr->flags1 &= ~(TR1_BRAND_COLD);
+	  if (randint(4) == 1) a_ptr->bonus_other[P_BONUS_SHOTS] = 0;
+	  if (randint(4) == 1) a_ptr->bonus_other[P_BONUS_MIGHT] = 0;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_ANIMAL] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_EVIL] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_UNDEAD] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_DEMON] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_ORC] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_TROLL] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_GIANT] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_slay[P_SLAY_DRAGON] = 10;
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_PERFECT_BALANCE);
+	  if (randint(3) == 1) a_ptr->multiple_brand[P_BRAND_POIS] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_brand[P_BRAND_ACID] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_brand[P_BRAND_ELEC] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_brand[P_BRAND_FIRE] = 10;
+	  if (randint(3) == 1) a_ptr->multiple_brand[P_BRAND_COLD] = 10;
 	  
 	  if (randint(3) == 1) 
 	    a_ptr->percent_res[P_RES_ACID] += 
@@ -4255,16 +4385,16 @@ static void make_terrible(int a_idx)
 	    a_ptr->percent_res[P_RES_DISEN] += 
 	      (2 * (100 - a_ptr->percent_res[P_RES_DISEN]));
 	  
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_SLOW_DIGEST);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_FEATHER);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_LITE);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_REGEN);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_TELEPATHY);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_SEE_INVIS);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_FREE_ACT);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_FEARLESS);
-	  if (randint(3) == 1) a_ptr->flags3 &= ~(TR3_SEEING);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_SLOW_DIGEST);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_FEATHER);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_LITE);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_REGEN);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_TELEPATHY);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_SEE_INVIS);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_FREE_ACT);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_HOLD_LIFE);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_FEARLESS);
+	  if (randint(3) == 1) a_ptr->flags_obj &= ~(OF_SEEING);
 	  
 	  /* Artifact will still have some value. */
 	  if (a_ptr->cost > 0) a_ptr->cost /= 3L;
@@ -4274,74 +4404,46 @@ static void make_terrible(int a_idx)
   /* Boundary control. */
   if (a_ptr->cost < 0) a_ptr->cost = 0;
   
-  /* Apply curses, agggravation, and teleportation. */
-  a_ptr->flags3 |= TR3_LIGHT_CURSE;
-  
-  if (heavy_curse) a_ptr->flags3 |= TR3_HEAVY_CURSE;
-  if (aggravation) a_ptr->flags3 |= TR3_AGGRAVATE;
-  if (randint(6) == 6) a_ptr->flags3 |= TR3_TELEPORT;
+  /* Apply curses. */
+  for (i = 0; i < num_curses; i++)
+    a_ptr->flags_curse 
+      |= (OBJECT_RAND_BASE_CURSE << rand_int(OBJECT_RAND_SIZE_CURSE));
 }
 
 
 
 /* 
- * Clean up the artifact by removing illogical combinations of powers.  
- * Adopted from Greg Wooledge's random artifact creation code.
+ * Clean up the artifact by removing illogical combinations of powers -  
+ * curses win out every time.
  */
 static void remove_contradictory(int a_idx)
 {
   artifact_type *a_ptr = &a_info[a_idx];
-  
-  if (a_ptr->flags3 & TR3_AGGRAVATE) a_ptr->flags1 &= ~(TR1_STEALTH);
-  if (a_ptr->flags2 & TR2_IM_ACID) a_ptr->flags2 &= ~(TR2_RES_ACID);
-  if (a_ptr->flags2 & TR2_IM_ELEC) a_ptr->flags2 &= ~(TR2_RES_ELEC);
-  if (a_ptr->flags2 & TR2_IM_FIRE) a_ptr->flags2 &= ~(TR2_RES_FIRE);
-  if (a_ptr->flags2 & TR2_IM_COLD) a_ptr->flags2 &= ~(TR2_RES_COLD);
-  if (a_ptr->pval < 0)
-    {
-      if (a_ptr->flags1 & TR1_STR) a_ptr->flags2 &= ~(TR2_SUST_STR);
-      if (a_ptr->flags1 & TR1_INT) a_ptr->flags2 &= ~(TR2_SUST_INT);
-      if (a_ptr->flags1 & TR1_WIS) a_ptr->flags2 &= ~(TR2_SUST_WIS);
-      if (a_ptr->flags1 & TR1_DEX) a_ptr->flags2 &= ~(TR2_SUST_DEX);
-      if (a_ptr->flags1 & TR1_CON) a_ptr->flags2 &= ~(TR2_SUST_CON);
-      if (a_ptr->flags1 & TR1_CHR) a_ptr->flags2 &= ~(TR2_SUST_CHR);
-    }
-  if (a_ptr->flags3 & TR3_LIGHT_CURSE) a_ptr->flags3 &= ~(TR3_BLESSED);
-
-  /* Oangband drain_exp is too nasty to lightly distribute. */
-  /*if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);*/
-}
-
-void alloc_percentages(int a_idx)
-{
-  artifact_type *a_ptr = &a_info[a_idx];
   int i;
-  int fudge = 0;
   
-  /* Allocate percentages to resistances */
-  for (i = 0; i < MAX_P_RES; i++)
+  if (a_ptr->flags_curse & CF_AGGRO_PERM) 
+    a_ptr->bonus_other[P_BONUS_STEALTH] = 0;
+  if (a_ptr->flags_curse)                 a_ptr->flags_obj &= ~(OF_BLESSED);
+  if (a_ptr->flags_curse & CF_DRAIN_EXP)  a_ptr->flags_obj &= ~(OF_HOLD_LIFE);
+  if (a_ptr->flags_curse & CF_SLOW_REGEN) a_ptr->flags_obj &= ~(OF_REGEN);
+  if (a_ptr->flags_curse & CF_AFRAID)     a_ptr->flags_obj &= ~(OF_FEARLESS);
+  if (a_ptr->flags_curse & CF_HUNGRY)     a_ptr->flags_obj &= ~(OF_SLOW_DIGEST);
+  if (a_ptr->flags_curse & CF_PARALYZE)   a_ptr->flags_obj &= ~(OF_FREE_ACT);
+  for (i = 0; i < A_MAX; i++)
     {
-      /* Hack - avoid Fear and Blindness */
-      if ((i == 5) || (i == 7)) fudge++;
-
-      if (a_ptr->flags2 & (1L << (16 + i + fudge)))
-	{
-	  /* Max resist of any one item is 80% */
-	  if (a_ptr->percent_res[i] < RES_CAP_ITEM) 
-	    a_ptr->percent_res[i] = RES_CAP_ITEM;
-	}
-      else
-	a_ptr->percent_res[i] = RES_LEVEL_BASE;
+      if (a_ptr->bonus_stat[i] < 0) a_ptr->flags_obj &= ~(OF_SUSTAIN_STR << i);
+      if (a_ptr->bonus_stat[i] > 6) a_ptr->bonus_stat[i] = 6;
     }
-
-  /* Allocate percentages and flags to immunities */
-  for (i = 0; i < 4; i++)
-    if (a_ptr->flags2 & (1L << (12 + i)))
-      {
-	a_ptr->percent_res[i] = 0;
-	a_ptr->flags2 |= (TR2_IM_ACID << i);
-      }
-}    
+  for (i = 0; i < MAX_P_BONUS; i++)
+    {
+      if ((a_ptr->bonus_stat[i] > 6) && (i != P_BONUS_SPEED))
+	a_ptr->bonus_stat[i] = 6;
+    }
+  if ((a_ptr->flags_curse & CF_NO_TELEPORT) && 
+      ((a_ptr->activation = ACT_RANDOM_TELEPORT1) || 
+       (a_ptr->activation = ACT_RANDOM_TELEPORT2)))
+    a_ptr->activation = 0;
+}
 
 
 /* 
@@ -4362,15 +4464,16 @@ static char *my_strdup (const char *s)
  */
 static void build_prob(void)
 {
+  byte next;
   int c_prev, c_cur, c_next;
-  FILE *f;
+  ang_file *f;
   char buf [BUFLEN];
   
   /* Open the file containing our lexicon, and read from it.  Warn the 
    * rest of the code that random names are unavailable on failure.
    */
   path_build (buf, BUFLEN, ANGBAND_DIR_FILE, NAMES_FILE);
-  if ((f = my_fopen(buf, "r")) == NULL)
+  if ((f = file_open(buf, MODE_READ, FTYPE_TEXT)) == NULL)
     {
       find_all_names = TRUE;
       return;
@@ -4379,23 +4482,24 @@ static void build_prob(void)
   /* Build raw frequencies */
   while (1)
     {
+      bool not_eof;
       c_prev = c_cur = S_WORD;
       
       do
 	{
-	  c_next = fgetc (f);
-	} while (!isalpha (c_next) && (c_next != EOF));
-      if (c_next == EOF) break;
+	  not_eof = file_readc(f, &next);
+	} while (!isalpha (next) && (not_eof));
+      if (!not_eof) break;
       
       do
 	{
-	  c_next = tolower (c_next) - 'a';	/* ASCII */
+	  c_next = tolower (next) - 'a';	/* ASCII */
 	  lprobs[c_prev][c_cur][c_next]++;
 	  ltotal[c_prev][c_cur]++;
 	  c_prev = c_cur;
 	  c_cur = c_next;
-	  c_next = fgetc (f);
-	} while (isalpha (c_next));
+	  (void)file_readc(f, &next);
+	} while (isalpha (next));
       
       lprobs [c_prev][c_cur][E_WORD]++;
       ltotal [c_prev][c_cur]++;
@@ -4403,7 +4507,7 @@ static void build_prob(void)
   
   
   /* Close the file. */
-  fclose(f);
+  file_close(f);
 }
 
 
@@ -4487,8 +4591,9 @@ static char *find_word(int a_idx)
   /* Select a file, depending on whether the artifact is a weapon or 
    * armour, and whether or not it is cursed.  Get a random line from 
    * that file.
+   * Decision now based on cost -NRM-
    */
-  if (a_ptr->flags3 & TR3_LIGHT_CURSE)
+  if (a_ptr->cost == 0L)
     {
       if ((a_ptr->tval == TV_BOW) || (a_ptr->tval == TV_SWORD) || 
 	  (a_ptr->tval == TV_HAFTED) || (a_ptr->tval == TV_POLEARM))
@@ -4588,9 +4693,6 @@ static void design_random_artifact(int a_idx)
   /* Remove contradictory powers. */
   remove_contradictory(a_idx);
 
-  /* Allocate percentage resistances */
-  alloc_percentages(a_idx);
-  
   /* Find or make a name for the artifact, and place into a temporary array. */
   name_artifact(a_idx);
 }

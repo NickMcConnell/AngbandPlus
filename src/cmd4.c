@@ -23,6 +23,38 @@
 /* max length of note output */
 #define LINEWRAP        75
 
+static void dump_pref_file(void (*dump)(ang_file *), const char *title, int row)
+{
+	char ftmp[80];
+	char buf[1024];
+
+	/* Prompt */
+	prt(format("%s to a pref file", title), row, 0);
+	
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+	
+	/* Default filename */
+	strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name);
+	
+	/* Get a filename */
+	if (!askfor_aux(ftmp, sizeof ftmp, NULL)) return;
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, ftmp);
+	
+	if (!prefs_save(buf, dump, title))
+	{
+		prt("", 0, 0);
+		msg_print("Failed");
+		return;
+	}
+
+	/* Message */
+	prt("", 0, 0);
+	msg_print(format("Dumped %s", strstr(title, " ")+1));
+}
+
 static void do_cmd_pref_file_hack(long row);
 
 
@@ -111,16 +143,6 @@ typedef struct join
 
 /* A default group-by */
 static join_t *default_join;
-#if 0
-static int default_join_cmp(const void *a, const void *b)
-{
-  join_t *ja = &default_join[*(int*)a];
-  join_t *jb = &default_join[*(int*)b];
-  int c = ja->gid - jb->gid;
-  if (c) return c;
-  return ja->oid - jb->oid;
-}
-#endif
 static int default_group(int oid) { return default_join[oid].gid; }
 
 
@@ -312,10 +334,6 @@ static void display_group_member(menu_type *menu, int oid,
   
   /* Print the interesting part */
   o_funcs->display_member(col, row, cursor, oid);
-  
-#if 0 /* Debugging code */
-  c_put_str(attr, format("%d", oid), row, 60);
-#endif
   
   /* Do visual mode */
   if (o_funcs->is_visual && o_funcs->xattr)
@@ -1235,7 +1253,7 @@ static void desc_art_fake(int a_idx)
   
   /* Make fake artifact */
   make_fake_artifact(o_ptr, a_idx);
-  o_ptr->ident |= IDENT_MENTAL;
+  o_ptr->ident |= IDENT_KNOWN;
   
   /* Hack -- Handle stuff */
   handle_stuff();
@@ -1356,9 +1374,10 @@ static void display_ego_item(int col, int row, bool cursor, int oid)
 static void desc_ego_fake(int oid)
 {
   /* Hack: dereference the join */
-  const char *cursed[] = { "permanently cursed", "heavily cursed", "cursed" };
-  const char *xtra[] = { "sustain", "higher resistance", "ability" };
-  int f3, i;
+  const char *xtra[] = { "vulnerability", "pair of small resistances", 
+			 "resistance", "high resistance", "sustain", "ability",
+			 "curse" };
+  int num = 0, i;
   
   int e_idx = default_join[oid].oid;
   ego_item_type *e_ptr = &e_info[e_idx];
@@ -1386,19 +1405,29 @@ static void desc_ego_fake(int oid)
       Term_gotoxy(0, y+1);
     }
   
-  /* List ego flags */
-  dummy.name2 = e_idx;
-  if (e_ptr->xtra)
-    text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
   
-  for (i = 0, f3 = TR3_PERMA_CURSE; i < 3 ; f3 >>= 1, i++)
+  /* Count ego flags */
+  for (i = 0; i < 7; i++)
     {
-      if (e_ptr->flags3 & f3)
+      if (e_ptr->flags_kind & (KF_RAND_RES_NEG << i)) num++;
+    }
+
+  if (num) text_out("It provides ");
+
+  /* List ego flags */
+  for (i = 0; i < 7; i++)
+    {
+      char punct[10];
+      if (e_ptr->flags_kind & (KF_RAND_RES_NEG << i))
 	{
-	  text_out_c(TERM_RED, format("It is %s.", cursed[i]));
-	  break;
+	  if (num > 2) strcpy(punct, ", ");
+	  else if (num == 2) strcpy(punct, " and ");
+	  else if (num == 1) strcpy(punct, ".");
+	  num--;
+	  text_out(format("one random %s%s", xtra[i], punct));
 	}
     }
+
   
   Term_flush();
   
@@ -1528,7 +1557,7 @@ static void desc_obj_fake(int k_idx)
   object_prep(o_ptr, k_idx);
   
   /* Hack -- its in the store */
-  //if (k_info[k_idx].aware) o_ptr->ident |= (IDENT_STORE);
+  if (k_info[k_idx].aware) o_ptr->ident |= (IDENT_STORE);
   
   /* It's fully know */
   if (!k_info[k_idx].flavor) object_known(o_ptr);
@@ -2410,7 +2439,7 @@ void do_cmd_pref(void)
   if (!get_string("Pref: ", tmp, 80)) return;
   
   /* Process that pref command */
-  (void)process_pref_file_aux(tmp);
+  (void)process_pref_file_command(tmp);
 }
 
 
@@ -2758,344 +2787,6 @@ static void do_cmd_options_win(void)
 }
 
 
-/*
- *  Header and footer marker string for pref file dumps
- */
-static cptr dump_separator = "#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#";
-
-
-/*
- * Remove old lines from pref files
- */
-static void remove_old_dump(const char *orig_file, const char *mark)
-{
-  FILE *tmp_fff, *orig_fff;
-  
-  char tmp_file[1024];
-  char buf[1024];
-  bool between_marks = FALSE;
-  bool changed = FALSE;
-  char expected_line[1024];
-  
-  
-  /* Open an old dump file in read-only mode */
-  orig_fff = my_fopen(orig_file, "r");
-  
-  /* If original file does not exist, nothing to do */
-  if (!orig_fff) return;
-  
-  /* Open a new temporary file */
-  tmp_fff = my_fopen_temp(tmp_file, sizeof(tmp_file));
-  
-  if (!tmp_fff)
-    {
-      msg_format("Failed to create temporary file %s.", tmp_file);
-      msg_print(NULL);
-      return;
-    }
-  
-  /* Work out what we expect to find */
-  strnfmt(expected_line, sizeof(expected_line), "%s begin %s", dump_separator, 
-	  mark);
-  
-  /* Loop for every line */
-  while (TRUE)
-    {
-      /* Read a line */
-      if (my_fgets(orig_fff, buf, sizeof(buf)))
-	{
-	  /* End of file but no end marker */
-	  if (between_marks) changed = FALSE;
-	  
-	  break;
-	}
-      
-      /* Is this line a header/footer? */
-      if (strncmp(buf, dump_separator, strlen(dump_separator)) == 0)
-	{
-	  /* Found the expected line? */
-	  if (strcmp(buf, expected_line) == 0)
-	    {
-	      if (!between_marks)
-		{
-		  /* Expect the footer next */
-		  strnfmt(expected_line, sizeof(expected_line),
-			  "%s end %s", dump_separator, mark);
-		  
-		  between_marks = TRUE;
-		  
-		  /* There are some changes */
-		  changed = TRUE;
-		}
-	      else
-		{
-		  /* Expect a header next - XXX shouldn't happen */
-		  strnfmt(expected_line, sizeof(expected_line),
-			  "%s begin %s", dump_separator, mark);
-		  
-		  between_marks = FALSE;
-		  
-		  /* Next line */
-		  continue;
-		}
-	    }
-	  
-	  /* Found a different line */
-	  else
-	    {
-	      /* Expected a footer and got something different? */
-	      if (between_marks)
-		{
-		  /* Abort */
-		  changed = FALSE;
-		  break;
-		}
-	    }
-	}
-      
-      if (!between_marks)
-	{
-	  /* Copy orginal line */
-	  fprintf(tmp_fff, "%s\n", buf);
-	}
-    }
-  
-  /* Close files */
-  my_fclose(orig_fff);
-  my_fclose(tmp_fff);
-  
-  /* If there are changes, overwrite the original file with the new one */
-  if (changed)
-    {
-      /* Copy contents of temporary file */
-      tmp_fff = my_fopen(tmp_file, "r");
-      orig_fff = my_fopen(orig_file, "w");
-      
-      while (!my_fgets(tmp_fff, buf, sizeof(buf)))
-	fprintf(orig_fff, "%s\n", buf);
-      
-      my_fclose(orig_fff);
-      my_fclose(tmp_fff);
-    }
-  
-  /* Kill the temporary file */
-  fd_kill(tmp_file);
-}
-
-
-/*
- * Output the header of a pref-file dump
- */
-static void pref_header(FILE *fff, const char *mark)
-{
-  /* Start of dump */
-  fprintf(fff, "%s begin %s\n", dump_separator, mark);
-  
-  fprintf(fff, "# *Warning!*  The lines below are an automatic dump.\n");
-  fprintf(fff, "# Don't edit them; changes will be deleted and replaced automatically.\n");
-}
-
-/*
- * Output the footer of a pref-file dump
- */
-static void pref_footer(FILE *fff, const char *mark)
-{
-  fprintf(fff, "# *Warning!*  The lines above are an automatic dump.\n");
-  fprintf(fff, "# Don't edit them; changes will be deleted and replaced automatically.\n");
-  
-  /* End of dump */
-  fprintf(fff, "%s end %s\n", dump_separator, mark);
-}
-
-
-/*
- * Interactively dump preferences to a file.
- *
- * - Title must have the form "Dump <pref-type>"
- * - dump(FILE *) needs to emit only the raw data for the dump.
- *   Comments are generated automatically
- */
-static void dump_pref_file(void (*dump)(FILE*), const char *title, int row)
-{
-  char ftmp[80];
-  char buf[1025];
-  FILE *fff;
-  
-  /* Prompt */
-  prt(format("%s to a pref file", title), row, 0);
-  
-  /* Prompt */
-  prt("File: ", row + 2, 0);
-  
-  /* Default filename */
-  strnfmt(ftmp, sizeof ftmp, "%s.prf", op_ptr->base_name);
-  
-  /* Get a filename */
-  if (!askfor_aux(ftmp, sizeof ftmp, NULL)) return;
-  
-  /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, ftmp);
-  
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
-  /* Remove old macros */
-  remove_old_dump(buf, title);
-  
-  /* Append to the file */
-  fff = my_fopen(buf, "a");
-  
-  /* Failure */
-  if (!fff)
-    {
-      msg_print("Failed");
-      return;
-    }
-  
-  /* Output header */
-  pref_header(fff, title);
-  
-  /* Skip some lines */
-  fprintf(fff, "\n\n");
-  
-  /* Start dumping */
-  fprintf(fff, "# %s definitions\n\n", strstr(title, " "));
-  
-  dump(fff);
-  
-  /* All done */
-  fprintf(fff, "\n\n\n");
-  
-  /* Output footer */
-  pref_footer(fff, title);
-  
-  /* Close */
-  my_fclose(fff);
-  
-  /* Message */
-  msg_print(format("Dumped %s", strstr(title, " ")+1));
-}
-
-/*
- * Save autoinscription data to a pref file.
- */
-static void autoinsc_dump(FILE *fff)
-{
-  int i;
-  
-  if (!inscriptions)
-    return;
-  
-  /* Start dumping */
-  fprintf(fff, "# Autoinscription settings");
-  fprintf(fff, "# B:item kind:inscription\n\n");
-  
-  for (i = 0; i < inscriptions_count; i++)
-    {
-      object_kind *k_ptr = &k_info[inscriptions[i].kind_idx];
-      
-      /* Describe and write */
-      fprintf(fff, "# Autoinscription for %s\n", k_name + k_ptr->name);
-      fprintf(fff, "B:%d:%s\n\n", inscriptions[i].kind_idx,
-	      quark_str(inscriptions[i].inscription_idx));
-    }
-  
-  /* All done */
-  fprintf(fff, "\n");
-}
-
-/*
- * Save squelch data to a pref file.
- */
-static void squelch_dump(FILE *fff)
-{
-  int i;
-  int tval, sval;
-  bool squelch;
-  
-  /* Start dumping */
-  fprintf(fff, "\n\n");
-  fprintf(fff, "# Squelch bits\n\n");
-  
-  /* Dump squelch bits */
-  for (i = 1; i < z_info->k_max; i++)
-    {
-      tval = k_info[i].tval;
-      sval = k_info[i].sval;
-      squelch = k_info[i].squelch;
-      
-      /* Dump the squelch info */
-      if (tval || sval)
-	fprintf(fff, "Q:%d:%d:%d:%d\n", i, tval, sval, squelch);
-    }
-  
-  /* All done */
-  fprintf(fff, "\n");
-}
-
-/*
- * Write all current options to a user preference file.
- */
-static void option_dump(FILE *fff)
-{
-  int i, j;
-  
-  /* Dump options (skip cheat, adult, score) */
-  for (i = 0; i < OPT_cheat_start; i++)
-    {
-      /* Require a real option */
-      if (!option_text[i]) continue;
-      
-      /* Comment */
-      fprintf(fff, "# Option '%s'\n", option_desc[i]);
-      
-      /* Dump the option */
-      if (op_ptr->opt[i])
-	{
-	  fprintf(fff, "Y:%s\n", option_text[i]);
-	}
-      else
-	{
-	  fprintf(fff, "X:%s\n", option_text[i]);
-	}
-      
-      /* Skip a line */
-      fprintf(fff, "\n");
-    }
-  
-  /* Dump window flags */
-  for (i = 1; i < ANGBAND_TERM_MAX; i++)
-    {
-      /* Require a real window */
-      if (!angband_term[i]) continue;
-      
-      /* Check each flag */
-      for (j = 0; j < (int)N_ELEMENTS(window_flag_desc); j++)
-	{
-	  /* Require a real flag */
-	  if (!window_flag_desc[j]) continue;
-	  
-	  /* Comment */
-	  fprintf(fff, "# Window '%s', Flag '%s'\n",
-		  angband_term_name[i], window_flag_desc[j]);
-	  
-	  /* Dump the flag */
-	  if (op_ptr->window_flag[i] & (1L << j))
-	    {
-	      fprintf(fff, "W:%d:%d:1\n", i, j);
-	    }
-	  else
-	    {
-	      fprintf(fff, "W:%d:%d:0\n", i, j);
-	    }
-	  
-	  /* Skip a line */
-	  fprintf(fff, "\n");
-	}
-    }
-  autoinsc_dump(fff);
-  squelch_dump(fff);
-}
-
 /* Hack -- Base Delay Factor */
 void do_cmd_delay(void)
 {
@@ -3348,37 +3039,6 @@ static void do_cmd_options_autosave(void)
 
 #ifdef ALLOW_MACROS
 
-/*
- * append all current macros to the given file
- */
-static void macro_dump(FILE *fff)
-{
-  int i;
-  char buf[1024];
-  
-  /* Dump them */
-  for (i = 0; i < macro__num; i++)
-    {
-      /* Start the macro */
-      fprintf(fff, "# Macro '%d'\n\n", i);
-      
-      /* Extract the macro action */
-      ascii_to_text(buf, sizeof(buf), macro__act[i]);
-      
-      /* Dump the macro action */
-      fprintf(fff, "A:%s\n", buf);
-      
-      /* Extract the macro pattern */
-      ascii_to_text(buf, sizeof(buf), macro__pat[i]);
-      
-      /* Dump the macro pattern */
-      fprintf(fff, "P:%s\n", buf);
-      
-      /* End the macro */
-      fprintf(fff, "\n\n");
-    }
-}
-
 
 /*
  * Hack -- ask for a "trigger" (see below)
@@ -3410,10 +3070,7 @@ static void do_cmd_macro_aux(char *buf)
   /* First key */
   ch = inkey();
   
-  //text_out_hook = text_out_to_screen;
-  
   /* Read the pattern */
-  //while (ch != ESCAPE && ch != '\xff')
   while (ch != 0 && ch != '\xff')
     {
       /* Save the key */
@@ -3421,10 +3078,7 @@ static void do_cmd_macro_aux(char *buf)
       buf[n] = 0;
       
       /* echo */
-      //ascii_to_text(tmp, sizeof(tmp), buf+n-1);
       ascii_to_text(tmp, sizeof(tmp), buf);
-      //text_out(tmp);
-      //flush();
 	
 	/* Echo it after the prompt */
       Term_erase(curs_x, curs_y, 80);
@@ -3477,62 +3131,6 @@ static void do_cmd_macro_aux_keymap(char *buf)
   flush();
 }
 
-
-/*
- * Hack -- Append all keymaps to the given file.
- *
- * Hack -- We only append the keymaps for the "active" mode.
- */
-static void keymap_dump(FILE *fff)
-{
-  int i;
-  int mode;
-  char buf[1024];
-  
-  /* Roguelike */
-  if (rogue_like_commands)
-    {
-      mode = KEYMAP_MODE_ROGUE;
-    }
-  
-  /* Original */
-  else
-    {
-      mode = KEYMAP_MODE_ORIG;
-    }
-  
-  for (i = 0; i < (int)N_ELEMENTS(keymap_act[mode]); i++)
-    {
-      char key[2] = "?";
-      
-      cptr act;
-      
-      /* Loop up the keymap */
-      act = keymap_act[mode][i];
-      
-      /* Skip empty keymaps */
-      if (!act) continue;
-      
-      /* Encode the action */
-      ascii_to_text(buf, sizeof(buf), act);
-      
-      /* Dump the keymap action */
-      fprintf(fff, "A:%s\n", buf);
-      
-      /* Convert the key into a string */
-      key[0] = i;
-      
-      /* Encode the key */
-      ascii_to_text(buf, sizeof(buf), key);
-      
-      /* Dump the keymap pattern */
-      fprintf(fff, "C:%d:%s\n", mode, buf);
-      
-      /* Skip a line */
-      fprintf(fff, "\n");
-    }
-  
-}
 
 #endif
 
@@ -3587,9 +3185,6 @@ void do_cmd_macros(void)
       mode = KEYMAP_MODE_ORIG;
     }
   
-  
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
   
   screen_save();
   
@@ -3864,119 +3459,6 @@ void do_cmd_macros(void)
   /* Load screen */
   screen_load();
 }
-
-
-/* Dump monsters */
-static void dump_monsters(FILE *fff)
-{
-  int i;
-  for (i = 0; i < z_info->r_max; i++)
-    {
-      monster_race *r_ptr = &r_info[i];
-      
-      /* Skip non-entries */
-      if (!r_ptr->name) continue;
-      
-      /* Dump a comment */
-      fprintf(fff, "# %s\n", (r_name + r_ptr->name));
-      
-      /* Dump the monster attr/char info */
-      fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-	      (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
-    }
-}
-
-/* Dump objects */
-static void dump_objects(FILE *fff)
-{
-  int i;
-  for (i = 0; i < z_info->k_max; i++)
-    {
-      object_kind *k_ptr = &k_info[i];
-      
-      /* Skip non-entries */
-      if (!k_ptr->name) continue;
-      
-      /* Dump a comment */
-      fprintf(fff, "# %s\n", (k_name + k_ptr->name));
-      
-      /* Dump the object attr/char info */
-      fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-	      (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
-    }
-}
-
-/* Dump features */
-static void dump_features(FILE *fff)
-{
-  int i;
-  for (i = 0; i < z_info->f_max; i++)
-    {
-      feature_type *f_ptr = &f_info[i];
-      
-      /* Skip non-entries */
-      if (!f_ptr->name) continue;
-      
-      /* Skip mimic entries -- except invisible trap */
-      if ((f_ptr->mimic != i) && (i != FEAT_INVIS)) continue;
-      
-      /* Dump a comment */
-      fprintf(fff, "# %s\n", (f_name + f_ptr->name));
-      
-      /* Dump the feature attr/char info */
-      /* Dump the feature attr/char info */
-      fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-	      (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
-      
-      
-    }
-}
-
-/* Dump flavors */
-static void dump_flavors(FILE *fff)
-{
-  int i;
-  for (i = 0; i < z_info->flavor_max; i++)
-    {
-      flavor_type *x_ptr = &flavor_info[i];
-      
-      /* Dump a comment */
-      fprintf(fff, "# %s\n", (flavor_text + x_ptr->text));
-      
-      /* Dump the flavor attr/char info */
-      fprintf(fff, "L:%d:0x%02X:0x%02X\n\n", i,
-	      (byte)(x_ptr->x_attr), (byte)(x_ptr->x_char));
-    }
-}
-
-/* Dump colors */
-static void dump_colors(FILE *fff)
-{
-  int i;
-  for (i = 0; i < MAX_COLORS; i++)
-    {
-      int kv = angband_color_table[i][0];
-      int rv = angband_color_table[i][1];
-      int gv = angband_color_table[i][2];
-      int bv = angband_color_table[i][3];
-      
-      cptr name = "unknown";
-      
-      /* Skip non-entries */
-      if (!kv && !rv && !gv && !bv) continue;
-      
-      /* Extract the color name */
-      if (i < BASIC_COLORS) name = color_names[i];
-      
-      /* Dump a comment */
-      fprintf(fff, "# Color '%s'\n", name);
-      
-      /* Dump the colour info */
-      fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
-          i, kv, rv, gv, bv);
-    }
-}
-
 
 /* These two are used to place elements in the grid */
 #define COLOR_X(idx) (((idx) / MAX_BASE_COLORS) * (small_screen ? 3 : 5) + 1)
@@ -4992,9 +4474,6 @@ void do_cmd_colors(void)
 {
   int cursor = 0;
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Save screen */
   screen_save();
   
@@ -5124,7 +4603,7 @@ void make_note(char *note, int what_stage, byte note_type, s16b lev)
   notes[num].place = what_stage;
   notes[num].level = lev;
   notes[num].type = note_type;
-  sprintf(notes[num].note, buf);
+  my_strcpy(notes[num].note, buf, sizeof(notes[num].note));
       
 }
 
@@ -5248,7 +4727,7 @@ void do_cmd_load_screen(void)
   
   bool okay = TRUE;
   
-  FILE *fp;
+  ang_file *fp;
   
   char buf[1024];
   
@@ -5257,7 +4736,7 @@ void do_cmd_load_screen(void)
   path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
   
   /* Open the file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, -1);
 
   /* Oops */
   if (!fp) return;
@@ -5275,7 +4754,7 @@ void do_cmd_load_screen(void)
   for (y = 0; okay && (y < 24); y++)
     {
       /* Get a line of data */
-      if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+      if (!file_getl(fp, buf, sizeof(buf))) okay = FALSE;
       
       
       /* Show each row */
@@ -5287,14 +4766,14 @@ void do_cmd_load_screen(void)
     }
   
   /* Get the blank line */
-  if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+  if (!file_getl(fp, buf, sizeof(buf))) okay = FALSE;
   
 
   /* Dump the screen */
   for (y = 0; okay && (y < 24); y++)
     {
       /* Get a line of data */
-      if (my_fgets(fp, buf, sizeof(buf))) okay = FALSE;
+      if (!file_getl(fp, buf, sizeof(buf))) okay = FALSE;
       
       /* Dump each row */
       for (x = 0; x < 79; x++)
@@ -5316,7 +4795,7 @@ void do_cmd_load_screen(void)
   
   
   /* Close it */
-  my_fclose(fp);
+  file_close(fp);
   
 
   /* Message */
@@ -5335,18 +4814,15 @@ void do_cmd_save_screen_text(void)
   byte a = 0;
   char c = ' ';
   
-  FILE *fff;
+  ang_file *fff;
   
   char buf[1024];
   
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
   
-  /* File type is "DATA" -- needs to be opened in Angband to view */
-  FILE_TYPE(FILE_TYPE_DATA);
-  
   /* Append to the file */
-  fff = my_fopen(buf, "w");
+  fff = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Oops */
   if (!fff) return;
@@ -5373,11 +4849,11 @@ void do_cmd_save_screen_text(void)
       buf[x] = '\0';
       
       /* End the row */
-      fprintf(fff, "%s\n", buf);
+      file_putf(fff, "%s\n", buf);
     }
   
   /* Skip a line */
-  fprintf(fff, "\n");
+  file_putf(fff, "\n");
   
   
   /* Dump the screen */
@@ -5397,15 +4873,15 @@ void do_cmd_save_screen_text(void)
       buf[x] = '\0';
       
       /* End the row */
-      fprintf(fff, "%s\n", buf);
+      file_putf(fff, "%s\n", buf);
     }
   
   /* Skip a line */
-  fprintf(fff, "\n");
+  file_putf(fff, "\n");
   
   
   /* Close it */
-  my_fclose(fff);
+  file_close(fff);
   
   
   /* Message */
@@ -5425,16 +4901,13 @@ void do_cmd_save_screen_html(int mode)
 {
   size_t i;
   
-  FILE *fff;
+  ang_file *fff;
   char file_name[1024];
   char tmp_val[256];
   
-  typedef void (*dump_func)(FILE *);
+  typedef void (*dump_func)(ang_file *);
   dump_func dump_visuals [] = 
     { dump_monsters, dump_features, dump_objects, dump_flavors, dump_colors };
-  
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
   
   /* Ask for a file */
   if (mode == 0) my_strcpy(tmp_val, "dump.html", sizeof(tmp_val));
@@ -5443,7 +4916,7 @@ void do_cmd_save_screen_html(int mode)
   
   /* Save current preferences */
   path_build(file_name, 1024, ANGBAND_DIR_USER, "dump.prf");
-  fff = my_fopen(file_name, "w");
+  fff = file_open(file_name, MODE_WRITE, (mode == 0 ? FTYPE_HTML : FTYPE_TEXT));
   
   /* Check for failure */
   if (!fff)
@@ -5457,7 +4930,7 @@ void do_cmd_save_screen_html(int mode)
   for (i = 0; i < N_ELEMENTS(dump_visuals); i++)
     dump_visuals[i](fff);
   
-  my_fclose(fff);
+  file_close(fff);
   
   /* Dump the screen with raw character attributes */
   reset_visuals(FALSE);
@@ -5467,7 +4940,7 @@ void do_cmd_save_screen_html(int mode)
   /* Recover current graphics settings */
   reset_visuals(TRUE);
   process_pref_file(file_name);
-  fd_kill(file_name);
+  file_delete(file_name);
   do_cmd_redraw();
   
   msg_print("HTML screen dump saved.");
@@ -5622,12 +5095,6 @@ void do_cmd_options(void)
 }
 
 
-static void do_cmd_self_knowledge(void *obj, const char *name)
-{
-  /* display self knowledge we already know about. */
-  self_knowledge(FALSE);
-}
-
 /*
  * Definition of the "player knowledge" menu.
  */
@@ -5638,7 +5105,6 @@ static menu_item knowledge_actions[] =
     {{0, "Display ego item knowledge", do_cmd_knowledge_ego_items, 0}, '3'},
     {{0, "Display monster knowledge", do_cmd_knowledge_monsters, 0}, '4'},
     {{0, "Display feature knowledge", do_cmd_knowledge_features, 0}, '5'},
-    {{0, "Display self-knowledge", do_cmd_self_knowledge, 0}, '6'},
   };
 
 static menu_type knowledge_menu;

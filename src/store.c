@@ -97,7 +97,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
       message(MSG_STORE1, 0, comment_1 [rand_int(MAX_COMMENT_1 )]);
       
       /* Sound */
-      sound(SOUND_STORE1);
+      sound(MSG_STORE1);
     }
 
   /* Item was cheaper than we thought, and we paid more than necessary */
@@ -107,7 +107,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
       message(MSG_STORE2, 0, comment_2 [rand_int(MAX_COMMENT_2 )]);
       
       /* Sound */
-      sound(SOUND_STORE2);
+      sound(MSG_STORE2);
     }
   
   /* Item was a good bargain, and we got away with it */
@@ -117,7 +117,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
       message(MSG_STORE3, 0, comment_3 [rand_int(MAX_COMMENT_3 )]);
       
       /* Sound */
-      sound(SOUND_STORE3);
+      sound(MSG_STORE3);
     }
   
   /* Item was a great bargain, and we got away with it */
@@ -127,7 +127,7 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
       message(MSG_STORE4, 0, comment_4 [rand_int(MAX_COMMENT_4 )]);
       
       /* Sound */
-      sound(SOUND_STORE4);
+      sound(MSG_STORE4);
     }
 }
 
@@ -468,49 +468,58 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
   int i;
 
   /* Hack -- Identical items cannot be stacked */
-  if (o_ptr == j_ptr) return (0);
+  if (o_ptr == j_ptr) return (FALSE);
   
   /* Different objects cannot be stacked */
-  if (o_ptr->k_idx != j_ptr->k_idx) return (0);
+  if (o_ptr->k_idx != j_ptr->k_idx) return (FALSE);
   
   /* Different charges (etc) cannot be stacked, unless wands or rods. */
   if ((o_ptr->pval != j_ptr->pval) && (o_ptr->tval != TV_WAND) && 
-      (o_ptr->tval != TV_ROD)) return (0);
+      (o_ptr->tval != TV_ROD)) return (FALSE);
   
   /* Require many identical values */
-  if (o_ptr->to_h	 !=  j_ptr->to_h) return (0);
-  if (o_ptr->to_d	 !=  j_ptr->to_d) return (0);
-  if (o_ptr->to_a	 !=  j_ptr->to_a) return (0);
+  if (o_ptr->to_h	 !=  j_ptr->to_h) return (FALSE);
+  if (o_ptr->to_d	 !=  j_ptr->to_d) return (FALSE);
+  if (o_ptr->to_a	 !=  j_ptr->to_a) return (FALSE);
   
   /* Require identical "artifact" names */
-  if (o_ptr->name1 != j_ptr->name1) return (0);
+  if (o_ptr->name1 != j_ptr->name1) return (FALSE);
   
   /* Require identical "ego-item" names */
-  if (o_ptr->name2 != j_ptr->name2) return (0);
+  if (o_ptr->name2 != j_ptr->name2) return (FALSE);
   
   /* Hack -- Never stack "powerful" items */
-  if (o_ptr->xtra1 || j_ptr->xtra1) return (0);
+  if (o_ptr->activation || j_ptr->activation) return (FALSE);
   
   /* Hack -- Never stack recharging items */
-  if (o_ptr->timeout || j_ptr->timeout) return (0);
+  if (o_ptr->timeout || j_ptr->timeout) return (FALSE);
   
   /* Require many identical values */
-  if (o_ptr->ac	 !=  j_ptr->ac)	  return (0);
-  if (o_ptr->dd	 !=  j_ptr->dd)	  return (0);
-  if (o_ptr->ds	 !=  j_ptr->ds)	  return (0);
+  if (o_ptr->ac	 !=  j_ptr->ac)	  return (FALSE);
+  if (o_ptr->dd	 !=  j_ptr->dd)	  return (FALSE);
+  if (o_ptr->ds	 !=  j_ptr->ds)	  return (FALSE);
 
-  /* Require matching resist percentages */
+  /* Require matching resists etc */
   for (i = 0; i < MAX_P_RES; i++)
-    if (o_ptr->percent_res[i] != j_ptr->percent_res[i]) return (0);
+    if (o_ptr->percent_res[i] != j_ptr->percent_res[i]) return (FALSE);
+  for (i = 0; i < A_MAX; i++)
+    if (o_ptr->bonus_stat[i] != j_ptr->bonus_stat[i]) return (FALSE);
+  for (i = 0; i < MAX_P_BONUS; i++)
+    if (o_ptr->bonus_other[i] != j_ptr->bonus_other[i]) return (FALSE);
+  for (i = 0; i < MAX_P_SLAY; i++)
+    if (o_ptr->multiple_slay[i] != j_ptr->multiple_slay[i]) return (FALSE);
+  for (i = 0; i < MAX_P_BRAND; i++)
+    if (o_ptr->multiple_brand[i] != j_ptr->multiple_brand[i]) return (FALSE);
 
-  /* Require matching proofing status */
-  if (o_ptr->el_proof != j_ptr->el_proof) return (0);
+  /* Require matching flags */
+  if (o_ptr->flags_obj != j_ptr->flags_obj) return (FALSE);
+  if (o_ptr->flags_curse != j_ptr->flags_curse) return (FALSE);
 
   /* Hack -- Never stack chests */
-  if (o_ptr->tval == TV_CHEST) return (0);
+  if (o_ptr->tval == TV_CHEST) return (FALSE);
   
   /* Require matching discounts */
-  if (o_ptr->discount != j_ptr->discount) return (0);
+  if (o_ptr->discount != j_ptr->discount) return (FALSE);
   
   /* They match, so they must be similar */
   return (TRUE);
@@ -686,12 +695,7 @@ static bool store_will_buy(object_type *o_ptr)
 	  case TV_SWORD:
 	  case TV_POLEARM:
 	    {
-	      u32b f1, f2, f3;
-	      
-	      /* Extract the item flags */
-	      object_flags(o_ptr, &f1, &f2, &f3);
-	      
-	      if (f3 & (TR3_BLESSED) && object_known_p(o_ptr)) 
+	      if ((o_ptr->flags_obj & OF_BLESSED) && object_known_p(o_ptr)) 
 		break;
 	      else return (FALSE);
 	    }
@@ -1171,6 +1175,9 @@ static void store_create(void)
       /* The object is "known" */
       object_known(i_ptr);
       
+      /* Item belongs to a store */
+      i_ptr->ident |= IDENT_STORE;
+
       /* Mega-Hack -- no chests in stores */
       if (i_ptr->tval == TV_CHEST) continue;
       
@@ -1734,6 +1741,8 @@ static void store_purchase(void)
       /* Player can afford it */
       if (p_ptr->au >= price)
 	{
+	  bool aware = FALSE;
+	  
 	  /* Say "okay" */
 	  say_comment_0();
 	  
@@ -1743,12 +1752,18 @@ static void store_purchase(void)
 	  /* Update the display */
 	  store_prt_gold();
 	      
+	  /* Remember awareness */
+	  if (object_aware_p(i_ptr)) aware = TRUE;
+
 	  /* Buying an object makes you aware of it */
 	  object_aware(i_ptr);
 	  
 	  /* Combine / Reorder the pack (later) */
 	  p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	  
+	  /* The object no longer belongs to the store */
+	  i_ptr->ident &= ~(IDENT_STORE);
+
 	  /* Describe the transaction */
 	  object_desc(o_name, i_ptr, TRUE, 3);
 	  
@@ -1764,6 +1779,9 @@ static void store_purchase(void)
 	  
 	  /* Give it to the player */
 	  item_new = inven_carry(i_ptr);
+	  
+	  /* Hack -- Apply autoinscriptions if we become aware of the object */
+	  if (!aware) apply_autoinscription(&inventory[item_new]);
 	  
 	  /* Describe the final result */
 	  object_desc(o_name, &inventory[item_new], TRUE, 3);
@@ -1958,11 +1976,26 @@ static void store_sell(void)
     }
   
   
-  /* Hack -- Cannot remove cursed objects */
-  if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
+  /* Hack -- Cannot remove cursed items */
+  if (o_ptr->flags_curse & CF_STICKY_CARRY)
     {
       /* Oops */
       msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_CARRY, item + 1);
+      
+      /* Nope */
+      return;
+    }
+  
+  if ((item >= INVEN_WIELD) && (o_ptr->flags_curse & CF_STICKY_WIELD))
+    {
+      /* Oops */
+      msg_print("Hmmm, it seems to be cursed.");
+
+      /* Notice */
+      notice_curse(CF_STICKY_WIELD, item + 1);
       
       /* Nope */
       return;
@@ -2012,6 +2045,8 @@ static void store_sell(void)
   /* Real store */
   if (st_ptr->type != STORE_HOME)
     {
+      bool aware = FALSE;
+      
       /* Get the price */
       price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
       
@@ -2031,12 +2066,18 @@ static void store_sell(void)
       /* Get some money */
       p_ptr->au += price;
       
+      /* Limit to avoid buffer overflow */
+      if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
+	    
       /* Update the display */
       store_prt_gold();
       
       /* Get the "apparent" value */
       dummy = object_value(i_ptr) * i_ptr->number;
       
+      /* Remember if we were aware of this object */
+      if (object_aware_p(o_ptr)) aware = TRUE;
+
       /* Identify original object */
       object_aware(o_ptr);
       object_known(o_ptr);
@@ -2047,6 +2088,9 @@ static void store_sell(void)
       /* Remove any inscription */
       i_ptr->note = 0;
       
+      /* Apply an autoiscription if any left */
+      if ((amt < o_ptr->number) && (!aware)) apply_autoinscription(o_ptr);
+
       /* Combine / Reorder the pack (later) */
       p_ptr->notice |= (PN_COMBINE | PN_REORDER);
       
@@ -2062,6 +2106,9 @@ static void store_sell(void)
       /* Modify quantity */
       i_ptr->number = amt;
       
+      /* The object belongs to the store now */
+      i_ptr->ident |= IDENT_STORE;
+
       /* Hack -- If a rod or wand, let the shopkeeper know just 
        * how many charges he really paid for.
        */
@@ -2182,14 +2229,8 @@ static void store_inspect(void)
   /* Get the actual item */
   o_ptr = &st_ptr->stock[item];
   
-  /* Save screen */
-  //screen_save();
-  
   /* Examine the item. */
   object_info_screen(o_ptr, FALSE);
-
-  /* Load screen */
-  //screen_load();
 }
 
 /* Structure to describe tval/description pairings. */
@@ -2310,7 +2351,7 @@ static bool order_menu(int tval, const char *desc)
       /* Skip empty objects, unaware objects, and incorrect tvals */
       if (!k_ptr->name) continue;
       if (!k_ptr->aware) continue;
-      if (k_ptr->flags3 & TR3_NO_ORDER) continue;
+      if (k_ptr->flags_kind & KF_NO_ORDER) continue;
       if (k_ptr->tval != tval) continue;
 
       /* Hack - town books only */
@@ -2772,11 +2813,7 @@ void get_owner(bool pick)
   /* Choose an owner */
   if (pick)
     {
-#ifdef _WIN32_WCE
       byte *possible = malloc(z_info->p_max * sizeof(*possible));
-#else
-      byte possible[z_info->p_max];
-#endif
 
       for (i = 0; i < z_info->p_max; i++) possible[i] = 1;
       
@@ -2826,9 +2863,7 @@ void get_owner(bool pick)
       /* Set the owner */
       st_ptr->owner = i;
 	
-#ifdef _WIN32_WCE
       free(possible);
-#endif 
     }  
 
   /* Activate the owner */

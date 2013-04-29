@@ -64,6 +64,11 @@ typedef byte byte_wid[DUNGEON_WID];
  */
 typedef s16b s16b_wid[DUNGEON_WID];
 
+/*
+ * An array of NUM_STAGES u16b's
+ */
+typedef u16b u16b_stage[NUM_STAGES];
+
 
 
 /**** Available Structs ****/
@@ -126,24 +131,24 @@ typedef char_attr char_attr_line[MAX_C_A_LEN];
  */
 struct maxima
 {
-	u32b fake_text_size;
-	u32b fake_name_size;
-
-	u16b f_max;		/* Max size for "f_info[]" */
-	u16b k_max;		/* Max size for "k_info[]" */
-	u16b a_max;		/* Max size for "a_info[]" */
-	u16b e_max;		/* Max size for "e_info[]" */
-	u16b r_max;		/* Max size for "r_info[]" */
-	u16b v_max;		/* Max size for "v_info[]" */
-	u16b p_max;		/* Max size for "p_info[]" */
-	u16b h_max;		/* Max size for "h_info[]" */
-	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b c_max;		/* Max size for "c_info[]" */
-	u16b flavor_max;        /* Max size for "flavor_info[]" */
-	u16b s_max;		/* Max size for "s_info[]" */
-
-	u16b o_max;		/* Max size for "o_list[]" */
-	u16b m_max;		/* Max size for "mon_list[]" */
+  u32b fake_text_size;
+  u32b fake_name_size;
+  
+  u16b f_max;		/* Max size for "f_info[]" */
+  u16b k_max;		/* Max size for "k_info[]" */
+  u16b a_max;		/* Max size for "a_info[]" */
+  u16b e_max;		/* Max size for "e_info[]" */
+  u16b r_max;		/* Max size for "r_info[]" */
+  u16b v_max;		/* Max size for "v_info[]" */
+  u16b p_max;		/* Max size for "p_info[]" */
+  u16b h_max;		/* Max size for "h_info[]" */
+  u16b b_max;		/* Max size per element of "b_info[]" */
+  u16b c_max;		/* Max size for "c_info[]" */
+  u16b flavor_max;        /* Max size for "flavor_info[]" */
+  u16b s_max;		/* Max size for "s_info[]" */
+  
+  u16b o_max;		/* Max size for "o_list[]" */
+  u16b m_max;		/* Max size for "mon_list[]" */
 };
 
 
@@ -195,14 +200,20 @@ struct object_kind
   byte dd, ds;		/* Damage dice/sides */
   
   s16b weight;		/* Weight */
+
+  byte activation;      /* Activation index (if any) -NRM- */
   
   s32b cost;		/* Object "base cost" */
   
-  u32b flags1;		/* Flags, set 1 */
-  u32b flags2;		/* Flags, set 2 */
-  u32b flags3;		/* Flags, set 3 */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  u32b flags_kind;      /* New object_kind flags -NRM- */
   
-  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
+  int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
+  int bonus_other[MAX_P_BONUS];    /* Other bonuses      -NRM- */
+  int multiple_slay[MAX_P_SLAY];   /* Slay multiples     -NRM- */
+  int multiple_brand[MAX_P_BRAND]; /* Brand multiples    -NRM- */
   
   byte locale[4];	/* Allocation level(s) */
   byte chance[4];	/* Allocation chance(s) */
@@ -252,18 +263,23 @@ struct artifact_type
   byte dd, ds;		/* Damage when hits */
   
   s16b weight;		/* Weight */
-  s32b cost;			/* Artifact "cost" */
+  s32b cost;		/* Artifact "cost" */
   
-  u32b flags1;		/* Artifact Flags, set 1 */
-  u32b flags2;		/* Artifact Flags, set 2 */
-  u32b flags3;		/* Artifact Flags, set 3 */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  u32b flags_kind;      /* New object kind flags -NRM- */
   
-  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
+  int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
+  int bonus_other[MAX_P_BONUS];    /* Other bonuses      -NRM- */
+  int multiple_slay[MAX_P_SLAY];   /* Slay multiples     -NRM- */
+  int multiple_brand[MAX_P_BRAND]; /* Brand multiples    -NRM- */
   
   byte level;		/* Artifact level */
   byte rarity;		/* Artifact rarity */
   
   s32b creat_turn;	/* Turn the artifact was found */
+  byte p_level;         /* Player level when found */
   byte activation;	/* Temporary activation index. -LM- */
   
   byte set_no;		/* Stores the set number of the artifact. 
@@ -287,11 +303,14 @@ struct grouper
 struct set_element  
 {
   byte a_idx;		/* the artifact ID */
-  u32b flags1;		/* Artifact Flags, set 1 */
-  u32b flags2;		/* Artifact Flags, set 2 */
-  u32b flags3;		/* Artifact Flags, set 3 */
-  s16b pval;		/* Item pval with complete set */
-  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
+  int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
+  int bonus_other[MAX_P_BONUS];    /* Other bonuses      -NRM- */
+  int multiple_slay[MAX_P_SLAY];   /* Slay multiples     -NRM- */
+  int multiple_brand[MAX_P_BRAND]; /* Brand multiples    -NRM- */
 };
 
 /* Information about items sets -GS- */
@@ -321,21 +340,23 @@ struct ego_item_type
   byte max_to_d;		/* Maximum to-dam bonus */
   byte max_to_a;		/* Maximum to-ac bonus */
   
-  byte max_pval;		/* Maximum pval */
-  
   s32b cost;			/* Ego-item "cost" */
   
-  u32b flags1;		        /* Ego-Item Flags, set 1 */
-  u32b flags2;		        /* Ego-Item Flags, set 2 */
-  u32b flags3;		        /* Ego-Item Flags, set 3 */
-
-  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  u32b flags_kind;      /* New object kind flags -NRM- */
+  
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
+  int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
+  int bonus_other[MAX_P_BONUS];    /* Other bonuses      -NRM- */
+  int multiple_slay[MAX_P_SLAY];   /* Slay multiples     -NRM- */
+  int multiple_brand[MAX_P_BRAND]; /* Brand multiples    -NRM- */
   
   byte tval[EGO_TVALS_MAX];     /* Legal tval */
   byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
   byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
-  
-  byte xtra;			/* Extra sustain/resist/power */
+
+  byte activation;              /* Activation index */  
   bool everseen;		/* Do not spoil squelch menus */
   bool squelch;			/* Squelch this ego-item */
 };
@@ -545,8 +566,7 @@ struct object_type
   byte name1;		/* Artifact type, if any */
   byte name2;		/* Ego-Item type, if any */
 
-  byte xtra1;		/* Extra info type (or activation indicator). */
-  byte xtra2;		/* Extra info or activation index. */
+  byte activation;	/* Activation indicator */
   s16b to_h;		/* Plusses to hit */
   s16b to_d;		/* Plusses to damage */
   s16b to_a;		/* Plusses to AC */
@@ -557,10 +577,17 @@ struct object_type
 
   s16b timeout;		/* Timeout Counter */
 
-  byte ident;		/* Special flags  */
+  byte ident;		/* ID flags  */
+  u32b id_curse;	/* Curse ID flags  */
 
-  int percent_res[MAX_P_RES];  /* Percentage resistances */
-  byte el_proof;        /* Element proofing flags */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
+  int bonus_stat[A_MAX];           /* Stat bonuses       -NRM- */
+  int bonus_other[MAX_P_BONUS];    /* Other bonuses      -NRM- */
+  int multiple_slay[MAX_P_SLAY];   /* Slay multiples     -NRM- */
+  int multiple_brand[MAX_P_BRAND]; /* Brand multiples    -NRM- */
 
   byte marked;		/* Object is marked */
 
@@ -632,6 +659,15 @@ struct monster_type
   byte mana;            /* Current mana level */
 
   bool moved;		/* Monster has moved this turn */
+
+  byte p_race;          /* Player-type race for race-based monsters */
+  byte old_p_race;      /* Old player-type race for shapechanged monsters */
+  s16b hostile;         /* Who the monster is hostile to (group id) */
+  u16b group;           /* Group identifier (may be a group of one) */
+  u16b group_leader;    /* Leader of the monster's group */
+
+  u16b y_terr;          /* Home for territorial monsters */
+  u16b x_terr;          
 
 };
 
@@ -814,9 +850,7 @@ struct player_race
   s16b re_maxt;         /* max tval */
   s16b re_skde;         /* bonus to skill & deadliness */
   s16b re_ac;           /* bonus to armour class */
-  s16b re_pval;         /* pval */
-  s16b re_xtra1;        /* xtra1 byte (additional property) */
-  s16b re_xtra2;        /* xtra2 byte (property type) */
+  s16b re_bonus;        /* other bonus */
   
   byte r_mhp;		/* Race hit-dice modifier */
   byte difficulty;	/* Race difficulty factor */
@@ -842,9 +876,10 @@ struct player_race
   
   s16b hist;            /* Starting history index */
   
-  u32b flags1;          /* Racial Flags, set 1 */
-  u32b flags2;          /* Racial Flags, set 2 */
-  u32b flags3;          /* Racial Flags, set 3 */
+  u32b flags_obj;	/* New object flags -NRM-*/
+  u32b flags_curse;	/* New curse flags  -NRM- */
+  
+  int percent_res[MAX_P_RES];      /* Percentage resists -NRM- */
   
   u32b flags_special;   /* Special Racial Flags */
   
@@ -1064,6 +1099,8 @@ struct player_type
   s16b oppose_cold;	/* Timed -- oppose cold */
   s16b oppose_pois;	/* Timed -- oppose poison */
   
+  bool black_breath;	/* Major experience draining */
+
   s16b word_recall;	/* Word of recall counter */
   
   s16b energy;		/* Current energy */
@@ -1212,13 +1249,32 @@ struct player_type
   bool see_inv;		/* See invisible */
   bool free_act;	/* Free action */
   bool hold_life;	/* Hold life */
-  
   bool impact;		/* Earthquake blows */
-  bool aggravate;	/* Aggravate monsters */
-  bool teleport;	/* Random teleporting */
-  bool black_breath;	/* Experience draining */
-  
   bool bless_blade;	/* Blessed blade */
+  bool darkness;        /* Darkness */
+  bool chaotic;         /* Chaotic effects */
+
+  bool teleport;	/* Random teleporting */
+  bool no_teleport;	/* Teleporting forbidden */
+  bool aggravate;	/* Aggravate monsters */
+  bool rand_aggro;	/* Randomly aggravate monsters */
+  bool slow_regen;      /* Reduced regeneration */
+  bool fear;            /* Permanent fear */
+  bool fast_digest;     /* Fast digestion */
+  bool rand_pois;       /* Random poisoning */
+  bool rand_pois_bad;   /* Bad random poisoning */
+  bool rand_cuts;       /* Random cuts */
+  bool rand_cuts_bad;   /* Bad random cuts */
+  bool rand_hallu;      /* Random hallucination */
+  bool drop_weapon;     /* Randomly drop weapon */
+  bool attract_demon;   /* Randomly summon demons */
+  bool attract_undead;  /* Randomly summon undead */
+  bool rand_paral;      /* Random paralysis */
+  bool rand_paral_all;  /* Random unresistable paralysis */
+  bool drain_exp;	/* Experience draining */
+  bool drain_mana;	/* Mana draining */
+  bool drain_stat;	/* Random stat draining */
+  bool drain_charge;	/* Random charge draining */
   
   s16b dis_to_h;	/* Known bonus to hit */
   s16b dis_to_d;	/* Known bonus to dam */
@@ -1315,16 +1371,16 @@ struct high_score
 
 struct flavor_type
 {
-        u32b text;      /* Text (offset) */
-
-	byte tval;      /* Associated object type */
-	byte sval;      /* Associated object sub-type */
-
-	byte d_attr;    /* Default flavor attribute */
-	char d_char;    /* Default flavor character */
-
-	byte x_attr;    /* Desired flavor attribute */
-	char x_char;    /* Desired flavor character */
+  u32b text;      /* Text (offset) */
+  
+  byte tval;      /* Associated object type */
+  byte sval;      /* Associated object sub-type */
+  
+  byte d_attr;    /* Default flavor attribute */
+  char d_char;    /* Default flavor character */
+  
+  byte x_attr;    /* Desired flavor attribute */
+  char x_char;    /* Desired flavor character */
 };
 
 /* Information for object auto-inscribe */

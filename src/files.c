@@ -16,1000 +16,6 @@
 
 #include "angband.h"
 
-/*
- * You may or may not want to use the following "#undef".
- */
-/* #undef _POSIX_SAVED_IDS */
-
-
-/*
- * Hack -- drop permissions
- *
-void safe_setuid_drop(void)
-{
-
-#ifdef SET_UID
-
-# ifdef SAFE_SETUID
-
-#  ifdef SAFE_SETUID_POSIX
-
-  if (setuid(getuid()) != 0)
-    {
-      quit("setuid(): cannot set permissions correctly!");
-    }
-  if (setgid(getgid()) != 0)
-    {
-      quit("setgid(): cannot set permissions correctly!");
-    }
-  
-#  else
-  
-  if (setreuid(geteuid(), getuid()) != 0)
-    {
-      quit("setreuid(): cannot set permissions correctly!");
-    }
-  if (setregid(getegid(), getgid()) != 0)
-    {
-      quit("setregid(): cannot set permissions correctly!");
-    }
-  
-#  endif
-  
-# endif
-  
-#endif
-  
-}
-*/
-
-/*
- * Hack -- grab permissions
- *
-void safe_setuid_grab(void)
-{
-  
-#ifdef SET_UID
-  
-# ifdef SAFE_SETUID
-  
-#  ifdef SAFE_SETUID_POSIX
-  
-  if (setuid(player_euid) != 0)
-    {
-      quit("setuid(): cannot set permissions correctly!");
-    }
-  if (setgid(player_egid) != 0)
-    {
-      quit("setgid(): cannot set permissions correctly!");
-    }
-  
-#  else
-  
-  if (setreuid(geteuid(), getuid()) != 0)
-    {
-      quit("setreuid(): cannot set permissions correctly!");
-    }
-  if (setregid(getegid(), getgid()) != 0)
-    {
-      quit("setregid(): cannot set permissions correctly!");
-    }
-  
-#  endif
-  
-# endif
-  
-#endif
-  
-}
-*/
-
-
-/*
- * Extract the first few "tokens" from a buffer
- *
- * This function uses "colon" and "slash" as the delimeter characters.
- *
- * We never extract more than "num" tokens.  The "last" token may include
- * "delimeter" characters, allowing the buffer to include a "string" token.
- *
- * We save pointers to the tokens in "tokens", and return the number found.
- *
- * Hack -- Attempt to handle the 'c' character formalism
- *
- * Hack -- An empty buffer, or a final delimeter, yields an "empty" token.
- *
- * Hack -- We will always extract at least one token
- */
-s16b tokenize(char *buf, s16b num, char **tokens)
-{
-  int i = 0;
-  
-  char *s = buf;
-  
-  
-  /* Process */
-  while (i < num - 1)
-    {
-      char *t;
-      
-      /* Scan the string */
-      for (t = s; *t; t++)
-	{
-	  /* Found a delimiter */
-	  if ((*t == ':') || (*t == '/')) break;
-	  
-	  /* Handle single quotes */
-	  if (*t == '\'')
-	    {
-	      /* Advance */
-	      t++;
-	      
-	      /* Handle backslash */
-	      if (*t == '\\') t++;
-	      
-	      /* Require a character */
-	      if (!*t) break;
-	      
-	      /* Advance */
-	      t++;
-	      
-	      /* Hack -- Require a close quote */
-	      if (*t != '\'') *t = '\'';
-	    }
-	  
-	  /* Handle back-slash */
-	  if (*t == '\\') t++;
-	}
-      
-      /* Nothing left */
-      if (!*t) break;
-      
-      /* Nuke and advance */
-      *t++ = '\0';
-      
-      /* Save the token */
-      tokens[i++] = s;
-      
-      /* Advance */
-      s = t;
-    }
-  
-  /* Save the token */
-  tokens[i++] = s;
-  
-  /* Number found */
-  return (i);
-}
-
-
-
-/*
- * Parse a sub-file of the "extra info" (format shown below)
- *
- * Each "action" line has an "action symbol" in the first column,
- * followed by a colon, followed by some command specific info,
- * usually in the form of "tokens" separated by colons or slashes.
- *
- * Blank lines, lines starting with white space, and lines starting
- * with pound signs ("#") are ignored (as comments).
- *
- * Note the use of "tokenize()" to allow the use of both colons and
- * slashes as delimeters, while still allowing final tokens which
- * may contain any characters including "delimiters".
- *
- * Note the use of "strtol()" to allow all "integers" to be encoded
- * in decimal, hexidecimal, or octal form.
- *
- * Note that "monster zero" is used for the "player" attr/char, "object
- * zero" will be used for the "stack" attr/char, and "feature zero" is
- * used for the "nothing" attr/char.
- *
- * Specify the attr/char values for "monsters" by race index
- *   R:<num>:<a>/<c>
- *
- * Specify the attr/char values for "objects" by kind index
- *   K:<num>:<a>/<c>
- *
- * Specify the attr/char values for "features" by feature index
- *   F:<num>:<a>/<c>
- *
- * Specify the attr/char values for "flavors" by flavors index.
- *   L:<num>:<a>/<c>
- *
- * Specify the attr/char values for "special" things
- *   S:<num>:<a>/<c>
- *
- * Specify the attr/char values for unaware "objects" by kind tval
- *   U:<tv>:<a>/<c>
- *
- * Specify the attribute values for inventory "objects" by kind tval
- *   E:<tv>:<a>
- *
- * Define a macro action, given an encoded macro action
- *   A:<str>
- *
- * Create a macro, given an encoded macro trigger
- *   P:<str>
- *
- * Create a keymap, given an encoded keymap trigger
- *   C:<num>:<str>
- *
- * Turn an option off, given its name
- *   X:<str>
- *
- * Turn an option on, given its name
- *   Y:<str>
- *
- * Specify visual information, given an index, and some data
- *   V:<num>:<kv>:<rv>:<gv>:<bv>
- */
-errr process_pref_file_aux(char *buf)
-{
-  int i, j, n1, n2, sq;
-  
-  char *zz[16];
-  
-  
-  /* Skip "empty" lines */
-  if (!buf[0]) return (0);
-  
-  /* Skip "blank" lines */
-  if (isspace(buf[0])) return (0);
-  
-  /* Skip comments */
-  if (buf[0] == '#') return (0);
-  
-  
-  /* Paranoia */
-  /* if (strlen(buf) >= 1024) return (1); */
-  
-  
-  /* Require "?:*" format */
-  if (buf[1] != ':') return (1);
-  
-  
-  /* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
-  if (buf[0] == 'R')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  monster_race *r_ptr;
-	  i = (huge)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= z_info->r_max) return (1);
-	  r_ptr = &r_info[i];
-	  if (n1) r_ptr->x_attr = n1;
-	  if (n2) r_ptr->x_char = n2;
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "B:<k_idx>:inscription */
-  else if (buf[0] == 'B')
-    {
-      if (2 == tokenize(buf + 2, 2, zz))
-	{
-	  add_autoinscription(strtol(zz[0], NULL, 0), zz[1]);
-	  return (0);
-	}
-    }
-  
-  /* Process "Q:<idx>:<tval>:<sval>:<y|n>"  -- squelch bits   */
-  /* and     "Q:<idx>:<val>"                -- squelch levels */
-  /* and     "Q:<val>"                      -- auto_destroy   */
-  else if (buf[0] == 'Q')
-    {
-      i = tokenize(buf+2, 4, zz);
-      if (i == 2)
-	{
-	  n1 = strtol(zz[0], NULL, 0);
-	  n2 = strtol(zz[1], NULL, 0);
-	  squelch_level[n1] = n2;
-	  return(0);
-	}
-      else if (i == 4)
-	{
-	  i = strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  sq = strtol(zz[3], NULL, 0);
-	  if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
-	    {
-	      k_info[i].squelch = sq;
-	      return(0);
-	    }
-	  else
-	    {
-	      for (i = 1; i < z_info->k_max; i++)
-		{
-		  if ((k_info[i].tval == n1) && (k_info[i].sval == n2))
-		    {
-		      k_info[i].squelch = sq;
-		      return(0);
-		    }
-		}
-	    }
-	}
-    }
-  
-  /* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
-  else if (buf[0] == 'K')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  object_kind *k_ptr;
-	  i = (huge)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= z_info->k_max) return (1);
-	  k_ptr = &k_info[i];
-	  if (n1) k_ptr->x_attr = n1;
-	  if (n2) k_ptr->x_char = n2;
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-  else if (buf[0] == 'F')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  feature_type *f_ptr;
-	  i = (huge)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= z_info->f_max) return (1);
-	  f_ptr = &f_info[i];
-	  if (n1) f_ptr->x_attr = n1;
-	  if (n2) f_ptr->x_char = n2;
-	  
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "L:<num>:<a>/<c>" -- attr/char for flavors */
-  else if (buf[0] == 'L')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  flavor_type *flavor_ptr;
-	  i = (huge)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  if ((i < 0) || (i >= z_info->flavor_max)) return (1);
-	  flavor_ptr = &flavor_info[i];
-	  if (n1) flavor_ptr->x_attr = (byte)n1;
-	  if (n2) flavor_ptr->x_char = (char)n2;
-	  return (0);
-	}
-    }
-
-
-  /* Process "S:<num>:<a>/<c>" -- attr/char for special things */
-  else if (buf[0] == 'S')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  j = (byte)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  misc_to_attr[j] = n1;
-	  misc_to_char[j] = n2;
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "U:<tv>:<a>/<c>" -- attr/char for unaware items */
-  else if (buf[0] == 'U')
-    {
-      if (tokenize(buf+2, 3, zz) == 3)
-	{
-	  j = (huge)strtol(zz[0], NULL, 0);
-	  n1 = strtol(zz[1], NULL, 0);
-	  n2 = strtol(zz[2], NULL, 0);
-	  for (i = 1; i < z_info->k_max; i++)
-	    {
-	      object_kind *k_ptr = &k_info[i];
-	      if (k_ptr->tval == j)
-		{
-		  if (n1) k_ptr->d_attr = n1;
-		  if (n2) k_ptr->d_char = n2;
-		}
-	    }
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "E:<tv>:<a>" -- attribute for inventory objects */
-  else if (buf[0] == 'E')
-    {
-      if (tokenize(buf+2, 2, zz) == 2)
-	{
-	  j = (byte)strtol(zz[0], NULL, 0) % 128;
-	  n1 = strtol(zz[1], NULL, 0);
-	  if (n1) tval_to_attr[j] = n1;
-	  return (0);
-	}
-    }
-  
-  
-  /* Process "A:<str>" -- save an "action" for later */
-  else if (buf[0] == 'A')
-    {
-      text_to_ascii(macro_buffer, sizeof(macro_buffer), buf+2);
-      return (0);
-    }
-  
-  /* Process "P:<str>" -- create macro */
-  else if (buf[0] == 'P')
-    {
-      char tmp[1024];
-      text_to_ascii(tmp, sizeof(tmp), buf+2);
-      macro_add(tmp, macro_buffer);
-      return (0);
-    }
-  
-  /* Process "C:<num>:<str>" -- create keymap */
-  else if (buf[0] == 'C')
-    {
-      int mode;
-      
-      char tmp[1024];
-      
-      if (tokenize(buf+2, 2, zz) != 2) return (1);
-      
-      mode = strtol(zz[0], NULL, 0);
-      if ((mode < 0) || (mode >= KEYMAP_MODES)) return (1);
-      
-      text_to_ascii(tmp, sizeof(tmp), zz[1]);
-      if (!tmp[0] || tmp[1]) return (1);
-      i = (byte)(tmp[0]);
-      
-      string_free(keymap_act[mode][i]);
-      
-      keymap_act[mode][i] = string_make(macro_buffer);
-      
-      /* XXX Mega-Hack - Let system know a keymap changed */
-      angband_keymap_flag = TRUE;
-      
-      return (0);
-    }
-  
-  
-  /* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
-  else if (buf[0] == 'V')
-    {
-      if (tokenize(buf+2, 5, zz) == 5)
-	{
-	  i = (byte)strtol(zz[0], NULL, 0);
-	  angband_color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
-	  angband_color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
-	  angband_color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
-	  angband_color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
-	  return (0);
-	}
-    }
-  
-  /* set macro trigger names and a template */
-  /* Process "T:<trigger>:<keycode>:<shift-keycode>" */
-  /* Process "T:<template>:<modifier chr>:<modifier name>:..." */
-  else if (buf[0] == 'T')
-    {
-      int tok;
-      
-      tok = tokenize(buf + 2, MAX_MACRO_MOD + 2, zz);
-      
-      /* Trigger template */
-      if (tok >= 4)
-	{
-	  int i;
-	  int num;
-	  
-	  /* Free existing macro triggers and trigger template */
-	  macro_trigger_free();
-	  
-	  /* Clear template done */
-	  if (*zz[0] == '\0') return 0;
-	  
-	  /* Count modifier-characters */
-	  num = strlen(zz[1]);
-	  
-	  /* One modifier-character per modifier */
-	  if (num + 2 != tok) return 1;
-	  
-	  /* Macro template */
-	  macro_template = string_make(zz[0]);
-	  
-	  /* Modifier chars */
-	  macro_modifier_chr = string_make(zz[1]);
-	  
-	  /* Modifier names */
-	  for (i = 0; i < num; i++)
-	    {
-	      macro_modifier_name[i] = string_make(zz[2+i]);
-	    }
-	}
-      /* Macro trigger */
-      else if (tok >= 2)
-	{
-	  char *buf;
-	  cptr s;
-	  char *t;
-	  
-	  if (max_macrotrigger >= MAX_MACRO_TRIGGER)
-	    {
-	      msg_print("Too many macro triggers!");
-	      return 1;
-	    }
-	  
-	  /* Buffer for the trigger name */
-	  C_MAKE(buf, strlen(zz[0]) + 1, char);
-	  
-	  /* Simulate strcpy() and skip the '\' escape character */
-	  s = zz[0];
-	  t = buf;
-	  
-	  while (*s)
-	    {
-	      if ('\\' == *s) s++;
-	      *t++ = *s++;
-	    }
-	  
-	  /* Terminate the trigger name */
-	  *t = '\0';
-	  
-	  /* Store the trigger name */
-	  macro_trigger_name[max_macrotrigger] = string_make(buf);
-	  
-	  /* Free the buffer */
-	  FREE(buf);
-	  
-	  /* Normal keycode */
-	  macro_trigger_keycode[0][max_macrotrigger] = string_make(zz[1]);
-	  
-	  /* Special shifted keycode */
-	  if (tok == 3)
-	    {
-	      macro_trigger_keycode[1][max_macrotrigger] = string_make(zz[2]);
-	    }
-	  /* Shifted keycode is the same as the normal keycode */
-	  else
-	    {
-	      macro_trigger_keycode[1][max_macrotrigger] = string_make(zz[1]);
-	    }
-	  
-	  /* Count triggers */
-	  max_macrotrigger++;
-	}
-      
-      return 0;
-    }
-  
-  /* Process "X:<str>" -- turn option off */
-  else if (buf[0] == 'X')
-    {
-      for (i = 0; i < OPT_adult_start; i++)
-	{
-	  if (option_text[i] && streq(option_text[i], buf + 2))
-	    {
-	      op_ptr->opt[i] = FALSE;
-	      return (0);
-	    }
-	}
-    }
-  
-  /* Process "Y:<str>" -- turn option on */
-  else if (buf[0] == 'Y')
-    {
-      for (i = 0; i < OPT_adult_start; i++)
-	{
-	  if (option_text[i] && streq(option_text[i], buf + 2))
-	    {
-	      op_ptr->opt[i] = TRUE;
-	      return (0);
-	    }
-	}
-    }
-  
-  /* Process "W:<win>:<flag>:<value>" -- window flags */
-  else if (buf[0] == 'W')
-    {
-      int win, flag, value;
-      
-      if (tokenize(buf + 2, 3, zz) == 3)
-	{
-	  win = strtol(zz[0], NULL, 0);
-	  flag = strtol(zz[1], NULL, 0);
-	  value = strtol(zz[2], NULL, 0);
-	  
-	  /* Ignore illegal windows */
-	  /* Hack -- Ignore the main window */
-	  if ((win <= 0) || (win >= 8)) return (1);
-	  
-	  /* Ignore illegal flags */
-	  if ((flag < 0) || (flag >= 32)) return (1);
-	  
-	  /* Require a real flag */
-	  if (window_flag_desc[flag])
-	    {
-	      if (value)
-		{
-		  /* Turn flag on */
-		  op_ptr->window_flag[win] |= (1L << flag);
-		}
-	      else
-		{
-		  /* Turn flag off */
-		  op_ptr->window_flag[win] &= ~(1L << flag);
-		}
-	    }
-	  
-	  /* Success */
-	  return (0);
-	}
-    }
-  
-  /* Process "M:<type>:<attr>" -- colors for message-types */
-  else if (buf[0] == 'M')
-    {
-      if (tokenize(buf+2, 2, zz) == 2)
-	{
-	  u16b type = (u16b)strtol(zz[0], NULL, 0);
-	  int color = color_char_to_attr(zz[1][0]);
-	  
-	  /* Ignore illegal types */
-	  if (type >= MSG_MAX) return (1);
-	  
-	  /* Store the color */
-	  return (message_color_define((u16b)type, (byte)color));
-	}
-    }
-  
-  /* Failure */
-  return (1);
-}
-
-
-
-/*
- * Helper function for "process_pref_file()"
- *
- * Input:
- *   v: output buffer array
- *   f: final character
- *
- * Output:
- *   result
- */
-static cptr process_pref_file_expr(char **sp, char *fp)
-{
-  cptr v;
-  
-  char *b;
-  char *s;
-  
-  char b1 = '[';
-  char b2 = ']';
-  
-  char f = ' ';
-  
-  /* Initial */
-  s = (*sp);
-  
-  /* Skip spaces */
-  while (isspace(*s)) s++;
-  
-  /* Save start */
-  b = s;
-  
-  /* Default */
-  v = "?o?o?";
-  
-  /* Analyze */
-  if (*s == b1)
-    {
-      const char *p;
-      const char *t;
-      
-      /* Skip b1 */
-      s++;
-      
-      /* First */
-      t = process_pref_file_expr(&s, &f);
-      
-      /* Oops */
-      if (!*t)
-	{
-	  /* Nothing */
-	}
-      
-      /* Function: IOR */
-      else if (streq(t, "IOR"))
-	{
-	  v = "0";
-	  while (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && !streq(t, "0")) v = "1";
-	    }
-	}
-      
-      /* Function: AND */
-      else if (streq(t, "AND"))
-	{
-	  v = "1";
-	  while (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && streq(t, "0")) v = "0";
-	    }
-	}
-      
-      /* Function: NOT */
-      else if (streq(t, "NOT"))
-	{
-	  v = "1";
-	  while (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && !streq(t, "0")) v = "0";
-	    }
-	}
-      
-      /* Function: EQU */
-      else if (streq(t, "EQU"))
-	{
-	  v = "1";
-	  if (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	    }
-	  while (*s && (f != b2))
-	    {
-	      p = t;
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && !streq(p, t)) v = "0";
-	    }
-	}
-      
-      /* Function: LEQ */
-      else if (streq(t, "LEQ"))
-	{
-	  v = "1";
-	  if (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	    }
-	  while (*s && (f != b2))
-	    {
-	      p = t;
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && (strcmp(p, t) >= 0)) v = "0";
-	    }
-	}
-      
-      /* Function: GEQ */
-      else if (streq(t, "GEQ"))
-	{
-	  v = "1";
-	  if (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	    }
-	  while (*s && (f != b2))
-	    {
-	      p = t;
-	      t = process_pref_file_expr(&s, &f);
-	      if (*t && (strcmp(p, t) <= 0)) v = "0";
-	    }
-	}
-      
-      /* Oops */
-      else
-	{
-	  while (*s && (f != b2))
-	    {
-	      t = process_pref_file_expr(&s, &f);
-	    }
-	}
-      
-      /* Verify ending */
-      if (f != b2) v = "?x?x?";
-      
-      /* Extract final and Terminate */
-      if ((f = *s) != '\0') *s++ = '\0';
-    }
-  
-  /* Other */
-  else
-    {
-      /* Accept all printables except spaces and brackets */
-      while (isprint(*s) && !strchr(" []", *s)) ++s;
-      
-      /* Extract final and Terminate */
-      if ((f = *s) != '\0') *s++ = '\0';
-      
-      /* Variable */
-      if (*b == '$')
-	{
-	  /* System */
-	  if (streq(b+1, "SYS"))
-	    {
-	      v = ANGBAND_SYS;
-	    }
-	  
-	  /* Graphics */
-	  else if (streq(b+1, "GRAF"))
-	    {
-	      v = ANGBAND_GRAF;
-	    }
-
-	  /* Race */
-	  else if (streq(b+1, "RACE"))
-	    {
-	      v = p_name + rp_ptr->name;
-	    }
-	  
-	  /* Class */
-	  else if (streq(b+1, "CLASS"))
-	    {
-	      v = c_name + cp_ptr->name;
-	    }
-	  
-	  /* Player */
-	  else if (streq(b+1, "PLAYER"))
-	    {
-	      v = op_ptr->base_name;
-	    }
-	}
-      
-      /* Constant */
-      else
-	{
-	  v = b;
-	}
-    }
-  
-  /* Save */
-  (*fp) = f;
-  
-  /* Save */
-  (*sp) = s;
-  
-  /* Result */
-  return (v);
-}
-
-
-/*
- * Process the "user pref file" with the given name
- *
- * See the function above for a list of legal "commands".
- *
- * We also accept the special "?" and "%" directives, which
- * allow conditional evaluation and filename inclusion.
- */
-errr process_pref_file(cptr name)
-{
-  FILE *fp;
-  
-  char buf[1024];
-  
-  char old[1024];
-  
-  int num = -1;
-  
-  errr err = 0;
-  
-  bool bypass = FALSE;
-  
-  
-  /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_PREF, name);
-  
-  /* Open the file */
-  fp = my_fopen(buf, "r");
-  
-  /* Don't stop at non-existing file */
-  if (!fp)
-    {
-      /* Build the filename */
-      path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
-      
-      /* Open the file */
-      fp = my_fopen(buf, "r");
-    }
-
-  /* No such file */
-  if (!fp) return (-1);
-  
-  /* Process the file */
-  while (0 == my_fgets(fp, buf, 1024))
-    {
-      /* Count lines */
-      num++;
-      
-      
-      /* Skip "empty" lines */
-      if (!buf[0]) continue;
-      
-      /* Skip "blank" lines */
-      if (isspace(buf[0])) continue;
-      
-      /* Skip comments */
-      if (buf[0] == '#') continue;
-      
-      
-      /* Save a copy */
-      strcpy(old, buf);
-      
-      
-      /* Process "?:<expr>" */
-      if ((buf[0] == '?') && (buf[1] == ':'))
-	{
-	  char f;
-	  cptr v;
-	  char *s;
-	  
-	  /* Start */
-	  s = buf + 2;
-	  
-	  /* Parse the expr */
-	  v = process_pref_file_expr(&s, &f);
-	  
-	  /* Set flag */
-	  bypass = (streq(v, "0") ? TRUE : FALSE);
-	  
-	  /* Continue */
-	  continue;
-	}
-      
-      /* Apply conditionals */
-      if (bypass) continue;
-      
-      
-      /* Process "%:<file>" */
-      if (buf[0] == '%')
-	{
-	  /* Process that file if allowed */
-	  (void) process_pref_file(buf + 2);
-	  
-	  /* Continue */
-	  continue;
-	}
-      
-      
-      /* Process the line */
-      err = process_pref_file_aux(buf);
-      
-      /* Oops */
-      if (err) break;
-    }
-  
-  
-  /* Error */
-  if (err)
-    {
-      /* Useful error message */
-      msg_format("Error %d in line %d of file '%s'.", err, num, name);
-      msg_format("Parsing '%s'", old);
-      msg_print(NULL);
-    }
-  
-  /* Close the file */
-  my_fclose(fp);
-  
-  /* Result */
-  return (err);
-}
-
 
 #ifdef CHECK_TIME
 
@@ -1129,6 +135,8 @@ static byte likert_color = TERM_WHITE;
  */
 static cptr likert(int x, int y)
 {
+  char description[10];
+
   /* Paranoia */
   if (y <= 0) y = 1;
   
@@ -1145,52 +153,61 @@ static cptr likert(int x, int y)
     case 0:
       {
 	likert_color = TERM_RED;
-	return ("Very Bad");
+	strncpy(description, "Very Bad", 10);
+	break;
       }
     case 1:
       {
 	likert_color = TERM_L_RED;
-	return ("Bad");
+	strncpy(description, "Bad", 10);
+	break;
       }
     case 2:
       {
 	likert_color = TERM_ORANGE;
-	return ("Poor");
+	strncpy(description, "Poor", 10);
+	break;
       }
     case 3:
       {
 	likert_color = TERM_ORANGE;
-	return ("Mediocre");
+	strncpy(description, "Mediocre", 10);
+	break;
       }
     case 4:
       {
 	likert_color = TERM_YELLOW;
-	return ("Fair");
+	strncpy(description, "Fair", 10);
+	break;
       }
     case 5:
       {
 	likert_color = TERM_YELLOW;
-	return ("Good");
+	strncpy(description, "Good", 10);
+	break;
       }
     case 6:
     case 7:
       {
 	likert_color = TERM_YELLOW;
-	return ("Very Good");
+	strncpy(description, "Very Good", 10);
+	break;
       }
     case 8:
     case 9:
     case 10:
       {
 	likert_color = TERM_L_GREEN;
-	return ("Excellent");
+	strncpy(description, "Excellent", 10);
+	break;
       }
     case 11:
     case 12:
     case 13:
       {
 	likert_color = TERM_L_GREEN;
-	return ("Superb");
+	strncpy(description, "Superb", 10);
+	break;
       }
     case 14:
     case 15:
@@ -1198,14 +215,17 @@ static cptr likert(int x, int y)
     case 17:
       {
 	likert_color = TERM_BLUE;
-	return ("Heroic");
+	strncpy(description, "Heroic", 10);
+	break;
       }
     default:
       {
 	likert_color = TERM_BLUE;
-	return ("Legendary");
+	strncpy(description, "Legendary", 10);
+	break;
       }
     }
+  return (format("%s(%d)", description ,x));
 }
 
 
@@ -1221,177 +241,111 @@ static cptr likert(int x, int y)
  * applied differently.
  */
 
-void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
+void player_flags(u32b *flags)
 {
   /* Clear */
-  (*f1) = (*f2) = (*f3) = 0L;
+  (*flags)  = 0L;
   
   /* Add racial flags */
-  (*f1) |= rp_ptr->flags1;
-  (*f2) |= rp_ptr->flags2;
-  (*f3) |= rp_ptr->flags3;
+  (*flags) |= rp_ptr->flags_obj;
   
   /* Warrior. */
   if (check_ability(SP_RELENTLESS))
     {
-      if (p_ptr->lev >= 30) (*f3) |= (TR3_FEARLESS);
-      if (p_ptr->lev >= 40) (*f3) |= (TR3_REGEN);
+      if (p_ptr->lev >= 30) (*flags) |= (OF_FEARLESS);
+      if (p_ptr->lev >= 40) (*flags) |= (OF_REGEN);
     }
   
-  /* Specialty ability Holy Light */
-  if (check_ability(SP_HOLY_LIGHT))
+  /* Shapechange, if any. */
+  switch (p_ptr->schange)
     {
-      (*f2) |= (TR2_RES_LITE);
-    }
-  
-  /* Specialty ability Unlight */
-  if (check_ability(SP_UNLIGHT))
-    {
-      (*f2) |= (TR2_RES_DARK);
-    }
-  
-  if (shape)
-    {
-      
-      /* Shapechange, if any. */
-      switch (p_ptr->schange)
-	{
-	case SHAPE_BEAR:
-	case SHAPE_NORMAL:
-	  {
+    case SHAPE_BEAR:
+    case SHAPE_NORMAL:
+    case SHAPE_MOUSE:
+      {
+	break;
+      }
+    case SHAPE_FERRET:
+      {
+	(*flags) |= (OF_REGEN);
 	    break;
-	  }
-	case SHAPE_MOUSE:
+      }
+    case SHAPE_HOUND:
+      {
+	(*flags) |= (OF_TELEPATHY);
+	break;
+      }
+    case SHAPE_LION:
+      {
+	(*flags) |= (OF_FEARLESS);
+	(*flags) |= (OF_REGEN);
+	break;
+      }
+    case SHAPE_ENT:
+      {
+	(*flags) |= (OF_FEARLESS);
+	(*flags) |= (OF_SEE_INVIS);
+	(*flags) |= (OF_FREE_ACT);
+	break;
+      }
+    case SHAPE_BAT:
+      {
+	(*flags) |= (OF_SEEING);
+	(*flags) |= (OF_FEATHER);
+	break;
+      }
+    case SHAPE_WEREWOLF:
+      {
+	(*flags) |= (OF_REGEN);
+	break;	
+      }
+    case SHAPE_VAMPIRE:
+      {
+	(*flags) |= (OF_SEE_INVIS);
+	(*flags) |= (OF_HOLD_LIFE);
+	(*flags) |= (OF_REGEN);
+	break;
+      }
+    case SHAPE_WYRM:
+      {
+	object_type *o_ptr = &inventory[INVEN_BODY];
+	
+	/* Paranoia */
+	if (o_ptr->tval != TV_DRAG_ARMOR) break;
+	
+	/* Add 'extra' power if any */
+	switch (o_ptr->sval)
 	  {
-	    (*f1) |= (TR1_STEALTH);
-	    (*f1) |= (TR1_INFRA);
-	    break;
-	  }
-	case SHAPE_FERRET:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_REGEN);
-	    (*f1) |= (TR1_SPEED);
-	    (*f1) |= (TR1_SEARCH);
-	    break;
-	  }
-	case SHAPE_HOUND:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_TELEPATHY);
-	    break;
-	  }
-	case SHAPE_GAZELLE:
-	  {
-	    (*f1) |= (TR1_SPEED);
-	    break;
-	  }
-	case SHAPE_LION:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_FEARLESS);
-	    (*f3) |= (TR3_REGEN);
-	    (*f1) |= (TR1_SPEED);
-	    break;
-	  }
-	case SHAPE_ENT:
-	  {
-	    (*f2) |= (TR2_RES_COLD);
-	    (*f2) |= (TR2_RES_POIS);
-	    (*f3) |= (TR3_FEARLESS);
-	    (*f3) |= (TR3_SEE_INVIS);
-	    (*f3) |= (TR3_FREE_ACT);
-	    (*f1) |= (TR1_TUNNEL);
-	    break;
-	  }
-	case SHAPE_BAT:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_SEEING);
-	    (*f3) |= (TR3_FEATHER);
-	    (*f1) |= (TR1_SPEED);
-	    break;
-	  }
-	case SHAPE_WEREWOLF:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_REGEN);
-	    (*f3) |= (TR3_AGGRAVATE);
-	    break;	
-	  }
-	case SHAPE_VAMPIRE:
-	  {
-	    (*f1) |= (TR1_INFRA);
-	    (*f3) |= (TR3_SEE_INVIS);
-	    (*f3) |= (TR3_HOLD_LIFE);
-	    (*f2) |= (TR2_RES_COLD);
-	    (*f3) |= (TR3_REGEN);
-	    (*f1) |= (TR1_STEALTH);
-	    (*f1) |= (TR1_MAGIC_MASTERY);
-	    break;
-	  }
-	case SHAPE_WYRM:
-	  {
-	    object_type *o_ptr = &inventory[INVEN_BODY];
-	    (*f1) |= (TR1_STEALTH);
-	    (*f1) |= (TR1_MAGIC_MASTERY);
 	    
-	    /* Paranoia */
-	    if (o_ptr->tval != TV_DRAG_ARMOR) break;
+	  case (SV_DRAGON_GREEN):
+	    {
+	      (*flags) |= (OF_REGEN);
+	      break;
+	    }
+	  case (SV_DRAGON_SHINING):
+	    {
+	      (*flags) |= (OF_SEE_INVIS);
+	      break;
+	    }
+	  case (SV_DRAGON_LAW):
+	  case (SV_DRAGON_CHAOS):
+	    {
+	      (*flags) |= (OF_HOLD_LIFE);
+	      break;
+	    }
+	  case (SV_DRAGON_BRONZE):
+	  case (SV_DRAGON_GOLD):
+	    {
+	      (*flags) |= (OF_FREE_ACT);
+	      break;
+	    }
 	    
-	    /* Add 'extra' power if any */
-	    switch (o_ptr->sval)
-	      {
-		
-	      case (SV_DRAGON_BLACK):
-		{
-		  (*f2) |= (TR2_IM_ACID);
-		  break;
-		}
-	      case (SV_DRAGON_BLUE):
-		{
-		  (*f2) |= (TR2_IM_ELEC);
-		  break;
-		}
-	      case (SV_DRAGON_WHITE):
-		{
-		  (*f2) |= (TR2_IM_COLD);
-		  break;
-		}
-	      case (SV_DRAGON_RED):
-		{
-		  (*f2) |= (TR2_IM_FIRE);
-		  break;
-		}
-	      case (SV_DRAGON_GREEN):
-		{
-		  (*f3) |= (TR3_REGEN);
-		  break;
-		}
-	      case (SV_DRAGON_SHINING):
-		{
-		  (*f3) |= (TR3_SEE_INVIS);
-		  break;
-		}
-	      case (SV_DRAGON_LAW):
-	      case (SV_DRAGON_CHAOS):
-		{
-		  (*f3) |= (TR3_HOLD_LIFE);
-		  break;
-		}
-	      case (SV_DRAGON_BRONZE):
-	      case (SV_DRAGON_GOLD):
-		{
-		  (*f3) |= (TR3_FREE_ACT);
-		  break;
-		}
-		
-	      }
-	    break;
 	  }
-	}
+	break;
+      }
     }
 }
+
 
 /*
  * Obtain information about player negative mods.
@@ -1406,16 +360,15 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, bool shape)
  *
  * Based on player_flags, but for display purposes only.
  */
-void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
+void player_weakness_dis(u32b *flags)
 {
   /* Clear */
-  (*f1) = (*f2) = (*f3) = 0L;
+  (*flags) = 0L;
   
   /* HACK - add weakness of some races */
   if (check_ability(SP_WOODEN)) 
     {	
-      (*f3) |= (TR3_FEATHER);
-      (*f2) |= (TR2_RES_FIRE);
+      (*flags) |= (OF_FEATHER);
     }
   
   /* Shapechange, if any. */
@@ -1433,88 +386,202 @@ void player_weakness_dis(u32b *f1, u32b *f2, u32b *f3)
     case SHAPE_BAT:
     case SHAPE_WEREWOLF:
     case SHAPE_BEAR:
+    case SHAPE_WYRM:
       {
-	(*f1) |= (TR1_MAGIC_MASTERY);
 	break;
       }
     case SHAPE_ENT:
       {
-	(*f2) |= (TR2_RES_FIRE);
-	(*f3) |= (TR3_FEATHER);
+	(*flags) |= (OF_FEATHER);
 	break;
       }
     case SHAPE_VAMPIRE:
       {
-	(*f2) |= (TR2_RES_LITE);
-	(*f3) |= (TR3_LITE);
-	break;
-      }
-    case SHAPE_WYRM:
-      {
-	(*f1) |= (TR1_STEALTH);
+	(*flags) |= (OF_LITE);
 	break;
       }
     }
   
 }
+/*
+ * Race and shapechange resists 
+ */
+void get_player_resists(int *player_resists)
+{
+  int i;
 
+  for (i = 0; i < MAX_P_RES; i++)
+    player_resists[i] = rp_ptr->percent_res[i];
+
+  /* Shapechange, if any. */
+  switch (p_ptr->schange)
+    {
+    case SHAPE_NORMAL:
+    case SHAPE_MOUSE:
+    case SHAPE_FERRET:
+    case SHAPE_HOUND:
+    case SHAPE_GAZELLE:
+    case SHAPE_LION:
+    case SHAPE_BAT:
+    case SHAPE_WEREWOLF:
+    case SHAPE_BEAR:
+      {
+	break;
+      }
+    case SHAPE_ENT:
+      {
+	apply_resist(&player_resists[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&player_resists[P_RES_POIS], RES_BOOST_NORMAL);
+
+	/* Avoid double jeopardy */
+	if (!check_ability(SP_WOODEN))
+	  apply_resist(&player_resists[P_RES_FIRE], RES_CUT_MINOR);
+	break;
+      }
+    case SHAPE_VAMPIRE:
+      {
+	apply_resist(&player_resists[P_RES_COLD], RES_BOOST_NORMAL);
+	apply_resist(&player_resists[P_RES_LITE], RES_CUT_MINOR);
+	break;
+      }
+    case SHAPE_WYRM:
+      {
+	object_type *o_ptr = &inventory[INVEN_BODY];
+	
+	/* Paranoia */
+	if (o_ptr->tval != TV_DRAG_ARMOR) break;
+	    
+	/* Add 'extra' power if any */
+	switch (o_ptr->sval)
+	  {
+	  case (SV_DRAGON_BLACK):
+	    {
+	      apply_resist(&player_resists[P_RES_ACID], RES_BOOST_IMMUNE);
+	      break;
+	    }
+	  case (SV_DRAGON_BLUE):
+	    {
+	      apply_resist(&player_resists[P_RES_ELEC], RES_BOOST_IMMUNE);
+	      break;
+	    }
+	  case (SV_DRAGON_WHITE):
+	    {
+	      apply_resist(&player_resists[P_RES_COLD], RES_BOOST_IMMUNE);
+	      break;
+	    }
+	  case (SV_DRAGON_RED):
+	    {
+	      apply_resist(&player_resists[P_RES_FIRE], RES_BOOST_IMMUNE);
+	      break;
+	    }
+	  }
+	break;
+      }
+    }
+}
+
+/*
+ * Shapechange bonuses - level-based race bonuses are not shown
+ */
+void get_player_bonus(int *player_bonus)
+{
+  int i;
+
+  for (i = 0; i < MAX_P_BONUS; i++)
+    player_bonus[i] = 0;
+
+  /* Shapechange, if any. */
+  switch (p_ptr->schange)
+    {
+    case SHAPE_BEAR:
+    case SHAPE_NORMAL:
+      {
+	break;
+      }
+    case SHAPE_MOUSE:
+      {
+	player_bonus[P_BONUS_STEALTH] += (30 + p_ptr->skill_stl) / 2;
+	player_bonus[P_BONUS_INFRA] += 2;
+	player_bonus[P_BONUS_M_MASTERY] -= 3 * p_ptr->skill_dev / 40; 
+	break;
+      }
+    case SHAPE_FERRET:
+      {
+	player_bonus[P_BONUS_INFRA] += 2;
+	player_bonus[P_BONUS_SPEED] += 2;
+	player_bonus[P_BONUS_SEARCH] += 10;
+	player_bonus[P_BONUS_M_MASTERY] -= p_ptr->skill_dev / 20; 
+	break;
+      }
+    case SHAPE_HOUND:
+      {
+	player_bonus[P_BONUS_M_MASTERY] -= p_ptr->skill_dev / 20; 
+	player_bonus[P_BONUS_INFRA] += 3;
+	break;
+      }
+    case SHAPE_GAZELLE:
+      {
+	player_bonus[P_BONUS_M_MASTERY] -= p_ptr->skill_dev / 20; 
+	player_bonus[P_BONUS_SPEED] += 6;
+	break;
+      }
+    case SHAPE_LION:
+      {
+	player_bonus[P_BONUS_M_MASTERY] -= p_ptr->skill_dev / 20; 
+	player_bonus[P_BONUS_SPEED] += 1;
+	break;
+      }
+    case SHAPE_ENT:
+      {
+	player_bonus[P_BONUS_TUNNEL] += 15;
+	break;
+      }
+    case SHAPE_BAT:
+      {
+	player_bonus[P_BONUS_INFRA] += 6;
+	player_bonus[P_BONUS_SPEED] += 5;
+	player_bonus[P_BONUS_M_MASTERY] -= 3 * p_ptr->skill_dev / 40; 
+	break;
+      }
+    case SHAPE_WEREWOLF:
+      {
+	player_bonus[P_BONUS_M_MASTERY] -= p_ptr->skill_dev / 20; 
+	player_bonus[P_BONUS_INFRA] += 3;
+	break;	
+      }
+    case SHAPE_VAMPIRE:
+      {
+	player_bonus[P_BONUS_INFRA] += 3;
+	player_bonus[P_BONUS_STEALTH] += 1;
+	player_bonus[P_BONUS_M_MASTERY] += 3; 
+	break;
+      }
+    case SHAPE_WYRM:
+      {
+	player_bonus[P_BONUS_STEALTH] -= 3;
+	player_bonus[P_BONUS_M_MASTERY] += 1; 
+	break;
+      }
+      
+    }
+}
 
 /*
  * Hack -- see below
  */
-static u32b display_player_resists[2][7] =
+static u32b display_player_powers[10] =
 {
-  {
-    TR2_RES_ACID,
-    TR2_RES_ELEC,
-    TR2_RES_FIRE,
-    TR2_RES_COLD,
-    TR2_RES_POIS,
-    TR2_RES_LITE,
-    TR2_RES_DARK
-  },
-
-  {
-    TR2_RES_CONFU,
-    TR2_RES_SOUND,
-    TR2_RES_SHARD,
-    TR2_RES_NEXUS,
-    TR2_RES_NETHR,
-    TR2_RES_CHAOS,
-    TR2_RES_DISEN
-  }
-};
-
-/*
- * Hack -- see below
- */
-static u32b display_player_flags[2][10] =
-{
-  {
-    TR3_SLOW_DIGEST,
-    TR3_FEATHER,
-    TR3_LITE,
-    TR3_REGEN,
-    TR3_TELEPATHY,
-    TR3_SEE_INVIS,
-    TR3_FREE_ACT,
-    TR3_HOLD_LIFE,
-    TR3_SEEING,
-    TR3_FEARLESS
-  },
-
-  {
-    TR1_MAGIC_MASTERY,
-    TR1_STEALTH,
-    TR1_SEARCH,
-    TR1_INFRA,
-    TR1_TUNNEL,
-    TR1_SPEED,
-    TR1_MIGHT2,
-    TR1_SHOTS,
-    TR1_THROWING,
-    TR1_PERFECT_BALANCE,
-  }
+  
+  OF_SLOW_DIGEST,
+  OF_FEATHER,
+  OF_LITE,
+  OF_REGEN,
+  OF_TELEPATHY,
+  OF_SEE_INVIS,
+  OF_FREE_ACT,
+  OF_HOLD_LIFE,
+  OF_SEEING,
+  OF_FEARLESS
 };
 
 /*
@@ -1523,55 +590,52 @@ static u32b display_player_flags[2][10] =
 static cptr display_player_resist_names[2][7] =
 {
   {
-    "Acid:",	/* TR2_RES_ACID */
-    "Elec:",	/* TR2_RES_ELEC */
-    "Fire:",	/* TR2_RES_FIRE */
-    "Cold:",	/* TR2_RES_COLD */
-    "Pois:",	/* TR2_RES_POIS */
-    "Lite:",	/* TR2_RES_LITE */
-    "Dark:"	/* TR2_RES_DARK */
+    "Acid:",	/* P_RES_ACID */
+    "Elec:",	/* P_RES_ELEC */
+    "Fire:",	/* P_RES_FIRE */
+    "Cold:",	/* P_RES_COLD */
+    "Pois:",	/* P_RES_POIS */
+    "Lite:",	/* P_RES_LITE */
+    "Dark:"	/* P_RES_DARK */
   },
   
   {
-    "Confu:",	/* TR2_RES_CONFU */
-    "Sound:",	/* TR2_RES_SOUND */
-    "Shard:",	/* TR2_RES_SHARD */
-    "Nexus:",	/* TR2_RES_NEXUS */
-    "Nethr:",	/* TR2_RES_NETHR */
-    "Chaos:",	/* TR2_RES_CHAOS */
-    "Disen:"	/* TR2_RES_DISEN */
+    "Confu:",	/* P_RES_CONFU */
+    "Sound:",	/* P_RES_SOUND */
+    "Shard:",	/* P_RES_SHARD */
+    "Nexus:",	/* P_RES_NEXUS */
+    "Nethr:",	/* P_RES_NETHR */
+    "Chaos:",	/* P_RES_CHAOS */
+    "Disen:"	/* P_RES_DISEN */
   }
 };
 
 
-static cptr display_player_flag_names[2][10] =
-{
+static cptr display_player_power_names[10] =
   {
-    "S.Dig:",	/* TR3_SLOW_DIGEST */
-    "Feath:",	/* TR3_FEATHER */
-    "PLite:",	/* TR3_LITE */
-    "Regen:",	/* TR3_REGEN */
-    "Telep:",	/* TR3_TELEPATHY */
-    "Invis:",	/* TR3_SEE_INVIS */
-    "FrAct:",	/* TR3_FREE_ACT */
-    "HLife:",	/* TR3_HOLD_LIFE */
-    "Blind:",   /* TR3_SEEING */
-    "NFear:"    /* TR3_FEARLESS */
-  },
-  
+    "S.Dig:",	/* OF_SLOW_DIGEST */
+    "Feath:",	/* OF_FEATHER */
+    "PLite:",	/* OF_LITE */
+    "Regen:",	/* OF_REGEN */
+    "Telep:",	/* OF_TELEPATHY */
+    "Invis:",	/* OF_SEE_INVIS */
+    "FrAct:",	/* OF_FREE_ACT */
+    "HLife:",	/* OF_HOLD_LIFE */
+    "Blind:",   /* OF_SEEING */
+    "NFear:"    /* OF_FEARLESS */
+  };
+
+static cptr display_player_bonus_names[8] =
   {
-    "M-Mas:",	/* TR1_MAGIC_MASTERY */
-    "Stea.:",	/* TR1_STEALTH */
-    "Sear.:",	/* TR1_SEARCH */
-    "Infra:",	/* TR1_INFRA */
-    "Tunn.:",	/* TR1_TUNNEL */
-    "Speed:",	/* TR1_SPEED */
-    "Might:",	/* TR1_MIGHT2.  Hack -- also TR1_MIGHT1 */
-    "Shots:",	/* TR1_SHOTS */
-    "Throw:",   /* TR1_THROWING */
-    "WlBal:"    /* TR1_PERFECT_BALANCE */
-  }
-};
+    "M-Mas:",	/* P_BONUS_M_MASTERY */
+    "Stea.:",	/* P_BONUS_STEALTH */
+    "Sear.:",	/* P_BONUS_SEARCH */
+    "Infra:",	/* P_BONUS_INFRA */
+    "Tunn.:",	/* P_BONUS_TUNNEL */
+    "Speed:",	/* P_BONUS_SPEED */
+    "Shots:",	/* P_BONUS_SHOTS */
+    "Might:",	/* P_BONUS_MIGHT */
+  };
 
 
 /*
@@ -1654,13 +718,7 @@ static void prt_deci(cptr header, int num, int deci, int row, int col,
  */
 void display_player_sml(void)
 {
-  int i;
-  
-  int stat;
-  
-  u32b f1, f2, f3;
-  u32b ignore_f2, ignore_f3;
-  s16b k_idx;
+  int i, j;
   
   byte a;
   char c;
@@ -1691,7 +749,7 @@ void display_player_sml(void)
   c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 2, 37);
   
   /* Header and Footer */
-  put_str("abcdefghijkl@", 3, 25);
+  put_str("abcdefghijkl", 3, 25);
   
   /* Display the stats */
   for (i = 0; i < A_MAX; i++)
@@ -1718,51 +776,42 @@ void display_player_sml(void)
       /* Access object */
       o_ptr = &inventory[i];
       
-      /* Object kind */
-      k_idx = o_ptr->k_idx;
-      
-      /* Acquire "known" flags */
-      object_flags_known(o_ptr, &f1, &f2, &f3);
-      
-      /* Hack -- assume stat modifiers are known */
-      object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
-      
       /* Initialize color based of sign of pval. */
-      for (stat = 0; stat < A_MAX; stat++)
+      for (j = 0; j < A_MAX; j++)
 	{
-	  /* Default */
+	  /* Initialize color based of sign of bonus. */
 	  a = TERM_SLATE;
 	  c = '.';
 	  
 	  /* Boost */
-	  if (f1 & 1<<stat)
+	  if (o_ptr->bonus_stat[j] != 0)
 	    {
 	      /* Default */
 	      c = '*';
 	      
 	      /* Good */
-	      if (o_ptr->pval > 0)
+	      if (o_ptr->bonus_stat[j] > 0)
 		{
 		  /* Good */
 		  a = TERM_L_GREEN;
 		  
 		  /* Label boost */
-		  if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
+		  if (o_ptr->bonus_stat[j] < 10) c = '0' + o_ptr->bonus_stat[j];
 		}
 	      
 	      /* Bad */
-	      if (o_ptr->pval < 0)
+	      if (o_ptr->bonus_stat[j] < 0)
 		{
 		  /* Bad */
 		  a = TERM_RED;
 		  
 		  /* Label boost */
-		  if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
+		  if (o_ptr->bonus_stat[j] < 10) c = '0' - o_ptr->bonus_stat[j];
 		}
 	    }
 	  
 	  /* Sustain */
-	  if (f2 & 1<<stat)
+	  if (o_ptr->flags_obj & (OF_SUSTAIN_STR << j))
 	    {
 	      /* Dark green, "s" if no stat bonus. */
 	      a = TERM_GREEN;
@@ -1770,32 +819,13 @@ void display_player_sml(void)
 	    }
 	  
 	  /* Dump proper character */
-	  Term_putch(i + 1, 4 + stat, a, c);
+	  buf[0] = c;
+	  buf[1] = '\0';
+	  Term_putch(i + 1, 4 + j, a, c);
 	}
       
-      /* Player flags */
-      player_flags(&f1, &f2, &f3, TRUE);
-      
-      /* Check stats */
-      for (stat=0; stat<A_MAX; stat++)
-	{
-	  /* Default */
-	  a = TERM_SLATE;
-	  c = '.';
-	  
-	  /* Sustain */
-	  if (f2 & 1<<stat)
-	    {
-	      /* Dark green "s" */
-	      a = TERM_GREEN;
-	      c = 's';
-	    }
-	  
-	  /* Dump */
-	  Term_putch(37, 4 + stat, a, c);
-	}
     }
-
+  
   /* Dump the fighting bonuses to hit/dam */
   
   put_str("       (Fighting)    ", 14, 1);
@@ -1918,8 +948,11 @@ extern int make_dump(char_attr_line *line, int mode)
   
   u32b flag;
   cptr name1;
+
+  int player_resists[MAX_P_RES];
+  int player_bonus[MAX_P_BONUS];
   
-  u32b f[4];
+  u32b player_flags_obj;
 
   int current_line = 0;
 
@@ -1952,8 +985,7 @@ extern int make_dump(char_attr_line *line, int mode)
   if (mode != 1)
     {  
       /* Begin dump */
-      sprintf(buf, "[FAangband %s Character Dump]",
-	      VERSION_STRING);
+      sprintf(buf, "[FAangband %s Character Dump]", VERSION_STRING);
       dump_put_str(TERM_WHITE, buf, 2);
       current_line++;
       
@@ -1982,7 +1014,8 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[0];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Str" : "STR"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[0] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[0] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
@@ -2005,7 +1038,8 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[1];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Int" : "INT"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[1] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[1] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
@@ -2028,7 +1062,8 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[2];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Wis" : "WIS"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[2] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[2] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
@@ -2050,7 +1085,8 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[3];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Dex" : "DEX"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[3] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[3] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
@@ -2069,12 +1105,13 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[4];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Con" : "CON"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[4] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[4] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
 	  dump_put_str(TERM_L_GREEN, buf2, 70);
-    }
+	}
       else
 	dump_put_str(TERM_L_GREEN, buf1, 61);
       current_line++;
@@ -2086,7 +1123,8 @@ extern int make_dump(char_attr_line *line, int mode)
       value = p_ptr->stat_top[5];
       cnv_stat(value, buf2);
       dump_put_str(TERM_WHITE, (red ? "Chr" : "CHR"), 53);
-      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[5] == 18 + 100) ? "!" : " "), 56);
+      dump_put_str(TERM_WHITE, ((p_ptr->stat_cur[5] == 18 + 100) ? "!" : " "), 
+		   56);
       if (red)
 	{
 	  dump_put_str(TERM_YELLOW, buf1, 61);
@@ -2227,47 +1265,47 @@ extern int make_dump(char_attr_line *line, int mode)
       
       
       desc = likert(xthn, 10);
-      dump_put_str(TERM_WHITE, "Fighting    :", 1);
-      dump_put_str(likert_color, desc, 15);
+      dump_put_str(TERM_WHITE, "Fighting   :", 1);
+      dump_put_str(likert_color, desc, 13);
       
       desc = likert(xstl, 1);
-      dump_put_str(TERM_WHITE, "Stealth     :", 27);
-      dump_put_str(likert_color, desc, 41);
+      dump_put_str(TERM_WHITE, "Stealth    :", 27);
+      dump_put_str(likert_color, desc, 39);
       
       desc = likert(xdis, 8);
-      dump_put_str(TERM_WHITE, "Disarming   :", 53);
-      dump_put_str(likert_color, desc, 67);
+      dump_put_str(TERM_WHITE, "Disarming  :", 53);
+      dump_put_str(likert_color, desc, 65);
       current_line++;
       
       dump_ptr = (char_attr *)&line[current_line];
       desc = likert(xthb, 10);
-      dump_put_str(TERM_WHITE, "Bows/Throw  :", 1);
-      dump_put_str(likert_color, desc, 15);
+      dump_put_str(TERM_WHITE, "Bows/Throw :", 1);
+      dump_put_str(likert_color, desc, 13);
       
       desc = likert(xfos, 6);
-      dump_put_str(TERM_WHITE, "Perception  :", 27);
-      dump_put_str(likert_color, desc, 41);
+      dump_put_str(TERM_WHITE, "Perception :", 27);
+      dump_put_str(likert_color, desc, 39);
       
       desc = likert(xdev, 8);
-      dump_put_str(TERM_WHITE, "Magic Device:", 53);
-      dump_put_str(likert_color, desc, 67);
+      dump_put_str(TERM_WHITE, "MagicDevice:", 53);
+      dump_put_str(likert_color, desc, 65);
       current_line++;
       
       dump_ptr = (char_attr *)&line[current_line];
       desc = likert(xsav, 7);
-      dump_put_str(TERM_WHITE, "Saving Throw:", 1);
-      dump_put_str(likert_color, desc, 15);
+      dump_put_str(TERM_WHITE, "SavingThrow:", 1);
+      dump_put_str(likert_color, desc, 13);
       
       desc = likert(xsrh, 6);
-      dump_put_str(TERM_WHITE, "Searching   :", 27);
-      dump_put_str(likert_color, desc, 41);
+      dump_put_str(TERM_WHITE, "Searching  :", 27);
+      dump_put_str(likert_color, desc, 39);
       
       if (use_metric)
 	sprintf(buf1, "%d meters", p_ptr->see_infra * 3);
       else  
 	sprintf(buf1, "%d feet", p_ptr->see_infra * 10);
-      dump_put_str(TERM_WHITE, "Infravision :", 53);
-      dump_put_str(TERM_WHITE, buf1, 67);
+      dump_put_str(TERM_WHITE, "Infravision:", 53);
+      dump_put_str(TERM_WHITE, buf1, 65);
       current_line += 2;
       
       
@@ -2329,7 +1367,7 @@ extern int make_dump(char_attr_line *line, int mode)
       /* Heading */
       current_line++;
       dump_ptr = (char_attr *)&line[current_line];
-      dump_put_str(TERM_WHITE, "[Resistances and Powers]", 2);
+      dump_put_str(TERM_WHITE, "[Resistances, Powers and Bonuses]", 2);
       current_line += 2;
     }
       
@@ -2353,48 +1391,40 @@ extern int make_dump(char_attr_line *line, int mode)
   current_line++;
 
   /* Resistances */
+  get_player_resists(player_resists);
+
   for (y = 0; y < 7; y++)
     {
       dump_ptr = (char_attr *)&line[current_line];
       
       for (x = 0; x < 2; x++)
 	{
-	  /* Extract flag */
-	  flag = display_player_resists[x][y];
-      
+	  int r = y + 7 * x;
+
 	  /* Extract name */
 	  name1 = display_player_resist_names[x][y];
-
+	  
 	  /* Name */
 	  dump_put_str(resist_colour(p_ptr->dis_res_list[y + x * 7]), name1, 
-				     1 + 24 * x);
-
+		       1 + 24 * x);
+	  
 	  /* Check equipment */
 	  for (n = 6 + 25 * x, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++, n++)
 	    {
 	      object_type *o_ptr;
-	      int r = y + 7 * x;
 	      
 	      /* Object */
 	      o_ptr = &inventory[i];
 	      
-	      /* Known flags */
-	      object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
-	      
-	      /* Hack -- Check immunities */
-	      if ((y < 4) && (x == 0) && (f[2] & ((TR2_IM_ACID) << y)))
-		{
-		  dump_put_str(TERM_WHITE, "*", n);
-		}
-	      
 	      /* Check flags */
-	      else if ((f[2] & flag) || 
-		       ((o_ptr->k_idx) && (o_ptr->ident & IDENT_KNOWN) &&
-			(o_ptr->percent_res[r] != 100)))
+	      if ((o_ptr->k_idx) && (object_known_p(o_ptr)) &&
+		  (o_ptr->percent_res[r] != RES_LEVEL_BASE))
 		{
-		  if (o_ptr->percent_res[r] < 100) 
+		  if (o_ptr->percent_res[r] == RES_LEVEL_MIN) 
+		    dump_put_str(resist_colour(o_ptr->percent_res[r]), "*", n);
+		  else if (o_ptr->percent_res[r] < RES_LEVEL_BASE) 
 		    dump_put_str(resist_colour(o_ptr->percent_res[r]), "+", n);
-		  else if (o_ptr->percent_res[r] > 100) 
+		  else if (o_ptr->percent_res[r] > RES_LEVEL_BASE) 
 		    dump_put_str(resist_colour(o_ptr->percent_res[r]), "-", n);
 		}
 	      
@@ -2406,30 +1436,15 @@ extern int make_dump(char_attr_line *line, int mode)
 		}
 	    }
 	  
-	  /* Player flags */
-	  player_flags(&f[1], &f[2], &f[3], TRUE);
-	  
 	  /* Check flags */
-	  if (f[2] & flag) 
-	    {
-	      dump_put_str(TERM_L_BLUE, "+", n);
-	    }
-	  
+	  if (player_resists[r] == RES_LEVEL_MIN) 
+	    dump_put_str(resist_colour(player_resists[r]), "*", n);
+	  else if (player_resists[r] < RES_LEVEL_BASE) 
+	    dump_put_str(resist_colour(player_resists[r]), "+", n);
+	  else if (player_resists[r] > RES_LEVEL_BASE) 
+	    dump_put_str(resist_colour(player_resists[r]), "-", n);
 	  else
-	    {
-	      /* Player 'reversed' flags */
-	      player_weakness_dis(&f[1], &f[2], &f[3]);
-	      
-	      /* Check flags */
-	      if (f[2] & flag) 
-		{
-		  dump_put_str(TERM_YELLOW, "-", n);
-		}
-	      
-	      else
-		/* Default */
-		dump_put_str(TERM_L_WHITE, ".", n);
-	    }
+	    dump_put_str(TERM_L_WHITE, ".", n); 
 	  
 	  /* Percentage */
 	  sprintf(buf1, "%4d%%", 100 - p_ptr->dis_res_list[y + x * 7]);
@@ -2449,35 +1464,36 @@ extern int make_dump(char_attr_line *line, int mode)
       current_line++;
     }
 
-  /* Powers */
+  /* Powers and Bonuses */
   for (y = 0; y < 10; y++)
     {
+      byte a = TERM_WHITE;
+      char c;
+
       dump_ptr = (char_attr *)&line[current_line];
       
       for (x = 0; x < 2; x++)
 	{
 	  /* Extract flag */
-	  flag = display_player_flags[x][y];
+	  flag = display_player_powers[y];
       
 	  /* Extract name */
-	  name1 = display_player_flag_names[x][y];
+	  name1 = display_player_power_names[y];
 
 	  /* Name */
-	  dump_put_str(TERM_WHITE, name1, 25 * x);
+	  dump_put_str(TERM_WHITE, name1, 0);
 
 	  /* Check equipment */
-	  for (n = 6 + 25 * x, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++, n++)
+	  for (n = 6, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++, n++)
 	    {
 	      object_type *o_ptr;
 	      
 	      /* Object */
 	      o_ptr = &inventory[i];
 	      
-	      /* Known flags */
-	      object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
-	      
 	      /* Check flags */
-	      if (f[3 - 2 * x] & flag)
+	      if ((o_ptr->k_idx) && (object_known_p(o_ptr)) &&
+		  (o_ptr->flags_obj & flag))
 		{
 		  dump_put_str(TERM_WHITE, "+", n);
 		}
@@ -2490,11 +1506,10 @@ extern int make_dump(char_attr_line *line, int mode)
 		}
 	    }
 	  
-	  /* Player flags */
-	  player_flags(&f[1], &f[2], &f[3], TRUE);
-	  
 	  /* Check flags */
-	  if (f[3 - 2 * x] & flag) 
+	  player_flags(&player_flags_obj);
+
+	  if (player_flags_obj & flag) 
 	    {
 	      dump_put_str(TERM_WHITE, "+", n);
 	    }
@@ -2502,10 +1517,10 @@ extern int make_dump(char_attr_line *line, int mode)
 	  else
 	    {
 	      /* Player 'reversed' flags */
-	      player_weakness_dis(&f[1], &f[2], &f[3]);
+	      player_weakness_dis(&player_flags_obj);
 	      
 	      /* Check flags */
-	      if (f[3 - 2 * x] & flag) 
+	      if (player_flags_obj & flag) 
 		{
 		  dump_put_str(TERM_RED, "-", n);
 		}
@@ -2514,10 +1529,110 @@ extern int make_dump(char_attr_line *line, int mode)
 		/* Default */
 		dump_put_str(TERM_L_WHITE, ".", n);
 	    }
+
+	  /* Hack - only 8 bonuses */
+	  if (y >= MAX_P_BONUS) continue;
+
+	  /* Extract name */
+	  name1 = display_player_bonus_names[y];
+
+	  /* Name */
+	  dump_put_str(TERM_WHITE, name1, 25);
+
+	  /* Check equipment */
+	  for (n = 31, i = INVEN_WIELD; i < INVEN_SUBTOTAL; i++, n++)
+	    {
+	      object_type *o_ptr;
+	      
+	      /* Object */
+	      o_ptr = &inventory[i];
+	      
+	      /* Check flags */
+	      if (o_ptr->bonus_other[y] != BONUS_BASE)
+		{
+		  /* Default */
+		  c = '*';
+		  
+		  /* Good */
+		  if (o_ptr->bonus_other[y] > 0)
+		    {
+		      /* Good */
+		      a = TERM_L_GREEN;
+		      
+		      /* Label boost */
+		      if (o_ptr->bonus_other[y] < 10) 
+			c = '0' + o_ptr->bonus_other[y];
+		    }
+	      
+		  /* Bad */
+		  if (o_ptr->bonus_other[y] < 0)
+		    {
+		      /* Bad */
+		      a = TERM_RED;
+		      
+		      /* Label boost */
+		      if (o_ptr->bonus_other[y] < 10) 
+			c = '0' - o_ptr->bonus_other[y];
+		    }
+
+		  /* Dump proper character */
+		  buf[0] = c;
+		  buf[1] = '\0';
+		  dump_put_str(a, buf, n);
+		}
+	      
+	      /* Default */
+	      else
+		{
+		  dump_put_str((o_ptr->k_idx ? TERM_L_WHITE : TERM_SLATE), 
+			       ".", n);
+		}
+	    }
+	  
+	  /* Player flags */
+	  get_player_bonus(player_bonus);
+	  
+	  /* Check flags */
+	  if (player_bonus[y] != BONUS_BASE)
+	    {
+	      /* Default */
+	      c = '*';
+	      
+	      /* Good */
+	      if (player_bonus[y] > 0)
+		{
+		  /* Good */
+		  a = TERM_L_GREEN;
+		  
+		  /* Label boost */
+		  if (player_bonus[y] < 10) c = '0' + player_bonus[y];
+		}
+	      
+	      /* Bad */
+	      if (player_bonus[y] < 0)
+		{
+		  /* Bad */
+		  a = TERM_RED;
+		  
+		  /* Label boost */
+		  if (player_bonus[y] < 10) c = '0' - player_bonus[y];
+		}
+	      
+	      /* Dump proper character */
+	      buf[0] = c;
+	      buf[1] = '\0';
+	      dump_put_str(a, buf, n);
+	    }
+	  
+	  /* Default */
+	  else
+	    {
+	      dump_put_str(TERM_L_WHITE, ".", n);
+	    }
 	}	  
       current_line++;
     }
-
+  
   /* Skip for mode 1 */
   if (mode != 1)
     {
@@ -2560,7 +1675,7 @@ extern int make_dump(char_attr_line *line, int mode)
   dump_put_str(TERM_L_BLUE, "Rce Cls Oth", 12);
   dump_put_str(TERM_L_GREEN, "Actual", 24);
   dump_put_str(TERM_YELLOW, "Currnt", 31);
-  dump_put_str(TERM_WHITE, "abcdefghijkl@", 42);
+  dump_put_str(TERM_WHITE, "abcdefghijkl", 42);
   current_line++;
   
   /* Display the stats */
@@ -2596,58 +1711,47 @@ extern int make_dump(char_attr_line *line, int mode)
 
       for (j = INVEN_WIELD; j < INVEN_SUBTOTAL; j++)
 	{
-	  s16b k_idx;
 	  byte a;
 	  char c;
-	  u32b f1, f2, f3, ignore_f2, ignore_f3;
 
 	  col = 42 + j - INVEN_WIELD;
 	  
 	  /* Access object */
 	  o_ptr = &inventory[j];
 	  
-	  /* Object kind */
-	  k_idx = o_ptr->k_idx;
-	  
-	  /* Acquire "known" flags */
-	  object_flags_known(o_ptr, &f1, &f2, &f3);
-      
-	  /* Hack -- assume stat modifiers are known */
-	  object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
-
-	  /* Initialize color based of sign of pval. */
+	  /* Initialize color based of sign of bonus. */
 	  a = TERM_SLATE;
 	  c = '.';
 	  
 	  /* Boost */
-	  if (f1 & (1 << i))
+	  if (o_ptr->bonus_stat[i] != 0)
 	    {
 	      /* Default */
 	      c = '*';
 	      
 	      /* Good */
-	      if (o_ptr->pval > 0)
+	      if (o_ptr->bonus_stat[i] > 0)
 		{
 		  /* Good */
 		  a = TERM_L_GREEN;
 		  
 		  /* Label boost */
-		  if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
+		  if (o_ptr->bonus_stat[i] < 10) c = '0' + o_ptr->bonus_stat[i];
 		}
 	      
 	      /* Bad */
-	      if (o_ptr->pval < 0)
+	      if (o_ptr->bonus_stat[i] < 0)
 		{
 		  /* Bad */
 		  a = TERM_RED;
 		  
 		  /* Label boost */
-		  if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
+		  if (o_ptr->bonus_stat[i] < 10) c = '0' - o_ptr->bonus_stat[i];
 		}
 	    }
 	  
 	  /* Sustain */
-	  if (f2 & (1 << i))
+	  if (o_ptr->flags_obj & (OF_SUSTAIN_STR << i))
 	    {
 	      /* Dark green, "s" if no stat bonus. */
 	      a = TERM_GREEN;
@@ -2821,7 +1925,7 @@ extern int make_dump(char_attr_line *line, int mode)
 	}
 
       /* Get the note */
-      sprintf(buf, notes[i].note);
+      sprintf(buf, "%s", notes[i].note);
       
       /* Get the location name */
       if (lev)
@@ -3024,7 +2128,7 @@ void display_dump(char_attr_line *line, int top_line, int bottom_line, int col)
 errr file_character(cptr name, char_attr_line *line, int last_line)
 {
   int i;
-  int fd = -1;
+  ang_file *fd;
   char buf[100];
   
   /* Drop priv's */
@@ -3033,33 +2137,26 @@ errr file_character(cptr name, char_attr_line *line, int last_line)
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_USER, name);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Check for existing file */
-  fd = fd_open(buf, O_RDONLY);
+  fd = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Existing file */
-#ifdef _WIN32_WCE
-  if (fd != -1)
-#else
-  if (fd >= 0)
-#endif
+  if (fd)
     {
       char out_val[160];
       
       /* Close the file */
-      fd_close(fd);
+      file_close(fd);
       
       /* Build query */
       sprintf(out_val, "Replace existing file %s? ", buf);
       
       /* Ask */
-      if (get_check(out_val)) fd = -1;
+      if (get_check(out_val)) return (-1);
     }
   
   /* Open the non-existing file */
-  if (fd < 0) dump_out_file = my_fopen(buf, "w");
+  dump_out_file = file_open(buf, MODE_WRITE, FTYPE_TEXT);
   
   /* Grab priv's */
   safe_setuid_grab();
@@ -3087,7 +2184,7 @@ errr file_character(cptr name, char_attr_line *line, int last_line)
     }
   
   /* Close it */
-  my_fclose(dump_out_file);
+  file_close(dump_out_file);
   
   /* Message */
   msg_print("Character dump successful.");
@@ -4041,7 +3138,7 @@ static char *get_personalized_string(byte choice)
  */
 static void make_bones(void)
 {
-  FILE *fp;
+  ang_file *fp;
   
   char str[1024];
   event_type answer;
@@ -4073,10 +3170,10 @@ static void make_bones(void)
 	      path_build(str, 1024, ANGBAND_DIR_BONE, tmp);
 	      
 	      /* Attempt to open the bones file */
-	      fp = my_fopen(str, "r");
+	      fp = file_open(str, MODE_READ, FTYPE_TEXT);
 	      
 	      /* Close it right away */
-	      if (fp) my_fclose(fp);
+	      if (fp) file_close(fp);
 	      
 	      /* Do not over-write a previous ghost */
 	      if (fp) continue;
@@ -4088,25 +3185,22 @@ static void make_bones(void)
 	  /* Failure */
 	  if (fp) return;
 	  
-	  /* File type is "TEXT" */
-	  FILE_TYPE(FILE_TYPE_TEXT);
-	  
 	  /* Try to write a new "Bones File" */
-	  fp = my_fopen(str, "w");
+	  fp = file_open(str, MODE_WRITE, FTYPE_TEXT);
 	  
 	  /* Not allowed to write it?  Weird. */
 	  if (!fp) return;
 	  
 	  /* Save the info */
 	  if (op_ptr->full_name[0] != '\0') 
-	    fprintf(fp, "%s\n", op_ptr->full_name);
-	  else fprintf(fp, "Anonymous\n");
+	    file_putf(fp, "%s\n", op_ptr->full_name);
+	  else file_putf(fp, "Anonymous\n");
 	  
 	  
 	  
-	  fprintf(fp, "%d\n", p_ptr->psex);
-	  fprintf(fp, "%d\n", p_ptr->prace);
-	  fprintf(fp, "%d\n", p_ptr->pclass);
+	  file_putf(fp, "%d\n", p_ptr->psex);
+	  file_putf(fp, "%d\n", p_ptr->prace);
+	  file_putf(fp, "%d\n", p_ptr->pclass);
 	  
 	  /* Clear screen */
 	  Term_clear();
@@ -4181,12 +3275,12 @@ static void make_bones(void)
 	       * info on how it should be used in the bones file.  Otherwise, 
 	       * indicate the absence of such a string.
 	       */
-	      if (choice) fprintf(fp, "%d:%s\n", 
+	      if (choice) file_putf(fp, "%d:%s\n", 
 				  choice, get_personalized_string(choice));
-	      else fprintf(fp, "0: \n");
+	      else file_putf(fp, "0: \n");
 	      
 	      /* Close and save the Bones file */
-	      my_fclose(fp);
+	      file_close(fp);
 	      
 	      return;
 	    }
@@ -4236,7 +3330,7 @@ static void print_tomb(void)
   
   char buf[1024];
   
-  FILE *fp;
+  ang_file *fp;
   
 #ifdef _WIN32_WCE
   time_t ct = fake_time((time_t)0);
@@ -4263,7 +3357,7 @@ static void print_tomb(void)
 	       (small_screen ? "dead_s.txt" : "dead.txt"));
 	       
   /* Open the News file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, FTYPE_TEXT);
   
   /* Dump */
   if (fp)
@@ -4282,7 +3376,7 @@ static void print_tomb(void)
       for (y = 0; okay; y++)
 	{
 	  /* Get a line of data */
-	  if (my_fgets(fp, buf, 1024)) okay = FALSE;
+	  if (!file_getl(fp, buf, 1024)) okay = FALSE;
 	  
 	  /* Stop on blank line */
 	  if (!buf[0]) break;
@@ -4309,7 +3403,7 @@ static void print_tomb(void)
       for (y = 0; okay; y++)
 	{
 	  /* Get a line of data */
-	  if (my_fgets(fp, buf, 1024)) okay = FALSE;
+	  if (!file_getl(fp, buf, 1024)) okay = FALSE;
 	  
 	  /* Stop on blank line */
 	  if (!buf[0]) break;
@@ -4348,7 +3442,7 @@ static void print_tomb(void)
       
       
       /* Close it */
-      my_fclose(fp);
+      file_close(fp);
     }
   
   /* King or Queen */
@@ -4463,7 +3557,7 @@ static void death_knowledge(void)
       object_known(o_ptr);
       
       /* Fully known */
-      o_ptr->ident |= (IDENT_MENTAL);
+      o_ptr->id_curse = o_ptr->flags_curse;
     }
   
   /* Thralls sometimes (often!) don't have a home */
@@ -4486,7 +3580,7 @@ static void death_knowledge(void)
 	  object_known(o_ptr);
 	  
 	  /* Fully known */
-	  o_ptr->ident |= (IDENT_MENTAL);
+	  o_ptr->id_curse = o_ptr->flags_curse;
 	}
     }
   
@@ -4655,8 +3749,12 @@ static void death_examine(void)
       o_ptr = &o_list[0 - item];
     }
   
+  /* Aware and Known */
+  object_aware(o_ptr);
+  object_known(o_ptr);
+  
   /* Fully known */
-  o_ptr->ident |= (IDENT_MENTAL);
+  o_ptr->id_curse = o_ptr->flags_curse;
   
   /* Description */
   object_desc(o_name, o_ptr, TRUE, 3);
@@ -4674,10 +3772,10 @@ static void death_examine(void)
 /*
  * Seek score 'i' in the highscore file
  */
-static int highscore_seek(int i)
+static bool highscore_seek(int i)
 {
   /* Seek for the requested record */
-  return (fd_seek(highscore_fd, (huge)(i) * sizeof(high_score)));
+  return (file_seek(highscore_fd, (huge)(i) * sizeof(high_score)));
 }
 
 
@@ -4687,7 +3785,7 @@ static int highscore_seek(int i)
 static errr highscore_read(high_score *score)
 {
   /* Read the record, note failure */
-  return (fd_read(highscore_fd, (char*)(score), sizeof(high_score)));
+  return (file_read(highscore_fd, (char*)(score), sizeof(high_score)));
 }
 
 
@@ -4697,7 +3795,7 @@ static errr highscore_read(high_score *score)
 static int highscore_write(high_score *score)
 {
   /* Write the record, note failure */
-  return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
+  return (file_write(highscore_fd, (char*)(score), sizeof(high_score)));
 }
 
 
@@ -4714,14 +3812,10 @@ static int highscore_where(high_score *score)
   high_score the_score;
   
   /* Paranoia -- it may not have opened */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1) return (-1);
-#else
-  if (highscore_fd < 0) return (-1);
-#endif
+  if (!highscore_fd) return (-1);
 
   /* Go to the start of the highscore file */
-  if (highscore_seek(0)) return (-1);
+  if (!highscore_seek(0)) return (-1);
   
   /* Read until we get to a higher score */
   for (i = 0; i < MAX_HISCORES; i++)
@@ -4748,11 +3842,7 @@ static int highscore_add(high_score *score)
   
   
   /* Paranoia -- it may not have opened */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1) return (-1);
-#else
-  if (highscore_fd < 0) return (-1);
-#endif
+  if (!highscore_fd) return (-1);
   
   /* Determine where the score should go */
   slot = highscore_where(score);
@@ -4767,12 +3857,12 @@ static int highscore_add(high_score *score)
   for (i = slot; !done && (i < MAX_HISCORES); i++)
     {
       /* Read the old guy, note errors */
-      if (highscore_seek(i)) return (-1);
-      if (highscore_read(&tmpscore)) done = TRUE;
+      if (!highscore_seek(i)) return (-1);
+      if (!highscore_read(&tmpscore)) done = TRUE;
       
       /* Back up and dump the score we were holding */
-      if (highscore_seek(i)) return (-1);
-      if (highscore_write(&the_score)) return (-1);
+      if (!highscore_seek(i)) return (-1);
+      if (!highscore_write(&the_score)) return (-1);
       
       /* Hack -- Save the old score, for the next pass */
       the_score = tmpscore;
@@ -4812,11 +3902,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
   
   
   /* Paranoia -- it may not have opened */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1) return (-1);
-#else
-  if (highscore_fd < 0) return;
-#endif
+  if (!highscore_fd) return;
   
   
   /* Assume we will show the first 10 */
@@ -4826,7 +3912,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
   
   
   /* Seek to the beginning */
-  if (highscore_seek(0)) return;
+  if (!highscore_seek(0)) return;
   
   /* Hack -- Count the high scores */
   for (i = 0; i < MAX_HISCORES; i++)
@@ -4883,7 +3969,7 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 	  else
 	    {
 	      /* Read the proper record */
-	      if (highscore_seek(j)) break;
+	      if (!highscore_seek(j)) break;
 	      if (highscore_read(&the_score)) break;
 	    }
 	  
@@ -5010,14 +4096,10 @@ void display_scores(int from, int to)
   path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
   
   /* Open the binary high score file, for reading */
-  highscore_fd = fd_open(buf, O_RDONLY);
+  highscore_fd = file_open(buf, MODE_READ, -1);
   
   /* Paranoia -- No score file */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1) quit("Score file unavailable.");
-#else
-  if (highscore_fd < 0) quit("Score file unavailable.");
-#endif
+  if (!highscore_fd) quit("Score file unavailable.");
   
   /* Clear screen */
   Term_clear();
@@ -5026,10 +4108,10 @@ void display_scores(int from, int to)
   display_scores_aux(from, to, -1, NULL);
   
   /* Shut the high score file */
-  fd_close(highscore_fd);
+  file_close(highscore_fd);
   
   /* Forget the high score fd */
-  highscore_fd = -1;
+  highscore_fd = NULL;
   
   /* Quit */
   quit(NULL);
@@ -5056,7 +4138,7 @@ static errr enter_score(void)
   
   
   /* No score file */
-  if (highscore_fd < 0)
+  if (!highscore_fd)
     {
       return (0);
     }
@@ -5179,15 +4261,8 @@ static errr enter_score(void)
   sprintf(the_score.how, "%-.31s", p_ptr->died_from);
   
   
-  /* Lock (for writing) the highscore file, or fail */
-  if (fd_lock(highscore_fd, F_WRLCK)) return (1);
-  
   /* Add a new entry to the score list, see where it went */
   score_idx = highscore_add(&the_score);
-  
-  /* Unlock the highscore file, or fail */
-  if (fd_lock(highscore_fd, F_UNLCK)) return (1);
-  
   
   /* Success */
   return (0);
@@ -5207,7 +4282,7 @@ static void top_twenty(void)
   Term_clear();
   
   /* No score file */
-  if (highscore_fd < 0)
+  if (!highscore_fd)
     {
       msg_print("Score file unavailable.");
       msg_print(NULL);
@@ -5253,11 +4328,7 @@ errr predict_score(void)
   
   
   /* No score file */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1)
-#else
-  if (highscore_fd < 0)
-#endif
+  if (!highscore_fd)
     {
       msg_print("Score file unavailable.");
       msg_print(NULL);
@@ -5332,14 +4403,10 @@ void show_scores(void)
   path_build(buf, sizeof(buf), ANGBAND_DIR_APEX, "scores.raw");
   
   /* Open the binary high score file, for reading */
-  highscore_fd = fd_open(buf, O_RDONLY);
+  highscore_fd = file_open(buf, MODE_READ, -1);
 
   /* Paranoia -- No score file */
-#ifdef _WIN32_WCE
-  if (highscore_fd == -1)
-#else
-  if (highscore_fd < 0)
-#endif
+  if (!highscore_fd)
     {
       msg_print("Score file unavailable.");
     }
@@ -5358,10 +4425,10 @@ void show_scores(void)
 	display_scores_aux(0, MAX_HISCORES, -1, NULL);
       
       /* Shut the high score file */
-      (void)fd_close(highscore_fd);
+      (void)file_close(highscore_fd);
       
       /* Forget the high score fd */
-      highscore_fd = -1;
+      highscore_fd = NULL;
       
       /* Load screen */
       screen_load();
@@ -5393,6 +4460,9 @@ static void kingly(void)
   /* Hack -- Instant Gold */
   p_ptr->au += 10000000L;
   
+  /* Limit to avoid buffer overflow */
+  if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
+	    
   /* Clear screen */
   Term_clear();
   
@@ -5629,8 +4699,7 @@ void close_game(void)
   path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
   
   /* Open the high score file, for reading/writing */
-  highscore_fd = fd_open(buf, O_RDWR);
-  
+  highscore_fd = file_open(buf, MODE_WRITE, FTYPE_RAW);
   
   /* Paranoia */
   game_start = FALSE;
@@ -5658,10 +4727,10 @@ void close_game(void)
   
   
   /* Shut the high score file */
-  fd_close(highscore_fd);
+  file_close(highscore_fd);
   
   /* Forget the high score fd */
-  highscore_fd = -1;
+  highscore_fd = NULL;
   
   /* Allow suspending now */
   signals_handle_tstp();
@@ -5714,21 +4783,21 @@ void exit_game_panic(void)
 /*  Taken from Zangband.  What a good idea! */
 errr get_rnd_line(char *file_name, char *output)
 {
-  FILE	    *fp;
-  char	buf[1024];
-  int lines=0, line, counter;
+  ang_file *fp;
+  char buf[1024];
+  int lines = 0, line, counter;
   
   /* Build the filename */
   path_build(buf, 1024, ANGBAND_DIR_FILE, file_name);
   
   /* Open the file */
-  fp = my_fopen(buf, "r");
+  fp = file_open(buf, MODE_READ, FTYPE_TEXT);
   
   /* Failed */
   if (!fp) return (-1);
   
   /* Parse the file */
-  if (0 == my_fgets(fp, buf, 80))
+  if (file_getl(fp, buf, 80))
     lines = atoi(buf);
   else return (1);
   
@@ -5737,7 +4806,7 @@ errr get_rnd_line(char *file_name, char *output)
   
   for (counter = 0; counter <= line; counter++)
     {
-      if (!(0 == my_fgets(fp, buf, 80)))
+      if (!(file_getl(fp, buf, 80)))
 	return (1);
       else if (counter == line)
 	break;
@@ -5746,7 +4815,7 @@ errr get_rnd_line(char *file_name, char *output)
   strcpy (output, buf);
   
   /* Close the file */
-  my_fclose(fp);
+  file_close(fp);
   
   return (0);
 }
@@ -6081,21 +5150,21 @@ void signals_init(void)
 #endif	/* HANDLE_SIGNALS */
 
 
-static void write_html_escape_char(FILE *htm, char c)
+static void write_html_escape_char(ang_file *htm, char c)
 {
   switch (c)
     {
     case '<':
-      fprintf(htm, "&lt;");
+      file_putf(htm, "&lt;");
       break;
     case '>':
-      fprintf(htm, "&gt;");
+      file_putf(htm, "&gt;");
       break;
     case '&':
-      fprintf(htm, "&amp;");
+      file_putf(htm, "&amp;");
       break;
     default:
-      fprintf(htm, "%c", c);
+      file_putf(htm, "%c", c);
       break;
     }
 }
@@ -6164,7 +5233,7 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
     }
   
   /* Filter out remaining graphics */
-  if (a & 0xf0)
+  if (a & 0x80)
     {
       /* Replace with "white space" */
       a = TERM_WHITE;
@@ -6188,18 +5257,15 @@ void html_screenshot(cptr name)
   byte oa = TERM_WHITE;
   char c = ' ';
   
-  FILE *htm;
+  ang_file *htm;
   
   char buf[1024];
   
   /* Build the filename */
   path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
   
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
-  
   /* Append to the file */
-  htm = my_fopen(buf, "w");
+  htm = file_open(buf, MODE_WRITE, FTYPE_TEXT);
 
   /* Oops */
   if (!htm)
@@ -6211,14 +5277,14 @@ void html_screenshot(cptr name)
   /* Retrieve current screen size */
   Term_get_size(&wid, &hgt);
   
-  fprintf(htm, "<HTML>\n");
-  fprintf(htm, "<HEAD>\n");
-  fprintf(htm, "<META NAME=\"GENERATOR\" Content=\"FAAngband %s\">\n", 
+  file_putf(htm, "<HTML>\n");
+  file_putf(htm, "<HEAD>\n");
+  file_putf(htm, "<META NAME=\"GENERATOR\" Content=\"FAAngband %s\">\n", 
 	  VERSION_STRING);
-  fprintf(htm, "<TITLE>%s</TITLE>\n", name);
-  fprintf(htm, "</HEAD>\n");
-  fprintf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
-  fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
+  file_putf(htm, "<TITLE>%s</TITLE>\n", name);
+  file_putf(htm, "</HEAD>\n");
+  file_putf(htm, "<BODY TEXT=\"#FFFFFF\" BGCOLOR=\"#000000\">");
+  file_putf(htm, "<FONT COLOR=\"#%02X%02X%02X\">\n<PRE><TT>",
 	  angband_color_table[TERM_WHITE][1],
 	  angband_color_table[TERM_WHITE][2],
 	  angband_color_table[TERM_WHITE][3]);
@@ -6232,16 +5298,13 @@ void html_screenshot(cptr name)
 	  /* Get the ASCII tile */
 	  get_default_tile(y, x, &a, &c);
 	  
-	  /* Hack - show base color in dump */
-	  a &= 0x0F;
-
 	  /* Color change */
 	  if (oa != a)
 	    {
 	      /* From the default white to another color */
 	      if (oa == TERM_WHITE)
 		{
-		  fprintf(htm, "<FONT COLOR=\"#%02X%02X%02X\">",
+		  file_putf(htm, "<FONT COLOR=\"#%02X%02X%02X\">",
 			  angband_color_table[a][1],
 			  angband_color_table[a][2],
 			  angband_color_table[a][3]);
@@ -6249,12 +5312,12 @@ void html_screenshot(cptr name)
 	      /* From another color to the default white */
 	      else if (a == TERM_WHITE)
 		{
-		  fprintf(htm, "</FONT>");
+		  file_putf(htm, "</FONT>");
 		}
 	      /* Change colors */
 	      else
 		{
-		  fprintf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">",
+		  file_putf(htm, "</FONT><FONT COLOR=\"#%02X%02X%02X\">",
 			  angband_color_table[a][1],
 			  angband_color_table[a][2],
 			  angband_color_table[a][3]);
@@ -6269,17 +5332,17 @@ void html_screenshot(cptr name)
 	}
       
       /* End the row */
-      fprintf(htm, "\n");
+      file_putf(htm, "\n");
     }
   
   /* Close the last <font> tag if necessary */
-  if (a != TERM_WHITE) fprintf(htm, "</FONT>");
+  if (a != TERM_WHITE) file_putf(htm, "</FONT>");
   
-  fprintf(htm, "</TT></PRE>\n");
+  file_putf(htm, "</TT></PRE>\n");
   
-  fprintf(htm, "</BODY>\n");
-  fprintf(htm, "</HTML>\n");
+  file_putf(htm, "</BODY>\n");
+  file_putf(htm, "</HTML>\n");
   
   /* Close it */
-  my_fclose(htm);
+  file_close(htm);
 }

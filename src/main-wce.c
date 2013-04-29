@@ -609,6 +609,7 @@ static cptr AngList = "AngList";
 /*
  * Directory names
  */
+#if 0
 static cptr ANGBAND_DIR_XTRA_FONT;
 #ifdef _WIN32_WCE
 cptr ANGBAND_DIR_XTRA_GRAF;
@@ -617,7 +618,6 @@ static cptr ANGBAND_DIR_XTRA_GRAF;
 #endif
 static cptr ANGBAND_DIR_XTRA_SOUND;
 static cptr ANGBAND_DIR_XTRA_HELP;
-#if 0
 static cptr ANGBAND_DIR_XTRA_MUSIC;
 #endif /* 0 */
 
@@ -4407,14 +4407,10 @@ static void process_menus(WORD wCmd)
                         path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
 
                         /* Open the binary high score file, for reading */
-                        highscore_fd = fd_open(buf, O_RDONLY);
+                        highscore_fd = file_open(buf, MODE_READ, FTYPE_RAW);
 
 			/* Paranoia -- No score file */
-#ifdef _WIN32_WCE
-			if (highscore_fd == INVALID_HANDLE_VALUE)
-#else
-			if (highscore_fd < 0)
-#endif
+			if (highscore_fd == NULL)
 			{
 				msg_print("Score file unavailable.");
 			}
@@ -4433,10 +4429,10 @@ static void process_menus(WORD wCmd)
                                         display_scores_aux(0, MAX_HISCORES, -1, NULL);
 
                                 /* Shut the high score file */
-                                (void)fd_close(highscore_fd);
+                                (void)file_close(highscore_fd);
 
                                 /* Forget the high score fd */
-                                highscore_fd = -1;
+                                highscore_fd = NULL;
 
                                 /* Load screen */
                                 screen_load();

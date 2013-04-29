@@ -106,6 +106,8 @@ enum
 {
   SQUELCH_NONE,
   SQUELCH_CURSED,
+  SQUELCH_DUBIOUS,
+  SQUELCH_NON_EGO,
   SQUELCH_AVERAGE,
   SQUELCH_GOOD_STRONG,
   SQUELCH_GOOD_WEAK,
@@ -119,12 +121,14 @@ enum
  */
 static const char *quality_names[SQUELCH_MAX] =
 {
-  "none",				/* SQUELCH_NONE */
-  "cursed",	                	/* SQUELCH_CURSED */
-  "average",				/* SQUELCH_AVERAGE */
-  "good (strong pseudo-ID or identify)",/* SQUELCH_GOOD_STRONG */
-  "good (weak pseudo-ID)",		/* SQUELCH_GOOD_WEAK */
-  "everything except artifacts",	/* SQUELCH_ALL */
+  "none",				             /* SQUELCH_NONE */
+  "cursed (objects known to have a curse)",    	     /* SQUELCH_CURSED */
+  "dubious (all dubious items)",                     /* SQUELCH_DUBIOUS */
+  "non-ego (all but ego-items - strong pseudo-ID)",  /* SQUELCH_NON_EGO */
+  "average (everything not good or better)",         /* SQUELCH_AVERAGE */
+  "good (strong pseudo-ID or identify)",             /* SQUELCH_GOOD_STRONG */
+  "good (weak pseudo-ID)",		             /* SQUELCH_GOOD_WEAK */
+  "everything except artifacts",	             /* SQUELCH_ALL */
 };
 
 
@@ -152,6 +156,7 @@ static tval_desc sval_dependent[] =
   { TV_NECRO_BOOK,	"Necromantic tomes" },
   { TV_SPIKE,		"Spikes" },
   { TV_LITE,		"Lights" },
+  { TV_FLASK,           "Oil" },
   { TV_SKELETON,        "Skeletons" },
   { TV_BOTTLE,          "Bottles" },
   { TV_JUNK,            "Junk" }
@@ -437,8 +442,29 @@ extern bool squelch_item_ok(object_type *o_ptr)
     {
     case SQUELCH_CURSED:
       {
-	if ((feel == FEEL_BROKEN) || (feel == FEEL_TERRIBLE) ||
-	    (feel == FEEL_WORTHLESS) || (feel == FEEL_CURSED))
+	if (o_ptr->ident & IDENT_CURSED)
+	  {
+	    return TRUE;
+	  }
+	
+	break;
+      }
+      
+    case SQUELCH_DUBIOUS:
+      {
+	if ((feel == FEEL_DUBIOUS_WEAK) || (feel == FEEL_PERILOUS) ||
+	    (feel == FEEL_DUBIOUS_STRONG))
+	  {
+	    return TRUE;
+	  }
+	
+	break;
+      }
+      
+    case SQUELCH_NON_EGO:
+      {
+	if ((feel == FEEL_DUBIOUS_STRONG) || (feel == FEEL_AVERAGE) || 
+	    (feel == FEEL_GOOD_STRONG))
 	  {
 	    return TRUE;
 	  }
@@ -448,9 +474,8 @@ extern bool squelch_item_ok(object_type *o_ptr)
       
     case SQUELCH_AVERAGE:
       {
-	if ((feel == FEEL_BROKEN) || (feel == FEEL_TERRIBLE) ||
-	    (feel == FEEL_WORTHLESS) || (feel == FEEL_CURSED) ||
-	    (feel == FEEL_AVERAGE))
+	if ((feel == FEEL_DUBIOUS_WEAK) || (feel == FEEL_PERILOUS) ||
+	    (feel == FEEL_DUBIOUS_STRONG) || (feel == FEEL_AVERAGE))
 	  {
 	    return TRUE;
 	  }
@@ -460,8 +485,7 @@ extern bool squelch_item_ok(object_type *o_ptr)
       
     case SQUELCH_GOOD_STRONG:
       {
-	if ((feel == FEEL_BROKEN) || (feel == FEEL_TERRIBLE) ||
-	    (feel == FEEL_WORTHLESS) || (feel == FEEL_CURSED) ||
+	if ((feel == FEEL_PERILOUS) || (feel == FEEL_DUBIOUS_STRONG) || 
 	    (feel == FEEL_AVERAGE) || (feel == FEEL_GOOD_STRONG))
 	  {
 	    return TRUE;
@@ -472,8 +496,7 @@ extern bool squelch_item_ok(object_type *o_ptr)
       
     case SQUELCH_GOOD_WEAK:
       {
-	if ((feel == FEEL_BROKEN) || (feel == FEEL_TERRIBLE) ||
-	    (feel == FEEL_WORTHLESS) || (feel == FEEL_CURSED) ||
+	if ((feel == FEEL_PERILOUS) || (feel == FEEL_DUBIOUS_STRONG) || 
 	    (feel == FEEL_AVERAGE) || (feel == FEEL_GOOD_WEAK) ||
 	    (feel == FEEL_GOOD_STRONG))
 	  {
@@ -995,7 +1018,7 @@ static bool quality_action(char cmd, void *db, int oid)
 {
   menu_type menu;
   menu_iter menu_f = { 0, 0, 0, quality_subdisplay, quality_subaction };
-  region area = { 24, 1, 36, SQUELCH_MAX };
+  region area = { 24, 1, 44, SQUELCH_MAX };
   event_type evt;
   int cursor;
   
@@ -1142,7 +1165,7 @@ static bool sval_menu(int tval, const char *desc)
       if (!k_ptr->name) continue;
       if (!k_ptr->everseen) continue;
       if (k_ptr->tval != tval) continue;
-      if (k_ptr->flags3 & TR3_INSTA_ART) continue;
+      if (k_ptr->flags_kind & KF_INSTA_ART) continue;
 
       /* Add this item to our possibles list */
       choice[num++] = i;
@@ -1365,7 +1388,11 @@ void do_cmd_options_item(void *unused, cptr title)
 	}
     }
   
-  /* Load screen and finish */
+  /* Load screen */
   screen_load();
+
+  /* Notice changes */
+  p_ptr->notice |= PN_SQUELCH;
+
   return;
 }

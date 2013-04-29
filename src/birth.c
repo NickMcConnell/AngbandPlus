@@ -766,7 +766,8 @@ static void player_wipe(bool really_wipe)
   p_ptr->food = PY_FOOD_FULL - 1;
   
   /* Clear Specialty Abilities */
-  for (i = 0; i < MAX_SPECIALTIES; i++) p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
+  for (i = 0; i < MAX_SPECIALTIES; i++) 
+    p_ptr->specialty_order[i] = SP_NO_SPECIALTY;
   
   /* None of the spells have been learned yet */
   for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
@@ -785,54 +786,79 @@ static void object_upgrade(object_type *o_ptr)
 {
   int i;
 
-  u32b f1, f2, f3;
-
   if ((o_ptr->tval >= rp_ptr->re_mint) && (o_ptr->tval <= rp_ptr->re_maxt))
     {      
       o_ptr->name2 = rp_ptr->re_id;
       o_ptr->to_h = rp_ptr->re_skde;
       o_ptr->to_d = rp_ptr->re_skde;
       o_ptr->to_a = rp_ptr->re_ac;
-      o_ptr->pval = rp_ptr->re_pval;
-      o_ptr->xtra1 = rp_ptr->re_xtra1;
-      o_ptr->xtra2 = rp_ptr->re_xtra2;
 
-      object_flags(o_ptr, &f1, &f2, &f3);
-
-      /* Check for ego item resists */
+      /* Check for ego item properties */
       if (o_ptr->name2)
 	{
 	  ego_item_type *e_ptr = &e_info[o_ptr->name2];
-
-      switch (o_ptr->name2)
-	  { 
+	  
+	  /* Allocate appropriate ego properties here.  This is a big hack, 
+	   * but hard to avoid */
+	  switch (o_ptr->name2)
+	    { 
 	    case EGO_NOGROD:
-		{
-	  	  /* Nogrod weapons have an extra dice and are light */
-		  if (((o_ptr->dd + 1) * o_ptr->ds) < 41)
+	      {
+		o_ptr->bonus_stat[A_STR] = rp_ptr->re_bonus;
+		o_ptr->bonus_other[P_BONUS_SPEED] = rp_ptr->re_bonus;
+		o_ptr->bonus_other[P_BONUS_TUNNEL] = rp_ptr->re_bonus;
+		/* Nogrod weapons have an extra dice and are light */
+		if (((o_ptr->dd + 1) * o_ptr->ds) < 41)
 		  {
 		    o_ptr->dd += 1; 
 		  }
-		  else
+		else
 		  {
-		    /* if we can't get an extra dice then weapon is even lighter */
+		    /* if we can't get an extra dice then weapon is even 
+		     * lighter */
 		    o_ptr->weight = (5 * o_ptr->weight / 6);
 		  }
-
-		  o_ptr->weight = (4 * o_ptr->weight / 5);
-	      break;
-		}
-	  }
+		
+		o_ptr->weight = (4 * o_ptr->weight / 5);
+		break;
+	      }
+	    case EGO_NOLDOR:
+	      {
+		o_ptr->bonus_stat[A_STR] = rp_ptr->re_bonus;
+		o_ptr->bonus_stat[A_DEX] = rp_ptr->re_bonus;
+		o_ptr->bonus_stat[A_CON] = rp_ptr->re_bonus;
+		break;
+	      }
+	    case EGO_DORIATH:
+	      {
+		o_ptr->bonus_other[P_BONUS_STEALTH] = rp_ptr->re_bonus;
+		o_ptr->flags_obj |= OF_SUSTAIN_CHR;
+	      }
+	    case EGO_GONDOLIN:
+	      {
+		o_ptr->flags_obj |= OF_FEATHER;
+	      }
+	    }
 	  
+	  /* Get flags */
+	  o_ptr->flags_obj |= e_ptr->flags_obj;
+	  o_ptr->flags_curse |= e_ptr->flags_curse;
+
 	  for (i = 0; i < MAX_P_RES; i++)
 	    {
 	      /* Get the resistance value */
 	      o_ptr->percent_res[i] = e_ptr->percent_res[i];
-	      
-	      /* Paranoia */
-	      if ((f2 & (resist_to_flag[i])) && 
-		  (o_ptr->percent_res[i] == RES_LEVEL_BASE))
-		o_ptr->percent_res[i] = RES_BOOST_NORMAL;
+	    }
+	  for (i = 0; i < MAX_P_SLAY; i++)
+	    {
+	      /* Get the slay value */
+	      o_ptr->multiple_slay[i] = e_ptr->multiple_slay[i];
+	    }
+
+	  for (i = 0; i < MAX_P_BRAND; i++)
+	    {
+	      /* Get the slay value */
+	      o_ptr->multiple_brand[i] = e_ptr->multiple_brand[i];
 	    }
 	}
     }
@@ -928,6 +954,7 @@ static void player_outfit(void)
   i_ptr->number = (byte)rand_range(3, 7);
   object_aware(i_ptr);
   object_known(i_ptr);
+  apply_autoinscription(i_ptr);
   (void)inven_carry(i_ptr);
   k_info[i_ptr->k_idx].everseen = TRUE;
   
@@ -941,6 +968,7 @@ static void player_outfit(void)
   i_ptr->pval = rand_range(3, 7) * 500;
   object_aware(i_ptr);
   object_known(i_ptr);
+  apply_autoinscription(i_ptr);
   (void)inven_carry(i_ptr);
   k_info[i_ptr->k_idx].everseen = TRUE;
   
@@ -971,6 +999,7 @@ static void player_outfit(void)
           
           object_aware(i_ptr);
           object_known(i_ptr);
+	  apply_autoinscription(i_ptr);
 	  (void)inven_carry(i_ptr);
 	  k_info[k_idx].everseen = TRUE;
         }
@@ -983,6 +1012,7 @@ static void player_outfit(void)
       object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_ESP));
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
 
@@ -991,6 +1021,7 @@ static void player_outfit(void)
       i_ptr->pval = 4;
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
 
@@ -998,6 +1029,7 @@ static void player_outfit(void)
       object_prep(i_ptr, lookup_kind(TV_STAFF, SV_STAFF_DETECTION));
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
 
@@ -1005,6 +1037,7 @@ static void player_outfit(void)
       object_prep(i_ptr, lookup_kind(TV_ROD, SV_ROD_MAPPING));
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
 
@@ -1013,6 +1046,7 @@ static void player_outfit(void)
       i_ptr->number = 5;
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
 
@@ -1021,6 +1055,7 @@ static void player_outfit(void)
       i_ptr->number = 25;
       object_aware(i_ptr);
       object_known(i_ptr);
+      apply_autoinscription(i_ptr);
       (void)inven_carry(i_ptr);
       k_info[i_ptr->k_idx].everseen = TRUE;
     }
@@ -1500,6 +1535,10 @@ static bool player_birth_aux_1(void)
   /* Reset squelch bits */
   for (i = 0; i < z_info->k_max; i++)
     k_info[i].squelch = FALSE;
+  
+  /* Reset ego squelch */
+  for (i = 0; i < z_info->e_max; i++)
+    e_info[i].squelch = FALSE;
   
   /* Clear the squelch bytes */
   for (i = 0; i < TYPE_MAX; i++)

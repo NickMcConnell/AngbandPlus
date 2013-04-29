@@ -267,7 +267,7 @@ struct term
 
 	errr (*wipe_hook)(int x, int y, int n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+	errr (*text_hook)(int x, int y, int n, byte a, char *s);
 
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
 

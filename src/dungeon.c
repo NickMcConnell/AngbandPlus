@@ -18,38 +18,84 @@
 #include "cmds.h"
 
 
+/* 
+ * Test an item for any negative qualities
+ */
+bool item_dubious(const object_type *o_ptr, bool unknown)
+{
+  int i;
+  object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+  /* Resists, bonuses, multiples */
+  for (i = 0; i < MAX_P_RES; i++)
+    if (o_ptr->percent_res[i] > RES_LEVEL_BASE) return TRUE;
+  for (i = 0; i < A_MAX; i++)
+    if (o_ptr->bonus_stat[i] < BONUS_BASE) return TRUE;
+  for (i = 0; i < MAX_P_BONUS; i++)
+    if (o_ptr->bonus_other[i] < BONUS_BASE) return TRUE;
+  for (i = 0; i < MAX_P_SLAY; i++)
+    if (o_ptr->multiple_slay[i] < MULTIPLE_BASE) return TRUE;
+  for (i = 0; i < MAX_P_BRAND; i++)
+    if (o_ptr->multiple_brand[i] < MULTIPLE_BASE) return TRUE;
+
+  /* To skill, to deadliness, to AC */
+  if (o_ptr->to_h + o_ptr->to_d < k_ptr->to_h) return TRUE;
+  if (o_ptr->to_a < 0) return TRUE;
+
+  /* Only check curses if NOT known, so we can infer dubious items with
+   * no other bad properties must be cursed */
+  if (unknown)
+    {
+      /* Cursed */
+      if (cursed_p(o_ptr)) return TRUE;
+    }
+  
+  /* Must be OK */
+  return FALSE;
+}
+
 
 /*
  * Return a "feeling" (or FEEL_NONE) about an item.  Method 1 (Heavy).
  */
-int value_check_aux1(const object_type *o_ptr)
+int value_check_aux1(object_type *o_ptr)
 {
+  int slot = wield_slot(o_ptr);
+  object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+  /* Wieldable? */
+  if (slot < 0) return FEEL_NONE;
+
+  /* No pseudo for lights */
+  if (slot == INVEN_LITE) return FEEL_NONE;
+
   /* Artifacts */
   if (artifact_p(o_ptr))
     {
-      /* Cursed/Broken */
-      if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_TERRIBLE;
-      
-      /* Normal */
+      /* All return special now */
       return FEEL_SPECIAL;
     }
   
   /* Ego-Items */
-  if (ego_item_p(o_ptr))
+  if (ego_item_p(o_ptr) || (k_ptr->flags_kind & KF_POWERFUL))
     {
-      /* Cursed/Broken */
-      if (cursed_p(o_ptr) || broken_p(o_ptr)) return FEEL_WORTHLESS;
+      /* Dubious egos */
+      if (item_dubious(o_ptr, TRUE)) return FEEL_PERILOUS;
       
       /* Normal */
+      o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
       return FEEL_EXCELLENT;
     }
   
-  /* Cursed items */
-  if (cursed_p(o_ptr)) return FEEL_CURSED;
+  /* Dubious items */
+  if (item_dubious(o_ptr, TRUE)) return FEEL_DUBIOUS_STRONG;
   
-  /* Broken items */
-  if (broken_p(o_ptr)) return FEEL_BROKEN;
-  
+  /* Known not cursed now */
+  o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
+
+  /* No average jewellery */
+  if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK)) return FEEL_GOOD_STRONG;
+
   /* Good "armor" bonus */
   if (o_ptr->to_a > 0) return FEEL_GOOD_STRONG;
   
@@ -66,170 +112,39 @@ int value_check_aux1(const object_type *o_ptr)
  */
 int value_check_aux2(object_type *o_ptr)
 {
-  /* Cursed items (all of them) */
-  if (cursed_p(o_ptr)) return FEEL_CURSED;
-  
-  /* Broken items (all of them) */
-  if (broken_p(o_ptr)) return FEEL_BROKEN;
-  
-  /* Artifacts -- except cursed/broken ones */
+  int slot = wield_slot(o_ptr);
+
+  /* Wieldable? */
+  if (slot < 0) return FEEL_NONE;
+
+  /* No pseudo for lights */
+  if (slot == INVEN_LITE) return FEEL_NONE;
+
+  /* Dubious items (all of them) */
+  if (item_dubious(o_ptr, TRUE)) return FEEL_DUBIOUS_WEAK;
+
+  /* Known not cursed now */  
+  o_ptr->ident |= (IDENT_UNCURSED | IDENT_KNOW_CURSES);
+
+  /* Artifacts -- except dubious ones */
   if (artifact_p(o_ptr)) return FEEL_GOOD_WEAK;
   
-  /* Ego-Items -- except cursed/broken ones */
+  /* Ego-Items -- except dubious ones */
   if (ego_item_p(o_ptr)) return FEEL_GOOD_WEAK;
   
+  /* No average jewellery */
+  if ((slot >= INVEN_LEFT) && (slot <= INVEN_NECK)) return FEEL_GOOD_WEAK;
+
   /* Good armor bonus */
   if (o_ptr->to_a > 0) return FEEL_GOOD_WEAK;
   
   /* Good weapon bonuses */
   if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_WEAK;
+
 /* SJGU */
   /* Default to "average" */
   return FEEL_AVERAGE;
 }
-
-
-
-
-
-
-/*
- * Sense the inventory
- *
- *   Class 0 = Warrior  --> fast and heavy
- *   Class 1 = Mage     --> slow and light
- *   Class 2 = Priest   --> fast but light
- *   Class 3 = Rogue    --> okay and heavy
- *   Class 4 = Ranger   --> slow and light
- *   Class 5 = Paladin  --> slow but heavy
- *   Class 6 = Druid    --> slowish and light
- *   Class 7 = Necrom.  --> slowish and light
- *   Class 8 = Assassin --> okay and heavy
- */
-static void sense_inventory(void)
-{
- 
-  int i;
-  int plev = p_ptr->lev;
-  
-  bool heavy = FALSE;
-        
-  byte feel;
-  
-  object_type *o_ptr;
-  
-  char o_name[120];
-  
-  /*** Check for "sensing" ***/
-  
-  /* No sensing when confused */
-  if (p_ptr->confused) return;
-  
-  /* Heavy sensing */
-  heavy = (check_ability(SP_PSEUDO_ID_HEAVY));
-  
-  /* Do we get pseudo-id this turn? */
-  if (0 != rand_int(cp_ptr->sense_base / (heavy ? (plev * plev + 40) : 
-                                          (plev + 5)))) return;
-  
-  /*** Sense everything ***/
-  
-  for (i = 0; i < INVEN_TOTAL; i++)
-    {
-      bool okay = FALSE;
-
-      o_ptr = &inventory[i];
-      
-      /* Skip empty slots */
-      if (!o_ptr->k_idx) continue;
-      
-      /* Valid "tval" codes */
-      switch (o_ptr->tval)
-	{
-	case TV_SHOT:
-	case TV_ARROW:
-	case TV_BOLT:
-	case TV_BOW:
-	case TV_DIGGING:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_HELM:
-	case TV_CROWN:
-	case TV_SHIELD:
-	case TV_CLOAK:
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-	  {
-	    okay = TRUE;
-	    break;
-	  }
-	}
-
-      /* Skip non-sense machines */
-      if (!okay) continue;
-      
-      /* We know about it already, do not tell us again */
-      if (o_ptr->ident & (IDENT_SENSE)) continue;
-      
-      /* It is fully known, no information needed */
-      if (object_known_p(o_ptr)) continue;
-      
-      /* Occasional failure on inventory items */
-      if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
-      
-      /* Check for a feeling */
-      feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
-#if 0 /* SJGU - can't happen */ 
-      /* Skip non-feelings */
-      if (feel == FEEL_NONE) continue;
-#endif      
-      /* Stop everything */
-      if (disturb_minor) disturb(0, 0);
-      
-      /* Get an object description */
-      object_desc(o_name, o_ptr, FALSE, 0);
-      
-      /* Message (equipment) */
-      if (i >= INVEN_WIELD)
-        {
-          msg_format("You feel the %s (%c) you are %s %s %s...",
-                     o_name, index_to_label(i), describe_use(i),
-                     ((o_ptr->number == 1) ? "is" : "are"), feel_text[feel]);
-        }
-      
-      /* Message (inventory) */
-      else
-        {
-          msg_format("You feel the %s (%c) in your pack %s %s...",
-                     o_name, index_to_label(i),
-                     ((o_ptr->number == 1) ? "is" : "are"),
-                     feel_text[feel]);
-        }
-      
-      /* We have "felt" it */
-      o_ptr->ident |= (IDENT_SENSE);
-      
-      
-      /* Inscribe it textually */
-      o_ptr->feel = feel;
-      
-      /* Set squelch flag as appropriate */
-      if (i < INVEN_WIELD)
-	p_ptr->notice |= PN_SQUELCH;
-
-
-      /* Combine / Reorder the pack (later) */
-      p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
-	}
-}
-
 
 
 /*
@@ -237,23 +152,23 @@ static void sense_inventory(void)
  */
 static void regenhp(int percent)
 {
-	s32b new_chp, new_chp_frac;
-	int old_chp;
-
-	/* Save the old hitpoints */
-	old_chp = p_ptr->chp;
-
-	/* Extract the new hitpoints */
-	new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
-	p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
-
-	/* check for overflow */
-	if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
-	new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
-	if (new_chp_frac >= 0x10000L)
-	{
-		p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
-		p_ptr->chp++;
+  s32b new_chp, new_chp_frac;
+  int old_chp;
+  
+  /* Save the old hitpoints */
+  old_chp = p_ptr->chp;
+  
+  /* Extract the new hitpoints */
+  new_chp = ((long)p_ptr->mhp) * percent + PY_REGEN_HPBASE;
+  p_ptr->chp += (s16b)(new_chp >> 16);   /* div 65536 */
+  
+  /* check for overflow */
+  if ((p_ptr->chp < 0) && (old_chp > 0)) p_ptr->chp = MAX_SHORT;
+  new_chp_frac = (new_chp & 0xFFFF) + p_ptr->chp_frac;	/* mod 65536 */
+  if (new_chp_frac >= 0x10000L)
+    {
+      p_ptr->chp_frac = (u16b)(new_chp_frac - 0x10000L);
+      p_ptr->chp++;
     }
   else
     {
@@ -261,21 +176,21 @@ static void regenhp(int percent)
     }
   
   /* Fully healed */
-	if (p_ptr->chp >= p_ptr->mhp)
-	{
-		p_ptr->chp = p_ptr->mhp;
-		p_ptr->chp_frac = 0;
-	}
-
-	/* Notice changes */
-	if (old_chp != p_ptr->chp)
-	{
-		/* Redraw */
-		p_ptr->redraw |= (PR_HP);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-	}
+  if (p_ptr->chp >= p_ptr->mhp)
+    {
+      p_ptr->chp = p_ptr->mhp;
+      p_ptr->chp_frac = 0;
+    }
+  
+  /* Notice changes */
+  if (old_chp != p_ptr->chp)
+    {
+      /* Redraw */
+      p_ptr->redraw |= (PR_HP);
+      
+      /* Window stuff */
+      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+    }
 }
 
 
@@ -284,43 +199,44 @@ static void regenhp(int percent)
  */
 static void regenmana(int percent)
 {
-	s32b new_mana, new_mana_frac;
-	int old_csp;
+  s32b new_mana, new_mana_frac;
+  int old_csp;
+  
+  old_csp = p_ptr->csp;
+  new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
+  p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
 
-	old_csp = p_ptr->csp;
-	new_mana = ((long)p_ptr->msp) * percent + PY_REGEN_MNBASE;
-	p_ptr->csp += (s16b)(new_mana >> 16);	/* div 65536 */
-	/* check for overflow */
-	if ((p_ptr->csp < 0) && (old_csp > 0))
-	{
-		p_ptr->csp = MAX_SHORT;
-	}
-	new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
-	if (new_mana_frac >= 0x10000L)
-	{
-		p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
-		p_ptr->csp++;
-	}
-	else
-	{
-		p_ptr->csp_frac = (u16b)new_mana_frac;
-	}
-
-	/* Must set frac to zero even if equal */
-	if (p_ptr->csp >= p_ptr->msp)
-	{
-		p_ptr->csp = p_ptr->msp;
-		p_ptr->csp_frac = 0;
-	}
-
-	/* Redraw mana */
-	if (old_csp != p_ptr->csp)
-	{
-		/* Redraw */
-		p_ptr->redraw |= (PR_MANA);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+  /* check for overflow */
+  if ((p_ptr->csp < 0) && (old_csp > 0))
+    {
+      p_ptr->csp = MAX_SHORT;
+    }
+  new_mana_frac = (new_mana & 0xFFFF) + p_ptr->csp_frac;	/* mod 65536 */
+  if (new_mana_frac >= 0x10000L)
+    {
+      p_ptr->csp_frac = (u16b)(new_mana_frac - 0x10000L);
+      p_ptr->csp++;
+    }
+  else
+    {
+      p_ptr->csp_frac = (u16b)new_mana_frac;
+    }
+  
+  /* Must set frac to zero even if equal */
+  if (p_ptr->csp >= p_ptr->msp)
+    {
+      p_ptr->csp = p_ptr->msp;
+      p_ptr->csp_frac = 0;
+    }
+  
+  /* Redraw mana */
+  if (old_csp != p_ptr->csp)
+    {
+      /* Redraw */
+      p_ptr->redraw |= (PR_MANA);
+      
+      /* Window stuff */
+      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
     }
 }
 
@@ -404,6 +320,90 @@ void sun_banish(void)
     msg_print("Creatures of the darkness flee from the sunlight!");
 }
 
+/* 
+ * Notice random effect curses
+ */
+void notice_curse(u32b curse_flag, int item)
+{
+  object_type *o_ptr;
+  int i;
+
+  if (item > 0) 
+    {
+      o_ptr = &inventory[item - 1];
+      if (o_ptr->flags_curse & curse_flag) 
+	{
+	  o_ptr->id_curse |= curse_flag;
+	  o_ptr->ident |= IDENT_CURSED;
+	}
+      return;
+    }
+
+  for (i = INVEN_WIELD; i <= INVEN_FEET; i++)
+    {
+      o_ptr = &inventory[i];
+      
+      /* Look for curses */
+      if (o_ptr->flags_curse & curse_flag)
+	{ 
+	  /* Found one */
+	  o_ptr->id_curse |= curse_flag;
+	  o_ptr->ident |= IDENT_CURSED;
+	}
+    }
+}
+
+
+static void play_ambient_sound(void)
+{
+  /* Town sound */
+  if (p_ptr->depth == 0) 
+    {
+      /* Hack - is it daytime or nighttime? */
+      if (turn % (10L * TOWN_DAWN) < TOWN_DAWN / 2)
+	{
+	  /* It's day. */
+	  sound(MSG_AMBIENT_DAY);
+	} 
+      else 
+	{
+	  /* It's night. */
+	  sound(MSG_AMBIENT_NITE);
+	}
+      
+    }
+  
+  /* Dungeon level 1-20 */
+  else if (p_ptr->depth <= 20) 
+    {
+      sound(MSG_AMBIENT_DNG1);
+    }
+  
+  /* Dungeon level 21-40 */
+  else if (p_ptr->depth <= 40) 
+    {
+      sound(MSG_AMBIENT_DNG2);
+    }
+  
+  /* Dungeon level 41-60 */
+  else if (p_ptr->depth <= 60) 
+    {
+      sound(MSG_AMBIENT_DNG3);
+    }
+  
+  /* Dungeon level 61-80 */
+  else if (p_ptr->depth <= 80) 
+    {
+      sound(MSG_AMBIENT_DNG4);
+    }
+  
+  /* Dungeon level 80- */
+  else  
+    {
+      sound(MSG_AMBIENT_DNG5);
+    }
+}
+
 /*
  * Handle certain things once every 10 game turns.
  */
@@ -427,6 +427,12 @@ static void process_world(void)
   
   /* Every 10 game turns */
   if (turn % 10) return;
+  
+  /* Play an ambient sound at regular intervals. */
+  if (!(turn % ((10L * TOWN_DAWN) / 4)))
+    {
+      play_ambient_sound();
+    }
   
   /* Hack - beneficial effects timeout at 2/3 speed with ENHANCE_MAGIC */
   if ((check_ability(SP_ENHANCE_MAGIC)) && ((turn/10) % EXTEND_MAGIC_FRACTION))
@@ -508,6 +514,7 @@ static void process_world(void)
               sun_banish(); 
               if (p_ptr->schange == SHAPE_VAMPIRE)
                 shapechange(SHAPE_NORMAL);
+	      update_view();
             }
           
           /* Night falls */
@@ -515,6 +522,7 @@ static void process_world(void)
             {
               /* Message */
               msg_print("The sun has set.");
+	      update_view();
             }
           
           /* Illuminate */
@@ -586,72 +594,79 @@ static void process_world(void)
       
       /* Take damage */
       take_hit(i, "a fatal wound");
-	}
-
-
-	/*** Check the Food, and Regenerate ***/
-
-	/* Digest normally */
-	if (p_ptr->food < PY_FOOD_MAX)
+    }
+  
+  
+  /*** Check the Food, and Regenerate ***/
+  
+  /* Digest normally */
+  if (p_ptr->food < PY_FOOD_MAX)
+    {
+      /* Every 100 game turns */
+      if (!(turn % 100))
 	{
-		/* Every 100 game turns */
-		if (!(turn % 100))
-		{
-          /* Basic digestion rate based on speed */
-          i = extract_energy[p_ptr->pspeed] * 2;
+	  /* Basic digestion rate based on speed */
+	  i = extract_energy[p_ptr->pspeed] * 2;
           
           /* Regeneration takes more food */
           if (p_ptr->regenerate) i += 30;
           
-			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
-
-			/* Minimal digestion */
-			if (i < 1) i = 1;
-
-			/* Digest some food */
-			(void)set_food(p_ptr->food - i);
-		}
+	  /* Fast digestion takes less food */
+	  if (p_ptr->fast_digest) 
+	    {
+	      notice_curse(CF_HUNGRY, 0);
+	      i += 20;
+	    }
+	  
+	  /* Slow digestion takes less food */
+	  if (p_ptr->slow_digest) i -= 10;
+	  
+	  /* Minimal digestion */
+	  if (i < 1) i = 1;
+	  
+	  /* Digest some food */
+	  (void)set_food(p_ptr->food - i);
 	}
-
-	/* Digest quickly when gorged */
-	else
+    }
+  
+  /* Digest quickly when gorged */
+  else
+    {
+      /* Digest a lot of food */
+      (void)set_food(p_ptr->food - 100);
+    }
+  
+  /* Starve to death (slowly) */
+  if (p_ptr->food < PY_FOOD_STARVE)
+    {
+      /* Calculate damage */
+      i = (PY_FOOD_STARVE - p_ptr->food) / 10;
+      
+      /* Take damage */
+      take_hit(i, "starvation");
+    }
+  
+  /* Default regeneration */
+  regen_amount = PY_REGEN_NORMAL;
+  
+  /* Getting Weak */
+  if (p_ptr->food < PY_FOOD_WEAK)
+    {
+      /* Lower regeneration */
+      if (p_ptr->food < PY_FOOD_STARVE)
 	{
-		/* Digest a lot of food */
-		(void)set_food(p_ptr->food - 100);
+	  regen_amount = 0;
 	}
-
-	/* Starve to death (slowly) */
-	if (p_ptr->food < PY_FOOD_STARVE)
+      else if (p_ptr->food < PY_FOOD_FAINT)
 	{
-		/* Calculate damage */
-		i = (PY_FOOD_STARVE - p_ptr->food) / 10;
-
-		/* Take damage */
-		take_hit(i, "starvation");
+	  regen_amount = PY_REGEN_FAINT;
 	}
-
-	/* Default regeneration */
-	regen_amount = PY_REGEN_NORMAL;
-
-	/* Getting Weak */
-	if (p_ptr->food < PY_FOOD_WEAK)
+      else
 	{
-		/* Lower regeneration */
-		if (p_ptr->food < PY_FOOD_STARVE)
-		{
-			regen_amount = 0;
-		}
-		else if (p_ptr->food < PY_FOOD_FAINT)
-		{
-			regen_amount = PY_REGEN_FAINT;
-		}
-		else
-		{
-			regen_amount = PY_REGEN_WEAK;
-		}
-
-		/* Getting Faint */
+	  regen_amount = PY_REGEN_WEAK;
+	}
+      
+      /* Getting Faint */
       if (p_ptr->food < PY_FOOD_FAINT)
         {
           /* Faint occasionally */
@@ -699,11 +714,16 @@ static void process_world(void)
   if (p_ptr->poisoned) regen_amount = 0;
   if (p_ptr->stun) regen_amount = 0;
   if (p_ptr->cut) regen_amount = 0;
+  if (p_ptr->slow_regen) 
+    {
+      regen_amount /= 2;
+      notice_curse(CF_SLOW_REGEN, 0);
+    }
   
   /* Regenerate Hit Points if needed */
   if (p_ptr->chp < p_ptr->mhp)
 	{
-		regenhp(regen_amount);
+	  regenhp(regen_amount);
 	}
 
   
@@ -795,13 +815,20 @@ static void process_world(void)
     }
   
   /* Afraid */
-  if (p_ptr->afraid)
+  if (p_ptr->afraid && !(p_ptr->fear))
     {
       /* Maiar recover quickly from anything. */
       if (divine)
         (void)set_afraid(p_ptr->afraid - 2);
       
       else (void)set_afraid(p_ptr->afraid - 1);
+    }
+
+  /* Permanent fear */
+  else if (p_ptr->fear) 
+    {
+      p_ptr->afraid = 1;
+      notice_curse(CF_AFRAID, 0);
     }
   
   /* Fast */
@@ -939,8 +966,6 @@ static void process_world(void)
    */
   if (!(turn % 5000) && (p_ptr->black_breath))
     {
-      u32b f1, f2, f3;
-      
       bool be_silent = FALSE;
       
       /* check all equipment for the Black Breath flag. */
@@ -951,11 +976,8 @@ static void process_world(void)
           /* Skip non-objects */
           if (!o_ptr->k_idx) continue;
           
-          /* Extract the item flags */
-          object_flags(o_ptr, &f1, &f2, &f3);
-          
           /* No messages if object has the flag, to avoid annoyance. */
-          if (f3 & (TR3_DRAIN_EXP)) be_silent = TRUE;
+          if (o_ptr->flags_curse & CF_DRAIN_EXP) be_silent = TRUE;
           
         }
       /* If we are allowed to speak, warn and disturb. */
@@ -1037,13 +1059,13 @@ static void process_world(void)
             {
               if (disturb_minor) disturb(0, 0);
               msg_print("Your light is growing faint.");
-			}
-		}
+	    }
 	}
-
-	/* Calculate torch radius */
-	p_ptr->update |= (PU_TORCH);
-
+    }
+  
+  /* Calculate torch radius */
+  p_ptr->update |= (PU_TORCH);
+  
   
   /*** Process Inventory ***/
   
@@ -1138,9 +1160,7 @@ static void process_world(void)
         }
     }
   
-  
-  
-  
+ 
   /* Notice changes */
   if (j)
     {
@@ -1150,10 +1170,6 @@ static void process_world(void)
       /* Window stuff */
       p_ptr->window |= (PW_INVEN);
     }
-  
-  /* Feel the inventory */
-  sense_inventory();
-  
   
   /*** Process Objects ***/
   
@@ -1178,27 +1194,245 @@ static void process_world(void)
     }
   
   
-  /*** Involuntary Movement ***/
+  /*** Random curse effects ***/
   
-  /* Mega-Hack -- Random teleportation XXX XXX XXX */
+  /* Random teleportation */
   if ((p_ptr->teleport) && (rand_int(100) < 1))
     {
       /* Teleport player */
       teleport_player(40,FALSE);
+
+      /* Notice */
+      notice_curse(CF_TELEPORT, 0);
+    }
+
+  /* Random aggravation (with hasting of awake monsters */
+  if ((p_ptr->rand_aggro) && (rand_int(500) < 1))
+    {
+      /* Aggravate, and notice if seen */
+      if (aggravate_monsters(1, FALSE)) notice_curse(CF_AGGRO_RAND, 0);
+    }
+
+  /* Random poisoning */
+  if ((p_ptr->rand_pois) && (rand_int(300) < 1))
+    {
+      /* Damage player */
+      pois_hit(5 + randint(5));
+
+      /* Notice */
+      notice_curse(CF_POIS_RAND, 0);
+    }
+    
+  /* Random poison cloud */
+  if ((p_ptr->rand_pois_bad) && (rand_int(300) < 1)) 
+    {
+      /* Weak poison cloud, enough to wake nearby monsters */
+      fire_sphere(GF_POIS, 0, 5, 3, 40);
+
+      /* Hurt the player */
+      pois_hit(10 + randint(10));
+
+      /* Notice */
+      notice_curse(CF_POIS_RAND_BAD, 0);
+    }
+    
+  /* Random cuts */
+  if ((p_ptr->rand_cuts) && (rand_int(200) < 1))
+    {
+      /* Wound the player, usually notice */
+      if (set_cut(p_ptr->cut + 5 + rand_int(10))) notice_curse(CF_CUT_RAND, 0);
+    }
+
+  /* Random bad cuts */
+  if ((p_ptr->rand_cuts_bad) && (rand_int(200) < 1))
+    {
+      /* Wound the player, usually notice */
+      if (set_cut(p_ptr->cut + 20 + rand_int(30))) 
+	notice_curse(CF_CUT_RAND_BAD, 0);
+    }
+
+  /* Random hallucination */
+  if ((p_ptr->rand_hallu) && (rand_int(300) < 1))
+    {
+      /* Start hallucinating */
+      (void)set_image(p_ptr->image + 10 + randint(10));
+
+      /* Notice */
+      notice_curse(CF_HALLU_RAND, 0);
+    }
+
+  /* Droppable weapons  */
+  if (p_ptr->drop_weapon)
+    {
+      /* Check the whole inventory */
+      for (i = 0; i < INVEN_TOTAL; i++)
+	{
+	  o_ptr = &inventory[i];
+
+	  /* Chance for each item */
+	  if ((o_ptr->flags_curse & CF_DROP_WEAPON) && (rand_int(200) < 1))
+	    {
+	      /* Notice */
+	      notice_curse(CF_DROP_WEAPON, i + 1);
+
+	      /* Dropped it */
+	      inven_drop(i, randint(o_ptr->number));
+	    }
+	}
+    }
+
+  /* Summon demons */
+  if ((p_ptr->attract_demon) && (rand_int(500) < 1))
+    {
+      /* Message */
+      msg_print("You have attracted a demon.");
+
+      /* Here it comes */
+      summon_specific(p_ptr->py, p_ptr->px, FALSE, p_ptr->depth, SUMMON_DEMON);
+
+      /* Notice */
+      notice_curse(CF_ATTRACT_DEMON, 0);
+    }
+
+  /* Summon undead */
+  if ((p_ptr->attract_undead) && (rand_int(500) < 1))
+    {
+      /* Message */
+      msg_print("A call goes out beyond the grave.");
+
+      /* Here it comes */
+      summon_specific(p_ptr->py, p_ptr->px, FALSE, p_ptr->depth, SUMMON_UNDEAD);
+
+      /* Notice */
+      notice_curse(CF_ATTRACT_UNDEAD, 0);
+    }
+
+  /* Random paralysis - nasty! */
+  if (((p_ptr->rand_paral) || (p_ptr->rand_paral_all)) && (rand_int(600) < 1))
+    {
+      /* Paralyzed for 1 turn */
+      (void)set_paralyzed(p_ptr->paralyzed + 1);
+
+      /* Notice */
+      if (p_ptr->rand_paral) notice_curse(CF_PARALYZE, 0);
+      else notice_curse(CF_PARALYZE_ALL, 0);
+    }
+
+  /* Experience drain */
+  if ((p_ptr->drain_exp) && (rand_int(100) < 1) && (p_ptr->exp > 0))
+        {
+	  /* Drain */
+          p_ptr->exp -= MIN(1 + plev / 5, p_ptr->exp);
+          p_ptr->max_exp -= MIN(1 + plev / 5, p_ptr->exp);
+          check_experience();
+
+	  /* Notice */
+	  notice_curse(CF_DRAIN_EXP, 0);
+        }
+
+  /* Mana drain */
+  if ((p_ptr->drain_mana) && (rand_int(100) < 1) && (p_ptr->csp > 0))
+    {
+      /* Drain */
+      p_ptr->csp -= MIN(1 + plev / 5, p_ptr->csp);
+      
+      /* Notice */
+      notice_curse(CF_DRAIN_MANA, 0);
+      
+      /* Redraw mana */
+      p_ptr->redraw |= (PR_MANA);
+      
+      /* Window stuff */
+      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+    }
+
+  /* Drain a random stat */  
+  if ((p_ptr->drain_stat) && (rand_int(1000) < 1))
+    {
+      /* Drain */
+      if (do_dec_stat(rand_int(A_MAX))) notice_curse(CF_DRAIN_STAT, 0);
+    }
+
+  /* Drain charges - code from monster attack */
+  if ((p_ptr->drain_charge) && (rand_int(200) < 1))
+    {
+      /* Blindly hunt five times for an item. */
+      for (j = 0; j < 5; j++)
+	{
+	  bool has_charges = FALSE;
+
+	  /* Pick an item */
+	  i = rand_int(INVEN_PACK);
+	  
+	  /* Obtain the item */
+	  o_ptr = &inventory[i];
+	  k_ptr = &k_info[o_ptr->k_idx];
+	  
+	  /* Skip non-objects */
+	  if (!o_ptr->k_idx) continue;
+	  
+	  /* Drain charged wands/staffs/rods */
+	  if ((o_ptr->tval == TV_STAFF) ||
+	      (o_ptr->tval == TV_WAND) ||
+	      (o_ptr->tval == TV_ROD))
+	    {
+	      /* case of charged wands/staffs. */
+	      if (((o_ptr->tval == TV_STAFF) ||
+		   (o_ptr->tval == TV_WAND)) &&
+		  (o_ptr->pval)) has_charges = TRUE;
+	      
+	      /* case of (at least partially) 
+	       * charged rods. */
+	      if ((o_ptr->tval == TV_ROD) &&
+		  (o_ptr->timeout < o_ptr->pval)) has_charges = TRUE;
+	      
+	      if (has_charges)
+		{
+		  /* Message */
+		  msg_print("Energy drains from your pack!");
+		  
+		  /* Obvious */
+		  notice_curse(CF_DRAIN_CHARGE, 0);
+			    
+		  /* Uncharge */
+		  if ((o_ptr->tval == TV_STAFF) || 
+		      (o_ptr->tval == TV_WAND)) 
+		    o_ptr->pval = 0;
+		  
+		  /* New-style rods. */
+		  if (o_ptr->tval == TV_ROD) 
+		    o_ptr->timeout = o_ptr->pval;
+		  
+		  
+		  /* Combine / Reorder the pack */
+		  p_ptr->notice |= 
+		    (PN_COMBINE | PN_REORDER);
+		  
+		  /* Window stuff */
+		  p_ptr->window |= (PW_INVEN);
+		  
+		  /* Not more than one inventory slot affected. */
+		  break;
+		}
+	    }
+	}
     }
   
   /* Delayed Word-of-Recall */
-	if (p_ptr->word_recall)
+  if (p_ptr->word_recall)
+    {
+      /* Count down towards recall */
+      p_ptr->word_recall--;
+      
+      /* Activate the recall */
+      if (!p_ptr->word_recall)
 	{
-		/* Count down towards recall */
-		p_ptr->word_recall--;
-
-		/* Activate the recall */
-		if (!p_ptr->word_recall)
-		{
           /* Disturbing! */
           disturb(0, 0);
           
+	  /* Sound */
+	  sound(MSG_TPLEVEL);
+
           /* Determine the level */
           if (p_ptr->stage != p_ptr->home)
             {
@@ -1230,7 +1464,7 @@ static void process_world(void)
             }
           
           /* Sound */
-          sound(SOUND_TPLEVEL);
+          sound(MSG_TPLEVEL);
           
           p_ptr->redraw |= PR_STATUS;
         }
@@ -1612,10 +1846,17 @@ static void process_player(void)
               /* Skip non-objects */
               if (!o_ptr->k_idx) continue;
               
+              /* Skip non-droppables */
+              if (o_ptr->flags_curse & CF_STICKY_CARRY) 
+		{
+		  notice_curse(CF_STICKY_CARRY, item + 1);
+		  continue;
+		}
+              
               /* Disturbing */
               disturb(0, 0);
               
-			/* Warning */
+	      /* Warning */
               msg_print("Your pack overflows!");
               
               /* Describe */
@@ -1706,7 +1947,7 @@ static void process_player(void)
           /* Hack -- Assume messages were seen */
           msg_flag = FALSE;
           
-			/* Clear the top line */
+	  /* Clear the top line */
           prt("", 0, 0);
           
           /* Process the command */
@@ -2304,7 +2545,6 @@ void play_game(bool new_game)
   Term_activate(angband_term[0]);
   
   /* Verify minimum size */
-  // MJS
   if ((Term->hgt < (small_screen ? 12 : 24)) ||
   (Term->wid < (small_screen ? 32 : 80)))
     {
@@ -2441,12 +2681,12 @@ void play_game(bool new_game)
   /* Window stuff */
   window_stuff();
   
-  /* Process some user pref files */
-  process_some_user_pref_files();
-  
   /* Hack - load prefs properly */
   reset_visuals(TRUE);
 
+  /* Process some user pref files */
+  process_some_user_pref_files();
+  
   /* Set or clear "rogue_like_commands" if requested */
   if (arg_force_original) rogue_like_commands = FALSE;
   if (arg_force_roguelike) rogue_like_commands = TRUE;

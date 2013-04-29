@@ -83,7 +83,7 @@ static cptr f_info_flags[] =
     "TF_TRAP_INVIS",
     "TF_M_TRAP",
     "TF_STAIR",
-    "XX29",
+    "TF_RUNE",
     "XX30",
     "XX31",
     "XX32"
@@ -231,7 +231,7 @@ static cptr r_info_flags2[] =
     "KILL_ITEM",
     "FLYING",   /* Was BRAIN_1 */
     "LOW_MANA_RUN",
-    "BRAIN_4",
+    "SMASH_WALL",
     "POWERFUL",
     "ARCHER",
     "MORGUL_MAGIC",
@@ -253,8 +253,8 @@ static cptr r_info_flags3[] =
     "EVIL",
     "ANIMAL",
     "TERRITORIAL",
-    "XXX2X3",
-    "XXX3X3",
+    "RACIAL",
+    "DUNGEON",
     "XXX4X3",
     "HURT_LITE",
     "HURT_ROCK",
@@ -313,7 +313,7 @@ static cptr r_info_flags4[] =
     "BRTH_STORM",
     "BRTH_DFIRE",
     "BRTH_ICE",
-    "XXX45",
+    "BRTH_ALL",
     "XXX45"
   };
 
@@ -336,7 +336,7 @@ static cptr r_info_flags5[] =
     "BALL_NETHR",
     "BALL_CHAOS",
     "BALL_MANA",
-    "XXX51",
+    "BALL_ALL",
     "XXX52",
     "BOLT_ACID",
     "BOLT_ELEC",
@@ -347,7 +347,7 @@ static cptr r_info_flags5[] =
     "BOLT_ICE",
     "BOLT_WATER",
     "BOLT_NETHR",
-    "BOLT_MANA",
+    "BOLT_DARK",
     "XXX53",
     "BEAM_ELEC",
     "BEAM_ICE",
@@ -439,127 +439,76 @@ static cptr r_info_flags7[] =
  */
 static cptr player_flags_sp[] =
   {
-    "ARMOR_MAST","SHIELD_MAST","ARMOR_PROFICIENCY","EVASION","MAGIC_RESIST","PHASEWALK","UNLIGHT","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","ARMSMAN","FAST_ATTACK","MARKSMAN","PIERCE_SHOT",
-    "MIGHTY_THROW","POWER_STRIKE","MARTIAL_ARTS","MANA_BURN","RAPID_FIRE","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "BEGUILE","ENHANCE_MAGIC","FAST_CAST","POWER_SIPHON","HEIGHTEN_MAGIC","SOUL_SIPHON","HARMONY","",
-    "CHANNELING","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","ATHLETICS","CLARITY","XXX","FURY",
-    "MEDITATION","REGENERATION","EXTRA_TRAP","HOLY_LIGHT","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "SWORD_SKILL","POLEARM_SKILL","HAFTED_SKILL","SLING_SKILL","BOW_SKILL","XBOW_SKILL","XXX","XXX",
-    "XXX","SWORD_UNSKILL","POLEARM_UNSKILL","HAFTED_UNSKILL","SLING_UNSKILL","BOW_UNSKILL","XBOW_UNSKILL","XXX",
-    "XXX","XXX","HARDY","HUNGRY","DIVINE","SHADOW","WOODEN","BEARSKIN",
-    "PLAINSMAN","ELVEN","DWARVEN","EDAIN","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "BOW_SPEED_GOOD","BOW_SPEED_GREAT","SLING_SPEED_GOOD","SLING_SPEED_GREAT","XBOW_SPEED_GOOD","XBOW_SPEED_GREAT","XXX","XXX",
-    "XXX","ASSASSINATE","STRONG_SHOOT","BACKSTAB","SPREAD_ATTACKS","STRONG_BASHES","UNARMED_COMBAT","BLESS_WEAPON",
-    "XXX","CHARM","DEVICE_EXPERT","STRONG_MAGIC","BEAM","XXX","LORE","HOLY",
-    "RELENTLESS","PROBE","EVIL","STEAL","PSEUDO_ID_HEAVY","TRAP","WOODSMAN","XTRA_SPECIALTY",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","XXX",
-    "XXX","XXX","XXX","XXX","XXX","XXX","XXX","NO_SPECIALTY"
+    "ARMOR_MAST","SHIELD_MAST","ARMOR_PROFICIENCY","EVASION","MAGIC_RESIST",
+    "PHASEWALK","UNLIGHT","XXX", "XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "ARMSMAN","FAST_ATTACK","MARKSMAN","PIERCE_SHOT", "MIGHTY_THROW",
+    "POWER_STRIKE","MARTIAL_ARTS","MANA_BURN","RAPID_FIRE","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "BEGUILE","ENHANCE_MAGIC","FAST_CAST","POWER_SIPHON","HEIGHTEN_MAGIC",
+    "SOUL_SIPHON","HARMONY","","CHANNELING","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "ATHLETICS","CLARITY","XXX","FURY","MEDITATION",
+    "REGENERATION","EXTRA_TRAP","HOLY_LIGHT","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","SWORD_SKILL","POLEARM_SKILL",
+    "HAFTED_SKILL","SLING_SKILL","BOW_SKILL","XBOW_SKILL","XXX",
+    "XXX","XXX","SWORD_UNSKILL","POLEARM_UNSKILL","HAFTED_UNSKILL",
+    "SLING_UNSKILL","BOW_UNSKILL","XBOW_UNSKILL","XXX","XXX",
+    "XXX","HARDY","HUNGRY","DIVINE","SHADOW",
+    "WOODEN","BEARSKIN","PLAINSMAN","ELVEN","DWARVEN",
+    "EDAIN","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","BOW_SPEED_GOOD","BOW_SPEED_GREAT","SLING_SPEED_GOOD",
+    "SLING_SPEED_GREAT","XBOW_SPEED_GOOD","XBOW_SPEED_GREAT","XXX","XXX",
+    "XXX","ASSASSINATE","STRONG_SHOOT","BACKSTAB","SPREAD_ATTACKS",
+    "STRONG_BASHES","UNARMED_COMBAT","BLESS_WEAPON","XXX","CHARM",
+    "DEVICE_EXPERT","STRONG_MAGIC","BEAM","XXX","LORE",
+    "HOLY","RELENTLESS","PROBE","EVIL","STEAL",
+    "PSEUDO_ID_HEAVY","TRAP","WOODSMAN","XTRA_SPECIALTY","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "XXX","XXX","XXX","XXX","XXX",
+    "NO_SPECIALTY"
   };
 
 
 /*
  * Object flags
  */
-static cptr k_info_flags1[] =
+static cptr object_flags[] =
   {
-    "STR",
-    "INT",
-    "WIS",
-    "DEX",
-    "CON",
-    "CHR",
-    "XXX1",
-    "MAGIC_MASTERY",
-    "STEALTH",
-    "SEARCH",
-    "INFRA",
-    "TUNNEL",
-    "SPEED",
-    "MIGHT2",
-    "SHOTS",
-    "MIGHT1",
-    "SLAY_ANIMAL",
-    "SLAY_EVIL",
-    "SLAY_UNDEAD",
-    "SLAY_DEMON",
-    "SLAY_ORC",
-    "SLAY_TROLL",
-    "SLAY_GIANT",
-    "SLAY_DRAGON",
-    "SLAY_KILL",
     "THROWING",
     "PERFECT_BALANCE",
-    "BRAND_POIS",
-    "BRAND_ACID",
-    "BRAND_ELEC",
-    "BRAND_FIRE",
-    "BRAND_COLD"
-};
-
-/*
- * Object flags
- */
-static cptr k_info_flags2[] =
-  {
     "SUST_STR",
     "SUST_INT",
     "SUST_WIS",
     "SUST_DEX",
     "SUST_CON",
     "SUST_CHR",
-    "XXX1",
-    "XXX2",
-    "RAND_RES_NEG",
-    "RAND_RES_SML",
-    "RAND_RES",
-    "RAND_RES_XTRA",
-    "IM_ACID",
-    "IM_ELEC",
-    "IM_FIRE",
-    "IM_COLD",
-    "RES_ACID",
-    "RES_ELEC",
-    "RES_FIRE",
-    "RES_COLD",
-    "RES_POIS",
-    "XXX3",
-    "RES_LITE",
-    "RES_DARK",
-    "XXX4",
-    "RES_CONFU",
-    "RES_SOUND",
-    "RES_SHARD",
-    "RES_NEXUS",
-    "RES_NETHR",
-    "RES_CHAOS",
-    "RES_DISEN"
-  };
-
-/*
- * Object flags
- */
-static cptr k_info_flags3[] =
-  {
     "SLOW_DIGEST",
     "FEATHER",
-    "LITE",
     "REGEN",
     "TELEPATHY",
     "SEE_INVIS",
@@ -567,34 +516,105 @@ static cptr k_info_flags3[] =
     "HOLD_LIFE",
     "SEEING",
     "FEARLESS",
-    "XXX3",
-    "NO_ORDER",
-    "IMPACT",
-    "TELEPORT",
-    "AGGRAVATE",
-    "DRAIN_EXP",
-    "IGNORE_ACID",
-    "IGNORE_ELEC",
-    "IGNORE_FIRE",
-    "IGNORE_COLD",
+    "LITE",
     "TWO_HANDED_REQ",
     "TWO_HANDED_DES",
     "BLESSED",
-    "ACTIVATE",
-    "INSTA_ART",
-    "EASY_KNOW",
-    "HIDE_TYPE",
+    "IMPACT",
+    "ACID_PROOF",
+    "ELEC_PROOF",
+    "FIRE_PROOF",
+    "COLD_PROOF",
     "SHOW_MODS",
-    "XXX7",
-    "LIGHT_CURSE",
-    "HEAVY_CURSE",
-    "PERMA_CURSE"
+    "SHOW_CURSE",
+    "PERMA_CURSE",
+    "FRAGILE",
+    "DARKNESS",
+    "CHAOTIC"
   };
 
 /*
- * Translation of resistance flags to player resists
+ * Curse flags
  */
-static cptr player_resists[] = 
+static cptr curse_flags[] = 
+  {
+    "TELEPORT",
+    "NO_TELEPORT",
+    "AGGRO_PERM",
+    "AGGRO_RAND",
+    "SLOW_REGEN",
+    "AFRAID",
+    "HUNGRY",
+    "POIS_RAND",
+    "POIS_RAND_BAD",
+    "CUT_RAND",
+    "CUT_RAND_BAD",
+    "HALLU_RAND",
+    "DROP_WEAPON",
+    "ATTRACT_DEMON",
+    "ATTRACT_UNDEAD",
+    "STICKY_CARRY",
+    "STICKY_WIELD",
+    "PARALYZE",
+    "PARALYZE_ALL",
+    "DRAIN_EXP",
+    "DRAIN_MANA",
+    "DRAIN_STAT",
+    "DRAIN_CHARGE",
+    "XXX9",
+    "XXX8",
+    "XXX7",
+    "XXX6",
+    "XXX5",
+    "XXX4",
+    "XXX3",
+    "XXX2",
+    "XXX1"
+  };
+
+/* 
+ * Object kind flags 
+ */
+static cptr kind_flags[] = 
+  {
+    "RAND_RES_NEG",
+    "RAND_RES_SML",
+    "RAND_RES",
+    "RAND_RES_XTRA",
+    "RAND_SUSTAIN",
+    "RAND_POWER",
+    "RAND_CURSE",
+    "RAND_XXX",
+    "INSTA_ART",
+    "NO_ORDER",
+    "EASY_KNOW",
+    "XTRA_DICE",
+    "XTRA_AC",
+    "XTRA_TO_H",
+    "XTRA_TO_D",
+    "LIGHT",
+    "HEAVY",
+    "XTRA_SIDES",
+    "XTRA_TO_A",
+    "POWERFUL",
+    "XXX12",
+    "XXX11",
+    "XXX10",
+    "XXX9",
+    "XXX8",
+    "XXX7",
+    "XXX6",
+    "XXX5",
+    "XXX4",
+    "XXX3",
+    "XXX2",
+    "XXX1",
+  };
+
+/*
+ * Percentage resists
+ */
+static cptr player_resist_values[] = 
   {
     "RES_ACID",
     "RES_ELEC",
@@ -610,6 +630,61 @@ static cptr player_resists[] =
     "RES_NETHR",
     "RES_CHAOS",
     "RES_DISEN"
+  };
+
+/*
+ * Stat bonuses
+ */
+static cptr bonus_stat_values[] =
+  {
+    "STR",
+    "INT",
+    "WIS",
+    "DEX",
+    "CON",
+    "CHR"
+  };
+
+/*
+ * Other bonuses
+ */
+static cptr bonus_other_values[] =
+  {
+    "MAGIC_MASTERY",
+    "STEALTH",
+    "SEARCH",
+    "INFRA",
+    "TUNNEL",
+    "SPEED",
+    "SHOTS",
+    "MIGHT"
+  };
+
+/* 
+ * Slays
+ */
+static cptr slay_values[] = 
+  {
+    "SLAY_ANIMAL",
+    "SLAY_EVIL",
+    "SLAY_UNDEAD",
+    "SLAY_DEMON",
+    "SLAY_ORC",
+    "SLAY_TROLL",
+    "SLAY_GIANT",
+    "SLAY_DRAGON"
+  };
+
+/*
+ * Brands
+ */
+static cptr brand_values[] = 
+  {
+    "BRAND_ACID",
+    "BRAND_ELEC",
+    "BRAND_FIRE",
+    "BRAND_COLD",
+    "BRAND_POIS"
   };
 
 
@@ -619,7 +694,7 @@ static cptr player_resists[] =
 /*
  * Initialize an "*_info" array, by parsing an ascii "template" file
  */
-errr init_info_txt(FILE *fp, char *buf, header *head,
+errr init_info_txt(ang_file *fp, char *buf, header *head,
                    parse_info_txt_func parse_info_txt_line)
 {
   errr err;
@@ -639,7 +714,7 @@ errr init_info_txt(FILE *fp, char *buf, header *head,
   head->text_size = 0;
   
   /* Parse */
-  while (0 == my_fgets(fp, buf, 1024))
+  while (file_getl(fp, buf, 1024))
     {
       /* Advance the line number */
       error_line++;
@@ -979,7 +1054,7 @@ errr parse_z_info(char *buf, header *head)
  * trarily large t_info.txt file). -LM-
  * Otherwise, code is essentially that of "init_v_info_txt".
  */
-errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
+errr init_t_info_txt(ang_file *fp, char *buf, byte chosen_level)
 {
   int i;
   
@@ -1005,7 +1080,7 @@ errr init_t_info_txt(FILE *fp, char *buf, byte chosen_level)
   t_head->text_size = 0;
   
   /* Parse */
-  while (0 == my_fgets(fp, buf, 1024))
+  while (file_getl(fp, buf, 1024))
     {
       /* Advance the line number */
       error_line++;
@@ -1460,71 +1535,110 @@ errr parse_f_info(char *buf, header *head)
  */
 static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
 {
-  int i, j, k;
-  char *res = "RES_";
-  char *s = NULL;
+  int i;
   
-  /* Check flags1 */
+  /* Check object flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags1[i]))
+      if (streq(what, object_flags[i]))
         {
-          k_ptr->flags1 |= (1L << i);
+          k_ptr->flags_obj |= (1L << i);
           return (0);
         }
     }
   
-  /* Check for percentage resists */
-  if (!strncmp(res, what, 4))
-    {
-      /* Get the second _, terminate the flag */
-      s = strrchr(what, '_');
-      if ((s - what) > 4)
-	{
-	  *s++ = '\0';
-	  
-	  /* Read the percentage */
-	  if (1 == sscanf(s, "%d", &j))
-	    {
-	      for (k = 0; k < MAX_P_RES; k++)
-		if (streq(what, player_resists[k]))
-		  {
-		    k_ptr->percent_res[k] = 100 - j;
-		    k_ptr->flags2 |= resist_to_flag[k];
-		    return (0);
-		  }
-	    }
-	}
-    }
-
-  /* Check flags2 */
+  /* Check curse flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags2[i]))
+      if (streq(what, curse_flags[i]))
 	{
-	  k_ptr->flags2 |= (1L << i);
+	  k_ptr->flags_curse |= (1L << i);
 	  return (0);
 	}
     }
-
   
-  /* Check flags3 */
+  /* Check kind flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags3[i]))
-        {
-          k_ptr->flags3 |= (1L << i);
-          return (0);
-        }
+      if (streq(what, kind_flags[i]))
+	{
+	  k_ptr->flags_kind |= (1L << i);
+	  return (0);
+	}
     }
   
   /* Oops */
   msg_format("Unknown object flag '%s'.", what);
 
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
 }
 
+
+/*
+ * Grab one value in an object_kind from a textual string
+ */
+static errr grab_one_kind_value(object_kind *k_ptr, cptr what, int value)
+{
+  int i;
+  
+  /* Check percentage resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      if (streq(what, player_resist_values[i]))
+        {
+          k_ptr->percent_res[i] = RES_LEVEL_BASE - value;
+          return (0);
+        }
+    }
+  
+  /* Check stat bonuses */
+  for (i = 0; i < A_MAX; i++)
+    {
+      if (streq(what, bonus_stat_values[i]))
+        {
+          k_ptr->bonus_stat[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check other bonusess */
+  for (i = 0; i < MAX_P_BONUS; i++)
+    {
+      if (streq(what, bonus_other_values[i]))
+        {
+          k_ptr->bonus_other[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check slays */
+  for (i = 0; i < MAX_P_SLAY; i++)
+    {
+      if (streq(what, slay_values[i]))
+        {
+          k_ptr->multiple_slay[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check brands */
+  for (i = 0; i < MAX_P_BRAND; i++)
+    {
+      if (streq(what, brand_values[i]))
+        {
+          k_ptr->multiple_brand[i] = value;
+          return (0);
+        }
+    }
+
+  /* Oops */
+  msg_format("Unknown object value '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
+  
 
 
 /*
@@ -1532,9 +1646,9 @@ static errr grab_one_kind_flag(object_kind *k_ptr, cptr what)
  */
 errr parse_k_info(char *buf, header *head)
 {
-  int i;
+  int i, j;
   
-  char *s, *t;
+  char *s, *t, *u;
   
   /* Current entry */
   static object_kind *k_ptr = NULL;
@@ -1577,6 +1691,14 @@ errr parse_k_info(char *buf, header *head)
       /* Hack - initialise percentage resists */
       for (i = 0; i < MAX_P_RES; i++)
 	k_ptr->percent_res[i] = RES_LEVEL_BASE;
+      for (i = 0; i < A_MAX; i++)
+	k_ptr->bonus_stat[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_BONUS; i++)
+	k_ptr->bonus_other[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_SLAY; i++)
+	k_ptr->multiple_slay[i] = MULTIPLE_BASE;
+      for (i = 0; i < MAX_P_BRAND; i++)
+	k_ptr->multiple_brand[i] = MULTIPLE_BASE;
     }
   
   /* Process 'D' for "Description" */
@@ -1710,14 +1832,14 @@ errr parse_k_info(char *buf, header *head)
   /* Hack -- Process 'P' for "power" and such */
   else if (buf[0] == 'P')
     {
-      int ac, hd1, hd2, th, td, ta;
+      int ac, hd1, hd2, th, td, ta, act;
       
       /* There better be a current k_ptr */
       if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
-      if (6 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d",
-                      &ac, &hd1, &hd2, &th, &td, &ta)) 
+      if (7 != sscanf(buf+2, "%d:%dd%d:%d:%d:%d:%d",
+                      &ac, &hd1, &hd2, &th, &td, &ta, &act)) 
         return (PARSE_ERROR_GENERIC);
       
       k_ptr->ac = ac;
@@ -1726,6 +1848,46 @@ errr parse_k_info(char *buf, header *head)
       k_ptr->to_h = th;
       k_ptr->to_d = td;
       k_ptr->to_a = ta;
+      k_ptr->activation = act;
+    }
+  
+  /* Hack -- Process 'B' for values */
+  else if (buf[0] == 'B')
+    {
+      /* There better be a current k_ptr */
+      if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the first bracket */
+	  for (u = s; *u && (*u != '['); ++u) /* loop */;
+	  
+	  /* Find the second bracket */
+	  for (t = u; *t && (*t != ']'); ++t) /* loop */;
+	  
+	  /* Get the value */
+	  if (1 != sscanf(u + 1, "%d", &j))
+	    return (PARSE_ERROR_INVALID_FLAG);
+
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  *u = '\0';
+	  if (0 != grab_one_kind_value(k_ptr, s, j)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+          s = t;
+	}
     }
   
   /* Hack -- Process 'F' for flags */
@@ -1772,87 +1934,119 @@ errr parse_k_info(char *buf, header *head)
  */
 static errr grab_one_artifact_flag(artifact_type *a_ptr, cptr what)
 {
-  int i, j, k;
-  char *res = "RES_";
-  char *s = NULL;
+  int i;
   
-  /* Check flags1 */
+  /* Check object flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags1[i]))
+      if (streq(what, object_flags[i]))
         {
-          a_ptr->flags1 |= (1L << i);
+          a_ptr->flags_obj |= (1L << i);
           return (0);
         }
     }
   
-  /* Check for percentage resists */
-  if (!strncmp(res, what, 4))
+  /* Check curse flags */
+  for (i = 0; i < 32; i++)
     {
-      /* Get the second _, terminate the flag */
-      s = strrchr(what, '_');
-      if ((s - what) > 4)
+      if (streq(what, curse_flags[i]))
 	{
-	  *s++ = '\0';
-	  
-	  /* Read the percentage */
-	  if (1 == sscanf(s, "%d", &j))
-	    {
-	      for (k = 0; k < MAX_P_RES; k++)
-		if (streq(what, player_resists[k]))
-		  {
-		    a_ptr->percent_res[k] = 100 - j;
-		    a_ptr->flags2 |= resist_to_flag[k];
-		    return (0);
-		  }
-	    }
+	  a_ptr->flags_curse |= (1L << i);
+	  return (0);
 	}
     }
-
-  /* Check flags2 */
-  for (i = 0; i < 32; i++)
-    {
-      if (streq(what, k_info_flags2[i]))
-        {
-          a_ptr->flags2 |= (1L << i);
-
-	  /* Hack - deal with immunities */
-	  if (TR2_IM_ACID == (1L << i))
-	    for (j = 0; j < 4; j++)
-	      if (a_ptr->flags2 & (TR2_IM_ACID << j)) 
-		a_ptr->percent_res[j] = 0;
-	  
-          return (0);
-        }
-    }
   
-  /* Check flags3 */
+  /* Check kind flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags3[i]))
-        {
-          a_ptr->flags3 |= (1L << i);
-          return (0);
-        }
+      if (streq(what, kind_flags[i]))
+	{
+	  a_ptr->flags_kind |= (1L << i);
+	  return (0);
+	}
     }
   
   /* Oops */
   msg_format("Unknown artifact flag '%s'.", what);
-  
+
   /* Error */
-        return (PARSE_ERROR_GENERIC);
+  return (PARSE_ERROR_GENERIC);
 }
 
 
 
 /*
+ * Grab one value in an artifact_type from a textual string
+ */
+static errr grab_one_artifact_value(artifact_type *a_ptr, cptr what, int value)
+{
+  int i;
+  
+  /* Check percentage resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      if (streq(what, player_resist_values[i]))
+        {
+          a_ptr->percent_res[i] = RES_LEVEL_BASE - value;
+          return (0);
+        }
+    }
+  
+  /* Check stat bonuses */
+  for (i = 0; i < A_MAX; i++)
+    {
+      if (streq(what, bonus_stat_values[i]))
+        {
+          a_ptr->bonus_stat[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check other bonusess */
+  for (i = 0; i < MAX_P_BONUS; i++)
+    {
+      if (streq(what, bonus_other_values[i]))
+        {
+          a_ptr->bonus_other[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check slays */
+  for (i = 0; i < MAX_P_SLAY; i++)
+    {
+      if (streq(what, slay_values[i]))
+        {
+          a_ptr->multiple_slay[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check brands */
+  for (i = 0; i < MAX_P_BRAND; i++)
+    {
+      if (streq(what, brand_values[i]))
+        {
+          a_ptr->multiple_brand[i] = value;
+          return (0);
+        }
+    }
+
+  /* Oops */
+  msg_format("Unknown artifact value '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
+  
+/*
  * Initialize the "a_info" array, by parsing an ascii "template" file
  */
 errr parse_a_info(char *buf, header *head)
 {
-  int i;
+  int i, j;
   
-  char *s, *t;
+  char *s, *t, *u;
   
   /* Current entry */
   static artifact_type *a_ptr = NULL;
@@ -1893,14 +2087,22 @@ errr parse_a_info(char *buf, header *head)
 	return (PARSE_ERROR_OUT_OF_MEMORY);
       
       /* Ignore everything */
-      a_ptr->flags3 |= (TR3_IGNORE_ACID);
-      a_ptr->flags3 |= (TR3_IGNORE_ELEC);
-      a_ptr->flags3 |= (TR3_IGNORE_FIRE);
-      a_ptr->flags3 |= (TR3_IGNORE_COLD);
+      a_ptr->flags_obj |= (OF_ACID_PROOF);
+      a_ptr->flags_obj |= (OF_ELEC_PROOF);
+      a_ptr->flags_obj |= (OF_FIRE_PROOF);
+      a_ptr->flags_obj |= (OF_COLD_PROOF);
 		
-      /* Hack - initialise percentage resists */
+      /* Hack - initialise resists, bonuses, multiples */
       for (i = 0; i < MAX_P_RES; i++)
 	a_ptr->percent_res[i] = RES_LEVEL_BASE;
+      for (i = 0; i < A_MAX; i++)
+	a_ptr->bonus_stat[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_BONUS; i++)
+	a_ptr->bonus_other[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_SLAY; i++)
+	a_ptr->multiple_slay[i] = MULTIPLE_BASE;
+      for (i = 0; i < MAX_P_BRAND; i++)
+	a_ptr->multiple_brand[i] = MULTIPLE_BASE;
     }
   
   
@@ -1977,6 +2179,45 @@ errr parse_a_info(char *buf, header *head)
       a_ptr->activation = act;
     }
   
+  /* Hack -- Process 'B' for values */
+  else if (buf[0] == 'B')
+    {
+      /* There better be a current a_ptr */
+      if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the first bracket */
+	  for (u = s; *u && (*u != '['); ++u) /* loop */;
+	  
+	  /* Find the second bracket */
+	  for (t = u; *t && (*t != ']'); ++t) /* loop */;
+	  
+	  /* Get the value */
+	  if (1 != sscanf(u + 1, "%d", &j))
+	    return (PARSE_ERROR_INVALID_FLAG);
+
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  *u = '\0';
+	  if (0 != grab_one_artifact_value(a_ptr, s, j)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+          s = t;
+	}
+    }
+  
   /* Process 'F' for flags */
   else if (buf[0] == 'F')
     {
@@ -2021,71 +2262,101 @@ errr parse_a_info(char *buf, header *head)
  */
 static errr grab_one_set_element_flag(set_element *selement_ptr, cptr what)
 {
-  int i, j, k;
-  char *res = "RES_";
-  char *s = NULL;
+  int i;
   
-  /* Check flags1 */
+  /* Check object flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags1[i]))
+      if (streq(what, object_flags[i]))
         {
-          selement_ptr->flags1 |= (1L << i);
+          selement_ptr->flags_obj |= (1L << i);
           return (0);
         }
     }
   
-  /* Check for percentage resists */
-  if (!strncmp(res, what, 4))
+  /* Check curse flags */
+  for (i = 0; i < 32; i++)
     {
-      /* Get the second _, terminate the flag */
-      s = strrchr(what, '_');
-      if ((s - what) > 4)
+      if (streq(what, curse_flags[i]))
 	{
-	  *s++ = '\0';
-	  
-	  /* Read the percentage */
-	  if (1 == sscanf(s, "%d", &j))
-	    {
-	      for (k = 0; k < MAX_P_RES; k++)
-		if (streq(what, player_resists[k]))
-		  {
-		    selement_ptr->percent_res[k] = j;
-		    selement_ptr->flags2 |= resist_to_flag[k];
-		    return (0);
-		  }
-	    }
+	  selement_ptr->flags_curse |= (1L << i);
+	  return (0);
 	}
-    }
-
-  /* Check flags2 */
-  for (i = 0; i < 32; i++)
-    {
-      if (streq(what, k_info_flags2[i]))
-        {
-          selement_ptr->flags2 |= (1L << i);
-          return (0);
-        }
-    }
-  
-  /* Check flags3 */
-  for (i = 0; i < 32; i++)
-    {
-      if (streq(what, k_info_flags3[i]))
-        {
-          selement_ptr->flags3 |= (1L << i);
-          return (0);
-        }
     }
   
   /* Oops */
   msg_format("Unknown set element flag '%s'.", what);
-  
+
   /* Error */
-  return (1);
+  return (PARSE_ERROR_GENERIC);
 }
 
 
+/*
+ * Grab one value in an object_kind from a textual string
+ */
+static errr grab_one_set_element_value(set_element *selement_ptr, cptr what, 
+				       int value)
+{
+  int i;
+  
+  /* Check percentage resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      if (streq(what, player_resist_values[i]))
+        {
+          selement_ptr->percent_res[i] = RES_LEVEL_BASE - value;
+          return (0);
+        }
+    }
+  
+  /* Check stat bonuses */
+  for (i = 0; i < A_MAX; i++)
+    {
+      if (streq(what, bonus_stat_values[i]))
+        {
+          selement_ptr->bonus_stat[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check other bonusess */
+  for (i = 0; i < MAX_P_BONUS; i++)
+    {
+      if (streq(what, bonus_other_values[i]))
+        {
+          selement_ptr->bonus_other[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check slays */
+  for (i = 0; i < MAX_P_SLAY; i++)
+    {
+      if (streq(what, slay_values[i]))
+        {
+          selement_ptr->multiple_slay[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check brands */
+  for (i = 0; i < MAX_P_BRAND; i++)
+    {
+      if (streq(what, brand_values[i]))
+        {
+          selement_ptr->multiple_brand[i] = value;
+          return (0);
+        }
+    }
+
+  /* Oops */
+  msg_format("Unknown set element value '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
+  
 
 
 /*
@@ -2093,9 +2364,9 @@ static errr grab_one_set_element_flag(set_element *selement_ptr, cptr what)
  */
 errr parse_s_info(char *buf, header *head)
 {
-  int i;
+  int i, j;
   
-  char *s, *t;
+  char *s, *t, *u;
   
   /* Current entry */
   static set_type *set_ptr = NULL;
@@ -2185,10 +2456,10 @@ errr parse_s_info(char *buf, header *head)
   /* Process 'P' for "Power" (up to 6) */
   else if (buf[0] == 'P')
     {
-      int a_idx, pval;
+      int a_idx;
       
-      /* Scan for the values */
-      if (2 != sscanf(buf+2, "%d:%d", &a_idx, &pval)) 
+      /* Scan for the value */
+      if (1 != sscanf(buf+2, "%d", &a_idx)) 
 	return (PARSE_ERROR_GENERIC);
       
       /* We are on the next set item */
@@ -2202,7 +2473,57 @@ errr parse_s_info(char *buf, header *head)
       
       /* Save the values */
       selement_ptr->a_idx = a_idx;
-      selement_ptr->pval = pval;
+
+      /* Hack - initialise percentage resists */
+      for (i = 0; i < MAX_P_RES; i++)
+	selement_ptr->percent_res[i] = RES_LEVEL_BASE;
+      for (i = 0; i < A_MAX; i++)
+	selement_ptr->bonus_stat[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_BONUS; i++)
+	selement_ptr->bonus_other[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_SLAY; i++)
+	selement_ptr->multiple_slay[i] = MULTIPLE_BASE;
+      for (i = 0; i < MAX_P_BRAND; i++)
+	selement_ptr->multiple_brand[i] = MULTIPLE_BASE;
+    }
+  
+  /* Hack -- Process 'B' for values */
+  else if (buf[0] == 'B')
+    {
+      /* There better be a current selement_ptr */
+      if (!selement_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the first bracket */
+	  for (u = s; *u && (*u != '['); ++u) /* loop */;
+	  
+	  /* Find the second bracket */
+	  for (t = u; *t && (*t != ']'); ++t) /* loop */;
+	  
+	  /* Get the value */
+	  if (1 != sscanf(u + 1, "%d", &j))
+	    return (PARSE_ERROR_INVALID_FLAG);
+
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  *u = '\0';
+	  if (0 != grab_one_set_element_value(selement_ptr, s, j)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+          s = t;
+	}
     }
   
   /* Hack -- Process 'F' for flags */
@@ -2250,71 +2571,110 @@ errr parse_s_info(char *buf, header *head)
  */
 static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
 {
-  int i, j, k;
-  char *res = "RES_";
-  char *s = NULL;
+  int i;
   
-  /* Check flags1 */
+  /* Check object flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags1[i]))
+      if (streq(what, object_flags[i]))
         {
-          e_ptr->flags1 |= (1L << i);
+          e_ptr->flags_obj |= (1L << i);
           return (0);
         }
     }
   
-  /* Check for percentage resists */
-  if (!strncmp(res, what, 4))
+  /* Check curse flags */
+  for (i = 0; i < 32; i++)
     {
-      /* Get the second _, terminate the flag */
-      s = strrchr(what, '_');
-      if ((s - what) > 4)
+      if (streq(what, curse_flags[i]))
 	{
-	  *s++ = '\0';
-	  
-	  /* Read the percentage */
-	  if (1 == sscanf(s, "%d", &j))
-	    {
-	      for (k = 0; k < MAX_P_RES; k++)
-		if (streq(what, player_resists[k]))
-		  {
-		    e_ptr->percent_res[k] = 100 - j;
-		    e_ptr->flags2 |= resist_to_flag[k];
-		    return (0);
-		  }
-	    }
+	  e_ptr->flags_curse |= (1L << i);
+	  return (0);
 	}
     }
-
-  /* Check flags2 */
-  for (i = 0; i < 32; i++)
-    {
-      if (streq(what, k_info_flags2[i]))
-        {
-          e_ptr->flags2 |= (1L << i);
-          return (0);
-        }
-    }
   
-  /* Check flags3 */
+  /* Check kind flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags3[i]))
-        {
-          e_ptr->flags3 |= (1L << i);
-          return (0);
-        }
+      if (streq(what, kind_flags[i]))
+	{
+	  e_ptr->flags_kind |= (1L << i);
+	  return (0);
+	}
     }
   
   /* Oops */
-  msg_format("Unknown ego-item flag '%s'.", what);
+  msg_format("Unknown ego item flag '%s'.", what);
 
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
 }
 
 
+/*
+ * Grab one value in an object_kind from a textual string
+ */
+static errr grab_one_ego_item_value(ego_item_type *e_ptr, cptr what, int value)
+{
+  int i;
+  
+  /* Check percentage resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      if (streq(what, player_resist_values[i]))
+        {
+          e_ptr->percent_res[i] = RES_LEVEL_BASE - value;
+          return (0);
+        }
+    }
+  
+  /* Check stat bonuses */
+  for (i = 0; i < A_MAX; i++)
+    {
+      if (streq(what, bonus_stat_values[i]))
+        {
+          e_ptr->bonus_stat[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check other bonusess */
+  for (i = 0; i < MAX_P_BONUS; i++)
+    {
+      if (streq(what, bonus_other_values[i]))
+        {
+          e_ptr->bonus_other[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check slays */
+  for (i = 0; i < MAX_P_SLAY; i++)
+    {
+      if (streq(what, slay_values[i]))
+        {
+          e_ptr->multiple_slay[i] = value;
+          return (0);
+        }
+    }
+  
+  /* Check brands */
+  for (i = 0; i < MAX_P_BRAND; i++)
+    {
+      if (streq(what, brand_values[i]))
+        {
+          e_ptr->multiple_brand[i] = value;
+          return (0);
+        }
+    }
+
+  /* Oops */
+  msg_format("Unknown ego item value '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
+  
 
 
 /*
@@ -2322,9 +2682,9 @@ static bool grab_one_ego_item_flag(ego_item_type *e_ptr, cptr what)
  */
 errr parse_e_info(char *buf, header *head)
 {
-  int i;
+  int i, j;
   
-  char *s, *t;
+  char *s, *t, *u;
   
   /* Current entry */
   static ego_item_type *e_ptr = NULL;
@@ -2369,9 +2729,17 @@ errr parse_e_info(char *buf, header *head)
       /* Start with the first of the tval indices */
       cur_t = 0;
 		
-      /* Hack - initialise percentage resists */
+      /* Hack - initialise resists, bonuses, multiples */
       for (i = 0; i < MAX_P_RES; i++)
 	e_ptr->percent_res[i] = RES_LEVEL_BASE;
+      for (i = 0; i < A_MAX; i++)
+	e_ptr->bonus_stat[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_BONUS; i++)
+	e_ptr->bonus_other[i] = BONUS_BASE;
+      for (i = 0; i < MAX_P_SLAY; i++)
+	e_ptr->multiple_slay[i] = MULTIPLE_BASE;
+      for (i = 0; i < MAX_P_BRAND; i++)
+	e_ptr->multiple_brand[i] = MULTIPLE_BASE;
     }
   
   /* Process 'D' for "Description" */
@@ -2392,18 +2760,18 @@ errr parse_e_info(char *buf, header *head)
   /* Process 'X' for "Xtra" (one line only) */
   else if (buf[0] == 'X')
     {
-      int rating, xtra;
+      int rating, act;
       
       /* There better be a current e_ptr */
       if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
-      if (2 != sscanf(buf+2, "%d:%d", &rating, &xtra))
+      if (2 != sscanf(buf+2, "%d:%d", &rating, &act))
 	return (PARSE_ERROR_GENERIC);
       
       /* Save the values */
       e_ptr->rating = rating;
-      e_ptr->xtra = xtra;
+      e_ptr->activation = act;
     }
   
   /* Process 'T' for "Types allowed" (up to three lines) */
@@ -2453,14 +2821,14 @@ errr parse_e_info(char *buf, header *head)
   /* Hack -- Process 'C' for "creation" */
   else if (buf[0] == 'C')
     {
-      int th, td, ta, pv;
+      int th, td, ta;
       
       /* There better be a current e_ptr */
       if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
-      if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-		      &th, &td, &ta, &pv)) return (PARSE_ERROR_GENERIC);
+      if (3 != sscanf(buf+2, "%d:%d:%d",
+		      &th, &td, &ta)) return (PARSE_ERROR_GENERIC);
       
       /* Process various values to allow penalties. */
       
@@ -2475,10 +2843,45 @@ errr parse_e_info(char *buf, header *head)
       if ((ta < 0) && (ta > -128)) e_ptr->max_to_a = 128 + ABS(ta);
       else if (ta < 129) e_ptr->max_to_a = ta;
       else e_ptr->max_to_a = 0;
+    }
+  
+  /* Hack -- Process 'B' for values */
+  else if (buf[0] == 'B')
+    {
+      /* There better be a current e_ptr */
+      if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
-      if ((pv < 0) && (pv > -128)) e_ptr->max_pval = 128 + ABS(pv);
-      else if (pv < 129) e_ptr->max_pval = pv;
-      else e_ptr->max_pval = 0;
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the first bracket */
+	  for (u = s; *u && (*u != '['); ++u) /* loop */;
+	  
+	  /* Find the second bracket */
+	  for (t = u; *t && (*t != ']'); ++t) /* loop */;
+	  
+	  /* Get the value */
+	  if (1 != sscanf(u + 1, "%d", &j))
+	    return (PARSE_ERROR_INVALID_FLAG);
+
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  *u = '\0';
+	  if (0 != grab_one_ego_item_value(e_ptr, s, j)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+          s = t;
+	}
     }
   
   /* Hack -- Process 'F' for flags */
@@ -2925,53 +3328,68 @@ errr parse_r_info(char *buf, header *head)
 /*
  * Grab one flag in a player_race from a textual string
  */
-static errr grab_one_racial_flag(player_race *rp_ptr, cptr what)
+static errr grab_one_racial_flag(player_race *pr_ptr, cptr what)
 {
   int i;
   
-  /* Check flags1 */
+  /* Check object flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags1[i]))
+      if (streq(what, object_flags[i]))
         {
-          rp_ptr->flags1 |= (1L << i);
+          pr_ptr->flags_obj |= (1L << i);
           return (0);
         }
     }
   
-  /* Check flags2 */
+  /* Check curse flags */
   for (i = 0; i < 32; i++)
     {
-      if (streq(what, k_info_flags2[i]))
-        {
-          rp_ptr->flags2 |= (1L << i);
-          return (0);
-        }
-    }
-  
-  /* Check flags3 */
-  for (i = 0; i < 32; i++)
-    {
-      if (streq(what, k_info_flags3[i]))
-        {
-          rp_ptr->flags3 |= (1L << i);
-          return (0);
-        }
+      if (streq(what, curse_flags[i]))
+	{
+	  pr_ptr->flags_curse |= (1L << i);
+	  return (0);
+	}
     }
   
   /* Oops */
   msg_format("Unknown player flag '%s'.", what);
 
-	/* Error */
-	return (PARSE_ERROR_GENERIC);
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
 }
+
+/*
+ * Grab one value in an object_kind from a textual string
+ */
+static errr grab_one_racial_value(player_race *pr_ptr, cptr what, int value)
+{
+  int i;
+  
+  /* Check percentage resists */
+  for (i = 0; i < MAX_P_RES; i++)
+    {
+      if (streq(what, player_resist_values[i]))
+        {
+          pr_ptr->percent_res[i] = RES_LEVEL_BASE - value;
+          return (0);
+        }
+    }
+  
+  /* Oops */
+  msg_format("Unknown player value '%s'.", what);
+
+  /* Error */
+  return (PARSE_ERROR_GENERIC);
+}
+  
 
 
 
 /*
  * Grab one special flag in a player_race from a textual string
  */
-static errr grab_one_special_racial_flag(player_race *rp_ptr, cptr what)
+static errr grab_one_special_racial_flag(player_race *pr_ptr, cptr what)
 {
   int i;
   
@@ -2980,7 +3398,7 @@ static errr grab_one_special_racial_flag(player_race *rp_ptr, cptr what)
     {
       if (streq(what, player_flags_sp[i]))
         {
-          rp_ptr->flags_special |= (1L << (i - SP_RACIAL_START));
+          pr_ptr->flags_special |= (1L << (i - SP_RACIAL_START));
           return (0);
         }
     }
@@ -3001,7 +3419,7 @@ errr parse_p_info(char *buf, header *head)
 {
   int i, j;
   
-  char *s, *t;
+  char *s, *t, *u;
   
   /* Current entry */
   static player_race *pr_ptr = NULL;
@@ -3040,6 +3458,10 @@ errr parse_p_info(char *buf, header *head)
       /* Store the name */
       if (!(pr_ptr->name = add_name(head, s)))
 	return (PARSE_ERROR_OUT_OF_MEMORY);
+
+      /* Hack - initialise resists */
+      for (i = 0; i < MAX_P_RES; i++)
+	pr_ptr->percent_res[i] = RES_LEVEL_BASE;
     }
   
   /* Process 'S' for "Stats" (one line only) */
@@ -3130,15 +3552,14 @@ errr parse_p_info(char *buf, header *head)
   /* Process 'E' for "Racial Equipment Modifier" (one line only) */
   else  if (buf[0] == 'E')
     {
-      int id, mint, maxt, skde, ac, pval, xtra1, xtra2;
+      int id, mint, maxt, skde, ac, bonus;
       
       /* There better be a current pr_ptr */
       if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
       /* Scan for the values */
-      if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-                      &id, &mint, &maxt, &skde,
-                      &ac, &pval, &xtra1, &xtra2)) 
+      if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+                      &id, &mint, &maxt, &skde, &ac, &bonus)) 
         return (PARSE_ERROR_GENERIC);
       
       /* Save the values */
@@ -3147,9 +3568,7 @@ errr parse_p_info(char *buf, header *head)
       pr_ptr->re_maxt = maxt;
       pr_ptr->re_skde = skde;
       pr_ptr->re_ac = ac;
-      pr_ptr->re_pval = pval;
-      pr_ptr->re_xtra1 = xtra1;
-      pr_ptr->re_xtra2 = xtra2;
+      pr_ptr->re_bonus = bonus;
     }
       
       
@@ -3227,6 +3646,45 @@ errr parse_p_info(char *buf, header *head)
       pr_ptr->m_m_wt = m_m_wt;
       pr_ptr->f_b_wt = f_b_wt;
       pr_ptr->f_m_wt = f_m_wt;
+    }
+  
+  /* Hack -- Process 'B' for values */
+  else if (buf[0] == 'B')
+    {
+      /* There better be a current pr_ptr */
+      if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+      
+      /* Parse every entry textually */
+      for (s = buf + 2; *s; )
+	{
+	  /* Find the first bracket */
+	  for (u = s; *u && (*u != '['); ++u) /* loop */;
+	  
+	  /* Find the second bracket */
+	  for (t = u; *t && (*t != ']'); ++t) /* loop */;
+	  
+	  /* Get the value */
+	  if (1 != sscanf(u + 1, "%d", &j))
+	    return (PARSE_ERROR_INVALID_FLAG);
+
+	  /* Find the end of this entry */
+	  for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+	  
+	  /* Nuke and skip any dividers */
+	  if (*t)
+	    {
+	      *t++ = '\0';
+	      while (*t == ' ' || *t == '|') t++;
+	    }
+	  
+	  /* Parse this entry */
+	  *u = '\0';
+	  if (0 != grab_one_racial_value(pr_ptr, s, j)) 
+	    return (PARSE_ERROR_INVALID_FLAG);
+	  
+	  /* Start the next entry */
+          s = t;
+	}
     }
   
   /* Hack -- Process 'F' for flags */
@@ -4039,6 +4497,19 @@ errr parse_flavor_info(char *buf, header *head)
 
   /* Success */
   return (0);
+}
+
+/*
+ * Initialise the info
+ */
+errr eval_info(eval_info_post_func eval_info_process, header *head)
+{
+	int err;
+
+	/* Process the info */
+	err = (*eval_info_process)(head);
+
+	return(err);
 }
 
 

@@ -790,7 +790,6 @@ int add_button_text(char *label, unsigned char keypress)
   /* Check the label length */
   if (length > MAX_MOUSE_LABEL) 
     {
-      //bell("Label too long - button abandoned!");
       return 0;
     }
 
@@ -803,7 +802,6 @@ int add_button_text(char *label, unsigned char keypress)
   button_length += length;
   if (button_length + button_start > button_end) 
     {
-      //bell("No more room for buttons!");
       button_length -= length;
       return 0;
     }
@@ -1579,7 +1577,7 @@ void sound(int val)
 
         /* Make a noise */
         if (sound_hook)
-                sound_hook(val);
+	  sound_hook(val);
 }
 
 
@@ -1616,7 +1614,7 @@ static s16b quark__num = 1;
 /*
  * The array[QUARK_MAX] of pointers to the quarks
  */
-static cptr *quark__str;
+static char **quark__str;
 
 
 /*
@@ -1650,9 +1648,9 @@ s16b quark_add(cptr str)
 /*
  * This function looks up a quark
  */
-cptr quark_str(s16b i)
+char *quark_str(s16b i)
 {
-        cptr q;
+        char *q;
 
         /* Verify */
         if ((i < 0) || (i >= quark__num)) i = 0;
@@ -2921,7 +2919,7 @@ void prt_center(cptr str, int row)
  * This function will correctly handle any width up to the maximum legal
  * value of 256, though it works best for a standard 80 character width.
  */
-void text_out_to_screen(byte a, cptr str)
+void text_out_to_screen(byte a, char *str)
 {
 	int x, y;
 
@@ -3039,10 +3037,12 @@ void text_out_to_screen(byte a, cptr str)
  * You must be careful to end all file output with a newline character
  * to "flush" the stored line position.
  */
-void text_out_to_file(byte a, cptr str)
+void text_out_to_file(byte a, char *str)
 {
-        cptr s;
+        char *s;
         char buf[1024];
+	char buf1[2];
+		  
 
         /* Current position on the line */
         static int pos = 0;
@@ -3061,6 +3061,10 @@ void text_out_to_file(byte a, cptr str)
 
         /* Translate it to 7-bit ASCII or system-specific format */
         xstr_trans(buf, encoding);
+
+	/* Set up the character buffer */
+	buf1[0] = ' ';
+	buf1[1] = '\0';
 
         /* Current location within "buf" */
         s = buf;
@@ -3081,8 +3085,9 @@ void text_out_to_file(byte a, cptr str)
                         /* Output the indent */
                         for (i = 0; i < text_out_indent; i++)
                         {
-                                fputc(' ', text_out_file);
-                                pos++;
+			  buf1[0] = ' ';
+			  file_put(text_out_file, buf1);
+			  pos++;
                         }
                 }
 
@@ -3115,7 +3120,8 @@ void text_out_to_file(byte a, cptr str)
                                 if (s[0] == '\n') s++;
 
                                 /* Begin a new line */
-                                fputc('\n', text_out_file);
+				buf1[0] = '\n';
+                                file_put(text_out_file, buf1);
 
                                 /* Reset */
                                 pos = 0;
@@ -3135,14 +3141,15 @@ void text_out_to_file(byte a, cptr str)
 		/* Write that line to file */
                 for (n = 0; n < len; n++)
                 {
-                        /* Ensure the character is printable */
+		  /* Ensure the character is printable */
                   ch = (my_isprint((unsigned char)s[n]) ? s[n] : ' ');
+		  buf1[0] = ch;
+		  
+		  /* Write out the character */
+		  file_put(text_out_file, buf);
 
-                        /* Write out the character */
-                        fputc(ch, text_out_file);
-
-                        /* Increment */
-                        pos++;
+		  /* Increment */
+		  pos++;
 		}
 
                 /* Move 's' past the stuff we've written */
@@ -3158,7 +3165,8 @@ void text_out_to_file(byte a, cptr str)
                 if (*s == '\n') s++;
 
                 /* Begin a new line */
-                fputc('\n', text_out_file);
+		buf1[0] = '\n';
+		file_put(text_out_file, buf1);
 
                 /* Reset */
                 pos = 0;
@@ -3173,7 +3181,7 @@ void text_out_to_file(byte a, cptr str)
  * Output text to the screen or to a file depending on the selected
  * text_out hook.
  */
-void text_out(cptr str)
+void text_out(char *str)
 {
         text_out_c(TERM_WHITE, str);
 }
@@ -3183,7 +3191,7 @@ void text_out(cptr str)
  * Output text to the screen (in color) or to a file depending on the
  * selected hook.
  */
-void text_out_c(byte a, cptr str)
+void text_out_c(byte a, char *str)
 {
         text_out_hook(a, str);
 }
@@ -3219,9 +3227,6 @@ void dump_put_str(byte attr, const char *str, int col)
   char *s;
   char buf[1024];
   bool finished = FALSE;
-
-  /* We use either ascii or system-specific encoding */
-  //int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
 
   /* Find the start point */
   while ((i != col) && (i < MAX_C_A_LEN))
@@ -3311,6 +3316,7 @@ void dump_line_file(char_attr *this_line)
   int x = 0;
   char_attr xa = this_line[0];
   byte (*old_xchar_hook)(byte c) = Term->xchar_hook;
+  char buf[2];
 
   /* We use either ascii or system-specific encoding */
   int encoding = (xchars_to_file) ? SYSTEM_SPECIFIC : ASCII;
@@ -3322,7 +3328,6 @@ void dump_line_file(char_attr *this_line)
   while (xa.pchar != '\0')
     {
       /* Add the char/attr */
-      //fputc(xa.pchar, dump_out_file);
       x_fprintf(dump_out_file, encoding, "%c", xa.pchar);
 
       /* Advance */
@@ -3333,7 +3338,9 @@ void dump_line_file(char_attr *this_line)
   Term->xchar_hook = old_xchar_hook;
 
   /* Terminate the line */
-  fputc('\n', dump_out_file);
+  buf[0] = '\n';
+  buf[1] = '\0';
+  file_put(dump_out_file, buf);
 }
 
 /* 

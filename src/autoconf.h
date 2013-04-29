@@ -2,12 +2,13 @@
 /* src/autoconf.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Path to the game's lib directory */
-#define DEFAULT_PATH "./lib/"
+#define DEFAULT_PATH "/usr/local/share/faangband/"
 
 /* Define to 1 if you have the `can_change_color' function. */
-#define HAVE_CAN_CHANGE_COLOR 1
+/* #undef HAVE_CAN_CHANGE_COLOR */
 
-/* Define to 1 if you have the <dirent.h> header file. */
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+   */
 #define HAVE_DIRENT_H 1
 
 /* Define to 1 if you have the <fcntl.h> header file. */
@@ -19,14 +20,17 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
 
-/* Define to 1 if you have the `mkstemp' function. */
-#define HAVE_MKSTEMP 1
+/* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
+/* #undef HAVE_NDIR_H */
 
 /* Define to 1 if you have the `setegid' function. */
 #define HAVE_SETEGID 1
 
 /* Define to 1 if you have the `setresgid' function. */
 #define HAVE_SETRESGID 1
+
+/* Define to 1 if you have the `stat' function. */
+#define HAVE_STAT 1
 
 /* Define to 1 if stdbool.h conforms to C99. */
 #define HAVE_STDBOOL_H 1
@@ -42,6 +46,14 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #define HAVE_STRING_H 1
+
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
+   */
+/* #undef HAVE_SYS_DIR_H */
+
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
+   */
+/* #undef HAVE_SYS_NDIR_H */
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define HAVE_SYS_STAT_H 1
@@ -65,25 +77,25 @@
 #define PACKAGE_NAME "FAangband"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "FAangband 0.2.3"
+#define PACKAGE_STRING "FAangband 1.0.x"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "faangband"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.2.3"
+#define PACKAGE_VERSION "1.0.x"
 
 /* Define as the return type of signal handlers (`int' or `void'). */
 #define RETSIGTYPE void
 
 /* Define to 1 if using SDL_mixer sound support and it's found. */
-#define SDL_SOUND 1
+#define SOUND_SDL 1
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Define to 1 if Curses or PDCurses is found, but NCurses is not. */
-#define USE_CURSES 0
+/* #undef USE_CURSES */
 
 /* Define to 1 if using the Curses frontend. */
 #define USE_GCU 1
@@ -94,6 +106,9 @@
 /* Define to 1 if NCurses is found. */
 #define USE_NCURSES 1
 
+/* Define to use private user paths. */
+#define USE_PRIVATE_PATHS 1
+
 /* Define to 1 if using the SDL interface and SDL is found. */
 #define USE_SDL 1
 
@@ -101,7 +116,7 @@
 #define USE_X11 1
 
 /* Version number of package */
-#define VERSION "0.2.3"
+#define VERSION "1.0.x"
 
 /* Define to 1 if the X Window System is missing or not being used. */
 /* #undef X_DISPLAY_MISSING */
