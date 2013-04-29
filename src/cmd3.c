@@ -242,8 +242,6 @@ void do_cmd_wield(void)
        (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)) &&
       (f1 & TR1_THROWING))
     {
-      char answer;
-      
       /* Stick it in the belt? */
       if (get_check("Equip in throwing belt?")) slot = INVEN_Q0;
       
@@ -447,7 +445,7 @@ void do_cmd_wield(void)
   /* Message */
   msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
   
-  /* Set item handling -GS- */
+  /* Set item handling -GS- and checking turn found for artifacts -NRM- */
   if (o_ptr->name1) 
     {
       
@@ -464,7 +462,12 @@ void do_cmd_wield(void)
 	      /* add bonuses */
 	      apply_set(a_ptr->set_no);
 	    }
-	}				
+	}
+
+      /* Have we registered this as found before ? */
+      if (a_info[o_ptr->name1].creat_turn < 2)
+	a_info[o_ptr->name1].creat_turn = turn;
+
     }
   
   /* Cursed! */
@@ -2376,7 +2379,7 @@ void py_set_trap(int y, int x)
  */
 bool choose_mtrap(byte *choice)
 {
-  int j, num, temp=0, col, tile_hgt;
+  int j, num, temp=0, tile_hgt;
   
   char c;
   key_event ke;

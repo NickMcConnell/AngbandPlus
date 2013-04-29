@@ -1439,10 +1439,7 @@ static bool wr_savefile_new(void)
       /* Most regular artifact info is stored in a_info.raw. */
       if (i < ART_MIN_RANDOM)
 	{
-	  wr_byte(a_ptr->creat_stat);
-	  wr_byte(0);
-	  wr_byte(0);
-	  wr_byte(0);
+	  wr_s32b(a_ptr->creat_turn);
 	}
       /* But random artifacts are specific to each player. */
       else
@@ -1473,7 +1470,7 @@ static bool wr_savefile_new(void)
 	  wr_byte(a_ptr->level);
 	  wr_byte(a_ptr->rarity);
 	  
-	  wr_byte(a_ptr->creat_stat);
+	  wr_s32b(a_ptr->creat_turn);
 	  wr_byte(a_ptr->activation);
 	  
 	  /* Add some filler space for later expansion. */

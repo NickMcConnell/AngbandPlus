@@ -2005,7 +2005,7 @@ bool brand_missile(int ammo_type, int brand_type)
   /* Get an item */
   q = "Enchant which ammunition? ";
   s = "You have no ammunition to brand.";
-  status =get_item(&item, q, s, (USE_INVEN | USE_FLOOR));
+  status = get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR));
   
   /* Hack - if failed, return, but only after resetting the ammo hack */
   if (!status) return (FALSE);
@@ -2389,6 +2389,7 @@ bool ident_spell(void)
 	  int artifact_stage;
 	  char note[120];
 	  char shorter_desc[120];
+	  s32b real_turn = turn;
 	  
 	  /* Get a shorter description to fit the notes file */
 	  object_desc(shorter_desc, o_ptr, TRUE, 0);
@@ -2399,7 +2400,13 @@ bool ident_spell(void)
 	  /* Record the depth where the artifact was created */
 	  artifact_stage = o_ptr->found;
 	  
+	  /* Hack - record the turn when the artifact was first picked up
+	   * or wielded by the player.  This may result in out of order
+	   * entries in the notes file, which really should be re-ordered 
+	   */
+	  turn = a_info[o_ptr->name1].creat_turn;
 	  do_cmd_note(note, artifact_stage);
+	  turn = real_turn;
 	  
 	  /*
 	   * Mark item creation depth 0, which will indicate the artifact

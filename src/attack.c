@@ -1650,7 +1650,7 @@ void do_cmd_fire(void)
       int nx = GRID_X(path_g[i]);
       
       /* Hack -- Stop before hitting walls */
-      if (!cave_floor_bold(ny, nx)) break;
+      if (!cave_passable_bold(ny, nx)) break;
       
       /* Advance */
       x = nx;
@@ -1904,6 +1904,10 @@ void do_cmd_fire(void)
 	  /* Otherwise Stop looking */
 	  else break;
 	}
+
+      /* Stop if it's a tree or rubble */
+      if (!cave_floor_bold(ny, nx)) break;
+      
     }
   
   /* Chance of breakage (during attacks) */
@@ -2112,7 +2116,7 @@ void do_cmd_throw(bool magic)
       int nx = GRID_X(path_g[i]);
       
       /* Hack -- Stop before hitting walls */
-      if (!cave_floor_bold(ny, nx)) break;
+      if (!cave_passable_bold(ny, nx)) break;
       
       /* Advance */
       x = nx;
@@ -2336,6 +2340,9 @@ void do_cmd_throw(bool magic)
 	  /* Object falls to the floor */
 	  break;
 	}
+
+      /* Stop if it's trees or rubble */
+      if (!cave_floor_bold(ny, nx)) break;
     }
   
   /* Chance of breakage.   Throwing weapons are designed not to break. */

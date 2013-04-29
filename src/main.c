@@ -356,6 +356,13 @@ int main(int argc, char *argv[])
   user_name(op_ptr->full_name, player_uid);
 #endif /* ANGBAND_2_8_1 */
   
+#ifdef PRIVATE_USER_PATH
+
+	/* Create directories for the users files */
+	create_user_dirs();
+
+#endif /* PRIVATE_USER_PATH */
+
 #endif /* SET_UID */
   
   

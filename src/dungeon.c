@@ -490,7 +490,8 @@ static void process_world(void)
   /*** Handle the "outside" (stores and sunshine) ***/
   
   /* While not in cave, including cave towns */
-  if ((stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+  if ((stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
       ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
     {
       /* Hack -- Daybreak/Nightfall outside */
@@ -2206,19 +2207,8 @@ static void process_player(void)
       /* Resting until sunrise/set */
       else if (p_ptr->resting == -3)
 	{
-	  bool day;
-	  
-	  day = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
-	    
 	  /* Stop resting */
-	  if ((p_ptr->chp == p_ptr->mhp) &&
-	      (p_ptr->csp == p_ptr->msp) &&
-	      !p_ptr->blind && !p_ptr->confused &&
-	      !p_ptr->poisoned && !p_ptr->afraid &&
-	      !p_ptr->stun && !p_ptr->cut &&
-	      !p_ptr->slow && !p_ptr->paralyzed &&
-	      !p_ptr->image && !p_ptr->word_recall && 
-	      (day != ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))))
+	  if (!(turn % ((10L * TOWN_DAWN) / 2)))
 	    {
 	      disturb(0, 0);
 	    }

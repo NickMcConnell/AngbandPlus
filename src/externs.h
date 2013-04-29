@@ -387,6 +387,7 @@ extern void map_info(int y, int x, byte *ap, char *cp);
 #endif /* USE_TRANSPARENCY */
 extern void map_info_default(int y, int x, byte *ap, char *cp);
 extern void move_cursor_relative(int y, int x);
+extern void big_putch(int x, int y, byte a, char c);
 extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
@@ -593,12 +594,14 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 extern errr init_b_info_txt(FILE *fp, char *buf);
 extern errr init_g_info_txt(FILE *fp, char *buf);
 extern errr init_h_info_txt(FILE *fp, char *buf);
+extern errr init_flavor_info_txt(FILE *fp, char *buf);
 
 /* init2.c */
 extern void init_artifacts(void);
 extern errr init_t_info(byte chosen_level);
 extern void kill_t_info(void);
 extern void init_file_paths(char *path);
+extern void create_user_dirs(void);
 extern void init_angband(void);
 
 /* load1.c */
@@ -916,6 +919,7 @@ extern sint macro_find_exact(cptr pat);
 extern errr macro_add(cptr pat, cptr act);
 extern errr macro_init(void);
 extern void flush(void);
+extern char anykey(void);
 extern char inkey(void);
 extern key_event inkey_ex(void);
 extern void bell(cptr reason);

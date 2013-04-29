@@ -46,16 +46,22 @@
 
 
 /*
+ * Name of the version/variant
+ */
+#define VERSION_NAME "FAangband"
+
+
+/*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.2.2"
+#define VERSION_STRING	"0.2.3"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	2
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -355,7 +361,7 @@
 #define GRAPHICS_PSEUDO         4
 
 
-/*
+/* 
  * Given an array, determine how many elements are in the array.
  */
 #define N_ELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
@@ -3579,13 +3585,13 @@
  * Determine if a "legal" grid is a "floor" grid
  *
  * Line 1 -- forbid doors, seams, walls, rubble and trees.
- * Line 2 -- allows grass (maybe paranoid -NRM-)
+ * Line 2 -- forbid void -NRM-
  * 
  * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)) || \
-          (cave_feat[Y][X] == FEAT_GRASS))
+	(!(cave_info[Y][X] & (CAVE_WALL)) && \
+          !(cave_feat[Y][X] == FEAT_VOID))
 
 
 /*

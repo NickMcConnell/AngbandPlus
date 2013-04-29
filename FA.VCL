@@ -7,7 +7,7 @@
 </h3>
 <h3>Command Lines</h3>
 Creating command line "rc.exe /l 0x409 /fo"ARMV4Rel/angband.res" /i "src" /d UNDER_CE=420 /d _WIN32_WCE=420 /d "NDEBUG" /d "UNICODE" /d "_UNICODE" /d "WIN32_PLATFORM_PSPC=400" /d "ARM" /d "_ARM_" /d "ARMV4" /r "C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\angband.rc"" 
-Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP722.tmp" with contents
+Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP3CDB.tmp" with contents
 [
 /nologo /W3 /D _WIN32_WCE=420 /D "WIN32_PLATFORM_PSPC=400" /D "ARM" /D "_ARM_" /D "ARMV4" /D UNDER_CE=420 /D "UNICODE" /D "_UNICODE" /D "NDEBUG" /Fp"ARMV4Rel/FA.pch" /YX /Fo"ARMV4Rel/" /O2 /MC /c 
 "C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\angbandcw.c"
@@ -56,8 +56,8 @@ Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP722.tmp" with contents
 "C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\z-util.c"
 "C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\z-virt.c"
 ]
-Creating command line "clarm.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP722.tmp" 
-Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP723.tmp" with contents
+Creating command line "clarm.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP3CDB.tmp" 
+Creating temporary file "C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP3CDC.tmp" with contents
 [
 commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,0x1000 /entry:"WinMainCRTStartup" /incremental:no /pdb:"ARMV4Rel/FA.pdb" /nodefaultlib:"libc.lib /nodefaultlib:libcd.lib /nodefaultlib:libcmt.lib /nodefaultlib:libcmtd.lib /nodefaultlib:msvcrt.lib /nodefaultlib:msvcrtd.lib" /out:"ARMV4Rel/FA.exe" /subsystem:windowsce,4.20 /align:"4096" /MACHINE:ARM 
 ".\ARMV4Rel\angbandcw.obj"
@@ -107,7 +107,7 @@ commctrl.lib coredll.lib aygshell.lib /nologo /base:"0x00010000" /stack:0x10000,
 ".\ARMV4Rel\z-virt.obj"
 ".\ARMV4Rel\angband.res"
 ]
-Creating command line "link.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP723.tmp"
+Creating command line "link.exe @C:\DOCUME~1\Jim\LOCALS~1\Temp\RSP3CDC.tmp"
 <h3>Output Window</h3>
 Compiling resources...
 Compiling...
@@ -117,7 +117,6 @@ birth.c
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\birth.c(780) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\birth.c(785) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\birth.c(786) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\birth.c(1997) : warning C4013: 'anykey' undefined; assuming extern returning int
 cave.c
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cave.c(4542) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cave.c(4543) : warning C4244: '=' : conversion from 'short ' to 'unsigned char ', possible loss of data
@@ -126,16 +125,12 @@ C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cave.c(4673) : warning 
 cmd1.c
 cmd2.c
 cmd3.c
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cmd3.c(245) : warning C4101: 'answer' : unreferenced local variable
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cmd3.c(2379) : warning C4101: 'col' : unreferenced local variable
 cmd4.c
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cmd4.c(3015) : warning C4013: 'big_putch' undefined; assuming extern returning int
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\cmd4.c(5764) : warning C4244: 'initializing' : conversion from 'unsigned long ' to 'char ', possible loss of data
 cmd5.c
 cmd6.c
 dungeon.c
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\dungeon.c(2247) : warning C4013: 'anykey' undefined; assuming extern returning int
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\dungeon.c(2560) : warning C4018: '>' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\dungeon.c(2550) : warning C4018: '>' : signed/unsigned mismatch
 emulfunc.c
 c:\documents and settings\jim\my documents\nick\face\src\emulfunc.c(720) : warning C4101: 'checkStr' : unreferenced local variable
 c:\documents and settings\jim\my documents\nick\face\src\emulfunc.c(836) : warning C4047: 'function' : 'unsigned long ' differs in levels of indirection from 'void *'
@@ -162,7 +157,6 @@ init1.c
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\init1.c(4287) : warning C4101: 't' : unreferenced local variable
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\init1.c(4285) : warning C4101: 'j' : unreferenced local variable
 init2.c
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\init2.c(3545) : warning C4013: 'init_flavor_info_txt' undefined; assuming extern returning int
 load.c
 main-wce.c
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\main-wce.c(1111) : warning C4013: 'WritePrivateProfileString_Reg' undefined; assuming extern returning int
@@ -223,13 +217,13 @@ C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3543) : warning 
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3543) : warning C4018: '<' : signed/unsigned mismatch
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3545) : warning C4018: '>' : signed/unsigned mismatch
 C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3546) : warning C4018: '<' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3605) : warning C4018: '>' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3605) : warning C4018: '<' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3607) : warning C4018: '>' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3608) : warning C4018: '<' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3610) : warning C4018: '>' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3611) : warning C4018: '<' : signed/unsigned mismatch
-C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(4091) : warning C4244: '=' : conversion from 'short ' to 'char ', possible loss of data
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3615) : warning C4018: '>' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3615) : warning C4018: '<' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3617) : warning C4018: '>' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3618) : warning C4018: '<' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3620) : warning C4018: '>' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(3621) : warning C4018: '<' : signed/unsigned mismatch
+C:\Documents and Settings\Jim\My Documents\Nick\FACE\src\util.c(4101) : warning C4244: '=' : conversion from 'short ' to 'char ', possible loss of data
 variable.c
 wizard1.c
 wizard2.c
@@ -248,7 +242,7 @@ Linking...
 
 
 <h3>Results</h3>
-FA.exe - 0 error(s), 86 warning(s)
+FA.exe - 0 error(s), 80 warning(s)
 </pre>
 </body>
 </html>

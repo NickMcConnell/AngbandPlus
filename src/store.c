@@ -1309,7 +1309,7 @@ static void store_create(void)
 	  /* Hack -- Pick an object kind to sell */
 	  int i = rand_int(num);
 
-	  while ((st_ptr->table[i] == 0) || (st_ptr->table[i] > MAX_K_IDX))
+	  while (st_ptr->table[i] == 0)
 	    i = rand_int(num);
 
 	  k_idx = st_ptr->table[i];

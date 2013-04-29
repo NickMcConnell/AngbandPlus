@@ -290,6 +290,7 @@ static void spoil_obj_desc(cptr fname)
  */
 #define MAX_LINE_LEN 75
 
+
 /*
  * The artifacts categorized by type
  */
@@ -1215,7 +1216,7 @@ static void spoil_obj_gen(cptr fname)
       depth[k_info[i_ptr->k_idx].level] += 1L;
       
       /* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-      if (artifact_p(i_ptr)) a_info[i_ptr->name1].creat_stat = 0;
+      if (artifact_p(i_ptr)) a_info[i_ptr->name1].creat_turn = 0;
     }
   
   /* Print to file. */

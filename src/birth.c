@@ -702,7 +702,7 @@ static void player_wipe(void)
   for (i = 0; i < MAX_A_IDX; i++)
     {
       artifact_type *a_ptr = &a_info[i];
-      a_ptr->creat_stat = 0;
+      a_ptr->creat_turn = 0;
     }
   
   

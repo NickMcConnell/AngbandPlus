@@ -77,6 +77,11 @@ void init_file_paths(char *path)
   char *tail;
   
   
+#ifdef PRIVATE_USER_PATH
+	char buf[1024];
+	char dirpath[1024];
+#endif /* PRIVATE_USER_PATH */
+
   /*** Free everything ***/
   
   /* Free the main path */
@@ -130,18 +135,6 @@ void init_file_paths(char *path)
   /*** Build the sub-directory names ***/
   
   /* Build a path name */
-  strcpy(tail, "apex");
-  ANGBAND_DIR_APEX = string_make(path);
-  
-  /* Build a path name */
-  strcpy(tail, "bone");
-  ANGBAND_DIR_BONE = string_make(path);
-  
-  /* Build a path name */
-  strcpy(tail, "data");
-  ANGBAND_DIR_DATA = string_make(path);
-  
-  /* Build a path name */
   strcpy(tail, "edit");
   ANGBAND_DIR_EDIT = string_make(path);
   
@@ -161,14 +154,70 @@ void init_file_paths(char *path)
   strcpy(tail, "pref");
   ANGBAND_DIR_PREF = string_make(path);
 
-  /* Build a path name */
-  strcpy(tail, "save");
-  ANGBAND_DIR_SAVE = string_make(path);
-  
+#ifdef PRIVATE_USER_PATH
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+	/* Build the path to the user specific directory */
+	path_build(buf, sizeof(buf), dirpath, VERSION_NAME);
+
+	/* Build a relative path name */
+	ANGBAND_DIR_USER = string_make(buf);
+
+#else /* PRIVATE_USER_PATH */
+
   /* Build a path name */
   strcpy(tail, "user");
   ANGBAND_DIR_USER = string_make(path);
   
+#endif /* PRIVATE_USER_PATH */
+
+#ifdef USE_PRIVATE_PATHS
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_APEX = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_SAVE = string_make(buf);
+
+#else /* USE_PRIVATE_PATHS */
+
+  /* Build a path name */
+  strcpy(tail, "apex");
+  ANGBAND_DIR_APEX = string_make(path);
+  
+  /* Build a path name */
+  strcpy(tail, "bone");
+  ANGBAND_DIR_BONE = string_make(path);
+  
+  /* Build a path name */
+  strcpy(tail, "data");
+  ANGBAND_DIR_DATA = string_make(path);
+  
+  /* Build a path name */
+  strcpy(tail, "save");
+  ANGBAND_DIR_SAVE = string_make(path);
+  
+#endif /* USE_PRIVATE_PATHS */
+
   /* Build a path name */
   strcpy(tail, "xtra");
   ANGBAND_DIR_XTRA = string_make(path);
@@ -216,6 +265,61 @@ void init_file_paths(char *path)
 }
 
 
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+#endif /* USE_PRIVATE_PATHS */
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 #ifdef ALLOW_TEMPLATES
 

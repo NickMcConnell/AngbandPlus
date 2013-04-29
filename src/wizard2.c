@@ -960,7 +960,7 @@ static void wiz_statistics(object_type *o_ptr)
   
   
   /* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-  if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_stat = 0;
+  if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_turn = 0;
   
   
   /* Interact */
@@ -1043,7 +1043,7 @@ static void wiz_statistics(object_type *o_ptr)
 	  
 
 	  /* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	  if (artifact_p(i_ptr)) a_info[i_ptr->name1].creat_stat = 0;
+	  if (artifact_p(i_ptr)) a_info[i_ptr->name1].creat_turn = 0;
 	  
 	  
 	  /* Test for the same tval and sval. */
@@ -1089,7 +1089,7 @@ static void wiz_statistics(object_type *o_ptr)
   
   
   /* Hack -- Normally only make a single artifact */
-  if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_stat = 1;
+  if (artifact_p(o_ptr)) a_info[o_ptr->name1].creat_turn = 1;
 }
 
 

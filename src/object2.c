@@ -461,7 +461,7 @@ void wipe_o_list(void)
 	  if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 	    {
 	      /* Mega-Hack -- Preserve the artifact */
-	      a_info[o_ptr->name1].creat_stat = 0;
+	      a_info[o_ptr->name1].creat_turn = 0;
 	    }
 	}
       
@@ -1913,7 +1913,7 @@ static bool make_artifact_special(object_type *o_ptr)
       if (!a_ptr->name) continue;
       
       /* Cannot make an artifact twice */
-      if (a_ptr->creat_stat==1) continue;
+      if (a_ptr->creat_turn) continue;
       
       /* Enforce minimum "depth" (loosely) */
       if (a_ptr->level > p_ptr->depth)
@@ -1984,7 +1984,7 @@ static bool make_artifact(object_type *o_ptr)
       if (!a_ptr->name) continue;
       
       /* Cannot make an artifact twice */
-      if (a_ptr->creat_stat==1) continue;
+      if (a_ptr->creat_turn) continue;
       
       /* Must have the correct fields */
       if (a_ptr->tval != o_ptr->tval) continue;
@@ -2799,7 +2799,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       artifact_type *a_ptr = &a_info[o_ptr->name1];
       
       /* Hack -- Mark the artifact as "created" */
-      a_ptr->creat_stat = 1;
+      a_ptr->creat_turn = 1;
       
       /* Extract the other fields */
       o_ptr->pval = a_ptr->pval;
@@ -3894,7 +3894,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
       if (p_ptr->wizard) msg_print("Breakage (too many objects).");
       
       /* Hack -- Preserve artifacts */
-      a_info[j_ptr->name1].creat_stat = 0;
+      a_info[j_ptr->name1].creat_turn = 0;
       
       /* Failure */
       return;
@@ -3970,7 +3970,7 @@ void place_object(int y, int x, bool good, bool great, bool exact_kind)
       if (!floor_carry(y, x, i_ptr))
 	{
 	  /* Hack -- Preserve artifacts */
-	  a_info[i_ptr->name1].creat_stat = 0;
+	  a_info[i_ptr->name1].creat_turn = 0;
 	}
     }
   

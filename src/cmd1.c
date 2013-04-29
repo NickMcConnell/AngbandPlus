@@ -379,6 +379,12 @@ extern void py_pickup_aux(int o_idx)
   
   /* Message */
   msg_format("You have %s (%c).", o_name, index_to_label(slot));
+
+  /* Hack - set the turn found for artifacts */
+  if (o_ptr->name1)
+    if (a_info[o_ptr->name1].creat_turn < 2)
+      a_info[o_ptr->name1].creat_turn = turn;
+
   
   /* Delete the object */
   delete_object_idx(o_idx);
@@ -1492,11 +1498,11 @@ void hit_trap(int y, int x)
 			75, 0, TRUE);
 	  }
 	
-	/* trap of software bugs gone berserk. */
+	/* trap of bugs gone berserk. */
 	else
 	  {
 	    /* explain what the dickens is going on. */
-	    msg_print("GRUESOME Software Bugs leap out at you!");
+	    msg_print("GRUESOME Gnawing Bugs leap out at you!");
 	    
 	    if (!p_resist_pos(P_RES_CONFU))
 	      {
@@ -1507,7 +1513,7 @@ void hit_trap(int y, int x)
 		(void)set_image(p_ptr->image + randint(40));
 	      }
 	    
-	    /* XXX (hard coded) summon 3-6 software bugs. */
+	    /* XXX (hard coded) summon 3-6 bugs. */
 	    k = randint(4) + 2;
 	    for (i = 0; i < k; ++i)
 	      {
@@ -1530,11 +1536,11 @@ void hit_trap(int y, int x)
 		    break;
 		  }
 		
-		/* Attempt to place the awake software bug */
+		/* Attempt to place the awake bug */
 		place_monster_aux(y, x, 453, FALSE, TRUE);
 	      }
 	    
-	    /* herald the arrival of Software Bugs. */
+	    /* herald the arrival of bugs. */
 	    msg_print("AAAAAAAHHHH! THEY'RE EVERYWHERE!");
 	  }
 	
