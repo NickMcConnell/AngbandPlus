@@ -274,12 +274,6 @@
 #define DEFAULT_FONT	"8X12x.FON"
 
 
-
-/*
- * Forward declare
- */
-typedef struct _term_data term_data;
-
 /*
  * Extra "term" data
  *
@@ -290,62 +284,7 @@ typedef struct _term_data term_data;
  * "font_want" can be in almost any form as long as it could be construed
  * as attempting to represent the name of a font.
  */
-struct _term_data
-{
-	term t;
-
-	const char *s;
-
-	HWND w;
-
-	DWORD dwStyle;
-	DWORD dwExStyle;
-
-	uint keys;
-
-	byte rows;
-	byte cols;
-
-	uint pos_x;
-	uint pos_y;
-	uint size_wid;
-	uint size_hgt;
-	uint size_ow1;
-	uint size_oh1;
-	uint size_ow2;
-	uint size_oh2;
-
-	bool size_hack;
-
-	bool xtra_hack;
-
-	bool visible;
-	bool maximized;
-
-	bool bizarre;
-
-	char *font_want;
-	char *font_file;
-
-	HFONT font_id;
-
-	uint font_wid;
-	uint font_hgt;
-
-	uint tile_wid;
-	uint tile_hgt;
-
-	uint map_tile_wid;
-	uint map_tile_hgt;
-
-	bool map_active;
-};
-
-
-/*
- * Maximum number of windows XXX XXX XXX
- */
-#define MAX_TERM_DATA 8
+#include "win/win-term.h"
 
 
 /*
@@ -357,6 +296,12 @@ static term_data data[MAX_TERM_DATA];
  * Hack -- global "window creation" pointer
  */
 static term_data *my_td;
+
+/*
+ * Default window layout function
+ */
+int default_layout_win(term_data *data, int maxterms);
+
 
 /*
  * game in progress
@@ -912,12 +857,19 @@ static void load_prefs(void)
 	int i;
 
 	char buf[1024];
+	bool first_start;
+
+	if (file_exists(ini_file)) {
+		first_start = FALSE;
+	} else {
+		first_start = TRUE;
+	}
 
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
 
-        /* Extract the "arg_graphics_nice" flag */
-        arg_graphics_nice = GetPrivateProfileInt("Angband", "Graphics_Nice", TRUE, ini_file);
+	/* Extract the "arg_graphics_nice" flag */
+	arg_graphics_nice = GetPrivateProfileInt("Angband", "Graphics_Nice", TRUE, ini_file);
 
 	/* Extract the tile width */
 	tile_width = GetPrivateProfileInt("Angband", "TileWidth", FALSE, ini_file);
@@ -946,6 +898,10 @@ static void load_prefs(void)
 		sprintf(buf, "Term-%d", i);
 
 		load_prefs_aux(td, buf);
+	}
+
+	if (first_start) {
+		default_layout_win(data,MAX_TERM_DATA);
 	}
 
 	/* Paranoia */
@@ -1537,14 +1493,20 @@ static void term_change_font(term_data *td)
 
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
+
+			/* Reset the tile info */
+			td->tile_wid = td->font_wid;
+			td->tile_hgt = td->font_hgt;
 		}
 
 		/* HACK - Assume bizarre */
 		td->bizarre = TRUE;
 
 		/* Reset the tile info */
-		td->tile_wid = td->font_wid;
-		td->tile_hgt = td->font_hgt;
+		if (!td->tile_wid || !td->tile_hgt) {
+			td->tile_wid = td->font_wid;
+			td->tile_hgt = td->font_hgt;
+		}
 
 		/* Analyze the font */
 		term_getsize(td);
@@ -1922,6 +1884,9 @@ static void Term_xtra_win_sound(int v)
 #ifdef USE_SOUND
 	int i;
 	char buf[1024];
+	MCI_OPEN_PARMS op;
+	MCI_PLAY_PARMS pp;
+	MCIDEVICEID pDevice;
 #endif /* USE_SOUND */
 
 	/* Illegal sound */
@@ -1942,8 +1907,31 @@ static void Term_xtra_win_sound(int v)
 	/* Build the path */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_SOUND, sound_file[v][Rand_simple(i)]);
 
-	/* Play the sound, catch errors */
-	PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);
+	/* Check for file type */
+	if (streq(buf + strlen(buf) - 3, "mp3"))
+	{
+	        op.dwCallback = 0;
+		op.lpstrDeviceType = (char*)MCI_ALL_DEVICE_ID;
+		op.lpstrElementName = buf;
+		op.lpstrAlias = NULL;
+
+		/* Open command */
+		mciSendCommand(0, MCI_OPEN, MCI_OPEN_ELEMENT | MCI_WAIT,
+			       (DWORD)&op);
+		pDevice = op.wDeviceID;
+
+		/* Play command */
+		pp.dwCallback = 0;
+		pp.dwFrom = 0;
+		mciSendCommand(pDevice, MCI_PLAY, MCI_NOTIFY | MCI_FROM,
+			       (DWORD)&pp);
+	}
+
+	else
+	{
+	        /* Play the sound, catch errors */
+	        PlaySound(buf, 0, SND_FILENAME | SND_ASYNC);
+	}
 
 #else /* USE_SOUND */
 
@@ -2652,6 +2640,9 @@ static void term_data_link(term_data *td)
 	/* Use a "software" cursor */
 	t->soft_cursor = TRUE;
 
+	/* Differentiate between BS/^h, Tab/^i, etc. */
+	t->complex_input = TRUE;
+
 	/* Use "Term_pict" for "graphic" data */
 	t->higher_pict = TRUE;
 
@@ -3355,7 +3346,7 @@ static void start_screensaver(void)
 	screensaver_inkey_hack_buffer[j++] = key; /* Class */
 	key.code = 'n';
 	screensaver_inkey_hack_buffer[j++] = key; /* Modify options */
-	key.code = '\r';
+	key.code = KC_ENTER;
 	screensaver_inkey_hack_buffer[j++] = key; /* Reroll */
 
 	if (!file_exist)
@@ -3369,7 +3360,7 @@ static void start_screensaver(void)
 		}
 	}
 
-	key.code = '\r';
+	key.code = KC_ENTER;
 	screensaver_inkey_hack_buffer[j++] = key; /* Return */
 	key.code = ESCAPE;
 	screensaver_inkey_hack_buffer[j++] = key; /* Character info */
@@ -3422,7 +3413,8 @@ static void start_screensaver(void)
  */
 static void display_help(const char *filename)
 {
-	plog("Use the online help files instead.");
+	Term_keypress('?',0);
+	//plog("Use the online help files instead.");
 }
 
 
@@ -3730,6 +3722,72 @@ static void process_menus(WORD wCmd)
 		case IDM_WINDOW_OPT: {
 			Term_keypress('=',0);
 			Term_keypress('w',0);
+
+			break;
+		}
+		case IDM_WINDOW_RESET: {
+			if (MessageBox(NULL,
+					"This will reset the size and layout of the angband windows\n based on your screen size. Do you want to continue?",
+					VERSION_NAME, MB_YESNO|MB_ICONWARNING) == IDYES) {
+				term *old = Term;
+				int i;
+				RECT rc;
+
+				(void)default_layout_win(data,MAX_TERM_DATA);
+
+				for (i=0; i < MAX_TERM_DATA; i++) {
+					/* Activate */
+					Term_activate(&(data[i].t));
+	        
+					/* Resize the term */
+					Term_resize(data[i].cols, data[i].rows);
+				}
+				/* Restore */
+				Term_activate(old);
+
+				/* Do something to sub-windows */
+				for (i = MAX_TERM_DATA - 1; i >= 0; i--) {
+					if (!(data[i].w)) continue;
+					
+					/* Client window size */
+					rc.left = 0;
+					rc.top = 0;
+					rc.right = rc.left + data[i].cols * data[i].tile_wid + data[i].size_ow1 + data[i].size_ow2;
+					rc.bottom = rc.top + data[i].rows * data[i].tile_hgt + data[i].size_oh1 + data[i].size_oh2;
+
+					/* Get total window size (without menu for sub-windows) */
+					AdjustWindowRectEx(&rc, data[i].dwStyle, TRUE, data[i].dwExStyle);
+
+					/* Total size */
+					data[i].size_wid = rc.right - rc.left;
+					data[i].size_hgt = rc.bottom - rc.top;
+
+					if (i==0) {
+						SetWindowPos(data[i].w, 0, data[i].pos_x, data[i].pos_y,
+							data[i].size_wid, data[i].size_hgt, 0);
+					} else {
+						SetWindowPos(data[i].w, data[0].w, data[i].pos_x, data[i].pos_y,
+							data[i].size_wid, data[i].size_hgt, 0);
+					}
+					if (data[i].visible) {
+						ShowWindow(data[i].w, SW_SHOW);
+					} else {
+						ShowWindow(data[i].w, SW_HIDE);
+					}
+
+					/* Redraw later */
+					InvalidateRect(data[i].w, NULL, TRUE);
+				}
+
+				/* Focus on main window */
+				SetFocus(data[0].w);
+
+				/* React to changes */
+				Term_xtra_win_react();
+
+				/* Hack -- Force redraw */
+				Term_key_push(KTRL('R'));			
+			}
 
 			break;
 		}
@@ -4162,6 +4220,22 @@ static void handle_wm_paint(HWND hWnd)
 }
 
 
+int extract_modifiers(keycode_t ch, bool kp) {
+	bool mc = FALSE;
+	bool ms = FALSE;
+	bool ma = FALSE;
+
+	/* Extract the modifiers */
+	if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
+	if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
+	if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
+
+	return
+		(mc && (kp || MODS_INCLUDE_CONTROL(ch)) ? KC_MOD_CONTROL : 0) |
+		(ms && (kp || MODS_INCLUDE_SHIFT(ch)) ? KC_MOD_SHIFT : 0) |
+		(ma ? KC_MOD_ALT : 0) | (kp ? KC_MOD_KEYPAD : 0);
+}
+
 /*
  * We ignore the modifier keys (shift, control, alt, num lock, scroll lock),
  * and the normal keys (escape, tab, return, letters, numbers, etc), but we
@@ -4175,9 +4249,6 @@ static void handle_keydown(WPARAM wParam, LPARAM lParam)
 {
 	keycode_t ch = 0;
 
-	bool mc = FALSE;
-	bool ms = FALSE;
-	bool ma = FALSE;
 	bool kp = FALSE;
 
 #ifdef USE_SAVER
@@ -4187,11 +4258,6 @@ static void handle_keydown(WPARAM wParam, LPARAM lParam)
 		return;
 	}
 #endif /* USE_SAVER */
-
-	/* Extract the modifiers */
-	if (GetKeyState(VK_CONTROL) & 0x8000) mc = TRUE;
-	if (GetKeyState(VK_SHIFT)   & 0x8000) ms = TRUE;
-	if (GetKeyState(VK_MENU)    & 0x8000) ma = TRUE;
 
 	/* for VK_ http://msdn.microsoft.com/en-us/library/dd375731(v=vs.85).aspx */
 	switch (wParam) {
@@ -4216,8 +4282,8 @@ static void handle_keydown(WPARAM wParam, LPARAM lParam)
 		/* Backspace is calling both backspace and delete
 		   Removed the backspace call, so it only calls delete */
 		case VK_BACK: break;
-
-		case VK_TAB: ch = KC_TAB; break;
+		/* Tab is registering as ^i; don't read it here*/
+	        case VK_TAB: break;
 		case VK_PRIOR: ch = KC_PGUP; break;
 		case VK_NEXT: ch = KC_PGDOWN; break;
 		case VK_END: ch = KC_END; break;
@@ -4236,11 +4302,9 @@ static void handle_keydown(WPARAM wParam, LPARAM lParam)
 	/* see http://source.winehq.org/source/include/dinput.h#L468 */
 
 	if (ch) {
-		int mods = 
-				(mc && (kp || MODS_INCLUDE_CONTROL(ch)) ? KC_MOD_CONTROL : 0) |
-				(ms && (kp || MODS_INCLUDE_SHIFT(ch)) ? KC_MOD_SHIFT : 0) |
-				(ma ? KC_MOD_ALT : 0) | (kp ? KC_MOD_KEYPAD : 0);
-		/*printf("ch=%d mods=%d\n", ch, mods);*/
+		int mods = extract_modifiers(ch, kp);
+		/* printf("ch=%d mods=%d\n", ch, mods); */
+		/* fflush(stdout); */
 		Term_keypress(ch, mods);
 	}
 }
@@ -4254,7 +4318,9 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	term_data *td;
 	int i;
 
-	int xPos, yPos, button;
+	int xPos, yPos, button, vsc, vk, mods;
+	bool kp = FALSE, extended_key;
+	keycode_t ch;
 
 #ifdef USE_SAVER
 	static int iMouse = 0;
@@ -4328,12 +4394,37 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_CHAR:
 		{
-			// really vicious hack; [Control]Return -> 10 (Return -> 13)
-			if (wParam == 10) {
-				Term_keypress(13, KC_MOD_CONTROL);
-			} else {
-				Term_keypress(wParam, 0);
+			vsc = LOBYTE(HIWORD(lParam));
+			extended_key = HIBYTE(HIWORD(lParam)) & 0x1;
+			vk = MapVirtualKey(vsc, 1);
+			/* printf("wParam=%d lParam=%d vsc=%d vk=%d kp=%d\n", */
+			/*        wParam, lParam, vsc, vk, extended_key); */
+			/* fflush(stdout); */
+
+			// We don't want to translate some keys to their ascii values
+			// so we have to intercept them here.
+			switch (vk)
+			{
+				case 8: // fix backspace
+					ch = KC_BACKSPACE;
+					break;
+				case 9: // fix tab
+					ch = KC_TAB;
+					break;
+				case 13: // fix enter
+					ch = KC_ENTER;
+					if(extended_key) kp = TRUE;
+					break;
+				case 27: // fix escape
+					ch = ESCAPE;
+					break;
+				default:
+					Term_keypress(wParam, 0);
+					return 0;
 			}
+			mods = extract_modifiers(ch, kp);
+			Term_keypress(ch, mods);
+
 			return 0;
 		}
 

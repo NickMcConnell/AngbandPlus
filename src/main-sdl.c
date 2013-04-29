@@ -184,6 +184,7 @@ struct term_window
 	SDL_Surface *surface;	/* The surface for this window */
 #ifdef USE_GRAPHICS
 	SDL_Surface *tiles;		/* The appropriately sized tiles for this window */
+	SDL_Surface *onebyone;		/* The appropriately sized tiles for this window */
 #endif	
 	byte Term_idx;			/* Index of term that relates to this */
 	
@@ -914,10 +915,13 @@ static void term_windowFree(term_window* win)
 		win->surface = NULL;
 #ifdef USE_GRAPHICS
 		/* Invalidate the gfx surface */
-		if (win->tiles)
-		{
+		if (win->tiles) {
 			SDL_FreeSurface(win->tiles);
 			win->tiles = NULL;
+		}
+		if (win->onebyone) {
+			SDL_FreeSurface(win->onebyone);
+			win->onebyone = NULL;
 		}
 #endif
 		term_nuke(&win->term_data);
@@ -1402,10 +1406,13 @@ static void AcceptChanges(sdl_Button *sender)
 		for (i = 0; i < ANGBAND_TERM_MAX; i++)
 		{
 			term_window *win = &windows[i];
-			if (win->tiles)
-			{
+			if (win->tiles) {
 				SDL_FreeSurface(win->tiles);
 				win->tiles = NULL;
+			}
+			if (win->onebyone) {
+				SDL_FreeSurface(win->onebyone);
+				win->onebyone = NULL;
 			}
 		}
 	}	
@@ -1475,7 +1482,7 @@ static void WidthChange(sdl_Button *sender)
 {
 	tile_width += sender->tag;
 	if (tile_width < 1) tile_width = 1;
-	if (tile_width > 6) tile_width = 6;
+	if (tile_width > 12) tile_width = 12;
 	do_update = TRUE;
 }
 
@@ -1483,7 +1490,7 @@ static void HeightChange(sdl_Button *sender)
 {
 	tile_height += sender->tag;
 	if (tile_height < 1) tile_height = 1;
-	if (tile_height > 3) tile_height = 3;
+	if (tile_height > 8) tile_height = 8;
 	do_update = TRUE;
 }
 #endif
@@ -2396,6 +2403,7 @@ static void sdl_keypress(SDL_keysym keysym)
 	bool ms = (keysym.mod & KMOD_SHIFT) > 0;
 	bool ma = (keysym.mod & KMOD_ALT) > 0;
 	bool mm = (keysym.mod & KMOD_META) > 0;
+	bool mg = (keysym.mod & KMOD_MODE) > 0;
 	bool kp = FALSE;
 
 	byte mods = (ma ? KC_MOD_ALT : 0) | (mm ? KC_MOD_META : 0);
@@ -2421,20 +2429,20 @@ static void sdl_keypress(SDL_keysym keysym)
 		case SDLK_KP_MULTIPLY: ch = '*'; kp = TRUE; break;
 		case SDLK_KP_MINUS: ch = '-'; kp = TRUE; break;
 		case SDLK_KP_PLUS: ch = '+'; kp = TRUE; break;
-		case SDLK_KP_ENTER: ch = '\n'; kp = TRUE; break;
+		case SDLK_KP_ENTER: ch = KC_ENTER; kp = TRUE; break;
 		case SDLK_KP_EQUALS: ch = '='; kp = TRUE; break;
 
 		/* have have these to get consistent ctrl-shift behaviour */
-		case SDLK_0: if (!ms || mc || ma) ch = '0'; break;
-		case SDLK_1: if (!ms || mc || ma) ch = '1'; break;
-		case SDLK_2: if (!ms || mc || ma) ch = '2'; break;
-		case SDLK_3: if (!ms || mc || ma) ch = '3'; break;
-		case SDLK_4: if (!ms || mc || ma) ch = '4'; break;
-		case SDLK_5: if (!ms || mc || ma) ch = '5'; break;
-		case SDLK_6: if (!ms || mc || ma) ch = '6'; break;
-		case SDLK_7: if (!ms || mc || ma) ch = '7'; break;
-		case SDLK_8: if (!ms || mc || ma) ch = '8'; break;
-		case SDLK_9: if (!ms || mc || ma) ch = '9'; break;
+		case SDLK_0: if ((!ms || mc || ma) && !mg) ch = '0'; break;
+		case SDLK_1: if ((!ms || mc || ma) && !mg) ch = '1'; break;
+		case SDLK_2: if ((!ms || mc || ma) && !mg) ch = '2'; break;
+		case SDLK_3: if ((!ms || mc || ma) && !mg) ch = '3'; break;
+		case SDLK_4: if ((!ms || mc || ma) && !mg) ch = '4'; break;
+		case SDLK_5: if ((!ms || mc || ma) && !mg) ch = '5'; break;
+		case SDLK_6: if ((!ms || mc || ma) && !mg) ch = '6'; break;
+		case SDLK_7: if ((!ms || mc || ma) && !mg) ch = '7'; break;
+		case SDLK_8: if ((!ms || mc || ma) && !mg) ch = '8'; break;
+		case SDLK_9: if ((!ms || mc || ma) && !mg) ch = '9'; break;
 
 		case SDLK_UP: ch = ARROW_UP; break;
 		case SDLK_DOWN: ch = ARROW_DOWN; break;
@@ -2447,6 +2455,10 @@ static void sdl_keypress(SDL_keysym keysym)
 		case SDLK_DELETE: ch = KC_DELETE; break;
 		case SDLK_END: ch = KC_END; break;
 		case SDLK_PAGEDOWN: ch = KC_PGDOWN; break;
+		case SDLK_ESCAPE: ch = ESCAPE; break;
+		case SDLK_BACKSPACE: ch = KC_BACKSPACE; break;
+		case SDLK_RETURN: ch = KC_ENTER; break;
+		case SDLK_TAB: ch = KC_TAB; break;
 
 		case SDLK_F1: ch = KC_F1; break;
 		case SDLK_F2: ch = KC_F2; break;
@@ -3042,6 +3054,41 @@ static errr sdl_BuildTileset(term_window *win)
 		}
 	}
 
+	/* see if we need to make a seperate surface for the map view */
+	if (!((tile_width == 1) && (tile_height == 1))) {
+		/* Calculate the size of the new surface */
+		x = ta * win->tile_wid;
+		y = td * win->tile_hgt;
+	
+		/* Make it */
+		win->onebyone = SDL_CreateRGBSurface(SDL_SWSURFACE, x, y,
+				GfxSurface->format->BitsPerPixel,
+				GfxSurface->format->Rmask, GfxSurface->format->Gmask,
+				GfxSurface->format->Bmask, GfxSurface->format->Amask);
+	
+		/* Bugger */
+		if (!win->onebyone) return (1);
+	
+		/* For every tile... */
+		for (xx = 0; xx < ta; xx++) {
+			for (yy = 0; yy < td; yy++) {
+				SDL_Rect src, dest;
+				int dwid = win->tile_wid;
+				int dhgt = win->tile_hgt;
+
+				/* Source rectangle (on GfxSurface) */
+				RECT(xx * info->cell_width, yy * info->cell_height,
+					 info->cell_width, info->cell_height, &src);
+
+				/* Destination rectangle (win->tiles) */
+				RECT(xx * dwid, yy * dhgt, dwid, dhgt, &dest);
+
+				/* Do the stretch thing */
+				sdl_StretchBlit(GfxSurface, &src, win->onebyone, &dest);
+			}
+		}
+	}
+
 	return (0);
 }
 #endif
@@ -3070,7 +3117,7 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const wchar_t
 		sdl_BuildTileset(win);
 		if (!win->tiles) return (1);
 	}
-	
+
 	/* Make the destination rectangle */
 	RECT(col * win->tile_wid, row * win->tile_hgt, win->tile_wid, win->tile_hgt, &rc);
 	
@@ -3146,6 +3193,42 @@ static errr Term_pict_sdl(int col, int row, int n, const byte *ap, const wchar_t
 	return (0);
 }
 
+static void Term_view_map_sdl(term *t)
+{
+	SDL_Surface *fulltiles;
+	/* Get the right window */
+	term_window *win = (term_window*)(t->data);
+
+	/* First time a pict is requested we load the tileset in */
+	if (!win->tiles)
+	{
+		sdl_BuildTileset(win);
+	}
+	/* override large tiles with small ones for the map view */
+	if (win->onebyone) {
+		/* Save screen so we can load it again after the tile image is restored */
+		screen_save();
+
+		fulltiles = win->tiles;
+		win->tiles = win->onebyone;
+	}
+
+	t->view_map_hook = NULL;
+	do_cmd_view_map();
+	t->view_map_hook = Term_view_map_sdl;
+
+	if (win->onebyone) {
+		win->tiles = fulltiles;
+
+		/*
+		 * Load screen with the correct tiles - the screen load in the
+		 * view map command was still using the image with small tiles
+		 */
+		screen_load();
+	}
+}
+
+
 /*
  * Create and initialize the Term contined within this window.
  */
@@ -3168,6 +3251,9 @@ static void term_data_link_sdl(term_window *win)
 	/* Never refresh one row */
 	t->never_frosh = TRUE;
 	
+	/* Differentiate between BS/^h, Tab/^i, etc. */
+	t->complex_input = TRUE;
+
 	/* Ignore the init/nuke hooks */
 	
 	/* Prepare the template hooks */
@@ -3177,6 +3263,7 @@ static void term_data_link_sdl(term_window *win)
 	t->wipe_hook = Term_wipe_sdl;
 	t->text_hook = Term_text_sdl;
 	t->pict_hook = Term_pict_sdl;
+	t->view_map_hook = Term_view_map_sdl;
 	
 	/* Remember where we came from */
 	t->data = win;
@@ -3398,10 +3485,13 @@ static void init_windows(void)
 			if (win->top < StatusHeight) win->top = StatusHeight;
 #ifdef USE_GRAPHICS			
 			/* Invalidate the gfx surface */
-			if (win->tiles)
-			{
+			if (win->tiles) {
 				SDL_FreeSurface(win->tiles);
 				win->tiles = NULL;
+			}
+			if (win->onebyone) {
+				SDL_FreeSurface(win->onebyone);
+				win->onebyone = NULL;
 			}
 #endif
 			/* This will set up the window correctly */
