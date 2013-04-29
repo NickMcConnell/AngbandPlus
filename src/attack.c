@@ -54,8 +54,8 @@ static bool test_hit_combat(int chance, int ac, int visible, int item1,
   /* Just hit tells to_h bonus */
   if (power == ac) 
     {
-      notice_other(IF_TO_H, item1, NULL);
-      if (item2) notice_other(IF_TO_H, item2, NULL);
+      notice_other(IF_TO_H, item1);
+      if (item2) notice_other(IF_TO_H, item2);
     }
   
   /* Power competes against armor */
@@ -464,13 +464,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_ANIMAL]) mul = slay[P_SLAY_ANIMAL];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_ANIMAL, item + 1, NULL);
+	    notice_other(IF_SLAY_ANIMAL, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_ANIMAL, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_ANIMAL, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_ANIMAL, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_ANIMAL, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_ANIMAL, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_ANIMAL, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -488,13 +488,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if ((p_ptr->special_attack & (ATTACK_HOLY)) && (mul < 15)) mul = 15;
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_EVIL, item + 1, NULL);
+	    notice_other(IF_SLAY_EVIL, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_EVIL, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_EVIL, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_EVIL, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_EVIL, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_EVIL, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_EVIL, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -510,13 +510,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_UNDEAD]) mul = slay[P_SLAY_UNDEAD];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_UNDEAD, item + 1, NULL);
+	    notice_other(IF_SLAY_UNDEAD, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_UNDEAD, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_UNDEAD, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_UNDEAD, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_UNDEAD, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_UNDEAD, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_UNDEAD, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -531,13 +531,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_DEMON]) mul = slay[P_SLAY_DEMON];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_DEMON, item + 1, NULL);
+	    notice_other(IF_SLAY_DEMON, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_DEMON, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_DEMON, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_DEMON, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_DEMON, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_DEMON, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_DEMON, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -552,12 +552,12 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_ORC]) mul = slay[P_SLAY_ORC];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_ORC, item + 1, NULL);
-	    if (notice_launcher) notice_other(IF_SLAY_ORC, INVEN_BOW + 1, NULL);
+	    notice_other(IF_SLAY_ORC, item + 1);
+	    if (notice_launcher) notice_other(IF_SLAY_ORC, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_ORC, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_ORC, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_ORC, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_ORC, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -572,13 +572,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_TROLL]) mul = slay[P_SLAY_TROLL];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_TROLL, item + 1, NULL);
+	    notice_other(IF_SLAY_TROLL, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_TROLL, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_TROLL, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_TROLL, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_TROLL, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_TROLL, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_TROLL, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -593,13 +593,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_GIANT]) mul = slay[P_SLAY_GIANT];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_GIANT, item + 1, NULL);
+	    notice_other(IF_SLAY_GIANT, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_GIANT, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_GIANT, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_GIANT, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_GIANT, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_GIANT, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_GIANT, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -614,13 +614,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 	    if (mul < slay[P_SLAY_DRAGON]) mul = slay[P_SLAY_DRAGON];
 
 	    /* Notice slay */
-	    notice_other(IF_SLAY_DRAGON, item + 1, NULL);
+	    notice_other(IF_SLAY_DRAGON, item + 1);
 	    if (notice_launcher) 
-	      notice_other(IF_SLAY_DRAGON, INVEN_BOW + 1, NULL);
+	      notice_other(IF_SLAY_DRAGON, INVEN_BOW + 1);
 	    if (notice_ring) 
 	      {
-		notice_other(IF_SLAY_DRAGON, INVEN_RIGHT + 1, NULL);
-		notice_other(IF_SLAY_DRAGON, INVEN_LEFT + 1, NULL);
+		notice_other(IF_SLAY_DRAGON, INVEN_RIGHT + 1);
+		notice_other(IF_SLAY_DRAGON, INVEN_LEFT + 1);
 	      }
 	  }
 	
@@ -642,13 +642,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		mul = brand[P_BRAND_ACID];
 		
 		/* Notice brand */
-		notice_other(IF_BRAND_ACID, item + 1, NULL);
+		notice_other(IF_BRAND_ACID, item + 1);
 		if (notice_launcher) 
-		  notice_other(IF_BRAND_ACID, INVEN_BOW + 1, NULL);
+		  notice_other(IF_BRAND_ACID, INVEN_BOW + 1);
 		if (notice_ring) 
 		  {
-		    notice_other(IF_BRAND_ACID, INVEN_RIGHT + 1, NULL);
-		    notice_other(IF_BRAND_ACID, INVEN_LEFT + 1, NULL);
+		    notice_other(IF_BRAND_ACID, INVEN_RIGHT + 1);
+		    notice_other(IF_BRAND_ACID, INVEN_LEFT + 1);
 		  }
 	      }
 	  }
@@ -671,13 +671,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		mul = brand[P_BRAND_ELEC];
 		
 		/* Notice brand */
-		notice_other(IF_BRAND_ELEC, item + 1, NULL);
+		notice_other(IF_BRAND_ELEC, item + 1);
 		if (notice_launcher) 
-		  notice_other(IF_BRAND_ELEC, INVEN_BOW + 1, NULL);
+		  notice_other(IF_BRAND_ELEC, INVEN_BOW + 1);
 		if (notice_ring) 
 		  {
-		    notice_other(IF_BRAND_ELEC, INVEN_RIGHT + 1, NULL);
-		    notice_other(IF_BRAND_ELEC, INVEN_LEFT + 1, NULL);
+		    notice_other(IF_BRAND_ELEC, INVEN_RIGHT + 1);
+		    notice_other(IF_BRAND_ELEC, INVEN_LEFT + 1);
 		  }
 	      }
 	  }
@@ -700,13 +700,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		mul = brand[P_BRAND_FIRE];
 		
 		/* Notice brand */
-		notice_other(IF_BRAND_FIRE, item + 1, NULL);
+		notice_other(IF_BRAND_FIRE, item + 1);
 		if (notice_launcher) 
-		  notice_other(IF_BRAND_FIRE, INVEN_BOW + 1, NULL);
+		  notice_other(IF_BRAND_FIRE, INVEN_BOW + 1);
 		if (notice_ring) 
 		  {
-		    notice_other(IF_BRAND_FIRE, INVEN_RIGHT + 1, NULL);
-		    notice_other(IF_BRAND_FIRE, INVEN_LEFT + 1, NULL);
+		    notice_other(IF_BRAND_FIRE, INVEN_RIGHT + 1);
+		    notice_other(IF_BRAND_FIRE, INVEN_LEFT + 1);
 		  }
 	      }
 	  }
@@ -729,13 +729,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		mul = brand[P_BRAND_COLD];
 
 		/* Notice brand */
-		notice_other(IF_BRAND_COLD, item + 1, NULL);
+		notice_other(IF_BRAND_COLD, item + 1);
 		if (notice_launcher) 
-		  notice_other(IF_BRAND_COLD, INVEN_BOW + 1, NULL);
+		  notice_other(IF_BRAND_COLD, INVEN_BOW + 1);
 		if (notice_ring) 
 		  {
-		    notice_other(IF_BRAND_COLD, INVEN_RIGHT + 1, NULL);
-		    notice_other(IF_BRAND_COLD, INVEN_LEFT + 1, NULL);
+		    notice_other(IF_BRAND_COLD, INVEN_RIGHT + 1);
+		    notice_other(IF_BRAND_COLD, INVEN_LEFT + 1);
 		  }
 	      }
 	  }
@@ -758,13 +758,13 @@ static sint adjust_dam(long *die_average, object_type *o_ptr,
 		mul = brand[P_BRAND_POIS];
 
 		/* Notice brand */
-		notice_other(IF_BRAND_POIS, item + 1, NULL);
+		notice_other(IF_BRAND_POIS, item + 1);
 		if (notice_launcher) 
-		  notice_other(IF_BRAND_POIS, INVEN_BOW + 1, NULL);
+		  notice_other(IF_BRAND_POIS, INVEN_BOW + 1);
 		if (notice_ring) 
 		  {
-		    notice_other(IF_BRAND_POIS, INVEN_RIGHT + 1, NULL);
-		    notice_other(IF_BRAND_POIS, INVEN_LEFT + 1, NULL);
+		    notice_other(IF_BRAND_POIS, INVEN_RIGHT + 1);
+		    notice_other(IF_BRAND_POIS, INVEN_LEFT + 1);
 		  }
 	      }
 	  }
@@ -1203,7 +1203,7 @@ void py_attack(int y, int x)
       bash_dam = damroll(inventory[INVEN_ARM].dd, inventory[INVEN_ARM].ds);
 
       /* Notice dice */
-      notice_other(IF_DD_DS, INVEN_ARM + 1, NULL);
+      notice_other(IF_DD_DS, INVEN_ARM + 1);
       
       /* Multiply by quality and experience factors */
       bash_dam *= bash_quality / 20 + p_ptr->lev / 7;
@@ -1396,7 +1396,7 @@ void py_attack(int y, int x)
 
 	      /* Maxroll tells to_d bonus */
 	      if (damage == dice * sides) 
-		notice_other(IF_TO_D, INVEN_WIELD + 1, NULL);
+		notice_other(IF_TO_D, INVEN_WIELD + 1);
 	      
 	      /* Apply any special additions to damage. */
 	      damage += add;
@@ -1808,7 +1808,7 @@ void do_cmd_fire(void)
   if ((o_ptr->name2 == EGO_VELOCITY) && (rand_int(5) == 0))
     {
       /* Learn the to-dam (and maybe ego) */
-      notice_other(IF_TO_D, INVEN_BOW + 1, NULL);
+      notice_other(IF_TO_D, INVEN_BOW + 1);
 
       object_desc(o_name, o_ptr, FALSE, 0);
       
@@ -1825,7 +1825,7 @@ void do_cmd_fire(void)
   if ((o_ptr->name2 == EGO_ACCURACY) && (rand_int(5) == 0))
     {
       /* Learn the to-hit (and maybe ego) */
-      notice_other(IF_TO_H, INVEN_BOW + 1, NULL);
+      notice_other(IF_TO_H, INVEN_BOW + 1);
 
       object_desc(o_name, o_ptr, FALSE, 0);
       
@@ -1842,8 +1842,8 @@ void do_cmd_fire(void)
   if (i_ptr->name2 == EGO_BACKBITING)
     {
       /* Learn to-hit (!) */
-      if (item >= 0) notice_other(IF_TO_H, item + 1, NULL);
-      else  notice_other(IF_TO_H, item, NULL);
+      if (item >= 0) notice_other(IF_TO_H, item + 1);
+      else  notice_other(IF_TO_H, item);
 
       /* Message. */
       msg_print("Your missile turns in midair and strikes you!");
@@ -2085,9 +2085,9 @@ void do_cmd_fire(void)
 	  /* Max roll tells to_d bonus (launcher and missile) */
 	  if (damage == dice * sides) 
 	    {
-	      notice_other(IF_TO_D, INVEN_BOW + 1, NULL);
-	      if (item >= 0) notice_other(IF_TO_D, item + 1, NULL);
-	      else  notice_other(IF_TO_D, item, NULL);
+	      notice_other(IF_TO_D, INVEN_BOW + 1);
+	      if (item >= 0) notice_other(IF_TO_D, item + 1);
+	      else  notice_other(IF_TO_D, item);
 	    }
 	  
 	  /* Apply any special additions to damage. */
@@ -2603,7 +2603,7 @@ void do_cmd_throw(void)
 	  
 	  /* Max roll gives to_d bonus */
 	  if (damage == dice * sides) 
-	    notice_other(IF_TO_D, ((item < 0) ? item : item + 1), NULL);
+	    notice_other(IF_TO_D, ((item < 0) ? item : item + 1));
 	  
 	  /* Apply any special additions to damage. */
 	  damage += add;

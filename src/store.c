@@ -2066,11 +2066,8 @@ static void store_sell(void)
 		     price);
 	  
 	  /* Confirm sale */
-	  if (!get_check(format("Accept %d gold?", price)))
-	    {
-	      return;
-	    }
-	  
+	  if (!get_check(format("Accept %d gold?", price))) return;
+	    	  
 	  /* Say "okay" */
 	  say_comment_0();
 	  
@@ -2080,6 +2077,8 @@ static void store_sell(void)
 	  /* Limit to avoid buffer overflow */
 	  if (p_ptr->au > PY_MAX_GOLD) p_ptr->au = PY_MAX_GOLD;
 	}
+
+      else if (!get_check(format("Donate %s?", o_name))) return;
 
       /* Update the display */
       store_prt_gold();

@@ -118,146 +118,146 @@ static bool open_audio(void)
  */
 static bool sound_sdl_init(bool no_cache)
 {
-	char path[2048];
-	char buffer[2048];
-	ang_file *fff;
-
-
-	/* Initialise the mixer  */
-	if (!open_audio())
-	    return FALSE;
-
-
-	/* Build the "sound" path */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
-	ANGBAND_DIR_XTRA_SOUND = string_make(path);
-
-	/* Find and open the config file */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
-	fff = file_open(path, MODE_READ, -1);
-
-	/* Handle errors */
-	if (!fff)
+  char path[2048];
+  char buffer[2048];
+  ang_file *fff;
+  
+  
+  /* Initialise the mixer  */
+  if (!open_audio())
+    return FALSE;
+  
+  
+  /* Build the "sound" path */
+  path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "sound");
+  ANGBAND_DIR_XTRA_SOUND = string_make(path);
+  
+  /* Find and open the config file */
+  path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, "sound.cfg");
+  fff = file_open(path, MODE_READ, -1);
+  
+  /* Handle errors */
+  if (!fff)
+    {
+      plog_fmt("Failed to open sound config (%s):\n    %s", 
+	       path, strerror(errno));
+      return FALSE;
+    }
+  
+  /* Parse the file */
+  /* Lines are always of the form "name = sample [sample ...]" */
+  while (file_getl(fff, buffer, sizeof(buffer)))
+    {
+      char *msg_name;
+      char *sample_list;
+      char *search;
+      char *cur_token;
+      char *next_token;
+      int event;
+      
+      /* Skip anything not beginning with an alphabetic character */
+      if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
+      
+      /* Split the line into two: message name, and the rest */
+      search = strchr(buffer, ' ');
+      sample_list = strchr(search + 1, ' ');
+      if (!search) continue;
+      if (!sample_list) continue;
+      
+      /* Set the message name, and terminate at first space */
+      msg_name = buffer;
+      search[0] = '\0';
+      
+      
+      /* Make sure this is a valid event name */
+      for (event = MSG_MAX - 1; event >= 0; event--)
 	{
-		plog_fmt("Failed to open sound config (%s):\n    %s", 
-		          path, strerror(errno));
-		return FALSE;
+	  if (strcmp(msg_name, angband_sound_name[event]) == 0)
+	    break;
 	}
-
-	/* Parse the file */
-	/* Lines are always of the form "name = sample [sample ...]" */
-	while (file_getl(fff, buffer, sizeof(buffer)))
+      if (event < 0) continue;
+      
+      /* Advance the sample list pointer so it's at the beginning of text */
+      sample_list++;
+      if (!sample_list[0]) continue;
+      
+      /* Terminate the current token */
+      cur_token = sample_list;
+      search = strchr(cur_token, ' ');
+      if (search)
 	{
-		char *msg_name;
-		char *sample_list;
-		char *search;
-		char *cur_token;
-		char *next_token;
-		int event;
-
-		/* Skip anything not beginning with an alphabetic character */
-		if (!buffer[0] || !isalpha((unsigned char)buffer[0])) continue;
-
-		/* Split the line into two: message name, and the rest */
-		search = strchr(buffer, ' ');
-        sample_list = strchr(search + 1, ' ');
-		if (!search) continue;
-        if (!sample_list) continue;
-
-		/* Set the message name, and terminate at first space */
-		msg_name = buffer;
-		search[0] = '\0';
-
-
-		/* Make sure this is a valid event name */
-		for (event = MSG_MAX - 1; event >= 0; event--)
-		{
-			if (strcmp(msg_name, angband_sound_name[event]) == 0)
-			    break;
-		}
-        if (event < 0) continue;
-
-	/* Advance the sample list pointer so it's at the beginning of text */
-		sample_list++;
-		if (!sample_list[0]) continue;
-
-		/* Terminate the current token */
-		cur_token = sample_list;
-		search = strchr(cur_token, ' ');
-		if (search)
-		{
-			search[0] = '\0';
-			next_token = search + 1;
-		}
-		else
-		{
-			next_token = NULL;
-		}
-
-        /*
-         * Now we find all the sample names and add them one by one
-         */
-        while (cur_token)
+	  search[0] = '\0';
+	  next_token = search + 1;
+	}
+      else
+	{
+	  next_token = NULL;
+	}
+      
+      /*
+       * Now we find all the sample names and add them one by one
+       */
+      while (cur_token)
         {
-            int num = samples[event].num;
-
-			/* Don't allow too many samples */
-			if (num >= MAX_SAMPLES) break;
-
-			/* Build the path to the sample */
-			path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
-			if (!file_exists(path)) goto next_token;
-
-			/* Don't load now if we're not caching */
-			if (no_cache)
-			{
-				/* Just save the path for later */
-			  samples[event].paths[num] = (char *)string_make(path);
-			}
-			else
-			{
-				/* Load the file now */
-				samples[event].wavs[num] = Mix_LoadMUS(path);
-				if (!samples[event].wavs[num])
-				{
-					plog_fmt("%s: %s", SDL_GetError(), strerror(errno));
-					goto next_token;
-				}
-			}
-
-			/* Imcrement the sample count */
-			samples[event].num++;
-
-		next_token:
-
-			/* Figure out next token */
-			cur_token = next_token;
-			if (next_token)
-			{
-				/* Try to find a space */
-				search = strchr(cur_token, ' ');
-
-				/* If we can find one, terminate, and set new "next" */
-				if (search)
-				{
-					search[0] = '\0';
-					next_token = search + 1;
-				}
-				else
-				{
-					/* Otherwise prevent infinite looping */
-					next_token = NULL;
-				}
-			}
+	  int num = samples[event].num;
+	  
+	  /* Don't allow too many samples */
+	  if (num >= MAX_SAMPLES) break;
+	  
+	  /* Build the path to the sample */
+	  path_build(path, sizeof(path), ANGBAND_DIR_XTRA_SOUND, cur_token);
+	  if (!file_exists(path)) goto next_token;
+	  
+	  /* Don't load now if we're not caching */
+	  if (no_cache)
+	    {
+	      /* Just save the path for later */
+	      samples[event].paths[num] = (char *)string_make(path);
+	    }
+	  else
+	    {
+	      /* Load the file now */
+	      samples[event].wavs[num] = Mix_LoadMUS(path);
+	      if (!samples[event].wavs[num])
+		{
+		  plog_fmt("%s: %s", SDL_GetError(), strerror(errno));
+		  goto next_token;
 		}
+	    }
+	  
+	  /* Imcrement the sample count */
+	  samples[event].num++;
+	  
+	next_token:
+	  
+	  /* Figure out next token */
+	  cur_token = next_token;
+	  if (next_token)
+	    {
+	      /* Try to find a space */
+	      search = strchr(cur_token, ' ');
+	      
+	      /* If we can find one, terminate, and set new "next" */
+	      if (search)
+		{
+		  search[0] = '\0';
+		  next_token = search + 1;
+		}
+	      else
+		{
+		  /* Otherwise prevent infinite looping */
+		  next_token = NULL;
+		}
+	    }
 	}
-
-	/* Close the file */
-	file_close(fff);
-
-
-	/* Success */
-	return TRUE;
+    }
+  
+  /* Close the file */
+  file_close(fff);
+  
+  
+  /* Success */
+  return TRUE;
 }
 
 /*

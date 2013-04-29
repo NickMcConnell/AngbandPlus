@@ -655,6 +655,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   bool append_name;
   
   bool show_weapon;
+  bool show_to_h;
+  bool show_to_d;
   bool show_armour;
   
   bool fake_art;
@@ -712,6 +714,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   
   /* Assume no need to show "weapon" bonuses */
   show_weapon = FALSE;
+  show_to_h = FALSE;
+  show_to_d = FALSE;
   
   /* Assume no need to show "armour" bonuses */
   show_armour = FALSE;
@@ -1147,9 +1151,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       
       object_desc_chr_macro(t, ' ');
       object_desc_str_macro(t, (e_name + e_ptr->name));
-      
-      /* Hack - Now we know about the ego-item type */
-      e_info[o_ptr->name2].everseen = TRUE;
     }
     
   
@@ -1257,14 +1258,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
       
       
+      /* Display skill bonus  */
+      if (o_ptr->to_h && ((o_ptr->id_other & IF_TO_H) || k_ptr->to_h))
+	show_to_h = TRUE;
+
+      /* Display deadliness bonus  */
+      if (o_ptr->to_d && ((o_ptr->id_other & IF_TO_D) || k_ptr->to_d))
+	show_to_d = TRUE;
+
       /* Display the item like a weapon */
-      if (o_ptr->flags_obj & (OF_SHOW_MODS)) show_weapon = TRUE;
-      
-      /* Display the item like a weapon */
-      if (o_ptr->to_h && o_ptr->to_d) show_weapon = TRUE;
+      if ((o_ptr->flags_obj & (OF_SHOW_MODS)) || (show_to_h && show_to_d)) 
+	show_weapon = TRUE;
       
       /* Display the item like armour */
-      if (o_ptr->ac) show_armour = TRUE;
+      if (o_ptr->ac && ((o_ptr->id_other & IF_AC) || k_ptr->ac)) 
+	show_armour = TRUE;
       
       /* Dump base weapon info */
       switch (o_ptr->tval)
@@ -1346,7 +1354,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 	  
       /* Show the tohit if needed */
-      else if (o_ptr->to_h)
+      else if (show_to_h)
 	{
 	  object_desc_chr_macro(t, ' ');
 	  object_desc_chr_macro(t, p1);
@@ -1356,7 +1364,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 	  
       /* Show the todam if needed */
-      else if (o_ptr->to_d)
+      else if (show_to_d) 
 	{
 	  object_desc_chr_macro(t, ' ');
 	  object_desc_chr_macro(t, p1);

@@ -249,6 +249,8 @@ void do_cmd_wield(void)
   object_type *l_ptr = &inventory[INVEN_LITE];
 
   object_type object_type_body;
+
+  object_kind *k_ptr;
   
   cptr act;
   
@@ -295,7 +297,9 @@ void do_cmd_wield(void)
       o_ptr = &o_list[0 - item];
     }
   
-  
+  /* Get the object kind */
+  k_ptr = &k_info[o_ptr->k_idx];
+
   /* Throwing weapon or ammo? */
   throwing = ((o_ptr->flags_obj & OF_THROWING) ? TRUE : FALSE);
   
@@ -564,21 +568,18 @@ void do_cmd_wield(void)
     }
   
   /* Notice dice, AC, jewellery sensation ID and other obvious stuff */
-  notice_other((IF_DD_DS | IF_AC), slot + 1, NULL);
+  notice_other((IF_DD_DS | IF_AC), slot + 1);
   o_ptr->id_obj |= ((o_ptr->flags_obj) & OF_OBVIOUS_MASK);
-  if (is_armour(o_ptr)) notice_other(IF_TO_H, slot + 1, NULL);
+  if (is_armour(o_ptr) && k_ptr->to_h) notice_other(IF_TO_H, slot + 1);
   if ((slot == INVEN_RIGHT) || (slot == INVEN_LEFT) || (slot == INVEN_NECK))
     {
       notice_obj(p_ptr->id_obj, slot + 1);
-      notice_other(p_ptr->id_other, slot + 1, NULL);
+      notice_other(p_ptr->id_other, slot + 1);
     }
 
   /* Average things are average */
-  if (o_ptr->feel == FEEL_AVERAGE)
-    {
-      if (is_weapon(o_ptr)) notice_other((IF_TO_H | IF_TO_D), slot + 1, NULL);
-      if (is_armour(o_ptr)) notice_other((IF_AC | IF_TO_A), slot + 1, NULL);
-    }
+  if ((o_ptr->feel == FEEL_AVERAGE) && (is_weapon(o_ptr) || is_armour(o_ptr)))
+    notice_other((IF_AC | IF_TO_A | IF_TO_H | IF_TO_D), slot + 1);
 
   /* Object has been worn */
   o_ptr->ident |= IDENT_WORN;
@@ -2308,7 +2309,7 @@ void py_steal(int y, int x)
  * but an old trap can be disarmed to free up equipment for a new trap.
  * -LM-
  */
-void py_set_trap(int y, int x)
+bool py_set_trap(int y, int x)
 {
   int max_traps;
   s16b this_o_idx, next_o_idx = 0;
@@ -2320,20 +2321,20 @@ void py_set_trap(int y, int x)
   if (p_ptr->blind || no_lite())
     {
       msg_print("You can not see to set a trap.");
-      return;
+      return FALSE;
     }
   
   if (p_ptr->confused || p_ptr->image)
     {
       msg_print("You are too confused.");
-      return;
+      return FALSE;
     }
   
-  /* Paranoia -- Forbid more than one trap being set. */
+  /* Paranoia -- Forbid more than max_traps being set. */
   if (num_trap_on_level >= max_traps)
     {
       msg_print("You must disarm your existing trap to free up your equipment.");
-      return;
+      return FALSE;
     }
   
   /* No setting traps while shapeshifted */
@@ -2341,7 +2342,7 @@ void py_set_trap(int y, int x)
     {
       msg_print("You can not set traps while shapechanged.");
       msg_print("Use the ']' command to return to your normal form.");
-      return;
+      return FALSE;
     }
   
   /* Scan all objects in the grid */
@@ -2357,14 +2358,14 @@ void py_set_trap(int y, int x)
       if (o_ptr->name1)
 	{
 	  msg_print("There is an indestructible object here.");
-	  return;
+	  return FALSE;
 	}
     }
 
   /* Verify */
   if (cave_o_idx[y][x]) 
     {
-      if (!get_check("Destroy all items and set a trap?")) return;
+      if (!get_check("Destroy all items and set a trap?")) return FALSE;
       else
 	{
 	  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -2392,6 +2393,9 @@ void py_set_trap(int y, int x)
   
   /* Increment the number of monster traps. */
   num_trap_on_level++;
+
+  /* A trap has been set */
+  return TRUE;
 }
 
 /* Trap coordinates */
@@ -2517,18 +2521,18 @@ bool trap_menu(void)
 /* 
  * Turn a basic monster trap into an advanced one -BR-
  */
-void py_modify_trap(int y, int x)
+bool py_modify_trap(int y, int x)
 {
   if (p_ptr->blind || no_lite())
     {
       msg_print("You can not see to modify your trap.");
-      return;
+      return FALSE;
     }
   
   if (p_ptr->confused || p_ptr->image)
     {
       msg_print("You are too confused.");
-      return;
+      return FALSE;
     }
   
   /* No setting traps while shapeshifted */
@@ -2536,7 +2540,7 @@ void py_modify_trap(int y, int x)
     {
       msg_print("You can not set traps while shapechanged.");
       msg_print("Use the ']' command to return to your normal form.");
-      return;
+      return FALSE;
     }
   
   trap_y = y;
@@ -2548,5 +2552,8 @@ void py_modify_trap(int y, int x)
       /* Notify the player. */
       msg_print("You modify the monster trap.");
     }
+
+  /* Trap was modified */
+  return TRUE;
 }
 

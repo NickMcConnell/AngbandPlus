@@ -93,7 +93,7 @@ static cptr f_info_flags[] =
     "TF_M_TRAP",
     "TF_STAIR",
     "TF_RUNE",
-    "XX30",
+    "TF_DOOR_JAMMED",
     "XX31",
     "XX32"
   };

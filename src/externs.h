@@ -478,7 +478,7 @@ extern bool has_ego_properties(object_type *o_ptr);
 extern u32b flags_other(object_type *o_ptr);
 extern void notice_curse(u32b curse_flag, int item);
 extern void notice_obj(u32b obj_flag, int item);
-extern void notice_other(u32b other_flag, int item, object_type *o_ptr);
+extern void notice_other(u32b other_flag, int item);
 
 /* info.c */
 extern char *obj_class_info[101];

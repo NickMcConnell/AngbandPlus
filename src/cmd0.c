@@ -1527,6 +1527,9 @@ void do_cmd_mousepress(void)
   int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
   int x = KEY_GRID_X(p_ptr->command_cmd_ex);
   
+  /* Exit if the player doesn't want to use the mouse */
+  if (!mouse_buttons) return;
+
   /* Find out where we've clicked */
   area = click_area(p_ptr->command_cmd_ex);
 

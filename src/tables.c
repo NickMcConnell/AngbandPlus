@@ -2671,7 +2671,7 @@ cptr option_text[OPT_MAX] =
     "verify_special",			/* OPT_verify_special */
     "ring_bell",			/* OPT_ring_bell */
     "verify_destroy_junk",		/* OPT_verify_destroy_junk */
-    NULL,			
+    "pickup_inven",		        /* OPT_pickup_inven */
     "auto_scum",			/* OPT_auto_scum */
     "easy_open",			/* OPT_easy_open   -TNB- */
     "easy_disarm",			/* OPT_easy_disarm   -TNB- */
@@ -2826,7 +2826,7 @@ cptr option_desc[OPT_MAX] =
     "Verify use of special commands",	    /* OPT_verify_special */
     "Audible bell (on errors, etc)",	    /* OPT_ring_bell */
     "Verify destruction of worthless objects", /* OPT_verify_destroy_junk */
-    NULL,
+    "Always pickup items matching inventory", /* OPT_pickup_inven */
     "Auto-scum for good levels",	    /* OPT_auto_scum */
     "Open and close doors automatically",   /* OPT_easy_open  -TBN- */
     "Disarm traps automatically",	    /* OPT_easy_disarm   -TNB- */
@@ -2838,7 +2838,7 @@ cptr option_desc[OPT_MAX] =
     "Generate dungeons with connected stairs", /* OPT_dungeon_stair */
     "Auto-squelched items are immediately destroyed", /*OPT_strong_squelch */
     "Status is shown at the bottom of the screen", /* OPT_bottom_status */
-    "Buttons for common mouse commands are shown", /* OPT_mouse_buttons */
+    "Mouse commands are enabled",           /* OPT_mouse_buttons */
     "Enter key brings up command menu",     /* OPT_show_menus */
     "Allow accents in output files",        /* OPT_xchars_to_file */
     "Monsters exploit players weaknesses",  /* OPT_smart_cheat */
@@ -2885,7 +2885,7 @@ cptr option_desc[OPT_MAX] =
     "Birth: Use Autoroller if rolling for stats",  /* OPT_birth_auto_roller */
     "Birth: Have notes written to a file",         /* OPT_birth_take_notes */
     "Birth: No special feelings/artifacts preserved",/* OPT_birth_preserve */ 
-    "Birth: No selling to stores                    ",/* OPT_birth_notes_save */
+    "Birth: No selling to stores                      ",/* OPT_birth_no_sell */
     "Birth: Never return to less danger before winning",/* OPT_birth_ironman */
     "Birth: Start as a thrall at the gate of Angband  ", /* OPT_birth_thrall */
     "Birth: View and spell distances halved           ", /* OPT_birth_small_device */
@@ -2917,7 +2917,7 @@ cptr option_desc[OPT_MAX] =
     "Adult: Use Autoroller if rolling for stats",  /* OPT_adult_auto_roller */
     "Adult: Have notes written to a file",         /* OPT_adult_take_notes */
     "Adult: Artifacts preserved & no special feelings",/* OPT_adult_preserve*/ 
-    "Adult: No selling to stores                    ",/* OPT_adult_notes_save */
+    "Adult: No selling to stores                    ",/* OPT_adult_no_sell */
     "Adult: Never return to less danger before winning", /* OPT_adult_ironman */
     "Adult: Start as a thrall at the gate of Angband  ", /* OPT_adult_thrall */
     "Adult: View and spell distances halved           ",      /* OPT_adult_small_device */
@@ -2981,7 +2981,7 @@ bool option_norm[OPT_MAX] =
     TRUE,		/* OPT_verify_special */
     TRUE,		/* OPT_ring_bell */
     TRUE,		/* OPT_verify_destroy_junk */
-    FALSE,
+    TRUE,		/* OPT_pickup_inven */
     FALSE,		/* OPT_auto_scum */
     TRUE,		/* OPT_easy_open */
     FALSE,		/* OPT_easy_disarm */
@@ -3166,9 +3166,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_stack_force_notes,
       OPT_stack_force_costs,
       OPT_always_pickup,
+      OPT_pickup_inven,
       OPT_always_repeat,
       OPT_smart_cheat,
-      OPT_NONE,
       OPT_NONE,
       OPT_NONE,
       OPT_NONE,
@@ -4238,7 +4238,7 @@ int dungeon_map[NUM_STAGES][9] =
   /* 28  */ {AMON_RUDH       ,  27,   0,   0,   0,   0,  27,  29,   CAVE},
   /* 29  */ {AMON_RUDH       ,  28,   0,   0,   0,   0,  28,  30,   CAVE},
   /* 30  */ {AMON_RUDH       ,  29,   0,   0,   0,   0,  29,  31,   CAVE},
-  /* 31  */ {AMON_RUDH       ,  30,   0,   0,   0,   0,  30,   0,   CAVE},
+  /* 31  */ {AMON_RUDH       ,  30,   0,   0,   0,   0,  30,  32,   CAVE},
   /* 32  */ {NARGOTHROND     ,  31,   0,   0,   0,   0,   0,  33,   CAVE},
   /* 33  */ {NARGOTHROND     ,  32,   0,   0,   0,   0,  32,  34,   CAVE},
   /* 34  */ {NARGOTHROND     ,  33,   0,   0,   0,   0,  33,  35,   CAVE},
@@ -4263,7 +4263,7 @@ int dungeon_map[NUM_STAGES][9] =
   /* 53  */ {NARGOTHROND     ,  52,   0,   0,   0,   0,  52,  54,   CAVE},
   /* 54  */ {NARGOTHROND     ,  53,   0,   0,   0,   0,  53,  55,   CAVE},
   /* 55  */ {NARGOTHROND     ,  54,   0,   0,   0,   0,  54,  56,   CAVE},
-  /* 56  */ {NARGOTHROND     ,  55,   0,   0,   0,   0,  55,   0,   CAVE},
+  /* 56  */ {NARGOTHROND     ,  55,   0,   0,   0,   0,  55,  57,   CAVE},
   /* 57  */ {NAN_DUNGORTHEB  ,  56,   0,   0,  58,   0,   0,   0,   VALLEY},
   /* 58  */ {NAN_DUNGORTHEB  ,  57,   0,   0,  59,   0,   0,   0,   VALLEY},
   /* 59  */ {NAN_DUNGORTHEB  ,  58,   0,   0,  60,   0,   0,   0,   VALLEY},
@@ -4278,7 +4278,7 @@ int dungeon_map[NUM_STAGES][9] =
   /* 68  */ {NAN_DUNGORTHEB  ,  67,   0,   0,  69,   0,   0,   0,   VALLEY},
   /* 69  */ {NAN_DUNGORTHEB  ,  68,   0,   0,  70,   0,   0,   0,   VALLEY},
   /* 70  */ {NAN_DUNGORTHEB  ,  69,   0,   0,  71,   0,   0,   0,   VALLEY},
-  /* 71  */ {NAN_DUNGORTHEB  ,  70,   0,   0,   0,   0,   0,   0,   VALLEY},
+  /* 71  */ {NAN_DUNGORTHEB  ,  70,   0,   0,   0,   0,   0,  72,   VALLEY},
   /* 72  */ {TOL_IN_GAURHOTH ,  71,   0,   0,   0,   0,   0,  73,   CAVE},
   /* 73  */ {TOL_IN_GAURHOTH ,  72,   0,   0,   0,   0,  72,  74,   CAVE},
   /* 74  */ {TOL_IN_GAURHOTH ,  73,   0,   0,   0,   0,  73,  75,   CAVE},
@@ -4293,7 +4293,7 @@ int dungeon_map[NUM_STAGES][9] =
   /* 83  */ {TOL_IN_GAURHOTH ,  82,   0,   0,   0,   0,  82,  84,   CAVE},
   /* 84  */ {TOL_IN_GAURHOTH ,  83,   0,   0,   0,   0,  83,  85,   CAVE},
   /* 85  */ {TOL_IN_GAURHOTH ,  84,   0,   0,   0,   0,  84,  86,   CAVE},
-  /* 86  */ {TOL_IN_GAURHOTH ,  85,   0,   0,   0,   0,  85,   0,   CAVE},
+  /* 86  */ {TOL_IN_GAURHOTH ,  85,   0,   0,   0,   0,  85,  87,   CAVE},
   /* 87  */ {ANGBAND         ,  86,   0,   0,   0,   0,   0,  88,   CAVE},
   /* 88  */ {ANGBAND         ,  87,   0,   0,   0,   0,  87,  89,   CAVE},
   /* 89  */ {ANGBAND         ,  88,   0,   0,   0,   0,  88,  90,   CAVE},

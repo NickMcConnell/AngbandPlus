@@ -1320,17 +1320,16 @@ static void alloc_stairs(int feat, int num, int walls)
 	  if (no_up_shaft && (feat == FEAT_LESS_SHAFT))
 	    return;
 	  
-	  /* Town -- must go down */
-	  if (!p_ptr->depth)
+	  /* Town or no way up -- must go down */
+	  if ((!p_ptr->depth) || (!stage_map[p_ptr->stage][UP]))
 	    {
 	      /* Clear previous contents, add down stairs */
 	      if (feat != FEAT_MORE_SHAFT) cave_set_feat(y, x, FEAT_MORE);
 	    }
 	  
 	  /* Bottom of dungeon, quest or underworld -- must go up */
-	  else if ((is_quest(p_ptr->stage) && 
-		    !(adult_dungeon && stage_map[p_ptr->stage][DOWN]))
-		   || (!stage_map[p_ptr->stage][DOWN]) || (underworld))
+	  else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]) 
+		   || (underworld))
 	    {
 	      /* Clear previous contents, add up stairs */
 	      if (feat != FEAT_LESS_SHAFT) cave_set_feat(y, x, FEAT_LESS);

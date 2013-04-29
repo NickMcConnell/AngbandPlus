@@ -209,7 +209,7 @@ void do_cmd_eat_food(void)
 	  }
 	else 
 	  {
-	    notice_other(IF_RES_CONFU, 0, NULL);
+	    notice_other(IF_RES_CONFU, 0);
 	    ident = TRUE;
 	  }
 	break;
@@ -226,7 +226,7 @@ void do_cmd_eat_food(void)
 	  }
 	else 
 	  {
-	    notice_other(IF_RES_CHAOS, 0, NULL);
+	    notice_other(IF_RES_CHAOS, 0);
 	    ident = TRUE;
 	  }
 	break;
@@ -564,7 +564,7 @@ void do_cmd_quaff_potion(void)
 	  }
 	else 
 	  {
-	    notice_other(IF_RES_CONFU, 0, NULL);
+	    notice_other(IF_RES_CONFU, 0);
 	    ident = TRUE;
 	  }
 	break;
@@ -3232,9 +3232,6 @@ void do_cmd_activate(void)
     }
   
   
-  /* Take a turn */
-  p_ptr->energy_use = 100;
-  
   /* Extract the item level */
   lev = k_info[o_ptr->k_idx].level;
   
@@ -3271,6 +3268,9 @@ void do_cmd_activate(void)
       if (flush_failure) flush();
       msg_print("You failed to activate it properly.");
       item_tester_tval = 0;
+  
+      /* Take a turn */
+      p_ptr->energy_use = 100;
       return;
     }
   
@@ -3279,6 +3279,9 @@ void do_cmd_activate(void)
     {
       msg_print("It whines, glows and fades...");
       item_tester_tval = 0;
+  
+      /* Take a turn */
+      p_ptr->energy_use = 100;
       return;
     }
   
@@ -5207,6 +5210,9 @@ void do_cmd_activate(void)
       break;
     }
   
+  /* Take a turn */
+  p_ptr->energy_use = 100;
+
   /* Window stuff */
   p_ptr->window |= (PW_INVEN | PW_EQUIP);
   
