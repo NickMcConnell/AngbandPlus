@@ -406,6 +406,14 @@ static tval_desc tvals[] =
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+        { TV_HOLD,              "Container"            },
+        { TV_FIGURE,            "Figurine"             },
+	{ TV_STATUE,		"Statue"	       },
+        { TV_BONE,              "Skeleton"             },
+	{ TV_BODY,		"Corpse"	       },
+	{ TV_EGG,		"Egg"		       },
+	{ TV_SKIN,		"Skin"		       },
+        { TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };
 

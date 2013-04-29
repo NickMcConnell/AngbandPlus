@@ -1051,7 +1051,7 @@ static void enchant_item(byte tval, int plev)
                 {
                         case TV_POTION:
                         {
-                                kind = lookup_kind(TV_BOTTLE,1);
+                                kind = lookup_kind(TV_HOLD,1);
                                 break;
                         }
                 /* XXX Really need some junk for each of these */

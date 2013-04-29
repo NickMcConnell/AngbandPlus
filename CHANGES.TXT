@@ -1,3 +1,11 @@
+26-12-2001 Unangband 0.4.7a Bugfix release
+- Fixed bug with statues resulting in infinite loops.
+- Fixed further bugs with monster body generation that
+could cause infinite loops in certain circumstances.
+- Added rock hounds.
+- Added bottles, cages, figurines, sacks, boxes.
+- Some internal changes to tval/sval names.
+
 26-12-2001 Unangband 0.4.7 "Silent Night release"
 - Modified monster drops so that each tval will only
 be dropped by some types of monsters.

@@ -164,7 +164,6 @@
  * Hack -- Dungeon allocation "types"
  */
 #define ALLOC_TYP_RUBBLE        1       /* Rubble */
-#define ALLOC_TYP_CHEST         2       /* Chest */
 #define ALLOC_TYP_TRAP          3       /* Trap */
 #define ALLOC_TYP_GOLD          4       /* Gold */
 #define ALLOC_TYP_OBJECT        5       /* Object */
@@ -564,12 +563,6 @@ static void alloc_object(int set, int typ, int num)
 				place_object(y, x, FALSE, FALSE);
 				break;
 			}
-
-                        case ALLOC_TYP_CHEST:
-                        {
-                                place_chest(y, x);
-                                break;
-                        }
 
 			case ALLOC_TYP_FEATURE:
 			{
@@ -4586,11 +4579,8 @@ static void cave_gen(void)
 		/* Place some traps in the dungeon */
 		alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
 
-		/* Place a chest in a room */
-		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_CHEST, 1);
-
-		/* Place a feature in a room */
-		alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, 1);
+                /* Place some features in rooms */
+                alloc_object(ALLOC_SET_ROOM, ALLOC_TYP_FEATURE, randint(k/2));
 
 		/* Determine the character location */
 		new_player_spot();

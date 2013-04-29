@@ -766,6 +766,18 @@ static void py_pickup_aux(int o_idx)
                 /* Take turn */
                 p_ptr->energy_use = 100;
 
+                /* Containers release contents */
+                if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
+                {
+                        if (animate_object(-o_idx)) return;
+        
+                        /* Message */
+                        msg_format("You cannot destroy %s.", o_name);
+        
+                        return;
+                }
+
+
                 /* Artifacts cannot be destroyed */
                 if (artifact_p(o_ptr))
                 {

@@ -3882,7 +3882,7 @@ B:BITE:HURT:3d4
 F:MALE | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK
 D:He is a giant troll with scabrous black skin.
 
 N:292:Troll priest
@@ -13415,6 +13415,24 @@ B:HIT:HURT:6d3
 F:CAN_SWIM | MUST_SWIM |
 F:MALE
 D:A race of fair yet belligrent sea elves.
+
+N:951:Rock hound
+G:Z:U
+I:110:30d8:30:30:0
+W:30:1:0:500
+B:BITE:HURT:1d8
+B:BITE:HURT:1d8
+B:CLAW:HURT:3d3
+B:CLAW:HURT:3d3
+F:FORCE_SLEEP | 
+F:FRIENDS | 
+F:BASH_DOOR | 
+F:ANIMAL | CAN_DIG | KILL_WALL
+S:1_IN_10 | 
+S:BR_SHAR
+D:A beautiful crystalline shape does not disguise the danger this hound 
+D:clearly presents.  Your flesh tingles as it approaches.
+
 N:954:Gibbering mouther
 G:j:o
 I:110:6d6:15:14:20
@@ -14804,8 +14822,8 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
-D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK
+D:Big, brawny, stupid and with a taste for dwarf.  He has friends called
 D:Bill and Tom.
 
 N:1079:Bill, the Stone troll
@@ -14819,7 +14837,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK
 D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
 D:Bill and Tom.
 
@@ -14834,7 +14852,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR |
-F:EVIL | TROLL | HURT_LITE | HURT_ROCK | REGENERATE
+F:EVIL | TROLL | HURT_LITE | HURT_ROCK
 D:Big, brawny, stupid and with a taste for dwarf.  He has friends called 
 D:Bill and Tom.
 

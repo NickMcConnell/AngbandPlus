@@ -2620,8 +2620,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 	return (TRUE);
 }
 
-
-
 /*
  * Let the given object become alive.
  *
@@ -2705,11 +2703,11 @@ bool animate_object(int item)
                         p = "hatched.";
                         break;
                 case TV_BODY:
-                case TV_SKELETON:
+                case TV_BONE:
                         p = "come back from the dead!";
                         break;
                 default:
-                        p = "been alive all along!";
+                        p = "come to life!";
                         break;
         }
 

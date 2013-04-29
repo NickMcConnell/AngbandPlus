@@ -712,7 +712,7 @@ static u32b hack_rf7_flags[52]=
          RF7_HAS_LEG | RF7_HAS_HAND | RF7_HAS_HEAD | RF7_HAS_BLOOD |
          RF7_DROP_ARMOR | RF7_DROP_FOOD | RF7_DROP_WEAPON | RF7_DROP_CLOTHES |
          RF7_DROP_POTION | RF7_DROP_LITE | RF7_DROP_WRITING | RF7_DROP_RSW | RF7_DROP_JEWELRY),
-        (RF7_DROP_JUNK),
+        (RF7_HAS_SPORE | RF7_DROP_JUNK),
         (RF7_HAS_CORPSE | RF7_HAS_SKULL | RF7_HAS_BLOOD | RF7_HAS_TEETH |
          RF7_HAS_SKIN |
          RF7_DROP_POTION | RF7_DROP_WRITING),
@@ -3866,8 +3866,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
                                 case RBM_CLAW:
                                         r_ptr->flags7 |= RF7_HAS_CLAW;
                                         break;
-                                case RBM_BUTT:
-                                        r_ptr->flags7 |= RF7_HAS_HORN;
+                                case RBM_SPORE:
+                                        r_ptr->flags7 |= RF7_HAS_SPORE;
                                         break;
                                 case RBM_SHOOT:
                                         r_ptr->flags7 |= RF7_DROP_MISSILE;

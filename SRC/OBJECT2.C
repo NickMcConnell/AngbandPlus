@@ -1555,9 +1555,11 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
                 /* Bodies, Skeletons, Skins, Eggs, Statues */
 		case TV_STATUE:
                 case TV_EGG:
-                case TV_SKELETON:
+                case TV_BONE:
                 case TV_BODY:
                 case TV_SKIN:
+                case TV_HOLD:
+                case TV_FIGURE:
 		{
                         /* Okay if same type */
                         if ((o_ptr->dropped > 0) || (j_ptr->dropped > 0))
@@ -3062,7 +3064,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 
                 case TV_EGG:
                 {
-                        /* Hack -- eggs will hatch */
+                        /* Hack -- eggs/spores will hatch */
                         if (o_ptr->dropped) o_ptr->timeout = o_ptr->weight * damroll(2,6) * 10;
                 }
 
@@ -3410,8 +3412,9 @@ static void modify_weight(object_type *j_ptr, int r_idx)
         monster_race *r_ptr = &r_info[r_idx];
 
         /* Are we done? */
-        if ((j_ptr->tval != TV_SKELETON) && (j_ptr->tval != TV_EGG)
-                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY)) return;
+        if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG)
+                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
+                (j_ptr->tval != TV_HOLD)) return;
 
         /* Hack -- Increase weight */
         if ((r_ptr->d_char >='A') && (r_ptr->d_char <='Z'))
@@ -3425,13 +3428,6 @@ static void modify_weight(object_type *j_ptr, int r_idx)
                 j_ptr->weight *= j_ptr->weight * hack_body_weight[r_ptr->d_char-'a'+ 26] / 10;
         }
 
-        /* Hack -- Maximum egg weight */
-        if ((j_ptr->tval == TV_EGG) && (j_ptr->weight > 200))
-        {
-                j_ptr->weight = 200;
-        }
-
-
 }
 
 /*
@@ -3440,48 +3436,65 @@ static void modify_weight(object_type *j_ptr, int r_idx)
  */
 static void record_drop(object_type *j_ptr)
 {
+        int count = 0;
 
         /* Hack -- note dropped on floor */
         j_ptr->dropped = 0 - p_ptr->depth;
 
         /* Are we done? */
-        if ((j_ptr->tval != TV_SKELETON) && (j_ptr->tval != TV_EGG)
-                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY)) return;
+        if ((j_ptr->tval != TV_BONE) && (j_ptr->tval != TV_EGG)
+                && (j_ptr->tval != TV_SKIN) && (j_ptr->tval != TV_BODY) &&
+                (j_ptr->tval != TV_HOLD) && (j_ptr->tval != TV_FIGURE)) return;
 
         /*
          * Hack -- flavor some items.
          * Note we have to flavor all items generated as a monster drop,
          * because otherwise we end up with weird body parts.
+         *
+         * Note loop counter that if exceeded will mean item is not flavoured.
+         *
+         * This should not produce weird body parts because we should not
+         * be placing monster drops with a restriction on monster races in
+         * place. XXX XXX
          */
 
         if ((rand_int(100) < (30+ (p_ptr->depth/2))) || (race_drop_idx))
         {
                 int r_idx;
 
-                while (1)
+                while (count < 200)
                 {
                         monster_race *r_ptr;
 
                         /* Generate monster appropriate for level */
                         r_idx = get_mon_num(p_ptr->depth);
 
+                        /* Tried */
+                        count++;
+
+                        /* Failure? */
+                        if (!r_idx) continue;
+
                         r_ptr = &r_info[r_idx];
 
                         /* Skip uniques */
-                        if (r_ptr->flags1 & (RF1_UNIQUE)) continue;
+                        if ((j_ptr->tval != TV_STATUE) && (r_ptr->flags1 & (RF1_UNIQUE))) continue;
 
-                        if (j_ptr->tval == TV_SKELETON)
+                        if (j_ptr->tval == TV_BONE)
                         {
                                 /* Skip if monster does not have body part */
-                                if ((j_ptr->sval == SV_SKULL) && !(r_ptr->flags7 & (RF7_HAS_SKULL))) continue;
-                                else if ((j_ptr->sval == SV_BONE) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
-                                else if ((j_ptr->sval == SV_SKELETON) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
-                                else if ((j_ptr->sval == SV_TEETH) && !(r_ptr->flags7 & (RF7_HAS_TEETH))) continue;
+                                if ((j_ptr->sval == SV_BONE_SKULL) && !(r_ptr->flags7 & (RF7_HAS_SKULL))) continue;
+                                else if ((j_ptr->sval == SV_BONE_BONE) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
+                                else if ((j_ptr->sval == SV_BONE_SKELETON) && !(r_ptr->flags7 & (RF7_HAS_SKELETON))) continue;
+                                else if ((j_ptr->sval == SV_BONE_TEETH) && !(r_ptr->flags7 & (RF7_HAS_TEETH))) continue;
                         }
                         else if (j_ptr->tval == TV_EGG)
                         {
+                                /* Spore shooters have spores */
+                                if ((j_ptr->sval == SV_EGG_SPORE) && !(r_ptr->flags7 & (RF7_HAS_SPORE))) continue;
+
                                 /* Egg-layers shed their skin or have feathers or scales */
-                                if (!(r_ptr->flags7 & (RF7_HAS_SKIN | RF7_HAS_FEATHER | RF7_HAS_SCALE))) continue;
+                                else if ((j_ptr->sval == SV_EGG_EGG) || (!(r_ptr->flags7 & (RF7_HAS_SKIN | RF7_HAS_FEATHER | RF7_HAS_SCALE)))) continue;
 
                                 /* Undead/demons never have eggs */
                                 if (r_ptr->flags3 & (RF3_UNDEAD | RF3_DEMON)) continue;
@@ -3493,39 +3506,59 @@ static void record_drop(object_type *j_ptr)
                         else if (j_ptr->tval == TV_SKIN)
                         {
                                 /* Skip if monster does not have body part */
-                                if ((j_ptr->sval == SV_FEATHER) && !(r_ptr->flags7 & (RF7_HAS_FEATHER))) continue;
-                                else if ((j_ptr->sval == SV_SCALE) && !(r_ptr->flags7 & (RF7_HAS_SCALE))) continue;
-                                else if ((j_ptr->sval == SV_FUR) && !(r_ptr->flags7 & (RF7_HAS_FUR))) continue;
+                                if ((j_ptr->sval == SV_SKIN_FEATHER) && !(r_ptr->flags7 & (RF7_HAS_FEATHER))) continue;
+                                else if ((j_ptr->sval == SV_SKIN_SCALE) && !(r_ptr->flags7 & (RF7_HAS_SCALE))) continue;
+                                else if ((j_ptr->sval == SV_SKIN_FUR) && !(r_ptr->flags7 & (RF7_HAS_FUR))) continue;
         
                                 /* Hack -- we allow lots of skins, Mr Lecter */
-                                else if ((j_ptr->sval == SV_SKIN) && !(r_ptr->flags7 & (RF7_HAS_SLIME | RF7_HAS_FEATHER | RF7_HAS_SCALE | RF7_HAS_FUR))
+                                else if ((j_ptr->sval == SV_SKIN_SKIN) && !(r_ptr->flags7 & (RF7_HAS_SLIME | RF7_HAS_FEATHER | RF7_HAS_SCALE | RF7_HAS_FUR))
                                         && (r_ptr->flags7 & (RF7_HAS_CORPSE))) continue;
 
                         }
                         else if (j_ptr->tval == TV_BODY)
                         {
                                 /* Skip if monster does not have body part */
-                                if ((j_ptr->sval == SV_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HEAD))) continue;
-                                else if ((j_ptr->sval == SV_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HAND))) continue;
-                                else if ((j_ptr->sval == SV_ARM) && !(r_ptr->flags7 & (RF7_HAS_ARM))) continue;
-                                else if ((j_ptr->sval == SV_LEG) && !(r_ptr->flags7 & (RF7_HAS_LEG))) continue;
-                                else if ((j_ptr->sval == SV_WING) && !(r_ptr->flags7 & (RF7_HAS_WING))) continue;
-                                else if ((j_ptr->sval == SV_CLAW) && !(r_ptr->flags7 & (RF7_HAS_CLAW))) continue;
-                                else if ((j_ptr->sval == SV_HORN) && !(r_ptr->flags7 & (RF7_HAS_HORN))) continue;
-                                else if ((j_ptr->sval == SV_BRANCH) && !(r_ptr->d_char == '<')) continue;
+                                if ((j_ptr->sval == SV_BODY_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HEAD))) continue;
+                                else if ((j_ptr->sval == SV_BODY_HEAD) && !(r_ptr->flags7 & (RF7_HAS_HAND))) continue;
+                                else if ((j_ptr->sval == SV_BODY_ARM) && !(r_ptr->flags7 & (RF7_HAS_ARM))) continue;
+                                else if ((j_ptr->sval == SV_BODY_LEG) && !(r_ptr->flags7 & (RF7_HAS_LEG))) continue;
+                                else if ((j_ptr->sval == SV_BODY_WING) && !(r_ptr->flags7 & (RF7_HAS_WING))) continue;
+                                else if ((j_ptr->sval == SV_BODY_CLAW) && !(r_ptr->flags7 & (RF7_HAS_CLAW))) continue;
+                                else if ((j_ptr->sval == SV_BODY_BRANCH) && !(r_ptr->d_char == '<')) continue;
                         }
-			else if (j_ptr->tval == TV_STATUE)
-			{
-				/* Must be important*/
-				if (!(r_ptr->flags1 & (RF1_UNIQUE))) continue;
-			}
+                        else if (j_ptr->tval == TV_HOLD)
+                        {
+                                /* Only fit elementals in bottles */
+                                if ((j_ptr->sval == SV_HOLD_BOTTLE) && !(r_ptr->d_char == 'E')) continue;
+
+                                /* Only fit non-spellcasters in sacks */
+                                else if ((j_ptr->sval == SV_HOLD_SACK) && !(r_ptr->flags4) && !(r_ptr->flags5) && !(r_ptr->flags6)) continue;
+
+                                /* Only fit undead in boxes */
+                                else if ((j_ptr->sval == SV_HOLD_BOX) && !(r_ptr->flags3 & (RF3_UNDEAD))) continue;
+
+                                /* Only fit animals in cages */
+                                else if ((j_ptr->sval == SV_HOLD_CAGE) && !(r_ptr->flags3 & (RF3_ANIMAL))) continue;
+                        }
+
+                        else if ((j_ptr->tval == TV_STATUE) || (j_ptr->tval == TV_FIGURE))
+                        {
+
+                                /* Skip never move/never blow */
+                                if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_NEVER_BLOW)) continue;
+
+                                /* Skip stupid */
+                                if (r_ptr->flags2 & (RF2_STUPID)) continue;
+
+                        }
+
+                        /* Flavor the skeleton */
+                        j_ptr->dropped = r_idx;
 
                         /* Accept */
                         break;
                 }
 
-                /* Flavor the skeleton */
-                j_ptr->dropped = r_idx;
         }
 }
 
@@ -3724,11 +3757,11 @@ static bool kind_is_race(int k_idx)
                         return (FALSE);
 		}
 
-
                 /* Bottles/Skeletons/Broken Pottery */
-                case TV_BOTTLE:
-                case TV_SKELETON:
+                case TV_BONE:
                 case TV_JUNK:
+                case TV_HOLD:
+                case TV_SKIN:
                 {
                         if (r_ptr->flags7 & (RF7_DROP_JUNK)) return (TRUE);
                         return (FALSE);
@@ -3972,7 +4005,7 @@ bool make_body(object_type *j_ptr, int r_idx)
         /* Hack -- handle trees */
         if (r_ptr->d_char == '<')
         {
-                k_idx = lookup_kind(TV_BODY,SV_STUMP);
+                k_idx = lookup_kind(TV_BODY,SV_BODY_STUMP);
 
                 object_prep(j_ptr,k_idx);
 #if 0
@@ -3986,12 +4019,14 @@ bool make_body(object_type *j_ptr, int r_idx)
         }
 
         /* No body */
-        if (!(r_ptr->flags7 & (RF7_HAS_CORPSE | RF7_HAS_SKELETON | RF7_HAS_SKULL))) return (FALSE);
+        if (!(r_ptr->flags7 & (RF7_HAS_CORPSE | RF7_HAS_SKELETON | RF7_HAS_SKULL | RF7_HAS_SPORE))) return (FALSE);
 
         /* Usually produce a corpse */
-        if (r_ptr->flags7 & (RF7_HAS_CORPSE)) k_idx = lookup_kind(TV_BODY,SV_CORPSE);
-        else if (r_ptr->flags7 & (RF7_HAS_SKELETON)) k_idx = lookup_kind(TV_SKELETON,SV_SKELETON);
-        else if (r_ptr->flags7 & (RF7_HAS_SKULL)) k_idx = lookup_kind(TV_SKELETON,SV_SKULL);
+        if (r_ptr->flags3 & (RF3_HURT_ROCK)) k_idx = lookup_kind(TV_STATUE,1);
+        else if (r_ptr->flags7 & (RF7_HAS_CORPSE)) k_idx = lookup_kind(TV_BODY,SV_BODY_CORPSE);
+        else if (r_ptr->flags7 & (RF7_HAS_SKELETON)) k_idx = lookup_kind(TV_BONE,SV_BONE_SKELETON);
+        else if (r_ptr->flags7 & (RF7_HAS_SKULL)) k_idx = lookup_kind(TV_BONE,SV_BONE_SKULL);
+        else if (r_ptr->flags7 & (RF7_HAS_SPORE)) k_idx = lookup_kind(TV_EGG,SV_EGG_SPORE);
 
         /* Prepare the object */
         object_prep(j_ptr, k_idx);
@@ -4024,7 +4059,7 @@ bool make_head(object_type *j_ptr, int r_idx)
         if (!(r_ptr->flags7 & (RF7_HAS_HEAD))) return (FALSE);
 
         /* Usually produce a corpse */
-        k_idx = lookup_kind(TV_BODY,SV_HEAD);
+        k_idx = lookup_kind(TV_BODY,SV_BODY_HEAD);
 
         /* Prepare the object */
         object_prep(j_ptr, k_idx);
@@ -4057,7 +4092,7 @@ bool make_part(object_type *j_ptr, int r_idx)
         /* Hack -- handle trees */
         if (r_ptr->d_char == '<')
         {
-                k_idx = lookup_kind(TV_BODY,SV_BRANCH);
+                k_idx = lookup_kind(TV_BODY,SV_BODY_BRANCH);
 
                 object_prep(j_ptr,k_idx);
 #if 0
@@ -4071,18 +4106,17 @@ bool make_part(object_type *j_ptr, int r_idx)
         }
 
         /* Usually hack off a hand or nearest approximation */
-        if (r_ptr->flags7 & (RF7_HAS_CLAW)) k_idx = lookup_kind(TV_BODY,SV_CLAW);
-        else if (r_ptr->flags7 & (RF7_HAS_HAND)) k_idx = lookup_kind(TV_BODY,SV_HAND);
-        else if (r_ptr->flags7 & (RF7_HAS_WING)) k_idx = lookup_kind(TV_BODY,SV_WING);
-        else if (r_ptr->flags7 & (RF7_HAS_ARM)) k_idx = lookup_kind(TV_BODY,SV_ARM);
-        else if (r_ptr->flags7 & (RF7_HAS_LEG)) k_idx = lookup_kind(TV_BODY,SV_LEG);
+        if (r_ptr->flags7 & (RF7_HAS_CLAW)) k_idx = lookup_kind(TV_BODY,SV_BODY_CLAW);
+        else if (r_ptr->flags7 & (RF7_HAS_HAND)) k_idx = lookup_kind(TV_BODY,SV_BODY_HAND);
+        else if (r_ptr->flags7 & (RF7_HAS_WING)) k_idx = lookup_kind(TV_BODY,SV_BODY_WING);
+        else if (r_ptr->flags7 & (RF7_HAS_ARM)) k_idx = lookup_kind(TV_BODY,SV_BODY_ARM);
+        else if (r_ptr->flags7 & (RF7_HAS_LEG)) k_idx = lookup_kind(TV_BODY,SV_BODY_LEG);
 
         /* Sometimes hack off something else */
-        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_ARM))) k_idx = lookup_kind(TV_BODY,SV_ARM);
-        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_LEG))) k_idx = lookup_kind(TV_BODY,SV_LEG);
-        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_WING))) k_idx = lookup_kind(TV_BODY,SV_WING);
-        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_HORN))) k_idx = lookup_kind(TV_BODY,SV_HORN);
-        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_TEETH))) k_idx = lookup_kind(TV_SKELETON,SV_TEETH);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_ARM))) k_idx = lookup_kind(TV_BODY,SV_BODY_ARM);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_LEG))) k_idx = lookup_kind(TV_BODY,SV_BODY_LEG);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_WING))) k_idx = lookup_kind(TV_BODY,SV_BODY_WING);
+        if ((rand_int(100)<30) &&(r_ptr->flags7 & (RF7_HAS_TEETH))) k_idx = lookup_kind(TV_BONE,SV_BONE_TEETH);
 
         /* Have a part */
         if (!k_idx) return(FALSE);
@@ -4117,10 +4151,10 @@ bool make_skin(object_type *j_ptr, int m_idx)
         monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
         /* Usually produce a skin */
-        if (r_ptr->flags7 & (RF7_HAS_SKIN)) k_idx = lookup_kind(TV_SKIN,SV_SKIN);
-        else if (r_ptr->flags7 & (RF7_HAS_FUR)) k_idx = lookup_kind(TV_BODY,SV_FUR);
-        else if (r_ptr->flags7 & (RF7_HAS_FEATHER)) k_idx = lookup_kind(TV_BODY,SV_FEATHER);
-        else if (r_ptr->flags7 & (RF7_HAS_SCALE)) k_idx = lookup_kind(TV_BODY,SV_SCALE);
+        if (r_ptr->flags7 & (RF7_HAS_SKIN)) k_idx = lookup_kind(TV_SKIN,SV_SKIN_SKIN);
+        else if (r_ptr->flags7 & (RF7_HAS_FUR)) k_idx = lookup_kind(TV_SKIN,SV_SKIN_FUR);
+        else if (r_ptr->flags7 & (RF7_HAS_FEATHER)) k_idx = lookup_kind(TV_SKIN,SV_SKIN_FEATHER);
+        else if (r_ptr->flags7 & (RF7_HAS_SCALE)) k_idx = lookup_kind(TV_SKIN,SV_SKIN_SCALE);
 
         /* No object? */
         if (!k_idx) return (FALSE);
@@ -4214,6 +4248,38 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 
 
 /*
+ * Let a monster fall to the ground near a location.
+ */
+void race_near(int r_idx, int y1, int x1)
+{
+        int i, x, y;
+
+	/* Try up to 18 times */
+	for (i = 0; i < 18; i++)
+	{
+		int d = 1;
+
+		/* Pick a location */
+                scatter(&y, &x, y1, x1, d, 0);
+
+		/* Require an "empty" floor grid */
+		if (!cave_empty_bold(y, x)) continue;
+
+		/* Require monster can survive on terrain */
+                if (!place_monster_here(y, x, r_idx)) continue;
+
+		/* Create a new monster (awake, no groups) */
+                (void)place_monster_aux(y, x, r_idx, FALSE, FALSE);
+
+                /* Hack -- monster does not drop anything */
+                m_list[cave_m_idx[y][x]].mflag |= (MFLAG_MADE);
+
+		/* Done */
+		break;
+	}
+}
+
+/*
  * Let an object fall to the ground at or near a location.
  *
  * The initial location is assumed to be "in_bounds_fully()".
@@ -4246,17 +4312,27 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 	bool plural = FALSE;
 
-
 	/* Extract plural */
 	if (j_ptr->number != 1) plural = TRUE;
 
 	/* Describe object */
-	object_desc(o_name, j_ptr, FALSE, 0);
-
+	object_desc(o_name, j_ptr, FALSE, 0);        
 
 	/* Handle normal "breakage" */
 	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
 	{
+                /* Containers/figurines release contents */
+                if (((j_ptr->tval == TV_FIGURE) || (j_ptr->tval == TV_HOLD))
+                        && (j_ptr->dropped > 0))
+                {
+                        while (j_ptr->number)
+                        {
+                                race_near(j_ptr->dropped, y, x);
+
+                                j_ptr->number--;
+                        }
+                }
+
 		/* Message */
 		msg_format("The %s disappear%s.",
 		           o_name, (plural ? "" : "s"));

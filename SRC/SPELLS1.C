@@ -563,11 +563,11 @@ static bool hates_acid(object_type *o_ptr)
 
 
 		/* Junk is useless */
-		case TV_SKELETON:
+                case TV_BONE:
                 case TV_BODY:
                 case TV_SKIN:
                 case TV_EGG:
-		case TV_BOTTLE:
+                case TV_HOLD:
 		case TV_JUNK:
 		{
 			return (TRUE);
@@ -648,7 +648,6 @@ static bool hates_cold(object_type *o_ptr)
 	{
 		case TV_POTION:
 		case TV_FLASK:
-		case TV_BOTTLE:
 		{
 			return (TRUE);
 		}
@@ -666,7 +665,7 @@ static bool hates_water(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
                 /* Hack -- immerse vampire skeletons in running water */
-                case TV_SKELETON:
+                case TV_BONE:
 		case TV_SCROLL:
 		case TV_FOOD:
 		{
@@ -2190,6 +2189,18 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		/* Attempt to destroy the object */
 		if (do_kill)
 		{
+                        /* Containers/figurines release contents */
+                        if (((o_ptr->tval == TV_FIGURE) || (o_ptr->tval == TV_HOLD))
+                                && (o_ptr->dropped > 0))
+                        {
+                                while (o_ptr->number)
+                                {
+                                        (void)(race_near(o_ptr->dropped, y, x));
+        
+                                        o_ptr->number--;
+                                }
+                        }
+
 			/* Effect "observed" */
 			if (o_ptr->marked)
 			{

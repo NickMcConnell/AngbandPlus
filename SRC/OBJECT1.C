@@ -350,12 +350,13 @@ static bool object_easy_know(int i)
 		/* Simple items */
 		case TV_FLASK:
 		case TV_JUNK:
-		case TV_BOTTLE:
+                case TV_HOLD:
 		case TV_SPIKE:
                 case TV_BODY:
                 case TV_SKIN:
-                case TV_SKELETON:
+                case TV_BONE:
 		case TV_EGG:
+                case TV_FIGURE:
                 case TV_STATUE:
 		{
 			return (TRUE);
@@ -1129,7 +1130,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	switch (o_ptr->tval)
 	{
 		/* Some objects are easy to describe */
-		case TV_BOTTLE:
 		case TV_JUNK:
 		case TV_SPIKE:
 		case TV_FLASK:
@@ -1314,12 +1314,23 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			return;
 		}
 
+                case TV_HOLD:
+		case TV_STATUE:
+                {
+                        if (o_ptr->dropped > 0)
+                        {
+                                modstr = "";
+                                break;
+                        }
+                        /* Else drop down */
+                }
+
                 /* Hack -- Body Parts/Skeletons/Skins etc. */
+                case TV_FIGURE:
                 case TV_BODY:
-                case TV_SKELETON:
+                case TV_BONE:
                 case TV_EGG:
                 case TV_SKIN:
-		case TV_STATUE:
                 {
                         if (o_ptr->dropped <= 0)
                         {
@@ -1330,6 +1341,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                                                 break;
                                         case TV_BODY:
                                                 modstr = "mummified";
+                                                break;
+                                        case TV_HOLD:
+                                                modstr = "empty";
                                                 break;
 					default:
                                                 modstr = "broken";
@@ -1560,6 +1574,39 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			object_desc_chr_macro(t, '?');
 		}
 	}
+
+        /* Looks like a monster */
+        if ((o_ptr->tval == TV_STATUE) && (o_ptr->dropped > 0))
+        {
+                object_desc_str_macro(t, " of ");
+
+                if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+                {
+                        cptr name= r_name + r_info[o_ptr->dropped].name;
+
+                        if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
+                        else object_desc_str_macro(t, "a ");
+                }
+
+                object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
+        }
+
+
+        /* Looks like/holds a monster */
+        if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
+        {
+                object_desc_str_macro(t, " containing ");
+
+                if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+                {
+                        cptr name= r_name + r_info[o_ptr->dropped].name;
+
+                        if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
+                        else object_desc_str_macro(t, "a ");
+                }
+
+                object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
+        }
 
 	/* No more details wanted */
 	if (mode < 1) goto object_desc_done;

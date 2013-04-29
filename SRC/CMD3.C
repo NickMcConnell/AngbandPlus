@@ -659,6 +659,17 @@ void do_cmd_destroy(void)
         else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
+        /* Containers release contents */
+        if ((o_ptr->tval == TV_HOLD) && (o_ptr->dropped > 0))
+        {
+                if (animate_object(item)) return;
+
+		/* Message */
+		msg_format("You cannot destroy %s.", o_name);
+
+                return;
+        }
+
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{

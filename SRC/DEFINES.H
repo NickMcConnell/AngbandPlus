@@ -1375,8 +1375,8 @@
  * only armor and weapons and a few other items use any of these flags.
  */
 
-#define TV_SKELETON      1      /* Skeletons ('~') */
-#define TV_BOTTLE                2      /* Empty bottles ('!') */
+#define TV_BONE          1      /* Bones/Skeletons ('~') */
+#define TV_HOLD          2      /* Containers (Bottles etc). ('~') */
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_BODY          6      /* Body Parts ('~') */
@@ -1384,7 +1384,8 @@
 #define TV_SKIN          8      /* Skin/Feathers/Scales ('~') */
 #define TV_EGG           9      /* Eggs ('~') */
 #define TV_SPELL        10      /* Magic spells (varies) */
-#define TV_STATUE	11	/* Statues/Figurines ('~') */
+#define TV_STATUE       11      /* Statues ('~') */
+#define TV_FIGURE       12      /* Figurine ('~') */
 #define TV_SHOT                 16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
@@ -1419,28 +1420,37 @@
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 /* The "sval" codes for TV_SKELETON */
-#define SV_SKULL        1
-#define SV_BONE         2
-#define SV_SKELETON     3
-#define SV_TEETH        4
+#define SV_BONE_SKULL        1
+#define SV_BONE_BONE         2
+#define SV_BONE_SKELETON     3
+#define SV_BONE_TEETH        4
+
+/* The "sval" codes for TV_HOLDs */
+#define SV_HOLD_BOTTLE       1
+#define SV_HOLD_SACK         2
+#define SV_HOLD_BOX          3
+#define SV_HOLD_CAGE         4
 
 /* The "sval" codes for TV_BODY */
-#define SV_CORPSE       1
-#define SV_HEAD         2
-#define SV_HAND         3
-#define SV_ARM          4
-#define SV_LEG          6
-#define SV_WING         7
-#define SV_STUMP        10
-#define SV_BRANCH       11
-#define SV_CLAW         12
-#define SV_HORN         13
+#define SV_BODY_CORPSE       1
+#define SV_BODY_HEAD         2
+#define SV_BODY_HAND         3
+#define SV_BODY_ARM          4
+#define SV_BODY_LEG          6
+#define SV_BODY_WING         7
+#define SV_BODY_STUMP        10
+#define SV_BODY_BRANCH       11
+#define SV_BODY_CLAW         12
 
 /* The "sval" codes for TV_SKIN */
-#define SV_SKIN         1
-#define SV_SCALE        2
-#define SV_FEATHER      3
-#define SV_FUR          4
+#define SV_SKIN_SKIN         1
+#define SV_SKIN_SCALE        2
+#define SV_SKIN_FEATHER      3
+#define SV_SKIN_FUR          4
+
+/* The "sval" codes for TV_EGG */
+#define SV_EGG_EGG           1
+#define SV_EGG_SPORE         2
 
 /* The "sval" codes for TV_SPELL */
 /* 
@@ -2666,7 +2676,7 @@
 #define RF7_DROP_POTION      0x10000000
 #define RF7_DROP_FOOD        0x20000000
 #define RF7_HAS_CLAW         0x40000000
-#define RF7_HAS_HORN         0x80000000
+#define RF7_HAS_SPORE        0x80000000
 
 /*
  * Hack -- Bit masks to control what spells are considered
@@ -3320,7 +3330,6 @@
  */
 #define ego_item_p(T) \
 	((T)->name2 ? TRUE : FALSE)
-
 
 /*
  * Broken items.

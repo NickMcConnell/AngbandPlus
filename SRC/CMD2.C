@@ -2090,10 +2090,11 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_FLASK:
 		case TV_SPELL:
 		case TV_POTION:
-		case TV_BOTTLE:
+                case TV_HOLD:
 		case TV_FOOD:
 		case TV_JUNK:
 		case TV_SKIN:
+                case TV_FIGURE:
 		{
 			return (100);
 		}
@@ -2101,7 +2102,7 @@ static int breakage_chance(object_type *o_ptr)
 		/* Often break */
 		case TV_LITE:
 		case TV_SCROLL:
-		case TV_SKELETON:
+                case TV_BONE:
 		{
 			return (50);
 		}

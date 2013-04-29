@@ -119,8 +119,12 @@ static grouper group_item[] =
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
 	{ TV_JUNK,		  NULL },
-	{ TV_BOTTLE,	  NULL },
-	{ TV_SKELETON,	  NULL },
+        { TV_HOLD,      NULL },
+        { TV_BONE,    NULL },
+        { TV_FIGURE,      NULL },
+        { TV_SKIN,    NULL },
+        { TV_STATUE,    NULL },
+        { TV_BODY,      NULL },
 
 	{ 0, "" }
 };
