@@ -1454,13 +1454,13 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	    /* Usually don't stack. */
 	    else return (FALSE);
 	  }
-#endif 
 	
 	/* Require identical pseudo ID for un-IDed items */
 	if ((!object_known_p(o_ptr)) && 
 	    ((o_ptr->ident & (IDENT_SENSE)) != 
 	     (j_ptr->ident & (IDENT_SENSE)))) 
 	  return (FALSE);
+#endif 
 	
 	/* Require identical "bonuses" */
 	if (o_ptr->to_h != j_ptr->to_h) return (FALSE);
@@ -1555,10 +1555,6 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
   if (object_known_p(j_ptr)) object_known(o_ptr);
   if (object_known_p(o_ptr)) object_known(j_ptr);
   
-  /* Hack -- blend "rumour" status */
-  if (j_ptr->ident & (IDENT_RUMOUR)) o_ptr->ident |= (IDENT_RUMOUR);
-  if (o_ptr->ident & (IDENT_RUMOUR)) j_ptr->ident |= (IDENT_RUMOUR);
-  
   /* Hack -- blend "mental" status */
   if (j_ptr->ident & (IDENT_MENTAL)) o_ptr->ident |= (IDENT_MENTAL);
   if (o_ptr->ident & (IDENT_MENTAL)) j_ptr->ident |= (IDENT_MENTAL);
@@ -1566,6 +1562,10 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
   /* Hack -- blend "feelings" */
   if (j_ptr->feel) o_ptr->feel = j_ptr->feel;
   if (o_ptr->feel) j_ptr->feel = o_ptr->feel;
+  
+  /* Hack -- blend feeling status */
+  if (j_ptr->ident & IDENT_SENSE) o_ptr->ident |= IDENT_SENSE;
+  if (o_ptr->ident & IDENT_SENSE) j_ptr->ident |= IDENT_SENSE;
   
   /* Hack -- blend "inscriptions" */
   if (j_ptr->note) o_ptr->note = j_ptr->note;
@@ -1600,7 +1600,7 @@ s16b lookup_kind(int tval, int sval)
   int k;
   
   /* Look for it */
-  for (k = 1; k < MAX_K_IDX; k++)
+  for (k = 1; k < z_info->k_max; k++)
     {
       object_kind *k_ptr = &k_info[k];
       
@@ -2840,9 +2840,9 @@ extern void apply_resistances(object_type *o_ptr, int lev)
 	    o_ptr->percent_res[i] += rand_int(res >> 2);
 	}
 
-      /* Enforce bounds */
-      if (o_ptr->percent_res[i] < RES_LEVEL_MIN)
-	o_ptr->percent_res[i] = RES_LEVEL_MIN;
+      /* Enforce bounds - no item gets better than 80% resistance */
+      if (o_ptr->percent_res[i] < RES_CAP_ITEM)
+	o_ptr->percent_res[i] = RES_CAP_ITEM;
       if (o_ptr->percent_res[i] > RES_LEVEL_MAX)
 	o_ptr->percent_res[i] = RES_LEVEL_MAX;
     }
@@ -3338,8 +3338,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
       /* Add resistances */
       apply_resistances(o_ptr, lev);
 
-      /* Hack - reverse resists for cursed objects */
-      if (power < 0)
+      /* Hack - reverse resists for cursed objects  - not dragon scale */
+      if ((power < 0) &&  (o_ptr->tval != TV_DRAG_ARMOR))
 	for (i = 0; i < MAX_P_RES; i++)
 	  o_ptr->percent_res[i] = 200 - o_ptr->percent_res[i];
 
@@ -3946,6 +3946,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	  if ((cave_feat[ty][tx] != FEAT_FLOOR) && 
 	      (cave_feat[ty][tx] != FEAT_GRASS) &&
 	      (cave_feat[ty][tx] != FEAT_TREE) &&
+	      (cave_feat[ty][tx] != FEAT_TREE2) &&
 	      (cave_feat[ty][tx] != FEAT_RUBBLE)) continue;
 	  
 	  /* No objects */
@@ -4050,6 +4051,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
       if ((cave_feat[ty][tx] != FEAT_FLOOR) && 
 	  (cave_feat[ty][tx] != FEAT_GRASS) &&
 	  (cave_feat[ty][tx] != FEAT_TREE) &&
+	  (cave_feat[ty][tx] != FEAT_TREE2) &&
 	  (cave_feat[ty][tx] != FEAT_RUBBLE))continue;
       
       /* Bounce to that location */
@@ -4058,6 +4060,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
       
       /* Require floor space */
       if ((!cave_clean_bold(by, bx)) && (cave_feat[by][bx] != FEAT_TREE) &&
+	  (cave_feat[by][bx] != FEAT_TREE) && 
 	  (cave_feat[by][bx] != FEAT_RUBBLE)) 
 	  continue;
       
@@ -4093,6 +4096,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
       msg_print("You feel something roll beneath your feet.");
     }
   else if (((cave_feat[by][bx] == FEAT_TREE) || 
+	    (cave_feat[by][bx] == FEAT_TREE2) || 
 	    (cave_feat[by][bx] == FEAT_RUBBLE)) && (!p_ptr->blind))
     msg_format("The %s disappear%s from view.", o_name, (plural ? "" : "s"));
 }
@@ -4198,12 +4202,15 @@ void place_gold(int y, int x)
 void pick_trap(int y, int x)
 {
   int feat = 0;
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
   bool trap_is_okay = FALSE;
   
   /* Paranoia */
   if ((cave_feat[y][x] != FEAT_INVIS) && 
-      (cave_feat[y][x] != FEAT_GRASS_INVIS)) return;
+      (cave_feat[y][x] != FEAT_GRASS_INVIS) &&
+      (cave_feat[y][x] != FEAT_TREE_INVIS) &&
+      (cave_feat[y][x] != FEAT_TREE2_INVIS)) return;
   
   /* Try to create a trap appropriate to the level.  Make certain 
    * that at least one trap type can be made on any possible level.  
@@ -4222,6 +4229,9 @@ void pick_trap(int y, int x)
 	  /* trap doors */
 	case FEAT_TRAP_HEAD + 0x00:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* Hack -- no trap doors on quest levels */
 	    if (is_quest(p_ptr->stage)) trap_is_okay = FALSE;
 	    
@@ -4247,6 +4257,9 @@ void pick_trap(int y, int x)
 	  /* pits */
 	case FEAT_TRAP_HEAD + 0x01:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No pits at level 1 (instadeath risk). */
 	    if (p_ptr->depth < 2) trap_is_okay = FALSE;
 	    
@@ -4256,6 +4269,9 @@ void pick_trap(int y, int x)
 	  /* stat-reducing darts. */
 	case FEAT_TRAP_HEAD + 0x02:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No darts above level 8. */
 	    if (p_ptr->depth < 8) trap_is_okay = FALSE;
 	    
@@ -4265,6 +4281,9 @@ void pick_trap(int y, int x)
 	  /* discolored spots */
 	case FEAT_TRAP_HEAD + 0x03:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No discolored spots above level 5. */
 	    if (p_ptr->depth < 5) trap_is_okay = FALSE;
 	    
@@ -4274,6 +4293,9 @@ void pick_trap(int y, int x)
 	  /* gas trap */
 	case FEAT_TRAP_HEAD + 0x04:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* Gas traps can exist anywhere. */
 	    
 	    break;
@@ -4282,6 +4304,9 @@ void pick_trap(int y, int x)
 	  /* summoning rune */
 	case FEAT_TRAP_HEAD + 0x05:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No summoning runes above level 3. */
 	    if (p_ptr->depth < 3) trap_is_okay = FALSE;
 	    
@@ -4291,6 +4316,9 @@ void pick_trap(int y, int x)
 	  /* dungeon alteration */
 	case FEAT_TRAP_HEAD + 0x06:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No dungeon alteration above level 20. */
 	    if (p_ptr->depth < 20) trap_is_okay = FALSE;
 	    
@@ -4300,6 +4328,9 @@ void pick_trap(int y, int x)
 	  /* alter char and reality */
 	case FEAT_TRAP_HEAD + 0x07:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+
 	    /* No alter char and reality above level 60. */
 	    if (p_ptr->depth < 60) trap_is_okay = FALSE;
 	    
@@ -4310,23 +4341,42 @@ void pick_trap(int y, int x)
 	case FEAT_TRAP_HEAD + 0x08:
 	  {
 	    
-	    /* No teleport traps in mountains
-	       if (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)
-	       trap_is_okay = FALSE; */
-	    
-	    
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+   
 	    break;
 	  }
 	  
 	  /* arrow, bolt, or shot */
 	case FEAT_TRAP_HEAD + 0x09:
 	  {
+	    /* No trees */
+	    if (f_ptr->flags & TF_TREE) trap_is_okay = FALSE;
+   
 	    /* No arrow, bolt, or shots above level 4. */
 	    if (p_ptr->depth < 4) trap_is_okay = FALSE;
 	    
 	    break;
 	  }
 	  
+	  /* falling tree branch */
+	case FEAT_TRAP_HEAD + 0x0A:
+	  {
+	    /* Need the right trees */
+	    if (cave_feat[y][x] != FEAT_TREE_INVIS) trap_is_okay = FALSE;
+
+	    break;
+	  }
+
+	  /* falling tree branch */
+	case FEAT_TRAP_HEAD + 0x0B:
+	  {
+	    /* Need the right trees */
+	    if (cave_feat[y][x] != FEAT_TREE2_INVIS) trap_is_okay = FALSE;
+
+	    break;
+	  }
+
 	  /* Any other selection is not defined. */
 	default:
 	  {
@@ -4355,9 +4405,21 @@ void pick_trap(int y, int x)
 void place_trap(int y, int x)
 {
   int d, grass = 0, floor = 0;
+
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
   /* Paranoia */
   if (!in_bounds(y, x)) return;
+
+  /* Hack - handle trees */
+  if (f_ptr->flags & TF_TREE)
+    {
+      if (cave_feat[y][x] == FEAT_TREE)
+	cave_set_feat(y, x, FEAT_TREE_INVIS);
+      else if (cave_feat[y][x] == FEAT_TREE2)
+	cave_set_feat(y, x, FEAT_TREE2_INVIS);
+      return;
+    }
   
   /* Require empty, clean, floor grid */
   if (!cave_naked_bold(y, x)) return;

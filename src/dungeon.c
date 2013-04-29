@@ -1726,11 +1726,11 @@ static void process_player(void)
       
       /*** Clean up ***/
       
-		/* Significant */
-		if (p_ptr->energy_use)
-		{
-			/* Use some energy */
-			p_ptr->energy -= p_ptr->energy_use;
+      /* Significant */
+      if (p_ptr->energy_use)
+	{
+	  /* Use some energy */
+	  p_ptr->energy -= p_ptr->energy_use;
           
           
           /* Hack -- constant hallucination */
@@ -1759,20 +1759,20 @@ static void process_player(void)
                   r_ptr = &r_info[m_ptr->r_idx];
                   
                   /* Skip non-multi-hued monsters */
-					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI))) continue;
-
-					/* Reset the flag */
-					shimmer_monsters = TRUE;
-
-					/* Redraw regardless */
-					lite_spot(m_ptr->fy, m_ptr->fx);
-                                }
-                        }
-
-                        /* Repair "mark" flags */
-                        if (repair_mflag_mark)
-                        {
-				/* Reset the flag */
+		  if (!(r_ptr->flags1 & (RF1_ATTR_MULTI))) continue;
+		  
+		  /* Reset the flag */
+		  shimmer_monsters = TRUE;
+		  
+		  /* Redraw regardless */
+		  lite_spot(m_ptr->fy, m_ptr->fx);
+		}
+	    }
+	  
+	  /* Repair "mark" flags */
+	  if (repair_mflag_mark)
+	    {
+	      /* Reset the flag */
               repair_mflag_mark = FALSE;
               
               /* Process the monsters */
@@ -1785,34 +1785,34 @@ static void process_player(void)
                   
                   /* Skip dead monsters */
                   /* if (!m_ptr->r_idx) continue; */
-
-					/* Repair "mark" flag */
-					if (m_ptr->mflag & (MFLAG_MARK))
-					{
-						/* Skip "show" monsters */
-						if (m_ptr->mflag & (MFLAG_SHOW))
-						{
-							/* Repair "mark" flag */
-							repair_mflag_mark = TRUE;
-
-							/* Skip */
-							continue;
-						}
-
-						/* Forget flag */
-						m_ptr->mflag &= ~(MFLAG_MARK);
-
-						/* Update the monster */
-						update_mon(i, FALSE);
-					}
-				}
+		  
+		  /* Repair "mark" flag */
+		  if (m_ptr->mflag & (MFLAG_MARK))
+		    {
+		      /* Skip "show" monsters */
+		      if (m_ptr->mflag & (MFLAG_SHOW))
+			{
+			  /* Repair "mark" flag */
+			  repair_mflag_mark = TRUE;
+			  
+			  /* Skip */
+			  continue;
 			}
+		      
+		      /* Forget flag */
+		      m_ptr->mflag &= ~(MFLAG_MARK);
+		      
+		      /* Update the monster */
+		      update_mon(i, FALSE);
+		    }
 		}
-
-		/* Repair "show" flags */
-		if (repair_mflag_show)
-		{
-			/* Reset the flag */
+	    }
+	}
+      
+      /* Repair "show" flags */
+      if (repair_mflag_show)
+	{
+	  /* Reset the flag */
           repair_mflag_show = FALSE;
           
           /* Process the monsters */
@@ -1825,9 +1825,9 @@ static void process_player(void)
               
               /* Skip dead monsters */
               /* if (!m_ptr->r_idx) continue; */
-
-				/* Clear "show" flag */
-				m_ptr->mflag &= ~(MFLAG_SHOW);
+	      
+	      /* Clear "show" flag */
+	      m_ptr->mflag &= ~(MFLAG_SHOW);
             }
         }
     }
@@ -2013,6 +2013,8 @@ static void dungeon(void)
   
   /* Redraw stuff */
   window_stuff();
+
+  update_stuff();
   
 
   /* Hack -- Decrease "xtra" depth */
@@ -2377,6 +2379,12 @@ void play_game(bool new_game)
   Term_fresh();
   
   
+  /*** Prepare "vinfo" array ***/
+  
+  /* Used by "update_view()" - need birth options set as of FAangband 0.3.4*/
+  (void)vinfo_init();
+
+
   /* Flavor the objects */
   flavor_init();
   

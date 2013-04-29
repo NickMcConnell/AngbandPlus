@@ -990,7 +990,7 @@ static void wr_extra(void)
   for (i = 0; i < 6; ++i) wr_s16b(p_ptr->stat_cur[i]);
   
   /* Ignore the transient stats */
-  for (i = 0; i < 12; ++i) wr_s16b(0);
+  for (i = 0; i < 12; ++i) wr_u16b(p_ptr->barehand_dam[i]);
   
   wr_u32b(p_ptr->au);
   

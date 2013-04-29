@@ -392,7 +392,7 @@ static void thrust_away(int who, int t_y, int t_x, int grids_away)
   /* Some special messages or effects for player. */
   if (cave_m_idx[y][x] < 0)
     {
-      if (cave_feat[y][x] == FEAT_TREE)
+      if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE2))
 	msg_print("You come to rest in some trees.");
       if (cave_feat[y][x] == FEAT_RUBBLE)
 	msg_print("You come to rest in some rubble.");
@@ -580,7 +580,8 @@ void teleport_player(int dis, bool safe)
   if (!safe)
     {
       /* The player may hit a tree, slam into rubble, or even land in lava. */
-      if ((cave_feat[y][x] == FEAT_TREE) && (rand_int(2) == 0))
+      if (((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE2)) 
+	  && (rand_int(2) == 0))
 	{
 	  msg_print("You hit a tree!");
 	  take_hit(damroll(2, 8), "being hurtled into a tree");
@@ -933,6 +934,7 @@ static byte spell_color(int type)
       
     case GF_PLASMA:	 return (TERM_RED);
     case GF_HELLFIRE:    return (TERM_RED);
+    case GF_DRAGONFIRE:  return (TERM_RED);
     case GF_ICE:	 return (TERM_WHITE);
       
       
@@ -2410,6 +2412,7 @@ static int project_m_y;
 static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 {
   bool obvious = FALSE;
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
   /* Analyze the type */
   switch (typ)
@@ -2440,6 +2443,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
       /* Can burn, evaporate, and even make lava.  See "project_t()". */
     case GF_FIRE:
     case GF_HELLFIRE:
+    case GF_DRAGONFIRE:
     case GF_PLASMA:
       {
 	if (dist <= 1)
@@ -2467,10 +2471,7 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
     case GF_KILL_TRAP:
       {
 	/* Destroy traps */
-	if ((cave_feat[y][x] == FEAT_INVIS) ||
-	    (cave_feat[y][x] == FEAT_GRASS_INVIS) ||
-	    ((cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
-	     (cave_feat[y][x] <= FEAT_TRAP_TAIL)))
+	if (f_ptr->flags & (TF_TRAP | TF_TRAP_INVIS)) 
 	  {
 	    /* 95% chance of success. */
 	    if (randint(20) != 20)
@@ -2558,99 +2559,103 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
 	if (cave_floor_bold(y, x)) break;
 	
 	/* Trees are unaffected. */
-	if (cave_feat[y][x] == FEAT_TREE) break;
-	
-	/* Permanent walls and stores. */
-	if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
-	
-	/* Granite */
-	if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
+	if (f_ptr->flags & TF_TREE) 
+	  break;
+
+	/* Handle everything but doors */
+	if (!(f_ptr->flags & TF_DOOR_ANY))
 	  {
-	    /* Message */
-	    if (cave_info[y][x] & (CAVE_MARK))
+	    /* Permanent walls and stores. */
+	    if (f_ptr->flags & TF_PERMANENT) break;
+	    
+	    /* Granite */
+	    if (f_ptr->flags & TF_GRANITE)
 	      {
-		msg_print("The wall turns into mud.");
-		obvious = TRUE;
-	      }
-	    
-	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
-	    
-	    /* Destroy the wall */
-	    cave_set_feat(y, x, FEAT_FLOOR);
-	  }
-	
-	/* Quartz / Magma with treasure */
-	else if (cave_feat[y][x] >= FEAT_MAGMA_H)
-	  {
-	    /* Message */
-	    if (cave_info[y][x] & (CAVE_MARK))
-	      {
-		msg_print("The vein turns into mud.");
-		msg_print("You have found something!");
-		obvious = TRUE;
-	      }
-	    
-	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
-	    
-	    /* Destroy the wall */
-	    cave_set_feat(y, x, FEAT_FLOOR);
-	    
-	    /* Place some gold */
-	    place_gold(y, x);
-	  }
-	
-	/* Quartz / Magma */
-	else if (cave_feat[y][x] >= FEAT_MAGMA)
-	  {
-	    /* Message */
-	    if (cave_info[y][x] & (CAVE_MARK))
-	      {
-		msg_print("The vein turns into mud.");
-		obvious = TRUE;
-	      }
-	    
-	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
-	    
-	    /* Destroy the wall */
-	    cave_set_feat(y, x, FEAT_FLOOR);
-	  }
-	
-	/* Rubble */
-	else if (cave_feat[y][x] == FEAT_RUBBLE)
-	  {
-	    /* Message */
-	    if (cave_info[y][x] & (CAVE_MARK))
-	      {
-		msg_print("The rubble turns into mud.");
-		obvious = TRUE;
-	      }
-	    
-	    /* Forget the wall */
-	    cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
-	    
-	    /* Destroy the rubble */
-	    cave_set_feat(y, x, FEAT_FLOOR);
-	    
-	    /* Hack -- place an object.  Chance much less in Oangband. */
-	    if (rand_int(100) < 1)
-	      {
-		/* Found something */
-		if (player_can_see_bold(y, x))
+		/* Message */
+		if (cave_info[y][x] & (CAVE_MARK))
 		  {
-		    msg_print("There was something buried in the rubble!");
+		    msg_print("The wall turns into mud.");
 		    obvious = TRUE;
 		  }
 		
-		/* Place object */
-		place_object(y, x, FALSE, FALSE, FALSE);
+		/* Forget the wall */
+		cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
+		
+		/* Destroy the wall */
+		cave_set_feat(y, x, FEAT_FLOOR);
+	      }
+	    
+	    /* Quartz / Magma with treasure */
+	    else if (cave_feat[y][x] >= FEAT_MAGMA_H)
+	      {
+		/* Message */
+		if (cave_info[y][x] & (CAVE_MARK))
+		  {
+		    msg_print("The vein turns into mud.");
+		    msg_print("You have found something!");
+		    obvious = TRUE;
+		  }
+		
+		/* Forget the wall */
+		cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
+		
+		/* Destroy the wall */
+		cave_set_feat(y, x, FEAT_FLOOR);
+		
+		/* Place some gold */
+		place_gold(y, x);
+	      }
+	    
+	    /* Quartz / Magma */
+	    else if (cave_feat[y][x] >= FEAT_MAGMA)
+	      {
+		/* Message */
+		if (cave_info[y][x] & (CAVE_MARK))
+		  {
+		    msg_print("The vein turns into mud.");
+		    obvious = TRUE;
+		  }
+		
+		/* Forget the wall */
+		cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
+		
+		/* Destroy the wall */
+		cave_set_feat(y, x, FEAT_FLOOR);
+	      }
+	    
+	    /* Rubble */
+	    else if (cave_feat[y][x] == FEAT_RUBBLE)
+	      {
+		/* Message */
+		if (cave_info[y][x] & (CAVE_MARK))
+		  {
+		    msg_print("The rubble turns into mud.");
+		    obvious = TRUE;
+		  }
+		
+		/* Forget the wall */
+		cave_info[y][x] &= ~(CAVE_MARK | CAVE_WALL);
+		
+		/* Destroy the rubble */
+		cave_set_feat(y, x, FEAT_FLOOR);
+		
+		/* Hack -- place an object.  Chance much less in Oangband. */
+		if (rand_int(100) < 1)
+		  {
+		    /* Found something */
+		    if (player_can_see_bold(y, x))
+		      {
+			msg_print("There was something buried in the rubble!");
+			obvious = TRUE;
+		      }
+		    
+		    /* Place object */
+		    place_object(y, x, FALSE, FALSE, FALSE);
+		  }
 	      }
 	  }
-	
 	/* Destroy doors (and secret doors) */
-	else if (cave_feat[y][x] >= FEAT_DOOR_HEAD)
+	else if (f_ptr->flags & TF_DOOR_ANY)
 	  {
 	    /* Hack -- special message */
 	    if (cave_info[y][x] & (CAVE_MARK))
@@ -2693,8 +2698,13 @@ static bool project_f(int who, int y, int x, int dist, int dam, int typ)
       /* Make traps */
     case GF_MAKE_TRAP:
       {
-	/* Require a "naked" floor grid */
-	if (!cave_naked_bold(y, x)) break;
+	/* Require a trappable grid  - needs work -NRM-*/
+	if (!((cave_feat[y][x] == FEAT_FLOOR) || 
+	      (cave_feat[y][x] == FEAT_GRASS) ||
+	      (cave_feat[y][x] == FEAT_TREE) || 
+	      (cave_feat[y][x] == FEAT_TREE2)) &&
+	    ((cave_o_idx[y][x] == 0) && (cave_m_idx[y][x] == 0)))
+	  break;
 	
 	/* Place a trap */
 	place_trap(y, x);
@@ -3208,8 +3218,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
       /* Fire-based spells suffer, but water spells come into their own. */
     case FEAT_WATER:
       {
-	if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
-	    (typ == GF_PLASMA)) terrain_adjustment -= dam / 2;
+	if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || (typ == GF_PLASMA) ||
+	    (typ == GF_DRAGONFIRE)) terrain_adjustment -= dam / 2;
 	else if ((typ == GF_WATER) || (typ == GF_STORM)) 
 	  terrain_adjustment = dam / 3;
 	break;
@@ -3221,14 +3231,14 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	if ((typ == GF_COLD) || (typ == GF_ICE) || 
 	    (typ == GF_WATER) || (typ == GF_STORM)) 
 	  terrain_adjustment -= dam / 3;
-	else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
-		 (typ == GF_PLASMA)) terrain_adjustment = dam / 5;
+	else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || (typ == GF_PLASMA)
+		 || (GF_DRAGONFIRE)) terrain_adjustment = dam / 5;
 	break;
       }
       
       /* Monsters can duck, or take only partial damage. */
       /* For nature's vengeance, trees are dangerous */
-    case FEAT_TREE:
+    case FEAT_TREE: case FEAT_TREE2:
       {
 	
 	if (typ == GF_NATURE) terrain_adjustment = dam / 4;
@@ -3444,6 +3454,50 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 		    if ((r_ptr->flags3 & (RF3_IM_ELEC)) && 
 			(rand_int(2) == 0)) 
 		      l_ptr->flags3 |= (RF3_IM_ELEC);
+		  }
+	      }
+	  }
+	break;
+      }
+      
+      /* Dragonfire  */
+    case GF_DRAGONFIRE:
+      {
+	/* Affected by terrain. */
+	dam += terrain_adjustment;
+	
+	if (seen) obvious = TRUE;
+	if (r_ptr->flags4 & (RF4_BRTH_DFIRE)) 
+	  {
+	    note = " resists a lot.";
+	    dam *= 3; dam /= 14 + rand_int(3);
+	  }
+	
+	else if ((r_ptr->flags3 & (RF3_IM_POIS)) || 
+		 (r_ptr->flags3 & (RF3_IM_FIRE)))
+	  {
+	    if ((r_ptr->flags3 & (RF3_IM_POIS)) && 
+		(r_ptr->flags3 & (RF3_IM_FIRE)))
+	      {
+		note = " resists a lot.";
+		dam *= 3; dam /= 11 + rand_int(3);
+		
+		if (seen) l_ptr->flags3 |= (RF3_IM_FIRE);
+		if (seen) l_ptr->flags3 |= (RF3_IM_POIS);
+	      }
+	    else
+	      {
+		note = " resists somewhat.";
+		dam *= 3; dam /= 5 + rand_int(3);
+		
+		if (seen)
+		  {
+		    if ((r_ptr->flags3 & (RF3_IM_FIRE)) && 
+			(rand_int(2) == 0)) 
+		      l_ptr->flags3 |= (RF3_IM_FIRE);
+		    if ((r_ptr->flags3 & (RF3_IM_POIS)) && 
+			(rand_int(2) == 0)) 
+		      l_ptr->flags3 |= (RF3_IM_POIS);
 		  }
 	      }
 	  }
@@ -4659,7 +4713,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	  {
 	    /* Near a tree? */
 	    for (i = 1; i < 10; i++)
-	      if (cave_feat[y + ddy[i]][x + ddx[i]] == FEAT_TREE) break;
+	      if ((cave_feat[y + ddy[i]][x + ddx[i]] == FEAT_TREE) || 
+		  (cave_feat[y + ddy[i]][x + ddx[i]] == FEAT_TREE2)) break;
 	    
 	    /* Safe for now */
 	    if (i == 10) dam = 0;
@@ -5031,8 +5086,8 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
        */
     case FEAT_WATER:
       {
-	if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
-	    (typ == GF_PLASMA)) terrain_adjustment -= dam / 4;
+	if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || (typ == GF_PLASMA) || 
+	    (typ == GF_DRAGONFIRE)) terrain_adjustment -= dam / 4;
 	else if ((typ == GF_WATER) || (typ == GF_STORM)) 
 	  terrain_adjustment = dam / 2;
 	else terrain_adjustment = dam / 10;
@@ -5045,13 +5100,13 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if ((typ == GF_COLD) || (typ == GF_ICE) || 
 	    (typ == GF_WATER) || (typ == GF_STORM)) 
 	  terrain_adjustment -= dam / 4;
-	else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
-		 (typ == GF_PLASMA)) terrain_adjustment = dam / 4;
+	else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || (typ == GF_PLASMA)
+		 || (typ == GF_DRAGONFIRE)) terrain_adjustment = dam / 4;
 	break;
       }
       /* Rangers, elves and druids can duck, and any player will take 
        * less damage. */
-    case FEAT_TREE:
+    case FEAT_TREE: case FEAT_TREE2:
       {
 	if ((randint(8) == 1) && 
 	    ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
@@ -5614,7 +5669,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  }
 	else if (fuzzy) msg_print("You are hit by poison!");
 	
-	/* Poison Damage and Add Posion */
+	/* Poison Damage and Add Poison */
 	pois_dam(dam, killer);
 	
 	/* Some nasty possible side-effects of Morgul-poison.  Poison 
@@ -5649,6 +5704,36 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if (fuzzy) msg_print("You are hit by plasma!");
 	elec_dam((dam + 2) / 2, killer);
 	fire_dam((dam + 2) / 2, killer);
+	break;
+      }
+      
+      /* Dragonfire -- Combines fire and poison. */
+    case GF_DRAGONFIRE:
+      {
+	/* Affected by terrain. */
+	dam += terrain_adjustment;
+	
+	if (fuzzy) msg_print("You are hit by dragonfire!");
+	pois_dam((dam + 2) / 2, killer);
+	fire_dam((dam + 2) / 2, killer);
+
+	/* Some nasty possible side-effects of dragonfire. */
+	if ((!self) && (r_ptr->flags2 & (RF2_POWERFUL)))
+	  {
+	    /* Paralyzation. */
+	    if ((!p_ptr->free_act) && (!check_save(dam / 2 + 20))) 
+	      {
+		msg_print("The stench overwhelms you, and you faint away!");
+		(void)set_paralyzed(p_ptr->paralyzed + rand_int(3) + 2);
+	      }
+	    
+	    /* Hallucination */
+	    if ((!p_resist_good(P_RES_CHAOS)) && (!check_save(dam / 2 + 20)))
+	      {
+		(void)set_image(p_ptr->image + rand_int(17) + 16);
+		msg_print("The fumes affect your vision!");
+	      }
+	  }
 	break;
       }
       
@@ -6354,6 +6439,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
   monster_type *m_ptr = NULL;
   monster_race *r_ptr = NULL;
   monster_lore *l_ptr = NULL;
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
   cptr name = NULL;
   char m_name[80];
@@ -6438,6 +6524,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
       /* Fire and plasma can create lava, evaporate water, and burn trees. */
     case GF_FIRE:
     case GF_HELLFIRE:
+    case GF_DRAGONFIRE:
     case GF_PLASMA:
       {
 	/* Can create lava if extremely powerful. */
@@ -6485,7 +6572,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	  }
 	
 	/* Can burn trees if strong. */
-	if ((cave_feat[y][x] == FEAT_TREE) && (dam > randint(400) + 100))
+	if ((f_ptr->flags & TF_TREE) && (dam > randint(400) + 100))
 	  {
 	    /* Forget the tree */
 	    cave_info[y][x] &= ~(CAVE_MARK);
@@ -6495,7 +6582,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
 	  }
 	
 	/* Clears webs. */
-	if (cave_feat[y][x] == FEAT_TREE)
+	if (cave_feat[y][x] == FEAT_WEB)
 	  {
 	    /* Forget the web */
 	    cave_info[y][x] &= ~(CAVE_MARK);
@@ -6942,7 +7029,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
   byte gd[256];
   
   /* Precalculated damage values for each distance. */
+#ifdef _WIN32_WCE
+  int *dam_at_dist = malloc((MAX_RANGE + 1) * sizeof(*dam_at_dist));
+#else
   int dam_at_dist[MAX_RANGE+1];
+#endif
   
   /* Hack -- Flush any pending output */
   handle_stuff();
@@ -7507,6 +7598,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
   
   /* Update stuff if needed */
   if (p_ptr->update) update_stuff();
+  
+#ifdef _WIN32_WCE
+  free(dam_at_dist);
+#endif
   
   /* Return "something was noticed" */
   return (notice);

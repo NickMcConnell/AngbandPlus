@@ -1235,13 +1235,12 @@ static void desc_art_fake(int a_idx)
   
   /* Make fake artifact */
   make_fake_artifact(o_ptr, a_idx);
-  o_ptr->ident |= (IDENT_KNOWN);
-  if (cheat_xtra) o_ptr->ident |= IDENT_MENTAL;
+  o_ptr->ident |= IDENT_MENTAL;
   
   /* Hack -- Handle stuff */
   handle_stuff();
   
-  object_info_screen(o_ptr);
+  object_info_screen(o_ptr, TRUE);
 }
 
 static int a_cmp_tval(const void *a, const void *b)
@@ -1538,7 +1537,7 @@ static void desc_obj_fake(int k_idx)
   handle_stuff();
   
   /* Describe */
-  object_info_screen(o_ptr);
+  object_info_screen(o_ptr, FALSE);
 }
 
 static int o_cmp_tval(const void *a, const void *b)
@@ -1742,7 +1741,27 @@ static int f_cmp_fkind(const void *a, const void *b) {
 static const char *fkind_name(int gid) { return feature_group_text[gid]; }
 static byte *f_xattr(int oid) { return &f_info[oid].x_attr; }
 static char *f_xchar(int oid) { return &f_info[oid].x_char; }
-static void feat_lore(int oid) { /* noop */ }
+static void feat_lore(int oid) { 
+  feature_type *f_ptr = &f_info[oid];
+
+  /* Dump the name */
+  c_prt(TERM_L_BLUE, format("- %s", f_name + f_ptr->name), 0, 3);
+
+  /* Display symbol */
+  big_pad(0, 0, f_ptr->x_attr, f_ptr->x_char);
+  
+  /* Dump the description */
+  Term_gotoxy(0, 1);
+  if (f_ptr->text)
+    {
+      text_out_indent = 0;
+      text_out_to_screen(TERM_WHITE, f_text + f_ptr->text);
+      text_out_to_screen(TERM_WHITE, "\n");
+    }
+  
+
+  inkey_ex(); 
+}
 
 /*
  * Interact with feature visuals.
@@ -5496,7 +5515,8 @@ static event_action option_actions [] =
   {'2', "Disturbance options", do_cmd_options_aux, (void*)1},
   {'3', "Game-play options", do_cmd_options_aux, (void*)2}, 
   {'4', "Efficiency options", do_cmd_options_aux, (void*)3}, 
-  {'5', "Cheat options", do_cmd_options_aux, (void*)4}, 
+  {'5', "Birth options", do_cmd_options_aux, (void*)4}, 
+  {'6', "Cheat options", do_cmd_options_aux, (void*)5}, 
   {0, 0, 0, 0}, /* Load and append */
   {'W', "Subwindow display settings", (action_f) do_cmd_options_win, 0}, 
   {'S', "Item squelch settings", (action_f) do_cmd_options_item, 0}, 
@@ -5657,7 +5677,7 @@ void do_cmd_knowledge(void)
       update_statusline();
       c = menu_select(&knowledge_menu, &cursor, 0);
     }
-  
+
   screen_load();
   normal_screen = TRUE;
   update_statusline();

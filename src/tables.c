@@ -1154,21 +1154,6 @@ byte extract_energy[200] =
 
 
 /*
- * Player resistance levels.
- * 
- * The interesting range is Base-1 (vulnerable) to Base+10 (immune).
- */
-int extract_resistance[60] =
-  {
-    /* -20  */    -30, -30, -30, -30, -30, -30, -30, -30, -30, -30,
-    /* -10  */    -30, -30, -30, -30, -30, -30, -30, -30, -30, -30,
-    /* Base */      0,  25,  45,  60,  70,  75,  80,  85,  90,  95,
-    /* +10  */    100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-    /* +20  */    100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-    /* +30  */    100, 100, 100, 100, 100, 100, 100, 100, 100, 100
-  };
-
-/*
  * Translation from player resists to resistance flags
  */
 u32b resist_to_flag[14] = 
@@ -1428,8 +1413,8 @@ player_magic magic_info[MAX_CLASS] =
       
       TV_PRAYER_BOOK,  A_WIS,  REALM_PIETY,  1,  350,  800,
       
-      /* 58 prayers in 9 books. */
-      58, { 0, 8, 16, 25, 31, 37, 42, 47, 53, 58, 58 },
+      /* 57 prayers in 9 books. */
+      57, { 0, 8, 16, 25, 31, 37, 42, 46, 52, 57, 57 },
       
       {
 	/* Novice's Handbook (sval 0) */
@@ -1489,7 +1474,7 @@ player_magic magic_info[MAX_CLASS] =
 	/* Purifications and Healing (sval 6) */
 	{ 106,	36, 30, 50,  65}, /* Banishment */
 	{ 107,	38, 40, 60,  70}, /* Healing */
-	{ 108,	38, 50, 80,  70}, /* Sacred Knowledge */
+	/* { 108,	38, 50, 80,  70}, Sacred Knowledge */
 	{ 109,	40, 60, 90,  90}, /* Restoration */
 	{ 110,	40, 60, 90,  90}, /* Remembrance */
 	
@@ -2187,9 +2172,9 @@ cptr spell_names[255] =
     "Enchant Weapon or Armour",
     
     /* Wrath of the Valar (sval 8) */
-    "Light of Manwe",						/* index 117 */
-    "Lance of Orome",
-    "Hammer of Aule",
+    "Light of Manw[\"e]",					/* index 117 */
+    "Lance of Orom[\"e]",
+    "Hammer of Aul[\"e]",
     "Strike of Mandos",
     "Call on Varda",
     
@@ -2272,9 +2257,9 @@ cptr spell_names[255] =
     "Song of Renewal",
     
     /* Powers of Aman (sval 8) */
-    "Web of Vaire",						/* index 181 */
+    "Web of Vair[\"e]",						/* index 181 */
     "Speed of Nessa",
-    "Renewal of Vana",
+    "Renewal of V['a]na",
     "Servant of Yavanna",
     "Tears of Nienna",
     "Healing of Este",
@@ -2718,7 +2703,7 @@ cptr option_text[OPT_MAX] =
     "bottom_status",                    /* OPT_bottom_status */
     "mouse_buttons",                    /* OPT_mouse_buttons */
     NULL,
-    NULL,
+    "xchars_to_file",                   /* OPT_xchars_to_file */
     "smart_cheat",			/* OPT_smart_cheat */
     "view_reduce_lite",			/* OPT_view_reduce_lite */
     "hidden_player",			/* OPT_hidden_player */
@@ -2765,7 +2750,7 @@ cptr option_text[OPT_MAX] =
     "birth_notes_save",	              /* OPT_birth_notes_save */
     "birth_ironman",	              /* OPT_birth_ironman */
     "birth_thrall",	              /* OPT_birth_thrall */
-    NULL,
+    "birth_small_device",	      /* OPT_birth_small_device */
     NULL,
     NULL,
     NULL,
@@ -2797,7 +2782,7 @@ cptr option_text[OPT_MAX] =
     "adult_notes_save",                 /* OPT_adult_notes_save */
     "adult_ironman",	                /* OPT_adult_ironman */
     "adult_thrall",      		/* OPT_adult_thrall */	     
-    NULL,
+    "adult_small_device",      		/* OPT_adult_small_device */	     
     NULL,
     NULL,	NULL,	NULL,	NULL,	NULL,
     NULL,	NULL,	NULL,	NULL,	NULL,
@@ -2872,7 +2857,7 @@ cptr option_desc[OPT_MAX] =
     "Status is shown at the bottom of the screen", /* OPT_bottom_status */
     "Buttons for common mouse commands are shown", /* OPT_mouse_buttons */
     NULL,
-    NULL,
+    "Allow accents in output files",        /* OPT_xchars_to_file */
     "Monsters exploit players weaknesses",  /* OPT_smart_cheat */
     "Reduce light radius when running",	    /* OPT_view_reduce_lite */
     "Hide player symbol when running",	    /* OPT_hidden_player */
@@ -2917,9 +2902,9 @@ cptr option_desc[OPT_MAX] =
     "Birth: Have notes written to a file",         /* OPT_birth_take_notes */
     "Birth: No special feelings/artifacts preserved",/* OPT_birth_preserve */ 
     "Birth: Write notes file in savefile directory",/* OPT_birth_notes_save */
-    "Birth: Ironman mode ",                        /* OPT_birth_ironman */
-    "Birth: Thrall mode",                          /* OPT_birth_thrall */
-    NULL,
+    "Birth: Never return to less danger before winning",/* OPT_birth_ironman */
+    "Birth: Start as a thrall at the gate of Angband  ", /* OPT_birth_thrall */
+    "Birth: View and spell distances halved           ", /* OPT_birth_small_device */
     NULL,
     NULL,	 
     NULL,
@@ -2949,9 +2934,9 @@ cptr option_desc[OPT_MAX] =
     "Adult: Have notes written to a file",         /* OPT_adult_take_notes */
     "Adult: Artifacts preserved & no special feelings",/* OPT_adult_preserve*/ 
     "Adult: Write notes file in savefile directory",/* OPT_adult_notes_save */
-    "Adult: Ironman mode",                         /* OPT_adult_ironman */
-    "Adult: Thrall mode",                          /* OPT_adult_thrall */
-    NULL, 
+    "Adult: Never return to less danger before winning", /* OPT_adult_ironman */
+    "Adult: Start as a thrall at the gate of Angband  ", /* OPT_adult_thrall */
+    "Adult: View and spell distances halved           ",      /* OPT_adult_small_device */
     NULL, 
     NULL,	NULL,	NULL,	NULL,	NULL,
     NULL,	NULL,	NULL,	NULL,	NULL,
@@ -3026,7 +3011,7 @@ bool option_norm[OPT_MAX] =
     FALSE,              /* OPT_bottom_status */
     TRUE,               /* OPT_mouse_buttons */
     FALSE,
-    FALSE,
+    FALSE,              /* OPT_xchars_to_file */
     FALSE,		/* OPT_smart_cheat */
     FALSE,		/* OPT_view_reduce_lite */
     FALSE,		/* OPT_hidden_player */
@@ -3072,7 +3057,7 @@ bool option_norm[OPT_MAX] =
     FALSE,               /* OPT_birth_notes_save */
     FALSE,		 /* OPT_birth_ironman */
     FALSE,		 /* OPT_birth_thrall */
-    FALSE,
+    FALSE,		 /* OPT_birth_small_device */
     FALSE,	  
     FALSE,	  
     FALSE,
@@ -3101,7 +3086,7 @@ bool option_norm[OPT_MAX] =
     FALSE,	        /* OPT_adult_notes_save */  
     FALSE,	        /* OPT_adult_ironman */  
     FALSE,	        /* OPT_adult_thrall */  
-    FALSE, 
+    FALSE, 	        /* OPT_adult_small_device */  
     FALSE, 
     FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
     FALSE,	FALSE,	FALSE,	FALSE,	FALSE,
@@ -3152,7 +3137,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_bottom_status,
       OPT_squelch_worthless,
       OPT_hide_squelchable,
-      OPT_NONE
+      OPT_xchars_to_file
     },
 
     /*** Disturbance ***/
@@ -3230,7 +3215,32 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_NONE
     },
     
-    /*** Cheat ***/
+    /*** Birth ***/
+    
+    {
+      OPT_birth_ironman, 
+      OPT_birth_thrall,	      
+      OPT_birth_small_device,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255,
+      255
+    },
+    
+     /*** Cheat ***/
     
     {
       OPT_cheat_peek,
@@ -3363,9 +3373,9 @@ byte mana_cost_RF4[32]=
     0,			/* RF4_BRTH_CHAOS */
     0,			/* RF4_BRTH_DISEN */
     0,			/* RF4_BRTH_TIME */
-    0,			/* RF4_XXX2 */
-    0,			/* RF4_XXX3 */
-    0,			/* RF4_XXX4 */
+    0,			/* RF4_BRTH_STORM */
+    0,			/* RF4_BRTH_DFIRE */
+    0,			/* RF4_BRTH_ICE */
     0,			/* RF4_XXX5 */
     0			/* RF4_XXX6 */
   };
@@ -3402,8 +3412,8 @@ byte mana_cost_RF5[32]=
     3, 			/* RF5_BEAM_ELEC */
     6, 			/* RF5_BEAM_ICE */
     7, 			/* RF5_BEAM_NETHER */
-    7, 			/* RF5_ARC__HFIRE */
-    5  			/* RF5_ARC__FORCE */
+    7, 			/* RF5_ARC_HFIRE */
+    5  			/* RF5_ARC_FORCE */
   };
 
 byte mana_cost_RF6[32]=
@@ -3526,9 +3536,9 @@ byte spell_desire_RF4[32][8] =
     { 50,  0,   0,   5,	0,   0, LRN_CHAOS ,   90}, /* RF4_BRTH_CHAOS*/
     { 50,  0,   0,   5,	0,   0, LRN_DISEN ,   90}, /* RF4_BRTH_DISEN*/
     { 50,  0,   0,   5,	0,   0,	   0	  ,   90}, /* RF4_BRTH_TIME */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX2 */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX3 */
-    { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX4 */
+    { 65,  0,   0,   5,	0,   0,	LRN_STORM ,   90}, /* RF4_BRTH_STORM */
+    { 65,  0,   0,   5,	0,   0,	LRN_DFIRE ,   90}, /* RF4_BRTH_DFIRE */
+    { 65,  0,   0,   5,	0,   0,	LRN_ICE	  ,   90}, /* RF4_BRTH_ICE */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF4_XXX5 */
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100} /* RF4_XXX6 */
   };
@@ -3567,8 +3577,8 @@ byte spell_desire_RF5[32][8] =
     { 50,  0,   0,   0,	0,   0, LRN_ELEC  ,   90}, /* RF5_BEAM_ELEC */
     { 50,  0,   0,   0,	0,   0, LRN_ICE	  ,   90}, /* RF5_BEAM_ICE  */
     { 50,  0,   0,   0,	0,   0, LRN_NETHR ,   90}, /* RF5_BEAM_NETHR*/
-    { 50,  0,   0,   0,	0,   0, LRN_FIRE  ,   95}, /* RF5_ARC__HFIRE*/
-    { 40,  0,   0,   0,	0,   0,	   0	  ,   90} /* RF5_ARC__FORCE*/
+    { 50,  0,   0,   0,	0,   0, LRN_FIRE  ,   95}, /* RF5_ARC_HFIRE*/
+    { 40,  0,   0,   0,	0,   0,	   0	  ,   90} /* RF5_ARC_FORCE*/
   };
 
 byte spell_desire_RF6[32][8] =
@@ -3643,7 +3653,7 @@ byte spell_desire_RF7[32][8] =
     { 0,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_XX15	    */
     { 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
     { 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
-    { 0,   18,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_QUEST  */
+    { 0,   20,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_QUEST  */
     { 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_UNIQUE  */
 };
 
@@ -4226,7 +4236,7 @@ cptr locality_name[MAX_LOCALITIES] =
     "Thargelion",
     "Doriath",
     "Himlad",
-    "Dor Dinen",
+    "Dor D['i]nen",
     "Dorthonion",
     "Talath Dirnen",
     "Brethil",
@@ -4234,14 +4244,14 @@ cptr locality_name[MAX_LOCALITIES] =
     "Fen of Serech",
     "Anfauglith",
     "Lothlann",
-    "Amon Rudh",
+    "Amon R[^u]dh",
     "Nan Dungortheb",
     "Nargothrond",
     "Tol-In-Gaurhoth",
     "Angband",
     "Anduin Vale",
     "Gladden Fields",
-    "Khazad Dum",
+    "Khazad D[^u]m",
     "Belegost",
     "Menegroth",
     "Ephel Brandir",
@@ -4270,7 +4280,7 @@ cptr short_locality_name[MAX_LOCALITIES] =
     "Tharg",
     "Drath",
     "Hmld",
-    "DrDin",
+    "DrD['i]n",
     "Drthn",
     "TDirn",
     "Breth",
@@ -4278,14 +4288,14 @@ cptr short_locality_name[MAX_LOCALITIES] =
     "FenSh",
     "Anfau",
     "Lothl",
-    "ARudh",
+    "AR[^u]dh",
     "NDng",
     "Narg",
     "T-I-G",
     "Ang",
     "AVale",
     "GladFlds",
-    "KhazdDum",
+    "KhazdD[^u]m",
     "Belegost",
     "Menegrth",
     "EBrandir",

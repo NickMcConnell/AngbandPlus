@@ -879,6 +879,9 @@ static char *my_strdup (const char *s)
   return t;
 }
 
+/* Hack - hard code this here */
+#define MAX_A_IDX       250     /* Max size for "a_info[]" */
+
 
 /*
  * Read the saved random artifacts from a savefile, and add them to the 
@@ -1093,8 +1096,9 @@ static errr rd_extra(void)
   /* Read the stat info */
   for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
   for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
-  
-  strip_bytes(24);	/* oops */
+
+  /* Barehand damage */  
+  for (i = 0; i < 12; i++) rd_u16b(&p_ptr->barehand_dam[i]);
   
   rd_s32b(&p_ptr->au);
   
@@ -1859,7 +1863,7 @@ static errr rd_savefile_new_aux(void)
   rd_u16b(&tmp16u);
   
   /* Incompatible save files */
-  if (tmp16u > MAX_R_IDX)
+  if (tmp16u > z_info->r_max)
     {
       note(format("Too many (%u) monster races!", tmp16u));
       return (21);
@@ -1890,7 +1894,7 @@ static errr rd_savefile_new_aux(void)
   rd_u16b(&tmp16u);
   
   /* Incompatible save files */
-  if (tmp16u > MAX_K_IDX)
+  if (tmp16u > z_info->k_max)
     {
       note(format("Too many (%u) object kinds!", tmp16u));
       return (22);
@@ -1961,7 +1965,7 @@ static errr rd_savefile_new_aux(void)
   
   
   /* Incompatible save files */
-  if (total_artifacts > MAX_A_IDX)
+  if (total_artifacts > z_info->a_max)
     {
       note(format("Too many (%u) artifacts!", total_artifacts));
       return (24);
@@ -2085,11 +2089,11 @@ static errr rd_savefile_new_aux(void)
       /* Verify that number, and warn the chap who modified the game that 
        * he still has work to do on failure.
        */
-      if (num_of_random_arts != (MAX_A_IDX - ART_MIN_RANDOM))
+      if (num_of_random_arts != (z_info->a_max - ART_MIN_RANDOM))
 	{
 	  note(format("Number of stored random artifact names (%d) does not", 
 		      num_of_random_arts));
-	  note(format("match the number of random artifacts in your copy of FAangband (%d).", MAX_A_IDX - ART_MIN_RANDOM));
+	  note(format("match the number of random artifacts in your copy of FAangband (%d).", z_info->a_max - ART_MIN_RANDOM));
 	}
       
       

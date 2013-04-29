@@ -256,7 +256,7 @@ static void build_prob(name_probs probs, cptr *learn)
 		/* Iterate over the next word */
 		while (*ch != '\0')
 		{
-			c_next = A2I(tolower((unsigned char)*ch));
+			c_next = A2I(my_tolower((unsigned char)*ch));
 
 			probs[c_prev][c_cur][c_next]++;
 			probs[c_prev][c_cur][TOTAL]++;
@@ -368,7 +368,7 @@ size_t randname_make(randname_type name_type, size_t min, size_t max, char *word
 				/* Add the letter to the word and move on. */
 				*cp = I2A(c_next);
 
-				if (is_a_vowel(*cp))
+				if (my_is_vowel(*cp))
 					contains_vowel = TRUE;
 
 				cp++;

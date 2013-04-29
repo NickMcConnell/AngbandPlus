@@ -421,6 +421,19 @@ static int find_resist(int m_idx, int spell_lrn)
 	else if (smart & (SM_RES_ELEC)) a += 20;
 	return(a);
       }
+      /* Dragonfire Spells */
+    case LRN_DFIRE:
+      {
+	a=0;
+	if (smart & (SM_IMM_FIRE)) a += 50;
+	else if (smart & (SM_RES_STRONG_FIRE)) a += 35;
+	else if (smart & (SM_RES_FIRE)) a += 20;
+	if (smart & (SM_RES_STRONG_POIS)) a += 80;
+	else if (smart & (SM_RES_POIS)) a += 55;
+	if (smart & (SM_IMM_FREE)) a += 5;
+	if (smart & (SM_RES_CHAOS)) a += 5;
+	return(a);
+      }
       /* Light Spells */
     case LRN_LITE:
       {
@@ -1192,7 +1205,7 @@ bool cave_exist_mon(monster_race *r_ptr, int y, int x, bool occupied_ok)
       if (feat == FEAT_RUBBLE) return (TRUE);
       
       /* Trees are always OK */
-      if (feat == FEAT_TREE) return (TRUE);
+      if ((feat == FEAT_TREE) || (feat == FEAT_TREE2)) return (TRUE);
       
       /* Permanent walls are never OK */
       if ((feat >= FEAT_PERM_EXTRA) && (feat <= FEAT_PERM_SOLID)) 
@@ -1485,7 +1498,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 	}
       
       /* Trees */
-      if (feat == FEAT_TREE)
+      if ((feat == FEAT_TREE) || (feat == FEAT_TREE2))
 	{
 	  /* Some monsters can pass right through trees */
 	  if (r_ptr->flags2 & (RF2_PASS_WALL))
@@ -2692,7 +2705,7 @@ static void make_confused_move(monster_type *m_ptr, int y, int x)
 	}
       
       /* Tree */
-      else if (feat == FEAT_TREE)
+      else if ((feat == FEAT_TREE) || (feat == FEAT_TREE2))
 	{
 	  if (seen) msg_format("%^s wanders into a tree.", m_name);
 	}
@@ -3789,7 +3802,7 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
 	}
       
       /* Trees */
-      else if (feat == FEAT_TREE)
+      else if ((feat == FEAT_TREE) || (feat == FEAT_TREE2))
 	{
 	}
       
@@ -3937,7 +3950,8 @@ static void process_move(monster_type *m_ptr, int ty, int tx, bool bash)
       
       /* Possible disturb */
       else if (m_ptr->ml && (disturb_move || 
-			     (m_ptr->mflag & (MFLAG_VIEW) && disturb_near)))
+			     (m_ptr->mflag & (MFLAG_VIEW) && disturb_near) || 
+			     (r_ptr->flags2 & (RF2_PASS_WALL|RF2_KILL_WALL))))
 	{
 	  /* Disturb */
 	  disturb(0, 0);
@@ -4112,6 +4126,7 @@ static void process_monster(monster_type *m_ptr)
   int shape_rate = 0;
   int old_shape = m_ptr->orig_idx;
   int dir;
+  int scan_range = (adult_small_device ? r_ptr->aaf/2 : r_ptr->aaf); 
   bool fear = FALSE;
   
   bool bash;
@@ -4137,7 +4152,7 @@ static void process_monster(monster_type *m_ptr)
        * Character is outside of scanning range and well outside 
        * of sighting range.  Monster does not have a target.
        */
-      if ((m_ptr->cdis >= FLEE_RANGE) && (m_ptr->cdis > r_ptr->aaf) && 
+      if ((m_ptr->cdis >= FLEE_RANGE) && (m_ptr->cdis > scan_range) && 
 	  (!m_ptr->ty) && (!m_ptr->tx))
 	{
 	  /* Monster cannot smell the character */
@@ -4150,7 +4165,7 @@ static void process_monster(monster_type *m_ptr)
   else
     {
       /* Character is inside scanning range */
-      if (m_ptr->cdis <= r_ptr->aaf) m_ptr->mflag |= (MFLAG_ACTV);
+      if (m_ptr->cdis <= scan_range) m_ptr->mflag |= (MFLAG_ACTV);
       
       /* Monster has a target */
       else if ((m_ptr->ty) && (m_ptr->tx)) m_ptr->mflag |= (MFLAG_ACTV);
@@ -4434,6 +4449,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
   monster_lore *l_ptr = &l_list[m_ptr->r_idx];
   
   int frac;
+  int scan_range = (adult_small_device ? r_ptr->aaf/2 : r_ptr->aaf); 
   
   
   /* Handle stasis */
@@ -4538,7 +4554,7 @@ static void recover_monster(monster_type *m_ptr, bool regen)
   
   
   /* Monster is sleeping, but character is within detection range */
-  if ((m_ptr->csleep) && (m_ptr->cdis <= r_ptr->aaf))
+  if ((m_ptr->csleep) && (m_ptr->cdis <= scan_range))
     {
       /* Aggravated by the player */
       if (p_ptr->aggravate)

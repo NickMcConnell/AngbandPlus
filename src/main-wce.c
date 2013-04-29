@@ -6312,7 +6312,7 @@ static void hook_quit(cptr str)
 
 	/* Free strings */
 	string_free(ini_file);
-	string_free(argv0);
+	//string_free(argv0);
 	string_free(ANGBAND_DIR_XTRA_FONT);
 	string_free(ANGBAND_DIR_XTRA_GRAF);
 	string_free(ANGBAND_DIR_XTRA_SOUND);

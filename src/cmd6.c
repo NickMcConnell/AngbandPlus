@@ -625,7 +625,7 @@ void do_cmd_quaff_potion(void)
     case SV_POTION_DEATH:
       {
 	msg_print("A feeling of Death flows through your body.");
-	take_hit(5000, "a potion of Death");
+	take_hit(p_ptr->mhp, "a potion of Death");
 	ident = TRUE;
 	break;
       }
@@ -1289,14 +1289,16 @@ void do_cmd_read_scroll(void)
 	if (!ident_spell()) used_up = FALSE;
 	break;
       }
-      
+
+#if 0      
     case SV_SCROLL_STAR_IDENTIFY:
       {
 	ident = TRUE;
 	if (!identify_fully()) used_up = FALSE;
 	break;
       }
-      
+#endif     
+ 
     case SV_SCROLL_BRANDING:
       {
 	ident = TRUE;

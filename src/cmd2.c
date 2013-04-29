@@ -39,29 +39,33 @@ void do_cmd_move_house(void)
       sprintf(buf, "Do you really want to move to %s?", town);
       if (!get_check(buf)) return;
 
-      /* Get the current home */
-      while (1)
+      /* No need to move for thrall mode */
+      if (p_ptr->home)
 	{
-	  while (type_of_store[old_home] != STORE_HOME) old_home++;
-	  if (p_ptr->home == towns[i]) break;
-	  old_home++;
-	  i++;
+	  /* Get the current home */
+	  while (1)
+	    {
+	      while (type_of_store[old_home] != STORE_HOME) old_home++;
+	      if (p_ptr->home == towns[i]) break;
+	      old_home++;
+	      i++;
+	    }
+	  i = 0;
+	  
+	  /* Get the new home */
+	  while (1)
+	    {
+	      while (type_of_store[new_home] != STORE_HOME) new_home++;
+	      if (p_ptr->stage == towns[i]) break;
+	      new_home++;
+	      i++;
+	    }
+	  
+	  /* Transfer the gear */
+	  temp = store[new_home];
+	  store[new_home] = store[old_home];
+	  store[old_home] = temp;
 	}
-      i = 0;
-
-      /* Get the new home */
-      while (1)
-	{
-	  while (type_of_store[new_home] != STORE_HOME) new_home++;
-	  if (p_ptr->stage == towns[i]) break;
-	  new_home++;
-	  i++;
-	}
-
-      /* Transfer the gear */
-      temp = store[new_home];
-      store[new_home] = store[old_home];
-      store[old_home] = temp;
 
       /* Set the new town */
       p_ptr->home = p_ptr->stage;
@@ -93,24 +97,28 @@ void do_cmd_go_up(void)
   int px = p_ptr->px;
   
   byte pstair = cave_feat[py][px];
+  feature_type *f_ptr = &f_info[pstair];
   
-  /* Check for paths first  */
-  if (pstair >= FEAT_LESS_NORTH)
+  /* Check for appropriate terrain  */
+  if (!(f_ptr->flags & TF_STAIR))
     {
-      /* Even for < */
-      if (pstair & 0x01)
-	{
-	  msg_print("This is a path to greater danger.");
-	  return;
-	}
+      msg_print("I see no path or staircase here.");
+      return;
     }
+  /* Even for < */
+  else if ((pstair != FEAT_LESS) && (pstair != FEAT_MORE) && (pstair & 0x01))
+    {
+      msg_print("This is a path to greater danger.");
+      return;
+    }
+
   else
     {
       
       /* Verify stairs */
-      if (pstair != FEAT_LESS)
+      if (pstair == FEAT_MORE)
 	{
-	  msg_print("I see no up staircase here.");
+	  msg_print("This staircase leads down.");
 	  return;
 	}
     }
@@ -144,7 +152,7 @@ void do_cmd_go_up(void)
       
   
   /* Hack -- take a turn */
-  p_ptr->energy_use = 100;
+  //p_ptr->energy_use = 100;
   
   /* Success */
   if (pstair == FEAT_LESS)
@@ -228,27 +236,32 @@ void do_cmd_go_down(void)
   int px = p_ptr->px;
   
   byte pstair = cave_feat[py][px];
+  feature_type *f_ptr = &f_info[pstair];
   
-  /* Check for paths first  */
-  if (pstair >= FEAT_LESS_NORTH)
+  /* Check for appropriate terrain  */
+  if (!(f_ptr->flags & TF_STAIR))
     {
-      /* Odd for > */
-      if (!(pstair & 0x01))
-	{
-	  msg_print("This is a path to less danger.");
-	  return;
-	}
+      msg_print("I see no path or staircase here.");
+      return;
     }
+  /* Odd for > */
+  else if ((pstair != FEAT_LESS) && (pstair != FEAT_MORE) && !(pstair & 0x01))
+    {
+      msg_print("This is a path to less danger.");
+      return;
+    }
+    
   else
     {
       
       /* Verify stairs */
-      if (pstair != FEAT_MORE)
+      if (pstair == FEAT_LESS)
 	{
-	  msg_print("I see no down staircase here.");
+	  msg_print("This staircase leads up.");
 	  return;
 	}
     }
+  
   
   /* Handle ironman */
   if (adult_ironman && !p_ptr->depth)
@@ -275,7 +288,7 @@ void do_cmd_go_down(void)
   
   
   /* Hack -- take a turn */
-  p_ptr->energy_use = 100;
+  //p_ptr->energy_use = 100;
   
   /* Success */
 
@@ -1762,6 +1775,8 @@ void do_cmd_close(void)
  */
 static bool do_cmd_tunnel_test(int y, int x)
 {
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
   /* Must have knowledge */
   if (!(cave_info[y][x] & (CAVE_MARK)))
     {
@@ -1773,17 +1788,17 @@ static bool do_cmd_tunnel_test(int y, int x)
     }
   
   /* Must be a wall/door/etc */
-  if (cave_floor_bold(y, x) || (cave_feat[y][x] == FEAT_TREE))
+  if ((f_ptr->flags & TF_ROCK) || (f_ptr->flags & TF_DOOR_CLOSED))
     {
-      /* Message */
-      msg_print("You see nothing there to tunnel.");
-      
-      /* Nope */
-      return (FALSE);
+      /* Okay */
+      return (TRUE);
     }
+
+  /* Message */
+  msg_print("You see nothing there to tunnel.");
   
-  /* Okay */
-  return (TRUE);
+  /* Nope */
+  return (FALSE);
 }
 
 
@@ -1800,7 +1815,8 @@ static bool do_cmd_tunnel_test(int y, int x)
 static bool twall(int y, int x)
 {
   /* Paranoia -- Require a wall or door or some such */
-  if (cave_floor_bold(y, x) && (cave_feat[y][x] == FEAT_TREE)) return (FALSE);
+  if (cave_floor_bold(y, x) || (cave_feat[y][x] == FEAT_TREE) || 
+      (cave_feat[y][x] == FEAT_TREE2)) return (FALSE);
   
   /* Sound */
   sound(SOUND_DIG);
@@ -1831,7 +1847,7 @@ static bool twall(int y, int x)
 static bool do_cmd_tunnel_aux(int y, int x)
 {
   bool more = FALSE;
-  
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
   /* Verify legality */
   if (!do_cmd_tunnel_test(y, x)) return (FALSE);
@@ -1840,152 +1856,155 @@ static bool do_cmd_tunnel_aux(int y, int x)
   /* Sound XXX XXX XXX */
   /* sound(SOUND_DIG); */
   
-  /* Titanium */
-  if (cave_feat[y][x] >= FEAT_PERM_EXTRA)
+  /* All rock and secret doors */
+  if (f_ptr->flags & TF_ROCK)
     {
-      msg_print("This seems to be permanent rock.");
-    }
-  
-  /* Granite */
-  else if (cave_feat[y][x] >= FEAT_WALL_EXTRA)
-    {
-      /* Tunnel */
-      if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
+      /* Titanium */
+      if (f_ptr->flags & TF_PERMANENT)
 	{
-	  msg_print("You have finished the tunnel.");
+	  msg_print("This seems to be permanent rock.");
 	}
       
-      /* Keep trying */
-      else
+      /* Granite */
+      else if ((f_ptr->flags & TF_GRANITE) && !(f_ptr->flags & TF_DOOR_ANY))
 	{
-	  /* We may continue tunelling */
-	  msg_print("You tunnel into the granite wall.");
-	  more = TRUE;
-	}
-    }
-  
-  /* Quartz / Magma */
-  else if (cave_feat[y][x] >= FEAT_MAGMA)
-    {
-      bool okay = FALSE;
-      bool gold = FALSE;
-      bool hard = FALSE;
-      
-      /* Found gold */
-      if (cave_feat[y][x] >= FEAT_MAGMA_H)
-	{
-	  gold = TRUE;
-	}
-      
-      /* Extract "quartz" flag XXX XXX XXX */
-      if ((cave_feat[y][x] - FEAT_MAGMA) & 0x01)
-	{
-	  hard = TRUE;
-	}
-      
-      /* Quartz */
-      if (hard)
-	{
-	  okay = (p_ptr->skill_dig > 20 + rand_int(800));
-	}
-      
-      /* Magma */
-      else
-	{
-	  okay = (p_ptr->skill_dig > 10 + rand_int(400));
-	}
-      
-      /* Success */
-      if (okay && twall(y, x))
-	{
-	  /* Found treasure */
-	  if (gold)
+	  /* Tunnel */
+	  if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
 	    {
-	      /* Place some gold */
-	      place_gold(y, x);
-	      
-	      /* Message */
-	      msg_print("You have found something!");
-	    }
-	  
-	  /* Found nothing */
-	  else
-	    {
-	      /* Message */
 	      msg_print("You have finished the tunnel.");
 	    }
-	}
-      
-      /* Failure (quartz) */
-      else if (hard)
-	{
-	  /* Message, continue digging */
-	  msg_print("You tunnel into the quartz vein.");
-	  more = TRUE;
-	}
-      
-      /* Failure (magma) */
-      else
-	{
-	  /* Message, continue digging */
-	  msg_print("You tunnel into the magma vein.");
-	  more = TRUE;
-	}
-    }
-  
-  /* Rubble */
-  else if (cave_feat[y][x] == FEAT_RUBBLE)
-    {
-      /* Remove the rubble */
-      if ((p_ptr->skill_dig > rand_int(200)) && twall(y, x))
-	{
-	  /* Message */
-	  msg_print("You have removed the rubble.");
 	  
-	  /* Hack -- place an object */
-	  if (rand_int(100) == 0)
+	  /* Keep trying */
+	  else
 	    {
-	      /* Create a simple object */
-	      place_object(y, x, FALSE, FALSE, FALSE);
-	      
-	      /* Observe new object */
-	      if (!squelch_hide_item(&o_list[cave_o_idx[y][x]]) &&
-		  player_can_see_bold(y, x))
-		{
-		  msg_print("You have found something!");
-		}
+	      /* We may continue tunelling */
+	      msg_print("You tunnel into the granite wall.");
+	      more = TRUE;
 	    }
 	}
       
-      else
+      /* Quartz / Magma */
+      else if (!(f_ptr->flags & TF_GRANITE) && (f_ptr->flags & TF_WALL))
 	{
-	  /* Message, keep digging */
-	  msg_print("You dig in the rubble.");
-	  more = TRUE;
-	}
-    }
-  
-  /* Secret doors */
-  else if (cave_feat[y][x] >= FEAT_SECRET)
-    {
-      /* Tunnel */
-      if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
-	{
-	  msg_print("You have finished the tunnel.");
+	  bool okay = FALSE;
+	  bool gold = FALSE;
+	  bool hard = FALSE;
+	  
+	  /* Found gold */
+	  if (cave_feat[y][x] >= FEAT_MAGMA_H)
+	    {
+	      gold = TRUE;
+	    }
+	  
+	  /* Extract "quartz" flag XXX XXX XXX */
+	  if ((cave_feat[y][x] - FEAT_MAGMA) & 0x01)
+	    {
+	      hard = TRUE;
+	    }
+	  
+	  /* Quartz */
+	  if (hard)
+	    {
+	      okay = (p_ptr->skill_dig > 20 + rand_int(800));
+	    }
+	  
+	  /* Magma */
+	  else
+	    {
+	      okay = (p_ptr->skill_dig > 10 + rand_int(400));
+	    }
+	  
+	  /* Success */
+	  if (okay && twall(y, x))
+	    {
+	      /* Found treasure */
+	      if (gold)
+		{
+		  /* Place some gold */
+		  place_gold(y, x);
+		  
+		  /* Message */
+		  msg_print("You have found something!");
+		}
+	      
+	      /* Found nothing */
+	      else
+		{
+		  /* Message */
+		  msg_print("You have finished the tunnel.");
+		}
+	    }
+	  
+	  /* Failure (quartz) */
+	  else if (hard)
+	    {
+	      /* Message, continue digging */
+	      msg_print("You tunnel into the quartz vein.");
+	      more = TRUE;
+	    }
+	  
+	  /* Failure (magma) */
+	  else
+	    {
+	      /* Message, continue digging */
+	      msg_print("You tunnel into the magma vein.");
+	      more = TRUE;
+	    }
 	}
       
-      /* Keep trying */
-      else
+      /* Rubble */
+      else if (cave_feat[y][x] == FEAT_RUBBLE)
 	{
-	  /* We may continue tunelling */
-	  msg_print("You tunnel into the granite wall.");
+	  /* Remove the rubble */
+	  if ((p_ptr->skill_dig > rand_int(200)) && twall(y, x))
+	    {
+	      /* Message */
+	      msg_print("You have removed the rubble.");
+	      
+	      /* Hack -- place an object */
+	      if (rand_int(100) == 0)
+		{
+		  /* Create a simple object */
+		  place_object(y, x, FALSE, FALSE, FALSE);
+		  
+		  /* Observe new object */
+		  if (!squelch_hide_item(&o_list[cave_o_idx[y][x]]) &&
+		      player_can_see_bold(y, x))
+		    {
+		      msg_print("You have found something!");
+		    }
+		}
+	    }
+	  
+	  else
+	    {
+	      /* Message, keep digging */
+	      msg_print("You dig in the rubble.");
+	      more = TRUE;
+	    }
+	}
+      
+      /* Secret doors */
+      else if (cave_feat[y][x] == FEAT_SECRET)
+	{
+	  /* Tunnel */
+	  if ((p_ptr->skill_dig > 30 + rand_int(1200)) && twall(y, x))
+	    {
+	      msg_print("You have finished the tunnel.");
+	    }
+	  
+	  /* Keep trying */
+	  else
+	    {
+	      /* We may continue tunelling */
+	      msg_print("You tunnel into the granite wall.");
 	  more = TRUE;
 	  
 	  /* Occasional Search XXX XXX */
 	  if (rand_int(100) < 25) search();
+	    }
 	}
     }
-  
   /* Doors */
   else
     {
@@ -2185,13 +2204,16 @@ static bool do_cmd_disarm_aux(int y, int x)
   
   bool more = FALSE;
   
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+  int tree_hack = (cave_feat[y][x] == FEAT_TRAP_HEAD + 0x0B ? 1 : 0);
   
   /* Verify legality */
   if (!do_cmd_disarm_test(y, x)) return (FALSE);
   
   
   /* Access trap or glyph name */
-  name = (f_name + f_info[cave_feat[y][x]].name);
+  name = (f_name + f_ptr->name);
   
   /* Get the "disarm" factor */
   i = p_ptr->skill_dis;
@@ -2205,8 +2227,7 @@ static bool do_cmd_disarm_aux(int y, int x)
   power = 5 + p_ptr->depth / 4;
   
   /* Prevent the player's own traps granting exp. */
-  if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && 
-      (cave_feat[y][x] <= FEAT_MTRAP_TAIL)) power = 0;
+  if (f_ptr->flags & TF_M_TRAP) power = 0;
 
   /* Prevent glyphs of warding granting exp. */
   if (cave_feat[y][x] == FEAT_GLYPH) power = 0;
@@ -2228,8 +2249,7 @@ static bool do_cmd_disarm_aux(int y, int x)
       else msg_format("You have disarmed the %s.", name);
       
       /* If a Rogue's monster trap, decrement the trap count. */
-      if ((cave_feat[y][x] >= FEAT_MTRAP_HEAD) && 
-	  (cave_feat[y][x] <= FEAT_MTRAP_TAIL))
+      if (f_ptr->flags & TF_M_TRAP)
 	num_trap_on_level--;
       
       /* If a glyph, decrement the glyph count. */
@@ -2241,8 +2261,11 @@ static bool do_cmd_disarm_aux(int y, int x)
       /* Forget the trap */
       cave_info[y][x] &= ~(CAVE_MARK);
       
-      /* Remove the trap */
-      cave_set_feat(y, x, FEAT_FLOOR);
+      /* Remove the trap (trees are hackish) */
+      if (f_ptr->flags & TF_TREE)
+	cave_set_feat(y, x, FEAT_TREE + tree_hack);
+      else
+	cave_set_feat(y, x, FEAT_FLOOR);
     }
   
   /* Failure -- Keep trying */

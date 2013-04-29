@@ -237,7 +237,7 @@ static void spoil_obj_desc(cptr fname)
 	}
 
       /* Acquire legal item types */
-      for (k = 1; k < MAX_K_IDX; k++)
+      for (k = 1; k < z_info->k_max; k++)
 	{
 	  object_kind *k_ptr = &k_info[k];
 	  
@@ -1117,7 +1117,27 @@ bool make_fake_artifact(object_type *o_ptr, int name1)
   o_ptr->to_h = a_ptr->to_h;
   o_ptr->to_d = a_ptr->to_d;
   o_ptr->weight = a_ptr->weight;
+  o_ptr->weight = a_ptr->weight;
+  for (i = 0; i < MAX_P_RES; i++)
+    o_ptr->percent_res[i] = a_ptr->percent_res[i];
+  for (i = 0; i < 4; i++)
+    if (a_ptr->flags2 & (TR2_IM_ACID << i)) o_ptr->percent_res[i] = 0;
+  o_ptr->el_proof = (ACID_PROOF | ELEC_PROOF | FIRE_PROOF | COLD_PROOF);
+      
+  /* Hack -- extract the "broken" flag */
+  if (!a_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);
   
+  /* Hack -- extract the "cursed" flag */
+  if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
+  
+  /* Transfer the activation information. */
+  if (a_ptr->activation)
+    {
+      o_ptr->xtra1 = OBJECT_XTRA_TYPE_ACTIVATION;
+      o_ptr->xtra2 = a_ptr->activation;
+    }
+  
+   
   /* Success */
   return (TRUE);
 }
@@ -1136,7 +1156,11 @@ static void spoil_obj_gen(cptr fname)
   /* Storage */
   u32b artifacts = 0L;
   u32b egoitems = 0L;
-  u32b object[MAX_K_IDX];
+#ifdef _WIN32_WCE
+  u32b *object = malloc(z_info->k_max * sizeof(*object));
+#else
+  u32b object[z_info->k_max];
+#endif
   u32b depth[MAX_DEPTH];
   
   object_type *i_ptr;
@@ -1159,6 +1183,9 @@ static void spoil_obj_gen(cptr fname)
   if (!fff)
     {
       msg_print("Cannot create spoiler file.");
+#ifdef _WIN32_WCE
+      free(object);
+#endif
       return;
     }
   
@@ -1173,7 +1200,7 @@ static void spoil_obj_gen(cptr fname)
 	  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   
   /* Clear storage. */
-  for (i = 0; i < MAX_K_IDX; i++)
+  for (i = 0; i < z_info->k_max; i++)
     {
       object[i] = 0L;
     }
@@ -1227,7 +1254,7 @@ static void spoil_obj_gen(cptr fname)
   fprintf(fff, "Number of objects created (1,000,000 total)\n");
   fprintf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
   
-  for (i = 1; i < MAX_K_IDX; i++)
+  for (i = 1; i < z_info->k_max; i++)
     {
       if (object[i])
 	{
@@ -1235,7 +1262,7 @@ static void spoil_obj_gen(cptr fname)
 	  char *t;
 	  cptr str = (k_name + k_ptr->name);
 	  
-	  if (str == "") continue;
+	  if (strlen(str) == 0) continue;
 	  
 	  /* Skip past leading characters */
 	  while ((*str == ' ') || (*str == '&')) str++;
@@ -1261,6 +1288,9 @@ static void spoil_obj_gen(cptr fname)
       if (depth[i]) fprintf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
     }
   
+#ifdef _WIN32_WCE
+  free(object);
+#endif
   
   
   /* Check for errors */
@@ -1286,7 +1316,11 @@ static void spoil_mon_gen(cptr fname)
   int i, num;
   
   /* Storage */
-  u32b monster[MAX_R_IDX];
+#ifdef _WIN32_WCE
+  u32b *monster = malloc(z_info->r_max * sizeof(*monster));
+#else
+  u32b monster[z_info->r_max];
+#endif
   u32b depth[MAX_DEPTH];
   
   bool quick;
@@ -1307,6 +1341,9 @@ static void spoil_mon_gen(cptr fname)
   if (!fff)
     {
       msg_print("Cannot create spoiler file.");
+#ifdef _WIN32_WCE
+      free(monster);
+#endif
       return;
     }
   
@@ -1314,7 +1351,7 @@ static void spoil_mon_gen(cptr fname)
 	  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
   
   /* Clear storage. */
-  for (i = 0; i < MAX_R_IDX; i++)
+  for (i = 0; i < z_info->r_max; i++)
     {
       monster[i] = 0L;
     }
@@ -1391,7 +1428,7 @@ static void spoil_mon_gen(cptr fname)
   fprintf(fff, "Number of monsters of various kinds (1,000,000 total)\n");
   fprintf(fff, "         Generation Level:  %d\n\n", p_ptr->depth);
   
-  for (i = 1; i < MAX_R_IDX; i++)
+  for (i = 1; i < z_info->r_max; i++)
     {
       monster_race *r_ptr = &r_info[i];
       
@@ -1411,6 +1448,9 @@ static void spoil_mon_gen(cptr fname)
       if (depth[i]) fprintf(fff, "Level %3d:%6ld\n", i, (long)depth[i]);
     }
   
+#ifdef _WIN32_WCE
+  free(monster);
+#endif
   
   /* Check for errors */
   if (ferror(fff) || my_fclose(fff))
@@ -1474,7 +1514,7 @@ static void spoil_artifact(cptr fname)
 	}
       
       /* Now search through all of the artifacts */
-      for (j = 1; j < MAX_A_IDX; ++j)
+      for (j = 1; j < z_info->a_max; ++j)
 	{
 	  artifact_type *a_ptr = &a_info[j];
 	  
@@ -1562,10 +1602,10 @@ static void spoil_mon_desc(cptr fname)
   
   
   /* Allocate the "who" array */
-  C_MAKE(who, MAX_R_IDX, u16b);
+  C_MAKE(who, z_info->r_max, u16b);
   
   /* Scan the monsters */
-  for (i = 1; i < MAX_R_IDX; i++)
+  for (i = 1; i < z_info->r_max; i++)
     {
       monster_race *r_ptr = &r_info[i];
       
@@ -1789,7 +1829,7 @@ static void spoil_mon_info(cptr fname)
   /*
    * List all monsters in order.
    */
-  for (n = 1; n < MAX_R_IDX; n++)
+  for (n = 1; n < z_info->r_max; n++)
     {
       monster_race *r_ptr = &r_info[n];
       
@@ -1994,8 +2034,8 @@ static void spoil_mon_info(cptr fname)
 	    {
 	      if (!i)
 		{
-		  roff(" may ", 0, 0);
-		  if (flags2 & (RF2_ARCHER)) roff("frequently ", 0, 0);
+		  spoil_out(" may ");
+		  if (flags2 & (RF2_ARCHER)) spoil_out("frequently ");
 		}
 	      else if (i < vn-1) spoil_out(", ");
 	      else spoil_out(", or ");
@@ -2031,9 +2071,9 @@ static void spoil_mon_info(cptr fname)
       if (flags4 & (RF4_BRTH_DISEN))	vp[vn++] = "disenchantment";
       if (flags4 & (RF4_BRTH_TIME))	vp[vn++] = "time";
 
-      if (flags4 & (RF4_XXX2))		vp[vn++] = "something";
-      if (flags4 & (RF4_XXX3))		vp[vn++] = "something";
-      if (flags4 & (RF4_XXX4))		vp[vn++] = "something";
+      if (flags4 & (RF4_BRTH_STORM))	vp[vn++] = "storm";
+      if (flags4 & (RF4_BRTH_DFIRE))	vp[vn++] = "dragonfire";
+      if (flags4 & (RF4_BRTH_ICE))	vp[vn++] = "ice";
       if (flags4 & (RF4_XXX5))		vp[vn++] = "something";
       if (flags4 & (RF4_XXX6))		vp[vn++] = "something";
       
@@ -2183,7 +2223,7 @@ static void spoil_mon_info(cptr fname)
 	  if (spower < 40) vp[vn++] = "cast lances of nether";
 	  else if (spower < 90) vp[vn++] = "shoot rays of death";
 	}
-      if (flags5 & (RF5_ARC__HFIRE))
+      if (flags5 & (RF5_ARC_HFIRE))
 	{
 	  if (flags2 & (RF2_UDUN_MAGIC))
 	    {
@@ -2197,7 +2237,7 @@ static void spoil_mon_info(cptr fname)
 	      else if (spower < 100) vp[vn++] = "envelop you in fire";
 	    }
 	}
-      if (flags5 & (RF5_ARC__FORCE))
+      if (flags5 & (RF5_ARC_FORCE))
 	{
 	  if (spower < 50) vp[vn++] = "thrust you away";
 	  else if (spower < 100) vp[vn++] = "hurls you away";
@@ -2471,7 +2511,7 @@ static void spoil_mon_info(cptr fname)
       else spoil_out(" is ever vigilant for");
       
       sprintf(buf, " intruders, which %s may notice from %d feet.  ",
-	      wd_lhe[msex], 10 * r_ptr->aaf);
+	      wd_lhe[msex], (adult_small_device ? 5 : 10) * r_ptr->aaf);
       spoil_out(buf);
       
       i = 0;

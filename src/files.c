@@ -278,7 +278,7 @@ errr process_pref_file_aux(char *buf)
 	  i = (huge)strtol(zz[0], NULL, 0);
 	  n1 = strtol(zz[1], NULL, 0);
 	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= MAX_R_IDX) return (1);
+	  if (i >= z_info->r_max) return (1);
 	  r_ptr = &r_info[i];
 	  if (n1) r_ptr->x_attr = n1;
 	  if (n2) r_ptr->x_char = n2;
@@ -344,7 +344,7 @@ errr process_pref_file_aux(char *buf)
 	  i = (huge)strtol(zz[0], NULL, 0);
 	  n1 = strtol(zz[1], NULL, 0);
 	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= MAX_K_IDX) return (1);
+	  if (i >= z_info->k_max) return (1);
 	  k_ptr = &k_info[i];
 	  if (n1) k_ptr->x_attr = n1;
 	  if (n2) k_ptr->x_char = n2;
@@ -362,7 +362,7 @@ errr process_pref_file_aux(char *buf)
 	  i = (huge)strtol(zz[0], NULL, 0);
 	  n1 = strtol(zz[1], NULL, 0);
 	  n2 = strtol(zz[2], NULL, 0);
-	  if (i >= MAX_F_IDX) return (1);
+	  if (i >= z_info->f_max) return (1);
 	  f_ptr = &f_info[i];
 	  if (n1) f_ptr->x_attr = n1;
 	  if (n2) f_ptr->x_char = n2;
@@ -381,7 +381,7 @@ errr process_pref_file_aux(char *buf)
 	  i = (huge)strtol(zz[0], NULL, 0);
 	  n1 = strtol(zz[1], NULL, 0);
 	  n2 = strtol(zz[2], NULL, 0);
-	  if ((i < 0) || (i >= MAX_FL_IDX)) return (1);
+	  if ((i < 0) || (i >= z_info->flavor_max)) return (1);
 	  flavor_ptr = &flavor_info[i];
 	  if (n1) flavor_ptr->x_attr = (byte)n1;
 	  if (n2) flavor_ptr->x_char = (char)n2;
@@ -413,7 +413,7 @@ errr process_pref_file_aux(char *buf)
 	  j = (huge)strtol(zz[0], NULL, 0);
 	  n1 = strtol(zz[1], NULL, 0);
 	  n2 = strtol(zz[2], NULL, 0);
-	  for (i = 1; i < MAX_K_IDX; i++)
+	  for (i = 1; i < z_info->k_max; i++)
 	    {
 	      object_kind *k_ptr = &k_info[i];
 	      if (k_ptr->tval == j)
@@ -2164,7 +2164,15 @@ extern int make_dump(char_attr_line *line, int mode)
       current_line++;
       
       dump_ptr = (char_attr *)&line[current_line];
-      if (show_m_todam >= 0)
+      /* Show damage per blow if no weapon wielded */
+      if (!inventory[INVEN_WIELD].k_idx)
+	{
+	  int sum = 0;
+
+	  for (i = 0; i < 12; i++) sum += (int)p_ptr->barehand_dam[i];
+	  dump_num("Av. Damage/Blow  ", sum/12, 1, TERM_L_BLUE);
+	}
+      else if (show_m_todam >= 0)
 	dump_num("Deadliness (%)   ", deadliness_conversion[show_m_todam], 
 		 1, TERM_L_BLUE);
       else
@@ -2807,8 +2815,10 @@ extern int make_dump(char_attr_line *line, int mode)
       /* Get the location name */
       if (lev)
 	strnfmt(place, sizeof(place), "%15s%4d ", locality_name[region], lev);
-      else
+      else if ((region != UNDERWORLD) && (region != MOUNTAIN_TOP))
 	strnfmt(place, sizeof(place), "%15s Town", locality_name[region]);
+      else
+	strnfmt(place, sizeof(place), "%15s    ", locality_name[region]);
       
       
       /* Make preliminary part of note */
@@ -2921,7 +2931,7 @@ extern int make_dump(char_attr_line *line, int mode)
   /* Dump options */
   current_line++;
   dump_ptr = (char_attr *)&line[current_line];
-  dump_put_str(TERM_WHITE, "[Cheat Options]", 2);
+  dump_put_str(TERM_WHITE, "[Options]", 2);
   current_line += 2;
 
   /* Dump options */
@@ -4592,7 +4602,7 @@ static void death_examine(void)
   screen_save();
   
   /* Examine the item. */
-  object_info_screen(o_ptr);
+  object_info_screen(o_ptr, FALSE);
 
   /* Load screen */
   screen_load();
@@ -5532,6 +5542,7 @@ static void close_game_aux(void)
 void close_game(void)
 {
   char buf[1024];
+  event_type ke;
   
   /* Handle stuff */
   handle_stuff();
@@ -5578,7 +5589,8 @@ void close_game(void)
       prt("Press Return (or Escape).", 0, 40);
       
       /* Predict score (or ESCAPE) */
-      if (inkey() != ESCAPE) predict_score();
+      ke = inkey_ex();
+      if (ke.key != ESCAPE) predict_score();
     }
   
   

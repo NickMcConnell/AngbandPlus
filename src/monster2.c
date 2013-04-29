@@ -301,6 +301,9 @@ void wipe_m_list(void)
       /* Wipe the Monster */
       (void)WIPE(m_ptr, monster_type);
     }
+
+  /* Hack - wipe the player */
+  cave_m_idx[p_ptr->py][p_ptr->px] = 0;
   
   /* Reset "m_max" */
   m_max = 1;
@@ -531,6 +534,10 @@ s16b get_mon_num(int level)
 	  
 	  if ((r_ptr->flags2 & (RF2_GAURHOTH)) &&
 	      (stage_map[p_ptr->stage][LOCALITY] != TOL_IN_GAURHOTH))
+	    continue;
+	  
+	  if ((r_ptr->flags2 & (RF2_ANGBAND)) &&
+	      (stage_map[p_ptr->stage][LOCALITY] != ANGBAND))
 	    continue;
 	  
 	  /* Hack - choose flying monsters for mountaintop */
@@ -2542,7 +2549,7 @@ bool summon_questor(int y1, int x1)
   if (i == 20) return (FALSE);
   
   /* Get quest monsters */
-  for (i = 1; i < MAX_R_IDX; i++)
+  for (i = 1; i < z_info->r_max; i++)
     {
       monster_race *r_ptr = &r_info[i];
       

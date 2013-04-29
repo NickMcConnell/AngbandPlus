@@ -1120,6 +1120,7 @@ static void initialize_artifact(int a_idx)
   
   int power_of_base_object = 0;
   int base_object_activation = 0;
+  int fudge = 0;
   
   
   object_kind *k_ptr;
@@ -1158,7 +1159,7 @@ static void initialize_artifact(int a_idx)
   while(TRUE)
     {
       /* Acquire an object at random */
-      index = rand_int(MAX_K_IDX);
+      index = rand_int(z_info->k_max);
 
       k_ptr = &k_info[index];
       
@@ -1368,6 +1369,20 @@ static void initialize_artifact(int a_idx)
       a_ptr->flags1 = k_ptr->flags1;
       a_ptr->flags2 = k_ptr->flags2;
       a_ptr->flags3 = k_ptr->flags3;
+
+      /* Allocate percentages to resistances */
+      for (i = 0; i < MAX_P_RES; i++)
+	{
+	  /* Hack - avoid Fear and Blindness */
+	  if ((i == 5) || (i == 7)) fudge++;
+	  
+	  if (a_ptr->flags2 & (1L << (16 + i + fudge)))
+	    /* Base resist is 40% */
+	    a_ptr->percent_res[i] = RES_BOOST_NORMAL;
+	  else
+	    a_ptr->percent_res[i] = RES_LEVEL_BASE;
+	}
+
     }
   else
     {
@@ -3200,10 +3215,10 @@ static void choose_basic_theme(int a_idx)
 	    a_ptr->rarity *= 3/2;
 
 	    /* Bonuses to Deadliness, Skill and Armour Class*/
-	    temp = 3 + randint(7) + potential / 2000;
+	    temp = 3 + randint(5) + potential / 2000;
 	    a_ptr->to_d += temp;
 	    a_ptr->to_h += temp;
-	    a_ptr->to_a += 5 + randint(10) + potential / 1000;
+	    a_ptr->to_a += 3 + randint(5) + potential / 1000;
 
 	    /* Power over an element */
 	    temp = randint(4);
@@ -3260,7 +3275,7 @@ static void choose_basic_theme(int a_idx)
 		  }
 	      }
 
-	    /* The 20% that failed their first roll */
+	    /* The 12% that failed their first roll */
 	    else
 	      {
 		/* Free poison resistance and attack */
@@ -3268,11 +3283,19 @@ static void choose_basic_theme(int a_idx)
 		a_ptr->activation = ACT_RANDOM_POIS2;
 	      }
 
-	    /* Sometimes vulnerable to high elements */
+	    /* Sometimes vulnerable to high elements... */
 	    if (randint(8) == 1) get_quality(FALSE, VUL_NEXUS, 0, a_idx);
 	    if (randint(8) == 1) get_quality(FALSE, VUL_NETHR, 0, a_idx);
 	    if (randint(8) == 1) get_quality(FALSE, VUL_CHAOS, 0, a_idx);
 	    if (randint(8) == 1) get_quality(FALSE, VUL_DISEN, 0, a_idx);
+
+	    /* ...but likely to sustain stats */
+	    if (randint(3) == 1) get_quality(FALSE, SUST_STR, 0, a_idx);
+	    if (randint(3) == 1) get_quality(FALSE, SUST_INT, 0, a_idx);
+	    if (randint(3) == 1) get_quality(FALSE, SUST_WIS, 0, a_idx);
+	    if (randint(3) == 1) get_quality(FALSE, SUST_DEX, 0, a_idx);
+	    if (randint(3) == 1) get_quality(FALSE, SUST_CON, 0, a_idx);
+	    if (randint(3) == 1) get_quality(FALSE, SUST_CHR, 0, a_idx);
 	  }
 	
 	break;
@@ -4184,7 +4207,9 @@ void alloc_percentages(int a_idx)
 
       if (a_ptr->flags2 & (1L << (16 + i + fudge)))
 	{
-	  /* Already done */
+	  /* Max resist of any one item is 80% */
+	  if (a_ptr->percent_res[i] < RES_CAP_ITEM) 
+	    a_ptr->percent_res[i] = RES_CAP_ITEM;
 	}
       else
 	a_ptr->percent_res[i] = RES_LEVEL_BASE;
@@ -4392,14 +4417,13 @@ static void name_artifact(int a_idx)
 {
   char *word;
   char buf [BUFLEN];
-  
-  
+
   /* Use W. Sheldon Simms' random name generator most of the time, 
    * generally for the less powerful artifacts, if not out of commision.  
    * Otherwise, find a name from a text file.
    */
-  if (((randint(max_potential) > initial_potential) || (randint(2) == 1)) && 
-      (find_all_names == FALSE))
+  if (((randint(max_potential) > initial_potential) || (randint(2) == 1)) 
+      && (find_all_names == FALSE))
     {
       word = make_word();
       
@@ -4415,7 +4439,7 @@ static void name_artifact(int a_idx)
       sprintf(buf, "%s", word);
     }
   
-  
+
   /* Insert whatever name is created or found into the temporary array. */
   names[a_idx] = my_strdup(buf);
 }
@@ -4477,7 +4501,7 @@ static int convert_names(void)
   
   /* Convert our names array into an a_name structure for later use. */
   name_size = 1;
-  for (i = 0; i < MAX_A_IDX; i++)
+  for (i = 0; i < z_info->a_max; i++)
     {
       name_size += strlen (names[i]) + 1;	/* skip first char */
     }
@@ -4488,7 +4512,7 @@ static int convert_names(void)
     }
   
   a_next = a_base + 1;	/* skip first char */
-  for (i = 0; i < MAX_A_IDX; i++)
+  for (i = 0; i < z_info->a_max; i++)
     {
       strcpy(a_next, names[i]);
       if (a_info[i].tval > 0)		/* skip unused! */
@@ -4499,7 +4523,7 @@ static int convert_names(void)
   
   /* Free some of our now unneeded memory. */
   KILL (a_name);
-  for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
+  for (i = ART_MIN_RANDOM; i < z_info->a_max; i++)
     {
       free(names[i]);
     }
@@ -4530,7 +4554,7 @@ void initialize_random_artifacts(void)
   /* Go from beginning to end of the random section of the 
    * artifact array, initializing and naming as we go.
    */
-  for (a_idx = ART_MIN_RANDOM; a_idx < MAX_A_IDX; a_idx++)
+  for (a_idx = ART_MIN_RANDOM; a_idx < z_info->a_max; a_idx++)
     {
       /* Design the artifact, storing information as we go along. */
       design_random_artifact(a_idx);

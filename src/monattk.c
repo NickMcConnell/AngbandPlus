@@ -353,7 +353,7 @@ bool make_attack_normal(monster_type *m_ptr, int y, int x)
     }
   /* Players in trees can take advantage of cover, especially elves, rangers 
    * and druids. */
-  if (cave_feat[y][x] == FEAT_TREE)
+  if ((cave_feat[y][x] == FEAT_TREE) || (cave_feat[y][x] == FEAT_TREE))
     {
       if ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN)))
 	terrain_bonus = ac / 8 + 10;
@@ -2448,21 +2448,39 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	break;
       }
       
-      /* RF4_XXX4 */
+      /* RF4_BRTH_STORM */
     case 96+27:
       {
+	disturb(1, 0);
+	if (blind) msg_format("%^s breathes.", m_name);
+	else msg_format("%^s breathes storm.", m_name);
+	mon_arc(m_idx, GF_STORM, TRUE, 
+		((2 * m_ptr->hp / 5) > 600 ? 600 : (2 * m_ptr->hp / 5)), 
+		0, (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 	break;
       }
       
-      /* RF4_XXX5 */
+      /* RF4_BRTH_DFIRE */
     case 96+28:
       {
+	disturb(1, 0);
+	if (blind) msg_format("%^s breathes.", m_name);
+	else msg_format("%^s breathes dragonfire.", m_name);
+	mon_arc(m_idx, GF_DRAGONFIRE, TRUE, 
+		((2 * m_ptr->hp / 5) > 1000 ? 1000 : (2 * m_ptr->hp / 5)), 
+		0, (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 	break;
       }
       
-      /* RF4_XXX6 */
+      /* RF4_BRTH_ICE */
     case 96+29:
       {
+	disturb(1, 0);
+	if (blind) msg_format("%^s breathes.", m_name);
+	else msg_format("%^s breathes ice.", m_name);
+	mon_arc(m_idx, GF_ICE, TRUE, 
+		((m_ptr->hp / 2) > 1600 ? 1600 : (m_ptr->hp / 2)), 
+		0, (r_ptr->flags2 & (RF2_POWERFUL) ? 40 : 20));
 	break;
       }
       
@@ -3143,7 +3161,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	break;
       }
       
-      /* RF5_ARC__HFIR */
+      /* RF5_ARC_HFIR */
     case 128+30:
       {
 	disturb(1, 0);
@@ -3179,7 +3197,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	break;
       }
       
-      /* RF5_ARC__WALL */
+      /* RF5_ARC_FORCE */
     case 128+31:
       {
 	disturb(1, 0);
@@ -4142,7 +4160,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	disturb(1, 0);
 	if (blind) msg_format("%^s mumbles.", m_name);
 	else msg_format("%^s magically summons ancient dragons!", m_name);
-	for (k = 0; k < 4; k++)
+	for (k = 0; k < (rlev == 100 ? 6 : 4); k++)
 	  {
 	    count += summon_specific(y, x, FALSE, rlev, SUMMON_HI_DRAGON);
 	  }
@@ -4180,7 +4198,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	disturb(1, 0);
 	if (blind) msg_format("%^s mumbles.", m_name);
 	else msg_format("%^s magically summons greater demons!", m_name);
-	for (k = 0; k < 6; k++)
+	for (k = 0; k < (rlev == 100 ? 8 : 6); k++)
 	  {
 	    count += summon_specific(y, x, FALSE, rlev, SUMMON_HI_DEMON);
 	  }
@@ -4215,7 +4233,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	disturb(1, 0);
 	if (blind) msg_format("%^s mumbles.", m_name);
 	else msg_format("%^s magically summons greater undead!", m_name);
-	for (k = 0; k < 4; k++)
+	for (k = 0; k < (rlev == 100 ? 6 : 4); k++)
 	  {
 	    count += summon_specific(y, x, FALSE, 
 				     rlev, SUMMON_HI_UNDEAD);
@@ -4240,7 +4258,7 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
 	  }
 	for (k = 0; (k < 6) && (count < 6); k++)
 	  {
-	    count += summon_specific(y, x, FALSE, rlev, SUMMON_HI_UNDEAD);
+	    count += summon_specific(y, x, FALSE, rlev, SUMMON_HI_DRAGON);
 	  }
 	if (blind && count)
 	  {

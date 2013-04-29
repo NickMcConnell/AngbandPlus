@@ -86,16 +86,17 @@ static command_type cmd_action[] =
 /* Item use commands */
 static command_type cmd_item_use[] =
 {
-  { "Fire your missile weapon", 'f', do_cmd_fire },
-  { "Throw an item",            'v', do_cmd_throw },
-  { "Read a scroll",            'r', do_cmd_read_scroll },
-  { "Quaff a potion",           'q', do_cmd_quaff_potion },
-  { "Use a staff",              'u', do_cmd_use_staff },
-  { "Aim a wand",               'a', do_cmd_aim_wand },
-  { "Zap a rod",                'z', do_cmd_zap_rod },
-  { "Activate an object",       'A', do_cmd_activate },
-  { "Eat some food",            'E', do_cmd_eat_food },
-  { "Fuel your light source",   'F', do_cmd_refill }
+  { "Handle an item (automatic)", 'h', do_cmd_handle},
+  { "Fire your missile weapon",   'f', do_cmd_fire },
+  { "Throw an item",              'v', do_cmd_throw },
+  { "Read a scroll",              'r', do_cmd_read_scroll },
+  { "Quaff a potion",             'q', do_cmd_quaff_potion },
+  { "Use a staff",                'u', do_cmd_use_staff },
+  { "Aim a wand",                 'a', do_cmd_aim_wand },
+  { "Zap a rod",                  'z', do_cmd_zap_rod },
+  { "Activate an object",         'A', do_cmd_activate },
+  { "Eat some food",              'E', do_cmd_eat_food },
+  { "Fuel your light source",     'F', do_cmd_refill }
 };
 
 /* Item management commands */
@@ -542,6 +543,727 @@ void do_cmd_show_obj(void)
 
 }    
 
+/* Hugo Kornelis' item handling patch */
+
+/*
+ * Allow user to "prevent" certain choices.
+ *
+ * This is a slightly modified copy of get_item_allow in object1.c
+ * This is used when 'h'andling items. The use has already confirmed
+ * for any !* or !h inscription; now we check for the inscription
+ * that fits the object type (e.g. when handling a scroll, check !r)
+ */
+bool handle_item_allow(int item, s16b command)
+{
+  cptr s;
+  
+  object_type *o_ptr;
+  
+  /* Inventory */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
+  
+  /* Floor */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+  
+  /* No inscription */
+  if (!o_ptr->note) return (TRUE);
+  
+  /* Find a '!' */
+  s = strchr(quark_str(o_ptr->note), '!');
+  
+  /* Process preventions */
+  while (s)
+    {
+      /* Check the "restriction" */
+      if (s[1] == command)
+	{
+	  /* Verify the choice */
+	  if (!verify_item("Really try", item)) return (FALSE);
+	}
+      
+      /* Find another '!' */
+      s = strchr(s + 1, '!');
+    }
+  
+  /* Allow it */
+  return (TRUE);
+}
+
+
+/*
+ * Hook to determine if an object can be handled
+ *
+ * Accept all items on floor and in inventory, but only activateable items 
+ * in equipment
+ */
+static bool item_tester_hook_handle(object_type *o_ptr)
+{
+  /* The procedure to determining if an item is equipped is a big hack */
+  /* Unfortunately, we have no choice since we can't tell from the object 
+   * info */
+
+  /* Determine where the object kind is normally equipped */
+  s16b slot = wield_slot(o_ptr);
+  
+  /* If the object kind is equippable at all, then compare item in equipment 
+   *slot with item to test - if the pointers are equal, it's the same item */
+  if ((slot >= INVEN_WIELD) && (&inventory[slot] == o_ptr))
+    {
+      /* The item is equipped. Test if players knows that it can be activated */
+      u32b f1, f2, f3;
+      
+      /* Not known */
+      if (!object_known_p(o_ptr)) return (FALSE);
+      
+      /* Extract the flags */
+      object_flags(o_ptr, &f1, &f2, &f3);
+      
+      /* Check activation flag */
+      if (f3 & (TR3_ACTIVATE)) return (TRUE);
+      
+      /* Assume not */
+      return (FALSE);
+    }
+  /* All unequipped items are all okay */
+  else return (TRUE);
+}
+
+
+/*
+ * Handle an item (generic use command)
+ *
+ * Accepts all items in inventory, equipment or floor;
+ * calls command handler to execute most appropriate command
+ * for the object kind.
+ */
+void do_cmd_handle(void)
+{
+  int item;
+  object_type *o_ptr;
+  
+  cptr q, s;
+  
+  
+  /* Prepare the hook */
+  item_tester_hook = item_tester_hook_handle;
+  
+  /* Get an item */
+  q = "Handle which item? ";
+  s = "You have nothing to handle.";
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+  
+  /* Get the item (in the pack) */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
+  
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+  
+  
+  /* Analyze the object and determine appropriate action */
+  switch (o_ptr->tval)
+    {
+      /* Junk items will be destroyed */
+    case TV_SKELETON:
+    case TV_BOTTLE:
+    case TV_JUNK:
+      {
+	/* Verify use if inscribed with !k */
+	if (!handle_item_allow(item, 'k')) return;
+
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Destroy the junk */
+	do_cmd_destroy();
+	
+	return;
+      }
+      
+      /* Spikes will be used to jam a door */
+    case TV_SPIKE:
+      {
+	/* Verify use if inscribed with !j */
+	if (!handle_item_allow(item, 'j')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Spike the door */
+	do_cmd_spike();
+	
+	return;
+      }
+      
+      /* Chests will be destroyed if empty, dropped if held, disarmed or 
+       * opened if on floor */
+    case TV_CHEST:
+      {
+	/* Chest already empty? */
+	if (!o_ptr->pval)		/* no items in chest */
+	  {
+	    /* Verify use if inscribed with !k */
+	    if (!handle_item_allow(item, 'k')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Destroy the empty chest */
+	    do_cmd_destroy();
+	    
+	    return;
+	  }
+	
+	/* Chest currently in the pack? */
+	if (item >= 0)
+	  {
+	    /* Verify use if inscribed with !d */
+	    if (!handle_item_allow(item, 'd')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Drop the chest */
+	    do_cmd_drop();
+	    
+	    return;
+	  }
+	
+	/* Any known traps on this chest? */
+	if ((o_ptr->pval > 0) &&	/* chest must not yet be disarmed */
+	    (chest_traps[o_ptr->pval]) && /* chest must actually be trapped */
+	    (object_known_p(o_ptr)))	/* trap must already be found */
+	  {
+	    /* Verify use if inscribed with !D */
+	    if (!handle_item_allow(item, 'D')) return;
+	    
+	    /* Set the direction */
+	    p_ptr->command_dir = 5;
+
+	    /* Disarm */
+	    do_cmd_disarm();
+	    
+	    return;
+	  }
+	
+	/* Not empty, not in pack, no (known) traps - try to open */
+	/* Verify use if inscribed with !o */
+	if (!handle_item_allow(item, 'o')) return;
+	
+	/* Set the direction */
+	p_ptr->command_dir = 5;
+
+	/* Open */
+	do_cmd_open();
+	
+	return;
+      }
+      
+      /* Ammunition will be fired if correct launcher is equipped, 
+       * thrown otherwise */
+    case TV_SHOT:
+    case TV_ARROW:
+    case TV_BOLT:
+      {
+	/* Proper type of launcher equipped? */
+	if (o_ptr->tval == p_ptr->ammo_tval)
+	  {
+	    /* Verify use if inscribed with !f */
+	    if (!handle_item_allow(item, 'f')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Fire the ammunition */
+	    do_cmd_fire();
+	    
+	    return;
+	  }
+	
+	/* Wielded launcher unusable for this ammo - throw it instead */
+	/* Verify use if inscribed with !v */
+	if (!handle_item_allow(item, 'v')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Throw the ammunition */
+	do_cmd_throw();
+	
+	return;
+      }
+      
+      /* Equippable items: mostly activate if currently equipped, wear/wield 
+       * otherwise.  Exception for torches and lanterns: refill if same 
+       * equipped, wear/wield otherwise */
+    case TV_BOW:
+    case TV_DIGGING:
+    case TV_HAFTED:
+    case TV_POLEARM:
+    case TV_SWORD:
+    case TV_BOOTS:
+    case TV_GLOVES:
+    case TV_HELM:
+    case TV_CROWN:
+    case TV_SHIELD:
+    case TV_CLOAK:
+    case TV_SOFT_ARMOR:
+    case TV_HARD_ARMOR:
+    case TV_DRAG_ARMOR:
+    case TV_LITE:
+    case TV_AMULET:
+    case TV_RING:
+      {
+	/* If item is equipped, try to activate it 
+	 * (Note - equipped items without activation can't be handled, see 
+	 * item_tester_hook_handle.  This also means that we don't have to 
+	 * test for torches or lanterns here) */
+	if (item >= INVEN_WIELD)
+	  {
+	    /* Verify use if inscribed with !A */
+	    if (!handle_item_allow(item, 'A')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Activate the item */
+	    do_cmd_activate();
+	    
+	    return;
+	  }
+	
+	/* If item is torch or lantern and same object is equipped, use it 
+	 * to refill */
+	if ((o_ptr->tval == TV_LITE) &&
+	    ((o_ptr->sval == SV_LITE_LANTERN) || 
+	     (o_ptr->sval == SV_LITE_TORCH)))
+	  {
+	    object_type *lite_ptr;
+	    
+	    /* Get current light */
+	    lite_ptr = &inventory[INVEN_LITE];
+	    
+	    /* Check if light is used, and if type is the same */
+	    if ((lite_ptr->tval == TV_LITE) && (lite_ptr->sval == o_ptr->sval))
+	      {
+		/* Verify use if inscribed with !F */
+		if (!handle_item_allow(item, 'F')) return;
+		
+		/* Set the item */	
+		p_ptr->command_item = item;
+		
+		/* Hack for first in inventory */
+		if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+		
+		/* Refill the light source */
+		do_cmd_refill();
+		
+		return;
+	      }
+	  }
+	
+	/* Not equipped, not a torch or lantern that can be used to refill 
+	 * - then wear/wield it 
+	 * Verify use if inscribed with !w */
+	if (!handle_item_allow(item, 'w')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Wear/wield the equipment */
+	do_cmd_wield();
+	
+	return;
+      }
+      
+      /* Staves will be used */
+    case TV_STAFF:
+      {
+	/* Verify use if inscribed with !u */
+	if (!handle_item_allow(item, 'u')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Use the staff */
+	do_cmd_use_staff();
+	
+	return;
+      }
+      
+      /* Wands will be aimed */
+    case TV_WAND:
+      {
+	/* Verify use if inscribed with !a */
+	if (!handle_item_allow(item, 'a')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Aim the wand */
+	do_cmd_aim_wand();
+	
+	return;
+      }
+      
+      /* Rods will be zapped */
+    case TV_ROD:
+      {
+	/* Verify use if inscribed with !z */
+	if (!handle_item_allow(item, 'z')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Zap the rod */
+	do_cmd_zap_rod();
+	
+	return;
+      }
+      
+      /* Scrolls will be read */
+    case TV_SCROLL:
+      {
+	/* Verify use if inscribed with !r */
+	if (!handle_item_allow(item, 'r')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Read the scroll */
+	do_cmd_read_scroll();
+	
+	return;
+      }
+      
+      /* Potions will be quaffed, except Potion of Detonations, 
+       * which is thrown */
+    case TV_POTION:
+      {
+	/* Check for (known) Potion of Detonations */
+	if ((o_ptr->sval == SV_POTION_DETONATIONS) &&
+	    (object_aware_p(o_ptr)))
+	  {
+	    /* Verify use if inscribed with !v */
+	    if (!handle_item_allow(item, 'v')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Throw the exploding potion */
+	    do_cmd_throw();
+	    
+	    return;
+	  }
+	
+	/* Not Potion of Detonations or not yet aware - quaff it */
+	/* Verify use if inscribed with !q */
+	if (!handle_item_allow(item, 'q')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Quaff the potion */
+	do_cmd_quaff_potion();
+	
+	return;
+      }
+      
+      /* Flask of Oil: refill lantern if one is equipped, throw otherwise */
+    case TV_FLASK:
+      {
+	object_type *lite_ptr;
+	
+	/* Get current light */
+	lite_ptr = &inventory[INVEN_LITE];
+	
+	/* Check if a lantern is used */
+	if ((lite_ptr->tval == TV_LITE) && (lite_ptr->sval == SV_LITE_LANTERN))
+	  {
+	    /* Verify use if inscribed with !F */
+	    if (!handle_item_allow(item, 'F')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Refill the light source */
+	    do_cmd_refill();
+	    
+	    return;
+	  }
+	
+	/* No lantern equipped - throw the oil */
+	/* Verify use if inscribed with !v */
+	if (!handle_item_allow(item, 'v')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Throw the oil */
+	do_cmd_throw();
+	
+	return;
+      }
+      
+      /* Food will be eaten, except Mushrooms of Unhealth / of Disease, 
+       * which are thrown */
+    case TV_FOOD:
+      {
+	/* Check for (known) Mushroom of Unhealth or Mushroom of Disease */
+	if (((o_ptr->sval == SV_FOOD_UNHEALTH) || 
+	     (o_ptr->sval == SV_FOOD_DISEASE)) &&
+	    (object_aware_p(o_ptr)))
+	  {
+	    /* Verify use if inscribed with !v */
+	    if (!handle_item_allow(item, 'v')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Throw the exploding potion */
+	    do_cmd_throw();
+	    
+	    return;
+	  }
+	
+	/* Not Mushroom of Unhealth/Disease or not yet aware - eat it */
+	/* Verify use if inscribed with !E */
+	if (!handle_item_allow(item, 'E')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Eat the food */
+	do_cmd_eat_food();
+	
+	return;
+      }
+      
+      /* Spell books: cast a spell if you're a mage/rogue, destroy otherwise */
+    case TV_MAGIC_BOOK:
+      {
+	/* Is the player able to cast spells? */
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	  {
+	    /* Verify use if inscribed with !m */
+	    if (!handle_item_allow(item, 'm')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Cast a spell from this book */
+	    do_cmd_cast_or_pray();
+	    
+	    return;
+	  }
+	
+	/* Player can't cast spells - destroy the book */
+	/* Verify use if inscribed with !k */
+	if (!handle_item_allow(item, 'k')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Destroy the book */
+	do_cmd_destroy();
+	
+	return;
+      }
+      
+      /* Prayer books: recite a prayer if you're a priest/paladin, 
+       * destroy otherwise */
+    case TV_PRAYER_BOOK:
+      {
+	/* Is the player able to recite prayers? */
+	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	  {
+	    /* Verify use if inscribed with !p */
+	    if (!handle_item_allow(item, 'p')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Recite a prayer from this book */
+	    do_cmd_cast_or_pray();
+	    
+	    return;
+	  }
+	
+	/* Player can't recite prayers - destroy the book */
+	/* Verify use if inscribed with !k */
+	if (!handle_item_allow(item, 'k')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Destroy the book */
+	do_cmd_destroy();
+	
+	return;
+      }
+      
+      /* Stones of lore: use a druidic lore if you're a druid/ranger, 
+       * destroy otherwise */
+    case TV_DRUID_BOOK:
+      {
+	/* Is the player able to recite prayers? */
+	if (mp_ptr->spell_book == TV_DRUID_BOOK)
+	  {
+	    /* Verify use if inscribed with !p */
+	    if (!handle_item_allow(item, 'p')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Recite a prayer from this book */
+	    do_cmd_cast_or_pray();
+	    
+	    return;
+	  }
+	
+	/* Player can't recite prayers - destroy the book */
+	/* Verify use if inscribed with !k */
+	if (!handle_item_allow(item, 'k')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Destroy the book */
+	do_cmd_destroy();
+	
+	return;
+      }
+      
+      /* Necromantic tomes: perform a ritual if you're a necro/assassin, 
+       * destroy otherwise */
+    case TV_NECRO_BOOK:
+      {
+	/* Is the player able to recite prayers? */
+	if (mp_ptr->spell_book == TV_NECRO_BOOK)
+	  {
+	    /* Verify use if inscribed with !p */
+	    if (!handle_item_allow(item, 'm')) return;
+	    
+	    /* Set the item */	
+	    p_ptr->command_item = item;
+	    
+	    /* Hack for first in inventory */
+	    if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	    /* Recite a prayer from this book */
+	    do_cmd_cast_or_pray();
+	    
+	    return;
+	  }
+	
+	/* Player can't recite prayers - destroy the book */
+	/* Verify use if inscribed with !k */
+	if (!handle_item_allow(item, 'k')) return;
+	
+	/* Set the item */	
+	p_ptr->command_item = item;
+	
+	/* Hack for first in inventory */
+	if (p_ptr->command_item == 0) p_ptr->command_item += 100;
+
+	/* Destroy the book */
+	do_cmd_destroy();
+	
+	return;
+      }
+      
+      /* Paranoia */
+    default:
+      {
+	if (flush_failure) flush();
+	msg_print("You can't handle it.");
+	return;
+      }
+    }
+}
 
 /*
  * Return the features around (or under) the character

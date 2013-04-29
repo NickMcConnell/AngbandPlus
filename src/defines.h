@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.3"
+#define VERSION_STRING	"0.3.4"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	3
+#define VERSION_PATCH	4
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -483,9 +483,12 @@
 /*
  * More maximum values
  */
-#define MAX_SIGHT	20	/* Maximum view distance */
-#define MAX_RANGE	20	/* Maximum range (spells, etc) */
-
+#define MAX_SIGHT_LGE   20      /* Maximum view distance */
+#define MAX_RANGE_LGE   20      /* Maximum projection range */
+#define MAX_SIGHT_SML   10      /* Maximum view distance (small devices) */
+#define MAX_RANGE_SML   10      /* Maximum projection range (small devices) */
+#define MAX_SIGHT (adult_small_device ? MAX_SIGHT_SML : MAX_SIGHT_LGE)  
+#define MAX_RANGE (adult_small_device ? MAX_RANGE_SML : MAX_RANGE_LGE)
 
 
 /*
@@ -814,6 +817,7 @@
 #define RES_CUT_GREAT           180
 #define RES_CAP_EXTREME		75
 #define RES_CAP_MODERATE	40
+#define RES_CAP_ITEM            20
 
 /*
  * Some qualitative checks.
@@ -848,7 +852,7 @@
 #define GF_PLASMA       13	/* Variations on the elements */
 #define GF_HELLFIRE	14
 #define GF_ICE          15
-
+#define GF_DRAGONFIRE   16     
 
 #define GF_LITE_WEAK	20	/* Light and darkness */
 #define GF_LITE         21
@@ -931,6 +935,7 @@
 #define LRN_CHAOS	30
 #define LRN_DISEN	31
 /* new in Oangband 0.5 and beyond */
+#define LRN_DFIRE	38
 #define LRN_SAVE        39
 #define LRN_ARCH        40
 #define LRN_PARCH       41
@@ -963,25 +968,16 @@
 /*** Feature Indexes (see "lib/edit/f_info.txt") ***/
 
 /* Nothing */
-#define FEAT_NONE		0x00
+#define FEAT_NONE	0x00
 
 /* Various */
-#define FEAT_FLOOR		0x01
-#define FEAT_INVIS		0x02
-#define FEAT_GLYPH		0x03
-#define FEAT_OPEN		0x04
-#define FEAT_BROKEN		0x05
-#define FEAT_LESS		0x06
-#define FEAT_MORE		0x07
-
-/* Special dungeon features. -LM- */
-#define FEAT_LAVA		0x08
-#define FEAT_WATER      	0x09
-#define FEAT_TREE		0x0A
-#define FEAT_GRASS              0x0B  /* -NRM- */
-#define FEAT_GRASS_INVIS        0x0C  /* -NRM- */
-#define FEAT_WEB                0x0D  /* -NRM- */
-#define FEAT_VOID               0x0E  /* -NRM- */
+#define FEAT_FLOOR	0x01
+#define FEAT_INVIS	0x02
+#define FEAT_GLYPH	0x03
+#define FEAT_OPEN	0x04
+#define FEAT_BROKEN	0x05
+#define FEAT_LESS	0x06
+#define FEAT_MORE	0x07
 
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
@@ -1048,6 +1044,19 @@
 #define FEAT_MORE_SOUTH		0x65
 #define FEAT_LESS_WEST		0x66
 #define FEAT_MORE_WEST		0x67
+
+/* Special dungeon/wilderness features. -LM- Expanded for FAangband 0.3.4 */
+#define FEAT_MIN_SPECIAL        0x70
+#define FEAT_LAVA		0x70
+#define FEAT_WATER      	0x71
+#define FEAT_TREE               0x72
+#define FEAT_TREE2		0x73
+#define FEAT_GRASS              0x74  
+#define FEAT_GRASS_INVIS        0x75  
+#define FEAT_WEB                0x76  
+#define FEAT_VOID               0x77  
+#define FEAT_TREE_INVIS         0x78  
+#define FEAT_TREE2_INVIS        0x79  
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -2497,6 +2506,35 @@
     (p_ptr->schange > 0 && p_ptr->schange < 12)
 
 
+/*** Feature flags ***/
+
+/*
+ * Special feature type flags
+ */
+#define TF_LOS          0x00000001L  /* LOS passes through this */
+#define TF_PROJECT      0x00000002L  /* Projections can pass through this */
+#define TF_PASSABLE     0x00000004L  /* Can be passed through by all creatures*/
+#define TF_INTERESTING  0x00000008L  /* Looking around notices this */
+#define TF_PERMANENT    0x00000010L  /* Feature is permanent */
+#define TF_NO_SCENT     0x00000020L  /* Cannot store scent */
+#define TF_OBJECT       0x00000040L  /* Can hold objects */
+#define TF_TORCH_ONLY   0x00000080L  /* Becomes bright only when torch-lit */
+/* xxx (many) */
+#define TF_FLOOR        0x00010000L  /* A clear floor */
+#define TF_WALL         0x00020000L  /* Is a solid wall */
+#define TF_ROCK         0x00040000L  /* Is rocky */
+#define TF_GRANITE      0x00080000L  /* Is a granite rock wall */
+#define TF_DOOR_ANY     0x00100000L  /* Is any door */
+#define TF_DOOR_CLOSED  0x00200000L  /* Is a closed door */
+#define TF_SHOP         0x00400000L  /* Is a shop */
+#define TF_TREE         0x00800000L  /* Is a tree */
+#define TF_TRAP         0x01000000L  /* Is a trap */
+#define TF_TRAP_INVIS   0x02000000L  /* Is an invisible trap  */
+#define TF_M_TRAP       0x04000000L  /* Is a monster trap */
+#define TF_STAIR        0x08000000L  /* Is a stair or path */
+/* xxx (many) */
+
+
 /*** Cave flags ***/
 
 /*
@@ -2540,10 +2578,10 @@
  * Special Object Flags
  */
 #define IDENT_SENSE	0x01	/* Item has been "sensed" */
-#define IDENT_FIXED	0x02	/* Item has been "haggled" */
+/* unused */
 #define IDENT_EMPTY	0x04	/* Item charges are known */
 #define IDENT_KNOWN	0x08	/* Item abilities are known */
-#define IDENT_RUMOUR	0x10	/* Item background is known */
+#define IDENT_STORE	0x10	/* Item is in the inventory of a store */
 #define IDENT_MENTAL	0x20	/* Item information is known */
 #define IDENT_CURSED	0x40	/* Item is temporarily cursed */
 #define IDENT_BROKEN	0x80	/* Item is permanently worthless */
@@ -2677,11 +2715,9 @@
 #define TR2_RES_FIRE		0x00040000L	/* Resist fire */
 #define TR2_RES_COLD		0x00080000L	/* Resist cold */
 #define TR2_RES_POIS		0x00100000L	/* Resist poison */
-//#define TR2_RES_FEAR		0x00200000L     /* Resist fear */
 #define TR2_XXX3  	        0x00200000L     /* Was resist fear */
 #define TR2_RES_LITE		0x00400000L	/* Resist lite */
 #define TR2_RES_DARK		0x00800000L	/* Resist dark */
-//#define TR2_RES_BLIND		0x01000000L	/* Resist blind */
 #define TR2_XXX4		0x01000000L	/* Was resist blind */
 #define TR2_RES_CONFU		0x02000000L	/* Resist confusion */
 #define TR2_RES_SOUND		0x04000000L	/* Resist sound */
@@ -2853,7 +2889,7 @@
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
 #define RF2_NO_PLACE		0x00000400      /* Monster can never be placed,
                                                    only shapechanged into */
-#define RF2_ANGBAND		0x00000400	/* Monster only appears in
+#define RF2_ANGBAND		0x00000800	/* Monster only appears in
                                                    Angband */
 #define RF2_RUDH		0x00001000	/* Monster only appears 
 						 * in Amon Rudh */
@@ -2952,9 +2988,9 @@
 #define RF4_BRTH_CHAOS		0x01000000	/* Breathe Chaos */
 #define RF4_BRTH_DISEN		0x02000000	/* Breathe Disenchant */
 #define RF4_BRTH_TIME		0x04000000	/* Breathe Time */
-#define RF4_XXX2		0x08000000	/*  */
-#define RF4_XXX3   		0x10000000	/*  */
-#define RF4_XXX4   		0x20000000	/*  */
+#define RF4_BRTH_STORM		0x08000000	/* Breathe Storm */
+#define RF4_BRTH_DFIRE 		0x10000000	/* Breathe Dragonfire */
+#define RF4_BRTH_ICE   		0x20000000	/* Breathe Ice */
 #define RF4_XXX5   		0x40000000	/*  */
 #define RF4_XXX6   		0x80000000	/*  */
 
@@ -2992,8 +3028,8 @@
 #define RF5_BEAM_ELEC 		0x08000000	/* Electric spark */
 #define RF5_BEAM_ICE  		0x10000000	/* Ice Lance */
 #define RF5_BEAM_NETHR		0x20000000	/* Spear of Nether */
-#define RF5_ARC__HFIRE		0x40000000	/* Arc/Column of hellfire */
-#define RF5_ARC__FORCE		0x80000000	/* Arc of force */
+#define RF5_ARC_HFIRE		0x40000000	/* Arc/Column of hellfire */
+#define RF5_ARC_FORCE		0x80000000	/* Arc of force */
 
 /*
  * Monster racial flags - help self, hinder character, and special magics
@@ -3078,7 +3114,8 @@
          RF4_BRTH_POIS | RF4_BRTH_PLAS | RF4_BRTH_LITE | RF4_BRTH_DARK | \
          RF4_BRTH_CONFU | RF4_BRTH_SOUND | RF4_BRTH_SHARD | RF4_BRTH_INER | \
          RF4_BRTH_GRAV | RF4_BRTH_FORCE | RF4_BRTH_NEXUS | RF4_BRTH_NETHR | \
-         RF4_BRTH_CHAOS | RF4_BRTH_DISEN | RF4_BRTH_TIME)
+         RF4_BRTH_CHAOS | RF4_BRTH_DISEN | RF4_BRTH_TIME | RF4_BRTH_STORM | \
+	 RF4_BRTH_DFIRE | RF4_BRTH_ICE)
 
 #define RF5_BREATH_MASK \
 	(0L)
@@ -3243,7 +3280,7 @@
 #define OPT_bottom_status               43
 #define OPT_mouse_buttons               44
 /* xxx */
-/* xxx */
+#define OPT_xchars_to_file              46
 #define OPT_smart_cheat			47
 
 #define OPT_view_reduce_lite		48
@@ -3278,8 +3315,9 @@
 #define OPT_birth_take_notes            130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
 #define OPT_birth_notes_save            132/*(OPT_BIRTH_START+4)*/
-#define OPT_birth_ironman               133/*(OPT_BIRTH_START+0)*/
-#define OPT_birth_thrall                134/*(OPT_BIRTH_START+1)*/
+#define OPT_birth_ironman               133/*(OPT_BIRTH_START+5)*/
+#define OPT_birth_thrall                134/*(OPT_BIRTH_START+6)*/
+#define OPT_birth_small_device          135/*(OPT_BIRTH_START+7)*/
 
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
 #define OPT_cheat_hear                  161        /*(OPT_CHEAT+1)*/
@@ -3293,8 +3331,9 @@
 #define OPT_adult_take_notes            194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
 #define OPT_adult_notes_save            196/*(OPT_ADULT_START+4)*/
-#define OPT_adult_ironman               197/*(OPT_ADULT_START+3)*/
-#define OPT_adult_thrall                198/*(OPT_ADULT_START+4)*/
+#define OPT_adult_ironman               197/*(OPT_ADULT_START+5)*/
+#define OPT_adult_thrall                198/*(OPT_ADULT_START+6)*/
+#define OPT_adult_small_device          199/*(OPT_ADULT_START+7)*/
 
 /* xxx xxx */
 #define OPT_score_peek                  224      /*  (OPT_SCORE+0)*/
@@ -3363,7 +3402,7 @@
 #define bottom_status                   op_ptr->opt[OPT_bottom_status]
 #define mouse_buttons                   op_ptr->opt[OPT_mouse_buttons]
 /* xxx */
-/* xxx */
+#define xchars_to_file                  op_ptr->opt[OPT_xchars_to_file]
 #define smart_cheat			op_ptr->opt[OPT_smart_cheat]
 
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -3398,6 +3437,7 @@
 #define birth_notes_save                op_ptr->opt[OPT_birth_notes_save]     
 #define birth_ironman                   op_ptr->opt[OPT_birth_point_based]     
 #define birth_thrall                    op_ptr->opt[OPT_birth_auto_roller]     
+#define birth_small_device              op_ptr->opt[OPT_birth_small_device]     
 
 #define cheat_peek			op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear			op_ptr->opt[OPT_cheat_hear]	
@@ -3413,6 +3453,7 @@
 #define adult_notes_save                op_ptr->opt[OPT_adult_notes_save]     
 #define adult_ironman                   op_ptr->opt[OPT_adult_ironman]     
 #define adult_thrall                    op_ptr->opt[OPT_adult_thrall]    
+#define adult_small_device              op_ptr->opt[OPT_adult_small_device]     
 
 #define score_peek			op_ptr->opt[OPT_score_peek]
 #define score_hear			op_ptr->opt[OPT_score_hear]	
@@ -3639,21 +3680,6 @@
 
 
 /*
- * Determine if a "legal" grid is a "floor" grid
- *
- * Line 1 -- forbid doors, rubble, seams, walls
- *
- * Note that the terrain features are split by a one bit test
- * into those features which block line of sight and those that
- * do not, allowing an extremely fast single bit check below.
- *
- * Add in the fact that some new terrain (water & lava) do NOT block sight
- * -KMW-
- */
-#define cave_floor_grid(C) \
-    (!((C)->feat & 0x20))
-
-/*
  * Determines if a map location is currently "on screen"
  * Note that "panel_contains(Y,X)" always implies "in_bounds(Y,X)".
  * Pre-storing this into a cave_info flag would be nice.  XXX XXX
@@ -3691,6 +3717,7 @@
 #define cave_passable_bold(Y,X) \
 	(!(cave_info[Y][X] & (CAVE_WALL)) || \
 	(cave_feat[Y][X] == FEAT_TREE) || \
+	(cave_feat[Y][X] == FEAT_TREE2) || \
 	(cave_feat[Y][X] == FEAT_RUBBLE) || \
 	(cave_feat[Y][X] == FEAT_GRASS))
 
@@ -3733,20 +3760,6 @@
 	 (cave_o_idx[Y][X] == 0) && \
 	 (cave_m_idx[Y][X] == 0))
 
-
-/*
- * Determine if a "legal" grid is "permanent"
- *
- * Line 1 -- perma-walls
- * Line 2-3 -- stairs
- * Line 4-5 -- shop doors
- */
-#define cave_perma_bold(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
-	 ((cave_feat[Y][X] == FEAT_LESS) || \
-	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
 
 
 /*

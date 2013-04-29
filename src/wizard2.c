@@ -721,7 +721,7 @@ static int wiz_create_itemtype(bool artifact)
   if (artifact)
     {
       /* ...We have to search the whole  artifact list. */
-      for (num = 0, i = 1; (num < 60) && (i < MAX_A_IDX); i++)
+      for (num = 0, i = 1; (num < 60) && (i < z_info->a_max); i++)
 	{
 	  artifact_type *a_ptr = &a_info[i];
 	  
@@ -750,7 +750,7 @@ static int wiz_create_itemtype(bool artifact)
     {
       
       /* We have to search the whole itemlist. */
-      for (num = 0, i = 1; (num < 60) && (i < MAX_K_IDX); i++)
+      for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 	  object_kind *k_ptr = &k_info[i];
 	  
@@ -1393,7 +1393,7 @@ void jump_display(menu_type *menu, int oid, bool cursor, int row,
 
   byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
   
-  c_put_str(attr, locality_name[stage_map[choice[oid]][LOCALITY]], row, col);
+  c_prt(attr, locality_name[stage_map[choice[oid]][LOCALITY]], row, col);
 
 }
 
@@ -1533,7 +1533,7 @@ static void do_cmd_wiz_learn(void)
   object_type object_type_body;
   
   /* Scan every object */
-  for (i = 1; i < MAX_K_IDX; i++)
+  for (i = 1; i < z_info->k_max; i++)
     {
       object_kind *k_ptr = &k_info[i];
       
@@ -1634,7 +1634,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
   
   /* Paranoia */
   if (!r_idx) return;
-  if (r_idx >= MAX_R_IDX) return;
+  if (r_idx >= z_info->r_max) return;
   
   /* Try 10 times */
   for (i = 0; i < 10; i++)
@@ -1970,7 +1970,8 @@ void do_cmd_debug(void)
       /* View item info */
     case 'f':
       {
-	(void)identify_fully();
+	//(void)identify_fully();
+	(void)ident_spell();
 	break;
       }
       

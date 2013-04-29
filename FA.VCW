@@ -3,7 +3,7 @@ Microsoft eMbedded Visual Tools Workspace File, Format Version 4.00
 
 ###############################################################################
 
-Project: "FA"=.\FA.VCP - Package Owner=<4>
+Project: "FA"=".\FA.VCP" - Package Owner=<4>
 
 Package=<5>
 {{{

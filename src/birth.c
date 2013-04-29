@@ -901,7 +901,10 @@ static void player_outfit(void)
   i_ptr = &object_type_body;
   
   /* Hack -- Give the player some food */
-  object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
+  if (adult_thrall)
+    object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_WAYBREAD));
+  else 
+    object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
   i_ptr->number = (byte)rand_range(3, 7);
   object_aware(i_ptr);
   object_known(i_ptr);
@@ -1244,33 +1247,42 @@ static void display_mode(menu_type *menu, int oid, bool cursor,
 			   int row, int col, int width)
 {
   byte attr = curs_attrs[CURS_KNOWN][0 != cursor];
-  const char *str;
+  const char *str = NULL;
   
   if (oid == 0)
     str = "Standard game";
   else if (oid == 1)
     str = "Ironman mode";
-  else
+  else if (oid == 2)
     str = "Thrall mode";
+  else if (oid == 3)
+    str = "Ironman thrall";
+  else if (oid == 4)
+    str = "Small device mode";
+  else if (oid == 5)
+    str = "Small device ironman";
+  else if (oid == 6)
+    str = "Small device thrall";
+  else if (oid == 7)
+    str = "The lot";
   
   c_prt(attr, str, row, col);
 }
 
 
 static byte mode_type = 0;
-#define MODE_STANDARD    0
-#define MODE_IRONMAN     1
-#define MODE_THRALL      2
+#define MODE_IRONMAN      0x01
+#define MODE_THRALL       0x02
+#define MODE_SMALL_DEVICE 0x04
 
 static bool mode_handler(char cmd, void *db, int oid)
 {
   if (cmd == '\xff' || cmd == '\r')
     {
       mode_type = oid;
-      op_ptr->opt[OPT_birth_ironman] = FALSE;
-      op_ptr->opt[OPT_birth_thrall] = FALSE;
-      if (oid == 1) op_ptr->opt[OPT_birth_ironman] = TRUE;
-      else if (oid == 2) op_ptr->opt[OPT_birth_thrall] = TRUE;
+      op_ptr->opt[OPT_birth_ironman]       = (mode_type & MODE_IRONMAN);
+      op_ptr->opt[OPT_birth_thrall]        = (mode_type & MODE_THRALL);
+      op_ptr->opt[OPT_birth_small_device]  = (mode_type & MODE_SMALL_DEVICE);
     }
   else if(cmd == KTRL('X'))
     quit(NULL);
@@ -1319,8 +1331,8 @@ static bool choose_character()
       "and various other intrinsic factors and bonuses.",
       "Your choice of character generation.",
       "Point-based is recommended.",
-      "Ironman mode means you can never go home,",
-      "thrall mode means you have no home.  Beware."
+      "Birth options are ironman mode, thrall mode",
+      "and small device mode (all off by default)."
     };
   
   typedef void (*browse_f) (int oid, void *, const region *loc);
@@ -1346,7 +1358,7 @@ static bool choose_character()
   limits[ARACE] = z_info->p_max;
   limits[ACLASS] = z_info->c_max;
   limits[AROLL] = 3;
-  limits[AMODE] = 3;
+  limits[AMODE] = 8;
   
   WIPE(&menu, menu);
   menu.cmd_keys = "?*\r\n\x18";		 /* ?, *, \n, <ctl-X> */

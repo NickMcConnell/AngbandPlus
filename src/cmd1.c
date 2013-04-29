@@ -43,12 +43,13 @@ void search(void)
     {
       for (x = (px - 1); x <= (px + 1); x++)
 	{
+	  feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
 	  /* Sometimes, notice things */
 	  if (rand_int(100) < chance)
 	    {
 	      /* Invisible trap */
-	      if ((cave_feat[y][x] == FEAT_INVIS) ||
-		  (cave_feat[y][x] == FEAT_GRASS_INVIS))
+	      if (f_ptr->flags & TF_TRAP_INVIS)
 		{
 		  /* Pick a trap */
 		  pick_trap(y, x);
@@ -785,8 +786,10 @@ void hit_trap(int y, int x)
   int dam = 0;
   
   int nastyness, selection;
+
+  feature_type *f_ptr = &f_info[cave_feat[y][x]];
   
-  cptr name = "a trap";
+  cptr name = f_name + f_ptr->name;
   
   /* Use the "simple" RNG to insure that traps are consistant. */
   Rand_quick = TRUE;
@@ -1706,22 +1709,76 @@ void hit_trap(int y, int x)
 	break;
       }
       
-      /* undefined trap. */
+      /* falling tree branch */
     case FEAT_TRAP_HEAD + 0x0A:
       {
-	msg_print("A dagger is thrown at you from the shadows!");
-	dam = damroll(3,4);
-	take_hit(dam, name);
+	/* determine if the missile hits. */
+	if (check_trap_hit(75 + p_ptr->depth))
+	  {
+	    /* Take damage */
+	    dam = damroll(3,5);
+	    msg_print("A branch hits you from above.");
+	    
+	    Rand_quick = FALSE;
+	    
+	    /* critical hits. */
+	    if (randint(2) == 1)
+	      {
+		msg_print("It was heavy!");
+		dam = 3 * dam / 2;
+		
+		/* stun the player. */
+		(void)set_stun(p_ptr->cut + randint(dam));
+	      }
+	    
+	    Rand_quick = TRUE;
+	    
+	    take_hit(dam, name);
+	  }
+	
+	/* Explain what just happened. */
+	else msg_print("A falling branch just misses you.");
+	
+	/* No more */
+	cave_info[y][x] &= ~(CAVE_MARK);
+	cave_set_feat(y, x, FEAT_TREE);
 	
 	break;
       }
       
-      /* undefined trap. */
+      /* falling tree branch */
     case FEAT_TRAP_HEAD + 0x0B:
       {
-	msg_print("A dagger is thrown at you from the shadows!");
-	dam = damroll(3,4);
-	take_hit(dam, name);
+	/* determine if the missile hits. */
+	if (check_trap_hit(75 + p_ptr->depth))
+	  {
+	    /* Take damage */
+	    dam = damroll(3,5);
+	    msg_print("A branch hits you from above.");
+	    
+	    Rand_quick = FALSE;
+	    
+	    /* critical hits. */
+	    if (randint(2) == 1)
+	      {
+		msg_print("It was heavy!");
+		dam = 3 * dam / 2;
+		
+		/* stun the player. */
+		(void)set_stun(p_ptr->cut + randint(dam));
+	      }
+	    
+	    Rand_quick = TRUE;
+	    
+	    take_hit(dam, name);
+	  }
+	
+	/* Explain what just happened. */
+	else msg_print("A falling branch just misses you.");
+	
+	/* No more */
+	cave_info[y][x] &= ~(CAVE_MARK);
+	cave_set_feat(y, x, FEAT_TREE2);
 	
 	break;
       }
@@ -2019,7 +2076,7 @@ void move_player(int dir, int do_pickup)
 		
 		break;
 	      }
-	    case FEAT_TREE:
+	    case FEAT_TREE: case FEAT_TREE2:
 	      {
 		/* Druids, rangers and elves slip easily under trees. */
 		if ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))) 
@@ -2217,7 +2274,9 @@ void move_player(int dir, int do_pickup)
 
 	      /* Discover invisible traps */
 	      else if (((cave_feat[y][x] == FEAT_INVIS) ||
-			(cave_feat[y][x] == FEAT_GRASS_INVIS)) && trapped)
+			(cave_feat[y][x] == FEAT_GRASS_INVIS) ||
+			(cave_feat[y][x] == FEAT_TREE_INVIS) ||
+			(cave_feat[y][x] == FEAT_TREE2_INVIS)) && trapped)
 		{
 		  /* Disturb */
 		  disturb(0, 0);
@@ -2268,7 +2327,8 @@ static int see_wall(int dir, int y, int x)
   if (!in_bounds(y, x)) return (FALSE);
   
   /* Non-wall grids are not known walls */
-  if (cave_feat[y][x] < FEAT_SECRET) return (FALSE);
+  if ((cave_feat[y][x] < FEAT_SECRET) || (cave_feat[y][x] > FEAT_SHOP_HEAD)) 
+    return (FALSE);
   
   /* Unknown walls are not known walls */
   if (!(cave_info[y][x] & (CAVE_MARK))) return (FALSE);
@@ -2818,6 +2878,7 @@ static bool run_test(void)
 	    case FEAT_LAVA:
 	    case FEAT_WATER:
 	    case FEAT_TREE:
+	    case FEAT_TREE2:
 	    case FEAT_GRASS:
 	      {
 		/* Ignore */
@@ -2952,7 +3013,8 @@ static bool run_test(void)
 	  /* Unknown grid or non-wall */
 	  /* Was: cave_floor_bold(row, col) */
 	  if (!(cave_info[row][col] & (CAVE_MARK)) ||
-	      (cave_feat[row][col] < FEAT_SECRET))
+	      (cave_feat[row][col] < FEAT_SECRET) ||
+	      (cave_feat[row][col] > FEAT_SHOP_HEAD))
 	    {
 	      /* Looking to break right */
 	      if (p_ptr->run_break_right)
@@ -2983,7 +3045,8 @@ static bool run_test(void)
 	  /* Unknown grid or non-wall */
 	  /* Was: cave_floor_bold(row, col) */
 	  if (!(cave_info[row][col] & (CAVE_MARK)) ||
-	      (cave_feat[row][col] < FEAT_SECRET))
+	      (cave_feat[row][col] < FEAT_SECRET) ||
+	      (cave_feat[row][col] > FEAT_SHOP_HEAD))
 	    {
 	      /* Looking to break left */
 	      if (p_ptr->run_break_left)
@@ -3198,7 +3261,8 @@ void run_step(int dir)
 		}
 	    }
 	  
-	  p_ptr->run_cur_dir = pf_result[pf_result_index--] - '0';
+	  if (!player_is_crossing)
+	    p_ptr->run_cur_dir = pf_result[pf_result_index--] - '0';
 	  
 	  /* Hack -- allow easy_alter */
 	  p_ptr->command_dir = p_ptr->run_cur_dir;

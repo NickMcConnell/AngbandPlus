@@ -955,7 +955,7 @@ void do_cmd_observe(void)
     }
   
   /* Describe */
-  object_info_screen(o_ptr);
+  object_info_screen(o_ptr, FALSE);
 
 }
 
@@ -1538,7 +1538,7 @@ static cptr ident_info[] =
   /* "A:unused", */
   "B:Bird",
   "C:Canine",
-  "D:Ancient Dragon/Wyrm",
+  "D:Flying Dragon",
   "E:Elemental",
   "F:Dragon Fly",
   "G:Ghost",
@@ -1783,12 +1783,21 @@ void do_cmd_query_symbol(void)
   bool recall = FALSE;
   
   u16b why = 0;
-  u16b who[MAX_R_IDX];
+#ifdef _WIN32_WCE
+  u16b *who = malloc(z_info->r_max * sizeof(*who));
+#else
+  u16b who[z_info->r_max];
+#endif
   
-
   /* Get a character, or abort */
-  if (!get_com("Enter character to be identified: ", &sym)) return;
-
+  if (!get_com("Enter character to be identified: ", &sym)) 
+    {
+#ifdef _WIN32_WCE
+      free(who);
+#endif
+      return;
+    }
+  
   /* Find that character info, and describe it */
   for (i = 0; ident_info[i]; ++i)
     {
@@ -1814,7 +1823,12 @@ void do_cmd_query_symbol(void)
   else if (sym == KTRL('F'))
     {
       if (!get_string("Substring to search: ", search_str, sizeof(search_str)))
-	return;
+	{
+#ifdef _WIN32_WCE
+	  free(who);
+#endif
+	  return;
+	}
       
       for(sp = search_str; *sp; sp++) *sp = tolower(*sp);
       
@@ -1835,7 +1849,7 @@ void do_cmd_query_symbol(void)
   
   
   /* Collect matching monsters */
-  for (n = 0, i = 1; i < MAX_R_IDX; i++)
+  for (n = 0, i = 1; i < z_info->r_max; i++)
     {
       monster_race *r_ptr = &r_info[i];
       monster_lore *l_ptr = &l_list[i];
@@ -1866,7 +1880,13 @@ void do_cmd_query_symbol(void)
     }
   
   /* Nothing to recall */
-  if (!n) return;
+  if (!n) 
+    {
+#ifdef _WIN32_WCE
+      free(who);
+#endif
+      return;
+    }
   
   
   /* Prompt */
@@ -1907,6 +1927,9 @@ void do_cmd_query_symbol(void)
       kill_all_buttons();
       restore_buttons();
       update_statusline();
+#ifdef _WIN32_WCE
+      free(who);
+#endif
       return;
     }
   else
@@ -2036,6 +2059,9 @@ void do_cmd_query_symbol(void)
   kill_all_buttons();
   restore_buttons();
   update_statusline();
+#ifdef _WIN32_WCE
+  free(who);
+#endif
 }
 
 
