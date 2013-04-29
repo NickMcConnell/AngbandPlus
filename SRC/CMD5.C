@@ -582,7 +582,7 @@ return;
 
 	if (!(p_ptr->new_spells))
 	{
-msg_format("You cannot learn anything new!");
+		msg_format("You cannot learn anything new!");
 		return;
 	}
 
@@ -678,9 +678,9 @@ if ((++k == 1) || ((k > 1) &&
 	}
 
 	/* Song book -- Learn a spell in order */
-else if (o_ptr->tval == TV_SONG_BOOK)
+	else if (o_ptr->tval == TV_SONG_BOOK)
 	{
-s16b book[26];
+		s16b book[26];
 
 		int num = 0;
 
@@ -692,9 +692,9 @@ s16b book[26];
 		/* Do the hard work */
 		for(i=0;i<num;i++)
 		{
-if (spell_okay(book[i],FALSE))
+			if (spell_okay(book[i],FALSE))
 			{
-graft = book[i];
+				graft = book[i];
 				break;
 			}
 
@@ -705,14 +705,12 @@ graft = book[i];
 	}
 
 	/* Magic book -- Learn a selected spell */
-/* Now only for basic magic books */
-else if (o_ptr->tval == TV_MAGIC_BOOK)
+	/* Now only for basic magic books */
+	else if (o_ptr->tval == TV_MAGIC_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", o_ptr, FALSE) && (spell == -1)) return;
 	}
-
-
 
 	/* Nothing to study */
 	if (spell < 0)
@@ -725,18 +723,18 @@ else if (o_ptr->tval == TV_MAGIC_BOOK)
 	}
 
 
-/* Take a turn */
-p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Find the next open entry in "spell_order[]" */
-for (i = 0; i < PY_MAX_SPELLS; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		/* Stop at the first empty space */
 		if (p_ptr->spell_order[i] == 0) break;
 	}
 
 	/* Paranoia */
-if (i >= max_spells)
+	if (i >= max_spells)
 	{
 		/* Message */
 		msg_format("You cannot learn any more %ss.", p);
@@ -752,21 +750,21 @@ if (i >= max_spells)
 	{
 		p_ptr->spell_learned1 |= (1L << i);
 	}
-else if (i < 64)
-{
-p_ptr->spell_learned2 |= (1L << (i - 32));
-}
-else if (i < 96)
-{
-p_ptr->spell_learned3 |= (1L << (i - 64));
-}
-else
-{
-p_ptr->spell_learned4 |= (1L << (i - 96));
-}
+	else if (i < 64)
+	{
+		p_ptr->spell_learned2 |= (1L << (i - 32));
+	}
+	else if (i < 96)
+	{
+		p_ptr->spell_learned3 |= (1L << (i - 64));
+	}
+	else
+	{
+		p_ptr->spell_learned4 |= (1L << (i - 96));
+	}
 
-/*Set to spell*/
-s_ptr = &(s_info[spell]);
+	/*Set to spell*/
+	s_ptr = &(s_info[spell]);
 
 	/* Mention the result */
 	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
@@ -801,10 +799,10 @@ int i,ii;
 
 	spell_type *s_ptr;
 
-if ((o_ptr->tval != TV_MAGIC_BOOK) &&
-    (o_ptr->tval != TV_PRAYER_BOOK) &&
-    (o_ptr->tval != TV_RUNESTONE) &&
-    (o_ptr->tval != TV_SONG_BOOK)) return (0);
+	if ((o_ptr->tval != TV_MAGIC_BOOK) &&
+	    (o_ptr->tval != TV_PRAYER_BOOK) &&
+	    (o_ptr->tval != TV_RUNESTONE) &&
+	    (o_ptr->tval != TV_SONG_BOOK)) return (0);
 
 	for (i=0;i<PY_MAX_SPELLS;i++)
 	{

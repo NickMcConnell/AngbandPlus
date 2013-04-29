@@ -1,22 +1,25 @@
-# File: s_info.txt
+# File: spell.txt
 
 
-# This file is used to initialize the "lib/data/s_info.raw" file, which
+# This file is used to initialize the "lib/data/spell.raw" file, which
 # is used to initialize the "spell" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/s_info.raw" file.
+# After modifying this file, delete the "lib/data/spell.raw" file.
 
-# === Understanding s_info.txt ===
+# Note that all spells, object effects and artifact activations are
+# now specified in this file.
 
-# N:number:name
-# A:tval:sval:slot
-# C:class:level:mana:failure:min failure
-# F:flags
-# B: blow : flavour : dice d sides + bonus
-# L: lasts dice d sides + bonus
-# S: other effects
+# === Understanding spell.txt ===
+
+# N: number : name
+# A: tval : sval:slot
+# C: class: level:mana:failure:min failure
+# F: flags
+# B: attack method : attack effect : damage
+# L: duration
+# S: other effect : parameter
 # D: description
 
 # 'N' indicates the beginning of an entry. The serial number must
@@ -31,11 +34,28 @@
 # 'C' indicates the casting details listed by class. Note that currently
 # no more than 5 classes can cast a particular spell.
 
+# 'F' flags indicating many effects that take place when the spell is
+# cast.
+
+# 'B' indicates the attack effect of the spell similar to monster attacks.
+# Note that blow specifies whether a directional parameter is needed,
+# and the increase in spell effect based on player level.
+# Note that we can specify a constant bonus to damage in this file, and
+# up to 4 blows are permitted.
+
+# If dice is > 0 and sides == 0, we use dice * level + bonus, or
+# dice * 25 + bonus, if the spell is the result of using an object.
+
 # 'L' indicates how long the duration component of the spell lasts.
 
-# TO BE COMPLETED.
+# 'S' indicates another parametised effect. The parameter value
+# depends on the effect in question.
 
-# If dice is > 0 and sides == 0, we use dice * level + bonus.
+# 'D' description indicates the description display when the spell
+# takes effect. If an item has a description, it will be identified
+# as a part of the activation of the item.
+
+# ToDo: Explain the other monster and spell flags.  But maybe in another file.
 
 
 # Version stamp (required)
@@ -87,6 +107,7 @@ A:93:21:14
 C:1:1:2:26:4
 C:3:9:3:60:1
 C:4:5:3:35:1
+C:8:1:2:26:4
 C:9:5:3:35:1
 F:HOLD_SONG
 B:AREA:LITE_WEAK:2d0+0
@@ -267,7 +288,7 @@ C:1:9:7:44:8
 C:3:24:11:70:1
 C:4:15:13:50:4
 C:8:9:7:44:8
-B:BEAM:KILL_WALL:6d8+0
+B:LINE:KILL_WALL:6d8+0
 
 N:19:Satisfy Hunger
 A:70:32:1
@@ -1420,10 +1441,10 @@ B:STRIKE:FIRE:1d0+55
 
 N:126:Summon Avatar
 A:91:11:8
-C:2:45:60:75:250
-C:5:47:70:75:250
-C:8:47:70:75:250
-S:SUMMON_RACE:979
+#C:2:45:60:75:250
+#C:5:47:70:75:250
+#C:8:47:70:75:250
+#S:SUMMON_RACE:979
 
 N:127:Detect Undead
 A:91:12:1
@@ -1438,11 +1459,11 @@ F:DETECT_UNDEAD
 N:128:Summon Ghost
 A:91:12:6
 A:92:8:5
-C:2:25:30:70:12
-C:5:35:42:70:4
-C:8:25:30:70:12
-C:9:35:42:70:4
-S:SUMMON_RACE:343
+#C:2:25:30:70:12
+#C:5:35:42:70:4
+#C:8:25:30:70:12
+#C:9:35:42:70:4
+#S:SUMMON_RACE:343
 
 N:129:Raise Dead
 A:91:12:5
@@ -1579,11 +1600,11 @@ B:AIM:DRAIN_LIFE:5d10+0
 
 N:144:Summon Ghoul
 A:91:14:7
-C:2:15:19:55:29
-C:5:23:33:60:24
-C:8:15:19:55:29
-F:EVIL
-S:SUMMON_RACE:994
+#C:2:15:19:55:29
+#C:5:23:33:60:24
+#C:8:15:19:55:29
+#F:EVIL
+#S:SUMMON_RACE:994
 
 N:145:Cause Mortal Wounds
 A:91:14:8
@@ -1625,12 +1646,12 @@ N:149:Summon Fire Elemental
 #A:90:9:6
 A:92:11:6
 A:93:13:15
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:19:20:85:8
-C:9:30:30:99:6
-S:SUMMON_RACE:363
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:30:30:99:6
+#S:SUMMON_RACE:363
 
 N:150:Wall of Fire
 A:90:9:7
@@ -1710,11 +1731,11 @@ B:BOLT:ACID:6d8
 N:158:Summon Ooze Elemental
 #A:90:10:8
 A:93:1:15
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:21:22:90:8
-S:SUMMON_RACE:388
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:21:22:90:8
+#S:SUMMON_RACE:388
 
 N:159:Wall of Acid
 A:90:10:9
@@ -1868,11 +1889,11 @@ B:BOLT_10:COLD:5d8
 N:175:Summon Ice Elemental
 A:90:11:8
 A:93:14:15
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:19:20:85:8
-S:SUMMON_RACE:410
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#S:SUMMON_RACE:410
 
 N:176:Frost Bolt III
 A:65:43:1
@@ -2019,10 +2040,10 @@ B:LOS:DISPEL_UNDEAD:4d0+0
 
 N:193:Summon Ghost
 A:90:14:5
-C:1:25:30:70:12
-C:4:35:42:70:4
-C:8:25:30:70:12
-S:SUMMON_RACE:343
+#C:1:25:30:70:12
+#C:4:35:42:70:4
+#C:8:25:30:70:12
+#S:SUMMON_RACE:343
 
 N:194:Banishment
 A:90:14:6
@@ -2035,10 +2056,10 @@ D:The power of your magic banishes evil.
 
 N:195:Summon Demon
 A:90:14:7
-C:1:40:85:80:100
-C:8:45:95:90:120
-F:EVIL
-S:SUMMON:16
+#C:1:40:85:80:100
+#C:8:45:95:90:120
+#F:EVIL
+#S:SUMMON:16
 
 N:196:Detect Animals
 A:70:66:1
@@ -2062,13 +2083,13 @@ A:90:15:2
 N:198:Summon Animal
 A:90:15:3
 A:92:6:3
-C:1:12:19:50:7
-C:3:15:26:60:3
-C:4:20:31:65:3
-C:8:12:19:50:7
-C:9:20:16:65:3
-F:HOLD_SONG
-S:SUMMON:11
+#C:1:12:19:50:7
+#C:3:15:26:60:3
+#C:4:20:31:65:3
+#C:8:12:19:50:7
+#C:9:20:16:65:3
+#F:HOLD_SONG
+#S:SUMMON:11
 
 N:199:Charm Person or Animal
 A:90:15:4
@@ -2100,31 +2121,31 @@ S:INVEN_WIELD:577
 
 N:202:Creeping Death
 A:90:15:7
-C:1:35:27:105:140
-C:3:40:35:105:100
-C:4:40:35:105:100
-C:8:35:27:105:140
-S:SUMMON_RACE:978
+#C:1:35:27:105:140
+#C:3:40:35:105:100
+#C:4:40:35:105:100
+#C:8:35:27:105:140
+#S:SUMMON_RACE:978
 
 N:203:Summon Dragon
 A:90:15:8
 A:92:6:7
-C:1:40:70:75:250
-C:4:45:80:75:250
-C:8:45:80:75:250
-C:9:45:80:75:250
-S:SUMMON:18
+#C:1:40:70:75:250
+#C:4:45:80:75:250
+#C:8:45:80:75:250
+#C:9:45:80:75:250
+#S:SUMMON:18
 
 N:204:Mirror Image
 A:90:16:2
 A:92:9:1
-C:1:7:6:40:7
-C:3:10:13:50:3
-C:4:15:18:55:3
-C:8:7:6:40:7
-C:9:10:13:50:3
-F:HOLD_SONG
-S:SUMMON_RACE:953
+#C:1:7:6:40:7
+#C:3:10:13:50:3
+#C:4:15:18:55:3
+#C:8:7:6:40:7
+#C:9:10:13:50:3
+#F:HOLD_SONG
+#S:SUMMON_RACE:953
 
 N:205:Fear
 A:90:16:3
@@ -2148,38 +2169,38 @@ B:LOS:CONFUSE_WEAK:1d0+0
 
 N:207:Unseen Servant
 A:90:16:5
-C:1:17:9:50:7
-C:3:20:16:60:5
-C:4:25:21:65:3
-C:8:20:16:60:5
-S:SUMMON_RACE:724
+#C:1:17:9:50:7
+#C:3:20:16:60:5
+#C:4:25:21:65:3
+#C:8:20:16:60:5
+#S:SUMMON_RACE:724
 
 N:208:Wizard Eye
 A:90:16:6
-C:1:22:12:60:10
-C:3:25:19:70:8
-C:4:30:24:75:6
-C:8:25:12:60:10
-S:SUMMON_RACE:721
+#C:1:22:12:60:10
+#C:3:25:19:70:8
+#C:4:30:24:75:6
+#C:8:25:12:60:10
+#S:SUMMON_RACE:721
 
 N:209:Phantasmal Force
 A:90:16:7
 A:92:9:6
-C:1:27:15:70:13
-C:3:30:22:80:11
-C:4:35:27:85:9
-C:8:30:22:70:11
-C:9:35:27:85:9
-F:HOLD_SONG
-S:SUMMON_RACE:954
+#C:1:27:15:70:13
+#C:3:30:22:80:11
+#C:4:35:27:85:9
+#C:8:30:22:70:11
+#C:9:35:27:85:9
+#F:HOLD_SONG
+#S:SUMMON_RACE:954
 
 N:210:Summon Shadow
 A:90:16:8
-C:1:32:28:80:16
-C:3:35:35:90:14
-C:4:40:40:95:12
-C:8:32:28:90:14
-S:SUMMON_RACE:399
+#C:1:32:28:80:16
+#C:3:35:35:90:14
+#C:4:40:40:95:12
+#C:8:32:28:90:14
+#S:SUMMON_RACE:399
 
 N:211:Alter Reality
 A:90:16:9
@@ -2246,12 +2267,12 @@ B:LINE:BRIDGE
 N:218:Summon Earth Elemental
 A:90:18:7
 A:92:11:7
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:19:20:85:8
-C:9:30:30:99:6
-S:SUMMON_RACE:373
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:30:30:99:6
+#S:SUMMON_RACE:373
 
 N:219:Wall of Stone
 A:90:18:8
@@ -2298,12 +2319,12 @@ B:STORM:ELEC:0d0+40
 N:224:Summon Air Elemental
 A:90:19:7
 A:92:7:6
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:19:20:85:8
-C:9:29:33:95:3
-S:SUMMON_RACE:374
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#C:9:29:33:95:3
+#S:SUMMON_RACE:374
 
 N:225:Burning Cloud
 A:65:48:1
@@ -2360,11 +2381,11 @@ B:BOLT:WATER:6d8
 
 N:231:Summon Water Elemental
 #A:90:20:5
-C:1:21:22:90:8
-C:3:30:30:99:6
-C:4:29:33:95:3
-C:8:19:20:85:8
-S:SUMMON_RACE:365
+#C:1:21:22:90:8
+#C:3:30:30:99:6
+#C:4:29:33:95:3
+#C:8:19:20:85:8
+#S:SUMMON_RACE:365
 
 N:232:Wall of Water
 A:90:20:6
@@ -3329,9 +3350,9 @@ A:93:7:16
 C:1:1:2:26:4
 C:3:9:3:60:1
 C:4:5:3:35:1
+C:8:5:3:35:1
 C:9:5:3:35:1
 B:STRIKE:LOCK_DOOR
-F:LITE_ROOM
 
 # Intermediate priest attack spell
 
@@ -3367,6 +3388,3 @@ A:45:37:8
 A:45:37:9
 A:45:37:10
 B:BOLT:MANA:0d0+250
-
-
-

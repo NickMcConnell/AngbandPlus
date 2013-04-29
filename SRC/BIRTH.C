@@ -593,7 +593,7 @@ static void player_wipe(void)
 	p_ptr->rest = PY_REST_FULL - 1;
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 0;
 }
 
 

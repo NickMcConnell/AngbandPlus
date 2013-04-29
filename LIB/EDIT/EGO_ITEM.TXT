@@ -664,7 +664,7 @@ Y:20:4
 
 N:66:(Blessed)
 X:24:20:2
-W:0:10:0:5000
+W:10:10:0:5000
 C:0:0:0:3
 T:21:0:99
 T:22:0:99
@@ -717,16 +717,9 @@ F:STR | BLOWS | AGGRAVATE | RES_FEAR | HIDE_TYPE |
 F:IGNORE_ACID | IGNORE_FIRE
 Y:23:4
 
-# The "Branded" weapons (9)
+# 71 (unused)
 
-N:71:of Venom
-X:24:15:0
-W:5:8:0:2000
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:BRAND_POIS
-Y:4:1
+# The "Branded" weapons (9)
 
 N:72:of Acid
 X:24:20:0
@@ -764,7 +757,16 @@ T:23:0:99
 F:BRAND_COLD | RES_COLD | IGNORE_COLD
 Y:14:3
 
-N:76:'Acid wit'
+N:76:of Venom
+X:24:15:0
+W:5:8:0:2000
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BRAND_POIS
+Y:4:1
+
+N:77:'Acid wit'
 X:24:25:3
 C:6:6:0:3
 W:20:15:0:12000
@@ -774,7 +776,7 @@ T:23:0:99
 F:BRAND_ACID | RES_ACID | IGNORE_ACID | WIS
 Y:1:5
 
-N:77:'Thunderhead'
+N:78:'Thunderhead'
 X:24:25:3
 W:20:15:0:8000
 C:6:6:0:3
@@ -784,7 +786,7 @@ T:23:0:99
 F:BRAND_ELEC | RES_ELEC | IGNORE_ELEC | INT
 Y:22:5
 
-N:78:'Flametongue'
+N:79:'Flametongue'
 X:24:25:3
 W:20:10:0:7000
 C:6:6:0:3
@@ -794,19 +796,12 @@ T:23:0:99
 F:BRAND_FIRE | RES_FIRE | IGNORE_FIRE | CHR
 Y:13:5
 
-N:79:'Frostbite'
-X:24:25:3
-W:20:10:0:7500
-C:6:6:0:3
-T:21:0:99
-T:22:0:99
-T:23:0:99
-F:BRAND_COLD | RES_COLD | IGNORE_COLD | STR
-Y:14:5
+
+# The "Slay" weapons (8)
 
 N:80:of Slay Nature
 X:24:18:0
-W:0:6:0:300
+W:0:6:0:600
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -815,7 +810,7 @@ Y:3:1
 
 N:81:of Slay Evil
 X:24:18:0
-W:0:6:0:300
+W:0:6:0:600
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -824,7 +819,7 @@ Y:23:1
 
 N:82:of Slay Undead
 X:24:18:0
-W:0:6:0:350
+W:0:6:0:700
 T:21:0:18
 T:22:0:99
 T:23:0:99
@@ -833,7 +828,7 @@ Y:18:1
 
 N:83:of Slay Demon
 X:24:14:0
-W:0:6:0:350
+W:0:6:0:700
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -842,7 +837,7 @@ Y:6:1
 
 N:84:of Slay Orc
 X:24:10:0
-W:0:6:0:250
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -851,7 +846,7 @@ Y:10:1
 
 N:85:of Slay Troll
 X:24:10:0
-W:0:6:0:250
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -860,7 +855,7 @@ Y:24:1
 
 N:86:of Slay Giant
 X:24:14:0
-W:0:6:0:250
+W:0:6:0:500
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -869,7 +864,7 @@ Y:9:1
 
 N:87:of Slay Dragon
 X:24:18:0
-W:0:6:0:350
+W:0:6:0:700
 T:21:0:99
 T:22:0:99
 T:23:0:99
@@ -960,7 +955,7 @@ Y:8:3
 
 N:96:(Enchanted)
 X:24:20:3
-W:0:10:0:5000
+W:10:10:0:5000
 C:0:0:0:3
 T:21:0:99
 T:22:0:99
@@ -968,7 +963,17 @@ T:23:0:99
 F:INT
 Y:17:2
 
-N:97:'Foulheart'
+N:97:'Frostbite'
+X:24:25:3
+W:20:10:0:7500
+C:6:6:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:BRAND_COLD | RES_COLD | IGNORE_COLD | STR
+Y:14:5
+
+N:98:'Foulheart'
 X:24:25:3
 W:30:15:0:10000
 C:6:6:0:3
@@ -977,6 +982,8 @@ T:22:0:99
 T:23:0:99
 F:BRAND_POIS | RES_POIS | CON
 Y:4:5
+
+# 99 (unused)
 
 ### Digging Tools
 

@@ -1,12 +1,12 @@
-# File: d_info.txt
+# File: room.txt
 
 
-# This file is used to initialize the "lib/data/d_info.raw" file, which is
-# used to describe rooms in the dungeon.
+# This file is used to initialize the "lib/data/room.raw" file, which
+# is used to initialize the "room" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/data/d_info.raw" file.
+# After modifying this file, delete the "lib/data/room.raw" file.
 
 # Room descriptions (see below)
 

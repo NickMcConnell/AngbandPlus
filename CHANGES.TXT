@@ -1,3 +1,16 @@
+Unangband 0.5.1 "'Oops. I did it again' again" release
+- Reordered monsters in monster file, rendering save file
+incompatible for the first time ever since Unangband released.
+However, it allows use of graphics in the game, using Angband
+2.9.6 pref files.
+- Fixed bug with loading dungeon in campaign mode.
+- Fixed bug causing visual weirdness due to tab replacement
+in strings.
+- Fixed bug preventing players learning spells that was
+introduced in upgrade to 2.9.6.
+- Fixed some minor monster changes.
+
+
 Unangband 0.5.0 "This is Dedicated" release
 - Updated help files to include new options.
 - Restructured help files to format similar to Eyangband.

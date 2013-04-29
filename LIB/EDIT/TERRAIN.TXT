@@ -1,20 +1,17 @@
-# File: f_info.txt
+# File: terrain.txt
 
-# This file is used to initialize the "lib/raw/f_info.raw" file, which is
+# This file is used to initialize the "lib/raw/terrain.raw" file, which is
 # used to initialize the "terrain feature" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/f_info.raw" file.
-
-# Note that the terrain feature are grouped into very regular groups,
-# such that each of the bits in the feature type conveys information.
-
-# Note that this is no longer the case, but we go to extraordinary lengths to
-# retain the significance of the LOS bit (bit 5).
+# After modifying this file, delete the "lib/raw/terrain.raw" file.
 
 # Note that terrain feature zero contains the "darkness" picture.
 
+# Note that terrain feature one should contain the "unsafe" picture for
+# unknown grids that may be trapped (With the view_unsafe_grid option
+# on) but currently doesn't.
 
 # === Understanding f_info.txt ===
 
@@ -257,8 +254,8 @@
 # so that they become unreachable. XXX XXX XXX
 
 # Corridors bridge terrain that has BRIDGE flags and tunnel through terrain
-# that has TUNNEL flags. This is # done to guarantee that there is always a
-# safe path from room to room, even if that safe path requires walking
+# that has TUNNEL flags. This is done to guarantee that there is always a
+# safe path from room to room, even if that 'safe' path requires walking
 # through shallow acid. Terrain that is neither bridged or tunnelled through
 # must otherwise be crossable. XXX
 
@@ -278,7 +275,9 @@
 # Some terrain types overwrite other terrain types with intermediate terrain
 # types. This is determined in generate.c but should be replaced in the 
 # future with a smart algorithm because there are O(n^2) possible
-# combinations of terrain to have to deal with.
+# combinations of terrain to have to deal with. This has for the most part
+# been done, but not tested thoroughly, as we had to support different 'types'
+# of water.
 
 # Some terrain types replace themselves with different terrain when placed.
 # This is determined in generate.c, and is to break up the monotony of one
@@ -405,7 +404,6 @@ F:LOS | MOVE | PROJECT | PLACE | DROP | LAKE | ATTR_LITE |
 F:CAN_CLIMB | CAN_FLY | FLOOR | RUN
 
 # 0x02 --> invisible trap (drawn as open floor)
-# Hack -- now used to mark CAVE_SAFE grids (back to front)
 
 N:2:invisible trap
 G:x:D

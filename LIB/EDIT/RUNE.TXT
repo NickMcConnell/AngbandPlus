@@ -1,6 +1,17 @@
+# File: rune.txt
+
+
+# This file is used to initialize the "lib/data/rune.raw" file, which
+# is used to initialize the "artifact" information for the Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/rune.raw" file.
+
+
 #N:Name
 #B:spell blow:type:damage
-#Y:gains abilities with applied
+#Y:runes:ability gained
 
 # Version stamp (required)
 

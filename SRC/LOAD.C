@@ -1572,6 +1572,8 @@ u16b limit;
 
 	/* Load depth */
 	p_ptr->depth = depth;
+	p_ptr->dungeon = dungeon;
+	p_ptr->town = town;
 
 
 	/* Place player in dungeon */
