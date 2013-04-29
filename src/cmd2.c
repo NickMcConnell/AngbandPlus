@@ -302,7 +302,7 @@ void do_cmd_go_down(void)
   
   
   /* Handle ironman */
-  if (adult_ironman && !p_ptr->depth)
+  if (adult_ironman && !p_ptr->depth && !adult_dungeon)
     {
       int i, other;
       int next = stage_map[p_ptr->stage][2 + (pstair - FEAT_MORE_NORTH)/2];
@@ -338,7 +338,7 @@ void do_cmd_go_down(void)
       int location;
 
       /* Magical portal for ironman */
-      if (adult_ironman && !stage_map[p_ptr->stage][DOWN])
+      if (adult_ironman && !stage_map[p_ptr->stage][DOWN] && !adult_dungeon)
 	{
 	  /* Get choice */
 	  if (!jump_menu(p_ptr->depth + 1, &location))

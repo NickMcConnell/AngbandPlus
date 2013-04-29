@@ -2481,6 +2481,7 @@ DEP_CPP_JEWEL=\
 	".\src\h-define.h"\
 	".\src\h-system.h"\
 	".\src\h-type.h"\
+	".\src\jewel.h"\
 	".\src\ui.h"\
 	".\src\z-file.h"\
 	".\src\z-form.h"\
@@ -2505,6 +2506,7 @@ DEP_CPP_JEWEL=\
 	".\src\h-define.h"\
 	".\src\h-system.h"\
 	".\src\h-type.h"\
+	".\src\jewel.h"\
 	".\src\ui.h"\
 	".\src\z-file.h"\
 	".\src\z-form.h"\
@@ -2554,6 +2556,7 @@ DEP_CPP_JEWEL=\
 	".\src\h-define.h"\
 	".\src\h-system.h"\
 	".\src\h-type.h"\
+	".\src\jewel.h"\
 	".\src\ui.h"\
 	".\src\z-file.h"\
 	".\src\z-form.h"\
@@ -2910,6 +2913,32 @@ NODEP_CPP_MAIN_C=\
 !ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Release"
 
 # PROP Exclude_From_Build 1
+DEP_CPP_MAIN_C=\
+	".\src\angband.h"\
+	".\src\autoconf.h"\
+	".\src\cmds.h"\
+	".\src\config.h"\
+	".\src\defines.h"\
+	".\src\externs.h"\
+	".\src\h-basic.h"\
+	".\src\h-config.h"\
+	".\src\h-define.h"\
+	".\src\h-system.h"\
+	".\src\h-type.h"\
+	".\src\main.h"\
+	".\src\ui.h"\
+	".\src\z-file.h"\
+	".\src\z-form.h"\
+	".\src\z-rand.h"\
+	".\src\z-term.h"\
+	".\src\z-type.h"\
+	".\src\z-util.h"\
+	".\src\z-virt.h"\
+	
+NODEP_CPP_MAIN_C=\
+	".\src\Python.h"\
+	".\src\SDL.h"\
+	
 
 !ELSEIF  "$(CFG)" == "FA - Win32 (WCE ARMV4) Debug"
 

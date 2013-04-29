@@ -2327,6 +2327,7 @@ bool py_set_trap(int y, int x)
   int max_traps;
   s16b this_o_idx, next_o_idx = 0;
   object_type *o_ptr;
+  bool destroy_message = FALSE;
 	  
   max_traps = 1 + ((p_ptr->lev >= 25) ? 1 : 0) + 
     (check_ability(SP_EXTRA_TRAP) ? 1 : 0);
@@ -2373,31 +2374,33 @@ bool py_set_trap(int y, int x)
 	  msg_print("There is an indestructible object here.");
 	  return FALSE;
 	}
+
+      /* Visible object to be destroyed */
+      if (!squelch_hide_item(o_ptr)) destroy_message = TRUE;
     }
 
   /* Verify */
   if (cave_o_idx[y][x]) 
     {
-      if (!get_check("Destroy all items and set a trap?")) return FALSE;
-      else
-	{
-	  for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
-	    {
-	      /* Acquire object */
-	      o_ptr = &o_list[this_o_idx];
-	      
-	      /* Acquire next object */
-	      next_o_idx = o_ptr->next_o_idx;
-	      
-	      /* Delete the object */
-	      delete_object_idx(this_o_idx);
-	    }
-	  
-	  /* Redraw */
-	  lite_spot(y, x);
-	}
-    }
+      if (destroy_message)
+	if (!get_check("Destroy all items and set a trap?")) return FALSE;
 
+      for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+	  /* Acquire object */
+	  o_ptr = &o_list[this_o_idx];
+	  
+	  /* Acquire next object */
+	  next_o_idx = o_ptr->next_o_idx;
+	  
+	  /* Delete the object */
+	  delete_object_idx(this_o_idx);
+	}
+      
+      /* Redraw */
+      lite_spot(y, x);
+    }
+    
   /* Set the trap, and draw it. */
   cave_set_feat(y, x, FEAT_MTRAP_BASE);
   

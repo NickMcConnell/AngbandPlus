@@ -3842,13 +3842,17 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
   
   /* Sound */
   sound(MSG_DROP);
+
+  /* No messages for squelched items */
+  if (squelch_hide_item(j_ptr)) return;
   
   /* Mega-Hack -- no message if "dropped" by player */
-  /* Message when an object falls under the player or in trees or rubble */
-  if (chance && (cave_m_idx[by][bx] < 0))
+  if (chance && (cave_m_idx[by][bx] < 0) )
     {
       msg_print("You feel something roll beneath your feet.");
     }
+
+  /* Message when an object falls under the player or in trees or rubble */
   else if (((cave_feat[by][bx] == FEAT_TREE) || 
 	    (cave_feat[by][bx] == FEAT_TREE2) || 
 	    (cave_feat[by][bx] == FEAT_RUBBLE)) && (!p_ptr->blind))

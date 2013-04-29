@@ -1332,6 +1332,41 @@ void object_info_detail(object_type *o_ptr)
   
   
   /* And then describe it fully */
+
+  /* Single skill and deadliness bonuses for jewellery */
+  if (is_jewellery(o_ptr))
+    {
+      if (o_ptr->to_d == 0)
+	{
+	  if (o_ptr->to_h < 0)
+	    {
+	      text_out_to_screen(TERM_WHITE, "It subtracts ");
+	      text_out_to_screen(TERM_RED, format("%d ", -o_ptr->to_h));
+	      text_out_to_screen(TERM_WHITE, "from your skill.  ");
+	    }
+	  else if (o_ptr->to_h > 0)
+	    {
+	      text_out_to_screen(TERM_WHITE, "It adds ");
+	      text_out_to_screen(TERM_L_GREEN, format("%d ", o_ptr->to_h));
+	      text_out_to_screen(TERM_WHITE, "to your skill.  ");
+	    }
+	}
+      if (o_ptr->to_h == 0)
+	{
+	  if (o_ptr->to_d < 0)
+	    {
+	      text_out_to_screen(TERM_WHITE, "It subtracts ");
+	      text_out_to_screen(TERM_RED, format("%d%% ", -o_ptr->to_d));
+	      text_out_to_screen(TERM_WHITE, "from your deadliness.  ");
+	    }
+	  else if (o_ptr->to_d > 0)
+	    {
+	      text_out_to_screen(TERM_WHITE, "It adds ");
+	      text_out_to_screen(TERM_GREEN, format("%d%% ", o_ptr->to_d));
+	      text_out_to_screen(TERM_WHITE, "to your deadliness.  ");
+	    }
+	}
+    }
   
   /* Affects stats. */
   if ((o_ptr->ident) & IDENT_WORN)

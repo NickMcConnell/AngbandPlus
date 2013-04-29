@@ -2523,6 +2523,11 @@ static bool summon_specific_okay(int r_idx)
   /* Player ghosts cannot be summoned. */
   if (r_ptr->flags2 & (RF2_PLAYER_GHOST)) return (FALSE);
   
+  /* Sauron's forms cannot be summoned. */
+  if ((r_ptr->flags2 & RF2_GAURHOTH) && (r_ptr->flags1 & RF1_FORCE_DEPTH) &&
+      (summon_specific_type != SUMMON_SAURON)) 
+    return (FALSE);
+  
   /* Hack -- no specific type specified */
   if (!summon_specific_type) return (TRUE);
   

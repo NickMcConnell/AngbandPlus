@@ -55,14 +55,14 @@
 /**
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"1.1.4"
+#define VERSION_STRING	"1.1.5"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	1
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 
 /**
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -3624,6 +3624,12 @@
  */
 #define is_armour(T) \
   (((T)->tval >= TV_BOOTS) && ((T)->tval <= TV_DRAG_ARMOR))
+
+/**
+ * Object is a ring or amulet
+ */
+#define is_jewellery(T) \
+  (((T)->tval >= TV_AMULET) && ((T)->tval <= TV_RING))
 
 /**
  * Determine if the attr and char should consider the item's flavor

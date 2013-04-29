@@ -1336,7 +1336,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       /* Add the weapon bonuses */
       /* Show the tohit/todam on request */
       /* Hack - delay displaying ring and amulet bonuses */
-      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
+      if (is_jewellery(o_ptr) &&
 	  !((o_ptr->id_other & IF_TO_H) || (o_ptr->id_other & IF_TO_D)))
 	;
 	      
@@ -1377,8 +1377,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
       /* Add the armor bonuses */
       /* Show the armor class info */
       /* Hack - delay displaying ring and amulet bonuses */
-      if (((o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET)) &&
-	  !((o_ptr->id_other & IF_AC) || (o_ptr->id_other & IF_TO_A)))
+      if (is_jewellery(o_ptr) &&
+ 	  !((o_ptr->id_other & IF_AC) || (o_ptr->id_other & IF_TO_A)))
 	;
 	      
       else if (show_armour)

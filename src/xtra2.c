@@ -2839,7 +2839,8 @@ void verify_panel(void)
   /* Hack - in town */
   if (!p_ptr->depth && !small_screen && (SCREEN_HGT >= (DUNGEON_HGT / 3) - 1) 
       && (((p_ptr->stage < 151) && (SCREEN_WID >= (DUNGEON_WID / 6))) || 
-	  ((p_ptr->stage > 150) && (SCREEN_WID >= (DUNGEON_WID / 3)))))
+	  (((p_ptr->stage > 150) || (adult_dungeon)) && 
+	   (SCREEN_WID >= (DUNGEON_WID / 3)))))
     {
       
       prow_min = DUNGEON_HGT / 3;
@@ -2906,8 +2907,9 @@ void verify_panel(void)
 	  y_min = DUNGEON_HGT / 3;
 	  x_min = DUNGEON_WID / 3;
 	  y_max = 2 * DUNGEON_HGT / 3 - SCREEN_HGT;
-	  x_max = (p_ptr->stage < 151) ? (DUNGEON_WID / 2) - SCREEN_WID
-	    : (2 * DUNGEON_WID / 3) - SCREEN_WID;
+	  x_max = ((p_ptr->stage < 151) && (!adult_dungeon)) ? 
+		   (DUNGEON_WID / 2) - SCREEN_WID
+		   : (2 * DUNGEON_WID / 3) - SCREEN_WID;
       
 	  /* Bounds */
 	  if ((prow_min > y_max) && (py > y_max)) prow_min = y_max;
