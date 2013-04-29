@@ -337,6 +337,7 @@ struct ego_item_type
   
   byte xtra;			/* Extra sustain/resist/power */
   bool everseen;		/* Do not spoil squelch menus */
+  bool squelch;			/* Squelch this ego-item */
 };
 
 
@@ -697,13 +698,7 @@ struct owner_type
   
   s16b max_cost;	/* Purse limit */
   
-  int max_inflate;	/* Initial Inflation */
-  int min_inflate;	/* Final Offer Inflation */
-  
-  byte haggle_per;	/* Haggle unit */
-  
-  byte insult_max;	/* Insult limit */
-  
+  int inflate;	        /* Inflation */
   byte owner_race;	/* Owner race */
 
 };

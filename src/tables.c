@@ -1774,7 +1774,6 @@ player_magic magic_info[MAX_CLASS] =
 	{ 132,	 3,  1, 25,   2}, /* combat poison */
 	{ 131,	 3,  2, 25,   2}, /* blink */
 	{ 133,	 4,  2, 25,   3}, /* lightning spark */
-	//{ 134,	 5,  3, 25,   3}, /* door destruction */
 	{ 135,	 5,  3, 25,   3}, /* turn stone to mud */
 	{ 136,	 6,  4, 27,   4}, /* ray of sunlight */
 	
@@ -3046,7 +3045,7 @@ bool option_norm[OPT_MAX] =
     FALSE,		/* OPT_view_granite_lite */
     TRUE,		/* OPT_view_special_lite */
     FALSE,
-    TRUE,	        /* OPT_easy_more */
+    FALSE,	        /* OPT_easy_more */
     FALSE,		
     FALSE,		/* OPT_show_piles */
     FALSE,		/* OPT_hp_changes_colour */
@@ -3291,9 +3290,10 @@ cptr feel_text[FEEL_MAX] =
     "cursed",	 /* FEEL_CURSED */
     "uncursed",	 /* FEEL_UNCURSED */
     "average",	 /* FEEL_AVERAGE */
-    "good",	 /* FEEL_GOOD */
+    "good",	 /* FEEL_GOOD_STRONG */
     "excellent", /* FEEL_EXCELLENT */
     "special",	 /* FEEL_SPECIAL */
+    "good",	 /* FEEL_GOOD_WEAK */
   };
 
 const grouper object_text_order [] =

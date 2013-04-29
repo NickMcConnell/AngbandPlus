@@ -4,6 +4,9 @@
 /* cmd0.c */
 extern void cmd_init(void);
 extern void process_command(bool no_request);
+extern int click_area(event_type ke);
+extern void do_cmd_show_obj(void);
+extern void do_cmd_mousepress(void);
 
 /* cmd2.c */
 extern void do_cmd_move_house(void);

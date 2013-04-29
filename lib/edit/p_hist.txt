@@ -11,13 +11,14 @@
 # Background information (see below)
 #
 # Chart progression by race:
-#   Human/Adan      -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Human           -->  1 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Green Elf       -->  4 -->  7 -->  9 --> 54 --> 55 --> 56
 #   Grey Elf        -->  5 -->  7 -->  9 --> 54 --> 55 --> 56
 #   Hobbit          --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Petty-Dwarf     --> 13 --> 14 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Dwarf/Longbeard --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
 #   Druadan         --> 19 --> 23 --> 62 --> 63 --> 64 --> 66
+#   Adan            --> 20 --> 21 -->  3 --> 50 --> 51 --> 52 --> 53
 #   High Elf        -->  6 -->  7 -->  9 --> 54 --> 55 --> 56
 #   Maia            --> 25 --> 26 --> 67 --> 68
 #   Dark Elf        --> 28 --> 29 --> 54 --> 55 --> 56
@@ -33,7 +34,7 @@
 
 # Version stamp (required)
 
-V:0.3.1
+V:0.3.2
 
 N:1:2:10:25
 D:You are the illegitimate and unacknowledged child 

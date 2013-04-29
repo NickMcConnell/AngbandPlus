@@ -1257,10 +1257,10 @@ static bool choose_character()
   /* Set up buttons */
   normal_screen = FALSE;
   kill_all_buttons();
-  add_button("[Exit]", KTRL('X'));
-  add_button("[ESC]", ESCAPE);
-  add_button("[Help]",'?');
-  add_button("[Random]",'*');
+  add_button("Exit", KTRL('X'));
+  add_button("ESC", ESCAPE);
+  add_button("Help",'?');
+  add_button("Random",'*');
   update_statusline();
 
   while (i < (int)N_ELEMENTS(menu_defs))
@@ -1348,8 +1348,6 @@ static bool player_birth_aux_1(void)
   text_out("' for a random menu item, '");
   text_out_c(TERM_L_GREEN, "ESC");
   text_out("' to step back through the birth process, '");
-  //text_out_c(TERM_L_GREEN, "=");
-  //text_out("' for the birth options, '");
   text_out_c(TERM_L_GREEN, "?");
   text_out("' for help, or '");
   text_out_c(TERM_L_GREEN, "Ctrl-X");
@@ -1360,10 +1358,12 @@ static bool player_birth_aux_1(void)
   
   if (!choose_character()) return FALSE;
   
-  
+
+#if 0  
   /* Set adult options from birth options */
-  //for (i = OPT_birth_start; i < OPT_cheat_start; i++)
-  //op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
+  for (i = OPT_birth_start; i < OPT_cheat_start; i++)
+  op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
+#endif
   
   /* Reset score options from cheat options */
   for (i = OPT_cheat_start; i < OPT_adult_start; i++)
@@ -1537,12 +1537,12 @@ static int player_birth_aux_2(void)
       /* Buttons */
       clear_from(Term->hgt - 2);
       kill_all_buttons();
-      add_button("[Back]", ESCAPE);
-      add_button("[Done]", '\r');
-      add_button("[Up]", '8');
-      add_button("[Down]", '2');
-      add_button("[Incr]", '6');
-      add_button("[Decr]", '4');
+      add_button("Back", ESCAPE);
+      add_button("Done", '\r');
+      add_button("Up", '8');
+      add_button("Down", '2');
+      add_button("Incr", '6');
+      add_button("Decr", '4');
       update_statusline();
 
       /* Place cursor just after cost of current stat */
@@ -1654,10 +1654,10 @@ static int player_birth_aux_3(bool autoroll)
       
       /* Set up buttons */
       kill_all_buttons();
-      add_button("[ESC]", ESCAPE);
-      add_button("[Return]", '\r');
-      add_button("[+]", '+');
-      add_button("[-]", '-');
+      add_button("ESC", ESCAPE);
+      add_button("Return", '\r');
+      add_button("+", '+');
+      add_button("-", '-');
       update_statusline();
 
       /* Extra info */
@@ -1955,10 +1955,10 @@ static int player_birth_aux_3(bool autoroll)
 	    display_player(0);
 	  
 	  /* Add buttons */
-	  add_button("[ESC]", ESCAPE);
-	  add_button("[Enter]", '\r');
-	  add_button("[r]", 'r');
-	  if (prev) add_button("[p]", 'p');
+	  add_button("ESC", ESCAPE);
+	  add_button("Enter", '\r');
+	  add_button("r", 'r');
+	  if (prev) add_button("p", 'p');
 	  clear_from(Term->hgt - 2);
 	  update_statusline();
 
@@ -2122,9 +2122,9 @@ static void player_birth_aux(void)
 	    
 	    /* Buttons */
 	    kill_all_buttons();
-	    add_button("[Continue]", 'q');
-	    add_button("[ESC]", ESCAPE);
-	    add_button("[S]", 'S');
+	    add_button("Continue", 'q');
+	    add_button("ESC", ESCAPE);
+	    add_button("S", 'S');
 	    update_statusline();
 	    
 	    /* Get a key */
@@ -2183,18 +2183,6 @@ void player_birth(void)
   /* Create a new character */
   player_birth_aux();
   
-  /* Make a note file in the savefile directory */
-          
-  /* Name the notes file, using the base name */
-  //sprintf(temp, "%s.txt", op_ptr->base_name);
-  
-  /* Build the filename */
-  //path_build(notes_fname, sizeof(notes_fname), ANGBAND_DIR_SAVE, temp);
-  
-  //notes_file = my_fopen(notes_fname, "w");
-
-  //if (!notes_file) quit("Can't create the notes file");
-      
   /* Get date */
 #ifdef _WIN32_WCE
   {

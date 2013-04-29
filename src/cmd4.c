@@ -543,19 +543,19 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	if (small_screen) strcpy(prompt, "");
 	prt(prompt, hgt - 1, 0);
 	prompt_end = (small_screen ? 0 : strlen(prompt));
-	add_button("[ESC]", ESCAPE);
-	add_button("[r]", 'r');
+	add_button("ESC", ESCAPE);
+	add_button("r", 'r');
 	if (o_funcs.xattr)
 	  {
 	    if (attr_idx|char_idx)
 	      {
-		add_button("[p]", 'p');
+		add_button("p", 'p');
 		kill_button('c');
 	      }
 	    else
 	      {
 		kill_button('p');
-		add_button("[c]", 'c');
+		add_button("c", 'c');
 	      }
 	  }
 	else
@@ -565,13 +565,13 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	  }
 	if (visual_list) 
 	  {
-	    add_button("[Ent]", '\r');
+	    add_button("Ent", '\r');
 	    kill_button('v');
 	  }
 	else
 	  {
 	    kill_button('\r');
-	    add_button("[v]", 'v');
+	    add_button("v", 'v');
 	  }
 	update_statusline();
       }
@@ -1241,13 +1241,7 @@ static void desc_art_fake(int a_idx)
   /* Hack -- Handle stuff */
   handle_stuff();
   
-  /* Save the screen */
-  //screen_save();
-  
   object_info_screen(o_ptr);
-  
-  /* Load the screen */
-  //screen_load();
 }
 
 static int a_cmp_tval(const void *a, const void *b)
@@ -1395,9 +1389,6 @@ static void desc_ego_fake(int oid)
   
   /* List ego flags */
   dummy.name2 = e_idx;
-  //object_info_out_flags = object_flags;
-  //object_info_out(&dummy);
-  
   if (e_ptr->xtra)
     text_out(format("It provides one random %s.", xtra[e_ptr->xtra - 1]));
   
@@ -1546,15 +1537,8 @@ static void desc_obj_fake(int k_idx)
   /* Hack -- Handle stuff */
   handle_stuff();
   
-  /* Save the screen */
-  //screen_save();
-  
   /* Describe */
-  //Term_gotoxy(0,0);
   object_info_screen(o_ptr);
-  
-  /* Load the screen */
-  //screen_load();
 }
 
 static int o_cmp_tval(const void *a, const void *b)
@@ -1697,9 +1681,6 @@ void do_cmd_knowledge_objects(void *obj, const char *name)
   int o_count = 0;
   int i;
   
-  //C_MAKE(objects, z_info->k_max, int);
-  
-  //for (i = 0; i < z_info->k_max; i++)
   C_MAKE(objects, LAST_NORMAL, int);
   
   for (i = 0; i < LAST_NORMAL; i++)
@@ -1999,13 +1980,13 @@ void do_cmd_change_name(void)
   /* Adjust the buttons */
   backup_buttons();
   kill_all_buttons();
-  add_button("[Spc]", ' ');
-  add_button("[ESC]", ESCAPE);
-  add_button("[-]", '-');
-  add_button("[c]", 'c');
-  add_button("[f]", 'f');
-  add_button("[->]", ARROW_RIGHT);
-  add_button("[<-]", ARROW_LEFT);
+  add_button("ESC", ESCAPE);
+  add_button("Spc", ' ');
+  add_button("-", '-');
+  add_button("c", 'c');
+  add_button("f", 'f');
+  add_button("->", ARROW_RIGHT);
+  add_button("<-", ARROW_LEFT);
 
   /* Make the array of lines */
   C_WIPE(dumpline, DUMP_MAX_LINES, char_attr_line);
@@ -2157,7 +2138,7 @@ void do_cmd_messages(void)
   
   char shower[80];
   char finder[80];
-  
+  char p[80];  
   
   /* Wipe finder */
   my_strcpy(finder, "", sizeof(shower));
@@ -2178,9 +2159,29 @@ void do_cmd_messages(void)
   /* Get size */
   Term_get_size(&wid, &hgt);
   
+  /* Prompt */
+  strncpy(p, "[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 80);
+
   /* Save screen */
   screen_save();
   
+  /* Not normal */
+  normal_screen = FALSE;
+  prompt_end = (small_screen ? 0 : strlen(p) + 1);
+  
+  /* Adjust the buttons */
+  backup_buttons();
+  kill_all_buttons();
+  add_button("ESC", ESCAPE);
+  add_button("-", '-');
+  add_button("=", '=');
+  add_button("/", '/');
+  add_button("p", 'p');
+  add_button("n", 'n');
+  add_button("+", '+');
+  add_button("->", '6');
+  add_button("<-", '4');
+
   /* Process requests until done */
   while (1)
     {
@@ -2223,7 +2224,8 @@ void do_cmd_messages(void)
 		 i, i + j - 1, n, q), 0, 0);
       
       /* Display prompt (not very informative) */
-      prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
+      prt(p, hgt - 1, 0);
+      update_statusline();
       
       /* Get a command */
       ke = inkey_ex();
@@ -2362,6 +2364,13 @@ void do_cmd_messages(void)
       if (i == j) bell(NULL);
     }
   
+  /* Normal again */
+  normal_screen = TRUE;
+  prompt_end = 0;
+
+  /* Adjust the buttons */
+  restore_buttons();
+
   /* Load screen */
   screen_load();
 }
@@ -2519,7 +2528,7 @@ static void do_cmd_options_aux(void *vpage, cptr info)
   
   menu_layout(menu, &SCREEN_REGION);
   
-  add_button("[?]", '?');
+  add_button("?", '?');
   while (TRUE)
     {
       event_type cx;
@@ -3073,8 +3082,8 @@ void do_cmd_delay(void)
 {
   /* Prompt */
   prt("Command: Base Delay Factor", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3105,8 +3114,8 @@ void do_cmd_hp_warn(void)
 {
   /* Prompt */
   prt("Command: Hitpoint Warning", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3136,8 +3145,8 @@ void do_cmd_panel_change(void)
 {
   /* Prompt */
   prt("Command: Panel Change", 20, 0);
-  add_button("[+]", '+');      
-  add_button("[-]", '-');      
+  add_button("+", '+');      
+  add_button("-", '-');      
   update_statusline();      
   
   /* Get a new value */
@@ -3245,9 +3254,9 @@ static void do_cmd_options_autosave(void)
       /* Hilite current option */
       move_cursor(k + 2, 50);
 
-      add_button("[F]", 'F');
-      add_button("[n]", 'n');
-      add_button("[y]", 'y');
+      add_button("F", 'F');
+      add_button("n", 'n');
+      add_button("y", 'y');
       update_statusline();
       
       /* Get a key */
@@ -4203,20 +4212,17 @@ int modify_attribute(const char *clazz, int oid, const char *name,
   Term_putstr(0, linec + 2, -1, TERM_WHITE, "Command (n/N/a/A/c/C): ");
 
   /* Buttons */
-  add_button("[s]", 's');
-  add_button("[C]", 'C');
-  add_button("[c]", 'c');
-  add_button("[A]", 'A');
-  add_button("[a]", 'a');
-  add_button("[N]", 'N');
-  add_button("[n]", 'n');
+  add_button("s", 's');
+  add_button("C", 'C');
+  add_button("c", 'c');
+  add_button("A", 'A');
+  add_button("a", 'a');
+  add_button("N", 'N');
+  add_button("n", 'n');
   update_statusline();
   
   /* Get a command */
   ke = inkey_ex();
-  
-  /* All done */
-  //if (cx == ESCAPE) break;
   
   /* Analyze */
   if (ke.key == 'a') *pca = (byte)(ca + 1);
@@ -4571,16 +4577,16 @@ static void modify_colors(void)
   old_idx = -1;
 
   /* Buttons */
-  add_button("[v]", 'v');
-  add_button("[c]", 'c');
-  add_button("[B]", 'B');
-  add_button("[b]", 'b');
-  add_button("[G]", 'G');
-  add_button("[g]", 'g');
-  add_button("[R]", 'R');
-  add_button("[r]", 'r');
-  add_button("[K]", 'K');
-  add_button("[k]", 'k');
+  add_button("v", 'v');
+  add_button("c", 'c');
+  add_button("B", 'B');
+  add_button("b", 'b');
+  add_button("G", 'G');
+  add_button("g", 'g');
+  add_button("R", 'R');
+  add_button("r", 'r');
+  add_button("K", 'K');
+  add_button("k", 'k');
   update_statusline();
   
   while (1)
@@ -5443,12 +5449,13 @@ void do_cmd_save_screen_html(int mode)
  */
 void do_cmd_save_screen(void)
 {
+  event_type ke;
   msg_print("Dump type [(t)ext; (h)tml; (f)orum embedded html]:");
-  add_button("[f]", 'f');
-  add_button("[h]", 'h');
-  add_button("[t]", 't');
+  add_button("f", 'f');
+  add_button("h", 'h');
+  add_button("t", 't');
   update_statusline();
-  event_type ke = inkey_ex();
+  ke = inkey_ex();
   switch(ke.key) 
     {
     case ESCAPE:
@@ -5560,6 +5567,7 @@ void do_cmd_options(void)
   kill_button(' ');
   kill_button('\r');
   kill_button('n');
+  kill_button('|');
 
   while (c.key != ESCAPE)
     {
@@ -5573,10 +5581,11 @@ void do_cmd_options(void)
     }
   
   normal_screen = TRUE;
-  (void) add_button("[Ret]", '\r');
-  (void) add_button("[Spc]", ' ');
-  (void) add_button("[Rpt]", 'n');
-  (void) add_button("[Std]", ',');
+  (void) add_button("Ret", '\r');
+  (void) add_button("Spc", ' ');
+  (void) add_button("Rpt", 'n');
+  (void) add_button("Std", ',');
+  (void) add_button("Inv", '|');
   screen_load();
 }
 

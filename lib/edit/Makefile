@@ -15,4 +15,5 @@ OBJECTIVE_DATA =	                \
 	shop_own.txt:${DATA_PATH}/edit  \
 	spell.txt:${DATA_PATH}/edit     \
 	terrain.txt:${DATA_PATH}/edit   \
+	themed.txt:${DATA_PATH}/edit    \
 	vault.txt:${DATA_PATH}/edit

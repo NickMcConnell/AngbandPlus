@@ -8,7 +8,7 @@
     <key>CFBundleSignature</key><string>A271</string>
     <key>CFBundleVersion</key><string>$VERSION$</string>
     <key>CFBundleShortVersionString</key><string>$VERSION$</string>
-    <key>CFBundleIconFile</key><string>Angband</string>
+    <key>CFBundleIconFile</key><string>$NAME$</string>
     <key>CFBundleIdentifier</key><string>net.thangorodrim.$NAME$</string>
     <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
     <key>CFBundleLongVersionString</key>

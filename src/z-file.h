@@ -6,7 +6,7 @@
 /*
  * Use POSIX file control where we can, otherwise help out other platforms
  */
-#if defined (HAVE_FCNTL_H) || defined (WINDOWS)
+#if (defined (HAVE_FCNTL_H) || defined (WINDOWS)) && !defined(_WIN32_WCE)
 # include <fcntl.h>
 #else
 # define O_RDONLY   0

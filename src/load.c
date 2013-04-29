@@ -305,19 +305,33 @@ static void rd_item(object_type *o_ptr)
       /* Standard is 45% */
       
       if (f2 & (TR2_RES_ACID)) o_ptr->percent_res[P_RES_ACID] = 45;
+      else o_ptr->percent_res[P_RES_ACID] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_ELEC)) o_ptr->percent_res[P_RES_ELEC] = 45;
+      else o_ptr->percent_res[P_RES_ELEC] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_FIRE)) o_ptr->percent_res[P_RES_FIRE] = 45;
+      else o_ptr->percent_res[P_RES_FIRE] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_COLD)) o_ptr->percent_res[P_RES_COLD] = 45;
+      else o_ptr->percent_res[P_RES_COLD] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_POIS)) o_ptr->percent_res[P_RES_POIS] = 45;
+      else o_ptr->percent_res[P_RES_POIS] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_LITE)) o_ptr->percent_res[P_RES_LITE] = 45;
+      else o_ptr->percent_res[P_RES_LITE] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_DARK)) o_ptr->percent_res[P_RES_DARK] = 45;
+      else o_ptr->percent_res[P_RES_DARK] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_CONFU)) o_ptr->percent_res[P_RES_CONFU] = 45;
+      else o_ptr->percent_res[P_RES_CONFU] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_SOUND)) o_ptr->percent_res[P_RES_SOUND] = 45;
+      else o_ptr->percent_res[P_RES_SOUND] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_SHARD)) o_ptr->percent_res[P_RES_SHARD] = 45;
+      else o_ptr->percent_res[P_RES_SHARD] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_NEXUS)) o_ptr->percent_res[P_RES_NEXUS] = 45;
+      else o_ptr->percent_res[P_RES_NEXUS] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_NETHR)) o_ptr->percent_res[P_RES_NETHR] = 45;
+      else o_ptr->percent_res[P_RES_NETHR] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_CHAOS)) o_ptr->percent_res[P_RES_CHAOS] = 45;
+      else o_ptr->percent_res[P_RES_CHAOS] = RES_LEVEL_BASE;
       if (f2 & (TR2_RES_DISEN)) o_ptr->percent_res[P_RES_DISEN] = 45;
+      else o_ptr->percent_res[P_RES_DISEN] = RES_LEVEL_BASE;
     }
 
   else
@@ -1016,6 +1030,7 @@ static int rd_squelch(void)
 	  
 	  /* Read and extract the flag */
 	  rd_byte(&flags);
+	  if (!older_than(0, 3, 2)) e_info[i].squelch |= (flags & 0x01);
 	  e_info[i].everseen |= (flags & 0x02);
 	}
     }
@@ -2024,7 +2039,9 @@ static errr rd_savefile_new_aux(void)
 	  if (older_than(0, 2, 3))
 	    {
 	      rd_byte(&tmp8u);
-	      a_info[j].creat_turn = tmp8u; //silly turn
+
+	      /* Silly turn */
+	      a_info[j].creat_turn = tmp8u;
 	    }
 	  else
 	    {

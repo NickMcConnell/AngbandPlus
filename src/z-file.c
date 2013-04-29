@@ -28,7 +28,10 @@
 
 #ifdef WINDOWS
 # include <windows.h>
+#ifdef _WIN32_WCE
+#else
 # include <io.h>
+#endif
 #endif
 
 
@@ -1362,8 +1365,20 @@ size_t file_read(ang_file *f, char *buf, size_t n)
 
 #endif /* !SET_UID */
 
+#ifdef _WIN32_WCE
+	  if (!ReadFile(fd, buf, n, &numBytesRead, NULL))
+	    {
+	      return FALSE;
+	    }
+	  
+	  if (numBytesRead != (int)n)
+	    {
+	      return FALSE;
+	    }
+#else
 	if (read(fd, buf, n) != (int)n)
 		return FALSE;
+#endif
 
 	return TRUE;
 }
@@ -1424,8 +1439,21 @@ bool file_write(ang_file *f, const char *buf, size_t n)
 
 #endif /* !SET_UID */
 
+#ifdef _WIN32_WCE
+	  /* Write a piece */
+	  if (!WriteFile(fd, buf, n, &numBytesWrite, NULL))
+	    {
+	      return FALSE;
+	    }
+	  
+	  if (numBytesWrite != (int)n)
+	    {
+	      return FALSE;
+	    }
+#else
 	if (write(fd, buf, n) != (int)n)
 		return FALSE;
+#endif
 
 	return TRUE;
 }

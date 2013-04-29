@@ -779,6 +779,7 @@ extern void update_statusline(void)
   int button_end = (normal_screen ? depth_start : Term->wid - 2);
   size_t i;
   int j;
+  char buf[10];
   
   /* Save the cursor position */
   bad = Term_locate(&x, &y);
@@ -802,8 +803,11 @@ extern void update_statusline(void)
   /* Print the mouse buttons */
   if (mouse_buttons)
     for (j = 0; j < num_buttons; j++)
-      c_put_str(TERM_SLATE, mse_button[j].label, row, 
-		button_end - mse_button[j].left);
+      {
+	sprintf(buf,"[%s]", mse_button[j].label);
+	c_put_str(TERM_SLATE, buf, row, 
+		  button_end - mse_button[j].left);
+      }
 
   /* Reposition the cursor */
   if (!bad) (void)Term_gotoxy(x, y);
@@ -849,10 +853,6 @@ static void prt_cut(void)
       c_put_str(TERM_YELLOW, (bottom_status ? "Graze  " : "Graze       "), 
 		ROW_CUT, COL_CUT);
     }
-  //else if ((mouse_buttons) && (!bottom_status))
-  //{
-  //  c_put_str(TERM_L_DARK, "[Repeat]", ROW_CUT, COL_CUT);
-  //}
   else
     {
       put_str((bottom_status ? "       " : "            "), ROW_CUT, COL_CUT);
@@ -880,10 +880,6 @@ static void prt_stun(void)
       c_put_str(TERM_ORANGE, (bottom_status ? "Stun   " : "Stun        "), 
 		ROW_STUN, COL_STUN);
     }
-  //else if ((mouse_buttons) && (!bottom_status))
-  //{
-  //  c_put_str(TERM_L_DARK, "[Return]", ROW_STUN, COL_STUN);
-  //}
   else
     {
       put_str((bottom_status ? "       " : "            "), ROW_STUN, COL_STUN);
@@ -902,7 +898,6 @@ static void prt_blank(void)
     {
       for (i = 23; i < (Term->hgt - 1 - j); i++)
 	{
-	  //if ((!mouse_buttons) || (i != ROW_ESCAPE))
 	    put_str("            ", i, 0);
 	}
     }
@@ -1453,9 +1448,6 @@ static void prt_frame_basic(void)
  */
 static void prt_frame_extra(void)
 {
-  /* Mouse buttons */
-  //if (mouse_buttons) prt_buttons();
-
   /* Cut/Stun */
   prt_cut();
   prt_stun();
@@ -1463,29 +1455,8 @@ static void prt_frame_extra(void)
   /* Replaces a raft of others */
   update_statusline();
 
-  /* Food */
-  //prt_hunger();
-  
-  /* Various */
-  //prt_blind();
-  //prt_confused();
-  //prt_afraid();
-  //prt_poisoned();
-  
   /* Blank spaces in bigscreen mode */
   prt_blank();
-  
-  /* State */
-  //prt_state();
-  
-  /* Speed */
-  //prt_speed();
-  
-  /* Study spells */
-  //prt_dtrap();
-  
-  /* Study spells */
-  //prt_study();
   
   /* Status */
   prt_status();
@@ -4726,7 +4697,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_HUNGER);
       /* temp hack */
       update_statusline();
-      //prt_hunger();
     }
   
   if (p_ptr->redraw & (PR_BLIND))
@@ -4734,7 +4704,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_BLIND);
       /* temp hack */
       update_statusline();
-      //prt_blind();
     }
   
   if (p_ptr->redraw & (PR_CONFUSED))
@@ -4742,7 +4711,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_CONFUSED);
       /* temp hack */
       update_statusline();
-      //prt_confused();
     }
   
   if (p_ptr->redraw & (PR_AFRAID))
@@ -4750,7 +4718,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_AFRAID);
       /* temp hack */
       update_statusline();
-      //prt_afraid();
     }
   
   if (p_ptr->redraw & (PR_POISONED))
@@ -4758,7 +4725,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_POISONED);
       /* temp hack */
       update_statusline();
-      //prt_poisoned();
     }
   
   if (p_ptr->redraw & (PR_STATE))
@@ -4766,7 +4732,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_STATE);
       /* temp hack */
       update_statusline();
-      //prt_state();
     }
   
   if (p_ptr->redraw & (PR_SPEED))
@@ -4774,7 +4739,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_SPEED);
       /* temp hack */
       update_statusline();
-      //prt_speed();
     }
   
   if (p_ptr->redraw & (PR_DTRAP))
@@ -4782,7 +4746,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_DTRAP);
       /* temp hack */
       update_statusline();
-      //prt_dtrap();
     }
   
   if (p_ptr->redraw & (PR_STUDY))
@@ -4790,7 +4753,6 @@ void redraw_stuff(void)
       p_ptr->redraw &= ~(PR_STUDY);
       /* temp hack */
       update_statusline();
-      //prt_study();
     }
   
   if (p_ptr->redraw & (PR_BUTTONS))

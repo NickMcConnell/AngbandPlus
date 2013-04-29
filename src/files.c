@@ -427,7 +427,7 @@ errr process_pref_file_aux(char *buf)
     }
   
   
-	/* Process "E:<tv>:<a>" -- attribute for inventory objects */
+  /* Process "E:<tv>:<a>" -- attribute for inventory objects */
   else if (buf[0] == 'E')
     {
       if (tokenize(buf+2, 2, zz) == 2)
@@ -3415,8 +3415,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
       if (push_file == 1) backup_buttons();
       kill_all_buttons();
       normal_screen = FALSE;
-      add_button("[?]", '?');
-      add_button("[ESC]", ESCAPE);
+      add_button("ESC", ESCAPE);
+      add_button("?", '?');
       
       /* Prompt -- menu screen */
       if (menu)
@@ -3466,19 +3466,19 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	    }
 
 	  /* More buttons */
-	  add_button("[Spc]", ' ');
-	  add_button("[-]", '-');
+	  add_button("Spc", ' ');
+	  add_button("-", '-');
 	}
 
       /* Finish the status line */
       prt(prompt, hgt - 1, 0);
       prompt_end = (small_screen ? 0 : strlen(prompt));
-      if (small_screen) add_button("[h]", 'h');
-      add_button("[/]", '/');
-      add_button("[!]", '!');
-      add_button("[=]", '=');
-      if (!menu) add_button("[#]", '#');
-      add_button("[%]", '%');
+      if (small_screen) add_button("h", 'h');
+      add_button("/", '/');
+      add_button("!", '!');
+      add_button("=", '=');
+      if (!menu) add_button("#", '#');
+      add_button("%", '%');
       update_statusline();
 
       /* Get a keypress */
@@ -4025,8 +4025,8 @@ static void make_bones(void)
 	      prt("Information about your character has been saved", 15, 0);
 	      prt("in a bones file.  Would you like to give the", 16, 0);
 	      prt("ghost a special message or description? (yes/no)", 17, 0);
-	      add_button("[Yes]", 'y');
-	      add_button("[No]", 'n');
+	      add_button("Yes", 'y');
+	      add_button("No", 'n');
 	      update_statusline();	
       
 	      answer = inkey_ex();
@@ -4045,9 +4045,9 @@ static void make_bones(void)
 		  /* Buttons */
 		  kill_button('y');
 		  kill_button('n');
-		  add_button("[M]", 'M');
-		  add_button("[D]", 'D');
-		  add_button("[ESC]", ESCAPE);
+		  add_button("M", 'M');
+		  add_button("D", 'D');
+		  add_button("ESC", ESCAPE);
 		  update_statusline();
 		  
 		  while(1)
@@ -4440,8 +4440,8 @@ static void show_info(void)
   /* Buttons */
   backup_buttons();
   kill_all_buttons();
-  add_button("[ESC]", ESCAPE);
-  add_button("[Continue]", 'q');
+  add_button("ESC", ESCAPE);
+  add_button("Continue", 'q');
   update_statusline();
 
   /* Allow abort at this point */
@@ -5398,13 +5398,13 @@ static void close_game_aux(void)
       
       /* Buttons */
       kill_all_buttons();
-      add_button("[ESC]", ESCAPE);
-      add_button("[x]", 'x');
-      add_button("[m]", 'm');
-      add_button("[i]", 'i');
-      add_button("[t]", 't');
-      add_button("[c]", 'c');
-      add_button("[a]", 'a');
+      add_button("ESC", ESCAPE);
+      add_button("x", 'x');
+      add_button("m", 'm');
+      add_button("i", 'i');
+      add_button("t", 't');
+      add_button("c", 'c');
+      add_button("a", 'a');
       update_statusline();
 
       /* Query */

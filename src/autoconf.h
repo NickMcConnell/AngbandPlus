@@ -89,7 +89,7 @@
 #define USE_GCU 1
 
 /* Define to 1 if using the GTK+ 2.x interface and GTK+ 2.x is found. */
-#define USE_GTK 1
+/* #undef USE_GTK */
 
 /* Define to 1 if NCurses is found. */
 #define USE_NCURSES 1

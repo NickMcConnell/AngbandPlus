@@ -673,7 +673,7 @@ bool recall_action(char cmd, void *db, int oid)
 
 
 /*
- * Display list of monster traps.
+ * Display list of recall points.
  */
 bool recall_menu(void)
 {
@@ -2598,9 +2598,6 @@ bool ident_spell(void)
     }
   
   
-  /* Now squelch it if needed */
-  //if (squelch == 1) do_squelch_item(item, o_ptr);
-  
   /* Something happened */
   return (TRUE);
 }
@@ -2756,9 +2753,6 @@ bool identify_fully(void)
 	  msg_print("This item is part of a set!");
 	}
     }
-  
-  /* Now squelch it if needed */
-  //if (squelch == 1) do_squelch_item(item, o_ptr);
   
   /* Save screen */
   screen_save();

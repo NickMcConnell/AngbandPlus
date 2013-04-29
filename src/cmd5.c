@@ -177,7 +177,8 @@ void shapechange(s16b shape)
       shapedesc = "werewolf";
       break;
     case SHAPE_VAMPIRE:
-      if ((stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+      if ((stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+	  (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
 	  ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
 	{
 	  msg_print("The sunlight prevents your shapechange!");
@@ -560,6 +561,307 @@ int get_channeling_boost(void)
 }
 
 
+/* Spell choice code */
+int num, first_spell;
+byte attr_book;
+bool tips;
+
+static char get_spell_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the gain specialty menu
+ */
+void get_spell_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  int idx = oid + first_spell;
+  int x, y;
+  magic_type *s_ptr;
+  char info[80];
+  cptr comment;
+  byte attr_name, attr_extra;
+  bool known = FALSE;
+
+  /* Access the spell */
+  s_ptr = &mp_ptr->info[idx];
+
+#if 0      
+  /* Skip illegible spells.  This should actually never appear. */
+  if (s_ptr->slevel >= 99)
+    {
+      sprintf(out_val, "  %c) %-30s", I2A(i - first_spell), 
+	      "(illegible)");
+      c_prt(TERM_SLATE, out_val, y + j + 1, x);
+      continue;
+    }
+#endif
+      
+  /* Get extra info */
+  spell_info(info, s_ptr->index);
+      
+  /* Use that info */
+  comment = info;
+      
+  /* Analyze the spell */
+  if ((idx < 32) ?
+      ((p_ptr->spell_forgotten1 & (1L << idx))) :
+      ((p_ptr->spell_forgotten2 & (1L << (idx - 32)))))
+    {
+      comment = " forgotten";
+      attr_name = TERM_L_WHITE;
+      attr_extra = TERM_L_WHITE;
+    }
+  else if (!((idx < 32) ?
+	     (p_ptr->spell_learned1 & (1L << idx)) :
+	     (p_ptr->spell_learned2 & (1L << (idx - 32)))))
+    {
+      comment = " unknown";
+      
+      /* Spells above the player's level are colored light gray. */
+      if (s_ptr->slevel > p_ptr->lev) attr_name = TERM_L_WHITE;
+      
+      /* If at or below the player's level, color in white. */
+      else attr_name = TERM_WHITE;
+      
+      attr_extra = TERM_L_WHITE;
+    }
+  else if (!((idx < 32) ?
+	     (p_ptr->spell_worked1 & (1L << idx)) :
+	     (p_ptr->spell_worked2 & (1L << (idx - 32)))))
+    {
+      comment = " untried";
+      known = TRUE;
+      attr_name = TERM_WHITE;
+      attr_extra = TERM_WHITE;
+    }
+  else 
+    {
+      /* Vivid color for known, cast spells */
+      known = TRUE;
+      attr_name = attr_book;
+      attr_extra = TERM_L_BLUE;
+    }
+      
+  /* Clear line */
+  prt("", row, col);
+      
+  /* Print out (colored) information about a single spell. */
+  c_put_str(attr_name, format("%-30s", spell_names[s_ptr->index]), 
+	    row, col);
+  put_str(format("%2d %4d %3d%%", s_ptr->slevel, 
+		 s_ptr->smana, spell_chance(idx)), row, col + 30);
+  c_put_str(attr_extra, format("%s", comment), row, col + 42);
+  
+  /* Help text */
+  if (cursor && tips)
+    {
+      /* Clear the line */
+      prt("", num + 3, col - 3);
+
+      /* Print the tip, if known */
+      if (known)
+	{
+	  /* Locate the cursor */
+	  Term_locate(&x, &y);
+	  
+	  /* Move the cursor */
+	  Term_gotoxy(col + 2, num + 3);
+	  c_roff(TERM_L_BLUE, spell_tips[s_ptr->index], 3, 5);
+	  
+	  /* Restore */
+	  Term_gotoxy(x, y);
+	}
+    }
+}
+
+/*
+ * Deal with events on the spell menu
+ */
+bool get_spell_action(char cmd, void *db, int oid)
+{
+    return TRUE;
+}
+
+
+/*
+ * Display list available specialties.
+ */
+char get_spell_menu(char *prompt, int tval, int sval)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, get_spell_tag, 0, get_spell_display, 
+		       get_spell_action };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  region area = { (small_screen ? 0 : 15), 3, 60, -1 };
+  int col = (small_screen ? 0 : 12);
+  int after_last_spell, left_justi;
+
+  int *choice;
+
+  bool done = FALSE;
+  
+  size_t i;
+
+  object_kind *k_ptr = &k_info[lookup_kind(tval, sval)];
+  cptr basenm = (k_name + k_ptr->name);
+  char pick;  
+  
+  /* Currently must be a legal spellbook of the correct realm. */
+  if ((tval != mp_ptr->spell_book) || (sval > SV_BOOK_MAX)) return FALSE;
+  
+  
+  /* Choose appropriate spellbook color. */
+  if (tval == TV_MAGIC_BOOK) 
+    {
+      if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_RED;
+      else attr_book = TERM_RED;
+    }
+  else if (tval == TV_PRAYER_BOOK) 
+    {
+      if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_BLUE;
+      else attr_book = TERM_BLUE;
+    }
+  else if (tval == TV_DRUID_BOOK) 
+    {
+      if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_GREEN;
+      else attr_book = TERM_GREEN;
+    }
+  else if (tval == TV_NECRO_BOOK) 
+    {
+      if (sval < SV_BOOK_MIN_GOOD) attr_book = TERM_L_DARK;
+      else attr_book = TERM_VIOLET;
+    }
+  else attr_book = TERM_WHITE;
+  
+  /* Find the array index of the spellbook's first spell. */
+  first_spell = mp_ptr->book_start_index[sval];
+  
+  /* Find the first spell in the next book. */
+  after_last_spell = mp_ptr->book_start_index[sval+1];
+  
+  /* Choose a left margin for the spellbook name. */
+  left_justi = (small_screen ? 0 : ((80 - col) - strlen(basenm))) / 2;
+
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Prompt */
+  put_str(prompt, 0, 0);
+  
+  /* Center the spellbook name */
+  prt("", 1, col);
+  c_put_str(attr_book, format("%s", basenm), 1, col + left_justi);
+  
+  
+  /* Title the list */
+  prt("", 2, col);
+  put_str("Name", 2, col + 5);
+  put_str("Lv Mana Fail Info", 2, col + 35);
+
+  /* Get the number of rows */
+  num = after_last_spell - first_spell;
+  area.page_rows = num;  
+
+  /* Create the array */
+  choice = C_ZNEW(num, int);
+  
+  /* Get character answers */
+  for (i = 0; i < num; i++)
+    {
+      /* Add this item to our possibles list */
+      choice[i] = I2A(i);
+    }
+
+  /* Return here if there are no spells */
+  if (!num)
+    {
+      FREE(choice);
+      return ESCAPE;
+    }
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.cmd_keys = " \n\r";
+  menu.count = num;
+  menu.menu_data = choice;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+  
+  while (!done)
+    {
+      event_type ke0;
+
+      menu_refresh(&menu);
+      evt = inkey_ex();
+
+      ke0 = run_event_loop(&(menu.target), 0, &evt);
+      if (ke0.type != EVT_AGAIN) evt = ke0;
+      switch(evt.type) 
+	{
+	case EVT_KBRD:
+	  {
+	    break;
+	  }
+	  
+	case ESCAPE:
+	  {
+	    pick = ESCAPE;
+	    done = TRUE;
+	    continue;
+	  }
+	  
+	case EVT_SELECT:
+	  {
+	    pick = I2A(evt.index);
+	    if (!tips) done = TRUE;
+	    continue;
+	  }
+	  
+	case EVT_MOVE:
+	  {
+	    continue;
+	  }
+	  
+	case EVT_BACK:
+	  {
+	    pick = ESCAPE;
+	    done = TRUE;
+	    continue;
+	  }
+	  
+	default:
+	  {
+	    continue;
+	  }
+	}
+      switch (evt.key)
+	{
+	case '*':
+	  {
+	    if (!tips)
+	      {
+		pick = '*';
+		done = TRUE;
+	      }
+	    break;
+	  }
+	case ESCAPE:
+	  {
+	    pick = ESCAPE;
+	    done = TRUE;
+	  }
+	}
+    }
+
+  /* Load screen */
+  screen_load();
+
+  return pick;
+}
+
+
 /*
  * Allow user to choose a spell/prayer from the given book.
  *
@@ -572,29 +874,28 @@ int get_channeling_boost(void)
  */
 static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 {
-  int i, j;
+  int i;
   
   int spell = -1;
   
-  int first_spell, after_last_spell, lines, tile_hgt;
+  int after_last_spell, lines;
   
   int ver;
   
   int total_heighten;
 
   bool flag, redraw, okay;
-  event_type choice;
   
   magic_type *s_ptr;
   
-  char out_val[160];
+  char no_menu_prompt[160];
+  char menu_prompt[160];
+  char browse_prompt[160];
   
   cptr p = "";
   
   cptr h = "";
   
-  
-#ifdef ALLOW_REPEAT /* TNB */
   
   /* Get the spell, if available */
   if (repeat_pull(sn)) 
@@ -620,8 +921,6 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
       else repeat_clear();
     }
   
-#endif /* ALLOW_REPEAT */
-  
   /* Calculate effective level boost */
   total_heighten = p_ptr->heighten_power;
   if (check_ability(SP_CHANNELING)) 
@@ -645,7 +944,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   /* Assume no spells available */
   (*sn) = -2;
   
-  
+  /* Do we need spell tips? */
+  tips = (prompt == "browse");
+
   /* Find the array index of the spellbook's first spell. */
   first_spell = mp_ptr->book_start_index[sval];
   
@@ -663,7 +964,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
     }
   
   /* No "okay" spells */
-  if (!okay) return (FALSE);
+  if ((!okay) && (!tips)) return (FALSE);
   
   /* Assume cancelled */
   *sn = (-1);
@@ -677,114 +978,51 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   /* Mega-hack -- show lists */
   if (show_lists) p_ptr->command_see = TRUE;      
 
-  /* Build a prompt (accept all spells) */
-  strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %s%^s which %s? ",
+  /* Build prompts (accept all spells) */
+  strnfmt(no_menu_prompt, 78, "(%^ss %c-%c, *=List, ESC=exit) %s%^s which %s? ",
+	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
+  strnfmt(menu_prompt, 78, "(%^ss %c-%c, *=Hide, ESC=exit) %s%^s which %s? ",
+	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
+  strnfmt(browse_prompt, 78, "(Browsing) Choose a spell, or ESC: ",
 	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
 
-  /* Lists in small screen */
-  if (show_lists)
-    {
-      /* Show list */
-      redraw = TRUE;
-      
-      /* Save screen */
-      screen_save();
-      
-      /* Clear lines */
-      for (j = 0; j < lines; j++)
-	Term_erase((small_screen ? 0 : 12), j, 255);
-      
-      if ((use_trptile || use_dbltile) && (prompt != "browse"))
-	{
-	  tile_hgt = (use_trptile ? 3 : 2);
-	  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
-	    Term_erase((small_screen ? 0 : 12), ++j, 255);
-	}
-
-      /* Print spells */
-      print_spells(tval, sval, 1, (small_screen ? 0 : 12));
-    }
-
   /* Button */
-  add_button("[*]", '*');
+  add_button("*", '*');
   update_statusline();
 
   /* Get a spell from the user */
-  while (!flag && get_com_ex(out_val, &choice))
+  while (!flag)
     {
+      char ch;
+
+      if (tips)
+	ch = get_spell_menu(browse_prompt, tval, sval);
+      else if (p_ptr->command_see)
+	ch = get_spell_menu(menu_prompt, tval, sval);
+      else
+	get_com(no_menu_prompt, &ch);
+      
       /* Request redraw */
-      if ((choice.key == ' ') || (choice.key == '*') || (choice.key == '?'))
+      if ((ch == ' ') || (ch == '*') || (ch == '?'))
 	{
-	  /* Hide the list */
-	  if (redraw)
-	    {
-	      /* Load screen */
-	      screen_load();
-	      
-	      /* Hide list */
-	      redraw = FALSE;
-	    }
-	  
-	  /* Show the list */
-	  else
-	    {
-	      /* Show list */
-	      redraw = TRUE;
-	      
-	      /* Save screen */
-	      screen_save();
-	      
-	      /* Clear lines */
-	      for (j = 0; j < lines; j++)
-		Term_erase((small_screen ? 0 : 12), j, 255);
-
-	      if ((use_trptile || use_dbltile) && (prompt != "browse"))
-		{
-		  tile_hgt = (use_trptile ? 3 : 2);
-		  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
-		    Term_erase((small_screen ? 0 : 12), ++j, 255);
-		}
-
-	      /* Display a list of spells */
-	      print_spells(tval, sval, 1, (small_screen ? 0 : 12));
-	    }
-	  
-	  /* Ask again */
+	  p_ptr->command_see = !p_ptr->command_see;
 	  continue;
 	}
-      
-      /* Handle mouse input */      
-      else if (choice.key == '\xff')
-	{
-	  /* Mouse on a valid spell */
-	  if ((choice.mousey > 2) && (choice.mousey < after_last_spell - 
-				      first_spell + 3))
-	    {
-	      /* Convert to spell index */
-	      spell = choice.mousey - 3 + first_spell;
 
-	      /* No need to verify */
-	      ver = FALSE;
-	    }
-	  /* Mouse elsewhere means ask again */
-	  else
-	    
-	    break;
-	      
-	}
+      /* Had enough */
+      else if (ch == ESCAPE) break;
 
-      /* Keyboard input */	 
+      /* Choice made */	 
       else
 	{
-
 	  /* Note verify */
-	  ver = (isupper(choice.key));
+	  ver = (isupper(ch));
 	  
 	  /* Lowercase */
-	  choice.key = tolower(choice.key);
+	  ch = tolower(ch);
 	  
 	  /* Extract request */
-	  i = (islower(choice.key) ? A2I(choice.key) : -1);
+	  i = (islower(ch) ? A2I(ch) : -1);
 	  
 	  /* Totally Illegal */
 	  if ((i < 0) || (i >= after_last_spell - first_spell))
@@ -792,7 +1030,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	      bell("Illegal spell choice!");
 	      continue;
 	    }
-      
+	  
 	  /* Convert spellbook number to spell index. */
 	  spell = i + first_spell;
 	}
@@ -802,7 +1040,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	{
 	  bell("Illegal spell choice!");
 	  msg_format("You may not %s that %s.", prompt, p);
-	  continue;
+	  break;
 	}
       
       /* Verify it */
@@ -813,7 +1051,7 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
 	  /* Access the spell */
 	  s_ptr = &mp_ptr->info[spell];
 	  
-			/* Prompt */
+	  /* Prompt */
 	  strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
 		  prompt, spell_names[s_ptr->index],
 		  s_ptr->smana, spell_chance(spell));
@@ -829,24 +1067,13 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   /* Kill button */
   kill_button('*');
   
-  /* Restore the screen */
-  if (redraw)
-    {
-      /* Load screen */
-      screen_load();
-    }
-  
-  
   /* Abort if needed */
   if (!flag) return (FALSE);
   
   /* Save the choice */
   (*sn) = spell;
   
-#ifdef ALLOW_REPEAT /* TNB */
   repeat_push(*sn);
-  
-#endif /* ALLOW_REPEAT */
   
   /* Success */
   return (TRUE);
@@ -862,11 +1089,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
  */
 void do_cmd_browse(void)
 {
-  int j, item, spell, lines, tile_hgt;
+  int item, spell;
   
   object_type *o_ptr;
-  
-  magic_type *s_ptr;
   
   cptr q = "";
   cptr s = "";
@@ -941,69 +1166,11 @@ void do_cmd_browse(void)
   /* Save screen */
   screen_save();
   
-  /* Display the spells */
-  print_spells(o_ptr->tval, o_ptr->sval, 1, (small_screen ? 0 : 12));
-  
-  /* Prompt for a command */
-  put_str("(Browsing) Choose a spell, or ESC: ", 0, 0);
-  
-  
-  /* Hack - Determine how far from the top of the screen the spell list 
-   * extends by counting spells, and adding space for name, etc.
-   */
-  lines = mp_ptr->book_start_index[o_ptr->sval + 1] - 
-    mp_ptr->book_start_index[o_ptr->sval] + 3;
-  
-  /* Clear lines, position cursor (really should use strlen here) */
-  if (use_trptile || use_dbltile)
-    { 
-      j = lines + 2;
-      tile_hgt = (use_trptile ? 3 : 2);
-      while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
-	Term_erase(12, ++j, 255);
-    }
-  Term_erase(12, lines + 2, 255);
-  Term_erase(12, lines + 1, 255);
-  Term_erase(12, lines, 255);
-
+  /* Show the list */
+  p_ptr->command_see = TRUE;
   
   /* Keep browsing spells.  Exit browsing on cancel. */
-  while(TRUE)
-    {
-      event_type ke;
-
-      /* Ask for a spell, allow cancel */
-      if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE))
-	{
-	  /* If cancelled, leave immediately. */
-	  if (spell == -1) break;
-	  
-	  /* Notify that there's nothing to see, and wait. */
-	  c_put_str(TERM_SLATE, "No spells to browse     ", 0, 11);
-	  
-	  /* Any key cancels if no spells are available. */
-	  ke = inkey_ex();
-	  if (ke.key) break;
-	}
-      
-      /* Clear lines, position cursor (really should use strlen here) */
-      if (use_trptile || use_dbltile)
-	{ 
-	  j = lines + 2;
-	  tile_hgt = (use_trptile ? 3 : 2);
-	  while ((j % tile_hgt) && (j <= SCREEN_ROWS)) 
-	    Term_erase(12, ++j, 255);
-	}
-      Term_erase(12, lines + 2, 255);
-      Term_erase(12, lines + 1, 255);
-      Term_erase(12, lines, 255);
-
-      /* Access the spell */
-      s_ptr = &mp_ptr->info[spell];
-      
-      /* Display that spell's information. */
-      c_roff(TERM_L_BLUE, spell_tips[s_ptr->index], 16, 0);
-    }
+  while(get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE)) ;
   
   /* Forget the item_tester_tval restriction */
   item_tester_tval = 0;
@@ -1137,7 +1304,7 @@ void do_cmd_study(void)
     {
       /* Ask for a spell, allow cancel */
       if (!get_spell(&spell, "study", o_ptr->tval, o_ptr->sval, FALSE) && 
-	  (spell == -1)) return;
+        (spell == -1)) return;
     }
   
   /* Priest -- Learn a random prayer */
@@ -2219,8 +2386,8 @@ void do_cmd_cast_or_pray(void)
 	      msg_print("Would you like to enchant a 'W'eapon or 'A'rmour");
 	    
 	    /* Buttons */
-	    add_button("[a]", 'a');
-	    add_button("[w]", 'w');
+	    add_button("a", 'a');
+	    add_button("w", 'w');
 
 	    /* Interact and enchant. */
 	    while(1)
@@ -3372,20 +3539,140 @@ bool check_specialty_gain(int specialty)
   return (allowed);
 }
 
+/* Gain specialty code */
+int num;
+
+
+static char gain_spec_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the gain specialty menu
+ */
+void gain_spec_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  const int *choices = menu->menu_data;
+  int idx = choices[oid];
+  int x, y;
+
+  byte attr = (cursor ? TERM_L_GREEN : TERM_GREEN);
+  
+  /* Print it */
+  c_put_str(attr, specialty_names[idx], row, col);
+
+  /* Help text */
+  if (cursor)
+    {
+      /* Locate the cursor */
+      Term_locate(&x, &y);
+  
+      /* Move the cursor */
+      Term_gotoxy(3, num + 2); 
+      c_roff(TERM_L_BLUE, specialty_tips[choices[oid]], 3, 5);
+
+      /* Restore */
+      Term_gotoxy(x, y);
+    }
+}
+
+/*
+ * Deal with events on the gain specialty menu
+ */
+bool gain_spec_action(char cmd, void *db, int oid)
+{
+  if (get_check("Are you sure? "))
+    {
+      return TRUE;
+    }
+  else
+    return FALSE;
+}
+
+
+/*
+ * Display list available specialties.
+ */
+bool gain_spec_menu(int *pick)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, gain_spec_tag, 0, gain_spec_display, 
+		       gain_spec_action };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0;
+
+  int choices[255];
+
+  bool done = FALSE;
+  
+  size_t i;
+
+  char buf[80];
+
+  /* Find the learnable specialties */
+  for (num = 0, i = 0; i < 255; i++)
+    {
+      if (check_specialty_gain(i))
+	{
+	  choices[num] = i;
+	  num++;
+	}
+    }
+      
+  /* We are out of specialties - should never happen */
+  if (!num)
+    {
+      msg_print("No specialties available.");
+      normal_screen = TRUE;
+      update_statusline();
+      screen_load();
+      return FALSE;
+    }
+      
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Prompt choices */
+  if (small_screen)
+    sprintf(buf, "(Specialties: %c-%c, ESC) Gain which (%d left)? ", I2A(0), I2A(num - 1), p_ptr->new_specialties);
+  else
+    sprintf(buf, "(Specialties: %c-%c, ESC=exit) Gain which specialty (%d available)? ", I2A(0), I2A(num - 1), p_ptr->new_specialties);
+
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.title = buf;
+  menu.cmd_keys = " \n\r";
+  menu.count = num;
+  menu.menu_data = choices;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &SCREEN_REGION);
+  
+  while (!done)
+    {
+      evt = menu_select(&menu, &cursor, 0);
+      done = ((evt.type == EVT_ESCAPE) || (evt.type == EVT_BACK) || 
+	      (evt.type == EVT_SELECT));
+    }
+
+  if (evt.type == EVT_SELECT) *pick = evt.index;
+
+  /* Load screen */
+  screen_load();
+
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
+
 /*
  * Gain a new specialty ability
  * Adapted from birth.c get_player_choice -BR-
  */
 void do_cmd_gain_specialty(void)
 {
-  int top = 0, cur = 0;
-  int i, j, k, dir;
+  int i, k;
   int choices[255];
-  int hgt;
-  char c;
-  event_type ke;
-  char buf[80];
-  bool done_one, done_all, use_cur;
+  bool done_all;
+  int pick;
   
   /* Find the next open entry in "specialty_order[]" */
   for (k = 0; k < MAX_SPECIALTIES; k++)
@@ -3401,9 +3688,16 @@ void do_cmd_gain_specialty(void)
       return;
     }
   
-  /* Save screen */
-  screen_save();
-
+  /* Find the learnable specialties */
+  for (num = 0, i = 0; i < 255; i++)
+    {
+      if (check_specialty_gain(i))
+	{
+	  choices[num] = i;
+	  num++;
+	}
+    }
+      
   /* Buttons */
   normal_screen = FALSE;
   prompt_end = 0;
@@ -3412,261 +3706,45 @@ void do_cmd_gain_specialty(void)
   done_all = FALSE;
   while (!done_all)
     {
-      /* Clear screen */
-      Term_clear();
-      update_statusline();
-      
-      /* Find the learnable specialties */
-      for (j=0, i=0; i < 255; i++)
-	{
-	  if (check_specialty_gain(i))
-	    {
-	      choices[j]=i;
-	      j++;
-	    }
-	}
-      
-      /* We are out of specialties - should never happen */
-      if (!j)
-	{
-	  msg_print("No specialties available.");
-	  normal_screen = TRUE;
-	  update_statusline();
-	  screen_load();
-	  return;
-	}
-      
-      /* Find height of selection interface */
-      hgt = Term->hgt - 7;
-      if (hgt > j) hgt = j;
-      
-      /* Prompt choices */
-      if (small_screen)
-	sprintf(buf, "(Specialties: %c-%c, ESC) Gain which (%d left)? ", I2A(0), I2A(j-1), p_ptr->new_specialties);
-      else
-	sprintf(buf, "(Specialties: %c-%c, ESC=exit) Gain which specialty (%d available)? ", I2A(0), I2A(j-1), p_ptr->new_specialties);
-
-      Term_putstr(5, 0, 66, TERM_WHITE, buf);
-      
-      /* No valid selection yet */
-      use_cur = FALSE;
-      
       /* Make one choice; loop until done */		
-      done_one = FALSE;
-      while (!done_one)
+      if (gain_spec_menu(&pick))
 	{
-	  /* Redraw the list */
-	  for (i = 0; ((i + top < j) && (i < hgt)); i++)
-	    {
-	      if (i + top < 26)
-		{
-		  sprintf(buf, "%c) %s", I2A(i + top), 
-			  specialty_names[choices[i + top]]);
-		}
-	      else
-		{
-		  /* ToDo: Fix the ASCII dependency */
-		  sprintf(buf, "%c) %s", 'A' + (i + top - 26), 
-			  specialty_names[choices[i + top]]);
-		}
-	      
-	      /* Clear */
-	      Term_erase(5, i + 2, 66);
-	      
-	      /* Display */
-	      Term_putstr(5, i + 2, 66, TERM_GREEN, buf);
-	    }
+	  char buf[120];
 	  
-	  /* Display that specialty's information. */
-	  roff("",5,0);
-	  Term_erase(5, hgt + 7, 255);
-	  Term_erase(5, hgt + 6, 255);
-	  Term_erase(5, hgt + 5, 255);
-	  Term_erase(5, hgt + 4, 255);
-	  Term_erase(5, hgt + 3, 255);
-	  c_roff(TERM_L_BLUE, specialty_tips[choices[cur]], 5, 0);
+	  /* Add new specialty */
+	  p_ptr->specialty_order[k] = choices[pick];
 	  
-	  /* Move the cursor */
-	  put_str("", 2 + cur - top, 5);
+	  /* Increment next available slot */
+	  k++;
 	  
-	  /* get input */
-	  ke = inkey_ex();
-	  c = ke.key;
-
-	  /* Hack - arrow keys.  Will go when this is a proper menu */
-	  if (c == ARROW_LEFT) c = '4';
-	  if (c == ARROW_RIGHT) c = '6';
-	  if (c == ARROW_UP) c = '8';
-	  if (c == ARROW_DOWN) c = '2';
+	  /* Update specialties available count */
+	  p_ptr->new_specialties--;
+	  p_ptr->old_specialties = p_ptr->new_specialties;
 	  
-	  /* Numbers are used for scolling */
-	  if (isdigit(c))
-	    {
-	      /* Get a direction from the key */
-	      dir = target_dir(c);
-	      
-	      /* Going up? */
-	      if (dir == 8)
-		{
-		  if (cur != 0)
-		    {
-		      /* Move selection */
-		      cur--;
-		    }
-		  
-		  if ((top > 0) && ((cur - top) < 4))
-		    {
-		      /* Scroll up */
-		      top--;
-		    }
-		}
-	      
-	      /* Going down? */
-	      if (dir == 2)
-		{
-		  if (cur != (j - 1))
-		    {
-		      /* Move selection */
-		      cur++;
-		    }
-		  
-		  if ((top + hgt - 1 < (j - 1)) && ((top + hgt - 1 - cur) < 4))
-		    {
-		      /* Scroll down */
-		      top++;
-		    }
-		}
-	    }
+	  /* Write a note */
+	  /* Specialty taken */
+	  sprintf(buf, "Gained the %s specialty.", 
+		  specialty_names[choices[pick]]);
 	  
-	  else if ((ke.key == '\xff') && (ke.mousey >= 2) && 
-		   (ke.mousey < Term->hgt))
-	    {
-	      /* Select... */
-	      if (cur == ke.mousey - 2 + top)
-		{
-		  /* Use current */
-		  use_cur = TRUE;
-		  
-		  /* Done this selection */
-		  done_one = TRUE;
-		}
-	      
-	      /* ...or place the cursor */
-	      else if (ke.mousey - 2 + top < hgt)
-		{
-		  cur = ke.mousey - 2 + top;	  
-		  if ((top > 0) && ((cur - top) < 4))
-		    {
-		      /* Scroll up */
-		      top--;
-		    }
-		  
-		  if ((top + hgt - 1 < (j - 1)) && ((top + hgt - 1 - cur) < 4))
-		    {
-		      /* Scroll down */
-		      top++;
-		    }
-		}
-	    }
+	  /* Write message */
+	  make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
 	  
-	  /* Letters are used for selection */
-	  else if (isalpha(c))
-	    {
-	      int choice;
-	      
-	      if (islower(c))
-		{
-		  choice = A2I(c);
-		}
-	      else
-		{
-		  choice = c - 'A' + 26;
-		}
-	      
-	      /* Validate input */
-	      if ((choice > -1) && (choice < j))
-		{
-		  cur = choice;
-		  
-		  /* Use current */
-		  use_cur = TRUE;
-		  
-		  /* Done this selection */
-		  done_one = TRUE;
-		}
-	      
-	      else
-		{
-		  bell("Illegal response to question!");
-		}
-	      
-	    }
+	  /* Update some stuff */
+	  p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | 
+			    PU_SPECIALTY | PU_TORCH);
 	  
-	  else if ((c == '\n') || (c == '\r'))
-	    {
-	      /* Use current */
-	      use_cur = TRUE;
-	      
-	      /* Done this selection */
-	      done_one = TRUE;
-	    }
-	  
-	  /* Allow user to exit the fuction */
-	  else if ((c == ESCAPE) || ((!ke.mousey) && (ke.mousex > 23) && 
-				     (ke.mousex < 32)))
-	    {
-	      done_one = TRUE;
-	      done_all = TRUE;
-	    }
-	  
-	  /* Invalid input */
-	  else bell("Illegal response to question!");
-	}
-      
-      
-      if (use_cur)
-	{
-	  if (get_check("Are you sure? "))
-	    {
-	      char buf[120];
-	      
-	      /* Add new specialty */
-	      p_ptr->specialty_order[k] = choices[cur];
-	      
-	      /* Increment next available slot */
-	      k++;
-	      
-	      /* Update specialties available count */
-	      p_ptr->new_specialties--;
-	      p_ptr->old_specialties = p_ptr->new_specialties;
-	      
-	      /* Write a note */
-	      /* Specialty taken */
-	      sprintf(buf, "Gained the %s specialty.", 
-		      specialty_names[choices[cur]]);
-	      
-	      /* Write message */
-	      make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
-
-	      /* In case we have more to learn, go to the head of the list */
-	      cur = 0;
-	      
-	      /* Update some stuff */
-	      p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | 
-				PU_SPECIALTY | PU_TORCH);
-	      
-	      /* Redraw Study Status */
-	      p_ptr->redraw |= (PR_STUDY);
-	    }
-	  
+	  /* Redraw Study Status */
+	  p_ptr->redraw |= (PR_STUDY);
+       
 	  /* Check if we are completely done */
 	  if ((p_ptr->new_specialties <= 0) || (k >= 9)) done_all = TRUE;
 	}
-      
+      else
+	{
+	  done_all = TRUE;
+	}
     }
-  
-  /* Load screen */
-  screen_load();
+
   
   /* Buttons */
   normal_screen = TRUE;
@@ -3688,8 +3766,8 @@ void do_cmd_specialty(void)
   if (p_ptr->new_specialties > 0)
     {
       /* Buttons */
-      add_button("[l]", 'l');
-      add_button("[v]", 'v');
+      add_button("l", 'l');
+      add_button("v", 'v');
 
       /* Interact and choose. */
       while(get_com_ex("View abilities or Learn specialty (l/v/ESC)?",

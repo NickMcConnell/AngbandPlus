@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.1"
+#define VERSION_STRING	"0.3.2"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -2352,6 +2352,7 @@
 #define USE_EQUIP	0x01	/* Allow equip items */
 #define USE_INVEN	0x02	/* Allow inven items */
 #define USE_FLOOR	0x04	/* Allow floor items */
+#define USE_TARGET	0x08	/* Allow targeted floor items */
 #define CAN_SQUELCH	0x10	/* Allow selection of all squelched items */
 
 /*** Player flags ***/
@@ -2552,10 +2553,11 @@
 #define FEEL_CURSED            4
 #define FEEL_UNCURSED          5
 #define FEEL_AVERAGE           6
-#define FEEL_GOOD              7
+#define FEEL_GOOD_STRONG       7
 #define FEEL_EXCELLENT         8
 #define FEEL_SPECIAL           9
-#define FEEL_MAX               10
+#define FEEL_GOOD_WEAK         10
+#define FEEL_MAX               11
 
 
 /*
@@ -4156,5 +4158,5 @@ extern int PlayerUID;
 /* 
  * Maximum length of mouse button label 
  */
-#define MAX_MOUSE_LABEL  10
+#define MAX_MOUSE_LABEL  8
 

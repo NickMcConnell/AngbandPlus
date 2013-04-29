@@ -20,7 +20,7 @@
  */
 void do_cmd_inven_new(void)
 {
-  int i, j, k, z = 0, col, len = 3;
+  int i, k, z = 0, col, len = 3;
 
   char tmp_val[80];
   
@@ -83,7 +83,7 @@ void do_cmd_inven_new(void)
 	}
     }
 
-  show_obj();
+  do_cmd_show_obj();
 }
 
 
@@ -1873,11 +1873,11 @@ void do_cmd_query_symbol(void)
   put_str("Recall details? (k/p/y/n): ", 0, 40);
   backup_buttons();
   kill_all_buttons();
-  add_button("[ESC]", ESCAPE);
-  add_button("[k]", 'k');
-  add_button("[p]", 'p');
-  add_button("[y]", 'y');
-  add_button("[n]", 'n');
+  add_button("ESC", ESCAPE);
+  add_button("k", 'k');
+  add_button("p", 'p');
+  add_button("y", 'y');
+  add_button("n", 'n');
   update_statusline();
   
   /* Query */
@@ -1914,7 +1914,7 @@ void do_cmd_query_symbol(void)
       kill_button('k');
       kill_button('p');
       kill_button('y');
-      add_button("[r]", 'r');
+      add_button("r", 'r');
     }
   
   /* Sort if needed */
@@ -1987,7 +1987,7 @@ void do_cmd_query_symbol(void)
 	      
 	    }
 
-	  add_button("[-]", '-');
+	  add_button("-", '-');
 	  update_statusline();
 	  
 	  /* Command */

@@ -7335,6 +7335,9 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
       if (!v_cnt)
 	{
 	  wild_vaults = 0;
+#ifdef _WIN32_WCE	
+	  free(all_feat);
+#endif
 	  return (0);
 	}
 
@@ -7342,20 +7345,32 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
       v_ptr = &v_info[v_idx[rand_int(v_cnt)]];
   
       /* Check to see if it will fit here (only avoid edges) */
-      for (yy = y - v_ptr->hgt/2; yy < y + v_ptr->hgt/2; yy++)
-	for (xx = x - v_ptr->wid/2; xx < x + v_ptr->wid/2; xx++)
-	  if ((cave_feat[yy][xx] == FEAT_PERM_SOLID) ||
-	      (cave_feat[yy][xx] >= FEAT_LESS_NORTH) ||
-	      (distance(yy, xx, p_ptr->py, p_ptr->px) < 20) ||
-	      (cave_info[yy][xx] & CAVE_ICKY)) 
-	    good_place = FALSE;
+      if ((in_bounds_fully(y - v_ptr->hgt/2, x - v_ptr->wid/2)) &&
+	  (in_bounds_fully(y + v_ptr->hgt/2, x + v_ptr->wid/2)))
+	{
+	  for (yy = y - v_ptr->hgt/2; yy < y + v_ptr->hgt/2; yy++)
+	    for (xx = x - v_ptr->wid/2; xx < x + v_ptr->wid/2; xx++)
+	      if ((cave_feat[yy][xx] == FEAT_PERM_SOLID) ||
+		  (cave_feat[yy][xx] >= FEAT_LESS_NORTH) ||
+		  (distance(yy, xx, p_ptr->py, p_ptr->px) < 20) ||
+		  (cave_info[yy][xx] & CAVE_ICKY)) 
+		good_place = FALSE;
+	}
+      else
+	good_place = FALSE;
       
       /* We've found a place */
       if (good_place)
 	{ 
 	  /* Build the "vault" (never lit, icky) */
 	  if (!build_vault(y, x, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text, 
-			   FALSE, TRUE, wild_type)) return (0);
+			   FALSE, TRUE, wild_type)) 
+	    {
+#ifdef _WIN32_WCE	
+	      free(all_feat);
+#endif
+	      return (0);
+	    }
   
 	  /* Boost the rating */
 	  rating += v_ptr->rat;
@@ -7368,6 +7383,9 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	  wild_vaults--;
   
 	  /* Takes up some space */
+#ifdef _WIN32_WCE	
+	  free(all_feat);
+#endif
 	  return (v_ptr->hgt * v_ptr->wid);
 	}
     }
@@ -9193,10 +9211,6 @@ static void river_gen(void)
       /* Choose a place */
       y = rand_int(DUNGEON_HGT - 1) + 1;
       x = rand_int(DUNGEON_WID - 1) + 1;
-
-      /* Hack - protect the river from vault overwriting */
-      //if ((wild_vaults) && (x > DUNGEON_WID/3) && (x < 2 * DUNGEON_WID/3))
-      //continue;
 
       form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, 
 				   p_ptr->depth);

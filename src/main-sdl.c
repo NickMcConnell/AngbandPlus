@@ -161,15 +161,15 @@ static int num_fonts = 0;
 typedef struct sdl_Font sdl_Font;
 struct sdl_Font
 {
-        int width;                                      /* The dimensions of this font (in pixels)*/
-        int height;
-        char name[32];                          /* The name of this font */
-        
-        Uint16 pitch;                           /* Pitch of the surface this font is made for */
-	Uint8 bpp;					/* Bytes per pixel of the surface */
-	Uint8 something;			/* Padding */
+  int width;                    /* The dimensions of this font (in pixels)*/
+  int height;
+  char name[32];                /* The name of this font */
+  
+  Uint16 pitch;                 /* Pitch of the surface this font is made for */
+  Uint8 bpp;		        /* Bytes per pixel of the surface */
+  Uint8 something;	        /* Padding */
 	
-	int *data;					/* The data */
+  int *data;			/* The data */
 };
 
 static sdl_Font SystemFont;
@@ -183,24 +183,24 @@ static sdl_Font SystemFont;
 typedef struct term_window term_window;
 struct term_window
 {
-	term term_data;
+  term term_data;
 	
-	SDL_Surface *surface;	/* The surface for this window */
+  SDL_Surface *surface;	/* The surface for this window */
 #ifdef USE_GRAPHICS
-	SDL_Surface *tiles;		/* The appropriately sized tiles for this window */
+  SDL_Surface *tiles;	/* The appropriately sized tiles for this window */
 #endif	
-	byte Term_idx;			/* Index of term that relates to this */
+  byte Term_idx;	/* Index of term that relates to this */
 	
-	int top;				/* Window Coordinates on the main screen */
-	int left;
+  int top;		/* Window Coordinates on the main screen */
+  int left;
 	
-	int keys;				/* Size of keypress storage */
+  int keys;		/* Size of keypress storage */
 	
-	sdl_Font font;			/* Font info */
-	cptr req_font;			/* Requested font */
-	int rows;				/* Dimension in tiles */
-	int cols;
-	
+  sdl_Font font;	/* Font info */
+  cptr req_font;	/* Requested font */
+  int rows;		/* Dimension in tiles */
+  int cols;
+  
   int border;           /* Border width */
   int title_height;     /* Height of title bar */
   
@@ -209,11 +209,11 @@ struct term_window
   int height;
   
   int tile_wid;         /* Size in pixels of a char */
-	int tile_hgt;
-	
-	bool visible;			/* Can we see this window? */
-	
-	SDL_Rect uRect;			/* The part that needs to be updated */
+  int tile_hgt;
+  
+  bool visible;		/* Can we see this window? */
+  
+  SDL_Rect uRect;	/* The part that needs to be updated */
 };
 
 
@@ -222,17 +222,17 @@ struct term_window
 typedef struct mouse_info mouse_info;
 struct mouse_info
 {
-	int left;			/* Is it pressed? */
-	int right;
-	
-	int leftx;			/* _IF_ left button is pressed these */
-	int lefty;			/* show where it was pressed */
-	
-	int rightx;
-	int righty;
-	
-	int x;						/* Current position of mouse */
-	int y;
+  int left;		/* Is it pressed? */
+  int right;
+  
+  int leftx;		/* _IF_ left button is pressed these */
+  int lefty;		/* show where it was pressed */
+  
+  int rightx;
+  int righty;
+  
+  int x;		/* Current position of mouse */
+  int y;
 	
 };
 
@@ -245,26 +245,26 @@ typedef struct sdl_Window sdl_Window;
 typedef void (*button_press_func)(sdl_Button *sender);
 struct sdl_Button
 {
-	SDL_Rect pos;				/* Position & Size */
-	bool selected;				/* Selected? */
-	bool visible;				/* Visible? */
-	button_press_func activate;	/* A function to call when pressed */
-	sdl_ButtonBank *owner;		/* Which bank is this in? */
-	char caption[50];			/* Text for this button */
-	Uint32 unsel_colour;		/* Button unselected colour */
-	Uint32 sel_colour;			/* Selected colour*/
-	Uint32 cap_colour;			/* Caption colour */
-	void *data;					/* Something */
-	int tag;					/* Something */
+  SDL_Rect pos;			/* Position & Size */
+  bool selected;		/* Selected? */
+  bool visible;			/* Visible? */
+  button_press_func activate;	/* A function to call when pressed */
+  sdl_ButtonBank *owner;	/* Which bank is this in? */
+  char caption[50];		/* Text for this button */
+  Uint32 unsel_colour;		/* Button unselected colour */
+  Uint32 sel_colour;		/* Selected colour*/
+  Uint32 cap_colour;		/* Caption colour */
+  void *data;			/* Something */
+  int tag;			/* Something */
 	
 };
 
 struct sdl_ButtonBank
 {
-	sdl_Button *buttons;		/* A collection of buttons */
-	bool *used;					/* What buttons are available? */
-	sdl_Window *window;			/* The window that these buttons are on */
-	bool need_update;
+  sdl_Button *buttons;		/* A collection of buttons */
+  bool *used;			/* What buttons are available? */
+  sdl_Window *window;		/* The window that these buttons are on */
+  bool need_update;
 };
 
 /*
@@ -274,24 +274,24 @@ struct sdl_ButtonBank
 typedef void (*sdl_WindowCustomDraw)(sdl_Window *window);
 struct sdl_Window
 {
-	int top;				/* Position on main window */
-	int left;
-	
-	int width;				/* Dimensions */
-	int height;
-	
-	bool visible;			/* Visible? */
-	
-	SDL_Surface *surface;	/* SDL surface info */
-	
-	sdl_ButtonBank buttons;		/* Buttons */
-	
-	sdl_Font font;			/* Font */
-	
-	SDL_Surface *owner;		/* Who shall I display on */
-	
-	sdl_WindowCustomDraw draw_extra; /* Stuff to draw on the surface */
-	bool need_update;
+  int top;		/* Position on main window */
+  int left;
+  
+  int width;		/* Dimensions */
+  int height;
+  
+  bool visible;		/* Visible? */
+  
+  SDL_Surface *surface;	/* SDL surface info */
+  
+  sdl_ButtonBank buttons;/* Buttons */
+  
+  sdl_Font font;	/* Font */
+  
+  SDL_Surface *owner;	/* Who shall I display on */
+  
+  sdl_WindowCustomDraw draw_extra; /* Stuff to draw on the surface */
+  bool need_update;
 };
 
 
@@ -332,19 +332,19 @@ static bool ignore_key[1024];
  */
 static int ignore_key_list[] =
 {
-	SDLK_NUMLOCK, SDLK_CAPSLOCK, SDLK_SCROLLOCK, SDLK_RSHIFT,
-	SDLK_LSHIFT, SDLK_RCTRL, SDLK_LCTRL, SDLK_RALT, SDLK_LALT,
-	SDLK_RMETA, SDLK_LMETA, SDLK_LSUPER, SDLK_RSUPER, SDLK_MODE,
-	SDLK_COMPOSE, 0
+  SDLK_NUMLOCK, SDLK_CAPSLOCK, SDLK_SCROLLOCK, SDLK_RSHIFT,
+  SDLK_LSHIFT, SDLK_RCTRL, SDLK_LCTRL, SDLK_RALT, SDLK_LALT,
+  SDLK_RMETA, SDLK_LMETA, SDLK_LSUPER, SDLK_RSUPER, SDLK_MODE,
+  SDLK_COMPOSE, 0
 };
 
 /*
  * The number pad consists of 10 keys, each with an SDL identifier
  */
 #define is_numpad(k) \
-((k == SDLK_KP0) || (k == SDLK_KP1) || (k == SDLK_KP2) || (k == SDLK_KP3) || \
- (k == SDLK_KP4) || (k == SDLK_KP5) || (k == SDLK_KP6) || \
- (k == SDLK_KP7) || (k == SDLK_KP8) || (k == SDLK_KP9) || (k == SDLK_KP_ENTER))
+  ((k == SDLK_KP0) || (k == SDLK_KP1) || (k == SDLK_KP2) || (k == SDLK_KP3) || \
+   (k == SDLK_KP4) || (k == SDLK_KP5) || (k == SDLK_KP6) ||		\
+   (k == SDLK_KP7) || (k == SDLK_KP8) || (k == SDLK_KP9) || (k == SDLK_KP_ENTER))
 
 static int SnapRange = 5;	/* Window snap range (pixels) */
 static int StatusHeight;	/* The height in pixels of the status bar */
@@ -373,14 +373,14 @@ static SDL_Rect SizingRect;		/* Rect to describe the current resize window */
 typedef struct GfxInfo GfxInfo;
 struct GfxInfo
 {
-	cptr name;				/* Name to show on button */
-	cptr gfxfile;			/* The file with tiles */
-	int width;				/* Width of a tile */
-	int height;				/* Height of a tile */
-	cptr pref;				/* Preference file to use */
-	int x;					/* Yuk - Pixel location of colour key */
-	int y;					/* ditto */
-	bool avail;				/* Are the appropriate files available? */
+  cptr name;			/* Name to show on button */
+  cptr gfxfile;			/* The file with tiles */
+  int width;			/* Width of a tile */
+  int height;			/* Height of a tile */
+  cptr pref;			/* Preference file to use */
+  int x;			/* Yuk - Pixel location of colour key */
+  int y;			/* ditto */
+  bool avail;			/* Are the appropriate files available? */
 };
 
 static SDL_Surface *GfxSurface = NULL;	/* A surface for the graphics */
@@ -388,17 +388,17 @@ static SDL_Surface *GfxSurface = NULL;	/* A surface for the graphics */
 #define GfxModes 4
 static GfxInfo GfxDesc[GfxModes] =
 {
-	/* No gfx (GRAPHICS_NONE) */
-	{"None", NULL, -1, -1, NULL, 0, 0, TRUE},
-	/* 8x8 tiles (GRAPHICS_ORIGINAL) */
-	{"8x8", "8x8.png", 8, 8, "old", 0, 0, TRUE},
-	/* 16x16 tiles (GRAPHICS_ADAM_BOLT) */
-	{"16x16", "16x16.png", 16, 16, "new", 0, 65, TRUE},
-	/* XXX (GRAPHICS_DAVID_GERVAIS) */
-	{"32x32", "32x32.png", 32, 32, "david", 0, 0, TRUE},
-	
-	/* XXX (GRAPHICS_PSEUDO ???) */
-	/*{NULL, NULL, NULL, -1, -1},	*/						
+  /* No gfx (GRAPHICS_NONE) */
+  {"None", NULL, -1, -1, NULL, 0, 0, TRUE},
+  /* 8x8 tiles (GRAPHICS_ORIGINAL) */
+  {"8x8", "8x8.png", 8, 8, "old", 0, 0, TRUE},
+  /* 16x16 tiles (GRAPHICS_ADAM_BOLT) */
+  {"16x16", "16x16.png", 16, 16, "new", 0, 65, TRUE},
+  /* XXX (GRAPHICS_DAVID_GERVAIS) */
+  {"32x32", "32x32.png", 32, 32, "david", 0, 0, TRUE},
+  
+  /* XXX (GRAPHICS_PSEUDO ???) */
+  /*{NULL, NULL, NULL, -1, -1},	*/						
 };
 
 static int MoreBigtile;                 /* Toggle bigtile button */
@@ -422,12 +422,12 @@ u32b back_colour;		/* Background colour */
  */
 static SDL_Rect *RECT(int x, int y, int w, int h, SDL_Rect *rect)
 {	
-	rect->x = x;
-	rect->y = y;
-	rect->w = w;
-	rect->h = h;
-	
-	return rect;
+  rect->x = x;
+  rect->y = y;
+  rect->w = w;
+  rect->h = h;
+  
+  return rect;
 }
 
 /*
@@ -435,13 +435,13 @@ static SDL_Rect *RECT(int x, int y, int w, int h, SDL_Rect *rect)
  */
 static bool point_in(SDL_Rect *rect, int x, int y)
 {
-	if (x < rect->x) return (FALSE);
-	if (y < rect->y) return (FALSE);
-	if (x >= rect->x + rect->w) return (FALSE);
-	if (y >= rect->y + rect->h) return (FALSE);
-	
-	/* Must be inside */
-	return (TRUE);
+  if (x < rect->x) return (FALSE);
+  if (y < rect->y) return (FALSE);
+  if (x >= rect->x + rect->w) return (FALSE);
+  if (y >= rect->y + rect->h) return (FALSE);
+  
+  /* Must be inside */
+  return (TRUE);
 }
 
 /*
@@ -3252,89 +3252,89 @@ static void term_data_link_sdl(term_window *win)
  */
 static void init_morewindows(void)
 {
-	char buf[128];
-	sdl_Button *button;
-	popped = FALSE;
-	int x;
-	
-	/* Make sure */
-	sdl_WindowFree(&PopUp);
-	
-	/* Initialize the status bar */
-	sdl_WindowInit(&StatusBar, AppWin->w, StatusHeight, AppWin, DEFAULT_FONT_FILE);
-	
-	/* Cusom drawing function */
-	StatusBar.draw_extra = draw_statusbar;
-	
-	AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, AboutSelect);
-	
-	my_strcpy(buf, format("%s v%s", VERSION_NAME, VERSION_STRING), sizeof(buf));
-	
-	/* Initialize the 'about' button */
-	sdl_ButtonSize(button, StatusBar.font.width * strlen(buf) + 5, StatusHeight - 2);
-	sdl_ButtonMove(button, 1, 1);
-	sdl_ButtonVisible(button, TRUE);
-	sdl_ButtonCaption(button, buf);
-	button->activate = AboutActivate;
-	
-	
-	/* New button */
-	TermSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, TermSelect);
-	
-	/* Initialize the 'term' button */
-	sdl_ButtonSize(button, 60, StatusHeight - 2);
-	x = 100 + (StatusBar.font.width * 5);
-	sdl_ButtonMove(button, x, 1);
-	sdl_ButtonVisible(button, TRUE);
-	button->activate = TermActivate;
-	
-	/* Another new button */
-	VisibleSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, VisibleSelect);
-	
-	/* Initialize the 'visible' button */
-	sdl_ButtonSize(button, 60,  StatusHeight - 2);
-	x = 200 + (StatusBar.font.width * 8);
-	sdl_ButtonMove(button, x, 1);
-	sdl_ButtonVisible(button, TRUE);
-	button->activate = VisibleActivate;
-	
-	/* Another new button */
-	FontSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, FontSelect);
-	
-	/* Initialize the 'font_select' button */
-	sdl_ButtonSize(button, 60,  StatusHeight - 2);
-	sdl_ButtonMove(button, 400, 1);
-	button->activate = FontActivate;
-	
-	/* Another new button */
-	MoreSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, MoreSelect);
-	
-	/* Initialize the 'more' button */
-	sdl_ButtonSize(button, 60,  StatusHeight - 2);
-	sdl_ButtonMove(button, 400, 1);
-	sdl_ButtonVisible(button, TRUE);
-	sdl_ButtonCaption(button, "Options");
-	button->activate = MoreActivate;
-	
-	/* Another new button */
-	QuitSelect = sdl_ButtonBankNew(&StatusBar.buttons);
-	button = sdl_ButtonBankGet(&StatusBar.buttons, QuitSelect);
-	
-	/* Initialize the 'quit' button */
-	sdl_ButtonSize(button, 60,  StatusHeight - 2);
-	sdl_ButtonMove(button, AppWin->w - 61, 1);
-	sdl_ButtonCaption(button, "Quit");
-	button->activate = QuitActivate;
-	sdl_ButtonVisible(button, TRUE);
-	
-	SetStatusButtons();
-	
-	TermFocus(0);
+  char buf[128];
+  sdl_Button *button;
+  popped = FALSE;
+  int x;
+  
+  /* Make sure */
+  sdl_WindowFree(&PopUp);
+  
+  /* Initialize the status bar */
+  sdl_WindowInit(&StatusBar, AppWin->w, StatusHeight, AppWin, DEFAULT_FONT_FILE);
+  
+  /* Cusom drawing function */
+  StatusBar.draw_extra = draw_statusbar;
+  
+  AboutSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, AboutSelect);
+  
+  my_strcpy(buf, format("%s v%s", VERSION_NAME, VERSION_STRING), sizeof(buf));
+  
+  /* Initialize the 'about' button */
+  sdl_ButtonSize(button, StatusBar.font.width * strlen(buf) + 5, StatusHeight - 2);
+  sdl_ButtonMove(button, 1, 1);
+  sdl_ButtonVisible(button, TRUE);
+  sdl_ButtonCaption(button, buf);
+  button->activate = AboutActivate;
+  
+  
+  /* New button */
+  TermSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, TermSelect);
+  
+  /* Initialize the 'term' button */
+  sdl_ButtonSize(button, 60, StatusHeight - 2);
+  x = 100 + (StatusBar.font.width * 5);
+  sdl_ButtonMove(button, x, 1);
+  sdl_ButtonVisible(button, TRUE);
+  button->activate = TermActivate;
+  
+  /* Another new button */
+  VisibleSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, VisibleSelect);
+  
+  /* Initialize the 'visible' button */
+  sdl_ButtonSize(button, 60,  StatusHeight - 2);
+  x = 200 + (StatusBar.font.width * 8);
+  sdl_ButtonMove(button, x, 1);
+  sdl_ButtonVisible(button, TRUE);
+  button->activate = VisibleActivate;
+  
+  /* Another new button */
+  FontSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, FontSelect);
+  
+  /* Initialize the 'font_select' button */
+  sdl_ButtonSize(button, 60,  StatusHeight - 2);
+  sdl_ButtonMove(button, 400, 1);
+  button->activate = FontActivate;
+  
+  /* Another new button */
+  MoreSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, MoreSelect);
+  
+  /* Initialize the 'more' button */
+  sdl_ButtonSize(button, 60,  StatusHeight - 2);
+  sdl_ButtonMove(button, 400, 1);
+  sdl_ButtonVisible(button, TRUE);
+  sdl_ButtonCaption(button, "Options");
+  button->activate = MoreActivate;
+  
+  /* Another new button */
+  QuitSelect = sdl_ButtonBankNew(&StatusBar.buttons);
+  button = sdl_ButtonBankGet(&StatusBar.buttons, QuitSelect);
+  
+  /* Initialize the 'quit' button */
+  sdl_ButtonSize(button, 60,  StatusHeight - 2);
+  sdl_ButtonMove(button, AppWin->w - 61, 1);
+  sdl_ButtonCaption(button, "Quit");
+  button->activate = QuitActivate;
+  sdl_ButtonVisible(button, TRUE);
+  
+  SetStatusButtons();
+  
+  TermFocus(0);
 }
 
 #ifdef USE_GRAPHICS

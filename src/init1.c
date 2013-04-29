@@ -500,11 +500,9 @@ static cptr k_info_flags2[] =
 	"RES_FIRE",
 	"RES_COLD",
 	"RES_POIS",
-	//"RES_FEAR",
 	"XXX3",
 	"RES_LITE",
 	"RES_DARK",
-	//"RES_BLIND",
 	"XXX4",
 	"RES_CONFU",
 	"RES_SOUND",
@@ -574,37 +572,6 @@ static cptr player_resists[] =
   "RES_CHAOS",
   "RES_DISEN"
 };
-
-/*
- * Convert a "color letter" into an "actual" color
- * The colors are: dwsorgbuDWvyRGBU, as shown below
- */
-//int color_char_to_attr(char c)
-//{
-//switch (c)
-//  {
-//    case 'd': return (TERM_DARK);
-//    case 'w': return (TERM_WHITE);
-//  case 's': return (TERM_SLATE);
-//  case 'o': return (TERM_ORANGE);
-//  case 'r': return (TERM_RED);
-//  case 'g': return (TERM_GREEN);
-//  case 'b': return (TERM_BLUE);
-//  case 'u': return (TERM_UMBER);
-//    
-//  case 'D': return (TERM_L_DARK);
-//  case 'W': return (TERM_L_WHITE);
-//  case 'v': return (TERM_VIOLET);
-//  case 'y': return (TERM_YELLOW);
-//  case 'R': return (TERM_L_RED);
-//  case 'G': return (TERM_L_GREEN);
-//  case 'B': return (TERM_L_BLUE);
-//  case 'U': return (TERM_L_UMBER);
-//  }
-
-//return (-1);
-//}
-
 
 
 /*** Initialize from ascii template files ***/
@@ -1182,16 +1149,11 @@ errr parse_v_info(char *buf, header *head)
 	/* Process 'D' for "Description" */
 	else if (buf[0] == 'D')
 	{
-	  //u16b temp;
-
 		/* There better be a current v_ptr */
 		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Get the text */
 		s = buf+2;
-
-		/* Type convert */
-		//temp = (u16b)v_ptr->text;
 
 		/* Store the text */
 		if (!add_text(&v_ptr->text, head, s))
@@ -1881,10 +1843,6 @@ errr parse_a_info(char *buf, header *head)
       /* There better be a current a_ptr */
       if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
-      /* Hack - initialise percentage resists */
-      //for (i = 0; i < MAX_P_RES; i++)
-      //a_ptr->percent_res[i] = RES_LEVEL_BASE;
-
       /* Parse every entry textually */
       for (s = buf + 2; *s; )
 	{
@@ -2035,7 +1993,7 @@ errr parse_s_info(char *buf, header *head)
       error_idx = i;
       
       /* Point at the "info" */
-      set_ptr = (set_type*)head->info_ptr + i;//&s_info[i];
+      set_ptr = (set_type*)head->info_ptr + i;
       
       /* Store the name */
       if (!(set_ptr->name = add_name(head, s)))
@@ -2388,10 +2346,6 @@ errr parse_e_info(char *buf, header *head)
       /* There better be a current e_ptr */
       if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
       
-      /* Hack - initialise percentage resists */
-      //for (i = 0; i < MAX_P_RES; i++)
-      //e_ptr->percent_res[i] = RES_LEVEL_BASE;
-
       /* Parse every entry textually */
       for (s = buf + 2; *s; )
 	{
@@ -3730,23 +3684,20 @@ errr parse_b_info(char *buf, header *head)
   /* Process 'I' for "Info" (one line only) */
   else if (buf[0] == 'I')
     {
-      int idx, gld, max, min, hgl, tol;
+      int idx, gld, inf;
       
       /* There better be a current ot_ptr */
       if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
       /* Scan for the values */
-      if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-                      &idx, &gld, &max, &min, &hgl, &tol)) 
+      if (3 != sscanf(buf+2, "%d:%d:%d",
+                      &idx, &gld, &inf)) 
         return (PARSE_ERROR_GENERIC);
           
       /* Save the values */
       ot_ptr->owner_race = idx;
       ot_ptr->max_cost = gld;
-      ot_ptr->max_inflate = max;
-      ot_ptr->min_inflate = min;
-      ot_ptr->haggle_per = hgl;
-      ot_ptr->insult_max = tol;
+      ot_ptr->inflate = inf;
     }
   
   else

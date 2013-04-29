@@ -67,18 +67,11 @@ void do_cmd_move_house(void)
       p_ptr->home = p_ptr->stage;
       msg_print("Your home will be here when you return.");
 
-      /* Write a note */
-      //if (adult_take_notes)
-      //{
-      //char buf[120];
-	  
       /* Moved house */
       sprintf(buf, "Moved house to %s.", town);
       
       /* Write message */
       make_note(buf,  p_ptr->stage, NOTE_MOVE);
-      
-      //}
       
     }
   else
@@ -3169,15 +3162,13 @@ void do_cmd_rest(void)
       strcpy(out_val, "&");
 
       /* Buttons */
-      add_button("[*]", '*');
-      add_button("[&]", '&');
-      add_button("[$]", '$');
+      add_button("*", '*');
+      add_button("$", '$');
       
       /* Ask for duration */
       got_string = get_string(p, out_val, 5); 
 	
       kill_button('*');
-      kill_button('&');
       kill_button('$');
 	
       if (!got_string) return;

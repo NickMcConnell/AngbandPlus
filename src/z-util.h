@@ -63,6 +63,8 @@ extern void plog(cptr str);
 /* Exit, with optional message */
 extern void quit(cptr str);
 
+/*  Fast string concatenation */
+char *my_fast_strcat(char *buf, char *end, const char *src, size_t bufsize);
 
 
 #endif /* INCLUDED_Z_UTIL_H */

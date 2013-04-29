@@ -20,7 +20,7 @@ APPNAME = FAAngband.app
 EXE =faangband
 NAME =FAAngband
 COPYRIGHT =2007 Nick McConnell and Contributors
-VERSION =0.3.1
+VERSION =0.3.2
 
 
 #
@@ -134,7 +134,7 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+ICONFILES = osx/$(NAME).icns osx/Save.icns osx/Edit.icns osx/Data.icns
 PLIST = osx/Angband.xml
 
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON

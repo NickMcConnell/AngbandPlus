@@ -396,7 +396,7 @@ extern void print_rel(char c, byte a, int y, int x);
 extern void note_spot(int y, int x);
 extern void lite_spot(int y, int x);
 extern void prt_map(void);
-extern void display_map(int *cy, int *cx, bool small);
+extern void display_map(int *cy, int *cx, bool smll);
 extern void do_cmd_view_map(void);
 extern errr vinfo_init(void);
 extern void forget_view(void);
@@ -427,9 +427,6 @@ extern void hit_trap(int y, int x);
 extern void fall_off_cliff(void);
 extern void move_player(int dir, int do_pickup);
 extern void run_step(int dir);
-extern int click_area(event_type ke);
-extern void show_obj(void);
-extern void do_cmd_mousepress(void);
 
 
 /* dungeon.c */
@@ -975,6 +972,7 @@ extern bool squelch_item_ok(object_type *o_ptr);
 bool squelch_hide_item(object_type *o_ptr);
 extern void squelch_drop(void);
 void squelch_items(void);
+extern bool seen_tval(int tval);
 void do_cmd_options_item(void *, cptr);
 
 /*

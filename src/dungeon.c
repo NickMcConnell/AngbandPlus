@@ -51,10 +51,10 @@ int value_check_aux1(const object_type *o_ptr)
   if (broken_p(o_ptr)) return FEEL_BROKEN;
   
   /* Good "armor" bonus */
-  if (o_ptr->to_a > 0) return FEEL_GOOD;
+  if (o_ptr->to_a > 0) return FEEL_GOOD_STRONG;
   
   /* Good "weapon" bonus */
-  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_STRONG;
   
   /* Default to "average" */
   return FEEL_AVERAGE;
@@ -73,16 +73,16 @@ static int value_check_aux2(object_type *o_ptr)
   if (broken_p(o_ptr)) return FEEL_BROKEN;
   
   /* Artifacts -- except cursed/broken ones */
-  if (artifact_p(o_ptr)) return FEEL_GOOD;
+  if (artifact_p(o_ptr)) return FEEL_GOOD_WEAK;
   
   /* Ego-Items -- except cursed/broken ones */
-  if (ego_item_p(o_ptr)) return FEEL_GOOD;
+  if (ego_item_p(o_ptr)) return FEEL_GOOD_WEAK;
   
   /* Good armor bonus */
-  if (o_ptr->to_a > 0) return FEEL_GOOD;
+  if (o_ptr->to_a > 0) return FEEL_GOOD_WEAK;
   
   /* Good weapon bonuses */
-  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD;
+  if (o_ptr->to_h + o_ptr->to_d > 0) return FEEL_GOOD_WEAK;
   
   /* No feeling */
   return FEEL_NONE;
@@ -1256,18 +1256,6 @@ static void process_world(void)
 
 
 
-#ifdef ALLOW_DEBUG
-
-
-
-/*
- * Hack -- Declare the Debug Routines
- */
-//extern void do_cmd_debug(void);
-
-#endif
-
-
 
 #ifdef ALLOW_BORG
 
@@ -1465,6 +1453,8 @@ static void process_player(void)
   
   int temp_wakeup_chance;
   
+  byte feat = cave_feat[p_ptr->py][p_ptr->px];
+
   /*** Check for interupts ***/
   
   /* Complete resting */
@@ -1538,37 +1528,57 @@ static void process_player(void)
               /* Flush input */
               flush();
 
-			/* Disturb */
-			disturb(0, 0);
-
-			/* Hack -- Show a Message */
+	      /* Disturb */
+	      disturb(0, 0);
+	      
+	      /* Hack -- Show a Message */
               msg_print("Cancelled.");
             }
         }
     }
   
+  /* Add context-sensitive mouse buttons */
+  
+  if ((feat == FEAT_LESS) || ((feat >= FEAT_LESS_NORTH) && (!(feat % 2))))
+    add_button("<", '<');
+  else 
+    kill_button('<');
+  
+  if ((feat == FEAT_MORE) || ((feat >= FEAT_LESS_NORTH) && (feat % 2)))
+    add_button(">", '>');
+  else
+    kill_button('>');
+  
+  if (cave_o_idx[p_ptr->py][p_ptr->px] > 0)
+    add_button("g", 'g');
+  else
+    kill_button('g');
+  
+  update_statusline();
+  
+
   /*** Hack - handle special mana gain ***/
   special_mana_gain();
   
   /*** Handle actual user input ***/
   
-	/* Repeat until energy is reduced */
-	do
-	{
-		/* Notice stuff (if needed) */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff (if needed) */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff (if needed) */
-		if (p_ptr->window) window_stuff();
-
-
-		/* Place the cursor on the player */
+  /* Repeat until energy is reduced */
+  do
+    {
+      /* Notice stuff (if needed) */
+      if (p_ptr->notice) notice_stuff();
+      
+      /* Update stuff (if needed) */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff (if needed) */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Redraw stuff (if needed) */
+      if (p_ptr->window) window_stuff();
+      
+      
+      /* Place the cursor on the player */
       move_cursor_relative(p_ptr->py, p_ptr->px);
       
       /* Refresh (optional) */
@@ -1605,23 +1615,23 @@ static void process_player(void)
               /* Message */
               msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
-			/* Drop it (carefully) near the player */
-			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
-
-			/* Modify, Describe, Optimize */
-			inven_item_increase(item, -255);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-
-			/* Notice stuff (if needed) */
-			if (p_ptr->notice) notice_stuff();
-
-			/* Update stuff (if needed) */
-			if (p_ptr->update) update_stuff();
-
-			/* Redraw stuff (if needed) */
-			if (p_ptr->redraw) redraw_stuff();
-
+	      /* Drop it (carefully) near the player */
+	      drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+	      
+	      /* Modify, Describe, Optimize */
+	      inven_item_increase(item, -255);
+	      inven_item_describe(item);
+	      inven_item_optimize(item);
+	      
+	      /* Notice stuff (if needed) */
+	      if (p_ptr->notice) notice_stuff();
+	      
+	      /* Update stuff (if needed) */
+	      if (p_ptr->update) update_stuff();
+	      
+	      /* Redraw stuff (if needed) */
+	      if (p_ptr->redraw) redraw_stuff();
+	      
               /* Window stuff (if needed) */
               if (p_ptr->window) window_stuff();
             }
@@ -1649,27 +1659,27 @@ static void process_player(void)
       /* Resting */
       else if (p_ptr->resting)
         {
-			/* Timed rest */
-			if (p_ptr->resting > 0)
-			{
-				/* Reduce rest count */
-				p_ptr->resting--;
-
-				/* Redraw the state */
-				p_ptr->redraw |= (PR_STATE);
-			}
-
-			/* Take a turn */
-			p_ptr->energy_use = 100;
-		}
-
-		/* Running */
-		else if (p_ptr->running)
-		{
-			/* Take a step */
-			run_step(0);
-		}
-
+	  /* Timed rest */
+	  if (p_ptr->resting > 0)
+	    {
+	      /* Reduce rest count */
+	      p_ptr->resting--;
+	      
+	      /* Redraw the state */
+	      p_ptr->redraw |= (PR_STATE);
+	    }
+	  
+	  /* Take a turn */
+	  p_ptr->energy_use = 100;
+	}
+      
+      /* Running */
+      else if (p_ptr->running)
+	{
+	  /* Take a step */
+	  run_step(0);
+	}
+      
       /* Repeated command */
       else if (p_ptr->command_rep)
         {
@@ -1693,25 +1703,22 @@ static void process_player(void)
         }
       
       /* Normal command */
-		else
-		{
-			/* Check monster recall */
-			process_player_aux();
-
+      else
+	{
+	  /* Check monster recall */
+	  process_player_aux();
+	  
           /* Place the cursor on the player */
           move_cursor_relative(p_ptr->py, p_ptr->px);
           
-          /* Get a command (normal) */
-          //request_command(FALSE);
-          
           /* Process the command */
           process_command(FALSE);
-
+	  
           /* Mega hack - complete redraw if big graphics */
           if (use_dbltile || use_trptile) 
             p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_MAP 
                               | PR_EQUIPPY);
-  
+	  
         }
       
       /*** Hack - handle special mana gain ***/
@@ -1873,44 +1880,44 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-        int py = p_ptr->py;
-        int px = p_ptr->px;
+  int py = p_ptr->py;
+  int px = p_ptr->px;
+  
+  /* Not leaving */
+  p_ptr->leaving = FALSE;
+  
+  
+  /* Reset the "command" vars */
+  p_ptr->command_cmd = 0;
+  p_ptr->command_new = 0;
+  p_ptr->command_rep = 0;
+  p_ptr->command_arg = 0;
+  p_ptr->command_dir = 0;
+  
+  
+  /* Cancel the target */
+  target_set_monster(0);
+  
+  /* Cancel the health bar */
+  health_track(0);
+  
+  
+  /* Reset shimmer flags */
+  shimmer_monsters = TRUE;
+  shimmer_objects = TRUE;
+  
+  /* Reset repair flags */
+  repair_mflag_show = TRUE;
+  repair_mflag_mark = TRUE;
+  
 
-        /* Not leaving */
-        p_ptr->leaving = FALSE;
-
-
-	/* Reset the "command" vars */
-	p_ptr->command_cmd = 0;
-	p_ptr->command_new = 0;
-	p_ptr->command_rep = 0;
-	p_ptr->command_arg = 0;
-	p_ptr->command_dir = 0;
-
-
-	/* Cancel the target */
-	target_set_monster(0);
-
-	/* Cancel the health bar */
-	health_track(0);
-
-
-	/* Reset shimmer flags */
-	shimmer_monsters = TRUE;
-        shimmer_objects = TRUE;
-
-        /* Reset repair flags */
-        repair_mflag_show = TRUE;
-        repair_mflag_mark = TRUE;
-
-
-	/* Disturb */
-	disturb(1, 0);
-
-
-	/* Track maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev)
-	{
+  /* Disturb */
+  disturb(1, 0);
+  
+  
+  /* Track maximum player level */
+  if (p_ptr->max_lev < p_ptr->lev)
+    {
       p_ptr->max_lev = p_ptr->lev;
     }
   
@@ -1936,7 +1943,7 @@ static void dungeon(void)
       /* Place a staircase */
       if (cave_valid_bold(py, px))
         {
-          
+	  
           /* XXX XXX XXX */
           delete_object(py, px);
           
@@ -1986,10 +1993,6 @@ static void dungeon(void)
   /* Calculate torch radius */
   p_ptr->update |= (PU_TORCH);
 
-	/* Update stuff */
-	update_stuff();
-
-
   /* Fully update the visuals (and monster distances) */
   p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
   
@@ -2005,9 +2008,6 @@ static void dungeon(void)
   /* Window stuff */
   p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
   
-  /* Update stuff */
-  update_stuff();
-
   /* Redraw stuff */
   redraw_stuff();
   
@@ -2027,11 +2027,14 @@ static void dungeon(void)
 
   /* Make basic mouse buttons */
   normal_screen = TRUE;
-  (void) add_button("[ESC]", ESCAPE);
-  (void) add_button("[Ret]", '\r');
-  (void) add_button("[Spc]", ' ');
-  (void) add_button("[Rpt]", 'n');
-  (void) add_button("[Std]", ',');
+  (void) add_button("ESC", ESCAPE);
+  (void) add_button("Ret", '\r');
+  (void) add_button("Spc", ' ');
+  (void) add_button("Rpt", 'n');
+  (void) add_button("Std", ',');
+  (void) add_button("Inv", '|');
+  (void) add_button("Rest", 'R');
+  (void) add_button("Mgc", 'm');
   
   /* Redraw buttons */
   p_ptr->redraw |= (PR_BUTTONS);
@@ -2052,8 +2055,8 @@ static void dungeon(void)
   Term_fresh();
 
 
-	/* Handle delayed death */
-	if (p_ptr->is_dead) return;
+  /* Handle delayed death */
+  if (p_ptr->is_dead) return;
   
   
   /* Announce (or repeat) the feeling */
@@ -2068,13 +2071,13 @@ static void dungeon(void)
   
   /*** Process this dungeon level ***/
   
-	/* Reset the monster generation level */
-	monster_level = p_ptr->depth;
-
-	/* Reset the object generation level */
-	object_level = p_ptr->depth;
-
-	/* Main loop */
+  /* Reset the monster generation level */
+  monster_level = p_ptr->depth;
+  
+  /* Reset the object generation level */
+  object_level = p_ptr->depth;
+  
+  /* Main loop */
   while (TRUE)
     {
       /* Hack -- Compact the monster list occasionally */
@@ -2102,26 +2105,26 @@ static void dungeon(void)
           /* process monster with even more energy first */
           process_monsters((byte)(p_ptr->energy + 1));
 
-			/* if still alive */
-			if (!p_ptr->leaving)
-			{
-				/* Process the player */
-				process_player();
-			}
-		}
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
-
+	  /* if still alive */
+	  if (!p_ptr->leaving)
+	    {
+	      /* Process the player */
+	      process_player();
+	    }
+	}
+      
+      /* Notice stuff */
+      if (p_ptr->notice) notice_stuff();
+      
+      /* Update stuff */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->window) window_stuff();
+      
       /* Hack -- Hilite the player */
       move_cursor_relative(p_ptr->py, p_ptr->px);
       
@@ -2140,14 +2143,14 @@ static void dungeon(void)
       /* Notice stuff */
       if (p_ptr->notice) notice_stuff();
 
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->window) window_stuff();
+      /* Update stuff */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->window) window_stuff();
 
       /* Hack -- Hilite the player */
       move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -2159,20 +2162,20 @@ static void dungeon(void)
       if (p_ptr->leaving) break;
       
 
-		/* Process the world */
-		process_world();
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
+      /* Process the world */
+      process_world();
+      
+      /* Notice stuff */
+      if (p_ptr->notice) notice_stuff();
+      
+      /* Update stuff */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Window stuff */
+      if (p_ptr->window) window_stuff();
 
       /* Hack -- Hilite the player */
       move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -2193,6 +2196,9 @@ static void dungeon(void)
   (void) kill_button(' ');
   (void) kill_button('n');
   (void) kill_button(',');
+  (void) kill_button('|');
+  (void) kill_button('R');
+  (void) kill_button('m');
   
 }
 
@@ -2258,19 +2264,6 @@ void play_game(bool new_game)
   /* Make sure main term is active */
   Term_activate(angband_term[0]);
   
-  /* Initialise the resize hooks */
-  //angband_term[0]->resize_hook = resize_map;
-  
-  //for (i = 1; i < TERM_WIN_MAX; i++)
-  //{
-  //  /* Does the term exist? */
-  //  if (angband_term[i])
-  //    {
-  //      /* Add the redraw on resize hook */
-  //      angband_term[i]->resize_hook = redraw_window;
-  //    }
-  //}
-
   /* Verify minimum size */
   if ((Term->hgt < 24) || (Term->wid < (small_screen ? 48 : 80)))
     {
@@ -2419,16 +2412,16 @@ void play_game(bool new_game)
   
   
   /* Character is now "complete" */
-	character_generated = TRUE;
-
-
-	/* Hack -- Decrease "icky" depth */
-	character_icky--;
-
-
-	/* Start playing */
-	p_ptr->playing = TRUE;
-
+  character_generated = TRUE;
+  
+  
+  /* Hack -- Decrease "icky" depth */
+  character_icky--;
+  
+  
+  /* Start playing */
+  p_ptr->playing = TRUE;
+  
   /* Hack -- Enforce "delayed death" */
   if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
   
@@ -2447,30 +2440,30 @@ void play_game(bool new_game)
       /* Process the level */
       dungeon();
       
-
-		/* Notice stuff */
-		if (p_ptr->notice) notice_stuff();
-
-		/* Update stuff */
-		if (p_ptr->update) update_stuff();
-
-		/* Redraw stuff */
-		if (p_ptr->redraw) redraw_stuff();
-
-		/* Window stuff */
-		if (p_ptr->window) window_stuff();
-
-
-		/* Cancel the target */
-		target_set_monster(0);
-
-		/* Cancel the health bar */
-		health_track(0);
-
-
-		/* Forget the view */
-		forget_view();
-
+      
+      /* Notice stuff */
+      if (p_ptr->notice) notice_stuff();
+      
+      /* Update stuff */
+      if (p_ptr->update) update_stuff();
+      
+      /* Redraw stuff */
+      if (p_ptr->redraw) redraw_stuff();
+      
+      /* Window stuff */
+      if (p_ptr->window) window_stuff();
+      
+      
+      /* Cancel the target */
+      target_set_monster(0);
+      
+      /* Cancel the health bar */
+      health_track(0);
+      
+      
+      /* Forget the view */
+      forget_view();
+      
 
       /* Handle "quit and save" */
       if (!p_ptr->playing && !p_ptr->is_dead) break;
@@ -2484,14 +2477,14 @@ void play_game(bool new_game)
       
       /* Accidental Death */
       if (p_ptr->playing && p_ptr->is_dead)
-		{
-			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
-			{
-				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
-
-				/* Increase age */
+	{
+	  /* Mega-Hack -- Allow player to cheat death */
+	  if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
+	    {
+	      /* Mark social class, reset age, if needed */
+	      if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
+	      
+	      /* Increase age */
               p_ptr->age++;
               
               /* Mark savefile */
@@ -2503,13 +2496,13 @@ void play_game(bool new_game)
               
               /* Cheat death */
               p_ptr->is_dead = FALSE;
-
-				/* Restore hit points */
-				p_ptr->chp = p_ptr->mhp;
-				p_ptr->chp_frac = 0;
-
-				/* Restore spell points */
-				p_ptr->csp = p_ptr->msp;
+	      
+	      /* Restore hit points */
+	      p_ptr->chp = p_ptr->mhp;
+	      p_ptr->chp_frac = 0;
+	      
+	      /* Restore spell points */
+	      p_ptr->csp = p_ptr->msp;
               p_ptr->csp_frac = 0;
               
               /* Hack -- Healing */
@@ -2525,9 +2518,9 @@ void play_game(bool new_game)
               
               /* Hack -- Prevent starvation */
               (void)set_food(PY_FOOD_MAX - 1);
-
-				/* Hack -- cancel recall */
-				if (p_ptr->word_recall)
+	      
+	      /* Hack -- cancel recall */
+	      if (p_ptr->word_recall)
                 {
                   /* Message */
                   msg_print("A tension leaves the air around you...");
@@ -2545,18 +2538,18 @@ void play_game(bool new_game)
               
               /* New depth */
               p_ptr->depth = 0;
-
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-		}
-
-		/* Handle "death" */
-		if (p_ptr->is_dead) break;
-
-		/* Make a new level */
-		generate_cave();
+	      
+	      /* Leaving */
+	      p_ptr->leaving = TRUE;
+	    }
 	}
+      
+      /* Handle "death" */
+      if (p_ptr->is_dead) break;
+      
+      /* Make a new level */
+      generate_cave();
+    }
   
   /* Close stuff */
   close_game();
