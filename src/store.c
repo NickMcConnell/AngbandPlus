@@ -372,14 +372,16 @@ static void mass_produce(object_type * o_ptr)
     case TV_WAND:
     case TV_STAFF:
 	{
-	    if ((st_ptr->type == 6) && (randint1(3) == 1)) {
+	    if ((st_ptr->type == 6) && (randint1(3) == 1)) 
+	    {
 		if (cost < 1601L)
 		    size += mass_roll(1, 5);
 		else if (cost < 3201L)
 		    size += mass_roll(1, 3);
 	    }
-	    /* Ensure that mass-produced rods and wands get the correct pvals. */
-	    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
+	    /* Ensure that mass-produced devices get the correct pvals. */
+	    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) || 
+		(o_ptr->tval == TV_STAFF)) {
 		o_ptr->pval *= size;
 	    }
 	    break;
@@ -429,8 +431,10 @@ static void mass_produce(object_type * o_ptr)
     /* Save the total pile size */
     o_ptr->number = size - (size * discount / 100);
 
-    /* Hack -- rod/wands share the timeout/charges */
-    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
+    /* Devices share the timeout/charges */
+    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) || 
+	(o_ptr->tval == TV_STAFF)) 
+    {
 	o_ptr->pval = o_ptr->number * k_info[o_ptr->k_idx].pval.base;
     }
 }
@@ -482,14 +486,49 @@ static void store_object_absorb(object_type * o_ptr, object_type * j_ptr)
     /* Combine quantity, lose excess items */
     o_ptr->number = (total > 99) ? 99 : total;
 
-    /* Hack - if rods are stacking, add the pvals (maximum timeouts) together. */
-    if (o_ptr->tval == TV_ROD) {
+    /* If rods are stacking, add the pvals (maximum timeouts) together */
+    if (o_ptr->tval == TV_ROD)
 	o_ptr->pval += j_ptr->pval;
-    }
 
-    /* Hack -- if wands are stacking, combine the charges. */
-    if (o_ptr->tval == TV_WAND) {
+    /* If wands/staffs are stacking, combine the charges. */
+    if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
 	o_ptr->pval += j_ptr->pval;
+
+    if ((o_ptr->origin != j_ptr->origin) ||
+	(o_ptr->origin_stage != j_ptr->origin_stage) ||
+	(o_ptr->origin_xtra != j_ptr->origin_xtra))
+    {
+	int act = 2;
+
+	if ((o_ptr->origin == ORIGIN_DROP) && (o_ptr->origin == j_ptr->origin))
+	{
+	    monster_race *r_ptr = &r_info[o_ptr->origin_xtra];
+	    monster_race *s_ptr = &r_info[j_ptr->origin_xtra];
+
+	    bool r_uniq = rf_has(r_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
+	    bool s_uniq = rf_has(s_ptr->flags, RF_UNIQUE) ? TRUE : FALSE;
+
+	    if (r_uniq && !s_uniq) act = 0;
+	    else if (s_uniq && !r_uniq) act = 1;
+	    else act = 2;
+	}
+
+	switch (act)
+	{
+	    /* Overwrite with j_ptr */
+	case 1:
+	{
+	    o_ptr->origin = j_ptr->origin;
+	    o_ptr->origin_stage = j_ptr->origin_stage;
+	    o_ptr->origin_xtra = j_ptr->origin_xtra;
+	}
+
+	/* Set as "mixed" */
+	case 2:
+	{
+	    o_ptr->origin = ORIGIN_MIXED;
+	}
+	}
     }
 }
 
@@ -1051,15 +1090,13 @@ static void store_delete(void)
 	    num = 1;
     }
 
-    /* Hack -- decrement the maximum timeouts and total charges of rods/wands */
-    if ((o_ptr->tval == TV_ROD)
-	|| (o_ptr->tval == TV_WAND)) {
-	o_ptr->pval -=
-	    num * o_ptr->pval / o_ptr->number;
+    /* Hack -- decrement the maximum timeouts and total charges of devices */
+    if ((o_ptr->tval == TV_ROD)	|| (o_ptr->tval == TV_WAND) || 
+	(o_ptr->tval == TV_STAFF)) 
+    	o_ptr->pval -= num * o_ptr->pval / o_ptr->number;
 
-    }
-
-    /* Is the item an artifact? Mark it as lost if the player has it in history list */
+    /* Is the item an artifact? Mark it as lost if the player has it in 
+     * history list */
     if (artifact_p(o_ptr))
 	history_lose_artifact(o_ptr->name1);
 
@@ -1147,6 +1184,8 @@ static void store_create(void)
 
 	/* Item belongs to a store */
 	i_ptr->ident |= IDENT_STORE;
+	i_ptr->origin = ORIGIN_STORE;
+	i_ptr->origin_stage = p_ptr->stage;
 
 	/* Shown curses are shown */
 	if (of_has(i_ptr->flags_obj, OF_SHOW_CURSE))
@@ -1254,7 +1293,8 @@ static void display_entry(int item)
     }
 
     /* Describe an object (fully) in a store */
-    else {
+    else 
+    {
 	byte attr;
 
 	/* Must leave room for the "price" */
@@ -1287,7 +1327,8 @@ static void display_entry(int item)
 	x = price_item(o_ptr, ot_ptr->inflate, FALSE);
 
 	/* Actually draw the price */
-	if ((o_ptr->tval == TV_WAND) && (o_ptr->number > 1))
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) && 
+	    (o_ptr->number > 1))
 	    sprintf(out_val, "%9ld avg", (long) x);
 	else
 	    sprintf(out_val, "%9ld  ", (long) x);
@@ -1648,7 +1689,10 @@ static void store_purchase(void)
     }
 
     /* Attempt to buy it */
-    if (st_ptr->type != STORE_HOME) {
+    if (st_ptr->type != STORE_HOME) 
+    {
+	char answer;
+
 	/* Describe the object (fully) */
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
@@ -1656,8 +1700,11 @@ static void store_purchase(void)
 	price = price_item(i_ptr, ot_ptr->inflate, FALSE) * i_ptr->number;
 
 	/* Confirm purchase */
-	if (!get_char(format("Buy %s for %d gold?", o_name, price), "yn", 2, 'y'))
-	    return;
+	answer = get_char(format("Buy %s for %d gold?", o_name, price), "yn", 
+			  2, 'y');
+
+	if ((answer == (keycode_t) 'n') || !answer)
+		return;
 
 	/* Message */
 	msg("Buying %s (%c).", o_name, store_to_label(item));
@@ -1718,10 +1765,9 @@ static void store_purchase(void)
 	    msg("You have %s (%c).", o_name, index_to_label(item_new));
 
 	    /* Now, reduce the original stack's pval. */
-	    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
+	    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) || 
+		(o_ptr->tval == TV_STAFF)) 
 		o_ptr->pval -= i_ptr->pval;
-	    }
-
 
 	    /* Handle stuff */
 	    handle_stuff(p_ptr);
@@ -1937,30 +1983,33 @@ static void store_sell(void)
 
     /* Hack -- If a rod or wand, allocate total maximum timeouts or charges to
      * those being sold. */
-    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
+    if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) || 
+		(o_ptr->tval == TV_STAFF))
 	i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-    }
 
     /* Get a full description */
     object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
     /* Is there room in the store (or the home?) */
-    if ((!store_check_num(i_ptr)) && (st_ptr->type != STORE_MERCH)) {
-	if (st_ptr->type == STORE_HOME) {
+    if ((!store_check_num(i_ptr)) && (st_ptr->type != STORE_MERCH)) 
+    {
+	if (st_ptr->type == STORE_HOME) 
 	    msg("Your home is full.");
-	} else {
+	else 
 	    msg("I have not the room in my store to keep it.");
-	}
 	return;
     }
 
 
     /* Real store */
-    if (st_ptr->type != STORE_HOME) {
+    if (st_ptr->type != STORE_HOME) 
+    {
 	bool aware = FALSE;
+	char answer;
 
 	/* No selling */
-	if (!OPT(adult_no_sell)) {
+	if (!OPT(adult_no_sell)) 
+	{
 	    /* Get the price */
 	    price = price_item(i_ptr, ot_ptr->inflate, TRUE) * i_ptr->number;
 
@@ -1969,7 +2018,9 @@ static void store_sell(void)
 		       index_to_label(item), price);
 
 	    /* Confirm sale */
-	    if (!get_char(format("Accept %d gold?", price), "yn", 2, 'y'))
+	    answer = get_char(format("Accept %d gold?", price), "yn", 2, 'y');
+	    
+	    if ((answer == (keycode_t) 'n') || !answer)
 		return;
 
 	    /* Say "okay" */
@@ -1983,8 +2034,13 @@ static void store_sell(void)
 		p_ptr->au = PY_MAX_GOLD;
 	}
 
-	else if (!get_char(format("Donate %s?", o_name), "yn", 2, 'y'))
-	    return;
+	else 
+	{
+	    answer = get_char(format("Donate %s?", o_name), "yn", 2, 'y');
+	    
+	    if ((answer == (keycode_t) 'n') || !answer)
+		return;
+	}
 
 	/* Update the display */
 	store_prt_gold();
@@ -2010,7 +2066,8 @@ static void store_sell(void)
 	if ((amt < o_ptr->number) && (!aware))
 	    apply_autoinscription(o_ptr);
 
-	/* Update the auto-history if selling an artifact that was previously un-IDed. (Ouch!) */
+	/* Update the auto-history if selling an artifact that was previously 
+	 * un-IDed. (Ouch!) */
 	if (artifact_p(o_ptr))
 	    history_add_artifact(o_ptr->name1, TRUE, TRUE);
 
@@ -2033,12 +2090,12 @@ static void store_sell(void)
 	if (of_has(i_ptr->flags_obj, OF_SHOW_CURSE))
 	    cf_copy(i_ptr->id_curse, i_ptr->flags_curse);
 
-	/* Hack -- If a rod or wand, let the shopkeeper know just how many
+	/* If a rod, staff or wand, let the shopkeeper know just how many
 	 * charges he really paid for. */
-	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)) {
+	if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND) || 
+	    (o_ptr->tval == TV_STAFF)) 
 	    i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
-	}
-
+	
 	/* Get the "actual" value */
 	value = object_value(i_ptr) * i_ptr->number;
 
@@ -2046,10 +2103,13 @@ static void store_sell(void)
 	object_desc(o_name, sizeof(o_name), i_ptr, ODESC_PREFIX | ODESC_FULL);
 
 	/* No selling */
-	if (OPT(adult_no_sell)) {
+	if (OPT(adult_no_sell)) 
+	{
 	    /* Describe the result (in message buffer) */
 	    msg("You gave over %s (%c).", o_name, index_to_label(item));
-	} else {
+	} 
+	else 
+	{
 	    /* Describe the result (in message buffer) */
 	    msg("You sold %s (%c) for %ld gold.", o_name,
 		       index_to_label(item), (long) price);
@@ -2079,7 +2139,8 @@ static void store_sell(void)
 	item_pos = store_carry(i_ptr);
 
 	/* Update the display */
-	if (item_pos >= 0) {
+	if (item_pos >= 0) 
+	{
 	    /* Redisplay wares */
 	    display_inventory();
 	}

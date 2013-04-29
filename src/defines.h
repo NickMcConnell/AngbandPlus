@@ -62,7 +62,7 @@
  */
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.3.0 (" BUILD_ID ")"
+#define VERSION_STRING	"1.3.1 (" BUILD_ID ")"
 #endif
 */
 
@@ -71,7 +71,7 @@
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	3
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 /**
@@ -1100,23 +1100,6 @@ enum
 #define MTRAP_UNMAGIC	        0x4B /* Level * */
 #define MTRAP_DISPEL_M	        0x4C /* Level * */
 #define MTRAP_GENOCIDE	        0x4D /* Level * */
-
-/*** Object origin kinds ***/
-
-enum
-{
-	ORIGIN_NONE = 0,
-	ORIGIN_MIXED,
-	ORIGIN_BIRTH,
-	ORIGIN_STORE,
-	ORIGIN_FLOOR,
-	ORIGIN_DROP,
-	ORIGIN_DROP_UNKNOWN,
-	ORIGIN_ACQUIRE,
-	ORIGIN_CHEAT,
-	ORIGIN_CHEST
-};
-
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/

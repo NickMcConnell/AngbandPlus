@@ -61,7 +61,7 @@ static void info_out_list(textblock *tb, const char *list[], size_t count)
 		if (i != (count - 1)) textblock_append(tb, ", ");
 	}
 
-	textblock_append(tb, ".");
+	textblock_append(tb, ". ");
 }
 
 
@@ -300,7 +300,7 @@ static bool describe_curses(textblock *tb, const object_type *o_ptr,
 	if (cf_has(full ? o_ptr->flags_curse : o_ptr->id_curse, curses[i].flag))
 	{
 	    if (!printed) textblock_append(tb, "\nCurses:  ");
-	    textblock_append(tb, "%s.  ", curses[i].name);
+	    textblock_append(tb, "%s. ", curses[i].name);
 	    printed = TRUE;
 	}
     }
@@ -386,7 +386,7 @@ static bool describe_stats(textblock *tb, const object_type *o_ptr,
 
 	/* Special case: all stats */
 	if (min == max) 
-	    textblock_append_c(tb, attr, "%d to all your stats.", min);
+	    textblock_append_c(tb, attr, "%d to all your stats. ", min);
 
 	/* Some stats */
 	else {
@@ -660,7 +660,7 @@ static bool describe_immune(textblock *tb, const object_type *o_ptr,
 	}
 
 	/* End sentence. */
-	text_out_to_screen(TERM_WHITE, ". ");
+	textblock_append(tb, ". ");
 	prev = TRUE;
     }
 
@@ -728,7 +728,7 @@ static bool describe_immune(textblock *tb, const object_type *o_ptr,
 	}
 
 	/* End sentence. */
-	text_out_to_screen(TERM_WHITE, ". ");
+	textblock_append(tb, ". ");
 	prev = TRUE;
     }
 
@@ -806,7 +806,7 @@ static bool describe_misc_magic(textblock *tb, const object_type *o_ptr,
 	if (of_has(objflags, misc_flags[i].flag))
 	{
 	    if (!printed) textblock_append(tb, "\nPowers:  ");
-	    textblock_append(tb, "%s.  ", misc_flags[i].name);
+	    textblock_append(tb, "%s. ", misc_flags[i].name);
 	    printed = TRUE;
 	}
     }
@@ -1361,7 +1361,7 @@ static bool describe_light(textblock *tb, const object_type *o_ptr, bool terse)
 	const char *name = (o_ptr->sval == SV_LIGHT_TORCH) ? "torches" : "lanterns";
 	int turns = (o_ptr->sval == SV_LIGHT_TORCH) ? FUEL_TORCH : FUEL_LAMP;
 
-	textblock_append(tb, "  Refills other %s up to %d turns of fuel.", name, turns);
+	textblock_append(tb, "  Refills other %s up to %d turns of fuel. ", name, turns);
     }
 
     textblock_append(tb, "\n");
@@ -1500,6 +1500,7 @@ bool describe_origin(textblock *tb, const object_type *o_ptr)
 {
     char origin_text[80];
 
+    /* Format location of origin */
     if (stage_map[o_ptr->origin_stage][DEPTH])
 	strnfmt(origin_text, sizeof(origin_text), "%s Level %d",
 		locality_name[stage_map[o_ptr->origin_stage][LOCALITY]], 
@@ -1520,7 +1521,7 @@ bool describe_origin(textblock *tb, const object_type *o_ptr)
 	break;
 
     case ORIGIN_STORE:
-	textblock_append(tb, "Bought from a store.\n");
+	textblock_append(tb, "Bought from a store in %s.\n");
 	break;
 
     case ORIGIN_FLOOR:
@@ -1533,7 +1534,8 @@ bool describe_origin(textblock *tb, const object_type *o_ptr)
 
 	textblock_append(tb, "Dropped by ");
 
-	if (rf_has(r_info[o_ptr->origin_xtra].flags, RF_UNIQUE))
+	if (rf_has(r_info[o_ptr->origin_xtra].flags, RF_UNIQUE) && 
+	    !rf_has(r_info[o_ptr->origin_xtra].flags, RF_PLAYER_GHOST))
 	    textblock_append(tb, "%s", name);
 	else
 	    textblock_append(tb, "%s%s", is_a_vowel(name[0]) ? "an " : "a ", 
@@ -1557,12 +1559,42 @@ bool describe_origin(textblock *tb, const object_type *o_ptr)
 	break;
 
     case ORIGIN_CHEST:
+	//if (o_ptr->origin_xtra)
+	if (0) /* Add in when player ghost issues are fixed */
+	{
+	    const char *name = r_info[o_ptr->origin_xtra].name;
+
+	    textblock_append(tb, "Found in a chest dropped by ");
+
+	    if (rf_has(r_info[o_ptr->origin_xtra].flags, RF_UNIQUE) &&
+		!rf_has(r_info[o_ptr->origin_xtra].flags, RF_PLAYER_GHOST))
+		textblock_append(tb, "%s", name);
+	    else
+		textblock_append(tb, "%s%s", is_a_vowel(name[0]) ? "an " : "a ",
+ 				 name);
+
+	    textblock_append(tb, " in %s.\n", origin_text);
+	    break;
+	}
 	textblock_append(tb, "Found in a chest from %s.\n",
 			 origin_text);
 	break;
-    }
 
-    //textblock_append(tb, "\n");
+    case ORIGIN_RUBBLE:
+	textblock_append(tb, "Found under some rubble in %s.\n",
+			 origin_text);
+	break;
+
+    case ORIGIN_VAULT:
+	textblock_append(tb, "Found in a vault in %s.\n",
+			 origin_text);
+	break;
+
+    case ORIGIN_CHAOS:
+	textblock_append(tb, "Created by the forces of chaos in %s.\n");
+	break;
+
+    }
 
     return TRUE;
 }
@@ -1621,7 +1653,7 @@ bool describe_ego(textblock *tb, const object_type *o_ptr)
 	textblock_append(tb, "It provides ");
 	for (i = 0; i < 7; i++) {
 	    if (kf_has(ego->flags_kind, KF_RAND_RES_NEG + i)) {
-		textblock_append(tb, "one random %s%s", xtra[i], 
+		textblock_append(tb, "at least one random %s%s", xtra[i], 
 				 (num > 2) ? punct[0] : punct[num]);
 		num--;
 	    }
@@ -1671,6 +1703,7 @@ static textblock *object_info_out(const object_type *o_ptr, oinfo_detail_t mode)
     bool terse = mode & OINFO_TERSE;
     bool subjective = mode & OINFO_SUBJ;
     bool dummy = mode & OINFO_DUMMY;
+    bool ego = mode & OINFO_EGO;
 
     textblock *tb = textblock_new();
 
@@ -1685,7 +1718,7 @@ static textblock *object_info_out(const object_type *o_ptr, oinfo_detail_t mode)
     (void) describe_immune(tb, o_ptr, mode);
     (void) describe_sustains(tb, o_ptr, mode);
     (void) describe_misc_magic(tb, o_ptr, mode);
-    (void) describe_ego(tb, o_ptr);
+    if (ego) (void) describe_ego(tb, o_ptr);
     (void) describe_ignores(tb, o_ptr, mode);
     (void) describe_curses(tb, o_ptr, mode);
     (void) describe_effect(tb, o_ptr, mode);
