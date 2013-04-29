@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.3.4
+V:0.3.5
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol

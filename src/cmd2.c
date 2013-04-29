@@ -152,7 +152,7 @@ void do_cmd_go_up(void)
       
   
   /* Hack -- take a turn */
-  //p_ptr->energy_use = 100;
+  p_ptr->energy_use = 100;
   
   /* Success */
   if (pstair == FEAT_LESS)
@@ -288,7 +288,7 @@ void do_cmd_go_down(void)
   
   
   /* Hack -- take a turn */
-  //p_ptr->energy_use = 100;
+  p_ptr->energy_use = 100;
   
   /* Success */
 

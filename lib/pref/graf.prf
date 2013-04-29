@@ -43,6 +43,9 @@
 ?:[EQU $SYS sdl]
 %:graf-sdl.prf
 
+?:[EQU $SYS nds]
+%:graf-nds.prf
+
 ?:1
 
 

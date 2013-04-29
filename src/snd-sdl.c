@@ -18,7 +18,6 @@
  */
 #include "angband.h"
 
-#define SOUND_SDL 1 
 #ifdef SOUND_SDL
 
 

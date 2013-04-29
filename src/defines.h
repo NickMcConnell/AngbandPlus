@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.4"
+#define VERSION_STRING	"0.3.5"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -423,7 +423,7 @@
 /*
  * Misc constants
  */
-#define TOWN_DAWN	10000	/* Number of turns from dawn to dawn XXX */
+#define TOWN_DAWN	2000	/* Number of turns from dawn to dawn XXX */
 #define BREAK_GLYPH	400	/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    1       /* Adjust BTH per plus-to-hit */
 #define MON_MULT_ADJ	8	/* High value slows multiplication */
@@ -3279,7 +3279,7 @@
 #define OPT_strong_squelch              42
 #define OPT_bottom_status               43
 #define OPT_mouse_buttons               44
-/* xxx */
+#define OPT_show_menus                  45
 #define OPT_xchars_to_file              46
 #define OPT_smart_cheat			47
 
@@ -3401,7 +3401,7 @@
 #define strong_squelch                  op_ptr->opt[OPT_strong_squelch]
 #define bottom_status                   op_ptr->opt[OPT_bottom_status]
 #define mouse_buttons                   op_ptr->opt[OPT_mouse_buttons]
-/* xxx */
+#define show_menus                      op_ptr->opt[OPT_show_menus]
 #define xchars_to_file                  op_ptr->opt[OPT_xchars_to_file]
 #define smart_cheat			op_ptr->opt[OPT_smart_cheat]
 
@@ -3778,8 +3778,6 @@
  */
 #define player_can_see_bold(Y,X) \
 	((cave_info[Y][X] & (CAVE_SEEN)) != 0)
-
-
 
 
 /*
@@ -4186,3 +4184,6 @@ extern int PlayerUID;
  */
 #define MAX_MOUSE_LABEL  8
 
+#define SCAN_INSTANT ((u32b) -1)
+#define SCAN_OFF 0
+#define SCAN_MACRO 45

@@ -772,8 +772,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
   bool graf_new = (use_graphics && (streq(ANGBAND_GRAF, "new") || 
 				    streq(ANGBAND_GRAF, "david")));
 
-  bool daylight;
-  
   /* Monster/Player */
   m_idx = cave_m_idx[y][x];
   
@@ -782,20 +780,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
   
   /* Cave flags */
   info = cave_info[y][x];
-  
-  /* Day or night? */
-  if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
-      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
-      ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
-    
-    /* Day time */
-    daylight = TRUE;
-  
-  else
-    
-    /* Night time */
-    daylight = FALSE;
   
   /* Hack -- rare random hallucination on non-outer walls */
   if (image && (feat < FEAT_PERM_SOLID) && (image_count-- <= 0))
@@ -833,7 +817,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	      if (info & (CAVE_SEEN))
 		{
 		  /* Only lit by "torch" lite */
-		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && (!daylight))
+		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && 
+		      (!is_daylight))
 		    {
 		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 			if ((check_ability(SP_UNLIGHT)) && 
@@ -962,7 +947,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		{
 		  /* Only lit by "torch" lite */
 		  if (view_yellow_lite && !(info & (CAVE_GLOW))
-		      && (a == TERM_WHITE) && (!daylight))
+		      && (a == TERM_WHITE) && (!is_daylight))
 		    {
 		      if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 			if ((check_ability(SP_UNLIGHT)) && 
@@ -1423,8 +1408,6 @@ void map_info_default(int y, int x, byte *ap, char *cp)
   
   int floor_num = 0;
   
-  bool daylight;
-  
   /* Monster/Player */
   m_idx = cave_m_idx[y][x];
   
@@ -1433,20 +1416,6 @@ void map_info_default(int y, int x, byte *ap, char *cp)
   
   /* Cave flags */
   info = cave_info[y][x];
-  
-  /* Day or night? */
-  if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
-      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
-      ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
-    
-    /* Day time */
-    daylight = TRUE;
-  
-  else
-    
-    /* Night time */
-    daylight = FALSE;
   
   /* Hack -- rare random hallucination on non-outer walls */
   if (image && (feat < FEAT_PERM_SOLID) && (image_count-- <= 0))
@@ -1484,7 +1453,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	      if (info & (CAVE_SEEN))
 		{
 		  /* Only lit by "torch" lite */
-		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && (!daylight))
+		  if (view_yellow_lite && !(info & (CAVE_GLOW)) && 
+		      (!is_daylight))
 		    {
 		      if (o_ptr->k_idx == 733)
 			{
@@ -1566,7 +1536,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 		{
 		  /* Only lit by "torch" lite */
 		  if (view_yellow_lite && !(info & (CAVE_GLOW))
-		      && (a == TERM_WHITE) && (!daylight))
+		      && (a == TERM_WHITE) && (!is_daylight))
 		    {
 		      if (o_ptr->k_idx == 733)
 			{
@@ -4085,7 +4055,6 @@ void update_view(void)
   int i, g, o2;
   
   int radius;
-  bool daytime;
   
   int fast_view_n = view_n;
   u16b *fast_view_g = view_g;
@@ -4098,6 +4067,12 @@ void update_view(void)
   byte info;
   
   
+  /* Hack - redetermine daylight */
+  is_daylight = (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
+		 (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+		 (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
+		 ((p_ptr->stage < 151) || (p_ptr->stage > 153)));
+    
   /*** Step 0 -- Begin ***/
   
   /* Save the old "view" grids for later */
@@ -4129,21 +4104,8 @@ void update_view(void)
   /* Reset the "view" array */
   fast_view_n = 0;
   
-  /* Day or night? */
-  if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)))
-    
-    /* Day time */
-    daytime = TRUE;
-  
-  else
-    
-    /* Night time */
-    daytime = FALSE;
-  
   /* Extract "radius" value */
-  if (daytime && (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)
-      && (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY)
-      && ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
+  if (is_daylight)
     radius = DUNGEON_WID;
   else if ((check_ability(SP_UNLIGHT)) && (p_ptr->cur_lite <= 0))
     radius = 2;
@@ -4810,11 +4772,11 @@ void update_smell(void)
 	  y = i + py - 2;
 	  x = j + px - 2;
 
-	  /* Get the feature */
-	  f_ptr = &f_info[cave_feat[y][x]];
-	  
 	  /* Check Bounds */
 	  if (!in_bounds(y, x)) continue;
+	  
+	  /* Get the feature */
+	  f_ptr = &f_info[cave_feat[y][x]];
 	  
 	  /* Walls, water, and lava cannot hold scent. */
 	  if (f_ptr->flags & TF_NO_SCENT)

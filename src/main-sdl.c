@@ -145,7 +145,7 @@ static cptr ANGBAND_DIR_XTRA_SOUND;
 /*
  * Used as 'system' font
  */
-static cptr DEFAULT_FONT_FILE = "6x10.fon";
+static cptr DEFAULT_FONT_FILE = "6x10x.fon";
 
 #define MAX_FONTS 20
 cptr FontList[MAX_FONTS];

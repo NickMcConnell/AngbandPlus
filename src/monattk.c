@@ -3810,29 +3810,34 @@ bool make_attack_ranged(monster_type *m_ptr, int attack)
       /* RF6_SHAPECHANGE */
     case 160+22:
       {
-	disturb(1, 0);
-	
-	if (seen)
+	/* Paranoia - no changing into a player! */
+	if (m_ptr->orig_idx > 0)
 	  {
-	    if (blind)
+	    disturb(1, 0);
+	    
+	    if (seen)
 	      {
-		msg_format("%^s mumbles.", m_name);
+		if (blind)
+		  {
+		    msg_format("%^s mumbles.", m_name);
+		  }
+		else
+		  {
+		    msg_format("%^s shimmers and changes!", m_name);
+		  }
 	      }
-	    else
-	      {
-		msg_format("%^s shimmers and changes!", m_name);
-	      }
-	  }
-	/* Change shape */
-	temp = m_ptr->r_idx;
-	m_ptr->r_idx = m_ptr->orig_idx;
-	m_ptr->orig_idx = temp;
 
-	/* Set the shapechange counter */
-	m_ptr->schange = 5 + damroll(2, 5);
-	
-	/* Hack - do a complete redraw - unnecessary? */
-	p_ptr->redraw |= PR_MAP;
+	    /* Change shape */
+	    temp = m_ptr->r_idx;
+	    m_ptr->r_idx = m_ptr->orig_idx;
+	    m_ptr->orig_idx = temp;
+	    
+	    /* Set the shapechange counter */
+	    m_ptr->schange = 5 + damroll(2, 5);
+	    
+	    /* Hack - do a complete redraw - unnecessary? */
+	    p_ptr->redraw |= PR_MAP;
+	  }
 
 	break;
       }
