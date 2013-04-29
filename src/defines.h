@@ -62,7 +62,7 @@
  */
 /*
 #ifdef BUILD_ID
-#define VERSION_STRING	"1.2.11 (" BUILD_ID ")"
+#define VERSION_STRING	"1.3.0 (" BUILD_ID ")"
 #endif
 */
 
@@ -70,8 +70,8 @@
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	2
-#define VERSION_PATCH	11
+#define VERSION_MINOR	3
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /**
@@ -2406,7 +2406,7 @@ enum
 #define outside \
     ((stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)	\
      && (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) \
-       && ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
+       && ((p_ptr->stage < KHAZAD_DUM_TOWN) || (p_ptr->stage > MENEGROTH_TOWN)))
 
 			 
 /**
@@ -2519,6 +2519,21 @@ extern int PlayerUID;
 #define UP                     6
 #define DOWN                   7
 #define STAGE_TYPE             8
+
+/* Special stage numbers */
+#define ERIADOR_TOWN           (OPT(adult_compressed) ? 5 : 6)
+#define OSSIRIAND_TOWN         (OPT(adult_compressed) ? 20 : 30)
+#define ERED_LUIN_SOUTH_TOWN   (OPT(adult_compressed) ? 24 : 37)
+#define TAUR_IM_DUINATH_TOWN   (OPT(adult_compressed) ? 27 : 44)
+#define EPHEL_BRANDIR_TOWN     (OPT(adult_compressed) ? 59 : 115)
+#define GLADDEN_FIELDS_TOWN    (OPT(adult_compressed) ? 79 : 150)
+#define KHAZAD_DUM_TOWN        (OPT(adult_compressed) ? 80 : 151)
+#define BELEGOST_TOWN          (OPT(adult_compressed) ? 81 : 152)
+#define MENEGROTH_TOWN         (OPT(adult_compressed) ? 82 : 153)
+#define GONDOLIN_TOWN          (OPT(adult_compressed) ? 83 : 154)
+#define UNDERWORLD_STAGE       (OPT(adult_compressed) ? 84 : 255)
+#define MOUNTAINTOP_STAGE      (OPT(adult_compressed) ? 85 : 256)
+
 
 /*
  * Mouse click region names

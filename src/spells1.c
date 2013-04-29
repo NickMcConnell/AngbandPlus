@@ -771,6 +771,37 @@ void teleport_player_to(int ny, int nx, bool friendly)
     /* Move player */
     monster_swap(py, px, y, x);
 
+    if (!friendly) 
+    {
+	/* The player may hit a tree, slam into rubble, or even land in lava. */
+	if (tf_has(f_ptr->flags, TF_TREE) && (randint0(2) == 0)) 
+	{
+	    msg("You hit a tree!");
+	    take_hit(damroll(2, 8), "being hurtled into a tree");
+	    if (randint0(3) != 0)
+		inc_timed(TMD_STUN, damroll(2, 8), TRUE);
+	} 
+	else if (tf_has(f_ptr->flags, TF_ROCK) && (randint0(2) == 0)) 
+	{
+	    msg("You slam into jagged rock!");
+	    take_hit(damroll(2, 14), "being slammed into rubble");
+	    if (randint0(3) == 0)
+		inc_timed(TMD_STUN, damroll(2, 14), TRUE);
+	    if (randint0(3) != 0)
+		inc_timed(TMD_CUT, damroll(2, 14) * 2, TRUE);
+	} 
+	else if (tf_has(f_ptr->flags, TF_FIERY)) 
+	{
+	    msg("You land in molten lava!");
+	    fire_dam(damroll(4, 100), "landing in molten lava");
+	} 
+	else if (tf_has(f_ptr->flags, TF_FALL)) 
+	{
+	    msg("You land in mid-air!");
+	    fall_off_cliff();
+	}
+    }
+
     /* Clear the cave_temp flag (the "project()" code may have set it). */
     cave_off(cave_info[y][x], CAVE_TEMP);
 
@@ -807,7 +838,8 @@ void teleport_player_level(bool friendly)
     /* Remember where we came from */
     p_ptr->last_stage = p_ptr->stage;
 
-    if ((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) && (p_ptr->stage != 255)) {
+    if ((stage_map[p_ptr->stage][STAGE_TYPE] == CAVE) && 
+	(p_ptr->stage != UNDERWORLD_STAGE)) {
 	if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN])) {
 	    msgt(MSG_TPLEVEL, "You rise up through the ceiling.");
 
@@ -869,16 +901,17 @@ void teleport_player_level(bool friendly)
     }
 
     /* Heh heh */
-    else if ((p_ptr->stage != 255) && (p_ptr->stage != 256)) {
+    else if ((p_ptr->stage != UNDERWORLD_STAGE) && 
+	     (p_ptr->stage != MOUNTAINTOP_STAGE)) {
 	if ((randint0(100) < 50)
 	    && !(stage_map[p_ptr->stage][STAGE_TYPE] == SWAMP)
 	    && !(stage_map[p_ptr->stage][STAGE_TYPE] == TOWN)) {
 	    msgt(MSG_TPLEVEL, "You rise into the air.");
 
 	    /* Set the ways forward and back */
-	    stage_map[256][DOWN] = p_ptr->stage;
-	    stage_map[p_ptr->stage][UP] = 256;
-	    stage_map[256][DEPTH] = p_ptr->depth + 1;
+	    stage_map[MOUNTAINTOP_STAGE][DOWN] = p_ptr->stage;
+	    stage_map[p_ptr->stage][UP] = MOUNTAINTOP_STAGE;
+	    stage_map[MOUNTAINTOP_STAGE][DEPTH] = p_ptr->depth + 1;
 
 	    /* New stage */
 	    p_ptr->stage = stage_map[p_ptr->stage][UP];
@@ -890,9 +923,9 @@ void teleport_player_level(bool friendly)
 
 	    /* Set the ways forward and back, if not there already */
 	    if (!stage_map[p_ptr->stage][DOWN]) {
-		stage_map[255][UP] = p_ptr->stage;
-		stage_map[p_ptr->stage][DOWN] = 255;
-		stage_map[255][DEPTH] = p_ptr->depth + 1;
+		stage_map[UNDERWORLD_STAGE][UP] = p_ptr->stage;
+		stage_map[p_ptr->stage][DOWN] = UNDERWORLD_STAGE;
+		stage_map[UNDERWORLD_STAGE][DEPTH] = p_ptr->depth + 1;
 	    }
 
 	    /* New stage */
@@ -905,28 +938,28 @@ void teleport_player_level(bool friendly)
 
     /* Got to go back */
     else {
-	if (p_ptr->stage == 255) {
+	if (p_ptr->stage == UNDERWORLD_STAGE) {
 	    msgt(MSG_TPLEVEL, "You rise up through the ceiling.");
 
 	    /* New stage */
 	    p_ptr->stage = stage_map[p_ptr->stage][UP];
 
 	    /* Reset */
-	    stage_map[255][UP] = 0;
+	    stage_map[UNDERWORLD_STAGE][UP] = 0;
 	    stage_map[p_ptr->stage][DOWN] = 0;
-	    stage_map[255][DEPTH] = 0;
+	    stage_map[UNDERWORLD_STAGE][DEPTH] = 0;
 	}
 
-	else if (p_ptr->stage == 256) {
+	else if (p_ptr->stage == MOUNTAINTOP_STAGE) {
 	    msgt(MSG_TPLEVEL, "You plunge downward.");
 
 	    /* New stage */
 	    p_ptr->stage = stage_map[p_ptr->stage][DOWN];
 
 	    /* Reset */
-	    stage_map[256][DOWN] = 0;
+	    stage_map[MOUNTAINTOP_STAGE][DOWN] = 0;
 	    stage_map[p_ptr->stage][UP] = 0;
-	    stage_map[256][DEPTH] = 0;
+	    stage_map[MOUNTAINTOP_STAGE][DEPTH] = 0;
 	}
     }
 
@@ -3966,7 +3999,7 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	    || (typ == GF_STORM))
 	    terrain_adjustment -= dam / 3;
 	else if ((typ == GF_FIRE) || (typ == GF_HELLFIRE) || 
-		 (typ == GF_PLASMA) || (GF_DRAGONFIRE))
+		 (typ == GF_PLASMA) || (typ == GF_DRAGONFIRE))
 	    terrain_adjustment = dam / 5;
    }
 
@@ -5834,6 +5867,8 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
     /* Redraw the monster grid */
     light_spot(y, x);
 
+    /* Update the visuals, as appropriate. */
+    p_ptr->redraw |= (PR_MONLIST);
 
     /* Update monster recall window */
     if (p_ptr->monster_race_idx == m_ptr->r_idx) {

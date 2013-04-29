@@ -14,7 +14,7 @@ void option_set_defaults(void);
 /*
  * Information for "do_cmd_options()".
  */
-#define OPT_PAGE_MAX				5
+#define OPT_PAGE_MAX				6
 #define OPT_PAGE_PER				16
 
 /* The option data structures */
@@ -91,6 +91,10 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_flush_disturb		46
 #define OPT_notify_recharge		47
 
+#define OPT_auto_scum   		48
+#define OPT_hard_mode   		49
+
+
 #define OPT_birth_point_based           (OPT_BIRTH+0)
 #define OPT_birth_auto_roller           (OPT_BIRTH+1)
 #define OPT_birth_take_notes            (OPT_BIRTH+2)
@@ -104,6 +108,7 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_birth_no_stairs             (OPT_BIRTH+10)
 #define OPT_birth_ai_cheat              (OPT_BIRTH+11)
 #define OPT_birth_auto_scum             (OPT_BIRTH+12)
+#define OPT_birth_compressed            (OPT_BIRTH+13)
 
 #define OPT_cheat_peek                  (OPT_CHEAT+0)
 #define OPT_cheat_hear                  (OPT_CHEAT+1)
@@ -125,6 +130,7 @@ extern const int option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_adult_no_stairs             (OPT_ADULT+10)
 #define OPT_adult_ai_cheat              (OPT_ADULT+11)
 #define OPT_adult_auto_scum             (OPT_ADULT+12)
+#define OPT_adult_compressed            (OPT_ADULT+13)
 
 #define OPT_score_peek                  (OPT_SCORE+0)
 #define OPT_score_hear                  (OPT_SCORE+1)

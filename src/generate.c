@@ -199,7 +199,7 @@ static void town_gen_hack(void)
 	Rand_value = seed_town[0];
 
     /* Set major town flag if necessary */
-    if ((stage > 150) || OPT(adult_dungeon))
+    if ((stage > GLADDEN_FIELDS_TOWN) || OPT(adult_dungeon))
 	major = TRUE;
 
     /* Hack - reduce width for minor towns */
@@ -363,7 +363,7 @@ static void town_gen(void)
     bool dummy;
 
     /* Hack - smaller for minor towns */
-    if ((stage < 151) && (!OPT(adult_dungeon)))
+    if ((stage < KHAZAD_DUM_TOWN) && (!OPT(adult_dungeon)))
 	width /= 2;
 
     /* Day time */
@@ -498,6 +498,7 @@ void generate_cave(void)
 
     /* Generate */
     for (num = 0; TRUE; num++) {
+	int max = 2;
 	bool okay = TRUE;
 	const char *why = NULL;
 
@@ -538,14 +539,17 @@ void generate_cave(void)
 
 	/* Set the number of wilderness "vaults" */
 	wild_vaults = 0;
+	if (OPT(hard_mode)) max += 2;
+
 	if (p_ptr->depth > 10)
-	    wild_vaults += randint0(2);
+	    wild_vaults += randint0(max);
 	if (p_ptr->depth > 20)
-	    wild_vaults += randint0(2);
+	    wild_vaults += randint0(max);
 	if (p_ptr->depth > 30)
-	    wild_vaults += randint0(2);
+	    wild_vaults += randint0(max);
 	if (p_ptr->depth > 40)
-	    wild_vaults += randint0(2);
+	    wild_vaults += randint0(max);
+
 	if (no_vault())
 	    wild_vaults = 0;
 
@@ -670,7 +674,7 @@ void generate_cave(void)
 	}
 
 	/* Mega-Hack -- "auto-scum" */
-	if (OPT(adult_auto_scum) && (num < 100) && !(p_ptr->themed_level)) {
+	if (OPT(auto_scum) && (num < 100) && !(p_ptr->themed_level)) {
 	    int fudge = (no_vault()? 3 : 0);
 
 	    /* Require "goodness" */

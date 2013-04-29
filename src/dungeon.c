@@ -1851,7 +1851,7 @@ void idle_update(void)
     if (!character_dungeon)
 	return;
 
-    if (!OPT(animate_flicker))
+    if (!OPT(animate_flicker) || (use_graphics != GRAPHICS_NONE))
 	return;
 
     /* Animate and redraw if necessary */
@@ -2239,6 +2239,7 @@ static void process_some_user_pref_files(void)
 void play_game(void)
 {
     int i;
+    u32b window_flag[ANGBAND_TERM_MAX];
 
     /* Initialize */
     bool new_game = init_angband();
@@ -2260,6 +2261,22 @@ void play_game(void)
 	quit("main window is too small");
     }
 
+
+    /* set a default warning level that will be overridden by the savefile */
+    op_ptr->hitpoint_warn = 3;
+    
+    /* initialize window options that will be overridden by the savefile */
+    memset(window_flag, 0, sizeof(u32b)*ANGBAND_TERM_MAX);
+    if (ANGBAND_TERM_MAX > 1) window_flag[1] = (PW_INVEN);
+    if (ANGBAND_TERM_MAX > 2) window_flag[2] = (PW_PLAYER_0);
+    if (ANGBAND_TERM_MAX > 3) window_flag[3] = (PW_MESSAGE);
+    if (ANGBAND_TERM_MAX > 4) window_flag[4] = (PW_EQUIP);
+    if (ANGBAND_TERM_MAX > 5) window_flag[5] = (PW_MONLIST);
+    if (ANGBAND_TERM_MAX > 6) window_flag[6] = (PW_ITEMLIST);
+    if (ANGBAND_TERM_MAX > 7) window_flag[7] = (PW_PLAYER_1);
+
+    /* Set up the subwindows */
+    subwindows_set_flags(window_flag, ANGBAND_TERM_MAX);
 
     /* Hack -- turn off the cursor */
     (void) Term_set_cursor(FALSE);
@@ -2336,8 +2353,18 @@ void play_game(void)
 	player_birth(p_ptr->ht_birth ? TRUE : FALSE);
 
 	/* Start in home town - or on the stairs to Angband */
-	p_ptr->stage =
-	    (OPT(adult_thrall) ? (OPT(adult_dungeon) ? 87 : 135) : p_ptr->home);
+	if (OPT(adult_thrall))
+	{
+	    if (OPT(adult_dungeon))
+		p_ptr->stage = 87;
+	    else if (OPT(adult_compressed))
+		p_ptr->stage = 70;
+	    else
+		p_ptr->stage = 135;
+	}
+	else
+	    p_ptr->stage = p_ptr->home;
+
 	p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
 
 	/* Read the default options */
