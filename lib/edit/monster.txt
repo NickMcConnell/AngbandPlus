@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.1.2
 
 
 #N: monster index: name
@@ -8007,7 +8007,7 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is an Uruk of power and great cunning.  He doesn't think much of you,
+D:He is an Uruk of power and great cunning.  He doesn't think much of you, 
 D:but then he doesn't think much at all.
 
 N:684:()
@@ -8088,7 +8088,7 @@ F:ESCORT | ESCORTS | MOVE_BODY |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
-D:He is the champion fighter of the expeditionary orc forces of Angband.  He
+D:He is the champion fighter of the expeditionary orc forces of Angband.  He 
 D:leers and swaggers as he approaches you.
 
 N:691:()
@@ -8141,7 +8141,7 @@ F:FORCE_MAXHP | MOVE_BODY |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
 F:EVIL
-D:An evil, faithless, and cunning man from the East, trusted vainly by the
+D:An evil, faithless, and cunning man from the East, trusted vainly by the 
 D:sons of Feanor.
 
 N:697:Draebor, the Imp
@@ -9055,7 +9055,7 @@ F:NEVER_MOVE | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR |
 F:IM_COLD | IM_FIRE | IM_ACID | IM_POIS 
 S:1_IN_3 | S_KIN | BRTH_COLD | BRTH_SOUND
-D:A violent icy whirlpool, brought from the frozen wastes of the north by
+D:A violent icy whirlpool, brought from the frozen wastes of the north by 
 D:Morgoth as guard and entertainment.  Smaller vortices arise on its edges, 
 D:and you feel as if you will never be free of its deafening roar.
 
@@ -9606,8 +9606,8 @@ S:1_IN_4 | POW_90 |
 S:BRAIN_SMASH | WOUND | ADD_MANA | TELE_TO | 
 S:BALL_NETHR | BALL_DARK | 
 S:S_UNDEAD | DISPEL
-D:Cloaked in midnight, and supported by minions of death, this lord of the undead 
-D:comes to claim your soul.  You feel you know it and it knows you.
+D:Cloaked in midnight, and supported by minions of death, this lord of the 
+D:undead comes to claim your soul.  You feel you know it and it knows you.
 
 N:788:()
 I:110:1d1:0:0:0

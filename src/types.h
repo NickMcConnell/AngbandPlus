@@ -75,6 +75,7 @@ typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
 typedef struct artifact_type artifact_type;
 typedef struct set_type set_type;
+typedef struct grouper grouper;
 typedef struct set_element set_element;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
@@ -278,6 +279,15 @@ struct artifact_type
 	bool set_bonus;		/* Is the item set, is the bonus currently applied? */
 };
 
+
+/*
+ *
+ */
+struct grouper
+{
+	byte tval;
+	cptr name;
+};
 
 /* Item sets */
 
@@ -951,6 +961,8 @@ struct player_other
 	s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
 	s16b delay_factor;		/* Delay factor (0 to 9) */
+
+        s16b panel_change;              /* Panel change factor (0 to 4) */
 };
 
 

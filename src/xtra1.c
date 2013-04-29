@@ -1403,6 +1403,38 @@ static void fix_inven(void)
 	}
 }
 
+/*
+ * Hack -- display monsters in sub-windows
+ */
+static void fix_monlist(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_MONLIST))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display visible monsters */
+		display_monlist();
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
 
 
 /*
@@ -4489,6 +4521,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_INVEN);
 		fix_inven();
+	}
+
+	/* Display monster list */
+	if (p_ptr->window & (PW_MONLIST))
+	{
+		p_ptr->window &= ~(PW_MONLIST);
+		fix_monlist();
 	}
 
 	/* Display equipment */

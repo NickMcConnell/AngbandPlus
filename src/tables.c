@@ -2512,6 +2512,78 @@ cptr color_names[16] =
 	"Light Umber",
 };
 
+/*
+ * The next two tables are useful for generating list of items of
+ * different types.  "group_item" comes from wizard1.c, which is where
+ * it was previously used.
+ */
+
+/* 
+ * Index into "grouper" for general item types.
+ *
+ * Must be synced to non-NULL entries in group_item.
+ *
+ * This is a little silly - the right solution is to initialize based
+ * on the group_item table at load time.
+ */
+int new_group_index[] =
+  { 0,  3,  4,  8, 11, 17, 18, 19, 20, 21,
+   22, 23, 24, 25, 26, 27, 28, 29, 30, 36,
+   -1};
+
+/*
+ * The basic items categorized by type
+ */
+grouper group_item[] =
+{
+	{ TV_SHOT,		"Ammo" },
+	{ TV_ARROW,		  NULL },
+	{ TV_BOLT,		  NULL },
+
+	{ TV_BOW,		"Bows" },
+
+	{ TV_SWORD,		"Weapons" },
+	{ TV_POLEARM,	  NULL },
+	{ TV_HAFTED,	  NULL },
+	{ TV_DIGGING,	  NULL },
+
+	{ TV_SOFT_ARMOR,	"Armour (Body)" },
+	{ TV_HARD_ARMOR,	  NULL },
+	{ TV_DRAG_ARMOR,	  NULL },
+
+	{ TV_CLOAK,		"Armour (Misc)" },
+	{ TV_SHIELD,	  NULL },
+	{ TV_HELM,		  NULL },
+	{ TV_CROWN,		  NULL },
+	{ TV_GLOVES,	  NULL },
+	{ TV_BOOTS,		  NULL },
+
+	{ TV_AMULET,	"Amulets" },
+	{ TV_RING,		"Rings" },
+	{ TV_SCROLL,	"Scrolls" },
+	{ TV_POTION,	"Potions" },
+	{ TV_FOOD,		"Food" },
+	{ TV_ROD,		"Rods" },
+	{ TV_WAND,		"Wands" },
+	{ TV_STAFF,		"Staffs" },
+
+	{ TV_MAGIC_BOOK,	"Books (Mage)" },
+	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_DRUID_BOOK,	"Stones (Druid)" },
+	{ TV_NECRO_BOOK,	"Books (Necro)" },
+
+	{ TV_CHEST,		"Chests" },
+
+	{ TV_SPIKE,		"Various" },
+	{ TV_LITE,		  NULL },
+	{ TV_FLASK,		  NULL },
+	{ TV_JUNK,		  NULL },
+	{ TV_BOTTLE,	  NULL },
+	{ TV_SKELETON,	  NULL },
+
+	{ 0, "" }
+};
+
 
 /*
  * Abbreviations of healthy stats
@@ -2552,7 +2624,7 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	NULL,
 	"Display snap-shot",
-	NULL,
+	"Display monster list",
 	NULL,
 	"Display borg messages",
 	"Display borg status",
@@ -2622,7 +2694,7 @@ cptr option_text[OPT_MAX] =
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"auto_more",				/* OPT_auto_more */
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	NULL,
+	"strong_squelch",                       /* OPT_strong_squelch */
 	NULL,
 	NULL,
 	NULL,
@@ -2732,150 +2804,150 @@ cptr option_text[OPT_MAX] =
  */
 cptr option_desc[OPT_MAX] =
 {
-	"Rogue-like commands",				/* OPT_rogue_like_commands */ /*0*/
-	"Activate quick messages",					/* OPT_quick_messages */
-	"Prompt for floor item selection",			/* OPT_floor_query_flag */
-	"Prompt before picking things up",			/* OPT_carry_query_flag */
-	"Use old target by default",				/* OPT_use_old_target */
-	"Pick things up by default",				/* OPT_always_pickup */
-	"Repeat obvious commands",					/* OPT_always_repeat */
-	"Show dungeon level in feet (or meters)",	/* OPT_depth_in_feet */
-	"Merge inscriptions when stacking",			/* OPT_stack_force_notes */
-	"Merge discounts when stacking",			/* OPT_stack_force_costs */
-	"Show labels in equipment listings",		/* OPT_show_labels */
-	"Show weights in all object listings",		/* OPT_show_weights */
-	"Show choices in inven/equip windows",		/* OPT_show_choices */
-	"Show details in monster descriptions",		/* OPT_show_details */
-	"Use metric (SI) measurements",				/* OPT_metric */
-	"Show flavors in object descriptions",		/* OPT_show_flavors */
-	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
-	"When running, ignore doors",				/* OPT_run_ignore_doors */
-	"When running, cut corners",				/* OPT_run_cut_corners */
-	"When running, use corners",				/* OPT_run_use_corners */
-	"Disturb whenever any monster moves",		/* OPT_disturb_move */	/*20*/
-	"Disturb whenever viewable monster moves",	/* OPT_disturb_near */
-	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
-	"Disturb whenever player state changes",	/* OPT_disturb_state */
-	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	"Disturb whenever various things happen",	/* OPT_disturb_other */
-	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
-	"Alert user to various failures",			/* OPT_alert_failure */
-	"Verify destruction of objects",			/* OPT_verify_destroy */
-	"Verify use of special commands",			/* OPT_verify_special */
-	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
-	"Verify destruction of worthless objects",	/* OPT_verify_destroy_junk */
-	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Auto-scum for good levels",				/* OPT_auto_scum */
-	"Open and close doors automatically",		/* OPT_easy_open  -TBN- */
-	"Disarm traps automatically",				/* OPT_easy_disarm   -TNB- */
-	"Expand the power of the look command",		/* OPT_expand_look */
-	"Expand the power of the list commands",	/* OPT_expand_list */
-	"Map remembers all perma-lit grids",		/* OPT_view_perma_grids */
-	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
-	"Automatically clear '-more-' prompts",		/* OPT_auto_more */	
-	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
-	"Reduce light radius when running",			/* OPT_view_reduce_lite */
-	"Hide player symbol when running",			/* OPT_hidden_player */
-	"Avoid checking for user abort",			/* OPT_avoid_abort */
-	"Avoid processing special colors",			/* OPT_avoid_other */
-	"Flush input on various failures",			/* OPT_flush_failure */
-	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	"Keep the player centered (slow)",			/* OPT_center_player */
-	"Flush output before every command",		/* OPT_fresh_before */
-	"Flush output after various things",		/* OPT_fresh_after */
-	"Keep player centered while running (slow)",/* OPT_center_running */
-	"Compress messages in savefiles",			/* OPT_compress_savefile */
-	"Highlight the player with the cursor",		/* OPT_hilite_player */
-	"Use special colors for torch lite",		/* OPT_view_yellow_lite */ /*60*/
-	"Use special colors for field of view",		/* OPT_view_bright_lite */
-	"Use special colors for wall grids",		/* OPT_view_granite_lite */
-	"Use special colors for floor grids",		/* OPT_view_special_lite */
-	NULL,
-	NULL,
-	NULL,		
-	"Show stacks using special attr/char",		/* OPT_show_piles */
-	"Player colour indicates low hit points",	/* OPT_hp_changes_colour */	
-	"Show region affected by using detection spells", /* OPT_show_detect */
-	"Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,  /*80*/
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,		
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,  /*100*/
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,  /*120*/
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,
-	NULL,
-	"Birth: Use point based character generation", /* OPT_birth_point_based */
-	"Birth: Use Autoroller if rolling for stats",   /* OPT_birth_auto_roller */
-	"Birth: Have notes written to a file",   /* OPT_birth_take_notes */
-	"Birth: No special feelings/artifacts preserved",  /* OPT_birth_preserve */	 
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,	 
-	NULL,
-	NULL,
-	NULL, /*140*/
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,		
-	"Cheat: Peek into object creation",		/* OPT_cheat_peek */ /*160*/
-	"Cheat: Peek into monster creation",		/* OPT_cheat_hear */
-	"Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
-	"Cheat: Peek into something else",		/* OPT_cheat_xtra */
-	"Cheat: Know complete monster info",		/* OPT_cheat_know */
-	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL, /*180*/
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,		NULL,		NULL,		NULL,		NULL,
-	NULL,
-	"Adult: Use point based character generation",		 /* OPT_adult_point_based */
-	"Adult: Use Autoroller if rolling for stats",		 /* OPT_adult_auto_roller */
-	"Adult: Have notes written to a file",   /* OPT_adult_take_notes */
-	"Adult: Artifacts preserved & no special feelings",  /* OPT_adult_preserve */	   
-	NULL,
-	NULL,
-	NULL,
-	NULL, 
-	NULL, 
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL, /*220*/
-	NULL,
-	NULL,
-	NULL,
-	"Score: Peek into object creation",			/* OPT_score_peek */
-	"Score: Peek into monster creation",		/* OPT_score_hear */
-	"Score: Peek into dungeon creation",		/* OPT_score_room */
-	"Score: Peek into something else",			/* OPT_score_xtra */
-	"Score: Know complete monster info",		/* OPT_score_know */
-	"Score: Allow player to avoid death",		/* OPT_score_live */
-	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL, /*240*/
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL,
-	NULL,	NULL,	NULL,	NULL,	NULL
+  "Rogue-like commands",		    /* OPT_rogue_like_commands */ /*0*/
+  "Activate quick messages",		        /* OPT_quick_messages */
+  "Prompt for floor item selection",	        /* OPT_floor_query_flag */
+  "Prompt before picking things up",	        /* OPT_carry_query_flag */
+  "Use old target by default",		        /* OPT_use_old_target */
+  "Pick things up by default",		        /* OPT_always_pickup */
+  "Repeat obvious commands",		        /* OPT_always_repeat */
+  "Show dungeon level in feet (or meters)",	/* OPT_depth_in_feet */
+  "Merge inscriptions when stacking",	        /* OPT_stack_force_notes */
+  "Merge discounts when stacking",	        /* OPT_stack_force_costs */
+  "Show labels in equipment listings",	        /* OPT_show_labels */
+  "Show weights in all object listings",        /* OPT_show_weights */
+  "Show choices in inven/equip windows",        /* OPT_show_choices */
+  "Show details in monster descriptions",       /* OPT_show_details */
+  "Use metric (SI) measurements",	        /* OPT_metric */
+  "Show flavors in object descriptions",        /* OPT_show_flavors */
+  "When running, ignore stairs",	        /* OPT_run_ignore_stairs */
+  "When running, ignore doors",		        /* OPT_run_ignore_doors */
+  "When running, cut corners",		        /* OPT_run_cut_corners */
+  "When running, use corners",		        /* OPT_run_use_corners */
+  "Disturb whenever any monster moves",	        /* OPT_disturb_move */	/*20*/
+  "Disturb whenever viewable monster moves",	/* OPT_disturb_near */
+  "Disturb whenever map panel changes",		/* OPT_disturb_panel */
+  "Disturb whenever player state changes",	/* OPT_disturb_state */
+  "Disturb whenever boring things happen",	/* OPT_disturb_minor */
+  "Disturb whenever various things happen",	/* OPT_disturb_other */
+  "Alert user to critical hitpoints",	        /* OPT_alert_hitpoint */
+  "Alert user to various failures",	        /* OPT_alert_failure */
+  "Verify destruction of objects",	        /* OPT_verify_destroy */
+  "Verify use of special commands",	        /* OPT_verify_special */
+  "Audible bell (on errors, etc)",	        /* OPT_ring_bell */
+  "Verify destruction of worthless objects",	/* OPT_verify_destroy_junk */
+  "Auto-haggle in stores",		        /* OPT_auto_haggle */
+  "Auto-scum for good levels",		        /* OPT_auto_scum */
+  "Open and close doors automatically",	        /* OPT_easy_open  -TBN- */
+  "Disarm traps automatically",		        /* OPT_easy_disarm   -TNB- */
+  "Expand the power of the look command",	/* OPT_expand_look */
+  "Expand the power of the list commands",	/* OPT_expand_list */
+  "Map remembers all perma-lit grids",	        /* OPT_view_perma_grids */
+  "Map remembers all torch-lit grids",	        /* OPT_view_torch_grids */
+  "Automatically clear '-more-' prompts",	/* OPT_auto_more */	
+  "Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
+  "Auto-squelched items are immediately destroyed", /*OPT_strong_squelch */
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  "Monsters exploit players weaknesses",	/* OPT_smart_cheat */
+  "Reduce light radius when running",		/* OPT_view_reduce_lite */
+  "Hide player symbol when running",		/* OPT_hidden_player */
+  "Avoid checking for user abort",		/* OPT_avoid_abort */
+  "Avoid processing special colors",		/* OPT_avoid_other */
+  "Flush input on various failures",		/* OPT_flush_failure */
+  "Flush input whenever disturbed",		/* OPT_flush_disturb */
+  "Keep the player centered (slow)",		/* OPT_center_player */
+  "Flush output before every command",		/* OPT_fresh_before */
+  "Flush output after various things",		/* OPT_fresh_after */
+  "Keep player centered while running (slow)",  /* OPT_center_running */
+  "Compress messages in savefiles",		/* OPT_compress_savefile */
+  "Highlight the player with the cursor",	/* OPT_hilite_player */
+  "Use special colors for torch lite",		/* OPT_view_yellow_lite */ /*60*/
+  "Use special colors for field of view",	/* OPT_view_bright_lite */
+  "Use special colors for wall grids",		/* OPT_view_granite_lite */
+  "Use special colors for floor grids",		/* OPT_view_special_lite */
+  NULL,
+  NULL,
+  NULL,		
+  "Show stacks using special attr/char",	/* OPT_show_piles */
+  "Player colour indicates low hit points",	/* OPT_hp_changes_colour */	
+  "Show region affected by using detection spells", /* OPT_show_detect */
+  "Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,  /*80*/
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,		
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,  /*100*/
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,  /*120*/
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,
+  NULL,
+  "Birth: Use point based character generation", /* OPT_birth_point_based */
+  "Birth: Use Autoroller if rolling for stats",  /* OPT_birth_auto_roller */
+  "Birth: Have notes written to a file",         /* OPT_birth_take_notes */
+  "Birth: No special feelings/artifacts preserved",/* OPT_birth_preserve */ 
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,	 
+  NULL,
+  NULL,
+  NULL, /*140*/
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,		
+  "Cheat: Peek into object creation",		/* OPT_cheat_peek */ /*160*/
+  "Cheat: Peek into monster creation",		/* OPT_cheat_hear */
+  "Cheat: Peek into dungeon creation",		/* OPT_cheat_room */
+  "Cheat: Peek into something else",		/* OPT_cheat_xtra */
+  "Cheat: Know complete monster info",		/* OPT_cheat_know */
+  "Cheat: Allow player to avoid death",		/* OPT_cheat_live */
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL, /*180*/
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,		NULL,		NULL,		NULL,		NULL,
+  NULL,
+  "Adult: Use point based character generation", /* OPT_adult_point_based */
+  "Adult: Use Autoroller if rolling for stats",	 /* OPT_adult_auto_roller */
+  "Adult: Have notes written to a file",         /* OPT_adult_take_notes */
+  "Adult: Artifacts preserved & no special feelings",/* OPT_adult_preserve */  
+  NULL,
+  NULL,
+  NULL,
+  NULL, 
+  NULL, 
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL, /*220*/
+  NULL,
+  NULL,
+  NULL,
+  "Score: Peek into object creation",		/* OPT_score_peek */
+  "Score: Peek into monster creation",		/* OPT_score_hear */
+  "Score: Peek into dungeon creation",		/* OPT_score_room */
+  "Score: Peek into something else",		/* OPT_score_xtra */
+  "Score: Know complete monster info",		/* OPT_score_know */
+  "Score: Allow player to avoid death",		/* OPT_score_live */
+  NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL, /*240*/
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL,
+  NULL,	NULL,	NULL,	NULL,	NULL
 };
 
 
@@ -2926,7 +2998,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_view_torch_grids */
 	FALSE,		/* OPT_auto_more */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,
+	FALSE,          /* OPT_strong_squelch */
 	FALSE,
 	FALSE,
 	FALSE,
@@ -3096,7 +3168,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_torch_grids,
 		255,
 		OPT_dungeon_stair,
-		255,
+		OPT_strong_squelch,
 		255,
 		255,
 		255,

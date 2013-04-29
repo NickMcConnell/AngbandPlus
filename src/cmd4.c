@@ -1074,242 +1074,266 @@ static errr option_dump(cptr fname)
  */
 void do_cmd_options(void)
 {
-	int k;
-
-
-	/* Save screen */
-	screen_save();
-
-
-	/* Interact */
-	while (1)
+  int k;
+  
+  
+  /* Save screen */
+  screen_save();
+  
+  
+  /* Interact */
+  while (1)
+    {
+      /* Clear screen */
+      Term_clear();
+      
+      /* Why are we here */
+      prt("FAangband options", 2, 0);
+      
+      /* Give some choices */
+      prt("(1) User Interface Options", 4, 5);
+      prt("(2) Disturbance Options", 5, 5);
+      prt("(3) Game-Play Options", 6, 5);
+      prt("(4) Efficiency Options", 7, 5);
+      prt("(5) Birth Options - For Character Creation (Only)", 8, 5);
+      
+      /* Cheating */
+      prt("(6) Cheat Options", 9, 5);
+      
+      /* Window flags */
+      prt("(W) Window flags", 11, 5);
+      
+      /* Squelch Menus */
+      prt("(I) Item squelching menus", 12, 5);
+      
+      /* Special choices */
+      prt("(D) Base Delay Factor", 13, 5);
+      prt("(H) Hitpoint Warning", 14, 5);
+      prt("(P) Panel Change Factor", 15, 5);
+      prt("(A) Autosave Options", 16, 5);
+      
+      /* Load and Save */
+      prt("(R) Load a user pref file", 4, 40);
+      prt("(S) Append options to a file", 5, 40);
+      
+      /* Prompt */
+      prt("Command: ", 18, 0);
+      
+      /* Get command */
+      k = inkey();
+      
+      /* Exit */
+      if (k == ESCAPE) break;
+      
+      /* Analyze */
+      switch (k)
 	{
-		/* Clear screen */
-		Term_clear();
-
-		/* Why are we here */
-		prt("FAangband options", 2, 0);
-
-		/* Give some choices */
-		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Birth Options - For Character Creation (Only)", 9, 5);
-
-		/* Cheating */
-		prt("(6) Cheat Options", 11, 5);
-
-		/* Window flags */
-		prt("(W) Window flags", 13, 5);
-
-		/* Squelch Menus */
-		prt("(I) Item squelching menus", 14, 5);
-
-		/* Special choices */
-		prt("(D) Base Delay Factor", 15, 5);
-		prt("(H) Hitpoint Warning", 16, 5);
-		prt("(A) Autosave Options", 17, 5);
-
-		/* Load and Save */
-		prt("(R) Load a user pref file", 4, 40);
-		prt("(S) Append options to a file", 5, 40);
-
-		/* Prompt */
-		prt("Command: ", 19, 0);
-
-		/* Get command */
+	  /* General Options */
+	case '1':
+	  {
+	    /* Process the general options */
+	    do_cmd_options_aux(0, "User Interface Options");
+	    break;
+	  }
+	  
+	  /* Disturbance Options */
+	case '2':
+	  {
+	    /* Spawn */
+	    do_cmd_options_aux(1, "Disturbance Options");
+	    break;
+	  }
+	  
+	  /* Inventory Options */
+	case '3':
+	  {
+	    /* Spawn */
+	    do_cmd_options_aux(2, "Game-Play Options");
+	    break;
+	  }
+	  
+	  /* Efficiency Options */
+	case '4':
+	  {
+	    /* Spawn */
+	    do_cmd_options_aux(3, "Efficiency Options");
+	    break;
+	  }
+	  
+	  /* Birth Options */
+	case '5':
+	  {
+	    /* Spawn */
+	    do_cmd_options_aux(4, "Birth Options");
+	    break;
+	  }
+	  
+	  /* Cheating Options */
+	case 'C':
+	case '6':
+	  {
+	    /* Spawn */
+	    do_cmd_options_aux(5, "Cheaters never win (seriously!)");
+	    break;
+	  }
+	  
+	  /* Window flags */
+	case 'W':
+	case 'w':
+	  {
+	    /* Spawn */
+	    do_cmd_options_win();
+	    break;
+	  }
+	  
+	  /* Squelching Menus */
+	case 'I':
+	case 'i':
+	  {
+	    /* Spawn */
+	    do_cmd_squelch();
+	    break;
+	  }
+	  
+	  /* Hack -- Delay Speed */
+	case 'D':
+	case 'd':
+	  {
+	    /* Prompt */
+	    prt("Command: Base Delay Factor", 18, 0);
+	    
+	    /* Get a new value */
+	    while (1)
+	      {
+		int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+		prt(format("Current base delay factor: %d (%d msec)",
+			   op_ptr->delay_factor, msec), 22, 0);
+		prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
 		k = inkey();
-
-		/* Exit */
 		if (k == ESCAPE) break;
-
-		/* Analyze */
-		switch (k)
-		{
-			/* General Options */
-			case '1':
-			{
-				/* Process the general options */
-				do_cmd_options_aux(0, "User Interface Options");
-				break;
-			}
-
-			/* Disturbance Options */
-			case '2':
-			{
-				/* Spawn */
-				do_cmd_options_aux(1, "Disturbance Options");
-				break;
-			}
-
-			/* Inventory Options */
-			case '3':
-			{
-				/* Spawn */
-				do_cmd_options_aux(2, "Game-Play Options");
-				break;
-			}
-
-			/* Efficiency Options */
-			case '4':
-			{
-				/* Spawn */
-				do_cmd_options_aux(3, "Efficiency Options");
-				break;
-			}
-
-			/* Birth Options */
-			case '5':
-			{
-				/* Spawn */
-				do_cmd_options_aux(4, "Birth Options");
-				break;
-			}
-
-			/* Cheating Options */
-			case 'C':
-			case '6':
-			{
-				/* Spawn */
-				do_cmd_options_aux(5, "Cheaters never win (seriously!)");
-				break;
-			}
-
-			/* Window flags */
-			case 'W':
-			case 'w':
-			{
-				/* Spawn */
-				do_cmd_options_win();
-				break;
-			}
-
-			/* Squelching Menus */
-			case 'I':
-			case 'i':
-			{
-				/* Spawn */
-				do_cmd_squelch();
-				break;
-			}
-
-			/* Hack -- Delay Speed */
-			case 'D':
-			case 'd':
-			{
-				/* Prompt */
-				prt("Command: Base Delay Factor", 18, 0);
-
-				/* Get a new value */
-				while (1)
-				{
-					int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-					prt(format("Current base delay factor: %d (%d msec)",
-						   op_ptr->delay_factor, msec), 22, 0);
-					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
-					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) op_ptr->delay_factor = D2I(k);
-					else bell("Illegal delay factor!");
-				}
-
-				break;
-			}
-
-			/* Hack -- hitpoint warning factor */
-			case 'H':
-			case 'h':
-			{
-				/* Prompt */
-				prt("Command: Hitpoint Warning", 18, 0);
-
-				/* Get a new value */
-				while (1)
-				{
-					prt(format("Current hitpoint warning: %2d%%",
-						   op_ptr->hitpoint_warn * 10), 22, 0);
-					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
-					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
-					else bell("Illegal hitpoint warning!");
-				}
-
-				break;
-
-			case 'a':
-			case 'A':
-			{
-				(void) do_cmd_options_autosave("Autosave");
-				break;
-			}
-
-
-			}
-
-			case 'r':
-			case 'R':
-			{
-				/* Ask for and load a user pref file */
-				(void) do_cmd_pref_file_hack(18);
-				break;
-			}
-
-			case 's':
-			case 'S':
-			{
-				char ftmp[80];
-	
-				/* Prompt */
-				prt("Command: Write options to a file", 18, 0);
-	
-				/* Prompt */
-				prt("File: ", 20, 0);
-	
-				/* Default filename */
-				sprintf(ftmp, "%s.prf", op_ptr->base_name);
-	
-				/* Ask for a file */
-				if (!askfor_aux(ftmp, 80)) break;
-	
-				/* Drop priv's */
-				safe_setuid_drop();
-	
-				/* Dump the options */
-				if (option_dump(ftmp))
-				{
-					/* Failure */
-					msg_print("Failed!");
-				}
-				else
-				{
-					/* Success */
-					msg_print("Done.");
-				}
-	
-				/* Grab priv's */
-				safe_setuid_grab();
-
-				break;
-			}
-
-			/* Unknown option */
-			default:
-			{
-				/* Oops */
-				bell("Illegal command for options!");
-				break;
-			}
-		}
-
-		/* Flush messages */
-		msg_print(NULL);
+		if (isdigit(k)) op_ptr->delay_factor = D2I(k);
+		else bell("Illegal delay factor!");
+	      }
+	    
+	    break;
+	  }
+	  
+	  /* Hack -- Panel Change */
+	case 'P':
+	case 'p':
+	  {
+	    /* Prompt */
+	    prt("Command: Panel Change Factor", 18, 0);
+	    
+	    /* Get a new value */
+	    while (1)
+	      {
+		int pdist = (op_ptr->panel_change + 1) * 2;
+		prt(format("Current panel change factor: %d (%d from top/bottom, %d from sides)",
+			   op_ptr->panel_change, pdist, pdist * 2), 22, 0);
+		prt("Panel Change Factor (0-4 or ESC to accept): ", 20, 0);
+		k = inkey();
+		if (k == ESCAPE) break;
+		if (isdigit(k) && (D2I(k) < 5)) op_ptr->panel_change = D2I(k);
+		else bell("Illegal delay factor!");
+	      }
+	    
+	    break;
+	  }
+	  
+	  /* Hack -- hitpoint warning factor */
+	case 'H':
+	case 'h':
+	  {
+	    /* Prompt */
+	    prt("Command: Hitpoint Warning", 18, 0);
+	    
+	    /* Get a new value */
+	    while (1)
+	      {
+		prt(format("Current hitpoint warning: %2d%%",
+			   op_ptr->hitpoint_warn * 10), 22, 0);
+		prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
+		k = inkey();
+		if (k == ESCAPE) break;
+		if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
+		else bell("Illegal hitpoint warning!");
+	      }
+	    
+	    break;
+	    
+	  case 'a':
+	  case 'A':
+	    {
+	      (void) do_cmd_options_autosave("Autosave");
+	      break;
+	    }
+	    
+	    
+	  }
+	  
+	case 'r':
+	case 'R':
+	  {
+	    /* Ask for and load a user pref file */
+	    (void) do_cmd_pref_file_hack(18);
+	    break;
+	  }
+	  
+	case 's':
+	case 'S':
+	  {
+	    char ftmp[80];
+	    
+	    /* Prompt */
+	    prt("Command: Write options to a file", 18, 0);
+	    
+	    /* Prompt */
+	    prt("File: ", 20, 0);
+	    
+	    /* Default filename */
+	    sprintf(ftmp, "%s.prf", op_ptr->base_name);
+	    
+	    /* Ask for a file */
+	    if (!askfor_aux(ftmp, 80)) break;
+	    
+	    /* Drop priv's */
+	    safe_setuid_drop();
+	    
+	    /* Dump the options */
+	    if (option_dump(ftmp))
+	      {
+		/* Failure */
+		msg_print("Failed!");
+	      }
+	    else
+	      {
+		/* Success */
+		msg_print("Done.");
+	      }
+	    
+	    /* Grab priv's */
+	    safe_setuid_grab();
+	    
+	    break;
+	  }
+	  
+	  /* Unknown option */
+	default:
+	  {
+	    /* Oops */
+	    bell("Illegal command for options!");
+	    break;
+	  }
 	}
-
-
-	/* Load screen */
-	screen_load();
+      
+      /* Flush messages */
+      msg_print(NULL);
+    }
+  
+  
+  /* Load screen */
+  screen_load();
 }
 
 
@@ -2758,7 +2782,7 @@ void do_cmd_note(char *note, int what_stage)
 		      }
 		    
 		    /*make a continued note if applicable*/
-		    if (startpoint) fprintf(notes_file, "|  continued...   |     |  ");
+		    if (startpoint) fprintf(notes_file, "|  continued...                  |     |  ");
 		    
 		    /* Write that line to file */
 		    for (n = startpoint; n <= endpoint; n++)
@@ -3152,6 +3176,340 @@ void do_cmd_save_screen(void)
 }
 
 
+/*
+ * Move the cursor in a browser window
+ */
+static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
+						   int *list_cur, int list_cnt)
+{
+	int d;
+	int col = *column;
+	int grp = *grp_cur;
+	int list = *list_cur;
+
+	/* Extract direction */
+	d = target_dir(ch);
+
+	if (!d) return;
+
+	/* Diagonals - hack */
+	if ((ddx[d] > 0) && ddy[d])
+	{
+		/* Browse group list */
+		if (!col)
+		{
+			int old_grp = grp;
+
+			/* Move up or down */
+			grp += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (grp >= grp_cnt)	grp = grp_cnt - 1;
+			if (grp < 0) grp = 0;
+			if (grp != old_grp)	list = 0;
+		}
+
+		/* Browse sub-list list */
+		else
+		{
+			/* Move up or down */
+			list += ddy[d] * BROWSER_ROWS;
+
+			/* Verify */
+			if (list >= list_cnt) list = list_cnt - 1;
+			if (list < 0) list = 0;
+		}
+
+		(*grp_cur) = grp;
+		(*list_cur) = list;
+
+		return;
+	}
+
+	if (ddx[d])
+	{
+		col += ddx[d];
+		if (col < 0) col = 0;
+		if (col > 1) col = 1;
+
+		(*column) = col;
+
+		return;
+	}
+
+	/* Browse group list */
+	if (!col)
+	{
+		int old_grp = grp;
+
+		/* Move up or down */
+		grp += ddy[d];
+
+		/* Verify */
+		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp < 0) grp = 0;
+		if (grp != old_grp)	list = 0;
+	}
+
+	/* Browse sub-list list */
+	else
+	{
+		/* Move up or down */
+		list += ddy[d];
+
+		/* Verify */
+		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
+	}
+
+	(*grp_cur) = grp;
+	(*list_cur) = list;
+}
+
+/*
+ * Display the object groups.
+ */
+static void display_object_group_list(int col, int row, int wid, int per_page,
+	int grp_idx[], grouper group_item_list[], int grp_cur, int grp_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (grp_idx[i] >= 0); i++)
+	{
+		/* Get the group index */
+		int grp = grp_idx[grp_top + i];
+
+		/* Choose a color */
+		byte attr = (grp_top + i == grp_cur) ? TERM_L_BLUE : TERM_WHITE;
+
+		/* Erase the entire line */
+		Term_erase(col, row + i, wid);
+
+		/* Display the group label */
+		c_put_str(attr, group_item_list[new_group_index[grp]].name, row + i, col);
+	}
+}
+
+
+/*
+ * Build a list of artifact indexes in the given group. Return the number
+ * of eligible artifacts in that group.
+ */
+static int collect_artifacts(int grp_cur, int object_idx[])
+{
+	int i, object_cnt = 0;
+	bool *okay;
+
+	store_type *st_ptr = &store[STORE_HOME];
+
+	/* make a list of artifacts not found */
+	/* Allocate the "object_idx" array */
+	C_MAKE(okay, MAX_A_IDX, bool);
+
+	/* Default first,  */
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		/*start with false*/
+		okay[i] = FALSE;
+
+		/* Skip "empty" artifacts */
+		if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->creat_stat) continue;
+
+		/*assume all created artifacts are good at this point*/
+		okay[i] = TRUE;
+	}
+
+	/* Process objects in the dungeon */
+	for (i = 1; i < o_max; i++)
+	{
+		/*get the object*/
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!o_ptr->name1) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* We found a created, unidentified artifact */
+		okay[o_ptr->name1] = FALSE;
+
+	}
+
+	/*
+	 * Scan the inventory for unidentified artifacts
+	 * Notice we are doing the inventory and equipment in the same loop.
+	 */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		/* First, the item actually in the slot */
+		object_type *o_ptr = &inventory[i];
+
+		/* Nothing there */
+		if (!(o_ptr->k_idx)) continue;
+
+		/* Ignore non-artifacts */
+		if (!o_ptr->name1) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* We found a created, unidentified artifact */
+		okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Look for items in the home, if there is anything there */
+	if (st_ptr->stock_num)
+	{
+		/*go through each item in the house*/
+		for (i = 0; i < st_ptr->stock_num; i++)
+		{
+			/* Point to the item */
+			object_type *o_ptr = &st_ptr->stock[i];;
+
+			/*nothing there*/
+			if (!(o_ptr->k_idx)) continue;
+
+			/* Ignore non-artifacts */
+			if (!o_ptr->name1) continue;
+
+			/* Ignore known items */
+			if (object_known_p(o_ptr)) continue;
+
+			/* We found a created, unidentified artifact */
+			okay[o_ptr->name1] = FALSE;
+		}
+		
+	}
+
+	if (cheat_know)
+	{
+		for (i = 0; i < MAX_A_IDX; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+
+			/* Skip "empty" artifacts */
+			if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+			/*assume all created artifacts are good at this point*/
+			okay[i] = TRUE;
+		}
+	}
+
+
+	/* Finally, go through the list of artifacts and categorize the good ones */
+	for (i = 0; i < MAX_A_IDX; i++)
+	{
+		byte group_tval;
+		int j;
+
+		/* Access the artifact */
+		artifact_type *a_ptr = &a_info[i];
+
+		/* Skip empty artifacts */
+		if (a_ptr->tval + a_ptr->sval == 0) continue;
+
+		/* Require artifacts ever seen*/
+		if (okay[i] == FALSE) continue;
+
+		/* Get a list of x_char in this group */
+		/* Aggregate tvals in this group */
+		for (j = new_group_index[grp_cur];
+		     j < new_group_index[grp_cur + 1];
+		     j++)
+		{
+			group_tval = group_item[j].tval;
+
+			/* Check for artifact in the group */
+			if (a_ptr->tval == group_tval)
+			{
+				/* Add the artifact */
+				object_idx[object_cnt++] = i;
+			}
+		}
+	}
+
+	/* Terminate the list */
+	object_idx[object_cnt] = 0;
+
+	/*clear the array*/
+	C_KILL(okay, MAX_A_IDX, bool);
+
+	/* Return the number of races */
+	return object_cnt;
+
+}
+
+
+/*
+ * Display the objects in a group.
+ */
+static void display_artifact_list(int col, int row, int per_page, int object_idx[],
+	int object_cur, int object_top)
+{
+	int i, z;
+	char o_name[80];
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && object_idx[i]; i++)
+	{
+		/* Get the object index */
+		int a_idx = object_idx[object_top + i];
+		artifact_type *a_ptr = &a_info[a_idx];
+
+
+		/* Choose a color */
+		byte attr = TERM_WHITE;
+		byte cursor = TERM_L_BLUE;
+		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain the base object type */
+		z = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* Wipe the object */
+		object_prep(i_ptr, z);
+
+		/* Paranoia */
+		strcpy(o_name, "Unknown Artifact");
+
+		/* Make it an artifact */
+		i_ptr->name1 = a_idx;
+
+		/* Describe the artifact */
+		object_desc_spoil(o_name, i_ptr, TRUE, 0);
+
+		/* Display the name */
+		c_prt(attr, o_name, row + i, col);
+
+		if (cheat_know)
+		{
+			c_prt(attr, format ("%3d", a_idx), row + i, 68);
+			c_prt(attr, format ("%3d", a_ptr->level), row + i, 72);
+			c_prt(attr, format ("%3d", a_ptr->rarity), row + i, 76);
+		}
+
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
+}
 
 
 /*
@@ -3159,134 +3517,252 @@ void do_cmd_save_screen(void)
  */
 static void do_cmd_knowledge_artifacts(void)
 {
-	int i, k, z, x, y;
+	int i, len, max;
+	int grp_cur, grp_top;
+	int artifact_old, artifact_cur, artifact_top;
+	int grp_cnt, grp_idx[100];
+	int artifact_cnt;
+	int *artifact_idx;
 
-	FILE *fff;
+	int column = 0;
+	bool flag;
+	bool redraw;
 
-	char file_name[1024];
+	/* Allocate the "artifact_idx" array */
+	C_MAKE(artifact_idx, MAX_A_IDX, int);
 
-	char o_name[120];
+	max = 0;
+	grp_cnt = 0;
 
-	bool okay[MAX_A_IDX];
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Scan the artifacts */
-	for (k = 0; k < MAX_A_IDX; k++)
+	/* Check every group */
+	for (i = 0; new_group_index[i] >= 0; i++)
 	{
-		artifact_type *a_ptr = &a_info[k];
+		/* Measure the label */
+		len = strlen(group_item[new_group_index[i]].name);
 
-		/* Default */
-		okay[k] = FALSE;
+		/* Save the maximum length */
+		if (len > max) max = len;
 
-		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
-
-		/* Skip "uncreated" artifacts */
-		if (!(a_ptr->creat_stat == 1)) continue;
-
-		/* Assume okay */
-		okay[k] = TRUE;
+		/* See if artifact are known */
+		if (collect_artifacts(i, artifact_idx))
+		{
+			/* Build a list of groups with known artifacts */
+			grp_idx[grp_cnt++] = i;
+		}
 	}
 
-	/* Check the dungeon */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
+
+	grp_cur = grp_top = 0;
+	artifact_cur = artifact_top = 0;
+	artifact_old = -1;
+
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		char ch;
+
+		if (redraw)
 		{
-			s16b this_o_idx, next_o_idx = 0;
+			clear_from(0);
 
-			/* Scan all objects in the grid */
-			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+			prt("Knowledge - artifacts", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+
+			if (cheat_know)
 			{
-				object_type *o_ptr;
+				prt("Idx", 4, 68);
+				prt("Dep", 4, 72);
+				prt("Rar", 4, 76);
+			}
 
-				/* Acquire object */
-				o_ptr = &o_list[this_o_idx];
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
 
-				/* Acquire next object */
-				next_o_idx = o_ptr->next_o_idx;
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
 
-				/* Ignore non-artifacts */
-				if (!artifact_p(o_ptr)) continue;
+			redraw = FALSE;
+		}
 
-				/* Ignore known items */
-				if (object_known_p(o_ptr)) continue;
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
 
-				/* Note the artifact */
-				okay[o_ptr->name1] = FALSE;
+		/* Scroll artifact list */
+		if (artifact_cur < artifact_top) artifact_top = artifact_cur;
+		if (artifact_cur >= artifact_top + BROWSER_ROWS) artifact_top = artifact_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of object groups */
+		display_object_group_list(0, 6, max, BROWSER_ROWS, grp_idx, group_item, grp_cur, grp_top);
+
+		/* Get a list of objects in the current group */
+		artifact_cnt = collect_artifacts(grp_idx[grp_cur], artifact_idx);
+
+		/* Display a list of objects in the current group */
+		display_artifact_list(max + 3, 6, BROWSER_ROWS, artifact_idx, artifact_cur, artifact_top);
+
+		/* The "current" object changed */
+		if (artifact_old != artifact_idx[artifact_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" object */
+			artifact_old = artifact_idx[artifact_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (artifact_cur - artifact_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &artifact_cur, artifact_cnt);
+				break;
 			}
 		}
 	}
 
-	/* Check the inventory and equipment */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* XXX XXX Free the "object_idx" array */
+	C_KILL(artifact_idx, MAX_A_IDX, int);
+}
+
+
+/*
+ * Build a list of objects indexes in the given group. Return the number
+ * of objects in the group.
+ */
+static int collect_objects(int grp_cur, int object_idx[])
+{
+	int i, j, k, object_cnt = 0;
+
+	/* Get a list of x_char in this group */
+	byte group_tval;
+
+	/* Check every object */
+	for (i = 0; i < MAX_K_IDX; i++)
 	{
-		object_type *o_ptr = &inventory[i];
+		/* Access the object type */
+		object_kind *k_ptr = &k_info[i];
 
-		/* Ignore non-objects */
-		if (!o_ptr->k_idx) continue;
+		/*used to check for allocation*/
+		k = 0;
 
-		/* Ignore non-artifacts */
-		if (!artifact_p(o_ptr)) continue;
+		/* Skip empty objects */
+		if (!k_ptr->name) continue;
 
-		/* Ignore known items */
-		if (object_known_p(o_ptr)) continue;
-
-		/* Note the artifact */
-		okay[o_ptr->name1] = FALSE;
-	}
-
-	/* Scan the artifacts */
-	for (k = 0; k < MAX_A_IDX; k++)
-	{
-		artifact_type *a_ptr = &a_info[k];
-
-		/* List "dead" ones */
-		if (!okay[k]) continue;
-
-		/* Paranoia */
-		strcpy(o_name, "Unknown Artifact");
-
-		/* Obtain the base object type */
-		z = lookup_kind(a_ptr->tval, a_ptr->sval);
-
-		/* Real object */
-		if (z)
+		/* Skip items with no distribution (including special artifacts) */
+		/* Scan allocation pairs */
+		for (j = 0; j < 4; j++)
 		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, z);
-
-			/* Make it an artifact */
-			i_ptr->name1 = k;
-
-			/* Describe the artifact */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
+			/*add the rarity, if there is one*/
+			k += k_ptr->chance[j];
 		}
 
-		/* Hack -- Build the artifact name */
-		fprintf(fff, "     The %s\n", o_name);
+		/*not in allocation table*/
+		if (!(k))  continue;
+
+		/* Require objects ever seen*/
+		if (!(k_ptr->aware || cheat_know)) continue;
+
+		/* Get a list of x_char in this group */
+		/* Aggregate tvals in this group */
+		for (j = new_group_index[grp_cur];
+		     j < new_group_index[grp_cur + 1];
+		     j++)
+		{
+			group_tval = group_item[j].tval;
+
+			/* Check for artifact in the group */
+			if (k_ptr->tval == group_tval)
+			{
+				/* Add the artifact */
+				object_idx[object_cnt++] = i;
+			}
+		}
 	}
 
-	/* Close the file */
-	my_fclose(fff);
+	/* Terminate the list */
+	object_idx[object_cnt] = 0;
 
-	/* Display the file contents */
-	show_file(file_name, "Known artifacts", 0, 0);
+	/* Return the number of races */
+	return object_cnt;
+}
 
-	/* Remove the file */
-	fd_kill(file_name);
+
+/*
+ * Display the objects in a group.
+ */
+static void display_object_list(int col, int row, int per_page, int object_idx[],
+	int object_cur, int object_top)
+{
+	int i;
+
+	/* Display lines until done */
+	for (i = 0; i < per_page && (object_idx[i] != 0); i++)
+	{
+		char buf[80];
+
+		/* Get the object index */
+		int k_idx = object_idx[object_top + i];
+
+		/* Access the object */
+		object_kind *k_ptr = &k_info[k_idx];
+
+		/* Choose a color */
+		byte attr = ((k_ptr->aware) ? TERM_WHITE : TERM_SLATE);
+		byte cursor = ((k_ptr->aware) ? TERM_L_BLUE : TERM_BLUE);
+		attr = ((i + object_top == object_cur) ? cursor : attr);
+
+		/* Acquire the basic "name" of the object*/
+		strip_name(buf, k_idx);
+
+		/* Display the name */
+		c_prt(attr, buf, row + i, col);
+
+		if (cheat_know) c_prt(attr, format ("%d", k_idx), row + i, 70);
+
+		if (k_ptr->aware)
+		{
+			/* Obtain attr/char */
+			byte a = k_ptr->flavor ? k_ptr->flavor : k_ptr->d_attr;
+			byte c = k_ptr->d_char;
+
+			/* Display symbol */
+			Term_putch(76, row + i, a, c);
+		}
+	}
+
+	/* Clear remaining lines */
+	for (; i < per_page; i++)
+	{
+		Term_erase(col, row + i, 255);
+	}
 }
 
 
@@ -3296,57 +3772,137 @@ static void do_cmd_knowledge_artifacts(void)
  */
 static void do_cmd_knowledge_objects(void)
 {
-	int k;
+	int i, len, max;
+	int grp_cur, grp_top;
+	int object_old, object_cur, object_top;
+	int grp_cnt, grp_idx[100];
+	int object_cnt;
+	int *object_idx;
 
-	FILE *fff;
+	int column = 0;
+	bool flag;
+	bool redraw;
 
-	char o_name[120];
+	/* Allocate the "object_idx" array */
+	C_MAKE(object_idx, MAX_K_IDX, int);
 
-	char file_name[1024];
+	max = 0;
+	grp_cnt = 0;
 
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	/* Scan the object kinds */
-	for (k = 1; k < MAX_K_IDX; k++)
+	/* Check every group */
+	for (i = 0; group_item[new_group_index[i]].name != NULL; i++)
 	{
-		object_kind *k_ptr = &k_info[k];
+		/* Measure the label */
+		len = strlen(group_item[new_group_index[i]].name);
 
-		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		/* Save the maximum length */
+		if (len > max) max = len;
 
-		/* List known flavored objects */
-		if (k_ptr->flavor && k_ptr->aware)
+		/* See if any monsters are known */
+		if (collect_objects(i, object_idx))
 		{
-			object_type *i_ptr;
-			object_type object_type_body;
-
-			/* Get local object */
-			i_ptr = &object_type_body;
-
-			/* Create fake object */
-			object_prep(i_ptr, k);
-
-			/* Describe the object */
-			object_desc_store(o_name, i_ptr, FALSE, 0);
-
-			/* Print a message */
-			fprintf(fff, "     %s\n", o_name);
+			/* Build a list of groups with known monsters */
+			grp_idx[grp_cnt++] = i;
 		}
 	}
 
-	/* Close the file */
-	my_fclose(fff);
+	/* Terminate the list */
+	grp_idx[grp_cnt] = -1;
 
-	/* Display the file contents */
-	show_file(file_name, "Known Objects", 0, 0);
+	grp_cur = grp_top = 0;
+	object_cur = object_top = 0;
+	object_old = -1;
 
-	/* Remove the file */
-	fd_kill(file_name);
+	flag = FALSE;
+	redraw = TRUE;
+
+	while (!flag)
+	{
+		char ch;
+
+		if (redraw)
+		{
+			clear_from(0);
+
+			prt("Knowledge - objects", 2, 0);
+			prt("Group", 4, 0);
+			prt("Name", 4, max + 3);
+			if (cheat_know) prt("Idx", 4, 70);
+			prt("Sym", 4, 75);
+
+			for (i = 0; i < 78; i++)
+			{
+				Term_putch(i, 5, TERM_WHITE, '=');
+			}
+
+			for (i = 0; i < BROWSER_ROWS; i++)
+			{
+				Term_putch(max + 1, 6 + i, TERM_WHITE, '|');
+			}
+
+			redraw = FALSE;
+		}
+
+		/* Scroll group list */
+		if (grp_cur < grp_top) grp_top = grp_cur;
+		if (grp_cur >= grp_top + BROWSER_ROWS) grp_top = grp_cur - BROWSER_ROWS + 1;
+
+		/* Scroll monster list */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + BROWSER_ROWS) object_top = object_cur - BROWSER_ROWS + 1;
+
+		/* Display a list of object groups */
+		display_object_group_list(0, 6, max, BROWSER_ROWS, grp_idx, group_item, grp_cur, grp_top);
+
+		/* Get a list of objects in the current group */
+		object_cnt = collect_objects(grp_idx[grp_cur], object_idx);
+
+		/* Display a list of objects in the current group */
+		display_object_list(max + 3, 6, BROWSER_ROWS, object_idx, object_cur, object_top);
+
+		/* Mega Hack -- track this monster race */
+		if (object_cnt) object_kind_track(object_idx[object_cur]);
+
+		/* The "current" object changed */
+		if (object_old != object_idx[object_cur])
+		{
+			/* Hack -- handle stuff */
+			handle_stuff();
+
+			/* Remember the "current" object */
+			object_old = object_idx[object_cur];
+		}
+
+		if (!column)
+		{
+			Term_gotoxy(0, 6 + (grp_cur - grp_top));
+		}
+		else
+		{
+			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
+		}
+
+		ch = inkey();
+
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				flag = TRUE;
+				break;
+			}
+
+			default:
+			{
+				/* Move the cursor */
+				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				break;
+			}
+		}
+	}
+
+	/* XXX XXX Free the "object_idx" array */
+	C_KILL(object_idx, MAX_K_IDX, int);
 }
 
 
@@ -3456,7 +4012,7 @@ static cptr monster_group_text[] =
 	"Xorn/Xaren/etc",			/*'X'*/
 	"Yeeks",				/*'y'*/
 	"Yetis",				/*'Y'*/
-	"Zombies/Mummies",			/*'z'*/
+	"Zombies",            			/*'z'*/
 	"Zephyr Hounds",			/*'Z'*/
 	"Mushroom Patches",			/*','*/
 	"Mimics",				/*'$!?=._-*/
@@ -3603,96 +4159,6 @@ static void display_group_list(int col, int row, int wid, int per_page,
 		/* Display the group label */
 		c_put_str(attr, group_text[grp], row + i, col);
 	}
-}
-
-/*
- * Move the cursor in a browser window
- */
-static void browser_cursor(char ch, int *column, int *grp_cur, int grp_cnt,
-						   int *list_cur, int list_cnt)
-{
-	int d;
-	int col = *column;
-	int grp = *grp_cur;
-	int list = *list_cur;
-
-	/* Extract direction */
-	d = target_dir(ch);
-
-	if (!d) return;
-
-	/* Diagonals - hack */
-	if ((ddx[d] > 0) && ddy[d])
-	{
-		/* Browse group list */
-		if (!col)
-		{
-			int old_grp = grp;
-
-			/* Move up or down */
-			grp += ddy[d] * BROWSER_ROWS;
-
-			/* Verify */
-			if (grp >= grp_cnt)	grp = grp_cnt - 1;
-			if (grp < 0) grp = 0;
-			if (grp != old_grp)	list = 0;
-		}
-
-		/* Browse sub-list list */
-		else
-		{
-			/* Move up or down */
-			list += ddy[d] * BROWSER_ROWS;
-
-			/* Verify */
-			if (list >= list_cnt) list = list_cnt - 1;
-			if (list < 0) list = 0;
-		}
-
-		(*grp_cur) = grp;
-		(*list_cur) = list;
-
-		return;
-	}
-
-	if (ddx[d])
-	{
-		col += ddx[d];
-		if (col < 0) col = 0;
-		if (col > 1) col = 1;
-
-		(*column) = col;
-
-		return;
-	}
-
-	/* Browse group list */
-	if (!col)
-	{
-		int old_grp = grp;
-
-		/* Move up or down */
-		grp += ddy[d];
-
-		/* Verify */
-		if (grp >= grp_cnt)	grp = grp_cnt - 1;
-		if (grp < 0) grp = 0;
-		if (grp != old_grp)	list = 0;
-	}
-
-	/* Browse sub-list list */
-	else
-	{
-		/* Move up or down */
-		list += ddy[d];
-
-		/* Verify */
-		if (list >= list_cnt) list = list_cnt - 1;
-		if (list < 0) list = 0;
-	}
-
-	(*grp_cur) = grp;
-	(*list_cur) = list;
 }
 
 /*

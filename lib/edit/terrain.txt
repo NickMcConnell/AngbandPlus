@@ -15,7 +15,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.1.2
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol
@@ -517,12 +517,12 @@ G:>:y
 # 0x64  --> easy path south
 
 N:100:path south
-G:<:g
+G:<:o
 
 # 0x65  --> hard path south
 
 N:101:path south
-G:>:g
+G:>:o
 
 # 0x66  --> easy path west
 

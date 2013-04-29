@@ -944,7 +944,11 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte((byte)op_ptr->hitpoint_warn);
 
-	wr_u16b(0);     /* Was cheating options */
+	/* Write "panel_change" */
+	wr_byte((byte)op_ptr->panel_change);
+
+	/* Unused */
+	wr_byte(0);
 
 
 	/*** Normal options ***/

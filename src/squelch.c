@@ -175,31 +175,6 @@ static int value_check_aux1(object_type *o_ptr)
 	return (FEEL_AVERAGE);
 }
 
-/*
- * Strip an "object name" into a buffer.  Lifted from wizard2.c.
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
 
 /*
  * This subroutine actually handles the squelching menus.
@@ -717,13 +692,70 @@ int squelch_itemp(object_type *o_ptr, byte feeling, int fullid)
 }
 
 /*
+ * The "Squelch on walk-on" function.
+ */
+void do_squelch_pile(int y, int x)
+{
+	s16b o_idx, next_o_idx;
+	object_type *o_ptr;
+	bool sq_flag=FALSE;
+
+	for(o_idx = cave_o_idx[y][x]; o_idx; o_idx = next_o_idx)
+	{
+
+		o_ptr = &(o_list[o_idx]);
+
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Always squelch "&nothing" */
+		if (!o_ptr->k_idx) sq_flag = TRUE;
+
+		/* Hack - never squelch artifacts */
+		else if (artifact_p(o_ptr)) sq_flag = FALSE;
+
+		/* Squelch it? */
+		else sq_flag = (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware);
+
+		/* Unwanted and unloved */
+		if (sq_flag)
+		{
+
+			/* Actual Squelch */
+			if (strong_squelch) delete_object_idx(o_idx);
+
+			/* Or inscribtion */
+			else o_ptr->note = quark_add("SQUELCH");
+		}
+  	}
+}
+
+/*
  * Marks the 'squelched' item for player removal.
  */
-void do_squelch_item(object_type *o_ptr)
+void do_squelch_item(int item, object_type *o_ptr)
 {
-	o_ptr->note = 0;
+	/* Either delete the item... */
+	if (strong_squelch)
+	{
+		if (item >= 0)
+		{
+			inven_item_increase(item, -o_ptr->number);
+			inven_item_optimize(item);
+		}
+	
+		else
+		{
+			floor_item_increase(0 - item, -o_ptr->number);
+			floor_item_optimize(0 - item);
+		}
+	}
 
-	o_ptr->note = quark_add("SQUELCH");
+	/* ...or mark it for manual deletion. */
+	else
+	{
+		o_ptr->note = 0;
+		o_ptr->note = quark_add("SQUELCH");
+	}
 
 	return;
 }

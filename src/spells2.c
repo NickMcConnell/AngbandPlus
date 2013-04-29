@@ -1601,7 +1601,7 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
 	}
-	else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
+	else if (is_quest(p_ptr->stage) || (!stage_map[p_ptr->stage][DOWN]))
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
@@ -2354,7 +2354,7 @@ bool ident_spell(void)
 
  
 	/* Now squelch it if needed */
-	if (squelch == 1) do_squelch_item(o_ptr);
+	if (squelch == 1) do_squelch_item(item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -2473,7 +2473,7 @@ bool identify_fully(void)
 	}
 
  	/* Now squelch it if needed */
-	if (squelch == 1) do_squelch_item(o_ptr);
+	if (squelch == 1) do_squelch_item(item, o_ptr);
 
 	do_cmd_observe(o_ptr, FALSE);
 

@@ -225,7 +225,7 @@ static void sense_inventory(void)
 		o_ptr->feel = feel;
 
 		/* Squelch it if necessary */
-		if (squelch == 1) do_squelch_item(o_ptr);
+		if (squelch == 1) do_squelch_item(i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2429,6 +2429,9 @@ static void process_player(void)
 			process_command();
 		}
 
+		/*** Hack - squelching ***/
+		do_squelch_pile(p_ptr->py, p_ptr->px);
+
 		/*** Hack - handle special mana gain ***/
 		special_mana_gain();
 
@@ -2708,7 +2711,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_MONSTER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
 
 	/* Update stuff */
 	update_stuff();

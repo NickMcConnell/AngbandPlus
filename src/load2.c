@@ -708,7 +708,12 @@ static void rd_options(void)
 	rd_byte(&b);
 	op_ptr->hitpoint_warn = b;
 
-	rd_u16b(&c); /* Old Cheating options.  Cheaters get a freebe when they convert. */
+	/* Read "panel_change" */
+	rd_byte(&b); 
+	op_ptr->panel_change = b;
+
+	/* Unused */
+	rd_byte(&b);
 
 	/*** Normal Options ***/
 

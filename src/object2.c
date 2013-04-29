@@ -3520,11 +3520,6 @@ bool make_object(object_type *j_ptr, bool good, bool great, bool exact_kind)
 		if (cheat_peek) object_mention(j_ptr);
 	}
 
-	/* Do not squelch artifacts */
-	if(j_ptr->name1) sq_flag=FALSE;
-
-	if (sq_flag) do_squelch_item(j_ptr);
-
 	/* Return */
 	return(TRUE);
 }
@@ -4021,8 +4016,9 @@ void pick_trap(int y, int x)
 			  /* Hack -- no trap doors on quest levels */
 			  if (is_quest(p_ptr->stage)) trap_is_okay = FALSE;
 			  
-			  /* Hack -- no trap doors on the deepest level */
-			  if (p_ptr->depth >= MAX_DEPTH-1) trap_is_okay = FALSE;
+			  /* Hack -- no trap doors at the bottom of dungeons */
+			  if (!stage_map[p_ptr->stage][DOWN])  
+			    trap_is_okay = FALSE;
 			  
 			  /* No trap doors at level 1 (instadeath risk). */
 			  if (p_ptr->depth < 2) trap_is_okay = FALSE;

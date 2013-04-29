@@ -2075,6 +2075,25 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 /*
+ * Describe an item and pretend the item is fully known and has no flavor.
+ */
+void object_desc_spoil(char *buf, object_type *o_ptr, int pref, int mode)
+{
+	object_type object_type_body;
+	object_type *i_ptr = &object_type_body;
+
+	/* Make a backup */
+	object_copy(i_ptr, o_ptr);
+
+	/* HACK - Pretend the object is in a store inventory */
+	i_ptr->ident |= IDENT_KNOWN;
+
+	/* Describe */
+	object_desc(buf, i_ptr, pref, mode);
+}
+
+
+/*
  * Hack -- describe an item currently in a store's inventory
  * This allows an item to *look* like the player is "aware" of it
  */
@@ -2112,6 +2131,32 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 
 	/* Clear the known flag */
 	if (!hack_known) o_ptr->ident &= ~(IDENT_KNOWN);
+}
+
+
+/*
+ * Strip an "object name" into a buffer.  Lifted from wizard2.c.
+ */
+void strip_name(char *buf, int k_idx)
+{
+	char *t;
+
+	object_kind *k_ptr = &k_info[k_idx];
+
+	cptr str = (k_name + k_ptr->name);
+
+
+	/* Skip past leading characters */
+	while ((*str == ' ') || (*str == '&')) str++;
+
+	/* Copy useful chars */
+	for (t = buf; *str; str++)
+	{
+		if (*str != '~') *t++ = *str;
+	}
+
+	/* Terminate the new name */
+	*t = '\0';
 }
 
 
@@ -3396,7 +3441,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	bool fall_through = FALSE;
 
-	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
+	bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE) &&
+	  (!strong_squelch);
 
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);

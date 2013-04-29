@@ -1262,8 +1262,9 @@ static void alloc_stairs(int feat, int num, int walls)
 				cave_set_feat(y, x, FEAT_MORE);
 			}
 
-			/* Quest -- must go up */
-			else if (is_quest(p_ptr->stage) || (p_ptr->depth >= MAX_DEPTH-1))
+			/* Bottom of dungeon or quest -- must go up */
+			else if (is_quest(p_ptr->stage) || 
+				 (!stage_map[p_ptr->stage][DOWN]))
 			{
 				/* Clear previous contents, add up stairs */
 				cave_set_feat(y, x, FEAT_LESS);
@@ -4271,129 +4272,129 @@ static bool build_vault(int y0, int x0, int ymax, int xmax, cptr data,
 	/* Place dungeon features and objects */
 	for (t = data, y = y1; y <= y2; y++)
 	{
-		for (x = x1; x <= x2; x++, t++)
+	  for (x = x1; x <= x2; x++, t++)
+	    {
+	      /* Hack -- skip "non-grids" */
+	      if (*t == ' ') 
 		{
-			/* Hack -- skip "non-grids" */
-			if (*t == ' ') 
-			{
-				continue;
-			}
-
-			/* Lay down a floor */
-			cave_set_feat(y, x, FEAT_FLOOR);
-
-			/* Part of a vault.  Can be lit.  May be "icky". */
-			if (icky) cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
-			else cave_info[y][x] |= (CAVE_ROOM);
-			if (light) cave_info[y][x] |= (CAVE_GLOW);
-
-			/* Analyze the grid */
-			switch (*t)
-			{
-				/* Granite wall (outer) or outer edge of dungeon level. */
-				case '%':
-				{
-					if (p_ptr->themed_level)
-						cave_set_feat(y, x, FEAT_PERM_SOLID);
-					else
-						cave_set_feat(y, x, FEAT_WALL_OUTER);
-					break;
-				}
-				/* Granite wall (inner) */
-				case '#':
-				{
-					cave_set_feat(y, x, FEAT_WALL_INNER);
-					break;
-				}
-				/* Permanent wall (inner) */
-				case 'X':
-				{
-					cave_set_feat(y, x, FEAT_PERM_INNER);
-					break;
-				}
-				/* Treasure seam, in either magma or quartz. */
-				case '*':
-				{
-					if (randint(2) == 1) 
-						cave_set_feat(y, x, FEAT_MAGMA_K);
-					else cave_set_feat(y, x, FEAT_QUARTZ_K);
-					break;
-				}
-				/* Lava. */
-				case '@':
-				{
-					cave_set_feat(y, x, FEAT_LAVA);
-					break;
-				}
-				/* Water. */
-				case 'x':
-				{
-					cave_set_feat(y, x, FEAT_WATER);
-					break;
-				}
-				/* Tree. */
-				case ';':
-				{
-					cave_set_feat(y, x, FEAT_TREE);
-					break;
-				}
-				/* Rubble. */
-				case ':':
-				{
-					cave_set_feat(y, x, FEAT_RUBBLE);
-					break;
-				}
-				/* Treasure/trap */
-				case '&':
-				{
-					if (rand_int(100) < 50)
-					{
-						place_object(y, x, FALSE, FALSE, FALSE);
-					}
-					else
-					{
-						place_trap(y, x);
-					}
-					break;
-				}
-				/* Secret doors */
-				case '+':
-				{
-					place_secret_door(y, x);
-					break;
-				}
-				/* Trap */
-				case '^':
-				{
-					place_trap(y, x);
-					break;
-				}
-				/* Up stairs (and player location in themed level).  */
-				case '<':
-				{
-					cave_set_feat(y, x, FEAT_LESS);
-
-					/* Place player only in themed level, and only once. */
-					if ((p_ptr->themed_level) && (!placed))
-					{
-						player_place(y, x);
-						placed = TRUE;
-					}
-
-					break;
-				}
-				/* Down stairs. */
-				case '>':
-				{
-					/* No down stairs at bottom or on quests */
-					if (is_quest(p_ptr->stage) || 
-						(p_ptr->depth >= MAX_DEPTH - 1)) break;
-
-					cave_set_feat(y, x, FEAT_MORE);
-					break;
-				}
-			}
+		  continue;
 		}
+	      
+	      /* Lay down a floor */
+	      cave_set_feat(y, x, FEAT_FLOOR);
+	      
+	      /* Part of a vault.  Can be lit.  May be "icky". */
+	      if (icky) cave_info[y][x] |= (CAVE_ROOM | CAVE_ICKY);
+	      else cave_info[y][x] |= (CAVE_ROOM);
+	      if (light) cave_info[y][x] |= (CAVE_GLOW);
+	      
+	      /* Analyze the grid */
+	      switch (*t)
+		{
+		  /* Granite wall (outer) or outer edge of dungeon level. */
+		case '%':
+		  {
+		    if (p_ptr->themed_level)
+		      cave_set_feat(y, x, FEAT_PERM_SOLID);
+		    else
+		      cave_set_feat(y, x, FEAT_WALL_OUTER);
+		    break;
+		  }
+		  /* Granite wall (inner) */
+		case '#':
+		  {
+		    cave_set_feat(y, x, FEAT_WALL_INNER);
+		    break;
+		  }
+		  /* Permanent wall (inner) */
+		case 'X':
+		  {
+		    cave_set_feat(y, x, FEAT_PERM_INNER);
+		    break;
+		  }
+		  /* Treasure seam, in either magma or quartz. */
+		case '*':
+		  {
+		    if (randint(2) == 1) 
+		      cave_set_feat(y, x, FEAT_MAGMA_K);
+		    else cave_set_feat(y, x, FEAT_QUARTZ_K);
+		    break;
+		  }
+		  /* Lava. */
+		case '@':
+		  {
+		    cave_set_feat(y, x, FEAT_LAVA);
+		    break;
+		  }
+		  /* Water. */
+		case 'x':
+		  {
+		    cave_set_feat(y, x, FEAT_WATER);
+		    break;
+		  }
+		  /* Tree. */
+		case ';':
+		  {
+		    cave_set_feat(y, x, FEAT_TREE);
+		    break;
+		  }
+		  /* Rubble. */
+		case ':':
+		  {
+		    cave_set_feat(y, x, FEAT_RUBBLE);
+		    break;
+		  }
+		  /* Treasure/trap */
+		case '&':
+		  {
+		    if (rand_int(100) < 50)
+		      {
+			place_object(y, x, FALSE, FALSE, FALSE);
+		      }
+		    else
+		      {
+			place_trap(y, x);
+		      }
+		    break;
+		  }
+		  /* Secret doors */
+		case '+':
+		  {
+		    place_secret_door(y, x);
+		    break;
+		  }
+		  /* Trap */
+		case '^':
+		  {
+		    place_trap(y, x);
+		    break;
+		  }
+		  /* Up stairs (and player location in themed level).  */
+		case '<':
+		  {
+		    cave_set_feat(y, x, FEAT_LESS);
+		    
+		    /* Place player only in themed level, and only once. */
+		    if ((p_ptr->themed_level) && (!placed))
+		      {
+			player_place(y, x);
+			placed = TRUE;
+		      }
+		    
+		    break;
+		  }
+		  /* Down stairs. */
+		case '>':
+		  {
+		    /* No down stairs at bottom or on quests */
+		    if (is_quest(p_ptr->stage) || 
+			(!stage_map[p_ptr->stage][DOWN])) break;
+		    
+		    cave_set_feat(y, x, FEAT_MORE);
+		    break;
+		  }
+		}
+	    }
 	}
 
 	/* Place dungeon monsters and objects */
@@ -8037,8 +8038,7 @@ static void swamp_gen(void)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
-		  if (rand_int(100) < 50)
-		    cave_feat[y][x] = FEAT_GRASS;
+		  cave_feat[y][x] = FEAT_GRASS;
 		}
 	}
 
@@ -8090,9 +8090,9 @@ static void swamp_gen(void)
 		  if (cave_feat[y][x] >= FEAT_LESS_NORTH)
 		    break;
 		  if (rand_int(100) < 50)
-		    cave_feat[y][x] = FEAT_GRASS;
+		    cave_set_feat(y, x, FEAT_GRASS);
 		  else
-		    cave_feat[y][x] = FEAT_WATER;
+		    cave_set_feat(y, x, FEAT_WATER);
 		}
 	}
 
@@ -8344,7 +8344,7 @@ static void desert_gen(void)
 	  }
 
 	/* Basic "amount" */
-	k = (p_ptr->depth / 3);
+	k = (p_ptr->depth * 5);
 	if (k > 100) k = 100;
 	if (k < 10) k = 10;
 

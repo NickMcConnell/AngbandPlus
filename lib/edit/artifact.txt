@@ -26,7 +26,7 @@
 
 # Version stamp (required)
 
-V:0.1.1
+V:0.1.2
 
 #N: artifact index: name
 #I: base object tval (general kind): base object sval (specific type): 
@@ -47,7 +47,7 @@ W:1:1:10:10000
 P:0:1d1:0:0:0:1
 F:ACTIVATE | 
 F:INSTA_ART
-D:One of the legendary lamps of the Noldor, burning with a clear blue light.
+D:One of the legendary lamps of the Noldor, burning with a clear blue light. 
 D:Its light is imperishable, and near it darkness cannot endure.
 
 
@@ -72,8 +72,8 @@ W:90:40:5:85000
 P:0:1d1:0:0:0:3
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | 
 F:INSTA_ART
-D:A crystal made by Feanor in Aman, wherein things far away could be seen small
-D:but clear, as with the eyes of eagles.
+D:A crystal made by Feanor in Aman, wherein things far away could be seen 
+D:small but clear, as with the eyes of eagles.
 
 # The Amulet of Carlammas (Set Item)
 
@@ -389,8 +389,8 @@ W:70:4:80:65000
 P:14:1d4:0:0:16:34
 F:LITE | CHR | RES_ELEC | RES_ACID | HIDE_TYPE | 
 F:SUST_WIS | SUST_CHR | ACTIVATE
-D:The shield of Ereinon Gil-Galad son of Fingon, made to keep him from harm in
-D:times of trouble.
+D:The shield of Ereinon Gil-Galad son of Fingon, made to keep him from harm 
+D:in times of trouble.
 
 # Artifact 49 is unused
 
@@ -483,7 +483,7 @@ W:32:2:60:45000
 P:6:1d3:0:0:20:0
 F:STR | DEX | CON | HIDE_TYPE | 
 F:RES_ACID | RES_NEXUS
-D:The spiked steel helm of Ecthelion, Lord of the Fountains and Warden of the
+D:The spiked steel helm of Ecthelion, Lord of the Fountains and Warden of the 
 D:Great Gate of Gondolin.
 
 # The Iron Helm of Gorlim
@@ -1071,7 +1071,7 @@ P:0:4d6:18:28:-50:0
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
-D:This weapon of wrath, wracked by a desperate berserkergang, dives hungrily 
+D:This weapon of wrath, wracked by a desperate berserker gang, dives hungrily 
 D:into the yielding flesh of your enemies.  You yourself fall under the 
 D:shadow of death even as you inflict wounds that will not heal.
 
@@ -1184,7 +1184,7 @@ F:SLAY_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT |
 F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | 
 F:TWO_HANDED_DES | SHOW_MODS
 D:The twin massive axe heads of this ancient demon's dread gleam with 
-D:mithril inlay, which tell sagas of endurance, envoking the powers of 
+D:mithril inlay, which tell sagas of endurance, invoking the powers of 
 D:Khazad-dum to protect the wearer and slay all evils found underground.
 
 
@@ -1199,9 +1199,9 @@ F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD |
 F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
 F:SEE_INVIS | BLESSED | ACTIVATE | 
 F:TWO_HANDED_DES | SHOW_MODS
-D:The axe of Eonwe, leader of the Hosts of the West before the gates of 
-D:Thangorodrim, strikes with icy wrath at the undead, disperses hosts of 
-D:evil at a word, and grants Maia-like powers of body and mind.
+D:The axe of Eonwe, herald of Manwe Sulimo, 
+D:strikes with the pure icy wrath of Taniquetil at the undead, disperses hosts 
+D:of evil at a word, and grants Maia-like powers of body and mind.
 
 
 # The Battle Axe of Balli Stonehand
@@ -1519,13 +1519,13 @@ D:hair that faintly shimmers a pale clear gold.
 
 # The Long Bow of Bregor
 
-N:180:of Bard
+N:180:of Bregor
 I:19:13:0
 W:45:25:40:30000
 P:0:3d1:17:19:0:0
 F:MIGHT2 | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
-D:The great yew bow of Bregor, father of Barahir.  It was passed down as an
+D:The great yew bow of Bregor, father of Barahir.  It was passed down as an 
 D:heirloom to his descendants.
 
 
@@ -1668,7 +1668,7 @@ I:65:43:6
 W:70:48:10:22500
 P:0:1d1:0:0:0:0
 F:INSTA_ART
-D:The Maia Osse was at one time drawn to Melkor, and still finds delight in
+D:The Maia Osse was at one time drawn to Melkor, and still finds delight in 
 D:the destructive power of the sea.
 
 

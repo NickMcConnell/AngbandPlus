@@ -55,76 +55,12 @@ static cptr attr_to_text(byte a)
 
 
 
-/*
- * A tval grouper
- */
-typedef struct
-{
-	byte tval;
-	cptr name;
-} grouper;
-
 
 
 /*
  * Item Spoilers by Ben Harrison (benh@phial.com)
  */
 
-
-/*
- * The basic items categorized by type
- */
-static grouper group_item[] =
-{
-	{ TV_SHOT,		"Ammo" },
-	{ TV_ARROW,		  NULL },
-	{ TV_BOLT,		  NULL },
-
-	{ TV_BOW,		"Bows" },
-
-	{ TV_SWORD,		"Weapons" },
-	{ TV_POLEARM,	  NULL },
-	{ TV_HAFTED,	  NULL },
-	{ TV_DIGGING,	  NULL },
-
-	{ TV_SOFT_ARMOR,	"Armour (Body)" },
-	{ TV_HARD_ARMOR,	  NULL },
-	{ TV_DRAG_ARMOR,	  NULL },
-
-	{ TV_CLOAK,		"Armour (Misc)" },
-	{ TV_SHIELD,	  NULL },
-	{ TV_HELM,		  NULL },
-	{ TV_CROWN,		  NULL },
-	{ TV_GLOVES,	  NULL },
-	{ TV_BOOTS,		  NULL },
-
-	{ TV_AMULET,	"Amulets" },
-	{ TV_RING,		"Rings" },
-
-	{ TV_SCROLL,	"Scrolls" },
-	{ TV_POTION,	"Potions" },
-	{ TV_FOOD,		"Food" },
-
-	{ TV_ROD,		"Rods" },
-	{ TV_WAND,		"Wands" },
-	{ TV_STAFF,		"Staffs" },
-
-	{ TV_MAGIC_BOOK,	"Books (Mage)" },
-	{ TV_PRAYER_BOOK,	"Books (Priest)" },
-	{ TV_DRUID_BOOK,	"Stones (Druid)" },
-	{ TV_NECRO_BOOK,	"Books (Necro)" },
-
-	{ TV_CHEST,		"Chests" },
-
-	{ TV_SPIKE,		"Various" },
-	{ TV_LITE,		  NULL },
-	{ TV_FLASK,		  NULL },
-	{ TV_JUNK,		  NULL },
-	{ TV_BOTTLE,	  NULL },
-	{ TV_SKELETON,	  NULL },
-
-	{ 0, "" }
-};
 
 
 

@@ -2399,7 +2399,8 @@ void display_player(int mode)
  */
 errr file_character(cptr name, bool full)
 {
-	int i, x, y;
+	int i, j, x, y;
+	bool quiver_empty = TRUE;
 
 	byte a;
 	char c;
@@ -2631,19 +2632,28 @@ errr file_character(cptr name, bool full)
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
-		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	  fprintf(fff, "  [Character Equipment]\n\n");
+	  for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	    {
+	      if (i == INVEN_BLANK) 
 		{
-			if (i == INVEN_BLANK) fprintf(fff, "\n         [Quiver]\n");
+		  for (j = 0; j < 10; j++)
+		    {
+		      object_desc(o_name, &inventory[i + j + 1], TRUE, 3);
+		      if (!streq(o_name, "(nothing)")) 
+			quiver_empty = FALSE;
+		    }
+ 		  if (!quiver_empty) fprintf(fff, "\n         [Quiver]\n");
+		}	      
 
-			else
-			{
-				object_desc(o_name, &inventory[i], TRUE, 3);
-				fprintf(fff, "%c%s %s\n",
-				      index_to_label(i), paren, o_name);
-			}
+	      else
+		{
+		  object_desc(o_name, &inventory[i], TRUE, 3);
+		  if (streq(o_name,"(nothing)")) continue;
+		  fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 		}
-		fprintf(fff, "\n\n");
+	    }
+	  fprintf(fff, "\n\n");
 	}
 
 	/* Dump the inventory */

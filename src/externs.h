@@ -62,6 +62,8 @@ extern cptr spell_names[255];
 extern byte deadliness_conversion[151];
 extern int chest_traps[100];
 extern cptr color_names[16];
+extern int new_group_index[];
+extern grouper group_item[];
 extern cptr stat_names[A_MAX];
 extern cptr stat_names_reduced[A_MAX];
 extern cptr window_flag_desc[32];
@@ -594,6 +596,7 @@ extern s16b m_pop(void);
 extern errr get_mon_num_prep(void);
 extern s16b get_mon_num(int level);
 extern s16b get_mon_num_quick(int level);
+extern void display_monlist(void);
 extern void monster_desc(char *desc, monster_type *m_ptr, int mode);
 extern void monster_desc_race(char *desc, size_t max, int r_idx);
 extern void lore_do_probe(int m_idx);
@@ -620,7 +623,9 @@ extern void reset_visuals(bool prefs);
 extern void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
+extern void object_desc_spoil(char *buf, object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
+extern void strip_name(char *buf, int k_idx);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
 extern s16b label_to_equip(int c);
@@ -982,7 +987,8 @@ extern void verify_panel(void);
 extern byte squelch_level[24];
 extern void do_cmd_squelch(void);
 extern int squelch_itemp(object_type *, byte, int);
-extern void do_squelch_item(object_type *);
+extern void do_squelch_pile(int y, int x);
+extern void do_squelch_item(int item, object_type *);
 
 /*
  * Hack -- conditional (or "bizarre") externs

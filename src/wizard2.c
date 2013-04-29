@@ -581,31 +581,6 @@ static tval_desc tvals[] =
 
 
 /*
- * Strip an object or artifact name into a buffer
- */
-static void strip_name(char *buf, int k_idx)
-{
-	char *t;
-
-	object_kind *k_ptr = &k_info[k_idx];
-
-	cptr str = (k_name + k_ptr->name);
-
-
-	/* Skip past leading characters */
-	while ((*str == ' ') || (*str == '&')) str++;
-
-	/* Copy useful chars */
-	for (t = buf; *str; str++)
-	{
-		if (*str != '~') *t++ = *str;
-	}
-
-	/* Terminate the new name */
-	*t = '\0';
-}
-
-/*
  * Build an "artifact name" and transfer it into a buffer.
  */
 static void get_art_name(char *buf, int a_idx)
