@@ -744,9 +744,19 @@ static void py_pickup_aux(int o_idx)
 	int slot;
 
 	char o_name[80];
-	object_type *o_ptr;
+        object_type *o_ptr;
 
-	o_ptr = &o_list[o_idx];
+	if (o_idx < 0)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr,cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
+	else
+	{
+		o_ptr = &o_list[o_idx];
 
         /* Check for auto-destroy */
         if (auto_pickup_destroy(o_ptr))
@@ -776,7 +786,6 @@ static void py_pickup_aux(int o_idx)
         
                         return;
                 }
-
 
                 /* Artifacts cannot be destroyed */
                 if (artifact_p(o_ptr))
@@ -817,6 +826,8 @@ static void py_pickup_aux(int o_idx)
                 return;
         }
 
+	}
+
 	/* Carry the object */
 	slot = inven_carry(o_ptr);
 
@@ -830,7 +841,7 @@ static void py_pickup_aux(int o_idx)
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
 
 	/* Delete the object */
-	delete_object_idx(o_idx);
+	if (o_idx >= 0) delete_object_idx(o_idx);
 }
 
 
@@ -858,7 +869,6 @@ void py_pickup(int pickup)
 	int not_pickup = 0;
 
 #endif /* ALLOW_EASY_FLOOR */
-
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -1062,7 +1072,7 @@ void py_pickup(int pickup)
 			/* Get an object*/
 			q = "Get which item? ";
 			s = NULL;
-			if (!get_item(&item, q, s, (USE_FLOOR))) break;
+			if (!get_item(&item, q, s, (USE_FLOOR | USE_FEATG))) break;
 
 			/* Pick up the object */
 			py_pickup_aux(0 - item);

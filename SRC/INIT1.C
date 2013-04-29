@@ -2333,6 +2333,22 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+		/* Process 'O' for "Objects" (one line only) */
+		if (buf[0] == 'O')
+		{
+			int k_idx;
+
+			/* Scan for the values */
+			if (1 != sscanf(buf+2, "%d",
+					&k_idx)) return (1);
+
+			/* Save the values */
+			f_ptr->k_idx = k_idx;
+
+			/* Next... */
+			continue;
+		}
+
 		/* Process 'T' for "Traps" (one line only) */
 		if (buf[0] == 'T')
 		{

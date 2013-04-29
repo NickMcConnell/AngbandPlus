@@ -338,7 +338,7 @@ struct feature_type
 
 	feature_state state[MAX_FEAT_STATES];
 
-        s16b pickup;            /* Object at this location */
+        s16b k_idx;            /* Object at this location */
 
 	byte spell;
 	byte power;

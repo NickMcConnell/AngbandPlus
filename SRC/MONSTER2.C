@@ -2696,6 +2696,9 @@ bool animate_object(int item)
                 return (FALSE);
         }
 
+	/* Describe */
+	object_desc_store(o_name, o_ptr, FALSE, 0);
+
         /* Correct message */
         switch (o_ptr->tval)
         {

@@ -1,7 +1,14 @@
+27-12-2001 Unangband 0.4.7b Bugfix release
+- Fixed long-standing bug in lake generation routine
+that was cause of significant crashes in previous
+versions.
+- Fixed problems with animation of objects.
+- Added ability to quaff from fountains, study at/pray
+at altars, climb down wells and so forth.
+- Fixed problems with names of monster containers.
+
 26-12-2001 Unangband 0.4.7a Bugfix release
 - Fixed bug with statues resulting in infinite loops.
-- Fixed further bugs with monster body generation that
-could cause infinite loops in certain circumstances.
 - Added rock hounds.
 - Added bottles, cages, figurines, sacks, boxes.
 - Some internal changes to tval/sval names.

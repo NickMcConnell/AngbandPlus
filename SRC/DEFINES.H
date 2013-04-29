@@ -1045,6 +1045,13 @@
 #define FS_KILL_MOVE    63
 
 #define FS_FLAGS3       64
+#define FS_HURT_POIS	72
+#define FS_HURT_ELEC	73
+#define FS_HURT_WATER	74
+#define FS_HURT_BWATER	75
+#define FS_USE_FEAT	76
+#define FS_GET_FEAT	77
+#define FS_NEED_WALL	84
 
 #define FS_FLAGS_END    96
 
@@ -1413,6 +1420,7 @@
 #define TV_SCROLL       70
 #define TV_POTION       75
 #define TV_FLASK        77
+#define TV_FEATS	78	/* Handfuls of a feature */
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
@@ -1886,6 +1894,12 @@
 #define SV_POTION_SELF_KNOWLEDGE                58
 #define SV_POTION_EXPERIENCE                    59
 
+/* The "sval" codes for TV_FLASK */
+#define SV_FLASK_OIL                    0
+#define SV_FLASK_EMPTY                  1
+#define SV_FLASK_ACID                   2
+
+
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON                  0
 #define SV_FOOD_BLINDNESS               1
@@ -2036,7 +2050,8 @@
 #define USE_EQUIP               0x01    /* Allow equip items */
 #define USE_INVEN               0x02    /* Allow inven items */
 #define USE_FLOOR               0x04    /* Allow floor items */
-
+#define USE_FEATU		0x08	/* Allow features (usable) */
+#define USE_FEATG		0x10	/* Allow features (gettable) */
 
 
 /*** Player flags ***/
@@ -3466,16 +3481,9 @@
  * Determine if a "legal" grid is "permanent"
  *
  * Line 1 -- permanent flag
- * Line 2 -- perma-walls
- * Line 3-4 -- stairs
- * Line 5-6 -- shop doors
  */
 #define cave_perma_bold(Y,X) \
-	((f_info[cave_feat[Y][X]].flags1  & (FF1_PERMANENT)) || \
-	 ((cave_feat[Y][X] == FEAT_LESS) || \
-	  (cave_feat[Y][X] == FEAT_MORE)) || \
-	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \
-	  (cave_feat[Y][X] <= FEAT_SHOP_TAIL)))
+        (f_info[cave_feat[Y][X]].flags1  & (FF1_PERMANENT))
 
 
 /*

@@ -549,6 +549,8 @@ int metal_attr[16] =
  * floors", which is stored in "f_info[FEAT_FLOOR]".  Sometimes, special
  * lighting effects may cause this picture to be modified.
  *
+ * This only occurs now if the boring grid has the ATTR_LITE flag.
+ *
  * Note that "invisible traps" are always displayes exactly like "empty
  * floors", which prevents various forms of "cheating", with no loss of
  * efficiency.  There are still a few ways to "guess" where traps may be
@@ -703,83 +705,102 @@ void map_info(int y, int x, byte *ap, char *cp)
 		if ((info & (CAVE_MARK)) ||
 		    (info & (CAVE_SEEN)))
 		{
-			/* Get the floor feature */
-			f_ptr = &f_info[FEAT_FLOOR];
-
-			/* Normal attr */
-			a = f_ptr->x_attr;
-
-			/* Normal char */
-			c = f_ptr->x_char;
-
-			/* Special lighting effects */
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
-			{
-				/* Handle "seen" grids */
-				if (info & (CAVE_SEEN))
-				{
-					/* Only lit by "torch" lite */
-					if (view_yellow_lite && !(info & (CAVE_GLOW)))
-					{
-						if (graf_new)
-						{
-							/* Use a brightly lit tile */
-							c += 2;
-						}
-						else
-						{
-							/* Use "yellow" */
-							a = TERM_YELLOW;
-						}
-					}
-				}
-
-				/* Handle "blind" */
-				else if (p_ptr->blind)
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
-				}
-
-				/* Handle "dark" grids */
-				else if (!(info & (CAVE_GLOW)))
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "dark gray" */
-						a = TERM_L_DARK;
-					}
-				}
-
-				/* Handle "view_bright_lite" */
-				else if (view_bright_lite)
-				{
-					if (graf_new)
-					{
-						/* Use a dark tile */
-						c += 1;
-					}
-					else
-					{
-						/* Use "gray" */
-						a = TERM_SLATE;
-					}
-				}
-
-			}
+                        /* Looks like floor */
+                        if (f_info[feat].flags2 & (FF2_ATTR_LITE))
+                        {
+                                /* Get the floor feature */
+                                f_ptr = &f_info[FEAT_FLOOR];
+        
+                                /* Normal attr */
+                                a = f_ptr->x_attr;
+        
+                                /* Normal char */
+                                c = f_ptr->x_char;
+        
+                                /* Special lighting effects */
+                                if (view_special_lite)
+                                {
+                                        /* Handle "seen" grids */
+                                        if (info & (CAVE_SEEN))
+                                        {
+                                                /* Only lit by "torch" lite */
+                                                if (view_yellow_lite && !(info & (CAVE_GLOW)))
+                                                {
+                                                        if (graf_new)
+                                                        {
+                                                                /* Use a brightly lit tile */
+                                                                c += 2;
+                                                        }
+                                                        else
+                                                        {
+                                                                /* Use "yellow" */
+                                                                a = TERM_YELLOW;
+                                                        }
+                                                }
+                                        }
+        
+                                        /* Handle "blind" */
+                                        else if (p_ptr->blind)
+                                        {
+                                                if (graf_new)
+                                                {
+                                                        /* Use a dark tile */
+                                                        c += 1;
+                                                }
+                                                else
+                                                {
+                                                        /* Use "dark gray" */
+                                                        a = TERM_L_DARK;
+                                                }
+                                        }
+        
+                                        /* Handle "dark" grids */
+                                        else if (!(info & (CAVE_GLOW)))
+                                        {
+                                                if (graf_new)
+                                                {
+                                                        /* Use a dark tile */
+                                                        c += 1;
+                                                }
+                                                else
+                                                {
+                                                        /* Use "dark gray" */
+                                                        a = TERM_L_DARK;
+                                                }
+                                        }
+        
+                                        /* Handle "view_bright_lite" */
+                                        else if (view_bright_lite)
+                                        {
+                                                if (graf_new)
+                                                {
+                                                        /* Use a dark tile */
+                                                        c += 1;
+                                                }
+                                                else
+                                                {
+                                                        /* Use "gray" */
+                                                        a = TERM_SLATE;
+                                                }
+                                        }
+        
+                                }
+                        }
+                        /* Boring non-floor-like grids */
+                        else
+                        {
+                                /* Apply "mimic" field */
+                                feat = f_info[feat].mimic;
+        
+                                /* Get the feature */
+                                f_ptr = &f_info[feat];
+        
+                                /* Normal attr */
+                                a = f_ptr->x_attr;
+        
+                                /* Normal char */
+                                c = f_ptr->x_char;
+                        }
 		}
 
                 /* Hack -- Safe cave grid -- now use 'invisible trap' */
@@ -833,7 +854,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite &&
-			    (((a == TERM_WHITE) && !use_transparency && (feat >= FEAT_SECRET)) ||
+                            (((f_info[feat].flags2 & (FF2_ATTR_LITE)) && !use_transparency) ||
 			     (use_transparency && feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */

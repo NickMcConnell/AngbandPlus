@@ -264,6 +264,8 @@ void do_cmd_go_up(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+        feature_type *f_ptr= &f_info[cave_feat[py][px]];
+
 	/* Travel if possible */
         if ((variant_town) && (p_ptr->depth == min_depth(p_ptr->dungeon)))
 	{
@@ -272,7 +274,7 @@ void do_cmd_go_up(void)
 	}
 
 	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_LESS)
+        if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_LESS)))
 	{
 		msg_print("I see no up staircase here.");
 		return;
@@ -310,10 +312,12 @@ void do_cmd_go_down(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+        feature_type *f_ptr= &f_info[cave_feat[py][px]];
+
 	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_MORE)
+        if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_MORE)))
 	{
-		msg_print("I see no down staircase here.");
+                msg_print("I see no down staircase here.");
 		return;
 	}
 
@@ -2095,6 +2099,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_JUNK:
 		case TV_SKIN:
                 case TV_FIGURE:
+		case TV_FEATS:
 		{
 			return (100);
 		}
@@ -2177,6 +2182,7 @@ void do_cmd_fire(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+        object_type object_type_feat;
 
 	bool hit_body = FALSE;
 
@@ -2191,7 +2197,6 @@ void do_cmd_fire(void)
 	cptr q, s;
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
-
 
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
@@ -2210,10 +2215,17 @@ void do_cmd_fire(void)
 	/* Get an item */
 	q = "Fire which item? ";
 	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                o_ptr = &object_type_feat;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the object */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -2226,10 +2238,8 @@ void do_cmd_fire(void)
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-#ifdef ALLOW_OBJECT_INFO
 	/* Check usage */
 	object_usage(INVEN_BOW);;
-#endif
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -2257,8 +2267,13 @@ void do_cmd_fire(void)
         drop_may_flags(i_ptr);
 
 	/* Forget guessed information */
-	if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+	if ((item >=0) && (item < INVEN_TOTAL+1) && (o_ptr->number == 1)) inven_drop_flags(o_ptr);
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+	}
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
@@ -2564,6 +2579,7 @@ void do_cmd_throw(void)
 
 	object_type *i_ptr;
 	object_type object_type_body;
+        object_type object_type_feat;
 
 	bool hit_body = FALSE;
 
@@ -2583,10 +2599,16 @@ void do_cmd_throw(void)
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
 	/* Get the object */
-	if (item >= 0)
+	if (item >= INVEN_TOTAL+1)
+	{
+                o_ptr = &object_type_feat;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -2625,10 +2647,14 @@ void do_cmd_throw(void)
         inven_drop_flags(i_ptr);
 
 	/* Forget guessed information */
-	if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+	if ((item >=0) && (item < INVEN_TOTAL+1) && (o_ptr->number == 1)) inven_drop_flags(o_ptr);
 
 	/* Reduce and describe inventory */
-	if (item >= 0)
+	if (item >= INVEN_TOTAL+1)
+	{
+                cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+	}
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -2649,7 +2675,6 @@ void do_cmd_throw(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
-
 
 	/* Extract a "distance multiplier" */
 	mul = 10;
@@ -2693,7 +2718,6 @@ void do_cmd_throw(void)
 
 	/* Calculate the path */
 	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
-
 
 	/* Hack -- Handle stuff */
 	handle_stuff();

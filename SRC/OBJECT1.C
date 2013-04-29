@@ -350,7 +350,6 @@ static bool object_easy_know(int i)
 		/* Simple items */
 		case TV_FLASK:
 		case TV_JUNK:
-                case TV_HOLD:
 		case TV_SPIKE:
                 case TV_BODY:
                 case TV_SKIN:
@@ -358,6 +357,7 @@ static bool object_easy_know(int i)
 		case TV_EGG:
                 case TV_FIGURE:
                 case TV_STATUE:
+                case TV_FEATS:
 		{
 			return (TRUE);
 		}
@@ -371,7 +371,8 @@ static bool object_easy_know(int i)
 			return (TRUE);
 		}
 
-		/* Some Rings, Amulets, Lites */
+                /* Some Rings, Amulets, Lites, Containers */
+                case TV_HOLD:
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LITE:
@@ -1135,6 +1136,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_FLASK:
                 case TV_INSTRUMENT:
 		case TV_SPELL:
+                case TV_FEATS:
 		{
 			break;
 		}
@@ -1314,12 +1316,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			return;
 		}
 
+                case TV_STATUE:
                 case TV_HOLD:
-		case TV_STATUE:
                 {
                         if (o_ptr->dropped > 0)
                         {
-                                modstr = "";
+                                if (o_ptr->tval == TV_HOLD) modstr = "sealed";
+                                else modstr = "stone";
                                 break;
                         }
                         /* Else drop down */
@@ -1597,15 +1600,23 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         {
                 object_desc_str_macro(t, " containing ");
 
-                if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+                if (known)
                 {
-                        cptr name= r_name + r_info[o_ptr->dropped].name;
-
-                        if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
-                        else object_desc_str_macro(t, "a ");
+        
+                        if (!(r_info[o_ptr->dropped].flags1 & (RF1_UNIQUE)))
+                        {
+                                cptr name= r_name + r_info[o_ptr->dropped].name;
+        
+                                if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
+                                else object_desc_str_macro(t, "a ");
+                        }
+        
+                        object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
                 }
-
-                object_desc_str_macro(t, r_name + r_info[o_ptr->dropped].name);
+                else
+                {
+                        object_desc_str_macro(t, "something");
+                }
         }
 
 	/* No more details wanted */
@@ -1864,16 +1875,25 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         /* Indicate "charging" artifacts/rods */
         if (((known) || (o_ptr->ident & (IDENT_BONUS))) && o_ptr->timeout)
 	{
-                /* Hack -- variant timeout stack */
-                if (o_ptr->stackc)
+
+                u32b f1, f2, f3;
+
+                /* Get the flags */
+                object_flags(o_ptr,&f1, &f2, &f3);
+
+                if ((o_ptr->tval == TV_ROD) || (f3 & (TR3_ACTIVATE)))
                 {
-                        object_desc_str_macro(t, " (");
-                        object_desc_num_macro(t, o_ptr->stackc);
-                        object_desc_str_macro(t, " charging)");
-                }
-                else
-                {
-                        object_desc_str_macro(t, " (charging)");
+                        /* Hack -- variant timeout stack */
+                        if (o_ptr->stackc)
+                        {
+                                object_desc_str_macro(t, " (");
+                                object_desc_num_macro(t, o_ptr->stackc);
+                                object_desc_str_macro(t, " charging)");
+                        }
+                        else
+                        {
+                                object_desc_str_macro(t, " (charging)");
+                        }
                 }
 	}
 
@@ -5030,10 +5050,13 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
 	bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
+	bool use_featg = ((mode & (USE_FEATG)) ? TRUE : FALSE);
+	bool use_featu = ((mode & (USE_FEATU)) ? TRUE : FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
 	bool allow_floor = FALSE;
+	bool allow_feats = FALSE;
 
 	bool toggle = FALSE;
 
@@ -5112,7 +5135,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept equipment */
 	if (e1 <= e2) allow_equip = TRUE;
 
-
 	/* Scan all objects in the grid */
 	floor_num = scan_floor(floor_list, 23, py, px, 0x00);
 
@@ -5130,9 +5152,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
 
+	/* Scan the feature */
+	if ((use_featg) && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_GET_FEAT)))
+	{
+                object_type *i_ptr;
+                object_type object_type_body;
+
+                i_ptr = &object_type_body;
+
+                if (make_feat(i_ptr,cave_feat[p_ptr->py][p_ptr->px]) && item_tester_okay(i_ptr)) allow_feats = TRUE;
+	}
+
+	/* Rescan the feature */
+	if ((use_featu) && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_USE_FEAT)))
+	{
+                object_type *i_ptr;
+                object_type object_type_body;
+
+                i_ptr = &object_type_body;
+
+                if (make_feat(i_ptr,cave_feat[p_ptr->py][p_ptr->px]) && item_tester_okay(i_ptr)) allow_feats = TRUE;
+	}
 
 	/* Require at least one legal choice */
-	if (!allow_inven && !allow_equip && !allow_floor)
+	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats)
 	{
 		/* Cancel p_ptr->command_see */
 		p_ptr->command_see = FALSE;
@@ -5261,6 +5304,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate legality of the "feature" */
+			if (allow_feats)
+			{
+				strcat(out_val, " . for ");
+                                strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
+				strcat(out_val,",");
+			}
+
 		}
 
 		/* Viewing equipment */
@@ -5291,6 +5343,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) strcat(out_val, " - for floor,");
+
+			/* Indicate legality of the "feature" */
+			if (allow_feats)
+			{
+				strcat(out_val, " . for ");
+                                strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
+				strcat(out_val,",");
+			}
 		}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -5322,6 +5382,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Append */
 			else if (use_equip) strcat(out_val, " / for Equip,");
+
+			/* Indicate legality of the "feature" */
+			if (allow_feats)
+			{
+				strcat(out_val, " . for ");
+                                strcat(out_val,f_name + f_info[cave_feat[p_ptr->py][p_ptr->px]].name);
+				strcat(out_val,",");
+			}
 		}
 
 #endif /* ALLOW_EASY_FLOOR */
@@ -5594,6 +5662,27 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				done = TRUE;
 				break;
 			}
+
+			case '.':
+
+				/* Paranoia */
+                                if (!allow_feats)
+				{
+					bell("Cannot select feature!");
+					break;
+				}
+
+				/* Special index */
+				k = INVEN_TOTAL+1;
+
+				/* Accept that choice */
+				(*cp) = k;
+				item = TRUE;
+				done = TRUE;
+
+				break;
+
+
 
 			default:
 			{

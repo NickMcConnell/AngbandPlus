@@ -4242,7 +4242,9 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			    (f_info[feat].flags1 & (FF1_FLOOR)) ||
 			    (f_info[feat].flags1 & (FF1_WALL)) ||
 			    (f_info[feat].flags2 & (FF2_BRIDGED)) ||
-			    (f_info[feat].flags2 & (FF2_CHASM)))
+                            (f_info[feat].flags2 & (FF2_CHASM)) ||
+                            (f_info[feat].flags3 & (FF3_CHEST)) ||
+                            (f_info[feat].flags3 & (FF3_ALLOC)))
 			{
 				s3 = (is_a_vowel(name[0]) ? "an " : "a ");
 			}

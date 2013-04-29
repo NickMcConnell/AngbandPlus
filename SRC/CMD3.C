@@ -167,10 +167,20 @@ void do_cmd_wield(void)
 	/* Get an item */
 	q = "Wear/Wield which item? ";
 	s = "You have nothing you can wear or wield.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
+
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -194,7 +204,7 @@ void do_cmd_wield(void)
                 if (inventory[slot].k_idx) swap = TRUE;
         }
         /* Hack -- wield from equip to belt */
-        else if ((variant_belt_slot) && (item >= INVEN_WIELD))
+        else if ((variant_belt_slot) && (item >= INVEN_WIELD) && (item < INVEN_TOTAL+1))
         {
                 /* Pick the slot */
                 slot = INVEN_BELT;
@@ -313,8 +323,14 @@ void do_cmd_wield(void)
                 }
         }
 
+
+	/* Decrease the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+	}
 	/* Decrease the item (from the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
                 inven_item_increase(item, -amt);
 		inven_item_optimize(item);
@@ -833,8 +849,18 @@ void do_cmd_observe(void)
 	s = "You have nothing to examine.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
+
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1082,6 +1108,181 @@ void do_cmd_inscribe(void)
         }
 }
 
+/*
+ * An "item_tester_hook" for empty flasks
+ */
+static bool item_tester_empty_flask(object_type *o_ptr)
+{
+	/* Empty flasks are okay */
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
+
+	/* Empty bottles are okay */
+	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && (o_ptr->dropped <= 0)) return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * An "item_tester_hook" for refilling flasks
+ */
+static bool item_tester_refill_flask(object_type *o_ptr)
+{
+	/* Flasks are okay */
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval != SV_FLASK_EMPTY)) return (TRUE);
+
+	/* Potions are okay */
+	if (o_ptr->tval == TV_POTION)
+	{
+		return (TRUE);
+	}
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * Fill a flask
+ */
+static void do_cmd_fill_flask(void)
+{
+	int item, item2;
+
+	object_type *o_ptr;
+	object_type *i_ptr;
+	object_type *j_ptr;
+
+        object_type object_type_body;
+
+	cptr q, s;
+
+
+	/* Restrict the choices */
+	item_tester_hook = item_tester_empty_flask;
+
+	/* Get an item */
+	q = "Fill which item? ";
+	s = "You have nothing empty to fill.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Restrict the choices */
+        item_tester_hook = item_tester_refill_flask;
+
+	/* Get an item to fill */
+	q = "Fill from where? ";
+	s = "You have nothing to fill it with.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+
+
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
+	/* Get the item (in the pack) */
+	else if (item2 >= 0)
+	{
+		j_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		j_ptr = &o_list[0 - item];
+	}
+
+
+	/* Take a partial turn */
+	p_ptr->energy_use = 50;
+
+        /* Get local object */
+        i_ptr = &object_type_body;
+
+                        /* Obtain a local object */
+                        object_copy(i_ptr, o_ptr);
+
+                        /* Modify quantity */
+                        i_ptr->number = 1;
+
+                        /* Reset stack counter */
+                        i_ptr->stackc = 0;
+
+                        /* Reset the pval */
+                        i_ptr->pval = 0;
+
+                        /* Unstack the used item */
+                        o_ptr->number--;
+        
+                        /* Adjust the weight and carry */
+                        p_ptr->total_weight -= i_ptr->weight;
+                        item = inven_carry(i_ptr);
+        
+
+	/* Decrease the item (in the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+        }
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+
+	/* Decrease the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+	}
+	/* Decrease the item (in the pack) */
+	else if (item2 >= 0)
+	{
+		inven_item_increase(item2, -1);
+		inven_item_describe(item2);
+		inven_item_optimize(item2);
+        }
+	/* Decrease the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item2, -1);
+		floor_item_describe(0 - item2);
+		floor_item_optimize(0 - item2);
+	}
+
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+
+}
+
+
 
 
 /*
@@ -1090,7 +1291,7 @@ void do_cmd_inscribe(void)
 static bool item_tester_refill_lantern(object_type *o_ptr)
 {
 	/* Flasks of oil are okay */
-	if (o_ptr->tval == TV_FLASK) return (TRUE);
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_OIL)) return (TRUE);
 
 	/* Non-empty lanterns are okay */
 	if ((o_ptr->tval == TV_LITE) &&
@@ -1124,10 +1325,20 @@ static void do_cmd_refill_lamp(void)
 	/* Get an item */
 	q = "Refill with which source of oil? ";
 	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1158,8 +1369,14 @@ static void do_cmd_refill_lamp(void)
 		msg_print("Your lamp is full.");
 	}
 
+
+	/* Decrease the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+	}
 	/* Use fuel from a lantern */
-	if (o_ptr->sval == SV_LITE_LANTERN)
+	else if (o_ptr->sval == SV_LITE_LANTERN)
 	{
                 if (o_ptr->number > 1)
                 {
@@ -1264,10 +1481,19 @@ static void do_cmd_refill_torch(void)
 	/* Get an item */
 	q = "Refuel with which torch? ";
 	s = "You have no extra torches.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1304,6 +1530,11 @@ static void do_cmd_refill_torch(void)
 		msg_print("Your torch glows more brightly.");
 	}
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+	}
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
@@ -1343,7 +1574,7 @@ void do_cmd_refill(void)
 	/* It is nothing */
 	if (o_ptr->tval != TV_LITE)
 	{
-		msg_print("You are not wielding a light.");
+		do_cmd_fill_flask();
 	}
 
 	/* It's a lamp */
@@ -1519,7 +1750,7 @@ void do_cmd_locate(void)
 static cptr ident_info[] =
 {
 	" :A dark grid",
-	"!:A potion (or fountain)",
+	"!:A potion",
 	"\":An amulet (or necklace)",
 	"#:A wall (or secret door)",
 	"$:Treasure (gold or gems)",
@@ -1534,7 +1765,7 @@ static cptr ident_info[] =
 	"-:A wand (or rod)",
 	".:Floor (or shallow water/oil)",
 	"/:A polearm (Axe/Pike/etc)",
-	/* "0:unused", */
+	"0:Fountain/well/altar/throne",
 	"1:Entrance to General Store",
 	"2:Entrance to Armory",
 	"3:Entrance to Weaponsmith",
@@ -1543,7 +1774,7 @@ static cptr ident_info[] =
 	"6:Entrance to Magic store",
 	"7:Entrance to Black Market",
 	"8:Entrance to your home",
-	/* "9:unused", */
+	"9:Statue",
 	"::Rubble (or deep water/lava/acid etc)",
 	";:A glyph (or shallow lava/acid/mud)",
 	"<:An up staircase (or falls/trees)",

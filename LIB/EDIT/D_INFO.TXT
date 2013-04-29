@@ -125,6 +125,7 @@ N:1:2:10:0
 A:candle-lit
 B:
 D:Candles line 
+F:405
 S:SEEN
 
 N:1:2:11:0
@@ -334,7 +335,7 @@ S:SEEN
 N:1:2:38:0
 A:
 B:
-D:Slime covers
+D:Slime covers 
 F:306
 S:SEEN
 
@@ -460,7 +461,7 @@ F:305
 N:1:2:56:15
 A:
 B:
-D:Slime covers
+D:Slime covers 
 G:,
 R:FRIENDS
 F:306
@@ -695,7 +696,7 @@ S:SEEN
 N:4:5:20:1
 A:
 B:cell
-D:An iron cage
+D:An iron cage 
 S:SEEN
 
 N:4:5:21:1
@@ -1534,7 +1535,7 @@ B:
 N:15:16:12:0
 A:torch-lit
 B:
-K:39
+F:404
 
 N:15:16:15:0
 A:gloomy
@@ -1575,9 +1576,15 @@ N:15:16:39:0
 A:ancient
 B:
 
+N:15:16:42:10
+A:brilliant
+B:
+F:406
+
 N:15:16:100:0
 A:empty
 B:
+
 
 N:16:0:20:1
 A:

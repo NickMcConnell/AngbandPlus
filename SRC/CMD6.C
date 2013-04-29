@@ -80,10 +80,19 @@ void do_cmd_eat_food(void)
 	/* Get an item */
 	q = "Eat which item? ";
 	s = "You have nothing to eat.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -423,6 +432,11 @@ void do_cmd_eat_food(void)
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
 
+	/* Destroy the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+	}
 	/* Destroy a food in the pack */
 	if (item >= 0)
 	{
@@ -462,10 +476,19 @@ void do_cmd_quaff_potion(void)
 	/* Get an item */
 	q = "Quaff which potion? ";
 	s = "You have no potions to quaff.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1183,8 +1206,13 @@ void do_cmd_quaff_potion(void)
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
 
+	/* Destroy a feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+	}
 	/* Destroy a potion in the pack */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -1374,10 +1402,19 @@ void do_cmd_read_scroll(void)
 	/* Get an item */
 	q = "Read which scroll? ";
 	s = "You have no scrolls to read.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1797,8 +1834,15 @@ void do_cmd_read_scroll(void)
 	if (!used_up) return;
 
 
+	/* Destroy the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+
+		return;
+	}
 	/* Destroy a scroll in the pack */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -1848,10 +1892,19 @@ void do_cmd_use_staff(void)
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -2249,6 +2302,16 @@ void do_cmd_use_staff(void)
 	/* Hack -- some uses are "free" */
 	if (!use_charge) return;
 
+	/* Destroy the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+
+		return;
+	}
+
+
+
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
 
@@ -2357,10 +2420,19 @@ void do_cmd_aim_wand(void)
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -2736,6 +2808,14 @@ void do_cmd_aim_wand(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+	/* Destroy the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+
+		return;
+	}
+
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
 
@@ -2839,10 +2919,19 @@ void do_cmd_zap_rod(void)
 	/* Get an item */
 	q = "Zap which rod? ";
 	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -3210,6 +3299,16 @@ void do_cmd_zap_rod(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* Destroy the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+
+		return;
+	}
+
+
 
 	/* Hack -- deal with cancelled zap */
 	if (!use_charge)

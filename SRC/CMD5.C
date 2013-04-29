@@ -458,8 +458,17 @@ void do_cmd_study(void)
 	s = "You have no books that you can read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -3369,8 +3378,17 @@ void do_cmd_cast(void)
         s = "You have nothing you have studied!";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
+	/* Get the feature */
+	if (item >= INVEN_TOTAL+1)
+	{
+                object_type object_type_body;
+
+                o_ptr = &object_type_body;
+
+		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+	}
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
