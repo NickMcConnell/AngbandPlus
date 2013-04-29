@@ -1543,7 +1543,7 @@ cptr option_text[OPT_MAX] =
 	"verify_mana",						/* xxx */
 	"reseed_artifacts",						/* xxx */
         "easy_autos",                                           /* xxx */
-	NULL,						/* xxx */
+	"easy_search",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1807,7 +1807,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify critical mana",						/* xxx */
 	"Reseed random artifacts on death",						/* xxx */
         "Prompt to inscribe all objects",                                                                           /* xxx */
-	NULL,										/* xxx */
+	"Start searching if not disturbed",										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2071,7 +2071,7 @@ bool option_norm[OPT_MAX] =
         FALSE,          /* OPT_verify_mana */
 	TRUE,		/* OPT_reseed_artifacts */
         TRUE,           /* OPT_easy_autos */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_easy_search */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2277,7 +2277,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stack_force_pvals,
 		OPT_stack_force_times,
                 OPT_easy_autos,
-                255
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2302,7 +2302,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
                 OPT_verify_mana,
                 OPT_room_names,
                 OPT_room_descriptions,
-		255
+		OPT_easy_search
 	},
 
 	/*** Game-Play ***/

@@ -4585,10 +4585,15 @@ void disturb(int stop_search, int unused_flag)
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
+
 	}
 
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
+
+        /* Last disturbed */
+        p_ptr->last_disturb = turn;
+
 }
 
 

@@ -2195,6 +2195,20 @@ static void process_player(void)
 		}
 	}
 
+        /*** Start searching ***/
+        if ((easy_search) && (!p_ptr->searching) && (p_ptr->last_disturb < (turn-20)))
+        {
+                /* Start searching */
+                p_ptr->searching = TRUE;
+
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+
+                /* Redraw the state */
+                p_ptr->redraw |= (PR_STATE);
+	
+        }
+
 
 	/*** Handle actual user input ***/
 

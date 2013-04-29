@@ -778,11 +778,7 @@ void object_known(object_type *o_ptr)
 	o_ptr->guess2 = 0;
 
         /* Auto-inscribe */
-        if (o_ptr->name1)
-        {
-                if (!o_ptr->note) o_ptr->note = a_info[o_ptr->name1].note;
-        }
-        else if (o_ptr->name2)
+        if (o_ptr->name2)
         {
                 if (!o_ptr->note) o_ptr->note = e_info[o_ptr->name2].note;
         }
@@ -855,7 +851,18 @@ void object_bonus(object_type *o_ptr)
 	/* Is this all we need to know */
 	if (!(o_ptr->name1) && ((o_ptr->tval == TV_AMULET) || (o_ptr->tval == TV_RING)))
 	{
-		/* Still need to know pval */
+		/* Cursed/Broken */
+		if (!cursed_p(o_ptr) && !broken_p(o_ptr)) return;;
+
+		/* Remove special inscription, if any */
+		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+
+		/* Sense the object if allowed */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) o_ptr->discount = INSCRIP_CURSED;
+
+		/* The object has been "sensed" */
+		o_ptr->ident |= (IDENT_SENSE);
+
 	}
 
 	/* Is this all we need to know */
@@ -895,7 +902,7 @@ void object_bonus(object_type *o_ptr)
 					if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
 
 					/* Normal */
-					feel = INSCRIP_SPECIAL;
+					else feel = INSCRIP_SPECIAL;
 				}
 
 				/* Ego-Items */
@@ -905,7 +912,7 @@ void object_bonus(object_type *o_ptr)
 					if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_WORTHLESS;
 
 					/* Normal */
-					feel = INSCRIP_EXCELLENT;
+					else feel = INSCRIP_EXCELLENT;
 
 		                        /* Superb */
 		                        if (o_ptr->xtra1) feel = INSCRIP_SUPERB;
@@ -947,6 +954,12 @@ void object_aware(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+        int i;
+
+	int inven_max = INVEN_TOTAL;
+
+	if (variant_belt_slot) inven_max++;
+
 	/* No longer guessing */
 	k_ptr->guess = 0;
 
@@ -958,6 +971,35 @@ void object_aware(object_type *o_ptr)
 
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
+
+        /* Process objects */
+        for (i = 1; i < o_max; i++)
+        {
+		/* Get the object */
+                object_type *i_ptr = &o_list[i];
+
+                /* Skip dead objects */
+                if (!i_ptr->k_idx) continue;
+
+		/* Re-evaluate the object */
+                object_guess_name(i_ptr);
+	
+        }
+
+        /* Process objects */
+        for (i = 1; i < inven_max; i++)
+        {
+		/* Get the object */
+                object_type *i_ptr = &inventory[inven_max];
+
+                /* Skip dead objects */
+                if (!i_ptr->k_idx) continue;
+
+		/* Re-evaluate the object */
+                object_guess_name(i_ptr);
+	
+        }
+
 }
 
 
@@ -2318,9 +2360,6 @@ static bool make_artifact_special(object_type *o_ptr)
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
 
-                /* Auto-inscribe if necessary */
-                if (cheat_auto) o_ptr->note = a_info[o_ptr->name1].note;
-
 		/* Success */
 		return (TRUE);
 	}
@@ -2381,9 +2420,6 @@ static bool make_artifact(object_type *o_ptr)
 
 		/* Mark the item as an artifact */
 		o_ptr->name1 = i;
-
-                /* Auto-inscribe if necessary */
-                if (cheat_auto) o_ptr->note = a_info[o_ptr->name1].note;
 
 		/* Success */
 		return (TRUE);

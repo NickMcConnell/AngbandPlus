@@ -62,7 +62,6 @@
 
 
 
-
 /*
  * Eat some food (from the pack or floor)
  */
@@ -253,7 +252,6 @@ void do_cmd_eat_food(void)
 			}
 			break;
 		}
-
                 case SV_FOOD_WEAKNESS:
 		{
 			take_hit(damroll(6, 6), "poisonous food");
@@ -456,7 +454,7 @@ void do_cmd_quaff_potion(void)
 
 	cptr q, s;
 
-	int guess = 0;
+        int guess = -1;
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -733,6 +731,7 @@ void do_cmd_quaff_potion(void)
                 case SV_POTION_BOLDNESS:
 		{
 			if (set_afraid(0)) guess = SV_POTION_BOLDNESS;
+			if (!(p_ptr->hero) && !(p_ptr->shero)) ident = TRUE;
 			if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
 			break;
 		}
@@ -774,7 +773,8 @@ void do_cmd_quaff_potion(void)
 			if (set_afraid(0))
 			{
 				if (!guess) guess = SV_POTION_BOLDNESS;
-				else guess = SV_POTION_HEROISM;
+				else if (p_ptr->hero) guess = SV_POTION_HEROISM;
+				else ident = TRUE;
 				if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
 			}
 			if (set_hero(p_ptr->hero + randint(25) + 25)) ident = TRUE;
@@ -787,7 +787,9 @@ void do_cmd_quaff_potion(void)
 			if (set_afraid(0))
 			{
 				if (!guess) guess = SV_POTION_BOLDNESS;
-				else guess = SV_POTION_HEROISM;
+				else if (p_ptr->hero) guess = SV_POTION_HEROISM;
+				else ident = TRUE;
+
 				if (p_ptr->chp < p_ptr->mhp) ident = TRUE;
 			}
 			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
@@ -917,6 +919,39 @@ void do_cmd_quaff_potion(void)
 			if (do_res_stat(A_CON)) ident = TRUE;
 			break;
 		}
+
+                case SV_POTION_RESTORING:
+		{
+			if (do_res_stat(A_STR)) guess = SV_POTION_RES_STR;
+			if (do_res_stat(A_INT))
+			{
+				if (!guess) guess = SV_POTION_RES_INT;
+				else ident = TRUE;
+			}
+			if (do_res_stat(A_WIS))
+			{
+				if (!guess) guess = SV_POTION_RES_WIS;
+				else ident = TRUE;
+			}
+			if (do_res_stat(A_DEX))
+			{
+				if (!guess) guess = SV_POTION_RES_DEX;
+				else ident = TRUE;
+			}
+			if (do_res_stat(A_CON))
+			{
+				if (!guess) guess = SV_POTION_RES_CON;
+				else ident = TRUE;
+			}
+			if (do_res_stat(A_CHR))
+			{
+				if (!guess) guess = SV_POTION_RES_CHR;
+				else ident = TRUE;
+			}
+			break;
+
+		}
+
 
                 case SV_POTION_RES_CHR:
 		{
@@ -1049,7 +1084,7 @@ void do_cmd_quaff_potion(void)
 	object_tried(o_ptr);
 
 	/* A guess was made */
-	if (!ident && guess && !object_aware_p(o_ptr))
+        if (!ident && (guess >= 0) && !object_aware_p(o_ptr))
 	{
 		switch (guess)
 		{
@@ -1098,20 +1133,29 @@ void do_cmd_quaff_potion(void)
 				if (k_info[lookup_kind(TV_POTION,guess)].aware) ident = TRUE;
 				break;
 
+                        case SV_POTION_RES_STR:
+                        case SV_POTION_RES_INT:
+                        case SV_POTION_RES_WIS:
+                        case SV_POTION_RES_DEX:
+                        case SV_POTION_RES_CON:
+                        case SV_POTION_RES_CHR:
+                                if (k_info[lookup_kind(TV_POTION,SV_POTION_RESTORING)].aware) ident = TRUE;
+				break;
+
                         case SV_POTION_INC_STR:
                         case SV_POTION_INC_INT:
                         case SV_POTION_INC_WIS:
                         case SV_POTION_INC_DEX:
                         case SV_POTION_INC_CON:
                         case SV_POTION_INC_CHR:
-				if (k_info[lookup_kind(TV_POTION,guess)].aware) ident = TRUE;
-				break;				
+				if (k_info[lookup_kind(TV_POTION,SV_POTION_AUGMENTATION)].aware) ident = TRUE;
+				break;
 
                         case SV_POTION_BOLDNESS:
 				if (k_info[lookup_kind(TV_POTION,guess)].aware) guess = SV_POTION_HEROISM;
 				else break;
 
-                        case SV_POTION_HEROISM:                  
+                        case SV_POTION_HEROISM:
 				if (k_info[lookup_kind(TV_POTION,guess)].aware) guess = SV_POTION_BESERK_STRENGTH;
 				else break;
 
@@ -1304,7 +1348,7 @@ void do_cmd_read_scroll(void)
 
 	cptr q, s;
 
-	int guess = 0;
+        int guess = -1;
 
 	/* Check some conditions */
 	if (p_ptr->blind)
@@ -1715,24 +1759,24 @@ void do_cmd_read_scroll(void)
 	object_tried(o_ptr);
 
 	/* A guess was made */
-	if (!ident && guess && !object_aware_p(o_ptr))
+        if (!ident && (guess>=0) && !object_aware_p(o_ptr))
 	{
 		switch (guess)
 		{
                         case SV_SCROLL_BLESSING:
-				if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_BLESSING)].aware) guess = SV_SCROLL_HOLY_CHANT;
+				if (k_info[lookup_kind(TV_SCROLL,guess)].aware) guess = SV_SCROLL_HOLY_CHANT;
 				else break;			
 
                         case SV_SCROLL_HOLY_CHANT:
-				if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_HOLY_CHANT)].aware) guess = SV_SCROLL_HOLY_PRAYER;
+				if (k_info[lookup_kind(TV_SCROLL,guess)].aware) guess = SV_SCROLL_HOLY_PRAYER;
 				else break;
 
                         case SV_SCROLL_HOLY_PRAYER:
-                                if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_HOLY_PRAYER)].aware) ident = TRUE;
+                                if (k_info[lookup_kind(TV_SCROLL,guess)].aware) ident = TRUE;
 				break;
 
                         case SV_SCROLL_ACQUIREMENT:
-                                if (k_info[lookup_kind(TV_SCROLL,SV_SCROLL_ACQUIREMENT)].aware) ident = TRUE;
+                                if (k_info[lookup_kind(TV_SCROLL,guess)].aware) ident = TRUE;
 		}
 
 		if (!ident) k_info[o_ptr->k_idx].guess = guess+1;
@@ -1788,7 +1832,7 @@ void do_cmd_use_staff(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-        int item, ident, chance, k, lev, guess = 0;
+        int item, ident, chance, k, lev, guess = -1;
 
 	object_type *o_ptr;
 
@@ -2152,7 +2196,7 @@ void do_cmd_use_staff(void)
 	object_tried(o_ptr);
 
 	/* A guess was made */
-	if (!ident && guess && !object_aware_p(o_ptr))
+        if (!ident && (guess>=0) && !object_aware_p(o_ptr))
 	{
 		switch (guess)
 		{
@@ -2283,7 +2327,7 @@ void do_cmd_use_staff(void)
  */
 void do_cmd_aim_wand(void)
 {
-        int item, lev, ident, chance, dir, sval, guess = 0;
+        int item, lev, ident, chance, dir, sval, guess = -1;
 
 	object_type *o_ptr;
 
@@ -2382,43 +2426,43 @@ void do_cmd_aim_wand(void)
 	{
                 case SV_WAND_HEAL_MONSTER:
 		{
-			if (heal_monster(dir)) ident = TRUE;
+			if (heal_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_HASTE_MONSTER:
 		{
-			if (speed_monster(dir)) ident = TRUE;
+			if (speed_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_CLONE_MONSTER:
 		{
-			if (clone_monster(dir)) ident = TRUE;
+			if (clone_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_TELEPORT_AWAY:
 		{
-			if (teleport_monster(dir)) ident = TRUE;
+			if (teleport_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_DISARMING:
 		{
-			if (disarm_trap(dir)) ident = TRUE;
+			if (disarm_trap(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_TRAP_DOOR_DEST:
 		{
-			if (destroy_door(dir)) ident = TRUE;
+			if (destroy_door(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_STONE_TO_MUD:
 		{
-			if (wall_to_mud(dir)) ident = TRUE;
+			if (wall_to_mud(dir)) guess = sval;
 			break;
 		}
 
@@ -2426,113 +2470,113 @@ void do_cmd_aim_wand(void)
 		{
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) ident = TRUE;
+			if (sleep_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) ident = TRUE;
+			if (slow_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) ident = TRUE;
+			if (confuse_monster(dir, 10)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 10)) ident = TRUE;
+			if (fear_monster(dir, 10)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 75)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_POLYMORPH:
 		{
-			if (poly_monster(dir)) ident = TRUE;
+			if (poly_monster(dir)) guess = sval;
 			break;
 		}
 
                 case SV_WAND_STINKING_CLOUD:
 		{
 			fire_ball(GF_POIS, dir, 12, 2);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_MAGIC_MISSILE:
 		{
 			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_ACID_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_ELEC_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_FIRE_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_COLD_BOLT:
 		{
 			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_ACID_BALL:
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_ELEC_BALL:
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_FIRE_BALL:
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
                 case SV_WAND_COLD_BALL:
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
-			ident = TRUE;
+			guess = sval;
 			break;
 		}
 
@@ -2613,20 +2657,26 @@ void do_cmd_aim_wand(void)
 	/* Mark it as tried */
 	object_tried(o_ptr);
 
-	/* Hack -- Guess if wand of wonder */
-        if (ident && (sval < SV_WAND_WONDER) && !object_aware_p(o_ptr))
+        /* Hack -- failed use */
+        if ((!ident) && (guess < 0) && !object_aware_p(o_ptr))
 	{
-		ident = FALSE;
+		if (flush_failure) flush();
+		msg_print("You failed to use the wand properly.");
 
-		if (k_info[o_ptr->k_idx].guess != sval) ident = TRUE;
-                if (k_info[lookup_kind(TV_WAND,sval)].aware) ident = TRUE;
-                if (k_info[lookup_kind(TV_WAND,SV_WAND_WONDER)].aware) ident = TRUE;
+                /* Mega-Hack -- don't use charge */
+		return;
 	}
 
 	/* A guess was made */
-	if (!ident && guess && !object_aware_p(o_ptr))
+        if (!ident && (guess>=0) && !object_aware_p(o_ptr))
 	{
-		switch (guess)
+                if (guess < SV_WAND_WONDER)
+		{
+			if ((k_info[o_ptr->k_idx].guess) && (k_info[o_ptr->k_idx].guess-1 != sval)) ident = TRUE;
+	                if (k_info[lookup_kind(TV_WAND,sval)].aware) ident = TRUE;
+	                if (k_info[lookup_kind(TV_WAND,SV_WAND_WONDER)].aware) ident = TRUE;
+		}
+		else switch (guess)
 		{
                         case SV_WAND_DRAGON_FIRE:
 				if (k_info[lookup_kind(TV_WAND,guess)].aware) ident = TRUE;
@@ -2737,7 +2787,7 @@ void do_cmd_aim_wand(void)
  */
 void do_cmd_zap_rod(void)
 {
-        int item, ident, chance, dir, lev, guess = 0;
+        int item, ident, chance, dir, lev, guess = -1;
 
 	object_type *o_ptr;
 
@@ -3082,7 +3132,7 @@ void do_cmd_zap_rod(void)
 	}
 
 	/* A guess was made */
-	if (!ident && guess && !object_aware_p(o_ptr))
+        if (!ident && (guess>=0) && !object_aware_p(o_ptr))
 	{
 		switch (guess)
 		{

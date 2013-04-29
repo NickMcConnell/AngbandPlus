@@ -385,8 +385,11 @@ void do_cmd_toggle_search(void)
 	/* Stop searching */
 	if (p_ptr->searching)
 	{
-		/* Clear the searching flag */
+                /* Clear the searching flag */
 		p_ptr->searching = FALSE;
+
+                /* Clear the last disturb */
+                p_ptr->last_disturb = turn;
 
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);

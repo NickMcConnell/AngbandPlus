@@ -1,3 +1,23 @@
+17-12-2001
+- Detect curse now senses all cursed items.
+- Gauge magic was not correctly marking cursed items
+(Reported by Larry Bassel).
+- Forgot to mention that 0.4.6a included option controlling
+prompting for to always inscribe items (easy_autos).
+- Reworked shops so that potions of restoring (New item,
+replaces restore strength, dexterity etc.) appear in temple,
+restore str, dex, etc. no longer appear in alchemist, and 
+identify and speed now appear in alchemists. Identify is
+now more expensive.
+- Becoming aware of an item means you'll guess everything
+on the level again (Except home).
+- Added 'Start searching if not disturbed' option, to make
+new fast_move code a lot easier on the user.
+- Fixed bug with guessing wands of wonder (Reported by
+Larry Bassel).
+- Novice necromancers were appearing too early, and had
+the wrong graphic.
+
 16-12-2001 Unangband 0.4.6a Bugfix release
 - Fixed gauge magic so that it cannot be used on items where
 IDENT_BONUS reveals no information, and correctly handles

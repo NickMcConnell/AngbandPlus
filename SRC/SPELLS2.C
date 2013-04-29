@@ -2377,8 +2377,6 @@ bool detect_objects_cursed(void)
 	{
                 int feel;
 
-		bool okay = FALSE;
-
 		object_type *o_ptr = &o_list[i];
 
 		/* Skip dead objects */
@@ -2406,35 +2404,6 @@ bool detect_objects_cursed(void)
 			/* Detect */
 			detect = TRUE;
 		}
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{
-				okay = TRUE;
-				break;
-			}
-		}
-
-		/* Skip objects */
-		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;
@@ -2464,42 +2433,10 @@ bool detect_objects_cursed(void)
 	{
 		int feel;
 
-		bool okay = FALSE;
-
                 object_type *o_ptr = &inventory[i];
 
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
-
-
-		/* Valid "tval" codes */
-		switch (o_ptr->tval)
-		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			{
-				okay = TRUE;
-				break;
-			}
-		}
-
-		/* Skip objects */
-		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
 		if (o_ptr->discount > 0) continue;

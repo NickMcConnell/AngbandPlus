@@ -1496,6 +1496,9 @@ static errr rd_extra(void)
 	/* Current turn */
 	rd_s32b(&turn);
 
+	/* Set last disturb */
+	p_ptr->last_disturb = turn;	
+
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);

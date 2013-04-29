@@ -16251,9 +16251,9 @@ D:A humanoid covered with orange fur. His arms are twice as long as his
 D:legs.
 
 N:1194:Novice necromancer
-G:p:s
+G:q:b
 I:110:7d4:20:10:10
-W:2:1:0:7
+W:4:3:0:7
 B:HIT:HURT:1d5
 F:MALE | 
 F:FORCE_SLEEP  |
@@ -16264,9 +16264,9 @@ S:S_UNDEAD
 D:He stinks of rotten flesh.
 
 N:1195:Novice necromancer
-G:p:g
+G:q:b
 I:110:7d4:20:10:5
-W:6:2:0:7
+W:8:2:0:7
 B:HIT:HURT:1d5
 F:MALE  |
 F:FORCE_SLEEP | 

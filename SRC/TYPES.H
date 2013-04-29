@@ -1416,6 +1416,7 @@ struct player_type
 
         u32b cur_style;         /* Current weapon style(s)*/
 
+	s32b last_disturb;	/* Last time disturbed */
 
 };
 

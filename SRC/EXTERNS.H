@@ -533,6 +533,7 @@ extern void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3);
 extern void object_may_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3);
 extern void drop_may_flags(object_type *o_ptr);
 extern void object_usage(int slot);
+extern void object_guess_name(object_type *o_ptr);
 extern void update_slot_flags(int slot, u32b f1, u32b f2, u32b f3);
 extern void equip_can_flags(u32b f1,u32b f2,u32b f3);
 extern void equip_not_flags(u32b f1,u32b f2,u32b f3);

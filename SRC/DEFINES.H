@@ -1796,7 +1796,7 @@
 #define SV_POTION_INC_DEX                       51
 #define SV_POTION_INC_CON                       52
 #define SV_POTION_INC_CHR                       53
-/* xxx */
+#define SV_POTION_RESTORING                       54
 #define SV_POTION_AUGMENTATION                  55
 #define SV_POTION_ENLIGHTENMENT                 56
 #define SV_POTION_STAR_ENLIGHTENMENT    57
@@ -2905,6 +2905,7 @@
 #define OPT_verify_mana			79
 #define OPT_reseed_artifacts		80
 #define OPT_easy_autos                  81
+#define OPT_easy_search			82
 /* xxx */
 /* xxx xxx */
 #define OPT_birth_point_based           (OPT_BIRTH+0)
@@ -3056,6 +3057,7 @@
 #define room_names                           op_ptr->opt[OPT_room_names]
 #define reseed_artifacts			op_ptr->opt[OPT_reseed_artifacts]
 #define easy_autos                        op_ptr->opt[OPT_easy_autos]
+#define easy_search                        op_ptr->opt[OPT_easy_search]
 /* xxx */
 /* xxx */
 /* xxx xxx */

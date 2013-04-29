@@ -1814,6 +1814,9 @@ void player_birth(void)
         /* Hack -- set the town */
         p_ptr->town = p_ptr->dungeon;
 
+	/* Set last disturb */
+	p_ptr->last_disturb = turn;
+
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
 	{

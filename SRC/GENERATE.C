@@ -1239,8 +1239,37 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
 
 	int lake_width,lake_length;
 
+        /* Hack -- increase the 'big'ness */
+        if (f_info[feat1].flags1 & (FF1_WALL))
+        {
+#if 0
+                /* Fill the dungeon */
+                if (do_big_lake)
+                {
+                        /* Hack -- Start with basic granite */
+                        for (y = 0; y < DUNGEON_HGT; y++)
+                        {
+                                for (x = 0; x < DUNGEON_WID; x++)
+                                {
+                                        /* Fill with interesting stuff */
+                                        build_terrain(y,x,zone->feat1);
+                                }
+                        }
+
+                        /* Done */
+                        return;
+
+                }
+                else
+#endif
+                /* Make small go big */
+                do_big_lake = TRUE;
+
+        }
+
+
 	/* Hack -- Save the room location */
-	if (!(f_info[feat1].flags1 & (FF1_WALL)) && (f_info[feat1].flags2 & (FF2_RIVER))
+        if (!(f_info[feat1].flags2 & (FF2_RIVER))
 	       && (dun->cent_n < CENT_MAX))
 	{
 		dun->cent[dun->cent_n].y = y;
@@ -1281,7 +1310,7 @@ static void build_feature(int y, int x, int feat, bool do_big_lake)
                         if (f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)) continue;
 		}
 
-		if (!(f_info[feat1].flags1 & (FF1_WALL)) && (!do_big_lake))
+                if (!do_big_lake)
 		{
 			/* Don't allow rooms here */
 			by = y/BLOCK_HGT;

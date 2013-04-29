@@ -563,14 +563,6 @@ errr process_pref_file_aux(char *buf)
 
                 switch(buf[2])
                 {
-                        case 'A':
-                        {
-                                if ((i < 0) || (i >= z_info->a_max)) return (1);
-
-                                a_info[i].note = quark_add(zz[2]);
-
-                                return (0);
-                        }
 
                         case 'E':
                         {
