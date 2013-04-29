@@ -69,6 +69,10 @@ extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
 extern byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
+extern u32b object_xtra_base[MAX_HIDDEN];
+extern int object_xtra_what[MAX_HIDDEN];
+extern int object_xtra_size[MAX_HIDDEN];
+extern tval_desc tvals[];
 
 /* variable.c */
 extern cptr copyright[11];
@@ -247,6 +251,10 @@ extern header *s_head;
 extern spell_type *s_info;
 extern char *s_name;
 extern char *s_text;
+extern header *y_head;
+extern rune_type *y_info;
+extern char *y_name;
+extern char *y_text;
 extern header *t_head;
 extern town_type *t_info;
 extern char *t_name;
@@ -424,6 +432,7 @@ extern void do_cmd_use_staff(void);
 extern void do_cmd_aim_wand(void);
 extern void do_cmd_zap_rod(void);
 extern void do_cmd_activate(void);
+extern void do_cmd_apply_rune(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -476,6 +485,7 @@ extern errr init_p_info_txt(FILE *fp, char *buf);
 extern errr init_c_info_txt(FILE *fp, char *buf);
 extern errr init_w_info_txt(FILE *fp, char *buf);
 extern errr init_s_info_txt(FILE *fp, char *buf);
+extern errr init_y_info_txt(FILE *fp, char *buf);
 extern errr init_t_info_txt(FILE *fp, char *buf);
 extern errr init_u_info_txt(FILE *fp, char *buf);
 extern errr init_h_info_txt(FILE *fp, char *buf);
@@ -641,8 +651,10 @@ extern void reorder_pack(void);
 extern void display_spell_list(void);
 extern void fill_book(object_type *o_ptr,byte *spells, int *num);
 extern s16b spell_level(int spell);
+extern s16b spell_power(int spell);
 extern s16b spell_chance(int spell);
 extern bool spell_okay(int spell, bool known);
+extern void spell_desc(int spell, cptr activate, int level);
 extern void spell_info(char *p, int spell);
 extern void print_powers(byte *spells, int num, int y, int x);
 extern void print_spells(byte *spells, int num, int y, int x);

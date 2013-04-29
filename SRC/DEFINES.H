@@ -1201,14 +1201,15 @@
 #define SPELL_ENCHANT_TVAL      3
 #define SPELL_BRAND_WEAPON      4
 #define SPELL_BRAND_ARMOR       5
-#define SPELL_WARD_GLYPH        6
-#define SPELL_WARD_TRAP         7
-#define SPELL_SUMMON            8
-#define SPELL_SUMMON_RACE       9
-#define SPELL_CREATE_RACE     10
-#define SPELL_CREATE_KIND     11
-#define SPELL_EARTHQUAKE      12
-#define SPELL_DESTRUCTION     13
+#define SPELL_BRAND_ITEM        6
+#define SPELL_WARD_GLYPH        7
+#define SPELL_WARD_TRAP         8
+#define SPELL_SUMMON            9
+#define SPELL_SUMMON_RACE       10
+#define SPELL_CREATE_RACE     11
+#define SPELL_CREATE_KIND     12
+#define SPELL_EARTHQUAKE      13
+#define SPELL_DESTRUCTION     14
 #define SPELL_INVEN_WIELD     24
 #define SPELL_INVEN_BOW       25
 #define SPELL_INVEN_LEFT      26
@@ -1584,6 +1585,7 @@
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
 #define TV_SONG_BOOK    92
+#define TV_RUNESTONE    93
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 /* The "sval" codes for TV_SKELETON */
@@ -2176,6 +2178,7 @@
 #define RBM_SPHERE	47
 #define RBM_PANEL	48
 #define RBM_LEVEL	49
+#define RBM_CROSS       50
 
 /*** Function flags ***/
 
@@ -2394,11 +2397,12 @@
 #define INSCRIP_SUPERB          100+12
 #define INSCRIP_UNBREAKABLE	100+13 /* Artifact */
 #define INSCRIP_UNGETTABLE	100+14 /* Has flag preventing monster getting it */
+#define INSCRIP_MIN_HIDDEN      100+15 /* Minimum inscription for hidden */
 
 /*
  * Number of special inscriptions, plus one.
  */
-#define MAX_INSCRIP                     15
+#define MAX_INSCRIP                     29
 
 
 /*
@@ -2497,12 +2501,12 @@
 #define TR2_SUST_DEX            0x00000008L     /* Sustain DEX */
 #define TR2_SUST_CON            0x00000010L     /* Sustain CON */
 #define TR2_SUST_CHR            0x00000020L     /* Sustain CHR */
-#define TR2_XXX1                        0x00000040L     /* (reserved) */
-#define TR2_XXX2                        0x00000080L     /* (reserved) */
-#define TR2_XXX3                        0x00001000L     /* (reserved) */
-#define TR2_XXX4                        0x00002000L     /* (reserved) */
-#define TR2_XXX5                        0x00004000L     /* (reserved) */
-#define TR2_XXX6                        0x00008000L     /* (reserved) */
+#define TR2_IGNORE_ACID                 0x00000040L     /* Item ignores Acid damage */
+#define TR2_IGNORE_ELEC                 0x00000080L     /* Item ignores Elec damage */
+#define TR2_IGNORE_FIRE                 0x00001000L     /* Item ignores Fire damage */
+#define TR2_IGNORE_COLD                 0x00002000L     /* Item ignores Cold damage */
+#define TR2_IGNORE_WATER                        0x00004000L     /* Item ignores Water damage */
+#define TR2_IM_POIS                     0x00008000L     /* Immunity to poison */
 #define TR2_IM_ACID                     0x00001000L     /* Immunity to acid */
 #define TR2_IM_ELEC                     0x00002000L     /* Immunity to elec */
 #define TR2_IM_FIRE                     0x00004000L     /* Immunity to fire */
@@ -2532,19 +2536,19 @@
 #define TR3_SEE_INVIS           0x00000020L     /* See Invis */
 #define TR3_FREE_ACT            0x00000040L     /* Free action */
 #define TR3_HOLD_LIFE           0x00000080L     /* Hold life */
-#define TR3_ESP_ORC                        0x00000100L /* Sense orcs */
-#define TR3_ESP_GIANT                        0x00000200L /* Sense giants */
-#define TR3_ESP_TROLL                        0x00000400L /* Sense trolls */
-#define TR3_ESP_DRAGON                        0x00000800L /* Sense dragons */
+#define TR3_XXX1                        0x00000100L /* XXX1 */
+#define TR3_XXX2                        0x00000200L /* XXX2 */
+#define TR3_DRAIN_HP                        0x00000400L /* Hit point drain */
+#define TR3_DRAIN_MANA                        0x00000800L /* Mana drain */
 #define TR3_IMPACT                      0x00001000L     /* Earthquake blows */
 #define TR3_TELEPORT            0x00002000L     /* Random teleportation */
 #define TR3_AGGRAVATE           0x00004000L     /* Aggravate monsters */
 #define TR3_DRAIN_EXP           0x00008000L     /* Experience drain */
-#define TR3_IGNORE_ACID         0x00010000L     /* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC         0x00020000L     /* Item ignores Elec Damage */
-#define TR3_IGNORE_FIRE         0x00040000L     /* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD         0x00080000L     /* Item ignores Cold Damage */
-#define TR3_ESP_DEMON                0x00100000L     /* Sense demons */
+#define TR3_ESP_DEMON         0x00010000L     /* Sense demons */
+#define TR3_ESP_DRAGON         0x00020000L     /* Sense dragons */
+#define TR3_ESP_GIANT         0x00040000L     /* Sense giants */
+#define TR3_ESP_ORC         0x00080000L     /* Sense orcs */
+#define TR3_ESP_TROLL                0x00100000L     /* Sense trolls */
 #define TR3_ESP_UNDEAD                0x00200000L     /* Sense undead */
 #define TR3_BLESSED             0x00400000L     /* Item has been blessed */
 #define TR3_ACTIVATE            0x00800000L     /* Item can be activated */
@@ -2569,11 +2573,11 @@
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 
 /*
- * Flag set 3 -- mask for "ignore element" flags.
+ * Flag set 2 -- mask for "ignore element" flags.
  */
-#define TR3_IGNORE_MASK \
-	(TR3_IGNORE_ACID | TR3_IGNORE_ELEC | TR3_IGNORE_FIRE | \
-	 TR3_IGNORE_COLD )
+#define TR2_IGNORE_MASK \
+        (TR2_IGNORE_ACID | TR2_IGNORE_ELEC | TR2_IGNORE_FIRE | \
+         TR2_IGNORE_COLD | TR2_IGNORE_WATER)
 
 
 /*
@@ -2582,6 +2586,22 @@
 #define OBJECT_XTRA_TYPE_SUSTAIN        1
 #define OBJECT_XTRA_TYPE_RESIST         2
 #define OBJECT_XTRA_TYPE_POWER          3
+#define OBJECT_XTRA_TYPE_ELEMENT	4	/* Base 4 resists */
+#define OBJECT_XTRA_TYPE_IGNORE         5       /* Ignore 5 damage */
+#define OBJECT_XTRA_TYPE_BLESSED	6
+#define OBJECT_XTRA_TYPE_SLAY		7
+#define OBJECT_XTRA_TYPE_BRAND          8       /* Fire/frost brand */
+#define OBJECT_XTRA_TYPE_POISON         9
+#define OBJECT_XTRA_TYPE_LITE           10
+#define OBJECT_XTRA_TYPE_PROOF_FIRE     11      /* Specific ignores */
+#define OBJECT_XTRA_TYPE_PROOF_WATER    12
+#define OBJECT_XTRA_TYPE_PROOF_ACID     13
+
+#define MAX_HIDDEN                      14
+
+#define OBJECT_XTRA_MIN_RUNES           16
+
+#define MAX_RUNE_FLAGS                  4
 
 /*
  * Hack -- special "xtra" object flag info (what flag set)
@@ -2589,6 +2609,16 @@
 #define OBJECT_XTRA_WHAT_SUSTAIN        2
 #define OBJECT_XTRA_WHAT_RESIST         2
 #define OBJECT_XTRA_WHAT_POWER          3
+#define OBJECT_XTRA_WHAT_ELEMENT	2	/* Base 4 resists */
+#define OBJECT_XTRA_WHAT_IGNORE         2       /* Ignore 4 elements */
+#define OBJECT_XTRA_WHAT_BLESSED	3
+#define OBJECT_XTRA_WHAT_SLAY		1
+#define OBJECT_XTRA_WHAT_BRAND		1
+#define OBJECT_XTRA_WHAT_POISON         1
+#define OBJECT_XTRA_WHAT_LITE           3
+#define OBJECT_XTRA_WHAT_PROOF_FIRE     2      /* Specific ignores */
+#define OBJECT_XTRA_WHAT_PROOF_WATER    2
+#define OBJECT_XTRA_WHAT_PROOF_ACID     2
 
 /*
  * Hack -- special "xtra" object flag info (base flag value)
@@ -2596,6 +2626,16 @@
 #define OBJECT_XTRA_BASE_SUSTAIN        TR2_SUST_STR
 #define OBJECT_XTRA_BASE_RESIST         TR2_RES_POIS
 #define OBJECT_XTRA_BASE_POWER          TR3_SLOW_DIGEST
+#define OBJECT_XTRA_BASE_ELEMENT        TR2_RES_ACID    /* Base 4 resists */
+#define OBJECT_XTRA_BASE_IGNORE         TR3_IGNORE_ACID /* Ignore 4 elements */
+#define OBJECT_XTRA_BASE_BLESSED        TR3_BLESSED
+#define OBJECT_XTRA_BASE_SLAY           TR1_SLAY_NATURAL
+#define OBJECT_XTRA_BASE_BRAND          TR1_BRAND_COLD
+#define OBJECT_XTRA_BASE_POISON         TR1_BRAND_POIS
+#define OBJECT_XTRA_BASE_LITE           TR3_LITE
+#define OBJECT_XTRA_BASE_PROOF_FIRE     TR2_IGNORE_FIRE      /* Specific ignores */
+#define OBJECT_XTRA_BASE_PROOF_WATER    TR2_IGNORE_WATER
+#define OBJECT_XTRA_BASE_PROOF_ACID     TR2_IGNORE_ACID
 
 /*
  * Hack -- special "xtra" object flag info (number of flags)
@@ -2603,8 +2643,16 @@
 #define OBJECT_XTRA_SIZE_SUSTAIN        6
 #define OBJECT_XTRA_SIZE_RESIST         12
 #define OBJECT_XTRA_SIZE_POWER          8
-
-
+#define OBJECT_XTRA_SIZE_ELEMENT        4       /* Base 4 resists */
+#define OBJECT_XTRA_SIZE_IGNORE         4       /* Ignore damage */
+#define OBJECT_XTRA_SIZE_BLESSED        1
+#define OBJECT_XTRA_SIZE_SLAY           8
+#define OBJECT_XTRA_SIZE_BRAND          3
+#define OBJECT_XTRA_SIZE_POISON         1
+#define OBJECT_XTRA_SIZE_LITE           1
+#define OBJECT_XTRA_SIZE_PROOF_FIRE     1      /* Specific ignores */
+#define OBJECT_XTRA_SIZE_PROOF_WATER    1
+#define OBJECT_XTRA_SIZE_PROOF_ACID     1
 
 /*** Monster flags ***/
 
@@ -3658,6 +3706,16 @@
 	((f_info[cave_feat[Y][X]].flags1 & (FF1_PLACE)) && \
 	 (cave_m_idx[Y][X] == 0))
 
+/*
+ * Determine if a "legal" grid is a valid starting grid for player
+ */
+#define cave_start_bold(Y,X) \
+        ((f_info[cave_feat[Y][X]].flags1 & (FF1_MOVE)) && \
+	 !(f_info[cave_feat[Y][X]].flags1 & (FF1_PERMANENT)) && \
+         !(f_info[cave_feat[Y][X]].blow.method) && \
+         !(f_info[cave_feat[Y][X]].blow.effect) && \
+         (cave_m_idx[Y][X] == 0) && \
+         (cave_m_idx[Y][X] == 0))
 
 /*
  * Determine if a "legal" grid is an "naked" floor grid

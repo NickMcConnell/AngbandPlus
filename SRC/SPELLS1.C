@@ -117,11 +117,8 @@ void teleport_away(int m_idx, int dis)
 			/* Ignore illegal locations */
 			if (!in_bounds_fully(ny, nx)) continue;
 
-			/* Require "naked" floor space */
-			if (!cave_naked_bold(ny, nx)) continue;
-
-			/* Require "empty" floor space */
-			/*if (!cave_empty_bold(ny, nx)) continue;*/
+                        /* Require "start" floor space */
+                        if (!cave_start_bold(ny, nx)) continue;
 
 			/* Hack -- no teleport onto glyph of warding */
 			/*if (cave_feat[ny][nx] == FEAT_GLYPH) continue;*/
@@ -623,6 +620,8 @@ static bool hates_fire(object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+                case TV_SONG_BOOK:
+                case TV_INSTRUMENT:
 		{
 			return (TRUE);
 		}
@@ -667,6 +666,10 @@ static bool hates_water(object_type *o_ptr)
                 /* Hack -- immerse vampire skeletons in running water */
                 case TV_BONE:
 		case TV_SCROLL:
+                case TV_MAGIC_BOOK:
+                case TV_PRAYER_BOOK:
+                case TV_SONG_BOOK:
+                case TV_INSTRUMENT:
 		case TV_FOOD:
 		{
 			return (TRUE);
@@ -691,8 +694,11 @@ static int set_acid_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
-	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
+        if (f2 & (TR2_IGNORE_ACID))
+        {
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_ACID,0x0L);
+                return (FALSE);
+        }
 	return (TRUE);
 }
 
@@ -705,8 +711,11 @@ static int set_elec_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ELEC);
-	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
+        if (f2 & (TR2_IGNORE_ELEC))
+        {
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_ELEC,0x0L);
+                return (FALSE);
+        }
 	return (TRUE);
 }
 
@@ -719,8 +728,11 @@ static int set_fire_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_FIRE);
-	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
+        if (f2 & (TR2_IGNORE_FIRE))
+        {
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_FIRE,0x0L);
+                return (FALSE);
+        }
 	return (TRUE);
 }
 
@@ -733,8 +745,11 @@ static int set_cold_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
-	object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
-	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
+        if (f2 & (TR2_IGNORE_COLD))
+        {
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_COLD,0x0L);
+                return (FALSE);
+        }
 	return (TRUE);
 }
 
@@ -747,6 +762,11 @@ static int set_water_destroy(object_type *o_ptr)
 	u32b f1, f2, f3;
 	if (!hates_water(o_ptr)) return (FALSE);
 	object_flags(o_ptr, &f1, &f2, &f3);
+        if (f2 & (TR2_IGNORE_WATER))
+        {
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_WATER,0x0L);
+                return (FALSE);
+        }
 	return (TRUE);
 }
 
@@ -865,11 +885,11 @@ static int minus_ac(void)
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Object resists */
-	if (f3 & (TR3_IGNORE_ACID))
+        if (f2 & (TR2_IGNORE_ACID))
 	{
 #ifdef ALLOW_OBJECT_INFO
 		/* Always notice */
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_ACID,0x0L);
 #endif
 
 		msg_format("Your %s is unaffected!", o_name);
@@ -879,7 +899,7 @@ static int minus_ac(void)
 
 #ifdef ALLOW_OBJECT_INFO
 	/* Always notice */
-	object_not_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
+        object_not_flags(o_ptr,0x0L,TR2_IGNORE_ACID,0x0L);
 #endif
 
 	/* Message */
@@ -1404,10 +1424,7 @@ bool apply_disenchant(int mode)
 			   ((o_ptr->number != 1) ? "" : "s"));
 #ifdef ALLOW_OBJECT_INFO
 		/* Always notice */
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ACID);
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_ELEC);
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_FIRE);
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_IGNORE_COLD);
+                object_can_flags(o_ptr,0x0L,TR2_IGNORE_MASK,0x0L);
 
 		/* Hack --- use this flag to mark as artifact */
 		object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART);
@@ -2095,8 +2112,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 	u32b if2=0;
 	u32b if3=0;
 
-        u32b ignore_all = (TR3_IGNORE_FIRE | TR3_IGNORE_COLD | TR3_IGNORE_ACID | TR3_IGNORE_ELEC);
-
 	char o_name[80];
 
 #if 0 /* unused */
@@ -2146,8 +2161,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " melt!" : " melts!");
-					if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
-					if3 |= TR3_IGNORE_ACID;
+                                        if (f2 & (TR2_IGNORE_ACID)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_ACID;
 				}
 				break;
 			}
@@ -2163,8 +2178,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
-					if3 |= TR3_IGNORE_ELEC;
+                                        if (f2 & (TR2_IGNORE_ELEC)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_ELEC;
 				}
 				break;
 			}
@@ -2173,17 +2188,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			case GF_FIRE:
 			{
 
-	/* Hack -- halve fire damage in water */
-	if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
-
-
-
+                                /* Hack -- halve fire damage in water */
+                                if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
+                        
 				if (hates_fire(o_ptr))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
-					if3 |= TR3_IGNORE_FIRE;
+                                        if (f2 & (TR2_IGNORE_FIRE)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_FIRE;
 				}
 				break;
 			}
@@ -2200,8 +2213,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					note_kill = (plural ? " shatter!" : " shatters!");
 					do_kill = TRUE;
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
-					if3 |= TR3_IGNORE_COLD;
+                                        if (f2 & (TR2_IGNORE_COLD)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_COLD;
 				}
 				break;
 			}
@@ -2213,16 +2226,16 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
-					if3 |= TR3_IGNORE_FIRE;
+                                        if (f2 & (TR2_IGNORE_FIRE)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_FIRE;
 				}
 				if (hates_elec(o_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
 					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-					if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
-					if3 |= TR3_IGNORE_ELEC;
+                                        if (f2 & (TR2_IGNORE_ELEC)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_ELEC;
 				}
 				break;
 			}
@@ -2234,16 +2247,16 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
-					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
-					if3 |= TR3_IGNORE_FIRE;
+                                        if (f2 & (TR2_IGNORE_FIRE)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_FIRE;
 				}
 				if (hates_cold(o_ptr))
 				{
 					ignore = FALSE;
 					do_kill = TRUE;
 					note_kill = (plural ? " shatter!" : " shatters!");
-					if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
-					if3 |= TR3_IGNORE_COLD;
+                                        if (f2 & (TR2_IGNORE_COLD)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_COLD;
 				}
 				break;
 			}
@@ -2268,6 +2281,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					note_kill = (plural ? " soak through!" : " soaks through!");
 					do_kill = TRUE;
+                                        if (f2 & (TR2_IGNORE_COLD)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_COLD;
 				}
 				break;
 			}
@@ -2279,6 +2294,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				{
 					note_kill = (plural ? " soak through!" : " soaks through!");
 					do_kill = TRUE;
+                                        if (f2 & (TR2_IGNORE_COLD)) ignore = TRUE;
+                                        if2 |= TR2_IGNORE_COLD;
 				}
 				break;
 			}
@@ -2360,7 +2377,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 							o_ptr->ident |= (IDENT_SENSE);
 						}
 
-                                                object_can_flags(o_ptr,0x0L,0x0L,ignore_all);
+                                                object_can_flags(o_ptr,0x0L,TR2_IGNORE_MASK,0x0L);
 					}
 				}
 

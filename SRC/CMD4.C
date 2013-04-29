@@ -2462,62 +2462,6 @@ static errr autos_dump(cptr fname)
 }
 
 
-/*
- * A structure to hold a tval and its description
- */
-typedef struct tval_desc
-{
-	int tval;
-	cptr desc;
-} tval_desc;
-
-/*
- * A list of tvals and their textual names
- */
-static tval_desc tvals[] =
-{
-	{ TV_SWORD,             "Sword"                },
-	{ TV_POLEARM,           "Polearm"              },
-	{ TV_HAFTED,            "Hafted Weapon"        },
-	{ TV_BOW,               "Bow"                  },
-	{ TV_ARROW,             "Arrows"               },
-	{ TV_BOLT,              "Bolts"                },
-	{ TV_SHOT,              "Shots"                },
-	{ TV_SHIELD,            "Shield"               },
-	{ TV_CROWN,             "Crown"                },
-	{ TV_HELM,              "Helm"                 },
-	{ TV_GLOVES,            "Gloves"               },
-	{ TV_BOOTS,             "Boots"                },
-	{ TV_CLOAK,             "Cloak"                },
-	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
-	{ TV_HARD_ARMOR,        "Hard Armor"           },
-	{ TV_SOFT_ARMOR,        "Soft Armor"           },
-	{ TV_RING,              "Ring"                 },
-	{ TV_AMULET,            "Amulet"               },
-	{ TV_LITE,              "Lite"                 },
-	{ TV_POTION,            "Potion"               },
-	{ TV_SCROLL,            "Scroll"               },
-	{ TV_WAND,              "Wand"                 },
-	{ TV_STAFF,             "Staff"                },
-	{ TV_ROD,               "Rod"                  },
-	{ TV_PRAYER_BOOK,       "Priest Book"          },
-	{ TV_MAGIC_BOOK,        "Magic Book"           },
-        { TV_SONG_BOOK,         "Song Book"            },
-        { TV_INSTRUMENT,        "Instrument"           },
-	{ TV_SPIKE,             "Spikes"               },
-	{ TV_DIGGING,           "Digger"               },
-	{ TV_FOOD,              "Food"                 },
-	{ TV_FLASK,             "Flask"                },
-        { TV_HOLD,              "Container"            },
-        { TV_FIGURE,            "Figurine"             },
-	{ TV_STATUE,		"Statue"	       },
-        { TV_BONE,              "Skeleton"             },
-	{ TV_BODY,		"Corpse"	       },
-	{ TV_EGG,		"Egg"		       },
-	{ TV_SKIN,		"Skin"		       },
-        { TV_JUNK,              "Junk"                 },
-	{ 0,                    NULL                   }
-};
 
 /*
  * Strip an "object kind name" into a buffer

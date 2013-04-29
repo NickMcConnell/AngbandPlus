@@ -2386,6 +2386,124 @@ cptr inscrip_text[MAX_INSCRIP] =
         "great",
         "superb",
 	"unbreakable",
-	"ungettable"
+        "ungettable",
+        "sustain",
+        "high resist",
+        "enchanted",
+        "low resist",
+        "ignore",
+        "blessed",
+        "slay",
+        "branded",
+        "poisoned",
+        "glowing",
+        "fireproof",
+        "waterproof",
+        "acidproof"
+};
+
+int object_xtra_what[MAX_HIDDEN] =
+{
+        0,
+        2,
+        2,
+        3,
+        2,
+        2,
+        3,
+        1,
+        1,
+        1,
+        3,
+        2,
+        2,
+        2
+};
+
+u32b object_xtra_base[MAX_HIDDEN] =
+{
+        0,
+        TR2_SUST_STR,
+        TR2_RES_POIS,
+        TR3_SLOW_DIGEST,
+        TR2_RES_ACID,
+        TR2_IGNORE_ACID,
+        TR3_BLESSED,
+        TR1_SLAY_NATURAL,
+        TR1_BRAND_COLD,
+        TR1_BRAND_POIS,
+        TR3_LITE,
+        TR2_IGNORE_FIRE,
+        TR2_IGNORE_WATER,
+        TR2_IGNORE_WATER,
+};
+
+
+int object_xtra_size[MAX_HIDDEN] =
+{
+        0,
+        6,
+        12,
+        8,
+        4,
+        5,
+        1,
+        8,
+        3,
+        1,
+        1,
+        1,
+        1,
+        1,
+};
+
+
+/*
+ * A list of tvals and their textual names
+ */
+tval_desc tvals[] =
+{
+	{ TV_SWORD,             "Sword"                },
+	{ TV_POLEARM,           "Polearm"              },
+	{ TV_HAFTED,            "Hafted Weapon"        },
+        { TV_BOW,               "Bows"                 },
+        { TV_ARROW,             "Arrows"               },
+        { TV_BOLT,              "Bolts"                },
+        { TV_SHOT,              "Shots"                },
+	{ TV_SHIELD,            "Shield"               },
+	{ TV_CROWN,             "Crown"                },
+	{ TV_HELM,              "Helm"                 },
+	{ TV_GLOVES,            "Gloves"               },
+	{ TV_BOOTS,             "Boots"                },
+	{ TV_CLOAK,             "Cloak"                },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail"    },
+	{ TV_HARD_ARMOR,        "Hard Armor"           },
+	{ TV_SOFT_ARMOR,        "Soft Armor"           },
+	{ TV_RING,              "Ring"                 },
+	{ TV_AMULET,            "Amulet"               },
+	{ TV_LITE,              "Lite"                 },
+	{ TV_POTION,            "Potion"               },
+	{ TV_SCROLL,            "Scroll"               },
+	{ TV_WAND,              "Wand"                 },
+	{ TV_STAFF,             "Staff"                },
+	{ TV_ROD,               "Rod"                  },
+	{ TV_PRAYER_BOOK,       "Priest Book"          },
+	{ TV_MAGIC_BOOK,        "Magic Book"           },
+        { TV_SONG_BOOK,         "Song Book"            },
+        { TV_INSTRUMENT,        "Instrument"           },
+        { TV_RUNESTONE,         "Runestone"            },
+	{ TV_SPIKE,             "Spikes"               },
+	{ TV_DIGGING,           "Digger"               },
+	{ TV_FOOD,              "Food"                 },
+	{ TV_FLASK,             "Flask"                },
+        { TV_HOLD,              "Container"            },
+        { TV_FIGURE,            "Figurine"             },
+	{ TV_STATUE,		"Statue"	       },
+        { TV_BONE,              "Skeleton"             },
+	{ TV_BODY,		"Corpse"	       },
+	{ TV_EGG,		"Egg"		       },
+	{ TV_SKIN,		"Skin"		       },
+        { TV_JUNK,              "Junk"                 },
+	{ 0,                    NULL                   }
 };
 

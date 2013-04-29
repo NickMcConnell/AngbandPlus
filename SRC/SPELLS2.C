@@ -17,9 +17,6 @@
 #include "angband.h"
 
 
-
-
-
 /*
  * Increase players hit points, notice effects
  */
@@ -3276,6 +3273,16 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		/* Message */
 		msg_print("The enchantment failed.");
 	}
+        else
+        {
+
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+        
+                /* Combine / Reorder the pack (later) */
+                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+        }
 
 	/* Something happened */
 	return (TRUE);
@@ -3322,20 +3329,36 @@ bool brand_weapon(int brand, cptr act)
         msg_format("%s %s %s!",
                    ((item >= 0) ? "Your" : "The"), o_name, act);
 
-	/* you can never modify artifacts / ego-items */
-	/* you can never modify broken / cursed items */
-        if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-            (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+        /* you can never modify artifacts / ego-items with hidden powers*/
+        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
 	{
-                o_ptr->name2 = brand;
+                o_ptr->xtra1 = brand;
+                o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
 
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-	}
 
+                /* Remove special inscription, if any */
+                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+        
+                /* Take note if allowed */
+                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
+        
+                /* The object has been "sensed" */
+                o_ptr->ident |= (IDENT_SENSE);
+        
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+        
+                /* Combine / Reorder the pack (later) */
+                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	}
 	else
 	{
 		if (flush_failure) flush();
                 msg_print("The branding failed.");
+
+                /* Sense it? */
 	}
 
 	/* Something happened */
@@ -3382,20 +3405,107 @@ bool brand_armor(int brand, cptr act)
         msg_format("%s %s %s!",
                    ((item >= 0) ? "Your" : "The"), o_name, act);
 
-	/* you can never modify artifacts / ego-items */
-	/* you can never modify broken / cursed items */
-        if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-            (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+        /* you can never modify artifacts / ego-items with hidden powers*/
+        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
 	{
-                o_ptr->name2 = brand;
+                o_ptr->xtra1 = brand;
+                o_ptr->xtra2 = rand_int(object_xtra_size[brand]);
 
-                enchant(o_ptr, rand_int(3) + 4, ENCH_TOAC);
+                enchant(o_ptr, rand_int(4) + 3, ENCH_TOAC);
+
+                /* Remove special inscription, if any */
+                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+        
+                /* Take note if allowed */
+                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
+        
+                /* The object has been "sensed" */
+                o_ptr->ident |= (IDENT_SENSE);
+
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+        
+                /* Combine / Reorder the pack (later) */
+                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 	}
 
 	else
 	{
 		if (flush_failure) flush();
                 msg_print("The branding failed.");
+	}
+
+	/* Something happened */
+        return (TRUE);
+}
+
+/*
+ * Brand any item
+ */
+bool brand_item(int brand, cptr act)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+	/* Get an item */
+        q = "Enchant which item? ";
+        s = "You have nothing to enchant.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Describe */
+        msg_format("%s %s %s!",
+                   ((item >= 0) ? "Your" : "The"), o_name, act);
+
+        /* you can never modify artifacts / ego-items with hidden powers*/
+        if ((!artifact_p(o_ptr)) && !(o_ptr->xtra1))
+	{
+                o_ptr->xtra1 = brand;
+                o_ptr->xtra2 = (byte)rand_int(object_xtra_size[brand]);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+                /* Remove special inscription, if any */
+                if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
+        
+                /* Take note if allowed */
+                if (o_ptr->discount == 0) o_ptr->discount = INSCRIP_MIN_HIDDEN + brand -1;
+        
+                /* The object has been "sensed" */
+                o_ptr->ident |= (IDENT_SENSE);
+        
+                /* Recalculate bonuses */
+                p_ptr->update |= (PU_BONUS);
+        
+                /* Combine / Reorder the pack (later) */
+                p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	}
+	else
+	{
+		if (flush_failure) flush();
+                msg_print("The branding failed.");
+
+                /* Sense it? */
 	}
 
 	/* Something happened */
@@ -3561,7 +3671,7 @@ bool ident_spell_rumor(void)
 
 	object_type *o_ptr;
 
-	cptr p, q, r, s;
+        cptr p, q, r, s;
 
 	int i;
 
@@ -3764,7 +3874,6 @@ bool ident_spell_tval(int tval)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Identify it fully */
 	object_aware(o_ptr);
@@ -6169,7 +6278,7 @@ bool process_spell_flags(int spell, int level, bool *cancel)
                 obvious = TRUE;
         }
 
-        if (s_ptr->flags2 & (SF2_TELE_LEVEL))
+        if (s_ptr->flags2 & (SF2_ALTER_LEVEL))
         {
                 p_ptr->leaving = TRUE;
                 obvious = TRUE;
@@ -6707,6 +6816,17 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 
                                 break;
                         }
+                        case RBM_CROSS:
+                        {
+                                int k;
+
+                                /* Allow direction to be cancelled for free */
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+                                
+                                for (k = 0; k < 4; k++) if (fire_beam(effect, ddd[k], damage)) obvious = TRUE;
+
+                                break;
+                        }
                         case RBM_STAR:
                         {
                                 int k;
@@ -6718,7 +6838,7 @@ bool process_spell_blows(int spell, int level, bool *cancel)
 
                                 break;
                         }
-				case RBM_SPHERE:
+                                case RBM_AURA:
                         /* Radius 2, centred on self */
                         {
                                 int py = p_ptr->py;
@@ -6726,6 +6846,15 @@ bool process_spell_blows(int spell, int level, bool *cancel)
                         
                                 int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
                                 if (project(-1, 2, py, px, damage, effect, flg)) obvious = TRUE;
+                                break;
+                        }
+                        case RBM_SPHERE:
+                        /* Variable radius */
+                        {
+                                if ((!get_aim_dir(&dir)) && (cancel)) return (FALSE);
+
+                                if (fire_ball(effect, dir, damage, (level/10)+1)) obvious = TRUE;
+
                                 break;
                         }
                         case RBM_PANEL:
@@ -6804,12 +6933,17 @@ bool process_spell_types(int spell, int level, bool *cancel)
                         }
                         case SPELL_BRAND_WEAPON:
                         {
-                                if ((!brand_weapon(s_ptr->param, s_text + s_ptr->text)) && (cancel)) return (TRUE);
+                                if (!brand_weapon(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
                                 break;
                         }
                         case SPELL_BRAND_ARMOR:
                         {
-                                if ((!brand_armor(s_ptr->param, s_text + s_ptr->text)) && (cancel)) return (TRUE);
+                                if (!brand_armor(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
+                                break;
+                        }
+                        case SPELL_BRAND_ITEM:
+                        {
+                                if (!brand_armor(s_ptr->param, "glows brightly.") && (cancel)) return (TRUE);
                                 break;
                         }
                         case SPELL_WARD_GLYPH:
@@ -6883,3 +7017,4 @@ bool process_spell(int spell, int level, bool *cancel)
         /* Return result */
         return (obvious);
 }
+

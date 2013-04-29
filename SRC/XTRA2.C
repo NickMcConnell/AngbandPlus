@@ -3058,7 +3058,7 @@ static void room_info_top(int room)
 /*
  * Hack -- describe the given room at the top of the screen
  */
-void screen_room_info(int room)
+static void screen_room_info(int room)
 {
 	char name[32];
 	char text_visible[240];

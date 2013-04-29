@@ -347,7 +347,7 @@ O:90:24:1
 
 N:20:newly erected statue in your honor
 G:9:w
-I:40:0
+I:60:0
 
 N:21:Farmhouse
 G:+:U
@@ -451,3 +451,14 @@ O:70:34:1
 N:27:Bilbo's House
 G:8:U
 I:0:80
+
+N:28:House of Tom Bombadil
+G:+:U
+I:0:80
+O:80:35:4
+O:80:32:1
+O:80:33:2
+O:80:39:1
+O:80:38:1
+O:80:40:1
+O:80:41:1

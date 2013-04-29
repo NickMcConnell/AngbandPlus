@@ -1407,8 +1407,13 @@ void note_spot(int y, int x)
 		/* Memorize some "boring" grids */
 		if (!(f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER)))
 		{
+
+                        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+
+                        if (surface && !(info & (CAVE_GLOW))) cave_info[y][x] |= (CAVE_MARK);
+
 			/* Option -- memorize certain floors */
-			if (((info & (CAVE_GLOW)) && view_perma_grids) ||
+                        else if (((info & (CAVE_GLOW)) && view_perma_grids) ||
 			    view_torch_grids)
 			{
 				/* Memorize */

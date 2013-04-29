@@ -2587,7 +2587,7 @@ static s16b choose_item(int a_idx)
 
 
 	/* Artifacts ignore everything */
-	a_ptr->flags3 |= TR3_IGNORE_MASK;
+        a_ptr->flags2 |= TR2_IGNORE_MASK;
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	/*
@@ -5324,7 +5324,7 @@ static void scramble_artifact(int a_idx)
 		a_ptr->flags1 = a_ptr->flags2 = 0;
 
 		/* Artifacts ignore everything */
-		a_ptr->flags3 = (TR3_IGNORE_MASK);
+                a_ptr->flags2 = (TR2_IGNORE_MASK);
 	}
 
 	/* Got a base item. */

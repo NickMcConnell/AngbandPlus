@@ -2251,7 +2251,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-        fprintf(fff, "  [Unangband 0.4.7 Character Dump]\n\n");
+        fprintf(fff, "  [Unangband 0.4.9 Character Dump]\n\n");
 
 	/* Display player */
 	display_player(0);

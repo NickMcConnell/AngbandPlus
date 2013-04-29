@@ -703,6 +703,15 @@ char *s_name;
 char *s_text;
 
 /*
+ * The rune arrays
+ */
+header *y_head;
+rune_type *y_info;
+char *y_name;
+char *y_text;
+
+
+/*
  * The town/dungeon arrays
  */
 header *t_head;

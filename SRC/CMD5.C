@@ -76,6 +76,12 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
                         p="spell";
                         cast = TRUE;
                 break;
+
+                case TV_RUNESTONE:
+                        p="rune";
+                        cast = TRUE;
+                break;
+
                 default:
                         p="power";
                 break;
@@ -149,7 +155,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 
 
 	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
+        strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 	        p, I2A(0), I2A(num - 1), prompt, p);
 
 	/* Get a spell from the user */
@@ -249,7 +255,6 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			if (!get_check(tmp_val)) continue;
 		}
 
-
 		/* Stop the loop */
 		flag = TRUE;
 	}
@@ -295,6 +300,7 @@ bool inven_book_okay(object_type *o_ptr)
 
         if ((o_ptr->tval != TV_MAGIC_BOOK) &&
             (o_ptr->tval != TV_PRAYER_BOOK) &&
+            (o_ptr->tval != TV_RUNESTONE) &&
             (o_ptr->tval != TV_SONG_BOOK)) return (0);
 
         for (i=0;i<z_info->s_max;i++)
@@ -339,7 +345,16 @@ void do_cmd_browse(void)
 
 	object_type *o_ptr;
 
-	cptr q, s;
+        cptr p, q, s;
+
+        int spell=-1;
+
+        int i;
+
+        char choice = 0;
+
+	char out_val[160];
+
 
 	/* Cannot browse books if illiterate */
 	if (c_info[p_ptr->pclass].sp_lvl > PY_MAX_LEVEL)
@@ -389,12 +404,35 @@ void do_cmd_browse(void)
 	/* Get the item's sval */
 	sval = o_ptr->sval;
 
-
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
+
+        /* Spell */
+        switch (o_ptr->tval)
+        {
+
+                case TV_PRAYER_BOOK:
+                        p="prayer";
+                break;
+
+                case TV_SONG_BOOK:
+                        p="song";
+                break;
+
+                case TV_MAGIC_BOOK:
+                        p="spell";
+                break;
+
+                case TV_RUNESTONE:
+                        p="rune";
+                break;
+                default:
+                        p="power";
+                break;
+        }
 
 	/* Fill book with spells */
 	fill_book(o_ptr,book,&num);
@@ -405,22 +443,63 @@ void do_cmd_browse(void)
 	/* Display the spells */
         print_spells(book, num, 1, 20);
 
-	/* Prompt for a command */
-	put_str("(Browsing) Command: ", 0, 0);
+	/* Build a prompt (accept all spells) */
+        strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
+                p, I2A(0), I2A(num - 1), p);
 
-	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
-
-	/* Load screen */
-	screen_load();
-
-
-	/* Hack -- Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
+	/* Get a spell from the user */
+        while ((choice != ESCAPE) && get_com(out_val, &choice))
 	{
-		/* Reset stuff */
-		p_ptr->command_new = 0;
+		/* Lowercase 1+*/
+		choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+                if ((i >= 0) && (i < num))
+                {
+                        /* Save the spell index */
+                        spell = book[i];
+
+                        /* Load screen */
+                        screen_load();
+
+                        /* Save screen */
+                        screen_save();
+
+                        /* Display the spells */
+                        print_spells(book, num, 1, 20);
+
+                        /* Begin recall */
+                        Term_gotoxy(0, 1);
+
+                        /* Recall spell */
+                        spell_desc(spell,NULL,spell_power(spell));
+
+                        /* Build a prompt (accept all spells) */
+                        strnfmt(out_val, 78, "The %s of %s. (%c-%c, ESC) Browse which %s:",
+                                p, s_name + s_info[spell].name,I2A(0), I2A(num - 1), p);
+
+                        continue;
+                }
+
 	}
+
+        /* Prompt for a command */
+        put_str("(Browsing) Command: ", 0, 0);
+
+        /* Hack -- Get a new command */
+        p_ptr->command_new = inkey();
+
+        /* Load screen */
+        screen_load();
+
+        /* Hack -- Process "Escape" */
+        if (p_ptr->command_new == ESCAPE)
+        {
+                /* Reset stuff */
+                p_ptr->command_new = 0;
+        }
 }
 
 
@@ -715,9 +794,7 @@ bool inven_cast_okay(object_type *o_ptr)
  */
 void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 {
-
         int i;
-
         int chance;
 
 	spell_type *s_ptr;
@@ -912,11 +989,7 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
  */
 void do_cmd_cast(void)
 {
-        int i;
-
 	int item,spell;
-
-	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
@@ -996,6 +1069,20 @@ void do_cmd_cast(void)
         switch (o_ptr->tval)
 	{
 
+                case TV_MAGIC_BOOK:
+		{
+                        p="cast";
+                        t="spell";
+			
+			break;
+		}
+                case TV_RUNESTONE:
+		{
+                        p="apply";
+                        t="rune";
+			
+			break;
+		}
                 case TV_PRAYER_BOOK:
 		{
        	                p="recite";
@@ -1019,8 +1106,8 @@ void do_cmd_cast(void)
 
                 default:
 		{
-       	                p="cast";
-			t="spell";
+                        p="use";
+                        t="power";
 			break;		
 	        }
 	}
@@ -1032,144 +1119,13 @@ void do_cmd_cast(void)
 		return;
 	}
 
-	/* Modify the spell power */
-	for (i = 0;i< z_info->w_max;i++)
-	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		/* Line 1 --- casting from a spell book */
-		/* Line 2 --- spell can be held */
-		/* Line 3 --- capable of holding song */
-                if ((o_ptr->tval == TV_SONG_BOOK) &&
-                        (s_info[spell].flags3 & (SF3_HOLD_SONG)) &&
-			 (w_info[i].benefit == WB_HOLD_SONG)) p_ptr->held_song = spell;
-
-		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
-
-                if (w_info[i].benefit != WB_POWER) continue;
-
-		switch (p_ptr->pstyle)
-		{
-			case WS_WAND:
-			{
-				if (!(o_ptr->tval == TV_WAND)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_STAFF:
-			{
-				if (!(o_ptr->tval == TV_STAFF)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_POTION:
-			{
-				if (!(o_ptr->tval == TV_POTION)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_SCROLL:
-			{
-				if (!(o_ptr->tval == TV_SCROLL)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_AMULET:
-			{
-				if (!(o_ptr->tval == TV_AMULET)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_RING:
-			{
-				if (!(o_ptr->tval == TV_RING)) break;
-				plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			case WS_MAGIC_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			case WS_PRAYER_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			case WS_SONG_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			case WS_INSTRUMENT:
-			{
-				if (!(p_ptr->cur_style & (1L << WS_INSTRUMENT))) break;
-
-                                /* Line 1 - has item wielded */
-                                /* Line 2 - item is instrument */
-                                /* Line 3 - instrument sval matches spellbook sval */
-                                if ((inventory[INVEN_WIELD].k_idx) &&
-                                (inventory[INVEN_WIELD].tval == TV_INSTRUMENT) &&
-                                (o_ptr->sval == inventory[INVEN_WIELD].sval))
-                                        plev += (p_ptr->lev - w_info[i].level);
-
-                                /* Line 1 - has item in off-hand */
-                                /* Line 2 - item is instrument */
-                                /* Line 3 - instrument sval matches spellbook sval */
-                                else if ((inventory[INVEN_ARM].k_idx) &&
-                                (inventory[INVEN_ARM].tval == TV_INSTRUMENT) &&
-                                (o_ptr->sval == inventory[INVEN_ARM].sval))
-                                        plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-			default:
-			{
-                                if (w_info[i].styles & p_ptr->cur_style) plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-		}
-
-	}
-
 	/* Take a (partial) turn */
         if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
         else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
         else p_ptr->energy_use = 100;
 
 	/* Cast the spell - held songs get cast later*/
-        if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,plev,p,t);
+        if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
 	
 }
 

@@ -1181,36 +1181,63 @@ static void store_create(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
 	/* Total choices in store */
 	total = 0;
 
-		for (i = 0;i < STORE_CHOICES;i++)
-		{
-			if (su_ptr->tval[i])
-			{
-				total += su_ptr->count[i];
-			}
-		}
-
+        for (i = 0;i < STORE_CHOICES;i++)
+        {
+                if (su_ptr->tval[i])
+                {
+                        total += su_ptr->count[i];
+                }
+        }
 
 	/* Hack -- consider up to four items */
 	for (tries = 0; tries < 4; tries++)
 	{
+
+                /* Quest rewards */
+                if ((total == 0) && (store_num_fake == -1))
+                {
+                        /* Mega-hack -- fiddle depth */
+                        int depth = p_ptr->depth;
+
+                        p_ptr->depth = su_ptr->level;
+
+                        /* Get local object */
+                        i_ptr = &object_type_body;
+
+                        make_object(i_ptr, TRUE, TRUE);
+
+                        /* Reset depth */
+                        p_ptr->depth = depth;
+
+                        object_aware(i_ptr);
+                        object_known(i_ptr);
+
+                        /* Attempt to carry the (known) object */
+                        (void)store_carry(i_ptr);
+
+                        return;
+                }
+
 		/* Black Market */
-                if (total == 0)
+                else if (total == 0)
 		{
 			/* Pick a level for object/magic */
 			level = su_ptr->level + rand_int(su_ptr->level);
+
+                        if (level > 100) level = 100;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
 
 			/* Handle failure */
 			if (!k_idx) continue;
+
 		}
 
 		/* Normal Store */
@@ -1238,15 +1265,14 @@ static void store_create(void)
 			level = rand_range(1, STORE_OBJ_LEVEL+su_ptr->level);
 		}
 
-
 		/* Get local object */
 		i_ptr = &object_type_body;
 
 		/* Create a new object of the chosen kind */
 		object_prep(i_ptr, k_idx);
 
-		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
+                /* Apply some "low-level" magic (no artifacts unless reward) */
+                apply_magic(i_ptr, level, FALSE, FALSE, FALSE);
 
 		/* Hack -- Charge lite's */
 		if (i_ptr->tval == TV_LITE)
@@ -1254,7 +1280,6 @@ static void store_create(void)
 			if (i_ptr->sval == SV_LITE_TORCH) i_ptr->pval = FUEL_TORCH / 2;
 			if (i_ptr->sval == SV_LITE_LANTERN) i_ptr->pval = FUEL_LAMP / 2;
 		}
-
 
 		/* The object is "known" */
 		object_known(i_ptr);
@@ -3333,7 +3358,7 @@ void do_cmd_store(void)
 		p_ptr->town = p_ptr->dungeon;		
 
 		/* Initialise the stores -- except for home */
-                for (i = 0; i<STORE_HOME-1;i++)
+                for (i = 0; i<STORE_HOME;i++)
 		{
 			store_init(i);
 

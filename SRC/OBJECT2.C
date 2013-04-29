@@ -1569,7 +1569,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
 			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
+                                && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
 			{
 				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_time_stacks) return (0);
@@ -1583,6 +1583,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_FOOD:
 		case TV_POTION:
 		case TV_SCROLL:
+                case TV_RUNESTONE:
 		{
 			/* Assume okay */
 			break;
@@ -1613,7 +1614,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				if ((!stack_force_pvals)
 					&& ((o_ptr->pval != j_ptr->pval-1) || (o_ptr->stackc))
 					&& ((o_ptr->pval != j_ptr->pval+1) || (j_ptr->stackc))
-					&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr))) return (0);
+                                        && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
 			}
 
 			/* Probably okay */
@@ -1628,7 +1629,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
 			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
+                                && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
 			{
 				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_time_stacks) return (0);
@@ -1700,7 +1701,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 				if ((!stack_force_pvals) &&
                                         ((o_ptr->pval != j_ptr->pval-1) || (o_ptr->stackc))  &&
                                         ((o_ptr->pval != j_ptr->pval+1) || (j_ptr->stackc))
-					&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);			}
+                                        && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) ) return (0);                 }
 
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
@@ -1713,7 +1714,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 			/* Require 'similar' timeouts */
                         if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) )
+                                && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
 			{
                                 if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
                                 if (!variant_pval_stacks) return (0);
@@ -1746,11 +1747,14 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		return (0);
 	}
 
+        /* Hack -- Require identical "xtra1" and "xtra2" status */
+        if ((o_ptr->xtra1 != j_ptr->xtra1) || (o_ptr->xtra2 !=j_ptr->xtra2)) return (0);
+
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
 	{
 		/* Normally require matching inscriptions */
-		if (!stack_force_notes && !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);
+                if (!stack_force_notes && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) ) return (0);
 
 		/* Never combine different inscriptions */
 		if (o_ptr->note && j_ptr->note) return (0);
@@ -1773,7 +1777,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		         (j_ptr->discount >= INSCRIP_NULL))
 		{
 			/* Normally require matching inscriptions */
-			if (!stack_force_notes && !(auto_stack_okay(o_ptr)) && !(auto_stack_okay(j_ptr)) ) return (0);
+                        if (!stack_force_notes && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) ) return (0);
 
 			/* Hack -- Never merge a special inscription with a discount */
 			if ((o_ptr->discount > 0) && (j_ptr->discount > 0)) return (0);
@@ -1783,7 +1787,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		else
 		{
 			/* Normally require matching discounts */
-                        if (!stack_force_costs && !auto_stack_okay(o_ptr) && !auto_stack_okay(j_ptr)) return (0);
+                        if (!stack_force_costs && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
 		}
 	}
 
@@ -3273,26 +3277,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (e_ptr->xtra)
 		{
 			o_ptr->xtra1 = e_ptr->xtra;
-			switch (o_ptr->xtra1)
-			{
-				case OBJECT_XTRA_TYPE_SUSTAIN:
-				{
-					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_SUSTAIN);
-					break;
-				}
-
-				case OBJECT_XTRA_TYPE_RESIST:
-				{
-					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_RESIST);
-					break;
-				}
-
-				case OBJECT_XTRA_TYPE_POWER:
-				{
-					o_ptr->xtra2 = (byte)rand_int(OBJECT_XTRA_SIZE_POWER);
-					break;
-				}
-			}
+                        o_ptr->xtra2 = (byte)rand_int(object_xtra_size[e_ptr->xtra]);
 		}
 
 		/* Hack -- acquire "broken" flag */
@@ -3652,6 +3637,12 @@ static bool kind_is_good(int k_idx)
 			return (FALSE);
 		}
 
+                /* Rune stones are good */
+                case TV_RUNESTONE:
+                {
+                        return (TRUE);
+                }
+
 		/* Rings -- Rings of Speed are good */
 		case TV_RING:
 		{
@@ -3735,6 +3726,7 @@ static bool kind_is_race(int k_idx)
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
                 case TV_SCROLL:
+                case TV_RUNESTONE:
 		{
                         if (r_ptr->flags7 & (RF7_DROP_WRITING)) return (TRUE);
                         return (FALSE);
@@ -6630,6 +6622,117 @@ s16b spell_level(int spell)
 }
 
 
+s16b spell_power(int spell)
+{
+        int i;
+
+        int plev = p_ptr->lev;
+
+	/* Modify the spell power */
+	for (i = 0;i< z_info->w_max;i++)
+	{
+		if (w_info[i].class != p_ptr->pclass) continue;
+
+		if (w_info[i].level > p_ptr->lev) continue;
+
+		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
+
+                if (w_info[i].benefit != WB_POWER) continue;
+
+		switch (p_ptr->pstyle)
+		{
+			case WS_MAGIC_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			case WS_PRAYER_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			case WS_SONG_BOOK:
+			{
+				int j;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
+					   (s_info[spell].appears[j].sval == p_ptr->psval))
+					{
+						 plev += (p_ptr->lev - w_info[i].level);
+					}
+
+				}
+				break;
+			}
+			case WS_INSTRUMENT:
+			{
+				int j;
+
+				if (!(p_ptr->cur_style & (1L << WS_INSTRUMENT))) break;
+
+				for(j=0;j<MAX_SPELL_APPEARS;j++)
+				{
+                                        /* Line 1 - has item wielded */
+                                        /* Line 2 - item is instrument */
+                                        /* Line 3 - instrument sval matches spellbook sval */
+                                        /* Line 4 - appears in spellbook */
+                                        if ((inventory[INVEN_WIELD].k_idx) &&
+                                                (inventory[INVEN_WIELD].tval == TV_INSTRUMENT) &&
+                                                (s_info[spell].appears[j].sval == inventory[INVEN_WIELD].sval) &&
+                                                 (s_info[spell].appears[j].tval == TV_SONG_BOOK))
+                                        {
+                                                plev += (p_ptr->lev - w_info[i].level);
+                                        }
+                                        /* Line 1 - has item in off-hand */
+                                        /* Line 2 - item is instrument */
+                                        /* Line 3 - instrument sval matches spellbook sval */
+                                        else if ((inventory[INVEN_ARM].k_idx) &&
+                                                (inventory[INVEN_ARM].tval == TV_INSTRUMENT) &&
+                                                (s_info[spell].appears[j].sval == inventory[INVEN_ARM].sval) &&
+                                                 (s_info[spell].appears[j].tval == TV_SONG_BOOK))
+                                        {
+                                                 plev += (p_ptr->lev - w_info[i].level);
+                                        }
+        
+				}
+				break;
+
+			}
+			default:
+			{
+                                if (w_info[i].styles & p_ptr->cur_style) plev += (p_ptr->lev - w_info[i].level);
+				break;
+			}
+		}
+
+	}
+
+        return(plev);
+
+}
+
 /*
  * Returns chance of failure for a spell
  */
@@ -6777,6 +6880,915 @@ bool spell_okay(int spell, bool known)
 }
 
 
+/*
+ * Hack -- Get spell description
+ */
+void spell_desc(int spell, cptr activate, int level)
+{
+        /* Get the spell info */
+        spell_type *s_ptr = &s_info[spell];
+
+        int vn;
+
+        int m,n,r;
+	cptr vp[64];
+
+        cptr p, q, s, t, u;
+
+        u32b flags1 = s_ptr->flags1;
+        u32b flags2 = s_ptr->flags2;
+        u32b flags3 = s_ptr->flags3;
+
+        bool intro = FALSE;
+
+        /* Collect detects */
+	vn = 0;
+        if (flags1 & (SF1_DETECT_DOORS))        vp[vn++] = "doors";
+        if (flags1 & (SF1_DETECT_TRAPS))        vp[vn++] = "traps";
+        if (flags1 & (SF1_DETECT_STAIRS))        vp[vn++] = "stairs";
+        if (flags1 & (SF1_DETECT_WATER))        vp[vn++] = "running water";
+        if (flags1 & (SF1_DETECT_GOLD))        vp[vn++] = "gold, including hidden treasures";
+        if (flags1 & (SF1_DETECT_OBJECT))        vp[vn++] = "objects, including hidden objects";
+        if (flags1 & (SF1_DETECT_MAGIC))        vp[vn++] = "magic objects, and senses their power";
+        if (flags1 & (SF1_DETECT_CURSE))        vp[vn++] = "cursed objects, and senses their power";
+        if (flags1 & (SF1_DETECT_MONSTER))        vp[vn++] = "visible monsters";
+        if (flags1 & (SF1_DETECT_EVIL))        vp[vn++] = "evil monsters";
+        if (flags1 & (SF1_DETECT_INVIS))        vp[vn++] = "invisible monsters";
+        if (flags1 & (SF1_DETECT_ANIMAL))        vp[vn++] = "natural creatures";
+        if (flags1 & (SF1_DETECT_UNDEAD))        vp[vn++] = "undead";
+        if (flags1 & (SF1_DETECT_DEMON))        vp[vn++] = "demons";
+
+        /* Describe detection spells */
+	if (vn)
+	{
+                /* Intro */
+                roff("It ");
+
+                intro = TRUE;
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+                        if (n == 0) roff("detects all ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+
+		/* End */
+                roff(" on the current panel");
+	}
+
+        /* Some identifies assume earlier IDs */
+        if (flags1 & (SF1_IDENT_FULLY)) flags1 |= SF1_IDENT;
+        if (flags1 & (SF1_IDENT_PACK)) flags1 |= SF1_IDENT;
+        if (flags1 & (SF1_DETECT_CURSE)) flags1 |= SF1_IDENT_PACK;
+        if (flags1 & (SF1_DETECT_MAGIC)) flags1 |= SF1_IDENT_PACK;
+        if (flags1 & (SF1_DETECT_CURSE)) flags1 |= SF1_IDENT_SENSE;
+        if (flags1 & (SF1_DETECT_MAGIC)) flags1 |= SF1_IDENT_SENSE;
+        if (flags1 & (SF1_FORGET)) flags1 |= SF1_IDENT_PACK;
+
+        /* Collect identifies */
+	vn = 0;
+        if (flags1 & (SF1_IDENT_SENSE)) vp[vn++]="the general power level";
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="the bonuses to hit, damage and armour class";
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="the number of charges";
+        if ((flags1 & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL)) vp[vn++]="the kind, ego-item and artifact names";
+        if ((flags1 & (SF1_IDENT)) || (s_ptr->type == SPELL_IDENT_TVAL)) vp[vn++]="all bonuses";
+        if (flags1 & (SF1_IDENT_RUMOR)) vp[vn++]="some hidden powers";
+        if (flags1 & (SF1_IDENT_FULLY)) vp[vn++]="all hidden powers";
+        if (flags1 & (SF1_FORGET)) vp[vn++]="all information";
+
+        /* Describe enchantment spells */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Intro */
+                if (flags1 & (SF1_IDENT_PACK)) roff("will ");
+                else roff ("can ");
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+                        if ((n == 0) && (flags1 & (SF1_IDENT_SENSE))) roff("sense ");
+                        else if ((n == 0) && (flags1 & (SF1_FORGET))) roff("forget ");
+                        else if (n == 0) roff("identify ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+
+		/* Intro */
+                if (flags1 & (SF1_IDENT_PACK)) roff(" on all ");
+                else roff(" on one ");
+
+	}
+
+        /* Collect identifies */
+	vn = 0;
+
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="weapon";
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="wearable item";
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="wand";
+        if (flags1 & (SF1_IDENT_BONUS)) vp[vn++]="staff";
+        if (flags1 & (SF1_IDENT)) vp[vn++]="unknown item";
+        if (flags1 & (SF1_IDENT_RUMOR | SF1_IDENT_FULLY | SF1_FORGET)) vp[vn++]="known item";
+        if (flags1 & (SF1_DETECT_CURSE)) vp[vn++]="cursed item";
+        if (flags1 & (SF1_DETECT_MAGIC)) vp[vn++]="magic item";
+
+        if (s_ptr->type == SPELL_IDENT_TVAL)
+        {
+                int i=0;
+
+                while ((tvals[i].tval) && (tvals[i].tval != s_ptr->param)) i++;
+
+                if (tvals[i].tval == s_ptr->param) vp[vn++]=tvals[i].desc;
+
+        }
+
+        /* Describe identify spells */
+	if (vn)
+	{
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+                        if (n == 0) { }
+			else if (n < vn-1) roff(", ");
+                        else roff(" or ");
+
+			/* Dump */
+			roff(vp[n]);
+
+                        /* Intro */
+                        if (flags1 & (SF1_IDENT_PACK)) roff("s");
+
+		}
+
+		/* Intro */
+                if (flags1 & (SF1_IDENT_PACK)) roff(" in your pack");
+
+                if (vn > 1) roff(" as appropriate");
+
+                if (flags1 & (SF1_IDENT_FULLY)) roff(" and prevents you from magically forgetting this information");
+                if (flags1 & (SF1_FORGET)) roff(" except when the item is fully identified");
+
+	}
+
+
+        /* Collect enchantments */
+	vn = 0;
+        if ((flags1 & (SF1_ENCHANT_TOH | SF1_ENCHANT_TOD))
+                || (s_ptr->type == SPELL_BRAND_WEAPON)) vp[vn++]="weapon";
+        if (flags1 & (SF1_ENCHANT_TOH | SF1_ENCHANT_TOD)) vp[vn++]="missile";
+        if ((flags1 & (SF1_ENCHANT_TOA))
+                || (s_ptr->type == SPELL_BRAND_WEAPON)) vp[vn++]="piece of armor";
+        if (s_ptr->type == SPELL_BRAND_ITEM) vp[vn++]="item";
+
+        if (s_ptr->type == SPELL_ENCHANT_TVAL)
+        {
+                int i=0;
+
+                while ((tvals[i].tval) && (tvals[i].tval != s_ptr->param)) i++;
+
+                if (tvals[i].tval == s_ptr->param) vp[vn++]=tvals[i].desc;
+                        
+        }
+
+        /* Describe enchantments spells */
+        if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It can enchant one ");
+        
+                }
+                else
+                {
+                        roff(", and can enchant one ");
+                }
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+                        if (n == 0) { }
+			else if (n < vn-1) roff(", ");
+                        else roff(" or ");
+
+			/* Dump */
+			roff(vp[n]);
+
+		}
+
+	}
+
+        /* Collect enchantments */
+	vn = 0;
+        if (flags1 & (SF1_ENCHANT_TOH)) vp[vn++]="improve accuracy to hit";
+        if (flags1 & (SF1_ENCHANT_TOD)) vp[vn++]="increase damage";
+        if (flags1 & (SF1_ENCHANT_TOA)) vp[vn++]="increase armor class";
+
+        if ((s_ptr->type == SPELL_BRAND_WEAPON)
+                || (s_ptr->type == SPELL_BRAND_ARMOR))
+                        vp[vn++]=inscrip_text[INSCRIP_MIN_HIDDEN+s_ptr->param];
+
+        if (s_ptr->type == SPELL_ENCHANT_TVAL) vp[vn++]="change its kind";
+
+        /* Describe enchantment spells */
+	if (vn)
+	{
+
+                if (flags1 & (SF1_ENCHANT_HIGH)) vp[vn++]="highly ";
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff(" to ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+
+	}
+
+        /* Hack */
+        r = 0;
+
+
+
+        /* Collect timed effects */
+	vn = 0;
+        if (flags2 & (SF2_OPP_FIRE)) vp[vn++]="fire";
+        if (flags2 & (SF2_OPP_COLD)) vp[vn++]="cold";
+        if (flags2 & (SF2_OPP_ACID)) vp[vn++]="acid";
+        if (flags2 & (SF2_OPP_ELEC)) vp[vn++]="lightning";
+        if (flags2 & (SF2_OPP_POIS)) vp[vn++]="poison";
+
+        /* Describe timed effects */
+	if (vn)
+	{
+                /* Hack -- continue sentence */
+                r = 1;
+
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff("provides temporary ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+
+                roff(" resistance");
+        }
+
+        /* Collect timed effects */
+        vn = 0;
+
+        if (flags2 & (SF2_INFRA)) vp[vn++]="extends your infravision by 10 feet";
+        if (flags2 & (SF2_HERO)) vp[vn++]="makes you heroic";
+        if (flags2 & (SF2_SHERO)) vp[vn++]="makes you go beserk";
+        if (flags2 & (SF2_BLESS)) vp[vn++]="blesses you";
+        if (flags2 & (SF2_SHIELD)) vp[vn++]="shields you";
+        if (flags2 & (SF2_INVULN)) vp[vn++]="makes you invulnerible to damage";
+        if (flags2 & (SF2_SEE_INVIS)) vp[vn++]="allows you to see invisible monsters";
+        if (flags2 & (SF2_PROT_EVIL)) vp[vn++]="protects your from evil monsters";
+        if (flags2 & (SF2_HASTE)) vp[vn++]="hastes you";
+        if (flags2 & (SF2_CUT)) vp[vn++]="makes you bleed";
+        if (flags2 & (SF2_STUN)) vp[vn++]="stuns you";
+        if (flags2 & (SF2_POISON)) vp[vn++]="poisons you";
+        if (flags2 & (SF2_BLIND)) vp[vn++]="blinds you";
+        if (flags2 & (SF2_FEAR)) vp[vn++]="makes you afraid";
+        if (flags2 & (SF2_CONFUSE)) vp[vn++]="confuses you";
+        if (flags2 & (SF2_HALLUC)) vp[vn++]="makes you hallucinate";
+        if (flags2 & (SF2_PARALYZE)) vp[vn++]="paralyzes you";
+        if (s_ptr->type ==SPELL_INVEN_WIELD) vp[vn++]="creates a magical weapon";
+        if (s_ptr->type ==SPELL_INVEN_BOW) vp[vn++]="creates a magical bow";
+        if (s_ptr->type ==SPELL_INVEN_LEFT) vp[vn++]="creates a magical ring";
+        if (s_ptr->type ==SPELL_INVEN_RIGHT) vp[vn++]="creates a magical ring";
+        if (s_ptr->type ==SPELL_INVEN_NECK) vp[vn++]="creates a magical amulet";
+        if (s_ptr->type ==SPELL_INVEN_LITE) vp[vn++]="creates a magical light";
+        if (s_ptr->type ==SPELL_INVEN_BODY) vp[vn++]="creates magical armor";
+        if (s_ptr->type ==SPELL_INVEN_OUTER) vp[vn++]="creates a magical cloak";
+        if (s_ptr->type ==SPELL_INVEN_ARM) vp[vn++]="creates a magical shield";
+        if (s_ptr->type ==SPELL_INVEN_HEAD) vp[vn++]="creates magical headgear";
+        if (s_ptr->type ==SPELL_INVEN_HANDS) vp[vn++]="creates magical gloves";
+        if (s_ptr->type ==SPELL_INVEN_FEET) vp[vn++]="creates magical boots";
+        if (s_ptr->type ==SPELL_INVEN_BELT) vp[vn++]="creates a magical belt";
+
+
+        /* Describe timed effects */
+	if (vn)
+	{
+
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else if (r)
+                {
+                        roff(", ");
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+		/* Scan */
+                for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) {}
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+	}
+
+
+        /* Roll out the duration */
+        if ((s_ptr->l_dice) && (s_ptr->l_side) && (s_ptr->l_plus))
+        {
+                /* End */
+                roff(format(" for %dd%d+%d turns",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus));
+        }
+        else if ((s_ptr->l_dice) && (s_ptr->l_side))
+        {
+                /* End */
+                roff(format(" for %dd%d turns",s_ptr->l_dice,s_ptr->l_side));
+        }
+        else if (s_ptr->l_plus)
+        {
+                /* End */
+                roff(format(" for %d turns",s_ptr->l_plus));
+        }
+
+        /* Collect cure effects */
+	vn = 0;
+        if (flags3 & (SF3_CURE_CUTS)) vp[vn++]="cuts";
+        if (flags3 & (SF3_CURE_STUN)) vp[vn++]="stun damage";
+        if (flags3 & (SF3_CURE_POIS)) vp[vn++]="poison";
+        if (flags3 & (SF3_CURE_FOOD)) vp[vn++]="hunger";
+        if (flags3 & (SF3_CURE_BLIND)) vp[vn++]="blindness";
+        if (flags3 & (SF3_CURE_CONF)) vp[vn++]="confusion";
+        if (flags3 & (SF3_CURE_FEAR)) vp[vn++]="fear";
+
+        /* Describe cure effects */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff("cures you of ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+        }
+
+        /* Collect slow effects */
+	vn = 0;
+        if (flags3 & (SF3_SLOW_POIS)) vp[vn++]="poison";
+        if (flags3 & (SF3_SLOW_CUTS)) vp[vn++]="cuts";
+
+        /* Describe cure effects */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff("partially cures you of ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+        }
+
+        /* Collect stat gain effects */
+	vn = 0;
+
+        if (flags3 & (SF3_INC_STR)) vp[vn++]="strength";
+        if (flags3 & (SF3_INC_INT)) vp[vn++]="intelligence";
+        if (flags3 & (SF3_INC_WIS)) vp[vn++]="wisdom";
+        if (flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity";
+        if (flags3 & (SF3_INC_CON)) vp[vn++]="constitution";
+        if (flags3 & (SF3_INC_CHR)) vp[vn++]="charisma";
+        if (flags3 & (SF3_INC_EXP)) vp[vn++]="experience";
+
+        /* Describe stat effects */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff("increases your ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+        }
+
+        /* Collect restore effects */
+	vn = 0;
+        if (flags3 & (SF3_CURE_STR)) vp[vn++]="strength";
+        if (flags3 & (SF3_CURE_INT)) vp[vn++]="intelligence";
+        if (flags3 & (SF3_CURE_WIS)) vp[vn++]="wisdom";
+        if (flags3 & (SF3_CURE_DEX)) vp[vn++]="dexterity";
+        if (flags3 & (SF3_CURE_CON)) vp[vn++]="constitution";
+        if (flags3 & (SF3_CURE_CHR)) vp[vn++]="charisma";
+        if (flags3 & (SF3_CURE_EXP)) vp[vn++]="experience";
+        if (flags3 & (SF3_CURE_MANA)) vp[vn++]="mana";
+
+        /* Describe stat effects */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) roff("restores your ");
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+        }
+
+        /* Collect miscellaneous */
+        vn = 0;
+
+        if (flags3 & (SF3_SLOW_MANA)) vp[vn++] = "partially restores your mana";
+        if (flags3 & (SF3_DEC_FOOD)) vp[vn++] = "makes you weak from hunger";
+        if (flags2 & (SF2_CURSE_WEAPON)) vp[vn++] = "curses your weapon";
+        if (flags2 & (SF2_CURSE_ARMOR)) vp[vn++] = "curses your armor";
+        if (flags2 & (SF2_AGGRAVATE)) vp[vn++] = "wakes up nearby monsters and hastes those in line of sight";
+        if (s_ptr->type == SPELL_SUMMON) vp[vn++] = "summons monsters";
+        if (s_ptr->type == SPELL_SUMMON_RACE) vp[vn++] = format("summons %s%s",
+                is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
+                r_name+r_info[s_ptr->param].name);
+        if (s_ptr->type == SPELL_CREATE_RACE) vp[vn++] = format("creates %s%s",
+                is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
+                r_name+r_info[s_ptr->param].name);
+        if (s_ptr->type == SPELL_CREATE_KIND) vp[vn++] = "creates gold";
+        if (flags2 & (SF2_CREATE_STAIR)) vp[vn++] = "creates a staircase under you";
+        if (s_ptr->type == SPELL_WARD_GLYPH) vp[vn++] = "creates a glyph of warding under you";
+        if (s_ptr->type == SPELL_WARD_TRAP) vp[vn++] = format("creates %s%s next to you",
+                is_a_vowel((f_name+f_info[s_ptr->param].name)[0])?"an ":"a ",
+                f_name+f_info[s_ptr->param].name);
+        if (flags1 & (SF1_STAR_ACQUIREMENT)) vp[vn++] = "creates several excellent, superb or special items";
+        else if (flags1 & (SF1_ACQUIREMENT)) vp[vn++] = "creates an excellent, superb or special item";
+        if (flags2 & (SF2_TELE_LEVEL)) vp[vn++] = "teleports you to an adjacent level";
+        if (flags2 & (SF2_RECALL)) vp[vn++]="returns you to the surface, or teleports you into the depths";
+        if (flags2 & (SF2_ALTER_LEVEL)) vp[vn++] = "alters the level you are on";
+        if (s_ptr->type == SPELL_EARTHQUAKE) vp[vn++] = format("creates a radius %d earthquake",s_ptr->param);
+        if (s_ptr->type == SPELL_DESTRUCTION) vp[vn++] = format("destroys a radius %d area",s_ptr->param);
+        if (flags2 & (SF2_GENOCIDE)) vp[vn++] = "allows you to remove a monster type from a level (1d4 damage per monster)";
+        if (flags2 & (SF2_MASS_GENOCIDE)) vp[vn++] = "removes all nearby monsters";
+        if (flags3 & (SF3_SLOW_CURSE)) vp[vn++] = "removes a normal curse from an item";
+        if (flags3 & (SF3_CURE_CURSE)) vp[vn++] = "removes all normal and some heavy curses from all items you are wearing or wielding";
+        if (s_ptr->type == SPELL_RECHARGE) vp[vn++] = format("recharges one staff or wand for %d power", s_ptr->param);        
+        if (flags1 & (SF1_MAP_AREA)) vp[vn++] = "maps your surroundings";
+        if (flags1 & (SF1_WIZ_LITE)) vp[vn++] = "lights up and maps the entire level";
+        if (flags1 & (SF1_LITE_ROOM)) vp[vn++] = "lights up the room you are in";
+        if (flags1 & (SF1_DARK_ROOM)) vp[vn++] = "plunges the room you are in into darkness";
+        if (flags1 & (SF1_FORGET)) vp[vn++] = "erases the knowledge of the entire level from your mind";
+        if (flags1 & (SF1_SELF_KNOW)) vp[vn++] = "reveals all knowledge of yourself";
+        if (flags3 & (SF3_CONF_HANDS)) vp[vn++] = "makes your touch confuse monsters";
+
+        /* Describe miscellaneous effects */
+	if (vn)
+	{
+                if (!intro)
+                {
+                        intro = TRUE;
+
+                        /* Intro */
+                        roff("It ");
+        
+                }
+                else
+                {
+                        roff(", and ");
+                }
+
+                /* Scan */
+		for (n = 0; n < vn; n++)
+                {
+			/* Intro */
+                        if (n == 0) { }
+			else if (n < vn-1) roff(", ");
+                        else roff(" and ");
+
+			/* Dump */
+			roff(vp[n]);
+		}
+        }
+
+
+	/* Count the number of "known" attacks */
+	for (n = 0, m = 0; m < 4; m++)
+	{
+		/* Skip non-attacks */
+                if (!s_ptr->blow[m].method) continue;
+
+		/* Count known attacks */
+                n++;
+	}
+
+
+	/* Examine (and count) the actual attacks */
+	for (r = 0, m = 0; m < 4; m++)
+	{
+                int method, effect, d1, d2, d3, rad;
+
+		/* Skip non-attacks */
+                if (!s_ptr->blow[m].method) continue;
+
+		/* Extract the attack info */
+                method = s_ptr->blow[m].method;
+                effect = s_ptr->blow[m].effect;
+                d1 = s_ptr->blow[m].d_dice;
+                d2 = s_ptr->blow[m].d_side;
+                d3 = s_ptr->blow[m].d_plus;
+                rad = 0;
+
+                /* Hack -- use level as modifier */
+                if (!d2)
+                {
+                        d3 += level * d1;
+                }
+
+		/* No method yet */
+                p = NULL;
+
+		/* No method yet */
+                s = NULL;
+
+                /* No target yet */
+                t = NULL;
+
+		/* Get the method */
+		switch (method)
+		{
+                        case RBM_AURA: p = "surrounds you with an aura";  t = "your enemies"; rad = 2; break;
+                        case RBM_SELF: t = "you";break;
+                        case RBM_ADJACENT: t = "all enemies adjacent to you"; break;
+                        case RBM_HANDS: t = "an adjacent target"; if ((level > 5) && (d2)) d1+= (level-1)/5;break;
+                        case RBM_MISSILE: t = "your enemies"; if ((level > 5) && (d2)) d1+= (level-1)/5;break;
+                        case RBM_BOLT_10: p = "creates a bolt"; t = "your enemies"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BOLT: p = "creates a powerful bolt";  t = "your enemies"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BEAM: p = "creates a beam"; t = "your enemies";if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BLAST: p = "creates an adjacent blast"; t = "your enemies"; d3 += level;break;
+                        case RBM_WALL: p = "creates a wall"; t = "your enemies"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BALL: p = "creates a ball"; t = "your enemies"; rad = 2; break;
+                        case RBM_CLOUD: p = "creates a cloud"; t = "your enemies"; rad = 2; d3 += level/2; break;
+                        case RBM_STORM: p = "creates a storm"; t = "your enemies"; rad = 3; break;
+                        case RBM_BREATH: p = "breathes";  t = "your enemies"; break;
+                        case RBM_AREA: t = "an area centred on you"; rad = (level/10)+2; break;
+                        case RBM_LOS: t = "all your enemies in line of sight"; break;
+                        case RBM_LINE: p = "creates a line"; t = "your enemies"; break;
+                        case RBM_AIM: t = "one target"; break;
+                        case RBM_ORB: p = "creates an orb"; t = "your enemies"; rad = (level < 30 ? 2 : 3); d3 += level/2; break;
+                        case RBM_STAR: p = "creates a star"; t = "your enemies"; break;
+                        case RBM_SPHERE: p = "creates a sphere";  t = "your enemies";  rad = (level/10)+2;break;
+                        case RBM_PANEL: t = "the current panel"; break;
+                        case RBM_LEVEL: t = "the current level"; break;
+		}
+
+
+                /* Default technique */
+		q = NULL;
+
+                /* Default flavor */
+                u = NULL;
+
+		/* Get the effect */
+		switch (effect)
+		{
+                        case GF_NOTHING: q = "do"; u = "nothing"; break;
+                        case GF_ARROW: q= "hurt"; u = "with arrows"; break;
+                        case GF_MISSILE: q="blast"; u = "with magic missiles";break;
+                        case GF_MANA: q="blast"; u = "with magic";break;       
+                        case GF_HOLY_ORB: q="blast"; u = "with holy magic";break;
+                        case GF_LITE_WEAK: q="light"; s ="up";break;
+                        case GF_DARK_WEAK: q="plunge"; s ="into darkness"; break;
+                        case GF_WATER_WEAK: q="soak"; u = "with water";break;
+                        case GF_PLASMA: q="blast"; u = "with plasma";break;
+                        case GF_METEOR: q="blast"; u = "with meteors";break;
+                        case GF_ICE: q="cover"; u = "with ice";break;
+                        case GF_GRAVITY: q="crush"; u = "with gravity";break;
+                        case GF_INERTIA: q="slow"; u = "with inertia";break;
+                        case GF_FORCE: q="impact"; u = "with force";break;
+                        case GF_TIME: q="take"; u = "back in time";break;
+			case GF_ACID:   q = "dissolve"; break;
+			case GF_ELEC:   q = "electrify"; break;
+			case GF_FIRE:   q = "burn"; break;
+			case GF_COLD:   q = "freeze"; break;
+			case GF_POIS: q = "poison"; break;
+                        case GF_LITE: q = "blast"; u = "with powerful light";break;
+                        case GF_DARK: q = "blast"; u = "with powerful darkness";break;
+                        case GF_WATER: q="blast"; u = "with water";break;                      case GF_CONFUSION:      q = "confuse"; break;
+			case GF_SOUND: q = "deafen";break;
+                        case GF_SHARD: q = "blast"; u = "with shards";break;
+                        case GF_NEXUS: q = "blast"; u = "with nexus";break;
+                        case GF_NETHER: q = "blast"; u = "with nether";break;
+                        case GF_CHAOS: q = "blast"; u = "with chaoas";break;
+                        case GF_DISENCHANT: q = "blast"; u = "with disenchantment";break;
+                        case GF_KILL_WALL: q = "remove"; s = "rock from"; break;
+                        case GF_KILL_DOOR: q = "remove"; s = "doors from"; break;
+                        case GF_KILL_TRAP: q = "remove"; s = "traps from"; break;
+                        case GF_MAKE_WALL: q = "create"; s = "walls around"; break;
+                        case GF_MAKE_DOOR: q = "create"; s = "doors around"; break;
+                        case GF_MAKE_TRAP: q = "create"; s = "traps around"; break;
+                        case GF_BRIDGE: q = "create"; s = "a stone bridge under"; break;
+                        case GF_AWAY_UNDEAD: q = "teleport"; u="away if undead";break;
+                        case GF_AWAY_EVIL: q = "teleport"; u="away if evil";break;
+                        case GF_AWAY_ALL: q = "teleport"; u = "away";break;
+                        case GF_TURN_UNDEAD: q = "turn"; u="if undead"; break;
+                        case GF_TURN_EVIL: q = "turn"; u="if evil"; break;
+                        case GF_TURN_ALL: q = "turn";break;
+                        case GF_DISP_UNDEAD: q = "dispel"; u="if undead"; break;
+                        case GF_DISP_EVIL: q = "dispel"; u="if evil"; break;
+                        case GF_DISP_ALL: q = "dispel";break;
+			case GF_OLD_CLONE: q = "clone";break;
+			case GF_OLD_POLY: q = "polymorph";break;
+			case GF_OLD_HEAL: q = "heal";break;
+			case GF_OLD_SPEED: q = "hasten";break;
+			case GF_OLD_SLOW: q = "slow";break;
+			case GF_OLD_CONF: q = "confuse";break;
+                        case GF_OLD_SLEEP: q = "send"; u="to sleep";break;
+                        case GF_OLD_DRAIN: q = "drain"; s="life from";break;
+                        case GF_LAVA: q = "burn"; u="with lava";break;
+                        case GF_BWATER: q = "scald"; u="with boiling water";break;
+                        case GF_BMUD: q = "splash"; u="with boiling mud";break;
+			case GF_HURT:   q = "attack"; break;
+			case GF_UN_BONUS:       q = "disenchant"; break;
+                        case GF_UN_POWER:       q = "drain charges from"; break;
+                        case GF_EAT_GOLD:       q = "steal gold from"; break;
+                        case GF_EAT_ITEM:       q = "steal items from"; break;
+                        case GF_EAT_FOOD:       q = "eat"; u="'s food"; break;
+                        case GF_EAT_LITE:       q = "absorb light from"; break;
+                        case GF_FALL: q = "drop"; u="into a pit";break;
+                        case GF_FALL_MORE: q = "drop"; u="through the floor";break;
+                        case GF_FALL_SPIKE: q = "drop"; u="into a spiked pit";break;
+                        case GF_FALL_POIS: q = "drop"; u="into a poison spiked pit";break;
+			case GF_BLIND:  q = "blind"; break;
+			case GF_TERRIFY:        q = "terrify"; break;
+			case GF_PARALYZE:       q = "paralyze"; break;
+                        case GF_LOSE_STR:       q = "reduce"; u="'s strength"; break;
+                        case GF_LOSE_INT:       q = "reduce"; u="'s intelligence"; break;
+                        case GF_LOSE_WIS:       q = "reduce"; u="'s wisdom"; break;
+                        case GF_LOSE_DEX:       q = "reduce"; u="'s dexterity"; break;
+                        case GF_LOSE_CON:       q = "reduce"; u="'s constitution"; break;
+                        case GF_LOSE_CHR:       q = "reduce"; u="'s charisma"; break;
+                        case GF_LOSE_ALL:       q = "reduce"; u="'s stats"; break;
+			case GF_SHATTER:        q = "shatter"; break;
+                        case GF_EXP_10: q = "lower"; u="'s experience (by 10d6+)"; break;
+                        case GF_EXP_20: q = "lower"; u="'s experience (by 20d6+)"; break;
+                        case GF_EXP_40: q = "lower"; u="'s experience (by 40d6+)"; break;
+                        case GF_EXP_80: q = "lower"; u="'s experience (by 80d6+)"; break;
+                        case GF_DEEP:           q = "raise"; s = "water around"; break;
+                        case GF_SHALLOW:                q = "lower"; s = "water around"; q = NULL; break;
+		}
+
+		/* Introduce the attack description */
+                if ((!r) && (!intro))
+		{
+                        roff("It ");
+
+                        intro = TRUE;
+		}
+                else if (!r)
+		{
+                        roff(", and ");
+
+                        intro = TRUE;
+		}
+		else if (r < n-1)
+		{
+			roff(", ");
+		}
+		else
+		{
+			roff(", and ");
+		}
+
+		/* Describe the method */
+                if (p)
+                {
+                        roff(p);
+                        roff(" ");
+                        if (rad) roff (format( "of radius %d ",rad));
+                        roff("to ");
+                        if (q)
+                        {
+                                roff(q);
+                                roff(" ");
+                        }
+                        if (s)
+                        {
+                                roff(s);
+                                roff(" ");
+                        }
+                        if (t)
+                        {
+                                roff(t);
+                                roff(" ");
+                        }
+                }
+                else
+                {
+                        if (q)
+                        {
+                                roff(q);
+                                roff("s ");
+                        }                
+                        else roff("affects ");
+
+                        if (s)
+                        {
+                                roff(s);
+                                roff(" ");
+                        }
+                        if (t)
+                        {
+                                roff(t);
+                                roff(" ");
+                        }
+                        if (rad) roff (format( "of radius %d ",rad));
+                }
+
+                if (u)
+                {
+                        roff(u);
+                        roff(" ");
+                }
+
+                /* Display the damage */
+                /* Roll out the damage */
+                if ((d1) && (d2) && (d3))
+                {
+                        /* End */
+                        roff(format("for %dd%d+%d ",d1,d2,d3));
+                }
+                else if ((d1) && (d2))
+                {
+                        /* End */
+                        roff(format("for %dd%d ",d1,d2));
+                }
+                else if (d3)
+                {
+                        /* End */
+                        roff(format("for %d ",d3));
+                }
+
+		/* Get the effect */
+                if (d1 || d2 || d3) switch (effect)
+		{
+                        case GF_LITE_WEAK: roff("damage to monsters vulnerible to light"); break;
+                        case GF_KILL_WALL: roff("damage to monsters vulnerible to rock remover"); break;
+                        case GF_HOLY_ORB: roff("damage, doubled against evil monsters"); break;
+                        case GF_BLIND: roff("damage, doubled against eye monsters"); break;
+                        case GF_TURN_UNDEAD: roff("power"); break;
+                        case GF_TURN_EVIL: roff("power");  break;
+                        case GF_TURN_ALL: roff("power"); break;
+                        case GF_OLD_CLONE: roff("power"); break;
+                        case GF_OLD_POLY: roff("power"); break;
+                        case GF_OLD_HEAL: roff("hit points"); break;
+                        case GF_AWAY_ALL: roff("distance on average"); break;
+                        case GF_OLD_SPEED: roff("power"); break;
+                        case GF_OLD_SLOW: roff("power"); break;
+                        case GF_OLD_CONF: roff("power"); break;
+                        case GF_OLD_SLEEP: roff("power"); break;
+                        default: roff("damage"); break;
+
+		}
+                r++;
+	}
+
+        if (intro)
+        {
+                if (activate)
+                {
+                        roff(" ");
+                        roff(activate);
+                }
+
+                roff(".  ");
+        }                        
+
+}
+
+
 
 /*
  * Extra information on a spell		-DRS-
@@ -6790,228 +7802,125 @@ bool spell_okay(int spell, bool known)
  */
 void spell_info(char *p, int spell)
 {
-	int i;
+        cptr q;
 
-	int plev = p_ptr->lev;
+        spell_type *s_ptr = &s_info[spell];
 
-	/* See below */
-	int orb = (plev / (c_info[p_ptr->pclass].sp_pow ? 2 : 4));
+        int m,n,rad;
 
-	/* Modify the spell power */
-	for (i = 0;i< z_info->w_max;i++)
-	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		if (w_info[i].styles & (1L<< p_ptr->pstyle)) continue;
-
-                if (w_info[i].benefit != WB_POWER) continue;
-
-		switch (p_ptr->pstyle)
-		{
-			case WS_MAGIC_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_MAGIC_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			case WS_PRAYER_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_PRAYER_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			case WS_SONG_BOOK:
-			{
-				int j;
-
-				for(j=0;j<MAX_SPELL_APPEARS;j++)
-				{
-					if ((s_info[spell].appears[j].tval == TV_SONG_BOOK) &&
-					   (s_info[spell].appears[j].sval == p_ptr->psval))
-					{
-						 plev += (p_ptr->lev - w_info[i].level);
-					}
-
-				}
-				break;
-			}
-			default:
-			{
-                                if (w_info[i].styles & p_ptr->cur_style) plev += (p_ptr->lev - w_info[i].level);
-				break;
-			}
-		}
-
-	}
-
-
+        int level = spell_power(spell);
 
 	/* Default */
 	strcpy(p, "");
 
-	/* Analyze the spell */
-	switch (spell)
+        /* Roll out the duration */
+        if ((s_ptr->l_dice) && (s_ptr->l_side) && (s_ptr->l_plus))
+        {
+                /* End */
+                strcpy(p,format(" dur %dd%d+%d",s_ptr->l_dice,s_ptr->l_side,s_ptr->l_plus));
+        }
+        else if ((s_ptr->l_dice) && (s_ptr->l_side))
+        {
+                /* End */
+                strcpy(p,format(" dur %dd%d",s_ptr->l_dice,s_ptr->l_side));
+        }
+        else if (s_ptr->l_plus)
+        {
+                /* End */
+                strcpy(p,format(" dur %d",s_ptr->l_plus));
+        }
+
+        rad = 0;
+
+	/* Count the number of "known" attacks */
+	for (n = 0, m = 0; m < 4; m++)
 	{
-		case 1+0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
-		case 1+2: strcpy(p, " range 10"); break;
-		case 1+5: strcpy(p, " heal 2d8"); break;
-		case 1+8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-		case 1+10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-		case 1+14: sprintf(p, " range %d", plev * 10); break;
-		case 1+15: strcpy(p, " dam 6d8"); break;
-		case 1+16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-		case 1+24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-		case 1+26: sprintf(p, " dam %d", 30 + plev); break;
-		case 1+29: sprintf(p, " dur %d+d20", plev); break;
-		case 1+30: sprintf(p, " dam %d", 55 + plev); break;
-		case 1+38: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-		case 1+39: sprintf(p, " dam %d", 40 + plev/2); break;
-		case 1+40: sprintf(p, " dam %d", 40 + plev); break;
-		case 1+41: sprintf(p, " dam %d", 70 + plev*2); break;
-		case 1+42: sprintf(p, " dam %d", 65 + plev*2); break;
-		case 1+43: sprintf(p, " dam %d", 300 + plev*2); break;
-		case 1+49: strcpy(p, " dur 20+d20"); break;
-		case 1+50: strcpy(p, " dur 20+d20"); break;
-		case 1+51: strcpy(p, " dur 20+d20"); break;
-		case 1+52: strcpy(p, " dur 20+d20"); break;
-		case 1+53: strcpy(p, " dur 20+d20"); break;
-		case 1+54: strcpy(p, " dur 25+d25"); break;
-		case 1+55: strcpy(p, " dur 30+d20"); break;
-		case 1+56: strcpy(p, " dur 25+d25"); break;
-		case 1+57: sprintf(p, " dur %d+d25", 30+plev); break;
-		case 1+58: strcpy(p, " dur 6+d8"); break;
+		/* Skip non-attacks */
+                if (!s_ptr->blow[m].method) continue;
 
-		case 60+1: strcpy(p, " heal 2d10"); break;
-		case 60+2: strcpy(p, " dur 12+d12"); break;
-		case 60+9: sprintf(p, " range %d", 3*plev); break;
-                case 60+10: strcpy(p, " heal 4d10"); break;
-		case 60+11: strcpy(p, " dur 24+d24"); break;
-		case 60+15: strcpy(p, " dur 10+d10"); break;
-		case 60+17: sprintf(p, " %d+3d6", plev + orb); break;
-		case 60+18: strcpy(p, " heal 8d10"); break;
-		case 60+19: strcpy(p, " dur 24+d24"); break;
-		case 60+20: sprintf(p, " dur %d+d25", 3*plev); break;
-		case 60+23: sprintf(p, " heal 10d%d",10+plev/4); break;
-		case 60+25: strcpy(p, " dur 48+d48"); break;
-		case 60+26: sprintf(p, " dam d%d", 3*plev); break;
-		case 60+27: strcpy(p, " heal 300"); break;
-		case 60+28: sprintf(p, " dam d%d", 3*plev); break;
-		case 60+30: strcpy(p, " heal 1000"); break;
-		case 60+36: strcpy(p, " heal 6d10"); break;
-		case 60+37: strcpy(p, " heal 12d10"); break;
-		case 60+38: strcpy(p, " heal 2000"); break;
-		case 60+41: sprintf(p, " dam d%d", 4*plev); break;
-		case 60+42: sprintf(p, " dam d%d", 4*plev); break;
-		case 60+45: strcpy(p, " dam 200"); break;
-		case 60+52: strcpy(p, " range 10"); break;
-		case 60+53: sprintf(p, " range %d", 8*plev); break;
+		/* Count known attacks */
+                n++;
+	}
 
-		
-		case 118: strcpy(p, " dur 30+d20"); break;
-		case 119: strcpy(p, " dur 48+d48"); break;
-		case 120: strcpy(p, " dur 48+d48"); break;
-		case 121: strcpy(p, " dur 8+d8"); break;
-		case 122: strcpy(p, " dam 6d8"); break;
-		case 123: strcpy(p, " dur 48+d48"); break;
-		case 124: strcpy(p, " dur 48+d48"); break;
-		case 125: sprintf(p, " dam %d",55+plev); break;
-		case 135: strcpy(p, " dam 6d8"); break;
-		case 136: strcpy(p, " dur 20+d20"); break;
-		case 137: strcpy(p, " dur 20+d20"); break;
-		case 138: strcpy(p, " dam 2d10"); break;
-                case 139: strcpy(p, " dam 3d8"); break;
-		case 140: strcpy(p, " dam 4d10"); break;
-		case 142: strcpy(p, " dam 6d10"); break;
-		case 143: strcpy(p, " dam 8d10"); break;
-		case 145: strcpy(p, " dam 12d10"); break;
-		case 146: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
-		case 147: strcpy(p, " dam 4d6"); break;
-		case 148: strcpy(p, " dur d48+48"); break;
-		case 150: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
-		case 151: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
-		case 152: sprintf(p, " dam %dd8", 8+((plev-5)/4)); break;
-		case 153: sprintf(p, " dam %d", 95+plev*2); break;
-		case 154: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
-		case 155: strcpy(p, " dam 4d6"); break;
-		case 156: strcpy(p, " dur d48+48"); break;
-		case 157: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-		case 159: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-		case 160: sprintf(p, " dam %d", 65+plev*2); break;
-		case 161: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-		case 162: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
-		case 163: strcpy(p, " dur d20+20"); break;
-		case 164: strcpy(p, " dam 4d6"); break;
-		case 165: strcpy(p, " dur d48+48"); break;
-		case 166: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
-		case 167: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
-		case 168: sprintf(p, " dam %d", 95+plev); break;
-		case 169: sprintf(p, " dam %dd8", 3+((plev-5)/4)); break;
-		case 170: sprintf(p, " dam %d", 115+plev*2); break;
-		case 171: sprintf(p, " dam %dd8", 3+((plev-1)/5)); break;
-		case 172: strcpy(p, " dam 4d6"); break;
-		case 173: strcpy(p, " dur d48+48"); break;
-		case 174: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-		case 176: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-		case 177: sprintf(p, " dam %dd8", 6+((plev-5)/4)); break;
-                case 179: sprintf(p, " lvl %d", plev); break;
-		case 180: strcpy(p, " dur d25+25"); break;
-		case 182: strcpy(p, " dur d20+20"); break;
-		case 183: strcpy(p, " heal 4d8"); break;
-                case 184: sprintf(p, " dam 2d10+%d", plev); break;
-		case 185: strcpy(p, " dur d25+25"); break;
-                case 186: sprintf(p, " dam d%d", plev*4); break;
-		case 194: strcpy(p, " lvl d100"); break;
-		case 195: strcpy(p, " dur d20+20"); break;
-                case 196: sprintf(p, " dam d25+%d", 30+(plev*2)); break;
-		case 212: strcpy(p, " dur d200+200"); break;
-		case 213: strcpy(p, " dam 6d8"); break;
-		case 214: sprintf(p, " dam 4d%d",plev/2); break;
-		case 215: sprintf(p, " dam %dd8",10+(plev-5)/4); break;
-                case 216: strcpy(p, " dur d100+100"); break;
-		case 219: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
-		case 220: strcpy(p, " dam 6d8"); break;
-		case 221: sprintf(p, " dam %d", 20 + (plev / 2)); break;
-		case 222: sprintf(p, " dam %d", 30 + (plev / 2)); break;
-		case 223: sprintf(p, " dam %d", 40 + (plev / 2)); break;
-		case 225: sprintf(p, " dam %d", 50 + (plev / 2)); break;
-		case 226: sprintf(p, " dam %d", 80 + plev); break;
-                case 228: sprintf(p, " dam 2d%d",plev/2); break;
-		case 229: sprintf(p, " dam 2d%d",plev/2); break;
-		case 230: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
-		case 232: sprintf(p, " dam %dd8",5+(plev-5)/4); break;
-		case 233: sprintf(p, " dam %d", 60 + plev*2); break;
-		case 236: sprintf(p, " dam %d", 10 + plev); break;
-		case 237: strcpy(p, " dur d200+200"); break;
-                case 238: sprintf(p, " dam %d", 20 + plev*2); break;
-		case 239: sprintf(p, " lvl %d",plev); break;
-		case 245: strcpy(p, " heal 6d8"); break;
-		case 246: strcpy(p, " heal 12d8"); break;
-		case 253: strcpy(p, " dur d48+48"); break;
-		case 254: sprintf(p, " dam 4d10+%d", plev); break;
-		case 255: sprintf(p, " dam %dd8",8+(plev-5)/4); break;
+	/* Examine (and count) the actual attacks */
+        for (m = 0; m < 4; m++)
+	{
+                int method, effect, d1, d2, d3, rad;
 
+		/* Skip non-attacks */
+                if (!s_ptr->blow[m].method) continue;
+
+		/* Extract the attack info */
+                method = s_ptr->blow[m].method;
+                effect = s_ptr->blow[m].effect;
+                d1 = s_ptr->blow[m].d_dice;
+                d2 = s_ptr->blow[m].d_side;
+                d3 = s_ptr->blow[m].d_plus;
+                rad = 0;
+
+                /* Hack -- use level as modifier */
+                if (!d2)
+                {
+                        d3 += level * d1;
+                }
+
+		/* Get the method */
+		switch (method)
+		{
+                        case RBM_HANDS: if ((level > 5) && (d2)) d1+= (level-1)/5;break;
+                        case RBM_MISSILE: if ((level > 5) && (d2)) d1+= (level-1)/5;break;
+                        case RBM_BOLT_10: if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BOLT: if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BEAM: if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BLAST: d3 += level;break;
+                        case RBM_WALL: if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+                        case RBM_BALL: rad = 2; break;
+                        case RBM_CLOUD: rad = 2; d3 += level/2; break;
+                        case RBM_STORM: rad = 3; break;
+                        case RBM_AREA: rad = (level/10)+2; break;
+                        case RBM_ORB: rad = (level < 30 ? 2 : 3); d3 += level/2; break;
+		}
+
+                /* Default */
+                q = NULL;
+
+		/* Get the effect */
+                if (d1 || d2 || d3) switch (effect)
+		{
+                        case GF_TURN_UNDEAD: q="pow"; break;
+                        case GF_TURN_EVIL: q="pow";  break;
+                        case GF_TURN_ALL: q="pow"; break;
+                        case GF_OLD_CLONE: q="pow"; break;
+                        case GF_OLD_POLY: q="pow"; break;
+                        case GF_OLD_HEAL: q="heal"; break;
+                        case GF_AWAY_ALL: q="range "; break;
+                        case GF_OLD_SPEED: q="pow"; break;
+                        case GF_OLD_SLOW: q="pow"; break;
+                        case GF_OLD_CONF: q="pow"; break;
+                        case GF_OLD_SLEEP: q="pow"; break;
+                        default: q="dam"; break;
+		}
+
+                /* Display the damage */
+                /* Roll out the damage */
+                if ((d1) && (d2) && (d3))
+                {
+                        /* End */
+                        strcpy(p,format(" %s %dd%d+%d ",q,d1,d2,d3));
+                }
+                else if ((d1) && (d2))
+                {
+                        /* End */
+                        strcpy(p,format(" %s %dd%d ",q,d1,d2));
+                }
+                else if (d3)
+                {
+                        /* End */
+                        strcpy(p,format(" %s %d ",q,d3));
+                }
 
 	}
+
 }
 
 /*

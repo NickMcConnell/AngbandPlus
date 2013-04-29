@@ -694,7 +694,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 				/* Obvious flags (pval) */
 				(*f1) |= (a_ptr->flags1 & (TR1_PVAL_MASK));
 
-				(*f3) |= (a_ptr->flags3 & (TR3_IGNORE_MASK));
+                                (*f2) |= (a_ptr->flags2 & (TR2_IGNORE_MASK));
 			}
 		}
 	}
@@ -730,7 +730,7 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 			if (mode == OBJECT_FLAGS_RANDOM)
 			{
 				/* Hack - remove 'ignore' flags */
-				(*f3) &= ~(TR3_IGNORE_MASK);
+                                (*f2) &= ~(TR2_IGNORE_MASK);
 			}
 		}
 
@@ -738,28 +738,40 @@ static void object_flags_aux(int mode, object_type *o_ptr, u32b *f1, u32b *f2, u
 		if (!(o_ptr->ident & IDENT_MENTAL)) return;
 	}
 
-	/* Extra powers */
-	switch (o_ptr->xtra1)
+	/* Rune powers */
+	if (o_ptr->xtra1 >= OBJECT_XTRA_MIN_RUNES)
 	{
-		case OBJECT_XTRA_TYPE_SUSTAIN:
-		{
-			/* OBJECT_XTRA_WHAT_SUSTAIN == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_SUSTAIN << o_ptr->xtra2);
-			break;
-		}
+		int rune = o_ptr->xtra1 - OBJECT_XTRA_MIN_RUNES;
+		int i;
 
-		case OBJECT_XTRA_TYPE_RESIST:
+		for (i = 0;i<MAX_RUNE_FLAGS;i++)
 		{
-			/* OBJECT_XTRA_WHAT_RESIST == 2 */
-			(*f2) |= (OBJECT_XTRA_BASE_RESIST << o_ptr->xtra2);
-			break;
-		}
+                        if ((y_info[rune].count[i]) && (y_info[rune].count[i]<= o_ptr->xtra2))
+			{
+                                if (y_info[rune].flag[i] < 32) (*f1) |= (1L << y_info[rune].flag[i]);
+                        
+                                if ((y_info[rune].flag[i] >= 32)
+                                 && (y_info[rune].flag[i] < 64)) (*f2) |= (1L << (y_info[rune].flag[i]-32));
 
-		case OBJECT_XTRA_TYPE_POWER:
-		{
-			/* OBJECT_XTRA_WHAT_POWER == 3 */
-			(*f3) |= (OBJECT_XTRA_BASE_POWER << o_ptr->xtra2);
-			break;
+                                if ((y_info[rune].flag[i] >= 64)
+                                 && (y_info[rune].flag[i] < 96)) (*f3) |= (1L << (y_info[rune].flag[i]-64));
+			}
+		}
+	}
+	/* Extra powers */
+	else
+	{
+                if (object_xtra_what[o_ptr->xtra1] == 1)
+                {
+                        (*f1) |= (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+		}
+                else if (object_xtra_what[o_ptr->xtra1] == 2)
+                {
+                        (*f2) |= (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
+		}
+                else if (object_xtra_what[o_ptr->xtra1] == 3)
+                {
+                        (*f3) |= (object_xtra_base[o_ptr->xtra1] << o_ptr->xtra2);
 		}
 	}
 }
@@ -1186,6 +1198,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
                         basenm = "& Song Book~ #";
+			break;
+		}
+
+                /* Runestones */
+                case TV_RUNESTONE:
+		{
+			modstr = basenm;
+                        basenm = "& # Rune stone~";
 			break;
 		}
 
@@ -1782,6 +1802,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* No more details wanted */
 	if (mode < 3) goto object_desc_done;
 
+	if (o_ptr->xtra1 >= OBJECT_XTRA_MIN_RUNES)
+	{
+                object_desc_str_macro(t, " <");
+                if (o_ptr->xtra2 > 1)
+                {
+                        object_desc_num_macro(t, o_ptr->xtra2);
+                        object_desc_chr_macro(t,' ');
+                }
+                object_desc_str_macro(t, y_name+y_info[o_ptr->xtra1 - OBJECT_XTRA_MIN_RUNES].name);
+                if (o_ptr->xtra2 > 1) object_desc_chr_macro(t,'s');
+                object_desc_chr_macro(t, '>');
+	}
 
 	/* Use standard inscription */
 	if (o_ptr->note)
@@ -2473,27 +2505,39 @@ int identify_fully_desc(cptr *info, u32b f1, u32b f2, u32b f3)
 	{
 		info[i++] = "It drains experience.";
 	}
+        if (f3 & (TR3_DRAIN_HP))
+	{
+                info[i++] = "It drains hit points.";
+	}
+        if (f3 & (TR3_DRAIN_MANA))
+	{
+                info[i++] = "It drains mana.";
+	}
 
 	if (f3 & (TR3_BLESSED))
 	{
 		info[i++] = "It has been blessed by the gods.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+        if (f2 & (TR2_IGNORE_ACID))
 	{
 		info[i++] = "It cannot be harmed by acid.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
+        if (f2 & (TR2_IGNORE_ELEC))
 	{
 		info[i++] = "It cannot be harmed by electricity.";
 	}
-	if (f3 & (TR3_IGNORE_FIRE))
+        if (f2 & (TR2_IGNORE_FIRE))
 	{
 		info[i++] = "It cannot be harmed by fire.";
 	}
-	if (f3 & (TR3_IGNORE_COLD))
+        if (f2 & (TR2_IGNORE_COLD))
 	{
 		info[i++] = "It cannot be harmed by cold.";
+	}
+        if (f2 & (TR2_IGNORE_WATER))
+	{
+                info[i++] = "It cannot be harmed by water.";
 	}
 
         return(i);
@@ -3690,7 +3734,7 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 			e_ptr->i_ego_item.may_flags2 = one_resist;
 			e_ptr->i_ego_item.may_flags3 = 0x0L;
 		}
-		else if (e_ptr->i_ego_item.may_flags3 & (f3))
+                else if ((e_ptr->i_ego_item.may_flags3 & (f3)) && (f2 & one_power))
 		{
 			/* One ability */
 			e_ptr->i_ego_item.can_flags1 |= e_ptr->i_ego_item.may_flags1;
@@ -3706,7 +3750,6 @@ void object_not_flags(object_type *o_ptr, u32b f1, u32b f2, u32b f3)
 		}
 
 	}
-
 
 }
 

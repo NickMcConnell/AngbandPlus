@@ -327,8 +327,8 @@ static void new_player_spot(void)
 		y = rand_range(1, DUNGEON_HGT - 2);
 		x = rand_range(1, DUNGEON_WID - 2);
 
-		/* Must be a "naked" floor grid */
-		if (!cave_naked_bold(y, x)) continue;
+                /* Must be a "start" floor grid */
+                if (!cave_start_bold(y, x)) continue;
 
 		/* Refuse to start in anti-teleport rooms */
                 if (cave_info[y][x] & (CAVE_ROOM))
@@ -521,8 +521,8 @@ static void alloc_object(int set, int typ, int num)
 			y = rand_int(DUNGEON_HGT);
 			x = rand_int(DUNGEON_WID);
 
-			/* Require "naked" floor grid */
-			if (!cave_naked_bold(y, x)) continue;
+                        /* Require actual floor grid */
+                        if (!(f_info[cave_feat[y][x]].flags1 & (FF1_FLOOR))) continue;
 
 			/* Check for "room" */
 			room = (cave_info[y][x] & (CAVE_ROOM)) ? TRUE : FALSE;
@@ -3883,6 +3883,9 @@ static void cave_gen(void)
 
         dungeon_zone *zone=&t_info[0].zone[0];
 
+        bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+        bool daytime = (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)));
+
 	/* Global data */
 	dun = &dun_body;
 
@@ -3896,8 +3899,11 @@ static void cave_gen(void)
 	{
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
+                        /* Create ground */
+                        if (surface) cave_set_feat(y,x,FEAT_GROUND);
+
 			/* Create granite wall */
-                        cave_set_feat(y,x,FEAT_WALL_EXTRA);
+                        else cave_set_feat(y,x,FEAT_WALL_EXTRA);
 
                         /* Fill with interesting stuff */
                         if (zone->fill) build_terrain(y,x,zone->fill);
@@ -4259,6 +4265,9 @@ static void cave_gen(void)
         alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
         alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
 
+	/* Apply illumination */
+        if (surface) town_illuminate(daytime);
+
 	/* Ensure quest monsters */
 	if (is_quest(p_ptr->depth))
 	{
@@ -4289,7 +4298,8 @@ static void cave_gen(void)
 		}
 	}
 	/* Ensure guardian monsters --- only night time in towns */
-        else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0))
+        else if ((zone->guard) && (r_info[zone->guard].cur_num <= 0)
+                && (!surface || !daytime))
 	{
 		int y, x;
 
@@ -4343,7 +4353,7 @@ static void build_store(int n, int yy, int xx)
         byte d_char = u_info[t_ptr->store[n]].d_char;
 
 	/* Hack -- don't build building for some 'special locations' */
-        bool building = (((d_char >= '0') && (d_char <= '9')) || (d_char == '+'));
+        bool building = (((d_char >= '0') && (d_char <= '8')) || (d_char == '+'));
 
 	/* Find the "center" of the store */
 	y0 = qy + yy * 9 + 6;

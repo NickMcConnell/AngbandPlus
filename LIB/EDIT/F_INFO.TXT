@@ -215,7 +215,7 @@
 # 2 new features to correctly handle case of rubble with hidden items, and
 # rubble with known items.
 
-# 39 new traps, including 4 new types (magic symbol, stone idol, eldritch
+# 39 new traps, including 4 new types (magic symbol, stone face, eldritch
 # sign and tripwire) and expanded previous types (deep pits, summoning
 # runes of various flavours).
 
@@ -565,6 +565,7 @@ U:56
 G:^:s
 W:3:1:20:0
 T:FALL_SPIKE:4d6
+O:345
 K:DEFAULT:1
 K:HIT_TRAP:18
 D:You fall into a spiked pit!
@@ -579,6 +580,7 @@ U:56
 G:^:s
 W:4:1:20:0
 T:FALL_POISON:4d6
+O:345
 K:DEFAULT:1
 K:HIT_TRAP:19
 D:You fall into a spiked pit!
@@ -593,6 +595,7 @@ U:56
 G:^:o
 W:6:1:20:0
 S:S_MONSTERS
+O:614
 D:You are enveloped in a cloud of smoke!
 K:DEFAULT:1
 F:TRAP | HIT_TRAP | DISARM |  CAN_CLIMB | CAN_FLY | PLACE |
@@ -605,6 +608,7 @@ N:21:strange rune
 U:56
 G:^:o
 W:2:1:20:0
+O:606
 S:TELE_AWAY
 D:You hit a teleport trap!
 K:DEFAULT:1
@@ -620,6 +624,7 @@ N:22:discolored spot
 U:56
 G:^:u
 W:4:1:20:0
+O:348
 T:FIRE:4d6
 K:DEFAULT:1
 K:HIT_TRAP:22
@@ -633,7 +638,8 @@ N:23:discolored spot
 U:56
 G:^:u
 W:4:1:20:0
-T:ACID:4d6z
+O:344
+T:ACID:4d6
 K:DEFAULT:1
 K:HIT_TRAP:23
 F:TRAP | HIT_TRAP | DISARM | CAN_CLIMB | CAN_FLY | PLACE |
@@ -648,6 +654,7 @@ G:^:r
 W:1:1:20:0
 T:SLOW:1d4
 D:A small dart hits you.
+O:434
 K:DEFAULT:1
 K:HIT_TRAP:24
 F:TRAP | HIT_TRAP | DISARM | CAN_CLIMB | CAN_FLY | PLACE |
@@ -661,6 +668,7 @@ U:56
 G:^:r
 W:2:1:20:0
 T:LOSE_STR:1d4
+O:434
 D:A small dart hits you.
 K:DEFAULT:1
 K:HIT_TRAP:25
@@ -676,6 +684,7 @@ U:56
 G:^:r
 W:3:1:20:0
 T:LOSE_DEX:1d4
+O:434
 D:A small dart hits you.
 K:DEFAULT:1
 K:HIT_TRAP:26
@@ -691,6 +700,7 @@ U:56
 G:^:r
 W:4:1:20:0
 T:LOSE_CON:1d4
+O:434
 D:A small dart hits you.
 K:DEFAULT:1
 K:HIT_TRAP:27
@@ -712,7 +722,6 @@ K:HIT_TRAP:28
 F:TRAP | HIT_TRAP | DISARM | CAN_CLIMB | CAN_FLY | PLACE |
 F:PROJECT | REMEMBER | NOTICE | LOS | MOVE |
 F:POWER_5
-
 
 # 0x1D --> visible trap -- gas -- confuse
 
@@ -1220,6 +1229,7 @@ W:11:2:20:0
 K:DEFAULT:1
 K:HIT_TRAP:65
 T:FALL_SPIKE:12d6
+O:345
 D:You fall into a deep spiked pit!
 F:TRAP | HIT_TRAP | HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
 F:PROJECT | REMEMBER | NOTICE | PLACE |
@@ -1233,6 +1243,7 @@ W:13:2:20:0
 T:FALL_POISON:12d6
 K:DEFAULT:1
 K:HIT_TRAP:66
+O:345
 D:You fall into a deep spiked pit!
 F:TRAP | HIT_TRAP |  HIDE_ITEM | HIDE_DEEP | LOS | MOVE |
 F:PROJECT | REMEMBER | NOTICE | PLACE |
@@ -1246,6 +1257,7 @@ W:12:2:20:0
 K:DEFAULT:1
 S:S_UNDEAD
 D:You are enveloped in a cloud of dust!
+O:614
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
@@ -1256,6 +1268,7 @@ U:56
 G:^:o
 W:18:2:20:0
 K:DEFAULT:1
+O:607
 S:S_DRAGON
 D:You are enveloped in a cloud of smoke!
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
@@ -1268,6 +1281,7 @@ U:56
 G:^:o
 W:24:2:20:0
 K:DEFAULT:1
+O:605
 S:S_DEMON
 D:You are enveloped in a cloud of sulpher!
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE |
@@ -1275,10 +1289,9 @@ F:PROJECT | REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_24
 
+# --> visible trap -- stone face
 
-# --> visible trap -- stone idol
-
-N:70:stone idol
+N:70:stone face
 U:56
 G:^:W
 W:2:2:20:0
@@ -1291,7 +1304,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:71:stone idol
+N:71:stone face
 U:56
 G:^:W
 W:3:2:20:0
@@ -1304,7 +1317,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:72:stone idol
+N:72:stone face
 U:56
 G:^:W
 W:4:2:20:0
@@ -1316,7 +1329,7 @@ F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
 F:POWER_5
 
-N:73:stone idol
+N:73:stone face
 U:56
 G:^:W
 W:5:2:20:0
@@ -1329,7 +1342,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_5
 
-N:74:stone idol
+N:74:stone face
 U:56
 G:^:W
 W:10:2:20:0
@@ -1342,7 +1355,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_10
 
-N:75:stone idol
+N:75:stone face
 U:56
 G:^:W
 W:15:2:20:0
@@ -1355,7 +1368,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_15
 
-N:76:stone idol
+N:76:stone face
 U:56
 G:^:W
 W:20:2:20:0
@@ -1556,6 +1569,7 @@ U:56
 G:^:R
 W:2:1:20:0
 T:ARROW:1d6
+O:78
 D:An arrow hits you.
 K:DEFAULT:1
 K:HIT_TRAP:91
@@ -1570,6 +1584,7 @@ U:56
 G:^:R
 W:5:1:20:0
 T:ARROW:3d6
+O:80
 D:An arrow hits you.
 K:DEFAULT:1
 K:HIT_TRAP:92
@@ -1583,6 +1598,7 @@ U:56
 G:^:R
 W:8:1:20:0
 T:ARROW:5d6
+O:79
 D:An arrow hits you.
 K:DEFAULT:1
 K:HIT_TRAP:93
@@ -1596,6 +1612,7 @@ U:56
 G:^:R
 W:11:1:20:0
 T:ARROW:7d6
+O:81
 D:An arrow hits you.
 K:DEFAULT:1
 K:HIT_TRAP:94
@@ -1702,7 +1719,7 @@ F:OPEN | BASH | SPIKE | DISARM |  TRAP | CAN_PASS | DOOR |
 F:TUNNEL | HURT_ROCK | CAN_CLIMB | REMEMBER | NOTICE | HIT_TRAP |
 F:POWER_5
 
-N:102:trapped door (stone idol)
+N:102:trapped door (stone face)
 U:56
 G:+:W
 W:22:10:20:0
@@ -2038,6 +2055,7 @@ U:56
 W:4:1:20:0
 T:HURT:4d6
 K:DEFAULT:1
+O:598
 D:You are hit by a falling rock!
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE |
@@ -2050,6 +2068,7 @@ U:56
 W:14:1:20:0
 K:DEFAULT:1
 T:SHATTER:16d6
+O:598
 D:You are hit by falling rocks!
 F:TRAP | HIT_TRAP | DISARM | LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
@@ -3431,7 +3450,7 @@ F:ENTER | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW
 
 # Here follow some deep traps.
 
-N:272:stone idol
+N:272:stone face
 U:56
 G:^:W
 W:30:2:20:0
@@ -3443,7 +3462,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_30
 
-N:273:stone idol
+N:273:stone face
 U:56
 G:^:W
 W:15:2:20:0
@@ -3455,7 +3474,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_15
 
-N:274:stone idol
+N:274:stone face
 U:56
 G:^:W
 W:25:2:20:0
@@ -3467,7 +3486,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_25
 
-N:275:stone idol
+N:275:stone face
 G:^:W
 U:56
 W:20:2:20:0
@@ -3479,7 +3498,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_20
 
-N:276:stone idol
+N:276:stone face
 G:^:W
 U:56
 W:10:2:20:0
@@ -3491,7 +3510,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_10
 
-N:277:stone idol
+N:277:stone face
 G:^:W
 W:60:2:20:0
 U:56
@@ -3503,7 +3522,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_60
 
-N:278:stone idol
+N:278:stone face
 G:^:W
 W:80:2:20:0
 S:BA_MANA
@@ -3515,7 +3534,7 @@ F:REMEMBER | NOTICE | PLACE |
 F:CAN_CLIMB | CAN_FLY |
 F:POWER_80
 
-N:279:stone idol
+N:279:stone face
 G:^:W
 W:70:2:20:0
 U:56
@@ -3591,6 +3610,7 @@ G:^:o
 W:10:1:20:0
 S:TELE_LEVEL
 D:You hit a teleport trap!
+O:606
 K:DEFAULT:1
 K:HIT_TRAP:284
 F:TRAP | HIT_TRAP | DISARM |  CAN_CLIMB | CAN_FLY | PLACE |
@@ -3602,6 +3622,7 @@ U:56
 G:^:o
 W:80:2:20:0
 K:DEFAULT:1
+O:605
 S:S_HI_DEMON
 D:You are enveloped in a cloud of sulpher!
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
@@ -3615,6 +3636,7 @@ G:^:o
 W:6:2:20:0
 K:DEFAULT:1
 S:S_SPIDER
+O:624
 D:You are enveloped in a cloud of cobwebs!
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
@@ -3627,6 +3649,7 @@ U:56
 W:60:2:20:0
 K:DEFAULT:1
 S:S_HI_DRAGON
+O:607
 D:You are enveloped in a cloud of smoke!
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
@@ -3638,7 +3661,8 @@ G:^:o
 U:56
 W:70:2:20:0
 K:DEFAULT:1
-S:S_HI_DRAGON
+S:S_HI_UNDEAD
+O:614
 D:You are enveloped in a cloud of dust!
 F:TRAP | HIT_TRAP | DISARM |  LOS | MOVE | PROJECT |
 F:REMEMBER | NOTICE | PLACE |
@@ -4158,6 +4182,7 @@ N:326:explosive trap
 U:56
 G:^:b
 W:10:1:20:0
+O:417
 S:EXPLODE
 K:DEFAULT:1
 F:TRAP | HIT_TRAP | DISARM |  CAN_CLIMB | CAN_FLY | PLACE |
@@ -4405,7 +4430,7 @@ K:OPEN:339
 K:BASH:315
 K:HIT_TRAP:344
 F:CAN_CLIMB | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HIT_TRAP | PICK_TRAP | HAS_GOLD | HAS_ITEM |
-F:HURT_ACID | OPEN | PLACE | BASH | CAN_FLY | TRAP |  |
+F:HURT_ACID | OPEN | PLACE | BASH | CAN_FLY | TRAP |
 F:HIDE_ITEM | CHEST |
 F:DROP_2D2 | DROP_GOOD |
 F:POWER_6
@@ -4615,7 +4640,7 @@ F:HIDE_ITEM | CHEST |
 F:DROP_2D2 | DROP_GREAT |
 F:POWER_10
 
-N:360:small steel chest (stone idol)
+N:360:small steel chest (stone face)
 G:*:W
 U:56
 W:45:1:20:0
@@ -4738,7 +4763,7 @@ F:HIDE_ITEM | CHEST |
 F:DROP_1D2 | DROP_2D2 | DROP_GREAT |
 F:POWER_12
 
-N:369:large steel chest (stone idol)
+N:369:large steel chest (stone face)
 G:*:W
 U:56
 W:55:1:20:0
@@ -5292,7 +5317,7 @@ G:.:G
 K:BRIDGE:412
 K:CHASM:141
 K:HURT_FIRE:44
-F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB | HIDE_ITEM |
+F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB |
 F:HIDE_DIG | BRIDGE | HURT_FIRE | PLACE | DROP | GROUND
 F:CAN_HIDE
 
@@ -5309,28 +5334,25 @@ F:OUTSIDE | LOS | MOVE | PROJECT | CAN_CLIMB |
 F:HIDE_DIG | HURT_FIRE | BRIDGE | PLACE | DROP |  RUN
 F:CAN_HIDE | REMEMBER | NOTICE
 
-# Deep grass - hidden
-
-N:413:deep grass
+N:413:tall grass
 W:0:1:15:0
-G:.:G
-M:411
-U:411
+G:;:G
 K:DEFAULT:414
 K:BRIDGE:412
 K:CHASM:141
 K:HURT_FIRE:417
-F:OUTSIDE | MOVE | PROJECT | SECRET | KILL_MOVE | HURT_FIRE | BRIDGE
-F:CAN_HIDE | GROUND
+F:OUTSIDE | MOVE | PROJECT | KILL_MOVE | HURT_FIRE | BRIDGE
+F:CAN_HIDE | GROUND | HIDE_ITEM
 
-N:414:deep grass
+N:414:trail through tall grass
 W:0:1:15:0
 G:::G
-U:411
+U:413
 K:BRIDGE:412
 K:CHASM:141
-K:HURT_FIRE:416
+K:HURT_FIRE:417
 F:OUTSIDE | MOVE | PROJECT | HURT_FIRE | CAN_HIDE | BRIDGE | GROUND
+F:LOS
 
 N:415:grass fire
 W:0:1:17:0
@@ -5342,21 +5364,7 @@ K:HURT_FIRE:418
 F:OUTSIDE | MOVE | PROJECT | CAN_CLIMB | HIDE_DIG |
 F:BRIDGE | GLOW | REMEMBER | NOTICE
 
-# Deep grass fire - hidden
-
-N:416:grass fire
-W:0:1:17:0
-T:FIRE:3d6
-G:':D
-U:162
-M:415
-K:HURT_FIRE:418
-K:CHASM:141
-K:SECRET:417
-F:OUTSIDE | MOVE | PROJECT | SECRET | REMEMBER | NOTICE
-F:KILL_MOVE | HURT_FIRE | DYNAMIC | CAN_FLY
-
-N:417:deep grass fire
+N:417:blazing grass fire
 W:0:1:17:0
 T:FIRE:3d6
 G:':o

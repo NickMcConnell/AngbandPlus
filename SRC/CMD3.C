@@ -1115,15 +1115,60 @@ void do_cmd_inscribe(void)
 }
 
 /*
+ * An "item_tester_hook" for refilling lanterns
+ */
+static bool item_tester_refill_lantern(object_type *o_ptr)
+{
+	/* Flasks of oil are okay */
+	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_OIL)) return (TRUE);
+
+	/* Non-empty lanterns are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_LANTERN) &&
+	    (o_ptr->pval > 0))
+	{
+		return (TRUE);
+	}
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+
+/*
+ * An "item_tester_hook" for refilling torches
+ */
+static bool item_tester_refill_torch(object_type *o_ptr)
+{
+	/* Torches are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
+
+	/* Assume not okay */
+	return (FALSE);
+}
+
+/*
  * An "item_tester_hook" for empty flasks
  */
-static bool item_tester_empty_flask(object_type *o_ptr)
+static bool item_tester_empty_flask_or_lite(object_type *o_ptr)
 {
 	/* Empty flasks are okay */
 	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_EMPTY)) return (TRUE);
 
 	/* Empty bottles are okay */
 	if ((o_ptr->tval == TV_HOLD) && (o_ptr->sval == SV_HOLD_BOTTLE) && (o_ptr->dropped <= 0)) return (TRUE);
+
+	/* Lanterns are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_LANTERN))
+	{
+		return (TRUE);
+	}
+
+	/* Torches are okay */
+	if ((o_ptr->tval == TV_LITE) &&
+	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
 
 	/* Assume not okay */
 	return (FALSE);
@@ -1152,7 +1197,7 @@ static bool item_tester_refill_flask(object_type *o_ptr)
 /*
  * Fill a flask
  */
-static void do_cmd_fill_flask(void)
+void do_cmd_refill(void)
 {
 	int item, item2;
 
@@ -1166,12 +1211,12 @@ static void do_cmd_fill_flask(void)
 
 
 	/* Restrict the choices */
-	item_tester_hook = item_tester_empty_flask;
+	item_tester_hook = item_tester_empty_flask_or_lite;
 
 	/* Get an item */
-	q = "Fill which item? ";
-	s = "You have nothing empty to fill.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	q = "Fill/fuel which item? ";
+	s = "You have nothing to fill or fuel.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1185,23 +1230,52 @@ static void do_cmd_fill_flask(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Restrict the choices */
-        item_tester_hook = item_tester_refill_flask;
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+	{
+                /* Restrict the choices */
+                item_tester_hook = item_tester_refill_lantern;
 
-	/* Get an item to fill */
-	q = "Fill from where? ";
-	s = "You have nothing to fill it with.";
-	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+		/* Get an item */
+		q = "Refill with which source of oil? ";
+		s = "You have no sources of oil.";
 
+		if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+	}
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+	{
+                /* Restrict the choices */
+                item_tester_hook = item_tester_refill_torch;
+
+                /* Get an item */
+                q = "Refuel with which torch? ";
+                s = "You have no extra torches.";
+
+                if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
+	}
+
+	else
+	{
+                /* Restrict the choices */
+                item_tester_hook = item_tester_refill_flask;
+        
+                /* Get an item to fill */
+                q = "Fill from where? ";
+                s = "You have nothing to fill it with.";
+
+                if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+	}
+
+	/* Can't fuel self */
+	if (item == item2) return;
 
 	/* Get the feature */
 	if (item >= INVEN_TOTAL+1)
 	{
                 object_type object_type_body;
 
-                o_ptr = &object_type_body;
+                j_ptr = &object_type_body;
 
-                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
+                if (!make_feat(j_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
 	}
 	/* Get the item (in the pack) */
 	else if (item2 >= 0)
@@ -1215,15 +1289,106 @@ static void do_cmd_fill_flask(void)
 		j_ptr = &o_list[0 - item];
 	}
 
-
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
-        /* Get local object */
-        i_ptr = &object_type_body;
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_LANTERN))
+	{
+
+                /* Refuel */
+                o_ptr->pval += j_ptr->pval;
+        
+                /* Message */
+                msg_print("You fuel the lamp.");
+        
+                /* Comment */
+                if (o_ptr->pval >= FUEL_LAMP)
+                {
+                        o_ptr->pval = FUEL_LAMP;
+                        msg_print("The lamp is full.");
+                }
+	}
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+	{
+                /* Refuel */
+                o_ptr->pval += j_ptr->pval + 5;
+        
+                /* Message */
+                msg_print("You combine the torches.");
+        
+                /* Over-fuel message */
+                if (o_ptr->pval >= FUEL_TORCH)
+                {
+                        o_ptr->pval = FUEL_TORCH;
+                        msg_print("Your torch is fully fueled.");
+                }
+        
+                /* Refuel message */
+                else if (item == INVEN_LITE)
+                {
+                        msg_print("Your torch glows more brightly.");
+                }
+        }
+        else
+        {
+                /* Get local object */
+                i_ptr = &object_type_body;
+        
+                /* Obtain a local object */
+                object_copy(i_ptr, o_ptr);
+
+                /* Modify quantity */
+                i_ptr->number = 1;
+
+                /* Reset stack counter */
+                i_ptr->stackc = 0;
+
+                /* Reset the pval */
+                i_ptr->pval = 0;
+
+                /* Adjust the weight and carry */
+                item = inven_carry(i_ptr);
+        }        
+
+	/* Decrease the item (in the pack) */
+	if ((item >= 0) && (o_ptr->tval != TV_LITE))
+	{
+		inven_item_increase(item, -1);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+        }
+	/* Decrease the item (from the floor) */
+	else if (o_ptr->tval != TV_LITE)
+	{
+		floor_item_increase(0 - item, -1);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
+
+
+	/* Decrease the feature */
+        if ((item2 >= INVEN_TOTAL+1) && (o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+	}
+	else if (item2 >= INVEN_TOTAL+1)
+	{
+		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+	}
+	/* Use fuel from a lantern */
+	else if ((j_ptr->tval == TV_LITE) && (j_ptr->sval == SV_LITE_LANTERN))
+	{
+                if (j_ptr->number > 1)
+                {
+
+                        object_type *i_ptr;
+                        object_type object_type_body;
+
+                        /* Get local object */
+                        i_ptr = &object_type_body;
 
                         /* Obtain a local object */
-                        object_copy(i_ptr, o_ptr);
+                        object_copy(i_ptr, j_ptr);
 
                         /* Modify quantity */
                         i_ptr->number = 1;
@@ -1235,33 +1400,20 @@ static void do_cmd_fill_flask(void)
                         i_ptr->pval = 0;
 
                         /* Unstack the used item */
-                        o_ptr->number--;
+                        j_ptr->number--;
         
                         /* Adjust the weight and carry */
                         p_ptr->total_weight -= i_ptr->weight;
                         item = inven_carry(i_ptr);
         
-
-	/* Decrease the item (in the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-        }
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-
-	/* Decrease the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
+                        /* Message */
+                        msg_print("You unstack your lantern.");
+                }
+                else
+                {
+                        /* Use up last of fuel */
+                        j_ptr->pval = 0;
+                }
 	}
 	/* Decrease the item (in the pack) */
 	else if (item2 >= 0)
@@ -1285,325 +1437,10 @@ static void do_cmd_fill_flask(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+	/* Lite if necessary */
+	if ((item == INVEN_LITE) || (item2 == INVEN_LITE)) p_ptr->update |= (PU_TORCH);
 
 }
-
-
-
-
-/*
- * An "item_tester_hook" for refilling lanterns
- */
-static bool item_tester_refill_lantern(object_type *o_ptr)
-{
-	/* Flasks of oil are okay */
-	if ((o_ptr->tval == TV_FLASK) && (o_ptr->sval == SV_FLASK_OIL)) return (TRUE);
-
-	/* Non-empty lanterns are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_LANTERN) &&
-	    (o_ptr->pval > 0))
-	{
-		return (TRUE);
-	}
-
-	/* Assume not okay */
-	return (FALSE);
-}
-
-
-/*
- * Refill the players lamp (from the pack or floor)
- */
-static void do_cmd_refill_lamp(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_lantern;
-
-	/* Get an item */
-	q = "Refill with which source of oil? ";
-	s = "You have no sources of oil.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
-
-
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-                object_type object_type_body;
-
-                o_ptr = &object_type_body;
-
-                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
-	/* Get the item (in the pack) */
-	else if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Get the lantern */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->pval += o_ptr->pval;
-
-	/* Message */
-	msg_print("You fuel your lamp.");
-
-	/* Comment */
-	if (j_ptr->pval >= FUEL_LAMP)
-	{
-		j_ptr->pval = FUEL_LAMP;
-		msg_print("Your lamp is full.");
-	}
-
-
-	/* Decrease the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-	}
-	/* Use fuel from a lantern */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-                if (o_ptr->number > 1)
-                {
-
-                        object_type *i_ptr;
-                        object_type object_type_body;
-
-                        /* Get local object */
-                        i_ptr = &object_type_body;
-
-                        /* Obtain a local object */
-                        object_copy(i_ptr, o_ptr);
-
-                        /* Modify quantity */
-                        i_ptr->number = 1;
-
-                        /* Reset stack counter */
-                        i_ptr->stackc = 0;
-
-                        /* Reset the pval */
-                        i_ptr->pval = 0;
-
-                        /* Unstack the used item */
-                        o_ptr->number--;
-        
-                        /* Adjust the weight and carry */
-                        p_ptr->total_weight -= i_ptr->weight;
-                        item = inven_carry(i_ptr);
-        
-                        /* Message */
-                        msg_print("You unstack your lantern.");
-                }
-                else
-                {
-                        /* Use up last of fuel */
-                        o_ptr->pval = 0;
-                }
-
-
-		/* Combine / Reorder the pack (later) */
-		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN);
-	}
-
-	/* Decrease the item (from the pack) */
-	else if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-
-
-/*
- * An "item_tester_hook" for refilling torches
- */
-static bool item_tester_refill_torch(object_type *o_ptr)
-{
-	/* Torches are okay */
-	if ((o_ptr->tval == TV_LITE) &&
-	    (o_ptr->sval == SV_LITE_TORCH)) return (TRUE);
-
-	/* Assume not okay */
-	return (FALSE);
-}
-
-
-/*
- * Refuel the players torch (from the pack or floor)
- */
-static void do_cmd_refill_torch(void)
-{
-	int item;
-
-	object_type *o_ptr;
-	object_type *j_ptr;
-
-	cptr q, s;
-
-
-	/* Restrict the choices */
-	item_tester_hook = item_tester_refill_torch;
-
-	/* Get an item */
-	q = "Refuel with which torch? ";
-	s = "You have no extra torches.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
-
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-                object_type object_type_body;
-
-                o_ptr = &object_type_body;
-
-                if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
-	/* Get the item (in the pack) */
-	else if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-
-	/* Take a partial turn */
-	p_ptr->energy_use = 50;
-
-	/* Get the primary torch */
-	j_ptr = &inventory[INVEN_LITE];
-
-	/* Refuel */
-	j_ptr->pval += o_ptr->pval + 5;
-
-	/* Message */
-	msg_print("You combine the torches.");
-
-	/* Over-fuel message */
-	if (j_ptr->pval >= FUEL_TORCH)
-	{
-		j_ptr->pval = FUEL_TORCH;
-		msg_print("Your torch is fully fueled.");
-	}
-
-	/* Refuel message */
-	else
-	{
-		msg_print("Your torch glows more brightly.");
-	}
-
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-                cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
-	}
-	/* Decrease the item (from the pack) */
-	if (item >= 0)
-	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
-
-	/* Decrease the item (from the floor) */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_describe(0 - item);
-		floor_item_optimize(0 - item);
-	}
-
-	/* Recalculate torch */
-	p_ptr->update |= (PU_TORCH);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_EQUIP);
-}
-
-
-
-
-/*
- * Refill the players lamp, or restock his torches
- */
-void do_cmd_refill(void)
-{
-	object_type *o_ptr;
-
-	/* Get the light */
-	o_ptr = &inventory[INVEN_LITE];
-
-	/* It is nothing */
-	if (o_ptr->tval != TV_LITE)
-	{
-		do_cmd_fill_flask();
-	}
-
-	/* It's a lamp */
-	else if (o_ptr->sval == SV_LITE_LANTERN)
-	{
-		do_cmd_refill_lamp();
-	}
-
-	/* It's a torch */
-	else if (o_ptr->sval == SV_LITE_TORCH)
-	{
-		do_cmd_refill_torch();
-	}
-
-	/* No torch to refill */
-	else
-	{
-		msg_print("Your light cannot be refilled.");
-	}
-}
-
-
-
 
 
 

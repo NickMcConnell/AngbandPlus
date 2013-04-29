@@ -1278,6 +1278,28 @@ static void roff_aux(int r_idx)
 			case RBM_TRAP: p = "trap"; break;
 			case RBM_SHOOT: p = "shoot"; break;
 			case RBM_AURA: p = "radiate"; break;
+                        case RBM_SELF: p = "affect itself";break;
+                        case RBM_ADJACENT: p = "affect all adjacent"; break;
+                        case RBM_HANDS: p = "affect an adjacent target"; break;
+                        case RBM_MISSILE: p = "fires a missile"; break;
+                        case RBM_BOLT_10: p = "create a bolt"; break;
+                        case RBM_BOLT: p = "create a powerful bolt"; break;
+                        case RBM_BEAM: p = "create a beam"; break;
+                        case RBM_BLAST: p = "create an adjacent blast"; break;
+                        case RBM_WALL: p = "create a wall"; break;
+                        case RBM_BALL: p = "create a ball"; break;
+                        case RBM_CLOUD: p = "create a cloud"; break;
+                        case RBM_STORM: p = "create a storm"; break;
+                        case RBM_BREATH: p = "breathes"; break;
+                        case RBM_AREA: p = "affect an area"; break;
+                        case RBM_LOS: p = "affect all in line of sight"; break;
+                        case RBM_LINE: p = "creats a line"; break;
+                        case RBM_AIM: p = "affect a target"; break;
+                        case RBM_ORB: p = "create an orb"; break;
+                        case RBM_STAR: p = "create a star"; break;
+                        case RBM_SPHERE: p = "create a sphere"; break;
+                        case RBM_PANEL: p = "affect the current panel"; break;
+                        case RBM_LEVEL: p = "affect the current level"; break;
 		}
 
 

@@ -178,6 +178,8 @@ static cptr r_info_blow_method[] =
         "STAR",
 	  "SPHERE",
 	"PANEL",
+        "LEVEL",
+        "CROSS",
 	NULL
 };
 
@@ -241,7 +243,7 @@ static cptr r_info_blow_effect[] =
 	"CLONE",
 	"POLYMORPH",
 	"HEAL",
-	"SPEED",
+        "HASTE",
         "SLOW_WEAK",
         "CONFUSE_WEAK",
 	"SLEEP",
@@ -821,12 +823,12 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
-	"XXX2",
-	"XXX3",
-	"XXX4",
-	"XXX5",
-	"XXX6",
+	"IGNORE_ACID",
+	"IGNORE_ELEC",
+	"IGNORE_FIRE",
+	"IGNORE_COLD",
+        "IGNORE_WATER",
+        "IM_POIS",
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
@@ -862,19 +864,19 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-        "ESP_ORC",
-        "ESP_GIANT",
-        "ESP_TROLL",
-        "ESP_DRAGON",
+        "XXX1",
+        "XXX2",
+        "DRAIN_HP",
+        "DRAIN_MANA",
 	"IMPACT",
 	"TELEPORT",
 	"AGGRAVATE",
 	"DRAIN_EXP",
-	"IGNORE_ACID",
-	"IGNORE_ELEC",
-	"IGNORE_FIRE",
-	"IGNORE_COLD",
         "ESP_DEMON",
+        "ESP_DRAGON",
+        "ESP_GIANT",
+        "ESP_ORC",
+        "ESP_TROLL",
         "ESP_UNDEAD",
 	"BLESSED",
 	"ACTIVATE",
@@ -1039,8 +1041,8 @@ static cptr s_info_flags1[] =
         "IDENT_BONUS",
         "IDENT_RUMOR",
         "IDENT_FULLY",
-        "AQUIREMENT",
-        "STAR_AQUIREMENT",
+        "ACQUIREMENT",
+        "STAR_ACQUIREMENT",
         "ENCHANT_TOH",
         "ENCHANT_TOD",
         "ENCHANT_TOA",
@@ -1138,6 +1140,7 @@ static cptr s_info_types[] =
         "ENCHANT_TVAL",
         "BRAND_WEAPON",
         "BRAND_ARMOR",
+        "BRAND_ITEM",
         "WARD_GLYPH",
         "WARD_TRAP",
         "SUMMON",
@@ -1146,7 +1149,6 @@ static cptr s_info_types[] =
         "CREATE_KIND",
         "EARTHQUAKE",
         "DESTRUCTION",
-        "XXX1",
         "XXX1",
         "XXX1",
         "XXX1",
@@ -1485,6 +1487,20 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'Y' for "Maximum y_info[] index" */
+                if (buf[2] == 'Y')
+		{
+			int max;
+
+			/* Scan for the value */
+			if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the value */
+                        z_info->y_max = max;
+
+			/* Next... */
+			continue;
+		}
 
 
 		/* Process 'B' for "Maximum b_info[] subindex" */
@@ -2976,6 +2992,24 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'Y' for "Runes" (one line only) */
+                if (buf[0] == 'Y')
+		{
+                        int runest,runesc;
+
+			/* Scan for the values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+                                        &runest, &runesc)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+                        k_ptr->runest = runest;
+                        k_ptr->runesc = runesc;
+
+			/* Next... */
+			continue;
+		}
+
+
 		/* Process 'A' for "Allocation" (one line only) */
 		if (buf[0] == 'A')
 		{
@@ -3251,7 +3285,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_head->name_size += strlen(s);
 
 			/* Ignore everything */
-			a_ptr->flags3 |= (TR3_IGNORE_MASK);
+                        a_ptr->flags2 |= (TR2_IGNORE_MASK);
 
 			/* Next... */
 			continue;
@@ -3635,6 +3669,22 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			continue;
 		}
 
+                /* Process 'Y' for "Runes" (one line only) */
+                if (buf[0] == 'Y')
+		{
+                        int runest,runesc;
+
+			/* Scan for the values */
+                        if (2 != sscanf(buf+2, "%d:%d",
+                                        &runest, &runesc)) return (PARSE_ERROR_GENERIC);
+
+			/* Save the values */
+                        e_ptr->runest = runest;
+                        e_ptr->runesc = runesc;
+
+			/* Next... */
+			continue;
+		}
 
 		/* Process 'X' for "Xtra" (one line only) */
 		if (buf[0] == 'X')
@@ -5810,6 +5860,297 @@ errr init_s_info_txt(FILE *fp, char *buf)
 	/* Complete the "name" and "text" sizes */
 	++s_head->name_size;
 	++s_head->text_size;
+
+	/* No version yet */
+	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+	/* Success */
+	return (0);
+}
+
+/*
+ * Initialize the "y_info" array, by parsing an ascii "template" file
+ */
+errr init_y_info_txt(FILE *fp, char *buf)
+{
+	int i;
+
+        char *s,*t;
+
+	/* Not ready yet */
+	bool okay = FALSE;
+
+	/* Current entry */
+        rune_type *y_ptr = NULL;
+
+
+	/* Just before the first record */
+	error_idx = -1;
+
+	/* Just before the first line */
+	error_line = -1;
+
+
+	/* Start the "fake" stuff */
+        y_head->name_size = 0;
+        y_head->text_size = 0;
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Advance the line number */
+		error_line++;
+
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Verify correct "colon" format */
+		if (buf[1] != ':') return (PARSE_ERROR_GENERIC);
+
+
+		/* Hack -- Process 'V' for "Version" */
+		if (buf[0] == 'V')
+		{
+			int v1, v2, v3;
+
+			/* Scan for the values */
+			if ((3 != sscanf(buf+2, "%d.%d.%d", &v1, &v2, &v3)) ||
+                            (v1 != y_head->v_major) ||
+                            (v2 != y_head->v_minor) ||
+                            (v3 != y_head->v_patch))
+			{
+				return (PARSE_ERROR_OBSOLETE_FILE);
+			}
+
+			/* Okay to proceed */
+			okay = TRUE;
+
+			/* Continue */
+			continue;
+		}
+
+		/* No version yet */
+		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+
+
+		/* Process 'N' for "New/Number/Name" */
+		if (buf[0] == 'N')
+		{
+			/* Find the colon before the name */
+			s = strchr(buf+2, ':');
+
+			/* Verify that colon */
+			if (!s) return (PARSE_ERROR_GENERIC);
+
+			/* Nuke the colon, advance to the name */
+			*s++ = '\0';
+
+			/* Paranoia -- require a name */
+			if (!*s) return (PARSE_ERROR_GENERIC);
+
+			/* Get the index */
+			i = atoi(buf+2);
+
+			/* Verify information */
+			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
+
+			/* Verify information */
+                        if (i >= y_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+
+			/* Save the index */
+			error_idx = i;
+
+			/* Point at the "info" */
+                        y_ptr = &y_info[i];
+
+			/* Hack -- Verify space */
+                        if (y_head->name_size + strlen(s) + 8 > z_info->fake_name_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the name index */
+                        if (!y_ptr->name) y_ptr->name = ++y_head->name_size;
+
+			/* Append chars to the name */
+                        strcpy(y_name + y_head->name_size, s);
+
+			/* Advance the index */
+                        y_head->name_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+                /* There better be a current y_ptr */
+                if (!y_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Get the text */
+			s = buf+2;
+
+			/* Hack -- Verify space */
+                        if (y_head->text_size + strlen(s) + 8 > z_info->fake_text_size)
+				return (PARSE_ERROR_OUT_OF_MEMORY);
+
+			/* Advance and Save the text index */
+                        if (!y_ptr->text) y_ptr->text = ++y_head->text_size;
+
+			/* Append chars to the name */
+                        strcpy(y_text + y_head->text_size, s);
+
+			/* Advance the index */
+                        y_head->text_size += strlen(s);
+
+			/* Next... */
+			continue;
+		}
+
+                /* Process 'Y' for "Rune flag" up to four lines */
+                if (buf[0] == 'Y')
+		{
+			int n1;
+
+			/* Find the next empty blow slot (if any) */
+                        for (i = 0; i < 4; i++) if (!y_ptr->count[i]) break;
+
+			/* Analyze the first field */
+			for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+                        /* Get the count */
+                        y_ptr->count[i] = atoi(s);
+
+                        /* Analyze the rune flag */
+                        for (n1 = 0; k_info_flags1[n1]; n1++)
+			{
+                                if (streq(t, k_info_flags1[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                y_ptr->flag[i] = n1;
+
+				continue;
+			}
+
+                        /* Analyze the rune flag */
+                        for (n1 = 0; k_info_flags2[n1]; n1++)
+			{
+                                if (streq(t, k_info_flags2[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                y_ptr->flag[i] = n1+32;
+
+				continue;
+			}
+
+                        /* Analyze the rune flag */
+                        for (n1 = 0; k_info_flags3[n1]; n1++)
+			{
+                                if (streq(t, k_info_flags3[n1])) break;
+			}
+
+			if (n1<32)
+			{
+                                y_ptr->flag[i] = n1+64;
+
+				continue;
+			}
+
+			/* Oops */
+                        msg_format("Unknown rune flag '%s'.", t);
+
+			/* Fail */
+                        return(PARSE_ERROR_GENERIC);
+		}
+
+
+		/* Process 'B' for "Blows" (up to four lines) */
+		if (buf[0] == 'B')
+		{
+			int n1, n2;
+
+			/* Find the next empty blow slot (if any) */
+                        for (i = 0; i < 4; i++) if (!y_ptr->blow[i].method) break;
+
+			/* Oops, no more slots */
+			if (i == 4) return (PARSE_ERROR_GENERIC);
+
+			/* Analyze the first field */
+			for (s = t = buf+2; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+			/* Analyze the method */
+			for (n1 = 0; r_info_blow_method[n1]; n1++)
+			{
+				if (streq(s, r_info_blow_method[n1])) break;
+			}
+
+			/* Invalid method */
+			if (!r_info_blow_method[n1]) return (PARSE_ERROR_GENERIC);
+
+
+			/* Analyze the second field */
+			for (s = t; *t && (*t != ':'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == ':') *t++ = '\0';
+
+			/* Analyze effect */
+			for (n2 = 0; r_info_blow_effect[n2]; n2++)
+			{
+				if (streq(s, r_info_blow_effect[n2])) break;
+			}
+
+			/* Invalid effect */
+			if (!r_info_blow_effect[n2]) return (PARSE_ERROR_GENERIC);
+
+			/* Analyze the third field */
+			for (s = t; *t && (*t != 'd'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+			/* Save the method */
+                        y_ptr->blow[i].method = n1;
+
+			/* Save the effect */
+                        y_ptr->blow[i].effect = n2;
+
+                        /* Extract the damage dice */
+                        y_ptr->blow[i].d_dice = atoi(s);
+
+                        /* Analyze the fourth field */
+                        for (s = t; *t && (*t != '+'); t++) /* loop */;
+
+			/* Terminate the field (if necessary) */
+			if (*t == 'd') *t++ = '\0';
+
+                        /* Extract the damage sides and plus */
+                        y_ptr->blow[i].d_side = atoi(s);
+                        y_ptr->blow[i].d_plus = atoi(t);
+
+			/* Next... */
+			continue;
+		}
+
+
+		/* Oops */
+		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
+	}
+
+
+	/* Complete the "name" and "text" sizes */
+        ++y_head->name_size;
+        ++y_head->text_size;
 
 	/* No version yet */
 	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);

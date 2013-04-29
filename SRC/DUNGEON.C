@@ -1805,6 +1805,12 @@ static void process_command(void)
 			break;
 		}
 
+                /* Apply a rune */
+                case 'y':
+		{
+                        do_cmd_apply_rune();
+			break;
+		}
 
 		/*** Looking at Things (nearby or on map) ***/
 
@@ -2410,8 +2416,7 @@ static void process_player(void)
 
 		/*** Hack --- Sing ***/
 		/* Hack --- also apply power benefit for wielding instrument */
-                if (p_ptr->held_song) do_cmd_cast_aux(p_ptr->held_song,
-                        ((p_ptr->pstyle == WS_INSTRUMENT)?p_ptr->lev*2:p_ptr->lev),
+                if (p_ptr->held_song) do_cmd_cast_aux(p_ptr->held_song, spell_power(p_ptr->held_song),
                         ((p_ptr->pstyle == WS_INSTRUMENT)?"play":"sing"), "song");
 
 
@@ -3118,6 +3123,23 @@ void play_game(bool new_game)
 
 	/* Flavor the objects */
 	flavor_init();
+
+        /* Mark the fixed monsters as quests */
+        if (variant_town)
+        {
+                int i;
+
+                for (i = 0; i < z_info->t_max; i++)
+                {
+                        int ii;
+
+                        for (ii = 0; ii < MAX_DUNGEON_ZONES;ii++)
+                        {
+
+                                r_info[t_info[i].zone[ii].guard].flags1 |= RF1_QUESTOR;
+                        }
+                }
+        }
 
 	/* Reset visuals */
 	reset_visuals(TRUE);

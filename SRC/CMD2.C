@@ -1128,11 +1128,22 @@ static bool do_cmd_disarm_aux(int y, int x)
 	/* Success */
 	if (rand_int(100) < j)
 	{
+                object_type object_type_body;
+
+                object_type *o_ptr = &object_type_body;
+
 		/* Message */
 		msg_format("You have disarmed the %s.", name);
 
 		/* Reward */
 		gain_exp(power);
+
+                /* Drop an object */
+                if (make_feat(o_ptr, cave_feat[y][x]))
+                {
+                        /* Drop (or break) near that location */
+                        drop_near(o_ptr, 0, y, x);
+                }
 
 		/* Remove the trap */
 		cave_alter_feat(y, x, FS_DISARM);

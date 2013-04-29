@@ -469,6 +469,12 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
+                /* Hack -- "questor" monsters must be placed specifically */
+                if (r_ptr->flags1 & (RF1_QUESTOR))
+		{
+			continue;
+		}
+
 		/* Depth Monsters never appear out of depth */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
 		{

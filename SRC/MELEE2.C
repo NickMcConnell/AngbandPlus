@@ -6300,13 +6300,13 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
         if (do_move && (m_ptr->mflag & (MFLAG_HIDE)) && (cave_m_idx[ny][nx] < 0))
         {
                 /* We can't get out of hiding */
-                if (f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED))
+                if ((f_info[cave_feat[ny][nx]].flags2 & (FF2_COVERED)) ||
+                        (m_ptr->mflag & (MFLAG_OVER)))
                 {
                         if ((r_ptr->flags2 & (RF2_BASH_DOOR)) &&  (f_info[cave_feat[ny][nx]].flags1 & (FF1_BASH)))
                         {
                                 /* Don't move*/
                                 do_move = FALSE;
-
 
                                 /* Bash through the floor */
                                 cave_alter_feat(ny, nx, FS_BASH);
@@ -6316,7 +6316,6 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 
                                 /* And reveal */
                                 update_mon(m_idx,FALSE);
-
 
                                 /* Hack --- tell the player if something unhides */
                                 if ((m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
@@ -6351,6 +6350,37 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
                         {
 
                                 return;
+                        }
+                }
+                else
+                {
+                        /* Unhide the monster */
+                        m_ptr->mflag &= ~(MFLAG_HIDE);
+
+                        /* And reveal */
+                        update_mon(m_idx,FALSE);
+
+                        /* Hack --- tell the player if something unhides */
+                        if ((m_ptr->mflag & (MFLAG_HIDE)) && (m_ptr->ml))
+                        {
+                                char m_name[80];
+
+                                /* Get the monster name */
+                                monster_desc(m_name, m_ptr, 0);
+
+                                msg_format("%^s emerges from %s%s.",m_name,
+                                        ((f_info[cave_feat[oy][ox]].flags2 & (FF2_FILLED))?"":"the "),
+                                        f_name+f_info[cave_feat[oy][ox]].name);
+                        }
+
+                        /* Disturb on "move" */
+                        if (m_ptr->ml &&
+                            (disturb_move ||
+                             ((m_ptr->mflag & (MFLAG_VIEW)) &&
+                              disturb_near)))
+                        {
+                                /* Disturb */
+                                disturb(0, 0);
                         }
 
                 }

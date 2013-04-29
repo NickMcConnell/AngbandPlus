@@ -20,7 +20,7 @@ M:F:471
 M:D:255
 
 # Maximum number of object kinds
-M:K:600
+M:K:630
 
 # Maximum number of artifacts
 M:A:136
@@ -41,10 +41,10 @@ M:R:1240
 M:V:35
 
 # Maximum number of towns
-M:T:40
+M:T:43
 
 # Maximum number of stores
-M:U:28
+M:U:29
 
 # Maximum number of player races
 M:P:10
@@ -59,7 +59,10 @@ M:C:10
 M:W:127
 
 # Maximum number of spells
-M:S:330
+M:S:350
+
+# Maximum number of runes
+M:Y:30
 
 # Maximum number of owners per store
 M:B:4

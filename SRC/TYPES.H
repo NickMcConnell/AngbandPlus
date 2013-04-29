@@ -108,9 +108,13 @@ typedef struct spell_appears spell_appears;
 typedef struct spell_cast spell_cast;
 typedef struct spell_blow spell_blow;
 typedef struct spell_type spell_type;
+typedef struct rune_type rune_type;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
+typedef struct tval_desc tval_desc;
+
+
 
 
 
@@ -178,7 +182,8 @@ struct maxima
 
 	u16b d_max;             /* Max size for "d_info[]" */
 	u16b f_max;             /* Max size for "f_info[]" */
-	u16b k_max;             /* Max size for "k_info[]" */
+
+        u16b k_max;             /* Max size for "k_info[]" */
 
 	u16b a_max;             /* Max size for "a_info[]" */
 	u16b e_max;             /* Max size for "e_info[]" */
@@ -199,6 +204,8 @@ struct maxima
 	u16b c_max;    		/* Max size per element of "c_info[]" */
 
 	u16b s_max;		/* Max size per element of "s_info[]" */
+        u16b y_max;             /* Max size per element of "y_info[]" */
+
 	u16b w_max;		/* Max size per element of "w_info[]" */
 
 	u16b o_max;             /* Max size for "o_list[]" */
@@ -446,6 +453,10 @@ struct object_kind
         object_info i_kind;
 #endif
         u16b note;             /* Auto-inscription */
+
+        byte runest;           /* Rune type */
+        byte runesc;           /* Rune count */
+
 };
 
 
@@ -534,6 +545,9 @@ struct ego_item_type
         object_info i_ego_item;
 #endif
         u16b note;             /* Auto-inscription */
+
+        byte runest;           /* Rune type */
+        byte runesc;           /* Rune count */
 };
 
 /*
@@ -1141,6 +1155,19 @@ struct spell_type
         spell_blow blow[4];
 };
 
+/*
+ * Rune type info
+ */
+struct rune_type
+{
+	u32b name;
+	u32b text;
+
+        byte count[MAX_RUNE_FLAGS];
+        byte flag[MAX_RUNE_FLAGS];
+
+        spell_blow blow[4];
+};
 
 
 /*
@@ -1532,3 +1559,18 @@ struct high_score
 
 	char how[32];           /* Method of death (string) */
 };
+
+
+
+/*
+ * A structure to hold a tval and its description
+ */
+struct tval_desc
+{
+	int tval;
+	cptr desc;
+};
+
+
+
+

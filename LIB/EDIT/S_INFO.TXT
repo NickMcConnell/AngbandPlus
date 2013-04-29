@@ -5,7 +5,7 @@
 # B: blow : flavour : dice d sides + bonus
 # L: lasts dice d sides + bonus
 # T: timeout dice d sides + bonus
-# F: other effects
+# S: other effects
 # D: description
 
 # If dice is > 0 and sides == 0, we use dice * level + bonus.
@@ -421,7 +421,7 @@ B:STORM:METEOR:2d0+65
 N:44:Mana Storm
 A:90:8:6
 C:1:42:45:95:200
-B:STORM:MANA:2d0+65
+B:STORM:MANA:2d0+300
 
 N:45:Detect Evil
 A:90:6:1
@@ -843,7 +843,7 @@ C:5:31:24:60:3
 C:8:19:19:55:6
 C:9:31:24:60:3
 F:HOLD_SONG
-B:LOS:DISPEL_UNDEAD:0d0+0
+B:LOS:DISPEL_UNDEAD:3d0+0
 
 N:87:Heal
 A:91:3:3
@@ -1052,12 +1052,12 @@ C:5:42:80:85:250
 C:9:42:80:85:250
 F:ENCHANT_TOA
 
-N:111:Fire Brand
+N:111:Enchant Weapon Brand
 A:91:7:9
 C:2:45:95:85:250
 C:5:47:95:85:250
 C:8:45:95:85:250
-S:BRAND_WEAPON:122
+S:BRAND_WEAPON:8
 
 N:112:Blink
 A:91:4:1
@@ -1227,14 +1227,14 @@ N:132:Bless Weapon
 A:91:7:7
 C:2:39:60:85:250
 C:5:44:80:85:250
-S:BRAND_WEAPON:99
+S:BRAND_WEAPON:6
 
 N:133:Enchant Armour To-Resist
 A:91:7:8
 C:2:43:95:85:250
 C:5:45:95:85:250
 C:8:43:95:85:250
-S:BRAND_ARMOR:3
+S:BRAND_ARMOR:2
 
 N:134:Slow Poison
 A:91:0:5
@@ -1288,7 +1288,7 @@ C:2:5:5:35:6
 C:5:9:7:45:7
 C:8:7:6:40:7
 F:EVIL
-B:AIM:BLIND:
+B:AIM:BLIND:1d0+0
 
 N:140:Cause Moderate Wounds
 A:91:14:3
@@ -1510,7 +1510,6 @@ C:8:15:9:40:10
 B:BOLT_10:ELEC:3d8
 B:BOLT_10:ELEC:3d8
 
-
 N:167:Wall of Lightening
 A:90:12:7
 C:1:23:12:60:8
@@ -1554,7 +1553,7 @@ C:1:5:5:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
 C:8:5:5:30:6
-S:WARD_TRAP:
+S:WARD_TRAP:132
 
 N:173:Frost Blade
 A:90:11:4
@@ -1571,7 +1570,7 @@ C:1:17:13:50:12
 C:4:25:25:60:10
 C:8:17:13:50:12
 B:BOLT_10:COLD:5d8
-B:BOLT_10:COLD:3d8
+B:BOLT_10:COLD:5d8
 
 N:175:Summon Ice Elemental
 A:90:11:8
@@ -1587,8 +1586,8 @@ C:1:27:19:60:18
 C:4:35:37:70:16
 C:8:27:19:60:18
 B:BOLT_10:COLD:5d8
-B:BOLT_10:COLD:3d8
-B:BOLT_10:COLD:3d8
+B:BOLT_10:COLD:5d8
+B:BOLT_10:COLD:5d8
 
 N:177:Wall of Ice
 A:90:11:10
@@ -1779,12 +1778,12 @@ A:92:6:4
 #C:9:17:9:50:7
 #B:AIM:CHARM_ANIMAL:0d0+0
 
-N:200:Dragonbreath
+N:200:Dragon's Flame
 A:90:15:6
 C:1:20:15:70:20
 C:4:30:25:70:13
 C:8:25:20:70:16
-B:BALL:FIRE:2d0+55
+B:STORM:FIRE:2d0+50
 
 N:201:Dragonscales
 A:90:15:5
@@ -2116,7 +2115,7 @@ C:4:38:27:105:7
 C:8:29:16:100:12
 C:9:39:24:110:10
 F:HOLD_SONG
-B:LOS:DISPEL_ALL:2d0+20
+B:LOS:DRAIN_LIFE:2d0+20
 
 N:239:Scare Monster
 A:90:22:3
@@ -2209,7 +2208,7 @@ N:250:Enchant Rod
 A:90:25:8
 C:1:45:95:85:250
 C:3:47:95:85:250
-S:ENCHANT_TVAL:351
+S:ENCHANT_TVAL:66
 
 N:251:Rune of Escape
 A:90:21:3
@@ -2249,32 +2248,32 @@ B:BOLT:SOUND:8d8+0
 
 # Food effects.
 
-N:256:Poisonous Food
+N:256:Poison
 A:80:0:1
 L:1d10+10
 F:POISON
 
-N:257:Poisonous Food
+N:257:Blindness
 A:80:1:1
 L:1d200+200
 F:BLIND
 
-N:258:Poisonous Food
+N:258:Paranoia
 A:80:2:1
 L:1d10+10
 F:FEAR
 
-N:259:Poisonous Food
+N:259:Confusion
 A:80:3:1
 L:1d10+10
 F:CONFUSE
 
-N:260:Poisonous Food
+N:260:Hallucination
 A:80:4:1
 L:1d10+10
 F:HALLUC
 
-N:261:Poisonous Food
+N:261:Paralyzation
 A:80:5:1
 L:1d10+10
 F:PARALYZE
@@ -2515,102 +2514,287 @@ N:310:Wisdom
 A:75:50:1
 F:INC_WIS
 
+N:311:Dexterity
+A:75:51:1
+F:INC_DEX
+
+N:312:Constitution
+A:75:52:1
+F:INC_CON
+
+N:313:Charisma
+A:75:53:1
+F:INC_CHR
+
 # Restoring 54
 
-N:311:Augmentation
+N:314:Augmentation
 A:75:55:1
 F:INC_STR | INC_INT | INC_WIS | INC_DEX | INC_CON | INC_CHR
 
 # Enlightement 56
 
-N:312:Enlightenment
+N:315:*Enlightenment*
 A:75:57:1
 F:INC_INT | INC_WIS |
 F:WIZ_LITE | DETECT_DOORS | DETECT_STAIRS | DETECT_GOLD | DETECT_OBJECT
 F:DETECT_TRAPS | IDENT_PACK | SELF_KNOW
 D:You begin to feel more enlightened...
 
-N:313:Self Knowledge
+N:316:Self Knowledge
 A:75:58:1
 F:SELF_KNOW
 D:You feel you know yourself a little better...
 
-N:314:Experience
+N:317:Experience
 A:75:59:1
 F:SELF_KNOW
 D:You feel more experienced.
 
 # Scrolls
 
-N:315:Darkness
+N:318:Darkness
 A:70:0:1
 B:SELF:BLIND:0d0+0
 F:DARK_ROOM
 
-N:316:Aggravate Monster
+N:319:Aggravate Monster
 A:70:1:1
 F:AGGRAVATE
 
-N:317:Curse Weapon
+N:320:Curse Weapon
 A:70:2:1
 F:CURSE_WEAPON
 
-N:318:Curse Armor
+N:321:Curse Armor
 A:70:3:1
 F:CURSE_ARMOR
 
-N:319:Summon Monster
+N:322:Summon Monster
 A:70:4:1
 S:SUMMON:0
 
-N:320:Summon Undead
+N:323:Summon Undead
 A:70:5:1
 S:SUMMON:17
 
-N:321:Trap Creation
+N:324:Trap Creation
 A:70:7:1
 B:ADJACENT:MAKE_TRAP:0d0+0
 
-N:322:Remove All Curses
+N:325:Remove All Curses
 A:70:15:1
 F:CURE_CURSE
 
-N:323:Enchant Weapon To-Hit
+N:326:Enchant Weapon To-Hit
 A:70:17:1
 F:ENCHANT_TOH
 
-N:323:Enchant Weapon To-Dam
+N:327:Enchant Weapon To-Dam
 A:70:18:1
 F:ENCHANT_TOD
 
-N:324:*Enchant Armor*
+N:328:*Enchant Armor*
 A:70:20:1
 F:ENCHANT_TOA | ENCHANT_HIGH
 
-N:325:*Enchant Weapon*
+N:329:*Enchant Weapon*
 A:70:21:1
 F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH
 
-N:326:*Enchant Weapon*
+N:330:*Enchant Weapon*
 A:70:21:1
 F:ENCHANT_TOH | ENCHANT_TOD | ENCHANT_HIGH
 
-N:327:Recharging
+N:331:Recharging
 A:70:22:1
-S:RECHARGE:15
+S:RECHARGE:60
 
-N:328:Dexterity
-A:75:51:1
-F:INC_DEX
+# Analyze Magic 23
 
-N:329:Constitution
-A:75:52:1
-F:INC_CON
+# Light Area 24
+
+# Magic Mapping 25
+
+# Detect Gold 26
+
+#define SV_SCROLL_DETECT_ITEM                   27
+#define SV_SCROLL_DETECT_TRAP                   28
+#define SV_SCROLL_DETECT_DOOR                   29
+#define SV_SCROLL_DETECT_INVIS                  30
+#define SV_SCROLL_DETECT_MAGIC                  31
+#define SV_SCROLL_SATISFY_HUNGER                32
+#define SV_SCROLL_BLESSING                              33
+#define SV_SCROLL_HOLY_CHANT                    34
+#define SV_SCROLL_HOLY_PRAYER                   35
+#define SV_SCROLL_MONSTER_CONFUSION             36
+#define SV_SCROLL_PROTECTION_FROM_EVIL  37
+#define SV_SCROLL_RUNE_OF_PROTECTION    38
+#define SV_SCROLL_TRAP_DOOR_DESTRUCTION 39
+#define SV_SCROLL_DETECT_CURSE          40
+#define SV_SCROLL_STAR_DESTRUCTION              41
+#define SV_SCROLL_DISPEL_UNDEAD                 42
+#define SV_SCROLL_GAUGE_MAGIC                    43
+#define SV_SCROLL_GENOCIDE                              44
+#define SV_SCROLL_MASS_GENOCIDE                 45
+
+N:333:Acquirement
+A:70:46:1
+F:ACQUIREMENT
+
+N:334:*Acquirement*
+A:70:47:1
+F:STAR_ACQUIREMENT
+
+N:335:Legend Lore
+A:70:48:1
+F:IDENT_RUMOR
+
+#define SV_SCROLL_ENCHANT_ARMOR_BRAND           49
+#define SV_SCROLL_ENCHANT_WEAPON_BRAND          50
+#define SV_SCROLL_ENCHANT_WEAPON_BLESS          51
 
 
+#/* The "sval" codes for TV_ROD */
+#define SV_ROD_DETECT_TRAP              0
+#define SV_ROD_DETECT_DOOR              1
+#define SV_ROD_DETECT_MAGIC             2
+#define SV_ROD_RECALL                   3
+#define SV_ROD_ILLUMINATION             4
+#define SV_ROD_MAPPING                  5
+#define SV_ROD_DETECTION                6
+#define SV_ROD_GAUGE_MAGIC                  7 /* Was probing */
+#define SV_ROD_CURING                   8
+#define SV_ROD_HEALING                  9
+#define SV_ROD_RESTORATION              10
+#define SV_ROD_SPEED                    11
+#define SV_ROD_DETECT_WATER     12
+#define SV_ROD_TELEPORT_AWAY    13
+#define SV_ROD_DISARMING                14
+#define SV_ROD_LITE                             15
+#define SV_ROD_SLEEP_MONSTER    16
+#define SV_ROD_SLOW_MONSTER             17
 
+N:336:Drain Life
+A:66:18:1
+B:AIM:DRAIN_LIFE:0d0+75
+
+#define SV_ROD_POLYMORPH                19
+#define SV_ROD_ACID_BOLT                20
+#define SV_ROD_ELEC_BOLT                21
+#define SV_ROD_FIRE_BOLT                22
+#define SV_ROD_COLD_BOLT                23
+#define SV_ROD_ACID_BALL                24
+#define SV_ROD_ELEC_BALL                25
+#define SV_ROD_FIRE_BALL                26
+#define SV_ROD_COLD_BALL                27
+
+
+#/* The "sval" codes for TV_WAND */
+#define SV_WAND_HEAL_MONSTER    0
+
+N:337:Heal Monster
+
+#define SV_WAND_HASTE_MONSTER   1
+
+N:338:Haste Monster
+
+#define SV_WAND_CLONE_MONSTER   2
+
+N:339:Clone Monster
+
+
+#define SV_WAND_TELEPORT_AWAY   3
+#define SV_WAND_DISARMING               4
+#define SV_WAND_TRAP_DOOR_DEST  5
+#define SV_WAND_STONE_TO_MUD    6
+#define SV_WAND_LITE                    7
+#define SV_WAND_SLEEP_MONSTER   8
+#define SV_WAND_SLOW_MONSTER    9
+#define SV_WAND_CONFUSE_MONSTER 10
+#define SV_WAND_FEAR_MONSTER    11
+#define SV_WAND_DRAIN_LIFE              12
+#define SV_WAND_POLYMORPH               13
+#define SV_WAND_STINKING_CLOUD  14
+#define SV_WAND_MAGIC_MISSILE   15
+#define SV_WAND_ACID_BOLT               16
+#define SV_WAND_ELEC_BOLT               17
+#define SV_WAND_FIRE_BOLT               18
+#define SV_WAND_COLD_BOLT               19
+#define SV_WAND_ACID_BALL               20
+#define SV_WAND_ELEC_BALL               21
+#define SV_WAND_FIRE_BALL               22
+#define SV_WAND_COLD_BALL               23
+#define SV_WAND_WONDER                  24
+#define SV_WAND_ANNIHILATION    25
+#define SV_WAND_DRAGON_FIRE             26
+#define SV_WAND_DRAGON_COLD             27
+
+N:340:Dragon's Frost
+A:65:27:1
+A:65:28:2
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:FIRE:2d0+30
+
+N:341:Dragon's Storm
+A:65:28:3
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:ELEC:2d0+30
+
+N:342:Dragon's Bile
+A:65:28:4
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:ACID:2d0+50
+
+N:343:Dragon's Venom
+A:65:28:5
+C:1:20:15:70:20
+C:4:30:25:70:13
+C:8:25:20:70:16
+B:STORM:POISON:2d0+10
 
 # Newer spells, plus missing older spells.
+
+#/* The "sval" codes for TV_STAFF */
+#define SV_STAFF_DARKNESS               0
+#define SV_STAFF_SLOWNESS               1
+#define SV_STAFF_HASTE_MONSTERS 2
+#define SV_STAFF_SUMMONING              3
+#define SV_STAFF_TELEPORTATION  4
+#define SV_STAFF_DETECT_CURSE               5
+#define SV_STAFF_REMOVE_CURSE   6
+#define SV_STAFF_STARLITE               7
+#define SV_STAFF_LITE                   8
+#define SV_STAFF_MAPPING                9
+#define SV_STAFF_DETECT_GOLD    10
+#define SV_STAFF_DETECT_ITEM    11
+#define SV_STAFF_DETECT_TRAP    12
+#define SV_STAFF_DETECT_DOOR    13
+#define SV_STAFF_DETECT_INVIS   14
+#define SV_STAFF_DETECT_EVIL    15
+#define SV_STAFF_CURE_LIGHT             16
+#define SV_STAFF_CURING                 17
+#define SV_STAFF_HEALING                18
+#define SV_STAFF_THE_MAGI               19
+#define SV_STAFF_SLEEP_MONSTERS 20
+#define SV_STAFF_SLOW_MONSTERS  21
+#define SV_STAFF_SPEED                  22
+#define SV_STAFF_PROBING                23
+#define SV_STAFF_DISPEL_EVIL    24
+#define SV_STAFF_POWER                  25
+#define SV_STAFF_HOLINESS               26
+#define SV_STAFF_GENOCIDE               27
+#define SV_STAFF_EARTHQUAKES    28
+#define SV_STAFF_DESTRUCTION    29
+#define SV_STAFF_IDENTIFY    30
+
+
 
 #Alchemy spell
 

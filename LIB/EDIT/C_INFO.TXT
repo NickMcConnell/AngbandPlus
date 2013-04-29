@@ -177,24 +177,24 @@ T:Archer Duke
 T:Archer Lord
 O:23:8:19:24:18:2
 
-N:8:Druid
-S:-3:2:3:0:-1:2
-C:25:30:30:2:16:8:34:20
-I:7:10:9:0:0:0:15:15
+N:8:Shaman
+S:-3:2:0:3:-1:2
+C:25:25:30:2:16:8:34:20
+I:7:5:9:0:0:0:15:15
 X:0:35
-M:2:1:1:300
+M:3:1:1:300
 B:4:2:40
 P:300000:0:5:0
 T:Aspirant
 T:Petitioner
 T:Practiser
-T:Hierophant
+T:Witchdoctor
 T:Mystic
 T:Master Mystic
 T:Elder
-T:Druid
-T:High Druid
-T:Druid Lord
+T:Shaman
+T:High Shaman
+T:Shaman Lord
 O:90:0:91:0:21:3
 
 N:9:Bard

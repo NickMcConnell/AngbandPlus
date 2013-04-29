@@ -1,3 +1,40 @@
+04-02-2002  UnAngband 0.4.9 "Black magic" release
+- Changed semantics of stacking so that both
+items must be inscribed with '=s' to force
+stacking (rather than either).
+- Stone idols changed (again) to stone faces.
+- Traps now drop an appropriate object when
+disarmed. (Fixed bug with S_HI_UNDEAD trap).
+- Made it harder to get to Rivendell, by
+adding Old Forest, and ensuring we have
+to go through Trollshaw Forest and Barrowdowns
+via both routes.
+- Fixed bug where monsters would not reveal
+themselves from hiding before attacking player.
+- Prettied up campaign mode further. Should
+be playable now.
+- Made it so that while in campaign mode, all
+monsters that appear in fixed locations are
+not generated elsewhere.
+- Druids renamed to Shamans, using Dex for
+primary spell stat. They have a couple of title
+changes and now start with only fair magic devices,
+and improve very slowly... note that runestones
+are not currently useable as spell books but
+they may still use prayer/magic/song books.
+- Spells can now be browsed, to find out what
+effects they have. This can be done before
+studying the spell.
+- Fixed problems with mana storm, frost bolt II,
+and III, frost trap spells.
+- Added most of support code for runes (Except
+spell casting).
+- Defined all ego items, object kinds in terms of
+runes. An object may be enchanted to an ego item
+or changed to another kind of the same tval by
+applying one or more runes to it ('y' in the
+normal keyset, ^P in the roguelike).
+
 13-01-2001 Unangband 0.4.8g Bugfix release
 
 - Fixed stores so that they should work in
