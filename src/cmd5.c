@@ -141,7 +141,7 @@ static void pseudo_probe(void)
 void shapechange(s16b shape)
 {
   char *shapedesc = "";
-  bool landing;
+  bool landing = FALSE;
 
   /* Were we flying? */
   landing = ((p_ptr->schange == SHAPE_BAT) || (p_ptr->schange == SHAPE_WYRM));
@@ -249,58 +249,157 @@ void shapechange(s16b shape)
     }
 }
 
+/* Type for choosing an elemental attack */
+
+typedef struct ele_attack_type
+{
+  char *desc;
+  u32b type;
+} ele_attack_type;
+
+static ele_attack_type ele_attack[] = 
+  {
+    {"Fire Brand", ATTACK_FIRE},
+    {"Cold Brand", ATTACK_COLD},
+    {"Acid Brand", ATTACK_ACID},
+    {"Elec Brand", ATTACK_ELEC}
+  };
+
+static char el_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the sval menu
+ */
+void el_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  const u16b *choice = menu->menu_data;
+  int idx = choice[oid];
+
+  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+  
+  
+  /* Print it */
+  c_put_str(attr, format("%s", ele_attack[idx].desc), row, col);
+}
+
+/*
+ * Deal with events on the sval menu
+ */
+bool el_action(char cmd, void *db, int oid)
+{
+  u16b *choice = db;
+  
+  /* Choose */
+  if (cmd == '\n' || cmd == '\r')
+    {
+      int idx = choice[oid];
+      set_ele_attack(ele_attack[idx].type, 200);
+      
+      return TRUE;
+    }
+  
+  else if (cmd == ARROW_LEFT) return FALSE;
+
+  else 
+    {
+      int idx = choice[oid];
+      set_ele_attack(ele_attack[idx].type, 200);
+      
+      return TRUE;
+    }
+  
+  return FALSE;
+}
+
+
+/*
+ * Display list of svals to be squelched.
+ */
+bool el_menu(void)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, el_tag, 0, el_display, el_action };
+  region area = { (small_screen ? 0 : 15), 1, 48, -1 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0;
+  
+  int num = 0;
+  size_t i;
+  
+  u16b *choice;
+  
+  /* See how many attacks available */
+  num = (p_ptr->lev - 20) / 7;
+  
+  /* Create the array */
+  choice = C_ZNEW(num, u16b);
+  
+  /* Obvious */
+  for (i = 0; i < num; i++)
+    {
+      /* Add this item to our possibles list */
+      choice[i] = i;
+    }
+
+  /* Clear space */
+  area.page_rows = num + 2;
+  
+  /* Return here if there are no attacks */
+  if (!num)
+    {
+      FREE(choice);
+      return FALSE;
+    }
+  
+  
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Help text */
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  menu.title = "Choose a temporary elemental brand";
+  menu.cmd_keys = " \n\r";
+  menu.count = num;
+  menu.menu_data = choice;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+  
+  /* Select an entry */
+  evt = menu_select(&menu, &cursor, 0);
+  
+  /* Free memory */
+  FREE(choice);
+  
+  /* Load screen */
+  screen_load();
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
 
 /*
  * Choose a paladin elemental attack. -LM-
  */
-static void choose_ele_attack(void)
+static bool choose_ele_attack(void)
 {
-  int num;
-  
-  char choice;
-  key_event ke;
-  
+  bool brand = FALSE;
+
   /* Save screen */
   screen_save();
   
-  prt("", 14, 0);
-  prt("        Choose a temporary elemental brand ", 1, 14);
-  
-  num = (p_ptr->lev - 20) / 7;
-  
-  c_prt(TERM_RED,                  "        a) Fire Brand", 2, 14);
-  
-  if (num >= 2) c_prt(TERM_L_WHITE,"        b) Cold Brand", 3, 14);
-  else prt("", 3, 14);
-  
-  if (num >= 3) c_prt(TERM_L_DARK, "        c) Acid Brand", 4, 14);
-  else prt("", 4, 14);
-  
-  if (num >= 4) c_prt(TERM_BLUE,   "        d) Elec Brand", 5, 14);
-  else prt("", 5, 14);
-  
-  prt("", 6, 14);
-  prt("", 7, 14);
-  
-  ke = inkey_ex();
-  choice = ke.key;
-  
-  /* Mouse input */
-  if ((choice == '\xff') && (ke.mousey - 2 < num))
-    choice = ke.mousey - 2 + 'a';
-
-  if ((choice == 'a') || (choice == 'A')) 
-    set_ele_attack(ATTACK_FIRE, 200);
-  else if (((choice == 'b') || (choice == 'B')) && (num >= 2))
-    set_ele_attack(ATTACK_COLD, 200);
-  else if (((choice == 'c') || (choice == 'C')) && (num >= 3))
-    set_ele_attack(ATTACK_ACID, 200);
-  else if (((choice == 'd') || (choice == 'D')) && (num >= 4))
-    set_ele_attack(ATTACK_ELEC, 200);
-  else msg_print("You cancel the temporary branding.");
+  /* Choose */
+  if (!el_menu())
+    msg_print("You cancel the temporary branding.");
+  else
+    brand = TRUE;
   
   /* Load screen */
   screen_load();
+
+  return brand;
 }
 
 
@@ -353,7 +452,7 @@ void dimen_door(void)
    * distance, and insure that this spell is never certain.
    */
   if (!cave_empty_bold(ny,nx) || (cave_info[ny][nx] & CAVE_ICKY) ||
-      (distance(ny,nx,p_ptr->py,p_ptr->px) > 25) || 
+     (distance(ny,nx,p_ptr->py,p_ptr->px) > 25) || 
       (rand_int(p_ptr->lev) == 0))
     {
       msg_print("You fail to exit the astral plane correctly!");
@@ -483,10 +582,8 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   
   int total_heighten;
 
-  int st_click;
-  
   bool flag, redraw, okay;
-  key_event choice;
+  event_type choice;
   
   magic_type *s_ptr;
   
@@ -584,9 +681,6 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
   strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %s%^s which %s? ",
 	  p, I2A(0), I2A(after_last_spell - first_spell - 1), h, prompt, p);
 
-  /* Get the list click spot */
-  st_click = strlen(p) + 7;
-  
   /* Lists in small screen */
   if (show_lists)
     {
@@ -611,13 +705,15 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
       print_spells(tval, sval, 1, (small_screen ? 0 : 12));
     }
 
+  /* Button */
+  add_button("[*]", '*');
+  update_statusline();
+
   /* Get a spell from the user */
   while (!flag && get_com_ex(out_val, &choice))
     {
       /* Request redraw */
-      if ((choice.key == ' ') || (choice.key == '*') || (choice.key == '?') ||
-	  ((choice.key == '\xff') && (!choice.mousey) && 
-	   (choice.mousex > st_click) && (choice.mousex < st_click + 7)))
+      if ((choice.key == ' ') || (choice.key == '*') || (choice.key == '?'))
 	{
 	  /* Hide the list */
 	  if (redraw)
@@ -729,7 +825,9 @@ static int get_spell(int *sn, cptr prompt, int tval, int sval, bool known)
       /* Stop the loop */
       flag = TRUE;
     }
-  
+
+  /* Kill button */
+  kill_button('*');
   
   /* Restore the screen */
   if (redraw)
@@ -872,7 +970,7 @@ void do_cmd_browse(void)
   /* Keep browsing spells.  Exit browsing on cancel. */
   while(TRUE)
     {
-      key_event ke;
+      event_type ke;
 
       /* Ask for a spell, allow cancel */
       if (!get_spell(&spell, "browse", o_ptr->tval, o_ptr->sval, TRUE))
@@ -1755,7 +1853,9 @@ void do_cmd_cast_or_pray(void)
 	  }
 	case 62:        /* Magical Throw */
 	  {
-	    do_cmd_throw(TRUE);
+	    magic_throw = TRUE;
+	    do_cmd_throw();
+	    magic_throw = FALSE;
 	    break;
 	  }
 	case 63:        /* Blink Monster */
@@ -2113,26 +2213,23 @@ void do_cmd_cast_or_pray(void)
 	    char answer;
 	    
 	    /* Query */
-	    if (small_screen) msg_print("Enchant a 'W'eapon or 'A'rmour (w/a)");
+	    if (small_screen) 
+	      msg_print("Enchant a 'W'eapon or 'A'rmour");
 	    else 
-	      msg_print("Would you like to enchant a 'W'eapon or 'A'rmour (w/a)");
+	      msg_print("Would you like to enchant a 'W'eapon or 'A'rmour");
 	    
+	    /* Buttons */
+	    add_button("[a]", 'a');
+	    add_button("[w]", 'w');
+
 	    /* Interact and enchant. */
 	    while(1)
 	      {
-		key_event ke;
+		event_type ke;
 
 		ke = inkey_ex();
 		answer = ke.key;
 
-		if ((answer == '\xff') && (!ke.mousey))
-		  {
-		    if (ke.mousex == (small_screen ? 32 : 50)) 
-		      answer = 'w';
-		    else if (ke.mousex == (small_screen ? 34 : 52)) 
-		      answer = 'a';
-		    else answer = ESCAPE;
-		  }
 		if ((answer == 'W') || (answer == 'w'))
 		  {
 		    (void)enchant_spell(rand_int(4) + 1, 
@@ -2144,8 +2241,15 @@ void do_cmd_cast_or_pray(void)
 		    (void)enchant_spell(0, 0, rand_int(3) + 2);
 		    break;
 		  }
-		else if (answer == ESCAPE) return;
+		else if (answer == ESCAPE) 
+		  {
+		    kill_button('w');
+		    kill_button('a');
+		    return;
+		  }
 	      }
+	    kill_button('w');
+	    kill_button('a');
 
 	    break;
 	  }
@@ -2184,7 +2288,7 @@ void do_cmd_cast_or_pray(void)
 	  
 	case 122: /* Paladin Prayer: Elemental Infusion */
 	  {
-	    choose_ele_attack();
+	    if (!choose_ele_attack()) return;
 	    break;
 	  }
 	case 123: /* Paladin Prayer: Sanctify for Battle */
@@ -2346,10 +2450,10 @@ void do_cmd_cast_or_pray(void)
 	    (void)teleport_monster(dir, 45 + (plev/3));
 	    break;
 	  }
-	case 148:  /* poison bolt */
+	case 148:  /* gravity bolt */
 	  {
 	    if (!get_aim_dir(&dir)) return;
-	    fire_bolt_or_beam(beam - 10, GF_POIS, dir,
+	    fire_bolt_or_beam(beam - 10, GF_GRAVITY, dir,
 			      damroll(5 + (plev/4), 8));
 	    break;
 	  }
@@ -2630,7 +2734,26 @@ void do_cmd_cast_or_pray(void)
 	    pseudo_probe();
 	    break;
 	  }
-	
+	case 188: /* Nature's vengeance */
+	  {
+	    nature_strike(damroll(6, 6) + plev / 3);
+	    break;
+	  }
+	case 189: /* Song of growth */
+	  {
+	    grow_trees_and_grass();
+	    break;
+	  }
+	case 190: /* Song of preservation */
+	  {
+	    if (!el_proof(ACID_PROOF|FIRE_PROOF)) return;
+	    break;
+	  }
+	case 191: /* Tremor */
+	  {
+	    if (!tremor()) return;
+	    break;
+	  }
 	
 	/* Necromantic Spells */
 	
@@ -3260,7 +3383,7 @@ void do_cmd_gain_specialty(void)
   int choices[255];
   int hgt;
   char c;
-  key_event ke;
+  event_type ke;
   char buf[80];
   bool done_one, done_all, use_cur;
   
@@ -3280,6 +3403,10 @@ void do_cmd_gain_specialty(void)
   
   /* Save screen */
   screen_save();
+
+  /* Buttons */
+  normal_screen = FALSE;
+  prompt_end = 0;
   
   /* loop until done with all selections or user exit */
   done_all = FALSE;
@@ -3287,6 +3414,7 @@ void do_cmd_gain_specialty(void)
     {
       /* Clear screen */
       Term_clear();
+      update_statusline();
       
       /* Find the learnable specialties */
       for (j=0, i=0; i < 255; i++)
@@ -3302,6 +3430,8 @@ void do_cmd_gain_specialty(void)
       if (!j)
 	{
 	  msg_print("No specialties available.");
+	  normal_screen = TRUE;
+	  update_statusline();
 	  screen_load();
 	  return;
 	}
@@ -3362,6 +3492,12 @@ void do_cmd_gain_specialty(void)
 	  /* get input */
 	  ke = inkey_ex();
 	  c = ke.key;
+
+	  /* Hack - arrow keys.  Will go when this is a proper menu */
+	  if (c == ARROW_LEFT) c = 4;
+	  if (c == ARROW_RIGHT) c = 6;
+	  if (c == ARROW_UP) c = 8;
+	  if (c == ARROW_DOWN) c = 2;
 	  
 	  /* Numbers are used for scolling */
 	  if (isdigit(c))
@@ -3492,6 +3628,8 @@ void do_cmd_gain_specialty(void)
 	{
 	  if (get_check("Are you sure? "))
 	    {
+	      char buf[120];
+	      
 	      /* Add new specialty */
 	      p_ptr->specialty_order[k] = choices[cur];
 	      
@@ -3503,19 +3641,13 @@ void do_cmd_gain_specialty(void)
 	      p_ptr->old_specialties = p_ptr->new_specialties;
 	      
 	      /* Write a note */
-	      if (adult_take_notes)
-		{
-		  char buf[120];
-	  
-		  /* Specialty taken */
-		  sprintf(buf, "Gained the %s specialty.", 
-			  specialty_names[choices[cur]]);
-	  
-		  /* Write message */
-		  do_cmd_note(buf,  p_ptr->stage);
-	  
-		}
-      
+	      /* Specialty taken */
+	      sprintf(buf, "Gained the %s specialty.", 
+		      specialty_names[choices[cur]]);
+	      
+	      /* Write message */
+	      make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
+
 	      /* In case we have more to learn, go to the head of the list */
 	      cur = 0;
 	      
@@ -3536,6 +3668,10 @@ void do_cmd_gain_specialty(void)
   /* Load screen */
   screen_load();
   
+  /* Buttons */
+  normal_screen = TRUE;
+  update_statusline();
+  
   /* exit */
   return;
 }
@@ -3546,47 +3682,40 @@ void do_cmd_gain_specialty(void)
  */
 void do_cmd_specialty(void)
 {
-  key_event answer;
+  event_type answer;
   
   /* Might want to gain a new ability or browse old ones */
   if (p_ptr->new_specialties > 0)
     {
-      /* Query */
+      /* Buttons */
+      add_button("[l]", 'l');
+      add_button("[v]", 'v');
+
       /* Interact and choose. */
-      while(get_com_ex("View abilities or Learn specialty ('l'/'v'/ESC)?",
+      while(get_com_ex("View abilities or Learn specialty (l/v/ESC)?",
 		       &answer))
 	{
-	  /* Mouse input */
-	  if ((answer.key == '\xff') && (!answer.mousey))
-	    {
-	      if ((answer.mousex > 34) && (answer.mousex < 38)) 
-		answer.key = 'l';
-	      if ((answer.mousex > 38) && (answer.mousex < 42)) 
-		answer.key = 'v';
-	      if ((answer.mousex > 42) && (answer.mousex < 46)) 
-		answer.key = ESCAPE;
-	    }
-	  
 	  /* New ability */
 	  if ((answer.key == 'L') || (answer.key == 'l'))
 	    {
 	      do_cmd_gain_specialty();
-	      return;
+	      break;
 	    }
 	  
 	  /* View Current */
 	  if ((answer.key == 'V') || (answer.key == 'v'))
 	    {
 	      do_cmd_view_abilities();
-	      return;
+	      break;
 	    }
 	  
 	  /* Exit */
-	  else if (answer.key == ESCAPE) return;
+	  else if (answer.key == ESCAPE) break;
 	  
 	  
 	}
-      
+      kill_button('l');
+      kill_button('v');
     }
   
   /* View existing specialties is the only option */

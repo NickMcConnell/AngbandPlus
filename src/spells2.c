@@ -18,6 +18,9 @@
 
 #include "angband.h"
 
+/* Element to be proofed against in element-proofing */
+static byte el_to_proof = 0;
+
 /*
  * Increase players hit points, notice effects
  */
@@ -588,6 +591,157 @@ bool lose_all_info(void)
 }
 
 
+/* Recall point code */
+
+/* Are we heading home? */
+bool inward = FALSE;
+
+/* the number of available points */
+int num_points = 0;
+
+static char recall_tag(menu_type *menu, int oid)
+{
+  return I2A(oid);
+}
+
+/*
+ * Display an entry on the recall menu
+ */
+void recall_display(menu_type *menu, int oid, bool cursor, int row, 
+			 int col, int width)
+{
+  const u16b *choice = menu->menu_data;
+  int idx = choice[oid];
+  char stage[30];
+
+  byte attr = (cursor ? TERM_L_BLUE : TERM_WHITE);
+  
+  if (idx < num_points)
+    {
+      int region = stage_map[p_ptr->recall[idx]][LOCALITY];
+      int level  = stage_map[p_ptr->recall[idx]][DEPTH];
+      
+      /* Get the recall point description */
+      if (level)
+	sprintf(stage, "%s %d   ", locality_name[region], level);
+      else if (region)
+	sprintf(stage, "%s Town   ", locality_name[region]);
+      else
+	sprintf(stage, "%s     ", locality_name[region]);	      
+    }
+  else
+    sprintf(stage,  "Don't replace     ");
+
+  /* Print it */
+  c_put_str(attr, format("%s", stage), row, col);
+}
+
+/*
+ * Deal with events on the recall menu
+ */
+bool recall_action(char cmd, void *db, int oid)
+{
+  u16b *choice = db;
+  
+  int idx = choice[oid];
+
+  if (inward)
+    {
+      int stage;
+	      
+      /* Find the point, being careful about underworld etc */
+      if ((p_ptr->stage == 255) || (p_ptr->stage == 256))
+	stage = p_ptr->last_stage;
+      else 
+	stage = p_ptr->stage;
+      
+      /* Check for replacement */
+      if (idx < num_points)
+	p_ptr->recall[idx] = stage;
+
+      /* Set it */
+      p_ptr->recall_pt = stage;
+    }
+  else
+    {
+      if (p_ptr->recall[idx] == NOWHERE) return (FALSE);
+      p_ptr->recall_pt = p_ptr->recall[idx];
+    }
+  
+  return TRUE;
+}
+
+
+/*
+ * Display list of monster traps.
+ */
+bool recall_menu(void)
+{
+  menu_type menu;
+  menu_iter menu_f = { 0, recall_tag, 0, recall_display, recall_action };
+  region area = { (small_screen ? 0 : 15), 1, 48, -1 };
+  event_type evt = { EVT_NONE, 0, 0, 0, 0 };
+  int cursor = 0;
+  int num_entries;
+  
+  size_t i;
+  
+  u16b *choice;
+
+  /* See how many recall points - show exactly one Nowhere if going home */
+  num_points = 0;
+  for (i = 0; i < 4; i++)
+    if (p_ptr->recall[i]) num_points++;
+
+  if (inward && (num_points < 4)) num_points++;
+  if (inward) num_entries = num_points + 1;
+  else num_entries = num_points;
+  
+  /* Create the array */
+  choice = C_ZNEW(num_entries, u16b);
+  
+  /* Obvious */
+  for (i = 0; i < num_entries; i++)
+    choice[i] = i;
+
+  /* Clear space */
+  area.page_rows = num_entries + 2;
+  
+  /* Return here if there is nowhere to recall to */
+  if (!num_entries)
+    {
+      FREE(choice);
+      return FALSE;
+    }
+  
+  
+  /* Save the screen and clear it */
+  screen_save();
+  
+  /* Help text */
+  
+  /* Set up the menu */
+  WIPE(&menu, menu);
+  if (inward)
+    menu.title = "Which recall point will you replace (or ESC):";
+  else
+    menu.title = "Which recall point do you want to go to?";
+  menu.cmd_keys = " \n\r";
+  menu.count = num_entries;
+  menu.menu_data = choice;
+  menu_init2(&menu, find_menu_skin(MN_SCROLL), &menu_f, &area);
+  
+  /* Select an entry */
+  evt = menu_select(&menu, &cursor, 0);
+  
+  /* Free memory */
+  FREE(choice);
+  
+  /* Load screen */
+  screen_load();
+  return ((evt.type != EVT_ESCAPE) && (evt.type != EVT_BACK));
+}
+
 /*
  * Set "p_ptr->word_recall", notice observable changes
  */
@@ -595,10 +749,6 @@ bool set_recall(int v)
 {
 
   bool notice = FALSE;
-  
-  int spot;
-  
-  cptr message;
   
   /* No use until the player has been somewhere */
   if ((p_ptr->stage == p_ptr->home) && (!p_ptr->recall_pt))
@@ -615,32 +765,9 @@ bool set_recall(int v)
     {
       if (!p_ptr->word_recall)
 	{
-	  if (p_ptr->stage != p_ptr->home)
-	    {
-	      int stage;
-
-	      message = "Which recall point will you replace (or ESC)?";
-	      spot = get_recall_pt(message, TRUE);
-	      if (!spot) return (FALSE);
-
-	      /* Set the point, being careful about underworld etc */
-	      if ((p_ptr->stage == 255) || (p_ptr->stage == 256))
-		stage = p_ptr->last_stage;
-	      else 
-		stage = p_ptr->stage;
-
-	      if ((spot) && (spot < 5))
-		p_ptr->recall[spot - 1] = stage;
-	      p_ptr->recall_pt = stage;
-	    }
-	  else
-	    {
-	      message = "Which recall point do you want to go to?";
-	      spot = get_recall_pt(message, FALSE);
-	      if (!spot || (p_ptr->recall[spot - 1] == NOWHERE))
-		return (FALSE);
-	      p_ptr->recall_pt = p_ptr->recall[spot - 1];
-	    }
+	  inward = (p_ptr->stage != p_ptr->home);
+	  
+	  if (!recall_menu()) return FALSE;
 	  msg_print("The air about you becomes charged...");
 	  notice = TRUE;
 	}
@@ -1133,7 +1260,8 @@ bool detect_objects_normal(int range, bool show)
 	  lite_spot(y, x);
 	  
 	  /* increment number found */
-	  num++;
+	  if (!squelch_hide_item(o_ptr))
+	    num++;
 	  
 	}
     }
@@ -1215,7 +1343,8 @@ bool detect_objects_magic(int range, bool show)
 	  lite_spot(y, x);
 	  
 	  /* increment number found */
-	  num++;
+	  if (!squelch_hide_item(o_ptr))
+	    num++;
 	  
 	}
     }
@@ -1755,6 +1884,16 @@ static bool item_tester_unknown_star(object_type *o_ptr)
     return TRUE;
 }
 
+static bool item_tester_unproofed(object_type *o_ptr)
+{
+  if (o_ptr->number != 1)
+    return FALSE;
+  if (o_ptr->el_proof & el_to_proof)
+    return FALSE;
+  else
+    return TRUE;
+}
+
 
 /*
  * Enchant an item
@@ -2159,6 +2298,50 @@ void set_ele_attack(u32b attack_type, int duration)
   handle_stuff();
 }
 
+/*
+ * Proof an object against an element
+ */
+bool el_proof(byte type)
+{
+  object_type *o_ptr;
+
+  int item;
+
+  cptr q, s;
+
+  /* Set the element */
+  el_to_proof = type;
+  
+  /* Only unproofed items */
+  item_tester_hook = item_tester_unproofed;
+  
+  /* Don't restrict choices */
+  item_tester_tval = 0;
+
+  /* Get an item */
+  q = "Proof which single item? ";
+  s = "You have no single item to proof.";
+  if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
+    return (FALSE);
+  
+  /* Get the item (in the pack) */
+  if (item >= 0)
+    {
+      o_ptr = &inventory[item];
+    }
+  
+  /* Get the item (on the floor) */
+  else
+    {
+      o_ptr = &o_list[0 - item];
+    }
+
+  /* Proof it */
+  o_ptr->el_proof |= type;
+
+  /* Done */
+  return (TRUE);
+}
 
 /*
  * Curse the players armor
@@ -2299,7 +2482,6 @@ bool curse_weapon(void)
 bool ident_spell(void)
 {
   int item;
-  int squelch=0;
   object_type *o_ptr;
   
   char o_name[120];
@@ -2336,11 +2518,12 @@ bool ident_spell(void)
   object_aware(o_ptr);
   object_known(o_ptr);
   
-  /* Squelch it? */
-  if (item<INVEN_WIELD) 
-    squelch=squelch_itemp(o_ptr, 0, 1);
+  /* Apply an autoinscription, if necessary */
+  apply_autoinscription(o_ptr);
   
-  
+  /* Set squelch flag */
+  p_ptr->notice |= PN_SQUELCH;
+
   /* Recalculate bonuses */
   p_ptr->update |= (PU_BONUS);
   
@@ -2361,17 +2544,11 @@ bool ident_spell(void)
     }
   else if (item >= 0)
     {
-      msg_format("In your pack: %s (%c).  %s",
-		 o_name, index_to_label(item),
-		 ((squelch==1) ? "(Squelch)" :
-		  ((squelch==-1) ? "(Squelch Failed)" : "")));
+      msg_format("In your pack: %s (%c).", o_name, index_to_label(item));
     }
   else
     {
-      msg_format("On the ground: %s. %s",
-		 o_name,
-		 ((squelch==1) ? "(Squelch)" :
-		  ((squelch==-1) ? "(Squelch Failed)" : "")));
+      msg_format("On the ground: %s.", o_name);
       
     }
   
@@ -2384,7 +2561,7 @@ bool ident_spell(void)
 	  msg_print("This item is part of a set!");
 	}
       
-      if ((adult_take_notes) && (o_ptr->found))
+      if (o_ptr->found)
 	{
 	  int artifact_stage;
 	  char note[120];
@@ -2405,7 +2582,7 @@ bool ident_spell(void)
 	   * entries in the notes file, which really should be re-ordered 
 	   */
 	  turn = a_info[o_ptr->name1].creat_turn;
-	  do_cmd_note(note, artifact_stage);
+	  make_note(note, artifact_stage, NOTE_ARTIFACT);
 	  turn = real_turn;
 	  
 	  /*
@@ -2421,7 +2598,7 @@ bool ident_spell(void)
   
   
   /* Now squelch it if needed */
-  if (squelch == 1) do_squelch_item(item, o_ptr);
+  //if (squelch == 1) do_squelch_item(item, o_ptr);
   
   /* Something happened */
   return (TRUE);
@@ -2445,6 +2622,8 @@ bool identify_fully(void)
   char o_name[120];
   
   cptr q, s;
+  
+  bool noted;
   
   /* Only un-*id*'ed items */
   item_tester_hook = item_tester_unknown_star;
@@ -2472,6 +2651,9 @@ bool identify_fully(void)
   /* Get the object kind. */
   k_ptr = &k_info[o_ptr->k_idx];
   
+  /* Artifacts not yet normally ID'd need noting */
+  noted = (o_ptr->ident & IDENT_KNOWN);
+  
   /* Identify it fully */
   object_aware(o_ptr);
   object_known(o_ptr);
@@ -2479,10 +2661,41 @@ bool identify_fully(void)
   /* Mark the item as fully known */
   o_ptr->ident |= (IDENT_MENTAL);
   
-  /* Squelch it? */
-  if (item<INVEN_WIELD) 
-    squelch=squelch_itemp(o_ptr, 0, 1);
   
+  /* If artifact, write a note if applicable */
+  if ((o_ptr->name1) && (o_ptr->found))
+    {
+      int artifact_stage;
+      char note[120];
+      char shorter_desc[120];
+      s32b real_turn = turn;
+      
+      /* Get a shorter description to fit the notes file */
+      object_desc(shorter_desc, o_ptr, TRUE, 0);
+      
+      /* Build note and write */
+      sprintf(note, "Found %s", shorter_desc);
+      
+      /* Record the depth where the artifact was created */
+      artifact_stage = o_ptr->found;
+      
+      /* Hack - record the turn when the artifact was first picked up
+       * or wielded by the player.  This may result in out of order
+       * entries in the notes file, which really should be re-ordered 
+       */
+      turn = a_info[o_ptr->name1].creat_turn;
+      make_note(note, artifact_stage, NOTE_ARTIFACT);
+      turn = real_turn;
+      
+      /*
+       * Mark item creation depth 0, which will indicate the artifact
+       * has been previously identified.  This prevents an artifact
+       * from showing up on the notes list twice ifthe artifact had
+       * been previously identified.  JG
+       */
+      o_ptr->found = 0 ;
+    }
+
   /* If the object is flavored, also make all items of that type, 
    * except for variable rings and amulets, fully known. */
   if (k_ptr->flavor)
@@ -2543,10 +2756,17 @@ bool identify_fully(void)
     }
   
   /* Now squelch it if needed */
-  if (squelch == 1) do_squelch_item(item, o_ptr);
+  //if (squelch == 1) do_squelch_item(item, o_ptr);
   
-  do_cmd_observe(o_ptr, FALSE);
+  /* Save screen */
+  screen_save();
   
+  /* Examine the item. */
+  object_info_screen(o_ptr);
+
+  /* Load screen */
+  screen_load();
+
   /* Success */
   return (TRUE);
 }
@@ -2846,19 +3066,25 @@ bool recharge(int power)
 		}
 	    }
 	  
-	  /* Destroy all memebers of a stack of objects. */
+	  /* Destroy some members of a stack of objects. */
 	  if (fail_type == 3)
 	    {
+	      int num_gone = -2;
+
 	      if (o_ptr->number > 1)
-		msg_format("Wild magic consumes all your %s!", o_name);
+		msg_format("Wild magic consumes some of your %s!", o_name);
 	      else
 		msg_format("Wild magic consumes your %s!", o_name);
 	      
+	      /* At least 2 gone, roll for others */
+	      while ((o_ptr->number + num_gone) > 0)
+		if (rand_int(4) == 0) num_gone--;
+
 	      
 	      /* Reduce and describe inventory */
 	      if (item >= 0)
 		{
-		  inven_item_increase(item, -999);
+		  inven_item_increase(item, num_gone);
 		  inven_item_describe(item);
 		  inven_item_optimize(item);
 		}
@@ -2866,7 +3092,7 @@ bool recharge(int power)
 	      /* Reduce and describe floor item */
 	      else
 		{
-		  floor_item_increase(0 - item, -999);
+		  floor_item_increase(0 - item, num_gone);
 		  floor_item_describe(0 - item);
 		  floor_item_optimize(0 - item);
 		}
@@ -3126,6 +3352,46 @@ bool listen_to_natural_creatures(void)
   
   /* Report success. */
   return(TRUE);
+}
+
+/*
+ * Grow some trees and grass in player's line of sight
+ */
+void grow_trees_and_grass(void)
+{
+  int y, x;
+  int py = p_ptr->py, px = p_ptr->px;
+
+  /* Check everything in line of sight */
+  for (y = py - 20; y <= py + 20; y++)
+    for (x = px - 20; x <= px + 20; x++)
+      {
+	int dist = distance(py, px, y, x);
+
+	/* Skip distant grids */
+	if (dist > 20) continue;
+
+	/* Skip grids the player can't see */
+	if (!player_has_los_bold(y, x)) continue;
+
+	/* Skip grids with objects */
+	if (cave_o_idx[y][x] > 0) continue;
+
+	/* Skip grids that aren't floor */
+	if (cave_feat[y][x] != FEAT_FLOOR) continue;
+
+	/* Skip grids that have monsters */
+	if (cave_m_idx[y][x] > 0) continue;
+
+	/* Maybe grow something */
+	if (rand_int(dist + 2) != 0) continue;
+
+	/* Probably grass, otherwise a tree */
+	if (rand_int(4) == 0) cave_set_feat(y, x, FEAT_TREE);
+	else cave_set_feat(y, x, FEAT_GRASS);
+      }
+  
+  return;
 }
 
 /*
@@ -3484,6 +3750,15 @@ bool dispel_light_hating(int dam)
   return (project_hack(GF_LITE_WEAK, dam));
 }
 
+/* 
+ * Trees and grass hurt monsters
+ */
+bool nature_strike(int dam)
+{
+  return (fire_meteor(-1, GF_NATURE, p_ptr->py, p_ptr->px, dam, 5, FALSE));
+}
+
+
 /*
  * Put undead monsters into stasis. -LM-
  */
@@ -3818,7 +4093,7 @@ void destroy_area(int y1, int x1, int r, bool full)
       msg_print("There is a searing blast of light!");
       
       /* Blind the player */
-      if (!p_ptr->no_blind && !p_resist_pos(P_RES_LITE))
+      if (!p_ptr->no_blind && !p_resist_good(P_RES_LITE))
 	{
 	  /* Become blind */
 	  (void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -4337,7 +4612,38 @@ void earthquake(int cy, int cx, int r, bool volcano)
   p_ptr->window |= (PW_OVERHEAD);
 }
 
+/* 
+ * Small targetable earthquake
+ */
+bool tremor(void)
+{
+  int ny;
+  int nx;
+  bool okay = FALSE;
+  bool valid_grid = FALSE;
 
+  /* Choose the epicentre */
+  while (!valid_grid)
+    {
+      okay = target_set_interactive(TARGET_LOOK | TARGET_GRID);
+      if (!okay) return (FALSE);
+
+      /* grab the target coords. */
+      ny = p_ptr->target_row;
+      nx = p_ptr->target_col;
+      
+      /* Test for empty floor and line of sight, forbid vaults */
+      if (cave_empty_bold(ny,nx) && !(cave_info[ny][nx] & CAVE_ICKY) &&
+	  (player_has_los_bold(ny, nx)))
+	valid_grid = TRUE;
+    }
+
+  /* Shake the Earth */
+  earthquake(ny, nx, 3, FALSE);
+
+  /* Success */
+  return (TRUE);  
+}
 
 /*
  * This routine clears the entire "temp" set.

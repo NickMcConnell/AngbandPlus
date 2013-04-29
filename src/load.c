@@ -247,6 +247,8 @@ static void strip_bytes(int n)
  */
 static void rd_item(object_type *o_ptr)
 {
+  int i;
+
   byte old_dd;
   byte old_ds;
   
@@ -256,6 +258,9 @@ static void rd_item(object_type *o_ptr)
   
   char buf[128];
   
+  
+  /* Extract the flags */
+  object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Kind */
   rd_s16b(&o_ptr->k_idx);
@@ -292,8 +297,43 @@ static void rd_item(object_type *o_ptr)
   
   rd_byte(&o_ptr->marked);
   
-  /* Old flags */
-  strip_bytes(8);
+  /* Percentage resists -NRM- */
+  if (older_than(0, 3, 0))
+    {
+      strip_bytes(8);
+
+      /* Standard is 45% */
+      
+      if (f2 & (TR2_RES_ACID)) o_ptr->percent_res[P_RES_ACID] = 45;
+      if (f2 & (TR2_RES_ELEC)) o_ptr->percent_res[P_RES_ELEC] = 45;
+      if (f2 & (TR2_RES_FIRE)) o_ptr->percent_res[P_RES_FIRE] = 45;
+      if (f2 & (TR2_RES_COLD)) o_ptr->percent_res[P_RES_COLD] = 45;
+      if (f2 & (TR2_RES_POIS)) o_ptr->percent_res[P_RES_POIS] = 45;
+      if (f2 & (TR2_RES_LITE)) o_ptr->percent_res[P_RES_LITE] = 45;
+      if (f2 & (TR2_RES_DARK)) o_ptr->percent_res[P_RES_DARK] = 45;
+      if (f2 & (TR2_RES_CONFU)) o_ptr->percent_res[P_RES_CONFU] = 45;
+      if (f2 & (TR2_RES_SOUND)) o_ptr->percent_res[P_RES_SOUND] = 45;
+      if (f2 & (TR2_RES_SHARD)) o_ptr->percent_res[P_RES_SHARD] = 45;
+      if (f2 & (TR2_RES_NEXUS)) o_ptr->percent_res[P_RES_NEXUS] = 45;
+      if (f2 & (TR2_RES_NETHR)) o_ptr->percent_res[P_RES_NETHR] = 45;
+      if (f2 & (TR2_RES_CHAOS)) o_ptr->percent_res[P_RES_CHAOS] = 45;
+      if (f2 & (TR2_RES_DISEN)) o_ptr->percent_res[P_RES_DISEN] = 45;
+    }
+
+  else
+    {  
+      byte tmp;
+
+      /* New percentage resists -NRM- */
+      for (i = 0; i < MAX_P_RES; i++)
+	{
+	  rd_byte(&tmp);
+	  o_ptr->percent_res[i] = tmp;
+	}
+      
+      /* Element proofing */
+      rd_byte(&o_ptr->el_proof);
+    }
   
   /* Where found */
   rd_u32b(&o_ptr->found);
@@ -354,9 +394,6 @@ static void rd_item(object_type *o_ptr)
     }
 
 
-  /* Extract the flags */
-  object_flags(o_ptr, &f1, &f2, &f3);
-  
   /* Verify, convert artifacts if needed. */
   if (o_ptr->name1)
     {
@@ -489,7 +526,8 @@ static void rd_monster(monster_type *m_ptr)
   
   
   /* Oangband 0.5.0 saves 'smart learn' flags and Black Breath state */
-  rd_byte(&m_ptr->black_breath);
+  rd_byte(&tmp8u);
+  m_ptr->black_breath = tmp8u;
   rd_u32b(&m_ptr->smart);
   
   /* Oangband 0.5.0 saves some more data not yet in use */
@@ -885,7 +923,7 @@ static int convert_saved_names(void)
   
   
   /* Free some of our now unneeded memory. */
-  KILL (a_name, char);
+  KILL (a_name);
   for (i = ART_MIN_RANDOM; i < MAX_A_IDX; i++)
     {
       free(names[i]);
@@ -935,6 +973,68 @@ int conv_stage(int old)
   if (old == 323) new = 318;
 
   return (new);
+}
+
+
+/*
+ * Read squelch and autoinscription submenu for all known objects
+ */
+static int rd_squelch(void)
+{
+  int i;
+  byte tmp8u = 24;
+  u16b file_e_max;
+  
+  /* Handle old versions */
+  if (older_than(0, 3, 0))
+    return 0;
+
+
+  /* Read how many squelch bytes we have */
+  rd_byte(&tmp8u);
+
+  /* Check against current number */
+  if (tmp8u != SQUELCH_BYTES)
+    {
+      strip_bytes(tmp8u);
+    }
+  else
+    {
+      for (i = 0; i < SQUELCH_BYTES; i++)
+	rd_byte(&squelch_level[i]);
+    }
+  
+  
+  /* Read the number of saved ego-item */
+  rd_u16b(&file_e_max);
+  
+  for (i = 0; i < file_e_max; i++)
+    {
+      if (i < z_info->e_max)
+	{
+	  byte flags;
+	  
+	  /* Read and extract the flag */
+	  rd_byte(&flags);
+	  e_info[i].everseen |= (flags & 0x02);
+	}
+    }
+  
+  /* Read the current number of auto-inscriptions */
+  rd_u16b(&inscriptions_count);
+  
+  /* Write the autoinscriptions array*/
+  for (i = 0; i < inscriptions_count; i++)
+    {
+      char tmp[80];
+      
+      rd_s16b(&inscriptions[i].kind_idx);
+      rd_string(tmp, sizeof(tmp));
+      
+      inscriptions[i].inscription_idx = quark_add(tmp);
+    }
+  
+  return 0;
 }
 
 
@@ -1102,11 +1202,15 @@ static errr rd_extra(void)
   
   /* What themed levels have already appeared? */
   rd_u32b(&p_ptr->themed_level_appeared);
+
+  /* Old squelch */
+  if (older_than(0, 3, 0))
+      strip_bytes(39);
   
   /* Item Squelch */
-  for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
-  for (i = 0; i < 15; i++) rd_byte(&tmp8u);
-  
+  if (rd_squelch()) return -1;
+
+ 
   /* Specialty Abilities -BR- */
   for (i = 0; i < 10; i++) rd_byte(&p_ptr->specialty_order[i]);
   
@@ -1179,56 +1283,17 @@ static errr rd_extra(void)
  */
 static errr rd_notes(void)
 {
-  int alive = (!p_ptr->is_dead || arg_wizard);
-  char tmpstr[100];
-  
-  if (alive && adult_take_notes)
-    {
-      /* Notes file needs to go in the savefile directory */
-      if (adult_notes_save)
-	{
-	  char temp[128];
-	  
-	  /* Name the notes file, using the base name */
-	  sprintf(temp, "%s.txt", op_ptr->base_name);
-	  
-	  /* Build the filename */
-	  path_build(notes_fname, 1024, ANGBAND_DIR_SAVE, temp);
+  int i = 0;
+  int num;
+  s32b tmp32s;
 
-	  notes_file = my_fopen(notes_fname, "w");
-	}
-      
-      else
-	{
-	  /* Create the tempfile (notes_file & notes_fname are global) */
-	  notes_file = my_fopen_temp(notes_fname, sizeof(notes_fname));
-	}
-      
-      if (!notes_file)
-	{
-	  note("Can't create a temporary file for notes");
-	  return (-1);
-	}
-      
-      /* Append the notes in the savefile to the tempfile*/
+  char tmpstr[100];
+
+  if (older_than(0, 3, 0))
+    {  
+      /* Ignore the notes */
       while (TRUE)
 	{
-	  
-	  rd_string(tmpstr, sizeof(tmpstr));
-	  /* Found the end? */
-	  if (strstr(tmpstr, NOTES_MARK))
-	    break;
-	  fprintf(notes_file, "%s\n", tmpstr);
-	}
-      
-    }
-  
-  /* Ignore the notes */
-  else
-    {
-      while (TRUE)
-	{
-	  
 	  rd_string(tmpstr, sizeof(tmpstr));
 	  
 	  /* Found the end? */
@@ -1239,8 +1304,29 @@ static errr rd_notes(void)
 	}
     }
   
-  return 0;
+  else
+    {
+      rd_string(notes_start, 120);
+      
+      rd_s32b(&tmp32s);
+      num = tmp32s;
+      
+      for (i = 0; i < num; i++)
+	{
+	  rd_s32b(&notes[i].turn);
+	  rd_s32b(&tmp32s);
+	  notes[i].place = tmp32s;
+	  rd_s32b(&tmp32s);
+	  notes[i].level = tmp32s;
+	  rd_byte(&notes[i].type);
+	  rd_string(notes[i].note, 120);
+	}
+    }
+  
+  return (0);
 }
+
+
 
 
 /*
@@ -1545,7 +1631,7 @@ static errr rd_dungeon(void)
   rd_u16b(&limit);
   
   /* Verify maximum */
-  if (limit >= MAX_O_IDX)
+  if (limit >= z_info->o_max)
     {
       note(format("Too many (%d) object entries!", limit));
       return (151);
@@ -1598,7 +1684,7 @@ static errr rd_dungeon(void)
   rd_u16b(&limit);
   
   /* Hack -- verify */
-  if (limit >= MAX_M_IDX)
+  if (limit >= z_info->m_max)
     {
       note(format("Too many (%d) monster entries!", limit));
       return (161);
@@ -1626,7 +1712,7 @@ static errr rd_dungeon(void)
       if (n_ptr->r_idx <= 0) continue;
       
       /* Hack -- no illegal monsters. */
-      if (n_ptr->r_idx >= MAX_R_IDX) continue;
+      if (n_ptr->r_idx >= z_info->r_max) continue;
       
       
       /* Access the "r_idx" of the chosen monster */
@@ -1817,7 +1903,13 @@ static errr rd_savefile_new_aux(void)
       k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
       k_ptr->known_effect = (tmp8u & 0x04) ? TRUE: FALSE;
       k_ptr->squelch = (tmp8u & 0x08) ? TRUE: FALSE;
-      sq_info[i] = (tmp8u & 0x08) ? TRUE: FALSE;
+
+      if (!older_than(0, 3, 0))
+      {
+        rd_byte(&tmp8u);
+        
+        k_ptr->everseen = (tmp8u & 0x01) ? TRUE: FALSE;
+      }
     }
   if (arg_fiddle) note("Loaded Object Memory");
   
@@ -1941,6 +2033,19 @@ static errr rd_savefile_new_aux(void)
 	    }
 	  rd_byte(&tmp8u);
 	  a_info[j].activation = tmp8u;
+
+	  if (!older_than(0, 3, 0))
+	    {
+	      byte tmp;
+	      int k;
+	      
+	      /* New percentage resists -NRM- */
+	      for (k = 0; k < MAX_P_RES; k++)
+		{
+		  rd_byte(&tmp);
+		  a_info[j].percent_res[k] = tmp;
+		}
+	    }
 	  
 	  /* Extra space. */
 	  rd_u32b(&tmp32u);
@@ -2000,8 +2105,8 @@ static errr rd_savefile_new_aux(void)
   sp_ptr = &sex_info[p_ptr->psex];
   
   /* Important -- Initialize the race/class */
-  rp_ptr = &rp_info[p_ptr->prace];
-  cp_ptr = &cp_info[p_ptr->pclass];
+  rp_ptr = &p_info[p_ptr->prace];
+  cp_ptr = &c_info[p_ptr->pclass];
   
   /* Important -- Initialize the magic */
   mp_ptr = &magic_info[p_ptr->pclass];

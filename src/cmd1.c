@@ -374,6 +374,9 @@ extern void py_pickup_aux(int o_idx)
   /* Get the object again */
   o_ptr = &inventory[slot];
   
+  /* Set squelch status */
+  p_ptr->notice |= PN_SQUELCH;
+
   /* Describe the object */
   object_desc(o_name, o_ptr, TRUE, 3);
   
@@ -460,6 +463,9 @@ byte py_pickup(int pickup, int y, int x)
       if (!telekinesis)
       {
       
+	/* Ignore all hidden objects and non-objects */
+	if (squelch_hide_item(o_ptr) || !o_ptr->k_idx) continue;
+
 	/* Hack -- disturb */
 	disturb(0, 0);
 	
@@ -617,6 +623,7 @@ byte py_pickup(int pickup, int y, int x)
       if (carry_query_flag)
 	{
 	  char out_val[160];
+	  int answer = 0;
 	  
 	  /* Access the object */
 	  o_ptr = &o_list[floor_o_idx];
@@ -629,11 +636,20 @@ byte py_pickup(int pickup, int y, int x)
 	  (void) sprintf(out_val, "Pick up %s? ", o_name);
 	  
 	  /* Ask the user to confirm */
-	  if (!get_check(out_val))
+	  answer = get_check_other(out_val, (rogue_like_commands 
+					     ? KTRL('D') : 'k'));
+	  if (answer == 0)
 	    {
 	      /* Done */
 	      return (objs_picked_up);
 	    }
+	  else if (answer == 2)
+	    {
+	      p_ptr->command_item = -floor_o_idx;
+	      do_cmd_destroy();
+	      return (objs_picked_up);
+	    }
+	  /* Otherwise continue */
 	}
       
       /* Don't ask */
@@ -1200,7 +1216,7 @@ void hit_trap(int y, int x)
 	if (selection == 2)
 	  {
 	    msg_print("You are surrounded by a gas of scintillating colors!");
-	    if (!p_resist_pos(P_RES_CONFU))
+	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		Rand_quick = FALSE;
 		
@@ -1504,11 +1520,11 @@ void hit_trap(int y, int x)
 	    /* explain what the dickens is going on. */
 	    msg_print("GRUESOME Gnawing Bugs leap out at you!");
 	    
-	    if (!p_resist_pos(P_RES_CONFU))
+	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 	      }
-	    if (!p_resist_pos(P_RES_CHAOS))
+	    if (!p_resist_good(P_RES_CHAOS))
 	      {
 		(void)set_image(p_ptr->image + randint(40));
 	      }
@@ -2140,6 +2156,10 @@ void move_player(int dir, int do_pickup)
 	      if (cave_feat[py][px] == FEAT_WATER)
 		p_ptr->update |= PU_BONUS;
 	      
+	      /* Update stealth for Unlight */
+	      if (check_ability(SP_UNLIGHT))
+		p_ptr->update |= PU_BONUS;
+	      
 	      /* New location */
 	      y = py = p_ptr->py;
 	      x = px = p_ptr->px;
@@ -2167,7 +2187,7 @@ void move_player(int dir, int do_pickup)
 	      /* Handle "objects".  Do not use extra energy for 
 	       * objects picked up.
 	       */
-	      do_squelch_pile(py, px);
+	      //do_squelch_pile(py, px);
 	      (void)py_pickup(do_pickup, p_ptr->py, p_ptr->px);
 	      
 	      /* Handle "store doors" */
@@ -2631,7 +2651,7 @@ static bool run_test(void)
 	      next_o_idx = o_ptr->next_o_idx;
 	      
 	      /* Visible object */
-	      if (o_ptr->marked) return (TRUE);
+	      if (o_ptr->marked && !squelch_hide_item(o_ptr)) return (TRUE);
 	    }
 	}
       
@@ -3197,7 +3217,7 @@ void run_step(int dir)
 
 /* Divide up the screen into mousepress regions */
 
-int click_area(key_event ke)
+int click_area(event_type ke)
 {
 
   if ((ke.mousey) && (ke.mousex > COL_MAP) && 
@@ -3244,7 +3264,7 @@ int click_area(key_event ke)
  */
 void show_obj(void)
 {
-  key_event ke;
+  event_type ke;
   char comm[22];
   cptr q, s;
   cptr comm_descr[22];
@@ -3559,7 +3579,7 @@ void get_feats(int *surroundings)
  */
 void show_player(void)
 {
-  key_event ke;
+  event_type ke;
   char comm[22];
   cptr comm_descr[22];
   int i, j, fy, fx, tile_hgt, poss = 0;
@@ -3819,8 +3839,8 @@ void do_cmd_mousepress(void)
   area = click_area(p_ptr->command_cmd_ex);
 
   /* Hack - cancel repeat and do manually */
-  if (!((mouse_buttons) && (area == MOUSE_REPEAT)))
-    repeat_clear();
+  //if (!((mouse_buttons) && (area == MOUSE_REPEAT)))
+  //repeat_clear();
 
   /* Hack - cancel the item testers */
   item_tester_tval = 0;
@@ -3843,7 +3863,7 @@ void do_cmd_mousepress(void)
       Term_keypress(I2D(i));
     }
   
-  else if (p_ptr->command_cmd_ex.mousebutton == 1)
+  else 
     {
       switch (area)
 	{
@@ -3875,17 +3895,17 @@ void do_cmd_mousepress(void)
 	    Term_keypress('m');
 	    break;
 	  }
-	case MOUSE_STUDY:
-	  {
-	    /* Spec. */
-	    if (p_ptr->new_specialties)
-	      Term_keypress('O');
-
-	    /* Study */
-	    else if ((mp_ptr->spell_book) || (p_ptr->new_spells))
-	      Term_keypress('G');
-	    break;
-	  }
+	  //case MOUSE_STUDY:
+	  //{
+	  ///* Spec. */
+	  //if (p_ptr->new_specialties)
+	  //  Term_keypress('O');
+	  //
+	  ///* Study */
+	  //else if ((mp_ptr->spell_book) || (p_ptr->new_spells))
+	  //  Term_keypress('G');
+	  //break;
+	  //}
 	case MOUSE_MESSAGE:
 	  {
 	    Term_keypress(KTRL('P'));
@@ -3904,47 +3924,42 @@ void do_cmd_mousepress(void)
 	    show_obj();
 	    break;
 	  }
-	case MOUSE_STAND:
-	  {
-	    if (mouse_buttons)
-	      {
-		Term_keypress('5');
-		break;
-	      }
-	  }
-	case MOUSE_REPEAT:
-	  {
-	    if (mouse_buttons)
-	      {
-		repeat_check();
-		break;
-	      }
-	  }
-	case MOUSE_RETURN:
-	  {
-	    if (mouse_buttons)
-	      {
-		Term_keypress('\r');
-		break;
-	      }
-	  }
-	case MOUSE_ESCAPE:
-	  {
-	    if (mouse_buttons)
-	      {
-		Term_keypress(ESCAPE);
-		break;
-	      }
-	  }
+	  //case MOUSE_STAND:
+	  //{
+	  //if (mouse_buttons)
+	  //  {
+	  //Term_keypress('5');
+	  //break;
+	  //  }
+	  //}
+	  //case MOUSE_REPEAT:
+	  //{
+	  //if (mouse_buttons)
+	  //  {
+	  //repeat_check();
+	  //break;
+	  //  }
+	  //}
+	  //case MOUSE_RETURN:
+	  //{
+	  //if (mouse_buttons)
+	  //  {
+	  //Term_keypress('\r');
+	  //break;
+	  //  }
+	  //}
+	  //case MOUSE_ESCAPE:
+	  //{
+	  //if (mouse_buttons)
+	  //  {
+	  //Term_keypress(ESCAPE);
+	  //break;
+	  //  }
+	  //}
 	default:
 	  {
 	    bell("Illegal mouse area!"); 
 	  }
 	}
-    }
-  else if (p_ptr->command_cmd_ex.mousebutton == 2)
-    {
-      target_set_location(y, x);
-      msg_print("Target set.");
     }
 }

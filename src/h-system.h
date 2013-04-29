@@ -14,43 +14,59 @@
  */
 
 
-#include <stdio.h>
+/*** ANSI C headers ***/
+
 #include <ctype.h>
+//#include <assert.h>
+
 #ifdef _WIN32_WCE
+/* Non-standard crap */
 #else
 #include <errno.h>
 #endif
 
-#if defined(NeXT)
+#include <stdarg.h>
+#include <stdio.h>
+
+#if defined(NeXT) /* More non-standard crap */
 # include <libc.h>
 #else
 # include <stdlib.h>
 #endif
 
-
-#ifdef SET_UID
-
-# include <sys/types.h>
-
-# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
-     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
-     defined(__osf__) || defined(ISC) || defined(SGI) || \
-     defined(linux)
-#  include <sys/time.h>
-# endif
-
-# if !defined(SGI) && !defined(ULTRIX)
-#  include <sys/timeb.h>
-# endif
-
-#endif
-
+#include <string.h>
 
 #ifdef _WIN32_WCE
+/* Even more non-standard crap */
 #else
 #include <time.h>
 #endif
 
+/*** POSIX headers ***/
+
+#if !defined(NeXT) && !defined(RISCOS)
+#ifdef _WIN32_WCE
+#else
+# include <fcntl.h>
+#endif
+#endif
+
+
+#if defined (SET_UID) || defined (MACH_O_CARBON)
+# include <pwd.h>
+# include <sys/stat.h>
+# include <unistd.h>
+#endif
+
+#ifdef SET_UID
+# include <sys/types.h>
+#endif
+
+#if defined(__DJGPP__) || defined(__MWERKS__)
+#include <unistd.h>
+#endif /* __DJGPP__ || __MWERKS__ */
+
+/*** Other headers ***/
 
 #if defined(MACINTOSH) && defined(__MWERKS__)
 # include <unix.h>
@@ -63,56 +79,22 @@
 #endif
 #endif
 
-#if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
-# if defined(__TURBOC__) || defined(__WATCOMC__)
-#  include <mem.h>
-# else
-#  include <memory.h>
-# endif
-#endif
-
-
-#if !defined(NeXT) && !defined(RISCOS)
-#ifdef _WIN32_WCE
-#else
-# include <fcntl.h>
-#endif
-#endif
-
 
 #ifdef SET_UID
 
-# ifndef USG
-#  include <sys/param.h>
-#  include <sys/file.h>
-# endif
+# ifndef HAVE_USLEEP
 
-# ifdef linux
-#  include <sys/file.h>
-# endif
+/*
+ * struct timeval in usleep requires sys/time.h
+ *
+ * System test removed since Unix systems that neither have usleep nor
+ * sys/time.h are screwed anyway, since they have no way of delaying.
+ */
+#  include <sys/time.h>
+# endif /* HAVE_USLEEP */
 
-# include <pwd.h>
+#endif /* SET_UID */
 
-# include <unistd.h>
-
-# include <sys/stat.h>
-
-# if defined(SOLARIS)
-#  include <netdb.h>
-# endif
-
-#endif
-
-#if defined(__DJGPP__) || defined(__MWERKS__)
-#include <unistd.h>
-#endif /* __DJGPP__ || __MWERKS__ */
-
-#include <string.h>
-
-#include <stdarg.h>
-
-
-#endif
+#endif /* INCLUDED_H_SYSTEM_H */
 
 

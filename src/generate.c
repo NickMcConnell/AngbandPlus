@@ -2706,7 +2706,7 @@ static bool build_type1(void)
   bool light = FALSE;
   
   /* Occasional light */
-  if (p_ptr->depth <= randint(35)) light = TRUE;
+  if ((p_ptr->depth <= randint(35)) && (!underworld)) light = TRUE;
   
   
   /* Use an alternative function if on a moria level. */
@@ -5141,13 +5141,13 @@ static bool room_build(int room_type)
   if (room_type > 4)
     {
       /* Help prevent object over-flow */
-      if (o_max > 3 * MAX_O_IDX / 4)
+      if (o_max > 3 * z_info->o_max / 4)
 	{
 	  return (FALSE);
 	}
       
       /* Help prevent monster over-flow */
-      if (m_max > 3 * MAX_M_IDX / 4)
+      if (m_max > 3 * z_info->m_max / 4)
 	{
 	  return (FALSE);
 	}
@@ -5406,7 +5406,7 @@ static void alloc_paths(int stage, int last_stage)
     }
 
   /* Hack for finishing Nan Dungortheb */
-  if (last_stage == 211) north = last_stage;
+  if (last_stage == q_list[2].stage) north = last_stage;
   
   /* North */
   if (north)
@@ -6876,7 +6876,15 @@ static bool build_themed_level(void)
   /* Indicate that this theme is built, and should not appear again. */
   p_ptr->themed_level_appeared |= (1L << (choice - 1));
   
+  /* Now have a feeling */
+  do_feeling = TRUE;
   
+  /* Announce feeling */
+  do_cmd_feeling();
+  
+  /* Update the level indicator */
+  p_ptr->redraw |= (PR_DEPTH);
+    
   /* Kill the themed level arrays */
   kill_t_info();
   
@@ -7338,7 +7346,7 @@ int make_formation(int y, int x, int base_feat1, int base_feat2, int *feat,
 	for (xx = x - v_ptr->wid/2; xx < x + v_ptr->wid/2; xx++)
 	  if ((cave_feat[yy][xx] == FEAT_PERM_SOLID) ||
 	      (cave_feat[yy][xx] >= FEAT_LESS_NORTH) ||
-	      ((y == p_ptr->py) && (x == p_ptr->px)) ||
+	      (distance(yy, xx, p_ptr->py, p_ptr->px) < 20) ||
 	      (cave_info[yy][xx] & CAVE_ICKY)) 
 	    good_place = FALSE;
       
@@ -7629,7 +7637,7 @@ static void plain_gen(void)
 
 void mtn_connect(int y, int x, int y1, int x1)
 {
-  s16b gp[512];
+  u16b gp[512];
   int path_grids, j;
   
   /* Find the shortest path */
@@ -7669,7 +7677,7 @@ static void mtn_gen(void)
   int min, dist, floors = 0;
   int randpoints[20];
   coord pathpoints[20];
-  coord nearest_point;
+  coord nearest_point = {DUNGEON_HGT/2, DUNGEON_WID/2};
   
   /* Amusing hack to make paths work */
   int form_feats[8] = {FEAT_TRAP_HEAD, FEAT_TRAP_HEAD + 1, FEAT_TRAP_HEAD + 2, 
@@ -8374,7 +8382,8 @@ static void forest_gen(void)
 	    cave_info[y][x] |= (CAVE_ICKY);
 
 	  /* Mega hack - remove paths if emerging from Nan Dungortheb */
-	  if ((last_stage == 211) && (cave_feat[y][x] == FEAT_MORE_NORTH))
+	  if ((last_stage == q_list[2].stage) && 
+	      (cave_feat[y][x] == FEAT_MORE_NORTH))
 	    cave_set_feat(y, x, FEAT_GRASS);
 	}
     }
@@ -8997,7 +9006,8 @@ static void desert_gen(void)
  */
 static void river_gen(void)
 {
-  int i, j, k, y, x, y1 = DUNGEON_HGT/2, x1 = DUNGEON_WID/2;
+  int i, j, k, y, x, y1 = DUNGEON_HGT/2;
+  int mid[DUNGEON_HGT];
   int stage = p_ptr->stage;
   int last_stage = p_ptr->last_stage;
   int form_grids = 0;
@@ -9096,14 +9106,21 @@ static void river_gen(void)
 	  }
     }
   
-  /* Place the river */
+  /* Place the river, start in the middle third */
+  i = DUNGEON_WID/3 + rand_int(DUNGEON_WID/3);
   for (y = 1; y < DUNGEON_HGT - 1; y++)
-    {
-      for (x = x1 - rand_int(5) - 5; x < x1 + rand_int(5) + 5; x++)
+    {      
+      /* Remember the midpoint */
+      mid[y] = i;
+
+      for (x = i - rand_int(5) - 5; x < i + rand_int(5) + 5; x++)
 	{
 	  /* Make the river */
 	  cave_set_feat(y, x, FEAT_WATER);
+	  cave_info[y][x] |= (CAVE_ICKY);
 	}
+      /* Meander */
+      i += rand_int(3) - 1;
     }
   
   /* Special dungeon entrances */
@@ -9118,9 +9135,9 @@ static void river_gen(void)
 	{
 	  for (y = y1 - 10; y < y1 + 10; y++)
 	    {
-	      for (x = x1 - 10; x < x1 + 10; x++)
+	      for (x = mid[y] - 10; x < mid[y] + 10; x++)
 		{
-		  if (distance(y1, x1, y, x) < 6)
+		  if (distance(y1, mid[y1], y, x) < 6)
 		    
 		    /* ...make Tol-In-Gaurhoth... */
 		    cave_set_feat(y, x, FEAT_GRASS);
@@ -9130,15 +9147,15 @@ static void river_gen(void)
 		    cave_set_feat(y, x, FEAT_WATER);
 		  
 		  /* ...and build the tower... */
-		  if (distance(y1, x1, y, x) < 2)
+		  if (distance(y1, mid[y1], y, x) < 2)
 		    cave_set_feat(y, x, FEAT_WALL_SOLID);
 		}
 	    }
 	  /* ...with door and stairs */
-	  cave_set_feat(y1 + 1, x1, FEAT_DOOR_HEAD);
-	  cave_set_feat(y1, x1, FEAT_MORE);
+	  cave_set_feat(y1 + 1, mid[y1], FEAT_DOOR_HEAD);
+	  cave_set_feat(y1, mid[y1], FEAT_MORE);
 	  if (stage_map[p_ptr->last_stage][STAGE_TYPE] == CAVE)
-	    player_place(y1, x1);
+	    player_place(y1, mid[y1]);
 	}
       else
 	/* Must be Nargothrond */
@@ -9146,11 +9163,11 @@ static void river_gen(void)
 	  /* This place is hard to get into... */
 	  for (y = y1 - 1; y < y1 + 2; y++)
 	    {
-	      for (x = x1 - 10; x < x1 - 5; x++)
+	      for (x = mid[y1] - 10; x < mid[y1] - 5; x++)
 		cave_set_feat(y, x, FEAT_WALL_SOLID);
-	      for (x = x1 - 5; x < x1 + 5; x++)
+	      for (x = mid[y1] - 5; x < mid[y1] + 5; x++)
 		{
-		  if ((y == y1) && (x == x1 - 5))
+		  if ((y == y1) && (x == mid[y1] - 5))
 		    {
 		      cave_set_feat(y, x, FEAT_MORE);
 		      if (stage_map[p_ptr->last_stage][STAGE_TYPE] == CAVE)
@@ -9174,8 +9191,8 @@ static void river_gen(void)
       x = rand_int(DUNGEON_WID - 1) + 1;
 
       /* Hack - protect the river from vault overwriting */
-      if ((wild_vaults) && (x > DUNGEON_WID/3) && (x < 2 * DUNGEON_WID/3))
-	continue;
+      //if ((wild_vaults) && (x > DUNGEON_WID/3) && (x < 2 * DUNGEON_WID/3))
+      //continue;
 
       form_grids += make_formation(y, x, FEAT_GRASS, FEAT_GRASS, form_feats, 
 				   p_ptr->depth);
@@ -9269,7 +9286,7 @@ static void river_gen(void)
 bool place_web(int type)
 {
   vault_type *v_ptr;
-  int i, y, x, cy, cx;
+  int i, y, x = DUNGEON_WID/2, cy, cx;
   int v_idx[MAX_V_IDX];
   int v_cnt = 0;
 
@@ -10088,15 +10105,12 @@ void generate_cave(void)
       else if (rating >  0) feeling = 9;
       else feeling = 10;
       
-      /* Hack -- Have a special feeling sometimes */
-      if (good_item_flag && !adult_preserve) feeling = 1;
-      
       /* Hack -- no feeling in the town */
       if (!p_ptr->depth) feeling = 0;
       
       
       /* Prevent object over-flow */
-      if (o_max >= MAX_O_IDX)
+      if (o_max >= z_info->o_max)
 	{
 	  /* Message */
 	  why = "too many objects";
@@ -10106,7 +10120,7 @@ void generate_cave(void)
 	}
       
       /* Prevent monster over-flow */
-      if (m_max >= MAX_M_IDX)
+      if (m_max >= z_info->m_max)
 	{
 	  /* Message */
 	  why = "too many monsters";

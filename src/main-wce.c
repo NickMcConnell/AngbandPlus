@@ -550,14 +550,14 @@ static bool change_tilesize = FALSE;
  */
 static DIBINIT infGraph;
 
-#ifdef USE_TRANSPARENCY
+//#ifdef USE_TRANSPARENCY
 
 /*
  * The global bitmap mask
  */
 static DIBINIT infMask;
 
-#endif /* USE_TRANSPARENCY */
+//#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -1543,7 +1543,8 @@ static int new_palette(void)
 			plog("Please switch to high- or true-color mode.");
 
 			/* Cleanup */
-			rnfree(lppe, lppeSize);
+			//rnfree(lppe, lppeSize);
+			free(lppe);
 
 			/* Fail */
 			return (FALSE);
@@ -1603,14 +1604,16 @@ static int new_palette(void)
 	}
 
 	/* Free something */
-	if (lppe) rnfree(lppe, lppeSize);
+	//if (lppe) rnfree(lppe, lppeSize);
+	if (lppe) free(lppe);
 
 	/* Create a new palette, or fail */
 	hNewPal = CreatePalette(pLogPal);
 	if (!hNewPal) quit("Cannot create palette!");
 
 	/* Free the palette */
-	rnfree(pLogPal, pLogPalSize);
+	//rnfree(pLogPal, pLogPalSize);
+	free(pLogPal);
 
 	/* Main window */
 	td = &data[0];
@@ -1702,7 +1705,7 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-#ifdef USE_TRANSPARENCY
+		//#ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
@@ -1729,7 +1732,7 @@ static bool init_graphics(void)
 			}
 		}
 
-#endif /* USE_TRANSPARENCY */
+		//#endif /* USE_TRANSPARENCY */
 
 		/* Activate a palette */
 		if (!new_palette())
@@ -2280,7 +2283,7 @@ static errr Term_xtra_win_react(void)
 		/* Change setting */
 		use_graphics = arg_graphics;
 
-		Term->always_draw = FALSE;
+		//Term->always_draw = FALSE;
 #ifdef _WIN32_WCE
 #else
 		if (use_graphics_nice)
@@ -2541,7 +2544,7 @@ static int Term_xtra_win_grids(int v)
 
 	td->grid_display = v;
 
-	Term->always_draw = FALSE;
+	//Term->always_draw = FALSE;
 	
 
 	/* Success */
@@ -2605,10 +2608,10 @@ static errr Term_xtra_win(int n, int v)
 		}
 
 		/* Notice screen save / load */
-		case TERM_XTRA_GRIDS:
-		{
-			return (Term_xtra_win_grids(v));
-		}
+		//case TERM_XTRA_GRIDS:
+		//{
+		//return (Term_xtra_win_grids(v));
+		//}
 	}
 
 	/* Oops */
@@ -3006,11 +3009,11 @@ static errr Term_text_win(int x, int y, int n, byte a, const char *s)
  *
  * If "graphics" is not available, we simply "wipe" the given grids.
  */
-# ifdef USE_TRANSPARENCY
+//# ifdef USE_TRANSPARENCY
 static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-# else /* USE_TRANSPARENCY */
-static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
-# endif /* USE_TRANSPARENCY */
+     //# else /* USE_TRANSPARENCY */
+     //static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
+     //# endif /* USE_TRANSPARENCY */
 {
 	term_data *td = (term_data*)(Term->data);
 
@@ -3020,13 +3023,13 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2, tw2, th2;
 
-# ifdef USE_TRANSPARENCY
+	//# ifdef USE_TRANSPARENCY
 
 	int x3, y3;
 
 	HDC hdcMask;
 
-# endif /* USE_TRANSPARENCY */
+	//# endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -3087,7 +3090,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = (HBITMAP)SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
+	//# ifdef USE_TRANSPARENCY
 
 	if ((arg_graphics == GRAPHICS_ADAM_BOLT)|| 
 	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
@@ -3100,7 +3103,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		hdcMask = NULL;
 	}
 
-# endif /* USE_TRANSPARENCY */
+	//# endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 #if 0
@@ -3119,7 +3122,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		x1 = col * w1;
 		y1 = row * h1;
 
-# ifdef USE_TRANSPARENCY
+		//# ifdef USE_TRANSPARENCY
 
 		if ((arg_graphics == GRAPHICS_ADAM_BOLT) || 
 		    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
@@ -3168,7 +3171,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		}
 		else
 
-# endif /* USE_TRANSPARENCY */
+		  //# endif /* USE_TRANSPARENCY */
 
 		{
 			/* Perfect size */
@@ -3197,7 +3200,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
+	//# ifdef USE_TRANSPARENCY
 
 	if ((arg_graphics == GRAPHICS_ADAM_BOLT) || 
 	    (arg_graphics == GRAPHICS_DAVID_GERVAIS))
@@ -3207,7 +3210,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		DeleteDC(hdcMask);
 	}
 
-# endif /* USE_TRANSPARENCY */
+	//# endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);
@@ -3232,10 +3235,10 @@ static void windows_map_aux(void)
 	int x, min_x, max_x;
 	int y, min_y, max_y;
 
-#ifdef USE_TRANSPARENCY
+	//#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
+	//#endif /* USE_TRANSPARENCY */
 
 	s16b py = p_ptr->py;
 	s16b px = p_ptr->px;
@@ -3278,20 +3281,20 @@ static void windows_map_aux(void)
 	{
 		for (y = min_y; y < max_y; y++)
 		{
-#ifdef USE_TRANSPARENCY
+		  //#ifdef USE_TRANSPARENCY
 			map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
+			//#else /* USE_TRANSPARENCY */
+			//map_info(y, x, &a, &c);
+			//#endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
 			if ((a & 0x80) && (c & 0x80))
 			{
-#ifdef USE_TRANSPARENCY
+			  //#ifdef USE_TRANSPARENCY
 				Term_pict_win(x - min_x, y - min_y, 1, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-				Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
-#endif /* USE_TRANSPARENCY */
+				//#else /* USE_TRANSPARENCY */
+				//Term_pict_win(x - min_x, y - min_y, 1, &a, &c);
+				//#endif /* USE_TRANSPARENCY */
 			}
 		}
 	}
@@ -3307,7 +3310,7 @@ static void windows_map_aux(void)
 static void windows_map(void)
 {
 	term_data *td = &data[0];
-	key_event ke;
+	event_type ke;
 
 	int old_display = td->grid_display;
 
@@ -3380,7 +3383,7 @@ static void term_data_link(term_data *td)
 	t->pict_hook = Term_pict_win;
 
 	/* Notice when grid display changes */
-	t->notice_grid = TRUE;
+	//t->notice_grid = TRUE;
 
 	/* Remember where we came from */
 	t->data = (vptr)(td);
@@ -4347,7 +4350,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			else
 			{
@@ -4422,7 +4425,7 @@ static void process_menus(WORD wCmd)
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			quit(NULL);
 			break;
@@ -5554,7 +5557,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				msg_flag = FALSE;
 
 				/* Save the game */
-				do_cmd_save_game(FALSE);
+				do_cmd_save_game();
 			}
 			quit(NULL);
 			return 0;
@@ -6191,10 +6194,10 @@ static void hook_quit(cptr str)
 	if (infGraph.hPalette) DeleteObject(infGraph.hPalette);
 	if (infGraph.hBitmap) DeleteObject(infGraph.hBitmap);
 
-#ifdef USE_TRANSPARENCY
+	//#ifdef USE_TRANSPARENCY
 	if (infMask.hPalette) DeleteObject(infMask.hPalette);
 	if (infMask.hBitmap) DeleteObject(infMask.hBitmap);
-#endif /* USE_TRANSPARENCY */
+	//#endif /* USE_TRANSPARENCY */
 
 #endif /* USE_GRAPHICS */
 
@@ -6583,7 +6586,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Temporary hooks */
 	plog_aux = hack_plog;
 	quit_aux = hack_quit;
-	core_aux = hack_quit;
+	//core_aux = hack_quit;
 
 	/* Prepare the filepaths */
 	
@@ -6628,7 +6631,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	/* Activate hooks */
 	plog_aux = hook_plog;
 	quit_aux = hook_quit;
-	core_aux = hook_quit;
+	//core_aux = hook_quit;
 
 	/* Set the system suffix */
 	ANGBAND_SYS = "win";
@@ -6692,87 +6695,87 @@ HWND CreateRpCommandBar(HWND hwnd)
 
 HWND WINAPI CreateMacroBar(HWND hwnd)
 {
-	HWND hwndTB = NULL;
-	INITCOMMONCONTROLSEX iccex;    // The INITCOMMONCONTROLSEX structure
-	TCHAR tbbbuf[10];
-	TBBUTTON tbb[NUM_MACRO_BUTTONS + 1];
-	int i;
-	RECT rectTB;
-
-	iccex.dwSize = sizeof (INITCOMMONCONTROLSEX);
-	iccex.dwICC = ICC_BAR_CLASSES;
-
-	// Register toolbar control classes from the DLL for the common control.
-	InitCommonControlsEx (&iccex);
-
-	// Create the toolbar control.
-	hwndTB = CreateWindowEx(0,
-				TOOLBARCLASSNAME,
-				NULL,
-				WS_CHILD | WS_VISIBLE | TBSTYLE_LIST |
-				CCS_NODIVIDER | CCS_NOPARENTALIGN,
-				0,
-				0,
-				100,
-				30,
-				hwnd,
-				NULL,
-				hInstance,
-				NULL);
-
-	if (hwndTB)
+  HWND hwndTB = NULL;
+  INITCOMMONCONTROLSEX iccex;    // The INITCOMMONCONTROLSEX structure
+  TCHAR tbbbuf[10];
+  TBBUTTON tbb[NUM_MACRO_BUTTONS + 1];
+  int i;
+  RECT rectTB;
+  
+  iccex.dwSize = sizeof (INITCOMMONCONTROLSEX);
+  iccex.dwICC = ICC_BAR_CLASSES;
+  
+  // Register toolbar control classes from the DLL for the common control.
+  InitCommonControlsEx (&iccex);
+  
+  // Create the toolbar control.
+  hwndTB = CreateWindowEx(0,
+			  TOOLBARCLASSNAME,
+			  NULL,
+			  WS_CHILD | WS_VISIBLE | TBSTYLE_LIST |
+			  CCS_NODIVIDER | CCS_NOPARENTALIGN,
+			  0,
+			  0,
+			  100,
+			  30,
+			  hwnd,
+			  NULL,
+			  hInstance,
+			  NULL);
+  
+  if (hwndTB)
+    {
+      SendMessage(hwndTB,TB_BUTTONSTRUCTSIZE,(WPARAM)sizeof(TBBUTTON),0);
+      
+      // Create the buttons.
+      
+      wcscpy(tbbbuf, L"#\0");
+      tbb[0].iBitmap = I_IMAGENONE;
+      tbb[0].idCommand=MACRO_BUTTON;
+      tbb[0].fsState=TBSTATE_ENABLED;
+      tbb[0].fsStyle=TBSTYLE_AUTOSIZE | TBSTYLE_CHECK;
+      tbb[0].dwData=0;
+      tbb[0].iString=SendMessage(hwndTB,TB_ADDSTRING,0,(LPARAM)tbbbuf);
+      
+      g_g.m_bMacroButton = 1;
+      
+      for (i = 1; i <= NUM_MACRO_BUTTONS; i++)
 	{
-		SendMessage(hwndTB,TB_BUTTONSTRUCTSIZE,(WPARAM)sizeof(TBBUTTON),0);
-
-		// Create the buttons.
-
-		wcscpy(tbbbuf, L"#\0");
-		tbb[0].iBitmap = I_IMAGENONE;
-		tbb[0].idCommand=MACRO_BUTTON;
-		tbb[0].fsState=TBSTATE_ENABLED;
-		tbb[0].fsStyle=TBSTYLE_AUTOSIZE | TBSTYLE_CHECK;
-		tbb[0].dwData=0;
-		tbb[0].iString=SendMessage(hwndTB,TB_ADDSTRING,0,(LPARAM)tbbbuf);
-
-		g_g.m_bMacroButton = 1;
-
-		for (i = 1; i <= NUM_MACRO_BUTTONS; i++)
-		{
-			wsprintf(tbbbuf, L"%d\0", i);
-			tbb[i].iBitmap = I_IMAGENONE;
-			tbb[i].idCommand=MACRO_BUTTON + i;
-			tbb[i].fsState=TBSTATE_ENABLED;
-			tbb[i].fsStyle=TBSTYLE_AUTOSIZE;
-			tbb[i].dwData=0;
-			tbb[i].iString=SendMessage(hwndTB,TB_ADDSTRING,0,(LPARAM)tbbbuf);
-		}
-
-		SendMessage(hwndTB, TB_ADDBUTTONS, (WPARAM) NUM_MACRO_BUTTONS + 1, (LPARAM) (LPTBBUTTON) &tbb);
-
-		SendMessage(hwndTB, TB_AUTOSIZE, 0, 0); 
-
-		// Reposition the toolbar.
-		GetWindowRect (hwndTB, &rectTB);
-
-		g_g.m_MacroBarHeight = rectTB.bottom - rectTB.top;
-
-		if (g_g.m_bTitleBarShown)	MoveWindow (hwndTB, 
-									g_g.m_winX, 
-									g_g.g_cy - (2 * g_g.m_MenuHeight) - g_g.m_MacroBarHeight, 
-									g_g.m_winW, 
-									g_g.m_MacroBarHeight,
-									TRUE);
-		else						MoveWindow (hwndTB, 
-									g_g.m_winX, 
-									g_g.g_cy - g_g.m_MenuHeight - g_g.m_MacroBarHeight, 
-									g_g.m_winW, 
-									g_g.m_MacroBarHeight,
-									TRUE);
-
-		g_g.m_bMacroBarShown = 1;
+	  wsprintf(tbbbuf, L"%d\0", i);
+	  tbb[i].iBitmap = I_IMAGENONE;
+	  tbb[i].idCommand=MACRO_BUTTON + i;
+	  tbb[i].fsState=TBSTATE_ENABLED;
+	  tbb[i].fsStyle=TBSTYLE_AUTOSIZE;
+	  tbb[i].dwData=0;
+	  tbb[i].iString=SendMessage(hwndTB,TB_ADDSTRING,0,(LPARAM)tbbbuf);
+	}
+      
+      SendMessage(hwndTB, TB_ADDBUTTONS, (WPARAM) NUM_MACRO_BUTTONS + 1, (LPARAM) (LPTBBUTTON) &tbb);
+      
+      SendMessage(hwndTB, TB_AUTOSIZE, 0, 0); 
+      
+      // Reposition the toolbar.
+      GetWindowRect (hwndTB, &rectTB);
+      
+      g_g.m_MacroBarHeight = rectTB.bottom - rectTB.top;
+      
+      if (g_g.m_bTitleBarShown)	MoveWindow (hwndTB, 
+					    g_g.m_winX, 
+					    g_g.g_cy - (2 * g_g.m_MenuHeight) - g_g.m_MacroBarHeight, 
+					    g_g.m_winW, 
+					    g_g.m_MacroBarHeight,
+					    TRUE);
+      else						MoveWindow (hwndTB, 
+								    g_g.m_winX, 
+								    g_g.g_cy - g_g.m_MenuHeight - g_g.m_MacroBarHeight, 
+								    g_g.m_winW, 
+								    g_g.m_MacroBarHeight,
+								    TRUE);
+      
+      g_g.m_bMacroBarShown = 1;
     }
-
-    return hwndTB;
+  
+  return hwndTB;
 }
 
 #endif

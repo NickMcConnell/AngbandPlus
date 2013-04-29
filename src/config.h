@@ -45,49 +45,6 @@
 
 
 /*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
-
-
-/*
- * OPTION: Use the POSIX "termios" methods in "main-gcu.c"
- */
-/* #define USE_TPOSIX */
-
-/*
- * OPTION: Use the "termio" methods in "main-gcu.c"
- */
-/* #define USE_TERMIO */
-
-/*
- * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
- */
-/* #define USE_TCHARS */
-
-
-/*
- * OPTION: Use "blocking getch() calls" in "main-gcu.c".
- * Hack -- Note that this option will NOT work on many BSD machines
- * Currently used whenever available, if you get a warning about
- * "nodelay()" undefined, then make sure to undefine this.
- */
-#if defined(SYS_V) || defined(AMIGA)
-# define USE_GETCH
-#endif
-
-
-/*
- * OPTION: Use the "curs_set()" call in "main-gcu.c".
- * Hack -- This option will not work on most BSD machines
- */
-#ifdef SYS_V
-# define USE_CURS_SET
-#endif
-
-
-/*
  * OPTION: Include "ncurses.h" instead of "curses.h" in "main-gcu.c"
  */
 /* #define USE_NCURSES */
@@ -217,13 +174,6 @@
 #define ALLOW_TEMPLATES
 
 /*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- */
-#define ALLOW_OLD_SAVEFILES
-
-
-/*
  * OPTION: Delay the loading of the "f_text" array until it is actually
  * needed, saving ~1K, since "feature" descriptions are unused.
  */
@@ -300,12 +250,6 @@
  * OPTION: Support multiple "player" grids in "map_info()"
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
-
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
 
 
 /*
@@ -438,13 +382,6 @@
 /* #define CHECK_TIME */
 
 /*
- * OPTION: Check the "load" against "lib/file/load.txt"
- * This may require the 'rpcsvs' library
- */
-/* #define CHECK_LOAD */
-
-
-/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
@@ -473,16 +410,6 @@
 #define DEFAULT_X11_FONT_5		"5x8"
 #define DEFAULT_X11_FONT_6		"5x8"
 #define DEFAULT_X11_FONT_7		"5x8"
-
-
-/*
- * OPTION: Default fonts (when using X11)
- */
-#define DEFAULT_X11_FONT_SCREEN		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_MIRROR		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_RECALL		DEFAULT_X11_FONT
-#define DEFAULT_X11_FONT_CHOICE		DEFAULT_X11_FONT
-
 
 
 
@@ -517,7 +444,6 @@
 # undef ALLOW_VISUALS
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS

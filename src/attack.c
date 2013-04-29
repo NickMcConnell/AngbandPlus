@@ -1934,7 +1934,7 @@ void do_cmd_fire(void)
  * It's too annoying to send your nice throwing weapons halfway across the
  * dungeon.
  */
-void do_cmd_throw(bool magic)
+void do_cmd_throw(void)
 {
   int py = p_ptr->py;
   int px = p_ptr->px;
@@ -2052,7 +2052,7 @@ void do_cmd_throw(bool magic)
   div = ((i_ptr->weight > 10) ? i_ptr->weight : 10);
   
   /* Is it ordinary throw, or magical? */
-  stat = (magic ? A_INT : A_STR);
+  stat = (magic_throw ? A_INT : A_STR);
 
   /* Distance -- Reward strength or intelligence, penalize weight */
   tdis = (adj_str_blow[p_ptr->stat_ind[stat]] + 20) * mul / div;
@@ -2080,7 +2080,7 @@ void do_cmd_throw(bool magic)
     }
 
   /* Mages become like rogues for this */
-  if (magic) chance += p_ptr->skill_tht;
+  if (magic_throw) chance += p_ptr->skill_tht;
   
   
   /* Take a turn */

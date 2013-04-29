@@ -1063,7 +1063,7 @@ void add_speed_boost(int value)
 int resist_damage(int dam, byte resist, byte rand_factor)
 {
   /* Base Value */
-  int resist_percentage = extract_resistance[p_ptr->res_list[resist]];
+  int resist_percentage = 100 - p_ptr->res_list[resist];
   
   /* Randomize if requested */
   /* No randomization of vulnerability */
@@ -1099,6 +1099,15 @@ void take_hit(int dam, cptr kb_str)
   int old_chp = p_ptr->chp;
   
   int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+  
+#ifdef _WIN32_WCE
+  unsigned long fake_time(unsigned long* fake_time_t);
+  time_t ct = fake_time(0);
+#else
+  time_t ct = time((time_t*)0);
+#endif
+  char long_day[25];
+  char buf[120];
   
   /* Paranoia */
   if (p_ptr->is_dead) return;
@@ -1153,49 +1162,31 @@ void take_hit(int dam, cptr kb_str)
       /* Leaving */
       p_ptr->leaving = TRUE;
       
-      /* Write a note */
-      if (adult_take_notes)
-	{
+      /* Get time */
 #ifdef _WIN32_WCE
-	  unsigned long fake_time(unsigned long* fake_time_t);
-	  time_t ct = fake_time(0);
+      {
+	char* fake_ctime(const unsigned long* fake_time_t);
+	sprintf(long_day, "%-.6s %-.2s",
+		fake_ctime(&ct) + 4, fake_ctime(&ct) + 22);
+      }
 #else
-	  time_t ct = time((time_t*)0);
+      (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
 #endif
-	  char long_day[25];
-	  char buf[120];
-	  
-	  /* Get time */
-#ifdef _WIN32_WCE
-	  {
-	    char* fake_ctime(const unsigned long* fake_time_t);
-	    sprintf(long_day, "%-.6s %-.2s",
-		    fake_ctime(&ct) + 4, fake_ctime(&ct) + 22);
-	  }
-#else
-	  (void)strftime(long_day, 25, "%m/%d/%Y at %I:%M %p", localtime(&ct));
-#endif
-	  
-	  /* Add note */
-	  
-	  fprintf(notes_file, "============================================================\n");
-	  
-	  /*killed by */
-	  sprintf(buf, "Killed by %s.", p_ptr->died_from);
-	  
-	  /* Write message */
-	  do_cmd_note(buf,  p_ptr->stage);
-	  
-	  /* date and time*/
-	  sprintf(buf, "Killed on %s.", long_day);
-	  
-	  /* Write message */
-	  do_cmd_note(buf,  p_ptr->stage);
-	  
-	  fprintf(notes_file, "============================================================\n");
-	  
-	}
       
+      /* Add note */
+      
+      /*killed by */
+      sprintf(buf, "Killed by %s.", p_ptr->died_from);
+      
+      /* Write message */
+      make_note(buf,  p_ptr->stage, NOTE_DEATH);
+      
+      /* date and time*/
+      sprintf(buf, "Killed on %s.", long_day);
+      
+      /* Write message */
+      make_note(buf,  p_ptr->stage, NOTE_DEATH);
+	  
       /* Dead */
       return;
     }
@@ -1378,7 +1369,7 @@ static int set_acid_destroy(object_type *o_ptr)
   u32b f1, f2, f3;
   if (!hates_acid(o_ptr)) return (FALSE);
   object_flags(o_ptr, &f1, &f2, &f3);
-  if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
+  if (o_ptr->el_proof & (ACID_PROOF)) return (FALSE);
   return (TRUE);
 }
 
@@ -1391,7 +1382,7 @@ static int set_elec_destroy(object_type *o_ptr)
   u32b f1, f2, f3;
   if (!hates_elec(o_ptr)) return (FALSE);
   object_flags(o_ptr, &f1, &f2, &f3);
-  if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
+  if (o_ptr->el_proof & (ELEC_PROOF)) return (FALSE);
   return (TRUE);
 }
 
@@ -1404,7 +1395,7 @@ static int set_fire_destroy(object_type *o_ptr)
   u32b f1, f2, f3;
   if (!hates_fire(o_ptr)) return (FALSE);
   object_flags(o_ptr, &f1, &f2, &f3);
-  if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
+  if (o_ptr->el_proof & (FIRE_PROOF)) return (FALSE);
   return (TRUE);
 }
 
@@ -1417,7 +1408,7 @@ static int set_cold_destroy(object_type *o_ptr)
   u32b f1, f2, f3;
   if (!hates_cold(o_ptr)) return (FALSE);
   object_flags(o_ptr, &f1, &f2, &f3);
-  if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
+  if (o_ptr->el_proof & (COLD_PROOF)) return (FALSE);
   return (TRUE);
 }
 
@@ -1578,7 +1569,7 @@ static int minus_ac(int dam)
   object_flags(o_ptr, &f1, &f2, &f3);
   
   /* Object resists */
-  if (f3 & (TR3_IGNORE_ACID))
+  if (o_ptr->el_proof & (ACID_PROOF))
     {
       msg_format("Your %s is unaffected!", o_name);
       
@@ -2833,7 +2824,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		do_kill = TRUE;
 		note_kill = (plural ? " melt!" : " melts!");
-		if (f3 & (TR3_IGNORE_ACID)) ignore = TRUE;
+		if (o_ptr->el_proof & (ACID_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -2845,7 +2836,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		do_kill = TRUE;
 		note_kill = (plural ? " are destroyed!" : " is destroyed!");
-		if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+		if (o_ptr->el_proof & (ELEC_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -2857,7 +2848,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		do_kill = TRUE;
 		note_kill = (plural ? " burn up!" : " burns up!");
-		if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+		if (o_ptr->el_proof & (FIRE_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -2869,7 +2860,7 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		note_kill = (plural ? " shatter!" : " shatters!");
 		do_kill = TRUE;
-		if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+		if (o_ptr->el_proof & (COLD_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -2881,14 +2872,14 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		do_kill = TRUE;
 		note_kill = (plural ? " burn up!" : " burns up!");
-		if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+		if (o_ptr->el_proof & (FIRE_PROOF)) ignore = TRUE;
 	      }
 	    if (hates_elec(o_ptr) && (dam > rand_int(40)))
 	      {
 		ignore = FALSE;
 		do_kill = TRUE;
 		note_kill = (plural ? " are destroyed!" : " is destroyed!");
-		if (f3 & (TR3_IGNORE_ELEC)) ignore = TRUE;
+		if (o_ptr->el_proof & (ELEC_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -2900,14 +2891,14 @@ static bool project_o(int who, int y, int x, int dam, int typ)
 	      {
 		do_kill = TRUE;
 		note_kill = (plural ? " burn up!" : " burns up!");
-		if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
+		if (o_ptr->el_proof & (FIRE_PROOF)) ignore = TRUE;
 	      }
 	    if (hates_cold(o_ptr))
 	      {
 		ignore = FALSE;
 		do_kill = TRUE;
 		note_kill = (plural ? " shatter!" : " shatters!");
-		if (f3 & (TR3_IGNORE_COLD)) ignore = TRUE;
+		if (o_ptr->el_proof & (COLD_PROOF)) ignore = TRUE;
 	      }
 	    break;
 	  }
@@ -3229,9 +3220,12 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
       }
       
       /* Monsters can duck, or take only partial damage. */
+      /* For nature's vengeance, trees are dangerous */
     case FEAT_TREE:
       {
-	if ((rand_int(4) == 0) && (!((r_ptr->flags1) & RF1_NEVER_MOVE))
+	
+	if (typ == GF_NATURE) terrain_adjustment = dam / 4;
+	else if ((rand_int(4) == 0) && (!((r_ptr->flags1) & RF1_NEVER_MOVE))
 	    && (!m_ptr->csleep))
 	  {
 	    msg_format("%^s hides behind a tree!", m_name);
@@ -4638,6 +4632,34 @@ static bool project_m(int who, int y, int x, int dam, int typ, int flg)
 	
 	break;
       }
+
+      /* Nature's vengeance - when trees and grass attack! */
+    case GF_NATURE:
+      {
+	int i = 0;
+
+	/* Obvious */
+	if (seen) obvious = TRUE;
+	
+	/* Affected by terrain. */
+	dam += terrain_adjustment;
+	
+	/* Natural creatures take half damage */
+	if (r_ptr->flags3 & RF3_ANIMAL) dam /= 2;
+
+	/* Check terrain */
+	if (cave_feat[y][x] != FEAT_GRASS)
+	  {
+	    /* Near a tree? */
+	    for (i = 1; i < 10; i++)
+	      if (cave_feat[y + ddy[i]][x + ddx[i]] == FEAT_TREE) break;
+	    
+	    /* Safe for now */
+	    if (i == 10) dam = 0;
+	  }
+
+	break;
+      }
       
       /* Default */
     default:
@@ -5075,8 +5097,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Try for Evasion */
 	if (((check_ability(SP_EVASION)) ||
 	     ((check_ability(SP_DWARVEN)) && 
-	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)))
-	    & (randint(75) <= p_ptr->evasion_chance))
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) ||
+	     ((check_ability(SP_PLAINSMAN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
+	     ((check_ability(SP_EDAIN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))) &&
+	    (randint(75) <= p_ptr->evasion_chance))
 	  {
 	    /* Message */
 	    msg_print("You Evade the boulder!");
@@ -5138,8 +5164,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Try for Evasion */
 	if (((check_ability(SP_EVASION)) ||
 	     ((check_ability(SP_DWARVEN)) && 
-	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)))
-	    & (randint(75) <= p_ptr->evasion_chance))
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) ||
+	     ((check_ability(SP_PLAINSMAN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
+	     ((check_ability(SP_EDAIN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))) &&
+	    (randint(75) <= p_ptr->evasion_chance))
 	  {
 	    /* Message */
 	    msg_print("You Evade the missile!");
@@ -5203,8 +5233,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Try for Evasion */
 	if (((check_ability(SP_EVASION)) ||
 	     ((check_ability(SP_DWARVEN)) && 
-	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)))
-	    & (randint(75) <= p_ptr->evasion_chance))
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) ||
+	     ((check_ability(SP_PLAINSMAN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
+	     ((check_ability(SP_EDAIN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))) &&
+	    (randint(75) <= p_ptr->evasion_chance))
 	  {
 	    /* Message */
 	    msg_print("You Evade the missile!");
@@ -5274,8 +5308,12 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Try for Evasion */
 	if (((check_ability(SP_EVASION)) ||
 	     ((check_ability(SP_DWARVEN)) && 
-	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)))
-	    & (randint(75) <= p_ptr->evasion_chance))
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == MOUNTAIN)) ||
+	     ((check_ability(SP_PLAINSMAN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == PLAIN)) ||
+	     ((check_ability(SP_EDAIN)) && 
+	      (stage_map[p_ptr->stage][STAGE_TYPE] == FOREST))) &&
+	    (randint(75) <= p_ptr->evasion_chance))
 	  {
 	    /* Message */
 	    msg_print("You Evade the missile!");
@@ -5620,7 +5658,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_DARK, 1);
 	
 	/* Blind the player */
-	if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
+	if (!blind && !p_ptr->no_blind && !p_resist_good(P_RES_DARK))
 	  {
 	    (void)set_blind(p_ptr->blind + randint(5) + 2);
 	  }
@@ -5637,11 +5675,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 		(void)set_afraid(p_ptr->afraid + randint(30) 
 				 + r_ptr->level * 2);
 	      }
-	    if (!p_resist_pos(P_RES_CHAOS))
+	    if (!p_resist_good(P_RES_CHAOS))
 	      {
 		(void)set_image(p_ptr->image + rand_int(101) + 100);
 	      }
-	    if (!p_resist_pos(P_RES_CONFU))
+	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		(void)set_confused(p_ptr->confused + rand_int(31) + 30);
 	      }
@@ -5658,11 +5696,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	
 	if (fuzzy) msg_print("You are hit by something sharp!");
 	cold_dam(dam, killer);
-	if (!p_resist_pos(P_RES_SHARD))
+	if (!p_resist_good(P_RES_SHARD))
 	  {
 	    (void)set_cut(p_ptr->cut + damroll(5, 8));
 	  }
-	if (!p_resist_pos(P_RES_SOUND))
+	if (!p_resist_good(P_RES_SOUND))
 	  {
 	    (void)set_stun(p_ptr->stun + randint(15));
 	  }
@@ -5681,7 +5719,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_LITE, 1);
 	
 	/* Apply Blindness */
-	if (!blind && !p_ptr->no_blind  && !p_resist_pos(P_RES_LITE))
+	if (!blind && !p_ptr->no_blind  && !p_resist_good(P_RES_LITE))
 	  {
 	    (void)set_blind(p_ptr->blind + randint(5) + ((dam > 40) ? 2 : 0));
 	  }
@@ -5701,7 +5739,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_DARK, 1);
 	
 	/* Blind the player */
-	if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
+	if (!blind && !p_ptr->no_blind && !p_resist_good(P_RES_DARK))
 	  {
 	    (void)set_blind(p_ptr->blind + randint(5) + 2);
 	  }
@@ -5721,7 +5759,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_DARK, 1);
 	
 	/* Blind the player */
-	if (!blind && !p_ptr->no_blind && !p_resist_pos(P_RES_DARK))
+	if (!blind && !p_ptr->no_blind && !p_resist_good(P_RES_DARK))
 	  {
 	    (void)set_blind(p_ptr->blind + randint(5) + 2);
 	  }
@@ -5793,7 +5831,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if (rand_int(k) > 120)
 	  {
 	    /* Disenchantment. */
-	    if (!p_resist_pos(P_RES_DISEN))
+	    if (!p_resist_good(P_RES_DISEN))
 	      {
 		msg_print("You feel a force attacking the magic around you.");
 		(void)apply_disenchant(0);
@@ -5851,7 +5889,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Resist damage */
 	dam -= resist_damage(dam, P_RES_CONFU, 1);
 	
-	if (!p_resist_pos(P_RES_CONFU))
+	if (!p_resist_good(P_RES_CONFU))
 	  {
 	    (void)set_confused(p_ptr->confused + randint(20) + 10);
 	  }
@@ -5871,10 +5909,10 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_SOUND, 1);
 	
 	/* Side effects of powerful sound attacks. */
-	if ((dam > rand_int(30 + dam / 2)) && !p_resist_pos(P_RES_SOUND))
+	if ((dam > rand_int(30 + dam / 2)) && !p_resist_good(P_RES_SOUND))
 	  {
 	    /* Confuse the player (a little). */
-	    if (!p_resist_pos(P_RES_CONFU))
+	    if (!p_resist_good(P_RES_CONFU))
 	      {
 		k = (randint((dam > 400) ? 21 : (1 + dam / 20)));
 		(void)set_confused(p_ptr->confused + k);
@@ -5897,7 +5935,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	take_hit(dam, killer);
 	
 	/* Resistance to sound - much less inventory destruction . */
-	if (!p_resist_pos(P_RES_SOUND)) k = dam / 3;
+	if (p_resist_good(P_RES_SOUND)) k = dam / 3;
 	else k = dam;
 	
 	/* Blow up flasks and potions sometimes. */
@@ -5928,14 +5966,14 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_SHARD, 1);
 	
 	/* Cut the player */
-	if (!p_resist_pos(P_RES_SHARD))
+	if (!p_resist_good(P_RES_SHARD))
 	  {
 	    (void)set_cut(p_ptr->cut + dam);
 	    
 	  }
 	
 	/* Resistance to shards - much less inventory destruction. */
-	if (p_resist_pos(P_RES_SHARD)) k = dam / 3;
+	if (p_resist_good(P_RES_SHARD)) k = dam / 3;
 	else k = dam;
 	
 	/* Blow up flasks and potions on rare occasions. */
@@ -5961,7 +5999,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	(void)set_slow(p_ptr->slow + rand_int(3) + dam >= 100 ? 4 : 2);
 	
 	/* May Stun */
-	if (!p_resist_pos(P_RES_SOUND))
+	if (!p_resist_good(P_RES_SOUND))
 	  {
 	    int k = (randint((dam > 90) ? 35 : (dam / 5 + 5)));
 	    (void)set_stun(p_ptr->stun + k);
@@ -5983,7 +6021,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	if (fuzzy) msg_print("You are hit by something!");
 	
 	/* May Stun */
-	if (!p_resist_pos(P_RES_SOUND))
+	if (!p_resist_good(P_RES_SOUND))
 	  {
 	    (void)set_stun(p_ptr->stun + randint(20));
 	  }
@@ -6002,11 +6040,11 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam += terrain_adjustment;
 	
 	if (fuzzy) msg_print("You are hit by something!");
-	if ((!p_resist_pos(P_RES_SOUND)) && (rand_int(2) == 0))
+	if ((!p_resist_good(P_RES_SOUND)) && (rand_int(2) == 0))
 	  {
 	    (void)set_stun(p_ptr->stun + randint(5 + dam / 10));
 	  }
-	if ((!p_resist_pos(P_RES_CONFU)) && (rand_int(2) == 0))
+	if ((!p_resist_good(P_RES_CONFU)) && (rand_int(2) == 0))
 	  {
 	    (void)set_confused(p_ptr->confused + rand_int(4) + 3);
 	  }
@@ -6053,7 +6091,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	  }
 	
 	/* Sometimes, confuse the player. */
-	if ((rand_int(2) == 0) && (!p_resist_pos(P_RES_CONFU)))
+	if ((rand_int(2) == 0) && (!p_resist_good(P_RES_CONFU)))
 	  {
 	    (void)set_confused(p_ptr->confused + 5 + randint(dam / 3));
 	  }
@@ -6092,7 +6130,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_NETHR, 1);
 	
 	/* Drain Exp */
-	if (!p_resist_pos(P_RES_NETHR))
+	if (!p_resist_good(P_RES_NETHR))
 	  {
 	    if (p_ptr->hold_life && (rand_int(100) < 75))
 	      {
@@ -6124,13 +6162,13 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	/* Resist damage */
 	dam -= resist_damage(dam, P_RES_CHAOS, 2);
 	
-	if (!p_resist_pos(P_RES_CHAOS))
+	if (!p_resist_good(P_RES_CHAOS))
 	  {
-	    if (!p_resist_pos(P_RES_CONFU)) 
+	    if (!p_resist_good(P_RES_CONFU)) 
 	      (void)set_confused(p_ptr->confused + rand_int(20) + 10);
 	    (void)set_image(p_ptr->image + randint(10));
 	  }
-	if (!p_resist_pos(P_RES_CHAOS) && !p_resist_pos(P_RES_NETHR))
+	if (!p_resist_good(P_RES_CHAOS) && !p_resist_good(P_RES_NETHR))
 	  {
 	    if (p_ptr->hold_life && (rand_int(100) < 75))
 	      {
@@ -6160,7 +6198,7 @@ static bool project_p(int who, int d, int y, int x, int dam, int typ)
 	dam -= resist_damage(dam, P_RES_DISEN, 1);
 	
 	/* Disenchant Gear */
-	if (!p_resist_pos(P_RES_DISEN))
+	if (!p_resist_good(P_RES_DISEN))
 	  {
 	    (void)apply_disenchant(dam);
 	    remove_player_mana(dam/5);
@@ -6467,7 +6505,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
       {
 	if (affect_player)
 	  {
-	    if (((p_resist_pos(P_RES_NEXUS)) || (p_ptr->ffall)) && 
+	    if (((p_resist_good(P_RES_NEXUS)) || (p_ptr->ffall)) && 
 		(rand_int(2) == 0))
 	      {
 		msg_print("You barely hold your ground.");
@@ -6575,7 +6613,7 @@ static bool project_t(int who, int y, int x, int dam, int typ, int flg)
       {
 	if (affect_player)
 	  {
-	    if (!p_resist_pos(P_RES_NEXUS))
+	    if (!p_resist_good(P_RES_NEXUS))
 	      {
 		/* Get caster */
 		monster_type *n_ptr = &m_list[who];

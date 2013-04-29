@@ -502,20 +502,8 @@ static void roff_aux(int r_idx)
       
       byte con_color = TERM_WHITE;
       
-      if ((depth_in_feet) && (use_metric))
-	{
-	  strcpy(depth_desc, 
-		 format("at depths of %d meters", r_ptr->level * 15));
-	}
-      else if (depth_in_feet)
-	{
-	  strcpy(depth_desc, 
-		 format("at depths of %d feet", r_ptr->level * 50));
-	}
-      else
-	{
-	  strcpy(depth_desc, format("at a danger level of %d", r_ptr->level));
-	}
+      strcpy(depth_desc, format("at a danger level of %d", r_ptr->level));
+
       
       /* Determine "con" of the monster (default is TERM_WHITE) */
       if (r_ptr->level < p_ptr->recall[0] - 5) con_color = TERM_SLATE;
@@ -2476,7 +2464,7 @@ bool prepare_ghost(int r_idx, monster_type *m_ptr, bool from_savefile)
     {
       ghost_string_type = 0;
       
-		/* Close, open, and reread the file (old style). */
+      /* Close, open, and reread the file (old style). */
       my_fclose(fp);
       fp = my_fopen(path, "r");
       err = (fscanf(fp, "%[^\n]\n%d\n%d\n%d", ghost_name, 

@@ -25,6 +25,76 @@
 
 #endif /* USE_SCRIPT */
 
+#include "main.h"
+
+/*
+ * List of the available modules in the order they are tried.
+ */
+static const struct module modules[] =
+{
+#ifdef USE_SDL
+	{ "sdl", help_sdl, init_sdl },
+#endif /* USE_SDL */
+
+#ifdef USE_GTK
+	{ "gtk", help_gtk, init_gtk },
+#endif /* USE_GTK */
+
+#ifdef USE_XAW
+	{ "xaw", help_xaw, init_xaw },
+#endif /* USE_XAW */
+
+#ifdef USE_X11
+	{ "x11", help_x11, init_x11 },
+#endif /* USE_X11 */
+
+#ifdef USE_GCU
+	{ "gcu", help_gcu, init_gcu },
+#endif /* USE_GCU */
+
+#ifdef USE_CAP
+	{ "cap", help_cap, init_cap },
+#endif /* USE_CAP */
+	    
+#ifdef USE_DOS
+	{ "dos", help_dos, init_dos },
+#endif /* USE_DOS */
+	    
+#ifdef USE_IBM
+	{ "ibm", help_ibm, init_ibm }, 
+#endif /* USE_IBM */
+	    
+#ifdef USE_SLA
+	{ "sla", help_sla, init_sla }, 
+#endif /* USE_SLA */
+	    
+#ifdef USE_LSL
+	{ "lsl", help_lsl, init_lsl }, 
+#endif /* USE_LSL */
+	    
+#ifdef USE_AMI
+	{ "ami", help_ami, init_ami }, 
+#endif /* USE_AMI */
+	    
+#ifdef USE_VME
+	{ "vme", help_vme, init_vme }, 
+#endif /* USE_VME */
+};
+
+/*
+ * List of sound modules in the order they should be tried.
+ */
+static const struct module sound_modules[] =
+{
+#ifdef SOUND_SDL
+  { "sdl", "SDL_mixer sound module", init_sound_sdl },
+#endif /* SOUND_SDL */
+  
+  { "dummy", "Dummy module", NULL },
+};
+
+#endif
+
 
 /*
  * A hook for "quit()".
@@ -54,6 +124,14 @@ static void quit_hook(cptr s)
 #ifdef AMIGA
 # include <dos.h>
 __near long __stack = 32768L;
+#endif
+
+
+/*
+ * SDL needs a look-in
+ */
+#ifdef USE_SDL
+# include "SDL.h"
 #endif
 
 
@@ -88,6 +166,7 @@ extern unsigned _ovrbuffer = 0x1500;
  * to leave enough space for the path separator, directory, and
  * filenames.
  */
+#ifndef _WIN32_WCE
 static void init_stuff(void)
 {
   char path[1024];
@@ -118,7 +197,7 @@ static void init_stuff(void)
   /* Initialize */
   init_file_paths(path);
 }
-
+#endif
 
 
 /*
@@ -251,7 +330,7 @@ static void change_path(cptr info)
  */
 int main(int argc, char *argv[])
 {
-  int i;
+  int i, j;
   
   bool done = FALSE;
   
@@ -290,7 +369,7 @@ int main(int argc, char *argv[])
 
 
   /* Get the file paths */
-  init_stuff();
+  //init_stuff();
 
 
 #ifdef SET_UID
@@ -343,17 +422,11 @@ int main(int argc, char *argv[])
       quit("The gates to Angband are closed (bad time).");
     }
   
-  /* Initialize the "load" checker */
-  if (check_load_init() || check_load())
-    {
-      quit("The gates to Angband are closed (bad load).");
-    }
-  
   /* Acquire the "user name" as a default player name */
 #ifdef ANGBAND_2_8_1
   user_name(player_name, player_uid);
 #else /* ANGBAND_2_8_1 */
-  user_name(op_ptr->full_name, player_uid);
+  user_name(op_ptr->full_name, sizeof(op_ptr->full_name), player_uid);
 #endif /* ANGBAND_2_8_1 */
   
 #ifdef PRIVATE_USER_PATH
@@ -500,66 +573,16 @@ int main(int argc, char *argv[])
 	    puts("  -s<num>  Show <num> high scores");
 	    puts("  -u<who>  Use your <who> savefile");
 	    puts("  -d<def>  Define a 'lib' dir sub-path");
-	    
-#ifdef USE_XAW
-	    puts("  -mxaw    To use XAW");
-	    puts("  --       Sub options");
-	    puts("    -- -d    Set display name");
-	    puts("    -- -s    Turn off smoothscaling graphics");
-	    puts("    -- -b    Bigtile"); 
-	    puts("    -- -o    original graphics");
-	    puts("    -- -a    Adam Bolt's tiles"); 
-	    puts("    -- -g    David Gervais' tiles");
-	    puts("    -- -n#   Number of terms to use");
-#endif /* USE_XAW */
-	    
-#ifdef USE_X11
-	    puts("  -mx11    To use X11");
-	    puts("  --       Sub options");
-	    puts("    -- -d    Set display name");
-	    puts("    -- -s    Turn off smoothscaling graphics");
-	    puts("    -- -b    Bigtile"); 
-	    puts("    -- -o    original graphics");
-	    puts("    -- -a    Adam Bolt's tiles"); 
-	    puts("    -- -g    David Gervais' tiles");
-	    puts("    -- -w    double size tiles");
-	    puts("    -- -t    triple size tiles");
-	    puts("    -- -n#   Number of terms to use");
-#endif /* USE_X11 */
-	    
-#ifdef USE_GCU
-	    puts("  -mgcu    To use GCU (GNU Curses)");
-	    puts("  --       Sub options");
-	    puts("    -- -x    No extra sub-windows");
-#endif /* USE_GCU */
-	    
-#ifdef USE_CAP
-	    puts("  -mcap    To use CAP (\"Termcap\" calls)");
-#endif /* USE_CAP */
-	    
-#ifdef USE_DOS
-	    puts("  -mdos    To use DOS (Graphics)");
-#endif /* USE_DOS */
-	    
-#ifdef USE_IBM
-	    puts("  -mibm    To use IBM (BIOS text mode)");
-#endif /* USE_IBM */
-	    
-#ifdef USE_SLA
-	    puts("  -msla    To use SLA (SLANG)");
-#endif /* USE_SLA */
-	    
-#ifdef USE_LSL
-	    puts("  -mlsl    To use LSL (Linux-SVGALIB)");
-#endif /* USE_LSL */
-	    
-#ifdef USE_AMI
-	    puts("  -mami    To use AMI (Amiga)");
-#endif /* USE_AMI */
-	    
-#ifdef USE_VME
-	    puts("  -mvme    To use VME (VAX/ESA)");
-#endif /* USE_VME */
+	    puts("  -m<sys>  use Module <sys>, where <sys> can be:");
+
+#ifndef _WIN32_WCE	    
+	    /* Print the name and help for each available module */
+	    for (j = 0; j < (int)N_ELEMENTS(modules); j++)
+	      {
+		printf("     %s   %s\n",
+		       modules[j].name, modules[j].help);
+	      }
+#endif
 	    
 	    /* Actually abort the process */
 	    quit(NULL);
@@ -590,165 +613,32 @@ int main(int argc, char *argv[])
   safe_setuid_drop();
 #endif
   
-#ifdef USE_X11
-  /* Attempt to use the "main-x11.c" support */
-  if (!done && (!mstr || (streq(mstr, "x11"))))
-    {
-      extern errr init_x11(int, char**);
-      if (0 == init_x11(argc, argv))
-	{
-	  ANGBAND_SYS = "x11";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-#ifdef USE_XAW
-  /* Attempt to use the "main-xaw.c" support */
-  if (!done && (!mstr || (streq(mstr, "xaw"))))
-    {
-      extern errr init_xaw(int, char**);
-      if (0 == init_xaw(argc, argv))
-	{
-	  ANGBAND_SYS = "xaw";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-#ifdef USE_GCU
-  /* Attempt to use the "main-gcu.c" support */
-  if (!done && (!mstr || (streq(mstr, "gcu"))))
-    {
-      extern errr init_gcu(int, char**);
-      if (0 == init_gcu(argc, argv))
-	{
-	  ANGBAND_SYS = "gcu";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-#ifdef USE_CAP
-  /* Attempt to use the "main-cap.c" support */
-  if (!done && (!mstr || (streq(mstr, "cap"))))
-    {
-      extern errr init_cap(int, char**);
-      if (0 == init_cap(argc, argv))
-	{
-	  ANGBAND_SYS = "cap";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_DOS
-  /* Attempt to use the "main-dos.c" support */
-  if (!done && (!mstr || (streq(mstr, "dos"))))
-    {
-      extern errr init_dos(void);
-      if (0 == init_dos())
-	{
-	  ANGBAND_SYS = "dos";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-#ifdef USE_IBM
-  /* Attempt to use the "main-ibm.c" support */
-  if (!done && (!mstr || (streq(mstr, "ibm"))))
-    {
-      extern errr init_ibm(void);
-      if (0 == init_ibm())
-	{
-	  ANGBAND_SYS = "ibm";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_EMX
-  /* Attempt to use the "main-emx.c" support */
-  if (!done && (!mstr || (streq(mstr, "emx"))))
-    {
-      extern errr init_emx(void);
-      if (0 == init_emx())
-	{
-	  ANGBAND_SYS = "emx";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_SLA
-  /* Attempt to use the "main-sla.c" support */
-  if (!done && (!mstr || (streq(mstr, "sla"))))
-    {
-      extern errr init_sla(void);
-      if (0 == init_sla())
-	{
-	  ANGBAND_SYS = "sla";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_LSL
-  /* Attempt to use the "main-lsl.c" support */
-  if (!done && (!mstr || (streq(mstr, "lsl"))))
-    {
-      extern errr init_lsl(void);
-      if (0 == init_lsl())
-	{
-	  ANGBAND_SYS = "lsl";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_AMI
-  /* Attempt to use the "main-ami.c" support */
-  if (!done && (!mstr || (streq(mstr, "ami"))))
-    {
-      extern errr init_ami(void);
-      if (0 == init_ami())
-	{
-	  ANGBAND_SYS = "ami";
-	  done = TRUE;
-	}
-    }
-#endif
-  
-  
-#ifdef USE_VME
-  /* Attempt to use the "main-vme.c" support */
-  if (!done && (!mstr || (streq(mstr, "vme"))))
-    {
-      extern errr init_vme(void);
-      if (0 == init_vme())
-	{
-	  ANGBAND_SYS = "vme";
-	  done = TRUE;
-	}
-    }
-#endif
-  
   
   /* Grab privs (dropped above for X11) */
 #ifndef USE_LSL
   safe_setuid_grab();
 #endif
   
+#ifndef _WIN32_WCE  
+  /* Try the modules in the order specified by modules[] */
+  for (i = 0; i < (int)N_ELEMENTS(modules); i++)
+    {
+      /* User requested a specific module? */
+      if (!mstr || (streq(mstr, modules[i].name)))
+	{
+	  if (0 == modules[i].init(argc, argv))
+	    {
+	      ANGBAND_SYS = modules[i].name;
+	      done = TRUE;
+	      break;
+	    }
+	}
+    }
   
   /* Make sure we have a display! */
   if (!done) quit("Unable to prepare any 'display module'!");
-  
+#endif
+
   /* Catch nasty signals */
   signals_init();
   
@@ -764,14 +654,15 @@ int main(int argc, char *argv[])
   /* Play the game */
   play_game(new_game);
   
+  /* Free resources */
+  cleanup_angband();
+
   /* Quit */
   quit(NULL);
   
   /* Exit */
   return (0);
 }
-
-#endif
 
 
 

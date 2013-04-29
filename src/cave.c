@@ -747,11 +747,7 @@ bool feat_supports_lighting(byte feat)
  * tiles should be handled differently.  One possibility would be to
  * extend feature_type with attr/char definitions for the different states.
  */
-#ifdef USE_TRANSPARENCY
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
-#else /* USE_TRANSPARENCY */
-     void map_info(int y, int x, byte *ap, char *cp)
-#endif /* USE_TRANSPARENCY */
 {
   byte a;
   char c;
@@ -788,7 +784,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
   
   /* Day or night? */
   if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
       ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
     
     /* Day time */
@@ -1088,11 +1085,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	  c = f_ptr->x_char;
 	  
 	  /* Special lighting effects (walls only) */
-#ifdef USE_TRANSPARENCY
 	  if (view_granite_lite && feat_supports_lighting(feat))
-#else
-	  if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
-#endif
 	      {
 	      /* Handle "seen" grids */
 	      if (info & (CAVE_SEEN))
@@ -1165,13 +1158,9 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	}
     }
   
-#ifdef USE_TRANSPARENCY
-  
   /* Save the terrain info for the transparency effects */
   (*tap) = a;
   (*tcp) = c;
-  
-#endif /* USE_TRANSPARENCY */
   
   /* Objects */
   for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -1189,7 +1178,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
       next_o_idx = o_ptr->next_o_idx;
       
       /* Memorized objects */
-      if (o_ptr->marked)
+      if (o_ptr->marked && !squelch_hide_item(o_ptr))
 	{
 	  /* Hack -- object hallucination */
 	  if (image)
@@ -1445,7 +1434,8 @@ void map_info_default(int y, int x, byte *ap, char *cp)
   
   /* Day or night? */
   if (((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) && 
-      (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE) &&
+      (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY) &&
       ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
     
     /* Day time */
@@ -1651,11 +1641,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 	  c = f_ptr->d_char;
 	  
 	  /* Special lighting effects (walls only) */
-#ifdef USE_TRANSPARENCY
 	  if (view_granite_lite && feat_supports_lighting(feat))
-#else
-	  if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
-#endif
 	    {
 	      /* Handle "seen" grids */
 	      if (info & (CAVE_SEEN))
@@ -1974,10 +1960,11 @@ void move_cursor_relative(int y, int x)
   Term_gotoxy(vx, vy);
 }
 
-#ifdef USE_TRANSPARENCY
 
 void big_queue_char(int x, int y, byte a, char c, byte a1, char c1)
 {
+  term *t = angband_term[0];
+
   /* Avoid warning */
   (void)c;
 
@@ -1986,9 +1973,9 @@ void big_queue_char(int x, int y, byte a, char c, byte a1, char c1)
     {
       /* Mega-Hack : Queue dummy char */
       if (a & 0x80)
-	Term_queue_char(x + 1, y, 255, -1, 0, 0);
+	Term_queue_char(t, x + 1, y, 255, -1, 0, 0);
       else
-	Term_queue_char(x + 1, y, TERM_WHITE, ' ', a1, c1);
+	Term_queue_char(t, x + 1, y, TERM_WHITE, ' ', a1, c1);
       
       /* Mega-Hack : Queue more dummy chars */
       if (use_dbltile || use_trptile)
@@ -1996,78 +1983,78 @@ void big_queue_char(int x, int y, byte a, char c, byte a1, char c1)
 	  if (a & 0x80)
 	    {
 	      if (use_bigtile || use_trptile) 
-		Term_queue_char(x + 2, y, 255, -1, 0, 0);
+		Term_queue_char(t, x + 2, y, 255, -1, 0, 0);
 	      if (use_bigtile) 
-		Term_queue_char(x + 3, y, 255, -1, 0, 0);
+		Term_queue_char(t, x + 3, y, 255, -1, 0, 0);
 	      if (use_bigtile && use_trptile)
 		{
-		  Term_queue_char(x + 4, y, 255, -1, 0, 0);
-		  Term_queue_char(x + 5, y, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 4, y, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 5, y, 255, -1, 0, 0);
 		}
 	      
-	      Term_queue_char(x , y + 1, 255, -1, 0, 0);
-	      Term_queue_char(x + 1, y + 1, 255, -1, 0, 0);
+	      Term_queue_char(t, x , y + 1, 255, -1, 0, 0);
+	      Term_queue_char(t, x + 1, y + 1, 255, -1, 0, 0);
 	      
 	      if (use_bigtile || use_trptile) 
-		Term_queue_char(x + 2, y + 1, 255, -1, 0, 0);
+		Term_queue_char(t, x + 2, y + 1, 255, -1, 0, 0);
 	      if (use_bigtile) 
-		Term_queue_char(x + 3, y + 1, 255, -1, 0, 0);
+		Term_queue_char(t, x + 3, y + 1, 255, -1, 0, 0);
 	      if (use_bigtile && use_trptile)
 		{
-		  Term_queue_char(x + 4, y + 1, 255, -1, 0, 0);
-		  Term_queue_char(x + 5, y + 1, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 4, y + 1, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 5, y + 1, 255, -1, 0, 0);
 		}
 	      
 	      if (use_trptile)
 		{
-		  Term_queue_char(x , y + 2, 255, -1, 0, 0);
-		  Term_queue_char(x + 1, y + 2, 255, -1, 0, 0);
-		  Term_queue_char(x + 2, y + 2, 255, -1, 0, 0);
+		  Term_queue_char(t, x , y + 2, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 1, y + 2, 255, -1, 0, 0);
+		  Term_queue_char(t, x + 2, y + 2, 255, -1, 0, 0);
 		  
 		  if (use_bigtile)
 		    {
-		      Term_queue_char(x + 3, y + 2, 255, -1, 0, 0);
-		      Term_queue_char(x + 4, y + 2, 255, -1, 0, 0);
-		      Term_queue_char(x + 5, y + 2, 255, -1, 0, 0);
+		      Term_queue_char(t, x + 3, y + 2, 255, -1, 0, 0);
+		      Term_queue_char(t, x + 4, y + 2, 255, -1, 0, 0);
+		      Term_queue_char(t, x + 5, y + 2, 255, -1, 0, 0);
 		    }
 		}
 	    }
 	  else
 	    {
 	      if (use_bigtile || use_trptile) 
-		Term_queue_char(x + 2, y, TERM_WHITE, ' ', a1, c1);
+		Term_queue_char(t, x + 2, y, TERM_WHITE, ' ', a1, c1);
 	      if (use_bigtile) 
-		Term_queue_char(x + 3, y, TERM_WHITE, ' ', a1, c1);
+		Term_queue_char(t, x + 3, y, TERM_WHITE, ' ', a1, c1);
 	      if (use_bigtile && use_trptile)
 		{
-		  Term_queue_char(x + 4, y, TERM_WHITE, ' ', a1, c1);
-		  Term_queue_char(x + 5, y, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 4, y, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 5, y, TERM_WHITE, ' ', a1, c1);
 		}
 	      
-	      Term_queue_char(x , y + 1, TERM_WHITE, ' ', a1, c1);
-	      Term_queue_char(x + 1, y + 1, TERM_WHITE, ' ', a1, c1);
+	      Term_queue_char(t, x , y + 1, TERM_WHITE, ' ', a1, c1);
+	      Term_queue_char(t, x + 1, y + 1, TERM_WHITE, ' ', a1, c1);
 	      
 	      if (use_bigtile || use_trptile) 
-		Term_queue_char(x + 2, y + 1, TERM_WHITE, ' ', a1, c1);
+		Term_queue_char(t, x + 2, y + 1, TERM_WHITE, ' ', a1, c1);
 	      if (use_bigtile) 
-		Term_queue_char(x + 3, y + 1, TERM_WHITE, ' ', a1, c1);
+		Term_queue_char(t, x + 3, y + 1, TERM_WHITE, ' ', a1, c1);
 	      if (use_bigtile && use_trptile)
 		{
-		  Term_queue_char(x + 4, y + 1, TERM_WHITE, ' ', a1, c1);
-		  Term_queue_char(x + 5, y + 1, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 4, y + 1, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 5, y + 1, TERM_WHITE, ' ', a1, c1);
 		}
 	      
 	      if (use_trptile)
 		{
-		  Term_queue_char(x , y + 2, TERM_WHITE, ' ', a1, c1);
-		  Term_queue_char(x + 1, y + 2, TERM_WHITE, ' ', a1, c1);
-		  Term_queue_char(x + 2, y + 2, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x , y + 2, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 1, y + 2, TERM_WHITE, ' ', a1, c1);
+		  Term_queue_char(t, x + 2, y + 2, TERM_WHITE, ' ', a1, c1);
 		  
 		  if (use_bigtile)
 		    {
-		      Term_queue_char(x + 3, y + 2, TERM_WHITE, ' ', a1, c1);
-		      Term_queue_char(x + 4, y + 2, TERM_WHITE, ' ', a1, c1);
-		      Term_queue_char(x + 5, y + 2, TERM_WHITE, ' ', a1, c1);
+		      Term_queue_char(t, x + 3, y + 2, TERM_WHITE, ' ', a1, c1);
+		      Term_queue_char(t, x + 4, y + 2, TERM_WHITE, ' ', a1, c1);
+		      Term_queue_char(t, x + 5, y + 2, TERM_WHITE, ' ', a1, c1);
 		    }
 		}
 	    }
@@ -2173,7 +2160,7 @@ void big_putch(int x, int y, byte a, char c)
 	}
     }
 }
-#endif
+
 
 /*
  * Display an attr/char pair at the given map location
@@ -2186,6 +2173,8 @@ void big_putch(int x, int y, byte a, char c)
  */
 void print_rel(char c, byte a, int y, int x)
 {
+  term *t = angband_term[0];
+
   unsigned ky, kx;
   unsigned vy, vx;
 
@@ -2207,7 +2196,6 @@ void print_rel(char c, byte a, int y, int x)
   /* Location in window */
   vx = kx + COL_MAP;
 
-#ifdef USE_TRANSPARENCY
   if (use_trptile)
     {
       vx += (use_bigtile ? 5 : 2) * kx;
@@ -2221,19 +2209,13 @@ void print_rel(char c, byte a, int y, int x)
   else if (use_bigtile) vx += kx;
   
   /* Hack -- Queue it */
-  Term_queue_char(vx, vy, a, c, 0, 0);
-#else
-  /* Hack -- Queue it */
-  Term_queue_char(vx, vy, a, c);
-#endif
+  Term_queue_char(t, vx, vy, a, c, 0, 0);
   
-#ifdef USE_TRANSPARENCY
   if (use_bigtile || use_dbltile || use_trptile)
     {
       /* Mega-Hack : Queue dummy char */
       big_queue_char(vx, vy, a, c, 0, 0);
     }
-#endif
   
   return;
 }
@@ -2329,16 +2311,16 @@ void lite_spot(int y, int x)
   /* Redraw if on screen */
   if (panel_contains(y, x) && in_bounds(y, x))
     {
+      term *t = angband_term[0];
+
       byte a;
       char c;
       
       unsigned ky, kx;
       unsigned vy, vx;
 
-#ifdef USE_TRANSPARENCY
       byte ta;
       char tc;
-#endif
       
       /* Location relative to panel */
       ky = (unsigned)(y - panel_row_min);
@@ -2370,27 +2352,16 @@ void lite_spot(int y, int x)
 	}
       else if (use_bigtile) vx += kx;
       
-#ifdef USE_TRANSPARENCY
       /* Examine the grid */
       map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-      /* Examine the grid */
-      map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
       
-#ifdef USE_TRANSPARENCY
       /* Hack -- Queue it */
-      Term_queue_char(vx, vy, a, c, ta, tc);
+      Term_queue_char(t, vx, vy, a, c, ta, tc);
 
       if (use_bigtile || use_dbltile || use_trptile)
 	{
 	  big_queue_char(vx, vy, a, c, TERM_WHITE, ' ');
 	}
-
-#else /* USE_TRANSPARENCY */
-      /* Hack -- Queue it */
-      Term_queue_char(vx, vy, a, c);
-#endif /* USE_TRANSPARENCY */
     }
 }
 
@@ -2398,12 +2369,12 @@ void lite_spot(int y, int x)
 
 void prt_map(void)
 {
+  term *t = angband_term[0];
+
   byte a;
   char c;
-#ifdef USE_TRANSPARENCY
   byte ta;
   char tc;
-#endif /* USE_TRANSPARENCY */
   
   int y, x;
   int vy, vx;
@@ -2421,17 +2392,11 @@ void prt_map(void)
 	  /* Check bounds */
 	  if (!in_bounds(y, x)) continue;
 	  
-#ifdef USE_TRANSPARENCY
 	  /* Determine what is there */
 	  map_info(y, x, &a, &c, &ta, &tc);
-#else /* USE_TRANSPARENCY */
-      /* Determine what is there */
-	  map_info(y, x, &a, &c);
-#endif /* USE_TRANSPARENCY */
 	  
-#ifdef USE_TRANSPARENCY
 	  /* Hack -- Queue it */
-	  Term_queue_char(vx, vy, a, c, ta, tc);
+	  Term_queue_char(t, vx, vy, a, c, ta, tc);
 	  
 	  if (use_bigtile || use_dbltile || use_trptile)
 	    {
@@ -2444,10 +2409,6 @@ void prt_map(void)
 	      else
 		vx+= ((use_dbltile && use_bigtile) ? 3 : 1);
 	    }
-#else /* USE_TRANSPARENCY */
-          /* Hack -- Queue it */
-	  Term_queue_char(vx, vy, a, c);
-#endif /* USE_TRANSPARENCY */
 	}
       
       if (use_trptile)
@@ -2661,10 +2622,8 @@ void display_map(int *cy, int *cx)
   byte ta;
   char tc;
   
-#ifdef USE_TRANSPARENCY
   byte sa;
   char sc;
-#endif 
 
 
   byte tp;
@@ -2674,8 +2633,6 @@ void display_map(int *cy, int *cx)
 
   bool old_view_special_lite;
   bool old_view_granite_lite;
-  bool old_dbltile;
-  bool old_trptile;
 
   monster_race *r_ptr = &r_info[0];
 
@@ -2701,16 +2658,11 @@ void display_map(int *cy, int *cx)
   /* Save lighting effects */
   old_view_special_lite = view_special_lite;
   old_view_granite_lite = view_granite_lite;
-  old_dbltile = use_dbltile;
-  old_trptile = use_trptile;
   
   /* Disable lighting effects */
   view_special_lite = FALSE;
   view_granite_lite = FALSE;
-  
-  /* Change the way the grids are displayed */
-  if (Term->notice_grid) Term_xtra(TERM_XTRA_GRIDS, 2);
-  
+
   /* Nothing here */
   ta = TERM_WHITE;
   tc = ' ';
@@ -2774,13 +2726,9 @@ void display_map(int *cy, int *cx)
 	  else if (use_bigtile)
 	    col = col & ~1;
 	  
-#ifdef USE_TRANSPARENCY
 	  /* Get the attr/char at that map location */
 	  map_info(y, x, &ta, &tc, &sa, &sc);
-#else
-	  /* Get the attr/char at that map location */
-	  map_info(y, x, &ta, &tc);
-#endif
+
 	  /* Get the priority of that attr/char */
 	  tp = priority(ta, tc);
 	  
@@ -2790,12 +2738,10 @@ void display_map(int *cy, int *cx)
 	      /* Add the character */
 	      Term_putch(col + 1, row + 1, ta, tc);
 	      
-#ifdef USE_TRANSPARENCY
 	      if (use_bigtile || use_dbltile || use_trptile)
 		{
 		  big_putch(col + 1, row + 1, ta, tc);
 		}
-#endif
 	      
 	      /* Save priority */
 	      mp[row][col] = tp;
@@ -2832,12 +2778,10 @@ void display_map(int *cy, int *cx)
   /* Draw the player */
   Term_putch(col + 1, row + 1, ta, tc);
   
-#ifdef USE_TRANSPARENCY
   if (use_bigtile || use_dbltile || use_trptile)
     {
       big_putch(col + 1, row + 1, ta, tc);
     }
-#endif /* USE_TRANSPARENCY */
   
   /* Return player location */
   if (cy != NULL) (*cy) = row + 1;
@@ -3950,7 +3894,7 @@ errr vinfo_init(void)
   
   
   /* Kill hack */
-  KILL(hack, vinfo_hack);
+  KILL(hack);
   
   
   /* Success */
@@ -4159,7 +4103,8 @@ void update_view(void)
     daytime = FALSE;
   
   /* Extract "radius" value */
-  if (daytime && (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE)
+  if (daytime && (stage_map[p_ptr->stage][STAGE_TYPE] != CAVE)
+      && (stage_map[p_ptr->stage][STAGE_TYPE] != VALLEY)
       && ((p_ptr->stage < 151) || (p_ptr->stage > 153)))
     radius = DUNGEON_WID;
   else if ((check_ability(SP_UNLIGHT)) && (p_ptr->cur_lite <= 0))

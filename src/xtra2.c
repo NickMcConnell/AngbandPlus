@@ -14,6 +14,7 @@
  */
 
 #include "angband.h"
+#include "cmds.h"
 
 #ifdef _WIN32_WCE
 #include "angbandcw.h"
@@ -1917,11 +1918,17 @@ void check_experience(void)
   while ((p_ptr->lev < PY_MAX_LEVEL) && 
 	 (p_ptr->exp >= (player_exp[p_ptr->lev-1])))
     {
+      bool first_time = FALSE;
+
       /* Gain a level */
       p_ptr->lev++;
       
       /* Save the highest level */
-      if (p_ptr->lev > p_ptr->max_lev) p_ptr->max_lev = p_ptr->lev;
+      if (p_ptr->lev > p_ptr->max_lev) 
+	{
+	  p_ptr->max_lev = p_ptr->lev;
+	  first_time = TRUE;
+	}
       
       /* Sound */
       sound(SOUND_LEVEL);
@@ -1930,10 +1937,9 @@ void check_experience(void)
       message_format(MSG_LEVEL, p_ptr->lev, "Welcome to level %d.", 
 		     p_ptr->lev);
       
-      /* If auto-note taking enabled, write a note to the file 
-       *  every 5th level. */
+      /* Write a note to the file every 5th level. */
       
-      if ((adult_take_notes) && ((p_ptr->lev % 5) == 0))
+      if (((p_ptr->lev % 5) == 0) && first_time)
 	
 	{
 	  
@@ -1943,7 +1949,7 @@ void check_experience(void)
 	  sprintf(buf, "Reached level %d", p_ptr->lev);
 	  
 	  /* Write message */
-	  do_cmd_note(buf,  p_ptr->stage);
+	  make_note(buf,  p_ptr->stage, NOTE_LEVEL);
 	  
 	}
       
@@ -2267,10 +2273,9 @@ void monster_death(int m_idx)
   p_ptr->window |= PW_MONLIST;
   
   
-  /* If the player kills a Unique, and the notes option is on, write a 
-   * note.*/
+  /* If the player kills a unique, write a note.*/
   
-  if ((r_ptr->flags1 & RF1_UNIQUE) && (adult_take_notes))
+  if (r_ptr->flags1 & RF1_UNIQUE)
     {
       
       char note2[120];
@@ -2300,7 +2305,7 @@ void monster_death(int m_idx)
 			 sizeof (note2));
 	}
       
-      do_cmd_note(note2, p_ptr->stage);
+      make_note(note2, p_ptr->stage, NOTE_UNIQUE);
     }
   
   /* Only process "Quest Monsters" */
@@ -2315,7 +2320,7 @@ void monster_death(int m_idx)
     }
   
   /* Hack - get out of Nan Dungortheb */
-  if (r_ptr->level == 80)
+  if (r_ptr->level == 70)
     {
       /* Make a path */
       for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)
@@ -2986,6 +2991,16 @@ sint target_dir(char ch)
       d = D2I(ch);
     }
   
+  else if (isarrow(ch))
+    {
+      switch (ch)
+	{
+	case ARROW_DOWN:	d = 2; break;
+	case ARROW_LEFT:	d = 4; break;
+	case ARROW_RIGHT:	d = 6; break;
+	case ARROW_UP:		d = 8; break;
+	}
+    }
   /* Look up keymap */
   else
     {
@@ -3027,7 +3042,7 @@ sint target_dir(char ch)
 /*
  * Extract a direction (or zero) from a mousepress
  */
-extern sint mouse_dir(key_event ke, bool locating)
+extern sint mouse_dir(event_type ke, bool locating)
 {
   int i, y, x;
 
@@ -3492,7 +3507,7 @@ static bool target_set_interactive_accept(int y, int x)
       next_o_idx = o_ptr->next_o_idx;
       
       /* Memorized object */
-      if (o_ptr->marked) return (TRUE);
+      if (o_ptr->marked && !squelch_hide_item(o_ptr)) return (TRUE);
     }
   
   /* Interesting memorized features */
@@ -3676,7 +3691,7 @@ void cut_down(char *name)
  *
  * This function must handle blindness/hallucination.
  */
-static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
+static event_type target_set_interactive_aux(int y, int x, int mode, cptr info)
 {
   s16b this_o_idx, next_o_idx = 0;
   
@@ -3686,7 +3701,7 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
   
   int feat;
   
-  key_event query;
+  event_type query;
   
   char out_val[160];
   
@@ -3923,7 +3938,7 @@ static key_event target_set_interactive_aux(int y, int x, int mode, cptr info)
 		   (query.key == '*') || (query.key == '?')))
 		
 		{
-		  key_event tmp;
+		  event_type tmp;
 
 		  /* Save screen */
 		  screen_save();
@@ -4255,7 +4270,7 @@ bool target_set_interactive(int mode)
 
   bool failure_message = FALSE;
 
-  key_event query;
+  event_type query;
   
   char info[80];
   
@@ -4791,8 +4806,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
   if (monster_count <= n)
     {
       /* Free some arrays */
-      C_KILL(monster_dist, m_max, int);
-      C_KILL(monster_index, m_max, int);
+      FREE(monster_dist);
+      FREE(monster_index);
       
       return;
     }
@@ -4833,8 +4848,8 @@ void get_closest_los_monster(int n, int y0, int x0, int *ty, int *tx,
   *tx = m_ptr->fx;
   
   /* Free some arrays */
-  C_KILL(monster_dist, m_max, int);
-  C_KILL(monster_index, m_max, int);
+  FREE(monster_dist);
+  FREE(monster_index);
 }
 
 
@@ -4858,7 +4873,7 @@ bool get_aim_dir(int *dp)
 {
   int dir;
   
-  key_event ke;
+  event_type ke;
   
   cptr p;
   
@@ -4887,9 +4902,16 @@ bool get_aim_dir(int *dp)
   /* Hack -- auto-target if requested */
   if (use_old_target && target_okay()) dir = 5;
   
+  /* Make some buttons */
+  add_button("[*]", '*');
+  add_button("[.]",'.');
+  if (target_okay())
+    add_button("[5]", '5');
+
   /* Ask until satisfied */
   while (!dir)
     {
+
       /* Choose a prompt */
       if (!target_okay())
 	{
@@ -4906,26 +4928,6 @@ bool get_aim_dir(int *dp)
       /* Get a command (or Cancel) */
       if (!get_com_ex(p, &ke)) break;
 
-      /* Mouse on the prompt */
-      if ((ke.key == '\xff') && (ke.mousey == 0))
-	{
-	  if ((ke.mousex > (small_screen ? 3 : 10)) && 
-	      (ke.mousex < (small_screen ? 14 : 21)) && (target_okay()))
-	    ke.key = '5';
-	  else if (((ke.mousex > (small_screen ? 14 : 22)) && 
-		    (ke.mousex < (small_screen ? 28 : 36)) && (target_okay())) ||
-	      ((ke.mousex > 10) && (ke.mousex < 28) && (!target_okay())))
-	    ke.key = '*';
-	  else if (((ke.mousex > (small_screen ? 28 : 37)) && 
-		    (ke.mousex < (small_screen ? 40 : 49)) && (target_okay())) ||
-	      ((ke.mousex > 29) && (ke.mousex < 41) && (!target_okay())))
-	    ke.key = '.';
-	  else if (((ke.mousex > (small_screen ? 41 : 50)) && 
-		    (ke.mousex < (small_screen ? 45 : 54)) && (target_okay())) ||
-	      ((ke.mousex > 42) && (ke.mousex < 46) && (!target_okay())))
-	    break;
-	}
-      
       /* Analyze */
       switch (ke.key)
 	{
@@ -5043,7 +5045,12 @@ bool get_aim_dir(int *dp)
       /* Error */
       if (!dir) bell("Illegal aim direction!");
     }
-  
+
+  /* Clear buttons */  
+  kill_button('5');
+  kill_button('*');
+  kill_button('.');
+
   /* No direction */
   if (!dir) return (FALSE);
   
@@ -5098,7 +5105,7 @@ bool get_rep_dir(int *dp)
 {
   int dir;
   
-  key_event ke;
+  event_type ke;
   
   cptr p;
   

@@ -1168,6 +1168,26 @@ int extract_resistance[60] =
     /* +30  */    100, 100, 100, 100, 100, 100, 100, 100, 100, 100
   };
 
+/*
+ * Translation from player resists to resistance flags
+ */
+u32b resist_to_flag[14] = 
+  {
+    TR2_RES_ACID,		
+    TR2_RES_ELEC,		
+    TR2_RES_FIRE,	
+    TR2_RES_COLD,	
+    TR2_RES_POIS,	
+    TR2_RES_LITE,	
+    TR2_RES_DARK,	
+    TR2_RES_CONFU,	
+    TR2_RES_SOUND,	
+    TR2_RES_SHARD,	
+    TR2_RES_NEXUS,	
+    TR2_RES_NETHR,	
+    TR2_RES_CHAOS,	
+    TR2_RES_DISEN
+  };	
 
 
 /*
@@ -1743,8 +1763,8 @@ player_magic magic_info[MAX_CLASS] =
       
       TV_DRUID_BOOK,  A_WIS,  REALM_NATURE,  1,  250,  600,
       
-      /* 58 techniques in 9 books. */
-      58,	{ 0, 9, 17, 25, 32, 37, 42, 47, 52, 58, 58 },
+      /* 61 techniques in 9 books. */
+      61,	{ 0, 8, 16, 24, 32, 37, 42, 48, 55, 61, 61 },
       
       {
 	/* Call of the Wild (sval 0) */
@@ -1754,7 +1774,7 @@ player_magic magic_info[MAX_CLASS] =
 	{ 132,	 3,  1, 25,   2}, /* combat poison */
 	{ 131,	 3,  2, 25,   2}, /* blink */
 	{ 133,	 4,  2, 25,   3}, /* lightning spark */
-	{ 134,	 5,  3, 25,   3}, /* door destruction */
+	//{ 134,	 5,  3, 25,   3}, /* door destruction */
 	{ 135,	 5,  3, 25,   3}, /* turn stone to mud */
 	{ 136,	 6,  4, 27,   4}, /* ray of sunlight */
 	
@@ -1771,7 +1791,7 @@ player_magic magic_info[MAX_CLASS] =
 	/* Gifts of Nature (sval 2) */
 	{ 146,	15,  8, 45,   7}, /* acid bolt */
 	{ 147,	15,  8, 75,   8}, /* teleport monster */
-	{ 148,	17, 10, 45,   8}, /* poison bolt */
+	{ 148,	17, 10, 45,   8}, /* gravity bolt */
 	{ 149,	17,  5, 45,   8}, /* resist poison */
 	{ 150,	19,  8, 75,   8}, /* earthquake */
 	{ 151,	19,  7, 50,   8}, /* resist fire & cold */
@@ -1783,6 +1803,7 @@ player_magic magic_info[MAX_CLASS] =
 	{ 155,	23, 13, 90,  11}, /* wither foe */
 	{ 156,	23, 14, 60,   9}, /* disarm trap */
 	{ 157,	25, 20, 85,  11}, /* identify */
+	{ 188,	27, 15, 55,  15}, /* nature's vengeance */
 	{ 158,	29, 50, 65,  12}, /* create athelas */
 	{ 159,	33, 20, 80,  15}, /* raging storm */
 	{ 160,	37, 22, 80,  26}, /* thunderclap */
@@ -1802,6 +1823,7 @@ player_magic magic_info[MAX_CLASS] =
 	{ 170,	39, 28, 60,  60}, /* herbal healing */
 	
 	/* Primal Forces (sval 6) */
+	{ 191,	20, 12, 50,  15}, /* tremor */
 	{ 171,	26, 12, 50,  40}, /* blizzard */
 	{ 172,	35, 15, 70,  50}, /* trigger tsunami */
 	{ 173,	38, 20, 85,  60}, /* volcanic eruption */
@@ -1812,6 +1834,8 @@ player_magic magic_info[MAX_CLASS] =
 	{ 176,	18,  9, 20,  35}, /* song of lulling */
 	{ 177,	30,  9, 35,  50}, /* song of protection */
 	{ 178,	30, 24, 40,  50}, /* song of dispelling */
+	{ 190,	40, 40, 45,  60}, /* song of preservation */
+	{ 189,	43, 60, 50,  70}, /* song of growth */
 	{ 179,	45, 40, 55,  80}, /* song of warding */
 	{ 180,	45, 70, 65,  80}, /* song of renewal */
 	
@@ -1823,9 +1847,6 @@ player_magic magic_info[MAX_CLASS] =
 	{ 185,	39, 28, 70,  40}, /* Tears of Nienna */
 	{ 186,	49, 40, 60, 140}, /* Healing of Este */
 	
-	{   0,	99,  0,  0,   0}, 
-	{   0,	99,  0,  0,   0}, 
-	{   0,	99,  0,  0,   0}, 
 	{   0,	99,  0,  0,   0}, 
 	{   0,	99,  0,  0,   0}, 
 	{   0,	99,  0,  0,   0}
@@ -2207,7 +2228,7 @@ cptr spell_names[255] =
     /* Gifts of Nature (sval 2) */
     "Acid Bolt",						/* index 146 */
     "Teleport Monster",
-    "Poison Bolt",
+    "Gravity Bolt",
     "Resist Poison",
     "Earthquake",
     "Resist Fire & Cold",
@@ -2260,10 +2281,10 @@ cptr spell_names[255] =
     "Healing of Este",
     
     "Creature Knowledge",					/* index 187 */
-    "(blank)",
-    "(blank)",
-    "(blank)",
-    "(blank)",
+    "Nature's Vengeance",
+    "Song of Growth",
+    "Song of Preservation",
+    "Tremor",
     
     
     
@@ -2659,7 +2680,7 @@ cptr option_text[OPT_MAX] =
     "use_old_target",			/* OPT_use_old_target */
     "always_pickup",			/* OPT_always_pickup */
     "always_repeat",			/* OPT_always_repeat */
-    "depth_in_feet",			/* OPT_depth_in_feet */
+    "squelch_worthless",		/* OPT_squelch_worthless */
     "stack_force_notes",		/* OPT_stack_force_notes */
     "stack_force_costs",		/* OPT_stack_force_costs */
     "show_labels",			/* OPT_show_labels */
@@ -2724,7 +2745,9 @@ cptr option_text[OPT_MAX] =
     "show_detect",			/* OPT_show_detect */
     "disturb_trap_detect",		/* OPT_disturb_trap_detect */
     "show_lists",                       /* OPT_show_lists */
-    NULL,	NULL,		NULL,		NULL,		NULL,
+    "hide_squelchable",                 /* OPT_hide_squelchable */
+    "auto_squelch",                     /* OPT_auto_squelch */
+    NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL, /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,
@@ -2811,7 +2834,7 @@ cptr option_desc[OPT_MAX] =
     "Use old target by default",	    /* OPT_use_old_target */
     "Pick things up by default",	    /* OPT_always_pickup */
     "Repeat obvious commands",		    /* OPT_always_repeat */
-    "Show dungeon level in feet (or meters)", /* OPT_depth_in_feet */
+    "Squelch worthless items automatically",/* OPT_squelch_worthless */
     "Merge inscriptions when stacking",	    /* OPT_stack_force_notes */
     "Merge discounts when stacking",	    /* OPT_stack_force_costs */
     "Show labels in equipment listings",    /* OPT_show_labels */
@@ -2873,10 +2896,12 @@ cptr option_desc[OPT_MAX] =
     NULL,		
     "Show stacks using special attr/char",  /* OPT_show_piles */
     "Player colour indicates low hit points", /* OPT_hp_changes_colour */	
-    "Show region affected by using detection spells", /* OPT_show_detect */
+    "Show detection region", /* OPT_show_detect */
     "Disturb when leaving last trap detect area", /* OPT_disturb_trap_detect */
     "Automatically show lists for commands", /* OPT_show_lists */
-    NULL,	NULL,		NULL,		NULL,		NULL,
+    "Hide items set as squelchable",          	/* OPT_hide_squelchable */
+    "Destroy items marked as squelch automatically",	/* OPT_auto_squelch */
+    NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,  /*80*/
     NULL,	NULL,		NULL,		NULL,		NULL,
     NULL,	NULL,		NULL,		NULL,		NULL,	
@@ -2963,7 +2988,7 @@ bool option_norm[OPT_MAX] =
     FALSE,		/* OPT_use_old_target */
     TRUE,		/* OPT_always_pickup */
     TRUE,		/* OPT_always_repeat */
-    FALSE,		/* OPT_depth_in_feet */
+    FALSE,		/* OPT_squelch_worthless */
     TRUE,		/* OPT_stack_force_notes */
     FALSE,		/* OPT_stack_force_costs */
     TRUE,		/* OPT_show_labels */
@@ -3116,19 +3141,19 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_use_old_target,
       OPT_always_pickup,
       OPT_always_repeat,
-      OPT_depth_in_feet,
       OPT_show_labels,
       OPT_show_weights,
       OPT_show_choices,
       OPT_show_details,
       OPT_show_lists,
-      OPT_bottom_status,
-      OPT_metric,
       OPT_show_flavors,
       OPT_show_detect,
       OPT_hp_changes_colour,
       OPT_mouse_buttons,
-      255
+      OPT_bottom_status,
+      OPT_squelch_worthless,
+      OPT_hide_squelchable,
+      OPT_NONE
     },
 
     /*** Disturbance ***/
@@ -3146,14 +3171,14 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_disturb_minor,
       OPT_disturb_other,
       OPT_alert_hitpoint,
-      OPT_alert_failure,
       OPT_verify_destroy,
       OPT_verify_destroy_junk,
       OPT_verify_special,
       OPT_ring_bell,
       OPT_auto_more,
-      255,
-      255
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE
     },
     
     /*** Game-Play ***/
@@ -3167,18 +3192,18 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_expand_list,
       OPT_view_perma_grids,
       OPT_view_torch_grids,
-      255,
       OPT_dungeon_stair,
-      OPT_strong_squelch,
       OPT_stack_force_notes,
       OPT_stack_force_costs,
       OPT_smart_cheat,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE
     },
     
     /*** Efficiency and Lighting ***/
@@ -3201,33 +3226,9 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_center_player,
       OPT_center_running,
       OPT_show_piles,
-      255,
-      255,
-      255
-    },
-    /*** Birth ***/
-    
-    {
-      OPT_birth_point_based, 
-      OPT_birth_auto_roller,	      
-      OPT_birth_take_notes,
-      OPT_birth_preserve, 
-      OPT_birth_notes_save,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE
     },
     
     /*** Cheat ***/
@@ -3239,20 +3240,20 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
       OPT_cheat_xtra,
       OPT_cheat_know,
       OPT_cheat_live,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255,
-      255
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE,
+      OPT_NONE
     }
   };
 
@@ -3294,6 +3295,44 @@ cptr feel_text[FEEL_MAX] =
     "excellent", /* FEEL_EXCELLENT */
     "special",	 /* FEEL_SPECIAL */
   };
+
+const grouper object_text_order [] =
+{
+	{TV_SWORD,		"Sword"			},
+	{TV_POLEARM,		"Polearm"		},
+	{TV_HAFTED,		"Hafted Weapon" },
+	{TV_BOW,		"Bow"			},
+	{TV_ARROW,		"Ammunition"	},
+	{TV_BOLT,		NULL			},
+	{TV_SHOT,		NULL			},
+	{TV_SHIELD,		"Shield"		},
+	{TV_CROWN,		"Crown"			},
+	{TV_HELM,		"Helm"			},
+	{TV_GLOVES,		"Gloves"		},
+	{TV_BOOTS,		"Boots"			},
+	{TV_CLOAK,		"Cloak"			},
+	{TV_DRAG_ARMOR,		"Dragon Scale Mail" },
+	{TV_HARD_ARMOR,		"Hard Armor"	},
+	{TV_SOFT_ARMOR,		"Soft Armor"	},
+	{TV_RING,		"Ring"			},
+	{TV_AMULET,		"Amulet"		},
+	{TV_LITE,		"Lite"			},
+	{TV_POTION,		"Potion"		},
+	{TV_SCROLL,		"Scroll"		},
+	{TV_WAND,		"Wand"			},
+	{TV_STAFF,		"Staff"			},
+	{TV_ROD,		"Rod"			},
+	{TV_PRAYER_BOOK,	"Priest Book"	},
+	{TV_MAGIC_BOOK,		"Magic Book"	},
+        {TV_DRUID_BOOK,	        "Stone of Lore" },
+	{TV_NECRO_BOOK,	        "Necromantic Tome" },
+	{TV_SPIKE,		"Spike"			},
+	{TV_DIGGING,		"Digger"		},
+	{TV_FOOD,		"Food"			},
+	{TV_FLASK,		"Flask"			},
+	{TV_JUNK,		"Junk"			},
+	{0,			NULL			}
+};
 
 byte mana_cost_RF4[32]=
   {

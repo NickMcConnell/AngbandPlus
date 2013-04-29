@@ -450,6 +450,89 @@ void reset_visuals(bool unused)
 }
 
 
+/*
+ * Puts a very stripped-down version of an object's name into buf.
+ * If easy_know is TRUE, then the IDed names are used, otherwise
+ * flavours, scroll names, etc will be used.
+ *
+ * Just truncates if the buffer isn't big enough.
+ */
+void object_kind_name(char *buf, size_t max, int k_idx, bool easy_know)
+{
+  char *t;
+  
+  object_kind *k_ptr = &k_info[k_idx];
+  
+  /* If not aware, use flavor */
+  if (!easy_know && !k_ptr->aware && k_ptr->flavor)
+    {
+      if (k_ptr->tval == TV_SCROLL)
+	{
+	  strnfmt(buf, max, "\"%s\"", scroll_adj[k_ptr->sval]);
+	}
+      else if (k_ptr->tval == TV_FOOD && k_ptr->sval < SV_FOOD_MIN_FOOD)
+	{
+	  strnfmt(buf, max, "%s Mushroom", 
+		  flavor_text + flavor_info[k_ptr->flavor].text);
+	}
+      else
+	{
+	  /* Plain flavour (e.g. Copper) will do. */
+	  my_strcpy(buf, flavor_text + flavor_info[k_ptr->flavor].text, max);
+	}
+    }
+  
+  /* Use proper name (Healing, or whatever) */
+  else
+    {
+      cptr str = (k_name + k_ptr->name);
+      
+      if (k_ptr->tval == TV_FOOD && k_ptr->sval < SV_FOOD_MIN_FOOD)
+	{
+	  my_strcpy(buf, "Mushroom of ", max);
+	  max -= strlen(buf);
+	  t = buf + strlen(buf);
+	}
+      else
+	{
+	  t = buf;
+	}
+      
+      /* Skip past leading characters */
+      while ((*str == ' ') || (*str == '&')) str++;
+      
+      /* Copy useful chars */
+      for (; *str && max > 1; str++)
+	{
+	  /* Pluralizer for irregular plurals */
+	  /* Useful for languages where adjective changes for plural */
+	  if (*str == '|')
+	    {
+	      /* Process singular part */
+	      for (str++; *str != '|' && max > 1; str++) 
+		{
+		  *t++ = *str;
+		  max--;
+		}
+	      
+	      /* Process plural part */
+	      for (str++; *str != '|'; str++) ;
+	    }
+	  
+	  /* English plural indicator can simply be skipped */
+	  else if (*str != '~')
+	    {
+	      *t++ = *str;
+	      max--;
+	    }
+	}
+      
+      /* Terminate the new name */
+      *t = '\0';
+    }
+}
+
+
 
 
 
@@ -822,6 +905,19 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
   /* Allow flavors to be hidden when aware */
   if (aware && !show_flavors) flavor = FALSE;
   
+  /* Hack -- mark-to-squelch worthless items XXX */
+  if (!k_ptr->everseen && aware && squelch_worthless)
+    {
+      if (object_value(o_ptr) == 0)
+	{
+	  k_ptr->squelch = TRUE;
+	  p_ptr->notice |= PN_SQUELCH;
+	}
+    }
+  
+  /* We've seen it at least once now we're aware of it */
+  if (aware) k_ptr->everseen = TRUE;
+
   /* Assume no name appending */
   append_name = FALSE;
   
@@ -1260,6 +1356,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	  
 	  object_desc_chr_macro(t, ' ');
 	  object_desc_str_macro(t, (e_name + e_ptr->name));
+	  
+	  /* Hack - Now we know about the ego-item type */
+	  e_info[o_ptr->name2].everseen = TRUE;
 	}
     }
   
@@ -1802,6 +1901,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
     }
   
   
+  /* Add squelch marker (maybe dodgy -NRM-) */
+  if (!hide_squelchable && squelch_item_ok(o_ptr))
+    object_desc_str_macro(t, " (squelch)");
+
   /* Truncate overly long descriptions. */
   if (t - buf > (mode == 4 ? 46 : 78))
     {
@@ -1890,7 +1993,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 /*
  * Strip an "object name" into a buffer.  Lifted from wizard2.c.
  */
-void strip_name(char *buf, int k_idx)
+void strip_name(char *buf, int k_idx, bool easy_know)
 {
   char *t;
   
@@ -1899,6 +2002,10 @@ void strip_name(char *buf, int k_idx)
   cptr str = (k_name + k_ptr->name);
   
   
+  /* If not aware, use flavor */
+  if (!easy_know && !k_ptr->aware && k_ptr->flavor)
+    str = flavor_text + flavor_info[k_ptr->flavor].text;
+
   /* Skip past leading characters */
   while ((*str == ' ') || (*str == '&')) str++;
   
@@ -3035,7 +3142,8 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
       if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
       
       /* Marked */
-      if ((mode & 0x02) && !o_ptr->marked) continue;
+      if ((mode & 0x02) && (!o_ptr->marked || squelch_hide_item(o_ptr))) 
+	continue;
       
       /* Accept this item */
       items[num++] = this_o_idx;
@@ -3044,7 +3152,7 @@ bool scan_floor(int *items, int *item_num, int y, int x, int mode)
       if (mode & 0x04) break;
       
       /* XXX Hack -- Enforce limit */
-      if (num == 23) break;
+      if (num == MAX_FLOOR_STACK) break;
     }
   
   /* Number of items */
@@ -3234,12 +3342,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
   int py = p_ptr->py;
   int px = p_ptr->px;
   
-  key_event which;
+  event_type which;
   
-  int j, k, i1, i2, e1, e2;
+  int j, k = 0, i1, i2, e1, e2;
   int f1, f2;
   int inven_count = 0, equip_count = 0, floor_count = 0;
-  int fl_click = 0, sl_click = 0, st_click = 0, sq_click = 0;
   int equ[24], inv[24], flo[24];
 
   bool done, item;
@@ -3248,8 +3355,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
   
   bool fall_through = FALSE;
   
-  bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE) &&
-    (!strong_squelch);
+  bool can_squelch = ((mode & (CAN_SQUELCH)) ? TRUE : FALSE);
   
   bool use_inven = ((mode & (USE_INVEN)) ? TRUE : FALSE);
   bool use_equip = ((mode & (USE_EQUIP)) ? TRUE : FALSE);
@@ -3495,14 +3601,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  /* Begin the prompt */
 	  sprintf(out_val, "Inven:");
 	  
-	  /* Base start for see zone */
-	  st_click = 12;
-	  
 	  /* Indicate lack of inventory choices. */
 	  if (i1 > i2) 
 	    {
 	      sprintf(tmp_val, " (none),");
-	      st_click += 3;
 	    }
 	  
 	  /* List choices. */
@@ -3516,45 +3618,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      sl_click = st_click + 10;
+	      add_button("[*]", '*');
 	    }
-	  else
-	    {
-	      /* No star, go to equip */
-	      sl_click = st_click;
-	      st_click = 0;
-	    }
-	  
+
 	  /* Indicate that equipment items are available */
 	  if (use_equip) 
 	    {
 	      strcat(out_val, " / equip,");
-	      fl_click = sl_click + 8;
-	    }
-	  else
-	    {
-	      /* No equip, go to floor */
-	      fl_click = sl_click;
-	      sl_click = 0;
+	      add_button("[/]", '/');
 	    }
 	  
 	  /* Indicate that floor items are available */
 	  if (allow_floor) 
 	    {
 	      strcat(out_val, " - floor, . floor top,");
-	      sq_click = fl_click + 21;
-	    }
-	  else
-	    { 
-	      sq_click = fl_click;
-	      fl_click = 0;
+	      add_button("[-]", '-');
+	      add_button("[.]", '.');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
-	  if (can_squelch) 
-	    strcat(out_val, " ! all SQUELCHED,");
-	  else
-	    sq_click = 0;
+	  if (can_squelch)
+	    { 
+	      strcat(out_val, " ! for squelched,");
+	      add_button("[!]", '!');
+	    }
 	}
       
       /* Viewing equipment */
@@ -3566,14 +3653,10 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  /* Begin the prompt */
 	  sprintf(out_val, "Equip:");
 	  
-	  /* Base start for see zone */
-	  st_click = 12;
-	  
 	  /* Indicate lack of equipment choices. */
 	  if (e1 > e2) 
 	    {
 	      sprintf(tmp_val, " (none),");
-	      st_click += 3;
 	    }
 	  
 	  /* List choices. */
@@ -3587,45 +3670,30 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      sl_click = st_click + 10;
-	    }
-	  else
-	    {
-	      /* No star, go to inven */
-	      sl_click = st_click;
-	      st_click = 0;
+	      add_button("[*]", '*');
 	    }
 	  
 	  /* Append */
 	  if (use_inven) 
 	    {
 	      strcat(out_val, " / inven,");
-	      fl_click = sl_click + 8;
-	    }
-	  else
-	    {
-	      /* No equip, go to floor */
-	      fl_click = sl_click;
-	      sl_click = 0;
+	      add_button("[/]", '/');
 	    }
 	  
 	  /* Append */
 	  if (allow_floor) 
 	    {
 	      strcat(out_val, " - floor, . floor top,");
-	      sq_click = fl_click + 21;
-	    }
-	  else
-	    { 
-	      sq_click = fl_click;
-	      fl_click = 0;
+	      add_button("[-]", '-');
+	      add_button("[.]", '.');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
 	  if (can_squelch) 
-	    strcat(out_val, " ! all SQUELCHED,");
-	  else
-	    sq_click = 0;
+	    {
+	      strcat(out_val, " ! for squelched,");
+	      add_button("[!]", '!');
+	    }
 	}
       
       /* Viewing floor */
@@ -3637,18 +3705,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  /* Begin the prompt */
 	  sprintf(out_val, "Floor:");
 
-	  /* Floor isn't an option */
-	  fl_click = 0;
-	  
-	  /* Base start for see zone */
-	  st_click = 12;
-	  
 	  /* Indicate lack of floor choices. */
 	  if (f1 > f2) 
-	    {
-	      sprintf(tmp_val, " (none),");
-	      st_click += 3;
-	    }
+	    sprintf(tmp_val, " (none),");
 	  
 	  /* List choices. */
 	  else sprintf(tmp_val, " %c-%c,", I2A(f1-f1), I2A(f2-f1));
@@ -3660,39 +3719,27 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	  if (!p_ptr->command_see) 
 	    {
 	      strcat(out_val, " * to see,");
-	      sl_click = st_click + 10;
-	    }
-	  else
-	    {
-	      /* No star, go to inven */
-	      sl_click = st_click;
-	      st_click = 0;
+	      add_button("[*]", '*');
 	    }
 	  
 	  /* Append */
 	  if (use_inven)
 	    {
 	      strcat(out_val, " / inven,");
-	      sq_click = sl_click + 8;
+	      add_button("[/]", '/');
 	    }
 	  else if (use_equip)
 	    {
 	      strcat(out_val, " / equip,");
-	      sq_click = sl_click;
-	      sl_click = 0;
-	      sq_click = sq_click + 8;
-	    }
-	  else
-	    {
-	      sq_click = sl_click;
-	      sl_click = 0;
+	      add_button("[/]", '/');
 	    }
 	  
 	  /* Indicate that selecting all SQUELCHED items is an option */
 	  if (can_squelch) 
-	    strcat(out_val, " ! all SQUELCHED,");
-	  else
-	    sq_click = 0;
+	    {
+	      strcat(out_val, " ! for squelched,");
+	      add_button("[!]", '!');
+	    }
 	}
       
       /* Finish the prompt */
@@ -3703,42 +3750,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
       
       /* Show the prompt */
       prt(tmp_val, 0, 0);
+      update_statusline();
       
       /* Get a key */
       which = inkey_ex();
       
-      /* Hack - handle the prompt line first */
-      if ((which.key == '\xff') && (which.mousey == 0))
-	{
-	  /* See */
-	  if ((st_click) && (which.mousex > st_click) && 
-	      (which.mousex < st_click + 9))
-	    which.key = '*';
-	  
-	  /* Inven/Equip */
-	  else if ((sl_click) && (which.mousex > sl_click) &&
-		   (which.mousex < sl_click + 7))
-	    which.key = '/';
-
-	  /* Floor */
-	  else if ((fl_click) && (which.mousex > fl_click) &&
-		   (which.mousex < fl_click + 7))
-	    which.key = '-';
-
-	  /* Floor top */
-	  else if ((fl_click) && (which.mousex > fl_click + 8) &&
-		   (which.mousex < fl_click + 20))
-	    which.key = '.';
-
-	  /* Squelched */
-	  else if ((sq_click) && (which.mousex > sq_click) &&
-		   (which.mousex < sq_click + 16))
-	    which.key = '!';
-
-	  /* Escape */
-	  else which.key = ESCAPE;
-	}
-	    
       /* Parse it */
       switch (which.key)
 	{
@@ -4169,7 +4185,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
       /* Hack -- Cancel "display" */
       p_ptr->command_see = FALSE;
     }
-  
+
+  /* Kill buttons */
+  kill_button('*');
+  kill_button('/');
+  kill_button('-');
+  kill_button('.');
+  kill_button('!');
+  update_statusline();
   
   /* Forget the item_tester_tval restriction */
   item_tester_tval = 0;
@@ -4214,7 +4237,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
 {
   char which = ' ';
-  key_event ke;
+  event_type ke;
   
   int j, k = 0;
   int f1, f2;
@@ -4314,7 +4337,12 @@ bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
       strcat(out_val, tmp_val);
       
       /* Indicate ability to "view" */
-      if (!p_ptr->command_see) strcat(out_val, " * to see,");
+      if (!p_ptr->command_see) 
+	{
+	  strcat(out_val, " * to see,");
+	  add_button("[*]", '*');
+	  update_statusline();
+	}
       
       /* Finish the prompt */
       strcat(out_val, " ESC");
@@ -4328,13 +4356,6 @@ bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
       /* Get a key */
       ke = inkey_ex();
       which = ke.key;
-
-      /* Mouse input */
-      if ((which == '\xff') && (!ke.mousey))
-	{
-	  if ((ke.mousex > 11) && (ke.mousex < 20)) which = '*';
-	  else if ((ke.mousex > 21) && (ke.mousex < 25)) which = ESCAPE;
-	}
 
       /* Parse it */
       switch (which)
@@ -4510,7 +4531,8 @@ bool get_item_tk(int *cp, cptr pmt, cptr str, int y, int x)
       /* Hack -- Cancel "display" */
       p_ptr->command_see = FALSE;
     }
-  
+
+  kill_button('*');  
   
   /* Forget the item_tester_tval restriction */
   item_tester_tval = 0;
@@ -4565,94 +4587,94 @@ cptr object_adj(int tval, int sval)
 /*
  * An "item_tester_hook" for items marked SQUELCH
  */
-static bool item_tester_squelched(object_type *o_ptr)
-{
-  cptr s;
+//static bool item_tester_squelched(object_type *o_ptr)
+//{
+//cptr s;
   
   /* Should be inscribed */
-  if (!o_ptr->note) return (FALSE);
+  //if (!o_ptr->note) return (FALSE);
   
   /* Look for the SQUELCH inscribtion */
-  s = strstr(quark_str(o_ptr->note), "SQUELCH");
-  if (s) return (TRUE);
+  //s = strstr(quark_str(o_ptr->note), "SQUELCH");
+  //if (s) return (TRUE);
   
   /* Assume not okay */
-  return (FALSE);
-}
+  //return (FALSE);
+//}
 
 
 /*
  * Destroy all items marked SQUELCH
  */
-extern bool destroy_squelched_items(void)
-{
-  int floor_num, floor_list[24];
-  int n;
-  int count=0;
+//extern bool destroy_squelched_items(void)
+//{
+//int floor_num, floor_list[24];
+//int n;
+//int count=0;
   
-  object_type *o_ptr;
+//object_type *o_ptr;
   
-  item_tester_hook = item_tester_squelched;
+//item_tester_hook = item_tester_squelched;
+//
+//if (scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01))
+//  {
+//    for (n = 0; n < floor_num; n++)
+//{
+//  o_ptr = &o_list[floor_list[n]];
+//  
+//  /* Hack -- skip artifacts */
+//  if (artifact_p(o_ptr)) continue;
+//  
+//  if (item_tester_okay(o_ptr))
+//    {
+//      /* Destroy item */
+//      floor_item_increase(floor_list[n], -o_ptr->number);
+//      floor_item_optimize(floor_list[n]);
+//      
+//      /* Count the casualties */
+//      count ++;
+//    }
+//}
+//  }
   
-  if (scan_floor(floor_list, &floor_num, p_ptr->py, p_ptr->px, 0x01))
-    {
-      for (n = 0; n < floor_num; n++)
-	{
-	  o_ptr = &o_list[floor_list[n]];
-	  
-	  /* Hack -- skip artifacts */
-	  if (artifact_p(o_ptr)) continue;
-	  
-	  if (item_tester_okay(o_ptr))
-	    {
-	      /* Destroy item */
-	      floor_item_increase(floor_list[n], -o_ptr->number);
-	      floor_item_optimize(floor_list[n]);
-	      
-	      /* Count the casualties */
-	      count ++;
-	    }
-	}
-    }
+///* Scan through the slots backwards */
+  //for (n = INVEN_PACK - 1; n >= 0; n--)
+// {
+//    o_ptr = &inventory[n];
+//    
+//    /* Skip non-objects */
+//    if (!o_ptr->k_idx) continue;
+//    
+//    /* Hack -- skip artifacts */
+//    if (artifact_p(o_ptr)) continue;
+//    
+//    /* Give this item slot a shot at death */
+//    if (item_tester_okay(o_ptr))
+//{
+//  /* Destroy item */
+//  inven_item_increase(n, -o_ptr->number);
+//  inven_item_optimize(n);
+//  
+//  /* Count the casualties */
+//  count ++;
+//}
+//    
+//  }
   
-  /* Scan through the slots backwards */
-  for (n = INVEN_PACK - 1; n >= 0; n--)
-    {
-      o_ptr = &inventory[n];
-      
-      /* Skip non-objects */
-      if (!o_ptr->k_idx) continue;
-      
-      /* Hack -- skip artifacts */
-      if (artifact_p(o_ptr)) continue;
-      
-      /* Give this item slot a shot at death */
-      if (item_tester_okay(o_ptr))
-	{
-	  /* Destroy item */
-	  inven_item_increase(n, -o_ptr->number);
-	  inven_item_optimize(n);
-	  
-	  /* Count the casualties */
-	  count ++;
-	}
-      
-    }
-  
-  item_tester_hook = NULL;	  
-  
-  /* message */
-  if (count > 0) 
-    msg_format("You destroy %i SQUELCH-ed item%s.", count, 
-	       ((count > 1) ? "s" : ""));
-  else msg_print("No SQUELCH-ed items to destroy.");
-  
-  /*
-   * return value is used to determine if player energy
-   * should be spent.
-   */
-  return (count != 0);
-}
+//item_tester_hook = NULL;	  
+//
+///* message */
+//if (count > 0) 
+//  msg_format("You destroy %i SQUELCH-ed item%s.", count, 
+//       ((count > 1) ? "s" : ""));
+//else msg_print("No SQUELCH-ed items to destroy.");
+//
+///*
+// * return value is used to determine if player energy
+// * should be spent.
+// */
+//return (count != 0);
+//}
 
 /* Set Item Code */
 
@@ -4690,9 +4712,9 @@ extern void apply_set(int s_idx)
   
   bool bonus_applied = FALSE;
   
-  byte i, j;
+  byte i, j, k;
 
-  for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
+  for (i = INVEN_WIELD;i <= INVEN_FEET;i++)
     {
       object_type *o_ptr = &inventory[i];
       
@@ -4702,11 +4724,11 @@ extern void apply_set(int s_idx)
 	  artifact_type *a_ptr = &a_info[o_ptr->name1];
 	  
 	  /* Is it in the correct set? */ 
-	  if (a_ptr->set_no==s_idx)
+	  if (a_ptr->set_no == s_idx)
 	    {
 	      
 	      /* Loop through set elements */
-	      for (j=0;j<(s_ptr->no_of_items);j++)
+	      for (j = 0; j < (s_ptr->no_of_items);j++)
 		{
 		  
 		  set_element *se_ptr = &s_ptr->set_items[j];
@@ -4722,6 +4744,8 @@ extern void apply_set(int s_idx)
 			  a_ptr->flags2 |= se_ptr->flags2;
 			  a_ptr->flags3 |= se_ptr->flags3;
 			  o_ptr->pval += se_ptr->pval;
+			  for (k = 0; k < MAX_P_RES; k++)
+			    o_ptr->percent_res[k] -= se_ptr->percent_res[k];
 			  a_ptr->set_bonus = TRUE;
 			  bonus_applied = TRUE;
 			}
@@ -4744,7 +4768,7 @@ extern void remove_set(int s_idx)
   
   bool bonus_removed = FALSE;
   
-  byte i, j;
+  byte i, j, k;
   
   for (i=INVEN_WIELD;i<=INVEN_FEET;i++)
     {
@@ -4777,6 +4801,8 @@ extern void remove_set(int s_idx)
 			  a_ptr->flags3 &= ~se_ptr->flags3;
 			  o_ptr->pval = a_ptr->pval;
 			  a_ptr->set_bonus = FALSE;
+			  for (k = 0; k < MAX_P_RES; k++)
+			    o_ptr->percent_res[k] += se_ptr->percent_res[k];
 			  bonus_removed = TRUE;
 			}
 		    }

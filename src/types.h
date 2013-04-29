@@ -68,8 +68,7 @@ typedef s16b s16b_wid[DUNGEON_WID];
 
 /**** Available Structs ****/
 
-
-typedef struct header header;
+typedef struct char_attr char_attr;
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -100,55 +99,51 @@ typedef struct druid_blows druid_blows;
 typedef struct player_type player_type;
 typedef struct start_item start_item;
 typedef struct flavor_type flavor_type;
-
+typedef struct autoinscription autoinscription;
+typedef struct note_info note_info;
+typedef struct mouse_button mouse_button;
 
 
 /**** Available structs ****/
 
+/* 
+ * Char, attr pair for dumping info and maybe other things
+ */
+struct char_attr
+{
+  char pchar;
+  byte pattr;
+};
 
 /*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
+ * An array of MAX_C_A_LEN char_attr's
  */
-struct header
+typedef char_attr char_attr_line[MAX_C_A_LEN];
+
+/*
+ * Information about maximal indices of certain arrays
+ * Actually, these are not the maxima, but the maxima plus one
+ */
+struct maxima
 {
-  byte v_major;		/* Version -- major */
-  byte v_minor;		/* Version -- minor */
-  byte v_patch;		/* Version -- patch */
-  byte v_extra;		/* Version -- extra */
-  
+	u32b fake_text_size;
+	u32b fake_name_size;
 
-  u16b info_num;	/* Number of "info" records */
-  u16b info_len;	/* Size of each "info" record */
+	u16b f_max;		/* Max size for "f_info[]" */
+	u16b k_max;		/* Max size for "k_info[]" */
+	u16b a_max;		/* Max size for "a_info[]" */
+	u16b e_max;		/* Max size for "e_info[]" */
+	u16b r_max;		/* Max size for "r_info[]" */
+	u16b v_max;		/* Max size for "v_info[]" */
+	u16b p_max;		/* Max size for "p_info[]" */
+	u16b h_max;		/* Max size for "h_info[]" */
+	u16b b_max;		/* Max size per element of "b_info[]" */
+	u16b c_max;		/* Max size for "c_info[]" */
+	u16b flavor_max;        /* Max size for "flavor_info[]" */
+	u16b s_max;		/* Max size for "s_info[]" */
 
-
-  u16b head_size;	/* Size of the "header" in bytes */
-  u16b info_size;	/* Size of the "info" array in bytes */
-  u16b name_size;	/* Size of the "name" array in bytes */
-  u16b text_size;	/* Size of the "text" array in bytes */
+	u16b o_max;		/* Max size for "o_list[]" */
+	u16b m_max;		/* Max size for "mon_list[]" */
 };
 
 
@@ -207,6 +202,8 @@ struct object_kind
   u32b flags2;		/* Flags, set 2 */
   u32b flags3;		/* Flags, set 3 */
   
+  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  
   byte locale[4];	/* Allocation level(s) */
   byte chance[4];	/* Allocation chance(s) */
   
@@ -228,6 +225,7 @@ struct object_kind
   bool tried;		/* The player has "tried" one of the items */
   bool known_effect;	/* Item's effects when used are known. -LM- */
   bool squelch;
+  bool everseen;		/* Used to despoilify squelch menus */
 };
 
 
@@ -260,6 +258,8 @@ struct artifact_type
   u32b flags2;		/* Artifact Flags, set 2 */
   u32b flags3;		/* Artifact Flags, set 3 */
   
+  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
+  
   byte level;		/* Artifact level */
   byte rarity;		/* Artifact rarity */
   
@@ -291,6 +291,7 @@ struct set_element
   u32b flags2;		/* Artifact Flags, set 2 */
   u32b flags3;		/* Artifact Flags, set 3 */
   s16b pval;		/* Item pval with complete set */
+  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
 };
 
 /* Information about items sets -GS- */
@@ -327,12 +328,15 @@ struct ego_item_type
   u32b flags1;		        /* Ego-Item Flags, set 1 */
   u32b flags2;		        /* Ego-Item Flags, set 2 */
   u32b flags3;		        /* Ego-Item Flags, set 3 */
+
+  int percent_res[MAX_P_RES];   /* Average percentage resists -NRM- */
   
   byte tval[EGO_TVALS_MAX];     /* Legal tval */
   byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
   byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
   
   byte xtra;			/* Extra sustain/resist/power */
+  bool everseen;		/* Do not spoil squelch menus */
 };
 
 
@@ -473,6 +477,8 @@ struct monster_lore
  */
 struct vault_type
 {
+  //u32b name;		/* Name (offset) */
+  //u32b text;		/* Text (offset) */
   u16b name;		/* Name (offset) */
   u16b text;		/* Text (offset) */
   
@@ -502,6 +508,9 @@ struct vault_type
  *
  * Note that "object flags" must now be derived from the object kind,
  * the artifact and ego-item indexes, and the two "xtra" fields.
+ *
+ * Note that the amount of resistance is now held in the nibble flag
+ * fields perc_res1 and perc_res2. -NRM-
  *
  * Each cave grid points to one (or zero) objects via the "o_idx"
  * field (above).  Each object then points to one (or zero) objects
@@ -539,7 +548,6 @@ struct object_type
 
   byte xtra1;		/* Extra info type (or activation indicator). */
   byte xtra2;		/* Extra info or activation index. */
-
   s16b to_h;		/* Plusses to hit */
   s16b to_d;		/* Plusses to damage */
   s16b to_a;		/* Plusses to AC */
@@ -551,6 +559,9 @@ struct object_type
   s16b timeout;		/* Timeout Counter */
 
   byte ident;		/* Special flags  */
+
+  int percent_res[MAX_P_RES];  /* Percentage resistances */
+  byte el_proof;        /* Element proofing flags */
 
   byte marked;		/* Object is marked */
 
@@ -864,9 +875,12 @@ struct start_item
  */
 struct player_class
 {
-  u32b name;		/* Name (offset) */
+  //u32b name;		/* Name (offset) */
   
-  u32b title[10];	/* Type of class */
+  //u32b title[10];	/* Type of class */
+  u16b name;		/* Name (offset) */
+  
+  u16b title[10];	/* Type of class */
   
   s16b c_adj[A_MAX];	/* Class stat modifier */
   
@@ -928,7 +942,8 @@ struct player_weapon
 struct hist_type
 {
   u32b unused;          /* Unused */
-  u32b text;            /* Text (offset) */
+  //u32b text;            /* Text (offset) */
+  u16b text;            /* Text (offset) */
   
   byte roll;            /* Frequency of this entry */
   byte chart;           /* Chart index */
@@ -1139,7 +1154,7 @@ struct player_type
   s16b command_arg;	/* Gives argument of current command */
   s16b command_rep;	/* Gives repetition of current command */
   s16b command_dir;	/* Gives direction of current command */
-  key_event command_cmd_ex; /* Gives extra information of current command */
+  event_type command_cmd_ex; /* Gives extra information of current command */
   s16b command_item;    /* Gives the item for the next command */
   
   s16b command_see;	/* See "cmd1.c" */
@@ -1186,8 +1201,8 @@ struct player_type
   s16b stat_add[6];	/* Equipment stat bonuses */
   s16b stat_ind[6];	/* Indexes into stat tables */
   
-  byte res_list[MAX_P_RES]; /* Resistances and immunities */
-  byte dis_res_list[MAX_P_RES]; /* Known resistances and immunities */
+  int res_list[MAX_P_RES]; /* Resistances and immunities */
+  int dis_res_list[MAX_P_RES]; /* Known resistances and immunities */
   
   bool no_fear;	        /* Resist fear */
   bool no_blind;	/* Resist blindness */
@@ -1310,7 +1325,8 @@ struct high_score
 
 struct flavor_type
 {
-	u32b text;      /* Text (offset) */
+  //u32b text;      /* Text (offset) */
+	u16b text;      /* Text (offset) */
 
 	byte tval;      /* Associated object type */
 	byte sval;      /* Associated object sub-type */
@@ -1322,3 +1338,28 @@ struct flavor_type
 	char x_char;    /* Desired flavor character */
 };
 
+/* Information for object auto-inscribe */
+struct autoinscription
+{
+	s16b kind_idx;
+	s16b inscription_idx;
+};
+
+/* Record of an event for the notes file */
+struct note_info
+{
+  s32b turn;      /* Turn the event took place */
+  int place;      /* Stage the event took place */
+  int level;      /* Character level when the event happened */
+  byte type;      /* Type of event */
+  char note[80];  /* Description of the event */
+};
+
+/* Mouse button structure */
+struct mouse_button
+{
+  char label[MAX_MOUSE_LABEL];   /* Label on the button */
+  int left;               /* Column containing the left edge of the button */  
+  int right;              /* Column containing the right edge of the button */
+  unsigned char key;      /* Keypress corresponding to the button */
+};
