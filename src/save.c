@@ -925,8 +925,8 @@ static void wr_squelch(void)
   int i;
   
   /* Write number of squelch bytes */
-  wr_byte(SQUELCH_BYTES);
-  for (i = 0; i < SQUELCH_BYTES; i++)
+  wr_byte(TYPE_MAX);
+  for (i = 0; i < TYPE_MAX; i++)
     wr_byte(squelch_level[i]);
   
   /* Write ego-item squelch bits */

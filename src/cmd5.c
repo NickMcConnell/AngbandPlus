@@ -3671,7 +3671,6 @@ void do_cmd_gain_specialty(void)
 {
   int i, k;
   int choices[255];
-  bool done_all;
   int pick;
   
   /* Find the next open entry in "specialty_order[]" */
@@ -3702,49 +3701,36 @@ void do_cmd_gain_specialty(void)
   normal_screen = FALSE;
   prompt_end = 0;
   
-  /* loop until done with all selections or user exit */
-  done_all = FALSE;
-  while (!done_all)
+  /* Make one choice */		
+  if (gain_spec_menu(&pick))
     {
-      /* Make one choice; loop until done */		
-      if (gain_spec_menu(&pick))
-	{
-	  char buf[120];
-	  
-	  /* Add new specialty */
-	  p_ptr->specialty_order[k] = choices[pick];
-	  
-	  /* Increment next available slot */
-	  k++;
-	  
-	  /* Update specialties available count */
-	  p_ptr->new_specialties--;
-	  p_ptr->old_specialties = p_ptr->new_specialties;
-	  
-	  /* Write a note */
-	  /* Specialty taken */
-	  sprintf(buf, "Gained the %s specialty.", 
-		  specialty_names[choices[pick]]);
-	  
-	  /* Write message */
-	  make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
-	  
-	  /* Update some stuff */
-	  p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | 
-			    PU_SPECIALTY | PU_TORCH);
-	  
-	  /* Redraw Study Status */
-	  p_ptr->redraw |= (PR_STUDY);
-       
-	  /* Check if we are completely done */
-	  if ((p_ptr->new_specialties <= 0) || (k >= 9)) done_all = TRUE;
-	}
-      else
-	{
-	  done_all = TRUE;
-	}
+      char buf[120];
+      
+      /* Add new specialty */
+      p_ptr->specialty_order[k] = choices[pick];
+      
+      /* Increment next available slot */
+      k++;
+      
+      /* Update specialties available count */
+      p_ptr->new_specialties--;
+      p_ptr->old_specialties = p_ptr->new_specialties;
+      
+      /* Write a note */
+      /* Specialty taken */
+      sprintf(buf, "Gained the %s specialty.", 
+	      specialty_names[choices[pick]]);
+      
+      /* Write message */
+      make_note(buf,  p_ptr->stage, NOTE_SPECIALTY);
+      
+      /* Update some stuff */
+      p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | 
+			PU_SPECIALTY | PU_TORCH);
+      
+      /* Redraw Study Status */
+      p_ptr->redraw |= (PR_STUDY);
     }
-
   
   /* Buttons */
   normal_screen = TRUE;

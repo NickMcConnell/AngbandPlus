@@ -40,7 +40,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 
 #N: monster index: name

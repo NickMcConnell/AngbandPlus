@@ -46,11 +46,6 @@
  */
 
 /*
- * Number of tvals for quality squelchable items
- */
-#define TYPE_MAX 19
-
-/*
  * Names of categories.
  */
 static const char *type_names[TYPE_MAX] =
@@ -100,7 +95,7 @@ static int tvals[TYPE_MAX] =
   TV_AMULET
 };
 
-byte squelch_level[SQUELCH_BYTES];
+byte squelch_level[TYPE_MAX];
 size_t squelch_size = TYPE_MAX;
 
 
@@ -427,7 +422,7 @@ extern bool squelch_item_ok(object_type *o_ptr)
     {
       if (tvals[i] == o_ptr->tval)
 	{
-	  num = tvals[i];
+	  num = i;
 	  break;
 	}
     }
@@ -1143,10 +1138,11 @@ static bool sval_menu(int tval, const char *desc)
     {
       object_kind *k_ptr = &k_info[i];
       
-      /* Skip empty objects, unseen objects, and incorrect tvals */
+      /* Skip empty objects, unseen objects, incorrect tvals and artifacts */
       if (!k_ptr->name) continue;
       if (!k_ptr->everseen) continue;
       if (k_ptr->tval != tval) continue;
+      if (k_ptr->flags3 & TR3_INSTA_ART) continue;
 
       /* Add this item to our possibles list */
       choice[num++] = i;

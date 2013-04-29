@@ -19,8 +19,8 @@ SETFILE = $(TOOLDIR)/SetFile
 APPNAME = FAAngband.app
 EXE =faangband
 NAME =FAAngband
-COPYRIGHT =2007 Nick McConnell and Contributors
-VERSION =0.3.2
+COPYRIGHT =2008 Nick McConnell and Contributors
+VERSION =0.3.3
 
 
 #

@@ -3661,7 +3661,7 @@ bool get_num(char *prompt, int max, int amt)
   backup_buttons();
   kill_all_buttons();
   add_button("ESC", ESCAPE);
-  add_button("Ret", '\r');
+  add_button("Ent", '\r');
   add_button("+", '+');
   add_button("-", '-');
   add_button("*", '*');

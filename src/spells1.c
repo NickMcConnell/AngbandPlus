@@ -755,6 +755,13 @@ void teleport_player_level(bool friendly)
 {
   int poss; 
   
+  /* Disable for ironman */
+  if (adult_ironman)
+    {
+      msg_print("Nothing happens.");
+      return;
+    }
+  
   /* Check for specialty resistance on hostile teleports */
   if ((friendly == FALSE) && (check_ability(SP_PHASEWALK)))
     {

@@ -1251,9 +1251,6 @@ static void do_cmd_menu(void)
   /* Load de screen */
   screen_load();
   
-  /* Redraw if bigtile or whatever */
-  do_cmd_redraw();
-  
   /* If a command was chosen, do it. */
   if (chosen_command.hook)
     {

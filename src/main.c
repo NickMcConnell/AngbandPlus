@@ -430,8 +430,8 @@ int main(int argc, char *argv[])
   
 #ifdef PRIVATE_USER_PATH
 
-	/* Create directories for the users files */
-	create_user_dirs();
+  /* Create directories for the users files */
+  create_user_dirs();
 
 #endif /* PRIVATE_USER_PATH */
 
@@ -641,20 +641,30 @@ int main(int argc, char *argv[])
   /* Catch nasty signals */
   signals_init();
   
-  /* Initialize */
-  init_angband();
-  
-  /* Hack -- If requested, display scores and quit */
-  if (show_score > 0) display_scores(0, show_score);
-  
-  /* Wait for response */
-  pause_line(23);
-  
-  /* Play the game */
-  play_game(new_game);
-  
-  /* Free resources */
-  cleanup_angband();
+  /* About to start */
+  game_start = TRUE;
+
+  while (game_start)
+    {
+      /* Initialize */
+      init_angband();
+      
+      /* Hack -- If requested, display scores and quit */
+      if (show_score > 0) 
+	{
+	  display_scores(0, show_score);
+	  game_start = FALSE;
+	}
+      
+      /* Wait for response */
+      pause_line(23);
+      
+      /* Play the game */
+      play_game(new_game);
+      
+      /* Free resources */
+      cleanup_angband();
+    }
 
   /* Quit */
   quit(NULL);

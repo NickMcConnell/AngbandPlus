@@ -1940,7 +1940,7 @@ static errr init_other(void)
           
           /* Add that item index to the table */
           st_ptr->table[st_ptr->table_num++] = k_idx;
-		}
+	}
     }
   
   
@@ -2416,7 +2416,8 @@ void init_angband(void)
   Term_clear();
   
   /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_FILE, (small_screen ? "splash_s.txt" : "splash.txt"));
+  path_build(buf, 1024, ANGBAND_DIR_FILE, (small_screen ? "splash_s.txt" : 
+					   "splash.txt"));
   
   /* Open the News file */
   fp = my_fopen(buf, "r");
@@ -2457,10 +2458,6 @@ void init_angband(void)
             }
         }
       
-      /* Get the blank line */
-      /* if (my_fgets(fp, buf, 1024)) okay = FALSE; */
-      
-      
       /* Load the screen */
       for (y = 0; okay; y++)
         {
@@ -2497,11 +2494,6 @@ void init_angband(void)
           move_cursor(y, x);
           
         }
-      
-      
-      /* Get the blank line */
-      /* if (my_fgets(fp, buf, 1024)) okay = FALSE; */
-      
       
       /* Close it */
       my_fclose(fp);
@@ -2559,10 +2551,6 @@ void init_angband(void)
               Term_draw(x, y, TERM_WHITE, buf[x]);
             }
         }
-      
-      /* Get the blank line */
-      /* if (my_fgets(fp, buf, 1024)) okay = FALSE; */
-      
       
       /* Load the screen */
       for (y = 0; okay; y++)
@@ -2745,113 +2733,116 @@ void init_angband(void)
 
 void cleanup_angband(void)
 {
-	int i;
-
-
-	/* Free the macros */
-	macro_free();
-
-	/* Free the macro triggers */
-	macro_trigger_free();
-
-	/* Free the allocation tables */
-	FREE(alloc_ego_table);
-	FREE(alloc_race_table);
-	FREE(alloc_kind_table);
-
-	if (store)
+  int i;
+  
+  
+  /* Free the macros */
+  macro_free();
+  
+  /* Free the macro triggers */
+  macro_trigger_free();
+  
+  /* Free the allocation tables */
+  FREE(alloc_ego_table);
+  FREE(alloc_race_table);
+  FREE(alloc_kind_table);
+  
+  if (store)
+    {
+      /* Free the store inventories */
+      for (i = 0; i < MAX_STORES; i++)
 	{
-		/* Free the store inventories */
-		for (i = 0; i < MAX_STORES; i++)
-		{
-			/* Get the store */
-			store_type *st_ptr = &store[i];
-
-			/* Free the store inventory */
-			FREE(st_ptr->stock);
-		}
+	  /* Get the store */
+	  store_type *st_ptr = &store[i];
+	  
+	  /* Free the store inventory */
+	  FREE(st_ptr->stock);
 	}
-
-	/* Free the stores */
-	FREE(store);
-
-	/* Free the player inventory */
-	FREE(inventory);
-
-
-	/* Free the character display arrays */
-	FREE(dumpline);
-	FREE(pline0);
-	FREE(pline1);
-
-	/* Free the mouse button array */
-	FREE(mse_button);
-	FREE(backup_button);
-
-	/* Free the quest list */
-	FREE(q_list);
-
-	/* Free the lore, monster, and object lists */
-	FREE(l_list);
-	FREE(m_list);
-	FREE(o_list);
-
+    }
+  
+  /* Free the stores */
+  FREE(store);
+  
+  /* Free the player inventory */
+  FREE(inventory);
+  
+  
+  /* Free the character display arrays */
+  FREE(dumpline);
+  FREE(pline0);
+  FREE(pline1);
+  
+  /* Free the mouse button array */
+  FREE(mse_button);
+  FREE(backup_button);
+  
+  /* Free the quest list */
+  FREE(q_list);
+  
+  /* Free the lore, monster, and object lists */
+  FREE(l_list);
+  FREE(m_list);
+  FREE(o_list);
+  
 #ifdef MONSTER_FLOW
-
-	/* Flow arrays */
-	FREE(cave_when);
-	FREE(cave_cost);
-
+  
+  /* Flow arrays */
+  FREE(cave_when);
+  FREE(cave_cost);
+  
 #endif /* MONSTER_FLOW */
+  
+  /* Free the cave */
+  FREE(cave_o_idx);
+  FREE(cave_m_idx);
+  FREE(cave_feat);
+  FREE(cave_info);
+  
+  /* Free the "update_view()" array */
+  FREE(view_g);
+  
+  /* Free the temp array */
+  FREE(temp_g);
+  
+  /* Free the messages */
+  messages_free();
+  
+  /* Free the "quarks" */
+  quarks_free();
+  
+  /* Free the info, name, and text arrays */
+  free_info(&flavor_head);
+  free_info(&g_head);
+  free_info(&b_head);
+  free_info(&c_head);
+  free_info(&p_head);
+  free_info(&h_head);
+  free_info(&v_head);
+  free_info(&r_head);
+  free_info(&e_head);
+  free_info(&a_head);
+  free_info(&k_head);
+  free_info(&f_head);
+  free_info(&z_head);
+  free_info(&s_head);
 
-	/* Free the cave */
-	FREE(cave_o_idx);
-	FREE(cave_m_idx);
-	FREE(cave_feat);
-	FREE(cave_info);
-
-	/* Free the "update_view()" array */
-	FREE(view_g);
-
-	/* Free the temp array */
-	FREE(temp_g);
-
-	/* Free the messages */
-	messages_free();
-
-	/* Free the "quarks" */
-	quarks_free();
-
-	/* Free the info, name, and text arrays */
-	free_info(&flavor_head);
-	free_info(&g_head);
-	free_info(&b_head);
-	free_info(&c_head);
-	free_info(&p_head);
-	free_info(&h_head);
-	free_info(&v_head);
-	free_info(&r_head);
-	free_info(&e_head);
-	free_info(&a_head);
-	free_info(&k_head);
-	free_info(&f_head);
-	free_info(&z_head);
-	free_info(&s_head);
-
-	/* Free the format() buffer */
-	vformat_kill();
-
-	/* Free the directories */
-	string_free(ANGBAND_DIR);
-	string_free(ANGBAND_DIR_APEX);
-	string_free(ANGBAND_DIR_BONE);
-	string_free(ANGBAND_DIR_DATA);
-	string_free(ANGBAND_DIR_EDIT);
-	string_free(ANGBAND_DIR_FILE);
-	string_free(ANGBAND_DIR_HELP);
-	string_free(ANGBAND_DIR_INFO);
-	string_free(ANGBAND_DIR_SAVE);
-	string_free(ANGBAND_DIR_PREF);
-	string_free(ANGBAND_DIR_USER);
-	string_free(ANGBAND_DIR_XTRA);
+  /* Free the format() buffer */
+  vformat_kill();
+  
+  /* Free the directories */
+  if (!game_start)
+    {
+      string_free(ANGBAND_DIR);
+      string_free(ANGBAND_DIR_APEX);
+      string_free(ANGBAND_DIR_BONE);
+      string_free(ANGBAND_DIR_DATA);
+      string_free(ANGBAND_DIR_EDIT);
+      string_free(ANGBAND_DIR_FILE);
+      string_free(ANGBAND_DIR_HELP);
+      string_free(ANGBAND_DIR_INFO);
+      string_free(ANGBAND_DIR_SAVE);
+      string_free(ANGBAND_DIR_PREF);
+      string_free(ANGBAND_DIR_USER);
+      string_free(ANGBAND_DIR_XTRA);
+    }
 }

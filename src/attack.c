@@ -885,7 +885,7 @@ void py_attack(int y, int x)
    * from players who know nature lore.
    */
   if ((cave_feat[y][x] == FEAT_TREE) && 
-      ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
+      !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
     {
       terrain_bonus = r_ptr->ac / 7 + 5;
     }
@@ -1730,7 +1730,7 @@ void do_cmd_fire(void)
 	   * players who know nature lore.
 	   */
 	  if ((cave_feat[y][x] == FEAT_TREE) && 
-	      ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
+	      !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
 	    {
 	      terrain_bonus = r_ptr->ac / 5 + 5;
 	    }
@@ -2197,7 +2197,7 @@ void do_cmd_throw(void)
 	   * players who know nature lore.
 	   */
 	  if ((cave_feat[y][x] == FEAT_TREE) && 
-	      ((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
+	      !((check_ability(SP_WOODSMAN)) || (check_ability(SP_ELVEN))))
 	    {
 	      terrain_bonus = r_ptr->ac / 5 + 5;
 	    }

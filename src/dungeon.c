@@ -332,11 +332,11 @@ static void recharged_notice(object_type *o_ptr)
 {
   char o_name[120];
   
-	cptr s;
-
-	/* No inscription */
-	if (!o_ptr->note) return;
-
+  cptr s;
+  
+  /* No inscription */
+  if (!o_ptr->note) return;
+  
   /* Find a '!' */
   s = strchr(quark_str(o_ptr->note), '!');
   
@@ -361,8 +361,8 @@ static void recharged_notice(object_type *o_ptr)
           return;
         }
       
-		/* Keep looking for '!'s */
-		s = strchr(s + 1, '!');
+      /* Keep looking for '!'s */
+      s = strchr(s + 1, '!');
     }
 }
 
@@ -1204,7 +1204,7 @@ static void process_world(void)
               p_ptr->depth = 0;
               
               /* Leaving */
-				p_ptr->leaving = TRUE;
+	      p_ptr->leaving = TRUE;
             }
           else
             {
@@ -2028,7 +2028,7 @@ static void dungeon(void)
   /* Make basic mouse buttons */
   normal_screen = TRUE;
   (void) add_button("ESC", ESCAPE);
-  (void) add_button("Ret", '\r');
+  (void) add_button("Ent", '\r');
   (void) add_button("Spc", ' ');
   (void) add_button("Rpt", 'n');
   (void) add_button("Std", ',');
@@ -2250,6 +2250,9 @@ void play_game(bool new_game)
 {
 
   int i;
+
+  /* No restart */
+  game_start = FALSE;
   
   /* Hack -- Increase "icky" depth */
   character_icky++;
@@ -2280,7 +2283,7 @@ void play_game(bool new_game)
     {
       /* Oops */
       quit("broken savefile");
-	}
+    }
 
   /* Nothing loaded */
   if (!character_loaded)
@@ -2343,8 +2346,9 @@ void play_game(bool new_game)
       /* Roll up a new character */
       player_birth();
       
-      /* Start in home town */
-      p_ptr->stage = p_ptr->home;
+      /* Start in home town  - or on the stairs to Angband */
+      p_ptr->stage = (adult_thrall ? 135 : p_ptr->home);
+      p_ptr->depth = stage_map[p_ptr->stage][DEPTH];
       
       /* Hack -- enter the world */
       turn = 1;
@@ -2399,10 +2403,10 @@ void play_game(bool new_game)
 
   /* Set or clear "rogue_like_commands" if requested */
   if (arg_force_original) rogue_like_commands = FALSE;
-	if (arg_force_roguelike) rogue_like_commands = TRUE;
+  if (arg_force_roguelike) rogue_like_commands = TRUE;
 
 
-	/* React to changes */
+  /* React to changes */
   Term_xtra(TERM_XTRA_REACT, 0);
   
   
@@ -2554,8 +2558,9 @@ void play_game(bool new_game)
   /* Close stuff */
   close_game();
   
-  /* Quit */
-  quit(NULL);
+  /* New game? - later 
+  if (p_ptr->is_dead)
+  if (get_check("Do you want to play again?")) game_start = TRUE; */
 }
 
 

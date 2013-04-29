@@ -1,6 +1,6 @@
                                                                                
              ****************************************************              
-             **   FAangband 0.3.2  ****   First Age Angband    **              
+             **   FAangband 0.3.3  ****   First Age Angband    **              
              ** Beleriand in the days of the War of the Jewels **              
              ****************************************************              
                                                                                
@@ -13,7 +13,7 @@
      Diego Gonzalez, Andrew Doull, Andrew Sidwell, Pete Mack, Si Griffin.      
 	                                                                       
                                                                                
-     FAangband 0.1.0-0.3.2: Copyright (c) 2005-2008 Nick McConnell             
+     FAangband 0.1.0-0.3.3: Copyright (c) 2005-2008 Nick McConnell             
                                                                                
      Send comments, bug reports, and patches to "nckmccnnll@yahoo.com.au".     
      The FAangband home page is "http://angband.oook.cz/faangband".            

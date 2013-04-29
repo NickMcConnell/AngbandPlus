@@ -54,14 +54,14 @@
 /*
  * Current version string - according to FAangband reckoning.
  */
-#define VERSION_STRING	"0.3.2"
+#define VERSION_STRING	"0.3.3"
 
 /*
  * Current FAangband version numbers.
  */
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	3
-#define VERSION_PATCH	2
+#define VERSION_PATCH	3
 
 /*
  * The version_extra space in savefiles is used for encryption, oddly enough...
@@ -2199,8 +2199,13 @@
 
 /*** Squelch stuff ***/
 
-/* Number of bytes used in squelch sub-quality array */
+/* Number of bytes used in squelch sub-quality array - probably unnecessary */
 #define SQUELCH_BYTES    6
+
+/*
+ * Number of tvals for quality squelchable items
+ */
+#define TYPE_MAX 19
 
 
 /*** Monster blow constants ***/
@@ -3273,7 +3278,9 @@
 #define OPT_birth_take_notes            130/*(OPT_BIRTH_START+2)*/
 #define OPT_birth_preserve              131/*(OPT_BIRTH_START+3)*/
 #define OPT_birth_notes_save            132/*(OPT_BIRTH_START+4)*/
-/* No Ironman options */
+#define OPT_birth_ironman               133/*(OPT_BIRTH_START+0)*/
+#define OPT_birth_thrall                134/*(OPT_BIRTH_START+1)*/
+
 #define OPT_cheat_peek                  160        /*(OPT_CHEAT+0)*/
 #define OPT_cheat_hear                  161        /*(OPT_CHEAT+1)*/
 #define OPT_cheat_room                  162        /*(OPT_CHEAT+2)*/
@@ -3286,7 +3293,9 @@
 #define OPT_adult_take_notes            194/*(OPT_ADULT_START+2)*/
 #define OPT_adult_preserve              195/*(OPT_ADULT_START+3)*/
 #define OPT_adult_notes_save            196/*(OPT_ADULT_START+4)*/
-/* No Ironman options */
+#define OPT_adult_ironman               197/*(OPT_ADULT_START+3)*/
+#define OPT_adult_thrall                198/*(OPT_ADULT_START+4)*/
+
 /* xxx xxx */
 #define OPT_score_peek                  224      /*  (OPT_SCORE+0)*/
 #define OPT_score_hear                  225      /*  (OPT_SCORE+1)*/
@@ -3387,6 +3396,8 @@
 #define birth_take_notes                op_ptr->opt[OPT_birth_take_notes]      
 #define birth_preserve                  op_ptr->opt[OPT_birth_preserve]        
 #define birth_notes_save                op_ptr->opt[OPT_birth_notes_save]     
+#define birth_ironman                   op_ptr->opt[OPT_birth_point_based]     
+#define birth_thrall                    op_ptr->opt[OPT_birth_auto_roller]     
 
 #define cheat_peek			op_ptr->opt[OPT_cheat_peek]
 #define cheat_hear			op_ptr->opt[OPT_cheat_hear]	
@@ -3400,6 +3411,8 @@
 #define adult_take_notes                op_ptr->opt[OPT_adult_take_notes]    
 #define adult_preserve                  op_ptr->opt[OPT_adult_preserve]        
 #define adult_notes_save                op_ptr->opt[OPT_adult_notes_save]     
+#define adult_ironman                   op_ptr->opt[OPT_adult_ironman]     
+#define adult_thrall                    op_ptr->opt[OPT_adult_thrall]    
 
 #define score_peek			op_ptr->opt[OPT_score_peek]
 #define score_hear			op_ptr->opt[OPT_score_hear]	

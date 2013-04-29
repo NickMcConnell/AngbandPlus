@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:0.3.2
+V:0.3.3
 
 
 # General Store

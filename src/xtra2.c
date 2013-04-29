@@ -2069,6 +2069,39 @@ static int get_coin_type(monster_race *r_ptr)
 
 
 /*
+ * Create magical stairs after finishing a quest monster.
+ */
+static void build_quest_stairs(int y, int x, char *portal)
+{
+  int ny, nx;
+  
+  
+  /* Stagger around */
+  while (!cave_valid_bold(y, x))
+    {
+      int d = 1;
+      
+      /* Pick a location */
+      scatter(&ny, &nx, y, x, d, 0);
+      
+      /* Stagger */
+      y = ny; x = nx;
+    }
+  
+  /* Destroy any objects */
+  delete_object(y, x);
+  
+  /* Explain the staircase */
+  msg_format("A magical %s appears...", portal);
+  
+  /* Create stairs down */
+  cave_set_feat(y, x, FEAT_MORE);
+  
+  /* Update the visuals */
+  p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+}
+
+/*
  * Handle the "death" of a monster.
  *
  * Disperse treasures centered at the monster location based on the
@@ -2322,9 +2355,17 @@ void monster_death(int m_idx)
       /* Hack -- note completed quests */
       if (stage_map[q_list[i].stage][1] == r_ptr->level) q_list[i].stage = 0;
     }
+
+  /* Make a staircase for Morgoth */
+  if (r_ptr->level == 100)
+    build_quest_stairs(y, x, "staircase");
   
-  /* Hack - get out of Nan Dungortheb */
-  if (r_ptr->level == 70)
+  /* ...or a portal for ironmen */
+  else if (adult_ironman)
+    build_quest_stairs(y, x, "portal"); 
+  
+  /* or a path out of Nan Dungortheb */
+  else if (r_ptr->level == 70)
     {
       /* Make a path */
       for (y = p_ptr->py; y < DUNGEON_HGT - 2; y++)

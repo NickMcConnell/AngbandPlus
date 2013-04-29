@@ -53,22 +53,22 @@ static s16b stat_use[A_MAX];
  */
 static void save_prev_data(void)
 {
-	int i;
-
-
-	/*** Save the current data ***/
-
-	/* Save the data */
-	prev.age = p_ptr->age;
-	prev.wt = p_ptr->wt;
-	prev.ht = p_ptr->ht;
-	prev.sc = p_ptr->sc;
-	prev.au = p_ptr->au;
-
-	/* Save the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		prev.stat[i] = p_ptr->stat_max[i];
+  int i;
+  
+  
+  /*** Save the current data ***/
+  
+  /* Save the data */
+  prev.age = p_ptr->age;
+  prev.wt = p_ptr->wt;
+  prev.ht = p_ptr->ht;
+  prev.sc = p_ptr->sc;
+  prev.au = p_ptr->au;
+  
+  /* Save the stats */
+  for (i = 0; i < A_MAX; i++)
+    {
+      prev.stat[i] = p_ptr->stat_max[i];
     }
   
   /* Save the history */
@@ -84,24 +84,24 @@ static void save_prev_data(void)
  */
 static void load_prev_data(void)
 {
-	int i;
-
-	birther temp;
-
-
-	/*** Save the current data ***/
-
-	/* Save the data */
-	temp.age = p_ptr->age;
-	temp.wt = p_ptr->wt;
-	temp.ht = p_ptr->ht;
-	temp.sc = p_ptr->sc;
-	temp.au = p_ptr->au;
-
-	/* Save the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		temp.stat[i] = p_ptr->stat_max[i];
+  int i;
+  
+  birther temp;
+  
+  
+  /*** Save the current data ***/
+  
+  /* Save the data */
+  temp.age = p_ptr->age;
+  temp.wt = p_ptr->wt;
+  temp.ht = p_ptr->ht;
+  temp.sc = p_ptr->sc;
+  temp.au = p_ptr->au;
+  
+  /* Save the stats */
+  for (i = 0; i < A_MAX; i++)
+    {
+      temp.stat[i] = p_ptr->stat_max[i];
     }
   
   /* Save the history */
@@ -112,18 +112,18 @@ static void load_prev_data(void)
   
   /*** Load the previous data ***/
   
-	/* Load the data */
-	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
-
-	/* Load the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		p_ptr->stat_max[i] = prev.stat[i];
-		p_ptr->stat_cur[i] = prev.stat[i];
+  /* Load the data */
+  p_ptr->age = prev.age;
+  p_ptr->wt = prev.wt;
+  p_ptr->ht = prev.ht;
+  p_ptr->sc = prev.sc;
+  p_ptr->au = prev.au;
+  
+  /* Load the stats */
+  for (i = 0; i < A_MAX; i++)
+    {
+      p_ptr->stat_max[i] = prev.stat[i];
+      p_ptr->stat_cur[i] = prev.stat[i];
     }
   
   /* Load the history */
@@ -134,17 +134,17 @@ static void load_prev_data(void)
   
   /*** Save the current data ***/
   
-	/* Save the data */
-	prev.age = temp.age;
-	prev.wt = temp.wt;
-	prev.ht = temp.ht;
-	prev.sc = temp.sc;
-	prev.au = temp.au;
-
-	/* Save the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		prev.stat[i] = temp.stat[i];
+  /* Save the data */
+  prev.age = temp.age;
+  prev.wt = temp.wt;
+  prev.ht = temp.ht;
+  prev.sc = temp.sc;
+  prev.au = temp.au;
+  
+  /* Save the stats */
+  for (i = 0; i < A_MAX; i++)
+    {
+      prev.stat[i] = temp.stat[i];
     }
   
   /* Save the history */
@@ -200,14 +200,14 @@ static void get_stats(void)
     }
   
   /* Roll the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
-
-		/* Save that value */
-		p_ptr->stat_max[i] = j;
-
+  for (i = 0; i < A_MAX; i++)
+    {
+      /* Extract 5 + 1d3 + 1d4 + 1d5 */
+      j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+      
+      /* Save that value */
+      p_ptr->stat_max[i] = j;
+      
       /* Obtain a "bonus" for "race" and "class" */
       bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
       
@@ -325,20 +325,20 @@ static void get_history(void)
   /* Initial social class */
   social_class = randint(4);
   
-	/* Starting place */
-	chart = rp_ptr->hist;
-
-
-	/* Process the history */
-	while (chart)
-	{
-		/* Start over */
-		i = 0;
-
-		/* Roll for nobility */
-		roll = randint(100);
-
-		/* Get the proper entry in the table */
+  /* Starting place */
+  chart = rp_ptr->hist;
+  
+  
+  /* Process the history */
+  while (chart)
+    {
+      /* Start over */
+      i = 0;
+      
+      /* Roll for nobility */
+      roll = randint(100);
+      
+      /* Get the proper entry in the table */
       while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
       
       /* Get the textual history */
@@ -347,64 +347,64 @@ static void get_history(void)
       /* Add in the social class */
       social_class += (int)(h_info[i].bonus) - 50;
 
-		/* Enter the next chart */
-		chart = h_info[i].next;
+      /* Enter the next chart */
+      chart = h_info[i].next;
+    }
+  
+  
+  
+  /* Verify social class */
+  if (social_class > 100) social_class = 100;
+  else if (social_class < 1) social_class = 1;
+  
+  /* Save the social class */
+  p_ptr->sc = social_class;
+  
+  
+  /* Skip leading spaces */
+  for (s = buf; *s == ' '; s++) /* loop */;
+  
+  /* Get apparent length */
+  n = strlen(s);
+  
+  /* Kill trailing spaces */
+  while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+  
+  
+  /* Start at first line */
+  i = 0;
+  
+  /* Collect the history */
+  while (TRUE)
+    {
+      /* Extract remaining length */
+      n = strlen(s);
+      
+      /* All done */
+      if (n < 60)
+	{
+	  /* Save one line of history */
+	  strcpy(p_ptr->history[i++], s);
+          
+	  /* All done */
+	  break;
 	}
-
-
-
-	/* Verify social class */
-	if (social_class > 100) social_class = 100;
-	else if (social_class < 1) social_class = 1;
-        
-        /* Save the social class */
-        p_ptr->sc = social_class;
-        
-        
-        /* Skip leading spaces */
-        for (s = buf; *s == ' '; s++) /* loop */;
-        
-        /* Get apparent length */
-        n = strlen(s);
-        
-        /* Kill trailing spaces */
-        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-        
-        
-        /* Start at first line */
-        i = 0;
-        
-        /* Collect the history */
-        while (TRUE)
-          {
-            /* Extract remaining length */
-            n = strlen(s);
-            
-            /* All done */
-            if (n < 60)
-              {
-                /* Save one line of history */
-                strcpy(p_ptr->history[i++], s);
-                
-                /* All done */
-                break;
-              }
-            
-            /* Find a reasonable break-point */
-            for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
-            
-            /* Save next location */
-            t = s + n;
-            
-            /* Wipe trailing spaces */
-            while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-            
-            /* Save one line of history */
-            strcpy(p_ptr->history[i++], s);
-            
-            /* Start next line */
-            for (s = t; *s == ' '; s++) /* loop */;
-          }
+      
+      /* Find a reasonable break-point */
+      for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+      
+      /* Save next location */
+      t = s + n;
+      
+      /* Wipe trailing spaces */
+      while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+      
+      /* Save one line of history */
+      strcpy(p_ptr->history[i++], s);
+      
+      /* Start next line */
+      for (s = t; *s == ' '; s++) /* loop */;
+    }
 }
 
 /* 
@@ -573,7 +573,7 @@ static void get_level(void)
 {
 
   /* Check if they're an "advanced race" */
-  if (rp_ptr->start_lev - 1)
+  if ((rp_ptr->start_lev - 1) && (!adult_thrall))
     {
       /* Add the experience */
       p_ptr->exp = player_exp[rp_ptr->start_lev - 2];
@@ -595,7 +595,7 @@ static void get_level(void)
     }
 
   /* Set home town */
-  p_ptr->home = towns[rp_ptr->hometown];
+  p_ptr->home = (adult_thrall ? 0 : towns[rp_ptr->hometown]);
 }
 
 
@@ -606,22 +606,22 @@ static void get_level(void)
  */
 static void get_ahw(void)
 {
-	/* Calculate the age */
-	p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
-
-	/* Calculate the height/weight for males */
-	if (p_ptr->psex == SEX_MALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
-	}
-
-	/* Calculate the height/weight for females */
-	else if (p_ptr->psex == SEX_FEMALE)
-	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
-	}
+  /* Calculate the age */
+  p_ptr->age = rp_ptr->b_age + randint(rp_ptr->m_age);
+  
+  /* Calculate the height/weight for males */
+  if (p_ptr->psex == SEX_MALE)
+    {
+      p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+      p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+    }
+  
+  /* Calculate the height/weight for females */
+  else if (p_ptr->psex == SEX_FEMALE)
+    {
+      p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+      p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+    }
 }
 
 
@@ -632,23 +632,23 @@ static void get_ahw(void)
  */
 static void get_money(void)
 {
-	int i;
-
-	int gold;
-
-	/* Social Class determines starting gold */
-	gold = (p_ptr->sc * 6) + randint(100) + 300;
-
-	/* Process the stats */
-	for (i = 0; i < A_MAX; i++)
-	{
-		/* Mega-Hack -- reduce gold for high stats */
-		if (stat_use[i] >= 18+50) gold -= 300;
-		else if (stat_use[i] >= 18+20) gold -= 200;
-		else if (stat_use[i] > 18) gold -= 150;
-		else gold -= (stat_use[i] - 8) * 10;
-	}
-
+  int i;
+  
+  int gold;
+  
+  /* Social Class determines starting gold */
+  gold = (p_ptr->sc * 6) + randint(100) + 300;
+  
+  /* Process the stats */
+  for (i = 0; i < A_MAX; i++)
+    {
+      /* Mega-Hack -- reduce gold for high stats */
+      if (stat_use[i] >= 18+50) gold -= 300;
+      else if (stat_use[i] >= 18+20) gold -= 200;
+      else if (stat_use[i] > 18) gold -= 150;
+      else gold -= (stat_use[i] - 8) * 10;
+    }
+  
   /* Minimum 100 gold */
   if (gold < 100) gold = 100;
   
@@ -944,13 +944,62 @@ static void player_outfit(void)
 	  i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
           
           /* Nasty hack for "advanced" races -NRM- */
-          object_upgrade(i_ptr);
+          if (!adult_thrall) object_upgrade(i_ptr);
           
           object_aware(i_ptr);
           object_known(i_ptr);
 	  (void)inven_carry(i_ptr);
 	  k_info[k_idx].everseen = TRUE;
         }
+    }
+
+  /* Dungeon gear for escaping thralls */
+  if (adult_thrall)
+    {
+      /* Telepathy */
+      object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_ESP));
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
+
+      /* Magic mastery */
+      object_prep(i_ptr, lookup_kind(TV_AMULET, SV_AMULET_MAGIC_MASTERY));
+      i_ptr->pval = 4;
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
+
+      /* Detection */
+      object_prep(i_ptr, lookup_kind(TV_STAFF, SV_STAFF_DETECTION));
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
+
+      /* Mapping */
+      object_prep(i_ptr, lookup_kind(TV_ROD, SV_ROD_MAPPING));
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
+
+      /* Destruction */
+      object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_STAR_DESTRUCTION));
+      i_ptr->number = 5;
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
+
+      /* Identify */
+      object_prep(i_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
+      i_ptr->number = 25;
+      object_aware(i_ptr);
+      object_known(i_ptr);
+      (void)inven_carry(i_ptr);
+      k_info[i_ptr->k_idx].everseen = TRUE;
     }
 
   /* Now try wielding everything */
@@ -979,13 +1028,13 @@ static void player_outfit(void)
  */
 static void clear_question(void)
 {
-	int i;
-
-	for (i = QUESTION_ROW; i < TABLE_ROW; i++)
-	{
-		/* Clear line, position cursor */
-		Term_erase(0, i, 255);
-	}
+  int i;
+  
+  for (i = QUESTION_ROW; i < TABLE_ROW; i++)
+    {
+      /* Clear line, position cursor */
+      Term_erase(0, i, 255);
+    }
 }
 /* =================================================== */
 
@@ -1064,11 +1113,13 @@ static region gender_region = {SEX_COL, TABLE_ROW, 15, -2};
 static region race_region = {RACE_COL, TABLE_ROW, 15, -2};
 static region class_region = {CLASS_COL, TABLE_ROW, 19, -2};
 static region roller_region = {ROLLER_COL, TABLE_ROW, 21, -2};
+static region mode_region = {ROLLER_COL, TABLE_ROW + 4, 21, -2};
 /* There must be a better way to do this... */
 static region gender_region_sml = {SEX_COL_SML, TABLE_ROW, 15, -2};
 static region race_region_sml = {RACE_COL_SML, TABLE_ROW, 15, -2};
 static region class_region_sml = {CLASS_COL_SML, TABLE_ROW, 19, -2};
 static region roller_region_sml = {ROLLER_COL_SML, TABLE_ROW, 21, -2};
+static region mode_region_sml = {ROLLER_COL_SML, TABLE_ROW + 4, 21, -2};
 
 
 /* Event handler implementation */
@@ -1188,12 +1239,54 @@ static bool roller_handler(char cmd, void *db, int oid)
   return TRUE;
 }
 
+/* MODE */
+static void display_mode(menu_type *menu, int oid, bool cursor,
+			   int row, int col, int width)
+{
+  byte attr = curs_attrs[CURS_KNOWN][0 != cursor];
+  const char *str;
+  
+  if (oid == 0)
+    str = "Standard game";
+  else if (oid == 1)
+    str = "Ironman mode";
+  else
+    str = "Thrall mode";
+  
+  c_prt(attr, str, row, col);
+}
+
+
+static byte mode_type = 0;
+#define MODE_STANDARD    0
+#define MODE_IRONMAN     1
+#define MODE_THRALL      2
+
+static bool mode_handler(char cmd, void *db, int oid)
+{
+  if (cmd == '\xff' || cmd == '\r')
+    {
+      mode_type = oid;
+      op_ptr->opt[OPT_birth_ironman] = FALSE;
+      op_ptr->opt[OPT_birth_thrall] = FALSE;
+      if (oid == 1) op_ptr->opt[OPT_birth_ironman] = TRUE;
+      else if (oid == 2) op_ptr->opt[OPT_birth_thrall] = TRUE;
+    }
+  else if(cmd == KTRL('X'))
+    quit(NULL);
+  else
+    return FALSE;
+  
+  return TRUE;
+}
+
 
 static const menu_iter menu_defs[] = {
   { 0, 0, 0, display_gender, gender_handler },
   { 0, 0, 0, display_race, race_handler },
   { 0, 0, 0, display_class, class_handler },
   { 0, 0, 0, display_roller, roller_handler },
+  { 0, 0, 0, display_mode, mode_handler },
 };
 
 /* Menu display and selector */
@@ -1202,7 +1295,7 @@ static const menu_iter menu_defs[] = {
 #define ARACE 1
 #define ACLASS 2
 #define AROLL 3
-
+#define AMODE 4
 
 
 static bool choose_character()
@@ -1210,9 +1303,9 @@ static bool choose_character()
   int i = 0;
   
   const region *regions[] = { &gender_region, &race_region, &class_region, 
-			      &roller_region };
-  byte *values[4]; /* { &p_ptr->psex, &p_ptr->prace, &p_ptr->pclass }; */
-  int limits[4]; /* { SEX_MALE +1, z_info->p_max, z_info->c_max }; */
+			      &roller_region, &mode_region };
+  byte *values[5]; /* { &p_ptr->psex, &p_ptr->prace, &p_ptr->pclass }; */
+  int limits[5]; /* { SEX_MALE +1, z_info->p_max, z_info->c_max }; */
   
   menu_type menu;
   
@@ -1225,11 +1318,13 @@ static bool choose_character()
       "Your class determines your magic realm (if any),", 
       "and various other intrinsic factors and bonuses.",
       "Your choice of character generation.",
-      "Point-based is recommended."
+      "Point-based is recommended.",
+      "Ironman mode means you can never go home,",
+      "thrall mode means you have no home.  Beware."
     };
   
   typedef void (*browse_f) (int oid, void *, const region *loc);
-  browse_f browse[] = {NULL, race_aux_hook, class_aux_hook, NULL };
+  browse_f browse[] = {NULL, race_aux_hook, class_aux_hook, NULL, NULL };
 
   /* Hack! */  
   if (small_screen) 
@@ -1238,6 +1333,7 @@ static bool choose_character()
       regions[1] =  &race_region_sml;
       regions[2] =  &class_region_sml;
       regions[3] = &roller_region_sml;
+      regions[4] = &mode_region_sml;
     }
 
   /* Stupid ISO C array initialization. */
@@ -1245,10 +1341,12 @@ static bool choose_character()
   values[ARACE] = &p_ptr->prace;
   values[ACLASS] = &p_ptr->pclass;
   values[AROLL] = &roller_type;
+  values[AMODE] = &mode_type;
   limits[ASEX] = SEX_MALE + 1;
   limits[ARACE] = z_info->p_max;
   limits[ACLASS] = z_info->c_max;
   limits[AROLL] = 3;
+  limits[AMODE] = 3;
   
   WIPE(&menu, menu);
   menu.cmd_keys = "?*\r\n\x18";		 /* ?, *, \n, <ctl-X> */
@@ -1359,11 +1457,9 @@ static bool player_birth_aux_1(void)
   if (!choose_character()) return FALSE;
   
 
-#if 0  
   /* Set adult options from birth options */
   for (i = OPT_birth_start; i < OPT_cheat_start; i++)
   op_ptr->opt[OPT_adult_start + (i - OPT_birth_start)] = op_ptr->opt[i];
-#endif
   
   /* Reset score options from cheat options */
   for (i = OPT_cheat_start; i < OPT_adult_start; i++)
@@ -1374,7 +1470,7 @@ static bool player_birth_aux_1(void)
     k_info[i].squelch = FALSE;
   
   /* Clear the squelch bytes */
-  for (i = 0; i < SQUELCH_BYTES; i++)
+  for (i = 0; i < TYPE_MAX; i++)
     squelch_level[i] = 0;
   
   

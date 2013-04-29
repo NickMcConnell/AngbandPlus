@@ -4237,6 +4237,10 @@ void pick_trap(int y, int x)
 	    if (stage_map[p_ptr->stage][STAGE_TYPE] > CAVE)
 	      trap_is_okay = FALSE;
 	    
+	    /* Trap doors only in dungeons in ironman */
+	    if ((adult_ironman) && (stage_map[p_ptr->stage][STAGE_TYPE] < CAVE))
+	      trap_is_okay = FALSE;
+	    
 	    break;
 	  }
 	  
