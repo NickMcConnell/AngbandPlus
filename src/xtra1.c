@@ -127,52 +127,53 @@ static void prt_stat(int stat)
 	char tmp[32];
 
 	/* Display "injured" stat */
-	if (p_ptr->stat_use[stat] < p_ptr->stat_top[stat])
+	if (p_ptr->stat_use[stat] < p_ptr->stat_top[stat] 
+		 || (p_ptr->stat_dec_tim[stat] && !p_ptr->stat_inc_tim[stat]))
 	{
-	  if (show_sidebar)
-	    {
-	      put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
-	      cnv_stat(p_ptr->stat_use[stat], tmp);
-	      if (p_ptr->stat_dec_tim[stat])
-		c_put_str(TERM_ORANGE, tmp, ROW_STAT + stat, COL_STAT + 6);
-	      else
-		c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
-	    }
-	  else
-	    {
-	      if (p_ptr->stat_dec_tim[stat])
-		c_put_str(TERM_ORANGE, stat_names_reduced_short[stat], 
-			  ROW_STAT, COL_STAT + 3 * stat);
-	      else
-		c_put_str(TERM_YELLOW, stat_names_reduced_short[stat], 
-			  ROW_STAT, COL_STAT + 3 * stat);
-	    }
+		if (show_sidebar)
+		{
+			put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
+			cnv_stat(p_ptr->stat_use[stat], tmp);
+			if (p_ptr->stat_dec_tim[stat] && !p_ptr->stat_inc_tim[stat])
+				c_put_str(TERM_ORANGE, tmp, ROW_STAT + stat, COL_STAT + 6);
+			else
+				c_put_str(TERM_YELLOW, tmp, ROW_STAT + stat, COL_STAT + 6);
+		}
+		else
+		{
+			if (p_ptr->stat_dec_tim[stat] && !p_ptr->stat_inc_tim[stat])
+				c_put_str(TERM_ORANGE, stat_names_reduced_short[stat], 
+							 ROW_STAT, COL_STAT + 3 * stat);
+			else
+				c_put_str(TERM_YELLOW, stat_names_reduced_short[stat], 
+							 ROW_STAT, COL_STAT + 3 * stat);
+		}
 	}
 
 	/* Display "healthy" stat */
 	else
 	{
-	  if (show_sidebar)
-	    {
+		if (show_sidebar)
+		{
 	      put_str(stat_names[stat], ROW_STAT + stat, 0);
 	      cnv_stat(p_ptr->stat_use[stat], tmp);
-	      if (p_ptr->stat_inc_tim[stat])
-		c_put_str(TERM_L_BLUE, tmp, ROW_STAT + stat, COL_STAT + 6);
+	      if (p_ptr->stat_inc_tim[stat] && !p_ptr->stat_dec_tim[stat])
+				c_put_str(TERM_L_BLUE, tmp, ROW_STAT + stat, COL_STAT + 6);
 	      else
-		c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
-	    }
-	  else
-	    if (p_ptr->stat_inc_tim[stat])
+				c_put_str(TERM_L_GREEN, tmp, ROW_STAT + stat, COL_STAT + 6);
+		}
+		else
+			if (p_ptr->stat_inc_tim[stat] && !p_ptr->stat_dec_tim[stat])
 	      {
-		char stat_name[4];
-		sprintf(stat_name, "%.3s", stat_names[stat]);
+				char stat_name[4];
+				sprintf(stat_name, "%.3s", stat_names[stat]);
 
-		c_put_str(TERM_L_BLUE, stat_name, 
-			  ROW_STAT, COL_STAT + 3 * stat);
+				c_put_str(TERM_L_BLUE, stat_name, 
+							 ROW_STAT, COL_STAT + 3 * stat);
 	      }
-	    else
+			else
 	      {
-		put_str("   ", ROW_STAT, COL_STAT + 3 * stat);
+				put_str("   ", ROW_STAT, COL_STAT + 3 * stat);
 	      }
 	}
 
@@ -256,9 +257,9 @@ static void prt_exp(void)
 	{
 		attr = TERM_YELLOW;
 	}
-
-	/*some players want to see how much they need to gain to get to the next level*/
-	if ((toggle_xp) && (p_ptr->lev < PY_MAX_LEVEL))
+	
+	/* On the main screen print additional experience needed to advance */
+	if (p_ptr->lev < PY_MAX_LEVEL)
 	{
 		exp_display = ((player_exp[p_ptr->lev - 1] 
 				* p_ptr->expfact / 100L) -
@@ -374,11 +375,8 @@ static void prt_sp(void)
 	if (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL
 	    && p_ptr->pstyle != WS_MAGIC_BOOK
 	    && p_ptr->pstyle != WS_PRAYER_BOOK
-	    && p_ptr->pstyle != WS_SONG_BOOK) {
-	  if (!show_sidebar)
-	    prt_ac();
-	  return;
-	}
+	    && p_ptr->pstyle != WS_SONG_BOOK)
+		return;
 
 	put_str((show_sidebar ? "Max SP " : "/    "), ROW_MAXSP, COL_MAXSP);
 
@@ -422,13 +420,8 @@ static void prt_depth(void)
   if (!adult_campaign) {
 
 	char depths[8];
-	town_type *t_ptr = &t_info[p_ptr->dungeon];
-	dungeon_zone *zone = &t_ptr->zone[0];
 
-	/* Get the zone */	
-	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
-
-	if (!zone->fill && zone->level <= 10 && t_ptr->store[3])
+	if (is_typical_town(p_ptr->dungeon, p_ptr->depth))
 	{
 		my_strcpy(depths, "Town", sizeof(depths));
 	}
@@ -1626,8 +1619,12 @@ static void prt_frame_basic(void)
 	for (i = 0; i < A_MAX; i++) prt_stat(i);
 
 	/* Armor */
-	if (show_sidebar) 
-	  prt_ac();
+	if (show_sidebar
+		 || (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL
+			  && p_ptr->pstyle != WS_MAGIC_BOOK
+			  && p_ptr->pstyle != WS_PRAYER_BOOK
+			  && p_ptr->pstyle != WS_SONG_BOOK)) 
+		prt_ac();
 
 	/* Hitpoints */
 	prt_hp();
@@ -3022,13 +3019,6 @@ static void calc_torch(void)
 		equip_can_flags(0x0L,0x0L,TR3_LITE,0x0L);
 #endif
 		p_ptr->cur_lite += p_ptr->glowing;
-	}
-
-	/* Reduce lite when running if requested */
-	if (p_ptr->running && view_reduce_lite)
-	{
-		/* Reduce the lite radius if needed */
-		if (p_ptr->cur_lite > 1) p_ptr->cur_lite = 1;
 	}
 
 	/* Notice changes in the "lite radius" */
@@ -4581,8 +4571,12 @@ void redraw_stuff(void)
 	if (p_ptr->redraw & (PR_ARMOR))
 	{
 		p_ptr->redraw &= ~(PR_ARMOR);
-		if (show_sidebar) 
-		  prt_ac();
+		if (show_sidebar
+			 || (c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL
+				  && p_ptr->pstyle != WS_MAGIC_BOOK
+				  && p_ptr->pstyle != WS_PRAYER_BOOK
+				  && p_ptr->pstyle != WS_SONG_BOOK)) 
+			prt_ac();
 	}
 
 	if (p_ptr->redraw & (PR_HP))
@@ -4596,7 +4590,7 @@ void redraw_stuff(void)
 		 * using this command when graphics mode is on
 		 * causes the character to be a black square.
 		 */
-		if ((view_player_lite) && (arg_graphics == GRAPHICS_NONE))
+		if (arg_graphics == GRAPHICS_NONE)
 		{
 		 	lite_spot(p_ptr->py, p_ptr->px);
 		}

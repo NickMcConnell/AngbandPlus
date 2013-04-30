@@ -65,7 +65,7 @@ M:S:622
 M:Y:30
 
 # Maximum number of owners per store
-M:B:4
+M:B:8
 
 # Maximum number of fixed quests
 M:Q:8

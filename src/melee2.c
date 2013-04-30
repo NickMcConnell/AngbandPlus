@@ -1819,8 +1819,8 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	breath_hp = (m_ptr->hp > 2000 ? m_ptr->hp : 2000);
 	breath_maxhp = (m_ptr->maxhp > 2000 ? m_ptr->maxhp : 2000);
 
-	/* Cheat if requested. */
-	if ((smart_cheat)/* || (r_ptr->flags9 & (RF9_PLAYER_GHOST)) */)
+	/* Cheat if a player ghost. */
+	if (0/* r_ptr->flags9 & (RF9_PLAYER_GHOST) */)
 	{
 		update_smart_cheat(m_idx);
 	}
@@ -2341,7 +2341,7 @@ static void get_move_advance(int m_idx, int *ty, int *tx)
 
 	int lowest_cost = 250;
 
-	bool use_sound = FALSE;
+	bool use_sounds = FALSE;
 	bool use_scent = FALSE;
 
 	monster_type *m_ptr = &m_list[m_idx];
@@ -2371,7 +2371,7 @@ static void get_move_advance(int m_idx, int *ty, int *tx)
 	/* If we can hear noises, advance towards them */
 	if (cave_cost[y1][x1])
 	{
-		use_sound = TRUE;
+		use_sounds = TRUE;
 	}
 
 	/* Otherwise, try to follow a scent trail */
@@ -2381,7 +2381,7 @@ static void get_move_advance(int m_idx, int *ty, int *tx)
 	}
 
 	/* Otherwise, advance blindly */
-	if ((!use_sound) && (!use_scent))
+	if ((!use_sounds) && (!use_scent))
 	{
 		*ty = py;
 		*tx = px;
@@ -5078,8 +5078,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					else if (f_info[feat].flags3 & (FF3_TREE)) msg_print("You hear a tree crash down!");
 					else msg_print("You hear wood split asunder!");
 
-					/* Disturb (sometimes) */
-					if (disturb_minor) disturb(0, 0);
+					/* Disturb */
+					disturb(0, 0);
 				}
 
 				/* Break down the door */
@@ -5097,8 +5097,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					do_view = TRUE;
 				}
 
-				/* Optional disturb for non-viewable doors */
-				else if (disturb_minor) disturb(0, 0);
+				/* Disturb for non-viewable doors */
+				else disturb(0, 0);
 	
 			}
 
@@ -5113,8 +5113,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					else if (f_info[feat].flags3 & (FF3_TREE)) msg_print("You hear a tree crash down!");
 					else msg_print("You hear wood split asunder!");
 
-					/* Disturb (sometimes) */
-					if (disturb_minor) disturb(0, 0);
+					/* Disturb */
+					disturb(0, 0);
 				}
 
 				/* The door was bashed open */
@@ -5136,8 +5136,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					do_view = TRUE;
 				}
 
-				/* Optional disturb for non-viewable doors */
-				else if (disturb_minor) disturb(0, 0);
+				/* Disturb for non-viewable doors */
+				else disturb(0, 0);
 			}
 
 			/* Monster opens the door */

@@ -3,6 +3,7 @@ mkdir unangband-062-win\lib
 mkdir unangband-062-win\lib\apex
 mkdir unangband-062-win\lib\bone
 mkdir unangband-062-win\lib\data
+mkdir unangband-062-win\lib\docs
 mkdir unangband-062-win\lib\edit
 mkdir unangband-062-win\lib\file
 mkdir unangband-062-win\lib\help
@@ -32,6 +33,7 @@ copy faq.txt unangband-062-win
 copy bugs.txt unangband-062-win
 copy nocompile.txt unangband-062-win\compile.txt
 
+copy lib\docs\*.rtf unangband-062-win\lib\docs
 copy lib\edit\*.txt unangband-062-win\lib\edit
 
 copy lib\file\*.txt unangband-062-win\lib\file

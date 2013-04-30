@@ -139,7 +139,7 @@ unangband_SOURCES = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c info.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c \
+  store.c birth.c load.c option.c \
   wizard1.c wizard2.c \
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
   main-win.c main-xpj.c main-vcs.c main-gtk.c \
@@ -147,7 +147,7 @@ unangband_SOURCES = \
   angband.h config.h defines.h externs.h h-basic.h \
   h-config.h h-define.h h-system.h h-type.h init.h \
   types.h z-form.h z-rand.h z-term.h z-util.h \
-  z-virt.h main.h
+  z-virt.h option.h main.h
 
 
 EXTRA_unangband_SOURCES = \
@@ -175,7 +175,7 @@ am_unangband_OBJECTS = z-util.$(OBJEXT) z-virt.$(OBJEXT) \
 	cave.$(OBJEXT) object1.$(OBJEXT) object2.$(OBJEXT) \
 	monster1.$(OBJEXT) monster2.$(OBJEXT) xtra1.$(OBJEXT) \
 	xtra2.$(OBJEXT) spells1.$(OBJEXT) spells2.$(OBJEXT) \
-	melee1.$(OBJEXT) melee2.$(OBJEXT) save.$(OBJEXT) \
+	melee1.$(OBJEXT) melee2.$(OBJEXT) save.$(OBJEXT) option.$(OBJEXT) \
 	files.$(OBJEXT) info.$(OBJEXT) cmd1.$(OBJEXT) cmd2.$(OBJEXT) \
 	cmd3.$(OBJEXT) cmd4.$(OBJEXT) cmd5.$(OBJEXT) cmd6.$(OBJEXT) \
 	store.$(OBJEXT) birth.$(OBJEXT) load.$(OBJEXT) \
@@ -205,7 +205,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/main-dos.Po ./$(DEPDIR)/main-emx.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-gcu.Po ./$(DEPDIR)/main-gtk.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-ibm.Po ./$(DEPDIR)/main-lsl.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/main-ros.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/main-ros.Po ./$(DEPDIR)/option.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-sla.Po ./$(DEPDIR)/main-vcs.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-vme.Po ./$(DEPDIR)/main-win.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/main-x11.Po ./$(DEPDIR)/main-xaw.Po \
@@ -332,6 +332,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monster2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/object1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/object2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/option.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/randart.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readdib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/save.Po@am__quote@

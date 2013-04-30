@@ -16,6 +16,7 @@ mkdir $DEST/lib/bone
 mkdir $DEST/lib/data
 mkdir $DEST/lib/edit
 mkdir $DEST/lib/file
+mkdir $DEST/lib/docs
 mkdir $DEST/lib/help
 mkdir $DEST/lib/info
 mkdir $DEST/lib/pref
@@ -40,6 +41,7 @@ cp faq.txt $DEST
 cp bugs.txt $DEST
 cp nocompile.txt $DEST/compile.txt
 
+cp lib/docs/*.rtf $DEST/lib/docs
 cp lib/edit/*.txt $DEST/lib/edit
 
 cp lib/file/*.txt $DEST/lib/file

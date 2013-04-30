@@ -23,6 +23,11 @@
 typedef struct birther birther;
 typedef struct birth_menu birth_menu;
 
+/* Hack: moved from options */
+bool birth_point_based = FALSE;
+bool birth_auto_roller = FALSE;
+bool birth_quickstart = FALSE;
+
 /*
  * A structure to hold "rolled" information
  */
@@ -402,6 +407,10 @@ static void player_wipe(void)
 		t_info[i].attained_depth = min_depth(i);
 		t_info[i].visited = 0;
 	}
+
+	/* Clear help tips; quarks not freed, will be reused */
+	tips_start = 0;
+	tips_end = 0;
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
@@ -1393,30 +1402,8 @@ static bool get_player_class(void)
 	/* Tabulate classes */
 	for (i = 0; i < z_info->c_max; i++)
 	{
-		/* Don't ghost classes by default */
-		bool ghost = FALSE;
-
-		/* Ghost if not warrior, and two stats are -4 or below, or 1 is -5 or below */
-		if (i)
-		{
-			int j;
-			bool minus_4 = FALSE;
-			
-			for (j = 0; j < A_MAX; j++)
-			{
-			    /* Obtain a "bonus" for "race" and "class" */
-				int value = rp_ptr->r_adj[j] + c_info[i].c_adj[j];
-
-				if ((value <= -5) || (minus_4 && value <= -4))
-				{
-					ghost = TRUE;
-				}
-				else if (value <= -4)
-				{
-					minus_4 = TRUE;
-				}
-			}
-		}
+		/* Ghost classes based on available choices */
+		bool ghost = (rp_ptr->choice & (1 << i)) == FALSE;
 
 		/* 'Ghosted' entries unavailable for intermediate players */
 		if (birth_intermediate && ghost) continue;
@@ -1951,22 +1938,22 @@ static bool get_player_difficulty(void)
 
 		case 0:
 			birth_beginner = TRUE;
-			birth_small_levels = FALSE;
+/*			birth_small_levels = FALSE; */
 			birth_intermediate = FALSE;
 			break;
 		case 1:
 			birth_beginner = FALSE;
-			birth_small_levels = TRUE;
+/*			birth_small_levels = TRUE; */
 			birth_intermediate = TRUE;
 			break;
 		case 2:
 			birth_beginner = FALSE;
-			birth_small_levels = FALSE;
+/*			birth_small_levels = FALSE; */
 			birth_intermediate = TRUE;
 			break;
 		case 3:
 			birth_beginner = FALSE;
-			birth_small_levels = FALSE;
+/*			birth_small_levels = FALSE; */
 			birth_intermediate = FALSE;
 			break;
 	}
@@ -2204,16 +2191,16 @@ static bool player_birth_aux_1(void)
 		fprintf(fff, "# Automatic startup option dump\n\n");
 
 		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_first_time ? 'Y' : 'X', option_text[OPT_birth_first_time]);
+		fprintf(fff, "%c:%s\n", birth_first_time ? 'Y' : 'X', option_name(OPT_birth_first_time));
 
 		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", rogue_like_commands ? 'Y' : 'X', option_text[OPT_rogue_like_commands]);
+		fprintf(fff, "%c:%s\n", rogue_like_commands ? 'Y' : 'X', option_name(OPT_rogue_like_commands));
 
 		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_beginner ? 'Y' : 'X', option_text[OPT_birth_beginner]);
+		fprintf(fff, "%c:%s\n", birth_beginner ? 'Y' : 'X', option_name(OPT_birth_beginner));
 
 		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_intermediate ? 'Y' : 'X', option_text[OPT_birth_intermediate]);
+		fprintf(fff, "%c:%s\n", birth_intermediate ? 'Y' : 'X', option_name(OPT_birth_intermediate));
 		
 		/* Close */
 		my_fclose(fff);
@@ -2520,7 +2507,7 @@ static bool player_birth_aux_3(void)
 	/*** Autoroll ***/
 
 	/* Initialize */
-	if (adult_auto_roller)
+	if (birth_auto_roller)
 	{
 		int mval[A_MAX];
 
@@ -2629,7 +2616,7 @@ static bool player_birth_aux_3(void)
 		int col = 42;
 
 		/* Feedback */
-		if (adult_auto_roller)
+		if (birth_auto_roller)
 		{
 			Term_clear();
 
@@ -2875,13 +2862,13 @@ static bool player_birth_aux(void)
 	}
 
 	/* Quickstarting */
-	if (adult_beginner || adult_quickstart)
+	if (adult_beginner || birth_quickstart)
 	{
 		/* Already rolled stats */
 	}
 	
 	/* Point-based */
-	else if (adult_point_based)
+	else if (birth_point_based)
 	{
 		/* Point based */
 		if (!player_birth_aux_2()) return (FALSE);
@@ -3026,7 +3013,7 @@ void player_birth(void)
 	}
 
 	/* Use quickstart as a proxy for played this class/race before */
-	if (!adult_quickstart)
+	if (!birth_quickstart)
 	{
 		/* Race tips */
 		queue_tip(format("race%d.txt", p_ptr->prace));

@@ -11,11 +11,11 @@ Dextrous Hand             Sinister hand
 
 Long Sword                Long Sword
 Morningstar               Morningstar
-(identical weapons 15 lbs or lighter)
+(same weapons 15 lbs or lighter)
 
 Dagger                    Rapier
 Ball & Chain              Spear
 Harpoon                   Glaive
-(a throwing weapon and one no heavier than 20 lb)
+(a weapon heavier than 20 lb and a throwing one)
 
              -- The promoter of a dubious event

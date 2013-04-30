@@ -8,61 +8,18 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/p_class.raw" file.
 
-# === Understanding p_class.txt ===
-
-# Format:
-# N:class number:class name
-# S:str:int:wis:dex:con:chr:agi:siz
-# C:dis:dev:sav:stl:srh:dig:tht:thn:thb
-# X:dis:dev:sav:stl:srh:dig:tht:thn:thb
-# I:exp:sense_base:sense_div:sense_type:sense_squared
-# A:max_attacks:min_weight:att_multiply:chg_weight
-# M:spellbook tval:spell-stat-study:spell-stat-mana:spell-stat-fail:first-level:max weight:high-power
-# B:spell number:level:mana:fail:exp
-# T:title
-# E:tval:sval:min:maxef
-# F:school flags
-
-# 'N' indicates the beginning of an entry. The serial number must
-# increase for each new class.
-
-# 'S' is for the stat modifiers - strength, intelligence, wisdom,
-# dexterity, constitution, charisma, agility, size.
-
-# 'C' is for the base skills - disarming, magic devices, saving throws,
-# stealth, searching ability, digging, to hit (throws), to hit (normal),
-# to hit (bows).
-
-# 'X' is for the skill modifiers - disarming, magic devices, saving
-# throws, stealth, searching ability, digging, to hit (throws), to hit
-# (normal), to hit (bows).  The modifiers are added to the base skill
-# every ten levels.
-
-# 'I' is for extra info - experience factor in percent, 
-# base chance for pseudo-id (smaller is better),
-# level dependent divisor for the pseudo-id chance, type of sensing
-# (see object2.c), sense squared.
-
-# 'A' is for attack info - maximum possible number of attacks, minimum
-# weapon weight for calculating the number of attacks, multiplier for
-# attack calculations, weight divisor for charging.
-
-# 'M' is for magic info - tval of the used spellbook, number of the
-# spell-stat, level of the first spell, weight that hurts spells.
-
-# 'T' is for class titles (Up to 10 entries).
-
-# 'E' is for starting equipment - tval of the item, sval of the item,
-# minimum amount, maximum amount.
-
-# 'F' is for class flags.
+# See "lib/docs/modding.rtf" to understand this file and how to modify
+# it and related files.
 
 
 # Version stamp (required)
 
+
 V:0.6.2
 
+
 #Sum = 12;
+
 N:0:Warrior
 S:4:-2:-2:2:4:0:2:4
 C:25:8:16:1:12:0:20:20:20
@@ -70,13 +27,6 @@ X:10:7:7:0:0:0:50:50:50
 I:0:9000:40:1:1
 A:5:30:5:33
 M:0:1:2:5:99:450:0
-E:23:16:1:1:0:0:0:100
-E:75:33:1:1:0:0:0:100
-E:36:7:1:1:0:0:0:50
-E:37:4:1:1:0:0:51:100
-E:19:2:1:1:0:0:0:100
-E:16:0:3:7:0:0:30:79
-E:16:1:5:11:0:0:80:100
 T:Rookie
 T:Soldier
 T:Swordsman
@@ -87,6 +37,13 @@ T:Commando
 T:Champion
 T:Hero
 T:Lord
+E:23:16:1:1:0:0:0:100
+E:75:33:1:1:0:0:0:100
+E:36:7:1:1:0:0:0:50
+E:37:4:1:1:0:0:51:100
+E:19:2:1:1:0:0:0:100
+E:16:0:3:7:0:0:30:79
+E:16:1:5:11:0:0:80:100
 
 N:1:Mage
 S:-3:3:3:1:-1:1:-1:-3
@@ -95,9 +52,6 @@ X:7:13:6:0:0:0:20:15:10
 I:30:240000:5:5:0
 A:4:40:2:66
 M:90:1:2:3:1:300:1
-E:90:32:1:1:0:0:0:100
-E:70:8:3:3:0:0:0:100
-E:55:8:1:1:10:10:0:100
 T:Novice
 T:Apprentice
 T:Trickster
@@ -108,6 +62,9 @@ T:Conjurer
 T:Warlock
 T:Sorcerer
 T:Arch-Mage
+E:90:32:1:1:0:0:0:100
+E:70:8:3:3:0:0:0:100
+E:55:8:1:1:10:10:0:100
 
 N:2:Priest
 S:-1:3:3:-1:-2:2:-3:3
@@ -116,10 +73,6 @@ X:7:10:9:0:0:0:10:20:20
 I:10:10000:40:4:1
 A:4:35:3:44
 M:91:1:2:5:1:350:1
-E:91:32:1:1:0:0:0:100
-E:21:5:1:1:0:0:0:100
-E:75:35:3:3:0:0:0:100
-E:40:7:1:1:0:0:0:100
 T:Believer
 T:Acolyte
 T:Adept
@@ -130,8 +83,13 @@ T:Canon
 T:Bishop
 T:Prophet
 T:Patriarch
+E:91:32:1:1:0:0:0:100
+E:21:5:1:1:0:0:0:100
+E:75:35:3:3:0:0:0:100
+E:40:7:1:1:0:0:0:100
 
 #Sum = 13; magic
+
 N:3:Artisan
 S:2:1:-2:3:5:-1:0:5
 C:45:22:26:3:34:0:40:20:20
@@ -139,10 +97,6 @@ X:15:13:7:0:0:0:50:40:30
 I:25:20000:40:10:1
 A:5:30:3:55
 M:90:1:2:3:5:350:0
-E:23:7:1:1:0:0:0:100
-E:90:52:1:1:0:0:0:100
-E:36:4:1:1:0:0:0:100
-E:70:21:1:1:0:0:0:100
 T:Vagrant
 T:Grifter
 T:Tinker
@@ -153,6 +107,10 @@ T:Hedge Wizard
 T:Wizard
 T:High Wizard
 T:Wizard Lord
+E:23:7:1:1:0:0:0:100
+E:90:52:1:1:0:0:0:100
+E:36:4:1:1:0:0:0:100
+E:70:21:1:1:0:0:0:100
 
 N:4:Ranger
 S:2:2:0:2:8:1:2:1
@@ -161,12 +119,6 @@ X:8:10:7:0:0:0:50:30:50
 I:20:2000:40:11:0
 A:5:35:4:55
 M:90:1:2:3:5:350:0
-E:22:5:1:1:0:0:0:100
-E:90:56:1:1:0:0:0:100
-E:19:13:1:1:0:0:0:100
-E:17:1:15:20:0:0:0:100
-E:20:1:1:1:0:0:50:100
-E:80:37:3:3:0:0:0:100
 T:Runner
 T:Strider
 T:Scout
@@ -177,6 +129,12 @@ T:Explorer
 T:Pathfinder
 T:Ranger
 T:Ranger Lord
+E:22:5:1:1:0:0:0:100
+E:90:56:1:1:0:0:0:100
+E:19:13:1:1:0:0:0:100
+E:17:1:15:20:0:0:0:100
+E:20:1:1:1:0:0:50:100
+E:80:37:3:3:0:0:0:100
 
 N:5:Paladin
 S:3:-3:1:0:5:3:-2:3
@@ -185,10 +143,6 @@ X:7:10:8:0:0:0:20:40:20
 I:35:80000:40:3:1
 A:4:30:5:33
 M:91:1:2:5:1:400:0
-E:23:17:1:1:0:0:0:100
-E:91:32:1:1:0:0:0:100
-E:70:37:3:3:0:0:0:100
-E:34:5:1:1:0:0:0:100
 T:Gallant
 T:Keeper
 T:Protector
@@ -199,6 +153,10 @@ T:Guardian
 T:Chevalier
 T:Paladin
 T:Paladin Lord
+E:23:17:1:1:0:0:0:100
+E:91:32:1:1:0:0:0:100
+E:70:37:3:3:0:0:0:100
+E:34:5:1:1:0:0:0:100
 
 N:6:Thief
 S:3:-1:-4:5:4:-2:6:-1
@@ -207,13 +165,6 @@ X:15:8:7:1:0:5:60:40:30
 I:5:5000:40:7:1
 A:5:30:4:44
 M:0:1:2:6:99:400:0
-E:23:18:1:1:0:0:0:100
-E:36:4:1:1:0:0:0:100
-E:70:9:3:3:0:0:0:100
-E:19:2:1:1:0:0:0:100
-E:16:0:4:9:0:0:20:69
-E:16:1:9:14:0:0:70:90
-E:20:1:1:1:0:0:30:100
 T:Vagabond
 T:Cutpurse
 T:Robber
@@ -224,6 +175,13 @@ T:Low Thief
 T:High Thief
 T:Master Thief
 T:Assassin
+E:23:18:1:1:0:0:0:100
+E:36:4:1:1:0:0:0:100
+E:70:9:3:3:0:0:0:100
+E:19:2:1:1:0:0:0:100
+E:16:0:4:9:0:0:20:69
+E:16:1:9:14:0:0:70:90
+E:20:1:1:1:0:0:30:100
 
 N:7:Archer
 S:2:-2:-1:5:3:-1:2:4
@@ -232,10 +190,6 @@ X:10:7:7:0:0:0:30:20:60
 I:10:15000:40:9:1
 A:5:30:3:44
 M:0:1:2:3:99:400:0
-E:22:3:1:1:0:0:0:100
-E:19:23:1:1:0:0:0:100
-E:18:1:15:20:0:0:0:100
-E:75:29:3:3:0:0:0:100
 T:Footman
 T:Slinger
 T:Shortbowman
@@ -246,17 +200,18 @@ T:Archer Hero
 T:Archer Baron
 T:Archer Duke
 T:Archer Lord
+E:22:3:1:1:0:0:0:100
+E:19:23:1:1:0:0:0:100
+E:18:1:15:20:0:0:0:100
+E:75:29:3:3:0:0:0:100
 
 N:8:Shaman
 S:-3:2:0:3:0:2:-2:-2
 C:25:15:28:2:14:0:10:-10:0
 X:7:5:6:0:0:0:20:20:10
 I:35:300000:5:6:1
-M:90:1:2:3:1:300:1
 A:4:40:2:66
-E:90:32:1:1:0:0:0:100
-E:91:32:1:1:0:0:0:100
-E:70:51:1:1:0:0:0:100
+M:90:1:2:3:1:300:1
 T:Aspirant
 T:Petitioner
 T:Practiser
@@ -267,18 +222,19 @@ T:Elder
 T:Shaman
 T:High Shaman
 T:Shaman Lord
+E:90:32:1:1:0:0:0:100
+E:91:32:1:1:0:0:0:100
+E:70:51:1:1:0:0:0:100
 
 #Sum = 9, but most is CHR; magic
+
 N:9:Bard
 S:0:1:-2:2:2:4:0:2
 C:25:14:22:1:25:0:20:20:0
 X:7:11:7:0:0:0:30:40:10
 I:10:20000:40:8:0
-M:92:3:5:4:1:350:0
 A:5:35:3:44
-E:21:3:1:1:0:0:0:100
-E:92:0:1:1:0:0:0:100
-E:24:0:1:1:0:0:0:100
+M:92:3:5:4:1:350:0
 T:Busker
 T:Minstrel
 T:Troubador
@@ -289,18 +245,19 @@ T:Bard
 T:Lauriet
 T:Lorekeeper
 T:Loremaster
+E:21:3:1:1:0:0:0:100
+E:92:0:1:1:0:0:0:100
+E:24:0:1:1:0:0:0:100
 
 #Sum = 5; magic
+
 N:10:Warrior Mage
 S:2:1:1:0:1:-1:-1:2
 C:45:22:26:1:22:0:10:20:10
 X:15:13:7:0:0:0:20:40:20
 I:25:20000:40:10:1
 A:5:30:3:55
-E:23:8:1:1:0:0:0:100
 M:90:1:2:3:3:400:0
-E:90:32:1:1:0:0:0:100
-E:36:4:1:1:0:0:0:100
 T:Amateur
 T:Spell-for-hire
 T:Swordsman Trickster
@@ -311,6 +268,9 @@ T:Commando Conjurer
 T:Champion Warlock
 T:Sorcerer-Hero
 T:Arch-Lord
+E:23:8:1:1:0:0:0:100
+E:90:32:1:1:0:0:0:100
+E:36:4:1:1:0:0:0:100
 
 N:11:Istari
 S:1:1:1:1:1:1:1:1
@@ -319,13 +279,6 @@ X:10:13:6:0:0:0:50:50:50
 I:0:9000:40:1:1
 A:5:30:5:33
 M:90:1:2:6:1:450:1
-E:23:16:1:1:0:0:0:100
-E:75:33:1:1:0:0:0:100
-E:36:7:1:1:0:0:0:50
-E:37:4:1:1:0:0:51:100
-E:19:2:1:1:0:0:0:100
-E:16:0:3:7:0:0:30:79
-E:16:1:5:11:0:0:80:100
 T:Beginner
 T:Elementary
 T:Intermediant
@@ -336,3 +289,11 @@ T:Ideal
 T:Paragon
 T:Archetype
 T:Avatar
+E:23:16:1:1:0:0:0:100
+E:75:33:1:1:0:0:0:100
+E:36:7:1:1:0:0:0:50
+E:37:4:1:1:0:0:51:100
+E:19:2:1:1:0:0:0:100
+E:16:0:3:7:0:0:30:79
+E:16:1:5:11:0:0:80:100
+

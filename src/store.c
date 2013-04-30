@@ -832,6 +832,9 @@ static int store_carry(object_type *o_ptr, int store_index)
 
 	store_type *st_ptr = store[store_index];
 
+	/* Item belongs to a store */
+	o_ptr->ident |= IDENT_STORE;
+	
 	/* Evaluate the object */
 	value = object_value(o_ptr);
 
@@ -847,9 +850,6 @@ static int store_carry(object_type *o_ptr, int store_index)
 	/* Remove special inscription, if any */
 	o_ptr->feeling = 0;
 
-	/* Item belongs to a store */
-	o_ptr->ident |= IDENT_STORE;
-	
 	/* All obvious flags are learnt about the object - important this happens after IDENT_STORE set */
 	object_obvious_flags(o_ptr, TRUE);
 	
@@ -1394,11 +1394,12 @@ static void display_entry(int item, int store_index)
 	if (st_ptr->base < STORE_MIN_BUY_SELL)
 	{
 		byte attr;
+		int wgt;
 
 		maxwid = 75;
 
 		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 10;
+		maxwid -= 10;
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1438,26 +1439,23 @@ static void display_entry(int item, int store_index)
 			e_info[o_ptr->name2].aware = TRUE;
 		}
 
-		/* Show weights */
-		if (show_weights)
-		{
-			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(out_val, y, 68);
-		}
+		/* Only show the weight of a single object */
+		wgt = o_ptr->weight;
+		sprintf(out_val, "%3d.%d lb", wgt / 10, wgt % 10);
+		put_str(out_val, y, 68);
 	}
 
 	/* Describe an object (fully) in a store */
 	else
 	{
 		byte attr;
+		int wgt;
 
 		/* Must leave room for the "price" */
 		maxwid = 65;
 
 		/* Leave room for weights, if necessary -DRS- */
-		if (show_weights) maxwid -= 7;
+		maxwid -= 7;
 
 		/* Describe the object (fully) */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1469,14 +1467,10 @@ static void display_entry(int item, int store_index)
 		/* Display the object */
 		c_put_str(attr, o_name, y, 3);
 
-		/* Show weights */
-		if (show_weights)
-		{
-			/* Only show the weight of a single object */
-			int wgt = o_ptr->weight;
-			sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
-			put_str(out_val, y, 61);
-		}
+		/* Only show the weight of a single object */
+		wgt = o_ptr->weight;
+		sprintf(out_val, "%3d.%d", wgt / 10, wgt % 10);
+		put_str(out_val, y, 61);
 
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 		if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
@@ -1580,10 +1574,7 @@ static void display_store(int store_index)
 		put_str("Item Description", 5, 3);
 
 		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 70);
-		}
+		put_str("Weight", 5, 70);
 	}
 
 	/* Normal stores */
@@ -1591,7 +1582,13 @@ static void display_store(int store_index)
 	{
 		cptr store_name = (u_name + u_info[st_ptr->index].name);
 		cptr owner_name = &(b_name[ot_ptr->owner_name]);
-		cptr race_name = p_name + p_info[ot_ptr->owner_race].name;
+		/* Maias and evil shapechangers hide their race */
+		cptr race_name = 
+			(ot_ptr->owner_race == RACE_MAIA
+			 || ot_ptr->owner_race == RACE_WEREWOLF
+			 || ot_ptr->owner_race == RACE_VAMPIRE)
+			? "Human"
+			: p_name + p_info[ot_ptr->owner_race].name;
 		int pos_store = 77 - strlen(store_name) - 8;
 		int pos_owner = 10;
 
@@ -1609,10 +1606,7 @@ static void display_store(int store_index)
 		put_str("Item Description", 5, 3);
 
 		/* If showing weights, show label */
-		if (show_weights)
-		{
-			put_str("Weight", 5, 60);
-		}
+		put_str("Weight", 5, 60);
 
 		/* Label the asking price (in stores) */
 		put_str("Price", 5, 72);
@@ -3762,7 +3756,7 @@ void do_cmd_store(void)
  */
 void store_shuffle(int store_index)
 {
-	int i, j;
+	int i;
 
 	store_type *st_ptr = store[store_index];
 	owner_type *ot_ptr;
@@ -3770,18 +3764,44 @@ void store_shuffle(int store_index)
 	/* Justifiable paranoia */
 	if (!st_ptr) return;
 	
-	if (st_ptr->base < STORE_MIN_BUY_SELL) return;
-
-	ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
-
-	/* Pick a new owner */
-	for (j = st_ptr->owner; j == st_ptr->owner; )
+	if (st_ptr->base < STORE_MIN_BUY_SELL) 
 	{
-		st_ptr->owner = (byte)rand_int(z_info->b_max);
+		return;
+	}
+	else
+	{
+		/* Release the previous owner */
+		ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
+		ot_ptr->busy = FALSE;
+		{
+			int j = st_ptr->owner;
+			int count = 0;
+			do 
+			{
+				count++;
+
+				/* Pick an owner */
+				st_ptr->owner = (byte)rand_int(z_info->b_max);
+
+				/* Activate the new owner */
+				ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
+								  + st_ptr->owner];
+			} 
+			while (j == st_ptr->owner
+					 || (count < 500 && ot_ptr->busy)
+					 || (count < 1000 && !ot_ptr->owner_name));
+		}
 	}
 
-	/* Activate the new owner */
-	ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
+	if (!ot_ptr || !ot_ptr->owner_name)
+	{
+		st_ptr->owner = 0;
+
+		/* Activate the new owner */
+		ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
+							  + st_ptr->owner];
+	}
+	ot_ptr->busy = TRUE;
 
 	/* Reset the owner data */
 	st_ptr->insult_cur = 0;
@@ -3821,12 +3841,8 @@ void store_maint(int store_index)
 	int services = 0;
 
 	store_type *st_ptr = store[store_index];
-	owner_type *ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
 
 	if (st_ptr->base < STORE_MIN_BUY_SELL) return;
-
-	/* Activate the owner */
-	ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
 
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
@@ -3894,7 +3910,7 @@ int store_init(int feat)
 	int store_index = 0;
 
 	store_type *st_ptr;
-	owner_type *ot_ptr;
+	owner_type *ot_ptr = NULL;
 
 	/* Paranoia */
 	if (total_store_count >= max_store_count)
@@ -3947,18 +3963,33 @@ int store_init(int feat)
 	/* Set the store level */
 	st_ptr->level = f_info[feat].level;
 
-	/* Pick an owner */
-	st_ptr->owner = (byte)rand_int(z_info->b_max);
+	if (st_ptr->base >= STORE_MIN_BUY_SELL)
+	{
+		int count = 0;
+		do 
+		{
+			count++;
 
-	if (st_ptr->base < STORE_MIN_BUY_SELL)
-	{
-		ot_ptr = &b_info[0];
+			/* Pick an owner */
+			st_ptr->owner = (byte)rand_int(z_info->b_max);
+
+			/* Activate the new owner */
+			ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
+								  + st_ptr->owner];
+		} 
+		while ((count < 500 && ot_ptr->busy)
+				 || (count < 1000 && !ot_ptr->owner_name));
 	}
-	else
+
+	if (!ot_ptr || !ot_ptr->owner_name)
 	{
+		st_ptr->owner = 0;
+
 		/* Activate the new owner */
-		ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
+		ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max)
+							  + st_ptr->owner];
 	}
+	ot_ptr->busy = TRUE;
 
 	/* Initialize the store */
 	st_ptr->store_open = 0;

@@ -7076,7 +7076,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 					/* Has a power */
 					/* Hack -- check if we are stacking rods */
-					if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+					if (o_ptr->timeout > 0)
 					{
 						/* Hack -- one more rod charging */
 						if (o_ptr->timeout) o_ptr->stackc++;

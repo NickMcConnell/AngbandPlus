@@ -16,7 +16,7 @@
  */
 
 #include "angband.h"
-
+#include "option.h"
 #include "init.h"
 
 /*
@@ -1587,12 +1587,7 @@ static errr init_other(void)
 
 	/*** Prepare the options ***/
 
-	/* Initialize the options */
-	for (i = 0; i < OPT_MAX; i++)
-	{
-		/* Default value */
-		op_ptr->opt[i] = option_norm[i];
-	}
+	option_set_defaults();
 
 	/* Initialize the window flags */
 	for (n = 0; n < ANGBAND_TERM_MAX; n++)
@@ -2199,13 +2194,13 @@ void init_angband(void)
 	note("[Initializing arrays... (histories)]");
 	if (init_h_info()) quit("Cannot initialize histories");
 
-	/* Initialize race info */
-	note("[Initializing arrays... (races)]");
-	if (init_p_info()) quit("Cannot initialize races");
-
 	/* Initialize class info */
 	note("[Initializing arrays... (classes)]");
 	if (init_c_info()) quit("Cannot initialize classes");
+
+	/* Initialize race info */
+	note("[Initializing arrays... (races)]");
+	if (init_p_info()) quit("Cannot initialize races");
 
 	/* Initialize weapon style info */
 	note("[Initializing arrays... (weapon styles)]");

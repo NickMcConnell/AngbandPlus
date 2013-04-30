@@ -1484,6 +1484,7 @@ static void describe_monster_exp(const monster_race *r_ptr, const monster_lore *
 
 	long i, j;
 
+	s32b mult, div;
 
 	/* Describe experience if known */
 	if (l_ptr->tkills)
@@ -1500,13 +1501,19 @@ static void describe_monster_exp(const monster_race *r_ptr, const monster_lore *
 
 		text_out(" this creature");
 
+		/* 10 + killed monster level */
+		mult = 10 + r_ptr->level;
+
+		/* 10 + maximum player level */
+		div = 10 + p_ptr->max_lev;
+
 		/* calculate the integer exp part */
-		i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+		i = (long)r_ptr->mexp * mult / div;
 
 		/* calculate the fractional exp part scaled by 100, */
 		/* must use long arithmetic to avoid overflow */
-		j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			  (long)1000 / p_ptr->lev + 5) / 10);
+		j = ((((long)r_ptr->mexp * mult % div) *
+			  (long)1000 / div + 5) / 10);
 
 		/* Mention the experience */
 		text_out(format(" is worth %ld.%02ld point%s",
@@ -1515,15 +1522,15 @@ static void describe_monster_exp(const monster_race *r_ptr, const monster_lore *
 
 		/* Take account of annoying English */
 		p = "th";
-		i = p_ptr->lev % 10;
-		if ((p_ptr->lev / 10) == 1) /* nothing */;
+		i = p_ptr->max_lev % 10;
+		if ((p_ptr->max_lev / 10) == 1) /* nothing */;
 		else if (i == 1) p = "st";
 		else if (i == 2) p = "nd";
 		else if (i == 3) p = "rd";
 
 		/* Take account of "leading vowels" in numbers */
 		q = "";
-		i = p_ptr->lev;
+		i = p_ptr->max_lev;
 		if ((i == 8) || (i == 11) || (i == 18)) q = "n";
 
 		/* Mention the dependance on the player's level */
@@ -1857,12 +1864,11 @@ void describe_monster_race(const monster_race *r_ptr, const monster_lore *l_ptr,
 	if (cheat_know || spoilers) cheat_monster_lore(r_ptr, &lore);
 
 	/* Show kills of monster vs. player(s) */
-	if (!spoilers && show_details)
+	if (!spoilers)
 		describe_monster_kills(r_ptr, &lore);
 
 	/* Monster description */
-	if (spoilers || show_details)
-		describe_monster_desc(r_ptr);
+	describe_monster_desc(r_ptr);
 
 	/* Describe the movement and level of the monster */
 	describe_monster_movement(r_ptr, &lore);

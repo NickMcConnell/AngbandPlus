@@ -5,8 +5,8 @@
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap
  e  Equipment list                       E  Eat some food
- f  Fire or throw an item                F  Fuel your lantern/torch
- g  Stay still (flip pickup)             G  Gain new spells/prayers
+ f  Fire an item                         F  Fill lantern/torch/flask/etc.
+ g  Get objects on floor                 G  Gain new spells/prayers
  h  (unused)                             H  (unused)
  i  Inventory list                       I  Observe an item
  j  Jam a door/Set a trap                J  (unused)
@@ -21,18 +21,18 @@
  s  Search for traps/doors               S  Toggle search mode
  t  Take off equipment                   T  Dig a tunnel
  u  Use a staff                          U  (unused)
- v  (unused)                             V  Version info
+ v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
  y  Apply a rune, potion, etc.           Y  Assemble a part
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
- @  Interact with macros                ^B  (unused)
+ @  (unused)                            ^B  (unused)
  #  (unused)                            ^C  (special - break)
  $  User interface                      ^D  (unused)
- %  Interact with visuals               ^E  Toggle choice window
+ %  (unused)                            ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
- &  Interact with colors                ^G  (unused)
+ &  (unused)                            ^G  (unused)
  *  Target monster or location          ^H  (unused)
  (  Load screen dump                    ^I  (special - tab)
  )  Dump reloadable screen dump         ^J  (special - linefeed)
@@ -40,17 +40,17 @@
  }  Uninscribe an object                ^L  (unused)
  [  (unused)                            ^M  (special - return)
  ]  Dump html screen dump               ^N  (unused)
- -  Walk (flip pickup)                  ^O  (unused)
+ -  (unused)                            ^O  (unused)
  _  Enter store                         ^P  Show previous messages
  +  Alter grid                          ^Q  Display current quest
  =  Set options                         ^R  Redraw the screen
- ;  Walk (with pickup)                  ^S  Save and don't quit
+ ;  Walk                                ^S  Save and don't quit
  :  Take notes                          ^T  Display time of day
  '  (unused)                            ^U  (unused)
  "  Enter a user pref command           ^V  Repeat last command
- ,  Stay still (with pickup)            ^W  (special - wizard mode)
- <  Go up staircase                     ^X  Save and quit
- .  Run                                 ^Y  (unused)
+ ,  Stay still                          ^W  (special - wizard mode)
+ <  Go up staircase or travel           ^X  Save and quit
+ .  Run (over floor or monster)         ^Y  (unused)
  >  Go down staircase                   ^Z  (special - borg command)
  \  (special - bypass keymap)            |  Light or douse a light source
  `  (special - escape)                   ~  Check knowledge

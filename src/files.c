@@ -13,7 +13,7 @@
  */
 
 #include "angband.h"
-
+#include "option.h"
 
 
 /*
@@ -507,12 +507,14 @@ errr process_pref_file_command(char *buf)
 		/* Check non-adult options */
 		for (i = 0; i < OPT_ADULT; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			if (option_name(i) && streq(option_name(i), buf + 2))
 			{
 				op_ptr->opt[i] = FALSE;
 				return (0);
 			}
 		}
+		/* Hack: let abandoned options slip though, remove in the future */
+		return (0);
 	}
 
 	/* Process "Y:<str>" -- turn option on */
@@ -521,12 +523,14 @@ errr process_pref_file_command(char *buf)
 		/* Check non-adult options */
 		for (i = 0; i < OPT_ADULT; i++)
 		{
-			if (option_text[i] && streq(option_text[i], buf + 2))
+			if (option_name(i) && streq(option_name(i), buf + 2))
 			{
 				op_ptr->opt[i] = TRUE;
 				return (0);
 			}
 		}
+		/* Hack: let abandoned options slip though, remove in the future */
+		return (0);
 	}
 
 
@@ -1541,9 +1545,6 @@ static void display_player_xtra_info(void)
 		s32b advance = (player_exp[p_ptr->lev - 1] *
 		                p_ptr->expfact / 100L);
 
-		/*some players want to see experience needed to gain next level*/
-		if (toggle_xp) advance -= p_ptr->exp;
-
 		Term_putstr(col+9, 13, -1, TERM_L_GREEN,
 		            format("%9ld", advance));
 	}
@@ -1969,18 +1970,9 @@ static void display_player_xtra_info(void)
 	desc = likert(xdig, 6, &likert_attr);
 	c_put_str(likert_attr, format("%9s", desc), 18, col+11);
 
-	/* Indent output by 1 character, and wrap at column 80 */
-	text_out_wrap = 80;
-	text_out_indent = 1;
-
 	/* History */
-	Term_gotoxy(text_out_indent, 20);
+	Term_gotoxy(1, 20);
 	text_out_to_screen(TERM_WHITE, p_ptr->history);
-
-	/* Reset text_out() vars */
-	text_out_wrap = 0;
-	text_out_indent = 0;
-
 }
 
 
@@ -2912,9 +2904,9 @@ void display_player_stat_info(int row, int col, int min, int max, int attr)
 
 		/* Resulting "modified" maximum value */
 		cnv_stat(p_ptr->stat_top[i], buf);
-		if (p_ptr->stat_inc_tim[i])
+		if (p_ptr->stat_inc_tim[i] && !p_ptr->stat_dec_tim[i])
 		  c_put_str(TERM_L_BLUE, buf, row+i, col+25);
-		else if (p_ptr->stat_dec_tim[i])
+		else if (p_ptr->stat_dec_tim[i] && !p_ptr->stat_inc_tim[i])
 		  c_put_str(TERM_ORANGE, buf, row+i, col+25);
 		else
 		  c_put_str(TERM_L_GREEN, buf, row+i, col+25);
@@ -3984,6 +3976,7 @@ errr file_character(cptr name, bool full)
 			char str[46];
 			int j;
 			bool victory = FALSE;
+			bool havoc = FALSE;
 			bool please_print_depths = TRUE;
 
 			/* dungeons with guardians killed elsehwere are too confusing */
@@ -4000,6 +3993,7 @@ errr file_character(cptr name, bool full)
 						break;
 					}
 					else {
+						havoc = TRUE;
 						victory = TRUE;
 						/* and now check the other guardians */
 					}
@@ -4016,10 +4010,10 @@ errr file_character(cptr name, bool full)
 
 				if (t_info[i].attained_depth > min_depth(i))
 					/* descended to the dungeon and conquered */
-					text_out("You emerged victorious from ");
+					text_out("You emerged victorious from");
 				else
 					/* won on the surface */
-					text_out("You cleared the passage through ");
+					text_out("You cleared the passage through");
 			}
 			else 
 			{
@@ -4033,18 +4027,26 @@ errr file_character(cptr name, bool full)
 						continue;
 
 					if (t_info[i].attained_depth == max_depth(i))
-						text_out("You fought through to the other side of ");
-					else {
-						text_out("You have reached ");
+					{
+						text_out("You fought through to the other side of");
+					}
+					else 
+					{
+						if (havoc)
+							text_out("You broke through to");
+						else
+							text_out("You have reached");
 		
 						/* Express in feet or level*/
-						if (depth_in_feet) text_out(format("%d foot depth in ", t_info[i].attained_depth));
-						else text_out(format("level %d in ", t_info[i].attained_depth));
+						if (depth_in_feet) text_out(format(" %d foot depth in", t_info[i].attained_depth));
+						else text_out(format(" level %d in", t_info[i].attained_depth));
 					}
 				}
 				else 
 				{
 					/* not descended, but visited */
+
+					please_print_depths = FALSE;
 
 					if (t_info[i].quest_monster 
 						 && r_info[t_info[i].quest_monster].max_num == 0) 
@@ -4055,7 +4057,17 @@ errr file_character(cptr name, bool full)
 						if (x) 
 							continue;
 
-						text_out("You opened the passage through ");
+						text_out("You opened the passage through");
+					}
+					else if (havoc) 
+					{
+						/* not descended nor cleared, but killed a guardian */
+
+						/* too interesting */
+						if (x) 
+							continue;
+
+						text_out("You wrecked havoc at");
 					}
 					else
 					{
@@ -4065,14 +4077,12 @@ errr file_character(cptr name, bool full)
 						if (!x) 
 							continue;
 
-						please_print_depths = FALSE;
-
-						text_out("You have visited ");		
+						text_out("You have visited");		
 					}
 				}
 			}
 
-			text_out(str);
+			text_out(format(" %s", str));
 
 			if (please_print_depths) {
 				if (min_depth(i) == max_depth(i))
@@ -4259,18 +4269,14 @@ errr file_character(cptr name, bool full)
 	text_out("  [Options]\n\n");
 
 	/* Dump options */
-	for (i = 0; i < OPT_MAX; i++)
+	for (i = OPT_ADULT; i < OPT_MAX; i++)
 	{
-		/* hack - use game play options */
-		if (i < OPT_GAME_PLAY) continue;
-		if ((i >= OPT_EFFICIENCY) && (i < OPT_ADULT)) continue;
-
-		if (option_desc[i])
+		if (option_desc(i))
 		{
 			text_out(format("%-45s: %s (%s)\n",
-								 format("%s%s", (i >= OPT_GAME_PLAY) && (i < OPT_EFFICIENCY) ? "Game: " : "", option_desc[i]),
+								 option_desc(i),
 								 op_ptr->opt[i] ? "yes" : "no ",
-								 option_text[i]));
+								 option_name(i)));
 		}
 	}
 
@@ -4855,10 +4861,10 @@ void do_cmd_quick_help(void)
  * 
  * But because these are context sensitive, we need them
  * to approximately appear at the time we find them. So
- * we queue them up in a currently statically sized
- * queue and clear the queue when they are shown.
+ * we queue them up in the permanent array of already shown tips
+ * clear the queue markers in show_tip when they are shown.
  * 
- * Currently we check if the tip exists before queuing it.
+ * Currently we check if the tip file exists before queuing it.
  * If we call tips frequently, we probably will want to
  * move this check to when we show the tip.
  */
@@ -4870,11 +4876,8 @@ bool queue_tip(cptr tip)
 	/* Path buffer */
 	char path[1024];
 
-	/* Check show tips option */
-	if (!show_tips) return (FALSE);
-	
-	/* Have no space for tips */
-	if (tips_end == tips_start - 1) return (FALSE);
+	/* If no space for more tips; panic */
+	assert(tips_end < TIPS_MAX);
 	
 	/* Build the filename */
 	path_build(path, 1024, ANGBAND_DIR_INFO, tip);
@@ -4890,9 +4893,6 @@ bool queue_tip(cptr tip)
 	
 	/* Add the tip, using quarks */
 	tips[tips_end++] = quark_add(tip);
-
-	/* Wrap the queue around if required */
-	if (tips_end >= TIPS_MAX) tips_end = 0;
 	
 	return (TRUE);
 }
@@ -4926,15 +4926,12 @@ void show_tip(void)
 			/* Save screen */
 			screen_save();
 	
-			/* Peruse the main help file */
+			/* Peruse the help tip file */
 			(void)show_file(tip, NULL, 0, 0);
 	
 			/* Load screen */
 			screen_load();
 		}
-		
-		/* Wrap the queue around if required */
-		if (tips_start >= TIPS_MAX) tips_start = 0;
 	}
 }
 

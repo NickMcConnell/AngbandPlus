@@ -1280,7 +1280,8 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	}
 	
 	/* Warn the player */
-	if (count >= 10000) msg_print("Bug: Bad maze on level. Please report.");
+	if (cheat_xtra && count >= 10000) 
+		msg_print("Bug: Bad maze on level. Please report.");
 	
 	/* Create exits */
 	if (flag & (MAZE_EXIT_N | MAZE_EXIT_S | MAZE_EXIT_W | MAZE_EXIT_E))
@@ -10395,8 +10396,9 @@ static bool new_player_spot(void)
 
 	/* Place the stairs (if any) */
 	/* Don't allow stairs if connected stair option is off */
-	if ((p_ptr->create_stair) &&
-		(((f_info[p_ptr->create_stair].flags1 & (FF1_STAIRS)) == 0) || (dungeon_stair)))
+	if (p_ptr->create_stair &&
+		 ((f_info[p_ptr->create_stair].flags1 & (FF1_STAIRS)) == 0 
+		  || !adult_no_stairs))
 	{
 		/* Create the feature */
 		cave_set_feat(y, x, p_ptr->create_stair);
@@ -10852,7 +10854,7 @@ static bool cave_gen(void)
 
 	/* Set up the monster ecology before placing rooms */
 	/* XXX Very early levels boring with ecologies enabled */
-	if (p_ptr->depth > 3)
+	if (p_ptr->depth > 2)
 	{
 		/* Generating */
 		if (cheat_room) msg_print("Generating ecology.");
@@ -11605,8 +11607,6 @@ void ensure_quest()
  *
  * Hack -- regenerate any "overflow" levels
  *
- * Hack -- allow auto-scumming via a gameplay option.
- *
  * Note that this function resets "cave_feat" and "cave_info" directly.
  */
 void generate_cave(void)
@@ -11731,20 +11731,14 @@ void generate_cave(void)
 #endif
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;
-		else if (rating > 80) feeling = 3;
-		else if (rating > 60) feeling = 4;
-		else if (rating > 40) feeling = 5;
-		else if (rating > 30) feeling = 6;
-		else if (rating > 20) feeling = 7;
-		else if (rating > 10) feeling = 8;
+		else if (rating > 70) feeling = 3;
+		else if (rating > 40) feeling = 4;
+		else if (rating > 30) feeling = 5;
+		else if (rating > 20) feeling = 6;
+		else if (rating > 10) feeling = 7;
+		else if (rating > 5) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
-
-		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((old_turn) && ((turn - old_turn) < 1000)) feeling = 0;
-
-		/* Hack -- no feeling in the town */
-		if (level_flag & (LF1_TOWN)) feeling = 0;
 
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)
@@ -11786,12 +11780,6 @@ void generate_cave(void)
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
-	/* Remember when this level was "created", except in town or surface locations */
-	if (!(level_flag & (LF1_TOWN | LF1_SURFACE))) old_turn = turn;
-
-	/* Hack -- always get a feeling leaving town or surface */
-	else old_turn = 0;
 
 	/* XXX Hurt light players sleep until it gets dark before entering surface levels */
 	/* FIXME - Should really check that the player knows they are vulnerable to light */

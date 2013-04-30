@@ -22,7 +22,7 @@
 */
 
 #include "angband.h"
-
+#include "option.h"
 
 
 #define CURS_UNKNOWN (0)
@@ -438,10 +438,36 @@ static void display_member_list(int col, int row, int wid, int per_page,
 /*
  * Interactive group by. 
  * Recognises inscriptions, graphical symbols, lore
-*/
-static void display_knowledge(const char *title, int *obj_list, int o_count,
-							group_funcs g_funcs, member_funcs o_funcs,
-							const char *otherfields)
+ * Some more enlightment by Pete Mac:
+
+The basic design of this command is a database 'GROUP BY'
+using a merge join.
+
+First, ensure both lists are sorted by group id (gid).  This
+is the 'primary key' of the grouping relation, ie dungeon #,
+monster class, etc.
+This sort is generally implicit, because the grouping
+relations are in constructed in order.
+
+For the dependent relation (objects, oid), some relations
+can be defined in order, if group_id can be constructed
+directly from oid. Otherwise, use qsort, with gid for the
+comparator.  For objects with the same group, order by
+preferred order.  (Like 'd' before 'D', then lower depth to
+higher depth.)
+
+Then do a nested loop, with the outer iterating the grouping
+relation, and the inner the dependent relation.  Display
+them all together.  This is implicit in the way the menus
+are set up.
+
+For more information, check a database book like (Jim) Gray.
+
+ */
+static void display_knowledge_start_at(
+	const char *title, int *obj_list, int o_count,
+	group_funcs g_funcs, member_funcs o_funcs,
+	const char *otherfields, int g_cur)
 {
 	/* maximum number of groups to display */
 	int max_group = g_funcs.maxnum < o_count ? g_funcs.maxnum : o_count ;
@@ -455,7 +481,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 
 	int grp_cnt = 0; /* total number groups */
 
-	int g_cur = 0, grp_old = -1, grp_top = 0; /* group list positions */
+	int grp_old = -1, grp_top = 0; /* group list positions */
 	int o_cur = 0, object_top = 0; /* object list positions */
 	int g_o_count = 0; /* object count for group */
 	int o_first = 0, g_o_max = 0; /* group limits in object list */
@@ -554,6 +580,16 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 			g_o_max = g_offset[g_cur+1];
 			grp_old = g_cur;
 			old_oid = -1;
+
+			/* Tweak the starting object position
+			if(init_obj >= 0) {
+				o_cur = init_obj - g_offset[g_cur];
+				assert(OK(o_cur));
+				init_obj = -1;
+			}
+			else o_cur = 0;
+
+			object_menu.cursor = o_cur; */
 		}
 
 		/* Display a scrollable list of groups */
@@ -826,6 +862,15 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	FREE(g_names);
 	FREE(g_offset);
 	FREE(g_list);
+}
+
+static void display_knowledge(const char *title, int *obj_list, int o_count,
+										group_funcs g_funcs, member_funcs o_funcs,
+										const char *otherfields)
+{
+	display_knowledge_start_at(title, obj_list, o_count,
+										g_funcs, o_funcs,
+										otherfields, 0);
 }
 
 /*
@@ -1534,9 +1579,9 @@ static void display_object(int col, int row, bool cursor, int oid)
 	byte attr = curs_attrs[(int)k_ptr->flavor == 0 || k_ptr->aware][(int)cursor];
 
 	/* Symbol is unknown.  This should never happen.*/	
-	if (!k_ptr->aware && !k_ptr->flavor && !p_ptr->wizard)
+	if (!k_ptr->aware && !k_ptr->flavor && !p_ptr->wizard && !cheat_lore)
 	{
-		assert(0);
+		assert(FALSE);
 		c = ' ';
 		a = TERM_DARK;
 	}
@@ -1791,11 +1836,10 @@ static void screen_store_object(int oid)
 	/* Save the screen */
 	screen_save();
 
-
 	/* Describe */
 	screen_object(o_ptr);
-	/* Load the screen */
 
+	/* Load the screen */
 	(void)anykey();
 
 	screen_load();
@@ -1833,7 +1877,7 @@ static void do_cmd_knowledge_home(void)
 		/* Check for current home */
 		if(!cheat_xtra && i != STORE_HOME && store[i]->base != 1 && store[i]->base != 2) 
 			continue;
-		for(j = 0; store[i]->stock[j].k_idx; j++) {
+		for(j = 0; j < store[i]->stock_size && store[i]->stock[j].k_idx; j++) {
 			objects[o_count] = o_count;
 			default_join[o_count].gid = i;
 			default_join[o_count++].oid = j;
@@ -1849,7 +1893,7 @@ static void do_cmd_knowledge_home(void)
 
 /* =================== TOWNS AND DUNGEONS ================================ */
 
-int count_routes(int from, int to)
+static int count_routes(int from, int to)
 {
   s16b routes[24];
   int i, num;
@@ -1874,7 +1918,7 @@ static void describe_surface_dungeon(int dun)
     if (dun == myd)
       text_out_c(TERM_SLATE, "  You were born right here.");
     else
-      text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago");
+      text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago.");
   } 
   else if (t_info[dun].visited)
     text_out_c(TERM_WHITE, t_info[dun].text + t_text);
@@ -2036,6 +2080,7 @@ static void do_cmd_knowledge_dungeons(void)
 	member_funcs zone_f = {display_dungeon_zone, dungeon_lore, 0, 0, 0, 0};
 	group_funcs dun_f = {z_info->t_max, FALSE, town_name, 0, oiddiv4, 0};
 	int myd = p_ptr->dungeon;
+	int start_at = 0;
 
 	zones = C_ZNEW(z_info->t_max*MAX_DUNGEON_ZONES, int);
 
@@ -2050,6 +2095,9 @@ static void do_cmd_knowledge_dungeons(void)
 	      && t_info[t_info[i].replace_ifvisited].visited)
 	    continue;
 
+	  if (i < p_ptr->dungeon)
+		  start_at++;
+
 	  for(j = 0; (j < 1 || t_info[i].zone[j].level != 0 )
 		&& j < MAX_DUNGEON_ZONES; j++)
 	    {
@@ -2057,7 +2105,8 @@ static void do_cmd_knowledge_dungeons(void)
 	    }
 	}
 
-	display_knowledge("locations", zones, z_count, dun_f, zone_f, "   Reached");
+	display_knowledge_start_at(
+		"locations", zones, z_count, dun_f, zone_f, "   Reached", start_at);
 	FREE(zones);
 }
 
@@ -2067,32 +2116,138 @@ static void cleanup_cmds () {
 }
 
 /* The stand-alone version, e.g. for travel menu help */
-/* TODO: this is blindly copied from do_cmd_menu, please simplify */
 void do_knowledge_dungeons(void)
 {
 	/* Set text_out hook */
 	text_out_hook = text_out_to_screen;
 
-	/* initialize static variables */
-	if(!obj_group_order) {
-		int i, n = 0;
-		for(n = 0; object_group_tval[n]; n++)
-		obj_group_order = C_ZNEW(TV_GEMS+1, int);
-		ang_atexit(cleanup_cmds);
-		for(i = 0; i <= TV_GEMS; i++) /* allow for missing values */
-			obj_group_order[i] = -1;
-		for(i = 0; i < n; i++) {
-			obj_group_order[object_group_tval[i]] = i;
-		}
-	}
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
 	do_cmd_knowledge_dungeons();
 
 	/* Flush messages */
 	message_flush();
+}
+
+/* =================== HELP TIPS ================================ */
+
+/*
+ * File name prefix of each group
+ */
+static cptr tip_prefix[] = 
+{
+	"All current tips",
+	"birth",
+	"race",
+	"class",
+	"style",
+	"spec",
+	"tval",
+	"kind",
+	"ego",
+	"look",
+	"dungeon",
+	"depth",
+	"level",
+	"kill",
+	NULL
+};
+
+static void display_tip_title(int col, int row, bool cursor, int oid)
+{
+	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
+
+	cptr tip = quark_str(tips[default_join[oid].oid]);
+
+	/* Current help file */
+	FILE *fff = NULL;
+
+	/* General buffer */
+	char buf[128];
+
+	/* Path buffer */
+	char path[1024];
+
+	/* Build the filename */
+	path_build(path, 1024, ANGBAND_DIR_INFO, tip);
+
+	/* Open the file */
+	fff = my_fopen(path, "r");
+
+	/* File doesn't exist or is empty */
+	if (!fff || my_fgets(fff, buf, sizeof(buf)))
+	{
+		/* Message */
+		msg_format("Cannot open '%s'.", tip);
+		message_flush();
+
+		/* Oops */
+		c_prt(attr, "an unreadable help tip", row, col);
+		return;
+	}
+
+	/* Close the file */
+	my_fclose(fff);		
+
+	c_prt(attr, buf, row, col);
+}
+
+static void display_help_tip(int oid)
+{
+	cptr tip = quark_str(tips[default_join[oid].oid]);
+
+	/* Save the screen */
+	screen_save();
+
+	/* Peruse the help tip file */
+	(void)show_file(tip, NULL, 0, 0);
+
+	/* Load the screen */
+	screen_load();
+}
+
+static const char *tip_group_name(int gid)
+{
+	return tip_prefix[gid];
+}
+
+static int tip_group_cmp(const void *a, const void *b) {
+	int gid = default_join[*(int*)a].gid;
+	int c = gid - default_join[*(int*)b].gid;
+	return c;
+}
+
+static void do_cmd_knowledge_help_tips(void)
+{
+	member_funcs tip_f = {display_tip_title, display_help_tip, 0, 0, 0, 0};
+	group_funcs prefix_f = {N_ELEMENTS(tip_prefix), FALSE, tip_group_name, tip_group_cmp, default_group, 0};
+
+	int cloned_tip_count = 0;
+	int *help_tips;
+	int i, j;
+
+	help_tips = C_ZNEW(tips_start * 2, int);
+	default_join = C_ZNEW(tips_start * 2, join_t);
+
+	for(i = 0; i < tips_start; i++) 
+	{
+		for(j = 0; j < (int)N_ELEMENTS(tip_prefix) - 1; j++) {
+			const char *pat = tip_prefix[j];
+			const cptr tip = quark_str(tips[i]);
+
+			if (j > 0 && strncmp(pat, tip, strlen(pat)) != 0)
+				continue;
+
+			help_tips[cloned_tip_count] = cloned_tip_count;
+			default_join[cloned_tip_count].oid = i;
+			default_join[cloned_tip_count++].gid = j;
+		}
+	}
+
+	display_knowledge("help tips", help_tips, cloned_tip_count,
+							prefix_f, tip_f, 0);
+
+	FREE(default_join);
+	default_join = 0;
+	FREE(help_tips);
 }
 
 
@@ -2538,7 +2693,7 @@ static void do_cmd_pref_file_hack(int row)
 	prt("Command: Load a user pref file", row, 0);
 
 	/* Prompt */
-	prt("File: ", row + 2, 0);
+	prt("File: ", row + 1, 0);
 
 	/* Default filename */
 	sprintf(ftmp, "%s.prf", op_ptr->base_name);
@@ -2606,9 +2761,9 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			/* Display the option text */
 			sprintf(buf, "%-48s: %s  (%s)",
-				option_desc[opt[i]],
-				op_ptr->opt[opt[i]] ? "yes" : "no ",
-				option_text[opt[i]]);
+					  option_desc(opt[i]),
+					  op_ptr->opt[opt[i]] ? "yes" : "no ",
+					  option_name(opt[i]));
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -2677,7 +2832,7 @@ static void do_cmd_options_aux(int page, cptr info)
 
 			case '?':
 			{
-				sprintf(buf, "option.txt#%s", option_text[opt[k]]);
+				sprintf(buf, "option.txt#%s", option_name(opt[k]));
 				show_file(buf, NULL, 0, 0);
 				Term_clear();
 				break;
@@ -2915,19 +3070,19 @@ static errr option_dump(cptr fname)
 	for (i = 0; i < OPT_CHEAT; i++)
 	{
 		/* Require a real option */
-		if (!option_text[i]) continue;
+		if (!option_name(i)) continue;
 
 		/* Comment */
-		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+		fprintf(fff, "# Option '%s'\n", option_desc(i));
 
 		/* Dump the option */
 		if (op_ptr->opt[i])
 		{
-			fprintf(fff, "Y:%s\n", option_text[i]);
+			fprintf(fff, "Y:%s\n", option_name(i));
 		}
 		else
 		{
-			fprintf(fff, "X:%s\n", option_text[i]);
+			fprintf(fff, "X:%s\n", option_name(i));
 		}
 
 		/* Skip a line */
@@ -2977,13 +3132,13 @@ void do_cmd_options_append(int dummy, const char *dummy2)
 {
 	char ftmp[80];
 
-	/* Unused paramaters */
+	/* Unused parameters */
 	(void)dummy;
 	(void)dummy2;
 
 	/* Prompt */
-	prt("Command: Append options to a file", 20, 0);
-	prt("File: ", 21, 0);
+	prt("Command: Append options to a file", 22, 0);
+	prt("File: ", 23, 0);
 
 	/* Default filename */
 	sprintf(ftmp, "%s.prf", op_ptr->base_name);
@@ -3004,11 +3159,28 @@ void do_cmd_options_append(int dummy, const char *dummy2)
 	}
 }
 
+void do_cmd_reset_options(int dummy, const char *dummy2)
+{
+	/* Unused parameters */
+	(void)dummy;
+	(void)dummy2;
+
+	/* Prompt */
+	prt("Command: Reset all options to defaults", 22, 0);
+	/* Verify */
+	if (!get_check("Do you really want to reset all options? ")) return;
+
+	option_set_defaults();
+
+	/* Success!!! */
+	msg_print("Done.");
+}
+
 /* Hack -- Base Delay Factor */
 void do_cmd_delay(void)
 {
 	/* Prompt */
-	prt("Command: Base Delay Factor", 20, 0);
+	prt("Command: Base Delay Factor", 22, 0);
 
 	/* Get a new value */
 	while (1)
@@ -3016,8 +3188,8 @@ void do_cmd_delay(void)
 		char cx;
 		int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 		prt(format("Current base delay factor: %d (%d msec)",
-					   op_ptr->delay_factor, msec), 22, 0);
-		prt("New base delay factor (0-9 or ESC to accept): ", 21, 0);
+					   op_ptr->delay_factor, msec), 24, 0);
+		prt("New base delay factor (0-9 or ESC to accept): ", 23, 0);
 
 		cx = inkey();
 		if (cx == ESCAPE) break;
@@ -3030,15 +3202,15 @@ void do_cmd_delay(void)
 void do_cmd_hp_warn(void)
 {
 	/* Prompt */
-	prt("Command: Hitpoint Warning", 20, 0);
+	prt("Command: Hitpoint Warning", 22, 0);
 
 	/* Get a new value */
 	while (1)
 	{
 		char cx;
 		prt(format("Current hitpoint warning: %2d%%",
-			   op_ptr->hitpoint_warn * 10), 22, 0);
-		prt("New hitpoint warning (0-9 or ESC to accept): ", 21, 0);
+			   op_ptr->hitpoint_warn * 10), 24, 0);
+		prt("New hitpoint warning (0-9 or ESC to accept): ", 23, 0);
 
 		cx = inkey();
 		if (cx == ESCAPE) break;
@@ -4587,9 +4759,9 @@ static errr cmd_autos_dump(void)
 	char ftmp[80];
 
 	/* Prompt */
-	prt("Command: Dump auto-inscriptions", 13, 0);
+	prt("Command: Dump auto-inscriptions", 22, 0);
 	/* Prompt */
-	prt("File: ", 15, 0);
+	prt("File: ", 23, 0);
 
 	/* Default filename */
 	sprintf(ftmp, "%s.prf", op_ptr->base_name);
@@ -4723,25 +4895,23 @@ void do_cmd_version(void)
 }
 
 
-
 /*
  * Array of feeling strings
  */
 static cptr do_cmd_feeling_text[11] =
 {
-	"Looks like any other level.",
-	"You feel there is something special about this level.",
-	"You have a superb feeling about this level.",
-	"You have an excellent feeling...",
-	"You have a very good feeling...",
-	"You have a good feeling...",
-	"You feel strangely lucky...",
-	"You feel your luck is turning...",
-	"You like the look of this place...",
-	"This level can't be all bad...",
-	"What a boring place..."
+	"You are still uncertain about this place...",
+	"You feel there is something special here...",
+	"Premonitions of death appall you!  This place is murderous!",
+	"This place feels terribly dangerous!",
+	"You have a nasty feeling about this place.",
+	"You have a bad feeling about this place.",
+	"You feel nervous.",
+	"You have an uneasy feeling.",
+	"You have a faint uneasy feeling.",
+	"This place seems reasonably safe.",
+	"This seems a quiet, peaceful place."
 };
-
 
 /*
  * Note that "feeling" is set to zero unless some time has passed.
@@ -4753,10 +4923,33 @@ void do_cmd_feeling(void)
 	if (feeling > 10) feeling = 10;
 
 	/* No useful feeling in town */
-	if (!p_ptr->depth)
+	if (is_typical_town(p_ptr->dungeon, p_ptr->depth))
 	{
 		msg_print("Looks like a typical town.");
 		return;
+	}
+
+	/* Wilderness is easy to escape, so make it harder by no level feeling */
+	if (p_ptr->depth == min_depth(p_ptr->dungeon)) 
+	{
+		switch (p_ptr->dungeon % 3)
+		{
+		case 0:
+		{
+			msg_print("You feel free as a bird.");
+			return;
+		}
+		case 1:
+		{
+			msg_print("The future unfolds before you.");
+			return;
+		}
+		case 2:
+		{
+			msg_print("Something is about to begin.");
+			return;
+		}
+		}
 	}
 
 	/* Display the feeling */
@@ -6237,6 +6430,28 @@ typedef struct {
 	int page;
 } command_menu;
 
+static command_menu option_actions [] = 
+{
+	{'1', "Interface options", do_cmd_options_aux, 0}, 
+	{'2', "Display options", do_cmd_options_aux, 1},
+	{'3', "Warning and disturbance options", do_cmd_options_aux, 2}, 
+	{'4', "Birth (difficulty) options", do_cmd_options_aux, 3}, 
+	{'5', "Cheat options", do_cmd_options_aux, 4}, 
+	{0, 0, 0, 0},
+	{'W', "Subwindow display settings", (action_f) do_cmd_options_win, 0}, 
+	{'D', "Set base delay factor", (action_f) do_cmd_delay, 0}, 
+	{'H', "Set hitpoint warning", (action_f) do_cmd_hp_warn, 0}, 
+	{0, 0, 0, 0},
+	{'L', "Load a user pref file", (action_f) do_cmd_pref_file_hack, 22},
+	{'A', "Append options to a file", do_cmd_options_append, 0},
+	{'R', "Reset all options to defaults", do_cmd_reset_options, 0},
+	{0, 0, 0, 0},
+	{'M', "Interact with macros (advanced)", (action_f) do_cmd_macros, 0},
+	{'V', "Interact with visuals (advanced)", (action_f) do_cmd_visuals, 0},
+	{'C', "Interact with colours (advanced)", (action_f) do_cmd_colors, 0},
+};
+
+/*
 static command_menu option_actions [] = {
 	{'1', "User Interface Options", do_cmd_options_aux, 0},
 	{'2', "Disturbance Options", do_cmd_options_aux, 1},
@@ -6245,14 +6460,15 @@ static command_menu option_actions [] = {
 	{'5', "Display Options", do_cmd_options_aux, 4},
 	{'6', "Birth Options", do_cmd_options_aux, 5},
 	{'7', "Cheat Options", do_cmd_options_aux, 6},
-	{ 0, 0, 0, 0}, /* Load and append */
+	{ 0, 0, 0, 0},
 	{'W', "Window Flags", (action_f) do_cmd_options_win, 0},
 	{'L', "Load a user pref file", (action_f) do_cmd_pref_file_hack, 20},
 	{'A', "Append options to a file", do_cmd_options_append, 0},
-	{ 0, 0, 0, 0}, /* Special choices */
+	{ 0, 0, 0, 0},
 	{'D', "Base Delay Factor", (action_f) do_cmd_delay, 0},
 	{'H', "Hitpoint Warning", (action_f) do_cmd_hp_warn, 0}
 };
+*/
 
 static command_menu knowledge_actions[] = {
 	{'1', "Display artifact knowledge", (action_f)do_cmd_knowledge_artifacts, 0},
@@ -6260,13 +6476,18 @@ static command_menu knowledge_actions[] = {
 	{'3', "Display ego item knowledge", (action_f)do_cmd_knowledge_ego_items, 0},
 	{'4', "Display object knowledge", (action_f)do_cmd_knowledge_objects, 0},
 	{'5', "Display feature knowledge", (action_f)do_cmd_knowledge_features, 0},
+	{0, 0, 0, 0},
 	{'6', "Display contents of your homes", (action_f)do_cmd_knowledge_home, 0},
 	{'7', "Display dungeon knowledge", (action_f)do_cmd_knowledge_dungeons, 0},
-	{'8', "Display self-knowledge", (action_f)self_knowledge, 0},
-	{0, 0, 0, 0}, /* other stuff */
+	{'8', "Display help tips from the current game", (action_f)do_cmd_knowledge_help_tips, 0},
+	{'9', "Display self-knowledge", (action_f)self_knowledge, 0},
+	{0, 0, 0, 0},
+	{'L', "Load a user pref file", (action_f) do_cmd_pref_file_hack, 22},
 	{'D', "Dump auto-inscriptions", (action_f) cmd_autos_dump, 0},
-	{'L', "Load a user pref file", (action_f) do_cmd_pref_file_hack, 20},
-	{'V', "Interact with visuals", (action_f) do_cmd_visuals, 0},
+	{0, 0, 0, 0},
+	{'M', "Interact with macros (advanced)", (action_f) do_cmd_macros, 0},
+	{'V', "Interact with visuals (advanced)", (action_f) do_cmd_visuals, 0},
+	{'C', "Interact with colours (advanced)", (action_f) do_cmd_colors, 0},
 };
 
 /*
@@ -6338,7 +6559,7 @@ void do_cmd_menu(int menuID, const char *title)
 			}
 		}
 
-		prt("Command: ", 19, 0);
+		prt("Command: ", 22, 0);
 
 		/* Get command */
 		ke = inkey_ex();

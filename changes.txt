@@ -1,5 +1,267 @@
-Unangband 0.6.2 Beta Release
+Unangband 0.6.2 Beta Release 2: "Help of the shopkeepers"
 
+### Game Play ###
+
+* made nexus temporary (via temporary stat bonuses)
+
+* fixed #12919 (Flask and wand of Nexus do not (un)scramble stats)
+
+* removed potions of Slow Poison
+
+* removed instrument-specialized bards' icky hands penalty. It was irregular, 
+no other class gets icky hands for anything else than magic books use. 
+Instruments are underused anyway.
+
+* made wands of Spark less common outside Hobbiton
+
+* made resting for the night more expensive --- vampires are not liked
+
+* made Ranger's cache more lucrative
+
+* moved auto-eat to before the travel; tweaked messages and allowed food
+
+* mega patch changing the options subsystem to the V setup and tweaking 
+the amal gamation of V and Un options is various ways
+
+* Savefile version bumped; options are reset when loading older savefiles
+
+* hack: options I abandoned in the mega-patch are ignored in prf files; 
+warnings displayed when old savefile imported
+
+* some slight bag tweaks
+
+* no level feeling in town and wilderness
+
+* removed feeling delay; changed the scale of level feeling
+
+* remove feeling boost from items
+
+* random hacks to make level feeling better; it will improve further 
+when more rooms is generated in some cramped dungeons
+
+* changed feeling messages to negative ones from S
+
+* bumped the level of low-level monsters, except breeders that were already 
+bump ed; in this way we have less monsters of the same level in monster groups 
+and higher level feeling with the same danger
+
+* made good and great objects more common to compensate for no level feelings 
+related to objects
+
+* a hack to move Black willow deeper (paralyze spell); it's now at DL7, 
+it it's not enough, make paralyzation even shorter for shallow monsters
+
+* made ecologies start at DL3 so that both Maggot's and Isengard start with 
+all the fun; only Bree has first 2 levels weird
+
+* an experiment with limiting powerleveling for low-level characters; 
+this count ers higher amount of OoD monsters after my previous changes; 
+this does not affect XP from in-depth monsters; it almost does not affect 
+CL30 and older characters
+
+* reverted my year old stupid change, which made the Three Trolls worth 
+lots of XP
+
+* described Black willow in more detail to help players
+
+* added a shopkeeper, changed the races of others, made the Maias even more 
+secret
+
+* made also the evil shapechanger shopkeepers hide their race. Make them 
+and Maiar really outgoing to their kin. Added a (hidden) ******** shopowner
+
+* done #13304 (don't repeat shop owners, if some are still left); 
+no savefile format change needed
+
+* lots more shopkeepers; the shop-owners overhaul is beta2-ready now
+
+* slight tweak to detect magic and wizard mode display
+
+* a slight tweak to the message after defeating the guardian
+
+* moved some rubbish potions deeper to make stat potions and other 
+useful potions more common while they are really useful
+
+* the final few shops from the polls
+
+
+### User Interface ###
+
+* corrected description of Tree of Life spell and similar
+
+* shortened Wonder description to fit the screen
+
+* fuelling now auto-lights
+
+* changed some flag descriptions to be understandable by newbies
+
+* fixed zero rechange times and mangled descriptions of activable objects 
+(rods and artifacs were fine)
+
+* added description of the resting services
+
+* tweaked line splitting and fixed some quirks
+
+* tweaked description of mana-adding objects
+
+* changed filename of a tip kind to be prettier to display
+
+* store help tips (their file names) permanently in the order of their display
+
+* help tips knowledge screen
+
+* removed spurious messages when refueling
+
+* fixed broken description of charm spells, etc., as reported by Anne
+
+* wording of the birth_beginner option
+
+* moved Un options to the end of menus so that V people feel at home
+
+* added 'R'eset options command to '='
+
+* fixed layout of '=' and '~' menus
+
+* removed some obscure and half-broken commands
+
+* corrected some command help
+
+* various little fixes from the forum
+
+* committed the new options help file by Mysterious Anne
+
+- Added lib/docs folder which will contain .rtf files with various 
+in-game and out of game documents. (May use .htm instead at a future date).
+
+- Move explanation of monster.txt file to lib/docs/monster.rtf.
+
+- Decide to consolidate all lib/edit comment files into a single modding.rtf 
+document.
+
+- Updates to artifact.txt, ego_item.txt, flavor.txt, object.txt, p_race.txt, 
+p_class.txt, spell.txt to use newly formated artifact.txt file.
+
+* added Pete Mac description of display_knowledge
+
+* modified display_knowledge, according to Pete Mac lore, 
+so that dungeon_knowledge starts at the current location (not zone, yet)
+
+* added reminders about lighting torches to two more help notes
+
+* yet another dungeons dump tweak
+
+* a bit more informative messages when taking the guardian stairs
+
+* feet -> stories for towers
+
+* made the 'fumble' message longer, as it happens rarely
+
+* made stat potions a little bit more common; some cleanup
+
+
+### Bug fixes ###
+
+* fixed display of temporarily drained stats on the main screen
+
+* corrected rod of CMW
+
+* Rod of Haste Monsters did nothing
+
+* Potion of Boldness no longer of Holy Water
+
+* fixed a crash at cheat_lore option
+
+* fixed inactive Rod of Slow Monsters
+
+* fixed uninitialized variable that mangled object details display 
+(e.g. Phase Door distance)
+
+* now saving store generation level, this now really fixes #10307 
+(restocking of the black market, thanks to kajmace's persistence)
+
+* a fix to message saving; if your messages get garbled upon version change, 
+don't be alarmed --- it's a one-time annoyance
+
+* fixed a lots of object generation quirks; not sure what I'm doing; 
+no more negative pval objects in shops; but I'd prefer that there remain 
+a few with sane maluses
+
+* fixed too high guesses price of unknown gauged weapons
+
+* fixed 13138 (Can't use staff in hand)
+
+* remove spurious flags in spells such as the one invoked by eating mushroom of 
+Blindness
+
+* cleaned up dungeon knowledge function thanks to pmac
+
+* hacked a fix to #13235 (Shield of Sustain Wisdom didn't work)
+
+- Fix for Bug #13250: Tree trunks can be opened (and bashed with the same descr)
+
+- Only update monster experience and rarity if we are trying to output 
+a new monster txt file.
+
+- Remove various monster.txt file hacks from init1.c so that the flags
+in the monster.txt file are an accurate representation of the monster.
+
+- Update the monster.txt file to improve formatting and so that all
+monsters stats are correctly represented.
+
+- Disable ALLOW_TEMPLATES_OUTPUT so we don't write output files every 
+time we start.
+
+- Fix for bug Bug #11856 Wrong greyed out classes.
+
+* enable the slow debugging of spell.txt, but only if ALLOW_TEMPLATES_OUTPUT 
+defined
+
+* fixed #13205 (infinite torches from the wall)
+
+* a fix for a bow with EXTRA_MIGHT (-8) in a shop
+
+* fixed #13293 (No screen update after command: wear)
+
+* made mushrooms of Mana blue again
+
+* a quick hack to remove broken egos from quest reward shops
+
+* fixed #13328 (Guaranteed good and great items still get negative pvals)
+
+* unfortunately the quadratic pval costs make cheaper flags much more common, 
+because more expensive stuff can't get into the 19/20 of the expected power; 
+reduced this to 18/20, but still... for the same reason non-pval flags 
+are very rare --- they can't fine tune to 18/20 by pvals or, deep down, 
+get high enough by pvals (in magic items, randarts cope)
+
+* removed/redone some of my tweaks from last month, when I still didn't 
+understand the code
+
+* fixed a crash in homes knowledge screen
+
+* fixed the Wall of Fire crash reported by Big Al
+
+* fixed bag refusing mashrooms
+
+* disabled the "bad maze" message unless cheat_xtra
+
+* shop_owners apparently cannot have purse bigger than 30000; 
+fixed a related bug
+
+* prevented sensing pval when already identified (then items would not stack)
+
+
+### Build / Platform ###
+
+* silenced mingw warnings
+
+- Allow OS/X to compile again due to changes in use_sound introduced 
+in the Angband porting work. This will undoubtedly break the OS/X menus.
+
+- Workaround for Bug #13249 ] Crash on exit with show_itemlist on Windows.
+
+
+Unangband 0.6.2 Beta Release
 
 ### Game Play ###
 

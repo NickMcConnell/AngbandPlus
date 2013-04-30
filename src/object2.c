@@ -862,7 +862,7 @@ void object_aware_tips(int kind)
 		/* Show tval based tip */
 		queue_tip(format("tval%d.txt", tval));
 	}
-	/* Show tval tips if no objects of this type known */
+	/* Show tval tips if 'count' svals of this type known */
 	else
 	{
 		/* Show tval based tip */
@@ -1151,6 +1151,10 @@ s32b object_value_real(const object_type *o_ptr)
 	/* Now evaluate object power */
 	power = object_power(o_ptr);
 
+	/* A hack caused by "inhibit" in info.c */
+	if (power > 1000) 
+		return 0;
+
 #if 0
 	/* Hack -- No negative power on uncursed objects */
 	if ((power < 0) && !(cursed_p(o_ptr))) power = 0;
@@ -1158,11 +1162,11 @@ s32b object_value_real(const object_type *o_ptr)
 	/* Apply power modifier to cost */
 	if ((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOLT))
 	{
-		value += power * (power > 0 ? (power + 2) / 3 : 1) * 5L;
+		value += power * (power > 0 ? (power + 2) / 3 : (-power + 2) / 3) * 5L;
 	}
 	else
 	{
-		value += power * (power > 0 ? (power + 2) / 3 : 1) * 100L;
+		value += power * (power > 0 ? (power + 2) / 3 : (-power + 2) / 3) * 100L;
 	}		
 
 	/* Hack -- object power assumes (+11,+9) on weapons and ammo so we need to include some smaller bonuses,
@@ -1309,8 +1313,9 @@ s32b object_value(const object_type *o_ptr)
 			/* Hack -- negative bonuses are bad */
 			if (o_ptr->pval < 0) return (0L);
 
-			/* Guess value of pval */
-			value += o_ptr->pval * o_ptr->pval * 100L;
+			/* Guess value of pval, ignore default pval of 1 */
+			if (o_ptr->pval > 1)
+				value += o_ptr->pval * o_ptr->pval * 100L;
 		}
 
 		/* Hack -- Partially identified items */
@@ -1471,35 +1476,6 @@ s32b object_value(const object_type *o_ptr)
 	return (value);
 }
 
-
-/*
- * Determine if the object has "=s" in its inscription.
- */
-static bool auto_stack_okay(const object_type *o_ptr)
-{
-	cptr s;
-
-	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
-
-	/* Process inscription */
-	while (s)
-	{
-		/* Auto-stack on "=s" */
-		if (s[1] == 's') return (TRUE);
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
-	}
-
-	/* Don't auto pickup */
-	return (FALSE);
-}
-
-
 /*
  * Determine if an item can "absorb" a second item
  *
@@ -1510,9 +1486,8 @@ static bool auto_stack_okay(const object_type *o_ptr)
  * (if necessary) when they are used.
  *
  * If permitted, we allow weapons/armor to stack, if fully "known".
- *
- * Missiles will combine if both stacks have the same "known" status.
- * This is done to make unidentified stacks of missiles useful.
+ * or if both stacks have the same "known" status.
+ * This is done mostly to make unidentified stacks of missiles useful.
  *
  * Food, potions, scrolls, and "easy know" items always stack.
  *
@@ -1576,13 +1551,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SKIN:
 		case TV_HOLD:
 		{
-			/* Require 'similar' timeouts */
-			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
-			{
-				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
-			}
-
 			/* Probably okay */
 			break;
 		}
@@ -1618,15 +1586,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 				if ((o_ptr->charges > 0)&&(j_ptr->charges <= 0)) return (0);
 				if ((o_ptr->charges < 0)&&(j_ptr->charges >= 0)) return (0);
 				if ((o_ptr->charges == 0)&&(j_ptr->charges != 0)) return (0);
-
-				/* Line 1 -- no force charge stacking option */
-				/* Line 2 -- 1st charges is not 1 less than 2nd charges, or 1st charges is a charges stack */
-				/* Line 3 -- 1st charges is not 1 greater than 2nd charges, or 2nd charges is a charges stack */
-				/* Line 4 -- an item has auto_stack */
-				if ((!stack_force_charges)
-					&& ((o_ptr->charges != j_ptr->charges-1) || (o_ptr->stackc))
-					&& ((o_ptr->charges != j_ptr->charges+1) || (j_ptr->stackc))
-					&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
 			}
 
 			/* Probably okay */
@@ -1636,13 +1595,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		/* Rods */
 		case TV_ROD:
 		{
-			/* Require 'similar' timeouts */
-			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
-			{
-				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
-			}
-
 			/* Probably okay */
 			break;
 		}
@@ -1671,7 +1623,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_RING:
 		case TV_AMULET:
 		case TV_LITE:
-	        case TV_INSTRUMENT:
+		case TV_INSTRUMENT:
 
 		/* Missiles */
 		case TV_BOLT:
@@ -1697,13 +1649,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 
 			/* Require identical "ego-item" names */
 			if (o_ptr->name2 != j_ptr->name2) return (FALSE);
-
-			/* Require 'similar' timeouts */
-			if ((o_ptr->timeout != j_ptr->timeout) && (!stack_force_times)
-				&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) )
-			{
-				if ((o_ptr->timeout != 0) && (j_ptr->timeout != 0)) return (0);
-			}
 
 			/* Require identical "values" */
 			if (o_ptr->ac != j_ptr->ac) return (FALSE);
@@ -1767,7 +1712,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		return (0);
 	}
 
-	/* Hack -- Require identical "xtra2" status */
+	/* Hack -- Require identical "name3" status */
 	if (o_ptr->name3 != j_ptr->name3)
 	{
 	  if (cheat_xtra) msg_format("name3 %d does not match name3 %d for tval=%d sval=%d, tval=%d sval=%d", o_ptr->name3, j_ptr->name3, o_ptr->tval, o_ptr->sval, j_ptr->tval, j_ptr->sval);
@@ -1775,39 +1720,20 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	}
 
 	/* Hack -- Require compatible inscriptions */
-	if (o_ptr->note != j_ptr->note)
+	if (o_ptr->note != j_ptr->note && o_ptr->note && j_ptr->note)
 	{
 		if (cheat_xtra) msg_format("note %d does not match note %d", o_ptr->note, j_ptr->note);
-		
-		/* Normally require matching inscriptions */
-		if (!stack_force_notes && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) ) return (0);
 
-		/* Never combine different inscriptions */
-		if (o_ptr->note && j_ptr->note) return (0);
-	}
-
-	/* Hack -- Require compatible "discount" fields */
-	if (o_ptr->discount != j_ptr->discount)
-	{
-		if (cheat_xtra) msg_format("discount %d does not match discount %d", o_ptr->discount, j_ptr->discount);
-		
-		/* Normally require matching discounts */
-		if (!stack_force_costs && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
+		return (0);
 	}
 
 	/* Hack -- Require compatible "feeling" fields */
-	if (o_ptr->feeling != j_ptr->feeling)
+	if (o_ptr->feeling != j_ptr->feeling && (o_ptr->feeling) && (j_ptr->feeling))
 	{
 		if (cheat_xtra) msg_format("feeling %d does not match feeling %d", o_ptr->feeling, j_ptr->feeling);
 
-		/* Both are (different) special inscriptions */
-		if ((o_ptr->feeling) && (j_ptr->feeling))
-		{
-			/* Normally require matching inscriptions */
-			return (0);
-		}
+		return (0);
 	}
-
 
 	/* Maximal "stacking" limit */
 	if (total >= MAX_STACK_SIZE) return (0);
@@ -1835,19 +1761,9 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
  * These assumptions are enforced by the "object_similar()" code.
  *
  * We now support 'blending' of timeouts and charges. - ANDY
- *
- * With stack_force_charges, charges are averaged across a stack of items.
- *
- * Without, we only stack items that have 1 charge difference,
- * and use the charges field to tell us how many of the higher charges
- * items are in the stack. This should be particularly helpful with
- * wands and staves as we will not unstack a pile of same charge items
- * by using them until a wand is emptied completely.
- *
- * With stack_force_timeouts, timeouts are the maximum across a stack
+ * Charges are averaged across a stack of items.
+ * Timeouts are the maximum across a stack
  * of items.
- *
- * Without, we allow 1 charging item to stack with charged items.
  *
  * Note we treat rods like timeout items rather than charges items. This
  * unnecessarily complicates the code in a lot of places.
@@ -2290,8 +2206,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 
 	/* Evaluate power */
 	boost_power = object_power(o_ptr);
-
-	/* Reverse sign */
+	/* Reverse sign so that the same code applied to cursed items */
 	if (power < 0) boost_power = -boost_power;
 
 	/* Too powerful already */
@@ -2387,7 +2302,6 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 
 		/* Evaluate power */
 		boost_power = object_power(o_ptr);
-
 		if (power < 0) boost_power = -boost_power;
 
 		/* Hack -- boost to-hit, to-dam, to-ac to 10 if required to increase power */
@@ -2416,7 +2330,6 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 			}
 
 			boost_power = object_power(o_ptr);
-
 			if (power < 0) boost_power = -boost_power;
 		}
 	} while ((!(boost_power <= old_boost_power) && (boost_power < lev)) || (tryagain && (tries < 40)));
@@ -2439,7 +2352,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 
 /*
  * Attempt to change an object into an magic-item
- * This function picks a magic item that has 95% to 100% of the power supplied to this
+ * This function picks a magic item that has 90% to 100% of the power supplied to this
  * function, in a manner similar to random artifacts.
  */
 static bool make_magic_item(object_type *o_ptr, int lev, int power)
@@ -2472,12 +2385,11 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 	if (o_ptr->name2) o_ptr->xtra1 = 0;
 
 	/* Boost level for great drops */
-	if ((power < -1) || (power > 1)) lev += 10;
+	if (great) lev += 10;
 
 	/* Recompute power */
 	obj_pow1 = object_power(o_ptr);
-
-	/* Reverse sign */
+	/* Reverse sign so that the same code applied to cursed items */
 	if (power < 0) obj_pow1 = -obj_pow1;
 
 	/* Already too magical */
@@ -2487,12 +2399,10 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 	if ((o_ptr->tval != TV_LITE) && (o_ptr->tval != TV_INSTRUMENT) && rand_int(3))
 	{
 		/* Boost the item */
-		boost_item(o_ptr, power, power);
+		boost_item(o_ptr, lev, power);
 
 		/* Recompute power */
 		obj_pow1 = object_power(o_ptr);
-
-		/* Reverse sign */
 		if (power < 0) obj_pow1 = -obj_pow1;
 
 		/* Already too magical */
@@ -2524,13 +2434,11 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 
 		/* Evaluate power */
 		obj_pow2 = object_power(o_ptr);
-
-		/* Reverse sign */
 		if (power < 0) obj_pow2 = -obj_pow2;
 
 		/* Pick this flag with default pval? */
 		if ((obj_pow2 > obj_pow1) &&			/* Flag has any effect? */
-			((!great) || (obj_pow2 >= ((lev * 19) / 20))) && 	/* Great forces at least 95% */
+			((!great) || (obj_pow2 >= ((lev * 18) / 20))) && 	/* Great forces at least 90% */
 			(obj_pow2 <= lev) &&			/* No more than 100% */
 			(rand_int(++count) == 0))		/* Sometimes pick */
 		{
@@ -2573,13 +2481,14 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 			{
 				x1 = 16;
 				x2 = i;
-				max_pval = o_ptr->pval;
+				if (o_ptr->pval > 0) 
+					max_pval = o_ptr->pval - old_pval;
+				else 
+					max_pval = o_ptr->pval + old_pval;
 			}
 
 			/* Reset pval */
 			o_ptr->pval = old_pval;
-			if (old_pval > 0) max_pval -= old_pval;
-			else max_pval += old_pval;
 		}
 	}
 
@@ -2601,13 +2510,11 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 
 		/* Evaluate power */
 		obj_pow2 = object_power(o_ptr);
-
-		/* Reverse sign */
 		if (power < 0) obj_pow2 = -obj_pow2;
 
 		/* Pick this flag? */
 		if ((obj_pow2 > obj_pow1) &&			/* Flag has any effect ? */
-			((!great) || (obj_pow2 >= ((lev * 19) / 20))) && 	/* Great forces at least 95% */
+			((!great) || (obj_pow2 >= ((lev * 18) / 20))) && 	/* Great forces at least 90% */
 			(obj_pow2 <= lev) &&			/* No more than 100% */
 			(rand_int(++count) == 0))		/* Sometimes pick */
 		{
@@ -2625,13 +2532,11 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 
 		/* Evaluate power */
 		obj_pow2 = object_power(o_ptr);
-
-		/* Reverse sign */
 		if (power < 0) obj_pow2 = -obj_pow2;
 
 		/* Pick this flag? */
 		if ((obj_pow2 > obj_pow1) &&			/* Flag has any effect ? */
-			((!great) || (obj_pow2 >= ((lev * 19) / 20))) && 	/* Great forces at least 95% */
+			((!great) || (obj_pow2 >= ((lev * 18) / 20))) && 	/* Great forces at least 90% */
 			(obj_pow2 <= lev) &&			/* No more than 100% */
 			(rand_int(++count) == 0))		/* Sometimes pick */
 		{
@@ -2658,13 +2563,11 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 
 		/* Evaluate power */
 		obj_pow2 = object_power(o_ptr);
-
-		/* Reverse sign */
 		if (power < 0) obj_pow2 = -obj_pow2;
 
 		/* Pick this flag? */
 		if ((obj_pow2 > obj_pow1) &&			/* Flag has any effect ? */
-			((!great) || (obj_pow2 >= ((lev * 19) / 20))) && 	/* Great forces at least 95% */
+			((!great) || (obj_pow2 >= ((lev * 18) / 20))) && 	/* Great forces at least 90% */
 			(obj_pow2 <= lev) &&			/* No more than 100% */
 			(rand_int(++count) == 0))		/* Sometimes pick */
 		{
@@ -2686,7 +2589,7 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 			if (max_pval > 0)
 				o_ptr->pval += great ? max_pval : rand_range(1, max_pval);
 			else
-				o_ptr->pval -= great ? -max_pval : rand_range(1, -max_pval);
+				o_ptr->pval += great ? max_pval : -rand_range(1, -max_pval);
 		}
 
 		return(TRUE);
@@ -2792,7 +2695,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed, bool great)
 		/* Fake ego power */
 		o_ptr->name2 = e_idx;
 		j = object_power(o_ptr);
-		if (j < 0) j = -j;
+		if (cursed) j = -j;
 
 		/* Force better for non-weapons as we can't modify power as easily */
 		if ((great) && (j < level / 2) && (o_ptr->tval != TV_DIGGING) && (o_ptr->tval != TV_HAFTED)
@@ -3057,7 +2960,6 @@ static void charge_item(object_type *o_ptr)
  *
  * Hack -- note special base damage dice boosting
  * Hack -- note special processing for weapon/digger
- * Hack -- note special rating boost for dragon scale mail
  */
 static void a_m_aux_1(object_type *o_ptr, int level, int power)
 {
@@ -3245,9 +3147,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	{
 		case TV_DRAG_ARMOR:
 		{
-			/* Rating boost */
-			rating += 30;
-
 			/* Mention the item */
 			if (cheat_peek) object_mention(o_ptr);
 
@@ -3261,8 +3160,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 /*
  * Apply magic to an item known to be a "ring" or "amulet"
  *
- * Hack -- note special rating boost for ring of speed
- * Hack -- note special rating boost for amulet of the magi
  * Hack -- note special "pval boost" code for ring of speed
  * Hack -- note that some items must be cursed (or blessed)
  */
@@ -3316,9 +3213,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 						break;
 					}
-
-					/* Rating boost */
-					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3510,9 +3404,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = 1 + m_bonus(3, level);
 					o_ptr->to_a = randint(5) + m_bonus(5, level);
 
-					/* Boost the rating */
-					rating += 25;
-
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
 
@@ -3523,9 +3414,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_AMULET_DEVOTION:
 				{
 					o_ptr->pval = 1 + m_bonus(3, level);
-
-					/* Boost the rating */
-					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3539,9 +3427,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->to_h = 1 + m_bonus(4, level);
 					o_ptr->to_d = 1 + m_bonus(4, level);
 					o_ptr->pval = 1 + m_bonus(1, level);
-
-					/* Boost the rating */
-					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3562,9 +3447,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 						break;
 					}
-
-					/* Boost the rating */
-					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3595,9 +3477,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 						break;
 					}
-
-					/* Boost the rating */
-					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
@@ -3688,7 +3567,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Hack -- eggs/spores will hatch */
 			if (o_ptr->name3 > 0) o_ptr->timeout = o_ptr->weight * damroll(2,6) * 10;
 		}
-
 	}
 }
 
@@ -4248,16 +4126,16 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+	f1 = lev + 16;
 
 	/* Maximal chance of being "good" */
-	if (f1 > 75) f1 = 75;
+	if (f1 > 80) f1 = 80;
 
 	/* Base chance of being "great" */
 	f2 = f1 / 2;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	if (f2 > 25) f2 = 25;
 
 
 	/* Assume normal */
@@ -4329,12 +4207,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Hack -- extract the "cursed" flag */
 		if (a_ptr->flags3 & (TR3_LIGHT_CURSE)) o_ptr->ident |= (IDENT_CURSED);
-
-		/* Mega-Hack -- increase the rating */
-		rating += 10;
-
-		/* Mega-Hack -- increase the rating again */
-		if (a_ptr->cost > 50000L) rating += 10;
 
 		/* Set the good item flag */
 		good_item_flag = TRUE;
@@ -4508,7 +4380,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		/* Get ego power */
 		ego_power = object_power(o_ptr);
-		if (ego_power < 0) ego_power = -ego_power;
+		if (power < 0) ego_power = -ego_power;
 
 		/* Choose extra power appropriate to ego item */
 		if (e_ptr->xtra)
@@ -4523,7 +4395,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			for (o_ptr->xtra2 = 0; o_ptr->xtra2 < object_xtra_size[e_ptr->xtra]; o_ptr->xtra2++)
 			{
 				ego_power = object_power(o_ptr);
-				if (ego_power < 0) ego_power = -ego_power;
+				if (power < 0) ego_power = -ego_power;
 
 				/* Is this weakest ability? */
 				if (ego_power < w1)
@@ -4544,17 +4416,15 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 			/* Reset ego power */
 			ego_power = object_power(o_ptr);
+			if (power < 0) ego_power = -ego_power;
 
 		}
 
 		/* Boost under-powered ego items if possible */
 		if (ego_power < lev)
 		{
-			boost_item(o_ptr, power, lev);
+			boost_item(o_ptr, lev, power);
 		}
-
-		/* Hack -- apply rating bonus */
-		rating += e_ptr->rating;
 
 		/* Cheat -- describe the item */
 		if (cheat_peek) object_mention(o_ptr);
@@ -5519,9 +5389,6 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	if (!cursed_p(j_ptr) && !broken_p(j_ptr) &&
 	    (k_info[j_ptr->k_idx].level > p_ptr->depth))
 	{
-		/* Rating increase */
-		rating += (k_info[j_ptr->k_idx].level - p_ptr->depth);
-
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
 	}

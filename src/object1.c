@@ -2533,7 +2533,7 @@ void display_inven(void)
 		Term_erase(3+n, k, 255);
 
 		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -2687,7 +2687,7 @@ void display_equip(void)
 		}
 
 		/* Display the weight (if needed) */
-		if (o_ptr->k_idx && show_weights && o_ptr->weight)
+		if (o_ptr->k_idx && o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			int col = (show_labels ? 52 : 71);
@@ -2733,8 +2733,7 @@ void show_inven(void)
 	lim = 79 - 3;
 
 	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
+	lim -= 9;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -2775,7 +2774,7 @@ void show_inven(void)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -2790,6 +2789,8 @@ void show_inven(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = out_index[j];
 
@@ -2809,12 +2810,9 @@ void show_inven(void)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
 	}
 
 	/*
@@ -2919,7 +2917,7 @@ void show_equip(void)
 	if (show_labels) lim -= (14 + 2);
 
 	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	lim -= 9;
 
 	/*
 	 * Get the pseudo-tags of the quiver slots
@@ -2997,7 +2995,7 @@ void show_equip(void)
 		if (show_labels) l += (14 + 2);
 
 		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
+		l += 9;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -3012,6 +3010,8 @@ void show_equip(void)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = out_index[j];
 
@@ -3077,12 +3077,9 @@ void show_equip(void)
 		}
 
 		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
-		}
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j+1, 71);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3090,12 +3087,10 @@ void show_equip(void)
 }
 
 
-#ifdef ALLOW_EASY_FLOOR
-
 /*
  * Display a list of the items on the floor at the given location.
  */
-void show_floor(const int *floor_list, int floor_num)
+void show_floor(const int *floor_list, int floor_num, bool gold)
 {
 	int i, j, k, l;
 	int col, len, lim;
@@ -3117,16 +3112,23 @@ void show_floor(const int *floor_list, int floor_num)
 	/* Maximum space allowed for descriptions */
 	lim = 79 - 3;
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	/* Require space for weight */
+	lim -= 9;
 
-	/* Display the inventory */
+	/* Limit displayed floor items to 23 (screen limits) */
+	if (floor_num > MAX_FLOOR_STACK) floor_num = MAX_FLOOR_STACK;
+
+	/* Display the floor */
 	for (k = 0, i = 0; i < floor_num; i++)
 	{
 		o_ptr = &o_list[floor_list[i]];
 
-		/* Is this item acceptable? */
-		if (!item_tester_okay(o_ptr)) continue;
+		/* Optionally, show gold */
+		if ((o_ptr->tval != TV_GOLD) || (!gold))
+		{
+			/* Is this item acceptable?  (always rejects gold) */
+			if (!item_tester_okay(o_ptr)) continue;
+		}
 
 		/* Describe the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3147,7 +3149,7 @@ void show_floor(const int *floor_list, int floor_num)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -3162,6 +3164,8 @@ void show_floor(const int *floor_list, int floor_num)
 	/* Output each entry */
 	for (j = 0; j < k; j++)
 	{
+		int wgt;
+
 		/* Get the index */
 		i = floor_list[out_index[j]];
 
@@ -3180,20 +3184,15 @@ void show_floor(const int *floor_list, int floor_num)
 		/* Display the entry itself */
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
+		/* Display the weight */
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
 	if (j && (j < Term->hgt)) prt("", j + 1, col ? col - 2 : col);
 }
-
-#endif /* ALLOW_EASY_FLOOR */
 
 
 /*
@@ -3589,8 +3588,6 @@ static int get_tag(int *cp, char tag)
  * We always erase the prompt when we are done, leaving a blank line,
  * or a warning message, if appropriate, if no items are available.
  *
- * Note that the "easy_floor" option affects this function in several ways.
- *
  * Note that only "acceptable" floor objects get indexes, so between two
  * commands, the indexes of floor objects may change.  XXX XXX XXX
  */
@@ -3760,13 +3757,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	}
 
 	/* Scan oneself */
-	if ((use_self) && (item_tester_okay(&inventory[INVEN_SELF]))) allow_self = TRUE;
+	if ((use_self) && (item_tester_okay(&inventory[INVEN_SELF]))) 
+		allow_self = TRUE;
 
 	/* Require at least one legal choice */
 	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats && !allow_self)
 	{
 		/* Cancel p_ptr->command_see */
-		p_ptr->command_see = FALSE;
+		if (!OPT(show_lists)) p_ptr->command_see = FALSE;
 
 		/* Oops */
 		oops = TRUE;
@@ -3789,7 +3787,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Hack -- Start on equipment if shooting, throwing or fueling */
 		if ((p_ptr->command_cmd == 'f' 
 		     || p_ptr->command_cmd == 'v' 
-		     || p_ptr->command_cmd == 'F')
+		     || (p_ptr->command_wrk != (USE_INVEN) && p_ptr->command_cmd == 'F'))
 			&& allow_equip)
 		{
 			p_ptr->command_wrk = (USE_EQUIP);
@@ -3807,15 +3805,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			p_ptr->command_wrk = (USE_EQUIP);
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Use floor if allowed */
-		else if (easy_floor)
+		else if (use_floor)
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Hack -- Use (empty) inventory */
 		else
@@ -3856,7 +3850,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	}
 
 	/* Option to always show a list */
-	if (auto_display_lists)
+	if (show_lists)
 	{
 		p_ptr->command_see = TRUE;
 	}
@@ -3871,42 +3865,38 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < 8; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < 8; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
-			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+			 ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
@@ -3963,13 +3953,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 		}
 
-#ifdef ALLOW_EASY_FLOOR
-
 		/* Viewing floor */
 		else
 		{
 			/* Redraw if needed */
-			if (p_ptr->command_see) show_floor(floor_list, floor_num);
+			if (p_ptr->command_see) show_floor(floor_list, floor_num, FALSE);
 
 			/* Begin the prompt */
 			sprintf(out_val, "Floor:");
@@ -3990,8 +3978,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Append */
 			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Indicate ability to "view" */
 		if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
@@ -4160,74 +4146,42 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
-				if (easy_floor)
+				/* There is only one item */
+				if (floor_num == 1)
 				{
-					/* There is only one item */
-					if (floor_num == 1)
+					/* Auto-Select */
+					if (p_ptr->command_wrk == (USE_FLOOR))
 					{
-						/* Hack -- Auto-Select */
-						if ((p_ptr->command_wrk == (USE_FLOOR)) ||
-						    (!floor_query_flag))
+						/* Special index */
+						k = 0 - floor_list[0];
+
+						/* Allow player to "refuse" certain actions */
+						if (!get_item_allow(k))
 						{
-							/* Special index */
-							k = 0 - floor_list[0];
-
-							/* Allow player to "refuse" certain actions */
-							if (!get_item_allow(k))
-							{
-								done = TRUE;
-								break;
-							}
-
-							/* Accept that choice */
-							(*cp) = k;
-							item = TRUE;
 							done = TRUE;
-
 							break;
 						}
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+
+						break;
 					}
-
-					/* Hack -- Fix screen */
-					if (p_ptr->command_see)
-					{
-						/* Load screen */
-						screen_load();
-
-						/* Save screen */
-						screen_save();
-					}
-
-					p_ptr->command_wrk = (USE_FLOOR);
-
-					break;
 				}
 
-#endif /* ALLOW_EASY_FLOOR */
-
-				/* Check each legal object */
-				for (i = 0; i < floor_num; ++i)
+				/* Hack -- Fix screen */
+				if (p_ptr->command_see)
 				{
-					/* Special index */
-					k = 0 - floor_list[i];
+					/* Load screen */
+					screen_load();
 
-					/* Skip non-okay objects */
-					if (!get_item_okay(k)) continue;
-
-					/* Verify the item (if required) */
-					if (floor_query_flag && !verify_item("Try", k)) continue;
-
-					/* Allow player to "refuse" certain actions */
-					if (!get_item_allow(k)) continue;
-
-					/* Accept that choice */
-					(*cp) = k;
-					item = TRUE;
-					done = TRUE;
-					break;
+					/* Save screen */
+					screen_save();
 				}
+
+				p_ptr->command_wrk = (USE_FLOOR);
 
 				break;
 			}
@@ -4306,8 +4260,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					k = e1;
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Choose "default" floor item */
 				else
 				{
@@ -4319,8 +4271,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					k = 0 - floor_list[f1];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))
@@ -4437,8 +4387,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					}
 				}
 
-#ifdef ALLOW_EASY_FLOOR
-
 				/* Convert letter to floor index */
 				else
 				{
@@ -4453,8 +4401,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					/* Special index */
 					k = 0 - floor_list[k];
 				}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 				/* Validate the item */
 				if (!get_item_okay(k))
@@ -4509,19 +4455,14 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		item_tester_hook = NULL;
 	}
 
-	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-		/* Window stuff */
-		window_stuff();
-	}
-
+	/* Window stuff */
+	window_stuff();
 
 	/* Clear the prompt line */
 	prt("", 0, 0);

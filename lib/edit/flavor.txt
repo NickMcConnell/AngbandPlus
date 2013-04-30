@@ -8,11 +8,12 @@
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/flavor.raw" file.
 
-# N:<index>:<tval>:<sval>
-# G:<char>:<attr>
-# D:<text>
+# See "lib/docs/modding.rtf" to understand this file and how to modify
+# it and related files.
+
 
 # Version stamp (required)
+
 
 V:0.6.2
 
@@ -20,6 +21,9 @@ V:0.6.2
 ##### Rings #####
 
 # Fixed: The One Ring
+
+### 0 - Unused ###
+
 N:1:45:37
 G:=:y
 D:Plain Gold
@@ -192,7 +196,6 @@ N:43:45
 G:=:G
 D:Adamantite
 
-
 ##### Amulets #####
 
 N:44:40
@@ -290,7 +293,6 @@ D:Sea Shell
 N:67:40
 G:":W
 D:Mother-of-Pearl
-
 
 ##### Staffs #####
 
@@ -434,7 +436,6 @@ N:102:55
 G:_:U
 D:Willow
 
-
 ##### Wands #####
 
 N:103:65
@@ -576,7 +577,6 @@ D:Ivory
 N:137:65
 G:-:s
 D:Pewter
-
 
 ##### Rods #####
 
@@ -720,7 +720,6 @@ N:172:66
 G:-:s
 D:Pewter
 
-
 ##### Mushrooms #####
 
 N:173:80
@@ -728,6 +727,7 @@ G:,:b
 D:Blue
 
 #Fixed
+
 N:174:80:8
 G:,:D
 D:Black
@@ -737,6 +737,7 @@ G:,:D
 D:Black Spotted
 
 #Fixed: Confusion
+
 N:176:80:11
 G:,:u
 D:Brown
@@ -754,6 +755,7 @@ G:,:r
 D:Dark Red
 
 #Fixed
+
 N:180:80:2
 G:,:y
 D:Yellow
@@ -763,19 +765,20 @@ G:,:W
 D:Furry
 
 #Fixed
+
 N:182:80:9
 G:,:g
 D:Green
 
 #Fixed
+
 N:183:80:3
 G:,:s
 D:Grey
 
-#Fixed
 N:184:80:4
-G:,:B
-D:Light Blue
+G:,:u
+D:Light Brown
 
 N:185:80
 G:,:G
@@ -809,20 +812,22 @@ N:192:80
 G:,:u
 D:Wrinkled
 
-
 ##### Potions #####
 
 # Fixed: water
+
 N:193:75:0
 G:!:w
 D:Clear
 
 # Fixed: apple juice
+
 N:194:75:1
 G:!:U
 D:Light Brown
 
 # Fixed: slime mold juice
+
 N:195:75:2
 G:!:g
 D:Icky Green
@@ -1644,6 +1649,8 @@ D:Divining
 
 ### More Mushrooms ###
 
+#Fixed
+
 N:409:80:20
 G:,:B
 D:Light Blue
@@ -1862,6 +1869,7 @@ D:Clear Blue
 N:469:75
 G:!:b
 D:Cobalt
+
 # was G:!:Z in Sang
 
 N:470:75
@@ -1879,21 +1887,25 @@ D:Ivory White
 N:473:75
 G:!:v
 D:Lavender
+
 # was G:!:V in Sang
 
 N:474:75
 G:!:w
 D:Moldy
+
 # was G:!:m in Sang
 
 N:475:75
 G:!:U
 D:Muddy
+
 # was G:!:m in Sang
 
 N:476:75
 G:!:G
 D:Mustard Green
+
 # was G:!:M in Sang
 
 N:477:75
@@ -1903,6 +1915,7 @@ D:Myrtle Green
 N:478:75
 G:!:R
 D:Peach
+
 # was G:!:I in Sang
 
 N:479:75
@@ -1916,11 +1929,13 @@ D:Rosy
 N:481:75
 G:!:B
 D:Sea-blue
+
 # was G:!:t in Sang
 
 N:482:75
 G:!:w
 D:Shining
+
 # was G:!:T in Sang
 
 N:483:75
@@ -1960,3 +1975,4 @@ D:Switch
 N:491:66
 G:-:w
 D:Birch
+

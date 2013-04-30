@@ -685,7 +685,7 @@ bool check_level_flags_race(int r_idx)
  * "normal" monsters will *never* be created in the town, unless the
  * "level" is "modified", for example, by polymorph or summoning.
  *
- * There is a small chance (1/50) of "boosting" the given depth by
+ * There is a small chance "boosting" the given depth by
  * a small amount (up to four levels), except in the town.
  *
  * It is (slightly) more likely to acquire a monster of the given level
@@ -788,7 +788,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 5 + 1;
+			int d = level / 2 + 1;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -798,7 +798,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 3;
+			int d = level / 2;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -918,12 +918,11 @@ s16b get_mon_num(int level)
 		value = value - table[i].prob3;
 	}
 
-
 	/* Power boost */
 	p = rand_int(100);
 
-	/* Try for a "harder" monster once (50%) or twice (10%) */
-	if (p < 60)
+	/* Try for a "harder" monster once or twice */
+	if (p < 70)
 	{
 		/* Save old */
 		j = i;
@@ -945,8 +944,8 @@ s16b get_mon_num(int level)
 		if (table[i].level < table[j].level) i = j;
 	}
 
-	/* Try for a "harder" monster twice (10%) */
-	if (p < 10)
+	/* Try for a "harder" monster twice */
+	if (p < 30)
 	{
 		/* Save old */
 		j = i;
@@ -2029,7 +2028,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Mega Hack -- If not seen before, disturb */
-			if ((!l_ptr->sights) && (disturb_new)) disturb(1, 0);
+			if (!l_ptr->sights) disturb(1, 0);
 
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
@@ -3582,7 +3581,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 	/* Save the race */
 	n_ptr->r_idx = r_idx;
 
-	/* Town level has some special rules */
+	/* Small (often town) levels have some special rules */
 	if (!zone->fill)
 	{
 		/* Hack -- harmless townsmen are not threatening */
@@ -5634,10 +5633,10 @@ void get_monster_ecology(int r_idx)
 	/* For first few monsters on a level, we force some related monsters to appear */
 	if (cave_ecology.num_races <= 7) hack_ecology = randint(7);
 
-	/* Pick a monster if one not specified */
+	/* Pick a monster if one not specified; make it strong */
 	if (!r_idx)
 	{
-		r_idx = get_mon_num(monster_level);
+		r_idx = get_mon_num(monster_level + 2);
 	}
 
 	/* Add the monster */
@@ -5691,7 +5690,8 @@ void get_monster_ecology(int r_idx)
 	}
 	
 	/* Display hack index */
-	if (hack_ecology && cheat_hear) msg_format("Hacking ecology (%d)", hack_ecology);
+	if (hack_ecology && cheat_hear) 
+		msg_format("Hacking ecology (%d)", hack_ecology);
 
 	/* Have a good race */
 	for ( ; i < cave_ecology.num_races; i++)
@@ -5706,9 +5706,6 @@ void get_monster_ecology(int r_idx)
 		/* Get the monster */
 		r_idx = cave_ecology.race[i];
 		r_ptr = &r_info[r_idx];
-
-		/* Try slightly lower monster level */
-		monster_level = MIN(monster_level - 3, (monster_level + r_ptr->level) / 2 - 1);
 
 		/* Set summoner */
 		summoner = r_idx;

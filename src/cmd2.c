@@ -32,7 +32,7 @@ bool do_cmd_test(int y, int x, int action)
 	feature_type *f_ptr;
 	int feat;
 
-	if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
+	if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 	{
 		disturb(1,0);
 		msg_print("This doesn't feel safe.");
@@ -366,7 +366,9 @@ int actual_route(int dun)
 
 
 /*
- * Determine if the object can be eaten, and has "=<" in its inscription.
+ * Determine if the object is a reasonable auto-consume food
+ * and has no "!<" in its inscription.
+ * Also, if it has "=<' it will be always eaten, reasonable or not.
  */
 static bool auto_consume_okay(const object_type *o_ptr)
 {
@@ -375,21 +377,24 @@ static bool auto_consume_okay(const object_type *o_ptr)
 	/* Inedible */
 	if (!item_tester_hook_food_edible(o_ptr)) return (FALSE);
 	
-	/* Hack -- normal food is fine except waybread and pints of spirits */
+	/* Hack -- normal food is fine except gorging meet, etc. */
 	/* You can inscribe them with !< to prevent this however */
 	if ((o_ptr->tval == TV_FOOD) && (o_ptr->sval >= SV_FOOD_MIN_FOOD)
-		&& (o_ptr->sval != SV_FOOD_WAYBREAD) && (o_ptr->sval != SV_FOOD_PINT_OF_SPIRITS))
+		 && (o_ptr->sval != SV_FOOD_WAYBREAD) 
+		 && (o_ptr->sval != SV_FOOD_SPRIG_OF_ATHELAS)
+		 && (o_ptr->sval != SV_FOOD_COOKED_MEET)
+		 && (o_ptr->sval != SV_FOOD_PINT_OF_SPIRITS))
 	{
 		/* No inscription */
 		if (!o_ptr->note) return (TRUE);		
 		
-		/* Find a '=' */
+		/* Find a '!' */
 		s = strchr(quark_str(o_ptr->note), '!');
 
 		/* Process inscription */
 		while (s)
 		{
-			/* Auto-consume on "=<" */
+			/* Not auto-consume on "!<" */
 			if (s[1] == '<')
 			{
 				/* Pick up */
@@ -599,16 +604,6 @@ static void do_cmd_travel(void)
 
 	if (p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
-		/* Need to be full to travel for trip */
-		if (p_ptr->food < PY_FOOD_FULL)
-		{
-			msg_print("You'll want a full stomach for the road ahead.");
-			msg_print("Hint: Try the 'E' (shift-E) command to eat something.");
-			msg_print(NULL);
-			
-			if (easy_more) messages_easy(FALSE);
-		}
-		
 		if (p_ptr->blind)
 		{
 			msg_print("You can't read any maps.");
@@ -661,7 +656,7 @@ static void do_cmd_travel(void)
 			redraw = FALSE;
 
 			/* Show the list */
-			if (auto_display_lists)
+			if (show_lists)
 			{
 				/* Show list */
 				redraw = TRUE;
@@ -830,10 +825,47 @@ static void do_cmd_travel(void)
 				/* redraw = FALSE; */
 			}
 
-
 			/* Abort if needed */
 			if (!flag) return;
+
+			/* Will try to auto-eat? */
+			if (p_ptr->food < PY_FOOD_FULL)
+			{
+				msg_print("You set about filling your stomach for the long road ahead.");
+			}
 			
+			/* Hack -- Consume most food not inscribed with !< */
+			while (p_ptr->food < PY_FOOD_FULL)
+			{
+				for (i = 0; i < INVEN_PACK; i++)
+				{
+					/* Eat the food */
+					if (auto_consume_okay(&inventory[i]))
+					{
+						/* Eat the food */
+						player_eat_food(i);
+						
+						break;
+					}
+				}
+				
+				/* Escape out if no food */
+				if (i == INVEN_PACK) break;
+			}
+
+			if (easy_more) messages_easy(FALSE);
+
+			/* Need to be full to travel */
+			if (p_ptr->food < PY_FOOD_FULL)
+			{
+				msg_print("You notice you don't have enough food to fully satiate you before the travel.");
+				msg_print("You realize you will face the unforeseen dangers with a half-empty stomach!");
+
+				if (!get_check("Are you sure you want to travel? ")) 
+					/* Bail out */
+					return;
+			}
+
 			/* Longer and more random journeys via map */
 			journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
 
@@ -867,25 +899,6 @@ static void do_cmd_travel(void)
 			/* Hack -- Time passes (at 4* food use rate) */
 			turn += PY_FOOD_FULL/10*journey*4;
 			
-			/* Hack -- Consume ration inscribed with =< */
-			while (p_ptr->food < PY_FOOD_ALERT)
-			{
-				for (i = 0; i < INVEN_PACK; i++)
-				{
-					/* Eat the food */
-					if (auto_consume_okay(&inventory[i]))
-					{
-						/* Eat the food */
-						player_eat_food(i);
-						
-						break;
-					}
-				}
-				
-				/* Escape out if no food */
-				if (i == INVEN_PACK) break;
-			}
-
 			/* XXX Recharges, stop temporary speed etc. */
 			/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
 
@@ -967,7 +980,7 @@ void do_cmd_go_up(void)
 		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
 		{			
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian blocking access to %s. The way lies open before you.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the sinister guardian at %s. The way forth lies open before you.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
@@ -975,7 +988,7 @@ void do_cmd_go_up(void)
 		else
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have reached the top of %s and you climb down outside.", str));
 		}
 
 		/* Set the new depth */
@@ -1064,7 +1077,7 @@ void do_cmd_go_down(void)
 		if ((t_ptr->quest_opens) && (t_ptr->quest_monster == guard) && (r_info[guard].max_num == 0))
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the guardian blocking access to %s. The way lies open before you.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the sinister guardian at %s. The way forth lies open before you.", str));
 	
 			/* Change the dungeon */
 			p_ptr->dungeon = t_ptr->quest_opens;
@@ -1072,7 +1085,7 @@ void do_cmd_go_down(void)
 		else
 		{
 			/* Success */
-			message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.", str));
+			message(MSG_STAIRS_DOWN,0,format("You have reached the bottom of %s and uncovered a secret shaft back up to the surface.", str));
 		}
 		
 		/* Set the new depth */
@@ -2934,14 +2947,10 @@ static bool do_cmd_walk_test(int y, int x)
 	&& (!(f_info[feat].flags3 & (FF3_EASY_CLIMB))
 	|| !(play_info[y][x] & (PLAY_MARK))))
 	{
-#ifdef ALLOW_EASY_ALTER
-
 		if (easy_alter)
 		{
 			if (f_info[feat].flags1 & (FF1_OPEN)) return(TRUE);
 		}
-
-#endif /* ALLOW_EASY_ALTER */
 
 		/* Message */
 		msg_format("There is %s %s in the way.",
@@ -2956,17 +2965,15 @@ static bool do_cmd_walk_test(int y, int x)
 	return (TRUE);
 }
 
-
 /*
- * Helper function for the "walk" and "jump" commands.
+ * Walk into a grid. For mouse movement when confused.
  */
-static void do_cmd_walk_or_jump(int jumping)
+void do_cmd_walk()
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
 	int y, x, dir;
-
 
 	/* Get a direction (or abort) */
 	if (!get_rep_dir(&dir)) return;
@@ -2974,7 +2981,6 @@ static void do_cmd_walk_or_jump(int jumping)
 	/* Get location */
 	y = py + ddy[dir];
 	x = px + ddx[dir];
-
 
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
@@ -3006,10 +3012,8 @@ static void do_cmd_walk_or_jump(int jumping)
 
 	}
 
-
 	/* Verify legality */
 	if (!do_cmd_walk_test(y, x)) return;
-
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -3025,27 +3029,7 @@ static void do_cmd_walk_or_jump(int jumping)
 	}
 
 	/* Move the player */
-	move_player(dir, jumping);
-}
-
-
-/*
- * Walk into a grid.
- */
-void do_cmd_walk(void)
-{
-	/* Move (normal) */
-	do_cmd_walk_or_jump(FALSE);
-}
-
-
-/*
- * Jump into a grid.
- */
-void do_cmd_jump(void)
-{
-	/* Move (jump) */
-	do_cmd_walk_or_jump(TRUE);
+	move_player(dir);
 }
 
 
@@ -3155,9 +3139,8 @@ void do_cmd_pathfind(int y, int x)
 
 /*
  * Stay still.  Search.  Enter stores.
- * Pick up treasure if "pickup" is true.
  */
-static void do_cmd_hold_or_stay(int pickup)
+void do_cmd_hold(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -3178,7 +3161,7 @@ static void do_cmd_hold_or_stay(int pickup)
 		p_ptr->command_arg = 0;
 	}
 
-	/* Take time */
+	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Catch breath */
@@ -3188,14 +3171,20 @@ static void do_cmd_hold_or_stay(int pickup)
 		set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
 	}
 
-	/* Spontaneous Searching - doubly effective */
+	/* Spontaneous Searching */
 	if ((p_ptr->skill_srh >= 25) || (0 == rand_int(25 - p_ptr->skill_srh)))
 	{
 		search();
 	}
 
-	/* Handle "objects" */
-	py_pickup(py, px, pickup);
+	/* Continuous Searching */
+	if (p_ptr->searching)
+	{
+		search();
+	}
+
+	/* Handle objects now.  XXX XXX XXX */
+	p_ptr->energy_use += py_pickup(py, px, 0) * 10;
 
 	/* Hack -- enter a store if we are on one */
 	if (f_info[cave_feat[py][px]].flags1 & (FF1_ENTER))
@@ -3224,23 +3213,22 @@ static void do_cmd_hold_or_stay(int pickup)
 	}
 }
 
-/*
- * Hold still (usually pickup)
- */
-void do_cmd_hold(void)
-{
-	/* Hold still (usually pickup) */
-	do_cmd_hold_or_stay(always_pickup);
-}
-
 
 /*
- * Stay still (usually do not pickup)
+ * Pick up objects on the floor beneath you.  -LM-
  */
-void do_cmd_stay(void)
+void do_cmd_pickup(void)
 {
-	/* Stay still (usually do not pickup) */
-	do_cmd_hold_or_stay(!always_pickup);
+	int energy_cost;
+
+	/* Pick up floor objects, forcing a menu for multiple objects. */
+	energy_cost = py_pickup(p_ptr->py, p_ptr->px, 1) * 10;
+
+	/* Maximum time expenditure is a full turn. */
+	if (energy_cost > 100) energy_cost = 100;
+
+	/* Charge this amount of energy. */
+	p_ptr->energy_use = energy_cost;
 }
 
 
@@ -3331,7 +3319,7 @@ void do_cmd_rest(void)
 	handle_stuff();
 
 	/* Refresh XXX XXX XXX */
-	if (fresh_before) Term_fresh();
+	Term_fresh();
 }
 
 
@@ -3772,11 +3760,9 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 				/* Visual effects */
 				print_rel(missile_char, missile_attr, y, x);
 				move_cursor_relative(y, x);
-				if (fresh_before) 
 				Term_fresh();
 				Term_xtra(TERM_XTRA_DELAY, msec);
 				lite_spot(y, x);
-				if (fresh_before) 
 				Term_fresh();
 			}
 
@@ -4186,7 +4172,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 			}
 
 			/* Weapon caught */
-			msg_format("Ouch!");
+			msg_print("Ouch! You prick yourself!");
 		}
 		else if (catch_chance <= 10 + catch_chance / 10)
 		/* You don't catch the returning weapon; it almost hits you */

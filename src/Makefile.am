@@ -15,7 +15,7 @@ unangband_SOURCES = \
   xtra1.c xtra2.c spells1.c spells2.c \
   melee1.c melee2.c save.c files.c info.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load.c \
+  store.c birth.c load.c option.c \
   wizard1.c wizard2.c \
   main-cap.c main-gcu.c main-x11.c main-xaw.c main.c \
   main-win.c main-xpj.c main-vcs.c main-gtk.c \
@@ -23,7 +23,7 @@ unangband_SOURCES = \
   angband.h config.h defines.h externs.h h-basic.h \
   h-config.h h-define.h h-system.h h-type.h init.h \
   types.h z-form.h z-rand.h z-term.h z-util.h \
-  z-virt.h main.h
+  z-virt.h option.h main.h
 
 
 EXTRA_unangband_SOURCES = \

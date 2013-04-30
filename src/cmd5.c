@@ -173,7 +173,7 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 	redraw = FALSE;
 
 	/* Option -- automatically show lists */
-	if (auto_display_lists)
+	if (show_lists)
 	{
 		/* Show list */
 		redraw = TRUE;
@@ -580,26 +580,8 @@ bool do_cmd_browse_object(object_type *o_ptr)
 				/* Hack -- 'wonder' spells */
 				if (s_info[book[i]].type == SPELL_USE_OBJECT)
 				{
-					object_type object_type_body;
-					object_type *j_ptr = &object_type_body;
-						
-					s16b book2[26];
-
-					int num2, j;
-					
-					bool powers = FALSE;
-						
-					/* Prepare fake object */
-					object_prep(j_ptr, s_info[book[i]].param);
-						
-					/* Fill the book */
-					fill_book(j_ptr, book2, &num2);
-						
-					for (j = 0; j < num2; j++)
-					{
-						/* List powers */
-						powers |= spell_desc(&s_info[book2[j]],(j==0) ? "When cast, it " : ", or ",spell_power(spell),TRUE, j);	
-					}
+					/* No listing of powers, since it overflows a standard screen */
+					text_out("When cast, it affects the target in a random way.  ");
 				}
 
 				/* Recall spell */

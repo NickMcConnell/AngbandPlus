@@ -970,17 +970,12 @@ void modify_grid_interesting_view(byte *a, char *c, int y, int x, byte cinfo, by
  * the color of whatever is under them, and "CHAR_CLEAR", which means that
  * they take the symbol of whatever is under them.  Technically, the flag
  * "CHAR_MULTI" is supposed to indicate that a monster looks strange when
- * examined, but this flag is currently ignored.  All of these flags are
- * ignored if the "avoid_other" option is set, since checking for these
- * conditions is expensive (and annoying) on some systems.
+ * examined, but this flag is currently ignored. 
  *
  * Normally, players could be handled just like monsters, except that the
  * concept of the "torch lite" of others player would add complications.
  * For efficiency, however, we handle the (only) player first, since the
  * "player" symbol always "pre-empts" any other facts about the grid.
- *
- * The "hidden_player" efficiency option, which only makes sense with a
- * single player, allows the player symbol to be hidden while running.
  *
  * ToDo: The transformations for tile colors, or brightness for the 16x16
  * tiles should be handled differently.  One possibility would be to
@@ -1427,16 +1422,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				c = PICT_C(i);
 			}
 
-			/* Ignore weird codes */
-			else if (avoid_other)
-			{
-				/* Use attr */
-				a = da;
-
-				/* Use char */
-				c = dc;
-			}
-
 			/* Special attr/char codes */
 			else if ((da & 0x80) && (dc & 0x80))
 			{
@@ -1515,7 +1500,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	}
 
 	/* Handle "player" */
-	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
+	else if (m_idx < 0)
 	{
 		monster_race *r_ptr = &r_info[0];
 
@@ -1545,7 +1530,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 			TERM_VIOLET		-% of HP remaining
 		*/
 
-		if ((view_player_lite) && (arg_graphics == GRAPHICS_NONE))
+		if (arg_graphics == GRAPHICS_NONE)
 		{
 			switch(p_ptr->chp * 10 / p_ptr->mhp)
 				{
@@ -1575,7 +1560,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	else if (m_idx < 0)
 #else /* MAP_INFO_MULTIPLE_PLAYERS */
 	/* Handle "player" */
-	else if ((m_idx < 0) && !(p_ptr->running && hidden_player))
+	else if (m_idx < 0)
 #endif /* MAP_INFO_MULTIPLE_PLAYERS */
 	{
 		monster_race *r_ptr = &r_info[0];
@@ -1931,7 +1916,7 @@ void note_spot(int y, int x)
 	if (!(pinfo & (PLAY_SEEN))) return;
 
 	/* Mark it */
-	if (!verify_safe) play_info[y][x] |= (PLAY_SAFE);
+	if (!disturb_detect) play_info[y][x] |= (PLAY_SAFE);
 
 	/* Hack -- memorize objects */
 	/* ANDY -- Only memorise objects if they are not hidden by the feature */
@@ -6581,20 +6566,10 @@ void disturb(int stop_search, int wake_up)
 		p_ptr->running = 0;
 
  		/* Check for new panel if appropriate */
- 		if (center_player && run_avoid_center) verify_panel();
+ 		if (center_player) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
-
-		/* Redraw the player */
-		if (hidden_player)
-		{
-			int py = p_ptr->py;
-			int px = p_ptr->px;
-
-			/* Redraw player */
-			lite_spot(py, px);
-		}
 	}
 
 	/* Cancel searching if requested */

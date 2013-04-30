@@ -1648,7 +1648,7 @@ key_event inkey_ex(void)
 			/* Refresh the term to draw the cursor */
 			/*
 			 * The main screen is ignored because of some screen
-			 * flickering when "auto_display_lists" is on. -DG-
+			 * flickering when "show_lists" is on. -DG-
 			 */
 			if ((j > 0) && !cursor_state[j]) (void)Term_fresh();
 		}
@@ -1822,7 +1822,7 @@ key_event inkey_ex(void)
 
 			/* Refresh to erase the cursor
 			 * The main screen is ignored because of some screen
-			 * flickering when "auto_display_lists" is on. -DG-
+			 * flickering when "show_lists" is on. -DG-
 			 */
 			if ((j > 0) && !cursor_state[j])
  			{
@@ -2896,7 +2896,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Handle "auto_more"/"must_more"/"use_trackmouse" */
-	if (auto_more || must_more)
+	if ((auto_more && !easy_more) || must_more)
 	{
 		/* Force window update */
 		window_stuff();
@@ -2966,9 +2966,6 @@ static void msg_print_aux(u16b type, cptr msg)
 
 	/* Remember the position */
 	message_column += n + 1;
-
-	/* Optional refresh */
-	if (fresh_after) Term_fresh();
 }
 
 
@@ -3188,7 +3185,6 @@ void text_out_to_screen(byte a, cptr str)
 
 	cptr s;
 
-
 	/* Obtain the size */
 	(void)Term_get_size(&wid, &h);
 
@@ -3233,6 +3229,8 @@ void text_out_to_screen(byte a, cptr str)
 			/* Wrap word */
 			if (x < wrap)
 			{
+				n = wrap - 1;
+
 				/* Scan existing text */
 				for (i = wrap - 2; i >= 0; i--)
 				{
@@ -3259,6 +3257,9 @@ void text_out_to_screen(byte a, cptr str)
 
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
+
+			/* Ident after the wrap */
+			Term_addch(av[n], ' ');
 
 			/* Wrap the word (if any) */
 			for (i = n; i < wrap - 1; i++)
@@ -3297,6 +3298,9 @@ void text_out_to_file(byte a, cptr str)
 	/* Current position on the line */
 	static int pos = 0;
 
+	/* Is this a continuation of a wrapped line? */
+	bool wrapped = FALSE;
+
 	/* Wrap width */
 	int wrap = (text_out_wrap ? text_out_wrap : 80);
 
@@ -3325,6 +3329,13 @@ void text_out_to_file(byte a, cptr str)
 				fputc(' ', text_out_file);
 				pos++;
 			}
+
+			/* Additional indent if continuation of a wrapped line */
+			if (wrapped)
+			{
+				fputc(' ', text_out_file);
+				pos++;
+			}
 		}
 
 		/* Find length of line up to next newline or end-of-string */
@@ -3337,15 +3348,11 @@ void text_out_to_file(byte a, cptr str)
 			n++;
 		}
 
-		/* If we have encountered no spaces */
-		if ((l_space == 0) && (n == len))
+		/* If we have encountered no spaces nor newlines */
+		if (l_space == 0 && n == len)
 		{
-			/* If we are at the start of a new line */
-			if (pos == text_out_indent)
-			{
-				len = n;
-			}
-			else
+			/* If we are mid-line */
+			if (pos != text_out_indent)
 			{
 				/* Begin a new line */
 				fputc('\n', text_out_file);
@@ -3353,16 +3360,29 @@ void text_out_to_file(byte a, cptr str)
 				/* Reset */
 				pos = 0;
 
+				/* Skip whitespace */
+				while (*s == ' ') s++;
+
+				wrapped = TRUE;
+
 				continue;
 			}
+			/* else if we are at the start, we'll just print and split at len */
 		}
 		else
 		{
 			/* Wrap at the newline */
-			if ((s[n] == '\n') || (s[n] == '\0')) len = n;
-
+			if ((s[n] == '\n') || (s[n] == '\0')) 
+			{
+				len = n;
+				wrapped = FALSE;
+			}
 			/* Wrap at the last space */
-			else len = l_space;
+			else 
+			{
+				len = l_space;
+				wrapped = TRUE;
+			}
 		}
 
 		/* Write that line to file */
@@ -3624,7 +3644,7 @@ s16b get_quantity(cptr prompt, int max)
 #ifdef ALLOW_REPEAT
 
 	/* Get the item index */
-	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	else if (max != 1 && repeat_pull(&amt))
 	{
 		/* nothing */
 	}
@@ -3632,7 +3652,7 @@ s16b get_quantity(cptr prompt, int max)
 #endif /* ALLOW_REPEAT */
 
 	/* Prompt if needed */
-	else if ((max != 1) && allow_quantity)
+	else if (max != 1)
 	{
 		char tmp[80];
 
@@ -4037,7 +4057,7 @@ void request_command(bool shopping)
 	}
 
 	/* Hack -- Auto-repeat certain commands */
-	if (always_repeat && (p_ptr->command_arg <= 0))
+	if (p_ptr->command_arg <= 0)
 	{
 		/* Hack -- auto repeat certain commands */
 		if (strchr(AUTO_REPEAT_COMMANDS, p_ptr->command_cmd))
@@ -4745,8 +4765,6 @@ bool is_valid_pf(int y, int x)
 	/* Get mimiced feat */
 	feat = f_info[cave_feat[y][x]].mimic;
 
-#ifdef ALLOW_EASY_ALTER
-
 	/* Optionally alter known traps/doors on (non-jumping) movement */
 	if ((easy_alter)
 		 && ( (f_info[feat].flags1 & (FF1_DISARM)) ||
@@ -4756,8 +4774,6 @@ bool is_valid_pf(int y, int x)
 	{
 		return (TRUE);
 	}
-
-#endif /* ALLOW_EASY_ALTER */
 
 	/* Require moveable space*/
 	if (!(f_info[feat].flags1 & (FF1_MOVE)) && !(f_info[feat].flags3 & (FF3_EASY_CLIMB))) return (FALSE);
@@ -5008,7 +5024,7 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 	redraw = FALSE;
 
 	/* Show the list */
-	if (auto_display_lists)
+	if (show_lists)
 	{
 		/* Show list */
 		redraw = TRUE;

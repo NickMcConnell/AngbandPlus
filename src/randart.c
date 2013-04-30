@@ -348,7 +348,7 @@ static errr init_names(void)
 			continue;
 		}
 
-		if ((!adult_rand_artifacts) && (i<a_max))
+		if ((!adult_randarts) && (i<a_max))
 		{
 			names[i-1] = string_make(a_name+a_info[i].name);
 
@@ -4699,7 +4699,7 @@ static void scramble_artifact(int a_idx)
 				continue;
 			}
 
-			else if (ap >= (power * 19) / 20)	/* just right */
+			else if (ap >= (power * 18) / 20)	/* just right */
 			{
 
 				/* Hack -- add a restriction on the most powerful artifacts */
@@ -4844,10 +4844,10 @@ static errr scramble(void)
 		int a_idx;
 
 /* ARD_RAND - Note boundary condition. We only scramble the artifacts about the old
- * z_info->a_max if adult_rand_artifacts is not set.
+ * z_info->a_max if adult_randarts is not set.
  */
 		/* Generate all the artifacts. */
-		for (a_idx = (adult_rand_artifacts ? 1 : a_max) ; a_idx < z_info->a_max; a_idx++)
+		for (a_idx = (adult_randarts ? 1 : a_max) ; a_idx < z_info->a_max; a_idx++)
 		{
 			scramble_artifact(a_idx);
 		}

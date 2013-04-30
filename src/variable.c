@@ -104,12 +104,11 @@ s16b summon_race_type = 0;	   /* Hack -- See summon_specific() */
 char summon_word_type[80];		/* Hack -- See summon_specific() */
 
 s32b turn;			      /* Current game turn */
-s32b old_turn;		      /* Hack -- Level feeling counter */
+s32b old_turn;		      /* unused */
 
 bool surface;
 bool daytime;
 
-bool use_sound;		 /* The "sound" mode is enabled */
 bool use_mouse;		 /* The "mouse" mode is enabled */
 bool use_trackmouse;	 /* The "trackmouse" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
@@ -1140,7 +1139,7 @@ int text_out_indent = 0;
 /*
  * Hack -- Where to stop text output in number of lines. The function will
  * write at most this many lines before aborting. Use the default
- * value (for example the screen height) when 'text_out_wrap' is 0. Note
+ * value (for example the screen height) when 'text_out_lines' is 0. Note
  * that the starting y position in screen output will assume that already
  * (y - 1) lines have been written (Similiar to text_out_indent).
  */

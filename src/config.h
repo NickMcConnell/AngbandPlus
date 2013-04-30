@@ -232,7 +232,7 @@
  * code within Unangband, and then emit a revised version.
  */
 
-#define ALLOW_TEMPLATES_OUTPUT
+/*#define ALLOW_TEMPLATES_OUTPUT*/
 
 /*
  * OPTION: Expand object memory. This may be a performance hit on older
@@ -252,16 +252,6 @@
  * OPTION: Allow open/disarm/close without direction.
  */
 #define ALLOW_EASY_OPEN
-
-/*
- * OPTION: Allow open/disarm doors/traps on motion.
- */
-#define ALLOW_EASY_ALTER
-
-/*
- * OPTION: Make floor stacks easy.
- */
-#define ALLOW_EASY_FLOOR
 
 
 /*

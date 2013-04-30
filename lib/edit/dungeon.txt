@@ -213,7 +213,7 @@ L:2:0:435:0:4:0:Farmer
 L:3:114:0:0:0:0:the cellars of
 L:6:114:0:0:111:0:cellars' back exit in the
 S:507:0:0:0:0:0:0:0
-D:The barnyard of Farmer Maggot's farm looks deserted in a hurry,
+D:The barnyard of Farmer Maggot's farm looks littered and deserted,
 D: and you hear vicious barking muffled as if by great distance.
 D:  The trap doors of the famous farm cellars are open;
 D: to climb down, press '>' when standing on the entrance '>'.

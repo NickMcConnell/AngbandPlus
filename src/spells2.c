@@ -150,10 +150,10 @@ static cptr desc_stat_neg[] =
 /*
  * Lose a "point"
  */
-bool do_dec_stat(int stat)
+int do_dec_stat(int stat)
 {
 	/* Sustain */
-        if (p_ptr->cur_flags2 & (TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat))))
+	if (p_ptr->cur_flags2 & (TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat))))
 	{
 		/* Message */
 		msg_format("You feel very %s for a moment, but the feeling passes.",
@@ -163,7 +163,7 @@ bool do_dec_stat(int stat)
 		equip_can_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat)), 0x0L, 0x0L);
 
 		/* Notice effect */
-		return (TRUE);
+		return -1;
 	}
 
 	/* Attempt to reduce the stat */
@@ -176,11 +176,11 @@ bool do_dec_stat(int stat)
 		equip_not_flags(0x0L, TR2_SUST_STR << (stat == A_AGI ? A_DEX : (stat == A_SIZ ? A_STR : stat)), 0x0L, 0x0L);
 
 		/* Notice effect */
-		return (TRUE);
+		return 1;
 	}
 
 	/* Nothing obvious */
-	return (FALSE);
+	return 0;
 }
 
 
@@ -733,7 +733,7 @@ void self_knowledge_aux(bool spoil, bool random)
 		if (p_ptr->stat_dec_tim[n]) vp[vn++] = desc_stat_dec[n];
 	}
 
-	if ((p_ptr->oppose_acid) || (p_ptr->oppose_elec) || (p_ptr->oppose_fire) || (p_ptr->oppose_cold)) vp[vn++]= "resistant to";
+	if ((p_ptr->oppose_acid) || (p_ptr->oppose_elec) || (p_ptr->oppose_fire) || (p_ptr->oppose_cold)) vp[vn++]= "resistant to ";
 
 	/* Introduce */
 	if (vn) text_out("You are temporarily ");
@@ -1351,6 +1351,7 @@ int value_check_aux3(const object_type *o_ptr)
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (INSCRIP_GOOD);
 
 	/* Have already got nonmagical sensed */
+	if (o_ptr->feeling == INSCRIP_AVERAGE) return(INSCRIP_AVERAGE);
 	if (o_ptr->feeling == INSCRIP_UNCURSED) return(INSCRIP_AVERAGE);
 	if (o_ptr->feeling == INSCRIP_UNUSUAL) return(INSCRIP_MAGICAL);
 
@@ -1368,10 +1369,11 @@ int value_check_aux3(const object_type *o_ptr)
  */
 int value_check_aux4(const object_type *o_ptr)
 {
-	/* If sensed magical, have no more value to add */
+	/* If sensed precisely, have no more value to add */
 	if ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)
 		|| (o_ptr->feeling == INSCRIP_GREAT) || (o_ptr->feeling == INSCRIP_EXCELLENT)
 		|| (o_ptr->feeling == INSCRIP_SUPERB) || (o_ptr->feeling == INSCRIP_SPECIAL)
+		|| (o_ptr->feeling == INSCRIP_AVERAGE)
 		|| (o_ptr->feeling == INSCRIP_MAGICAL) || (o_ptr->feeling == INSCRIP_UNCURSED)) return (0);
 
 	/* Artifacts */
@@ -1408,7 +1410,10 @@ int value_check_aux4(const object_type *o_ptr)
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
 
 	/* Broken items */
-	if (broken_p(o_ptr)) return (INSCRIP_UNCURSED);
+	if (o_ptr->feeling == INSCRIP_BROKEN) 
+		return (INSCRIP_BROKEN);
+	else if (broken_p(o_ptr)) 
+		return (INSCRIP_UNCURSED);
 
 	/* Known to be unusual */
 	if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_MAGICAL);

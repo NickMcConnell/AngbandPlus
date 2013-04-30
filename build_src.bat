@@ -3,6 +3,7 @@ mkdir unangband-062-src\lib
 mkdir unangband-062-src\lib\apex
 mkdir unangband-062-src\lib\bone
 mkdir unangband-062-src\lib\data
+mkdir unangband-062-src\lib\docs
 mkdir unangband-062-src\lib\edit
 mkdir unangband-062-src\lib\file
 mkdir unangband-062-src\lib\help
@@ -43,6 +44,7 @@ copy lib\Makefile* unangband-062-src\lib
 copy lib\apex\Makefile* unangband-062-src\lib\apex
 copy lib\bone\Makefile* unangband-062-src\lib\bone
 copy lib\data\Makefile* unangband-062-src\lib\data
+copy lib\docs\Makefile* unangband-062-src\lib\docs
 copy lib\edit\Makefile* unangband-062-src\lib\edit
 copy lib\file\Makefile* unangband-062-src\lib\file
 copy lib\help\Makefile* unangband-062-src\lib\help
@@ -59,6 +61,7 @@ copy lib\xtra\sound\Makefile* unangband-062-src\lib\xtra\sound
 copy lib\xtra\help\Makefile* unangband-062-src\lib\xtra\help
 copy src\Makefile* unangband-062-src\src
 
+copy lib\docs\*.txt unangband-062-src\lib\docs
 copy lib\edit\*.txt unangband-062-src\lib\edit
 copy lib\file\*.txt unangband-062-src\lib\file
 copy lib\info\*.txt unangband-062-src\lib\info

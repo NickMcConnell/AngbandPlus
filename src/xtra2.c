@@ -2767,7 +2767,7 @@ void check_experience(void)
 			queue_tip(format("class%d-%d.txt", p_ptr->pclass, i));
 
 			/* Style tips */
-			queue_tip(format("ws%d-%d-%d.txt", p_ptr->pclass, p_ptr->pstyle, i));
+			queue_tip(format("spec%d-%d-%d.txt", p_ptr->pclass, p_ptr->pstyle, i));
 		}
 
 		/* Save the highest level */
@@ -3674,9 +3674,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	s32b div, new_exp, new_exp_frac;
-	byte new_level;
-
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
@@ -3783,17 +3780,23 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Death of player allies doesn't provide experience */
 		if ((m_ptr->mflag & (MFLAG_ALLY)) == 0)
 		{
-			/* Maximum player level */
-			div = p_ptr->max_lev;
+			s32b mult, div, new_exp, new_exp_frac;
+			byte new_level;
+
+			/* 10 + killed monster level */
+			mult = 10 + r_ptr->level;
+
+			/* 10 + maximum player level */
+			div = 10 + p_ptr->max_lev;
 
 			/* Give some experience for the kill */
-			new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+			new_exp = ((long)r_ptr->mexp * mult) / div;
 
 			/* Base adjustment */
 			new_level = -1;
 
 			/* Handle fractional experience */
-			new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+			new_exp_frac = ((((long)r_ptr->mexp * mult) % div)
 					* 0x10000L / div) + p_ptr->exp_frac;
 
 			/* Keep track of experience */
@@ -4024,10 +4027,6 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 	bool beware = FALSE;
 
 	town_type *t_ptr = &t_info[p_ptr->dungeon];
-	dungeon_zone *zone=&t_ptr->zone[0];
-
-	/* Get the zone */ 
-	get_zone(&zone,p_ptr->dungeon,max_depth(p_ptr->dungeon));
 
 	/* Initialize text */
 	my_strcpy(name, "", name_s);
@@ -4037,7 +4036,8 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 	/* Town or not in room */
 	if (!room)
 	{
-		if ((p_ptr->depth == min_depth(p_ptr->dungeon)) || (!zone->fill))
+		if (p_ptr->depth == min_depth(p_ptr->dungeon) 
+			 || is_typical_town(p_ptr->dungeon, p_ptr->depth))
 		{
 			current_long_level_name(name);
 
@@ -4068,7 +4068,9 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			/* Describe height of tower */
 			if (text_visible)
 			{
-				my_strcpy(text_visible, format("It looks about %d feet tall.  ", (max_depth(p_ptr->dungeon) - min_depth(p_ptr->dungeon) + 1) * 50), text_visible_s);
+				int height = (1 + max_depth(p_ptr->dungeon) 
+								  - min_depth(p_ptr->dungeon));
+				my_strcpy(text_visible, format("It looks about %d %s tall.  ", depth_in_feet ? height * 50 : height, depth_in_feet ? "feet" : "stories"), text_visible_s);
 			}
 			break;
 		}
@@ -4508,14 +4510,14 @@ void describe_room(void)
 		/* Room has been heard */
 		if (room_descriptions) room_info[room].flags |= (ROOM_HEARD);
 	}
-	else if ((p_ptr->depth == town_depth(p_ptr->dungeon))
-		|| (p_ptr->depth == min_depth(p_ptr->dungeon)))
+	else if (is_typical_town(p_ptr->dungeon, p_ptr->depth)
+				|| p_ptr->depth == min_depth(p_ptr->dungeon))
 	{
 		msg_format("You have entered %s.",name);
 
 		if (strlen(text_always))
 		{
-			if (easy_more || auto_more)
+			if (easy_more || (auto_more && !easy_more))
 			{
 				msg_print(text_always);
 			}
@@ -4569,7 +4571,7 @@ void verify_panel(void)
 
 
 	/* Scroll screen vertically when off-center */
-	if (center_player && (!p_ptr->running || !run_avoid_center) &&
+	if (center_player &&
 	    (py != wy + SCREEN_HGT / 2))
 	{
 		wy = py - SCREEN_HGT / 2;
@@ -4583,7 +4585,7 @@ void verify_panel(void)
 
 
 	/* Scroll screen horizontally when off-center */
-	if (center_player && (!p_ptr->running || !run_avoid_center) &&
+	if (center_player &&
 	    (px != wx + SCREEN_WID / 2))
 	{
 		wx = px - SCREEN_WID / 2;
@@ -4595,13 +4597,8 @@ void verify_panel(void)
 		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 	}
 
-
 	/* Scroll if needed */
-	if (modify_panel(wy, wx))
-	{
-		/* Optional disturb on "panel change" */
-		if (disturb_panel && !center_player) disturb(0, 0);
-	}
+	modify_panel(wy, wx);
 }
 
 
@@ -5175,9 +5172,6 @@ static void target_set_interactive_prepare(int mode)
 	{
 		for (x = p_ptr->wx; ((x < p_ptr->wx + SCREEN_WID)&&(temp_n<TEMP_MAX)); x++)
 		{
-			/* Require line of sight, unless "look" is "expanded" */
-			if (!expand_look && !player_has_los_bold(y, x)) continue;
-
 			/* Require "interesting" contents */
 			if (!target_set_interactive_accept(y, x)) continue;
 
@@ -5251,6 +5245,8 @@ static void target_set_interactive_prepare(int mode)
  * and terrain features in the same grid, though the latter never happens.
  *
  * This function must handle blindness/hallucination.
+ *
+ * TODO: rewrite this from Vanilla, especially the floor list
  */
 key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr info)
 {
@@ -5504,10 +5500,6 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 		/* Assume not floored */
 		floored = FALSE;
 
-#ifdef ALLOW_EASY_FLOOR
-
-		/* Scan all objects in the grid */
-		if (easy_floor)
 		{
 			int floor_list[MAX_FLOOR_STACK];
 			int floor_num;
@@ -5541,7 +5533,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 						screen_save();
 
 						/* Display */
-						show_floor(floor_list, floor_num);
+						show_floor(floor_list, floor_num, FALSE);
 
 						/* Describe the pile */
 						prt(out_val, 0, 0);
@@ -5571,8 +5563,6 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 				s2 = "on ";
 			}
 		}
-
-#endif /* ALLOW_EASY_FLOOR */
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -6100,9 +6090,7 @@ void modify_grid_interesting_project(byte *a, char *c, int y, int x, byte cinfo,
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel, unless the "scroll_target"
- * option is used, which allows changing the current panel during "look"
- * and "target" commands.  Currently, when "flag" is true, that is, when
+ * Currently, when "flag" is true, that is, when
  * "interesting" grids are being used, and a directional key is used, we
  * only scroll by a single panel, in the direction requested, and check
  * for any interesting grids on that panel.  The "correct" solution would
@@ -6266,7 +6254,6 @@ bool target_set_interactive(int mode)
 					if (++m == temp_n)
 					{
 						m = 0;
-						if (!expand_list) done = TRUE;
 					}
 					break;
 				}
@@ -6276,7 +6263,6 @@ bool target_set_interactive(int mode)
 					if (m-- == 0)
 					{
 						m = temp_n - 1;
-						if (!expand_list) done = TRUE;
 					}
 					break;
 				}
@@ -6301,14 +6287,11 @@ bool target_set_interactive(int mode)
 						handle_stuff();					
 					}
 
-					if (scroll_target)
-					{
-						/* Recenter around player */
-						verify_panel();
+					/* Recenter around player */
+					verify_panel();
 
-						/* Handle stuff */
-						handle_stuff();
-					}
+					/* Handle stuff */
+					handle_stuff();
 				}
 
 				case 'o':
@@ -6460,7 +6443,7 @@ bool target_set_interactive(int mode)
 				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
 				/* Scroll to find interesting grid */
-				if (scroll_target && (i < 0))
+				if (i < 0)
 				{
 					int old_wy = p_ptr->wy;
 					int old_wx = p_ptr->wx;
@@ -6545,14 +6528,11 @@ bool target_set_interactive(int mode)
 						handle_stuff();					
 					}
 
-					if (scroll_target)
-					{
-						/* Recenter around player */
-						verify_panel();
+					/* Recenter around player */
+					verify_panel();
 
-						/* Handle stuff */
-						handle_stuff();
-					}
+					/* Handle stuff */
+					handle_stuff();
 				}
 
 				case 'o':
@@ -6698,25 +6678,22 @@ bool target_set_interactive(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				if (scroll_target)
+				/* Slide into legality */
+				if (x >= DUNGEON_WID - 1) x--;
+				else if (x <= 0) x++;
+
+				/* Slide into legality */
+				if (y >= DUNGEON_HGT - 1) y--;
+				else if (y <= 0) y++;
+
+				/* Adjust panel if needed */
+				if (adjust_panel(y, x))
 				{
-					/* Slide into legality */
-					if (x >= DUNGEON_WID - 1) x--;
-					else if (x <= 0) x++;
+					/* Handle stuff */
+					handle_stuff();
 
-					/* Slide into legality */
-					if (y >= DUNGEON_HGT - 1) y--;
-					else if (y <= 0) y++;
-
-					/* Adjust panel if needed */
-					if (adjust_panel(y, x))
-					{
-						/* Handle stuff */
-						handle_stuff();
-
-						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
-					}
+					/* Recalculate interesting grids */
+					target_set_interactive_prepare(mode);
 				}
 
 				else
@@ -6774,14 +6751,11 @@ bool target_set_interactive(int mode)
 		handle_stuff();
 	}
 
-	if (scroll_target)
-	{
-		/* Recenter around player */
-		verify_panel();
+	/* Recenter around player */
+	verify_panel();
 
-		/* Handle stuff */
-		handle_stuff();
-	}
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);
@@ -7101,6 +7075,15 @@ int max_depth(int dungeon)
 	return (zone->level);
 }
 
+bool is_typical_town(int dungeon, int depth)
+{
+	dungeon_zone *zone;
+
+	/* Get the zone */
+	get_zone(&zone, dungeon, depth);
+
+	return (!zone->fill && zone->level <= 10 && t_info[dungeon].store[3]);
+}
 
 int town_depth(int dungeon)
 {
@@ -7117,7 +7100,6 @@ int town_depth(int dungeon)
 
 	return (zone->level);
 }
-
 
 void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
 {

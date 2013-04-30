@@ -1003,61 +1003,79 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 	return (TRUE);
 }
 
+/*
+ * Pickup all gold at the player's current location.
+ */
+static void py_pickup_gold(int py, int px)
+{
+	char o_name[80];
+
+	s16b this_o_idx, next_o_idx = 0;
+
+	object_type *o_ptr;
+
+	long value;
+
+	/* Pick up all the ordinary gold objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Ignore if not legal treasure */
+		if (o_ptr->tval < TV_GOLD) 
+			continue;
+
+		value = o_ptr->number * o_ptr->charges - o_ptr->stackc;
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+		/* Message */
+		if (o_ptr->tval == TV_GOLD) 
+			msg_format("You have found %ld gold pieces worth of %s.",
+						  value, o_name);
+		else msg_format("You have found %s worth %ld gold pieces.", 
+							 o_name, value);
+
+		/* Collect the gold */
+		p_ptr->au += value;
+
+		/* Redraw gold */
+		p_ptr->redraw |= (PR_GOLD);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Delete the gold */
+		delete_object_idx(this_o_idx);
+
+		/* Gathering? */
+		/*if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);*/
+	}
+}
 
 /*
- * Determine if the object can be picked up, and has "=g" in its inscription.
- * If "=g" is followed by a number, pick up if the player has less than this number of similar objects in their inventory.
+ * Check to see if an item is stackable in the inventory
  */
-static bool auto_pickup_okay(const object_type *o_ptr)
+bool inven_stack_okay(const object_type *o_ptr)
 {
-	cptr s;
+	int j;
 
-	/* It can't be carried */
-	if (!inven_carry_okay(o_ptr)) return (FALSE);
-
-	/* No inscription */
-	if (!o_ptr->note) return (FALSE);
-
-	/* Find a '=' */
-	s = strchr(quark_str(o_ptr->note), '=');
-
-	/* Process inscription */
-	while (s)
+	/* Similar slot? */
+	for (j = 0; j < INVEN_PACK; j++)
 	{
-		/* Auto-pickup on "=g" */
-		if (s[1] == 'g')
-		{
-			if ((s[2] >= '0') && (s[2] <= '9'))
-			{
-				int i, n;
+		object_type *j_ptr = &inventory[j];
 
-				n = atoi(s+2);
+		/* Skip non-objects */
+		if (!j_ptr->k_idx) continue;
 
-				if (o_ptr->number > n) return (FALSE);
-
-				for (i = 0; i < INVEN_WIELD; i++)
-				{
-					if (object_similar(o_ptr, &inventory[i]))
-					{
-						/* If too many, don't pick up */
-						if (inventory[i].number > n) return (FALSE);
-					}
-				}
-
-				/* Pick up */
-				return (TRUE);
-			}
-
-			/* No number specified */
-			else return (TRUE);
-
-		}
-
-		/* Find another '=' */
-		s = strchr(s + 1, '=');
+		/* Check if the two items can be combined */
+		if (object_similar(j_ptr, o_ptr)) return (TRUE);
 	}
 
-	/* Don't auto pickup */
+	/* Nope */
 	return (FALSE);
 }
 
@@ -1133,7 +1151,75 @@ static bool auto_pickup_never(const object_type *o_ptr)
 
 
 /*
- * Determine if the object can be destroyed, and has "=k" in its inscription.
+ * Determine if the object can be picked up and has "=g" in its inscription 
+ * or options determine it should be picked up.
+ *
+ * If "=g" is followed by a number, pick up if the player has 
+ * less than this number of similar objects in their inventory.
+ */
+static bool auto_pickup_okay(const object_type *o_ptr)
+{
+	cptr s;
+
+	/* It can't be carried */
+	if (!inven_carry_okay(o_ptr)) return FALSE;
+
+	/* It can't be picked up */
+	if (auto_pickup_never(o_ptr)) return FALSE;
+	if (auto_pickup_ignore(o_ptr)) return FALSE;
+
+	if (OPT(pickup_inven) && inven_stack_okay(o_ptr)) return TRUE;
+	if (OPT(pickup_always)) return TRUE;
+
+	/* No inscription */
+	if (!o_ptr->note) return FALSE;
+
+	/* Find a '=' */
+	s = strchr(quark_str(o_ptr->note), '=');
+
+	/* Process inscription */
+	while (s)
+	{
+		/* Auto-pickup on "=g" */
+		if (s[1] == 'g')
+		{
+			if ((s[2] >= '0') && (s[2] <= '9'))
+			{
+				int i, n;
+
+				n = atoi(s+2);
+
+				if (o_ptr->number > n) return FALSE;
+
+				for (i = 0; i < INVEN_WIELD; i++)
+				{
+					if (object_similar(o_ptr, &inventory[i]))
+					{
+						/* If too many, don't pick up */
+						if (inventory[i].number > n) return FALSE;
+					}
+				}
+
+				/* Pick up */
+				return TRUE;
+			}
+
+			/* No number specified */
+			else return TRUE;
+
+		}
+
+		/* Find another '=' */
+		s = strchr(s + 1, '=');
+	}
+
+	/* Don't auto pickup */
+	return FALSE;
+}
+
+
+/*
+ * Determine if the object has "=k" in its inscription.
  * If "=k" is followed by a number, destroy if the player has more than this number of similar objects in their inventory.
  */
 static bool auto_destroy_okay(const object_type *o_ptr)
@@ -1254,7 +1340,7 @@ static void py_destroy_aux(int o_idx)
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Verify destruction */
-	if (verify_destroy && !auto_pickup_ignore(o_ptr))
+	if (!auto_pickup_ignore(o_ptr))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -1324,7 +1410,7 @@ static void py_destroy_aux(int o_idx)
  *
  * Delete the object afterwards.
  */
-static void py_pickup_aux(int o_idx)
+static void py_pickup_aux(int o_idx, bool msg)
 {
 	int slot;
 
@@ -1342,54 +1428,90 @@ static void py_pickup_aux(int o_idx)
 	/* No longer 'stored' */
 	o_ptr->ident &= ~(IDENT_STORE);
 
-	/* Describe the object */
-	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+	/* Optionally, display a message */
+	if (msg)
+	{
+		/* Describe the object */
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
-	/* Message */
-	msg_format("You have %s (%c).", o_name, index_to_label(slot));
+		/* Message */
+		msg_format("You have %s (%c).", o_name, index_to_label(slot));
+	}
 
 	/* Delete the object */
 	if (o_idx >= 0) delete_object_idx(o_idx);
 }
 
 
-
 /*
- * Make the player carry everything in a grid.
+ * Pick up objects and treasure on the floor.  -LM-
  *
- * If "pickup" is FALSE then only gold will be picked up.
+ * Called with pickup:
+ * 0 to act according to the player's settings
+ * 1 to quickly pickup single objects or present a menu
+ * 2 to force a menu for any number of objects
+ *
+ * Scan the list of objects in that floor grid. Pick up gold automatically.
+ * Pick up objects automatically until backpack space is full if
+ * auto-pickup option is on. Otherwise, store objects on
+ * floor in an array, and tally both how many there are and can be picked up.
+ *
+ * If not picking up anything, indicate objects on the floor.  Show more
+ * details if the "pickup_detail" option is set.  Do the same thing if we
+ * don't have room for anything.
+ *
+ * Pick up multiple objects using Tim Baker's menu system.   Recursively
+ * call this function (forcing menus for any number of objects) until
+ * objects are gone, backpack is full, or player is satisfied.
+ *
+ * We keep track of number of objects picked up to calculate time spent.
+ * This tally is incremented even for automatic pickup, so we are careful
+ * (in "dungeon.c" and elsewhere) to handle pickup as either a separate
+ * automated move or a no-cost part of the stay still or 'g'et command.
  */
-void py_pickup(int py, int px, int pickup)
+byte py_pickup(int py, int px, int pickup)
 {
+	char o_name[80];
+
+	bool gather = FALSE;
+	bool gathered2 = FALSE;
+
 	s16b this_o_idx, next_o_idx = 0;
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	/* Objects picked up.  Used to determine time cost of command. */
+	byte objs_picked_up = 0;
 
-	bool gather = FALSE;
-
-#ifdef ALLOW_EASY_FLOOR
-
-	int last_o_idx = 0;
+	int floor_num = 0, feature_num = 0, 
+		floor_list[MAX_FLOOR_STACK + 1], floor_o_idx = 0;
 
 	int can_pickup = 0;
-	int not_pickup = 0;
+	bool call_function_again = FALSE;
 
-#endif /* ALLOW_EASY_FLOOR */
+	bool blind = (p_ptr->blind || no_lite());
+	bool msg = TRUE;
 
 	feature_type *f_ptr = &f_info[cave_feat[py][px]];
 	
 	/* Hack -- gather features from walls */
-	if (!(f_ptr->flags1 & (FF1_MOVE)) && !(f_ptr->flags3 & (FF3_EASY_CLIMB)) && (f_ptr->flags3 & (FF3_GET_FEAT)))
+	if (!(f_ptr->flags1 & (FF1_MOVE)) 
+		 && !(f_ptr->flags3 & (FF3_EASY_CLIMB)) 
+		 && (f_ptr->flags3 & (FF3_GET_FEAT)))
 	{
 		gather = TRUE;
 	}
 
 	/* Are we allowed to pick up anything here? */
-	if (!(f_ptr->flags1 & (FF1_DROP)) && (f_ptr->flags1 & (FF1_MOVE)) && !gather) return;
-	
-	/* Scan the pile of objects */
+	if (!(f_ptr->flags1 & (FF1_DROP)) 
+		 && (f_ptr->flags1 & (FF1_MOVE)) 
+		 && !gather) 
+		return 0;
+
+	/* Always pickup gold, effortlessly */
+	py_pickup_gold(py, px);
+
+	/* Scan the remaining objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx || gather; this_o_idx = next_o_idx)
 	{
 		bool gathered = FALSE;
@@ -1408,24 +1530,34 @@ void py_pickup(int py, int px, int pickup)
 			gathered = TRUE;
 
 			/* Get the feature */
-			if (!make_feat(o_ptr, py, px)) return;
+			if (!make_feat(o_ptr, py, px)) 
+				return 1;
 
 			/* Find the feature */
 			this_o_idx = scan_feat(py, px);
 			
 			/* And we have to be doubly paranoid */
-			if (this_o_idx == next_o_idx) next_o_idx = o_list[this_o_idx].next_o_idx;
+			if (this_o_idx == next_o_idx) 
+				next_o_idx = o_list[this_o_idx].next_o_idx;
 		}
 		else
 		{
-			/* Get the object */
+			/* Get the object and the next object */
 			o_ptr = &o_list[this_o_idx];
-
-			/* Get the next object */
 			next_o_idx = o_ptr->next_o_idx;
 
-			/* Ignore 'store' items */
-			if (o_ptr->ident & (IDENT_STORE)) continue;		
+			/* Ignore, but count, 'store' items */
+			if (o_ptr->ident & (IDENT_STORE)) 
+			{
+				feature_num++;
+				continue;		
+			}
+
+			/* Ignore all hidden objects and non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* XXX Hack -- Enforce limit */
+			if (floor_num >= (int)N_ELEMENTS(floor_list)) break;
 		}
 
 		/* Mark the object */
@@ -1450,40 +1582,10 @@ void py_pickup(int py, int px, int pickup)
 			}
 		}
 
-		/* Describe the object */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
 		/* Hack -- disturb */
-		if (!auto_pickup_never(o_ptr)) disturb(0, 0);
-
-		/* Pick up gold */
-		if (o_ptr->tval >= TV_GOLD)
-		{
-			long value = o_ptr->number * o_ptr->charges - o_ptr->stackc;
-
-			/* Message */
-			if (o_ptr->tval == TV_GOLD) msg_format("You have found %ld gold pieces worth of %s.",
-			   			value, o_name);
-			else msg_format("You have found %s worth %ld gold pieces.", o_name, value);
-
-			/* Collect the gold */
-			p_ptr->au += value;
-
-			/* Redraw gold */
-			p_ptr->redraw |= (PR_GOLD);
-
-			/* Window stuff */
-			p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-
-			/* Delete the gold */
-			delete_object_idx(this_o_idx);
-
-			/* Gathering? */
-			/*if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);*/
-
-			/* Check the next object */
-			continue;
-		}
+		if (!auto_pickup_never(o_ptr) 
+			 && !auto_pickup_ignore(o_ptr))
+			disturb(0, 0);
 
 		/* Test for auto-destroy */
 		if (auto_destroy_okay(o_ptr))
@@ -1492,7 +1594,8 @@ void py_pickup(int py, int px, int pickup)
 			py_destroy_aux(this_o_idx);
 			
 			/* Gathering? */
-			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+			if (gathered && (scan_feat(py,px) < 0)) 
+				cave_alter_feat(py,px,FS_GET_FEAT);
 
 			/* Check the next object */
 			continue;
@@ -1502,214 +1605,208 @@ void py_pickup(int py, int px, int pickup)
 		if (quiver_combine(o_ptr, this_o_idx))
 		{
 			/* Gathering? */
-			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+			if (gathered && (scan_feat(py,px) < 0)) 
+				cave_alter_feat(py,px,FS_GET_FEAT);
 
 			continue;
 		}
 
-		/* Test for auto-pickup */
+		/* Automatically pick up items into the backpack */
 		if (auto_pickup_okay(o_ptr))
 		{
-			/* Pick up the object */
-			py_pickup_aux(this_o_idx);
+			/* Pick up the object with message */
+			py_pickup_aux(this_o_idx, TRUE);
+			objs_picked_up++;
 
 			/* Gathering? */
-			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+			if (gathered && (scan_feat(py,px) < 0)) 
+				cave_alter_feat(py,px,FS_GET_FEAT);
 
-			/* Check the next object */
 			continue;
 		}
 
-#ifdef ALLOW_EASY_FLOOR
+		/* Tally objects and store them in an array. */
 
-		/* Easy Floor */
-		if (easy_floor && !auto_pickup_never(o_ptr))
-		{
-			/* Pickup if possible */
-			if (pickup && inven_carry_okay(o_ptr))
-			{
-				/* Pick up if allowed */
-				if ((!carry_query_flag))
-				{
-					/* Pick up the object */
-					py_pickup_aux(this_o_idx);
-				}
+		/* Remember this object index */
+		floor_list[floor_num] = this_o_idx;
 
-				/* Else count */
-				else
-				{
-					/* Remember */
-					last_o_idx = this_o_idx;
+		/* Count non-gold objects that remain on the floor. */
+		floor_num++;
 
-					/* Count */
-					++can_pickup;
-					
-					/* Don't pickup */
-					gathered = FALSE;
-				}
-			}
-
-			/* Else count */
-			else
-			{
-				/* Remember */
-				last_o_idx = this_o_idx;
-
-				/* Count */
-				++not_pickup;
-				
-				/* Don't pickup */
-				gathered = FALSE;
-			}
-
-			/* Gathering? */
-			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
-			
-			/* Check the next object */
-			continue;
-		}
-
-#endif /* ALLOW_EASY_FLOOR */
-
-		/* Describe the object */
-		if ((!pickup) || auto_pickup_never(o_ptr))
-		{
-			msg_format("You %s %s.", p_ptr->blind || no_lite() ? "feel" : "see", o_name);
-
-			/* Check the next object */
-			continue;
-		}
-
-		/* Note that the pack is too full */
-		else if (!inven_carry_okay(o_ptr))
-		{
-			msg_format("You have no room for %s.", o_name);
-
-			/* Check the next object */
-			continue;
-		}
-
-		/* Query before picking up */
-		else if (carry_query_flag)
-		{
-			char out_val[160];
-			sprintf(out_val, "Pick up %s? ", o_name);
-			if (!get_check(out_val)) continue;
-		}
-
-		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
-		
-		/* Gathering? */
-		if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+		/* Tally objects that can be picked up.*/
+		if (inven_carry_okay(o_ptr))
+			can_pickup++;
 	}
 
-#ifdef ALLOW_EASY_FLOOR
+	/* There are no objects left */
+	if ((pickup != 1 && floor_num == 0) 
+		 || floor_num + feature_num == 0)
+		return objs_picked_up;
 
-	/* Easy floor, objects left */
-	if (easy_floor && (can_pickup + not_pickup > 0))
+	if (floor_num > 0)
 	{
-		/* Not picking up */
-		if (!pickup)
+
+	/* Get hold of the last floor index */
+	floor_o_idx = floor_list[floor_num - 1];
+
+	/* Mention the objects if player is not picking them up. */
+	if (pickup == 0 || !can_pickup)
+	{
+		const char *p = "see";
+
+		/* One object */
+		if (floor_num == 1)
 		{
-			/* One object */
-			if (not_pickup == 1)
+			if (blind)            p = "feel";
+			else if (!can_pickup) p = "have no room for";
+
+			/* Get the object */
+			o_ptr = &o_list[floor_o_idx];
+
+			/* Describe the object.  Less detail if blind. */
+			if (blind) object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 0);
+			else       object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+			/* Message */
+			msg_format("You %s %s.", p, o_name);
+		}
+		else
+		{
+			/* Optionally, display more information about floor items */
+			if (pickup_detail)
 			{
-				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
+				if (blind)            p = "feel something on the floor";
+				else if (!can_pickup) p = "have no room for the following objects";
 
-				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+				/* Scan all marked objects in the grid */
+				floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), py, px, 0x0B);
 
-				/* Message */
-				msg_format("You %s %s.", p_ptr->blind || no_lite()? "feel" : "see", o_name);
+				/* Save screen */
+				screen_save();
+
+				/* Display objects on the floor */
+				show_floor(floor_list, floor_num, FALSE);
+
+				/* Display prompt */
+				prt(format("You %s: ", p), 0, 0);
+
+				/* Move cursor back to character, if needed */
+				if (hilite_player) move_cursor_relative(p_ptr->py, p_ptr->px);
+
+				/* Wait for it.  Use key as next command. */
+				p_ptr->command_new = inkey_ex();
+
+				/* Restore screen */
+				screen_load();
 			}
 
-			/* Multiple objects */
+			/* Show less detail */
 			else
 			{
-				/* Message */
-				msg_format("You %s a pile of %d objects.", p_ptr->blind || no_lite() ? "feel" : "see", not_pickup);
-			}
+				message_flush();
 
-			/* Done */
-			return;
+				if (!can_pickup)
+					msg_print("You have no room for any of the items on the floor.");
+				else
+					msg_format("You %s a pile of %d items.", (blind ? "feel" : "see"), floor_num);
+			}
 		}
 
-		/* No room */
-		if (!can_pickup)
+		/* Done */
+		return (objs_picked_up);
+	}
+
+	}
+
+	/* We can pick up objects.  Menus are not requested (yet). */
+	if (pickup == 1)
+	{
+		/* Scan floor (again) */
+		floor_num = scan_floor(floor_list, N_ELEMENTS(floor_list), py, px, 0x0B);
+
+		/* Use a menu interface for multiple objects or feature objects, 
+			or pickup single objects */
+		if (floor_num == 1)
+			this_o_idx = floor_o_idx;
+		else
+			pickup = 2;
+	}
+
+	/* Display a list if requested. */
+	if (pickup == 2)
+	{
+		cptr q, s;
+		int item;
+
+		/* Hack for player */
+		int oy = p_ptr->py;
+		int ox = p_ptr->px;
+			
+		bool done = FALSE;
+
+		p_ptr->py = py;
+		p_ptr->px = px;
+
+		/* Restrict the choices */
+		item_tester_hook = inven_carry_okay;
+
+		/* Request a list */
+		p_ptr->command_see = TRUE;
+
+		/* Get an object or exit. */
+		q = "Get which item?";
+		s = "You see nothing there.";
+		if (!get_item(&item, q, s, (USE_FLOOR | USE_FEATG))) 
+			done = TRUE;
+
+		/* Fix player position */
+		p_ptr->py = oy;
+		p_ptr->px = ox;
+
+		if (done)
+			return (objs_picked_up);
+
+		this_o_idx = 0 - item;
+
+		/* Destroy the feature */
+		if (o_list[this_o_idx].ident & (IDENT_STORE))
 		{
-			/* One object */
-			if (not_pickup == 1)
-			{
-				/* Get the object */
-				o_ptr = &o_list[last_o_idx];
-
-				/* Describe the object */
-				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
-
-				/* Message */
-				msg_format("You have no room for %s.", o_name);
-			}
-
-			/* Multiple objects */
-			else
-			{
-				/* Message */
-				msg_print("You have no room for any of the objects on the floor.");
-			}
-
-			/* Done */
-			return;
+			gathered2 = TRUE;
+			/* Features are somewhat special, disturb */
+			msg = TRUE;
+			call_function_again = FALSE;
 		}
-
-		/* Pick up objects */
-		while (1)
+		else
 		{
-			cptr q, s;
-
-			int item;
-
-			/* Hack for player */
-			int oy = p_ptr->py;
-			int ox = p_ptr->px;
-			
-			bool done = FALSE;
-			
-			/* Gathering? */
-			bool gathered = FALSE;
-
-			p_ptr->py = py;
-			p_ptr->px = px;
-			
-			/* Restrict the choices */
-			item_tester_hook = inven_carry_okay;
-			
-
-			/* Get an object*/
-			q = "Get which item? ";
-			s = NULL;
-			if (!get_item(&item, q, s, (USE_FLOOR | USE_FEATG))) done = TRUE;
-			
-			/* Fix player position */
-			p_ptr->py = oy;
-			p_ptr->px = ox;
-
-			if (done) break;
-			
-			/* Destroy the feature */
-			if (o_list[0-item].ident & (IDENT_STORE)) gathered = TRUE;
-			
-			/* Pick up the object */
-			py_pickup_aux(0 - item);
-			
-			/* Get the feature */
-			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+			/* With a list, we do not need explicit pickup messages */
+			msg = FALSE;
+			call_function_again = TRUE;
 		}
 	}
 
-#endif /* ALLOW_EASY_FLOOR */
+	/* Pick up object, if legal */
+	if (this_o_idx)
+	{
+		/* Pick up the object */
+		py_pickup_aux(this_o_idx, msg);
 
+		/* Get the feature */
+		if (gathered2 && (scan_feat(py,px) < 0)) 
+			cave_alter_feat(py,px,FS_GET_FEAT);
+
+		/* Indicate an object picked up. */
+		objs_picked_up = 1;
+	}
+
+	/*
+	 * If requested, call this function recursively.  Count objects picked
+	 * up.  Force the display of a menu in all cases.
+	 */
+	if (call_function_again) 
+		objs_picked_up += py_pickup(py, px, 2);
+
+	/* Indicate how many objects have been picked up. */
+	return (objs_picked_up);
 }
 
 
@@ -2070,7 +2167,7 @@ void hit_trap(int y, int x)
 
 					/* Has a power */
 					/* Hack -- check if we are stacking rods */
-					if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+					if (o_ptr->timeout > 0)
 					{
 						/* Hack -- one more rod charging */
 						if (o_ptr->timeout) o_ptr->stackc++;
@@ -3041,14 +3138,14 @@ bool stuck_player(int *dir)
 
 
 /*
- * Move player in the given direction, with the given "pickup" flag.
+ * Move player in the given direction.
  * 
  * This routine should only be called when energy has been expended.
  *
  * Note that this routine handles monsters in the destination grid,
  * and also handles attempting to move into walls/doors/rubble/etc.
  */
-void move_player(int dir, int jumping)
+void move_player(int dir)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -3079,16 +3176,18 @@ void move_player(int dir, int jumping)
 	if (((cave_o_idx[y][x]) || (f_ptr->flags3 & (FF3_GET_FEAT))) && !(f_ptr->flags1 & (FF1_MOVE)) && !(f_ptr->flags3 & (FF3_EASY_CLIMB)) && (play_info[y][x] & (PLAY_MARK)))
 	{
 		/* Get item from the destination */
-		py_pickup(y, x, TRUE);
+		p_ptr->energy_use = py_pickup(y, x, 1) * 10;
 		
 		/* Disturb the player */
 		disturb(0, 0);
+
+		return;
 	}
 
 	/* Hack -- attack monsters --- except hidden ones or allies */
 	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE | MFLAG_ALLY)) &&
-			/* Allow the player to run over most monsters -- except those that can't move */
-			(!(p_ptr->running) || (r_info[m_list[cave_m_idx[y][x]].r_idx].flags1 & (RF1_NEVER_MOVE))))
+		 /* Allow the player to run over most monsters -- except those that can't move */
+		 (!(p_ptr->running) || (r_info[m_list[cave_m_idx[y][x]].r_idx].flags1 & (RF1_NEVER_MOVE))))
 	{
 		/* Attack */
 		py_attack(dir);
@@ -3099,10 +3198,8 @@ void move_player(int dir, int jumping)
 		/* Do nothing */
 	}
 
-#ifdef ALLOW_EASY_ALTER
-
-	/* Optionally alter known traps/doors on (non-jumping) movement */
-	else if (easy_alter && !jumping &&
+	/* Optionally alter known traps/doors on movement */
+	else if (easy_alter &&
 	 (play_info[y][x] & (PLAY_MARK)) &&
 		 ( (f_ptr->flags1 & (FF1_DISARM)) ||
 		 ( !(f_ptr->flags1 & (FF1_MOVE)) &&
@@ -3110,24 +3207,18 @@ void move_player(int dir, int jumping)
 		 (f_ptr->flags1 & (FF1_OPEN)))))
 	{
 		/* Not already repeating */
-		if (!p_ptr->command_rep)
+		if (!p_ptr->command_rep && p_ptr->command_arg <= 0)
 		{
-			/* Hack -- auto-repeat */
-			if (always_repeat && (p_ptr->command_arg <= 0))
-			{
-				/* Repeat 99 times */
-				p_ptr->command_rep = 99;
+			/* Repeat 99 times */
+			p_ptr->command_rep = 99;
 
-				/* Reset the command count */
-				p_ptr->command_arg = 0;
-			}
+			/* Reset the command count */
+			p_ptr->command_arg = 0;
 		}
 
 		/* Alter */
 		do_cmd_alter();
 	}
-
-#endif /* ALLOW_EASY_ALTER */
 
 	/* Petrified */
 	else if (p_ptr->petrify)
@@ -3142,9 +3233,10 @@ void move_player(int dir, int jumping)
 	/* Player can not walk through "walls" */
 	/* Also cannot climb over unknown "trees/rubble" */
 	else if (!(f_ptr->flags1 & (FF1_MOVE))
-	&& (!(f_ptr->flags3 & (FF3_EASY_CLIMB)) || !(play_info[y][x] & (PLAY_MARK))))
+				&& (!(f_ptr->flags3 & (FF3_EASY_CLIMB)) 
+					 || !(play_info[y][x] & (PLAY_MARK))))
 	{
-		if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
+		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
 			msg_print("This doesn't feel safe.");
@@ -3175,7 +3267,7 @@ void move_player(int dir, int jumping)
 			/* Tell the player */
 			msg_format("You feel %s%s blocking your way.",
 				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
-					(is_a_vowel(name[0]) ? "an " : "a ")),name);
+					(is_a_vowel(name[0]) ? "an " : "a ")), name);
 
 			play_info[y][x] |= (PLAY_MARK);
 
@@ -3185,7 +3277,7 @@ void move_player(int dir, int jumping)
 		/* Mention known obstacles */
 		else
 		{
-			/* Get the mimiced feature */
+			/* Get the mimicked feature */
 			mimic = f_ptr->mimic;
 
 			/* Get the feature name */
@@ -3209,7 +3301,7 @@ void move_player(int dir, int jumping)
 	/* Partial movement */
 	else if ((climb) && (dir != p_ptr->climbing))
 	{
-		if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
+		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
 			msg_print("This doesn't feel safe.");		
@@ -3242,7 +3334,7 @@ void move_player(int dir, int jumping)
 	/* Normal movement */
 	else
 	{
-		if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
+		if ((disturb_detect) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
 			msg_print("This doesn't feel safe.");		
@@ -3253,7 +3345,7 @@ void move_player(int dir, int jumping)
 		/* Sound XXX XXX XXX */
 		/* sound(MSG_WALK); */
 
-		/* Players can push aside allies */
+		/* Players can push aside allies or run over moving monsters */
 		/* This would normally be the only situation where the target grid still
 		 * contains a monster */
 		if (cave_m_idx[y][x] > 0)
@@ -3356,9 +3448,6 @@ void move_player(int dir, int jumping)
 			redraw_stuff();
 		}
 
-		/* Handle "objects" */
-		py_pickup(y, x, jumping != always_pickup);
-
 		/* Handle "store doors" */
 		/* The running with pathfind check ensures we don't interrupt ourselves
 		 * if we accidentally walk on a shop due to route finding */
@@ -3373,6 +3462,13 @@ void move_player(int dir, int jumping)
 
 			/* Free turn XXX XXX XXX */
 			p_ptr->energy_use = 0;
+		}
+
+		/* All other grids (including traps) */
+		else
+		{
+			/* Handle objects (later) */
+			p_ptr->notice |= (PN_PICKUP);
 		}
 
 
@@ -3411,7 +3507,6 @@ void move_player(int dir, int jumping)
 				msg_format("%s",text);
 			}
 
-
 			cave_alter_feat(y,x, FS_KILL_MOVE);
 		}
 
@@ -3421,7 +3516,6 @@ void move_player(int dir, int jumping)
 		(f_ptr->flags2 & (FF2_DEEP)) ||
 		(f_ptr->flags2 & (FF2_FILLED)) ))
 		{
-
 			/* Get the mimiced feature */
 			mimic = f_ptr->mimic;
 
@@ -3482,29 +3576,6 @@ static int see_stop(int dir, int y, int x)
 	/* Default */
 	return (TRUE);
 }
-
-
-/*
- * Hack -- Check for an "unknown corner" (see below)
- */
-static int see_nothing(int dir, int y, int x)
-{
-	/* Get the new location */
-	y += ddy[dir];
-	x += ddx[dir];
-
-	/* Illegal grids are unknown XXX XXX XXX */
-	if (!in_bounds(y, x)) return (TRUE);
-
-	/* Memorized grids are always known */
-	if (play_info[y][x] & (PLAY_MARK)) return (FALSE);
-
-	/* Default */
-	return (TRUE);
-}
-
-
-
 
 
 /*
@@ -3837,7 +3908,7 @@ static bool run_test(void)
 			if (m_ptr->ml) return (TRUE);
 		}
 
-		/* Visible objects abort running */
+		/* Visible pickable objects abort running */
 		for (this_o_idx = cave_o_idx[row][col]; this_o_idx; this_o_idx = next_o_idx)
 		{
 			object_type *o_ptr;
@@ -3849,9 +3920,11 @@ static bool run_test(void)
 			next_o_idx = o_ptr->next_o_idx;
 
 			/* Visible object */
-			if ((o_ptr->ident & (IDENT_MARKED)) && !(auto_pickup_never(o_ptr))) return (TRUE);
+			if (o_ptr->ident & (IDENT_MARKED)
+				 && !auto_pickup_never(o_ptr)
+				 && !auto_pickup_ignore(o_ptr))
+				return (TRUE);
 		}
-
 
 		/* Assume unknown */
 		inv = TRUE;
@@ -3872,27 +3945,9 @@ static bool run_test(void)
 
 			if ((notice) && (f_info[feat].flags1 & (FF1_MOVE)))
 			{
-				if ((run_ignore_doors) && (f_info[feat].flags1 & (FF1_DOOR)) &&
-					(f_info[feat].flags1 & (FF1_CLOSE)))
-				{
-					/* Option -- ignore */
-					notice = FALSE;
-				}
-
-				/* Stairs */
-				if ((run_ignore_stairs) && (f_info[feat].flags1 & (FF1_STAIRS)))
-				{
-					/* Option -- ignore */
-					notice = FALSE;
-				}
-
-				/* Unusual floors */
-				if ((run_ignore_floors) && (f_info[feat].flags1 & (FF1_FLOOR)))
-				{
-					/* Option -- ignore */
-					notice = FALSE;
-				}
-
+				/* Ignore unusual floors; don't run if you want to inspect them */
+				if (f_info[feat].flags1 & (FF1_FLOOR))
+					notice = FALSE;				
 			}
 
 			/* Interesting feature */
@@ -4065,58 +4120,13 @@ static bool run_test(void)
 		}
 
 		/* Two options, examining corners */
-		else if (run_use_corners && !run_cut_corners)
+		else
 		{
 			/* Primary option */
 			p_ptr->run_cur_dir = option;
 
 			/* Hack -- allow curving */
 			p_ptr->run_old_dir = option2;
-		}
-
-		/* Two options, pick one */
-		else
-		{
-			/* Get next location */
-			row = py + ddy[option];
-			col = px + ddx[option];
-
-			/* Don't see that it is closed off. */
-			/* This could be a potential corner or an intersection. */
-			if (!see_wall(option, row, col) ||
-			    !see_wall(check_dir, row, col))
-			{
-				/* Can not see anything ahead and in the direction we */
-				/* are turning, assume that it is a potential corner. */
-				if (run_use_corners &&
-				    see_nothing(option, row, col) &&
-				    see_nothing(option2, row, col))
-				{
-					p_ptr->run_cur_dir = option;
-					p_ptr->run_old_dir = option2;
-				}
-
-				/* STOP: we are next to an intersection or a room */
-				else
-				{
-					return (TRUE);
-				}
-			}
-
-			/* This corner is seen to be enclosed; we cut the corner. */
-			else if (run_cut_corners)
-			{
-				p_ptr->run_cur_dir = option2;
-				p_ptr->run_old_dir = option2;
-			}
-
-			/* This corner is seen to be enclosed, and we */
-			/* deliberately go the long way. */
-			else
-			{
-				p_ptr->run_cur_dir = option;
-				p_ptr->run_old_dir = option2;
-			}
 		}
 	}
 
@@ -4251,7 +4261,7 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player */
-	move_player(p_ptr->run_cur_dir, FALSE);
+	move_player(p_ptr->run_cur_dir);
 
 	return;
 }

@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	5
+#define VERSION_EXTRA	7
 
 
 /*
@@ -271,17 +271,15 @@
 
 /*
  * OPTION: Maximum number of "quarks" (see "util.c")
- * Default: assume at most 512 different inscriptions are used
+ * Default: assume at most 2048 different inscriptions and tips are used
  */
-#define QUARK_MAX	512
+#define QUARK_MAX	2048
 
 /*
- * OPTION: Maximum number of "tips" (see "files.c")
- * Default: assume at most 32 different tips queued
- * 
- * We drop excess tips.
+ * OPTION: Maximum total number of "tips" (see "files.c")
+ * in the lib/file/ directory
  */
-#define TIPS_MAX	32
+#define TIPS_MAX	1024
 
 
 /*
@@ -366,11 +364,11 @@
 #define GREAT_EGO	20
 
 /*
- * There is a 1/50 (2%) chance of inflating the requested monster_level
+ * There is a small chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
-#define NASTY_MON	50		/* 1/chance of inflated monster level */
+#define NASTY_MON	30		/* 1/chance of inflated monster level */
 
 /*
  * Maximum amount of sections in room description.
@@ -2510,6 +2508,7 @@
 /* These are correct */
 #define SV_FOOD_BISCUIT			32
 #define SV_FOOD_JERKY			33
+#define SV_FOOD_COOKED_MEET	34
 #define SV_FOOD_RATION			35
 #define SV_FOOD_SLIME_MOLD		36
 #define SV_FOOD_WAYBREAD		37
@@ -2517,6 +2516,7 @@
 #define SV_FOOD_PINT_OF_ALE		40
 #define SV_FOOD_PINT_OF_WINE	        41
 #define SV_FOOD_PINT_OF_SPIRITS	        42
+#define SV_FOOD_SPRIG_OF_ATHELAS	        43
 
 
 /*
@@ -2836,6 +2836,7 @@
  */
 #define PN_COMBINE		0x00000001L	/* Combine the pack */
 #define PN_REORDER		0x00000002L	/* Reorder the pack */
+#define PN_PICKUP       0x00000008L	/* Pick stuff up */
 /* xxx (many) */
 
 
@@ -4427,338 +4428,12 @@
 #define MAX_WEAP_BENEFITS       15
 
 
-
-/*** Option Definitions ***/
-
-/*
- * Option indexes (offsets)
- *
- * These values are hard-coded by savefiles (and various pieces of code).
- */
-#define OPT_USER_INTERFACE			0
-#define OPT_DISTURBANCE			    16
-#define OPT_GAME_PLAY			    32
-#define OPT_EFFICIENCY			    48
-#define OPT_VARIANT				     96
-#define OPT_BIRTH				       128
-#define OPT_CHEAT					160
-#define OPT_ADULT					192
-#define OPT_SCORE					224
-#define OPT_MAX						256
-
-
-/*
- * Option indexes (normal)
- *
- * These values are hard-coded by savefiles.
- */
-/*
- * Option indexes (normal)
- *
- * These values are hard-coded by savefiles.
- */
-#define OPT_rogue_like_commands  0
-#define OPT_quick_messages 1
-#define OPT_floor_query_flag     2
-#define OPT_carry_query_flag     3
-#define OPT_use_old_target 4
-#define OPT_always_pickup  5
-#define OPT_always_repeat  6
-#define OPT_depth_in_feet  7
-#define OPT_stack_force_notes    8
-#define OPT_stack_force_costs    9
-#define OPT_show_labels    10
-#define OPT_show_weights   11
-#define OPT_show_choices   12
-#define OPT_show_details   13
-#define OPT_ring_bell      14
-#define OPT_show_flavors   15
-#define OPT_run_ignore_stairs    16
-#define OPT_run_ignore_doors     17
-#define OPT_run_cut_corners       18
-#define OPT_run_use_corners       19
-#define OPT_disturb_move   20
-#define OPT_disturb_near   21
-#define OPT_disturb_panel  22
-#define OPT_disturb_state  23
-#define OPT_disturb_minor  24
-#define OPT_view_flavors   25
-#define OPT_disturb_new    26
-#define OPT_verify_safe   27
-#define OPT_verify_destroy 28
-#define OPT_verify_special 29
-#define OPT_allow_quantity 30
-#define OPT_easy_corpses 31
-
-/* xxx */
-#define OPT_expand_look    36
-#define OPT_expand_list    37
-#define OPT_view_perma_grids     38
-#define OPT_view_torch_grids     39
-#define OPT_dungeon_align  40
-#define OPT_dungeon_stair  41
-#define OPT_view_unsafe_grids 42
-#define OPT_view_detect_grids 43
-#define OPT_run_ignore_floors     44
-#define OPT_show_tips     45
-
-/* xxx track_target */
-/* xxx smart_learn */
-#define OPT_smart_cheat    47
-#define OPT_view_reduce_lite     48
-#define OPT_hidden_player  49
-#define OPT_avoid_abort    50
-#define OPT_avoid_other    51
-#define OPT_flush_failure  52
-#define OPT_flush_disturb  53
-/* xxx */
-#define OPT_fresh_before   55
-#define OPT_fresh_after    56
-#define OPT_view_player_lite     57
-#define OPT_compress_savefile    58
-#define OPT_hilite_player  59
-#define OPT_view_yellow_lite     60
-#define OPT_view_bright_lite     61
-#define OPT_view_granite_lite    62
-#define OPT_view_special_lite    63
-#define OPT_easy_open      64
-#define OPT_easy_alter     65
-#define OPT_easy_floor     66
-#define OPT_show_piles     67
-#define OPT_center_player  68
-#define OPT_run_avoid_center     69
-#define OPT_scroll_target  70
-#define OPT_auto_more      71
-#define OPT_auto_display_lists	72
-#define OPT_toggle_xp	   73
-#define OPT_stack_force_charges			74
-#define OPT_stack_force_times		75
-#define OPT_easy_more      76
-#define OPT_room_descriptions			77
-#define OPT_room_names				78
-#define OPT_verify_mana			79
-#define OPT_reseed_artifacts		80
-#define OPT_easy_autos    81
-#define OPT_easy_search			82
-/* xxx xxx */
-#define OPT_view_glowing_lite 84
-#define OPT_view_surface_lite 85
-/* xxx xxx */
-#define OPT_show_sidebar	87
-#define OPT_show_itemlist	88
-/* xxx xxx */
-#define OPT_birth_point_based    (OPT_BIRTH+0)
-#define OPT_birth_auto_roller    (OPT_BIRTH+1)
-#define OPT_birth_ironman  (OPT_BIRTH+4)
-#define OPT_birth_no_stores       (OPT_BIRTH+5)
-#define OPT_birth_no_artifacts   (OPT_BIRTH+6)
-#define OPT_birth_rand_artifacts (OPT_BIRTH+7)
-#define OPT_birth_campaign  (OPT_BIRTH+8)
-#define OPT_birth_no_stacking       (OPT_BIRTH+9)
-#define OPT_birth_haggle (OPT_BIRTH+10)
-#define OPT_birth_scum (OPT_BIRTH+11)
-#define OPT_birth_beginner (OPT_BIRTH+12)
-#define OPT_birth_intermediate (OPT_BIRTH+13)
-#define OPT_birth_small_levels (OPT_BIRTH+14)
-#define OPT_birth_first_time (OPT_BIRTH+15)
-#define OPT_birth_quickstart (OPT_BIRTH+16)
-
-/* xxx xxx */
-#define OPT_cheat_peek     (OPT_CHEAT+0)
-#define OPT_cheat_hear     (OPT_CHEAT+1)
-#define OPT_cheat_room     (OPT_CHEAT+2)
-#define OPT_cheat_xtra     (OPT_CHEAT+3)
-#define OPT_cheat_know     (OPT_CHEAT+4)
-#define OPT_cheat_live     (OPT_CHEAT+5)
-#define OPT_cheat_lore     (OPT_CHEAT+6)
-#define OPT_cheat_auto     (OPT_CHEAT+7)
-#define OPT_adult_point_based    (OPT_ADULT+0)
-#define OPT_adult_auto_roller    (OPT_ADULT+1)
-#define OPT_adult_ironman  (OPT_ADULT+4)
-#define OPT_adult_no_stores       (OPT_ADULT+5)
-#define OPT_adult_no_artifacts   (OPT_ADULT+6)
-#define OPT_adult_rand_artifacts (OPT_ADULT+7)
-#define OPT_adult_campaign  (OPT_ADULT+8)
-#define OPT_adult_no_stacking       (OPT_ADULT+9)
-#define OPT_adult_haggle (OPT_ADULT+10)
-#define OPT_adult_scum (OPT_ADULT+11)
-#define OPT_adult_beginner (OPT_ADULT+12)
-#define OPT_adult_intermediate (OPT_ADULT+13)
-#define OPT_adult_small_levels (OPT_ADULT+14)
-#define OPT_adult_first_time (OPT_ADULT+15)
-#define OPT_adult_quickstart (OPT_ADULT+16)
-/* xxx xxx */
-#define OPT_score_peek     (OPT_SCORE+0)
-#define OPT_score_hear     (OPT_SCORE+1)
-#define OPT_score_room     (OPT_SCORE+2)
-#define OPT_score_xtra     (OPT_SCORE+3)
-#define OPT_score_know     (OPT_SCORE+4)
-#define OPT_score_live     (OPT_SCORE+5)
-#define OPT_score_lore     (OPT_SCORE+6)
-#define OPT_score_auto     (OPT_SCORE+7)
-
-/*
- * Hack -- Option symbols
- */
-#define rogue_like_commands      op_ptr->opt[OPT_rogue_like_commands]
-#define quick_messages    op_ptr->opt[OPT_quick_messages]
-#define floor_query_flag  op_ptr->opt[OPT_floor_query_flag]
-#define carry_query_flag  op_ptr->opt[OPT_carry_query_flag]
-#define use_old_target    op_ptr->opt[OPT_use_old_target]
-#define always_pickup     op_ptr->opt[OPT_always_pickup]
-#define always_repeat     op_ptr->opt[OPT_always_repeat]
-#define depth_in_feet     op_ptr->opt[OPT_depth_in_feet]
-#define stack_force_notes op_ptr->opt[OPT_stack_force_notes]
-#define stack_force_costs op_ptr->opt[OPT_stack_force_costs]
-#define show_labels op_ptr->opt[OPT_show_labels]
-#define show_weights      op_ptr->opt[OPT_show_weights]
-#define show_choices      op_ptr->opt[OPT_show_choices]
-#define show_details      op_ptr->opt[OPT_show_details]
-#define ring_bell   op_ptr->opt[OPT_ring_bell]
-#define show_flavors      op_ptr->opt[OPT_show_flavors]
-#define run_ignore_stairs op_ptr->opt[OPT_run_ignore_stairs]
-#define run_ignore_doors  op_ptr->opt[OPT_run_ignore_doors]
-#define run_ignore_floors op_ptr->opt[OPT_run_ignore_floors]
-#define run_cut_corners   op_ptr->opt[OPT_run_cut_corners]
-#define run_use_corners   op_ptr->opt[OPT_run_use_corners]
-#define disturb_move      op_ptr->opt[OPT_disturb_move]
-#define disturb_near      op_ptr->opt[OPT_disturb_near]
-#define disturb_panel     op_ptr->opt[OPT_disturb_panel]
-#define disturb_state     op_ptr->opt[OPT_disturb_state]
-#define disturb_minor     op_ptr->opt[OPT_disturb_minor]
-#define view_flavors      op_ptr->opt[OPT_view_flavors]
-#define disturb_new       op_ptr->opt[OPT_disturb_new]
-#define verify_safe       op_ptr->opt[OPT_verify_safe]
-#define verify_destroy    op_ptr->opt[OPT_verify_destroy]
-#define verify_special    op_ptr->opt[OPT_verify_special]
-#define allow_quantity    op_ptr->opt[OPT_allow_quantity]
-#define easy_corpses      op_ptr->opt[OPT_easy_corpses]
-/* xxx testing_stack */
-/* xxx testing_carry */
-#define expand_look op_ptr->opt[OPT_expand_look]
-#define expand_list op_ptr->opt[OPT_expand_list]
-#define view_perma_grids  op_ptr->opt[OPT_view_perma_grids]
-#define view_torch_grids  op_ptr->opt[OPT_view_torch_grids]
-#define dungeon_align     op_ptr->opt[OPT_dungeon_align]
-#define dungeon_stair     op_ptr->opt[OPT_dungeon_stair]
-#define view_unsafe_grids op_ptr->opt[OPT_view_unsafe_grids]
-#define view_detect_grids op_ptr->opt[OPT_view_detect_grids]
-/* xxx track_follow */
-/* xxx track_target */
-/* xxx smart_learn */
-#define show_tips op_ptr->opt[OPT_show_tips]
-#define smart_cheat op_ptr->opt[OPT_smart_cheat]
-#define view_reduce_lite  op_ptr->opt[OPT_view_reduce_lite]
-#define hidden_player     op_ptr->opt[OPT_hidden_player]
-#define avoid_abort op_ptr->opt[OPT_avoid_abort]
-#define avoid_other op_ptr->opt[OPT_avoid_other]
-#define flush_failure     op_ptr->opt[OPT_flush_failure]
-#define flush_disturb     op_ptr->opt[OPT_flush_disturb]
-/* xxx */
-#define fresh_before      op_ptr->opt[OPT_fresh_before]
-#define fresh_after op_ptr->opt[OPT_fresh_after]
-#define view_player_lite  op_ptr->opt[OPT_view_player_lite]
-#define compress_savefile op_ptr->opt[OPT_compress_savefile]
-#define hilite_player     op_ptr->opt[OPT_hilite_player]
-#define view_yellow_lite  op_ptr->opt[OPT_view_yellow_lite]
-#define view_bright_lite  op_ptr->opt[OPT_view_bright_lite]
-#define view_granite_lite op_ptr->opt[OPT_view_granite_lite]
-#define view_special_lite op_ptr->opt[OPT_view_special_lite]
-#define easy_open   op_ptr->opt[OPT_easy_open]
-#define easy_alter  op_ptr->opt[OPT_easy_alter]
-#define easy_floor  op_ptr->opt[OPT_easy_floor]
-#define show_piles  op_ptr->opt[OPT_show_piles]
-#define center_player     op_ptr->opt[OPT_center_player]
-#define run_avoid_center  op_ptr->opt[OPT_run_avoid_center]
-#define scroll_target     op_ptr->opt[OPT_scroll_target]
-#define auto_more   op_ptr->opt[OPT_auto_more]
-#define auto_display_lists    op_ptr->opt[OPT_auto_display_lists]
-#define toggle_xp op_ptr->opt[OPT_toggle_xp]
-#define stack_force_charges  op_ptr->opt[OPT_stack_force_charges]
-#define stack_force_times  op_ptr->opt[OPT_stack_force_times]
-#define easy_more   op_ptr->opt[OPT_easy_more]
-#define verify_mana      op_ptr->opt[OPT_verify_mana]
-#define room_descriptions    op_ptr->opt[OPT_room_descriptions]
-#define room_names      op_ptr->opt[OPT_room_names]
-#define reseed_artifacts			op_ptr->opt[OPT_reseed_artifacts]
-#define easy_autos   op_ptr->opt[OPT_easy_autos]
-#define easy_search   op_ptr->opt[OPT_easy_search]
-#define view_glowing_lite   op_ptr->opt[OPT_view_glowing_lite]
-#define view_surface_lite   op_ptr->opt[OPT_view_surface_lite]
-
-/* xxx xxx */
-#define birth_point_based op_ptr->opt[OPT_birth_point_based]
-#define birth_auto_roller op_ptr->opt[OPT_birth_auto_roller]
-#define birth_ironman     op_ptr->opt[OPT_birth_ironman]
-#define birth_no_stores   op_ptr->opt[OPT_birth_no_stores]
-#define birth_no_artifacts       op_ptr->opt[OPT_birth_no_artifacts]
-#define birth_rand_artifacts    op_ptr->opt[OPT_birth_rand_artifacts]
-#define birth_campaign       op_ptr->opt[OPT_birth_campaign]
-#define birth_haggle       op_ptr->opt[OPT_birth_haggle]
-#define birth_scum       op_ptr->opt[OPT_birth_scum]
-#define birth_beginner       op_ptr->opt[OPT_birth_beginner]
-#define birth_intermediate       op_ptr->opt[OPT_birth_intermediate]
-#define birth_small_levels       op_ptr->opt[OPT_birth_small_levels]
-#define birth_first_time      op_ptr->opt[OPT_birth_first_time]
-#define birth_quickstart      op_ptr->opt[OPT_birth_quickstart]
-
-
-/* xxx xxx */
-#define cheat_peek  op_ptr->opt[OPT_cheat_peek]
-#define cheat_hear  op_ptr->opt[OPT_cheat_hear]
-#define cheat_room  op_ptr->opt[OPT_cheat_room]
-#define cheat_xtra  op_ptr->opt[OPT_cheat_xtra]
-#define cheat_know  op_ptr->opt[OPT_cheat_know]
-#define cheat_live  op_ptr->opt[OPT_cheat_live]
-#define cheat_lore				op_ptr->opt[OPT_cheat_lore]
-#define cheat_auto  op_ptr->opt[OPT_cheat_auto]
-/* xxx xxx */
-#define adult_point_based op_ptr->opt[OPT_adult_point_based]
-#define adult_auto_roller op_ptr->opt[OPT_adult_auto_roller]
-#define adult_ironman     op_ptr->opt[OPT_adult_ironman]
-#define adult_no_stores   op_ptr->opt[OPT_adult_no_stores]
-#define adult_no_artifacts       op_ptr->opt[OPT_adult_no_artifacts]
-#define adult_rand_artifacts    op_ptr->opt[OPT_adult_rand_artifacts]
-#define adult_campaign       op_ptr->opt[OPT_adult_campaign]
-#define adult_no_stacking   op_ptr->opt[OPT_adult_no_stacking]
-#define adult_haggle       op_ptr->opt[OPT_adult_haggle]
-#define adult_scum       op_ptr->opt[OPT_adult_scum]
-#define adult_beginner       op_ptr->opt[OPT_adult_beginner]
-#define adult_intermediate       op_ptr->opt[OPT_adult_intermediate]
-#define adult_small_levels       op_ptr->opt[OPT_adult_small_levels]
-#define adult_first_time      op_ptr->opt[OPT_adult_first_time]
-#define adult_quickstart      op_ptr->opt[OPT_adult_quickstart]
-/* xxx xxx */
-#define score_peek  op_ptr->opt[OPT_score_peek]
-#define score_hear  op_ptr->opt[OPT_score_hear]
-#define score_room  op_ptr->opt[OPT_score_room]
-#define score_xtra  op_ptr->opt[OPT_score_xtra]
-#define score_know  op_ptr->opt[OPT_score_know]
-#define score_live  op_ptr->opt[OPT_score_live]
-#define score_lore  op_ptr->opt[OPT_score_lore]
-#define score_auto  op_ptr->opt[OPT_score_auto]
-
-/* XXX XXX */
-#define show_sidebar op_ptr->opt[OPT_show_sidebar]
-#define show_itemlist op_ptr->opt[OPT_show_itemlist]
-
-
-/*
- * Information for "do_cmd_options()".
- */
-#define OPT_PAGE_MAX			    7
-#define OPT_PAGE_PER				20
-
-
-
 /*** Macro Definitions ***/
-
 
 /*
  * Hack -- The main "screen"
  */
 #define term_screen	(angband_term[0])
-
 
 /*
  * Determine if a given inventory item is "aware"
@@ -5397,7 +5072,7 @@ extern int PlayerUID;
 # undef MACRO_MAX
 # define MACRO_MAX	128
 # undef QUARK_MAX
-# define QUARK_MAX	128
+# define QUARK_MAX	256
 # undef MESSAGE_MAX
 # define MESSAGE_MAX	128
 # undef MESSAGE_BUF
@@ -5424,7 +5099,7 @@ extern int PlayerUID;
 # undef MACRO_MAX
 # define MACRO_MAX	128
 # undef QUARK_MAX
-# define QUARK_MAX	128
+# define QUARK_MAX	256
 # undef MESSAGE_MAX
 # define MESSAGE_MAX	128
 # undef MESSAGE_BUF

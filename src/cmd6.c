@@ -112,9 +112,12 @@ void do_cmd_item(int command)
 		inventory[INVEN_SELF].sval = p_ptr->pshape;
 	}
 	
-	/* Hack -- see equipment first */
-	if (command == COMMAND_ITEM_FUEL) p_ptr->command_wrk = (USE_EQUIP);
-	
+	/* Hack --- fuel equipment from inventory */
+	if (command == COMMAND_ITEM_FUEL) 
+		p_ptr->command_wrk = (USE_EQUIP); /* TODO: this one does not work here */
+	if (command == COMMAND_ITEM_FUEL_TORCH || command == COMMAND_ITEM_FUEL_LAMP) 
+		p_ptr->command_wrk = (USE_INVEN);
+
 	/* Hack -- allow player to light terrain */
 	if (command == COMMAND_ITEM_LITE)
 	{
@@ -1205,7 +1208,7 @@ bool player_zap_rod(int item)
 	}
 
 	/* Hack -- check if we are stacking rods */
-	if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+	if (o_ptr->timeout > 0)
 	{
 		/* Hack -- one more rod charging */
 		if (o_ptr->timeout) o_ptr->stackc++;
@@ -1885,7 +1888,7 @@ bool player_activate(int item)
 	}
 
 	/* Hack -- check if we are stacking rods */
-	if ((o_ptr->timeout > 0) && (!(tmpval) || stack_force_times))
+	if (o_ptr->timeout > 0)
 	{
 		/* Hack -- one more rod charging */
 		if (o_ptr->timeout) o_ptr->stackc++;

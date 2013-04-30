@@ -2978,7 +2978,7 @@ bool apply_disenchant(int mode)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
-	int max1, cur1, max2, cur2, ii, jj;
+	int ii, jj, lasts;
 
 	switch (randint(7))
 	{
@@ -2991,8 +2991,15 @@ static void apply_nexus(monster_type *m_ptr)
 
 		case 4: case 5:
 		{
-			teleport_player_to(m_ptr->fy, m_ptr->fx);
-			break;
+			if (m_ptr)
+			{
+				teleport_player_to(m_ptr->fy, m_ptr->fx);
+				break;
+			}
+			else
+			{
+				/* Fall through */
+			}
 		}
 
 		case 6:
@@ -3019,20 +3026,16 @@ static void apply_nexus(monster_type *m_ptr)
 			msg_print("Your body starts to scramble...");
 
 			/* Pick a pair of stats */
-			ii = rand_int(6);
-			for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
+			ii = rand_int(A_MAX);
+			for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
 
-			max1 = p_ptr->stat_max[ii];
-			cur1 = p_ptr->stat_cur[ii];
-			max2 = p_ptr->stat_max[jj];
-			cur2 = p_ptr->stat_cur[jj];
+			lasts = 1000 + rand_int(1000);
 
-			p_ptr->stat_max[ii] = max2;
-			p_ptr->stat_cur[ii] = cur2;
-			p_ptr->stat_max[jj] = max1;
-			p_ptr->stat_cur[jj] = cur1;
+			p_ptr->stat_dec_tim[ii] = 0;
+			set_stat_inc_tim(lasts, ii);
 
-			p_ptr->update |= (PU_BONUS);
+			p_ptr->stat_inc_tim[jj] = 0;
+			set_stat_dec_tim(lasts, jj);
 
 			break;
 		}
@@ -7820,7 +7823,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		/* Blind Monster (Use "dam" as "power") */
 		case GF_BLIND_WEAK:
 		{
-			/* Cannot be slowed */
+			/* Cannot be blinded */
 			if (r_ptr->flags9 & (RF9_RES_BLIND))
 			{
 				if (seen) obvious = TRUE;
@@ -8682,6 +8685,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 	/* Hack -- assume obvious */
 	bool obvious = TRUE;
+
+	/* Hack -- for stat drains */
+	bool drained = -1;
 
 	/* Player blind-ness */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
@@ -9569,7 +9575,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 				dam *= 6; dam /= (randint(6) + 6);
 			}
-			else if (who > SOURCE_MONSTER_START)
+			else
 			{
 				/* Always notice */
 				player_not_flags(who, 0x0L,TR2_RES_NEXUS,0x0L,0x0L);
@@ -10729,17 +10735,19 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_STR))
+			if ((drained = do_dec_stat(A_STR)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_STR] + rand_int(20) + 20, A_STR);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_STR] + rand_int(20) + 20, A_STR);
 			}
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_SIZ))
+			if ((drained = do_dec_stat(A_SIZ)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_SIZ] + rand_int(20) + 20, A_SIZ);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_SIZ] + rand_int(20) + 20, A_SIZ);
 			}
 
 			break;
@@ -10751,10 +10759,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_INT))
+			if ((drained = do_dec_stat(A_INT)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_INT] + rand_int(20) + 20, A_INT);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_INT] + rand_int(20) + 20, A_INT);
 			}
 
 			break;
@@ -10766,10 +10775,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_WIS))
+			if ((drained = do_dec_stat(A_WIS)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_WIS] + rand_int(20) + 20, A_WIS);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_WIS] + rand_int(20) + 20, A_WIS);
 			}
 
 			break;
@@ -10781,16 +10791,18 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_DEX))
+			if ((drained = do_dec_stat(A_DEX)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_DEX] + rand_int(20) + 20, A_DEX);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_DEX] + rand_int(20) + 20, A_DEX);
 			}
 			/* Damage (stat) */
-			if (do_dec_stat(A_AGI))
+			if ((drained = do_dec_stat(A_AGI)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_AGI] + rand_int(20) + 20, A_AGI);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_AGI] + rand_int(20) + 20, A_AGI);
 			}
 
 			break;
@@ -10802,10 +10814,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_CON))
+			if ((drained = do_dec_stat(A_CON)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_CON] + rand_int(20) + 20, A_CON);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_CON] + rand_int(20) + 20, A_CON);
 			}
 
 			break;
@@ -10817,10 +10830,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			take_hit(dam, killer);
 
 			/* Damage (stat) */
-			if (do_dec_stat(A_CHR))
+			if ((drained = do_dec_stat(A_CHR)))
 			{
 				obvious = TRUE;
-				set_stat_dec_tim(p_ptr->stat_dec_tim[A_CHR] + rand_int(20) + 20, A_CHR);
+				if (drained > 0) 
+					set_stat_dec_tim(p_ptr->stat_dec_tim[A_CHR] + rand_int(20) + 20, A_CHR);
 			}
 
 			break;
@@ -10835,10 +10849,11 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			for (k = 0; k < A_MAX; k++)
 			{
 				/* Damage (stats) */
-				if (do_dec_stat(k))
+				if ((drained = do_dec_stat(k)))
 				{
 					obvious = TRUE;
-					set_stat_dec_tim(p_ptr->stat_dec_tim[k] + rand_int(20) + 20, k);
+					if (drained > 0) 
+						set_stat_dec_tim(p_ptr->stat_dec_tim[k] + rand_int(20) + 20, k);
 				}
 			}
 
@@ -11966,12 +11981,17 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 		/* Nexus - movement */
 		case GF_NEXUS:
 		{
-			if ((affect_player) && (who > SOURCE_MONSTER_START))
+			if (affect_player)
 			{
 				if ((p_ptr->cur_flags2 & (TR2_RES_NEXUS)) == 0)
 				{
-					/* Get caster */
-					monster_type *n_ptr = &m_list[who];
+					monster_type *n_ptr = NULL;
+
+					/* Get caster, if any */
+					if (who > SOURCE_MONSTER_START)
+					{
+						n_ptr = &m_list[who];
+					}
 
 					/* Various effects. */
 					apply_nexus(n_ptr);
@@ -12327,7 +12347,7 @@ static void calc_starburst(int height, int width, byte *arc_first,
  *
  * Usage and graphics notes:
  *
- * If the option "fresh_before" is on, or the delay factor is anything other
+ * If the delay factor is anything other
  * than zero, bolt and explosion pictures will be momentarily shown on screen.
  *
  * Only 256 grids can be affected per projection, limiting the effective

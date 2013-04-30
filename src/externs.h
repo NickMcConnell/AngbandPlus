@@ -75,10 +75,6 @@ extern const cptr stat_names[A_MAX];
 extern const cptr stat_names_reduced[A_MAX];
 extern const cptr stat_names_reduced_short[A_MAX];
 extern const cptr window_flag_desc[32];
-extern const cptr option_text[OPT_MAX];
-extern const cptr option_desc[OPT_MAX];
-extern const bool option_norm[OPT_MAX];
-extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern const cptr inscrip_text[MAX_INSCRIP];
 extern const u32b object_xtra_base[OBJECT_XTRA_MAX_HIDDEN];
 extern const int object_xtra_what[OBJECT_XTRA_MAX_HIDDEN];
@@ -160,7 +156,6 @@ extern s32b turn;
 extern s32b old_turn;
 extern s32b player_turn;
 extern s32b resting_turn;
-extern bool use_sound;
 extern bool use_mouse;
 extern bool use_trackmouse;
 extern bool use_graphics;
@@ -445,13 +440,13 @@ extern sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr,
 extern void find_secret(int y, int x);
 extern void search(void);
 extern bool auto_pickup_ignore(const object_type *o_ptr);
-extern void py_pickup(int py, int px, int pickup);
+extern byte py_pickup(int py, int px, int pickup);
 extern void hit_trap(int y, int x);
 extern void mon_style_benefits(const monster_type *m_ptr, u32b style, int *to_hit, int *to_dam, int *to_crit);
 extern bool auto_activate(const object_type *o_ptr);
 extern void py_attack(int dir);
 extern bool stuck_player(int *dir);
-extern void move_player(int dir, int jumping);
+extern void move_player(int dir);
 extern void run_step(int dir);
 
 /* cmd2.c */
@@ -467,11 +462,10 @@ extern void do_cmd_bash(void);
 extern void do_cmd_alter(void);
 extern void do_cmd_set_trap_or_spike(void);
 extern void do_cmd_walk(void);
-extern void do_cmd_jump(void);
 extern void do_cmd_pathfind(int y, int x);
 extern void do_cmd_run(void);
 extern void do_cmd_hold(void);
-extern void do_cmd_stay(void);
+extern void do_cmd_pickup(void);
 extern void do_cmd_rest(void);
 extern int breakage_chance(object_type *o_ptr);
 extern void do_cmd_fire(void);
@@ -892,7 +886,7 @@ extern bool project(int who, int what, int rad, int y0, int x0, int y1, int x1, 
 extern bool hp_player(int num);
 extern void warding_glyph(void);
 extern void warding_trap(int feat, int dir);
-extern bool do_dec_stat(int stat);
+extern int do_dec_stat(int stat);
 extern bool do_res_stat(int stat);
 extern bool do_inc_stat(int stat);
 extern void identify_pack(void);
@@ -1129,6 +1123,7 @@ extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 extern int min_depth(int dungeon);
 extern int max_depth(int dungeon);
+extern bool is_typical_town(int dungeon, int depth);
 extern int town_depth(int dungeon);
 extern void get_zone(dungeon_zone **zone_handle, int dungeon, int depth);
 extern void long_level_name(char* str, int town, int depth);
@@ -1156,12 +1151,8 @@ extern void repeat_clear(void);
 extern void repeat_check(void);
 #endif /* ALLOW_REPEAT */
 
-
-#ifdef ALLOW_EASY_FLOOR
 /* object1.c */
-extern void show_floor(const int *floor_list, int floor_num);
-#endif /* ALLOW_EASY_FLOOR */
-
+extern void show_floor(const int *floor_list, int floor_num, bool gold);
 
 #ifdef GJW_RANDART
 /* randart.c */

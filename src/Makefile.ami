@@ -8,14 +8,14 @@ HDRS = \
 
 INCS = \
   angband.h \
-  config.h defines.h types.h externs.h \
+  config.h defines.h types.h externs.h option.h \
   z-term.h z-rand.h z-util.h z-virt.h z-form.h $(HDRS)
 
 # Objects split into two parts to avoid 256 char limit.
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
-  variable.o tables.o util.o cave.o \
+  variable.o tables.o util.o cave.o option.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
   melee1.o melee2.o save.o files.o info.o \
@@ -103,6 +103,7 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+option.o: option.c $(INCS) 
 save.o: save.c $(INCS)
 sound-ami.o: sound-ami.c
 spells1.o: spells1.c $(INCS)

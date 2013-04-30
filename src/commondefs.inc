@@ -20,6 +20,7 @@ COMMONOBJS = \
 	monster2$(OBJEXT) \
 	object1$(OBJEXT) \
 	object2$(OBJEXT) \
+	option$(OBJEXT) \
 	randart$(OBJEXT) \
 	save$(OBJEXT) \
 	spells1$(OBJEXT) \
@@ -46,7 +47,7 @@ HDRS = \
 
 INCS = \
 	angband.h \
-	config.h defines.h \
+	config.h defines.h option.h \
 	types.h externs.h osx/osx.h \
 	z-term.h z-rand.h \
 	z-util.h z-virt.h \

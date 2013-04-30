@@ -204,7 +204,6 @@ static struct {
 } toggle_defs [] = {
 	{ &arg_wizard, kSpecialMenu, kWizard, 	false},
 	{ &arg_fiddle, kSpecialMenu, kFiddle, 	false},
-	{ &use_sound,  kSpecialMenu, kSound,	false},
 	{ &use_bigtile, kStyleMenu,  kBigTile,	true},
 	{ &interpolate, kStyleMenu,  kInterpolate, true},
 	{ &antialias,	kStyleMenu,	kAntialias,	true}

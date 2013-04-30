@@ -697,6 +697,8 @@ static errr rd_store(int n)
 
 	byte own, num;
 
+	owner_type *ot_ptr;
+
 	/* Paranoia */
 	if (total_store_count >= max_store_count)
 	{
@@ -784,6 +786,8 @@ static errr rd_store(int n)
 	rd_byte(&num);
 	rd_s16b(&st_ptr->good_buy);
 	rd_s16b(&st_ptr->bad_buy);
+	if (!older_than(0, 6, 2, 6))
+		rd_byte(&st_ptr->level);
 
 	/* Paranoia */
 	if (own >= z_info->b_max)
@@ -793,6 +797,11 @@ static errr rd_store(int n)
 	}
 
 	st_ptr->owner = own;
+	
+	/* Activate the owner */
+	ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) 
+						  + st_ptr->owner];
+	ot_ptr->busy = TRUE;
 
 	/* Read the items */
 	for (j = 0; j < num; j++)
@@ -918,16 +927,6 @@ static void rd_options(void)
 	u32b window_flag[ANGBAND_TERM_MAX];
 	u32b window_mask[ANGBAND_TERM_MAX];
 
-        /* Hack -- unset all Save File Options for compatibility */
-	for (i = 0; i < OPT_PAGE_PER; i++)
-	{
-		/* Collect options on this "page" */
-		if (option_page[8][i] != 255)
-		{
-			op_ptr->opt[option_page[8][i]] = FALSE;
-		}
-	}
-
 	/*** Oops ***/
 
 	/* Ignore old options */
@@ -963,7 +962,7 @@ static void rd_options(void)
 		int ob = i % 32;
 
 		/* Process real entries */
-		if (option_text[i])
+		if (option_name(i))
 		{
 			/* Process saved entries */
 			if (mask[os] & (1L << ob))
@@ -983,6 +982,21 @@ static void rd_options(void)
 				}
 			}
 		}
+	}
+
+	/* Wipe options if saved before the move to V option setup */ 
+	if (older_than(0, 6, 2, 7))
+	{
+		note("All options will be reset to defaults (savefile format change).");
+		note("Some options from the *.prf files will be silently disregarded.");
+		note("Please visit the '=' menu, review your preferences");
+		note("and optionally save them in a pref file ('A' command).");
+		note("You can reset your options to defaults any time with 'R'.");
+
+		if (!get_check("Continue? ")) 
+			return;
+
+		option_set_defaults();
 	}
 
 
@@ -1659,6 +1673,31 @@ static void rd_messages(void)
 	}
 }
 
+/*
+ * Read saved help tip file names
+ */
+static void rd_tip_files(void)
+{
+	int i;
+	char buf[128];
+
+	/* Total */
+	rd_s16b(&tips_end);
+
+	/* Read the help tip file names */
+	for (i = 0; i < tips_end; i++)
+	{
+		/* Read the file name */
+		rd_string(buf, 128);
+
+		/* Add the tip, using quarks */
+		tips[i] = quark_add(buf);
+	}
+
+	/* Read the position of the first not shown tip */
+	rd_s16b(&tips_start);
+}
+
 
 /*
  * Read the dungeon
@@ -2218,6 +2257,12 @@ static errr rd_savefile_new_aux(void)
 	rd_messages();
 	if (arg_fiddle) note("Loaded Messages");
 
+	if (!older_than(0, 6, 2, 6))
+	{
+		/* Then the help tips */
+		rd_tip_files();
+		if (arg_fiddle) note("Loaded Help Tips");
+	}
 
 	/* Monster Memory */
 	rd_u16b(&tmp16u);
@@ -2430,7 +2475,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Read random artifacts */
-	if (adult_rand_artifacts)
+	if (adult_randarts)
 	{
 		if (rd_randarts()) return (-1);
 		if (arg_fiddle) note("Loaded Random Artifacts");
@@ -2923,7 +2968,7 @@ bool load_player(void)
 			sf_lives++;
 
 			/* Forget turns */
-			turn = old_turn = 0;
+			turn = 0;
 			p_ptr->player_turn = p_ptr->resting_turn = 0;
 
 			/* Done */

@@ -2,7 +2,8 @@
 
 Once your character is adequately supplied with food, light, armor, and
 weapons, he is ready to enter the dungeon.  Move on top of the `>' symbol
-and use the "Down" command (">").
+and use the "Down" command (">").  Remember to light up ('|') your light 
+source before you descend, or you may be eaten by a Grey ooze!
 
 Your character will enter a maze of interconnecting staircases and finally
 arrive somewhere on the first level of the dungeon.  Each level of the

@@ -1525,7 +1525,7 @@ static void process_world(void)
 				/* Get a description */
 				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
-				if (disturb_minor) disturb(0, 0);
+				disturb(0, 0);
 
 				if (o_ptr->tval == TV_SPELL) msg_format("Your %s is running out.", o_name);
 				else if (o_ptr->sval == SV_LITE_LANTERN) msg_print("Your light is growing faint.");
@@ -1544,7 +1544,7 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 
 		/* Disturb */
-		if (disturb_minor) disturb(1, 0);
+		disturb(1, 0);
 	}
 
 	/* Notice changes - inventory */
@@ -1557,7 +1557,7 @@ static void process_world(void)
 		p_ptr->window |= (PW_INVEN);
 
 		/* Disturb */
-		if (disturb_minor) disturb(1,0);
+		disturb(1,0);
 	}
 
 	/* Feel the inventory */
@@ -1565,7 +1565,7 @@ static void process_world(void)
 
 	/* Show tips */
 	if  (!(p_ptr->command_rep) && ((p_ptr->searching && !(turn % 1000)) ||
-			(((level_flag & (LF1_TOWN)) != 0) && !(turn % 100))))
+			(is_typical_town(p_ptr->dungeon, p_ptr->depth) && !(turn % 100))))
 	{
 		/* Show a tip */
 		show_tip();
@@ -1848,7 +1848,7 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-	if (verify_special || !(p_ptr->noscore & 0x0002))
+	if (!(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
@@ -1879,7 +1879,7 @@ static bool enter_wizard_mode(void)
 static bool verify_debug_mode(void)
 {
 	/* Ask first time */
-	if (verify_special && !(p_ptr->noscore & 0x0008))
+	if (!(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
@@ -1918,7 +1918,7 @@ extern void do_cmd_debug(void);
 static bool verify_borg_mode(void)
 {
 	/* Ask first time */
-	if (verify_special && !(p_ptr->noscore & 0x0010))
+	if (!(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, borg commands!");
@@ -2111,15 +2111,7 @@ static void process_command(void)
 			break;
 		}
 
-		/* Jump */
-		case '-':
-		{
-			do_cmd_jump();
-			break;
-		}
-
-
-		/*** Running, Resting, Searching, Staying */
+		/*** Running, Resting, Searching, Pickup */
 
 		/* Begin Running -- Arg is Max Distance */
 		case '.':
@@ -2135,10 +2127,10 @@ static void process_command(void)
 			break;
 		}
 
-		/* Stay still */
+		/* Pickup */
 		case 'g':
 		{
-			do_cmd_stay();
+			do_cmd_pickup();
 			break;
 		}
 
@@ -2432,27 +2424,6 @@ static void process_command(void)
 			break;
 		}
 
-		/* Interact with macros */
-		case '@':
-		{
-			do_cmd_macros();
-			break;
-		}
-
-		/* Interact with visuals */
-		case '%':
-		{
-			do_cmd_visuals();
-			break;
-		}
-
-		/* Interact with colors */
-		case '&':
-		{
-			do_cmd_colors();
-			break;
-		}
-
 		/* Interact with options */
 		case '=':
 		{
@@ -2608,7 +2579,7 @@ static void process_command(void)
 				target_set_location(y, x, 0);
 				msg_print("Target set.");
 			}
-			else if (use_trackmouse && (easy_more || auto_more))
+			else if (use_trackmouse && (easy_more || (auto_more && !easy_more)))
 			{				
 				target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 			}
@@ -2821,29 +2792,25 @@ static void process_player(void)
 		}
 	}
 
-	/* Handle "abort" */
-	if (!avoid_abort)
+	/* Check for "player abort" */
+	if (p_ptr->running ||
+		 p_ptr->command_rep ||
+		 (p_ptr->resting && !(turn & 0x7F)))
 	{
-		/* Check for "player abort" */
-		if (p_ptr->running ||
-		    p_ptr->command_rep ||
-		    (p_ptr->resting && !(turn & 0x7F)))
+		/* Do not wait */
+		inkey_scan = TRUE;
+
+		/* Check for a key */
+		if (anykey().key)
 		{
-			/* Do not wait */
-			inkey_scan = TRUE;
+			/* Flush input */
+			flush();
 
-			/* Check for a key */
-			if (anykey().key)
-			{
-				/* Flush input */
-				flush();
+			/* Disturb */
+			disturb(0, 0);
 
-				/* Disturb */
-				disturb(0, 0);
-
-				/* Hack -- Show a Message */
-				msg_print("Cancelled.");
-			}
+			/* Hack -- Show a Message */
+			msg_print("Cancelled.");
 		}
 	}
 
@@ -2902,7 +2869,7 @@ static void process_player(void)
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
 		/* Refresh (optional) */
-		if (fresh_before) Term_fresh();
+		Term_fresh();
 
 		/* Check for pack overflow */
 		overflow_pack();
@@ -2935,6 +2902,14 @@ static void process_player(void)
 				/* Rest the player */
 				set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
 			}
+		}
+
+		/* Picking up objects */
+		else if (p_ptr->notice & (PN_PICKUP))
+		{
+			/* Recursively call the pickup function, use energy */
+			p_ptr->energy_use = py_pickup(p_ptr->py, p_ptr->px, 0) * 10;
+			p_ptr->notice &= ~(PN_PICKUP);
 		}
 
 		/* Resting */
@@ -3044,7 +3019,7 @@ static void process_player(void)
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
 
 			/* Shimmer monsters if needed */
-			if (!avoid_other && shimmer_monsters)
+			if (shimmer_monsters)
 			{
 				/* Clear the flag */
 				shimmer_monsters = FALSE;
@@ -3380,9 +3355,6 @@ static void dungeon(void)
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
@@ -3407,9 +3379,6 @@ static void dungeon(void)
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
 
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
-
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
 
@@ -3430,9 +3399,6 @@ static void dungeon(void)
 
 		/* Hack -- Hilite the player */
 		move_cursor_relative(p_ptr->py, p_ptr->px);
-
-		/* Optional fresh */
-		if (fresh_after) Term_fresh();
 
 		/* Handle "leaving" */
 		if (p_ptr->leaving) break;
@@ -3602,10 +3568,10 @@ void play_game(bool new_game)
 		seed_town = rand_int(0x10000000);
 
 		/* Hack -- seed for random artifacts */
-		if (reseed_artifacts) seed_randart = rand_int(0x10000000);
+		if (adult_reseed_artifacts) seed_randart = rand_int(0x10000000);
 
 		/* Hack -- clear artifact memory */
-		if (reseed_artifacts)
+		if (adult_reseed_artifacts)
 		{
 			int i;
 

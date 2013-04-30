@@ -105,10 +105,12 @@ GRAPHSRC=../lib/xtra/graf/
 TILES = $(GRAPHSRC)8x8.bmp $(GRAPHSRC)16x16.bmp $(GRAPHSRC)32x32.bmp
 
 LIBFILES = \
+  ../lib/docs/*.rtf \
   ../lib/edit/*.txt \
   ../lib/file/*.txt \
   ../lib/help/*.txt \
   ../lib/help/*.hlp \
+  ../lib/info/*.txt \
   ../lib/pref/*.prf \
 
 install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
@@ -117,7 +119,8 @@ install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
 	@mkdir -p $(APPCONT)
 	@mkdir -p $(APPBIN)
 	@mkdir -p $(APPRES)
-	@mkdir -p $(APPRES)/English.lproj/main.nib 
+	@mkdir -p $(APPRES)/English.lproj/main.nib
+	@mkdir -p $(APPRES)/lib/docs
 	@mkdir -p $(APPRES)/lib/edit
 	@mkdir -p $(APPRES)/lib/file
 	@mkdir -p $(APPRES)/lib/help
@@ -128,6 +131,7 @@ install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
 	@mkdir -p $(APPRES)/lib/xtra/sound
 
 	@echo copying files...
+	@cp ../lib/docs/*.rtf $(APPRES)/lib/docs
 	@cp ../lib/edit/*.txt $(APPRES)/lib/edit
 	@cp ../lib/file/*.txt $(APPRES)/lib/file
 	@cp ../lib/help/*.txt $(APPRES)/lib/help

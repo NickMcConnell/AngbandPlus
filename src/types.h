@@ -1017,18 +1017,18 @@ struct quest_type
 struct owner_type
 {
 	u32b owner_name;/* Name (offset) */
-	u32b unused;    /* Unused */
+	bool busy; /* Runs a shop */
 
-	s16b max_cost;  /* Purse limit */
+	s16b max_cost; /* Purse limit */
 
-	byte max_inflate;       /* Inflation (max) */
-	byte min_inflate;       /* Inflation (min) */
+	byte max_inflate; /* Inflation (max) */
+	byte min_inflate; /* Inflation (min) */
 
-	byte haggle_per;/* Haggle unit */
+	byte haggle_per; /* Haggle unit */
 
-	byte insult_max;/* Insult limit */
+	byte insult_max; /* Insult limit */
 
-	byte owner_race;/* Owner race */
+	byte owner_race; /* Owner race */
 };
 
 
