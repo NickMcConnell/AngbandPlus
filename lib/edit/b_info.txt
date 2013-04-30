@@ -1,11 +1,13 @@
 # File: b_info.txt
 
+
 # This file is used to initialize the "lib/data/b_info.raw" file, which is
 # used to initialize the "shop owner" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/b_info.raw" file.
+
 
 # Format:
 # N:store:owner idx:owner name
@@ -18,7 +20,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # General Store

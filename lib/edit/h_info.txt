@@ -29,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 N:1:2:10:25
@@ -224,23 +224,23 @@ D:a litter of 7 pups.
 N:24:25:100:55
 D:a litter of 8 pups. 
 
-N:25:27:10:40
+N:25:26:25:40
 D:Your father was a fungus farmer, 
-N:25:26:45:45
+N:25:26:50:45
 D:Your father was a hunter, 
-N:25:26:70:50
+N:25:26:75:50
 D:Your father was a warrior, 
-N:25:26:90:55
+N:25:26:95:55
 D:Your father was a shaman, 
 N:25:26:100:60
-D:Your father was the Chief of his tribe, 
+D:Your father was the tribal chief, 
 
 N:26:67:20:45
 D:and your mother was a prisoner of war. 
 N:26:67:95:50
 D:and your mother was a cook. 
 N:26:67:100:55
-D:and your mother was a member of the Chief's harem. 
+D:and your mother was one of the Chief's harem. 
 
 N:50:51:20:50
 D:You have dark brown eyes, 
@@ -333,9 +333,9 @@ N:61:0:100:50
 D:and a dark complexion.
 
 N:62:63:60:50
-D:You have slime green eyes, 
+D:You have slime-green eyes, 
 N:62:63:85:50
-D:You have puke yellow eyes, 
+D:You have puke-yellow eyes, 
 N:62:63:99:50
 D:You have blue-bloodshot eyes, 
 N:62:63:100:55
@@ -385,7 +385,7 @@ D:You have glowing red eyes,
 N:68:69:40:50
 D:a dark brown hide, 
 N:68:69:60:50
-D:a reddish-brown hide,
+D:a reddish-brown hide, 
 N:68:69:95:50
 D:an olive green hide, 
 N:68:69:100:55

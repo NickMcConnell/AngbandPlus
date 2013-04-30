@@ -11,7 +11,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # Maximum number of feature types
@@ -21,13 +21,13 @@ M:F:64
 M:K:513
 
 # Maximum number of artifacts
-M:A:129
+M:A:131
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:593
+M:R:597
 
 # Maximum number of vaults
 M:V:35

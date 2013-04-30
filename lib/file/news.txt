@@ -1,21 +1,22 @@
 
-
               **************************************************
-              **   Angband 2.9.1   **   The Pits of Angband   **
+              **   Angband 2.9.2   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
-
-                       Angband 2.0 - 2.4 - 2.6.2 by:
+ 
+                      Angband 2.0 - 2.4 - 2.6.2 by:
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
-
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
-                     Angband 2.9.1 by Robert Ruehlmann
+                 Angband 2.9.0 - 2.9.2 by Robert Ruehlmann
+                  This patched version by Jonathan Ellis.
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
+      Comments about this patch to "jonathan@franz-liszt.freeserve.co.uk"
+        Other comments, bug reports, and patches, to "rr9@angband.org"
+
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
