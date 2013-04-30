@@ -1236,7 +1236,6 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		monster_race monster_race_scaled;
 		cptr prefix = NULL, suffix = NULL, infix = NULL;
 		int level = r_ptr->level;
-		u32b class = r_ptr->flags2 & (RF2_CLASS_MASK);
 
 		/* Hack - scale up a leader */
 		if (m_ptr->mflag & (MFLAG_LEADER)) level -= 5;
@@ -1247,7 +1246,24 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		{
 			r_ptr = &monster_race_scaled;
 		}
-		
+
+		/* Add a class suffix to some monsters */
+		if (/* r_ptr->flags9 & (RF9_LEVEL_CLASS) */ FALSE)
+		{
+			if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_MAGE)) != 0)) suffix = "shaman";
+			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
+			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
+			else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
+			else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "|knight|princess|";
+			else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest||ess|";
+			else if ((r_ptr->flags2 & (RF2_ARCHER)) != 0) suffix = "archer";
+			else if ((r_ptr->flags2 & (RF2_SNEAKY)) != 0) suffix = "scout";
+			else if ((r_ptr->flags2 & (RF2_ARMOR)) != 0) suffix = "warrior";
+
+			/* Hack -- reduce rank */
+			if (suffix) level += 5;
+		}
+
 		/* Add prefixes to levelled monsters */
 		if (r_ptr->flags9 & (RF9_LEVEL_AGE))
 		{
@@ -1281,23 +1297,6 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			}
 			else
 			{
-				/* Add a class suffix to some monsters */
-				if ((class == 0) && ((r_ptr->flags2 & (RF2_CLASS_MASK)) != 0))
-				{
-					if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_MAGE)) != 0)) suffix = "shaman";
-					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
-					else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
-					else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
-					else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "|knight|princess|";
-					else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest||ess|";
-					else if ((r_ptr->flags2 & (RF2_ARCHER)) != 0) suffix = "archer";
-					else if ((r_ptr->flags2 & (RF2_SNEAKY)) != 0) suffix = "scout";
-					else if ((r_ptr->flags2 & (RF2_ARMOR)) != 0) suffix = "warrior";
-
-					/* Hack -- reduce rank */
-					if (suffix) level += 5;
-				}
-
 				/* Powerful monster ranks */
 				if (p_ptr->depth >= level + 15)
 				{

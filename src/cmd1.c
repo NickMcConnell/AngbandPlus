@@ -733,9 +733,11 @@ void search(void)
 			/* Get adjusted chance */
 			int chance2 = chance - ((range-1) * 40);
 
-			/* Require that grid be fully in bounds and in LOS */
+			/* Require that grid be fully in bounds, in LOS and lit */
 			if (!in_bounds_fully(y, x)) continue;
 			if (!generic_los(py, px, y, x, CAVE_XLOS)) continue;
+			if (((cave_info[y][x] & (CAVE_LITE)) == 0) &&
+				((play_info[y][x] & (PLAY_LITE)) == 0)) continue;
 
 			/* Sometimes, notice things */
 			if (rand_int(100) < chance2)
@@ -3301,16 +3303,16 @@ void move_player(int dir, int jumping)
 			search();
 		}
 
+		/* Catch breath */
+		if (!(f_ptr->flags2 & (FF2_FILLED)))
+		{
+			/* Rest the player */
+			set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+		}
+
 		/* Continuous Searching */
 		if (p_ptr->searching)
 		{
-			/* Catch breath */
-			if (!(f_ptr->flags2 & (FF2_FILLED)))
-			{
-				/* Rest the player */
-				set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
-			}
-
 			search();
 		}
 
@@ -4217,10 +4219,6 @@ void run_step(int dir)
 
 	/* Take time */
 	p_ptr->energy_use = 100;
-
-	/* Rest the player */
-	/* XXX Should never be able to run on filled terrain */
-	set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
 
 	/* Move the player */
 	move_player(p_ptr->run_cur_dir, FALSE);

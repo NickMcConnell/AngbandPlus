@@ -1767,7 +1767,7 @@ N:225:Strength and Size
 G:!:w
 I:75:48:0
 W:20:0:4:400
-A:20/1:50/1
+A:2/1:50/1
 P:0:1d1:0:0:0
 F:THROWING
 
@@ -1779,6 +1779,7 @@ A:3/1
 P:0:1d1:0:0:0
 F:THROWING
 
+#junk, remove before a major revision
 N:227:Restore Strength and Size
 G:!:d
 I:75:42:0
@@ -1791,7 +1792,7 @@ N:228:Intelligence and Wisdom
 G:!:w
 I:75:49:0
 W:25:0:4:400
-A:25/1:55/1
+A:2/1:50/1
 P:0:1d1:0:0:0
 Y:17:2
 F:THROWING
@@ -1804,6 +1805,7 @@ A:20/1
 P:0:1d1:0:0:0
 F:THROWING
 
+#junk, remove before a major revision
 N:230:Restore Intelligence and Wisdom
 G:!:d
 I:75:43:0
@@ -1924,7 +1926,7 @@ N:243:Constitution and Charisma
 G:!:w
 I:75:52:0
 W:20:0:4:400
-A:20/1:50/1
+A:2/1:50/1
 P:0:1d1:0:0:0
 Y:24:2
 F:THROWING
@@ -1993,11 +1995,12 @@ N:251:Dexterity and Agility
 G:!:w
 I:75:51:0
 W:20:0:4:400
-A:20/1:50/1
+A:2/1:50/1
 P:0:1d1:0:0:0
 Y:26:2
 F:THROWING
 
+#junk, remove before a major revision
 N:252:Restore Dexterity and Agility
 G:!:d
 I:75:45:0
@@ -2006,6 +2009,7 @@ A:15/1
 P:0:1d1:0:0:0
 F:THROWING
 
+#junk, remove before a major revision
 N:253:Restore Constitution and Charisma
 G:!:d
 I:75:46:0

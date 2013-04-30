@@ -585,7 +585,13 @@ void do_cmd_wield(void)
 
 	/* Important - clear this flag */
 	j_ptr->ident &= ~(IDENT_STORE);
-
+	
+	/* Hack - prevent dragon armour swap abuse */
+	if (j_ptr->tval == TV_DRAG_ARMOR)
+	{
+		j_ptr->timeout = 2 * j_ptr->charges;
+	}
+	
 	/* Where is the item now */
 	if (slot == INVEN_WIELD)
 	{

@@ -4484,6 +4484,7 @@ N:307:wet floor
 U:56
 G:.:b
 W:18:2:7:0
+O:224
 K:DEFAULT:1
 K:CHASM:141
 #K:HURT_WATER:611
@@ -5654,7 +5655,7 @@ K:OPEN:383
 K:USE_FEAT:385
 O:224
 F:CAN_CLIMB | CAN_FLY | LOS | MOVE | PROJECT | REMEMBER | NOTICE | HURT_ROCK | BASH |
-F:USE_FEAT | ALLOC |
+F:USE_FEAT | ALLOC
 F:POWER_5
 
 # cloudy fountain - equivalent to potion of lose memories
@@ -6019,7 +6020,7 @@ K:GET_FEAT:410
 K:TREE:561
 K:HURT_WATER:627
 F:OUTSIDE | LOS | PROJECT | CAN_CLIMB | CAN_FLY | GET_FEAT | MOVE
-F:HIDE_DIG | PLACE | DROP | GROUND | HURT_WATER | LAKE
+F:HIDE_DIG | PLACE | DROP | GROUND | HURT_WATER | LAKE | RUN
 
 N:411:grass
 W:1:10:15:0
@@ -10072,7 +10073,6 @@ W:1:1:10:0
 G:*:o
 K:DEFAULT:762
 K:CHASM:141
-K:TREE:56
 K:BASH:49
 K:OPEN:49
 K:HIT_TRAP:734
@@ -10081,9 +10081,8 @@ K:SOLID:905
 K:DOOR:906
 T:FIRE:4d6
 F:TUNNEL | WALL | CAN_PASS | ATTR_LITE | FILLED | GLOW | NOTICE | OUTER
-F:REMEMBER | HURT_ROCK | CAN_CLIMB | SECRET | HURT_WATER | BASH | HIT_TRAP
+F:REMEMBER | HURT_ROCK | CAN_CLIMB | HURT_WATER | BASH | HIT_TRAP
 F:POWER_1
-D:You find nothing interesting.
 
 N:735:lit fireplace
 U:56
@@ -11029,7 +11028,7 @@ G:+:U
 W:30:1:20:0
 F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
 F:POWER_41
-D:'Here is located the tomb of Durin, and here dwelt the heart of his people.'
+D:'Here is located the tomb of Balin and here dwelt the heart of his people.'
 
 N:806:grey slab of stone
 G:0:s
@@ -12952,3 +12951,38 @@ F:LOS | EASY_CLIMB | PLACE | DROP | PROJECT | HIDE_DIG | GET_FEAT |
 F:RUN | POWER_8 | NOTICE | REMEMBER | HURT_FIRE | TIMED
 F:CAN_CLIMB | CAN_FLY | LAKE | GLOW
 F:LAKE
+
+N:949:mossy ent at the Ent Moot
+G:0:g
+W:50:0:20:0
+F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
+F:POWER_46
+D:'Ask my leafy brother what he thinks.' this ent says.
+
+N:950:leafy ent at the Ent Moot
+G:0:G
+W:50:0:20:0
+F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
+F:POWER_46
+D:'Ask my twiggy brother what he thinks.' this ent says.
+
+N:951:twiggy ent at the Ent Moot
+G:0:U
+W:50:0:20:0
+F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
+F:POWER_46
+D:'Ask my stumpy brother what he thinks.' this ent says.
+
+N:952:stumpy ent at the Ent Moot
+G:0:u
+W:50:0:20:0
+F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
+F:POWER_46
+D:'Ask my lichen-covered brother what he thinks.' this ent says.
+
+N:953:lichen-covered ent at the Ent Moot
+G:0:w
+W:50:0:20:0
+F:ENTER | CAN_FLY | PERMANENT | LOS | MOVE | PROJECT | REMEMBER | NOTICE | GLOW | OUTSIDE
+F:POWER_46
+D:'Ask my mossy brother what he thinks.' this ent says.

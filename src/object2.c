@@ -2281,7 +2281,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 	if (!power) return;
 
 	/* Nothing to boost */
-	if (!(o_ptr->to_h) && !(o_ptr->to_d) && !(o_ptr->to_a)) return;
+	if (!(o_ptr->to_h) && !(o_ptr->to_d) && !(o_ptr->to_a) && !(o_ptr->pval)) return;
 
 	/* Evaluate power */
 	boost_power = object_power(o_ptr);
@@ -2309,7 +2309,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 			case 0: case 1: case 2:
 
 				/* Increase to_h */
-				if (o_ptr->to_h) o_ptr->to_h += sign;
+				if ((o_ptr->to_h) && (sign > 0 ? o_ptr->to_h > 0 : o_ptr->to_h < 0)) o_ptr->to_h += sign;
 				else tryagain = TRUE;
 
 				break;
@@ -2317,7 +2317,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 			case 3: case 4: case 5:
 
 				/* Increase to_d; not above weapon dice */
-				if (o_ptr->to_d
+				if (((o_ptr->to_d) && (sign > 0 ? o_ptr->to_d > 0 : o_ptr->to_d < 0))
 				    && o_ptr->to_d + sign < (o_ptr->tval == TV_BOW ? 15 : o_ptr->dd * o_ptr->ds + 5))
 				  o_ptr->to_d += sign;
 				else tryagain = TRUE;
@@ -2327,8 +2327,8 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 			case 6: case 7: case 8:
 
 				/* Increase to_a */
-				if ((o_ptr->to_a || o_ptr->tval == TV_CROWN)
-				    && o_ptr->to_a + sign < o_ptr->ac + 5)
+				if (((o_ptr->to_a) && (sign > 0 ? o_ptr->to_a > 0 : o_ptr->to_a < 0))
+				    && ((o_ptr->to_a + sign < o_ptr->ac + 5) || o_ptr->tval == TV_CROWN))
 				  o_ptr->to_a += sign;
 				else tryagain = TRUE;
 
@@ -2351,7 +2351,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 			  else
 				{
 				/* Increase pval */
-				if (o_ptr->pval)
+				if ((o_ptr->pval) && (sign > 0 ? o_ptr->pval > 0 : o_ptr->pval < 0))
 				  o_ptr->pval += sign;
 				else tryagain = TRUE;
 				}
@@ -2386,7 +2386,7 @@ static void boost_item(object_type *o_ptr, int lev, int power)
 		if (power < 0) boost_power = -boost_power;
 
 		/* Hack -- boost to-hit, to-dam, to-ac to 10 if required to increase power */
-		if ((boost_power <= old_boost_power) && !(tryagain))
+		if ((boost_power <= old_boost_power) && !(tryagain) && (choice < 10))
 		{
 			switch(choice)
 			{
@@ -2783,7 +2783,7 @@ static bool make_ego_item(object_type *o_ptr, bool cursed, bool great)
 		{
 			continue;
 		}
-
+		
 		/* Fake ego power */
 		o_ptr->name2 = e_idx;
 		j = object_power(o_ptr);
@@ -4102,6 +4102,8 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 {
 	int feel = 0;
 
+	int old_feel;
+
 	bool okay = FALSE;
 
 	/* Skip empty slots */
@@ -4150,6 +4152,8 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 	/* Always update racial information */
 	(void)value_check_aux0(o_ptr, floor);
 
+	old_feel = o_ptr->feeling;
+
 	switch (sense_type)
 	{
 		case 1:
@@ -4186,6 +4190,8 @@ int sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 			feel = heavy ? value_check_aux10(o_ptr, TRUE, TRUE, floor) : value_check_aux11(o_ptr);
 			break;
 	}
+
+	if (feel == old_feel) return(0);
 
 	/* Mark as sensed */
 	if ((sense_type) && ((heavy) || (o_ptr->tval == TV_RING) || (o_ptr->tval == TV_AMULET))) o_ptr->ident |= (IDENT_SENSE);
@@ -4470,30 +4476,29 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			o_ptr->ident |= (IDENT_CURSED);
 		  }
 
-		/* Hack -- apply extra penalties if needed */
+		/* Apply bonuses or penalties */
+		if (e_ptr->max_to_h > 0) o_ptr->to_h = randint(e_ptr->max_to_h);
+		else if (e_ptr->max_to_h < 0) o_ptr->to_h -= randint(-e_ptr->max_to_h);
+		
+		if (e_ptr->max_to_d > 0) o_ptr->to_d = randint(e_ptr->max_to_d);
+		else if (e_ptr->max_to_d < 0) o_ptr->to_d -= randint(-e_ptr->max_to_d);
+
+		if (e_ptr->max_to_a > 0) o_ptr->to_a = randint(e_ptr->max_to_a);
+		else if (e_ptr->max_to_a < 0) o_ptr->to_a -= randint(-e_ptr->max_to_a);
+
+		if (e_ptr->max_pval > 0) o_ptr->pval = randint(e_ptr->max_pval);
+		else if (e_ptr->max_pval < 0) o_ptr->pval -= randint(-e_ptr->max_pval);
+		
+		/* Hack -- ensure negatives for broken or cursed items */
 		if (cursed_p(o_ptr) || broken_p(o_ptr))
 		{
 			/* Hack -- obtain bonuses */
-			if (e_ptr->max_to_h > 0) o_ptr->to_h -= randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d > 0) o_ptr->to_d -= randint(e_ptr->max_to_d);
-			if (e_ptr->max_to_a > 0) o_ptr->to_a -= randint(e_ptr->max_to_a);
+			if (o_ptr->to_h > 0) o_ptr->to_h = -o_ptr->to_h;
+			if (o_ptr->to_d > 0) o_ptr->to_d = -o_ptr->to_d;
+			if (o_ptr->to_a > 0) o_ptr->to_a = -o_ptr->to_a;
 
 			/* Hack -- obtain pval */
-			if (e_ptr->max_pval > 0) o_ptr->pval -= randint(e_ptr->max_pval);
-		}
-
-		/* Hack -- apply extra bonuses if needed */
-		else
-		{
-			/* Hack -- obtain bonuses */
-			if (e_ptr->max_to_h > 0) o_ptr->to_h += randint(e_ptr->max_to_h);
-			if (e_ptr->max_to_d > 0) o_ptr->to_d = MIN(o_ptr->to_d + randint(e_ptr->max_to_d), 
-								   (o_ptr->tval == TV_BOW ? 15 : o_ptr->dd * o_ptr->ds + 5));
-			if (e_ptr->max_to_a > 0) o_ptr->to_a = MIN(o_ptr->to_a + randint(e_ptr->max_to_a),
-								   o_ptr->ac + 5);
-
-			/* Hack -- obtain pval */
-			if (e_ptr->max_pval > 0) o_ptr->pval += randint(e_ptr->max_pval);
+			if (o_ptr->pval > 0) o_ptr->pval = -o_ptr->pval;
 		}
 
 		/* Get ego power */

@@ -149,8 +149,8 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 		if (spell_okay(book[i], known)) okay = TRUE;
 	}
 
-	/* Get a random spell */
-	else if (!known)
+	/* Get a random spell/only one choice */
+	else if ((!known) || (num == 1))
 	{
 		/* Get a random spell */
 		*sn = book[rand_int(num)];
@@ -399,7 +399,7 @@ void print_fields(const s16b *sn, int num, int y, int x)
  * 
  * Takes an object as a parameter
  */
-void do_cmd_browse_object(object_type *o_ptr)
+bool do_cmd_browse_object(object_type *o_ptr)
 {
 	int num = 0;
 
@@ -473,7 +473,7 @@ void do_cmd_browse_object(object_type *o_ptr)
 		}
 
 		/* Paranoia */
-		if (!num) return;
+		if (!num) return (FALSE);
 
 		/* Display the list and get a selection */
 		if (get_list(print_fields, field, num, format("%^ss",p), r, 1, 20, &selection))
@@ -490,7 +490,7 @@ void do_cmd_browse_object(object_type *o_ptr)
 		/* Did not choose something */
 		else
 		{
-			return;
+			return (FALSE);
 		}
 	}
 
@@ -501,9 +501,28 @@ void do_cmd_browse_object(object_type *o_ptr)
 	if (num == 0)
 	{
 		msg_format("There are no %ss to browse.",p);
-		return;
+		return (FALSE);
 	}
 
+	/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
+	if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (o_ptr->sval >= SV_BOOK_MAX_GOOD))
+	{
+		/* Sval hackery */
+		if (o_ptr->sval - (o_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval)
+		{
+			msg_format("You cannot read that %s.",p);
+			switch(o_ptr->sval % 4)
+			{
+				case 0: msg_print("It shows a lack of grasp of simple theory."); break;
+				case 1: msg_print("It could never work due to harmonic instability."); break;
+				case 2: msg_print("It's the deranged scribblings from a lunatic asylum."); break;
+				case 3: msg_print("The book snaps itself shut and jumps from your fingers."); break;
+			}
+
+			return (FALSE);
+		}
+	}
+	
 	/* Display the spells */
 	print_spells(book, num, 1, 20);
 
@@ -524,8 +543,6 @@ void do_cmd_browse_object(object_type *o_ptr)
 		{
 			spell_type *s_ptr;
 			
-			bool disdain = FALSE;
-
 			/* Save the spell index */
 			spell = book[i];
 
@@ -543,28 +560,11 @@ void do_cmd_browse_object(object_type *o_ptr)
 
 			/* Get the spell */
 			s_ptr = &s_info[spell];
-
-			/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
-			if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (o_ptr->sval >= SV_BOOK_MAX_GOOD))
-			{
-				/* Sval hackery */
-				if (o_ptr->sval - (o_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) disdain = TRUE;
-			}
 			
 			/* Spell is illegible */
-			if (disdain || !spell_legible(spell))
+			if (!spell_legible(spell))
 			{
 				msg_format("You cannot read that %s.",p);
-				if (disdain)
-				{
-					switch(o_ptr->sval % 4)
-					{
-						case 0: msg_print("It shows a lack of grasp of simple theory."); break;
-						case 1: msg_print("It could never work due to harmonic instability."); break;
-						case 2: msg_print("It's the deranged scribblings from a lunatic asylum."); break;
-						case 3: msg_print("The book snaps itself shut and jumps from your fingers."); break;
-					}
-				}
 				
 				/* Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
@@ -647,7 +647,9 @@ void do_cmd_browse_object(object_type *o_ptr)
 
 			continue;
 		}
-	}	
+	}
+	
+	return (TRUE);
 }
 
 
@@ -743,13 +745,21 @@ void do_cmd_browse(void)
 	screen_save();
 
 	/* Browse the object */
-	do_cmd_browse_object(o_ptr);
-
-	/* Prompt for a command */
-	put_str("(Browsing) Command: ", 0, 0);
-
-	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey_ex();
+	if (do_cmd_browse_object(o_ptr))
+	{
+		/* Prompt for a command */
+		put_str("(Browsing) Command: ", 0, 0);
+	
+		/* Hack -- Get a new command */
+		p_ptr->command_new = inkey_ex();
+	}
+	/* Hack -- we shouldn't need this here. TODO */
+	else if (easy_more)
+	{
+		msg_print(NULL);
+		
+		messages_easy(TRUE);
+	}
 
 	/* Load screen */
 	screen_load();
@@ -976,6 +986,8 @@ void do_cmd_study(void)
 	
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(o_ptr->sval % 4 + 1));
+		
+		return;
 	}
 	
 	/* Prayer book -- Learn a random prayer */

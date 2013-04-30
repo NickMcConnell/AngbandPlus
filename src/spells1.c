@@ -381,6 +381,8 @@ bool teleport_nature_hook(const int oy, const int ox, const int ny, const int nx
 					
 			/* Water or living feature */
 			if (((f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) != 0)
+				/* Hack to allow fountains / wet floor */	
+				|| (f_info[cave_feat[y][x]].k_idx == 224)
 				|| ((f_info[cave_feat[y][x]].flags3 & (FF3_LIVING)) != 0))
 			{
 				return (TRUE);
@@ -3732,7 +3734,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			
 			else if (f_info[feat].flags2 & (FF2_CAN_SWIM))
 			{
-				cave_set_feat(y,x,FEAT_EARTH);
+				cave_set_feat(y,x,FEAT_GROUND);
 
 				/* Notice any changes */
 				obvious = TRUE;
@@ -3823,7 +3825,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			summoner = 0;
 
 			if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_TREE,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_EARTH);
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND);
 
 			break;
 		}
@@ -3838,7 +3840,8 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 
 			for (i = 0; i < MAX_ELEMENTS; i++)
 			{
-				if ((element[i].effect == f_ptr->blow.effect) || (f_ptr->flags2 & (element[i].flags2)))
+				if ((element[i].effect == f_ptr->blow.effect) || ((f_ptr->flags2 & (element[i].flags2)) != 0)
+						|| ((element[i].k_idx) && (element[i].k_idx == f_ptr->k_idx)))
 				{
 					summon_group_type = element[i].grp_idx;
 					break;
@@ -3848,7 +3851,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (summon_group_type)
 			{
 				if (summon_specific(y, x, who > SOURCE_MONSTER_START ? r_info[who].level - 1 : p_ptr->depth, ANIMATE_ELEMENT,
-					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_EARTH);
+					FALSE, (MFLAG_MADE) |  (who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L))) cave_set_feat(y,x,FEAT_GROUND_EMPTY);
 			}
 
 			break;
@@ -3900,7 +3903,7 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 			if (change)
 			{
 				if (f_ptr->flags3 & (FF3_GET_FEAT)) cave_alter_feat(y, x, FS_GET_FEAT);
-				else if (f_ptr->flags3 & (FF3_OUTSIDE)) cave_set_feat(y,x, FEAT_EARTH);
+				else if (f_ptr->flags3 & (FF3_OUTSIDE)) cave_set_feat(y,x, FEAT_GROUND);
 				else cave_set_feat(y,x,FEAT_FLOOR);
 
 				/* Notice any changes */
@@ -4193,7 +4196,7 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			/* Salt water -- salts meat */
 			case GF_SALT_WATER:
 			{
-				if (o_ptr->tval == TV_BODY)
+				if ((o_ptr->tval == TV_BODY) && (who != (SOURCE_FEATURE)))
 				{
 					do_kill = TRUE;
 					note_kill = (plural ? " salt!" : " salts!");
@@ -8490,7 +8493,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			/* Hack -- excess fear causes petrification */
 			if (tmp > 100)
 			{
-				do_petrify = tmp - 100;
+				do_petrify += tmp - 100;
 				tmp = 100;
 			}
 			
@@ -8503,7 +8506,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 		/* Handle petrify. Im_edged resists. */
 		if ((do_petrify > 1) &&
-			 !(r_ptr->flags9 & (RF9_IM_EDGED)))
+			 ((r_ptr->flags9 & (RF9_IM_EDGED)) == 0))
 		{
 			/* Obvious */
 			if (seen) obvious = TRUE;
@@ -8512,14 +8515,14 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			if (m_ptr->petrify)
 			{
 				if (!note) note = " looks more petrified.";
-				tmp = m_ptr->petrify + (do_conf / (r_ptr->level / 10 + 1));
+				tmp = m_ptr->petrify + (do_petrify / (r_ptr->level / 10 + 1));
 			}
 
 			/* Was not petrify */
 			else
 			{
 				if (do_conf > 1) if (!note) note = " looks petrified.";
-				tmp = do_conf;
+				tmp = do_petrify;
 			}
 
 			/* Apply confusion */

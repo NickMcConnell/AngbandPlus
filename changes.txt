@@ -387,6 +387,32 @@ unless a quick disease (which retains the old process).
 
 - Allow torches to be taken from walls.
 
+- Scale dragon armour breath based on player current hit points.
+
+- Overhaul dungeon connections and progression, and included a map of northern Middle Earth to add in early
+game progress, accessible via the help menu (Thanks to Mikolaj Konarski for putting a huge amount
+of work into this).
+
+- Add guardian for early Isengard.
+
+- Added an Ent Moot.
+
+- Made a low-level Caradhras location (the Redhorn) that provides access to Mirkwood once the surface guardian is defeated.
+
+- Made the siege of Hornburg inescapable.
+
+- Add a few monsters from ToME - some with modifications.
+
+- Made potions of stats even more common.
+
+- Made bard class slightly more powerful.
+
+- Allow Chill to be used on any enemy in line of sight.
+
+- Your allies will not breath or cast ball spells if it will hit you.
+
+- Allies drop the objects they are carrying when they leave your service.
+
 
 
 
@@ -463,6 +489,11 @@ race only. You can press 'a' to assault a location with any allied troops.
 - Update tips text to indicate importance of visiting the home in each town to
 ensure restocking of shops occurs.
 
+- Stop using alternate wall graphics as this causes problems on Windows XP.
+
+- Fix for problems with windows XP glyphs not displayed experienced by some people. Choose a font ending with an 'x' to resolve this (A better fix will be included in 0.6.3).
+
+- Don't require second menu selection when buying a service in order to use the power.
 
 ### Bug fixes ###
 
@@ -780,6 +811,43 @@ of time.
 
 - Remove some diagnostic code.
 
+- Fixes fo Bug #12467 Various problems with Druid spells.
+
+- Fix for Bug #12339 Exhaustion cured by running.
+
+- Fix for bug Bug #10492 Cloak of the Bat with preposterous to-hit.
+
+- Fix bug with stairs getting generated under player after word of recall etc.
+
+- Fix bug where some monsters with a single friend would be determined as being massively deeper than they should have been.
+
+- Fix up 'Snuff life' description.
+
+- Freeze and Flame Strike were not intended to have a radius.
+
+- Fix bugs with petrify that allowed monsters to move while affected.
+
+- Fixed #12222 (Sense Magic removes inscription).
+
+- Fix for Bug #12390 "You failed to arm" but the trap works.
+
+- Lit fireplaces don't empty when searched.
+
+- Ensure player only searches lit grids.
+
+- Fix for Bug #12452 All vaults of Erebor contain the same things.
+
+- Fixed #12400 --- Black Rider at Bree does not appear in Bree
+
+- Fix for Bug #12396 Druid specialized in druidry can learn Chill.
+
+- Throwing is now always obvious in shops, just like it was everywhere else.
+
+- Fix problems with acid bolt II etc. causing remaining bolts to hit the player if target is killed.
+
+- Fix for Bug #12334 Can't kill Farmer Maggot with wand of Acid Bolts II.
+
+
 
 ### Build / Platform ###
 
@@ -802,6 +870,9 @@ Windows compile.
 
 - Replace ralloc with mem_alloc in main-win.c (Thanks to Nick McConnell for the fix).
 
+- Add missing .xib file to source build.
+
+- Fix various compiler warnings.
 
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down

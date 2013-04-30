@@ -1260,7 +1260,7 @@ int value_check_aux3(const object_type *o_ptr)
 {
 	/* If sensed cursed, have no more value to add */
 	if ((o_ptr->feeling == INSCRIP_CURSED) || (o_ptr->feeling == INSCRIP_TERRIBLE)
-		|| (o_ptr->feeling == INSCRIP_WORTHLESS) || (o_ptr->feeling == INSCRIP_MAGICAL)) return (0);
+		|| (o_ptr->feeling == INSCRIP_WORTHLESS)) return (0);
 
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -1415,11 +1415,11 @@ int value_check_aux5(const object_type *o_ptr)
 {
 	/* If sensed magical, have no more value to add */
 	if ((o_ptr->feeling == INSCRIP_GOOD) || (o_ptr->feeling == INSCRIP_VERY_GOOD)
-		|| (o_ptr->feeling == INSCRIP_GREAT) || (o_ptr->feeling == INSCRIP_EXCELLENT)
+		|| (o_ptr->feeling == INSCRIP_GREAT)
 		|| (o_ptr->feeling == INSCRIP_SUPERB) || (o_ptr->feeling == INSCRIP_SPECIAL)
-		|| (o_ptr->feeling == INSCRIP_MAGICAL) || (o_ptr->feeling == INSCRIP_UNUSUAL)
+		|| (o_ptr->feeling == INSCRIP_ARTIFACT) || (o_ptr->feeling == INSCRIP_EGO_ITEM)		
 		|| (o_ptr->feeling == INSCRIP_TERRIBLE) || (o_ptr->feeling == INSCRIP_WORTHLESS)
-		|| (o_ptr->feeling == INSCRIP_CURSED)) return (0);
+		|| (o_ptr->feeling == INSCRIP_CURSED)|| (o_ptr->feeling == INSCRIP_HIGH_EGO_ITEM)) return (0);
 
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -1445,14 +1445,6 @@ int value_check_aux5(const object_type *o_ptr)
 		return (INSCRIP_EGO_ITEM);
 	}
 
-	/* Cursed items */
-	if (cursed_p(o_ptr))
-	{
-		if (o_ptr->feeling == INSCRIP_NONMAGICAL) return (INSCRIP_CURSED);
-
-		return (INSCRIP_UNUSUAL);
-	}
-
 	/* Broken items */
 	/*if (broken_p(o_ptr)) return (INSCRIP_NONMAGICAL);*/
 
@@ -1461,6 +1453,15 @@ int value_check_aux5(const object_type *o_ptr)
 
 	/* Magical item */
 	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EGO_ITEM);
+	if (o_ptr->feeling == INSCRIP_MAGICAL) return (0);
+
+	/* Cursed items */
+	if (cursed_p(o_ptr))
+	{
+		if (o_ptr->feeling == INSCRIP_NONMAGICAL) return (INSCRIP_CURSED);
+
+		return (INSCRIP_UNUSUAL);
+	}
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0)
@@ -1976,8 +1977,8 @@ bool concentrate_water_hook(const int y, const int x, const bool modify)
 	/* Need 'running water' */
 	if (((f_ptr->flags2 & (FF2_WATER)) == 0)
 
-	/* Allow stagnant water */
-		&& !(suffix(f_name+f_ptr->name, "water"))) return (FALSE);
+	/* Allow wet floors/fountains/wells */
+		&& (f_ptr->k_idx != 224)) return (FALSE);
 
 	/* Not modifying yet */
 	if (!modify) return (TRUE);
@@ -2371,7 +2372,7 @@ static bool item_tester_unknown_sense(const object_type *o_ptr)
 	if (object_known_p(o_ptr))
 		return FALSE;
 	else if (o_ptr->ident & IDENT_SENSE)
-		return FALSE;
+	  return TRUE; /* TODO: should be done via IDENT_HEAVY_SENSE, etc. */
 	else
 		return TRUE;
 }
@@ -3110,7 +3111,7 @@ bool ident_spell_bonus(void)
  */
 bool ident_spell_sense(void)
 {
-	int item;
+  int item, feel;
 
 	object_type *o_ptr;
 
@@ -3150,10 +3151,10 @@ bool ident_spell_sense(void)
 	}
 
 	/* Identify it's bonuses */
-	o_ptr->feeling = sense_magic(o_ptr, cp_ptr->sense_type, TRUE, item < 0);
+	feel = sense_magic(o_ptr, cp_ptr->sense_type, TRUE, item < 0);
 
 	/* Sense non-wearable items */
-	if (!o_ptr->feeling)
+	if (!feel)
 	{
 		int i, j;
 
@@ -3164,9 +3165,18 @@ bool ident_spell_sense(void)
 		for (j = 0; j < INVEN_BAG_TOTAL; j++)
 		{
 			if ((bag_holds[i][j][0] == o_ptr->tval)
-				&& (bag_holds[i][j][1] == o_ptr->sval)) o_ptr->feeling = MAX_INSCRIP + i;
+				&& (bag_holds[i][j][1] == o_ptr->sval)) 
+			  {
+			    o_ptr->feeling = MAX_INSCRIP + i;
+			    feel = 1; 
+			  }
 		}
-	}
+	} 
+	else
+	  o_ptr->feeling = feel;
+
+	/* Nothing sensed */
+	if (!feel) return (FALSE);
 
 	/* Item is sensed */
 	o_ptr->ident |= (IDENT_SENSE);
@@ -5242,6 +5252,39 @@ static bool fire_cloud(int who, int what, int typ, int dir, int dam, int rad)
 
 
 /*
+ * Cast an area spell
+ * Stop if we hit a monster, act as a "ball"
+ * However damages all targets in area of effect equally
+ * Allow "target" mode to pass over monsters
+ * Affect monsters only
+ */
+static bool fire_area(int who, int what, int typ, int dir, int dam, int rad)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int ty, tx;
+
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_KILL | PROJECT_BOOM | PROJECT_PLAY | PROJECT_AREA | PROJECT_MAGIC;
+
+	/* Use the given direction */
+	ty = py + 99 * ddy[dir];
+	tx = px + 99 * ddx[dir];
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		flg &= ~(PROJECT_STOP);
+
+		ty = p_ptr->target_row;
+		tx = p_ptr->target_col;
+	}
+
+	/* Analyze the "dir" and the "target".  Hurt items on floor. */
+	return (project(who, what, rad, py, px, ty, tx, dam, typ, flg, 0, 10));
+}
+
+/*
  * Hack -- apply a "projection()" in a direction (or at the target)
  */
 static bool project_hook(int who, int what, int typ, int dir, int dam, int flg)
@@ -6147,6 +6190,9 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 		/* Hack -- no more attacks */
 		if (!method) break;
 
+		/* Hack -- get new target if last target is dead / missing */
+		if ((ap_cnt) && !(target_okay())) p_ptr->command_dir = 0;
+		
 		/* Mega hack -- dispel evil/undead objects */
 		if ((!d_side) && (!level))
 		{
@@ -6199,7 +6245,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_HANDS:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage+= damroll((level-1)/5, d_side);
@@ -6211,7 +6257,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_MISSILE:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6225,7 +6271,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int range = 4;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
@@ -6242,12 +6288,12 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				else beam = level/2;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 				
-				if (fire_bolt_or_beam(beam - 10, who, what, effect, dir, damage)) obvious = TRUE;
+				if (fire_bolt_or_beam(who, what, beam - 10, effect, dir, damage)) obvious = TRUE;
 				break;
 			}
 
@@ -6259,11 +6305,11 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				else beam = level/2;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
 				
-				if (fire_bolt_or_beam(beam, who, what, effect, dir, damage)) obvious = TRUE;
+				if (fire_bolt_or_beam(who, what, beam, effect, dir, damage)) obvious = TRUE;
 
 				break;
 			}
@@ -6271,7 +6317,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BEAM:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
@@ -6283,7 +6329,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BLAST:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				damage += level;
@@ -6297,7 +6343,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL | PROJECT_ITEM;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 8) && (d_side)) damage += damroll((level-5)/4, d_side);
@@ -6308,7 +6354,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BALL:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball(who, what, effect, dir, damage, 2)) obvious = TRUE;
 
@@ -6317,7 +6363,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BALL_II:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball(who, what, effect, dir, damage, 3)) obvious = TRUE;
 
@@ -6326,7 +6372,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BALL_III:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball(who, what, effect, dir, damage, 4)) obvious = TRUE;
 
@@ -6335,7 +6381,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BALL_MINOR:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball_minor(who, what, effect, dir, damage, 1)) obvious = TRUE;
 
@@ -6346,7 +6392,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int rad = 2;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				damage += level / 2;
@@ -6358,7 +6404,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_STORM:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_cloud(who, what, effect, dir, damage, 3)) obvious = TRUE;
 
@@ -6367,9 +6413,9 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_BREATH:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
-				if (fire_ball(who, what, effect, dir, MIN(p_ptr->chp,damage), 2)) obvious = TRUE;
+				if (fire_arc(who, what, effect, dir, p_ptr->chp * damage / 300, 0, (effect == GF_SOUND) || (effect == GF_POIS) ? 30 : 20)) obvious = TRUE;
 
 				break;
 			}
@@ -6391,9 +6437,9 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int rad = (level / 10)+1;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 				
-				if (fire_cloud(who, what, effect, dir, damage, rad)) obvious = TRUE;
+				if (fire_area(who, what, effect, dir, damage, rad)) obvious = TRUE;
 				break;
 			}
 			case RBM_LOS:
@@ -6408,7 +6454,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int flg = PROJECT_BEAM | PROJECT_GRID | PROJECT_KILL;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
 				break;
 			}
@@ -6416,7 +6462,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			{
 				int flg = PROJECT_STOP | PROJECT_KILL;
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (project_hook(who, what, effect, dir, damage, flg)) obvious = TRUE;
 
@@ -6430,7 +6476,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				else damage += level + level/4;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball(who, what, effect, dir, damage, rad)) obvious = TRUE;
 
@@ -6441,7 +6487,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 				int k;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				for (k = 0; k < 4; k++) if (fire_beam(who, what, effect, ddd[k], damage)) obvious = TRUE;
 
@@ -6489,7 +6535,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_SPHERE:
 			/* Variable radius */
 			{
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_ball(who, what, effect, dir, damage, (level/10)+1)) obvious = TRUE;
 
@@ -6510,14 +6556,13 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 
 			case RBM_STRIKE:
 			{
-				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+			        /* Allow direction to be cancelled for free */ 
+			        if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
 
-				/* Hack -- scale radius  */
-				if (fire_cloud(who, what, effect, dir, damage, (level / 20) + 2)) obvious = TRUE;
+				if (fire_ball(who, what, effect, dir, damage, 0)) obvious = TRUE;
 
 				break;
 			}
@@ -6525,7 +6570,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_ARC_20:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6538,7 +6583,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_ARC_30:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6551,7 +6596,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_ARC_40:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6564,7 +6609,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_ARC_50:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6577,7 +6622,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_ARC_60:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Hack - scale damage */
 				if ((level > 5) && (d_side)) damage += damroll((level-1)/5, d_side);
@@ -6590,7 +6635,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_8WAY:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_8way(who, what, effect, dir, damage, 2)) obvious = TRUE;
 
@@ -6599,7 +6644,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_8WAY_II:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_8way(who, what, effect, dir, damage, 3)) obvious = TRUE;
 
@@ -6608,7 +6653,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_8WAY_III:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_8way(who, what, effect, dir, damage, 4)) obvious = TRUE;
 
@@ -6617,7 +6662,7 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			case RBM_SWARM:
 			{
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				if (fire_swarm(who, what, 2 + level / 20, effect, dir,
 			           	damage + level / 2, 1)) obvious = TRUE;
@@ -6666,10 +6711,10 @@ bool process_spell_blows(int who, int what, int spell, int level, bool *cancel)
 			}
 		}
 
-		    /* Hack -- haven't cancelled */
-		    *cancel = FALSE;
+		/* Hack -- haven't cancelled */
+		*cancel = FALSE;
 	}
-
+	
 	/* Return result */
 	return (obvious);
 
@@ -7615,7 +7660,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				u32b old_cur_flags3 = p_ptr->cur_flags3;
 
 				/* Allow direction to be cancelled for free */
-				if ((!get_aim_dir(&dir)) && (*cancel)) return (FALSE);
+				if (!get_aim_dir(&dir)) return (!(*cancel));
 
 				/* Use the given direction */
 				ty = p_ptr->py + 99 * ddy[dir];
@@ -7783,7 +7828,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				}
 				
 				/* Hack -- Set time to one turn before sun down / sunrise */
-				turn += ((10L * TOWN_DAWN) / 2) - (turn % (10L * TOWN_DAWN)) - 1 +
+				turn += ((10L * TOWN_DAWN) / 2) - (turn % ((10L * TOWN_DAWN)) / 2) - 1 +
 					((level_flag & (LF1_DAYLIGHT)) == (spell == SPELL_REST_UNTIL_DUSK)) ?
 						(10L * TOWN_DAWN) / 2 : 0;
 

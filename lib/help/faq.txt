@@ -207,8 +207,8 @@ to see what impact it has on the game.  Its generally been derided,
 except by Eddie Grove, and I've got a very sophisticated object lore
 code in the game, so that tracks which equipment has abilites, which
 does not, and deduces automatically for you when you can tell certain
-equipment has an ability.  In the next version, classes will each have
-their own sensing ability on items. For instance, shamans will be able
+equipment has an ability.  In the newer versions, classes each have
+their own sensing ability on items. For instance, shamans are able
 to read the runes on various objects, which should give you a clue to
 both the objects nature, and the function of runes on known items.
 
@@ -216,33 +216,18 @@ And the variety of identify scrolls will be rationalised as a part of
 the whole object rationalisation I intend for a future version.
 
 
-[Q2.7]   Why do certain locations appear or disappear as travel options?
+[Q2.7]   I keep getting lost in the wilderness! Help?
 
-Because I've implemented the wilderness as a unidirectional graph.  It
-is actually something I've meeting to improve the interface on - I think
-I might just end up drawing an ascii map of the various paths you can
-take through the locations and give it to you up front.
-
-The best way to map the wilderness is the same way as drawing a map in
-those old text games.  You know the ones, go north from the house to get
-to the river, and then south from the river to get to the barn.
-
-If someone does one for me, I'll include it in the game.
+There is an ascii map of the various paths you can
+take through the locations of the (northern) Middle Earth.
+See file "memap.txt".
 
 
-[Q2.8]   Why do the shop keepers rotate whenever I go to a new town
-(Including places like Farmer Maggot's Farm)?
+[Q2.8]   Why don't shops rotate their stock?
 
-At the moment, I only allocate enough space for 8 stores (7 + your home).
-As a result, any time you go to a new town (including towns with 1 store)
-all the stores are reset, including new contents and new shopkeepers. So
-it is possible to get infinite food from Farmer Maggot's Farm. This will
-change in the next version, so that you will only get the initial amount
-of food from the farm, and nothing more.
-
-I will allocate enough space for all the stores in the next version of
-Unangband (0.6.1). This will also allow me to potentially remove other
-hacks in the campaign mode.
+Shopkeepers only restock in your home town. Visit your home building
+in the town you want shopkeepers to treat as your home and they
+will restock (quite often, in fact).
 
 
 [Q2.9]   Why do forests and other surface locations keep hiding and
@@ -279,26 +264,22 @@ help 'clarify' when this graphical update occurs.
 [Q2.10]   Why can I not get back to Hobbiton after I travel to Bree or
 Buckland?
 
-This is a deliberate design decision. You can stay in Hobbiton and get a
-very easy first dungeon, and a useful guardian to kill at the end of it.
+This is a deliberate design decision. You can stay in Hobbiton and get
+a very special and lucrative first dungeon, and a useful guardian to kill 
+at the end of it. (It is mostly intended for overpowered characters.)
 Or you can travel to Bree and start the Book of Red March quest, which
 involves the events from the Hobbit taking place (Such as encountering
 stone trolls in Trollshaw forest, passing through the Misty Mountains and
 so on).
 
 If you do stay in Hobbiton, and complete the dungeon under Farmer Maggot's
-farm, you will take a much harder path from then on, as you will be
+farm, you can take a much harder path from then on, as you will be
 travelling down the path that leads to the Lord of the Rings quests,
-including encounters with Tom Bombadil, and some very early and probably
-fatal encounters with Ring Wraiths.
+including encounters with Tom Bombadil. Somewhere later the paths
+converge. Anyway, you won't be getting back to Hobbiton for a long time.
 
-It is possible to cross-over from the Book of Red March quest to the
-Lord of the Rings quest by defeating the guardian at the end of the
-Barrow downs. So this is not a one-time deal.  But you won't be getting
-back to Hobbiton for a little while yet otherwise.
-
-As of this version of Unangband, there is now a home in Bree for you to
-pick up your stuff that you may have left behind in Hobbiton.
+There is a home in Bree for you to pick up your stuff that you may have 
+left behind in Hobbiton. In fact, most town now have a home ready for you.
 
 
 [Q2.11]   Where is the dungeon guardian for (any wilderness dungeon)?

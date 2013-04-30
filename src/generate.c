@@ -1056,8 +1056,8 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 	int grids;
 
 	int y, x;
-	int ty, tx;
-	int dy, dx;
+	int ty = 0, tx = 0;
+	int dy = 0, dx = 0;
 	int yi, xi;
 	
 	int width_outer = flag & (MAZE_WALL) ? 1 : 0;
@@ -1429,7 +1429,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 			if (!k) break;
 			
 			/* Convert coordinates */
-			/* FIXME: ty and tx may be uninitialized here!!! */
+			/* FIXME: ty and tx may probably be 0 here from initialization, is it correct? */
 			y = ty;
 			x = tx;
 			j = YPOS(y, y1);
@@ -1439,7 +1439,7 @@ static bool draw_maze(int y1, int x1, int y2, int x2, s16b feat_wall,
 			if (loops)
 			{
 				/* Place floors */
-			        /* FIXME: dy and dx may be uninitialized here!!! */
+			        /* FIXME: dy and dx may probably be 0 here from initialization, is it correct? */
 				for (yi = j - (dy < 0 ? width_wall + width_path : 0); yi < j + (dy < 0 ? 0 : width_path) + (dy > 0 ? width_wall + width_path : 0); yi++)
 				{
 					for (xi = i - (dx < 0 ? width_wall + width_path : 0); xi < i + (dx < 0 ? 0 : width_path) + (dx > 0 ? width_wall + width_path : 0); xi++)
@@ -9878,6 +9878,9 @@ static void place_tower()
 	{
 		/* Clear previous contents, add dungeon entrance */
 		place_random_stairs(y, x, FEAT_MORE);
+		
+		/* Have created stairs */
+		p_ptr->create_stair = 0;
 
 		player_place(y, x, TRUE);
 	}
@@ -10387,7 +10390,11 @@ static bool new_player_spot(void)
 	if ((p_ptr->create_stair) &&
 		(((f_info[p_ptr->create_stair].flags1 & (FF1_STAIRS)) == 0) || (dungeon_stair)))
 	{
+		/* Create the feature */
 		cave_set_feat(y, x, p_ptr->create_stair);
+		
+		/* Have created stairs */
+		p_ptr->create_stair = 0;
 	}
 
 	/* Place the player */

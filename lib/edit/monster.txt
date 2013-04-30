@@ -1630,7 +1630,7 @@ F:OPEN_DOOR
 F:EVIL | ORC | HURT_LITE | RES_DARK | DWARF | IM_POIS
 F:PRIEST | MAGE | LEVEL_POWER
 S:BLINK | WOUND | BOLT_MANA | CURE | BLESS
-D:An goblin dressed in skins who gestures wildly.
+D:A goblin dressed in skins who gestures wildly.
 
 N:127:Baby blue dragon
 G:d:b
@@ -2597,7 +2597,7 @@ N:196:Giant tarantula
 G:S:o
 I:120:10d15:8:32:80
 W:16:1:0:70
-B:BITE:POISON:1d13
+B:BITE:RAGE:1d13
 F:WEIRD_MIND | BASH_DOOR
 F:IM_POIS
 F:INSECT | CAN_CLIMB | HAS_WEB |
@@ -6029,7 +6029,7 @@ F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR | HUGE | LEVEL_POWER | LEVEL_CLASS | LEVEL_SIZE
 F:EVIL | TROLL | EAT_BODY | IM_POIS | NO_CONF | NO_SLEEP | IM_ACID | RES_BLIND
 D:A massive two-headed troll of huge strength, ettins are stupid but violent.
-D: They are also living proof that two heads are not more intelligent than one...
+D:  They are also living proof that two heads are not more intelligent than one...
 
 N:422:the King of Water
 G:E:b
@@ -6049,7 +6049,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR | RES_BLUNT
 F:RES_WATER | HURT_WATER | HAS_AURA | CAN_SWIM | NONLIVING | HUGE | RES_BLIND
 S:BOLT_ICE | BOLT_WATER | BALL_COLD | BALL_WATER | ADD_MANA | S_GROUP
 D:A towering water elemental king, he is master of all things liquid.
-D: Wave after wave drowns your frail body.
+D:  Wave after wave drowns your frail body.
 
 N:424:Ancient white dragon
 G:A:w
@@ -6243,7 +6243,7 @@ D:It seems that the more devout the person, the more likely they are to cross
 D: the boundary between piety and sanctimoniousness.  And such is the case with
 D: the Order of the Knights Templar; they are among the most pious and
 D: powerful of the religious knightly orders, but noted for their intolerance.
-D: Thus it is Morgoth's will that is unwittingly done, as the forces of good
+D:  Thus it is Morgoth's will that is unwittingly done, as the forces of good
 D: are set against each other.
 
 N:437:Conjurer
@@ -6552,7 +6552,7 @@ F:WARRIOR | NEED_LITE
 S:WOUND | BOLT_WATER | BOLT_MANA
 D:This sad creature - once a mighty warrior - betrayed his former friends to
 D: Morgoth's army in return for, he thought, safety for himself and his wife.
-D: And so he fell under Morgoth's power and became little more than a mindless
+D:  And so he fell under Morgoth's power and became little more than a mindless
 D: servant of evil, even though the other side of his "bargain" was not kept.
 
 N:455:Fallen
@@ -6921,7 +6921,7 @@ F:CAN_FLY | HUGE
 S:CONF | WOUND
 S:BRTH_COLD
 D:An ancient and wise Dragon.  Scatha has grown clever over the long years.
-D: His scales are covered with frost, and his breath sends a shower of ice
+D:  His scales are covered with frost, and his breath sends a shower of ice
 D: into the air.
 
 # Was Dwar, Dog Lord of War
@@ -7382,8 +7382,8 @@ S:BLIND | SCARE | MIND_BLAST
 S:BOLT_MANA | BOLT_NETHR | BALL_NETHR
 S:BRTH_NETHR | S_UNDEAD | BRTH_ACID | BRTH_POIS
 D:This intensely evil creature bears the form of a gargantuan black worm.
-D: Its gaping maw is a void of blackness, acid drips from its steely hide.
-D: It is like nothing you have ever seen before, and a terrible chill runs
+D:  Its gaping maw is a void of blackness, acid drips from its steely hide.
+D:  It is like nothing you have ever seen before, and a terrible chill runs
 D: down your spine as you face it.
 
 N:499:Hand druj
@@ -7558,7 +7558,7 @@ S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE |
 S:WOUND | MIND_BLAST | FORGET | TRAPS | SHIELD
 S:S_KIN | S_CLASS
 D:Sent by Orome as one of the five Istari sent to Middle-earth by the Valar.
-D: A powerful wizard, he traveled to the East with Saruman the White and his
+D:  A powerful wizard, he traveled to the East with Saruman the White and his
 D: companion Pallando the Blue.  There he was ensnared by Sauron and became one
 D: of his servants, never returning to the West again.
 
@@ -7716,7 +7716,7 @@ F:BASH_DOOR
 F:ANIMAL | EAT_BODY | RES_CHAOS | LEVEL_POWER
 S:BRTH_CHAOS
 D:"Beware the Jabberwock, my son! The jaws that bite, the claws that catch!"
-D: Run and run quickly, for death incarnate chases behind you!
+D:  Run and run quickly, for death incarnate chases behind you!
 
 N:518:Chaos hound
 G:Z:v
@@ -8527,7 +8527,7 @@ B:CRUSH:HURT:2d6
 F:BASH_DOOR | OPEN_DOOR
 F:ANIMAL | EVIL | DROP_1D2 | LEVEL_SIZE | LEVEL_POWER | LEVEL_CLASS | SMART
 D:In the eyes of this bear, there glimmers the faintest light of intelligence.
-D: And then its form begins to change... The combination of animal cunning,
+D:  And then its form begins to change... The combination of animal cunning,
 D: human intelligence and the great physical strength of the bear makes for
 D: a dangerous enemy.
 
@@ -10981,7 +10981,7 @@ B:BITE:EXP_80:3d4
 F:RAND_50 | COLD_BLOOD | REGENERATE | FRIENDS | CAN_FLY | 
 F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
-D:An gargantuan undead bat that flies at you. It could bite your head off!
+D:A gargantuan undead bat that flies at you. It could bite your head off!
 
 N:732:Werebat
 G:b:B
@@ -13248,7 +13248,7 @@ W:0:1:0:0
 B:CRAWL:DISEASE
 F:RAND_50 | RAND_25 | FRIENDS | 
 F:INSECT | FORCE_DEPTH
-D:An cockroach the size of your fist.
+D:A cockroach the size of your fist.
 
 N:902:Giant brown locust
 G:I:u
@@ -15973,7 +15973,7 @@ W:8:2:0:30
 M:0:25:4:30
 B:BITE:HURT:1d5
 F:SMART | COLD_BLOOD
-F:EVIL | UNDEAD
+F:EVIL | UNDEAD | FRIEND
 F:IM_COLD | IM_POIS | RES_EDGED | LEVEL_SIZE | LEVEL_SPEED
 F:NO_CONF | NO_SLEEP | NO_FEAR | LOW_MANA_RUN | RES_BLIND
 S:SLOW | SCARE | WOUND | BLINK | TELE_TO | ADD_MANA
@@ -15981,13 +15981,13 @@ D:A floating skull possessed by a malignant spirit.
 
 N:1109:Flaming skull
 G:s:r
-I:120:6d8:15:30:30
+I:120:8d8:15:30:30
 W:14:2:0:45
 M:0:33:7:50
 B:BITE:FIRE:2d4
 B:BUTT:BATTER:2d6
-F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | SMART | COLD_BLOOD
-F:EVIL | UNDEAD | LEVEL_SIZE | LEVEL_SPEED
+F:FORCE_SLEEP | FORCE_MAXHP | SMART | COLD_BLOOD
+F:EVIL | UNDEAD | LEVEL_SIZE | LEVEL_SPEED | FRIEND
 F:IM_FIRE | IM_POIS | RES_EDGED
 F:NO_CONF | NO_SLEEP | NO_FEAR | LOW_MANA_RUN | RES_BLIND
 S:BOLT_FIRE | SCARE | BLINK | TELE_TO | ADD_MANA
@@ -16001,7 +16001,7 @@ M:33:33:7:50
 B:BITE:POISON:1d6
 B:SHRIEK:TERRIFY
 F:FORCE_SLEEP | FORCE_MAXHP
-F:SMART | COLD_BLOOD
+F:SMART | COLD_BLOOD | FRIEND
 F:EVIL | UNDEAD | LEVEL_SIZE | LEVEL_SPEED
 F:IM_COLD | IM_POIS | RES_EDGED
 F:NO_CONF | NO_SLEEP | NO_FEAR | LOW_MANA_RUN | RES_BLIND
@@ -17308,11 +17308,11 @@ B:HIT:HURT:1d9
 B:SHOT:HURT:14d5
 F:MALE | FEMALE | FRIEND | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:DROP_60 | SMART | ARCHER | LEVEL_POWER
-D:An skilled and experienced slinger whipping missiles at you with deadly
+D:A skilled and experienced slinger whipping missiles at you with deadly
 D: accuracy.
 
 N:1196:Spectral hunter
-G:E:R
+G:G:R
 I:110:30d10:30:20:0
 W:32:5:15:270
 B:HIT:HURT:4d6
@@ -18000,7 +18000,7 @@ D:A viscious spirit of hot flames, burning brightly and casting spells furiously
 N:1243:Naiad
 G:E:b
 I:120:14d10:18:12:10
-W:20:1:13:20
+W:20:1:12:20
 M:0:25:20:39
 B:TOUCH:WATER:2d6
 F:OPEN_DOOR | BASH_DOOR | DROP_1D2 | CAN_SWIM
@@ -18131,7 +18131,7 @@ F:DROP_2D2 | DROP_3D2 | DROP_4D2 | ONLY_GOLD
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | HAS_AURA | RES_BLIND | LEVEL_SIZE | LEVEL_SPEED
 S:BRTH_SHARD | QUAKE
 S:ADD_AMMO
-D:An thundering, grinding, churning vortex of razor-sharp rubble that tears through
+D:A thundering, grinding, churning vortex of razor-sharp rubble that tears through
 D: the dungeon leaving a ruined jumble of rock in its wake.
 
 N:1254:Inquisitor
@@ -18381,7 +18381,7 @@ F:CAN_SWIM | RES_DARK | HUGE | LEVEL_SIZE | LEVEL_POWER
 S:BLIND | CONF | SCARE | WOUND |
 S:BALL_WATER | DARKNESS | BRTH_DARK | TELE_TO | PROBE
 D:A huge many-tentacled creature, long forgotten but rising from the endless depths.
-D:  An inky stench comes from its foul bulk, and its massive arms reach out to crush
+D: An inky stench comes from its foul bulk, and its massive arms reach out to crush
 D: you and drag you below.
 
 N:1274:Wood elf ranger
@@ -18972,4 +18972,645 @@ B:EXPLODE:SLIME:4d6
 F:RAND_50 | UNDEAD
 F:EMPTY_MIND | LEVEL_SIZE
 #D:It is a smallish, slimy, icky, undead creature. It looks unstable...
+
+#Need new stats. Using Khim.
+
+N:1313:Radagast the Brown
+G:M:o
+I:110:82d10:20:80:10
+W:28:2:0:300
+M:0:25:16:63
+B:HIT:HURT:3d6
+B:HIT:HURT:3d6
+B:HIT:UN_POWER
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | MAGE
+F:IM_FIRE | IM_COLD | NO_CONF | NO_SLEEP
+S:HEAL | SLOW | BOLT_FIRE | S_ANIMAL | S_PLANT
+D:He believes you to be a spy of Saruman's, sent here to confront him.  The only
+D: way to convince him otherwise is to best him in battle.
+
+# The following are from ToME.
+
+N:1314:Eagle
+G:B:u
+I:120:9d9:30:25:10
+W:12:2:0:22
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d6
+F:ANIMAL | CAN_FLY
+D:A magnificent huge predatory bird. 
+
+N:1315:Agent of the black market
+G:t:b
+I:110:2d8:10:8:99
+W:0:1:0:0
+B:HIT:HURT:1d6
+B:TOUCH:EAT_ITEM
+B:INSULT
+F:MALE
+F:DROP_60
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL | NEED_LITE
+D:He 'finds' new wares for the Black Market. From unwary adventurers... 
+
+N:1316:Grid bug
+G:I:v
+I:110:2d4:10:2:10
+W:1:1:0:2
+B:BITE:ELEC:1d4
+F:RAND_25 | FRIENDS | CAN_FLY |
+F:STUPID | WEIRD_MIND | LEVEL_SIZE | LEVEL_SPEED
+F:ANIMAL | NO_FEAR | IM_ELEC | INSECT
+D:A strange electric bug. 
+
+N:1317:Insect swarm
+G:I:u
+I:120:1d5:20:4:10
+W:1:1:0:1
+B:BITE:HURT:1d1
+B:STING:HURT:1d1
+F:ANIMAL | WEIRD_MIND | CAN_FLY | RAND_25
+F:NO_CUTS | LEVEL_SIZE | LEVEL_SPEED | INSECT
+D:A lone insect may be harmless, but there's a whole swarm of 
+D:them here! 
+
+N:1318:Swordfish
+G:F:W
+I:120:4d7:14:10:20
+W:4:2:0:15
+B:HIT:HURT:1d5
+B:HIT:HURT:1d5
+F:ANIMAL | MUST_SWIM | COLD_BLOOD | LEVEL_SIZE | CAN_SWIM | ANIMAL
+D:A fish with a swordlike "beak".
+
+N:1319:Cave fish
+G:F:w
+I:120:2d6:8:16:80
+W:3:1:0:5
+B:BITE:HURT:1d4
+F:FRIENDS
+F:MUST_SWIM | CAN_SWIM
+F:INSECT | CAN_CLIMB | HAS_WEB | LEVEL_SIZE | RES_BLIND | ANIMAL
+D:It is a blind, pale white fish that moves in fits and starts.
+
+N:1320:Leech
+G:w:u
+I:120:6d8:10:20:50
+W:5:1:0:20
+B:BITE:HURT:3d1
+B:BITE:HURT:3d1
+F:ANIMAL | CAN_SWIM | MUST_SWIM | WEIRD_MIND | RAND_25 | INSECT
+F:LEVEL_SIZE
+D:Yech! The disgusting thing only wants your blood! 
+
+N:1321:Barracuda
+G:F:G
+I:120:6d8:20:45:20
+W:5:2:0:30
+B:BITE:HURT:1d10
+B:BITE:HURT:1d10
+F:CAN_SWIM | MUST_SWIM | ANIMAL | COLD_BLOOD | LEVEL_SIZE
+D:A predatory fish with razor-sharp teeth. 
+
+N:1322:Death sword
+G:|:W
+I:130:6d6:20:40:0
+W:6:5:0:30
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+F:NEVER_MOVE | NONLIVING | NO_FEAR | LEVEL_SPEED
+F:STUPID | EMPTY_MIND | COLD_BLOOD | NO_CONF | NO_SLEEP | 
+F:DROP_90 | EVIL | IM_COLD | IM_FIRE | FORCE_MAXHP | IM_ELEC | IM_POIS | 
+F:HAS_LITE | NO_CUTS | IM_EDGED
+D:A bloodthirsty blade lurking for prey. Beware!
+
+N:1323:Nibelung
+G:h:D
+I:110:8d4:20:12:5
+W:6:1:0:6
+B:HIT:HURT:1d6
+B:TOUCH:EAT_GOLD
+F:MALE | FEMALE
+F:FRIENDS | DROP_60 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | LEVEL_POWER | LEVEL_CLASS
+F:EVIL | HURT_LITE | RES_DISEN | RES_DARK
+F:NEED_LITE | DWARF | RES_BLIND
+D:Night dwarfs collecting riches. 
+
+N:1324:Rat-thing
+G:r:R
+I:120:9d9:12:20:20
+W:6:1:0:10
+M:0:12:4:16
+B:BITE:HURT:3d2
+B:BITE:HURT:3d1
+B:BITE:HURT:3d2
+F:EVIL | ANIMAL | LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER | LEVEL_CLASS
+S:SCARE | CONF
+D:A ratlike creature with a humanlike face.
+
+N:1325:Giant slug
+G:w:U
+I:100:12d9:10:25:25
+W:6:1:0:25
+M:10:0:0:0
+B:BITE:ACID:4d4
+B:SPIT:ACID:2d6
+B:TRAIL:ACID:2d6
+F:ANIMAL | WEIRD_MIND | EAT_BODY | INSECT
+S:BRTH_ACID
+D:It is slowly making its way towards you, eating everything in 
+D:its path... 
+
+N:1326:Rotting corpse
+G:z:R
+I:110:8d8:20:20:20
+W:8:1:0:15
+B:CLAW:POISON:1d3
+B:CLAW:POISON:1d3
+F:OPEN_DOOR | BASH_DOOR | FRIENDS | LEVEL_SIZE
+F:NO_CONF | NO_SLEEP | UNDEAD | EVIL | NO_FEAR | IM_POIS | 
+F:IM_COLD | COLD_BLOOD | EMPTY_MIND | NO_CUTS
+D:Corpses awakened from their sleep by dark sorcery. 
+
+N:1327:Carnivorous flying monkey
+G:H:R
+I:110:20d8:30:20:20
+W:8:2:0:30
+M:15:0:0:0
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:5d1
+B:SHOT:HURT:2d5
+F:ANIMAL | CAN_FLY
+F:OPEN_DOOR | TAKE_ITEM
+F:FRIENDS | CAN_FLY | SMART | EVASIVE
+D:It looks fantastic, yet frightening. 
+
+N:1328:Hunting hawk
+G:B:u
+I:120:8d8:30:25:10
+W:8:2:0:22
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:BITE:HURT:1d4
+F:ANIMAL | NO_FEAR | CAN_FLY | LEVEL_SIZE | LEVEL_SPEED
+D:Trained to hunt and kill without fear. 
+
+N:1329:Spectral warrior
+G:G:B
+I:110:5d5:20:10:40
+W:8:1:0:15
+B:HIT:HURT:1d11
+B:HIT:HURT:1d11
+F:PASS_WALL | NO_SLEEP | FRIENDS | COLD_BLOOD | NONLIVING |
+F:NO_FEAR | EMPTY_MIND | CAN_FLY | NO_CUTS | WARRIOR | RES_NETHR
+D:Spectral creatures that are half real, half illusion. 
+
+N:1330:Gremlin
+G:u:u
+I:110:5d5:30:30:20
+W:8:3:0:6
+B:CLAW:EAT_FOOD:1d2
+B:CLAW:EAT_FOOD:1d2
+B:BITE:EAT_FOOD:1d3
+F:IM_POIS | HURT_LITE | EVIL | DEMON | OPEN_DOOR | 
+F:TAKE_ITEM | CAN_SWIM | RES_MAGIC
+F:MULTIPLY
+D:Don't feed them after midnight! 
+
+N:1331:Rock mole
+G:r:s
+I:110:10d10:20:30:75
+W:9:2:0:25
+B:BITE:HURT:1d10
+B:BITE:HURT:1d10
+F:BASH_DOOR | KILL_WALL | LEVEL_SIZE
+F:ANIMAL
+D:This large, mole-like creature has fangs powerful 
+D:enough to bore through solid rock. 
+
+N:1332:Mindcrafter
+G:q:y
+I:110:9d8:20:15:20
+W:16:2:0:50
+M:0:25:0:0
+B:HIT:HURT:2d4
+B:HIT:HURT:2d4
+F:MALE | FEMALE
+F:FORCE_SLEEP | DROP_90
+F:OPEN_DOOR | BASH_DOOR | WEIRD_MIND
+F:EVIL | NEED_LITE | MAGE | LEVEL_POWER
+S:CONF | BLIND | HOLD | SLOW | MIND_BLAST | S_MONSTER | BLINK
+D:A master of the mental arts, able to damage or dominate the 
+D:minds of others. 
+
+N:1333:War bear
+G:Q:u
+I:110:10d10:10:35:10
+W:9:1:0:25
+M:0:15:0:15
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:WOUND:1d6
+F:BASH_DOOR | FRIEND | LEVEL_SIZE
+F:ANIMAL
+S:BERSERK
+D:A bear, scarred and half-hairless from repeated pit-fighting and baiting, trained to kill. 
+
+N:1334:Killer bee
+G:I:o
+I:120:2d4:12:34:10
+W:9:2:0:22
+B:STING:POISON:1d4
+F:WEIRD_MIND | FRIENDS | CAN_FLY | INSECT | LEVEL_SIZE
+D:It is poisonous and aggressive.
+
+N:1335:Kamikaze faerie
+G:H:r
+I:113:4d4:18:18:10
+W:10:1:24:10
+M:10:0:0:0
+B:EXPLODE:HURT:15d2
+F:CAN_FLY | HAS_LITE | RES_LITE | EVASIVE | LEVEL_SPEED | MUST_FLY
+#D:Enraged by your slaughter of its fellows, this faerie thirsts for revenge.
+
+N:1336:Owlbear
+G:H:o
+I:110:12d12:20:20:20
+W:10:1:0:35
+B:CLAW:HURT:1d3
+B:CLAW:HURT:1d3
+B:PECK:HURT:1d10
+F:ANIMAL | OPEN_DOOR | BASH_DOOR | DROP_90 | ONLY_GOLD | LEVEL_SIZE
+D:A bizarre bear-creature with the claws and the face of an owl.
+
+N:1337:Undead mass
+G:w:u
+I:110:8d8:70:12:5
+W:10:2:200:33
+B:TOUCH:DISEASE:1d6
+B:TOUCH:LOSE_CON:1d6
+F:UNDEAD | EMPTY_MIND | NO_CONF | NO_SLEEP | IM_POIS | IM_COLD | NO_FEAR |
+F:HURT_LITE | COLD_BLOOD | EVIL | NEVER_MOVE | NO_CUTS | MULTIPLY
+F:LEVEL_SIZE | LEVEL_POWER
+D:A sickening mound of decaying flesh, bones, hands and so on. It seems to 
+D:be growing.
+
+N:1338:Hippocampus
+G:H:B
+I:110:20d9:12:14:10
+W:11:1:0:30
+B:BITE:HURT:2d5
+B:BITE:HURT:2d5
+F:CAN_SWIM | MUST_SWIM | DROP_90 | ONLY_GOLD | FRIEND | LEVEL_SIZE
+F:ANIMAL | HAS_SCALE
+D:A strangely beautiful hybrid of a horse and a fish.
+
+N:1339:Mine-dog
+G:C:u
+I:120:6d6:30:30:20
+W:12:4:0:40
+B:EXPLODE:HURT:6d6
+F:RAND_50 | FRIEND | BASH_DOOR | ANIMAL | LEVEL_SIZE
+#D:An explosive charge has been attached to this poor animal, who 
+#D:has been trained to search for its target and detonate. 
+
+N:1340:Hellcat
+G:f:R
+I:120:9d8:20:30:30
+W:12:1:0:40
+B:CLAW:HURT:1d5
+B:CLAW:HURT:1d5
+B:BITE:HURT:1d8
+F:ANIMAL | DEMON | FRIEND | RAND_25 | IM_FIRE | EVIL
+F:HAS_LITE | HAS_SCALE | RES_MAGIC | IM_ACID | LEVEL_SIZE
+D:It is as large as a tiger, and its yellow eyes are pupilless.
+
+N:1341:Faerie |master|mistress|
+G:H:g
+I:110:12d9:18:24:10
+W:12:2:24:28
+M:0:30:5:20
+F:MALE | FEMALE
+F:OPEN_DOOR | DROP_60 | CAN_FLY | EVASIVE | NEVER_BLOW
+F:HAS_LITE | RES_LITE | LEVEL_SPEED | MUST_FLY
+S:1_IN_4 | 
+S:BLINK | TPORT | BLIND | SLOW | BALL_POIS | 
+S:S_MONSTER
+D:A small winged humanoid that radiates some power. 
+
+N:1342:Devil-bat
+G:b:U
+I:120:10d10:20:80:8
+W:13:2:0:65
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+B:BITE:POISON:1d8
+F:ANIMAL | EVIL | FRIENDS | CAN_FLY | MUST_FLY
+F:IM_COLD | IM_POIS | DEMON | RES_MAGIC | IM_ACID | IM_ELEC
+F:REGENERATE | EVASIVE | IM_FIRE | LEVEL_SIZE | RAND_25
+D:Devil-bats are notoriously difficult to kill.
+
+N:1343:Cloak mimic
+G:(:g
+I:130:7d7:20:40:0
+W:13:5:10:30
+M:0:10:0:10
+B:HIT:PARALYZE:5d5
+B:HIT:TERRIFY:5d5
+F:CHAR_MULTI
+F:NEVER_MOVE | NO_FEAR |
+F:STUPID | EMPTY_MIND | COLD_BLOOD | NO_CONF | NO_SLEEP | 
+F:DROP_90 | IM_COLD | IM_ELEC | IM_POIS | 
+F:NO_CUTS | RES_DARK | LEVEL_POWER
+S:TPORT
+D:It resembles a normal cloak until some poor fool ventures too close! 
+
+N:1344:Tangleweed
+G:;:g
+I:100:5d5:5:5:5
+W:10:4:0:10
+B:HIT:PETRIFY
+B:CRUSH:HURT:1d4
+F:FORCE_SLEEP | NEVER_MOVE | STUPID | EMPTY_MIND | FRIENDS | PLANT
+F:COLD_BLOOD | RES_BLIND | LEVEL_SIZE
+F:NO_CONF | NO_SLEEP | NO_FEAR | DROP_60 | NO_CUTS | RES_BLUNT
+D:A mass of vegetation.  As you pass near it, it reaches out tendrils to 
+D:ensnare you.  You can just make out skeletons of its previous victims 
+D:deep within the thickets. 
+
+N:1345:Magpie
+G:B:W
+I:120:12d6:12:20:12
+W:14:3:0:40
+B:PECK:BLIND:1d10
+B:PECK:BLIND:1d10
+F:BASH_DOOR | ANIMAL | CAN_FLY | TAKE_ITEM | EVIL | FRIEND | LEVEL_SIZE
+D:This piebald bird has 
+D:evil-looking eyes and a sharp beak, which it aims at your eyes 
+D:as it flies at you!
+
+N:1346:Goblin sapper
+G:o:U
+I:111:8d8:20:32:30
+W:14:1:0:15
+B:HIT:HURT:1d8
+B:EXPLODE:HURT:20d2
+F:MALE | FEMALE
+F:OPEN_DOOR | BASH_DOOR | 
+F:EVIL | ORC | DWARF | IM_POIS | NEED_LITE
+D:|He|She| is equipped with a pick axe and an explosive charge, neither of
+D: which |he|she| looks entirely capable of using.
+
+N:1347:Gibbering mouther
+G:j:o
+I:110:8d6:15:20:20
+W:14:4:0:20
+M:8:8:4:8
+B:CRAWL:POISON:1d4
+F:NEVER_MOVE | EVIL | CAN_SWIM |
+F:IM_POIS | EMPTY_MIND | NO_FEAR | NO_STUN
+F:MULTIPLY | 
+S:SCARE | CONF | BRTH_SOUND
+D:A chaotic mass of pulsating flesh, mouths and eyes. 
+
+N:1348:Wolfhound
+G:C:s
+I:120:9d9:20:20:0
+W:14:2:0:40
+B:BITE:HURT:1d5
+B:BITE:HURT:1d5
+F:ANIMAL | NO_FEAR | FRIENDS | BASH_DOOR | EAT_BODY
+D:Well-trained watchdogs, obedient to death. 
+
+N:1349:Cheerful leprechaun
+G:h:G
+I:120:2d5:8:6:6
+W:14:2:0:23
+M:0:14:0:14
+B:TOUCH:EAT_GOLD
+B:TOUCH:EAT_FOOD
+F:DROP_60 | ONLY_GOLD | RAND_50 | OPEN_DOOR | MALE | 
+F:MULTIPLY | 
+S:BLINK
+D:A merry little gnome.
+
+N:1350:Dweller on the threshold
+G:u:s
+I:110:30d8:30:30:20
+W:15:5:0:50
+M:0:25:4:20
+B:GAZE:PETRIFY:4d4
+B:GAZE:TERRIFY:3d3
+B:GAZE:CONFUSE:3d3
+F:NEVER_MOVE | DROP_60 | EVIL | DEMON | RES_MAGIC 
+F:IM_POIS | IM_COLD | IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP
+S:BOLT_ACID | S_MONSTER | SCARE | DRAIN_MANA
+D:An arcane guardian with an appetite for mages. 
+
+N:1351:Poison ivy
+G:;:v
+I:100:5d5:5:5:5
+W:10:4:50:10
+B:HIT:POISON:2d2
+B:HIT:POISON:2d2
+F:FORCE_SLEEP | NEVER_MOVE | STUPID | EMPTY_MIND | FRIENDS | PLANT
+F:NO_CONF | NO_SLEEP | NO_FEAR | DROP_60 | NO_CUTS | RES_BLUNT
+F:MULTIPLY
+D:A mass of vegetation.  It seems to be growing...  
+
+N:1352:Flayed skull
+G:s:s
+I:110:12d8:30:30:20
+W:15:3:0:50
+M:0:33:7:50
+B:BITE:WOUND:2d3
+B:BUTT:LOSE_INT:2d4
+F:UNDEAD | EVIL | IM_POIS | IM_COLD | NO_FEAR | CAN_FLY |
+F:NO_CONF | NO_SLEEP | DROP_60 | BASH_DOOR | FRIENDS | COLD_BLOOD | 
+F:EVIL | UNDEAD | LEVEL_SIZE | LEVEL_SPEED
+F:IM_COLD | IM_POIS | RES_EDGED | SMART | LOW_MANA_RUN | RES_BLIND
+S:BLINK | WOUND | ADD_MANA
+D:A pack of skulls with the flesh torn from their bones, animated by necromantic spirits.
+
+N:1353:Lizard |man|woman|
+G:R:G
+I:110:16d10:20:40:20
+W:16:3:0:55
+M:16:0:0:0
+B:HIT:HURT:4d4
+B:DAGGER:SLOW:4d4
+F:MALE | FEMALE | CAN_SWIM | IM_ACID |
+F:FRIENDS | DROP_60 | NEED_LITE
+F:OPEN_DOOR | BASH_DOOR | ANIMAL | MAN
+F:EVIL | SMART | LEVEL_SIZE | LEVEL_POWER | LEVEL_CLASS
+D:Intelligent lizard beings from the depths. 
+
+N:1354:Sphinx
+G:H:o
+I:110:60d5:20:60:20
+W:17:2:0:80
+M:0:25:0:30
+B:CLAW:HURT:2d6
+B:CLAW:HURT:2d6
+F:FORCE_SLEEP | 
+F:ONLY_GOLD | DROP_1D2 | CAN_FLY
+F:OPEN_DOOR | BASH_DOOR
+F:ANIMAL | MAN | LEVEL_SIZE | SMART
+S:SCARE | CONF | ADD_MANA
+D:It will eat you if you cannot answer its riddle. 
+
+N:1355:Swamp thing
+G:H:g
+I:110:8d12:20:60:30
+W:17:2:0:80
+B:CLAW:TERRIFY:2d5
+B:CLAW:TERRIFY:5d2
+F:CAN_SWIM | OPEN_DOOR | BASH_DOOR
+F:RES_BLIND | PLANT | MAN | RES_BLUNT
+D:A creature that was once human, but is now as green as moss. 
+
+N:1356:Door mimic
+G:+:U
+I:110:10d10:25:30:0
+W:18:6:10:70
+M:0:18:9:51
+B:BITE:POISON:3d4
+B:BITE:CONFUSE:2d3
+B:BITE:PARALYZE:2d3
+F:FORCE_SLEEP | NEVER_MOVE
+F:CHAR_MULTI | RES_BLUNT
+F:EMPTY_MIND | COLD_BLOOD | ATTR_INDEX
+F:NO_CONF | NO_SLEEP | NO_FEAR | LEVEL_SPEED | LEVEL_POWER
+S:BLIND | CONF | SCARE | WOUND | BOLT_FIRE | BOLT_ACID
+D:A strange creature that disguises itself as a door to lure 
+D:unsuspecting adventurers within reach of its venomous claws. 
+
+N:1357:Venus flytrap
+G:;:w
+I:120:10d10:20:5:0
+W:15:5:0:30
+B:HIT:PARALYZE:3d3
+B:HIT:PARALYZE:3d3
+B:HIT:PARALYZE:3d3
+F:NEVER_MOVE | EMPTY_MIND | STUPID | NO_CUTS | PLANT | INVISIBLE | ATTR_CLEAR
+D:A carnivorous plant that is difficult to detect, until it suddenly snaps shut 
+D:around its prey and releases paralysing enzymes to stop its struggles. 
+
+N:1358:Chaos beastman
+G:H:u
+I:110:20d8:20:50:30
+W:18:2:0:75
+M:12:12:8:30
+B:HIT:CONFUSE:3d5
+B:HIT:EXP_20:3d5
+B:ARROW:HURT:3d5
+F:DROP_1D2
+F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP | ANIMAL | MAN | INSECT
+F:EVIL | IM_POIS | IM_FIRE | RES_CHAOS | LEVEL_CLASS | LEVEL_POWER
+S:BALL_CHAOS | BOLT_FIRE | CONF | TPORT
+D:A truly loathsome thing, twisted by chaos, it is a mixture 
+D:of several different kinds of creature.
+
+N:1359:Huorn
+G:::g
+I:110:50d10:40:45:20
+W:19:1:0:75
+M:0:11:0:40
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+B:CRUSH:HURT:3d6
+F:DROP_60 | NO_SLEEP | NO_CONF | PLANT | WEIRD_MIND | LEVEL_SPEED | LEVEL_SIZE
+F:RES_WATER | IM_COLD | NEVER_MOVE | NO_CUTS | RES_BLUNT
+S:BLINK | TELE_TO
+D:A very strong near-sentient tree, which has become hostile to other living things. 
+
+N:1360:Lizard |king|queen|
+G:R:g
+I:120:18d11:20:40:20
+W:20:3:0:150
+M:20:0:0:0
+B:HIT:HURT:5d5
+B:HIT:HURT:5d5
+B:DAGGER:PETRIFY:5d5
+B:WAIL:TERRIFY
+F:MALE | CAN_SWIM | IM_ACID | IM_POIS
+F:DROP_60 | DROP_1D2
+F:OPEN_DOOR | BASH_DOOR | WARRIOR
+F:EVIL | FORCE_MAXHP | ESCORT | ANIMAL | MAN
+F:MALE | FEMALE | CAN_SWIM | IM_ACID |
+F:FRIENDS | DROP_60 | NEED_LITE
+F:EVIL | SMART | LEVEL_SIZE | LEVEL_POWER
+D:A lizardman leader. 
+
+N:1361:Great eagle
+G:B:u
+I:120:100d5:20:65:20
+W:20:2:0:150
+B:CLAW:HURT:6d3
+B:CLAW:HURT:6d3
+B:BITE:HURT:3d6
+F:CAN_FLY
+F:ANIMAL | BASH_DOOR
+D:Greater and more intelligent than most of its kind, this great eagle is 
+D:a messenger between the forces of good.  It has not yet heard of you, however.
+
+N:1362:Weir
+G:C:W
+I:120:10d12:15:30:40
+W:20:2:0:150
+B:BITE:HURT:1d8
+B:BITE:HURT:1d8
+F:RAND_25 | 
+F:OPEN_DOOR | BASH_DOOR | LEVEL_SIZE | LEVEL_SPEED
+F:ANIMAL | EVIL | FRIENDS | MAN
+D:It is a tracker; half human, half beast. 
+
+N:1363:Globefish
+G:F:v
+I:110:10d10:20:30:30
+W:21:1:0:111
+M:12:0:0:0
+B:BITE:POISON:10d5
+B:BITE:POISON:10d5
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | CAN_SWIM | MUST_SWIM |
+F:IM_POIS | NO_STUN | LEVEL_SIZE
+F:ANIMAL
+S:BRTH_POIS
+D:This fish is among the most poisonous creatures there are. 
+
+N:1364:Auto-roller
+G:g:s
+I:110:70d12:10:80:12
+W:22:2:0:230
+B:CRUSH:HURT:4d8
+F:FORCE_SLEEP | RES_TPORT
+F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING | NO_CUTS | IM_EDGED | IM_BLUNT
+F:NEVER_MISS | NO_STUN | LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER | NO_SLOW
+D:It looks like a huge spiked roller, moving on its own towards you. 
+
+N:1365:Meneldor the Swift
+G:B:u
+I:140:80d10:20:65:20
+W:37:6:0:360
+M:5:5:0:40
+B:CLAW:HURT:7d3
+B:CLAW:HURT:7d3
+B:BITE:HURT:3d7
+B:SHRIEK
+F:CAN_FLY | UNIQUE | FORCE_MAXHP
+F:ANIMAL | RAND_50
+S:S_KIN
+D:Among all the eagles of Middle-earth he is the swiftest, and in his time 
+D:has borne messages between all of the Wise.  He is looking for Gandalf the
+D:Grey and believes you withhold that information from him.
 

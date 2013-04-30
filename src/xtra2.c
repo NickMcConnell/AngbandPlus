@@ -659,6 +659,7 @@ bool set_stastis(int v)
 	{
 		msg_print("You are thrown into an alternate reality!");
 		p_ptr->leaving = TRUE;
+		p_ptr->create_stair = 0;
 		notice = TRUE;
 		v = 0;
 	}
@@ -4243,7 +4244,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 static void room_info_top(int room)
 {
 	char first[2];
-	char name[40];
+	char name[70];
 	char text_visible[1024];
 	char text_always[1024];
 
@@ -4277,7 +4278,7 @@ static void room_info_top(int room)
  */
 static void screen_room_info(int room)
 {
-	char name[32];
+	char name[62];
 	char text_visible[1024];
 	char text_always[1024];
 
@@ -4328,7 +4329,7 @@ static void screen_room_info(int room)
 void display_room_info(int room)
 {
 	int y;
-	char name[32];
+	char name[62];
 	char text_visible[1024];
 	char text_always[1024];
 
@@ -4382,7 +4383,7 @@ void display_room_info(int room)
 void describe_room(void)
 {
 	int room = room_idx(p_ptr->py, p_ptr->px);
-	char name[32];
+	char name[62];
 	char text_visible[1024];
 	char text_always[1024];
 
@@ -5761,7 +5762,7 @@ key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr inf
 			int by = y/BLOCK_HGT;
 			int bx = x/BLOCK_HGT;
 
-			char name[32];
+			char name[62];
 			*room = dun_room[by][bx];
 
 			/* Get the actual room description */
@@ -6828,7 +6829,12 @@ bool get_aim_dir(int *dp)
 			{
 				if (ke.mousebutton)
 				{
-					target_set_location(KEY_GRID_Y(ke), KEY_GRID_X(ke), 0);
+					int y = KEY_GRID_Y(ke);
+					int x = KEY_GRID_X(ke);
+					
+					if (!in_bounds_fully(y, x)) break;
+					
+					target_set_location(y, x, 0);
 					dir = 5;
 					break;
 				}
@@ -6951,8 +6957,12 @@ bool get_rep_dir(int *dp)
 				int y = KEY_GRID_Y(ke);
 				int x = KEY_GRID_X(ke);
 
+				int angle;
+				
+				if (!in_bounds_fully(y, x)) break;
+				
 				/* Calculate approximate angle */
-				int angle = get_angle_to_target(p_ptr->py, p_ptr->px,y, x, 0);
+				angle = get_angle_to_target(p_ptr->py, p_ptr->px,y, x, 0);
 
 				/* Convert angle to direction */
 				if (angle < 15) dir = 6;

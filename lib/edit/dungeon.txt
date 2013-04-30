@@ -17,7 +17,7 @@
 
 # Format:
 # N: dungeon number: dungeon name
-# X: easily connected to these dungeons (up to 4 - unused connections should point back to itself)
+# X: easily connected to these dungeons (up to 4)
 # L: level : fill with terrain (0=town) : big terrain : small terrain : quest monster : vault
 # Q: dungeon connected to once quest monster defeated : quest monster
 # Y: lock all shops until this monster is defeated : if player has visited this dungeon
@@ -36,8 +36,7 @@
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new item.
 
-# 'X' indicates the dungeons that may be reached from this dungeon. The 'distant' dungeon
-# can only be reached when the quest monster at the bottom of the dungeon is killed.
+# 'X' indicates the dungeons that may be reached from this dungeon. 
 
 # 'L' defines dungeon 'zones'. A dungeon zone extends from the level listed until 1 below
 # the next level listed. Zones must be shown in increasing order of level. The last L:
@@ -52,7 +51,7 @@
 # 'R' indicates that all 'wandering' monsters on the level will have this flag. Acts as an
 # either/or with the 'G' entry.
 
-# 'S' indicates up to 8 stores from the store.txt file, that are placed on the level with
+# 'S' indicates up to 8 stores that are placed on the level with
 # the fill with terrain 0 tag.
 
 # 'D' indicates the description displayed on the surface of the dungeon.
@@ -77,40 +76,46 @@ D:It feels like home...
 N:1:Hobbiton
 X:10:57:0:0
 Q:58:111
+Z:35:35
 G:h
 L:0:0:411:153:0:0
 S:264:515:265:266:772:773:0:0
-D:Here your adventure begins.  You can travel to Farmer Maggot's Farm or 
-D:the East Road from here - the easiest route by far is the East Road and 
-D:then to Bree.  Press < to travel from any town, or when near the edge of 
-D:the larger wilderness locations.
+D:Here your adventure begins.  You can travel to Farmer Maggot's Farm or
+D: the East Road from here - the easiest route by far is the East Road and
+D: then to Bree.  Press < to travel from any town, or when near the edge of
+D: the larger wilderness locations.
 
 N:2:Rivendell
-X:3:13:14:17
+X:3:13:52:0
 L:0:0:420:155:0:0
 S:267:9:10:11:519:13:268:513
 
 # Misty Mountains are quite wet (Underground rivers etc).
 
-N:3:the Misty Mountains
+N:3:a path through Misty Mountains
 X:2:0:0:0
 G:k
 R:HURT_LITE
 Q:4:173
-Z:15:42
+Z:15:9
 L:5:420:56:56:0:0
 L:6:56:0:153:52:0
 L:7:56:0:153:0:0
 L:13:56:0:154:173:0
+D:The path called High Pass is said to be the easiest road east
+D: to Mirkwood and further towards Smaug's lair.  Easiest does not mean easy.
+D: It is too steep and too high to be even attempted when it snows
+D: and in other times goblins are known to set traps for unwary travelers.
 
 N:4:the house of Beorn
-X:3:5:0:0
+X:3:5:52:0
 R:ANIMAL
 L:14:0:435:0:566:0
 S:269:0:0:0:0:0:0:0
 
 N:5:Mirkwood
-X:4:6:52:0
+X:4:6:48:41
+Q:18:483
 G:l
 R:CAN_CLIMB
 L:14:420:56:153:637:0
@@ -118,19 +123,28 @@ L:15:56:0:0:0:0
 L:25:0:1:155:0:0
 L:26:56:155:0:1082:0
 S:270:271:503:11:12:504:505:0
+D:Dark shapes scuttle in the shadows and now and again you hear clicking
+D: and hissing.  Among odours of decay you sometimes catch a sweet scent
+D: and among echoes you can sometimes almost hear the sounds as if
+D: of captivating music.  The impression vanishes as soon as a wind blows
+D: from south, from Dol Guldur, bringing chilling, poisonous fumes.
 
 N:6:Lake-town
-X:5:7:52:0
+X:5:7:48:0
 L:0:0:155:152:0:0
 S:8:9:10:11:12:13:14:508
 Z:8:7
-D:The locals eye you suspiciously, afraid of treasure-hunters 
-D:who would disturb the Lonely Mountain at great risk to all.
+D:The dwellers of Esgaroth on the Long Lake are a hardy people, 
+D: living as they do under the twin shadows
+D: of the Lonely Mountain and Dol Guldur.  Of the two, some treasure hunters
+D: risk the wrath of Smaug but only the most foolhardy seek anything
+D: at Dol Guldur.  You are eyed suspiciously --- trouble-makers
+D: disturbing the Lonely Mountain bring a great risk to all.
 
 # We disturb Smaug while entering his lair...
 
 N:7:the Lonely Mountain
-X:8:52:41:48
+X:8:0:0:0
 R:DRAGON
 G:B
 Q:9:475
@@ -138,30 +152,32 @@ Z:47:9
 L:20:435:56:154:0:0
 L:21:56:0:0:0:0
 L:38:56:0:0:475:0
-D:There is a sudden flash of gold and flame in the 
-D: air... Smaug has taken flight. You desperately
+D:There is a sudden flash of gold and flame in the
+D: air... Smaug has taken flight.  You desperately
 D: cower for cover on the open mountainside... he
-D: wheels once, twice over you and departs. In the
-D: distance, you see smoke start to rise as Lake-
-D:town burns.
+D: wheels once, twice over you and departs.  In the
+D: distance, you see smoke rising as Lake-town burns.
 
-# With disasterous consequences.
+# With disastrous consequences.
 
 N:8:the ruins of Lake-town
-X:5:7:52:0:0
+X:5:7:48:0
 R:CAN_SWIM
 G:t
 Z:9:9
 L:22:155:407:49:475:0
-D:Smaug has laid waste to Lake-town. The townsfolk 
-D:gather, angry at you for disturbing his lair...
+D:Smaug has laid waste to Lake-town. The townsfolk
+D: gather, angry at you for disturbing his lair...
 
-N:9:Lake-town, rebuilt
-X:5:7:52:0
-L:0:0:155:152:0:0
+# But then people abandon burnt Lake-town and rebuild ancient Dale
+
+N:9:the Dale
+X:5:7:48:0
+L:0:0:530:153:0:0
 S:509:516:517:11:12:13:506:508
-D:Visit the statue to collect a reward from the 
-D:grateful townsfolk.
+D:The people of burnt Lake-town have elected to rebuild the nearby ancient Dale
+D: as their new abode.  Visit the statue to collect a reward from the
+D: grateful townsfolk.
 
 N:10:Farmer Maggot's farm
 X:1:0:0:0
@@ -184,7 +200,7 @@ L:4:56:0:0:620:0
 S:8:9:10:11:12:13:268:775
 
 N:12:Weathertop
-X:56:13:0:0
+X:56:13:38:0
 W:449:48
 L:20:420:56:49:0:31
 L:31:56:0:0:0:31
@@ -193,80 +209,106 @@ N:13:the Ford to Rivendell
 X:2:12:39:0
 W:453:48
 L:5:420:154:126:0:0
+D:River Bruinen runs here swiftly over its rocky bed.
+D:  From the nearby sources in Misty Mountains down to the ford
+D: it flows within the borders of the hidden valley of Rivendell.
 
-# This set of mines is shallower and easy access from Isengard.
-# It gets replaced by a gate after the Battle of Five Armies
+# We take the liberty of assuming the West-gate of Moria was left open
+# after the first fall of Khazad-dum.
+# It gets closed by Balin after the Battle of Five Armies.
+# Just like Misty Mountains, it lets you get to Smaug 
+# without visiting Dol Guldur, if you fight your way through.
 
-N:14:the mines of Moria
-X:2:7:52:0
+N:14:the western entrance to Moria
+X:52:17:2:0
 Z:16:42
+Q:41:262
 L:6:49:397:56:0:0
 L:7:56:0:0:0:0
 L:24:56:0:0:262:0
 D:In older days, the gates to Moria were always open, and a meeting point for dwarves, men and
-D: elves.  The doors now stand ajar, but the mines behind them are home to only fouler things.
+D: elves.  The ancient doors now stand ajar, but the mines behind them are home to only fouler things.
+
+# Caradhras is closer to Rivendell, but it's on the shortest way to Moria
 
 N:15:Caradhras
-X:14:16:17:0
+X:14:2:0:0
 R:GIANT
 G:C
-Q:19:1272
+Q:18:1272
 L:20:451:56:148:473:0
 L:21:56:144:145:0:0
 L:50:56:144:145:1272:0
-D:Since Gandalf closed the path created by the Goblins through the Misty Mountains,
-D: this has been the only route through.  In summer, it is passable.  Now, however,
-D: the storms of the mountain echo around you.  Turn back, while you can!
+D:Legend has it that this mighty mountain is Morgoth's minion.
+D:  In good weather you'd laugh at it, easily traversing the nearby pass.
+D:  Now, however, the storms of the mountain echo around and you can't even
+D: tell the pass from the mountain slopes.  Even if you manage to
+D: fight your way through, you have no idea where you'll end.
+D:  Turn back, while you can!
+
+# TODO: make sure this dungeon has wilderness features, watery, etc., 
+# not caves and rock; The dungeon is very short --- it does
+# not open the gates, so no point in misleading the player.
 
 N:16:the west gates of Moria
-X:15:17:0:0
-L:21:49:397:56:0:0
-L:22:56:393:0:0:0
-L:50:56:393:393:639:0
-D:The door to Moria is almost impossible to find.  You need a map to
-D: guide you.  While you search, something deadly stirs in the water.
+X:52:17:0:0
+L:36:49:397:56:0:0
+L:37:56:393:0:0:0
+L:40:56:393:393:639:0
+D:Balin has returned to Moria and sealed the ancient door so that
+D: it's almost impossible to find.  You'll need a map to guide you.
+D:  It's been long since you've last heard from Balin,
+D: old friend from the Battle of Five Armies, and you begin to worry.
+D:  While you search in vain for an entrance, something
+D: deadly stirs in the water outside.
+
+# The only free pass to the other side of the Misty Mountains,
+# but to avoid visiting dungeons you have to stir evil at Dol Guldur
 
 N:17:Isengard
-X:14:16:20:21
+X:20:21:14:0
 R:MAGE
+G:B
 Z:23:48
 L:6:420:141:141:0:31
 L:7:50:0:0:0:31
-L:35:56:0:0:0:31
-D:The tower of Isengard is home to the wise counciller Saruman
+L:35:56:0:0:1365:31
+D:The tower of Isengard is home to the wise councillor Saruman
 D: the White, head of the order of Istari.  However, you are not
 D: yet a member...
 
 N:18:Lothlorien
-X:19:20:61:0
+X:19:20:5:41
 G:l
 L:0:0:420:420:0:0
 S:270:503:11:12:13:504:510:0
-D:The enchanted woods which can only be found by true heroes.
-D:  Galadriel's gifts can be found at her mirror.
+D:The enchanted woods which only true heroes can enter.
+D:  Galadriel awaits you with gifts at her mirror.
 
 N:19:Parth Galen
-X:20:24:0:0
-Q:18:483
+X:24:18:0:0
 L:20:420:155:56:0:0
 L:21:56:0:0:0:0
 L:50:56:0:0:0:0
-D:The ruins of a more ancient race lies here: the glens and
+D:The ruins of a more ancient race lie here: the glens and
 D: hillocks strewn with the toppled statues of kings and
 D: conquerors.
 
 N:20:Fangorn
-X:17:21:48:0
-Q:18:483
-G:o
+X:17:48:0:0
+Q:23:1313
+Z:37:23
+G::
 R:PLANT
-L:20:420:420:420:634:0
+L:20:420:420:420:1313:0
+D:Fangorn is a dark and mysterious forest, but Mirkwood across Anduin
+D: is even darker.  They say Death itself has made home
+D: among the twisted trees of Dol Guldur and even animals avoid its shadow.
 
 N:21:Edoras
-X:20:0:0:0
+X:17:0:0:0
 G:p
 R:WARRIOR
-W:514:23
 Z:22:23
 Q:29:1311
 L:0:0:533:529:1310:49
@@ -274,16 +316,21 @@ L:1:56:0:0:0:49
 L:22:56:0:0:1311:49
 S:271:516:517:519:504:511:509:508
 D:The slumbering city of Edoras.  King Theoden has gathered
-D: many warriors around him, but seeks less than wise council... 
+D: many warriors around him, but seeks less than wise council...
 
 N:22:the siege of Hornburg
-X:17:21:0:0
+X:0:0:0:0
+Q:62:249
 R:ESCORT
 L:21:420:56:155:249:49
 L:50:420:56:155:249:49
+D:Saruman's orcs have laid siege to the Hornburg.  You stand with
+D: your allies to relieve the siege - fight your way to the Helm's Deep
+D: and scale the tower to confront the leader of the armies, or find him
+D: here on the field of battle and slay him.
 
 N:23:Darkened Isengard
-X:20:48:0:0
+X:20:48:22:0
 Q:28:532
 L:21:420:141:141:514:31
 L:22:56:0:0:0:31
@@ -292,10 +339,13 @@ D:If you conquer Isengard,
 D: darkened by the clouds of Saruman's machinations,
 D: you open the easier path to Minas Tirith.
 
+# Hint there is no way back
+
 N:24:the Marshes of the Dead
 X:19:25:0:0
 R:UNDEAD
 L:52:199:200:201:505:0
+D:A dreadful place. Nobody who crosses these marshes returns.
 
 #Should be guarded by Faramir
 
@@ -314,7 +364,7 @@ L:53:407:56:397:492:46
 L:54:56:0:397:0:46
 L:85:56:0:0:535:46
 
-#Note that we need a map to travel from Minas Morgol to Cirith Ungol now.
+#Note that we need a map to travel from Minas Morgul to Cirith Ungol now.
 
 N:27:Cirith Ungol
 X:26:0:0:0
@@ -347,7 +397,7 @@ D: Dead - the entrance to the Paths of the Dead.  You can leave supplies here on
 D: stone while you search this lifeless place.
 
 N:30:the Battle of Pelennor Fields
-X:28:31:0:0
+X:28:0:0:0
 G:W
 R:ESCORT
 L:56:435:411:420:535:0
@@ -358,7 +408,7 @@ R:ANIMAL
 L:0:0:410:56:0:0
 S:777:0:0:0:0:0:0:0
 D:A white tree has found root here.  Claim your reward which
-D:lies beneath the tree.
+D: lies beneath the tree.
 
 N:32:the Plains of Gorgoroth
 X:51:33:0:0
@@ -392,29 +442,33 @@ Z:36:36
 G:g
 L:99:0:407:159:532:0
 S:516:517:14:266:509:0:0:0
-D:Someone with a silver-tongue and guile-ful words has brought fair Hobbiton to 
-D:its knees in a whir of devilish industry and foul pollution.
+D:Someone with a silver-tongue and guile-full words has brought fair Hobbiton to
+D: its knees in a whir of devilish industry and foul pollution.
 
 N:36:Hobbiton, rebuilt
-X:63:0:0:0
+X:64:0:0:0
 G:h
 L:0:0:407:153:0:0
 S:264:515:265:266:772:773:774:0
-D:One last challenge awaits, to visit Angband to defeat an ancient evil.  Or you 
-D:can choose to sail from here into the West and let another take on the might of
-D:Morgoth.
+D:One last challenge awaits, to visit Angband to defeat an ancient evil.  Or you
+D: can choose to sail from here into the West and let another take on the might of
+D: Morgoth.
 
-### 37 is now inaccessible and should be removed at some point ###
-
-N:37:Bree
-X:38:39:56:0
-L:0:0:407:408:0:0
-L:1:56:0:0:0:0
-L:6:56:0:0:620:0
-S:8:9:10:11:12:13:268:775
+N:37:Fangorn, aflame
+X:17:48:0:0
+Q:62:249
+Z:62:62
+G:o
+R:PLANT
+L:21:420:420:420:249:0
+D:Fangorn is aflame: Saruman's orcs have taken axe and fire to the trees
+D: and the haunted moans of the ancient wood fill the air.  Some say the
+D: trees have begun to march in response - but you can only see dark smoke
+D: and, east, the even darker shape amongst the darkness: Dol Guldur.
 
 N:38:Barrow-downs
-X:11:12:38:40
+X:11:12:0:0
+Q:54:546
 L:4:420:420:56:0:0
 L:5:56:0:0:0:0
 L:20:56:0:0:1081:0
@@ -425,32 +479,34 @@ L:4:420:420:155:343:0
 L:5:56:0:0:344:0
 L:6:56:0:0:345:0
 
+# East part of Moria
+
 N:40:the east gates of Moria
-X:15:17:0:0
+X:5:0:0:0
 Z:61:61
 L:40:49:397:56:0:0
-D:The door to Moria is closed from this direction, as Thorin has
-D: returned to Moria to claim his bequest with dragon-gold.  You
-D: may be able to find the door to Moria from the west, from
-D: Rivendell.  There is nothing here for you.
+D:The door to Moria is closed from this direction, as Balin has
+D: returned to Moria to claim his bequest with dragon-gold.
+D:  Traces of orc camps and months old troll carcasses tell the story
+D: of orc attempts to recapture Moria from outside.  You are wondering
+D: what is happening inside, but the door is firmly barricaded
+D: and nobody responds.  You have to try to find the door to Moria
+D: from the west, from Rivendell.
 
 ### The east gates of Moria before they are closed ###
 
-N:41:the mines of Moria
-X:2:7:52:0
+N:41:the eastern entrance to Moria
+X:14:5:0:0
 Z:40:42
-L:6:49:397:56:0:0
-L:7:56:0:0:0:0
-L:24:56:0:0:262:0
-D:In older days, the gates to Moria were always open, and a meeting point for dwarves, men and
-D: elves.  The doors now stand ajar, but the mines behind them are home to only fouler things.
+L:20:49:397:56:0:0
+D:The old dwarven doors to Moria are broken open and only foul air and darkness welcome those who come inside.  Broken stairs and archways make the way difficult and retreat almost impossible.
 
 N:42:the vaults of Erebor
-X:52:41:48:0
+X:9:5:0:0
 L:21:0:56:1:0:0
 L:22:56:0:0:0:0
 L:40:56:0:0:0:0
-S:897:897:897:897:897:897:0:0
+S:897:898:899:900:901:902:0:0
 D:The innermost vaults of the dwarven city of Erebor,
 D: ripped open by the casting down of the mountainside
 D: by Thorin, crushing many thousands of orcs and turning
@@ -460,7 +516,7 @@ D: spill from the vaults long hidden inside.
 # Alternate to bypass Moria etc. and reach Angband...
 
 N:43:the ruins of Angmar
-X:2:62:0:0
+X:2:63:0:0
 R:UNDEAD
 L:21:425:141:141:0:0
 L:22:56:141:0:0:0
@@ -470,7 +526,7 @@ L:81:56:0:0:0:0
 # Sunken dungeon.
 
 N:44:the sunken city of Numenor
-X:2:44:0:0
+X:2:0:0:0
 G:G
 R:CAN_SWIM
 L:21:403:400:49:0:0
@@ -478,7 +534,7 @@ L:22:399:56:0:0:0
 L:60:399:56:0:0:0
 
 N:45:the temple of Elemental Evil
-X:2:45:0:0
+X:2:0:0:0
 G:E
 R:PRIEST
 L:21:425:141:141:0:0
@@ -486,7 +542,7 @@ L:22:56:0:0:0:0
 L:60:56:0:0:0:0
 
 N:46:the Crystal Castle
-X:2:45:0:0
+X:2:0:0:0
 G:g
 R:MAGE
 L:21:56:144:145:0:0
@@ -494,17 +550,17 @@ L:22:148:145:0:0:0
 L:60:148:145:0:0:0
 
 N:47:the Battle of Five Armies
-X:52:48:0:0
+X:9:5:0:0
 G:C
 R:ESCORT
 Q:42:235
 Z:42:42
 L:20:414:56:153:235:0
-D:Five great armies have gathered at the promise of Smaug's riches hidden in the
-D: Lonely Mountain. Meanwhile the mouth of Moria has opened and vomitted forth its hordes.
+D:Five great armies have gathered at the promise of Smaug's riches hidden
+D: in the Lonely Mountain.
 
 N:48:Dol Guldur
-X:52:7:20:17
+X:5:20:6:0
 G:q
 R:EVIL
 L:40:420:56:420:474:44
@@ -533,19 +589,27 @@ X:32:50:0:0
 R:EVIL
 L:80:407:218:208:511:0
 
-N:52:the Dale
-X:5:6:40:48
-Y:475:7
-Q:42:475
-L:0:0:530:153:0:0
-S:509:516:517:11:12:13:268:508
-D:The Dale-landers are a hardy people, living as they do under the twin shadows
-D: of the Lonely Mountain and Dol Guldur.  Of the two, many treasure hunters risk
-D: the wrath of Smaug but only the most foolhardy seek anything at Dol Guldur.
+# Redhorn is actually another name for Caradhras; 
+# 'Redhorn pass' is the pass nearby
+
+N:52:the Redhorn pass
+X:14:2:0:0
+R:GIANT
+G:o
+Z:15:9
+Q:4:140
+L:7:544:56:148:140:0
+L:8:56:145:0:0:0
+L:37:56:145:0:297:0
+D:Legend has it that Caradhras, called also the Redhorn, is Morgoth's minion.
+D:  If so, it appears asleep at the moment:
+D: nonetheless the Redhorn Pass is treacherous in
+D: summer and deadly in winter.  Orcs have overrun the passage
+D: at the moment, and to pass, you must defeat their leader.
 
 N:53:Buckland
-X:38:54:0:0
-Q:35:546
+X:54:0:0:0
+Q:58:546
 G:h
 R:ANIMAL
 L:0:0:420:408:0:0
@@ -590,26 +654,28 @@ D: your feet take you further, it may be a while before you return
 D: to Hobbiton, older, wiser and wearier.  Elsewhere, dark clouds
 D: gather. At least the way ahead seems fair and true.
 
-N:58:the Brandywine Bridge
-X:1:10:53:0
+#TODO: change the graphics from bridge to ferry or just plain river
+
+N:58:the Brandywine Ferry
+X:10:53:0:0
 G:h
 R:ANIMAL
 L:0:0:435:155:0:0
 S:903:0:0:0:0:0:0:0
 D:This is the farthest you've been from the Shire - ahead, dark
-D: clouds gather.  Choose your path carefully! Once you cross the
+D: clouds gather.  Choose your path carefully!  Once you cross the
 D: Brandywine to Buckland, it may be a while before you return to
 D: Hobbiton, and in some ways you can never come back.  The East
 D: Road from Hobbiton looks a fairer route, and safer too.
 
-# Break Moria up into several sections to be more like what I originally intended.
+# Break Moria up into several sections to be more like what I originally intended. The door to Moria can only by found with a map. This is the western door, actually; not that it matters. If we find the map before the west gate is closed, we assume the map actually helps in getting to N:60, as opposed to the normal N:14 dungeon one gets without the map. So, avoid mention of the door cracking open in the description...
 
 N:59:the door to Moria
-X:16:60:0:0
+X:14:60:0:0
 G:E
 L:0:0:1:56:0:0
 S:0:0:0:0:0:0:0:0
-D:Starlight leads the way.  'Speak friend, and enter'.
+D:As you read the map, starlight leads the way.  'Speak friend, and enter'.
 
 N:60:the mines of Moria
 X:0:0:0:0
@@ -618,9 +684,10 @@ L:22:56:0:0:0:0
 L:29:56:0:0:0:0
 L:30:0:1:56:1277:0
 S:805:0:0:0:0:0:0:0
-D:There is a thunderous roar and rocks tumble about you.  You are plunged into darkness.
-D:  Your heart shudders; the dust finally settles. Something has closed the door to
-D: Moria, from the outside.  Your only choice is to press onwards.  And downwards...
+D:There is a thunderous roar and rocks tumble about you.  You are plunged
+D: into darkness.  Your heart shudders; the dust finally settles.
+D:  Something has closed the door to Moria, from the outside.
+D:  Your only choice is to press onwards.  And downwards...
 
 N:61:Khazad-Dum
 X:60:0:0:0
@@ -631,11 +698,22 @@ L:49:56:141:0:0:0
 L:50:56:393:393:483:0
 D:Drums. Drums. Drums in the deep.
 
+N:62:the Ent Moot
+X:17:48:0:0
+Q:18:483
+L:21:0:420:153:0:0
+R:PLANT
+S:949:950:951:952:953:0:0:0
+D:Ents fill a clearing in the forest, rooted deep and gently swaying.
+D: You think you can hear timbrous voices amidst the creaks and groans
+D: of their ancient boughs. Perhaps a closer look will help you
+D: understand if they have come to a decision...
+
 # Must always be second to last position
 
-N:62:Angband
+N:63:Angband
 X:43:0:0:0
-Q:63:547
+Q:64:547
 L:0:0:407:0:0:0
 L:1:56:0:0:0:0
 L:100:56:0:0:547:0
@@ -644,7 +722,7 @@ D:It feels like home...
 
 # Must always be last position
 
-N:63:the West
+N:64:the West
 G:M
 L:0:0:420:0:0:0
 S:777:0:0:0:0:0:0:0

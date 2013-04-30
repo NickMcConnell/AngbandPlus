@@ -86,7 +86,7 @@ copy src\osx\*.icns unangband-062-src\src\osx
 copy src\osx\*.xml unangband-062-src\src\osx
 copy src\osx\*.h unangband-062-src\src\osx
 copy src\osx\English.lproj\*.strings unangband-062-src\src\osx\English.lproj
-copy src\osx\English.lproj\main.nib\*.nib unangband-062-src\src\osx\English.lproj\main.nib
+copy src\osx\English.lproj\main.nib\*.?ib unangband-062-src\src\osx\English.lproj\main.nib
 
 7z a -tzip -r unangband-062-src.zip unangband-062-src
 

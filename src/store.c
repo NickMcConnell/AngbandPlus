@@ -2603,11 +2603,8 @@ static void store_purchase(int store_index)
 				bool cancel = TRUE;
 				bool known = TRUE;
 
-				/* Say "okay" */
-				say_comment_1();
-
 				/* Get service effect */
-				get_spell(&power, "use", o_ptr, TRUE);
+				get_spell(&power, "use", o_ptr, FALSE);
 
 				/* Paranoia */
 				if (power <= 0) return;
@@ -2617,6 +2614,9 @@ static void store_purchase(int store_index)
 
 				/* Hack -- allow certain services to be cancelled */
 				if (cancel) return;
+
+				/* Say "okay" */
+				say_comment_1();
 
 				/* Be happy */
 				decrease_insults(store_index);
@@ -3834,6 +3834,11 @@ void do_cmd_store(void)
 	/* Hack -- Cancel "see" mode */
 	p_ptr->command_see = FALSE;
 
+	/* Message from store */
+	if (strlen(f_text + f_info[cave_feat[p_ptr->py][p_ptr->px]].text))
+	{
+		msg_print(f_text + f_info[cave_feat[p_ptr->py][p_ptr->px]].text);
+	}
 
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);

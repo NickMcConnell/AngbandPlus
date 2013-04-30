@@ -124,8 +124,12 @@ Your Home ("8")
 === Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
-weapons, he is ready to enter the dungeon.  Move on top of the `>' symbol
-and use the "Down" command (">").
+weapons, he is ready to enter the dungeon.  However, first he has to travel
+through wilderness (using the travel command "<") to find an entrance.
+Look at the file "memap.txt" to get some idea of the layout of the regions 
+of Middle Earth close to the starting town of Hobbiton. Once the entrance 
+to a dungeon is chosen, move on top of the `>' symbol and use the "Down" 
+command (">").
 
 Your character will enter a maze of interconnecting staircases and finally
 arrive somewhere on the first level of the dungeon.  Each level of the

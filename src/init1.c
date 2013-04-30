@@ -232,7 +232,7 @@ static cptr r_info_blow_method[] =
 	"EXPLODE",
 	"ARROW",
 	"XBOLT",
-	"SPIKE",
+	"DAGGER",
 	"DART",
 	"SHOT",
 	"ARC_20",
@@ -252,7 +252,7 @@ static cptr r_info_blow_method[] =
 	"8WAY_II",
 	"8WAY_III",
 	"SWARM",
-	"DAGGER",
+	"SPIKE",
 	"AIM_AREA",
 	"SCATTER",
 	NULL
@@ -6673,7 +6673,7 @@ static int threat_mod(int threat, monster_race *r_ptr, bool ranged)
 		if (r_ptr->flags1 & (RF1_FRIENDS))
 			threat *= 3;
 		else if (r_ptr->flags1 & (RF1_FRIEND))
-			r_ptr->highest_threat = r_ptr->highest_threat * 3 / 2;
+			threat = threat * 3 / 2;
 	}
 	else
 	{
@@ -6977,6 +6977,12 @@ static long eval_max_dam(monster_race *r_ptr)
 					}
 					
 					real_dam = TRUE;
+					
+					/*Hack - handle Wound spell differently */
+					if ((x == 2) && (i == 20))
+					{
+						if (r_ptr->spell_power > 75) this_dam = 225 + r_ptr->spell_power - 75;
+					}
 				}
 
 				else switch (x)
@@ -7013,6 +7019,7 @@ static long eval_max_dam(monster_race *r_ptr)
 						else if (flag_counter == RF6_CONF) this_dam = rlev;
 						else if (flag_counter == RF6_SLOW) this_dam = rlev;
 						else if (flag_counter == RF6_HOLD) this_dam = 25;
+						else break;
 
 						if (r_ptr->flags2 & (RF2_POWERFUL)) this_dam = this_dam * 3 / 2;
 						break;
@@ -7129,6 +7136,9 @@ static long eval_max_dam(monster_race *r_ptr)
 
 				/* Hack -- always get 1 shot */
 				if (freq < 10) freq = 10;
+				
+				/* Paranoia -- maximum of 10 shots */
+				if (freq > 100) freq = 100;
 
 				/* Adjust for frequency */
 				this_dam = this_dam * freq / 100;

@@ -1675,7 +1675,7 @@ static void spoil_magic_info(cptr fname)
 	int old_pclass = p_ptr->pclass;
 	int old_pstyle = p_ptr->pstyle;
 	int old_psval = p_ptr->psval;
-	player_class *old_cp_ptr = cp_ptr;
+	const player_class *old_cp_ptr = cp_ptr;
 	int old_cur_runes = p_ptr->cur_runes;
 	
 	int t, s, i, j, k, l;

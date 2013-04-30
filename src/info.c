@@ -83,6 +83,11 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 			*f2 |= o_ptr->can_flags2;
 			*f3 |= o_ptr->can_flags3;
 			*f4 |= o_ptr->can_flags4;
+
+			/* Hack: throwing is always obvious */
+			if (k_info[o_ptr->k_idx].flags3 & TR3_THROWING)
+			  *f3 |= TR3_THROWING;
+
 			return;
 		}
 
@@ -1185,8 +1190,11 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 {
 	int m,n,r;
 
-	cptr p, q, s, t, u;
-
+	cptr p, q, s, t, u, v;
+	
+	/* Preposition */
+	v = "for";
+	
 	/* Count the number of "known" attacks */
 	for (n = 0, m = 0; m < 4; m++)
 	{
@@ -1278,7 +1286,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_BALL_III: p = "creates a ball"; t = "your enemies"; rad = 4; break;
 			case RBM_CLOUD: p = "creates a cloud"; t = "your enemies"; rad = 2; d3 += level/2; break;
 			case RBM_STORM: p = "creates a storm"; t = "your enemies"; rad = 3; break;
-			case RBM_BREATH: p = "breathes";  t = "your enemies"; break;
+			case RBM_BREATH: p = "breathes";  t = "your enemies"; d3 = p_ptr->chp * d3 / 300; break;
 			case RBM_AREA: p = "surrounds you with magic"; rad = (level/10)+1; break;
 			case RBM_AIM_AREA: p = "affects an area"; rad = (level/10)+1; break;
 			case RBM_LOS: t = "all your enemies in line of sight"; break;
@@ -1288,7 +1296,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_LEVEL: t = "the current level"; break;
 			case RBM_ORB: p = "creates an orb"; t = "your enemies"; rad = (level < 30 ? 2 : 3); d3 += level/2; break;
 			case RBM_CROSS: p = "surrounds you with a cross"; t = "your enemies"; break;
-			case RBM_STRIKE: p = "strikes"; t = "your enemy"; rad = (level/10)+2; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
+			case RBM_STRIKE: p = "strikes"; t = "your enemy"; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
 			case RBM_STAR: p = "surrounds you with a star"; t = "your enemies"; break;
 			case RBM_SPHERE: p = "creates a sphere";  t = "your enemies";  rad = (level/10)+2;break;
 			case RBM_ARROW: p = "creates an arrow"; t="one target"; break;
@@ -1452,7 +1460,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_BIND_FAMILIAR:	q = "bind a familiar to you"; break;
 			case GF_VAMP_DRAIN:	q = "drain"; s = "health from"; break;
 			case GF_MANA_DRAIN:	q = "drain"; s = "mana from"; break;
-			case GF_SNUFF:		q = "snuff"; s = "the life from"; u = "with less than"; break;
+			case GF_SNUFF:		q = "snuff"; s = "the life from"; u ="if they have less than a maximum"; v="of";break;
 			case GF_RAGE:		q = "enrage"; break;
 			case GF_MENTAL:		q = "blast"; u = "with mental energy"; break;
 			case GF_TANGLE:		q = "entangle"; u = "with nearby plants or waterweeds"; break;
@@ -1575,8 +1583,8 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			if (max)
 			{
 				/* End */
-				if (max != min) text_out(format(" for %d-%d ", min, max));
-				else text_out(format(" for %d ", max));
+				if (max != min) text_out(format(" %s %d-%d ", v, min, max));
+				else text_out(format(" %s %d ", v, max));
 			}
 			else
 			{
@@ -1587,22 +1595,22 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		else if ((d1) && (d2) && (d3))
 		{
 			/* End */
-			text_out(format(" for %dd%d+%d ",d1,d2,d3));
+			text_out(format(" %s %dd%d+%d ",v, d1,d2,d3));
 		}
 		else if ((d1) && (d2) && (d2 == 1))
 		{
 			/* End */
-			text_out(format(" for %d ",d1));
+			text_out(format(" %s %d ",v, d1));
 		}
 		else if ((d1) && (d2))
 		{
 			/* End */
-			text_out(format(" for %dd%d ",d1,d2));
+			text_out(format(" %s %dd%d ",v, d1,d2));
 		}
 		else if (d3)
 		{
 			/* End */
-			text_out(format(" for %d ",d3));
+			text_out(format(" %s %d ",v, d3));
 		}
 
 		/* Get the effect */
@@ -1639,8 +1647,8 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case GF_DARK_WEAK:
 			case GF_TANGLE:
 								text_out("power"); break;
-			case GF_SNUFF: text_out("maximum ");
-			case GF_HEAL_PERC: text_out("percentage ");
+			case GF_HEAL_PERC: text_out("percent of ");
+			case GF_SNUFF: 
 			case GF_HEAL: text_out("hit points"); break;
 			case GF_AWAY_ALL:
 			case GF_AWAY_EVIL:
@@ -1666,7 +1674,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 				}
 				break;
 			}
-			case GF_GAIN_MANA_PERC: text_out("percentage ");
+			case GF_GAIN_MANA_PERC: text_out("percent of ");
 			case GF_LOSE_MANA:
 			case GF_MANA_DRAIN:
 			case GF_GAIN_MANA: text_out("spell points"); break;
@@ -1863,6 +1871,10 @@ void spell_info(char *p, int p_s, int spell, bool use_level)
 			case RBM_AREA: rad = (level/10)+2; break;
 			case RBM_ORB: rad = (level < 30 ? 2 : 3); d3 += level/2; break;
 			case RBM_SWARM: d3 += level / 2; rad = 1; break;
+			case RBM_BREATH: d3 = p_ptr->chp * d3 / 300; break;
+			case RBM_STRIKE: if ((level > 5) && (d2)) d1+= (level-1)/5; break;
+			case RBM_SPHERE: rad = (level/10)+2;break;
+			case RBM_FLASK: rad = 1; break;
 		}
 
 		/* Default */
@@ -3248,7 +3260,7 @@ void list_object(const object_type *o_ptr, int mode)
 				text_out("You can travel to ");
 				text_out(t_name + t_info[o_ptr->sval].name);
 				text_out(format(" (levels %d", min_depth(o_ptr->sval)));
-				if (max_depth(o_ptr->sval) > min_depth(o_ptr->sval)) text_out(format("-%d",max_depth(o_ptr->sval)));
+				if (max_depth(o_ptr->sval) > min_depth(o_ptr->sval)) text_out(format("-%d)",max_depth(o_ptr->sval)));
 				text_out(" with this.  ");
 				anything = TRUE;
 				break;

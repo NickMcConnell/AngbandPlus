@@ -3683,28 +3683,28 @@ const byte spell_desire_RF7[32][8] =
 const element_type element[MAX_ELEMENTS] =
 {
 	/* ELEM_FIRE */
-	{GF_FIRE, 0L, 14},
+	{GF_FIRE, 0L, 14, 0},
 
 	/* ELEM_EARTH */
-	{0, (FF2_CAN_DIG), 13},
+	{0, (FF2_CAN_DIG), 13, 82},
 
 	/* ELEM_AIR */
-	{GF_WIND, (FF2_CHASM), 11 },
+	{GF_WIND, (FF2_CHASM), 11, 0},
 
 	/* ELEM_WATER */
-	{GF_WATER, (FF2_WATER | FF2_CAN_SWIM), 12},
+	{GF_WATER, (FF2_WATER | FF2_CAN_SWIM), 12, 224},
 
 	/* ELEM_MAGMA */
-	{GF_LAVA, (FF2_LAVA), 19},
+	{GF_LAVA, (FF2_LAVA), 19, 0},
 
 	/* ELEM_OOZE */
-	{GF_ACID, (FF2_ACID), 16},
+	{GF_ACID, (FF2_ACID), 16, 0},
 
 	/* ELEM_ICE */
-	{GF_ICE, (FF2_ICE), 18},
+	{GF_ICE, (FF2_ICE), 18, 0},
 
 	/* ELEM_SMOKE */
-	{GF_SMOKE, (FF2_OIL), 17}
+	{GF_SMOKE, (FF2_OIL), 17, 0}
 };
 
 /*

@@ -1,17 +1,41 @@
 ## Makefile.am -- Process this file with automake to process Makefile.in
 
-unangband_files = \
-  10x20.fon 6x10.fon 6x13b.fon 7x13b.fon 9x15.fon \
-  12x24.fon 6x12.fon 6x9.fon 8x13.fon 9x15b.fon \
-  5x8.fon 6x13.fon 7x13.fon 8x13b.fon  
+angband_files = \
+  16x16.txt
 
+bdf_files = \
+  10x14x.bdf \
+  10x14xb.bdf \
+  12x18x.bdf \
+  16x16x.bdf \
+  5x8x.bdf \
+  6x10x.bdf \
+  8x12x.bdf \
+  8x12xb.bdf \
+  8x8x.bdf \
+  8x8xb.bdf \
+  8x16x.bdf \
+  16x24x.bdf
+
+pcf_gz_files := $(patsubst %.bdf,%.pcf.gz,$(bdf_files))
+
+%.pcf.gz: %.pcf
+	gzip -9 -f $<
+
+%.pcf: %.bdf
+	bdftopcf -o $@ $<
+
+fonts.dir: $(pcf_gz_files)
+	mkfontdir
+	
 EXTRA_DIST = \
-  $(unangband_files)
+  $(angband_files) $(bdf_files) compile_bdf_fonts.sh
 
 if SET_GID
-unangbanddir = @DEFAULT_PATH@xtra@font
+angbanddir = @DEFAULT_PATH@xtra/font
 
-unangband_DATA = \
-  $(unangband_files)
+angband_DATA = \
+  $(angband_files) $(pcf_gz_files) fonts.dir
 endif
 
+CLEANFILES = $(pcf_gz_files) fonts.dir

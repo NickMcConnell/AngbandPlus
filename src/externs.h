@@ -522,7 +522,7 @@ extern int feat_order(int feat);
 /* cmd5.c */
 extern int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known);
 extern bool inven_book_okay(const object_type *o_ptr);
-extern void do_cmd_browse_object(object_type *o_ptr);
+extern bool do_cmd_browse_object(object_type *o_ptr);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t);
