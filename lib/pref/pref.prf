@@ -213,6 +213,17 @@ C:1:X
 A:^V
 C:1:'
 
+# Assemble an assembly
+A:Y
+C:1:^O
+
+# Display quests
+A:^Q
+C:1:$
+
+# Display time of day
+A:^T
+C:1:'
 
 # Message colors
 %:message.prf

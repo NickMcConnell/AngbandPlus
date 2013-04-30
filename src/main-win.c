@@ -193,6 +193,8 @@
 #define IDM_OPTIONS_DBLTILE         408
 #define IDM_OPTIONS_BIGTILE         409
 #define IDM_OPTIONS_SOUND           410
+#define IDM_OPTIONS_MOUSE           411
+#define IDM_OPTIONS_TRACKMOUSE      412
 #define IDM_OPTIONS_LOW_PRIORITY    420
 #define IDM_OPTIONS_SAVER           430
 #define IDM_OPTIONS_MAP             440
@@ -249,6 +251,7 @@
  * Include the "windows" support file
  */
 #include <windows.h>
+#include <windowsx.h>
 
 #ifdef USE_SOUND
 
@@ -486,12 +489,17 @@ static bool screensaver_active = FALSE;
 static HANDLE screensaverSemaphore;
 
 static char saverfilename[1024];
-
 static HMENU main_menu;
 
 #define MOUSE_SENS 10
 
 #endif /* USE_SAVER */
+
+static char arg_lastsavefile[1024];
+static int yOldPos = 0;
+static int xOldPos = 0;
+static bool term_initialised = FALSE;
+static bool term_readytoload = FALSE;
 
 
 #ifdef USE_GRAPHICS
@@ -1047,6 +1055,21 @@ static void save_prefs(void)
 	strcpy(buf, arg_sound ? "1" : "0");
 	WritePrivateProfileString("Angband", "Sound", buf, ini_file);
 
+	/* Save the "arg_mouse" flag */
+	strcpy(buf, arg_mouse ? "1" : "0");
+	WritePrivateProfileString("Angband", "EnableMouse", buf, ini_file);
+
+	/* Save the "arg_trackmouse" flag */
+	strcpy(buf, arg_trackmouse ? "1" : "0");
+	WritePrivateProfileString("Angband", "TrackMouseMove", buf, ini_file);
+
+	/* Save the "arg_lastsavefile" flag */
+	if (strlen(savefile))
+	{
+		sprintf(buf, "%s", savefile);
+		WritePrivateProfileString("Angband", "LastSaveFile", buf, ini_file);
+	}
+
 	/* Save window prefs */
 	for (i = 0; i < MAX_TERM_DATA; i++)
 	{
@@ -1120,6 +1143,15 @@ static void load_prefs(void)
 
 	/* Extract the "arg_sound" flag */
 	arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
+
+	/* Extract the "arg_mouse" flag */
+	arg_mouse = (GetPrivateProfileInt("Angband", "EnableMouse", TRUE, ini_file) != 0);
+
+	/* Extract the "arg_trackmouse" flag */
+	arg_trackmouse = (GetPrivateProfileInt("Angband", "TrackMouseMove", TRUE, ini_file) != 0);
+
+	/* Extract the "arg_savefile" flag */
+	GetPrivateProfileString("Angband", "LastSaveFile", NULL, arg_lastsavefile, sizeof(arg_lastsavefile), ini_file);
 
 	/* Extract the "arg_fiddle" flag */
 	arg_fiddle = (GetPrivateProfileInt("Angband", "Fiddle", 0, ini_file) != 0);
@@ -1892,6 +1924,19 @@ static errr Term_xtra_win_react(void)
 
 #endif /* USE_SOUND */
 
+	/* Handle "arg_mouse" */
+	if (use_mouse != arg_mouse)
+	{
+		/* Change setting */
+		use_mouse = arg_mouse;
+	}
+
+	/* Handle "arg_trackmouse" */
+	if (use_trackmouse != arg_trackmouse)
+	{
+		/* Change setting */
+		use_trackmouse = arg_trackmouse;
+	}
 
 #ifdef USE_GRAPHICS
 
@@ -2520,10 +2565,10 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 			tw2 = w2;
 	}
 
-	/* Hack -- isometric location */
 	/*
-	 * Note check on grid_display.
-       */
+         * Hack -- isometric location.
+	 * Note check on grid_display
+         */
 	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display))
 	{
 		x = (x - COL_MAP);
@@ -2543,7 +2588,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 			x /= 2;
 
 		x2 = (x - y) * tw2 / 2 + ((td->rows - ROW_MAP) * tw2 / (use_trptile ? 6 : (use_dbltile ? 4 : 2))) + w2 * (COL_MAP-1) + td->size_ow1;
-		y2 = (y + x) * th2 / 4 + h2 * ROW_MAP + td->size_ow2; 
+		y2 = (y + x) * th2 / 4 + h2 * ROW_MAP + td->size_ow2 - (y + x) / 2; 
 	}
 	else
 	{
@@ -2819,7 +2864,7 @@ static void windows_map_aux(void)
 static void windows_map(void)
 {
 	term_data *td = &data[0];
-	char ch;
+	key_event ke;
 
 	int old_display = td->grid_display;
 
@@ -2838,7 +2883,7 @@ static void windows_map(void)
 	windows_map_aux();
 
 	/* Wait for a keypress, flush key buffer */
-	Term_inkey(&ch, TRUE, TRUE);
+	Term_inkey(&ke, TRUE, TRUE);
 	Term_flush();
 
 	/* Switch off the map display */
@@ -3098,6 +3143,9 @@ static void init_windows(void)
 
 	/* Process pending messages */
 	(void)Term_xtra_win_flush();
+
+	term_initialised = TRUE;
+
 }
 
 
@@ -3286,6 +3334,10 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_SOUND,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_MOUSE,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_TRACKMOUSE,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_SAVER,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_LOW_PRIORITY,
@@ -3318,6 +3370,10 @@ static void setup_menus(void)
 	              (use_bigtile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
 	              (arg_sound ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hm, IDM_OPTIONS_MOUSE,
+	              (arg_mouse ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hm, IDM_OPTIONS_TRACKMOUSE,
+	              (arg_trackmouse ? MF_CHECKED : MF_UNCHECKED));
 #ifdef USE_SAVER
 	CheckMenuItem(hm, IDM_OPTIONS_SAVER,
 	              (hwndSaver ? MF_CHECKED : MF_UNCHECKED));
@@ -3348,6 +3404,13 @@ static void setup_menus(void)
 		EnableMenuItem(hm, IDM_OPTIONS_SOUND, MF_ENABLED);
 	}
 #endif /* USE_SOUND */
+
+	if (inkey_flag && initialized)
+	{
+		/* Menu "Options", Item "Sound" */
+		EnableMenuItem(hm, IDM_OPTIONS_MOUSE, MF_ENABLED);
+		EnableMenuItem(hm, IDM_OPTIONS_TRACKMOUSE, MF_ENABLED);
+	}
 
 #ifdef USE_SAVER
 	/* Menu "Options", Item "ScreenSaver" */
@@ -3616,6 +3679,10 @@ static void process_menus(WORD wCmd)
 				game_in_progress = TRUE;
 				Term_flush();
 				play_game(TRUE);
+
+				/* Hack -- set as last file name */
+				
+
 				quit(NULL);
 			}
 			break;
@@ -4148,6 +4215,48 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
+		case IDM_OPTIONS_MOUSE:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "arg_mouse" */
+			arg_mouse = !arg_mouse;
+
+			/* React to changes */
+			Term_xtra_win_react();
+
+			/* Hack -- Force redraw */
+			Term_key_push(KTRL('R'));
+
+			break;
+		}
+
+		case IDM_OPTIONS_TRACKMOUSE:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "arg_trackmouse" */
+			arg_trackmouse = !arg_trackmouse;
+
+			/* React to changes */
+			Term_xtra_win_react();
+
+			/* Hack -- Force redraw */
+			Term_key_push(KTRL('R'));
+
+			break;
+		}
+
 #ifdef USE_SAVER
 
 		case IDM_OPTIONS_SAVER:
@@ -4309,6 +4418,8 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 	term_data *td;
 	int i;
 
+	int xPos, yPos, button;
+
 #ifdef USE_SAVER
 	static int iMouse = 0;
 	static WORD xMouse = 0;
@@ -4415,6 +4526,18 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				return 0;
 			}
 
+			if ((term_readytoload) && !(game_in_progress))	
+			{
+				term_readytoload = FALSE;
+				strcpy(savefile,arg_lastsavefile);
+
+				/* Load 'savefile' */
+				validate_file(savefile);
+				game_in_progress = TRUE;
+				Term_flush();
+				play_game(FALSE);
+				quit(NULL);
+			}
 			break;
 		}
 
@@ -4424,26 +4547,59 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 			return 0;
 		}
 
-#ifdef USE_SAVER
-
 		case WM_MBUTTONDOWN:
 		case WM_RBUTTONDOWN:
 		case WM_LBUTTONDOWN:
 		{
+#ifdef USE_SAVER
 			if (screensaver_active)
 			{
 				stop_screensaver();
 				return 0;
 			}
+			else
+#endif /* USE_SAVER */
+			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt) && (use_mouse || !character_generated))
+			{
+				/* Get the text grid */
+				xPos = GET_X_LPARAM(lParam);
+				yPos = GET_Y_LPARAM(lParam);
+				xPos /= td->tile_wid;
+				yPos /= td->tile_hgt;
+
+				/* XXX TODO Translate iso-coords back to normal if required */
+
+				if (uMsg == WM_LBUTTONDOWN)
+					button = 1;
+				else if (uMsg == WM_RBUTTONDOWN)
+					button = 2;
+				else
+					button = 3;
+				Term_mousepress(xPos,yPos,button);
+			}
+
+			if ((term_readytoload) && !(game_in_progress))	
+			{
+				term_readytoload = FALSE;
+				strcpy(savefile,arg_lastsavefile);
+
+				/* Load 'savefile' */
+				validate_file(savefile);
+				game_in_progress = TRUE;
+				Term_flush();
+				play_game(FALSE);
+				quit(NULL);
+			}
 
 			break;
 		}
 
+
 		case WM_MOUSEMOVE:
 		{
-			if (!screensaver_active) break;
 
-			if (iMouse)
+#ifdef USE_SAVER
+			if ((screensaver_active) && (iMouse))
 			{
 				dx = LOWORD(lParam) - xMouse;
 				dy = HIWORD(lParam) - yMouse;
@@ -4455,16 +4611,38 @@ static LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 				{
 					stop_screensaver();
 				}
+
+
+				/* Save last location */
+				iMouse = 1;
+				xMouse = LOWORD(lParam);
+				yMouse = HIWORD(lParam);
+
+				return 0;
 			}
-
-			/* Save last location */
-			iMouse = 1;
-			xMouse = LOWORD(lParam);
-			yMouse = HIWORD(lParam);
-
-			return 0;
-		}
+			else
 #endif /* USE_SAVER */
+			if ((term_initialised) && (td->tile_wid) && (td->tile_hgt) && (use_trackmouse || !character_generated))
+			{
+				/* Get the text grid */
+				xPos = GET_X_LPARAM(lParam);
+				yPos = GET_Y_LPARAM(lParam);
+				xPos /= td->tile_wid;
+				yPos /= td->tile_hgt;
+
+				/* Have we changed grid? */
+				if ((xPos != xOldPos) ||
+					(xPos != yOldPos))
+				{
+					Term_mousepress(xPos,yPos,0);
+				}
+
+				/* Save last location */
+				xOldPos = xPos;
+				yOldPos = yPos;
+			}
+		}
+
 
 		case WM_INITMENU:
 		{
@@ -5177,8 +5355,6 @@ static void init_stuff(void)
 	strcpy(path + strlen(path) - 4, ".INI");
 
 #ifdef USE_SAVER
-
-	/* Try to get the path to the Angband folder */
 	if (screensaver)
 	{
 		/* Extract the filename of the savefile for the screensaver */
@@ -5188,8 +5364,7 @@ static void init_stuff(void)
 
 		sprintf(path, "%sangband.ini", tmp);
 	}
-
-#endif /* USE_SAVER */
+#endif
 
 	/* Save the the name of the ini-file */
 	ini_file = string_make(path);
@@ -5461,7 +5636,13 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	check_for_save_file(lpCmdLine);
 
 	/* Prompt the user */
-	prt("[Choose 'New' or 'Open' from the 'File' menu]", 23, 17);
+	if (strlen(arg_lastsavefile))
+	{
+	     c_prt(TERM_L_BLUE, format("[Press any key to load '%s']",arg_lastsavefile), Term->hgt - 1, MAX(1, (Term->wid - 26 - strlen(arg_lastsavefile)) / 2));
+
+		term_readytoload = TRUE;    
+	}
+	else c_prt(TERM_L_BLUE, "[Choose 'New' or 'Open' from the 'File' menu]", Term->hgt - 1, MAX(1, (Term->wid - 45) / 2));
 	Term_fresh();
 
 	/* Process messages forever */

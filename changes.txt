@@ -1,4 +1,70 @@
+Unangband 0.6.0 "Where's the Tequila? Did Tara Reid steal all the drinks?" (The Ari
+Gold Release)
+
 ### Game Play ###
+
+- Updated monster spell attacks to use the 4GAI from Sangband/Oangband via NPPAngband,
+include numerous new and modified spell attacks and improve projection code.
+
+- Stores now stock various services.
+
+- You can now sell books to various stores to allow you to unlock additional store
+services.
+
+- The player can now be infected with various diseases. A number of disease causing
+monsters from Eyangband have been added. The disease implementation is different from
+any other variant.
+
+- Various attacks, particularly paralyze, stun, confuse are less cumulative or not
+cumulative - however, if you already are suffering the ill-effects that the attack
+would cause, you now run the risk of getting the related effect recurring every 100 turns
+or so. This now makes paralysis melee attacks survivable at depth provided you can
+outlast the initial paralyzation, and have sufficiently high ac.
+
+- Added item abilities including vampiric weapons of various flavours, light and dark
+brands, anti-teleport items, racial-based items including slay human, slay elf and
+slay dwarf items, and items that cause vulneribilities to various elements. In particular,
+you cannot wield both a racial flag item and its equivalent slay, or a vulneribility
+item and its equivalent brand.
+
+- Added magic items, which are ego items which only have a single flag. This is
+currently in heavy development and balancing, but is intended to provide a more
+interesting transition between enchanted equipment and ego items. Ego items are 
+temporarily disabled for testing purposes.
+
+- Stat potions only provide a temporary stat increase. Removed restore stat potions.
+
+- Monsters now breath in arcs, have additional bolt, ball, beam and summon spells
+and a variety of miscellaneous spells as per NPPAngband.
+
+- Monsters now can intelligently use their ranged melee blows at a distance (e.g.
+gaze, wail, lash). These usually have limited range (lash) and require ammunition
+(arrow, shot, bolt) or require mana to use (gaze, wail). Monsters will carry the
+appropriate ammunition and drop it on their death.
+
+- Monsters can now bleed or get poisoned by the player.
+
+- Monsters can now lose strength, intelligence, wisdom, dexterity or constitution if
+hit by various stat loss effects.
+
+- Monsters can cast spells that turn themselves invisible, allow them to temporarily
+pass walls, make them heroic or beserk, shield themselves or allow them to temporarily
+resist all elements.
+
+- Monsters can cast spells which curse the player, dispel enchantments on the player
+and probe the player for weaknesses.
+
+- Monsters can resist more effects, such as darkness, or be resistant to either blunt
+or edged weapons, as well as evade player blows and missiles (From Sangband).
+
+- Monsters can cast spells which animate the dead, animate objects or animate terrain
+around them. Monsters can also cast spells that bring other monsters back to life.  A
+much wider variety of summoning spells is also possible.
+
+- Added a variety of monsters from Sangband and NPPAngband.
+
+- Undead are now hurt by healing spells, and cured by drain life. Golems are now hurt
+by haste spells and not hasted very well, if at all.
 
 - Vents now act as conduits for water, acid, steam, fire or gas through walls.
 Vents can also be climbed through, but block vision and ranged attacks.
@@ -6,25 +72,183 @@ Vents can also be climbed through, but block vision and ranged attacks.
 - Falling water, lava, and so on now only cause damage to adjacent terrain every
 second turn.
 
-- It should now be possible to create trapped areas as follows (where < is falling
-terrain and % is a vent):
-
-####.      #####.
-#<%%.   or #<%%%.
-####.      #####.
-
-This results in the the floor locations getting hit, on the left, every 3 turns,
-or on the right every 4 turns (an adjacent water fall will hit every 2 turns).
-
 - Cracked walls now can come in hidden, weaker versions that can be easily
 bashed or tunnelled through.
 
+- Statues of hybrids can now occur. Figurines removed from the back end code.
+
+- Spores and potions will explode when thrown.
+
+- Added golem parts which can be assembled into a complete golem by activating the
+parts.
+
+- Added workshops, which contain golem parts and golems.
+
+- Added statues of varying values. These are all extremely heavy however.
+
+- Steam and other water damage that does not affect inventory items no longer douses
+your light. Lights that ignore water also ignore the effect.
+
+- Weapons you brand now ignore that element, preventing destruction by it.
+
+- Modified some existing artifacts to add magical device skill or spell resistance.
+
+- Added spells, scrolls and rods of feedback, which allow the player to detect hidden
+resistances on high level items, and act as a limited attack weapon.
+
+- Most terrain now floods when hit by water.
+
+- No longer have partial moves or tiredness from normal movement, as this created
+unnessary bookkeeping.
+
+- Renamed individually appearing novice monsters to apprentice monsters.
+
+- The cost of the cheapest magical attacks, such as magic missile, has been increased
+to two mana. The low level elemental attacks have been renamed slightly, and beam
+up to 3 distance now.
+
+- Mages, rogues and rangers now get more starting mana.
+
+- Added fixed quests that can be configured in the lib\edit\quests.txt file. These
+allow a reasonably complicated set of actions. See the example Farmer Maggot quest.
+However, scripting is not possible - the quests are data-driven. At the moment
+the quests can be created, but have no in game functionality.
+
+- You can now use diggers to create rock traps using the 'S' set trap command.
+The power of the trap depends on the digging ability of the player.
+
+- You now start playing the Lord of the Rings campaign by default.
+
+- Monsters speak to each other about the player resistances, and whether they have
+been attacked by the player. This is particularly noticeable in town.
+
+- Level feelings will always be display when leaving a town.
+
+- Implemented circular detection. The same area should be detected approximately
+as for players using the 'standard' screen size.
+
+- Monster experience is now computed via a power algorithm.
+
+- You can now move to dodge, which means monsters have a % chance of targetting your
+old location, and stand still to block, which increases your armour class temporarily.
+
+- Character styles for monster killing and backstabbing also apply when firing a
+weapon.
+
+- If you wake a monster and fail to kill it, it will alert those around it.
+
+- Monsters that correspond to player races now have similar abilities: dwarves resist
+blindness, goblins are immune to poison, gnomes cannot be slowed or paralyzed. To
+distinguish goblins from orcs, they have become the union of a love that dare not
+speak its name.
+
+- Tree trunks now block line of sight.
+
+- Improved starting shops available in Hobbiton to try and make the start game easier.
+(Suggested by Mikolaj Konarski).
+
+- Added home (Actually the Inn of the Prancing Pony) and market place to Bree to make
+it identical to Angband, and to introduce the idea of the home 'moving' about and
+being available in other locations.
+
+- Made a home of some kind available in all major city locations. The home is taken
+away in enough circumstances already and there is more than enough need for it to be
+present to store additional useful equipment.
+
+- Added some additional stock such as darts and daggers to Hobbiton to make start
+easier for some classes (Suggested by mikon).
+
+- Added a charisma dependent check for every time a store stocks an item, the shop
+keeper will attempt to replace any item out of stock. This makes stores much more
+useful for higher charisma players in that all items listed as being stock will be
+in stock.
+
+- There are now a number of further dungeons to explore between Farmer Maggot's
+Farm and Weathertop including an early quest reward location for the player
+(Suggested by Mikolaj Konarski).
+
+- Two-weapon style is more effective, giving additional blows at levels 15, 30 and 45,
+instead of 20 and 40, and better AC benefits (Suggested by Mikolaj Konarski).
+
+- Paladins now also start with a second blow and get an extra one at level fourty. To
+compensate, their maximum blows is reduced by 1. Warrior maximum blows are also reduced
+by one, as e.g. it is possible to get 9 blows with a two-handed weapon by forgoing a
+shield for a two-handed weapon specialist.
+
+- All classes now benefit (slightly) from instruments.
+
+- Flasks now burn instead of freeze (Reported by Hilke Reiter).
+
+- Branding an item causes you to carry it instead of dropping it (Reported by Hilke
+Reiter).
+
+- Added locations next to Hobbiton and Farmer Maggot's farm to clearly indicate that
+there is a choice to be made about which direction to go in next.
+
+- Changed sequence of some dungeons.
+
+- Made towns more interesting.
+
+- Decrease the damage of flasks of oil as they are otherwise too effective. (Suggested
+by Bandoras).
+
+- Detrimental potions now affect monsters when thrown.
+
+- It is now possible to reset your recall depth (From Angband).
+
+- Line of sight effects (such as immoliation) now affect grids and items where there
+are monsters.
+
+- Low social status characters start with hard liquor.
+
+- Slays do four times damage except where there is an equivelent execution slay.  This
+should make slays and brands more equivalent in strength.
+
+- Changed slay evil to brand holy, and now do triple damage to evil monsters.
+
+- Made ego-item names more interesting as opposed to *asterisked*.
+
+- Made swords one third less common, made hafted weapons half as common and made polearms
+between one half and one third as common.
+
+- Changed how some items are evaluated as 'good'. In particular, high-level spell books
+only count as good if you have not seen them previously.
+
+- Made scrolls, potions and throwing weapons somewhat out of depth appear in stacks.
+
+- Made ammunition, including new steel-tipped ammunition, more common.
+
+- Nar the Dwarf now guards the Midge Marshes (Suggested by Mikolaj Konarski).
+
 ### User Interface ###
+
+- Added 54x54.bmp and mask54.bmp containing David Gervais' isometric 54x54 tiles.
+
+- You can now inscribe an item with =g5 to mean pick up this item unless I already have
+5 of it in my inventory. You can also inscribe it with =d5 to mean don't pick up this item
+if I have 5 or more of it in my inventory. You can also inscribe it with =k5 to mean destroy
+it on pick-up if I have 5 or more of it in my inventory. You also inscribe it with =i5 to
+mean ignore it if I have 5 or more of it in my inventory. (Suggested by Willem Siemelink on
+rec.games.roguelike.angband).
+
+- You can now inscribe an item with <5 to mean confirm if I have less than 5 of this in my
+inventory and >5 to mean confirm if I have more than 5 of this in my inventory.
 
 - Monster recall now reports what particular types of items are dropped by each
 monster.
 
-### Bug fixes ###
+- 'v' toggles visual mode off as well as on.
+
+- Show list of all items at the bottom of the screen.
+
+- You know learn about all brands and slays as if you were checking your monster memory
+after each hit. You also know randomly notice execution slays and brands or the absence
+of brands, based on the damage delivered by the weapon per blow.
+
+- Guessed (Blessed) weapons and so on should now display as (Blessed?) not ((Blessed)?).
+
+- When displaying equipment, proper immunities are displayed differently from flags that
+protect the character against the side effects of attacks.
 
 - Prevented original graphic tiles from trying to use dark and lite tiles.
 
@@ -39,6 +263,84 @@ However, many more monsters/objects etc. need to have the correct tiles
 assigned to them and there are still visual artefacts that need to be
 cleaned up.
 
+- Additional categories in knowledge menus to display missing monster type (trees) and
+the majority of remaining features.
+
+- Only dump feature graphics to pref file that are actually used (and do not mimic another
+feature). This misses invisible traps.
+
+- Added command ^Q to display the current quests.
+
+- Add ATTR_DOOR / ATTR_WALL / ATTR_ITEM to allow 2 way doors, 24 way walls, and 'item-like'
+terrain (e.g. stuff that requires a floor graphic underneath) to pref file initialisation
+and visual edit mode. In visual edit mode, use 'd', 'w' and 'f' (for floor) to toggle the
+options on and off.
+
+- Added option to ignore corpses and other junk on the ground. Switched on by default.
+With the option on, these items still honour the =g flag.
+
+- Added option to color the player depending on health (From several other variants).
+Switched on by default.
+
+- Shop entrances made to be outside locations, so new players don't get confused by
+change in graphics when leaving a shop (Suggested by Hilke Reiter).
+
+- Improved targetting code so it displays the line of fire, when selecting a target.
+
+- Removed display of attributes an item is known not to have (Suggested on by Joshua
+Rodman).
+
+- Added self-knowledge command in the knowledge menu that acts like self-knowledge potion
+but only for attributes you know you have.
+
+- Added monster list from NPPAngband (Suggested by Joshua Rodman).
+
+- Added disturb_near option.
+
+- Only display room names by default, not full descriptions (Suggested by Joshua Rodman).
+
+- Added options to verify whenever moving from a 'safe' to an 'unsafe' grid, and to mark
+grids as safe when detect monster spell (of any time) has been cast.
+
+- Added Christophe Cavalaria's mouse support patch.
+
+- Automatically generate a random name at player birth. This can be overwritten.
+
+- Allow any key press to load the last save file used at the start screen on Windows.
+
+- Added mouse support to the majority of the game.
+
+- It is now possible to specify '!' while targetting to automatically target the location
+under the mouse pointer. This is intended for macros.
+
+- Cut down slightly the number of key presses required to buy anything in a store.
+
+- Added code to describe features. This will ultimately involve into feature lore similar
+to NPPAngband's implementation.
+
+- Mouse-clicking whilst confused will allow you to walk one step.
+
+- Tree branches are now always displayed when you are outside.  This should prevent
+the map 'randomly' changing when you move through forested areas on the surface.
+
+- You can now examine a service in a store to determine what it does for you.
+
+- To-hit, to-dam and to-ac benefits of a style are included in the character display.
+
+- You can always see what room something is in whilst looking.
+
+- Examining a monster related item recalls the monster (Suggested by Mikolaj Konarski).
+
+- Changed the way town and room descriptions are displayed when entering the room to cut
+down on key presses and make it easier to read.
+
+- Spoilers for ego item power and slay effectiveness.
+
+- Change the more prompt and key press acknowledgement when you get below your warning
+hit points.
+
+### Bug fixes ###
+
 - Priest spell righteous fury was for mages, paladins, shamans and bards but
 not for priests.  Now it is for priests, paladins, shamans and bards.  (Fixed
 by kobayasi)
@@ -48,17 +350,149 @@ learn it (randomly) but cannot cast it.  (Fixed by kobayasi)
 
 - The effect of experience was as same as self knowledge.  (Fixed by kobayasi)
 
+- Brands were frequently not applying their brand multiplier.
+
+- Random artifact dragon armour no longer has ridiculously high pvals.
+
+- Significant fixes to the way dynamic terrain worked.
+
+- Fixed some instances where resistance to fear didn't work.
+
+- It is now possible to backstab sleeping monsters.
+
+- You should only use enough energy in melee to kill a monster, again.
+
+- Status effects are now properly seen when looking at a monster.
+
+- Objects should no longer misreport the various new abilities (Reported by
+ekolis).
+
+- Fixed spelling of vulnerability (Reported by ekolis)
+
+- Detect curse should only detect cursed and not broken items (Reported by
+ekolis).
+
+- Don't wield lites on player birth (Reported by ekolis).
+
+- Don't allow player to know object flavors in the knowledge screen (Reported
+by ekolis).
+
+- Fixed hit point and mana regeneration.
+
+- Magic objects should now have the ability they are named after automatically
+known (Reported by ekolis).
+
+- You should now be able to buy a service when your inventory is full
+(Reported by David Justiss).
+
+- Stupid monsters shouldn't report when they are out of ammunition (Reported
+by David Justiss).
+
+- Fixed pickup bug where items could prevented from being picked up by objects
+stored in the grid.
+
+- Spell casters now buff themselves, not the player.
+
+- Fixed bug where objects were destroyed incorrectly when a grid was changed.
+
+- Killing a surface dungeon guardian should not create a set of stairs any
+more. (Reported by Hilke Reiter).
+
+- Farmer Maggot should no longer sing. Tom Bombadil will no longer crash the
+game (Reported by darkDrone).
+
+- Staffs should not stack incorrectly (Reported by will_asher).
+
+- Non-weapon blessed or vampiric items should no longer be generated (Reported
+by ekolis).
+
+- Monsters releasing spores or wailing should do so with correct messages
+(Reported by ekolis).
+
+- Fixed crash bug when selecting an item from the floor using the mouse.
+
+- Fixed bug where monsters were incorrectly targetting themselves or the player.
+
+- Fixed bug where slime molds could be understood by player.
+
+- Fixed infinite torch bug (Reported by ekolis).
+
+- Fixed bug where Bert, Bill & Tom were being generated outside the Trollshaw
+forest.
+
+- Fixed bug where monsters would not alert each other if attacked by magic.
+
+- Fixed crash bug caused by monsters trying to attack you with no power (reported
+by Mikolaj Konarski).
+
+- Fixed bug where magic items of throwing could be created, when the base item
+was also of throwing (reported by Mikolaj Konarski).
+
+- Fixed bug where creatures carrying mushrooms reported carrying special objects
+(reported by Mikolaj Konarski).
+
+- Fixed a number of memory corruption and crash bugs by running Valgrind against
+the codebase (Many thanks to Andrew Sidwell for making this available).
+
+- Fixed a number of edit file initialisation bugs.
+
+- Fixed bugs with the House of Tom Bombadil, the Mirror of Galadriel and the White
+Tree.
+
+- Fixed a number of bugs preventing style benefits from book and magical object
+specialisation being realised.
+
+- You can now pick up statues (Reported by Hilke Reiter).
+
+- Entering a new town or surface level of a new dungeon will display the full
+description of the area again.
+
+- Fixed bug where ego items would be created too frequently and on items that did
+not support the particular ego value.
+
+- Fixed bugs relating to distribution and power of ego items and normal items.
+
+- Fixed bug where magic items, particularly instruments, would not be sensed or
+noticed by detect magic (Reported by Mikolaj Konarski).
+
+- Fixed bug where normal arrows and bolts would be counted as good.
+
+- Fixed further bugs with attempting to track when an item does or does not have
+an ability (Reported by Mikolaj Konarski).
+
+- No longer mark monster ammunition as being of that race as it meant you couldn't
+recall the item (Reported by Mikolaj Konarski)
+
 ### Build / Platform ###
+
+- Added quest.txt in lib\edit which is used to defined fixed texts.
 
 - Makefile.std was reporting errors if the files it tries to clean are not
 there (Reported by Robert Ruehlmann).
+
+- Removed all variant options from code.
 
 - Separated out cave flags that are specific to the cave (cave_info) and
 specific to the player (play_info) in preperation for implementing 4GAI
 projection algorithms. This has to be done differently from Sangband et al.
 as there can be terrain in Unangband that blocks line of sight but not 
 spells or arrows (eg smoke). At the moment, most of these new flags are
-not used. WARNING: AT THE MOMENT THIS BREAKS SAVE FILE COMPATIBILITY!!!!
+not used.
+
+- Cleaned up code somewhat by using monster flags more often instead of
+depending on matching monster names.
+
+- Significantly improved the monster metrics used for computing relative
+monster power, for determining artifact and object slays. Some of this
+from NPPAngband.
+
+- Added an FAQ to the game for questions that have been asked on
+rec.games.roguelike.angband. As most questions were only asked once, I'm
+considering calling it the uniquely asked questions instead.
+
+- Fixed some compiler warnings.
+
+
 
 Unangband 0.5.5: "New Years Resolution"
 

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -223,13 +223,13 @@ static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	char buf[256];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Clear screen */
 	Term_clear();
@@ -370,7 +370,7 @@ static int wiz_create_itemtype(void)
 	/* Clear screen */
 	Term_clear();
 
-	/* We have to search the whole itemlist. */
+	/* We have to search the whole item list. */
 	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
@@ -1258,6 +1258,9 @@ static void do_cmd_wiz_zap(int d)
 		/* Delete the monster */
 		delete_monster_idx(i);
 	}
+
+	/* Update monster list window */
+	p_ptr->window |= PW_MONLIST;
 }
 
 
@@ -1329,7 +1332,7 @@ static void do_cmd_wiz_query(void)
 		{
 			case 'm': mask |= (PLAY_MARK); break;
 			case 'd': mask |= (PLAY_SAFE); break;
-      	      case 'p': mask |= (PLAY_TMP2); break;
+      	      		case 'p': mask |= (PLAY_TMP2); break;
 			case 'l': mask |= (PLAY_LITE); break;
 			case 's': mask |= (PLAY_SEEN); break;
 			case 't': mask |= (PLAY_TEMP); break;
@@ -1341,7 +1344,7 @@ static void do_cmd_wiz_query(void)
 		{
 			case 'g': mask |= (CAVE_GLOW); break;
 			case 'r': mask |= (CAVE_ROOM); break;
-      	      case 'd': mask |= (CAVE_DLIT); break;
+	      	        case 'd': mask |= (CAVE_DLIT); break;
 			case 'l': mask |= (CAVE_LITE); break;
 			case 'm': mask |= (CAVE_MLIT); break;
 			case 'x': mask |= (CAVE_XLIT); break;
@@ -1534,7 +1537,7 @@ void do_cmd_debug(void)
 		/* Self-Knowledge */
 		case 'k':
 		{
-			self_knowledge();
+			self_knowledge(TRUE);
 			break;
 		}
 

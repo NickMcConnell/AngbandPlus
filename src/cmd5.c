@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -50,7 +50,7 @@ int i,ii;
 	int okay = 0;
 
 	bool flag, redraw;
-	char choice;
+	key_event ke;
 
 	spell_type *s_ptr;
 	spell_cast *sc_ptr = &(s_info[0].cast[0]);
@@ -176,10 +176,22 @@ int i,ii;
 	p, I2A(0), I2A(num - 1), prompt, p);
 
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag && get_com_ex(out_val, &ke))
 	{
+		char choice;
+
+		if (ke.key == '\xff')
+		{
+			if (ke.mousebutton)
+			{
+				if (redraw) ke.key = 'a' + ke.mousey - 2;
+				else ke.key = ' ';
+			}
+			else continue;
+		}
+
 		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
 		{
 			/* Hide the list */
 			if (redraw)
@@ -221,6 +233,7 @@ int i,ii;
 			continue;
 		}
 
+		choice = ke.key;
 
 		/* Note verify */
 		verify = (isupper(choice) ? TRUE : FALSE);
@@ -407,6 +420,12 @@ void do_cmd_browse(void)
 		return;
 	}
 
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+		msg_print("You have forgotten all your spells!");
+		return;
+	}
 #endif
 
 	item_tester_hook = inven_book_okay;
@@ -596,8 +615,6 @@ void do_cmd_study(void)
 
 	int max_spells = PY_MAX_SPELLS;
 
-	if (!variant_study_more) max_spells = 64;
-
 	/* Cannot cast spells if illiterate */
 	if (c_info[p_ptr->pclass].spell_first > 50)
 	{
@@ -615,6 +632,13 @@ void do_cmd_study(void)
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+		msg_print("You have forgotten how to read!");
 		return;
 	}
 
@@ -932,22 +956,26 @@ void do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	/* Spell failure chance */
 	chance = spell_chance(spell);
 
-	/* Some rooms only give a (slight) chance */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	/* Some items and some rooms silence the player */
+	if ((p_ptr->cur_flags4 & (TR4_SILENT)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_SILENT)))
 	{
-		/* Special rooms affect some of this */
-		int by = p_ptr->py/BLOCK_HGT;
-		int bx = p_ptr->px/BLOCK_HGT;
+		/* Some items silence the player */
+		chance = 99;
+
+		/* Warn the player */
+		msg_print("You are engulfed in magical silence.");
 
 		/* Get the room */
-		if(room_info[dun_room[by][bx]].flags & (ROOM_SILENT))
+		if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_SILENT)))
 		{
-			chance = 99;
-
-			/* Warn the player */
-			msg_print("You are engulfed in magical silence.");
-
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,0x0L,TR4_SILENT);
 		}
+	}
+	else
+	{
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,0x0L,TR4_SILENT);
 	}
 
 	/* Failed spell */
@@ -1116,6 +1144,12 @@ void do_cmd_cast(void)
 		return;
 	}
 
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+		msg_print("You have forgotten how to read!");
+		return;
+	}
 
 	/* Restrict choices to spells we can cast */
 	item_tester_hook = inven_cast_okay;
@@ -1162,7 +1196,7 @@ void do_cmd_cast(void)
 		}
 		case TV_PRAYER_BOOK:
 		{
-       		p="recite";
+       			p="recite";
 			t="prayer";
 			
 			break;
@@ -1177,6 +1211,7 @@ void do_cmd_cast(void)
 			{
 				p="sing";
 			}
+
 			t = "song";
 			break;
 		}
@@ -1196,10 +1231,8 @@ void do_cmd_cast(void)
 		return;
 	}
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Hold a song if possible */
 	if (s_info[spell].flags3 & (SF3_HOLD_SONG))
@@ -1243,6 +1276,5 @@ void do_cmd_cast(void)
 
 	/* Cast the spell - held songs get cast later*/
 	if (p_ptr->held_song != spell) do_cmd_cast_aux(spell,spell_power(spell),p,t);
-	
 }
 

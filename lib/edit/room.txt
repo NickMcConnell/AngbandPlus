@@ -61,7 +61,7 @@
 
 # Version stamp (required)
 
-V:3.0.1
+V:0.6.0
 
 # 20% of rooms have at least one kind of visible feature
 
@@ -551,7 +551,7 @@ N:6:7:16:10
 A:
 B:
 D:badly burned by powerful fire.  
-R:BR_FIRE
+R:BRTH_FIRE
 S:SEEN
 F:308
 
@@ -559,7 +559,7 @@ N:6:2:17:11
 A:
 B:
 D:badly melted by powerful acid.  
-R:BR_ACID
+R:BRTH_ACID
 S:SEEN
 F:309
 
@@ -567,7 +567,7 @@ N:6:2:18:11
 A:
 B:
 D:covered in a thick layer of frost.  
-R:BR_COLD
+R:BRTH_COLD
 S:SEEN
 F:132
 
@@ -1517,7 +1517,7 @@ N:17:2:35:10
 A:
 B:
 D:Burn marks cover 
-R:BR_FIRE
+R:BRTH_FIRE
 F:308
 S:SEEN
 
@@ -1525,7 +1525,7 @@ N:17:2:36:11
 A:
 B:
 D:Acid marks cover 
-R:BR_ACID
+R:BRTH_ACID
 F:309
 S:SEEN
 
@@ -1533,7 +1533,7 @@ N:17:2:37:11
 A:
 B:
 D:Frost covers 
-R:BR_COLD
+R:BRTH_COLD
 L:ICE
 F:132
 S:SEEN
@@ -1685,7 +1685,7 @@ F:406
 L:DARK
 S:SEEN
 
-N:17:2:58:2
+N:17:2:69:2
 A:thieves
 B:
 D:Loot covers 
@@ -1693,7 +1693,7 @@ K:100
 S:SEEN
 R:SNEAKY
 
-N:17:2:59:3
+N:17:2:70:3
 A:thieves
 B:
 D:Stolen goods cover 
@@ -1701,13 +1701,20 @@ F:317
 S:SEEN
 R:SNEAKY
 
-N:17:2:60:3
+N:17:2:71:3
 A:thieves
 B:
 D:Stolen goods cover 
 F:316
 S:SEEN
 R:SNEAKY
+
+N:17:2:73:14
+A:
+B:workshop
+D:Spare parts cover
+K:12
+G:g
 
 N:17:4:100:0
 A:

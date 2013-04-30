@@ -3,14 +3,20 @@
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
                                    |___/                      
-           The Unnamed Angband                  Version 0.5.5
-
-                   Earlier versions of Angband & Moria by:
-      Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
-             Charles Swiger, Ben Harrison and Robert Ruehlmann.
-
+           The Unnamed Angband                  Version 0.6.0-beta2
+        Copyright (c) 2001-2006 by Andrew Doull except where noted.
         UnAngband 0.5.3 by Andrew Doull, Mogami, and Andrew Sidwell
-             Earlier versions of UnAngband by Andrew Doull.
+               Other versions of UnAngband by Andrew Doull.
+    Based on: 	Moria:   Copyright (c) 1985 Robert Alan Koeneke
+        	Umoria:   Copyright (c) 1989 James E. Wilson
+                Angband 2.0 - 2.4 - 2.6.2 by:
+                Alex Cutler, Andy Astrand, Sean Marsh,
+                Geoff Hill, Charles Teague, Charles Swiger
+                Angband 2.7.0 - 2.8.5 by Ben Harrison
+                Angband 2.9.0 - 3.0.x by Robert Ruehlmann
+		Oangband 0.6.0 Copyright 1998-2003 Leon Marrick, Bahman Rabii
+		EYAngband 0.5.2 By Eytan Zweig
+		Sangband 0.9.9 and Demoband by Leon Marrick
 
      Send comments, bug reports and patches to unangband@yahoogroups.com
          Visit the UnAngband website at http://unangband.berlios.de/

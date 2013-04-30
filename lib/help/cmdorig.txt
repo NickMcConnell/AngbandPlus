@@ -24,7 +24,7 @@
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  (unused)
  x  (unused)                             X  (unused)
- y  (unused)                             Y  Apply a rune
+ y  Apply a run                          Y  Assemble a part
  z  Zap a rod                            Z  (unused)
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (unused)
@@ -42,10 +42,10 @@
  ]  Dump html screen dump               ^N  (unused)
  -  Walk (flip pickup)                  ^O  (unused)
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  (unused)
+ +  Alter grid                          ^Q  Display current quest
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
- :  Take notes                          ^T  (unused)
+ :  Take notes                          ^T  Display time of day
  '  (unused)                            ^U  (unused)
  "  Enter a user pref command           ^V  Repeat last command
  ,  Stay still (with pickup)            ^W  (special - wizard mode)

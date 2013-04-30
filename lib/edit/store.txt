@@ -11,9 +11,11 @@
 # N:store:store name (interior)
 # O:tval:sval:count - must offer at least 15 item types
 
+# Maximum number of O: entries is currently 32 lines.
+
 # Version stamp (required)
 
-V:3.0.1
+V:0.6.0
 
 N:0:(for sale sign)
 
@@ -37,7 +39,10 @@ O:20:1:1
 O:20:4:1
 O:35:1:3
 
+# Service of Enchant Armour
+
 N:2:Armoury
+O:99:15:0
 O:30:2:2
 O:30:3:2
 O:32:2:2
@@ -60,7 +65,11 @@ O:34:2:2
 O:34:4:1
 O:34:3:1
 
+#Services of Enchant Weapon To-Hit and To-Dam
+
 N:3:Weapon Smith
+O:99:44:0
+O:99:45:0
 O:23:4:1
 O:23:5:1
 O:23:7:1
@@ -91,7 +100,9 @@ O:16:1:2
 O:17:1:2
 O:18:1:2
 
+#Service of Restoration
 N:4:Temple
+O:99:10:0
 O:21:2:1
 O:21:3:1
 O:21:5:2
@@ -115,7 +126,11 @@ O:91:1:2
 O:91:2:2
 O:91:3:1
 
+# Service of Analyze Magic and Read Magic
+
 N:5:Alchemist
+O:99:22:0
+O:99:27:0
 O:70:17:1
 O:70:18:1
 O:70:16:1
@@ -139,7 +154,9 @@ O:75:31:1
 O:70:12:3
 O:75:29:2
 
+#Service of Gauge Magic
 N:6:Magic Shop
+O:99:2:0
 O:45:23:1
 O:45:7:1
 O:45:16:1
@@ -172,26 +189,20 @@ N:7:Black Market
 N:8:Your home
 
 N:9:Farmer Maggot's Mushroom Store
-O:80:35:4
-O:80:32:1
-O:80:33:2
-O:80:39:1
-O:80:38:1
-O:80:36:2
-O:80:12:1
-O:80:13:1
-O:80:14:1
-O:80:15:1
-O:80:16:1
+O:80:12:2
+O:80:13:2
+O:80:14:2
+O:80:15:2
+O:80:16:3
 O:80:17:1
 O:80:18:1
 O:80:19:1
-O:80:20:1
+O:80:20:3
+O:80:36:1
+O:80:39:1
 O:80:40:1
-O:80:41:1
-O:75:0:2
-O:75:1:2
-O:75:2:2
+O:75:2:1
+O:75:1:1
 
 N:10:Mill
 
@@ -216,7 +227,9 @@ O:80:38:1
 O:80:40:1
 O:80:41:1
 
+#Service of Satisfy Hunger
 N:15:Festhall
+O:99:1:0
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -250,7 +263,10 @@ O:24:7:1
 O:24:8:1
 O:24:9:1
 
+#Service of Poison Arrows
+
 N:17:Fletcher
+O:99:33:0
 O:17:1:3
 O:17:2:1
 O:17:3:1
@@ -331,22 +347,7 @@ O:80:38:1
 O:80:40:1
 O:80:41:1
 
-N:22:Inn
-O:80:35:4
-O:80:32:1
-O:80:33:2
-O:80:39:1
-O:80:38:1
-O:39:0:3
-O:39:1:2
-O:77:0:5
-O:92:1:1
-O:5:0:2
-O:20:1:1
-O:20:4:1
-O:35:1:3
-O:80:40:1
-O:80:37:1
+N:22:a room at the Inn
 
 N:23:Barracks
 O:80:35:4
@@ -366,7 +367,7 @@ O:20:4:1
 O:20:5:1
 O:35:1:3
 
-N:24:White Tree
+N:24:the Mirror of Galadriel
 
 N:25:Shrine
 O:75:54:2
@@ -413,19 +414,21 @@ O:70:34:1
 N:27:Bilbo's House
 
 N:28:House of Tom Bombadil
-O:80:35:4
-O:80:32:1
-O:80:33:2
-O:80:39:1
-O:80:38:1
-O:80:40:1
-O:80:41:1
+O:75:30:1
+O:75:31:1
+O:70:12:3
+O:75:29:2
+O:75:32:1
+O:75:34:1
+O:75:35:2
+O:75:36:2
+O:75:41:3
 
 N:29:Small Goods Store
-O:77:1:3
 O:30:2:2
 O:30:3:2
 O:32:2:2
+O:35:1:3
 O:36:2:2
 O:36:4:2
 O:36:6:2
@@ -437,19 +440,19 @@ O:34:4:2
 O:19:2:1
 O:19:12:1
 O:19:13:1
-O:19:23:1
+O:19:23:2
 O:16:1:2
 O:17:1:2
 O:18:1:2
-O:39:0:3
-O:39:1:2
-O:77:0:5
-O:90:0:3
-O:90:1:2
-O:91:0:3
-O:91:1:2
+O:20:1:1
+O:20:4:1
+O:23:4:2
+O:22:1:2
 
+#Service of Enchant Armour and Enchant Armour To-Resist
 N:30:Heavy Armoury
+O:99:15:0
+O:99:22:0
 O:30:6:2
 O:32:5:2
 O:32:6:1
@@ -472,7 +475,10 @@ O:31:5:2
 O:34:3:2
 O:34:5:2
 
+#Service of Enchant Weapon and Enchant Weapon Brand
 N:31:Heavy Weapon Smith
+O:99:14:0
+O:99:16:0
 O:23:10:1
 O:23:11:1
 O:23:12:1
@@ -535,7 +541,10 @@ O:93:26:1
 O:93:27:1
 O:93:28:1
 
+#Service of Analyze Magic and Read Magic
 N:33:Chemist
+O:99:22:0
+O:99:27:0
 O:70:8:4
 O:70:11:4
 O:70:12:3
@@ -560,3 +569,51 @@ O:70:54:1
 O:70:55:1
 O:70:56:1
 O:70:57:1
+
+N:34:Gandalf's Firework Shop
+O:65:7:1
+O:65:17:1
+O:65:6:1
+O:65:15:1
+O:65:14:1
+O:65:24:1
+O:55:8:1
+O:55:7:1
+O:90:0:3
+O:90:1:2
+O:90:2:2
+O:17:1:2
+O:17:4:2
+O:18:1:3
+O:77:0:3
+O:39:0:2
+O:39:1:1
+O:70:8:3
+
+#Service of Satisfy Hunger
+N:35:Inn of the Green Dragon
+O:91:0:3
+O:91:1:2
+O:91:2:2
+O:99:1:0
+O:92:0:3
+O:92:1:2
+O:92:0:1
+O:35:1:3
+O:80:35:3
+O:80:38:3
+O:80:38:3
+O:75:34:2
+O:75:35:1
+O:75:42:1
+O:75:28:2
+
+N:36:tree hung with a banner 'Happy Elventy-One'
+
+N:37:a room at the Prancing Pony
+
+N:38:the pool of Goldberry
+
+N:39:the White Tree
+
+N:40:Frodo's House

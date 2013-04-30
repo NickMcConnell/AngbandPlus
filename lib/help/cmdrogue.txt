@@ -29,7 +29,7 @@
  !  Interact with system                ^A  (special - debug command)
  @  Interact with macros                ^B  (alter - south west)
  #  Toggle search mode                  ^C  (special - break)
- $  (unused)                            ^D  Destroy item
+ $  Display current quests              ^D  Destroy item
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  Engrave a rune
@@ -40,13 +40,13 @@
  }  Uninscribe an object                ^L  (alter - east)
  [  (unused)                            ^M  (special - return)
  ]  Dump html screen dump               ^N  (alter - south east)
- -  Walk (flip pickup)                  ^O  (unused)
+ -  Walk (flip pickup)                  ^O  Operate a part
  _  Enter store                         ^P  Show previous messages
- +  Alter grid                          ^Q  (unused)
+ +  Alter grid                          ^Q  Display current quest
  =  Set options                         ^R  Redraw the screen
  ;  Walk (with pickup)                  ^S  Save and don't quit
  :  Take notes                          ^T  Dig a Tunnel
- '  (unused)                            ^U  (alter - north east)
+ '  Display time of day                 ^U  (alter - north east)
  "  Enter a user pref command           ^V  Repeat last command
  ,  Run                                 ^W  (special - wizard mode)
  <  Go up staircase                     ^X  Save and quit

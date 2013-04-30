@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -1308,33 +1308,43 @@ static bool parse_under = FALSE;
  * macro trigger, 500 milliseconds must pass before the key sequence is
  * known not to be that macro trigger.  XXX XXX XXX
  */
-static char inkey_aux(void)
+static key_event inkey_aux(void)
 {
 	int k, n;
 	int p = 0, w = 0;
 
+	key_event ke, ke0;
 	char ch;
 
 	cptr pat, act;
 
 	char buf[1024];
 
+	/* Initialize the no return */
+	ke0.key = 0;
+	ke0.mousebutton = 0; /* To fix GCC warnings on X11 */
+	ke0.mousey = 0;
+	ke0.mousex = 0;
 
 	/* Wait for a keypress */
-	(void)(Term_inkey(&ch, TRUE, TRUE));
-
+	(void)(Term_inkey(&ke, TRUE, TRUE));
+	ch = ke.key;
 
 	/* End "macro action" */
-	if (ch == 30) parse_macro = FALSE;
+	if ((ch == 30) || (ch == '\xff'))
+	{
+		parse_macro = FALSE;
+		return (ke);
+	}
 
 	/* Inside "macro action" */
-	if (ch == 30) return (ch);
+	if (ch == 30) return (ke);
 
 	/* Inside "macro action" */
-	if (parse_macro) return (ch);
+	if (parse_macro) return (ke);
 
 	/* Inside "macro trigger" */
-	if (parse_under) return (ch);
+	if (parse_under) return (ke);
 
 
 	/* Save the first key, advance */
@@ -1346,7 +1356,7 @@ static char inkey_aux(void)
 	k = macro_find_check(buf);
 
 	/* No macro pending */
-	if (k < 0) return (ch);
+	if (k < 0) return (ke);
 
 
 	/* Wait for a macro, or a timeout */
@@ -1359,10 +1369,10 @@ static char inkey_aux(void)
 		if (k < 0) break;
 
 		/* Check for (and remove) a pending key */
-		if (0 == Term_inkey(&ch, FALSE, TRUE))
+		if (0 == Term_inkey(&ke, FALSE, TRUE))
 		{
 			/* Append the key */
-			buf[p++] = ch;
+			buf[p++] = ke.key;
 			buf[p] = '\0';
 
 			/* Restart wait */
@@ -1394,14 +1404,14 @@ static char inkey_aux(void)
 		while (p > 0)
 		{
 			/* Push the key, notice over-flow */
-			if (Term_key_push(buf[--p])) return (0);
+			if (Term_key_push(buf[--p])) return (ke0);
 		}
 
 		/* Wait for (and remove) a pending key */
-		(void)Term_inkey(&ch, TRUE, TRUE);
+		(void)Term_inkey(&ke, TRUE, TRUE);
 
 		/* Return the key */
-		return (ch);
+		return (ke);
 	}
 
 
@@ -1415,7 +1425,7 @@ static char inkey_aux(void)
 	while (p > n)
 	{
 		/* Push the key, notice over-flow */
-		if (Term_key_push(buf[--p])) return (0);
+		if (Term_key_push(buf[--p])) return (ke0);
 	}
 
 
@@ -1423,7 +1433,7 @@ static char inkey_aux(void)
 	parse_macro = TRUE;
 
 	/* Push the "end of macro action" key */
-	if (Term_key_push(30)) return (0);
+	if (Term_key_push(30)) return (ke0);
 
 
 	/* Get the macro action */
@@ -1436,12 +1446,12 @@ static char inkey_aux(void)
 	while (n > 0)
 	{
 		/* Push the key, notice over-flow */
-		if (Term_key_push(act[--n])) return (0);
+		if (Term_key_push(act[--n])) return (ke0);
 	}
 
 
 	/* Hack -- Force "inkey()" to call us again */
-	return (0);
+	return (ke0);
 }
 
 
@@ -1471,7 +1481,7 @@ char (*inkey_hack)(int flush_first) = NULL;
 
 
 /*
- * Get a keypress from the user.
+ * Get a keypress, mouse click or mouse move from the user
  *
  * This function recognizes a few "global parameters".  These are variables
  * which, if set to TRUE before calling this function, will have an effect
@@ -1532,30 +1542,33 @@ char (*inkey_hack)(int flush_first) = NULL;
  * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
  * control of the keyboard from the user.
  */
-char inkey(void)
+key_event inkey_ex(void)
 {
 	bool cursor_state;
 
-	char kk;
+	key_event kk;
 
-	char ch = 0;
+	key_event ke;
 
 	bool done = FALSE;
 
 	term *old = Term;
 
 
+	/* Initialise keypress */
+	ke.key = 0;
+
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{
 		/* Get next character, and advance */
-		ch = *inkey_next++;
+		ke.key = *inkey_next++;
 
 		/* Cancel the various "global parameters" */
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
-		return (ch);
+		return (ke);
 	}
 
 	/* Forget pointer */
@@ -1571,7 +1584,7 @@ char inkey(void)
 		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
 
 		/* Accept result */
-		return (ch);
+		return (ke);
 	}
 
 #endif /* ALLOW_BORG */
@@ -1607,7 +1620,7 @@ char inkey(void)
 
 
 	/* Get a key */
-	while (!ch)
+	while (!ke.key)
 	{
 		/* Hack -- Handle "inkey_scan" */
 		if (!inkey_base && inkey_scan &&
@@ -1649,7 +1662,7 @@ char inkey(void)
 			if (!inkey_scan)
 			{
 				/* Wait for (and remove) a pending key */
-				if (0 == Term_inkey(&ch, TRUE, TRUE))
+				if (0 == Term_inkey(&ke, TRUE, TRUE))
 				{
 					/* Done */
 					break;
@@ -1663,7 +1676,7 @@ char inkey(void)
 			while (TRUE)
 			{
 				/* Check for (and remove) a pending key */
-				if (0 == Term_inkey(&ch, FALSE, TRUE))
+				if (0 == Term_inkey(&ke, FALSE, TRUE))
 				{
 					/* Done */
 					break;
@@ -1689,14 +1702,14 @@ char inkey(void)
 
 
 		/* Get a key (see above) */
-		ch = inkey_aux();
+		ke = inkey_aux();
 
 
 		/* Handle "control-right-bracket" */
-		if (ch == 29)
+		if (ke.key == 29)
 		{
 			/* Strip this key */
-			ch = 0;
+			ke.key = 0;
 
 			/* Continue */
 			continue;
@@ -1704,14 +1717,14 @@ char inkey(void)
 
 
 		/* Treat back-quote as escape */
-		if (ch == '`') ch = ESCAPE;
+		if (ke.key == '`') ke.key = ESCAPE;
 
 
 		/* End "macro trigger" */
-		if (parse_under && (ch <= 32))
+		if (parse_under && (ke.key <= 32))
 		{
 			/* Strip this key */
-			ch = 0;
+			ke.key = 0;
 
 			/* End "macro trigger" */
 			parse_under = FALSE;
@@ -1719,17 +1732,17 @@ char inkey(void)
 
 
 		/* Handle "control-caret" */
-		if (ch == 30)
+		if (ke.key == 30)
 		{
 			/* Strip this key */
-			ch = 0;
+			ke.key = 0;
 		}
 
 		/* Handle "control-underscore" */
-		else if (ch == 31)
+		else if (ke.key == 31)
 		{
 			/* Strip this key */
-			ch = 0;
+			ke.key = 0;
 
 			/* Begin "macro trigger" */
 			parse_under = TRUE;
@@ -1739,7 +1752,7 @@ char inkey(void)
 		else if (parse_under)
 		{
 			/* Strip this key */
-			ch = 0;
+			ke.key = 0;
 		}
 	}
 
@@ -1757,11 +1770,42 @@ char inkey(void)
 
 
 	/* Return the keypress */
-	return (ch);
+	return (ke);
 }
 
 
+/*
+ * Get a keypress or mouse click from the user.
+ */
+key_event anykey(void)
+{
+	key_event ke;
 
+	/* Only accept a keypress or mouse click*/
+	do
+	{
+		ke = inkey_ex();
+	} while ((ke.key == '\xff') && !(ke.mousebutton));
+
+	return ke;
+}
+
+
+/*
+ * Get a keypress from the user.
+ */
+char inkey(void)
+{
+	key_event ke;
+
+	/* Only accept a keypress */
+	do
+	{
+		ke = inkey_ex();
+	} while (ke.key == '\xff');
+
+	return ke.key;
+}
 
 
 /*
@@ -2383,17 +2427,37 @@ static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 
+#if 0
+	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
+
 	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
+	if (p_ptr->chp < warning)
+	{
+		Term_putstr(x, 0, -1, a, "-c to continue-");
+	}
+	else
+	{
+#endif
+		/* Pause for response */
+		Term_putstr(x, 0, -1, a, "-more-");
+#if 0
+	}
+#endif
 
 	/* Get an acceptable keypress */
 	while (1)
 	{
-		char ch;
-		ch = inkey();
+		key_event ke;
+		ke = anykey();
+
+		if ((ke.key == '\xff') && !(ke.mousebutton)) continue;
+#if 0
+		if ((p_ptr->chp < warning) && (ke.key != 'c')) { bell("Press c to continue."); continue; }
+#endif
 		if (quick_messages) break;
-		if ((ch == ESCAPE) || (ch == ' ')) break;
-		if ((ch == '\n') || (ch == '\r')) break;
+		if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
+		if ((ke.key == '\n') || (ke.key == '\r')) break;
+		if ((ke.key == '\xff') && (ke.mousebutton == 1)) break;
 		bell("Illegal response to a 'more' prompt!");
 	}
 
@@ -3037,10 +3101,12 @@ bool askfor_aux(char *buf, int len)
 
 	int k = 0;
 
-	char ch = '\0';
+	key_event ke;
 
 	bool done = FALSE;
 
+
+	ke.key = '\0';
 
 	/* Locate the cursor */
 	Term_locate(&x, &y);
@@ -3071,10 +3137,10 @@ bool askfor_aux(char *buf, int len)
 		Term_gotoxy(x + k, y);
 
 		/* Get a key */
-		ch = inkey();
+		ke = inkey_ex();
 
 		/* Analyze the key */
-		switch (ch)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
@@ -3098,11 +3164,30 @@ bool askfor_aux(char *buf, int len)
 				break;
 			}
 
+			case '\xff':
+			{
+				if ((ke.mousebutton) && !(k))
+				{
+					if (ke.mousebutton == 1)
+					{
+						k = strlen(buf);
+						done = TRUE;
+					}
+					else if (ke.mousebutton == 2)
+					{
+						ke.key = ESCAPE;
+						done = TRUE;
+					}
+					break;
+				}
+				else continue;
+			}
+
 			default:
 			{
-				if ((k < len-1) && (isprint(ch)))
+				if ((k < len-1) && (isprint(ke.key)))
 				{
-					buf[k++] = ch;
+					buf[k++] = ke.key;
 				}
 				else
 				{
@@ -3121,7 +3206,7 @@ bool askfor_aux(char *buf, int len)
 	}
 
 	/* Done */
-	return (ch != ESCAPE);
+	return (ke.key != ESCAPE);
 }
 
 
@@ -3241,7 +3326,7 @@ s16b get_quantity(cptr prompt, int max)
  */
 bool get_check(cptr prompt)
 {
-	char ch;
+	key_event ke;
 
 	char buf[80];
 
@@ -3257,10 +3342,12 @@ bool get_check(cptr prompt)
 	/* Get an acceptable answer */
 	while (TRUE)
 	{
-		ch = inkey();
+		ke = anykey();
+		if (ke.mousebutton == 1) ke.key = 'y';
+		if (ke.mousebutton == 2) ke.key = 'n';
 		if (quick_messages) break;
-		if (ch == ESCAPE) break;
-		if (strchr("YyNn", ch)) break;
+		if (ke.key == ESCAPE) break;
+		if (strchr("YyNn", ke.key)) break;
 		bell("Illegal response to a 'yes/no' question!");
 	}
 
@@ -3268,7 +3355,7 @@ bool get_check(cptr prompt)
 	prt("", 0, 0);
 
 	/* Normal negation */
-	if ((ch != 'Y') && (ch != 'y')) return (FALSE);
+	if ((ke.key != 'Y') && (ke.key != 'y')) return (FALSE);
 
 	/* Success */
 	return (TRUE);
@@ -3284,7 +3371,31 @@ bool get_check(cptr prompt)
  */
 bool get_com(cptr prompt, char *command)
 {
-	char ch;
+	key_event ke;
+	bool result;
+
+	while (1)
+	{
+		result = get_com_ex(prompt, &ke);
+		*command = ke.key;
+
+		/* Ignore mouse */
+		if (ke.key != '\xff') break;
+	}
+
+	return result;
+}
+
+/*
+ * Prompts for a keypress or mouse press
+ *
+ * The "prompt" should take the form "Command: "
+ *
+ * Returns TRUE unless the character is "Escape"
+ */
+bool get_com_ex(cptr prompt, key_event *command)
+{
+	key_event ke;
 
 	/* Paranoia XXX XXX XXX */
 	message_flush();
@@ -3293,29 +3404,33 @@ bool get_com(cptr prompt, char *command)
 	prt(prompt, 0, 0);
 
 	/* Get a key */
-	ch = inkey();
+	ke = inkey_ex();
 
 	/* Clear the prompt */
 	prt("", 0, 0);
 
 	/* Save the command */
-	*command = ch;
+	*command = ke;
 
 	/* Done */
-	return (ch != ESCAPE);
+	return (ke.key != ESCAPE);
 }
+
+
 
 
 /*
  * Pause for user response
  *
  * This function is stupid.  XXX XXX XXX
+ *
+ * Now accepts mouse press
  */
 void pause_line(int row)
 {
 	prt("", row, 0);
 	put_str("[Press any key to continue]", row, 23);
-	(void)inkey();
+	(void)anykey();
 	prt("", row, 0);
 }
 
@@ -3351,7 +3466,7 @@ void request_command(bool shopping)
 {
 	int i;
 
-	char ch;
+	key_event ke;
 
 	int mode;
 
@@ -3391,7 +3506,7 @@ void request_command(bool shopping)
 			message_flush();
 
 			/* Use auto-command */
-			ch = (char)p_ptr->command_new;
+			ke.key = (char)p_ptr->command_new;
 
 			/* Forget it */
 			p_ptr->command_new = 0;
@@ -3407,15 +3522,15 @@ void request_command(bool shopping)
 			inkey_flag = TRUE;
 
 			/* Get a command */
-			ch = inkey();
+			ke = inkey_ex();
 		}
 
 		/* Clear top line */
-		prt("", 0, 0);
+		if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
 
 
 		/* Command Count */
-		if (ch == '0')
+		if (ke.key == '0')
 		{
 			int old_arg = p_ptr->command_arg;
 
@@ -3429,10 +3544,10 @@ void request_command(bool shopping)
 			while (1)
 			{
 				/* Get a new keypress */
-				ch = inkey();
+				ke.key = inkey();
 
 				/* Simple editing (delete or backspace) */
-				if ((ch == 0x7F) || (ch == KTRL('H')))
+				if ((ke.key == 0x7F) || (ke.key == KTRL('H')))
 				{
 					/* Delete a digit */
 					p_ptr->command_arg = p_ptr->command_arg / 10;
@@ -3442,7 +3557,7 @@ void request_command(bool shopping)
 				}
 
 				/* Actual numeric data */
-				else if (isdigit(ch))
+				else if (isdigit(ke.key))
 				{
 					/* Stop count at 9999 */
 					if (p_ptr->command_arg >= 1000)
@@ -3458,7 +3573,7 @@ void request_command(bool shopping)
 					else
 					{
 						/* Incorporate that digit */
-						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ch);
+						p_ptr->command_arg = p_ptr->command_arg * 10 + D2I(ke.key);
 					}
 
 					/* Show current count */
@@ -3493,10 +3608,10 @@ void request_command(bool shopping)
 			}
 
 			/* Hack -- white-space means "enter command now" */
-			if ((ch == ' ') || (ch == '\n') || (ch == '\r'))
+			if ((ke.key == ' ') || (ke.key == '\n') || (ke.key == '\r'))
 			{
 				/* Get a real command */
-				if (!get_com("Command: ", &ch))
+				if (!get_com("Command: ", &ke.key))
 				{
 					/* Clear count */
 					p_ptr->command_arg = 0;
@@ -3509,10 +3624,10 @@ void request_command(bool shopping)
 
 
 		/* Allow "keymaps" to be bypassed */
-		if (ch == '\\')
+		if (ke.key == '\\')
 		{
 			/* Get a real command */
-			(void)get_com("Command: ", &ch);
+			(void)get_com("Command: ", &ke.key);
 
 			/* Hack -- bypass keymaps */
 			if (!inkey_next) inkey_next = "";
@@ -3520,15 +3635,15 @@ void request_command(bool shopping)
 
 
 		/* Allow "control chars" to be entered */
-		if (ch == '^')
+		if (ke.key == '^')
 		{
 			/* Get a new command and controlify it */
-			if (get_com("Control: ", &ch)) ch = KTRL(ch);
+			if (get_com("Control: ", &ke.key)) ke.key = KTRL(ke.key);
 		}
 
 
 		/* Look up applicable keymap */
-		act = keymap_act[mode][(byte)(ch)];
+		act = keymap_act[mode][(byte)(ke.key)];
 
 		/* Apply keymap if not inside a keymap already */
 		if (act && !inkey_next)
@@ -3545,11 +3660,12 @@ void request_command(bool shopping)
 
 
 		/* Paranoia */
-		if (ch == '\0') continue;
+		if (ke.key == '\0') continue;
 
 
 		/* Use command */
-		p_ptr->command_cmd = ch;
+		p_ptr->command_cmd = ke.key;
+		p_ptr->command_cmd_ex = ke;
 
 		/* Done */
 		break;
@@ -3622,7 +3738,11 @@ void request_command(bool shopping)
 
 
 	/* Hack -- erase the message line. */
-	prt("", 0, 0);
+	if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
+
+	/* Hack again -- apply the modified key command */
+	p_ptr->command_cmd_ex.key = p_ptr->command_cmd;
+
 }
 
 
@@ -4033,3 +4153,470 @@ void build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+
+/*
+ * Accept values for y and x (considered as the endpoints of lines) between
+ * 0 and 40, and return an angle in degrees (divided by two).  -LM-
+ *
+ * This table's input and output need some processing:
+ *
+ * Because this table gives degrees for a whole circle, up to radius 20, its
+ * origin is at (x,y) = (20, 20).  Therefore, the input code needs to find
+ * the origin grid (where the lines being compared come from), and then map
+ * it to table grid 20,20.  Do not, however, actually try to compare the
+ * angle of a line that begins and ends at the origin with any other line -
+ * it is impossible mathematically, and the table will return the value "255".
+ *
+ * The output of this table also needs to be massaged, in order to avoid the
+ * discontinuity at 0/180 degrees.  This can be done by:
+ *   rotate = 90 - first value
+ *   this rotates the first input to the 90 degree line)
+ *   tmp = ABS(second value + rotate) % 180
+ *   diff = ABS(90 - tmp) = the angular difference (divided by two) between
+ *   the first and second values.
+ *
+ * Note that grids diagonal to the origin have unique angles.
+ */
+byte get_angle_to_grid[41][41] =
+{
+  {  68,  67,  66,  65,  64,  63,  62,  62,  60,  59,  58,  57,  56,  55,  53,  52,  51,  49,  48,  46,  45,  44,  42,  41,  39,  38,  37,  35,  34,  33,  32,  31,  30,  28,  28,  27,  26,  25,  24,  24,  23 },
+  {  69,  68,  67,  66,  65,  64,  63,  62,  61,  60,  59,  58,  56,  55,  54,  52,  51,  49,  48,  47,  45,  43,  42,  41,  39,  38,  36,  35,  34,  32,  31,  30,  29,  28,  27,  26,  25,  24,  24,  23,  22 },
+  {  69,  69,  68,  67,  66,  65,  64,  63,  62,  61,  60,  58,  57,  56,  54,  53,  51,  50,  48,  47,  45,  43,  42,  40,  39,  37,  36,  34,  33,  32,  30,  29,  28,  27,  26,  25,  24,  24,  23,  22,  21 },
+  {  70,  69,  69,  68,  67,  66,  65,  64,  63,  61,  60,  59,  58,  56,  55,  53,  52,  50,  48,  47,  45,  43,  42,  40,  38,  37,  35,  34,  32,  31,  30,  29,  27,  26,  25,  24,  24,  23,  22,  21,  20 },
+  {  71,  70,  69,  69,  68,  67,  66,  65,  63,  62,  61,  60,  58,  57,  55,  54,  52,  50,  49,  47,  45,  43,  41,  40,  38,  36,  35,  33,  32,  30,  29,  28,  27,  25,  24,  24,  23,  22,  21,  20,  19 },
+  {  72,  71,  70,  69,  69,  68,  67,  65,  64,  63,  62,  60,  59,  58,  56,  54,  52,  51,  49,  47,  45,  43,  41,  39,  38,  36,  34,  32,  31,  30,  28,  27,  26,  25,  24,  23,  22,  21,  20,  19,  18 },
+  {  73,  72,  71,  70,  69,  69,  68,  66,  65,  64,  63,  61,  60,  58,  57,  55,  53,  51,  49,  47,  45,  43,  41,  39,  37,  35,  33,  32,  30,  29,  27,  26,  25,  24,  23,  22,  21,  20,  19,  18,  17 },
+  {  73,  73,  72,  71,  70,  70,  69,  68,  66,  65,  64,  62,  61,  59,  57,  56,  54,  51,  49,  47,  45,  43,  41,  39,  36,  34,  33,  31,  29,  28,  26,  25,  24,  23,  21,  20,  20,  19,  18,  17,  17 },
+  {  75,  74,  73,  72,  72,  71,  70,  69,  68,  66,  65,  63,  62,  60,  58,  56,  54,  52,  50,  47,  45,  43,  40,  38,  36,  34,  32,  30,  28,  27,  25,  24,  23,  21,  20,  19,  18,  18,  17,  16,  15 },
+  {  76,  75,  74,  74,  73,  72,  71,  70,  69,  68,  66,  65,  63,  61,  59,  57,  55,  53,  50,  48,  45,  42,  40,  37,  35,  33,  31,  29,  27,  25,  24,  23,  21,  20,  19,  18,  17,  16,  16,  15,  14 },
+  {  77,  76,  75,  75,  74,  73,  72,  71,  70,  69,  68,  66,  64,  62,  60,  58,  56,  53,  51,  48,  45,  42,  39,  37,  34,  32,  30,  28,  26,  24,  23,  21,  20,  19,  18,  17,  16,  15,  15,  14,  13 },
+  {  78,  77,  77,  76,  75,  75,  74,  73,  72,  70,  69,  68,  66,  64,  62,  60,  57,  54,  51,  48,  45,  42,  39,  36,  33,  30,  28,  26,  24,  23,  21,  20,  18,  17,  16,  15,  15,  14,  13,  13,  12 },
+  {  79,  79,  78,  77,  77,  76,  75,  74,  73,  72,  71,  69,  68,  66,  63,  61,  58,  55,  52,  49,  45,  41,  38,  35,  32,  29,  27,  24,  23,  21,  19,  18,  17,  16,  15,  14,  13,  13,  12,  11,  11 },
+  {  80,  80,  79,  79,  78,  77,  77,  76,  75,  74,  73,  71,  69,  68,  65,  63,  60,  57,  53,  49,  45,  41,  37,  33,  30,  27,  25,  23,  21,  19,  17,  16,  15,  14,  13,  13,  12,  11,  11,  10,  10 },
+  {  82,  81,  81,  80,  80,  79,  78,  78,  77,  76,  75,  73,  72,  70,  68,  65,  62,  58,  54,  50,  45,  40,  36,  32,  28,  25,  23,  20,  18,  17,  15,  14,  13,  12,  12,  11,  10,  10,   9,   9,   8 },
+  {  83,  83,  82,  82,  81,  81,  80,  79,  79,  78,  77,  75,  74,  72,  70,  68,  64,  60,  56,  51,  45,  39,  34,  30,  26,  23,  20,  18,  16,  15,  13,  12,  11,  11,  10,   9,   9,   8,   8,   7,   7 },
+  {  84,  84,  84,  83,  83,  83,  82,  81,  81,  80,  79,  78,  77,  75,  73,  71,  68,  63,  58,  52,  45,  38,  32,  27,  23,  19,  17,  15,  13,  12,  11,  10,   9,   9,   8,   7,   7,   7,   6,   6,   6 },
+  {  86,  86,  85,  85,  85,  84,  84,  84,  83,  82,  82,  81,  80,  78,  77,  75,  72,  68,  62,  54,  45,  36,  28,  23,  18,  15,  13,  12,  10,   9,   8,   8,   7,   6,   6,   6,   5,   5,   5,   4,   4 },
+  {  87,  87,  87,  87,  86,  86,  86,  86,  85,  85,  84,  84,  83,  82,  81,  79,  77,  73,  68,  58,  45,  32,  23,  17,  13,  11,   9,   8,   7,   6,   6,   5,   5,   4,   4,   4,   4,   3,   3,   3,   3 },
+  {  89,  88,  88,  88,  88,  88,  88,  88,  88,  87,  87,  87,  86,  86,  85,  84,  83,  81,  77,  68,  45,  23,  13,   9,   7,   6,   5,   4,   4,   3,   3,   3,   2,   2,   2,   2,   2,   2,   2,   2,   1 },
+  {  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90,  90, 255,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
+  {  91,  92,  92,  92,  92,  92,  92,  92,  92,  93,  93,  93,  94,  94,  95,  96,  97,  99, 103, 113, 135, 158, 167, 171, 173, 174, 175, 176, 176, 177, 177, 177, 178, 178, 178, 178, 178, 178, 178, 178, 179 },
+  {  93,  93,  93,  93,  94,  94,  94,  94,  95,  95,  96,  96,  97,  98,  99, 101, 103, 107, 113, 122, 135, 148, 158, 163, 167, 169, 171, 172, 173, 174, 174, 175, 175, 176, 176, 176, 176, 177, 177, 177, 177 },
+  {  94,  94,  95,  95,  95,  96,  96,  96,  97,  98,  98,  99, 100, 102, 103, 105, 108, 113, 118, 126, 135, 144, 152, 158, 162, 165, 167, 168, 170, 171, 172, 172, 173, 174, 174, 174, 175, 175, 175, 176, 176 },
+  {  96,  96,  96,  97,  97,  97,  98,  99,  99, 100, 101, 102, 103, 105, 107, 109, 113, 117, 122, 128, 135, 142, 148, 153, 158, 161, 163, 165, 167, 168, 169, 170, 171, 171, 172, 173, 173, 173, 174, 174, 174 },
+  {  97,  97,  98,  98,  99,  99, 100, 101, 101, 102, 103, 105, 106, 108, 110, 113, 116, 120, 124, 129, 135, 141, 146, 150, 154, 158, 160, 162, 164, 165, 167, 168, 169, 169, 170, 171, 171, 172, 172, 173, 173 },
+  {  98,  99,  99, 100, 100, 101, 102, 102, 103, 104, 105, 107, 108, 110, 113, 115, 118, 122, 126, 130, 135, 140, 144, 148, 152, 155, 158, 160, 162, 163, 165, 166, 167, 168, 168, 169, 170, 170, 171, 171, 172 },
+  { 100, 100, 101, 101, 102, 103, 103, 104, 105, 106, 107, 109, 111, 113, 115, 117, 120, 123, 127, 131, 135, 139, 143, 147, 150, 153, 155, 158, 159, 161, 163, 164, 165, 166, 167, 167, 168, 169, 169, 170, 170 },
+  { 101, 101, 102, 103, 103, 104, 105, 106, 107, 108, 109, 111, 113, 114, 117, 119, 122, 125, 128, 131, 135, 139, 142, 145, 148, 151, 153, 156, 158, 159, 161, 162, 163, 164, 165, 166, 167, 167, 168, 169, 169 },
+  { 102, 103, 103, 104, 105, 105, 106, 107, 108, 110, 111, 113, 114, 116, 118, 120, 123, 126, 129, 132, 135, 138, 141, 144, 147, 150, 152, 154, 156, 158, 159, 160, 162, 163, 164, 165, 165, 166, 167, 167, 168 },
+  { 103, 104, 105, 105, 106, 107, 108, 109, 110, 111, 113, 114, 116, 118, 120, 122, 124, 127, 129, 132, 135, 138, 141, 143, 146, 148, 150, 152, 154, 156, 158, 159, 160, 161, 162, 163, 164, 165, 165, 166, 167 },
+  { 104, 105, 106, 106, 107, 108, 109, 110, 111, 113, 114, 115, 117, 119, 121, 123, 125, 127, 130, 132, 135, 138, 140, 143, 145, 147, 149, 151, 153, 155, 156, 158, 159, 160, 161, 162, 163, 164, 164, 165, 166 },
+  { 105, 106, 107, 108, 108, 109, 110, 111, 113, 114, 115, 117, 118, 120, 122, 124, 126, 128, 130, 133, 135, 137, 140, 142, 144, 146, 148, 150, 152, 153, 155, 156, 158, 159, 160, 161, 162, 162, 163, 164, 165 },
+  { 107, 107, 108, 109, 110, 110, 111, 113, 114, 115, 116, 118, 119, 121, 123, 124, 126, 129, 131, 133, 135, 137, 139, 141, 144, 146, 147, 149, 151, 152, 154, 155, 156, 158, 159, 160, 160, 161, 162, 163, 163 },
+  { 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 119, 120, 122, 123, 125, 127, 129, 131, 133, 135, 137, 139, 141, 143, 145, 147, 148, 150, 151, 153, 154, 155, 156, 158, 159, 159, 160, 161, 162, 163 },
+  { 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 120, 121, 122, 124, 126, 128, 129, 131, 133, 135, 137, 139, 141, 142, 144, 146, 148, 149, 150, 152, 153, 154, 155, 157, 158, 159, 159, 160, 161, 162 },
+  { 109, 110, 111, 112, 113, 114, 114, 115, 117, 118, 119, 120, 122, 123, 125, 126, 128, 130, 131, 133, 135, 137, 139, 140, 142, 144, 145, 147, 148, 150, 151, 152, 153, 155, 156, 157, 158, 159, 159, 160, 161 },
+  { 110, 111, 112, 113, 114, 114, 115, 116, 117, 119, 120, 121, 122, 124, 125, 127, 128, 130, 132, 133, 135, 137, 138, 140, 142, 143, 145, 146, 148, 149, 150, 151, 153, 154, 155, 156, 157, 158, 159, 159, 160 },
+  { 111, 112, 113, 114, 114, 115, 116, 117, 118, 119, 120, 122, 123, 124, 126, 127, 129, 130, 132, 133, 135, 137, 138, 140, 141, 143, 144, 146, 147, 148, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 159 },
+  { 112, 113, 114, 114, 115, 116, 117, 118, 119, 120, 121, 122, 124, 125, 126, 128, 129, 131, 132, 133, 135, 137, 138, 139, 141, 142, 144, 145, 146, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159 },
+  { 113, 114, 114, 115, 116, 117, 118, 118, 120, 121, 122, 123, 124, 125, 127, 128, 129, 131, 132, 134, 135, 136, 138, 139, 141, 142, 143, 145, 146, 147, 148, 149, 150, 152, 152, 153, 154, 155, 156, 157, 158 }
+};
+
+
+
+/*
+ * Calculates and returns the angle to the target or in the given
+ * direction.
+ *
+ * Note:  If a compass direction is supplied, we ignore any target.
+ * Note:  We supply the angle divided by 2.
+ */
+int get_angle_to_target(int y0, int x0, int y1, int x1, int dir)
+{
+	int ny, nx;
+	int dist_conv;
+
+	/* No valid compass direction given */
+	if ((dir == 0) || (dir == 5) || (dir > 9))
+	{
+		/* Check for a valid target */
+		if ((y1) && (x1))
+		{
+			/* Get absolute distance between source and target */
+			int dy = ABS(y1 - y0);
+			int dx = ABS(x1 - x0);
+
+			/* Calculate distance conversion factor */
+			if ((dy > 20) || (dx > 20))
+			{
+				/* Must shrink the distance to avoid illegal table access */
+				if (dy > dx) dist_conv = 1 + (10 * dy / 20);
+				else         dist_conv = 1 + (10 * dx / 20);
+			}
+			else
+			{
+				dist_conv = 10;
+			}
+			/* Convert and reorient grid for table access */
+			ny = 20 + 10 * (y1 - y0) / dist_conv;
+			nx = 20 + 10 * (x1 - x0) / dist_conv;
+
+			/* Illegal table access is bad */
+			if ((ny < 0) || (ny > 40) || (nx < 0) || (nx > 40))
+			{
+				/* Note error */
+				return (-1);
+			}
+		}
+
+		/* No compass direction and no target --> note error */
+		else
+		{
+			return (-1);
+		}
+	}
+
+	/* We have a valid compass direction */
+	else
+	{
+		/* Step in that direction a bunch of times, get target */
+		y1 = y0 + (ddy_ddd[dir] * 10);
+		x1 = x0 + (ddx_ddd[dir] * 10);
+
+		/* Convert to table grids */
+		ny = 20 + (y1 - y0);
+		nx = 20 + (x1 - x0);
+	}
+
+	/* Get angle to target. */
+	return (get_angle_to_grid[ny][nx]);
+}
+
+/*
+ * Using the angle given, find a grid that is in that direction from the
+ * origin.
+ *
+ * Note:  This function does not yield very good results when the
+ * character is adjacent to the outer wall of the dungeon and the projection
+ * heads towards it.
+ */
+void get_grid_using_angle(int angle, int y0, int x0, int *ty, int *tx)
+{
+	int y, x;
+	int best_y = 0, best_x = 0;
+
+	int diff;
+	int this_angle;
+	int fudge = 180;
+
+
+	/* Angle must be legal */
+	if ((angle < 0) || (angle >= 180)) return;
+
+	/* Scan the table, get as good a match as possible */
+	for (y = 0; y < 41; y++)
+	{
+		for (x = 0; x < 41; x++)
+		{
+			/* Corresponding grid in dungeon must be fully in bounds  XXX */
+			if (!in_bounds_fully(y0 - 20 + y, x0 - 20 + x)) continue;
+
+			/* Check this table grid */
+			this_angle = get_angle_to_grid[y][x];
+
+			/* Get inaccuracy of this angle */
+			diff = ABS(angle - this_angle);
+
+			/* Inaccuracy is lower than previous best */
+			if (diff < fudge)
+			{
+				/* Note coordinates */
+				best_y = y;
+				best_x = x;
+
+				/* Save inaccuracy as a new best */
+				fudge = diff;
+
+				/* Note perfection */
+				if (fudge == 0) break;
+			}
+		}
+
+		/* Note perfection */
+		if (fudge == 0) break;
+	}
+
+	/* We have an unacceptably large fudge factor */
+	if (fudge >= 30)
+	{
+		/* Set target to original grid */
+		*ty = y0;
+		*tx = x0;
+	}
+
+	/* Usual case */
+	else
+	{
+		/* Set target */
+		*ty = y0 - 20 + best_y;
+		*tx = x0 - 20 + best_x;
+	}
+}
+
+
+
+/* Purpose: Path finding algorithm */
+static int terrain[MAX_PF_RADIUS][MAX_PF_RADIUS];
+static int ox,oy,ex,ey;
+
+bool is_valid_pf(int y, int x)
+{
+	int feat;
+
+	/* Hack -- assume unvisited is permitted */
+	if (!(play_info[y][x] & (PLAY_MARK))) return (TRUE);
+
+	/* Get mimiced feat */
+	feat = f_info[cave_feat[y][x]].mimic;
+
+#ifdef ALLOW_EASY_ALTER
+
+	/* Optionally alter known traps/doors on (non-jumping) movement */
+	if ((easy_alter)
+		 && ( (f_info[feat].flags1 & (FF1_DISARM)) ||
+		 ( !(f_info[feat].flags1 & (FF1_MOVE)) &&
+		 !(f_info[feat].flags3 & (FF3_EASY_CLIMB)) && 
+		 ( (f_info[feat].flags1 & (FF1_BASH)) ||       
+		   (f_info[feat].flags1 & (FF1_OPEN)) ))))
+	{
+		return (TRUE);
+	}
+
+#endif /* ALLOW_EASY_ALTER */
+
+	/* Require moveable space*/
+	if (!(f_info[feat].flags1 & (FF1_MOVE)) && !(f_info[feat].flags3 & (FF3_EASY_CLIMB))) return (FALSE);
+
+	/* Don't move over known dangerous terrain */
+	if ((f_info[feat].blow.method) || (f_info[feat].spell)) return (FALSE);
+
+	/* Don't move over known deep or filled terrain */
+	if (f_info[feat].flags2 & (FF2_DEEP | FF2_FILLED)) return (FALSE);
+
+	/* Otherwise good */
+	return (TRUE);
+}
+
+static void fill_terrain_info(void)
+{
+	int i,j;
+
+	ox = MAX(p_ptr->px - MAX_PF_RADIUS / 2,0);
+	oy = MAX(p_ptr->py - MAX_PF_RADIUS / 2,0);
+
+	ex = MIN(p_ptr->px + MAX_PF_RADIUS / 2 - 1,DUNGEON_WID);
+	ey = MIN(p_ptr->py + MAX_PF_RADIUS / 2 - 1,DUNGEON_HGT);
+	
+	for (i=0;i<MAX_PF_RADIUS*MAX_PF_RADIUS;i++)
+		terrain[0][i] = -1;
+
+	for (j=oy;j<ey;j++)
+		for (i=ox;i<ex;i++)
+			if (is_valid_pf(j,i))
+				terrain[j-oy][i-ox] = MAX_PF_LENGTH;
+
+	terrain[p_ptr->py-oy][p_ptr->px-ox] = 1;
+}
+
+#define MARK_DISTANCE(c,d) if ((c <= MAX_PF_LENGTH) && (c > d)) { c = d; try_again = (TRUE); }
+
+bool findpath(int y, int x)
+{
+	int i,j,dir;
+	bool try_again;
+	int cur_distance;
+
+	fill_terrain_info();
+
+	terrain[p_ptr->py-oy][p_ptr->px-ox] = 1;
+
+	if ((x >= ox) && (x < ex) && (y >= oy) && (y < ey))
+	{
+		if ((cave_m_idx[y][x] > 0) && (m_list[cave_m_idx[y][x]].ml))
+		{
+			terrain[y-oy][x-ox] = MAX_PF_LENGTH;
+		}
+		/*else if (terrain[y-oy][x-ox] != MAX_PF_LENGTH)
+		{
+			bell("Target blocked");
+			return (FALSE);
+		}*/
+		terrain[y-oy][x-ox] = MAX_PF_LENGTH;
+	}
+	else
+	{
+		bell("Target out of range.");
+		return (FALSE);
+	}
+
+	if (terrain[y-oy][x-ox] == -1)
+	{
+		bell("Target space forbidden");
+		return (FALSE);
+	}
+
+
+	/* 
+	 * And now starts the very naive and very 
+	 * inefficient pathfinding algorithm
+	 */
+	do
+	{
+		try_again = (FALSE);
+		for (j=oy+1;j<ey-1;j++)
+			for (i=ox+1;i<ex-1;i++)
+			{
+				cur_distance = terrain[j-oy][i-ox]+1;
+				if ((cur_distance > 0) && (cur_distance < MAX_PF_LENGTH))
+				{
+					for (dir=1;dir<10;dir++)
+					{
+						if (dir==5)
+							dir++;
+						MARK_DISTANCE(terrain[j-oy+ddy[dir]][i-ox+ddx[dir]],cur_distance);
+					}
+				}
+			}
+		if (terrain[y-oy][x-ox] < MAX_PF_LENGTH)
+			try_again = (FALSE);
+	} while (try_again);
+
+	/* Failure */
+	if (terrain[y-oy][x-ox] == MAX_PF_LENGTH)
+	{
+		bell("Target space unreachable.");
+		return (FALSE);
+	}
+
+	/* Success */
+	i = x;
+	j = y;
+
+	pf_result_index = 0;
+	
+	while ((i != p_ptr->px) || (j != p_ptr->py))
+	{
+		cur_distance = terrain[j-oy][i-ox] - 1;
+		for (dir=1;dir<10;dir++)
+			if (terrain[j-oy+ddy[dir]][i-ox+ddx[dir]] == cur_distance)
+				break;
+
+		/* Should never happend */
+		if (dir == 10)
+		{
+			bell("Wtf ?");
+			return (FALSE);
+		}
+
+		if (dir == 5)
+		{
+			bell("Heyyy !");
+			return (FALSE);
+		}
+		
+		pf_result[pf_result_index++] = '0' + (char)(10-dir);
+		i += ddx[dir];
+		j += ddy[dir];
+	}
+	pf_result_index--;
+	return (TRUE);
+}
+
+
+/*
+ * Break scalar time -- from T.o.M.E
+ */
+s32b bst(s32b what, s32b t)
+{
+	s32b turns = t + (10 * TOWN_DAWN) + SUNRISE * HOUR * 10;
+
+	switch (what)
+	{
+	case MINUTE:
+		return ((turns / 10 / MINUTE) % 60);
+	case HOUR:
+		return (turns / 10 / (HOUR) % 24);
+	case DAY:
+		return (turns / 10 / (DAY) % 365);
+	case YEAR:
+		return (turns / 10 / (YEAR));
+	default:
+		return (0);
+	}
+}
+
+
+/*
+ * Get day name function -- from T.o.M.E
+ */
+cptr get_day(int day)
+{
+	static char buf[20];
+	cptr p = "th";
+
+	if ((day / 10) == 1) ;
+	else if ((day % 10) == 1) p = "st";
+	else if ((day % 10) == 2) p = "nd";
+	else if ((day % 10) == 3) p = "rd";
+
+	sprintf(buf, "%d%s", day, p);
+	return (buf);
+}
+
+
+/*
+ * Get month name function -- from T.o.M.E
+ */
+cptr get_month_name(int day, bool full, bool compact)
+{
+	int i = 8;
+	static char buf[40];
+
+	/* Find the period name */
+	while ((i > 0) && (day < month_day[i]))
+	{
+		i--;
+	}
+
+	switch (i)
+	{
+		/* Yestare/Mettare */
+	case 0:
+	case 8:
+		{
+			char buf2[20];
+
+			sprintf(buf2, get_day(day + 1));
+			if (full) sprintf(buf, "%s (%s day)", month_name[i], buf2);
+			else sprintf(buf, "%s", month_name[i]);
+			break;
+		}
+		/* 'Normal' months + Enderi */
+	default:
+		{
+			char buf2[20];
+			char buf3[20];
+
+			sprintf(buf2, get_day(day + 1 - month_day[i]));
+			sprintf(buf3, get_day(day + 1));
+
+			if (full) sprintf(buf, "%s day of %s (%s day)", buf2, month_name[i], buf3);
+			else if (compact) sprintf(buf, "%s day of %s", buf2, month_name[i]);
+			else sprintf(buf, "%s %s", buf2, month_name[i]);
+			break;
+		}
+	}
+
+	return (buf);
+}

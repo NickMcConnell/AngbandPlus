@@ -18,7 +18,7 @@ only take energy when they cause the world to change in some way.
         Most command descriptions assume you have all the Save-File options
 set to Yes; see the options.txt file to work out what options affect what
 commands.
-
+        
 --- Inventory Commands ---
 
 Inventory list (i)
@@ -42,13 +42,6 @@ Equipment list (e)
         ARM (shield), HEAD (helmet), HANDS (gloves), FEET (boots).  You
         must be wielding/wearing certain objects to take advantage of
         their special powers.
-        There is an additional BELT slot which can have any item wielded
-        into it. Items in your belt slot do not apply any special powers
-        or effects to the character but these items can be wielded/fired
-        and otherwise used in half the normal time. In addition, any
-        item may be wielded into your WIELD slot for the same benefits,
-        but you will only attack with weapons, and can only kick to attack
-        if you are holding other items.
 
 Drop an item (d)
         This drops an item from your inventory or equipment onto the
@@ -74,12 +67,6 @@ Wear/Wield equipment (w)
         item will be first be taken off, and may in fact be dropped if
         there is no room for it in your inventory.  This command takes
         some energy.
-        You can wield any equipped item to move it to your belt slot. If
-        you can wield the belt slot item back in the equipment slot it will
-        be swapped, otherwise the existing belt slot item will be dropped.
-        Any item can be wielded to halve the time it takes to use the item,
-        but prevents you from attacking except by kicking. Wielding items
-	  from the floor takes half the energy that Angband requires.
 
 Take off equipment (t) or Take off equipment (T)
         Use this command to take off a piece of equipment and return it
@@ -102,12 +89,11 @@ Walk (with pickup) (;)
         direction.  This command may take a count, requires a direction,
         and takes some energy.
         If you walk into a hidden monster, you will push over it, as opposed
-        to attacking it, as you would an invisible monster. Walking also
-        takes half the energy of vanilla Angband, unless you are moving in
-        Search mode or over slippery or treacherous terrain. This is
-        balanced by forcing you to Rest to recover from being tired every so
-        often. This is affected by your Constitution: a higher Constitution
-        allows you to have to rest less frequently.
+        to attacking it, as you would an invisible monster.
+        If you are moving in water or over slippery or treacherous terrain,
+        or carry a large amount of equipment, you may find yourself becoming
+        tired, and forced to rest. This is affected by your Constitution: a
+        higher Constitution allows you to have to rest less frequently.
 
 Walk (flip pickup) (-)
         This is just like normal move, except that the "Pick things up"
@@ -117,12 +103,11 @@ Walk (flip pickup) (-)
         you will when using this command.  This command may take a count,
         requires a direction, and takes some energy.
         If you walk into a hidden monster, you will push over it, as opposed
-        to attacking it, as you would an invisible monster. Walking also
-        takes half the energy of vanilla Angband, unless you are moving in
-        Search mode or over slippery or treacherous terrain. This is
-        balanced by forcing you to Rest to recover from being tired every so
-        often. This is affected by your Constitution: a higher Constitution
-        allows you to have to rest less frequently.
+        to attacking it, as you would an invisible monster.
+        If you are moving in water or over slippery or treacherous terrain,
+        or carry a large amount of equipment, you may find yourself becoming
+        tired, and forced to rest. This is affected by your Constitution: a
+        higher Constitution allows you to have to rest less frequently.
 
 Run (.) or Run (,)
         This command will move in the given direction, following any bends
@@ -169,7 +154,6 @@ Stay still (with pickup) (,) or Stay still (with pickup) (.)
         objects you encounter, you will pick up whatever you are standing
         on.  You may also use the "5" key (both keysets).  This command
         may take a count, and takes some energy.
-        These commands all take half the time of vanilla Angband.
 
 Stay still (flip pickup) (g)
         Stays in the same square for one move.  If you normally pick up
@@ -178,7 +162,6 @@ Stay still (flip pickup) (g)
         pick up what you are standing on.  This command is normally only
         used when the "always_pickup" option is false.  This command may
         take a count, and takes some energy.
-        These commands all take half the time of vanilla Angband.
 
 Rest (R)
         Resting is better for you than repeatedly staying still, and can
@@ -202,6 +185,8 @@ Search (s)
         are fairly sure of finding something eventually, since the command
         stops as soon as anything is found.  This command may take a count,
         and takes some energy.
+        Searching can spot if water is deep, and identify many other hidden
+        terrain features.
 
 Toggle search mode (S) or Toggle search mode (#)
         This command will take you into and out of search mode.  When
@@ -406,16 +391,31 @@ Read a scroll (r)
 
 Apply rune (y) or Engrave a rune (^G)
         Apply a rune from a runestone to an object. Applying runes to
-        objects can have various effects, from transforming an object to a 
-        type more closely associated with that rune, to enchanting the object
-        with a magical effect or even an ego power. More runes applied to an
-        object will have additional, and often cumulative effects, up to 4 or 5
-        runes on most objects. Current applying a rune to another rune acts like
-        other objects: in a future version this will cause a magical effect.
-        If an object cannot have a rune applied to it, it is likely to be an
-        artifact or powerful ego item of some kind. Note that not all runes
-        have a beneficial effect, but applying more than one rune will have
-        additional effects.
+        objects can have various effects, depending on what type of object it
+	is.  Usually applying 1 or 2 of the same kind of rune to a weapon or
+        armour will have a minor beneficial effect, and 3, 4 or 5 runes will
+        transform the object into a powerful ego-item.  Note that some
+        combinations of runes and objects may result in a cursed object, as
+        opposed to a useful one.
+        Applying a rune to a potion, scroll, wand, staff, rod, ring or
+        amulet will transform it into another kind of object. Some
+        transformations significantly upgrade the power of the object,
+        particularly if you apply multiple runes to an object, or if you
+        apply a rune to an object that can be made from the kind of rune you
+        are applying.
+        Experiment with runes on objects that you don't particularly need
+        until you master the useful combinations.  If an object cannot have a
+        rune applied to it, it is likely to be an magic item, artifact or
+        powerful ego item of some kind.
+
+Assemble a part (Y) or operate a part (^O)
+        Assemble parts of an object together. Some objects you may find in the
+        dungeon come in components that need to be assembled together. You need
+        to assemble the pieces in a logical order, however you can partially
+        build an object to save on inventory space, before you find all the
+        required parts for the whole object.
+        It may be necessary to assemble objects you'd rather not otherwise do,
+        in order that you complete a quest.
 
 Inscribe an object ({) 
         This command inscribes a string on an object.  The inscription is
@@ -469,6 +469,17 @@ Inscribe an object ({)
         powerful but not an ego item, and the {excellent} pseudo-id is extended
         to include {superb} pseudo-id which indicates the item in question is an
         ego item with a hidden power (Typically the more powerful ego objects).
+
+        You can inscribe an item with =g5 to mean pick up this item unless I
+        already have 5 of it in my inventory. You can also inscribe it with =d5
+        to mean don't pick up this item if I have 5 or more of it in my
+        inventory.  You can also inscribe it with =k5 to mean destroy it on
+        pick-up if I have 5 or more of it in my inventory. You also inscribe it
+        with =i5 to mean ignore it if I have 5 or more of it in my inventory.
+
+        You can also inscribe an item with <5 to mean confirm if I have less
+        than 5 of this in my inventory and >5 to mean confirm if I have more
+        than 5 of this in my inventory.
 
 Uninscribe an object (})
         This command removes the inscription on an object.  This command will
@@ -530,6 +541,7 @@ Zap a rod (z) or Activate a rod (a)
         if timeout stacking is enabled, or will always stack with uncharged
         rods if force timeout stacking is enabled.
 
+
 --- Throwing and Missile Weapons ---
 
 Fire an item (f) or Fire an item (t)
@@ -582,8 +594,8 @@ Throw an item (v)
         In many instances, you may be able to throw part of the terrain you
         are on. Some items will also apply the appropriate damage type to
         the monster they are thrown against and the ground underneath;
-	others may be consumed by unintelligent monsters or animals if
-	thrown to them.
+        others may be consumed by unintelligent monsters or animals if
+        thrown to them.
 
         Important note: In order to take advantage of throwing weapons such
         as daggers, batons, darts, javelins and spears, and the additional
@@ -711,6 +723,17 @@ Check knowledge (~)
         auto-descriptions for all items of a particular type (tval), kind
         or ego item type. In a future version, this will be expanded to
         match the auto-squelch functions of other variants.
+
+Display current quests (^Q) or display current quests ($)
+        This command displays all the quests you character currently knows
+        about, including their rewards and penalties for failure. If you
+        can start a quest by performing a set of actions, that information
+        will be displayed here.
+
+Display time of day (^T) or display time of day (')
+        This command displays the current date and how many hours until either
+        sunrise, midday, sunset or midnight.  This is useful for locating
+        guardian monsters which only appear on the surface at night.
 
 Interact with the system (!)
         Allow the user to interact with the underlying visual system.

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -566,7 +566,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 
 	char tmp_buf[128];
 
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
@@ -575,7 +575,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	(void)max;
 
 	/* Extract some flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 
 	/* See if the object is "aware" */
@@ -805,28 +805,39 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			break;
 		}
 
+		/* Runestones */
+		case TV_SERVICE:
+		{
+			append_name = TRUE;
+			basenm = "& Service~";
+			break;
+		}
 
-		/* Hack -- Gold/Gems */
+		/* Hack -- Gold */
 		case TV_GOLD:
 		{
 			strcpy(buf, basenm);
 			return;
 		}
 
-		case TV_STATUE:
+		/* Gems */
+		case TV_GEMS:
+		{
+			modstr = basenm;
+			basenm = "& #~";
+			break;
+		}
+
 		case TV_HOLD:
 		{
-			if (o_ptr->name3 > 0)
-			{
-				if (o_ptr->tval == TV_HOLD) modstr = "sealed";
-				else modstr = "stone";
-				break;
-			}
-			/* Else drop down */
+			if (o_ptr->name3 > 0) modstr = "sealed";
+			else modstr = "empty";
+			break;
 		}
 
 		/* Hack -- Body Parts/Skeletons/Skins etc. */
-		case TV_FIGURE:
+		case TV_STATUE:
+		case TV_ASSEMBLY:
 		case TV_BODY:
 		case TV_BONE:
 		case TV_EGG:
@@ -836,15 +847,25 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			{
 				switch (o_ptr->tval)
 				{
+					case TV_STATUE:
+						modstr = "an ancient god";
+						break;
+					case TV_ASSEMBLY:
+						modstr = "mechanism";
+						break;
 					case TV_SKIN:
 						modstr = "dusty";
 						break;
 					case TV_BODY:
 						modstr = "mummified";
 						break;
-					case TV_HOLD:
-						modstr = "empty";
-						break;
+					case TV_EGG:
+						if (o_ptr->sval == SV_EGG_SPORE)
+						{
+							modstr = "dried";
+							break;
+						}
+						/* Drop down */
 					default:
 						modstr = "broken";
 						break;
@@ -968,11 +989,19 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Hack -- display debug stack info in cheat_xtra mode */
 	if ((cheat_xtra) && (o_ptr->stackc))
 	{
-		object_desc_str_macro(t, "(");
+		object_desc_str_macro(t, "(stack ");
 		object_desc_num_macro(t,o_ptr->stackc);
 		object_desc_str_macro(t, ") ");
 	}
 
+
+	/* Hack -- display debug show_idx info in cheat_xtra mode */
+	if ((cheat_xtra) && (o_ptr->show_idx))
+	{
+		object_desc_str_macro(t, "(show_idx ");
+		object_desc_num_macro(t,o_ptr->show_idx);
+		object_desc_str_macro(t, ") ");
+	}
 
 	/* Paranoia XXX XXX XXX */
 	/* ASSERT(*s != '~'); */
@@ -1040,6 +1069,18 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			object_desc_chr_macro(t, ' ');
 			object_desc_str_macro(t, (e_name + e_ptr->name));
 		}
+
+		/* Grab any magic-item name */
+		else if ((o_ptr->xtra1) && (o_ptr->xtra1 < OBJECT_XTRA_MIN_RUNES) && (o_ptr->discount < INSCRIP_MIN_HIDDEN))
+		{
+			int i;
+			u32b j;
+
+			for (i = 0, j = 0x00000001L; (i< 32) && (j != object_xtra_base[o_ptr->xtra1]);i++, j <<= 1);
+
+			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, magic_name[object_xtra_what[o_ptr->xtra1]-1][i + o_ptr->xtra2]);
+		}
 	}
 	/* Hack -- Append guessed names */
 	else
@@ -1050,8 +1091,16 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			artifact_type *a_ptr = &a_info[o_ptr->guess1];
 
 			object_desc_str_macro(t, " (");
-			object_desc_str_macro(t, (a_name + a_ptr->name));
-			object_desc_str_macro(t, "?)");			
+			if (*(a_name + a_ptr->name) == '(')
+			{
+				object_desc_str_macro(t, (a_name + a_ptr->name) + 1);
+				*(t)-- = '\0';
+			}
+			else
+			{
+				object_desc_str_macro(t, (a_name + a_ptr->name));
+			}
+			object_desc_str_macro(t, "?)");
 		}
 
 		/* Grab any ego-item name */
@@ -1060,37 +1109,111 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			ego_item_type *e_ptr = &e_info[o_ptr->guess2];
 
 			object_desc_str_macro(t, " (");
-			object_desc_str_macro(t, (e_name + e_ptr->name));
+			if (*(e_name + e_ptr->name) == '(')
+			{
+				object_desc_str_macro(t, (e_name + e_ptr->name) + 1);
+				*(t)-- = '\0';
+			}
+			else
+			{
+				object_desc_str_macro(t, (e_name + e_ptr->name));
+			}
 			object_desc_str_macro(t, "?)");
 		}
 
 		/* Grab any kind name */
 		else if (k_ptr->guess)
 		{
-			object_kind *k1_ptr = &k_info[lookup_kind(o_ptr->tval,k_ptr->guess-1)];
+			object_kind *j_ptr = &k_info[lookup_kind(o_ptr->tval,k_ptr->guess-1)];
 
 			object_desc_str_macro(t, " (of ");
-			object_desc_str_macro(t, (k_name + k1_ptr->name));
+			object_desc_str_macro(t, (k_name + j_ptr->name));
 			object_desc_str_macro(t, "?)");
 		}
-	}
 
-	/* Looks like a monster */
-	if ((o_ptr->tval == TV_STATUE) && (o_ptr->name3 > 0))
-	{
-		object_desc_str_macro(t, " of ");
-
-		if (!(r_info[o_ptr->name3].flags1 & (RF1_UNIQUE)))
+		/* Grab any magic name */
+		else if (o_ptr->discount < INSCRIP_MIN_HIDDEN)
 		{
-			cptr name= r_name + r_info[o_ptr->name3].name;
+			int i;
+			int x1, x2; /* Fake xtra flags */
+			u32b j;
 
-			if (is_a_vowel(name[0])) object_desc_str_macro(t, "an ");
-			else object_desc_str_macro(t, "a ");
+			x1 = 0;
+			x2 = 0;
+
+			/* Loop through first flags */
+			for (i = 0, j = 0x00000001L; i < 32; i++, j<<=1)
+			{
+				/* Found a flag */
+				if ((j & o_ptr->can_flags1) != 0)
+				{
+					/* First flag */
+					if (!x1) { x1 = 1; x2 = i; }
+
+					/* More than one flag - can't guess magic name */
+					else {x1 = -1; }
+				}
+			}
+
+			/* Loop through second flags */
+			for (i = 0, j = 0x00000001L; i < 32; i++, j <<=1)
+			{
+				/* Found a flag */
+				if ((j & o_ptr->can_flags2) != 0)
+				{
+					/* First flag */
+					if (!x1) { x1 = 2; x2 = i; }
+
+					/* More than one flag - can't guess magic name */
+					else {x1 = -1; }
+				}
+			}
+
+			/* Loop through third flags */
+			for (i = 0, j = 0x00000001L; i < 32; i++, j <<=1)
+			{
+				/* Found a flag */
+				if ((j & o_ptr->can_flags3) != 0)
+				{
+					/* First flag */
+					if (!x1) { x1 = 3; x2 = i; }
+
+					/* More than one flag - can't guess magic name */
+					else {x1 = -1; }
+				}
+			}
+
+			/* Loop through fourth flags */
+			for (i = 0, j = 0x00000001L; i < 32; i++, j <<=1)
+			{
+				/* Found a flag */
+				if ((j & o_ptr->can_flags4) != 0)
+				{
+					/* First flag */
+					if (!x1) { x1 = 4; x2 = i; }
+
+					/* More than one flag - can't guess magic name */
+					else {x1 = -1; }
+				}
+			}
+
+			if (x1 > 0)
+			{
+				object_desc_str_macro(t, " (");
+				if (*(magic_name[x1-1][x2]) == '(')
+				{
+					object_desc_str_macro(t, (magic_name[x1-1][x2]) + 1);
+					*(t)-- = '\0';			
+				}
+				else
+				{
+					object_desc_str_macro(t, magic_name[x1-1][x2]);
+				}
+
+				object_desc_str_macro(t, "?)");
+			}	
 		}
-
-		object_desc_str_macro(t, r_name + r_info[o_ptr->name3].name);
 	}
-
 
 	/* Looks like/holds a monster */
 	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
@@ -1428,6 +1551,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	if (o_ptr->discount >= INSCRIP_NULL)
 	{
 		v = inscrip_text[o_ptr->discount - INSCRIP_NULL];
+		if (strlen(v) == 0) v = NULL;
 	}
 
 	/* Use "cursed" if the item is known to be cursed */
@@ -1571,15 +1695,11 @@ s16b label_to_equip(int c)
 {
 	int i;
 
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
 	/* Convert */
 	i = (islower(c) ? A2I(c) : -1) + INVEN_WIELD;
 
 	/* Verify the index */
-	if ((i < INVEN_WIELD) || (i >= inven_max)) return (-1);
+	if ((i < INVEN_WIELD) || (i >= INVEN_TOTAL)) return (-1);
 
 	/* Empty slots can never be chosen */
 	if (!inventory[i].k_idx) return (-1);
@@ -1725,10 +1845,6 @@ s16b wield_slot(const object_type *o_ptr)
 
 		default:
 		{
-			/* Wield in primary hand */
-			if ((variant_fast_equip) &&
-			 (!(inventory[INVEN_ARM].k_idx) ||
-				(inventory[INVEN_ARM].tval == TV_SHIELD))) return (INVEN_WIELD);
 			break;
 		}
 
@@ -1761,7 +1877,6 @@ cptr mention_use(int i)
 		case INVEN_HEAD:  p = "On head"; break;
 		case INVEN_HANDS: p = "On hands"; break;
 		case INVEN_FEET:  p = "On feet"; break;
-		case INVEN_BELT:  p = "On belt"; break;
 		default:	  p = "In pack"; break;
 	}
 
@@ -1845,7 +1960,6 @@ cptr describe_use(int i)
 		case INVEN_HEAD:  p = "wearing on your head"; break;
 		case INVEN_HANDS: p = "wearing on your hands"; break;
 		case INVEN_FEET:  p = "wearing on your feet"; break;
-		case INVEN_BELT:  p = "carrying on your belt"; break;
 		default:	  p = "carrying in your pack"; break;
 	}
 
@@ -1923,7 +2037,7 @@ bool item_tester_okay(const object_type *o_ptr)
 	if (!o_ptr->k_idx) return (FALSE);
 
 	/* Hack -- ignore "gold" */
-	if (o_ptr->tval == TV_GOLD) return (FALSE);
+	if (o_ptr->tval >= TV_GOLD) return (FALSE);
 
 	/* Check the tval */
 	if (item_tester_tval)
@@ -2135,12 +2249,8 @@ void display_equip(void)
 
 	char o_name[80];
 
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
 	/* Display the equipment */
-	for (i = INVEN_WIELD; i < inven_max; i++)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		/* Examine the item */
 		o_ptr = &inventory[i];
@@ -2194,7 +2304,7 @@ void display_equip(void)
 	}
 
 	/* Erase the rest of the window */
-	for (i = inven_max - INVEN_WIELD; i < Term->hgt; i++)
+	for (i = INVEN_TOTAL - INVEN_WIELD; i < Term->hgt; i++)
 	{
 		/* Clear that line */
 		Term_erase(0, i, 255);
@@ -2337,12 +2447,6 @@ void show_equip(void)
 	byte out_color[24];
 	char out_desc[24][80];
 
-
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
-
 	/* Default length */
 	len = 79 - 50;
 
@@ -2356,7 +2460,7 @@ void show_equip(void)
 	if (show_weights) lim -= 9;
 
 	/* Scan the equipment list */
-	for (k = 0, i = INVEN_WIELD; i < inven_max; i++)
+	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2632,6 +2736,8 @@ static bool verify_item(cptr prompt, int item)
 /*
  * Hack -- allow user to "prevent" certain choices.
  *
+ * Now can use '<n' to confirm if stack is less than size 'n' or '>n' if stack is more than size 'n'.
+ *
  * The item can be negative to mean "item on floor".
  */
 static bool get_item_allow(int item)
@@ -2639,6 +2745,8 @@ static bool get_item_allow(int item)
 	cptr s;
 
 	object_type *o_ptr;
+
+	int n;
 
 	/* Inventory */
 	if (item >= 0)
@@ -2670,6 +2778,75 @@ static bool get_item_allow(int item)
 
 		/* Find another '!' */
 		s = strchr(s + 1, '!');
+	}
+
+	/* Find a '<' */
+	s = strchr(quark_str(o_ptr->note), '<');
+
+	/* Process preventions */
+	while (s)
+	{
+
+		/* Check the "restriction" */
+		if ((s[1] >= '0') || (s[1] <= '9'))
+		{
+			n = atoi(s+1);
+
+			/* Verify the choice */
+			if ((o_ptr->number < n) && (!verify_item("Really try", item))) return (FALSE);
+		}
+
+		/* Check the "restriction" */
+		else if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+		{
+			/* Check the "restriction" */
+			if ((s[2] >= '0') || (s[2] <= '9'))
+			{
+				n = atoi(s+2);
+
+				/* Verify the choice */
+				if ((o_ptr->number < n) && (!verify_item("Really try", item))) return (FALSE);
+			}
+			
+		}
+
+		/* Find another '!' */
+		s = strchr(s + 1, '<');
+	}
+
+
+	/* Find a '>' */
+	s = strchr(quark_str(o_ptr->note), '>');
+
+	/* Process preventions */
+	while (s)
+	{
+
+		/* Check the "restriction" */
+		if ((s[1] >= '0') || (s[1] <= '9'))
+		{
+			n = atoi(s+1);
+
+			/* Verify the choice */
+			if ((o_ptr->number > n) && (!verify_item("Really try", item))) return (FALSE);
+		}
+
+		/* Check the "restriction" */
+		else if ((s[1] == p_ptr->command_cmd) || (s[1] == '*'))
+		{
+			/* Check the "restriction" */
+			if ((s[2] >= '0') || (s[2] <= '9'))
+			{
+				n = atoi(s+2);
+
+				/* Verify the choice */
+				if ((o_ptr->number > n) && (!verify_item("Really try", item))) return (FALSE);
+			}
+			
+		}
+
+		/* Find another '!' */
+		s = strchr(s + 1, '>');
 	}
 
 	/* Allow it */
@@ -2719,12 +2896,8 @@ static int get_tag(int *cp, char tag)
 	int i;
 	cptr s;
 
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
 	/* Check every object */
-	for (i = 0; i < inven_max; ++i)
+	for (i = 0; i < INVEN_TOTAL; ++i)
 	{
 		object_type *o_ptr = &inventory[i];
 
@@ -2833,7 +3006,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	char which;
+	key_event ke;
 
 	int i, j, k;
 
@@ -2916,17 +3089,8 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	e1 = INVEN_WIELD;
 	e2 = INVEN_TOTAL - 1;
 
-	/* Allow equipment */
-	if ((variant_belt_slot) && (use_inven)) use_equip = TRUE;
-
-	/* Allow equipment */
-	if ((variant_fast_equip) && (use_inven)) use_equip = TRUE;
-
 	/* Forbid equipment */
 	if (!use_equip) e2 = -1;
-
-	/* Hack -- belt slot */
-	if (variant_belt_slot && use_equip) e2 = INVEN_TOTAL;
 
 	/* Restrict equipment indexes */
 	while ((e1 <= e2) && (!get_item_okay(e1))) e1++;
@@ -3232,12 +3396,72 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		/* Show the prompt */
 		prt(tmp_val, 0, 0);
 
-
 		/* Get a key */
-		which = inkey();
+		ke = anykey();
+
+		/* Hack -- apply mouse input as a modifier */
+		if (ke.key == '\xff')
+		{
+			if (p_ptr->command_see)
+			{
+				int my = ke.mousey;
+
+				if (p_ptr->command_wrk == (USE_INVEN))
+				{
+					for (i = i1; i <= i2; i++)
+					{
+						object_type *o_ptr = &inventory[i];
+
+						/* Is this item acceptable? */
+						if (!item_tester_okay(o_ptr)) continue;
+
+						/* Is this the line clicked */
+						if (--my == 0) ke.key = 'a' + i;
+					}
+				}
+				else if (p_ptr->command_wrk == (USE_EQUIP))
+				{
+					for (i = e1; i <= e2; i++)
+					{
+						object_type *o_ptr = &inventory[i];
+
+						/* Is this item acceptable? */
+						if (!item_tester_okay(o_ptr)) continue;
+
+						/* Is this the line clicked */
+						if (--my == 0) ke.key = 'a' + i - INVEN_WIELD;
+					}
+				}
+				else if (p_ptr->command_wrk == (USE_FLOOR))
+				{
+					for (i = f1; i <= f2; i++)
+					{
+						object_type *o_ptr = &o_list[floor_list[i]];
+
+						/* Is this item acceptable? */
+						if (!item_tester_okay(o_ptr)) continue;
+
+						/* Is this the line clicked */
+						if (--my == 0) ke.key = 'a' + i;
+					}
+				}
+
+				/* Hack -- swap between equip and inven */
+				if (ke.key == '\xff')
+				{
+					if (ke.mousebutton == 1) ke.key = '/';
+					else ke.key = '-';
+				}
+			}
+			/* Display the list */
+			else
+			{
+				ke.key = ' ';
+			}
+		}
 
 		/* Parse it */
-		switch (which)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
@@ -3394,7 +3618,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			case '7': case '8': case '9':
 			{
 				/* Look up the tag */
-				if (!get_tag(&k, which))
+				if (!get_tag(&k, ke.key))
 				{
 					bell("Illegal object choice (tag)!");
 					break;
@@ -3521,6 +3745,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			default:
 			{
 				bool verify;
+				int which = ke.key;
 
 				/* Note verify */
 				verify = (isupper(which) ? TRUE : FALSE);

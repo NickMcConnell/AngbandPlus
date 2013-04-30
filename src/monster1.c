@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -176,11 +176,14 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	const monster_race *r_ptr = &r_info[r_idx];
 	int m, n;
 	int msex = 0;
+	bool ranged = ((l_ptr->flags4 & (RF4_BLOW_1 | RF4_BLOW_2 | RF4_BLOW_3 | RF4_BLOW_4)) ? TRUE : FALSE);
+	bool innate = FALSE;
 	bool breath = FALSE;
 	bool magic = FALSE;
 	int vn;
-	cptr vp[64];
+	cptr vp[128];
 
+	bool powerful = FALSE;
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -189,22 +192,18 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	/* Collect innate attacks */
 	vn = 0;
 	if (l_ptr->flags4 & (RF4_SHRIEK))      vp[vn++] = "shriek for help";
-	if (l_ptr->flags4 & (RF4_SPORE))vp[vn++] = "release spores";
-	if (l_ptr->flags4 & (RF4_GAZE))vp[vn++] = "gaze at you";
-	if (l_ptr->flags4 & (RF4_WAIL))vp[vn++] = "wail at you";
-	if (l_ptr->flags4 & (RF4_SPIT))     vp[vn++] = "spit on you";
-	if (l_ptr->flags4 & (RF4_LASH))     vp[vn++] = "lash at you";
-	if (l_ptr->flags4 & (RF4_SHOOT))     vp[vn++] = "shoot at you";
-	if (l_ptr->flags4 & (RF4_EXPLODE))     vp[vn++] = "explode";
-	if (l_ptr->flags4 & (RF4_AURA)) vp[vn++] = "radiate a powerful aura";
-	if (l_ptr->flags4 & (RF4_THROW)) vp[vn++] = "throw things at you";
-
+	if (l_ptr->flags4 & (RF4_QUAKE))      vp[vn++] = "create earthquakes";
+	/*if (l_ptr->flags4 & (RF4_EXPLODE))     vp[vn++] = "explode";*/
+	/*if (l_ptr->flags4 & (RF4_AURA)) vp[vn++] = "radiate a powerful aura";*/
 
 	/* Describe innate attacks */
 	if (vn)
 	{
+		innate = TRUE;
+
 		/* Intro */
-		text_out(format("%^s", wd_he[msex]));
+		if (ranged) text_out(" and");
+		else text_out(format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -217,45 +216,45 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 			/* Dump */
 			text_out(vp[n]);
 		}
-
-		/* End */
-		text_out(".  ");
 	}
-
 
 	/* Collect breaths */
 	vn = 0;
-	if (l_ptr->flags4 & RF4_BR_ACID)		vp[vn++] = "acid";
-	if (l_ptr->flags4 & RF4_BR_ELEC)		vp[vn++] = "lightning";
-	if (l_ptr->flags4 & RF4_BR_FIRE)		vp[vn++] = "fire";
-	if (l_ptr->flags4 & RF4_BR_COLD)		vp[vn++] = "frost";
-	if (l_ptr->flags4 & RF4_BR_POIS)		vp[vn++] = "poison";
-	if (l_ptr->flags4 & RF4_BR_NETH)		vp[vn++] = "nether";
-	if (l_ptr->flags4 & RF4_BR_LITE)		vp[vn++] = "light";
-	if (l_ptr->flags4 & RF4_BR_DARK)		vp[vn++] = "darkness";
-	if (l_ptr->flags4 & RF4_BR_CONF)		vp[vn++] = "confusion";
-	if (l_ptr->flags4 & RF4_BR_SOUN)		vp[vn++] = "sound";
-	if (l_ptr->flags4 & RF4_BR_CHAO)		vp[vn++] = "chaos";
-	if (l_ptr->flags4 & RF4_BR_DISE)		vp[vn++] = "disenchantment";
-	if (l_ptr->flags4 & RF4_BR_NEXU)		vp[vn++] = "nexus";
-	if (l_ptr->flags4 & RF4_BR_TIME)		vp[vn++] = "time";
-	if (l_ptr->flags4 & RF4_BR_INER)		vp[vn++] = "inertia";
-	if (l_ptr->flags4 & RF4_BR_GRAV)		vp[vn++] = "gravity";
-	if (l_ptr->flags4 & RF4_BR_SHAR)		vp[vn++] = "shards";
-	if (l_ptr->flags4 & RF4_BR_PLAS)		vp[vn++] = "plasma";
-	if (l_ptr->flags4 & RF4_BR_WALL)		vp[vn++] = "force";
-	if (l_ptr->flags4 & RF4_BR_MANA)		vp[vn++] = "mana";
-	if (l_ptr->flags4 & RF4_BR_FEAR)		vp[vn++] = "fear";
-	if (l_ptr->flags4 & RF4_XXX6)		vp[vn++] = "something";
+	if (l_ptr->flags4 & RF4_BRTH_ACID)		vp[vn++] = "acid";
+	if (l_ptr->flags4 & RF4_BRTH_ELEC)		vp[vn++] = "lightning";
+	if (l_ptr->flags4 & RF4_BRTH_FIRE)		vp[vn++] = "fire";
+	if (l_ptr->flags4 & RF4_BRTH_COLD)		vp[vn++] = "frost";
+	if (l_ptr->flags4 & RF4_BRTH_POIS)		vp[vn++] = "poison";
+	if (l_ptr->flags4 & RF4_BRTH_PLAS)		vp[vn++] = "plasma";
+	if (l_ptr->flags4 & RF4_BRTH_LITE)		vp[vn++] = "light";
+	if (l_ptr->flags4 & RF4_BRTH_DARK)		vp[vn++] = "darkness";
+	if (l_ptr->flags4 & RF4_BRTH_CONFU)		vp[vn++] = "confusion";
+	if (l_ptr->flags4 & RF4_BRTH_SOUND)		vp[vn++] = "sound";
+	if (l_ptr->flags4 & RF4_BRTH_SHARD)		vp[vn++] = "shards";
+	if (l_ptr->flags4 & RF4_BRTH_INERT)		vp[vn++] = "inertia";
+	if (l_ptr->flags4 & RF4_BRTH_GRAV)		vp[vn++] = "gravity";
+	if (l_ptr->flags4 & RF4_BRTH_WIND)		vp[vn++] = "wind";
+	if (l_ptr->flags4 & RF4_BRTH_FORCE)		vp[vn++] = "force";
+	if (l_ptr->flags4 & RF4_BRTH_CHAOS)		vp[vn++] = "chaos";
+	if (l_ptr->flags4 & RF4_BRTH_DISEN)		vp[vn++] = "disenchantment";
+	if (l_ptr->flags4 & RF4_BRTH_NEXUS)		vp[vn++] = "nexus";
+	if (l_ptr->flags4 & RF4_BRTH_NETHR)		vp[vn++] = "nether";
+	if (l_ptr->flags4 & RF4_BRTH_TIME)		vp[vn++] = "time";
+	if (l_ptr->flags4 & RF4_BRTH_MANA)		vp[vn++] = "mana";
+	if (l_ptr->flags4 & RF4_BRTH_FEAR)		vp[vn++] = "fear";
+	if (l_ptr->flags4 & RF4_BRTH_DISEA)		vp[vn++] = "disease";
 
 	/* Describe breaths */
 	if (vn)
 	{
-		/* Note breath */
-		breath = TRUE;
+		/* Already innate? */
+		if ((innate) || (l_ptr->flags4 & (RF4_BLOW_1 | RF4_BLOW_2 | RF4_BLOW_3 | RF4_BLOW_4))) text_out(" or");
 
 		/* Intro */
-		text_out(format("%^s", wd_he[msex]));
+		else text_out(format("%^s", wd_he[msex]));
+
+		/* Note breath */
+		breath = TRUE;
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
@@ -270,73 +269,134 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		}
 	}
 
+	/* End the sentence about innate spells */
+	if ((innate) || (ranged) || (breath))
+	{
+		if ((l_ptr->flags2 & RF2_POWERFUL) && (breath)) text_out(" powerfully");
+
+		/* Total casting */
+		m = l_ptr->cast_innate;
+
+		/* Get frequency */
+		n = r_ptr->freq_innate;
+
+		/* Describe the spell frequency */
+		if ((m > 100) && (n > 0))
+		{
+			text_out(format("; 1 time in %d", 100 / n));
+		}
+
+		/* Guess at the frequency */
+		else if ((m) && (n > 0))
+		{
+			n = ((n + 9) / 10) * 10;
+			text_out(format("; about 1 time in %d", 100 / n));
+		}
+	}
+
 
 	/* Collect spells */
 	vn = 0;
-	if (l_ptr->flags5 & RF5_BA_ACID)     vp[vn++] = "produce acid balls";
-	if (l_ptr->flags5 & RF5_BA_ELEC)     vp[vn++] = "produce lightning balls";
-	if (l_ptr->flags5 & RF5_BA_FIRE)     vp[vn++] = "produce fire balls";
-	if (l_ptr->flags5 & RF5_BA_COLD)     vp[vn++] = "produce frost balls";
-	if (l_ptr->flags5 & RF5_BA_POIS)     vp[vn++] = "produce poison balls";
-	if (l_ptr->flags5 & RF5_BA_NETH)     vp[vn++] = "produce nether balls";
-	if (l_ptr->flags5 & RF5_BA_WATE)     vp[vn++] = "produce water balls";
-	if (l_ptr->flags5 & RF5_BA_MANA)     vp[vn++] = "invoke mana storms";
-	if (l_ptr->flags5 & RF5_BA_DARK)     vp[vn++] = "invoke darkness storms";
-	if (l_ptr->flags5 & RF5_DRAIN_MANA)  vp[vn++] = "drain mana";
-	if (l_ptr->flags5 & RF5_MIND_BLAST)  vp[vn++] = "cause mind blasting";
-	if (l_ptr->flags5 & RF5_BRAIN_SMASH) vp[vn++] = "cause brain smashing";
-	if (l_ptr->flags5 & RF5_WOUND)       vp[vn++] = "cause wounds";
-	if (l_ptr->flags5 & RF5_HUNGER)      vp[vn++] = "cause hunger";
-	if (l_ptr->flags5 & RF5_XXX3)        vp[vn++] = "do something";
-	if (l_ptr->flags5 & RF5_XXX4)        vp[vn++] = "do something";
-	if (l_ptr->flags5 & RF5_BO_ACID)     vp[vn++] = "produce acid bolts";
-	if (l_ptr->flags5 & RF5_BO_ELEC)     vp[vn++] = "produce lightning bolts";
-	if (l_ptr->flags5 & RF5_BO_FIRE)     vp[vn++] = "produce fire bolts";
-	if (l_ptr->flags5 & RF5_BO_COLD)     vp[vn++] = "produce frost bolts";
-	if (l_ptr->flags5 & RF5_BO_POIS)     vp[vn++] = "produce poison bolts";
-	if (l_ptr->flags5 & RF5_BO_NETH)     vp[vn++] = "produce nether bolts";
-	if (l_ptr->flags5 & RF5_BO_WATE)     vp[vn++] = "produce water bolts";
-	if (l_ptr->flags5 & RF5_BO_MANA)     vp[vn++] = "produce mana bolts";
-	if (l_ptr->flags5 & RF5_BO_PLAS)     vp[vn++] = "produce plasma bolts";
-	if (l_ptr->flags5 & RF5_BO_ICEE)     vp[vn++] = "produce ice bolts";
-	if (l_ptr->flags5 & RF5_MISSILE)     vp[vn++] = "produce magic missiles";
-	if (l_ptr->flags5 & RF5_SCARE)       vp[vn++] = "terrify";
-	if (l_ptr->flags5 & RF5_BLIND)       vp[vn++] = "blind";
-	if (l_ptr->flags5 & RF5_CONF)vp[vn++] = "confuse";
-	if (l_ptr->flags5 & RF5_SLOW)vp[vn++] = "slow";
-	if (l_ptr->flags5 & RF5_HOLD)vp[vn++] = "paralyze";
+	if (l_ptr->flags5 & RF5_BALL_ACID)   vp[vn++] = "produce acid balls";
+	if (l_ptr->flags5 & RF5_BALL_ELEC)   vp[vn++] = "produce lightning balls";
+	if (l_ptr->flags5 & RF5_BALL_FIRE)   vp[vn++] = "produce fire balls";
+	if (l_ptr->flags5 & RF5_BALL_COLD)   vp[vn++] = "produce frost balls";
+	if (l_ptr->flags5 & RF5_BALL_POIS)   vp[vn++] = "produce poison balls";
+	if (l_ptr->flags5 & RF5_BALL_LITE)   vp[vn++] = "produce balls of light";
+	if (l_ptr->flags5 & RF5_BALL_DARK)   vp[vn++] = "invoke darkness storms";
+	if (l_ptr->flags5 & RF5_BALL_CONFU)  vp[vn++] = "produce confusion balls";
+	if (l_ptr->flags5 & RF5_BALL_SOUND)  vp[vn++] = "produce sound balls";
+	if (l_ptr->flags5 & RF5_BALL_SHARD)  vp[vn++] = "produce shard balls";
+	if (l_ptr->flags5 & RF5_BALL_WIND)   vp[vn++] = "produce wind balls";
+	if (l_ptr->flags5 & RF5_BALL_STORM)  vp[vn++] = "produce storm balls";
+	if (l_ptr->flags5 & RF5_BALL_NETHR)  vp[vn++] = "produce nether balls";
+	if (l_ptr->flags5 & RF5_BALL_CHAOS)  vp[vn++] = "produce chaos balls";
+	if (l_ptr->flags5 & RF5_BALL_MANA)   vp[vn++] = "invoke mana storms";
+	if (l_ptr->flags5 & RF5_BALL_WATER)  vp[vn++] = "produce water balls";
+	if (l_ptr->flags5 & RF5_BOLT_ACID)   vp[vn++] = "produce acid bolts";
+	if (l_ptr->flags5 & RF5_BOLT_ELEC)   vp[vn++] = "produce lightning bolts";
+	if (l_ptr->flags5 & RF5_BOLT_FIRE)   vp[vn++] = "produce fire bolts";
+	if (l_ptr->flags5 & RF5_BOLT_COLD)   vp[vn++] = "produce frost bolts";
+	if (l_ptr->flags5 & RF5_BOLT_POIS)   vp[vn++] = "produce poison bolts";
+	if (l_ptr->flags5 & RF5_BOLT_PLAS)   vp[vn++] = "produce plasma bolts";
+	if (l_ptr->flags5 & RF5_BOLT_ICE)    vp[vn++] = "produce ice bolts";
+	if (l_ptr->flags5 & RF5_BOLT_NETHR)  vp[vn++] = "produce nether bolts";
+	if (l_ptr->flags5 & RF5_BOLT_WATER)  vp[vn++] = "produce water bolts";
+	if (l_ptr->flags5 & RF5_BOLT_MANA)   vp[vn++] = "produce mana bolts";
+	if (l_ptr->flags5 & RF5_HOLY_ORB)    vp[vn++] = "produce holy orbs";
+	if (l_ptr->flags5 & RF5_BEAM_ELEC)   vp[vn++] = "produce lightening beams";
+	if (l_ptr->flags5 & RF5_BEAM_ICE)    vp[vn++] = "produce ice beams";
+	if (l_ptr->flags5 & RF5_BEAM_NETHR)  vp[vn++] = "produce nether beams";
+	if (l_ptr->flags5 & RF5_ARC_HFIRE)   vp[vn++] = "produce cone of hellfire";
+	if (l_ptr->flags5 & RF5_ARC_FORCE)   vp[vn++] = "produce cone of force";
+
 	if (l_ptr->flags6 & RF6_HASTE)       vp[vn++] = "haste-self";
-	if (l_ptr->flags6 & RF6_ADD_MANA)vp[vn++] = "recover mana";
-	if (l_ptr->flags6 & RF6_HEAL)vp[vn++] = "heal-self";
-	if (l_ptr->flags6 & RF6_CURE)vp[vn++] = "cure-self";
+	if (l_ptr->flags6 & RF6_ADD_MANA)    vp[vn++] = "recover mana";
+	if (l_ptr->flags6 & RF6_HEAL)        vp[vn++] = "heal-self";
+	if (l_ptr->flags6 & RF6_CURE)        vp[vn++] = "cure-self";
 	if (l_ptr->flags6 & RF6_BLINK)       vp[vn++] = "blink-self";
 	if (l_ptr->flags6 & RF6_TPORT)       vp[vn++] = "teleport-self";
-	if (l_ptr->flags6 & RF6_XXX3)vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_INVIS)       vp[vn++] = "become invisible";
 	if (l_ptr->flags6 & RF6_TELE_SELF_TO)vp[vn++] = "teleport-self to";
 	if (l_ptr->flags6 & RF6_TELE_TO)     vp[vn++] = "teleport to";
 	if (l_ptr->flags6 & RF6_TELE_AWAY)   vp[vn++] = "teleport away";
 	if (l_ptr->flags6 & RF6_TELE_LEVEL)  vp[vn++] = "teleport level";
-	if (l_ptr->flags6 & RF6_XXX5)vp[vn++] = "do something";
+	if (l_ptr->flags6 & RF6_WRAITHFORM)  vp[vn++] = "assume wraithform";
 	if (l_ptr->flags6 & RF6_DARKNESS)    vp[vn++] = "create darkness";
 	if (l_ptr->flags6 & RF6_TRAPS)       vp[vn++] = "create traps";
-	if (l_ptr->flags6 & RF6_FORGET)      vp[vn++] = "cause amnesia";
-	if (l_ptr->flags6 & RF6_XXX6)vp[vn++] = "do something";
-	if (l_ptr->flags6 & RF6_S_KIN)       vp[vn++] = "summon similar monsters";
-	if (l_ptr->flags6 & RF6_S_MONSTER)   vp[vn++] = "summon a monster";
-	if (l_ptr->flags6 & RF6_S_MONSTERS)  vp[vn++] = "summon monsters";
-	if (l_ptr->flags6 & RF6_S_ANIMAL)    vp[vn++] = "summon animals";
-	if (l_ptr->flags6 & RF6_S_SPIDER)    vp[vn++] = "summon spiders";
-	if (l_ptr->flags6 & RF6_S_HOUND)     vp[vn++] = "summon hounds";
-	if (l_ptr->flags6 & RF6_S_HYDRA)     vp[vn++] = "summon hydras";
-	if (l_ptr->flags6 & RF6_S_ANGEL)     vp[vn++] = "summon an angel";
-	if (l_ptr->flags6 & RF6_S_DEMON)     vp[vn++] = "summon a demon";
-	if (l_ptr->flags6 & RF6_S_UNDEAD)    vp[vn++] = "summon an undead";
-	if (l_ptr->flags6 & RF6_S_DRAGON)    vp[vn++] = "summon a dragon";
-	if (l_ptr->flags6 & RF6_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
-	if (l_ptr->flags6 & RF6_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
-	if (l_ptr->flags6 & RF6_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
-	if (l_ptr->flags6 & RF6_S_WRAITH)    vp[vn++] = "summon Ring Wraiths";
-	if (l_ptr->flags6 & RF6_S_UNIQUE)    vp[vn++] = "summon Unique Monsters";
+	if (l_ptr->flags6 & RF6_DRAIN_MANA)  vp[vn++] = "drain mana";
+	if (l_ptr->flags6 & RF6_CURSE)       vp[vn++] = "curse you";
+	if (l_ptr->flags6 & RF6_ADD_AMMO)    vp[vn++] = "grow back ammunition";
+	if (l_ptr->flags6 & RF6_MIND_BLAST)  vp[vn++] = "cause mind blasting";
+	if (l_ptr->flags6 & RF6_WOUND)       vp[vn++] = "cause wounds";
+	if (l_ptr->flags6 & RF6_BLESS)       vp[vn++] = "become heroic";
+	if (l_ptr->flags6 & RF6_BESERK)      vp[vn++] = "become beserk";
+	if (l_ptr->flags6 & RF6_SHIELD)      vp[vn++] = "create a shield";
+	if (l_ptr->flags6 & RF6_OPPOSE_ELEM) vp[vn++] = "become resistant to the elements";
+	if (l_ptr->flags6 & RF6_HUNGER)      vp[vn++] = "cause hunger";
+	if (l_ptr->flags6 & RF6_PROBE)       vp[vn++] = "probe your weaknesses";
+
+	if (l_ptr->flags7 & RF7_S_KIN)       vp[vn++] = "summon similar monsters";
+	if (l_ptr->flags7 & RF7_R_KIN)       vp[vn++] = "raise similar monsters from the dead";
+	if (l_ptr->flags7 & RF7_A_DEAD)      vp[vn++] = "animate monsters from dead bodies";
+	if (l_ptr->flags7 & RF7_S_MONSTER)   vp[vn++] = "summon a monster";
+	if (l_ptr->flags7 & RF7_S_MONSTERS)  vp[vn++] = "summon monsters";
+	if (l_ptr->flags7 & RF7_R_MONSTER)   vp[vn++] = "raise a monster from the dead";
+	if (l_ptr->flags7 & RF7_R_MONSTERS)  vp[vn++] = "raise monsters from the dead";
+	if (l_ptr->flags7 & RF7_S_PLANT)     vp[vn++] = "summon plants";
+	if (l_ptr->flags7 & RF7_S_INSECT)    vp[vn++] = "summon insects";
+	if (l_ptr->flags7 & RF7_S_INSECT)    vp[vn++] = "summon animals";
+	if (l_ptr->flags7 & RF7_S_HOUND)     vp[vn++] = "summon hounds";
+	if (l_ptr->flags7 & RF7_S_SPIDER)    vp[vn++] = "summon spiders";
+	if (l_ptr->flags7 & RF7_S_CLASS)     vp[vn++] = "summon monsters of the same class";
+	if (l_ptr->flags7 & RF7_S_RACE)      vp[vn++] = "summon monsters of the same race";
+	if (l_ptr->flags7 & RF7_S_GROUP)     vp[vn++] = "summon monsters of the same group";
+	if (l_ptr->flags7 & RF7_S_FRIEND)    vp[vn++] = "summon a friend";
+	if (l_ptr->flags7 & RF7_S_FRIENDS)   vp[vn++] = "summon several friends";
+	if (l_ptr->flags7 & RF7_S_ORC)       vp[vn++] = "summon orcs";
+	if (l_ptr->flags7 & RF7_S_TROLL)     vp[vn++] = "summon orcs";
+	if (l_ptr->flags7 & RF7_S_GIANT)     vp[vn++] = "summon orcs";
+	if (l_ptr->flags7 & RF7_S_DRAGON)    vp[vn++] = "summon a dragon";
+	if (l_ptr->flags7 & RF7_S_HI_DRAGON) vp[vn++] = "summon Ancient Dragons";
+	if (l_ptr->flags7 & RF7_A_ELEMENT)   vp[vn++] = "animate monsters from the elements";
+	if (l_ptr->flags7 & RF7_A_OBJECT)    vp[vn++] = "animate monsters from objects";
+	if (l_ptr->flags7 & RF7_S_DEMON)     vp[vn++] = "summon a demon";
+	if (l_ptr->flags7 & RF7_S_HI_DEMON)  vp[vn++] = "summon Greater Demons";
+	if (l_ptr->flags7 & RF7_R_UNIQUE)    vp[vn++] = "raise Unique Monsters from the dead";
+	if (l_ptr->flags7 & RF7_S_UNIQUE)    vp[vn++] = "summon Unique Monsters";
+	if (l_ptr->flags7 & RF7_S_HI_UNIQUE) vp[vn++] = "summon Legendary and Unique Monsters";
+	if (l_ptr->flags7 & RF7_S_UNDEAD)    vp[vn++] = "summon an undead";
+	if (l_ptr->flags7 & RF7_S_HI_UNDEAD) vp[vn++] = "summon Greater Undead";
+	if (l_ptr->flags7 & RF7_S_WRAITH)    vp[vn++] = "summon Ring Wraiths";
+
+	/* Hack -- powerful spells here */
+	if (l_ptr->flags6 & RF6_FORGET)     { vp[vn++] = "cause amnesia"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_ILLUSION)   { vp[vn++] = "cause hallucinations"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_SCARE)      { vp[vn++] = "terrify"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_BLIND)      {  vp[vn++] = "blind"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_CONF)       { vp[vn++] = "confuse"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_SLOW)       { vp[vn++] = "slow"; powerful = TRUE; }
+	if (l_ptr->flags6 & RF6_HOLD)       { vp[vn++] = "paralyze"; powerful = TRUE; }
 
 	/* Describe spells */
 	if (vn)
@@ -345,7 +405,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		magic = TRUE;
 
 		/* Intro */
-		if (breath)
+		if ((innate) || (ranged) || (breath))
 		{
 			text_out(", and is also");
 		}
@@ -373,29 +433,34 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 		}
 	}
 
-
-	/* End the sentence about innate/other spells */
-	if (breath || magic)
+	/* End the sentence about magic spells */
+	if (magic)
 	{
+		/* Adverb */
+		if ((l_ptr->flags2 & RF2_POWERFUL) && (powerful)) text_out(" powerfully enough to overcome your resistance");
+
 		/* Total casting */
-		m = l_ptr->cast_innate + l_ptr->cast_spell;
+		m = l_ptr->cast_spell;
 
 		/* Average frequency */
-		n = (r_ptr->freq_innate + r_ptr->freq_spell) / 2;
+		n = r_ptr->freq_spell;
 
 		/* Describe the spell frequency */
-		if (m > 100)
+		if ((m > 100) && (n > 0))
 		{
 			text_out(format("; 1 time in %d", 100 / n));
 		}
 
 		/* Guess at the frequency */
-		else if (m)
+		else if ((m) && (n > 0))
 		{
 			n = ((n + 9) / 10) * 10;
 			text_out(format("; about 1 time in %d", 100 / n));
 		}
+	}
 
+	if (innate || magic || ranged || breath)
+	{
 		/* End this sentence */
 		text_out(".  ");
 	}
@@ -425,11 +490,11 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 	/* Drops gold and/or items */
 	if (l_ptr->drop_gold || l_ptr->drop_item)
 	{
-		/* Intro */
-		text_out(format("%^s may carry", wd_he[msex]));
-
 		/* Count maximum drop */
 		n = MAX(l_ptr->drop_gold, l_ptr->drop_item);
+
+		/* Intro */
+		text_out(format("%^s may carry", wd_he[msex]));
 
 		/* One drop (may need an "n") */
 		if (n == 1)
@@ -473,34 +538,54 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 
 		/* Collect special abilities. */
 		vn = 0;
-		if (l_ptr->flags7 & (RF7_DROP_CHEST)) vp[vn++] = "chest";
-		if (l_ptr->flags7 & (RF7_DROP_TOOL)) vp[vn++] = "tool";
-		if (l_ptr->flags7 & (RF7_DROP_LITE)) vp[vn++] = "lite";
-		if (l_ptr->flags7 & (RF7_DROP_WEAPON)) vp[vn++] = "weapon";
-		if (l_ptr->flags7 & (RF7_DROP_MISSILE)) vp[vn++] = "missile weapon";
-		if (l_ptr->flags7 & (RF7_DROP_ARMOR)) vp[vn++] = "armour";
-		if (l_ptr->flags7 & (RF7_DROP_CLOTHES)) vp[vn++] = "garment";
-		if (l_ptr->flags7 & (RF7_DROP_JEWELRY)) vp[vn++] = "adornment";
-		if (l_ptr->flags7 & (RF7_DROP_RSW)) vp[vn++] = "magical device";
-		if (l_ptr->flags7 & (RF7_DROP_WRITING)) vp[vn++] = "written item";
-		if (l_ptr->flags7 & (RF7_DROP_MUSIC)) vp[vn++] = "musical item";
-		if (l_ptr->flags7 & (RF7_DROP_POTION)) vp[vn++] = "potion";
-		if (l_ptr->flags7 & (RF7_DROP_FOOD)) vp[vn++] = "edible item";
-		if (l_ptr->flags7 & (RF7_DROP_JUNK)) vp[vn++] = "junk item";
 
 		/* Objects */
-		if (((!n) || (!vn))&& (l_ptr->drop_item))
+		if (l_ptr->drop_item)
 		{
-			/* Dump "object(s)" */
-			if (get_food_type(r_ptr)) { vp[0] = "mushroom"; vn = 1; }
-			else vp[vn++] = "object";
+			if (l_ptr->flags8 & (RF8_DROP_CHEST)) vp[vn++] = "chest";
+			if (l_ptr->flags8 & (RF8_DROP_WEAPON)) vp[vn++] = "weapon";
+			if (l_ptr->flags8 & (RF8_DROP_MISSILE)) vp[vn++] = "missile weapon";
+			if (l_ptr->flags8 & (RF8_DROP_ARMOR)) vp[vn++] = "armour";
+			if (l_ptr->flags8 & (RF8_DROP_CLOTHES)) vp[vn++] = "garment";
+			if (l_ptr->flags8 & (RF8_DROP_TOOL)) vp[vn++] = "tool";
+			if (l_ptr->flags8 & (RF8_DROP_LITE)) vp[vn++] = "lite";
+			if (l_ptr->flags8 & (RF8_DROP_JEWELRY)) vp[vn++] = "adornment";
+			if (l_ptr->flags8 & (RF8_DROP_RSW)) vp[vn++] = "magical device";
+			if (l_ptr->flags8 & (RF8_DROP_WRITING)) vp[vn++] = "written item";
+			if (l_ptr->flags8 & (RF8_DROP_MUSIC)) vp[vn++] = "musical item";
+			if (l_ptr->flags8 & (RF8_DROP_POTION)) vp[vn++] = "potion";
+			if (l_ptr->flags8 & (RF8_DROP_FOOD)) vp[vn++] = "edible item";
+			if (l_ptr->flags8 & (RF8_DROP_JUNK)) vp[vn++] = "junk item";
+			if (l_ptr->flags9 & (RF9_DROP_ESSENCE)) vp[vn++] = "essence";
+
+			/* Only drop mushrooms? */
+			if (l_ptr->flags9 & (RF9_DROP_MUSHROOM))
+			{
+				vn = 0;
+				vp[vn++] = "mushroom";
+			}
+
+			if (!vn) vp[vn++] = "special object";
 		}
 
 		/* Treasures */
 		if (l_ptr->drop_gold)
 		{
 			/* Dump "treasure(s)" */
-			if (get_coin_type(r_ptr)) vp[vn++] = "precious metal";
+			if (l_ptr->flags9 & (RF9_DROP_MINERAL))
+			{
+				int coin_type = get_coin_type(r_ptr);
+
+				switch (k_info[OBJ_GOLD_LIST + coin_type].tval)
+				{
+					case TV_GOLD:
+						vp[vn++] = "precious metal";
+						break;
+					case TV_GEMS:
+						vp[vn++] = "gem stone";
+						break;
+				}
+			}
 			else vp[vn++] = "treasure";
 		}
 
@@ -529,7 +614,7 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 }
 
 
-static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
+static void describe_monster_attack(int r_idx, const monster_lore *l_ptr, bool ranged)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
 	int m, n, r;
@@ -563,13 +648,20 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		/* Skip unknown attacks */
 		if (!l_ptr->blows[m]) continue;
 
-
 		/* Extract the attack info */
 		method = r_ptr->blow[m].method;
 		effect = r_ptr->blow[m].effect;
 		d1 = r_ptr->blow[m].d_dice;
 		d2 = r_ptr->blow[m].d_side;
 
+		/* Ranged? */
+		if ((ranged) && (method < RBM_MIN_RANGED)) continue;
+
+		/* Confirm ranged blow */
+		if ((ranged) && !(l_ptr->flags4 & (RF4_BLOW_1 << m))) continue;
+
+		/* Melee? */
+		if (!(ranged) && (method > RBM_MAX_NORMAL)) continue;
 
 		/* No method yet */
 		p = NULL;
@@ -600,9 +692,9 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_BEG:	p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:	p = "moan"; break;
-			case RBM_THROW:	p = "throw"; break;
+			case RBM_SING:	p = "sing magical spells"; break;
 			case RBM_TRAP: p = "trap"; break;
-			case RBM_SHOOT: p = "shoot"; break;
+			case RBM_BOULDER: p = "throw a boulder at you"; break;
 			case RBM_AURA: p = "radiate"; break;
 			case RBM_SELF: p = "affect itself";break;
 			case RBM_ADJACENT: p = "affect all adjacent"; break;
@@ -623,10 +715,21 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case RBM_AIM: p = "affect a target"; break;
 			case RBM_ORB: p = "create an orb"; break;
 			case RBM_STAR: p = "create a star"; break;
-			case RBM_CROSS: p = "create a cross"; break;
 			case RBM_SPHERE: p = "create a sphere"; break;
 			case RBM_PANEL: p = "affect the current panel"; break;
 			case RBM_LEVEL: p = "affect the current level"; break;
+			case RBM_CROSS: p = "create a cross"; break;
+			case RBM_STRIKE: p = "strike"; break;
+			case RBM_EXPLODE: p = "explode"; break;
+			case RBM_ARROW:	p = "shoot you with a bow"; break;
+			case RBM_XBOLT:	p = "shoot you with a crossbow"; break;
+			case RBM_SPIKE:	p = "shoot you with a spike"; break;
+			case RBM_DART:	p = "shoot you with a dart"; break;
+			case RBM_SHOT:	p = "sling a shot at you"; break;
+			case RBM_ARC_20:	p = "create a 20 degree arc"; break;
+			case RBM_ARC_30:	p = "create a 30 degree arc"; break;
+			case RBM_ARC_60:	p = "create a 60 degree arc"; break;
+			case RBM_FLASK:	p = "throw a grenade at you"; break;
 		}
 
 
@@ -637,8 +740,9 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		switch (effect)
 		{
 			case GF_NOTHING: q = "nothing"; break;
-			case GF_ARROW: p= "hurt with arrows"; break;
-			case GF_MISSILE: q="blast with magic missiles";break;
+			case GF_STORM: p= "lash with wind, rain and lightning"; break;
+			case GF_WIND: p= "blast with wind"; break;
+			case GF_HELLFIRE: q="blast with hellfire";break;
 			case GF_MANA: q="blast with magic";break;       
 			case GF_HOLY_ORB: q="blast with holy magic";break;
 			case GF_LITE_WEAK: q="light up";break;
@@ -656,6 +760,7 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_FIRE:   q = "burn"; break;
 			case GF_COLD:   q = "freeze"; break;
 			case GF_POIS: q = "poison"; break;
+			case GF_ANIM_DEAD: q="animate dead"; break;
 			case GF_LITE: q = "blast with powerful light";break;
 			case GF_DARK: q = "blast with powerful darkness";break;
 			case GF_WATER: q="blast with water";break;
@@ -673,23 +778,25 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_MAKE_DOOR: q = "create doors";break;
 			case GF_MAKE_TRAP: q = "create traps";break;
 			case GF_BRIDGE: q = "create a stone bridge"; break;
+			case GF_ANIM_ELEMENT: q= "animate elements"; break;
 			case GF_AWAY_UNDEAD: q = "teleport away undead";break;
 			case GF_AWAY_EVIL: q = "teleport away evil";break;
 			case GF_AWAY_ALL: q = "teleport away";break;
 			case GF_TURN_UNDEAD: q = "turn undead";break;
 			case GF_TURN_EVIL: q = "turn evil";break;
-			case GF_TURN_ALL: q = "turn all";break;
+			case GF_FEAR_WEAK: q = "terrify";break;
 			case GF_DISP_UNDEAD: q = "dispel undead";break;
 			case GF_DISP_EVIL: q = "dispel evil";break;
 			case GF_DISP_ALL: q = "dispel all";break;
-			case GF_OLD_CLONE: q = "clone";break;
-			case GF_OLD_POLY: q = "polymorph";break;
-			case GF_OLD_HEAL: q = "heal";break;
-			case GF_OLD_SPEED: q = "hasten";break;
-			case GF_OLD_SLOW: q = "slow";break;
-			case GF_OLD_CONF: q = "confuse";break;
-			case GF_OLD_SLEEP: q = "send to sleep";break;
-			case GF_OLD_DRAIN: q = "drain life";break;
+			case GF_ANIM_OBJECT: q = "animate objects"; break;
+			case GF_CLONE: q = "clone";break;
+			case GF_POLY: q = "polymorph";break;
+			case GF_HEAL: q = "heal";break;
+			case GF_HASTE: q = "hasten";break;
+			case GF_SLOW_WEAK: q = "slow";break;
+			case GF_CONF_WEAK: q = "confuse";break;
+			case GF_SLEEP: q = "send to sleep";break;
+			case GF_DRAIN_LIFE: q = "drain life";break;
 			case GF_LAVA: q = "burn with lava";break;
 			case GF_BWATER: q = "scald with boiling water";break;
 			case GF_BMUD: q = "splash with boiling mud";break;
@@ -733,23 +840,29 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_LOSE_MANA:	q = "drain mana"; break;
 			case GF_WOUND:		q = "wound"; break;
 			case GF_BATTER:		q = "batter"; break;
+			case GF_BLIND_WEAK:		q = "blind"; break;
+			case GF_RAISE_DEAD:	q = "raise dead"; break;
 		}
 
 
 		/* Introduce the attack description */
 		if (!r)
 		{
-			text_out(format("%^s can ", wd_he[msex]));
+			if (ranged) text_out(format("%^s may ", wd_he[msex]));
+			else text_out(format("%^s can ", wd_he[msex]));
 		}
 		else if (r < n-1)
 		{
 			text_out(", ");
 		}
+		else if (ranged)
+		{
+			text_out(", or ");
+		}
 		else
 		{
 			text_out(", and ");
 		}
-
 
 		/* Hack -- force a method */
 		if (!p) p = "do something weird";
@@ -779,8 +892,13 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 		r++;
 	}
 
+	/* Continue with spells after this */
+	if (ranged)
+	{
+		/* Nothing */
+	}
 	/* Finish sentence above */
-	if (r)
+	else if (r)
 	{
 		text_out(".  ");
 	}
@@ -817,7 +935,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect special abilities. */
 	vn = 0;
-	if (l_ptr->flags2 & RF2_HAS_LITE) vp[vn++] = "illuminate the dungeon";
+	if ((l_ptr->flags2 & RF2_NEED_LITE) && !(l_ptr->flags2 & RF2_HAS_LITE)) vp[vn++] = "carry a lite to see you";
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
@@ -831,6 +949,33 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags2 & RF2_SNEAKY) vp[vn++] = "hide in unusual places";
 	if ((l_ptr->flags2 & RF2_CAN_SWIM) && !(l_ptr->flags2 & RF2_MUST_SWIM)) vp[vn++] = "swim under water";
 	if ((l_ptr->flags2 & RF2_CAN_FLY) && !(l_ptr->flags2 & RF2_MUST_FLY)) vp[vn++] = "fly over obstacles";
+	if (l_ptr->flags9 & RF9_EVASIVE) vp[vn++] = "easily evade blows and missiles";
+
+	if (l_ptr->flags9 & (RF9_SUPER_SCENT))
+	{
+		if (l_ptr->flags9 & (RF9_WATER_SCENT))
+		{
+			if (l_ptr->flags9 & (RF9_SCENT)) vp[vn++] = "track you unerringly over land and through water";
+			else vp[vn++] = "track you unerringly through water";
+		}
+		else
+		{
+			if (l_ptr->flags9 & (RF9_SCENT)) vp[vn++] = "track you unerringly over land, but not through water";
+			else vp[vn++] = "track you unerringly over land, but not through water";
+		}
+	}
+	else
+	{
+		if (l_ptr->flags9 & (RF9_WATER_SCENT))
+		{
+			if (l_ptr->flags9 & (RF9_SCENT)) vp[vn++] = "track you over land and through water";
+			else vp[vn++] = "track you through water";
+		}
+		else
+		{
+			if (l_ptr->flags9 & (RF9_SCENT)) vp[vn++] = "track you over land, but not through water";
+		}
+	}
 
 	/* Describe special abilities. */
 	if (vn)
@@ -855,12 +1000,6 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* Describe special abilities. */
-	if (l_ptr->flags2 & (RF2_NEED_LITE))
-	{
-		text_out(format("%^s needs light to see you.  ", wd_he[msex]));
-	}
-
-	/* Describe special abilities. */
 	if (l_ptr->flags2 & (RF2_MUST_SWIM))
 	{
 		text_out(format("%^s must swim and cannot move out of water.  ", wd_he[msex]));
@@ -871,6 +1010,18 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	{
 		text_out(format("%^s must fly and cannot move underwater or through webs.  ", wd_he[msex]));
 	}
+
+	/* Describe special abilities. */
+	if (l_ptr->flags2 & (RF2_HAS_LITE))
+	{
+		if (l_ptr->flags2 & RF2_NEED_LITE) text_out(format("%^s always carries a lite to see you.  ", wd_he[msex]));
+		else text_out(format("%^s lights up the surroundings.  ", wd_he[msex]));
+	}
+	else if (l_ptr->flags2 & (RF2_NEED_LITE))
+	{
+		text_out(format("%^s needs lite to see you.  ", wd_he[msex]));
+	}
+
 
 	/* Describe special abilities. */
 	if (l_ptr->flags2 & RF2_INVISIBLE)
@@ -935,7 +1086,9 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags3 & RF3_IM_FIRE) vp[vn++] = "fire";
 	if (l_ptr->flags3 & RF3_IM_COLD) vp[vn++] = "cold";
 	if (l_ptr->flags3 & RF3_IM_POIS) vp[vn++] = "poison";
-	if (l_ptr->flags3 & RF3_IM_WATER) vp[vn++] = "water";
+	if ((l_ptr->flags9 & RF9_IM_EDGED) && (l_ptr->flags9 & RF9_IM_BLUNT)) vp[vn++] = "edged";
+	else if (l_ptr->flags9 & RF9_IM_EDGED) vp[vn++] = "edged weapons";
+	if (l_ptr->flags9 & RF9_IM_BLUNT) vp[vn++] = "blunt weapons";
 
 	/* Describe immunities */
 	if (vn)
@@ -947,7 +1100,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" resists ");
+			if (n == 0) text_out(" is immune to ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" and ");
 
@@ -962,11 +1115,20 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect resistances */
 	vn = 0;
-	if (l_ptr->flags3 & RF3_RES_NETH) vp[vn++] = "nether";
+	if (l_ptr->flags3 & RF3_RES_WATER) vp[vn++] = "water";
+	if (l_ptr->flags3 & RF3_RES_NETHR) vp[vn++] = "nether";
 	if (l_ptr->flags3 & RF3_RES_LAVA) vp[vn++] = "lava";
 	if (l_ptr->flags3 & RF3_RES_PLAS) vp[vn++] = "plasma";
-	if (l_ptr->flags3 & RF3_RES_NEXU) vp[vn++] = "nexus";
-	if (l_ptr->flags3 & RF3_RES_DISE) vp[vn++] = "disenchantment";
+	if (l_ptr->flags3 & RF3_RES_NEXUS) vp[vn++] = "nexus";
+	if (l_ptr->flags3 & RF3_RES_DISEN) vp[vn++] = "disenchantment";
+	if (l_ptr->flags9 & RF9_RES_BLIND) vp[vn++] = "blindness";
+	if (l_ptr->flags9 & RF9_RES_LITE) vp[vn++] = "lite";
+	if (l_ptr->flags9 & RF9_RES_DARK) vp[vn++] = "darkness";
+	if (l_ptr->flags9 & RF9_RES_CHAOS) vp[vn++] = "chaos";
+	if (l_ptr->flags9 & RF9_RES_TPORT) vp[vn++] = "teleportation";
+	if ((l_ptr->flags9 & RF9_RES_EDGED) && (l_ptr->flags9 & RF9_RES_BLUNT)) vp[vn++] = "edged";
+	else if (l_ptr->flags9 & RF9_RES_EDGED) vp[vn++] = "edged weapons";
+	if (l_ptr->flags9 & RF9_RES_BLUNT) vp[vn++] = "blunt weapons";
 
 	/* Describe resistances */
 	if (vn)
@@ -996,7 +1158,11 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags3 & RF3_NO_STUN) vp[vn++] = "stunned";
 	if (l_ptr->flags3 & RF3_NO_FEAR) vp[vn++] = "frightened";
 	if (l_ptr->flags3 & RF3_NO_CONF) vp[vn++] = "confused";
+	if (l_ptr->flags3 & RF3_NO_SLEEP) vp[vn++] = "charmed";
 	if (l_ptr->flags3 & RF3_NO_SLEEP) vp[vn++] = "slept";
+	if (l_ptr->flags9 & RF9_NO_CUTS) vp[vn++] = "cut";
+	if (l_ptr->flags9 & RF9_NO_SLOW) vp[vn++] = "slowed";
+	if (l_ptr->flags9 & RF9_NO_SLOW) vp[vn++] = "paralyzed";
 
 	/* Describe non-effects */
 	if (vn)
@@ -1081,6 +1247,13 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	if ((l_ptr->flags1 & RF1_ESCORT) || (l_ptr->flags1 & RF1_ESCORTS))
 	{
 		text_out(format("%^s usually appears with escorts.  ",
+		    wd_he[msex]));
+	}
+
+	/* Describe friends */
+	else if (l_ptr->flags1 & RF1_FRIEND)
+	{
+		text_out(format("%^s usually appears with a friend.  ",
 		    wd_he[msex]));
 	}
 
@@ -1286,6 +1459,33 @@ static void describe_monster_exp(int r_idx, const monster_lore *l_ptr)
 }
 
 
+static void describe_monster_power(int r_idx, const monster_lore *l_ptr)
+{
+	const monster_race *r_ptr = &r_info[r_idx];
+
+	int msex = 0;
+
+	/* Extract a gender (if applicable) */
+	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
+	else if (r_ptr->flags1 & RF1_MALE) msex = 1;
+
+	/* Describe experience if known */
+	if (l_ptr->tkills)
+	{
+		text_out(format("%^s is ", wd_he[msex]));
+
+		if (r_ptr->power > 100) text_out("over powered");
+		else if (r_ptr->power > 50) text_out("deadly");
+		else if (r_ptr->power > 10) text_out("dangerous");
+		else if (r_ptr->power > 5) text_out("challenging");
+		else if (r_ptr->power > 1) text_out("threatening");
+		else text_out("not threatening");
+
+		text_out(format(" at %s native depth.  ", wd_his[msex]));
+	}
+}
+
+
 static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 {
 	const monster_race *r_ptr = &r_info[r_idx];
@@ -1306,10 +1506,14 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	vn = 0;
 
 	/* Describe the "race" */
-	if (l_ptr->flags3 & (RF3_ANIMAL)) vp[vn++] ="animal";
+	if ((l_ptr->flags1 & (RF1_FEMALE)) && (l_ptr->flags9 & (RF9_MAN))) vp[vn++] = "woman";
+	else if (l_ptr->flags9 & (RF9_MAN)) vp[vn++] ="man";
+	if (l_ptr->flags9 & (RF9_ELF)) vp[vn++] ="elf";
+	if (l_ptr->flags9 & (RF9_DWARF)) vp[vn++] ="dwarf";
 	if (l_ptr->flags3 & (RF3_ORC)) vp[vn++] ="orc";
 	if (l_ptr->flags3 & (RF3_TROLL)) vp[vn++] ="troll";
 	if (l_ptr->flags3 & (RF3_GIANT)) vp[vn++] ="giant";
+	if (l_ptr->flags3 & (RF3_ANIMAL)) vp[vn++] ="animal";
 	if (l_ptr->flags3 & (RF3_DRAGON)) vp[vn++] ="dragon";
 	if (l_ptr->flags3 & (RF3_DEMON)) vp[vn++] ="demon";
 	if (l_ptr->flags3 & (RF3_PLANT)) vp[vn++] ="plant";
@@ -1406,7 +1610,11 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* Speed */
-	if (r_ptr->speed > 110)
+	if (l_ptr->flags9 & (RF9_SAME_SPEED))
+	{
+		text_out( " keeps apace with you");
+	}
+	else if (r_ptr->speed > 110)
 	{
 		if (r_ptr->speed > 130) text_out( " incredibly");
 		else if (r_ptr->speed > 120) text_out(" very");
@@ -1421,6 +1629,23 @@ static void describe_monster_movement(int r_idx, const monster_lore *l_ptr)
 	else
 	{
 		text_out(" at normal speed");
+	}
+
+	/* Does the monster ignore the player? */
+	if (l_ptr->flags9 & RF9_TOWNSFOLK)
+	{
+		text_out(" about ");
+
+		/* Describe location */
+		if (r_ptr->level == 0)
+		{
+			text_out("town");
+		}
+		else
+		{
+			text_out("the dungeon");
+		}
+		text_out(" on business");
 	}
 
 	/* The code above includes "attack speed" */
@@ -1496,6 +1721,8 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 	l_ptr->flags5 = r_ptr->flags5;
 	l_ptr->flags6 = r_ptr->flags6;
 	l_ptr->flags7 = r_ptr->flags7;
+	l_ptr->flags8 = r_ptr->flags8;
+	l_ptr->flags9 = r_ptr->flags9;
 }
 
 
@@ -1519,13 +1746,11 @@ void describe_monster(int r_idx, bool spoilers)
 	const monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
-
 	/* Hack -- create a copy of the monster-memory */
 	COPY(&lore, l_ptr, monster_lore);
 
 	/* Assume some "obvious" flags */
 	lore.flags1 |= (r_ptr->flags1 & RF1_OBVIOUS_MASK);
-
 
 	/* Killing a monster reveals some properties */
 	if (lore.tkills)
@@ -1552,7 +1777,13 @@ void describe_monster(int r_idx, bool spoilers)
 	describe_monster_movement(r_idx, &lore);
 
 	/* Describe experience */
-	if (!spoilers) describe_monster_exp(r_idx, &lore);
+	describe_monster_exp(r_idx, &lore);
+
+	/* Describe power */
+	describe_monster_power(r_idx, &lore);
+
+	/* Describe the known ranged attacks */
+	describe_monster_attack(r_idx, &lore, TRUE);
 
 	/* Describe spells and innate attacks */
 	describe_monster_spells(r_idx, &lore);
@@ -1567,7 +1798,7 @@ void describe_monster(int r_idx, bool spoilers)
 	describe_monster_drop(r_idx, &lore);
 
 	/* Describe the known attacks */
-	describe_monster_attack(r_idx, &lore);
+	describe_monster_attack(r_idx, &lore, FALSE);
 
 	/* Notice "Quest" monsters */
 	if (lore.flags1 & RF1_QUESTOR)

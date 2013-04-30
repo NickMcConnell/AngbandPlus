@@ -8,7 +8,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -282,6 +282,7 @@ header d_head;
 header f_head;
 header k_head;
 header a_head;
+header n_head;
 header e_head;
 header x_head;
 header r_head;
@@ -295,6 +296,7 @@ header u_head;
 header h_head;
 header b_head;
 header g_head;
+header q_head;
 
 
 
@@ -485,6 +487,8 @@ static errr init_info(cptr filename, header *head)
 		/* Errors */
 		if (err) display_parse_error(filename, err, buf);
 
+		/* Post processing the data */
+		if (head->eval_info_power) eval_info(head->eval_info_power, head);
 
 		/*** Dump the binary image file ***/
 
@@ -635,6 +639,9 @@ static errr init_z_info(void)
 	/* Save a pointer to the parsing function */
 	z_head.parse_info_txt = parse_z_info;
 
+	/* Save a pointer to the evaluate power function*/
+	z_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("limits", &z_head);
@@ -660,6 +667,9 @@ static errr init_d_info(void)
 
 	/* Save a pointer to the parsing function */
 	d_head.parse_info_txt = parse_d_info;
+
+	/* Save a pointer to the evaluate power function*/
+	d_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -688,6 +698,9 @@ static errr init_f_info(void)
 
 	/* Save a pointer to the parsing function */
 	f_head.parse_info_txt = parse_f_info;
+
+	/* Save a pointer to the evaluate power function*/
+	f_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -718,6 +731,9 @@ static errr init_k_info(void)
 	/* Save a pointer to the parsing function */
 	k_head.parse_info_txt = parse_k_info;
 
+	/* Save a pointer to the evaluate power function*/
+	k_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("object", &k_head);
@@ -747,6 +763,9 @@ static errr init_a_info(void)
 	/* Save a pointer to the parsing function */
 	a_head.parse_info_txt = parse_a_info;
 
+	/* Save a pointer to the evaluate power function*/
+	a_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("artifact", &a_head);
@@ -759,6 +778,34 @@ static errr init_a_info(void)
 	return (err);
 }
 
+
+
+/*
+ * Initialize the "n_info" structure
+ */
+static errr init_n_info(void)
+{
+  errr err;
+
+  /* Init the header */
+  init_header(&n_head, 1, sizeof(names_type));
+
+#ifdef ALLOW_TEMPLATES
+
+  /* Save a pointer to the parsing function */
+  n_head.parse_info_txt = parse_n_info;
+
+	/* Save a pointer to the evaluate power function*/
+	n_head.eval_info_power = NULL;
+
+#endif /* ALLOW_TEMPLATES */
+
+  err = init_info("names", &n_head);
+
+  n_info = n_head.info_ptr;
+
+  return (err);
+}
 
 
 /*
@@ -775,6 +822,9 @@ static errr init_e_info(void)
 
 	/* Save a pointer to the parsing function */
 	e_head.parse_info_txt = parse_e_info;
+
+	/* Save a pointer to the evaluate power function*/
+	e_head.eval_info_power = eval_e_power;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -804,6 +854,9 @@ static errr init_x_info(void)
 	/* Save a pointer to the parsing function */
 	x_head.parse_info_txt = parse_x_info;
 
+	/* Save a pointer to the evaluate power function*/
+	x_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("flavor", &x_head);
@@ -831,6 +884,9 @@ static errr init_r_info(void)
 
 	/* Save a pointer to the parsing function */
 	r_head.parse_info_txt = parse_r_info;
+
+	/* Save a pointer to the evaluate power function*/
+	r_head.eval_info_power = eval_r_power;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -861,6 +917,9 @@ static errr init_v_info(void)
 	/* Save a pointer to the parsing function */
 	v_head.parse_info_txt = parse_v_info;
 
+	/* Save a pointer to the evaluate power function*/
+	v_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("vault", &v_head);
@@ -888,6 +947,9 @@ static errr init_p_info(void)
 
 	/* Save a pointer to the parsing function */
 	p_head.parse_info_txt = parse_p_info;
+
+	/* Save a pointer to the evaluate power function*/
+	p_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -917,6 +979,9 @@ static errr init_c_info(void)
 	/* Save a pointer to the parsing function */
 	c_head.parse_info_txt = parse_c_info;
 
+	/* Save a pointer to the evaluate power function*/
+	c_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("p_class", &c_head);
@@ -945,6 +1010,9 @@ static errr init_w_info(void)
 	/* Save a pointer to the parsing function */
 	w_head.parse_info_txt = parse_w_info;
 
+	/* Save a pointer to the evaluate power function*/
+	w_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("style", &w_head);
@@ -970,6 +1038,9 @@ static errr init_s_info(void)
 
 	/* Save a pointer to the parsing function */
 	s_head.parse_info_txt = parse_s_info;
+
+	/* Save a pointer to the evaluate power function*/
+	s_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -999,6 +1070,9 @@ static errr init_y_info(void)
 	/* Save a pointer to the parsing function */
 	y_head.parse_info_txt = parse_y_info;
 
+	/* Save a pointer to the evaluate power function*/
+	y_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("rune", &y_head);
@@ -1026,6 +1100,9 @@ static errr init_h_info(void)
 
 	/* Save a pointer to the parsing function */
 	h_head.parse_info_txt = parse_h_info;
+
+	/* Save a pointer to the evaluate power function*/
+	h_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -1055,6 +1132,9 @@ static errr init_t_info(void)
 	/* Save a pointer to the parsing function */
 	t_head.parse_info_txt = parse_t_info;
 
+	/* Save a pointer to the evaluate power function*/
+	t_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("dungeon", &t_head);
@@ -1083,6 +1163,9 @@ static errr init_u_info(void)
 	/* Save a pointer to the parsing function */
 	u_head.parse_info_txt = parse_u_info;
 
+	/* Save a pointer to the evaluate power function*/
+	u_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("store", &u_head);
@@ -1110,6 +1193,9 @@ static errr init_b_info(void)
 
 	/* Save a pointer to the parsing function */
 	b_head.parse_info_txt = parse_b_info;
+
+	/* Save a pointer to the evaluate power function*/
+	b_head.eval_info_power = NULL;
 
 #endif /* ALLOW_TEMPLATES */
 
@@ -1140,6 +1226,9 @@ static errr init_g_info(void)
 	/* Save a pointer to the parsing function */
 	g_head.parse_info_txt = parse_g_info;
 
+	/* Save a pointer to the evaluate power function*/
+	g_head.eval_info_power = NULL;
+
 #endif /* ALLOW_TEMPLATES */
 
 	err = init_info("cost_adj", &g_head);
@@ -1153,7 +1242,72 @@ static errr init_g_info(void)
 }
 
 
+/*
+ * Initialize the "q_info" array
+ */
+static errr init_q_info(void)
+{
+	errr err;
+
+	/* Init the header */
+	init_header(&q_head, z_info->q_max, sizeof(quest_type));
+
+#ifdef ALLOW_TEMPLATES
+
+	/* Save a pointer to the parsing function */
+	q_head.parse_info_txt = parse_q_info;
+
+	/* Save a pointer to the evaluate power function*/
+	q_head.eval_info_power = NULL;
+
+#endif /* ALLOW_TEMPLATES */
+
+	err = init_info("quest", &q_head);
+
+	/* Set the global variables */
+	q_info = q_head.info_ptr;
+	q_name = q_head.name_ptr;
+	q_text = q_head.text_ptr;
+
+	return (err);
+}
+
 /*** Initialize others ***/
+
+errr init_slays(void)
+{
+	int err = 0;
+
+	int i, j;
+
+	/* No monster power to start with */
+	tot_mon_power = 0;
+
+	/* Compute total monster power */
+	for (i = 0; i < z_info->r_max; i++)
+	{
+		/* Point at the "info" */
+		monster_race *r_ptr = &r_info[i];
+
+		/* Total power */
+		tot_mon_power += r_ptr->power;
+	}
+
+	/* Allocate the "slay values" array - now used to compute magic item power */
+	C_MAKE(slays, SLAY_MAX, s32b);
+
+	/* Clear values */
+	for (i = 0; i < SLAY_MAX; i++) slays[i] = 0L;
+
+	/* Precompute values for single flag slays for magic items */
+	for (i = 0, j = 0x00000001L; (i < 32) && (j < 0x00200000L); i++, j <<=1)
+	{
+		/* Compute slay power for single flags */
+		magic_slay_power[i] = slay_power(j);
+	}
+
+	return (err);
+}
 
 
 /*
@@ -1181,6 +1335,9 @@ static errr init_other(void)
 	C_MAKE(view_g, VIEW_MAX, u16b);
 
 	/* Array of grids */
+	C_MAKE(fire_g, VIEW_MAX, u16b);
+
+	/* Array of grids */
 	C_MAKE(temp_g, TEMP_MAX, u16b);
 
 	/* Hack -- use some memory twice */
@@ -1190,6 +1347,10 @@ static errr init_other(void)
 	/* Array of grids */
 	C_MAKE(dyna_g, DYNA_MAX, u16b);
 
+	/*** Set the default modify_grids ***/
+	modify_grid_boring_hook = modify_grid_boring_view;
+	modify_grid_unseen_hook = modify_grid_unseen_view;
+	modify_grid_interesting_hook = modify_grid_interesting_view;
 
 	/*** Prepare dungeon arrays ***/
 
@@ -1246,7 +1407,7 @@ static errr init_other(void)
 	/*** Prepare quest array ***/
 
 	/* Quests */
-	C_MAKE(q_list, MAX_Q_IDX, quest);
+	C_MAKE(q_list, MAX_Q_IDX, quest_type);
 
 
 	/*** Prepare the inventory ***/
@@ -1294,7 +1455,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Robert Ruehlmann", MAINTAINER);
+	(void)format("%s (%s).", "Andrew Doull", MAINTAINER);
 
 
 	/* Success */
@@ -1852,6 +2013,14 @@ void init_angband(void)
 	note("[Initializing arrays... (features)]");
 	if (init_f_info()) quit("Cannot initialize features");
 
+	/* Initialize monster info */
+	note("[Initializing arrays... (monsters)]");
+	if (init_r_info()) quit("Cannot initialize monsters");
+
+	/* Initialize slay info */
+	note("[Initializing arrays... (slays)]");
+	if (init_slays()) quit("Cannot initialize slays");
+
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
 	if (init_k_info()) quit("Cannot initialize objects");
@@ -1860,6 +2029,10 @@ void init_angband(void)
 	note("[Initializing arrays... (artifacts)]");
 	if (init_a_info()) quit("Cannot initialize artifacts");
 
+	/* Initialize name info */
+	note("[Initializing arrays... (names)]");
+	if (init_n_info()) quit("Cannot initialize names");
+
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");
 	if (init_e_info()) quit("Cannot initialize ego-items");
@@ -1867,10 +2040,6 @@ void init_angband(void)
 	/* Initialize flavor info */
 	note("[Initializing arrays... (flavors)]");
 	if (init_x_info()) quit("Cannot initialize flavors");
-
-	/* Initialize monster info */
-	note("[Initializing arrays... (monsters)]");
-	if (init_r_info()) quit("Cannot initialize monsters");
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (vaults)]");
@@ -1915,7 +2084,11 @@ void init_angband(void)
 	/* Initialize price info */
 	note("[Initializing arrays... (prices)]");
 	if (init_g_info()) quit("Cannot initialize prices");
-	
+
+	/* Initialize quest info */
+	note("[Initializing arrays... (quests)]");
+	if (init_q_info()) quit("Cannot initialize quests");
+
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
 	if (init_other()) quit("Cannot initialize other stuff");
@@ -2011,6 +2184,9 @@ void cleanup_angband(void)
 	/* Free the "update_view()" array */
 	FREE(view_g);
 
+	/* Free the "update_view()" array */
+	FREE(fire_g);
+
 	/* Free the temp array */
 	FREE(temp_g);
 
@@ -2035,10 +2211,12 @@ void cleanup_angband(void)
 	free_info(&r_head);
 	free_info(&x_head);
 	free_info(&e_head);
+	free_info(&n_head);
 	free_info(&a_head);
 	free_info(&k_head);
 	free_info(&f_head);
 	free_info(&d_head);
+	free_info(&q_head);
 	free_info(&z_head);
 
 	/* Free the format() buffer */

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -42,7 +42,6 @@ void do_cmd_redraw(void)
 	/* Reset "inkey()" */
 	flush();
 
-
 	/* Hack -- React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
@@ -61,13 +60,13 @@ void do_cmd_redraw(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
 
 	/* Redraw everything */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_ITEM_LIST);
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+	/* Window everything */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
+			  PW_PLAYER_2 | PW_PLAYER_3 | PW_MESSAGE | PW_MAP |
+			  PW_OVERHEAD | PW_MONSTER | PW_OBJECT | PW_FEATURE |
+			  PW_SNAPSHOT | PW_MONLIST | PW_HELP);
 
 	/* Clear screen */
 	Term_clear();
@@ -102,7 +101,7 @@ void do_cmd_redraw(void)
  */
 void do_cmd_change_name(void)
 {
-	char ch;
+	key_event ke;
 
 	int mode = 0;
 
@@ -124,19 +123,19 @@ void do_cmd_change_name(void)
 		Term_putstr(2, 23, -1, TERM_WHITE, p);
 
 		/* Query */
-		ch = inkey();
+		ke = anykey();
 
 		/* Exit */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Change name */
-		if (ch == 'c')
+		if ((ke.key == 'c') || ((ke.key == '\xff') && (ke.mousey == 2) && (ke.mousex < 26)))
 		{
 			get_name();
 		}
 
 		/* File dump */
-		else if (ch == 'f')
+		else if (ke.key == 'f')
 		{
 			char ftmp[80];
 
@@ -159,7 +158,7 @@ void do_cmd_change_name(void)
 		}
 
 		/* Toggle mode */
-		else if (ch == 'h')
+		else if ((ke.key == 'h') || (ke.key == '\xff'))
 		{
 			mode = !mode;
 		}
@@ -206,7 +205,7 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-	char ch;
+	key_event ke;
 
 	int i, j, n, q;
 	int wid, hgt;
@@ -282,16 +281,16 @@ void do_cmd_messages(void)
 		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", hgt - 1, 0);
 
 		/* Get a command */
-		ch = inkey();
+		ke = anykey();
 
 		/* Exit on Escape */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Hack -- Save the old index */
 		j = i;
 
 		/* Horizontal scroll */
-		if (ch == '4')
+		if (ke.key == '4')
 		{
 			/* Scroll left */
 			q = (q >= wid / 2) ? (q - wid / 2) : 0;
@@ -301,7 +300,7 @@ void do_cmd_messages(void)
 		}
 
 		/* Horizontal scroll */
-		if (ch == '6')
+		if (ke.key == '6')
 		{
 			/* Scroll right */
 			q = q + wid / 2;
@@ -311,7 +310,7 @@ void do_cmd_messages(void)
 		}
 
 		/* Hack -- handle show */
-		if (ch == '=')
+		if (ke.key == '=')
 		{
 			/* Prompt */
 			prt("Show: ", hgt - 1, 0);
@@ -324,7 +323,7 @@ void do_cmd_messages(void)
 		}
 
 		/* Hack -- handle find */
-		if (ch == '/')
+		if (ke.key == '/')
 		{
 			s16b z;
 
@@ -355,45 +354,63 @@ void do_cmd_messages(void)
 		}
 
 		/* Recall 20 older messages */
-		if ((ch == 'p') || (ch == KTRL('P')) || (ch == ' '))
+		if ((ke.key == 'p') || (ke.key == KTRL('P')) || (ke.key == ' '))
 		{
 			/* Go older if legal */
 			if (i + 20 < n) i += 20;
 		}
 
 		/* Recall 10 older messages */
-		if (ch == '+')
+		if (ke.key == '+')
 		{
 			/* Go older if legal */
 			if (i + 10 < n) i += 10;
 		}
 
 		/* Recall 1 older message */
-		if ((ch == '8') || (ch == '\n') || (ch == '\r'))
+		if ((ke.key == '8') || (ke.key == '\n') || (ke.key == '\r'))
 		{
-			/* Go newer if legal */
+			/* Go older if legal */
 			if (i + 1 < n) i += 1;
 		}
 
 		/* Recall 20 newer messages */
-		if ((ch == 'n') || (ch == KTRL('N')))
+		if ((ke.key == 'n') || (ke.key == KTRL('N')))
 		{
 			/* Go newer (if able) */
 			i = (i >= 20) ? (i - 20) : 0;
 		}
 
 		/* Recall 10 newer messages */
-		if (ch == '-')
+		if (ke.key == '-')
 		{
 			/* Go newer (if able) */
 			i = (i >= 10) ? (i - 10) : 0;
 		}
 
 		/* Recall 1 newer messages */
-		if (ch == '2')
+		if (ke.key == '2')
 		{
 			/* Go newer (if able) */
 			i = (i >= 1) ? (i - 1) : 0;
+		}
+
+		/* Scroll forwards or backwards using mouse clicks */
+		if (ke.key == '\xff')
+		{
+			if (ke.mousebutton)
+			{
+				if (ke.mousey <= hgt / 2)
+				{
+					/* Go older if legal */
+					if (i + 20 < n) i += 20;
+				}
+				else
+				{
+					/* Go newer (if able) */
+					i = (i >= 20) ? (i - 20) : 0;
+				}
+			}
 		}
 
 		/* Hack -- Error of some kind */
@@ -468,7 +485,7 @@ static void do_cmd_pref_file_hack(int row)
  */
 static void do_cmd_options_aux(int page, cptr info)
 {
-	char ch;
+	key_event ke;
 
 	int i, k = 0, n = 0;
 
@@ -518,10 +535,10 @@ static void do_cmd_options_aux(int page, cptr info)
 		move_cursor(k + 2, 50);
 
 		/* Get a key */
-		ch = inkey();
+		ke = inkey_ex();
 
 		/* Analyze */
-		switch (ch)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
@@ -585,6 +602,19 @@ static void do_cmd_options_aux(int page, cptr info)
 				break;
 			}
 
+			case '\xff':
+			{
+				int choice = ke.mousey - 2;
+
+				if ((choice >= 0) && (choice < n)) k = choice;
+
+				if (ke.mousebutton)
+				{
+					op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				}
+				break;
+			}
+
 			default:
 			{
 				bell("Illegal command for normal options!");
@@ -605,7 +635,7 @@ static void do_cmd_options_win(void)
 	int y = 0;
 	int x = 0;
 
-	char ch;
+	key_event ke;
 
 	u32b old_flag[ANGBAND_TERM_MAX];
 
@@ -641,7 +671,7 @@ static void do_cmd_options_win(void)
 		}
 
 		/* Display the options */
-		for (i = 0; i < 16; i++)
+		for (i = 0; i < PW_MAX_FLAGS; i++)
 		{
 			byte a = TERM_WHITE;
 
@@ -678,13 +708,31 @@ static void do_cmd_options_win(void)
 		Term_gotoxy(35 + x * 5, y + 5);
 
 		/* Get key */
-		ch = inkey();
+		ke = inkey_ex();
 
 		/* Allow escape */
-		if ((ch == ESCAPE) || (ch == 'q')) break;
+		if ((ke.key == ESCAPE) || (ke.key == 'q')) break;
+
+		/* Mouse interaction */
+		if (ke.key == '\xff')
+		{
+			int choicey = ke.mousey - 5;
+			int choicex = (ke.mousex - 35)/5;
+
+			if ((choicey >= 0) && (choicey < PW_MAX_FLAGS)
+				&& (choicex > 0) && (choicex < ANGBAND_TERM_MAX)
+				&& !(ke.mousex % 5))
+			{
+				y = choicey;
+				x = (ke.mousex - 35)/5;
+			}
+
+			/* Toggle using mousebutton later */
+			if (!ke.mousebutton) continue;
+		}
 
 		/* Toggle */
-		if ((ch == '5') || (ch == 't'))
+		if ((ke.key == '5') || (ke.key == 't') || ((ke.key == '\xff') && (ke.mousebutton)))
 		{
 			/* Hack -- ignore the main window */
 			if (x == 0)
@@ -709,13 +757,13 @@ static void do_cmd_options_win(void)
 		}
 
 		/* Extract direction */
-		d = target_dir(ch);
+		d = target_dir(ke.key);
 
 		/* Move */
 		if (d != 0)
 		{
-			x = (x + ddx[d] + 8) % 8;
-			y = (y + ddy[d] + 16) % 16;
+			x = (x + ddx[d] + 8) % ANGBAND_TERM_MAX;
+			y = (y + ddy[d] + 16) % PW_MAX_FLAGS;
 		}
 
 		/* Oops */
@@ -852,120 +900,115 @@ static errr option_dump(cptr fname)
  */
 void do_cmd_options(void)
 {
-	char ch;
+	key_event ke;
+	int line = 0;
 
 
 	/* Save screen */
 	screen_save();
 
+	/* Clear screen */
+	Term_clear();
 
 	/* Interact */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Why are we here */
 		prt(format("%s options", VERSION_NAME), 2, 0);
 
 		/* Give some choices */
-		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Display Options", 8, 5);
-		prt("(6) Birth Options", 9, 5);
-		prt("(7) Cheat Options", 10, 5);
+		c_prt(line == 4 ? TERM_L_BLUE : TERM_WHITE, "(1) User Interface Options", 4, 5);
+		c_prt(line == 5 ? TERM_L_BLUE : TERM_WHITE, "(2) Disturbance Options", 5, 5);
+		c_prt(line == 6 ? TERM_L_BLUE : TERM_WHITE, "(3) Game-Play Options", 6, 5);
+		c_prt(line == 7 ? TERM_L_BLUE : TERM_WHITE, "(4) Efficiency Options", 7, 5);
+		c_prt(line == 8 ? TERM_L_BLUE : TERM_WHITE, "(5) Display Options", 8, 5);
+		c_prt(line == 9 ? TERM_L_BLUE : TERM_WHITE, "(6) Birth Options", 9, 5);
+		c_prt(line == 10 ? TERM_L_BLUE : TERM_WHITE, "(7) Cheat Options", 10, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 12, 5);
+		c_prt(line == 12 ? TERM_L_BLUE : TERM_WHITE, "(W) Window flags", 12, 5);
 
 		/* Load and Append */
-		prt("(L) Load a user pref file", 13, 5);
-		prt("(A) Append options to a file", 14, 5);
+		c_prt(line == 13 ? TERM_L_BLUE : TERM_WHITE, "(L) Load a user pref file", 13, 5);
+		c_prt(line == 14 ? TERM_L_BLUE : TERM_WHITE, "(A) Append options to a file", 14, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 16, 5);
-		prt("(H) Hitpoint Warning", 17, 5);
+		c_prt(line == 16 ? TERM_L_BLUE : TERM_WHITE, "(D) Base Delay Factor", 16, 5);
+		c_prt(line == 17 ? TERM_L_BLUE : TERM_WHITE, "(H) Hitpoint Warning", 17, 5);
 
 		/* Prompt */
 		prt("Command: ", 19, 0);
 
 		/* Get command */
-		ch = inkey();
+		ke = inkey_ex();
+
+		/* React to mouse movement */
+		if ((ke.key == '\xff') && !(ke.mousebutton))
+		{
+			line = ke.mousey;
+			continue;
+		}
 
 		/* Exit */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* General Options */
-		else if (ch == '1')
+		else if ((ke.key == '1') || ((ke.key == '\xff') && (ke.mousey == 4)))
 		{
 			do_cmd_options_aux(0, "User Interface Options");
 		}
 
 		/* Disturbance Options */
-		else if (ch == '2')
+		else if ((ke.key == '2') || ((ke.key == '\xff') && (ke.mousey == 5)))
 		{
 			do_cmd_options_aux(1, "Disturbance Options");
 		}
 
 		/* Inventory Options */
-		else if (ch == '3')
+		else if ((ke.key == '3') || ((ke.key == '\xff') && (ke.mousey == 6)))
 		{
 			do_cmd_options_aux(2, "Game-Play Options");
 		}
 
 		/* Efficiency Options */
-		else if (ch == '4')
+		else if ((ke.key == '4') || ((ke.key == '\xff') && (ke.mousey == 7)))
 		{
 			do_cmd_options_aux(3, "Efficiency Options");
 		}
 
 		/* Display Options */
-		else if (ch == '5')
+		else if ((ke.key == '5') || ((ke.key == '\xff') && (ke.mousey == 8)))
 		{
 			do_cmd_options_aux(4, "Display Options");
 		}
 
 		/* Birth Options */
-		else if (ch == '6')
+		else if ((ke.key == '6') || ((ke.key == '\xff') && (ke.mousey == 9)))
 		{
 			do_cmd_options_aux(5, "Birth Options");
 		}
 
 		/* Cheating Options */
-		else if (ch == '7')
+		else if ((ke.key == '7') || ((ke.key == '\xff') && (ke.mousey == 10)))
 		{
 			do_cmd_options_aux(6, "Cheat Options");
 		}
-#if 0
-		/* Variant Options */
-		else if (ch == '8')
-		{
-			do_cmd_options_aux(7, "Variant Options");
-		}
 
-		/* Save-File Options */
-		else if (ch == '9')
-		{
-			do_cmd_options_aux(8, "Save-File Options");
-		}
-#endif
 		/* Window flags */
-		else if ((ch == 'W') || (ch == 'w'))
+		else if ((ke.key == 'W') || (ke.key == 'w') || ((ke.key == '\xff') && (ke.mousey == 12)))
 		{
 			do_cmd_options_win();
 		}
 
 		/* Load a user pref file */
-		else if ((ch == 'L') || (ch == 'l'))
+		else if ((ke.key == 'L') || (ke.key == 'l') || ((ke.key == '\xff') && (ke.mousey == 13)))
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(20);
 		}
 
 		/* Append options to a file */
-		else if ((ch == 'A') || (ch == 'a'))
+		else if ((ke.key == 'A') || (ke.key == 'a') || ((ke.key == '\xff') && (ke.mousey == 14)))
 		{
 			char ftmp[80];
 
@@ -995,7 +1038,7 @@ void do_cmd_options(void)
 		}
 
 		/* Hack -- Base Delay Factor */
-		else if ((ch == 'D') || (ch == 'd'))
+		else if ((ke.key == 'D') || (ke.key == 'd') || ((ke.key == '\xff') && (ke.mousey == 16)))
 		{
 			/* Prompt */
 			prt("Command: Base Delay Factor", 20, 0);
@@ -1017,7 +1060,7 @@ void do_cmd_options(void)
 		}
 
 		/* Hack -- hitpoint warning factor */
-		else if ((ch == 'H') || (ch == 'h'))
+		else if ((ke.key == 'H') || (ke.key == 'h') || ((ke.key == '\xff') && (ke.mousey == 17)))
 		{
 			/* Prompt */
 			prt("Command: Hitpoint Warning", 20, 0);
@@ -1046,6 +1089,9 @@ void do_cmd_options(void)
 
 		/* Flush messages */
 		message_flush();
+
+		/* Clear screen */
+		Term_clear();
 	}
 
 
@@ -1313,7 +1359,7 @@ static errr keymap_dump(cptr fname)
  */
 void do_cmd_macros(void)
 {
-	char ch;
+	key_event ke;
 
 	char tmp[1024];
 
@@ -1321,6 +1367,7 @@ void do_cmd_macros(void)
 
 	int mode;
 
+	int line = 0;
 
 	/* Roguelike */
 	if (rogue_like_commands)
@@ -1342,13 +1389,12 @@ void do_cmd_macros(void)
 	/* Save screen */
 	screen_save();
 
+	/* Clear screen */
+	Term_clear();
 
 	/* Process requests until done */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Describe */
 		prt("Interact with Macros", 2, 0);
 
@@ -1364,30 +1410,37 @@ void do_cmd_macros(void)
 
 
 		/* Selections */
-		prt("(1) Load a user pref file", 4, 5);
+		c_prt(line == 4 ? TERM_L_BLUE : TERM_WHITE, "(1) Load a user pref file", 4, 5);
 #ifdef ALLOW_MACROS
-		prt("(2) Append macros to a file", 5, 5);
-		prt("(3) Query a macro", 6, 5);
-		prt("(4) Create a macro", 7, 5);
-		prt("(5) Remove a macro", 8, 5);
-		prt("(6) Append keymaps to a file", 9, 5);
-		prt("(7) Query a keymap", 10, 5);
-		prt("(8) Create a keymap", 11, 5);
-		prt("(9) Remove a keymap", 12, 5);
-		prt("(0) Enter a new action", 13, 5);
+		c_prt(line == 5 ? TERM_L_BLUE : TERM_WHITE, "(2) Append macros to a file", 5, 5);
+		c_prt(line == 6 ? TERM_L_BLUE : TERM_WHITE, "(3) Query a macro", 6, 5);
+		c_prt(line == 7 ? TERM_L_BLUE : TERM_WHITE, "(4) Create a macro", 7, 5);
+		c_prt(line == 8 ? TERM_L_BLUE : TERM_WHITE, "(5) Remove a macro", 8, 5);
+		c_prt(line == 9 ? TERM_L_BLUE : TERM_WHITE, "(6) Append keymaps to a file", 9, 5);
+		c_prt(line == 10 ? TERM_L_BLUE : TERM_WHITE, "(7) Query a keymap", 10, 5);
+		c_prt(line == 11 ? TERM_L_BLUE : TERM_WHITE, "(8) Create a keymap", 11, 5);
+		c_prt(line == 12 ? TERM_L_BLUE : TERM_WHITE, "(9) Remove a keymap", 12, 5);
+		c_prt(line == 13 ? TERM_L_BLUE : TERM_WHITE, "(0) Enter a new action", 13, 5);
 #endif /* ALLOW_MACROS */
 
 		/* Prompt */
 		prt("Command: ", 16, 0);
 
 		/* Get a command */
-		ch = inkey();
+		ke = inkey_ex();
+
+		/* React to mouse movement */
+		if ((ke.key == '\xff') && !(ke.mousebutton))
+		{
+			line = ke.mousey;
+			continue;
+		}
 
 		/* Leave */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Load a user pref file */
-		if (ch == '1')
+		if ((ke.key == '1') || ((ke.key == '\xff') && (ke.mousey == 4)))
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(16);
@@ -1396,7 +1449,7 @@ void do_cmd_macros(void)
 #ifdef ALLOW_MACROS
 
 		/* Save macros */
-		else if (ch == '2')
+		else if ((ke.key == '2') || ((ke.key == '\xff') && (ke.mousey == 5)))
 		{
 			char ftmp[80];
 
@@ -1420,7 +1473,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Query a macro */
-		else if (ch == '3')
+		else if ((ke.key == '3') || ((ke.key == '\xff') && (ke.mousey == 6)))
 		{
 			int k;
 
@@ -1461,7 +1514,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Create a macro */
-		else if (ch == '4')
+		else if ((ke.key == '4') || ((ke.key == '\xff') && (ke.mousey == 7)))
 		{
 			/* Prompt */
 			prt("Command: Create a macro", 16, 0);
@@ -1496,7 +1549,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Remove a macro */
-		else if (ch == '5')
+		else if ((ke.key == '5') || ((ke.key == '\xff') && (ke.mousey == 8)))
 		{
 			/* Prompt */
 			prt("Command: Remove a macro", 16, 0);
@@ -1515,7 +1568,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Save keymaps */
-		else if (ch == '6')
+		else if ((ke.key == '6') || ((ke.key == '\xff') && (ke.mousey == 9)))
 		{
 			char ftmp[80];
 
@@ -1539,7 +1592,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Query a keymap */
-		else if (ch == '7')
+		else if ((ke.key == '7') || ((ke.key == '\xff') && (ke.mousey == 10)))
 		{
 			cptr act;
 
@@ -1580,7 +1633,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Create a keymap */
-		else if (ch == '8')
+		else if ((ke.key == '8') || ((ke.key == '\xff') && (ke.mousey == 11)))
 		{
 			/* Prompt */
 			prt("Command: Create a keymap", 16, 0);
@@ -1618,7 +1671,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Remove a keymap */
-		else if (ch == '9')
+		else if ((ke.key == '9') || ((ke.key == '\xff') && (ke.mousey == 12)))
 		{
 			/* Prompt */
 			prt("Command: Remove a keymap", 16, 0);
@@ -1640,7 +1693,7 @@ void do_cmd_macros(void)
 		}
 
 		/* Enter a new action */
-		else if (ch == '0')
+		else if ((ke.key == '0') || ((ke.key == '\xff') && (ke.mousey == 13)))
 		{
 			/* Prompt */
 			prt("Command: Enter a new action", 16, 0);
@@ -1670,6 +1723,9 @@ void do_cmd_macros(void)
 
 		/* Flush messages */
 		message_flush();
+
+		/* Clear screen */
+		Term_clear();
 	}
 
 
@@ -1686,7 +1742,7 @@ void do_cmd_macros(void)
  */
 void do_cmd_visuals(void)
 {
-	int ch;
+	key_event ke;
 	int cx;
 
 	int i;
@@ -1698,6 +1754,8 @@ void do_cmd_visuals(void)
 	const char *empty_symbol = "<< ? >>";
 	const char *empty_symbol2 = "\0";
 	const char *empty_symbol3 = "\0";
+
+	int line = 0;
 
 	if (use_trptile && use_bigtile)
 	{
@@ -1731,40 +1789,47 @@ void do_cmd_visuals(void)
 	screen_save();
 
 
+	/* Clear screen */
+	Term_clear();
+
 	/* Interact until done */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Ask for a choice */
 		prt("Interact with Visuals", 2, 0);
 
 		/* Give some choices */
-		prt("(1) Load a user pref file", 4, 5);
+		c_prt(line == 4 ? TERM_L_BLUE : TERM_WHITE, "(1) Load a user pref file", 4, 5);
 #ifdef ALLOW_VISUALS
-		prt("(2) Dump monster attr/chars", 5, 5);
-		prt("(3) Dump object attr/chars", 6, 5);
-		prt("(4) Dump feature attr/chars", 7, 5);
-		prt("(5) Dump flavor attr/chars", 8, 5);
-		prt("(6) Change monster attr/chars", 9, 5);
-		prt("(7) Change object attr/chars", 10, 5);
-		prt("(8) Change feature attr/chars", 11, 5);
-		prt("(9) Change flavor attr/chars", 12, 5);
+		c_prt(line == 5 ? TERM_L_BLUE : TERM_WHITE, "(2) Dump monster attr/chars", 5, 5);
+		c_prt(line == 6 ? TERM_L_BLUE : TERM_WHITE, "(3) Dump object attr/chars", 6, 5);
+		c_prt(line == 7 ? TERM_L_BLUE : TERM_WHITE, "(4) Dump feature attr/chars", 7, 5);
+		c_prt(line == 8 ? TERM_L_BLUE : TERM_WHITE, "(5) Dump flavor attr/chars", 8, 5);
+		c_prt(line == 9 ? TERM_L_BLUE : TERM_WHITE, "(6) Change monster attr/chars", 9, 5);
+		c_prt(line == 10 ? TERM_L_BLUE : TERM_WHITE, "(7) Change object attr/chars", 10, 5);
+		c_prt(line == 11 ? TERM_L_BLUE : TERM_WHITE, "(8) Change feature attr/chars", 11, 5);
+		c_prt(line == 12 ? TERM_L_BLUE : TERM_WHITE, "(9) Change flavor attr/chars", 12, 5);
 #endif
-		prt("(0) Reset visuals", 13, 5);
+		c_prt(line == 13 ? TERM_L_BLUE : TERM_WHITE, "(0) Reset visuals", 13, 5);
 
 		/* Prompt */
 		prt("Command: ", 15, 0);
 
 		/* Prompt */
-		ch = inkey();
+		ke = inkey_ex();
+
+		/* React to mouse movement */
+		if ((ke.key == '\xff') && !(ke.mousebutton))
+		{
+			line = ke.mousey;
+			continue;
+		}
 
 		/* Done */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Load a user pref file */
-		if (ch == '1')
+		if ((ke.key == '1') || ((ke.key == '\xff') && (ke.mousey == 4)))
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(15);
@@ -1773,7 +1838,7 @@ void do_cmd_visuals(void)
 #ifdef ALLOW_VISUALS
 
 		/* Dump monster attr/chars */
-		else if (ch == '2')
+		else if ((ke.key == '2') || ((ke.key == '\xff') && (ke.mousey == 5)))
 		{
 			char ftmp[80];
 
@@ -1832,7 +1897,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Dump object attr/chars */
-		else if (ch == '3')
+		else if ((ke.key == '3') || ((ke.key == '\xff') && (ke.mousey == 6)))
 		{
 			char ftmp[80];
 
@@ -1891,7 +1956,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Dump feature attr/chars */
-		else if (ch == '4')
+		else if ((ke.key == '4') || ((ke.key == '\xff') && (ke.mousey == 7)))
 		{
 			char ftmp[80];
 
@@ -1931,12 +1996,18 @@ void do_cmd_visuals(void)
 				/* Skip non-entries */
 				if (!f_ptr->name) continue;
 
+				/* Skip mimic entries */
+				if (f_ptr->mimic != i) continue;
+
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 
 				/* Dump the feature attr/char info */
-				fprintf(fff, "F:%d:0x%02X:0x%02X:%s\n\n", i,
-					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char),(f_ptr->flags2 & (FF2_ATTR_LITE)) ? "YES" : "NO");
+				fprintf(fff, "F:%d:0x%02X:0x%02X:%s%s%s%s\n\n", i,
+					(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char),(f_ptr->flags3 & (FF3_ATTR_LITE)) ? "A" : "",
+						(f_ptr->flags3 & (FF3_ATTR_ITEM)) ? "F" : "",
+						(f_ptr->flags3 & (FF3_ATTR_DOOR)) ? "D" : "",
+						(f_ptr->flags3 & (FF3_ATTR_WALL)) ? "W" : "");
 			}
 
 			/* All done */
@@ -1950,7 +2021,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Dump flavor attr/chars */
-		else if (ch == '5')
+		else if ((ke.key == '5') || ((ke.key == '\xff') && (ke.mousey == 8)))
 		{
 			char ftmp[80];
 
@@ -2006,7 +2077,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Modify monster attr/chars */
-		else if (ch == '6')
+		else if ((ke.key == '6') || ((ke.key == '\xff') && (ke.mousey == 9)))
 		{
 			static int r = 0;
 
@@ -2079,7 +2150,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Modify object attr/chars */
-		else if (ch == '7')
+		else if ((ke.key == '7') || ((ke.key == '\xff') && (ke.mousey == 10)))
 		{
 			static int k = 0;
 
@@ -2152,7 +2223,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Modify feature attr/chars */
-		else if (ch == '8')
+		else if ((ke.key == '8') || ((ke.key == '\xff') && (ke.mousey == 11)))
 		{
 			static int f = 0;
 
@@ -2225,7 +2296,7 @@ void do_cmd_visuals(void)
 		}
 
 		/* Modify flavor attr/chars */
-		else if (ch == '9')
+		else if ((ke.key == '9') || ((ke.key == '\xff') && (ke.mousey == 12)))
 		{
 			static int f = 0;
 
@@ -2300,7 +2371,7 @@ void do_cmd_visuals(void)
 #endif /* ALLOW_VISUALS */
 
 		/* Reset visuals */
-		else if (ch == '0')
+		else if ((ke.key == '0') || ((ke.key == '\xff') && (ke.mousey == 13)))
 		{
 			/* Reset */
 			reset_visuals(TRUE);
@@ -2317,6 +2388,9 @@ void do_cmd_visuals(void)
 
 		/* Flush messages */
 		message_flush();
+
+		/* Clear screen */
+		Term_clear();
 	}
 
 
@@ -2330,7 +2404,7 @@ void do_cmd_visuals(void)
  */
 void do_cmd_colors(void)
 {
-	int ch;
+	key_event ke;
 	int cx;
 
 	int i;
@@ -2339,6 +2413,7 @@ void do_cmd_colors(void)
 
 	char buf[1024];
 
+	int line = 0;
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2347,34 +2422,40 @@ void do_cmd_colors(void)
 	/* Save screen */
 	screen_save();
 
+	/* Clear screen */
+	Term_clear();
 
 	/* Interact until done */
 	while (1)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Ask for a choice */
 		prt("Interact with Colors", 2, 0);
 
 		/* Give some choices */
-		prt("(1) Load a user pref file", 4, 5);
+		c_prt(line == 4 ? TERM_L_BLUE : TERM_WHITE, "(1) Load a user pref file", 4, 5);
 #ifdef ALLOW_COLORS
-		prt("(2) Dump colors", 5, 5);
-		prt("(3) Modify colors", 6, 5);
+		c_prt(line == 5 ? TERM_L_BLUE : TERM_WHITE, "(2) Dump colors", 5, 5);
+		c_prt(line == 6 ? TERM_L_BLUE : TERM_WHITE, "(3) Modify colors", 6, 5);
 #endif /* ALLOW_COLORS */
 
 		/* Prompt */
 		prt("Command: ", 8, 0);
 
 		/* Prompt */
-		ch = inkey();
+		ke = inkey_ex();
+
+		/* React to mouse movement */
+		if ((ke.key == '\xff') && !(ke.mousebutton))
+		{
+			line = ke.mousey;
+			continue;
+		}
 
 		/* Done */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Load a user pref file */
-		if (ch == '1')
+		if ((ke.key == '1') || ((ke.key == '\xff') && (ke.mousey == 4)))
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(8);
@@ -2391,7 +2472,7 @@ void do_cmd_colors(void)
 #ifdef ALLOW_COLORS
 
 		/* Dump colors */
-		else if (ch == '2')
+		else if ((ke.key == '2') || ((ke.key == '\xff') && (ke.mousey == 5)))
 		{
 			char ftmp[80];
 
@@ -2458,7 +2539,7 @@ void do_cmd_colors(void)
 		}
 
 		/* Edit colors */
-		else if (ch == '3')
+		else if ((ke.key == '3') || ((ke.key == '\xff') && (ke.mousey == 6)))
 		{
 			static byte a = 0;
 
@@ -2538,6 +2619,9 @@ void do_cmd_colors(void)
 
 		/* Flush messages */
 		message_flush();
+
+		/* Clear screen */
+		Term_clear();
 	}
 
 
@@ -2739,6 +2823,960 @@ void do_cmd_feeling(void)
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);
 }
+
+
+/*
+ * Display the time and date
+ *
+ * Note that "time of day" is important to determine when quest
+ * monsters appear in surface locations.
+ */
+void do_cmd_timeofday()
+{
+	int day = bst(DAY, turn);
+
+	int hour = bst(HOUR, turn);
+
+	int min = bst(MINUTE, turn);
+
+	char buf2[20];
+
+	/* Format time of the day */
+	strnfmt(buf2, 20, get_day(bst(YEAR, turn) + START_YEAR));
+
+	/* Display current date in the Elvish calendar */
+	msg_format("This is %s of the %s year of the third age.",
+	           get_month_name(day, cheat_xtra, FALSE), buf2);
+
+	/* Message */
+	if (cheat_xtra)
+	{
+		msg_format("The time is %d:%02d %s.",
+	           (hour % 12 == 0) ? 12 : (hour % 12),
+	           min, (hour < 12) ? "AM" : "PM");
+	}
+	else
+	{
+		if (hour == SUNRISE - 1)
+			msg_print("The sun is rising.");
+		else if (hour < SUNRISE)
+			msg_format("The sun rises in %d hours.", SUNRISE - hour);
+		else if (hour == MIDDAY - 1)
+			msg_print("It is almost midday.");
+		else if (hour < MIDDAY)
+			msg_format("There are %d hours until midday.", MIDDAY - hour);
+		else if (hour == SUNSET - 1)
+			msg_print("The sun is setting.");
+		else if (hour < SUNSET)
+			msg_format("The sun sets in %d hours.", SUNSET - hour);
+		else if (hour == MIDNIGHT - 1)
+			msg_print("It is almost midnight.");
+		else if (hour < MIDNIGHT)
+			msg_format("There are %d hours until midnight.", MIDDAY - hour);
+	}
+}
+
+
+/*
+ * Array of event pronouns strings - initial caps
+ */
+static cptr event_pronoun_text_caps[6] =
+{
+	"We ",
+	"I ",
+	"You ",
+	"He ",
+	"She ",
+	"It "
+};
+
+/*
+ * Array of event pronouns strings - comma
+ */
+static cptr event_pronoun_text[6] =
+{
+	"we ",
+	"I ",
+	"you ",
+	"he ",
+	"she ",
+	"it "
+};
+
+/*
+ * Array of event pronouns strings - comma
+ */
+static cptr event_pronoun_text_which[6] =
+{
+	"which we ",
+	"which I ",
+	"which you ",
+	"which he ",
+	"which she ",
+	"which it "
+};
+
+/*
+ * Array of tense strings (0, 1 and 2 occurred in past, however 0, 1 only are past tense )
+ */
+static cptr event_tense_text[8] =
+{
+	" ",
+	"have ",
+	"had to ",
+	"must ",
+	"will ",
+	" ",
+	"can ",
+	"may "
+};
+
+/*
+ * Display a quest event.
+ */
+bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
+{
+	int vn, n;
+	cptr vp[64];
+
+	bool reflex_feature = FALSE;
+	bool reflex_monster = FALSE;
+	bool reflex_object = FALSE;
+	bool used_num = FALSE;
+	bool used_race = FALSE;
+	bool output = FALSE;
+	bool intro = FALSE;
+
+	/* Describe location */
+	if ((event->dungeon) || (event->level))
+	{
+		/* Collect travel actions */
+		vn = 0;
+		if (tense > 1)
+		{
+			if (event->flags & (EVENT_TRAVEL)) vp[vn++] = "travel to";
+			if (event->flags & (EVENT_STAY))
+			{
+				if (event->level) vp[vn++] = "stay";
+				else vp[vn++] = "stay in";
+			}
+			if (event->flags & (EVENT_LEAVE)) vp[vn++] = "leave";
+		}
+		else
+		{
+			if (event->flags & (EVENT_TRAVEL)) vp[vn++] = "travelled to";
+			if (event->flags & (EVENT_STAY))
+			{
+				if (event->level) vp[vn++] = "stayed";
+				else vp[vn++] = "stayed in";
+			}
+			if (event->flags & (EVENT_LEAVE)) vp[vn++] = "left";
+		}
+
+		/* Describe travel actions */
+		if (vn)
+		{
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0)
+				{
+					if (prefix)
+					{
+						text_out(prefix);
+						text_out(event_pronoun_text[pronoun]);
+					}
+					else
+					{
+						text_out(event_pronoun_text_caps[pronoun]);
+					}
+					text_out(event_tense_text[tense]);
+				}
+				else if (n < vn-1) text_out(", ");
+				else text_out(" and ");
+
+				/* Dump */
+				text_out(vp[n]);
+			}
+
+			text_out(" ");
+		}
+
+		if ((!vn) && (prefix))
+		{
+			text_out(prefix);
+			intro = TRUE;
+		}
+
+		if (event->level)
+		{
+			if ((!intro) && (!vn)) text_out("On ");
+			text_out(format("level %d of ", event->level));
+		}
+		else if ((intro) && (!vn)) text_out(" in ");
+		else if (!vn) text_out("In ");
+
+		text_out(t_name + t_info[event->dungeon].name);
+
+		if ((event->owner) || (event->store) || ((event->feat) && (event->action)) ||
+			(event->race) || (event->kind) || (event->ego_item_type) || (event->artifact))
+		{
+			if (!vn)
+			{
+				text_out(event_pronoun_text[pronoun]);
+				text_out(event_tense_text[tense]);
+			}
+			else text_out(" and ");
+		}
+
+		intro = TRUE;
+		output = TRUE;
+	}
+
+	/* Visit a store */	
+	if ((event->owner) || (event->store) || (event->flags & (EVENT_TALK_STORE | EVENT_DEFEND_STORE)))
+	{
+		output = TRUE;
+
+		if (!intro)
+		{
+			if (prefix)
+			{
+				text_out(prefix);
+				text_out(event_pronoun_text[pronoun]);
+			}
+			else
+			{
+				text_out(event_pronoun_text_caps[pronoun]);
+			}
+			text_out(event_tense_text[tense]);
+
+			intro = TRUE;
+		}
+
+		if (event->flags & (EVENT_DEFEND_STORE))
+		{
+			if (tense < 0) text_out("defended ");
+			else text_out("defend ");
+		}	
+		else if (event->flags & (EVENT_TALK_STORE))
+		{
+			if (tense < 0) text_out("talked to");
+			else text_out("talk to");
+		}
+		else if (tense < 0) text_out("visited ");
+		else text_out("visit ");
+
+		if (!(event->owner) && !(event->store))
+		{
+			text_out("the town");
+		}
+		else if (event->owner)
+		{
+			/* XXX owner name */;
+			if (event->store) text_out(" at ");
+		}
+
+		if (event->store)
+		{
+			text_out(f_name + f_info[event->feat].name);
+		}		
+
+		if ((event->flags & (EVENT_DEFEND_STORE)) && !(event->room_type_a) && !(event->room_type_b)
+			&& !(event->room_flags) && !((event->feat) && (event->action)))
+		{
+			text_out(" from ");
+			reflex_monster = TRUE;
+		}
+		else if (((event->feat) && (event->action)) || (event->room_type_a) || (event->room_type_b)
+			|| (event->room_flags) || (event->race) || ((event->kind) || (event->ego_item_type) || (event->artifact)))
+		{
+			text_out(" and ");
+		}
+		else text_out(" ");
+
+		output = TRUE;
+	}	
+
+	/* Affect room */
+	if ((event->room_type_a) || (event->room_type_b) || (event->room_flags))
+	{
+		/* Collect room flags */
+		vn = 0;
+		if (tense > 1)
+		{
+			if (event->flags & (EVENT_FIND_ROOM)) vp[vn++] = "find";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_HIDDEN))) vp[vn++] = "reveal";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_SEALED))) vp[vn++] = "unseal";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_ENTERED))) vp[vn++] = "enter";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_LITE))) vp[vn++] = "light up";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_SEEN))) vp[vn++] = "explore";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_LAIR))) vp[vn++] = "clear of monsters";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_OBJECT))) vp[vn++] = "empty of objects";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarm";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_DARK))) vp[vn++] = "darken";
+		}
+		else
+		{
+			if (event->flags & (EVENT_FIND_ROOM)) vp[vn++] = "found";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_HIDDEN))) vp[vn++] = "revealed";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_SEALED))) vp[vn++] = "unsealed";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_ENTERED))) vp[vn++] = "entered";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_LITE))) vp[vn++] = "lit up";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_SEEN))) vp[vn++] = "explored";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_LAIR))) vp[vn++] = "cleared of monsters";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_OBJECT))) vp[vn++] = "emptied of objects";
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarmed";
+			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_DARK))) vp[vn++] = "darkened";
+		}
+
+		if (vn)
+		{
+			output = TRUE;
+
+			if (!intro)
+			{
+				if (prefix)
+				{
+					text_out(prefix);
+					text_out(event_pronoun_text[pronoun]);
+				}
+				else
+				{
+					text_out(event_pronoun_text_caps[pronoun]);
+				}
+				text_out(event_tense_text[tense]);
+
+				intro = TRUE;
+			}
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) ;
+				else if (n < vn-1) text_out(", ");
+				else text_out(" or ");
+
+				/* Dump */
+				text_out(vp[n]);
+			}
+
+			text_out(" a ");
+
+			/* Room adjective */
+			if (event->room_type_a) { text_out(d_name + d_info[event->room_type_a].name1); text_out(" "); }
+
+			/* Room noun */
+			if (!(event->room_type_a) && !(event->room_type_b)) text_out("all the rooms");
+			else if (event->room_type_b) text_out(d_name + d_info[event->room_type_b].name1);
+			else text_out("room");
+
+			if (((event->feat) && (event->action)) || (event->race) || ((event->kind) || (event->ego_item_type) || (event->artifact)))
+			{
+				if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_SEALED)) && (event->room_flags & (ROOM_HIDDEN))) text_out(" hidden and sealed by ");
+				else if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_SEALED))) text_out(" sealed by ");
+				else if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_HIDDEN))) text_out(" hidden by ");
+				else if ((event->flags & (EVENT_UNFLAG_ROOM)) || (event->flags & (EVENT_FLAG_ROOM))) text_out(" enchanted by ");
+				else if ((event->feat) && (event->action))
+				{
+					text_out(" containing ");
+
+					reflex_feature = TRUE;
+				}
+				else if (event->race)
+				{
+					text_out(" guarded by ");
+
+					reflex_monster = TRUE;
+				}
+				else if ((event->kind) || (event->ego_item_type) || (event->artifact))
+				{
+					text_out(" containing ");
+
+					reflex_object = TRUE;
+				}
+
+				if (event->race) used_race = TRUE;
+			}
+		}
+	}
+
+	/* Alter a feature */
+	if ((event->feat) && (event->action))
+	{
+		/* Collect monster actions */
+		vn = 0;
+		if (tense > 1)
+		{
+			switch(event->action)
+			{
+				case FS_SECRET: vp[vn++] = "find"; break;
+				case FS_OPEN: vp[vn++] = "open"; break;
+				case FS_CLOSE: vp[vn++] = "close"; break;
+				case FS_BASH: vp[vn++] = "bash"; break;
+				case FS_SPIKE: vp[vn++] = "spike"; break;
+				case FS_DISARM: vp[vn++] = "disarm"; break;
+				case FS_TUNNEL: vp[vn++] = "dig through"; break;
+				case FS_HIT_TRAP: vp[vn++] = "set off"; break;
+				case FS_HURT_ROCK: vp[vn++] = "turn to mud"; break;
+				case FS_HURT_FIRE: vp[vn++] = "burn"; break;
+				case FS_HURT_COLD: vp[vn++] = "flood"; break;
+				case FS_HURT_ACID: vp[vn++] = "dissolve"; break;
+				case FS_KILL_MOVE: vp[vn++] = "step on"; break;
+				case FS_HURT_POIS: vp[vn++] = "poison"; break;
+				case FS_HURT_ELEC: vp[vn++] = "electrify"; break;
+				case FS_HURT_WATER: vp[vn++] = "flood"; break;
+				case FS_HURT_BWATER: vp[vn++] = "boil"; break;
+			}
+		}
+		else
+		{
+			switch(event->action)
+			{
+				case FS_SECRET: vp[vn++] = "found"; break;
+				case FS_OPEN: vp[vn++] = "opened"; break;
+				case FS_CLOSE: vp[vn++] = "closed"; break;
+				case FS_BASH: vp[vn++] = "bashed"; break;
+				case FS_SPIKE: vp[vn++] = "spiked"; break;
+				case FS_DISARM: vp[vn++] = "disarmed"; break;
+				case FS_TUNNEL: vp[vn++] = "dug through"; break;
+				case FS_HIT_TRAP: vp[vn++] = "set off"; break;
+				case FS_HURT_ROCK: vp[vn++] = "turned to mud"; break;
+				case FS_HURT_FIRE: vp[vn++] = "burnt"; break;
+				case FS_HURT_COLD: vp[vn++] = "flooded"; break;
+				case FS_HURT_ACID: vp[vn++] = "dissolved"; break;
+				case FS_KILL_MOVE: vp[vn++] = "stepped on"; break;
+				case FS_HURT_POIS: vp[vn++] = "poisoned"; break;
+				case FS_HURT_ELEC: vp[vn++] = "electrified"; break;
+				case FS_HURT_WATER: vp[vn++] = "flooded"; break;
+				case FS_HURT_BWATER: vp[vn++] = "boiled"; break;
+			}
+		}
+
+		/* Introduce feature */
+		if (vn)
+		{
+			output = TRUE;
+
+			if (reflex_feature)
+			{
+				if ((!used_num) && (event->number > 0)) text_out(format("%d ",event->number));
+
+				text_out(f_name + f_info[event->feat].name);
+				if ((!used_num) && (event->number > 0)) text_out("s");
+
+				text_out(event_pronoun_text_which[pronoun]);
+				text_out(event_tense_text[tense]);
+
+				used_num = TRUE;
+			}
+			else if (!intro)
+			{
+				if (prefix)
+				{
+					text_out(prefix);
+					text_out(event_pronoun_text[pronoun]);
+				}
+				else
+				{
+					text_out(event_pronoun_text_caps[pronoun]);
+				}
+				text_out(event_tense_text[tense]);
+
+				intro = TRUE;
+			}
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) ;
+				else if (n < vn-1) text_out(", ");
+				else text_out(" or ");
+
+				/* Dump */
+				text_out(vp[n]);
+			}
+
+			if (!(reflex_feature))
+			{
+				if ((!used_num) && (event->number > 0)) text_out(format(" %d",event->number));
+
+				text_out(" ");
+				text_out(f_name + f_info[event->feat].name);
+				if ((!used_num) && (event->number > 0)) text_out("s");
+
+				used_num = TRUE;
+			}
+
+			if ((event->race) || (event->kind) || (event->ego_item_type) || (event->artifact))
+			{
+				if (reflex_feature) { text_out(".  "); intro = FALSE; reflex_monster = FALSE; reflex_object = FALSE; }
+				else if (event->race) { text_out(" guarded by "); used_race = TRUE; }
+				else text_out(" and ");
+			}
+		}		
+	}
+
+	/* Kill a monster */	
+	if ((event->race) && ((used_race) || !((event->kind) || (event->ego_item_type) || (event->artifact))))
+	{
+		used_race = TRUE;
+
+		/* Collect monster actions */
+		vn = 0;
+		if (tense > 1)
+		{
+			if (event->flags & (EVENT_FIND_RACE)) vp[vn++] = "find";
+			if (event->flags & (EVENT_TALK_RACE)) vp[vn++] = "talk to";
+			if (event->flags & (EVENT_ALLY_RACE)) vp[vn++] = "befriend";
+			if (event->flags & (EVENT_DEFEND_RACE)) vp[vn++] = "defend";
+			if (event->flags & (EVENT_HATE_RACE)) vp[vn++] = "offend";
+			if (event->flags & (EVENT_FEAR_RACE)) vp[vn++] = "terrify";
+			if (event->flags & (EVENT_HEAL_RACE)) vp[vn++] = "heal";
+			if (event->flags & (EVENT_BANISH_RACE)) vp[vn++] = "banish";
+			if (event->flags & (EVENT_KILL_RACE)) vp[vn++] = "kill";
+		}
+		else
+		{
+			if (event->flags & (EVENT_FIND_RACE)) vp[vn++] = "found";
+			if (event->flags & (EVENT_TALK_RACE)) vp[vn++] = "talked to";
+			if (event->flags & (EVENT_ALLY_RACE)) vp[vn++] = "befriended";
+			if (event->flags & (EVENT_DEFEND_RACE)) vp[vn++] = "defended";
+			if (event->flags & (EVENT_HATE_RACE)) vp[vn++] = "offended";
+			if (event->flags & (EVENT_FEAR_RACE)) vp[vn++] = "terrified";
+			if (event->flags & (EVENT_HEAL_RACE)) vp[vn++] = "healed";
+			if (event->flags & (EVENT_BANISH_RACE)) vp[vn++] = "banished";
+			if (event->flags & (EVENT_KILL_RACE)) vp[vn++] = "killed";
+		}
+
+		/* Hack -- monster race */
+		if (vn)
+		{
+			output = TRUE;
+
+			if (reflex_monster)
+			{
+				if ((!used_num) && (event->number > 0))
+				{
+					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out(format(" %d",event->number));
+				}
+
+				text_out(r_name + r_info[event->race].name);
+
+				if ((used_num) || (event->number != 1))
+				{
+					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out("s");
+				}
+
+				text_out(event_pronoun_text_which[pronoun]);
+				text_out(event_tense_text[tense]);
+
+				used_num = TRUE;
+			}
+			else if (!intro)
+			{
+				if (prefix)
+				{
+					text_out(prefix);
+					text_out(event_pronoun_text[pronoun]);
+				}
+				else
+				{
+					text_out(event_pronoun_text_caps[pronoun]);
+				}
+
+				if ((event->flags & (EVENT_GET_STORE)) && (tense > 1)) text_out("will ");
+				else text_out(event_tense_text[tense]);
+
+				intro = TRUE;
+			}
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) ;
+				else if (n < vn-1) text_out(", ");
+				else text_out(" or ");
+
+				/* Dump */
+				text_out(vp[n]);
+			}
+
+			if (!(reflex_monster))
+			{
+				if ((!used_num) && (event->number > 0))
+				{
+					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out(format(" %d",event->number));
+				}
+
+				text_out(" ");
+				text_out(r_name + r_info[event->race].name);
+
+				if ((used_num) || (event->number != 1))
+				{
+					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out("s");
+				}
+
+				used_num = TRUE;
+			}
+
+			if ((event->kind) || (event->ego_item_type) || (event->artifact))
+			{
+				if (reflex_monster) { text_out(".  "); intro = FALSE; prefix = NULL; reflex_object = FALSE; }
+				else if (event->number > 1) text_out(" and each carrying ");
+				else text_out(" and carrying ");
+			}
+		}
+	}
+
+	/* Collect an object */
+	if ((event->kind) || (event->ego_item_type) || (event->artifact))
+	{
+		object_type o_temp;
+		char o_name[140];
+
+		/* Create temporary object */
+		if (event->artifact)
+		{
+			object_prep(&o_temp, lookup_kind(a_info[event->artifact].tval,a_info[event->artifact].sval));
+
+			o_temp.name1 = event->artifact;
+		}
+		else if (event->ego_item_type)
+		{
+			if (event->kind)
+			{
+				object_prep(&o_temp, event->kind);
+			}
+			else
+			{
+				object_prep(&o_temp, lookup_kind(e_info[event->ego_item_type].tval[0], e_info[event->ego_item_type].min_sval[0]));
+			}
+
+			o_temp.name2 = event->ego_item_type;
+		}
+		else
+		{
+			object_prep(&o_temp, event->kind);
+		}
+
+		if (!(used_num) && !(event->artifact)) o_temp.number = event->number;
+		else o_temp.number = 1;
+
+		if (!(used_race)) o_temp.name3 = event->race;
+
+		o_temp.ident |= (IDENT_KNOWN);
+
+		/* Describe object */
+		object_desc(o_name, sizeof(o_name), &o_temp, TRUE, 0);
+
+		/* Collect store actions */
+		vn = 0;
+		if (tense > 1)
+		{
+			if (event->flags & (EVENT_FIND_ITEM)) vp[vn++] = "find";
+			if (event->flags & (EVENT_BUY_STORE)) vp[vn++] = "buy";
+			if (event->flags & (EVENT_SELL_STORE)) vp[vn++] = "sell";
+			if (event->flags & (EVENT_GET_ITEM)) vp[vn++] = "get";
+			if (event->race) vp[vn++] = "collect";
+			if (event->flags & (EVENT_GIVE_STORE | EVENT_GIVE_RACE)) vp[vn++] = "give";
+			if (event->flags & (EVENT_GET_STORE | EVENT_GET_RACE)) vp[vn++] = "be given";
+			if (event->flags & (EVENT_DEFEND_STORE)) vp[vn++] = "use";
+			if (event->flags & (EVENT_LOSE_ITEM)) vp[vn++] = "lose";
+			if (event->flags & (EVENT_DESTROY_ITEM)) vp[vn++] = "destroy";
+		}
+		else
+		{
+			if (event->flags & (EVENT_FIND_ITEM)) vp[vn++] = "found";
+			if (event->flags & (EVENT_BUY_STORE)) vp[vn++] = "bought";
+			if (event->flags & (EVENT_SELL_STORE)) vp[vn++] = "sold";
+			if (event->flags & (EVENT_GET_ITEM)) vp[vn++] = "kept";
+			if (event->race) vp[vn++] = "collected";
+			if (event->flags & (EVENT_GIVE_STORE | EVENT_GIVE_STORE)) vp[vn++] = "gave";
+			if (event->flags & (EVENT_GET_STORE | EVENT_GET_RACE)) vp[vn++] = "were given";
+			if (event->flags & (EVENT_DEFEND_STORE)) vp[vn++] = "used";
+			if (event->flags & (EVENT_LOSE_ITEM)) vp[vn++] = "lost";
+			if (event->flags & (EVENT_DESTROY_ITEM)) vp[vn++] = "destroyed";
+		}
+
+		if (vn)
+		{
+			output = TRUE;
+
+			if (event->flags & (EVENT_STOCK_STORE))
+			{
+				if (intro) text_out("he ");
+				else text_out("He ");
+
+				if (tense > 1) text_out("will stock ");
+				else if (tense < 0) text_out("stocked ");
+				else text_out("stocks ");
+
+				reflex_object = TRUE;
+			}
+
+			if (reflex_object)
+			{
+				text_out(o_name);
+
+				used_num = TRUE;
+
+				text_out(event_pronoun_text_which[pronoun]);
+				if ((event->flags & (EVENT_GET_STORE | EVENT_GET_ITEM)) && (tense > 1)) text_out("will ");
+				else text_out(event_tense_text[tense]);
+			}
+			else if (!intro)
+			{
+				if (prefix)
+				{
+					text_out(prefix);
+					text_out(event_pronoun_text[pronoun]);
+				}
+				else
+				{
+					text_out(event_pronoun_text_caps[pronoun]);
+				}
+				if ((event->flags & (EVENT_DEFEND_STORE)) && (tense > 1)) text_out("can ");
+				else if ((event->flags & (EVENT_GET_STORE)) && (tense > 1)) text_out("will ");
+				else text_out(event_tense_text[tense]);
+			}
+
+			intro = TRUE;
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) ;
+				else if (n < vn-1) text_out(", ");
+				else text_out(" or ");
+
+				/* Dump */
+				text_out(vp[n]);
+			}
+
+			if (!(reflex_object))
+			{
+				text_out(" ");
+				text_out(o_name);
+			}
+		}
+	}
+
+	/* Collect rewards */
+	if ((event->gold) || (event->experience))
+	{
+		output = TRUE;
+
+		if (!intro)
+		{
+			if (prefix)
+			{
+				text_out(prefix);
+				text_out(event_pronoun_text[pronoun]);
+			}
+			else
+			{
+				text_out(event_pronoun_text_caps[pronoun]);
+			}
+		}
+		else
+		{
+			text_out(" and ");
+		}
+
+
+		if ((event->gold > 0) || (event->experience > 0))
+		{
+			text_out("gain ");
+
+			if (event->gold > 0)
+			{
+				text_out(format("%d gold",event->gold));
+				if (event->experience) text_out(" and ");
+			}
+
+			if (event->experience > 0)
+			{
+				text_out(format("%d experience",event->experience));
+				if (event->gold < 0) text_out(" and ");
+			}
+		}
+
+		if ((event->gold < 0) || (event->experience < 0))
+		{
+			text_out("cost ");
+
+			if (event->gold < 0)
+			{
+				text_out(format("%d gold",-event->gold));
+				if (event->experience < 0) text_out(" and ");
+			}
+
+			if (event->experience < 0)
+			{
+				text_out(format("%d experience",-event->experience));
+			}
+		}
+	}
+
+	return (output);
+
+}
+
+/*
+ * Output all quests between certain stages
+ *
+ * Example - print all quests min = QUEST_ASSIGN, max = QUEST_PENALTY
+ *         - print known/live quests min = QUEST_ACTIVE, max = QUEST_REWARD
+ *
+ * Returns true if anything output.
+ */
+bool print_quests(int min_stage, int max_stage)
+{
+	int i, j;
+
+	int tense = 0;
+	bool newline = FALSE;
+	bool output = FALSE;
+	bool event_out;
+
+	cptr prefix = NULL;
+
+	for (i = 0; i < 5; i++)
+	{
+		newline = FALSE;
+
+		/* Quest not in range */
+		if ((q_list[i].stage >= min_stage) && (q_list[i].stage <= max_stage)) continue;
+
+		event_out = FALSE;
+
+		for (j = 0; j < MAX_QUEST_EVENTS; j++)
+		{
+			switch(j)
+			{
+				case QUEST_ASSIGN:
+					if (q_info[i].stage == QUEST_ASSIGN) { tense = 6; }
+					else if (q_info[i].stage == QUEST_ACTIVE) { tense = 1; }
+					else { tense = 0; }
+					break;
+				case QUEST_ACTIVE:
+					if (q_info[i].stage == QUEST_ACTIVE) { tense = 1; }
+					else if (q_info[i].stage == QUEST_ACTION) { tense = 1; }
+					else if (q_info[i].stage == QUEST_FAILED) { tense = 2; }
+					else if (q_info[i].stage == QUEST_PENALTY) { tense = 2; }
+					else continue;
+					break;
+				case QUEST_ACTION:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage == QUEST_ASSIGN) { tense = 3; }
+					else if (q_info[i].stage == QUEST_ACTIVE) { tense = 1; }
+					else if (q_info[i].stage == QUEST_FINISH) { tense = 2; }
+					else { tense = 0; }
+					break;
+				case QUEST_REWARD:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage == QUEST_REWARD) { tense = 3; }
+					else if (q_info[i].stage == QUEST_FINISH) { tense = 0; }
+					else if (q_info[i].stage > QUEST_FINISH) continue;
+					else { tense = 3; prefix = "To claim your reward, "; }
+					break;
+				case QUEST_FINISH:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage == QUEST_FINISH) { tense = 0; prefix = "and "; }
+					else if (q_info[i].stage > QUEST_FINISH) continue;
+					else { tense = 4; prefix = "and ";}
+					break;
+				case QUEST_FAILED:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage < QUEST_REWARD)
+					{
+						tense = 5;
+						prefix = ".  You will fail the quest if ";
+					}
+					else if (q_info[i].stage == QUEST_PENALTY) { tense = 0; }
+					else continue;
+					break;
+				case QUEST_PENALTY:
+					if (q_info[i].stage < QUEST_ACTION) continue;
+					else if (q_info[i].stage < QUEST_REWARD) { tense = 4; prefix = ". If this happens "; }
+					else if (q_info[i].stage == QUEST_PENALTY) { tense = 0; prefix = "causing you to fail the quest and "; }
+					else continue;
+					break;
+			}
+
+			if (event_out)
+			{
+				if ((prefix) && (prefix[0] != '.'))
+				{
+					text_out(" ");
+				}
+				else if (!prefix)
+				{
+					text_out(".  ");
+				}
+			}
+
+			event_out = print_event(&q_info[i].event[j], 2, tense, prefix);
+			output |= event_out;
+
+			prefix = NULL;
+
+			if (output) newline = TRUE;
+		}
+
+		if (newline) text_out(".\n\n");
+
+		output = TRUE;
+	}
+
+	return (output);
+}
+
+
+/*
+ * Displays all active quests
+ */
+void do_cmd_quest(void)
+{
+	bool no_quests = TRUE;
+
+	/* Save screen */
+	screen_save();
+
+	/* Clear the screen */
+	Term_clear();
+
+	/* Set text_out hook */
+	text_out_hook = text_out_to_screen;
+	
+	/* Print title */
+	text_out_c(TERM_L_BLUE, "Current Quests\n");
+
+	/* Warning */
+	text_out_c(TERM_YELLOW, "Quests will not be enabled until version 0.7.0. This command is currently for testing purposes only.\n");
+
+	/* Either print live quests on level, or if nothing live, display current quests */
+	if (print_quests(QUEST_ACTIVE , QUEST_REWARD)) no_quests = FALSE;
+	else no_quests = !print_quests(QUEST_ASSIGN , QUEST_FINISH);
+
+	/* No quests? */
+	if (no_quests) text_out("You currently have no quests.\n");
+
+	anykey();
+
+	/* Load screen */
+	screen_load();
+
+}
+
+
+
 
 /*
  * Encode the screen colors
@@ -2973,7 +4011,7 @@ void do_cmd_save_screen_html(void)
 
 		/* Dump the attr/char info */
 		fprintf(fff, "F:%d:0x%02X:0x%02X:%s\n\n", i,
-			(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char), (f_ptr->flags2 & (FF2_ATTR_LITE) ? "YES" : "NO"));
+			(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char), (f_ptr->flags3 & (FF3_ATTR_LITE) ? "YES" : "NO"));
 
 		/* Assume we will use the underlying values */
 		f_ptr->x_attr = f_ptr->d_attr;
@@ -3131,6 +4169,7 @@ static cptr monster_group_text[] =
 	"Scorpions/Spiders",
 	"Skeletons",
 	"Snakes",
+	"Trees",
 	"Trolls",
 	"Vampires",
 	"Vortices",
@@ -3189,6 +4228,7 @@ static cptr monster_group_char[] =
 	"S",
 	"s",
 	"J",
+	":",
 	"T",
 	"V",
 	"v",
@@ -3542,6 +4582,55 @@ static void display_group_list(int col, int row, int wid, int per_page,
 	}
 }
 
+
+/*
+ * Move the cursor using the mouse in a browser window
+ */
+static void browser_mouse(key_event ke, int *column, int *grp_cur, int grp_cnt, 
+						   int *list_cur, int list_cnt, int col0, int row0, int grp0, int list0, int *delay)
+{
+	int my = ke.mousey - row0;
+	int mx = ke.mousex;
+	int wid;
+	int hgt;
+
+	int grp = *grp_cur;
+	int list = *list_cur;
+
+	/* Get size */
+	Term_get_size(&wid, &hgt);
+
+	if (mx < col0)
+	{
+		int old_grp = grp;
+
+		*column = 0;
+		if ((my >= 0) && (my < grp_cnt - grp0) && (my < hgt - row0 - 2)) grp = my + grp0;
+		else if (my < 0) { grp--; *delay = 100; }
+		else if (my >= hgt - row0 - 2) { grp++; *delay = 50; }
+
+		/* Verify */
+		if (grp >= grp_cnt)	grp = grp_cnt - 1;
+		if (grp < 0) grp = 0;
+		if (grp != old_grp)	list = 0;
+
+	}
+	else
+	{
+		*column = 1;
+		if ((my >= 0) && (my < list_cnt - list0) && (my < hgt - row0 - 2)) list = my + list0;
+		else if (my < 0) { list--; *delay = 100; }
+		else if (my >= hgt - row0 - 2) { list++; *delay = 50; }
+
+		/* Verify */
+		if (list >= list_cnt) list = list_cnt - 1;
+		if (list < 0) list = 0;
+	}
+
+	(*grp_cur) = grp;
+	(*list_cur) = list;
+} 
+
 /* 
  * Move the cursor in a browser window 
  */
@@ -3729,7 +4818,7 @@ static void desc_art_fake(int a_idx)
 	/* Load the screen */
 	screen_load();
 
-	(void)inkey();
+	(void)anykey();
 }
 
 /*
@@ -3743,6 +4832,7 @@ static void do_cmd_knowledge_artifacts(void)
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
 	int *object_idx;
+	int delay = 0;
 
 	int column = 0;
 	bool flag;
@@ -3791,7 +4881,7 @@ static void do_cmd_knowledge_artifacts(void)
 
 	while ((!flag) && (grp_cnt))
 	{
-		char ch;
+		key_event ke;
 
 		if (redraw)
 		{
@@ -3817,16 +4907,20 @@ static void do_cmd_knowledge_artifacts(void)
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
 		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
-
-		/* Scroll artifact list */
-		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
+		if (grp_top + browser_rows >= grp_cnt) grp_top = grp_cnt - browser_rows;
+		if (grp_top < 0) grp_top = 0;
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_artifacts(grp_idx[grp_cur], object_idx);
+
+		/* Scroll artifact list */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
+		if (object_top + browser_rows >= object_cnt) object_top = object_cnt - browser_rows;
+		if (object_top < 0) object_top = 0;
 
 		/* Display a list of objects in the current group */
 		display_artifact_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
@@ -3856,14 +4950,32 @@ static void do_cmd_knowledge_artifacts(void)
 			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 	
-		ch = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
 
-		switch (ch)
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
+
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
 				flag = TRUE;
 				break;
+			}
+
+			case '\xff':
+			{
+				/* Move the cursor */
+				browser_mouse(ke, &column, &grp_cur, grp_cnt, &object_cur, object_cnt, max + 3, 6, grp_top, object_top, &delay);
+				if (!ke.mousebutton) break;
 			}
 
 			case 'R':
@@ -3879,13 +4991,14 @@ static void do_cmd_knowledge_artifacts(void)
 			default:
 			{
 				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				browser_cursor(ke.key, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
 				break;
 			}
 		}
 	}
+
 	/* Prompt */
-	if (!grp_cnt) msg_print("No artifacts known.");
+	if (!grp_cnt) prt("No artifacts known.", 15, 0);
 
 	/* XXX XXX Free the "object_idx" array */
 	FREE(object_idx);
@@ -4005,10 +5118,11 @@ static byte char_idx = 0;
 /*
  *  Do visual mode command -- Change symbols
  */
-static bool visual_mode_command(char ch, bool *visual_list_ptr, 
+static bool visual_mode_command(key_event ke, bool *visual_list_ptr, 
 				int height, int width, 
 				byte *attr_top_ptr, char *char_left_ptr, 
-				byte *cur_attr_ptr, char *cur_char_ptr)
+				byte *cur_attr_ptr, char *cur_char_ptr,
+				int col, int row, int *delay)
 {
 	static byte attr_old = 0;
 	static char char_old = 0;
@@ -4032,112 +5146,165 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 	if (use_trptile) frame_bottom /= 3;
 	else if (use_dbltile) frame_bottom /= 2;
 
-	switch (ch)
+	switch (ke.key)
 	{
-	case ESCAPE:
-		if (*visual_list_ptr)
-		{
-			/* Cancel change */
-			*cur_attr_ptr = attr_old;
-			*cur_char_ptr = char_old;
-			*visual_list_ptr = FALSE;
+		case ESCAPE:
+			if (*visual_list_ptr)
+			{
+				/* Cancel change */
+				*cur_attr_ptr = attr_old;
+				*cur_char_ptr = char_old;
+				*visual_list_ptr = FALSE;
 
-			return TRUE;
-		}
+				return TRUE;
+			}
+			break;
 
-		break;
+		case '\n':
+		case '\r':
+			if (*visual_list_ptr)
+			{
+				/* Accept change */
+				*visual_list_ptr = FALSE;
 
-	case '\n':
-	case '\r':
-		if (*visual_list_ptr)
-		{
-			/* Accept change */
-			*visual_list_ptr = FALSE;
+				return TRUE;
+			}
+			break;
 
-			return TRUE;
-		}
-		break;
+		case 'V':
+		case 'v':
+			if (!*visual_list_ptr)
+			{
+				*visual_list_ptr = TRUE;
 
-	case 'V':
-	case 'v':
-		if (!*visual_list_ptr)
-		{
-			*visual_list_ptr = TRUE;
+				*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
+				*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
 
-			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
-			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
+				attr_old = *cur_attr_ptr;
+				char_old = *cur_char_ptr;
 
-			attr_old = *cur_attr_ptr;
-			char_old = *cur_char_ptr;
+				return TRUE;
+			}
+			else
+			{
+				/* Cancel change */
+				*cur_attr_ptr = attr_old;
+				*cur_char_ptr = char_old;
+				*visual_list_ptr = FALSE;
 
-			return TRUE;
-		}
-		break;
+				return TRUE;
+			}
+			break;
 
-	case 'C':
-	case 'c':
-		/* Set the visual */
-		attr_idx = *cur_attr_ptr;
-		char_idx = *cur_char_ptr;
-
-		return TRUE;
-
-	case 'P':
-	case 'p':
-		if (attr_idx)
-		{
-			/* Set the char */
-			*cur_attr_ptr = attr_idx;
-			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
-		}
-
-		if (char_idx)
-		{
-			/* Set the char */
-			*cur_char_ptr = char_idx;
-			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
-		}
-
-		return TRUE;
-
-	default:
-		if (*visual_list_ptr)
-		{
-			int eff_width, eff_height;
-			int d = target_dir(ch);
-			byte a = *cur_attr_ptr;
-			char c = *cur_char_ptr;
-
-			if (use_trptile) eff_width = width / (use_bigtile ? 6 : 3);
-			else if (use_dbltile) eff_width = width / (use_bigtile ? 4 : 2);
-			else if (use_bigtile) eff_width = width / 2;
-			else eff_width = width;
-
-			if (use_trptile) eff_height = height / 3;
-			else if (use_dbltile) eff_height = height / 2;
-			else eff_height = height;
-					
-			/* Restrict direction */
-			if ((a == 0) && (ddy[d] < 0)) d = 0;
-			if ((c == -128) && (ddx[d] < 0)) d = 0;
-			if ((a == 255) && (ddy[d] > 0)) d = 0;
-			if ((c == 127) && (ddx[d] > 0)) d = 0;
-
-			a += ddy[d];
-			c += ddx[d];
-
+		case 'C':
+		case 'c':
 			/* Set the visual */
-			*cur_attr_ptr = a;
-			*cur_char_ptr = c;
+			attr_idx = *cur_attr_ptr;
+			char_idx = *cur_char_ptr;
 
-
-			/* Move the frame */
-			if ((ddx[d] < 0) && *char_left_ptr > MAX(-128, (int)c - frame_left)) (*char_left_ptr)--;
-			if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(127, (int)c + frame_right)) (*char_left_ptr)++;
-			if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)a - frame_top)) (*attr_top_ptr)--;
-			if ((ddy[d] > 0) && *attr_top_ptr + eff_height < MIN(255, (int)a + frame_bottom)) (*attr_top_ptr)++;
 			return TRUE;
-		}
+
+		case 'P':
+		case 'p':
+			if (attr_idx)
+			{
+				/* Set the char */
+				*cur_attr_ptr = attr_idx;
+				*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
+			}
+
+			if (char_idx)
+			{
+				/* Set the char */
+				*cur_char_ptr = char_idx;
+				*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
+			}
+
+			return TRUE;
+
+		default:
+			if (*visual_list_ptr)
+			{
+				int eff_width, eff_height;
+				int d = target_dir(ke.key);
+				byte a = *cur_attr_ptr;
+				char c = *cur_char_ptr;
+
+				if (use_trptile) eff_width = width / (use_bigtile ? 6 : 3);
+				else if (use_dbltile) eff_width = width / (use_bigtile ? 4 : 2);
+				else if (use_bigtile) eff_width = width / 2;
+				else eff_width = width;
+
+				if (use_trptile) eff_height = height / 3;
+				else if (use_dbltile) eff_height = height / 2;
+				else eff_height = height;
+					
+				/* Get mouse movement */
+				if (ke.key == '\xff')
+				{
+					int my = ke.mousey - row;
+					int mx = ke.mousex - col;
+
+					if (use_trptile) { my /= 3; mx /=3; }
+					else if (use_dbltile) {my /=2; mx /=2; }
+
+					if (use_bigtile) mx /= 2;
+
+					if ((my >= 0) && (my < eff_height) && (mx >= 0) && (mx < eff_width)
+						&& ((ke.mousebutton) || (a != *attr_top_ptr + my) || (c != *char_left_ptr + mx)) )
+					{
+						/* Set the visual */
+						*cur_attr_ptr = a = *attr_top_ptr + my;
+						*cur_char_ptr = c = *char_left_ptr + mx;
+
+						/* Move the frame */
+						if (*char_left_ptr > MAX(-128, (int)c - frame_left)) (*char_left_ptr)--;
+						if (*char_left_ptr + eff_width < MIN(127, (int)c + frame_right)) (*char_left_ptr)++;
+						if (*attr_top_ptr > MAX(0, (int)a - frame_top)) (*attr_top_ptr)--;
+						if (*attr_top_ptr + eff_height < MIN(255, (int)a + frame_bottom)) (*attr_top_ptr)++;
+
+						/* Delay */
+						*delay = 100;
+
+						/* Accept change */
+						if (ke.mousebutton) *visual_list_ptr = FALSE;
+
+						return TRUE;
+					}
+					/* Cancel change */
+					else if (ke.mousebutton)
+					{
+						*cur_attr_ptr = attr_old;
+						*cur_char_ptr = char_old;
+						*visual_list_ptr = FALSE;
+
+						return TRUE;
+					}
+				}
+				else
+				{
+					/* Restrict direction */
+					if ((a == 0) && (ddy[d] < 0)) d = 0;
+					if ((c == -128) && (ddx[d] < 0)) d = 0;
+					if ((a == 255) && (ddy[d] > 0)) d = 0;
+					if ((c == 127) && (ddx[d] > 0)) d = 0;
+
+					a += ddy[d];
+					c += ddx[d];
+
+					/* Set the visual */
+					*cur_attr_ptr = a;
+					*cur_char_ptr = c;
+
+					/* Move the frame */
+					if ((ddx[d] < 0) && *char_left_ptr > MAX(-128, (int)c - frame_left)) (*char_left_ptr)--;
+					if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(127, (int)c + frame_right)) (*char_left_ptr)++;
+					if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)a - frame_top)) (*attr_top_ptr)--;
+					if ((ddy[d] > 0) && *attr_top_ptr + eff_height < MIN(255, (int)a + frame_bottom)) (*attr_top_ptr)++;
+
+					if (d != 0) return TRUE;
+				}
+			}
 				
 		break;
 	}
@@ -4227,6 +5394,7 @@ static void do_cmd_knowledge_monsters(void)
 	int grp_cnt, grp_idx[100];
 	int mon_cnt;
 	int *mon_idx;
+	int delay = 0;
 	
 	int column = 0;
 	bool flag;
@@ -4282,7 +5450,7 @@ static void do_cmd_knowledge_monsters(void)
 
 	while ((!flag) && (grp_cnt))
 	{
-		char ch;
+		key_event ke;
 
 		if (redraw)
 		{
@@ -4309,6 +5477,8 @@ static void do_cmd_knowledge_monsters(void)
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
 		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+		if (grp_top + browser_rows >= grp_cnt) grp_top = grp_cnt - browser_rows;
+		if (grp_top < 0) grp_top = 0;
 
 		/* Display a list of monster groups */
 		display_group_list(0, 6, max, browser_rows, grp_idx, monster_group_text, grp_cur, grp_top);
@@ -4322,10 +5492,10 @@ static void do_cmd_knowledge_monsters(void)
 		}
 
 		/* Scroll monster list */
-		while (mon_cur < mon_top)
-			mon_top = MAX(0, mon_top - browser_rows/2);
-		while (mon_cur >= mon_top + browser_rows)
-			mon_top = MIN(mon_cnt - browser_rows, mon_top + browser_rows/2);
+		if (mon_cur < mon_top) mon_top = mon_cur;
+		if (mon_cur >= mon_top + browser_rows) mon_top = mon_cur - browser_rows + 1;
+		if (mon_top + browser_rows >= mon_cnt) mon_top = mon_cnt - browser_rows;
+		if (mon_top < 0) mon_top = 0;
 
 		if (!visual_list)
 		{
@@ -4376,17 +5546,35 @@ static void do_cmd_knowledge_monsters(void)
 			Term_gotoxy(max + 3, 6 + (mon_cur - mon_top));
 		}
 	
-		ch = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
+
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
 
 		/* Do visual mode command if needed */
-		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &r_ptr->x_attr, &r_ptr->x_char)) continue;
+		if (visual_mode_command(ke, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &r_ptr->x_attr, &r_ptr->x_char, max + 3, 7, &delay)) continue;
 
-		switch (ch)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
 				flag = TRUE;
 				break;
+			}
+
+			case '\xff':
+			{
+				/* Move the cursor */
+				browser_mouse(ke, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt, max + 3, 6, grp_top, mon_top, &delay);
+				if (!ke.mousebutton) break;
 			}
 
 			case 'R':
@@ -4397,8 +5585,8 @@ static void do_cmd_knowledge_monsters(void)
 				{
 					screen_roff(mon_idx[mon_cur]);
 
-					(void)inkey();
-	
+					(void)anykey();
+
 					redraw = TRUE;
 				}
 				break;
@@ -4407,15 +5595,14 @@ static void do_cmd_knowledge_monsters(void)
 			default:
 			{
 				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
-
+				browser_cursor(ke.key, &column, &grp_cur, grp_cnt, &mon_cur, mon_cnt);
 				break;
 			}
 		}
 	}
 
 	/* Prompt */
-	if (!grp_cnt) msg_print("No monsters known.");
+	if (!grp_cnt) prt("No monsters known.", 15, 0);
 
 	/* XXX XXX Free the "mon_idx" array */
 	FREE(mon_idx);
@@ -4482,10 +5669,10 @@ static void desc_ego_fake(int e_idx)
 	Term_gotoxy(0, 1);
 
 	/* List can flags */
-	list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3,1);
+	list_object_flags(n_ptr->can_flags1,n_ptr->can_flags2,n_ptr->can_flags3,n_ptr->may_flags4,1);
 
 	/* List may flags */
-	list_object_flags(n_ptr->may_flags1,n_ptr->may_flags2,n_ptr->may_flags3,2);
+	list_object_flags(n_ptr->may_flags1,n_ptr->may_flags2,n_ptr->may_flags3,n_ptr->may_flags4,2);
 
 	/* Clear the top line */
 	Term_erase(0, 0, 255);
@@ -4496,7 +5683,7 @@ static void desc_ego_fake(int e_idx)
 	/* Dump the name */
 	Term_addstr(-1, TERM_L_BLUE, format("Ego Item %s",e_name+e_info[e_idx].name));
 
-	inkey();
+	anykey();
 
 	screen_load();
 }
@@ -4572,6 +5759,7 @@ static void do_cmd_knowledge_ego_items(void)
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
 	int *object_idx;
+	int delay;
 
 	int column = 0;
 	bool flag;
@@ -4623,7 +5811,7 @@ static void do_cmd_knowledge_ego_items(void)
 
 	while ((!flag) && (grp_cnt))
 	{
-		char ch;
+		key_event ke;
 
 		if (redraw)
 		{
@@ -4651,16 +5839,20 @@ static void do_cmd_knowledge_ego_items(void)
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
 		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
-
-		/* Scroll ego item list */
-		if (object_cur < object_top) object_top = object_cur;
-		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
+		if (grp_top + browser_rows >= grp_cnt) grp_top = grp_cnt - browser_rows;
+		if (grp_top < 0) grp_top = 0;
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
 
 		/* Get a list of objects in the current group */
 		object_cnt = collect_ego_items(grp_idx[grp_cur], object_idx);
+
+		/* Scroll ego item list */
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur >= object_top + browser_rows) object_top = object_cur - browser_rows + 1;
+		if (object_top + browser_rows >= object_cnt) object_top = object_cnt - browser_rows;
+		if (object_top < 0) object_top = 0;
 
 		/* Display a list of objects in the current group */
 		display_ego_item_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
@@ -4681,14 +5873,32 @@ static void do_cmd_knowledge_ego_items(void)
 			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 	
-		ch = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
 
-		switch (ch)
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
+
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
 				flag = TRUE;
 				break;
+			}
+
+			case '\xff':
+			{
+				/* Move the cursor */
+				browser_mouse(ke, &column, &grp_cur, grp_cnt, &object_cur, object_cnt, max + 3, 6, grp_top, object_top, &delay);
+				if (!ke.mousebutton) break;
 			}
 
 			case 'R':
@@ -4806,14 +6016,14 @@ static void do_cmd_knowledge_ego_items(void)
 
 			default:
 			{
-				if (target_dir(ch))
+				if (target_dir(ke.key))
 				{
 					/* Move the cursor */
-					browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+					browser_cursor(ke.key, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
 				}
 				else
 				{
-					note_idx = auto_note_modify(e_ptr->note,ch);
+					note_idx = auto_note_modify(e_ptr->note,ke.key);
 					e_ptr->note = note_idx;
 				}
 				break;
@@ -4822,7 +6032,7 @@ static void do_cmd_knowledge_ego_items(void)
 	}
 
 	/* Prompt */
-	if (!grp_cnt)  msg_print("No ego items known.");
+	if (!grp_cnt) prt("No ego items known.", 15, 0);
 
 	/* XXX XXX Free the "object_idx" array */
 	FREE(object_idx);
@@ -4927,7 +6137,7 @@ static void desc_obj_fake(int k_idx)
 	object_prep(o_ptr, k_idx);
 
 	/* Hack -- its in the store */
-	o_ptr->ident |= (IDENT_STORE);
+	if (k_info[k_idx].aware) o_ptr->ident |= (IDENT_STORE);
 
 	/* It's fully know */
 	if (!k_info[k_idx].flavor) object_known(o_ptr);
@@ -4950,7 +6160,7 @@ static void desc_obj_fake(int k_idx)
 	/* Load the screen */
 	screen_load();
 
-	(void)inkey();
+	(void)anykey();
 }
 
 
@@ -4965,6 +6175,7 @@ static void do_cmd_knowledge_objects(void)
 	int grp_cnt, grp_idx[100];
 	int object_cnt;
 	int *object_idx;
+	int delay = 0;
 
 	int column = 0;
 	bool flag;
@@ -5023,7 +6234,7 @@ static void do_cmd_knowledge_objects(void)
 
 	while ((!flag) && (grp_cnt))
 	{
-		char ch;
+		key_event ke;
 
 		if (redraw)
 		{
@@ -5047,9 +6258,12 @@ static void do_cmd_knowledge_objects(void)
 
 			redraw = FALSE;
 		}
+
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
-		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+		if (grp_cur > grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+		if (grp_top + browser_rows >= grp_cnt) grp_top = grp_cnt - browser_rows;
+		if (grp_top < 0) grp_top = 0;
 
 		/* Display a list of object groups */
 		display_group_list(0, 6, max, browser_rows, grp_idx, object_group_text, grp_cur, grp_top);
@@ -5063,10 +6277,10 @@ static void do_cmd_knowledge_objects(void)
 		}
 
 		/* Scroll object list */
-		while (object_cur < object_top)
-			object_top = MAX(0, object_top - browser_rows/2);
-		while (object_cur >= object_top + browser_rows)
-			object_top = MIN(object_cnt - browser_rows, object_top + browser_rows/2);
+		if (object_cur < object_top) object_top = object_cur;
+		if (object_cur > object_top + browser_rows) object_top = object_cur - browser_rows + 1;
+		if (object_top + browser_rows >= object_cnt) object_top = object_cnt - browser_rows;
+		if (object_top < 0) object_top = 0;
 
 		if (!visual_list)
 		{
@@ -5119,17 +6333,35 @@ static void do_cmd_knowledge_objects(void)
 			Term_gotoxy(max + 3, 6 + (object_cur - object_top));
 		}
 	
-		ch = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
+
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
 
 		/* Do visual mode command if needed */
-		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_attr) : &k_ptr->x_attr, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_char) :&k_ptr->x_char)) continue;
+		if (visual_mode_command(ke, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_attr) : &k_ptr->x_attr, k_ptr->flavor ? &(x_info[k_ptr->flavor].x_char) :&k_ptr->x_char, max + 3, 7, &delay)) continue;
 
-		switch (ch)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
 				flag = TRUE;
 				break;
+			}
+
+			case '\xff':
+			{
+				/* Move the cursor */
+				browser_mouse(ke, &column, &grp_cur, grp_cnt, &object_cur, object_cnt, max + 3, 6, grp_top, object_top, &delay);
+				if (!ke.mousebutton) break;
 			}
 
 			case 'R':
@@ -5253,25 +6485,23 @@ static void do_cmd_knowledge_objects(void)
 
 			default:
 			{
-				if (target_dir(ch))
+				if (target_dir(ke.key))
 				{
 					/* Move the cursor */
-					browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+					browser_cursor(ke.key, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
 				}
 				else
 				{
-					note_idx = auto_note_modify(k_ptr->note,ch);
+					note_idx = auto_note_modify(k_ptr->note,ke.key);
 					k_ptr->note = note_idx;
 				}
-
 				break;
 			}
-
 		}
 	}
 
 	/* Prompt */
-	if (!grp_cnt) prt("No object kinds known.", 14, 0);
+	if (!grp_cnt) prt("No object kinds known.", 15, 0);
 
 	/* XXX XXX Free the "object_idx" array */
 	FREE(object_idx);
@@ -5280,9 +6510,10 @@ static void do_cmd_knowledge_objects(void)
 /*
  * Description of each feature group.
  */
-static cptr feature_group_text[] = 
+const cptr feature_group_text[] = 
 {
 	"Floors",
+	"Secrets",
 	"Traps",
 	"Doors",
 	"Stairs",
@@ -5301,37 +6532,43 @@ static cptr feature_group_text[] =
 	"Sand/Earth",
 	"Ground",
 	"Trees/Plants",
-	"Wilderness",
+	"Smoke/Fire",
+	"Other",
 	NULL
 };
 
+
 /*
- * Flags of features in each group.
+ * Return a specific ordering for the features
  */
-static u32b feature_group_flag[] = 
+int feat_order(int feat)
 {
-	FF1_FLOOR, 0, 0,
-	FF1_TRAP, 0, 0,
-	FF1_DOOR, 0, 0,
-	FF1_STAIRS, 0, 0,
-	FF1_WALL, 0, 0,
-	FF1_STREAMER, 0, 0,
-	FF1_ENTER, 0, 0,
-	0, 0, FF3_CHEST,
-	0, 0, FF3_ALLOC,
-	0, FF2_BRIDGED, 0,
-	0, FF2_WATER, 0,
-	0, FF2_LAVA, 0,
-	0, FF2_ICE, 0,
-	0, FF2_ACID, 0,
-	0, FF2_OIL, 0,
-	0, FF2_CHASM, 0,
-	0, FF2_CAN_DIG, 0,
-	0, 0, FF3_GROUND,
-	0, 0, FF3_LIVING,
-	0, 0, FF3_OUTSIDE,
-	0,0,0
-};
+	feature_type *f_ptr = &f_info[feat];
+
+	if (f_ptr->flags1 & (FF1_STAIRS)) return (4);
+	else if (f_ptr->flags1 & (FF1_ENTER)) return (7);
+	else if (f_ptr->flags3 & (FF3_CHEST)) return (8);
+	else if (f_ptr->flags1 & (FF1_DOOR)) return (3);
+	else if (f_ptr->flags1 & (FF1_TRAP)) return (2);
+	else if (f_ptr->flags3 & (FF3_ALLOC)) return (9);
+	else if (f_ptr->flags1 & (FF1_FLOOR)) return (0);
+	else if (f_ptr->flags1 & (FF1_STREAMER)) return (6);
+	else if (f_ptr->flags2 & (FF2_BRIDGED)) return (10);
+	else if (f_ptr->flags2 & (FF2_LAVA)) return (12);
+	else if (f_ptr->flags2 & (FF2_ICE)) return (13);
+	else if (f_ptr->flags2 & (FF2_CAN_DIG)) return (17);
+	else if (f_ptr->flags2 & (FF2_ACID)) return (14);
+	else if (f_ptr->flags2 & (FF2_OIL)) return (15);
+	else if ((f_ptr->flags2 & (FF2_WATER | FF2_CAN_SWIM))) return (11);
+	else if (f_ptr->flags2 & (FF2_CHASM)) return (16);
+	else if (f_ptr->flags1 & (FF1_SECRET)) return (1);
+	else if (f_ptr->flags3 & (FF3_LIVING)) return (19);
+	else if (f_ptr->flags3 & (FF3_SPREAD | FF3_ADJACENT | FF3_INSTANT | FF3_TIMED)) return (20);
+	else if (f_ptr->flags1 & (FF1_WALL)) return (5);
+	else if (f_ptr->flags3 & (FF3_GROUND)) return (18);
+
+	return (21);
+}
 
 /*
  * Build a list of feature indexes in the given group. Return the number
@@ -5340,10 +6577,6 @@ static u32b feature_group_flag[] =
 static int collect_features(int grp_cur, int *feat_idx)
 {
 	int i, feat_cnt = 0;
-
-	u32b flags1 = feature_group_flag[grp_cur*3+0];
-	u32b flags2 = feature_group_flag[grp_cur*3+1];
-	u32b flags3 = feature_group_flag[grp_cur*3+2];
 
 	/* Check every feature */
 	for (i = 0; i < z_info->f_max; i++)
@@ -5354,11 +6587,8 @@ static int collect_features(int grp_cur, int *feat_idx)
 		/* Skip empty race */
 		if (!f_ptr->name) continue;
 
-		/* Skip features we never see */
-		if (f_ptr->mimic != i) continue;
-
 		/* Check for any flags matching in the group */
-		if ((f_ptr->flags1 & (flags1)) || (f_ptr->flags2 & (flags2)) || (f_ptr->flags3 & (flags3)))
+		if (feat_order(i) == grp_cur)
 		{
 			int idx, ii, tmp;
 
@@ -5376,6 +6606,7 @@ static int collect_features(int grp_cur, int *feat_idx)
 			/* Add the race */
 			feat_idx[feat_cnt++] = idx;
 		}
+
 	}
 
 	/* Terminate the list */
@@ -5444,7 +6675,7 @@ static void display_feature_list(int col, int row, int per_page, int *feat_idx,
 			}
 
 			/* Tile supports special lighting? */
-			if (!(f_ptr->flags2 & (FF2_ATTR_LITE)) ||
+			if (!(f_ptr->flags3 & (FF3_ATTR_LITE)) ||
 				((f_ptr->x_attr) && (arg_graphics = GRAPHICS_DAVID_GERVAIS_ISO)))
 			{
 				prt("       ", row + i, col2);
@@ -5516,6 +6747,7 @@ static void do_cmd_knowledge_features(void)
 	int grp_cnt, grp_idx[100];
 	int feat_cnt;
 	int *feat_idx;
+	int delay = 0;
 	
 	int column = 0;
 	bool flag;
@@ -5571,7 +6803,7 @@ static void do_cmd_knowledge_features(void)
 
 	while ((!flag) && (grp_cnt))
 	{
-		char ch;
+		key_event ke;
 
 		if (redraw)
 		{
@@ -5598,6 +6830,8 @@ static void do_cmd_knowledge_features(void)
 		/* Scroll group list */
 		if (grp_cur < grp_top) grp_top = grp_cur;
 		if (grp_cur >= grp_top + browser_rows) grp_top = grp_cur - browser_rows + 1;
+		if (grp_top + browser_rows >= grp_cnt) grp_top = grp_cnt - browser_rows;
+		if (grp_top < 0) grp_top = 0;
 
 		/* Display a list of feature groups */
 		display_group_list(0, 6, max, browser_rows, grp_idx, feature_group_text, grp_cur, grp_top);
@@ -5611,10 +6845,10 @@ static void do_cmd_knowledge_features(void)
 		}
 
 		/* Scroll feature list */
-		while (feat_cur < feat_top)
-			feat_top = MAX(0, feat_top - browser_rows/2);
-		while (feat_cur >= feat_top + browser_rows)
-			feat_top = MIN(feat_cnt - browser_rows, feat_top + browser_rows/2);
+		if (feat_cur < feat_top) feat_top = feat_cur;
+		if (feat_cur >= feat_top + browser_rows) feat_top = feat_cur - browser_rows + 1;
+		if (feat_top + browser_rows >= feat_cnt) feat_top = feat_cnt - browser_rows;
+		if (feat_top < 0) feat_top = 0;
 
 		if (!visual_list)
 		{
@@ -5633,7 +6867,7 @@ static void do_cmd_knowledge_features(void)
 		}
 
 		/* Prompt */
-		prt(format("<dir>%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals, 'a' for lite", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
+		prt(format("<dir>%s%s, ESC", visual_list ? ", ENTER to accept" : ", 'v' for visuals, 'a'/'f'/'d'/'w' for special displays", (attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy"), hgt - 1, 0);
 
 		/* Get the current feature */
 		f_ptr = &f_info[feat_idx[feat_cur]];
@@ -5651,12 +6885,23 @@ static void do_cmd_knowledge_features(void)
 			Term_gotoxy(max + 3, 6 + (feat_cur - feat_top));
 		}
 	
-		ch = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
+
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
 
 		/* Do visual mode command if needed */
-		if (visual_mode_command(ch, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &f_ptr->x_attr, &f_ptr->x_char)) continue;
+		if (visual_mode_command(ke, &visual_list, browser_rows-1, wid - (max + 3), &attr_top, &char_left, &f_ptr->x_attr, &f_ptr->x_char, max + 3, 7, &delay)) continue;
 
-		switch (ch)
+		switch (ke.key)
 		{
 			case ESCAPE:
 			{
@@ -5666,27 +6911,85 @@ static void do_cmd_knowledge_features(void)
 
 			case 'a': case 'A':
 			{
-				if (f_ptr->flags2 & (FF2_ATTR_LITE))
+				if (f_ptr->flags3 & (FF3_ATTR_LITE))
 				{
-					f_ptr->flags2 &= ~(FF2_ATTR_LITE);
+					f_ptr->flags3 &= ~(FF3_ATTR_LITE);
 				}
 				else
 				{
-					f_ptr->flags2 |= (FF2_ATTR_LITE);
+					f_ptr->flags3 |= (FF3_ATTR_LITE);
 				}
+			}
+
+			case 'f': case 'F':
+			{
+				if (f_ptr->flags3 & (FF3_ATTR_ITEM))
+				{
+					f_ptr->flags3 &= ~(FF3_ATTR_ITEM);
+				}
+				else
+				{
+					f_ptr->flags3 |= (FF3_ATTR_ITEM);
+				}
+			}
+
+			case 'd': case 'D':
+			{
+				if (f_ptr->flags3 & (FF3_ATTR_DOOR))
+				{
+					f_ptr->flags3 &= ~(FF3_ATTR_DOOR);
+				}
+				else
+				{
+					f_ptr->flags3 |= (FF3_ATTR_DOOR);
+				}
+			}
+
+			case 'w': case 'W':
+			{
+				if (f_ptr->flags3 & (FF3_ATTR_WALL))
+				{
+					f_ptr->flags3 &= ~(FF3_ATTR_WALL);
+				}
+				else
+				{
+					f_ptr->flags3 |= (FF3_ATTR_WALL);
+				}
+			}
+
+			case '\xff':
+			{
+				/* Move the cursor */
+				browser_mouse(ke, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt, max + 3, 6, grp_top, feat_top, &delay);
+				if (!ke.mousebutton) break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				/* Recall on screen */
+				if (grp_cnt > 0)
+				{
+					screen_feature_roff(feat_idx[feat_cur]);
+
+					(void)anykey();
+
+					redraw = TRUE;
+				}
+				break;
 			}
 
 			default:
 			{
 				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
+				browser_cursor(ke.key, &column, &grp_cur, grp_cnt, &feat_cur, feat_cnt);
 				break;
 			}
 		}
 	}
 
 	/* Prompt */
-	if (!grp_cnt) msg_print("No features known.");
+	if (!grp_cnt) prt("No features known.", 15, 0);
 
 	/* XXX XXX Free the "feat_idx" array */
 	FREE(feat_idx);
@@ -5749,7 +7052,9 @@ static void do_cmd_knowledge_home(void)
  */
 void do_cmd_knowledge(void)
 {
-	char ch;
+	key_event ke;
+
+	int line = 0;
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -5757,79 +7062,94 @@ void do_cmd_knowledge(void)
 	/* Save screen */
 	screen_save();
 
+	/* Clear screen */
+	Term_clear();
+
 	/* Interact until done */
 	while (TRUE)
 	{
-		/* Clear screen */
-		Term_clear();
-
 		/* Ask for a choice */
 		prt("Display current knowledge", 2, 0);
 
 		/* Give some choices */
-		prt("(1) Display known artifacts", 4, 5);
-		prt("(2) Display known monsters", 5, 5);
-		prt("(3) Display known ego-items", 6, 5);
-		prt("(4) Display known objects", 7, 5);
-		prt("(5) Display known features", 8, 5);
-		prt("(6) Display contents of your home", 9, 5);
-		prt("(7) Load a user pref file", 10, 5);
-		prt("(8) Dump auto-inscriptions", 11, 5);
-		prt("(9) Interact with visuals", 12, 5);
+		c_prt(line == 4 ? TERM_L_BLUE : TERM_WHITE, "(1) Display known artifacts", 4, 5);
+		c_prt(line == 5 ? TERM_L_BLUE : TERM_WHITE, "(2) Display known monsters", 5, 5);
+		c_prt(line == 6 ? TERM_L_BLUE : TERM_WHITE, "(3) Display known ego-items", 6, 5);
+		c_prt(line == 7 ? TERM_L_BLUE : TERM_WHITE, "(4) Display known objects", 7, 5);
+		c_prt(line == 8 ? TERM_L_BLUE : TERM_WHITE, "(5) Display known features", 8, 5);
+		c_prt(line == 9 ? TERM_L_BLUE : TERM_WHITE, "(6) Display self-knowledge", 9, 5);
+		c_prt(line == 10 ? TERM_L_BLUE : TERM_WHITE, "(7) Display contents of your home", 10, 5);
+		c_prt(line == 11 ? TERM_L_BLUE : TERM_WHITE, "(8) Load a user pref file", 11, 5);
+		c_prt(line == 12 ? TERM_L_BLUE : TERM_WHITE, "(9) Dump auto-inscriptions", 12, 5);
+		c_prt(line == 13 ? TERM_L_BLUE : TERM_WHITE, "(0) Interact with visuals", 13, 5);
 
 		/* Prompt */
-		prt("Command: ", 14, 0);
+		prt("Command: ", 15, 0);
 
 		/* Prompt */
-		ch = inkey();
+		ke = inkey_ex();
+
+		/* React to mouse movement */
+		if ((ke.key == '\xff') && !(ke.mousebutton))
+		{
+			line = ke.mousey;
+			continue;
+		}
 
 		/* Done */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 
 		/* Artifacts */
-		if (ch == '1')
+		if ((ke.key == '1') || ((ke.key == '\xff') && (ke.mousey == 4)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_artifacts();
 		}
 
 		/* Uniques */
-		else if (ch == '2')
+		else if ((ke.key == '2') || ((ke.key == '\xff') && (ke.mousey == 5)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_monsters();
 		}
 
 		/* Ego Items */
-		else if (ch == '3')
+		else if ((ke.key == '3') || ((ke.key == '\xff') && (ke.mousey == 6)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_ego_items();
 		}
 
 		/* Objects */
-		else if (ch == '4')
+		else if ((ke.key == '4') || ((ke.key == '\xff') && (ke.mousey == 7)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
 		}
 
 		/* Features */
-		else if (ch == '5')
+		else if ((ke.key == '5') || ((ke.key == '\xff') && (ke.mousey == 8)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_features();
 		}
 
+		/* Features */
+		else if ((ke.key == '6') || ((ke.key == '\xff') && (ke.mousey == 9)))
+		{
+			/* Spawn */
+			self_knowledge(FALSE);
+		}
+
 		/* Home */
-		else if (ch == '6')
+		else if ((ke.key == '7') || ((ke.key == '\xff') && (ke.mousey == 10)))
 		{
 			/* Spawn */
 			do_cmd_knowledge_home();
 		}
 
 		/* Load a user pref file */
-		else if (ch == '7')
+		else if ((ke.key == '8') || ((ke.key == '\xff') && (ke.mousey == 11)))
 		{
 			/* Ask for and load a user pref file */
 			do_cmd_pref_file_hack(13);
@@ -5841,7 +7161,7 @@ void do_cmd_knowledge(void)
 		}
 
 		/* Dump colors */
-		else if (ch == '8')
+		else if ((ke.key == '9') || ((ke.key == '\xff') && (ke.mousey == 12)))
 		{
 			char ftmp[80];
 
@@ -5871,7 +7191,7 @@ void do_cmd_knowledge(void)
 		}
 
 		/* Visuals */
-		else if (ch == '9')
+		else if ((ke.key == '0') || ((ke.key == '\xff') && (ke.mousey == 13)))
 		{
 			/* Spawn */
 			do_cmd_visuals();
@@ -5885,6 +7205,9 @@ void do_cmd_knowledge(void)
 
 		/* Flush messages */
 		message_flush();
+
+		/* Clear screen */
+		Term_clear();
 	}
 
 	/* Load screen */

@@ -4,16 +4,43 @@ The following commands are new to Unnamed Angband:
 
 Apply rune (y) or Engrave a rune (^G)
         Apply a rune from a runestone to an object. Applying runes to
-        objects can have various effects, from transforming an object to a 
-        type more closely associated with that rune, to enchanting the object
-        with a magical effect or even an ego power. More runes applied to an
-        object will have additional, and often cumulative effects, up to 4 or 5
-        runes on most objects. Current applying a rune to another rune acts like
-        other objects: in a future version this will cause a magical effect.
-        If an object cannot have a rune applied to it, it is likely to be an
-        artifact or powerful ego item of some kind. Note that not all runes
-        have a beneficial effect, but more than one rune is usually an increase
-        in power.
+        objects can have various effects, depending on what type of object it
+	is.  Usually applying 1 or 2 of the same kind of rune to a weapon or
+        armour will have a minor beneficial effect, and 3, 4 or 5 runes will
+        transform the object into a powerful ego-item.  Note that some
+        combinations of runes and objects may result in a cursed object, as
+        opposed to a useful one.
+        Applying a rune to a potion, scroll, wand, staff, rod, ring or
+        amulet will transform it into another kind of object. Some
+        transformations significantly upgrade the power of the object,
+        particularly if you apply multiple runes to an object, or if you
+        apply a rune to an object that can be made from the kind of rune you
+        are applying.
+        Experiment with runes on objects that you don't particularly need
+        until you master the useful combinations.  If an object cannot have a
+        rune applied to it, it is likely to be an magic item, artifact or
+        powerful ego item of some kind.
+
+Assemble a part (Y) or operate a part (^O)
+        Assemble parts of an object together. Some objects you may find in the
+        dungeon come in components that need to be assembled together. You need
+        to assemble the pieces in a logical order, however you can partially
+        build an object to save on inventory space, before you find all the
+        required parts for the whole object.
+        It may be necessary to assemble objects you'd rather not otherwise do,
+        in order that you complete a quest.
+
+Display current quests (^Q) or display current quests ($)
+        This command displays all the quests you character currently knows
+        about, including their rewards and penalties for failure. If you
+        can start a quest by performing a set of actions, that information
+        will be displayed here.
+
+Display time of day (^T) or display time of day (')
+        This command displays the current date and how many hours until either
+        sunrise, midday, sunset or midnight.  This is useful for locating
+        guardian monsters which only appear on the surface at night.
+
 
 ==== Changed Commands ====
 
@@ -21,37 +48,19 @@ The following commands act differently from Vanilla Angband:
 
 --- Inventory Commands ---
 
-Equipment list (e)
-        There is an additional BELT slot which can have any item wielded
-        into it. Items in your belt slot do not apply any special powers
-        or effects to the character but these items can be wielded/fired
-        and otherwise used in half the normal time. In addition, any
-        item may be wielded into your WIELD slot for the same benefits,
-        but you will only attack with weapons, and can only kick to attack
-        if you are holding other items.
-
 Destroy an item (k) or Destroy an item (^D)
         Destroying some items will release whatever is trapped inside.
-
-Wear/Wield equipment (w)
-        You can wield any equipped item to move it to your belt slot. If
-        you can wield the belt slot item back in the equipment slot it will
-        be swapped, otherwise the existing belt slot item will be dropped.
-        As describe above, any item can be wielded to halve the time it
-        takes to use the item. Wielding items from the floor takes half
-        the energy that Angband requires.
 
 --- Movement Commands ---
 
 Walk (with pickup) (;)
 Walk (flip pickup) (-)
         If you walk into a hidden monster, you will push over it, as opposed
-        to attacking it, as you would an invisible monster. Walking also
-        takes half the energy of vanilla Angband, unless you are moving in
-        Search mode or over slippery or treacherous terrain. This is
-        balanced by forcing you to Rest to recover from being tired every so
-        often. This is affected by your Constitution: a higher Constitution
-        allows you to have to rest less frequently.
+        to attacking it, as you would an invisible monster.
+        If you are moving in water or over slippery or treacherous terrain,
+        or carry a large amount of equipment, you may find yourself becoming
+        tired, and forced to rest. This is affected by your Constitution: a
+        higher Constitution allows you to have to rest less frequently.
 
 Go up staircase or travel (<)
         If you have a map, or are in campaign mode, you can use the < key to
@@ -63,13 +72,6 @@ Go up staircase or travel (<)
 
 Go down staircase or well (>)
         You may climb down wells in the dungeon in addition to staircases.
-
---- Resting Commands ---
-
-Stay still (with pickup) (,) or Stay still (with pickup) (.)
-Stay still (flip pickup) (g)
-        These commands all take half the time of vanilla Angband.
-
 
 --- Searching Commands ---
 
@@ -185,6 +187,17 @@ Inscribe an object ({)
         to include {superb} pseudo-id which indicates the item in question is an
         ego item with a hidden power (Typically the more powerful ego objects).
 
+        You can inscribe an item with =g5 to mean pick up this item unless I
+        already have 5 of it in my inventory. You can also inscribe it with =d5
+        to mean don't pick up this item if I have 5 or more of it in my
+        inventory.  You can also inscribe it with =k5 to mean destroy it on
+        pick-up if I have 5 or more of it in my inventory. You also inscribe it
+        with =i5 to mean ignore it if I have 5 or more of it in my inventory.
+
+        You can also inscribe an item with <5 to mean confirm if I have less
+        than 5 of this in my inventory and >5 to mean confirm if I have more
+        than 5 of this in my inventory.
+
 Uninscribe an object (})
         After uninscribing an identified object, with the easy_autos option
         selected, the automatic inscription will be removed for all objects of 
@@ -234,8 +247,8 @@ Throw an item (v)
         In many instances, you may be able to throw part of the terrain you
         are on. Some items will also apply the appropriate damage type to
         the monster they are thrown against and the ground underneath;
-	others may be consumed by unintelligent monsters or animals if
-	thrown to them.
+        others may be consumed by unintelligent monsters or animals if
+        thrown to them.
 
         Important note: In order to take advantage of throwing weapons such
         as daggers, batons, darts, javelins and spears, and the additional
@@ -275,7 +288,7 @@ Check knowledge (~)
         auto-descriptions for all items of a particular type (tval), kind
         or ego item type. In a future version, this will be expanded to
         match the auto-squelch functions of other variants.
-
+        You can also use the knowledge menus
 
 --- Extra Commands ---
 

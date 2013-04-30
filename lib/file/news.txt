@@ -3,20 +3,20 @@
              | | | |_ _   /_\  _ _  __ _| |__  __ _ _ _  __| |
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
-                                   |___/                      
-           The Unnamed Angband                  Version 0.5.5
+           The Unnamed Angband                |___/    v0.6.0                  
 
                    Earlier versions of Angband & Moria by:
       Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
              Charles Swiger, Ben Harrison and Robert Ruehlmann.
 
         UnAngband 0.5.4a by Andrew Doull, Mogami, and Andrew Sidwell
-             Earlier versions of UnAngband by Andrew Doull.
+               Other versions of UnAngband by Andrew Doull.
+  This program incorporates code from other Angband variants: NPPAngband &
+   Sangband under the Angband license and Angband Open Source Initiative.
 
      Send comments, bug reports and patches to unangband@yahoogroups.com
          Visit the UnAngband website at http://unangband.berlios.de/
      Read the Angband Usenet group at news:rec.games.roguelike.angband
-
 
             To access the help system, use the '?' key in-game.
 

@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -43,6 +43,13 @@ const s16b ddx_ddd[9] =
 const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
+/*
+ * Global array for reversing "keypad directions" 180 degrees
+ */
+const s16b ddd_180[9] =
+{ 8, 2, 4, 6, 7, 9, 1, 3, 5 };
+
+
 
 /*
  * Global array for converting numbers to uppercase hecidecimal digit
@@ -75,19 +82,19 @@ const byte adj_mag_study[] =
 	2	/* 15 */,
 	2	/* 16 */,
 	2	/* 17 */,
-	2	/* 18/00-18/09 */,
-	2	/* 18/10-18/19 */,
-	2	/* 18/20-18/29 */,
-	2	/* 18/30-18/39 */,
-	2	/* 18/40-18/49 */,
+	3	/* 18/00-18/09 */,
+	3	/* 18/10-18/19 */,
+	3	/* 18/20-18/29 */,
+	3	/* 18/30-18/39 */,
+	3	/* 18/40-18/49 */,
 	3	/* 18/50-18/59 */,
 	3	/* 18/60-18/69 */,
-	3	/* 18/70-18/79 */,
-	3	/* 18/80-18/89 */,
+	4	/* 18/70-18/79 */,
+	4	/* 18/80-18/89 */,
 	4	/* 18/90-18/99 */,
 	4	/* 18/100-18/109 */,
 	4	/* 18/110-18/119 */,
-	5	/* 18/120-18/129 */,
+	4	/* 18/120-18/129 */,
 	5	/* 18/130-18/139 */,
 	5	/* 18/140-18/149 */,
 	5	/* 18/150-18/159 */,
@@ -112,11 +119,11 @@ const byte adj_mag_mana[] =
 	0	/* 6 */,
 	0	/* 7 */,
 	1	/* 8 */,
-	2	/* 9 */,
-	2	/* 10 */,
-	2	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
+	1	/* 9 */,
+	1	/* 10 */,
+	1	/* 11 */,
+	1	/* 12 */,
+	1	/* 13 */,
 	2	/* 14 */,
 	2	/* 15 */,
 	2	/* 16 */,
@@ -125,24 +132,24 @@ const byte adj_mag_mana[] =
 	3	/* 18/10-18/19 */,
 	3	/* 18/20-18/29 */,
 	3	/* 18/30-18/39 */,
-	3	/* 18/40-18/49 */,
+	4	/* 18/40-18/49 */,
 	4	/* 18/50-18/59 */,
-	4	/* 18/60-18/69 */,
+	5	/* 18/60-18/69 */,
 	5	/* 18/70-18/79 */,
 	6	/* 18/80-18/89 */,
-	7	/* 18/90-18/99 */,
-	8	/* 18/100-18/109 */,
-	9	/* 18/110-18/119 */,
-	10	/* 18/120-18/129 */,
-	11	/* 18/130-18/139 */,
-	12	/* 18/140-18/149 */,
-	13	/* 18/150-18/159 */,
-	14	/* 18/160-18/169 */,
-	15	/* 18/170-18/179 */,
-	16	/* 18/180-18/189 */,
-	16	/* 18/190-18/199 */,
-	16	/* 18/200-18/209 */,
-	16	/* 18/210-18/219 */,
+	6	/* 18/90-18/99 */,
+	7	/* 18/100-18/109 */,
+	7	/* 18/110-18/119 */,
+	8	/* 18/120-18/129 */,
+	8	/* 18/130-18/139 */,
+	9	/* 18/140-18/149 */,
+	9	/* 18/150-18/159 */,
+	10	/* 18/160-18/169 */,
+	11	/* 18/170-18/179 */,
+	12	/* 18/180-18/189 */,
+	13	/* 18/190-18/199 */,
+	14	/* 18/200-18/209 */,
+	15	/* 18/210-18/219 */,
 	16	/* 18/220+ */
 };
 
@@ -282,6 +289,52 @@ const byte adj_chr_gold[] =
 	80	/* 18/200-18/209 */,
 	80	/* 18/210-18/219 */,
 	80	/* 18/220+ */
+};
+
+
+/*
+ * Stat Table (CHR) -- chance of restocking an item out of stock
+ */
+const byte adj_chr_stock[] =
+{
+	230	/* 3 */,
+	220	/* 4 */,
+	215	/* 5 */,
+	210	/* 6 */,
+	205	/* 7 */,
+	200	/* 8 */,
+	195	/* 9 */,
+	190	/* 10 */,
+	185	/* 11 */,
+	180	/* 12 */,
+	175	/* 13 */,
+	160	/* 14 */,
+	155	/* 15 */,
+	140	/* 16 */,
+	135	/* 17 */,
+	130	/* 18/00-18/09 */,
+	120	/* 18/10-18/19 */,
+	110	/* 18/20-18/29 */,
+	100	/* 18/30-18/39 */,
+	90	/* 18/40-18/49 */,
+	80	/* 18/50-18/59 */,
+	70	/* 18/60-18/69 */,
+	65	/* 18/70-18/79 */,
+	60	/* 18/80-18/89 */,
+	55	/* 18/90-18/99 */,
+	50	/* 18/100-18/109 */,
+	45	/* 18/110-18/119 */,
+	42	/* 18/120-18/129 */,
+	40	/* 18/130-18/139 */,
+	38	/* 18/140-18/149 */,
+	36	/* 18/150-18/159 */,
+	34	/* 18/160-18/169 */,
+	32	/* 18/170-18/179 */,
+	30	/* 18/180-18/189 */,
+	28	/* 18/190-18/199 */,
+	26	/* 18/200-18/209 */,
+	25	/* 18/210-18/219 */,
+	24	/* 18/220+ */
 };
 
 
@@ -1342,18 +1395,18 @@ const cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
-	NULL,
+	"Display player (compact)",
+	"Display player (status)",
 	"Display messages",
+	"Display dungeon map",
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
+	"Display feature recall (not used)",
 	"Display room description",
-	"Display snap-shot",
-	NULL,
-	NULL,
-	"Display borg messages",
-	"Display borg status",
+	"Display snap-shot (not used)",
+	"Display visible monsters",
+	"Display help (not used)",
 	NULL,
 	NULL,
 	NULL,
@@ -1404,12 +1457,12 @@ const cptr option_text[OPT_MAX] =
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
 	"view_flavors",				/* OPT_view_flavors */
-	"",			/* OPT_alert_hitpoint */
-	"",			/* OPT_alert_failure */
+	"disturb_new",				/* OPT_disturb_new */
+	"verify_safe",				/* OPT_verify_safe */
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
+	"easy_corpses",			/* OPT_easy_corpses */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	NULL,						/* xxx testing_stack */
@@ -1420,11 +1473,11 @@ const cptr option_text[OPT_MAX] =
 	"view_torch_grids",			/* OPT_view_torch_grids */
 	"dungeon_align",			/* OPT_dungeon_align */
 	"dungeon_stair",			/* OPT_dungeon_stair */
-	"flow_by_sound",			/* OPT_flow_by_sound */
-	"flow_by_smell",			/* OPT_flow_by_smell */
-	NULL,						/* xxx track_follow */
-	NULL,						/* xxx track_target */
-	"smart_learn",				/* OPT_smart_learn */
+	"view_unsafe_grids",			/* OPT_view_unsafe_grids */
+	"view_detect_grids",			/* OPT_view_detect_grids */
+	NULL,					/* xxx track_follow */
+	NULL,					/* xxx track_target */
+	NULL,					/* xxx smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
 	"hidden_player",			/* OPT_hidden_player */
@@ -1435,7 +1488,7 @@ const cptr option_text[OPT_MAX] =
 	NULL,						/* xxx flush_command */
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
-	NULL,						/* xxx fresh_message */
+	"view_player_lite",		/* OPT_view_player_lite */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
@@ -1454,18 +1507,19 @@ const cptr option_text[OPT_MAX] =
 	"smart_packs",				/* OPT_smart_packs */
 	"stack_force_pvals",						/* xxx */
 	"stack_force_times",						/* xxx */
-	"view_unsafe_grids",						/* xxx */
+	NULL,						/* xxx */
 	"room_descriptions",						/* xxx */
 	"room_names",						/* xxx */
 	"verify_mana",						/* xxx */
 	"reseed_artifacts",						/* xxx */
         "easy_autos",                                      /* xxx */
 	"easy_search",						/* xxx */
-	"variant_save_feats",		   /* xxx */
+	NULL,		   /* xxx */
 	"view_glowing_lite",			/* xxx */
 	"view_surface_lite",			/* OPT_view_surface_lite */
-	"variant_study_more",		   /* xxx */
+	NULL,		   /* xxx */
 	"show_sidebar",						/* xxx */
+	"show_itemlist",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1475,37 +1529,36 @@ const cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	"variant_mushrooms",						/* xxx */
-	"variant_hit_traps",						/* xxx */
-	"variant_room_info",						/* xxx */
-	"variant_free_stats",						/* xxx */
-	"variant_fast_kills",						/* xxx */
-	"variant_scale_dam",						/* xxx */
-	"variant_scale_hp",						/* xxx */
-	"variant_pval_stacks",						/* xxx */
-	"variant_oos_summons",						/* xxx */
-	"variant_oos_escapes",						/* xxx */
-	"variant_oos_heals",						/* xxx */
-	"variant_oos_xtra",						/* xxx */
-	"variant_hurt_feats",						/* xxx */
-	"variant_lake_feats",						/* xxx */
-	"variant_big_feats",						/* xxx */
-	"variant_new_feats",					   /* xxx */
-	"variant_learn_id",						/* xxx */
-	"variant_guess_id",						/* xxx */
-	"variant_usage_id",						/* xxx */
-	"variant_great_id",						/* xxx */
-	"variant_dis_attacks",					   /* xxx */
-	"variant_time_stacks",					  /* xxx */
-	"variant_many_rings",						/* xxx */
-	"variant_fast_floor",					   /* xxx */
-	"variant_fast_equip",					   /* xxx */
-	"variant_belt_slot",					   /* xxx */
-	"variant_fast_moves",					   /* xxx */
-	"variant_unsummon",					   /* xxx */
-	"variant_friendly",					   /* xxx */
-	"variant_more_spells",					   /* xxx */
-	"variant_drop_body",					   /* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,					   /* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,					   /* xxx */
+	NULL,					  /* xxx */
+	NULL,						/* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
+	NULL,					   /* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
 	"birth_auto_roller",		/* OPT_birth_auto_roller */
 	"birth_maximize",			/* OPT_birth_maximize */
@@ -1668,13 +1721,13 @@ const cptr option_desc[OPT_MAX] =
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
 	"Show flavors in object graphics",	/* OPT_view_flavors */
-	"",			/* OPT_alert_hitpoint */
-	"",			/* OPT_alert_failure */
+	"Disturb whenever a new monster race seen",	/* OPT_disturb_new */
+	"Verify whenever you leave a safe grid",		/* OPT_verify_safe */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
-	"Auto-haggle in stores",					/* OPT_auto_haggle */
+	"Ignore corpses by default",				/* OPT_easy_corpses */
+	"Auto-haggle in stores",				/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	NULL,										/* xxx testing_stack */
 	NULL,										/* xxx testing_carry */
@@ -1684,8 +1737,8 @@ const cptr option_desc[OPT_MAX] =
 	"Map remembers all torch-lit grids",		/* OPT_view_torch_grids */
 	"Generate dungeons with aligned rooms",		/* OPT_dungeon_align */
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
-	NULL,								/* xxx */
-	NULL,								/* xxx */
+	"Mark where you have detected traps",		/* OPT_view_unsafe_grids */
+	"Mark where you have detected monsters",	/* OPT_view_unsafe_grids */
 	NULL,								/* xxx */
 	NULL,								/* xxx */
 	NULL,								/* xxx */
@@ -1699,7 +1752,7 @@ const cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Flush output before every command",		/* OPT_fresh_before */
 	"Flush output after various things",		/* OPT_fresh_after */
-	NULL,										/* xxx */
+	"Use special colors for player grid",			/* OPT_view_player_lite */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
@@ -1716,20 +1769,21 @@ const cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	NULL,								/* xxx */
-	"Merge pvals when stacking",				/* xxx */
-	"Merge timeouts when stacking",			/* xxx */
-	"Map marked by detect traps",				/* xxx */
-	"Display room descriptions",				/* xxx */
-	"Display room names",					/* xxx */
+	"Merge pvals when stacking",				/* OPT_stack_force_pvals */
+	"Merge timeouts when stacking",			/* OPT_stack_force_timeouts */
+	NULL,							/* xxx */
+	"Display room descriptions",				/* OPT_room_descriptions */
+	"Display room names",					/* OPT_room_names */
 	"Verify critical mana",					/* xxx */
 	"Reseed random artifacts on death",			/* xxx */
-      "Automatically inscribe all objects",
-	"Start searching if not disturbed",										/* xxx */
+	"Automatically inscribe all objects",			/* xxx */
+	"Start searching if not disturbed",			/* xxx */
 	"Save new features in save-file",			/* xxx */
 	"Use special colours for glowing lite (slow)",	/* OPT_view_glowing_lite */
 	"Use special colours for surface lite",		/* OPT_view_surface_lite */
 	"Learn more than 64 spells",				/* xxx */
 	"Display stats in main window",			/* OPT_show_sidebar */							/* xxx */
+	"Display all items in main window",		/* OPT_show_itemlist */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1738,38 +1792,37 @@ const cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
-	"Magic mushroom patch",								/* xxx */
-	"Monsters hit traps",								/* xxx */
-	"Generate themed rooms",							/* xxx */
-	"Stat gain with each new level",						/* xxx */
-	"Kills don't waste blows",							/* xxx */
-	"Scale down melee damage",							/* xxx */
-	"Scale down monster hit points",						/* xxx */
-	"Object pval stacking (wands/staffs)",					  /* xxx */
-	"Monsters summon out of sight",							/* xxx */
-	"Monsters teleport out of sight",						/* xxx */
-	"Monsters heal out of sight",							/* xxx */
-	"Monsters aggravate out of sight",						/* xxx */
-	"Spells can destroy features",							/* xxx */
-	"Generate lakes and rivers",							/* xxx */
-	"Generate big lakes and rivers",						/* xxx */
-	"Generate trapped doors",							/* xxx */
-	"Object memory",								/* xxx */
-	"Object types guessed",								/* xxx */
-	"Object usage count",								/* xxx */
-	"Object sensing improved",							/* xxx */
-	"Monsters use ranged attacks",							/* xxx */
-	"Object timeout stacking (rods)",					       /* xxx */
-	"Wield multiple rings",								/* xxx */
-	"Use objects faster from floor",									   /* xxx */
-	"Use objects faster when wielded",
-	"Add belt slot to equipment",									   /* xxx */
-	"Move faster but get tired",									   /* xxx */
-	"Limit power of summoning",									   /* xxx */
-	"Generate friendly uniques",									   /* xxx */
-	"Allow more than 256 kind of spells",									   /* xxx */
-	"Monsters drop corpses",									   /* xxx */
+	NULL,								/* xxx */
+	NULL,								/* xxx */
+	NULL,							/* xxx */
+	NULL,						/* xxx */
+	NULL,							/* xxx */
+	NULL,							/* xxx */
+	NULL,						/* xxx */
+	NULL,					  /* xxx */
+	NULL,							/* xxx */
+	NULL,						/* xxx */
+	NULL,							/* xxx */
+	NULL,						/* xxx */
+	NULL,							/* xxx */
+	NULL,							/* xxx */
+	NULL,						/* xxx */
+	NULL,							/* xxx */
+	NULL,								/* xxx */
+	NULL,								/* xxx */
+	NULL,								/* xxx */
+	NULL,							/* xxx */
+	NULL,							/* xxx */
+	NULL,					       /* xxx */
+	NULL,								/* xxx */
+	NULL,									   /* xxx */
+	NULL,
+	NULL,									   /* xxx */
+	NULL,									   /* xxx */
+	NULL,									   /* xxx */
+	NULL,									   /* xxx */
+	NULL,									   /* xxx */
+	NULL,									   /* xxx */
 	"Birth: Allow purchase of stats using points",	/* OPT_birth_point_based */
 	"Birth: Allow specification of minimal stats",	/* OPT_birth_auto_roller */
 	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
@@ -1932,12 +1985,12 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_view_flavors */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_disturb_new */
+	FALSE,		/* OPT_verify_safe */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_easy_corpses */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
 	FALSE,		/* xxx */
@@ -1948,11 +2001,11 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
+	TRUE,		/* OPT_view_unsafe_grids */
+	TRUE,		/* OPT_view_detect_grids */
 	FALSE,		/* xxx track_follow */
 	FALSE,		/* xxx track_target */
-	FALSE,		/* OPT_smart_learn */
+	FALSE,		/* xxx smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
@@ -1963,13 +2016,13 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_view_player_lite */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE,		/* OPT_view_special_lite */
 	FALSE,		/* OPT_easy_open */
 	FALSE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
@@ -1982,19 +2035,19 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_smart_packs */
 	FALSE,	  /* OPT_stack_force_pvals */
 	FALSE,	  /* OPT_stack_force_times */
-	TRUE,	   /* OPT_stack_view_safe_grids */
-	TRUE,	   /* OPT_room_descriptions */
+	FALSE,	   /* xxx */
+	FALSE,	   /* OPT_room_descriptions */
 	TRUE,	   /* OPT_room_names */
 	FALSE,	  /* OPT_verify_mana */
 	TRUE,		/* OPT_reseed_artifacts */
       FALSE,	   /* OPT_easy_autos */
 	FALSE,		/* OPT_easy_search */
-	TRUE,	  /* OPT_variant_save_feats */
+	FALSE,	  /* xxx */
 	FALSE,		/* OPT_view_glowing_lite */
 	FALSE,		/* OPT_view_surface_lite */
-	TRUE,	  /* OPT_variant_study_more */
+	FALSE,	  /* xxx */
 	TRUE,		/* OPT_show_sidebar */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_show_itemlist */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2003,37 +2056,37 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,	  /* OPT_variant_town */
-	TRUE,	   /* OPT_variant_mushroom */
-	TRUE,	   /* OPT_variant_mon_hit_trap */
-	TRUE,	  /* OPT_variant_room_info */
-	TRUE,	   /* OPT_variant_free_stats */
-	TRUE,	   /* OPT_variant_fast_kills */
-	TRUE,	   /* OPT_variant_scale_damage */
-	TRUE,	   /* OPT_variant_scale_hp */
-	TRUE,	  /* OPT_variant_pval_stacks */
-	TRUE,	   /* OPT_variant_oos_summons */
-	TRUE,	   /* OPT_variant_oos_teleports */
-	TRUE,	   /* OPT_variant_oos_heals */
-	TRUE,	   /* OPT_variant_oos_xtra */
-	TRUE,	   /* OPT_variant_hurt_feats */
-	TRUE,	   /* OPT_variant_lake_feats */
-	TRUE,	   /* OPT_variant_big_feats */
-	TRUE,	   /* OPT_variant_new_feats */
-	TRUE,	  /* OPT_variant_learn_id */
-	TRUE,	  /* OPT_variant_guess_id */
-	TRUE,	  /* OPT_variant_usage_id */
-	TRUE,	   /* OPT_variant_great_id */
-	TRUE,	   /* OPT_variant_dis_attacks */
-	TRUE,	  /* OPT_variant_time_stacks */
-	TRUE,		/* OPT_variant_many_rings */
-	TRUE,	  /* OPT_variant_fast_floor */
-	TRUE,	   /* OPT_variant_fast_equip */
-	TRUE,	  /* OPT_variant_belt_slot */
-	TRUE,	  /* OPT_variant_fast_moves */
-	TRUE,	  /* OPT_variant_unsummon */
+	FALSE,	   /* OPT_variant_mushroom */
+	FALSE,	   /* OPT_variant_mon_hit_trap */
+	FALSE,	  /* OPT_variant_room_info */
+	FALSE,	   /* OPT_variant_free_stats */
+	FALSE,	   /* OPT_variant_fast_kills */
+	FALSE,	   /* OPT_variant_scale_damage */
+	FALSE,	   /* OPT_variant_scale_hp */
+	FALSE,	  /* OPT_variant_pval_stacks */
+	FALSE,	   /* OPT_variant_oos_summons */
+	FALSE,	   /* OPT_variant_oos_teleports */
+	FALSE,	   /* OPT_variant_oos_heals */
+	FALSE,	   /* OPT_variant_oos_xtra */
+	FALSE,	   /* OPT_variant_hurt_feats */
+	FALSE,	   /* OPT_variant_lake_feats */
+	FALSE,	   /* OPT_variant_big_feats */
+	FALSE,	   /* OPT_variant_new_feats */
+	FALSE,	  /* OPT_variant_learn_id */
+	FALSE,	  /* OPT_variant_guess_id */
+	FALSE,	  /* OPT_variant_usage_id */
+	FALSE,	   /* OPT_variant_great_id */
+	FALSE,	   /* OPT_variant_dis_attacks */
+	FALSE,	  /* OPT_variant_time_stacks */
+	FALSE,		/* OPT_variant_many_rings */
+	FALSE,	  /* OPT_variant_fast_floor */
+	FALSE,	   /* OPT_variant_fast_equip */
+	FALSE,	  /* OPT_variant_belt_slot */
+	FALSE,	  /* OPT_variant_fast_moves */
+	FALSE,	  /* OPT_variant_unsummon */
 	FALSE,	  /* OPT_variant_friendly */
-	TRUE,	  /* OPT_variant_more_spells */
-	TRUE,	  /* OPT_variant_drop_body */
+	FALSE,	  /* OPT_variant_more_spells */
+	FALSE,	  /* OPT_variant_drop_body */
 	FALSE,		/* OPT_birth_point_based */
 	FALSE,		/* OPT_birth_auto_roller */
 	TRUE,		/* OPT_birth_maximize */
@@ -2042,7 +2095,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,	  /* OPT_birth_campaign */
+	TRUE,	  /* OPT_birth_campaign */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2191,7 +2244,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_stack_force_times,
 		OPT_easy_autos,
 		OPT_easy_search,
-		255,
+		OPT_easy_corpses,
 		255
 	},
 
@@ -2204,6 +2257,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_run_use_corners,
 		OPT_disturb_move,
 		OPT_disturb_near,
+		OPT_disturb_new,
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
@@ -2212,8 +2266,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_allow_quantity,
 		OPT_auto_more,
 		OPT_verify_mana,
-		255,
-		255,
+		OPT_verify_safe,
 		255,
 		255,
 		255,
@@ -2229,13 +2282,13 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_expand_list,
 		OPT_view_perma_grids,
 		OPT_view_torch_grids,
+		OPT_view_detect_grids,
 		OPT_dungeon_align,
 		OPT_dungeon_stair,
 		OPT_smart_monsters,
-		OPT_view_safe_grids,
+		OPT_view_unsafe_grids,
+		OPT_view_detect_grids,
 		OPT_reseed_artifacts,
-		255,
-		255,
 		255,
 		255,
 		255,
@@ -2250,6 +2303,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_view_reduce_lite,
 		OPT_hidden_player,
+ 		OPT_center_player,
+ 		OPT_run_avoid_center,
 		OPT_avoid_abort,
 		OPT_avoid_other,
 		OPT_flush_failure,
@@ -2265,15 +2320,14 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255,
 		255,
-		255,
-		255,
-		255,
+		255
 	},
 
 	/*** Display ***/
 
 	{
 		OPT_show_sidebar,
+		OPT_show_itemlist,
 		OPT_depth_in_feet,
 		OPT_show_labels,
 		OPT_show_weights,
@@ -2282,17 +2336,16 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_flavors,
 		OPT_view_flavors,
 		OPT_hilite_player,
+		OPT_view_player_lite,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
 		OPT_view_glowing_lite,
 		OPT_view_surface_lite,
- 		OPT_center_player,
- 		OPT_run_avoid_center,
 		OPT_show_piles,
 		OPT_room_names,
-		OPT_room_descriptions
+		OPT_room_descriptions,
 	},
 
 	/*** Birth ***/
@@ -2344,59 +2397,6 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		255,
 		255
 	}
-#if 0
-,
-
-	/*** Variant game-play ***/
-
-	{
-		OPT_variant_mushrooms,
-		OPT_variant_free_stats,
-		OPT_variant_fast_kills,
-		OPT_variant_scale_dam,
-		OPT_variant_scale_hp,
-		OPT_variant_hit_traps,
-		OPT_variant_oos_summons,
-		OPT_variant_oos_escapes,
-		OPT_variant_oos_heals,
-		OPT_variant_oos_xtra,
-		OPT_variant_dis_attacks,
-		OPT_variant_hurt_feats,
-		OPT_variant_new_feats,
-		OPT_variant_lake_feats,
-		OPT_variant_big_feats,
-		OPT_variant_great_id,
-		OPT_variant_many_rings,
-		OPT_variant_fast_floor,
-		OPT_variant_fast_equip,
-		255
-	},
-
-	/*** Variant save-file ***/
-
-	{
-		OPT_variant_learn_id,
-		OPT_variant_guess_id,
-		OPT_variant_usage_id,
-		OPT_variant_pval_stacks,
-		OPT_variant_time_stacks,
-		OPT_variant_room_info,
-		OPT_variant_belt_slot,
-		OPT_variant_fast_moves,
-		OPT_variant_unsummon,
-		OPT_variant_more_spells,
-		OPT_variant_study_more,
-		OPT_variant_drop_body,
-		OPT_variant_save_feats,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
-	}
-#endif
 };
 
 const cptr inscrip_text[MAX_INSCRIP] =
@@ -2429,10 +2429,11 @@ const cptr inscrip_text[MAX_INSCRIP] =
 	"acidproof",
 	"fireproof",
 	"waterproof",
-	"theftproof"
+	"theftproof",
+	"vampiric"
 };
 
-const int object_xtra_what[MAX_HIDDEN] =
+const int object_xtra_what[OBJECT_XTRA_MAX_HIDDEN] =
 {
 	0,
 	2,
@@ -2448,10 +2449,15 @@ const int object_xtra_what[MAX_HIDDEN] =
 	2,
 	2,
 	2,
-	  2
+	2,
+	4,
+	1,
+	2,
+	3,
+	4
 };
 
-const u32b object_xtra_base[MAX_HIDDEN] =
+const u32b object_xtra_base[OBJECT_XTRA_MAX_HIDDEN] =
 {
 	0,
 	TR2_SUST_STR,
@@ -2467,11 +2473,16 @@ const u32b object_xtra_base[MAX_HIDDEN] =
 	TR2_IGNORE_ACID,
 	TR2_IGNORE_FIRE,
 	TR2_IGNORE_WATER,
-	  TR2_IGNORE_THEFT
+        TR2_IGNORE_THEFT,
+	TR4_HURT_LITE,
+	1L,	/* Magic item - flag 1 */
+	1L,	/* Magic item - flag 2 */
+	1L,	/* Magic item - flag 3 */
+	1L	/* Magic item - flag 4 */
 };
 
 
-const int object_xtra_size[MAX_HIDDEN] =
+const int object_xtra_size[OBJECT_XTRA_MAX_HIDDEN] =
 {
 	0,
 	6,
@@ -2487,7 +2498,12 @@ const int object_xtra_size[MAX_HIDDEN] =
 	1,
 	1,
 	1,
-	1
+	1,
+        10,
+	32,	/* Magic item - flag 1 */
+	32,	/* Magic item - flag 2 */
+	32,	/* Magic item - flag 3 */
+	32	/* Magic item - flag 4 */
 };
 
 
@@ -2531,13 +2547,14 @@ const cptr object_group_text[] =
 	"Food"	,
 	"Flask"	,
 	"Container"	,
-	"Figurine"	,
 	"Statue"	 ,
+	"Assembly"	 ,
 	"Skeleton"	,
 	"Corpse"	 ,
 	"Egg"		 ,
 	"Skin"		 ,
 	"Junk"	,
+	"Service", 
 	NULL
 };
 
@@ -2582,15 +2599,697 @@ const byte object_group_tval[] =
 	TV_FOOD,	 
 	TV_FLASK,	 
 	TV_HOLD,	 
-	TV_FIGURE,	 
-	TV_STATUE,	
+	TV_STATUE,
+	TV_ASSEMBLY,	
 	TV_BONE,	
 	TV_BODY,	
 	TV_EGG,	
 	TV_SKIN,	
-	TV_JUNK,	
+	TV_JUNK,
+	TV_SERVICE,
 	0
+};
+
+const cptr magic_name[4][32] =
+{
+	/* TR1_ */
+	{
+		"of Strength",
+		"of Intelligence",
+		"of Wisdom",
+		"of Dexterity",
+		"of Constitution",
+		"of Charisma",
+		"of Spell Resistance",
+		"of Device Mastery",
+		"of Stealth",
+		"of Searching",
+		"of Infravision",
+		"of Tunnelling",
+		"of Speed",
+		"of Extra Attacks",
+		"of Extra Shots",
+		"of Extra Might",
+		"of Slay Nature",
+		"of Slay Evil",
+		"of Slay Undead",
+		"of Slay Demon",
+		"of Slay Orc",
+		"of Slay Troll",
+		"of Slay Giant",
+		"of Slay Dragon",
+		"of Execute Dragon",
+		"of Execute Demon",
+		"of Execute Undead",
+		"of Poison",
+		"of Acid",
+		"of Electricity",
+		"of Fire",
+		"of Cold"
+	},
+
+	/* TR2_ */
+	{
+		"of Sustain Strength",
+		"of Sustain Intelligence",
+		"of Sustain Wisdom",
+		"of Sustain Dexterity",
+		"of Sustain Constitution",
+		"of Sustain Charisma",
+		"(Acid proof)",
+		"(Lightning proof)",
+		"(Fire proof)",
+		"(Frost proof)",
+		"(Water proof)",
+		"(Theft proof)",
+		"of Acid Immunity",
+		"of Lightening Immunity",
+		"of Fire Immunity",
+		"of Frost Immunity",
+		"of Resist Acid",
+		"of Resist Electricity",
+		"of Resist Fire",
+		"of Resist Cold",
+		"of Resist Poison",
+		"of Resist Fear",
+		"of Resist Light",
+		"of Resist Darkness",
+		"of Resist Blindness",
+		"of Resist Confusion",
+		"of Resist Sound",
+		"of Resist Shards",
+		"of Resist Nexus",
+		"of Resist Nether",
+		"of Resist Chaos",
+		"of Resist Disenchantment"
+	},
+
+	/* TR3_ */
+	{
+		"of Slow Digestion",
+		"of Feather Falling",
+		"(Glowing)",
+		"of Regeneration",
+		"of Telepathy",
+		"of See Invisible",
+		"of Free Action",
+		"of Hold Life",
+		"of Sense Demons",
+		"of Sense Dragons",
+		"of Sense Giants",
+		"of Sense Orcs",
+		"of Sense Trolls",
+		"of Sense Undead",
+		"of Sense Nature",
+		"of Impact",
+		"(Drains Health)",
+		"(Drains Mana)",
+		"(Drains Experience)",
+		"of Aggravation",
+		"of Teleportation",
+		"", /* Random activation */
+		"", /* Activates */
+		"(Blessed)",
+		"", /* Artifact */
+		"", /* Easily Known */
+		"", /* Hide Type */
+		"", /* Show Mods */
+		"of Throwing",
+		"",	/* Light curse */
+		"",	/* Heavy curse */
+		""	/* Permanently cursed */
+	},
+
+	/* TR4_ */
+	{
+		"of Darkness",
+		"of Light",
+		"of Light Vulnerability",
+		"of Water Vulnerability",
+		"of Bloodlust",
+		"of Manathirst",
+		"of Poison Immunity",
+		"of Resist Disease",
+		"of Hunger",
+		"of Slay Man",
+		"of Slay Elf",
+		"of Slay Dwarf",
+		"of Anchoring",
+		"of Silence",
+		"of Static",
+		"of Ill Winds",
+		"(Animal)",
+		"(Evil)",
+		"(Ancient)",
+		"(Demonic)",
+		"(Orcish)",
+		"(Troll)",
+		"(Giant)",
+		"(Dragon)",
+		"of Man",
+		"(Dwarven)",
+		"(Elven)",
+		"of Poison Vulnerability",
+		"of Acid Vulnerability",
+		"of Lightning Vulnerability",
+		"of Fire Vulnerability",
+		"of Frost Vulnerability"	
+	}
+};
+
+const cptr disease_name[32] =
+{
+	"pink rot",
+	"black brain",
+	"wit loss",
+	"fumblefinger",
+	"illweather",
+	"warts",
+	"food poisoning",
+	"thirst",
+	"shards",
+	"ringing in ears",
+	"green rot",
+	"magic eye",
+	"slow stumble",
+	"black eye",
+	"a hangover",
+	"paranoia",
+	"palsy",
+	"leeches",
+	"mana mites",
+	"black breath",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"",
+	"the plague",
+	"fast-acting viruses",
+	"magical parasites",
+	"minor ailments",
+	"Morgoth's curse",
+	"incurable illnesses"
+};
+
+/*
+ * First column is Mana Cost
+ * Second column is multiplier * spellpower (breaths handled separately)
+ * Third column is a divider to we can have damage like
+ * spellpower * 5/2 using only integer math.
+ * 4th column is damage variance
+ * 5th column is Optimal Ranges for various spells.
+ * 6 is optimal for Breath Weapons, Beams, and Arcs.
+ * 3 is hard maximum for Lash/Spit.
+ * 0 indicates no range limitation for other spells.
+ *
+ * This range is considered a preference if d_range in spell_desire is > 0.
+ * It is a hard limit if d_range = 0.
+ */
+
+/*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+byte spell_info_RF4[32][5]=
+{
+	{0,     0,     0,     0,     0},        /* RF4_BLOW_1 */
+	{0,     0,     0,     0,     0},        /* RF4_BLOW_2 */
+	{0,     0,     0,     0,     0},        /* RF4_BLOW_3 */
+	{0,     0,     0,     0,     0},        /* RF4_BLOW_4 */
+	{1,     0,     0,     0,     MAX_SIGHT},/* RF4_SHRIEK */
+	{0,     0,     0,     0,     8},        /* RF4_QUAKE */
+	{0,     0,     0,     0,     1},        /* RF4_EXPLODE */
+	{0,     0,     0,     0,     1},        /* RF4_AURA */  /* Last spell with fixed maximum range */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_ACID */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_ELEC */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_FIRE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_COLD */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_POIS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_PLAS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_LITE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_DARK */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_CONFU */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_SOUND */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_SHARD */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_INER */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_GRAV */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_WIND */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_FORCE */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_NEXUS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_NETHR */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_CHAOS */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_DISEN */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_TIME */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_MANA */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_HOLY */
+	{0,     0,     0,     0,     0},        /* RF4_BRTH_FEAR */
+	{0,     0,     0,     0,     0}         /* RF4_BRTH_DISEA */
+};
+
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+const byte spell_info_RF5[32][5]=
+{
+	{4,     4,     1,     6,     6},        /* RF5_BALL_ACID */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_ELEC */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_FIRE */
+	{4,     4,     1,     6,     6},        /* RF5_BALL_COLD */
+	{4,     3,     1,     6,     6},        /* RF5_BALL_POIS */
+	{5,     3,     1,     6,     6},        /* RF5_BALL_LITE */
+	{5,     3,     1,     6,     6},        /* RF5_BALL_DARK */
+	{6,     3,     1,     6,     6},        /* RF5_BALL_CONFU */
+	{4,     2,     1,     6,     6},        /* RF5_BALL_SOUND */
+	{4,     3,     1,     6,     6},        /* RF5_BALL_SHARD */
+	{4,     2,     1,     6,     6},        /* RF5_BALL_WIND */
+	{5,     3,     1,     4,     4},        /* RF5_BALL_STORM */
+	{6,     3,     1,     6,     6},        /* RF5_BALL_NETHR */
+	{7,     3,     1,     4,     4},        /* RF5_BALL_CHAOS */
+	{7,     3,     1,     8,     8},        /* RF5_BALL_MANA */
+	{7,     3,     1,     6,     6},        /* RF5_BALL_WATER */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_ACID */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_ELEC */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_FIRE */
+	{4,     4,     1,     6,     6},        /* RF5_BOLT_COLD */
+	{4,     3,     1,     6,     6},        /* RF5_BOLT_POIS */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_PLAS */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_ICE */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_WATER */
+	{5,     3,     1,     6,     6},        /* RF5_BOLT_NETHER */
+	{5,     2,     1,     6,     6},        /* RF5_BOLT_MANA */
+	{5,     5,     2,     8,     8},        /* RF5_HOLY_ORB */
+	{6,     3,     1,     6,     6},        /* RF5_BEAM_ELEC */
+	{6,     4,     1,     6,     6},        /* RF5_BEAM_ICE */
+	{7,     3,     1,     6,     6},        /* RF5_BEAM_NETHER */
+	{7,     0,     0,     0,     6},        /* RF5_ARC_HFIRE */
+	{5,     0,     0,     0,     8}         /* RF5_ARC_FORCE */
+};
+
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+const byte spell_info_RF6[32][5]=
+{
+	{6,     0,     0,     0,     0},        /* RF6_HASTE */
+	{0,     0,     0,     0,     0},        /* RF6_ADD_MANA */
+	{3,     0,     0,     0,     0},        /* RF6_HEAL */
+	{3,     0,     0,     0,     0},        /* RF6_CURE */
+	{3,     0,     0,     0,     0},        /* RF6_BLINK */
+	{8,     0,     0,     0,     0},        /* RF6_TPORT */
+	{3,     0,     0,     0,     0},        /* RF6_INVIS */
+	{4,     0,     0,     0,     0},        /* RF6_TELE_SELF_TO */
+	{4,     0,     0,     0,     0},        /* RF6_TELE_TO */
+	{8,     0,     0,     0,     0},        /* RF6_TELE_AWAY */
+	{8,     0,     0,     0,     0},        /* RF6_TELE_LEVEL */
+	{4,     0,     0,     0,     0},        /* RF6_WRAITHFORM */
+	{1,     0,     0,     0,     0},        /* RF6_DARKNESS */
+	{2,     0,     0,     0,     0},        /* RF6_TRAPS */
+	{6,     0,     0,     0,     0},        /* RF6_FORGET */
+	{2,     0,     0,     0,     0},        /* RF6_DRAIN_MANA */
+	{4,     0,     0,     0,     0},        /* RF6_CURSE */
+	{4,     0,     0,     0,     0},        /* RF6_ADD_AMMO */
+	{3,     3,     2,     6,     6},        /* RF6_MIND_BLAST */
+	{4,     0,     0,     0,     0},        /* RF6_ILLUSION */
+	{4,     5,     2,     6,     6},        /* RF6_WOUND */
+	{2,     0,     0,     0,     0},        /* RF6_BLESS */
+	{3,     0,     0,     0,     0},        /* RF6_BESERK */
+	{4,     0,     0,     0,     0},        /* RF6_SHIELD */
+	{3,     0,     0,     0,     0},        /* RF6_OPPOSE_ELEM */
+	{2,     0,     0,     0,     0},        /* RF6_HUNGER */
+	{1,     0,     0,     0,     0},        /* RF6_PROBE */
+	{1,     0,     0,     0,     0},        /* RF6_SCARE */
+	{3,     0,     0,     0,     0},        /* RF6_BLIND */
+	{4,     0,     0,     0,     0},        /* RF6_CONF */
+	{5,     0,     0,     0,     0},        /* RF6_SLOW */
+	{6,     0,     0,     0,     0}         /* RF6_HOLD */
+};
+
+ /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
+const byte spell_info_RF7[32][5]=
+{
+	{12,    0,     0,     0,     0},        /* RF7_S_KIN */ /* Summon - 6 */
+	{4,     0,     0,     0,     0},        /* RF7_R_KIN */
+	{8,     0,     0,     0,     0},        /* RF7_A_DEAD */
+	{10,    0,     0,     0,     0},        /* RF7_S_MONSTER */ /* Summon - 1 */
+	{15,    0,     0,     0,     0},        /* RF7_S_MONSTERS */ /* Summon - 8 */
+	{5,     0,     0,     0,     0},        /* RF7_R_MONSTER */
+	{6,     0,     0,     0,     0},        /* RF7_R_MONSTERS */
+	{8,     0,     0,     0,     0},        /* RF7_S_PLANT */
+	{10,    0,     0,     0,     0},        /* RF7_S_INSECT */ /* Summon - 6 */
+	{12,    0,     0,     0,     0},        /* RF7_S_ANIMAL */ /* Summon - 6 */
+	{14,    0,     0,     0,     0},        /* RF7_S_HOUND */ /* Summon - 6 */
+	{15,    0,     0,     0,     0},        /* RF7_S_SPIDER */ /* Summon - 6 */
+	{10,    0,     0,     0,     0},        /* RF7_S_CLASS */
+	{10,    0,     0,     0,     0},        /* RF7_S_RACE */
+	{15,    0,     0,     0,     0},        /* RF7_S_GROUP */ /* Summon - 6 */
+	{5,     0,     0,     0,     0},        /* RF7_S_FRIEND */ /* Summon - 2 */
+	{10,    0,     0,     0,     0},        /* RF7_S_FRIENDS */
+	{10,    0,     0,     0,     0},        /* RF7_S_ORC */
+	{10,    0,     0,     0,     0},        /* RF7_S_TROLL */
+	{10,    0,     0,     0,     0},        /* RF7_S_GIANT */
+	{14,    0,     0,     0,     0},        /* RF7_S_DRAGON */ /* Summon - 1 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_DRAGON */ /* Summon - 8 */
+	{6,     0,     0,     0,     0},        /* RF7_A_ELEMENT */
+	{6,     0,     0,     0,     0},        /* RF7_A_OBJECT */
+	{14,    0,     0,     0,     0},        /* RF7_S_DEMON */ /* Summon - 1 / 2-3 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_DEMON */ /* Summon - 8 */
+	{25,    0,     0,     0,     0},        /* RF7_R_UNIQUE */
+	{15,    0,     0,     0,     0},        /* RF7_S_UNIQUE */ /* Summon - 8 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_UNIQUE */ /* Summon - 8 */
+	{12,    0,     0,     0,     0},        /* RF7_S_UNDEAD */ /* Summon - 1 */
+	{20,    0,     0,     0,     0},        /* RF7_S_HI_UNDEAD */ /* Summon - 8 */
+	{20,    0,     0,     0,     0}         /* RF7_S_WRAITH */ /* Summon - 8 */
+
+};
+
+/*
+ * d_base:     base desirability for AI.
+ * d_summ:     desriability for AI per monster level
+ *                  times 0-3 based on number of clear spaces
+ * d_hurt:     desirability for AI per monster spell power
+ *                  times 0-3 based on damage taken
+ * d_mana:     desirability for AI per monster spell power
+ *                  times 0-2 based on mana shortage
+ * d_esc:      desirability for AI per monster level
+ *                  times 0-3 based on fear, and damage taken
+ * d_tact:     desirability for AI per monster level, modified
+ *                  times 0-3 based on proximity, min_range, and best_range
+ * d_res:      category of 'resistability' checked by monster AI
+ *                 for purposes of desirability.
+ * d_range:    % of spell desirability retained for each step past 'range'
+ */
+
+byte spell_desire_RF4[32][8] =
+{
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 40,  0,   0,   5,	0,   0,	   0	  ,  100}, /* RF4_BLOW_1    */
+	{ 40,  0,   0,   5,	0,   0,	   0	  ,  100}, /* RF4_BLOW_2    */
+	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_BLOW_3    */
+	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_BLOW_4    */
+	{ 30,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_SHRIEK    */
+	{ 40,  0,   0,   5,	0,   0,    0      ,  100}, /* RF4_QUAKE	    */
+	{ 20,  0,   0,   5,	0,   0, GF_EXPLODE  ,  100}, /* RF4_EXPLODE   */
+	{ 40,  0,   0,   0,	0,   0,    0      ,  100}, /* RF4_AURA      */
+	{ 75,  0,   0,   5,	0,   0, GF_ACID   ,   90}, /* RF4_BRTH_ACID */
+	{ 75,  0,   0,   5,	0,   0, GF_ELEC  ,   90}, /* RF4_BRTH_ELEC */
+	{ 75,  0,   0,   5,	0,   0, GF_FIRE  ,   90}, /* RF4_BRTH_FIRE */
+	{ 75,  0,   0,   5,	0,   0, GF_COLD  ,   90}, /* RF4_BRTH_COLD */
+	{ 65,  0,   0,   5,	0,   0, GF_POIS  ,   90}, /* RF4_BRTH_POIS */
+	{ 65,  0,   0,   5,	0,   0, GF_PLASMA  ,   90}, /* RF4_BRTH_PLAS */
+	{ 65,  0,   0,   5,	0,   0, GF_LITE  ,   90}, /* RF4_BRTH_LITE */
+	{ 65,  0,   0,   5,	0,   0, GF_DARK  ,   90}, /* RF4_BRTH_DARK */
+	{ 65,  0,   0,   5,	0,   0, GF_CONFUSION ,   90}, /* RF4_BRTH_CONFU*/
+	{ 65,  0,   0,   5,	0,   0, GF_SOUND ,   90}, /* RF4_BRTH_SOUND*/
+	{ 65,  0,   0,   5,	0,   0, GF_SHARD ,   90}, /* RF4_BRTH_SHARD*/
+	{ 65,  0,   0,   5,	0,   0,	GF_INERTIA,   90}, /* RF4_BRTH_INER */
+	{ 65,  0,   0,   5,	0,   0, GF_GRAVITY,   90}, /* RF4_BRTH_GRAV */
+	{ 65,  0,   0,   5,	0,   0,	GF_WIND	  ,  90}, /* RF4_BRTH_WIND */
+	{ 65,  0,   0,   5,	0,   0, GF_FORCE,   90}, /* RF4_BRTH_FORCE*/
+	{ 65,  0,   0,   5,	0,   0, GF_NEXUS ,   90}, /* RF4_BRTH_NEXUS*/
+	{ 65,  0,   0,   5,	0,   0, GF_NETHER ,   90}, /* RF4_BRTH_NETHR*/
+	{ 65,  0,   0,   5,	0,   0, GF_CHAOS ,   90}, /* RF4_BRTH_CHAOS*/
+	{ 65,  0,   0,   5,	0,   0, GF_DISENCHANT ,   90}, /* RF4_BRTH_DISEN*/
+	{ 65,  0,   0,   5,	0,   0,	GF_TIME	  ,   90}, /* RF4_BRTH_TIME */
+	{ 65,  0,   0,   5,	0,   0,	GF_MANA	  ,   90}, /* RF4_BRTH_MANA */
+	{ 65,  0,   0,   5,	0,   0,	GF_HOLY_ORB  ,  90}, /* RF4_BRTH_HOLY */
+	{ 65,  0,   0,   5,	0,   0,	GF_TERRIFY  ,  90}, /* RF4_BRTH_FEAR */
+	{ 65,  0,   0,   5,	0,   0,	GF_DISEASE	  ,  90}  /* RF4_BRTH_DISEASE */
+};
+
+const byte spell_desire_RF5[32][8] =
+{
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 50,  0,   0,   0,	0,   0, GF_ACID  ,  100}, /* RF5_BALL_ACID */
+	{ 50,  0,   0,   0,	0,   0, GF_ELEC  ,  100}, /* RF5_BALL_ELEC */
+	{ 50,  0,   0,   0,	0,   0, GF_FIRE  ,  100}, /* RF5_BALL_FIRE */
+	{ 50,  0,   0,   0,	0,   0, GF_COLD  ,  100}, /* RF5_BALL_COLD */
+	{ 50,  0,   0,   0,	0,   0, GF_POIS  ,  100}, /* RF5_BALL_POIS */
+	{ 40,  0,   0,   0,	0,   0, GF_LITE  ,  100}, /* RF5_BALL_LITE */
+	{ 40,  0,   0,   0,	0,   0, GF_DARK  ,  100}, /* RF5_BALL_DARK */
+	{ 40,  0,   0,   0,	0,   0, GF_CONFUSION ,  100}, /* RF5_BALL_CONFU*/
+	{ 40,  0,   0,   0,	0,   0, GF_SOUND ,  100}, /* RF5_BALL_SOUND*/
+	{ 40,  0,   0,   0,	0,   0, GF_SHARD ,  100}, /* RF5_BALL_SHARD*/
+	{ 40,  0,   0,   0,	0,   0,	GF_WIND	  ,  100}, /* RF5_BALL_WIND */
+	{ 40,  0,   0,   0,	0,   0, GF_STORM ,  100}, /* RF5_BALL_STORM*/
+	{ 40,  0,   0,   0,	0,   0, GF_NETHER ,  100}, /* RF5_BALL_NETHR*/
+	{ 40,  0,   0,   0,	0,   0, GF_CHAOS ,  100}, /* RF5_BALL_CHAOS*/
+	{ 40,  0,   0,   0,	0,   0,	GF_MANA,  100}, /* RF5_BALL_MANA */
+	{ 40,  0,   0,   0,	0,   0, GF_WATER ,  100}, /* RF5_BALL_WATER*/
+	{ 40,  0,   0,   0,	0,   0, GF_ACID  ,  100}, /* RF5_BOLT_ACID */
+	{ 40,  0,   0,   0,	0,   0, GF_ELEC  ,  100}, /* RF5_BOLT_ELEC */
+	{ 40,  0,   0,   0,	0,   0, GF_FIRE  ,  100}, /* RF5_BOLT_FIRE */
+	{ 40,  0,   0,   0,	0,   0, GF_COLD  ,  100}, /* RF5_BOLT_COLD */
+	{ 40,  0,   0,   0,	0,   0, GF_POIS  ,  100}, /* RF5_BOLT_POIS */
+	{ 50,  0,   0,   0,	0,   0, GF_PLASMA  ,  100}, /* RF5_BOLT_PLAS */
+	{ 50,  0,   0,   0,	0,   0, GF_ICE	  ,  100}, /* RF5_BOLT_ICE  */
+	{ 35,  0,   0,   0,	0,   0, GF_WATER ,  100}, /* RF5_BOLT_WATER*/
+	{ 35,  0,   0,   0,	0,   0, GF_NETHER ,  100}, /* RF5_BOLT_NETHR*/
+	{ 30,  0,   0,   0,	0,   0,	GF_MANA	  ,  100}, /* RF5_BOLT_MANA */
+	{ 60,  0,   0,   0,	0,   0, GF_HOLY_ORB  ,  100}, /* RF5_HOLY_ORB*/
+	{ 50,  0,   0,   0,	0,   0, GF_ELEC  ,   90}, /* RF5_BEAM_ELEC */
+	{ 50,  0,   0,   0,	0,   0, GF_ICE	  ,   90}, /* RF5_BEAM_ICE  */
+	{ 50,  0,   0,   0,	0,   0, GF_NETHER ,   90}, /* RF5_BEAM_NETHR*/
+	{ 50,  0,   0,   0,	0,   0,	GF_HELLFIRE,  80},  /* RF5_ARC_HFIRE*/
+	{ 40,  0,   0,   0,	0,   0,	GF_FORCE  ,  90} 	/* RF5_ARC_FORCE */
+};
+
+
+const byte spell_desire_RF6[32][8] =
+{
+/*     d_base	  d_hurt    d_esc	 d_res				    */
+/*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_HASTE	    */
+	{ 15,  0,   0,  25,	0,   0,	   0  ,  100}, /* RF6_ADD_MANA  */
+	{ 10,  0,   30,  0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
+	{ 27,  0,   0,   0,	10,  15,   0	  ,  100}, /* RF6_BLINK	    */
+	{  3,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TPORT	    */
+	{ 50,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_INVIS	    */
+	{ 30,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_TELE_SELF_TO*/
+	{ 30,  0,   0,   0,	0,   10,   0	  ,  100}, /* RF6_TELE_TO   */
+	{  3,  0,   0,   0,	20,  10,   0	  ,  100}, /* RF6_TELE_AWAY */
+	{  3,  0,   0,   0,	20,  10,   0 ,	   100}, /* RF6_TELE_LEVEL */
+	{ 50,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_WRAITHFORM*/
+	{ 20,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
+	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
+	{ 25,  0,   0,   0,	5,   0, 0  ,  100}, /* RF6_FORGET    */
+	{ 25,  0,   0,   15,	0,   0, GF_LOSE_MANA,  100}, /* RF6_DRAIN_MANA*/
+	{ 45,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURSE	    */
+	{ 40,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_ADD_AMMO    */
+	{ 30,  0,   0,   0,	0,   0, 0  ,  100}, /* RF6_MIND_BLAST*/
+	{ 30,  0,   0,   0,	0,   0, GF_HALLU,  100}, /* RF6_ILLUSION*/
+	{ 40,  0,   0,   0,	0,   0, GF_HURT,  100}, /* RF6_WOUND	    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BLESS	    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BESERK    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_SHIELD    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_OPPOSE_ELEM */
+	{ 25,  0,   0,   0,	0,   0,	GF_HUNGER,  100}, /* RF6_HUNGER    */
+	{ 50,  0,   0,   0,	0,   0,	GF_PROBE	  ,  100}, /* RF6_PROBE	    */
+	{ 25,  0,   0,   0,	0,   0, GF_FEAR_WEAK,	  100}, /* RF6_SCARE	 */
+	{ 30,  0,   0,   0,	0,   0, GF_BLIND_WEAK,	   100}, /* RF6_BLIND	  */
+	{ 30,  0,   0,   0,	0,   0, GF_CONF_WEAK,	   100}, /* RF6_CONF	  */
+	{ 40,  0,   0,   0,	0,   0, GF_SLOW_WEAK,	  100}, /* RF6_SLOW	 */
+	{ 35,  0,   0,   0,	0,   0, GF_SLEEP,	  100} /* RF6_HOLD	*/
+};
+
+const byte spell_desire_RF7[32][8] =
+{
+ /*     d_base	  d_hurt    d_esc	 d_res				    */
+ /*	     d_summ	d_mana	  d_tact	   d_range		    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_KIN	    */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_R_KIN	    */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_A_DEAD    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTER */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_MONSTERS*/
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_R_MONSTER */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_R_MONSTERS*/
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_PLANT   */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_INSECT  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ANIMAL  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HOUND   */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_SPIDER  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_CLASS   */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_RACE    */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ELEMENT */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_FRIEND  */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_FRIENDS */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_ORC     */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_TROLL   */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_GIANT   */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DRAGON  */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DRAGON*/
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_A_ELEMENT */
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_A_OBJECT  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_DEMON   */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_DEMON*/
+	{ 0,   15,   0,   0,	0,   0,	   0	  ,  100}, /* RF7_R_UNIQUE  */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNIQUE  */
+	{ 0,   18,  0,   0,	0,   0,	   0  	  ,  100}, /* RF7_S_HI_UNIQUE */
+	{ 0,   15,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_UNDEAD  */
+	{ 0,   17,  0,   0,	0,   0,	   0	  ,  100}, /* RF7_S_HI_UNDEAD*/
+	{ 0,   18,  0,   0,	0,   0,	   0	  ,  100}  /* RF7_S_WRAITH  */
+};
+
+
+/*
+ * Define which element the monster belongs to.
+ *
+ * Elements are Fire, Water, Earth, Air, Magma, Ice, Ooze, Smoke.
+ *
+ */
+const element_type element[MAX_ELEMENTS] =
+{
+	/* ELEM_FIRE */
+	{GF_FIRE, 0L, 14},
+
+	/* ELEM_EARTH */
+	{0, (FF2_CAN_DIG), 13},
+
+	/* ELEM_AIR */
+	{GF_WIND, (FF2_CHASM), 11 },
+
+	/* ELEM_WATER */
+	{GF_WATER, (FF2_WATER | FF2_CAN_SWIM), 12},
+
+	/* ELEM_MAGMA */
+	{GF_LAVA, (FF2_LAVA), 19},
+
+	/* ELEM_OOZE */
+	{GF_ACID, (FF2_ACID), 16},
+
+	/* ELEM_ICE */
+	{GF_ICE, (FF2_ICE), 18},
+
+	/* ELEM_SMOKE */
+	{GF_SMOKE, (FF2_OIL), 17}
+};
+
+/*
+ * Define which items all starting characters get.
+ */
+const start_item common_items[MAX_COMMON_ITEMS]=
+{
+	{	TV_FOOD, SV_FOOD_SLIME_MOLD, 6, 7, 0, 0, 0, 20},
+	{	TV_FOOD, SV_FOOD_PINT_OF_SPIRITS, 1, 1, 0, 0, 0, 15},
+	{	TV_FOOD, SV_FOOD_PINT_OF_ALE, 1, 1, 0, 0, 16, 60},
+	{	TV_FOOD, SV_FOOD_BISCUIT, 6, 7, 0, 0, 21, 40},
+	{	TV_FOOD, SV_FOOD_RATION, 3, 7, 0, 0, 41, 100},
+	{	TV_FOOD, SV_FOOD_PINT_OF_WINE, 1, 1, 0, 0, 61, 95},
+	{	TV_LITE, SV_LITE_TORCH, 3, 7, 500, 3500, 0, 75},
+	{	TV_LITE, SV_LITE_LANTERN, 1, 1, 500, 3500, 76, 100},
+	{	TV_FLASK, SV_FLASK_OIL, 2, 5, 0, 0, 76, 100},
+	{	TV_HELM, SV_HARD_LEATHER_CAP, 1, 1, 0, 0, 60, 99},
+	{	TV_CROWN, SV_GOLDEN_CROWN, 1, 1, 0, 0, 100, 100},
+	{	TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS, 1, 1, 0, 0, 50, 70},
+	{	TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS, 1, 1, 0, 0, 71, 100},
+	{	TV_HELM, SV_SET_OF_LEATHER_GLOVES, 1, 1, 0, 0, 91, 100},
+	{	TV_CLOAK, SV_CLOAK, 1, 1, 0, 0, 81, 100}
+};
+
+const cptr vocalize[MAX_LANGUAGES] =
+{
+	"says",		/* LANG_COMMON */
+	"says",		/* LANG_ELF */
+	"says",		/* LANG_DWARF */
+	"barks",	/* LANG_ORC */
+	"roars",	/* LANG_TROLL */
+	"thunders",	/* LANG_GIANT */
+	"roars",	/* LANG_DRAGON */
+	"utters",	/* LANG_DEMON */
+	"whispers",	/* LANG_UNDEAD */
+	"creaks",	/* LANG_FOREST */
+	"releases",	/* LANG_MUSHROOM */
+	"says",		/* LANG_NATURAL */
+	"roars", 	/* 'A' */
+	"squawks",
+	"growls",
+	"roars",
+	"shudders",
+	"croaks", 	/* 'F' */
+	"says",
+	"roars",
+	"says",
+	"hisses",
+	"clicks", 	/* 'K' */
+	"whispers",
+	"says",
+	"whispers",
+	"says",
+	"says", 	/* 'P' */
+	"roars",
+	"hisses",
+	"says",
+	"roars",
+	"utters", 	/* 'U' */
+	"whispers",
+	"whispers",
+	"grunts",
+	"hoots",
+	"howls", 	/* 'Z' */
+	"releases", 	/* 'a' */
+	"screeches",
+	"clicks",
+	"roars",
+	"blinks",
+	"chirps", 	/* 'f' */
+	"beeps",
+	"says",
+	"squelches",
+	"squelches",
+	"barks", 	/* 'k' */
+	"says",
+	"releases",
+	"hisses",
+	"barks",
+	"says", 	/* 'p' */
+	"says",
+	"screeches",
+	"whispers",
+	"says",
+	"utters", 	/* 'u' */
+	"drones",
+	"writhes",
+	"says",
+	"hisses",
+	"drools"	/* 'z' */
 };
 
 
 
+/*
+ * Months from T.o.M.E
+ */
+const int month_day[9] =
+{
+	0,        /* 1 day */
+
+	1,        /* 54 days */
+	55,       /* 72 days */
+	127,      /* 54 days */
+
+	181,      /* 3 days */
+
+	184,      /* 54 days */
+	238,      /* 72 days */
+	310,      /* 54 days */
+
+	364,      /* 1 day */
+};
+
+
+/*
+ * Month names from T.o.M.E
+ */
+const cptr month_name[9] =
+{
+	"Yestare",
+
+	"Tuile",
+	"Laire",
+	"Yavie",
+
+	"Enderi",
+
+	"Quelle",
+	"Hrive",
+	"Coire",
+
+	"Mettare",
+};

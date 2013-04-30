@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -31,6 +31,17 @@ bool do_cmd_test(int y, int x, int action)
 
 	feature_type *f_ptr;
 	int feat;
+
+	if ((verify_safe) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
+	{
+		disturb(1,0);
+		msg_print("This doesn't feel safe.");
+
+		if (!get_check("Are you sure?")) return (FALSE);
+
+		/* Hack -- mark the target safe */
+		play_info[y][x] |= (PLAY_SAFE);
+	}
 
 	/* Must have knowledge */
 	if (!(play_info[y][x] & (PLAY_MARK)))
@@ -91,7 +102,7 @@ bool do_cmd_test(int y, int x, int action)
 	else if (action < FS_FLAGS_END)
 	{       
 		flag = bitzero << (action - FS_FLAGS3);
-		if (!(f_ptr->flags2 & flag))
+		if (!(f_ptr->flags3 & flag))
 		{
 		 msg_format("You see nothing %s%s.",here,act);
 		 return (FALSE);
@@ -173,6 +184,203 @@ void print_routes(const s16b *route, int num, int y, int x)
 }
 
 
+/*
+ * Check quests caused by travelling from the current level to another destination.
+ *
+ * XXX This includes travelling to the 'final' location and completely the first quest.
+ *
+ * Confirm indicates if the player is allowed to cancel this.
+ *
+ */
+static bool check_travel_quest(int dungeon, int level, bool confirm)
+{
+	int i;
+	quest_type *q_ptr;
+	quest_event *qe_ptr;
+
+	bool cancel = FALSE;
+
+	/* Check quests for cancellation */
+	if (confirm) for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		q_ptr = &q_list[i];
+		qe_ptr = &(q_ptr->event[q_ptr->stage]);
+
+		/* if (q_ptr->stage == QUEST_ACTION) qe_ptr = &(q_ptr->event[QUEST_ACTIVE]); */
+
+		/* Check destination */
+		if (q_ptr->stage == QUEST_ACTIVE)
+		{
+			if ((qe_ptr->dungeon != dungeon) ||
+				(qe_ptr->level != level - min_depth(dungeon))) continue;
+
+			/* Allow cancellation */
+			if (q_ptr->event[QUEST_FAILED].flags & (EVENT_TRAVEL))
+			{
+				/* Permit cancellation */
+				cancel = TRUE;
+			}
+
+			continue;
+		}
+
+		if (q_ptr->stage != QUEST_ACTION) continue;
+
+		if ((qe_ptr->dungeon != p_ptr->dungeon) ||
+			(qe_ptr->level != p_ptr->depth - min_depth(p_ptr->dungeon))) continue;
+
+		/* Fail quest because we left the level */
+		if (q_ptr->event[QUEST_FAILED].flags & (EVENT_LEAVE))
+		{
+			/* Permit cancellation */
+			cancel = TRUE;
+		}
+	}
+
+	/* Permit cancellation */
+	if ((cancel) && (get_check("Really fail the quest? "))) return (FALSE);
+
+	/* Check quests for completion */
+	for (i = 0; i < MAX_Q_IDX; i++)
+	{
+		q_ptr = &q_list[i];
+		qe_ptr = &(q_ptr->event[q_ptr->stage]);
+
+		if (q_ptr->stage == QUEST_ACTION) qe_ptr = &(q_ptr->event[QUEST_ACTIVE]);
+
+		/* Check quest allocation */
+		if (q_ptr->stage == QUEST_ASSIGN)
+		{
+			/* Allocate quest travelling to location */
+			if ((qe_ptr->flags & (EVENT_TRAVEL)) && 
+				(qe_ptr->dungeon == dungeon) &&
+				(qe_ptr->level == level - min_depth(dungeon)))
+			{
+				/* Wipe the structure */
+				(void)WIPE(qe_ptr, quest_event);
+
+				qe_ptr->dungeon = dungeon;
+				qe_ptr->level = level - min_depth(dungeon);
+				qe_ptr->flags |= (EVENT_TRAVEL);
+
+				quest_assign(i);
+			}
+
+			/* Allocate quest leaving location */
+			else if ((qe_ptr->flags & (EVENT_LEAVE)) && 
+				(qe_ptr->dungeon == p_ptr->dungeon) &&
+				(qe_ptr->level == p_ptr->depth - min_depth(p_ptr->dungeon)))
+			{
+				/* Wipe the structure */
+				(void)WIPE(qe_ptr, quest_event);
+
+				qe_ptr->dungeon = dungeon;
+				qe_ptr->level = level - min_depth(dungeon);
+				qe_ptr->flags |= (EVENT_LEAVE);
+
+				quest_assign(i);
+			}
+		}
+
+		if ((qe_ptr->dungeon != dungeon) ||
+			(qe_ptr->level != level - min_depth(dungeon))) continue;
+
+		/* Check destination */
+		if (q_ptr->stage == QUEST_ACTIVE)
+		{
+			/* Update actions */
+			qe_ptr = &(q_ptr->event[QUEST_ACTION]);
+
+			/* Fail quest because we travelled to the level */
+			if (q_ptr->event[QUEST_FAILED].flags & (EVENT_TRAVEL))
+			{
+				/* Wipe the structure */
+				(void)WIPE(qe_ptr, quest_event);
+
+				qe_ptr->dungeon = dungeon;
+				qe_ptr->level = level - min_depth(dungeon);
+				qe_ptr->flags |= (EVENT_TRAVEL);
+
+				/* Set quest penalty immedately */
+				q_ptr->stage = QUEST_PENALTY;
+			}
+
+			/* Get closer to success because we travelled to level */
+			else if (q_ptr->event[QUEST_ACTIVE].flags & (EVENT_TRAVEL))
+			{
+				qe_ptr->dungeon = dungeon;
+				qe_ptr->level = level - min_depth(dungeon);
+				qe_ptr->flags |= (EVENT_TRAVEL);
+
+				/* Have completed quest? */
+				if (qe_ptr->flags == q_ptr->event[QUEST_ACTIVE].flags)
+				{
+					msg_print("Congratulations. You have succeeded at your quest.");
+
+					/* XXX - Tell player next step */
+					q_ptr->stage = QUEST_REWARD;
+				}
+			}
+
+			continue;
+		}
+
+		if (q_ptr->stage != QUEST_ACTION) continue;
+
+		/* Update actions */
+		qe_ptr = &(q_ptr->event[QUEST_ACTION]);
+
+		/* Fail quest because we left the level */
+		if (q_ptr->event[QUEST_FAILED].flags & (EVENT_LEAVE))
+		{
+			/* Wipe the structure */
+			(void)WIPE(qe_ptr, quest_event);
+
+			qe_ptr->dungeon = p_ptr->dungeon;
+			qe_ptr->level = p_ptr->depth - min_depth(p_ptr->dungeon);
+			qe_ptr->flags |= (EVENT_LEAVE);
+
+			/* Set quest penalty immediately */
+			q_ptr->stage = QUEST_PENALTY;
+		}
+
+		/* Get closer to success because we need to leave level */
+		else if (q_ptr->event[QUEST_ACTIVE].flags & (EVENT_LEAVE))
+		{
+			qe_ptr->dungeon = p_ptr->dungeon;
+			qe_ptr->level = p_ptr->depth - min_depth(p_ptr->dungeon);
+			qe_ptr->flags |= (EVENT_LEAVE);
+
+			/* Have completed quest? */
+			if (qe_ptr->flags == qe_ptr->flags)
+			{
+				msg_print("Congratulations. You have succeeded at your quest.");
+
+				/* XXX - Tell player next step */
+				q_ptr->stage = QUEST_REWARD;
+			}
+		}
+	}
+
+	/* Mega-hack */
+	if ((adult_campaign) && (p_ptr->dungeon == z_info->t_max -1))
+	{
+
+		p_ptr->total_winner = TRUE;
+
+		/* Redraw the "title" */
+		p_ptr->redraw |= (PR_TITLE);
+
+		/* Congratulations */
+		msg_print("*** CONGRATULATIONS ***");
+		msg_print("You have won the game!");
+		msg_print("You may retire (commit suicide) when you are ready.");
+	}
+
+	return (TRUE);
+}
+
+
 
 /*
  * Travel to a different dungeon.
@@ -228,7 +436,7 @@ static void do_cmd_travel(void)
 		}
 		else if (!edge_y && !edge_x && zone1->fill)
 		{
-			msg_format("You need to be further from %s.",t_name + t_ptr->name);
+			msg_format("You need close to the edge of %s.",t_name + t_ptr->name);
 		}
 		else
 		{
@@ -242,7 +450,7 @@ static void do_cmd_travel(void)
 				int i, num = 0;
 
 				bool flag, redraw;
-				char choice;
+				key_event ke;
 
 				/* Add nearby route */
 				routes[num++] = t_ptr->nearby;
@@ -287,10 +495,22 @@ static void do_cmd_travel(void)
 				redraw = FALSE;
 
 				/* Get a spell from the user */
-				while (!flag && get_com(out_val, &choice))
+				while (!flag && get_com_ex(out_val, &ke))
 				{
+					char choice;
+
+					if (ke.key == '\xff')
+					{
+						if (ke.mousebutton)
+						{
+							if (redraw) ke.key = 'a' + ke.mousey - 2;
+							else ke.key = ' ';
+						}
+						else continue;
+					}
+
 					/* Request redraw */
-					if ((choice == ' ') || (choice == '*') || (choice == '?'))
+					if ((ke.key == ' ') || (ke.key == '*') || (ke.key == '?'))
 					{
 						/* Hide the list */
 						if (redraw)
@@ -321,7 +541,7 @@ static void do_cmd_travel(void)
 					}
 
 					/* Lowercase 1+*/
-					choice = tolower(choice);
+					choice = tolower(ke.key);
 
 					/* Extract request */
 					i = (islower(choice) ? A2I(choice) : -1);
@@ -417,6 +637,9 @@ static void do_cmd_travel(void)
 
 			/* XXX Recharges, stop temporary speed etc. */
 
+			/* Check quests due to travelling - cancel if requested */
+			if (!check_travel_quest(selection, min_depth(p_ptr->dungeon), TRUE)) return;
+
 			/* Change the dungeon */
 			p_ptr->dungeon = selection;
 
@@ -427,21 +650,6 @@ static void do_cmd_travel(void)
 			/* Reset the recall depth */
 			p_ptr->max_depth = min_depth(p_ptr->dungeon);
 #endif
-
-			/* Mega-hack */
-			if ((adult_campaign) && (p_ptr->dungeon == z_info->t_max -1))
-			{
-
-				p_ptr->total_winner = TRUE;
-
-				/* Redraw the "title" */
-				p_ptr->redraw |= (PR_TITLE);
-
-				/* Congratulations */
-				msg_print("*** CONGRATULATIONS ***");
-				msg_print("You have won the game!");
-				msg_print("You may retire (commit suicide) when you are ready.");
-			}
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -484,11 +692,21 @@ void do_cmd_go_up(void)
 		return;
 	}
 
+	/* Check quests due to travelling - cancel if requested */
+	if (t_info[p_ptr->dungeon].zone[0].tower)
+	{
+		if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
+	}
+	else
+	{
+		if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth - 1, TRUE)) return;
+	}
+
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Success */
-	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
+	message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
 
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
@@ -533,8 +751,11 @@ void do_cmd_go_down(void)
 	/* Hack -- travel through wilderness */
 	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)))
 	{
+		/* Check quests due to travelling - cancel if requested */
+		if (!check_travel_quest(t_info[p_ptr->dungeon].distant, min_depth(p_ptr->dungeon), TRUE)) return;
 
-		message(MSG_STAIRS,0,format("You have found a way through %s.",t_name + t_info[p_ptr->dungeon].name));
+		/* Success */
+		message(MSG_STAIRS_DOWN,0,format("You have found a way through %s.",t_name + t_info[p_ptr->dungeon].name));
 
 		/* Change the dungeon */
 		p_ptr->dungeon = t_info[p_ptr->dungeon].distant;
@@ -547,9 +768,18 @@ void do_cmd_go_down(void)
 	}
 	else
 	{
+		/* Check quests due to travelling - cancel if requested */
+		if (t_info[p_ptr->dungeon].zone[0].tower)
+		{
+			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
+		}
+		else
+		{
+			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth - 1, TRUE)) return;
+		}
 
 		/* Success */
-		message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+		message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
 		/* Create a way back */
 		p_ptr->create_up_stair = TRUE;
@@ -745,11 +975,6 @@ static bool do_cmd_open_aux(int y, int x)
 	int i, j;
 
 	bool more = FALSE;
-
-
-	/* Verify legality */
-	if (!do_cmd_test(y, x,FS_OPEN)) return (FALSE);
-
 
 	/* Verify legality */
 	if (!do_cmd_test(y, x, FS_OPEN)) return (FALSE);
@@ -1151,7 +1376,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Dig */
 		if (p_ptr->skill_dig > rand_int(20 * j))
 		{
-			sound(SOUND_DIG);
+			sound(MSG_DIG);
 
 			/* Get mimiced feature */
 			feat = f_info[feat].mimic;
@@ -1192,7 +1417,7 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		/* Tunnel -- much harder */
 		if (p_ptr->skill_dig > (j + rand_int(40 * j)))
 		{
-			sound(SOUND_DIG);
+			sound(MSG_DIG);
 
 			/* Get mimiced feature */
 			feat = f_info[feat].mimic;
@@ -1610,7 +1835,7 @@ static bool do_cmd_bash_aux(int y, int x)
 		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		/* Sound */
-		sound(SOUND_OPENDOOR);
+		sound(MSG_OPENDOOR);
 
 	}
 
@@ -1867,10 +2092,10 @@ void do_cmd_alter(void)
  */
 static bool item_tester_hook_throwing(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
 	if (f3 & (TR3_THROWING)) return (TRUE);
@@ -1957,12 +2182,8 @@ void do_cmd_set_trap_or_spike(void)
 	/* Verify legality */
 	if (!do_cmd_test(y, x, action)) return;
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
-
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Apply stuck / confusion */
 	if (dir && confuse_dir(&dir))
@@ -1990,7 +2211,7 @@ void do_cmd_set_trap_or_spike(void)
 		/* Verify legality */
 		if (!do_cmd_test(y, x, action)) return;
 
-
+#if 0
 		/* Trapped door */
 		if (f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP))
 		{
@@ -2000,10 +2221,11 @@ void do_cmd_set_trap_or_spike(void)
 			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
 
 		}
+#endif
 
 
 		/* Secrets on door/permanent doors */
-		else if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
+		/* else */ if ((f_info[cave_feat[y][x]].flags1 & (FF1_SECRET)) ||
 			(f_info[cave_feat[y][x]].flags1 & (FF1_PERMANENT)))
 		{
 			/* Stuck */
@@ -2106,8 +2328,36 @@ void do_cmd_set_trap_or_spike(void)
 				}
 			}
 
+			/* Hack -- Dig trap? */
+			if (j_ptr->tval == TV_DIGGING)
+			{
+				/* Hack */
+				int tmp = p_ptr->skill_dis;
+
+				/* Hack -- use tunnelling skill to build trap */
+				p_ptr->skill_dis = p_ptr->skill_dig;
+
+				/* Hack -- base trap directly on digging skill */
+				object_level = MIN(128, p_ptr->skill_dig * 3);
+
+				/* Set the floor trap */
+				cave_set_feat(y,x,FEAT_TRAP_ROCK_NONE);
+
+				/* Set the trap */
+				pick_trap(y,x);
+
+				/* Reset object level */
+				object_level = p_ptr->depth;
+
+				/* Check if we can arm it? */
+				do_cmd_disarm_aux(y,x, FALSE);
+
+				/* Reset disarm skill */
+				p_ptr->skill_dis = tmp;
+			}
+
 			/* Trap allowed? */
-			if ((trap_allowed) && (floor_carry(y,x,j_ptr)))
+			else if ((trap_allowed) && (floor_carry(y,x,j_ptr)))
 			{
 				/* Hack -- ensure trap is created */
 				object_level = 128;
@@ -2124,7 +2374,7 @@ void do_cmd_set_trap_or_spike(void)
 				/* Check if we can arm it? */
 				do_cmd_disarm_aux(y,x, FALSE);
 	
-				/* Destroy a food in the pack */
+				/* Destroy an item in the pack */
 				if (item >= 0)
 				{
 					inven_item_increase(item, -1);
@@ -2132,13 +2382,18 @@ void do_cmd_set_trap_or_spike(void)
 					inven_item_optimize(item);
 				}
 
-				/* Destroy a food on the floor */
+				/* Destroy an item on the floor */
 				else
 				{
 					floor_item_increase(0 - item, -1);
 					floor_item_describe(0 - item);
 					floor_item_optimize(0 - item);
 				}
+			}
+			/* Message */
+			else
+			{
+				msg_print("You can't set this trap here.");
 			}
 		}
 	}
@@ -2220,8 +2475,7 @@ static void do_cmd_walk_or_jump(int jumping)
 	if (!do_cmd_walk_test(y, x)) return;
 
 	/* Take time */
-	if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	/* Hack -- handle stuck players */
 	if (stuck_player(&dir))
@@ -2302,13 +2556,15 @@ void do_cmd_run(void)
 
 	int y, x, dir;
 
-
 	/* Hack XXX XXX XXX */
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
 		return;
 	}
+
+	/* Get a direction (or abort) */
+	if (!get_rep_dir(&dir)) return;
 
 	/* Hack -- handle stuck players */
 	if (stuck_player(&dir))
@@ -2325,10 +2581,9 @@ void do_cmd_run(void)
 		msg_format("You are stuck %s%s.",
 			((f_info[mimic].flags2 & (FF2_FILLED)) ? "" :
 				(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
-	}
 
-	/* Get a direction (or abort) */
-	if (!get_rep_dir(&dir)) return;
+		return;
+	}
 
 	/* Get location */
 	y = py + ddy[dir];
@@ -2341,6 +2596,56 @@ void do_cmd_run(void)
 	run_step(dir);
 }
 
+
+
+/*
+ * Start running with pathfinder.
+ *
+ * Note that running while confused is not allowed.
+ */
+void do_cmd_pathfind(int y, int x)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	/* Must not be 0 or 5 */
+	int dummy = 1;
+
+	/* Hack XXX XXX XXX */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Hack -- handle stuck players */
+	if (stuck_player(&dummy))
+	{
+		int mimic = f_info[cave_feat[py][px]].mimic;
+
+		/* Get the feature name */
+		cptr name = (f_name + f_info[mimic].name);
+
+		/* Use up energy */
+		p_ptr->energy_use = 100;
+
+		/* Tell the player */
+		msg_format("You are stuck %s%s.",
+			((f_info[mimic].flags2 & (FF2_FILLED)) ? "" :
+				(is_a_vowel(name[0]) ? "inside an " : "inside a ")),name);
+
+		return;
+	}
+
+	if (findpath(y, x))
+	{
+		p_ptr->running = 1000;
+		/* Calculate torch radius */
+		p_ptr->update |= (PU_TORCH);
+		p_ptr->running_withpathfind = TRUE;
+		run_step(0);
+	}
+}
 
 
 /*
@@ -2369,8 +2674,7 @@ static void do_cmd_hold_or_stay(int pickup)
 	}
 
 	/* Take time */
-	if ((variant_fast_moves) && !(p_ptr->searching)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	p_ptr->energy_use = 100;
 
 	/* Catch breath */
 	if (!(f_ptr->flags2 & (FF2_FILLED)))
@@ -2399,6 +2703,82 @@ static void do_cmd_hold_or_stay(int pickup)
 
 		/* Free turn XXX XXX XXX */
 		p_ptr->energy_use = 0;
+	}
+
+	/* Blocking -- temporary bonus to ac */
+	if (!p_ptr->searching)
+	{
+		int i;
+
+		/* Slot */
+		int slot = INVEN_ARM;
+
+		/* Object  */
+		object_type *o_ptr = &inventory[INVEN_ARM];
+
+		/* Style */
+		int melee_style = p_ptr->cur_style & (WS_WIELD_FLAGS);
+
+		/* Hack -- not dodging */
+		p_ptr->dodging = 0;
+
+		/* Base blocking */
+		p_ptr->blocking = adj_dex_ta[p_ptr->stat_ind[A_DEX]] - 128;
+
+		/* No shield / secondary weapon */
+		if (!o_ptr->k_idx)
+		{
+			if (inventory[INVEN_WIELD].k_idx)
+			{
+				slot = INVEN_WIELD;
+			}
+			else if (inventory[INVEN_HANDS].k_idx)
+			{
+				slot = INVEN_HANDS;
+			}
+
+			o_ptr = &inventory[slot];
+		}
+
+		/* Modify by object */
+		if (o_ptr->k_idx)
+		{
+			/* Adjust by ac factor */
+			p_ptr->blocking += o_ptr->ac + o_ptr->to_a;
+
+			/* Adjust by to hit factor */
+			p_ptr->blocking += o_ptr->to_h;
+
+			/* Adjust by 'damage dice' -- secondary weapon / shield less effective */
+			p_ptr->blocking += damroll(o_ptr->dd, o_ptr->ds) / (slot == INVEN_ARM ? 2 : 1);
+		}
+
+		/* Modify by style */
+		if (!p_ptr->heavy_wield) for (i = 0;i< z_info->w_max;i++)
+		{
+			if (w_info[i].class != p_ptr->pclass) continue;
+
+			if (w_info[i].level > p_ptr->lev) continue;
+
+			/* Check for styles */
+			if ((w_info[i].styles==0) || (w_info[i].styles & (melee_style & (1L << p_ptr->pstyle))))
+			{
+				switch (w_info[i].benefit)
+				{
+					case WB_HIT:
+					case WB_DAM:
+					case WB_AC:
+						p_ptr->blocking += (p_ptr->lev - w_info[i].level) /2;
+						break;
+				}
+			}
+		}
+
+		/* Redraw state */
+		p_ptr->redraw |= (PR_STATE);
+
+		/* Hack -- redraw straight away */
+		redraw_stuff();
 	}
 }
 
@@ -2523,7 +2903,7 @@ int breakage_chance(object_type *o_ptr)
 		case TV_FOOD:
 		case TV_JUNK:
 		case TV_SKIN:
-		case TV_FIGURE:
+		case TV_EGG:
 		{
 			return (100);
 		}
@@ -2595,9 +2975,7 @@ void do_cmd_fire(void)
 	int tdam, tdis, thits, tmul;
 	int bonus, chance, power;
 
-	int style_hit=0;
-	int style_dam=0;
-	int style_crit=0;
+	int style_hit, style_dam, style_crit;
 	u32b shoot_style;
 
 	object_type *o_ptr;
@@ -2621,6 +2999,7 @@ void do_cmd_fire(void)
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
 	bool get_feat = FALSE;
+	bool was_asleep;
 
 	/* Get the "bow" (if any) */
 	j_ptr = &inventory[INVEN_BOW];
@@ -2689,6 +3068,8 @@ void do_cmd_fire(void)
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -2714,40 +3095,6 @@ void do_cmd_fire(void)
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
 
-	/* Check shooting styles only */
-	shoot_style = p_ptr->cur_style & (WS_SHOOT_FLAGS);
-
-	/*** Handle styles ***/
-	for (i = 0;i< z_info->w_max;i++)
-	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		/* Check for styles */
-		if ((w_info[i].styles==0) || (w_info[i].styles & (shoot_style & (1L << p_ptr->pstyle))))
-		{
-			switch (w_info[i].benefit)
-			{
-
-				case WB_HIT:
-					style_hit += (p_ptr->lev - w_info[i].level) /2;
-					break;
-
-				case WB_DAM:
-					style_dam += (p_ptr->lev - w_info[i].level) /2;
-					break;
-
-				case WB_CRITICAL:
-					style_crit++;
-					break;
-			}
-		}
-
-	}
-
-
-
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
 
@@ -2755,7 +3102,7 @@ void do_cmd_fire(void)
 	tdam = damroll(i_ptr->dd, i_ptr->ds);
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h + style_hit);
+	bonus = (p_ptr->to_h + i_ptr->to_h + j_ptr->to_h);
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2767,11 +3114,8 @@ void do_cmd_fire(void)
 	/* Base range XXX XXX */
 	tdis = 10 + 5 * tmul;
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = (50 / thits);
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = (50 / thits);
-	else p_ptr->energy_use = (100 / thits);
+	/* Take a turn */
+	p_ptr->energy_use = (100 / thits);
 
 	/* Start at the player */
 	y = py;
@@ -2789,8 +3133,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
-
+	path_n = project_path(path_g, tdis, py, px, &ty, &tx, 0);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -2802,7 +3145,7 @@ void do_cmd_fire(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
+		if (!cave_project_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;
@@ -2832,13 +3175,119 @@ void do_cmd_fire(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 			int chance2 = chance - distance(py, px, y, x);
 
 			int visible = m_ptr->ml;
 
-			/* Did we hit it (penalize distance travelled) */
-			if (!(m_ptr->mflag & (MFLAG_HIDE)) && (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml)))
+			bool hit_or_near_miss;
+			bool genuine_hit;
+
+			/* Ignore hidden monsters */
+			if (m_ptr->mflag & (MFLAG_HIDE)) continue;
+
+			/* Some monsters are great at dodging  -EZ- */
+			if (((r_ptr->flags9 & (RF9_EVASIVE))!= 0) && (!m_ptr->csleep) &&
+				(!m_ptr->blind) && (!m_ptr->confused) && (!m_ptr->monfear)
+				&& (rand_int(5 + m_ptr->cdis) >= (m_ptr->stunned ? 4 : 3)))
+			{
+				if (visible)
+				{
+					char m_name[80];
+
+					/* Get "the monster" or "it" */
+					monster_desc(m_name, m_ptr, 0);
+
+					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
+
+					/* Learn that monster can dodge */
+					l_ptr->flags9 |= (RF9_EVASIVE);
+				}
+
+				continue;
+			}
+
+			/* Reset style bonuses */
+			style_hit = 0;
+			style_dam = 0;
+			style_crit = 0;
+
+			/* Check shooting styles only */
+			shoot_style = p_ptr->cur_style & (WS_SHOOT_FLAGS);
+
+			/* Check backstab if monster sleeping or fleeing */
+			if (((m_ptr->csleep) || (m_ptr->monfear)) && (p_ptr->cur_style & (1L<<WS_SWORD)) &&
+				  (p_ptr->pstyle == WS_BACKSTAB) && (inventory[INVEN_WIELD].weight < 100)) shoot_style |= (1L <<WS_BACKSTAB);
+
+			/* Check slay orc if monster is an orc */
+			if (r_ptr->flags3 & (RF3_ORC)) shoot_style |= (1L <<WS_SLAY_ORC);
+
+			/* Check slay troll if monster is a troll */
+			if (r_ptr->flags3 & (RF3_TROLL)) shoot_style |= (1L <<WS_SLAY_TROLL);
+
+			/* Check slay giant if monster is a giant */
+			if (r_ptr->flags3 & (RF3_GIANT)) shoot_style |= (1L <<WS_SLAY_GIANT);
+
+			/* Check slay dragon if monster is a dragon */
+			if (r_ptr->flags3 & (RF3_DRAGON)) shoot_style |= (1L <<WS_SLAY_DRAGON);
+
+			/* Check slay evil if monster is evil */
+			if (r_ptr->flags3 & (RF3_EVIL)) shoot_style |= (1L <<WS_SLAY_EVIL);
+
+			/* Check slay giant if monster is undead */
+			if (r_ptr->flags3 & (RF3_UNDEAD)) shoot_style |= (1L <<WS_SLAY_UNDEAD);
+
+			/* Check slay giant if monster is an animal */
+			if (r_ptr->flags3 & (RF3_ANIMAL)) shoot_style |= (1L <<WS_SLAY_ANIMAL);
+
+			/* Check slay giant if monster is a demon */
+			if (r_ptr->flags3 & (RF3_DEMON)) shoot_style |= (1L <<WS_SLAY_DEMON);
+
+			/*** Handle styles ***/
+			for (i = 0;i< z_info->w_max;i++)
+			{
+				if (w_info[i].class != p_ptr->pclass) continue;
+
+				if (w_info[i].level > p_ptr->lev) continue;
+
+				/* Check for styles */
+				if ((w_info[i].styles==0) || (w_info[i].styles & (shoot_style & (1L << p_ptr->pstyle))))
+				{
+					switch (w_info[i].benefit)
+					{
+						case WB_HIT:
+							style_hit += (p_ptr->lev - w_info[i].level) /2;
+							break;
+
+						case WB_DAM:
+							style_dam += (p_ptr->lev - w_info[i].level) /2;
+							break;
+
+						case WB_CRITICAL:
+							style_crit++;
+							break;
+					}
+				}
+
+			}
+
+			/* Test hit fire */
+			hit_or_near_miss = test_hit_fire(chance2 + style_hit * BTH_PLUS_ADJ, calc_monster_ac(m_ptr, FALSE), m_ptr->ml);
+
+			/* Genuine hit */
+			genuine_hit = test_hit_fire(chance2 + style_hit * BTH_PLUS_ADJ, calc_monster_ac(m_ptr, TRUE), m_ptr->ml);
+
+			/* Missiles bounce off resistant monsters */
+			if ((genuine_hit) && (mon_resist_object(m_ptr, o_ptr)))
+			{
+				/* XXX Rewrite remaining path of missile */
+
+				continue;
+			}
+
+			/* Did we hit it or get close? */
+			if (hit_or_near_miss || genuine_hit)
 			{
 				bool fear = FALSE;
 
@@ -2848,6 +3297,15 @@ void do_cmd_fire(void)
 				/* Note the collision */
 				hit_body = TRUE;
 
+				/* Check if monster asleep */
+				was_asleep = (m_ptr->csleep == 0);
+
+				/* Disturb the monster */
+				m_ptr->csleep = 0;
+
+				/*Mark the monster as attacked by the player*/
+				m_ptr->mflag |= (MFLAG_HIT_RANGE);
+
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
 				    (r_ptr->flags2 & (RF2_STUPID)))
@@ -2856,11 +3314,26 @@ void do_cmd_fire(void)
 					note_dies = " is destroyed.";
 				}
 
+				/* Apply special damage XXX XXX XXX */
+				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+
+				/* Apply critical damage */
+				tdam += critical_shot(i_ptr->weight, (i_ptr->to_h + j_ptr->to_h + style_crit *30), tdam);
+
+				/* Apply launcher and missile bonus */
+				tdam += i_ptr->to_d + j_ptr->to_d + style_dam;
+
+				/* No negative damage */
+				if (tdam < 0) tdam = 0;
+
 				/* Handle unseen monster */
 				if (!visible)
 				{
 					/* Invisible monster */
 					msg_format("The %s finds a mark.", o_name);
+
+					/* Near miss? */
+					if (!genuine_hit) tdam = 0;
 				}
 
 				/* Handle visible monster */
@@ -2871,8 +3344,20 @@ void do_cmd_fire(void)
 					/* Get "the monster" or "it" */
 					monster_desc(m_name, m_ptr, 0);
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					/* Near miss */
+					if (!genuine_hit)
+					{
+						/* Missile was stopped */
+						if ((r_ptr->flags2 & (RF2_ARMOR)) || (m_ptr->shield)) msg_format("%^s blocks the %s with a %sshield.", m_name, o_name, m_ptr->shield ? "mystic " : "");
+
+						/* No normal damage */
+						tdam = 0;
+					}
+					/* Successful hit */
+					else
+					{
+						msg_format("The %s hits %s.", o_name, m_name);
+					}
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2880,18 +3365,6 @@ void do_cmd_fire(void)
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
-
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-
-				/* Apply critical damage */
-				tdam = critical_shot(i_ptr->weight, (i_ptr->to_h + j_ptr->to_h + style_crit *30), tdam);
-
-				/* Apply launcher and missile bonus */
-				tdam += i_ptr->to_d + j_ptr->to_d + style_dam;
-
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
 				if (p_ptr->wizard)
@@ -2911,6 +3384,19 @@ void do_cmd_fire(void)
 				{
 					/* Message */
 					message_pain(cave_m_idx[y][x], tdam);
+
+					/* Alert fellows */
+					if (was_asleep)
+					{
+						m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+
+						/* Let allies know */
+						tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+					}
+					else if (fear)
+					{
+						tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has hurt me badly!");
+					}
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -3034,6 +3520,8 @@ void do_cmd_throw(void)
 
 	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 
+	bool was_asleep = FALSE;
+
 	/* Get an item */
 	q = "Throw which item? ";
 	s = "You have nothing to throw.";
@@ -3085,6 +3573,8 @@ void do_cmd_throw(void)
 	/* Reduce and describe inventory */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -3097,7 +3587,6 @@ void do_cmd_throw(void)
 		floor_item_optimize(0 - item);
 		if (get_feat && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
 	}
-
 
 	/* Description */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
@@ -3124,10 +3613,8 @@ void do_cmd_throw(void)
 	/* Chance of hitting */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Start at the player */
 	y = py;
@@ -3145,7 +3632,7 @@ void do_cmd_throw(void)
 	}
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+	path_n = project_path(path_g, tdis, py, px, &ty, &tx, 0);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -3157,7 +3644,7 @@ void do_cmd_throw(void)
 		int nx = GRID_X(path_g[i]);
 
 		/* Hack -- Stop before hitting walls */
-		if (!cave_floor_bold(ny, nx)) break;
+		if (!cave_project_bold(ny, nx)) break;
 
 		/* Advance */
 		x = nx;
@@ -3187,13 +3674,55 @@ void do_cmd_throw(void)
 		{
 			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+			monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 			int chance2 = chance - distance(py, px, y, x);
 
 			int visible = m_ptr->ml;
 
-			/* Did we hit it (penalize range) */
-			if (!(m_ptr->mflag & (MFLAG_HIDE)) && (test_hit_fire(chance2, r_ptr->ac * (r_ptr->flags2 & (RF2_ARMOR) ? 2 : 1), m_ptr->ml)))
+			bool hit_or_near_miss;
+			bool genuine_hit;
+
+			/* Ignore hidden monsters */
+			if (m_ptr->mflag & (MFLAG_HIDE)) continue;
+
+			/* Some monsters are great at dodging  -EZ- */
+			if ((r_ptr->flags9 & (RF9_EVASIVE)) && (!m_ptr->csleep) &&
+				(!m_ptr->blind) && (!m_ptr->confused) && (!m_ptr->monfear)
+				&& (rand_int(5 + m_ptr->cdis) >= (m_ptr->stunned ? 4 : 3)))
+			{
+				if (visible)
+				{
+					char m_name[80];
+
+					/* Get "the monster" or "it" */
+					monster_desc(m_name, m_ptr, 0);
+
+					message_format(MSG_MISS, 0, "%^s dodges!", m_name);
+
+					/* Learn that monster can dodge */
+					l_ptr->flags9 |= (RF9_EVASIVE);
+				}
+
+				continue;
+			}
+
+			/* Test hit fire */
+			hit_or_near_miss = test_hit_fire(chance2, calc_monster_ac(m_ptr, FALSE), m_ptr->ml);
+
+			/* Genuine hit */
+			genuine_hit = test_hit_fire(chance2, calc_monster_ac(m_ptr, TRUE), m_ptr->ml);
+
+			/* Missiles bounce off resistant monsters */
+			if ((genuine_hit) && (mon_resist_object(m_ptr, o_ptr)))
+			{
+				/* XXX Rewrite remaining path of missile */
+
+				continue;
+			}
+
+			/* Did we hit it or get close? */
+			if (hit_or_near_miss || genuine_hit)
 			{
 				bool fear = FALSE;
 
@@ -3203,6 +3732,15 @@ void do_cmd_throw(void)
 				/* Note the collision */
 				hit_body = TRUE;
 
+				/* Check if monster asleep */
+				was_asleep = (m_ptr->csleep == 0);
+
+				/* Disturb the monster */
+				m_ptr->csleep = 0;
+
+				/*Mark the monster as attacked by the player*/
+				m_ptr->mflag |= (MFLAG_HIT_RANGE);
+
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
 				    (r_ptr->flags2 & (RF2_STUPID)))
@@ -3211,12 +3749,26 @@ void do_cmd_throw(void)
 					note_dies = " is destroyed.";
 				}
 
+				/* Apply special damage XXX XXX XXX */
+				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+
+				/* Apply critical damage */
+				tdam += critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
+
+				/* Apply launcher and missile bonus */
+				tdam += i_ptr->to_d;
+
+				/* No negative damage */
+				if (tdam < 0) tdam = 0;
 
 				/* Handle unseen monster */
 				if (!visible)
 				{
 					/* Invisible monster */
 					msg_format("The %s finds a mark.", o_name);
+
+					/* Near miss? */
+					if (!genuine_hit) tdam = 0;
 				}
 
 				/* Handle visible monster */
@@ -3227,8 +3779,20 @@ void do_cmd_throw(void)
 					/* Get "the monster" or "it" */
 					monster_desc(m_name, m_ptr, 0);
 
-					/* Message */
-					msg_format("The %s hits %s.", o_name, m_name);
+					/* Near miss */
+					if (!genuine_hit)
+					{
+						/* Missile was stopped */
+						if ((r_ptr->flags2 & (RF2_ARMOR)) || (m_ptr->shield)) msg_format("%^s blocks the %s with a %sshield.", m_name, o_name, m_ptr->shield ? "mystic " : "");
+
+						/* No normal damage */
+						tdam = 0;
+					}
+					/* Successful hit */
+					else
+					{
+						msg_format("The %s hits %s.", o_name, m_name);
+					}
 
 					/* Hack -- Track this monster race */
 					if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -3236,18 +3800,6 @@ void do_cmd_throw(void)
 					/* Hack -- Track this monster */
 					if (m_ptr->ml) health_track(cave_m_idx[y][x]);
 				}
-
-				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
-
-				/* Apply critical damage */
-				tdam = critical_shot(i_ptr->weight, i_ptr->to_h, tdam);
-
-				/* Apply launcher and missile bonus */
-				tdam += i_ptr->to_d;
-
-				/* No negative damage */
-				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
 				if (p_ptr->wizard)
@@ -3267,6 +3819,19 @@ void do_cmd_throw(void)
 				{
 					/* Message */
 					message_pain(cave_m_idx[y][x], tdam);
+
+					/* Alert fellows */
+					if (was_asleep)
+					{
+						m_ptr->mflag |= (MFLAG_AGGR | MFLAG_SNEAKED);
+
+						/* Let allies know */
+						tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+					}
+					else if (fear)
+					{
+						tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has hurt me badly!");
+					}
 
 					/* Take note */
 					if (fear && m_ptr->ml)

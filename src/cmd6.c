@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -103,11 +103,8 @@ void do_cmd_eat_food(void)
 	/* Sound */
 	sound(MSG_EAT);
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Identity not known yet */
 	ident = FALSE;
@@ -149,6 +146,8 @@ void do_cmd_eat_food(void)
 	/* Destroy a food in the pack */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -208,26 +207,24 @@ void do_cmd_quaff_potion(void)
 	/* Sound */
 	sound(MSG_QUAFF);
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
-
-	/* Not identified yet */
-	ident = FALSE;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
+	/* Set style */
+	p_ptr->cur_style |= (1L << WS_POTION);
+
 	/* Get potion effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
-	/* Paranoia */
-	if (power < 0) return;
-
 	/* Apply food effect */
-	if (process_spell_eaten(power,0,&cancel)) ident = TRUE;
+	if (power >= 0) ident = process_spell_eaten(power,0,&cancel);
+	else return;
+
+	/* Clear styles */
+	p_ptr->cur_style &= ~(1L << WS_POTION);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -247,13 +244,14 @@ void do_cmd_quaff_potion(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Potions can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
 	/* Destroy a potion in the pack */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -330,10 +328,8 @@ void do_cmd_read_scroll(void)
 	/* Use feat */
 	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -341,14 +337,18 @@ void do_cmd_read_scroll(void)
 	/* Object level */
 	lev = k_info[o_ptr->k_idx].level;
 
+	/* Set style */
+	p_ptr->cur_style |= (1L << WS_SCROLL);
+
 	/* Get scroll effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
-	/* Paranoia */
-	if (power < 0) return;
-
 	/* Apply scroll effect */
-	ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel);
+	else return;
+
+	/* Clear styles */
+	p_ptr->cur_style &= ~(1L << WS_SCROLL);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -374,6 +374,8 @@ void do_cmd_read_scroll(void)
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -439,11 +441,8 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -458,18 +457,18 @@ void do_cmd_use_staff(void)
 	if (p_ptr->confused) chance = chance / 2;
 
 	/* Check for speciality */
-	for (i = 0;i< z_info->w_max;i++)
+	if (p_ptr->pstyle == WS_STAFF)
 	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		if (w_info[i].benefit != WB_ID) continue;
-
-		/* Check for styles */
-		if ((w_info[i].styles==WS_STAFF) && (p_ptr->pstyle == WS_STAFF))
+		for (i = 0;i< z_info->w_max;i++)
 		{
-			chance *=2;
+			if (w_info[i].class != p_ptr->pclass) continue;
+
+			if (w_info[i].level > p_ptr->lev) continue;
+
+			if (w_info[i].benefit != WB_POWER) continue;
+
+			/* Check for styles */
+			if (w_info[i].styles==WS_STAFF) chance *= 2;
 		}
 	}
 
@@ -482,22 +481,26 @@ void do_cmd_use_staff(void)
 		chance = USE_DEVICE;
 	}
 
-	/* Some rooms only give a (slight) chance */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	/* Some items and some rooms interfere with this */
+	if ((p_ptr->cur_flags4 & (TR4_STATIC)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 	{
-		/* Special rooms affect some of this */
-		int by = p_ptr->py/BLOCK_HGT;
-		int bx = p_ptr->px/BLOCK_HGT;
+		chance = USE_DEVICE;
+
+		/* Warn the player */
+		msg_print("There is a static feeling in the air.");
 
 		/* Get the room */
-		if(room_info[dun_room[by][bx]].flags & (ROOM_STATIC))
+		if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 		{
-			chance = USE_DEVICE;
-
-			/* Warn the player */
-			msg_print("There is a static feeling in the air.");
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,0x0L,TR4_STATIC);
 		}
-	}    
+	}
+	else
+	{
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,0x0L,TR4_STATIC);
+	}
 
 	/* Roll for usage */
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
@@ -517,19 +520,20 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
 	/* Sound */
-	sound(MSG_ZAP);
+	sound(MSG_USE_STAFF);
 
+	/* Set styles */
+	p_ptr->cur_style |= (1L << WS_STAFF);
 
 	/* Get rod effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
-	/* Paranoia */
-	if (power < 0) return;
+	/* Apply staff effect */
+	if (power >= 0) ident = process_spell(power, 0, &cancel);
 
-	/* Apply rod effect */
-	ident = process_spell(power, 0, &cancel);
+	/* Clear styles */
+	p_ptr->cur_style &= ~(1L << WS_STAFF);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -566,11 +570,10 @@ void do_cmd_use_staff(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((o_ptr->number > 1) &&
-	((!variant_pval_stacks) || 
+	if ((o_ptr->number > 1) && 
 	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
-	  (o_ptr->stackc != 1) && (o_ptr->pval > 2)))))
+	  (o_ptr->stackc != 1) && (o_ptr->pval > 2))))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -696,10 +699,8 @@ void do_cmd_aim_wand(void)
 	}
 
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -714,21 +715,20 @@ void do_cmd_aim_wand(void)
 	if (p_ptr->confused) chance = chance / 2;
 
 	/* Check for speciality */
-	for (i = 0;i< z_info->w_max;i++)
+	if (p_ptr->pstyle == WS_WAND)
 	{
-		if (w_info[i].class != p_ptr->pclass) continue;
-
-		if (w_info[i].level > p_ptr->lev) continue;
-
-		if (w_info[i].benefit != WB_ID) continue;
-
-		/* Check for styles */
-		if ((w_info[i].styles==WS_WAND) && (p_ptr->pstyle == WS_WAND))
+		for (i = 0;i< z_info->w_max;i++)
 		{
-			chance *=2;
+			if (w_info[i].class != p_ptr->pclass) continue;
+
+			if (w_info[i].level > p_ptr->lev) continue;
+
+			if (w_info[i].benefit != WB_POWER) continue;
+
+			/* Check for styles */
+			if (w_info[i].styles==WS_WAND) chance *= 2;
 		}
 	}
-
 
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
@@ -739,22 +739,26 @@ void do_cmd_aim_wand(void)
 		chance = USE_DEVICE;
 	}
 
-	/* Some rooms only give a (slight) chance */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	/* Some items and some rooms interfere with this */
+	if ((p_ptr->cur_flags4 & (TR4_STATIC)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 	{
-		/* Special rooms affect some of this */
-		int by = p_ptr->py/BLOCK_HGT;
-		int bx = p_ptr->px/BLOCK_HGT;
+		chance = USE_DEVICE;
+
+		/* Warn the player */
+		msg_print("There is a static feeling in the air.");
 
 		/* Get the room */
-		if(room_info[dun_room[by][bx]].flags & (ROOM_STATIC))
+		if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 		{
-			chance = USE_DEVICE;
-
-			/* Warn the player */
-			msg_print("There is a static feeling in the air.");
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,0x0L,TR4_STATIC);
 		}
-	}    
+	}
+	else
+	{
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,0x0L,TR4_STATIC);
+	}
 
 	/* Roll for usage */
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
@@ -774,18 +778,21 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Sound */
-	sound(MSG_ZAP);
+	sound(MSG_ZAP_ROD);
+
+	/* Set styles */
+	p_ptr->cur_style |= (1L << WS_WAND);
 
 	/* Get wand effect */
 	get_spell(&power, "use", o_ptr, FALSE);
 
-	/* Paranoia */
-	if (power < 0) return;
-
 	/* Apply wand effect */
-	ident = process_spell(power, 0, &cancel);
+	if (power >= 0) ident = process_spell(power, 0, &cancel);
+	else return;
+
+	/* Clear styles */
+	p_ptr->cur_style &= ~(1L << WS_WAND);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -822,11 +829,10 @@ void do_cmd_aim_wand(void)
 	}
 
 	/* XXX Hack -- unstack if necessary */
-	if ((o_ptr->number > 1) &&
-	((!variant_pval_stacks) || 
+	if ((o_ptr->number > 1) && 
 	((!object_known_p(o_ptr) && (o_ptr->pval == 2) && (o_ptr->stackc > 1)) ||
 	  (!object_known_p(o_ptr) && (rand_int(o_ptr->number) <= o_ptr->stackc) &&
-	  (o_ptr->stackc != 1) && (o_ptr->pval > 2)))))
+	  (o_ptr->stackc != 1) && (o_ptr->pval > 2))))
 	{
 		object_type *i_ptr;
 		object_type object_type_body;
@@ -955,10 +961,8 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -981,22 +985,26 @@ void do_cmd_zap_rod(void)
 		chance = USE_DEVICE;
 	}
 
-	/* Some rooms only give a (slight) chance */
-	if (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM))
+	/* Some items and some rooms interfere with this */
+	if ((p_ptr->cur_flags4 & (TR4_STATIC)) || (room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 	{
-		/* Special rooms affect some of this */
-		int by = p_ptr->py/BLOCK_HGT;
-		int bx = p_ptr->px/BLOCK_HGT;
+		chance = USE_DEVICE;
+
+		/* Warn the player */
+		msg_print("There is a static feeling in the air.");
 
 		/* Get the room */
-		if (room_info[dun_room[by][bx]].flags & (ROOM_STATIC))
+		if (!(room_has_flag(p_ptr->py, p_ptr->px, ROOM_STATIC)))
 		{
-			chance = USE_DEVICE;
-
-			/* Warn the player */
-			msg_print("There is a static feeling in the air.");
+			/* Always notice */
+			equip_can_flags(0x0L,0x0L,0x0L,TR4_STATIC);
 		}
-	}    
+	}
+	else
+	{
+		/* Always notice */
+		equip_not_flags(0x0L,0x0L,0x0L,TR4_STATIC);
+	}
 
 	/* Roll for usage */
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
@@ -1019,7 +1027,7 @@ void do_cmd_zap_rod(void)
 	tmpval = o_ptr->timeout;
 
 	/* Sound */
-	sound(MSG_ZAP);
+	sound(MSG_ZAP_ROD);
 
 	/* Hack -- get fake direction */
 	if (!object_aware_p(o_ptr) && (o_ptr->sval < SV_ROD_MIN_DIRECTION)) get_aim_dir(&dir);
@@ -1123,6 +1131,338 @@ void do_cmd_zap_rod(void)
 
 }
 
+/*
+ * Procedure for assembling parts into a whole.
+ */
+static void assemble_parts(int *src_sval, int *tgt_sval, const int r_idx)
+{
+	/* Re-attached assemblies to assemblies */
+	if ((*tgt_sval < SV_ASSEMBLY_FULL) && (*src_sval == *tgt_sval +1))
+	{
+		*tgt_sval += 2;
+	}
+
+	else switch (*src_sval)
+	{
+		case SV_ASSEMBLY_ARM_L:
+			if (*tgt_sval == SV_ASSEMBLY_NONE) {*tgt_sval = SV_ASSEMBLY_ARM_L;}
+			else if (*tgt_sval == SV_ASSEMBLY_ARM_R)  {*tgt_sval = SV_ASSEMBLY_ARMS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R)  {*tgt_sval = SV_ASSEMBLY_PART_ARMS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_HAND_R)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_L;}
+			break;
+		case SV_ASSEMBLY_ARM_R:
+			if (*tgt_sval == SV_ASSEMBLY_NONE) {*tgt_sval = SV_ASSEMBLY_ARM_R;}
+			else if (*tgt_sval == SV_ASSEMBLY_ARM_L)  {*tgt_sval = SV_ASSEMBLY_ARMS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L)  {*tgt_sval = SV_ASSEMBLY_PART_ARMS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_HAND_L)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
+			break;
+		case SV_ASSEMBLY_HAND_L:
+			if (*tgt_sval == SV_ASSEMBLY_HAND_R) {*tgt_sval = SV_ASSEMBLY_HANDS;} 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_HAND_L;} 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARMS)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
+			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_L) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) &&!(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_MISS_HAND_R;}
+			break;
+		case SV_ASSEMBLY_HAND_R:
+			if (*tgt_sval == SV_ASSEMBLY_HAND_L) {*tgt_sval = SV_ASSEMBLY_HANDS;} 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_HAND_R;} 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARMS)  {*tgt_sval = SV_ASSEMBLY_MISS_HAND_L;}
+			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_R) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;} 
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_MISS_HAND_L;}
+			break;
+		case SV_ASSEMBLY_ARMS:
+			if (*tgt_sval == SV_ASSEMBLY_NONE) {*tgt_sval = SV_ASSEMBLY_PART_ARMS;} 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_ARMS; *src_sval = SV_ASSEMBLY_ARM_L; } 
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_ARMS; *src_sval = SV_ASSEMBLY_ARM_R; }
+			break;
+		case SV_ASSEMBLY_HANDS:
+			if (*tgt_sval == SV_ASSEMBLY_PART_ARM_R) {*tgt_sval = SV_ASSEMBLY_PART_HAND_R; *src_sval = SV_ASSEMBLY_HAND_L;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARM_L) {*tgt_sval = SV_ASSEMBLY_PART_HAND_L; *src_sval = SV_ASSEMBLY_HAND_R;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_ARMS) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;}
+			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_R) {*tgt_sval = SV_ASSEMBLY_PART_HANDS; *src_sval = SV_ASSEMBLY_HAND_L;}
+			else if (*tgt_sval == SV_ASSEMBLY_MISS_HAND_L) {*tgt_sval = SV_ASSEMBLY_PART_HANDS; *src_sval = SV_ASSEMBLY_HAND_R;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_PART_HANDS;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_PART_HAND_L; *src_sval = SV_ASSEMBLY_HAND_R;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM))) {*tgt_sval = SV_ASSEMBLY_PART_HAND_R; *src_sval = SV_ASSEMBLY_HAND_L;}
+			break;
+		case SV_ASSEMBLY_LEG_L:
+			if (*tgt_sval == SV_ASSEMBLY_PART_HANDS) {*tgt_sval = SV_ASSEMBLY_PART_LEG_L;}
+			else if (*tgt_sval == SV_ASSEMBLY_LEG_R) {*tgt_sval = SV_ASSEMBLY_LEGS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_LEG_R) {*tgt_sval = SV_ASSEMBLY_PART_LEGS;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM | RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEG_L;}
+			else if ((*tgt_sval == SV_ASSEMBLY_PART_ARMS) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEG_L;}
+			break;
+		case SV_ASSEMBLY_LEG_R:
+			if (*tgt_sval == SV_ASSEMBLY_PART_HANDS) {*tgt_sval = SV_ASSEMBLY_PART_LEG_R;}
+			else if (*tgt_sval == SV_ASSEMBLY_LEG_L) {*tgt_sval = SV_ASSEMBLY_LEGS;}
+			else if (*tgt_sval == SV_ASSEMBLY_PART_LEG_L) {*tgt_sval = SV_ASSEMBLY_PART_LEGS;}
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM | RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEG_R;}
+			else if ((*tgt_sval == SV_ASSEMBLY_PART_ARMS) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEG_R;}
+			break;
+		case SV_ASSEMBLY_LEGS:
+			if (*tgt_sval == SV_ASSEMBLY_PART_HANDS) {*tgt_sval = SV_ASSEMBLY_PART_LEGS;}
+			else if (*tgt_sval == SV_ASSEMBLY_LEG_L) {*tgt_sval = SV_ASSEMBLY_LEGS; *src_sval = SV_ASSEMBLY_LEG_R; }
+			else if (*tgt_sval == SV_ASSEMBLY_LEG_R) {*tgt_sval = SV_ASSEMBLY_LEGS; *src_sval = SV_ASSEMBLY_LEG_L; }
+			else if (*tgt_sval == SV_ASSEMBLY_PART_LEG_L) {*tgt_sval = SV_ASSEMBLY_PART_LEGS; *src_sval = SV_ASSEMBLY_LEG_R; }
+			else if (*tgt_sval == SV_ASSEMBLY_PART_LEG_R) {*tgt_sval = SV_ASSEMBLY_PART_LEGS; *src_sval = SV_ASSEMBLY_LEG_L; }
+			else if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM | RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEGS;}
+			else if ((*tgt_sval == SV_ASSEMBLY_PART_ARMS) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_HAND))) {*tgt_sval = SV_ASSEMBLY_PART_LEGS;}
+			break;
+		case SV_ASSEMBLY_HEAD:
+			if ((*tgt_sval == SV_ASSEMBLY_NONE) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_ARM | RF8_HAS_HAND | RF8_HAS_LEG))) {*tgt_sval = SV_ASSEMBLY_FULL;}
+			else if ((*tgt_sval == SV_ASSEMBLY_PART_ARMS) && (r_idx) && !(r_info[r_idx].flags8 & (RF8_HAS_HAND | RF8_HAS_LEG))) {*tgt_sval = SV_ASSEMBLY_FULL;}
+			break;
+	}
+}
+
+static int assembly_sval;
+static int assembly_name3;
+
+/*
+ * Hook to determine if an object is assembly and activatable
+ */
+static bool item_tester_hook_assemble(const object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4;
+
+	/* Not assembly */
+	if (o_ptr->tval != TV_ASSEMBLY) return (FALSE);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+	/* Check activation flag */
+	if (f3 & (TR3_ACTIVATE)) return (TRUE);
+
+	/* Assume not */
+	return (FALSE);
+ }
+
+
+/*
+ * Hook to determine if an object can be assembled to
+ */
+static bool item_tester_hook_assembly(const object_type *o_ptr)
+{
+	/* Make sure the same type */
+	if (o_ptr->name3 != assembly_name3) return (FALSE);	
+
+	/* Re-attached assemblies to assemblies */
+	if (o_ptr->tval == TV_ASSEMBLY)
+	{
+		int tgt_sval = o_ptr->sval;
+		int src_sval = assembly_sval;
+
+		assemble_parts(&src_sval,&tgt_sval, assembly_name3);
+
+		if (tgt_sval != o_ptr->sval) return (TRUE);
+	}
+
+	/* Assume not */
+	return (FALSE);
+}
+
+
+/*
+ * Assemble an assembly.
+ */
+void do_cmd_assemble(void)
+{
+	int item, item2, lev, chance;
+
+	object_type *o_ptr, *j_ptr;
+
+	cptr q, s;
+
+	int src_sval, tgt_sval = 0;
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_assemble;
+
+	/* Get an item */
+	q = "Assemble which item? ";
+	s = "You have nothing to assemble.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Extract the item level */
+	lev = k_info[o_ptr->k_idx].level;
+
+	/* Hack -- use monster level instead */
+	if (o_ptr->name3) lev = r_info[o_ptr->name3].level;
+
+	/* Base chance of success */
+	chance = p_ptr->skill_dev;
+
+	/* Confusion hurts skill */
+	if (p_ptr->confused) chance = chance / 2;
+
+	/* High level objects are harder */
+	chance = chance - ((lev > 50) ? 50 : lev);
+
+	/* Give everyone a (slight) chance */
+	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
+	{
+		chance = USE_DEVICE;
+	}
+
+	/* Roll for usage */
+	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to understand it properly.");
+		return;
+	}
+
+	/* Initialise static variables */
+	assembly_name3 = o_ptr->name3;
+	assembly_sval = o_ptr->sval;
+
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_assembly;
+
+	/* Get an item */
+	q = "Assemble with which item? ";
+	s = "You have nothing to assemble this with.";
+	if (!get_item(&item2, q, s, (USE_INVEN | USE_FLOOR))) return;
+	
+	/* Get the item (in the pack) */
+	if (item2 >= 0)
+	{
+		j_ptr = &inventory[item2];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		j_ptr = &o_list[0 - item2];
+	}
+
+	/* Initialise svals */
+	src_sval = o_ptr->sval;
+	tgt_sval = j_ptr->sval;
+
+	assemble_parts(&src_sval,&tgt_sval, o_ptr->name3);
+
+	if (tgt_sval != j_ptr->sval)
+	{
+		object_type *i_ptr, *k_ptr;
+		object_type object_type_body, object_type_body2;
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain a local object */
+		object_copy(i_ptr, j_ptr);
+
+		/* Modify quantity */
+		i_ptr->number = 1;
+
+		/* Reset stack counter */
+		i_ptr->stackc = 0;
+
+		/* Get local object */
+		k_ptr = &object_type_body2;
+
+		/* Obtain a local object */
+		object_copy(k_ptr, o_ptr);
+
+		/* Modify quantity */
+		k_ptr->number = 1;
+
+		/* Reset stack counter */
+		k_ptr->stackc = 0;
+
+		/* Decrease the item (in the pack) */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+
+			/* Hack -- handle deletion of item slot */
+			if ((inventory[item].number == 0)
+			   && (item < item2)
+				&& (item2 < INVEN_WIELD)) item2--;
+
+			inven_item_optimize(item);
+		}
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_describe(0 - item);
+			floor_item_optimize(0 - item);
+		}
+
+		/* Decrease the item (in the pack) */
+		if (item2 >= 0)
+		{
+			inven_item_increase(item2, -1);
+			inven_item_optimize(item2);
+		}
+		/* Decrease the item (from the floor) */
+		else
+		{
+			floor_item_increase(0 - item2, -1);
+			floor_item_optimize(item2);
+		}
+
+		/* Modify the target item */
+		i_ptr->k_idx = lookup_kind(i_ptr->tval, tgt_sval);
+		i_ptr->sval = tgt_sval;
+		if (src_sval != k_ptr->sval) i_ptr->weight += k_ptr->weight /2;
+		else i_ptr->weight += k_ptr->weight;
+		if (k_info[i_ptr->k_idx].pval) i_ptr->timeout = randint(k_info[i_ptr->k_idx].pval) + k_info[i_ptr->k_idx].pval;
+
+		/* Adjust the weight and carry */
+		if (item2 >= 0)
+		{
+			p_ptr->total_weight -= i_ptr->weight;
+			item2 = inven_carry(i_ptr);
+			inven_item_describe(item2);
+		}
+		else
+		{
+			item2 = floor_carry(p_ptr->py,p_ptr->px,i_ptr);
+			floor_item_describe(item2);
+		}
+
+		if (src_sval != k_ptr->sval)
+		{
+			/* Modify the source item */
+			k_ptr->k_idx = lookup_kind(k_ptr->tval, src_sval);
+			k_ptr->sval = src_sval;
+			k_ptr->weight /= 2;
+
+			/* Adjust the weight and carry */
+			if (item >= 0)
+			{
+				p_ptr->total_weight -= k_ptr->weight;
+				item = inven_carry(k_ptr);
+				inven_item_describe(item);
+			}
+			else
+			{
+				item = floor_carry(p_ptr->py,p_ptr->px,k_ptr);
+				floor_item_describe(item);
+			}
+		}
+	}
+}
 
 
 
@@ -1131,16 +1471,16 @@ void do_cmd_zap_rod(void)
  */
 static bool item_tester_hook_activate(const object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+	u32b f1, f2, f3, f4;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
 
 	/* Check the recharge */
-      if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
+	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -1148,6 +1488,7 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	/* Assume not */
 	return (FALSE);
 }
+
 
 
 /*
@@ -1177,6 +1518,13 @@ void do_cmd_activate(void)
 
 	int i;
 
+	/* Amnesia */
+	if (p_ptr->amnesia)
+	{
+		msg_print("You have forgotten how!");
+		return;
+	}
+
 	/* Prepare the hook */
 	item_tester_hook = item_tester_hook_activate;
 
@@ -1197,11 +1545,8 @@ void do_cmd_activate(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Extract the item level */
 	lev = k_info[o_ptr->k_idx].level;
@@ -1218,6 +1563,23 @@ void do_cmd_activate(void)
 	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
+	/* Assign speciality */
+	switch (o_ptr->tval)
+	{
+/*		case TV_WAND:
+			p_ptr->cur_style |= 1L << WS_WAND;
+			break;
+		case TV_STAFF:
+			p_ptr->cur_style |= 1L << WS_STAFF;
+			break; */
+		case TV_AMULET:
+			p_ptr->cur_style |= 1L << WS_AMULET;
+			break;
+		case TV_RING:
+			p_ptr->cur_style |= 1L << WS_RING;
+			break;
+	}
+
 	/* Hack -- Check for speciality */
 	for (i = 0;i< z_info->w_max;i++)
 	{
@@ -1225,24 +1587,17 @@ void do_cmd_activate(void)
 
 		if (w_info[i].level > p_ptr->lev) continue;
 
-		if (w_info[i].benefit != WB_ID) continue;
+		if (w_info[i].benefit != WB_POWER) continue;
 
-		/* Check for styles */
-		if ((w_info[i].styles==WS_WAND) && (p_ptr->pstyle == WS_WAND) && (o_ptr->tval == TV_WAND))
+		if ((w_info[i].styles==0) || (w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))))
+		switch (p_ptr->pstyle)
 		{
-			chance *=2;
-		}
-		else if ((w_info[i].styles==WS_STAFF) && (p_ptr->pstyle == WS_STAFF) && (o_ptr->tval == TV_STAFF))
-		{
-			chance *=2;
-		}
-		else if ((w_info[i].styles==WS_AMULET) && (p_ptr->pstyle == WS_AMULET) && (o_ptr->tval == TV_AMULET))
-		{
-			chance *=2;
-		}
-		else if ((w_info[i].styles==WS_RING) && (p_ptr->pstyle == WS_RING)  && (o_ptr->tval == TV_RING))
-		{
-			chance *=2;
+/*			case WS_WAND:
+			case WS_STAFF: */
+			case WS_AMULET:
+			case WS_RING:
+				chance *= 2;
+				break;
 		}
 	}
 
@@ -1257,6 +1612,9 @@ void do_cmd_activate(void)
 	{
 		if (flush_failure) flush();
 		msg_print("You failed to activate it properly.");
+		
+		/* Clear styles */
+		p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF) | (1L << WS_RING) | (1L << WS_AMULET));
 		return;
 	}
 
@@ -1275,7 +1633,7 @@ void do_cmd_activate(void)
 	tmpval = o_ptr->timeout;
 
 	/* Activate the artifact */
-	message(MSG_ZAP, 0, "You activate it...");
+	message(MSG_ACT_ARTIFACT, 0, "You activate it...");
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -1310,7 +1668,7 @@ void do_cmd_activate(void)
 		}
 
 		/* We know it activates */
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE,0x0L);
 
 		/* Count activations */
 		if (a_ptr->activated < MAX_SHORT) a_ptr->activated++;
@@ -1326,7 +1684,7 @@ void do_cmd_activate(void)
 		int power;
 
 		/* Get object effect --- choose if required */
-	      get_spell(&power, "use", o_ptr, TRUE);
+		get_spell(&power, "use", o_ptr, TRUE);
 
 		/* Paranoia */
 		if (power < 0) return;
@@ -1405,6 +1763,9 @@ void do_cmd_activate(void)
 		/* Message */
 		msg_format("You unstack your %s.",o_name);
 	}
+
+	/* Clear styles */
+	p_ptr->cur_style &= ~((1L << WS_WAND) | (1L << WS_STAFF) | (1L << WS_RING) | (1L << WS_AMULET));
 
 }
 
@@ -1510,6 +1871,8 @@ void do_cmd_apply_rune(void)
 	/* Decrease the item (in the pack) */
 	if (item >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
 

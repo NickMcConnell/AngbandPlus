@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -27,7 +27,7 @@ cptr copyright =
 	"and not for profit purposes provided that this copyright and statement\n"
 	"are included in all such copies.  Other copyrights may also apply.\n"
 	"\n"
-	"UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6\n"
+	"UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6\n"
 	"source code are released under the Gnu Public License. See www.fsf.org\n"
 	"for current GPL license details. Addition permission granted to\n"
 	"incorporate modifications in all Angband variants as defined in the\n"
@@ -64,6 +64,8 @@ u16b sf_saves;		  /* Number of "saves" during this life */
 bool arg_fiddle;			/* Command arg -- Request fiddle mode */
 bool arg_wizard;			/* Command arg -- Request wizard mode */
 bool arg_sound;			 /* Command arg -- Request special sounds */
+bool arg_mouse;			 /* Command arg -- Request mouse */
+bool arg_trackmouse;			 /* Command arg -- Request constant mouse tracking */
 bool arg_graphics;		      /* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;       /* Command arg -- Request roguelike keyset */
@@ -89,7 +91,11 @@ s16b num_repro;		 /* Current reproducer count */
 s16b object_level;	      /* Current object creation level */
 s16b monster_level;	     /* Current monster creation level */
 
-char summon_kin_type;	   /* Hack -- See summon_specific() */
+char summon_char_type;	   /* Hack -- See summon_specific() */
+byte summon_attr_type;	   /* Hack -- See summon_specific() */
+byte summon_group_type;  /* Hack -- See summon_specific() */
+u32b summon_flag_type;	   /* Hack -- See summon_specific() */
+s16b summon_race_type;	   /* Hack -- See summon_specific() */
 
 s32b turn;			      /* Current game turn */
 
@@ -99,6 +105,8 @@ bool surface;
 bool daytime;
 
 bool use_sound;		 /* The "sound" mode is enabled */
+bool use_mouse;		 /* The "mouse" mode is enabled */
+bool use_trackmouse;	 /* The "trackmouse" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
 bool use_trptile = FALSE;
 bool use_dbltile = FALSE;
@@ -132,6 +140,9 @@ s16b o_cnt = 0;		 /* Number of live objects */
 
 s16b m_max = 1;		 /* Number of allocated monsters */
 s16b m_cnt = 0;		 /* Number of live monsters */
+
+s16b q_max = 1;		 /* Number of allocated quests */
+s16b q_cnt = 0;		 /* Number of live quests */
 
 /*
  * Hack - Trackees for term windows
@@ -358,10 +369,17 @@ const cptr angband_sound_name[SOUND_MAX] =
 
 
 /*
- * Array[VIEW_MAX] used by "update_view()"
+ * Array[VIEW_MAX] used by "update_view()" for los calculation
  */
 sint view_n = 0;
 u16b *view_g;
+
+/*
+ * Array[VIEW_MAX] used by "update_view()" for lof calculation
+ */
+sint fire_n = 0;
+u16b *fire_g;
+
 
 /*
  * Arrays[TEMP_MAX] used for various things
@@ -451,6 +469,14 @@ s16b (*cave_m_idx)[DUNGEON_WID];
 
 
 
+/*
+ * The follow functions allow for 'alternate' modes of display the main map.
+ */
+void (*modify_grid_boring_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
+void (*modify_grid_unseen_hook)(byte *a, char *c);
+void (*modify_grid_interesting_hook)(byte *a, char *c, int y, int x, byte cinfo, byte pinfo);
+
+
 #ifdef MONSTER_FLOW
 
 /*
@@ -521,9 +547,9 @@ object_lore *k_list;
 
 
 /*
- * Hack -- Array[MAX_Q_IDX] of quests
+ * Hack -- Array[MAX_Q_IDX] of random quests
  */
-quest *q_list;
+quest_type *q_list;
 
 
 /*
@@ -535,6 +561,13 @@ store_type *store;
  * Array[INVEN_TOTAL] of objects in the player's inventory
  */
 object_type *inventory;
+
+
+/*
+ * Array[INVEN_TOTAL] of items listed at the bottom of the screen
+ * This is used to track player items in a pointer-based user interface
+ */
+int itemlist[INVEN_TOTAL+1];
 
 
 /*
@@ -679,6 +712,11 @@ char *a_name;
 char *a_text;
 
 /*
+ * The random name generator tables
+ */
+names_type *n_info;
+
+/*
  * The ego-item arrays
  */
 ego_item_type *e_info;
@@ -769,6 +807,13 @@ byte *g_info;
 char *g_name;
 char *g_text;
 
+
+/*
+ * The fixed quest arrays
+ */
+quest_type *q_info;
+char *q_name;
+char *q_text;
 
 /*
  * Hack -- The special Angband "System Suffix"
@@ -961,3 +1006,31 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+
+/*
+ * Slay power
+ *
+ * This is a precomputed table of slay powers for weapons with single slay or brand
+ * flags.
+ */
+s32b magic_slay_power[32];
+
+/*
+ * Cache the results of slay_value(), which is expensive and would
+ * otherwise be called much too often. We create this as a part of initialisation,
+ * then free it after we have either loaded or randomly generated the artifacts.
+ */
+s32b *slays = NULL;
+
+/*
+ * Total monster power
+ */
+long tot_mon_power;
+
+
+/* Path finding variables
+ *
+ */
+char pf_result[MAX_PF_LENGTH];
+int pf_result_index;

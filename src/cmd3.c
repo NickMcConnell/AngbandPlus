@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -145,14 +145,18 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
-	u32b f1, f2, f3;
-	u32b n1, n2, n3;
-	u32b k1, k2, k3;
+	u32b f1, f2, f3, f4;
+	u32b n1, n2, n3, n4;
+	u32b k1, k2, k3, k4;
 
 	/* Hack -- Allow items to be swapped in/out of belt */
 	bool swap = FALSE;
 
 	bool get_feat = FALSE;
+
+	/* Hack -- Prevent player from wielding conflicting items */
+	bool burn = FALSE;
+	bool curse = FALSE;
 
 	/* Hack -- Allow multiple rings to be wielded */
 	int amt=1;
@@ -187,23 +191,6 @@ void do_cmd_wield(void)
 	/* Hack -- slot not allowed */
 	if (slot < 0) return;
 
-	/* Hack -- wield from belt to equip */
-	if ((variant_belt_slot) && (item == INVEN_BELT))
-	{
-		/* Swap items? */
-		if (inventory[slot].k_idx) swap = TRUE;
-	}
-	/* Hack -- wield from equip to belt */
-	else if ((variant_belt_slot) && (item >= INVEN_WIELD) && (item < INVEN_TOTAL+1))
-	{
-		/* Pick the slot */
-		slot = INVEN_BELT;
-
-		/* Swap items? */
-		if ((inventory[INVEN_BELT].k_idx) &&
-		    (wield_slot(&inventory[INVEN_BELT]) == item)) swap = TRUE;
-	}
-
 	/* Hack -- don't dual wield */
 	if ((slot == INVEN_ARM) && (o_ptr->tval != TV_SHIELD))
 	{
@@ -213,33 +200,8 @@ void do_cmd_wield(void)
 		}
 	}
 
-	/* Hack -- wield amount */
-	else if ((variant_fast_equip) && (slot == INVEN_WIELD))
-	{
-
-		/* Get a quantity */
-		amt = get_quantity(NULL, o_ptr->number);
-
-		/* Allow user abort */
-		if (amt <= 0) return;
-
-		/* Cancel swap items */
-		if (amt < o_ptr->number) swap = FALSE;
-	}
-	/* Hack -- belt amount */
-	else if ((variant_belt_slot) && (slot == INVEN_BELT))
-	{
-		/* Get a quantity */
-		amt = get_quantity(NULL, o_ptr->number);
-
-		/* Allow user abort */
-		if (amt <= 0) return;
-
-		/* Cancel swap items */
-		if (amt < o_ptr->number) swap = FALSE;
-	}
 	/* Hack -- multiple rings */
-	else if ((variant_many_rings) && (o_ptr->tval == TV_RING))
+	else if (o_ptr->tval == TV_RING)
 	{
 		i_ptr = &inventory[slot];
 
@@ -260,7 +222,7 @@ void do_cmd_wield(void)
 	if (item == slot) return;
 
 	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&inventory[slot]) && (slot < INVEN_BELT))
+	if (cursed_p(&inventory[slot]))
 	{
 		/* Describe it */
 		object_desc(o_name, sizeof(o_name), &inventory[slot], FALSE, 0);
@@ -273,7 +235,7 @@ void do_cmd_wield(void)
 		return;
 	}
 	/* Prevent wielding from cursed slot */
-	else if ((item >= INVEN_WIELD) && cursed_p(&inventory[item]) && (item != INVEN_BELT))
+	else if ((item >= INVEN_WIELD) && cursed_p(&inventory[item]))
 	{
 		/* Describe it */
 		object_desc(o_name, sizeof(o_name), &inventory[item], FALSE, 0);
@@ -286,10 +248,81 @@ void do_cmd_wield(void)
 		return;
 	}
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Get object flags */
+	object_flags(o_ptr,&f1,&f2,&f3,&f4);
+
+	/* Check for racial conflicts */
+	burn |= (f1 & (TR1_SLAY_NATURAL)) & (p_ptr->cur_flags4 & (TR4_ANIMAL));
+	burn |= (f1 & (TR1_SLAY_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
+	burn |= (f1 & (TR1_SLAY_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
+	burn |= (f1 & (TR1_SLAY_ORC)) & (p_ptr->cur_flags4 & (TR4_ORC));
+	burn |= (f1 & (TR1_SLAY_TROLL)) & (p_ptr->cur_flags4 & (TR4_TROLL));
+	burn |= (f1 & (TR1_SLAY_GIANT)) & (p_ptr->cur_flags4 & (TR4_GIANT));
+	burn |= (f1 & (TR1_SLAY_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
+	burn |= (f1 & (TR1_KILL_DRAGON)) & (p_ptr->cur_flags4 & (TR4_DRAGON));
+	burn |= (f1 & (TR1_KILL_DEMON)) & (p_ptr->cur_flags4 & (TR4_DEMON));
+	burn |= (f1 & (TR1_KILL_UNDEAD)) & (p_ptr->cur_flags4 & (TR4_UNDEAD));
+	burn |= (f4 & (TR4_SLAY_MAN)) & (p_ptr->cur_flags4 & (TR4_MAN));
+	burn |= (f4 & (TR4_SLAY_ELF)) & (p_ptr->cur_flags4 & (TR4_ELF));
+	burn |= (f4 & (TR4_SLAY_DWARF)) & (p_ptr->cur_flags4 & (TR4_DWARF));
+	burn |= (f4 & (TR4_ANIMAL)) & (p_ptr->cur_flags1 & (TR1_SLAY_NATURAL));
+	burn |= (f4 & (TR4_UNDEAD)) & (p_ptr->cur_flags1 & (TR1_SLAY_UNDEAD));
+	burn |= (f4 & (TR4_DEMON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DEMON));
+	burn |= (f4 & (TR4_ORC)) & (p_ptr->cur_flags1 & (TR1_SLAY_ORC));
+	burn |= (f4 & (TR4_TROLL)) & (p_ptr->cur_flags1 & (TR1_SLAY_TROLL));
+	burn |= (f4 & (TR4_GIANT)) & (p_ptr->cur_flags1 & (TR1_SLAY_GIANT));
+	burn |= (f4 & (TR4_DRAGON)) & (p_ptr->cur_flags1 & (TR1_SLAY_DRAGON));
+	burn |= (f4 & (TR4_MAN)) & (p_ptr->cur_flags4 & (TR4_SLAY_MAN));
+	burn |= (f4 & (TR4_DWARF)) & (p_ptr->cur_flags4 & (TR4_SLAY_DWARF));
+	burn |= (f4 & (TR4_ELF)) & (p_ptr->cur_flags4 & (TR4_SLAY_ELF));
+
+	/* Evil players can wield racial conflict items but get cursed instead of burning */
+	if ((burn != 0) && ((f4 & (TR4_EVIL)) || ((p_ptr->cur_flags4 & (TR4_EVIL)) != 0)))
+	{
+		curse = TRUE;
+		burn = FALSE;
+	}
+
+	/* Check for elemental conflicts */
+	burn |= (f1 & (TR1_BRAND_HOLY)) & (p_ptr->cur_flags4 & (TR4_EVIL));
+	burn |= (f1 & (TR1_BRAND_POIS)) & (p_ptr->cur_flags4 & (TR4_HURT_POIS));
+	burn |= (f1 & (TR1_BRAND_ACID)) & (p_ptr->cur_flags4 & (TR4_HURT_ACID));
+	burn |= (f1 & (TR1_BRAND_COLD)) & (p_ptr->cur_flags4 & (TR4_HURT_COLD));
+	burn |= (f1 & (TR1_BRAND_ELEC)) & (p_ptr->cur_flags4 & (TR4_HURT_ELEC));
+	burn |= (f1 & (TR1_BRAND_FIRE)) & (p_ptr->cur_flags4 & (TR4_HURT_FIRE));
+	burn |= (f4 & (TR4_BRAND_LITE)) & (p_ptr->cur_flags4 & (TR4_HURT_LITE));
+
+	burn |= (f4 & (TR4_EVIL)) & (p_ptr->cur_flags1 & (TR1_BRAND_HOLY));
+	burn |= (f4 & (TR4_HURT_POIS)) & (p_ptr->cur_flags1 & (TR1_BRAND_POIS));
+	burn |= (f4 & (TR4_HURT_ACID)) & (p_ptr->cur_flags1 & (TR1_BRAND_ACID));
+	burn |= (f4 & (TR4_HURT_COLD)) & (p_ptr->cur_flags1 & (TR1_BRAND_COLD));
+	burn |= (f4 & (TR4_HURT_ELEC)) & (p_ptr->cur_flags1 & (TR1_BRAND_ELEC));
+	burn |= (f4 & (TR4_HURT_FIRE)) & (p_ptr->cur_flags1 & (TR1_BRAND_FIRE));
+	burn |= (f4 & (TR4_HURT_LITE)) & (p_ptr->cur_flags4 & (TR4_BRAND_LITE));
+
+	if (burn != 0)
+	{
+		/* Warn the player */
+		msg_print("Aiee! It feels burning hot!");
+
+		/* Mark object as ungettable? */
+		if ((o_ptr->discount == 0) &&
+			!(o_ptr->ident & (IDENT_SENSE))
+			&& !(object_known_p(o_ptr)))
+		{
+	
+			/* Sense the object */
+			o_ptr->discount = INSCRIP_UNGETTABLE;
+	
+			/* The object has been "sensed" */
+			o_ptr->ident |= (IDENT_SENSE);
+		}
+
+		return;
+	}
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -299,6 +332,35 @@ void do_cmd_wield(void)
 
 	/* Modify quantity */
 	i_ptr->number = amt;
+
+	/* Get a new show index */
+	if ((!swap) && (o_ptr->number > amt))
+	{
+		int j, k;
+
+		/* Find the next free show index */
+		for (j = 1; j < SHOWN_TOTAL; j++)
+		{
+			bool used = FALSE;
+
+			/* Check all items */
+			for (k = 0; k < INVEN_TOTAL; k++) if ((inventory[k].k_idx) && (inventory[k].show_idx == j)) used = TRUE;
+
+			/* Already an item using this slot? */
+			if (used) continue;
+
+			/* Use this slot */
+			break;
+		}
+
+		/* Set the show index for the item */
+		if (j < SHOWN_TOTAL) i_ptr->show_idx = j;
+		else i_ptr->show_idx = 0;
+
+		/* Redraw stuff */
+		p_ptr->redraw |= (PR_ITEM_LIST);
+
+	}
 
 	/* Reset stackc */
 	i_ptr->stackc = 0;
@@ -321,16 +383,16 @@ void do_cmd_wield(void)
 		}
 	}
 
-	/* Hack -- clear may flags to avoid forgetting them */
-	/* This also prevents 2 identical stacks of the same item */
-	/* preventing identification of the wielded one */
-	drop_may_flags(o_ptr);
-
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
 	{
+		/* Hack -- Forget what original stack may do */
+		/* This allows us to identify the wielded item's function */
+		if (o_ptr->number < amt) drop_may_flags(o_ptr);
+
 		inven_item_increase(item, -amt);
 		inven_item_optimize(item);
+
 	}
 	/* Decrease the item (from the floor) */
 	else
@@ -351,22 +413,13 @@ void do_cmd_wield(void)
 
 		/* Swap the items */
 		object_copy(j_ptr, o_ptr);
-
 	}
+
 	/* Take off existing item */
 	else if ((o_ptr->k_idx) && (!rings))
 	{
-                /* variant_fast_floor? */
-                if (p_ptr->energy_use == 50)
-                {
-                        /* Drop existing item */
-                        (void)inven_drop(slot, 255);
-                }
-                else
-                {
-                        /* Take off existing item */
-                        (void)inven_takeoff(slot, 255);
-                }
+		/* Take off existing item */
+		(void)inven_takeoff(slot, 255);
 	}
 
 	/* Wear the new rings */
@@ -382,11 +435,7 @@ void do_cmd_wield(void)
 	p_ptr->equip_cnt++;
 
 	/* Where is the item now */
-	if (((slot == INVEN_WIELD) && (o_ptr->number > 1)) || (slot == INVEN_BELT))
-	{
-		act = "You are carrying";
-	}
-	else if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
+	if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)
 		|| (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_STAFF) ||
 		(o_ptr->tval == TV_DIGGING))
 	{
@@ -421,7 +470,7 @@ void do_cmd_wield(void)
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
 
 	/* Cursed! */
-	if (cursed_p(o_ptr))
+	if (curse || cursed_p(o_ptr))
 	{
 		/* Warn the player */
 		msg_print("Oops! It feels deathly cold!");
@@ -441,86 +490,88 @@ void do_cmd_wield(void)
 	k1 = o_ptr->can_flags1;
 	k2 = o_ptr->can_flags2;
 	k3 = o_ptr->can_flags3;
+	k4 = o_ptr->can_flags4;
 
 	/* Some flags are instantly known */
-	object_flags(o_ptr,&f1,&f2,&f3);
+	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
-	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_BLOWS,0x0L,0x0L);
+	if (f1 & (TR1_BLOWS)) object_can_flags(o_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_BLOWS,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_SHOTS,0x0L,0x0L);
+	if (f1 & (TR1_SHOTS)) object_can_flags(o_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_SHOTS,0x0L,0x0L,0x0L);
 
 	/* Hack -- the following are obvious from the displayed combat statistics */
-	if (f1 & (TR1_SPEED)) object_can_flags(o_ptr,TR1_SPEED,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_SPEED,0x0L,0x0L);
+	if (f1 & (TR1_SPEED)) object_can_flags(o_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_SPEED,0x0L,0x0L,0x0L);
 
 	/* Hack -- the following are obvious from the displayed stats */
-	if (f1 & (TR1_STR)) object_can_flags(o_ptr,TR1_STR,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_STR,0x0L,0x0L);
+	if (f1 & (TR1_STR)) object_can_flags(o_ptr,TR1_STR,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_STR,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_INT)) object_can_flags(o_ptr,TR1_INT,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_INT,0x0L,0x0L);
+	if (f1 & (TR1_INT)) object_can_flags(o_ptr,TR1_INT,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_INT,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_WIS)) object_can_flags(o_ptr,TR1_WIS,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_WIS,0x0L,0x0L);
+	if (f1 & (TR1_WIS)) object_can_flags(o_ptr,TR1_WIS,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_WIS,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_DEX)) object_can_flags(o_ptr,TR1_DEX,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_DEX,0x0L,0x0L);
+	if (f1 & (TR1_DEX)) object_can_flags(o_ptr,TR1_DEX,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_DEX,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_CON)) object_can_flags(o_ptr,TR1_CON,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_CON,0x0L,0x0L);
+	if (f1 & (TR1_CON)) object_can_flags(o_ptr,TR1_CON,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_CON,0x0L,0x0L,0x0L);
 
-	if (f1 & (TR1_CHR)) object_can_flags(o_ptr,TR1_CHR,0x0L,0x0L);
-	else object_not_flags(o_ptr,TR1_CHR,0x0L,0x0L);
+	if (f1 & (TR1_CHR)) object_can_flags(o_ptr,TR1_CHR,0x0L,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_CHR,0x0L,0x0L,0x0L);
 
 #ifndef ALLOW_OBJECT_INFO_MORE
 	/* Hack --- we do these here, because they are too computationally expensive in the 'right' place */
 	if (f1 & (TR1_INFRA))
 	{
-		object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+		object_can_flags(o_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
 	}
-	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L);
+	else object_not_flags(o_ptr,TR1_INFRA,0x0L,0x0L,0x0L);
 
 	if (f3 & (TR3_LITE))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L);
 
 	/* Hack --- also computationally expensive. But note we notice these only if we don't already */
 	/* have these abilities */
-	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY);
+	if ((f3 & (TR3_TELEPATHY)) && !(p_ptr->telepathy)) object_can_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_TELEPATHY,0x0L);
 
-	if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS);
+	if ((f3 & (TR3_SEE_INVIS)) && (!p_ptr->see_inv) && (!p_ptr->tim_invis)) object_can_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_SEE_INVIS,0x0L);
 #endif
 
 	/* Hack --- the following are either obvious or (relatively) unimportant */
 	if (f3 & (TR3_BLESSED))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_BLESSED,0x0L);
 
 	/* Hack --- the following are either obvious or (relatively) unimportant */
 	if (f3 & (TR3_THROWING))
 	{
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_THROWING);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 	}
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_THROWING);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_THROWING,0x0L);
 
-	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
-	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE);
+	if (f3 & (TR3_LIGHT_CURSE)) object_can_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
+	else object_not_flags(o_ptr,0x0L,0x0L,TR3_LIGHT_CURSE,0x0L);
 
 	/* Check for new flags */
 	n1 = o_ptr->can_flags1 & ~(k1);
 	n2 = o_ptr->can_flags2 & ~(k2);
 	n3 = o_ptr->can_flags3 & ~(k3);
+	n4 = o_ptr->can_flags4 & ~(k4);
 
-	if (n1 || n2 || n3) update_slot_flags(slot, n1, n2, n3);
+	if (n1 || n2 || n3 || n4) update_slot_flags(slot, n1, n2, n3, n4);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -533,6 +584,9 @@ void do_cmd_wield(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Update item list */
+	p_ptr->redraw |= (PR_ITEM_LIST);
 }
 
 
@@ -697,10 +751,8 @@ void do_cmd_destroy(void)
 		if (!get_check(out_val)) return;
 	}
 
-	/* Take a (partial) turn */
-	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
-	else if ((variant_fast_equip) && (item >= INVEN_WIELD)) p_ptr->energy_use = 50;
-	else p_ptr->energy_use = 100;
+	/* Take a turn */
+	p_ptr->energy_use = 100;
 
 	/* Containers release contents */
 	if ((o_ptr->tval == TV_HOLD) && (o_ptr->name3 > 0))
@@ -773,6 +825,8 @@ void do_cmd_destroy(void)
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
 	{
+		if (o_ptr->number == amt) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item, -amt);
 		inven_item_describe(item);
 		inven_item_optimize(item);
@@ -802,6 +856,8 @@ void do_cmd_observe(void)
 
 	cptr q, s;
 
+	bool stored = FALSE;
+
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
@@ -820,10 +876,15 @@ void do_cmd_observe(void)
 	}
 
 	/* Hack - obviously interested enough in item */
-	if (o_ptr->ident & (IDENT_STORE)) o_ptr->marked = TRUE;
+	if (o_ptr->ident & (IDENT_STORE))
+	{
+		o_ptr->marked = TRUE;
 
-	/* No longer 'stored' */
-	o_ptr->ident &= ~(IDENT_STORE);
+		/* No longer 'stored' */
+		o_ptr->ident &= ~(IDENT_STORE);
+
+		stored = TRUE;
+	}
 
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -839,7 +900,10 @@ void do_cmd_observe(void)
 	/* Describe */
 	screen_object(o_ptr);
 
-	(void)inkey();
+	(void)anykey();
+
+	/* Store item again */
+	if (stored) o_ptr->ident |= (IDENT_STORE);
 
 	/* Load the screen */
 	screen_load();
@@ -1394,6 +1458,8 @@ void do_cmd_refill(void)
 	/* Decrease the item (in the pack) */
 	else if (item2 >= 0)
 	{
+		if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
 		inven_item_increase(item2, -1);
 		inven_item_describe(item2);
 		inven_item_optimize(item2);
@@ -1452,7 +1518,6 @@ void do_cmd_look(void)
 		msg_print("Target Selected.");
 	}
 }
-
 
 
 /*
@@ -1712,7 +1777,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 > z2) return (FALSE);
 	}
 
-
 	/* Sort by monster level */
 	if (*why >= 2)
 	{
@@ -1724,7 +1788,6 @@ bool ang_sort_comp_hook(vptr u, vptr v, int a, int b)
 		if (z1 < z2) return (TRUE);
 		if (z1 > z2) return (FALSE);
 	}
-
 
 	/* Sort by monster experience */
 	if (*why >= 1)
@@ -1919,7 +1982,7 @@ void do_cmd_query_symbol(void)
 	put_str("Recall details? (k/p/y/n): ", 0, 40);
 
 	/* Query */
-	query = inkey();
+	query = anykey().key;
 
 	/* Restore */
 	prt(buf, 0, 0);
@@ -1998,7 +2061,7 @@ void do_cmd_query_symbol(void)
 			}
 
 			/* Command */
-			query = inkey();
+			query = anykey().key;
 
 			/* Unrecall */
 			if (recall)

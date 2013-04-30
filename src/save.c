@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -168,8 +168,9 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->sval);
 	wr_s16b(o_ptr->pval);
 	
-	if ((variant_pval_stacks) || (variant_time_stacks)) wr_byte(o_ptr->stackc);
+	wr_byte(o_ptr->stackc);
 
+	wr_byte(o_ptr->show_idx);
 	wr_byte(o_ptr->discount);
 
 	wr_byte(o_ptr->number);
@@ -203,33 +204,27 @@ static void wr_item(const object_type *o_ptr)
 	wr_byte(o_ptr->xtra1);
 	wr_byte(o_ptr->xtra2);
 
-	if (variant_learn_id)
-	{
-		wr_u32b(o_ptr->can_flags1);
-		wr_u32b(o_ptr->can_flags2);
-		wr_u32b(o_ptr->can_flags3);
+	wr_u32b(o_ptr->can_flags1);
+	wr_u32b(o_ptr->can_flags2);
+	wr_u32b(o_ptr->can_flags3);
+	wr_u32b(o_ptr->can_flags4);
 
-		wr_u32b(o_ptr->may_flags1);
-		wr_u32b(o_ptr->may_flags2);
-		wr_u32b(o_ptr->may_flags3);
+	wr_u32b(o_ptr->may_flags1);
+	wr_u32b(o_ptr->may_flags2);
+	wr_u32b(o_ptr->may_flags3);
+	wr_u32b(o_ptr->may_flags4);
 
-		wr_u32b(o_ptr->not_flags1);
-		wr_u32b(o_ptr->not_flags2);
-		wr_u32b(o_ptr->not_flags3);
-	}
+	wr_u32b(o_ptr->not_flags1);
+	wr_u32b(o_ptr->not_flags2);
+	wr_u32b(o_ptr->not_flags3);
+	wr_u32b(o_ptr->not_flags4);
 
-	if (variant_usage_id) wr_s16b(o_ptr->usage);
+	wr_s16b(o_ptr->usage);
 
-	if (variant_guess_id)
-	{
-		wr_byte(o_ptr->guess1);
-		wr_byte(o_ptr->guess2);
-	}
+	wr_byte(o_ptr->guess1);
+	wr_byte(o_ptr->guess2);
 
-	if (variant_drop_body)
-	{
-		wr_s16b(o_ptr->name3);
-	}
+	wr_s16b(o_ptr->name3);
 
 	/* Save the inscription (if any) */
 	if (o_ptr->note)
@@ -247,7 +242,10 @@ static void wr_item(const object_type *o_ptr)
  */
 static void wr_monster(const monster_type *m_ptr)
 {
+	/* Read the monster race */
 	wr_s16b(m_ptr->r_idx);
+
+	/* Read the other information */
 	wr_byte(m_ptr->fy);
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
@@ -258,16 +256,27 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-	if (variant_unsummon)
-	{
-		wr_byte(m_ptr->summoned);
-		wr_u16b(m_ptr->mflag);
-		wr_byte(m_ptr->min_range);
-		wr_byte(m_ptr->best_range);
-		wr_byte(m_ptr->ty);
-		wr_byte(m_ptr->tx);
-	}
-	wr_byte(0);
+	wr_byte(m_ptr->slowed);
+	wr_byte(m_ptr->hasted);
+	wr_byte(m_ptr->cut);
+	wr_byte(m_ptr->poisoned);
+	wr_byte(m_ptr->blind);
+	wr_byte(m_ptr->tim_invis);
+	wr_byte(m_ptr->tim_passw);
+	wr_byte(m_ptr->bless);
+	wr_byte(m_ptr->beserk);
+	wr_byte(m_ptr->shield);
+	wr_byte(m_ptr->oppose_elem);
+	wr_byte(m_ptr->summoned);
+
+	wr_u32b(m_ptr->mflag);
+	wr_u32b(m_ptr->smart);
+
+	wr_byte(m_ptr->min_range);
+	wr_byte(m_ptr->best_range);
+	wr_byte(m_ptr->ty);
+	wr_byte(m_ptr->tx);
+
 }
 
 
@@ -314,7 +323,7 @@ static void wr_lore(int r_idx)
 	wr_u32b(l_ptr->flags4);
 	wr_u32b(l_ptr->flags5);
 	wr_u32b(l_ptr->flags6);
-	if (variant_drop_body) wr_u32b(l_ptr->flags7);
+	wr_u32b(l_ptr->flags7);
 
 	/* Monster limit per level */
 	wr_byte(r_ptr->max_num);
@@ -327,6 +336,39 @@ static void wr_lore(int r_idx)
 
 
 /*
+ * Read a random quest
+ */
+static void wr_event(int n, int s)
+{
+	quest_event *qe_ptr = &q_list[n].event[s];
+
+	/* Read the quest flags */
+	wr_u32b(qe_ptr->flags);
+
+	/* Read the quest  */
+	wr_byte(qe_ptr->dungeon);
+	wr_byte(qe_ptr->level);
+	wr_byte(qe_ptr->room);
+	wr_byte(qe_ptr->action);
+	wr_s16b(qe_ptr->feat);
+	wr_s16b(qe_ptr->store);
+	wr_s16b(qe_ptr->race);
+	wr_s16b(qe_ptr->kind);
+	wr_s16b(qe_ptr->number);
+	wr_byte(qe_ptr->artifact);
+	wr_byte(qe_ptr->ego_item_type);
+	wr_s16b(qe_ptr->room_type_a);
+	wr_s16b(qe_ptr->room_type_b);
+	wr_u32b(qe_ptr->room_flags);
+	wr_s16b(qe_ptr->owner);
+	wr_s16b(qe_ptr->power);
+	wr_s16b(qe_ptr->experience);
+	wr_s16b(qe_ptr->gold);
+}
+
+
+
+/*
  * Write an "xtra" record
  */
 static void wr_xtra(int k_idx)
@@ -336,13 +378,13 @@ static void wr_xtra(int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	if (k_ptr->aware) tmp8u = 1;
-	else if ((variant_guess_id) && (k_ptr->guess)) tmp8u = k_ptr->guess+2;
+	else if (k_ptr->guess) tmp8u = k_ptr->guess+2;
 	else if (k_ptr->tried) tmp8u = 2;
 
 	wr_byte(tmp8u);
 
 	/* Activations */
-	if (variant_usage_id) wr_u16b(k_ptr->used);	
+	wr_u16b(k_ptr->used);	
 
 }
 
@@ -522,11 +564,7 @@ static void wr_extra(void)
 {
 	int i;
 
-	int max_spells = PY_MAX_SPELLS;
-
 	u16b tmp16u;
-
-	if (!variant_study_more) max_spells = 64;
 
 	wr_string(op_ptr->full_name);
 
@@ -550,6 +588,8 @@ static void wr_extra(void)
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_inc_tim[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_dec_tim[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
@@ -621,14 +661,16 @@ static void wr_extra(void)
 	wr_byte(0);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->climbing);
 	wr_byte(p_ptr->searching);
-	wr_byte(0);	/* oops */
-	wr_byte(0);	/* oops */
+	wr_byte(p_ptr->dodging);
+	wr_byte(p_ptr->blocking);
 	wr_byte(0);
 
+	wr_u32b(p_ptr->disease);
+
 	/* Future use */
-	for (i = 0; i < 10; i++) wr_u32b(0L);
+	for (i = 0; i < 9; i++) wr_u32b(0L);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);
@@ -677,26 +719,21 @@ static void wr_extra(void)
 	/* Write spell data */
 	wr_u32b(p_ptr->spell_learned1);
 	wr_u32b(p_ptr->spell_learned2);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_learned3);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_learned4);
+	wr_u32b(p_ptr->spell_learned3);
+	wr_u32b(p_ptr->spell_learned4);
 	wr_u32b(p_ptr->spell_worked1);
 	wr_u32b(p_ptr->spell_worked2);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_worked3);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_worked4);
+	wr_u32b(p_ptr->spell_worked3);
+	wr_u32b(p_ptr->spell_worked4);
 	wr_u32b(p_ptr->spell_forgotten1);
 	wr_u32b(p_ptr->spell_forgotten2);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_forgotten3);
-	if (variant_more_spells) wr_u32b(p_ptr->spell_forgotten4);
+	wr_u32b(p_ptr->spell_forgotten3);
+	wr_u32b(p_ptr->spell_forgotten4);
 
 	/* Dump the ordered spells */
-	for (i = 0; i < max_spells; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
-		if (variant_more_spells) wr_s16b(p_ptr->spell_order[i]);
-		else if (p_ptr->spell_order[i] < 256)
-		{
-			wr_byte(p_ptr->spell_order[i]);
-		}
-		else wr_byte(0);
+		wr_s16b(p_ptr->spell_order[i]);
 	}
 
 }
@@ -734,6 +771,7 @@ static void wr_randarts(void)
 		wr_u32b(a_ptr->flags1);
 		wr_u32b(a_ptr->flags2);
 		wr_u32b(a_ptr->flags3);
+		wr_u32b(a_ptr->flags4);
 
 		wr_byte(a_ptr->level);
 		wr_byte(a_ptr->rarity);
@@ -876,15 +914,11 @@ static void wr_dungeon(void)
 			/* Extract the important cave_feats */
 			tmp16u = cave_feat[y][x];
 
-			if ((!variant_save_feats) & (tmp16u == FEAT_ENTRANCE)) tmp16u = FEAT_MORE;
-			else if ((!variant_save_feats) & (tmp16u > 255)) tmp16u = 1;
-
 			/* If the run is broken, or too full, flush it */
 			if ((tmp16u != prev_char) || (count == MAX_UCHAR))
 			{
 				wr_byte((byte)count);
-				if (variant_save_feats) wr_s16b((s16b)prev_char);
-				else wr_byte((byte)prev_char);
+				wr_s16b((s16b)prev_char);
 				prev_char = tmp16u;
 				count = 1;
 			}
@@ -901,40 +935,32 @@ static void wr_dungeon(void)
 	if (count)
 	{
 		wr_byte((byte)count);
-		if (variant_save_feats) wr_s16b((s16b)prev_char);
-		else wr_byte((byte)prev_char);
+		wr_s16b((s16b)prev_char);
 	}
 
-	if (!variant_room_info)
-	{
-
-	}
 	/*** Dump room descriptions ***/
-	else
+	for (x = 0; x < MAX_ROOMS_ROW; x++)
 	{
-		for (x = 0; x < MAX_ROOMS_ROW; x++)
+		for (y = 0; y < MAX_ROOMS_COL; y++)
 		{
-			for (y = 0; y < MAX_ROOMS_COL; y++)
-			{
-				wr_byte(dun_room[x][y]);
-			}
+			wr_byte(dun_room[x][y]);
 		}
+	}
 
-		for (i = 1; i < DUN_ROOMS; i++)
+	for (i = 1; i < DUN_ROOMS; i++)
+	{
+		int j;
+
+		wr_byte(room_info[i].type);
+		wr_u32b(room_info[i].flags);
+
+		if (room_info[i].type == ROOM_NORMAL)
 		{
-			int j;
-
-			wr_byte(room_info[i].type);
-			wr_byte(room_info[i].flags);
-
-			if (room_info[i].type == ROOM_NORMAL)
+			for (j = 0; j < ROOM_DESC_SECTIONS; j++)
 			{
-				for (j = 0; j < ROOM_DESC_SECTIONS; j++)
-				{
-					wr_s16b(room_info[i].section[j]);
+				wr_s16b(room_info[i].section[j]);
 
-					if (room_info[i].section[j] == -1) break;
-				}
+				if (room_info[i].section[j] == -1) break;
 			}
 		}
 	}
@@ -991,11 +1017,6 @@ static bool wr_savefile_new(void)
 	u32b now;
 
 	u16b tmp16u;
-
-
-	int max_spells = PY_MAX_SPELLS;
-
-	if (!variant_more_spells) max_spells = 64;
 
 	/* Guess at the current time */
 	now = time((time_t *)0);
@@ -1080,19 +1101,25 @@ static bool wr_savefile_new(void)
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
 
-
 	/* Hack -- Dump the quests */
 	tmp16u = MAX_Q_IDX;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		wr_byte(q_list[i].level);
-		wr_byte(0);
-		wr_byte(0);
-		wr_byte(0);
+		int j;
+
+		wr_byte(MAX_QUEST_EVENTS);
+
+		for (j = 0; j < MAX_QUEST_EVENTS; j++)
+		{
+
+			wr_event(i, j);
+		}
+
+		wr_byte(q_list[i].stage);
 	}
 
-	/* Hack -- Dump the artifacts */
+	/* Hack -- Dump the artifact lore */
 	tmp16u = z_info->a_max;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++)
@@ -1105,61 +1132,61 @@ static bool wr_savefile_new(void)
 		wr_byte(0);
 		wr_byte(0);
 
-		if (variant_learn_id)
-		{
-			wr_u32b(n_ptr->can_flags1);
-			wr_u32b(n_ptr->can_flags2);
-			wr_u32b(n_ptr->can_flags3);
+		wr_u32b(n_ptr->can_flags1);
+		wr_u32b(n_ptr->can_flags2);
+		wr_u32b(n_ptr->can_flags3);
+		wr_u32b(n_ptr->can_flags4);
 
-			wr_u32b(n_ptr->not_flags1);
-			wr_u32b(n_ptr->not_flags2);
-			wr_u32b(n_ptr->not_flags3);
-		}
+		wr_u32b(n_ptr->not_flags1);
+		wr_u32b(n_ptr->not_flags2);
+		wr_u32b(n_ptr->not_flags3);
+		wr_u32b(n_ptr->not_flags4);
 
 		/* Activations */
-		if (variant_usage_id) wr_u16b(a_ptr->activated);
+		wr_u16b(a_ptr->activated);
 
 		/* Oops */
-		if (variant_learn_id) wr_byte(0);
-		if (variant_learn_id) wr_byte(0);
+		wr_byte(0);
+		wr_byte(0);
 	}
 
 	/* Hack -- Dump the ego items */
 	tmp16u =z_info->e_max;
-        if ((variant_usage_id) || (variant_learn_id)) wr_u16b(tmp16u);
+        wr_u16b(tmp16u);
+
         for (i = 0; i < tmp16u; i++)
         {
                 object_lore *n_ptr = &e_list[i];
 
-                if (variant_learn_id)
-                {
-                        wr_u32b(n_ptr->can_flags1);
-                        wr_u32b(n_ptr->can_flags2);
-                        wr_u32b(n_ptr->can_flags3);
+                wr_u32b(n_ptr->can_flags1);
+                wr_u32b(n_ptr->can_flags2);
+                wr_u32b(n_ptr->can_flags3);
+                wr_u32b(n_ptr->can_flags4);
 
-                        wr_u32b(n_ptr->may_flags1);
-                        wr_u32b(n_ptr->may_flags2);
-                        wr_u32b(n_ptr->may_flags3);
+                wr_u32b(n_ptr->may_flags1);
+                wr_u32b(n_ptr->may_flags2);
+                wr_u32b(n_ptr->may_flags3);
+                wr_u32b(n_ptr->may_flags4);
 
-                        wr_u32b(n_ptr->not_flags1);
-                        wr_u32b(n_ptr->not_flags2);
-                        wr_u32b(n_ptr->not_flags3);
-                }
+                wr_u32b(n_ptr->not_flags1);
+                wr_u32b(n_ptr->not_flags2);
+                wr_u32b(n_ptr->not_flags3);
+                wr_u32b(n_ptr->not_flags4);
 
                 /* Oops */
-                if (variant_usage_id) wr_byte(e_info[i].aware);
-                if (variant_usage_id) wr_byte(0);
+                wr_byte(e_info[i].aware);
+                wr_byte(0);
  
                 /* Oops */
-                if (variant_learn_id) wr_byte(0);
-                if (variant_learn_id) wr_byte(0);
+               	wr_byte(0);
+                wr_byte(0);
 
         }
 
 	/* Write the "extra" information */
 	wr_extra();
 
-	wr_randarts();
+	if (adult_rand_artifacts) wr_randarts();
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1174,16 +1201,6 @@ static bool wr_savefile_new(void)
 
 		/* Dump object */
 		wr_item(o_ptr);
-	}
-
-	/* Write the belt slot */
-	if ((variant_belt_slot) && (inventory[INVEN_BELT].k_idx))
-	{
-		/* Dump index */
-		wr_u16b(INVEN_BELT);
-
-		/* Dump object */
-		wr_item(&inventory[INVEN_BELT]);
 	} 
 
 	/* Add a sentinel */

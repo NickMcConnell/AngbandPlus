@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.1
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.1
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -39,7 +39,7 @@ int value_check_aux1(object_type *o_ptr)
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) return (INSCRIP_WORTHLESS);
 
 		/* Superb */
-		if ((variant_great_id) && (o_ptr->xtra1)) return (INSCRIP_SUPERB);
+		if (o_ptr->xtra1) return (INSCRIP_SUPERB);
 
 		/* Normal */
 		return (INSCRIP_EXCELLENT);
@@ -51,23 +51,26 @@ int value_check_aux1(object_type *o_ptr)
 	/* Broken items */
 	if (broken_p(o_ptr)) return (INSCRIP_BROKEN);
 
+	/* Magic item */
+	if ((o_ptr->xtra1) && (object_power(o_ptr) > 0)) return (INSCRIP_EXCELLENT);
+
 	/* Great "armor" bonus */
-	if ((variant_great_id) && (o_ptr->to_a > 8)) return (INSCRIP_GREAT);
+	if (o_ptr->to_a > 8) return (INSCRIP_GREAT);
 
 	/* Great "weapon" bonus */
-	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
+	if (o_ptr->to_h + o_ptr->to_d > 14) return (INSCRIP_GREAT);
 
 	/* Great "weapon" dice */
-	if ((variant_great_id) && (o_ptr->dd > k_info[o_ptr->k_idx].dd)) return (INSCRIP_GREAT);
+	if (o_ptr->dd > k_info[o_ptr->k_idx].dd) return (INSCRIP_GREAT);
 
 	/* Great "weapon" sides */
-	if ((variant_great_id) && (o_ptr->ds > k_info[o_ptr->k_idx].ds)) return (INSCRIP_GREAT);
+	if (o_ptr->ds > k_info[o_ptr->k_idx].ds) return (INSCRIP_GREAT);
 
 	/* Very good "armor" bonus */
-	if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
+	if (o_ptr->to_a > 4) return (INSCRIP_VERY_GOOD);
 
 	/* Good "weapon" bonus */
-	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 7)) return (INSCRIP_VERY_GOOD);
+	if (o_ptr->to_h + o_ptr->to_d > 7) return (INSCRIP_VERY_GOOD);
 
 	/* Good "armor" bonus */
 	if (o_ptr->to_a > 0) return (INSCRIP_GOOD);
@@ -125,10 +128,12 @@ static void sense_inventory(void)
 	u32b f1=0x0L;
 	u32b f2=0x0L;
 	u32b f3=0x0L;
+	u32b f4=0x0L;
 
 	u32b af1=0x0L;
 	u32b af2=0x0L;
 	u32b af3=0x0L;
+	u32b af4=0x0L;
 
 	object_type *o_ptr;
 
@@ -169,29 +174,31 @@ static void sense_inventory(void)
 		/* Skip empty slots */
 		if (!o_ptr->k_idx) continue;
 
-		/* Always sense flags to see if we have ability */
-		if ((i >= INVEN_WIELD) && (i != INVEN_BELT))
+		/* Sense flags to see if we have ability */
+		if (i >= INVEN_WIELD)
 		{
-			u32b if1,if2,if3;
+			u32b if1,if2,if3,if4;
 
-			object_flags(o_ptr,&if1,&if2,&if3);
+			object_flags(o_ptr,&if1,&if2,&if3,&if4);
 
 			af1 |= if1;
 			af2 |= if2;
 			af3 |= if3;
+			af4 |= if4;
 
 		}
 
-		/* Sometimes sense flags to see if we gain ability */
-		if (!(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD) && (i != INVEN_BELT) && (rand_int(100)<30))
+		/* Sense flags to see if we gain ability */
+		if (!(o_ptr->ident & (IDENT_MENTAL)) && (i >= INVEN_WIELD))
 		{
-			u32b if1,if2,if3;
+			u32b if1,if2,if3,if4;
 
-			object_flags(o_ptr,&if1,&if2,&if3);
+			object_flags(o_ptr,&if1,&if2,&if3,&if4);
 
 			f1 |= (if1 & ~(o_ptr->may_flags1)) & ~(o_ptr->can_flags1);
 			f2 |= (if2 & ~(o_ptr->may_flags2)) & ~(o_ptr->can_flags2);
 			f3 |= (if3 & ~(o_ptr->may_flags3)) & ~(o_ptr->can_flags3);
+			f4 |= (if4 & ~(o_ptr->may_flags4)) & ~(o_ptr->can_flags4);
 		}
 
 		/* Valid "tval" codes */
@@ -281,38 +288,20 @@ static void sense_inventory(void)
 	}
 
 	/* Hack --- silently notice stuff */
-	if ((f1 & (TR1_STR)) && (rand_int(100)<30)) equip_can_flags(TR1_STR,0x0L,0x0L);
-	else if (!(af1 & (TR1_STR))) equip_not_flags(TR1_STR,0x0L,0x0L);
+	if (f1 & (TR1_STEALTH)) equip_can_flags(TR1_STEALTH,0x0L,0x0L,0x0L);
+	else if (!(af1 & (TR1_STEALTH)) ) equip_not_flags(TR1_STEALTH,0x0L,0x0L,0x0L);
 
-	if ((f1 & (TR1_INT)) && (rand_int(100)<30)) equip_can_flags(TR1_INT,0x0L,0x0L);
-	else if (!(af1 & (TR1_INT))) equip_not_flags(TR1_INT,0x0L,0x0L);
+	if (f1 & (TR1_SEARCH)) equip_can_flags(TR1_SEARCH,0x0L,0x0L,0x0L);
+	else if (!(af1 & (TR1_SEARCH)) ) equip_not_flags(TR1_SEARCH,0x0L,0x0L,0x0L);
 
-	if ((f1 & (TR1_WIS)) && (rand_int(100)<30)) equip_can_flags(TR1_WIS,0x0L,0x0L);
-	else if (!(af1 & (TR1_WIS)) ) equip_not_flags(TR1_WIS,0x0L,0x0L);
+	if (f3 & (TR3_SLOW_DIGEST)) equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST,0x0L);
+	else if (!(af3 & (TR3_SLOW_DIGEST))) equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST,0x0L);
 
-	if ((f1 & (TR1_DEX)) && (rand_int(100)<30)) equip_can_flags(TR1_DEX,0x0L,0x0L);
-	else if (!(af1 & (TR1_DEX)) ) equip_not_flags(TR1_DEX,0x0L,0x0L);
+	if (f3 & (TR3_REGEN)) equip_can_flags(0x0L,0x0L,TR3_REGEN,0x0L);
+	else if (!(af3 & (TR3_REGEN))) equip_not_flags(0x0L,0x0L,TR3_REGEN,0x0L);
 
-	if ((f1 & (TR1_CON)) && (rand_int(100)<30)) equip_can_flags(TR1_CON,0x0L,0x0L);
-	else if (!(af1 & (TR1_CON)) ) equip_not_flags(TR1_CON,0x0L,0x0L);
-
-	if ((f1 & (TR1_CHR)) && (rand_int(100)<30)) equip_can_flags(TR1_CHR,0x0L,0x0L);
-	else if (!(af1 & (TR1_CHR)) ) equip_not_flags(TR1_CHR,0x0L,0x0L);
-
-	if ((f1 & (TR1_STEALTH)) && (rand_int(100)<30)) equip_can_flags(TR1_STEALTH,0x0L,0x0L);
-	else if (!(af1 & (TR1_STEALTH)) ) equip_not_flags(TR1_STEALTH,0x0L,0x0L);
-
-	if ((f1 & (TR1_SEARCH)) && (rand_int(100)<30)) equip_can_flags(TR1_SEARCH,0x0L,0x0L);
-	else if (!(af1 & (TR1_SEARCH)) ) equip_not_flags(TR1_SEARCH,0x0L,0x0L);
-
-	if ((f1 & (TR1_SPEED)) && (rand_int(100)<30)) equip_can_flags(TR1_SPEED,0x0L,0x0L);
-	else if (!(af1 & (TR1_SPEED))) equip_not_flags(TR1_SPEED,0x0L,0x0L);
-
-	if ((f3 & (TR3_SLOW_DIGEST)) && (rand_int(100)<30)) equip_can_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
-	else if (!(af3 & (TR3_SLOW_DIGEST))) equip_not_flags(0x0L,0x0L,TR3_SLOW_DIGEST);
-
-	if ((f3 & (TR3_REGEN)) && (rand_int(100)<30)) equip_can_flags(0x0L,0x0L,TR3_REGEN);
-	else if (!(af3 & (TR3_REGEN))) equip_not_flags(0x0L,0x0L,TR3_REGEN);
+	if (f4 & (TR4_HUNGER)) equip_can_flags(0x0L,0x0L,0x0L,TR4_HUNGER);
+	else if (!(af4 & (TR4_HUNGER))) equip_not_flags(0x0L,0x0L,0x0L,TR4_HUNGER);
 }
 
 
@@ -412,54 +401,6 @@ static void regenmana(int percent)
 
 
 
-
-
-/*
- * Regenerate the monsters (once per 100 game turns)
- *
- * XXX XXX XXX Should probably be done during monster turns.
- */
-static void regen_monsters(void)
-{
-	int i, frac;
-
-	/* Regenerate everyone */
-	for (i = 1; i < m_max; i++)
-	{
-		/* Check the i'th monster */
-		monster_type *m_ptr = &m_list[i];
-		monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-		/* Skip dead monsters */
-		if (!m_ptr->r_idx) continue;
-
-		/* Allow regeneration (if needed) */
-		if (m_ptr->hp < m_ptr->maxhp)
-		{
-			/* Hack -- Base regeneration */
-			frac = m_ptr->maxhp / 100;
-
-			/* Hack -- Minimal regeneration rate */
-			if (!frac) frac = 1;
-
-			/* Hack -- Some monsters regenerate quickly */
-			if (r_ptr->flags2 & (RF2_REGENERATE)) frac *= 2;
-
-			/* Uniques recover faster */
-			if (r_ptr->flags1 & (RF1_UNIQUE)) frac *= 2;
-
-			/* Hack -- Regenerate */
-			m_ptr->hp += frac;
-
-			/* Do not over-regenerate */
-			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
-			/* Redraw (later) if needed */
-			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
-		}
-	}
-}
-
 /*
  * Monster hook to use for 'wandering' monsters.
  */
@@ -508,8 +449,6 @@ static void process_world(void)
 
 	feature_type *f_ptr;
 
-	room_info_type *d_ptr;
-
 	int mimic;
 
 	int regen_amount;
@@ -517,10 +456,6 @@ static void process_world(void)
 	object_type *o_ptr;
 
 	cptr name;
-
-	int by,bx;
-
-	bool room;
 
 	/* Every 10 game turns */
 	if (turn % 10) return;
@@ -662,10 +597,6 @@ static void process_world(void)
 		get_mon_num_prep();
 	}
 
-	/* Hack -- Check for creature regeneration */
-	if (!(turn % 100)) regen_monsters();
-
-
 	/*** Damage over Time ***/
 
 	/* Get the feature */
@@ -742,25 +673,12 @@ static void process_world(void)
 
 	/*** Check the Food, Rest, and Regenerate ***/
 
-	/* Special rooms affect some of this */
-	by = p_ptr->py/BLOCK_HGT;
-	bx = p_ptr->px/BLOCK_HGT;
-
-	/* In a room */
-	room = (cave_info[p_ptr->py][p_ptr->px] & (CAVE_ROOM)) ? TRUE : FALSE;
-
-	/* Get the room */
-	d_ptr = &room_info[dun_room[by][bx]];
-
 	/* Tire normally */
 	/* XXX We exclude situations where we adjust this counter elsewhere */
-	if (variant_fast_moves)
-	{
-		if (!(p_ptr->resting || p_ptr->searching || p_ptr->running || p_ptr->paralyzed || (p_ptr->stun >= 100)) ||
+	if (!(p_ptr->resting || p_ptr->searching || p_ptr->running || p_ptr->paralyzed || (p_ptr->stun >= 100)) ||
 			(f_ptr->flags2 & (FF2_FILLED)))
-		{
-			(void)set_rest(p_ptr->rest - p_ptr->tiring);
-		}
+	{
+		(void)set_rest(p_ptr->rest - p_ptr->tiring);
 	}
 
 	/* Digest normally */
@@ -772,11 +690,14 @@ static void process_world(void)
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
 
+			/* Hunger takes more food */
+			if ((p_ptr->cur_flags4 & (TR4_HUNGER)) != 0) i += 100;
+
 			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
+			if ((p_ptr->cur_flags3 & (TR3_REGEN)) != 0) i += 30;
 
 			/* Slow digestion takes less food */
-			if (p_ptr->slow_digest) i -= 10;
+			if ((p_ptr->cur_flags3 & (TR3_SLOW_DIGEST)) != 0) i -= 10;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -814,7 +735,7 @@ static void process_world(void)
 		{
 			regen_amount = 0;
 		}
-		else if ((p_ptr->food < PY_FOOD_FAINT) || (p_ptr->rest < PY_REST_FAINT))
+		else if (p_ptr->food < PY_FOOD_FAINT)
 		{
 			regen_amount = PY_REGEN_FAINT;
 		}
@@ -855,7 +776,7 @@ static void process_world(void)
 	}	
 
 	/* Regeneration ability */
-	if (p_ptr->regenerate)
+	if ((p_ptr->cur_flags3 & (TR3_REGEN)) != 0)
 	{
 		regen_amount = regen_amount * 2;
 	}
@@ -869,7 +790,8 @@ static void process_world(void)
 	/* Regenerate the mana */
 	if (p_ptr->csp < p_ptr->msp)
 	{
-		regenmana(regen_amount);
+		if (!(p_ptr->cur_flags3 & (TR3_DRAIN_MANA)) &&
+			!(p_ptr->disease & (DISEASE_DRAIN_MANA))) regenmana(regen_amount);
 	}
 
 	/* Various things interfere with healing */
@@ -877,7 +799,12 @@ static void process_world(void)
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
-	if ((room) && (d_ptr->flags & (ROOM_BLOODY))) regen_amount = 0;
+
+	/* If disease has no other effect, prevent regeneration */
+	if ((p_ptr->disease) && !(p_ptr->disease & (DISEASE_BLOWS))) regen_amount = 0;
+
+	if ((p_ptr->cur_flags3 & (TR3_DRAIN_HP)) != 0) regen_amount = 0;
+	if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) regen_amount = 0;
 
 	/* Regenerate Hit Points if needed */
 	if (p_ptr->chp < p_ptr->mhp)
@@ -928,6 +855,30 @@ static void process_world(void)
 	if (p_ptr->afraid)
 	{
 		(void)set_afraid(p_ptr->afraid - 1);
+	}
+
+	/* Temporary stat increase */
+	for (i = 0; i < A_MAX; i++)
+	{
+		if (p_ptr->stat_inc_tim[i])
+		{
+			(void)set_stat_inc_tim(p_ptr->stat_inc_tim[i] - 1, i);
+		}
+	}
+
+	/* Temporary stat decrease */
+	for (i = 0; i < A_MAX; i++)
+	{
+		if (p_ptr->stat_dec_tim[i])
+		{
+			(void)set_stat_dec_tim(p_ptr->stat_dec_tim[i] - 1, i);
+		}
+	}
+
+	/* Fast */
+	if (p_ptr->fast)
+	{
+		(void)set_fast(p_ptr->fast - 1);
 	}
 
 	/* Fast */
@@ -1017,7 +968,7 @@ static void process_world(void)
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
 		/* Some rooms make wounds magically worse */
-		if ((room) && (d_ptr->flags & (ROOM_BLOODY))) adjust = -1;
+		if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) adjust = -1;
 
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
@@ -1041,7 +992,7 @@ static void process_world(void)
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Some rooms make wounds magically worse */
-		if ((room) && (d_ptr->flags & (ROOM_BLOODY))) adjust = -1;
+		if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) adjust = -1;
 		
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
@@ -1097,46 +1048,48 @@ static void process_world(void)
 	/*** Process Inventory ***/
 
 	/* Handle experience draining */
-	if (p_ptr->exp_drain)
+	if (((p_ptr->cur_flags3 & (TR3_DRAIN_EXP)) != 0) || (p_ptr->disease & (DISEASE_DRAIN_EXP)))
 	{
 		if ((rand_int(100) < 10) && (p_ptr->exp > 0))
 		{
 			/* Always notice */
-			equip_can_flags(0x0L,0x0L,TR3_DRAIN_EXP);
+			if (!(p_ptr->disease & (DISEASE_DRAIN_EXP))) equip_can_flags(0x0L,0x0L,TR3_DRAIN_EXP,0x0L);
 
 			p_ptr->exp--;
 			p_ptr->max_exp--;
+			if (p_ptr->exp <= 0) p_ptr->exp = 0;
+
 			check_experience();
 		}
 	}
 
 	/* Handle hit point draining */
-	if (p_ptr->hp_drain)
+	if (((p_ptr->cur_flags3 & (TR3_DRAIN_HP)) != 0) || (p_ptr->disease & (DISEASE_DRAIN_HP)))
 	{
 		if ((rand_int(100) < 10) && (p_ptr->chp > 0))
 		{
 			/* Always notice */
-			equip_can_flags(0x0L,0x0L,TR3_DRAIN_HP);
+			if (!(p_ptr->disease & (DISEASE_DRAIN_HP))) equip_can_flags(0x0L,0x0L,TR3_DRAIN_HP,0x0L);
 
-			p_ptr->chp--;
-			p_ptr->chp_frac = 0;
-
-			/* Redraw */
-			p_ptr->redraw |= (PR_HP);
+			if (p_ptr->disease & (DISEASE_DRAIN_HP))
+				take_hit(1, "disease");
+			else
+				take_hit(1, "curse");
 
 		}
 	}
 
 	/* Handle mana draining */
-	if (p_ptr->mana_drain)
+	if (((p_ptr->cur_flags3 & (TR3_DRAIN_MANA)) != 0) || (p_ptr->disease & (DISEASE_DRAIN_MANA)))
 	{
 		if ((rand_int(100) < 10) && (p_ptr->csp > 0))
 		{
 			/* Always notice */
-			equip_can_flags(0x0L,0x0L,TR3_DRAIN_MANA);
+			if (!(p_ptr->disease & (DISEASE_DRAIN_MANA))) equip_can_flags(0x0L,0x0L,TR3_DRAIN_MANA,0x0L);
 
 			p_ptr->csp--;
 			p_ptr->csp_frac = 0;
+			if (p_ptr->exp <= 0) p_ptr->csp = 0;
 
 			/* Redraw */
 			p_ptr->redraw |= (PR_MANA);		
@@ -1166,10 +1119,10 @@ static void process_world(void)
 			{
 				char o_name[80];
 
-				u32b f1, f2, f3;
+				u32b f1, f2, f3, f4;
 
 				/* Get the flags */
-				object_flags(o_ptr,&f1, &f2, &f3);
+				object_flags(o_ptr,&f1, &f2, &f3, &f4);
 
 				/* Get a description */
 				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -1187,9 +1140,23 @@ static void process_world(void)
 					   (o_ptr->number == 1) ? "has" : "have");
 
 					/* Destroy a spell if discharged */
-					if (o_ptr->timeout) inven_item_increase(i, -1);
-					else if (o_ptr->stackc) inven_item_increase(i, -(o_ptr->stackc));
-					else inven_item_increase(i,-(o_ptr->number));
+					if (o_ptr->timeout)
+					{
+						if (o_ptr->number == 1) inven_drop_flags(o_ptr);
+
+						inven_item_increase(i, -1);
+					}
+					else if (o_ptr->stackc)
+					{
+						if (o_ptr->number == o_ptr->stackc) inven_drop_flags(o_ptr);
+
+						inven_item_increase(i, -(o_ptr->stackc));
+					}
+					else
+					{
+						inven_drop_flags(o_ptr);
+						inven_item_increase(i,-(o_ptr->number));
+					}
 
 					inven_item_optimize(i);
 
@@ -1290,10 +1257,10 @@ static void process_world(void)
 			if (!(o_ptr->timeout) || ((o_ptr->stackc) ? (o_ptr->timeout < o_ptr->stackc) :
 				(o_ptr->timeout < o_ptr->number) ))
 			{
-				u32b f1, f2, f3;
+				u32b f1, f2, f3, f4;
 
 				/* Get the flags */
-				object_flags(o_ptr,&f1, &f2, &f3);
+				object_flags(o_ptr,&f1, &f2, &f3, &f4);
 
 				/* Spells run out */
 				if (o_ptr->tval == TV_SPELL)
@@ -1329,20 +1296,167 @@ static void process_world(void)
 
 	}
 
+	/*** Handle disease ***/
+	if ((p_ptr->disease & (DISEASE_BLOWS)) && (rand_int(300) < ((p_ptr->disease & (DISEASE_QUICK | DISEASE_LIGHT)) ? 3 : 1)))
+	{
+		int i, n, effect = 0;
+
+		msg_print("You feel an illness eat away at you.");
+
+		disturb(0,0);
+
+		n = 1;
+
+		/* Select one of the possible effects that the player can suffer */
+		for (i = 1; i < DISEASE_BLOWS; i <<=1)
+		{
+			if (!(p_ptr->disease & i)) continue;
+			
+			if (!rand_int(n++)) effect = i;
+		}
+
+		switch (effect)
+		{
+			case DISEASE_LOSE_STR:
+			{
+				dec_stat(A_STR, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_INT:
+			{
+				dec_stat(A_INT, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_WIS:
+			{
+				dec_stat(A_WIS, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_DEX:
+			{
+				dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_CON:
+			{
+				dec_stat(A_CON, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_CHR:
+			{
+				dec_stat(A_CHR, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_HUNGER:
+			{
+				msg_print("You vomit up your food!");
+				(void)set_food(PY_FOOD_STARVE - 1);
+				break;
+			}
+
+			case DISEASE_THIRST:
+			{
+				(void)set_food(p_ptr->food - randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_CUT:
+			{
+				(void)set_cut(p_ptr->cut + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_STUN:
+			{
+				(void)set_cut(p_ptr->cut + randint(10) + 2);
+				break;
+			}
+
+			case DISEASE_POISON:
+			{
+				(void)set_poisoned(p_ptr->poisoned + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_BLIND:
+			{
+				(void)set_blind(p_ptr->blind + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_FEAR:
+			{
+				(void)set_afraid(p_ptr->afraid + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_CONFUSE:
+			{
+				(void)set_confused(p_ptr->confused + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_HALLUC:
+			{
+				(void)set_image(p_ptr->image + randint(30) + 10);
+				break;
+			}
+
+			case DISEASE_PARALYZE:
+			{
+				(void)set_paralyzed(p_ptr->paralyzed + randint(3) + 1);
+				break;
+			}
+
+			case DISEASE_SLOW:
+			{
+				(void)set_slow(p_ptr->slow + randint(30) + 10);
+				break;
+			}
+
+		}
+
+		if ((p_ptr->disease & (DISEASE_DISEASE)) && !(rand_int(3)))
+		{
+			if ((n < 3) && (p_ptr->disease & (DISEASE_HEAVY)))
+				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+			else if (n < 3)
+				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+			
+			if (n > 1) p_ptr->disease &= ~(1 << rand_int(DISEASE_TYPES));
+			if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
+		}
+
+		/* The player is on the mend */
+		if ((p_ptr->disease & (DISEASE_LIGHT)) && !(rand_int(6)))
+		{
+			msg_print("The illness has subsided.");
+			p_ptr->disease = 0;
+		}		
+
+	}
+
+
 	/*** Involuntary Movement ***/
 
 	/* Mega-Hack -- Random teleportation XXX XXX XXX */
-	if ((p_ptr->teleport) && (rand_int(100) < 1))
+	if (((p_ptr->cur_flags3 & (TR3_TELEPORT)) != 0) && (rand_int(100) < 1))
 	{
 		/* Teleport player */
 		teleport_player(40);
 
 		/* Always notice */
-		equip_can_flags(0x0L,0x0L,TR3_TELEPORT);
+		equip_can_flags(0x0L,0x0L,TR3_TELEPORT,0x0L);
 
 	}
 	/* Mega-Hack -- Portal room */
-	else if ((room) && (d_ptr->flags & (ROOM_PORTAL)) && (rand_int(100)<1))
+	else if ((room_has_flag(p_ptr->py, p_ptr->px, ROOM_PORTAL)) && (rand_int(100)<1))
 	{
 		/* Warn the player */
 		msg_print("There is a brilliant flash of light.");
@@ -1395,6 +1509,10 @@ static void process_world(void)
 			}
 		}
 	}
+
+	/* Update dynamic terrain */
+	update_dyna();
+
 }
 
 
@@ -1502,6 +1620,7 @@ static bool verify_borg_mode(void)
 extern void do_cmd_borg(void);
 
 #endif
+
 
 
 
@@ -1896,6 +2015,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Assemble a mechanism */
+		case 'Y':
+		{
+			do_cmd_assemble();
+			break;
+		}
+
 		/*** Looking at Things (nearby or on map) ***/
 
 		/* Full dungeon map */
@@ -2013,10 +2139,24 @@ static void process_command(void)
 			break;
 		}
 
+		/* List quests */
+		case KTRL('Q'):
+		{
+			do_cmd_quest();
+			break;
+		}
+
 		/* Repeat level feeling */
 		case KTRL('F'):
 		{
 			do_cmd_feeling();
+			break;
+		}
+
+		/* Repeat time of day */
+		case KTRL('T'):
+		{
+			do_cmd_timeofday();
 			break;
 		}
 
@@ -2100,6 +2240,42 @@ static void process_command(void)
 			break;
 		}
 
+		/* Mouse interaction */
+		case '\xff':
+		{
+			int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
+			int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+
+			/* Hack -- we could try various things here like travelling or going up/down stairs */
+			if ((p_ptr->py == y) && (p_ptr->px == x) && (p_ptr->command_cmd_ex.mousebutton))
+			{
+				do_cmd_rest();
+			}
+			else if (p_ptr->command_cmd_ex.mousebutton == 1)
+			{
+				if (p_ptr->confused)
+				{
+					do_cmd_walk();
+				}
+				else
+				{
+					do_cmd_pathfind(y, x);
+				}
+			}
+			else if (p_ptr->command_cmd_ex.mousebutton == 2)
+			{
+				target_set_location(y, x);
+				msg_print("Target set.");
+			}
+			else
+			{
+#if 0
+				target_set_interactive_aux(y, x, TARGET_PEEK, (use_mouse ? "*,left-click to move to, right-click to target" : "*"));
+#endif
+			}
+			break;
+		}
+
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -2126,6 +2302,9 @@ static void process_player_aux(void)
 	static u32b     old_flags4 = 0L;
 	static u32b     old_flags5 = 0L;
 	static u32b     old_flags6 = 0L;
+	static u32b     old_flags7 = 0L;
+	static u32b     old_flags8 = 0L;
+	static u32b     old_flags9 = 0L;
 
 	static byte	old_r_blows0 = 0;
 	static byte	old_r_blows1 = 0;
@@ -2150,6 +2329,9 @@ static void process_player_aux(void)
 		    (old_flags4 != l_ptr->flags4) ||
 		    (old_flags5 != l_ptr->flags5) ||
 		    (old_flags6 != l_ptr->flags6) ||
+		    (old_flags7 != l_ptr->flags7) ||
+		    (old_flags8 != l_ptr->flags8) ||
+		    (old_flags9 != l_ptr->flags9) ||
 		    (old_r_blows0 != l_ptr->blows[0]) ||
 		    (old_r_blows1 != l_ptr->blows[1]) ||
 		    (old_r_blows2 != l_ptr->blows[2]) ||
@@ -2167,6 +2349,9 @@ static void process_player_aux(void)
 			old_flags4 = l_ptr->flags4;
 			old_flags5 = l_ptr->flags5;
 			old_flags6 = l_ptr->flags6;
+			old_flags6 = l_ptr->flags7;
+			old_flags6 = l_ptr->flags8;
+			old_flags6 = l_ptr->flags9;
 
 			/* Memorize blows */
 			old_r_blows0 = l_ptr->blows[0];
@@ -2285,7 +2470,7 @@ static void process_player(void)
 			inkey_scan = TRUE;
 
 			/* Check for a key */
-			if (inkey())
+			if (anykey().key)
 			{
 				/* Flush input */
 				flush();
@@ -2310,9 +2495,27 @@ static void process_player(void)
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
-	
 	}
 
+	/*** Clear dodging ***/
+	if (p_ptr->dodging)
+	{
+		/* Clear dodging */
+		p_ptr->dodging = FALSE;
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/*** Clear blocking ***/
+	if (p_ptr->blocking)
+	{
+		/* Clear blocking */
+		p_ptr->blocking = FALSE;
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);
+	}
 
 	/*** Handle actual user input ***/
 
@@ -2338,7 +2541,6 @@ static void process_player(void)
 		/* Refresh (optional) */
 		if (fresh_before) Term_fresh();
 
-
 		/* Hack -- Pack Overflow */
 		if (inventory[INVEN_PACK].k_idx)
 		{
@@ -2362,6 +2564,9 @@ static void process_player(void)
 
 			/* Message */
 			msg_format("You drop %s (%c).", o_name, index_to_label(item));
+
+			/* Forget about it */
+			inven_drop_flags(o_ptr);
 
 			/* Drop it (carefully) near the player */
 			drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
@@ -2490,7 +2695,6 @@ static void process_player(void)
 		/* Significant */
 		if (p_ptr->energy_use)
 		{
-
 			/* Hack -- sing song */
 			if (p_ptr->held_song)
 			{
@@ -2531,7 +2735,7 @@ static void process_player(void)
 					r_ptr = &r_info[m_ptr->r_idx];
 
 					/* Skip non-multi-hued monsters */
-					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI)) && !(r_ptr->flags1 & (RF1_ATTR_METAL))) continue;
+					if (!(r_ptr->flags1 & (RF1_ATTR_MULTI)) && !(r_ptr->flags9 & (RF9_ATTR_METAL))) continue;
 
 					/* Reset the flag */
 					shimmer_monsters = TRUE;
@@ -2605,9 +2809,6 @@ static void process_player(void)
 	}
 	while (!p_ptr->energy_use && !p_ptr->leaving);
 
-	/* Update dynamic terrain */
-	update_dyna();
-
 	/* Update noise flow information */
 	update_noise();
 
@@ -2635,7 +2836,6 @@ static void dungeon(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
-
 
 	/* Hack -- enforce illegal panel */
 	p_ptr->wy = DUNGEON_HGT;
@@ -2730,6 +2930,7 @@ static void dungeon(void)
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
 
+
 	/* Choose panel */
 	verify_panel();
 
@@ -2745,7 +2946,6 @@ static void dungeon(void)
 	/* Clear */
 	Term_clear();
 
-
 	/* Update stuff */
 	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
@@ -2759,16 +2959,16 @@ static void dungeon(void)
 	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_DISTANCE);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_ITEM_LIST);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 	/* Update stuff */
 	update_stuff();
@@ -2778,7 +2978,6 @@ static void dungeon(void)
 
 	/* Redraw stuff */
 	window_stuff();
-
 
 	/* Hack -- Decrease "xtra" depth */
 	character_xtra--;
@@ -3035,10 +3234,6 @@ void play_game(bool new_game)
 		quit("main window is too small");
 	}
 
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
-
-
 	/* Hack -- Turn off the cursor */
 	(void)Term_set_cursor(0);
 
@@ -3102,8 +3297,6 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
-#ifdef GJW_RANDART
-
 		/* Hack -- seed for random artifacts */
 		if (reseed_artifacts) seed_randart = rand_int(0x10000000);
 
@@ -3131,13 +3324,11 @@ void play_game(bool new_game)
 
 		}
 
-#endif
-
 		/* Roll up a new character */
 		player_birth();
 
-                /* Random artifacts */
-                do_randart(seed_randart, TRUE);
+		/* Randomize the artifact names */
+		do_randart(seed_randart, TRUE);
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -3192,14 +3383,13 @@ void play_game(bool new_game)
 	reset_visuals(TRUE);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 | PW_PLAYER_2 | PW_PLAYER_3);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MONSTER | PW_MESSAGE);
 
 	/* Window stuff */
 	window_stuff();
-
 
 	/* Process some user pref files */
 	process_some_user_pref_files();

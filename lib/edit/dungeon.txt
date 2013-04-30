@@ -53,12 +53,9 @@
 
 # 'D' indicates the description displayed on the surface of the dungeon.
 
-
-
 #Version information
 
-V:3.0.1
-
+V:0.6.0
 
 # Default starting dungeon.
 
@@ -73,18 +70,18 @@ D:It feels like home...
 # Alternate starting dungeon.
 
 N:1:Hobbiton
-X:10:37
+X:10:57
 G:h
-L:0:0:411:435:0:0
-S:264:515:265:266:0:0:0:0
+L:0:0:411:153:0:0
+S:264:515:265:266:772:773:0:0
 D:Tip: Press '<' to travel elsewhere.
 
 #The following quests are from the hobbit.
 
 N:2:Rivendell
 X:39:3
-L:0:0:420:126:0:0
-S:267:9:10:11:12:13:268:0
+L:0:0:420:155:0:0
+S:267:9:10:11:12:13:268:513
 
 # Misty Mountains are quite wet (Underground rivers etc).
 
@@ -109,14 +106,14 @@ G:l
 R:CAN_CLIMB
 L:14:420:56:153:637:0
 L:15:56:0:0:0:0
-L:25:0:1:0:0:0
+L:25:0:1:155:0:0
 L:26:56:155:0:1082:0
 S:270:271:503:11:12:504:505:0
 
 N:6:Lake-town
 X:5:7
-L:0:0:407:0:0:0
-S:8:9:10:11:12:13:14:0
+L:0:0:155:152:0:0
+S:8:9:10:11:12:13:14:508
 
 # We disturb Smaug while entering his lair...
 # Note Smaug is out of depth by 10 levels at bottom.
@@ -147,47 +144,47 @@ D:gather, angry at you for disturbing his lair...
 
 N:9:Lake-town, rebuilt
 X:42:14
-L:0:0:407:1:0:0
-S:509:516:517:11:12:13:506:0
+L:0:0:155:152:0:0
+S:509:516:517:11:12:13:506:508
 D:Visit the statue to collect a reward from the 
 D:grateful townsfolk.
 
 #The following levels are from the Fellowship of the Ring.
 
 N:10:Farmer Maggot's farm
-X:1:40
+X:1:58
 G:,
 R:ANIMAL
-L:0:0:435:419:4:0
+L:0:0:435:0:4:0
 L:1:114:0:0:0:0
-L:8:114:0:0:111:0
+L:5:114:0:0:111:0
 S:507:0:0:0:0:0:0:0
 
 N:11:Bree
-X:41:12
+X:41:56
 G:t
 R:ANIMAL
-L:0:0:407:419:440:0
+L:0:0:407:408:440:0
 L:1:56:0:0:0:0
 L:3:56:0:0:620:0
-S:508:9:10:11:12:13:0:0
+S:8:9:10:11:12:13:268:775
 
 N:12:Weathertop
-X:11:13
+X:56:13
 G:s
 R:ANIMAL
 L:20:420:56:49:449:31
 L:24:56:0:0:449:31
 
-N:13:Trollshaw Forest
+N:13:the Ford to Rivendell
 X:12:14
-L:14:420:420:154:453:0
+L:14:420:154:126:453:0
 
 #Duplicate to allow acces to Moria.
 
 N:14:Rivendell
 X:15:17
-L:0:0:420:126:0:0
+L:0:0:420:155:0:0
 S:267:516:503:11:12:505:268:513
 
 N:15:Caradhras
@@ -215,8 +212,8 @@ N:18:Lothlorien
 X:19:20
 G:l
 L:0:0:420:420:0:0
-S:270:503:11:12:504:510:0:0
-D:Galadriel's gifts can be found at the White tree.
+S:270:503:11:12:13:504:510:0
+D:Galadriel's gifts can be found at her mirror.
 
 N:19:Parth Galen
 X:20:24
@@ -231,12 +228,15 @@ R:PLANT
 L:20:420:420:420:634:0
 
 N:21:Edoras
-X:22:28
+X:22:29
 G:p
 R:WARRIOR
-L:51:0:407:0:0:0
-L:52:56:0:0:514:0
-S:271:516:517:519:504:511:509:0
+L:51:0:533:529:0:49
+L:52:56:0:0:514:49
+S:271:516:517:519:504:511:509:508
+D:In the distance you see the watch-towers burning a signal to Minas Tirith.
+D:  The shortest path there lies on the Paths of the Dead; if you take it
+D: you may not return here.
 
 N:22:Hornburg
 X:21:23
@@ -245,10 +245,12 @@ R:ESCORT
 L:53:420:56:155:249:49
 
 N:23:Isengard
-X:20:22
+X:20:28
 L:21:420:141:141:514:31
 L:22:56:0:0:0:31
 L:50:56:0:0:532:31
+D:If you conquer Isengard, you open the easier path to Minas Tirith.  If you
+D: take it, you may not return here.
 
 N:24:the Marshes of the Dead
 X:19:25
@@ -262,7 +264,7 @@ X:26:49
 G:T
 R:WARRIOR
 L:20:420:155:199:0:0
-L:21:0:135:153:1084:0
+L:21:0:1:155:1084:0
 S:512:520:521:522:0:0:0:0
 
 N:26:Minas Morgul
@@ -283,12 +285,15 @@ L:65:56:1:0:597:11
 #King Denethor should guard Minas Tirith
 
 N:28:Minas Tirith
-X:29:30
+X:30:25
 G:t
-R:WARRIOR
-L:54:0:407:0:0:0
-L:55:56:0:0:1085:0
-S:505:516:517:503:519:518:509:0
+R:MAGE
+L:0:0:410:56:0:46
+L:1:56:0:0:0:46
+L:55:56:0:0:1085:46
+S:505:516:517:503:519:518:509:508
+D:Should you defeat Denethor, you will open the path to Ithilien.  If you
+D: take it, you may not return here for some time.
 
 N:29:the Paths of the Dead
 X:28:30
@@ -299,19 +304,22 @@ L:57:56:0:0:0:0
 L:85:56:0:0:528:0
 
 N:30:the Battle of Pelennor Fields
-X:27:31
+X:28:31
 G:W
-R:ESCORTS
+R:ESCORT
 L:56:435:411:420:535:0
 
 N:31:Minas Tirith
 X:25:26
 G:t
-R:WARRIOR
-L:0:0:407:0:0:0
-L:1:56:0:0:0:0
-S:505:516:517:503:519:518:510:0
-D:A white tree has found root in Minas Tirith.
+R:MAGE
+L:0:0:410:56:0:46
+L:1:56:0:0:0:46
+L:55:56:0:0:0:46
+S:505:516:517:503:519:518:777:508
+D:A white tree has found root in Minas Tirith.  Claim your reward
+D: there.  This is your last chance to rest before the final
+D: confrontation with Mordor.
 
 N:32:the Plains of Gorgoroth
 X:51:33
@@ -321,7 +329,7 @@ L:79:56:209:0:595:0
 
 N:33:Orodruin
 X:32:34
-R:BR_FIRE
+R:BRTH_FIRE
 L:79:432:218:218:0:0
 L:80:56:218:218:0:0
 L:98:56:218:218:546:0
@@ -337,14 +345,14 @@ L:99:56:218:216:546:20
 N:35:Hobbiton
 X:0:36
 G:h
-L:60:0:407:199:532:0
+L:60:0:407:159:532:0
 S:516:517:14:266:509:0:0:0
 
 N:36:Hobbiton, rebuilt
 X:36:0
 G:h
-L:0:0:407:419:0:0
-S:264:515:265:266:0:0:0:0
+L:0:0:407:153:0:0
+S:264:515:265:266:772:773:774:0
 
 # The following are accessible from the first Hobbiton for consistency
 
@@ -352,12 +360,10 @@ N:37:Bree
 X:38:39
 G:t
 R:ANIMAL
-L:0:0:407:419:617:0
+L:0:0:407:408:617:0
 L:1:56:0:0:0:0
 L:3:56:0:0:620:0
-S:508:9:10:11:12:13:0:0
-
-# Need a barrow wight unique.
+S:8:9:10:11:12:13:268:775
 
 N:38:Barrow-downs
 X:37:40
@@ -372,19 +378,16 @@ L:5:56:0:0:344:0
 L:6:56:0:0:345:0
 
 N:40:the Old Forest
-X:10:11
-R:PLANT
-L:9:420:420:153:622:0
-L:10:0:135:0:307:0
-S:28:0:0:0:0:0:0:0
+X:53:54
+R:ANIMAL
+L:6:420:420:153:0:0
 
 # And the same dungeon accessible from the LOtR quest.
-# Need a barrow-wight unique.
 
 N:41:Barrow-downs
-X:12:40
-L:1:420:420:56:0:0
-L:2:56:0:0:0:0
+X:11:12
+L:7:420:420:56:0:0
+L:8:56:0:0:0:0
 L:20:56:0:0:1081:0
 
 # Alternate Lonely Mountain for 'There and Back again' map
@@ -472,14 +475,72 @@ L:80:407:218:208:511:0
 
 N:52:the Dale
 X:47:42
-L:0:0:411:0:0:0
-S:509:516:517:11:12:13:268:0
+L:0:0:530:153:0:0
+S:509:516:517:11:12:13:268:508
 
-# Other alternate dungeons should be placed here
+# Extend the LotR quests to give starters more
+# 'breathing space'.
+
+N:53:Buckland
+X:40:54
+G:h
+R:ANIMAL
+L:0:0:420:408:0:0
+S:8:9:10:11:12:13:268:778
+
+N:54:a clearing in the Old Forest
+X:40:55
+R:PLANT
+L:6:0:420:153:622:0
+L:7:56:1:420:0:0
+L:10:56:1:420:622:0
+S:0:0:0:0:0:0:0:0
+
+N:55:the House of Tom Bombadil
+X:41:41
+G:H
+L:11:0:420:153:307:0
+L:12:56:1:420:307:0
+S:514:776:0:0:0:0:0:0
+D:Goldberry's gifts can be found at her pool.
+
+N:56:the Midge Marshes
+X:11:12
+G:R
+R:INSECT
+L:11:435:153:199:0:0
+L:12:56:0:153:0:0
+L:19:56:0:153:215:0
+
+# Make it clear that there is no easy way back to Hobbiton.
+
+N:57:the East Road
+X:1:37
+G:h
+R:ANIMAL
+L:0:0:435:420:0:0
+S:0:0:0:0:0:0:0:0
+D:The road ahead is long but straight; it takes you to beyond the
+D: edge of the Shire to Bree.  Choose your path carefully!  Once
+D: your feet take you further, it may be a while before you return
+D: to Hobbiton, older, wiser and wearier.  Elsewhere, dark clouds
+D: gather. At least the way ahead seems fair and true.
+
+N:58:the Brandywine Bridge
+X:1:53
+G:h
+R:ANIMAL
+L:0:0:435:155:0:0
+S:0:0:0:0:0:0:0:0
+D:This is the farthest you've been from the Shire - ahead, dark
+D: clouds gather.  Choose your path carefully! Once you cross the
+D: Brandywine to Buckland, it may be a while before you return to
+D: Hobbiton, and in some ways you can never come back.  The East
+D: Road from Hobbiton looks a fairer route, and safer too.
 
 # Must always be last position
 
-N:53:the West
+N:59:the West
 G:M
 L:0:0:420:0:0:0
-S:510:0:0:0:0:0:0:0
+S:777:0:0:0:0:0:0:0

@@ -120,6 +120,11 @@ ANGBAND MENU
 		}
 
 		MENUITEM "&Sound", 410
+		POPUP "Mo&use"
+		{
+			MENUITEM "&Enable mouse", 411
+			MENUITEM "&Track mouse movement", 412
+		}
 		MENUITEM SEPARATOR
 		MENUITEM "Low Priority", 420
 		MENUITEM "Activate Screensaver", 430

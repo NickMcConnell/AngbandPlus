@@ -1876,7 +1876,35 @@ errr Term_keypress(int k)
 	if (!k) return (-1);
 
 	/* Store the char, advance the queue */
-	Term->key_queue[Term->key_head++] = k;
+	Term->key_queue[Term->key_head++].key = k;
+
+	/* Circular queue, handle wrap */
+	if (Term->key_head == Term->key_size) Term->key_head = 0;
+
+	/* Success (unless overflow) */
+	if (Term->key_head != Term->key_tail) return (0);
+
+#if 0
+	/* Hack -- Forget the oldest key */
+	if (++Term->key_tail == Term->key_size) Term->key_tail = 0;
+#endif
+
+	/* Problem */
+	return (1);
+}
+
+
+/*
+ * Add a mouse event to the "queue"
+ */
+errr Term_mousepress(int x, int y, int button)
+{
+	/* Store the char, advance the queue */
+	Term->key_queue[Term->key_head].key = '\xff';
+	Term->key_queue[Term->key_head].mousex = x;
+	Term->key_queue[Term->key_head].mousey = y;
+	Term->key_queue[Term->key_head].mousebutton = button;
+	Term->key_head++;
 
 	/* Circular queue, handle wrap */
 	if (Term->key_head == Term->key_size) Term->key_head = 0;
@@ -1906,7 +1934,7 @@ errr Term_key_push(int k)
 	if (Term->key_tail == 0) Term->key_tail = Term->key_size;
 
 	/* Back up, Store the char */
-	Term->key_queue[--Term->key_tail] = k;
+	Term->key_queue[--Term->key_tail].key = k;
 
 	/* Success (unless overflow) */
 	if (Term->key_head != Term->key_tail) return (0);
@@ -1934,10 +1962,10 @@ errr Term_key_push(int k)
  *
  * Remove the keypress if "take" is true.
  */
-errr Term_inkey(char *ch, bool wait, bool take)
+errr Term_inkey(key_event *ke, bool wait, bool take)
 {
 	/* Assume no key */
-	(*ch) = '\0';
+	ke->key = '\0';
 
 	/* Hack -- get bored */
 	if (!Term->never_bored)
@@ -1972,7 +2000,7 @@ errr Term_inkey(char *ch, bool wait, bool take)
 	if (Term->key_head == Term->key_tail) return (1);
 
 	/* Extract the next keypress */
-	(*ch) = Term->key_queue[Term->key_tail];
+	memcpy(ke, &Term->key_queue[Term->key_tail], sizeof(key_event));
 
 	/* If requested, advance the queue, wrap around if necessary */
 	if (take && (++Term->key_tail == Term->key_size)) Term->key_tail = 0;
@@ -2411,7 +2439,7 @@ errr term_init(term *t, int w, int h, int k)
 	t->key_size = k;
 
 	/* Allocate the input queue */
-	C_MAKE(t->key_queue, t->key_size, char);
+	C_MAKE(t->key_queue, t->key_size, key_event);
 
 
 	/* Save the size */

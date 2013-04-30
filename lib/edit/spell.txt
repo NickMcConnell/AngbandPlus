@@ -46,6 +46,10 @@
 # If dice is > 0 and sides == 0, we use dice * level + bonus, or
 # dice * 25 + bonus, if the spell is the result of using an object.
 
+# Note that if you are applying blows to a player, you should apply the blow
+# that blinds them last, if possible, because they will not know the results
+# of the other blows.
+
 # 'L' indicates how long the duration component of the spell lasts.
 
 # 'S' indicates another parametised effect. The parameter value
@@ -60,7 +64,7 @@
 
 # Version stamp (required)
 
-V:3.0.1
+V:0.6.0
 
 N:0:(illegible)
 C:0:99:99:100:100
@@ -70,10 +74,10 @@ A:65:15:1
 A:65:24:15
 A:90:0:1
 A:93:2:2
-C:1:1:1:22:4
-C:4:3:1:30:1
-C:8:1:1:30:1
-B:MISSILE:MISSILE:3d4+0
+C:1:1:2:22:4
+C:4:3:2:30:1
+C:8:2:2:30:1
+B:MISSILE:MANA:3d4+0
 
 N:2:Detect Monsters
 A:90:0:2
@@ -235,6 +239,7 @@ C:3:21:9:90:1
 C:4:11:9:45:3
 C:8:5:5:35:4
 F:CURE_POIS
+S:CURE_DISEASE:10
 
 N:15:Teleport Self
 A:55:4:1
@@ -296,6 +301,7 @@ A:90:2:1
 A:90:24:4
 A:92:4:6
 A:93:3:19
+A:99:1:1
 C:1:9:7:45:8
 C:3:25:12:95:1
 C:4:17:17:55:3
@@ -309,6 +315,7 @@ A:70:43:1
 A:90:1:9
 A:90:25:1
 A:93:17:17
+A:99:2:1
 C:1:9:7:75:9
 C:3:27:15:99:1
 C:4:17:17:90:4
@@ -344,6 +351,7 @@ A:70:12:1
 A:90:3:6
 A:90:23:8
 A:93:17:12
+A:99:3:1
 C:1:30:10:70:10
 C:3:27:10:50:10
 C:4:35:20:70:10
@@ -405,6 +413,7 @@ N:28:Recharge Item I
 A:90:2:8
 A:90:25:3
 A:93:17:19
+A:99:4:1
 C:1:21:12:90:8
 C:3:30:20:99:6
 C:4:29:23:95:3
@@ -413,7 +422,7 @@ S:RECHARGE:40
 N:29:Teleport Other
 A:65:3:1
 A:65:24:3
-A:66:13:1
+A:66:28:1
 A:90:3:2
 A:92:3:4
 A:93:7:26
@@ -509,6 +518,7 @@ A:90:5:6
 A:90:21:10
 A:92:3:6
 A:93:19:27
+A:99:5:1
 C:1:25:25:75:19
 C:3:30:35:75:15
 C:4:35:35:75:13
@@ -596,6 +606,7 @@ A:90:23:7
 A:90:25:2
 A:92:2:5
 A:93:12:12
+A:99:6:1
 C:1:10:10:70:40
 C:3:10:10:70:40
 C:4:15:20:70:25
@@ -607,6 +618,7 @@ N:47:Recharge Item II
 A:90:7:5
 A:90:25:4
 A:93:17:18
+A:99:7:1
 C:1:25:30:95:160
 C:3:35:40:95:100
 C:4:35:60:95:115
@@ -752,7 +764,6 @@ A:91:0:1
 A:91:13:1
 A:92:0:3
 A:93:12:23
-
 C:2:1:1:10:4
 C:5:1:1:30:4
 C:8:5:5:50:8
@@ -857,7 +868,7 @@ C:2:5:4:29:3
 C:5:9:7:40:3
 C:8:5:4:29:3
 C:9:5:4:29:3
-B:AIM:TURN_ALL:1d0+0
+B:AIM:FEAR_WEAK:1d0+0
 
 N:69:Portal
 A:91:1:2
@@ -924,6 +935,7 @@ A:91:1:7
 A:91:13:4
 A:92:4:4
 A:93:5:20
+A:99:8:1
 C:2:7:6:38:5
 C:5:13:11:45:4
 C:8:11:8:42:5
@@ -1139,6 +1151,7 @@ F:DETECT_WATER | DETECT_OBJECT
 N:93:Perception
 A:92:2:8
 A:93:17:12
+A:99:9:1
 C:2:30:20:80:20
 C:5:35:25:80:16
 C:8:28:16:70:4
@@ -1205,6 +1218,7 @@ A:80:19:1
 A:91:6:8
 A:91:12:7
 A:93:27:5
+A:99:10:1
 C:2:35:70:90:230
 C:5:40:80:90:200
 C:8:37:75:90:215
@@ -1216,6 +1230,7 @@ A:91:6:9
 A:91:12:8
 A:92:8:7
 A:93:27:18
+A:99:11:1
 C:2:35:70:90:250
 C:5:40:80:90:250
 C:8:37:75:90:250
@@ -1286,6 +1301,7 @@ N:107:Recharging
 A:91:7:2
 A:92:1:7
 A:93:17:5
+A:99:12:1
 C:2:15:20:80:25
 C:5:25:30:80:15
 C:8:25:30:80:15
@@ -1296,15 +1312,18 @@ N:108:Dispel Curse
 A:70:15:1
 A:91:7:4
 A:93:5:17
+A:99:13:1
 C:2:25:40:80:160
 C:5:30:50:80:130
 C:8:25:40:80:160
 F:CURE_CURSE
+S:CURE_DISEASE:30
 
 N:109:Enchant Weapon
 A:91:7:5
 A:92:10:8
 A:93:2:23
+A:99:14:1
 C:2:37:60:85:120
 C:5:32:80:85:100
 C:8:37:60:85:120
@@ -1316,6 +1335,7 @@ A:70:16:1
 A:91:7:6
 A:92:10:7
 A:93:2:20
+A:99:15:1
 C:2:35:50:80:130
 C:5:30:70:80:100
 C:8:35:50:80:130
@@ -1326,6 +1346,7 @@ N:111:Enchant Weapon Brand
 A:70:50:1
 A:91:7:9
 A:93:2:13
+A:99:16:1
 C:2:35:95:85:150
 C:5:32:95:85:120
 C:8:32:60:95:120
@@ -1366,6 +1387,7 @@ F:TELE_LEVEL
 N:116:Word of Recall
 A:91:4:6
 A:93:19:27
+A:99:17:1
 C:2:35:50:75:11
 C:5:40:60:75:10
 C:8:35:35:75:13
@@ -1503,6 +1525,7 @@ A:91:5:6
 A:91:13:3
 A:92:2:3
 A:93:12:5
+A:99:18:1
 C:2:5:4:32:4
 C:5:11:9:40:3
 C:8:5:4:32:4
@@ -1512,6 +1535,7 @@ F:DETECT_CURSE
 N:131:Enchant Food
 A:91:7:3
 A:91:2:10
+A:99:19:1
 C:2:19:30:75:150
 C:5:24:30:75:150
 C:8:19:30:75:150
@@ -1521,6 +1545,7 @@ N:132:Bless Weapon
 A:70:51:1
 A:91:7:7
 A:93:2:5
+A:99:20:1
 C:2:39:60:85:250
 C:5:44:80:85:250
 S:BRAND_WEAPON:6
@@ -1529,6 +1554,7 @@ N:133:Enchant Armour To-Resist
 A:70:49:1
 A:91:7:8
 A:93:2:8
+A:99:21:1
 C:2:43:95:85:250
 C:5:45:95:85:250
 C:8:43:95:85:250
@@ -1657,7 +1683,7 @@ A:90:9:1
 A:93:13:16
 C:1:1:2:26:4
 C:4:5:3:35:1
-C:8:1:2:26:4
+C:8:2:2:26:4
 B:HANDS:FIRE:3d8+0
 
 N:147:Fire Trap
@@ -1729,7 +1755,7 @@ C:4:43:51:95:11
 C:8:37:37:80:18
 B:STORM:FIRE:2d0+95
 
-N:154:Melting Hands
+N:154:Melting Ray
 A:90:10:1
 A:93:1:16
 C:1:1:2:26:4
@@ -1803,12 +1829,12 @@ B:BOLT:ACID:8d16
 B:BOLT:ACID:8d16
 B:BOLT:ACID:8d16
 
-N:162:Shocking Hands
+N:162:Lightning Spark
 A:90:12:1
 A:93:22:16
 C:1:1:2:26:4
 C:4:5:3:35:1
-C:8:1:2:26:4
+C:8:2:2:26:4
 B:HANDS:ELEC:3d8
 
 N:163:Resist Electricity
@@ -1888,12 +1914,12 @@ C:4:39:47:90:10
 C:8:32:31:75:16
 B:STORM:ELEC:2d0+115
 
-N:171:Freezing Hands
+N:171:Freeze
 A:90:11:1
 A:93:14:16
 C:1:1:2:26:4
 C:4:5:3:35:1
-C:8:1:2:26:4
+C:8:2:2:26:4
 B:HANDS:COLD:3d8
 
 N:172:Frost Trap
@@ -1988,6 +2014,7 @@ N:181:Analyze Magic
 A:70:23:1
 A:90:13:3
 A:93:12:28
+A:99:22:1
 C:1:7:5:50:6
 C:3:14:12:50:2
 C:4:12:10:90:3
@@ -2025,6 +2052,7 @@ B:BLAST:SOUND:2d10+0
 N:185:Strength Serum
 A:90:13:7
 A:90:28:25
+A:99:23:1
 C:1:15:20:80:200
 C:3:20:25:80:160
 C:4:25:30:80:125
@@ -2045,6 +2073,7 @@ F:WIZ_LITE
 N:187:Enchant Potion
 A:90:13:10
 A:93:2:28
+A:99:24:1
 C:1:35:50:80:230
 C:3:40:70:80:200
 S:ENCHANT_TVAL:75
@@ -2052,6 +2081,7 @@ S:ENCHANT_TVAL:75
 N:188:Create Gold
 A:90:13:11
 A:93:28:17
+A:99:25:1
 C:1:45:95:85:250
 C:3:47:95:85:250
 S:CREATE_KIND:490
@@ -2222,7 +2252,7 @@ C:4:21:14:50:5
 C:8:21:14:50:5
 C:9:21:14:50:5
 F:HOLD_SONG
-B:LOS:TURN_ALL:1d0+0
+B:LOS:FEAR_WEAK:1d0+0
 
 N:206:Confusion
 A:90:16:3
@@ -2557,7 +2587,7 @@ C:1:5:4:29:3
 C:3:9:7:40:3
 C:4:9:7:40:3
 C:8:5:4:29:3
-B:AIM:TURN_ALL:1d0+0
+B:AIM:FEAR_WEAK:1d0+0
 
 N:240:Charm Person
 #A:90:22:6
@@ -2571,6 +2601,7 @@ N:240:Charm Person
 N:241:Charisma
 A:90:22:7
 A:93:2:19
+A:99:26:1
 C:1:25:30:95:160
 C:3:35:40:95:100
 C:4:35:60:95:115
@@ -2590,6 +2621,7 @@ A:70:19:1
 A:90:23:6
 A:90:21:4
 A:93:12:24
+A:99:27:1
 C:1:7:5:50:6
 C:3:14:12:50:2
 C:4:12:10:90:3
@@ -2600,6 +2632,7 @@ N:244:*Identify*
 A:70:13:1
 A:90:23:10
 A:93:17:27
+A:99:28:1
 C:1:40:50:80:230
 C:3:37:70:80:200
 C:8:40:70:80:200
@@ -2638,6 +2671,7 @@ N:247:Create Golem
 N:248:Enchant Wand
 A:90:25:5
 A:93:2:16
+A:99:29:1
 C:1:35:50:80:230
 C:3:40:70:80:200
 S:ENCHANT_TVAL:65
@@ -2645,6 +2679,7 @@ S:ENCHANT_TVAL:65
 N:249:Enchant Staff
 A:90:25:6
 A:93:2:24
+A:99:30:1
 C:1:37:60:85:250
 C:3:42:80:85:250
 C:8:42:80:85:250
@@ -2653,6 +2688,7 @@ S:ENCHANT_TVAL:55
 N:250:Enchant Rod
 A:90:25:7
 A:93:2:27
+A:99:31:1
 C:1:45:95:85:250
 C:3:47:95:85:250
 S:ENCHANT_TVAL:66
@@ -2704,33 +2740,40 @@ N:256:Poison
 A:75:6:1
 A:80:0:1
 L:1d10+10
+B:SELF:POISON:0d0+0
 F:POISON
 
 N:257:Blindness
 A:75:7:1
 A:80:1:1
 L:1d200+200
+B:SELF:BLIND_WEAK:0d0+0
 F:BLIND
 
 N:258:Paranoia
 A:80:2:1
 L:1d10+10
+B:SELF:FEAR_WEAK:0d0+0
 F:FEAR
 
 N:259:Confusion
 A:75:9:1
 A:80:3:1
 L:1d10+10
+B:SELF:CONFUSE:0d0+0
 F:CONFUSE
 
 N:260:Hallucination
 A:80:4:1
 L:1d10+10
 F:HALLUC
+B:SELF:HALLU:0d0+0
+S:CURE_DISEASE:16
 
 N:261:Paralyzation
 A:80:5:1
 L:1d10+10
+B:SELF:PARALYZE:0d0+0
 F:PARALYZE
 
 N:262:Poisonous Food
@@ -2755,29 +2798,32 @@ B:SELF:LOSE_CON:10d10+0
 
 N:267:Poisonous Food
 A:80:11:1
-B:SELF:LOSE_STR:10d10+0
+B:SELF:DISEASE:10d10+0
 
 N:268:Cure Blindness
 A:80:13:1
 F:CURE_BLIND
+S:CURE_DISEASE:13
 
 N:269:Cure Confusion
 A:80:15:1
 F:CURE_CONF
+S:CURE_DISEASE:14
 
 N:270:Restore Strength
-A:75:42:1
 A:80:17:1
 F:CURE_STR
+S:CURE_DISEASE:0
 
 N:271:Restore Constition
-A:75:46:1
 A:80:18:1
 F:CURE_CON
+S:CURE_DISEASE:4
 
 N:280:Mana
 A:80:20:1
 F:SLOW_MANA
+S:CURE_DISEASE:18
 
 N:281:Ration
 A:80:32:1
@@ -2789,12 +2835,14 @@ D:That tastes good.
 N:282:Fine Wine
 A:80:38:1
 A:80:39:1
+S:CURE_DISEASE:14
 D:That tastes good.
 
 N:283:Waybread
 A:80:37:1
 F:CURE_POIS
 B:SELF:HEAL:4d8+0
+S:CURE_DISEASE:12
 D:That tastes good.
 
 # Additional Potion effects.
@@ -2802,34 +2850,42 @@ D:That tastes good.
 N:284:Water
 A:75:0:1
 A:75:1:1
+S:CURE_DISEASE:7
 D:You feel less thirsty.
 
 N:285:Slowness
 A:55:1:1
 A:75:4:1
 L:1d10+10
+B:SELF:SLOW_WEAK:0d0+0
 F:SLOW
 
 N:286:Salt Water
 A:75:5:1
 F:DEC_FOOD
 B:VOMIT:SALT_WATER:2d6
+S:CURE_DISEASE:17
 D:The potion makes you vomit!
 
 N:287:Sleep
 A:75:11:1
 L:1d4+4
 F:PARALYZE
+B:SELF:SLEEP:0d0+0
 D:You fall asleep.
+S:CURE_DISEASE:9
 
 N:288:Lose Memories
 A:75:13:1
 D:You feel your memories fade.
 F:DEC_EXP
+B:SELF:LOSE_INT:0d0+0
+S:CURE_DISEASE:15
 
 N:289:Ruination
 A:75:15:1
 B:SELF:LOSE_ALL:10d10+0
+S:CURE_DISEASE:27
 D:Your nerves and muscles feel weak and lifeless.
 
 N:290:Weakness
@@ -2858,7 +2914,7 @@ B:SELF:LOSE_CHR
 
 N:296:Detonations
 A:75:22:1
-B:AURA:EXPLODE:50d20+0
+B:EXPLODE:EXPLODE:50d20+0
 L:1d100+0
 F:CUT | STUN
 D:Massive explosions rupture your body.
@@ -2871,8 +2927,9 @@ D:A feeling of Death flows through your body.
 
 N:298:Infravision
 A:75:24:1
-L:1d100+100+1
+L:1d100+100
 F:INFRA
+S:CURE_DISEASE:11
 
 N:299:Cure Critical Wounds
 A:75:36:1
@@ -2894,6 +2951,7 @@ A:75:39:1
 B:SELF:HEAL:0d0+5000
 F:CURE_CUTS | CURE_STUN | CURE_POIS | CURE_BLIND | CURE_CONF | CURE_IMAGE
 F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
+S:CURE_DISEASE:28
 D:You feel life flow through your body.
 
 N:303:Restore Mana
@@ -2901,48 +2959,65 @@ A:75:40:1
 F:CURE_MANA
 D:You feel your head clear.
 
-N:304:Restore Intelligence
+N:304:Cure Minor Disease
+A:75:42:1
+A:91:1:10
+C:2:13:5:38:4
+C:5:19:10:45:3
+S:CURE_DISEASE:29
+
+N:305:Cure Plague
 A:75:43:1
-F:CURE_INT
+A:91:6:10
+C:2:35:70:90:230
+C:5:40:80:90:200
+C:8:37:75:90:215
+S:CURE_DISEASE:26
 
-N:305:Restore Wisdom
-A:75:44:1
-F:CURE_INT
+#N:306:Restore Dexterity
+#A:75:45:1
+#F:CURE_DEX
+#S:CURE_DISEASE:3
 
-N:306:Restore Dexterity
-A:75:45:1
-F:CURE_DEX
-
-N:307:Restore Charisma
-A:75:47:1
-F:CURE_CHR
+#N:307:Restore Charisma
+#A:75:47:1
+#F:CURE_CHR
+#S:CURE_DISEASE:5
 
 N:308:Strength
 A:75:48:1
-F:INC_STR
+L:1d30+30
+F:CURE_STR | INC_STR
 
 N:309:Intelligence
 A:75:49:1
-F:INC_INT
+L:1d30+30
+F:CURE_INT | INC_INT
 
 N:310:Wisdom
 A:75:50:1
-F:INC_WIS
+L:1d30+30
+F:CURE_WIS | INC_WIS
 
 N:311:Dexterity
 A:75:51:1
-F:INC_DEX
+L:1d30+30
+F:CURE_DEX | INC_DEX
 
 N:312:Constitution
 A:75:52:1
-F:INC_CON
+L:1d30+30
+F:CURE_CON | INC_CON
 
 N:313:Charisma
 A:75:53:1
-F:INC_CHR
+L:1d30+30
+F:CURE_CHR | INC_CHR
 
 N:314:Augmentation
 A:75:55:1
+L:1d20+20
+F:CURE_STR | CURE_INT | CURE_WIS | CURE_DEX | CURE_CON | CURE_CHR
 F:INC_STR | INC_INT | INC_WIS | INC_DEX | INC_CON | INC_CHR
 
 N:315:*Enlightenment*
@@ -2950,11 +3025,13 @@ A:75:57:1
 F:INC_INT | INC_WIS |
 F:WIZ_LITE | DETECT_DOORS | DETECT_STAIRS | DETECT_GOLD | DETECT_OBJECT
 F:DETECT_TRAPS | IDENT_PACK | SELF_KNOW
+S:CURE_DISEASE:1
 D:You begin to feel more enlightened...
 
 N:316:Self Knowledge
 A:75:58:1
 F:SELF_KNOW
+S:CURE_DISEASE:2
 D:You feel you know yourself a little better...
 
 N:317:Experience
@@ -2967,7 +3044,7 @@ D:You feel more experienced.
 N:318:Darkness
 A:55:0:1
 A:70:0:1
-B:SELF:BLIND
+B:SELF:DARK_WEAK
 F:DARK_ROOM
 
 N:319:Aggravate Monster
@@ -3000,13 +3077,16 @@ A:80:42:1
 B:SPIT:FIRE:4d6+0
 B:SELF:FIRE:1d6+0
 D:You spit out the burning liquor.
+S:CURE_DISEASE:6
 
 N:326:Enchant Weapon To-Hit
 A:70:17:1
+A:99:44:1
 F:ENCHANT_TOH
 
 N:327:Enchant Weapon To-Dam
 A:70:18:1
+A:99:45:1
 F:ENCHANT_TOD
 
 N:328:*Enchant Armour*
@@ -3195,7 +3275,7 @@ B:BOLT:MANA:4d0+0
 
 N:365:Magical Arrow
 A:65:57:1
-B:BOLT:ARROW:6d0+0
+B:ARROW:HURT:6d0+0
 
 N:366:Remove Fear & Poison
 A:75:68:1
@@ -3316,7 +3396,7 @@ D:You breathe light.
 
 N:381:Breathe Power
 A:38:30:1
-B:BREATH:MISSILE:3d0+225
+B:BREATH:MANA:3d0+225
 D:You breathe the elements.
 
 # Elemental ring activations
@@ -3372,18 +3452,18 @@ C:1:3:2:21:1
 C:3:15:6:75:1
 C:4:7:4:40:2
 C:8:3:2:21:2
-B:ADJACENT:FIRE:2d6+0
+B:ARC_20:FIRE:2d6+0
 
 N:388:Burning Oil
 A:39:1:1
 A:77:0:1
 A:90:13:12
 A:93:28:13
-C:1:3:3:27:6
-C:3:17:7:80:1
-C:4:9:8:45:3
-C:8:3:3:27:6
-B:ADJACENT:FIRE:3d6+0
+C:1:2:2:27:6
+C:3:11:5:50:1
+C:4:7:3:35:3
+C:8:2:2:27:6
+B:AURA:FIRE:2d6+0
 
 N:389:Acid Splash
 A:77:2:1
@@ -3395,7 +3475,7 @@ C:1:3:3:30:6
 C:3:17:7:80:1
 C:4:9:8:45:3
 C:8:3:3:30:6
-B:ADJACENT:ACID:3d6+0
+B:AURA:ACID:4d6+0
 
 # New spells
 
@@ -3403,6 +3483,7 @@ N:390:Poison Weapon
 A:70:67:1
 A:90:13:14
 A:93:4:23
+A:99:32:1
 C:1:22:30:50:250
 C:3:26:30:50:250
 C:4:22:30:50:250
@@ -3413,6 +3494,7 @@ N:391:Poison Arrows
 A:70:68:1
 A:90:13:15
 A:93:4:2
+A:99:33:1
 C:1:15:20:80:200
 C:3:20:25:80:160
 C:4:25:30:80:125
@@ -3423,6 +3505,7 @@ N:392:Continual Light
 A:70:53:1
 A:90:17:6
 A:93:2:21
+A:99:34:1
 C:1:17:9:50:7
 C:4:25:21:65:3
 C:8:17:9:50:7
@@ -3432,6 +3515,7 @@ N:393:Acid Proofing
 A:70:54:1
 A:90:10:8
 A:93:1:2
+A:99:35:1
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -3442,6 +3526,7 @@ N:394:Fire Proofing
 A:70:55:1
 A:90:9:8
 A:93:13:2
+A:99:36:1
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -3452,6 +3537,7 @@ N:395:Water Proofing
 A:70:56:1
 A:90:20:5
 A:93:26:2
+A:99:37:1
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -3462,6 +3548,7 @@ N:396:Theft Proofing
 A:70:57:1
 A:90:7:7
 A:93:16:2
+A:99:38:1
 C:1:21:22:90:8
 C:3:30:30:99:6
 C:4:29:33:95:3
@@ -3567,6 +3654,7 @@ B:BEAM:GRAVITY:3d0+40
 N:409:Enchant Armour
 A:90:7:3
 A:93:2:20
+A:99:40:1
 C:1:29:50:95:90
 C:3:31:50:95:90
 C:4:33:45:90:50
@@ -3575,6 +3663,7 @@ F:ENCHANT_TOA
 N:410:Enchant Weapon
 A:90:7:4
 A:93:2:13
+A:99:39:1
 C:1:29:50:95:90
 C:3:33:55:90:90
 C:4:34:50:90:60
@@ -3583,6 +3672,7 @@ F:ENCHANT_TOH | ENCHANT_TOD
 N:411:Enchant Weapon Brand
 A:90:7:6
 A:93:2:23
+A:99:41:1
 C:1:32:60:95:120
 C:3:37:60:80:120
 C:4:31:60:95:180
@@ -3590,6 +3680,7 @@ C:8:32:60:95:120
 S:BRAND_WEAPON:8
 
 N:412:Cold Snap
+A:70:70:1
 A:90:11:7
 A:93:14:14
 C:1:17:14:55:27
@@ -3598,6 +3689,7 @@ C:8:17:14:55:27
 B:LOS:COLD:2d0+0
 
 N:413:Acid Rain
+A:70:71:1
 A:90:10:12
 A:93:1:14
 C:1:32:24:75:37
@@ -3606,8 +3698,36 @@ C:8:32:24:75:37
 B:LOS:ACID:3d0+0
 
 N:414:Immoliation
+A:70:72:1
 A:90:9:13
 A:93:13:14
 C:1:47:34:85:47
 C:8:47:34:85:47
 B:LOS:FIRE:4d0+0
+
+N:415:Vampire's Kiss
+A:70:69:1
+A:90:14:4
+A:93:2:18
+A:99:42:1
+C:1:32:60:95:120
+C:3:37:60:80:120
+C:4:31:60:95:180
+C:8:32:60:95:120
+S:BRAND_WEAPON:15
+
+N:416:Feedback
+A:66:13:1
+A:70:73:1
+A:90:17:10
+A:93:11:21
+A:99:43:1
+C:1:15:17:40:29
+C:3:22:24:40:29
+C:8:15:17:40:29
+B:EXPLODE:NETHER:3d6
+B:EXPLODE:NEXUS:3d6
+B:EXPLODE:DISENCHANT:3d6
+B:EXPLODE:LITE:3d6
+L:1d5
+F:CUT | STUN | BLIND | CONFUSE | HALLUC

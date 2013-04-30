@@ -6,6 +6,12 @@
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
+ *
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
+ * source code are released under the Gnu Public License. See www.fsf.org
+ * for current GPL license details. Addition permission granted to
+ * incorporate modifications in all Angband variants as defined in the
+ * Angband variants FAQ. See rec.games.roguelike.angband for FAQ.
  */
 
 #include "angband.h"
@@ -262,7 +268,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  *   K:<num>:<a>/<c>
  *
  * Specify the attr/char values for "features" by feature index.
- *   F:<num>:<a>/<c>
+ *   F:<num>:<a>/<c>:<flags>
  *
  * Specify the attr/char values for "special" things.
  *   S:<num>:<a>/<c>
@@ -362,13 +368,14 @@ errr process_pref_file_command(char *buf)
 	}
 
 
-	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
+	/* Process "F:<num>:<a>/<c>:<flags>" -- attr/char for terrain features, plus flags for lighting etc. */
 	else if (buf[0] == 'F')
 	{
 		/* Mega-hack -- feat supports lighting 'yes' or 'no' */
 		if (tokenize(buf+2, 4, zz) == 4)
 		{
 			feature_type *f_ptr;
+
 			i = (huge)strtol(zz[0], NULL, 0);
 			n1 = strtol(zz[1], NULL, 0);
 			n2 = strtol(zz[2], NULL, 0);
@@ -376,19 +383,15 @@ errr process_pref_file_command(char *buf)
 			f_ptr = &f_info[i];
 			if (n1) f_ptr->x_attr = n1;
 			if (n2) f_ptr->x_char = n2;
-			switch (zz[3][0])
-			{
-				case 0: case 'N': case 'n':
-				{
-					f_ptr->flags2 &= ~(FF2_ATTR_LITE);
-					break;
-				}
-				default:
-				{
-					f_ptr->flags2 |= (FF2_ATTR_LITE);
-					break;
-				}
-			}
+
+			/* Clear current flags */
+			f_ptr->flags3 &= ~(FF3_ATTR_LITE | FF3_ATTR_ITEM | FF3_ATTR_DOOR | FF3_ATTR_WALL);
+
+			if (strstr("A", zz[3])) f_ptr->flags3 |= (FF3_ATTR_LITE);
+			else if (strstr("F", zz[3])) f_ptr->flags3 |= (FF3_ATTR_ITEM);
+			else if (strstr("D", zz[3])) f_ptr->flags3 |= (FF3_ATTR_DOOR);
+			else if (strstr("W", zz[3])) f_ptr->flags3 |= (FF3_ATTR_WALL);
+
 			return (0);
 		}
 	}
@@ -1793,18 +1796,19 @@ static void display_player_xtra_info(void)
 /*
  * Obtain the "flags" for the player as if he was an item
  */
-void player_flags(u32b *f1, u32b *f2, u32b *f3)
+void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4)
 {
 
 	int i;
 
 	/* Clear */
-	(*f1) = (*f2) = (*f3) = 0L;
+	(*f1) = (*f2) = (*f3) = (*f4) = 0L;
 
 	/* Add racial flags */
 	(*f1) |= rp_ptr->flags1;
 	(*f2) |= rp_ptr->flags2;
 	(*f3) |= rp_ptr->flags3;
+	(*f4) |= rp_ptr->flags4;
 
 	/*** Handle styles ***/
 	for (i = 0;i< z_info->w_max;i++)
@@ -1840,12 +1844,8 @@ static void display_player_equippy(int y, int x)
 
 	object_type *o_ptr;
 
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
 	/* Dump equippy chars */
-	for (i = INVEN_WIELD; i < inven_max; ++i)
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; ++i)
 	{
 		/* Object */
 		o_ptr = &inventory[i];
@@ -1950,7 +1950,7 @@ static void display_player_flag_info(void)
 	u32b flag;
 	cptr name;
 
-	u32b f[4];
+	u32b f[5];
 
 
 	/* Four columns */
@@ -1992,7 +1992,7 @@ static void display_player_flag_info(void)
 				o_ptr = &inventory[i];
 
 				/* Known flags */
-				object_flags_known(o_ptr, &f[1], &f[2], &f[3]);
+				object_flags_known(o_ptr, &f[1], &f[2], &f[3], &f[4]);
 
 				/* Color columns by parity */
 				if (i % 2) attr = TERM_L_WHITE;
@@ -2021,7 +2021,7 @@ static void display_player_flag_info(void)
 			}
 
 			/* Player flags */
-			player_flags(&f[1], &f[2], &f[3]);
+			player_flags(&f[1], &f[2], &f[3], &f[4]);
 
 			/* Default */
 			c_put_str(TERM_SLATE, ".", row, col+n);
@@ -2226,8 +2226,8 @@ static void display_player_sust_info(void)
 	int i, row, col, stat;
 
 	object_type *o_ptr;
-	u32b f1, f2, f3;
-	u32b ignore_f2, ignore_f3;
+	u32b f1, f2, f3, f4;
+	u32b ignore_f2, ignore_f3, ignore_f4;
 
 	byte a;
 	char c;
@@ -2249,10 +2249,10 @@ static void display_player_sust_info(void)
 		o_ptr = &inventory[i];
 
 		/* Get the "known" flags */
-		object_flags_known(o_ptr, &f1, &f2, &f3);
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4);
 
 		/* Hack -- assume stat modifiers are known */
-		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3);
+		object_flags(o_ptr, &f1, &ignore_f2, &ignore_f3, &ignore_f4);
 
 		/* Initialize color based of sign of pval. */
 		for (stat = 0; stat < A_MAX; stat++)
@@ -2307,7 +2307,7 @@ static void display_player_sust_info(void)
 	}
 
 	/* Player flags */
-	player_flags(&f1, &f2, &f3);
+	player_flags(&f1, &f2, &f3, &f4);
 
 	/* Check stats */
 	for (stat = 0; stat < A_MAX; ++stat)
@@ -2492,12 +2492,8 @@ errr file_character(cptr name, bool full)
 	/* Dump the equipment */
 	if (p_ptr->equip_cnt)
 	{
-		int inven_max = INVEN_TOTAL;
-
-		if (variant_belt_slot) inven_max++;
-
 		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < inven_max; i++)
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
 			object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
 			fprintf(fff, "%c) %s\n",
@@ -2608,7 +2604,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 {
 	int i, k, n;
 
-	char ch;
+	key_event ke;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
@@ -2933,19 +2929,19 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Get a keypress */
-		ch = inkey();
+		ke = anykey();
 
 		/* Return to last screen */
-		if (ch == '?') break;
+		if (ke.key == '?') break;
 
 		/* Toggle case sensitive on/off */
-		if (ch == '!')
+		if (ke.key == '!')
 		{
 			case_sensitive = !case_sensitive;
 		}
 
 		/* Try showing */
-		if (ch == '&')
+		if (ke.key == '&')
 		{
 			/* Get "shower" */
 			prt("Show: ", hgt - 1, 0);
@@ -2956,7 +2952,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Try finding */
-		if (ch == '/')
+		if (ke.key == '/')
 		{
 			/* Get "finder" */
 			prt("Find: ", hgt - 1, 0);
@@ -2976,7 +2972,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Go to a specific line */
-		if (ch == '#')
+		if (ke.key == '#')
 		{
 			char tmp[80];
 			prt("Goto Line: ", hgt - 1, 0);
@@ -2988,73 +2984,92 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		}
 
 		/* Go to a specific file */
-		if (ch == '%')
+		if (ke.key == '%')
 		{
 			char ftmp[80];
 			prt("Goto File: ", hgt - 1, 0);
 			strcpy(ftmp, "help.hlp");
 			if (askfor_aux(ftmp, 80))
 			{
-				if (!show_file(ftmp, NULL, 0, mode)) ch = ESCAPE;
+				if (!show_file(ftmp, NULL, 0, mode)) ke.key = ESCAPE;
 			}
 		}
 
 		/* Back up one line */
-		if (ch == '=')
+		if (ke.key == '=')
 		{
 			line = line - 1;
 			if (line < 0) line = 0;
 		}
 
 		/* Back up one half page */
-		if (ch == '_')
+		if (ke.key == '_')
 		{
 			line = line - ((hgt - 4) / 2);
 			if (line < 0) line = 0;
 		}
 
 		/* Back up one full page */
-		if (ch == '-')
+		if (ke.key == '-')
 		{
 			line = line - (hgt - 4);
 			if (line < 0) line = 0;
 		}
 
 		/* Advance one line */
-		if ((ch == '\n') || (ch == '\r'))
+		if ((ke.key == '\n') || (ke.key == '\r'))
 		{
 			line = line + 1;
 		}
 
 		/* Advance one half page */
-		if (ch == '+')
+		if (ke.key == '+')
 		{
 			line = line + ((hgt - 4) / 2);
 			if (line < 0) line = 0;
 		}
 
 		/* Advance one full page */
-		if (ch == ' ')
+		if (ke.key == ' ')
 		{
 			line = line + (hgt - 4);
 		}
 
+		/* Scroll forwards or backwards using mouse clicks */
+		if (ke.key == '\xff')
+		{
+			if (ke.mousebutton)
+			{
+				if (ke.mousey <= hgt / 2)
+				{
+					/* Back up one full page */
+					line = line - (hgt - 4);
+					if (line < 0) line = 0;
+				}
+				else
+				{
+					/* Advance one full page */
+					line = line + (hgt - 4);
+				}
+			}
+		}
+
 		/* Recurse on numbers */
-		if (menu && isdigit(ch) && hook[D2I(ch)][0])
+		if (menu && isdigit(ke.key) && hook[D2I(ke.key)][0])
 		{
 			/* Recurse on that file */
-			if (!show_file(hook[D2I(ch)], NULL, 0, mode)) ch = ESCAPE;
+			if (!show_file(hook[D2I(ke.key)], NULL, 0, mode)) ke.key = ESCAPE;
 		}
 
 		/* Exit on escape */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 	}
 
 	/* Close the file */
 	my_fclose(fff);
 
 	/* Done */
-	return (ch != ESCAPE);
+	return (ke.key != ESCAPE);
 }
 
 
@@ -3156,6 +3171,78 @@ void process_player_name(bool sf)
 }
 
 
+
+/*
+ * Use W. Sheldon Simms' random name generator.  Generate a random word using
+ * the probability tables we built earlier.  Relies on the ASCII character
+ * set.  Relies on European vowels (a, e, i, o, u).  The generated name should
+ * be copied/used before calling this function again.
+ */
+char *make_word(int min_len, int max_len)
+{
+	static char word_buf[90];
+	int r, totalfreq;
+	int tries, lnum, vow;
+	int c_prev, c_cur, c_next;
+	char *cp;
+
+startover:
+	vow = 0;
+	lnum = 0;
+	tries = 0;
+	cp = word_buf;
+	c_prev = c_cur = S_WORD;
+
+	/* Paranoia */
+	if (min_len > max_len) return "(Bad name)";
+
+	/* Paranoia */
+	if (max_len > 90) return "(Bad name)";
+
+	while (1)
+	{
+	    getletter:
+		c_next = 0;
+		r = rand_int(n_info->ltotal[c_prev][c_cur]);
+		totalfreq = n_info->lprobs[c_prev][c_cur][c_next];
+
+		/*find the letter*/
+		while (totalfreq <= r)
+		{
+			c_next++;
+			totalfreq += n_info->lprobs[c_prev][c_cur][c_next];
+		}
+
+		if (c_next == E_WORD)
+		{
+			if ((lnum < min_len) || vow == 0)
+			{
+				tries++;
+				if (tries < 10) goto getletter;
+				goto startover;
+			}
+			*cp = '\0';
+			break;
+		}
+
+		if (lnum >= max_len) goto startover;
+
+		*cp = I2A(c_next);
+
+		if (is_a_vowel(*cp)) vow++;
+
+		cp++;
+		lnum++;
+		c_prev = c_cur;
+		c_cur = c_next;
+	}
+
+	word_buf[0] = toupper((unsigned char)word_buf[0]);
+
+	return (word_buf);
+}
+
+
 /*
  * Gets a name for the character, reacting to name changes.
  *
@@ -3170,6 +3257,12 @@ void get_name(void)
 
 	/* Save the player name */
 	strcpy(tmp, op_ptr->full_name);
+
+	/* Offer a random name */
+	if (!strlen(tmp))
+	{
+		strcpy(tmp, make_word(7, 15));
+	}
 
 	/* Prompt for a new name */
 	if (get_string("Enter a name for your character: ", tmp, sizeof(tmp)))
@@ -3202,7 +3295,7 @@ void do_cmd_suicide(void)
 	/* Verify Suicide */
 	else
 	{
-		char ch;
+		key_event ke;
 
 		/* Verify */
 		if (!get_check("Do you really want to quit? ")) return;
@@ -3210,9 +3303,9 @@ void do_cmd_suicide(void)
 		/* Special Verification for suicide */
 		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
 		flush();
-		ch = inkey();
+		ke = anykey();
 		prt("", 0, 0);
-		if (ch != '@') return;
+		if (ke.key != '@') return;
 	}
 
 	/* Commit suicide */
@@ -3488,12 +3581,8 @@ static void death_knowledge(void)
 
 	store_type *st_ptr = &store[STORE_HOME];
 
-	int inven_max = INVEN_TOTAL;
-
-	if (variant_belt_slot) inven_max++;
-
 	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < inven_max; i++)
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3551,7 +3640,7 @@ static void show_info(void)
 	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
 
 	/* Allow abort at this point */
-	if (inkey() == ESCAPE) return;
+	if (anykey().key == ESCAPE) return;
 
 
 	/* Show equipment and inventory */
@@ -3563,7 +3652,7 @@ static void show_info(void)
 		item_tester_full = TRUE;
 		show_equip();
 		prt("You are using: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
+		if (anykey().key == ESCAPE) return;
 	}
 
 	/* Inventory -- if any */
@@ -3573,7 +3662,7 @@ static void show_info(void)
 		item_tester_full = TRUE;
 		show_inven();
 		prt("You are carrying: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
+		if (anykey().key == ESCAPE) return;
 	}
 
 
@@ -3616,7 +3705,7 @@ static void show_info(void)
 			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
 
 			/* Wait for it */
-			if (inkey() == ESCAPE) return;
+			if (anykey().key == ESCAPE) return;
 		}
 	}
 }
@@ -3667,7 +3756,7 @@ static void death_examine(void)
 		/* Describe */
 		screen_object(o_ptr);
 
-		(void)inkey();
+		(void)anykey();
 
 		/* Load the screen */
 		screen_load();
@@ -3789,7 +3878,7 @@ static int highscore_add(const high_score *score)
  */
 void display_scores_aux(int from, int to, int note, high_score *score)
 {
-	char ch;
+	key_event ke;
 
 	int j, k, n, place;
 	int count;
@@ -3938,11 +4027,11 @@ void display_scores_aux(int from, int to, int note, high_score *score)
 
 		/* Wait for response */
 		prt("[Press ESC to quit, any other key to continue.]", 23, 17);
-		ch = inkey();
+		ke = anykey();
 		prt("", 23, 0);
 
 		/* Hack -- notice Escape */
-		if (ch == ESCAPE) break;
+		if (ke.key == ESCAPE) break;
 	}
 }
 
@@ -3980,7 +4069,7 @@ void display_scores(int from, int to)
 
 	/* Wait for response */
 	prt("[Press any key to quit.]", 23, 17);
-	(void)inkey();
+	(void)anykey();
 	prt("", 23, 0);
 
 	/* Quit */
@@ -4321,7 +4410,8 @@ static void kingly(void)
  */
 static void close_game_aux(void)
 {
-	int ch;
+	key_event ke;
+
 	bool wants_to_quit = FALSE;
 	cptr p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
@@ -4361,9 +4451,9 @@ static void close_game_aux(void)
 		Term_putstr(1, 23, -1, TERM_WHITE, p);
 
 		/* Query */
-		ch = inkey();
+		ke = anykey();
 
-		switch (ch)
+		switch (ke.key)
 		{
 			/* Exit */
 			case ESCAPE:
@@ -4553,7 +4643,7 @@ void close_game(void)
 		prt("Press Return (or Escape).", 0, 40);
 
 		/* Predict score (or ESCAPE) */
-		if (inkey() != ESCAPE) predict_score();
+		if (anykey().key != ESCAPE) predict_score();
 	}
 
 

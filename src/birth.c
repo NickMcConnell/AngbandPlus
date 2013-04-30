@@ -7,7 +7,7 @@
  * and not for profit purposes provided that this copyright and statement
  * are included in all such copies.  Other copyrights may also apply.
  *
- * UnAngband (c) 2001-3 Andrew Doull. Modifications to the Angband 2.9.6
+ * UnAngband (c) 2001-6 Andrew Doull. Modifications to the Angband 2.9.6
  * source code are released under the Gnu Public License. See www.fsf.org
  * for current GPL license details. Addition permission granted to
  * incorporate modifications in all Angband variants as defined in the
@@ -459,7 +459,6 @@ static void player_wipe(void)
 		object_wipe(&inventory[i]);
 	}
 
-
 	/* Start with no artifacts made yet */
 	for (i = 0; i < z_info->a_max; i++)
 	{
@@ -467,19 +466,14 @@ static void player_wipe(void)
 		a_ptr->cur_num = 0;
 	}
 
-
-	/* Start with no quests */
+	/* Reset the quests */
 	for (i = 0; i < MAX_Q_IDX; i++)
 	{
-		q_list[i].level = 0;
+		quest_type *q_ptr = &q_list[i];
+
+		/* Wipe the structure */
+		(void)WIPE(q_ptr, quest_type);
 	}
-
-	/* Add a special quest */
-	q_list[0].level = 99;
-
-	/* Add a second quest */
-	q_list[1].level = 100;
-
 
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
@@ -517,7 +511,6 @@ static void player_wipe(void)
 	/* Hack -- no ghosts */
 	r_info[z_info->r_max-1].max_num = 0;
 
-
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
 
@@ -527,7 +520,6 @@ static void player_wipe(void)
 	/* None of the spells have been learned yet */
 	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 0;
 }
-
 
 
 /*
@@ -541,35 +533,19 @@ static void player_outfit(void)
 	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
+	int show_idx = 1;
 
 	/* Hack -- Give the player his equipment */
-	for (i = 0; i < MAX_START_ITEMS; i++)
+	for (i = 0; i < MAX_CLASS_ITEMS + MAX_COMMON_ITEMS + 1; i++)
 	{
+		object_type *o_ptr;
+
 		/* Access the item */
-		e_ptr = &(cp_ptr->start_items[i]);
+		if (i < MAX_CLASS_ITEMS) e_ptr = &(cp_ptr->start_items[i]);
+		else e_ptr = &(common_items[i - MAX_CLASS_ITEMS]);
+
+		/* Check the social class */
+		if ((p_ptr->sc < e_ptr->social_min) || (p_ptr->sc > e_ptr->social_max)) continue;
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -577,20 +553,160 @@ static void player_outfit(void)
 		/* Hack	-- Give the player an object */
 		if (e_ptr->tval > 0)
 		{
+			int slot;
+
 			/* Get the object_kind */
-			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+			s16b k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Hack -- style lookups to change basic equipment */
+			if (p_ptr->pstyle) switch (e_ptr->tval)
+			{
+				case TV_SWORD:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				{
+					switch (p_ptr->pstyle)
+					{
+						case WS_UNARMED:
+						{
+							k_idx = lookup_kind(TV_GLOVES, SV_SET_OF_CESTI);
+							break;
+						}
+						case WS_SWORD:
+						{
+							k_idx = lookup_kind(TV_SWORD, SV_LONG_SWORD);
+							break;
+						}
+						case WS_HAFTED:
+						{
+							k_idx = lookup_kind(TV_HAFTED, SV_WAR_HAMMER);
+							break;
+						}
+						case WS_POLEARM:
+						{
+							k_idx = lookup_kind(TV_POLEARM, SV_PIKE);
+							break;
+						}
+					}
+					break;
+				}
+
+				case TV_BOW:
+				{
+					switch (p_ptr->pstyle)
+					{
+						case WS_TWO_WEAPON:
+						case WS_THROWN:
+						{
+							k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
+							break;
+						}
+						case WS_SLING:
+						{
+							k_idx = lookup_kind(TV_BOW, SV_SLING);
+							break;
+						}
+						case WS_BOW:
+						{
+							k_idx = lookup_kind(TV_BOW, SV_LONG_BOW);
+							break;
+						}
+						case WS_XBOW:
+						{
+							k_idx = lookup_kind(TV_BOW, SV_LIGHT_XBOW);
+							break;
+						}
+					}
+					break;	
+				}
+
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				{
+					switch (p_ptr->pstyle)
+					{
+						case WS_TWO_WEAPON:
+						case WS_THROWN:
+						{
+							k_idx = lookup_kind(TV_SWORD, SV_DAGGER);
+							break;
+						}
+						case WS_SLING:
+						{
+							k_idx = lookup_kind(TV_SHOT, SV_AMMO_NORMAL);
+							break;
+						}
+						case WS_BOW:
+						{
+							k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
+							break;
+						}
+						case WS_XBOW:
+						{
+							k_idx = lookup_kind(TV_BOLT, SV_AMMO_NORMAL);
+							break;
+						}	break;
+					}
+					break;
+				}
+			}
 
 			/* Valid item? */
 			if (!k_idx) continue;
 
 			/* Prepare the item */
 			object_prep(i_ptr, k_idx);
-			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+			i_ptr->number = (byte)rand_range(e_ptr->number_min, e_ptr->number_max);
+
+			/* Modify the pval */
+			if ((e_ptr->pval_min) && (e_ptr->pval_max)) i_ptr->pval = rand_range(e_ptr->pval_min, e_ptr->pval_max);
 
 			object_aware(i_ptr);
 			object_known(i_ptr);
-			(void)inven_carry(i_ptr);
+
+			/* Check the slot */
+			slot = wield_slot(i_ptr);
+
+			/* If player can wield an item, and slot not already occupied, do so */
+			/* Hack -- Temporarily don't wield lites until lite on/off code working */
+			if ((slot >= INVEN_WIELD) && (slot != INVEN_LITE) && !(inventory[slot].k_idx))
+			{
+				/* Get the wield slot */
+				o_ptr = &inventory[slot];
+
+				/* Wear the new stuff */
+				object_copy(o_ptr, i_ptr);
+
+				/* Wield one */
+				o_ptr->number = 1;
+
+				/* Reduce stack size */
+				i_ptr->number--;
+
+				/* Increment the equip counter by hand */
+				p_ptr->equip_cnt++;
+
+				/* Increase the weight */
+				p_ptr->total_weight += i_ptr->weight;
+
+				/* Hack -- Set a unique show_idx */
+				o_ptr->show_idx = show_idx++;
+			}
+
+			/* Any left to carry? */
+			if (i_ptr->number > 0)
+			{
+				/*put it in the inventory*/
+				(void)inven_carry(i_ptr);
+
+				/* Hack -- Assume we use the next slot */
+				show_idx++;
+			}
 		}
+
+		/*Bugfix:  So we don't get duplicate objects*/
+		object_wipe (i_ptr);
 	}
 }
 
@@ -675,11 +791,12 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 {
 	int top = 0, cur = 0;
 	int i, dir;
-	char c;
+	key_event ke;
 	char buf[80];
 	bool done = FALSE;
 	int hgt;
 	byte attr;
+	int delay = 0;
 
 	/* Autoselect if able */
 	if (num == 1) done = TRUE;
@@ -736,18 +853,29 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		/* Move the cursor */
 		put_str("", TABLE_ROW + cur - top, col);
 
-		c = inkey();
+		if (delay)
+		{
+			/* Force screen update */
+			Term_fresh();
 
-		if (c == KTRL('X'))
+			/* Delay */
+			Term_xtra(TERM_XTRA_DELAY, delay);
+
+			delay = 0;
+		}
+
+		ke = inkey_ex();
+
+		if (ke.key == KTRL('X'))
 		{
 			quit(NULL);
 		}
-		if (c == ESCAPE)
+		if (ke.key == ESCAPE)
 		{
 			/* Mega Hack - go back. */
 			return (INVALID_CHOICE);
 		}
-		if (c == '*')
+		if (ke.key == '*')
 		{
 			/* Select a legal choice at random */
 			while (TRUE)
@@ -765,7 +893,7 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			/* Done */
 			done = TRUE;
 		}
-		else if (c == '?')
+		else if (ke.key == '?')
 		{
 			sprintf(buf, "%s#%s", helpfile, choices[cur].name);
 
@@ -773,19 +901,56 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			(void)show_file(buf, NULL, 0, 0);
 			screen_load();
 		}
-		else if (c == '=')
+		else if (ke.key == '=')
 		{
                         do_cmd_options();
 		}
-		else if ((c == '\n') || (c == '\r'))
+		else if ((ke.key == '\n') || (ke.key == '\r'))
 		{
 			/* Done */
 			return (cur);
 		}
-		else if (isdigit(c))
+		else if (ke.key == '\xff')
+		{
+			int choice = ke.mousey - TABLE_ROW + top;
+
+			if (ke.mousebutton)
+			{
+				if ((choice >= 0) && (choice < num))
+				{
+					cur = choice;
+					done = TRUE;
+				}
+			}
+			else
+			{
+				if ((choice >= 0) && (choice < num)) cur = choice;
+
+				/* Scroll up */
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+
+					/* Delay after update */
+					delay = 100;
+				}
+
+				/* Scroll down */
+				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+
+					/* Delay after update */
+					delay = 100;
+				}
+			}
+		}
+		else if (isdigit(ke.key))
 		{
 			/* Get a direction from the key */
-			dir = target_dir(c);
+			dir = target_dir(ke.key);
 
 			/* Going up? */
 			if (dir == 8)
@@ -819,17 +984,17 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 				}
 			}
 		}
-		else if (isalpha(c))
+		else if (isalpha(ke.key))
 		{
 			int choice;
 
-			if (islower(c))
+			if (islower(ke.key))
 			{
-				choice = A2I(c);
+				choice = A2I(ke.key);
 			}
 			else
 			{
-				choice = c - 'A' + 26;
+				choice = ke.key - 'A' + 26;
 			}
 
 			/* Validate input */
@@ -1524,7 +1689,7 @@ static bool player_birth_aux_3(void)
 	bool flag;
 	bool prev = FALSE;
 
-	char ch;
+	key_event ke;
 
 	char b1 = '[';
 	char b2 = ']';
@@ -1763,7 +1928,7 @@ static bool player_birth_aux_3(void)
 					inkey_scan = TRUE;
 
 					/* Check for a keypress */
-					if (inkey()) break;
+					if (anykey().key) break;
 				}
 			}
 		}
@@ -1820,29 +1985,36 @@ static bool player_birth_aux_3(void)
 			Term_addch(TERM_WHITE, b2);
 
 			/* Prompt and get a command */
-			ch = inkey();
+			ke = anykey();
 
 			/* Quit */
-			if (ch == 'Q') quit(NULL);
+			if (ke.key == 'Q') quit(NULL);
 
 			/* Start over */
-			if ((ch == 'S')||(ch == ESCAPE)) return (FALSE);
+			if ((ke.key == 'S')||(ke.key == ESCAPE)) return (FALSE);
 
 			/* Enter accepts the roll */
-			if ((ch == '\n') || (ch == '\r')) break;
+			if ((ke.key == '\n') || (ke.key == '\r')) break;
 
 			/* Reroll this character */
-			if ((ch == ' ') || (ch == 'r')) break;
+			if ((ke.key == ' ') || (ke.key == 'r')) break;
+
+			/* Hack -- left click to reroll, other click to accept */
+			if (ke.key == '\xff')
+			{
+				if (ke.mousebutton != 1) ke.key = '\n';
+				break;
+			}
 
 			/* Previous character */
-			if (prev && (ch == 'p'))
+			if (prev && (ke.key == 'p'))
 			{
 				load_prev_data();
 				continue;
 			}
 
 			/* Help */
-			if (ch == '?')
+			if (ke.key == '?')
 			{
 				do_cmd_help();
 				continue;
@@ -1853,7 +2025,7 @@ static bool player_birth_aux_3(void)
 		}
 
 		/* Are we done? */
-		if ((ch == '\n') || (ch == '\r')) break;
+		if ((ke.key == '\n') || (ke.key == '\r')) break;
 
 		/* Save this for the "previous" character */
 		save_prev_data();
@@ -1879,7 +2051,7 @@ static bool player_birth_aux(void)
 {
         int i;
 
-	char ch;
+	key_event ke;
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return (FALSE);
@@ -1920,13 +2092,13 @@ static bool player_birth_aux(void)
 	prt("['Q' to suicide, 'S' to start over, or Enter to continue]", 23, 10);
 
 	/* Get a key */
-	ch = inkey();
+	ke = anykey();
 
 	/* Quit */
-	if (ch == 'Q') quit(NULL);
+	if (ke.key == 'Q') quit(NULL);
 
 	/* Start over */
-	if ((ch == 'S')||(ch == ESCAPE)) return (FALSE);
+	if ((ke.key == 'S')||(ke.key == ESCAPE)) return (FALSE);
 
 	/* Accept */
 	return (TRUE);
@@ -1987,6 +2159,13 @@ void player_birth(void)
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
+	}
+
+	/* Quests */
+	for (n = 0; n < z_info->q_max; n++)
+	{
+		/* Copy the structure */
+		COPY(&q_list[n], &q_info[n], quest_type);
 	}
 }
 
