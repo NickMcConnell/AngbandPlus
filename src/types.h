@@ -1211,7 +1211,7 @@ struct player_type
 	s16b fencing;		/* Ritual bonus to infravision */
 	s16b archery;		/* Ritual bonus to infravision */
 
-	s16b alertness;		/* Bonuses to Saving Throw and Perception when detecting traps, runes, and invisible creatures */
+	s16b alertness;		/* Bonuses to Spell Save and Perception when detecting traps, runes, and invisible creatures */
 
 	s16b recall_y;		/* Recall coordinates to Circle of Recall */
 	s16b recall_x;
@@ -1248,6 +1248,10 @@ struct player_type
 	s16b tim_sp_dam_perm;
 	s16b tim_sp_inf_perm;
 	s16b tim_res_perm[RS_MAX]; /* Timed resistancs */
+
+	bool acclima_perception;	/* Acclimatisation bonuses to skills */
+	bool acclima_stealth;
+	bool acclima_save;
 
 	bool searching;		/* Currently searching */
 	bool hear_invis;	/* Currently hearing inivisible creatures */
@@ -1394,7 +1398,7 @@ struct player_type
 	bool invis;		/* Invisible */
 	bool see_inv;		/* See invisible */
 	bool luck;		/* Luck */
-	bool dissolve_mist;	/* A 30% chance of dissolving mist-creatures every game turn */
+	bool dissolve_mist;	/* A 25% chance of dissolving mist-creatures every game turn */
 
 	bool disrupt;		/* Disrupt spells */
 	bool aggravate;		/* Aggravate monsters */

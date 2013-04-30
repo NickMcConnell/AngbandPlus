@@ -2749,10 +2749,7 @@ void identify_pack(void)
 	/* Try to identify and know every item if you succeed in an Alchemy check */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
-		if (rand_int(100) < p_ptr->skill[SK_ALC])
-		{
-			ident_aux(i);
-		}
+		ident_aux(i);
 	}
 
 	/* Recalculate bonuses */
@@ -2926,7 +2923,7 @@ bool analyse_item(void)
 	}
 
 	/* Learn all alchemical info if potion */
-	if ((o_ptr->tval == TV_POTION) && (rand_int(100) < p_ptr->skill[SK_ALC]))
+	if (o_ptr->tval == TV_POTION)
 	{
 		/* Identify it fully */
 		object_aware(o_ptr);
@@ -2943,17 +2940,10 @@ bool analyse_item(void)
 	}
 
 	/* If not potion, identify it fully */
-	else if ((!(o_ptr->tval == TV_POTION)) && (rand_int(40) < p_ptr->skill[SK_ALC]))
+	else
 	{
 		object_aware(o_ptr);
 		object_known(o_ptr);
-	}
-
-	/* Failed test */
-	else
-	{
-		message(MSG_EFFECT, 0, "You fail the Alchemy skill test.");
-		return TRUE;
 	}
 
 	/* Squelch it? */

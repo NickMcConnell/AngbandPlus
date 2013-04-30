@@ -1743,8 +1743,11 @@ static bool place_monster_one(int y, int x, int r_idx, int u_idx, bool slp, bool
 	if (r_ptr->flags1 & RF1_ATTR_MIMIC) n_ptr->attr = get_attr_mimic(r_ptr->d_char);
 	else n_ptr->attr = r_ptr->x_attr;
 
-	/* Enforce sleeping if needed */
-	if (slp && r_ptr->sleep) n_ptr->sleep = ((r_ptr->sleep * 2) + randint(r_ptr->sleep * 10));
+	/* Enforce sleeping if needed. Mist-phantasm start awake. */
+	if (!mist)
+	{
+		if (slp && r_ptr->sleep) n_ptr->sleep = ((r_ptr->sleep * 2) + randint(r_ptr->sleep * 10));
+	}
 
 	/* Make it a mist creature if needed */
 	if (mist) n_ptr->mist = 1;

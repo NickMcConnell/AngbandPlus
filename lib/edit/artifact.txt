@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:1.3.1
+V:1.3.2
 
 ## Artifact Perma-Lights ##
 
@@ -239,16 +239,10 @@ N:20:[The Necronomicon]
 I:90:23:0:0
 W:37:20:60:10000000
 
-# The Codex of Ultimate Wisdom
-
-#N:21:[The Codex of Ultimate Wisdom]
-#I:90:24:0:0
-#W:90:20:75:12500000
-
 # Mathemagical Calculation
 
 N:22:[Mathemagical Calculations]
-I:90:25:0:0
+I:90:24:0:0
 W:22:20:30:7500000
 
 ## Artifact Musical Instruments ##
@@ -797,7 +791,6 @@ W:5:20:40:42500
 P:2:1d1:0:4
 O:0:0:0:0:0:0:20:0:0:0:0:0:0:0:0:0:0
 F:HEALTH | PERCEPTION | SUST_CON | FEATHER | LUCK
-U:SATISFY_HUNGER:750:0
 
 # The Pair of Soft Leather Boots 'Dal-i-thalion'
 

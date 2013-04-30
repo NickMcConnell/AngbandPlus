@@ -11,7 +11,41 @@
 #include "angband.h"
 
 /*
- * Hack -- determine if an item is "wearable" 
+ * Hack -- determine if an item is "wearable" to the player character in any form.
+ */
+bool wearable_p_simple(const object_type *o_ptr)
+{
+	/* Valid "tval" codes */
+	switch (o_ptr->tval)
+	{
+		case TV_CLOAK:
+		case TV_BODY_ARMOR:
+		case TV_DRAG_ARMOR:
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_BLUNT:
+		case TV_POLEARM:
+		case TV_SWORD:
+		case TV_RING:
+		case TV_GLOVES:
+		case TV_SHIELD:
+		case TV_BOOTS:
+		case TV_HEADGEAR:
+		case TV_LITE:
+		case TV_LITE_SPECIAL:
+		case TV_AMULET:
+		case TV_MUSIC:
+		{
+			return TRUE;
+		}
+	}
+
+	/* Nope */
+	return FALSE;
+}
+
+/*
+ * Hack -- determine if an item is "wearable". Take player's current form into account.
  */
 bool wearable_p(const object_type *o_ptr)
 {

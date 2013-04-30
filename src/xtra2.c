@@ -553,11 +553,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Anger it */
 	m_ptr->calmed = 0;
 
-	/* Hurt it */
-	m_ptr->hp -= dam;
-
 	/* It is dead now */
-	if (m_ptr->hp < 0)
+	if (m_ptr->hp < dam)
 	{
 		char m_name[80];
 
@@ -659,6 +656,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Monster is dead */
 		return (TRUE);
 	}
+
+	/* Hurt it */
+	m_ptr->hp -= dam;
 
 	/* Sometimes a monster gets scared by damage */
 	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))

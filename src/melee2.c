@@ -3973,27 +3973,27 @@ static void monster_action(int m_idx)
 			/* Check if a relevant glyph type */
 			if (mon_glyph_check(m_idx, ny, nx))
 			{
-				/* Monsters can often attack player on the edge of protection circles, but not on glyphs */
-				if (!((cave_m_idx[ny][nx] < 0) && (decoration(ny, nx))))
-				{
-					do_move = FALSE;
+				do_move = FALSE;
+				do_turn = TRUE;
 
-					/* Took a turn */
-					do_turn = TRUE;
+				/* Monsters can often attack player on the edge of protection circles, but not on glyphs */
+				if ((cave_m_idx[ny][nx] < 0) && (!decoration(ny, nx)))
+				{
 				}
-				else
+				else if (cave_m_idx[ny][nx] < 0)
 				{
 					if (rand_int(100) < 50)
 					{
-						do_move = FALSE;
-						do_turn = FALSE;
-
 						/* Message */
 						if (r_ptr->flags4 & RF4_ANIMAL)
 						{
 							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fights with an illusionary image of you.", m_name);
 						}
 						if (r_ptr->flags4 & RF4_PERSON)
+						{
+							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fights with an illusionary image of you.", m_name);
+						}
+						if (r_ptr->flags4 & RF4_HUMANOID)
 						{
 							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s fights with an illusionary image of you.", m_name);
 						}
@@ -4005,6 +4005,11 @@ static void monster_action(int m_idx)
 						{
 							message_format(MSG_MONSTER, m_ptr->r_idx, "%^s suddenly feels very weak.", m_name);
 						}
+					}
+					else
+					{
+						do_move = TRUE;
+						do_turn = FALSE;
 					}
 				}
 
@@ -4039,6 +4044,7 @@ static void monster_action(int m_idx)
 			if ((decoration(ny, nx)) && (rand_int(100) < 20))
 			{
 				do_move = TRUE;
+				do_turn = FALSE;
 			}
 		}
 
@@ -4529,7 +4535,7 @@ static void monster_action(int m_idx)
 						(r_ptr->flags4 & flg4) || (r_ptr->flags2 & flg2))
 					{
 						/* Only give a message for "take_item" */
-						if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+						if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) && (!m_ptr->mist))
 						{
 							/* Take note */
 							did_take_item = TRUE;
@@ -4545,7 +4551,7 @@ static void monster_action(int m_idx)
 					}
 
 					/* Pick up the item */
-					else if (r_ptr->flags2 & (RF2_TAKE_ITEM))
+					else if ((r_ptr->flags2 & (RF2_TAKE_ITEM)) && (!m_ptr->mist))
 					{
 						object_type *i_ptr;
 						object_type object_type_body;
@@ -4574,7 +4580,7 @@ static void monster_action(int m_idx)
 					}
 
 					/* Destroy the item */
-					else
+					else if (r_ptr->flags2 & (RF2_KILL_ITEM))
 					{
 						/* Take note */
 						did_kill_item = TRUE;
@@ -4850,7 +4856,7 @@ void process_monsters_status(void)
 		/* Handle creatures shaped out of the mist */
 		if (m_ptr->mist)
 		{
-			if ((p_ptr->dissolve_mist) && (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) <= 3) && (rand_int(100) < 30))
+			if ((p_ptr->dissolve_mist) && (distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx) <= 3) && (rand_int(100) < 25))
 			{
 				/* Message if visible */
 				if (m_ptr->ml)
@@ -4870,7 +4876,7 @@ void process_monsters_status(void)
 				/* Delete the monster */
 				delete_monster_idx(i);
 			}
-			else if (rand_int(100) < 3)
+			else if (rand_int(1000) < 25)
 			{
 				/* Message if visible */
 				if (m_ptr->ml)
@@ -5190,7 +5196,8 @@ void process_monsters_status(void)
 			else chance = 20;
 
 			/* Only fall asleep if awake or close to awake */
-			if ((m_ptr->sleep < (r_ptr->sleep * 2)) && (rand_int(100) < chance))
+			/* Mist phantasms don't fall in sleep */
+			if ((m_ptr->sleep < (r_ptr->sleep * 2)) && (rand_int(100) < chance) && (!m_ptr->mist))
 			{
 				m_ptr->sleep = ((r_ptr->sleep * 2) + randint(r_ptr->sleep * 10));
 			}

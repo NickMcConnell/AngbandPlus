@@ -256,7 +256,7 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Decrease the monster generation counter */
-	if (randint(900) < p_ptr->monster_counter)
+	if (randint(750) < p_ptr->monster_counter)
 	{
 		p_ptr->monster_counter --;
 
@@ -268,7 +268,11 @@ static void process_world(void)
 	}
 
 	/* Check for creature generation -- in the dungeon monsters sometimes get shaped out of the mist. */
-	if (((randint(p_ptr->monster_counter) == 1) || ((randint(p_ptr->monster_counter) == 1))) && (p_ptr->depth > 0))
+	int more_monsters = 0;
+	if (randint(p_ptr->monster_counter) == 1) more_monsters++;
+	if (randint(p_ptr->monster_counter) == 1) more_monsters++;
+
+	if ((more_monsters) && (p_ptr->depth > 0))
 	{
 		/* Make a new monster */
 		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5, TRUE);
@@ -1040,20 +1044,10 @@ static void process_player(void)
 	if ((p_ptr->icy_hands == 1) && (!(p_ptr->icy_hands_perm)))		(void)set_icy_hands(p_ptr->icy_hands - 1);
 
 	/* Complete resting */
-	if (p_ptr->resting < 0)
+	if (p_ptr->resting > 0)
 	{
-		/* Basic resting */
-		if (p_ptr->resting == -1)
-		{
-			/* Stop resting */
-			if (p_ptr->chp == p_ptr->mhp)
-			{
-				disturb(0);
-			}
-		}
-
 		/* Complete resting */
-		else if (p_ptr->resting == -2)
+		if (p_ptr->resting > 0)
 		{
 			bool cut = FALSE;
 			bool confused = FALSE; 
@@ -1081,14 +1075,6 @@ static void process_player(void)
 			    !p_ptr->blind && !confused && !p_ptr->poisoned && !p_ptr->afraid &&
 			    !p_ptr->stun && !cut && !p_ptr->slow && !p_ptr->paralyzed &&
 			    !hallu && !p_ptr->word_recall)
-			{
-				disturb(0);
-			}
-		}
-		/* Rest hit points */
-		else if (p_ptr->resting == -3)
-		{
-			if (p_ptr->chp == p_ptr->mhp)
 			{
 				disturb(0);
 			}
@@ -1448,10 +1434,22 @@ static void dungeon(void)
 		p_ptr->create_down_stair = FALSE;
 	}
 
-	/* No stairs from town or if not allowed */
+	/* No stairs from town */
 	if (!p_ptr->depth)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+	}
+
+	/* Reset acclimatization bonuses in the town */
+	if (!p_ptr->depth)
+	{
+		if ((p_ptr->acclima_perception) || (p_ptr->acclima_stealth) || (p_ptr->acclima_save))
+		{
+			message(MSG_GENERIC, 0, "You are no longer acclimatized to the Mist.");
+			p_ptr->acclima_perception = FALSE;
+			p_ptr->acclima_stealth = FALSE;
+			p_ptr->acclima_save = FALSE;
+		}
 	}
 
 	/* Make a staircase */

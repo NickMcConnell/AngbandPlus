@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:1.3.1
+V:1.3.2
 
 ##### Non-kind (contains the "pile" picture) #####
 
@@ -257,7 +257,7 @@ A:12/5:45/27
 F:EASY_KNOW
 U:SHRDISEASE
 
-N:29:Antidote
+N:29:Remedy
 G:,:d
 I:80:10:0
 W:10:0:1:550
@@ -951,14 +951,14 @@ A:7/50
 F:EASY_KNOW
 U:TELE_MAJOR
 
-N:110:Teleport Level
-G:?:d
-I:70:11:0
-W:20:0:5:250
-X:2:1d3:50
-A:17/50
-F:EASY_KNOW
-U:TELE_LEVEL
+#N:110:Teleport Level
+#G:?:d
+#I:70:11:0
+#W:20:0:5:250
+#X:2:1d3:50
+#A:17/50
+#F:EASY_KNOW
+#U:TELE_LEVEL
 
 N:111:Word of Recall
 G:?:d
@@ -978,14 +978,14 @@ A:27/5
 F:EASY_KNOW
 U:ALTER_REALITY
 
-N:113:Lore
+N:113:Identify
 G:?:d
 I:70:14:0
-W:1:0:5:400
-X:2:1d3:50
-A:0/35
+W:1:0:5:1050
+X:2:1d1:50
+A:0/25
 F:EASY_KNOW
-U:LORE
+U:IDENTIFY
 
 N:114:*Identify*
 G:?:d
@@ -1433,7 +1433,7 @@ U:RISK_HACK
 N:165:Stealth
 G:!:d
 I:75:23:2
-W:5:0:4:200
+W:5:0:4:160
 X:3:1d3:100
 A:2/15:17/50
 F:EASY_KNOW
@@ -1493,10 +1493,10 @@ A:0/50
 F:EASY_KNOW
 U:HEROISM
 
-N:172:Berserk Strength
+N:172:Berserk Rage
 G:!:d
 I:75:30:2
-W:6:0:4:1750
+W:6:0:4:1900
 X:3:1d3:100
 A:3/25:6/50
 F:EASY_KNOW
@@ -2747,7 +2747,7 @@ U:BALL_COLD_1
 N:312:& Wooden Torch~
 G:~:u
 I:39:0:0
-W:1:0:25:25
+W:1:0:20:25
 A:0/45
 X:7:1d3:50
 F:EASY_KNOW | LITE1
@@ -2755,7 +2755,7 @@ F:EASY_KNOW | LITE1
 N:313:& Enchanted Torch~
 G:~:U
 I:39:1:0
-W:3:0:25:300
+W:3:0:20:300
 X:7:1d3:10
 A:0/30
 F:EASY_KNOW | LITE2
@@ -2765,7 +2765,7 @@ F:EASY_KNOW | LITE2
 N:314:Resist Fire and Cold
 G:~:d
 I:39:2:0
-W:8:0:25:700
+W:8:0:20:700
 X:7:1d3:10
 A:9/15
 O:0:0:30:30:0:0:0:0:0:0:0:0:0:0:0:0:0
@@ -2774,7 +2774,7 @@ F:EASY_KNOW | LITE3
 N:315:Thievery
 G:~:d
 I:39:3:0
-W:6:0:25:150
+W:6:0:20:150
 X:7:1d3:10
 A:3/15
 F:INFRA | STEALTH | PERCEPTION | EASY_KNOW | LITE1
@@ -2782,7 +2782,7 @@ F:INFRA | STEALTH | PERCEPTION | EASY_KNOW | LITE1
 N:316:Brightness
 G:~:d
 I:39:4:0
-W:6:0:25:700
+W:6:0:20:700
 X:7:1d3:10
 A:6/15
 O:0:0:0:0:0:0:0:40:40:0:0:0:0:0:0:0:0
@@ -2791,7 +2791,7 @@ F:EASY_KNOW | LITE4
 N:317:Sight
 G:~:d
 I:39:5:0
-W:10:0:25:1000
+W:10:0:20:1000
 X:7:1d3:10
 A:9/15
 F:EASY_KNOW | SEE_INVIS | NO_BLIND | LITE3
@@ -2799,7 +2799,7 @@ F:EASY_KNOW | SEE_INVIS | NO_BLIND | LITE3
 N:318:Fearlessness
 G:~:d
 I:39:6:0
-W:8:0:25:500
+W:8:0:20:500
 X:7:1d3:10
 A:3/15
 F:EASY_KNOW | BRAVERY | LITE3
@@ -2807,7 +2807,7 @@ F:EASY_KNOW | BRAVERY | LITE3
 N:319:Memory
 G:~:d
 I:39:7:0
-W:12:0:25:700
+W:12:0:20:700
 X:7:1d3:10
 A:12/15
 F:INT | SUST_INT | EASY_KNOW | LITE3
@@ -2815,7 +2815,7 @@ F:INT | SUST_INT | EASY_KNOW | LITE3
 N:320:Wisdom
 G:~:d
 I:39:8:0
-W:12:0:25:700
+W:12:0:20:700
 X:7:1d3:10
 A:12/15
 F:WIS | SUST_WIS | EASY_KNOW | LITE3
@@ -2823,7 +2823,7 @@ F:WIS | SUST_WIS | EASY_KNOW | LITE3
 N:321:Telepathy
 G:~:d
 I:39:9:0
-W:27:0:25:7000
+W:27:0:20:7000
 X:7:1d2:10
 A:27/15
 F:TELEPATHY | EASY_KNOW | LITE3
@@ -2832,7 +2832,7 @@ F:IGNORE_ELEM | IGNORE_NON_ELEM
 N:322:Truth
 G:~:d
 I:39:10:0
-W:15:0:25:1000
+W:15:0:20:1000
 X:7:1d3:10
 A:15/15
 F:EASY_KNOW | LITE3 | PERCEPTION | DISSOLVE_MIST
@@ -4641,7 +4641,7 @@ N:512:& Arrow~
 G:{:U
 I:15:0:0
 W:3:0:2:2
-X:6:5d7:35
+X:6:5d6:35
 P:0:1d5:0:0
 A:0/45
 F:THROWING
@@ -4661,7 +4661,7 @@ N:514:& Flight Arrow~
 G:{:U
 I:15:2:6
 W:8:0:1:5
-X:6:5d7:40
+X:6:5d6:40
 P:0:1d4:0:0
 A:5/25:13/45
 F:THROWING
@@ -4671,7 +4671,7 @@ N:515:& Silver-Tipped Arrow~
 G:{:W
 I:15:3:0
 W:10:0:2:70
-X:13:5d7:30
+X:13:5d6:30
 P:0:1d7:0:0
 A:7/25:17/45
 K:0:0:0:0:0:0:0:17:0:0:0:0:0:17:0:0:0:0:0:0:0
@@ -4682,7 +4682,7 @@ N:516:& Iron-Tipped Arrow~
 G:{:s
 I:15:4:0
 W:10:0:2:70
-X:12:5d7:30
+X:12:5d6:30
 P:0:1d7:0:0
 A:7/25:17/45
 K:0:0:0:0:0:0:0:0:17:0:0:17:0:0:0:0:0:0:0:0:0
@@ -4928,19 +4928,11 @@ W:37:0:60:10000000
 X:2:1d1:0
 U:RITUAL_FORBIDDEN_LORE
 
-# The Codex of Ultimate Wisdom -- see artifact list
-
-#N:542:[The Codex of Ultimate Wisdom]
-#G:?:v
-#I:90:24:0
-#W:90:0:75:12500000
-#X:2:1d1:0
-
 # Mathemagical Calculations -- see artifact list
 
 N:543:[Mathemagical Calculations]
 G:?:v
-I:90:25:0
+I:90:24:0
 W:22:0:30:7500000
 X:2:1d1:0
 U:RITUAL_MIND_OVER_BODY

@@ -1388,7 +1388,7 @@ int generate_fill_table(int y1, int x1, int y2, int x2)
 			{
 				place_decoration(y1+1, x1+2, WG_ALTAR_TRANSFORMATION);
 				place_decoration(y1+1, x1, WG_STATUE);
-				place_decoration(y1, x1+1, WG_STATUE);
+				place_decoration(y1, x1+1, WG_STATUE_MILK);
 				place_decoration(y1, x2-1, WG_STATUE);
 				place_decoration(y1+1, x2, WG_STATUE);
 				break;
@@ -1460,6 +1460,8 @@ int generate_fill_table(int y1, int x1, int y2, int x2)
 	/* Draw the table */
 	else
 	{
+		bool statue_platform = FALSE;
+
 		/* Make tables a bit shorter */
 		if ((x2 - x1) > 1)
 		{
@@ -1471,7 +1473,11 @@ int generate_fill_table(int y1, int x1, int y2, int x2)
 		for (y = 0; y < 8; y++)
 		{
 			/* Occasionally allow exactly 3*3 tables */
-			if (((x2 - x1) == 2) && ((y2 - y1) == 2) && (rand_int(100) < 25)) break;
+			if (((x2 - x1) == 2) && ((y2 - y1) == 2) && (rand_int(100) < 25))
+			{
+				statue_platform = TRUE;
+				break;
+			}
 
 			if (((x2 - x1) > 1) && ((y2 - y1) > 1))
 			{
@@ -1488,13 +1494,32 @@ int generate_fill_table(int y1, int x1, int y2, int x2)
 			}
 		}
 
-		for (y = y1; y <= y2; y++)
+		/* Sometimes turn the 3x3 table into a statue platform instead */
+		if ((statue_platform) && (rand_int(100) < 35))
 		{
-			for (x = x1; x <= x2; x++)
+			for (y = y1; y <= y2; y++)
 			{
-				if (cave_clean_bold(y, x))
+				for (x = x1; x <= x2; x++)
 				{
-					place_decoration(y, x, WG_TABLE);
+					if (cave_clean_bold(y, x))
+					{
+						place_decoration(y, x, WG_PLATFORM);
+					}
+				}
+			}
+
+			place_decoration(y1 + 1, x1 + 1, WG_STATUE_REGAN);
+		}
+		else
+		{
+			for (y = y1; y <= y2; y++)
+			{
+				for (x = x1; x <= x2; x++)
+				{
+					if (cave_clean_bold(y, x))
+					{
+						place_decoration(y, x, WG_TABLE);
+					}
 				}
 			}
 		}

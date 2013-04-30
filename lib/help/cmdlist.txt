@@ -18,7 +18,7 @@ mation about any command, consult the help file "cmddesc.txt".
 === Original Keyset Command Summary ===
 
  a  Aim a wand                           A  Activate an artifact
- b  Browse a book                        B  Bash a door
+ b  Browse a book                        B  (unused)
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap
  e  Equipment list                       E  Eat some food
@@ -34,7 +34,7 @@ mation about any command, consult the help file "cmddesc.txt".
  o  Open a door or chest                 O  (unused)
  p  Use a proficiency                    P  (unused)
  q  Quaff a potion/drink from a fountain Q  Quit (commit suicide)
- r  Read a scroll                        R  Rest for a period
+ r  Read a scroll                        R  Rest for 50 turns
  s  (unused)                             S  (unused)
  t  Take off equipment                   T  Tunnel rubble/Topple a tree
  u  Use a staff                          U  Use racial ability
@@ -81,7 +81,7 @@ mation about any command, consult the help file "cmddesc.txt".
  c  Close a door                         C  Character description
  d  Drop an item                         D  Disarm a trap or chest
  e  Equipment list                       E  Eat some food
- f  Bash a door (force)                  F  Fuel your lantern/torch
+ f  (unused)                             F  Fuel your lantern/torch
  g  Stay still (flip pickup)             G  Gain new spells/prayers
  h  (walk - west)                        H  (run - west)
  i  Inventory list                       I  Inspect an item
@@ -93,7 +93,7 @@ mation about any command, consult the help file "cmddesc.txt".
  o  Open a door or chest                 O  Use racial ability
  p  Use a proficiency                    P  Browse a book
  q  Quaff a potion/drink from a fountain Q  Quit (commit suicide)
- r  Read a scroll                        R  Rest for a period
+ r  Read a scroll                        R  Rest for 50 turns
  s  (unused)                             S  Invoke a Talisman
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)

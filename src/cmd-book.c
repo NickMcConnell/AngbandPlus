@@ -88,7 +88,7 @@ static s16b spell_chance(int book, int spell, int sub, bool music)
 	else s_ptr = &instruments[book].contents[spell];
 
 	/* Extract the base spell failure rate */
-	chance = s_ptr->sfail;
+	chance = s_ptr->sfail + 12;
 
 	/* Increase for some sub spells */
 	if (sub) chance += sub_spell_list[sub].sfail;
@@ -102,7 +102,7 @@ static s16b spell_chance(int book, int spell, int sub, bool music)
 	
 	/* Reduce failure rate by stat adjustment */
 	stat_factor = (p_stat(cp_ptr->spell_stat1) + p_stat(cp_ptr->spell_stat2)) / 2;
-	chance -= 3 * (adj_mag_stat[stat_factor] - 1);
+	chance -= adj_mag_stat[stat_factor];
 
 	mana = spell_mana(book, spell, sub, music);
 
@@ -344,7 +344,7 @@ static void spell_info(char *p, int spell_index)
 			sprintf(p, " dam %dd%d, rad %d", 2,
 				apply_sp_mod((damlev / 2), p_ptr->sp_dam), (damlev / 10) + 1); break;
 		case POW_ABSORB_HIT: 
-			dur1 = durlev * 2; dur2 = 32; break;
+			dur1 = durlev; dur2 = 30; break;
 		case POW_BLESS_1:
 			dur1 = 12; dur2 = 12; break;
 		case POW_BLESS_2:
@@ -1665,7 +1665,6 @@ static void do_cast(int book, bool force_menu)
 				message(MSG_SPELL_FAIL, 0, "You lose your concentration!");
 				break;
 			}
-			case SBF_CODEX:
 			case SBF_MATHEMAGIC:
 			{
 				message(MSG_SPELL_FAIL, 0, 

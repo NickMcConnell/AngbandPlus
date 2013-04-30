@@ -1101,9 +1101,9 @@ byte adj_mag_fail[A_RANGE] =
 	4		/* 18 */,
 	4		/* 19 */,
 	3		/* 20 */,
-	2		/* 21 */,
+	3		/* 21 */,
 	2		/* 22 */,
-	1		/* 23 */,
+	2		/* 23 */,
 	1		/* 24 */,
 	1		/* 25 */,
 	1		/* 26 */,
@@ -1114,41 +1114,41 @@ byte adj_mag_fail[A_RANGE] =
 };
 
 /*
- * Stat Table (INT/WIS) -- Various things
+ * Stat Table (INT/WIS) -- Reduce fail rates by this amount
  */
 byte adj_mag_stat[A_RANGE] =
 {
 	0		/* 0 */,
-	0		/* 1 */,
-	0		/* 2 */,
-	0		/* 3 */,
-	0		/* 4 */,
-	1		/* 5 */,
-	1		/* 6 */,
-	1		/* 7 */,
-	1		/* 8 */,
-	1		/* 9 */,
-	1		/* 10 */,
-	1		/* 11 */,
-	2		/* 12 */,
-	2		/* 13 */,
-	2		/* 14 */,
-	3		/* 15 */,
-	3		/* 16 */,
-	3		/* 17 */,
-	4		/* 18 */,
-	6		/* 19 */,
-	8		/* 20 */,
-	10		/* 21 */,
-	12		/* 22 */,
-	13		/* 23 */,
-	14		/* 24 */,
-	15		/* 25 */,
-	16		/* 26 */,
-	17		/* 27 */,
-	18		/* 28 */,
-	19		/* 29 */,
-	20		/* 30 */
+	1		/* 1 */,
+	2		/* 2 */,
+	3		/* 3 */,
+	4		/* 4 */,
+	5		/* 5 */,
+	6		/* 6 */,
+	7		/* 7 */,
+	8		/* 8 */,
+	9		/* 9 */,
+	10		/* 10 */,
+	12		/* 11 */,
+	14		/* 12 */,
+	16		/* 13 */,
+	18		/* 14 */,
+	20		/* 15 */,
+	22		/* 16 */,
+	25		/* 17 */,
+	28		/* 18 */,
+	31		/* 19 */,
+	34		/* 20 */,
+	37		/* 21 */,
+	40		/* 22 */,
+	44		/* 23 */,
+	48		/* 24 */,
+	52		/* 25 */,
+	56		/* 26 */,
+	60		/* 27 */,
+	64		/* 28 */,
+	68		/* 29 */,
+	72		/* 30 */
 };
 
 /*
@@ -1570,7 +1570,7 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TELE_MAJOR,		"Teleport Self",			7,  6, 41 },
 			{ POW_BEAM_WEAK_LITE,		"Spear of Light",			7,  7, 41 },
 			{ POW_SLEEP_ALL,		"Sleep All",				8,  7, 51 },
-			{ POW_PHLOGISTON,		"Phlogiston",				9,  8, 51 },
+			{ POW_PHLOGISTON,		"Phlogiston",				9,  22, 51 },
 			/* { POW_BOLT_MISSILE_X,	"Magic Missile",			5, -2, 25 }, */
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 
@@ -1642,10 +1642,10 @@ spell_book books[SV_BOOK_MAX] =
 		/* Mordenkainen's Escapes (sval 7) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
-			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 31 },
 			{ POW_CREATE_STAIR,		"Create Stairs",			10, 15, 46 },
 			{ POW_TELE_LEVEL,		"Teleport Level",			15, 17, 66 },
 			{ POW_TELE_CONTROL,		"Dimension Door",			20, 25, 76 },
+			{ POW_ABSORB_HIT,		"Absorb Hit",				25, 30, 66 },
 			{ POW_CREATE_WALL,		"Create Walls",				30, 40, 86 },
 /*			{ POW_WORD_RECALL,		"Word of Recall",			35, 25, 75 },		*/
 			{ POW_DESTRUCTION,		"Word of Destruction",		40, 21, 84 },
@@ -1861,10 +1861,10 @@ spell_book books[SV_BOOK_MAX] =
 		/* The Teachings of the Ninth Master (sval 22) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
-			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 36 },
 			{ POW_BOLT_MANA_X,		"Mana Bolt",				10, -5, 56 },
-			{ POW_INVIS_2,			"Vanish from Sight",		20, 20, 66 },
-			{ POW_BANISH,			"Banish Enemies",			25, 30, 86 },
+			{ POW_INVIS_2,			"Vanish from Sight",		15, 20, 66 },
+			{ POW_BANISH,			"Banish Enemies",			20, 30, 86 },
+			{ POW_ABSORB_HIT,		"Absorb Hit",				25, 30, 66 },
 			{ POW_HEAL_4,			"Heal",						30, 20, 66 },
 			{ POW_HASTE_SELF_2,		"Essence of Speed",			35, 60, 56 },
 			{ POW_ALTER_REALITY,	"Alter Reality",			40, 80, 81 },
@@ -1887,25 +1887,12 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* The Codex of Ultimate Wisdom (sval 24) */
-		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
-		{
-			{ POW_IDENTIFY,			"Perception",				 1, 15, 56 },
-			{ POW_IDENTIFY_PACK,	"Greater Perception",		20, 20, 92 },
-			{ POW_IDENTIFY_FULL,	"Revelation",				50,100, 78 },
-			{ POW_MAP_2,			"Clairvoyance",				50,100, 16 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
-		}
-	},
-	{
-		/* The Mathemagical Calculations (sval 25) */
+		/* The Mathemagical Calculations (sval 24) */
 		(SBF_MATHEMAGIC | SBF_GOOD | SBF_ARTIFACT),
 		{
-			{ POW_SPELL_INFLUENCE,	"Enchance Influence",		20, 35, 82 },
-			{ POW_SPELL_DURATION,	"Optimize Duration",		30, 50, 82 },
-			{ POW_SPELL_DAMAGE,		"Augment Damage",			40, 75, 82 },
+			{ POW_SPELL_INFLUENCE,	"Enchance Influence",		20, 10, 82 },
+			{ POW_SPELL_DURATION,	"Optimize Duration",		30, 20, 82 },
+			{ POW_SPELL_DAMAGE,		"Augment Damage",			40, 30, 82 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
@@ -1968,23 +1955,23 @@ cptr resist_names_short[RS_MAX] =
  */
 res_cap resist_caps[RS_MAX] =
 {
-	{55, 88},
-	{55, 88},
-	{55, 88},
-	{55, 88},
-	{50, 66},
-	{55, 88},
-	{55, 88},
-	{50, 66},
-	{50, 66},
-	{40, 50},
-	{40, 50},
-	{40, 50},
-	{40, 50},
-	{40, 50},
-	{40, 50},
-	{40, 50},
-	{40, 50}
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90},
+	{60, 90}
 };
 
 /*

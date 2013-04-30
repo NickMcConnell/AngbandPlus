@@ -486,6 +486,9 @@ static bool store_will_buy(const object_type *o_ptr)
 	/* Rogues can only sell items with evaluated price >= min_depth in feet */
 	if (object_value(o_ptr) < (500 * p_ptr->min_depth)) return (FALSE);
 
+	/* Never sell items below 5 gp */
+	if (object_value(o_ptr) < 50) return (FALSE);
+
 	/* Switch on the store */
 	switch (store_num)
 	{
@@ -1749,8 +1752,6 @@ static void store_sell(void)
 	}
 
 	/* Only rogues can sell items */
-
-
 	if (!(store_num == STORE_HOME) && (!(cp_ptr->flags & CF_APPRAISE)))
 	{
 		message_format(MSG_STORE, 0, "Only rogues can sell items.");

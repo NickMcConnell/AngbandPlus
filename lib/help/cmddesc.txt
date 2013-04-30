@@ -141,34 +141,7 @@ Stay still (flip pickup) (g)
     This command may take a count, and takes some energy.
 
 Rest (R)
-    Resting is better for you than repeatedly staying still, and can be told to
-    automatically stop after a certain amount of time, or when various 
-    conditions are met.  In any case, you always wake up when anything 
-    disturbing happens, or when you press any key.  To rest, enter the Rest 
-    command, followed by the number of turns you want to rest, 'H' to rest 
-    until your hitpoints are restored and '&' to rest until you are fully
-    "healed" of several ill conditions.  This command may take an argument
-    (used for the number of turns to rest), and takes some energy.
-
---- Searching Commands ---
-
-Search (s)
-    This command can be used to locate hidden traps and secret doors in the 
-    spaces adjacent to the player.  More than a single turn of searching will
-    be required in most cases.  You should always search a chest before trying
-    to open it, since they are generally trapped.  This command can take a 
-    count, which is useful if you are fairly sure of finding something 
-    eventually, since the command stops as soon as anything is found.  This
-    command may take a count, and takes some energy.
-
-Toggle search mode (S) or Toggle search mode (#)
-    This command will take you into and out of search mode.  When first 
-    pressed, the message "Searching" will appear at the bottom of the screen.
-    You are now taking two turns for each command, one for the command and one
-    turn to search.  This means that you are taking twice the time to move 
-    around the dungeon, and therefore twice the food.  Search mode will 
-    automatically turn off if you are disturbed.  You may also turn off search
-    mode by entering the Search Mode command again.
+    Wait 50 turns or until fully healed (both Hits and adverse status effects).
 
 --- Dungeon Interaction Commands ---
 
@@ -190,16 +163,9 @@ Open a door or chest (o)
 Close a door (c)
     Non-intelligent and some other creatures cannot open doors, so shutting
     doors can be quite valuable.  Some creatures, however, can break through a
-    door, in which case it can never be closed again.  Similarly, bashing a 
-    door open may break it.  This command may take a count, is affected by the
-    "always_repeat" option, requires a direction, and takes some energy.
-
-Bash a door (B) or Force a door (f)
-    This command allows you to bash down locked doors.  Your bashing ability 
-    increases with strength.  Bashing open a door can (briefly) throw you off 
-    balance.  Bashing a door open may permanently break it so that it can never
-    be closed.  This command may take a count, is affected by the 
-    "always_repeat" option, requires a direction, and takes some energy.
+    door, in which case it can never be closed again. This command may take a
+    count, is affected by the "always_repeat" option, requires a direction,
+    and takes some energy.
 
 Disarm a trap or chest (D)
     You can attempt to disarm traps on the floor or on chests.  If you fail,

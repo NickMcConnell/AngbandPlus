@@ -1703,7 +1703,7 @@ void do_cmd_proficiency(void)
 	/* Analyse the answer */
 
 	/* Identify Pack */
-	if ((ch == 'i') && (lore > 0) && (knowledge))
+	if ((ch == 'i') && (lore > 1) && (knowledge))
 	{
 		/* Check some conditions */
 		if (p_ptr->blind)
@@ -1724,14 +1724,14 @@ void do_cmd_proficiency(void)
 
 		use_charge = do_power(POW_IDENTIFY_PACK, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 
-		if (use_charge) p_ptr->lore_uses++;
+		if (use_charge) p_ptr->lore_uses += 2;
 
 		/* Take a turn */
 		if (use_charge) p_ptr->energy_use = 100;
 	}
 
 	/* Fully Identify */
-	else if ((ch == 'f') && (lore > 0) && (knowledge))
+	else if ((ch == 'f') && (lore > 1) && (knowledge))
 	{
 		/* Check some conditions */
 		if (p_ptr->blind)
@@ -1751,7 +1751,7 @@ void do_cmd_proficiency(void)
 		}
 
 		use_charge = do_power(POW_ANALYSE_ITEM, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
-		if (use_charge) p_ptr->lore_uses++;
+		if (use_charge) p_ptr->lore_uses += 2;
 
 		/* Take a turn */
 		if (use_charge) p_ptr->energy_use = 100;
@@ -1789,9 +1789,6 @@ void do_cmd_proficiency(void)
 	{
 		use_charge = do_power(POW_HEAL_CURE_2, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->reserves_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
 	}
 
 	/* Berserk */
@@ -1799,9 +1796,6 @@ void do_cmd_proficiency(void)
 	{
 		use_charge = do_power(POW_RAGE_1, 0, 0, 0, 0, 15, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->reserves_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
 	}
 
 	/* Escape */
@@ -1809,9 +1803,6 @@ void do_cmd_proficiency(void)
 	{
 		use_charge = do_power(POW_SHIFT, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
 		if (use_charge) p_ptr->escapes_uses++;
-
-		/* Take a turn */
-		if (use_charge) p_ptr->energy_use = 100;
 	}
 
 	else return;

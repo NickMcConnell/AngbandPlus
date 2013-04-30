@@ -640,6 +640,7 @@ extern void create_quest_item(int ny, int nx);
 /* object3.c */
 extern bool weapon_p(const object_type *o_ptr);
 extern s16b wield_slot(const object_type *o_ptr);
+extern bool wearable_p_simple(const object_type *o_ptr);
 extern bool wearable_p(const object_type *o_ptr);
 extern byte object_attr(const object_type *o_ptr);
 extern void object_flags(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);

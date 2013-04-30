@@ -484,9 +484,10 @@ static void display_player_skill_info(void)
 	desc = likert(xskill[SK_DEV], 5);
 	c_put_str(likert_color, format("%9d%%", xskill[SK_DEV]), 14, col+12);
 
-	put_str("Saving Throw", 15, col);
+	if (p_ptr->acclima_save) put_str("Spell Save [A]", 15, col);
+	else put_str("Spell Save", 15, col);
 	desc = likert(xskill[SK_SAV], 5);  
-	c_put_str(likert_color, format("%9d%%", xskill[SK_SAV]), 15, col+12);
+	c_put_str(likert_color, format("%7d%%", xskill[SK_SAV]), 15, col+14);
 	/* if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 21, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 21, col+13); */
 
@@ -499,12 +500,14 @@ static void display_player_skill_info(void)
 	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_MOB]), 14, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 14, col+13); */
 
-	put_str("Stealth", 17, col);
+	if (p_ptr->acclima_stealth) put_str("Stealth [A]", 17, col);
+	else put_str("Stealth", 17, col);
 	desc = likert(xskill[SK_STL], 1);
 	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 17, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 17, col+13);
 
-	put_str("Perception", 18, col);
+	if (p_ptr->acclima_perception) put_str("Perception [A]", 18, col);
+	else put_str("Perception", 18, col);
 	if (p_ptr->alertness)
 	{
 		int perception = xskill[SK_PER];
@@ -517,7 +520,7 @@ static void display_player_skill_info(void)
 	else
 	{
 		desc = likert(xskill[SK_PER], 5);
-		c_put_str(likert_color, format("%9d%%", xskill[SK_PER]), 18, col+12);
+		c_put_str(likert_color, format("%7d%%", xskill[SK_PER]), 18, col+14);
 	}
 
 	put_str("Jumping", 19, col);
@@ -1876,7 +1879,7 @@ static const o_flag_desc weapon_flags_desc[] =
 	{ TR2_TERROR,		"hit from this weapon can terrify the enemy" },
 	{ TR2_IMPACT,		"hit from this weapon can cause an earthquake" },
 	{ TR2_DEADLY_CRIT,	"critical hit from this weapon does triple damage" },
-	{ TR2_KILL_MIST,	"single hit from this weapon is enough to dissolve any mist-creature" }
+	{ TR2_KILL_MIST,	"single hit from this weapon is enough to dissolve any mist phantasm" }
 };
 
 /*
@@ -1952,7 +1955,7 @@ static const o_flag_desc misc_flags3_desc[] =
 	{ TR3_INVIS,		"invisibility" },
 	{ TR3_LUCK,		"luck finding items" },
 	{ TR3_MIGHTY_THROW,	"double thrown range and thrown weapon damage" },
-	{ TR3_DISSOLVE_MIST,	"a 30% chance per game turn of dissolving mist-critters within 3 squares" },
+	{ TR3_DISSOLVE_MIST,	"a 25% chance per game turn of dissolving mist phantasms within 3 squares" },
 };
 
 /*
@@ -2310,13 +2313,9 @@ void analyze_weapon(const object_type *o_ptr)
 		text_out("blows per round, and one extra blow against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
 	}
 	else if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
-	else if ((p_ptr->fencing) && (o_ptr->tval == TV_SWORD))
+	else if ((cp_ptr->flags & CF_FENCING) && (o_ptr->tval == TV_SWORD))
 	{
-		text_out("blow per round, and ");
-		text_out_c(TERM_L_GREEN, format("%d ", p_ptr->fencing));
-		if (p_ptr->fencing == 1) text_out("extra blow ");
-		else text_out("extra blows ");
-		text_out("against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of ");
+		text_out("blow per round, and one extra blow against visible persons and humanoids because of your superior fencing skill. Each blow will do an average damage of  ");
 	}
 	else text_out("blow per round, averaging a damage of ");
 
@@ -3036,7 +3035,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out_c(TERM_L_GREEN, "3d16");
 					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Lifeforce or Knowledge, chosen at random.  ");
 					text_out("\n\nCircle of Lifeforce restores and sustains STR, DEX, CON, and experience points.  It also cures and protects from the effects of disease.  Undead and demons have difficulties moving (80% fail) or attacking in melee (50% fail) on a Circle of Lifeforce.  ");
-					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
+					text_out("\n\nCircle of Knowledge allows you to spend two identify points to Identify Pack or to Fully Identify.  ");
 					break;
 				case POW_POWDER_DARKNESS:
 					text_out("Damage ");
@@ -3055,7 +3054,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out("Damage ");
 					text_out_c(TERM_L_GREEN, "3d16");
 					text_out(".  On a critical hit, the powder cloud will spread.  The powder may also be poured (dropped) on a broken magic circle to complete a Circle of Knowledge.  ");
-					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
+					text_out("\n\nCircle of Knowledge allows you to spend two identify points to Identify Pack or to Fully Identify.  ");
 					break;
 				case POW_POWDER_FREEZING:
 					text_out("Damage ");
@@ -3069,7 +3068,7 @@ void list_object(const object_type *o_ptr, int mode)
 					text_out(", radius ");
 					text_out_c(TERM_L_GREEN, format ("2"));
 					text_out(".  On a critical hit, the powder cloud will spread further.  The powder may also be poured (dropped) on a broken magic circle to complete either a Circle of Knowledge or Permanence, chosen at random.  ");
-					text_out("\n\nCircle of Knowledge allows you to use identify points to Identify Pack or to Fully Identify.  You need to succeed in an Alchemy skill check for each identified object.  ");
+					text_out("\n\nCircle of Knowledge allows you to spend two identify points to Identify Pack or to Fully Identify.  ");
 					text_out("\n\nCircle of Permanence will make any positive temporary status effects started inside the circle last until you leave the dungeon level.  ");
 					break;
 				case POW_POWDER_ICE_BLAST:
@@ -3377,7 +3376,7 @@ void list_object(const object_type *o_ptr, int mode)
 				case POW_SHRSTUPIDITY:
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
-						text_out("When eaten by a Shaman, it makes you go berserk.  ");
+						text_out("When eaten by a Shaman, it makes you go berserk: it heals and emboldens you, gives free action and extra blow, doubles thrown damage.  ");
 					}
 					break;
 				case POW_SHRAMNESIA:
@@ -3410,13 +3409,13 @@ void list_object(const object_type *o_ptr, int mode)
 				case POW_SHRHEAL_1:
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
-						text_out("When eaten by a Shaman, it reduces cuts and heals you a moderate amount.  ");
+						text_out("When eaten by a Shaman, it heals 30% of wounds + 10 hits, cures stunning and reduces cuts.  ");
 					}
 					break;
 				case POW_SHRHEAL_2:
 					if (cp_ptr->flags & CF_SHROOM_MAGIC)
 					{
-						text_out("When eaten by a Shaman, it reduces cuts and heals you a large amount.  ");
+						text_out("When eaten by a Shaman, it heals 45% of wounds + 15 hits, cures blindness, confusion, stunning, cuts.  ");
 					}
 					break;
 				case POW_DRAGON_BLACK:
@@ -3553,7 +3552,7 @@ void list_object(const object_type *o_ptr, int mode)
 	{
 		i = object_value(o_ptr);
 
-		if ((i >= p_ptr->min_depth * 500) && (i > 0))
+		if ((i >= p_ptr->min_depth * 500) && (i >= 50))
 		{
 			text_out("\n\nYou may sell it in the town. You think it values at around ");
 			text_out_c(TERM_ORANGE, format("%d", i / 10));

@@ -8,7 +8,7 @@ relevant stats and your race have an effect also, in some cases a very big one.
    Shooting (DEX & STR)
    Throwing (DEX & STR)
    Magic Device (PRE)
-   Saving Throw (WIS)
+   Spell Save (WIS)
 
 The last five skills are specialist skills, meaning that only one class
 increases his skill score further with experience. This allows your race and
@@ -29,7 +29,7 @@ other class.
 
 === It's all just simple percentage rolls ===
 
-To make a skill check for Saving Throw, Perception, Jumping, Alchemy, or
+To make a skill check for Spell Save, Perception, Jumping, Alchemy, or
 Navigation, the game always tries to roll 1d100 under or equal to your skill
 score. No complications whatsoever -- what you see on your character sheet is
 what you get.
@@ -56,7 +56,7 @@ check. If you fail, you lose a charge.
 Stealth is the only skill with hidden success chances. (That will change in the
 next version!)
 
-All skill checks for Alchemy, Jumping, Navigation, Saving Throw, and Perception
+All skill checks for Alchemy, Jumping, Navigation, Spell Save, and Perception
 are unmodified percentage rolls under skill score. Read on for details.
 
 
@@ -66,8 +66,6 @@ You make Alchemy skills checks to:
 
 - find out one of the potion's ingredients when drinking it.
 - identify an item by using an identify point with the 'p'roficiency command
-- identify pack in a Circle of Knowledge, one check per item
-- fully identify an item in a Circle of Knowledge
 - mix a potion
 - complete an alchemical circle.
 - disarm a magical trap.
@@ -100,6 +98,9 @@ attacks from lower ground! Tables and platforms also block 3/5 of missiles or
 spells flying over them, unless the shooter is standing right next to the
 cover.
 
+If your Jumping skill score is above 100%, the excess points are added to your
+armour class.
+
 
 === Navigation ===
 
@@ -113,9 +114,9 @@ You get a mapping effect that reveals nearby dungeon and detects nearby traps
 and runes.
 
 
-=== Saving Throw ===
+=== Spell Save ===
 
-You make Saving Throw skill checks to:
+You make Spell Save skill checks to:
 
 - resist hostile magic that tries to affect your mind.
 - resist the effects of a warding rune (see below)
@@ -152,7 +153,7 @@ manually once after teleporting.
 You don't need to make any Perception checks to find a secret door. As soon as
 you walk next to the secret door, it is automatically revealed. Secret doors
 can only exist in special walls: cave paintings, closets, bookshelves, and
-weapon racks. Don't waste time looking for secret doors where there aren't any!
+weapon racks. Don't waste time looking for secret doors where there isn't any!
 
 
 === A warning about Warding Runes ===
@@ -163,7 +164,7 @@ though, across the room. All Warding Runes affect both the player and monsters.
 
 You find a Rune by making a Perception check while walking next to it, master
 it with the 'D'isarm command, then Disarm it again to switch it on or off.
-A successful Saving Throw protects you completely from their effects.
+A successful Spell Save protects you completely from their effects.
 
 Some Runes are off by default. If you find one with a Perception check, you may
 then want to use your Alchemy skill to switch it on -- it's fun to let a

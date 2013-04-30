@@ -2439,7 +2439,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_PROTECTION:
 				{
 					/* Bonus to armor class */
-					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_a = 2 + randint(5) + m_bonus(10, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2616,16 +2616,6 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
-
-					/* Note that torches may not be cursed, even with negative pval */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Reverse pval */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
 
 					break;
 				}
@@ -3000,7 +2990,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great, 
 
 		case TV_LITE:
 		{
-			if (!power && (rand_int(100) < 35)) power = -1;
 			a_m_aux_4(o_ptr, lev, power);
 			break;
 		}

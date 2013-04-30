@@ -237,7 +237,7 @@ static errr rd_item(object_type *o_ptr)
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
 
 	/* Repair simple items - non wearable, non ammo, not artifact books*/
-	if (!wearable_p(o_ptr) && (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_QUEST) && 
+	if (!wearable_p_simple(o_ptr) && (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_QUEST) && 
 		!((o_ptr->tval==TV_MAGIC_BOOK) && books[o_ptr->sval].flags & SBF_ARTIFACT))
 	{
 		/* Get the correct fields */
@@ -873,6 +873,10 @@ static errr rd_extra(void)
 
 	p_ptr->searching = (tmp8u & 0x01) ? TRUE: FALSE;
 	p_ptr->hear_invis = (tmp8u & 0x02) ? TRUE: FALSE;
+
+	p_ptr->acclima_perception = (tmp8u & 0x04) ? TRUE: FALSE;
+	p_ptr->acclima_stealth = (tmp8u & 0x08) ? TRUE: FALSE;
+	p_ptr->acclima_save = (tmp8u & 0x10) ? TRUE: FALSE;
 
 	/* Hack -- the three "special seeds" */
 	rd_u32b(&seed_flavor);

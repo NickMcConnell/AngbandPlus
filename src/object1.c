@@ -1179,7 +1179,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			/* Color the object */
 			modstr = powder_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Powder vial~" : "& Powder vial~");
+			basenm = (flavor ? "& # Powder Vial~" : "& Powder Vial~");
 
 			break;
 		}
@@ -1222,7 +1222,6 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 					break;
 				}
 		
-				case SBF_CODEX:
 				case SBF_NECRONOM:
 				case SBF_MATHEMAGIC:
 				{

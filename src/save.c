@@ -619,6 +619,10 @@ static void wr_extra(void)
 	if (p_ptr->searching) tmp8u |= 0x01;
 	if (p_ptr->hear_invis) tmp8u |= 0x02;
 
+	if (p_ptr->acclima_perception) tmp8u |= 0x04;
+	if (p_ptr->acclima_stealth) tmp8u |= 0x08;
+	if (p_ptr->acclima_save) tmp8u |= 0x10;
+
 	wr_byte(tmp8u);
 
 	/* Write the "object seeds" */

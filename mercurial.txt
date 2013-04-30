@@ -1,0 +1,5 @@
+This folder includes a hidden directory .hg used by Mercurial, a source code management system that is really simple to use. (Google for Mercurial: The Definitive Guide for a nice book that gets you started fast.)
+
+I'm a Mercurial newbie. As of now, Halls of Mist doesn't yet have a public Mercurial repository. It will probably have one soon.
+
+If you want to share your new features or bugfixes with me before that, you may for example "hg commit" your changes and then send the archived folder to miihkali.lehtinen@gmail.com. (Gmail blocks attachments named *.zip, rename it to .zippo or something.)

@@ -18,7 +18,7 @@
 
 # Version stamp (required)
 
-V:1.3.1
+V:1.3.2
 
 N:0:<None>
 G:^:D
@@ -312,7 +312,7 @@ F:CHEST | DISARM | PLAYER | DETECT | ATTR_CLEAR
 # Terrain features
 
 N:46:vegetation
-G:%:G
+G:":G
 X:1:0:0
 F:DECORATION | DECORATE_FLOOR | BORING
 
@@ -382,7 +382,7 @@ X:1:0:0
 F:DECORATION | DECORATE_SECRET_DOOR
 
 N:60:interesting vegetation
-G:%:v
+G:":v
 X:1:0:0
 F:DECORATION | DECORATE_FLOOR
 
@@ -746,202 +746,217 @@ G:0:B
 X:1:0:0
 F:DECORATION | DECORATE_FLOOR
 
-N:132:Rune of Slumber (active)
+N:132:statue of Regan the Human Spellsword
+G:+:r
+X:1:0:0
+F:DECORATION | DECORATE_WALL_INNER | NO_HACK
+
+N:133:statue of Milk the Felpurr Rogue
+G:+:o
+X:1:0:0
+F:DECORATION | DECORATE_WALL_INNER | NO_HACK
+
+
+
+
+## The runes should be the last traps ##
+
+N:232:Rune of Slumber (active)
 G:!:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:133:Rune of Terror (active)
+N:233:Rune of Terror (active)
 G:!:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:134:Rune of Change (active)
+N:234:Rune of Change (active)
 G:!:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:135:Rune of Blood (active)
+N:235:Rune of Blood (active)
 G:!:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:136:Rune of Evil Eye (active)
+N:236:Rune of Evil Eye (active)
 G:!:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:137:Rune of Slumber (inactive)
+N:237:Rune of Slumber (inactive)
 G:?:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:138:Rune of Terror (inactive)
+N:238:Rune of Terror (inactive)
 G:?:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:139:Rune of Change (inactive)
+N:239:Rune of Change (inactive)
 G:?:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:140:Rune of Blood (inactive)
+N:240:Rune of Blood (inactive)
 G:?:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:141:Rune of Evil Eye (inactive)
+N:241:Rune of Evil Eye (inactive)
 G:?:r
 X:1:85:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:142:Rune of Slumber (active, mastered)
+N:242:Rune of Slumber (active, mastered)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:143:Rune of Terror (active, mastered)
+N:243:Rune of Terror (active, mastered)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:144:Rune of Change (active, mastered)
+N:244:Rune of Change (active, mastered)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:145:Rune of Blood (active, mastered)
+N:245:Rune of Blood (active, mastered)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:146:Rune of Evil Eye (active, mastered)
+N:246:Rune of Evil Eye (active, mastered)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:147:Rune of Slumber (inactive, mastered)
+N:247:Rune of Slumber (inactive, mastered)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:148:Rune of Terror (inactive, mastered)
+N:248:Rune of Terror (inactive, mastered)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:149:Rune of Change (inactive, mastered)
+N:249:Rune of Change (inactive, mastered)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:150:Rune of Blood (inactive, mastered)
+N:250:Rune of Blood (inactive, mastered)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:151:Rune of Evil Eye (inactive, mastered)
+N:251:Rune of Evil Eye (inactive, mastered)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DISARM | PLAYER | DETECT
 
-N:152:Rune of Slumber (active, incomprehensible)
+N:252:Rune of Slumber (active, incomprehensible)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:153:Rune of Terror (active, incomprehensible)
+N:253:Rune of Terror (active, incomprehensible)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:154:Rune of Change (active, incomprehensible)
+N:254:Rune of Change (active, incomprehensible)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER
 
-N:155:Rune of Blood (active, incomprehensible)
+N:255:Rune of Blood (active, incomprehensible)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:156:Rune of Evil Eye (active, incomprehensible)
+N:256:Rune of Evil Eye (active, incomprehensible)
 G:!:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:157:Rune of Slumber (inactive, incomprehensible)
+N:257:Rune of Slumber (inactive, incomprehensible)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:158:Rune of Terror (inactive, incomprehensible)
+N:258:Rune of Terror (inactive, incomprehensible)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:159:Rune of Change (inactive, incomprehensible)
+N:259:Rune of Change (inactive, incomprehensible)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:160:Rune of Blood (inactive, incomprehensible)
+N:260:Rune of Blood (inactive, incomprehensible)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:161:Rune of Evil Eye (inactive, incomprehensible)
+N:261:Rune of Evil Eye (inactive, incomprehensible)
 G:?:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:162:cave painting
+N:262:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:163:cave painting
+N:263:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:164:cave painting
+N:264:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:165:cave painting
+N:265:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:166:cave painting
+N:266:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:167:cave painting
+N:267:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:168:cave painting
+N:268:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:169:cave painting
+N:269:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:170:cave painting
+N:270:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT
 
-N:171:cave painting
+N:271:cave painting
 G:#:r
 X:1:0:0
 F:DECORATION | DECORATE_WALL_OUTER | DETECT

@@ -19,15 +19,15 @@
 info_entry power_info[POW_MAX] = 
 {
 	{0, NULL},
-	{POW_HEAL_1,			"reduces cuts and heals you 15% of wounds + 5 hits"},
-	{POW_HEAL_2,			"reduces cuts and heals you 30% of wounds + 10 hits"},
-	{POW_HEAL_3,			"reduces cuts and heals you 45% of wounds + 15 hits"},
-	{POW_HEAL_4,			"heals you 60% of wounds + 20 hits, removes cuts and stunning"},
-	{POW_HEAL_5,			"heals you 75% of wounds + 25 hits, removes cuts and stunning"},	
-	{POW_HEAL_CURE_1,		"heals 15% of wounds + 5 hits, cures stunning and reduces cuts"},	
-	{POW_HEAL_CURE_2,		"heals 30% of wounds + 10 hits, cures negative effects"},	
-	{POW_HEAL_CURE_3,		"heals 45% of wounds + 15 hits, cures negative effects"},	
-	{POW_HEAL_CURE_4,		"heals 60% of wounds + 20 hits, cures negative effects"},	
+	{POW_HEAL_1,			"reduces cuts and heals 15% of wounds + 5 hits"},
+	{POW_HEAL_2,			"reduces cuts and heals 30% of wounds + 10 hits"},
+	{POW_HEAL_3,			"reduces cuts and heals 45% of wounds + 15 hits"},
+	{POW_HEAL_4,			"heals 60% of wounds + 20 hits, removes cuts and stunning"},
+	{POW_HEAL_5,			"heals 75% of wounds + 25 hits, removes cuts and stunning"},	
+	{POW_HEAL_CURE_1,		"heals 30% of wounds + 10 hits, cures stunning and reduces cuts"},
+	{POW_HEAL_CURE_2,		"heals 45% of wounds + 15 hits, cures blindness, confusion, stunning, cuts"},	
+	{POW_HEAL_CURE_3,		"heals 60% of wounds + 20 hits, cures blindness, confusion, stunning, cuts"},	
+	{POW_HEAL_CURE_4,		"heals 75% of wounds + 25 hits, cures blindness, confusion, stunning, cuts"},	
 	{POW_LIFE,			"restores you to perfect health and condition"},	
 	{POW_RESTORE_MANA,		"restores 20% of your mana"},
 	{POW_RESTORE_MANA_INT,		"restores 20% of your mana and also restores memory"},
@@ -159,16 +159,16 @@ info_entry power_info[POW_MAX] =
 	{POW_DETECT_ENCHANT,		"detects magical objects on the current panel"},
 	{POW_DETECT_ALL,		"detects everything of interest on the panel, except traps"},
 	{POW_ABSORB_HIT,		"temporarily reverses the effect of damage"},
-	{POW_BLESS_1,			"provides a short-term bonus to hit and ac, immunity to taint"},
-	{POW_BLESS_2,			"provides a medium-term bonus to hit and ac, immunity to taint"},
-	{POW_BLESS_3,			"provides a bonus to hit and ac, immunity to taint, for this dungeon level"},
-	{POW_HEROISM,			"temporarily raises fighting skill and makes you immune to fear"},
+	{POW_BLESS_1,			"provides a short-term bonus to hit and AC, immunity to taint"},
+	{POW_BLESS_2,			"provides a medium-term bonus to hit and AC, immunity to taint"},
+	{POW_BLESS_3,			"provides a bonus to hit and AC, immunity to taint, for the current level"},
+	{POW_HEROISM,			"heals 15% of wounds + 5 hits, raises fighting skill, makes you immune to fear"},
 	{POW_BOLDNESS,			"temporarily makes you immune to fear"},
 	{POW_STABILITY,			"temporarily makes you immune to confusion and stunning"},
-	{POW_SAFETY,			"temporarily protects you from dungeon traps"},
-	{POW_RAGE_1,			"causes temporary berserk rage (better fighting and throwing, worse defense)"},
-	{POW_RAGE_2,			"causes temporary berserk rage (better fighting and throwing, worse defense)"},
-	{POW_RAGE_BLESS_RESIST,		"causes temporary berserk rage, blessing, and resistance"},
+	{POW_SAFETY,			"temporarily protects you from traps and runes"},
+	{POW_RAGE_1,			"heals 45%+15, emboldens, gives free action & extra blow, doubles thrown damage"},
+	{POW_RAGE_2,			"heals 45%+15, emboldens, gives free action & extra blow, doubles thrown damage"},
+	{POW_RAGE_BLESS_RESIST,		"has the combined effects of berserk rage, blessing, and resistance"},
 	{POW_SHIELD,			"temporarily increases your armour class"},
 	{POW_INVIS_1,			"temporarily turns you invisible"},
 	{POW_INVIS_2,			"temporarily turns you invisible"},
@@ -322,8 +322,8 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRANTIDOTE,		"removes all poison and disease from your body"},
 	{POW_SHRFORTIFICATION,		"raises all your resistances by one"},
 	{POW_SHRCURE_CONFUSION,		"removes any confusion you currently feel"},
-	{POW_SHRHEAL_1,			"reduces cuts and heals you a little"},
-	{POW_SHRHEAL_2,			"reduces cuts and heals you a moderate amount"},
+	{POW_SHRHEAL_1,			"reduces cuts and heals 15% of wounds + 5 hits"},
+	{POW_SHRHEAL_2,			"heals 30% of wounds + 10 hits, cures stunning and reduces cuts"},	
 	{POW_SHRSHIELD,			"temporarily increases your armour class"},
 	{POW_SHRCLEAR_MIND,		"rids your mind of confusion and fear, cures blindness"},
 	{POW_SHRRESTORE_STR,		"restores your strength"},
@@ -393,8 +393,8 @@ info_entry power_info[POW_MAX] =
 	{POW_ICY_HANDS,			"allows you to freeze one or two monsters by touching them"},
 	{POW_RAY_MANA,			"fires a beam of pure mana with half your normal spell range"},
 	{POW_EARTHBIND,			"tries to remove the ability to jump or fly, which damages fliers"},
-	{POW_DRAGONSLAYER,		"Turns a polearm into a dragon-killer"},
-	{POW_CURSE_ALL,			"Uses up a cursed item and tries to curse all monsters in sight"},
+	{POW_DRAGONSLAYER,		"turns a polearm into a dragon-killer"},
+	{POW_CURSE_ALL,			"uses up a cursed item and tries to curse all monsters in sight"},
 	{POW_TURN_UNLIFE,		"tries to scare all undead and demons, even if they resist fear"},
 	{POW_PROT_CHAOS_2,		"provides temporary protection from lesser creatures of Chaos"},
 	{POW_RAT_THING,			"drains your CON and PRE, and turns you temporarily invisible"},
@@ -587,8 +587,6 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (heal_player(60, 20)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
-			if (set_poisoned(0)) *obvious = TRUE;
-			if (set_diseased(0)) *obvious = TRUE;
 			if (set_stun(0)) *obvious = TRUE;
 			if (set_cut(0)) *obvious = TRUE;
 			break;
@@ -596,12 +594,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_HEAL_CURE_4:
 		{
 			if (heal_player(75, 25)) *obvious = TRUE;
-			if (set_stun(0)) *obvious = TRUE;
-			if (set_cut(0)) *obvious = TRUE;
 			if (set_blind(0)) *obvious = TRUE;
 			if (set_confused(0)) *obvious = TRUE;
-			if (set_poisoned(0)) *obvious = TRUE;
-			if (set_diseased(0)) *obvious = TRUE;
+			if (set_stun(0)) *obvious = TRUE;
+			if (set_cut(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_LIFE:
@@ -1645,7 +1641,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_ABSORB_HIT:
 		{
-			durat = randint(apply_sp_mod(36, mdur)) + apply_sp_mod((llev * 2), mdur);
+			durat = randint(apply_sp_mod(30, mdur)) + apply_sp_mod((llev), mdur);
 
 			if (set_absorb(p_ptr->absorb + durat)) *obvious = TRUE;
 			break;
@@ -1690,7 +1686,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(10, mdur)) + apply_sp_mod(10, mdur);
 
-			if (hp_player(10)) *obvious = TRUE;
+			if (heal_player(15, 5)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
 
 			if (durat > p_ptr->hero)
@@ -1748,8 +1744,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25, mdur);
 
-			if (hp_player(20)) *obvious = TRUE;
+			if (heal_player(45, 15)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
+			if (set_slow(0)) *obvious = TRUE;
 
 			if (durat > p_ptr->rage)
 			{
@@ -1767,8 +1764,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
 
-			if (hp_player(20)) *obvious = TRUE;
+			if (heal_player(45, 15)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
+			if (set_slow(0)) *obvious = TRUE;
 
 			if (durat > p_ptr->rage)
 			{
@@ -1786,8 +1784,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			durat = randint(apply_sp_mod(50, mdur)) + apply_sp_mod(50, mdur);
 
-			if (hp_player(30)) *obvious = TRUE;
+			if (heal_player(45, 15)) *obvious = TRUE;
 			if (set_afraid(0)) *obvious = TRUE;
+			if (set_slow(0)) *obvious = TRUE;
 
 			if (durat > p_ptr->rage)
 			{
@@ -2729,7 +2728,10 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_SLOW_SELF:
 		{
-			if (set_slow(p_ptr->slow + randint(25) + 15)) *obvious = TRUE;
+			if (!p_ptr->free_act)
+			{
+				if (set_slow(p_ptr->slow + randint(25) + 15)) *obvious = TRUE;
+			}
 			break;
 		}
 		case POW_PARALYZE:
@@ -3251,8 +3253,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 
 				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25, mdur);
 
-				if (hp_player(20)) *obvious = TRUE;
+				if (heal_player(45, 15)) *obvious = TRUE;
 				if (set_afraid(0)) *obvious = TRUE;
+				if (set_slow(0)) *obvious = TRUE;
 
 				if (durat > p_ptr->rage)
 				{
@@ -3377,12 +3380,13 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (cp_ptr->flags & CF_SHROOM_MAGIC)
 			{
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
-				if (heal_player(15, 20)) *obvious = TRUE;
+				if (heal_player(30, 10)) *obvious = TRUE;
 				if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
+				if (set_stun(0)) *obvious = TRUE;
 			}
 			else
 			{
-				if (heal_player(5, 10)) *obvious = TRUE;
+				if (heal_player(15, 5)) *obvious = TRUE;
 				if (set_cut(p_ptr->cut - 10)) *obvious = TRUE;
 			}
 			break;
@@ -3392,13 +3396,17 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			if (cp_ptr->flags & CF_SHROOM_MAGIC)
 			{
 				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
-				if (heal_player(30, 30)) *obvious = TRUE;
+				if (heal_player(45, 15)) *obvious = TRUE;
+				if (set_blind(0)) *obvious = TRUE;
+				if (set_confused(0)) *obvious = TRUE;
+				if (set_stun(0)) *obvious = TRUE;
 				if (set_cut(0)) *obvious = TRUE;
 			}
 			else
 			{
-				if (heal_player(15, 20)) *obvious = TRUE;
+				if (heal_player(30, 10)) *obvious = TRUE;
 				if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
+				if (set_stun(0)) *obvious = TRUE;
 			}
 			break;
 		}

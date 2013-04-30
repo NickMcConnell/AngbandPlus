@@ -3620,8 +3620,47 @@ void do_cmd_go_up(void)
 	p_ptr->tim_sp_dam_perm = 0;
 	p_ptr->tim_sp_inf_perm = 0;
 
+	/* Remove temporary effects */
+	set_fast(0);
+	set_slow(0);
+	set_blind(0);
+	set_paralyzed(0);
+	set_confused(0);
+	set_afraid(0);
+	set_image(0);
+	set_poisoned(0);
+	set_cut(0);
+	set_stun(0);
+	set_diseased(0);
+	set_taint(0);
+	set_protevil(0);
+	set_protchaos(0);
+	set_flaming_hands(0);
+	set_icy_hands(0);
+	set_resilient(0);
+	set_absorb(0);
+	set_hero(0);
+	set_rage(0);
+	set_shield(0);
+	set_blessed(0);
+	set_tim_invis(0);
+	set_stability(0);
+	set_tim_bravery(0);
+	set_safety(0);
+	set_tim_sp_dam(0);
+	set_tim_sp_dur(0);
+	set_tim_sp_inf(0);
+	set_tim_infra(0);
+	set_tim_stealth(0);
+	set_tim_see_invis(0);
+
+	/* Remove temporary resistances and permanent-made resistances */
 	int i;
 	for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
+	for (i = 0; i < RS_MAX; i++) set_tim_res(i, 0);
+
+	/* Set Hits to maximum */
+	heal_player(100, 250);
 
 	/* Success */
 	message(MSG_STAIRS, 0, "You enter a maze of up staircases.");
@@ -3642,7 +3681,11 @@ void do_cmd_go_up(void)
 void do_cmd_go_down(void)
 {
 	char out_val[160];
+	bool acclimatization = TRUE;
 	byte quest;
+
+	/* No acclimatization effects if taking the stairs in the town */
+	if (!p_ptr->depth) acclimatization = FALSE;
 
 	/* Verify stairs */
  	if (cave_feat[p_ptr->py][p_ptr->px] == FEAT_MORE)
@@ -3948,8 +3991,47 @@ void do_cmd_go_down(void)
 		p_ptr->tim_sp_dam_perm = 0;
 		p_ptr->tim_sp_inf_perm = 0;
 
+		/* Remove temporary effects */
+		set_fast(0);
+		set_slow(0);
+		set_blind(0);
+		set_paralyzed(0);
+		set_confused(0);
+		set_afraid(0);
+		set_image(0);
+		set_poisoned(0);
+		set_cut(0);
+		set_stun(0);
+		set_diseased(0);
+		set_taint(0);
+		set_protevil(0);
+		set_protchaos(0);
+		set_flaming_hands(0);
+		set_icy_hands(0);
+		set_resilient(0);
+		set_absorb(0);
+		set_hero(0);
+		set_rage(0);
+		set_shield(0);
+		set_blessed(0);
+		set_tim_invis(0);
+		set_stability(0);
+		set_tim_bravery(0);
+		set_safety(0);
+		set_tim_sp_dam(0);
+		set_tim_sp_dur(0);
+		set_tim_sp_inf(0);
+		set_tim_infra(0);
+		set_tim_stealth(0);
+		set_tim_see_invis(0);
+
+		/* Remove temporary resistances and permanent-made resistances */
 		int i;
 		for (i = 0; i < RS_MAX; i++) p_ptr->tim_res_perm[i] = 0;
+		for (i = 0; i < RS_MAX; i++) set_tim_res(i, 0);
+
+		/* Set Hits to maximum */
+		heal_player(100, 250);
 
 		/* Handle temporary, non-recent blessings, and shapeshifting back to original form */
 		if ((p_ptr->shape_timer == 0) && (p_ptr->shape > 0) && (rand_int(100) < 50))
@@ -4060,6 +4142,54 @@ void do_cmd_go_down(void)
 
 		/* Count down shape timer */
 		if (p_ptr->shape_timer > 0) p_ptr->shape_timer -= 1;
+
+		/* Acclimatisation bonuses */
+		int acclima = 0;
+		if (p_ptr->acclima_perception) acclima ++;
+		if (p_ptr->acclima_stealth) acclima ++;
+		if (p_ptr->acclima_save) acclima ++;
+
+		if ((acclima < 3) && (acclimatization))
+		{
+			if (acclima == 2)
+			{
+				message(MSG_GENERIC, 0, "You are now perfectly acclimatized:");
+			}
+			else message(MSG_GENERIC, 0, "You grow acclimatized to the Mist:");
+
+			acclimatization = FALSE;
+
+			while (acclimatization == FALSE)
+			{
+				switch (randint(3))
+				{
+					case 1:
+					{
+						if (p_ptr->acclima_perception) break;
+						message(MSG_GENERIC, 0, "+10 to Perception until you return.");
+						acclimatization = TRUE;
+						p_ptr->acclima_perception = TRUE;
+						break;
+					}
+					case 2:
+					{
+						if (p_ptr->acclima_stealth) break;
+						message(MSG_GENERIC, 0, "+1 to Stealth until you return.");
+						acclimatization = TRUE;
+						p_ptr->acclima_stealth = TRUE;
+						break;
+					}
+					case 3:
+					{
+						if (p_ptr->acclima_save) break;
+						message(MSG_GENERIC, 0, "+10 to Spell Save until you return.");
+						acclimatization = TRUE;
+						p_ptr->acclima_save = TRUE;
+						break;
+					}
+				}
+			}
+		}
 
 		/* If you make a Mapping check, you start standing on a stair */
 		if (rand_int(100) < p_ptr->skill[SK_MAP])
@@ -4329,50 +4459,11 @@ void do_cmd_stay(void)
  */
 void do_cmd_rest(void)
 {
-	/* Prompt for time if needed */
-	if (p_ptr->command_arg <= 0)
-	{
-		cptr p = "Rest (0-9999, h for HP, & full): ";
-
-		char out_val[5];
-
-		/* Default */
-		strcpy(out_val, "&");
-
-		/* Ask for duration */
-		if (!get_string(p, out_val, sizeof(out_val))) return;
-
-		/* Rest until done */
-		if (out_val[0] == '&')
-		{
-			p_ptr->command_arg = (-2);
-		}
-
-		/* Rest hit points */
-		else if (out_val[0] == 'h')
-		{
-			p_ptr->command_arg = (-3);
-		}
-
-		/* Rest some */
-		else
-		{
-			p_ptr->command_arg = atoi(out_val);
-			if (p_ptr->command_arg <= 0) return;
-		}
-	}
-
-	/* Paranoia */
-	if (p_ptr->command_arg > 9999) p_ptr->command_arg = 9999;
-
 	/* Take a turn XXX XXX XXX (?) */
 	p_ptr->energy_use = 100;
 
 	/* Save the rest code */
-	p_ptr->resting = p_ptr->command_arg;
-
-	/* Cancel the arg */
-	p_ptr->command_arg = 0;
+	p_ptr->resting = 50;
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);

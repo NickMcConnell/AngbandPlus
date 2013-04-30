@@ -536,12 +536,6 @@ void teleport_player_level(void)
 			p_ptr->depth--;
 			p_ptr->min_depth++;
 
-			/* Reset Proficiency uses and Mana */
-			p_ptr->lore_uses = 0;
-			p_ptr->reserves_uses = 0;
-			p_ptr->escapes_uses = 0;
-			give_mana();
-
 			/* Leaving */
 			p_ptr->leaving = TRUE;
 		}
@@ -620,6 +614,12 @@ void teleport_player_level(void)
 		/* Leaving */
 		p_ptr->leaving = TRUE;
 	}
+
+	/* Reset Proficiency uses and Mana */
+	p_ptr->lore_uses = 0;
+	p_ptr->reserves_uses = 0;
+	p_ptr->escapes_uses = 0;
+	give_mana();
 
 	/* Reset coordinates to Circle of Recall and Circle of Nexus */
 	p_ptr->recall_y = 0;

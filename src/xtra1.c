@@ -1748,8 +1748,8 @@ int add_mana_for_level(int current_level)
 	/* Not yet any mana */
 	if (levels < 1) return (0);
 
-	/* The amount to add is 1.7 * level */
-	msp += 1.7 * levels;
+	/* The amount to add is 1.6 * level */
+	msp += 1.6 * levels;
 
 	/* Give +2 mana to everyone with any mana */
 	if (levels == 1) msp += 2;
@@ -1760,12 +1760,13 @@ int add_mana_for_level(int current_level)
 	/* Pure spellcasters get +2 per level. */
 	if (levels == current_level) msp += 2;
 	/* Ranger */
-	else if ((levels + 2 == current_level) && (levels > 4)) msp -= ((levels - 2) / 2);
+	else if ((levels + 2 == current_level) && (levels > 3)) msp -= (levels - 2);
+	else if (levels + 2 == current_level) msp -= 1;
 	/* Shaman, Spellsword */
-	else if (levels > 14) msp -= ((levels - 7) / 2);
+	else if (levels > 14) msp -= (levels - 7);
 
 	/* Mystics get some bonus mana */
-	if (cp_ptr->flags & CF_EXTRA_MANA) msp += (levels / 4) + 1;
+	if (cp_ptr->flags & CF_EXTRA_MANA) msp += (levels / 3) + 1;
 
 	return (msp);
 }
@@ -1824,8 +1825,8 @@ static void calc_mana(void)
 	/* Add mana to the total for each level */
 	for (x = 1; x <= levels; x++)
 	{
-		/* The amount to add is 1.7 * level */
-		msp += 1.7 * x;
+		/* The amount to add is 1.6 * level */
+		msp += 1.6 * x;
 
 		/* Give +2 mana to everyone with any mana */
 		if (x == 1) msp += 2;
@@ -1836,12 +1837,13 @@ static void calc_mana(void)
 		/* Pure spellcasters get + 2 per level. */
 		if (levels == p_ptr->lev) msp += 2;
 		/* Ranger */
-		else if ((levels + 2 == p_ptr->lev) && (x > 4)) msp -= ((x - 2) / 2);
+		else if ((levels + 2 == p_ptr->lev) && (x > 3)) msp -= (x - 2);
+		else if (levels + 2 == p_ptr->lev) msp -= 1;
 		/* Shaman, Spellsword */
-		else if (x > 14) msp -= ((x - 7) / 2);
+		else if (x > 14) msp -= (x - 7);
 
 		/* Mystics get some bonus mana */
-		if (cp_ptr->flags & CF_EXTRA_MANA) msp += (x / 4) + 1;
+		if (cp_ptr->flags & CF_EXTRA_MANA) msp += (x / 3) + 1;
 	}
 
 	/* Mana bonuses
@@ -2563,7 +2565,7 @@ static void calc_bonuses(void)
 		(p_ptr->transformation_status < 2) && (p_ptr->deceit_status < 2)) p_ptr->escapes = 0;
 	else if (!(p_ptr->taint))
 	{
-		if (p_ptr->lev >= 25) p_ptr->escapes = 2;
+		if (p_ptr->lev >= 35) p_ptr->escapes = 2;
 		else if (p_ptr->lev >= 15) p_ptr->escapes = 1;
 	}
 
@@ -2906,6 +2908,11 @@ static void calc_bonuses(void)
 
 	/*** Temporary flags ***/
 
+	/* Acclimatisation bonuses */
+	if (p_ptr->acclima_perception) p_ptr->skill[SK_PER] += 10;
+	if (p_ptr->acclima_stealth) p_ptr->skill[SK_STL] ++;
+	if (p_ptr->acclima_save) p_ptr->skill[SK_SAV] += 10;
+
 	/* Temporary resistances */
 	int current_cap = 0;
 	for (i = 0 ; i < RS_MAX ; i++)
@@ -2963,12 +2970,12 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
-		p_ptr->to_h_melee += 4;
-		p_ptr->dis_to_h_melee += 4;
-		p_ptr->to_h_shooting += 4;
-		p_ptr->dis_to_h_shooting += 4;
-		p_ptr->to_h_throwing += 4;
-		p_ptr->dis_to_h_throwing += 4;
+		p_ptr->to_h_melee += 5;
+		p_ptr->dis_to_h_melee += 5;
+		p_ptr->to_h_shooting += 5;
+		p_ptr->dis_to_h_shooting += 5;
+		p_ptr->to_h_throwing += 5;
+		p_ptr->dis_to_h_throwing += 5;
 	}
 
 	/* Temporary shield */
@@ -2984,12 +2991,12 @@ static void calc_bonuses(void)
 	/* Temporary "Hero" */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h_melee += 8;
-		p_ptr->dis_to_h_melee += 8;
-		p_ptr->to_h_shooting += 8;
-		p_ptr->dis_to_h_shooting += 8;
-		p_ptr->to_h_throwing += 8;
-		p_ptr->dis_to_h_throwing += 8;
+		p_ptr->to_h_melee += 10;
+		p_ptr->dis_to_h_melee += 10;
+		p_ptr->to_h_shooting += 10;
+		p_ptr->dis_to_h_shooting += 10;
+		p_ptr->to_h_throwing += 10;
+		p_ptr->dis_to_h_throwing += 10;
 	}
 
 	/* Temporary stability */
@@ -3009,18 +3016,8 @@ static void calc_bonuses(void)
 	/* Temporary "Berserk" */
 	if (p_ptr->rage)
 	{
-		/* 
-		 * Berserk also provides an extra blow, a penalty to magic item use,
-		 * a penalty to saving throws, and a penalty to stealth - see below 
-		 */
-		p_ptr->to_h_melee += 8;
-		p_ptr->dis_to_h_melee += 8;
-		p_ptr->to_h_throwing += 8;
-		p_ptr->dis_to_h_throwing += 8;
-		p_ptr->to_a -= 20;
-		p_ptr->dis_to_a -= 20;
-		p_ptr->disrupt = TRUE;
-		p_ptr->tim_flag3 |= TR3_DISRUPT;
+		p_ptr->free_act = TRUE;
+		p_ptr->tim_flag2 |= TR2_FREE_ACT;
 	}
 
 	/* Alertness */
@@ -3190,14 +3187,6 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- by level, class */
 	for (i = 0; i < SK_MAX; i++) p_ptr->skill[i] += (cp_ptr->x_skill[i] * p_ptr->lev / 10);
-
-	/* Affect Skill -- Berserk rage */
-	if (p_ptr->rage)
-	{
-		p_ptr->skill[SK_DEV] = (p_ptr->skill[SK_DEV] * 8) / 10;
-		p_ptr->skill[SK_SAV] = (p_ptr->skill[SK_SAV] * 8) / 10;
-		p_ptr->skill[SK_STL] = (p_ptr->skill[SK_STL] * 8) / 10;
-	}
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->digging < 1) p_ptr->digging = 1;
