@@ -359,6 +359,8 @@ int dr_os_open(int w, int h)
 {
     const int left = 13;
 
+    /* Normal Angband display area */
+    
     tex_width  = (data[0].fd->dw * (data[0].t.wid-left+2) + 3) & 0xFFFC;
     tex_height = data[0].fd->dh * (data[0].t.hgt-2);
                                                   

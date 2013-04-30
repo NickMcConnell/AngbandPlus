@@ -130,7 +130,11 @@ int get_i_off()
     /* use this for angband 2.9.1 */
 
     if(p_ptr) {
-	i_off = p_ptr->px-p_off*mult;
+        /* Angband without view rectangle */
+	    // i_off = p_ptr->px;
+        i_off = p_ptr->wx + SCREEN_WID / 2 + 1;
+    
+        i_off -= p_off*mult;    
     }
 
 
@@ -164,7 +168,11 @@ int get_j_off()
     /* use this for angband 2.9.1 */
 
     if(p_ptr) {
-	j_off = p_ptr->py-p_off*mult;
+        /* Angband without view rectangle */
+	    // j_off = p_ptr->py;
+        j_off = p_ptr->wy + SCREEN_HGT / 2 - 1;
+        
+        j_off -= p_off*mult;
     }
 
 
