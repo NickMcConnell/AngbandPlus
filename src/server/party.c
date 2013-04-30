@@ -1,276 +1,404 @@
 /*
- * Support for the "party" system.
+ * File: party.c
+ * Purpose: Support for the "party" system
+ *
+ * Copyright (c) 2012 MAngband and PWMAngband Developers
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#include "angband.h"
+
+#include "s-angband.h"
+#include "cmds.h"
+#include "history.h"
+#include "netserver.h"
+#include "party.h"
+
+
+/*** Player lookup ***/
+
+
+/*
+ * Lookup a player by name.
+ */
+struct player *player_lookup(const char *name)
+{
+    int i;
+
+    /* Find name */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        struct player *p = player_get(i);
+
+        /* Check this one */
+        if (streq(name, p->name))
+        {
+            /* Found him */
+            return p;
+        }
+    }
+
+    /* No match */
+    return NULL;
+}
+
+
+/*** Party functions ***/
+
 
 /*
  * Lookup a party number by name.
  */
-int party_lookup(cptr name)
+static int party_lookup(const char *name)
 {
-	int i;
+    int i;
 
-	/* Check each party */
-	for (i = 0; i < MAX_PARTIES; i++)
-	{
-		/* Check name */
-		if (streq(parties[i].name, name))
-			return i;
-	}
+    /* Check each party */
+    for (i = 0; i < MAX_PARTIES; i++)
+    {
+        /* Check name */
+        if (streq(parties[i].name, name))
+            return i;
+    }
 
-	/* No match */
-	return -1;
+    /* No match */
+    return -1;
 }
+
 
 /*
  * Check for the existance of a player in a party.
  */
-bool player_in_party(int party_id, int Ind)
+bool player_in_party(int party_id, struct player *p)
 {
-	player_type *p_ptr = Players[Ind];
-
-	/* Check */
-	if (p_ptr->party == party_id)
-		return TRUE;
-
-	/* Not in the party */
-	return FALSE;
+    return (p->party == party_id);
 }
-	
+
+
+bool in_party(struct player *p, int party_id)
+{
+    return (party_id && player_in_party(party_id, p));
+}
+
+
+bool is_party_owner(struct player *p, struct player *q)
+{
+    return (p->party && streq(parties[p->party].owner, q->name));
+}
+
+
 /*
- * Create a new party, owned by "Ind", and called
- * "name".
+ * Check if two players given by their IDs are in the same party
  */
-int party_create(int Ind, cptr name)
+bool master_in_party(s16b p1_id, s16b p2_id)
 {
-	player_type *p_ptr = Players[Ind];
-	int index = 0, i, oldest = turn;
+    player_type *p1_ptr = NULL;
+    player_type *p2_ptr = NULL;
+    int i;
 
-	/* Check for already existing party by that name */
-	if (party_lookup(name) != -1)
-	{
-		msg_print(Ind, "A party by that name already exists.");
-		return FALSE;
-	}
+    /* Find IDs */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        player_type *p_ptr = player_get(i);
 
-	/* Make sure this guy isn't in some other party already */
-	if (p_ptr->party != 0)
-	{
-		msg_print(Ind, "You already belong to a party!");
-		return FALSE;
-	}
+        /* Check this one */
+        if (p1_id == p_ptr->id) p1_ptr = p_ptr;
+        if (p2_id == p_ptr->id) p2_ptr = p_ptr;
+    }
 
-	/* Find the "best" party index */
-	for (i = 1; i < MAX_PARTIES; i++)
-	{
-		/* Check deletion time of disbanded parties */
-		if (parties[i].num == 0 && parties[i].created < oldest)
-		{
-			/* Track oldest */
-			oldest = parties[i].created;
-			index = i;
-		}
-	}
+    /* Player IDs not found */
+    if (!p1_ptr || !p2_ptr) return FALSE;
 
-	/* Make sure we found an empty slot */
-	if (index == 0 || oldest == turn)
-	{
-		/* Error */
-		msg_print(Ind, "There aren't enough party slots!");
-		return FALSE;
-	}
+    /* Same IDs */
+    if (p1_id == p2_id) return TRUE;
 
-	/* Set party name */
-	strcpy(parties[index].name, name);
+    /* Not in a party */
+    if (!p1_ptr->party || !p2_ptr->party) return FALSE;
 
-	/* Set owner name */
-	strcpy(parties[index].owner, p_ptr->name);
+    /* Same party */
+    if (p1_ptr->party == p2_ptr->party) return TRUE;
 
-	/* Add the owner as a member */
-	p_ptr->party = index;
-	parties[index].num++;
-
-	/* Set the "creation time" */
-	parties[index].created = turn;
-
-	/* Resend party info */
-	Send_party(Ind);
-
-	/* Success */
-	return TRUE;
+    /* Different parties */
+    return FALSE;
 }
+
+
+bool pvm_check(int attacker, int target)
+{
+    player_type *p_ptr = player_get(attacker);
+    monster_type *m_ptr = cave_monster(cave_get(p_ptr->depth), target);
+
+    /* Paranoia */
+    if (!m_ptr->r_idx) return FALSE;
+
+    /* Hack -- Dungeon master and his monsters */
+    if (p_ptr->dm_flags & DM_MONSTER_FRIEND) return FALSE;
+
+    /* Same party */
+    if (master_in_party(m_ptr->master, p_ptr->id)) return FALSE;
+
+    /* Always hostile by default */
+    return TRUE;
+}
+
+
+/*
+ * Create a new party, owned by "Ind", and called "name".
+ */
+bool party_create(int Ind, const char *name)
+{
+    player_type *p_ptr = player_get(Ind);
+    int index = 0, i;
+    hturn oldest;
+
+    ht_copy(&oldest, &turn);
+
+    /* Check for already existing party by that name */
+    if (party_lookup(name) != -1)
+    {
+        msg(p_ptr, "A party by that name already exists.");
+        return FALSE;
+    }
+
+    /* Make sure this guy isn't in some other party already */
+    if (p_ptr->party != 0)
+    {
+        msg(p_ptr, "You already belong to a party!");
+        return FALSE;
+    }
+
+    /* Find the "best" party index */
+    for (i = 1; i < MAX_PARTIES; i++)
+    {
+        /* Check deletion time of disbanded parties */
+        if ((parties[i].num == 0) && (ht_cmp(&parties[i].created, &oldest) < 0))
+        {
+            /* Track oldest */
+            ht_copy(&oldest, &parties[i].created);
+            index = i;
+        }
+    }
+
+    /* Make sure we found an empty slot */
+    if ((index == 0) || (ht_cmp(&oldest, &turn) == 0))
+    {
+        /* Error */
+        msg(p_ptr, "There aren't enough party slots!");
+        return FALSE;
+    }
+
+    /* Set party name */
+    my_strcpy(parties[index].name, name, sizeof(parties[0].name));
+
+    /* Set owner name */
+    my_strcpy(parties[index].owner, p_ptr->name, sizeof(parties[0].owner));
+
+    /* Add the owner as a member */
+    p_ptr->party = index;
+    parties[index].num++;
+
+    /* Set the "creation time" */
+    ht_copy(&parties[index].created, &turn);
+
+    /* Resend party info */
+    Send_party(p_ptr);
+
+    /* Success */
+    return TRUE;
+}
+
+
+/*
+ * Check if one player is hostile toward the other
+ */
+static bool check_hostile(struct player *attacker, struct player *target)
+{
+    hostile_type *h_ptr;
+
+    /* Scan list */
+    for (h_ptr = attacker->hostile; h_ptr; h_ptr = h_ptr->next)
+    {
+        /* Identical ID's yield hostility */
+        if (h_ptr->id == target->id) return TRUE;
+    }
+
+    /* Not hostile */
+    return FALSE;
+}
+
 
 /*
  * Add a player to a party.
  */
-int party_add(int adder, cptr name)
+bool party_add(int adder, const char *name)
 {
-	player_type *p_ptr;
-	player_type *q_ptr = Players[adder];
-	int party_id = q_ptr->party, Ind = 0, i;
+    player_type *q_ptr = player_get(adder);
+    int party_id = q_ptr->party, i;
+    char desc[NORMAL_WID];
 
-	/* Find name */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-		/* Check this one */
-		if (streq(name, Players[i]->name))
-		{
-			/* Found him */
-			Ind = i;
-			break;
-		}
-	}
+    /* Find name */
+    player_type *p_ptr = player_lookup(name);
 
-	/* Check for existance */
-	if (Ind == 0)
-	{
-		/* Oops */
-		msg_print(adder, "That player is not currently in the game.");
+    /* Check for existance */
+    if (!p_ptr)
+    {
+        /* Oops */
+        msg(q_ptr, "That player is not currently in the game.");
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
-	/* Set pointer */
-	p_ptr = Players[Ind];
+    /* Make sure this added person is neutral */
+    if (p_ptr->party != 0)
+    {
+        /* Message */
+        msg(q_ptr, "That player is already in a party.");
 
-	/* Make sure this isn't an imposter */
-	if (!streq(parties[party_id].owner, q_ptr->name))
-	{
-		/* Message */
-		msg_print(adder, "You must be the owner to add someone.");
+        /* Abort */
+        return FALSE;
+    }
 
-		/* Abort */
-		return FALSE;
-	}
+    /* You can't add a hostile player! */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        player_type *i_ptr = player_get(i);
 
-	/* Make sure this added person is neutral */
-	if (p_ptr->party != 0)
-	{
-		/* Message */
-		msg_print(adder, "That player is already in a party.");
+        /* Check this one */
+        if ((i_ptr->party == party_id) &&
+            (check_hostile(p_ptr, i_ptr) || check_hostile(i_ptr, p_ptr)))
+        {
+            /* Player is hostile to someone in the party */
+            msg(q_ptr, "Ask this hostile player to make peace first.");
 
-		/* Abort */
-		return FALSE;
-	}
+            /* Abort */
+            return FALSE;
+        }
+    }
 
-	/* Tell the party about its new member */
-	party_msg_format(party_id, "%s has been added to party %s.", p_ptr->name, parties[party_id].name);
+    /* Tell the party about its new member */
+    my_strcpy(desc, p_ptr->name, sizeof(desc));
+    my_strcap(desc);
+    party_msg_format(party_id, "%s has been added to party %s.", desc, parties[party_id].name);
 
-	/* One more player in this party */
-	parties[party_id].num++;
+    /* One more player in this party */
+    parties[party_id].num++;
 
-	/* Tell him about it */
-	msg_format(Ind, "You've been added to party '%s'.", parties[party_id].name);
+    /* Tell him about it */
+    msg(p_ptr, "You've been added to party '%s'.", parties[party_id].name);
 
-	/* Set his party number */
-	p_ptr->party = party_id;
+    /* Set his party number */
+    p_ptr->party = party_id;
 
-	/* Resend info */
-	Send_party(Ind);
+    /* Resend info */
+    Send_party(p_ptr);
 
-	/* Success */
-	return TRUE;
+    /* Success */
+    return TRUE;
 }
+
 
 /*
  * Remove a person from a party.
  *
  * Removing the party owner destroys the party.
  */
-int party_remove(int remover, cptr name)
+bool party_remove(int remover, const char *name)
 {
-	player_type *p_ptr;
-	player_type *q_ptr = Players[remover];
-	int party_id = q_ptr->party, Ind = 0, i;
+    player_type *q_ptr = player_get(remover);
+    int party_id = q_ptr->party, i;
 
-	/* Find name */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-		/* Check this one */
-		if (streq(name, Players[i]->name))
-		{
-			/* Found him */
-			Ind = i;
-			p_ptr = Players[Ind];
-			break;
-		}
-	}
+    /* Find name */
+    player_type *p_ptr = player_lookup(name);
 
-	/* Check for existance */
-	if (Ind == 0)
-	{
-		/* Oops */
-		msg_print(remover, "That player is not currently in the game.");
+    /* Check for existance */
+    if (!p_ptr)
+    {
+        /* Oops */
+        msg(q_ptr, "That player is not currently in the game.");
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
-	/* Make sure this is the owner */
-	if (!streq(parties[party_id].owner, q_ptr->name))
-	{
-		/* Message */
-		msg_print(remover, "You must be the owner to delete someone.");
+    /* Make sure this is the owner */
+    if (!streq(parties[party_id].owner, q_ptr->name))
+    {
+        /* Message */
+        msg(q_ptr, "You must be the owner to delete someone.");
 
-		/* Abort */
-		return FALSE;
-	}
+        /* Abort */
+        return FALSE;
+    }
 
-	/* Make sure they were in the party to begin with */
-	if (!player_in_party(party_id, Ind))
-	{
-		/* Message */
-		msg_print(remover, "You can only delete party members.");
+    /* Make sure they were in the party to begin with */
+    if (!player_in_party(party_id, p_ptr))
+    {
+        /* Message */
+        msg(q_ptr, "You can only delete party members.");
 
-		/* Abort */
-		return FALSE;
-	}
+        /* Abort */
+        return FALSE;
+    }
 
-	/* See if this is the owner we're deleting */
-	if (remover == Ind)
-	{
-		/* Remove the party altogether */
+    /* See if this is the owner we're deleting */
+    if (q_ptr == p_ptr)
+    {
+        /* Remove the party altogether */
 
-		/* Set the number of people in this party to zero */
-		parties[party_id].num = 0;
+        /* Set the number of people in this party to zero */
+        parties[party_id].num = 0;
 
-		/* Remove everyone else */
-		for (i = 1; i <= NumPlayers; i++)
-		{
-			/* Check if they are in here */
-			if (player_in_party(party_id, i))
-			{
-				Players[i]->party = 0;
-				msg_print(i, "Your party has been disbanded.");
-				Send_party(i);
-			}
-		}
+        /* Remove everyone else */
+        for (i = 1; i <= NumPlayers; i++)
+        {
+            player_type *i_ptr = player_get(i);
 
-		/* Set the creation time to "disbanded time" */
-		parties[party_id].created = turn;
-		
-		/* Empty the name */
-		strcpy(parties[party_id].name, "");
-	}
+            /* Check if they are in here */
+            if (player_in_party(party_id, i_ptr))
+            {
+                i_ptr->party = 0;
+                msg(i_ptr, "Your party has been disbanded.");
+                Send_party(i_ptr);
+            }
+        }
 
-	/* Keep the party, just lose a member */
-	else
-	{
-		/* Lose a member */
-		parties[party_id].num--;
+        /* Set the creation time to "disbanded time" */
+        ht_copy(&parties[party_id].created, &turn);
 
-		/* Set his party number back to "neutral" */
-		p_ptr->party = 0;
+        /* Empty the name */
+        my_strcpy(parties[party_id].name, "", sizeof(parties[0].name));
+    }
 
-		/* Messages */
-		msg_print(Ind, "You have been removed from your party.");
-		party_msg_format(party_id, "%s has been removed from the party.", p_ptr->name);
+    /* Keep the party, just lose a member */
+    else
+    {
+        char desc[NORMAL_WID];
 
-		/* Resend info */
-		Send_party(Ind);
-	}
+        /* Lose a member */
+        parties[party_id].num--;
 
-	return TRUE;
+        /* Set his party number back to "neutral" */
+        p_ptr->party = 0;
+
+        /* Messages */
+        my_strcpy(desc, p_ptr->name, sizeof(desc));
+        my_strcap(desc);
+        msg(p_ptr, "You have been removed from your party.");
+        party_msg_format(party_id, "%s has been removed from the party.", desc);
+
+        /* Resend info */
+        Send_party(p_ptr);
+    }
+
+    return TRUE;
 }
 
 
@@ -279,80 +407,92 @@ int party_remove(int remover, cptr name)
  */
 void party_leave(int Ind)
 {
-	player_type *p_ptr = Players[Ind];
-	int party_id = p_ptr->party;
+    player_type *p_ptr = player_get(Ind);
+    int party_id = p_ptr->party;
+    char desc[NORMAL_WID];
 
-	/* Make sure he belongs to a party */
-	if (!party_id)
-	{
-		msg_print(Ind, "You don't belong to a party.");
-		return;
-	}
+    /* Make sure he belongs to a party */
+    if (!party_id)
+    {
+        msg(p_ptr, "You don't belong to a party.");
+        return;
+    }
 
-	/* If he's the owner, use the other function */
-	if (streq(p_ptr->name, parties[party_id].owner))
-	{
-		/* Call party_remove */
-		party_remove(Ind, p_ptr->name);
-		return;
-	}
+    /* If he's the owner, use the other function */
+    if (streq(p_ptr->name, parties[party_id].owner))
+    {
+        /* Call party_remove */
+        party_remove(Ind, p_ptr->name);
+        return;
+    }
 
-	/* Lose a member */
-	parties[party_id].num--;
+    /* Lose a member */
+    parties[party_id].num--;
 
-	/* Set him back to "neutral" */
-	p_ptr->party = 0;
+    /* Set him back to "neutral" */
+    p_ptr->party = 0;
 
-	/* Inform people */
-	msg_print(Ind, "You have been removed from your party.");
-	party_msg_format(party_id, "%s has left the party.", p_ptr->name);
+    /* Inform people */
+    my_strcpy(desc, p_ptr->name, sizeof(desc));
+    my_strcap(desc);
+    msg(p_ptr, "You have been removed from your party.");
+    party_msg_format(party_id, "%s has left the party.", desc);
 
-	/* Resend info */
-	Send_party(Ind);
+    /* Resend info */
+    Send_party(p_ptr);
 }
 
 
 /*
  * Send a message to everyone in a party.
  */
-void party_msg(int party_id, cptr msg)
+static void party_msg(int party_id, const char *msg)
 {
-	int i;
+    int i;
 
-	/* Check for this guy */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-#if 0
-		if (Players[i]->conn == NOT_CONNECTED)
-			continue;
-#endif
+    /* Check for this guy */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        player_type *i_ptr = player_get(i);
 
-		/* Check this guy */
-		if (player_in_party(party_id, i))
-			msg_print(i, msg);
-	}
+        /* Check this guy */
+        if (player_in_party(party_id, i_ptr))
+            msg_print_aux(i_ptr, msg, MSG_WHISPER);
+    }
 }
+
 
 /*
  * Send a formatted message to a party.
  */
-void party_msg_format(int party_id, cptr fmt, ...)
+void party_msg_format(int party_id, const char *fmt, ...)
 {
-	va_list vp;
-	char buf[1024];
+    va_list vp;
+    char buf[MSG_LEN];
 
-	/* Begin the Varargs Stuff */
-	va_start(vp, fmt);
+    /* Begin the Varargs Stuff */
+    va_start(vp, fmt);
 
-	/* Format the args, save the length */
-	(void)vstrnfmt(buf, 1024, fmt, vp);
+    /* Format the args, save the length */
+    vstrnfmt(buf, MSG_LEN, fmt, vp);
 
-	/* End the Varargs Stuff */
-	va_end(vp);
+    /* End the Varargs Stuff */
+    va_end(vp);
 
-	/* Display */
-	party_msg(party_id, buf);
+    /* Display */
+    party_msg(party_id, buf);
 }
+
+
+bool party_share_with(int Ind, int party_id, int Ind2)
+{
+    player_type *p_ptr = player_get(Ind);
+    player_type *q_ptr = player_get(Ind2);
+
+    return (in_party(q_ptr, party_id) && (q_ptr->depth == p_ptr->depth) &&
+        ((cfg_party_sharelevel == -1) || (abs(q_ptr->lev - p_ptr->lev) <= cfg_party_sharelevel)));
+}
+
 
 /*
  * Split some experience among party members.
@@ -372,344 +512,435 @@ void party_msg_format(int party_id, cptr fmt, ...)
  * 3) Higher-leveled members of a party get higher percentages of the
  * experience.
  */
- 
- /* The XP distribution was too unfair for low level characters,
-    it made partying a real pain. I am changing it so that if the players
-    have a difference in level of less than 5 than there is no difference
-    in XP distribution. 
-    
-    I am also changing it so it divides by each players level, AFTER
-    it has been given to them.
-    
-    UPDATE: it appears that it may be giving too much XP to the low lvl chars,
-    but I have been too lazy to change it... however, this doesnt appear to be being
-    abused much, and the new system is regardless much nicer than the old one.
-    
-    -APD-
-    */
- 
-void party_gain_exp(int Ind, int party_id, s32b amount)
+void party_exp_gain(int Ind, int party_id, s32b amount)
 {
-	player_type *p_ptr;
-	int i, Depth = Players[Ind]->dun_depth;
-	s32b new_exp, new_exp_frac, average_lev = 0, num_members = 0;
-	s32b modified_level;
+    player_type *p_ptr;
+    int i;
+    s32b new_exp, new_exp_frac, average_lev = 0, num_members = 0;
+    s32b modified_level;
 
-	/* Calculate the average level */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-		p_ptr = Players[i];
+    /* Calculate the average level */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        p_ptr = player_get(i);
 
-#if 0
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
+        /* Check for his existance in the party */
+        if (party_share_with(Ind, party_id, i))
+        {
+            /* Increase the "divisor" */
+            average_lev += p_ptr->lev;
+            num_members++;
+        }
+    }
 
-		/* Check for his existance in the party */
-		if (player_in_party(party_id, i) && p_ptr->dun_depth == Depth)
-		{
-			/* Increase the "divisor" */
-			average_lev += p_ptr->lev;
-			num_members++;
-		}
-	}
+    /* Now, distribute the experience */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        p_ptr = player_get(i);
 
-	/* Now, distribute the experience */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-		p_ptr = Players[i];
+        /* Check for existance in the party */
+        if (party_share_with(Ind, party_id, i))
+        {
+            /* Calculate this guy's experience */
+            if (p_ptr->lev * num_members < average_lev) /* below average */
+            {
+                if ((average_lev - p_ptr->lev * num_members) > 2 * num_members)
+                    modified_level = p_ptr->lev * num_members + 2 * num_members;
+                else
+                    modified_level = average_lev;
+            }
+            else
+            {
+                if ((p_ptr->lev * num_members - average_lev) > 2 * num_members)
+                    modified_level = p_ptr->lev * num_members - 2 * num_members;
+                else
+                    modified_level = average_lev;
+            }
 
-#if 0
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
+            new_exp = (amount * modified_level) / (average_lev * num_members * p_ptr->lev);
+            new_exp_frac = ((((amount * modified_level) % (average_lev * num_members * p_ptr->lev))
+                * 0x10000L) / (average_lev * num_members * p_ptr->lev)) + p_ptr->exp_frac;
 
-		/* Check for existance in the party */
-		if (player_in_party(party_id, i) && p_ptr->dun_depth == Depth)
-		{
-			/* Calculate this guy's experience */
-			
-			if (p_ptr->lev * num_members < average_lev) // below average
-			{
-				if ((average_lev - p_ptr->lev * num_members) > 2 * num_members )
-				{
-					modified_level = p_ptr->lev * num_members + 2 * num_members;
-				}				
-				else modified_level = average_lev;
-			}
-			else
-			{
-				if ((p_ptr->lev * num_members - average_lev) > 2 * num_members )
-				{
-					modified_level = p_ptr->lev * num_members - 2 * num_members;
-				}				
-				else modified_level = average_lev;
-						
-			}
-			
-			
-			new_exp = (amount * modified_level) / (average_lev * num_members * p_ptr->lev);
-			new_exp_frac = ((((amount * modified_level) % (average_lev * num_members * p_ptr->lev) )
-			                * 0x10000L ) / (average_lev * num_members * p_ptr->lev)) + p_ptr->exp_frac;
+            /* Keep track of experience */
+            if (new_exp_frac >= 0x10000L)
+            {
+                new_exp++;
+                p_ptr->exp_frac = new_exp_frac - 0x10000L;
+            }
+            else
+                p_ptr->exp_frac = new_exp_frac;
 
-			/* Keep track of experience */
-			if (new_exp_frac >= 0x10000L)
-			{
-				new_exp++;
-				p_ptr->exp_frac = new_exp_frac - 0x10000L;
-			}
-			else
-			{
-				p_ptr->exp_frac = new_exp_frac;
-			}
-
-			/* Gain experience */
-			gain_exp(i, new_exp);
-		}
-	}
+            /* Gain experience */
+            player_exp_gain(p_ptr, new_exp);
+        }
+    }
 }
+
 
 /*
  * Add a player to another player's list of hostilities.
  */
-bool add_hostility(int Ind, cptr name)
+static bool add_hostility(struct player *attacker, struct player *target, bool silent)
 {
-	player_type *p_ptr = Players[Ind], *q_ptr;
-	hostile_type *h_ptr;
-	int i;
+    hostile_type *h_ptr;
+    char desc[NORMAL_WID];
 
-	/* Check for sillyness */
-	if (streq(name, p_ptr->name))
-	{
-		/* Message */
-		msg_print(Ind, "You cannot be hostile toward yourself.");
+    /* Check for sillyness */
+    if (attacker == target)
+    {
+        /* Message */
+        if (!silent) msg(attacker, "You cannot be hostile toward yourself.");
 
-		return FALSE;
-	}
+        return FALSE;
+    }
 
-	/* Search for player to add */
-	for (i = 1; i <= NumPlayers; i++)
-	{
-		q_ptr = Players[i];
+    /* Check for existance */
+    if (!target)
+    {
+        /* Oops */
+        if (!silent) msg(attacker, "That player is not currently in the game.");
 
-		/* Check name */
-		if (!streq(q_ptr->name, name)) continue;
+        return FALSE;
+    }
 
-		/* Make sure players aren't in the same party */
-		if (p_ptr->party && player_in_party(p_ptr->party, i))
-		{
-			/* Message */
-			msg_format(Ind, "%^s is in your party!", q_ptr->name);
+    /* Make sure players aren't in the same party */
+    if (in_party(target, attacker->party))
+    {
+        /* Message */
+        if (!silent)
+        {
+            my_strcpy(desc, target->name, sizeof(desc));
+            my_strcap(desc);
+            msg(attacker, "%s is in your party!", desc);
+        }
 
-			return FALSE;
-		}
+        return FALSE;
+    }
 
-		/* Ensure we don't add the same player twice */
-		for (h_ptr = p_ptr->hostile; h_ptr; h_ptr = h_ptr->next)
-		{
-			/* Check this ID */
-			if (h_ptr->id == q_ptr->id)
-			{
-				/* Message */
-				msg_format(Ind, "You are already hostile toward %s.", q_ptr->name);
+    /* Ensure we don't add the same player twice */
+    for (h_ptr = attacker->hostile; h_ptr; h_ptr = h_ptr->next)
+    {
+        /* Check this ID */
+        if (h_ptr->id == target->id)
+        {
+            /* Message */
+            if (!silent) msg(attacker, "You are already hostile toward %s.", target->name);
 
-				return FALSE;
-			}
-		}
+            return FALSE;
+        }
+    }
 
-		/* Create a new hostility node */
-		MAKE(h_ptr, hostile_type);
+    /* Create a new hostility node */
+    h_ptr = ZNEW(hostile_type);
 
-		/* Set ID in node */
-		h_ptr->id = q_ptr->id;
+    /* Set ID in node */
+    h_ptr->id = target->id;
 
-		/* Put this node at the beginning of the list */
-		h_ptr->next = p_ptr->hostile;
-		p_ptr->hostile = h_ptr;
+    /* Put this node at the beginning of the list */
+    h_ptr->next = attacker->hostile;
+    attacker->hostile = h_ptr;
 
-		/* Message */
-		msg_format(Ind, "You are now hostile toward %s.", q_ptr->name);
+    /* Message */
+    msg(attacker, "You are now hostile toward %s.", target->name);
 
-		/* Success */
-		return TRUE;
-	}
+    /* Notify the victim */
+    my_strcpy(desc, attacker->name, sizeof(desc));
+    my_strcap(desc);
+    msg(target, "%s is now hostile towards you.", desc);
 
-	/* Search for party to add */
-	if ((i = party_lookup(name)) != -1)
-	{
-		/* Ensure we don't add the same party twice */
-		for (h_ptr = p_ptr->hostile; h_ptr; h_ptr = h_ptr->next)
-		{
-			/* Check this ID */
-			if (h_ptr->id == 0 - i)
-			{
-				/* Message */
-				msg_format(Ind, "You are already hostile toward party '%s'.", parties[i].name);
-
-				return FALSE;
-			}
-		}
-
-		/* Create a new hostility node */
-		MAKE(h_ptr, hostile_type);
-
-		/* Set ID in node */
-		h_ptr->id = 0 - i;
-
-		/* Put this node at the beginning of the list */
-		h_ptr->next = p_ptr->hostile;
-		p_ptr->hostile = h_ptr;
-
-		/* Message */
-		msg_format(Ind, "You are now hostile toward party '%s'.", parties[i].name);
-
-		/* Success */
-		return TRUE;
-	}
-
-	/* Couldn't find player */
-	msg_format(Ind, "%^s is not currently in the game.", name);
-
-	return FALSE;
+    /* Success */
+    return TRUE;
 }
+
 
 /*
  * Remove an entry from a player's list of hostilities
  */
-bool remove_hostility(int Ind, cptr name)
+static bool remove_hostility(struct player *attacker, struct player *target, bool silent)
 {
-	player_type *p_ptr = Players[Ind];
-	hostile_type *h_ptr, *i_ptr;
-	cptr p;
+    hostile_type *h_ptr, *i_ptr;
 
-	/* Initialize lock-step */
-	i_ptr = NULL;
+    /* Check for sillyness */
+    if (attacker == target)
+    {
+        /* Message */
+        if (!silent) msg(attacker, "You are not hostile toward yourself.");
 
-	/* Search entries */
-	for (h_ptr = p_ptr->hostile; h_ptr; i_ptr = h_ptr, h_ptr = h_ptr->next)
-	{
-		/* Lookup name of this entry */
-		if (h_ptr->id > 0)
-		{
-			/* Look up name */
-			p = lookup_player_name(h_ptr->id);
+        return FALSE;
+    }
 
-			/* Check player name */
-			if (p && streq(p, name))
-			{
-				/* Delete this entry */
-				if (i_ptr)
-				{
-					/* Skip over */
-					i_ptr->next = h_ptr->next;
-				}
-				else
-				{
-					/* Adjust beginning of list */
-					p_ptr->hostile = h_ptr->next;
-				}
+    /* Check for existance */
+    if (!target)
+    {
+        /* Oops */
+        if (!silent) msg(attacker, "That player is not currently in the game.");
 
-				/* Message */
-				msg_format(Ind, "No longer hostile toward %s.", name);
+        return FALSE;
+    }
 
-				/* Delete node */
-				KILL(h_ptr, hostile_type);
+    /* Initialize lock-step */
+    i_ptr = NULL;
 
-				/* Success */
-				return TRUE;
-			}
-		}
-		else
-		{
-			/* Assume this is a party */
-			if (streq(parties[0 - h_ptr->id].name, name))
-			{
-				/* Delete this entry */
-				if (i_ptr)
-				{
-					/* Skip over */
-					i_ptr->next = h_ptr->next;
-				}
-				else
-				{
-					/* Adjust beginning of list */
-					p_ptr->hostile = h_ptr->next;
-				}
+    /* Search entries */
+    for (h_ptr = attacker->hostile; h_ptr; i_ptr = h_ptr, h_ptr = h_ptr->next)
+    {
+        /* Check entry */
+        if (h_ptr->id == target->id)
+        {
+            /* Delete this entry */
+            if (i_ptr)
+            {
+                /* Skip over */
+                i_ptr->next = h_ptr->next;
+            }
+            else
+            {
+                /* Adjust beginning of list */
+                attacker->hostile = h_ptr->next;
+            }
 
-				/* Message */
-				msg_format(Ind, "No longer hostile toward party '%s'.", name);
+            /* Message */
+            msg(attacker, "No longer hostile toward %s.", target->name);
 
-				/* Delete node */
-				KILL(h_ptr, hostile_type);
+            /* Delete node */
+            mem_free(h_ptr);
 
-				/* Success */
-				return TRUE;
-			}
-		}
-	}
+            /* Success */
+            return TRUE;
+        }
+    }
 
-	/* Message */
-	msg_format(Ind, "You are not hostile toward %s.", name);
+    /* Message */
+    if (!silent) msg(attacker, "You are not hostile toward %s.", target->name);
 
-	/* Failure */
-	return FALSE;
-}
-
-/*
- * Check if one player is hostile toward the other
- */
-bool check_hostile(int attacker, int target)
-{
-	player_type *p_ptr = Players[attacker];
-	hostile_type *h_ptr;
-
-	/* Scan list */
-	for (h_ptr = p_ptr->hostile; h_ptr; h_ptr = h_ptr->next)
-	{
-		/* Check ID */
-		if (h_ptr->id > 0)
-		{
-			/* Identical ID's yield hostility */
-			if (h_ptr->id == Players[target]->id)
-				return TRUE;
-		}
-		else
-		{
-			/* Check if target belongs to hostile party */
-			if (Players[target]->party == 0 - h_ptr->id)
-				return TRUE;
-		}
-	}
-
-	/* Not hostile */
-	return FALSE;
+    /* Failure */
+    return FALSE;
 }
 
 
 /*
- * The following is a simple hash table, which is used for mapping a player's
- * ID number to his name.  Only players that are still alive are stored in
- * the table, thus the mapping from a 32-bit integer is very sparse.  Also,
- * duplicate ID numbers are prohibitied.
+ * Main PvP handling function
  *
- * The hash function is going to be h(x) = x % n, where n is the length of
- * the table.  For efficiency reasons, n will be a power of 2, thus the
- * hash function can be a bitwise "and" and get the relevant bits off the end.
+ * This function should be called each time an action involves PvP combat.
  *
- * No "probing" is done; if any two ID's map to the same hash slot, they will
- * be chained in a linked list.  This will most likely be a very rare thing,
- * however.
+ * Modes:
+ *  PVP_CHECK_ONE: checks minimal hostility between players
+ *  PVP_CHECK_BOTH: checks hostility between players
+ *  PVP_DIRECT: checks if direct damage must be applied
+ *  PVP_INDIRECT: checks if indirect damage must be applied
+ *  PVP_ADD: adds hostility
+ *  PVP_REMOVE: removes hostility
+ *
+ * Returns TRUE if a hostile response must be taken
  */
-
-/* The struct to hold a data entry */
-typedef struct hash_entry hash_entry;
-
-struct hash_entry
+bool pvp_check(struct player *attacker, struct player *target, int mode, bool silent, byte feat)
 {
-	int id;				/* The ID */
-	cptr name;			/* Player name */
-	struct hash_entry *next;	/* Next entry in the chain */
-};
+    switch (mode)
+    {
+        case PVP_CHECK_ONE:
+        {
+            /* Always safe */
+            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+
+            /* Same party: can't be hostile */
+            if (in_party(target, attacker->party)) return FALSE;
+
+            /* Brutal mode: always hostile */
+            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+
+            /* One player must be hostile */
+            return (check_hostile(attacker, target) || check_hostile(target, attacker));
+        }
+        case PVP_INDIRECT:
+        {
+            /* Always safe */
+            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+
+            /* Same party: can't be hostile */
+            if (in_party(target, attacker->party)) return FALSE;
+
+            /* Dangerous mode: add hostilities and take a hostile response */
+            if (cfg_pvp_hostility == PVP_DANGEROUS)
+            {
+                add_hostility(attacker, target, TRUE);
+                add_hostility(target, attacker, TRUE);
+                return TRUE;
+            }
+
+            /* Brutal mode: always hostile */
+            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+
+            /* Both players must be hostile */
+            return (check_hostile(attacker, target) && check_hostile(target, attacker));
+        }
+        case PVP_CHECK_BOTH:
+        case PVP_DIRECT:
+        {
+            /* Always safe */
+            if (feat == FEAT_FLOOR_SAFE) return FALSE;
+
+            /* Same party: can't be hostile */
+            if (in_party(target, attacker->party)) return FALSE;
+
+            /* Brutal mode: always hostile */
+            if (cfg_pvp_hostility == PVP_BRUTAL) return TRUE;
+
+            /* Both players must be hostile */
+            return (check_hostile(attacker, target) && check_hostile(target, attacker));
+        }
+        case PVP_ADD:
+        {
+            /* No-PvP mode: can't be hostile */
+            if (cfg_pvp_hostility == PVP_DISABLED)
+            {
+                if (!silent)
+                    msg(attacker, "You cannot be hostile toward this player.");
+            }
+
+            /* Brutal mode: already hostile */
+            else if (cfg_pvp_hostility == PVP_BRUTAL)
+            {
+                if (!silent)
+                    msg(attacker, "You are already hostile toward this player.");
+            }
+
+            /* Add hostility */
+            else
+            {
+                bool hostile = add_hostility(attacker, target, silent);
+
+                /* Unsafe modes make both players hostile */
+                if ((cfg_pvp_hostility != PVP_SAFE) && hostile)
+                    add_hostility(target, attacker, TRUE);
+            }
+            break;
+        }
+        case PVP_REMOVE:
+        {
+            /* No-PvP mode: can't be hostile */
+            if (cfg_pvp_hostility == PVP_DISABLED)
+            {
+                if (!silent)
+                    msg(attacker, "You are not hostile toward this player.");
+            }
+
+            /* Brutal mode: always hostile */
+            else if (cfg_pvp_hostility == PVP_BRUTAL)
+            {
+                if (!silent)
+                    msg(attacker, "You cannot make peace with this player.");
+            }
+
+            /* Remove hostility */
+            else
+            {
+                bool unhostile = remove_hostility(attacker, target, silent);
+
+                /* Always un-hostile both players */
+                if (unhostile) remove_hostility(target, attacker, TRUE);
+            }
+            break;
+        }
+    }
+
+    return FALSE;
+}
+
+
+void do_cmd_party(int Ind, s16b command, char* buf)
+{
+    player_type *p_ptr = player_get(Ind);
+
+    /* Check arena */
+    if (p_ptr->arena_num != -1)
+    {
+        msg(p_ptr, "You cannot access party commands while inside an arena.");
+        return;
+    }
+
+    switch (command)
+    {
+        case PARTY_CREATE:
+        {
+            party_create(Ind, buf);
+            break;
+        }
+
+        case PARTY_ADD:
+        {
+            party_add(Ind, buf);
+            break;
+        }
+
+        case PARTY_DELETE:
+        {
+            party_remove(Ind, buf);
+            break;
+        }
+
+        case PARTY_REMOVE_ME:
+        {
+            party_leave(Ind);
+            break;
+        }
+
+        case PARTY_HOSTILE:
+        {
+            pvp_check(p_ptr, player_lookup(buf), PVP_ADD, FALSE, FEAT_NONE);
+            break;
+        }
+
+        case PARTY_PEACE:
+        {
+            pvp_check(p_ptr, player_lookup(buf), PVP_REMOVE, FALSE, FEAT_NONE);
+            break;
+        }
+    }
+}
+
+
+/* Message nearby party members */
+void party_msg_near(struct player *p, const char *msg)
+{
+    char buf[MSG_LEN];
+    int i;
+    int y = p->py;
+    int x = p->px;
+    int party = p->party;
+
+    /* Not a member of any party */
+    if (!party) return;
+
+    /* Format the message */
+    strnfmt(buf, sizeof(buf), "%s%s", p->name, msg);
+
+    /* Display */
+    for (i = 1; i <= NumPlayers; i++)
+    {
+        /* Check this player */
+        player_type *q_ptr = player_get(i);
+
+        /* Don't send the message to the player who caused it */
+        if (p == q_ptr) continue;
+
+        /* Make sure this player is at this depth */
+        if (q_ptr->depth != p->depth) continue;
+
+        /* Meh, different party */
+        if (!player_in_party(party, q_ptr)) continue;
+
+        /* Can he see this player? */
+        if (player_has_los_bold(q_ptr, y, x))
+        {
+            /* Send the message */
+            msg_print_aux(q_ptr, buf, MSG_PY_MISC);
+        }
+    }
+}
+
+
+/*** Player database ***/
+
 
 /* The hash table itself */
 static hash_entry *hash_table[NUM_HASH_ENTRIES];
@@ -720,144 +951,118 @@ static hash_entry *hash_table[NUM_HASH_ENTRIES];
  */
 static int hash_slot(int id)
 {
-	/* Be very efficient */
-	return (id & (NUM_HASH_ENTRIES - 1));
+    /* Be very efficient */
+    return (id & (NUM_HASH_ENTRIES - 1));
 }
+
 
 /*
- * Lookup a player name by ID.  Will return NULL if the name doesn't exist.
+ * Lookup a player entry by ID. Will return NULL if the entry doesn't exist.
  */
-cptr lookup_player_name(int id)
+hash_entry *lookup_player(int id)
 {
-	int slot;
-	hash_entry *ptr;
+    int slot;
+    hash_entry *ptr;
 
-	/* Get the slot */
-	slot = hash_slot(id);
+    /* Get the slot */
+    slot = hash_slot(id);
 
-	/* Acquire the pointer to the first element in the chain */
-	ptr = hash_table[slot];
+    /* Acquire the pointer to the first element in the chain */
+    ptr = hash_table[slot];
 
-	/* Search the chain, looking for the correct ID */
-	while (ptr)
-	{
-		/* Check this entry */
-		if (ptr->id == id)
-			return ptr->name;
+    /* Search the chain, looking for the correct ID */
+    while (ptr)
+    {
+        /* Check this entry */
+        if (ptr->id == id) return ptr;
 
-		/* Next entry in chain */
-		ptr = ptr->next;
-	}
+        /* Next entry in chain */
+        ptr = ptr->next;
+    }
 
-	/* Not found */
-	return NULL;
+    /* Not found */
+    return NULL;
 }
+
 
 /*
- * Lookup a player's ID by name.  Return 0 if not found.
+ * Lookup a player entry by name. Will return NULL if the entry doesn't exist.
  */
-int lookup_player_id(cptr name)
+hash_entry *lookup_player_by_name(const char *name)
 {
-	hash_entry *ptr;
-	int i;
+    hash_entry *ptr;
+    int i;
 
-	/* Search in each array slot */
-	for (i = 0; i < NUM_HASH_ENTRIES; i++)
-	{
-		/* Acquire pointer to this chain */
-		ptr = hash_table[i];
+    /* Search in each array slot */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire pointer to this chain */
+        ptr = hash_table[i];
 
-		/* Check all entries in this chain */
-		while (ptr)
-		{
-			/* Check this name */
-			if (!strcmp(ptr->name, name))
-				return ptr->id;
+        /* Check all entries in this chain */
+        while (ptr)
+        {
+            /* Check this name */
+            if (!strcmp(ptr->name, name)) return ptr;
 
-			/* Next entry in chain */
-			ptr = ptr->next;
-		}
-	}
+            /* Next entry in chain */
+            ptr = ptr->next;
+        }
+    }
 
-	/* Not found */
-	return 0;
+    /* Not found */
+    return NULL;
 }
+
 
 /*
  * Add a name to the hash table.
  */
-void add_player_name(cptr name, int id)
+void add_player_name(int id, u32b account, const char *name, hturn *death_turn)
 {
-	int slot;
-	hash_entry *ptr;
+    int slot;
+    hash_entry *ptr;
 
-	/* Get the destination slot */
-	slot = hash_slot(id);
+    /* Get the destination slot */
+    slot = hash_slot(id);
 
-	/* Create a new hash entry struct */
-	MAKE(ptr, hash_entry);
+    /* Create a new hash entry struct */
+    ptr = ZNEW(hash_entry);
 
-	/* Make a copy of the player name in the entry */
-	ptr->name = strdup(name);
+    /* Make a copy of the player name in the entry */
+    ptr->name = string_make(name);
 
-	/* Set the entry's id */
-	ptr->id = id;
+    /* Set the entry's id */
+    ptr->id = id;
 
-	/* Add the rest of the chain to this entry */
-	ptr->next = hash_table[slot];
+    /* Set the entry's account id */
+    ptr->account = account;
 
-	/* Put this entry in the table */
-	hash_table[slot] = ptr;
+    /* Set the entry's time of death */
+    ht_copy(&ptr->death_turn, death_turn);
+
+    /* Add the rest of the chain to this entry */
+    ptr->next = hash_table[slot];
+
+    /* Put this entry in the table */
+    hash_table[slot] = ptr;
 }
+
 
 /*
- * Delete an entry from the table, by ID.
+ * Remove a player by name.
  */
-void delete_player_id(int id)
+void remove_player_name(const char *name)
 {
-	int slot;
-	hash_entry *ptr, *old_ptr;
+    hash_entry *ptr;
 
-	/* Get the destination slot */
-	slot = hash_slot(id);
+    /* Search for the entry */
+    ptr = lookup_player_by_name(name);
 
-	/* Acquire the pointer to the entry chain */
-	ptr = hash_table[slot];
-
-	/* Keep a pointer one step behind this one */
-	old_ptr = NULL;
-
-	/* Attempt to find the ID to delete */
-	while (ptr)
-	{
-		/* Check this one */
-		if (ptr->id == id)
-		{
-			/* Delete this one from the table */
-			if (old_ptr == NULL)
-				hash_table[slot] = ptr->next;
-			else old_ptr->next = ptr->next;
-
-			/* Free the memory in the player name */
-			free((char *)(ptr->name));
-
-			/* Free the memory for this struct */
-			KILL(ptr, hash_entry);
-
-			/* Done */
-			return;
-		}
-
-		/* Remember this entry */
-		old_ptr = ptr;
-
-		/* Advance to next entry in the chain */
-		ptr = ptr->next;
-	}
-
-	/* Not found */
-	return;
+    /* Mark this character as "dead" */
+    if (ptr) ht_copy(&ptr->death_turn, &turn);
 }
+
 
 /*
  * Delete a player by name.
@@ -866,63 +1071,229 @@ void delete_player_id(int id)
  * two entries for one player name, if the server crashes hideously
  * or the machine has a power outage or something.
  */
-void delete_player_name(cptr name)
+void delete_player_name(const char *name)
 {
-	int id;
+    int i;
+    hash_entry *ptr, *old_ptr;
 
-	/* Delete every occurence of this name */
-	while ((id = lookup_player_id(name)))
-	{
-		/* Delete this one */
-		delete_player_id(id);
-	}
+    /* Search in each array slot */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire pointer to this chain */
+        ptr = hash_table[i];
+
+        /* Keep a pointer one step behind this one */
+        old_ptr = NULL;
+
+        /* Check all entries in this chain */
+        while (ptr)
+        {
+            /* Check this name */
+            if (!strcmp(ptr->name, name))
+            {
+                hash_entry *next = ptr->next;
+
+                /* Delete this one from the table */
+                if (old_ptr == NULL)
+                    hash_table[i] = next;
+                else old_ptr->next = next;
+
+                /* Free the memory in the player name */
+                string_free(ptr->name);
+
+                /* Free the memory for this struct */
+                mem_free(ptr);
+
+                /* Advance to next entry in the chain */
+                ptr = next;
+            }
+            else
+            {
+                /* Remember this entry */
+                old_ptr = ptr;
+
+                /* Advance to next entry in the chain */
+                ptr = ptr->next;
+            }
+        }
+    }
 }
+
 
 /*
  * Return a list of the player ID's stored in the table.
  */
-int player_id_list(int **list)
+u32b player_id_count(u32b account)
 {
-	int i, len = 0, k = 0;
-	hash_entry *ptr;
+    int i;
+    u16b len = 0;
+    hash_entry *ptr;
 
-	/* Count up the number of valid entries */
-	for (i = 0; i < NUM_HASH_ENTRIES; i++)
-	{
-		/* Acquire this chain */
-		ptr = hash_table[i];
+    /* Count up the number of valid entries */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire this chain */
+        ptr = hash_table[i];
 
-		/* Check this chain */
-		while (ptr)
-		{
-			/* One more entry */
-			len++;
+        /* Check this chain */
+        while (ptr)
+        {
+            /* One more entry */
+            if (!account || (ptr->account == account)) len++;
 
-			/* Next entry in chain */
-			ptr = ptr->next;
-		}
-	}
+            /* Next entry in chain */
+            ptr = ptr->next;
+        }
+    }
 
-	/* Allocate memory for the list */
-	C_MAKE((*list), len, int);
+    /* Return length */
+    return len;
+}
 
-	/* Look again, this time storing ID's */
-	for (i = 0; i < NUM_HASH_ENTRIES; i++)
-	{
-		/* Acquire this chain */
-		ptr = hash_table[i];
 
-		/* Check this chain */
-		while (ptr)
-		{
-			/* Store this ID */
-			(*list)[k++] = ptr->id;
+/*
+ * Return a list of the player ID's stored in the table.
+ */
+u32b player_id_list(int **list, u32b account)
+{
+    int i, k = 0;
+    u32b len = player_id_count(account);
+    hash_entry *ptr;
 
-			/* Next entry in chain */
-			ptr = ptr->next;
-		}
-	}
+    /* Nothing to do */
+    if (!len) return 0;
 
-	/* Return length */
-	return len;
+    /* Allocate memory for the list */
+    (*list) = C_ZNEW(len, int);
+
+    /* Look again, this time storing ID's */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire this chain */
+        ptr = hash_table[i];
+
+        /* Check this chain */
+        while (ptr)
+        {
+            /* Store this ID */
+            if (!account || (ptr->account == account)) (*list)[k++] = ptr->id;
+
+            /* Next entry in chain */
+            ptr = ptr->next;
+        }
+    }
+
+    /* Return length */
+    return len;
+}
+
+
+/*
+ * Purge the player database.
+ */
+void purge_player_names(void)
+{
+    int i;
+    hash_entry *ptr, *old_ptr;
+
+    /* Entry points */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire this chain */
+        ptr = hash_table[i];
+
+        /* Keep a pointer one step behind this one */
+        old_ptr = NULL;
+
+        /* Check this chain for expired characters */
+        while (ptr)
+        {
+            /* Check this one */
+            if (!player_expiry(&ptr->death_turn))
+            {
+                hash_entry *next = ptr->next;
+
+                /* Delete this one from the table */
+                if (old_ptr == NULL) hash_table[i] = next;
+                else old_ptr->next = next;
+
+                /* Free the memory in the player name */
+                string_free(ptr->name);
+
+                /* Free the memory for this struct */
+                mem_free(ptr);
+
+                /* Advance to next entry in the chain */
+                ptr = next;
+            }
+            else
+            {
+                /* Remember this entry */
+                old_ptr = ptr;
+
+                /* Advance to next entry in the chain */
+                ptr = ptr->next;
+            }
+        }
+    }
+}
+
+
+/*
+ * Free player names from memory
+ */
+void wipe_player_names(void)
+{
+    int i;
+    hash_entry *ptr;
+    hash_entry *next;
+
+    /* Entry points */
+    for (i = 0; i < NUM_HASH_ENTRIES; i++)
+    {
+        /* Acquire this chain */
+        ptr = hash_table[i];
+
+        /* Check this chain */
+        while (ptr)
+        {
+            next = ptr->next;
+
+            string_free(ptr->name);
+            mem_free(ptr);
+
+            ptr = next;
+        }
+    }
+}
+
+
+/*
+ * Returns the number of days before expiration
+ * Returns -1 if the character is still alive
+ * Returns 0 if the character is dead and has expired
+ */
+int player_expiry(hturn *death_turn)
+{
+    int dd, dh, dm;
+    int sd, sh, sm;
+
+    /* Character is still alive */
+    if (ht_zero(death_turn)) return -1;
+
+    /* Get number of minutes since death */
+    get_real_time(death_turn, &dd, &dh, &dm);
+    dm = dm + 60 * dh + 1440 * dd;
+
+    /* Get number of minutes since the server started */
+    get_real_time(&turn, &sd, &sh, &sm);
+    sm = sm + 60 * sh + 1440 * sd;
+
+    /* Get number of days elapsed */
+    dd = (sm - dm) / 1440;
+
+    /* Character has expired */
+    if (dd > EXPIRY_DELAY_DEAD) dd = EXPIRY_DELAY_DEAD;
+
+    return (EXPIRY_DELAY_DEAD - dd);
 }

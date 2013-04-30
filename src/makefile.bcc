@@ -1,0 +1,406 @@
+###################################################################
+#
+#  makefile.bcc - MAngband makefile for Borland C++ 5.5 (Win32)
+#
+#  This makefile, along with necessary code, was written by
+#  Yakina (yakina@dsb.to) and modified for MAngband use.
+#
+#  How to compile:
+#  1. install bcc++5.5 first - from http://www.borland.com/
+#  2. go to the directory 'src' of Mangband
+#     (the directory this file is in.)
+#  3. change the 'BCCDIR = ..' option or set environment variable `BCCDIR'
+#     to the directory you installed bcc++
+#  4. type 'make -f makefile.bcc' to compile client
+#     (or 'make -f makefile.bcc server' if you want a server.)
+#  5. copy the binary (mangclient.exe) to the directory of MAngband
+#     (available from http://www.mangband.org/)
+#  6. enjoy!
+#
+###################################################################
+
+
+###################################################################
+#
+#       Borland specific directives ---
+#
+.AUTODEPEND
+
+
+###################################################################
+#
+# Set tool and version names:
+!ifndef BCCDIR
+BCCDIR     = "C:\Program Files\Borland\CBuilder6"
+!endif
+
+CPP        = $(BCCDIR)\bin\bcc32
+LINKER     = $(BCCDIR)\bin\ilink32
+RC         = $(BCCDIR)\bin\brc32
+
+
+###################################################################
+#
+# Name of the *.exe-file
+
+SERV_EXE = mangband.exe
+CLI_EXE = mangclient.exe
+
+
+###################################################################
+#
+# Debug mode (un-comment for debugging)
+
+# DBGOPT= -v -N -x -xp
+
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8012 -w-8057 -w-8065 \
+	-D_WIN32_WINNT=0x0410 -DWINVER=0x0500 \
+	-DWIN32 -D_WINDOWS -DSTRICT \
+	-I$(BCCDIR)\include
+
+LDFLAGS = -L$(BCCDIR)\lib
+
+
+# Compile flags:
+CPPFLAGS= $(CCOPTS) $(DBGOPT)
+
+
+######################## Targets ##################################
+
+SERV_SRCS = \
+  common\buildid.c \
+  common\display.c \
+  common\guid.c \
+  common\md5.c \
+  common\net-win.c \
+  common\parser.c \
+  common\randname.c \
+  common\sockbuf.c \
+  common\spells.c \
+  common\util.c \
+  common\variable.c \
+  common\z-bitflag.c \
+  common\z-file.c \
+  common\z-form.c \
+  common\z-msg.c \
+  common\z-rand.c \
+  common\z-type.c \
+  common\z-util.c \
+  common\z-virt.c \
+  server\account.c \
+  server\attack.c \
+  server\birth.c \
+  server\cave.c \
+  server\cmd1.c \
+  server\cmd2.c \
+  server\cmd3.c \
+  server\cmd4.c \
+  server\cmd-innate.c \
+  server\cmd-misc.c \
+  server\cmd-obj.c \
+  server\control.c \
+  server\dungeon.c \
+  server\effects.c \
+  server\files.c \
+  server\generate.c \
+  server\history.c \
+  server\init.c \
+  server\load.c \
+  server\main.c \
+  server\monster\melee.c \
+  server\monster\mon-init.c \
+  server\monster\mon-lore.c \
+  server\monster\mon-make.c \
+  server\monster\mon-msg.c \
+  server\monster\mon-power.c \
+  server\monster\mon-spell.c \
+  server\monster\mon-timed.c \
+  server\monster\mon-util.c \
+  server\monster\mvm.c \
+  server\netserver.c \
+  server\object\chest.c \
+  server\object\identify.c \
+  server\object\obj-desc.c \
+  server\object\obj-flag.c \
+  server\object\obj-info.c \
+  server\object\obj-make.c \
+  server\object\obj-power.c \
+  server\object\obj-ui.c \
+  server\object\obj-util.c \
+  server\object\pval.c \
+  server\object\randart.c \
+  server\object\slays.c \
+  server\party.c \
+  server\pathfind.c \
+  server\player\calcs.c \
+  server\player\player.c \
+  server\player\p-util.c \
+  server\player\spell.c \
+  server\player\timed.c \
+  server\save.c \
+  server\savefile.c \
+  server\sched-win.c \
+  server\score.c \
+  server\spells1.c \
+  server\spells2.c \
+  server\squelch.c \
+  server\store.c \
+  server\s-util.c \
+  server\s-variable.c \
+  server\tables.c \
+  server\target.c \
+  server\trap.c \
+  server\wilderness.c \
+  server\x-spell.c \
+  server\xtra2.c \
+  server\xtra3.c \
+  server\z-quark.c \
+  server\z-queue.c
+
+SERV_OBJS = \
+  common\buildid.obj \
+  common\display.obj \
+  common\guid.obj \
+  common\md5.obj \
+  common\net-win.obj \
+  common\parser.obj \
+  common\randname.obj \
+  common\sockbuf.obj \
+  common\spells.obj \
+  common\util.obj \
+  common\variable.obj \
+  common\z-bitflag.obj \
+  common\z-file.obj \
+  common\z-form.obj \
+  common\z-msg.obj \
+  common\z-rand.obj \
+  common\z-type.obj \
+  common\z-util.obj \
+  common\z-virt.obj \
+  server\account.obj \
+  server\attack.obj \
+  server\birth.obj \
+  server\cave.obj \
+  server\cmd1.obj \
+  server\cmd2.obj \
+  server\cmd3.obj \
+  server\cmd4.obj \
+  server\cmd-innate.obj \
+  server\cmd-misc.obj \
+  server\cmd-obj.obj \
+  server\control.obj \
+  server\dungeon.obj \
+  server\effects.obj \
+  server\files.obj \
+  server\generate.obj \
+  server\history.obj \
+  server\init.obj \
+  server\load.obj \
+  server\main.obj \
+  server\monster\melee.obj \
+  server\monster\mon-init.obj \
+  server\monster\mon-lore.obj \
+  server\monster\mon-make.obj \
+  server\monster\mon-msg.obj \
+  server\monster\mon-power.obj \
+  server\monster\mon-spell.obj \
+  server\monster\mon-timed.obj \
+  server\monster\mon-util.obj \
+  server\monster\mvm.obj \
+  server\netserver.obj \
+  server\object\chest.obj \
+  server\object\identify.obj \
+  server\object\obj-desc.obj \
+  server\object\obj-flag.obj \
+  server\object\obj-info.obj \
+  server\object\obj-make.obj \
+  server\object\obj-power.obj \
+  server\object\obj-ui.obj \
+  server\object\obj-util.obj \
+  server\object\pval.obj \
+  server\object\randart.obj \
+  server\object\slays.obj \
+  server\party.obj \
+  server\pathfind.obj \
+  server\player\calcs.obj \
+  server\player\player.obj \
+  server\player\p-util.obj \
+  server\player\spell.obj \
+  server\player\timed.obj \
+  server\save.obj \
+  server\savefile.obj \
+  server\sched-win.obj \
+  server\score.obj \
+  server\spells1.obj \
+  server\spells2.obj \
+  server\squelch.obj \
+  server\store.obj \  
+  server\s-util.obj \
+  server\s-variable.obj \
+  server\tables.obj \
+  server\target.obj \
+  server\trap.obj \
+  server\wilderness.obj \
+  server\x-spell.obj \
+  server\xtra2.obj \
+  server\xtra3.obj \
+  server\z-quark.obj \
+  server\z-queue.obj
+
+CLI_SRCS = \
+  common\buildid.c \
+  common\display.c \
+  common\guid.c \
+  common\md5.c \
+  common\net-win.c \
+  common\parser.c \
+  common\randname.c \
+  common\sockbuf.c \
+  common\spells.c \
+  common\util.c \
+  common\variable.c \
+  common\z-bitflag.c \
+  common\z-file.c \
+  common\z-form.c \
+  common\z-msg.c \
+  common\z-rand.c \
+  common\z-type.c \
+  common\z-util.c \
+  common\z-virt.c \
+  client\c-cmd0.c \
+  client\c-cmd.c \
+  client\c-cmd-obj.c \
+  client\c-files.c \
+  client\c-init.c \
+  client\c-obj-ui.c \
+  client\c-store.c \
+  client\c-tables.c \
+  client\c-util.c \
+  client\c-variable.c \
+  client\c-xtra.c \
+  client\cmd-context.c \
+  client\game-cmd.c \
+  client\game-event.c \
+  client\grafmode.c \
+  client\keymap.c \
+  client\main-win.c \
+  client\netclient.c \
+  client\option.c \
+  client\prefs.c \
+  client\ui.c \
+  client\ui-birth.c \
+  client\ui-event.c \
+  client\ui-knowledge.c \
+  client\ui-menu.c \
+  client\ui-options.c \
+  client\ui-spell.c \
+  client\win-layout.c \
+  client\z-term.c \
+  win\readdib.c \
+  win\readpng.c \
+  win\scrnshot.c
+
+CLI_OBJS = \
+  common\buildid.obj \
+  common\display.obj \
+  common\guid.obj \
+  common\md5.obj \
+  common\net-win.obj \
+  common\parser.obj \
+  common\randname.obj \
+  common\sockbuf.obj \
+  common\spells.obj \
+  common\util.obj \
+  common\variable.obj \
+  common\z-bitflag.obj \
+  common\z-file.obj \
+  common\z-form.obj \
+  common\z-msg.obj \
+  common\z-rand.obj \
+  common\z-type.obj \
+  common\z-util.obj \
+  common\z-virt.obj \
+  client\c-cmd0.obj \
+  client\c-cmd.obj \
+  client\c-cmd-obj.obj \
+  client\c-files.obj \
+  client\c-init.obj \
+  client\c-obj-ui.obj \
+  client\c-store.obj \
+  client\c-tables.obj \
+  client\c-util.obj \
+  client\c-variable.obj \
+  client\c-xtra.obj \
+  client\cmd-context.obj \
+  client\game-cmd.obj \
+  client\game-event.obj \
+  client\grafmode.obj \
+  client\keymap.obj \
+  client\main-win.obj \
+  client\netclient.obj \
+  client\option.obj \
+  client\prefs.obj \
+  client\ui.obj \
+  client\ui-birth.obj \
+  client\ui-event.obj \
+  client\ui-knowledge.obj \
+  client\ui-menu.obj \
+  client\ui-options.obj \
+  client\ui-spell.obj \
+  client\win-layout.obj \
+  client\z-term.obj \
+  win\readdib.obj \
+  win\readpng.obj \
+  win\scrnshot.obj
+
+default: client
+
+server: $(SERV_EXE)
+
+client: $(CLI_EXE)
+
+clean:
+	-@if exist ..\*.exe del ..\*.exe >nul
+	-@if exist ..\*.tds del ..\*.tds >nul
+	-@if exist ..\obj\*.obj del ..\obj\*.obj >nul
+	-@if exist ..\obj\*.res del ..\obj\*.res >nul
+	-@if exist client\*.obj del client\*.obj >nul
+	-@if exist common\*.obj del common\*.obj >nul
+	-@if exist server\*.obj del server\*.obj >nul
+	-@if exist server\monster\*.obj del server\monster\*.obj >nul
+	-@if exist server\object\*.obj del server\object\*.obj >nul
+	-@if exist server\player\*.obj del server\player\*.obj >nul
+	-@if exist win\*.obj del win\*.obj >nul
+	-@if exist win\*.res del win\*.res >nul
+	-@if exist *.tds del *.tds >nul
+	-@if exist *.ilc del *.ilc >nul
+	-@if exist *.ild del *.ild >nul
+	-@if exist *.ilf del *.ilf >nul
+	-@if exist *.ils del *.ils >nul
+
+
+########################### Explicit Rules ########################
+$(SERV_EXE): $(SERV_OBJS)
+	$(LINKER) -ap $(LDFLAGS) -x $(SERV_OBJS) c0x32.obj, $(SERV_EXE),, cw32mt.lib import32.lib ws2_32.lib
+
+$(CLI_EXE): $(CLI_OBJS) win\angband.res
+	$(LINKER) -aa $(LDFLAGS) -x $(CLI_OBJS) c0w32.obj, $(CLI_EXE),, cw32.lib import32.lib ws2_32.lib win\libpng.lib win\zlib.lib win\msimg32.lib,, win\angband.res
+
+win\angband.res: win\angband.rc
+	$(RC) -r win\angband.rc
+
+########################### Implicit Rules ########################
+.c.obj:
+	$(CPP) $(CPPFLAGS) -o$*.obj -c {$? }
+
+.c.i:
+	$(CPP) $(CPPFLAGS) -c -Sr -Sd {$? }
+
+.obj.exe:
+	$(CPP) $(CPPFLAGS) $<
+

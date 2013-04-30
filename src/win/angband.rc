@@ -1,0 +1,135 @@
+/* File: angband.rc */
+#include "win-menu.h"
+
+ANGBAND MENU
+{
+    POPUP "&File"
+    {
+        MENUITEM "&New", IDM_FILE_NEW
+        MENUITEM "&Open...", IDM_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "&Save", IDM_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit", IDM_FILE_EXIT
+    }
+
+    POPUP "&Window"
+    {
+        POPUP "&Visibility"
+        {
+            MENUITEM "Term-0 window", IDM_WINDOW_VIS_0
+            MENUITEM "Term-1 window", IDM_WINDOW_VIS_1
+            MENUITEM "Term-2 window", IDM_WINDOW_VIS_2
+            MENUITEM "Term-3 window", IDM_WINDOW_VIS_3
+            MENUITEM "Term-4 window", IDM_WINDOW_VIS_4
+            MENUITEM "Term-5 window", IDM_WINDOW_VIS_5
+            MENUITEM "Term-6 window", IDM_WINDOW_VIS_6
+            MENUITEM "Term-7 window", IDM_WINDOW_VIS_7
+        }
+
+        POPUP "&Font"
+        {
+            MENUITEM "Term-0 window", IDM_WINDOW_FONT_0
+            MENUITEM "Term-1 window", IDM_WINDOW_FONT_1
+            MENUITEM "Term-2 window", IDM_WINDOW_FONT_2
+            MENUITEM "Term-3 window", IDM_WINDOW_FONT_3
+            MENUITEM "Term-4 window", IDM_WINDOW_FONT_4
+            MENUITEM "Term-5 window", IDM_WINDOW_FONT_5
+            MENUITEM "Term-6 window", IDM_WINDOW_FONT_6
+            MENUITEM "Term-7 window", IDM_WINDOW_FONT_7
+        }
+
+        MENUITEM SEPARATOR
+
+        MENUITEM "Bizarre Display", IDM_WINDOW_BIZ
+        MENUITEM "Increase Tile Width", IDM_WINDOW_I_WID
+        MENUITEM "Decrease Tile Width", IDM_WINDOW_D_WID
+        MENUITEM "Increase Tile Height", IDM_WINDOW_I_HGT
+        MENUITEM "Decrease Tile Height", IDM_WINDOW_D_HGT
+
+        MENUITEM SEPARATOR
+
+        POPUP "Term-0 Font Tile Size"
+        {
+            MENUITEM "Font", IDM_TILE_FONT
+            MENUITEM "8x8", IDM_TILE_08X08
+            MENUITEM "16x16", IDM_TILE_16X16
+            MENUITEM "32x32", IDM_TILE_32X32
+            MENUITEM "8x16", IDM_TILE_08X16
+            MENUITEM "10x20", IDM_TILE_10X20
+            MENUITEM "16x32", IDM_TILE_16X32
+            MENUITEM "8x13", IDM_TILE_08X13
+            MENUITEM "10x17", IDM_TILE_10X17
+            MENUITEM "12x13", IDM_TILE_12X13
+            MENUITEM "12x20", IDM_TILE_12X20
+            MENUITEM "16x25", IDM_TILE_16X25
+        }
+
+        MENUITEM SEPARATOR
+
+        MENUITEM "Term Options", IDM_WINDOW_OPT
+        MENUITEM "Reset Layout", IDM_WINDOW_RESET
+    }
+
+    POPUP "&Options"
+    {
+        POPUP "&Graphics"
+        {
+            MENUITEM "&None", IDM_OPTIONS_GRAPHICS_NONE
+            MENUITEM SEPARATOR
+            MENUITEM "Enable nice &graphics", IDM_OPTIONS_GRAPHICS_NICE
+            MENUITEM SEPARATOR
+            POPUP "&Tile Multiplier"
+            {
+                MENUITEM "1x1", IDM_OPTIONS_TILE_1x1
+                MENUITEM "2x1", IDM_OPTIONS_TILE_2x1
+                MENUITEM "4x2", IDM_OPTIONS_TILE_4x2
+                MENUITEM "2x2", IDM_OPTIONS_TILE_2x2
+                MENUITEM "3x1", IDM_OPTIONS_TILE_3x1
+                MENUITEM "3x3", IDM_OPTIONS_TILE_3x3
+                MENUITEM "4x4", IDM_OPTIONS_TILE_4x4
+                MENUITEM "6x3", IDM_OPTIONS_TILE_6x3
+                MENUITEM "6x6", IDM_OPTIONS_TILE_6x6
+                MENUITEM "8x4", IDM_OPTIONS_TILE_8x4
+                MENUITEM "8x8", IDM_OPTIONS_TILE_8x8
+                MENUITEM "16x8", IDM_OPTIONS_TILE_16x8
+                MENUITEM "16x16", IDM_OPTIONS_TILE_16x16
+            }
+        }
+
+        MENUITEM SEPARATOR
+        MENUITEM "Low Priority", IDM_OPTIONS_LOW_PRIORITY
+        MENUITEM "Activate Screensaver", IDM_OPTIONS_SAVER
+        MENUITEM "&Map", IDM_OPTIONS_MAP
+        MENUITEM "&Screenshot", IDM_OPTIONS_SCREENSHOT
+    }
+
+    POPUP "&Help"
+    {
+        MENUITEM "&Contents", IDM_HELP_GENERAL
+        MENUITEM "&Spoilers", IDM_HELP_SPOILERS
+        MENUITEM "&About...", IDM_HELP_ABOUT
+    }
+}
+
+ANGBAND ICON "angband.ico"
+
+ABOUT DIALOGEX 0, 0, 283, 139
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+
+CAPTION "About PWMAngband..."
+FONT 8, "MS Sans Serif", 0, 0
+BEGIN
+    ICON            "ANGBAND", IDC_STATIC, 7, 7, 21, 20
+    LTEXT           "PowerWyrm's MAngband Version 1.1.9", IDC_STATIC, 38, 14, 200, 8
+    LTEXT           "Based on Angband 3.4 and MAngband 1.1.2", IDC_STATIC, 38, 28, 200, 8
+    LTEXT           "Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke", IDC_STATIC, 38, 42, 200, 8
+    LTEXT           "and Umoria:   Copyright (c) 1989 James E. Wilson", IDC_STATIC, 51, 50, 200, 8
+    LTEXT           "Angband 3.4:       Copyright (c) 1997-2012 Ben Harrison,", IDC_STATIC, 38, 60, 200, 8
+    LTEXT           "Robert Ruehlmann and others", IDC_STATIC, 96, 68, 200, 8
+    LTEXT           "Ported to multiplayer by Keldon Jones", IDC_STATIC, 38, 82, 200, 8
+    LTEXT           "Newbies :    Hit '?' for help    Hit ':' to talk", IDC_STATIC, 38, 96, 200, 8
+    CONTROL         "", IDC_STATIC, "Static", SS_ETCHEDHORZ, 38, 108, 200, 1
+    LTEXT           "Visit the MAngband homepage at: www.mangband.org", IDC_STATIC, 38, 112, 200, 8
+    DEFPUSHBUTTON   "OK", IDOK, 226, 122, 50, 14
+END

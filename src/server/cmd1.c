@@ -1,2607 +1,1449 @@
-/* File: cmd1.c */
-
-/* Purpose: Movement commands (part 1) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * File: cmd1.c
+ * Purpose: Searching, movement, and pickup
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
- */
-
-#define SERVER
-
-#include "angband.h"
-
-
-
-/*
- * Determine if the player "hits" a monster (normal combat).
- * Note -- Always miss 5%, always hit 5%, otherwise random.
- */
-bool test_hit_fire(int chance, int ac, int vis)
-{
-	int k;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Never hit */
-	if (chance <= 0) return (FALSE);
-
-	/* Invisible monsters are harder to hit */
-	if (!vis) chance = (chance + 1) / 2;
-
-	/* Power competes against armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
-
-	/* Assume hit */
-	return (TRUE);
-}
-
-
-
-/*
- * Determine if the player "hits" a monster (normal combat).
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2007 Leon Marrick
+ * Copyright (c) 2012 MAngband and PWMAngband Developers
  *
- * Note -- Always miss 5%, always hit 5%, otherwise random.
- */
-bool test_hit_norm(int chance, int ac, int vis)
-{
-	int k;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Wimpy attack never hits */
-	if (chance <= 0) return (FALSE);
-
-	/* Penalize invisible targets */
-	if (!vis) chance = (chance + 1) / 2;
-
-	/* Power must defeat armor */
-	if (rand_int(chance) < (ac * 3 / 4)) return (FALSE);
-
-	/* Assume hit */
-	return (TRUE);
-}
-
-
-
-/*
- * Critical hits (from objects thrown by player)
- * Factor in item weight, total plusses, and player level.
- */
-s16b critical_shot(int Ind, int weight, int plus, int dam)
-{
-	player_type *p_ptr = Players[Ind];
-
-	int i, k;
-
-	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
-
-	/* Critical hit */
-	if (randint(5000) <= i)
-	{
-		k = weight + randint(500);
-
-		if (k < 500)
-		{
-			msg_print(Ind, "It was a good hit!");
-			dam = 2 * dam + 5;
-		}
-		else if (k < 1000)
-		{
-			msg_print(Ind, "It was a great hit!");
-			dam = 2 * dam + 10;
-		}
-		else
-		{
-			msg_print(Ind, "It was a superb hit!");
-			dam = 3 * dam + 15;
-		}
-	}
-
-	return (dam);
-}
-
-
-
-/*
- * Critical hits (by player)
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
  *
- * Factor in weapon weight, total plusses, player level.
- */
-s16b critical_norm(int Ind, int weight, int plus, int dam)
-{
-	player_type *p_ptr = Players[Ind];
-
-	int i, k;
-
-	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
-
-	/* Chance */
-	if (randint(5000) <= i)
-	{
-		k = weight + randint(650);
-
-		if (k < 400)
-		{
-			msg_print(Ind, "It was a good hit!");
-			dam = 2 * dam + 5;
-		}
-		else if (k < 700)
-		{
-			msg_print(Ind, "It was a great hit!");
-			dam = 2 * dam + 10;
-		}
-		else if (k < 900)
-		{
-			msg_print(Ind, "It was a superb hit!");
-			dam = 3 * dam + 15;
-		}
-		else if (k < 1300)
-		{
-			msg_print(Ind, "It was a *GREAT* hit!");
-			dam = 3 * dam + 20;
-		}
-		else
-		{
-			msg_print(Ind, "It was a *SUPERB* hit!");
-			dam = ((7 * dam) / 2) + 25;
-		}
-	}
-
-	return (dam);
-}
-
-
-
-/*
- * Extract the "total damage" from a given object hitting a given monster.
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
  *
- * Note that "flasks of oil" do NOT do fire damage, although they
- * certainly could be made to do so.  XXX XXX
- *
- * Note that most brands and slays are x3, except Slay Animal (x2),
- * Slay Evil (x2), and Kill dragon (x5).
- */
-s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
-{
-	int mult = 1;
-
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Some "weapons" and "ammo" do extra damage */
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			/* Slay Animal */
-			if ((f1 & TR1_SLAY_ANIMAL) &&
-			    (r_ptr->flags3 & RF3_ANIMAL))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_ANIMAL;*/
-
-				if (mult < 2) mult = 2;
-			}
-
-			/* Slay Evil */
-			if ((f1 & TR1_SLAY_EVIL) &&
-			    (r_ptr->flags3 & RF3_EVIL))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_EVIL;*/
-
-				if (mult < 2) mult = 2;
-			}
-
-			/* Slay Undead */
-			if ((f1 & TR1_SLAY_UNDEAD) &&
-			    (r_ptr->flags3 & RF3_UNDEAD))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_UNDEAD;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Demon */
-			if ((f1 & TR1_SLAY_DEMON) &&
-			    (r_ptr->flags3 & RF3_DEMON))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DEMON;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Orc */
-			if ((f1 & TR1_SLAY_ORC) &&
-			    (r_ptr->flags3 & RF3_ORC))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_ORC;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Troll */
-			if ((f1 & TR1_SLAY_TROLL) &&
-			    (r_ptr->flags3 & RF3_TROLL))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_TROLL;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Giant */
-			if ((f1 & TR1_SLAY_GIANT) &&
-			    (r_ptr->flags3 & RF3_GIANT))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_GIANT;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Dragon  */
-			if ((f1 & TR1_SLAY_DRAGON) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;*/
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Dragon */
-			if ((f1 & TR1_KILL_DRAGON) &&
-			    (r_ptr->flags3 & RF3_DRAGON))
-			{
-				/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_DRAGON;*/
-
-				if (mult < 5) mult = 5;
-			}
-
-
-			/* Brand (Acid) */
-			if (f1 & TR1_BRAND_ACID)
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ACID)
-				{
-					/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_ACID;*/
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Elec) */
-			if (f1 & TR1_BRAND_ELEC)
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_ELEC)
-				{
-					/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_ELEC;*/
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Fire) */
-			if (f1 & TR1_BRAND_FIRE)
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_FIRE)
-				{
-					/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_FIRE;*/
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Cold) */
-			if (f1 & TR1_BRAND_COLD)
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_COLD)
-				{
-					/*if (m_ptr->ml) r_ptr->r_flags3 |= RF3_IM_COLD;*/
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			break;
-		}
-	}
-
-
-	/* Return the total damage */
-	return (tdam * mult);
-}
-
-/*
- * Extract the "total damage" from a given object hitting a given player.
- *
- * Note that "flasks of oil" do NOT do fire damage, although they
- * certainly could be made to do so.  XXX XXX
- */
-s16b tot_dam_aux_player(object_type *o_ptr, int tdam, player_type *p_ptr)
-{
-	int mult = 1;
-
-	u32b f1, f2, f3;
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/* Some "weapons" and "ammo" do extra damage */
-	switch (o_ptr->tval)
-	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_SWORD:
-		case TV_DIGGING:
-		{
-			/* Brand (Acid) */
-			if (f1 & TR1_BRAND_ACID)
-			{
-				/* Notice immunity */
-				if (p_ptr->immune_acid)
-				{
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Elec) */
-			if (f1 & TR1_BRAND_ELEC)
-			{
-				/* Notice immunity */
-				if (p_ptr->immune_elec)
-				{
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Fire) */
-			if (f1 & TR1_BRAND_FIRE)
-			{
-				/* Notice immunity */
-				if (p_ptr->immune_fire)
-				{
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Cold) */
-			if (f1 & TR1_BRAND_COLD)
-			{
-				/* Notice immunity */
-				if (p_ptr->immune_cold)
-				{
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			break;
-		}
-	}
-
-
-	/* Return the total damage */
-	return (tdam * mult);
-}
-
-/*
- * Searches for hidden things.			-RAK-
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
  
-void search(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
 
-	int           y, x, chance;
-
-	cave_type    *c_ptr;
-	object_type  *o_ptr;
-
-
-	/* Start with base search ability */
-	chance = p_ptr->skill_srh;
-
-	/* Penalize various conditions */
-	if (p_ptr->blind || no_lite(Ind)) chance = chance / 10;
-	if (p_ptr->confused || p_ptr->image) chance = chance / 10;
-
-	/* Search the nearby grids, which are always in bounds */
-	
-	for (y = (p_ptr->py - 1); y <= (p_ptr->py + 1); y++)
-	{
-		for (x = (p_ptr->px - 1); x <= (p_ptr->px + 1); x++)
-		{
-			/* Sometimes, notice things */
-			if (rand_int(100) < chance)
-			{
-				/* Access the grid */
-				c_ptr = &cave[Depth][y][x];
-
-				/* Access the object */
-				o_ptr = &o_list[c_ptr->o_idx];
-
-				/* Invisible trap */
-				if (c_ptr->feat == FEAT_INVIS)
-				{
-					/* Pick a trap */
-					pick_trap(Depth, y, x);
-
-					/* Message */
-					msg_print(Ind, "You have found a trap.");
-
-					/* Disturb */
-					disturb(Ind, 0, 0);
-				}
-
-				/* Secret door */
-				else if (c_ptr->feat == FEAT_SECRET)
-				{
-					/* Message */
-					msg_print(Ind, "You have found a secret door.");
-
-					/* Pick a door XXX XXX XXX */
-					c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
-
-					/* Notice */
-					note_spot_depth(Depth, y, x);
-
-					/* Redraw */
-					everyone_lite_spot(Depth, y, x);
-
-					/* Disturb */
-					disturb(Ind, 0, 0);
-				}
-
-				/* Search chests */
-				else if (o_ptr->tval == TV_CHEST)
-				{
-					/* Examine chests for traps */
-					if (!object_known_p(Ind, o_ptr) && (chest_traps[o_ptr->pval]))
-					{
-						/* Message */
-						msg_print(Ind, "You have discovered a trap on the chest!");
-
-						/* Know the trap */
-						object_known(o_ptr);
-
-						/* Notice it */
-						disturb(Ind, 0, 0);
-					}
-				}
-			}
-		}
-	}
-}
-
-
+#include "s-angband.h"
+#include "../common/tvalsval.h"
+#include "attack.h"
+#include "cmds.h"
+#include "generate.h"
+#include "monster/mon-timed.h"
+#include "monster/mon-util.h"
+#include "netserver.h"
+#include "object/inventory.h"
+#include "s-spells.h"
+#include "squelch.h"
+#include "wilderness.h"
 
 
 /*
- * Player "wants" to pick up an object or gold.
- * Note that we ONLY handle things that can be picked up.
- * See "move_player()" for handling of other things.
+ * Search for hidden things.  Returns true if a search was attempted, returns
+ * false when the player has a 0% chance of finding anything.  Prints messages
+ * for negative confirmation when verbose mode is requested.
  */
-void carry(int Ind, int pickup, int confirm)
+bool search(int Ind, bool verbose)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
+    player_type *p_ptr = player_get(Ind);
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    int y, x, chance;
+    bool found = FALSE;
+    object_type *o_ptr;
 
-	cave_type  *c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
+    /* Start with base search ability */
+    chance = p_ptr->state.skills[SKILL_SEARCH];
 
-	object_type *o_ptr;
+    /* Penalize various conditions */
+    if (p_ptr->timed[TMD_BLIND] || no_light(p_ptr)) chance = chance / 10;
+    if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) chance = chance / 10;
 
-	char	o_name[80];
+    /* Prevent fruitless searches */
+    if (chance <= 0)
+    {
+        if (verbose)
+        {
+            msg(p_ptr, "You can't make out your surroundings well enough to search.");
 
+            /* Cancel repeat */
+            disturb(p_ptr, 0, 0);
+        }
 
-	/* Hack -- nothing here to pick up */
-	if (!(c_ptr->o_idx)) return;
+        return FALSE;
+    }
 
-	if (strcmp(p_ptr->name,cfg_dungeon_master)) {
-		/* Normal Ghosts cannot pick things up */
-		if ((p_ptr->ghost) || (p_ptr->fruit_bat) ) return;
-	};
+    /* Search the nearby grids, which are always in bounds */
+    for (y = (py - 1); y <= (py + 1); y++)
+    {
+        for (x = (px - 1); x <= (px + 1); x++)
+        {
+            /* Sometimes, notice things */
+            if (magik(chance))
+            {
+                /* Invisible trap */
+                if (cave_issecrettrap(cave_get(p_ptr->depth), y, x))
+                {
+                    found = TRUE;
 
-	/* Get the object */
-	o_ptr = &o_list[c_ptr->o_idx];
+                    /* Pick a trap */
+                    pick_trap(p_ptr->depth, y, x);
 
-	/* Describe the object */
-	object_desc(Ind, o_name, o_ptr, TRUE, 3);
+                    /* Message */
+                    msg(p_ptr, "You have found a trap.");
 
-	/* Pick up gold */
-	if (o_ptr->tval == TV_GOLD)
-	{
-		/* Disturb */
-		disturb(Ind, 0, 0);
+                    /* Disturb */
+                    disturb(p_ptr, 0, 0);
+                }
 
-		/* Message */
-		msg_format(Ind, "You have found %ld gold pieces worth of %s.",
-		           (long)o_ptr->pval, o_name);
+                /* Secret door */
+                if (cave_issecretdoor(cave_get(p_ptr->depth), y, x))
+                {
+                    found = TRUE;
 
-		/* Collect the gold */
-		p_ptr->au += o_ptr->pval;
+                    /* Message */
+                    msg(p_ptr, "You have found a secret door.");
 
-		/* Redraw gold */
-		p_ptr->redraw |= (PR_GOLD);
+                    /* Pick a door */
+                    place_closed_door(cave_get(p_ptr->depth), y, x);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
+                    /* Disturb */
+                    disturb(p_ptr, 0, 0);
 
-		/* Delete gold */
-		delete_object(Depth, p_ptr->py, p_ptr->px);
-	}
+                    /* Give the player an EXP bump */
+                    p_ptr->exp += 1;
+                }
 
-	/* Pick it up */
-	else
-	{
-		/* Hack -- disturb */
-		disturb(Ind, 0, 0);
+                /* Scan all objects in the grid */
+                for (o_ptr = get_first_object(p_ptr->depth, y, x); o_ptr;
+                    o_ptr = get_next_object(o_ptr))
+                {
+                    /* Skip if not a trapped chest */
+                    if (!is_trapped_chest(o_ptr)) continue;
 
-		/* Describe the object */
-		if (!pickup)
-		{
-			msg_format(Ind, "You see %s.", o_name);
-			Send_floor(Ind, o_ptr->tval);
-		}
+                    /* Identify once */
+                    if (!object_is_known(p_ptr, o_ptr))
+                    {
+                        found = TRUE;
 
-		/* Note that the pack is too full */
-		else if (!inven_carry_okay(Ind, o_ptr))
-		{
-			msg_format(Ind, "You have no room for %s.", o_name);
-			Send_floor(Ind, o_ptr->tval);
-		}
+                        /* Message */
+                        msg(p_ptr, "You have discovered a trap on the chest!");
 
-		/* Pick up the item (if requested and allowed) */
-		else
-		{
-			int okay = TRUE;
+                        /* Know the trap */
+                        object_notice_everything(p_ptr, o_ptr, TRUE);
 
-			/* Hack -- query every item */
-			if (p_ptr->carry_query_flag && !confirm)
-			{
-				char out_val[160];
-				sprintf(out_val, "Pick up %s? ", o_name);
-				Send_pickup_check(Ind, out_val);
-				return;
-			}
+                        /* Notice it */
+                        disturb(p_ptr, 0, 0);
+                    }
+                }
+            }
+        }
+    }
 
-			/* Attempt to pick up an object. */
-			if (okay)
-			{
-				int slot;
+    if (verbose && !found)
+    {
+        if (chance >= 100) msg(p_ptr, "There are no secrets here.");
+        else msg(p_ptr, "You found nothing.");
+    }
 
-				/* Carry the item */
-				slot = inven_carry(Ind, o_ptr);
-
-				/* Get the item again */
-				o_ptr = &(p_ptr->inventory[slot]);
-
-				/* Describe the object */
-				object_desc(Ind, o_name, o_ptr, TRUE, 3);
-
-				/* Message */
-				msg_format(Ind, "You have %s (%c).", o_name, index_to_label(slot));
-
-
-				/*  hack so it doesnt clear the house -APD- */
-				if (o_ptr->tval == TV_KEY) houses[o_ptr->pval].owned = 2;
-
-				/* Delete original */
-				delete_object(Depth, p_ptr->py, p_ptr->px);
-
-				/* Tell the client */
-				Send_floor(Ind, 0);
-			}
-		}
-	}
+    return TRUE;
 }
 
 
-
-
-
-/*
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-static int check_hit(int Ind, int power)
-{
-	player_type *p_ptr = Players[Ind];
-
-	int k, ac;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- 5% hit, 5% miss */
-	if (k < 10) return (k < 5);
-
-	/* Paranoia -- No power */
-	if (power <= 0) return (FALSE);
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-
-	/* Power competes against Armor */
-	if (randint(power) > ((ac * 3) / 4)) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
+/*** Pickup ***/
 
 
 /*
- * Handle player hitting a real trap
+ * Pickup all gold at the player's current location.
  */
-static void hit_trap(int Ind)
+static void py_pickup_gold(int Ind)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
+    player_type *p_ptr = player_get(Ind);
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    s32b total_gold = 0L;
+    byte *treasure;
+    s16b this_o_idx = 0;
+    s16b next_o_idx = 0;
+    object_type *o_ptr;
+    int sound_msg;
+
+    /* Allocate an array of ordinary gold objects */
+    treasure = C_ZNEW(SV_GOLD_MAX, byte);
+
+    /* Pick up all the ordinary gold objects */
+    for (this_o_idx = cave_get(p_ptr->depth)->o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+    {
+        /* Get the object */
+        o_ptr = object_byid(this_o_idx);
+
+        /* Get the next object */
+        next_o_idx = o_ptr->next_o_idx;
+
+        /* Ignore if not legal treasure */
+        if ((o_ptr->tval != TV_GOLD) || (o_ptr->sval >= SV_GOLD_MAX))
+            continue;
+
+        /* Cannot carry infinite gold */
+        if ((p_ptr->au + total_gold) > PY_MAX_GOLD)
+        {
+            msg(p_ptr, "Your purse is full!");
+            continue;
+        }
+
+        /* Restricted by choice */
+        if (!is_owner(p_ptr, o_ptr))
+        {
+            msg(p_ptr, "This pile of gold belongs to someone else!");
+            continue;
+        }
+
+        /* Note that we have this kind of treasure */
+        treasure[o_ptr->sval]++;
+
+        /* Increment total value */
+        total_gold += (s32b)o_ptr->pval[DEFAULT_PVAL];
+
+        /* Pile of gold is now owned */
+        object_own(p_ptr, o_ptr);
+
+        /* Delete the gold */
+        delete_object_idx(this_o_idx);
+    }
+
+    /* Pick up the gold, if present */
+    if (total_gold)
+    {
+        char buf[MSG_LEN];
+        int i, count, total;
+        object_kind *kind;
+
+        /* Disturb */
+        disturb(p_ptr, 0, 0);
+
+        /* Build a message */
+        strnfmt(buf, sizeof(buf), "You have found %ld gold pieces worth of ",
+            (long)total_gold);
+
+        /* Count the types of treasure present */
+        for (total = 0, i = 0; i < SV_GOLD_MAX; i++)
+        {
+            if (treasure[i]) total++;
+        }
+
+        /* List the treasure types */
+        for (count = 0, i = 0; i < SV_GOLD_MAX; i++)
+        {
+            /* Skip if no treasure of this type */
+            if (!treasure[i]) continue;
+
+            /* Get this object index */
+            kind = lookup_kind(TV_GOLD, i);
+            if (!kind) continue;
+
+            /* Build up the pickup string */
+            my_strcat(buf, kind->name, sizeof(buf));
+
+            /* Added another kind of treasure */
+            count++;
+
+            /* Add a comma if necessary */
+            if ((total > 2) && (count < total)) my_strcat(buf, ",", sizeof(buf));
+
+            /* Add an "and" if necessary */
+            if ((total >= 2) && (count == total - 1))
+                my_strcat(buf, " and", sizeof(buf));
+
+            /* Add a space or period if necessary */
+            if (count < total) my_strcat(buf, " ", sizeof(buf));
+            else my_strcat(buf, ".", sizeof(buf));
+        }
+
+        /* Determine which sound to play */
+        if (total_gold < 200) sound_msg = MSG_MONEY1;
+        else if (total_gold < 600) sound_msg = MSG_MONEY2;
+        else sound_msg = MSG_MONEY3;
 
-	int			i, num, dam;
+        /* Display the message */
+        msgt(p_ptr, sound_msg, buf);
 
-	cave_type		*c_ptr;
-	byte			*w_ptr;
+        /* Add gold to purse */
+        p_ptr->au += total_gold;
 
-	cptr		name = "a trap";
+        /* Redraw gold */
+        p_ptr->redraw |= (PR_GOLD);
+    }
 
-
-	/* Ghosts ignore traps */
-	if ((p_ptr->ghost) || (p_ptr->fruit_bat)) return;
-
-	/* Disturb the player */
-	disturb(Ind, 0, 0);
-
-	/* Get the cave grid */
-	c_ptr = &cave[Depth][p_ptr->py][p_ptr->px];
-	w_ptr = &p_ptr->cave_flag[p_ptr->py][p_ptr->px];
-
-	/* Analyze XXX XXX XXX */
-	switch (c_ptr->feat)
-	{
-		case FEAT_TRAP_HEAD + 0x00:
-		{
-			/* MEGAHACK: Ignore Wilderness trap doors. */
-			if( p_ptr->dun_depth<0) {
-				msg_print(Ind, "You feel quite certain something really awfull just happened..");
-				break;
-			}
-
-			msg_print(Ind, "You fell through a trap door!");
-			if (p_ptr->feather_fall)
-			{
-				msg_print(Ind, "You float gently down to the next level.");
-			}
-			else
-			{
-				dam = damroll(2, 8);
-				take_hit(Ind, dam, name);
-			}
-			p_ptr->new_level_flag = TRUE;
-			p_ptr->new_level_method = LEVEL_RAND;
-			
-			/* The player is gone */
-			cave[p_ptr->dun_depth][p_ptr->py][p_ptr->px].m_idx = 0;
-
-			/* Erase his light */
-			forget_lite(Ind);
-
-			/* Show everyone that he's left */
-			everyone_lite_spot(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
-
-			/* Reduce the number of players on this depth */
-			players_on_depth[p_ptr->dun_depth]--;
-
-			p_ptr->dun_depth++;
-
-			/* Increase the number of players on this next depth */
-			players_on_depth[p_ptr->dun_depth]++;
-
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x01:
-		{
-			msg_print(Ind, "You fell into a pit!");
-			if (p_ptr->feather_fall)
-			{
-				msg_print(Ind, "You float gently to the bottom of the pit.");
-			}
-			else
-			{
-				dam = damroll(2, 6);
-				take_hit(Ind, dam, name);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x02:
-		{
-			msg_print(Ind, "You fall into a spiked pit!");
-
-			if (p_ptr->feather_fall)
-			{
-				msg_print(Ind, "You float gently to the floor of the pit.");
-				msg_print(Ind, "You carefully avoid touching the spikes.");
-			}
-
-			else
-			{
-				/* Base damage */
-				dam = damroll(2, 6);
-
-				/* Extra spike damage */
-				if (rand_int(100) < 50)
-				{
-					msg_print(Ind, "You are impaled!");
-
-					dam = dam * 2;
-					(void)set_cut(Ind, p_ptr->cut + randint(dam));
-				}
-
-				/* Take the damage */
-				take_hit(Ind, dam, name);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x03:
-		{
-			msg_print(Ind, "You fall into a spiked pit!");
-
-			if (p_ptr->feather_fall)
-			{
-				msg_print(Ind, "You float gently to the floor of the pit.");
-				msg_print(Ind, "You carefully avoid touching the spikes.");
-			}
-
-			else
-			{
-				/* Base damage */
-				dam = damroll(2, 6);
-
-				/* Extra spike damage */
-				if (rand_int(100) < 50)
-				{
-					msg_print(Ind, "You are impaled on poisonous spikes!");
-
-					dam = dam * 2;
-					(void)set_cut(Ind, p_ptr->cut + randint(dam));
-
-					if (p_ptr->resist_pois || p_ptr->oppose_pois)
-					{
-						msg_print(Ind, "The poison does not affect you!");
-					}
-
-					else
-					{
-						dam = dam * 2;
-						(void)set_poisoned(Ind, p_ptr->poisoned + randint(dam));
-					}
-				}
-
-				/* Take the damage */
-				take_hit(Ind, dam, name);
-			}
-
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x04:
-		{
-			msg_print(Ind, "You are enveloped in a cloud of smoke!");
-			c_ptr->feat = FEAT_FLOOR;
-			*w_ptr &= ~CAVE_MARK;
-			note_spot_depth(Depth, p_ptr->py, p_ptr->px);
-			everyone_lite_spot(Depth, p_ptr->py, p_ptr->px);
-			num = 2 + randint(3);
-			for (i = 0; i < num; i++)
-			{
-				(void)summon_specific(Depth, p_ptr->py, p_ptr->px, Depth, 0);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x05:
-		{
-			msg_print(Ind, "You hit a teleport trap!");
-			teleport_player(Ind, 100);
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x06:
-		{
-			msg_print(Ind, "You are enveloped in flames!");
-			dam = damroll(4, 6);
-			fire_dam(Ind, dam, "a fire trap");
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x07:
-		{
-			msg_print(Ind, "You are splashed with acid!");
-			dam = damroll(4, 6);
-			acid_dam(Ind, dam, "an acid trap");
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x08:
-		{
-			if (check_hit(Ind, 125))
-			{
-				msg_print(Ind, "A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(Ind, dam, name);
-				(void)set_slow(Ind, p_ptr->slow + rand_int(20) + 20);
-			}
-			else
-			{
-				msg_print(Ind, "A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x09:
-		{
-			if (check_hit(Ind, 125))
-			{
-				msg_print(Ind, "A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(Ind, dam, name);
-				(void)do_dec_stat(Ind, A_STR);
-			}
-			else
-			{
-				msg_print(Ind, "A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0A:
-		{
-			if (check_hit(Ind, 125))
-			{
-				msg_print(Ind, "A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(Ind, dam, name);
-				(void)do_dec_stat(Ind, A_DEX);
-			}
-			else
-			{
-				msg_print(Ind, "A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0B:
-		{
-			if (check_hit(Ind, 125))
-			{
-				msg_print(Ind, "A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(Ind, dam, name);
-				(void)do_dec_stat(Ind, A_CON);
-			}
-			else
-			{
-				msg_print(Ind, "A small dart barely misses you.");
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0C:
-		{
-			msg_print(Ind, "A black gas surrounds you!");
-			if (!p_ptr->resist_blind)
-			{
-				(void)set_blind(Ind, p_ptr->blind + rand_int(50) + 25);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0D:
-		{
-			msg_print(Ind, "A gas of scintillating colors surrounds you!");
-			if (!p_ptr->resist_conf)
-			{
-				(void)set_confused(Ind, p_ptr->confused + rand_int(20) + 10);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0E:
-		{
-			msg_print(Ind, "A pungent green gas surrounds you!");
-			if (!p_ptr->resist_pois && !p_ptr->oppose_pois)
-			{
-				(void)set_poisoned(Ind, p_ptr->poisoned + rand_int(20) + 10);
-			}
-			break;
-		}
-
-		case FEAT_TRAP_HEAD + 0x0F:
-		{
-			msg_print(Ind, "A strange white mist surrounds you!");
-			if (!p_ptr->free_act)
-			{
-				(void)set_paralyzed(Ind, p_ptr->paralyzed + rand_int(10) + 5);
-			}
-			break;
-		}
-	}
-}
-
-
-
-/*
- * Player attacks another player!
- *
- * If no "weapon" is available, then "punch" the player one time.
- */
-void py_attack_player(int Ind, int y, int x)
-{
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
-
-	int num = 0, k, bonus, chance;
-
-	cave_type *c_ptr = &cave[Depth][y][x];
-
-	player_type *q_ptr = Players[0 - c_ptr->m_idx];
-
-	object_type *o_ptr;
-
-	char p_name[80];
-
-	bool do_quake = FALSE;
-
-	/* Disturb both players */
-	disturb(Ind, 0, 0);
-	disturb(0 - c_ptr->m_idx, 0, 0);
-
-	/* Extract name */
-	strcpy(p_name, q_ptr->name);
-
-	/* Track player health */
-	if (p_ptr->play_vis[0 - c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
-
-	/* If target isn't already hostile toward attacker, make it so */
-	if (!check_hostile(0 - c_ptr->m_idx, Ind))
-	{
-		/* Make hostile */
-		add_hostility(0 - c_ptr->m_idx, p_ptr->name);
-	}
-
-	/* Handle attacker fear */
-	if (p_ptr->afraid)
-	{
-		/* Message */
-		msg_format(Ind, "You are too afraid to attack %s!", p_name);
-
-		/* Done */
-		return;
-	}
-
-	/* Access the weapon */
-	o_ptr = &(p_ptr->inventory[INVEN_WIELD]);
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
-
-	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
-	{
-		/* Test for hit */
-		if (test_hit_norm(chance, q_ptr->ac + q_ptr->to_a, 1))
-		{
-			/* Sound */
-			sound(Ind, SOUND_HIT);
-
-			/* Messages */
-			msg_format(Ind, "You hit %s.", p_name);
-			msg_format(0 - c_ptr->m_idx, "%s hits you.", p_ptr->name);
-
-			/* Hack -- bare hands do one damage */
-			k = 1;
-
-			/* Ghosts do damages relative to level */
-			if (p_ptr->ghost)
-				k = p_ptr->lev;
-			if (p_ptr->fruit_bat)
-				k = (p_ptr->lev / 5) + 1;
-
-			/* Handle normal weapon */
-			if (o_ptr->k_idx)
-			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux_player(o_ptr, k, q_ptr);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(Ind, o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
-			}
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
-
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			/* XXX Reduce damage by 1/3 */
-			k = (k + 2) / 3;
-
-			/* Damage */
-			take_hit(0 - c_ptr->m_idx, k, p_ptr->name);
-
-			/* Check for death */
-			if (q_ptr->death) break;
-
-			/* Confusion attack */
-			if (p_ptr->confusing)
-			{
-				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				msg_print(Ind, "Your hands stop glowing.");
-
-				/* Confuse the monster */
-				if (q_ptr->resist_conf)
-				{
-					msg_format(Ind, "%^s is unaffected.", p_name);
-				}
-				else if (rand_int(100) < q_ptr->lev)
-				{
-					msg_format(Ind, "%^s is unaffected.", p_name);
-				}
-				else
-				{
-					msg_format(Ind, "%^s appears confused.", p_name);
-					set_confused(0 - c_ptr->m_idx, q_ptr->confused + 10 + rand_int(p_ptr->lev) / 5);
-				}
-			}
-
-			/* Ghosts get fear attacks */
-			if (p_ptr->ghost)
-			{
-				int fear_chance = 50 + (p_ptr->lev - q_ptr->lev) * 5;
-
-				if (rand_int(100) < fear_chance)
-				{
-					msg_format(Ind, "%^s appears afraid.", p_name);
-					set_afraid(0 - c_ptr->m_idx, q_ptr->afraid + 4 + rand_int(p_ptr->lev) / 5);
-				}
-			}
-		}
-
-		/* Player misses */
-		else
-		{
-			/* Sound */
-			sound(Ind, SOUND_MISS);
-
-			/* Messages */
-			msg_format(Ind, "You miss %s.", p_name);
-			msg_format(0 - c_ptr->m_idx, "%s misses you.", p_ptr->name);
-		}
-	}
-
-	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 10);
-}
-
-
-
-/*
- * Player attacks a (poor, defenseless) creature	-RAK-
- *
- * If no "weapon" is available, then "punch" the monster one time.
- */
-void py_attack_mon(int Ind, int y, int x)
-{
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
-
-	int			num = 0, k, bonus, chance;
-
-	cave_type		*c_ptr = &cave[Depth][y][x];
-
-	monster_type	*m_ptr = &m_list[c_ptr->m_idx];
-	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
-
-	object_type		*o_ptr;
-
-	char		m_name[80];
-
-	bool		fear = FALSE;
-
-	bool		do_quake = FALSE;
-
-	bool		backstab = FALSE, stab_fleeing = FALSE;
-
-	/* Disturb the player */
-	disturb(Ind, 0, 0);
-
-
-	/* Extract monster name (or "it") */
-	monster_desc(Ind, m_name, c_ptr->m_idx, 0);
-
-
-	/* Auto-Recall if possible and visible */
-	if (p_ptr->mon_vis[c_ptr->m_idx]) recent_track(m_ptr->r_idx);
-
-	/* Track a new monster */
-	if (p_ptr->mon_vis[c_ptr->m_idx]) health_track(Ind, c_ptr->m_idx);
-
-
-	/* Handle player fear */
-	if (p_ptr->afraid)
-	{
-		/* Message */
-		msg_format(Ind, "You are too afraid to attack %s!", m_name);
-
-		/* Done */
-		return;
-	}
-
-	if (p_ptr->pclass == CLASS_ROGUE)
-	{
-		if(m_ptr->csleep /*&& m_ptr->ml*/)
-			backstab = TRUE;
-		else if (m_ptr->monfear /*&& m_ptr->ml)*/)
-			stab_fleeing = TRUE;
-	}
-		
-	
-	/* Disturb the monster */
-	m_ptr->csleep = 0;
-
-
-	/* Access the weapon */
-	o_ptr = &(p_ptr->inventory[INVEN_WIELD]);
-
-	/* Calculate the "attack quality" */
-	bonus = p_ptr->to_h + o_ptr->to_h;
-	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
-
-
-	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
-	{
-		/* Test for hit */
-		if (test_hit_norm(chance, r_ptr->ac, p_ptr->mon_vis[c_ptr->m_idx]))
-		{
-			/* Sound */
-			sound(Ind, SOUND_HIT);
-
-			/* Message */
-			if ((!backstab) && (!stab_fleeing))
-				msg_format(Ind, "You hit %s.", m_name);
-			else if(backstab)
-				msg_format(Ind, "You cruelly stab the helpless, sleeping %s!", (r_name + r_info[m_ptr->r_idx].name));
-			else
-				msg_format(Ind, "You backstab the fleeing %s!", (r_name + r_info[m_ptr->r_idx].name));
-
-			/* Hack -- bare hands do one damage */
-			k = 1;
-
-			/* Ghosts get damage relative to level */
-			if (p_ptr->ghost)
-				k = p_ptr->lev;
-				
-			if (p_ptr->fruit_bat)
-				k = (p_ptr->lev / 5) + 1;
-
-			/* Handle normal weapon */
-			if (o_ptr->k_idx)
-			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (backstab)
-				{
-					backstab = FALSE;
-					k *= (3 + (p_ptr->lev / 40));
-				}
-				else if (stab_fleeing)
-				{
-					k = ((3 * k) / 2);
-				}
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(Ind, o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
-			}
-
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
-
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			/* Complex message */
-			if (wizard)
-			{
-				msg_format(Ind, "You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-
-			/* Damage, check for fear and death */
-			if (mon_take_hit(Ind, c_ptr->m_idx, k, &fear, NULL)) break;
-
-			/* Confusion attack */
-			if (p_ptr->confusing)
-			{
-				/* Cancel glowing hands */
-				p_ptr->confusing = FALSE;
-
-				/* Message */
-				msg_print(Ind, "Your hands stop glowing.");
-
-				/* Confuse the monster */
-				if (r_ptr->flags3 & RF3_NO_CONF)
-				{
-					if (p_ptr->mon_vis[c_ptr->m_idx]) r_ptr->r_flags3 |= RF3_NO_CONF;
-					msg_format(Ind, "%^s is unaffected.", m_name);
-				}
-				else if (rand_int(100) < r_ptr->level)
-				{
-					msg_format(Ind, "%^s is unaffected.", m_name);
-				}
-				else
-				{
-					msg_format(Ind, "%^s appears confused.", m_name);
-					m_ptr->confused += 10 + rand_int(p_ptr->lev) / 5;
-				}
-			}
-
-			/* Ghosts get fear attacks */
-			if (p_ptr->ghost)
-			{
-				int fear_chance = 50 + (p_ptr->lev - r_ptr->level) * 5;
-
-				if (!(r_ptr->flags3 & RF3_NO_FEAR) && rand_int(100) < fear_chance)
-				{
-					msg_format(Ind, "%^s appears afraid.", m_name);
-					m_ptr->monfear = m_ptr->monfear + 4 + rand_int(p_ptr->lev) / 5;
-				}
-			}
-
-		}
-
-		/* Player misses */
-		else
-		{
-			/* Sound */
-			sound(Ind, SOUND_MISS);
-
-			backstab = FALSE;
-
-			/* Message */
-			msg_format(Ind, "You miss %s.", m_name);
-		}
-	}
-
-
-	/* Hack -- delay fear messages */
-	if (fear && p_ptr->mon_vis[c_ptr->m_idx])
-	{
-		/* Sound */
-		sound(Ind, SOUND_FLEE);
-
-		/* Message */
-		msg_format(Ind, "%^s flees in terror!", m_name);
-	}
-
-
-	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake) earthquake(p_ptr->dun_depth, p_ptr->py, p_ptr->px, 10);
+    /* Free the gold array */
+    mem_free(treasure);
 }
 
 
 /*
- * Attacking something, figure out what and spawn appropriately.
+ * Determine if the object can be picked up automatically.
  */
-void py_attack(int Ind, int y, int x)
+static bool auto_pickup_okay(int Ind, object_type *o_ptr)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
-	cave_type *c_ptr = &cave[Depth][y][x];
+    player_type *p_ptr = player_get(Ind);
+    const char *s;
 
-	/* Check for monster */
-	if (c_ptr->m_idx > 0)
-		py_attack_mon(Ind, y, x);
+    /*** Negative checks ***/
 
-	/* Check for player */
-	if (c_ptr->m_idx < 0)
-		py_attack_player(Ind, y, x);
+    /* Winners cannot pickup artifacts except the Crown and Grond */
+    if (true_artifact_p(o_ptr) && restrict_winner(p_ptr, o_ptr))
+        return (FALSE);
+
+    /* Restricted by choice */
+    if (true_artifact_p(o_ptr) && restrict_artifacts(p_ptr, o_ptr))
+        return (FALSE);
+
+    /* It can't be carried */
+    if (!inven_carry_okay(p_ptr, o_ptr)) return (FALSE);
+
+    /* Note that the pack is too heavy */
+    if (!weight_okay(p_ptr, o_ptr)) return (FALSE);
+
+    /* Restricted by choice */
+    if (!is_owner(p_ptr, o_ptr)) return (FALSE);
+
+    /* Ignore squelched items */
+    if (squelch_item_ok(p_ptr, o_ptr)) return (FALSE);
+
+    /* The inscription prevents it */
+    if (protected_p(p_ptr, o_ptr, 'g', FALSE)) return (FALSE);
+
+    /*** Positive checks ***/
+
+    /* Vacuum up everything if requested */
+    if (OPT_P(p_ptr, pickup_always)) return (TRUE);
+
+    /* Check inscription */
+    if (o_ptr->note)
+    {
+        /* Find a '=' */
+        s = strchr(quark_str(o_ptr->note), '=');
+
+        /* Process permissions */
+        while (s)
+        {
+            /* =g ('g'et) means auto pickup */
+            if (s[1] == 'g') return (TRUE);
+
+            /* Find another '=' */
+            s = strchr(s + 1, '=');
+        }
+    }
+
+    /* Pickup if it matches the inventory */
+    if (OPT_P(p_ptr, pickup_inven) && inven_stack_okay(p_ptr, o_ptr)) return (TRUE);
+
+    /* Don't auto pickup */
+    return (FALSE);
 }
 
 
 /*
- * Move player in the given direction, with the given "pickup" flag.
- *
- * This routine should (probably) always induce energy expenditure.
- *
- * Note that moving will *always* take a turn, and will *always* hit
- * any monster which might be in the destination grid.  Previously,
- * moving into walls was "free" and did NOT hit invisible monsters.
+ * Carry an object and delete it.
  */
- 
- /* Bounds checking is used in dungeon levels <= 0, which is used
-    to move between wilderness levels. 
-    
-    The wilderness levels are stored in rings radiating from the town,
-    see calculate_world_index for more information.
-
-    Diagonals aren't handled properly, but I don't feel that is important.
-        
-    -APD- 
- */
- 
-void move_player(int Ind, int dir, int do_pickup)
+static void py_pickup_aux(int Ind, int o_idx, bool domsg)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
+    player_type *p_ptr = player_get(Ind);
+    int slot, quiver_slot = 0;
+    char o_name[NORMAL_WID];
+    object_type *o_ptr = object_byid(o_idx);
 
-	int			y, x, old_world_x, old_world_y, oldx, oldy;
+    /* Auto-squelch */
+    if (p_ptr->squelch)
+    {
+        /* Set squelch flag as appropriate */
+        p_ptr->notice |= PN_SQUELCH;
 
-	cave_type		*c_ptr;
-	object_type		*o_ptr;
-	monster_type	*m_ptr;
-	byte			*w_ptr;
+        /* Mark item as squelchable */
+        o_ptr->squelch = SQUELCH_ALLOW;
+    }
+    else
+    {
+        /* Bypass auto-squelch */
+        o_ptr->squelch = SQUELCH_PROTECT;
+    }
+
+    /* Carry the object */
+    slot = inven_carry(p_ptr, o_ptr, TRUE);
+
+    /* Handle errors (paranoia) */
+    if (slot < 0) return;
+
+    /*
+     * If we have picked up ammo which matches something in the quiver, note
+     * that it so that we can wield it later (and suppress pick up message)
+     */
+    if (obj_is_ammo(p_ptr, o_ptr))
+    {
+        int i;
+
+        for (i = QUIVER_START; i < QUIVER_END; i++)
+        {
+            if (!p_ptr->inventory[i].kind) continue;
+            if (!object_similar(&p_ptr->inventory[i], o_ptr, OSTACK_QUIVER)) continue;
+            quiver_slot = i;
+            break;
+        }
+    }
+
+    /* Get the new object */
+    o_ptr = &p_ptr->inventory[slot];
+
+    /* Automatically sense artifacts */
+    object_sense_artifact(p_ptr, o_ptr);
+
+    /* Optionally, display a message */
+    if (domsg && !quiver_slot)
+    {
+        /* Describe the object */
+        object_desc(p_ptr, o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+
+        /* Message */
+        msg(p_ptr, "You have %s (%c).", o_name, index_to_label(slot));
+    }
+
+    /* Delete the object */
+    delete_object_idx(o_idx);
+
+    /* If we have a quiver slot that this ammo matches, use it */
+    if (quiver_slot) wield_item(Ind, o_ptr, slot, quiver_slot, FALSE);
+}
 
 
-	/* Find the result of moving */
-	y = p_ptr->py + ddy[dir];
-	x = p_ptr->px + ddx[dir];
+static bool allow_pickup_object(int Ind, object_type *o_ptr)
+{
+    player_type *p_ptr = player_get(Ind);
 
-	/* Update wilderness positions */
-	if (p_ptr->dun_depth <= 0)
-	{
-		/* Make sure he hasn't just changed depth */
-		if (p_ptr->new_level_flag) return;
-		
-		/* save his old location */
-		old_world_x = p_ptr->world_x; old_world_y = p_ptr->world_y;
-		oldx = p_ptr->px; oldy = p_ptr->py;
-		
-		/* we have gone off the map */
-		if (!in_bounds(Depth, y, x))
-		{
-			/* find his new location */
-			if (y <= 0)
-			{	
-				/* new player location */
-				p_ptr->world_y++;
-				p_ptr->py = MAX_HGT-2;
-			}
-			if (y >= 65)
-			{			
-				/* new player location */  
-				p_ptr->world_y--;
-				p_ptr->py = 1;
-			}
-			if (x <= 0)
-			{
-				/* new player location */
-				p_ptr->world_x--;
-				p_ptr->px = MAX_WID-2;
-			}
-			if (x >= 197)
-			{
-				/* new player location */
-				p_ptr->world_x++;			
-				p_ptr->px = 1;
-			}
-		
-			/* check to make sure he hasnt hit the edge of the world */
-			if (world_index(p_ptr->world_x, p_ptr->world_y) <= -MAX_WILD) 
-			{
-				p_ptr->world_x = old_world_x;
-				p_ptr->world_y = old_world_y;
-				p_ptr->px = oldx;
-				p_ptr->py = oldy;
-				return;
-			}
-			
-			/* Remove the player from the old location */
-			cave[Depth][oldy][oldx].m_idx = 0;
-			
-			/* Show everyone that's he left */
-			everyone_lite_spot(Depth, oldy, oldx);
-		
-			/* forget his light and viewing area */
-			forget_lite(Ind);
-			forget_view(Ind);			
-		
-			/* Hack -- take a turn */
-			p_ptr->energy -= level_speed(p_ptr->dun_depth);
-			
-			/* A player has left this depth */
-			players_on_depth[p_ptr->dun_depth]--;
-			
-			/* (required) paranoia, allows integration of old wilderness
-			   saves onto new severs.
-			*/
-			if (players_on_depth[p_ptr->dun_depth] < 0)
-				players_on_depth[p_ptr->dun_depth] = 0;
-			
-			/* Calculate the new level index */
-			p_ptr->dun_depth = world_index(p_ptr->world_x, p_ptr->world_y);
-		
-			/* update the wilderness map */
-			p_ptr->wild_map[(-p_ptr->dun_depth)/8] |= (1<<((-p_ptr->dun_depth)%8));
-			
-			players_on_depth[p_ptr->dun_depth]++;
-			p_ptr->new_level_flag = TRUE;
-			p_ptr->new_level_method = LEVEL_OUTSIDE;
+    /* Winners cannot pick up artifacts except the Crown and Grond */
+    if (true_artifact_p(o_ptr) && restrict_winner(p_ptr, o_ptr))
+        return FALSE;
 
-			return;
-		}
-	}
+    /* Restricted by choice */
+    if (true_artifact_p(o_ptr) && restrict_artifacts(p_ptr, o_ptr))
+        return FALSE;
 
-	
+    /* Restricted by choice */
+    if (!is_owner(p_ptr, o_ptr)) return FALSE;
 
-	/* Examine the destination */
-	c_ptr = &cave[Depth][y][x];
-	w_ptr = &p_ptr->cave_flag[y][x];
+    return TRUE;
+}
 
-	/* Get the object */
-	o_ptr = &o_list[c_ptr->o_idx];
 
-	/* Get the monster */
-	m_ptr = &m_list[c_ptr->m_idx];
+byte do_autopickup(int Ind, int pickup)
+{
+    player_type *p_ptr = player_get(Ind);
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    s16b this_o_idx, next_o_idx;
+    object_type *o_ptr;
+    byte objs_picked_up = 0;
 
-	/* Save "last direction moved" */
-	p_ptr->last_dir = dir;
+    /* Nothing to pick up -- Return */
+    if (!cave_get(p_ptr->depth)->o_idx[py][px]) return 0;
 
-	/* Bump into other players */
-	if (c_ptr->m_idx < 0)
-	{
-		player_type *q_ptr = Players[0 - c_ptr->m_idx];
-		int Ind2 = 0 - c_ptr->m_idx;
+    /* Normal ghosts cannot pick things up */
+    if (p_ptr->ghost && !(p_ptr->dm_flags & DM_GHOST_BODY)) return 0;
 
-#ifdef PLAYER_INTERACTION
-		/* Check for an attack */
-		if (check_hostile(Ind, Ind2))
-			py_attack(Ind, y, x);
-#else
-		/* XXX */
-		if (0);
-#endif
+    /* Always pickup gold, effortlessly */
+    /* Hack -- Ghosts don't pick up gold automatically */
+    if (!(p_ptr->ghost && (pickup < 2))) py_pickup_gold(Ind);
 
-		/* If both want to switch, do it */
-		else if ((!p_ptr->ghost && !q_ptr->ghost &&
-		         (ddy[q_ptr->last_dir] == -(ddy[dir])) &&
-		         (ddx[q_ptr->last_dir] == (-ddx[dir]))) ||
-			(!strcmp(q_ptr->name,cfg_dungeon_master)))
-		{
-			c_ptr->m_idx = 0 - Ind;
-			cave[Depth][p_ptr->py][p_ptr->px].m_idx = 0 - Ind2;
+    /* Scan the remaining objects */
+    for (this_o_idx = cave_get(p_ptr->depth)->o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+    {
+        bool auto_pickup;
 
-			q_ptr->py = p_ptr->py;
-			q_ptr->px = p_ptr->px;
+        /* Get the object and the next object */
+        o_ptr = object_byid(this_o_idx);
+        next_o_idx = o_ptr->next_o_idx;
 
-			p_ptr->py = y;
-			p_ptr->px = x;
+        /* Ignore all non-objects */
+        if (!o_ptr->kind) continue;
 
-			/* Tell both of them */
-			/* Don't tell people they bumped into the Dungeon Master */
-			if (strcmp(q_ptr->name,cfg_dungeon_master))
-			{
-				msg_format(Ind, "You switch places with %s.", q_ptr->name);
-				msg_format(Ind2, "You switch places with %s.", p_ptr->name);
-			}
+        /* Ignore all hidden objects */
+        if (!object_marked(p_ptr, this_o_idx) || squelch_item_ok(p_ptr, o_ptr)) continue;
 
-			/* Disturb both of them */
-			disturb(Ind, 1, 0);
-			disturb(Ind2, 1, 0);
+        /* Hack -- Disturb */
+        if (!p_ptr->ghost) disturb(p_ptr, 0, 0);
 
-			/* Re-show both grids */
-			everyone_lite_spot(Depth, p_ptr->py, p_ptr->px);
-			everyone_lite_spot(Depth, q_ptr->py, q_ptr->px);
-		}
+        /* Auto-id */
+        if (check_state(p_ptr, OF_KNOWLEDGE))
+            object_notice_everything(p_ptr, o_ptr, FALSE);
 
-		/* Hack -- the Dungeon Master cannot bump people */
-		else if (strcmp(p_ptr->name,cfg_dungeon_master))
-		{
-			/* Tell both about it */
-			msg_format(Ind, "You bump into %s.", q_ptr->name);
-			msg_format(Ind2, "%s bumps into you.", p_ptr->name);
+        /* Hack -- Ghosts don't pick up gold automatically */
+        auto_pickup = (pickup? TRUE: FALSE);
+        if ((o_ptr->tval == TV_GOLD) && p_ptr->ghost && (pickup < 2))
+            auto_pickup = FALSE;
 
-			/* Disturb both parties */
-			disturb(Ind, 1, 0);
-			disturb(Ind2, 1, 0);
-		}
-	}
+        /* Automatically pick up items into the backpack */
+        if (auto_pickup && auto_pickup_okay(Ind, o_ptr))
+        {
+            /* Pick up the object with message */
+            py_pickup_aux(Ind, this_o_idx, TRUE);
+            objs_picked_up++;
+        }
+    }
 
-	/* Hack -- attack monsters */
-	else if (c_ptr->m_idx > 0)
-	{
-		/* Hack -- the dungeon master switches places with his monsters */
-		if (!strcmp(p_ptr->name,cfg_dungeon_master))
-		{
-			/* save old player location */
-			oldx = p_ptr->px;
-			oldy = p_ptr->py;
-			/* update player location */
-			p_ptr->px = m_list[c_ptr->m_idx].fx;
-			p_ptr->py = m_list[c_ptr->m_idx].fy;
-			/* update monster location */
-			m_list[c_ptr->m_idx].fx = oldx;
-			m_list[c_ptr->m_idx].fy = oldy;
-			/* update cave monster indexes */
-			cave[Depth][oldy][oldx].m_idx = c_ptr->m_idx;
-			c_ptr->m_idx = -Ind;
+    return objs_picked_up;
+}
 
-			/* Re-show both grids */
-			everyone_lite_spot(Depth, p_ptr->py, p_ptr->px);
-			everyone_lite_spot(Depth, oldy, oldx);
-		}
-		/* Attack */
-		else py_attack(Ind, y, x);
-	}
 
-	/* Player can not walk through "walls", but ghosts can */
-	else if (!p_ptr->ghost && !cave_floor_bold(Depth, y, x))
-	{
-		/* Disturb the player */
-		disturb(Ind, 0, 0);
+static int see_floor_items(int Ind, int pickup, int *items, int max_size)
+{
+    player_type *p_ptr = player_get(Ind);
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    bool blind = (p_ptr->timed[TMD_BLIND] || no_light(p_ptr));
+    int can_pickup = 0, can_lift = 0, allow_pickup = 0;
+    s16b this_o_idx, next_o_idx;
+    int num = 0;
+    object_type *o_ptr;
+    char o_name[NORMAL_WID];
 
-		/* Notice things in the dark */
-		if (!(*w_ptr & CAVE_MARK) &&
-		    (p_ptr->blind || !(*w_ptr & CAVE_LITE)))
-		{
-			/* Rubble */
-			if (c_ptr->feat == FEAT_RUBBLE)
-			{
-				msg_print(Ind, "You feel some rubble blocking your way.");
-				*w_ptr |= CAVE_MARK;
-				everyone_lite_spot(Depth, y, x);
-			}
+    /* Scan the remaining objects */
+    for (this_o_idx = cave_get(p_ptr->depth)->o_idx[py][px]; this_o_idx;
+        this_o_idx = next_o_idx)
+    {
+        /* XXX Hack -- Enforce limit */
+        if (num >= max_size) break;
 
-			/* Closed door */
-			else if ((c_ptr->feat < FEAT_SECRET && c_ptr->feat >= FEAT_DOOR_HEAD) ||
-			         (c_ptr->feat >= FEAT_HOME_HEAD && c_ptr->feat <= FEAT_HOME_TAIL))
-			{
-				msg_print(Ind, "You feel a closed door blocking your way.");
-				*w_ptr |= CAVE_MARK;
-				everyone_lite_spot(Depth, y, x);
-			}
+        /* Get the object and the next object */
+        o_ptr = object_byid(this_o_idx);
+        next_o_idx = o_ptr->next_o_idx;
 
-			/* Tree */
-			else if (c_ptr->feat == FEAT_TREE)
-			{
-				msg_print(Ind, "You feel a tree blocking your way.");
-				*w_ptr |= CAVE_MARK;
-				everyone_lite_spot(Depth, y, x);
-			}
+        /* Ignore all non-objects */
+        if (!o_ptr->kind) continue;
 
-			/* Wall (or secret door) */
-			else
-			{
-				msg_print(Ind, "You feel a wall blocking your way.");
-				*w_ptr |= CAVE_MARK;
-				everyone_lite_spot(Depth, y, x);
-			}
-		}
+        /* Ignore all hidden objects */
+        if (squelch_item_ok(p_ptr, o_ptr)) continue;
 
-		/* Notice things */
-		else
-		{
-			/* Rubble */
-			if (c_ptr->feat == FEAT_RUBBLE)
-			{
-				msg_print(Ind, "There is rubble blocking your way.");
-			}
+        /* Tally objects and store them in an array. */
 
-			/* Closed doors */
-			else if ((c_ptr->feat < FEAT_SECRET && c_ptr->feat >= FEAT_DOOR_HEAD) || 
-			         (c_ptr->feat >= FEAT_HOME_HEAD && c_ptr->feat <= FEAT_HOME_TAIL))
-			{
-				msg_print(Ind, "There is a closed door blocking your way.");
-			}
+        /* Remember this object index */
+        items[num] = this_o_idx;
 
-			/* Tree */
-			else if (c_ptr->feat == FEAT_TREE)
-			{
-				msg_print(Ind, "There is a tree blocking your way.");
-			}
+        /* Count non-gold objects that remain on the floor. */
+        num++;
 
-			/* Wall (or secret door) */
-			else
-			{
-				msg_print(Ind, "There is a wall blocking your way.");
-			}
-		}
-	}
+        /* Tally objects that can be picked up. */
+        if (inven_carry_okay(p_ptr, o_ptr)) can_pickup++;
+        if (weight_okay(p_ptr, o_ptr)) can_lift++;
+        if (allow_pickup_object(Ind, o_ptr)) allow_pickup++;
+    }
 
-	/* Ghost trying to walk into a permanent wall */
-	else if (p_ptr->ghost && c_ptr->feat >= FEAT_PERM_SOLID)
-	{
-		/* Message */
-		msg_print(Ind, "The wall blocks your movement.");
+    /* There are no objects left */
+    if (!num) return 0;
 
-		disturb(Ind, 0, 0);
-	}
+    /* Mention the objects if player is not picking them up. */
+    if ((pickup < 2) || !can_pickup || !can_lift || !allow_pickup)
+    {
+        const char *p = "see";
 
-	/* Normal movement */
-	else
-	{
-		int oy, ox;
+        /* One object */
+        if (num == 1)
+        {
+            if (pickup < 2) {if (blind) p = "feel";}
+            else if (!can_pickup) p = "have no room for";
+            else if (!can_lift) p = "are already too burdened to pick up";
+            else if (!allow_pickup) p = "are not allowed to pick up";
 
-		/* Save old location */
-		oy = p_ptr->py;
-		ox = p_ptr->px;
+            /* Get the object */
+            o_ptr = object_byid(items[0]);
 
-		/* Move the player */
-		p_ptr->py = y;
-		p_ptr->px = x;
+            /* Describe the object. Less detail if blind. */
+            if (blind)
+                object_desc(p_ptr, o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_BASE);
+            else
+                object_desc(p_ptr, o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
 
-		/* Update the player indices */
-		cave[Depth][oy][ox].m_idx = 0;
-		cave[Depth][y][x].m_idx = 0 - Ind;
+            /* Message */
+            msg(p_ptr, "You %s %s.", p, o_name);
+        }
 
-		
+        /* Several items */
+        else
+        {
+            /* Display more information about floor items */
+            if (pickup < 2) {if (blind) p = "feel something on the floor";}
+            else if (!can_pickup)
+                p = "have no room for the following objects";
+            else if (!can_lift)
+                p = "are already too burdened to pick up the following objects";
+            else if (!allow_pickup)
+                p = "are not allowed to pick up the following objects";
 
-		/* Redraw new spot */
-		everyone_lite_spot(Depth, p_ptr->py, p_ptr->px);
+            /* Display objects on the floor */
+            display_floor(p_ptr, items, num);
+            show_floor(Ind, OLIST_WEIGHT);
 
-		/* Redraw old spot */
-		everyone_lite_spot(Depth, oy, ox);
+            /* Display prompt */
+            msg(p_ptr, "You %s: ", p);
+        }
 
-		/* Check for new panel (redraw map) */
-		verify_panel(Ind);
+        /* Done */
+        return 0;
+    }
 
-		/* Update stuff */
-		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+    return num;
+}
 
-		/* Update the monsters */
-		p_ptr->update |= (PU_DISTANCE);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+static bool floor_purchase(int Ind, int pickup, s16b this_o_idx)
+{
+    player_type *p_ptr = player_get(Ind);
+    object_type *o_ptr = object_byid(this_o_idx);
+    char o_name[NORMAL_WID];
 
-		/* Hack -- quickly update the view, to reduce perceived lag */
-		
-		redraw_stuff(Ind);
-		window_stuff(Ind);
+    /* Hack -- allow purchase from floor */
+    if (protected_p(p_ptr, o_ptr, 'g', FALSE))
+    {
+        int i;
+        player_type *q_ptr;
+        bool okay = FALSE;
+        object_type *i_ptr;
+        object_type object_type_body;
+        s32b price;
+        char buf[NORMAL_WID];
 
-		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
-		{
-			search(Ind);
-		}
+        /* Get item owner */
+        for (i = 1; i < NumPlayers + 1; i++)
+        {
+            q_ptr = player_get(i);
+            if (q_ptr->id == o_ptr->owner)
+            {
+                okay = p_ptr->play_los[i];
+                break;
+            }
+        }
+        if (!okay)
+        {
+            msg(p_ptr, "Item owner must be nearby!");
+            return FALSE;
+        }
 
-		/* Continuous Searching */
-		if (p_ptr->searching)
-		{
-			search(Ind);
-		}
+        /* Get local object */
+        i_ptr = &object_type_body;
 
-		/* Handle "objects" */
-		if (c_ptr->o_idx) carry(Ind, do_pickup, 0);
-		else Send_floor(Ind, 0);
+        /* Get a copy of the object */
+        object_copy(i_ptr, o_ptr);
 
-		/* Handle "store doors" */
-		if ((!p_ptr->ghost) &&
-		    (c_ptr->feat >= FEAT_SHOP_HEAD) &&
-		    (c_ptr->feat <= FEAT_SHOP_TAIL))
-		{
-			/* Disturb */
-			disturb(Ind, 0, 0);
+        /* Identify object to get real price */
+        object_notice_everything(p_ptr, i_ptr, TRUE);
 
-			/* Hack -- Enter store */
-			command_new = '_';
-			do_cmd_store(Ind);
-		}
+        /* Get the price */
+        price = player_price_item(Ind, i_ptr);
+        __trapR(p_ptr, price < 0, 0);
+        if (p_ptr->au < price)
+        {
+            msg(p_ptr, "You do not have enough gold.");
+            return FALSE;
+        }
 
-		/* Handle resurrection */
-		else if (p_ptr->ghost && c_ptr->feat == FEAT_SHOP_HEAD + 3)
-		{
-			/* Resurrect him */
-			resurrect_player(Ind);
-		}
+        /* Tell the client about the price */
+        if (pickup < 4)
+        {
+            p_ptr->current_value = 0 - this_o_idx;
+            Send_store_sell(Ind, price, FALSE);
+            return FALSE;
+        }
 
-		/* Discover invisible traps */
-		else if (c_ptr->feat == FEAT_INVIS)
-		{
-			/* Disturb */
-			disturb(Ind, 0, 0);
+        /* Bypass auto-squelch */
+        o_ptr->squelch = SQUELCH_PROTECT;
 
-			/* Message */
-			msg_print(Ind, "You found a trap!");
+        /* Perform the transaction */
+        p_ptr->au -= price;
+        p_ptr->redraw |= PR_GOLD;
+        if (!OPT_P(q_ptr, birth_no_selling))
+        {
+            q_ptr->au += price;
+            q_ptr->redraw |= PR_GOLD;
+        }
 
-			/* Pick a trap */
-			pick_trap(p_ptr->dun_depth, p_ptr->py, p_ptr->px);
+        /* Identify original object */
+        object_notice_everything(p_ptr, o_ptr, FALSE);
 
-			/* Hit the trap */
-			hit_trap(Ind);
-		}
+        /* Describe the object (short name) */
+        object_desc(p_ptr, o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_SALE);
 
-		/* Set off an visible trap */
-		else if ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
-		         (c_ptr->feat <= FEAT_TRAP_TAIL))
-		{
-			/* Disturb */
-			disturb(Ind, 0, 0);
+        /* Combine / Reorder the pack (later) */
+        p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
-			/* Hit the trap */
-			hit_trap(Ind);
-		}
+        /* Message */
+        msg(p_ptr, "You bought %s for %ld gold.", o_name, (long)price);
+        if (!OPT_P(q_ptr, birth_no_selling))
+            msg(q_ptr, "You sold %s for %ld gold.", o_name, (long)price);
 
-		/* Mega-hack -- if we are the dungeon master, and our movement hook
-		 * is set, call it.  This is used to make things like building walls
-		 * and summoning monster armies easier.
-		 */
+        /* Erase the inscription */
+        o_ptr->note = 0;
 
-		if ((!strcmp(p_ptr->name,cfg_dungeon_master)) && master_move_hook)
-			master_move_hook(Ind, NULL);
-	}
+        /* Set origin */
+        set_origin(o_ptr, ORIGIN_PLAYER, p_ptr->depth, 0);
+
+        /* Mark artifact as sold */
+        set_artifact_info(q_ptr, o_ptr, ARTS_SOLD);
+
+        /* Audit */
+        strnfmt(buf, sizeof(buf), "PS %s-%d | %s-%d $ %ld", p_ptr->name,
+            (int)p_ptr->id, q_ptr->name, (int)q_ptr->id, (long)price);
+        audit(buf);
+        audit("PS+gold");
+    }
+
+    return TRUE;
 }
 
 
 /*
- * Hack -- Check for a "motion blocker" (see below)
+ * Pick up objects and treasure on the floor.
+ *
+ * Called with pickup:
+ * 0 to pickup gold and describe other objects (when running)
+ * 1 to act according to the player's settings (auto-pickup check when walking)
+ * 2 to quickly pickup single objects or present a menu for more (pickup command)
+ * 3 to force a menu for any number of objects (recursive call)
+ * 4 to purchase an item from the floor
+ *
+ * Scan the list of objects in that floor grid. Pick up gold automatically
+ * Pick up objects automatically until backpack space is full if
+ * auto-pickup option is on, Otherwise, store objects on
+ * floor in an array, and tally both how many there are and can be picked up.
+ *
+ * If not picking up anything, indicate objects on the floor.
+ *
+ * If we are picking up objects automatically, and have room for at least
+ * one, display information about objects and prompt the player.  Otherwise,
+ * automatically pick up a single object or use a menu for more than one.
+ *
+ * Pick up multiple objects using Tim Baker's menu system. Recursively
+ * call this function (forcing menus for any number of objects) until
+ * objects are gone, backpack is full, or player is satisfied.
+ *
+ * We keep track of number of objects picked up to calculate time spent.
+ * This tally is incremented even for automatic pickup, so we are careful
+ * (in "dungeon.c" and elsewhere) to handle pickup as either a separate
+ * automated move or a no-cost part of the stay still or 'g'et command.
+ *
+ * Note the lack of chance for the character to be disturbed by unmarked
+ * objects. They are truly "unknown".
  */
-int see_wall(int Ind, int dir, int y, int x)
+byte py_pickup(int Ind, int pickup)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
+    player_type *p_ptr = player_get(Ind);
+    int py = p_ptr->py;
+    int px = p_ptr->px;
+    s16b this_o_idx = 0;
+    size_t floor_num = 0;
+    int floor_list[MAX_FLOOR_STACK];
+    bool call_function_again = FALSE;
+    bool domsg = TRUE;
+    byte objs_picked_up = 0;
 
-	/* Get the new location */
-	y += ddy[dir];
-	x += ddx[dir];
+    /* Nothing to pick up -- Return */
+    if (!cave_get(p_ptr->depth)->o_idx[py][px]) return 0;
 
-	/* Ghosts run right through everything */
-	if (p_ptr->ghost) return (FALSE);
+    /* Normal ghosts cannot pick things up */
+    if (p_ptr->ghost && !(p_ptr->dm_flags & DM_GHOST_BODY)) return 0;
 
-	/* Do wilderness hack, keep running from one outside level to another */
-	if ( (!in_bounds(Depth, y, x)) && (Depth <= 0) ) return FALSE;
+    /* Mention the objects if player is not picking them up. */
+    floor_num = see_floor_items(Ind, pickup, floor_list, N_ELEMENTS(floor_list));
+    if (!floor_num) return objs_picked_up;
 
-	/* Illegal grids are blank */
-	if (!in_bounds2(Depth, y, x)) return (FALSE);
+    /* We can pick up objects. Menus are not requested (yet). */
+    if (pickup == 2)
+    {
+        /* Use a menu interface for multiple objects, or pickup single objects */
+        if (floor_num > 1) pickup = 3;
+        else this_o_idx = floor_list[0];
+    }
 
-	/* Must actually block motion */
-	if (cave_floor_bold(Depth, y, x)) return (FALSE);
+    /* Display a list if requested. */
+    if (pickup == 3)
+    {
+        int item;
+        object_type *o_ptr;
 
-	/* Must be known to the player */
-	if (!(p_ptr->cave_flag[y][x] & CAVE_MARK)) return (FALSE);
+        /* No item -> get one */
+        if (p_ptr->current_value == ITEM_REQUEST)
+        {
+            /* Update the floor on the client */
+            display_floor(p_ptr, floor_list, floor_num);
 
-	/* Default */
-	return (TRUE);
+            get_item(p_ptr, 0, HOOK_CARRY);
+            return objs_picked_up;
+        }
+
+        /* Use current */
+        item = p_ptr->current_value;
+
+        /* Get the item */
+        o_ptr = object_from_item_idx(p_ptr, item, 0, TRUE);
+
+        /* Paranoia: requires an item */
+        if (!o_ptr || !o_ptr->kind) return objs_picked_up;
+
+        /* Some checks */
+        if (item < 0)
+        {
+            /* Winners cannot pick up artifacts except the Crown and Grond */
+            if (true_artifact_p(o_ptr) && restrict_winner(p_ptr, o_ptr))
+            {
+                msg(p_ptr, "You cannot pick up that item anymore.");
+                return objs_picked_up;
+            }
+
+            /* Restricted by choice */
+            if (true_artifact_p(o_ptr) && restrict_artifacts(p_ptr, o_ptr))
+            {
+                msg(p_ptr, "You cannot pick up that item.");
+                return objs_picked_up;
+            }
+
+            /* Restricted by choice */
+            if (!is_owner(p_ptr, o_ptr))
+            {
+                msg(p_ptr, "This item belongs to someone else!");
+                return objs_picked_up;
+            }
+        }
+
+        /* Use current */
+        this_o_idx = 0 - item;
+        call_function_again = TRUE;
+
+        /* With a list, we do not need explicit pickup messages */
+        domsg = FALSE;
+    }
+
+    /* Hack -- Allow purchase from floor */
+    if (pickup == 4)
+    {
+        int item;
+        object_type *o_ptr;
+
+        /* Use current */
+        item = p_ptr->current_value;
+
+        /* Get the item */
+        o_ptr = object_from_item_idx(p_ptr, item, 0, TRUE);
+
+        /* Paranoia: requires an item */
+        if (!o_ptr || !o_ptr->kind) return objs_picked_up;
+
+        /* Use current */
+        this_o_idx = 0 - item;
+        call_function_again = TRUE;
+
+        /* No explicit pickup message */
+        domsg = FALSE;
+    }
+
+    /* Pick up object, if legal */
+    if (this_o_idx)
+    {
+        /* Hack -- allow purchase from floor */
+        if (!floor_purchase(Ind, pickup, this_o_idx)) return objs_picked_up;
+
+        /* Pick up the object */
+        py_pickup_aux(Ind, this_o_idx, domsg);
+
+        /* Indicate an object picked up. */
+        objs_picked_up = 1;
+    }
+
+    /*
+     * If requested, call this function recursively. Count objects picked up.
+     * Force the display of a menu in all cases.
+     */
+    if (call_function_again)
+    {
+        current_clear(p_ptr);
+        objs_picked_up += py_pickup(Ind, 3);
+    }
+
+    /* Indicate how many objects have been picked up. */
+    return objs_picked_up;
+}
+
+
+static const char *comment_ironman[] =
+{
+    "You don't feel like going to pick flowers right now.",
+    "Where do you think you are going?",
+    "Morgoth the potato farmer? - get real!",
+    "Morgoth awaits you in the depths not in the fields.",
+    "Something draws your attention back to the stairs."
+};
+
+
+/* Do a probability travel in a wall */
+static void do_prob_travel(int Ind, int dir)
+{
+    player_type *p_ptr = player_get(Ind);
+    int x = p_ptr->px, y = p_ptr->py;
+    bool do_move = TRUE;
+
+    /* Paranoia */
+    if ((dir == 5) || !dir) return;
+
+    /* Ensure "dir" is in ddx/ddy array bounds */
+    if (!VALID_DIR(dir)) return;
+
+    x += ddx[dir];
+    y += ddy[dir];
+
+    while (TRUE)
+    {
+        /* Do not get out of the level */
+        if (!in_bounds_fully(y, x))
+        {
+            do_move = FALSE;
+            break;
+        }
+
+        /* Require an "empty" floor grid */
+        if (!cave_empty_bold(p_ptr->depth, y, x) || is_icky(p_ptr->depth, y, x))
+        {
+            y += ddy[dir];
+            x += ddx[dir];
+            continue;
+        }
+
+        /* Everything is ok */
+        do_move = TRUE;
+        break;
+    }
+
+    if (do_move) monster_swap(p_ptr->depth, p_ptr->py, p_ptr->px, y, x);
 }
 
 
 /*
- * Hack -- Check for an "unknown corner" (see below)
+ * Move player in the given direction.
+ *
+ * This routine should only be called when energy has been expended.
+ *
+ * Note that this routine handles monsters in the destination grid,
+ * and also handles attempting to move into walls/doors/rubble/etc.
  */
-static int see_nothing(int dir, int Ind, int y, int x)
+void move_player(int Ind, int dir, bool disarm, bool check_pickup, bool force)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
+    player_type *p_ptr = player_get(Ind);
+    int y, x, m_idx;
+    bool old_dtrap, new_dtrap;
+    bool do_move = TRUE;
 
-	/* Get the new location */
-	y += ddy[dir];
-	x += ddx[dir];
+    /* Ensure "dir" is in ddx/ddy array bounds */
+    if (!VALID_DIR(dir)) return;
 
-	/* Illegal grids are unknown */
-	if (!in_bounds2(Depth, y, x)) return (TRUE);
+    y = p_ptr->py + ddy[dir];
+    x = p_ptr->px + ddx[dir];
+    m_idx = cave_get(p_ptr->depth)->m_idx[y][x];
 
-	/* Memorized grids are known */
-	if (p_ptr->cave_flag[y][x] & CAVE_MARK) return (FALSE);
+    /* Handle polymorphed players */
+    if (p_ptr->r_idx)
+    {
+        monster_race *r_ptr = &r_info[p_ptr->r_idx];
 
-	/* Non-floor grids are unknown */
-	if (!cave_floor_bold(Depth, y, x)) return (TRUE);
+        if (rf_has(r_ptr->flags, RF_NEVER_MOVE)) do_move = FALSE;
 
-	/* Viewable grids are known */
-	if (player_can_see_bold(Ind, y, x)) return (FALSE);
+        /* Unaware players trying to move reveal themselves */
+        if (p_ptr->k_idx) aware_player(p_ptr, p_ptr);
+    }
 
-	/* Default */
-	return (TRUE);
+    /* New player location on the world map */
+    if ((p_ptr->depth <= 0) && !in_bounds_fully(y, x))
+    {
+        int new_world_x = p_ptr->world_x, new_world_y = p_ptr->world_y;
+        int new_x = p_ptr->px, new_y = p_ptr->py;
+        int new_world_index;
+
+        /* Handle polymorphed players */
+        if (!do_move)
+        {
+            msg(p_ptr, "You cannot move!");
+            return;
+        }
+
+        /* Leaving town */
+        if (!p_ptr->depth)
+        {
+            /* Forbid */
+            if (cfg_no_recall || cfg_town_wall || OPT_P(p_ptr, birth_ironman))
+            {
+                if (!cfg_town_wall)
+                    msg(p_ptr, ONE_OF(comment_ironman));
+                else
+                    msg(p_ptr, "There is a wall blocking your way.");
+                disturb(p_ptr, 1, 0);
+                return;
+            }
+
+            /* Warn */
+            if (p_ptr->lev == 1)
+                msg(p_ptr, "Really enter the wilderness? The dungeon entrance is in the town!");
+        }
+
+        /* Find his new location */
+        if (y <= 0)
+        {
+            new_world_y++;
+            new_y = DUNGEON_HGT - 2;
+        }
+        if (y >= DUNGEON_HGT - 1)
+        {
+            new_world_y--;
+            new_y = 1;
+        }
+        if (x <= 0)
+        {
+            new_world_x--;
+            new_x = DUNGEON_WID - 2;
+        }
+        if (x >= DUNGEON_WID - 1)
+        {
+            new_world_x++;
+            new_x = 1;
+        }
+
+        /* New location */
+        new_world_index = world_index(new_world_x, new_world_y);
+
+        /* Check to make sure he hasnt hit the edge of the world */
+        if (new_world_index < 0 - MAX_WILD) return;
+
+        /* Hack -- DM redesigning the level */
+        if (players_on_depth[new_world_index] == INHIBIT_DEPTH)
+        {
+            msg(p_ptr, "Something prevents you from going this way...");
+            return;
+        }
+
+        /* Change location */
+        dungeon_change_level(p_ptr, new_world_index, LEVEL_OUTSIDE);
+
+        /* Hack -- Replace the player */
+        p_ptr->world_x = new_world_x;
+        p_ptr->world_y = new_world_y;
+        p_ptr->old_px = p_ptr->px = new_x;
+        p_ptr->old_py = p_ptr->py = new_y;
+
+        /* Update the wilderness map */
+        wild_set_explored(p_ptr, 0 - p_ptr->depth);
+
+        /* Disturb if necessary */
+        if (OPT_P(p_ptr, disturb_panel)) disturb(p_ptr, 0, 0);
+
+        return;
+    }
+
+    /* Save "last direction moved" */
+    p_ptr->last_dir = dir;
+
+    /* Bump into other players */
+    if (m_idx < 0)
+    {
+        int Ind2 = 0 - m_idx;
+        player_type *q_ptr = player_get(Ind2);
+
+        /* Don't bump into self! */
+        if (Ind2 != Ind)
+        {
+            /* Reveal mimics */
+            if (q_ptr->k_idx)
+                aware_player(p_ptr, q_ptr);
+
+            /* Check for an attack */
+            if (pvp_check(p_ptr, q_ptr, PVP_DIRECT, TRUE, cave_get(p_ptr->depth)->feat[y][x]))
+                py_attack(Ind, y, x);
+
+            /* Handle polymorphed players */
+            else if (!do_move)
+                msg(p_ptr, "You cannot move!");
+
+            /* Switch places */
+            else if ((!player_passwall(p_ptr) && !player_passwall(q_ptr) &&
+                (ddy[q_ptr->last_dir] == (0 - ddy[dir])) &&
+                (ddx[q_ptr->last_dir] == (0 - ddx[dir]))) ||
+                (q_ptr->dm_flags & DM_SECRET_PRESENCE))
+            {
+                monster_swap(p_ptr->depth, p_ptr->py, p_ptr->px, q_ptr->py, q_ptr->px);
+
+                /* Don't tell people they bumped into the Dungeon Master */
+                if (!(q_ptr->dm_flags & DM_SECRET_PRESENCE))
+                {
+                    char p_name[NORMAL_WID], q_name[NORMAL_WID];
+
+                    player_desc(p_ptr, q_name, sizeof(q_name), q_ptr, FALSE);
+                    player_desc(q_ptr, p_name, sizeof(p_name), p_ptr, FALSE);
+
+                    /* Tell both of them */
+                    msg(p_ptr, "You switch places with %s.", q_name);
+                    msg(q_ptr, "You switch places with %s.", p_name);
+
+                    /* Disturb both of them */
+                    disturb(p_ptr, 1, 0);
+                    disturb(q_ptr, 1, 0);
+                }
+
+                /* Unhack both of them */
+                q_ptr->last_dir = p_ptr->last_dir = 5;
+            }
+
+            /* Bump into other players */
+            else if (!(p_ptr->dm_flags & DM_SECRET_PRESENCE))
+            {
+                char p_name[NORMAL_WID], q_name[NORMAL_WID];
+
+                player_desc(p_ptr, q_name, sizeof(q_name), q_ptr, FALSE);
+                player_desc(q_ptr, p_name, sizeof(p_name), p_ptr, TRUE);
+
+                /* Tell both about it */
+                msg(p_ptr, "You bump into %s.", q_name);
+                msg(q_ptr, "%s bumps into you.", p_name);
+
+                /* Disturb both parties */
+                disturb(p_ptr, 1, 0);
+                disturb(q_ptr, 1, 0);
+            }
+        }
+
+        return;
+    }
+
+    /* Bump into monsters */
+    if (m_idx > 0)
+    {
+        monster_type *m_ptr = cave_monster(cave_get(p_ptr->depth), m_idx);
+
+        /* Check for an attack */
+        if (pvm_check(Ind, m_idx))
+        {
+            /* Mimics surprise the player */
+            if (is_mimicking(m_ptr))
+            {
+                become_aware(p_ptr, m_ptr);
+
+                /* Mimic wakes up */
+                mon_clear_timed(p_ptr, m_ptr, MON_TMD_SLEEP, MON_TMD_FLG_NOMESSAGE, FALSE);
+            }
+            else
+                py_attack(Ind, y, x);
+        }
+
+        /* Handle polymorphed players */
+        else if (!do_move)
+            msg(p_ptr, "You cannot move!");
+
+        /* Reveal mimics */
+        else if (is_mimicking(m_ptr))
+            become_aware(p_ptr, m_ptr);
+
+        /* Switch places */
+        else
+            monster_swap(p_ptr->depth, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx);
+
+        return;
+    }
+
+    /* Arena */
+    if (cave_get(p_ptr->depth)->feat[y][x] == FEAT_PERM_ARENA)
+    {
+        access_arena(Ind, y, x);
+        return;
+    }
+
+    /* Prob travel */
+    if (p_ptr->timed[TMD_PROBTRAVEL] && !cave_floor_bold(p_ptr->depth, y, x))
+    {
+        do_prob_travel(Ind, dir);
+        return;
+    }
+
+    /* Optionally alter traps/doors on movement */
+    if (disarm && (p_ptr->cave->info[y][x] & CAVE_MARK) &&
+        (cave_isbasicdoor(cave_get(p_ptr->depth), y, x) ||
+        cave_isknowntrap(cave_get(p_ptr->depth), y, x)))
+    {
+        do_cmd_alter(Ind, dir);
+        return;
+    }
+
+    /* Normal players can not walk through "walls" */
+    if (!player_passwall(p_ptr) && !cave_floor_bold(p_ptr->depth, y, x))
+    {
+        /* Disturb the player */
+        disturb(p_ptr, 0, 0);
+
+        /* Notice unknown obstacles */
+        if (!(p_ptr->cave->info[y][x] & CAVE_MARK))
+        {
+            /* Rubble */
+            if (cave_isrubble(cave_get(p_ptr->depth), y, x))
+            {
+                msgt(p_ptr, MSG_HITWALL, "You feel a pile of rubble blocking your way.");
+                p_ptr->cave->info[y][x] |= CAVE_MARK;
+                cave_light_spot_aux(p_ptr, cave_get(p_ptr->depth), y, x);
+            }
+
+            /* Closed door */
+            else if (cave_isbasicdoor(cave_get(p_ptr->depth), y, x))
+            {
+                msgt(p_ptr, MSG_HITWALL, "You feel a door blocking your way.");
+                p_ptr->cave->info[y][x] |= CAVE_MARK;
+                cave_light_spot_aux(p_ptr, cave_get(p_ptr->depth), y, x);
+            }
+
+            /* Tree */
+            else if (cave_tree_basic(cave_get(p_ptr->depth)->feat[y][x]))
+            {
+                msgt(p_ptr, MSG_HITWALL, "You feel a tree blocking your way.");
+                p_ptr->cave->info[y][x] |= CAVE_MARK;
+                cave_light_spot_aux(p_ptr, cave_get(p_ptr->depth), y, x);
+            }
+
+            /* Wall (or secret door) */
+            else
+            {
+                msgt(p_ptr, MSG_HITWALL, "You feel a wall blocking your way.");
+                p_ptr->cave->info[y][x] |= CAVE_MARK;
+                cave_light_spot_aux(p_ptr, cave_get(p_ptr->depth), y, x);
+            }
+        }
+
+        /* Mention known obstacles */
+        else
+        {
+            /* Rubble */
+            if (cave_isrubble(cave_get(p_ptr->depth), y, x))
+                msgt(p_ptr, MSG_HITWALL, "There is a pile of rubble blocking your way.");
+
+            /* Closed doors */
+            else if (cave_isbasicdoor(cave_get(p_ptr->depth), y, x))
+                msgt(p_ptr, MSG_HITWALL, "There is a door blocking your way.");
+
+            /* Tree */
+            else if (cave_tree_basic(cave_get(p_ptr->depth)->feat[y][x]))
+                msgt(p_ptr, MSG_HITWALL, "There is a tree blocking your way.");
+
+            /* Wall (or secret door) */
+            else
+                msgt(p_ptr, MSG_HITWALL, "There is a wall blocking your way.");
+        }
+
+        return;
+    }
+
+    /* Permanent walls */
+    if (player_passwall(p_ptr) && cave_isperm(cave_get(p_ptr->depth), y, x))
+    {
+        /* Forbid in most cases */
+        if (p_ptr->timed[TMD_WRAITH] || player_can_undead(p_ptr) ||
+            (cave_get(p_ptr->depth)->feat[y][x] == FEAT_PERM_SOLID))
+        {
+            /* Message */
+            msg(p_ptr, "The wall blocks your movement.");
+
+            disturb(p_ptr, 0, 0);
+            return;
+        }
+    }
+
+    /* Wraith trying to run inside a house */
+    if (p_ptr->timed[TMD_WRAITH] && cave_ishomedoor(cave_get(p_ptr->depth), y, x))
+    {
+        do_cmd_open(Ind, dir, FALSE);
+        return;
+    }
+
+    /* Handle polymorphed players */
+    if (!do_move && !force)
+    {
+        msg(p_ptr, "You cannot move!");
+        return;
+    }
+
+    /* See if trap detection status will change */
+    old_dtrap = ((p_ptr->cave->info[p_ptr->py][p_ptr->px] & CAVE_DTRAP)? TRUE: FALSE);
+    new_dtrap = ((p_ptr->cave->info[y][x] & CAVE_DTRAP)? TRUE: FALSE);
+
+    /* Note the change in the detect status */
+    if (old_dtrap != new_dtrap) p_ptr->redraw |= (PR_DTRAP);
+
+    /* Disturb if the player is about to leave the area */
+    if (OPT_P(p_ptr, disturb_detect) && p_ptr->running && !p_ptr->running_firststep &&
+        old_dtrap && !new_dtrap && random_level(p_ptr->depth))
+    {
+        disturb(p_ptr, 0, 0);
+        return;
+    }
+
+    /* Move player */
+    monster_swap(p_ptr->depth, p_ptr->py, p_ptr->px, y, x);
+
+    /* Searching */
+    if (p_ptr->searching || (p_ptr->state.skills[SKILL_SEARCH_FREQUENCY] >= 50) ||
+        one_in_(50 - p_ptr->state.skills[SKILL_SEARCH_FREQUENCY]))
+    {
+        search(Ind, FALSE);
+    }
+
+    /* Handle "objects" */
+    if (cave_get(p_ptr->depth)->o_idx[y][x])
+    {
+        p_ptr->squelch = 1;
+        do_autopickup(Ind, check_pickup);
+        current_clear(p_ptr);
+        py_pickup(Ind, check_pickup);
+    }
+
+    /* Handle "store doors" */
+    if (!p_ptr->ghost && cave_isshop(cave_get(p_ptr->depth), y, x))
+    {
+        /* Disturb */
+        disturb(p_ptr, 0, 0);
+
+        /* Hack -- Enter store */
+        do_cmd_store(Ind, -1);
+    }
+
+    /* Handle resurrection */
+    else if (p_ptr->ghost &&
+        (cave_get(p_ptr->depth)->feat[y][x] == (FEAT_SHOP_HEAD + STORE_TEMPLE)))
+    {
+        /* Resurrect him */
+        resurrect_player(Ind);
+
+        /* Give him some gold */
+        if (!is_dm_p(p_ptr) && !player_can_undead(p_ptr) && (p_ptr->lev >= 5))
+            p_ptr->au = 100 * (p_ptr->lev - 4) / p_ptr->lives;
+    }
+
+    /* Discover invisible traps */
+    else if (cave_issecrettrap(cave_get(p_ptr->depth), y, x))
+    {
+        /* Disturb */
+        disturb(p_ptr, 0, 0);
+
+        /* Message */
+        msg(p_ptr, "You found a trap!");
+
+        /* Pick a trap */
+        pick_trap(p_ptr->depth, p_ptr->py, p_ptr->px);
+
+        /* Hit the trap */
+        hit_trap(Ind);
+    }
+
+    /* Set off a visible trap */
+    else if (cave_isknowntrap(cave_get(p_ptr->depth), y, x))
+    {
+        /* Disturb */
+        disturb(p_ptr, 0, 0);
+
+        /* Hit the trap */
+        hit_trap(Ind);
+    }
+
+    /* Mention fountains */
+    else if (cave_fountain_basic(cave_get(p_ptr->depth)->feat[y][x]))
+    {
+        /* Disturb */
+        disturb(p_ptr, 0, 0);
+
+        /* Message */
+        msg(p_ptr, "A fountain is located at this place.");
+    }
+
+    /*
+     * Mega-hack -- If we are the dungeon master, and our movement hook
+     * is set, call it.  This is used to make things like building walls
+     * and summoning monster armies easier.
+     */
+    if (is_dm_p(p_ptr) && master_move_hook)
+        master_move_hook(Ind, NULL);
+
+    p_ptr->running_firststep = FALSE;
 }
 
 
-
-
-
-/*
- * The running algorithm:			-CJS-
- *
- * In the diagrams below, the player has just arrived in the
- * grid marked as '@', and he has just come from a grid marked
- * as 'o', and he is about to enter the grid marked as 'x'.
- *
- * Of course, if the "requested" move was impossible, then you
- * will of course be blocked, and will stop.
- *
- * Overview: You keep moving until something interesting happens.
- * If you are in an enclosed space, you follow corners. This is
- * the usual corridor scheme. If you are in an open space, you go
- * straight, but stop before entering enclosed space. This is
- * analogous to reaching doorways. If you have enclosed space on
- * one side only (that is, running along side a wall) stop if
- * your wall opens out, or your open space closes in. Either case
- * corresponds to a doorway.
- *
- * What happens depends on what you can really SEE. (i.e. if you
- * have no light, then running along a dark corridor is JUST like
- * running in a dark room.) The algorithm works equally well in
- * corridors, rooms, mine tailings, earthquake rubble, etc, etc.
- *
- * These conditions are kept in static memory:
- * find_openarea	 You are in the open on at least one
- * side.
- * find_breakleft	 You have a wall on the left, and will
- * stop if it opens
- * find_breakright	 You have a wall on the right, and will
- * stop if it opens
- *
- * To initialize these conditions, we examine the grids adjacent
- * to the grid marked 'x', two on each side (marked 'L' and 'R').
- * If either one of the two grids on a given side is seen to be
- * closed, then that side is considered to be closed. If both
- * sides are closed, then it is an enclosed (corridor) run.
- *
- * LL		L
- * @x	       LxR
- * RR	       @R
- *
- * Looking at more than just the immediate squares is
- * significant. Consider the following case. A run along the
- * corridor will stop just before entering the center point,
- * because a choice is clearly established. Running in any of
- * three available directions will be defined as a corridor run.
- * Note that a minor hack is inserted to make the angled corridor
- * entry (with one side blocked near and the other side blocked
- * further away from the runner) work correctly. The runner moves
- * diagonally, but then saves the previous direction as being
- * straight into the gap. Otherwise, the tail end of the other
- * entry would be perceived as an alternative on the next move.
- *
- * #.#
- * ##.##
- * .@x..
- * ##.##
- * #.#
- *
- * Likewise, a run along a wall, and then into a doorway (two
- * runs) will work correctly. A single run rightwards from @ will
- * stop at 1. Another run right and down will enter the corridor
- * and make the corner, stopping at the 2.
- *
- * #@x	  1
- * ########### ######
- * 2	    #
- * #############
- * #
- *
- * After any move, the function area_affect is called to
- * determine the new surroundings, and the direction of
- * subsequent moves. It examines the current player location
- * (at which the runner has just arrived) and the previous
- * direction (from which the runner is considered to have come).
- *
- * Moving one square in some direction places you adjacent to
- * three or five new squares (for straight and diagonal moves
- * respectively) to which you were not previously adjacent,
- * marked as '!' in the diagrams below.
- *
- * ...!	  ...
- * .o@!	  .o.!
- * ...!	  ..@!
- * !!!
- *
- * You STOP if any of the new squares are interesting in any way:
- * for example, if they contain visible monsters or treasure.
- *
- * You STOP if any of the newly adjacent squares seem to be open,
- * and you are also looking for a break on that side. (that is,
- * find_openarea AND find_break).
- *
- * You STOP if any of the newly adjacent squares do NOT seem to be
- * open and you are in an open area, and that side was previously
- * entirely open.
- *
- * Corners: If you are not in the open (i.e. you are in a corridor)
- * and there is only one way to go in the new squares, then turn in
- * that direction. If there are more than two new ways to go, STOP.
- * If there are two ways to go, and those ways are separated by a
- * square which does not seem to be open, then STOP.
- *
- * Otherwise, we have a potential corner. There are two new open
- * squares, which are also adjacent. One of the new squares is
- * diagonally located, the other is straight on (as in the diagram).
- * We consider two more squares further out (marked below as ?).
- *
- * We assign "option" to the straight-on grid, and "option2" to the
- * diagonal grid, and "check_dir" to the grid marked 's'.
- *
- * .s
- * @x?
- * #?
- *
- * If they are both seen to be closed, then it is seen that no
- * benefit is gained from moving straight. It is a known corner.
- * To cut the corner, go diagonally, otherwise go straight, but
- * pretend you stepped diagonally into that next location for a
- * full view next time. Conversely, if one of the ? squares is
- * not seen to be closed, then there is a potential choice. We check
- * to see whether it is a potential corner or an intersection/room entrance.
- * If the square two spaces straight ahead, and the space marked with 's'
- * are both blank, then it is a potential corner and enter if find_examine
- * is set, otherwise must stop because it is not a corner.
- */
-
-
-
-
-/*
- * Hack -- allow quick "cycling" through the legal directions
- */
-static byte cycle[] =
-{ 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
-
-/*
- * Hack -- map each direction into the "middle" of the "cycle[]" array
- */
-static byte chome[] =
-{ 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
-
-/*
- * The direction we are running
- */
-/*static byte find_current;*/
-
-/*
- * The direction we came from
- */
-/*static byte find_prevdir;*/
-
-/*
- * We are looking for open area
- */
-/*static bool find_openarea;*/
-
-/*
- * We are looking for a break
- */
-/*static bool find_breakright;
-static bool find_breakleft;*/
-
-
-
-/*
- * Initialize the running algorithm for a new direction.
- *
- * Diagonal Corridor -- allow diaginal entry into corridors.
- *
- * Blunt Corridor -- If there is a wall two spaces ahead and
- * we seem to be in a corridor, then force a turn into the side
- * corridor, must be moving straight into a corridor here. ???
- *
- * Diagonal Corridor    Blunt Corridor (?)
- *       # #                  #
- *       #x#                 @x#
- *       @p.                  p
- */
-static void run_init(int Ind, int dir)
+/* Check if basic quests have been completed */
+bool quest_done(struct player *p, int depth)
 {
-	player_type *p_ptr = Players[Ind];
+    s16b r_idx;
 
-	int		row, col, deepleft, deepright;
-	int		i, shortleft, shortright;
+    for (r_idx = 1; r_idx < z_info->r_max; r_idx++)
+    {
+        monster_race *r_ptr = &r_info[r_idx];
+        monster_lore *l_ptr = &p->lore[r_idx];
 
+        if (!r_ptr->name) continue;
+        if (strcmp(r_ptr->name, "Sauron, the Sorcerer") &&
+            strcmp(r_ptr->name, "Morgoth, Lord of Darkness") &&
+            strcmp(r_ptr->name, "Senyakaze, Sorceress of the Nether Realm") &&
+            strcmp(r_ptr->name, "Xakaze, Father of Abominations"))
+        {
+            continue;
+        }
 
-	/* Save the direction */
-	p_ptr->find_current = dir;
+        /* Check depth and kill */
+        if ((depth == r_ptr->level) && !l_ptr->pkills) return FALSE;
+    }
 
-	/* Assume running straight */
-	p_ptr->find_prevdir = dir;
-
-	/* Assume looking for open area */	
-	p_ptr->find_openarea = TRUE;
-
-	/* Assume not looking for breaks */
-	p_ptr->find_breakright = p_ptr->find_breakleft = FALSE;
-
-	/* Assume no nearby walls */
-	deepleft = deepright = FALSE;
-	shortright = shortleft = FALSE;
-
-	/* Find the destination grid */
-	row = p_ptr->py + ddy[dir];
-	col = p_ptr->px + ddx[dir];
-
-	/* Extract cycle index */
-	i = chome[dir];
-
-	/* Check for walls */
-	/* When in the town/wilderness, don't break left/right. -APD- */
-	if (see_wall(Ind, cycle[i+1], p_ptr->py, p_ptr->px))
-	{
-		/* if in the dungeon */
-		if (p_ptr->dun_depth > 0)
-		{
-			p_ptr->find_breakleft = TRUE;
-			shortleft = TRUE;
-		}
-	}
-	else if (see_wall(Ind, cycle[i+1], row, col))
-	{
-		/* if in the dungeon */
-		if (p_ptr->dun_depth > 0)
-		{
-			p_ptr->find_breakleft = TRUE;
-			deepleft = TRUE;
-		}
-	}
-
-	/* Check for walls */	
-	if (see_wall(Ind, cycle[i-1], p_ptr->py, p_ptr->px))
-	{
-		/* if in the dungeon */
-		if (p_ptr->dun_depth > 0)
-		{
-			p_ptr->find_breakright = TRUE;
-			shortright = TRUE;
-		}
-	}
-	else if (see_wall(Ind, cycle[i-1], row, col))
-	{
-		/* if in the dungeon */
-		if (p_ptr->dun_depth > 0)
-		{
-			p_ptr->find_breakright = TRUE;
-			deepright = TRUE;
-		}
-	}
-
-	if (p_ptr->find_breakleft && p_ptr->find_breakright)
-	{
-		/* Not looking for open area */
-		/* In the town/wilderness, always in an open area */
-		if (p_ptr->dun_depth > 0) 
-			p_ptr->find_openarea = FALSE;	
-
-		/* Hack -- allow angled corridor entry */
-		if (dir & 0x01)
-		{
-			if (deepleft && !deepright)
-			{
-				p_ptr->find_prevdir = cycle[i - 1];
-			}
-			else if (deepright && !deepleft)
-			{
-				p_ptr->find_prevdir = cycle[i + 1];
-			}
-		}
-
-		/* Hack -- allow blunt corridor entry */
-		else if (see_wall(Ind, cycle[i], row, col))
-		{
-			if (shortleft && !shortright)
-			{
-				p_ptr->find_prevdir = cycle[i - 2];
-			}
-			else if (shortright && !shortleft)
-			{
-				p_ptr->find_prevdir = cycle[i + 2];
-			}
-		}
-	}
+    /* Ok */
+    return TRUE;
 }
 
 
-/*
- * Update the current "run" path
- *
- * Return TRUE if the running should be stopped
- */
-static bool run_test(int Ind)
+void leave_depth(struct player *p)
 {
-	player_type *p_ptr = Players[Ind];
-	int Depth = p_ptr->dun_depth;
-
-	int			prev_dir, new_dir, check_dir = 0;
-
-	int			row, col;
-	int			i, max, inv;
-	int			option, option2;
-
-	cave_type		*c_ptr;
-	byte			*w_ptr;
-
-
-	/* XXX -- Ghosts never stop running */
-	if (p_ptr->ghost) return (FALSE);
-
-	/* No options yet */
-	option = 0;
-	option2 = 0;
-
-	/* Where we came from */
-	prev_dir = p_ptr->find_prevdir;
-
-
-	/* Range of newly adjacent grids */
-	max = (prev_dir & 0x01) + 1;
-
-
-	/* Look at every newly adjacent square. */
-	for (i = -max; i <= max; i++)
-	{
-		new_dir = cycle[chome[prev_dir] + i];
-
-		row = p_ptr->py + ddy[new_dir];
-		col = p_ptr->px + ddx[new_dir];
-
-		c_ptr = &cave[Depth][row][col];
-		w_ptr = &p_ptr->cave_flag[row][col];
-
-
-		/* Visible monsters abort running */
-		if (c_ptr->m_idx > 0)
-		{
-			/* Visible monster */
-			if (p_ptr->mon_vis[c_ptr->m_idx]) return (TRUE);
-		}
-
-		/* Visible objects abort running */
-		if (c_ptr->o_idx)
-		{
-			/* Visible object */
-			if (p_ptr->obj_vis[c_ptr->o_idx]) return (TRUE);
-		}
-
-		/* Hack -- always stop in water */
-		if (c_ptr->feat == FEAT_WATER) return TRUE;
-
-		/* Assume unknown */
-		inv = TRUE;
-
-		/* Check memorized grids */
-		if (*w_ptr & CAVE_MARK)
-		{
-			bool notice = TRUE;
-
-			/* Examine the terrain */
-			switch (c_ptr->feat)
-			{
-				/* Floors */
-			        case FEAT_FLOOR:
-
-				/* Invis traps */
-				case FEAT_INVIS:
-
-				/* Secret doors */
-				case FEAT_SECRET:
-
-				/* Normal veins */
-				case FEAT_MAGMA:
-				case FEAT_QUARTZ:
-
-				/* Hidden treasure */
-				case FEAT_MAGMA_H:
-				case FEAT_QUARTZ_H:
-
-				/* Grass, trees, and dirt */
-				case FEAT_GRASS:
-				case FEAT_TREE:
-				case FEAT_DIRT:
-
-				/* Walls */
-				case FEAT_WALL_EXTRA:
-				case FEAT_WALL_INNER:
-				case FEAT_WALL_OUTER:
-				case FEAT_WALL_SOLID:
-				case FEAT_PERM_EXTRA:
-				case FEAT_PERM_INNER:
-				case FEAT_PERM_OUTER:
-				case FEAT_PERM_SOLID:
-				case FEAT_PERM_CLEAR:
-				{
-					/* Ignore */
-					notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Open doors */
-				case FEAT_OPEN:
-				case FEAT_BROKEN:
-				{
-					/* Option -- ignore */
-					if (p_ptr->find_ignore_doors) notice = FALSE;
-
-					/* Done */
-					break;
-				}
-
-				/* Stairs */
-				case FEAT_LESS:
-				case FEAT_MORE:
-				{
-					/* Option -- ignore */
-					if (p_ptr->find_ignore_stairs) notice = FALSE;
-
-					/* Done */
-					break;
-				}
-			}
-
-			/* Interesting feature */
-			if (notice) return (TRUE);
-
-			/* The grid is "visible" */
-			inv = FALSE;
-		}
-
-		/* Analyze unknown grids and floors */
-		/* wilderness hack to run from one level to the next */
-		if (inv || cave_floor_bold(Depth, row, col) || ((!in_bounds(Depth, row, col)) && (Depth <= 0)) )
-		{
-			/* Looking for open area */
-			if (p_ptr->find_openarea)
-			{
-				/* Nothing */
-			}
-
-			/* The first new direction. */
-			else if (!option)
-			{
-				option = new_dir;
-			}
-
-			/* Three new directions. Stop running. */
-			else if (option2)
-			{
-				return (TRUE);
-			}
-
-			/* Two non-adjacent new directions.  Stop running. */
-			else if (option != cycle[chome[prev_dir] + i - 1])
-			{
-				return (TRUE);
-			}
-
-			/* Two new (adjacent) directions (case 1) */
-			else if (new_dir & 0x01)
-			{
-				check_dir = cycle[chome[prev_dir] + i - 2];
-				option2 = new_dir;
-			}
-
-			/* Two new (adjacent) directions (case 2) */
-			else
-			{
-				check_dir = cycle[chome[prev_dir] + i + 1];
-				option2 = option;
-				option = new_dir;
-			}
-		}
-
-		/* Obstacle, while looking for open area */
-		/* When in the town/wilderness, don't break left/right. */
-		else
-		{
-			if (p_ptr->find_openarea)
-			{
-				if (i < 0)
-				{
-					/* Break to the right */
-					if (p_ptr->dun_depth > 0)
-						p_ptr->find_breakright = (TRUE);
-				}
-
-				else if (i > 0)
-				{
-					/* Break to the left */
-					if (p_ptr->dun_depth > 0)
-						p_ptr->find_breakleft = (TRUE);
-				}
-			}
-		}
-	}
-
-
-	/* Looking for open area */
-	if (p_ptr->find_openarea)
-	{
-		/* Hack -- look again */
-		for (i = -max; i < 0; i++)
-		{
-			new_dir = cycle[chome[prev_dir] + i];
-
-			row = p_ptr->py + ddy[new_dir];
-			col = p_ptr->px + ddx[new_dir];
-
-			/* Unknown grid or floor */
-			if (!(p_ptr->cave_flag[row][col] & CAVE_MARK) || cave_floor_bold(Depth, row, col))
-			{
-				/* Looking to break right */
-				if (p_ptr->find_breakright)
-				{									
-					return (TRUE);
-				}
-			}
-
-			/* Obstacle */
-			else
-			{
-				/* Looking to break left */
-				if (p_ptr->find_breakleft)
-				{					
-					return (TRUE);
-				}
-			}
-		}
-
-		/* Hack -- look again */
-		for (i = max; i > 0; i--)
-		{
-			new_dir = cycle[chome[prev_dir] + i];
-
-			row = p_ptr->py + ddy[new_dir];
-			col = p_ptr->px + ddx[new_dir];
-
-			/* Unknown grid or floor */
-			if (!(p_ptr->cave_flag[row][col] & CAVE_MARK) || cave_floor_bold(Depth, row, col))
-			{
-				/* Looking to break left */
-				if (p_ptr->find_breakleft)
-				{				
-					return (TRUE);
-				}
-			}
-
-			/* Obstacle */
-			else
-			{
-				/* Looking to break right */
-				if (p_ptr->find_breakright)
-				{
-					return (TRUE);
-				}
-			}
-		}
-	}
-
-
-	/* Not looking for open area */
-	else
-	{
-		/* No options */
-		if (!option)
-		{
-			return (TRUE);
-		}
-
-		/* One option */
-		else if (!option2)
-		{
-			/* Primary option */
-			p_ptr->find_current = option;
-
-			/* No other options */
-			p_ptr->find_prevdir = option;
-		}
-
-		/* Two options, examining corners */
-		else if (p_ptr->find_examine && !p_ptr->find_cut)
-		{
-			/* Primary option */
-			p_ptr->find_current = option;
-
-			/* Hack -- allow curving */
-			p_ptr->find_prevdir = option2;
-		}
-
-		/* Two options, pick one */
-		else
-		{
-			/* Get next location */
-			row = p_ptr->py + ddy[option];
-			col = p_ptr->px + ddx[option];
-
-			/* Don't see that it is closed off. */
-			/* This could be a potential corner or an intersection. */
-			if (!see_wall(Ind, option, row, col) ||
-			    !see_wall(Ind, check_dir, row, col))
-			{
-				/* Can not see anything ahead and in the direction we */
-				/* are turning, assume that it is a potential corner. */
-				if (p_ptr->find_examine &&
-				    see_nothing(option, Ind, row, col) &&
-				    see_nothing(option2, Ind, row, col))
-				{
-					p_ptr->find_current = option;
-					p_ptr->find_prevdir = option2;
-				}
-
-				/* STOP: we are next to an intersection or a room */
-				else
-				{
-					return (TRUE);
-				}
-			}
-
-			/* This corner is seen to be enclosed; we cut the corner. */
-			else if (p_ptr->find_cut)
-			{
-				p_ptr->find_current = option2;
-				p_ptr->find_prevdir = option2;
-			}
-
-			/* This corner is seen to be enclosed, and we */
-			/* deliberately go the long way. */
-			else
-			{
-				p_ptr->find_current = option;
-				p_ptr->find_prevdir = option2;
-			}
-		}
-	}
-
-
-	/* About to hit a known wall, stop */
-	if (see_wall(Ind, p_ptr->find_current, p_ptr->py, p_ptr->px))
-	{
-		return (TRUE);
-	}
-
-
-	/* Failure */
-	return (FALSE);
+    int i;
+    monster_type *m_ptr;
+
+    /* One less player here */
+    if (players_on_depth[p->depth]) players_on_depth[p->depth]--;
+
+    /* Free monsters from slavery */
+    for (i = 1; i < cave_monster_max(cave_get(p->depth)); i++)
+    {
+        m_ptr = cave_monster(cave_get(p->depth), i);
+
+        /* Skip dead monsters */
+        if (!m_ptr->r_idx) continue;
+
+        /* Skip non slaves */
+        if (p->id != m_ptr->master) continue;
+
+        /* Free monster from slavery */
+        monster_set_master(m_ptr, NULL, MSTATUS_HOSTILE);
+    }
+    p->slaves = 0;
 }
 
 
-
-/*
- * Take one step along the current "run" path
- */
-void run_step(int Ind, int dir)
+void use_energy(int Ind)
 {
-	player_type *p_ptr = Players[Ind];
-	cave_type *c_ptr;
+    player_type *p_ptr = player_get(Ind);
 
-	/* Check for just changed level */
-	if (p_ptr->new_level_flag) return;
+    /* Take a turn */
+    p_ptr->energy -= level_speed(p_ptr->depth);
 
-	/* Start running */
-	if (dir)
-	{
-		// Running into walls and doors is now checked in do_cmd_run.
-		#if 0
-		/* Hack -- do not start silly run */
-		if (see_wall(Ind, dir, p_ptr->py, p_ptr->px))
-		{
-			/* If we are trying to run into a door and bump_open is enabled,
-			 * try to open the door
-			 */
-			if (cfg_door_bump_open)
-			{
-				/* Get requested grid */
-				c_ptr = &cave[p_ptr->dun_depth][p_ptr->py+ddy[dir]][p_ptr->px+ddx[dir]];
-
-				/* If a door, open it */
-				if (((c_ptr->feat >= FEAT_DOOR_HEAD) && 
-				      (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
-				    ((c_ptr->feat >= FEAT_HOME_HEAD) &&
-				      (c_ptr->feat <= FEAT_HOME_TAIL))) 
-					{
-						do_cmd_open(Ind, dir);
-						return;
-					}
-			}
-
-			/* Message */
-			msg_print(Ind, "You cannot run in that direction.");
-
-			/* Disturb */
-			disturb(Ind, 0, 0);
-
-			/* Done */
-			return;
-		}
-		#endif
-
-		/* Calculate torch radius */
-		p_ptr->update |= (PU_TORCH);
-
-		/* Initialize */
-		run_init(Ind, dir);
-
-		/* check if we have enough energy to move */
-		if (p_ptr->energy < (level_speed(p_ptr->dun_depth)/5))
-			return;
-	}
-
-	/* Keep running */
-	else
-	{
-		/* Update run */
-		if (run_test(Ind))
-		{
-			/* Disturb */
-			disturb(Ind, 0, 0);
-
-			/* Done */
-			return;
-		}
-	}
-
-	/* Decrease the run counter */
-	if (--(p_ptr->running) <= 0) return;
-
-	/* Move the player, using the "pickup" flag */
-	move_player(Ind, p_ptr->find_current, p_ptr->always_pickup);
+    /* Paranoia */
+    if (p_ptr->energy < 0) p_ptr->energy = 0;
 }
 
 
+bool has_energy(int Ind)
+{
+    player_type *p_ptr = player_get(Ind);
+
+    /* Check if we have enough energy */
+    return (p_ptr->energy >= level_speed(p_ptr->depth));
+}
+
+
+bool weight_okay(struct player *p, object_type *o_ptr)
+{
+    int wgt;
+
+    wgt = p->total_weight + o_ptr->weight * o_ptr->number;
+    return (wgt <= weight_limit(&p->state) * 6);
+}

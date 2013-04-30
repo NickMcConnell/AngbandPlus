@@ -1,9 +1,10 @@
-/* File z-form.h */
+/*
+ * File: z-form.h
+ * Purpose: Low level text formatting
+ */
 
 #ifndef INCLUDED_Z_FORM_H
 #define INCLUDED_Z_FORM_H
-
-#include "h-basic.h"
 
 /*
  * This file provides functions very similar to "sprintf()", but which
@@ -16,32 +17,30 @@
  * This file makes use of both "z-util.c" and "z-virt.c"
  */
 
-
 /**** Available Functions ****/
 
 /* Format arguments into given bounded-length buffer */
-extern uint vstrnfmt(char *buf, uint max, cptr fmt, va_list vp);
+extern size_t vstrnfmt(char *buf, size_t max, const char *fmt, va_list vp);
 
 /* Simple interface to "vstrnfmt()" */
-extern uint strnfmt(char *buf, uint max, cptr fmt, ...);
-
-/* Simple interface to "vstrnfmt()", assuming infinite length */
-extern uint strfmt(char *buf, cptr fmt, ...);
+extern size_t strnfmt(char *buf, size_t max, const char *fmt, ...);
 
 /* Format arguments into a static resizing buffer */
-extern char *vformat(cptr fmt, va_list vp);
+extern char *vformat(const char *fmt, va_list vp);
+
+/* Free the memory allocated for the format buffer */
+extern void vformat_kill(void);
+
+/* Append a formatted string to another string */
+extern void strnfcat(char *str, size_t max, size_t *end, const char *fmt, ...);
 
 /* Simple interface to "vformat()" */
-extern char *format(cptr fmt, ...);
+extern char *format(const char *fmt, ...);
 
 /* Vararg interface to "plog()", using "format()" */
-extern void plog_fmt(cptr fmt, ...);
+extern void plog_fmt(const char *fmt, ...);
 
 /* Vararg interface to "quit()", using "format()" */
-extern void quit_fmt(cptr fmt, ...);
+extern void quit_fmt(const char *fmt, ...);
 
-/* Vararg interface to "core()", using "format()" */
-extern void core_fmt(cptr fmt, ...);
-
-
-#endif
+#endif /* INCLUDED_Z_FORM_H */

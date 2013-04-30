@@ -1,1387 +1,1017 @@
-/* File: files.c */
-
-/* Purpose: code dealing with files (and death) */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * File: files.c
+ * Purpose: Various file-related activities, poorly organised
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 2012 MAngband and PWMAngband Developers
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
 
-#define SERVER
 
-#include "angband.h"
+#include "s-angband.h"
+#include "../common/buildid.h"
+#include "../common/display.h"
+#include "../common/parser.h"
+#include "../common/spells.h"
+#include "files.h"
+#include "history.h"
+#include "netserver.h"
 
-#ifdef HANDLE_SIGNALS
-#include <signal.h>
-#endif
 
+/*** Pref file parser ***/
 
 
 /*
- * You may or may not want to use the following "#undef".
+ * Private data for pref file parsing.
  */
-/* #undef _POSIX_SAVED_IDS */
-
-
-/*
- * Hack -- drop permissions
- */
-void safe_setuid_drop(void)
+typedef struct prefs_data
 {
+    bool bypass;
+    bool skip;
+    int mode;
+    int nrace;
+    int nclass;
+} prefs_data;
 
-#ifdef SET_UID
 
-# ifdef SAFE_SETUID
+/*
+ * Load another file.
+ */
+static enum parser_error parse_prefs_load(struct parser *p)
+{
+    struct prefs_data *d = parser_priv(p);
+    const char *file;
 
-#  ifdef SAFE_SETUID_POSIX
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
 
-	if (setuid(getuid()) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
-	}
-	if (setgid(getgid()) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
+    file = parser_getstr(p, "file");
+    process_pref_file(file, TRUE);
 
-#  else
+    return PARSE_ERROR_NONE;
+}
 
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
-	if (setregid(getegid(), getgid()) != 0)
-	{
-		quit("setregid(): cannot set permissions correctly!");
-	}
 
-#  endif
+static enum parser_error parse_prefs_expr(struct parser *p)
+{
+    struct prefs_data *d = parser_priv(p);
 
-# endif
+    my_assert(d != NULL);
 
-#endif
+    /* Hack - Do not load any Evaluated Expressions */
+    parser_getstr(p, "expr");
 
+    /* Set flag */
+    d->bypass = d->skip;
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_k(struct parser *p)
+{
+    int tvi, svi;
+    object_kind *kind;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    tvi = tval_find_idx(parser_getsym(p, "tval"));
+    if (tvi < 0) return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+    svi = lookup_sval(tvi, parser_getsym(p, "sval"));
+    if (svi < 0) return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+    kind = lookup_kind(tvi, svi);
+    if (!kind) return PARSE_ERROR_UNRECOGNISED_SVAL;
+
+    kind->x_attr = (byte)parser_getint(p, "attr");
+    kind->x_char = (char)parser_getint(p, "char");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_r(struct parser *p)
+{
+    int idx;
+    monster_race *monster;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    idx = parser_getuint(p, "idx");
+    if (idx >= z_info->r_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+
+    monster = &r_info[idx];
+    monster->x_attr = (byte)parser_getint(p, "attr");
+    monster->x_char = (char)parser_getint(p, "char");
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_f(struct parser *p)
+{
+    int idx;
+    feature_type *feature;
+    const char *lighting;
+    int light_idx;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    idx = parser_getuint(p, "idx");
+    if (idx >= z_info->f_max) return PARSE_ERROR_OUT_OF_BOUNDS;
+
+    lighting = parser_getsym(p, "lighting");
+    if (streq(lighting, "bright"))
+        light_idx = FEAT_LIGHTING_BRIGHT;
+    else if (streq(lighting, "lit"))
+        light_idx = FEAT_LIGHTING_LIT;
+    else if (streq(lighting, "dark"))
+        light_idx = FEAT_LIGHTING_DARK;
+    else if (streq(lighting, "all"))
+        light_idx = FEAT_LIGHTING_MAX;
+    else
+        return PARSE_ERROR_GENERIC;
+
+    if (light_idx < FEAT_LIGHTING_MAX)
+    {
+        feature = &f_info[idx];
+        feature->x_attr[light_idx] = (byte)parser_getint(p, "attr");
+        feature->x_char[light_idx] = (char)parser_getint(p, "char");
+    }
+    else
+    {
+        for (light_idx = 0; light_idx < FEAT_LIGHTING_MAX; light_idx++)
+        {
+            feature = &f_info[idx];
+            feature->x_attr[light_idx] = (byte)parser_getint(p, "attr");
+            feature->x_char[light_idx] = (char)parser_getint(p, "char");
+        }
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_gf(struct parser *p)
+{
+    bool types[GF_MAX] = { 0 };
+    const char *direction;
+    int motion, motion2 = 0;
+    char *s, *t;
+    size_t i;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    /* Parse the type, which is a | seperated list of GF_ constants */
+    s = string_make(parser_getsym(p, "type"));
+    t = strtok(s, "| ");
+    while (t)
+    {
+        if (streq(t, "*"))
+            memset(types, TRUE, sizeof(types));
+        else
+        {
+            int idx = gf_name_to_idx(t);
+
+            if (idx == -1) return PARSE_ERROR_INVALID_VALUE;
+
+            types[idx] = TRUE;
+        }
+
+        t = strtok(NULL, "| ");
+    }
+
+    string_free(s);
+
+    direction = parser_getsym(p, "direction");
+    if (streq(direction, "static"))
+        motion = BOLT_NO_MOTION;
+    else if (streq(direction, "0"))
+    {
+        motion = BOLT_0;
+        motion2 = BOLT_180;
+    }
+    else if (streq(direction, "45"))
+    {
+        motion = BOLT_45;
+        motion2 = BOLT_225;
+    }
+    else if (streq(direction, "90"))
+    {
+        motion = BOLT_90;
+        motion2 = BOLT_270;
+    }
+    else if (streq(direction, "135"))
+    {
+        motion = BOLT_135;
+        motion2 = BOLT_315;
+    }
+    else if (streq(direction, "180"))
+        motion = BOLT_180;
+    else if (streq(direction, "225"))
+        motion = BOLT_225;
+    else if (streq(direction, "270"))
+        motion = BOLT_270;
+    else if (streq(direction, "315"))
+        motion = BOLT_315;
+    else
+        return PARSE_ERROR_INVALID_VALUE;
+
+    for (i = 0; i < GF_MAX; i++)
+    {
+        if (!types[i]) continue;
+
+        gf_to_attr[i][motion] = (byte)parser_getuint(p, "attr");
+        gf_to_char[i][motion] = (char)parser_getuint(p, "char");
+
+        /* Default values */
+        if (motion2)
+        {
+            gf_to_attr[i][motion2] = (byte)parser_getuint(p, "attr");
+            gf_to_char[i][motion2] = (char)parser_getuint(p, "char");
+        }
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_l(struct parser *p)
+{
+    unsigned int idx;
+    struct flavor *flavor;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    idx = parser_getuint(p, "idx");
+    for (flavor = flavors; flavor; flavor = flavor->next)
+    {
+        if (flavor->fidx == idx) break;
+    }
+
+    if (flavor)
+    {
+        flavor->x_attr = (byte)parser_getint(p, "attr");
+        flavor->x_char = (char)parser_getint(p, "char");
+    }
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_e(struct parser *p)
+{
+    int tvi, a;
+    struct prefs_data *d = parser_priv(p);
+
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
+
+    tvi = tval_find_idx(parser_getsym(p, "tval"));
+    if ((tvi < 0) || (tvi >= (long)N_ELEMENTS(tval_to_attr)))
+        return PARSE_ERROR_UNRECOGNISED_TVAL;
+
+    a = parser_getint(p, "attr");
+    if (a) tval_to_attr[tvi] = (byte) a;
+
+    return PARSE_ERROR_NONE;
+}
+
+
+static enum parser_error parse_prefs_rf(struct parser *p)
+{
+    /* Hack -- Parser hook for female player presets */
+    return parse_prefs_r(p);
+}
+
+
+static struct parser *init_parse_prefs(void)
+{
+    struct parser *p = parser_new();
+    struct prefs_data *d = mem_zalloc(sizeof(struct prefs_data));
+
+    d->skip = TRUE;
+
+    parser_setpriv(p, d);
+    parser_reg(p, "% str file", parse_prefs_load);
+    parser_reg(p, "? str expr", parse_prefs_expr);
+    parser_reg(p, "K sym tval sym sval int attr int char", parse_prefs_k);
+    parser_reg(p, "R uint idx int attr int char", parse_prefs_r);
+    parser_reg(p, "F uint idx sym lighting int attr int char", parse_prefs_f);
+    parser_reg(p, "GF sym type sym direction uint attr uint char", parse_prefs_gf);
+    parser_reg(p, "L uint idx int attr int char", parse_prefs_l);
+    parser_reg(p, "E sym tval int attr", parse_prefs_e);
+
+    /* Hack -- Parser hook for female player presets */
+    parser_reg(p, "RF uint idx int attr int char", parse_prefs_rf);
+
+    return p;
+}
+
+
+static void print_error(const char *name, struct parser *p)
+{
+    struct parser_state s;
+
+    parser_getstate(p, &s);
+    plog_fmt("Parse error in %s line %d column %d: %s: %s", name,
+        s.line, s.col, s.msg, parser_error_str[s.error]);
 }
 
 
 /*
- * Hack -- grab permissions
+ * Process the "user pref file" with the given name
+ * "quiet" means "don't complain about not finding the file.
+ *
+ * Returns TRUE if everything worked OK, false otherwise
  */
-void safe_setuid_grab(void)
+bool process_pref_file(const char *name, bool quiet)
 {
+    char buf[MSG_LEN];
+    ang_file *f;
+    struct parser *p;
+    errr e = 0;
+    int line_no = 0;
 
-#ifdef SET_UID
+    /* Build the filename */
+    path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
+    if (!file_exists(buf)) path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
-# ifdef SAFE_SETUID
+    f = file_open(buf, MODE_READ, FTYPE_TEXT);
+    if (!f)
+    {
+        if (!quiet) plog_fmt("Cannot open '%s'.", buf);
+    }
+    else
+    {
+        char line[MSG_LEN];
 
-#  ifdef SAFE_SETUID_POSIX
+        p = init_parse_prefs();
 
-	if (setuid(player_euid) != 0)
-	{
-		quit("setuid(): cannot set permissions correctly!");
-	}
-	if (setgid(player_egid) != 0)
-	{
-		quit("setgid(): cannot set permissions correctly!");
-	}
+        while (file_getl(f, line, sizeof(line)))
+        {
+            line_no++;
 
-#  else
+            e = parser_parse(p, line);
+            if (e != PARSE_ERROR_NONE)
+            {
+                print_error(buf, p);
+                break;
+            }
+        }
 
-	if (setreuid(geteuid(), getuid()) != 0)
-	{
-		quit("setreuid(): cannot set permissions correctly!");
-	}
-	if (setregid(getegid(), getgid()) != 0)
-	{
-		quit("setregid(): cannot set permissions correctly!");
-	}
+        file_close(f);
+        mem_free(parser_priv(p));
+        parser_destroy(p);
+    }
 
-#  endif
-
-# endif
-
-#endif
-
+    /* Result */
+    return (e == PARSE_ERROR_NONE);
 }
 
 
-/*
- * Extract the first few "tokens" from a buffer
- *
- * This function uses "colon" and "slash" as the delimeter characters.
- *
- * We never extract more than "num" tokens.  The "last" token may include
- * "delimeter" characters, allowing the buffer to include a "string" token.
- *
- * We save pointers to the tokens in "tokens", and return the number found.
- *
- * Hack -- Attempt to handle the 'c' character formalism
- *
- * Hack -- An empty buffer, or a final delimeter, yields an "empty" token.
- *
- * Hack -- We will always extract at least one token
- */
-s16b tokenize(char *buf, s16b num, char **tokens)
+static enum parser_error parse_xprefs_r(struct parser *p)
 {
-	int i = 0;
+    struct prefs_data *d = parser_priv(p);
+    int i;
 
-	char *s = buf;
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
 
+    parser_getuint(p, "idx");
 
-	/* Process */
-	while (i < num - 1)
-	{
-		char *t;
+    d->nrace++;
+    if (d->nrace == MAX_RACES)
+    {
+        d->nrace = 0;
+        d->nclass++;
+    }
 
-		/* Scan the string */
-		for (t = s; *t; t++)
-		{
-			/* Found a delimiter */
-			if ((*t == ':') || (*t == '/')) break;
+    /* Hack -- Default player presets */
+    for (i = 0; i < MAX_SEXES; i++)
+    {
+        player_presets[d->mode][d->nclass][d->nrace][i].a = (byte)parser_getint(p, "attr");
+        player_presets[d->mode][d->nclass][d->nrace][i].c = (char)parser_getint(p, "char");
+    }
 
-			/* Handle single quotes */
-			if (*t == '\'')
-			{
-				/* Advance */
-				t++;
-
-				/* Handle backslash */
-				if (*t == '\\') t++;
-
-				/* Require a character */
-				if (!*t) break;
-
-				/* Advance */
-				t++;
-
-				/* Hack -- Require a close quote */
-				if (*t != '\'') *t = '\'';
-			}
-
-			/* Handle back-slash */
-			if (*t == '\\') t++;
-		}
-
-		/* Nothing left */
-		if (!*t) break;
-
-		/* Nuke and advance */
-		*t++ = '\0';
-
-		/* Save the token */
-		tokens[i++] = s;
-
-		/* Advance */
-		s = t;
-	}
-
-	/* Save the token */
-	tokens[i++] = s;
-
-	/* Number found */
-	return (i);
+    return PARSE_ERROR_NONE;
 }
 
 
-
-/*
- * Parse a sub-file of the "extra info" (format shown below)
- *
- * Each "action" line has an "action symbol" in the first column,
- * followed by a colon, followed by some command specific info,
- * usually in the form of "tokens" separated by colons or slashes.
- *
- * Blank lines, lines starting with white space, and lines starting
- * with pound signs ("#") are ignored (as comments).
- *
- * Note the use of "tokenize()" to allow the use of both colons and
- * slashes as delimeters, while still allowing final tokens which
- * may contain any characters including "delimiters".
- *
- * Note the use of "strtol()" to allow all "integers" to be encoded
- * in decimal, hexidecimal, or octal form.
- *
- * Note that "monster zero" is used for the "player" attr/char, "object
- * zero" will be used for the "stack" attr/char, and "feature zero" is
- * used for the "nothing" attr/char.
- *
- * Parse another file recursively, see below for details
- *   %:<filename>
- *
- * Specify the attr/char values for "monsters" by race index
- *   R:<num>:<a>:<c>
- *
- * Specify the attr/char values for "objects" by kind index
- *   K:<num>:<a>:<c>
- *
- * Specify the attr/char values for "features" by feature index
- *   F:<num>:<a>:<c>
- *
- * Specify the attr/char values for unaware "objects" by kind tval
- *   U:<tv>:<a>:<c>
- *
- * Specify the attr/char values for inventory "objects" by kind tval
- *   E:<tv>:<a>:<c>
- *
- * Define a macro action, given an encoded macro action
- *   A:<str>
- *
- * Create a normal macro, given an encoded macro trigger
- *   P:<str>
- *
- * Create a command macro, given an encoded macro trigger
- *   C:<str>
- *
- * Create a keyset mapping
- *   S:<key>:<key>:<dir>
- *
- * Turn an option off, given its name
- *   X:<str>
- *
- * Turn an option on, given its name
- *   Y:<str>
- *
- * Specify visual information, given an index, and some data
- *   V:<num>:<kv>:<rv>:<gv>:<bv>
- */
-errr process_pref_file_aux(char *buf)
+static enum parser_error parse_xprefs_rf(struct parser *p)
 {
-	int i, j, k, n1, n2;
+    struct prefs_data *d = parser_priv(p);
 
-	char *zz[16];
+    my_assert(d != NULL);
+    if (d->bypass) return PARSE_ERROR_NONE;
 
+    parser_getuint(p, "idx");
 
-	/* Skip "empty" lines */
-	if (!buf[0]) return (0);
+    /* Hack -- Player presets for female characters */
+    player_presets[d->mode][d->nclass][d->nrace][SEX_FEMALE].a = (byte)parser_getint(p, "attr");
+    player_presets[d->mode][d->nclass][d->nrace][SEX_FEMALE].c = (char)parser_getint(p, "char");
 
-	/* Skip "blank" lines */
-	if (isspace(buf[0])) return (0);
-
-	/* Skip comments */
-	if (buf[0] == '#') return (0);
-
-
-	/* Require "?:*" format */
-	if (buf[1] != ':') return (1);
+    return PARSE_ERROR_NONE;
+}
 
 
-	/* Process "%:<fname>" */
-	if (buf[0] == '%')
-	{
-		/* Attempt to Process the given file */
-		return (process_pref_file(buf + 2));
-	}
+static struct parser *init_parse_xprefs(int mode)
+{
+    struct parser *p = parser_new();
+    struct prefs_data *d = mem_zalloc(sizeof(struct prefs_data));
 
+    d->mode = mode;
+    d->nrace = MAX_RACES - 1;
+    d->nclass = -1;
 
-	/* Process "R:<num>:<a>/<c>" -- attr/char for monster races */
-	if (buf[0] == 'R')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			monster_race *r_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_R_IDX) return (1);
-			r_ptr = &r_info[i];
-			if (n1) r_ptr->x_attr = n1;
-			if (n2) r_ptr->x_char = n2;
-			return (0);
-		}
-	}
+    parser_setpriv(p, d);
+    parser_reg(p, "? str expr", parse_prefs_expr);
+    parser_reg(p, "R uint idx int attr int char", parse_xprefs_r);
+    parser_reg(p, "RF uint idx int attr int char", parse_xprefs_rf);
 
-
-	/* Process "K:<num>:<a>/<c>"  -- attr/char for object kinds */
-	else if (buf[0] == 'K')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			object_kind *k_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_K_IDX) return (1);
-			k_ptr = &k_info[i];
-			if (n1) k_ptr->x_attr = n1;
-			if (n2) k_ptr->x_char = n2;
-			return (0);
-		}
-	}
-
-
-	/* Process "F:<num>:<a>/<c>" -- attr/char for terrain features */
-	else if (buf[0] == 'F')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			feature_type *f_ptr;
-			i = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (i >= MAX_F_IDX) return (1);
-			f_ptr = &f_info[i];
-			if (n1) f_ptr->z_attr = n1;
-			if (n2) f_ptr->z_char = n2;
-			return (0);
-		}
-	}
-
-
-	/* Process "U:<tv>:<a>/<c>" -- attr/char for unaware items */
-	else if (buf[0] == 'U')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			j = (huge)strtol(zz[0], NULL, 0);
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			for (i = 1; i < MAX_K_IDX; i++)
-			{
-				object_kind *k_ptr = &k_info[i];
-				if (k_ptr->tval == j)
-				{
-					if (n1) k_ptr->d_attr = n1;
-					if (n2) k_ptr->d_char = n2;
-				}
-			}
-			return (0);
-		}
-	}
-
-
-	/* Process "E:<tv>:<a>/<c>" -- attr/char for equippy chars */
-	else if (buf[0] == 'E')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			j = (byte)strtol(zz[0], NULL, 0) % 128;
-			n1 = strtol(zz[1], NULL, 0);
-			n2 = strtol(zz[2], NULL, 0);
-			if (n1) tval_to_attr[j] = n1;
-			if (n2) tval_to_char[j] = n2;
-			return (0);
-		}
-	}
-
-
-	/* Process "A:<str>" -- save an "action" for later */
-	else if (buf[0] == 'A')
-	{
-		text_to_ascii(macro__buf, buf+2);
-		return (0);
-	}
-
-	/* Process "P:<str>" -- create normal macro */
-	else if (buf[0] == 'P')
-	{
-		char tmp[1024];
-		text_to_ascii(tmp, buf+2);
-		macro_add(tmp, macro__buf, FALSE);
-		return (0);
-	}
-
-	/* Process "C:<str>" -- create command macro */
-	else if (buf[0] == 'C')
-	{
-		char tmp[1024];
-		text_to_ascii(tmp, buf+2);
-		macro_add(tmp, macro__buf, TRUE);
-		return (0);
-	}
-
-
-	/* Process "S:<key>:<key>:<dir>" -- keymap */
-	else if (buf[0] == 'S')
-	{
-		if (tokenize(buf+2, 3, zz) == 3)
-		{
-			i = strtol(zz[0], NULL, 0) & 0x7F;
-			j = strtol(zz[0], NULL, 0) & 0x7F;
-			k = strtol(zz[0], NULL, 0) & 0x7F;
-			if ((k > 9) || (k == 5)) k = 0;
-			keymap_cmds[i] = j;
-			keymap_dirs[i] = k;
-			return (0);
-		}
-	}
-
-
-	/* Process "V:<num>:<kv>:<rv>:<gv>:<bv>" -- visual info */
-	else if (buf[0] == 'V')
-	{
-		if (tokenize(buf+2, 5, zz) == 5)
-		{
-			i = (byte)strtol(zz[0], NULL, 0);
-			color_table[i][0] = (byte)strtol(zz[1], NULL, 0);
-			color_table[i][1] = (byte)strtol(zz[2], NULL, 0);
-			color_table[i][2] = (byte)strtol(zz[3], NULL, 0);
-			color_table[i][3] = (byte)strtol(zz[4], NULL, 0);
-			return (0);
-		}
-	}
-
-
-	/* Process "X:<str>" -- turn option off */
-	else if (buf[0] == 'X')
-	{
-		for (i = 0; option_info[i].o_desc; i++)
-		{
-			if (option_info[i].o_var &&
-			    option_info[i].o_text &&
-			    streq(option_info[i].o_text, buf + 2))
-			{
-				(*option_info[i].o_var) = FALSE;
-				return (0);
-			}
-		}
-	}
-
-	/* Process "Y:<str>" -- turn option on */
-	else if (buf[0] == 'Y')
-	{
-		for (i = 0; option_info[i].o_desc; i++)
-		{
-			if (option_info[i].o_var &&
-			    option_info[i].o_text &&
-			    streq(option_info[i].o_text, buf + 2))
-			{
-				(*option_info[i].o_var) = TRUE;
-				return (0);
-			}
-		}
-	}
-
-	/* Process "W:<num>:<use> -- set window use */
-	else if (buf[0] == 'W')
-	{
-		return (0);
-	}
-
-	/* Failure */
-	return (1);
+    return p;
 }
 
 
 /*
  * Process the "user pref file" with the given name
  *
- * See the function above for a list of legal "commands".
+ * Returns TRUE if everything worked OK, false otherwise
  */
-errr process_pref_file(cptr name)
+static bool process_pref_file_xtra_aux(int mode, const char *name)
 {
-	FILE *fp;
+    char buf[MSG_LEN];
+    ang_file *f;
+    struct parser *p;
+    errr e = 0;
+    int line_no = 0;
 
-	char buf[1024];
+    /* Build the filename */
+    path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
+    if (!file_exists(buf)) path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
+    f = file_open(buf, MODE_READ, FTYPE_TEXT);
+    if (!f)
+        plog_fmt("Cannot open '%s'.", buf);
+    else
+    {
+        char line[MSG_LEN];
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
+        p = init_parse_xprefs(mode);
 
-	/* Open the file */
-	fp = my_fopen(buf, "r");
+        while (file_getl(f, line, sizeof(line)))
+        {
+            line_no++;
 
-	/* Catch errors */
-	if (!fp) return (-1);
+            e = parser_parse(p, line);
+            if (e != PARSE_ERROR_NONE)
+            {
+                print_error(buf, p);
+                break;
+            }
+        }
 
-	/* Process the file */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		/* Process the line */
-		if (process_pref_file_aux(buf))
-		{
-			/* Useful error message */
-			s_printf("Error in '%s' parsing '%s'.\n", buf, name);
-		}
-	}
+        file_close(f);
+        mem_free(parser_priv(p));
+        parser_destroy(p);
+    }
 
-	/* Close the file */
-	my_fclose(fp);
-
-	/* Success */
-	return (0);
+    /* Result */
+    return (e == PARSE_ERROR_NONE);
 }
 
 
-
-
-
-
-
-#ifdef CHECK_TIME
-
-/*
- * Operating hours for ANGBAND (defaults to non-work hours)
- */
-static char days[7][29] =
+static enum parser_error parse_pprefs_p(struct parser *p)
 {
-	"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
-	"MON:XXXXXXXX.........XXXXXXX",
-	"TUE:XXXXXXXX.........XXXXXXX",
-	"WED:XXXXXXXX.........XXXXXXX",
-	"THU:XXXXXXXX.........XXXXXXX",
-	"FRI:XXXXXXXX.........XXXXXXX",
-	"SAT:XXXXXXXXXXXXXXXXXXXXXXXX"
-};
+    int *pint = parser_priv(p);
 
-/*
- * Restict usage (defaults to no restrictions)
- */
-static bool check_time_flag = FALSE;
+    my_assert(pint != NULL);
 
-#endif
+    *pint = parser_getint(p, "mode");
 
+    /* Read player presets from pref files */
+    process_pref_file_xtra_aux(*pint, parser_getstr(p, "file"));
 
-/*
- * Handle CHECK_TIME
- */
-errr check_time(void)
-{
-
-#ifdef CHECK_TIME
-
-	time_t              c;
-	struct tm		*tp;
-
-	/* No restrictions */
-	if (!check_time_flag) return (0);
-
-	/* Check for time violation */
-	c = time((time_t *)0);
-	tp = localtime(&c);
-
-	/* Violation */
-	if (days[tp->tm_wday][tp->tm_hour + 4] != 'X') return (1);
-
-#endif
-
-	/* Success */
-	return (0);
+    return PARSE_ERROR_NONE;
 }
 
 
-
-/*
- * Initialize CHECK_TIME
- */
-errr check_time_init(void)
+static enum parser_error parse_pprefs_n(struct parser *p)
 {
+    int *pint = parser_priv(p);
+    int idx;
 
-#ifdef CHECK_TIME
+    my_assert(pint != NULL);
 
-	FILE        *fp;
+    idx = parser_getint(p, "idx");
 
-	char	buf[1024];
+    player_numbers[*pint][idx].a = (byte)parser_getint(p, "attr");
+    player_numbers[*pint][idx].c = (char)parser_getint(p, "char");
 
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "time.txt");
-
-	/* Open the file */
-	fp = my_fopen(buf, "r");
-
-	/* No file, no restrictions */
-	if (!fp) return (0);
-
-	/* Assume restrictions */
-	check_time_flag = TRUE;
-
-	/* Parse the file */
-	while (0 == my_fgets(fp, buf, 80))
-	{
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Chop the buffer */
-		buf[29] = '\0';
-
-		/* Extract the info */
-		if (prefix(buf, "SUN:")) strcpy(days[0], buf);
-		if (prefix(buf, "MON:")) strcpy(days[1], buf);
-		if (prefix(buf, "TUE:")) strcpy(days[2], buf);
-		if (prefix(buf, "WED:")) strcpy(days[3], buf);
-		if (prefix(buf, "THU:")) strcpy(days[4], buf);
-		if (prefix(buf, "FRI:")) strcpy(days[5], buf);
-		if (prefix(buf, "SAT:")) strcpy(days[6], buf);
-	}
-
-	/* Close it */
-	my_fclose(fp);
-
-#endif
-
-	/* Success */
-	return (0);
+    return PARSE_ERROR_NONE;
 }
 
 
-
-#ifdef CHECK_LOAD
-
-#ifndef MAXHOSTNAMELEN
-# define MAXHOSTNAMELEN  64
-#endif
-
-typedef struct statstime statstime;
-
-struct statstime
+static struct parser *init_parse_pprefs(void)
 {
-	int                 cp_time[4];
-	int                 dk_xfer[4];
-	unsigned int        v_pgpgin;
-	unsigned int        v_pgpgout;
-	unsigned int        v_pswpin;
-	unsigned int        v_pswpout;
-	unsigned int        v_intr;
-	int                 if_ipackets;
-	int                 if_ierrors;
-	int                 if_opackets;
-	int                 if_oerrors;
-	int                 if_collisions;
-	unsigned int        v_swtch;
-	long                avenrun[3];
-	struct timeval      boottime;
-	struct timeval      curtime;
-};
+    struct parser *p = parser_new();
+    int *pint = mem_zalloc(sizeof(int));
 
-/*
- * Maximal load (if any).
- */
-static int check_load_value = 0;
+    parser_setpriv(p, pint);
+    parser_reg(p, "P int mode str file", parse_pprefs_p);
+    parser_reg(p, "N int idx int attr int char", parse_pprefs_n);
 
-#endif
-
-
-/*
- * Handle CHECK_LOAD
- */
-errr check_load(void)
-{
-
-#ifdef CHECK_LOAD
-
-	struct statstime    st;
-
-	/* Success if not checking */
-	if (!check_load_value) return (0);
-
-	/* Check the load */
-	if (0 == rstat("localhost", &st))
-	{
-		long val1 = (long)(st.avenrun[2]);
-		long val2 = (long)(check_load_value) * FSCALE;
-
-		/* Check for violation */
-		if (val1 >= val2) return (1);
-	}
-
-#endif
-
-	/* Success */
-	return (0);
+    return p;
 }
 
 
-/*
- * Initialize CHECK_LOAD
- */
-errr check_load_init(void)
+bool process_pref_file_xtra(const char *name)
 {
+    char buf[MSG_LEN];
+    ang_file *f;
+    struct parser *p;
+    errr e = 0;
+    int line_no = 0;
 
-#ifdef CHECK_LOAD
+    /* Build the filename */
+    path_build(buf, sizeof(buf), ANGBAND_DIR_PREF, name);
+    if (!file_exists(buf)) path_build(buf, sizeof(buf), ANGBAND_DIR_USER, name);
 
-	FILE        *fp;
+    f = file_open(buf, MODE_READ, FTYPE_TEXT);
+    if (!f)
+        plog_fmt("Cannot open '%s'.", buf);
+    else
+    {
+        char line[MSG_LEN];
 
-	char	buf[1024];
+        p = init_parse_pprefs();
 
-	char	temphost[MAXHOSTNAMELEN+1];
-	char	thishost[MAXHOSTNAMELEN+1];
+        while (file_getl(f, line, sizeof(line)))
+        {
+            line_no++;
 
+            e = parser_parse(p, line);
+            if (e != PARSE_ERROR_NONE)
+            {
+                print_error(buf, p);
+                break;
+            }
+        }
 
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_TEXT, "load.txt");
+        file_close(f);
+        mem_free(parser_priv(p));
+        parser_destroy(p);
+    }
 
-	/* Open the "load" file */
-	fp = my_fopen(buf, "r");
-
-	/* No file, no restrictions */
-	if (!fp) return (0);
-
-	/* Default load */
-	check_load_value = 100;
-
-	/* Get the host name */
-	(void)gethostname(thishost, (sizeof thishost) - 1);
-
-	/* Parse it */
-	while (0 == my_fgets(fp, buf, 1024))
-	{
-		int value;
-
-		/* Skip comments and blank lines */
-		if (!buf[0] || (buf[0] == '#')) continue;
-
-		/* Parse, or ignore */
-		if (sscanf(buf, "%s%d", temphost, &value) != 2) continue;
-
-		/* Skip other hosts */
-		if (!streq(temphost, thishost) &&
-		    !streq(temphost, "localhost")) continue;
-
-		/* Use that value */
-		check_load_value = value;
-
-		/* Done */
-		break;
-	}
-
-	/* Close the file */
-	my_fclose(fp);
-
-#endif
-
-	/* Success */
-	return (0);
+    /* Result */
+    return (e == PARSE_ERROR_NONE);
 }
 
 
-
+/*** Status line display functions ***/
 
 
 /*
- * Prints the following information on the screen.
+ * Print the status line.
+ */
+static void update_statusline(int Ind)
+{
+    int row = 1;
+    int col = 0;
+
+    /* Set the hooks */
+    put_str_hook = buffer_put_str;
+
+    /* Clear the buffer */
+    buffer_clear();
+
+    col += display_depth(Ind, row, col);
+
+    /* Print the status line */
+    display_statusline(Ind, row, col);
+}
+
+
+/*** Utility functions for character dumps ***/
+
+
+/*
+ * Display the character in a file (two different modes)
  *
- * For this to look right, the following should be spaced the
- * same as in the prt_lnum code... -CFT
+ * The top two lines, and the bottom line (or two) are left blank.
  *
- * This will send the info to the client now --KLJ--
- * 
- * Except that this (and display_player) are never called. --KLJ--
- */
-static void display_player_middle(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-
-	int show_tohit = p_ptr->dis_to_h;
-	int show_todam = p_ptr->dis_to_d;
-
-	s32b adv_exp;
-
-	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
-
-	/* Hack -- add in weapon info if known */
-	if (object_known_p(Ind, o_ptr)) show_tohit += o_ptr->to_h;
-	if (object_known_p(Ind, o_ptr)) show_todam += o_ptr->to_d;
-
-	/* Dump the bonuses to hit/dam */
-	Send_plusses(Ind, show_tohit, show_todam);
-
-	/* Dump the armor class bonus */
-	Send_ac(Ind, p_ptr->dis_ac, p_ptr->dis_to_a);
-
-	if (p_ptr->lev >= PY_MAX_LEVEL)
-		adv_exp = 0;
-	else adv_exp = (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
-
-	Send_experience(Ind, p_ptr->lev, p_ptr->max_exp, p_ptr->exp, adv_exp);
-
-	Send_gold(Ind, p_ptr->au);
-
-	Send_hp(Ind, p_ptr->mhp, p_ptr->chp);
-
-	Send_sp(Ind, p_ptr->msp, p_ptr->csp);
-}
-
-
-
-/*
- * Display the character on the screen (with optional history)
+ * Mode FALSE = standard display with skills/history
+ * Mode TRUE = special display with equipment flags
  *
- * The top two and bottom two lines are left blank.
+ * Similar to the function in c-xtra but modified to work server-side.
+ * This is used for server-side character dumps.
  */
-void display_player(int Ind)
+static void display_player_file(int Ind, bool mode)
 {
-	player_type *p_ptr = Players[Ind];
+    /* Set the hooks */
+    clear_hook = buffer_clear;
+    region_erase_hook = NULL;
+    put_ch_hook = buffer_put_ch;
+    put_str_hook = buffer_put_str;
+    use_bigtile_hook = FALSE;
 
-	int i;
-
-
-	/* Send basic information */
-	Send_char_info(Ind, p_ptr->prace, p_ptr->pclass, p_ptr->male);
-
-	/* Age, Height, Weight, Social */
-	Send_various(Ind, p_ptr->ht, p_ptr->wt, p_ptr->age, p_ptr->sc);
-
-	/* Send all the stats */
-	for (i = 0; i < 6; i++)
-	{
-		Send_stat(Ind, i, p_ptr->stat_top[i], p_ptr->stat_use[i]);
-	}
-
-	/* Extra info */
-	display_player_middle(Ind);
-
-	/* Display "history" info */
-	Send_history(Ind, i, p_ptr->history[i]);
+    /* Display the character in a file */
+    display_player(Ind, mode);
 }
-
-
 
 
 /*
  * Hack -- Dump a character description file
- *
- * XXX XXX XXX Allow the "full" flag to dump additional info,
- * and trigger its usage from various places in the code.
- *
- * FIXME -- This is currently disabled, because either the character dump
- *  will just end up on the server, or a lot more network interface will have
- *  to be defined to transfer this back to the client machine.  Ugh.
+ * This is for server-side character dumps
  */
-#if 0
-errr file_character(cptr name, bool full)
+errr file_character_server(int Ind, char *base, char *name, bool ladder)
 {
-	int			i, x, y;
-
-	byte		a;
-	char		c;
-
-#if 0
-	cptr		other = "(";
-#endif
-
-	cptr		paren = ")";
-
-	int			fd = -1;
-
-	FILE		*fff = NULL;
-
-	store_type		*st_ptr = &store[7];
-
-	char		o_name[80];
-
-	char		buf[1024];
-
-
-	/* Drop priv's */
-	safe_setuid_drop();
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, name);
-
-	/* File type is "TEXT" */
-	FILE_TYPE(FILE_TYPE_TEXT);
-
-	/* Check for existing file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Existing file */
-	if (fd >= 0)
-	{
-		char out_val[160];
-
-		/* Close the file */
-		(void)fd_close(fd);
-
-		/* Build query */
-		(void)sprintf(out_val, "Replace existing file %s? ", buf);
-
-		/* Ask */
-		if (get_check(out_val)) fd = -1;
-	}
-
-	/* Open the non-existing file */
-	if (fd < 0) fff = my_fopen(buf, "w");
-
-	/* Grab priv's */
-	safe_setuid_grab();
-
-
-	/* Invalid file */
-	if (!fff)
-	{
-		/* Message */
-		msg_format("Character dump failed!");
-		msg_print(NULL);
-
-		/* Error */
-		return (-1);
-	}
-
-
-	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
-
-	/* Save screen */
-	Term_save();
-
-	/* Display the player (with various) */
-	display_player(FALSE);
-
-	/* Dump part of the screen */
-	for (y = 2; y < 22; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Dump it */
-			buf[x] = c;
-		}
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fff, "%s\n", buf);
-	}
-
-	/* Display the player (with history) */
-	display_player(TRUE);
-
-	/* Dump part of the screen */
-	for (y = 15; y < 20; y++)
-	{
-		/* Dump each row */
-		for (x = 0; x < 79; x++)
-		{
-			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
-
-			/* Dump it */
-			buf[x] = c;
-		}
-
-		/* Terminate */
-		buf[x] = '\0';
-
-		/* End the row */
-		fprintf(fff, "%s\n", buf);
-	}
-
-	/* Restore screen */
-	Term_load();
-
-	/* Skip some lines */
-	fprintf(fff, "\n\n");
-
-
-	/* Dump the equipment */
-	if (equip_cnt)
-	{
-		fprintf(fff, "  [Character Equipment]\n\n");
-		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
-		{
-			object_desc(o_name, &inventory[i], TRUE, 3);
-			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
-		}
-		fprintf(fff, "\n\n");
-	}
-
-	/* Dump the inventory */
-	fprintf(fff, "  [Character Inventory]\n\n");
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
-
-
-	/* Dump the Home (page 1) */
-	fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-	for (i = 0; i < 12; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
-
-	/* Dump the Home (page 2) */
-	fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-	for (i = 12; i < 24; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
-
-
-	/* Close it */
-	my_fclose(fff);
-
-
-	/* Message */
-	msg_print("Character dump successful.");
-	msg_print(NULL);
-
-	/* Success */
-	return (0);
-}
-#endif
-
-
-
-/*
- * Recursive "help file" perusal.  Return FALSE on "ESCAPE".
- *
- * XXX XXX XXX Consider using a temporary file.
- *
- */
-static bool do_cmd_help_aux(int Ind, cptr name, cptr what, int line, int color)
-{
-	int		i, k;
-
-	/* Number of "real" lines passed by */
-	int		next = 0;
-
-	/* Number of "real" lines in the file */
-	int		size = 0;
-
-	/* Backup value for "line" */
-	int		back = 0;
-
-	/* This screen has sub-screens */
-	bool	menu = FALSE;
-
-	/* Current help file */
-	FILE	*fff = NULL;
-
-	/* Find this string (if any) */
-	cptr	find = NULL;
-
-	/* Hold a string to find */
-	char	finder[128];
-
-	/* Hold a string to show */
-	char	shower[128];
-
-	/* Describe this thing */
-	char	caption[128];
-
-	/* Path buffer */
-	char	path[1024];
-
-	/* General buffer */
-	char	buf[1024];
-
-	/* Sub-menu information */
-	char	hook[10][32];
-
-
-	/* Wipe finder */
-	strcpy(finder, "");
-
-	/* Wipe shower */
-	strcpy(shower, "");
-
-	/* Wipe caption */
-	strcpy(caption, "");
-
-	/* Wipe the hooks */
-	for (i = 0; i < 10; i++) hook[i][0] = '\0';
-
-
-	/* Hack XXX XXX XXX */
-	if (what)
-	{
-		/* Caption */
-		strcpy(caption, what);
-
-		/* Access the "file" */
-		strcpy(path, name);
-
-		/* Open */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Look in "help" */
-	if (!fff)
-	{
-		/* Caption */
-		sprintf(caption, "Help file '%s'", name);
-
-		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_TEXT, name);
-
-		/* Open the file */
-		fff = my_fopen(path, "r");
-	}
-
-	/* Oops */
-	if (!fff)
-	{
-		/* Message */
-		msg_format(Ind, "Cannot open '%s'.", name);
-		msg_print(Ind, NULL);
-
-		/* Oops */
-		return (TRUE);
-	}
-
-
-	/* Pre-Parse the file */
-	while (TRUE)
-	{
-		/* Read a line or stop */
-		if (my_fgets(fff, buf, 1024)) break;
-
-		/* XXX Parse "menu" items */
-		if (prefix(buf, "***** "))
-		{
-			char b1 = '[', b2 = ']';
-
-			/* Notice "menu" requests */
-			if ((buf[6] == b1) && isdigit(buf[7]) &&
-			    (buf[8] == b2) && (buf[9] == ' '))
-			{
-				/* This is a menu file */
-				menu = TRUE;
-
-				/* Extract the menu item */
-				k = buf[7] - '0';
-
-				/* Extract the menu item */
-				strcpy(hook[k], buf + 10);
-			}
-
-			/* Skip this */
-			continue;
-		}
-
-		/* Count the "real" lines */
-		next++;
-	}
-
-	/* Save the number of "real" lines */
-	size = next;
-
-
-
-	/* Display the file */
-#if 0
-	while (TRUE)
-	{
-		/* Clear screen */
-		Term_clear();
-
-#endif
-
-		/* Restart when necessary */
-		if (line >= size) line = 0;
-
-
-		/* Re-open the file if needed */
-		if (next > line)
-		{
-			/* Close it */
-			my_fclose(fff);
-
-			/* Hack -- Re-Open the file */
-			fff = my_fopen(path, "r");
-
-			/* Oops */
-			if (!fff) return (FALSE);
-
-			/* File has been restarted */
-			next = 0;
-		}
-
-		/* Skip lines if needed */
-		for (; next < line; next++)
-		{
-			/* Skip a line */
-			if (my_fgets(fff, buf, 1024)) break;
-		}
-
-
-		/* Dump the next 20 lines of the file */
-		for (i = 0; i < 20; )
-		{
-			byte attr = TERM_WHITE;
-
-			/* Hack -- track the "first" line */
-			if (!i) line = next;
-
-			/* Get a line of the file or stop */
-			if (my_fgets(fff, buf, 1024)) break;
-
-			/* Hack -- skip "special" lines */
-			if (prefix(buf, "***** ")) continue;
-
-			/* Count the "real" lines */
-			next++;
-
-			/* Hack -- keep searching */
-			if (find && !i && !strstr(buf, find)) continue;
-
-			/* Hack -- stop searching */
-			find = NULL;
-
-			/* Extract color */
-			if (color) attr = color_char_to_attr(buf[0]);
-
-			/* Hack -- show matches */
-			if (shower[0] && strstr(buf, shower)) attr = TERM_YELLOW;
-
-			/* Dump the line */
-			Send_special_line(Ind, size, i, attr, &buf[color]);
-
-			/* Count the printed lines */
-			i++;
-		}
-
-		/* Hack -- failed search */
-		if (find)
-		{
-			bell();
-			line = back;
-			find = NULL;
-			return (TRUE);
-		}
-
-
-#if 0
-		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
-		           caption, line, size), 0, 0);
-
-
-		/* Prompt -- menu screen */
-		if (menu)
-		{
-			/* Wait for it */
-			prt("[Press a Number, or ESC to exit.]", 23, 0);
-		}
-
-		/* Prompt -- small files */
-		else if (size <= 20)
-		{
-			/* Wait for it */
-			prt("[Press ESC to exit.]", 23, 0);
-		}
-
-		/* Prompt -- large files */
-		else
-		{
-			/* Wait for it */
-			prt("[Press Return, Space, -, =, /, or ESC to exit.]", 23, 0);
-		}
-
-		/* Get a keypress */
-		k = inkey();
-
-		/* Hack -- return to last screen */
-		if (k == '?') break;
-
-		/* Hack -- try showing */
-		if (k == '=')
-		{
-			prt("Show: ", 23, 0);
-			(void)askfor_aux(shower, 80);
-		}
-
-		/* Hack -- try finding */
-		if (k == '/')
-		{
-			prt("Find: ", 23, 0);
-			if (askfor_aux(finder, 80))
-			{
-				find = finder;
-				back = line;
-				line = line + 1;
-			}
-		}
-
-		/* Hack -- go to a specific line */
-		if (k == '#')
-		{
-			char tmp[80];
-			prt("Goto Line: ", 23, 0);
-			strcpy(tmp, "0");
-			if (askfor_aux(tmp, 80))
-			{
-				line = atoi(tmp);
-			}
-		}
-
-		/* Hack -- go to a specific file */
-		if (k == '%')
-		{
-			char tmp[80];
-			prt("Goto File: ", 23, 0);
-			strcpy(tmp, "help.hlp");
-			if (askfor_aux(tmp, 80))
-			{
-				if (!do_cmd_help_aux(tmp, NULL, 0)) k = ESCAPE;
-			}
-		}
-
-		/* Hack -- Allow backing up */
-		if (k == '-')
-		{
-			line = line - 10;
-			if (line < 0) line = 0;
-		}
-
-		/* Hack -- Advance a single line */
-		if ((k == '\n') || (k == '\r'))
-		{
-			line = line + 1;
-		}
-
-		/* Advance one page */
-		if (k == ' ')
-		{
-			line = line + 20;
-		}
-
-		/* Recurse on numbers */
-		if (menu && isdigit(k) && hook[k-'0'][0])
-		{
-			/* Recurse on that file */
-			if (!do_cmd_help_aux(hook[k-'0'], NULL, 0)) k = ESCAPE;
-		}
-
-		/* Exit on escape */
-		if (k == ESCAPE) break;
-	}
-
-#endif
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Escape */
-	if (k == ESCAPE) return (FALSE);
-
-	/* Normal return */
-	return (TRUE);
+    player_type *p_ptr = player_get(Ind);
+    int i, x, y;
+    byte a;
+    char c;
+    ang_file *fp;
+    char o_name[NORMAL_WID];
+    char buf[MSG_LEN];
+    time_t ct = time((time_t*)0);
+    char today[10];
+    int j;
+    int x1, x2, y1, y2;
+    char attr;
+    grid_data g;
+    char sx;
+    bool victory = streq(p_ptr->death_info.died_from, "winner");
+
+    /* Only record the original death */
+    if (p_ptr->ghost) return (-1);
+
+    /* Build the filename */
+    path_build(buf, MSG_LEN, base, name);
+
+    /* Open the file for writing */
+    fp = file_open(buf, MODE_WRITE, FTYPE_TEXT);
+    if (!fp) return (-1);
+
+    switch (p_ptr->psex)
+    {
+        case SEX_FEMALE: sx = 'f'; break;
+        case SEX_MALE: sx = 'm'; break;
+        default: sx = 'n'; break;
+    }
+
+    /*
+     * Add ladder information, this line is used by the online ladder and
+     * not displayed when viewing a character dump online.
+     */
+    if (ladder)
+    {
+        strftime(today, 9, "%m/%d/%y", localtime(&ct));
+        x_file_putf(fp,
+            "# %lu|%lu|%-.8s|%-.25s|%c|%2d|%2d|%3d|%3d|%3d|%3d|%-.31s|%s\n",
+            (long)total_points(p_ptr, p_ptr->max_exp, p_ptr->max_depth), (long)p_ptr->au, today,
+            p_ptr->name, sx, p_ptr->race->ridx, p_ptr->clazz->cidx, p_ptr->lev, p_ptr->depth,
+            p_ptr->max_lev, p_ptr->max_depth, p_ptr->death_info.died_from, get_buildver());
+    }
+
+    /* Leave it at that for characters lower than level 20 */
+    if (ladder && (p_ptr->lev < 20))
+    {
+        /* Close dump file */
+        file_close(fp);
+
+        /* Success */
+        return (0);
+    }
+
+    /* Begin dump */
+    file_putf(fp, "  [%s Character Dump]\n\n", get_buildid(FALSE));
+
+    /* Display player */
+    display_player_file(Ind, FALSE);
+
+    /* Dump part of the screen */
+    for (y = 0; y < 21; y++) x_file_putf(fp, "%s\n", buffer_line(y));
+
+    /* Skip a line */
+    file_putf(fp, "\n");
+
+    /* Display player */
+    display_player_file(Ind, TRUE);
+
+    /* Dump part of the screen */
+    for (y = 10; y < 19; y++) x_file_putf(fp, "%s\n", buffer_line(y));
+
+    /* Skip some lines */
+    file_putf(fp, "\n\n");
+
+    /* Dump last messages */
+    file_put(fp, "  [Last Messages]\n\n");
+    i = p_ptr->msg_hist_ptr;
+    for (j = 0; j < MAX_MSG_HIST; j++)
+    {
+        if (i >= MAX_MSG_HIST) i = 0;
+        if (p_ptr->msg_log[i])
+            x_file_putf(fp, "%s\n", p_ptr->msg_log[i]);
+        i++;
+    }
+    if (victory) x_file_putf(fp, "\nAll Hail the Mighty %s!\n\n\n", p_ptr->sex->winner);
+    else x_file_putf(fp, "\nKilled by %s.\n\n\n", p_ptr->death_info.died_from);
+
+    /* Dump the equipment */
+    file_put(fp, "  [Character Equipment]\n\n");
+    for (i = INVEN_WIELD; i < ALL_INVEN_TOTAL; i++)
+    {
+        if (i == INVEN_TOTAL)
+        {
+            file_putf(fp, "\n\n  [Character Quiver]\n\n");
+            continue;
+        }
+        object_desc(NULL, o_name, sizeof(o_name), &p_ptr->inventory[i], ODESC_PREFIX | ODESC_FULL);
+        x_file_putf(fp, "%c) %s\n", index_to_label(i), o_name);
+    }
+
+    /* Dump the inventory */
+    file_putf(fp, "\n\n  [Character Inventory]\n\n");
+    for (i = 0; i < INVEN_PACK; i++)
+    {
+        object_desc(NULL, o_name, sizeof(o_name), &p_ptr->inventory[i], ODESC_PREFIX | ODESC_FULL);
+        x_file_putf(fp, "%c) %s\n", index_to_label(i), o_name);
+    }
+    file_put(fp, "\n\n");
+
+    /* Dump the Home if anything there */
+    file_put(fp, "  [Home Inventory]\n");
+    for (i = 0; i < num_houses; i++)
+    {
+        if (house_owned_by(p_ptr, i))
+        {
+            file_put(fp, "\n");
+            j = 0;
+            for (y = houses[i].y_1; y <= houses[i].y_2; y++)
+            {
+                for (x = houses[i].x_1; x <= houses[i].x_2; x++)
+                {
+                    object_type *o_ptr;
+
+                    for (o_ptr = get_first_object(houses[i].depth, y, x); o_ptr;
+                        o_ptr = get_next_object(o_ptr))
+                    {
+                        if (j > 12)
+                        {
+                            file_put(fp, "\n");
+                            j = 0;
+                        }
+                        object_desc(NULL, o_name, sizeof(o_name), o_ptr, ODESC_PREFIX | ODESC_FULL);
+                        x_file_putf(fp,"%c) %s\n", index_to_label(j), o_name);
+                        j++;
+                    }
+                }
+            }
+        }
+    }
+    file_put(fp, "\n\n");
+
+    /* Dump character history */
+    file_put(fp, "  [Character History]\n\n");
+    history_unmask_unknown(p_ptr);
+    dump_history(p_ptr, fp);
+
+    /* Dump the scene of death */
+    if (victory) file_put(fp, "  [Scene of Victory]\n\n");
+    else file_put(fp, "  [Scene of Death]\n\n");
+
+    /* Get an in bounds area */
+    x1 = p_ptr->px - 39;
+    x2 = p_ptr->px + 39;
+    y1 = p_ptr->py - 10;
+    y2 = p_ptr->py + 10;
+    if (y1 < 0)
+    {
+        y2 = y2 - y1;
+        y1 = 0;
+    }
+    if (x1 < 0)
+    {
+        x2 = x2 - x1;
+        x1 = 0;
+    }
+    if (y2 > DUNGEON_HGT - 1)
+    {
+        y1 = y1 - (y2 - (DUNGEON_HGT - 1));
+        y2 = DUNGEON_HGT - 1;
+    }
+    if (x2 > DUNGEON_WID - 1)
+    {
+        x1 = x1 - (x2 - (DUNGEON_WID - 1));
+        x2 = DUNGEON_WID - 1;
+    }
+
+    /* Describe each row */
+    for (y = y1; y <= y2; y++)
+    {
+        for (x = x1; x <= x2; x++)
+        {
+            /* Get the features */
+            map_info(p_ptr, y, x, &g);
+            grid_data_as_text(p_ptr, TRUE, &g, &a, &c, &a, &c);
+
+            /* Hack for the player who is already dead and gone */
+            if ((x == p_ptr->px) && (y == p_ptr->py))
+            {
+                c = '@';
+                a = 'W';
+            }
+
+            /* Translate the attr */
+            attr = color_attr_to_char(a);
+
+            /* Config file controls if we output with color codes */
+            if (cfg_chardump_color)
+            {
+                /* Output with attr colour code */
+                file_putf(fp, "%c%c", attr, c);
+            }
+            else
+            {
+                /* Output plain ASCII */
+                file_putf(fp, "%c", c);
+            }
+        }
+        file_put(fp, "\n");
+    }
+
+    /* Prepare status line */
+    update_statusline(Ind);
+
+    /* Dump status line */
+    file_putf(fp, "%s\n", buffer_line(0));
+    file_put(fp, "\n\n");
+
+    /* Close it */
+    file_close(fp);
+
+    /* Success */
+    return (0);
 }
 
 
 /*
- * Peruse the On-Line-Help, starting at the given file.
- *
- * Disabled --KLJ--
+ * File perusal
  */
-void do_cmd_help(int Ind, int line)
+static bool do_cmd_help_aux(int Ind, const char *name, const char *what, int line, int color)
 {
-	cptr name = "mangband.hlp";
+    player_type *p_ptr = player_get(Ind);
+    int i;
 
-	/* Peruse the main help file */
-	(void)do_cmd_help_aux(Ind, name, NULL, line, FALSE);
+    /* Number of "real" lines passed by */
+    int next = 0;
+
+    /* Number of "real" lines in the file */
+    int size;
+
+    /* Current help file */
+    ang_file *fff = NULL;
+
+    /* Hold a string to show */
+    char shower[NORMAL_WID] = "";
+
+    /* Describe this thing */
+    char caption[128] = "";
+
+    /* Path buffer */
+    char path[MSG_LEN];
+
+    /* General buffer */
+    char buf[MSG_LEN];
+
+    /* Hack XXX XXX XXX */
+    if (what)
+    {
+        my_strcpy(caption, what, sizeof(caption));
+
+        my_strcpy(path, name, sizeof(path));
+
+        fff = file_open(path, MODE_READ, FTYPE_TEXT);
+    }
+
+    /* Look in "help" */
+    if (!fff)
+    {
+        strnfmt(caption, sizeof(caption), "Help file '%s'", name);
+
+        path_build(path, MSG_LEN, ANGBAND_DIR_HELP, name);
+
+        fff = file_open(path, MODE_READ, FTYPE_TEXT);
+    }
+
+    /* Oops */
+    if (!fff)
+    {
+        /* Message */
+        msg(p_ptr, "Cannot open '%s'.", name);
+        message_flush(p_ptr);
+
+        /* Oops */
+        return (TRUE);
+    }
+
+    /* Pre-Parse the file */
+    while (TRUE)
+    {
+        /* Read a line or stop */
+        if (!file_getl(fff, buf, sizeof(buf))) break;
+
+        /* Count the "real" lines */
+        next++;
+    }
+
+    /* Save the number of "real" lines */
+    size = next;
+
+    /* Restart when necessary */
+    if (line >= size) player_get(Ind)->interactive_line = line = 0;
+
+    /* Re-open the file if needed */
+    if (next > line)
+    {
+        /* Close it */
+        file_close(fff);
+
+        /* Hack -- Re-Open the file */
+        fff = file_open(path, MODE_READ, FTYPE_TEXT);
+        if (!fff) return (FALSE);
+
+        /* File has been restarted */
+        next = 0;
+    }
+
+    /* Goto the selected line */
+    while (next < line)
+    {
+        /* Get a line */
+        if (!file_getl(fff, buf, sizeof(buf))) break;
+
+        /* Count the lines */
+        next++;
+    }
+
+    /* Dump the next 20 lines of the file */
+    for (i = 0; i < 20; )
+    {
+        byte attr = TERM_WHITE;
+
+        /* Hack -- Track the "first" line */
+        if (!i) line = next;
+
+        /* Get a line of the file or stop */
+        if (!file_getl(fff, buf, sizeof(buf))) break;
+
+        /* Count the "real" lines */
+        next++;
+
+        /* Extract color */
+        if (color) attr = color_char_to_attr(buf[0]);
+
+        /* Highlight "shower" */
+        if (shower[0] && strstr(buf, shower)) attr = TERM_YELLOW;
+
+        /* Dump the line */
+        Send_special_line(Ind, size - 1, size - 1 - line, i, attr, &buf[color]);
+
+        /* Count the printed lines */
+        i++;
+    }
+
+    /* Inform about empty file/list */
+    if (!i) Send_special_line(Ind, 0, 0, 0, TERM_WHITE, "  (nothing)");
+
+    /* Close the file */
+    file_close(fff);
+
+    /* Normal return */
+    return (TRUE);
 }
-
 
 
 /*
@@ -1390,28 +1020,88 @@ void do_cmd_help(int Ind, int line)
  * XXX XXX XXX Use this function for commands such as the
  * "examine object" command.
  */
-errr show_file(int Ind, cptr name, cptr what, int line, int color)
+errr show_file(int Ind, const char *name, const char *what, int line, int color)
 {
-	/* Enter "icky" mode */
-	/*character_icky = TRUE;*/
+    player_type *p_ptr = player_get(Ind);
 
-	/* Save the screen */
-	/*Term_save();*/
+    /* Protect our header */
+    alloc_header_icky(p_ptr, what);
 
-	/* Peruse the requested file */
-	(void)do_cmd_help_aux(Ind, name, what, line, color);
+    /* Peruse the requested file */
+    do_cmd_help_aux(Ind, name, get_header(p_ptr, what), line, color);
 
-	/* Restore the screen */
-	/*Term_load();*/
-
-	/* Leave "icky" mode */
-	/*character_icky = FALSE;*/
-
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 
+/*
+ * Process the player name
+ */
+int process_player_name_aux(const char *name, const char *base, const char *save, bool sf)
+{
+    int i, k = 0;
+    char local_base[NORMAL_WID];
+    char *basename = (char*)base;
+
+    /* Cannot be too long */
+    if (strlen(name) > 15)
+    {
+        /* Abort */
+        return -1;
+    }
+
+    /* Cannot contain "icky" characters */
+    for (i = 0; name[i]; i++)
+    {
+        /* No control characters */
+        if (iscntrl(name[i]))
+        {
+            /* Abort */
+            return -2;
+        }
+    }
+
+    if (base == NULL) basename = &local_base[0];
+
+    /* Extract "useful" letters */
+    for (i = 0; name[i]; i++)
+    {
+        char c = name[i];
+
+        /* Accept some letters */
+        if (isalpha(c) || isdigit((unsigned char)c)) basename[k++] = c;
+
+        /* Convert space, dot, and underscore to underscore */
+        else if (strchr(". _", c)) basename[k++] = '_';
+    }
+
+    /* Terminate */
+    basename[k] = '\0';
+
+    /* Require a "base" name */
+    if (!basename[0])
+        my_strcpy(basename, "PLAYER", sizeof(basename));
+
+    /* Accept */
+    sf = TRUE;
+
+    /* Change the savefile name */
+    if (sf)
+    {
+        char temp[128];
+        memset(temp, 0, 128);
+
+        /* Rename the savefile, using the player_base */
+        my_strcpy(temp, basename, sizeof(temp));
+
+        /* Build the filename */
+        path_build((char*)save, MSG_LEN, ANGBAND_DIR_SAVE, temp);
+    }
+
+    /* Success */
+    return 0;
+}
 
 
 /*
@@ -1419,1089 +1109,143 @@ errr show_file(int Ind, cptr name, cptr what, int line, int color)
  * Extract a clean "base name".
  * Build the savefile name if needed.
  */
-bool process_player_name(int Ind, bool sf)
+bool process_player_name(struct player *p, bool sf)
 {
-	player_type *p_ptr = Players[Ind];
+    int ret;
 
-	int i, k = 0;
+    ret = process_player_name_aux(p->name, p->other.base_name, p->savefile, sf);
 
+    /* Cannot be too long */
+    if (ret == -1)
+    {
+        /* Name too long */
+        Destroy_connection(p->conn, "Your name is too long!");
 
-	/* Cannot be too long */
-	if (strlen(p_ptr->name) > 15)
-	{
-		/* Name too long */
-		Destroy_connection(p_ptr->conn, "Your name is too long!");
+        /* Abort */
+        return FALSE;
+    }
 
-		/* Abort */
-		return FALSE;
-	}
+    /* Cannot contain "icky" characters */
+    if (ret == -2)
+    {
+        /* Illegal characters */
+        Destroy_connection(p->conn, "Your name contains control chars!");
 
-	/* Cannot contain "icky" characters */
-	for (i = 0; p_ptr->name[i]; i++)
-	{
-		/* No control characters */
-		if (iscntrl(p_ptr->name[i]))
-		{
-			/* Illegal characters */
-			Destroy_connection(p_ptr->conn, "Your name contains control chars!");
+        /* Abort */
+        return FALSE;
+    }
 
-			/* Abort */
-			return FALSE;
-		}
-	}
-
-
-#ifdef MACINTOSH
-
-	/* Extract "useful" letters */
-	for (i = 0; p_ptr->name[i]; i++)
-	{
-		char c = p_ptr->name[i];
-
-		/* Convert "dot" to "underscore" */
-		if (c == '.') c = '_';
-
-		/* Accept all the letters */
-		p_ptr->basename[k++] = c;
-	}
-
-#else
-
-	/* Extract "useful" letters */
-	for (i = 0; p_ptr->name[i]; i++)
-	{
-		char c = p_ptr->name[i];
-
-		/* Accept some letters */
-		if (isalpha(c) || isdigit(c)) p_ptr->basename[k++] = c;
-
-		/* Convert space, dot, and underscore to underscore */
-		else if (strchr(". _", c)) p_ptr->basename[k++] = '_';
-	}
-
-#endif
-
-
-#if defined(WINDOWS) || defined(MSDOS)
-
-	/* Hack -- max length */
-	if (k > 8) k = 8;
-
-#endif
-
-	/* Terminate */
-	p_ptr->basename[k] = '\0';
-
-	/* Require a "base" name */
-	if (!p_ptr->basename[0]) strcpy(p_ptr->basename, "PLAYER");
-
-
-#ifdef SAVEFILE_MUTABLE
-
-	/* Accept */
-	sf = TRUE;
-
-#endif
-
-	/* Change the savefile name */
-	if (sf)
-	{
-		char temp[128];
-
-		/* Rename the savefile, using the player_base */
-		(void)sprintf(temp, "%s", p_ptr->basename);
-
-#ifdef VM
-		/* Hack -- support "flat directory" usage on VM/ESA */
-		(void)sprintf(temp, "%s.sv", player_base);
-#endif /* VM */
-
-		/* Build the filename */
-		path_build(p_ptr->savefile, 1024, ANGBAND_DIR_SAVE, temp);
-	}
-
-	/* Success */
-	return TRUE;
+    /* Success */
+    return TRUE;
 }
 
 
 /*
- * Gets a name for the character, reacting to name changes.
- *
- * Assumes that "display_player()" has just been called
- * XXX Perhaps we should NOT ask for a name (at "birth()") on Unix?
- *
- * The name should be sent to us from the client, so this is unnecessary --KLJ--
+ * Change a player into a King!
  */
-void get_name(int Ind)
+void kingly(int Ind)
 {
+    player_type *p_ptr = player_get(Ind);
+
+    /* Hack -- Retire in town */
+    p_ptr->depth = 0;
+
+    /* Fake death */
+    my_strcpy(p_ptr->death_info.died_from, "winner", sizeof(p_ptr->death_info.died_from));
+
+    /* Restore the experience */
+    p_ptr->exp = p_ptr->max_exp;
+
+    /* Restore the level */
+    p_ptr->lev = p_ptr->max_lev;
+
+    /* Hack -- Player gets an XP bonus for beating the game */
+    p_ptr->exp = p_ptr->max_exp += 10000000L;
+
+    /* Hack -- Ensure we are retired */
+    p_ptr->retire_timer = 0;
 }
-
-
-
-/*
- * Hack -- commit suicide
- */
-void do_cmd_suicide(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-
-	/* Mark as suicide */
-	p_ptr->alive = FALSE;
-
-	/* Hack -- set the cause of death */
-	if (!p_ptr->ghost) 
-	{
-		strcpy(p_ptr->died_from_list, "self-inflicted wounds");
-		p_ptr->died_from_depth = p_ptr->dun_depth;
-	}
-
-	/* Hack -- clear ghost */
-	p_ptr->ghost = FALSE;
-
-	if (p_ptr->total_winner) kingly(Ind);
-
-	/* Kill him */
-	player_death(Ind);
-}
-
 
 
 /*
  * Save a character
  */
-void do_cmd_save_game(int Ind)
+static void save_game(int Ind)
 {
-	player_type *p_ptr = Players[Ind];
+    player_type *p_ptr = player_get(Ind);
 
-	/* Disturb the player */
-	disturb(Ind, 1, 0);
+    /* Disturb the player */
+    disturb(p_ptr, 1, 0);
 
-	/* Clear messages */
-	msg_print(Ind, NULL);
+    /* Clear messages */
+    message_flush(p_ptr);
 
-	/* Handle stuff */
-	handle_stuff(Ind);
+    /* Handle stuff */
+    handle_stuff(p_ptr);
 
-	/* Message */
-	msg_print(Ind, "Saving game...");
+    /* Message */
+    msg(p_ptr, "Saving game...");
 
-	/* Refresh */
-	/*Term_fresh();*/
+    /* The player is not dead */
+    my_strcpy(p_ptr->died_from, "(saved)", sizeof(p_ptr->died_from));
 
-	/* The player is not dead */
-	(void)strcpy(p_ptr->died_from, "(saved)");
+    /* Save the player */
+    if (save_player(Ind))
+        msg(p_ptr, "Saving game... done.");
 
-	/* Forbid suspend */
-	signals_ignore_tstp();
+    /* Save failed (oops) */
+    else
+        msg(p_ptr, "Saving game... failed!");
 
-	/* Save the player */
-	if (save_player(Ind))
-	{
-		msg_print(Ind, "Saving game... done.");
-	}
-
-	/* Save failed (oops) */
-	else
-	{
-		msg_print(Ind, "Saving game... failed!");
-	}
-
-	/* Allow suspend again */
-	signals_handle_tstp();
-
-	/* Refresh */
-	/*Term_fresh();*/
-
-	/* Note that the player is not dead */
-	(void)strcpy(p_ptr->died_from, "(alive and well)");
-}
-
-
-
-/*
- * Hack -- Calculates the total number of points earned		-JWT-
- */
-long total_points(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-
-	return (p_ptr->max_exp + (100 * p_ptr->max_dlv));
-}
-
-
-
-
-/*
- * Display some character info
- *
- * FIXME -- This is very broken.  There is no home.  There is no way to get
- *   most of this information transferred to the client.  This isn't used all
- *   that often.  I'll worry about it later.  --KLJ--
- */
-static void show_info(int Ind)
-{
-#if 0
-	int			i, j, k;
-
-	object_type		*o_ptr;
-
-	store_type		*st_ptr = &store[7];
-
-
-	/* Hack -- Know everything in the inven/equip */
-	for (i = 0; i < INVEN_TOTAL; i++)
-	{
-		o_ptr = &inventory[i];
-		if (o_ptr->k_idx)
-		{
-			object_aware(o_ptr);
-			object_known(o_ptr);
-		}
-	}
-
-	/* Hack -- Know everything in the home */
-	for (i = 0; i < st_ptr->stock_num; i++)
-	{
-		o_ptr = &st_ptr->stock[i];
-		if (o_ptr->k_idx)
-		{
-			object_aware(o_ptr);
-			object_known(o_ptr);
-		}
-	}
-
-	/* Hack -- Recalculate bonuses */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Flush all input keys */
-	flush();
-
-	/* Flush messages */
-	msg_print(NULL);
-
-
-	/* Describe options */
-	prt("You may now dump a character record to one or more files.", 21, 0);
-	prt("Then, hit RETURN to see the character, or ESC to abort.", 22, 0);
-
-	/* Dump character records as requested */
-	while (TRUE)
-	{
-		char out_val[160];
-
-		/* Prompt */
-		put_str("Filename: ", 23, 0);
-
-		/* Default */
-		strcpy(out_val, "");
-
-		/* Ask for filename (or abort) */
-		if (!askfor_aux(out_val, 60)) return;
-
-		/* Return means "show on screen" */
-		if (!out_val[0]) break;
-
-		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
-	}
-
-
-	/* Show player on screen */
-	display_player(FALSE);
-
-	/* Prompt for inventory */
-	prt("Hit any key to see more information (ESC to abort): ", 23, 0);
-
-	/* Allow abort at this point */
-	if (inkey() == ESCAPE) return;
-
-
-	/* Show equipment and inventory */
-
-	/* Equipment -- if any */
-	if (equip_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_equip();
-		prt("You are using: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
-
-	/* Inventory -- if any */
-	if (inven_cnt)
-	{
-		Term_clear();
-		item_tester_full = TRUE;
-		show_inven();
-		prt("You are carrying: -more-", 0, 0);
-		if (inkey() == ESCAPE) return;
-	}
-
-
-
-	/* Home -- if anything there */
-	if (st_ptr->stock_num)
-	{
-		/* Display contents of the home */
-		for (k = 0, i = 0; i < st_ptr->stock_num; k++)
-		{
-			/* Clear screen */
-			Term_clear();
-
-			/* Show 12 items */
-			for (j = 0; (j < 12) && (i < st_ptr->stock_num); j++, i++)
-			{
-				char o_name[80];
-				char tmp_val[80];
-
-				/* Acquire item */
-				o_ptr = &st_ptr->stock[i];
-
-				/* Print header, clear line */
-				sprintf(tmp_val, "%c) ", I2A(j));
-				prt(tmp_val, j+2, 4);
-
-				/* Display object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
-				c_put_str(tval_to_attr[o_ptr->tval], o_name, j+2, 7);
-			}
-
-			/* Caption */
-			prt(format("Your home contains (page %d): -more-", k+1), 0, 0);
-
-			/* Wait for it */
-			if (inkey() == ESCAPE) return;
-		}
-	}
-#endif
-}
-
-
-
-
-
-/*
- * Semi-Portable High Score List Entry (128 bytes) -- BEN
- *
- * All fields listed below are null terminated ascii strings.
- *
- * In addition, the "number" fields are right justified, and
- * space padded, to the full available length (minus the "null").
- *
- * Note that "string comparisons" are thus valid on "pts".
- */
-
-typedef struct high_score high_score;
-
-struct high_score
-{
-	char what[8];		/* Version info (string) */
-
-	char pts[10];		/* Total Score (number) */
-
-	char gold[10];		/* Total Gold (number) */
-
-	char turns[10];		/* Turns Taken (number) */
-
-	char day[10];		/* Time stamp (string) */
-
-	char who[16];		/* Player Name (string) */
-
-	char uid[8];		/* Player UID (number) */
-
-	char sex[2];		/* Player Sex (string) */
-	char p_r[3];		/* Player Race (number) */
-	char p_c[3];		/* Player Class (number) */
-
-	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[4];		/* Current Dungeon Level (number) */
-	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[4];		/* Max Dungeon Level (number) */
-
-	char how[32];		/* Method of death (string) */
-};
-
-
-
-/*
- * The "highscore" file descriptor, if available.
- */
-static int highscore_fd = -1;
-
-
-/*
- * Seek score 'i' in the highscore file
- */
-static int highscore_seek(int i)
-{
-	/* Seek for the requested record */
-	return (fd_seek(highscore_fd, (huge)(i) * sizeof(high_score)));
-}
-
-
-/*
- * Read one score from the highscore file
- */
-static errr highscore_read(high_score *score)
-{
-	/* Read the record, note failure */
-	return (fd_read(highscore_fd, (char*)(score), sizeof(high_score)));
-}
-
-
-/*
- * Write one score to the highscore file
- */
-static int highscore_write(high_score *score)
-{
-	/* Write the record, note failure */
-	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
-}
-
-
-
-
-/*
- * Just determine where a new score *would* be placed
- * Return the location (0 is best) or -1 on failure
- */
-static int highscore_where(high_score *score)
-{
-	int			i;
-
-	high_score		the_score;
-
-	/* Paranoia -- it may not have opened */
-	if (highscore_fd < 0) return (-1);
-
-	/* Go to the start of the highscore file */
-	if (highscore_seek(0)) return (-1);
-
-	/* Read until we get to a higher score */
-	for (i = 0; i < MAX_HISCORES; i++)
-	{
-		if (highscore_read(&the_score)) return (i);
-		if (strcmp(the_score.pts, score->pts) < 0) return (i);
-	}
-
-	/* The "last" entry is always usable */
-	return (MAX_HISCORES - 1);
-}
-
-
-/*
- * Actually place an entry into the high score file
- * Return the location (0 is best) or -1 on "failure"
- */
-static int highscore_add(high_score *score)
-{
-	int			i, slot;
-	bool		done = FALSE;
-
-	high_score		the_score, tmpscore;
-
-
-	/* Paranoia -- it may not have opened */
-	if (highscore_fd < 0) return (-1);
-
-	/* Determine where the score should go */
-	slot = highscore_where(score);
-
-	/* Hack -- Not on the list */
-	if (slot < 0) return (-1);
-
-	/* Hack -- prepare to dump the new score */
-	the_score = (*score);
-
-	/* Slide all the scores down one */
-	for (i = slot; !done && (i < MAX_HISCORES); i++)
-	{
-		/* Read the old guy, note errors */
-		if (highscore_seek(i)) return (-1);
-		if (highscore_read(&tmpscore)) done = TRUE;
-
-		/* Back up and dump the score we were holding */
-		if (highscore_seek(i)) return (-1);
-		if (highscore_write(&the_score)) return (-1);
-
-		/* Hack -- Save the old score, for the next pass */
-		the_score = tmpscore;
-	}
-
-	/* Return location used */
-	return (slot);
-}
-
-
-
-/*
- * Display the scores in a given range.
- * Assumes the high score list is already open.
- * Only five entries per line, too much info.
- *
- * Mega-Hack -- allow "fake" entry at the given position.
- */
-static void display_scores_aux(int Ind, int line, int note, high_score *score)
-{
-	int		i, j, from, to, attr, place;
-
-	high_score	the_score;
-
-	char	out_val[256];
-
-	FILE *fff;
-	char file_name[1024];
-
-	/* Paranoia -- it may not have opened */
-	if (highscore_fd < 0) return;
-	
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open the temp file */
-	fff = my_fopen(file_name, "w");
-
-	/* Assume we will show the first 20 */
-	from = 0;
-	to = 20;
-	if (to > MAX_HISCORES) to = MAX_HISCORES;
-
-
-	/* Seek to the beginning */
-	if (highscore_seek(0)) return;
-
-	/* Hack -- Count the high scores */
-	for (i = 0; i < MAX_HISCORES; i++)
-	{
-		if (highscore_read(&the_score)) break;
-	}
-
-	/* Hack -- allow "fake" entry to be last */
-	if ((note == i) && score) i++;
-
-	/* Forget about the last entries */
-	if (i > to) i = to;
-
-
-	/* Show 5 per page, until "done" */
-	for (j = from, place = j+1; j < i; j++, place++)
-	{
-		int pr, pc, clev, mlev, cdun, mdun;
-
-		cptr user, gold, when, aged;
-
-
-		/* Hack -- indicate death in yellow */
-		attr = (j == note) ? TERM_YELLOW : TERM_WHITE;
-
-
-		/* Mega-Hack -- insert a "fake" record */
-		if ((note == j) && score)
-		{
-			the_score = (*score);
-			attr = TERM_L_GREEN;
-			score = NULL;
-			note = -1;
-			j--;
-		}
-
-		/* Read a normal record */
-		else
-		{
-			/* Read the proper record */
-			if (highscore_seek(j)) break;
-			if (highscore_read(&the_score)) break;
-		}
-
-		/* Extract the race/class */
-		pr = atoi(the_score.p_r);
-		pc = atoi(the_score.p_c);
-
-		/* Extract the level info */
-		clev = atoi(the_score.cur_lev);
-		mlev = atoi(the_score.max_lev);
-		cdun = atoi(the_score.cur_dun);
-		mdun = atoi(the_score.max_dun);
-
-		/* Hack -- extract the gold and such */
-		for (user = the_score.uid; isspace(*user); user++) /* loop */;
-		for (when = the_score.day; isspace(*when); when++) /* loop */;
-		for (gold = the_score.gold; isspace(*gold); gold++) /* loop */;
-		for (aged = the_score.turns; isspace(*aged); aged++) /* loop */;
-
-		/* Dump some info */
-		sprintf(out_val, "%3d.%9s  %s the %s %s, Level %d",
-			place, the_score.pts, the_score.who,
-			race_info[pr].title, class_info[pc].title,
-			clev);
-
-		/* Append a "maximum level" */
-		if (mlev > clev) strcat(out_val, format(" (Max %d)", mlev));
-
-		/* Dump the first line */
-		fprintf(fff, "%s\n", out_val);
-
-		/* Another line of info */
-		if (strcmp(the_score.how, "winner"))
-			sprintf(out_val, "               Killed by %s on %s %d",
-			the_score.how, "Dungeon Level", cdun);
-		else
-			sprintf(out_val, "               Retired after a legendary career");
-
-		/* Hack -- some people die in the town */
-		if ((!cdun) && (strcmp(the_score.how, "winner")))
-		{
-			sprintf(out_val, "               Killed by %s in the Town",
-				the_score.how);
-		}
-
-		/* Append a "maximum level" */
-		if (mdun > cdun) strcat(out_val, format(" (Max %d)", mdun));
-
-		/* Dump the info */
-		fprintf(fff, "%s\n", out_val);
-
-		/* And still another line of info */
-		sprintf(out_val,
-			"               (User %s, Date %s, Gold %s, Turn %s).",
-			user, when, gold, aged);
-		fprintf(fff, "%s\n", out_val);
-
-		/* Print newline if this isn't the last one */
-		if (j < i - 1)
-			fprintf(fff, "\n");
-	}
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(Ind, file_name, "High Scores", line, 0);
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
-
-
-
-/*
- * Enters a players name on a hi-score table, if "legal", and in any
- * case, displays some relevant portion of the high score list.
- *
- * Assumes "signals_ignore_tstp()" has been called.
- */
-static errr top_twenty(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-	int          j;
-
-	high_score   the_score;
-
-	time_t ct = time((time_t*)0);
-
-
-	/* Clear screen */
-	/*Term_clear();*/
-
-	/* No score file */
-	if (highscore_fd < 0)
-	{
-		s_printf("Score file unavailable.\n");
-		return (0);
-	}
-
-#ifndef SCORE_WIZARDS
-	/* Wizard-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x000F)
-	{
-		msg_print(Ind, "Score not registered for wizards.");
-		/*display_scores_aux(0, 10, -1, NULL);*/
-		return (0);
-	}
-#endif
-
-#ifndef SCORE_BORGS
-	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00F0)
-	{
-		msg_print(Ind, "Score not registered for borgs.");
-		/*display_scores_aux(0, 10, -1, NULL);*/
-		return (0);
-	}
-#endif
-
-#ifndef SCORE_CHEATERS
-	/* Cheaters are not scored */
-	if (p_ptr->noscore & 0xFF00)
-	{
-		msg_print(Ind, "Score not registered for cheaters.");
-		/*display_scores_aux(0, 10, -1, NULL);*/
-		return (0);
-	}
-#endif
-
-	/* Interupted */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Interrupting"))
-	{
-		msg_print(Ind, "Score not registered due to interruption.");
-		/* display_scores_aux(0, 10, -1, NULL); */
-		return (0);
-	}
-
-	/* Quitter */
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
-	{
-		msg_print(Ind, "Score not registered due to quitting.");
-		/* display_scores_aux(0, 10, -1, NULL); */
-		return (0);
-	}
-
-
-	/* Clear the record */
-	WIPE(&the_score, high_score);
-
-	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
-	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points(Ind));
-	the_score.pts[9] = '\0';
-
-	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
-	the_score.gold[9] = '\0';
-
-	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
-	the_score.turns[9] = '\0';
-
-#ifdef HIGHSCORE_DATE_HACK
-	/* Save the date in a hacked up form (9 chars) */
-	sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
-#else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
-#endif
-
-	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", p_ptr->name);
-
-	/* Save the player info */
-	sprintf(the_score.uid, "%7u", 0 /*player_uid*/);
-	sprintf(the_score.sex, "%c", (p_ptr->male ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-
-	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->died_from_depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
-
-	/* Save the cause of death (31 chars) */
-	/* HACKED to take the saved cause of death of the character, not the ghost */
-	sprintf(the_score.how, "%-.31s", p_ptr->died_from_list);
-
-
-	/* Lock (for writing) the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_WRLCK)) return (1);
-
-	/* Add a new entry to the score list, see where it went */
-	j = highscore_add(&the_score);
-
-	/* Unlock the highscore file, or fail */
-	if (fd_lock(highscore_fd, F_UNLCK)) return (1);
-
-
-#if 0
-	/* Hack -- Display the top fifteen scores */
-	if (j < 10)
-	{
-		display_scores_aux(0, 15, j, NULL);
-	}
-
-	/* Display the scores surrounding the player */
-	else
-	{
-		display_scores_aux(0, 5, j, NULL);
-		display_scores_aux(j - 2, j + 7, j, NULL);
-	}
-#endif
-
-
-	/* Success */
-	return (0);
-}
-
-
-/*
- * Predict the players location, and display it.
- */
-static errr predict_score(int Ind, int line)
-{
-	player_type *p_ptr = Players[Ind];
-	int          j;
-
-	high_score   the_score;
-
-
-	/* No score file */
-	if (highscore_fd < 0)
-	{
-		s_printf("Score file unavailable.\n");
-		return (0);
-	}
-
-
-	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
-
-	/* Calculate and save the points */
-	sprintf(the_score.pts, "%9lu", (long)total_points(Ind));
-
-	/* Save the current gold */
-	sprintf(the_score.gold, "%9lu", (long)p_ptr->au);
-
-	/* Save the current turn */
-	sprintf(the_score.turns, "%9lu", (long)turn);
-
-	/* Hack -- no time needed */
-	strcpy(the_score.day, "TODAY");
-
-	/* Save the player name (15 chars) */
-	sprintf(the_score.who, "%-.15s", p_ptr->name);
-
-	/* Save the player info */
-	sprintf(the_score.uid, "%7u", 0 /*player_uid*/);
-	sprintf(the_score.sex, "%c", (p_ptr->male ? 'm' : 'f'));
-	sprintf(the_score.p_r, "%2d", p_ptr->prace);
-	sprintf(the_score.p_c, "%2d", p_ptr->pclass);
-
-	/* Save the level and such */
-	sprintf(the_score.cur_lev, "%3d", p_ptr->lev);
-	sprintf(the_score.cur_dun, "%3d", p_ptr->dun_depth);
-	sprintf(the_score.max_lev, "%3d", p_ptr->max_plv);
-	sprintf(the_score.max_dun, "%3d", p_ptr->max_dlv);
-
-	/* Hack -- no cause of death */
-	strcpy(the_score.how, "nobody (yet!)");
-
-
-	/* See where the entry would be placed */
-	j = highscore_where(&the_score);
-
-
-	/* Hack -- Display the top fifteen scores */
-	if (j < 10)
-	{
-		display_scores_aux(Ind, line, j, &the_score);
-	}
-
-	/* Display some "useful" scores */
-	else
-	{
-		display_scores_aux(Ind, line, -1, NULL);
-	}
-
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Change a player into a King!			-RAK-
- */
-void kingly(int Ind)
-{
-	player_type *p_ptr = Players[Ind];
-
-	/* Hack -- retire in town */
-	p_ptr->dun_depth = 0;
-
-	/* Fake death */
-	//(void)strcpy(p_ptr->died_from_list, "Ripe Old Age");
-	(void)strcpy(p_ptr->died_from_list, "winner");
-
-	/* Restore the experience */
-	p_ptr->exp = p_ptr->max_exp;
-
-	/* Restore the level */
-	p_ptr->lev = p_ptr->max_plv;
-
-	/* Hack -- Player gets an XP bonus for beating the game */
-	p_ptr->exp = p_ptr->max_exp += 10000000L;
-}
-
-
-/*
- * Add a player to the high score list.
- */
-void add_high_score(int Ind)
-{
-	char buf[1024];
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "scores.raw");
-
-	/* Open the high score file, for reading/writing */
-	highscore_fd = fd_open(buf, O_RDWR);
-
-	/* Add them */
-	top_twenty(Ind);
-
-	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
-
-	/* Forget the high score fd */
-	highscore_fd = -1;
+    /* Note that the player is not dead */
+    my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
 }
 
 
 /*
  * Close up the current game (player may or may not be dead)
  *
- * This function is called only from "main.c" and "signals.c".
+ * This function is called only from "main.c"
  *
  * In here we try to save everybody's game, as well as save the server state.
  */
 void close_game(void)
 {
-	int i;
+    int i;
 
-	/* No suspending now */
-	signals_ignore_tstp();
+    for (i = 0; i < NumPlayers; i++)
+    {
+        player_type *p_ptr = player_get(i);
 
-	for (i = 0; i < NumPlayers; i++)
-	{
-		player_type *p_ptr = Players[i];
+        /* Handle stuff */
+        handle_stuff(p_ptr);
 
-#if 0
-		/* Make sure the player is connected */
-		if (p_ptr->conn == NOT_CONNECTED)
-			continue;
-#endif
+        /* Flush the messages */
+        message_flush(p_ptr);
 
-		/* Handle stuff */
-		handle_stuff(i);
+        /* Handle death */
+        if (p_ptr->is_dead)
+        {
+            /* Handle retirement */
+            if (p_ptr->total_winner) kingly(i);
 
-		/* Flush the messages */
-		msg_print(i, NULL);
+            /* Save memories */
+            if (!save_player(i)) msg(p_ptr, "death save failed!");
 
-		/* Flush the input */
-		/*flush();*/
+            /* Handle score, show Top scores */
+            enter_score(i, &p_ptr->death_info.time);
+        }
 
+        /* Still alive */
+        else
+        {
+            /* Save the game */
+            save_game(i);
+        }
+    }
 
-		/* Hack -- Character is now "icky" */
-		/*character_icky = TRUE;*/
-
-
-		/* Build the filename */
-		/*path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");*/
-
-		/* Open the high score file, for reading/writing */
-		/*highscore_fd = fd_open(buf, O_RDWR);*/
-
-
-		/* Handle death */
-		if (p_ptr->death)
-		{
-			/* Handle retirement */
-			if (p_ptr->total_winner) kingly(i);
-
-			/* Save memories */
-			if (!save_player(i)) msg_print(i, "death save failed!");
-
-			/* Dump bones file 
-			make_bones(i);
-			*/
-
-			/* Show more info */
-			show_info(i);
-	
-			/* Handle score, show Top scores */
-			top_twenty(i);
-		}
-
-		/* Still alive */
-		else
-		{
-			/* Save the game */
-			do_cmd_save_game(i);
-
-			/* Prompt for scores XXX XXX XXX */
-			/*prt("Press Return (or Escape).", 0, 40);*/
-	
-			/* Predict score (or ESCAPE) */
-			/*if (inkey() != ESCAPE) predict_score();*/
-		}
-
-
-		/* Shut the high score file */
-		/*(void)fd_close(highscore_fd);*/
-
-		/* Forget the high score fd */
-		/*highscore_fd = -1;*/
-	}
-
-	/* Try to save the server information */
-	save_server_info();
-
-	/* Allow suspending now */
-	signals_handle_tstp();
-}
-
-
-/*
- * Hack -- Display the scores in a given range and quit.
- *
- * This function is only called from "main.c" when the user asks
- * to see the "high scores".
- */
-void display_scores(int Ind, int line)
-{
-	char buf[1024];
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_DATA, "scores.raw");
-
-	/* Open the binary high score file, for reading */
-	highscore_fd = fd_open(buf, O_RDONLY);
-
-	/* Paranoia -- No score file */
-	if (highscore_fd < 0)
-	{
-		/* Message to server admin */
-		s_printf("Score file unavailable.\n");
-
-		/* Quit */
-		return;
-	}
-
-	/* Clear screen */
-	/* Term_clear(); */
-
-	/* Display the scores */
-	predict_score(Ind, line);
-
-	/* Shut the high score file */
-	(void)fd_close(highscore_fd);
-
-	/* Forget the high score fd */
-	highscore_fd = -1;
-
-	/* Quit */
-	/* quit(NULL); */
+    /* Try to save the server information */
+    save_server_info();
 }
 
 
@@ -2517,362 +1261,376 @@ void display_scores(int Ind, int line)
  *
  * Note that this function would not be needed at all if there were no bugs.
  */
-void exit_game_panic(void)
+void exit_game_panic()
 {
-	int i = 1;
+    int i = 1;
 
-	/* If nothing important has happened, just quit */
-	if (!server_generated || server_saved) quit("panic");
+    /* If nothing important has happened, just return */
+    if (!server_generated) return;
 
-	/* Mega-Hack -- see "msg_print()" */
-	msg_flag = FALSE;
+    while (NumPlayers > (i - 1))
+    {
+        player_type *p_ptr = player_get(i);
 
-	while (NumPlayers > (i - 1))
-	{
-		player_type *p_ptr = Players[i];
+        /* Don't dereference bad pointers */
+        if (!p_ptr)
+        {
+            /* Skip to next player */
+            i++;
 
-		/* Don't dereference bad pointers */
-		if (!p_ptr)
-		{
-			/* Skip to next player */
-			i++;
+            continue;
+        }
 
-			continue;
-		}
+        /* Hack -- Turn off some things */
+        disturb(p_ptr, 1, 0);
 
-		/* Hack -- turn off some things */
-		disturb(i, 1, 0);
+        /* Hack -- Delay death */
+        if (p_ptr->chp < 0) p_ptr->is_dead = FALSE;
 
-		/* Mega-Hack -- Delay death */
-		if (p_ptr->chp < 0) p_ptr->death = FALSE;
+        /* Indicate panic save */
+        my_strcpy(p_ptr->died_from, "(panic save)", sizeof(p_ptr->died_from));
 
-		/* Hardcode panic save */
-		panic_save = 1;
+        /* Hack -- Unstatic if the DM left while manually designing a dungeon level */
+        if (players_on_depth[p_ptr->depth] == INHIBIT_DEPTH) players_on_depth[p_ptr->depth] = 0;
 
-		/* Forbid suspend */
-		signals_ignore_tstp();
+        /*
+         * Try to save the player, don't worry if this fails because there
+         * is nothing we can do now anyway
+         */
+        save_player(i++);
+    }
 
-		/* Indicate panic save */
-		(void)strcpy(p_ptr->died_from, "(panic save)");
+    /* Preserve artifacts on the ground */
+    for (i = 1; i < MAX_DEPTH; i++) preserve_artifacts(i);
 
-		/* Panic save, or get worried */
-		if (!save_player(i))
-		{
-			if (!Destroy_connection(p_ptr->conn, "panic save failed!"))
-			{
-				/* Something extremely bad is going on, try to recover anyway */
-				i++;
-			}
-		}
+    /* Try to save the server information */
+    if (!save_server_info()) plog("server panic info save failed!");
 
-		/* Successful panic save */
-		if (!Destroy_connection(p_ptr->conn, "panic save succeeded!"))
-		{
-			/* Something very bad happened, skip to next player */
-			i++;
-		}
-	}
-
-	/* Clear objects so that artifacts get saved.
-	 * This probably isn't neccecary, as all the objects on each of
-	 * these levels should have been cleared by now. However, paranoia
-	 * can't hurt all that much... -APD
-	 */
-	for (i = 1; i < MAX_DEPTH; i++)
-	{
-
-		/* Paranoia -- wipe this depth's objects if no players are on it*/
-		if (!players_on_depth[i]) wipe_o_list(i);
-	}
-
-	if (!save_server_info()) quit("server panic info save failed!");
-
-
-	/* Dump a nice core - Chris */
-#ifdef	HANDLE_SIGNALS
-	signal(11, 0);
-	kill(getpid(), 11);
-#endif
-	
-	/* Successful panic save of server info */
-	quit("server panic info save succeeded!");
+    /* Successful panic save of server info */
+    else plog("server panic info save succeeded!");
 }
 
 
-
-#ifdef HANDLE_SIGNALS
+/*
+ * Windows specific replacement for signal handling
+ */
+LPTOP_LEVEL_EXCEPTION_FILTER old_handler;
 
 
 /*
- * Handle signals -- suspend
+ * Callback to be called by Windows when our term closes, the user
+ * logs off, the system is shutdown, etc.
+ */
+BOOL ctrl_handler(DWORD fdwCtrlType)
+{
+    /* Save everything and quit the game */
+    shutdown_server();
+    return TRUE;
+}
+
+
+/*
+ * Global unhandled exception handler
  *
- * Actually suspend the game, and then resume cleanly
+ * If the server crashes under Windows, this is where we end up
+ */
+LONG WINAPI UnhandledExceptionFilter(struct _EXCEPTION_POINTERS* ExceptionInfo)
+{
+    /*
+     * We don't report to the meta server in this case, the meta
+     * server will detect that we've gone anyway
+     */
+
+    /*
+     * Call the previous exception handler, which we are assuming
+     * is the MinGW exception handler which should have been implicitly
+     * setup when we loaded the exchndl.dll library.
+     */
+    if (old_handler != NULL) old_handler(ExceptionInfo);
+
+    /* Save everything and quit the game */
+    exit_game_panic();
+
+    /* We don't expect to ever get here... but for what it's worth... */
+    return (EXCEPTION_EXECUTE_HANDLER);
+}
+
+
+void setup_exit_handler(void)
+{
+    /* Trap CTRL+C, Logoff, Shutdown, etc */
+    if (SetConsoleCtrlHandler((PHANDLER_ROUTINE)ctrl_handler, TRUE))
+        plog("Initialised exit save handler.");
+    else
+        plog("ERROR: Could not set panic save handler!");
+
+    /* Trap unhandled exceptions, i.e. server crashes */
+    old_handler = SetUnhandledExceptionFilter(UnhandledExceptionFilter);
+}
+
+
+/*
+ * On-Line help.
  *
- * This will probably inflict much anger upon the suspender, but it is still
- * allowed (for now) --KLJ--
+ * Process user commands, access sub-menu entries and browse files.
+ * This function manages a virtual 'window' which buffers file
+ * contents using "copy_file_info" function.
  */
-static void handle_signal_suspend(int sig)
+void common_file_peruse(int Ind, u32b query)
 {
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+    player_type *p_ptr = player_get(Ind);
+    int next = p_ptr->interactive_next;
 
-#ifdef SIGSTOP
+    /* Enter sub-menu */
+    if (isalpha(query))
+    {
+        /* Extract the requested menu item */
+        int k = A2I(query);
 
-	/* Flush output */
-	/*Term_fresh();*/
+        /* Verify the menu item */
+        if ((k >= 0) && (k < 26) && !STRZERO(p_ptr->interactive_hook[k]))
+        {
+            /* Select that file */
+            p_ptr->interactive_file = string_make(p_ptr->interactive_hook[k]);
 
-	/* Suspend the "Term" */
-	/*Term_xtra(TERM_XTRA_ALIVE, 0);*/
+            /* Hack: enforce update */
+            p_ptr->interactive_next = -1;
+            next = 0;
 
-	/* Suspend ourself */
-	(void)kill(0, SIGSTOP);
+            /* Query processed */
+            query = 0;
+        }
+    }
 
-	/* Resume the "Term" */
-	/*Term_xtra(TERM_XTRA_ALIVE, 1);*/
+    /* Use default file */
+    if (!p_ptr->interactive_file)
+    {
+        p_ptr->interactive_file = string_make("help.hlp");
 
-	/* Redraw the term */
-	/*Term_redraw();*/
+        /* Hack: enforce update */
+        p_ptr->interactive_next = -1;
+        next = 0;
 
-	/* Flush the term */
-	/*Term_fresh();*/
+        /* Query processed */
+        query = 0;
+    }
 
-#endif
+    /* We're just starting. Reset counter */
+    if (!query) p_ptr->interactive_line = 0;
 
-	/* Restore handler */
-	(void)signal(sig, handle_signal_suspend);
+    /* We're done. Clear file, exit */
+    if (query == ESCAPE)
+    {
+        string_free(p_ptr->interactive_file);
+        p_ptr->interactive_file = NULL;
+        free_info_icky(Ind);
+        free_header_icky(Ind);
+        return;
+    }
+
+    /* Process query */
+    if (query)
+    {
+        switch (query)
+        {
+            /* Back up one line */
+            case ARROW_UP:
+            case '8':
+            case '=':
+                p_ptr->interactive_line--;
+                break;
+
+            /* Back up one full page */
+            case '9':
+            case '-':
+                p_ptr->interactive_line -= 20;
+                break;
+
+            /* Back to the top */
+            case '7':
+                p_ptr->interactive_line = 0;
+                break;
+
+            /* Advance one line */
+            case ARROW_DOWN:
+            case '2':
+            case KC_ENTER:
+                p_ptr->interactive_line++;
+                break;
+
+            /* Advance one full page */
+            case '3':
+            case ' ':
+                p_ptr->interactive_line += 20;
+                break;
+
+            /* Advance to the bottom */
+            case '1':
+                p_ptr->interactive_line = p_ptr->interactive_size - 20;
+                break;
+        }
+
+        /* Adjust viewport boundaries */
+        if (p_ptr->interactive_line > p_ptr->interactive_size - 20)
+            p_ptr->interactive_line = p_ptr->interactive_size - 20;
+        if (p_ptr->interactive_line < 0) p_ptr->interactive_line = 0;
+
+        /* Shift window! */
+        if ((p_ptr->interactive_line + 20 > p_ptr->interactive_next + MAX_TXT_INFO) ||
+                (p_ptr->interactive_line < p_ptr->interactive_next))
+            next = p_ptr->interactive_line - MAX_TXT_INFO / 2;
+
+        /* Adjust window boundaries */
+        if (next > p_ptr->interactive_size - MAX_TXT_INFO)
+            next = p_ptr->interactive_size - MAX_TXT_INFO;
+        if (next < 0) next = 0;
+    }
+
+    /* Update file */
+    if (next != p_ptr->interactive_next)
+    {
+        p_ptr->interactive_next = next;
+        copy_file_info(Ind, p_ptr->interactive_file, next, 0);
+    }
+}
+
+
+static void strrep(char *s, const char c, const char r)
+{
+    while (*s)
+    {
+        if (*s == c) *s = r;
+        s++;
+    }
 }
 
 
 /*
- * Handle signals -- simple (interrupt and quit)
+ * Read a file and copy a portion of it into player's "info[]" array.
  *
- * This function was causing a *huge* number of problems, so it has
- * been simplified greatly.  We keep a global variable which counts
- * the number of times the user attempts to kill the process, and
- * we commit suicide if the user does this a certain number of times.
- *
- * We attempt to give "feedback" to the user as he approaches the
- * suicide thresh-hold, but without penalizing accidental keypresses.
- *
- * To prevent messy accidents, we should reset this global variable
- * whenever the user enters a keypress, or something like that.
- *
- * This simply calls "exit_game_panic()", which should try to save
- * everyone's character and the server info, which is probably nicer
- * than killing everybody. --KLJ--
+ * TODO: Add 'search' from do_cmd_help_aux()
  */
-static void handle_signal_simple(int sig)
+void copy_file_info(int Ind, const char *name, int line, int color)
 {
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
+    player_type *p_ptr = player_get(Ind);
+    int i = 0, k;
 
+    /* Current help file */
+    ang_file *fff = NULL;
 
-	/* Nothing to save, just quit */
-	if (!server_generated || server_saved) quit(NULL);
+    /* Number of "real" lines passed by */
+    int next = 0;
 
+    /* Path buffer */
+    char path[MSG_LEN];
 
-	/* Count the signals */
-	signal_count++;
+    /* General buffer */
+    char buf[MSG_LEN];
 
+    /* TRUE if we are inside a RST block that should be skipped */
+    bool skip_lines = FALSE;
 
-	/* Allow suicide (after 5) */
-	if (signal_count >= 5)
-	{
-		/* Tell the metaserver that we've quit */
-		Report_to_meta(META_DIE);
+    /* Build the filename */
+    path_build(path, MSG_LEN, ANGBAND_DIR_HELP, name);
 
-		/* Save everything and quit the game */
-		exit_game_panic();
-	}
+    /* Open the file */
+    fff = file_open(path, MODE_READ, FTYPE_TEXT);
 
-	/* Give warning (after 4) */
-	else if (signal_count >= 4)
-	{
-		s_printf("Warning: Next signal kills server!\n");
+    /* Oops */
+    if (!fff)
+    {
+        /* Message */
+        msg(p_ptr, "Cannot open '%s'.", name);
+        message_flush(p_ptr);
 
-		/* Make a noise */
-		/*Term_xtra(TERM_XTRA_NOISE, 0);*/
+        /* Oops */
+        return;
+    }
 
-		/* Clear the top line */
-		/*Term_erase(0, 0, 255);*/
+    /* Wipe the hooks */
+    for (k = 0; k < 26; k++) p_ptr->interactive_hook[k][0] = '\0';
 
-		/* Display the cause */
-		/*Term_putstr(0, 0, -1, TERM_WHITE, "Contemplating suicide!");*/
+    /* Parse the file */
+    while (TRUE)
+    {
+        byte attr = TERM_WHITE;
 
-		/* Flush */
-		/*Term_fresh();*/
-	}
+        /* Read a line or stop */
+        if (!file_getl(fff, buf, sizeof(buf))) break;
 
-	/* Give warning (after 2) */
-	else if (signal_count >= 2)
-	{
-		/* Make a noise */
-		/*Term_xtra(TERM_XTRA_NOISE, 0);*/
-	}
+        /* Skip lines if we are inside a RST directive */
+        if (skip_lines)
+        {
+            if (contains_only_spaces(buf)) skip_lines = FALSE;
+            continue;
+        }
 
-	/* Restore handler */
-	(void)signal(sig, handle_signal_simple);
+        /* Parse a very small subset of RST */
+        if (prefix(buf, ".. "))
+        {
+            /* Parse ".. menu:: [x] filename.txt" (with exact spacing) */
+            if (prefix(buf + strlen(".. "), "menu:: [") && (buf[strlen(".. menu:: [x")] == ']'))
+            {
+                /* Extract the menu item */
+                k = A2I(buf[strlen(".. menu:: [")]);
+
+                /* Store the menu item (if valid) */
+                if ((k >= 0) && (k < 26))
+                {
+                    my_strcpy(p_ptr->interactive_hook[k], buf + strlen(".. menu:: [x] "),
+                        sizeof(p_ptr->interactive_hook[0]));
+                }
+            }
+
+            /* Skip this and enter skip mode */
+            skip_lines = TRUE;
+            continue;
+        }
+
+        /* Skip '|' characters */
+        if (strchr(buf, '|') && !strstr(buf, "``|``"))
+        {
+            if (strstr(buf, "|`|"))
+                strrep(buf, '|', ' ');
+            else
+                strskip(buf, '|');
+        }
+
+        /* Count the "real" lines */
+        next++;
+
+        /* Wait for needed one */
+        if (next <= line) continue;
+
+        /* Too much */
+        if (line + MAX_TXT_INFO < next) continue;
+
+        /* Extract color */
+        if (color) attr = color_char_to_attr(buf[0]);
+
+        /* Dump the line */
+        for (k = color; k < NORMAL_WID; k++)
+        {
+            p_ptr->info[i][k - color].a = attr;
+            p_ptr->info[i][k - color].c = buf[k];
+        }
+
+        /* Count the "info[]" lines */
+        i++;
+    }
+
+    /* Save last "real" line */
+    p_ptr->interactive_size = next;
+
+    /* Save last dumped line */
+    p_ptr->last_info_line = i - 1;
+
+    /* Protect our info area */
+    free_info_icky(Ind);
+    free_header_icky(Ind);
+    alloc_info_icky(p_ptr);
+    alloc_header_icky(p_ptr, "Help");
+
+    /* Close the file */
+    file_close(fff);
 }
-
-
-/*
- * Handle signal -- abort, kill, etc
- *
- * This one also calls exit_game_panic() --KLJ--
- */
-static void handle_signal_abort(int sig)
-{
-	/* Disable handler */
-	(void)signal(sig, SIG_IGN);
-
-
-	/* Nothing to save, just quit */
-	if (!server_generated || server_saved) quit(NULL);
-
-	/* Save everybody and quit */
-	exit_game_panic();
-}
-
-
-
-
-/*
- * Ignore SIGTSTP signals (keyboard suspend)
- */
-void signals_ignore_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, SIG_IGN);
-#endif
-
-}
-
-/*
- * Handle SIGTSTP signals (keyboard suspend)
- */
-void signals_handle_tstp(void)
-{
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-}
-
-
-/*
- * Prepare to handle the relevant signals
- */
-void signals_init(void)
-{
-
-#ifdef SIGHUP
-	(void)signal(SIGHUP, SIG_IGN);
-#endif
-
-
-#ifdef SIGTSTP
-	(void)signal(SIGTSTP, handle_signal_suspend);
-#endif
-
-
-#ifdef SIGINT
-	(void)signal(SIGINT, handle_signal_simple);
-#endif
-
-#ifdef SIGQUIT
-	(void)signal(SIGQUIT, handle_signal_simple);
-#endif
-
-
-#ifdef SIGFPE
-	(void)signal(SIGFPE, handle_signal_abort);
-#endif
-
-#ifdef SIGILL
-	(void)signal(SIGILL, handle_signal_abort);
-#endif
-
-#ifdef SIGTRAP
-	(void)signal(SIGTRAP, handle_signal_abort);
-#endif
-
-#ifdef SIGIOT
-	(void)signal(SIGIOT, handle_signal_abort);
-#endif
-
-#ifdef SIGKILL
-	(void)signal(SIGKILL, handle_signal_abort);
-#endif
-
-#ifdef SIGBUS
-	(void)signal(SIGBUS, handle_signal_abort);
-#endif
-
-#ifdef SIGSEGV
-	(void)signal(SIGSEGV, handle_signal_abort);
-#endif
-
-#ifdef SIGTERM
-	(void)signal(SIGTERM, handle_signal_abort);
-#endif
-
-	/*
-	 * This happens naturaly when clients disconnect.
-#ifdef SIGPIPE
-	(void)signal(SIGPIPE, handle_signal_abort);
-#endif
-*/
-
-#ifdef SIGEMT
-	(void)signal(SIGEMT, handle_signal_abort);
-#endif
-
-#ifdef SIGDANGER
-	(void)signal(SIGDANGER, handle_signal_abort);
-#endif
-
-#ifdef SIGSYS
-	(void)signal(SIGSYS, handle_signal_abort);
-#endif
-
-#ifdef SIGXCPU
-	(void)signal(SIGXCPU, handle_signal_abort);
-#endif
-
-#ifdef SIGPWR
-	(void)signal(SIGPWR, handle_signal_abort);
-#endif
-
-}
-
-
-#else	/* HANDLE_SIGNALS */
-
-
-/*
- * Do nothing
- */
-void signals_ignore_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_handle_tstp(void)
-{
-}
-
-/*
- * Do nothing
- */
-void signals_init(void)
-{
-}
-
-
-#endif	/* HANDLE_SIGNALS */
-
-

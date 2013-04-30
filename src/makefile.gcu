@@ -1,0 +1,173 @@
+###################################################################
+#
+#       Borland specific directives ---
+#
+.AUTODEPEND
+
+
+###################################################################
+#
+# Set tool and version names:
+!ifndef BCCDIR
+BCCDIR     = "C:\Program Files\Borland\CBuilder6"
+!endif
+
+CPP        = $(BCCDIR)\bin\bcc32
+LINKER     = $(BCCDIR)\bin\ilink32
+RC         = $(BCCDIR)\bin\brc32
+
+
+###################################################################
+#
+# Name of the *.exe-file
+
+CLI_EXE = mangclient_gcu.exe
+
+
+###################################################################
+#
+# Debug mode (un-comment for debugging)
+
+# DBGOPT= -v -N -x -xp
+
+
+###################################################################
+#
+# Set any compiler options
+
+CCOPTS = -Hc -tW -lGn -w8080 -w-8004 -w-8012 -w-8057 -w-8065 \
+	-D_WIN32_WINNT=0x0410 -DWINVER=0x0500 \
+	-DWIN32 -D_WINDOWS -DSTRICT -DUSE_GCU \
+	-I$(BCCDIR)\include -Icurses
+
+LDFLAGS = -L$(BCCDIR)\lib -Lcurses
+
+
+# Compile flags:
+CPPFLAGS= $(CCOPTS) $(DBGOPT)
+
+
+######################## Targets ##################################
+
+CLI_SRCS = \
+  common\buildid.c \
+  common\display.c \
+  common\guid.c \
+  common\md5.c \
+  common\net-win.c \
+  common\parser.c \
+  common\randname.c \
+  common\sockbuf.c \
+  common\spells.c \
+  common\util.c \
+  common\variable.c \
+  common\z-bitflag.c \
+  common\z-file.c \
+  common\z-form.c \
+  common\z-msg.c \
+  common\z-rand.c \
+  common\z-type.c \
+  common\z-util.c \
+  common\z-virt.c \
+  client\c-cmd0.c \
+  client\c-cmd.c \
+  client\c-cmd-obj.c \
+  client\c-files.c \
+  client\c-init.c \
+  client\c-obj-ui.c \
+  client\c-store.c \
+  client\c-tables.c \
+  client\c-util.c \
+  client\c-variable.c \
+  client\c-xtra.c \
+  client\cmd-context.c \
+  client\game-cmd.c \
+  client\game-event.c \
+  client\grafmode.c \
+  client\keymap.c \
+  client\main.c \
+  client\main-gcu.c \
+  client\netclient.c \
+  client\option.c \
+  client\prefs.c \
+  client\set_focus.c \
+  client\ui.c \
+  client\ui-birth.c \
+  client\ui-event.c \
+  client\ui-knowledge.c \
+  client\ui-menu.c \
+  client\ui-options.c \
+  client\ui-spell.c \
+  client\z-term.c
+
+CLI_OBJS = \
+  common\buildid.obj \
+  common\display.obj \
+  common\guid.obj \
+  common\md5.obj \
+  common\net-win.obj \
+  common\parser.obj \
+  common\randname.obj \
+  common\sockbuf.obj \
+  common\spells.obj \
+  common\util.obj \
+  common\variable.obj \
+  common\z-bitflag.obj \
+  common\z-file.obj \
+  common\z-form.obj \
+  common\z-msg.obj \
+  common\z-rand.obj \
+  common\z-type.obj \
+  common\z-util.obj \
+  common\z-virt.obj \
+  client\c-cmd0.obj \
+  client\c-cmd.obj \
+  client\c-cmd-obj.obj \
+  client\c-files.obj \
+  client\c-init.obj \
+  client\c-obj-ui.obj \
+  client\c-store.obj \
+  client\c-tables.obj \
+  client\c-util.obj \
+  client\c-variable.obj \
+  client\c-xtra.obj \
+  client\cmd-context.obj \
+  client\game-cmd.obj \
+  client\game-event.obj \
+  client\grafmode.obj \
+  client\keymap.obj \
+  client\main.obj \
+  client\main-gcu.obj \
+  client\netclient.obj \
+  client\option.obj \
+  client\prefs.obj \
+  client\set_focus.obj \
+  client\ui.obj \
+  client\ui-birth.obj \
+  client\ui-event.obj \
+  client\ui-knowledge.obj \
+  client\ui-menu.obj \
+  client\ui-options.obj \
+  client\ui-spell.obj \
+  client\z-term.obj
+
+default: $(CLI_EXE)
+
+
+########################### Explicit Rules ########################
+$(CLI_EXE): $(CLI_OBJS) win\angband.res
+	$(LINKER) -ap $(LDFLAGS) -x $(CLI_OBJS) c0x32.obj, $(CLI_EXE),, cw32mt.lib import32.lib ws2_32.lib curses\pdcurses.lib,, win\angband.res
+
+win\angband.res: win\angband.rc
+	$(RC) -r win\angband.rc
+
+########################### Implicit Rules ########################
+.c.obj:
+	$(CPP) $(CPPFLAGS) -o$*.obj -c {$? }
+
+.c.i:
+	$(CPP) $(CPPFLAGS) -c -Sr -Sd {$? }
+
+.obj.exe:
+	$(CPP) $(CPPFLAGS) $<
+

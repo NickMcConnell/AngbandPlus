@@ -1,0 +1,13 @@
+How to build HTML and PDF manuals from the help files:
+
+- Download and install Python 2.7.3 in the same root directory as your \PWMAngband folder:
+	http://www.python.org/download/
+- Download and unpack Docutils 0.9.1 in the same root directory as your \PWMAngband folder:
+	http://docutils.sourceforge.net/
+- Double-click on \docutils-0.9.1\install.py to install the package
+- Download and unpack rst2pdf 0.92 in the same root directory as your \PWMAngband folder:
+	http://rst2pdf.ralsina.com.ar/
+- Double-click on \rst2pdf-0.92\bootstrap.py to generate the "buildout" script
+- Launch .\bin\buildout.exe from the \rst2pdf-0.92 directory
+- Edit \PWMAngband\doc\manual\manual.bat and change DIR_PYTHON to the location of your Python install
+- Run \PWMAngband\doc\manual\manual.bat

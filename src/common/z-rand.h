@@ -1,89 +1,174 @@
-/* File: z-rand.h */
+/*
+ * File: z-rand.h
+ * Purpose: A Random Number Generator for Angband
+ */
 
 #ifndef INCLUDED_Z_RAND_H
 #define INCLUDED_Z_RAND_H
 
-#include "h-basic.h"
-
-
-
-/**** Available constants ****/
-
-
 /*
- * Random Number Generator -- Degree of "complex" RNG -- see "misc.c"
- * This value is hard-coded at 63 for a wide variety of reasons.
+ * A struct representing a strategy for making a dice roll.
+ *
+ * The result will be base + XdY + BONUS, where m_bonus is used in a
+ * tricky way to determine BONUS.
  */
-#define RAND_DEG 63
-
-
-
-
-/**** Available macros ****/
-
+typedef struct random
+{
+    int base;
+    int dice;
+    int sides;
+    int m_bonus;
+} random_value;
 
 /*
- * Generates a random long integer X where O<=X<M.
+ * The number of 32-bit integers worth of seed state.
+ */
+#define RAND_DEG 32
+
+/* Random aspects used by damcalc, m_bonus_calc, and ranvals */
+typedef enum
+{
+    MAXIMISE,
+    RANDOMISE,
+    MINIMISE,
+    AVERAGE
+} aspect;
+
+/*
+ * Generates a random signed long integer X where "0 <= X < M" holds.
+ *
  * The integer X falls along a uniform distribution.
- * For example, if M is 100, you get "percentile dice"
  */
-#define rand_int(M) \
-	(Rand_div(M))
+#define randint0(M) ((s32b)Rand_div(M))
 
 /*
- * Generates a random long integer X where A<=X<=B
+ * Generates a random signed long integer X where "1 <= X <= M" holds.
+ *
  * The integer X falls along a uniform distribution.
- * Note: rand_range(0,N-1) == rand_int(N)
  */
-#define rand_range(A,B) \
-	((A) + (rand_int(1+(B)-(A))))
+#define randint1(M) ((s32b)Rand_div(M) + 1)
 
 /*
- * Generate a random long integer X where A-D<=X<=A+D
+ * Generate a random signed long integer X where "A - D <= X <= A + D" holds.
+ * Note that "rand_spread(A, D)" == "rand_range(A - D, A + D)"
+ *
  * The integer X falls along a uniform distribution.
- * Note: rand_spread(A,D) == rand_range(A-D,A+D)
  */
-#define rand_spread(A,D) \
-	((A) + (rand_int(1+(D)+(D))) - (D))
-
+#define rand_spread(A, D) ((A) + (randint0(1 + (D) + (D))) - (D))
 
 /*
- * Generate a random long integer X where 1<=X<=M
- * Also, "correctly" handle the case of M<=1
+ * Return TRUE one time in `x`.
  */
-#define randint(M) \
-	(rand_int(M) + 1)
-
+#define one_in_(x)  (!randint0(x))
 
 /*
  * Evaluate to TRUE "P" percent of the time
  */
-#define magik(P) \
-	(rand_int(100) < (P))
+#define magik(P) (randint0(100) < (P))
 
+/*
+ * Evaluate to TRUE A times out of B
+ */
+#define CHANCE(A, B) (randint0(B) < (A))
 
-
-
-/**** Available Variables ****/
-
-
+/*
+ * Whether we are currently using the "quick" method or not.
+ */
 extern bool Rand_quick;
+
+/*
+ * The state used by the "quick" RNG.
+ */
 extern u32b Rand_value;
-extern u16b Rand_place;
-extern u32b Rand_state[RAND_DEG];
 
+/*
+ * The state used by the "complex" RNG.
+ */
+extern u32b state_i;
+extern u32b STATE[RAND_DEG];
+extern u32b z0;
+extern u32b z1;
+extern u32b z2;
 
-/**** Available Functions ****/
-
-
+/*
+ * Initialise the RNG state with the given seed.
+ */
 extern void Rand_state_init(u32b seed);
-extern s32b Rand_mod(s32b m);
-extern s32b Rand_div(s32b m);
-extern s16b randnor(int mean, int stand);
-extern s16b damroll(int num, int sides);
-extern s16b maxroll(int num, int sides);
 
+/*
+ * Generates a random unsigned long integer X where "0 <= X < M" holds.
+ *
+ * The integer X falls along a uniform distribution.
+ */
+extern u32b Rand_div(u32b m);
+
+/*
+ * Generate a signed random integer within `stand` standard deviations of
+ * `mean`, following a normal distribution.
+ */
+extern s16b Rand_normal(int mean, int stand);
+
+/*
+ * Generate a semi-random number from 0 to m-1, in a way that doesn't affect
+ * gameplay.  This is intended for use by external program parts like the
+ * main-*.c files.
+ */
+extern u32b Rand_simple(u32b m);
+
+/*
+ * Emulate a number `num` of dice rolls of dice with `sides` sides.
+ */
+extern int damroll(int num, int sides);
+
+/*
+ * Calculation helper function for damroll
+ */
+extern int damcalc(int num, int sides, aspect dam_aspect);
+
+/*
+ * Generates a random signed long integer X where "A <= X <= B"
+ * Note that "rand_range(0, N-1)" == "randint0(N)"
+ *
+ * The integer X falls along a uniform distribution.
+ */
+extern int rand_range(int A, int B);
+
+/*
+ * Function used to determine enchantment bonuses, see function header for
+ * a more complete description.
+ */
+extern s16b m_bonus(int max, int level);
+
+/*
+ * Calculation helper function for m_bonus.
+ */
+extern s16b m_bonus_calc(int max, int level, aspect bonus_aspect);
+
+/*
+ * Calculation helper function for random_value structs
+ */
+extern int randcalc(random_value v, int level, aspect rand_aspect);
+
+/*
+ * Test to see if a value is within a random_value's range
+ */
+extern bool randcalc_valid(random_value v, int test);
+
+/*
+ * Test to see if a random_value actually varies
+ */
+extern bool randcalc_varies(random_value v);
+
+/*
+ * Generates a random unsigned long integer X where "0 <= X < M" holds.
+ *
+ * The integer X falls along a uniform distribution.
+ */
+extern u32b Rand_mod(u32b m);
+
+/*
+ * Test the integrity of the RNG
+ */
+extern u32b Rand_test(u32b seed);
 
 #endif
-
-

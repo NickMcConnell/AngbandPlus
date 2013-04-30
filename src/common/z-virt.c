@@ -1,179 +1,178 @@
-/* File: z-virt.c */
-
-/* Purpose: Memory management routines -BEN- */
-
-#include "z-virt.h"
-
-#include "z-util.h"
-
-
 /*
- * Allow debugging messages to track memory usage.
+ * File: z-virt.c
+ * Purpose: Memory management routines
+ *
+ * Copyright (c) 1997 Ben Harrison.
+ * Copyright (c) 2012 MAngband and PWMAngband Developers
+ *
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-#ifdef VERBOSE_RALLOC
-static long virt_make = 0;
-static long virt_kill = 0;
-static long virt_size = 0;
+
+
+#include "angband.h"
+
+
+#ifdef _DEBUG
+unsigned int mem_flags = MEM_POISON_ALLOC | MEM_POISON_FREE;
+#else
+unsigned int mem_flags = 0;
 #endif
 
 
-/*
- * Optional auxiliary "rnfree" function
- */
-errr (*rnfree_aux)(vptr, huge) = NULL;
+#define SZ(uptr)    *((size_t *)((char *)(uptr) - sizeof(size_t)))
+
 
 /*
- * Free some memory (that was allocated by ralloc).
+ * Allocate `len` bytes of memory
+ *
+ * Returns:
+ *  - NULL if `len` == 0; or
+ *  - a pointer to a block of memory of at least `len` bytes
+ *
+ * Doesn't return on out of memory
  */
-errr rnfree(vptr p, huge len)
+void *mem_alloc(size_t len)
 {
-	/* Easy to free zero bytes */
-	if (len == 0) return (0);
+    char *mem;
 
-#ifdef VERBOSE_RALLOC
+    /* Allow allocation of "zero bytes" */
+    if (len == 0) return (NULL);
 
-	/* Decrease memory count */
-	virt_kill += len;
+    mem = malloc(len + sizeof(size_t));
+    if (!mem) quit("Out of Memory!");
+    mem += sizeof(size_t);
+    if (mem_flags & MEM_POISON_ALLOC) memset(mem, 0xCC, len);
+    SZ(mem) = len;
 
-	/* Message */
-	if (len > virt_size)
-	{
-		char buf[80];
-		sprintf(buf, "Kill (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
-		plog(buf);
-	}
+    return mem;
+}
 
-#endif
 
-	/* Use the "aux" function */
-	if (rnfree_aux) return ((*rnfree_aux)(p, len));
+void* mem_zalloc(size_t len)
+{
+    void *mem = mem_alloc(len);
 
-	/* Or just use "free" */
-	else free ((char*)(p));
+    memset(mem, 0, len);
+    return mem;
+}
 
-	/* Success */
-	return (0);
+
+void mem_free(void *p)
+{
+    if (!p) return;
+
+    if (mem_flags & MEM_POISON_FREE) memset(p, 0xCD, SZ(p));
+    free((char *)p - sizeof(size_t));
+}      
+
+
+void *mem_realloc(void *p, size_t len)
+{
+    char *m = p;
+
+    /* Fail gracefully */
+    if (len == 0) return (NULL);
+
+    m = realloc(m ? m - sizeof(size_t) : NULL, len + sizeof(size_t));
+    m += sizeof(size_t);
+
+    /* Handle OOM */
+    if (!m) quit("Out of Memory!");
+    SZ(m) = len;
+
+    return m;
 }
 
 
 /*
- * Optional auxiliary "rpanic" function
+ * Duplicates an existing string `str`, allocating as much memory as necessary
  */
-vptr (*rpanic_aux)(huge) = NULL;
-
-/*
- * The system is out of memory, so panic.  If "rpanic_aux" is set,
- * it can be used to free up some memory and do a new "ralloc()",
- * or if not, it can be used to save things, clean up, and exit.
- * By default, this function simply crashes the computer.
- */
-vptr rpanic(huge len)
+char *string_make(const char *str)
 {
-	/* Hopefully, we have a real "panic" function */
-	if (rpanic_aux) return ((*rpanic_aux)(len));
+    char *res;
+    size_t siz;
 
-	/* Attempt to crash before icky things happen */
-	core("Out of Memory!");
+    /* Error-checking */
+    if (!str) return (NULL);
 
-	/* Paranoia */
-	return ((vptr)(NULL));
+    /* Allocate space for the string (including terminator) */
+    siz = strlen(str) + 1;
+    res = mem_alloc(siz);
+
+    /* Copy the string (with terminator) */
+    my_strcpy(res, str, siz);
+
+    return res;
+}
+
+
+void string_free(char *str)
+{
+    mem_free(str);
+}
+
+
+char *string_append(char *s1, const char *s2)
+{
+    u32b len;
+
+    if (!s1 && !s2) return NULL;
+    if (s1 && !s2) return s1;
+    if (!s1 && s2) return string_make(s2);
+
+    len = strlen(s1);
+    s1 = mem_realloc(s1, len + strlen(s2) + 1);
+    strcpy(s1 + len, s2);
+    return s1;
 }
 
 
 /*
- * Optional auxiliary "ralloc" function
+ * Free an array of length "len"
+ * Returns NULL
  */
-vptr (*ralloc_aux)(huge) = NULL;
-
-
-/*
- * Allocate some memory
- */
-vptr ralloc(huge len)
+void mem_nfree(void **p, size_t len)
 {
-	vptr mem;
+    size_t i;
 
-	/* Allow allocation of "zero bytes" */
-	if (len == 0) return ((vptr)(NULL));
+    /* Error-checking */
+    if (!p) return;
 
-#ifdef VERBOSE_RALLOC
+    /* Free the elements of the array */
+    for (i = 0; i < len; i++) mem_free(p[i]);
 
-	/* Count allocated memory */
-	virt_make += len;
-
-	/* Log important allocations */
-	if (len > virt_size)
-	{
-		char buf[80];
-		sprintf(buf, "Make (%ld): %ld - %ld = %ld.",
-		        len, virt_make, virt_kill, virt_make - virt_kill);
-		plog(buf);
-	}
-
-#endif
-
-	/* Use the aux function if set */
-	if (ralloc_aux) mem = (*ralloc_aux)(len);
-
-	/* Use malloc() to allocate some memory */
-	else mem = ((vptr)(malloc((size_t)(len))));
-
-	/* We were able to acquire memory */
-	if (!mem) mem = rpanic(len);
-
-	/* Return the memory, if any */
-	return (mem);
+    /* Free the array */
+    mem_free(p);
 }
 
 
-
-
-/*
- * Allocate a constant string, containing the same thing as 'str'
- */
-cptr string_make(cptr str)
+/* Free a bidimentional array of length "len" with its variable lengths "plen" */
+void strings_free(const char ***p, u32b *plen, size_t len)
 {
-	huge len = 0;
-	cptr t = str;
-	char *s, *res;
+    size_t i, j;
 
-	/* Simple sillyness */
-	if (!str) return (str);
+    /* Error-checking */
+    if (!p) return;
+    if (!plen) return;
 
-	/* Get the number of chars in the string, including terminator */
-	while (str[len++]) /* loop */;
+    /* Free the elements of the array */
+    for (i = 0; i < len; i++)
+    {
+        if (!p[i]) continue;
+        for (j = 0; j < (size_t)plen[i]; j++) string_free((char *)p[i][j]);
+        mem_free(p[i]);
+    }
 
-	/* Allocate space for the string */
-	s = res = (char*)(ralloc(len));
-
-	/* Copy the string (with terminator) */
-	while ((*s++ = *t++) != 0) /* loop */;
-
-	/* Return the allocated, initialized, string */
-	return (res);
+    /* Free the array */
+    mem_free(p);
+    mem_free(plen);
 }
-
-
-/*
- * Un-allocate a string allocated above.
- * Depends on no changes being made to the string.
- */
-errr string_free(cptr str)
-{
-	huge len = 0;
-
-	/* Succeed on non-strings */
-	if (!str) return (0);
-
-	/* Count the number of chars in 'str' plus the terminator */
-	while (str[len++]) /* loop */;
-
-	/* Kill the buffer of chars we must have allocated above */
-	rnfree((vptr)(str), len);
-
-	/* Success */
-	return (0);
-}
-
-
