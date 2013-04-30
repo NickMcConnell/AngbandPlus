@@ -1470,7 +1470,7 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 				*t++ = *u++;
 			}
 
-			if (num > 4)
+			if (num > 5)
 			{
 				my_strcat(t, format("%d", num), buf_size);
 				t += num / 10;
@@ -1569,7 +1569,7 @@ static void text_out_blow(const char *s, int person, bool infinitive, int num)
 /*
  * Hack -- Get spell description for effects on target based on blow.
  */
-static void describe_blow(int method, int effect, int level, int feat, const char *intro, const char *damage, bool detail, bool skip_method, bool skip_method_more, int num)
+void describe_blow(int method, int effect, int level, int feat, const char *intro, const char *damage, bool detail, bool skip_method, bool skip_method_more, bool attack, int num)
 {
 	int i;
 
@@ -1584,6 +1584,14 @@ static void describe_blow(int method, int effect, int level, int feat, const cha
 	int rad = scale_method(method_ptr->radius, level);
 	int arc = method_ptr->arc;
 	int rng = scale_method(method_ptr->max_range, level);
+
+	/* Hack -- quash range details for describing monster attacks */
+	if (attack)
+	{
+		rad = 0;
+		rng = 0;
+		arc = 0;
+	}
 
 	/* Initialise the output string */
 	for (i = 0; i < 5; i++)
@@ -1602,6 +1610,9 @@ static void describe_blow(int method, int effect, int level, int feat, const cha
 	/* Hack -- nothing */
 	if (!strlen(p[0])) p[0] = NULL;
 	if (!strlen(p[3])) p[3] = NULL;
+
+	/* Hack -- attack affects you */
+	if (attack) p[3] = "you";
 
 	/* Get effect info text */
 	for (i = 0; i < 6; i++)
@@ -1648,7 +1659,7 @@ static void describe_blow(int method, int effect, int level, int feat, const cha
 		/* Display all method details */
 		if (!skip_method)
 		{
-			text_out_blow(p[0], 2, FALSE, num);
+			text_out_blow(p[0], 2, attack, num);
 			if (rng || arc || rad) text_out(" of ");
 			if (rng) text_out (format( "range %d",rng));
 			if (rng && arc) text_out(" and ");
@@ -1706,7 +1717,7 @@ static void describe_blow(int method, int effect, int level, int feat, const cha
 
 	if (p[4])
 	{
-		text_out(p[4]);
+		text_out_blow(p[4], 2, FALSE, num);
 	}
 
 	/* Display the damage */
@@ -1720,13 +1731,19 @@ static void describe_blow(int method, int effect, int level, int feat, const cha
 
 			if (!(f_ptr->flags1 & (FF1_MOVE)))
 			{
-				text_out(format(" %s 4d8 %s", p[5], p[6]));
+				text_out(" ");
+				text_out_blow(p[5], 2, FALSE, num);
+				text_out(" 4d8 ");
+				text_out_blow(p[6], 2, FALSE, num);
 			}
 		}
 		/* Get the description */
 		else if (damage && strlen(damage))
 		{
-			text_out(format(" %s %s %s", p[5], damage, p[6]));
+			text_out(" ");
+			text_out_blow(p[5], 2, FALSE, num);
+			text_out(format(" %s ", damage));
+			text_out_blow(p[6], 2, FALSE, num);
 		}
 	}
 }
@@ -1857,7 +1874,7 @@ static bool spell_desc_blows(const spell_type *s_ptr, const char *intro, int lev
 		}
 
 		/* Describe blow */
-		describe_blow(method, effect, level, blow_ptr->d_plus, current_intro, buf, detail, method == last_method, skip_method_more, num);
+		describe_blow(method, effect, level, blow_ptr->d_plus, current_intro, buf, detail, method == last_method, skip_method_more, FALSE, num);
 
 		/* Count blows */
 		r++;
@@ -7794,7 +7811,7 @@ static void describe_feature_blow(int f_idx)
 	feat_desc_damage(blow_ptr, 0, level, buf, 40);
 
 	/* Describe the blow */
-	describe_blow(method, effect, level, 0, "", buf, TRUE, FALSE, FALSE, 1);
+	describe_blow(method, effect, level, 0, "", buf, TRUE, FALSE, FALSE, FALSE, 1);
 }
 
 
@@ -8693,7 +8710,7 @@ void describe_region_basic(region_type *r_ptr)
 	else
 	{
 		/* Describe the blow */
-		describe_blow(r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->damage, "", format("%d", r_ptr->damage), TRUE, FALSE, FALSE, 1);
+		describe_blow(r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->damage, "", format("%d", r_ptr->damage), TRUE, FALSE, FALSE, FALSE, 1);
 	}
 
 	if (r_ptr->flags1 & (RE1_TRIGGER_MOVE)) vp[vn++] = "movement";

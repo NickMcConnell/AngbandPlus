@@ -98,7 +98,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_show_tips            103
 #define OPT_easy_more  		     104
 #define OPT_autosave_backup      105
-#define OPT_easy_monlist  		 106
+#define OPT_auto_monlist  		 106
+#define OPT_easy_monlist  		 107
 
 #define OPT_birth_randarts          (OPT_BIRTH+1)
 #define OPT_birth_rand_stats        (OPT_BIRTH+2)
@@ -205,6 +206,7 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define show_tips         	OPT(show_tips)
 #define easy_more	        OPT(easy_more)
 #define autosave_backup     OPT(autosave_backup)
+#define auto_monlist        OPT(auto_monlist)
 #define easy_monlist        OPT(easy_monlist)
 
 

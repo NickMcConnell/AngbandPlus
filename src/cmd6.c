@@ -2360,6 +2360,7 @@ bool player_apply_rune_or_coating2(int item2)
 
 	int rune;
 	int tval, sval;
+	int power = 0;
 
 	bool aware = FALSE;
 	bool use_feat = FALSE;
@@ -2418,6 +2419,13 @@ bool player_apply_rune_or_coating2(int item2)
 
 		/* Prepare tattoo */
 		object_prep(j_ptr, i);
+
+		/* Apply flask effect -- do this last for safety */
+		if (o_ptr->tval == TV_FLASK)
+		{
+			/* Get food effect */
+			get_spell(&power, "use", o_ptr, FALSE);
+		}
 	}
 
 	/* Remove coating */
@@ -2780,6 +2788,14 @@ bool player_apply_rune_or_coating2(int item2)
 	    }
 	}
 
+	/* Apply power */
+	if (power > 0)
+	{
+		bool dummy = FALSE;
+		int kind = lookup_kind(tval, sval);
+
+		process_spell(SOURCE_PLAYER_COATING, kind, power,0,&dummy,&dummy, TRUE);
+	}
 
 	return (TRUE);
 }

@@ -18,81 +18,81 @@ V:0.6.3
 
 N:0:NOTHING
 I:0
-D:do||es|:::nothing:::
+D:do||es|:::no effect:::
 T:nothing
 
 N:1:STORM
-I:0
+I:10
 D:lash||es|:::with wind, rain and lightning:::
 T:storm
 
 N:2:WIND
-I:0
+I:10
 D:blast~:::with wind::damage against flying or climbing monsters, less against others:
 T:wind
 
 N:3:HELLFIRE
-I:0
+I:20
 D:blast~:::with hellfire:::
 T:hellfire
 
 N:4:MANA
-I:0
+I:5
 D:blast~:::with magic:::
 T:mana
 
 N:5:HOLY_ORB
-I:0
+I:5
 D:blast~:::with holy magic::damage, doubled against evil monsters:
 T:holiness
 
 N:6:LITE_WEAK
-I:0
+I:5
 D:light~:up::::damage to monsters vulnerable to light:
 T:light
 
 N:7:DARK_WEAK
-I:0
+I:5
 D:plunge~:into darkness::::power:pow
 T:darkness
 
 N:8:WATER_WEAK
-I:0
+I:10
 D:soak~:::with water:::
 T:water
 
 N:9:PLASMA
-I:0
+I:10
 D:blast~:::with plasma:::
 T:plasma
 
 N:10:METEOR
-I:0
+I:10
 D:blast~:::with meteors:::
 T:meteors
 
 N:11:ICE
-I:0
+I:10
 D:cover~:::with ice:::
 T:ice
 
 N:12:GRAVITY
-I:0
+I:20
 D:crush||es|:::with gravity:::
 T:gravity
 
 N:13:INERTIA
-I:0
+I:20
 D:slow~:::with inertia:::
 T:inertia
 
 N:14:FORCE
-I:0
+I:20
 D:impact~:::with force:::
 T:force
 
 N:15:TIME
-I:0
+I:20
 D:take~:::back in time:::
 T:time
 
@@ -102,22 +102,22 @@ D:dissolve~::::::
 T:acid
 
 N:17:ELEC
-I:0
+I:10
 D:electrif|y|ies|::::::
 T:electricity
 
 N:18:FIRE
-I:0
+I:10
 D:burn~::::::
 T:fire
 
 N:19:COLD
-I:0
+I:10
 D:freeze~::::::
 T:cold
 
 N:20:POISON
-I:0
+I:5
 D:poison~::::::
 T:poison
 
@@ -127,32 +127,32 @@ D:animate~::dead::::
 T:animating the undead
 
 N:22:LITE
-I:0
+I:5
 D:blast~:::with powerful light:::
 T:powerful light
 
 N:23:DARK
-I:0
+I:5
 D:blast~:::with powerful darkness:::
 T:powerful darkness
 
 N:24:WATER
-I:0
+I:10
 D:blast~:::with water:::
 T:water
 
 N:25:CONFUSE
-I:0
+I:10
 D:confuse~::::::
 T:powerful confusion
 
 N:26:SOUND
-I:0
+I:10
 D:deafen~::::::
 T:sound
 
 N:27:SHARD
-I:0
+I:10
 D:blast~:::with shards:::
 T:shards
 
@@ -162,17 +162,17 @@ D:blast~:::with nexus:::
 T:nexus
 
 N:29:NETHER
-I:0
+I:5
 D:blast~:::with nether:::
 T:nether
 
 N:30:CHAOS
-I:0
+I:5
 D:blast~:::with chaos:::
 T:chaos
 
 N:31:DISENCHANT
-I:0
+I:15
 D:blast~:::with disenchantment:::
 T:disenchantment
 
@@ -247,7 +247,7 @@ D:turn~:::if evil::power:pow
 T:turning evil
 
 N:46:FEAR_WEAK
-I:0
+I:10
 D:scare~:::::power:pow
 T:fear
 
@@ -292,73 +292,73 @@ D:hasten~:::::power:pow
 T:hasting
 
 N:55:SLOW_WEAK
-I:0
+I:10
 D:slow~:::::power:pow
 T:slowing
 
 N:56:CONFUSE_WEAK
-I:0
+I:10
 D:confuse~:::::power:pow
 T:confusion
 
 N:57:SLEEP
-I:0
+I:10
 D:send~:::to sleep::power:pow
 T:sleep
 
 N:58:DRAIN_LIFE
-I:0
+I:20
 D:drain~:life from:::::
 T:life draining
 
 N:59:BWATER
-I:0
+I:10
 D:scald~:::with boiling water:::
 T:boiling water
 
 N:60:BMUD
-I:0
+I:10
 D:splash||es|:::with boiling mud:::
 T:boiling mud
 
 N:61:HURT
-I:0
-D:attack~::::::
+I:60
+D:hurt~::::::
 T:pain
 
 N:62:LAVA
-I:0
+I:10
 D:burn~:::with lava:::
 T:lava
 
 N:63:UN_BONUS
-I:0
-D:disenchant~::::::
+I:20
+D:disenchant~::$ armour and weapons::::
 T:disenchantment
 
 N:64:UN_POWER
-I:0
-D:drain~::charges from::::
+I:15
+D:drain~:charges from:$ wands and staffs::::
 T:static
 
 N:65:EAT_GOLD
-I:0
-D:steal~::gold from::::
+I:5
+D:steal~:gold from:::::
 T:stealing gold
 
 N:66:EAT_ITEM
-I:0
-D:steal~::items from::::
+I:5
+D:steal~:items from:::::
 T:stealing items
 
 N:67:EAT_FOOD
-I:0
-D:eat~:::$ food:::
+I:5
+D:eat~::$ food::::
 T:eating food
 
 N:68:EAT_LITE
-I:0
-D:absorb~::light from::::
+I:5
+D:absorb~:light from:::::
 T:absorbing light
 
 N:69:FALL
@@ -382,22 +382,22 @@ D:drop~:::into a poison spiked pit:::
 T:spike pit creation magic
 
 N:73:BLIND
-I:0
+I:10
 D:blind~:::::damage, doubled against eye monsters:
 T:blindness
 
 N:74:SLOW
-I:0
+I:10
 D:slow~::::::
 T:slowing
 
 N:75:TERRIFY
-I:0
+I:10
 D:terrif|y|ies|::::::
 T:terror
 
 N:76:PARALYZE
-I:0
+I:2
 D:paralyze~::::::
 T:paralyzation
 
@@ -437,27 +437,27 @@ D:reduce~:all stats from:::::
 T:ruination
 
 N:84:SHATTER
-I:0
+I:60
 D:shatter~::::::
 T:earthquakes
 
 N:85:EXP_10
-I:0
+I:5
 D:drain~:experience (by 10d6+) from:::::
 T:experience drain
 
 N:86:EXP_20
-I:0
+I:5
 D:drain~:experience (by 20d6+) from:::::
 T:experience drain
 
 N:87:EXP_40
-I:0
+I:5
 D:drain~:experience (by 40d6+) from:::::
 T:experience drain
 
 N:88:EXP_80
-I:0
+I:5
 D:drain~:experience (by 80d6+) from:::::
 T:experience drain
 
@@ -472,7 +472,7 @@ D:lower~:water around::::damage to monsters made from water:
 T:lowering water
 
 N:91:PROBE
-I:0
+I:60
 D:probe~:the weaknesses of:::::
 T:probing
 
@@ -482,12 +482,12 @@ D:magically lock~:doors on:::::
 T:door locking
 
 N:93:SALT_WATER
-I:0
+I:10
 D:soak~:::with salt water:::
 T:salt water
 
 N:94:HALLU
-I:0
+I:10
 D:space~ out::::::
 T:hallucination
 
@@ -497,52 +497,52 @@ D:magically create~:::::damage, destroying living monsters that cannot escape to
 T:terrain creation
 
 N:96:STEAM
-I:0
+I:10
 D:scald~:::with steam:::
 T:steam
 
 N:97:VAPOUR
-I:0
+I:10
 D:dissolve~:::with acidic vapour:::
 T:acidic vapour
 
 N:98:SMOKE
-I:0
+I:10
 D:burn~:::with smoke:::
 T:smoke
 
 N:99:SUFFOCATE
-I:0
+I:20
 D:suffocate~::::::
 T:suffocation
 
 N:100:HUNGER
-I:0
+I:20
 D:starve~::::::
 T:starvation
 
 N:101:DISEASE
-I:0
+I:2
 D:infect~:::with disease:::
 T:disease
 
 N:102:HURT_MANA
-I:0
+I:60
 D:drain~:mana from::::damage, plus spell points:dam
 T:mana drain
 
 N:103:WOUND
-I:0
+I:60
 D:wound~::::::
 T:wounding
 
 N:104:BATTER
-I:0
+I:60
 D:batter~::::::
 T:battering
 
 N:105:BLIND_WEAK
-I:0
+I:10
 D:blind~:::::power:pow
 T:blindness
 
@@ -557,48 +557,48 @@ D:return~:mana to::::spell points:mana
 T:mana gain
 
 N:108:FORGET
-I:0
+I:10
 D:cause~:::to forget:::
 T:amnesia
 
 N:109:CURSE
-I:0
+I:10
 D:curse~::::::
 T:cursing
 
 N:110:DISPEL
-I:0
+I:10
 D:remove~:enchantments from:::::
 T:dispelling magic
 
 N:111:STASTIS
-I:0
+I:2
 D:trap~:::in time loops:::
 T:stastis
 
 N:112:PETRIFY
-I:0
+I:2
 D:petrif|y|ies|::::::
 T:petrification
 
 N:113:WEB
-I:0
+I:20
 D:build~:webs around:::::
 T:webs
 
 N:114:BLOOD
-I:0
+I:20
 D:cover~:::in blood:::
 T:blood
 
 N:115:SLIME
-I:0
+I:20
 D:cover~:::in slime:::
 T:slime
 
 N:116:RESIST_MAGIC
 I:0
-D:::::::
+D:resist~:magic:::::
 T:magic resistance
 
 N:117:FALL_LESS
@@ -617,7 +617,7 @@ D:jump~:::away to a location still in line of fire::distance on average:range
 T:jumping away
 
 N:120:HURT_WOOD
-I:0
+I:10
 D:warp~::wood out of shape:::damage to monsters made from wood:
 T:warping wood
 
@@ -682,27 +682,27 @@ D:bind~::a familiar to you:::power:pow
 T:binding familiars
 
 N:133:VAMP_DRAIN
-I:0
+I:20
 D:drain~:health from:::::
 T:stealing health
 
 N:134:MANA_DRAIN
-I:0
+I:20
 D:drain~:mana from::::spell points:mana
 T:stealing mana
 
 N:135:MENTAL
-I:0
+I:60
 D:blast~:::with mental energy:::
 T:mental energy
 
 N:136:SNUFF
 I:0
-D:snuff~:the life from::if they have less than a maximum:of:hit points:max hp
+D:snuff~:the life from::if & has less than a maximum:of:hit points:max hp
 T:snuffing small life
 
 N:137:RAGE
-I:0
+I:10
 D:enrage~:::::power:pow
 T:rage
 
@@ -717,22 +717,22 @@ D:return~:mana to::::percent of spell points:% mana
 T:gaining mana
 
 N:140:TANGLE
-I:0
+I:10
 D:entangle~:::with nearby plants or waterweeds::power:pow
 T:entangling
 
 N:141:POISON_WATER
-I:0
+I:10
 D:soak~:::with poisonous water:::
 T:poisonous water
 
 N:142:INVISIBILITY
 I:0
-D:::::::
+D:turn~:::invisible:::
 T:invisibility
 
 N:143:DELAY_POISON
-I:0
+I:10
 D:poison~:::with delayed effect:::
 T:delayed poison
 
@@ -752,17 +752,27 @@ D:drain~:mana from::::percent of spell points:% mana
 T:losing mana
 
 N:147:DESTROY
-I:0
+I:60
 D:destroy~::::::
 T:destroying
 
 N:148:QUAKE
-I:0
+I:60
 D:shake~::the foundations::::
 T:quaking
 
 N:149:POISON_WEAK
-I:0
+I:10
 D:poison~::::::
+T:poison
+
+N:150:POISON_HALF
+I:5
+D:poison~::::::
+T:poison
+
+N:151:HURT_POISON
+I:20
+D:hurt~ and poison~::::::
 T:poison
 

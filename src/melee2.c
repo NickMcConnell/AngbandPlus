@@ -475,6 +475,8 @@ static int find_resist(u32b smart, int effect)
 
 		/* Poison Spells */
 		case GF_POIS:
+		case GF_POISON_WEAK:
+		case GF_POISON_HALF:
 		{
 			if (smart & (SM_IMM_POIS)) return (100);
 			else if ((smart & (SM_OPP_POIS)) && (smart & (SM_RES_POIS))) return (80);
@@ -1498,7 +1500,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 			}
 		}
 	}
-	
+
 	/* No valid target (only possible if an idle ally) */
 	if (!target_m_idx)
 	{
@@ -2304,6 +2306,9 @@ static void get_town_target(monster_type *m_ptr)
 				y = rand_range(1, TOWN_HGT - 2);
 				x = rand_range(1, TOWN_WID - 2);
 			}
+
+			/* Require a grid we can get to */
+			if (!mon_resist_feat(f_info[cave_feat[y][x]].mimic, m_ptr->r_idx)) continue;
 
 			/* Require "empty" floor grids */
 			if (cave_empty_bold(y, x))
@@ -6236,18 +6241,17 @@ static void process_monster(int m_idx)
 	if ((chance_spell) && (m_ptr->cdis > MAX_RANGE + 1)) chance_spell = 0;
 
 	/* Cannot use spell attacks when enraged or not aware. */
-	/* Hack -- when blind, monster can only cast CURE spell. */
-	if ((chance_spell) && ((m_ptr->berserk) || (!aware)
-		|| ((m_ptr->blind) && !(r_ptr->flags6 & (RF6_CURE))) )) chance_spell = 0;
+	if ((chance_spell) && ((m_ptr->berserk) || (!aware) )) chance_spell = 0;
 
 	/* Cannot use innate attacks when not aware. */
 	if ((chance_innate) && (!aware)) chance_innate = 0;
 
-	/* Stunned and confused monsters use spell attacks half as often. */
-	if ((chance_spell) && (m_ptr->stunned) && (m_ptr->confused)) chance_spell /= 2;
-
-	/* Blind, confused or stunned monsters use innate attacks half as often. */
-	if ((chance_innate) && ((m_ptr->blind) || (m_ptr->confused) || (m_ptr->stunned))) chance_innate /= 2;
+	/* Blind, confused and stunned monsters use spell attacks half as often. */
+	if ((m_ptr->blind) || (m_ptr->confused) || (m_ptr->stunned))
+	{
+		chance_spell /= 2;
+		chance_innate /= 2;
+	}
 
 	/* Monster can use ranged attacks */
 	/* Now use a 'save' against the players charisma to avoid this */
@@ -6256,7 +6260,7 @@ static void process_monster(int m_idx)
 		|| (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH)))
 	{
 		int roll;
-		
+
 		/* Monster must cast */
 		if (m_ptr->mflag & (MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH))
 		{
@@ -7222,7 +7226,7 @@ static void recover_monster(int m_idx, bool regen)
 					delete_object_idx(this_o_idx);
 
 					/* Drop it */
-					drop_near(i_ptr, -1, y, x);
+					drop_near(i_ptr, -1, y, x, TRUE);
 				}
 
 				/* Forget objects */

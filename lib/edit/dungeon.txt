@@ -272,8 +272,8 @@ X:7:10:0:0
 Q:9:622
 R:PLANT
 L:6:407:420:420:153:0:0:0:SURFACE | DAYLIGHT | WILD | TUNNELS | MORE:Bonfire Glade in the
-L:7:56:420:420:153:0:0:0:ROOMS | TUNNELS | LESS | MORE:a knoll in the
-L:8:56:420:420:153:0:0:0:ROOMS | TUNNELS | LESS | MORE:Withywindle river in the
+L:7:56:0:420:420:0:0:0:ROOMS | TUNNELS | LESS | MORE:a knoll in the
+L:8:56:0:420:153:0:0:0:ROOMS | TUNNELS | LESS | MORE:Withywindle river in the
 L:10:56:0:420:153:622:0:0:TOWN | LESS:a willow clearing in the
 
 N:9:Bombadil's house
@@ -589,7 +589,7 @@ Q:36:249
 Z:36:36
 G:o
 R:PLANT
-L:27:407:420:420:420:1313:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | ROOMS | TUNNELS:
+L:27:407:420:420:420:1313:0:0:DESTROYED | SURFACE | DAYLIGHT | WILD | TUNNELS:
 D:Fangorn is aflame: Saruman's orcs have taken axe and fire to the trees
 D: and the haunted moans of the ancient wood fill the air.  Some say the
 D: trees have begun to march in response --- but you can only see dark

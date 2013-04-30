@@ -2728,12 +2728,25 @@ errr parse_region_info(char *buf, header *head)
 		/* There better be a current region_ptr */
 		if (!region_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+		/* Find the colon before the name */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+
 		/* Scan for the values */
 		if (1 != sscanf(buf+2, "%d",
 				&child)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		region_ptr->child_region = (u16b)child;
+
+		/* Get the radius information */
+		if (grab_one_level_scalar(&region_ptr->child_lasts, s)) return (PARSE_ERROR_GENERIC);
+
 	}
 
 	/* Process 'B' for "Blows" */
@@ -7786,6 +7799,7 @@ static long eval_blow_effect(int effect, int atk_dam, int rlev)
 		case GF_POIS:
 		case GF_ICE:
 		case GF_SHARD:
+		case GF_HURT_POISON:
 		{
 			atk_dam *= 5;
 			atk_dam /= 4;

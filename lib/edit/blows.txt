@@ -51,7 +51,7 @@ V:0.6.3
 N:0:MISS
 T:0-9999:miss||es| &
 M:20
-D::
+D:miss||es|:
 
 N:1:HIT
 T:30-9999:gouge~ &
@@ -70,19 +70,19 @@ N:2:TOUCH
 T:0-9999:touch||es| &
 F:MISS | HIDE |
 F:MELEE | TOUCH |
-D::
+D:touch||es|:
 
 N:3:PUNCH
 T:0-9999:punch||es| &
 F:MISS | HIDE |
 F:MELEE | STUN | TOUCH |
-D::
+D:punch||es|:
 
 N:4:KICK
 T:0-9999:kick~ &
 F:MISS | HIDE |
 F:MELEE | STUN | TOUCH |
-D::
+D:kick~:
 
 N:5:CLAW
 T:25-9999:slash||es| &
@@ -90,71 +90,71 @@ T:5-24:claw~ &
 T:0-4:scratch||es| &
 F:MISS | HIDE |
 F:MELEE | CUTS | TOUCH |
-D::
+D:claw~:
 
 N:6:BITE
 T:5-9999:bite~ &
 T:0-4:nip~ &
 F:MISS | HIDE |
 F:MELEE | CUTS | TOUCH |
-D::
+D:bite~:
 
 N:7:STING
 T:0-9999:sting~ &
 F:MISS | HIDE |
 F:MELEE | TOUCH |
-D::
+D:sting~:
 
 N:8:VOMIT
-T:0-9999:vomits on &
+T:0-9999:vomit~ on &
 F:MISS |
 F:MELEE | TOUCH |
-D::
+D:vomit~:@ target#
 
 N:9:BUTT
 T:10-20:trample~ &
 T:0-9:butt~ &
 F:MISS | HIDE |
 F:MELEE | STUN | TOUCH |
-D::
+D:trample~:@ target#
 
 N:10:CRUSH
 T:10-9999:crush||es| &
 T:0-9:squeeze~ &
 F:MISS | HIDE |
 F:MELEE | CUTS | TOUCH |
-D::
+D:crush||es|:@ target#
 
 N:11:ENGULF
 T:0-50:envelope~ &
 T:0-9999:engulf~ &
 F:MISS | HIDE |
 F:MELEE | TOUCH |
-D::
+D:envelope~:@ target#
 
 N:12:PECK
 T:0-9999:peck~ &
 F:MISS | HIDE |
 F:MELEE | STUN | TOUCH |
-D::
+D:peck~:@ target#
 
 N:13:CRAWL
 T:0-9999:crawl~ on &
 F:MISS | HIDE |
 F:MELEE | TOUCH |
-D::
+D:crawl~:@ target#
 
 N:14:DROOL
 T:0-9999:drool~ on &
 F:MISS | HIDE |
 F:MELEE | TOUCH |
-D::
+D:drool~:@ target#
 
 N:15:SLIME
 T:0-9999:slime~ &!
 F:MISS |
 F:MELEE | SLIME | TOUCH |
-D::
+D:slime~:@ target#
 
 N:16:SPIT
 T:0-9999:spit~ on &
@@ -188,21 +188,21 @@ R:1
 M:3
 F:BOOM | WALL | MISS | KILL | PLAY | STOP |
 F:MELEE | RANGED |
-D::@ adjacent target#
+D:release~ spores:@ adjacent target#
 
 N:20:LASH
 T:0-9999:lash||es| & with a whip
 M:3
 F:BEAM | MISS | GRID | ITEM | KILL | PLAY | MAGIC | THRU |
 F:MELEE | RANGED | TOUCH |
-D::@ adjacent target#
+D:lash||es|:@ adjacent target#
 
 N:21:BEG
 T:0-9999:beg~ & for money
 M:4
 F:KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D::@ adjacent target#
+D:beg~:@ adjacent target#
 
 N:22:INSULT
 T:0-9999:insult~ &!
@@ -216,7 +216,7 @@ T:0-9999:moon~ &!!!
 M:4
 F:KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D::@ adjacent target#
+D:insult~:@ adjacent target#
 
 N:23:MOAN
 T:0-9999:seem~ sad about something.
@@ -226,7 +226,7 @@ T:0-9999:mumble~ something about mushrooms.
 M:4
 F:KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D::@ adjacent target#
+D:moan~:@ adjacent target#
 
 N:24:SING
 T:0-9999:start~ to read & a poem.
@@ -236,13 +236,13 @@ T:0-9999:skip~ in a circle.
 M:4
 F:KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D::@ adjacent target#
+D:sing~:@ adjacent target#
 
 N:25:TRAP
 T:0-9999:trap~ &
 F:MISS | KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D::@ target#
+D:trap~:@ target#
 
 N:26:BOULDER
 T:0-9999:throw~ a boulder at &
@@ -250,7 +250,7 @@ W:0:3:1
 M:8
 F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED |
-D::@ adjacent target#
+D:throw~ a boulder at:@ adjacent target#
 
 N:27:AURA
 T:0-9999:intensif|y|ies| % aura
@@ -264,14 +264,14 @@ N:28:SELF
 T:0-9999:concentrate~ on &
 W:3:0:0
 F:GRID | ITEM | KILL | PLAY | SELF | HIDE |
-D::&
+D:concentrate~ on:&
 
 N:29:ADJACENT
 T:0-9999:surround & with *
 W:3:0:0
 R:1
 F:BOOM | GRID | ITEM | KILL | PLAY | SELF | SAFE |
-D::all enemies adjacent to &
+D:surround~:all enemies adjacent to &
 
 N:30:HANDS
 T:0-9999:shoot~ * from % fingers at &
@@ -279,7 +279,7 @@ W:2:0:0
 M:3
 F:BEAM | GRID | ITEM | KILL | PLAY | MAGIC | THRU |
 F:RANGED |
-D::@ beam#
+D:shoot~:@ beam#
 
 N:31:MISSILE
 T:0-9999:shoot~ a * missile at &
@@ -573,7 +573,7 @@ W:4:0:0
 M:1
 F:BEAM | MISS | GRID | ITEM | KILL | PLAY | MAGIC |
 F:MELEE | RANGED | TOUCH | SPECIAL_CASE |
-D::@ adjacent target#
+D:spray~:@ adjacent target#
 
 N:65:SHRIEK
 T:0-9999:shriek~ horribly
@@ -581,7 +581,7 @@ R:6
 M:20
 F:HIDE |
 F:MELEE | RANGED | SHRIEK |
-D::@ adjacent target#
+D:shriek~:@ adjacent target#
 
 N:66:BOLT_MINOR
 T:0-9999:shoot~ a minor bolt of * at &
@@ -683,10 +683,11 @@ D:affect~ @ area#:
 N:77:SCATTER
 T:0-9999:scatter~ * around &
 W:4:0:0
-R:5
+M:5
+R:0
 U:3+1/10
 F:GRID | ITEM | KILL | PLAY | SELF | MAGIC |
-F:RANGED | SCATTER |
+F:RANGED | SCATTER | BOOM |
 D:scatter~ magic around & affecting @ grid#:$ enemies
 
 N:78:HOWL
@@ -751,10 +752,11 @@ D::@ direction#
 N:85:SCATTER_PASS
 T:0-9999:scatter~ * around &
 W:4:0:0
-R:20
+M:20
+R:0
 U:1
 F:PASS | GRID | ITEM | KILL | PLAY | SELF | MAGIC |
-F:RANGED | SCATTER |
+F:RANGED | SCATTER | BOOM |
 D:scatter~ magic around &:$ enemies
 
 N:86:MIST
@@ -887,7 +889,7 @@ C:20:0:0:5:0:0:100
 R:2
 F:BOOM | WALL | GRID | ITEM | KILL | PLAY | MAGIC |
 F:RANGED |
-D::
+D:explode~:
 
 N:103:AURA
 I:0:1:0
@@ -1333,7 +1335,7 @@ T:0-9:cast~ a stinking cloud at &
 T:0-9:mumble~ bitterly
 I:0:6:0
 W:4:0:0
-X:3:1:6:0:1:0:POISON
+X:3:1:6:0:1:0:POISON_WEAK
 C:50:0:0:0:0:0:100
 R:4
 M:20

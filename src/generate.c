@@ -110,7 +110,7 @@
 /* DUN_ROOMS now defined in defines.h */
 #define DUN_NATURE_SURFACE	80	/* Chance in 100 of having lakes on surface */
 #define DUN_NATURE_DEEP		40	/* Chance in 100 of having lakes at depth */
-#define DUN_MAX_LAKES   3       /* Maximum number of lakes/rivers */
+#define DUN_MAX_LAKES   5       /* Maximum number of lakes/rivers */
 #define DUN_FEAT_RNG    2       /* Width of lake */
 
 /*
@@ -8073,6 +8073,14 @@ static bool build_tunnel(int row1, int col1, int row2, int col2, bool allow_over
 			/* Get the next location */
 			tmp_row = row1 + row_dir;
 			tmp_col = col1 + col_dir;
+
+			/* Mega-Hack -- Paranoia -- prevent infinite loops */
+			if (main_loop_count++ > 2000)
+			{
+				if (cheat_room) message_add(format("Main loop count exceeded from %d. Aborting.", part1), MSG_GENERIC);
+				abort_and_cleanup = TRUE;
+				break;
+			}
 		}
 
 		/* Avoid "solid" granite walls */
@@ -10441,7 +10449,7 @@ static void build_nature(void)
 	for (dun->lake_n = 0; dun->lake_n < DUN_MAX_LAKES; )
 	{
 		/* Have placed features */
-		if ((rand_int(100) >= ((level_flag & (LF1_SURFACE)) ? DUN_NATURE_SURFACE : DUN_NATURE_DEEP)) && !(zone->big) && !(zone->small))
+		if (!(zone->big) && !(zone->small) && (rand_int(100) >= ((level_flag & (LF1_SURFACE)) ? DUN_NATURE_SURFACE : DUN_NATURE_DEEP)))
 		{
 			break;
 		}
@@ -10464,8 +10472,6 @@ static void build_nature(void)
 		/* Got a valid feature? */
 		if (feat)
 		{
-			int dummy = feat;
-
 			/* Try a big lake */
 			if (!done_big)
 			{
@@ -10480,9 +10486,8 @@ static void build_nature(void)
 				big = FALSE;
 			}
 
-			/* On surface or dungeon filling ? */
-			if ((level_flag & (LF1_SURFACE)) ||
-				(((f_info[feat].flags1 & (FF1_WALL)) != 0) && !(variable_terrain(&dummy, feat))))
+			/* Shallow dungeons have separate lakes */
+			if (rand_int(75) > p_ptr->depth)
 			{
 				/* Report creation of lakes/rivers */
 				if (cheat_room)
@@ -11351,6 +11356,21 @@ static bool place_tunnels()
 
 	int counter = 0;
 	int retries = 0;
+
+	/* Mega hack -- try to connect lakes */
+	if ((level_flag & (LF1_SURFACE)) == 0)
+	{
+		for (i = 0; i < dun->lake_n; i++)
+		{
+			/* Save the room location */
+			if (dun->cent_n < CENT_MAX - 1)
+			{
+				dun->cent[dun->cent_n].y = dun->lake[i].y;
+				dun->cent[dun->cent_n].x = dun->lake[i].x;
+				dun->cent_n++;
+			}
+		}
+	}
 
 	/* Start with no tunnel doors */
 	dun->door_n = 0;
@@ -13083,6 +13103,16 @@ void generate_cave(void)
 		/* Wipe the regions */
 		wipe_region_piece_list();
 		wipe_region_list();
+
+		/* Safety */
+		if (num > 100)
+		{
+			msg_format("A bug hidden in %s leaps out at you and takes you elsewhere.", t_name + t_info[p_ptr->dungeon].name);
+
+			/* Banish the player to nowhere town. */
+			p_ptr->dungeon = 0;
+			p_ptr->depth = 0;
+		}
 	}
 
 

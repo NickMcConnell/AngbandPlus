@@ -866,7 +866,7 @@ void suffer_disease(bool allow_cure)
 
 			case DISEASE_THIRST:
 			{
-				set_food(p_ptr->food - randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				set_food(p_ptr->food - randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) - 10);
 				break;
 			}
 
@@ -2796,7 +2796,11 @@ static void process_command(void)
 		/* Save "toggle monster list on or off" */
 		case ' ':
 		{
-			easy_monlist = !easy_monlist;
+			if (easy_monlist)
+			{
+				auto_monlist = !auto_monlist;
+			}
+
 			break;
 		}
 
@@ -3231,7 +3235,7 @@ static void process_player(void)
 			process_player_aux();
 
 			/* Display the monlist */
-			if (easy_monlist) display_monlist(1, TRUE, FALSE);
+			if (auto_monlist) display_monlist(1, 0, 11, TRUE, FALSE);
 
 			/* Place the cursor on the player */
 			move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -3787,6 +3791,14 @@ void play_game(bool new_game)
 	if (!op_ptr->base_name[0])
 	{
 		my_strcpy(op_ptr->base_name, "PLAYER", sizeof(op_ptr->base_name));
+	}
+
+	/* Hack -- initialise options for the first time */
+	if (!op_ptr->monlist_display)
+	{
+		op_ptr->monlist_display = 3;
+		op_ptr->monlist_sort_by = 2;
+		op_ptr->delay_factor = 9;
 	}
 
 	/* Init RNG */

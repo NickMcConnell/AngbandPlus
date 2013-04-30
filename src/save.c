@@ -534,8 +534,11 @@ static void wr_options(void)
 	/* Write "hitpoint_warn" */
 	wr_byte(op_ptr->hitpoint_warn);
 
-	wr_u16b(0);	/* oops */
+	/* Write "monster list display mode" */
+	wr_byte(op_ptr->monlist_display);
 
+	/* Write "monster list sort mode" */
+	wr_byte(op_ptr->monlist_sort_by);
 
 	/*** Normal options ***/
 

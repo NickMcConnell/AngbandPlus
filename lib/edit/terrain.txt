@@ -2231,7 +2231,7 @@ U:56
 #$ granite wall
 O:0
 W:2:3:20:0
-T:ARC_40_SHORT:EAT_FOOD
+T:SCATTER:EAT_FOOD
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2253,7 +2253,7 @@ U:56
 #$ granite wall
 O:0
 W:3:3:20:0
-T:ARC_40_SHORT:EAT_LITE
+T:SCATTER:EAT_LITE
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2275,7 +2275,7 @@ U:56
 #$ granite wall
 O:0
 W:8:3:20:0
-T:ARC_40_SHORT:HURT:20d1
+T:SCATTER:HURT:20d1
 K:DEFAULT:1:8
 #$ open floor
 K:CHASM:141:8
@@ -2297,7 +2297,7 @@ U:56
 #$ granite wall
 O:0
 W:5:3:20:0
-T:ARC_40_SHORT:EAT_GOLD
+T:SCATTER:EAT_GOLD
 K:DEFAULT:1:5
 #$ open floor
 K:CHASM:141:5
@@ -2319,7 +2319,7 @@ U:56
 #$ granite wall
 O:0
 W:6:3:20:0
-T:ARC_40_SHORT:EAT_ITEM
+T:SCATTER:EAT_ITEM
 K:DEFAULT:1:6
 #$ open floor
 K:CHASM:141:6
@@ -2341,7 +2341,7 @@ U:56
 #$ granite wall
 O:0
 W:6:3:20:0
-T:ARC_40_SHORT:HALLU
+T:SCATTER:HALLU
 K:DEFAULT:1:6
 #$ open floor
 K:CHASM:141:6

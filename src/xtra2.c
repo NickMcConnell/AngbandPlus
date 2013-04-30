@@ -2007,7 +2007,7 @@ void scatter_objects_under_feat(int y, int x)
       next_o_idx = o_ptr->next_o_idx;
 
       /* Drop the object */
-      drop_near(o_ptr, -1, y, x);
+      drop_near(o_ptr, -1, y, x, TRUE);
     }
 
   /* Scan all objects in the grid */
@@ -2374,7 +2374,7 @@ bool monster_death(int m_idx)
 		delete_object_idx(this_o_idx);
 
 		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, TRUE);
 	}
 
 	/* Forget objects */
@@ -2402,7 +2402,7 @@ bool monster_death(int m_idx)
 			if (r_ptr->flags2 & (RF2_REGENERATE)) i_ptr->timeout = damroll(3,6);
 
 			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, y, x);
+			drop_near(i_ptr, -1, y, x, TRUE);
 		}
 	}
 
@@ -2438,7 +2438,7 @@ bool monster_death(int m_idx)
 		i_ptr->origin_xtra = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, TRUE);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
@@ -2458,7 +2458,7 @@ bool monster_death(int m_idx)
 		i_ptr->origin_xtra = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, TRUE);
 
 		/* Hack -- this is temporary */
 		/* Total winner */
@@ -2734,7 +2734,7 @@ bool monster_death(int m_idx)
 		i_ptr->origin_xtra = m_ptr->r_idx;
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, -1, y, x, TRUE);
 	}
 
 	/* Reset monster equipment */
@@ -2912,7 +2912,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx, TRUE);
 		}
 		/* Rip off a limb */
 		else if ((m_ptr->hp - dam < m_ptr->maxhp / 10) && make_part(i_ptr,m_ptr->r_idx))
@@ -2921,7 +2921,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx, TRUE);
 		}
 
 		/* Rip off some skin */
@@ -2931,7 +2931,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			i_ptr->name3 = m_ptr->r_idx;
 
 			/* Drop it in the dungeon */
-			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx);
+			drop_near(i_ptr, -1, m_ptr->fy, m_ptr->fx, TRUE);
 		}
 
 		/* Add some blood */

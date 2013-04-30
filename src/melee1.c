@@ -548,9 +548,6 @@ static bool check_hit(int power, int level, int who, bool ranged)
 	/* Is player blocking? */
 	if (p_ptr->blocking > 1)
 	{
-		/* Base blocking */
-		blocking = p_ptr->to_h;
-
 		/* No shield / secondary weapon */
 		if (!o_ptr->k_idx)
 		{
@@ -569,15 +566,15 @@ static bool check_hit(int power, int level, int who, bool ranged)
 		{
 			/* Adjust by ac factor */
 			blocking += o_ptr->ac + o_ptr->to_a;
-
-			/* Adjust by to hit factor */
-			blocking += o_ptr->to_h;
 		}
 
 		/* Modify by style */
 		if (!p_ptr->heavy_wield)
 		{
 			int i;
+
+			/* Base blocking */
+			blocking += p_ptr->to_h + 3;
 
 			for (i = 0; i < z_info->w_max; i++)
 			{
@@ -615,7 +612,7 @@ static bool check_hit(int power, int level, int who, bool ranged)
 		if (r_ptr->flags9 & (RF9_NEVER_MISS)) return (TRUE);
 
 		/* Calculate the "attack quality".  Blind monsters are greatly hindered. Stunned monsters are hindered. */
-		power = (power + (m_ptr->blind ? level * 1 : (m_ptr->stunned ? level * 2 : level * 3)));
+		power = (power + (m_ptr->blind ? level * 1 : (m_ptr->stunned ? level * 3 : level * 5)));
 
 		/* Apply monster stats */
 		if (m_ptr->mflag & (MFLAG_CLUMSY)) power -= 5;
@@ -651,18 +648,15 @@ static bool check_hit(int power, int level, int who, bool ranged)
 	{
 		object_type *o_ptr = &inventory[INVEN_ARM];
 
-		/* No secondary weapon or shield, use primary weapon */
-		if (!o_ptr->k_idx) o_ptr = &inventory[INVEN_WIELD];
-
-		/* Count for double */
-		if (o_ptr->k_idx)
+		/* Shields count for double */
+		if ((o_ptr->k_idx) && (o_ptr->tval == TV_SHIELD))
 		{
-			/* Shield or secondary weapon counts for double? */
+			/* Add shield ac again */
 			ac += o_ptr->ac;
 			ac += o_ptr->to_a;
 		}
 
-		/* Shield counts for double */
+		/* Shield spell counts for double */
 		if (p_ptr->timed[TMD_SHIELD]) ac += 50;
 
 		/* Ill winds help a lot */
@@ -993,7 +987,7 @@ bool mon_check_hit(int m_idx, int power, int level, int who, bool ranged)
 	if (r_ptr->flags9 & (RF9_NEVER_MISS)) return (TRUE);
 
 	/* Calculate the "attack quality".  Blind monsters are greatly hindered. Stunned monsters are hindered. */
-	power = (power + (n_ptr->blind ? level * 1 : (n_ptr->stunned ? level * 2 : level * 3)));
+	power = (power + (n_ptr->blind ? level * 1 : (n_ptr->stunned ? level * 3 : level * 5)));
 
 	/* Apply monster stats */
 	if (n_ptr->mflag & (MFLAG_CLUMSY)) power -= 5;
@@ -1434,7 +1428,7 @@ bool make_attack_normal(int m_idx)
  * spell.  The larger the value for "control", the less likely the damage
  * will vary greatly.
  */
-static int get_dam(byte power, int attack)
+int get_dam(byte power, int attack)
 {
 	int dam = 0;
 	int spread;
@@ -1828,8 +1822,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		m_ptr = &m_list[who];
 
 		/* Predict the "target" location */
-		ty = m_ptr->fy + 99 * ddy[dir];
-		tx = m_ptr->fx + 99 * ddx[dir];
+		ty = m_ptr->fy + 99 * ddy_ddd[dir];
+		tx = m_ptr->fx + 99 * ddx_ddd[dir];
 
 		/* Calculate the path */
 		path_n = project_path(path_g, MAX_SIGHT, m_ptr->fy, m_ptr->fx, &ty, &tx, 0);
@@ -1856,6 +1850,27 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			/* Handle monster */
 			if (cave_m_idx[y][x]) break;
+		}
+	}
+
+	/* Hack -- Blind monsters shoot near the target */
+	else if ((who > SOURCE_MONSTER_START) && (target != who) && (m_list[who].blind))
+	{
+		int ty = y;
+		int tx = x;
+
+		/* Get the monster */
+		m_ptr = &m_list[who];
+
+		/* Scatter the target */
+		/* Aggressive monsters are much more accurate */
+		scatter(&ty, &tx, y, x,(distance(m_ptr->fy, m_ptr->fx, y, x)+1) / (m_ptr->mflag & (MFLAG_AGGR) ? 4 : 2), CAVE_XLOF);
+
+		/* Don't target self */
+		if ((ty != m_ptr->fy) || (tx != m_ptr->fx))
+		{
+			y = ty;
+			x = tx;
 		}
 	}
 
@@ -1932,7 +1947,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Feature is seen */
 		if (play_info[y][x] & (PLAY_SEEN))
 		{
-			my_strcpy(m_poss,format("the %s", f_name + f_info[what].name), sizeof(m_name));
+			my_strcpy(m_name,format("the %s", f_name + f_info[what].name), sizeof(m_name));
 			my_strcpy(m_poss,format("the %s's", f_name + f_info[what].name), sizeof(m_poss));
 		}
 		else
@@ -1957,7 +1972,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		rlev = f_info[cave_feat[y][x]].power;
 
 		/* Fake the spell power */
-		spower = 2 + p_ptr->depth / 10;
+		spower = 2 + p_ptr->depth / 2;
 
 		/* Fake the powerfulness */
 		powerful = (p_ptr->depth > 50 ? TRUE : FALSE);
@@ -2176,12 +2191,12 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	if (flg & (PROJECT_MISS))
 	{
 		/* See if we hit the player player */
-		if ((target < 0) && check_hit(effect_ptr->power, rlev - range, who, TRUE))
+		if ((target < 0) && check_hit(effect_ptr->power - BTH_RANGE_ADJ * range, rlev, who, TRUE))
 		{
 			/* Hit the player */
 			flg &= ~(PROJECT_MISS);
 		}
-		else if ((target > 0) && mon_check_hit(target, effect_ptr->power, rlev - range, who, TRUE))
+		else if ((target > 0) && mon_check_hit(target, effect_ptr->power - BTH_RANGE_ADJ * range, rlev, who, TRUE))
 		{
 			/* Hit the monster */
 			flg &= ~(PROJECT_MISS);
@@ -2254,6 +2269,17 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	{
 		/* Weaken damage */
 		if ((result) && (spower >= 40)) dam = dam * 3 / 4;
+	}
+
+	/* Hack -- Weaken poison ball attacks */
+	if ((effect == GF_POIS) && (result >= 4))
+	{
+		effect = result >= 6 ? GF_POISON_WEAK  : GF_POISON_HALF;
+
+		effect_ptr = &effect_info[GF_POISON_HALF];
+
+		/* Hack -- bump damage */
+		dam *= 2;
 	}
 
 	/* Any effect? */
@@ -4715,7 +4741,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 	/* Apply the object */
 	else
 	{
-		discharge_trap(y, x, y, x);
+		discharge_trap(y, x, y, x, 0);
 
 		/* XXX Monster is no longer stupid */
 		m_ptr->mflag &= ~(MFLAG_STUPID);

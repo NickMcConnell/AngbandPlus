@@ -913,7 +913,7 @@ static void wiz_create_item(void)
 	if (p_ptr->command_arg) i_ptr->number = p_ptr->command_arg;
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
+	drop_near(i_ptr, -1, py, px, TRUE);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -966,7 +966,7 @@ static void wiz_create_artifact(int a_idx)
 	i_ptr->origin = ORIGIN_CHEAT;
 
 	/* Drop the artifact from heaven */
-	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px);
+	drop_near(i_ptr, -1, p_ptr->py, p_ptr->px, TRUE);
 
 	/* All done */
 	msg_print("Allocated.");

@@ -781,23 +781,17 @@ s16b get_mon_num(int level)
 				continue;
 			}
 
-			/* MegaHack -- Sauron shapes */
-			if ((cave_ecology.race[i] == SAURON_TRUE) ||
-					((cave_ecology.race[i] >= SAURON_FORM) &&
-							(cave_ecology.race[i] < SAURON_FORM + MAX_SAURON_FORMS)))
+			/* Sauron musn't be summoned with his forms already present */
+			/* XXX This only occurs because we generate him in the ecology. */
+			if (i == SAURON_TRUE)
 			{
-				int j;
-				bool present = FALSE;
-
-				/* Check all shapes */
-				if (r_info[SAURON_TRUE].cur_num) continue;
-
 				for (j = SAURON_FORM; j < SAURON_FORM + MAX_SAURON_FORMS; j++)
 				{
-					if (r_info[SAURON_TRUE].cur_num) present = TRUE;
+					if (r_info[j].cur_num) break;
 				}
 
-				if (present) continue;
+				/* Another form present */
+				if (j < SAURON_FORM + MAX_SAURON_FORMS) continue;
 			}
 
 			/* Hack -- Never place quest monsters randomly. */
@@ -1050,11 +1044,13 @@ static const char *sort_by_name[]=
 /*
  * Display visible monsters and/or objects in a window
  *
- * Types defines whether we see monsters, objects or both:
+ * Mode defines whether we see monsters, objects, features,
+ * and whether we show or hide stuff we are only aware of.
  *
  * 1 	- monsters
  * 2	- objects
- * 3	- both
+ * 4	- features (not implemented)
+ * 8	- hide objects we're only aware of
  *
  * Sort by values:
  *
@@ -1064,14 +1060,14 @@ static const char *sort_by_name[]=
  *
  * Returns the width of the monster and/or object lists, or 0 if no monsters/objects are seen.
  */
-void display_monlist(int row, bool command, bool force)
+void display_monlist(int row, unsigned int width, int mode, bool command, bool force)
 {
 	int idx, max;
 	int line;
 	int total_count, disp_count, status_count;
 	int forreal;
 
-	char *m_name;
+	char m_name[80];
 	char buf[80];
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -1086,19 +1082,15 @@ void display_monlist(int row, bool command, bool force)
 	int i, j;
 
 	int max_sort;
-	unsigned int n = 0, width = 0;
+	unsigned int n = 0;
 
 	bool intro;
 	bool done = FALSE;
 
 	key_event ke;
 
-	/* Hack -- initialise for the first time */
-	if (!op_ptr->monlist_display)
-	{
-		op_ptr->monlist_display = 3;
-		op_ptr->monlist_sort_by = 2;
-	}
+	/* Paranoia */
+	if (!mode) return;
 
 	/* Clear the term if in a subwindow, set x otherwise */
 	if (Term != angband_term[0])
@@ -1108,7 +1100,7 @@ void display_monlist(int row, bool command, bool force)
 	}
 	else
 	{
-		max = Term->hgt - 2;
+		max = Term->hgt - (show_sidebar ? 3 : 2);
 
 		screen_save();
 	}
@@ -1142,7 +1134,7 @@ void display_monlist(int row, bool command, bool force)
 		 * Iterate multiple times. We put monsters we can project to in the first list, then monsters we can see,
 		 * then monsters we are aware of through other means.
 		 */
-		if (op_ptr->monlist_display % 2) for (i = 0; !done && i < 3; i++)
+		if (mode & 1) for (i = 0; !done && i < 3; i++)
 		{
 			/* Reset status count */
 			status_count = 0;
@@ -1165,7 +1157,7 @@ void display_monlist(int row, bool command, bool force)
 				{
 					if (i != 1) continue;
 				}
-				else if (i != 2) continue;
+				else if ((i != 2) || (mode & 8)) continue;
 
 				/* Bump the count for this race */
 				race_counts[m_ptr->r_idx]++;
@@ -1236,7 +1228,7 @@ void display_monlist(int row, bool command, bool force)
 					r_ptr = &r_info[m_ptr->r_idx];
 
 					/* Get the monster name */
-					m_name = r_name + r_ptr->name;
+					monster_desc(m_name, sizeof(m_name), idx, race_counts[m_ptr->r_idx] > 1 ? 0x300 : 0x208);
 
 					/* Obtain the length of the description */
 					n = strlen(m_name);
@@ -1254,12 +1246,9 @@ void display_monlist(int row, bool command, bool force)
 
 							/* Display the entry itself */
 							Term_addstr(-1, attr, m_name);
-
-							/* XXX Need to pluralise this properly */
-							Term_addstr(-1, attr, "s");
 						}
 
-						n+= strlen(buf) + 2;
+						n+= strlen(buf) + 1;
 
 						if ((sleep_counts[m_ptr->r_idx]) && (sleep_counts[m_ptr->r_idx] < race_counts[m_ptr->r_idx]))
 						{
@@ -1407,7 +1396,7 @@ void display_monlist(int row, bool command, bool force)
 		}
 
 		/* Display items */
-		if (op_ptr->monlist_display / 2) for (i = 0; !done && i < 2; i++)
+		if (mode & 2) for (i = 0; !done && i < 2; i++)
 		{
 			/* Reset status count */
 			status_count = 0;
@@ -1429,7 +1418,7 @@ void display_monlist(int row, bool command, bool force)
 				{
 					if (i != 0) continue;
 				}
-				else if (i != 1) continue;
+				else if ((i != 1) || (mode & 8)) continue;
 
 				/* Bump the count for this artifact or kind */
 				if ((object_named_p(o_ptr)) && (o_ptr->name1))
@@ -1728,29 +1717,40 @@ void display_monlist(int row, bool command, bool force)
 	/* Reload the screen if we got to end of the list */
 	if (!done)
 	{
-		if (!width && force)
+		if (!total_count)
 		{
-			prt(format("You see no %s%s%s. (by %s)",
-					op_ptr->monlist_display % 2 ? "monsters" : "",
-					op_ptr->monlist_display == 3 ? " or " : "",
-					op_ptr->monlist_display / 2 ? "objects" : "",
-					sort_by_name[op_ptr->monlist_sort_by]), 0, 0);
+			if (force)
+			{
+				prt(format("You see no %s%s%s. (by %s)",
+						mode % 2 ? "monsters" : "",
+						mode == 3 ? " or " : "",
+						mode / 2 ? "objects" : "",
+						sort_by_name[op_ptr->monlist_sort_by]), 0, 0);
+			}
+			else
+			{
+				screen_load();
+				return;
+			}
 		}
 
-		/* Get an acceptable keypress. */
-		ke = force ? anykey() : inkey_ex();
-
-		while ((ke.key == '\xff') && !(ke.mousebutton))
+		if (Term == angband_term[0])
 		{
-			int y = KEY_GRID_Y(ke);
-			int x = KEY_GRID_X(ke);
+			/* Get an acceptable keypress. */
+			ke = force ? anykey() : inkey_ex();
 
-			int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
+			while ((ke.key == '\xff') && !(ke.mousebutton))
+			{
+				int y = KEY_GRID_Y(ke);
+				int x = KEY_GRID_X(ke);
 
-			ke = target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+				int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
+
+				ke = target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+			}
+
+			screen_load();
 		}
-
-		if (Term == angband_term[0]) screen_load();
 	}
 
 	/* Display command prompt */
@@ -1814,6 +1814,8 @@ void display_monlist(int row, bool command, bool force)
  *   0x20 --> Pronominalize visible monsters
  *   0x40 --> Assume the monster is hidden
  *   0x80 --> Assume the monster is visible
+ *   0x100 --> Pluralize the monster
+ *   0x200 --> No special suffixes
  *
  * Useful Modes:
  *   0x00 --> Full nominative name ("the goblin") or "it"
@@ -1838,6 +1840,8 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 	int match = 1;
 	char *s, *t;
 
+	bool append_s = TRUE;
+
 	/* Can we "see" it (forced, or not hidden + visible) */
 	seen = ((mode & (0x80)) || (!(mode & (0x40)) && m_ptr->ml));
 
@@ -1846,6 +1850,9 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 
 	/* Extract the gender if female */
 	if ((r_ptr->flags1 & (RF1_FEMALE)) && (!(r_ptr->flags1 & (RF1_MALE)) || (m_idx % 2))) match = 2;
+
+	/* Extract pluralized if requested */
+	if (mode & (0x100)) match = 3;
 
 	/* First, try using pronouns, or describing hidden monsters */
 	if (!seen || pron)
@@ -1935,8 +1942,8 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARCHER)) != 0)) suffix = "ranger";
 			else if (((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "warrior mage";
 			else if ((r_ptr->flags2 & (RF2_MAGE)) != 0) suffix = "mage";
-			else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "|knight|princess|";
-			else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest||ess|";
+			else if (((r_ptr->flags2 & (RF2_PRIEST)) != 0) && ((r_ptr->flags2 & (RF2_ARMOR)) != 0)) suffix = "|knight|princess|knights|";
+			else if ((r_ptr->flags2 & (RF2_PRIEST)) != 0) suffix = "priest||ess|s|";
 			else if ((r_ptr->flags2 & (RF2_ARCHER)) != 0) suffix = "archer";
 			else if ((r_ptr->flags2 & (RF2_SNEAKY)) != 0) suffix = "scout";
 			else if ((r_ptr->flags2 & (RF2_ARMOR)) != 0) suffix = "warrior";
@@ -2037,27 +2044,47 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		}
 
 		/* It could be an indefinite monster */
-		else if (mode & 0x08)
+		else
 		{
 			/* XXX Check plurality for "some" */
+			if (mode & 0x100) my_strcpy(desc, "", max);
 
 			/* Indefinite monsters need an indefinite article */
-			my_strcpy(desc, is_a_vowel(prefix ? prefix[0] : name[0]) ? "an " : "a ", max);
+			else if (mode & 0x08) my_strcpy(desc, is_a_vowel(prefix ? prefix[0] : name[0]) ? "an " : "a ", max);
+
+			/* It could be a normal, definite, monster */
+			else my_strcpy(desc, "the ", max);
+
+			/* Otherwise */
 			if (prefix) my_strcat(desc, prefix, max);
 			if (infix) { my_strcat(desc, infix, max); my_strcat(desc, " ", max); }
 			my_strcat(desc, name, max);
 			if (suffix) { my_strcat(desc, " ", max); my_strcat(desc, suffix, max); }
 		}
 
-		/* It could be a normal, definite, monster */
-		else
+		/* Remove gender sensitivity */
+		for (t = s = desc; *s; s++)
 		{
-			/* Definite monsters need a definite article */
-			my_strcpy(desc, "the ", max);
-			if (prefix) my_strcat(desc, prefix, max);
-			if (infix) { my_strcat(desc, infix, max); my_strcat(desc, " ", max); }
-			my_strcat(desc, name, max);
-			if (suffix) my_strcat(desc, suffix, max);
+			if (*s == '|')
+			{
+				state++;
+				if (state == 4) state = 0;
+				append_s = FALSE;
+			}
+			else if (!state || (state == match))
+			{
+				*t++ = *s;
+			}
+		}
+
+		/* Terminate buffer */
+		*t = '\0';
+
+		/* Pluralize */
+		if ((append_s) && ((mode & (0x100)) != 0))
+		{
+			/* Simply append "s" for plural */
+			my_strcat(desc, "s", max);
 		}
 
 		/* Handle the Possessive as a special afterthought */
@@ -2068,6 +2095,9 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			/* Simply append "apostrophe" and "s" */
 			my_strcat(desc, "'s", max);
 		}
+
+		/* Don't affix special comments if requested */
+		if (mode & 0x200) return;
 
 		/* Mention "hidden" monsters XXX XXX */
 		/* Note we only see "hidden" monsters with detection,
@@ -2150,23 +2180,6 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 				my_strcat(desc, format(" (sp:%d)", r_ptr->mana) , max);
 			}
 		}
-
-		/* Remove gender sensitivity */
-		for (t = s = desc; *s; s++)
-		{
-			if (*s == '|')
-			{
-				state++;
-				if (state == 3) state = 0;
-			}
-			else if (!state || (state == match))
-			{
-				*t++ = *s;
-			}
-		}
-
-		/* Terminate buffer */
-		*t = '\0';
 	}
 }
 
@@ -2944,7 +2957,7 @@ static void player_swap(const int y1, const int x1, const int y2, const int x2)
 	p_ptr->update |= (PU_BONUS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_ITEMLIST);
 
 	/* Update room description (if needed) */
 	/* Line 1 -- we are entering a room */
@@ -3155,6 +3168,8 @@ static int mon_resist_effect(int effect, int r_idx)
 
 		case GF_DELAY_POISON:
 		case GF_POIS:
+		case GF_POISON_WEAK:
+		case GF_POISON_HALF:
 		if (!(r_ptr->flags3 & (RF3_IM_POIS))) return (0);
 		break;
 
@@ -4177,6 +4192,15 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* Hack -- no creation on glyph of warding */
 	if (f_ptr->flags1 & (FF1_GLYPH)) return (FALSE);
+
+	/* MegaHack: Handle forms of Sauron */
+	if ((r_idx == SAURON_TRUE) ||
+			((r_idx >= SAURON_FORM) &&
+			(r_idx < SAURON_FORM + MAX_SAURON_FORMS)))
+	{
+		/* XXX We've already picked a form. Just verifying that we can use it */
+		if (!sauron_shape(0)) return (FALSE);
+	}
 
 
 	if (!r_idx) msg_print("Bug: no monster!");
@@ -5497,7 +5521,9 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, u32b flg)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	/* MegaHack: Handle forms of Sauron */
-	if (r_idx == SAURON_TRUE)
+	if ((r_idx == SAURON_TRUE) ||
+			((r_idx >= SAURON_FORM) &&
+			(r_idx < SAURON_FORM + MAX_SAURON_FORMS)))
 	{
 		r_idx = sauron_shape(0);
 
@@ -7257,8 +7283,6 @@ bool place_guardian(int y0, int x0, int y1, int x1)
 
 			return (FALSE);
 		}
-
-
 	}
 
 	return (TRUE);

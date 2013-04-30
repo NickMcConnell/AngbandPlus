@@ -926,8 +926,6 @@ static void rd_options(void)
 
 	byte b;
 
-	u16b tmp16u;
-
 	u32b flag[8];
 	u32b mask[8];
 	u32b window_flag[ANGBAND_TERM_MAX];
@@ -950,8 +948,20 @@ static void rd_options(void)
 	op_ptr->hitpoint_warn = b;
 
 	/* Old cheating options */
-	rd_u16b(&tmp16u);
+	rd_byte(&b);
+	op_ptr->monlist_display = b;
 
+	/* Old cheating options */
+	rd_byte(&b);
+	op_ptr->monlist_sort_by = b;
+
+	/* Hack -- initialise options for the first time */
+	if (!op_ptr->monlist_display)
+	{
+		op_ptr->monlist_display = 3;
+		op_ptr->monlist_sort_by = 2;
+		op_ptr->delay_factor = 9;
+	}
 
 	/*** Normal Options ***/
 
@@ -1025,6 +1035,12 @@ static void rd_options(void)
 				}
 			}
 		}
+	}
+
+	/* Hack -- for competition 70 */
+	if (older_than(0, 6, 3, 9))
+	{
+		auto_monlist = FALSE;
 	}
 }
 

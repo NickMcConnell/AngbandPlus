@@ -169,6 +169,13 @@ void delete_object_idx(int o_idx)
 			check_attribute_lost(y, x, 2, CAVE_XLOS, require_halo, has_halo, redraw_halo_loss, remove_halo, reapply_halo);
 		}
 
+		/* Check the item was seen */
+		if (j_ptr->ident & (IDENT_MARKED))
+		{
+			/* Window flags */
+			p_ptr->window |= (PW_ITEMLIST);
+		}
+
 		/* Visual update */
 		lite_spot(y, x);
 	}
@@ -832,10 +839,10 @@ void object_bonus(object_type *o_ptr, bool floor)
 	}
 
 	/* For armour/weapons - is this all we need to know? */
-	if ((o_ptr->feeling == INSCRIP_AVERAGE) ||
+	if ((o_ptr->tval != TV_STAFF) && ((o_ptr->feeling == INSCRIP_AVERAGE) ||
 			(o_ptr->feeling == INSCRIP_GOOD) ||
 			(o_ptr->feeling == INSCRIP_VERY_GOOD) ||
-			(o_ptr->feeling == INSCRIP_GREAT))
+			(o_ptr->feeling == INSCRIP_GREAT)))
 	{
 		object_known(o_ptr);
 	}
@@ -872,10 +879,10 @@ void object_gauge(object_type *o_ptr, bool floor)
 	}
 
 	/* For armour/weapons - is this all we need to know? */
-	if ((o_ptr->feeling == INSCRIP_AVERAGE) ||
+	if ((o_ptr->tval != TV_STAFF) && ((o_ptr->feeling == INSCRIP_AVERAGE) ||
 			(o_ptr->feeling == INSCRIP_GOOD) ||
 			(o_ptr->feeling == INSCRIP_VERY_GOOD) ||
-			(o_ptr->feeling == INSCRIP_GREAT))
+			(o_ptr->feeling == INSCRIP_GREAT)))
 	{
 		object_known(o_ptr);
 	}
@@ -6007,7 +6014,16 @@ bool make_body(object_type *j_ptr, int r_idx)
 	if ((r_ptr->flags3 & (RF3_HURT_ROCK)) && !(r_ptr->flags3 & (RF3_NONLIVING))) k_idx = lookup_kind(TV_STATUE,SV_STATUE_STONE);
 
 	/* Hack -- golems leave behind assemblies */
-	else if (r_ptr->flags8 & (RF8_ASSEMBLY)) k_idx = lookup_kind(TV_ASSEMBLY, SV_ASSEMBLY_NONE);
+	else if (r_ptr->flags8 & (RF8_ASSEMBLY))
+	{
+		int sval = rand_int(SV_MAX_ASSEMBLY);
+
+		/* Hack -- ensure larger parts */
+		if ((sval < SV_ASSEMBLY_FULL) && !(sval % 2)) sval++;
+		else if (sval == SV_ASSEMBLY_HANDS) sval--;
+
+		k_idx = lookup_kind(TV_ASSEMBLY, sval);
+	}
 
 	/* Monsters with corpses produce corpses */
 	else if (r_ptr->flags8 & (RF8_HAS_CORPSE)) k_idx = lookup_kind(TV_BODY,SV_BODY_CORPSE);
@@ -6392,6 +6408,9 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 
 		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
+
+		/* Window flags */
+		p_ptr->window |= (PW_ITEMLIST);
 
 		/* Notice */
 		note_spot(y, x);
@@ -6955,8 +6974,12 @@ bool check_object_lite(object_type *j_ptr)
  * We check several locations to see if we can find a location at which
  * the object can combine, stack, or be placed.  Artifacts will try very
  * hard to be placed, including "teleporting" to a useful grid if needed.
+ *
+ * XXX We set dont_trigger when a monster dies to avoid their drop
+ * triggering a region or projection from the object breaking and
+ * potentially killing the monster twice (!?!)
  */
-void drop_near(object_type *j_ptr, int chance, int y, int x)
+void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 {
 	int i, k, d, s;
 
@@ -6982,7 +7005,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	/* Handle normal "breakage" */
 	if (rand_int(100) < chance)
 	  {
-	    if (break_near(j_ptr, y, x))
+	    if (!dont_trigger && break_near(j_ptr, y, x))
 	      return;
 	  }
 
@@ -7186,7 +7209,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	}
 
 	/* Trigger regions. Note that this is the original location dropped, not where the object ends up. */
-	trigger_region(y, x, FALSE);
+	if (!dont_trigger) trigger_region(y, x, FALSE);
 }
 
 
@@ -7300,7 +7323,7 @@ void acquirement(int y1, int x1, int num, bool great)
 		i_ptr->origin_depth = p_ptr->depth;
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, y1, x1);
+		drop_near(i_ptr, -1, y1, x1, TRUE);
 	}
 }
 
@@ -8682,7 +8705,6 @@ void floor_item_optimize(int item)
 
 	/* Delete the object */
 	delete_object_idx(item);
-
 }
 
 
@@ -9192,13 +9214,14 @@ void inven_drop(int item, int amt)
 	/* Message */
 	msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
-	/* Drop it near the player */
-	drop_near(i_ptr, 0, py, px);
-
 	/* Modify, Describe, Optimize */
 	inven_item_increase(item, -amt);
 	inven_item_describe(item);
 	inven_item_optimize(item);
+
+	/* Drop it near the player */
+	/* XXX Happens last for safety reasons */
+	drop_near(i_ptr, 0, py, px, FALSE);
 }
 
 /*
@@ -9215,8 +9238,17 @@ void overflow_pack(void)
 
 		object_type *o_ptr;
 
+		object_type *i_ptr;
+		object_type object_type_body;
+
 		/* Get the slot to be dropped */
 		o_ptr = &inventory[item];
+
+		/* Get local object */
+		i_ptr = &object_type_body;
+
+		/* Obtain local object */
+		object_copy(i_ptr, o_ptr);
 
 		/* Disturbing */
 		disturb(0, 0);
@@ -9225,7 +9257,7 @@ void overflow_pack(void)
 		msg_print("Your pack overflows!");
 
 		/* Describe */
-		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 		/* Message */
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -9233,13 +9265,17 @@ void overflow_pack(void)
 		/* Forget about it */
 		inven_drop_flags(o_ptr);
 
-		/* Drop it (carefully) near the player */
-		drop_near(o_ptr, 0, p_ptr->py, p_ptr->px);
+		/* Forget information on dropped object */
+		drop_may_flags(i_ptr);
 
 		/* Modify, Describe, Optimize */
 		inven_item_increase(item, -255);
 		inven_item_describe(item);
 		inven_item_optimize(item);
+
+		/* Drop it (carefully) near the player */
+		/* XXX Happens last for safety reasons */
+		drop_near(i_ptr, 0, p_ptr->py, p_ptr->px, FALSE);
 
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();

@@ -32,7 +32,7 @@
 # G: char : attr
 # I: delay between blows
 # B: blow method
-# C: child region
+# C: child region : child lasts scalar
 # F: flags
 
 # D: description
@@ -137,7 +137,7 @@ F:PROJECTION | TRIGGER_MOVE | HIT_TRAP
 
 N:14:magic symbol
 G:x:B
-C:30
+C:30:3+1/10
 I:5
 B:ARC_40_SHORT
 F:PROJECTION | TRIGGER_MOVE | HIT_TRAP
@@ -169,7 +169,7 @@ B:ARC_40_SHORT
 
 N:19:deadfall
 G:x:m
-C:28
+C:28:20
 F:PROJECTION | TRIGGER_MOVE | HIT_TRAP
 B:ARC_30
 
@@ -189,7 +189,7 @@ F:PROJECTION | HIT_TRAP | SHINING
 
 N:22:demonic sign
 G:x:T
-C:38
+C:38:20
 I:15
 B:ARC_20
 F:PROJECTION | TRIGGER_MOVE | HIT_TRAP
@@ -226,6 +226,7 @@ F:PROJECTION | SHINING | HIT_TRAP | TRIGGER_MOVE
 # moving projections towards the target.
 N:28:boulder
 G:*:u
+I:3
 F:SCALAR_VECTOR | AUTOMATIC | RANDOM | DECELERATE
 
 # Blasts of narrow forked lightning - used by Call Lightning

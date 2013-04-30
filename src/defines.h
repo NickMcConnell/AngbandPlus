@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	7
+#define VERSION_EXTRA	9
 
 /*
  * Oldest version number that can still be imported
@@ -355,6 +355,7 @@
 
 #define BREAK_GLYPH		550		/* Rune of protection resistance */
 #define BTH_PLUS_ADJ    2       /* Adjust BTH per plus-to-hit */
+#define BTH_RANGE_ADJ	3		/* Minus to hit for each range grid */
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
@@ -1117,6 +1118,8 @@ enum
 #define GF_DESTROY	147
 #define GF_QUAKE	148
 #define GF_POISON_WEAK	149
+#define GF_POISON_HALF	150
+#define GF_HURT_POISON	151
 
 
 
@@ -2081,6 +2084,7 @@ enum
 #define SV_ASSEMBLY_MISS_HAND_L  21
 #define SV_ASSEMBLY_LEGS	 22
 #define SV_ASSEMBLY_PART_LEG_R	 23
+#define SV_MAX_ASSEMBLY		24
 
 /* The "sval" codes for TV_ROPE */
 #define SV_ROPE_ROPE	1
@@ -3161,7 +3165,9 @@ enum
 #define PW_ROOM_INFO	    	0x00001000L /* Display room description */
 #define PW_SNAPSHOT	 	0x00002000L /* Display snap-shot */
 #define PW_MONLIST          	0x00004000L /* Display monster list */
-#define PW_HELP			0x00008000L /* Display self-knowledge */
+#define PW_ITEMLIST		0x00008000L	/* Display item list */
+#define PW_HELP			0x00010000L	/* Display help */
+#define PW_SELF_KNOW	0x00020000L /* Display self-knowledge */
 
 #define PW_MAX_FLAGS		16
 
@@ -4769,14 +4775,17 @@ enum
  * Determine if a given inventory item is "named"
  * Test One -- Check for special "known" or "named" tags
  * Test Two -- Check for "Flavor" + "Aware"
- * Test Three --
+ * Test Three -- Check for easily known items.
+ * Test Four -- Check for named items where the monster is known.
  */
 #define object_named_p(T) \
 	(((T)->ident & (IDENT_KNOWN | IDENT_NAME)) || \
 	 (k_info[(T)->k_idx].flavor  ? \
 	  ((k_info[(T)->k_idx].aware & (AWARE_FLAVOR)) != 0) : \
-		((k_info[(T)->k_idx].flags6 & (TR6_MOD_NAME | \
-				TR6_FORCE_MOD | TR6_SIMPLE)) != 0)))
+		(((k_info[(T)->k_idx].flags6 & (TR6_MOD_NAME | \
+				TR6_FORCE_MOD | TR6_SIMPLE)) != 0) || \
+		(((k_info[(T)->k_idx].flags6 & (TR6_NAMED)) != 0) && \
+				(!((T)->name3) || (l_list[(T)->name3].sights))))))
 
 
 /*

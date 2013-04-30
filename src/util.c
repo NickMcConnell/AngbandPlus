@@ -4833,6 +4833,7 @@ static int ox,oy,ex,ey;
 bool is_valid_pf(int y, int x)
 {
 	int feat;
+	s16b this_region_piece, next_region_piece = 0;
 
 	/* Hack -- assume unvisited is permitted */
 	if (!(play_info[y][x] & (PLAY_MARK))) return (TRUE);
@@ -4858,6 +4859,28 @@ bool is_valid_pf(int y, int x)
 
 	/* Don't move over known deep or filled terrain */
 	if (f_info[feat].flags2 & (FF2_DEEP | FF2_FILLED)) return (FALSE);
+
+	/* Don't move over known regions */
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+		region_type *r_ptr = &region_list[rp_ptr->region];
+
+		/* Get the next region */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Skip dead regions */
+		if (!r_ptr->type) continue;
+
+		/* Displaying region */
+		if (((cheat_hear) || ((r_ptr->flags1 & (RE1_NOTICE)) != 0)) &&
+				(((play_info[y][x] & (PLAY_REGN | PLAY_SEEN)) != 0) ||
+					(((play_info[y][x] & (PLAY_VIEW)) != 0) && ((r_ptr->flags1 & (RE1_SHINING)) != 0))) &&
+						((r_ptr->flags1 & (RE1_DISPLAY)) != 0))
+		{
+			return (FALSE);
+		}
+	}
 
 	/* Otherwise good */
 	return (TRUE);

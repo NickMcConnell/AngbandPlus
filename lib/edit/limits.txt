@@ -17,7 +17,7 @@ V:0.6.3
 M:m:225
 
 # Maximum number of effect types
-M:e:150
+M:e:152
 
 # Maximum number of feature types
 M:F:992

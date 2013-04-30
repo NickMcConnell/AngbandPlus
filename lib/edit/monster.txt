@@ -145,7 +145,7 @@ F:HAS_ARM | HAS_LEG | HAS_BLOOD |
 F:MAN |
 D:|He|She| tends to blubber a lot.
 
-N:6:Boil-covered wretch
+N:6:Boil-covered wretch|||es|
 G:t:m
 #$ Clear available
 #$ Multihued available
@@ -285,7 +285,7 @@ F:MAN |
 D:The typical |ponce|strumpet| around town, with purse jingling, and
 D: looking for more amulets of adornment to buy.
 
-N:13:Mean-looking mercenary
+N:13:Mean-looking mercenar|y|y|ies|
 G:t:U
 #$ Clear available
 #$ Multihued available
@@ -343,7 +343,7 @@ F:HAS_SPORE |
 F:RES_BLIND | NO_CUTS | LEVEL_SIZE |
 D:A small strange grey growth.
 
-N:16:Grey mushroom patch
+N:16:Grey mushroom patch|||es|
 G:,:s
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -422,7 +422,7 @@ F:HAS_SKULL | HAS_CORPSE | HAS_SLIME |
 F:LEVEL_SIZE |
 D:It is a smallish, slimy, icky, blobby creature.
 
-N:21:Giant white mouse
+N:21:Giant white |mouse|mouse|mice|
 G:r:W
 #$ Clear available
 #$ Multihued available
@@ -511,7 +511,7 @@ F:DROP_CLOTHES | DROP_ARMOR | DROP_FOOD | DROP_JUNK |
 F:SCENT | DWARF | LEVEL_POWER |
 D:It is a small ugly humanoid.
 
-N:26:White worm mass
+N:26:White worm mass|||es|
 G:w:w
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -605,7 +605,7 @@ F:HAS_SKULL | HAS_CORPSE | HAS_HEAD | HAS_WING | HAS_FUR | HAS_BLOOD |
 F:LEVEL_SIZE |
 D:A fast-moving pest.
 
-N:32:Shrieker mushroom patch
+N:32:Shrieker mushroom patch|||es|
 G:,:R
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -694,7 +694,7 @@ F:DROP_CLOTHES | DROP_LITE | DROP_JEWELRY | DROP_POTION | DROP_FOOD |
 F:MAN |
 D:A rather shifty individual.
 
-N:37:Apprentice priest||ess|
+N:37:Apprentice priest||ess|s|
 G:p:t
 #$ Clear available
 #$ Multihued available
@@ -733,7 +733,7 @@ S:BOLT_MANA |
 S:ADD_MANA | BLINK | BLIND | CONF |
 D:|He|She| is leaving behind a trail of dropped spell components.
 
-N:39:Yellow mushroom patch
+N:39:Yellow mushroom patch|||es|
 G:,:y
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -750,7 +750,7 @@ F:RES_BLIND | NO_CUTS | DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:40:White jelly
+N:40:White jell|y|y|ies|
 G:j:w
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -893,7 +893,7 @@ F:SCENT | SUPER_SCENT | DROP_MUSHROOM |
 D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are
 D: stealing mushrooms.
 
-N:48:Green worm mass
+N:48:Green worm mass|||es|
 G:w:g
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -1034,7 +1034,7 @@ F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
 F:ATTR_METAL |
 D:It is about four feet long and carnivorous.
 
-N:56:Giant white louse
+N:56:Giant white |louse|louse|lice|
 G:I:W
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -1067,7 +1067,7 @@ F:DROP_POTION |
 F:NEUTRAL | LEVEL_SIZE |
 D:A large black serpent's body with a female torso.
 
-N:58:Spotted mushroom patch
+N:58:Spotted mushroom patch|||es|
 G:,:z
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -1084,7 +1084,7 @@ F:RES_BLIND | NO_CUTS | DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:59:Silver jelly
+N:59:Silver jell|y|y|ies|
 G:j:W
 #$ Matches Giant silver jellyfish
 #$ Metallics available:dsoPvtmYTVZ
@@ -1105,7 +1105,7 @@ S:DRAIN_MANA |
 D:It is a large pile of silver flesh that sucks all light from its
 D: surroundings.
 
-N:60:Yellow jelly
+N:60:Yellow jell|y|y|ies|
 G:j:y
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -1190,7 +1190,7 @@ F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
 F:ATTR_METAL |
 D:It is about six feet long and carnivorous.
 
-N:65:Yellow worm mass
+N:65:Yellow worm mass|||es|
 G:w:y
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -1205,7 +1205,7 @@ F:HAS_CORPSE | HAS_SLIME |
 F:RES_BLIND | LEVEL_SIZE |
 D:It is a large slimy mass of worms.
 
-N:66:Clear worm mass
+N:66:Clear worm mass|||es|
 G:w:w
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -1295,7 +1295,7 @@ F:MAN |
 S:HEAL | BLESS | SCARE |
 D:An adventurer both devoutly religious and skillful in combat.
 
-N:71:Blue jelly
+N:71:Blue jell|y|y|ies|
 G:j:b
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -1310,7 +1310,7 @@ F:HAS_CORPSE | HAS_SLIME |
 F:RES_BLIND | LEVEL_SIZE |
 D:It's a large pile of pulsing blue flesh.
 
-N:72:Creeping copper coins
+N:72:Creeping copper coins||||
 G:$:u
 #$ Multihued available
 #$ Metallics available:dwogDPGUpvtmYiTVIMzZ
@@ -1335,7 +1335,7 @@ G:r:w
 I:110:3:8:7:30
 W:6:3:0:3
 M:0:0:1:0
-B:BITE:POISON:1d3
+B:BITE:HURT_POISON:1d3
 F:RAND_25 |
 F:SMART | MULTIPLY | EAT_BODY |
 F:ANIMAL |
@@ -1343,7 +1343,7 @@ F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_LEG |
 F:HAS_FUR | HAS_BLOOD |
 D:It is a very vicious rodent.
 
-N:74:Blue worm mass
+N:74:Blue worm mass|||es|
 G:w:b
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -1469,7 +1469,7 @@ F:DROP_TOOL | DROP_MUSIC | DROP_CLOTHES | DROP_JUNK |
 F:IM_BLUNT | NO_CUTS |
 D:It is a very ugly green ghost with a voracious appetite.
 
-N:81:Green jelly
+N:81:Green jell|y|y|ies|
 G:j:g
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -1554,7 +1554,7 @@ S:BLOW_1 |
 S:DRAIN_MANA |
 D:A disembodied eye, crackling with magic.
 
-N:86:Red worm mass
+N:86:Red worm mass|||es|
 G:w:r
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -1577,7 +1577,7 @@ G:J:o
 I:110:14:6:20:1
 W:5:2:0:5
 M:0:0:1:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 F:RAND_50 |
 F:BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -1585,7 +1585,7 @@ F:HAS_SKULL | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN | HAS_BLOOD |
 F:LEVEL_SPEED | ATTR_METAL | LEVEL_SIZE |
 D:It has a copper head and sharp venomous fangs.
 
-N:88:Purple mushroom patch
+N:88:Purple mushroom patch|||es|
 G:,:p
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -1603,7 +1603,7 @@ F:RES_BLIND | NO_CUTS | DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | BLOW_2 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:89:Novice priest||ess|
+N:89:Novice priest||ess|s|
 G:p:b
 #$ Clear available
 #$ Multihued available
@@ -1716,7 +1716,7 @@ F:SCENT | DWARF | LEVEL_POWER |
 S:BLOW_2 |
 D:It is an ugly humanoid wielding a bow.
 
-N:95:Creeping silver coins
+N:95:Creeping silver coins||||
 G:$:s
 #$ Multihued available
 #$ Metallics available:dwogDPGUpvtmYiTVIMzZ
@@ -1760,7 +1760,7 @@ G:J:P
 I:110:23:6:44:1
 W:7:2:0:11
 M:25:0:1:0
-B:BITE:POISON:2d5
+B:BITE:HURT_POISON:2d5
 B:SPIT:POISON:1d2
 F:RAND_50 |
 F:BASH_DOOR | EAT_BODY |
@@ -1800,7 +1800,7 @@ I:120:10:8:16:80
 W:7:4:0:10
 M:0:0:1:0
 B:BITE:HURT:1d3
-B:STING:POISON:1d4
+B:STING:HURT_POISON:1d4
 F:FRIENDS |
 F:WEIRD_MIND | CAN_CLIMB | BASH_DOOR | HAS_WEB |
 F:INSECT | IM_POIS |
@@ -1808,7 +1808,7 @@ F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
 F:LEVEL_SIZE |
 D:It scuttles towards you.
 
-N:100:Manes
+N:100:Manes|||es|
 G:u:Y
 #$ Clear available
 #$ Multihued available
@@ -1864,7 +1864,7 @@ F:DROP_POTION |
 F:NEUTRAL | LEVEL_SIZE |
 D:A large pink snake with a woman's torso.
 
-N:103:Pink jelly
+N:103:Pink jell|y|y|ies|
 G:j:i
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -1921,7 +1921,7 @@ G:z:m
 I:110:27:20:14:30
 W:8:2:0:13
 M:0:0:1:0
-B:HIT:POISON:1d6
+B:HIT:HURT_POISON:1d6
 B:HIT:HURT:2d4
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
 F:ORC | UNDEAD | EVIL | NONLIVING | IM_COLD | IM_POIS | NO_FEAR | NO_CONF |
@@ -1948,7 +1948,7 @@ F:IM_BLUNT | NO_CUTS | ATTR_METAL |
 S:TPORT | DRAIN_MANA |
 D:It is almost insubstantial.
 
-N:108:Wood elf
+N:108:Wood el|f|f|ves|
 G:l:g
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -2315,7 +2315,7 @@ S:BOLT_MANA |
 S:CURE | BLINK | WOUND | BLESS |
 D:A goblin dressed in skins who gestures wildly.
 
-N:126:Spikey mushroom patch
+N:126:Spikey mushroom patch|||es|
 G:,:Z
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -2483,7 +2483,7 @@ G:J:p
 I:110:42:8:30:1
 W:10:2:0:23
 M:25:0:2:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:SPIT:BLIND:1d2
 F:RAND_50 |
 F:BASH_DOOR | EAT_BODY |
@@ -2503,8 +2503,8 @@ I:110:54:8:16:80
 W:14:2:0:50
 M:0:0:2:0
 B:BITE:HURT:1d10
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
+B:BITE:HURT_POISON:1d6
 B:BITE:HURT:1d10
 F:WEIRD_MIND | CAN_CLIMB | BASH_DOOR | HAS_WEB |
 F:INSECT | IM_POIS |
@@ -2579,7 +2579,7 @@ F:RES_LITE | NEUTRAL | ELF | LEVEL_POWER |
 S:BLOW_3 |
 D:A elven figure in armour and ready with his sword.
 
-N:139:Clear mushroom patch
+N:139:Clear mushroom patch|||es|
 G:,:w
 #$ Matches Clear slime
 #$ Multihued available
@@ -2713,7 +2713,7 @@ S:BLINK | TELE_SELF_TO | TELE_TO |
 D:It is a fast-moving demon that blinks quickly in and out of existence;
 D: no other demon matches its teleporting mastery.
 
-N:146:Creeping gold coins
+N:146:Creeping gold coins||||
 G:$:y
 #$ Multihued available
 #$ Metallics available:dwogDPGUpvtmYiTVIMzZ
@@ -2730,7 +2730,7 @@ F:RES_BLIND | NO_CUTS | DROP_MINERAL | ATTR_METAL |
 D:It appears to be a pile of gold coins, until it starts crawling towards
 D: you on tiny legs.
 
-N:147:Wolf
+N:147:Wol|f|f|ves|
 G:C:u
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -2747,7 +2747,7 @@ F:HAS_FUR | HAS_BLOOD |
 F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:It howls and snaps at you.
 
-N:148:Giant fruit fly
+N:148:Giant fruit fl|y|y|ies|
 G:I:o
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -2896,8 +2896,8 @@ G:J:D
 I:120:43:10:32:1
 W:15:3:0:63
 M:25:0:3:0
-B:BITE:POISON:4d4
-B:SPIT:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:SPIT:HURT_POISON:4d4
 F:RAND_50 |
 F:BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -2906,7 +2906,7 @@ F:ATTR_METAL | LEVEL_SIZE |
 S:BLOW_2 |
 D:It has glistening black skin, a sleek body and highly venomous fangs.
 
-N:156:White wolf
+N:156:White wol|f|f|ves|
 G:C:w
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -2925,7 +2925,7 @@ F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:A large and muscled wolf from the northern wastes.  Its breath is cold
 D: and icy and its fur coated in frost.
 
-N:157:Grape jelly
+N:157:Grape jell|y|y|ies|
 G:j:P
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -2941,7 +2941,7 @@ F:RES_BLIND | LEVEL_SIZE |
 S:DRAIN_MANA |
 D:Yum!  It looks quite tasty.  It is a pulsing mound of glowing flesh.
 
-N:158:Nether worm mass
+N:158:Nether worm mass|||es|
 G:w:G
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -3005,7 +3005,7 @@ S:ADD_MANA | BLINK | TPORT | TELE_SELF_TO | BLIND | SLOW |
 S:S_MONSTER |
 D:A small ugly humanoid that radiates some power.
 
-N:161:Priest||ess|
+N:161:Priest||ess|s|
 G:p:B
 #$ Clear available
 #$ Multihued available
@@ -3026,7 +3026,7 @@ F:NEUTRAL | MAN | LEVEL_POWER |
 S:BALL_LITE | HOLY_ORB |
 S:HEAL | CURE | WOUND | BLESS | SCARE |
 S:S_MONSTER |
-D:A robed ||wo|man, dedicated to |his|her| god||ess|.
+D:A robed ||wo|man, dedicated to |his|her| god||ess|s|.
 
 N:162:Dark elven cultist
 G:l:t
@@ -3097,7 +3097,7 @@ G:z:w
 I:110:52:20:24:20
 W:11:2:0:30
 M:0:0:2:0
-B:HIT:POISON:2d6
+B:HIT:HURT_POISON:2d6
 B:HIT:HURT:2d6
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
 F:UNDEAD | EVIL | NONLIVING | IM_COLD | IM_POIS | NO_FEAR | NO_CONF |
@@ -3143,7 +3143,7 @@ S:BLOW_1 |
 S:TPORT | SCARE |
 D:A ghostly apparition that shrieks horribly.
 
-N:168:Swordsman
+N:168:Swords|man|wyf||
 G:t:U
 #$ Clear available
 #$ Multihued available
@@ -3179,7 +3179,7 @@ F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
 F:LEVEL_SIZE |
 D:It is a vast armoured centipede with massive mandibles and a spiked tail.
 
-N:170:Spotted jelly
+N:170:Spotted jell|y|y|ies|
 G:j:z
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -3205,7 +3205,7 @@ W:12:2:0:41
 M:0:15:5:37
 B:HIT:HURT:1d12
 B:HIT:HURT:1d12
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:FORCE_SLEEP |
 F:CAN_CLIMB | BASH_DOOR | HAS_WEB |
 F:EVIL | INSECT | IM_POIS |
@@ -3275,7 +3275,7 @@ F:DROP_CLOTHES | DROP_ARMOR | DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 D:A hideous, smallish giant that is often found near or with orcs.
 
-N:175:Creeping mithril coins
+N:175:Creeping mithril coins||||
 G:$:B
 #$ Multihued available
 #$ Metallics available:dwogDPGUpvtmYiTVIMzZ
@@ -3358,7 +3358,7 @@ F:LEVEL_CLASS | SCENT | RES_DARK | NEUTRAL | LEVEL_POWER |
 S:BLOW_3 |
 D:|He|She| is a large orc with powerful arms and deep black skin.
 
-N:179:Ochre jelly
+N:179:Ochre jell|y|y|ies|
 G:j:U
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -3415,7 +3415,7 @@ F:SCENT | RES_DARK | ATTR_METAL |
 D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid
 D: of spiders.
 
-N:182:Giant white dragonfly
+N:182:Giant white dragonfl|y|y|ies|
 G:I:w
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -3509,7 +3509,7 @@ S:S_ORC |
 D:It is a large wolf with eyes full of cunning.  Where there are wargs,
 D: there are sure to be orcs.
 
-N:187:Giant black louse
+N:187:Giant black |louse|louse|lice|
 G:I:s
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -3583,7 +3583,7 @@ F:DROP_CLOTHES | DROP_ARMOR | DROP_FOOD | DROP_JUNK |
 F:LEVEL_CLASS | SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 D:A massive orc-like figure with black skin and powerful arms.
 
-N:191:Magic mushroom patch
+N:191:Magic mushroom patch|||es|
 G:,:B
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -3724,8 +3724,8 @@ I:120:38:15:25:80
 W:15:5:0:60
 M:0:0:3:0
 B:BITE:HURT:1d8
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:FRIENDS |
 F:SMART | WEIRD_MIND | CAN_CLIMB | BASH_DOOR | HAS_WEB |
 F:EVIL | INSECT | IM_POIS |
@@ -3776,7 +3776,7 @@ F:LEVEL_SPEED | SCENT | LEVEL_SIZE |
 D:A creature bearing the wings and head of an eagle on the body of a great
 D: lion.  It builds its nests of gold, and guards them jealously.
 
-N:201:Homunculus
+N:201:Homuncul|us|us|i|
 G:u:y
 #$ Clear available
 #$ Multihued available
@@ -3917,7 +3917,7 @@ D: proportions as it lines all four walls of the corridors it patrols.
 D: Through its semi-transparent jelly structure you can see treasures it
 D: has engulfed, and a few corpses as well.
 
-N:208:Giant green dragonfly
+N:208:Giant green dragonfl|y|y|ies|
 G:I:g
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -3925,7 +3925,7 @@ G:I:g
 I:120:26:12:20:50
 W:5:2:0:7
 M:13:0:1:0
-B:BITE:POISON:1d3
+B:BITE:HURT_POISON:1d3
 F:FORCE_SLEEP | RAND_25 | RAND_50 |
 F:WEIRD_MIND | CAN_FLY | MUST_FLY | BASH_DOOR |
 F:DRAGON | INSECT | IM_POIS |
@@ -3964,7 +3964,7 @@ G:I:Y
 I:115:25:8:14:10
 W:18:5:0:90
 M:0:0:3:0
-B:STING:POISON:2d2
+B:STING:HURT_POISON:2d2
 B:BITE:CONFUSE:2d2
 F:RAND_25 | RAND_50 |
 F:WEIRD_MIND | MULTIPLY | CAN_FLY |
@@ -4027,8 +4027,8 @@ G:u:g
 I:120:26:20:30:20
 W:17:3:0:85
 M:0:10:5:50
-B:HIT:POISON:3d4
-B:HIT:POISON:3d4
+B:HIT:HURT_POISON:3d4
+B:HIT:HURT_POISON:3d4
 F:FORCE_SLEEP | RAND_25 | ONLY_ITEM | DROP_1D2 |
 F:SMART | COLD_BLOOD | CAN_FLY | OPEN_DOOR | LOW_MANA_RUN |
 F:DEMON | EVIL | NONLIVING | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD |
@@ -4242,7 +4242,7 @@ G:!:w
 I:110:52:25:30:0
 W:8:2:10:13
 M:0:18:9:51
-B:HIT:POISON:3d4
+B:HIT:HURT_POISON:3d4
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_90 |
@@ -4388,7 +4388,7 @@ F:LEVEL_CLASS | RES_EDGED | NEUTRAL | LEVEL_POWER |
 S:BLOW_3 |
 D:It is eighteen feet tall with skin hewn from stone.
 
-N:231:Giant black dragonfly
+N:231:Giant black dragonfl|y|y|ies|
 G:I:D
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -4442,7 +4442,7 @@ S:BLOW_2 |
 D:It is a strange red growth on the dungeon floor; it seems to burn with
 D: flame.
 
-N:234:Giant gold dragonfly
+N:234:Giant gold dragonfl|y|y|ies|
 G:I:y
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -4450,7 +4450,7 @@ G:I:y
 I:120:18:12:20:50
 W:6:2:0:7
 M:14:0:1:0
-B:BITE:POISON:1d3
+B:BITE:HURT_POISON:1d3
 F:FORCE_SLEEP | RAND_25 | RAND_50 | ONLY_GOLD | DROP_60 |
 F:WEIRD_MIND | CAN_FLY | MUST_FLY | BASH_DOOR |
 F:DRAGON | INSECT | IM_POIS | NO_STUN |
@@ -4495,8 +4495,8 @@ I:120:26:15:25:80
 W:13:5:0:49
 M:0:20:5:52
 B:BITE:HURT:1d8
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:FRIENDS |
 F:WEIRD_MIND | CAN_CLIMB | BASH_DOOR | HAS_WEB |
 F:INSECT | IM_POIS |
@@ -4641,7 +4641,7 @@ F:MAN | TOWNSFOLK |
 D:The typical |ponce|strumpet| around town, with purse jingling, and
 D: looking for more amulets of adornment to buy.
 
-N:244:Sasquatch
+N:244:Sasquatch|||es|
 G:Y:g
 #$ Clear available
 #$ Multihued available
@@ -4660,7 +4660,7 @@ F:HAS_CLAW | HAS_ARM | HAS_LEG | HAS_FUR | HAS_BLOOD |
 F:SCENT | NEUTRAL | LEVEL_SIZE |
 D:A tall shaggy, furry humanoid, it could call the yeti brother.
 
-N:245:Werewolf
+N:245:Werewol|f|f|ves|
 G:C:Z
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -4680,7 +4680,7 @@ S:BOLT_FIRE |
 S:BLINK | WOUND | HOLD |
 D:It is a huge wolf with eyes that glow with mannish intelligence.
 
-N:246:Wood elf |lord|lady|
+N:246:Wood elf |lord|lady|lords|
 G:l:i
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -4813,7 +4813,7 @@ S:S_MONSTER |
 D:A strange creature that disguises itself as a discarded scroll to lure
 D: unsuspecting adventurers within reach of its venomous claws.
 
-N:252:Fire vortex
+N:252:Fire vort|ex|ex|ices|
 G:v:r
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -4831,7 +4831,7 @@ F:LEVEL_SPEED | RES_BLIND | IM_BLUNT | LEVEL_SIZE |
 S:BLOW_2 | AURA | BRTH_FIRE |
 D:A whirling maelstrom of fire.
 
-N:253:Water vortex
+N:253:Water vort|ex|ex|ices|
 G:v:T
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -4850,7 +4850,7 @@ S:BLOW_2 | AURA |
 S:BALL_WATER |
 D:A spinning whirlpool of water.
 
-N:254:Cold vortex
+N:254:Cold vort|ex|ex|ices|
 G:v:w
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -4867,7 +4867,7 @@ F:LEVEL_SPEED | RES_BLIND | IM_BLUNT | LEVEL_SIZE |
 S:BLOW_2 | AURA | BRTH_COLD |
 D:A twisting whirlpool of frost.
 
-N:255:Energy vortex
+N:255:Energy vort|ex|ex|ices|
 G:v:b
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -4950,7 +4950,7 @@ I:115:50:12:38:20
 W:12:2:0:39
 M:0:0:2:0
 B:BITE:HURT:1d8
-B:STING:POISON:2d5
+B:STING:HURT_POISON:2d5
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
@@ -4974,7 +4974,7 @@ F:RES_BLIND | ATTR_METAL | LEVEL_SIZE |
 S:DRAIN_MANA |
 D:A strange, inky puddle creeping around the dungeon floor.
 
-N:261:Man-at-arms
+N:261:|M|Wom||an-at-arms||||
 G:t:z
 #$ Clear available
 #$ Multihued available
@@ -4986,7 +4986,7 @@ M:20:0:8:0
 B:HIT:WOUND:6d5
 B:HIT:WOUND:6d5
 B:XBOLT:HURT:10d7
-F:MALE | DROP_1D2 |
+F:MALE | FEMALE | DROP_1D2 |
 F:SMART | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | WARRIOR | NEED_LITE |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
 F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_MISSILE | DROP_TOOL | DROP_WEAPON |
@@ -5033,7 +5033,7 @@ M:25:25:15:56
 B:HIT:EAT_ITEM:3d8
 B:HIT:EAT_GOLD:3d8
 B:SHOT:HURT:15d5
-B:DART:POISON:20d4
+B:DART:DELAY_POISON:20d4
 F:MALE | FEMALE | DROP_1D3 |
 F:SMART | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SNEAKY | NEED_LITE |
 F:EVIL |
@@ -5078,7 +5078,7 @@ F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
 F:LEVEL_SIZE |
 D:It is looking for prey.
 
-N:266:Giant bronze dragonfly
+N:266:Giant bronze dragonfl|y|y|ies|
 G:I:U
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -5302,7 +5302,7 @@ S:BLOW_1 |
 S:TPORT | DRAIN_MANA |
 D:It is a ghostly woman's form that wails mournfully.
 
-N:276:Pukelman
+N:276:Pukelm|an|an|en|
 G:g:D
 #$ Multihued available
 #$ Metallics available:drgbuPRGpvtmYiTVIMZ
@@ -5371,7 +5371,7 @@ F:LEVEL_CLASS | SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 S:BLOW_3 |
 D:|He|She| is a giant troll with scabrous black skin.
 
-N:279:Troll priest||ess|
+N:279:Troll priest||ess|s|
 G:T:B
 #$ Clear available
 #$ Multihued available
@@ -5402,7 +5402,7 @@ W:33:3:0:460
 M:14:0:4:30
 B:GAZE:EXP_20
 B:CRAWL:ACID:6d4
-B:BITE:POISON:1d20
+B:BITE:HURT_POISON:1d20
 F:BASH_DOOR |
 F:INSECT | IM_ACID |
 F:HAS_CORPSE | HAS_SLIME |
@@ -5559,7 +5559,7 @@ F:LEVEL_CLASS | LEVEL_POWER |
 S:WRAITHFORM | DARKNESS | SCARE |
 D:It is a tangible but ghostly form made of white fog.
 
-N:289:Forgotten
+N:289:Forgotten||||
 G:M:o
 #$ Clear available
 #$ Metallics available:dwsorgDWPyRGUpvtmYiTVIMzZ
@@ -5630,7 +5630,7 @@ F:LEVEL_SIZE |
 S:BLOW_3 |
 D:It is a giant beetle wreathed in flames.
 
-N:292:Creeping adamantite coins
+N:292:Creeping adamantite coins||||
 G:$:G
 #$ Multihued available
 #$ Metallics available:dwogDPGUpvtmYiTVIMzZ
@@ -5656,7 +5656,7 @@ G:T:o
 I:110:120:20:60:40
 W:18:5:0:94
 M:5:0:11:0
-B:CLAW:POISON:2d10
+B:CLAW:HURT_POISON:2d10
 B:BITE:HURT:1d10
 B:BOULDER:HURT:11d5
 B:BITE:HURT:1d6
@@ -5874,7 +5874,7 @@ S:BALL_COLD |
 S:SCARE |
 D:A strange reptilian hybrid with five heads.
 
-N:303:Black knight
+N:303:Black |knight|princess|knights|
 G:t:s
 #$ Clear available
 #$ Multihued available
@@ -5886,7 +5886,7 @@ M:0:15:10:50
 B:HIT:WOUND:5d5
 B:HIT:WOUND:5d5
 B:HIT:WOUND:5d5
-F:MALE | FORCE_SLEEP | DROP_1D2 |
+F:MALE | FEMALE | FORCE_SLEEP | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | PRIEST | NEED_LITE |
 F:EVIL |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
@@ -5895,7 +5895,7 @@ F:DROP_CLOTHES | DROP_LITE | DROP_JEWELRY | DROP_POTION | DROP_FOOD |
 F:LEVEL_SPEED | RES_DARK | NEUTRAL | MAN | LEVEL_POWER |
 S:DARKNESS | WOUND | BLESS | SCARE | BLIND |
 S:S_CLASS |
-D:He is a figure encased in deep black plate armour; he looks at you
+D:|He|She| is a figure |encased|fitted| in ||a |deep black |plate armour|dress|; |he|she| looks at you
 D: menacingly.
 
 N:304:Uldor the Accursed
@@ -6046,7 +6046,7 @@ W:27:3:0:220
 M:0:0:4:0
 B:HIT:HURT:1d8
 B:BITE:ACID:2d8
-B:STING:POISON:1d8
+B:STING:HURT_POISON:1d8
 F:CAN_DIG | BASH_DOOR |
 F:HUGE | INSECT | IM_ACID | IM_POIS |
 F:HAS_CORPSE | HAS_SLIME |
@@ -6080,7 +6080,7 @@ D: that Melkor imposed on the world. He is angry at the twisting of magic
 D: that he senses, but like an unknowing child, lashes out at all around
 D: him.
 
-N:312:Catoblepas
+N:312:Catoblepas|||es|
 G:Q:g
 #$ Clear available
 #$ Multihued available
@@ -6289,8 +6289,8 @@ I:120:243:12:15:10
 W:32:3:0:370
 M:33:33:25:24
 B:BITE:WOUND:3d13
-B:STING:POISON:2d13
-B:SPIKE:POISON:25d5
+B:STING:HURT_POISON:2d13
+B:SPIKE:HURT_POISON:25d5
 F:MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_90 | DROP_GREAT |
 F:CAN_FLY | BASH_DOOR |
 F:EVIL |
@@ -6474,10 +6474,10 @@ G:t:y
 I:120:74:20:60:10
 W:23:3:0:150
 M:20:0:20:0
-B:PUNCH:POISON:3d4
+B:PUNCH:HURT_POISON:3d4
 B:PUNCH:LOSE_STR:3d4
 B:KICK:BATTER:3d4
-B:SPIKE:POISON:20d5
+B:SPIKE:HURT_POISON:20d5
 F:MALE | FEMALE | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | SNEAKY |
 F:EVIL | NO_CONF | NO_SLEEP |
@@ -6488,7 +6488,7 @@ F:NEUTRAL | MAN | LEVEL_POWER |
 S:BLOW_4 |
 D:A humanoid clothed in black who moves with blinding speed.
 
-N:332:Memory moss
+N:332:Memory moss|||es|
 G:;:G
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -6576,7 +6576,7 @@ F:LEVEL_CLASS | SCENT | NEUTRAL | MAN | LEVEL_SIZE | LEVEL_POWER |
 S:BLOW_4 |
 D:A huge, ugly, half-human in search of plunder.
 
-N:336:Dervish
+N:336:Dervish|||es|
 G:p:u
 #$ Clear available
 #$ Multihued available
@@ -6905,7 +6905,7 @@ S:BOLT_FIRE | ARC_HFIRE |
 S:ADD_MANA |
 D:It is a towering inferno of flames.
 
-N:350:Bewitched
+N:350:Bewitched||||
 G:M:G
 #$ Clear available
 #$ Metallics available:dwsorgDWPyRGUpvtmYiTVIMzZ
@@ -6974,7 +6974,7 @@ F:NO_SLEEP |
 F:NEVER_MISS | LEVEL_SPEED | LEVEL_POWER |
 D:It is impossible to define its form but its violence is legendary.
 
-N:353:Stone jelly
+N:353:Stone jell|y|y|ies|
 G:j:W
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -6991,7 +6991,7 @@ F:RES_BLIND | LEVEL_SIZE |
 S:BLOW_2 | ADD_AMMO
 #D:Its a large pile of stone-coloured flesh.
 
-N:354:Thief
+N:354:Thie|f|f|ves|
 G:t:v
 #$ Clear available
 #$ Multihued available
@@ -7042,7 +7042,7 @@ D:A short and swarthy Easterling dressed in black.  He and his three sons
 D: once openly swore allegiance to the High Elves, but were secretly in
 D: the pay of Morgoth.
 
-N:356:Lich
+N:356:Lich|||es|
 G:L:o
 #$ Clear available
 #$ Multihued available
@@ -7102,7 +7102,7 @@ I:120:171:12:50:40
 W:18:3:0:93
 M:0:0:3:0
 B:BITE:HURT:1d6
-B:STING:POISON:1d4
+B:STING:HURT_POISON:1d4
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_SKIN |
@@ -7228,7 +7228,7 @@ G:t:o
 I:120:146:20:70:10
 W:30:3:0:290
 M:20:0:22:0
-B:PUNCH:POISON:6d4
+B:PUNCH:HURT_POISON:6d4
 B:PUNCH:LOSE_STR:6d4
 B:DART:POISON:22d5
 F:MALE | FEMALE | DROP_1D2 |
@@ -7577,7 +7577,7 @@ S:SCARE |
 D:It has a form that legends are made of.  Beautiful scales of shimmering
 D: and magical colours and shades cover it.
 
-N:381:Colossus
+N:381:Coloss|us|us|usi|
 G:g:G
 #$ Multihued available
 #$ Metallics available:drgbuPRGpvtmYiTVIMZ
@@ -7985,7 +7985,7 @@ F:HAS_CORPSE | HAS_CLAW | HAS_LEG | HAS_SKIN |
 F:LEVEL_SIZE |
 D:It is a giant beetle, whose carapace shimmers with vibrant energies.
 
-N:400:Nexus vortex
+N:400:Nexus vort|ex|ex|ices|
 G:v:z
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -8002,7 +8002,7 @@ F:LEVEL_SPEED | RES_BLIND | IM_BLUNT | LEVEL_SIZE |
 S:BLOW_2 | AURA | BRTH_NEXUS |
 D:A maelstrom of potent magical energy.
 
-N:401:Plasma vortex
+N:401:Plasma vort|ex|ex|ices|
 G:v:R
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -8186,7 +8186,7 @@ S:HEAL | TRAPS |
 D:A Black Numenorean who usurped the throne of Gondor, he is treacherous
 D: and evil.
 
-N:409:Time vortex
+N:409:Time vort|ex|ex|ices|
 G:v:B
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -8203,7 +8203,7 @@ F:LEVEL_SPEED | RES_BLIND | LEVEL_SIZE |
 S:BLOW_2 | BRTH_TIME |
 D:You haven't seen it yet.
 
-N:410:Shimmering vortex
+N:410:Shimmering vort|ex|ex|ices|
 G:v:Y
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -8394,7 +8394,7 @@ S:WRAITHFORM | WOUND | SCARE | BLIND | HOLD |
 D:A figure that seems made of void, its strangely human shape is cloaked
 D: in shadow.  It reaches out at you.
 
-N:418:Erinyes
+N:418:Erinyes||||
 G:U:u
 #$ Clear available
 #$ Multihued available
@@ -8569,7 +8569,7 @@ W:38:4:0:2000
 M:18:18:18:39
 B:CLAW:HURT:4d8
 B:CLAW:HURT:4d8
-B:BITE:POISON:7d8
+B:BITE:HURT_POISON:7d8
 F:FORCE_MAXHP | FORCE_SLEEP | DROP_1D3 | DROP_1D4 |
 F:SMART | POWERFUL | CAN_FLY | BASH_DOOR |
 F:DRAGON | EVIL | HUGE | IM_POIS | NO_CONF | NO_SLEEP |
@@ -8674,7 +8674,7 @@ S:BRTH_ACID |
 S:SCARE | BLIND | CONF | SLOW |
 D:A huge draconic form.  Pools of acid melt the floor around it.
 
-N:430:Disenchanter worm mass
+N:430:Disenchanter worm mass|||es|
 G:w:P
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -8762,7 +8762,7 @@ S:BALL_ELEC | BOLT_ELEC | BEAM_ELEC |
 S:SCARE | BLIND |
 D:A strange reptilian hybrid with nine heads.  It is lightning fast.
 
-N:435:Enchant|er|ress|
+N:435:Enchant|er|ress|ers|
 G:q:B
 #$ Clear available
 #$ Metallics available:dwsorbuDWGBUvtmYTVIMzZ
@@ -9097,7 +9097,7 @@ S:SCARE | BLIND | HOLD |
 S:S_MONSTER |
 D:A tall black cloaked Ringwraith.
 
-N:450:Dark elven sorcere|r|ss|
+N:450:Dark elven sorcere|r|ss|rs|
 G:l:P
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -9122,7 +9122,7 @@ S:S_MONSTER | S_DEMON | S_UNDEAD |
 D:A elven figure, dressed in deepest black.  Power seems to crackle from
 D: |his|her| slender frame.
 
-N:451:Dread lich
+N:451:Dread lich|||es|
 G:L:r
 #$ Clear available
 #$ Multihued available
@@ -9231,7 +9231,7 @@ D: wife.  And so he fell under Morgoth's power and became little more than
 D: a mindless servant of evil, even though the other side of his "bargain"
 D: was not kept.
 
-N:455:Fallen
+N:455:Fallen||||
 G:M:M
 #$ Clear available
 #$ Metallics available:dwsorgDWPyRGUpvtmYiTVIMzZ
@@ -9613,7 +9613,7 @@ S:BALL_ACID | BALL_ELEC | BOLT_ACID | BOLT_ELEC | BEAM_ELEC |
 S:SCARE | CONF |
 D:A strange reptilian hybrid with eleven heads.
 
-N:470:Archpriest||ess|
+N:470:Archpriest||ess|s|
 G:p:y
 #$ Clear available
 #$ Multihued available
@@ -9635,7 +9635,7 @@ F:NEUTRAL | MAN | LEVEL_POWER |
 S:ARC_HFIRE |
 S:ADD_MANA | HEAL | CURE | CURSE | WOUND | BLESS | BLIND | HOLD |
 S:S_MONSTER | S_UNDEAD |
-D:An evil priest||ess|, dressed all in black.  Deadly spells hit you at an
+D:An evil priest||ess|s|, dressed all in black.  Deadly spells hit you at an
 D: alarming rate as |his|her| black spiked mace rains down blow after blow
 D: on your pitiful frame.
 
@@ -9672,8 +9672,8 @@ W:46:5:0:13000
 M:20:20:105:56
 B:CLAW:HURT:3d10
 B:CLAW:HURT:3d10
-B:BITE:POISON:10d10
-B:SPIKE:POISON:105d5
+B:BITE:HURT_POISON:10d10
+B:SPIKE:HURT_POISON:105d5
 F:FORCE_MAXHP | FORCE_SLEEP |
 F:COLD_BLOOD | EMPTY_MIND | POWERFUL | BASH_DOOR |
 F:DRAGON | NONLIVING | IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | NO_FEAR |
@@ -9774,7 +9774,7 @@ D: cunning and intelligence.  His speed through air is matched by few
 D: other dragons and his dragonfire is what legends are made of; he is
 D: believed to be the greatest dragon still surviving into the Third Age.
 
-N:476:Dracolich
+N:476:Dracolich|||es|
 G:A:G
 #$ Clear available
 #$ Metallics available:d
@@ -9907,7 +9907,7 @@ C:53:7:0:71000:68000
 M:40:40:55:169
 B:CLAW:HURT:5d12
 B:CLAW:HURT:5d12
-B:BITE:POISON:8d14
+B:BITE:HURT_POISON:8d14
 B:BITE:FIRE:8d14
 F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 |
 F:DROP_1D4 | DROP_GOOD | DROP_GREAT |
@@ -9936,7 +9936,7 @@ W:44:4:0:6600
 M:0:33:50:84
 B:PUNCH:BATTER:2d10
 B:KICK:HURT:20d2
-B:HIT:POISON:20d1
+B:HIT:HURT_POISON:20d1
 B:HIT:PARALYZE:15d1
 F:MALE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D4 |
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | PRIEST | MAGE |
@@ -10136,7 +10136,7 @@ M:18:18:35:73
 B:TOUCH:EAT_GOLD:5d5
 B:TOUCH:EAT_ITEM:5d5
 B:HIT:BLIND:18d5
-B:SHOT:POISON:46d5
+B:SHOT:HURT_POISON:46d5
 F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D2 |
 F:DROP_1D4 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM | SNEAKY |
@@ -10194,7 +10194,7 @@ W:50:6:0:28000
 M:0:33:70:99
 B:KICK:BATTER:20d2
 B:PUNCH:BATTER:10d2
-B:HIT:POISON:20d1
+B:HIT:HURT_POISON:20d1
 B:PUNCH:PARALYZE:15d1
 F:MALE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 |
 F:DROP_GOOD | DROP_GREAT |
@@ -10317,7 +10317,7 @@ D: Its gaping maw is a void of blackness, acid drips from its steely hide.
 D:  It is like nothing you have ever seen before, and a terrible chill
 D: runs down your spine as you face it.
 
-N:499:Hand druj
+N:499:Hand druj|||es|
 G:s:y
 #$ Clear available
 #$ Multihued available
@@ -10337,7 +10337,7 @@ S:TELE_AWAY | DARKNESS | FORGET | WOUND | SCARE | BLIND | CONF |
 D:A skeletal hand floating in the air, motionless except for its flexing
 D: fingers.
 
-N:500:Eye druj
+N:500:Eye druj|||es|
 G:s:I
 #$ Clear available
 #$ Multihued available
@@ -10358,7 +10358,7 @@ S:S_UNDEAD |
 D:A bloodshot eyeball floating in the air, you'd be forgiven for assuming
 D: it harmless.
 
-N:501:Skull druj
+N:501:Skull druj|||es|
 G:s:o
 #$ Clear available
 #$ Multihued available
@@ -10379,7 +10379,7 @@ S:S_UNDEAD |
 D:A glowing skull possessed by sorcerous power.  It need not move, but
 D: merely blast you with mighty magic as it speaks the words of power.
 
-N:502:Chaos vortex
+N:502:Chaos vort|ex|ex|ices|
 G:v:P
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -10398,7 +10398,7 @@ F:LEVEL_SPEED | RES_BLIND | RES_CHAOS | LEVEL_SIZE |
 S:BLOW_4 | BRTH_CHAOS |
 D:Void, nothingness, spinning destructively.
 
-N:503:Aether vortex
+N:503:Aether vort|ex|ex|ices|
 G:v:V
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -11028,8 +11028,8 @@ I:130:9100:40:160:80
 W:58:8:0:180000
 C:54:8:0:85000:80000
 M:40:40:110:147
-B:CLAW:POISON:8d6
-B:CLAW:POISON:8d6
+B:CLAW:HURT_POISON:8d6
+B:CLAW:HURT_POISON:8d6
 B:BITE:PARALYZE:8d10
 B:STING:LOSE_STR:8d4
 F:UNIQUE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D4 |
@@ -11232,8 +11232,8 @@ C:50:7:0:28000:31000
 M:33:33:30:119
 B:CLAW:HURT:6d8
 B:CLAW:HURT:6d8
-B:BITE:POISON:6d6
-B:BITE:POISON:6d6
+B:BITE:HURT_POISON:6d6
+B:BITE:HURT_POISON:6d6
 F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ESCORT | ESCORTS | RAND_25 |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | EAT_BODY | TAKE_ITEM |
@@ -11261,10 +11261,10 @@ W:59:18:0:4600000
 C:59:18:0:1100000:1100000
 M:65:65:130:176
 B:BITE:EXP_80:7d12
-B:BITE:POISON:7d12
+B:BITE:HURT_POISON:7d12
 B:STING:UN_POWER:7d12
 B:AURA:DARK:7d12
-F:UNIQUE | MALE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ESCORT | ONLY_ITEM |
+F:UNIQUE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ESCORT | ONLY_ITEM |
 F:DROP_1D3 | DROP_1D4 | DROP_GOOD | DROP_GREAT |
 F:SMART | COLD_BLOOD | CAN_CLIMB | OPEN_DOOR | BASH_DOOR | HAS_AURA |
 F:HAS_WEB |
@@ -11440,7 +11440,7 @@ D: crowned with iron, the two remaining Silmarils forever burning him.
 D: Grond, the mighty Hammer of the Underworld, cries defiance as he
 D: strides towards you to crush you to a pulp!
 
-N:548:Giant silver mouse
+N:548:Giant silver |mouse|mouse|mice|
 G:r:W
 #$ Clear available
 #$ Multihued available
@@ -11459,7 +11459,7 @@ F:ATTR_METAL |
 D:It is about three feet long with large teeth.  As the light of your lamp
 D: falls on it, it seems to grow stronger.
 
-N:549:Rot jelly
+N:549:Rot jell|y|y|ies|
 G:j:M
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -11503,7 +11503,7 @@ I:110:24:10:38:40
 W:16:3:25:23
 M:14:7:20:10
 B:BITE:EAT_LITE:1d3
-B:STING:POISON:3d4
+B:STING:HURT_POISON:3d4
 B:AURA:DARK_WEAK
 F:FRIENDS | RAND_25 |
 F:WEIRD_MIND | BASH_DOOR | HAS_AURA |
@@ -11524,7 +11524,7 @@ G:S:u
 I:110:73:12:50:20
 W:15:3:0:65
 M:0:0:3:0
-B:BITE:POISON:2d6
+B:BITE:HURT_POISON:2d6
 B:STING:BLIND:1d1
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT | IM_POIS |
@@ -11577,7 +11577,7 @@ W:26:3:0:210
 M:0:0:4:0
 B:BITE:HURT:2d6
 B:BITE:HURT:2d6
-B:STING:POISON:2d6
+B:STING:HURT_POISON:2d6
 F:FORCE_SLEEP | ONLY_GOLD | DROP_1D3 |
 F:BASH_DOOR | EAT_BODY |
 F:DRAGON | EVIL | ANIMAL | IM_POIS |
@@ -11595,8 +11595,8 @@ G:&:U
 I:110:849:30:40:0
 W:27:3:10:220
 M:20:20:15:43
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:SPIT:BLIND:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -11613,7 +11613,7 @@ D: adventurers realise of the deception is when the seemingly invitingly
 D: open lid of the chest suddenly grows teeth and then slams shut on the
 D: adventurer's hand...
 
-N:557:Demilich
+N:557:Demilich|||es|
 G:L:m
 #$ Clear available
 #$ Multihued available
@@ -11637,7 +11637,7 @@ S:MIND_BLAST | WOUND | OPPOSE_ELEM | SCARE | BLIND | CONF | HOLD |
 S:S_DEMON | S_UNDEAD |
 D:A lich who is partially immaterial, on its way to a new, ethereal form.
 
-N:558:Archlich
+N:558:Archlich|||es|
 G:L:B
 #$ Clear available
 #$ Multihued available
@@ -11849,7 +11849,7 @@ W:39:7:0:2500
 M:10:10:20:50
 B:HIT:HURT:8d10
 B:HIT:LOSE_CON:10d2
-B:STING:POISON:5d5
+B:STING:HURT_POISON:5d5
 B:SPIKE:HURT:20d5
 F:FORCE_MAXHP | FORCE_SLEEP | FRIENDS | ONLY_ITEM | DROP_1D2 |
 F:POWERFUL | OPEN_DOOR | BASH_DOOR |
@@ -11902,7 +11902,7 @@ W:50:6:0:27000
 M:0:18:70:50
 B:HIT:LOSE_CHR:6d6
 B:HIT:LOSE_CHR:6d6
-B:BITE:POISON:8d8
+B:BITE:HURT_POISON:8d8
 B:STING:LOSE_STR:5d5
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 | DROP_GOOD |
 F:INVISIBLE | POWERFUL | OPEN_DOOR | BASH_DOOR |
@@ -11983,7 +11983,7 @@ W:51:7:0:45000
 M:20:20:65:78
 B:CLAW:FIRE:6d10
 B:CLAW:FIRE:6d10
-B:BITE:POISON:5d10
+B:BITE:HURT_POISON:5d10
 B:BITE:LOSE_CON:5d10
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 | DROP_1D4 | DROP_GOOD |
 F:REGENERATE | POWERFUL | CAN_FLY | OPEN_DOOR | BASH_DOOR |
@@ -12080,8 +12080,8 @@ W:49:6:0:27000
 M:30:30:26:39
 B:CLAW:WOUND:4d12
 B:CLAW:WOUND:4d12
-B:BITE:POISON:6d24
-B:AURA:POISON:6d14
+B:BITE:HURT_POISON:6d24
+B:AURA:HURT_POISON:6d14
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 | DROP_1D4 | DROP_GOOD |
 F:SMART | POWERFUL | CAN_FLY | BASH_DOOR | HAS_AURA |
 F:DRAGON | EVIL | HUGE | IM_POIS | NO_CONF | NO_SLEEP |
@@ -12214,11 +12214,11 @@ F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_WEAPON | DROP_CLOTHES | DROP_ARMOR |
 F:DROP_LITE | DROP_JEWELRY | DROP_WRITING | DROP_POTION | DROP_FOOD |
 F:NEUTRAL | MAN | LEVEL_POWER |
 S:HEAL | CURE | BLESS | SCARE | BLIND | SLOW |
-D:A warrior for a holy cause.  Unfortunately, |his|her| god||ess| is not
+D:A warrior for a holy cause.  Unfortunately, |his|her| god||ess|s| is not
 D: yours, and there is rivalry even between the various gods of Good, so
 D: |he|she| is your enemy.
 
-N:582:Ranger Chieftain||ess|
+N:582:Ranger Chieftain||ess|s|
 G:q:G
 #$ Clear available
 #$ Metallics available:dwsorbuDWGBUvtmYTVIMzZ
@@ -12242,7 +12242,7 @@ S:BLOW_4 |
 S:BALL_COLD | BOLT_ELEC | BOLT_FIRE | BOLT_MANA |
 S:HASTE | BLINK | INVIS |
 S:S_ANIMAL |
-D:A chieftain among the Rangers.  |His|Her| understanding of nature gives
+D:A great leader among the Rangers.  |His|Her| understanding of nature gives
 D: |him|her| powerful elemental spells to use against you, in addition to
 D: |his|her| skills as an archer and a warrior.  Furthermore, |he|she| is
 D: a master of camouflage, so you will need magically enhanced seeing to
@@ -12278,7 +12278,7 @@ D: apparently feel no pain.  |He|She| tramples weaker creatures underfoot
 D: in |his|her| eagerness to get to |his|her| real enemy, and |his|her|
 D: battle-cry strikes terror into |his|her| foes.
 
-N:584:Cyclops
+N:584:Cyclops|||es|
 G:P:u
 #$ Clear available
 #$ Multihued available
@@ -12483,7 +12483,7 @@ G:I:T
 I:120:4:8:18:10
 W:35:1:0:10
 M:15:0:4:15
-B:BITE:POISON:3d3
+B:BITE:HURT_POISON:3d3
 B:SHRIEK
 F:RAND_25 | RAND_50 |
 F:WEIRD_MIND | MULTIPLY | CAN_FLY |
@@ -12650,7 +12650,7 @@ G:z:i
 I:115:78:30:30:20
 W:22:5:0:140
 M:0:11:10:50
-B:HIT:POISON:3d9
+B:HIT:HURT_POISON:3d9
 B:TOUCH:PARALYZE:1d4
 B:TOUCH:LOSE_CON:1d4
 F:FRIENDS | DROP_60 |
@@ -12669,7 +12669,7 @@ G:z:I
 I:120:149:30:50:20
 W:32:3:0:400
 M:0:15:14:50
-B:HIT:POISON:4d9
+B:HIT:HURT_POISON:4d9
 B:TOUCH:PARALYZE:2d4
 B:TOUCH:LOSE_CON:2d4
 B:BITE:DISEASE:2d4
@@ -12692,8 +12692,8 @@ W:40:4:0:2800
 M:15:15:10:40
 B:GAZE:PETRIFY:3d12
 B:GAZE:PETRIFY:3d12
-B:BITE:POISON:2d12
-B:BITE:POISON:2d12
+B:BITE:HURT_POISON:2d12
+B:BITE:HURT_POISON:2d12
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD |
 F:POWERFUL | BASH_DOOR | EAT_BODY |
 F:EVIL | ANIMAL | IM_POIS | RES_NEXUS | NO_CONF | NO_SLEEP |
@@ -12712,10 +12712,10 @@ G:S:I
 I:120:273:20:45:50
 W:34:6:0:530
 M:0:18:20:43
-B:CLAW:POISON:2d8
-B:CLAW:POISON:2d8
-B:BITE:POISON:2d6
-B:BITE:POISON:2d6
+B:CLAW:HURT_POISON:2d8
+B:CLAW:HURT_POISON:2d8
+B:BITE:HURT_POISON:2d6
+B:BITE:HURT_POISON:2d6
 F:FORCE_MAXHP | FORCE_SLEEP | FRIENDS |
 F:SMART | CAN_CLIMB | OPEN_DOOR | BASH_DOOR | HAS_WEB |
 F:EVIL | HURT_LITE | INSECT | IM_POIS |
@@ -12734,10 +12734,10 @@ G:S:r
 I:120:1044:20:65:50
 W:42:4:0:4700
 M:0:18:30:63
-B:CLAW:POISON:5d8
-B:CLAW:POISON:5d8
-B:BITE:POISON:5d6
-B:BITE:POISON:5d6
+B:CLAW:HURT_POISON:5d8
+B:CLAW:HURT_POISON:5d8
+B:BITE:HURT_POISON:5d6
+B:BITE:HURT_POISON:5d6
 F:FORCE_MAXHP | FORCE_SLEEP | ESCORT |
 F:SMART | CAN_CLIMB | OPEN_DOOR | BASH_DOOR | HAS_WEB |
 F:EVIL | HURT_LITE | INSECT | IM_FIRE | IM_POIS |
@@ -12787,7 +12787,7 @@ G:b:G
 I:120:104:20:30:30
 W:17:5:0:75
 M:15:15:4:21
-B:BITE:POISON:1d10
+B:BITE:HURT_POISON:1d10
 B:CLAW:HURT:1d4
 F:FRIENDS | RAND_25 | DROP_60 |
 F:WEIRD_MIND | CAN_FLY | MUST_FLY | BASH_DOOR | EAT_BODY |
@@ -12818,7 +12818,7 @@ F:LEVEL_SIZE |
 D:It is a fast moving creature of chaos, a gigantic black bat surrounded
 D: by flickering bright red flames.
 
-N:607:Wolf chieftain
+N:607:Wolf chieftain||ess|s|
 G:C:V
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -12830,7 +12830,7 @@ B:CLAW:HURT:2d6
 B:CLAW:HURT:2d6
 B:BITE:HURT:2d10
 B:WAIL:TERRIFY
-F:MALE | FORCE_MAXHP | ESCORT | ESCORTS |
+F:MALE | FEMALE | FORCE_MAXHP | ESCORT | ESCORTS |
 F:SMART | OPEN_DOOR | BASH_DOOR | EAT_BODY |
 F:EVIL | ANIMAL | IM_ACID | IM_COLD | NO_FEAR |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_CLAW |
@@ -12838,7 +12838,7 @@ F:HAS_LEG | HAS_FUR | HAS_BLOOD |
 F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 S:BLOW_4 |
 S:DARKNESS |
-D:A great wolf-chieftain whose pack is in the service of the Dark Lord,
+D:A great wolf-chieftain||ess| whose pack is in the service of the Dark Lord,
 D: and whose howls strike fear into even the boldest heart.
 
 N:608:Bone golem
@@ -12892,7 +12892,7 @@ S:S_DEMON |
 D:A gigantic four-armed animated bronze statue of demonic shape, glowing
 D: with great heat.
 
-N:610:Ogre chieftain
+N:610:Ogre chieftain||ess|s|
 G:O:V
 #$ Clear available
 #$ Multihued available
@@ -12905,15 +12905,15 @@ B:HIT:BATTER:3d8
 B:HIT:BATTER:3d8
 B:HIT:BATTER:3d8
 B:HIT:BATTER:3d8
-F:MALE | FORCE_SLEEP | ESCORT | ONLY_ITEM | DROP_90 |
+F:MALE | FEMALE | FORCE_SLEEP | ESCORT | ONLY_ITEM | DROP_90 |
 F:OPEN_DOOR | BASH_DOOR |
 F:GIANT | EVIL |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
 F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_CHEST | DROP_TOOL | DROP_WEAPON |
 F:DROP_CLOTHES | DROP_ARMOR | DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
-D:This ogre is leader of his tribe.  He sneers at you as he advances
-D: towards you, wielding a huge club and pushing his own followers rudely
+D:This ogre is leader of his tribe.  |H|Sh|e sneers at you as |h|sh|e advances
+D: towards you, wielding a huge club and pushing h|is|er| own followers rudely
 D: aside.
 
 N:611:Ar-Pharazon the Golden
@@ -12944,7 +12944,7 @@ D:Last and proudest king of ancient Numenor. Corrupted by power and
 D: avarice, he fell victim to Sauron's wiles, tried to fight the Valar
 D: themselves, and condemned Numenor to oblivion.
 
-N:612:Troll chieftain
+N:612:Troll chieftain||ess|s|
 G:T:v
 #$ Clear available
 #$ Multihued available
@@ -12957,6 +12957,7 @@ B:HIT:BATTER:2d12
 B:HIT:BATTER:2d12
 B:BITE:HURT:3d6
 F:ESCORT | DROP_1D2 |
+F:MALE | FEMALE |
 F:SMART | OPEN_DOOR | BASH_DOOR | EAT_BODY | TAKE_ITEM |
 F:TROLL | EVIL | IM_POIS | NO_FEAR |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
@@ -12964,7 +12965,7 @@ F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_CHEST | DROP_WEAPON | DROP_CLOTHES |
 F:DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 D:This troll's great strength and size have won it the place of chieftain
-D: of its tribe. It fears nothing.
+D: of |his|her| tribe. |He|She| fears nothing.
 
 N:613:Shardstorm
 G:v:u
@@ -13598,8 +13599,8 @@ I:110:1008:8:80:80
 W:27:5:0:1800
 C:36:5:0:990:1300
 M:0:50:15:75
-B:CLAW:POISON:2d5
-B:CLAW:POISON:2d5
+B:CLAW:HURT_POISON:2d5
+B:CLAW:HURT_POISON:2d5
 B:BITE:PARALYZE:2d10
 B:STING:LOSE_STR:1d4
 F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | ESCORT | ESCORTS | ONLY_ITEM |
@@ -13829,7 +13830,7 @@ D: burning gaze.  Some whisper that his power is as great as Sauron's.
 
 # And here be the new monsters:
 
-N:646:Pink mushroom patch
+N:646:Pink mushroom patch|||es|
 G:,:i
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13846,7 +13847,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:647:Brown mushroom patch
+N:647:Brown mushroom patch|||es|
 G:,:u
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13863,7 +13864,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:648:Green mushroom patch
+N:648:Green mushroom patch|||es|
 G:,:g
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13880,7 +13881,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:649:Black mushroom patch
+N:649:Black mushroom patch|||es|
 G:,:D
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13897,7 +13898,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:650:White mushroom patch
+N:650:White mushroom patch|||es|
 G:,:w
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13914,7 +13915,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:651:Blue mushroom patch
+N:651:Blue mushroom patch|||es|
 G:,:b
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13931,7 +13932,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:652:Red mushroom patch
+N:652:Red mushroom patch|||es|
 G:,:r
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13964,7 +13965,7 @@ F:LEVEL_SIZE |
 S:BLOW_1 | EXPLODE |
 D:Yum!  It looks quite tasty.
 
-N:654:Copper mushroom patch
+N:654:Copper mushroom patch|||es|
 G:,:u
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -13981,7 +13982,7 @@ F:DROP_MUSHROOM | ATTR_METAL | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:655:Silver mushroom patch
+N:655:Silver mushroom patch|||es|
 G:,:W
 #$ Matches Silver slime
 #$ Multihued available
@@ -13999,7 +14000,7 @@ F:DROP_MUSHROOM | ATTR_METAL | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:656:Wrinkled mushroom patch
+N:656:Wrinkled mushroom patch|||es|
 G:,:W
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -14016,7 +14017,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:657:Rotting mushroom patch
+N:657:Rotting mushroom patch|||es|
 G:,:o
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -14033,7 +14034,7 @@ F:DROP_MUSHROOM | LEVEL_SIZE |
 S:BLOW_1 | ADD_AMMO |
 D:Yum!  It looks quite tasty.
 
-N:658:Slimy mushroom patch
+N:658:Slimy mushroom patch|||es|
 G:,:M
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -14097,7 +14098,7 @@ D:Ugh! It quickly creeps along the dungeon floor.
 
 N:662:Silver slime
 G:,:W
-#$ Matches Silver mushroom patch
+#$ Matches Silver mushroom patch|||es|
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
 #$ Colors available:dGUvYTVIZ
@@ -14113,7 +14114,7 @@ D:Ugh! It quickly creeps along the dungeon floor.
 
 N:663:Clear slime
 G:,:w
-#$ Matches Clear mushroom patch
+#$ Matches Clear mushroom patch|||es|
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
 #$ Colors available:dGUvYTVIZ
@@ -14191,7 +14192,7 @@ F:PLANT | NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP |
 F:RES_BLIND | NO_CUTS | ATTR_METAL | LEVEL_SIZE |
 D:Ugh! It quickly creeps along the dungeon floor.
 
-N:668:Many-eyed moss
+N:668:Many-eyed moss|||es|
 G:;:o
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -14209,7 +14210,7 @@ S:BLOW_1 | BLOW_2 |
 S:INVIS | BLIND |
 D:A mass of orange vegetation. Its many eyes follow your every movement.
 
-N:669:Moross moss
+N:669:Moross moss|||es|
 G:;:y
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -14227,7 +14228,7 @@ S:INVIS | TELE_SELF_TO | SLOW |
 D:A mass of yellow vegetation. You feel apathetic looking at its sluggish
 D: fronds.
 
-N:670:Mischievous moss
+N:670:Mischievous moss|||es|
 G:;:B
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -14245,7 +14246,7 @@ S:BLINK | INVIS | DARKNESS | SCARE | SLOW |
 D:A mass of bright blue vegetation. It wiggles its tiny fronds in
 D: mischevious anticipation.
 
-N:671:Machievallian moss
+N:671:Machievallian moss|||es|
 G:;:u
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -14263,7 +14264,7 @@ S:HEAL | INVIS | TELE_SELF_TO | TRAPS |
 D:A mass of brown vegetation. Its fronds move cloyingly towards you, then
 D: dart away.
 
-N:672:Maggoty moss
+N:672:Maggoty moss|||es|
 G:;:m
 #$ Multihued available
 #$ Metallics available:dwsorbuDWPyRGBUpvtmYiTVIMzZ
@@ -14429,7 +14430,7 @@ G:a:g
 I:110:14:8:16:80
 W:5:3:25:6
 M:0:0:1:0
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:FRIEND |
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
@@ -15085,7 +15086,7 @@ G:b:g
 I:130:15:12:22:50
 W:7:4:0:10
 M:25:0:1:0
-B:BITE:POISON:1d3
+B:BITE:HURT_POISON:1d3
 F:FORCE_SLEEP | FRIENDS | RAND_50 |
 F:CAN_FLY | MUST_FLY | BASH_DOOR | EAT_BODY |
 F:DRAGON | ANIMAL | IM_POIS |
@@ -15515,7 +15516,7 @@ I:110:12:7:10:40
 W:3:3:0:4
 M:0:0:1:0
 B:BITE:HURT:1d3
-B:STING:POISON:1d4
+B:STING:HURT_POISON:1d4
 F:FRIEND | RAND_50 |
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
@@ -15580,7 +15581,7 @@ I:120:13:12:26:40
 W:6:3:0:9
 M:0:0:1:0
 B:BITE:HURT:1d2
-B:STING:POISON:1d2
+B:STING:HURT_POISON:1d2
 F:FRIEND |
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
@@ -15742,7 +15743,7 @@ F:HAS_FUR | HAS_BLOOD |
 F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:It is a large doglike creature with an oversize jaw.
 
-N:751:Grey wolf
+N:751:Grey wol|f|f|ves|
 G:C:s
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -15751,7 +15752,7 @@ I:120:43:30:30:20
 W:11:5:0:34
 M:0:0:2:0
 B:BITE:HURT:1d5
-B:BITE:POISON:1d5
+B:BITE:HURT_POISON:1d5
 F:FRIENDS | RAND_25 |
 F:BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -15761,7 +15762,7 @@ F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:A huge and sineous wolf from the fecund swamps. Its breath is rank
 D: withpoison.
 
-N:752:Black wolf
+N:752:Black wol|f|f|ves|
 G:C:D
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -15780,7 +15781,7 @@ F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:A large and muscled wolf from the eastern wastes.  Its saliva
 D: dripscaustically and its fur is bileous with acid. 
 
-N:753:Dire wolf
+N:753:Dire wol|f|f|ves|
 G:C:o
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -15798,7 +15799,7 @@ F:HAS_FUR | HAS_BLOOD |
 F:SCENT | SUPER_SCENT | NEUTRAL | LEVEL_SIZE |
 D:It is a huge wolf with eyes that glow red with cunning.
 
-N:754:Mirkwood wolf
+N:754:Mirkwood wol|f|f|ves|
 G:C:T
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -16266,7 +16267,7 @@ W:25:3:0:180
 M:18:18:18:30
 B:CLAW:HURT:2d4
 B:CLAW:HURT:2d4
-B:BITE:POISON:3d6
+B:BITE:HURT_POISON:3d6
 F:FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D3 |
 F:SMART | CAN_SWIM | POWERFUL | BASH_DOOR |
 F:DRAGON | EVIL | IM_ACID | IM_POIS | RES_WATER | NO_CONF | NO_SLEEP |
@@ -16970,7 +16971,7 @@ G:F:r
 I:110:26:12:20:50
 W:9:2:0:20
 M:14:0:2:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:SPIT:LOSE_STR:1d4
 F:RAND_25 |
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
@@ -17024,7 +17025,7 @@ G:F:r
 I:110:26:12:20:50
 W:15:6:0:52
 M:14:0:2:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:SPIT:LOSE_STR:1d4
 F:RAND_25 |
 F:MULTIPLY | CAN_SWIM | BASH_DOOR | EAT_BODY |
@@ -17044,7 +17045,7 @@ G:F:B
 I:110:18:12:12:50
 W:6:2:0:8
 M:0:0:1:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 F:RAND_25 |
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -17061,7 +17062,7 @@ G:F:B
 I:110:18:12:12:50
 W:9:6:0:20
 M:0:0:2:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 F:RAND_25 |
 F:MULTIPLY | CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -17114,7 +17115,7 @@ G:F:y
 I:110:30:12:24:50
 W:9:2:0:23
 M:0:0:2:0
-B:BITE:POISON:5d4
+B:BITE:HURT_POISON:5d4
 F:RAND_25 |
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -17131,7 +17132,7 @@ G:F:y
 I:110:30:12:24:50
 W:15:6:0:57
 M:0:0:2:0
-B:BITE:POISON:5d4
+B:BITE:HURT_POISON:5d4
 F:RAND_25 |
 F:MULTIPLY | CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -17189,7 +17190,7 @@ G:F:t
 I:110:26:12:24:50
 W:9:2:0:21
 M:14:14:2:15
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:SPIT:SLOW:2d4
 F:RAND_25 |
 F:CAN_SWIM | BASH_DOOR |
@@ -18139,7 +18140,7 @@ F:DROP_FOOD |
 F:TOWNSFOLK |
 D:A stalwart defender of the town.
 
-N:874:Surly looking dwarf
+N:874:Surly looking dwar|f|f|ves|
 G:h:M
 #$ Clear available
 #$ Multihued available
@@ -18160,7 +18161,7 @@ F:RES_BLIND | DWARF |
 D:A scowling short |chap|lass| with a two-foot beard. |He|She| appears to
 D: be looking for a good smithy to sharpen |his|her| axe.
 
-N:875:Haughty looking elf
+N:875:Haughty looking el|f|f|ves|
 G:l:W
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -18225,7 +18226,7 @@ F:NO_SLOW | NEUTRAL | DWARF | LEVEL_POWER |
 S:BLINK | CONF | SLOW |
 D:A thief of short stature.
 
-N:878:Gnome priest||ess|
+N:878:Gnome priest||ess|s|
 G:h:T
 #$ Clear available
 #$ Multihued available
@@ -18245,7 +18246,7 @@ F:DROP_FOOD |
 F:NO_SLOW | NEUTRAL | DWARF | LEVEL_POWER |
 S:HEAL | CURE | WOUND | BLESS |
 S:S_MONSTER |
-D:A priest||ess| of short stature.
+D:A priest||ess|s| of short stature.
 
 N:879:Gnome illusionist
 G:h:Y
@@ -18336,7 +18337,7 @@ S:BLIND |
 D:A dwarven ranger with a three-foot beard, and sword and bow quick to
 D: hand.
 
-N:883:Dwarven priest||ess|
+N:883:Dwarven priest||ess|s|
 G:h:B
 #$ Clear available
 #$ Multihued available
@@ -18354,10 +18355,10 @@ F:DROP_CLOTHES | DROP_ARMOR | DROP_LITE | DROP_WRITING | DROP_POTION |
 F:DROP_FOOD |
 F:RES_BLIND | NEUTRAL | DWARF | LEVEL_POWER |
 S:HEAL | CURE | WOUND | BLESS | SCARE | BLIND |
-D:A dwarven priest||ess| with a three-foot beard, and hammer swung
+D:A dwarven priest||ess|s| with a three-foot beard, and hammer swung
 D: devoutly to |his|her| cause.
 
-N:884:Dwarven |lord|lady|
+N:884:Dwarven |lord|lady|lords|
 G:h:P
 #$ Clear available
 #$ Multihued available
@@ -18490,7 +18491,7 @@ W:27:3:0:220
 M:0:0:4:0
 B:CLAW:HURT:2d9
 B:BITE:HURT:1d7
-B:STING:POISON:1d7
+B:STING:HURT_POISON:1d7
 B:CRUSH:HURT:2d5
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL |
@@ -18570,7 +18571,7 @@ W:34:3:0:490
 M:0:0:4:0
 B:CLAW:WOUND:2d13
 B:BITE:HURT:2d11
-B:STING:POISON:2d11
+B:STING:HURT_POISON:2d11
 B:CRUSH:BATTER:4d9
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL |
@@ -18718,7 +18719,7 @@ G:I:G
 I:115:15:6:7:10
 W:11:5:0:28
 M:0:0:2:0
-B:BITE:POISON:1d2
+B:BITE:HURT_POISON:1d2
 B:BITE:EAT_FOOD
 F:RAND_50 |
 F:WEIRD_MIND | MULTIPLY | CAN_FLY |
@@ -18772,7 +18773,7 @@ F:INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_WING | HAS_SKIN |
 D:It is about four feet long with large teeth and wriggles.
 
-N:907:Giant red dragonfly
+N:907:Giant red dragonfl|y|y|ies|
 G:I:r
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18788,7 +18789,7 @@ F:LEVEL_SPEED |
 S:BRTH_FIRE |
 D:A vast, fiery-bright dragonfly.
 
-N:908:Giant blue dragonfly
+N:908:Giant blue dragonfl|y|y|ies|
 G:I:b
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18805,7 +18806,7 @@ F:LEVEL_SPEED |
 S:BRTH_ELEC |
 D:A vast, lightning-struck dragonfly.
 
-N:909:Giant copper dragonfly
+N:909:Giant copper dragonfl|y|y|ies|
 G:I:u
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18823,7 +18824,7 @@ F:LEVEL_SPEED | DROP_MINERAL | ATTR_METAL |
 S:BRTH_NEXUS |
 D:This gleaming copper dragonfly is never in the same place twice.
 
-N:910:Giant silver dragonfly
+N:910:Giant silver dragonfl|y|y|ies|
 G:I:W
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18841,7 +18842,7 @@ F:LEVEL_SPEED | DROP_MINERAL | ATTR_METAL |
 S:BRTH_FEAR |
 D:This gleaming silver dragonfly has wings which hum a terrifying dirge.
 
-N:911:Giant brass dragonfly
+N:911:Giant brass dragonfl|y|y|ies|
 G:I:o
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18860,7 +18861,7 @@ S:BRTH_DISEN |
 D:This gleaming brass dragonfly has wings which leave a static feeling in
 D: the air.
 
-N:912:Giant amethyst dragonfly
+N:912:Giant amethyst dragonfl|y|y|ies|
 G:I:v
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18878,7 +18879,7 @@ F:LEVEL_SPEED | DROP_MINERAL | ATTR_METAL |
 S:BRTH_TIME |
 D:This glistening amethyst dragonfly seems to dart back and forth in time.
 
-N:913:Giant diamond dragonfly
+N:913:Giant diamond dragonfl|y|y|ies|
 G:I:w
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18896,7 +18897,7 @@ F:LEVEL_SPEED | RES_MAGIC | DROP_MINERAL | ATTR_METAL |
 S:BRTH_MANA |
 D:This clear diamond dragonfly has wings which glow with magical energy.
 
-N:914:Giant emerald dragonfly
+N:914:Giant emerald dragonfl|y|y|ies|
 G:I:g
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18915,7 +18916,7 @@ S:BRTH_FORCE |
 D:This glistening emerald dragonfly has wings which beat with powerful
 D: force.
 
-N:915:Giant sapphire dragonfly
+N:915:Giant sapphire dragonfl|y|y|ies|
 G:I:b
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18933,7 +18934,7 @@ F:LEVEL_SPEED | DROP_MINERAL | ATTR_METAL |
 S:BRTH_GRAV |
 D:This glistening sapphire dragonfly has wings that ride on gravity.
 
-N:916:Giant ruby dragonfly
+N:916:Giant ruby dragonfl|y|y|ies|
 G:I:r
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18966,7 +18967,7 @@ F:INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_WING | HAS_SKIN |
 D:An annoying pest.
 
-N:918:Giant house fly
+N:918:Giant house fl|y|y|ies|
 G:I:Z
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -18981,7 +18982,7 @@ F:INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_WING | HAS_SKIN |
 D:A sickening pest.
 
-N:919:Clear jelly
+N:919:Clear jell|y|y|ies|
 G:j:w
 #$ Matches Clear ooze
 #$ Matches Grey ooze
@@ -19000,7 +19001,7 @@ F:RES_BLIND | LEVEL_SIZE |
 S:DRAIN_MANA |
 D:It is a large pulsating mound of clear flesh.
 
-N:920:Brown jelly
+N:920:Brown jell|y|y|ies|
 G:j:u
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -19016,7 +19017,7 @@ F:HAS_CORPSE | HAS_SLIME |
 F:RES_BLIND | LEVEL_SIZE |
 D:It is a large pulsating mound of brown flesh.
 
-N:921:Red jelly
+N:921:Red jell|y|y|ies|
 G:j:r
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -19031,7 +19032,7 @@ F:HAS_CORPSE | HAS_SLIME |
 F:RES_BLIND | LEVEL_SIZE |
 D:It is a large pulsating mound of red flesh.
 
-N:922:Bright blue jelly
+N:922:Bright blue jell|y|y|ies|
 G:j:B
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -19048,7 +19049,7 @@ S:BLINK | DRAIN_MANA |
 S:S_KIN |
 D:It is smarter than your average jelly.
 
-N:923:Bright green jelly
+N:923:Bright green jell|y|y|ies|
 G:j:G
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -19065,7 +19066,7 @@ S:TPORT | DRAIN_MANA |
 S:S_MONSTER |
 D:It is smarter than your average jelly.
 
-N:924:Black jelly
+N:924:Black jell|y|y|ies|
 G:j:D
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -19240,7 +19241,7 @@ G:J:G
 I:100:3:5:39:60
 W:5:1:0:2
 M:8:0:1:0
-B:BITE:POISON:1d5
+B:BITE:HURT_POISON:1d5
 B:SPIT:POISON:1d5
 F:RAND_25 |
 F:EAT_BODY |
@@ -19292,7 +19293,7 @@ G:J:u
 I:110:7:5:15:50
 W:4:2:0:5
 M:0:0:1:0
-B:BITE:POISON:2d3
+B:BITE:HURT_POISON:2d3
 F:RAND_25 |
 F:EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -19308,7 +19309,7 @@ G:J:r
 I:100:17:5:39:60
 W:6:1:0:7
 M:10:0:1:0
-B:BITE:POISON:1d5
+B:BITE:HURT_POISON:1d5
 B:GAZE:CONFUSE
 F:RAND_25 |
 F:BASH_DOOR | EAT_BODY |
@@ -19343,7 +19344,7 @@ G:J:T
 I:110:43:10:32:1
 W:8:2:0:16
 M:0:0:2:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 F:RAND_50 |
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -19359,7 +19360,7 @@ G:J:t
 I:110:61:5:45:30
 W:13:2:0:47
 M:0:0:2:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 B:CRUSH:HURT:4d6
 F:RAND_25 |
 F:CAN_SWIM | BASH_DOOR | EAT_BODY |
@@ -19420,7 +19421,7 @@ G:k:T
 I:110:46:20:32:30
 W:8:4:0:17
 M:20:0:2:0
-B:HIT:POISON:2d5
+B:HIT:HURT_POISON:2d5
 B:ARROW:HURT:3d6
 F:MALE | FEMALE | FRIENDS | DROP_60 |
 F:CAN_CLIMB | OPEN_DOOR | BASH_DOOR | ARCHER |
@@ -19685,8 +19686,8 @@ G:l:v
 I:125:93:20:30:10
 W:31:3:0:310
 M:20:0:4:0
-B:HIT:POISON:8d4
-B:HIT:POISON:8d4
+B:HIT:HURT_POISON:8d4
+B:HIT:HURT_POISON:8d4
 B:HIT:LOSE_CON:2d4
 B:DART:POISON:16d4
 F:MALE | FEMALE | DROP_90 |
@@ -19722,7 +19723,7 @@ S:HEAL | BLINK | TELE_AWAY | DARKNESS | DRAIN_MANA | WOUND | BLIND | CONF |
 S:S_MONSTER | S_RACE | S_DEMON | S_UNDEAD |
 D:An elven figure that glows with an inner light.
 
-N:961:Grave lich
+N:961:Grave lich|||es|
 G:L:u
 #$ Clear available
 #$ Multihued available
@@ -19746,7 +19747,7 @@ S:OPPOSE_ELEM | SCARE | BLIND | SLOW | HOLD |
 S:S_UNDEAD |
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
-N:962:Crypt lich
+N:962:Crypt lich|||es|
 G:L:U
 #$ Clear available
 #$ Multihued available
@@ -19769,7 +19770,7 @@ S:BLINK | TELE_TO | TELE_AWAY | DRAIN_MANA | MIND_BLAST | WOUND |
 S:OPPOSE_ELEM | SCARE | BLIND | SLOW | HOLD |
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
-N:963:Pit lich
+N:963:Pit lich|||es|
 G:L:M
 #$ Clear available
 #$ Multihued available
@@ -19792,7 +19793,7 @@ S:BLINK | TELE_TO | TELE_AWAY | DRAIN_MANA | MIND_BLAST | WOUND |
 S:OPPOSE_ELEM | SCARE | BLIND | HOLD |
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
-N:964:Spirit lich
+N:964:Spirit lich|||es|
 G:L:W
 #$ Clear available
 #$ Multihued available
@@ -19816,7 +19817,7 @@ S:OPPOSE_ELEM | SCARE | BLIND | SLOW | HOLD |
 D:It is an insubstantial skeletal form dressed in robes.  It radiates
 D: vastly evil power.
 
-N:965:Guardian lich
+N:965:Guardian lich|||es|
 G:L:V
 #$ Clear available
 #$ Multihued available
@@ -19839,7 +19840,7 @@ S:BLINK | TELE_AWAY | DARKNESS | DRAIN_MANA | MIND_BLAST | WOUND | SHIELD |
 S:OPPOSE_ELEM | SCARE | BLIND | CONF | HOLD |
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
-N:966:Black lich
+N:966:Black lich|||es|
 G:L:D
 #$ Clear available
 #$ Multihued available
@@ -19862,7 +19863,7 @@ S:BLINK | TELE_TO | TELE_AWAY | DRAIN_MANA | MIND_BLAST | WOUND |
 S:OPPOSE_ELEM | SCARE | BLIND | HOLD |
 D:It is a skeletal form dressed in robes.  It radiates vastly evil power.
 
-N:967:Night lich
+N:967:Night lich|||es|
 G:L:z
 #$ Clear available
 #$ Multihued available
@@ -19887,7 +19888,7 @@ S:S_UNDEAD |
 D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful
 D: magic crackles along its bony fingers.
 
-N:968:Death lich
+N:968:Death lich|||es|
 G:L:w
 #$ Clear available
 #$ Multihued available
@@ -19912,7 +19913,7 @@ S:S_UNDEAD |
 D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful
 D: magic crackles along its bony fingers.
 
-N:969:Nether lich
+N:969:Nether lich|||es|
 G:L:G
 #$ Clear available
 #$ Multihued available
@@ -19938,7 +19939,7 @@ S:S_UNDEAD |
 D:A skeletal form wrapped in robes and cloaked in darkness.  Powerful
 D: magic crackles along its bony fingers.
 
-N:970:Emperor lich
+N:970:Emperor lich|||es|
 G:L:v
 #$ Clear available
 #$ Multihued available
@@ -20404,8 +20405,8 @@ G:N:w
 I:120:1242:20:140:10
 W:45:5:0:7600
 M:25:25:65:80
-B:BITE:POISON:5d7
-B:BITE:POISON:5d7
+B:BITE:HURT_POISON:5d7
+B:BITE:HURT_POISON:5d7
 B:CRUSH:EXP_40:8d9
 B:CRUSH:EXP_40:8d9
 F:ATTR_CLEAR | FORCE_SLEEP | ONLY_ITEM | DROP_1D2 | DROP_GOOD |
@@ -20498,7 +20499,7 @@ F:DROP_CLOTHES | DROP_ARMOR | DROP_FOOD | DROP_JUNK |
 F:SCENT | RES_DARK | NEUTRAL | LEVEL_POWER |
 D:A large orc who barks commands to |his|her| fellows.
 
-N:996:Orc chieftain||ess|
+N:996:Orc chieftain||ess|s|
 G:o:I
 #$ Clear available
 #$ Multihued available
@@ -20521,7 +20522,7 @@ F:SCENT | RES_DARK | NEUTRAL | LEVEL_POWER |
 S:S_ORC |
 D:A heavily armoured orc with the mantle of leadership.
 
-N:997:Orc |king|queen|
+N:997:Orc |king|queen|monarchs|
 G:o:i
 #$ Clear available
 #$ Multihued available
@@ -20545,7 +20546,7 @@ S:S_ORC |
 D:A heavily armoured orc ruler who dominates |his|her| kin with his
 D: powerful blows.
 
-N:998:Orc priest||ess|
+N:998:Orc priest||ess|s|
 G:o:b
 #$ Clear available
 #$ Multihued available
@@ -20643,7 +20644,7 @@ I:110:81:20:40:20
 W:14:5:0:53
 M:25:0:2:0
 B:HIT:WOUND:3d6
-B:HIT:POISON:3d4
+B:HIT:HURT_POISON:3d4
 B:ARROW:HURT:3d6
 F:MALE | FEMALE | FRIENDS | DROP_60 |
 F:CAN_CLIMB | OPEN_DOOR | BASH_DOOR | ARCHER | TAKE_ITEM |
@@ -20753,7 +20754,7 @@ W:13:4:0:44
 M:25:20:8:30
 B:HIT:BATTER:2d8
 B:HIT:BATTER:2d8
-B:ARROW:POISON:4d6
+B:ARROW:HURT_POISON:4d6
 F:FRIENDS | RAND_25 | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:ORC | GIANT | EVIL |
@@ -20775,7 +20776,7 @@ I:110:99:20:33:30
 W:14:5:0:56
 M:0:20:8:30
 B:HIT:BATTER:2d8
-B:HIT:POISON:2d10
+B:HIT:HURT_POISON:2d10
 F:FRIENDS | RAND_25 | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR |
 F:ORC | GIANT | EVIL |
@@ -20796,8 +20797,8 @@ I:110:108:20:33:30
 W:15:2:0:59
 M:20:20:10:40
 B:HIT:BATTER:2d8
-B:HIT:POISON:2d10
-B:ARROW:POISON:4d6
+B:HIT:HURT_POISON:2d10
+B:ARROW:HURT_POISON:4d6
 F:RAND_25 | DROP_60 |
 F:CAN_CLIMB | OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
 F:ORC | GIANT | EVIL |
@@ -20958,7 +20959,7 @@ F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 S:BLOW_4 |
 D:A massive, heavily armoured figure who dominates |his|her| kind.
 
-N:1017:Ogre priest||ess|
+N:1017:Ogre priest||ess|s|
 G:O:b
 #$ Clear available
 #$ Multihued available
@@ -20981,7 +20982,7 @@ F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 S:HASTE | HEAL | CURE | TPORT | WOUND | BLESS | SCARE | HOLD |
 D:A hideous ogre wrapped in dark priestly robes.
 
-N:1018:Bumbling priest||ess|
+N:1018:Bumbling priest||ess|s|
 G:p:b
 #$ Clear available
 #$ Multihued available
@@ -21145,7 +21146,7 @@ W:31:3:0:330
 M:10:0:4:0
 B:HIT:HURT:7d8
 B:HIT:HURT:7d8
-B:BOULDER:POISON:3d10
+B:BOULDER:HURT_POISON:3d10
 F:DROP_60 |
 F:CAN_SWIM | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | NEED_LITE |
 F:GIANT | EVIL | HUGE | IM_ACID | IM_POIS |
@@ -21233,7 +21234,7 @@ I:110:352:20:60:50
 W:34:3:0:530
 M:10:6:25:56
 B:HIT:HURT:8d8
-B:HIT:POISON:10d8
+B:HIT:HURT_POISON:10d8
 B:BOULDER:BLIND:4d10
 F:DROP_90 |
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
@@ -21332,7 +21333,7 @@ F:MAN | TOWNSFOLK |
 S:BLINK | CONF |
 D:|He|She| can't see straight, let alone cast spells straight.
 
-N:1034:Sorcere|r|ss|
+N:1034:Sorcere|r|ss|rs|
 G:q:P
 #$ Clear available
 #$ Metallics available:dwsorbuDWGBUvtmYTVIMzZ
@@ -21362,7 +21363,7 @@ D: and |his|her| hands are ablur with spell casting. You stagger at the
 D: mighty sound of |his|her| spells as they echo hollowly through the
 D: dungeon.
 
-N:1035:Giant field mouse
+N:1035:Giant field |mouse|mouse|mice|
 G:r:M
 #$ Clear available
 #$ Multihued available
@@ -21378,7 +21379,7 @@ F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_LEG |
 F:HAS_FUR | HAS_BLOOD |
 D:It is about three feet long with large teeth.
 
-N:1036:Giant brown mouse
+N:1036:Giant brown |mouse|mouse|mice|
 G:r:u
 #$ Clear available
 #$ Multihued available
@@ -21395,7 +21396,7 @@ F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_LEG |
 F:HAS_FUR | HAS_BLOOD |
 D:It is about three feet long with large teeth.
 
-N:1037:Giant black mouse
+N:1037:Giant black |mouse|mouse|mice|
 G:r:s
 #$ Clear available
 #$ Multihued available
@@ -21412,7 +21413,7 @@ F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_LEG |
 F:HAS_FUR | HAS_BLOOD |
 D:It is about three feet long with large teeth.
 
-N:1038:Giant pink mouse
+N:1038:Giant pink |mouse|mouse|mice|
 G:r:i
 #$ Clear available
 #$ Multihued available
@@ -21429,7 +21430,7 @@ F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_LEG |
 F:HAS_FUR | HAS_BLOOD |
 D:It is about three feet long with large teeth.
 
-N:1039:Giant yellow mouse
+N:1039:Giant yellow |mouse|mouse|mice|
 G:r:y
 #$ Clear available
 #$ Multihued available
@@ -21439,7 +21440,7 @@ I:120:7:8:12:30
 W:15:5:0:43
 M:0:0:2:0
 B:BITE:HURT:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
 B:BITE:EAT_FOOD
 F:MULTIPLY |
 F:ANIMAL |
@@ -21456,7 +21457,7 @@ G:r:I
 I:110:5:8:12:20
 W:5:2:0:1
 M:0:0:1:0
-B:BITE:POISON:1d4
+B:BITE:HURT_POISON:1d4
 F:FRIENDS | RAND_25 |
 F:SMART | EAT_BODY |
 F:ANIMAL |
@@ -21473,7 +21474,7 @@ G:r:U
 I:110:8:8:22:20
 W:9:3:0:9
 M:0:0:1:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 F:RAND_25 |
 F:SMART | MULTIPLY | EAT_BODY |
 F:ANIMAL |
@@ -21490,7 +21491,7 @@ G:r:b
 I:110:10:8:22:20
 W:10:3:0:13
 M:0:0:2:0
-B:BITE:POISON:2d5
+B:BITE:HURT_POISON:2d5
 F:RAND_25 |
 F:SMART | MULTIPLY | CAN_SWIM | EAT_BODY |
 F:ANIMAL |
@@ -21526,7 +21527,7 @@ G:r:z
 I:110:8:8:20:20
 W:7:3:0:8
 M:0:0:1:0
-B:BITE:POISON:1d5
+B:BITE:HURT_POISON:1d5
 F:RAND_25 |
 F:SMART | MULTIPLY | EAT_BODY |
 F:ANIMAL |
@@ -21543,7 +21544,7 @@ G:r:D
 I:110:7:8:16:20
 W:7:3:0:8
 M:0:0:1:0
-B:BITE:POISON:1d5
+B:BITE:HURT_POISON:1d5
 F:RAND_25 |
 F:SMART | MULTIPLY | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -21581,8 +21582,8 @@ G:R:D
 I:110:34:20:32:30
 W:9:2:0:21
 M:0:0:2:0
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:EAT_BODY |
 F:ANIMAL |
 F:HAS_SKULL | HAS_SKELETON | HAS_CORPSE | HAS_HEAD | HAS_LEG | HAS_BLOOD |
@@ -21590,7 +21591,7 @@ F:SCENT | LEVEL_SIZE |
 D:It is a deep black lizard with large overlapping scales and a poisonous
 D: bite.
 
-N:1048:Errand |boy|girl|
+N:1048:Errand |boy|girl|runners|
 G:t:G
 #$ Clear available
 #$ Multihued available
@@ -21607,7 +21608,7 @@ F:HAS_ARM | HAS_LEG | HAS_BLOOD |
 F:MAN | TOWNSFOLK |
 D:|He|She| has no time to talk to you.
 
-N:1049:Hobbit |gentleman|good wife|
+N:1049:Hobbit |gentleman|good wife|good folk|
 G:h:G
 #$ Clear available
 #$ Multihued available
@@ -21652,8 +21653,8 @@ I:120:26:15:25:80
 W:20:5:0:110
 M:0:0:3:0
 B:BITE:HURT:1d8
-B:BITE:POISON:1d6
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
+B:BITE:HURT_POISON:1d6
 F:FRIENDS |
 F:WEIRD_MIND | CAN_CLIMB | BASH_DOOR | PASS_WALL | HAS_WEB |
 F:INSECT | IM_POIS | RES_NEXUS |
@@ -21684,7 +21685,7 @@ W:19:3:0:96
 M:0:0:3:0
 B:CLAW:HURT:1d11
 B:CLAW:HURT:1d11
-B:STING:POISON:3d4
+B:STING:HURT_POISON:3d4
 F:WEIRD_MIND | BASH_DOOR |
 F:INSECT |
 F:HAS_CORPSE | HAS_CLAW | HAS_LEG | HAS_SKIN |
@@ -21743,7 +21744,7 @@ D:This shill seems a little out of place and down on |his|her| luck.
 
 #$# 1056 - Unused ###
 
-N:1057:Grand Master thief
+N:1057:Grand Master thie|f|f|ves|
 G:t:z
 #$ Clear available
 #$ Multihued available
@@ -21833,17 +21834,17 @@ B:HIT:BATTER:2d12
 B:HIT:BATTER:2d12
 B:BITE:HURT:3d6
 B:BITE:HURT:3d6
-F:FORCE_MAXHP | ESCORT | DROP_1D2 |
+F:FORCE_MAXHP | ESCORT | DROP_1D2 | MALE | FEMALE |
 F:SMART | OPEN_DOOR | BASH_DOOR | EAT_BODY | TAKE_ITEM |
 F:TROLL | EVIL | HUGE | IM_POIS |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
 F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_CHEST | DROP_WEAPON | DROP_CLOTHES |
 F:DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
-D:This troll is Clan Chief: although he's still stupid, he is bigger,
+D:This troll is Clan Chief: although ||s|he's still stupid, ||s|he is bigger,
 D: tougher  and stronger than most other trolls.
 
-N:1062:Troll King
+N:1062:Troll |King|Queen|Monarchs|
 G:T:V
 #$ Clear available
 #$ Multihued available
@@ -21856,17 +21857,17 @@ B:HIT:BATTER:2d12
 B:HIT:BATTER:2d12
 B:BITE:HURT:3d10
 B:BITE:HURT:3d10
-F:FORCE_MAXHP | ESCORT | ESCORTS | DROP_1D3 |
+F:FORCE_MAXHP | ESCORT | ESCORTS | DROP_1D3 | MALE | FEMALE |
 F:SMART | OPEN_DOOR | BASH_DOOR | EAT_BODY | TAKE_ITEM |
 F:TROLL | EVIL | HUGE | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
 F:HAS_ARM | HAS_LEG | HAS_BLOOD | DROP_CHEST | DROP_WEAPON | DROP_CLOTHES |
 F:DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
-D:This troll is a King. He is one of the biggest and strongest of all his
+D:This troll is a |King|Queen| among Trolls. |H|Sh|e is one of the biggest and strongest of all h|is|er|
 D: kind, but fortunately blessed with trollish brains.
 
-N:1063:Troll High Priest
+N:1063:Troll High Priest||ess|s|
 G:T:b
 #$ Clear available
 #$ Multihued available
@@ -21879,7 +21880,7 @@ B:HIT:BATTER:2d12
 B:HIT:BATTER:2d12
 B:BITE:HURT:3d8
 B:BITE:HURT:3d8
-F:FORCE_MAXHP | ESCORT | DROP_1D3 |
+F:FORCE_MAXHP | ESCORT | DROP_1D3 | MALE | FEMALE |
 F:SMART | OPEN_DOOR | BASH_DOOR | EAT_BODY | TAKE_ITEM | PRIEST |
 F:TROLL | EVIL | HUGE | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_HAND |
@@ -21888,7 +21889,7 @@ F:DROP_FOOD | DROP_JUNK |
 F:SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 S:HEAL | CURE | BLINK | TELE_TO | WOUND | BLESS |
 D:This troll is High Priest, seems to be intelligent, and has great power.
-D: His proficiency with spells alarms you as you flee his anger.
+D: H|is|er| proficiency with spells alarms you as you flee h|is|er| anger.
 
 N:1064:War troll
 G:T:W
@@ -21903,6 +21904,7 @@ B:HIT:WOUND:3d5
 B:HIT:WOUND:3d5
 B:HIT:WOUND:3d5
 B:XBOLT:HURT:10d7
+F:MALE | FEMALE |
 F:FORCE_MAXHP | FRIENDS | DROP_90 |
 F:OPEN_DOOR | BASH_DOOR | EAT_BODY | WARRIOR |
 F:TROLL | EVIL | HUGE | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP |
@@ -21936,7 +21938,7 @@ F:LEVEL_CLASS | SCENT | NEUTRAL | LEVEL_SIZE | LEVEL_POWER |
 D:A massive and cruel troll, acidic drool drips down |his|her| hideous
 D: face.
 
-N:1066:|Incubus|Succubus|
+N:1066:|Incubus|Succubus|Demon lovers|
 G:U:D
 #$ Clear available
 #$ Multihued available
@@ -22002,9 +22004,9 @@ G:y:p
 I:120:415:20:85:20
 W:36:4:0:1200
 M:20:20:17:40
-B:BITE:POISON:3d7
-B:BITE:POISON:3d7
-B:BITE:POISON:3d7
+B:BITE:HURT_POISON:3d7
+B:BITE:HURT_POISON:3d7
+B:BITE:HURT_POISON:3d7
 B:SPIT:BLIND:1d2
 F:FORCE_SLEEP | ONLY_GOLD | DROP_1D4 |
 F:BASH_DOOR | EAT_BODY |
@@ -22410,7 +22412,7 @@ F:HAS_CORPSE | HAS_SLIME |
 F:LEVEL_SIZE |
 D:A disgusting and diseased mass of maggots.
 
-N:1087:Noxious mushroom patch
+N:1087:Noxious mushroom patch|||es|
 G:,:t
 #$ Multihued available
 #$ Metallics available:dsorPRGBUvtmYTVMzZ
@@ -22461,7 +22463,7 @@ F:LEVEL_SIZE |
 S:BLOW_1 |
 D:It is a strange noxious growth on the dungeon floor.
 
-N:1090:Plague mouse
+N:1090:Plague |mouse|mouse|mice|
 G:r:t
 #$ Clear available
 #$ Multihued available
@@ -22480,7 +22482,7 @@ F:LEVEL_SIZE |
 D:Vermin, deadly not on its own account, but because of the disease it
 D: carries and the numbers it appears in.
 
-N:1091:Noxious jelly
+N:1091:Noxious jell|y|y|ies|
 G:j:t
 #$ Metallics available:dsoPvtmYTVZ
 #$ Colors available:dWRmYVZ
@@ -22545,7 +22547,7 @@ F:HURT_LITE | INSECT |
 F:HAS_CORPSE | HAS_LEG | HAS_WING | HAS_SKIN |
 D:A cockroach the size of a small dog.
 
-N:1095:Giant tse-tse fly
+N:1095:Giant tse-tse fl|y|y|ies|
 G:I:p
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -22560,7 +22562,7 @@ F:INSECT | NO_SLEEP |
 F:HAS_CORPSE | HAS_LEG | HAS_WING | HAS_SKIN |
 D:It spreads malaria across the dungeon.
 
-N:1096:Rabid wolf
+N:1096:Rabid wol|f|f|ves|
 G:C:g
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -22854,7 +22856,7 @@ G:s:G
 I:115:76:15:30:30
 W:16:3:0:43
 M:33:33:7:50
-B:BITE:POISON:1d6
+B:BITE:HURT_POISON:1d6
 B:SHRIEK:TERRIFY
 F:FORCE_MAXHP | FORCE_SLEEP | FRIEND |
 F:SMART | COLD_BLOOD | LOW_MANA_RUN |
@@ -22878,7 +22880,7 @@ G:$:W
 I:110:99:5:50:10
 W:18:3:0:98
 M:0:0:3:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:TOUCH:POISON:3d5
 F:CHAR_MULTI | ONLY_GOLD | DROP_60 | DROP_1D2 |
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
@@ -22895,7 +22897,7 @@ G:$:b
 I:115:126:5:50:10
 W:23:3:0:160
 M:0:0:4:0
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:TOUCH:POISON:3d5
 F:CHAR_MULTI | ONLY_GOLD | DROP_60 | DROP_1D3 |
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
@@ -22912,7 +22914,7 @@ G:$:r
 I:115:162:5:50:10
 W:27:3:0:220
 M:0:0:4:0
-B:BITE:POISON:3d5
+B:BITE:HURT_POISON:3d5
 B:TOUCH:POISON:3d5
 B:HIT:BATTER:1d8
 F:CHAR_MULTI | ONLY_GOLD | DROP_60 | DROP_1D2 | DROP_1D3 |
@@ -22930,7 +22932,7 @@ G:$:w
 I:120:147:5:150:10
 W:31:3:0:340
 M:0:0:4:0
-B:BITE:POISON:3d6
+B:BITE:HURT_POISON:3d6
 B:TOUCH:POISON:3d6
 B:HIT:BATTER:1d10
 B:HIT:BATTER:1d11
@@ -23153,7 +23155,7 @@ M:20:0:4:0
 B:CLAW:HURT:2d8
 B:CLAW:ELEC:2d8
 B:BITE:FIRE:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
 F:ATTR_MULTI | FORCE_SLEEP | FRIENDS |
 F:BASH_DOOR |
 F:ANIMAL | IM_ELEC | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP |
@@ -23615,8 +23617,8 @@ G:_:w
 I:110:321:30:40:0
 W:24:2:10:74
 M:30:30:6:43
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:SHRIEK:BLIND:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -23691,8 +23693,8 @@ G:-:w
 I:110:286:30:40:0
 W:20:3:10:110
 M:0:30:29:56
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:CLAW:CONFUSE:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -23743,8 +23745,8 @@ G:-:w
 I:110:352:30:40:0
 W:31:3:10:310
 M:0:33:10:71
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:BUTT:CONFUSE:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -23887,7 +23889,7 @@ S:S_KIN |
 D:A massive glowing eagle bathed in flames.  The searing heat chars your
 D: skin and melts your armour.
 
-N:1157:Minotaur |lord|lady|
+N:1157:Minotaur |lord|lady|lords|
 G:H:i
 #$ Multihued available
 #$ Metallics available:dwsorbuDWRGpvtmYiTVIMZ
@@ -24113,7 +24115,7 @@ I:135:4410:50:150:20
 W:57:10:0:400000
 C:57:10:0:180000:180000
 M:40:40:85:126
-B:BITE:POISON:8d10
+B:BITE:HURT_POISON:8d10
 B:BITE:COLD:8d10
 B:BITE:FIRE:10d6
 B:BITE:ELEC:10d6
@@ -24199,7 +24201,7 @@ I:110:47:20:30:25
 W:12:2:0:20
 M:0:14:4:20
 B:CLAW:HURT:1d5
-B:BITE:POISON:1d3
+B:BITE:HURT_POISON:1d3
 F:FRIEND | RAND_25 |
 F:COLD_BLOOD | OPEN_DOOR |
 F:UNDEAD | EVIL | NONLIVING | HURT_LITE | IM_ELEC | IM_COLD | IM_POIS |
@@ -24254,7 +24256,7 @@ G:z:y
 I:120:67:15:24:25
 W:15:3:0:61
 M:0:0:3:0
-B:BITE:POISON:1d9
+B:BITE:HURT_POISON:1d9
 B:CLAW:WOUND:1d5
 F:COLD_BLOOD | WEIRD_MIND | BASH_DOOR | EAT_BODY |
 F:UNDEAD | EVIL | ANIMAL | NONLIVING | IM_POIS | NO_FEAR | NO_SLEEP |
@@ -24286,7 +24288,7 @@ G:J:g
 I:120:65:6:40:10
 W:22:3:0:150
 M:0:10:3:15
-B:BITE:POISON:6d9
+B:BITE:HURT_POISON:6d9
 F:RAND_25 |
 F:WEIRD_MIND | BASH_DOOR | EAT_BODY |
 F:ANIMAL | IM_POIS |
@@ -24298,7 +24300,7 @@ D: death.
 
 # Good equivalent to dark elven cultist above.
 
-N:1174:Wood elf priest||ess|
+N:1174:Wood elf priest||ess|s|
 G:l:w
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -24328,7 +24330,7 @@ G:t:I
 I:120:96:20:22:10
 W:19:3:0:98
 M:33:33:8:35
-B:HIT:POISON:2d6
+B:HIT:HURT_POISON:2d6
 B:HIT:WOUND:2d6
 B:DART:POISON:10d5
 F:MALE | FEMALE | FORCE_SLEEP | DROP_1D2 |
@@ -24591,7 +24593,7 @@ D: you and hits you every time you make a mistake.
 
 # From Sangband
 
-N:1191:Rock worm mass
+N:1191:Rock worm mass|||es|
 G:w:s
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -24650,7 +24652,7 @@ F:NEUTRAL | MAN | LEVEL_SIZE |
 S:BLOW_3 |
 D:A scarred warrior who moves with confidence.
 
-N:1194:Dwarf high priest||ess|
+N:1194:Dwarf high priest||ess|s|
 G:h:w
 #$ Clear available
 #$ Multihued available
@@ -24735,7 +24737,7 @@ S:BEAM_ELEC |
 D:Teams of hammer-wielding giants forge the thunderbolts of the gods; when
 D: not watched, they use them as deadly weapons.
 
-N:1198:Mana fly
+N:1198:Mana fl|y|y|ies|
 G:I:P
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -24830,7 +24832,7 @@ I:120:187:20:28:100
 W:30:3:0:270
 M:14:14:5:60
 B:CLAW:WOUND:1d9
-B:STING:POISON:3d9
+B:STING:HURT_POISON:3d9
 B:BITE:CONFUSE:1d9
 F:WEIRD_MIND | BASH_DOOR | HAS_WEB |
 F:EVIL | HURT_LITE | INSECT |
@@ -24990,7 +24992,7 @@ S:TELE_SELF_TO |
 D:A blade with no wielder you can see, slaughtering where it will.  It is
 D: utterly untamable:  destroy it, flee, or die.
 
-N:1211:Giant chieftain
+N:1211:Giant chieftain||ess|s|
 G:P:V
 #$ Clear available
 #$ Multihued available
@@ -25037,7 +25039,7 @@ F:NEUTRAL | MAN | LEVEL_POWER |
 S:CURE | BLINK | DARKNESS | CURSE | MIND_BLAST | ILLUSION | WOUND |
 D:A wizened old crone with a malicious twinkle in her eye.
 
-N:1213:Unmagic worm mass
+N:1213:Unmagic worm mass|||es|
 G:w:D
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:douWPRBvYiTVz
@@ -25083,7 +25085,7 @@ G:p:v
 I:120:418:25:25:10
 W:36:4:0:1000
 M:33:33:30:45
-B:HIT:POISON:3d12
+B:HIT:HURT_POISON:3d12
 B:HIT:BLIND:2d12
 B:HIT:HURT:2d12
 B:DART:POISON:34d5
@@ -25126,7 +25128,7 @@ D:An intense storm, churning and roiling, powerful enough to pick up trees
 D: and drive them through walls.  It holds missiles of every sort, and
 D: will gladly fling them at you.
 
-N:1217:Mana vortex
+N:1217:Mana vort|ex|ex|ices|
 G:v:v
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -25182,7 +25184,7 @@ F:IM_EDGED | LEVEL_SIZE |
 D:Deep beneath the surface burrow serpents that feed on gold; the very
 D: mountains tremble as their roots are smashed and shattered.
 
-N:1220:|Patriarch|Matriarch|
+N:1220:|Patriarch|Matriarch|Hierarchs|
 G:p:b
 #$ Clear available
 #$ Multihued available
@@ -25524,7 +25526,7 @@ D:A massive dragon, one of the mightiest of dragonkind.  It has undisputed
 D: mastery of the magic around you. It has travelled through the great
 D: mana flows beyond space to destroy you.
 
-N:1235:Giant garnet dragonfly
+N:1235:Giant garnet dragonfl|y|y|ies|
 G:I:R
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -25550,7 +25552,7 @@ G:$:R
 I:110:50:5:50:10
 W:13:2:0:46
 M:0:0:2:0
-B:BITE:POISON:2d4
+B:BITE:HURT_POISON:2d4
 B:TOUCH:POISON:2d5
 F:CHAR_MULTI | ONLY_GOLD | DROP_60 | DROP_1D2 |
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR |
@@ -25793,7 +25795,7 @@ F:HAS_FUR | HAS_BLOOD |
 F:SCENT |
 D:A bleating but harmless animal.
 
-N:1248:Zombified dwarf
+N:1248:Zombified dwar|f|f|ves|
 G:z:r
 #$ Clear available
 #$ Multihued available
@@ -25899,7 +25901,7 @@ S:BRTH_FIRE | BRTH_DARK |
 D:A dark and furious shifting cloud that gathers for a moment in the shape
 D: of a hound.
 
-N:1253:Crystal vortex
+N:1253:Crystal vort|ex|ex|ices|
 G:v:I
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
 #$ Colors available:dsogDWyUptmiIMZ
@@ -26313,7 +26315,7 @@ S:S_SPIDER |
 D:An elven master of both bow and sword, with minor spellcasting skills,
 D: and spiders come to do |his|her| bidding.
 
-N:1275:Wood elf enchant|er|ress|
+N:1275:Wood elf enchant|er|ress|ers|
 G:l:b
 #$ Clear available
 #$ Metallics available:dwsrgbuWPyRGBUpvtmYVMzZ
@@ -26419,7 +26421,7 @@ B:CRUSH:HURT:13d11
 B:CRUSH:HURT:13d11
 B:CRUSH:HURT:13d11
 B:AURA:ANIM_TREE
-F:MALE | FEMALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D4 |
+F:MALE | FORCE_MAXHP | FORCE_SLEEP | ONLY_ITEM | DROP_1D4 |
 F:DROP_GOOD |
 F:SMART | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | HAS_AURA |
 F:HUGE |
@@ -26428,7 +26430,7 @@ F:RES_BLUNT |
 S:BLOW_4 |
 D:A treeherd; a sentient, moving tree. His wrath is fearsome!
 
-N:1280:Animat|or|rix|
+N:1280:Animat|or|rix|ors|
 G:q:z
 #$ Clear available
 #$ Metallics available:dwsorbuDWGBUvtmYTVIMzZ
@@ -26439,7 +26441,7 @@ M:40:40:14:75
 B:HIT:HURT:2d3
 B:DAGGER:HURT:4d3
 B:AURA:ANIM_OBJECT
-F:FEMALE | FORCE_SLEEP | DROP_1D2 |
+F:MALE | FEMALE | FORCE_SLEEP | DROP_1D2 |
 F:SMART | OPEN_DOOR | ARCHER | TAKE_ITEM | MAGE | HAS_AURA | NEED_LITE |
 F:LOW_MANA_RUN |
 F:EVIL |
@@ -26480,7 +26482,7 @@ G:f:W
 I:110:9:40:12:0
 W:5:2:0:5
 M:0:0:1:0
-B:CLAW:POISON:1d6
+B:CLAW:HURT_POISON:1d6
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR | EAT_BODY |
 F:UNDEAD | EVIL | ANIMAL | NONLIVING | IM_POIS | NO_FEAR | NO_CONF |
 F:NO_SLEEP |
@@ -26510,7 +26512,7 @@ F:LEVEL_SPEED | SCENT | LEVEL_SIZE | LEVEL_POWER |
 D:A ghastly undead hybrid of all things that walk, crawl and swim, but
 D: mostly those that rot and seep fluids.
 
-N:1284:Ghostly wolf
+N:1284:Ghostly wol|f|f|ves|
 G:C:w
 #$ Multihued available
 #$ Metallics available:dwogbuDyRGBUpvtmYiTVIMz
@@ -26596,7 +26598,7 @@ S:HASTE | CURSE | SCARE | BLIND |
 S:S_UNDEAD |
 D:It is ugly and covered in rotting warts.
 
-N:1288:Dead fly
+N:1288:Dead fl|y|y|ies|
 G:I:M
 #$ Clear available
 #$ Metallics available:dsDPGBptmiTVIMzZ
@@ -26604,7 +26606,7 @@ G:I:M
 I:120:10:6:7:10
 W:10:5:0:23
 M:0:0:2:0
-B:BITE:POISON:1d2
+B:BITE:HURT_POISON:1d2
 F:RAND_50 |
 F:COLD_BLOOD | EMPTY_MIND | WEIRD_MIND | MULTIPLY |
 F:UNDEAD | EVIL | NONLIVING | INSECT | IM_COLD | IM_POIS | NO_FEAR | NO_CONF |
@@ -26761,7 +26763,7 @@ I:110:17:12:34:60
 W:6:3:0:9
 M:0:0:1:0
 B:BITE:HURT:1d4
-B:STING:POISON:1d4
+B:STING:HURT_POISON:1d4
 F:FRIEND |
 F:COLD_BLOOD | EMPTY_MIND | WEIRD_MIND | BASH_DOOR |
 F:UNDEAD | EVIL | NONLIVING | INSECT | IM_COLD | IM_POIS | NO_FEAR | NO_CONF |
@@ -26894,8 +26896,8 @@ G:?:U
 I:110:321:30:40:0
 W:24:2:10:74
 M:30:30:6:43
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:SHRIEK:BLIND:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -26917,8 +26919,8 @@ G:?:g
 I:110:286:30:40:0
 W:20:3:10:110
 M:0:30:29:56
-B:BITE:POISON:4d4
-B:BITE:POISON:4d4
+B:BITE:HURT_POISON:4d4
+B:BITE:HURT_POISON:4d4
 B:BUTT:CONFUSE:4d4
 B:CLAW:CONFUSE:4d4
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE | DROP_1D3 |
@@ -27375,8 +27377,8 @@ G:z:R
 I:110:35:20:20:20
 W:9:4:0:19
 M:0:0:2:0
-B:CLAW:POISON:1d3
-B:CLAW:POISON:1d3
+B:CLAW:HURT_POISON:1d3
+B:CLAW:HURT_POISON:1d3
 F:FRIENDS |
 F:COLD_BLOOD | EMPTY_MIND | OPEN_DOOR | BASH_DOOR |
 F:UNDEAD | EVIL | NONLIVING | IM_COLD | IM_POIS | NO_FEAR | NO_CONF |
@@ -27530,7 +27532,7 @@ G:I:Y
 I:120:5:12:24:10
 W:4:4:0:4
 M:0:0:1:0
-B:STING:POISON:1d4
+B:STING:HURT_POISON:1d4
 F:FRIENDS |
 F:WEIRD_MIND | CAN_FLY |
 F:INSECT |
@@ -27651,7 +27653,7 @@ F:HAS_LEG | HAS_SCALE | HAS_FUR | HAS_BLOOD |
 F:SCENT | RES_MAGIC | LEVEL_SIZE |
 D:It is as large as a tiger, and its yellow eyes are pupilless.
 
-N:1341:Faerie |master|mistress|
+N:1341:Faerie |master|mistress|masters|
 G:H:g
 #$ Multihued available
 #$ Metallics available:dwsorbuDWRGpvtmYiTVIMZ
@@ -27679,7 +27681,7 @@ W:21:5:0:120
 M:0:0:3:0
 B:CLAW:HURT:1d4
 B:CLAW:HURT:1d4
-B:BITE:POISON:1d8
+B:BITE:HURT_POISON:1d8
 F:FRIENDS | RAND_25 |
 F:REGENERATE | CAN_FLY | MUST_FLY |
 F:DEMON | EVIL | ANIMAL | NONLIVING | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD |
@@ -27774,7 +27776,7 @@ G:j:o
 I:110:27:15:20:20
 W:9:4:0:14
 M:8:8:4:8
-B:CRAWL:POISON:1d4
+B:CRAWL:HURT_POISON:1d4
 F:NEVER_MOVE |
 F:EMPTY_MIND | MULTIPLY | CAN_SWIM |
 F:EVIL | NONVOCAL | IM_POIS | NO_FEAR | NO_STUN |
@@ -27852,8 +27854,8 @@ G:;:v
 I:100:15:5:5:5
 W:11:3:50:3
 M:0:0:2:0
-B:HIT:POISON:2d2
-B:HIT:POISON:2d2
+B:HIT:HURT_POISON:2d2
+B:HIT:HURT_POISON:2d2
 F:FORCE_SLEEP | FRIENDS | NEVER_MOVE | DROP_60 |
 F:STUPID | EMPTY_MIND | MULTIPLY |
 F:PLANT | NO_FEAR | NO_CONF | NO_SLEEP |
@@ -27881,7 +27883,7 @@ S:ADD_MANA | BLINK | WOUND |
 D:A pack of skulls with the flesh torn from their bones, animated by
 D: necromantic spirits.
 
-N:1353:Lizard |man|woman|
+N:1353:Lizard |man|woman|folk|
 G:R:G
 #$ Clear available
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
@@ -27946,7 +27948,7 @@ G:+:U
 I:110:52:25:30:0
 W:11:2:10:28
 M:0:18:9:51
-B:BITE:POISON:3d4
+B:BITE:HURT_POISON:3d4
 B:BITE:CONFUSE:2d3
 B:BITE:PARALYZE:2d3
 F:CHAR_MULTI | FORCE_SLEEP | NEVER_MOVE |
@@ -28022,7 +28024,7 @@ S:BLINK | TELE_TO |
 D:A very strong near-sentient tree, which has become hostile to other
 D: living things. 
 
-N:1360:Lizard |king|queen|
+N:1360:Lizard |king|queen|monarchs|
 G:R:g
 #$ Clear available
 #$ Metallics available:dwsorgbuDWPyRGBUpvtmYiTVIMzZ
@@ -28090,8 +28092,8 @@ G:F:v
 I:110:52:20:30:30
 W:20:3:0:120
 M:12:0:3:0
-B:BITE:POISON:10d5
-B:BITE:POISON:10d5
+B:BITE:HURT_POISON:10d5
+B:BITE:HURT_POISON:10d5
 F:EMPTY_MIND | CAN_SWIM | MUST_SWIM | POWERFUL | BASH_DOOR |
 F:ANIMAL | IM_POIS | NO_STUN |
 F:HAS_SKULL | HAS_SKELETON | HAS_TEETH | HAS_CORPSE | HAS_HEAD | HAS_SKIN |
@@ -28154,7 +28156,7 @@ W:17:4:0:490
 C:27:4:0:220:350
 M:16:0:2:10
 B:BITE:HURT:2d5
-B:BITE:POISON:2d5
+B:BITE:HURT_POISON:2d5
 B:HOWL:TERRIFY
 F:UNIQUE | FORCE_MAXHP | ESCORT | RAND_25 |
 F:BASH_DOOR | EAT_BODY |
@@ -28177,8 +28179,8 @@ I:140:7350:100:160:0
 W:59:11:0:430000
 C:59:11:0:220000:220000
 M:65:33:120:197
-B:BITE:POISON:6d10
-B:BITE:POISON:6d10
+B:BITE:HURT_POISON:6d10
+B:BITE:HURT_POISON:6d10
 B:CLAW:CONFUSE:4d8
 B:CLAW:HURT_MANA:4d8
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |
@@ -28201,8 +28203,8 @@ I:130:7350:100:160:0
 W:59:14:202:310000
 C:59:14:202:580000:580000
 M:75:25:138:197
-B:BITE:POISON:7d12
-B:BITE:POISON:7d12
+B:BITE:HURT_POISON:7d12
+B:BITE:HURT_POISON:7d12
 B:CRUSH:HURT:8d12
 B:SPIT:ACID:4d12
 F:UNIQUE | QUESTOR | MALE | FORCE_DEPTH | FORCE_MAXHP | FORCE_SLEEP |

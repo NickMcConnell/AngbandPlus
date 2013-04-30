@@ -56,6 +56,95 @@ Unangband 0.6.3 "Death to the Case Statement" aka "The Projected Release"
 
 - Improve Sauron end game. Morgoth end game still to be done.
 
+- Remove rooms from Fangorn aflame.
+
+- Golems leave behind larger parts to make them easier to reassemble when destroyed.
+
+- Add remaining disease remedies.
+
+- Applying a flask to yourself will hurt you.
+
+- Reduce accuracy at range at the same rate for both player and monsters.
+
+- Tweak monster to hit values so that deeper monsters are as accurate as 0.6.2, missile weapon range has a constant penalty, and only shields provide additional protection at range.
+
+- Blind monsters can now cast spells, just inaccurately.
+
+- Tweak Miasma and Cloud Kill to take advantage of poison graduate effects.
+
+- Increase the range of different poison attacks.
+
+- Weaken poison ball initial damage for weaker poison balls.
+
+- Prevent allies from teleporting away as often.
+
+- Modified stinking cloud so it does no immediate damage.
+
+- Change how chill spell works.
+
+- Tweak flask frequencies.
+
+- Allow potions of water to wash off other coatings.
+
+- All objects (wands/staffs etc) now base their damage on the object level.
+
+- Improve semantics of sense_magic.
+
+- Add ac protection to a variety of weapons.
+
+- Add more variety to criticals inflicted by weapons.
+
+- Rebalance frequency of many low level items.
+
+- Learn by use for bows for a fixed number of shots.
+
+- Decrease uses required to id by use.
+
+- Remove feedback from Gandalf's shop and replace with a useful lower level service.
+
+- Change how slays and brands work for gloves, bows and rings.
+
+- Player traps now use slays and brands.
+
+- Slight tweak to the ac of a couple of low level monsters.
+
+- Slight tweak to make scarecrows deeper than green molds.
+
+- Add scarecrow. Make snakes more interesting.
+
+- Added spikey mushroom patches and stone jellies.
+
+- Magic shops and temples will now buy statues.
+
+- Add monster pits.
+
+- Increase ecology variety.
+
+- Make Farmer Maggot easier to kill via ranged attacks.
+
+- Allow player to travel directly from rebuilt Hobbiton to Angband. Not sure why this was removed.
+
+- Thieves now improve searching as they improve levels.
+
+- Traps now affect a region around them.
+
+- Work on improving rubble with objects. Make this rubble only sometimes have objects but room description indicate when it is likely that this is the case.
+
+- Monster ecologies now ramp up so that the most dangerous monster is only found in the central most room of that ecology.
+
+- Dangerous vaults now have much more dangerous monsters surrounding them.
+
+- Implement Sangband style vaults.
+
+- Significantly improve correctness and variety of ecologies.
+
+- Bows and thrown weapons can now go off-target (from Sangband).
+
+- You now push past harmless townsfolk.
+
+- Force better frequencies of object drops on the floor so that each treasure
+type will be equally likely (with a fudge factor based on object level).
+
 
 ### User Interface ###
 
@@ -78,13 +167,238 @@ purposes.
 
 - Tweak names of throwing items.
 
+- Don't run on known regions.
+
+- Improve correctness of retargetting code.
+
+- Ensure itemlist view is up to date.
+
+- Allow running algorithm to navigate pillared rooms and crypt style corridors.
+
+- Differentiate between known and unknown bodies based on whether that monster type has been seen before.
+
+- Improve user interface experience with the monlist options.
+
+- Support correct pluralization in the monster list.
+
+- Hide messages about allies buffing themselves.
+
+- Change appearance of some terrain to better distinguish it.
+
+- Create easy_monlist option to show the monster/object list the whole time.
+
+- Include objects in the 'monster' list.
+
+- Colour monster list based on wakefulness.
+
+- Improve monster display list command.
+
+- Provide some more information about traps and terrain in the help
+files.
+
+- Allow random selection during character generation to include ghosted choices (requested by Arralen).
+
+- Fixed problems with skills not being correctly displayed in birth menus and added colourised stat modifiers.
+
+- Provide more information when browsing a book about whether you can learn a spell.
+
+- It's now clearer when you miss when throwing or shooting.
+
+- Make 'measure of control' messages less frequent.
+
+
 ### Bug fixes ###
 
 - Many, many bugfixes, particularly due to code rewrites in a number of areas.
 
 I would like to thank the numerous Unangband contributors, especially darke, for the work put in here.
 
-Undoubtedly, I've introduced plenty of new bugs.
+The bugs listed below have been fixed since the initial 0.6.3 prerelease.
+
+- Fix lockup bugs generating the Old Forest.
+
+- Fix whole class of bugs that could result in monsters being killed twice and other weirdness.
+
+- Fix bug where items dropped by monster death would infinitely retrigger a trap region.
+
+- Fix for Bug #15823 Lockups (long lake?)
+
+- Numerous updates to regions to get most traps working.
+
+- Fix bug with trap attack descriptions.
+
+- Fix for Bug #15612 Locked myself out of shops.
+
+- Improve correctness of retargetting code.
+
+- Fix to prevent missed coated missiles affecting the player.
+
+- Fix for Bug #15816 Identify wierdness with staffs
+
+- Fix for Bug #15814 Thirst can be beneficial
+
+- Fix for Bug #15663 Disease cures ineffective
+
+- Ensure itemlist view is up to date.
+
+- Was missing power values for effects.
+
+- Fix by kaypy for Bug #15811 Poison attacks vs poisoning
+
+- Try to help townsfolk navigate town more correctly.
+
+- Fix for monster list in term window accidentally grabbing keypresses.
+
+- Fix to try to really force forms of Sauron not to appear together.
+
+- Fix for term display issues with monlist code.
+
+- Fix bug preventing player allies from casting spells and summoned monsters from using spells other than summoning spells (reverse of what was intended).
+
+- Fix for Bug 015664 No effect from healing potions
+
+- Prevent monsters immune to poison from being poisoned.
+
+- Fix pottery names.
+
+- Fix bug preventing themed object generation working with the new drop hack in place.
+
+- Fix for Bug #12455 Shop knows more than player - bardic pseudo-id
+
+- Fixes for Bug #15682 Labels from coating weapons vanish/don't show up
+
+- Fix for Bug #15690 Applying potion crashes game
+
+- Fix for Bug 015751 Temple should buy "Dagger (Blessed) (1d4) (+11,+8)" [again]
+
+- Fix for Bug 015744 Should we bother about vines?
+
+- Fix for frequently requested Bug 015738 Average items should auto id to +0,+0
+
+- Fix for bug 015678 Too many region pieces!
+
+- Fix for bug 015737 Damage dice displayed on leather gloves
+
+- Remove debugging code causing object mispricing.
+
+- Fix formatting issues including bug 015739 Extra space between "a" and object.
+
+- Stop mouse targetting from losing keypresses.
+
+- Fix on windows for Bug #15581 Mouse too sensitive.
+
+- Fix bug where any attack that could miss the player would never hurt them.
+
+- Fix problem with monster ammo regenerating.
+
+- Fix for Bug #15741 Torches from different sources don't stack.
+
+- Fix for Bug #15743 All rings pseudo id unusual
+
+- Fix for Bug #15566 Monsters have wrong ammo type
+
+- Fix for Bug #15752 Unable to throw flasks from a Magic Bag of Supplies
+
+- Fix for bug 015613 Wrong scroll used up
+
+- Fix triggering region traps by dropping items on them.
+
+- Fix for Bug #15742 Id through use should clear some pseudo id types
+
+- Fix for Bug #15746 Mushrooms of restore dex/agility
+
+- Fix for Bug #15747 Food in Rivendell
+
+- Fix for not being able to sell some objects to the store (and try to improve id consistency a little).
+
+- Fix low level ecologies to allow wandering monsters from the ecology.
+
+- Fix open chest appearance.
+
+- Fix some effects text.
+
+- Fix for pathfinding issues.
+
+- Fix for Bug #15679 Recursive summoning trap
+
+- Fix for Bug #15670 Deep pit does continuous damage
+
+- Fix for Bug #15683 Missing thrown weapon triggers check for coating (0.6.3pre2).
+
+- Fix for Bug #15684 Area indicator of traps overwrites walls / doors (0.6.3pre2)
+
+- Fix for Bug #15691 Earthquake trumps permanent walls
+
+- Fix for Bug #15692 Free identification
+
+- Fix for Bug #15693: Cross circle research
+
+- Fix bug computing deepest race.
+
+- Fix up some errors in ecology code.
+
+- Fix to allow player to attack dangerous races in town.
+
+- Simplify and fix correctness of guardian placement code.
+
+- Fix for Bug #13671 Final fight against Sauron
+
+- Fix for bug 015652 Sauron and Morgoth have Inverse meat shields
+
+- Fix for Bug #15657 Racial abilities appear to affect starting equipment
+
+- Fix for Bug #15253 divide by zero in monster_scale
+
+- Fix for Bug #15198 more room_info corruption
+
+- Fix for Bug #15126 make_attack_ranged: potential status effect wrap around
+
+- Regions now apply effects which move the player correctly.
+
+- Fixed digging and searching skills being reversed.
+
+- Fixed problems with skills not being correctly displayed in birth menus and added colourised stat modifiers.
+
+- A variety of bug fixes for trap regions. These are pretty much working as intended now.
+
+- Fix for Bug #15202 beginner mode gender selection always picks "male"
+
+- Fix for Bug #15617 Groups of 'default' shrines
+
+- Fix for Bug #15569 Ego/High Ego stacks worth too much.
+
+- Fix for Bug #15581 Mouse too sensitive on Windows.
+
+- Fix bug #15614 - Some map features show up before exploration.
+
+- Fix for Bug #15545: Monster targeting m/-/+ no longer functional by stopping projection check from clearing temp grids unnecessarily.
+
+- Fix for preventing save file loading a file with a completely full ecology.
+
+- Fix ranged attacks not resulting in any text.
+
+- Fix bridges not protecting player from underlying terrain.
+
+- Many fixes to the projection functions.
+
+- Fix for monsters which fire shots occasionally dropping nothing.
+
+- Fix for some other monsters dropping wrong ammunition type.
+
+- Fix bug preventing mushrooms from working.
+
+- Fixes for starting ring bearers (Reported by Arralen).
+
+- Skills were in wrong order (Reported by Arralen).
+
+- Fix for bug 015554 Stat potions dont do anything
+
+- Fix for 015552 Rings unusable
+
+- Fix bag display problem.
+
+- Improve bounds checking during targetting/looking to try to avoid crash.
+
 
 
 ### Build / Platform ###
@@ -116,6 +430,20 @@ Let me know if you need the ability to see what the seed and last seed currently
 - Player spell and ranged attacks now use the new do_cmd_item interface.
 
 - Darke: Dumps out html files of various lib/edit/ text files; needs to be run from the 'root' unangband directory
+
+- Create some more safety hatches for infinite loops in dungeon generation.
+
+- Start describing monster blows using edit file code.
+
+- Exclude html dumps from user directory in svn.
+
+- Remove warning when ALLOW_TEMPLATES code is disabled.
+
+- Moved much summoning code to edit files.
+
+- Move breath damage and attack power details into data files.
+
+- Add some diagnostic code for stacking problems. Add a save file fix to try to address the same.
 
 
 

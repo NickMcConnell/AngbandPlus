@@ -2156,9 +2156,9 @@ static void fix_room_info(void)
 
 
 /*
- * Hack -- display monster list in sub-windows
+ * Hack -- display monster and/or object list in sub-windows
  */
-static void fix_monlist(void)
+static void fix_monlist(u32b window_flag)
 {
 	int j;
 
@@ -2171,13 +2171,14 @@ static void fix_monlist(void)
 		if (!angband_term[j]) continue;
 
 		/* No relevant flags */
-		if (!(op_ptr->window_flag[j] & (PW_MONLIST))) continue;
+		if (!(op_ptr->window_flag[j] & (window_flag))) continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
 
 		/* Display visible monsters */
-		display_monlist(0, FALSE, TRUE);
+		display_monlist(0, Term->wid, ((op_ptr->window_flag[j] & (PW_MONLIST)) ? 1 : 0) |
+				((op_ptr->window_flag[j] & (PW_ITEMLIST)) ? 2 : 0), FALSE, TRUE);
 
 		/* Fresh */
 		Term_fresh();
@@ -4720,11 +4721,11 @@ void window_stuff(void)
 		fix_snapshot();
 	}
 
-	/* Display monster list */
-	if (p_ptr->window & (PW_MONLIST))
+	/* Display monster and/or object list */
+	if (p_ptr->window & (PW_MONLIST | PW_ITEMLIST))
 	{
-		p_ptr->window &= ~(PW_MONLIST);
-		fix_monlist();
+		fix_monlist(p_ptr->window & (PW_MONLIST | PW_ITEMLIST));
+		p_ptr->window &= ~(PW_MONLIST | PW_ITEMLIST);
 	}
 
 	/* Display help */

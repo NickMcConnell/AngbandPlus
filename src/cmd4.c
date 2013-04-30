@@ -2367,7 +2367,7 @@ void do_cmd_redraw(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
 			  PW_PLAYER_2 | PW_PLAYER_3 | PW_MESSAGE | PW_MAP |
 			  PW_OVERHEAD | PW_MONSTER | PW_OBJECT | PW_FEATURE |
-			  PW_SNAPSHOT | PW_MONLIST | PW_HELP);
+			  PW_SNAPSHOT | PW_MONLIST | PW_ITEMLIST | PW_HELP | PW_SELF_KNOW);
 
 	/* Clear screen */
 	Term_clear();
