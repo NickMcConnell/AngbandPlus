@@ -840,8 +840,43 @@ bool player_drop(int item)
 
 	object_type *o_ptr;
 
+	object_type object_type_body;
+	
+	/* Get gold */
+	if (item == INVEN_GOLD)
+	{
+		o_ptr = &object_type_body;
+		
+		/* Get a quantity */
+		amt = get_quantity(NULL, p_ptr->au);		
+		
+		/* Allow abort */
+		if (amt <= 0) return (FALSE);
+		
+		/* Prepare the gold */
+		object_prep(o_ptr, lookup_kind(TV_GOLD, 9));
+		
+		/* Make it worth the amount */
+		o_ptr->charges = amt;
+		
+		/* Lose it */
+		p_ptr->au -= amt;
+		
+		/* Update display */
+		p_ptr->redraw |= (PR_GOLD);
+
+		/* Give it to the floor */
+		floor_carry(p_ptr->py, p_ptr->px, o_ptr);
+		
+		/* Take a partial turn */
+		p_ptr->energy_use = 50;
+
+		/* We are done */
+		return (TRUE);
+	}
+	
 	/* Get the item (in the pack) */
-	if (item >= 0)
+	else if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -892,11 +927,997 @@ bool player_drop(int item)
 	p_ptr->energy_use = 50;
 
 	/* Drop (some of) the item */
-	inven_drop(item, amt);
+	inven_drop(item, amt, 0);
 
 	return (TRUE);
 }
 
+
+/*
+ * Steal from a monster
+ */
+bool player_steal(int item)
+{
+	char m_name[80];
+	char m_poss[80];
+	
+	/* Ensure we have a target already */
+	monster_type *m_ptr = &m_list[p_ptr->target_who];
+	
+	/* Paranoia */
+	if (p_ptr->target_who <= 0) return (FALSE);
+	
+	/* Acquire the monster name */
+	monster_desc(m_name, sizeof(m_name), p_ptr->target_who, 0x00);
+	
+	/* Skill check if monster is awake */
+	if (!m_ptr->csleep)
+	{
+		/* Disarm factor */
+		int i = p_ptr->skills[SKILL_STEALTH] * 10;
+		int j;
+	
+		/* Penalize some conditions */
+		if (p_ptr->timed[TMD_BLIND] || no_lite()) i = i / 10;
+		if (p_ptr->timed[TMD_CONFUSED] || p_ptr->timed[TMD_IMAGE]) i = i / 10;
+	
+		/* Extract the difficulty */
+		j = r_info[m_ptr->r_idx].level;
+	
+		/* Extract the difficulty XXX XXX XXX */
+		j = i - j * 2;
+	
+		/* Always have a small chance of success */
+		if (j < 2) j = 2;
+	
+		/* Failure */
+		if (rand_int(100) > j)
+		{
+			/* Acquire the monster poss */
+			monster_desc(m_poss, sizeof(m_name), p_ptr->target_who, 0x22);
+			
+			/* Message */
+			msg_format("%^s grabs a hold of %s possessions!", m_name, m_poss);
+			
+			/* Get aggrieved */
+			m_ptr->mflag|= (MFLAG_AGGR);
+			
+			/* Disturb */
+			disturb(0, 0);
+			
+			/* And tell allies */
+			tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has tried to steal from me!");
+			
+			/* Use up energy */
+			p_ptr->energy_use = 100;
+			
+			return (FALSE);
+		}
+	}
+	
+	/* Monster has no more gold */
+	if (m_ptr->mflag & (MFLAG_MADE))
+	{
+		/* Only get bonus gold theft once */
+		if (item == INVEN_GOLD)
+		{
+			/* Message */
+			msg_format("%^s has no more gold to steal.", m_name);
+			
+			return (FALSE);
+		}
+	}
+	else
+	{
+		/* Stealing monster first time reveals the rest of its inventory */
+		if (monster_drop(p_ptr->target_who))
+		{
+			/* Message */
+			msg_format("%^s has more to steal.", m_name);
+		}
+	}
+	
+	/* Stealing gold is a straight reward */
+	if (item == INVEN_GOLD)
+	{
+		/* Monsters carries something */
+		if (((r_info[m_ptr->r_idx].flags1 & (RF1_ONLY_ITEM)) == 0)
+				&& (r_info[m_ptr->r_idx].flags1 >= RF1_DROP_30))
+		{
+			/* XXX Reward based on monster level - token amount for town */
+			p_ptr->au += randint(r_info[m_ptr->r_idx].level * 30 + 5);
+			
+			/* Update display */
+			p_ptr->redraw |= (PR_GOLD);
+		}
+		else
+		{
+			/* Message */
+			msg_format("%^s has no gold to steal.", m_name);
+		}
+		
+		/* TODO: Go through inventory and take gold / gems? */
+	}
+	else
+	{
+		object_type *o_ptr = &o_list[0 - item];
+		
+		/* Get a quantity */
+		int amt = get_quantity(NULL, o_ptr->number);
+
+		/* Get the item */
+		inven_takeoff(item, amt);
+	}
+	
+	/* Use up energy */
+	p_ptr->energy_use = 100;
+	
+	return (TRUE);
+}
+
+
+static int trade_value = 0;
+static int trade_amount = 0;
+static int trade_m_idx = 0;
+static int trade_highly_value = 0;
+
+/*
+ * The "trade" tester
+ */
+bool item_tester_hook_tradeable(const object_type *o_ptr)
+{
+	/* Forbid not droppable */
+	if (!item_tester_hook_droppable(o_ptr)) return (FALSE);
+
+	/* Ensure value - monsters always know real value */
+	if (object_value_real(o_ptr) > trade_value) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Give an item to a monster
+ */
+bool player_offer(int item)
+{
+	int amt, m_idx;
+
+	object_type *o_ptr = NULL; /* Assignment to suppress warning */
+	monster_type *m_ptr;
+	monster_race *r_ptr;
+	
+	char m_name[80];
+	
+	/* Get gold */
+	if (item == INVEN_GOLD)
+	{
+		if (!p_ptr->au)
+		{
+			msg_print("You have no gold.");
+			
+			return (FALSE);
+		}
+		
+		/* Get a quantity */
+		amt = get_quantity_aux(NULL, p_ptr->au, (p_ptr->depth + 5) * (p_ptr->depth + 5) * (p_ptr->depth + 5));
+	}
+	
+	/* Get the item (in the pack) */
+	else if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+		
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+		
+		/* Get a quantity */
+		amt = get_quantity(NULL, o_ptr->number);
+	}
+
+	/* Allow user abort */
+	if (amt <= 0) return (FALSE);
+
+	/* Get monster */
+	m_idx = get_monster_by_aim((TARGET_KILL | TARGET_ALLY));
+	
+	/* Not a monster */
+	if (m_idx <= 0) return (FALSE);
+
+	/* Get monster */
+	m_ptr = &m_list[m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
+	
+	/* Ensure projectable */
+	if (!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) return (FALSE);
+
+	/* Set target */
+	p_ptr->target_who = m_idx;
+	p_ptr->target_row = m_ptr->fy;
+	p_ptr->target_col = m_ptr->fx;
+	
+	/* Check for allowed flags */
+	if (item != INVEN_GOLD)
+	{
+		u32b f1, f2, f3, f4;
+
+		u32b flg3 = 0L;
+		
+		char o_name[80];
+			
+		/* Extract some flags */
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* React to objects that hurt the monster */
+		if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
+		if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
+		if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
+		if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
+		if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
+		if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
+		if (f1 & (TR1_SLAY_NATURAL)) flg3 |= (RF3_ANIMAL | RF3_PLANT | RF3_INSECT);
+		if (f1 & (TR1_BRAND_HOLY)) flg3 |= (RF3_EVIL);
+
+		/* The object cannot be picked up by the monster */
+		if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3))
+		{
+			/* Acquire the object name */
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+			/* Acquire the monster name */
+			monster_desc(m_name, sizeof(m_name), m_idx, 0x04);
+
+			/* Don't accept */
+			msg_format("%^s refuses %s.", m_name, o_name);
+			
+			/* Mark object as ungettable? */
+			if (!(o_ptr->feeling) &&
+				!(o_ptr->ident & (IDENT_SENSE))
+				&& !(object_named_p(o_ptr)))
+			{
+				/* Sense the object */
+				o_ptr->feeling = INSCRIP_UNGETTABLE;
+
+				/* The object has been "sensed" */
+				o_ptr->ident |= (IDENT_SENSE);
+			}
+		}
+	}	
+	
+	/* Just give stuff to allies - except townsfolk */
+	if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_TOWN)) == 0))
+	{
+		/* Oops */
+		if (item == INVEN_GOLD)
+		{
+			msg_print("You can't give gold to your allies to carry.");
+			return (FALSE);
+		}
+		
+		/* Drop (some of) the item */
+		inven_drop(item, amt, m_idx);
+		
+		/* Take a partial turn */
+		p_ptr->energy_use = 50;
+	}
+	/* Trade with monsters and townsfolk */
+	else
+	{
+		trade_highly_value = 0;
+		
+		/* Get the monster name (or "it") */
+		monster_desc(m_name, sizeof(m_name), m_idx, 0x04);
+
+		/* Sleeping monsters ignore you */
+		if (m_ptr->csleep)
+		{
+			msg_format("%^s is asleep.", m_name);
+
+			return (FALSE);
+		}
+
+		/* Guardians ignore you */
+		if (r_ptr->flags1 & (RF1_GUARDIAN))
+		{
+			msg_format("%^s guards this place and cannot be bought.", m_name);
+			
+			return (FALSE);
+		}
+
+		/* Too stupid */
+		if (r_ptr->flags2 & (RF2_STUPID))
+		{
+			msg_format("%^s ignores your offer.", m_name);
+			
+			return (FALSE);
+		}
+
+		/* Only undead/insect are cannibals */
+		if ((item != INVEN_GOLD) && (o_ptr->name3) && (r_info[o_ptr->name3].d_char == r_ptr->d_char) && ((r_ptr->flags3 & (RF3_UNDEAD | RF3_INSECT)) == 0))
+		{
+			/* Oops */
+			if (r_ptr->flags2 & (RF2_SMART))
+			{
+				msg_format("%^s is offended by your desecration of a corpse.", m_name);
+				
+				m_ptr->mflag |= (MFLAG_AGGR);
+			}
+			else
+			{
+				msg_format("%^s ignores your offer.", m_name);
+			}
+			
+			return (FALSE);
+		}
+		
+		/* Mustn't be aggressive */
+		if (m_ptr->mflag & (MFLAG_AGGR))
+		{
+			msg_format("%^s is offended and seeking revenge.", m_name);
+			return (FALSE);
+		}
+		
+		/* Townsfolk are more mercenary */
+		if ((m_ptr->mflag & (MFLAG_TOWN)) == 0)
+		{
+			/* Mustn't be injured -- unless critically injured and the player offering healing */
+			/* This critically injured definition must match the critically injured and looking to feed monster definition in melee2.c so that the
+			 * monster can use the item after being given it. */
+			if ((m_ptr->hp < m_ptr->maxhp) && !((m_ptr->hp < m_ptr->maxhp / 10) || (m_ptr->mana < r_ptr->mana / 5)))
+			{
+				msg_format("%^s is hurt and not interested.", m_name);
+				return (FALSE);
+			}
+			
+			/* Looking for healing / mana recovery or not smart and doesn't speak the player's language */
+			if ((m_ptr->hp < m_ptr->maxhp)
+					|| (((r_ptr->flags2 & (RF2_SMART)) != 0) && !(player_understands(monster_language(m_ptr->r_idx)))))
+			{
+				/* Check kind */
+				object_kind *k_ptr;
+				
+				/* Hack -- kind for gold. Injured monsters never accept gold, but we do want to respond with the correct message for what they want. */
+				if (item == INVEN_GOLD)
+				{
+					k_ptr = &k_info[lookup_kind(TV_GOLD, 9)];
+				}
+				/* Get kind */
+				else
+				{
+					k_ptr= &k_info[o_ptr->k_idx];
+				}
+
+				/* Edible - mana recovery */
+				if ((k_ptr->flags6 & (TR6_EAT_MANA)) && (m_ptr->mana < r_ptr->mana / 5)) trade_highly_value = 4;
+
+				/* Edible - healing */
+				else if ((k_ptr->flags6 & (TR6_EAT_HEAL)) && ((m_ptr->hp < m_ptr->maxhp / 2) || (m_ptr->blind)) && ((r_ptr->flags3 & (RF3_UNDEAD)) == 0)) trade_highly_value = 2;
+				
+				/* General food requirements */
+				else if ((k_ptr->flags6 & (TR6_EAT_BODY)) && (r_ptr->flags2 & (RF2_EAT_BODY))) trade_highly_value = rand_int(3);
+				else if ((k_ptr->flags6 & (TR6_EAT_INSECT)) && (r_ptr->flags3 & (RF3_INSECT))) trade_highly_value = rand_int(3);
+				else if ((k_ptr->flags6 & (TR6_EAT_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)) && ((r_ptr->flags2 & (RF2_EAT_BODY)) == 0)) trade_highly_value = rand_int(3);
+				else if ((k_ptr->flags6 & (TR6_EAT_SMART)) && (r_ptr->flags2 & (RF2_SMART)) && ((r_ptr->flags3 & (RF3_UNDEAD)) == 0)) trade_highly_value = rand_int(3);
+
+				/* Alert the player to the monster's needs */
+				else if (((m_ptr->hp < m_ptr->maxhp / 2) || (m_ptr->blind)) && ((r_ptr->flags3 & (RF3_UNDEAD)) == 0))
+				{
+					msg_format("%^s is hurt and needs a way to heal.", m_name);
+					return (FALSE);
+				}
+				
+				/* Alert the player to the monster's needs */
+				else if (m_ptr->mana < r_ptr->mana / 5)
+				{
+					msg_format("%^s is low on mana and needs a way to recover it.", m_name);
+					return (FALSE);
+				}
+
+				/* Alert the player to the monster's needs */
+				else if ((m_ptr->mflag & (MFLAG_WEAK)) != 0)
+				{
+					msg_format("%^s is hungry and needs food.", m_name);
+					return (FALSE);
+				}
+				
+				/* No needs */
+				else
+				{
+					msg_format("%^s ignores you for the moment.", m_name);
+					return (FALSE);
+				}
+			}
+			
+			/* XXX More reasons might be too annoying */
+		}
+		
+		/* Cash is king */
+		if (item == INVEN_GOLD)
+		{
+			trade_value = amt * (200 - adj_chr_gold[p_ptr->stat_ind[A_CHR]]) / 200;
+		}
+		else
+		{
+			/* Get the trade value - monsters always know real value */
+			trade_value = amt * object_value_real(&inventory[item]) * (200 - adj_chr_gold[p_ptr->stat_ind[A_CHR]]) / 400;
+		}
+		
+		/* Evil monsters are easier to buy, but more likely to betray you */
+		if ((r_ptr->flags3 & (RF3_EVIL)) == 0) trade_value /= 2;
+		
+		/* Note the amount */
+		trade_amount = amt;
+		
+		/* Note the recipient */
+		trade_m_idx = m_idx;
+		
+		/* Set up for second command */
+		p_ptr->command_trans = COMMAND_ITEM_OFFER;
+		p_ptr->command_trans_item = item;
+	}
+	
+	return (TRUE);
+}
+
+
+
+/* The normal sales acceptance text */
+#define MAX_COMMENT_1a   6
+
+static cptr comment_1a[MAX_COMMENT_1a] =
+{
+	"Okay.",
+	"Fine.",
+	"Accepted!",
+	"Agreed!",
+	"Done!",
+	"Taken!"
+};
+
+/* Offer just distracts the monster momentarily from killing the player */
+
+#define MAX_COMMENT_1b   6
+
+static cptr comment_1b[MAX_COMMENT_1b] =
+{
+	"Hmmm...",
+	"Humph!",
+	"Huh?",
+	"Heh heh heh...",
+	"Mmmm...",
+	"Maybe..."
+};
+
+
+/* Consider not killing the player for a short while */
+
+#define MAX_COMMENT_1c   6
+
+static cptr comment_1c[MAX_COMMENT_1c] =
+{
+	"Do you want to talk before I kill you, puny @?",
+	"Why are you not fighting me? Are you a coward, @, like the rest?",
+	"This feels like a typical @ trick!",
+	"I've never met a @ I didn't hate. Why should you be any different?",
+	"I find your insolence... amusing. Pray tell me, @, why you don't deserve to die.",
+	"Let me put this away for safe keeping, @... you death is still a... little way off..."
+};
+
+
+/* Some terms of trade */
+
+#define MAX_COMMENT_1d   6
+
+static cptr comment_1d[MAX_COMMENT_1d] =
+{
+	"I might consider another offer, @.",
+	"Maybe we can continue doing business, @.",
+	"You might find further discussion more profitable, @.",
+	"I'll scratch your back, @. You scratch... here, where I itch the most...",
+	"Your stench taints what you touch @. It'll be hard to trade what you gave me. But keep trying...",
+	"We seem to have come to terms, @. I might have something more for you."
+};
+
+
+/* Become (temporary) friends */
+
+#define MAX_COMMENT_1e   6
+
+static cptr comment_1e[MAX_COMMENT_1e] =
+{
+	"You're look pretty ugly... but not for a @, I'm sure!",
+	"You're not so bad, after all... for a @.",
+	"Tell me more about your # ways...",
+	"You might learn from me, @, before you can become a better #.",
+	"Forgive my friends, #. They see only a @.",
+	"Parley with a @? A @ #? Who would have thought?"
+};
+
+
+/* Comments for when player gets cheated of item or money */
+
+#define MAX_COMMENT_2   6
+
+static cptr comment_2[MAX_COMMENT_2] =
+{
+	"The cheque is in the mail.",
+	"Taken! Sorry, did you want something more?",
+	"You'll get want you want soon enough.",
+	"I've got it for you. Just try and get it off me.",
+	"I've left it for you in Nowhere town.",
+	"I've had some... supply issues at the moment and the merchandise has been delayed."
+};
+
+
+/* Comments for when monster doesn't have the cash on them in the dungeon */
+
+#define MAX_COMMENT_3   6
+
+static cptr comment_3[MAX_COMMENT_3] =
+{
+	"I'll have to take you to my master for the money.",
+	"I keep what you want in a hiding place near where I sleep.",
+	"Someone owes this to me. I need you to help collect the debt.",
+	"It's just up ahead.  Not much further now...",
+	"It's near the entrance to the next level. Let me take you there.",
+	"I left it around here somewhere. Let me think..."
+};
+
+
+/* Comments for when monster speaks to his allies - when heard by the player (proposal) */
+
+#define MAX_COMMENT_4a   6
+
+static cptr comment_4a[MAX_COMMENT_4a] =
+{
+	"& proposes an interesting conundrum.",
+	"& has set a challenge to us.",
+	"& may make this worth our while to listen.",
+	"& may have much wealth and goods to distribute.",
+	"& has not tried to fight back. This is shows some... respect.",
+	"& comes to us open-handed."
+};
+
+
+/* Comments for when monster speaks to his allies - when heard by the player (silver-tongued) */
+
+#define MAX_COMMENT_4b   6
+
+static cptr comment_4b[MAX_COMMENT_4b] =
+{
+	"I have not seen such a brave or noble endeavour.",
+	"I would place much trust in such a @.",
+	"We should all profit from this good work.",
+	"We can turn the tide of battle through words, not war.",
+	"There will be peace in our time.",
+	"Let us walk together and talk on this further."
+};
+
+
+/* Comments for when monster speaks to his allies - when heard by the player (haughty) */
+
+#define MAX_COMMENT_4c   6
+
+static cptr comment_4c[MAX_COMMENT_4c] =
+{
+	"This is an omen, whether for good or ill I cannot yet tell.",
+	"The gods work in mysterious ways.",
+	"We must discuss this... without undue influence from you, @.",
+	"But the @ may just be spreading lies with a silver tongue...",
+	"But what has gold bought us until now?",
+	"But a sharpened blade cuts both ways."
+};
+
+
+/* Comments for when monster speaks to his allies - when not heard by the player (proposal) */
+
+#define MAX_COMMENT_5a   6
+
+static cptr comment_5a[MAX_COMMENT_5a] =
+{
+	"& swaggers in here like the place was already bought and paid for.",
+	"& disgraces the spirits of our ancestors.",
+	"& tries to buy a way out of trouble.",
+	"& is not worth the weight of gold.",
+	"& is clearly a coward.",
+	"& thinks to bribe us as if we were savages."
+};
+
+
+/* Comments for when monster speaks to his allies - when not heard by the player (quick betrayal) */
+
+#define MAX_COMMENT_5b   6
+
+static cptr comment_5b[MAX_COMMENT_5b] =
+{
+	"I have need of the entrails of a @. Which cut do you want?",
+	"The gods demand sacrifice of a @. Be quick about it!",
+	"Wait a moment, and see what spoils we'll loot from this walking corpse.",
+	"Bide your time. Strike when the @ least expects it.",
+	"The walls whispered 'Blood for Morgoth' to me in my dreams. This @ answers that vision.",
+	"Do we have a cooking pot big enough for a @?"
+};
+
+
+/* Comments for when monster speaks to his allies - when not heard by the player (intrigued/desperate) */
+
+#define MAX_COMMENT_5c   6
+
+static cptr comment_5c[MAX_COMMENT_5c] =
+{
+	"But we are poor and in need of money, so let us find some profit here.",
+	"This may be a way for us to curry favour elsewhere.",
+	"This morning, I saw a sign from our gods. Now I know why...",
+	"But I am tired of fighting. Should we not rest a while?",
+	"But that display of bravado impresses me, nonetheless.",
+	"If nothing else, this @ # will be amusing sport."
+};
+
+
+
+
+/*
+ * Trade with a monster
+ */
+bool player_trade(int item2)
+{
+	int item = p_ptr->command_trans_item;
+	int amt, max, value;
+	
+	object_type *j_ptr;
+	monster_type *m_ptr = &m_list[trade_m_idx];
+
+	char m_name[80];
+
+	/* Get gold */
+	if (item2 == INVEN_GOLD)
+	{
+		/* Gold earned based on value of trade */
+		value = amt = trade_value;
+	}
+	
+	/* Get the item (in the pack) */
+	else if (item2 >= 0)
+	{
+		j_ptr = &inventory[item2];
+		
+		/* Get value */
+		value = object_value_real(j_ptr);
+
+		/* Get max quantity */
+		if (value)
+		{
+			max = trade_value / value;
+		}
+		else
+		{
+			max = 99;
+		}
+		
+		/* Get a quantity */
+		amt = get_quantity(NULL, MIN(j_ptr->number, max));
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		j_ptr = &o_list[0 - item2];
+		
+		/* Get value */
+		value = object_value_real(j_ptr);
+
+		/* Get max quantity */
+		if (value)
+		{
+			max = trade_value / value;
+		}
+		else
+		{
+			max = 99;
+		}
+		
+		/* Get a quantity */
+		amt = get_quantity(NULL, MIN(j_ptr->number, max));
+	}
+
+	/* Allow user abort */
+	if (amt <= 0) return (FALSE);
+	
+	/* Get the monster name */
+	monster_desc(m_name, sizeof(m_name), trade_m_idx, 0);
+	
+	/* Gifting the monster money */
+	if ((item2 == INVEN_GOLD) && (item == INVEN_GOLD))
+	{
+		/* Will be giving services back later */
+		value = 0;
+	}
+
+	/* Buying an item from the monster */
+	else if (item2 == INVEN_GOLD)
+	{
+		/* Evil monsters betray the player 66% of the time */
+		if (((r_info[m_ptr->r_idx].flags3 & (RF3_EVIL)) != 0) && (rand_int(3))) value = 0;
+
+		/* In town, we can sell stuff */
+		if ((room_near_has_flag(m_ptr->fy, m_ptr->fx, ROOM_TOWN)) && !(adult_no_selling))
+		{
+			/* Money well earned? */
+			p_ptr->au += value;
+			
+			/* Update display */
+			p_ptr->redraw |= (PR_GOLD);
+		}
+		else
+		{
+			/* In the dungeon, monsters don't have gold on them 'quite yet' */
+			value = 0;
+			
+			/* If trying to sell stuff, the player is a sucker. */
+			trade_value /= 2;
+		}
+	}
+
+	/* Give up the item promised */
+	if (item == INVEN_GOLD)
+	{
+		/* Money well spent? */
+		if (p_ptr->au >= trade_amount) p_ptr->au -= trade_amount;
+		
+		/* Paranoia */
+		else (p_ptr->au = 0);
+		
+		/* Update display */
+		p_ptr->redraw |= (PR_GOLD);
+	}
+	else
+	{
+		/* Take off (some of) the item */
+		inven_takeoff(item, trade_amount);
+	}
+	
+	/* Cheated the player out of money */
+	if ((item2 == INVEN_GOLD) && (item != INVEN_GOLD) && (!value) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
+	{
+		/* Really ripping the player off */
+		if (level_flag & (LF1_TOWN)) monster_speech(trade_m_idx, comment_2[rand_int(MAX_COMMENT_2)], FALSE);
+
+		/* Otherwise it's just a day in the life of ripping the player off */
+		else monster_speech(trade_m_idx, comment_3[rand_int(MAX_COMMENT_3)], FALSE);
+	}
+
+	/* The monster made some profit - let's do business */
+	else
+	{
+		int level = MAX(r_info[m_ptr->r_idx].level, p_ptr->depth);
+		int deal = ((trade_value - value) * 10 / ((level + 5) * (level + 5) * (level + 5))) + trade_highly_value;
+		int hire = 150 - adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+		
+		/*
+		 * Deal boosters - as a player trades further with a monster, they have a small chance of getting a deal boosted
+		 * to a higher level of effectiveness.
+		 */
+		if (deal >= 1)
+		{
+			/* Boost a deal */
+			while (!rand_int((m_ptr->mflag & (MFLAG_ALLY)) ? 3 : 4)) deal++;
+		}
+
+		/* We can offer stuff to business associates to make them allies */
+		if ((deal > 4) && ((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN | MFLAG_MADE | MFLAG_AGGR)) == (MFLAG_TOWN | MFLAG_MADE)))
+		{
+			/* Make them an ally */
+			m_ptr->mflag |= (MFLAG_ALLY);
+
+			/* Clear old targets */
+			m_ptr->ty = p_ptr->target_row;
+			m_ptr->tx = p_ptr->target_col;
+
+			/* Buy more time before they turn on us */
+			m_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+
+			/* Get moderately excited. */
+			monster_speech(trade_m_idx, comment_1e[rand_int(MAX_COMMENT_1e)], FALSE);
+		}
+
+		/* We can offer stuff to neutral monsters to reveal their inventory */
+		else if ((deal > 2) && ((m_ptr->mflag & (MFLAG_MADE | MFLAG_TOWN | MFLAG_AGGR)) == (MFLAG_TOWN))
+				&& (monster_drop(trade_m_idx)))
+		{
+			/* Get quietly excited. */
+			monster_speech(trade_m_idx, comment_1d[rand_int(MAX_COMMENT_1d)], FALSE);
+
+			/* Get more respect from trading */
+			m_ptr->summoned = 300 - 2 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+		}
+
+		/* We get told useful information from bigger deals, if we're not actively fighting */
+		else if ((deal > 3) && (player_understands(monster_language(trade_m_idx)))
+				 && ((m_ptr->mflag & (MFLAG_TOWN | MFLAG_AGGR)) == (MFLAG_TOWN)))
+		{
+			/* Possible reveals */
+			switch(rand_int(deal - 3))
+			{
+				/* Tells the player about home */
+				case 3: case 8: case 10:
+				{
+					/* Only if we trust the player */
+					if (((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN | MFLAG_MADE | MFLAG_AGGR))
+							== (MFLAG_ALLY | MFLAG_TOWN | MFLAG_MADE))
+							&& (map_home(trade_m_idx)))
+					{
+						monster_speech(trade_m_idx, "You should see the rest of my home.", FALSE);
+						break;
+					}
+				}
+
+				/* Tells the player about the most powerful monster in the ecology */
+				case 2: case 7:
+				{
+					/* Do we have a deepest race? */
+					if (room_info[room_idx_ignore_valid(m_ptr->fy, m_ptr->fx)].deepest_race)
+					{
+						monster_speech(trade_m_idx, "You are right to be cautious around here.", FALSE);
+
+						lore_do_probe(room_info[room_idx_ignore_valid(m_ptr->fy, m_ptr->fx)].deepest_race);
+
+						break;
+					}
+				}
+
+				/* Tells the player about the local region. */
+				case 1: case 5:
+				{
+					int i;
+					u32b ecology = 0L;
+
+					/* Check to see if monster is local to this region */
+					if (cave_ecology.ready) for (i = 0; i < cave_ecology.num_races; i++)
+					{
+						/* Get the ecology membership */
+						if (cave_ecology.race[i] == m_ptr->r_idx) ecology |= cave_ecology.race_ecologies[i];
+					}
+
+					/* Do we know this area? */
+					if ((!cave_ecology.ready) || ((room_info[room_idx_ignore_valid(m_ptr->fy, m_ptr->fx)].ecology & (ecology)) != 0))
+					{
+						monster_speech(trade_m_idx, "This is an especially interesting area.", FALSE);
+						map_area();
+					}
+					/* At least tell the player we're not local */
+					else
+					{
+						monster_speech(trade_m_idx, "I don't know this area.", FALSE);
+					}
+
+					break;
+				}
+
+				/* Tell the player about yourself */
+				default:
+				{
+					monster_speech(trade_m_idx, "You may not know everything about my family history.", FALSE);
+					lore_do_probe(m_ptr->r_idx);
+					break;
+				}
+			}
+
+			/* Buy more time before they turn on us */
+			m_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+		}
+
+		/* We can offer stuff to monsters to either slow them down or make them 'neutral' */
+		else if ((deal > 0) && (((m_ptr->mflag & (MFLAG_TOWN)) == 0) || ((m_ptr->mflag & (MFLAG_AGGR)) != 0)))
+		{
+			/* Enough to at least make him not attack. */
+			if (deal > 1)
+			{
+				m_ptr->mflag |= (MFLAG_TOWN);
+
+				/* Buy more time before they turn on us */
+				m_ptr->summoned = 70 - adj_chr_gold[p_ptr->stat_ind[A_CHR]] / 2;
+
+				/* Handle aggressive response */
+				if (m_ptr->mflag & (MFLAG_AGGR)) deal = 1;
+			}
+
+			/* At least block some other monsters */
+			if (deal % 2) m_ptr->mflag |= (MFLAG_PUSH);
+
+			/* Don't register much excitement. */
+			/* But make sure harmless monsters don't threaten the player */
+			monster_speech(trade_m_idx, (deal > 1) ?
+					((r_info[m_ptr->r_idx].blow[0].effect == GF_NOTHING) ? comment_1a[rand_int(MAX_COMMENT_1a)] :
+					comment_1c[rand_int(MAX_COMMENT_1c)]) : comment_1b[rand_int(MAX_COMMENT_1b)], FALSE);
+		}
+		else
+		{
+			/* Don't register much excitement */
+			monster_speech(trade_m_idx, comment_1a[rand_int(MAX_COMMENT_1a)], FALSE);
+		}
+
+		/* We made a deal - minimal extension */
+		if (deal)
+		{
+			/* Get grudging respect */
+			if (m_ptr->summoned < hire) m_ptr->summoned = hire;
+		}
+
+		/* For valuable deals, we talk to our allies and assess the situation */
+		if (deal >= 3)
+		{
+			/* If we don't think the player is listening */
+			u32b hack_cur_flags4 = p_ptr->cur_flags4;
+
+			/* Monster assumes based on the player shape what language they understand. */
+			p_ptr->cur_flags4 = k_info[p_info[p_ptr->pshape].innate].flags4;
+
+			/* Appear more innocuous */
+			if (player_understands(monster_language(m_ptr->r_idx)))
+			{
+				/* Unhack */
+				p_ptr->cur_flags4 = hack_cur_flags4;
+
+				/* Tell allies to cool their heels */
+				if (tell_allies_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), comment_4a[rand_int(MAX_COMMENT_4a)]))
+				{
+					/* Allies are impressed to varying degree - evil speakers are silver tongued */
+					tell_allies_summoned(m_ptr->fy, m_ptr->fx, MIN_TOWN_WARNING + rand_int(m_ptr->summoned / 2 + 1),
+							r_info[m_ptr->r_idx].flags3 & (RF3_EVIL) ? comment_4b[rand_int(MAX_COMMENT_4b)] : comment_4c[rand_int(MAX_COMMENT_4c)]);
+				}
+			}
+
+			/* Appear more haughty, Outright betrayal, if evil */
+			else
+			{
+				/* Unhack */
+				p_ptr->cur_flags4 = hack_cur_flags4;
+
+				/* If smart, we try to talk in common language to trick the player */
+				if (r_info[m_ptr->r_idx].flags2 & (RF2_SMART)) monster_speech(trade_m_idx, comment_5a[rand_int(MAX_COMMENT_5a)], TRUE);
+
+				/* Tell allies to cool their heels */
+				if (tell_allies_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), comment_5a[rand_int(MAX_COMMENT_5a)]))
+				{
+					/* If evil, we schedule a random time to coordinate a quick betrayal */
+					if (r_info[m_ptr->r_idx].flags3 & (RF3_EVIL)) m_ptr->summoned = rand_int(MIN_TOWN_WARNING);
+
+					/* Coordinate a quick betrayal if evil, or risk of outright attack if allies sufficiently unimpressed */
+					tell_allies_summoned(m_ptr->fy, m_ptr->fx,
+							r_info[m_ptr->r_idx].flags3 & (RF3_EVIL) ? m_ptr->summoned : MIN_TOWN_WARNING / 2 + rand_int(m_ptr->summoned / 2 + 1) / 2,
+									r_info[m_ptr->r_idx].flags3 & (RF3_EVIL) ? comment_5b[rand_int(MAX_COMMENT_5b)] : comment_5c[rand_int(MAX_COMMENT_5c)]);
+				}
+			}
+		}
+	}
+
+	/* Prevent GTA style takedowns - or the player paying off people to leave town too easily */
+	if (((level_flag & (LF1_TOWN)) != 0) && (item2 == INVEN_GOLD) && (item != INVEN_GOLD) && !(adult_no_selling) && (trade_value >= 100 + p_ptr->depth * p_ptr->depth * 10))
+	{
+		int y = m_ptr->fy;
+		int x = m_ptr->fx;
+		
+		/* "Kill" the monster */
+		delete_monster_idx(trade_m_idx);
+
+		/* Give detailed messages if destroyed */
+		msg_format("%^s leaves town.", m_name);
+
+		/* Redraw the monster grid */
+		lite_spot(y, x);
+	}
+	
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	return (TRUE);
+}
 
 
 /*
@@ -2194,7 +3215,8 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 static void roff_top(int r_idx)
 {
 	monster_race *r_ptr = &r_info[r_idx];
-
+	char m_name[80];
+	
 	byte a1, a2;
 	char c1, c2;
 
@@ -2214,14 +3236,11 @@ static void roff_top(int r_idx)
 	/* Reset the cursor */
 	Term_gotoxy(0, 0);
 
-	/* A title (use "The" for non-uniques) */
-	if (!(r_ptr->flags1 & (RF1_UNIQUE)))
-	{
-		Term_addstr(-1, TERM_WHITE, "The ");
-	}
-
+	/* Get the name */
+	race_desc(m_name, sizeof(m_name), r_idx, 0x400, 1);
+	
 	/* Dump the name */
-	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
+	Term_addstr(-1, TERM_WHITE, m_name);
 
 	if (!use_dbltile && !use_trptile)
 	{
@@ -2413,7 +3432,7 @@ void do_cmd_query_symbol(void)
 				screen_save();
 
 				/* Recall on screen */
-				screen_roff(&r_info[who[i]], &l_list[who[i]]);
+				screen_roff(who[i], &l_list[who[i]]);
 
 				/* Hack -- Complete the prompt (again) */
 				Term_addstr(-1, TERM_WHITE, " [(r)ecall, ESC]");

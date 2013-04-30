@@ -1410,10 +1410,13 @@ void take_hit(int who, int what, int dam)
 				case SOURCE_BLOOD_DEBT:
 				{
 					/* Get the source feature */
-					monster_race *r_ptr = &r_info[what];
-
+					char m_name[80];
+					
+					/* Get the name */
+					race_desc(m_name, sizeof(m_name), what, 0x08, 1);
+					
 					/* Get the feature name */
-					(void)my_strcat(p_ptr->died_from, format("%s %s", is_a_vowel((r_name + r_ptr->name)[0]) ? "an" : "a", r_name + r_ptr->name), sizeof(p_ptr->died_from));
+					(void)my_strcat(p_ptr->died_from, m_name, sizeof(p_ptr->died_from));
 
 					break;
 				}
@@ -1691,6 +1694,12 @@ static bool hates_warpwood(object_type *o_ptr)
  */
 bool hates_terrain(object_type *o_ptr, int f_idx)
 {
+	/* Is terrain covered? */
+	if (f_info[f_idx].flags2 & (FF2_COVERED))
+	{
+		f_idx = f_info[f_idx].mimic;
+	}
+	
 	/* Require non-destructive space */
 	switch(f_info[f_idx].blow.effect)
 	{
@@ -4370,6 +4379,50 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 	{
 		cave_alter_feat(y,x,FS_SPREAD);
 	}
+	
+	/* XXX Important: Prevent the caster 'entombing' themselves - for earthquakes but
+	 * we generalize this to all cases. */
+	/* XXX XXX Should really check PROJECT_SAFE to allow the monster to do this if the effect
+	 * is unsafe, but we don't pass the project flags. This keeps project_f function definition
+	 * identical to the other projection functions.
+	 */
+	/* Feature has changed */
+	if (feat != cave_feat[y][x])
+	{
+		bool restore = FALSE;
+		
+		/* Check if monster can move and survive in terrain */
+		if (cave_m_idx[y][x] > 0)
+		{
+			if ((who == cave_m_idx[y][x]) && (place_monster_here(y, x, m_list[who].r_idx) <= MM_FAIL))
+			{
+				restore = TRUE;
+			}
+			else if ((what == cave_m_idx[y][x]) && (!(who) || (who == SOURCE_PLAYER_ALLY)) &&
+					 (place_monster_here(y, x, m_list[what].r_idx) <= MM_FAIL))
+			{
+				restore = TRUE;
+			}
+		}
+		/* Check if player can move and survive in terrain */
+		else if ((cave_m_idx[y][x] < 0) && (who < SOURCE_PLAYER_ALLY) && ((f_info[cave_feat[y][x]].flags1 & (FF1_MOVE)) == 0)
+					&& ((f_info[cave_feat[y][x]].flags3 & (FF3_EASY_CLIMB)) == 0))
+		{
+			restore = TRUE;
+		}
+		
+		/* Protecting the caster */
+		if (restore)
+		{
+			int feat2 = feat;
+			
+			/* Try alternative passable terrain */
+			if (f_info[feat].flags1 & (FF1_TUNNEL)) feat2 = feat_state(feat, FS_TUNNEL);
+			
+			/* Restore */
+			cave_set_feat(y, x, feat2);
+		}
+	}
 
 	/* Check for monster */
 	if (feat != cave_feat[y][x])
@@ -4382,6 +4435,11 @@ bool project_f(int who, int what, int y, int x, int dam, int typ)
 	return (obvious);
 }
 
+
+/*
+ * Forward declare these functions referenced by project_o
+ */
+bool project_f(int who, int what, int y, int x, int dam, int typ);
 
 
 /*
@@ -4672,6 +4730,23 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			{
 				do_kill = TRUE;
 				note_kill = (plural ? " are destroyed!" : " is destroyed!");
+				break;
+			}
+
+			/* Chasms -- very destructive to objects */
+			case GF_FALL_MORE:
+			{
+				do_kill = TRUE;
+				note_kill = (plural ? " fall from view!" : " falls from view!");
+				
+				/* Hack -- allow rediscovery of artifacts later */
+				if (is_art)
+				{
+					is_art = FALSE;
+					
+					/* Mega-Hack -- Preserve the artifact */
+					a_info[o_ptr->name1].cur_num = 0;
+				}
 				break;
 			}
 
@@ -5079,7 +5154,9 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 					n3 = o_ptr->can_flags3 & ~(k3);
 					n4 = o_ptr->can_flags3 & ~(k4);
 
-					if (n1 || n2 || n3 || n4) msg_format("The %s%s unaffected!",
+					if ((n1 || n2 || n3 || n4)
+							&& ((o_ptr->ident & (IDENT_MARKED)) != 0))
+						msg_format("The %s%s unaffected!",
 									o_name,
 									plural ? " are" : " is");
 
@@ -5340,6 +5417,22 @@ static bool charm_insect_hook(int r_idx)
 /*
  * Hack -- help decide if a monster race is "okay" to charm.
  *
+ * Accept any plants.
+ */
+static bool charm_plant_hook(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	/* Require plants */
+	if ((r_ptr->flags3 & (RF3_PLANT)) == 0) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Hack -- help decide if a monster race is "okay" to charm.
+ *
  * Accept reptiles.
  */
 static bool charm_reptile_hook(int r_idx)
@@ -5374,7 +5467,7 @@ static bool charm_reptile_hook(int r_idx)
 /*
  * Hack -- help decide if a monster race is "okay" to charm.
  *
- * Accept reptiles.
+ * Accept mammals and birds - not reptiles.
  */
 static bool charm_animal_hook(int r_idx)
 {
@@ -5847,10 +5940,17 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* Hack -- pre-stage charm hooks for efficiency */
 	switch(typ)
 	{
-		/* Teleport from darkness to darkness */
+		/* Insects */
 		case GF_CHARM_INSECT:
 		{
 			charm_hook = charm_insect_hook;
+			break;
+		}
+
+		/* Plants */
+		case GF_CHARM_PLANT:
+		{
+			charm_hook = charm_plant_hook;
 			break;
 		}
 
@@ -7956,19 +8056,40 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		/* Melee attack - exp 80 */
 		case GF_EXP_80:
 		{
+			int new_maxhp;
+
 			/* Hack -- just completely ruin monster */
 			if (seen) obvious = TRUE;
 			note = " is ruined.";
 			m_ptr->mflag &= ~(MFLAG_STRONG | MFLAG_SMART | MFLAG_WISE | MFLAG_SKILLFUL | MFLAG_HEALTHY);
 			m_ptr->mflag |= (MFLAG_WEAK | MFLAG_STUPID | MFLAG_NAIVE | MFLAG_CLUMSY | MFLAG_SICK);
+
+			new_maxhp = calc_monster_hp(cave_m_idx[y][x]);
+
+			if (new_maxhp < m_ptr->maxhp)
+			{
+				/* Scale down hit points */
+				m_ptr->hp = m_ptr->hp * new_maxhp / m_ptr->maxhp;
+
+				/* To a minimum */
+				if (m_ptr->hp < 0) m_ptr->hp = 0;
+
+				/* Permanently reduce maximum hp */
+				m_ptr->maxhp = new_maxhp;
+			}
 			break;
 		}
 
 		/* Melee attack - shatter */
 		case GF_SHATTER:
 		{
-			/* XXX Hack */
-			make_attack_ranged(who, 101, y, x);
+			/* XXX Hack -- earthquake */
+			make_attack_ranged(who > 0 ? who : (who < 0 ?  0 : what), 101, y, x);
+
+			if (seen) obvious = TRUE;
+
+			/* Paranoia */
+			if (cave_m_idx[y][x] <= 0) return (obvious);
 
 			break;
 		}
@@ -8081,7 +8202,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 
 				/* Learn all of the non-spell, non-treasure flags */
-				lore_do_probe(cave_m_idx[y][x]);
+				lore_do_probe(m_list[cave_m_idx[y][x]].r_idx);
 
 				/* Probe worked */
 				obvious = TRUE;
@@ -8489,6 +8610,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		case GF_CHARM_REPTILE:
 		case GF_CHARM_MONSTER:
 		case GF_CHARM_PERSON:
+		case GF_CHARM_PLANT:
 
 		/* Bind effects for the moment */
 		case GF_BIND_DRAGON:
@@ -8500,7 +8622,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			{
 				if (seen) obvious = TRUE;
 
-				/* Cannot be charmed */
+				/* Cannot be charmed -- use a separate flag to NO_SLEEP */
+#if 0
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
 				{
 					if ((seen) && !(l_ptr->flags3 & (RF3_NO_SLEEP)))
@@ -8511,11 +8634,13 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				}
 
 				/* Attempt a saving throw */
-				else if (monster_save(m_ptr, dam, &near))
+				else
+#endif
+					if (monster_save(m_ptr, dam, &near))
 				{
-					if ((near) && (seen))
+					if (near)
 					{
-						note = " appears somewhat persuaded.";
+						if (seen) note = " appears somewhat persuaded.";
 						m_ptr->mflag |= (MFLAG_IGNORE);
 					}
 					else
@@ -8950,6 +9075,9 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 	}
 
+	/* Hide notes if player yet not in the dungeon */
+	if (!(character_dungeon) && !(cheat_hear)) note = FALSE;
+	
 	/* If another non-allied monster or trap did the damage, hurt the monster by hand */
 	if (who > SOURCE_PLAYER_START)
 	{
@@ -8982,7 +9110,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			if (note && seen) msg_format("%^s%s", m_name, note);
 
 			/* Hack -- Pain message */
-			else if (dam > 0) message_pain(cave_m_idx[y][x], dam);
+			else if ((dam > 0) && ((character_dungeon) || (cheat_hear))) message_pain(cave_m_idx[y][x], dam);
 
 			/* Hack -- handle sleep */
 			if (do_sleep) m_ptr->csleep = do_sleep;
@@ -9036,11 +9164,11 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		{
 			m_ptr->mflag |= (MFLAG_AGGR);
 
-			(void)tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+			(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
 		}
 		else if (fear)
 		{
-			(void)tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_ACTV, "& has hurt me badly!");
+			(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has hurt me badly!");
 		}
 	}
 
@@ -9988,18 +10116,35 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Weak darkness -- blinding only */
+		/* Weak darkness -- douses light now instead of blinding */
 		case GF_DARK_WEAK:
 		{
+			object_type *o_ptr = &inventory[INVEN_LITE];
+			
 			dam = 0;
+			
+			/* Douse light */
+			if (o_ptr->timeout)
+			{
+				o_ptr->charges = o_ptr->timeout;
+				o_ptr->timeout = 0;
+				
+				msg_print("Your light goes out!");
+				
+				/* Update torch */
+				p_ptr->update |= (PU_TORCH);
 
-			/* Fall through */
+				/* Fully update the visuals */
+				p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+			}
+
+			break;
 		}
 
 		/* Dark -- blinding */
 		case GF_DARK:
 		{
-			if ((fuzzy) && (typ == GF_DARK)) msg_print("You are hit by something!");
+			if (fuzzy) msg_print("You are hit by something!");
 			if ((p_ptr->cur_flags2 & (TR2_RES_DARK)) != 0)
 			{
 				/* Always notice */
@@ -11124,7 +11269,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			else
 			{
 				/* Radius 8 earthquake centered at the player */
-				if (dam > 23) make_attack_ranged(who, 101, p_ptr->py, p_ptr->px);
+				if (dam > 23) make_attack_ranged(who ? 0 : what, 101, p_ptr->py, p_ptr->px);
 
 			}
 
@@ -11946,6 +12091,27 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			}
 			break;
 		}
+		
+		/* Valuable pots - hack. Player can catch these */
+		case GF_POTS:
+		{
+			object_type object_type_body;
+			object_type *i_ptr = &object_type_body;
+			
+			/* Saving throw (unless paralyzed) based on dexterity and level */
+			bool save = (!p_ptr->timed[TMD_PARALYZED] &&
+				    (rand_int(100) < (adj_agi_safe[p_ptr->stat_ind[A_DEX]] +
+						      p_ptr->lev)));
+
+			/* Message */
+			msg_format("You %s a valuable looking pot.", save ? "safely catch" : "fumble and drop");
+			
+			/* Prepare the object */
+			object_prep(i_ptr, save ? lookup_kind(TV_STATUE, SV_STATUE_POT) : lookup_kind(TV_JUNK, SV_JUNK_SHARD));
+
+			/* Drop it near the new location */
+			drop_near(i_ptr, -1, y, x, FALSE);
+		}
 
 		/* Default */
 		default:
@@ -12295,14 +12461,28 @@ bool project_t(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Delete monsters */
-		case GF_DESTROY:
+		/* Delete monsters - this prevents the player abusing these effects */
 		case GF_QUAKE:
 		{
+			/* Quaking allies don't delete other allies */
+			if ((who == SOURCE_PLAYER_ALLY) && (m_ptr->mflag & (MFLAG_ALLY))) break;
+			
+			/* Non-player quake effects don't delete monsters */
+			else if (who > SOURCE_PLAYER_ALLY) break;
+		}
+		case GF_DESTROY:
+		{
+			/* Destroying monsters don't delete themselves, except if allies */
+			/* XXX This allows Gandalf to 'fall' from the bridge in Moria */
+			if (((who > 0) && (who == cave_m_idx[y][x]))
+					|| ((who == 0) && (what == cave_m_idx[y][x]))) break;
+			
 			if (affect_monster)
 			{
 				delete_monster(y,x);
 			}
+			
+			break;
 		}
 	}
 
@@ -12931,6 +13111,16 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 
 			/* Mark the area nearby -- limit range, ignore rooms */
 			spread_cave_temp(y0, x0, rad, FALSE);
+		}
+		
+		/* Arcs projected at themslves make no sense. Change to a regular ball */
+		if ((flg & (PROJECT_ARC)) && (y0 == y1) && (x0 == x1))
+		{
+			flg &= ~(PROJECT_ARC);
+			
+			/* Approximate radius */
+			rad = degrees / 15;
+			degrees = 0;
 		}
 
 		/* Pre-calculate some things for arcs. */
@@ -13685,6 +13875,9 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 
 		/* Hack the monster */
 		else if ((who > 0) && (y == m_list[who].fy) && (x == m_list[who].fx)) play_hack = 1;
+
+		/* Hack the monster */
+		else if (((who == 0) || (who == SOURCE_PLAYER_ALLY)) && (what > 0) && (y == m_list[what].fy) && (x == m_list[what].fx)) play_hack = 1;
 	}
 
 	/* Display the "blast area" if allowed */
@@ -13849,6 +14042,7 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 
 			{
 			 	monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			 	int res_magic = (who != SOURCE_PLAYER_CAST ? 10 : 30);
 
 				/* Safe projections */
 				if (flg & (PROJECT_SAFE))
@@ -13859,10 +14053,11 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 				}
 
 				/* Hack -- handle resist magic. Deeper monsters are more resistant to spells.
-				 * All monsters are more resistant to devices and spells from each other. */
+				 * All monsters are much more resistant to devices and spells from each other.
+				 * Resist magic progresses geometrically based on depth */
 				if ((flg & (PROJECT_MAGIC)) && (cave_m_idx[y][x] > 0)
 					&& ((r_info[m_list[cave_m_idx[y][x]].r_idx].flags9 & (RF9_RES_MAGIC)) != 0)
-					&& (rand_int(100) < 20 + p_ptr->depth / (who != SOURCE_PLAYER_CAST ? 1 : 2)))
+					&& (rand_int(res_magic + p_ptr->depth + 1) >= res_magic))
 				{
 					/* Hack -- resist magic */
 					if (project_m(who, what, y, x, 0, GF_RES_MAGIC)) notice = TRUE;
@@ -13871,7 +14066,8 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 				/* Area-effect and jumping spells cannot be dodged */
 				else if (!(flg & (PROJECT_ARC | PROJECT_STAR | PROJECT_JUMP |
 			             PROJECT_BOOM)) && (cave_m_idx[y][x] > 0) &&
-					(mon_evade(cave_m_idx[y][x],((m_ptr->confused || m_ptr->stunned) ? 1 : 3) + gd[i], 5 + gd[i], who <= SOURCE_PLAYER_START ? " your magic" : ""))) continue;
+					(mon_evade(cave_m_idx[y][x],((m_ptr->confused || m_ptr->stunned) ? 1 : 3) + gd[i], 5 + gd[i],
+							who <= SOURCE_PLAYER_SAFE ? " your magic" : ""))) continue;
 
 				/* Affect the monster in the grid */
 				else if (project_m(who, what, y, x, gd[i], typ))	notice = TRUE;
@@ -13936,7 +14132,8 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 	if ((flg & (PROJECT_TEMP)) == 0)
 	{
 		/* Teleport monsters and player around, alter certain features. */
-		for (i = play_hack; i < grids; i++)
+		/* XXX To help monsters get out of the way we process this in reverse order */
+		for (i = grids-1; i >= play_hack; i--)
 		{
 			/* Get the grid location */
 			y = GRID_Y(grid[i]);
@@ -14025,7 +14222,7 @@ bool project(int who, int what, int rad, int rng, int y0, int x0, int y1, int x1
 	{
 		if (!blind) notice = TRUE;
 	}
-
+	
 	/* Determine projection shape */
 	notice |= project_shape(grid, gd, &grids, 1024, rad, rng, y0, x0, y1, x1, dam, typ, flg, degrees, source_diameter);
 
@@ -14114,20 +14311,33 @@ bool project_method(int who, int what, int method, int effect, int damage, int l
 		/* Requesting a vector */
 		else if (r_ptr->flags1 & (RE1_SCALAR_VECTOR))
 		{
-			int deg_vary = degrees_of_arc ? degrees_of_arc / 2 : 45;
+			int deg_vary = degrees_of_arc ? degrees_of_arc / 2 : 180;
 
 			/* Randomize the scalar */
 			for (i = 0; i < target_path_n; i++)
 			{
 				int yi = GRID_Y(target_path_g[i]);
 				int xi = GRID_X(target_path_g[i]);
-				int deg_dest = get_angle_to_target(y0, yi, x0, xi, 0);
-
-				int degree = (deg_dest + rand_int(deg_vary)) % 180;
+				int degree = get_angle_to_target(y0, x0, yi, xi, 0);
 				int dist = target_path_d[i];
-
+				
+				int speed = 100 / (dist + 1);
+				
+				/* Invalid degrees - choose a random direction */
+				if ((y0 == yi) && (x0 == xi)) degree = rand_int(180);
+				if (degree == -1) degree = rand_int(180);
+				
+				/* Pick a random direction and speed */
+				if (r_ptr->flags1 & (RE1_RANDOM))
+				{
+					degree = (degree + rand_int(deg_vary)) % 180;
+					
+					speed = (speed / 2) + damroll(2, speed / 2);
+					if (speed > 100) speed = 100;
+				}
+				
 				/* Insert angle and speed into grid damage */
-				target_path_d[i] = GRID(degree, (damage + dist) / (dist + 1));
+				target_path_d[i] = GRID(degree, speed);
 
 				/* Hack -- All pieces of a vector start at the origin */
 				target_path_g[i] = GRID(y0, x0);

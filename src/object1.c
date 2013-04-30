@@ -698,31 +698,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 	/* Prep the monster name if required */
 	if (k_ptr->flags6 & (TR6_NAMED))
 	{
-		char *s, *t;
-		int state = 0;
-
 		/* Describe monster */
 		if (o_ptr->name3 > 0)
 		{
-			/* Save the monster name */
-			my_strcpy(mon_buf, r_name + r_info[o_ptr->name3].name, sizeof(mon_buf));
-
-			/* Fix up genderised descriptions manually */
-			for (t = s = mon_buf; *s; s++)
-			{
-				if (*s == '|')
-				{
-					state++;
-					if (state == 4) state = 0;
-				}
-				else if (!state || (state == 1 /* Male */))
-				{
-					*t++ = *s;
-				}
-			}
-
-			/* Terminate */
-			*t = '\0';
+			/* Get the name */
+			race_desc(mon_buf, sizeof(mon_buf), o_ptr->name3, 0x08, 1);
 		}
 
 		/* Describe player */
@@ -946,7 +926,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		if (o_ptr->ident & (IDENT_MENTAL)) object_desc_chr_macro(t,'f');
 		if (o_ptr->ident & (IDENT_CURSED)) object_desc_chr_macro(t,'c');
 		if (o_ptr->ident & (IDENT_BROKEN)) object_desc_chr_macro(t,'w');
-		if (o_ptr->ident & (IDENT_BREAKS)) object_desc_chr_macro(t,'k');
+		if (o_ptr->ident & (IDENT_BREAKS)) object_desc_chr_macro(t,'d');
 		if (o_ptr->ident & (IDENT_CHARGES)) object_desc_chr_macro(t,'s');
 		if (o_ptr->ident & (IDENT_VALUE)) object_desc_chr_macro(t,'v');
 		if (o_ptr->ident & (IDENT_RUNES)) object_desc_chr_macro(t,'r');
@@ -2305,6 +2285,113 @@ sint scan_feat(int y, int x)
 	return (item);
 }
 
+
+/*
+ * Get the indexes of objects carried by monsters.
+ * 
+ * We list objects held by the 'm_idx' first, then objects held
+ * by other monsters, if requested.
+ * 
+ * Valid flags are any combination of the bits:
+ *
+ *   0x01 -- Verify item tester
+ *   0x02 -- Marked items only
+ *   0x04 -- Specified monster only
+ *   0x08 -- Visible monsters only
+ *   0x10 -- Projectable monsters only
+ *   0x20 -- Allies only
+ *   0x40 -- Adjacent to player only
+ */
+sint scan_monsters(int *items, int size, int m_idx, int mode)
+{
+	int this_o_idx, next_o_idx;
+
+	int num = 0;
+	int i;
+	
+	monster_type *m_ptr = &m_list[m_idx];
+
+	/* Get first monster's objects */
+	if ((m_ptr->r_idx) && ((mode & 0x08) ? (m_ptr->ml) : TRUE)
+			&& ((mode & 0x10) ? ((m_ptr->mflag & (MFLAG_ALLY)) != 0) : TRUE)
+			&& ((mode & 0x20) ? player_can_fire_bold(m_ptr->fy, m_ptr->fx) : TRUE)
+			&& ((mode & 0x40) ? (m_ptr->cdis <= 1) : TRUE))
+	{
+		/* Scan all objects held by m_idx */
+		for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+		{
+			object_type *o_ptr;
+	
+			/* Get the object */
+			o_ptr = &o_list[this_o_idx];
+	
+			/* Get the next object */
+			next_o_idx = o_ptr->next_o_idx;
+	
+			/* Verify item tester */
+			if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+	
+			/* Marked items only */
+			if ((mode & 0x02) && ((o_ptr->ident & (IDENT_MARKED)) == 0)) continue;
+	
+			/* Accept this item */
+			items[num++] = this_o_idx;
+	
+			/* Enforce size limit */
+			if (num >= size) break;
+		}
+	}
+	
+	/* Scan rest of monsters if we have space and are requested to */
+	if (((mode & 0x04) == 0)  && (num < size))
+	{
+		/* Scan all monsters */
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr = &m_list[i];
+	
+			if (!m_ptr->r_idx) continue;
+			
+			if (i == m_idx) continue;
+
+			/* Get monster's objects */
+			if ( ((mode & 0x08) ? (m_ptr->ml) : TRUE)
+					&& ((mode & 0x10) ? ((m_ptr->mflag & (MFLAG_ALLY)) != 0) : TRUE)
+					&& ((mode & 0x20) ? player_can_fire_bold(m_ptr->fy, m_ptr->fx) : TRUE)
+					&& ((mode & 0x40) ? (m_ptr->cdis <= 1) : TRUE))
+			{
+				/* Scan all objects held by m_idx */
+				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+				{
+					object_type *o_ptr;
+			
+					/* Get the object */
+					o_ptr = &o_list[this_o_idx];
+			
+					/* Get the next object */
+					next_o_idx = o_ptr->next_o_idx;
+			
+					/* Verify item tester */
+					if ((mode & 0x01) && !item_tester_okay(o_ptr)) continue;
+			
+					/* Marked items only */
+					if ((mode & 0x02) && ((o_ptr->ident & (IDENT_MARKED)) == 0)) continue;
+			
+					/* Accept this item */
+					items[num++] = this_o_idx;
+			
+					/* Enforce size limit */
+					if (num >= size) break;
+				}
+			}
+		}
+	}
+
+	/* Result */
+	return (num);
+}
+
+
 /*
  * Choice window "shadow" of the "show_inven()" function
  */
@@ -3429,7 +3516,11 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int i1, i2;
 	int e1, e2;
 	int f1, f2;
+	int a1, a2;
+	int t1, t2;
 
+	int monster_inven = 0;
+	
 	bool done, item;
 
 	bool oops = FALSE;
@@ -3443,12 +3534,19 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
 	bool use_self = ((mode & (USE_SELF)) ? TRUE: FALSE);
 	bool use_skin = ((mode & (USE_SKIN)) ? TRUE: FALSE);
+	bool use_allies = ((mode & (USE_ALLY)) ? TRUE: FALSE);
+	bool use_target = ((mode & (USE_TARGET)) ? TRUE: FALSE);
+	bool use_range = ((mode & (USE_RANGE)) ? TRUE: FALSE);
+	bool use_known = ((mode & (USE_KNOWN)) ? TRUE: FALSE);
+	bool use_gold = ((mode & (USE_GOLD)) ? TRUE: FALSE);
 
 	bool allow_inven = FALSE;
 	bool allow_equip = FALSE;
 	bool allow_floor = FALSE;
 	bool allow_feats = FALSE;
 	bool allow_self = FALSE;
+	bool allow_allies = FALSE;
+	bool allow_target = FALSE;
 
 	bool toggle = FALSE;
 
@@ -3457,6 +3555,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
+
+	int allies_list[MAX_FLOOR_STACK];
+	int allies_num;
+
+	int target_list[MAX_FLOOR_STACK];
+	int target_num;
 
 #ifdef ALLOW_REPEAT
 
@@ -3585,6 +3689,44 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Accept floor */
 	if (f1 <= f2) allow_floor = TRUE;
 
+	/* Set monster inventory scan flags */
+	if (!use_range) monster_inven |= 0x40;
+	if (!use_known) monster_inven |= 0x10;
+	
+	/* Scan all objects carried by allies */
+	allies_num = scan_monsters(allies_list, MAX_FLOOR_STACK, p_ptr->target_who, monster_inven | (0x29));
+
+	/* Full allies */
+	a1 = 0;
+	a2 = allies_num - 1;
+
+	/* Forbid allies */
+	if (!use_allies) a2 = -1;
+
+	/* Restrict allies indexes */
+	while ((a1 <= a2) && (!get_item_okay(0 - allies_list[a1]))) a1++;
+	while ((a1 <= a2) && (!get_item_okay(0 - allies_list[a2]))) a2--;
+
+	/* Accept allies */
+	if (a1 <= a2) allow_allies = TRUE;
+
+	/* Scan all objects carried by target */
+	target_num = scan_monsters(target_list, MAX_FLOOR_STACK, p_ptr->target_who, monster_inven | (0x0D));
+
+	/* Full target */
+	t1 = 0;
+	t2 = target_num - 1;
+
+	/* Forbid target */
+	if (!use_target) t2 = -1;
+
+	/* Restrict target indexes */
+	while ((t1 <= t2) && (!get_item_okay(0 - target_list[t1]))) t1++;
+	while ((t1 <= t2) && (!get_item_okay(0 - target_list[t2]))) t2--;
+	
+	/* Accept target */
+	if (t1 <= t2) allow_target = TRUE;
+
 	/* Scan the feature */
 	if ((use_featg) && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_GET_FEAT)))
 	{
@@ -3630,7 +3772,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		allow_self = TRUE;
 
 	/* Require at least one legal choice */
-	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats && !allow_self)
+	if (!allow_inven && !allow_equip && !allow_floor && !allow_feats && !allow_self && !use_gold)
 	{
 		/* Cancel p_ptr->command_see */
 		if (!OPT(show_lists)) p_ptr->command_see = FALSE;
@@ -3678,6 +3820,18 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		else if (use_floor)
 		{
 			p_ptr->command_wrk = (USE_FLOOR);
+		}
+
+		/* Use allies if allowed */
+		else if (use_allies)
+		{
+			p_ptr->command_wrk = (USE_ALLY);
+		}
+
+		/* Use target if allowed */
+		else if (use_target)
+		{
+			p_ptr->command_wrk = (USE_TARGET);
 		}
 
 		/* Hack -- Use (empty) inventory */
@@ -3793,6 +3947,12 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 			/* Indicate legality of the "floor" */
 			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
 
+			/* Indicate legality of the "target" */
+			if (allow_target) my_strcat(out_val, " * for target,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_allies) my_strcat(out_val, " & for allies,", sizeof(out_val));
+
 		}
 
 		/* Viewing equipment */
@@ -3820,6 +3980,81 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Indicate legality of the "floor" */
 			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
+
+			/* Indicate legality of the "target" */
+			if (allow_target) my_strcat(out_val, " * for target,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_allies) my_strcat(out_val, " & for allies,", sizeof(out_val));
+
+		}
+
+		/* Viewing allies */
+		else if (p_ptr->command_wrk == (USE_ALLY))
+		{
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_floor(allies_list, allies_num, FALSE);
+
+			/* Begin the prompt */
+			sprintf(out_val, "Allies:");
+
+			/* List choices */
+			if (a1 <= a2)
+			{
+				/* Build the prompt */
+				sprintf(tmp_val, " %c-%c,",
+					index_to_label(a1), index_to_label(a2));
+
+				/* Append */
+				my_strcat(out_val, tmp_val, sizeof(out_val));
+			}
+
+
+			/* Append */
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
+
+			/* Append */
+			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
+			
+			/* Indicate legality of the "target" */
+			if (allow_target) my_strcat(out_val, " * for target,", sizeof(out_val));
+			
+		}
+
+		/* Viewing target */
+		else if (p_ptr->command_wrk == (USE_TARGET))
+		{
+			/* Redraw if needed */
+			if (p_ptr->command_see) show_floor(target_list, target_num, FALSE);
+
+			/* Begin the prompt */
+			sprintf(out_val, "Target:");
+
+			/* List choices */
+			if (t1 <= t2)
+			{
+				/* Build the prompt */
+				sprintf(tmp_val, " %c-%c,",
+					index_to_label(t1), index_to_label(t2));
+
+				/* Append */
+				my_strcat(out_val, tmp_val, sizeof(out_val));
+			}
+
+			/* Indicate legality of "toggle" */
+			if (use_inven) my_strcat(out_val, " / for Inven,", sizeof(out_val));
+
+			/* Append */
+			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_floor) my_strcat(out_val, " - for floor,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_allies) my_strcat(out_val, " & for allies,", sizeof(out_val));
 		}
 
 		/* Viewing floor */
@@ -3846,13 +4081,23 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 			/* Append */
 			else if (use_equip) my_strcat(out_val, " / for Equip,", sizeof(out_val));
+			
+			/* Indicate legality of the "target" */
+			if (allow_target) my_strcat(out_val, " * for target,", sizeof(out_val));
+
+			/* Indicate legality of the "floor" */
+			if (allow_allies) my_strcat(out_val, " & for allies,", sizeof(out_val));
+			
 		}
 
 		/* Indicate ability to "view" */
-		if (!p_ptr->command_see) my_strcat(out_val, " * to see,", sizeof(out_val));
+		if (!p_ptr->command_see) my_strcat(out_val, " ? to see,", sizeof(out_val));
 
 		/* Indicate legality of the "self" */
 		if (allow_self) my_strcat(out_val, " @ for self,", sizeof(out_val));
+
+		/* Indicate legality of the "self" */
+		if (use_gold) my_strcat(out_val, " $ for gold,", sizeof(out_val));
 
 		/* Indicate legality of the "feature" */
 		if (allow_feats)
@@ -3907,6 +4152,32 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 						if (--my == 0) ke.key = 'a' + i - INVEN_WIELD;
 					}
 				}
+				else if (p_ptr->command_wrk == (USE_ALLY))
+				{
+					for (i = f1; i <= f2; i++)
+					{
+						object_type *o_ptr = &o_list[allies_list[i]];
+
+						/* Is this item acceptable? */
+						if (!item_tester_okay(o_ptr)) continue;
+
+						/* Is this the line clicked */
+						if (--my == 0) ke.key = 'a' + i;
+					}
+				}
+				else if (p_ptr->command_wrk == (USE_TARGET))
+				{
+					for (i = f1; i <= f2; i++)
+					{
+						object_type *o_ptr = &o_list[target_list[i]];
+
+						/* Is this item acceptable? */
+						if (!item_tester_okay(o_ptr)) continue;
+
+						/* Is this the line clicked */
+						if (--my == 0) ke.key = 'a' + i;
+					}
+				}
 				else if (p_ptr->command_wrk == (USE_FLOOR))
 				{
 					for (i = f1; i <= f2; i++)
@@ -3944,7 +4215,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
-			case '*':
 			case '?':
 			case ' ':
 			{
@@ -4006,6 +4276,104 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				break;
 			}
 
+			case '*':
+			{
+				/* Paranoia */
+				if (!allow_target)
+				{
+					bell("Cannot select target!");
+					break;
+				}
+#if 0
+				/* There is only one item */
+				if (target_num == 1)
+				{
+					/* Auto-Select */
+					if (p_ptr->command_wrk == (USE_TARGET))
+					{
+						/* Special index */
+						k = 0 - target_list[0];
+
+						/* Allow player to "refuse" certain actions */
+						if (!get_item_allow(k))
+						{
+							done = TRUE;
+							break;
+						}
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+
+						break;
+					}
+				}
+#endif
+				/* Hack -- Fix screen */
+				if (p_ptr->command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
+				}
+
+				p_ptr->command_wrk = (USE_TARGET);
+
+				break;
+			}
+			
+			case '&':
+			{
+				/* Paranoia */
+				if (!allow_allies)
+				{
+					bell("Cannot select allies!");
+					break;
+				}
+#if 0
+				/* There is only one item */
+				if (floor_num == 1)
+				{
+					/* Auto-Select */
+					if (p_ptr->command_wrk == (USE_FLOOR))
+					{
+						/* Special index */
+						k = 0 - floor_list[0];
+
+						/* Allow player to "refuse" certain actions */
+						if (!get_item_allow(k))
+						{
+							done = TRUE;
+							break;
+						}
+
+						/* Accept that choice */
+						(*cp) = k;
+						item = TRUE;
+						done = TRUE;
+
+						break;
+					}
+				}
+#endif
+				/* Hack -- Fix screen */
+				if (p_ptr->command_see)
+				{
+					/* Load screen */
+					screen_load();
+
+					/* Save screen */
+					screen_save();
+				}
+
+				p_ptr->command_wrk = (USE_ALLY);
+
+				break;
+			}
+			
 			case '-':
 			{
 				/* Paranoia */
@@ -4129,12 +4497,36 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					k = e1;
 				}
 
+				/* Choose "default" target item */
+				else if (p_ptr->command_wrk == (USE_TARGET))
+				{
+					if (t1 != t2)
+					{
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (9, default)" : ""));
+						break;
+					}
+
+					k = 0 - target_list[t1];
+				}
+
+				/* Choose "default" ally item */
+				else if (p_ptr->command_wrk == (USE_ALLY))
+				{
+					if (a1 != a2)
+					{
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (10, default)" : ""));
+						break;
+					}
+
+					k = 0 - allies_list[a1];
+				}
+
 				/* Choose "default" floor item */
 				else
 				{
 					if (f1 != f2)
 					{
-						bell(format("Illegal object choice%s!", cheat_xtra ? " (9, default)" : ""));
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (11, default)" : ""));
 						break;
 					}
 
@@ -4144,7 +4536,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Validate the item */
 				if (!get_item_okay(k))
 				{
-					bell(format("Illegal object choice%s!", cheat_xtra ? " (10, default)" : ""));
+					bell(format("Illegal object choice%s!", cheat_xtra ? " (12, default)" : ""));
 					break;
 				}
 
@@ -4174,8 +4566,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				/* Mega-Hack -- we are setting the floor alight with a torch */
 				if (use_feath)
 				{
-					project_o(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
-					project_f(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
+					project_one(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE, (PROJECT_ITEM | PROJECT_GRID));
 
 					done = TRUE;
 					break;
@@ -4213,7 +4604,23 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				done = TRUE;
 
 				break;
+				
+			case '$':
 
+				/* Paranoia */
+				if (!use_gold)
+				{
+					bell("Cannot select gold!");
+					break;
+				}
+
+				/* Accept that choice */
+				(*cp) = INVEN_GOLD;
+				item = TRUE;
+				done = TRUE;
+
+				break;
+				
 			default:
 			{
 				bool verify;
@@ -4256,6 +4663,36 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					}
 				}
 
+				/* Convert letter to target index */
+				else if (p_ptr->command_wrk == (USE_TARGET))
+				{
+					k = (islower(which) ? A2I(which) : -1);
+
+					if (k < 0 || k >= target_num)
+					{
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (14, target)" : ""));
+						break;
+					}
+
+					/* Special index */
+					k = 0 - target_list[k];
+				}
+
+				/* Convert letter to floor index */
+				else if (p_ptr->command_wrk == (USE_ALLY))
+				{
+					k = (islower(which) ? A2I(which) : -1);
+
+					if (k < 0 || k >= allies_num)
+					{
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (15, ally)" : ""));
+						break;
+					}
+
+					/* Special index */
+					k = 0 - allies_list[k];
+				}
+
 				/* Convert letter to floor index */
 				else
 				{
@@ -4263,7 +4700,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 					if (k < 0 || k >= floor_num)
 					{
-						bell(format("Illegal object choice%s!", cheat_xtra ? " (14, floor)" : ""));
+						bell(format("Illegal object choice%s!", cheat_xtra ? " (16, floor)" : ""));
 						break;
 					}
 

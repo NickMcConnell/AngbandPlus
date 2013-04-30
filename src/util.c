@@ -3579,11 +3579,8 @@ bool get_string(cptr prompt, char *buf, int len)
  *
  * Allow "p_ptr->command_arg" to specify a quantity
  */
-s16b get_quantity(cptr prompt, int max)
+int get_quantity_aux(cptr prompt, int max, int amt)
 {
-	int amt = 1;
-
-
 	/* Use "command_arg" */
 	if (p_ptr->command_arg)
 	{
@@ -3648,6 +3645,19 @@ s16b get_quantity(cptr prompt, int max)
 
 	/* Return the result */
 	return (amt);
+}
+
+
+
+/*
+ * Request a "quantity" from the user
+ *
+ * Allow "p_ptr->command_arg" to specify a quantity
+ */
+s16b get_quantity(cptr prompt, int max)
+{
+	/* The old get_quantity function */
+	get_quantity_aux(prompt, max, 1);
 }
 
 
@@ -5298,3 +5308,56 @@ void grid_queue_pop(grid_queue_type *q)
 	 */
 	q->head = (q->head + 1) % q->max_size;
 }
+
+
+/*
+ * Integer cube root approximation (from below) for positive ints < 2**31
+ * 
+ * Written by Kusigrosz in December 2008 and released into the public
+ * domain.
+ * No warranty whatsoever.
+ */
+int uti_icbrt(int arg)
+    {
+    int delta;
+    int ret;
+
+    assert((arg >= 0) && (arg <= 0x7fffffff));
+
+    if (arg == 0)
+        {
+        return (0);
+        }
+
+    if (arg < 1000)
+        {
+        ret = 10;
+        }
+    else if (arg < 1000000)
+        {
+        ret = 100;
+        }
+    else if (arg < 1000000000)
+        {
+        ret = 1000;
+        }
+    else
+        {
+        ret = 1290; /* the largest x for which x**3 < 2**31 */
+        }
+
+    do
+        {
+        /* derivative = 3 * x * x yadda yadda, but this seems to works OK */
+        delta = (arg - ret * ret * ret) / (2 * ret * ret);
+        ret += delta;
+        } while (delta);
+
+    if (ret * ret * ret > arg)
+        {
+        ret--;
+        }
+
+    return (ret);
+}
+

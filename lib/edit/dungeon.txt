@@ -225,6 +225,7 @@ D: on the might of Morgoth.
 N:4:East Road
 X:1:12:0:0
 G:h
+Q:6:111
 R:ANIMAL
 S:904:0:0:0:0:0:0:0
 L:0:56:0:435:420:0:0:0:SURFACE | DAYLIGHT | TOWN:the
@@ -251,7 +252,7 @@ D: doors of the famous farm cellars are open; to climb down, press '>'
 D: when standing on the entrance '>'.
 
 N:6:Brandywine Ferry
-X:5:7:0:0
+X:4:5:7:0
 G:h
 R:ANIMAL
 S:903:0:0:0:0:0:0:0

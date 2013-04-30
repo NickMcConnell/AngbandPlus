@@ -1347,9 +1347,9 @@ static void load_sound_prefs(void)
 	for (i = 0; i < MSG_MAX; i++)
 	{
 		/* Ignore empty sound strings */
-		if (!angband_sound_name[i][0]) continue;
+		if (!angband_sound_name[i].name[0]) continue;
 
-		GetPrivateProfileString("Sound", angband_sound_name[i], "", tmp, sizeof(tmp), ini_path);
+		GetPrivateProfileString("Sound", angband_sound_name[i].name, "", tmp, sizeof(tmp), ini_path);
 
 		num = tokenize_whitespace(tmp, SAMPLE_MAX, zz);
 
@@ -1360,7 +1360,7 @@ static void load_sound_prefs(void)
 
 			/* Save the sound filename, if it exists */
 			if (check_file(wav_path))
-				sound_file[i][j] = string_make(zz[j]);
+				sound_file[angband_sound_name[i].id][j] = string_make(zz[j]);
 		}
 	}
 }
@@ -1752,6 +1752,9 @@ static errr term_force_font(term_data *td, cptr path)
 
 	/* Load the new font */
 	if (!AddFontResource(buf)) return (1);
+
+	/* Notify other applications that a new font is available  XXX */
+	PostMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 
 	/* Save new font name */
 	td->font_file = string_make(base);
@@ -5544,7 +5547,7 @@ static void hook_quit(cptr str)
  */
 static void init_stuff(void)
 {
-	//int i;
+	/* int i; */
 
 	char path[1024];
 #ifdef USE_SAVER

@@ -26,6 +26,8 @@ allow you to look around at grids and examine them in more detail.  Press
 ESC to exit the look mode, use the direction keys to cycle between
 interesting grids, and the space bar to cycle between items in a single
 grid. You can press 'p' while looking to change the mode to allow you to
-look at any grid, as opposed to just interesting ones.
+look at any grid, as opposed to just interesting ones. The 'r' key (for
+recall) will allow you to recollect the information you have learned so
+far about whatever you are now looking at.
 
 If you prefer graphics, you can use the menus to select a graphical mode.

@@ -1,4 +1,4 @@
-=== Welcome to Unangband ===
+=== A Note wishing you Luck, from the Maintainer ===
 
 I want to welcome you with open arms to Unangband, a variant of Angband which
 I have spent some not inconsiderable time and effort developing over more

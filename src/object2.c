@@ -1227,6 +1227,12 @@ s32b object_value_real(const object_type *o_ptr)
 	/* Base cost */
 	value = k_ptr->cost;
 
+	/* Gold / gems */
+	if ((o_ptr->tval == TV_GOLD) || (o_ptr->tval == TV_GEMS))
+	{
+		return (o_ptr->charges);
+	}
+	
 	/* Artifact */
 	if (o_ptr->name1)
 	{
@@ -1808,6 +1814,15 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			break;
 		}
 
+		/* Lites */
+		case TV_LITE:
+		{
+			if ((o_ptr->charges != 0) && (j_ptr->timeout != 0)) return (FALSE);
+			if ((o_ptr->timeout != 0) && (j_ptr->charges != 0)) return (FALSE);
+
+			/* Fall through */
+		}
+
 		/* Weapons and Armor */
 		case TV_STAFF:
 		case TV_BOW:
@@ -1828,13 +1843,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			/* Fall through */
 		}
 
-		/* Lites */
-		case TV_LITE:
-		{
-			if ((o_ptr->charges != 0) == (j_ptr->timeout != 0)) return (FALSE);
-			if ((o_ptr->timeout != 0) == (j_ptr->charges != 0)) return (FALSE);
-		}
-
 		/* Rings, Amulets, Instruments */
 		case TV_RING:
 		case TV_AMULET:
@@ -1846,10 +1854,26 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		case TV_SHOT:
 		{
 			/* Require identical knowledge of both items */
-			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
-			if (object_named_p(o_ptr) != object_named_p(j_ptr)) return (0);
-			if (object_bonus_p(o_ptr) != object_bonus_p(j_ptr)) return (0);
-			if (object_pval_p(o_ptr) != object_pval_p(j_ptr)) return (0);
+			if (object_known_p(o_ptr) != object_known_p(j_ptr))
+			{
+				if (cheat_xtra) msg_print("Known state does not match");
+				return (0);
+			}
+			if (object_named_p(o_ptr) != object_named_p(j_ptr))
+			{
+				if (cheat_xtra) msg_print("Named state does not match");
+				return (0);
+			}
+			if (object_bonus_p(o_ptr) != object_bonus_p(j_ptr))
+			{
+				if (cheat_xtra) msg_print("Bonus state does not match");
+				return (0);
+			}
+			if (object_pval_p(o_ptr) != object_pval_p(j_ptr))
+			{
+				if (cheat_xtra) msg_print("Pval state does not match");
+				return (0);
+			}
 
 			/* Require identical "bonuses" */
 			if (o_ptr->to_h != j_ptr->to_h) return (FALSE);
@@ -1858,7 +1882,6 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (o_ptr->pval != j_ptr->pval) return (FALSE);
 
 			/* XXX Just merge coating "charges" */
-
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
 
@@ -1893,7 +1916,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 		}
 	}
 
-	/* Hack -- Require identical "cursed" and "broken" status and "breaking" and "stored" staus */
+	/* Hack -- Require identical "cursed" and "broken" status and "breaking" and "stored" status */
 	if (((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) ||
 	    ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) ||
 	    ((o_ptr->ident & (IDENT_BREAKS)) != (j_ptr->ident & (IDENT_BREAKS))) ||
@@ -4320,6 +4343,29 @@ bool sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 	/* Skip empty slots */
 	if (!o_ptr->k_idx) return (0);
 
+	/* Fully identify items */
+	if (adult_no_identify)
+	{
+		/* Important!!! Note different treatment for artifacts. Otherwise the player can
+		   potentially lose artifacts by leaving a level after they are 'automatically'
+		   identified. Note that for some artifacts - at the moment rings and amulets,
+		   even calling object_aware is dangerous at this stage. */
+		if (artifact_p(o_ptr))
+		{
+			/* Identify the name */
+			o_ptr->ident |= (IDENT_NAME);
+
+			/* Mark as an artifact */
+			feel = value_check_aux5(o_ptr);
+		}
+		else
+		{
+			object_known(o_ptr);
+		}
+		
+		return (TRUE);
+	}
+	
 	/* Sensed this kind? */
 	if (k_info[o_ptr->tval].aware & (AWARE_SENSEX))
 	{
@@ -4346,6 +4392,9 @@ bool sense_magic(object_type *o_ptr, int sense_type, bool heavy, bool floor)
 		{
 			/* Torches don't pseudo id */
 			if (o_ptr->sval == SV_LITE_TORCH) break;
+			
+			/* Lanterns only pseudo id if magical/ego/artifact */
+			if (!(o_ptr->name1) && !(o_ptr->name2) && !(o_ptr->xtra1)) break;
 		}
 
 		case TV_RING:
@@ -5293,15 +5342,9 @@ static bool kind_is_good(int k_idx)
 		/* Books -- high level books are good if not seen previously */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
-		{
-			if ((k_ptr->sval < SV_BOOK_MAX_GOOD) && ((k_ptr->aware & (AWARE_SEEN)) == 0)) return (TRUE);
-			return (FALSE);
-		}
-
-		/* Books -- high level books are good if not seen previously */
 		case TV_SONG_BOOK:
 		{
-			if ((k_ptr->sval >= SV_BOOK_MIN_GOOD) && ((k_ptr->aware & (AWARE_SEEN)) == 0)) return (TRUE);
+			if ((k_ptr->sval < SV_BOOK_MAX_GOOD) && ((k_ptr->aware & (AWARE_SEEN)) == 0)) return (TRUE);
 			return (FALSE);
 		}
 
@@ -5959,7 +6002,8 @@ bool make_gold(object_type *j_ptr, bool good, bool great)
 	/* Apply "extra" magic */
 	if (rand_int(GREAT_OBJ) == 0)
 	{
-		i += randint(object_level + 1);
+		/* This used to cause too much adamantium */
+		i += MAX_GOLD / 3;
 	}
 
 	/* Hack -- Creeping Coins only generate "themselves" */
@@ -5975,12 +6019,18 @@ bool make_gold(object_type *j_ptr, bool good, bool great)
 	base = k_info[OBJ_GOLD_LIST+i].cost;
 
 	/* Determine how much the treasure is "worth" */
-	j_ptr->charges = (base + (8 * randint(base)) + randint(8));
+	base = (base + (8 * randint(base)) + randint(8));
 
 	/* Apply good or great flags */
-	if (great) j_ptr->charges *= (k_info[OBJ_GOLD_LIST + i].tval == TV_GEMS ? 100 : damroll(7, 4));
-	else if (good) j_ptr->charges *= (k_info[OBJ_GOLD_LIST + i].tval == TV_GEMS ? 10 : damroll(2, 3));
+	if (great) base *= (k_info[OBJ_GOLD_LIST + i].tval == TV_GEMS ? 100 : damroll(7, 4));
+	else if (good) base *= (k_info[OBJ_GOLD_LIST + i].tval == TV_GEMS ? 10 : damroll(2, 3));
 
+	/* Prevent overrun */
+	if (base > 31000) base = 30500 + rand_int(1000);
+	
+	/* Set item value */
+	j_ptr->charges = base;
+	
 	/* Success */
 	return (TRUE);
 }
@@ -6971,6 +7021,11 @@ bool check_object_lite(object_type *j_ptr)
  * This function takes a parameter "chance".  This is the percentage
  * chance that the item will "disappear" instead of drop.  If the object
  * has been thrown, then this is the chance of disappearance on contact.
+ * 
+ * Some special chance values:
+ *  0 = no chance of breakage, don't report it if it is dropped under the player
+ * -1 = no chance of breakage, report it if it is dropped under the player
+ * -2 = no chance of breakage, place it exactly on the square specified
  *
  * Hack -- this function uses "chance" to determine if it should produce
  * some form of "description" of the drop event (under the player).
@@ -7044,11 +7099,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
 
-			/* Require drop space */
-			if ((f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP)) == 0) continue;
-
-			/* Requires terrain that won't destroy it */
-			if (hates_terrain(j_ptr, cave_feat[ty][tx])) continue;
+			/* We are not placing an object exactly */
+			if ((chance != -2) || (ty != y) || (tx != x))
+			{
+				/* Require drop space */
+				if ((f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP)) == 0) continue;
+	
+				/* Requires terrain that won't destroy it */
+				if ((chance <= 0) && hates_terrain(j_ptr, cave_feat[ty][tx])) continue;
+			}
 
 			/* No objects */
 			k = 0;
@@ -7091,6 +7150,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 			if (!generic_los(y, x, ty, tx, CAVE_XLOF))
 				s = s / 4;
 
+			/* We are placing an object exactly */
+			if ((chance == -2) && (ty == y) && (tx == x)) s = 20000;
+			
 			/* Skip bad values */
 			if (s < bs) continue;
 
@@ -7117,7 +7179,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 	if (!flag && !artifact_p(j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+		if ((character_dungeon) || (cheat_peek)) msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -7161,7 +7223,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 	if (!floor_carry(by, bx, j_ptr))
 	{
 		/* Message */
-		msg_format("The %s disappear%s.",
+		if ((character_dungeon) || (cheat_peek)) msg_format("The %s disappear%s.",
 			   o_name, (plural ? "" : "s"));
 
 		/* Debug */
@@ -7184,7 +7246,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 		if ((character_dungeon) && (!auto_pickup_ignore(j_ptr)))
 		{
 			/* Message */
-			msg_format("The %s disappear%s from view.",
+			if ((character_dungeon) || (cheat_peek)) msg_format("The %s disappear%s from view.",
 				   o_name, (plural ? "" : "s"));
 		}
 	}
@@ -7193,11 +7255,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 	if (check_object_lite(j_ptr))
 	{
 		/* Message */
-		msg_format("The %s light%s up the surroundings.", o_name, (plural ? "" : "s"));
+		if ((character_dungeon) || (cheat_peek)) msg_format("The %s light%s up the surroundings.", o_name, (plural ? "" : "s"));
 
 		gain_attribute(by, bx, 2, CAVE_XLOS, apply_halo, redraw_halo_gain);
 	}
-
+	
 	/* Sound */
 	sound(MSG_DROP);
 
@@ -7206,14 +7268,24 @@ void drop_near(object_type *j_ptr, int chance, int y, int x, bool dont_trigger)
 	if (chance && (cave_m_idx[by][bx] < 0))
 	{
 		/* Skip message on auto-ignored items */
-		if (!auto_pickup_ignore(j_ptr))
+		if ((!auto_pickup_ignore(j_ptr)) && ((character_dungeon) || (cheat_peek)))
 		{
 			msg_print("You feel something roll beneath your feet.");
 		}
 	}
 
-	/* Trigger regions. Note that this is the original location dropped, not where the object ends up. */
-	if (!dont_trigger) trigger_region(y, x, FALSE);
+	/* Trigger regions. */
+	if (!dont_trigger) trigger_region(by, bx, FALSE);
+	
+	/* Hates terrain */
+	if ((!dont_trigger) && (hates_terrain(j_ptr, cave_feat[by][bx])))
+	{
+		feature_type *f_ptr = &f_info[cave_feat[by][bx]];
+		
+		/* Hack -- this affects all objects in the grid */
+		/* We can't use project_o directly because objects get marked for later breakage */
+		project_one(SOURCE_FEATURE, f_ptr->mimic, p_ptr->py, p_ptr->px,damroll(f_ptr->blow.d_side,f_ptr->blow.d_dice), f_ptr->blow.effect, (PROJECT_ITEM | PROJECT_HIDE));
+	}
 }
 
 
@@ -7786,7 +7858,7 @@ void create_trap_region(int y, int x, int feat, int power, bool player)
 	if (player)
 	{
 		if (((flg & (PROJECT_SELF)) == 0) &&
-				(!get_aim_dir(&dir, MAX_RANGE, radius, flg, method_ptr->arc, method_ptr->diameter_of_source)))
+				(!get_aim_dir(&dir, TARGET_KILL, MAX_RANGE, radius, flg, method_ptr->arc, method_ptr->diameter_of_source)))
 						return;
 
 		msg_format("%d", dir);
@@ -7870,15 +7942,15 @@ void pick_trap(int y, int x, bool player)
 		/* We have a region */
 		region = i;
 
+		/* Use this to pick the trap later */
+		pick_attr = f_ptr->d_attr;
+
 		break;
 	}
 
 	/* Region found */
 	if (region)
 	{
-		/* Use this to pick the trap later */
-		pick_attr = f_info[cave_feat[y][x]].d_attr;
-
 		/* Set hook*/
 		get_feat_num_hook = vault_trap_attr;
 	}
@@ -8036,7 +8108,7 @@ void pick_trap(int y, int x, bool player)
 	else
 	{
 		/* Set attribute */
-		pick_attr = f_info[cave_feat[y][x]].d_attr;
+		pick_attr = f_ptr->d_attr;
 
 		/* Set hook*/
 		get_feat_num_hook = vault_trap_attr;
@@ -8998,6 +9070,8 @@ s16b inven_carry(object_type *o_ptr)
  *
  * Destroys spells if taken off, rather than placing in inventory.
  *
+ * It is now possible to drop an item from an ally, so we have
+ * to handle this here.
  */
 s16b inven_takeoff(int item, int amt)
 {
@@ -9012,9 +9086,22 @@ s16b inven_takeoff(int item, int amt)
 	cptr act2 = "";
 
 	char o_name[80];
+	char m_name[80];
 
-	/* Get the item to take off */
-	o_ptr = &inventory[item];
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+		
+		/* Get the monster name (or "it") */
+		monster_desc(m_name, sizeof(m_name), o_ptr->held_m_idx, 0);
+	}
 
 	/* Paranoia */
 	if (amt <= 0) return (-1);
@@ -9022,6 +9109,16 @@ s16b inven_takeoff(int item, int amt)
 	/* Verify */
 	if (amt > o_ptr->number) amt = o_ptr->number;
 
+	/* Hack - it is possible to take gold/gems off monsters */
+	if ((o_ptr->tval == TV_GOLD) || (o_ptr->tval == TV_GEMS))
+	{
+		/* Money well earned? */
+		p_ptr->au += o_ptr->charges;
+		
+		/* Update display */
+		p_ptr->redraw |= (PR_GOLD);
+	}
+	
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -9061,8 +9158,15 @@ s16b inven_takeoff(int item, int amt)
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
+	/* Take from monster */
+	if (item < 0)
+	{
+		my_strcat(m_name, " was carrying", sizeof(m_name));
+		act = m_name;
+	}
+	
 	/* Destroy spell */
-	if (i_ptr->tval == TV_SPELL)
+	else if (i_ptr->tval == TV_SPELL)
 	{
 		act = "You were enchanted with";
 	}
@@ -9112,18 +9216,32 @@ s16b inven_takeoff(int item, int amt)
 		act = "You were wearing";
 	}
 
-	/* Modify, Optimize */
-	inven_item_increase(item, -amt);
-	inven_item_optimize(item);
-
-	/* Carry the object - spells are destroyed */
-	if (i_ptr->tval != TV_SPELL) slot = inven_carry(i_ptr);
+	/* Eliminate the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -amt);
+		inven_item_optimize(item);
+	}
+	/* Eliminate the item (from the floor) */
 	else
+	{
+		floor_item_increase(0 - item, -amt);
+		floor_item_optimize(0 - item);
+	}
+
+	/* Carry the object - spells/gold/gems are destroyed */
+	if ((i_ptr->tval == TV_SPELL) || (i_ptr->tval == TV_GOLD) || (i_ptr->tval == TV_GEMS)) 
 	{
 		/* Forget the spell flags */
 		inven_drop_flags(i_ptr);
 
 		slot = -1;
+	}
+	/* All other items */
+	else
+	{
+		/* Carry the item */
+		slot = inven_carry(i_ptr);
 	}
 
 	/* Message, sound if not the quiver */
@@ -9140,9 +9258,13 @@ s16b inven_takeoff(int item, int amt)
 /*
  * Drop (some of) a non-cursed inventory/equipment item
  *
- * The object will be dropped "near" the current location
+ * If m_idx = 0, the object will be dropped "near" the current location
+ * otherwise it will be given to the monster m_idx.
+ * 
+ * It is now possible to drop an item from an ally, so we have
+ * to handle this here.
  */
-void inven_drop(int item, int amt)
+void inven_drop(int item, int amt, int m_idx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -9153,9 +9275,26 @@ void inven_drop(int item, int amt)
 	object_type object_type_body;
 
 	char o_name[80];
+	char m_name[80];
 
-	/* Get the original object */
-	o_ptr = &inventory[item];
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+		
+		/* Get the monster name (or "it") */
+		monster_desc(m_name, sizeof(m_name), o_ptr->held_m_idx, 0);
+		
+		/* Drop near monster instead */
+		py = m_list[o_ptr->held_m_idx].fy;
+		px = m_list[o_ptr->held_m_idx].fx;
+	}
 
 	/* Error check */
 	if (amt <= 0) return;
@@ -9177,7 +9316,7 @@ void inven_drop(int item, int amt)
 	}
 
 	/* Forget about object */
-	if (amt == o_ptr->number) inven_drop_flags(o_ptr);
+	if ((item >= 0) && (amt == o_ptr->number)) inven_drop_flags(o_ptr);
 
 	/* Get local object */
 	i_ptr = &object_type_body;
@@ -9223,17 +9362,37 @@ void inven_drop(int item, int amt)
 	object_desc(o_name, sizeof(o_name), i_ptr, TRUE, 3);
 
 	/* Message */
-	msg_format("You drop %s (%c).", o_name, index_to_label(item));
+	msg_format("%s drop%s %s (%c).", item >= 0 ? "You" : m_name, item >= 0 ? "" : "s", o_name, index_to_label(item));
 
-	/* Modify, Describe, Optimize */
-	inven_item_increase(item, -amt);
-	inven_item_describe(item);
-	inven_item_optimize(item);
+	/* Eliminate the item (from the pack) */
+	if (item >= 0)
+	{
+		inven_item_increase(item, -amt);
+		inven_item_describe(item);
+		inven_item_optimize(item);
+	}
+	/* Eliminate the item (from the floor) */
+	else
+	{
+		floor_item_increase(0 - item, -amt);
+		floor_item_describe(0 - item);
+		floor_item_optimize(0 - item);
+	}
 
-	/* Drop it near the player */
-	/* XXX Happens last for safety reasons */
-	drop_near(i_ptr, 0, py, px, FALSE);
+	/* Give it to the monster */
+	if (m_idx)
+	{
+		/* Carry the object */
+		(void)monster_carry(m_idx, i_ptr);
+	}
+	else
+	{
+		/* Drop it near the player / monster */
+		/* XXX Happens last for safety reasons */
+		drop_near(i_ptr, 0, py, px, FALSE);
+	}
 }
+
 
 /*
  * Check for pack overflow
@@ -9605,12 +9764,15 @@ bool spell_match_style(int spell)
 
 		/* Outright match */
 		if (sval == p_ptr->psval) return (TRUE);
+		
+		/* Match high version of book */
+		if ((sval < SV_BOOK_MAX_GOOD) && (p_ptr->psval == sval % (SV_BOOK_MAX_GOOD / 2))) return (TRUE);
 
 		/* Match because we have specialised in a 'basic spellbook style, and book falls into this category */
 		if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (sval >= SV_BOOK_MAX_GOOD))
 		{
-			/* Sval hackery */
-			if (sval - (sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 == p_ptr->psval) return (TRUE);
+			/* Confirm in same school */
+			if ((sval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL == (p_ptr->psval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL) return (TRUE);
 		}
 	}
 
@@ -9711,51 +9873,39 @@ spell_cast *spell_cast_details(int spell)
 
 	/* Get our casting information */
 	int i;
+	int worst = 0;
+	int best = 0;
 
-	for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	/* Note check for warriors. */
+	if (p_ptr->pclass) for (i = 0;i < MAX_SPELL_CASTERS; i++)
 	{
 		if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
 			sc_ptr=&(s_ptr->cast[i]);
+			
+			/* Is this ability worse? */
+			if (s_ptr->cast[i].level > s_ptr->cast[worst].level) worst = i;
+			
+			/* Is this ability better? */
+			if (s_ptr->cast[i].level < s_ptr->cast[best].level) best = i;
 		}
 	}
 
 	/* Hack -- if the character doesn't have the ability to cast a spell,
-	 * choose the first one if they are a specialist */
-	if (spell_match_style(spell)) sc_ptr = &(s_ptr->cast[0]);
+	 * choose the worst one if they are a specialist and not powerful,
+	 * or the best one if they are a specialist and powerful */
+	if (!sc_ptr && spell_match_style(spell)) sc_ptr = &(s_ptr->cast[cp_ptr->spell_power ? best : worst]);
 
 	return (sc_ptr);
 }
 
 
 /*
- * Spell could be learnt by the player.
- *
- * This differs from spell_read_okay, in that the spell could appear
- * in another book that the player is allowed to use.
+ * Returns level for a spell.
+ * 
+ * We don't check legibility here because spell_legible calls this.
  */
-bool spell_legible(int spell)
-{
-	int i;
-	spell_type *s_ptr = &s_info[spell];
-
-	for (i = 0; i < MAX_SPELL_CASTERS; i++)
-	{
-		/* Class is allowed to cast the spell */
-		if (s_ptr->cast[i].class == p_ptr->pclass) return (TRUE);
-	}
-
-	/* Gifted and chosen spell casters can read all spells from the book they have specialised in */
-	if (spell_match_style(spell)) return (TRUE);
-
-	return (FALSE);
-}
-
-
-/*
- * Returns level for a spell
- */
-s16b spell_level(int spell)
+s16b spell_level_aux(int spell)
 {
 	int i;
 
@@ -9767,15 +9917,13 @@ s16b spell_level(int spell)
 
 	bool fix_level = TRUE;
 
-	/* Illegible */
-	if (!spell_legible(spell)) return (100);
-
 	/* Check we have casting details */
 	if (!sc_ptr) return (100);
 
 	/* Hack -- check if we can 'naturally' cast it,
-	 * as opposed to relying on speciality. */
-	for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	 * as opposed to relying on speciality.
+	 * Note check for warriors. */
+	if (p_ptr->pclass) for (i = 0;i < MAX_SPELL_CASTERS; i++)
 	{
 		if (s_ptr->cast[i].class == p_ptr->pclass)
 		{
@@ -9823,6 +9971,48 @@ s16b spell_level(int spell)
 
 	return(level);
 }
+
+
+/*
+ * Spell could be learnt by the player.
+ *
+ * This differs from spell_read_okay, in that the spell could appear
+ * in another book that the player is allowed to use.
+ */
+bool spell_legible(int spell)
+{
+	int i;
+	spell_type *s_ptr = &s_info[spell];
+
+	/* Note check for warriors. */
+	if (p_ptr->pclass) for (i = 0;i < MAX_SPELL_CASTERS; i++)
+	{
+		/* Class is allowed to cast the spell */
+		if (s_ptr->cast[i].class == p_ptr->pclass) return (TRUE);
+	}
+
+	/* Gifted and chosen spell casters can read all spells from the book they have specialised in,
+	 * unless the computed level is too high. */
+	if (spell_match_style(spell) && (spell_level_aux(spell) <= 50)) return (TRUE);
+
+	return (FALSE);
+}
+
+
+/*
+ * Is the spell legible?
+ */
+s16b spell_level(int spell)
+{
+	/* Illegible */
+	if (!spell_legible(spell)) return (100);
+
+	return (spell_level_aux(spell));
+}
+
+
+
+
 
 
 /*

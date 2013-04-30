@@ -1359,8 +1359,13 @@ static void load_sounds(void)
 		/* Make sure this is a valid event name */
 		for (event = MSG_MAX - 1; event >= 0; event--)
 		{
-			if (strcmp(msg_name, angband_sound_name[event]) == 0)
+			if (strcmp(msg_name, angband_sound_name[event].name) == 0)
+			{
+				/* Note: Sound ids are no longer in order */
+				event = angband_sound_name[event].id;
+				
 			    break;
+			}
 		}
         if (event < 0) continue;
 

@@ -17,7 +17,7 @@ V:0.6.3
 M:m:225
 
 # Maximum number of effect types
-M:e:152
+M:e:154
 
 # Maximum number of feature types
 M:F:996
@@ -26,7 +26,7 @@ M:F:996
 M:D:900
 
 # Maximum number of object kinds
-M:K:984
+M:K:1008
 
 # Maximum number of standard artifacts
 M:a:137
@@ -65,10 +65,10 @@ M:H:350
 M:C:13
 
 # Maximum number of weapon style lines
-M:W:164
+M:W:180
 
 # Maximum number of spells
-M:S:622
+M:S:625
 
 # Maximum number of runes
 M:Y:30
@@ -80,7 +80,7 @@ M:B:8
 M:Q:8
 
 # Maximum number of region info
-M:i:45
+M:i:46
 
 # Maximum number of region pieces
 M:p:2048

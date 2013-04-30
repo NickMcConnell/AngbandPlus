@@ -8,17 +8,17 @@
  f  Bash a door (force)                  F  Fill lantern/torch/flask/etc.
  g  Get objects on floor                 G  Gain new spells/prayers
  h  (walk - west)                        H  (run - west)
- i  Inventory list                       I  Observe an item
+ i  Inventory list                       I  Inspect an item
  j  (walk - south)                       J  (run - south)
  k  (walk - north)                       K  (run - north)
  l  (walk - east)                        L  (run - east)
  m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
- o  Open a door or chest                 O  (unused)
+ o  Open a door or chest                 O  Offer an item
  p  Pray a prayer                        P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
- s  Search for traps/doors               S  Set a trap/Jam a door (Spike)
+ s  Steal item or search                 S  Set a trap/Jam a door (Spike)
  t  Fire an item                         T  Take off equipment
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info

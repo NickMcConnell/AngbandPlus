@@ -737,29 +737,34 @@ static int store_index_buy;
 static bool store_will_buy(const object_type *o_ptr)
 {
 	int i;
+	bool blessed_weapons = FALSE;
 
 	store_type *st_ptr = store[store_index_buy];
 
 	/* Hack -- The Home is simple */
 	if (st_ptr->base < STORE_MIN_BUY_SELL) return (TRUE);
+	
+	/* Hack -- No selling at all */
+	if (adult_no_selling) return (FALSE);
 
+	/* Hack -- Every store will buy books for services */
+	if ((o_ptr->tval == TV_MAGIC_BOOK) || (o_ptr->tval == TV_PRAYER_BOOK) || (o_ptr->tval == TV_SONG_BOOK)) return (TRUE);
+
+	/* Hack -- Every store will buy statues */
+	if (o_ptr->tval == TV_STATUE) return (TRUE);
+	
 	/* Ignore "worthless" items XXX XXX XXX */
 	if (object_value(o_ptr) <= 0) return (FALSE);
-
-	/* Buy tvals that store will sell */
-	for (i = 0;i < STORE_CHOICES; i++)
-	{
-		if (st_ptr->tval[i] == o_ptr->tval) return (TRUE);
-	}
 
 	/* Buy tvals that the store will buy */
 	for (i = 0; i < STORE_WILL_BUY; i++)
 	{
 		if (st_ptr->tvals_will_buy[i] == o_ptr->tval) return (TRUE);
+		if (st_ptr->tvals_will_buy[i] == TV_BLESSED) blessed_weapons = TRUE;
 	}
 
 	/* Hack -- temples buy blessed items */
-	if (st_ptr->base == STORE_TEMPLE)
+	if (blessed_weapons)
 	{
 		u32b f1 = 0L, f2 = 0L, f3 = 0L, f4 = 0L;
 
@@ -976,13 +981,16 @@ static bool store_services(object_type *i_ptr, int store_index)
 	/* No services in black market */
 	if (st_ptr->base == STORE_B_MARKET) return (FALSE);
 
+	/* No services in library */
+	if (st_ptr->base == STORE_LIBRARY) return (FALSE);
+
 	/* No services in quest locations */
 	if (st_ptr->base < STORE_MIN_BUY_SELL) return (FALSE);
 
 	/* Must be a book */
 	if ((i_ptr->tval != TV_PRAYER_BOOK) && (i_ptr->tval != TV_MAGIC_BOOK) && (i_ptr->tval != TV_SONG_BOOK)) return (FALSE);
 
-	/* Check for services */
+	/* Hack -- Check for services -- except library */
 	for (i = 0; i < z_info->s_max; i++)
 	{
 		bool in_item = FALSE;
@@ -3160,7 +3168,7 @@ static void store_process_command(char *choice, int store_index)
 		else if ((y == 10 + store_size) && (x < 55)) *choice = 'g';
 		else if (y == 10 + store_size) *choice = 'l';
 		else if ((y == 11 + store_size) && (x < 31)) *choice = ' ';
-		else if ((y == 11 + store_size) && (x < 55)) *choice = 'd';
+		else if (((st_ptr->base < STORE_MIN_BUY_SELL) || ((adult_no_selling) == 0)) && ((y == 11 + store_size) && (x < 55))) *choice = 'd';
 
 		/* Hack -- execute command */
 		if (p_ptr->command_cmd_ex.mousebutton)
@@ -3572,7 +3580,11 @@ void do_cmd_store(void)
 		&& (!(t_ptr->town_lockup_ifvisited) || t_info[t_ptr->town_lockup_ifvisited].visited))
 	{
 		cptr closed_reason;
-
+		char m_name[80];
+		
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), t_ptr->town_lockup_monster, 0x08, 1);
+		
 		switch(store_index % 4)
 		{
 			case 0:
@@ -3589,7 +3601,7 @@ void do_cmd_store(void)
 				break;
 		}
 
-		msg_format(closed_reason, r_name + r_info[t_ptr->town_lockup_monster].name);
+		msg_format(closed_reason, m_name);
 		return;
 	}
 
@@ -3597,7 +3609,11 @@ void do_cmd_store(void)
 	if ((actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num > 0))
 	{
 		cptr closed_reason;
-
+		char m_name[80];
+		
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone), 0x08, 1);
+		
 		switch(store_index % 4)
 		{
 			case 0:
@@ -3614,7 +3630,7 @@ void do_cmd_store(void)
 				break;
 		}
 
-		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].name);
+		msg_format(closed_reason, m_name);
 		return;
 	}
 
@@ -3694,7 +3710,7 @@ void do_cmd_store(void)
 
 		/* Commands */
 		c_prt(choice == 'g' ? TERM_L_BLUE : TERM_WHITE, " g) Get/Purchase an item.", 10 + store_size, 31);
-		c_prt(choice == 'd' ? TERM_L_BLUE : TERM_WHITE, " d) Drop/Sell an item.", 11 + store_size, 31);
+		if ((st_ptr->base < STORE_MIN_BUY_SELL) || ((adult_no_selling) == 0)) c_prt(choice == 'd' ? TERM_L_BLUE : TERM_WHITE, " d) Drop/Sell an item.", 11 + store_size, 31);
 
 		/* Add in the eXamine option */
 		if (rogue_like_commands)

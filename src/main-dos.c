@@ -1730,18 +1730,18 @@ static bool init_sound(void)
 		for (i = 1; i < SOUND_MAX; i++)
 		{
 			/* Get the sample names */
-			argv = get_config_argv(section, (char *)angband_sound_name[i], &sample_count[i]);
+			argv = get_config_argv(section, (char *)angband_sound_name[i].name, &sample_count[angband_sound_name[i].id]);
 
 			/* Limit the number of samples */
-			if (sample_count[i] > SAMPLE_MAX) sample_count[i] = SAMPLE_MAX;
+			if (sample_count[angband_sound_name[i].id] > SAMPLE_MAX) sample_count[angband_sound_name[i].id] = SAMPLE_MAX;
 
-			for (j = 0; j < sample_count[i]; j++)
+			for (j = 0; j < sample_count[angband_sound_name[i].id]; j++)
 			{
 				/* Access the new sample */
 				path_build(filename, sizeof(filename), xtra_sound_dir, argv[j]);
 
 				/* Load the sample */
-				samples[i][j] = load_sample(filename);
+				samples[angband_sound_name[i].id][j] = load_sample(filename);
 			}
 		}
 

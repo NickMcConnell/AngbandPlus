@@ -1048,6 +1048,13 @@ static bool set_recall(void)
 		msg_print("Nothing happens.");
 		return (FALSE);
 	}
+	
+	/* Nothing to recall to */
+	if (min_depth(p_ptr->dungeon) == max_depth(p_ptr->dungeon))
+	{
+		msg_print("Nothing happens.");
+		return (FALSE);
+	}
 
 	/* Activate recall */
 	if (!p_ptr->word_recall)
@@ -1149,6 +1156,16 @@ retry:
 		goto retry;
 	}
 
+	/* Seen something */
+	if ((detect) || (*known))
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	}
+
 	/* Result */
 	return (detect);
 }
@@ -1200,6 +1217,16 @@ retry:
 		*known = TRUE;
 
 		goto retry;
+	}
+
+	/* Seen something */
+	if ((detect) || (*known))
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 	}
 
 	/* Result */
@@ -1255,6 +1282,16 @@ bool detect_objects_tval(int tval)
 		}
 	}
 
+	/* Seen something */
+	if (detect)
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	}
+
 	/* Result */
 	return (detect);
 }
@@ -1305,6 +1342,16 @@ bool detect_objects_normal(void)
 			/* Detect */
 			detect = TRUE;
 		}
+	}
+
+	/* Seen something */
+	if (detect)
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 	}
 
 	/* Result */
@@ -1717,6 +1764,16 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		}
 	}
 
+	/* Seen something */
+	if (detect)
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	}
+
 	/* Return result */
 	return (detect);
 }
@@ -1960,6 +2017,16 @@ bool detect_monsters(bool (*monster_test_hook)(const int m_idx), bool *known)
 
 	/* Hack -- mark as safe */
 	if (view_detect_grids) detect_feat_flags(0L, 0L, 0L, 2 * MAX_SIGHT, known);
+
+	/* Seen something */
+	if ((flag) || (view_detect_grids))
+	{
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+	}
 
 	/* Result */
 	return (flag);
@@ -5666,7 +5733,7 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 			if (r_ptr->flags1 & (RE1_ACCELERATE | RE1_DECELERATE))
 			{
 				int i;
-				int delay_current = delay;
+				int delay_current = r_ptr->delay_reset;
 
 				for (i = 0; i < r_ptr->lifespan; i++)
 				{
@@ -5674,7 +5741,8 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 
 					if ((r_ptr->flags1 & (RE1_ACCELERATE)) && (!(r_ptr->flags1 & (RE1_DECELERATE)) || (i < r_ptr->lifespan / 2)))
 					{
-						delay_current /= 2;
+						if (delay_current < 3) delay_current -= 1;
+						delay_current -= delay_current / 3;
 						if (delay_current < 1) delay_current = 1;
 					}
 
@@ -5686,7 +5754,7 @@ int process_spell_target(int who, int what, int y0, int x0, int y1, int x1, int 
 					}
 				}
 			}
-			/* Normal delay */
+			/* Normal delay - this is the total lifespan of the effect for subsequent effects */
 			else
 			{
 				delay += r_ptr->lifespan * r_ptr->delay_reset;
@@ -5811,7 +5879,7 @@ bool retarget_blows(int *ty, int *tx, u32b *flg, int method, int level, bool ful
 		if (retarget_blows_subsequent && !(target_okay())) p_ptr->command_dir = 0;
 
 		/* Allow direction to be cancelled for free */
-		if (!get_aim_dir(&retarget_blows_dir, retarget_blows_known ? range : MAX_RANGE, retarget_blows_known ? radius : 0,
+		if (!get_aim_dir(&retarget_blows_dir, TARGET_KILL, retarget_blows_known ? range : MAX_RANGE, retarget_blows_known ? radius : 0,
 						retarget_blows_known ? *flg : (PROJECT_BEAM),
 						retarget_blows_known ? method_ptr->arc : 0,
 						retarget_blows_known ? method_ptr->diameter_of_source : 0)) return (FALSE);
@@ -6003,6 +6071,20 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		obvious = TRUE;
 	}
 
+	/* Process word of recall */
+	if (s_ptr->flags2 & (SF2_RECALL))
+	{
+		if (!set_recall() && !(*cancel))
+		{
+			return (TRUE);
+		}
+		*cancel = FALSE;
+		obvious = TRUE;
+	}
+
+	/*** From this point forward, any abilities cannot be cancelled ***/
+	if (s_ptr->flags1 || s_ptr->flags2 || s_ptr->flags3) *cancel = FALSE;
+	
 	/* Process the flags -- basic feature detection */
 	if ((s_ptr->flags1 & (SF1_DETECT_DOORS)) && (detect_feat_flags(FF1_DOOR, 0x0L, 0x0L, 2 * MAX_SIGHT, known))) vp[vn++] = "doors";
 	if ((s_ptr->flags1 & (SF1_DETECT_TRAPS)) && (detect_feat_flags(FF1_TRAP, 0x0L, 0x0L, 2 * MAX_SIGHT, known))) vp[vn++] = "traps";
@@ -6015,7 +6097,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	/* Process the flags -- basic monster detection */
 	if ((s_ptr->flags1 & (SF1_DETECT_EVIL)) && (detect_monsters(monster_tester_hook_evil, known))) vp[vn++] = "evil";
 	if ((s_ptr->flags1 & (SF1_DETECT_MONSTER)) && (detect_monsters(monster_tester_hook_normal, known))) vp[vn++] = "monsters";
-
+	
 	/* Process the flags -- specific monster detection */
 	if (s_ptr->type == SUMMON_RACE)
 	{
@@ -6029,36 +6111,36 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 
 	/* Process the flags -- detect water */
 	if (s_ptr->flags1 & (SF1_DETECT_WATER))
-	{
-                if (detect_feat_flags(0x0L, FF2_WATER, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "water";
-                if (detect_monsters(monster_tester_hook_water, known)) vp[vn++] = "watery creatures";
+	{		
+		if (detect_feat_flags(0x0L, FF2_WATER, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "water";
+		if (detect_monsters(monster_tester_hook_water, known)) vp[vn++] = "watery creatures";	
 	}
 
 	/* Process the flags -- detect water */
 	if (s_ptr->type == SPELL_DETECT_FIRE)
 	{
-                if (detect_feat_blows(GF_FIRE, 2 * MAX_SIGHT, known)) vp[vn++] = "fire";
-                if (detect_feat_blows(GF_SMOKE, 2 * MAX_SIGHT, known)) vp[vn++] = "smoke";
-                if (detect_feat_blows(GF_LAVA, 2 * MAX_SIGHT, known)) vp[vn++] = "lava";
-                if (detect_monsters(monster_tester_hook_fire, known)) vp[vn++] = "fiery creatures";
+        if (detect_feat_blows(GF_FIRE, 2 * MAX_SIGHT, known)) vp[vn++] = "fire";
+        if (detect_feat_blows(GF_SMOKE, 2 * MAX_SIGHT, known)) vp[vn++] = "smoke";
+        if (detect_feat_blows(GF_LAVA, 2 * MAX_SIGHT, known)) vp[vn++] = "lava";
+        if (detect_monsters(monster_tester_hook_fire, known)) vp[vn++] = "fiery creatures";
 	}
 
 	/* Process the flags -- detect gold */
 	if (s_ptr->flags1 & (SF1_DETECT_GOLD))
-        {
-                if (detect_objects_tval(TV_GOLD)) vp[vn++] = "gold";
-                if (detect_objects_tval(TV_GEMS)) vp[vn++] = "gems";
-                if (detect_feat_flags(FF1_HAS_GOLD, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "buried treature";
-                if (detect_monsters(monster_tester_hook_mineral, known)) vp[vn++] = "mineral creatures";
-        }
+    {
+        if (detect_objects_tval(TV_GOLD)) vp[vn++] = "gold";
+        if (detect_objects_tval(TV_GEMS)) vp[vn++] = "gems";
+        if (detect_feat_flags(FF1_HAS_GOLD, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "buried treature";
+        if (detect_monsters(monster_tester_hook_mineral, known)) vp[vn++] = "mineral creatures";
+    }
 
 	/* Process the flags -- detect objects and object monsters */
 	if (s_ptr->flags1 & (SF1_DETECT_OBJECT))
-        {
-                if (detect_objects_normal()) vp[vn++] = "objects";
+    {
+	    if (detect_objects_normal()) vp[vn++] = "objects";
 		if (detect_feat_flags(FF1_HAS_ITEM, 0x0L, 0x0L, 2 * MAX_SIGHT, known)) vp[vn++] = "hidden items";
-                if (detect_monsters(monster_tester_hook_mimic, known)) vp[vn++] = "mimics";
-        }
+        if (detect_monsters(monster_tester_hook_mimic, known)) vp[vn++] = "mimics";
+    }
 
 	/* Process the flags -- detect magic */
 	if (s_ptr->flags1 & (SF1_DETECT_MAGIC))
@@ -6075,7 +6157,7 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	}
 
 	/* Process the 'fake flag' -- detect minds */
-	if (s_ptr->type == SPELL_DETECT_MIND)
+	if ((s_ptr->type == SPELL_DETECT_MIND) || (s_ptr->type == SPELL_MINDS_EYE))
 	{
 		if (detect_monsters(monster_tester_hook_mental, known)) vp[vn++] = "minds";
 	}
@@ -6154,10 +6236,10 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		obvious = TRUE;
 	}
 
-
-	/* SF2 - timed abilities and modifying level */
-	if ((s_ptr->flags2 & (SF2_CURSE_WEAPON)) && (curse_weapon())) obvious = TRUE;
-	if ((s_ptr->flags2 & (SF2_CURSE_ARMOR)) && (curse_armor())) obvious = TRUE;
+	/* SF2 - timed abilities and modifying */
+	/* Note slow poison is silent in its effect */
+	if ((s_ptr->flags2 & (SF2_SLOW_POIS)) && (set_slow_poison(p_ptr->timed[TMD_SLOW_POISON] + lasts))) obvious = TRUE;
+	if ((s_ptr->flags2 & (SF2_SLOW_DIGEST)) && (inc_timed(TMD_SLOW_DIGEST, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_INFRA)) && (inc_timed(TMD_INFRA, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_HERO)) && (inc_timed(TMD_HERO, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_SHERO)) && (inc_timed(TMD_BERSERK, lasts, TRUE))) obvious = TRUE;
@@ -6166,14 +6248,16 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags2 & (SF2_INVIS)) && (inc_timed(TMD_INVIS, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_SEE_INVIS)) && (inc_timed(TMD_SEE_INVIS, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_PROT_EVIL)) && (inc_timed(TMD_PROTEVIL, lasts + (level== 0 ? 3 * p_ptr->lev : 0), TRUE))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (set_timed(TMD_CURSED, p_ptr->timed[TMD_CURSED] / 2, TRUE))) obvious = TRUE;
-	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (clear_timed(TMD_CURSED, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_FIRE)) && (inc_timed(TMD_OPP_FIRE, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_COLD)) && (inc_timed(TMD_OPP_COLD, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_ACID)) && (inc_timed(TMD_OPP_ACID, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_ELEC)) && (inc_timed(TMD_OPP_ELEC, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags2 & (SF2_OPP_POIS)) && (inc_timed(TMD_OPP_POIS, lasts, TRUE))) obvious = TRUE;
+
+	/* SF3 - timed abilities */
+	if ((s_ptr->flags3 & (SF3_PFIX_CURSE)) && (set_timed(TMD_CURSED, p_ptr->timed[TMD_CURSED] / 2, TRUE))) obvious = TRUE;
+	if ((s_ptr->flags3 & (SF3_CURE_CURSE)) && (clear_timed(TMD_CURSED, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_STR, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_STR)) && (inc_timed(TMD_INC_SIZ, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_INT)) && (inc_timed(TMD_INC_INT, lasts, TRUE))) obvious = TRUE;
@@ -6182,8 +6266,6 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 	if ((s_ptr->flags3 & (SF3_INC_DEX)) && (inc_timed(TMD_INC_AGI, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_CON)) && (inc_timed(TMD_INC_CON, lasts, TRUE))) obvious = TRUE;
 	if ((s_ptr->flags3 & (SF3_INC_CHR)) && (inc_timed(TMD_INC_CHR, lasts, TRUE))) obvious = TRUE;
-
-	/* SF3 - free action only */
 	if ((s_ptr->flags3 & (SF3_FREE_ACT)) && (inc_timed(TMD_FREE_ACT, lasts, TRUE))) obvious = TRUE;
 
 	if (s_ptr->flags2 & (SF2_AGGRAVATE))
@@ -6406,19 +6488,6 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		if (inc_timed(TMD_FAST, p_ptr->timed[TMD_FAST] ? rand_int(s_ptr->lasts_side/3): lasts + level, TRUE)) obvious = TRUE;
 	}
 
-	if (s_ptr->flags2 & (SF2_RECALL))
-	{
-		if (set_recall())
-		{
-			*cancel = FALSE;
-			obvious = TRUE;
-		}
-		else
-		{
-			return (TRUE);
-		}
-	}
-
 	/* SF3 - healing self, and untimed improvements */
 	if (s_ptr->flags3 & (SF3_CURE_STR))
 	  {
@@ -6492,8 +6561,6 @@ bool process_spell_flags(int who, int what, int spell, int level, bool *cancel, 
 		gain_exp(ee);
 		obvious = TRUE;
 	}
-
-	if (s_ptr->flags1 || s_ptr->flags2 || s_ptr->flags3) *cancel = FALSE;
 
 	return (obvious);
 
@@ -6666,8 +6733,23 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			}
 			case SPELL_SUMMON_RACE:
 			{
-				if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
-				*cancel = FALSE;
+				/* Cancel if unique is dead */
+				if (!r_info[s_ptr->param].max_num)
+				{
+					char m_name[80];
+					
+					/* Get the name */
+					race_desc(m_name, sizeof(m_name), s_ptr->param, 0x400, 1);
+					
+					msg_format("%^s cannot be summoned from beyond the grave.", m_name);
+					if (*cancel) return (TRUE);
+				}
+				/* Summoning a monster */
+				else
+				{
+					if (summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L)) obvious = TRUE;
+					*cancel = FALSE;
+				}
 				break;
 			}
 			case SPELL_SUMMON_GROUP_IDX:
@@ -6683,6 +6765,28 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				create_gold();
 				*cancel = FALSE;
 				obvious = TRUE;
+				break;
+			}
+			case SPELL_RAISE_RACE:
+			{
+				char m_name[80];
+				
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), s_ptr->param, 0x400, 1);
+				
+				/* Cancel if unique is alive */
+				if (r_info[s_ptr->param].max_num)
+				{
+					msg_format("%^s is already alive.", m_name);
+					if (*cancel) return (TRUE);
+				}
+				
+				/* Summons unique */
+				msg_format("%^s has been summoned from beyond the grave.", m_name);
+				r_info[s_ptr->param].max_num = 1;
+				summon_specific_one(p_ptr->py, p_ptr->px, s_ptr->param, FALSE, who == SOURCE_PLAYER_CAST ? MFLAG_ALLY : 0L);
+				obvious = TRUE;
+				*cancel = FALSE;
 				break;
 			}
 			case SPELL_CURE_DISEASE:
@@ -6779,23 +6883,16 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				if (pfix_timed(TMD_POISONED, TRUE)) obvious = TRUE;
 				break;
 			}
-			case SPELL_SLOW_POIS:
+			case SPELL_CURSE_WEAPON:
 			{
 				*cancel = FALSE;
-				if (set_slow_poison(p_ptr->timed[TMD_SLOW_POISON] + lasts)) obvious = TRUE;
+				if (curse_weapon()) obvious = TRUE;
 				break;
 			}
-			case SPELL_SLOW_DIGEST:
+			case SPELL_CURSE_ARMOR:
 			{
 				*cancel = FALSE;
-				if (inc_timed(TMD_SLOW_DIGEST, lasts, TRUE)) obvious = TRUE;
-				break;
-			}
-			case SPELL_SLOW_META:
-			{
-				*cancel = FALSE;
-				if (inc_timed(TMD_SLOW_DIGEST, lasts, TRUE)) obvious = TRUE;
-				if (inc_timed(TMD_SLOW_POISON, lasts, TRUE)) obvious = TRUE;
+				if (curse_armor()) obvious = TRUE;
 				break;
 			}
 			case SPELL_IDENT_PACK:
@@ -6906,7 +7003,8 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_MINDS_EYE:
 			{
 				/* This whole spell is a mega-hack of the highest order */
-				int ty, tx;
+				int ty = p_ptr->py;
+				int tx = p_ptr->px;
 				int old_py = p_ptr->py;
 				int old_px = p_ptr->px;
 				int old_lite = p_ptr->cur_lite;
@@ -6914,17 +7012,33 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				u32b old_cur_flags3 = p_ptr->cur_flags3;
 
 				/* Allow direction to be cancelled for free */
-				if (!get_aim_dir(&dir, 0, 0, 0, 0, 0)) return (!(*cancel));
-
-				/* Use the given direction */
-				ty = p_ptr->py + 99 * ddy[dir];
-				tx = p_ptr->px + 99 * ddx[dir];
+				if (!get_aim_dir(&dir, TARGET_KILL, 99, 0, 0, 0, 0)) return (!(*cancel));
 
 				/* Hack -- Use an actual "target" */
 				if ((dir == 5) && target_okay())
 				{
 					ty = p_ptr->target_row;
 					tx = p_ptr->target_col;
+				}
+				else
+				{
+					bool wall = FALSE;
+					
+					while (in_bounds_fully(ty, tx))
+					{
+						/* Predict the "target" location */
+						ty += ddy[dir];
+						tx += ddx[dir];
+						
+						/* Get first monster in direction */
+						if ((cave_m_idx[ty][tx] > 0) && (m_list[cave_m_idx[ty][tx]].ml)) break;
+						
+						/* Look on the other side of the first wall found */
+						if ((wall) && (cave_project_bold(ty,tx))) break;
+						
+						/* Look for wall */
+						if (!(wall) && !(cave_project_bold(ty, tx))) wall = TRUE;
+					}
 				}
 
 				/* Paranoia - ensure we have no outstanding updates before messing with
@@ -6935,6 +7049,9 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				/* Paranoia - ensure bounds */
 				if (in_bounds_fully(ty, tx))
 				{
+					/* No lite by default */
+					p_ptr->cur_lite = 0;
+
 					/* If target is a monster */
 					if (cave_m_idx[ty][tx])
 					{
@@ -6947,11 +7064,6 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 						{
 							/* Get maximum light */
 							p_ptr->cur_lite = 2;
-						}
-						else
-						{
-							/* No lite */
-							p_ptr->cur_lite = 0;
 						}
 
 						/* Hack - special darknes sight for monsters that don't need lite */
@@ -6969,12 +7081,9 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 
 						/* XXX Show player scent?? */
 					}
+					
 					/* Hack -- second sight */
-					else
-					{
-						/* Does not have innate light */
-						p_ptr->cur_lite = 0;
-					}
+					if (p_ptr->cur_lite < s_ptr->param) p_ptr->cur_lite = s_ptr->param;
 
 					/* Use target location */
 					p_ptr->py = ty;
@@ -7210,7 +7319,7 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				bool result;
 
 				/* Accurate blow */
-				p_ptr->to_h = s_ptr->param;
+				p_ptr->to_h += s_ptr->param;
 
 				/* Allow direction to be cancelled for free */
 				result = process_spell_blow_shot_hurl(s_ptr->type - SPELL_ACCURATE_BLOW);
@@ -7874,7 +7983,7 @@ void region_piece_copy(region_piece_type *rp_ptr, const region_piece_type *rp_pt
 /*
  * Move a region piece from index i1 to index i2 in the region piece list
  */
-static void compact_region_pieces_aux(int i1, int i2)
+void compact_region_pieces_aux(int i1, int i2)
 {
 	int i, y, x;
 
@@ -8116,7 +8225,7 @@ void wipe_region_list(void)
 /*
  * Move a region piece from index i1 to index i2 in the region piece list
  */
-static void compact_regions_aux(int i1, int i2)
+void compact_regions_aux(int i1, int i2)
 {
 	int i;
 
@@ -8364,7 +8473,7 @@ void region_insert(u16b *gp, int grid_n, s16b *gd, s16b region)
 /*
  * Iterate through a region, applying a region_hook function to each grid in the region
  */
-bool region_iterate(s16b region, bool region_iterator(int y, int x, int d, s16b region))
+bool region_iterate(s16b region, bool region_iterator(int y, int x, s16b d, s16b region))
 {
 	s16b this_region_piece, next_region_piece = 0;
 	bool seen = FALSE;
@@ -8391,7 +8500,7 @@ bool region_iterate(s16b region, bool region_iterator(int y, int x, int d, s16b 
  * Similar to the above region_iterate, but we only affect grids within d distance of (y,x)
  * if gt is true, or further than d distance if gt is false. We also check for LOS.
  */
-bool region_iterate_distance(s16b region, int y, int x, int d, bool gt, bool region_iterator(int y, int x, int d, s16b region))
+bool region_iterate_distance(s16b region, int y, int x, s16b d, bool gt, bool region_iterator(int y, int x, s16b d, s16b region))
 {
 	method_type *method_ptr = &method_info[region_list[region].method];
 	s16b this_region_piece, next_region_piece = 0;
@@ -8422,7 +8531,7 @@ bool region_iterate_distance(s16b region, int y, int x, int d, bool gt, bool reg
 /*
  * Hook for redrawing all grids in a region.
  */
-bool region_refresh_hook(int y, int x, int d, s16b region)
+bool region_refresh_hook(int y, int x, s16b d, s16b region)
 {
 	(void)d;
 	(void)region;
@@ -8448,7 +8557,7 @@ void region_refresh(s16b region)
 /*
  * Hook for redrawing all grids in a region.
  */
-bool region_debug_hook(int y, int x, int d, s16b region)
+bool region_debug_hook(int y, int x, s16b d, s16b region)
 {
 	(void)d;
 	(void)region;
@@ -8482,7 +8591,7 @@ void region_debug(s16b region)
 /*
  * Highlight the region. We do this by moving the first region pieces to the top of the stack.
  */
-bool region_highlight_hook(int y, int x, int d, s16b region)
+bool region_highlight_hook(int y, int x, s16b d, s16b region)
 {
 	s16b this_region_piece, next_region_piece = 0;
 
@@ -8550,7 +8659,7 @@ void region_highlight(s16b region)
 /*
  * Hook for setting temp grids for region
  */
-bool region_mark_temp_hook(int y, int x, int d, s16b region)
+bool region_mark_temp_hook(int y, int x, s16b d, s16b region)
 {
 	(void)d;
 	(void)region;
@@ -8640,12 +8749,12 @@ void region_update(s16b region)
 			else if (r_ptr->flags1 & (RE1_HIT_TRAP))
 			{
 				/* Some traps are avoidable by monsters*/
-				if ((cave_m_idx[rp_ptr->y][rp_ptr->x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[rp_ptr->y][rp_ptr->x]],r_ptr->y0,r_ptr->x0)))
+				if ((cave_m_idx[rp_ptr->y][rp_ptr->x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[rp_ptr->y][rp_ptr->x]],y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					continue;
 				}
 				/* Some traps are avoidable by the player */
-				else if ((cave_m_idx[rp_ptr->y][rp_ptr->x] < 0) && (avoid_trap(r_ptr->y0,r_ptr->x0)))
+				else if ((cave_m_idx[rp_ptr->y][rp_ptr->x] < 0) && (avoid_trap(y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					continue;
 				}
@@ -8680,7 +8789,7 @@ void region_update(s16b region)
  * for that region. This is used to overlay temporary terrain onto a region,
  * then restore it later using region_restore_hook.
  */
-bool region_uplift_hook(int y, int x, int d, s16b region)
+bool region_uplift_hook(int y, int x, s16b d, s16b region)
 {
 	region_type *r_ptr = &region_list[region];
 	s16b region_piece = get_region_piece(y, x, region);
@@ -8737,7 +8846,7 @@ bool region_uplift_hook(int y, int x, int d, s16b region)
  * Sets the feature for a grid, based on the scalar set for the
  * region of that grid. Use region_uplift_hook to set the region.
  */
-bool region_restore_hook(int y, int x, int d, s16b region)
+bool region_restore_hook(int y, int x, s16b d, s16b region)
 {
 	region_type *r_ptr = &region_list[region];
 	int this_region_piece, next_region_piece = 0;
@@ -8782,7 +8891,7 @@ bool region_restore_hook(int y, int x, int d, s16b region)
  * project_t() effect separately. This is done by setting the
  * PROJECT_TEMP flag.
  */
-bool region_project_hook(int y, int x, int d, s16b region)
+bool region_project_hook(int y, int x, s16b d, s16b region)
 {
 	region_type *r_ptr = &region_list[region];
 	method_type *method_ptr = &method_info[r_ptr->method];
@@ -8826,7 +8935,7 @@ bool region_project_hook(int y, int x, int d, s16b region)
  * Apply project_t to every grid. Note that we have to apply the
  * project_t() effect separately.
  */
-bool region_project_t_hook(int y, int x, int d, s16b region)
+bool region_project_t_hook(int y, int x, s16b d, s16b region)
 {
 	region_type *r_ptr = &region_list[region];
 
@@ -8870,7 +8979,7 @@ s16b region_copy_to;
 /*
  * Copy the pieces to a new region.
  */
-bool region_copy_pieces_hook(int y, int x, int d, s16b region)
+bool region_copy_pieces_hook(int y, int x, s16b d, s16b region)
 {
 	(void)region;
 
@@ -9170,27 +9279,30 @@ void trigger_region(int y, int x, bool move)
 		method_type *method_ptr = &method_info[r_ptr->method];
 
 		bool notice = FALSE;
+		
+		int ty = y;
+		int tx = x;
 
 		/* Get the next object */
 		next_region_piece = rp_ptr->next_in_grid;
 
 		/* Paranoia */
 		if (!r_ptr->type) continue;
-
+		
 		/* Shoot grid with effect */
 		if ((move ? ((r_ptr->flags1 & (RE1_TRIGGER_MOVE)) != 0) : ((r_ptr->flags1 & (RE1_TRIGGER_DROP)) != 0)) &&
 				((r_ptr->flags1 & (RE1_TRIGGERED)) == 0))
 		{
 			/* Handle avoidable traps */
-			if ((move) && (r_ptr->flags1 & (RE1_HIT_TRAP)))
+			if ((move) && ((r_ptr->flags1 & (RE1_HIT_TRAP)) != 0))
 			{
 				/* Some traps are avoidable by monsters */
-				if ((cave_m_idx[y][x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[y][x]], y,x)))
+				if ((cave_m_idx[y][x] > 0) && (mon_avoid_trap(&m_list[cave_m_idx[y][x]],y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					return;
 				}
 				/* Some traps are avoidable by the player */
-				else if ((cave_m_idx[y][x] < 0) && (avoid_trap(y,x)))
+				else if ((cave_m_idx[y][x] < 0) && (avoid_trap(y, x, cave_feat[r_ptr->y0][r_ptr->x0])))
 				{
 					return;
 				}
@@ -9204,10 +9316,17 @@ void trigger_region(int y, int x, bool move)
 			{
 				int r = region_random_piece(rp_ptr->region);
 
-				y = region_piece_list[r].y;
-				x = region_piece_list[r].x;
+				ty = region_piece_list[r].y;
+				tx = region_piece_list[r].x;
 			}
 
+			/* Fixed grid hit */
+			if (r_ptr->flags1 & (RE1_FIXED))
+			{
+				ty = r_ptr->y1;
+				tx = r_ptr->x1;
+			}
+			
 			/* Mark region as triggered */
 			/* XXX It's really important we mark region triggered before firing the effect.
 			 * This prevents a situation where a region gets retriggered by a monster drop
@@ -9215,7 +9334,7 @@ void trigger_region(int y, int x, bool move)
 			r_ptr->flags1 |= (RE1_TRIGGERED);
 
 			/* Actually discharge the region */
-			notice |= region_effect(rp_ptr->region, y, x);
+			notice |= region_effect(rp_ptr->region, ty, tx);
 
 			/* Paranoia - region has been removed */
 			if (!r_ptr->type) return;
@@ -9252,7 +9371,7 @@ void trigger_region(int y, int x, bool move)
 			else
 			{
 				/* Damage objects directly if dropping an object. */
-				notice |= project_o(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect);
+				notice |= project_one(r_ptr->who, r_ptr->what, y, x, dam, r_ptr->effect, (PROJECT_GRID));
 			}
 		}
 
@@ -9296,7 +9415,7 @@ void trigger_region(int y, int x, bool move)
  * do some smarter way of verifying the source and destination that stops jumping while
  * allowing some movement.
  */
-bool region_iterate_movement(s16b region, void region_iterator(int y, int x, int d, s16b region, int *y1, int *x1))
+bool region_iterate_movement(s16b region, void region_iterator(int y, int x, s16b d, s16b region, int *y1, int *x1))
 {
 	region_type *r_ptr = &region_list[region];
 	method_type *method_ptr = &method_info[region_info[r_ptr->type].method];
@@ -9418,11 +9537,11 @@ bool region_iterate_movement(s16b region, void region_iterator(int y, int x, int
 		{
 			int y = rp_ptr->y;
 			int x = rp_ptr->x;
-
+			
 			/* Can't move out of bounds */
 			if (!in_bounds(ty, tx)) continue;
 
-			/* Move the vortex */
+			/* Move the region piece */
 			excise_region_piece(this_region_piece);
 			rp_ptr->y = ty;
 			rp_ptr->x = tx;
@@ -9447,7 +9566,7 @@ bool region_iterate_movement(s16b region, void region_iterator(int y, int x, int
 /*
  * Movement for seekers
  */
-void region_move_seeker_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+void region_move_seeker_hook(int y, int x, s16b d, s16b region, int *ty, int *tx)
 {
 	region_type *r_ptr = &region_list[region];
 	method_type *method_ptr = &method_info[r_ptr->method];
@@ -9568,18 +9687,17 @@ void region_move_seeker_hook(int y, int x, int d, s16b region, int *ty, int *tx)
 		*ty = y + ddy[dir];
 		*tx = x + ddx[dir];
 	}
-
-	return;
 }
 
 
 /*
  * Function to move region pieces as if encoding a vector
  */
-void region_move_vector_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+void region_move_vector_hook(int y, int x, s16b d, s16b region, int *ty, int *tx)
 {
 	region_type *r_ptr = &region_list[region];
-	int angle, speed;
+	byte angle, speed;
+	int speed32, angle32;
 
 	u16b path_g[99];
 	int path_n;
@@ -9590,18 +9708,17 @@ void region_move_vector_hook(int y, int x, int d, s16b region, int *ty, int *tx)
 
 	/* Speed of travel */
 	speed = GRID_X(d);
-
+	speed32 = speed;
+	
 	/* Does this fragment move at this age? */
-	if ((r_ptr->age * speed / 100) == ((r_ptr->age - 1) * speed / 100)) return;
-
-	/* If random, we only move vertexes 50% of the time */
-	if ((r_ptr->flags1 & (RE1_RANDOM)) && (rand_int(100) < 50)) return;
+	if ((r_ptr->age * speed32 / 100) == ((r_ptr->age - 1) * speed32 / 100)) return;
 
 	/* Angle of travel */
 	angle = GRID_Y(d);
-
+	angle32 = angle;
+	
 	/* Get the target grid for this angle */
-	get_grid_using_angle(angle, r_ptr->y0, r_ptr->x0, ty, tx);
+	get_grid_using_angle(angle32, r_ptr->y0, r_ptr->x0, ty, tx);
 
 	/* If we have a legal target, */
 	if ((*ty != r_ptr->y0) || (*tx != r_ptr->x0))
@@ -9623,7 +9740,7 @@ void region_move_vector_hook(int y, int x, int d, s16b region, int *ty, int *tx)
 /*
  * Function to spread regions
  */
-void region_move_spread_hook(int y, int x, int d, s16b region, int *ty, int *tx)
+void region_move_spread_hook(int y, int x, s16b d, s16b region, int *ty, int *tx)
 {
 	method_type *method_ptr = &method_info[region_list[region].method];
 	int dir = rand_int(12);
@@ -9702,7 +9819,8 @@ void process_region(s16b region)
 	/* Accelerating */
 	if ((r_ptr->flags1 & (RE1_ACCELERATE)) && (!(r_ptr->flags1 & (RE1_DECELERATE)) || (r_ptr->age < r_ptr->lifespan / 2)))
 	{
-		r_ptr->delay_reset /= 2;
+		if (r_ptr->delay_reset < 3) r_ptr->delay_reset -= 1;
+		r_ptr->delay_reset -= r_ptr->delay_reset / 3;
 		if (r_ptr->delay_reset < 1) r_ptr->delay_reset = 1;
 	}
 
@@ -10137,6 +10255,7 @@ s16b init_region(int who, int what, int type, int dam, int method, int effect, i
 	r_ptr->damage = dam;
 	r_ptr->effect = effect;
 	r_ptr->lifespan = AGE_INFINITY;
+	r_ptr->delay = 0;
 	r_ptr->method = method;
 
 	/* Initialise region values from region info type */

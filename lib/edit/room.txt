@@ -119,7 +119,7 @@ B:vault
 
 # Greater vault.
 
-N:10:113:0:0:1:1:0:128
+N:10:158:0:0:1:1:0:128
 A:
 B:vault
 D:A 
@@ -158,19 +158,19 @@ B:
 
 N:13:104:0:0:1:1:0:128
 A:
-B:cave
+B:grotto
 
 # Medium fractal room - wall decorations.
 
 N:13:117:0:0:1:1:0:128
 A:
-B:cave
+B:grotto
 
 # Large fractal room - central feature.
 
 N:14:104:0:0:1:1:0:128
 A:
-B:cavern
+B:cave
 
 # Large fractal room - wall decorations.
 
@@ -214,12 +214,101 @@ N:19:117:0:0:1:1:0:128
 A:
 B:labyrinth
 
-# Monster pit.
+# Medium cellular cave - wall decorations.
 
 N:20:117:0:0:1:1:0:128
 A:
+B:grotto
+
+# Large cellular cave - wall decorations.
+
+N:21:117:0:0:1:1:0:128
+A:
+B:cave
+
+# Huge cellular cave - wall decorations
+
+N:22:117:0:0:1:1:0:128
+A:
+B:cavern
+
+# Medium burrows - central feature.
+
+N:23:104:0:0:1:1:0:128
+A:
+B:burrows
+
+# Medium burrows - wall decorations.
+
+N:23:117:0:0:1:1:0:128
+A:
+B:burrows
+
+# Large burrows - central feature.
+
+N:24:104:0:0:1:1:0:128
+A:
+B:warren
+
+# Large burrows - wall decorations.
+
+N:24:117:0:0:1:1:0:128
+A:
+B:warren
+
+# Huge burrows - central feature
+
+N:25:104:0:0:1:1:0:128
+A:
+B:hive
+
+# Huge burrows - wall decorations
+
+N:25:117:0:0:1:1:0:128
+A:
+B:hive
+
+# Monster pit.
+
+N:26:117:0:0:1:1:0:128
+A:
 B:pit
 
+# Monster town.
+
+N:27:117:0:0:1:1:0:128
+A:
+B:pit
+
+# Concave room - small
+
+N:28:104:0:0:1:1:0:128
+A:irregular
+B:
+
+# Concave room - medium
+
+N:29:104:0:0:1:1:0:128
+A:strange
+B:
+
+# Weird room - medium
+
+N:29:104:0:0:1:1:0:128
+A:weird
+B:
+
+# Concave room - large
+
+N:30:104:0:0:1:1:0:128
+A:bizarre
+B:
+
+# Concave room - large and dangerous
+
+N:30:158:0:0:1:1:30:128
+A:
+B:
 
 
 # An inner room of some description
@@ -877,6 +966,15 @@ S:SEEN
 K:8:3:3
 P:SCATTER
 
+N:104:105:0:0:50:0:20:128
+A:
+B:hive
+D:A huge hive 
+G:I
+S:SEEN
+K:80:30:30
+P:SCATTER
+
 N:104:105:0:0:50:0:25:128
 A:
 B:cocoon
@@ -1096,7 +1194,7 @@ P:OUTER
 N:104:146:107:105:50:2:20:128
 A:waterfall
 B:
-D:A water fall 
+D:A waterfall 
 L:WATER
 F:126:0:0:0:0
 S:SEEN
@@ -1105,7 +1203,7 @@ P:ALLOC
 N:104:155:107:105:50:2:20:128
 A:toxic
 B:
-D:A poisonous water fall 
+D:A poisonous waterfall 
 L:WATER
 F:990:0:0:0:0
 S:SEEN
@@ -1114,7 +1212,7 @@ P:ALLOC
 N:104:147:107:105:50:0:41:128
 A:boiling
 B:
-D:A boiling water fall 
+D:A boiling waterfall 
 L:WATER | LAVA
 F:160:0:0:0:0
 S:SEEN
@@ -1780,7 +1878,7 @@ L:OIL
 S:SEEN
 P:PLACE | RANDOM
 
-N:106:151:0:0:70:0:65:1283
+N:106:151:0:0:70:0:65:128
 A:burning
 B:
 D:surrounded by a deep trench filled with burning oil. 
@@ -1789,7 +1887,7 @@ L:OIL
 S:SEEN
 P:PLACE | INNER
 
-N:106:151:0:0:70:1:20:128
+N:106:151:0:0:70:1:50:128
 A:fiery
 B:
 D:surrounded by a wall of fire. 
@@ -2762,7 +2860,7 @@ R:ORC
 N:112:133:107:115:15:1:15:128
 A:
 B:
-D:defeaning drums 
+D:defeaning drums beating 
 R:TROLL
 
 N:112:115:0:0:15:1:15:128
@@ -6189,3 +6287,99 @@ D:wedged between two boulders.
 N:157:107:0:0:25:25:30:128
 D:trapped under a huge stone block.  
 
+# Repeat 117 -> 113 entries so that greater vaults and bizarre concaves can start correctly.
+
+N:158:113:0:0:15:1:0:128
+A:
+B:
+D:Worn 
+S:SEEN
+R:STUPID
+
+N:158:113:0:0:15:1:5:128
+A:
+B:
+D:Patterned 
+S:SEEN
+R:SMART
+P:OUTER
+
+N:158:113:0:0:15:1:10:128
+A:
+B:
+D:Gloomy 
+S:SEEN | GLOOMY
+R:HURT_LITE
+P:OUTER
+
+N:158:113:0:0:15:1:15:128
+A:
+B:
+D:Mottled 
+S:SEEN | HIDDEN
+R:SNEAKY
+P:OUTER
+
+N:158:113:0:0:15:1:30:128
+A:
+B:
+D:Skull-inlaid 
+S:SEEN | GRAVE
+R:UNDEAD
+F:0:868:752:0:0
+
+N:158:113:0:0:15:1:30:128
+A:
+B:
+D:Strange 
+S:SEEN | PUZZLE
+R:WEIRD_MIND
+P:OUTER
+
+N:158:113:0:0:15:1:20:128
+A:
+B:
+D:Heavy 
+S:SEEN | ANCHOR
+R:RES_TPORT
+P:OUTER
+
+N:158:113:0:0:15:1:20:128
+A:
+B:
+D:Shimmering 
+S:SEEN | PORTAL
+R:RES_TPORT
+P:OUTER
+
+N:158:113:0:0:15:1:20:128
+A:
+B:
+D:Gleaming 
+S:SEEN | ICKY
+R:EVIL
+P:OUTER
+
+N:158:113:0:0:15:1:20:128
+A:
+B:
+D:Dull 
+S:SEEN | DISPEL
+R:RES_MAGIC
+F:0:868:752:0:0
+
+N:158:113:0:0:15:1:40:128
+A:
+B:
+D:Glistening 
+S:SEEN | BLOODY
+R:EVIL
+P:OUTER
+
+N:158:113:0:0:15:1:50:128
+A:
+B:
+D:Glowing 
+S:SEEN | CURSED
+R:EVIL
+P:OUTER

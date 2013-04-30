@@ -17,14 +17,18 @@
 
 # Version stamp (required)
 
+
 V:0.6.3
 
 N:0:(for sale sign)
+X:0
 
 N:1:General store
 X:3
 O:80:35:4
-O:92:0:2
+O:92:52:3
+O:92:53:2
+O:92:54:2
 O:80:32:1
 O:80:33:2
 O:80:39:1
@@ -32,8 +36,6 @@ O:80:38:1
 O:39:0:3
 O:39:1:2
 O:77:0:5
-O:92:1:1
-O:92:13:1
 O:5:0:2
 O:16:1:1
 O:17:1:1
@@ -43,6 +45,21 @@ O:20:4:1
 O:35:1:3
 O:14:1:2
 O:14:2:1
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Song Book
 
 # Service of Enchant Armour and Acid Proofing
 
@@ -71,6 +88,15 @@ O:31:2:1
 O:34:2:2
 O:34:4:1
 O:34:3:1
+B:Boots
+B:Gloves
+B:Crown
+B:Helm
+B:Shield
+B:Cloak
+B:Soft Armor
+B:Hard Armor
+B:Dragon Scale Mail
 
 #Services of Enchant Weapon To-Hit and To-Dam
 
@@ -108,8 +134,17 @@ O:19:23:1
 O:16:1:2
 O:17:1:2
 O:18:1:2
+B:Shot
+B:Bolt
+B:Arrow
+B:Bow
+B:Digger
+B:Hafted Weapon
+B:Polearm
+B:Sword
 
 #Services of Restoration & Healing
+
 N:4:Temple
 X:6
 O:99:10:0
@@ -137,10 +172,17 @@ O:75:36:2
 O:75:41:3
 O:75:65:1
 O:75:81:2
-O:91:32:3
-O:91:33:2
-O:91:34:2
-O:91:35:1
+O:91:52:3
+O:91:53:2
+O:91:54:2
+O:91:55:1
+B:Prayer Book
+B:Scroll
+B:Potion
+B:Hafted Weapon
+B:Blessed Weapon
+B:Shot
+B:Rod
 
 # Service of Analyze Magic and Read Magic
 
@@ -171,8 +213,13 @@ O:75:30:1
 O:75:31:1
 O:70:12:7
 O:75:29:2
+B:Mushroom
+B:Scroll
+B:Potion
+B:Runestone
 
 #Service of Gauge Magic
+
 N:6:Magic Shop
 X:8
 O:99:2:0
@@ -193,10 +240,20 @@ O:55:30:2
 O:66:7:1
 O:66:25:1
 O:66:17:1
-O:90:32:3
-O:90:33:2
-O:90:34:2
-O:90:35:1
+O:90:52:3
+O:90:53:2
+O:90:54:2
+O:90:55:1
+O:90:56:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
 
 N:7:Black Market
 X:9
@@ -221,6 +278,11 @@ O:80:39:1
 O:80:40:1
 O:75:2:1
 O:75:1:1
+B:Mushroom
+B:Scroll
+B:Potion
+B:Runestone
+B:Food
 
 N:10:Mill
 X:9
@@ -253,6 +315,7 @@ O:80:40:1
 O:80:41:1
 
 #Service of Satisfy Hunger, Rest until Dusk/Dawn
+
 N:15:Festhall
 X:3
 O:99:1:0
@@ -271,10 +334,25 @@ O:24:1:1
 O:24:2:1
 O:75:0:1
 O:75:0:0
-O:92:0:3
-O:92:1:2
-O:92:2:2
-O:92:13:2
+O:92:52:3
+O:92:53:2
+O:92:54:2
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Potion
+B:Song Book
 
 N:16:Music hall
 X:3
@@ -285,6 +363,8 @@ O:92:6:2
 O:92:7:1
 O:92:8:1
 O:92:9:1
+O:92:11:1
+O:92:12:1
 O:24:3:2
 O:24:4:2
 O:24:5:2
@@ -292,6 +372,23 @@ O:24:6:2
 O:24:7:1
 O:24:8:1
 O:24:9:1
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Song Book
+
+#O:92:10:1
 
 #Service of Poison Arrows
 
@@ -315,6 +412,15 @@ O:19:23:2
 O:19:24:2
 O:14:1:2
 O:14:2:1
+B:Shot
+B:Bolt
+B:Arrow
+B:Bow
+B:Digger
+B:Hafted Weapon
+B:Polearm
+B:Sword
+B:Rope
 
 N:18:Jewelers
 X:8
@@ -339,20 +445,30 @@ O:45:27:1
 O:45:28:1
 O:45:29:1
 O:45:30:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
 
 N:19:Library
-X:8
-O:92:0:3
-O:92:1:2
-O:92:13:2
-O:91:32:3
-O:91:33:2
-O:91:34:2
-O:91:35:1
-O:90:32:3
-O:90:33:2
-O:90:34:2
-O:90:35:1
+X:10
+O:92:52:3
+O:92:53:2
+O:92:54:2
+O:91:52:3
+O:91:53:2
+O:91:54:2
+O:91:55:1
+O:90:52:3
+O:90:53:2
+O:90:54:2
+O:90:55:1
+O:90:56:1
 O:90:9:1
 O:90:10:1
 O:90:11:1
@@ -366,14 +482,17 @@ O:90:19:1
 O:90:20:1
 O:90:21:1
 O:90:22:1
-O:90:24:1
-O:72:52:1
-O:72:59:1
-O:72:40:1
-O:72:46:1
-O:72:43:1
-O:72:44:1
-O:72:45:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
+B:Song Book
+B:Prayer Book
 
 N:20:newly erected statue in your honor
 X:2
@@ -411,6 +530,20 @@ O:20:1:1
 O:20:4:1
 O:20:5:1
 O:35:1:3
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
 
 N:24:the Mirror of Galadriel
 X:2
@@ -431,15 +564,22 @@ O:75:36:2
 O:75:41:3
 O:75:65:1
 O:75:81:2
-O:91:32:3
-O:91:33:2
-O:91:34:2
-O:91:35:1
+O:91:52:3
+O:91:53:2
+O:91:54:2
+O:91:55:1
 O:91:9:1
 O:91:10:1
 O:91:11:1
 O:91:12:1
 O:91:13:1
+B:Prayer Book
+B:Scroll
+B:Potion
+B:Hafted Weapon
+B:Blessed Weapon
+B:Shot
+B:Staff
 
 N:26:Storeroom
 X:1
@@ -479,6 +619,7 @@ O:75:36:2
 O:75:41:3
 
 #Service of Acid Proofing
+
 N:29:Small Goods Store
 X:4
 O:65:67:1
@@ -508,8 +649,25 @@ O:14:1:2
 O:14:2:1
 O:70:8:1
 O:99:35:0
+B:Boots
+B:Gloves
+B:Crown
+B:Helm
+B:Shield
+B:Cloak
+B:Soft Armor
+B:Hard Armor
+B:Dragon Scale Mail
+B:Wand
+B:Bow
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Sword
 
 #Service of Enchant Armour and Enchant Armour To-Resist
+
 N:30:Heavy Armoury
 X:4
 O:99:15:0
@@ -535,8 +693,18 @@ O:31:2:2
 O:31:5:2
 O:34:3:2
 O:34:5:2
+B:Boots
+B:Gloves
+B:Crown
+B:Helm
+B:Shield
+B:Cloak
+B:Soft Armor
+B:Hard Armor
+B:Dragon Scale Mail
 
 #Service of Enchant Weapon and Enchant Weapon Brand
+
 N:31:Heavy Weapon Smith
 X:5
 O:99:14:0
@@ -569,6 +737,14 @@ O:19:13:2
 O:19:24:2
 O:17:1:3
 O:18:1:3
+B:Shot
+B:Bolt
+B:Arrow
+B:Bow
+B:Digger
+B:Hafted Weapon
+B:Polearm
+B:Sword
 
 N:32:Runesmith
 X:8
@@ -603,6 +779,15 @@ O:93:25:1
 O:93:26:1
 O:93:27:1
 O:93:28:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
 
 N:33:Chemist
 X:7
@@ -633,6 +818,13 @@ O:70:56:1
 O:70:57:1
 O:39:1:4
 O:77:0:4
+B:Mushroom
+B:Scroll
+B:Potion
+B:Runestone
+B:Food
+B:Lite
+B:Flask
 
 N:34:Gandalf's Firework Shop
 X:8
@@ -644,9 +836,9 @@ O:65:15:1
 O:65:14:1
 O:55:8:1
 O:55:7:1
-O:90:32:3
-O:90:33:2
-O:90:34:2
+O:90:52:4
+O:90:53:3
+O:90:54:2
 O:19:12:1
 O:17:1:2
 O:18:1:3
@@ -656,19 +848,37 @@ O:39:1:1
 O:70:8:3
 O:70:77:2
 O:99:43:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
+B:Bow
+B:Arrow
+B:Bolt
+B:Flask
+B:Lite
 
 #Service of Satisfy Hunger, Rest until dusk/dawn
+
 N:35:Inn of the Green Dragon
 X:3
-O:91:32:3
-O:91:33:2
-O:91:34:2
+O:90:52:4
+O:90:53:3
+O:90:54:1
+O:91:52:3
+O:91:53:2
+O:91:54:1
 O:99:1:0
 O:99:26:0
 O:99:52:0
-O:92:0:3
-O:92:1:1
-O:92:13:2
+O:92:52:4
+O:92:53:3
+O:92:54:1
 O:35:1:3
 O:80:35:3
 O:80:38:3
@@ -678,6 +888,22 @@ O:75:35:1
 O:75:28:2
 O:77:0:1
 O:5:0:1
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Magic Book
+B:Prayer Book
 
 N:36:tree hung with a banner 'Happy Eleventy-One'
 X:2
@@ -714,8 +940,25 @@ O:75:35:1
 O:5:0:1
 O:20:1:1
 O:20:4:2
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Gloves
+B:Potion
 
 #Service of Satisfy Hunger
+
 N:45:an Inn on the East Road
 X:3
 O:99:1:0
@@ -732,6 +975,22 @@ O:75:35:1
 O:75:28:2
 O:17:1:1
 O:39:0:3
+B:Food
+B:Lite
+B:Flask
+B:Spike
+B:Shot
+B:Arrow
+B:Bolt
+B:Digger
+B:Cloak
+B:Instrument
+B:Map
+B:Magic Bag
+B:Rope
+B:Mushroom
+B:Boots
+B:Potion
 
 N:46:the branches of an Ent
 X:2
@@ -741,16 +1000,31 @@ X:2
 
 N:48:Chart Scribe
 X:8
-O:72:52:10
-O:72:59:10
-O:72:40:10
-O:72:46:10
-O:72:43:10
-O:72:44:10
-O:72:45:10
+O:72:47:1
+O:72:50:1
+O:72:31:1
+O:72:56:1
+O:72:62:1
+O:72:25:1
+O:72:68:1
+O:72:64:1
+O:72:65:1
+O:72:66:1
+O:72:41:1
+B:Magic Book
+B:Amulet
+B:Ring
+B:Staff
+B:Wand
+B:Rod
+B:Scroll
+B:Potion
+B:Runestone
+B:Map
 
 N:49:the hut of Radagast the Brown
 X:0
 
 N:50:pavilion of the Army of the West
 X:2
+

@@ -1,3 +1,203 @@
+Unangband 0.6.4 pre-release
+
+### Game Play ###
+
+- Made sneaking cap the maximum wake up speed of monsters at close ranges
+in return for losing charging and dodging through normal movement. Sneaking
+should be used for 2 specific situations: a) if you don't want your allies
+to wake up sleeping monsters and b) to avoid waking monsters you are aware
+of which are at range 4 or less.
+
+- You can now 's'teal from monsters. This is automatically successful if
+they are asleep and uses your stealth skill if they are awake. If you
+are detected the monster will be aggravated and alert it's allies. The
+'s' command still searches if monsters are not adjacent to you - you can
+also cancel out of the steal attempt to be offered the chance to search
+instead.
+
+- You get warned several turns before a monster wakes up that it is about
+to be disturbed. Sneaking will buy you more time this way.
+
+- Town monsters can now fall asleep again or notice the player.
+
+- Magic/priest/spell book specialists are now much more restricted in which
+books they can choose from.
+
+- Add birth_no_identify, birth_no_selling and birth_evil options.
+
+- Add good monsters. These are automatically allied to the player when
+placed in the dungeon unless the player has the birth_evil flag. Exactly two
+monsters are good at the moment (The ones people complain about having to kill).
+
+- Add 'O'ffer an item command. This allows you to give items to your allies,
+sell items to townsfolk and trade items with monsters in the dungeon. There
+is plenty of testing and balancing still to do here. You should be able to
+bribe monsters in the dungeon to have them progressively become less likely
+to kill you and more friendly by trading at a loss. However, such monsters
+will usually turn on you or leave you if you don't continue to pay them (You
+will be warned in advance of this happening). Be especially wary of dealing
+with evil monsters although they tend to offer much better deals up front.
+There are several functions left to do here: a monster still needs to be able
+to 'prematurely drop' in order that it has a more interesting set of items
+to trade with you, and they need to be able to reveal the part of the dungeon
+where they live, so you can go there for any moneys they haven't paid you
+yet.
+
+- Allow all stores now buy books, statues.
+
+- Library no longer stocks services based on the books it owns.
+
+- Use a fake Blessed Weapon tval to indicate that the store can buy any
+weapon if it is blessed. Might change this to a flag at a later date.
+
+- Beginners are no longer beginners after reaching level 10.
+
+- Improve access to help files during character creation.
+
+- Add some additional help and tips.
+
+- Make monsters less aggressive if they are woken up.
+
+- Adjust magic book rarity.
+
+- Allow raising of dead familiars.
+
+- Tattoos no longer trigger icky hands (Suggested by Derakon).
+
+- Remove prerequisites from detect power (Suggested by thorgot) and add them
+to detect magic instead.
+
+- Finish rogue class changes.
+
+- Split mage spell books up to reduce the total number of spells in each book
+for balance purposes. Schools now have 5 books per school (except semi-schools
+TBD) and each specialist book has been split into a low and high version of
+that book.
+
+- Reduce radius of Wizard Light spell (Suggested by Derakon).
+
+- The East Road and Brandywine Ferry are now directly connected after the
+Dunlending Agent is killed (Suggested by Derakon).
+
+- Allow player to throw objects accurately at short range.
+
+- Make walls of fire much less common in rooms.
+
+- Make earlier levels more Angband-like.
+
+- Rename nest to burrows.
+
+- Add ambrosia.
+
+- Give starting sorcerors a more viable spell selection.
+
+- Add three new room types: cellular cave, burrows and polygonal rooms.
+
+- Add some Dead Marsh themed monsters.
+
+- Add Osgiliath and the battle of the Black-Gate.
+
+- Split Barrow-downs into two dungeons, the lesser of which guarded by a
+Barrow-wight.
+
+- Make skeletal monsters more consistent in what they resist.
+
+- Slight tweak to petrification from fear.
+
+
+### User Interface ###
+
+- Only restrict races available to birth_intermediate option, not classes.
+
+- Improve access to help files during character creation.
+
+- Add some additional help and tips.
+
+- Add display of primary and secondary stats while picking class during
+character generation.
+
+- Allow many player commands to interact with ally inventories and/or the
+inventories of the targetted monster. Needs testing.
+
+- Tweak valves to look less like doors.
+
+- Examining a book now details the services it allows a shopkeeper to provide.
+
+- Hide various pain/destruction messages if the character is not yet in the
+dungeon.
+
+- Some work on sound configs. I've not tested this so it may break sound
+completely.
+
+### Bug fixes ###
+
+- Fix bug where warrior style specialists could cast any spell.
+
+- Fix for bug #14485 You can travel forever without ever starving to death.
+
+- Try to fix all instances of monster race being displayed without correctly
+choosing male, female or pluralisation.
+
+- Fix for Arralen's WTF.
+
+- Fix for bug 15564 projectile blocking is weird.
+
+- Fix some stacking bugs and improve diagnostic code (enable this using
+cheat_xtra).
+
+- Fix bug with teleport player to monster spells (Reported by Derakon).
+
+- Fix for bug 15833 You can't enter a store with monlist on.
+
+- Fix opening lever logic.
+
+- Fix bug #16024 'guided shot' spell has faulty logic (Thanks to ncc17).
+
+- Fix depths of room contents.
+
+- Fix remaining issues with dungeon connectivity, too few rooms and dungeons
+failing to generate. This is one known buffer overrun (see post in the
+Angband dungeon discussion thread for a full list of known generation bugs).
+
+- Fix spelling of waterfall in room descriptions.
+
+- Fix wilderness dungeons being generated too frequently.
+
+- Fix deadfall traps.
+
+- Fix avoiding traps and make it clearer why you avoid particular traps.
+
+- Fix the quake bug which caused monsters with quake to make themselves
+disappaear.
+
+- Fix bug where runes reported you could still cast spells from them (Thanks
+to Tony Bowes).
+
+- Fix divide by zero bug when shooting or throwing without any skill (Thanks
+to ebizzell for test case).
+
+
+### Build / Platform ###
+
+- Adopt PostMessage replacement in main-win.c from Vanilla (Thanks to zaimoni
+for suggestion).
+
+- It is now possible in most places in the edit files to specify tval by name
+instead of number. Currently only the store.txt file does so, and it does this
+to specify items that can be bought in the stores. This is no longer hard coded.
+
+- Use a fake Blessed Weapon tval to indicate that the store can buy any
+weapon if it is blessed. Might change this to a flag at a later date.
+
+- Move to safer use of project_one instead of project_o etc.
+
+- Updated main-gcu from Vanilla (Thanks to d_m for the suggestion).
+
+- It is now possible to restrict vaults to particular level themes. Use this
+primarily for vaults which are 'corridor-like' to avoid affecting the likelihood
+of larger vaults appearing.
+
+
 Unangband 0.6.3a "Football Competition" Release
 
 ### Game Play ###

@@ -950,7 +950,7 @@ void suffer_disease(bool allow_cure)
 					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				}
 
-				(void)project_p(SOURCE_DISEASE, effect, p_ptr->py, p_ptr->px, 0, GF_DISPEL);
+				(void)project_one(SOURCE_DISEASE, effect, p_ptr->py, p_ptr->px, 0, GF_DISPEL, (PROJECT_PLAY | PROJECT_HIDE));
 				break;
 			}
 
@@ -1368,10 +1368,7 @@ static void process_world(void)
 		msg_format("You are drowning %s%s!",(f_ptr->flags2 & (FF2_FILLED)?"":"in the "),name);
 
 		/* Apply the blow */
-		project_p(SOURCE_FEATURE, mimic, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
-
-		/* Apply the blow */
-		project_t(SOURCE_FEATURE, mimic, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER);
+		project_one(SOURCE_FEATURE, mimic, p_ptr->py, p_ptr->px, damroll(4,6), GF_WATER, (PROJECT_PLAY | PROJECT_HIDE));
 	}
 
 	/* Take damage from poison */
@@ -2309,6 +2306,13 @@ static void process_command(void)
 			break;
 		}
 
+		/* Offer an item */
+		case 'O':
+		{
+			do_cmd_item(COMMAND_ITEM_OFFER);
+			break;
+		}
+
 
 		/*** Various commands ***/
 
@@ -2380,10 +2384,10 @@ static void process_command(void)
 			break;
 		}
 
-		/* Search for traps/doors */
+		/* Search for traps/doors/ steal from monsters */
 		case 's':
 		{
-			do_cmd_search();
+			do_cmd_search_or_steal();
 			break;
 		}
 
@@ -3077,6 +3081,9 @@ static void process_player(void)
 		/* Start searching */
 		p_ptr->searching = TRUE;
 
+		/* Stop sneaking */
+		p_ptr->sneaking = FALSE;
+
 		/* Recalculate bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -3102,6 +3109,12 @@ static void process_player(void)
 
 		/* Redraw the state */
 		p_ptr->redraw |= (PR_STATE);
+	}
+
+	/*** Clear not sneaking ***/
+	if (p_ptr->not_sneaking)
+	{
+		p_ptr->not_sneaking = FALSE;
 	}
 
 	/*** Handle actual user input ***/
@@ -3235,8 +3248,8 @@ static void process_player(void)
 			/* Check monster recall */
 			process_player_aux();
 
-			/* Display the monlist */
-			if (auto_monlist) display_monlist(1, 0, 11, TRUE, FALSE);
+			/* Display the monlist - unless a command queued */
+			if ((auto_monlist) && !(p_ptr->command_new.key)) display_monlist(1, 0, 11, TRUE, FALSE);
 
 			/* Place the cursor on the player */
 			move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -3377,8 +3390,15 @@ static void process_player(void)
 	/*** Clear charging ***/
 	if (p_ptr->charging)
 	{
-		/* Set dodging */
+		/* Clear charging */
 		p_ptr->charging = 0;
+	}
+
+	/*** Clear dodging ***/
+	if ((p_ptr->dodging) && (p_ptr->sneaking) && !(p_ptr->not_sneaking))
+	{
+		/* Lose benefits of dodging and be unable to charge */
+		p_ptr->dodging = 0;
 	}
 
 	/* Update noise flow information */
@@ -3536,7 +3556,7 @@ static void dungeon(void)
 	object_level = p_ptr->depth;
 
 	/* Beginners get a tip */
-	if (birth_beginner) show_tip();
+	if (adult_beginner) show_tip();
 
 	/* Main loop */
 	while (TRUE)

@@ -95,9 +95,11 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_randarts,
 		OPT_birth_ironman,
 		OPT_birth_no_stores,
+		OPT_birth_no_selling,
 		OPT_birth_no_artifacts,
 		OPT_birth_no_stacking,
 		OPT_birth_no_stairs,
+		OPT_birth_no_identify,
 		OPT_birth_campaign,
 		OPT_birth_haggle,
 		OPT_birth_beginner,
@@ -105,9 +107,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_first_time,
 		OPT_birth_reseed_artifacts,
 		OPT_birth_rand_stats,
-		OPT_NONE,
-		OPT_NONE,
-		OPT_NONE,
+		OPT_birth_evil,
 		OPT_NONE,
 		OPT_NONE,
 	},
@@ -280,9 +280,9 @@ static option_entry options[OPT_MAX] =
 { "birth_no_stores",     "Restrict the use of stores/home",             FALSE }, /* 132 */
 { "birth_no_artifacts",  "Restrict creation of artifacts",              FALSE }, /* 133 */
 { "birth_no_stacking",   "Don't stack objects on the floor",            FALSE }, /* 134 */
-{ NULL,                  NULL,                                          FALSE }, /* 135 */
+{ "birth_no_identify",   "Don't need to identify items",                FALSE }, /* 135 */
 { "birth_no_stairs",     "Don't generate connected stairs",             FALSE }, /* 136 */
-{ NULL,                  NULL,                                          FALSE }, /* 137 */
+{ "birth_no_selling",    "Don't sell to the stores",                    FALSE }, /* 137 */
 { NULL,                  NULL,                                          FALSE }, /* 138 */
 { NULL,                  NULL,                                          FALSE }, /* 139 */
 { NULL,                  NULL,                                          FALSE }, /* 140 */
@@ -299,7 +299,7 @@ static option_entry options[OPT_MAX] =
 { "birth_intermediate",  "Reduce the number of birth choices",          FALSE }, /* 151 */
 { "birth_first_time",    "Ask all birth setup question at start",       TRUE }, /* 152 */
 { "birth_reseed_artifacts", "Reseed random artifacts on death",         TRUE }, /* 153 */
-{ NULL,                  NULL,                                          FALSE }, /* 154 */
+{ "birth_evil",          "Be born bad",                                 FALSE }, /* 154 */
 { NULL,                  NULL,                                          FALSE }, /* 155 */
 { NULL,                  NULL,                                          FALSE }, /* 156 */
 { NULL,                  NULL,                                          FALSE }, /* 157 */

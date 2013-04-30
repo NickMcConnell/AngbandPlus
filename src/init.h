@@ -156,7 +156,7 @@ extern errr emit_p_info_index(FILE *fp, header *head, int i);
 extern errr emit_c_info_index(FILE *fp, header *head, int i);
 extern errr emit_s_info_index(FILE *fp, header *head, int i);
 extern errr emit_t_info_index(FILE *fp, header *head, int i);
-
+extern errr emit_u_info_index(FILE *fp, header *head, int i);
 #endif
 
 

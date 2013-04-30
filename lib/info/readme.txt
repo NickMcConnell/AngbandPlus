@@ -45,6 +45,10 @@ birthnn.txt    The player has just been born. These tips are shown every time in
 
 levelnn.txt    The player has reached level nn for the first time this game.
 
+beginnn.txt    A beginning player has reached level nn for the first time this game.
+               Level 10 is the last time this tip will be shown, as a player is has
+               the beginner option removed at this level.
+
 dungeonaa.txt  The player has reached dungeon aa for the first time this game.
 
 depthaa-bb.txt The player has reached depth bb in dungeon aa for the first time this

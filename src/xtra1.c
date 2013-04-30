@@ -1185,7 +1185,7 @@ void object_actual_track(const object_type *j_ptr)
 #ifdef USE_CLASS_PRETTY_NAMES
 
 
-const char *mage_sval_name[SV_BOOK_MAX_GOOD] =
+const char *mage_sval_name[SV_BOOK_MAX_GOOD/2] =
 {
 		"Enchanter",
 		"Loremaster",
@@ -1210,15 +1210,9 @@ const char *mage_sval_name[SV_BOOK_MAX_GOOD] =
 		"Hydromancer",
 		"Runesmith",
 		"Shapechanger",
-		"Negater",
-		"Naturalist",
-		"Astromancer",
 		"Demonologist",
-		"Death Mage",
-		"Void Mage",
-		"Immoliator",
-		"Gambler",
-		"Balancer"
+		"",
+		""
 };
 
 
@@ -1244,38 +1238,20 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 
 	if (short_name) my_strcpy(temp,c_name+c_info[class].name, sizeof(temp));
 
-	if ((style == WS_MAGIC_BOOK) && (sval >= 0))
+	if (((style == WS_MAGIC_BOOK) || (style == WS_PRAYER_BOOK) || (style == WS_SONG_BOOK)) && (sval >= 0))
 	{
 		/* Analyse books */
 		for (i = 0;i<z_info->k_max;i++)
 		{
 			k_ptr = &k_info[i];
-			if ((k_ptr->tval == TV_MAGIC_BOOK) && (k_ptr->sval == sval)) break;
+			if ((style == WS_MAGIC_BOOK) && (k_ptr->tval != TV_MAGIC_BOOK)) continue;
+			if ((style == WS_PRAYER_BOOK) && (k_ptr->tval != TV_PRAYER_BOOK)) continue;
+			if ((style == WS_SONG_BOOK) && (k_ptr->tval != TV_SONG_BOOK)) continue;
+			if ((sval < SV_BOOK_MAX_GOOD) && (k_ptr->sval == sval % (SV_BOOK_MAX_GOOD / 2) )) break;
+			if ((sval >= SV_BOOK_MAX_GOOD) && (k_ptr->sval == sval + 3)) break;
 		}
 	}
-
-	else if ((style == WS_PRAYER_BOOK) && (sval >= 0))
-	{
-
-		/* Analyse books */
-		for (i = 0;i<z_info->k_max;i++)
-		{
-			k_ptr = &k_info[i];
-			if ((k_ptr->tval == TV_PRAYER_BOOK) && (k_ptr->sval == sval)) break;
-		}
-	}
-
-	else if ((style == WS_SONG_BOOK) && (sval >= 0))
-	{
-
-		/* Analyse books */
-		for (i = 0;i<z_info->k_max;i++)
-		{
-			k_ptr = &k_info[i];
-			if ((k_ptr->tval == TV_SONG_BOOK) && (k_ptr->sval == sval)) break;
-		}
-	}
-
+	
 	switch (class)
 	{
 
@@ -1348,15 +1324,16 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 					my_strcat(temp,k_name+k_ptr->name, sizeof(temp));
 				}
 
-				if (sval < SV_BOOK_MAX_GOOD) my_strcpy(temp, mage_sval_name[sval], sizeof(temp));
+				if (sval < SV_BOOK_MAX_GOOD) my_strcpy(temp, mage_sval_name[sval % (SV_BOOK_MAX_GOOD / 2)], sizeof(temp));
 
-				else if ((sval >= 32) && (sval < 36)) my_strcpy(temp,"Wizard", sizeof(temp));
-				else if ((sval >= 36) && (sval < 39)) my_strcpy(temp,"Druid", sizeof(temp));
-				else if ((sval >= 40) && (sval < 44)) my_strcpy(temp,"Master", sizeof(temp));
-				else if ((sval >= 45) && (sval < 48)) my_strcpy(temp,"Sorceror", sizeof(temp));
-				else if ((sval >= 48) && (sval < 52)) my_strcpy(temp,"Thaumaturgist", sizeof(temp));
-				else if ((sval >= 52) && (sval < 56)) my_strcpy(temp,"Scientist", sizeof(temp));
-				else if ((sval >= 56) && (sval < 60)) my_strcpy(temp,"Statesman", sizeof(temp));
+				else if ((sval >= 52) && (sval < 57)) my_strcpy(temp,"Wizard", sizeof(temp));
+				else if ((sval >= 57) && (sval < 62)) my_strcpy(temp,"Druid", sizeof(temp));
+				else if ((sval >= 62) && (sval < 67)) my_strcpy(temp,"Master", sizeof(temp));
+				else if ((sval >= 67) && (sval < 72)) my_strcpy(temp,"Sorceror", sizeof(temp));
+				else if ((sval >= 72) && (sval < 77)) my_strcpy(temp,"Thaumaturgist", sizeof(temp));
+				else if ((sval >= 77) && (sval < 82)) my_strcpy(temp,"Scientist", sizeof(temp));
+				else if ((sval >= 82) && (sval < 87)) my_strcpy(temp,"Statesman", sizeof(temp));
+				else if ((sval >= 87) && (sval < 92)) my_strcpy(temp,"Spellstealer", sizeof(temp));
 
 			}
 			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
@@ -1437,8 +1414,8 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 				}
 			}
 			if (style == WS_POTION) my_strcpy(temp,"Chemist", sizeof(temp));
-			if (style == WS_SCROLL) my_strcpy(temp,"Librarian", sizeof(temp));
-			if (style == WS_AMULET) my_strcpy(temp,"Gypsy", sizeof(temp));
+			if (style == WS_SCROLL) my_strcpy(temp,"Scribe", sizeof(temp));
+			if (style == WS_AMULET) my_strcpy(temp,"Tinker", sizeof(temp));
 			if (style == WS_RING) my_strcpy(temp,"Jeweler", sizeof(temp));
 			break;
 		case 4:
@@ -1541,13 +1518,23 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 		case 8:
 			if (style == WS_UNARMED) my_strcpy(temp,"Mystic", sizeof(temp));
 
-			if (((style == WS_PRAYER_BOOK) || (style == WS_MAGIC_BOOK)) && (sval >= 0))
+			if ((style == WS_MAGIC_BOOK) && (sval >= 0))
 			{
-				if (short_name) my_strcpy(temp,"Druid", sizeof(temp));
+				if (short_name) my_strcpy(temp,"Totem", sizeof(temp));
 				else my_strcpy(temp,k_name+k_ptr->name, sizeof(temp));
 				if (long_name)
 				{
-					my_strcpy(temp,"Druid ", sizeof(temp));
+					my_strcpy(temp,"Totem of the Gods ", sizeof(temp));
+					my_strcat(temp,k_name+k_ptr->name, sizeof(temp));
+				}
+			}
+			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
+			{
+				if (short_name) my_strcpy(temp,"Vessel", sizeof(temp));
+				else my_strcpy(temp,k_name+k_ptr->name, sizeof(temp));
+				if (long_name)
+				{
+					my_strcpy(temp,"Vessel ", sizeof(temp));
 					my_strcat(temp,k_name+k_ptr->name, sizeof(temp));
 				}
 			}
@@ -1583,6 +1570,25 @@ void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval
 			if (style == WS_POLEARM) my_strcpy(temp,"Spellspear", sizeof(temp));
 
 			break;
+			
+		case 12:
+			if (style == WS_ONE_HANDED) my_strcpy(temp,"Thug", sizeof(temp));
+			if (style == WS_BACKSTAB) my_strcpy(temp,"Executioner", sizeof(temp));
+			if (style == WS_TWO_WEAPON) my_strcpy(temp,"Brigand", sizeof(temp));
+			if (style == WS_BOW) my_strcpy(temp,"Marksman", sizeof(temp));
+			if (style == WS_POTION) my_strcpy(temp,"Poisoner", sizeof(temp));
+			if (style == WS_SCROLL) my_strcpy(temp,"Forger", sizeof(temp));
+			if ((style == WS_AMULET) && (long_name))
+			{
+				my_strcpy(temp,"Confidenceman", sizeof(temp));
+			}
+			else if ((style == WS_AMULET) && (short_name))
+			{
+				my_strcpy(temp,"Confident", sizeof(temp));
+			}
+			if (style == WS_RING) my_strcpy(temp,"Gypsy", sizeof(temp));
+			break;
+
 	}
 
 	my_strcpy(name,temp, name_s);
@@ -2040,7 +2046,7 @@ static void fix_monster(void)
 		Term_activate(angband_term[j]);
 
 		/* Display monster race info */
-		if (p_ptr->monster_race_idx) display_roff(&r_info[p_ptr->monster_race_idx], &l_list[p_ptr->monster_race_idx]);
+		if (p_ptr->monster_race_idx) display_roff(p_ptr->monster_race_idx, &l_list[p_ptr->monster_race_idx]);
 
 		/* Fresh */
 		Term_fresh();
@@ -2736,6 +2742,7 @@ static void calc_mana(void)
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx &&
+			(o_ptr->tval != TV_TATTOO) &&
 		    !(f3 & (TR3_FREE_ACT)) &&
 		    !((f1 & (TR1_INT | TR1_WIS | TR1_DEX)) && (o_ptr->pval > 0)))
 		{

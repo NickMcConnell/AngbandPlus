@@ -1294,6 +1294,26 @@ static void class_aux_hook(birth_menu c_str)
 	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
 	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	
+	/* Display primary stat */
+	i = cp_ptr->spell_power ? cp_ptr->spell_stat_mana : A_STR;
+	sprintf(s, "%s", stat_names[i]);
+	s[3] = '\0';
+	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 5, -1, TERM_WHITE, "Primary stat: ");
+	Term_putstr(CLASS_AUX2_COL + 14, TABLE_ROW + A_MAX + 5, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+	( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
+	
+	/* Display secondary stat */
+	i = cp_ptr->spell_first < 99 ? cp_ptr->spell_stat_fail :
+		(cp_ptr->c_skill_base[SKILL_TO_HIT_BOW] > cp_ptr->c_skill_base[SKILL_TO_HIT_MELEE] ? A_DEX :
+		(cp_ptr->c_skill_base[SKILL_TO_HIT_THROW] > cp_ptr->c_skill_base[SKILL_TO_HIT_MELEE] ? A_AGI : A_SIZ));
+	sprintf(s, "%s", stat_names[i]);
+	s[3] = '\0';
+	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 6, -1, TERM_WHITE, "Secondary stat: ");
+	Term_putstr(CLASS_AUX2_COL + 16, TABLE_ROW + A_MAX + 6, -1, cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < -4 ? TERM_RED :
+	( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] < 0? TERM_YELLOW :
+		( cp_ptr->c_adj[i] + rp_ptr->r_adj[i] ? TERM_L_GREEN : TERM_WHITE)), s);
 
 	/* Enumerate through skills */
 	for (i = 0; skill_table[i].skill >= 0; i++)
@@ -1318,7 +1338,7 @@ static bool get_player_class(void)
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
-	if (!birth_intermediate) Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_YELLOW,
 	    "Any greyed-out entries should only be used by advanced players.");
 
 	/* Tabulate classes */
@@ -1326,9 +1346,6 @@ static bool get_player_class(void)
 	{
 		/* Ghost classes based on available choices */
 		bool ghost = (rp_ptr->choice & (1 << i)) == FALSE;
-
-		/* 'Ghosted' entries unavailable for intermediate players */
-		if (birth_intermediate && ghost) continue;
 
 		/* Save the string */
 		classes[k].name = c_name + c_info[i].name;
@@ -1459,11 +1476,6 @@ static bool get_player_book(void)
 	int     i, j = 0;
 	birth_menu *books;
 
-	/* Hack -- until we set up schools for song books,
-	 * we use this to determine whether we check sval < SV_BOOK_MAX_GOOD
-	 * or sval >= SV_BOOK_MIN_GOOD */
-	bool max_good = FALSE;
-
 	/*** Player book speciality ***/
 
 	int bookc = 0;
@@ -1478,13 +1490,11 @@ static bool get_player_book(void)
 	{
 		case WS_MAGIC_BOOK:
 			tval = TV_MAGIC_BOOK;
-			max_good = TRUE;
 			help = "magic.txt";
 			break;
 
 		case WS_PRAYER_BOOK:
 			tval = TV_PRAYER_BOOK;
-			max_good = TRUE;
 			help = "prayers.txt";
 			break;
 
@@ -1503,14 +1513,14 @@ static bool get_player_book(void)
 		k_ptr = &k_info[i];
 
 		/* Hack -- ignore books that the player has not seen yet */
-		if ((birth_intermediate) && !(k_ptr->aware & (AWARE_EXISTS)) && (max_good ? k_ptr->sval < SV_BOOK_MAX_GOOD : k_ptr->sval >= SV_BOOK_MIN_GOOD)) continue;
+		if ((birth_intermediate) && !(k_ptr->aware & (AWARE_EXISTS)) && (k_ptr->sval < SV_BOOK_MAX_GOOD)) continue;
 
 		/* Hack -- count one of non-dungeon books per school */
-		if ((k_ptr->sval >= SV_BOOK_MAX_GOOD) && (k_ptr->sval % SV_BOOK_SCHOOL /* != SV_BOOK_SCHOOL - 1 */)) continue;
+		if ((k_ptr->sval >= SV_BOOK_MAX_GOOD) && ((k_ptr->sval - SV_BOOK_MAX_GOOD) % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 2)) continue;
 
-		/* Hack -- count one of non-dungeon books per school */
-		if (!(max_good) && (k_ptr->sval < SV_BOOK_MIN_GOOD) && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
-
+		/* Hack -- count only the first half of dungeon books */
+		if ((k_ptr->sval >= SV_BOOK_MAX_GOOD / 2) && (k_ptr->sval < SV_BOOK_MAX_GOOD)) continue;
+		
 		/* Book */
 		if (k_ptr->tval == tval) bookc++;
 	}
@@ -1527,23 +1537,21 @@ static bool get_player_book(void)
 		k_ptr = &k_info[i];
 
 		/* Hack -- ignore books that the player has not seen yet */
-		if ((birth_intermediate) && !(k_ptr->aware & (AWARE_EXISTS)) && (max_good ? k_ptr->sval < SV_BOOK_MAX_GOOD : k_ptr->sval >= SV_BOOK_MIN_GOOD)) continue;
+		if ((birth_intermediate) && !(k_ptr->aware & (AWARE_EXISTS)) && (k_ptr->sval < SV_BOOK_MAX_GOOD)) continue;
 
 		/* Hack -- count one of non-dungeon books per school */
-		if (max_good && k_ptr->sval >= SV_BOOK_MAX_GOOD && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		if ((k_ptr->sval >= SV_BOOK_MAX_GOOD) && ((k_ptr->sval - SV_BOOK_MAX_GOOD) % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 2)) continue;
 
-		/* Hack -- count one of non-dungeon books per school */
-		if (!max_good && k_ptr->sval < SV_BOOK_MIN_GOOD && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		/* Hack -- count only the first half of dungeon books */
+		if ((k_ptr->sval >= SV_BOOK_MAX_GOOD / 2) && (k_ptr->sval < SV_BOOK_MAX_GOOD)) continue;
 
 		/* Correct tval */
 		if (k_ptr->tval == tval)
 		{
 			/* Save the string. Note offset to skip 'of ' */
 			books[j].name = k_name + k_ptr->name + 3;
-			books[j].choice = k_ptr->sval;
-			books[j++].ghost =
-				(max_good && k_ptr->sval >= SV_BOOK_MAX_GOOD)
-				|| (!max_good && k_ptr->sval < SV_BOOK_MIN_GOOD);
+			books[j].choice = (k_ptr->sval >= SV_BOOK_MAX_GOOD) ? (k_ptr->sval - 3) : k_ptr->sval;
+			books[j++].ghost = (k_ptr->sval < SV_BOOK_MAX_GOOD);
 		}
 	}
 
@@ -1645,7 +1653,7 @@ static bool get_player_school(void)
 		k_ptr = &k_info[i];
 
 		/* Hack -- count one of non-dungeon books per school */
-		if ((k_ptr->sval < SV_BOOK_MAX_GOOD) || (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		if ((k_ptr->sval < SV_BOOK_MAX_GOOD) || ((k_ptr->sval - SV_BOOK_MAX_GOOD) % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 2)) continue;
 
 		if (k_ptr->tval == tval) schoolc++;
 	}
@@ -1660,28 +1668,29 @@ static bool get_player_school(void)
 		k_ptr = &k_info[i];
 
 		/* Hack -- count one of non-dungeon books per school */
-		if ((k_ptr->sval < SV_BOOK_MAX_GOOD) || (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		if ((k_ptr->sval < SV_BOOK_MAX_GOOD) || ((k_ptr->sval - SV_BOOK_MAX_GOOD) % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 2)) continue;
 
 		/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
 		if (p_ptr->psval >= SV_BOOK_MAX_GOOD)
 		{
-			/* Sval hackery */
-			if (k_ptr->sval - (k_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) continue;
+			/* Confirm in same school */
+			if ((k_ptr->sval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL != (p_ptr->psval - SV_BOOK_MAX_GOOD) / SV_BOOK_SCHOOL) continue;
 		}
 
 		if (k_ptr->tval == tval)
 		{
 			/* Save the string. Note offset to skip 'of ' */
 			schools[k].name = k_name + k_ptr->name + 3;
-			schools[k].choice = k_ptr->sval - SV_BOOK_SCHOOL + 1;
+			schools[k].choice = k_ptr->sval - 3;
 			schools[k].ghost = FALSE;
 
-			/* Mega-hack for ghosting starting mages/rangers/artisans */
+			/* Mega-hack for ghosting starting mages/rangers/artisans/rogues */
 			switch (p_ptr->pclass)
 			{
-				case 1: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval >= SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
-				case 3: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
-				case 4: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
+				case 1: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval >= SV_BOOK_MAX_GOOD + 5 * SV_BOOK_SCHOOL)) schools[k].ghost = TRUE; break;
+				case 3: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 5 * SV_BOOK_SCHOOL)) schools[k].ghost = TRUE; break;
+				case 4: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 5 * SV_BOOK_SCHOOL)) schools[k].ghost = TRUE; break;
+				case 12: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 5 * SV_BOOK_SCHOOL)) schools[k].ghost = TRUE; break;
 				default:
 				{
 					/* Gifted or chosen mage */
@@ -1886,21 +1895,25 @@ static bool get_player_difficulty(void)
 		case 0:
 			birth_beginner = TRUE;
 /*			birth_small_levels = FALSE; */
+			birth_evil = FALSE;
 			birth_intermediate = FALSE;
 			break;
 		case 1:
 			birth_beginner = FALSE;
 /*			birth_small_levels = TRUE; */
+			birth_evil = FALSE;
 			birth_intermediate = TRUE;
 			break;
 		case 2:
 			birth_beginner = FALSE;
 /*			birth_small_levels = FALSE; */
+			birth_evil = TRUE;	/* Note we don't save birth_evil */
 			birth_intermediate = TRUE;
 			break;
 		case 3:
 			birth_beginner = FALSE;
 /*			birth_small_levels = FALSE; */
+			birth_evil = TRUE;
 			birth_intermediate = FALSE;
 			break;
 	}
@@ -2081,10 +2094,6 @@ static bool player_birth_aux_1(void)
 	/* First time player */
 	if (birth_first_time)
 	{
-		FILE *fff;
-
-		char buf[1024];
-
 		/* Choose the player's keyboard layout */
 		if (!get_player_keyboard()) return (FALSE);
 
@@ -2099,39 +2108,9 @@ static bool player_birth_aux_1(void)
 
 		/* Answered these questions for good */
 		birth_first_time = FALSE;
-
-		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_USER, "Startup.prf");
-
-		/* File type is "TEXT" */
-		FILE_TYPE(FILE_TYPE_TEXT);
-
-		/* Write to the file */
-		fff = my_fopen(buf, "w");
-
-		/* Failure */
-		if (!fff) return (FALSE);
-
-		/* Skip some lines */
-		fprintf(fff, "\n\n");
-
-		/* Start dumping */
-		fprintf(fff, "# Automatic startup option dump\n\n");
-
-		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_first_time ? 'Y' : 'X', option_name(OPT_birth_first_time));
-
-		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", rogue_like_commands ? 'Y' : 'X', option_name(OPT_rogue_like_commands));
-
-		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_beginner ? 'Y' : 'X', option_name(OPT_birth_beginner));
-
-		/* Dump startup options */
-		fprintf(fff, "%c:%s\n", birth_intermediate ? 'Y' : 'X', option_name(OPT_birth_intermediate));
-
-		/* Close */
-		my_fclose(fff);
+		
+		/* Save the pref file */
+		dump_startup_prefs();
 	}
 
 	/* Allow quickstart? */
@@ -2389,6 +2368,19 @@ static bool player_birth_aux_2(void)
 		{
 			stats[stat]++;
 		}
+		
+		/* Requesting help */
+		if (ch == '?')
+		{
+			sprintf(buf, "%s#%s", "stats.txt", stat_names_reduced_short[stat]);
+
+			screen_save();
+			(void)show_file(buf, NULL, 0, 0);
+			(void)show_file("birth.hlp", NULL, 0, 0);
+			screen_load();
+			
+			continue;
+		}
 	}
 
 
@@ -2453,7 +2445,7 @@ static bool player_birth_aux_3(void)
 			    "get perfect (or even high) values for all your stats.");
 
 		/* Prompt for the minimum stats */
-		put_str("Enter minimum value for: ", 15, 2);
+		put_str("Enter minimum value for (? for help): ", 15, 2);
 
 		/* Output the maximum stats */
 		for (i = 0; i < A_MAX; i++)
@@ -2509,6 +2501,19 @@ static bool player_birth_aux_3(void)
 				/* Get a response (or escape) */
 				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
+				/* Requesting help */
+				if (inp[0] == '?')
+				{
+					sprintf(buf, "%s#%s", "stats.txt", stat_names_reduced_short[i]);
+
+					screen_save();
+					(void)show_file(buf, NULL, 0, 0);
+					(void)show_file("birth.hlp", NULL, 0, 0);
+					screen_load();
+					
+					continue;
+				}
+				
 				/* Hack -- add a fake slash */
 				my_strcat(inp, "/", sizeof(inp));
 
@@ -2700,7 +2705,7 @@ static bool player_birth_aux_3(void)
 			/* Prepare a prompt (must squeeze everything in) */
 			Term_gotoxy(2, 23);
 			Term_addch(TERM_WHITE, b1);
-			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
+			Term_addstr(-1, TERM_WHITE, "'r' to reroll, '?' for help");
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
 			Term_addstr(-1, TERM_WHITE, ", or Enter to accept");
 			Term_addch(TERM_WHITE, b2);
@@ -2737,7 +2742,11 @@ static bool player_birth_aux_3(void)
 			/* Help */
 			if (ke.key == '?')
 			{
-				do_cmd_help();
+				screen_save();
+				(void)show_file("stats.txt", NULL, 0, 0);
+				(void)show_file("birth.hlp", NULL, 0, 0);
+				screen_load();
+				
 				continue;
 			}
 

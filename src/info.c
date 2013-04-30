@@ -1066,8 +1066,8 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	vn = 0;
 
 	if (s_ptr->flags3 & (SF3_DEC_FOOD)) vp[vn++] = "makes you weak from hunger";
-	if (s_ptr->flags2 & (SF2_CURSE_WEAPON)) vp[vn++] = "curses your weapon";
-	if (s_ptr->flags2 & (SF2_CURSE_ARMOR)) vp[vn++] = "curses your armor";
+	if (s_ptr->flags2 & (SF2_SLOW_POIS)) vp[vn++] = "delays the onset of poison";
+	if (s_ptr->flags2 & (SF2_SLOW_DIGEST)) vp[vn++] = "digests food more efficiently";
 	if (s_ptr->flags2 & (SF2_AGGRAVATE)) vp[vn++] = "wakes up nearby monsters and hastes those in line of sight";
 	if (s_ptr->type == SPELL_SUMMON)
 	{
@@ -1099,9 +1099,27 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 			default: vp[vn++] = "summons monsters"; break;
 		}
 	}
-	if (s_ptr->type == SPELL_SUMMON_RACE) vp[vn++] = format("summons %s%s",
-		is_a_vowel((r_name+r_info[s_ptr->param].name)[0])?"an ":"a ",
-		r_name+r_info[s_ptr->param].name);
+	
+	if (s_ptr->type == SPELL_SUMMON_RACE)
+	{
+		char m_name[80];
+		
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), s_ptr->param, 0x408, 1);
+
+		vp[vn++] = format("summons %s",	m_name);
+	}
+	
+	if (s_ptr->type == SPELL_RAISE_RACE)
+	{
+		char m_name[80];
+		
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), s_ptr->param, 0x408, 1);
+
+		vp[vn++] = format("summons %s from beyond the grave",	m_name);
+	}
+
 	if (s_ptr->type == SPELL_SUMMON_GROUP_IDX) vp[vn++] = "summons related monsters";
 	if (s_ptr->type == SPELL_CREATE_KIND) vp[vn++] = "creates gold";
 	if (s_ptr->flags2 & (SF2_CREATE_STAIR)) vp[vn++] = "creates a staircase under you";
@@ -1114,7 +1132,6 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->flags2 & (SF2_TELE_LEVEL)) vp[vn++] = "pushes you through floor or ceiling";
 	if (s_ptr->flags2 & (SF2_RECALL)) vp[vn++]="returns you to the surface, or teleports you into the depths";
 	if (s_ptr->flags2 & (SF2_ALTER_LEVEL)) vp[vn++] = "alters the level you are on";
-	if (s_ptr->type == SPELL_XXX1) vp[vn++] = format("does XXX1 %d",s_ptr->param);
 	if (s_ptr->type == SPELL_XXX2) vp[vn++] = format("does XXX2 %d",s_ptr->param);
 	if (s_ptr->flags2 & (SF2_BANISHMENT)) vp[vn++] = "allows you to remove a monster type from a level (1d4 damage per monster)";
 	if (s_ptr->flags2 & (SF2_MASS_BANISHMENT)) vp[vn++] = "removes all nearby monsters";
@@ -1150,8 +1167,8 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 	if (s_ptr->type == SPELL_DAMAGING_BLOW) vp[vn++] = "increases the damage of a single round of blows";
 	if (s_ptr->type == SPELL_DAMAGING_SHOT) vp[vn++] = "increases the damage of a single round of firing";
 	if (s_ptr->type == SPELL_DAMAGING_HURL) vp[vn++] = "increases the damage of a single round of thrown weapons";
-	if ((s_ptr->type == SPELL_SLOW_POIS) || (s_ptr->type == SPELL_SLOW_META)) vp[vn++] = "delays the onset of poison";
-	if ((s_ptr->type == SPELL_SLOW_DIGEST) || (s_ptr->type == SPELL_SLOW_META)) vp[vn++] = "digests food more efficiently";
+	if (s_ptr->type == SPELL_CURSE_WEAPON) vp[vn++] = "curses your weapon";
+	if (s_ptr->type == SPELL_CURSE_ARMOR) vp[vn++] = "curses your armor";
 
 
 	/* Describe miscellaneous effects */
@@ -2401,7 +2418,7 @@ void screen_object(object_type *o_ptr)
 	else list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display monster attributes */
-	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(&r_info[o_ptr->name3],&l_list[o_ptr->name3]);
+	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(o_ptr->name3,&l_list[o_ptr->name3]);
 
 	/* Display item name */
 	obj_top(o_ptr);
@@ -3434,15 +3451,73 @@ void list_object(const object_type *o_ptr, int mode)
 				break;
 			case TV_RUNESTONE:
 				text_out("You can apply it to different objects to change them or enchant them with additional powers.  ");
-				/* Fall through */
+				break;
 			case TV_MAGIC_BOOK:
 			case TV_PRAYER_BOOK:
 			case TV_SONG_BOOK:
-				text_out("You can study this to learn new spells.  ");
-				text_out("You can cast spells from this that you have learnt.  ");
-				text_out("You can sell this to a shopkeeper for them to offer additional services.  ");
-				anything = TRUE;
+			{
+				int vn = 0;
+				cptr vp[128];
+				
+				/* Can we study spells from this book? */
+				if (inven_study_okay(o_ptr))
+				{					
+					text_out("You can study this to learn new spells.  ");
+					if (o_ptr->tval == TV_PRAYER_BOOK) text_out("The luck of the gods decides the order you learn these spells.  ");
+					else if (o_ptr->tval == TV_SONG_BOOK) text_out("You must learn these spells in the listed order.  ");
+					
+					anything = TRUE;
+				}
+
+				/* Can we cast spells from this book? */
+				if (inven_cast_okay(o_ptr))
+				{
+					text_out("You can cast spells from this that you have learnt.  ");
+					
+					anything = TRUE;
+				}
+				
+				/* Check for services */
+				for (i = 0; i < z_info->s_max; i++)
+				{
+					bool in_item = FALSE;
+					int service_sval = 0;
+					int ii;
+
+					for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
+					{
+						spell_appears *s_object = &s_info[i].appears[ii];
+
+						if ((s_object->tval == o_ptr->tval) && (s_object->sval == o_ptr->sval)) in_item = TRUE;
+
+						if (s_object->tval == TV_SERVICE)
+						{
+							service_sval = s_object->sval;
+						}
+					}
+
+					/* Create service object */
+					if ((in_item == TRUE) && (service_sval > 0))
+					{
+						int k_idx = lookup_kind(TV_SERVICE,service_sval);
+
+						vp[vn++] = k_name + k_info[k_idx].name;
+					}
+				}
+				
+				/* Scan */
+				for (n = 0; n < vn; n++)
+				{
+					if (n == 0) text_out(format("You can sell this to a shopkeeper for them to offer the service%s of ", vn > 1 ? "s" : ""));
+					text_out(vp[n]);
+					if (n == vn - 1) text_out(".  ");
+					else if (n == vn - 2) text_out(" and ");
+					else text_out(", ");
+				}
+
 				break;
+
+			}
 			case TV_STUDY:
 				text_out("You can study this to research a new field of magic.  ");
 				anything = TRUE;
@@ -4250,16 +4325,15 @@ void list_object(const object_type *o_ptr, int mode)
 
 			case ORIGIN_DROP:
 			{
-				const char *name = r_name + r_info[o_ptr->origin_xtra].name;
-				bool unique = (r_info[o_ptr->origin_xtra].flags1 & RF1_UNIQUE) ? TRUE : FALSE;
+				char m_name[80];
 
 				text_out("dropped by ");
 
-				if (unique)
-					text_out(format("%s", name));
-				else
-					text_out(format("dropped by %s%s", is_a_vowel(name[0]) ? "an " : "a ", name));
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), o_ptr->origin_xtra, 0x408, 1);
 
+				text_out(m_name);
+				
 				break;
 			}
 
@@ -4639,7 +4713,7 @@ void display_koff(const object_type *o_ptr)
 	list_object(o_ptr, OBJECT_FLAGS_KNOWN);
 
 	/* Display monster attributes */
-	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(&r_info[o_ptr->name3], &l_list[o_ptr->name3]);
+	if ((o_ptr->name3) && ((o_ptr->tval != TV_HOLD) || (object_named_p(o_ptr)))) screen_roff(o_ptr->name3, &l_list[o_ptr->name3]);
 
 	/* Display item name */
 	obj_top(o_ptr);

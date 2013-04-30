@@ -78,8 +78,8 @@ void find_range(int m_idx)
 	else if ((r_ptr->flags2 & (RF2_LOW_MANA_RUN)) &&
 	    (m_ptr->mana < r_ptr->mana / 6)) m_ptr->min_range = FLEE_RANGE;
 
-	/* Hack -- townsmen go about their business */
-	else if (m_ptr->mflag & (MFLAG_TOWN)) m_ptr->min_range = 1;
+	/* Hack -- townsmen go about their business in town, and are suspicious otherwise*/
+	else if (m_ptr->mflag & (MFLAG_TOWN)) m_ptr->min_range = room_near_has_flag(m_ptr->fy, m_ptr->fx, ROOM_TOWN) ? 1 : 3;
 
 	/* Breeders cannot be terrified */
 	else if (r_ptr->flags2 & (RF2_MULTIPLY)) m_ptr->min_range = 1;
@@ -1178,6 +1178,59 @@ static void init_ranged_attack(monster_race *r_ptr)
 	}
 }
 
+
+/*
+ * Does the monster attack the player if they walk
+ * into them?
+ */
+bool choose_to_attack_player(const monster_type *m_ptr)
+{
+	/* Allies don't attack player */
+	if (m_ptr->mflag & (MFLAG_ALLY)) return (FALSE);
+	
+	/* Aggressive do attack player */
+	if (m_ptr->mflag & (MFLAG_AGGR)) return (TRUE);
+	
+	/* Townsfolk don't attack player */
+	if (m_ptr->mflag & (MFLAG_TOWN)) return (FALSE);
+	
+	/* Otherwise attack */
+	return (TRUE);
+}
+
+
+/*
+ * Does the monster attack another monster if they walk
+ * into them?
+ * 
+ * Important: This routine must be symetric.
+ * However, we make it asymetric for 'harmless' monsters.
+ */
+bool choose_to_attack_monster(const monster_type *m_ptr, const monster_type *n_ptr)
+{
+	/* Allies and enemies of the player don't attack each other */
+	if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) == ((n_ptr->mflag & (MFLAG_ALLY)) != 0)) return (FALSE);
+	
+	/* Aggressive enemies attack allies and vice versa - note 1st check ensures both sides are not friends */
+	if (((m_ptr->mflag & (MFLAG_ALLY)) == 0) && ((n_ptr->mflag & (MFLAG_AGGR)) != 0)) return (TRUE);
+	if (((n_ptr->mflag & (MFLAG_ALLY)) == 0) && ((m_ptr->mflag & (MFLAG_AGGR)) != 0)) return (TRUE);	
+	
+	/* Townsfolk don't attack each other */
+	if (((m_ptr->mflag & (MFLAG_TOWN)) != 0) && ((n_ptr->mflag & (MFLAG_TOWN)) != 0)) return (FALSE);
+	
+	/* Allies don't attack townsfolk and vice versa*/
+	if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((n_ptr->mflag & (MFLAG_TOWN)) != 0)) return (FALSE);
+	if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0)) return (FALSE);
+	
+	/* Allies and townsfolk don't attack harmless monsters */
+	if (((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) != 0) && (r_info[n_ptr->r_idx].blow[0].effect == GF_NOTHING)) return (FALSE);
+
+	/* Otherwise attack */
+	return (TRUE);
+}
+
+
+
 /*
  * Have a monster choose a spell.
  *
@@ -1307,8 +1360,8 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
 
-	/* Eliminate all summoning spells if monster has recently summoned or been summoned or an ally */
-	if ((m_ptr->summoned) || (m_ptr->mflag & (MFLAG_ALLY)))
+	/* Eliminate all summoning spells if monster has recently summoned or been summoned or an ally or townsfolk */
+	if ((m_ptr->summoned) || ((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) != 0))
 	{
 		f4 &= ~(RF4_SUMMON_MASK);
 		f5 &= ~(RF5_SUMMON_MASK);
@@ -1319,8 +1372,8 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		if (!f4 && !f5 && !f6 && !f7) return (0);
 	}
 
-	/* Allies do not teleport unless afraid or blink unless we need to reposition */
-	if (m_ptr->mflag & (MFLAG_ALLY))
+	/* Allies / townsfolk do not teleport unless afraid or blink unless we need to reposition */
+	if (m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN))
 	{
 		/* Prevent blinking unless target is at wrong range - note check to see if we can blink for efficiency */
 		if (((f6 & (RF6_BLINK)) != 0) && (m_ptr->cdis >= MAX_SIGHT / 3) &&
@@ -1384,7 +1437,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 			if (n_ptr->mflag & (MFLAG_HIDE)) continue;
 
 			/* Monster has an enemy */
-			if (ally != ((n_ptr->mflag & (MFLAG_ALLY)) != 0))
+			if (choose_to_attack_monster(m_ptr, n_ptr))
 			{
 				bool see_target = aggressive;
 
@@ -1394,7 +1447,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 
 				/* Ignore targets out of range */
 				if (d > MAX_RANGE * 16) continue;
-
+				
 				/* Prefer targets at about range 3 */
 				if (d < 4 * 16) d = (6 * 16) - d;
 
@@ -1501,13 +1554,13 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		}
 	}
 
-	/* No valid target (only possible if an idle ally) */
-	if (!target_m_idx)
+	/* No valid target or targetting player and friendly/neutral and not aggressive. */
+	if ((!target_m_idx) || ((target_m_idx < 0) && ((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) != 0) && ((m_ptr->mflag & (MFLAG_AGGR)) == 0)))
 	{
-		f4 &= (rf4_no_player_mask | RF4_SUMMON_MASK);
-		f5 &= (RF5_NO_PLAYER_MASK | RF4_SUMMON_MASK);
-		f6 &= (RF6_NO_PLAYER_MASK | RF6_SUMMON_MASK);
-		f7 &= (RF7_NO_PLAYER_MASK | RF7_SUMMON_MASK);
+		f4 &= (rf4_no_player_mask);
+		f5 &= (RF5_NO_PLAYER_MASK);
+		f6 &= (RF6_NO_PLAYER_MASK);
+		f7 &= (RF7_NO_PLAYER_MASK);
 
 		/* No spells left */
 		if (!f4 && !f5 && !f6 && !f7) return (0);
@@ -1649,7 +1702,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 		}
 
 		/* Additional checks for allies */
-		if ((m_ptr->mflag & (MFLAG_ALLY)) && (!(r_ptr->flags2 & (RF2_STUPID))))
+		if (!(choose_to_attack_player(m_ptr)) && ((r_ptr->flags2 & (RF2_STUPID)) == 0))
 		{
 			/* Prevent ball spells if they could hit player */
 			if ((player_can_fire_bold(*tar_y, *tar_x)) &&
@@ -1976,9 +2029,9 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		/* Monster has no melee blows - character's grid is off-limits. */
 		if (r_ptr->flags1 & (RF1_NEVER_BLOW)) return (0);
 
-		/* Monster is an ally - character's grid is off-limits */
-		else if (m_ptr->mflag & (MFLAG_ALLY)) return (0);
-
+		/* Monster is an ally or townsfolk - character's grid is off-limits */
+		else if (!choose_to_attack_player(m_ptr)) return (0);
+		
 		/* Any monster with melee blows can attack the character. */
 		else move_chance = 100;
 	}
@@ -1990,7 +2043,7 @@ static int cave_passable_mon(monster_type *m_ptr, int y, int x, bool *bash)
 		monster_race *nr_ptr = &r_info[n_ptr->r_idx];
 
 		/* Enemies can always attack */
-		if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) != ((n_ptr->mflag & (MFLAG_ALLY)) != 0))
+		if (choose_to_attack_monster(m_ptr, n_ptr))
 		{
 			/* Can always attack */
 			return (100);
@@ -2259,7 +2312,7 @@ static void get_town_target(monster_type *m_ptr)
 	m_ptr->tx = 0;
 
 	/* Hack -- Usually choose a random store */
-	if (rand_int(100) < 80)
+	if (((level_flag & (LF1_TOWN)) == 0) && (rand_int(100) < 80))
 	{
 		i = t_info[p_ptr->town].store[rand_int(8)];
 
@@ -2287,7 +2340,7 @@ static void get_town_target(monster_type *m_ptr)
 		for (i = 0;; i++)
 		{
 			/* Pick a grid on the edge of the map (simple test) */
-			if (i < 100)
+			if (((level_flag & (LF1_TOWN)) != 0) && (i < 100))
 			{
 				if (rand_int(2))
 				{
@@ -2308,8 +2361,11 @@ static void get_town_target(monster_type *m_ptr)
 			}
 			else
 			{
-				y = rand_range(1, TOWN_HGT - 2);
-				x = rand_range(1, TOWN_WID - 2);
+				y = rand_range(1, ((level_flag & (LF1_TOWN)) ? TOWN_HGT : DUNGEON_HGT) - 2);
+				x = rand_range(1, ((level_flag & (LF1_TOWN)) ? TOWN_WID : DUNGEON_WID) - 2);
+
+				/* Ensure pick in town */
+				if (!room_near_has_flag(y, x, ROOM_TOWN)) continue;
 			}
 
 			/* Require a grid we can get to */
@@ -2996,11 +3052,15 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 
 			if (cave_m_idx[y1][x1] <= 0) continue;
 
-			if (((m_list[cave_m_idx[y1][x1]].mflag & (MFLAG_ALLY)) != 0) != ((m_ptr->mflag & (MFLAG_ALLY)) != 0)) d = i;
+			/* Attack if enemies */
+			if (choose_to_attack_monster(m_ptr, &m_list[cave_m_idx[y1][x1]]))
+			{
+				d = i;
+			}
 		}
 
 		/* Is character in range? */
-		if ((m_ptr->cdis <= 1) || (d < 9))
+		if ((d < 9) || ((choose_to_attack_player(m_ptr)) && (m_ptr->cdis <= 1)))
 		{
 			/* Monster can't melee either (pathetic little creature) */
 			if (r_ptr->flags1 & (RF1_NEVER_BLOW))
@@ -3683,8 +3743,9 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 			/* Player name */
 			if (*s == '&')
 			{
-				/* Hack -- townsfolk and allies know the players name */
-				if ((m_ptr->mflag & (MFLAG_TOWN | MFLAG_ALLY)) && (strlen(op_ptr->full_name)))
+				/* Hack -- townsfolk from normal towns and allies know the players name */
+				if (((((m_ptr->mflag & (MFLAG_TOWN)) != 0) && ((level_flag & (LF1_TOWN)) != 0))
+						|| ((m_ptr->mflag & (MFLAG_ALLY)) != 0)) && (strlen(op_ptr->full_name)))
 				{
 					u = op_ptr->full_name;
 
@@ -3712,6 +3773,24 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 					while (*u) *t++ = *u++;
 				}
 			}
+			/* Player race only */
+			else if (*s == '@')
+			{
+				/* Get race only */
+				u = p_name + rp_ptr->name;
+
+				/* Copy the string */
+				while (*u) *t++ = *u++;
+			}
+			/* Player class only */
+			else if (*s == '#')
+			{
+				/* Get race only */
+				u = c_name + cp_ptr->name;
+
+				/* Copy the string */
+				while (*u) *t++ = *u++;
+			}
 			/* Normal */
 			else
 			{
@@ -3729,15 +3808,18 @@ void monster_speech(int m_idx, cptr saying, bool understand)
 
 
 /*
- * Alert others around the monster that the player has a resistance, and wake them up.
+ * Alert others around the monster to some information that usually modifies their AI state.
+ *
+ * u, v and w are parameters for the information conveyed.
  */
-bool tell_allies_player_can(int y, int x, u32b flag)
+bool tell_allies_info(int y, int x, cptr saying, int u, int v, int w, bool wakeup,
+		bool query_ally_hook(const monster_type *n_ptr, int u, int v, int w),
+		void tell_ally_hook(monster_type *n_ptr, int u, int v, int w))
 {
 	int i, language, d;
 	bool vocal = FALSE;
 
-	cptr saying = "& resists nothing.";
-
+	/* Get the language */
 	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
 
 	/* Scan all other monsters */
@@ -3752,8 +3834,11 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 		/* Ignore itself */
 		if (i == cave_m_idx[y][x]) continue;
 
-		/* Ignore if monster knows already */
-		if ((flag & ~(n_ptr->smart)) == 0) continue;
+		/* Ignore if monster awake and knows already */
+		if (!(n_ptr->csleep) && (query_ally_hook) && query_ally_hook(n_ptr, u, v, w)) continue;
+
+		/* Ignore if monster is asleep and we're not waking them */
+		if ((n_ptr->csleep) && !wakeup) continue;
 
 		/* Ignore allies or vice versa */
 		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
@@ -3770,18 +3855,64 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 		/* Ignore monsters that are not nearby or projectable */
 		if ((d > 3) && !generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
 
-		/* Vocalise? */
-		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ ((n_ptr->smart & (flag)) != 0)) continue;
-
 		/* Activate all other monsters and communicate to them */
 		n_ptr->csleep = 0;
 		n_ptr->mflag |= (MFLAG_ACTV);
-		n_ptr->smart |= (flag);
+
+		/* Tell the ally further information */
+		if (tell_ally_hook) tell_ally_hook(n_ptr, u, v, w);
+
+		/* Vocalize */
 		vocal = TRUE;
 	}
 
 	/* Nothing to say? */
 	if (!vocal) return (FALSE);
+
+	/* Speak */
+	if ((saying) && (strlen(saying))) monster_speech(cave_m_idx[y][x], saying, FALSE);
+
+	/* Something said */
+	return (TRUE);
+}
+
+
+/*
+ * Check if ally knows about player capability already
+ */
+bool query_ally_can(const monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Check if the ally already knows */
+	if ((n_ptr->smart) & flag) return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Tells the ally the player can do something
+ */
+void tell_ally_can(monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Tell the ally */
+	n_ptr->smart |= (flag);
+}
+
+
+
+/*
+ * Alert others around the monster that the player has a resistance, and wake them up.
+ */
+bool tell_allies_player_can(int y, int x, u32b flag)
+{
+	cptr saying = NULL;
 
 	/* Define saying */
 	if (flag & (SM_IMM_ACID)) saying = "& is immune to acid.";
@@ -3811,11 +3942,37 @@ bool tell_allies_player_can(int y, int x, u32b flag)
 	else if (flag & (SM_RES_CHAOS)) saying = "& resists chaos.";
 	else if (flag & (SM_RES_DISEN)) saying = "& resists disenchantment.";
 
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, (int)flag, 0, 0, FALSE, query_ally_can, tell_ally_can));
+}
 
-	/* Something said */
-	return (TRUE);
+
+/*
+ * Check if ally knows about loss of player capability already
+ */
+bool query_ally_not(const monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Check if the ally already knows */
+	if (((n_ptr->smart) & flag) == 0) return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Tells the ally the player can no longer do something
+ */
+void tell_ally_not(monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Tell the ally */
+	n_ptr->smart &= ~(flag);
 }
 
 
@@ -3824,55 +3981,7 @@ bool tell_allies_player_can(int y, int x, u32b flag)
  */
 bool tell_allies_player_not(int y, int x, u32b flag)
 {
-	int i, language, d;
-	bool vocal = FALSE;
-
-	cptr saying = "& no longer resists nothing.";
-
-	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
-
-	/* Scan all other monsters */
-	for (i = 1; i < z_info->m_max; i++)
-	{
-		/* Access the monster */
-		monster_type *n_ptr = &m_list[i];
-
-		/* Ignore dead monsters */
-		if (!n_ptr->r_idx) continue;
-
-		/* Ignore itself */
-		if (i == cave_m_idx[y][x]) continue;
-
-		/* Ignore if monster doesn't know already */
-		if ((n_ptr->smart & (flag)) == 0) continue;
-
-		/* Ignore allies or vice versa */
-		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
-
-		/* Ignore monsters who speak different language */
-		if (monster_language(n_ptr->r_idx) != language) continue;
-
-		/* Get distance */
-		d = distance(y, x, n_ptr->fy, n_ptr->fx);
-
-		/* Ignore monsters that are too far away */
-		if (d > MAX_SIGHT) continue;
-
-		/* Ignore monsters that are not nearby or projectable */
-		if ((d > 3) && !generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
-
-		/* Vocalise? */
-		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ ((n_ptr->smart & (flag)) == 0)) continue;
-
-		/* Activate all other monsters and communicate to them */
-		n_ptr->csleep = 0;
-		n_ptr->mflag |= (MFLAG_ACTV);
-		n_ptr->smart &= ~(flag);
-		vocal = TRUE;
-	}
-
-	/* Nothing to say? */
-	if (!vocal) return (FALSE);
+	cptr saying = NULL;
 
 	/* Define saying */
 	if (flag & (SM_IMM_ACID)) saying = "& no longer is immune to acid.";
@@ -3902,11 +4011,37 @@ bool tell_allies_player_not(int y, int x, u32b flag)
 	else if (flag & (SM_RES_CHAOS)) saying = "& no longer resists chaos.";
 	else if (flag & (SM_RES_DISEN)) saying = "& no longer resists disenchantment.";
 
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, (int)flag, 0, 0, FALSE, query_ally_not, tell_ally_not));
+}
 
-	/* Something said */
-	return (TRUE);
+
+/*
+ * Check if ally has mflag already
+ */
+bool query_ally_mflag(const monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Check if the ally already knows */
+	if ((n_ptr->mflag) & flag) return (TRUE);
+
+	return (FALSE);
+}
+
+/*
+ * Tells the ally mflag
+ */
+void tell_ally_mflag(monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
+
+	/* Tell the ally */
+	n_ptr->mflag |= (flag);
 }
 
 
@@ -3915,55 +4050,68 @@ bool tell_allies_player_not(int y, int x, u32b flag)
  */
 bool tell_allies_mflag(int y, int x, u32b flag, cptr saying)
 {
-	int i, language, d;
-	bool vocal = FALSE;
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, (int)flag, 0, 0, TRUE, query_ally_mflag, tell_ally_mflag));
+}
 
-	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
 
-	/* Scan all other monsters */
-	for (i = 1; i < z_info->m_max; i++)
-	{
-		/* Access the monster */
-		monster_type *n_ptr = &m_list[i];
+/*
+ * Check if ally has cleared mflag already
+ */
+bool query_ally_not_mflag(const monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
 
-		/* Ignore dead monsters */
-		if (!n_ptr->r_idx) continue;
+	/* Check if the ally already knows */
+	if (((n_ptr->mflag) & flag) == 0) return (TRUE);
 
-		/* Ignore itself */
-		if (i == cave_m_idx[y][x]) continue;
+	return (FALSE);
+}
 
-		/* Ignore allies or vice versa */
-		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
 
-		/* Ignore monsters who speak different language */
-		if (monster_language(n_ptr->r_idx) != language) continue;
+/*
+ * Tells the ally to clear mflag
+ */
+void tell_ally_not_mflag(monster_type *n_ptr, int u, int v, int w)
+{
+	u32b flag = (u32b)u;
+	(void)v;
+	(void)w;
 
-		/* Get distance */
-		d = distance(y, x, n_ptr->fy, n_ptr->fx);
+	/* Don't get rid of MFLAG_TOWN on allies */
+	if (((n_ptr->mflag) & (MFLAG_ALLY)) != 0) flag &= ~(MFLAG_TOWN);
 
-		/* Ignore monsters that are too far away */
-		if (d > MAX_SIGHT) continue;
+	/* Tell the ally */
+	n_ptr->mflag &= ~(flag);
+}
 
-		/* Ignore monsters that are not nearby or projectable */
-		if ((d > 3) && !generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
 
-		/* Vocalise? */
-		if (!(n_ptr->csleep) && /* (n_ptr->mflag & (MFLAG_ACTV)) && */ (n_ptr->mflag & (flag))) continue;
+/*
+ * Alert others around the monster about something using the m_flag, and wake them up
+ */
+bool tell_allies_not_mflag(int y, int x, u32b flag, cptr saying)
+{
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, (int)flag, 0, 0, TRUE, query_ally_not_mflag, tell_ally_not_mflag));
+}
 
-		/* Activate all other monsters and communicate to them */
-		n_ptr->csleep = 0;
-		n_ptr->mflag |= (MFLAG_ACTV | flag);
-		vocal = TRUE;
-	}
 
-	/* Nothing to say? */
-	if (!vocal) return (FALSE);
+/*
+ * Tells the allies of the ally about death
+ */
+void tell_ally_death(monster_type *n_ptr, int u, int v, int w)
+{
+	cptr saying = (cptr)u;
+	(void)v;
+	(void)w;
 
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
+	/* Clear the town flag */
+	if (((n_ptr->mflag) & (MFLAG_ALLY)) != 0) n_ptr->mflag &= ~(MFLAG_TOWN);
 
-	/* Something said */
-	return (TRUE);
+	/* Tell the allies of the ally */
+	tell_allies_not_mflag(n_ptr->fy, n_ptr->fx, (MFLAG_TOWN), saying);
 }
 
 
@@ -3972,221 +4120,137 @@ bool tell_allies_mflag(int y, int x, u32b flag, cptr saying)
  */
 bool tell_allies_death(int y, int x, cptr saying)
 {
-	int i, j, language, d;
-	bool vocal = FALSE;
-
-	int count = 0;
-	int choice = 0;
-
-	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
-
-	/* Scan all other monsters */
-	for (i = 1; i < z_info->m_max; i++)
-	{
-		/* Access the monster */
-		monster_type *n_ptr = &m_list[i];
-
-		/* Ignore dead monsters */
-		if (!n_ptr->r_idx) continue;
-
-		/* Ignore itself */
-		if (i == cave_m_idx[y][x]) continue;
-
-		/* Ignore allies or vice versa */
-		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
-
-		/* Ignore monsters who speak different language */
-		if (monster_language(n_ptr->r_idx) != language) continue;
-
-		/* Ignore monsters that are too far away */
-		if (distance(y, x, n_ptr->fy, n_ptr->fx) > MAX_SIGHT) continue;
-
-		/* Ignore monsters that are not within line of sight */
-		if (!generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOS)) continue;
-
-		/* Asleep? */
-		if (n_ptr->csleep) continue;
-
-		/* Activate all other monsters and communicate to them */
-		n_ptr->mflag |= (MFLAG_ACTV);
-
-		/* Rescan all other monsters */
-		for (j = 1; j < z_info->m_max; j++)
-		{
-			/* Access the monster */
-			monster_type *n2_ptr = &m_list[j];
-
-			/* Ignore dead monsters */
-			if (!n2_ptr->r_idx) continue;
-
-			/* Ignore itself */
-			if (j == cave_m_idx[n_ptr->fy][n_ptr->fx]) continue;
-
-			/* Ignore the monster that died */
-			if ((n2_ptr->fy == y) && (n2_ptr->fx == x)) continue;
-
-			/* Ignore allies or vice versa */
-			if (((n2_ptr->mflag & (MFLAG_ALLY)) != 0) != ((n_ptr->mflag & (MFLAG_ALLY)) != 0)) continue;
-
-			/* Ignore monsters who speak different language */
-			if (monster_language(n2_ptr->r_idx) != language) continue;
-
-			/* Get distance */
-			d = distance(n_ptr->fy, n_ptr->fx, n2_ptr->fy, n2_ptr->fx);
-
-			/* Ignore monsters that are too far away */
-			if (d > MAX_SIGHT) continue;
-
-			/* Ignore monsters that are not nearby or projectable */
-			if ((d > 3) && !generic_los(n_ptr->fy, n_ptr->fx, n2_ptr->fy, n2_ptr->fx, CAVE_XLOF)) continue;
-
-			/* Wake and activate all other monsters and communicate to them */
-			n2_ptr->csleep = 0;
-			n2_ptr->mflag |= (MFLAG_ACTV);
-
-			/* Spoken */
-			vocal = TRUE;
-		}
-
-		/* Nothing to say */
-		if (!vocal) continue;
-
-		/* Pick one */
-		if (!rand_int(++count)) choice = i;
-
-		/* Clear vocal */
-		vocal = FALSE;
-	}
-
-	/* Nothing to say? */
-	if (!choice) return (FALSE);
-
-	/* Get speaker details */
-	y = m_list[choice].fy;
-	x = m_list[choice].fx;
-
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
-
-	/* Something said */
-	return (TRUE);
+	/* Something said? */
+	return (tell_allies_info(y, x, NULL, (int)saying, 0, 0, TRUE, NULL, tell_ally_death));
 }
 
 
 /*
- * Alert others around the monster about something, set their minimum range and wake them up
+ * Check if ally is willing to go to that range
  */
-bool tell_allies_best_range(int y, int x, int range, cptr saying)
+bool query_ally_range(const monster_type *n_ptr, int u, int v, int w)
 {
-	int i, language, d;
-	bool vocal = FALSE;
+	(void)u;
+	(void)v;
+	(void)w;
 
-	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
+	/* Check if the ally is not fleeing */
+	if (n_ptr->min_range < FLEE_RANGE) return (TRUE);
 
-	/* Scan all other monsters */
-	for (i = 1; i < z_info->m_max; i++)
-	{
-		/* Access the monster */
-		monster_type *n_ptr = &m_list[i];
+	return (FALSE);
+}
 
-		/* Ignore dead monsters */
-		if (!n_ptr->r_idx) continue;
+/*
+ * Tells the ally to move to best range
+ */
+void tell_ally_range(monster_type *n_ptr, int u, int v, int w)
+{
+	(void)w;
 
-		/* Ignore itself */
-		if (i == cave_m_idx[y][x]) continue;
-
-		/* Ignore allies or vice versa */
-		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
-
-		/* Ignore monsters who speak different language */
-		if (monster_language(n_ptr->r_idx) != language) continue;
-
-		/* Get distance */
-		d = distance(y, x, n_ptr->fy, n_ptr->fx);
-
-		/* Ignore monsters that are too far away */
-		if (d > MAX_SIGHT) continue;
-
-		/* Ignore monsters that are not nearby or projectable */
-		if ((d > 3) && !generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
-
-		/* Activate all other monsters and communicate to them */
-		n_ptr->csleep = 0;
-		n_ptr->mflag |= (MFLAG_ACTV);
-		n_ptr->best_range = range;
-		vocal = TRUE;
-	}
-
-	/* Nothing to say? */
-	if (!vocal) return (FALSE);
-
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
-
-	/* Something said */
-	return (TRUE);
+	/* Tell the ally */
+	if (u) n_ptr->best_range = u;
+	if (v) n_ptr->min_range = v;
 }
 
 
 /*
- * Alert others around the monster about something, set their minimum range and wake them up
+ * Alert others around the monster about something and set their best ranged value
+ */
+bool tell_allies_range(int y, int x, int best_range, int min_range, cptr saying)
+{
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, best_range, min_range, 0, TRUE, query_ally_range, tell_ally_range));
+}
+
+
+/*
+ * Check if ally is willing to wait for a time period
+ */
+bool query_ally_summoned(const monster_type *n_ptr, int u, int v, int w)
+{
+	(void)u;
+	(void)v;
+	(void)w;
+
+	/* Check if not townsfolk */
+	if ((n_ptr->mflag & (MFLAG_TOWN)) == 0) return (TRUE);
+
+	return (FALSE);
+}
+
+
+/*
+ * Tells the ally to wait a while
+ */
+void tell_ally_summoned(monster_type *n_ptr, int u, int v, int w)
+{
+	(void)v;
+	(void)w;
+
+	/* Tell the ally */
+	n_ptr->summoned = u;
+}
+
+
+/*
+ * Alert others around the monster about something and set their 'summoned' timer
+ */
+bool tell_allies_summoned(int y, int x, int summoned, cptr saying)
+{
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, summoned, 0, 0, TRUE, query_ally_summoned, tell_ally_summoned));
+}
+
+
+
+/*
+ * Check if ally is willing to accept a target
+ */
+bool query_ally_target(const monster_type *n_ptr, int u, int v, int w)
+{
+	(void)u;
+	(void)v;
+
+	/* Ignore monsters who have orders */
+	if ((n_ptr->ty) || (n_ptr->tx)) return (TRUE);
+
+	/* Ignore monsters picking up a good scent */
+	if ((w) && (get_scent(n_ptr->fy, n_ptr->fx) < SMELL_STRENGTH - 10)) return (TRUE);
+
+	return (FALSE);
+}
+
+
+/*
+ * Tells the ally to change timer
+ */
+void tell_ally_target(monster_type *n_ptr, int u, int v, int w)
+{
+	(void)w;
+
+	/* Tell the ally */
+	n_ptr->ty = u;
+	n_ptr->tx = v;
+}
+
+
+/*
+ * Alert others around the monster about something and set their best ranged value
  */
 bool tell_allies_target(int y, int x, int ty, int tx, bool scent, cptr saying)
 {
-	int i, language, d;
-	bool vocal = FALSE;
+	/* Something said? */
+	return (tell_allies_info(y, x, saying, ty, tx, scent, TRUE, query_ally_target, tell_ally_target));
+}
 
-	language = monster_language(m_list[cave_m_idx[y][x]].r_idx);
 
-	/* Scan all other monsters */
-	for (i = 1; i < z_info->m_max; i++)
-	{
-		/* Access the monster */
-		monster_type *n_ptr = &m_list[i];
-
-		/* Ignore dead monsters */
-		if (!n_ptr->r_idx) continue;
-
-		/* Ignore itself */
-		if (i == cave_m_idx[y][x]) continue;
-
-		/* Ignore allies or vice versa */
-		if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) != 0)) continue;
-
-		/* Ignore monsters who speak different language */
-		if (monster_language(n_ptr->r_idx) != language) continue;
-
-		/* Get distance */
-		d = distance(y, x, n_ptr->fy, n_ptr->fx);
-
-		/* Ignore monsters that are too far away */
-		if (d > MAX_SIGHT) continue;
-
-		/* Ignore monsters that are not nearby or projectable */
-		if ((d > 3) && !generic_los(y, x, n_ptr->fy, n_ptr->fx, CAVE_XLOF)) continue;
-
-		/* Ignore monsters who have orders */
-		if ((n_ptr->ty) || (n_ptr->tx)) continue;
-
-		/* Ignore monsters picking up a good scent */
-		if ((scent) && (get_scent(n_ptr->fy, n_ptr->fx) < SMELL_STRENGTH - 10)) continue;
-
-		/* Activate all other monsters and communicate to them */
-		n_ptr->csleep = 0;
-		n_ptr->mflag |= (MFLAG_ACTV);
-		n_ptr->ty = ty;
-		n_ptr->tx = tx;
-		vocal = TRUE;
-	}
-
-	/* Nothing to say? */
-	if (!vocal) return (FALSE);
-
-	/* Speak */
-	monster_speech(cave_m_idx[y][x], saying, FALSE);
-
-	/* Something said */
-	return (TRUE);
+/*
+ * Check if the monster has any allies around
+ */
+bool check_allies_exist(int y, int x)
+{
+	/* Something said? */
+	return (tell_allies_info(y, x, "", 0, 0, 0, FALSE, NULL, NULL));
 }
 
 
@@ -4861,8 +4925,9 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	feat = cave_feat[ny][nx];
 
 	/* The monster is hidden in terrain, trying to attack.*/
-	if (do_move && (m_ptr->mflag & (MFLAG_HIDE)) && ((cave_m_idx[ny][nx] < 0) ||
-			(((m_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[ny][nx]].mflag & (MFLAG_ALLY)) != 0))))
+	if (do_move && (m_ptr->mflag & (MFLAG_HIDE))
+			&& (((cave_m_idx[ny][nx] < 0) && (choose_to_attack_player(m_ptr)))
+			 || ((cave_m_idx[ny][nx] > 0) && (choose_to_attack_monster(m_ptr, &m_list[cave_m_idx[ny][nx]])))))
 	{
 		/* Monster is under covered terrain and can't slip out */
 		if (!(r_ptr->flags2 & (RF2_PASS_WALL)) && !(m_ptr->tim_passw) &&
@@ -4948,7 +5013,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		/* Attack if possible */
 		if (!(r_ptr->flags1 & (RF1_NEVER_BLOW)) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 		{
-			(void)make_attack_normal(m_idx);
+			(void)make_attack_normal(m_idx, !choose_to_attack_player(m_ptr));
 		}
 
 		/* End move */
@@ -5256,7 +5321,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 	{
 		/* Attack adjacent monsters, if confused or enemies */
 		if ((cave_m_idx[ny][nx] > 0) && ((m_ptr->confused) ||
-			(((m_ptr->mflag & (MFLAG_ALLY)) != 0) != ((m_list[cave_m_idx[ny][nx]].mflag & (MFLAG_ALLY)) != 0))))
+			(choose_to_attack_monster(m_ptr, &m_list[cave_m_idx[ny][nx]]))))
 		{
 			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
 
@@ -5373,10 +5438,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					if (m_ptr->mflag & (MFLAG_ALLY)) m_ptr->mflag |= (MFLAG_PUSH);
 
 					/* New result routine */
-					project_m(who, what, ny, nx, damage, effect);
-
-					/* Apply teleport and other effects */
-					project_t(who, what, ny, nx, damage, effect);
+					project_one(who, what, ny, nx, damage, effect, (PROJECT_KILL | PROJECT_HIDE));
 				}
 			}
 		}
@@ -6069,16 +6131,20 @@ static void process_monster(int m_idx)
 	{
 		/* Monster will be very upset if it can't shoot the player
 		   or wasn't expecting player attack. */
-		if ((!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE)))
+		if ((!player_can_fire_bold(m_ptr->fy, m_ptr->fx)) || ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
 		{
 			m_ptr->mflag |= (MFLAG_AGGR);
 
-			/* Tell allies to close */
-			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, (aware) ? "& has attacked me!" : "Something has attacked me!"))
+			/* Tell allies to get aggressive or close */
+			if ((tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), (aware) ? "& has attacked me!" : "Something has attacked me!"))
+					||(tell_allies_range(m_ptr->fy, m_ptr->fx, 1, 0, (aware) ? "& has attacked me!" : "Something has attacked me!")))
 			{
 				/* Close oneself */
 				if (m_ptr->min_range > 1) m_ptr->min_range--;
 				m_ptr->best_range = 1;
+
+				/* Sometimes feel less aggrieved */
+				if (!rand_int(3)) m_ptr->mflag &= ~(MFLAG_TOWN | MFLAG_AGGR);
 			}
 			/* No allies to tell -- try to close */
 			else
@@ -6132,15 +6198,19 @@ static void process_monster(int m_idx)
 		 * Monster will be very upset if it isn't next to the
 		 * player (pillar dance, hack-n-back, etc)
 		 */
-		if ((m_ptr->cdis > 1) || (m_ptr->mflag & (MFLAG_TOWN | MFLAG_IGNORE)))
+		if ((m_ptr->cdis > 1) || ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
 		{
 			m_ptr->mflag |= (MFLAG_AGGR);
 
-			/* Tell allies to close */
-			if (tell_allies_best_range(m_ptr->fy, m_ptr->fx, 1, (aware) ? "& has attacked me!" : "Something has attacked me!"))
+			/* Tell allies to get aggressive or close */
+			if ((tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), (aware) ? "& has attacked me!" : "Something has attacked me!"))
+					|| (tell_allies_range(m_ptr->fy, m_ptr->fx, 1, 0, (aware) ? "& has attacked me!" : "Something has attacked me!")))
 			{
 				/* Close oneself if only option is melee */
 				if (!r_ptr->freq_spell && !r_ptr->freq_innate) m_ptr->min_range = m_ptr->best_range = 1;
+
+				/* Sometimes feel less aggrieved */
+				if (!rand_int(3)) m_ptr->mflag &= ~(MFLAG_TOWN | MFLAG_AGGR);
 			}
 			/* No allies to tell -- try to back off / flee */
 			else
@@ -6569,7 +6639,8 @@ static void process_monster(int m_idx)
 
 	/*
 	 * Innate semi-random movement.  Monsters adjacent to the character
-	 * can always strike accurately at him (monster isn't confused).
+	 * can always strike accurately at him (monster isn't confused) or
+	 * move out of his way.
 	 */
 	if ((r_ptr->flags1 & (RF1_RAND_50 | RF1_RAND_25)) && (m_ptr->cdis > 1) && ((level_flag & (LF1_BATTLE)) == 0))
 	{
@@ -6597,9 +6668,10 @@ static void process_monster(int m_idx)
 
 			if (!in_bounds_fully(y1, x1)) continue;
 
-			if (!cave_m_idx[y1][x1]) continue;
+			if (cave_m_idx[y1][x1] <= 0) continue;
 
-			if (((m_list[cave_m_idx[y1][x1]].mflag & (MFLAG_ALLY)) != 0) != ((m_ptr->mflag & (MFLAG_ALLY)) != 0)) chance = 0;
+			/* Adjacent monster we want to fight */
+			if (choose_to_attack_monster(m_ptr, &m_list[cave_m_idx[y1][x1]])) chance = 0;
 		}
 
 		/* Chance of moving randomly */
@@ -6674,8 +6746,9 @@ static void process_monster(int m_idx)
 		}
 	}
 
-	/* Monster is using the special "townsman" AI */
-	if (m_ptr->mflag & (MFLAG_TOWN))
+	/* Monster is using the special "townsman" AI in town */
+	if (((m_ptr->mflag & (MFLAG_TOWN)) != 0) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0)
+			&& (room_near_has_flag(m_ptr->fy, m_ptr->fx, ROOM_TOWN)))
 	{
 		/* Town monster been attacked */
 		if (m_ptr->mflag & (MFLAG_AGGR))
@@ -6803,7 +6876,7 @@ static void process_monster(int m_idx)
 			if (restrict_targets && !(n_ptr->ml)) continue;
 
 			/* Monster has an enemy */
-			if (ally != ((n_ptr->mflag & (MFLAG_ALLY)) != 0))
+			if (choose_to_attack_monster(m_ptr, n_ptr))
 			{
 				bool see_target = FALSE;
 
@@ -7106,7 +7179,7 @@ static void process_monster(int m_idx)
 	}
 
 	/* Allies try not to disturb the players rest */
-	else if ((m_ptr->mflag & (MFLAG_ALLY)) && !(m_ptr->ty) && !(m_ptr->tx) && (p_ptr->resting))
+	else if ((!choose_to_attack_player(m_ptr)) && !(m_ptr->ty) && !(m_ptr->tx) && (p_ptr->resting))
 	{
 		/* Don't move as this disturbs the player */
 		return;
@@ -7165,6 +7238,62 @@ static void process_monster(int m_idx)
 }
 
 
+/* The ally needs to be paid again */
+#define MAX_COMMENT_1a   6
+
+static cptr comment_1a[MAX_COMMENT_1a] =
+{
+	"I need more gold to stay in your service, my lord.",
+	"The coffers of my home have grown empty, master.",
+	"I need to be paid again, and soon.",
+	"How will I pay for my upkeep without your assistance?",
+	"I need a sign of favour from you to continue.",
+	"I need a token of your esteem."
+};
+
+
+/* The townsfolk grow restless */
+#define MAX_COMMENT_1b   6
+
+static cptr comment_1b[MAX_COMMENT_1b] =
+{
+	"Is that the extent of your largess? You'd better have more for me, and soon...",
+	"The dark lords are far more generous than you. Should we turn to them?",
+	"Is the meagre gifts you've given all you have? You disgust me...",
+	"What more have you got for me? Hurry up or else...",
+	"I'm running out of patience with you. You'll regret not giving me more...",
+	"Miser! I have children to feed and you give me nothing..."
+};
+
+
+/* Ally mercenary leaving */
+#define MAX_COMMENT_2a   6
+
+static cptr comment_2a[MAX_COMMENT_2a] =
+{
+	"No more gold? I quit your service...",
+	"I've had enough. I'm off...",
+	"I've gone too long without pay. I resign this comission.",
+	"I've run out of money and can't afford to stay with you.",
+	"Your lack of faith in me forces me to leave you.",
+	"I would have stayed, if only you acknowledged my devotion."
+};
+
+
+/* Townsfolk turning on you */
+#define MAX_COMMENT_2b   6
+
+static cptr comment_2b[MAX_COMMENT_2a] =
+{
+	"Traitor! Have it at you!",
+	"Blackheart! Your villiany has been exposed...",
+	"Fiend! You betrayed us in our hour of need...",
+	"Liar! You've broken your word one time too many...",
+	"Thief! Are all who call themselves a @ as conniving as you?",
+	"Scoundrel! Your # code is just threadbare rags..."
+};
+
+
 /*
  * Monster regeneration of HPs and mana, and recovery from all temporary
  * conditions.
@@ -7199,43 +7328,110 @@ static void recover_monster(int m_idx, bool regen)
 	{
 		m_ptr->summoned--;
 
+		/* Warn the player we're running out of patience */
+		if ((m_ptr->summoned == MIN_TOWN_WARNING) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0))
+		{
+			/* Note loss of patience. */
+			monster_speech(m_idx, (m_ptr->mflag & (MFLAG_ALLY))? comment_1a[rand_int(MAX_COMMENT_1a)] : comment_1b[rand_int(MAX_COMMENT_1b)], FALSE);
+		}
+
 		if (!m_ptr->summoned)
 		{
+			/* Town monsters change their tune */
+			if ((m_ptr->mflag & (MFLAG_TOWN)) != 0)
+			{
+				/* Evil just silently betrays the player */
+				if (r_ptr->flags3 & (RF3_EVIL))
+				{
+					/* Able to stab the player in the back, shoot him or ensorcle him? */
+					if ((m_ptr->cdis <= 1) || (r_ptr->freq_innate > 35) ||
+							((r_ptr->freq_spell > 25) && (m_ptr->mana > r_ptr->mana / 3)))
+					{
+						u32b flag_hack = m_ptr->mflag;
+
+						/* Consider switching sides? */
+						m_ptr->mflag &= ~(MFLAG_ALLY | MFLAG_TOWN);
+
+						/* And wait for assistance most of the time */
+						if ((!rand_int(10)) || (!check_allies_exist(m_ptr->fy, m_ptr->fx))) m_ptr->mflag = flag_hack;
+
+						/* Try to summon assistance quietly */
+						else (tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), NULL));
+					}
+					/* We're alone */
+					else if (!check_allies_exist(m_ptr->fy, m_ptr->fx))
+					{
+						m_ptr->best_range = 1;
+					}
+
+					/* Try again shortly */
+					if (m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) m_ptr->summoned = MIN_TOWN_WARNING - 1;
+				}
+				/* Allies leave */
+				else if (m_ptr->mflag & (MFLAG_ALLY))
+				{
+					/* Note loss of allegiance. */
+					monster_speech(m_idx, comment_2a[rand_int(MAX_COMMENT_2a)], FALSE);
+				}
+				/* Only betray when the monster has support except rarely */
+				else if ((tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), comment_2b[rand_int(MAX_COMMENT_2b)]))
+						|| !(rand_int(10)))
+				{
+					/* Get the monster name */
+					monster_desc(m_name, sizeof(m_name), m_idx, 0);
+
+					/* Warn the player */
+					msg_format("%^s turns to fight.",m_name);
+
+					/* Become an enemy */
+					m_ptr->mflag &= ~(MFLAG_TOWN);
+
+					/* Don't allow the player to buy his way out of trouble */
+					m_ptr->mflag &= (MFLAG_AGGR);
+				}
+
+				/* Give the player some more time to make amends */
+				m_ptr->summoned = 150 - adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+			}
+
 			/* Delete monster summoned by player */
 			if (m_ptr->mflag & (MFLAG_ALLY))
 			{
 				s16b this_o_idx, next_o_idx = 0;
 
-				/* Drop objects being carried */
-				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+				/* Drop objects being carried - unless a mercenary */
+				if ((m_ptr->mflag & (MFLAG_TOWN)) == 0)
 				{
-					object_type *o_ptr, *i_ptr;
-					object_type object_type_body;
+					for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+					{
+						object_type *o_ptr, *i_ptr;
+						object_type object_type_body;
 
-					/* Get the object */
-					o_ptr = &o_list[this_o_idx];
+						/* Get the object */
+						o_ptr = &o_list[this_o_idx];
 
-					/* Get the next object */
-					next_o_idx = o_ptr->next_o_idx;
+						/* Get the next object */
+						next_o_idx = o_ptr->next_o_idx;
 
-					/* Paranoia */
-					o_ptr->held_m_idx = 0;
+						/* Paranoia */
+						o_ptr->held_m_idx = 0;
 
-					/* Get local object */
-					i_ptr = &object_type_body;
+						/* Get local object */
+						i_ptr = &object_type_body;
 
-					/* Copy the object */
-					object_copy(i_ptr, o_ptr);
+						/* Copy the object */
+						object_copy(i_ptr, o_ptr);
 
-					/* Delete the object */
-					delete_object_idx(this_o_idx);
+						/* Delete the object */
+						delete_object_idx(this_o_idx);
 
-					/* Drop it */
-					drop_near(i_ptr, -1, y, x, TRUE);
+						/* Drop it */
+						drop_near(i_ptr, -1, y, x, TRUE);
+					}
+
+					/* Forget objects */
+					m_ptr->hold_o_idx = 0;
 				}
-
-				/* Forget objects */
-				m_ptr->hold_o_idx = 0;
 
 				/* Get the monster name */
 				monster_desc(m_name, sizeof(m_name), m_idx, 0);
@@ -7271,10 +7467,7 @@ static void recover_monster(int m_idx, bool regen)
 		if (daytime && hurt_lite && outside)
 		{
 			/* Burn the monster */
-			project_m(SOURCE_DAYLIGHT, 0, y, x, damroll(4,6), GF_LITE);
-
-			/* Burn the monster */
-			project_t(SOURCE_DAYLIGHT, 0, y, x, damroll(4,6), GF_LITE);
+			project_one(SOURCE_DAYLIGHT, 0, y, x, damroll(4,6), GF_LITE, (PROJECT_KILL));
 		}
 		else if ((f_info[cave_feat[y][x]].blow.method) && !(f_info[cave_feat[y][x]].flags1 & (FF1_HIT_TRAP)))
 		{
@@ -7285,10 +7478,7 @@ static void recover_monster(int m_idx, bool regen)
 		else
 		{
 			/* Suffocate the monster */
-			project_m(SOURCE_FEATURE, cave_feat[y][x], y, x, damroll(4,6), GF_SUFFOCATE);
-
-			/* Suffocate the monster */
-			project_t(SOURCE_FEATURE, cave_feat[y][x], y, x, damroll(4,6), GF_SUFFOCATE);
+			project_one(SOURCE_FEATURE, cave_feat[y][x], y, x, damroll(4,6), GF_SUFFOCATE, (PROJECT_KILL | PROJECT_HIDE));
 		}
 
 		/* Is the monster hidden?*/
@@ -7365,6 +7555,37 @@ static void recover_monster(int m_idx, bool regen)
 			/* Fully healed -> flag minimum range for recalculation */
 			if (m_ptr->hp == m_ptr->maxhp) m_ptr->min_range = 0;
 		}
+
+
+		/* Monster is a town monster - do some interesting stuff */
+		if (((m_ptr->mflag & (MFLAG_TOWN)) != 0) && !(m_ptr->csleep) && !(m_ptr->summoned) && !(rand_int(9)))
+		{
+			/* We don't care about the player */
+			if ((m_ptr->mflag & (MFLAG_AGGR)) == 0)
+			{
+				/* Get the monster name */
+				monster_desc(m_name, sizeof(m_name), m_idx, 0);
+
+				/* Notice and attack the player */
+				if ((m_ptr->cdis <= r_ptr->aaf) && (p_ptr->skills[SKILL_STEALTH] < rand_int(100)))
+				{
+					/* Give detailed messages */
+					if (m_ptr->ml) msg_format("%^s decides you are an easy target.", m_name);
+
+					/* Notice the player */
+					m_ptr->mflag &= ~(MFLAG_TOWN);
+				}
+				/* Bored - go to sleep */
+				else
+				{
+					int val = r_ptr->sleep;
+					m_ptr->csleep = ((val * 2) + (s16b)randint(val * 10));
+
+					/* Give detailed messages */
+					if (m_ptr->ml) msg_format("%^s falls asleep.", m_name);
+				}
+			}
+		}
 	}
 
 
@@ -7403,6 +7624,14 @@ static void recover_monster(int m_idx, bool regen)
 			/* Wake up faster near the player */
 			if (m_ptr->cdis < 50) d = (100 / m_ptr->cdis);
 
+			/* Cap effectiveness of waking up if the player is sneaking */
+			/* XXX We do this so that it is never worthwhile just sneaking
+			 * around the dungeon, but it is worthwhile switching to sneaking
+			 * when you are near a monster you are aware of, which is about
+			 * to wake up.
+			 */
+			if ((p_ptr->sneaking) && !(p_ptr->not_sneaking) && (m_ptr->ml) && (d > 20)) d = 20;
+
 			/* Still asleep */
 			if (m_ptr->csleep > d)
 			{
@@ -7416,6 +7645,25 @@ static void recover_monster(int m_idx, bool regen)
 					if (l_ptr->ignore < MAX_UCHAR)
 					{
 						l_ptr->ignore++;
+					}
+
+					/* Notice when nearly awake */
+					if (m_ptr->csleep < 2 * d)
+					{
+						/* Get the monster name */
+						monster_desc(m_name, sizeof(m_name), m_idx, 0);
+
+						/* Dump a message */
+						msg_format("%^s is nearly awake.", m_name);
+					}
+					/* Notice when waking up a lot */
+					else if ((m_ptr->cdis < 6) && (m_ptr->csleep < 3 * d))
+					{
+						/* Get the monster poss */
+						monster_desc(m_name, sizeof(m_name), m_idx, 0x02);
+
+						/* Dump a message */
+						msg_format("%^s slumber is disturbed.", m_name);
 					}
 				}
 			}
@@ -7447,6 +7695,7 @@ static void recover_monster(int m_idx, bool regen)
 			}
 		}
 	}
+
 
 	/* Some monsters radiate damage when awake */
 	if (!(m_ptr->csleep) && (r_ptr->flags2 & (RF2_HAS_AURA)))

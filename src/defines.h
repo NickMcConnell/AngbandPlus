@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	9
+#define VERSION_EXTRA	11
 
 /*
  * Oldest version number that can still be imported
@@ -185,16 +185,17 @@
  * Store index definitions (see "store.c", etc)
  */
 
-#define STORE_HOME		0
-#define STORE_STORAGE           1
-#define STORE_QUEST_REWARD      2
+#define STORE_HOME		0	/* Doesn't stock items, store items here freely, shared location */
+#define STORE_STORAGE           1	/* Store items here freely */
+#define STORE_QUEST_REWARD      2	/* Quest rewards, store items here freely */
 #define STORE_GENERAL		3
 #define STORE_ARMOR		4
 #define STORE_WEAPON		5
 #define STORE_TEMPLE		6
 #define STORE_ALCHEMY		7
 #define STORE_MAGIC		8
-#define STORE_B_MARKET		9
+#define STORE_B_MARKET		9	/* Doesn't stock services, higher prices, random contents */
+#define STORE_LIBRARY		10	/* Doesn't stock services */
 
 #define STORE_MIN_BUY_SELL      3
 
@@ -390,30 +391,16 @@
 /*
  * Dungeon room types
  */
-#define ROOM_NONE				0
-#define ROOM_NORMAL				1
-#define ROOM_NORMAL_WALLS		2
-#define ROOM_NORMAL_CENTRE		3
-#define ROOM_LARGE_WALLS		4
-#define ROOM_LARGE_CENTRE		5
-#define ROOM_HUGE_CENTRE		6
-#define ROOM_CHAMBERS			7
-#define ROOM_INTERESTING   		8
-#define ROOM_LESSER_VAULT		9
-#define ROOM_GREATER_VAULT		10
-#define ROOM_STAR_BURST			11
-#define ROOM_HUGE_STAR_BURST	12
-#define ROOM_FRACTAL			13
-#define ROOM_LARGE_FRACTAL		14
-#define ROOM_HUGE_FRACTAL		15
-#define ROOM_LAIR				16
-#define ROOM_MAZE				17
-#define ROOM_LARGE_MAZE			18
-#define ROOM_HUGE_MAZE			19
-#define ROOM_MONSTER_PIT		20
-#define ROOM_LAKE				21
-#define ROOM_HUGE_LAKE			22
-#define ROOM_TOWER       		23
+enum
+{
+	ROOM_NONE = 0, ROOM_NORMAL, ROOM_NORMAL_WALLS, ROOM_NORMAL_CENTRE, ROOM_LARGE_WALLS,
+	ROOM_LARGE_CENTRE, ROOM_HUGE_CENTRE, ROOM_CHAMBERS, ROOM_INTERESTING, ROOM_LESSER_VAULT, ROOM_GREATER_VAULT,
+	ROOM_STAR_BURST, ROOM_HUGE_STAR_BURST, ROOM_FRACTAL, ROOM_LARGE_FRACTAL, ROOM_HUGE_FRACTAL, ROOM_LAIR,
+	ROOM_MAZE, ROOM_LARGE_MAZE, ROOM_HUGE_MAZE, ROOM_CELL_CAVE, ROOM_LARGE_CAVE, ROOM_HUGE_CAVE, ROOM_BURROW,
+	ROOM_LARGE_BURROW, ROOM_HUGE_BURROW, ROOM_MONSTER_PIT, ROOM_MONSTER_TOWN, ROOM_NORMAL_CONCAVE, ROOM_LARGE_CONCAVE,
+	ROOM_HUGE_CONCAVE, ROOM_LAKE, ROOM_HUGE_LAKE, ROOM_TOWER,
+	ROOM_MAX
+};
 
 
 /*
@@ -613,6 +600,11 @@
 #define SHOWN_TOTAL	END_QUIVER
 
 /*
+ * Fake slot for selecting gold
+ */
+#define INVEN_GOLD (END_QUIVER + 1)
+
+/*
  * Used to determine if a slot is a quiver slot.
  */
 #define IS_QUIVER_SLOT(slot) \
@@ -642,44 +634,20 @@
 /*
  * Indexes of various commands.
  */
-#define COMMAND_ITEM_EAT		1
-#define COMMAND_ITEM_QUAFF		2
-#define COMMAND_ITEM_READ		3
-#define COMMAND_ITEM_USE		4
-#define COMMAND_ITEM_AIM		5
-#define COMMAND_ITEM_ZAP		6
-#define COMMAND_ITEM_ASSEMBLE	7
-#define COMMAND_ITEM_ASSEMBLY	8
-#define COMMAND_ITEM_ACTIVATE	9
-#define COMMAND_ITEM_APPLY		10
-#define COMMAND_ITEM_APPLY_RUNE	11
-#define COMMAND_ITEM_APPLY_COAT	12
-#define COMMAND_ITEM_WIELD		13
-#define COMMAND_ITEM_WIELD_OFF	14
-#define COMMAND_ITEM_READY		15
-#define COMMAND_ITEM_TAKEOFF	16
-#define COMMAND_ITEM_DROP		17
-#define COMMAND_ITEM_DESTROY	18
-#define COMMAND_ITEM_EXAMINE	19
-#define COMMAND_ITEM_UNINSCRIBE	20
-#define COMMAND_ITEM_INSCRIBE	21
-#define COMMAND_ITEM_FUEL		22
-#define COMMAND_ITEM_FILL		23
-#define COMMAND_ITEM_FUEL_TORCH	24
-#define COMMAND_ITEM_FUEL_LAMP	25
-#define COMMAND_ITEM_FILL_FIREARM	26
-#define COMMAND_ITEM_LITE		27
-#define COMMAND_ITEM_MAGIC_TRAP	28
-#define COMMAND_ITEM_THROW		29
-#define COMMAND_ITEM_FIRE_SLING		30
-#define COMMAND_ITEM_FIRE_BOW		31
-#define COMMAND_ITEM_FIRE_XBOW		32
-#define COMMAND_ITEM_FIRE_GUN		33
-#define COMMAND_ITEM_CAST_SPELL		34
-#define COMMAND_ITEM_STUDY			35
-#define COMMAND_ITEM_BROWSE			36
+enum
+{
+	COMMAND_ITEM_EAT = 1, COMMAND_ITEM_QUAFF, COMMAND_ITEM_READ, COMMAND_ITEM_USE, COMMAND_ITEM_AIM,
+	COMMAND_ITEM_ZAP, COMMAND_ITEM_ASSEMBLE, COMMAND_ITEM_ASSEMBLY, COMMAND_ITEM_ACTIVATE, COMMAND_ITEM_APPLY,
+	COMMAND_ITEM_APPLY_RUNE, COMMAND_ITEM_APPLY_COAT, COMMAND_ITEM_WIELD, COMMAND_ITEM_WIELD_OFF, COMMAND_ITEM_READY,
+	COMMAND_ITEM_TAKEOFF, COMMAND_ITEM_DROP, COMMAND_ITEM_DESTROY, COMMAND_ITEM_EXAMINE, COMMAND_ITEM_UNINSCRIBE,
+	COMMAND_ITEM_INSCRIBE, COMMAND_ITEM_FUEL, COMMAND_ITEM_FILL, COMMAND_ITEM_FUEL_TORCH, COMMAND_ITEM_FUEL_LAMP,
+	COMMAND_ITEM_FILL_FIREARM, COMMAND_ITEM_LITE, COMMAND_ITEM_MAGIC_TRAP, COMMAND_ITEM_THROW, COMMAND_ITEM_FIRE_SLING,
+	COMMAND_ITEM_FIRE_BOW, COMMAND_ITEM_FIRE_XBOW, COMMAND_ITEM_FIRE_GUN, COMMAND_ITEM_CAST_SPELL, COMMAND_ITEM_STUDY,
+	COMMAND_ITEM_BROWSE, COMMAND_ITEM_OFFER, COMMAND_ITEM_TRADE, COMMAND_ITEM_STEAL,
+	
+	MAX_COMMANDS
+};
 
-#define MAX_COMMANDS	37
 
 
 /*
@@ -696,6 +664,7 @@
 #define CONDITION_LITERATE		0x00000020L	/* Player can read books */
 #define CONDITION_HOLD_SONG		0x00000040L	/* Player can choose to change the song they're singing */
 #define CONDITION_NEED_SPELLS	0x00000080L	/* Player must have new spells to learn */
+#define CONDITION_NO_SNEAKING	0x00000100L	/* Player must not be sneaking */
 
 
 
@@ -1121,7 +1090,8 @@ enum
 #define GF_POISON_WEAK	149
 #define GF_POISON_HALF	150
 #define GF_HURT_POISON	151
-
+#define GF_POTS	152
+#define GF_CHARM_PLANT	153
 
 
 
@@ -1587,20 +1557,20 @@ enum
 /* SF2 - timed abilities and modifying level */
 
 #define SF2_AGGRAVATE    0x00000001
-#define SF2_CURSE_WEAPON 0x00000002
-#define SF2_CURSE_ARMOR  0x00000004
+#define SF2_SLOW_POIS	 0x00000002
+#define SF2_SLOW_DIGEST  0x00000004
 #define SF2_CREATE_STAIR 0x00000008
 #define SF2_TELE_LEVEL   0x00000010
 #define SF2_ALTER_LEVEL  0x00000020
-#define SF2_BANISHMENT     0x00000040
+#define SF2_BANISHMENT   0x00000040
 #define SF2_MASS_BANISHMENT       0x00000080
-#define SF2_CUT   0x00000100
-#define SF2_STUN  0x00000200
+#define SF2_CUT			 0x00000100
+#define SF2_STUN		 0x00000200
 #define SF2_POISON       0x00000400
 #define SF2_PARALYZE     0x00000800
 #define SF2_HALLUC       0x00001000
-#define SF2_SLOW  0x00002000
-#define SF2_BLIND 0x00004000
+#define SF2_SLOW  		 0x00002000
+#define SF2_BLIND 		 0x00004000
 #define SF2_CONFUSE      0x00008000
 #define SF2_FEAR  0x00010000
 #define SF2_INFRA 0x00020000
@@ -1709,7 +1679,7 @@ enum
 #define SPELL_SUMMON_RACE       11
 #define SPELL_SUMMON_GROUP_IDX     12
 #define SPELL_CREATE_KIND     13
-#define SPELL_XXX1      14
+#define SPELL_RAISE_RACE      14
 #define SPELL_XXX2     15
 #define SPELL_CURE_DISEASE	16
 #define SPELL_PFIX_CONF		17
@@ -1753,9 +1723,9 @@ enum
 #define SPELL_DAMAGING_BLOW	55
 #define SPELL_DAMAGING_SHOT	56
 #define SPELL_DAMAGING_HURL	57
-#define SPELL_SLOW_POIS		58
-#define SPELL_SLOW_DIGEST	59
-#define SPELL_SLOW_META		60
+#define SPELL_CURSE_WEAPON	58
+#define SPELL_CURSE_ARMOR	59
+#define SPELL_XXXX			60
 #define SPELL_DETECT_FIRE	61
 #define SPELL_REGION		62
 #define SPELL_SET_TRAP		63
@@ -1986,6 +1956,7 @@ enum
 #define TV_SWORD 23      /* Edged Weapons */
 #define TV_INSTRUMENT   24      /* Musical instruments */
 #define TV_FIREARM 25		/* Guns */
+#define TV_BLESSED 26	/* Fake tval to indicate temple will buy blessed weapons */
 #define TV_BOOTS 30      /* Boots */
 #define TV_GLOVES       31      /* Gloves */
 #define TV_HELM  32      /* Helms */
@@ -2060,6 +2031,7 @@ enum
 /* The "sval" codes for TV_STATUE */
 #define SV_STATUE_STONE       2
 #define SV_STATUE_WOOD		3
+#define SV_STATUE_POT		16
 
 /* The "sval" codes for TV_ASSEMBLY */
 #define SV_ASSEMBLY_NONE   	 1
@@ -2652,15 +2624,14 @@ enum
 #define SV_CHEST_MIN_LARGE	4
 
 /*
- * Special "sval" limit -- first/last "good" magic/prayer book
+ * Special "sval" limit -- last "good" magic/prayer book
  */
-#define SV_BOOK_MIN_GOOD	4
-#define SV_BOOK_MAX_GOOD	32
+#define SV_BOOK_MAX_GOOD	52
 
 /*
  * How many books in a school?
  */
-#define SV_BOOK_SCHOOL		4
+#define SV_BOOK_SCHOOL		5
 
 /*
  * Special "sval" limit -- maximum number of bags
@@ -2918,20 +2889,28 @@ enum
 #define RE1_INVERSE				0x00040000	/* Invert source and target when spawning attack/subsequent region */
 #define RE1_NOTICE				0x00080000	/* Noticed region? */
 
-#define RE1_CHAIN				0x00100000	/* Set region source and destination to source and target determined when attacking */
+#define RE1_CHAIN				0x00100000	/* Set region target to be triggering location and recompute affected area. Do source as well if inversed. */
 #define RE1_TRIGGER_DROP		0x00200000	/* Trigger if something dropped into the region */
-#define RE1_TRIGGER_AIM			0x00400000	/* Triggered by and targetted by an adjacent creature/player */
+#define RE1_FIXED				0x00400000	/* Ignores triggering location when triggered and use original target. */
 #define RE1_SPREAD				0x00800000	/* Region pieces drift randomly. Affected by the wind. */
 
 #define RE1_CLOCKWISE			0x01000000	/* Rotates clockwise every turn. If both, randomly choose one. */
 #define RE1_COUNTER_CLOCKWISE	0x02000000	/* Rotates counter-clockwise every turn. If both, randomly choose one. */
 #define RE1_TRIGGER_OPEN		0x04000000	/* Triggered by being 'opened' */
-#define RE1_TRIGGER_CLOSE		0x08000000	/* Triggered by being 'closed'. Note that closing a region ages it backwards */
+#define RE1_TRIGGER_CLOSE		0x08000000	/* Triggered by being 'closed'. Note that closing a region makes it age backwards */
 
 #define RE1_BACKWARDS			0x10000000	/* Region ages backwards instead of forwards */
 #define RE1_SOURCE_FEATURE		0x20000000	/* Attacks occur from all features in the region that match the source feature */
 #define	RE1_ROOM				0x40000000	/* Region fills a room */
 #define RE1_DISPLAY				0x80000000	/* Display region */
+
+
+#define RE2_AUTO_LITE			0x00000000	/* Automatically apply update if in perma light  */
+#define RE2_HIDE_LITE			0x00000000	/* Don't display region in perma light */
+#define RE2_AIMED				0x00000000	/* Update destination if player aims while on source */
+
+
+
 
 
 
@@ -2958,7 +2937,7 @@ enum
 /*Who caused the projection*/
 #define SOURCE_MONSTER_START	0 /*Greater than 0 monster is the source*/
 
-#define SOURCE_SELF				0	/* Monster comitting suicide */
+#define SOURCE_SELF				0	/* Monster targetting itself */
 #define SOURCE_OBJECT			-1	/* Source is an object on floor/monster inventory */
 #define SOURCE_FEATURE			-2	/* Source is a feature */
 #define SOURCE_SPELL			-3	/* Source is a spell */
@@ -3075,8 +3054,11 @@ enum
 #define USE_BAGC		0x00000100L	/* Allow bag contents */
 #define USE_BAGS		0x00000200L	/* Allow whole of bag */
 #define USE_SKIN		0x00000400L	/* Allow bare skin */
-
-
+#define USE_ALLY		0x00000800L	/* Allow items carried by allies */
+#define USE_TARGET		0x00001000L	/* Allow items carried by target */
+#define USE_RANGE		0x00002000L	/* Allow ranged targets and/or allies */
+#define USE_KNOWN		0x00004000L	/* Allow known targets and/or allies */
+#define USE_GOLD		0x00008000L	/* Allow gold - note this is unsafe for the 'default' way of handling items. See player_drop for changes. */
 
 
 /*** Player flags ***/
@@ -3253,18 +3235,18 @@ enum
 #define LF1_DAYLIGHT	0x00000400L
 #define LF1_TOWER	0x00000800L	/* Ascend instead of descend */
 #define LF1_BATTLE	0x00001000L	/* Battlefield */
-#define LF1_VAULT	0x00002000L	/* Vault level */
+#define LF1_POLYGON	0x00002000L	/* Polygon level */
 #define LF1_DUNGEON	0x00004000L	/* Dungeon level */
 #define LF1_STRONGHOLD	0x00008000L	/* Stronghold (giant/dwarf) level */
 #define LF1_CRYPT	0x00010000L	/* Crypt level */
-#define LF1_LAIR	0x00020000L	/* Lair level */
-#define LF1_MINE	0x00040000L	/* Mine level */
+#define LF1_MINE	0x00020000L	/* Lair level */
+#define LF1_BURROWS	0x00040000L	/* Burrows level */
 #define LF1_CAVE	0x00080000L	/* Cave level */
 #define LF1_TOWN	0x00100000L	/* Town level */
 #define LF1_WILD	0x00200000L	/* Wilderness level */
 #define LF1_LABYRINTH	0x00400000L	/* Labyrinth level */
-#define LF1_ISLANDS	0x00800000L	/* Island level */
-#define LF1_CHAMBERS	0x01000000L	/* Chambers level */
+#define LF1_CAVERN	0x00800000L	/* Cavernous level */
+#define LF1_ISLANDS	0x01000000L	/* Islands level */
 #define LF1_DARK	0x02000000L	/* Dark room */
 #define LF1_QUEST	0x04000000L	/* Quest level */
 #define LF1_GUARDIAN	0x08000000L	/* Guarded level */
@@ -3275,9 +3257,9 @@ enum
 
 
 #define LF1_THEME \
-	(LF1_DESTROYED | LF1_VAULT | LF1_DUNGEON | LF1_STRONGHOLD | \
-	LF1_CRYPT | LF1_LAIR | LF1_MINE | LF1_CAVE | LF1_WILD | \
-	LF1_SEWER | LF1_LABYRINTH)
+	(LF1_DESTROYED | LF1_POLYGON | LF1_DUNGEON | LF1_STRONGHOLD | \
+	LF1_CRYPT | LF1_MINE | LF1_BURROWS | LF1_CAVE | LF1_WILD | \
+	LF1_SEWER | LF1_LABYRINTH | LF1_CAVERN)
 
 #define LF1_TERRAIN \
 	(LF1_WATER | LF1_LAVA | LF1_ICE | LF1_ACID | LF1_OIL | LF1_CHASM | LF1_LIVING)
@@ -3348,12 +3330,12 @@ enum
 #define ROOM_WINDY	0x00800000L	   /* room prevents missiles/thrown items */
 #define ROOM_GRAVE	0x01000000L	   /* room brings monsters back to life */
 #define ROOM_STORE	0x02000000L	   /* room prevents objects being taken */
-#define ROOM_DISPEL	0x04000000L	   /* room dispels enchantments */
+#define ROOM_TOWN	0x04000000L	   /* room is part of a town */
 #define ROOM_RANDOM	0x08000000L	   /* room activates randomly for effect */
 #define ROOM_PUZZLE	0x10000000L	   /* room requires features contained destroyed */
 #define ROOM_GUARD	0x20000000L	   /* room requires monsters contained destroyed */
 #define ROOM_OBJECT	0x40000000L	   /* room requires objects contained destroyed */
-#define ROOM_TRAP	0x80000000L	   /* whole room is a trap */
+#define ROOM_SIMPLE	0x80000000L	   /* room has simple corridor to other simple rooms */
 
 
 /*** Quest flags ***/
@@ -3862,6 +3844,12 @@ enum
 #define SAURON_FORM		1367
 #define MAX_SAURON_FORMS	5
 
+
+/*
+ * The minimum warning that 'town' monsters give before reverting to attack
+ * the player.
+ */
+#define MIN_TOWN_WARNING	20
 
 
 /*
@@ -5151,19 +5139,30 @@ enum
 	 (dun_room[Y/BLOCK_HGT][X/BLOCK_WID]) : \
 	 (0))
 
+
 /*
- * Determine if a "room" grid has a flag
- *
- * Note that we don't check for flags for room 0 (e.g. the dungeon)
- * for various sanity reasons such as teleportation and so on.
- *
- * This means dungeon room flags will never apply.
+ * Determine if a "room" grid has a flag. If we
+ * are not in a room, we check the dungeon instead.
  */
 #define room_has_flag(Y,X,FLAG) \
  (((cave_info[Y][X] & (CAVE_ROOM)) != 0) &&\
  	(dun_room[Y/BLOCK_HGT][X/BLOCK_WID] < DUN_ROOMS) ? \
 	 (room_info[dun_room[Y/BLOCK_HGT][X/BLOCK_WID]].flags & (FLAG)) : \
 	 (room_info[0].flags & (FLAG)))
+
+
+
+/*
+ * Determine if near a "room" grid has a flag
+ *
+ * This is almost always used to check if we are in a 'town'-like area.
+ */
+#define room_near_has_flag(Y,X,FLAG) \
+ ((dun_room[Y/BLOCK_HGT][X/BLOCK_WID] < DUN_ROOMS) ? \
+	 (room_info[dun_room[Y/BLOCK_HGT][X/BLOCK_WID]].flags & (FLAG)) : \
+	 (room_info[0].flags & (FLAG)))
+
+
 
 
 /*
@@ -5273,164 +5272,165 @@ extern int PlayerUID;
 
 /*** Message constants ***/
 
-/*
- * Note we do not cover all the new Unangband actions, monster blows or breath types.
- * Note for some reason, MSG_AIM_WAND is not defined.
- */
+enum
+{
+	MSG_GENERIC       = 0,
+	MSG_HIT           = 1,
+	MSG_MISS          = 2,
+	MSG_FLEE          = 3,
+	MSG_DROP          = 4,
+	MSG_KILL          = 5,
+	MSG_LEVEL         = 6,
+	MSG_DEATH         = 7,
+	MSG_STUDY         = 8,
+	MSG_TELEPORT      = 9,
+	MSG_SHOOT         = 10,
+	MSG_QUAFF         = 11,
+	MSG_ZAP_ROD       = 12,
+	MSG_WALK          = 13,
+	MSG_TPOTHER       = 14,
+	MSG_HITWALL       = 15,
+	MSG_EAT           = 16,
+	MSG_STORE1        = 17,
+	MSG_STORE2        = 18,
+	MSG_STORE3        = 19,
+	MSG_STORE4        = 20,
+	MSG_DIG           = 21,
+	MSG_OPENDOOR      = 22,
+	MSG_SHUTDOOR      = 23,
+	MSG_TPLEVEL       = 24,
+	MSG_BELL          = 25,
+	MSG_NOTHING_TO_OPEN = 26,
+	MSG_LOCKPICK_FAIL = 27,
+	MSG_STAIRS_DOWN   = 28,
+	MSG_HITPOINT_WARN = 29,
+	MSG_ACT_ARTIFACT  = 30,
+	MSG_USE_STAFF     = 31,
+	MSG_DESTROY       = 32,
+	MSG_MON_HIT       = 33,
+	MSG_MON_TOUCH     = 34,
+	MSG_MON_PUNCH     = 35,
+	MSG_MON_KICK      = 36,
+	MSG_MON_CLAW      = 37,
+	MSG_MON_BITE      = 38,
+	MSG_MON_STING     = 39,
+	MSG_MON_BUTT      = 40,
+	MSG_MON_CRUSH     = 41,
+	MSG_MON_ENGULF    = 42,
+	MSG_MON_CRAWL     = 43,
+	MSG_MON_DROOL     = 44,
+	MSG_MON_SPIT      = 45,
+	MSG_MON_GAZE      = 46,
+	MSG_MON_WAIL      = 47,
+	MSG_MON_SPORE     = 48,
+	MSG_MON_BEG       = 49,
+	MSG_MON_INSULT    = 50,
+	MSG_MON_MOAN      = 51,
+	MSG_RECOVER       = 52,
+	MSG_BLIND         = 53,
+	MSG_CONFUSED      = 54,
+	MSG_POISONED      = 55,
+	MSG_AFRAID        = 56,
+	MSG_PARALYZED     = 57,
+	MSG_DRUGGED       = 58,
+	MSG_SPEED         = 59,
+	MSG_SLOW          = 60,
+	MSG_SHIELD        = 61,
+	MSG_BLESSED       = 62,
+	MSG_HERO          = 63,
+	MSG_BERSERK       = 64,
+	MSG_PROT_EVIL     = 65,
+	MSG_INVULN        = 66,
+	MSG_SEE_INVIS     = 67,
+	MSG_INFRARED      = 68,
+	MSG_RES_ACID      = 69,
+	MSG_RES_ELEC      = 70,
+	MSG_RES_FIRE      = 71,
+	MSG_RES_COLD      = 72,
+	MSG_RES_POIS      = 73,
+	MSG_STUN          = 74,
+	MSG_CUT           = 75,
+	MSG_STAIRS_UP     = 76,
+	MSG_STORE_ENTER   = 77,
+	MSG_STORE_LEAVE   = 78,
+	MSG_STORE_HOME    = 79,
+	MSG_MONEY1        = 80,
+	MSG_MONEY2        = 81,
+	MSG_MONEY3        = 82,
+	MSG_SHOOT_HIT     = 83,
+	MSG_STORE5        = 84,
+	MSG_LOCKPICK      = 85,
+	MSG_DISARM        = 86,
+	MSG_IDENT_BAD     = 87,
+	MSG_IDENT_EGO     = 88,
+	MSG_IDENT_ART     = 89,
+	MSG_BR_ELEMENTS   = 90,
+	MSG_BR_FROST      = 91,
+	MSG_BR_ELEC       = 92,
+	MSG_BR_ACID       = 93,
+	MSG_BR_GAS        = 94,
+	MSG_BR_FIRE       = 95,
+	MSG_BR_CONF       = 96,
+	MSG_BR_DISENCHANT = 97,
+	MSG_BR_CHAOS      = 98,
+	MSG_BR_SHARDS     = 99,
+	MSG_BR_SOUND      = 100,
+	MSG_BR_LIGHT      = 101,
+	MSG_BR_DARK       = 102,
+	MSG_BR_NETHER     = 103,
+	MSG_BR_NEXUS      = 104,
+	MSG_BR_TIME       = 105,
+	MSG_BR_INERTIA    = 106,
+	MSG_BR_GRAVITY    = 107,
+	MSG_BR_PLASMA     = 108,
+	MSG_BR_FORCE      = 109,
+	MSG_SUM_MONSTER   = 110,
+	MSG_SUM_MAIA     = 111,
+	MSG_SUM_UNDEAD    = 112,
+	MSG_SUM_ANIMAL    = 113,
+	MSG_SUM_SPIDER    = 114,
+	MSG_SUM_HOUND     = 115,
+	MSG_SUM_HYDRA     = 116,
+	MSG_SUM_DEMON     = 117,
+	MSG_SUM_DRAGON    = 118,
+	MSG_SUM_HI_UNDEAD = 119,
+	MSG_SUM_HI_DRAGON = 120,
+	MSG_SUM_HI_DEMON  = 121,
+	MSG_SUM_WRAITH    = 122,
+	MSG_SUM_UNIQUE    = 123,
+	MSG_WIELD         = 124,
+	MSG_CURSED        = 125,
+	MSG_PSEUDOID      = 126,
+	MSG_HUNGRY        = 127,
+	MSG_NOTICE        = 128,
+	MSG_AMBIENT_DAY   = 129,
+	MSG_AMBIENT_NITE  = 130,
+	MSG_AMBIENT_DNG1  = 131,
+	MSG_AMBIENT_DNG2  = 132,
+	MSG_AMBIENT_DNG3  = 133,
+	MSG_AMBIENT_DNG4  = 134,
+	MSG_AMBIENT_DNG5  = 135,
+	MSG_CREATE_TRAP   = 136,
+	MSG_SHRIEK        = 137,
+	MSG_CAST_FEAR     = 138,
+	MSG_HIT_GOOD      = 139,
+	MSG_HIT_GREAT     = 140,
+	MSG_HIT_SUPERB    = 141,
+	MSG_HIT_HI_GREAT  = 142,
+	MSG_HIT_HI_SUPERB = 143,
+	MSG_SPELL         = 144,
+	MSG_PRAYER        = 145,
+	MSG_KILL_UNIQUE   = 146,
+	MSG_KILL_KING     = 147,
+	MSG_DRAIN_STAT    = 148,
+	MSG_MULTIPLY      = 149,
+	MSG_SCREENDUMP	  = 150,
 
-#define MSG_GENERIC          0
-#define MSG_HIT              1
-#define MSG_MISS             2
-#define MSG_FLEE             3
-#define MSG_DROP             4
-#define MSG_KILL             5
-#define MSG_LEVEL            6
-#define MSG_DEATH            7
-#define MSG_STUDY            8
-#define MSG_TELEPORT         9
-#define MSG_SHOOT           10
-#define MSG_QUAFF           11
-#define MSG_ZAP_ROD         12
-#define MSG_WALK            13
-#define MSG_TPOTHER         14
-#define MSG_HITWALL         15
-#define MSG_EAT             16
-#define MSG_STORE1          17
-#define MSG_STORE2          18
-#define MSG_STORE3          19
-#define MSG_STORE4          20
-#define MSG_DIG             21
-#define MSG_OPENDOOR        22
-#define MSG_SHUTDOOR        23
-#define MSG_TPLEVEL         24
-#define MSG_BELL            25
-#define MSG_NOTHING_TO_OPEN 26
-#define MSG_LOCKPICK_FAIL   27
-#define MSG_STAIRS_DOWN     28
-#define MSG_HITPOINT_WARN   29
-#define MSG_ACT_ARTIFACT    30
-#define MSG_USE_STAFF       31
-#define MSG_DESTROY         32
-#define MSG_MON_HIT         33
-#define MSG_MON_TOUCH       34
-#define MSG_MON_PUNCH       35
-#define MSG_MON_KICK        36
-#define MSG_MON_CLAW        37
-#define MSG_MON_BITE        38
-#define MSG_MON_STING       39
-#define MSG_MON_BUTT        40
-#define MSG_MON_CRUSH       41
-#define MSG_MON_ENGULF      42
-#define MSG_MON_CRAWL       43
-#define MSG_MON_DROOL       44
-#define MSG_MON_SPIT        45
-#define MSG_MON_GAZE        46
-#define MSG_MON_WAIL        47
-#define MSG_MON_SPORE       48
-#define MSG_MON_BEG         49
-#define MSG_MON_INSULT      50
-#define MSG_MON_MOAN        51
-#define MSG_RECOVER         52
-#define MSG_BLIND           53
-#define MSG_CONFUSED        54
-#define MSG_POISONED        55
-#define MSG_AFRAID          56
-#define MSG_PARALYZED       57
-#define MSG_DRUGGED         58
-#define MSG_SPEED           59
-#define MSG_SLOW            60
-#define MSG_SHIELD          61
-#define MSG_BLESSED         62
-#define MSG_HERO            63
-#define MSG_BERSERK         64
-#define MSG_PROT_EVIL       65
-#define MSG_INVULN          66
-#define MSG_SEE_INVIS       67
-#define MSG_INFRARED        68
-#define MSG_RES_ACID        69
-#define MSG_RES_ELEC        70
-#define MSG_RES_FIRE        71
-#define MSG_RES_COLD        72
-#define MSG_RES_POIS        73
-#define MSG_STUN            74
-#define MSG_CUT             75
-#define MSG_STAIRS_UP       76
-#define MSG_STORE_ENTER     77
-#define MSG_STORE_LEAVE     78
-#define MSG_STORE_HOME      79
-#define MSG_MONEY1          80
-#define MSG_MONEY2          81
-#define MSG_MONEY3          82
-#define MSG_SHOOT_HIT       83
-#define MSG_STORE5          84
-#define MSG_LOCKPICK        85
-#define MSG_DISARM          86
-#define MSG_IDENT_BAD       87
-#define MSG_IDENT_EGO       88
-#define MSG_IDENT_ART       89
-#define MSG_BR_ELEMENTS     90
-#define MSG_BR_FROST        91
-#define MSG_BR_ELEC         92
-#define MSG_BR_ACID         93
-#define MSG_BR_GAS          94
-#define MSG_BR_FIRE         95
-#define MSG_BR_CONF         96
-#define MSG_BR_DISENCHANT   97
-#define MSG_BR_CHAOS        98
-#define MSG_BR_SHARDS       99
-#define MSG_BR_SOUND        100
-#define MSG_BR_LIGHT        101
-#define MSG_BR_DARK         102
-#define MSG_BR_NETHER       103
-#define MSG_BR_NEXUS        104
-#define MSG_BR_TIME         105
-#define MSG_BR_INERTIA      106
-#define MSG_BR_GRAVITY      107
-#define MSG_BR_PLASMA       108
-#define MSG_BR_FORCE        109
-#define MSG_SUM_MONSTER     110
-#define MSG_SUM_MAIA        111
-#define MSG_SUM_UNDEAD      112
-#define MSG_SUM_ANIMAL      113
-#define MSG_SUM_SPIDER      114
-#define MSG_SUM_HOUND       115
-#define MSG_SUM_HYDRA       116
-#define MSG_SUM_DEMON       117
-#define MSG_SUM_DRAGON      118
-#define MSG_SUM_HI_UNDEAD   119
-#define MSG_SUM_HI_DRAGON   120
-#define MSG_SUM_HI_DEMON    121
-#define MSG_SUM_WRAITH      122
-#define MSG_SUM_UNIQUE      123
-#define MSG_WIELD           124
-#define MSG_CURSED          125
-#define MSG_PSEUDOID        126
-#define MSG_HUNGRY          127
-#define MSG_NOTICE          128
-#define MSG_AMBIENT_DAY     129
-#define MSG_AMBIENT_NITE    130
-#define MSG_AMBIENT_DNG1    131
-#define MSG_AMBIENT_DNG2    132
-#define MSG_AMBIENT_DNG3    133
-#define MSG_AMBIENT_DNG4    134
-#define MSG_AMBIENT_DNG5    135
-#define MSG_CREATE_TRAP     136
-#define MSG_SHRIEK          137
-#define MSG_CAST_FEAR       138
-#define MSG_HIT_GOOD        139
-#define MSG_HIT_GREAT       140
-#define MSG_HIT_SUPERB      141
-#define MSG_HIT_HI_GREAT    142
-#define MSG_HIT_HI_SUPERB   143
-#define MSG_SPELL           144
-#define MSG_PRAYER          145
-#define MSG_KILL_UNIQUE     146
-#define MSG_KILL_KING       147
-#define MSG_DRAIN_STAT      148
-#define MSG_MULTIPLY        149
-#define MSG_SCREENDUMP	    150
+	MSG_MAX           = 151,
+	SOUND_MAX         = MSG_MAX
+};
 
-#define MSG_MAX             151
+
 
 
 /*** Sound constants ***/

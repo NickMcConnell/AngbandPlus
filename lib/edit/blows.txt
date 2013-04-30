@@ -674,7 +674,7 @@ T:0-9999:summon~ * around &
 T:0-9999:create~ * around &
 W:3:0:0
 R:1+1/10
-M:1
+M:20
 F:BOOM | WALL | AREA | GRID | ITEM | KILL | PLAY | MAGIC |
 F:RANGED |
 D:affect~ @ area#:
@@ -729,7 +729,7 @@ T:0-9999:shoot~ a forked bolt of * at &
 M:10
 F:BEAM | GRID | ITEM | KILL | PLAY | MAGIC | THRU |
 F:RANGED |
-D::
+D:create~ @ forked bolt#:$ enemies
 
 N:83:AIM_STAR
 T:0-9999:create~ * in eight directions
@@ -835,10 +835,23 @@ F:MISS | GRID | KILL | PLAY | STOP |
 F:RANGED |
 D:create~ @ hammer:@ target#
 
+N:94:DARTS
+T:0-9999:throw~ a dart at &
+W:0:22:1
+M:6
+U:2+1/5
+F:MISS | GRID | KILL | PLAY | STOP |
+F:RANGED |
+D:create~ @ dart#:@ target#
 
-#$# 94 - Unused ###
-
-#$# 95 - Unused ###
+N:95:ZAP
+T:0-9999:zap~ * around &
+W:3:0:0
+R:1+1/10
+M:6
+F:BOOM | WALL | GRID | ITEM | KILL | PLAY | MAGIC |
+F:RANGED | FORK
+D:zap~ @ area#:
 
 N:96:BLOW_1
 C:40:0:0:5:0:0:100

@@ -719,6 +719,11 @@ static void wr_extra(void)
 	wr_byte(p_ptr->charging);
 	wr_byte(p_ptr->climbing);
 	wr_byte(p_ptr->searching);
+
+	wr_byte(p_ptr->blocking);
+	wr_byte(p_ptr->dodging);
+	wr_byte(p_ptr->not_sneaking);
+
 	wr_byte(p_ptr->sneaking);
 	wr_byte(p_ptr->reserves);
 	wr_byte(0);
@@ -733,6 +738,8 @@ static void wr_extra(void)
 
 	/* Held song */
 	wr_s16b(p_ptr->held_song);
+	wr_s16b(p_ptr->spell_trap);
+	wr_s16b(p_ptr->delay_spell);
 
 	/* Returning */
 	wr_s16b(p_ptr->word_return);

@@ -1808,13 +1808,11 @@ byte py_pickup(int py, int px, int pickup)
 /*
  *  Check if a player avoids the trap
  */
-bool avoid_trap(int y, int x)
+bool avoid_trap(int y, int x, int feat)
 {
 	feature_type *f_ptr;
 
 	cptr name;
-
-	int feat = cave_feat[y][x];
 
 	/* Get feature */
 	f_ptr = &f_info[feat];
@@ -1837,14 +1835,23 @@ bool avoid_trap(int y, int x)
 		case TERM_ORANGE:
 		{
 			/* Avoid by being strange */
-			if ((p_ptr->timed[TMD_CONFUSED]) || (p_ptr->timed[TMD_IMAGE])) return (TRUE);
+			if ((p_ptr->timed[TMD_CONFUSED]) || (p_ptr->timed[TMD_IMAGE]))
+			{
+				msg_format("You are too strange for the %s.", name);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Spring loaded trap */
 		case TERM_RED:
 		{
 			/* Avoid by being light footed */
-			if (p_ptr->cur_flags3 & (TR3_FEATHER)) return (TRUE);
+			if (p_ptr->cur_flags3 & (TR3_FEATHER))
+			{
+				msg_format("You are too light-footed to trigger the %s.", name);
+				equip_can_flags(0L, 0L, TR3_FEATHER, 0L);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Gas trap */
@@ -1869,14 +1876,23 @@ bool avoid_trap(int y, int x)
 		case TERM_L_DARK:
 		{
 			/* Avoid by being invisible */
-			if (p_ptr->timed[TMD_INVIS]) return (TRUE);
+			if (p_ptr->timed[TMD_INVIS])
+			{
+				msg_format("The %s cannot see you.", name);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Strange visage */
 		case TERM_L_WHITE:
 		{
 			/* Avoid by being dragonish */
-			if (p_ptr->cur_flags4 & (TR4_DRAGON)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_DRAGON))
+			{
+				msg_format("The %s ignores your draconic nature.", name);
+				equip_can_flags(0L, 0L, 0L, TR4_DRAGON);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Loose rock or multiple traps */
@@ -1887,7 +1903,7 @@ bool avoid_trap(int y, int x)
 			{
 				/* Can't avoid multiple traps */
 				if (strstr("multiple traps", name)) return (FALSE);
-				msg_format("Hmm... not this time. You avoid the %s.", name);
+				msg_format("Hmm... not this time. You avoid standing on the %s.", name);
 				return (TRUE);
 			}
 			break;
@@ -1913,21 +1929,28 @@ bool avoid_trap(int y, int x)
 		case TERM_L_GREEN:
 		{
 			/* Avoid by being undead */
-			if (p_ptr->cur_flags4 & (TR4_UNDEAD)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_UNDEAD))
+			{
+				msg_format("The %s ignores your undead nature.", name);
+				equip_can_flags(0L, 0L, 0L, TR4_UNDEAD);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Magic symbol */
 		case TERM_L_BLUE:
 		{
 			/* Avoid by not having much mana */
-			if ((!p_ptr->csp) || (p_ptr->csp < p_ptr->msp / 5)) return (TRUE);
+			if ((!p_ptr->csp) || (p_ptr->csp < p_ptr->msp / 5))
+			{
+				msg_format("You lack the magic to trigger the %s.", name);
+				return (TRUE);
+			}
 			break;
 		}
-		/* Fine net */
+		/* Shallow pit */
 		case TERM_L_UMBER:
 		{
-			/* Avoid unless flying */
-			return (TRUE);
 			break;
 		}
 		/* Surreal painting */
@@ -1973,9 +1996,8 @@ bool avoid_trap(int y, int x)
 		/* Shaft of light */
 		case TERM_L_YELLOW:
 		{
-			/* Avoid by being unlit */
-			if (((cave_info[y][x] & (CAVE_LITE)) == 0) &&
-					((play_info[y][x] & (PLAY_LITE)) == 0)) return (TRUE);
+			/* Avoid by not being perma lit */
+			if ((cave_info[y][x] & (CAVE_GLOW | CAVE_DLIT)) == 0) return (TRUE);
 			break;
 		}
 		/* Glowing glyph */
@@ -1988,14 +2010,24 @@ bool avoid_trap(int y, int x)
 		case TERM_L_TEAL:
 		{
 			/* Avoid by being demonic */
-			if (p_ptr->cur_flags4 & (TR4_DEMON)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_DEMON))
+			{
+				msg_format("The %s ignores your demonic nature.", name);
+				equip_can_flags(0L, 0L, 0L, TR4_DEMON);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Radagast's snare */
 		case TERM_L_VIOLET:
 		{
 			/* Avoid by being animal */
-			if (p_ptr->cur_flags4 & (TR4_ANIMAL)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_ANIMAL))
+			{
+				msg_format("The %s ignores your animal nature.", name);
+				equip_can_flags(0L, 0L, 0L, TR4_ANIMAL);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Siege engine */
@@ -2011,14 +2043,24 @@ bool avoid_trap(int y, int x)
 		case TERM_BLUE_SLATE:
 		{
 			/* Avoid by being orc */
-			if (p_ptr->cur_flags4 & (TR4_ORC)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_ORC))
+			{
+				msg_format("The %s ignores your orcish nature.", name);
+				equip_can_flags(0L, 0L, 0L, TR4_UNDEAD);
+				return (TRUE);
+			}
 			break;
 		}
 		/* Shimmering portal */
 		case TERM_DEEP_L_BLUE:
 		{
 			/* Avoid by being anti-teleport */
-			if (p_ptr->cur_flags4 & (TR4_ANCHOR)) return (TRUE);
+			if (p_ptr->cur_flags4 & (TR4_ANCHOR))
+			{
+				msg_print("You are magically anchored in place.");
+				equip_can_flags(0L, 0L, 0L, TR4_ANCHOR);
+				return (TRUE);
+			}
 			break;
 		}
 	}
@@ -2272,10 +2314,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 								obvious = TRUE;
 
 								/* Apply damage directly */
-								if (player)
-									project_p(SOURCE_PLAYER_TRAP, o_ptr->k_idx, ny, nx, k, GF_HURT);
-								else
-									project_m(SOURCE_PLAYER_TRAP, o_ptr->k_idx, ny, nx, k, GF_HURT);
+								project_one(SOURCE_PLAYER_TRAP, o_ptr->k_idx, ny, nx, k, GF_HURT, (PROJECT_PLAY | PROJECT_KILL));
 
 								/* Apply additional effect from coating or sometimes activate */
 								if ((coated_p(o_ptr)) || (auto_activate(o_ptr)))
@@ -2486,7 +2525,7 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 			case TV_SPIKE:
 			{
 				/* Apply damage directly */
-				project_p(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, damroll(6, 6), GF_FALL_SPIKE);
+				project_one(SOURCE_PLAYER_TRAP, o_ptr->k_idx, y, x, damroll(6, 6), GF_FALL_SPIKE, (PROJECT_PLAY));
 
 				/* Decrease the item */
 				floor_item_increase(cave_o_idx[y][x], -1);
@@ -2560,6 +2599,8 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 		bool blocked = (f_ptr->flags1 & (FF1_TRAP)) && (f_ptr->d_attr == TERM_L_RED) && (p_ptr->blocking);
 
 		const char *text = f_text + f_ptr->text;
+		
+		int i;
 
 		/* Player on source of terrain */
 		if ((y == p_ptr->py) && (x == p_ptr->px))
@@ -2578,84 +2619,104 @@ bool discharge_trap(int y, int x, int ty, int tx, s16b child_region)
 			else if (strlen(text)) msg_format("%s",text);
 		}
 
+		/* XXX If we have not already set up the child region for a region based trap,
+		 * do so now. We do this to allow the player to walk onto the trap source to create such
+		 * a region. */
+		if (!child_region) for (i = 0; i < region_max; i++)
+		{
+			/* Get the region */
+			region_type *r_ptr = &region_list[i];
+
+			/* Delete traps */
+			if (((r_ptr->flags1 & (RE1_HIT_TRAP)) != 0) && (r_ptr->y0 == y) && (r_ptr->x0 == x) && (r_ptr->child_region))
+			{
+				/* Get a newly initialized region */
+				child_region = init_region(r_ptr->who, r_ptr->what, r_ptr->child_region, r_ptr->damage, r_ptr->method, r_ptr->effect, r_ptr->level, r_ptr->y0, r_ptr->x0, ty, tx);
+				
+				/* Hack -- lifespan */
+				region_list[child_region].lifespan = scale_method(region_info[r_ptr->type].child_lasts, r_ptr->level);
+				
+				/* Hack -- notice the region */
+				if (r_ptr->effect != GF_FEATURE) region_list[child_region].flags1 |= (RE1_DISPLAY);
+				region_list[child_region].flags1 |= (RE1_NOTICE);
+				region_refresh(child_region);
+				break;
+			}
+		}
+
 		/* Blocked the attack - no effect */
 		if (blocked)
 		{
 			/* Do nothing */
 		}
 		/* Apply spell effect */
-		else if (f_ptr->spell)
+		else if ((f_ptr->spell) && (!child_region))
 		{
-			/* Hack -- force a child region.
-			 * The below damage values are culled from the hacks in make_attack_ranged */
-			if (child_region)
-			{
-				region_type *r_ptr = &region_list[child_region];
-				method_type *method_ptr = &method_info[f_ptr->spell];
-
-				int num = scale_method(method_ptr->number, p_ptr->depth);
-				int i;
-
-				/* Hack -- minimum number */
-				if (!num) num = 1;
-
-				/* Hack -- set various region parameters */
-				r_ptr->method = f_ptr->spell;
-				r_ptr->effect = method_ptr->d_res;
-
-				/* Create the region */
-				for (i = 0; i < num; i++)
-				{
-					/* Get damage for breath weapons */
-					if (method_ptr->flags2 & (PR2_BREATH))
-					{
-						dam = get_breath_dam(p_ptr->depth * 10, f_ptr->spell, p_ptr->depth > 50);
-					}
-					/* Get damage for regular spells */
-					else
-					{
-						dam = get_dam(2 + p_ptr->depth / 2, f_ptr->spell);
-					}
-
-					/* Hack -- set region damage */
-					r_ptr->damage = dam;
-
-					/* Apply the blow */
-					obvious |= project_method(SOURCE_FEATURE, feat, f_ptr->spell, method_ptr->d_res, dam, p_ptr->depth, y, x, ty, tx, child_region, method_ptr->flags1);
-				}
-			}
-			/* Regular spell attack */
-			else
-			{
-				obvious |= make_attack_ranged(SOURCE_FEATURE,f_ptr->spell,ty,tx);
-			}
+			/* Regular spell effect */
+			obvious |= make_attack_ranged(SOURCE_FEATURE,f_ptr->spell,ty,tx);
 		}
-		/* Apply blow effect */
-		else if (f_ptr->blow.method)
+		/* Apply blow effect and/or create child region */
+		else if ((f_ptr->blow.method) || (child_region))
 		{
 			region_type *r_ptr = &region_list[child_region];
 			feature_blow *blow_ptr = &f_ptr->blow;
-			int num = scale_method(method_info[blow_ptr->method].number, p_ptr->depth);
-			int i;
+			int method = f_ptr->spell ? f_ptr->spell : blow_ptr->method;
+			method_type *method_ptr = &method_info[method];
+			int effect = f_ptr->spell ? method_ptr->d_res : blow_ptr->effect;
+
+			int num = scale_method(method_ptr->number, p_ptr->depth);
+			int i, j;
 
 			/* Hack -- minimum number */
 			if (!num) num = 1;
 
-			/* Hack -- set various region parameters */
-			r_ptr->method = blow_ptr->method;
-			r_ptr->effect = blow_ptr->effect;
-
 			/* Create the region */
 			for (i = 0; i < num; i++)
 			{
-				/* Get the damage */
-				dam = damroll(blow_ptr->d_side,blow_ptr->d_dice);
+				/* Get damage for breath weapons */
+				if (method_ptr->flags2 & (PR2_BREATH))
+				{
+					dam = get_breath_dam(p_ptr->depth * 10, method, p_ptr->depth > 50);
+				}
+				/* Get damage for regular spells */
+				else if (f_ptr->spell)
+				{
+					dam = get_dam(2 + p_ptr->depth / 2, f_ptr->spell);
+				}
+				else
+				{
+					/* Get the damage */
+					dam = damroll(blow_ptr->d_side,blow_ptr->d_dice);
+				}
 
-				/* Hack -- set region damage */
-				r_ptr->damage = dam;
-
+				/* Set child region values */
+				if (child_region)
+				{
+					r_ptr->method = method;
+					r_ptr->effect = effect;
+					r_ptr->damage = dam;
+				}
+				
 				/* Apply the blow */
-				obvious |= project_method(SOURCE_FEATURE, feat, blow_ptr->method, blow_ptr->effect, dam, p_ptr->depth, y, x, ty, tx, child_region, method_info[blow_ptr->method].flags1);
+				obvious |= project_method(SOURCE_FEATURE, feat, method, effect, dam, p_ptr->depth, y, x, ty, tx, child_region, method_ptr->flags1);
+				
+				/* Check if region random */
+				for (j = 0; j < region_max; j++)
+				{
+					/* Get the region */
+					region_type *r_ptr = &region_list[j];
+	
+					/* Region random? */
+					if (((r_ptr->flags1 & (RE1_HIT_TRAP)) != 0) && (r_ptr->y0 == y) && (r_ptr->x0 == x) && (r_ptr->flags1 & (RE1_RANDOM)))
+					{
+						int r = region_random_piece(j);
+
+						ty = region_piece_list[r].y;
+						tx = region_piece_list[r].x;
+						
+						break;
+					}
+				}
 			}
 		}
 
@@ -2692,7 +2753,7 @@ void hit_trap(int y, int x)
 	f_ptr = &f_info[feat];
 
 	/* Avoid trap */
-	if ((f_ptr->flags1 & (FF1_TRAP)) && (avoid_trap(y, x))) return;
+	if ((f_ptr->flags1 & (FF1_TRAP)) && (avoid_trap(y, x, feat))) return;
 
 	/* Hack -- fall onto trap if we can move */
 	if ((f_ptr->flags1 & (FF1_MOVE)) && ((p_ptr->py != y) || (p_ptr->px !=x)))
@@ -3007,6 +3068,15 @@ void py_attack(int dir)
 	 * This helps protect the player whilst in melee, from other ranged attacks.
 	 */
 	p_ptr->dodging = dir;
+
+	/* Player is sneaking */
+	if (p_ptr->sneaking)
+	{
+		/* If the player is trying to be stealthy, they lose the benefit of this for
+		 * the following turn.
+		 */
+		p_ptr->not_sneaking = TRUE;
+	}
 
 	/* Restrict blows if charging */
 	if (charging)
@@ -3355,7 +3425,7 @@ void py_attack(int dir)
 			/* Fumble - damage self */
 			if (fumble)
 			{
-				project_p(SOURCE_PLAYER_ATTACK, o_ptr->k_idx, y, x, k, GF_HURT);
+				project_one(SOURCE_PLAYER_ATTACK, o_ptr->k_idx, y, x, k, GF_HURT, (PROJECT_PLAY));
 			}
 
 			/* Damage, check for fear and death */
@@ -3440,10 +3510,8 @@ void py_attack(int dir)
 	/* Hack -- wake up nearby allies */
 	if (was_asleep)
 	{
-		m_ptr->mflag |= (MFLAG_AGGR);
-
 		/* Cutting or stunning a monster shuts them up */
-		if ((m_ptr->cut < 20) && (m_ptr->stunned < 20)) tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR, "& has attacked me!");
+		if ((m_ptr->cut < 20) && (m_ptr->stunned < 20)) tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
 	}
 
 	/* Hack -- delay fear messages */
@@ -3579,9 +3647,11 @@ void move_player(int dir)
 	}
 
 	/* Hack -- attack monsters --- except hidden ones, allies or townsfolk */
-	if ((cave_m_idx[y][x] > 0) && !(m_list[cave_m_idx[y][x]].mflag & (MFLAG_HIDE | MFLAG_ALLY)) &&
+	if ((cave_m_idx[y][x] > 0) && (choose_to_attack_player(&m_list[cave_m_idx[y][x]])) &&
+
 	 /* Note hack to also ignore monsters on town level who don't do damage. */
 		(((level_flag & (LF1_TOWN)) == 0) || (r_info[m_list[cave_m_idx[y][x]].r_idx].blow[0].effect != GF_NOTHING)) &&
+
 		 /* Allow the player to run over most monsters -- except those that can't move */
 		 (!(p_ptr->running) || (r_info[m_list[cave_m_idx[y][x]].r_idx].flags1 & (RF1_NEVER_MOVE))))
 	{
@@ -3821,6 +3891,9 @@ void move_player(int dir)
 		/* No longer climbing */
 		p_ptr->climbing = 0;
 
+		/* Allow running to abort sneaking */
+		if (p_ptr->running) p_ptr->not_sneaking = FALSE;
+
 		/* Spontaneous Searching */
 		if ((p_ptr->skills[SKILL_SEARCH] >= 50) ||
 		    (0 == rand_int(50 - p_ptr->skills[SKILL_SEARCH])))
@@ -3846,9 +3919,6 @@ void move_player(int dir)
 		{
 			/* Dodging -- reverse direction 180 degrees */
 			p_ptr->dodging = 10 - dir;
-
-			/* Hack -- redraw straight away */
-			redraw_stuff();
 		}
 
 		/* Handle "store doors" */

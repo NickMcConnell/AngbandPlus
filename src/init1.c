@@ -91,7 +91,7 @@ static cptr d_info_sflags[] =
 	"PUZZLE",
 	"LAIR",
 	"OBJECT",
-	"TRAP"
+	"SIMPLE"
 };
 
 /*
@@ -156,7 +156,7 @@ static cptr d_info_lflags[] =
 	"STRONGHOLD",
 	"CRYPT",
 	"LAIR",
-	"MINE",
+	"NEST",
 	"CAVE",
 	"TOWN",
 	"WILD",
@@ -331,7 +331,7 @@ static cptr region_info_flags1[] =
 	"NOTICE",
 	"CHAIN",
 	"TRIGGER_DROP",
-	"TRIGGER_AIM",
+	"FIXED",
 	"SPREAD",
 	"CLOCKWISE",
 	"COUNTER_CLOCKWISE",
@@ -1199,8 +1199,8 @@ static cptr s_info_flags1[] =
 static cptr s_info_flags2[] =
 {
 	"AGGRAVATE",
-	"CURSE_WEAPON",
-	"CURSE_ARMOR",
+	"SLOW_POIS",
+	"SLOW_DIGEST",
 	"CREATE_STAIR",
 	"TELE_LEVEL",
 	"ALTER_LEVEL",
@@ -1290,7 +1290,7 @@ static cptr s_info_types[] =
 	"SUMMON_RACE",
 	"SUMMON_GROUP_IDX",
 	"CREATE_KIND",
-	"XXX1",
+	"RAISE_RACE",
 	"XXX2",
 	"CURE_DISEASE",
 	"PFIX_CONF",
@@ -1334,9 +1334,9 @@ static cptr s_info_types[] =
 	"DAMAGING_BLOW",
 	"DAMAGING_SHOT",
 	"DAMAGING_HURL",
-	"SLOW_POIS",
-	"SLOW_DIGEST",
-	"SLOW_META",
+	"CURSE_WEAPON",
+	"CURSE_ARMOR",
+	"XXX1",
 	"DETECT_FIRE",
 	"REGION",
 	"SET_TRAP",
@@ -1899,13 +1899,53 @@ errr parse_z_info(char *buf, header *head)
 
 
 /*
+ * Grab one flag from a textual string
+ */
+static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
+{
+	int i;
+
+	/* Check flags */
+	for (i = 0; i < 32; i++)
+	{
+		if (streq(what, names[i]))
+		{
+			*flags |= (1L << i);
+
+			return (0);
+		}
+	}
+
+	return (-1);
+}
+
+
+
+/*
+ * Grab one level flag in an vault_type from a textual string
+ */
+static errr grab_one_vault_level_flag(vault_type *v_ptr, cptr what)
+{
+	if (grab_one_flag(&v_ptr->level_flag, d_info_lflags, what) == 0)
+		return (0);
+
+	/* Oops */
+	msg_format("Unknown vault level flag '%s'.", what);
+
+	/* Error */
+	return (PARSE_ERROR_GENERIC);
+}
+
+
+
+/*
  * Initialize the "v_info" array, by parsing an ascii "template" file
  */
 errr parse_v_info(char *buf, header *head)
 {
 	int i;
 
-	char *s;
+	char *s, *t;
 
 	/* Current entry */
 	static vault_type *v_ptr = NULL;
@@ -1959,6 +1999,33 @@ errr parse_v_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
+	/* Hack -- Process 'L' for level flags */
+	else if (buf[0] == 'L')
+	{
+		/* There better be a current v_ptr */
+		if (!v_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Parse every entry textually */
+		for (s = buf + 2; *s; )
+		{
+			/* Find the end of this entry */
+			for (t = s; *t && (*t != ' ') && (*t != '|'); ++t) /* loop */;
+
+			/* Nuke and skip any dividers */
+			if (*t)
+			{
+				*t++ = '\0';
+				while (*t == ' ' || *t == '|') t++;
+			}
+
+			/* Parse this entry */
+			if (0 != grab_one_vault_level_flag(v_ptr, s)) return (PARSE_ERROR_INVALID_FLAG);
+
+			/* Start the next entry */
+			s = t;
+		}
+	}
+
 	/* Process 'X' for "Extra info" (one line only) */
 	else if (buf[0] == 'X')
 	{
@@ -1978,6 +2045,9 @@ errr parse_v_info(char *buf, header *head)
 		v_ptr->wid = wid;
 		v_ptr->min_lev = min_lev;
 		v_ptr->max_lev = max_lev;
+		
+		/* Hack -- include rarity in "extra info" later */
+		v_ptr->rarity = 1;
 	}
 	else
 	{
@@ -1987,28 +2057,6 @@ errr parse_v_info(char *buf, header *head)
 
 	/* Success */
 	return (0);
-}
-
-
-/*
- * Grab one flag from a textual string
- */
-static errr grab_one_flag(u32b *flags, cptr names[], cptr what)
-{
-	int i;
-
-	/* Check flags */
-	for (i = 0; i < 32; i++)
-	{
-		if (streq(what, names[i]))
-		{
-			*flags |= (1L << i);
-
-			return (0);
-		}
-	}
-
-	return (-1);
 }
 
 
@@ -2105,6 +2153,29 @@ static errr grab_one_summoning(byte *summon_type, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
+
+/*
+ * Parses either a number or a textual value into a tval
+ */
+int parse_tval(char *buf)
+{
+	int i;
+	
+	if (isdigit(buf[0]))
+	{
+		return (strtol(buf, NULL, 0));
+	}
+	else
+	{
+		for (i = 0; object_group[i].text; i++)
+		{
+			if (my_stricmp(buf, object_group[i].text) == 0) return (object_group[i].tval);
+		}
+	}
+	
+	/* Hack - bad value */
+	return (-1);
+}
 
 
 /*
@@ -2994,7 +3065,18 @@ errr parse_d_info(char *buf, header *head)
 		d_ptr->not_chance = noc;
 		d_ptr->level_min = min;
 		d_ptr->level_max = max;
+		
+		/* Big hack -- we scale this internally because I can't be bothered
+		 * fixing the emit_d_info code to handle comments correctly. */
+		/* Scale these */
+		if (min > 80) d_ptr->level_min = 40 + (min-80)/4;
+		else if (min > 50) d_ptr->level_min = 40 + (min-50)/3;
+		else if (min > 30) d_ptr->level_min = 30 + (min-30)/2;
 
+		if (max > 80) d_ptr->level_max = 50 + (max-80)/4;
+		else if (max > 50) d_ptr->level_max = 40 + (max-50)/3;
+		else if (max > 30) d_ptr->level_max = 30 + (max-30)/2;
+		
 		/* Initialize other values */
 		d_ptr->flags = 0;
 		d_ptr->tval = 0;
@@ -3145,9 +3227,22 @@ errr parse_d_info(char *buf, header *head)
 
 		/* There better be a current d_ptr */
 		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d", &tval, &min_sval, &max_sval)) return (1);
+		if (2 != sscanf(s, "%d:%d", &min_sval, &max_sval)) return (1);
 
 		/* Save the values */
 		d_ptr->tval = tval;
@@ -3744,9 +3839,21 @@ errr parse_k_info(char *buf, header *head)
 		/* There better be a current k_ptr */
 		if (!k_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
+
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(s, "%d:%d", &sval, &pval)) return (1);
 
 		/* Save the values */
 		k_ptr->tval = tval;
@@ -3785,6 +3892,7 @@ errr parse_k_info(char *buf, header *head)
 			case TV_EGG:
 					k_ptr->flags6 |= (TR6_BREAK_THROW | TR6_NAMED);
 					k_ptr->flags6 |= (TR6_EAT_BODY | TR6_EAT_ANIMAL | TR6_EAT_INSECT);
+					k_ptr->flags6 |= (TR6_NO_TIMEOUT);
 					break;
 
 			case TV_ARROW:
@@ -4014,6 +4122,7 @@ errr parse_k_info(char *buf, header *head)
 			{
 				k_ptr->flags6 |= (TR6_NAMED);
 				k_ptr->flags6 |= (TR6_EAT_BODY | TR6_EAT_INSECT);
+				k_ptr->flags6 |= (TR6_NO_TIMEOUT);
 				break;
 
 			}
@@ -4263,10 +4372,22 @@ errr parse_a_info(char *buf, header *head)
 
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+		
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &tval, &sval, &pval)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(s, "%d:%d", &sval, &pval)) return (1);
 
 		/* Save the values */
 		a_ptr->tval = tval;
@@ -4612,9 +4733,24 @@ errr parse_e_info(char *buf, header *head)
 		/* There better be a current e_ptr */
 		if (!e_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+		/* only three T: lines allowed */
+		if (cur_t >= 3) return (PARSE_ERROR_GENERIC);
+		
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
+
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			    &tval, &sval1, &sval2)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(s, "%d:%d", &sval1, &sval2)) return (1);
 
 		/* Save the values */
 		e_ptr->tval[cur_t] = (byte)tval;
@@ -4623,9 +4759,6 @@ errr parse_e_info(char *buf, header *head)
 
 		/* increase counter for 'possible tval' index */
 		cur_t++;
-
-		/* only three T: lines allowed */
-		if (cur_t > 3) return (PARSE_ERROR_GENERIC);
 	}
 
 	/* Hack -- Process 'C' for "creation" */
@@ -5805,12 +5938,25 @@ errr parse_c_info(char *buf, header *head)
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
+
 		/* Access the item */
 		e_ptr = &pc_ptr->start_items[cur_equip];
-
+		
 		/* Scan for the values */
-		if (8 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d",
-			    &tval, &sval, &number_min, &number_max, &charge_min, &charge_max, &social_min, &social_max)) return (PARSE_ERROR_GENERIC);
+		if (7 != sscanf(s, "%d:%d:%d:%d:%d:%d:%d",
+			    &sval, &number_min, &number_max, &charge_min, &charge_max, &social_min, &social_max)) return (PARSE_ERROR_GENERIC);
 
 		if ((number_min < 0) || (number_max < 0) || (number_min > 99) || (number_max > 99))
 			return (PARSE_ERROR_INVALID_ITEM_NUMBER);
@@ -6155,12 +6301,21 @@ errr parse_s_info(char *buf, header *head)
 		/* Check bounds */
 		if (i==MAX_SPELL_APPEARS) return (PARSE_ERROR_GENERIC);
 
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",&tval,&sval,&slot)) return (PARSE_ERROR_GENERIC);
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
 
-		/* Hack to remove in the future: ignore runestones from older versions */
-		if (tval == TV_RUNESTONE)
-			return 0;
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
+
+		/* Scan for the values */
+		if (2 != sscanf(s, "%d:%d", &sval, &slot)) return (1);
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 		/* Debug: check if objects tval, sval exist,
@@ -7081,100 +7236,8 @@ errr parse_u_info(char *buf, header *head)
 		/* Scan for the values */
 		if (1 != sscanf(buf+2, "%d", &base)) return (PARSE_ERROR_GENERIC);
 
+		/* Set values */
 		u_ptr->base = base;
-
-		/* Switch on the store */
-		switch (u_ptr->base)
-		{
-			/* General Store */
-			case STORE_GENERAL:
-			{
-				u_ptr->tvals_will_buy[0] = TV_FOOD;
-				u_ptr->tvals_will_buy[1] = TV_LITE;
-				u_ptr->tvals_will_buy[2] = TV_FLASK;
-				u_ptr->tvals_will_buy[3] = TV_SPIKE;
-				u_ptr->tvals_will_buy[4] = TV_SHOT;
-				u_ptr->tvals_will_buy[5] = TV_ARROW;
-				u_ptr->tvals_will_buy[6] = TV_BOLT;
-				u_ptr->tvals_will_buy[7] = TV_DIGGING;
-				u_ptr->tvals_will_buy[8] = TV_CLOAK;
-				u_ptr->tvals_will_buy[9] = TV_INSTRUMENT;
-				u_ptr->tvals_will_buy[10] = TV_MAP;
-				u_ptr->tvals_will_buy[11] = TV_BAG;
-				u_ptr->tvals_will_buy[12] = TV_ROPE;
-				break;
-			}
-
-			/* Armoury */
-			case STORE_ARMOR:
-			{
-				u_ptr->tvals_will_buy[0] = TV_BOOTS;
-				u_ptr->tvals_will_buy[1] = TV_GLOVES;
-				u_ptr->tvals_will_buy[2] = TV_CROWN;
-				u_ptr->tvals_will_buy[3] = TV_HELM;
-				u_ptr->tvals_will_buy[4] = TV_SHIELD;
-				u_ptr->tvals_will_buy[5] = TV_CLOAK;
-				u_ptr->tvals_will_buy[6] = TV_SOFT_ARMOR;
-				u_ptr->tvals_will_buy[7] = TV_HARD_ARMOR;
-				u_ptr->tvals_will_buy[8] = TV_DRAG_ARMOR;
-				break;
-			}
-
-			/* Weapon Shop */
-			case STORE_WEAPON:
-			{
-				u_ptr->tvals_will_buy[0] = TV_SHOT;
-				u_ptr->tvals_will_buy[1] = TV_BOLT;
-				u_ptr->tvals_will_buy[2] = TV_ARROW;
-				u_ptr->tvals_will_buy[3] = TV_BOW;
-				u_ptr->tvals_will_buy[4] = TV_DIGGING;
-				u_ptr->tvals_will_buy[5] = TV_HAFTED;
-				u_ptr->tvals_will_buy[6] = TV_POLEARM;
-				u_ptr->tvals_will_buy[7] = TV_SWORD;
-				break;
-			}
-
-			/* Temple */
-			case STORE_TEMPLE:
-			{
-				u_ptr->tvals_will_buy[0] = TV_PRAYER_BOOK;
-				u_ptr->tvals_will_buy[1] = TV_SCROLL;
-				u_ptr->tvals_will_buy[2] = TV_POTION;
-				u_ptr->tvals_will_buy[3] = TV_HAFTED;
-				u_ptr->tvals_will_buy[4] = TV_STATUE;
-				u_ptr->tvals_will_buy[5] = TV_SHOT;
-				u_ptr->tvals_will_buy[6] = TV_STATUE;
-				/*u_ptr->tvals_will_buy[6] = TV_POLEARM; Was blessed only */
-				/*u_ptr->tvals_will_buy[7] = TV_SWORD; Was blessed only */
-				break;
-			}
-
-			/* Alchemist */
-			case STORE_ALCHEMY:
-			{
-				u_ptr->tvals_will_buy[0] = TV_MUSHROOM;
-				u_ptr->tvals_will_buy[1] = TV_SCROLL;
-				u_ptr->tvals_will_buy[2] = TV_POTION;
-				u_ptr->tvals_will_buy[3] = TV_RUNESTONE;
-				break;
-			}
-
-			/* Magic Shop */
-			case STORE_MAGIC:
-			{
-				u_ptr->tvals_will_buy[0] = TV_MAGIC_BOOK;
-				u_ptr->tvals_will_buy[1] = TV_AMULET;
-				u_ptr->tvals_will_buy[2] = TV_RING;
-				u_ptr->tvals_will_buy[3] = TV_STAFF;
-				u_ptr->tvals_will_buy[4] = TV_WAND;
-				u_ptr->tvals_will_buy[5] = TV_ROD;
-				u_ptr->tvals_will_buy[6] = TV_SCROLL;
-				u_ptr->tvals_will_buy[7] = TV_POTION;
-				u_ptr->tvals_will_buy[8] = TV_RUNESTONE;
-				u_ptr->tvals_will_buy[9] = TV_STATUE;
-				break;
-			}
-		}
 	}
 
 	/* Process 'O' for "Offered" (up to thirty two lines) */
@@ -7182,17 +7245,30 @@ errr parse_u_info(char *buf, header *head)
 	{
 		int tval, sval, count;
 
-		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d", &tval, &sval, &count)) return (PARSE_ERROR_GENERIC);
-
 		/* only thirty two O: lines allowed */
 		if (cur_t >= STORE_CHOICES) return (PARSE_ERROR_GENERIC);
+
+		/* Find the colon before the sval */
+		s = strchr(buf+2, ':');
+
+		/* Verify that colon */
+		if (!s) return (PARSE_ERROR_GENERIC);
+
+		/* Nuke the colon, advance to the name */
+		*s++ = '\0';
+		
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
+
+		/* Scan for the values */
+		if (2 != sscanf(s, "%d:%d", &sval, &count)) return (1);
 
 		/* Save the values */
 		u_ptr->tval[cur_t] = (byte)tval;
 		u_ptr->sval[cur_t] = (byte)sval;
 		u_ptr->count[cur_t] = (byte)count;
-
+		
 		/* increase counter for 'possible tval' index */
 		cur_t++;
 	}
@@ -7202,11 +7278,12 @@ errr parse_u_info(char *buf, header *head)
 	{
 		int tval;
 
-		/* Scan for the values */
-		if (1 != sscanf(buf+2, "%d", &tval)) return (PARSE_ERROR_GENERIC);
+		/* only sixteen B: lines allowed */
+		if (cur_w >= STORE_WILL_BUY) return (PARSE_ERROR_GENERIC);
 
-		/* only thirty two O: lines allowed */
-		if (cur_w >= STORE_CHOICES) return (PARSE_ERROR_GENERIC);
+		/* Get the tval */
+		tval = parse_tval(buf+2);
+		if ((tval < 0) || (tval > 101)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		u_ptr->tvals_will_buy[cur_w] = (byte)tval;
@@ -9580,6 +9657,33 @@ static char color_attr_to_char(int a)
 
 
 /*
+ * Parses either a number or a textual value into a tval
+ */
+static errr emit_tval(FILE *fp, int tval)
+{
+	int i;
+	
+	for (i = 0; object_group[i].text; i++)
+	{
+		if (object_group[i].tval == tval)
+		{
+			/* Output tval as text */
+			fprintf(fp, "%s", object_group[i].text);
+			
+			return (0);
+		}
+	}
+		
+	/* Oops - Output tval as number */
+	fprintf(fp, "%d", tval);
+
+	/* We are done */
+	return (0);
+}
+
+
+
+/*
  * Emit the "method_info" array into an ascii "template" file
  */
 errr emit_method_info_index(FILE *fp, header *head, int i)
@@ -10575,7 +10679,7 @@ errr emit_s_info_index(FILE *fp, header *head, int i)
 	for (n = 0; n < MAX_SPELL_APPEARS; n++)
 	{
 		if (!s_ptr->appears[n].tval) continue;
-
+		
 		fprintf(fp, "A:%d:%d:%d\n", s_ptr->appears[n].tval, s_ptr->appears[n].sval,
 				s_ptr->appears[n].slot);
 	}
@@ -10602,6 +10706,12 @@ errr emit_s_info_index(FILE *fp, header *head, int i)
 
 			if (s_ptr->cast[n].class == 1) mage_spell = TRUE;
 			if (s_ptr->cast[n].class == 2) priest_spell = TRUE;
+			
+			if (s_ptr->cast[n].class == 3)
+			{
+				fprintf(fp, "C:12:%d:%d:%d:%d\n",
+						s_ptr->cast[n].level,s_ptr->cast[n].mana,s_ptr->cast[n].fail,s_ptr->cast[n].min);
+			}
 		}
 
 		/* Hack -- note when sub-classes cannot cast spell */
@@ -10632,7 +10742,7 @@ errr emit_s_info_index(FILE *fp, header *head, int i)
 
 		fprintf(fp, "B:%s", method_name + method_info[s_ptr->blow[n].method].name);
 
-		if (s_ptr->blow[n].effect)
+		if (TRUE /*s_ptr->blow[n].effect*/)
 		{
 			fprintf(fp, ":%s", effect_name + effect_info[s_ptr->blow[n].effect].name);
 
@@ -10855,6 +10965,50 @@ errr emit_t_info_index(FILE *fp, header *head, int i)
 
 	/* Output 'D' for "Description" */
 	emit_desc(fp, "D:", head->text_ptr + t_ptr->text);
+
+	fprintf(fp,"\n");
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Emit the "u_info" array into an ascii "template" file
+ */
+errr emit_u_info_index(FILE *fp, header *head, int i)
+{
+	int n;
+
+	/* Current entry */
+	store_type *u_ptr = (store_type*)head->info_ptr + i;
+
+	/* Output 'N' for "New/Number/Name" */
+	fprintf(fp, "N:%d:%s\n", i,head->name_ptr + u_ptr->name);
+
+	/* Output 'X' for "Base" (one line only) */
+	fprintf(fp,"X:%d\n",u_ptr->base);
+	
+	/* Iterate through will buy */
+	for(n = 0; n < STORE_CHOICES; n++)
+	{
+		if (!u_ptr->tval[n]) continue;
+
+		fprintf(fp, "O:%d:%d:%d\n", u_ptr->tval[n], u_ptr->sval[n], u_ptr->count[n]);
+	}
+
+	/* Iterate through will buy */
+	for(n = 0; n < STORE_WILL_BUY; n++)
+	{
+		if (!u_ptr->tvals_will_buy[n]) continue;
+
+		fprintf(fp, "B:");
+		emit_tval(fp, u_ptr->tvals_will_buy[n]);
+		fprintf(fp, "\n");
+	}
+
+	/* Output 'D' for "Description" */
+	/*emit_desc(fp, "D:", head->text_ptr + t_ptr->text);*/
 
 	fprintf(fp,"\n");
 

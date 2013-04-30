@@ -4321,9 +4321,9 @@ int init_sound( void )
 		slev = -1;
 		for (j = 1 ; j < SOUND_MAX ; j++)
 		{
-			if (strreq(angband_sound_name[j] , line + k))
+			if (strreq(angband_sound_name[j].name , line + k))
 			{
-				slev = j;
+				slev = angband_sound_name[j].id;
 				break;
 			}
 		}

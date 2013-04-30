@@ -276,10 +276,6 @@ static errr rd_item(object_type *o_ptr)
 	rd_byte(&o_ptr->tval);
 	rd_byte(&o_ptr->sval);
 
-	/* Fix mushroom tval change */
-	if ((o_ptr->tval == TV_FOOD) && (o_ptr->sval < 32))
-		o_ptr->sval = TV_MUSHROOM;
-
 	/* Special pval */
 	rd_s16b(&o_ptr->pval);
 
@@ -336,19 +332,6 @@ static errr rd_item(object_type *o_ptr)
 	/* Special powers */
 	rd_byte(&o_ptr->xtra1);
 	rd_byte(&o_ptr->xtra2);
-
-	/* Hack -- fix old burning arrows */
-	if (o_ptr->k_idx == 707)
-	{
-		o_ptr->k_idx = lookup_kind(TV_ARROW, SV_AMMO_NORMAL);
-		o_ptr->tval = TV_ARROW;
-		o_ptr->sval = SV_AMMO_NORMAL;
-		if (!o_ptr->xtra1)
-		{
-			o_ptr->xtra1 = TV_FLASK;
-			o_ptr->xtra2 = SV_FLASK_OIL;
-		}
-	}
 
 	/* Flags we have learnt about an item */
 	rd_u32b(&o_ptr->can_flags1);
@@ -1111,6 +1094,13 @@ static errr rd_extra(void)
 	/* Player school */
 	rd_byte(&p_ptr->pschool);
 
+	/* Fix -- great book reorganisation */
+	if ((older_than(0,6,3,10)) && ((p_ptr->pstyle == WS_MAGIC_BOOK)
+			|| (p_ptr->pstyle == WS_PRAYER_BOOK)))
+	{
+		if (p_ptr->pschool >= 32) p_ptr->pschool = 52 + (p_ptr->pschool - 32) / 4 * 5;
+	}
+
 	/* XXX Hack -- should have saved this before */
 	if (p_ptr->pschool < SV_BOOK_MAX_GOOD) p_ptr->pschool = SV_BOOK_MAX_GOOD;
 
@@ -1182,10 +1172,29 @@ static errr rd_extra(void)
 
 	/* Hack --- Get psval information. */
 	rd_byte(&p_ptr->psval);
+	
+	/* Fix -- great book reorganisation */
+	if ((older_than(0,6,3,10)) && ((p_ptr->pstyle == WS_MAGIC_BOOK)
+			|| (p_ptr->pstyle == WS_PRAYER_BOOK)))
+	{
+		if (p_ptr->psval >= 32) p_ptr->psval = 52 + (p_ptr->psval - 32) / 4 * 5;
+	}
+
+	/* Fix -- great book reorganisation */
+	if ((older_than(0,6,3,10)) && (p_ptr->pstyle == WS_SONG_BOOK))
+	{
+		switch (p_ptr->psval)
+		{
+		case 0: case 1: case 13:
+			p_ptr->psval = 52;
+			break;
+		}
+	}
 
 	/* Hack --- Get shape information. */
 	rd_byte(&p_ptr->pshape);
 
+	/* Fix -- old saves didn't have pshape set */
 	if (!p_ptr->pshape)
 	{
 		p_ptr->pshape = p_ptr->prace;
@@ -1291,6 +1300,15 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->charging);
 	rd_byte(&p_ptr->climbing);
 	rd_byte(&p_ptr->searching);
+
+	/* Oops */
+	if (!older_than(0,6,3,11))
+	{
+		rd_byte(&p_ptr->blocking);
+		rd_byte(&p_ptr->dodging);
+		rd_byte(&p_ptr->not_sneaking);
+	}
+
 	rd_byte(&p_ptr->sneaking);
 	rd_byte(&p_ptr->reserves);
 	rd_byte(&tmp8u);	/* oops */
@@ -1306,6 +1324,18 @@ static errr rd_extra(void)
 
 	/* Get held song */
 	rd_s16b(&p_ptr->held_song);
+
+	/* Oops */
+	if (!older_than(0,6,3,11))
+	{
+		/* Get spell trap */
+		rd_s16b(&p_ptr->spell_trap);
+
+		/* Get delayed spell */
+		rd_s16b(&p_ptr->delay_spell);
+	}
+
+
 
 	/* Returning */
 	rd_s16b(&p_ptr->word_return);

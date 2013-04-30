@@ -1194,14 +1194,18 @@ static void display_monster(int col, int row, bool cursor, int oid)
 	/* Access the race */
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
+	char m_name[80];
 
 	/* Choose colors */
 	byte attr = curs_attrs[CURS_KNOWN][(int)cursor];
 	byte a = r_ptr->x_attr;
 	byte c = r_ptr->x_char;
 
+	/* Get the name */
+	race_desc(m_name, sizeof(m_name), r_idx, 0x400, 1);
+	
 	/* Display the name */
-	c_prt(attr, r_name + r_ptr->name, row, col);
+	c_prt(attr, m_name, row, col);
 
 	if (use_dbltile || use_trptile)
 		return;
@@ -1238,7 +1242,7 @@ static char *m_xchar(int oid)
 static byte *m_xattr(int oid)
 	{ return &r_info[default_join[oid].oid].x_attr; }
 static const char *race_name(int gid) { return monster_group_text[gid]; }
-static void mon_lore(int oid) { screen_roff(&r_info[default_join[oid].oid], &l_list[default_join[oid].oid]); anykey(); }
+static void mon_lore(int oid) { screen_roff(default_join[oid].oid, &l_list[default_join[oid].oid]); anykey(); }
 
 /*
  * Display known monsters.
@@ -1981,6 +1985,8 @@ static void describe_zone_guardian(int dun, int zone)
 {
   int guard = actual_guardian(t_info[dun].zone[zone].guard, dun, zone);
 
+  char m_name[80];
+  
   if (guard) {
     bool bars = (r_info[guard].max_num
 		 && t_info[dun].quest_monster == guard);
@@ -1989,9 +1995,12 @@ static void describe_zone_guardian(int dun, int zone)
     if (bars)
       long_level_name(str, actual_route(t_info[dun].quest_opens), 0);
 
+	/* Get the name */
+	race_desc(m_name, sizeof(m_name), guard, 0x100, 1);
+
     text_out_c(TERM_SLATE, format("  It %s guarded by %s%s%s.",
 				  r_info[guard].max_num ? "is" : "was",
-				  r_info[guard].name + r_name,
+				  m_name,
 				  bars ? ", who bars the way to " : "",
 				  bars ? str : ""));
   }
@@ -4054,12 +4063,16 @@ void do_cmd_visuals(void)
 			for (i = 0; i < z_info->r_max; i++)
 			{
 				monster_race *r_ptr = &r_info[i];
+				char m_name[80];
 
 				/* Skip non-entries */
 				if (!r_ptr->name) continue;
 
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), i, 0x400, 1);
+				
 				/* Dump a comment */
-				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+				fprintf(fff, "# %s\n", m_name);
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
@@ -4269,6 +4282,7 @@ void do_cmd_visuals(void)
 			while (1)
 			{
 				monster_race *r_ptr = &r_info[r];
+				char m_name[80];
 
 				byte da = (byte)(r_ptr->d_attr);
 				byte dc = (byte)(r_ptr->d_char);
@@ -4277,10 +4291,13 @@ void do_cmd_visuals(void)
 
 				int linec = (use_trptile ? 22: (use_dbltile ? 21 : 20));
 
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), r, 0x400, 1);
+				
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 					    format("Monster = %d, Name = %-40.40s",
-						   r, (r_name + r_ptr->name)));
+						   r, m_name));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
@@ -4898,9 +4915,13 @@ static errr cmd_autos_dump(void)
 	{
 		if (r_info[i].note)
 		{
+			char m_name[80];
+			
+			/* Get the name */
+			race_desc(m_name, sizeof(m_name), r_idx, 0x400, 1);
 
 			/* Start the macro */
-			fprintf(fff, "# Monster race '%s'\n\n", r_name + r_info[i].name);
+			fprintf(fff, "# Monster race '%s'\n\n", m_name);
 
 			/* Dump the kind */
 			fprintf(fff, "I:R:%d:%s\n", i, quark_str(r_info[i].note));
@@ -5317,8 +5338,8 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_SEEN))) vp[vn++] = "explore";
 			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_LAIR))) vp[vn++] = "clear of monsters";
 			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_OBJECT))) vp[vn++] = "empty of objects";
-			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarm";
 #if 0
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarm";
 			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_DARK))) vp[vn++] = "darken";
 #endif
 		}
@@ -5334,8 +5355,8 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_SEEN))) vp[vn++] = "explored";
 			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_LAIR))) vp[vn++] = "cleared of monsters";
 			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_OBJECT))) vp[vn++] = "emptied of objects";
-			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarmed";
 #if 0
+			if ((event->flags & (EVENT_UNFLAG_ROOM)) && (event->room_flags & (ROOM_TRAP))) vp[vn++] = "disarmed";
 			if ((event->flags & (EVENT_FLAG_ROOM)) && (event->room_flags & (ROOM_DARK))) vp[vn++] = "darkened";
 #endif
 		}
@@ -5564,21 +5585,15 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 		/* Hack -- monster race */
 		if (vn)
 		{
+			char m_name[80];
 			output = TRUE;
 
 			if (reflex_monster)
 			{
-				if ((!used_num) && (event->number > 0))
-				{
-					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out(format(" %d",event->number));
-				}
-
-				text_out(r_name + r_info[event->race].name);
-
-				if ((used_num) || (event->number != 1))
-				{
-					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out("s");
-				}
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), event->race, (used_num ? 0x400 : 0x08), event->number);
+				
+				text_out(m_name);
 
 				text_out(event_pronoun_text_which[pronoun]);
 				text_out(event_tense_text[tense]);
@@ -5617,18 +5632,11 @@ bool print_event(quest_event *event, int pronoun, int tense, cptr prefix)
 
 			if (!(reflex_monster))
 			{
-				if ((!used_num) && (event->number > 0))
-				{
-					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out(format(" %d",event->number));
-				}
+				/* Get the name */
+				race_desc(m_name, sizeof(m_name), event->race, (used_num ? 0x400 : 0x08), event->number);				
 
 				text_out(" ");
-				text_out(r_name + r_info[event->race].name);
-
-				if ((used_num) || (event->number != 1))
-				{
-					if (!(r_info[event->race].flags1 & (RF1_UNIQUE)) ) text_out("s");
-				}
+				text_out(m_name);
 
 				used_num = TRUE;
 			}
@@ -6285,11 +6293,15 @@ void do_cmd_save_screen_html(void)
 	for (i = 0; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+		char m_name[80];
 
 		if (!r_ptr->name) continue;
 
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), i, 0x400, 1);
+
 		/* Dump a comment */
-		fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+		fprintf(fff, "# %s\n", m_name);
 
 		/* Dump the attr/char info */
 		fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,

@@ -1303,6 +1303,54 @@ void dump_html(void)
 
 
 
+
+
+/*
+ * Dumps some basic startup preferences to a pref file for later reading.
+ */
+void dump_startup_prefs(void)
+{
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "Startup.prf");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Write to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Failure */
+	if (!fff) return;
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic startup option dump\n\n");
+
+	/* Dump startup options */
+	fprintf(fff, "%c:%s\n", birth_first_time ? 'Y' : 'X', option_name(OPT_birth_first_time));
+
+	/* Dump startup options */
+	fprintf(fff, "%c:%s\n", rogue_like_commands ? 'Y' : 'X', option_name(OPT_rogue_like_commands));
+
+	/* Dump startup options */
+	fprintf(fff, "%c:%s\n", birth_beginner ? 'Y' : 'X', option_name(OPT_birth_beginner));
+
+	/* Dump startup options */
+	fprintf(fff, "%c:%s\n", birth_intermediate ? 'Y' : 'X', option_name(OPT_birth_intermediate));
+
+	/* Close */
+	my_fclose(fff);
+
+}
+
+	
+	
 #ifdef CHECK_TIME
 
 /*

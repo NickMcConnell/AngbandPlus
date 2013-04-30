@@ -141,6 +141,7 @@ typedef struct ecology_type ecology_type;
 typedef struct do_cmd_item_type do_cmd_item_type;
 typedef struct color_type color_type;
 typedef struct timed_effect timed_effect;
+typedef struct sound_name_type sound_name_type;
 
 
 
@@ -918,6 +919,9 @@ struct vault_type
 	byte typ;       /* Vault type */
 
 	byte rat;       /* Vault rating */
+	s16b rarity;	/* Vault rarity */
+	
+	u32b level_flag;	/* Vault requires this flag on level */
 
 	byte hgt;       /* Vault height */
 	byte wid;       /* Vault width */
@@ -1759,7 +1763,13 @@ struct player_type
 	s16b held_song;     /* Currently held song */
 	s16b spell_trap;	/* Spells the player cast get turned into traps */
 	s16b delay_spell;	/* Delay the next spell cast for this many turns */
+
+	byte dodging;   	/* Currently dodging */
+	byte blocking;   	/* Currently blocking */
 	byte sneaking; 		/* Currently sneaking */
+	byte not_sneaking;	/* Lose the benefits of sneaking for next turn */
+
+	byte branded_blows;	/* Current blow is branded with */
 	byte familiar;		/* Familiar type */
 
 	u16b familiar_attr[MAX_FAMILIAR_GAINS];	/* Abilities for the player's familiar */
@@ -1768,7 +1778,6 @@ struct player_type
 	byte searching; /* Currently searching */
 	byte charging;	/* Currently charging */
 	byte reserves;	/* Currently on reserve mana */
-
 
 	u32b disease;	/* Disease types */
 
@@ -1899,11 +1908,6 @@ struct player_type
 	s16b stat_use[A_MAX];   /* Current modified stats */
 	s16b stat_top[A_MAX];   /* Maximal modified stats */
 
-	byte dodging;   	/* Currently dodging */
-	byte blocking;   	/* Currently blocking */
-
-	byte branded_blows;	/* Current blow is branded with */
-	byte unused;	/* Forms of Sauron that player has killed on this level already. */
 
 	/*** Extracted fields ***/
 
@@ -2156,3 +2160,12 @@ struct timed_effect
   int msg;
 };
 
+
+/*
+ * Names and ids of sounds
+ */
+struct sound_name_type
+{
+	const char *name;
+	int id;
+};

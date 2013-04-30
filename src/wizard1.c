@@ -873,8 +873,7 @@ static void spoil_mon_desc(cptr fname)
 
 	u16b *who;
 	u16b why = 2;
-
-
+	
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
@@ -925,21 +924,23 @@ static void spoil_mon_desc(cptr fname)
 	for (i = 0; i < n; i++)
 	{
 		monster_race *r_ptr = &r_info[who[i]];
-
-		cptr name = (r_name + r_ptr->name);
+		char m_name[80];
+		
+		/* Get the name */
+		race_desc(m_name, sizeof(m_name), who[i], 0x400, 1);
 
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_QUESTOR))
 		{
-			sprintf(nam, "[Q] %s", name);
+			sprintf(nam, "[Q] %s", m_name);
 		}
 		else if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			sprintf(nam, "[U] %s", name);
+			sprintf(nam, "[U] %s", m_name);
 		}
 		else
 		{
-			sprintf(nam, "The %s", name);
+			sprintf(nam, "The %s", m_name);
 		}
 
 

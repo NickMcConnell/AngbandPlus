@@ -1885,14 +1885,14 @@ F:THROWING |
 
 N:233:of Sympathies
 G:?:y
-I:92:13:0
+I:92:53:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
 N:234:& Guitar~
 G:|:y
-I:24:13:0
+I:24:53:0
 W:5:0:50:90
 A:5/2
 P:0:1d1:0:0:0
@@ -2063,7 +2063,13 @@ P:0:0d0:0:0:0
 Y:7:2
 F:RES_FEAR |
 
-#$# 253 - Unused ###
+N:253:& valuable Urn~ with scenes of #
+G:9:z
+I:11:16:0
+W:5:0:200:50
+A:5/1:10/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_FIRE | IGNORE_WATER |
 
 N:254:Lose Memories
 G:!:w
@@ -2733,21 +2739,21 @@ F:REGEN_HP |
 
 N:330:of Cantrips
 G:?:R
-I:90:32:0
+I:90:52:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:331:of Conjuring
 G:?:R
-I:90:33:0
+I:90:53:0
 W:6:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:332:of Incantations
 G:?:R
-I:90:34:0
+I:90:54:0
 W:12:0:30:400
 A:12/8
 P:0:1d1:0:0:0
@@ -2756,30 +2762,30 @@ P:0:1d1:0:0:0
 
 N:333:of Wizardry
 G:?:R
-I:90:35:0
-W:24:0:30:800
-A:24/8
+I:90:55:0
+W:18:0:30:800
+A:18/8
 P:0:1d1:0:0:0
 
 #### Dedication to Mandos - Equivalent to Angband priests.
 
 N:334:of Castigation
 G:?:B
-I:91:32:0
+I:91:52:0
 W:3:0:30:25
 A:3/1
 P:0:1d1:0:0:0
 
 N:335:of Inquisition
 G:?:B
-I:91:33:0
+I:91:53:0
 W:6:0:30:100
 A:6/1
 P:0:1d1:0:0:0
 
 N:336:of Exorcism
 G:?:B
-I:91:34:0
+I:91:54:0
 W:12:0:30:300
 A:12/1
 P:0:1d1:0:0:0
@@ -2788,7 +2794,7 @@ P:0:1d1:0:0:0
 
 N:337:of Mandos
 G:?:B
-I:91:35:0
+I:91:55:0
 W:24:0:30:900
 A:24/1
 P:0:1d1:0:0:0
@@ -3126,45 +3132,46 @@ Y:26:1
 
 ##### Special Books (note resistances) #####
 
-#Dropped prices as new spells not so special anymore.
+# The mage special books are now split into low level and high level
+# versions due to the number of spells in each.
 
 N:379:of Resistances
 G:?:r
 I:90:4:0
-W:35:0:30:2500
-A:35/6
+W:18:0:30:2500
+A:18/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:380:of Escapes
 G:?:r
 I:90:5:0
-W:40:0:30:5000
-A:40/6
+W:20:0:30:2500
+A:20/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:381:of Power
 G:?:r
 I:90:6:0
-W:55:0:30:30000
-A:55/12
+W:40:0:30:15000
+A:40/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:382:of Transformations
 G:?:r
 I:90:7:0
-W:50:0:30:15000
-A:50/12
+W:35:0:30:10000
+A:35/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:383:of Destruction
 G:?:r
 I:90:8:0
-W:45:0:30:10000
-A:45/6
+W:45:0:30:30000
+A:45/12
 P:0:1d7:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
@@ -3722,30 +3729,30 @@ F:IGNORE_ACID |
 
 N:440:of Tricks
 G:?:R
-I:90:60:0
+I:90:87:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:441:of Misdirection
 G:?:R
-I:90:61:0
+I:90:88:0
 W:6:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:442:of Confabulation
 G:?:R
-I:90:62:0
+I:90:89:0
 W:12:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:443:of Spellstealing
 G:?:R
-I:90:63:0
+I:90:90:0
 W:24:0:30:800
-A:24/8
+A:18/8
 P:0:1d1:0:0:0
 
 ##### Racial Objects #####
@@ -3956,7 +3963,12 @@ F:SUST_STR |
 F:REGEN_HP |
 F:HURT_LITE | TROLL |
 
-### 471 - Unused ###
+N:471:& Piece~ of Ambrosia
+G:,:B
+I:80:30:0
+W:5:2500:3:10
+A:20/4
+P:0:0d0:0:0:0
 
 ### 472 - Unused ###
 
@@ -4118,7 +4130,7 @@ P:0:0d0:0:0:0
 N:497:adamantite
 G:$:G
 I:100:18:0
-W:1:0:0:80
+W:1:0:0:50
 P:0:0d0:0:0:0
 
 ##### Objects 498 and 499 are the "Morgoth Artifacts" #####
@@ -4349,139 +4361,139 @@ F:ANIMAL |
 
 ### Magic Books ###
 
-N:520:of Enchantments
+N:520:of Charms
 G:?:r
 I:90:0:0
-W:50:0:30:18000
-A:50/12
+W:25:0:30:4500
+A:25/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:521:of Life Magic
 G:?:r
 I:90:2:0
-W:33:0:30:1500
-A:33/6
+W:17:0:30:1500
+A:17/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:522:of Rune Magic
 G:?:r
 I:90:21:0
-W:50:0:30:16000
-A:50/6
+W:25:0:30:4000
+A:25/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:523:of Celestial Magic
 G:?:r
 I:90:17:0
-W:36:0:30:3000
-A:36/6
+W:18:0:30:3000
+A:18/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:524:of Earth Magic
 G:?:r
 I:90:18:0
-W:38:0:30:4000
-A:38/6
+W:19:0:30:4000
+A:19/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:525:of Air Magic
 G:?:r
 I:90:19:0
-W:40:0:30:6000
-A:40/6
+W:20:0:30:3000
+A:20/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:526:of Water Magic
 G:?:r
 I:90:20:0
-W:41:0:30:7500
-A:41/6
+W:20:0:30:3750
+A:20/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:527:of Fire Magic
 G:?:r
 I:90:9:0
-W:43:0:30:11000
-A:43/6
+W:22:0:30:5500
+A:22/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:528:of Frost Magic
 G:?:r
 I:90:11:0
-W:45:0:30:12000
-A:45/6
+W:22:0:30:3000
+A:22/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:529:of Acid Magic
 G:?:r
 I:90:10:0
-W:46:0:30:13000
-A:46/6
+W:23:0:30:6500
+A:23/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:530:of Storm Magic
 G:?:r
 I:90:12:0
-W:48:0:30:14000
-A:48/6
+W:24:0:30:3500
+A:24/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:531:of Alchemy
 G:?:r
 I:90:13:0
-W:35:0:30:2000
-A:35/6
+W:18:0:30:1000
+A:18/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:532:of Necromancy
 G:?:r
 I:90:14:0
-W:50:0:30:18000
-A:50/12
+W:25:0:30:4500
+A:25/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:533:of Artifice
 G:?:r
 I:90:3:0
-W:51:0:30:22000
-A:51/12
+W:26:0:30:5500
+A:26/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:534:of Lore
 G:?:r
 I:90:1:0
-W:53:0:30:24000
-A:53/12
+W:27:0:30:6000
+A:27/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:535:of Animal Magic
 G:?:r
 I:90:15:0
-W:31:0:30:1250
-A:31/12
+W:16:0:30:1250
+A:16/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:536:of Psychic Magic
 G:?:r
 I:90:16:0
-W:33:0:30:1750
-A:33/12
+W:17:0:30:1750
+A:17/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
@@ -4535,14 +4547,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:543:of Chords
 G:?:y
-I:92:0:0
+I:92:52:0
 W:5:0:30:25
 A:5/1
 P:0:1d1:0:0:0
 
 N:544:of Harmonies
 G:?:y
-I:92:1:0
+I:92:54:0
 W:20:0:30:400
 A:20/1
 P:0:1d1:0:0:0
@@ -4629,14 +4641,14 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:555:& Lute~
 G:|:y
-I:24:0:0
+I:24:52:0
 W:5:0:50:90
 A:5/2
 P:0:1d1:0:0:0
 
 N:556:& Mandolin~
 G:|:y
-I:24:1:0
+I:24:54:0
 W:10:0:50:180
 A:10/2
 P:0:1d1:0:0:0
@@ -4719,7 +4731,7 @@ P:0:1d1:0:0:0
 
 N:567:& Wizard Light~
 G:~:B
-I:10:10:3
+I:10:10:1
 W:0:0:0:0
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
@@ -7236,46 +7248,46 @@ P:0:0d0:0:0:0
 
 N:898:of Craft
 G:?:R
-I:90:53:0
+I:90:78:0
 W:10:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:899:of Art
 G:?:R
-I:90:54:0
+I:90:79:0
 W:20:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:900:of Science
 G:?:R
-I:90:55:0
+I:90:80:0
 W:30:0:30:800
-A:24/8
+A:18/8
 P:0:1d1:0:0:0
 
 # Ranger books
 
 N:901:of Bushcraft
 G:?:R
-I:90:57:0
+I:90:83:0
 W:10:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:902:of Warcraft
 G:?:R
-I:90:58:0
+I:90:84:0
 W:20:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:903:of Statecraft
 G:?:R
-I:90:59:0
+I:90:85:0
 W:30:0:30:800
-A:24/8
+A:18/8
 P:0:1d1:0:0:0
 
 # Paladin books
@@ -7284,21 +7296,21 @@ P:0:1d1:0:0:0
 
 #N:904:of Standards
 #G:?:B
-#I:91:52:0
+#I:91:77:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:905:of Monuments
 #G:?:B
-#I:91:53:0
+#I:91:78:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:906:of Crusades
 #G:?:B
-#I:91:54:0
+#I:91:79:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
@@ -7465,213 +7477,149 @@ F:STEALTH |
 
 N:920:of Hedges
 G:?:R
-I:90:36:0
+I:90:57:0
 W:5:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:921:of Animation
 G:?:R
-I:90:37:0
+I:90:58:0
 W:10:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:922:of Invectures
 G:?:R
-I:90:38:0
+I:90:59:0
 W:20:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:923:of Druidry
 G:?:R
-I:90:39:0
+I:90:60:0
 W:30:0:30:800
+A:18/8
+P:0:1d1:0:0:0
+
+N:924:of Nature
+G:?:R
+I:90:61:0
+W:60:0:30:2500
 A:24/8
 P:0:1d1:0:0:0
 
-#FIXME!!!
-#N:924:of Negation
-#G:?:r
-#I:90:23:0
-#W:60:0:30:10000
-#A:60/3
-#P:0:1d7:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+### 930 - Wizard '5th' book ###
 
-#FIXME!!!
-#N:925:of Nature
-#G:?:r
-#I:90:24:0
-#W:70:0:30:15000
-#A:70/2
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+N:925:of High Wizardry
+G:?:R
+I:90:56:0
+W:60:0:30:2500
+A:24/8
+P:0:1d1:0:0:0
 
-#FIXME!!!
-#N:926:of Space
-#G:?:r
-#I:90:25:0
-#W:80:0:30:30000
-#A:80/8
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
 #### Mastery School -- corresponds to Sangband Oath of Blood Magic ####
-
-### 924 - Unused ###
-
-### 925 - Unused ###
-
-### 926 - Unused ###
-
-#$# 924 - Unused ###
-
-#$# 925 - Unused ###
 
 #$# 926 - Unused ###
 
 N:927:of Curses
 G:?:R
-I:90:40:0
+I:90:62:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:928:of Summoning
 G:?:R
-I:90:41:0
+I:90:63:0
 W:6:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:929:of Invocations
 G:?:R
-I:90:42:0
+I:90:64:0
 W:12:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
-### 930 - Unused ###
-
-#$# 930 - Unused ###
-
 N:931:of Mastery
 G:?:R
-I:90:43:0
-W:24:0:30:800
+I:90:65:0
+W:18:0:30:800
+A:18/8
+P:0:1d1:0:0:0
+
+N:932:of Devilry
+G:?:R
+I:90:66:0
+W:60:0:30:2500
 A:24/8
 P:0:1d1:0:0:0
 
-#FIXME!!!
-#N:932:of Annihilation
-#G:?:r
-#I:90:27:0
-#W:60:0:30:10000
-#A:60/3
-#P:0:1d7:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
-
-### 932 - Unused ###
-
-#$# 932 - Unused ###
-
 N:933:of Demonology
 G:?:r
-I:90:26:0
+I:90:23:0
 W:50:0:30:15000
 A:50/12
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
-#FIXME!!!
-#N:934:of the Void
-#G:?:r
-#I:90:28:0
-#W:80:0:30:30000
-#A:80/8
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
-
 #### Sorcery School -- no Sangband correspondence ####
-
-### 934 - Unused ###
 
 #$# 934 - Unused ###
 
 N:935:of Glamours
 G:?:R
-I:90:44:0
+I:90:67:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:936:of Prestidigitation
 G:?:R
-I:90:45:0
+I:90:68:0
 W:6:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:937:of Illusions
 G:?:R
-I:90:46:0
+I:90:69:0
 W:12:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:938:of Sorcery
 G:?:R
-I:90:47:0
-W:24:0:30:800
+I:90:70:0
+W:18:0:30:800
+A:18/8
+P:0:1d1:0:0:0
+
+N:939:of Dark Sorcery
+G:?:R
+I:90:71:0
+W:60:0:30:2500
 A:24/8
 P:0:1d1:0:0:0
 
-#FIXME!!!
-#N:939:of Immolation
-#G:?:r
-#I:90:29:0
-#W:60:0:30:10000
-#A:60/3
-#P:0:1d7:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
-
-#FIXME!!!
-#N:940:of Gambits
-#G:?:r
-#I:90:30:0
-#W:70:0:30:15000
-#A:70/2
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
-
-#FIXME!!!
-#N:941:of Balance
-#G:?:r
-#I:90:31:0
-#W:80:0:30:30000
-#A:80/8
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
-
-### 939 - Unused ###
-
-### 940 - Unused ###
-
-### 941 - Unused ###
-
-#$# 939 - Unused ###
-
-#$# 940 - Unused ###
+N:940:of Immolation
+G:?:R
+I:90:76:0
+W:60:0:30:2500
+A:24/8
+P:0:1d1:0:0:0
 
 #$# 941 - Unused ###
 
-N:942:of Shapechanging
+N:942:of Shapeshifting
 G:?:r
 I:90:22:0
-W:31:0:30:1000
-A:31/6
+W:16:0:30:1000
+A:16/6
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
@@ -7679,7 +7627,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
 N:943:of Trades
 G:?:R
-I:90:52:0
+I:90:77:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
@@ -7688,26 +7636,14 @@ P:0:1d1:0:0:0
 
 N:944:of Trailcraft
 G:?:R
-I:90:56:0
+I:90:82:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
-# Paladin books
-
-#N:945:of xxx
-#G:?:b
-#I:91:18:0
-#W:30:0:30:800
-#A:30/3
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#$# 945 - Unused ###
 
 # Used to count down spell-based features and traps
-
-### 945 - Unused ###
-
-#$# 945 - Unused ###
 
 N:946:& Counter~
 G:~:v
@@ -7721,28 +7657,28 @@ F:IGNORE_THEFT |
 
 N:947:of Fireworks
 G:?:R
-I:90:48:0
+I:90:72:0
 W:3:0:30:25
 A:3/8
 P:0:1d1:0:0:0
 
 N:948:of Evocation
 G:?:R
-I:90:49:0
+I:90:73:0
 W:6:0:30:100
 A:6/8
 P:0:1d1:0:0:0
 
 N:949:of Incendaries
 G:?:R
-I:90:50:0
+I:90:74:0
 W:12:0:30:400
 A:12/8
 P:0:1d1:0:0:0
 
 N:950:of Thaumaturgy
 G:?:R
-I:90:51:0
+I:90:75:0
 W:12:0:30:800
 A:12/8
 P:0:1d1:0:0:0
@@ -7751,28 +7687,28 @@ P:0:1d1:0:0:0
 
 #N:951:of Inspirations
 #G:?:B
-#I:91:60:0
+#I:91:87:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:952:of Supplications
 #G:?:B
-#I:91:61:0
+#I:91:88:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:953:of Raiments
 #G:?:B
-#I:91:62:0
+#I:91:89:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:954:of Nessa
 #G:?:B
-#I:91:63:0
+#I:91:90:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7781,28 +7717,28 @@ P:0:1d1:0:0:0
 
 #N:955:of Sayings
 #G:?:B
-#I:91:44:0
+#I:91:67:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:956:of Prayers
 #G:?:B
-#I:91:45:0
+#I:91:68:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:957:of Canticles
 #G:?:B
-#I:91:46:0
+#I:91:69:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:958:of Vana
 #G:?:B
-#I:91:47:0
+#I:91:70:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7811,28 +7747,28 @@ P:0:1d1:0:0:0
 
 #N:959:of Offerings
 #G:?:B
-#I:91:48:0
+#I:91:72:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:960:of Sacrifices
 #G:?:B
-#I:91:49:0
+#I:91:73:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:961:of Matyrs
 #G:?:B
-#I:91:50:0
+#I:91:74:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:962:of Nienna
 #G:?:B
-#I:91:51:0
+#I:91:75:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7841,7 +7777,7 @@ P:0:1d1:0:0:0
 
 #N:963:of Tulkas
 #G:?:B
-#I:91:55:0
+#I:91:80:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7850,28 +7786,28 @@ P:0:1d1:0:0:0
 
 #N:964:of Sanctity
 #G:?:B
-#I:91:56:0
+#I:91:82:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:965:of Fonts
 #G:?:B
-#I:91:57:0
+#I:91:83:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:966:of Cleansing
 #G:?:B
-#I:91:58:0
+#I:91:84:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:967:of Ulmo
 #G:?:B
-#I:91:59:0
+#I:91:85:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7880,28 +7816,28 @@ P:0:1d1:0:0:0
 
 #N:968:of Vows
 #G:?:B
-#I:91:40:0
+#I:91:62:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:969:of Rites
 #G:?:B
-#I:91:41:0
+#I:91:63:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:970:of Passages
 #G:?:B
-#I:91:42:0
+#I:91:64:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:971:of Varda
 #G:?:B
-#I:91:43:0
+#I:91:65:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7910,28 +7846,28 @@ P:0:1d1:0:0:0
 
 #N:972:of Blessings
 #G:?:B
-#I:91:36:0
+#I:91:57:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:973:of Mantras
 #G:?:B
-#I:91:37:0
+#I:91:58:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:974:of Chants
 #G:?:B
-#I:91:38:0
+#I:91:59:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:975:of Manwe
 #G:?:B
-#I:91:39:0
+#I:91:60:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -7940,28 +7876,28 @@ P:0:1d1:0:0:0
 
 #N:976:of Oaths
 #G:?:B
-#I:91:64:0
+#I:91:92:0
 #W:5:0:30:25
 #A:5/9
 #P:0:1d1:0:0:0
 
 #N:977:of Rituals
 #G:?:B
-#I:91:65:0
+#I:91:93:0
 #W:10:0:30:100
 #A:10/9
 #P:0:1d1:0:0:0
 
 #N:978:of Pacts
 #G:?:B
-#I:91:66:0
+#I:91:94:0
 #W:20:0:30:300
 #A:20/9
 #P:0:1d1:0:0:0
 
 #N:979:of Melkor
 #G:?:B
-#I:91:67:0
+#I:91:95:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
@@ -8109,4 +8045,197 @@ W:10:0:5:70
 A:10/2
 P:0:1d1:0:0:0
 
+# The high level mage spell books
+
+N:984:of Suffering
+G:?:r
+I:90:30:0
+W:35:0:30:5000
+A:35/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:985:of Houdini
+G:?:r
+I:90:31:0
+W:40:0:30:10000
+A:40/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:986:of the Archmage
+G:?:r
+I:90:32:0
+W:55:0:30:60000
+A:55/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:987:of the Warlock
+G:?:r
+I:90:33:0
+W:45:0:30:30000
+A:45/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:988:of Enchantments
+G:?:r
+I:90:26:0
+W:50:0:30:18000
+A:50/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:989:of Gaia
+G:?:r
+I:90:28:0
+W:33:0:30:1500
+A:33/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:990:of Glyphs
+G:?:r
+I:90:47:0
+W:50:0:30:16000
+A:50/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:991:of the Void
+G:?:r
+I:90:43:0
+W:36:0:30:6000
+A:36/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:992:of Geomancy
+G:?:r
+I:90:44:0
+W:38:0:30:8000
+A:38/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:993:of Aeromancy
+G:?:r
+I:90:45:0
+W:40:0:30:12000
+A:40/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:994:of Hydromancy
+G:?:r
+I:90:46:0
+W:41:0:30:15000
+A:41/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:995:of Pyromancy
+G:?:r
+I:90:35:0
+W:43:0:30:11000
+A:43/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:996:of Cyromancy
+G:?:r
+I:90:37:0
+W:45:0:30:12000
+A:45/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:997:of Corrosion
+G:?:r
+I:90:36:0
+W:46:0:30:13000
+A:46/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:998:of Thunder
+G:?:r
+I:90:38:0
+W:48:0:30:14000
+A:48/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:999:of Philosophy
+G:?:r
+I:90:39:0
+W:35:0:30:8000
+A:35/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1000:of the Dead
+G:?:r
+I:90:40:0
+W:50:0:30:18000
+A:50/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1001:of Industry
+G:?:r
+I:90:29:0
+W:51:0:30:22000
+A:51/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1002:of Forgotten Lore
+G:?:r
+I:90:27:0
+W:53:0:30:24000
+A:53/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1003:of Beast Mastery
+G:?:r
+I:90:41:0
+W:31:0:30:5000
+A:31/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1004:of Psionics
+G:?:r
+I:90:42:0
+W:33:0:30:1750
+A:33/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1005:of Diabolism
+G:?:r
+I:90:49:0
+W:50:0:30:15000
+A:50/24
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1006:of Shapechanging
+G:?:r
+I:90:48:0
+W:31:0:30:4000
+A:31/12
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+N:1007:of War Magic
+G:?:r
+I:90:34:0
+W:50:0:30:45000
+A:50/24
+P:0:1d7:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 

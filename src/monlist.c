@@ -28,6 +28,7 @@ enum {
 	MONLIST_SORT_BY_PROXIMITY,
 	MONLIST_SORT_BY_DEPTH,
 	MONLIST_SORT_BY_VENGEANCE,
+	MONLIST_SORT_BY_NOVELTY,
 	MONLIST_SORT_BY_MAX
 };
 
@@ -37,6 +38,7 @@ const char *sort_by_name[MONLIST_SORT_BY_MAX]=
 		"proximity",
 		"depth",
 		"vengeance",
+		"novelty"
 };
 
 
@@ -276,6 +278,11 @@ int monlist_get_monster_order(int idx, int sort_by)
 			/* Fall through */
 		case MONLIST_SORT_BY_DEPTH:
 			return (r_info[m_ptr->r_idx].level);
+		case MONLIST_SORT_BY_NOVELTY:
+			if (l_list[m_ptr->r_idx].pkills >= 100) return (1);
+			else if (l_list[m_ptr->r_idx].pkills) return (100 - l_list[m_ptr->r_idx].pkills);
+			else if (l_list[m_ptr->r_idx].tkills >= 900) return (100);
+			else return (1000 - l_list[m_ptr->r_idx].tkills);
 	}
 
 	return (0);
@@ -298,6 +305,7 @@ int monlist_get_object_order(int idx, int sort_by)
 			return (distance(o_ptr->iy, o_ptr->ix, p_ptr->py, p_ptr->px));
 		case MONLIST_SORT_BY_DEPTH:
 		case MONLIST_SORT_BY_VENGEANCE:
+		case MONLIST_SORT_BY_NOVELTY:
 			if (object_named_p(o_ptr)) return (k_info[o_ptr->k_idx].level);
 			else return (MAX_DEPTH + o_ptr->tval);
 	}

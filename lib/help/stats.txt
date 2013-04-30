@@ -1,7 +1,7 @@
 
 
 === Stats ===
-
+***** <Str>
           Strength
                Strength is important in fighting with weapons and in melee
                combat.  A high strength can improve the amount of damage
@@ -13,7 +13,8 @@
                the range of thrown weapons and firing from slings and bows.
                The firing speed from crossbows can be improved with a
                sufficiently high strength.
- 
+
+***** <Int> 
           Intelligence
                Intelligence is important in improving your accuracy with
                weapons both in melee combat and fired or thrown attacks as
@@ -26,6 +27,7 @@
                you may learn each level. A good intelligence can also help
                with using magic devices, picking locks, and disarming traps.
  
+***** <Wis>
           Wisdom
                Wisdom is important in both physical and magical defense. 
                A high wisdom will increase your overall armour class, whilst
@@ -35,6 +37,7 @@
                spell points you earn at each level for the majority of spell
                casting classes.
  
+***** <Dex>
           Dexterity
                Dexterity represents your manual dexterity and coordination.
                A high dexterity may allow a character to get multiple blows
@@ -48,6 +51,7 @@
                failure chance of spell casting for these classes.  Wearing
                gloves will however penalize magical spell casters however.
  
+***** <Con>
           Constitution
                Constitution is a character's ability to resist damage to his
                body, and to recover from damage received.  Therefore a
@@ -60,6 +64,7 @@
                or damaging the caster's overall health, so should not be
                used too often.
  
+***** <Chr>
           Charisma
                Charisma represents a character's personality and physical
                magnetism.  A character with a high charisma will receive
@@ -78,6 +83,7 @@
                charisma will decrease the overall failure chance of spell
                casting for these classes.
                
+***** <Agi>
           Agility
                Agility is a measure of your quickness and overall altheticism.
                A high agility will increase your overall speed, and a very low
@@ -88,6 +94,7 @@
                the character has a high enough agility, thieves will
                never be successful in stealing from the player.
 
+***** <Siz>
           Size
                Size is a numeric representation of the character's height and
                weight.  It directly influences these two abilities, and the

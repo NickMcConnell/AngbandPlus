@@ -20,21 +20,14 @@ TODO: Hold spells and gambits.
 
 TODO: Implement revised bard spell list.
 
-TODO: Have light spells use line of sight, as opposed to line of fire, for their
-projections.
-
 TODO: Stores should preferentially stock items that the player actually buys.
 
 TODO: Commands from menus.
-
-TODO: Free action, see invis, res blind etc. appear deeper in the dungeon then at present. 
 
 TODO: Improve self-knowledge so that it tells you what the impact of an effect is: You are blind,
 which prevents you reading scrolls or casting spells from books or rune-stones. 
 
 TODO: DEAFEN effect? POLYMORPH player.
-
-TODO: Update to latest X11 and GCU Angband files to fix compiler warnings.
 
 TODO: Work on isometric graphics. See http://www.gamedev.net/reference/articles/article742.asp
 and http://www.gamedev.net/reference/articles/article744.asp
@@ -45,6 +38,8 @@ TODO: Significant improvements to the store system.
 
 TODO: Mark items and monster bodies with blows/spells of the most dangerous monster on the 
 level (acid-marked, blood-stained).
+
+TODO: Persistent levels.
 
 
 Release v0.7.0
@@ -62,12 +57,6 @@ TODO: Create set items as per Sangband, but including sets of dragon armor.
 TODO: Assemblies that can be build into objects of any type.
 
 TODO: Add materials system.
-
-TODO: Player buffs defined in a text file as opposed to code.
-
-TODO: Have an option birth_evil that automatically flags the player as evil.
-
-TODO: Add weird terrain types.
 
 TODO: Strike finds nearby terrain preferentially.
 
@@ -97,15 +86,7 @@ Release v0.8.0
 
 MAIN FOCUS: Revise monster AI to fix known AI bugs.
 
-TODO: Implement friendly monsters and uniques.
-
-TODO: Improvements to spells to summon monsters.
-
-TODO: Have conversations with monsters.
-
 TODO: Allow monsters to ride other monsters.
-
-TODO: Allow small monsters to stack on each other.
 
 TODO: Give monsters some AI patterns.
 
@@ -138,17 +119,12 @@ MAIN FOCUS: Tidy up in preparation for version 1.0 release.
 Lower priority activities are listed here to see if they are feasible or not. They are ideas and
 may not necessarily be added.
 
-TODO: Elemental effects that cause more than 100 hp damage should prevent you using certain types
-of objects the next round.
-
 TODO: Implement the player hiding in terrain, and items of
 invisibility.
 
 TODO: Walk on terrain flags.
 
 TODO: Storm clouds should now be created by GF_WIND.
-
-TODO: All magically created terrain should create a timer on it.
 
 TODO: Have electrical projections get 'conducted' by acid, water or metal.
 
@@ -197,10 +173,6 @@ TODO: Implement Sangband-like weather system for magic.
 
 TODO: Have groups of spells, that if the player learns one, the
 remainder in the group become harder to learn. 
-
-TODO: Split the mage spellbooks up more.
-
-
 
 
 Release v2.0.0
@@ -265,55 +237,6 @@ Should be less of a job now, as all spells can be cast by monsters
 on each other and there are cooperative spells that monsters can
 use to assist the player now (such as haste, heal and cure).
 
-TODO: Allow spells to summon monsters.
-
-A lot of this is already in spell.txt. Spells should summon monsters
-from a group (e.g. fire elementals etc). To balance summons,
-summoning spells should incur a mana debt, and a blood debt. The
-mana debt occurs when the spell is cast and equal to the cost of
-the summoning spell. The mana debt reduces the maximum mana of the
-player until the monster is dismissed or killed, at which point the
-mana debt is paid back, and the player maximum (but not current) mana
-is increased again. The blood debt is equal to 5 hp per player
-level of the summoned monster. The blood debt is incurred when the
-player dismisses a summons, or the summons is killed. The blood debt
-is taken as damage at this point. A player cannot dismiss a monster
-if they cannot pay the blood debt (e.g. would be killed by the
-blood debt damage).
-
-In addition, summons have loyalty, which is increased by the player
-taking damage from enemies and damaging the enemies, and by healing
-the summons, if the summons is good, or by damaging the summons, if
-the summons is evil. If the summons loyalty drops to zero, the summons
-will turn on the caster. Note that it is still possible to still
-dismiss the summons, if the caster can incur the blood debt, even if
-the summons has turned. Note that also evil summons will always turn
-on the caster if the caster hit points drop below the blood debt
-incurred by the monster.
-
-Summons also have a summons channel, which allows the caster to
-target the summons with any spell, regardless of line of sight or not.
-Casting teleport through the summons channel will instead recall the
-monster out to the range of the teleport to adjacent to the caster's
-position.
-
-Summoned monsters have a telepathic link with the caster. This allows
-the caster to see through the summons to remote areas.
-
-The 'O'rder menu for summons is as follows:
-
-(1) Set target
-(2) Set target to self (rally)
-(3) Clear target
-(4) Set minimum distance
-(5) Set maximum distance
-(6) Target with spell  -- this acts as a modified cast spell command.
-(7) See through summons
-
-(D) Dismiss summons
-
-Need to look at other commands that variants allow.
-
 TODO: Have conversations with monsters.
 
 Conversations depend on the monster status:
@@ -368,13 +291,6 @@ all stats, or minimise all stats.
 TODO:Implement alchemy/manufacturing items.
 	This is low priority at this stage. Perhaps do essences
 as per Sangband, or ingredients based system?
-
-TODO:Implement line of sight damage intensification spells.
-eg Fire Dance, Wild Waters, Sea's Rage and so on.
-These spells affect terrain with the same flavour attack and
-result in an extra dynamic action.  Eg Fire Dance causes
-all locations in line of sight that cause FIRE damage to burn
-again immediately.
 
 TODO:Implement all magic spells so that they are level dependent.
 
@@ -483,8 +399,6 @@ Then, the player is given a quest by the applicable store owner for the addition
 the item. *Important*: Because the player has already 'qualified' for the item by
 having the RNG generate it, we should make the quests suitable for the player level, not
 the object level. Unless we are feeling evil.
-
-TODO: Player buffs defined in a text file as opposed to code.
 
 TODO: Walk on terrain flags. We horribly hack these and allow the RES_ flags on boots to 
 automatically protect against certain terrain types:
@@ -1031,9 +945,6 @@ jump off at any time, or 'order' the monster around. May have easy_rider option 
 movement keys to order the monster around. We deliberately make ridden monsters hard to
 control by the player, and not correspond to the player speed.
 
-TODO: Allow small monsters to stack on each other.
-
-
 TODO: Have a primitive economy.
 
 Store purse size increases by the profit they make from sales, and reduces by the cost they make
@@ -1139,56 +1050,6 @@ TV_ESSENCE, SV_ESSENCE_attack effect (e.g. GF_ ).
 Essences can be used to add flags to item.
 
 
-TODO: Add weird terrain types.
- 
-Chaos/ Nexus / Nether/Gravity terrain – hits to feature: Chaos/Nexus
-/Gravity/ Nether terrain, then adjacent to chaos feature… timed to expand…
-
-Gravity terrain only expands if hurt_huge…
-
-TODO: Strike finds nearby vulnerable terrain preferably…
-
-TODO: Level up flags which add an additional prefix
-to the monster type.
-
-Each prefix increases power by 5 levels?
-
-LEVEL_SIZE
-large
-very large
-giant   --> add giant flag
-huge	--> add huge flag
-gargantuan  --> add huge flag
-
-LEVEL_SPEED
-fast
-very fast
-dangerous
-furious
-deadly
-
-LEVEL_POWER
-skilled
-very skilled
-experienced
-veteran
-master
-grand master
-
-Size increases blow strength, hit points greatly, armour class moderately, power moderately.
-
-Speed increase speed, armour class greatly, hit points, mana moderately. No increase to
-power (hits faster, not harder).
-
-Power increases power, hit points, blows, speed, mana, frequency of attacks.
-
-LEVEL_SIZE for golems, elementals, animated undead.
-LEVEL_SPEED for animated objects, animated undead.
-LEVEL_POWER for classes.
-
-For creatures with multiple flags, choose one based on the monster index.
-
-This is primarily to keep animate type summons interesting.
 
 Suggested by Eddie Grove:
 
@@ -1287,34 +1148,8 @@ use items as opposed to indirectly doing this via a macro, as then the
 gambit system can intelligently determine if they have the item in
 question before attempting the gambit.
 
-
-TODO: Improve balance of mage spells.
-
-I may have gone overboard on the availability of mage spells in
-Unangband. Mages now don't have any real problems with creatures with
-elemental resistances; because they are able to learn spells 'across
-the board' that allow them to pick the resistance whole and exploit
-it.
-
-My intention was to make some kind of trade off between knowing lots
-of spells, but weaker elemental spells, and knowing the best spell in
-a particular element at a particular level. I'm aware mages can
-specialise in a particular spell book; but this still doesn't give the
-desired effect.
-
-My initial attempt was to implement spell pre-requisites, which forces
-the mage to learn 'basic' spells of a particular type, before learning
-more powerful ones. I like this enough to keep it; however its not
-sufficiently tough to force a mage to learn a particular spell set.
-
-My thoughts are leaning towards one of the following:
-
-
-
-TODO: Have groups of spells, that if the player learns one, the
-remainder in the group become harder to learn. I'm thinking 4-6 levels
-harder. Its hard to 'justify' within the game environment however, and
-is quite transparently a balancing issue.
+Alternately, we could just come up with a better way of managing spells
+which have a duration.
 
 TODO: Implement Sangband-like weather system for magic. Hot / cold
 temperature, still / windy conditions and wet / dry humidity help and
@@ -1326,50 +1161,6 @@ player and monsters. This means in fiery locations and around fiery
 monsters, fire spells do more damage. Of course, said monsters tend to
 be immune to fire... however the cold magic they tend to be vulnerable
 to does less damage in hot conditions.
-
-TODO: Split the mage spellbooks up more, forcing the player to specialise.
-At the moment, all types of elemental magic is available in the basic
-spell books. I'd do something along the lines of Sangband, without
-forcing separate classes. I've outlined below tentatively how I'd
-break up the attack spells into separate basic books (plus a couple of
-the higher level books where I've also gone overboard). Of course,
-this doesn't prevent the player from just carrying four books with the
-4 elements in. Again, maybe I should change this to be e.g. 'Fire
-Magic I, Fire Magic II, Fire Magic III'.
-
-1st mage books (Was just cantrips)
-Cantrips - detect monsters, magic missile, torch, stinking cloud, wizard spells
-Hedges  - detect life, lightning spark, acid splash, druid spells
-Tricks  - detect evil, magic missile, chill, stinking cloud, darkness,
-necromancer spells
-Gambits - detect minds, sting, fire blast, illusionist spells
-
-2nd mage books (Was just conjuration)
-Conjuration - lightning bolt, frost bolt,
-Prestidigitation - minor fire ball, minor acid ball
-Summoning - poison missile, darkness bolt
-
-3rd mage book: (Was just incantations)
-Incantations - fire bolt, acid bolt
-Invectures - freeze, minor frost ball
-Illusions - spider's web, gust of wind
-Invocations - lightning bolt ii, frost bolt ii
-
-4th mage book: (Was just sorcery)
-Sorcery - frost ball, fire ball
-Magery - chain lightning, cone of cold
-Wizardry - fire beam, melting ray
-
-7th mage book: (Was just Power)
-Power - bedlam, rend soul, chaos strike, mana storm, nexus burst
-Balance - fire storm, fire ball ii, arc of fire, acid ball ii
-Space - cold snap, chain lightning, ball lightning, ball lightning ii, artic ray
-
-9th mage book: (Was just Destruction)
-Destruction - shockwave, cloud kill, acid ball, ice storm, meteor swarm, rift
-Immolation - immolation, fire ball iii, arc of hellfire, acid ball iii
-Annihilation - death fog, dragon's bane, fimbulwinter, chain lightning
-iii, ball lightning iii
 
 [1]  From memory still benefits poison, windy benefits lightning, wet
 benefits water, and dry benefits acid. I could be wrong though.

@@ -802,7 +802,7 @@ static errr init_d_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	d_head.emit_info_txt_always = emit_d_info_always;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1065,7 +1065,7 @@ static errr init_e_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	e_head.emit_info_txt_index = emit_e_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1099,7 +1099,7 @@ static errr init_x_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	x_head.emit_info_txt_index = emit_x_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1171,7 +1171,7 @@ static errr init_v_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	v_head.emit_info_txt_index = emit_v_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1205,7 +1205,7 @@ static errr init_p_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	p_head.emit_info_txt_index = emit_p_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1239,7 +1239,7 @@ static errr init_c_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	c_head.emit_info_txt_index = emit_c_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 #endif /* ALLOW_TEMPLATES */
@@ -1298,7 +1298,7 @@ static errr init_s_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	s_head.emit_info_txt_index = emit_s_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1388,7 +1388,7 @@ static errr init_t_info(void)
 
 #ifdef ALLOW_TEMPLATES_OUTPUT
 
-	/* Save a pointer to the evaluate power function*/
+	/* Save a pointer to the emission function*/
 	t_head.emit_info_txt_index = emit_t_info_index;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
@@ -1419,6 +1419,12 @@ static errr init_u_info(void)
 
 	/* Save a pointer to the parsing function */
 	u_head.parse_info_txt = parse_u_info;
+	
+#ifdef ALLOW_TEMPLATES_OUTPUT
+
+	/* Save a pointer to the emission function*/
+	u_head.emit_info_txt_index = emit_u_info_index;
+#endif /* ALLOW_TEMPLATES_OUTPUT */
 
 #endif /* ALLOW_TEMPLATES */
 

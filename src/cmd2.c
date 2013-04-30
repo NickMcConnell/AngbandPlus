@@ -78,7 +78,6 @@ bool do_cmd_test(int y, int x, int action)
 		default: break;
 	}
 
-
 	if (action < FS_FLAGS2)
 	{
 		flag = bitzero << (action - FS_FLAGS1);
@@ -107,6 +106,15 @@ bool do_cmd_test(int y, int x, int action)
 		 msg_format("You see nothing %s%s.",here,act);
 		 return (FALSE);
 		}
+	}
+
+	/* Player is sneaking */
+	if (p_ptr->sneaking)
+	{
+		/* If the player is trying to be stealthy, they lose the benefit of this for
+		 * the following turn.
+		 */
+		p_ptr->not_sneaking = TRUE;
 	}
 
 	return (TRUE);
@@ -528,6 +536,8 @@ static void do_cmd_travel(void)
 			if (get_list(print_routes, routes, num, "Routes", "Travel to where", ", L=locations, M=map", 1, 22, route_commands, &selection))
 			{
 				int found = 0;
+				
+				bool risk_stat_loss = FALSE;
 
 				if (!t_info[selection].visited)
 				{
@@ -613,15 +623,17 @@ static void do_cmd_travel(void)
 					if (!get_check("Are you sure you want to travel? "))
 						/* Bail out */
 						return;
+					
+					risk_stat_loss = TRUE;
 				}
 
 				/* Longer and more random journeys via map */
-				journey = damroll(3 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
+				journey = damroll(2 + (risk_stat_loss ? 1 : 0) + (level_flag & LF1_DAYLIGHT ? 1 : 0), 4);
 
 				/* Shorter and more predictable distance if nearby */
 				for (i = 0; i < MAX_NEARBY; i++)
 				{
-					if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(2 + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
+					if (t_info[p_ptr->dungeon].nearby[i] == selection) journey = damroll(1 + (risk_stat_loss ? 1 : 0) + (level_flag & LF1_DAYLIGHT ? 1 : 0), 3);
 				}
 
 				if (journey < 4)
@@ -643,10 +655,24 @@ static void do_cmd_travel(void)
 				}
 
 				/* Hack -- Get hungry/tired/sore */
-				set_food(p_ptr->food-(PY_FOOD_FULL/10*journey));
+				set_food(p_ptr->food - PY_FOOD_FULL/10*journey);
 
 				/* Hack -- Time passes (at 4* food use rate) */
 				turn += PY_FOOD_FULL/10*journey*4;
+				
+				/*
+				 * Hack -- To prevent a player starving to death a few steps after arriving from travelling,
+				 * we reduce a stat and leave them only very hungry if they would end up weak.
+				 * This also prevents the player from infinitely travelling.
+				 */
+				while (p_ptr->food < PY_FOOD_WEAK + PY_FOOD_STARVE)
+				{
+					/* Decrease random stat */
+					if (risk_stat_loss) do_dec_stat(rand_int(A_MAX));
+					
+					/* Feed the player */
+					set_food(p_ptr->food + PY_FOOD_FAINT);
+				}
 
 				/* XXX Recharges, stop temporary speed etc. */
 				/* We don't do this to e.g. allow the player to buff themselves before fighting Beorn. */
@@ -916,13 +942,17 @@ void do_cmd_go_down(void)
 
 /*
  * Simple command to "search" for one turn
+ * Now also allows you to steal from monsters
  */
-void do_cmd_search(void)
+void do_cmd_search_or_steal(void)
 {
-
 	/* Get the feature */
 	feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
 
+	int d, y, x;
+	
+	u16b valid_dir = 0;
+	
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -936,18 +966,57 @@ void do_cmd_search(void)
 		p_ptr->command_arg = 0;
 	}
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
-	/* Catch breath */
-	if (!(f_ptr->flags2 & (FF2_FILLED)))
+	/* Check around the character */
+	for (d = 0; d < 8; d++)
 	{
-		/* Rest the player */
-		set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+		/* Extract adjacent (legal) location */
+		y = p_ptr->py + ddy_ddd[d];
+		x = p_ptr->px + ddx_ddd[d];
+
+		/* Must have monster */
+		if (cave_m_idx[y][x] <= 0) continue;
+
+		/* Must be able to see monster */
+		if (!m_list[cave_m_idx[y][x]].ml) continue;
+		
+		/* Valid direction for a monster */
+		valid_dir |= (1 << ddd[d]);
+	}
+	
+	/* We have a monster to steal from */
+	if (valid_dir)
+	{	
+		/* Get a direction (or abort) */
+		if ((get_rep_dir(&d)) && ((valid_dir & (1 << d)) != 0))
+		{
+			/* Extract adjacent (legal) location */
+			y = p_ptr->py + ddy[d];
+			x = p_ptr->px + ddx[d];
+
+			/* Set player target */
+			p_ptr->target_who = cave_m_idx[y][x];
+			
+			/* Steal stuff */
+			do_cmd_item(COMMAND_ITEM_STEAL);
+		}
 	}
 
-	/* Search */
-	search();
+	/* We want to search instead. Allow aborted steals to search instead. */
+	if ((!valid_dir) || ((p_ptr->energy_use == 0) && (get_check("Search instead? "))))
+	{
+		/* Catch breath */
+		if (!(f_ptr->flags2 & (FF2_FILLED)))
+		{
+			/* Rest the player */
+			set_rest(p_ptr->rest + PY_REST_RATE - p_ptr->tiring);
+		}
+	
+		/* Search */
+		search();
+		
+		/* Take a turn */
+		p_ptr->energy_use = 100;
+	}
 }
 
 
@@ -3410,6 +3479,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 
 	bool ammo_can_break = TRUE;
 	bool trick_failure = FALSE;
+	bool short_range = FALSE;
 	bool chasm = FALSE;
 	bool fumble = FALSE;
 	bool activate = FALSE;
@@ -3576,7 +3646,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 		int dir;
 
 		/* Fake get a direction */
-		if (!get_aim_dir(&dir, tdis, 0, (PROJECT_BEAM), 0, 0)) return;
+		if (!get_aim_dir(&dir, TARGET_KILL, tdis, 0, (PROJECT_BEAM), 0, 0)) return;
 
 		fumble = TRUE;
 	}
@@ -3613,7 +3683,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 				/* Reset the chosen direction */
 				p_ptr->command_dir = 0;
 
-				if (!get_aim_dir(&dir, tdis, 0, (PROJECT_BEAM), 0, 0))
+				if (!get_aim_dir(&dir, TARGET_KILL, tdis, 0, (PROJECT_BEAM), 0, 0))
 				{
 					/* Canceled */
 					if (tricks > 0)
@@ -3663,7 +3733,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 
 		/* Hack -- Handle stuff */
 		handle_stuff();
-
+		
 		/* Save the source of the shot/throw */
 		old_y = y;
 		old_x = x;
@@ -3679,9 +3749,9 @@ void player_fire_or_throw_selected(int item, bool fire)
 			/* Otherwise not breaking by default */
 			ammo_can_break = FALSE;
 		}
-
-		/* Throwing/firing an item at the character's feet */
-		if (!path_n) activate = TRUE;
+		
+		/* Throwing/firing an item at the character's feet activates it always */
+		if (path_n < 1) activate = TRUE;
 
 		/* Project along the path */
 		for (i = 0; i < path_n; ++i)
@@ -3699,10 +3769,21 @@ void player_fire_or_throw_selected(int item, bool fire)
 
 				break;
 			}
-
+			
 			/* Advance */
 			x = nx;
 			y = ny;
+
+			/* Hack -- Stop if we are throwing at short range */
+			if (!fire && target_okay() && (x == p_ptr->target_col) && (y == p_ptr->target_row) && (i < tdis / 2))
+			{
+				short_range = TRUE;
+				
+				/* Activate if we are at point blank range */
+				if (i < 1) activate = TRUE;
+				
+				break;
+			}
 
 			/* Handle rope over chasm */
 			if (k_ptr)
@@ -3798,6 +3879,9 @@ void player_fire_or_throw_selected(int item, bool fire)
 
 				/* If the weapon returns, ignore monsters */
 				if (tdis == 256) continue;
+				
+				/* Not short range if hitting a monster */
+				short_range = FALSE;
 
 				/* Badly balanced weapons do minimum damage
 			 	Various junk (non-weapons) do not use damage for anything else
@@ -4037,12 +4121,12 @@ void player_fire_or_throw_selected(int item, bool fire)
 							m_ptr->mflag |= (MFLAG_AGGR);
 
 							/* Let allies know */
-							tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_AGGR,
+							tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN),
 									"& has attacked me!");
 						}
 						else if (fear)
 						{
-							tell_allies_mflag(m_ptr->fy, m_ptr->fx, MFLAG_ACTV,
+							tell_allies_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN),
 									"& has hurt me badly!");
 						}
 
@@ -4222,7 +4306,7 @@ void player_fire_or_throw_selected(int item, bool fire)
 			if (k < 0) k = 0;
 
 			/* Damage */
-			project_p(fire ? SOURCE_PLAYER_SHOT : SOURCE_PLAYER_THROW, i_ptr->k_idx, y, x, k, GF_HURT);
+			project_one(fire ? SOURCE_PLAYER_SHOT : SOURCE_PLAYER_THROW, i_ptr->k_idx, y, x, k, GF_HURT, (PROJECT_PLAY | PROJECT_HIDE));
 
 			/* Apply additional effect from activation */
 			if (auto_activate(o_ptr))
@@ -4332,6 +4416,10 @@ void player_fire_or_throw_selected(int item, bool fire)
 		/* Forget information on dropped object --- FIXME: say why it is needed */
 		drop_may_flags(i_ptr);
 
+		/* At point blank or short range, don't break weapons which miss a monster, and put them exactly on the
+		 * target square. */
+		if (short_range) j = -2;
+
 		/* Drop (or break) near that location */
 		drop_near(i_ptr, j, y, x, FALSE);
 
@@ -4371,11 +4459,27 @@ bool item_tester_hook_throwable(const object_type *o_ptr)
 	/* Spell cannot be thrown */
 	if (o_ptr->tval == TV_SPELL) return (FALSE);
 
-	/* Cannot thrown any 'built-in' item type */
+	/* Cannot throw any 'built-in' item type */
 	if (o_ptr->ident & (IDENT_STORE)) return (FALSE);
 
 	/* Allowed */
 	return (TRUE);
+}
+
+
+/*
+ * Returns TRUE if an object is permitted to be slung
+ */
+bool item_tester_hook_slingable(const object_type *o_ptr)
+{
+	/* Known throwing items can be slung */
+	if (is_known_throwing_item(o_ptr)) return (TRUE);
+
+	/* Sling shots */
+	if (o_ptr->tval == TV_SHOT) return (TRUE);
+
+	/* Not allowed */
+	return (FALSE);
 }
 
 

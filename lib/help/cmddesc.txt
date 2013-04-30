@@ -53,6 +53,34 @@ Drop an item (d)
         determining if the space is occupied.  This command may take
         a quantity, and takes some energy.
 
+Offer an item (O)
+        This gives an item from your inventory to an allied monster
+        or allows you to buy, trade or sell items with townsfolk as
+        well as monsters in the dungeon.  Whether an unfriendly monster
+        is willing to trade with you depends on whether it is injured
+        or offended, whether it is smart enough to understand you and
+        whether you speak a common language. Monsters near death may
+        be more willing to consider terms of trade but only if you are
+        offering an item that may heal or otherwise immediately benefit
+        them.  This command may take a quantity, and takes some energy.
+
+Steal item or search (s)
+        This command can be used to steal items from monsters and to
+        locate hidden items, traps and secret doors in the spaces
+        adjacent to the player, if no monsters are adjacent to you.
+        Stealing is automatically successful against sleeping monsters
+        and uses your stealth skill against alert monsters, who will
+        be aggravated if they discover your theft attempt.
+        When searching, more than a single turn of searching will be
+        required in most cases.  You should always search a chest before
+        trying to open it, since they are generally trapped.  Searching
+        can also spot if water is deep, and identify many other hidden
+        terrain features.  This command can take a count, which is useful
+        if you are fairly sure of finding something eventually, since
+        the command stops as soon as anything is found or if the monster
+        detects your attempt to steal an item.  This command may take a
+        count, and takes some energy.
+
 Destroy an item (k) or Destroy an item (^D)
         This destroys an item in your inventory or on the dungeon floor.
         If the selected pile contains multiple objects, you may specify
@@ -173,19 +201,7 @@ Rest (R)
         may take an argument (used for the number of turns to rest), and
         takes some energy.
 
---- Searching Commands ---
-
-Search (s)
-        This command can be used to locate hidden traps and secret doors
-        in the spaces adjacent to the player.  More than a single turn of
-        searching will be required in most cases.  You should always
-        search a chest before trying to open it, since they are generally
-        trapped.  This command can take a count, which is useful if you
-        are fairly sure of finding something eventually, since the command
-        stops as soon as anything is found.  This command may take a count,
-        and takes some energy.
-        Searching can spot if water is deep, and identify many other hidden
-        terrain features.
+--- Modal Commands ---
 
 Toggle search mode (S) or Toggle search mode (#)
         This command will take you into and out of search mode.  When

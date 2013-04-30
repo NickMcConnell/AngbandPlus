@@ -4790,6 +4790,112 @@ void update_smell(void)
 
 
 
+/*
+ * Map all rooms and neighbourhood belonging to a particular
+ * monster's ecology membership. We also show some monsters
+ * which occur in that region.
+ */
+bool map_home(int m_idx)
+{
+	u32b ecology = 0L;
+	int i, y, x;
+
+	/* No ecology */
+	if (!cave_ecology.ready)
+	{
+		/* Show the whole level instead */
+		wiz_lite();
+		return (TRUE);
+	}
+
+	/* Get the flags */
+	for (i = 0; i < cave_ecology.num_races; i++)
+	{
+		/* This monster exists here */
+		if (cave_ecology.race[i] == m_idx)
+		{
+			/* Note ecologies */
+			ecology |= cave_ecology.race_ecologies[i];
+		}
+	}
+
+	/* Nothing? */
+	if (!ecology)
+	{
+		/* Not a native of these parts */
+		return (FALSE);
+	}
+
+	/* Scan that area */
+	for (y = 1; y < DUNGEON_HGT - 1; y++)
+	{
+		for (x = 1; x < DUNGEON_WID - 1; x++)
+		{
+			/* All non-walls are "checked" */
+			if (!(f_info[cave_feat[y][x]].flags1 & (FF1_WALL)))
+			{
+				/* Skip if not in the ecology */
+				if ((room_info[room_idx_ignore_valid(y, x)].ecology & (ecology)) == 0) continue;
+
+				/* Memorize normal features */
+				if (f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER))
+				{
+					/* Memorize the object */
+					play_info[y][x] |= (PLAY_MARK);
+				}
+
+				/* Memorize known walls */
+				for (i = 0; i < 8; i++)
+				{
+					int yy = y + ddy_ddd[i];
+					int xx = x + ddx_ddd[i];
+
+					/* Memorize walls (etc) */
+					if (f_info[cave_feat[yy][xx]].flags1 & (FF1_REMEMBER))
+					{
+						/* Memorize the walls */
+						play_info[yy][xx] |= (PLAY_MARK);
+					}
+				}
+
+				/* Get monster */
+				i = cave_m_idx[y][x];
+
+				/* Show monsters */
+				if (i <= 0) continue;
+
+				/* Reveal own kind */
+				if ((r_info[m_list[i].r_idx].d_char == r_info[m_list[m_idx].r_idx].d_char)
+
+					/* Reveal animals, insects, plants */
+					|| ((r_info[i].flags3 & (RF3_ANIMAL | RF3_INSECT | RF3_PLANT)) != 0))
+				{
+					/* Reveal half of monsters */
+					if (i % 2)
+					{
+						/* Optimize -- Repair flags */
+						repair_mflag_mark = repair_mflag_show = TRUE;
+
+						/* Hack -- Detect the monster */
+						m_list[i].mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+						/* Update the monster */
+						update_mon(i, FALSE);
+					}
+				}
+			}
+		}
+	}
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
+
+	return (TRUE);
+}
+
 
 /*
  * Map the current panel (plus some) ala "magic mapping"
@@ -4851,7 +4957,7 @@ void map_area(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 
@@ -6118,6 +6224,7 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 
 	/* Require projections to be strictly LOF when possible  XXX XXX */
 	bool require_strict_lof = FALSE;
+	bool really_require_strict_lof = TRUE;
 	bool allow_los = (flg & (PROJECT_LOS)) != 0;
 
 	/* Count of grids in LOF, storage of LOF grids */
@@ -6346,8 +6453,27 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 			if ((!require_strict_lof) || (play_info[y][x] & (PLAY_FIRE))
 				|| ((allow_los) && (play_info[y][x] & (PLAY_VIEW))))
 			{
+				/* Hack - only end on a LOF exception */
+				if (really_require_strict_lof)
+				{
+					grids--;
+					really_require_strict_lof = FALSE;
+				}
+				
 				/* Store grid value */
 				tmp_grids[grids++] = g;
+			}
+			/* Really require strict lof. We allow exceptions for a final
+			 * grid which blocks line of fire. */
+			else if ((require_strict_lof) && !(really_require_strict_lof)
+					&& !(cave_project_bold(y, x))
+							&& (!(allow_los) || !(cave_los_bold(y, x))))
+			{
+				/* Store grid value */
+				tmp_grids[grids++] = g;
+				
+				/* Great variable name */
+				really_require_strict_lof = TRUE;
 			}
 
 			/* Remember previous coordinates */
@@ -6453,8 +6579,12 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 			}
 		}
 
-		/* Pick the first grid if possible, the second if necessary */
-		if ((num == 1) || (blockage[0] <= blockage[1]))
+		/* Pick the first grid if possible, the second if necessary.
+		 * Hack -- try to pick the blocked path if we are require_strict_lof
+		 * and are at the end of the path. This helps ensure we end on a
+		 * blocked grid. */
+		if ((num == 1) || (blockage[0] <= blockage[1])
+			|| ((require_strict_lof) && (blockage[1] < 1) && (j >= grids - 2)))
 		{
 			/* Store the first grid, advance */
 			if (blockage[0] < 3) gp[step++] = tmp_grids[j];
@@ -6570,6 +6700,21 @@ int project_path(u16b *gp, int range, int y1, int x1, int *y2, int *x2, u32b flg
 		j += num;
 	}
 
+	/* Hack - if we are checking for require_strict_lof, it is possible
+	 * that the projection could stop without hitting a CAVE_XLOF square.
+	 * This might occur because a nearby grid created a projection shadow
+	 * without directly impinging on the projection path. */
+	if ((require_strict_lof) && !(monster_in_way) && !(full_stop)
+			&& ((p_ptr->py != GRID_Y(gp[step -1])) || (p_ptr->px != GRID_X(gp[step -1]))))
+	{
+		/* Final grid is projectable */
+		if (cave_project_bold(GRID_Y(gp[step -1]), GRID_X(gp[step -1])))
+		{
+			/* Just warn for the moment */
+			if (cheat_xtra) msg_print("Path does not end correctly.");
+		}
+	}
+	
 	/* Accept last grid as the new endpoint */
 	*y2 = GRID_Y(gp[step -1]);
 	*x2 = GRID_X(gp[step -1]);

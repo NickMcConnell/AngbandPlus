@@ -6486,8 +6486,11 @@ static void read_sound_config(void)
 
 		/* Look up the event name to get the event number */
 		for (event_number = SOUND_MAX - 1; event_number >= 0; event_number--)
-			if (!strcmp(buffer, angband_sound_name[event_number]))
+			if (!strcmp(buffer, angband_sound_name[event_number].name))
+			{
+				event_number = angband_sound_name[event_number].id;
 				break;
+			}
 
 		/* No match -> just ignore the line */
 		if (event_number < 0)

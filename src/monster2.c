@@ -1777,6 +1777,219 @@ void display_monlist(int row, unsigned int width, int mode, bool command, bool f
 
 
 /*
+ * Build a string describing a monster race in some way
+ * 
+ * We correctly handle masculine, feminine and pluralisation.
+ * Note the mode flags are designed for compatibility with
+ * monster_desc below, which is why there are duplicates.
+ * 
+ * Mode Flags:
+ *   0x01 --> Unused
+ *   0x02 --> Unused
+ *   0x04 --> Unused
+ *   0x08 --> Use indefinites for monsters ("a goblin" or "16 goblins")
+ *   0x10 --> Unused
+ *   0x20 --> Unused
+ *   0x40 --> Unused
+ *   0x80 --> Unused
+ *   0x100 --> Unused
+ *   0x200 --> Unused
+ *   0x400 --> Describe all possible monsters ("the goblin priest or goblin priestess")
+ *   0x800 --> Describe without an article ("goblins")
+ *
+ * Useful Modes:
+ *   0x88 --> Killing name ("a goblin")
+ *   0x400 --> Recall name ("goblin priest or goblin priestess")
+ */
+void race_desc(char *desc, size_t max, int r_idx, int mode, int number)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	cptr name = (r_name + r_ptr->name);
+
+	int state = 0;
+	
+	/* Assume male - primarily to prevent descration of female corpses */
+	int match = 1;
+	char *s, *t;
+
+	bool append_s = number != 1;
+
+	/* Extract pluralized if requested */
+	if (number != 1) match = 3;
+	
+	/* Hack -- we try to allow pluralisation of male and female genders */
+	if (mode & (0x400))
+	{
+		bool differs = FALSE;
+		
+		/* Check if male and female description identical */
+		for (t = s = desc; *s; s++)
+		{
+			if ((state == 2) && (*s != *t))
+			{
+				differs = TRUE;
+				break;
+			}
+			
+			if (state != 1) t++;
+			
+			if (*s == '|')
+			{
+				state++;
+				if (state == 4) state = 0;
+			}
+		}
+		
+		/* We have a difference */
+		if (differs)
+		{
+			/* Display "goblin priest or goblin priestess" */
+			match = 1;
+		}
+		else
+		{
+			/* Display "mice" */
+			mode &= ~(0x400);
+		}
+		
+		/* Restart state */
+		state = 0;
+	}
+
+	/* It could be a Unique */
+	if (r_ptr->flags1 & (RF1_UNIQUE))
+	{
+		/* Start with the name (thus nominative and objective) */
+		my_strcpy(desc, name, max);
+		
+		/* Only one possible unique */
+		mode &= ~(0x400);
+	}
+
+	/* It could be an indefinite monster */
+	else
+	{
+		/* XXX Check plurality for "some" */
+		if (mode & 0x100) my_strcpy(desc, "", max);
+
+		/* Indefinite monsters need an indefinite article */
+		else if (mode & 0x08) my_strcpy(desc, !number ? "no " : (number != 1 ? format("%d ", number) :
+			(is_a_vowel(name[0]) ? "an " : "a ")), max);
+
+		/* It could be a normal, definite, monster */
+		else if ((mode & 0x800) == 0) my_strcpy(desc, !number ? "no " : (number != 1 ? format("the %d ", number) : "the "), max);
+		
+		/* Clear string */
+		else my_strcpy(desc, "", max);
+		
+		/* Otherwise */
+		my_strcat(desc, name, max);
+	}
+
+	/* Remove gender sensitivity */
+	for (t = s = desc; *s; s++)
+	{
+		if (*s == '|')
+		{
+			state++;
+			if (state == 4) state = 0;
+			append_s = FALSE;
+		}
+		else if (!state || (state == match))
+		{
+			*t++ = *s;
+		}
+	}
+
+	/* Terminate buffer */
+	*t = '\0';
+
+	/* Pluralize */
+	if ((number != 1) && (((mode & (0x400)) != 0) || ((append_s) && ((mode & (0x100)) != 0))))
+	{
+		/* We're hacking pluralisation - check for final s */
+		if (mode & (0x400))
+		{
+			if ((desc[strlen(desc) - 1] == 's') || 
+				(desc[strlen(desc) - 1] == 'x') ||
+				((desc[strlen(desc) - 1] == 'h') &&
+					(desc[strlen(desc) - 2] == 'c')))
+			{					
+				/* Hack -- add an 'e' for final 's', 'x' or 'ch' */
+				my_strcat(desc, "e", max);
+			}
+		}
+		
+		/* Simply append "s" for plural */
+		my_strcat(desc, "s", max);
+	}
+	
+	/* Describe feminine as well if requested */
+	if (mode & 0x400)
+	{
+		/* Add 'and' */
+		if (number > 1)
+		{
+			my_strcat(desc, " and ", max);
+		}
+		/* Add 'or */
+		else
+		{
+			my_strcat(desc, " or ", max);
+		}
+		
+		/* Otherwise */
+		my_strcat(desc, name, max);
+		
+		/* Describe feminine */
+		state = 0;
+		match = 2;
+		append_s = TRUE;
+
+		/* Remove gender sensitivity */
+		for (t = s = desc; *s; s++)
+		{
+			if (*s == '|')
+			{
+				state++;
+				if (state == 4) state = 0;
+				append_s = FALSE;
+			}
+			else if (!state || (state == match))
+			{
+				*t++ = *s;
+			}
+		}
+
+		/* Terminate buffer */
+		*t = '\0';
+		
+		/* Pluralize */
+		if ((number != 1) && (((mode & (0x400)) != 0) || (append_s)))
+		{
+			/* We're hacking pluralisation - check for final s */
+			if (mode & (0x400))
+			{
+				if ((desc[strlen(desc) - 1] == 's') || 
+					(desc[strlen(desc) - 1] == 'x') ||
+					((desc[strlen(desc) - 1] == 'h') &&
+						(desc[strlen(desc) - 2] == 'c')))
+				{					
+					/* Hack -- add an 'e' for final 's', 'x' or 'ch' */
+					my_strcat(desc, "e", max);
+				}
+			}
+			
+			/* Simply append "s" for plural */
+			my_strcat(desc, "s", max);
+		}
+	}
+}
+
+
+
+/*
  * Build a string describing a monster in some way.
  *
  * We can correctly describe monsters based on their visibility.
@@ -2110,7 +2323,17 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		if (m_ptr->mflag & (MFLAG_ALLY))
 		{
 			/* Append special notation */
-			my_strcat(desc, " (allied)", max);
+			if (m_ptr->mflag & (MFLAG_TOWN)) my_strcat(desc, " (hired)", max);
+			else my_strcat(desc, " (allied)", max);
+		}
+
+		/* XXX Perhaps we should use a different attr/char */
+		else if (m_ptr->mflag & (MFLAG_TOWN))
+		{
+			/* Append special notation */
+			if (r_ptr->flags9 & (RF9_TOWNSFOLK)) /* Do nothing */;
+			else if (m_ptr->mflag & (MFLAG_AGGR)) my_strcat(desc, " (offended)", max);
+			else my_strcat(desc, " (neutral)", max);
 		}
 
 		/* XXX Perhaps we should use a different attr/char */
@@ -2184,29 +2407,36 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 }
 
 
-
-
 /*
  * Learn about a monster (by "probing" it)
  */
-void lore_do_probe(int m_idx)
+void lore_do_probe(int r_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
-	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+	monster_race *r_ptr = &r_info[r_idx];
+	monster_lore *l_ptr = &l_list[r_idx];
 
+	char race_name[80];
 
 	/* Hack -- Memorize some flags */
 	l_ptr->flags1 = r_ptr->flags1;
 	l_ptr->flags2 = r_ptr->flags2;
 	l_ptr->flags3 = r_ptr->flags3;
+	/* Skip spells */
+	l_ptr->flags7 = r_ptr->flags7;
+	l_ptr->flags8 = r_ptr->flags8;
+	l_ptr->flags9 = r_ptr->flags9;
 
 	/* Update monster recall window */
-	if (p_ptr->monster_race_idx == m_ptr->r_idx)
+	if (p_ptr->monster_race_idx == r_idx)
 	{
 		/* Window stuff */
 		p_ptr->window |= (PW_MONSTER);
 	}
+
+	/* Describe the race */
+	race_desc(race_name, sizeof(race_name), r_idx, 0x400, 1);
+
+	msg_format("You learn information about %s.", race_name);
 }
 
 
@@ -3418,7 +3648,7 @@ int place_monster_here(int y, int x, int r_idx)
 		if (f_ptr->flags1 & (FF1_TRAP))
 		{
 			/* Unavoidable */
-			if (race_avoid_trap(r_idx, y, x))
+			if (race_avoid_trap(r_idx, y, x, cave_feat[y][x]))
 			{
 				resist = TRUE;
 			}
@@ -3452,7 +3682,7 @@ int place_monster_here(int y, int x, int r_idx)
 			/* Trapped regions */
 			if (re_ptr->flags1 & (RE1_HIT_TRAP))
 			{
-				if (race_avoid_trap(re_ptr->y0, re_ptr->y1, r_idx)) trap |= !mon_resist_feat(cave_feat[re_ptr->y0][re_ptr->x0], r_idx);
+				if (race_avoid_trap(r_idx, y, x, cave_feat[re_ptr->y0][re_ptr->y1])) trap |= !mon_resist_feat(cave_feat[re_ptr->y0][re_ptr->x0], r_idx);
 			}
 
 			/* Non-trapped regions */
@@ -4233,7 +4463,7 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 		return (FALSE);
 	}
 
-
+	
 	/* Powerful monster */
 	if (r_ptr->level > p_ptr->depth)
 	{
@@ -4342,13 +4572,29 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 			if (qe_ptr->flags & (EVENT_HATE_RACE)) n_ptr->mflag &= ~(MFLAG_ALLY | MFLAG_IGNORE);
 			if (qe_ptr->flags & (EVENT_FEAR_RACE)) n_ptr->monfear = 100;
 			if (qe_ptr->flags & (EVENT_HEAL_RACE)) n_ptr->mflag |= (MFLAG_STRONG | MFLAG_SMART | MFLAG_WISE | MFLAG_SKILLFUL | MFLAG_HEALTHY);
-			if (qe_ptr->flags & (EVENT_BANISH_RACE | EVENT_KILL_RACE)) return (FALSE);
+			if (qe_ptr->flags & (EVENT_BANISH_RACE)) return (FALSE);
+
+			/* TODO: Drop bodies around if race killed */
+			if (qe_ptr->flags & (EVENT_KILL_RACE)) return (FALSE);
 		}
 	}
 
 	/* Created allies do not carry treasure */
 	if (flg & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_MADE);
 
+	/* Good monsters - note that these do carry treasure */
+	if (((r_ptr->flags9 & (RF9_GOOD)) != 0) && ((adult_evil) == 0))
+	{
+		n_ptr->mflag |= (MFLAG_ALLY | MFLAG_IGNORE);
+	}
+	/* If in the dungeon, and not a town monster prevent summoning */
+	else if ((character_dungeon) && ((n_ptr->mflag & (MFLAG_TOWN)) == 0))
+	{
+		/* Monster must wait a while until summoning anything if summoned/wandering */
+		/* Now uses charisma */
+		n_ptr->summoned = 400 - 3 * adj_chr_gold[p_ptr->stat_ind[A_CHR]];
+	}
+	
 	/* Force monster to wait for player */
 	if (r_ptr->flags1 & (RF1_FORCE_SLEEP))
 	{
@@ -4384,9 +4630,6 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp, u32b flg)
 
 	/* And start out with full mana */
 	n_ptr->mana = r_ptr->mana;
-
-	/* Monster must wait a while until summoning anything if summoned/wandering */
-	if (character_dungeon) n_ptr->summoned = 100;
 
 	/* Calculate the monster_speed*/
 	n_ptr->mspeed = calc_monster_speed(cave_m_idx[y][x]);

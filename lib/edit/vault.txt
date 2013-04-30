@@ -2736,6 +2736,7 @@ D:    %^%
 D:    %^%  
 D:    %^%  
 D:    %%%  
+L:DUNGEON | MINE | LABYRINTH
 
 N:226:trapped corridor 2
 X:8:0:6:9:3:60
@@ -2745,6 +2746,7 @@ D:%^^^^^^^%
 D:%%%%%%%^%
 D:      %^%
 D:      %%%
+L:DUNGEON | MINE | LABYRINTH
 
 N:227:corridors and mysteries 1
 X:8:0:19:29:2:14
@@ -2766,7 +2768,7 @@ D:  %.%          %.%%%%%%%%%%%
 D:  %.%          %.%           
 D:  %%%          %.%           
 D:               %%%           
-D:         %%%                 
+L:DUNGEON | MINE | LABYRINTH
 
 N:228:corridors and mysteries 2
 X:8:0:21:30:15:27
@@ -2790,7 +2792,7 @@ D:      %.%    %%%  %%%%%%.%
 D:      %.%              %+%    
 D:      %.%              %1%    
 D:      %%%              %%%    
-D:    %%%%%                     
+L:DUNGEON | MINE | LABYRINTH
 
 N:229:serpentine room
 X:8:0:11:33:0:60
@@ -3269,6 +3271,7 @@ D:%..P..PP..P...%
 D:%....####.....%
 D:%::...##...:..%
 D:%:::.....:....%
+D:%%%%%%%%%%%%%%%
 
 N:259:little zoo
 X:8:5:11:25:10:35
