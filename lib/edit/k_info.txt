@@ -1,5 +1,6 @@
 # File: k_info.txt
 
+
 # This file is used to initialize the "lib/raw/k_info.raw" file, which is
 # used to initialize the "object kind" information for the Angband game.
 
@@ -8,61 +9,58 @@
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
 # Available slots (possibly out of date):
-#   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
+#   29, 29, 177, 178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
 # Add some "IGNORE_XXX" flags to Rings, Amulets, etc.  XXX XXX
 
-# Minor changes as made by Jonathan Ellis: 
+# === Understanding k_info.txt ===
 
-#   Rings of Speed are now level 70 items, and the "special" items with the 
-# INSTA_ART flag have had their level tweaked to match the a_info.txt file. 
+# N: serial number : & object name~
+# G: symbol : color
+# I: tval : sval : pval
+# W: depth : rarity (now always 0, see the "A:" line) : weight : cost
+# P: base armor class : base damage : plus to-hit : plus to-dam : plus to-ac
+# A: depth/rarity : depth/rarity : etc
+# F: flag | flag | etc
 
-#   Power Dragon Scale Mail is slightly more common, now it's up to only 
-# 1/2 as common as Multi-Hued DSM - which is still pretty rare. It has been 
-# restored to its former glory. It is still *EXTREMELY* unlikely that anybody 
-# will ever see it, I've only ever found even Multi-Hued DSM twice in seven
-# wins against various variants. And one PDSM that I never got to pick up...
-# But *no* object should be deeper than Morgoth, no matter how rare for its 
-# depth.
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item. The '&' and '~' symbols are use to
+# include articles and pluralization as necessary to ensure
+# grammatical correctness in object descriptions.
 
-#    Shining Dragon Scale Mail renamed Pseudo DSM.  
-#    Chaos and Balance DSM do *NOT* give confusion resistance separately from
-# chaos now that confusion and chaos resistance have been separated. Blades of 
-# Chaos likewise do not give confusion resistance.
+# 'G' is for graphics - symbol and color. There are 16 colors, as
+# follows:
 
-#   Amulets of the Magi now give bonuses and sustains to int and wis. They are
-# also much deeper and rarer... ***A NOTE TO CODERS*** If, when applying this 
-# patch, you can hack the source code to reduce the maximum pval of Amulets of 
-# the Magi to (+4) by whatever means, then please do so, and put Amulets of the 
-# Magi back to 50/8 level/rarity (the line to be altered is: "A:50/8".)
+# D - Black        w - White          s - Gray          o - Orange
+# r - Red          g - Green          b - Blue          u - Brown
+# d - Dark Gray    W - Light Gray     v - Violet        y - Yellow
+# R - Light Red    G - Light Green    B - Light Blue    U - Light Brown
 
-#   Rings and Amulets of [one stat] now sustain that stat. Plain rings of 
-# Sustain [Stat] come a little earlier, and thus might actually be *useful*
-# for once.
+# 'I' is for basic information. The tval is for the type of item, the
+# sval identifies the subtype and the pval indicates the amount of
+# effect the item has, if applicable. 
 
-#   *ID* scrolls just a *little* bit more common. (This change made for the 
-# benefit of random-artifact users, who will not be able to remember the 
-# properties of *ID*-ed artifacts from one game to the next.)
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
 
-#   Ring of Slow Digestion (redundant, considering the existence of the Amulet)
-# is replaced by a deeper and rarer Ring of Sustaining (sustain all stats.)
+# 'P' is for power information. The items base armor class, its base
+# damage and pluses to-hit, to-dam and to-ac.
 
-#   New item - Palantir (with INSTA_ART flag). Template for the new "Palantir
-# of Westernesse" artifact. Out of order in the file (I wasn't sure that I was
-# allowed an object number 512, and number 499 was taken, so I couldn't put it
-# with the other Special Artifacts. It's at number 424, but generates 
-# correctly in debug mode.)
+# 'A' is for allocation - depth and rarity, in pairs. This allows an
+# item to have multiple natural depths and rarities. It is used to
+# ensure that certain vital items such as food and identify scrolls
+# are found throughout the dungeon.
 
-#   Healing, *Healing* and Life potions each given *one* extra native depth:
-# they are a little more common deeper in the dungeon. So if your character runs 
-# out of healing potions against Sauron he won't have to spend *quite* so long
-# scumming for them to use against Morgoth. It's not like one will be 
-# overloaded with them, anyway.
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -192,7 +190,7 @@ P:0:10d10:0:0:0
 N:20:Cure Serious Wounds
 G:,:d
 I:80:16:500
-W:15:0:2:75
+W:15:0:1:75
 A:15/1
 
 ##### Normal Food #####
@@ -598,35 +596,35 @@ N:73:& Short Bow~
 G:}:U
 I:19:12:0
 W:3:0:30:50
-A:3/1
+A:3/1:50/1
 F:SHOW_MODS
 
 N:74:& Long Bow~
 G:}:U
 I:19:13:0
 W:10:0:40:120
-A:10/1
+A:10/1:70/1
 F:SHOW_MODS
 
 N:75:& Light Crossbow~
 G:}:s
 I:19:23:0
 W:15:0:110:140
-A:15/1
+A:15/1:60/1
 F:SHOW_MODS
 
 N:76:& Heavy Crossbow~
 G:}:s
 I:19:24:0
 W:30:0:200:300
-A:30/1
+A:30/1:80/1
 F:SHOW_MODS
 
 N:77:& Sling~
 G:}:u
 I:19:2:0
 W:1:0:5:5
-A:1/1
+A:1/1:40/1
 F:SHOW_MODS
 
 
@@ -636,7 +634,7 @@ N:78:& Arrow~
 G:{:U
 I:17:1:0
 W:3:0:2:1
-A:3/1:15/1
+A:3/1:15/1:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
@@ -644,7 +642,7 @@ N:79:& Seeker Arrow~
 G:{:G
 I:17:2:0
 W:55:0:2:20
-A:55/2
+A:55/2:80/1
 P:0:4d4:0:0:0
 F:SHOW_MODS
 
@@ -652,7 +650,7 @@ N:80:& Bolt~
 G:{:s
 I:18:1:0
 W:3:0:3:2
-A:3/1:25/1
+A:3/1:25/1:60/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
@@ -660,7 +658,7 @@ N:81:& Seeker Bolt~
 G:{:B
 I:18:2:0
 W:65:0:3:25
-A:65/4
+A:65/2:90/1
 P:0:4d5:0:0:0
 F:SHOW_MODS
 
@@ -668,7 +666,7 @@ N:82:& Rounded Pebble~
 G:{:s
 I:16:0:0
 W:0:0:4:1
-A:0/1
+A:0/1:10/1
 P:0:1d2:0:0:0
 F:SHOW_MODS
 
@@ -676,8 +674,8 @@ N:83:& Iron Shot~
 G:{:s
 I:16:1:0
 W:3:0:5:2
-A:3/1
-P:0:1d3:0:0:0
+A:3/1:40/1
+P:0:1d4:0:0:0
 F:SHOW_MODS
 
 
@@ -687,7 +685,7 @@ N:84:& Shovel~
 G:\:s
 I:20:1:1
 W:1:0:60:10
-A:5/16
+A:5/4
 P:0:1d2:0:0:0
 F:SHOW_MODS | TUNNEL
 
@@ -703,7 +701,7 @@ N:86:& Dwarven Shovel~
 G:\:B
 I:20:3:3
 W:40:0:120:200
-A:40/1
+A:40/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
@@ -711,14 +709,14 @@ N:87:& Pick~
 G:\:s
 I:20:4:1
 W:5:0:150:50
-A:10/16
+A:10/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
 
 N:88:& Orcish Pick~
 G:\:g
 I:20:5:2
-W:30:0:150:300
+W:30:0:180:300
 A:30/4
 P:0:1d3:0:0:0
 F:SHOW_MODS | TUNNEL
@@ -727,11 +725,17 @@ N:89:& Dwarven Pick~
 G:\:b
 I:20:6:3
 W:50:0:200:600
-A:50/1
+A:50/4
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-## XXX 90 XXX ##
+N:90:& Mattock~
+G:\:D
+I:20:7:3
+W:50:0:250:700
+A:50/4
+P:0:1d8:0:0:0
+F:SHOW_MODS | TUNNEL
 
 
 ##### Armor #####
@@ -1047,44 +1051,44 @@ P:5:1d3:0:0:0
 N:132:Strength
 G:=:d
 I:45:24:0
-W:30:0:2:1000
+W:30:0:2:500
 A:30/1
 F:STR | SUST_STR | HIDE_TYPE
 
 N:133:Dexterity
 G:=:d
 I:45:26:0
-W:30:0:2:1000
+W:30:0:2:500
 A:30/1
 F:DEX | SUST_DEX | HIDE_TYPE
 
 N:134:Constitution
 G:=:d
 I:45:27:0
-W:30:0:2:1000
+W:30:0:2:500
 A:30/1
 F:CON | SUST_CON | HIDE_TYPE
 
 N:135:Intelligence
 G:=:d
 I:45:25:0
-W:30:0:2:1000
+W:30:0:2:500
 A:30/1
 F:INT | SUST_INT | HIDE_TYPE
 
 N:136:Speed
 G:=:d
 I:45:31:0
-W:70:0:2:100000
-A:70/1
+W:75:0:2:100000
+A:75/1
 F:SPEED | HIDE_TYPE
 
 N:137:Searching
 G:=:d
 I:45:23:0
-W:20:0:2:500
-A:20/1
-F:SEARCH
+W:5:0:2:250
+A:5/1
+F:SEARCH | HIDE_TYPE
 
 N:138:Teleportation
 G:=:d
@@ -1097,7 +1101,7 @@ N:139:Sustaining
 G:=:d
 I:45:6:0
 W:50:0:2:20000
-A:50/16
+A:50/4
 F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | EASY_KNOW
 
 N:140:Resist Fire
@@ -1146,7 +1150,7 @@ N:146:Flames
 G:=:d
 I:45:18:0
 W:50:0:2:3000
-A:50/1
+A:50/2
 P:0:0d0:0:0:15
 F:RES_FIRE | IGNORE_FIRE
 
@@ -1154,7 +1158,7 @@ N:147:Acid
 G:=:d
 I:45:17:0
 W:50:0:2:3000
-A:50/1
+A:50/2
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID
 
@@ -1162,7 +1166,7 @@ N:148:Ice
 G:=:d
 I:45:19:0
 W:50:0:2:3000
-A:50/1
+A:50/2
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD
 
@@ -1266,22 +1270,22 @@ F:SHOW_MODS
 N:163:Wisdom
 G:":d
 I:40:6:0
-W:30:0:3:1000
+W:30:0:3:500
 A:30/1
 F:WIS | SUST_WIS | HIDE_TYPE
 
 N:164:Charisma
 G:":d
 I:40:7:0
-W:30:0:3:1000
+W:30:0:3:500
 A:30/1
 F:CHR | SUST_CHR | HIDE_TYPE
 
 N:165:Searching
 G:":d
 I:40:5:0
-W:30:0:3:600
-A:30/1
+W:20:0:3:600
+A:20/1
 F:SEARCH | HIDE_TYPE
 
 N:166:Teleportation
@@ -1317,9 +1321,10 @@ F:EASY_KNOW
 N:171:the Magi
 G:":d
 I:40:8:0
-W:50:0:3:50000
-A:70/16
-F:FREE_ACT | SEE_INVIS | SEARCH | INT | SUST_INT | WIS | SUST_WIS | 
+W:50:0:3:30000
+A:50/4
+P:0:0d0:0:0:3
+F:FREE_ACT | SEE_INVIS | SEARCH | SUST_INT | SUST_WIS | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:Doom
@@ -1359,8 +1364,8 @@ A:1/1:5/1:10/1:30/1
 N:177:*Identify*
 G:?:d
 I:70:13:0
-W:30:0:5:1000
-A:30/1:50/1:80/1
+W:25:0:5:1000
+A:25/1:40/1:70/1
 
 ## XXX 178 XXX ##
 
@@ -1422,7 +1427,7 @@ N:190:Rune of Protection
 G:?:d
 I:70:38:0
 W:60:0:5:500
-A:60/2:90/4
+A:60/4:90/1
 
 N:191:*Remove Curse*
 G:?:d
@@ -1474,7 +1479,7 @@ N:200:Mass Genocide
 G:?:d
 I:70:45:0
 W:50:0:5:1000
-A:50/4
+A:50/4:95/4
 
 N:201:Detect Invisible
 G:?:d
@@ -1512,7 +1517,7 @@ N:207:Genocide
 G:?:d
 I:70:44:0
 W:40:0:5:750
-A:40/4
+A:40/4:80/2
 
 N:208:Darkness
 G:?:d
@@ -1912,7 +1917,7 @@ N:266:Restore Mana
 G:!:d
 I:75:40:0
 W:25:0:4:350
-A:25/1
+A:25/1:70/1
 P:0:1d1:0:0:0
 
 N:267:Infra-vision
@@ -2311,7 +2316,7 @@ N:323:Genocide
 G:_:d
 I:55:27:0
 W:70:0:50:3500
-A:70/4
+A:70/2
 P:0:1d2:0:0:0
 
 N:324:Power
@@ -2922,8 +2927,8 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:406:Pseudo Dragon Scale Mail~
 G:[:o
 I:38:10:0
-W:70:0:200:70000
-A:70/16
+W:65:0:200:60000
+A:65/16
 P:30:2d4:-2:0:10
 F:RES_LITE | RES_DARK |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2940,8 +2945,8 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:408:Bronze Dragon Scale Mail~
 G:[:U
 I:38:14:0
-W:65:0:200:60000
-A:65/8
+W:55:0:200:30000
+A:55/8
 P:30:2d4:-2:0:10
 F:RES_CONFU |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2980,7 +2985,7 @@ W:110:0:200:300000
 A:100/64
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS |
-F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND
+F:RES_CONFU | RES_DISEN | RES_SOUND | RES_SHARD | RES_BLIND | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
@@ -3049,17 +3054,7 @@ P:0:1d1:0:0:0
 
 ## XXX 423 XXX ##
 
-## Item 424 - a new "special" artifact...!
-# The Palantir of Westernesse -- see artifact list:
-# this is the basic template, as with "a Phial", "a Star", etc.
-# See objects 500-511 for further details.
-N:424:& Palantir~
-G:~:y
-I:39:3:0
-W:75:60:200:100000
-P:0:10d10:0:0:0
-F:INSTA_ART
-
+## XXX 424 XXX ##
 
 ##### Items 425 to 439 unused #####
 
@@ -3182,7 +3177,7 @@ P:0:1d1:0:0:0
 F:INSTA_ART
 
 
-##### Objects 500 to 511 are the "Special Artifacts" #####
+##### Objects 500 to 512 are the "Special Artifacts" #####
 
 # These objects do not specify "full names" because the artifact name
 # is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
@@ -3231,10 +3226,9 @@ F:INSTA_ART
 N:502:& Arkenstone~
 G:~:y
 I:39:6:0
-W:50:0:5:60000
+W:50:0:5:50000
 P:0:1d1:0:0:0
 F:INSTA_ART
-
 
 # The Amulet of Carlammas -- see artifact list
 
@@ -3259,7 +3253,6 @@ G:":d
 I:40:12:0
 W:70:0:3:75000
 F:INSTA_ART
-
 
 # The Ring of Barahir -- see artifact list
 
@@ -3307,5 +3300,14 @@ N:511:& Ring~
 G:=:y
 I:45:37:0
 W:100:0:2:1000000
+F:INSTA_ART
+
+# The Palantir of Westernesse -- see artifact list
+
+N:512:& Palantir~
+G:~:y
+I:39:7:0
+W:75:0:200:100000
+P:0:10d10:0:0:0
 F:INSTA_ART
 
