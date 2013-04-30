@@ -100,6 +100,13 @@ Display room names
 
 === Display options ===
 
+***** <show_sidebar>
+Show attributes in sidebar     [show_sidebar]
+    Display name, race, class, title, statistics, hit points, mana and some
+    status information in the sidebar. Setting this to no increases the area
+    available on the screen to display the map, and moves this most of this
+    information to a more compact space at the bottom of the screen.
+
 ***** <show_flavors>
 Show flavors in object descriptions    [view_flavors]
     Display "flavors" (color or variety) in object graphics, even for

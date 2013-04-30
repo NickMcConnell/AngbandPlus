@@ -754,7 +754,7 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 			/* Hack -- Safe */
 			if (flags1 & (FF1_TRAP))
 			{
-				cave_info[y][x] |= (CAVE_SAFE);
+				play_info[y][x] |= (PLAY_SAFE);
 				if (view_safe_grids) lite_spot(y,x);
 
 				detect = TRUE;
@@ -773,7 +773,7 @@ bool detect_feat_flags(u32b flags1, u32b flags2)
 				}
 
 				/* Hack -- Memorize */
-				cave_info[y][x] |= (CAVE_MARK);
+				play_info[y][x] |= (PLAY_MARK);
 
 				/* Redraw */
 				lite_spot(y, x);
@@ -1070,6 +1070,12 @@ int value_check_aux3(const object_type *o_ptr)
 
 	/* Great "weapon" bonus */
 	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
+
+	/* Great "weapon" dice */
+	if ((variant_great_id) && (o_ptr->dd > k_info[o_ptr->k_idx].dd)) return (INSCRIP_GREAT);
+
+	/* Great "weapon" sides */
+	if ((variant_great_id) && (o_ptr->ds > k_info[o_ptr->k_idx].ds)) return (INSCRIP_GREAT);
 
 	/* Very good "armor" bonus */
 	if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
@@ -3443,8 +3449,11 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Lose room and vault */
 			cave_info[y][x] &= ~(CAVE_ROOM);
 
-			/* Lose light and knowledge */
-			cave_info[y][x] &= ~(CAVE_GLOW | CAVE_MARK);
+			/* Lose light */
+			cave_info[y][x] &= ~(CAVE_GLOW);
+
+			/* Lose knowledge */
+			play_info[y][x] &= ~(PLAY_MARK);
 
 			/* Hack -- Notice player affect */
 			if (cave_m_idx[y][x] < 0)
@@ -3639,8 +3648,11 @@ void earthquake(int cy, int cx, int r)
 			/* Lose room and vault */
 			cave_info[yy][xx] &= ~(CAVE_ROOM);
 
-			/* Lose light and knowledge */
-			cave_info[yy][xx] &= ~(CAVE_GLOW | CAVE_MARK);
+			/* Lose light */
+			cave_info[y][x] &= ~(CAVE_GLOW);
+
+			/* Lose light */
+			play_info[y][x] &= ~(PLAY_MARK);
 
 			/* Skip the epicenter */
 			if (!dx && !dy) continue;
@@ -3963,7 +3975,7 @@ static void cave_temp_room_lite(void)
 		int x = temp_x[i];
 
 		/* No longer in the array */
-		cave_info[y][x] &= ~(CAVE_TEMP);
+		play_info[y][x] &= ~(PLAY_TEMP);
 
 		/* Perma-Lite */
 		cave_info[y][x] |= (CAVE_GLOW);
@@ -4045,7 +4057,7 @@ static void cave_temp_room_unlite(void)
 		int x = temp_x[i];
 
 		/* No longer in the array */
-		cave_info[y][x] &= ~(CAVE_TEMP);
+		play_info[y][x] &= ~(PLAY_TEMP);
 
 		/* Darken the grid */
 		if (!(f_info[cave_feat[y][x]].flags2 & (FF2_GLOW)))
@@ -4076,7 +4088,7 @@ static void cave_temp_room_unlite(void)
 			!(f_info[cave_feat[y][x]].flags1 & (FF1_REMEMBER)))
 		{
 			/* Forget the grid */
-			cave_info[y][x] &= ~(CAVE_MARK);
+			play_info[y][x] &= ~(PLAY_MARK);
 		}
 	}
 
@@ -4109,7 +4121,7 @@ static void cave_temp_room_unlite(void)
 static void cave_temp_room_aux(int y, int x)
 {
 	/* Avoid infinite recursion */
-	if (cave_info[y][x] & (CAVE_TEMP)) return;
+	if (play_info[y][x] & (PLAY_TEMP)) return;
 
 	/* Do not "leave" the current room */
 	if (!(cave_info[y][x] & (CAVE_ROOM))) return;
@@ -4118,7 +4130,7 @@ static void cave_temp_room_aux(int y, int x)
 	if (temp_n == TEMP_MAX) return;
 
 	/* Mark the grid as "seen" */
-	cave_info[y][x] |= (CAVE_TEMP);
+	play_info[y][x] |= (PLAY_TEMP);
 
 	/* Add it to the "seen" set */
 	temp_y[temp_n] = y;

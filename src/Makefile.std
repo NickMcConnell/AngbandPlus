@@ -243,7 +243,7 @@ unangband: $(OBJS)
 #
 
 clean:
-	\rm *.o unangband
+	\rm -f *.o unangband
 
 
 #

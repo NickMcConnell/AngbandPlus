@@ -75,6 +75,8 @@ void do_cmd_eat_food(void)
 
 	int power;
 
+	bool use_feat = FALSE;
+
 	/* Restrict choices to food */
 	item_tester_tval = TV_FOOD;
 
@@ -83,18 +85,8 @@ void do_cmd_eat_food(void)
 	s = "You have nothing to eat.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
-
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -105,6 +97,8 @@ void do_cmd_eat_food(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Use feat */
+	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
 	/* Sound */
 	sound(MSG_EAT);
@@ -152,13 +146,8 @@ void do_cmd_eat_food(void)
 	/* Food can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
-	/* Destroy the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-	}
 	/* Destroy a food in the pack */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -171,6 +160,7 @@ void do_cmd_eat_food(void)
 		floor_item_increase(0 - item, -1);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 }
 
@@ -191,6 +181,8 @@ void do_cmd_quaff_potion(void)
 
 	cptr q, s;
 
+	bool use_feat = FALSE;
+
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
 
@@ -199,17 +191,8 @@ void do_cmd_quaff_potion(void)
 	s = "You have no potions to quaff.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -220,6 +203,7 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
 	/* Sound */
 	sound(MSG_QUAFF);
@@ -267,14 +251,8 @@ void do_cmd_quaff_potion(void)
 	/* Potions can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
 
-
-	/* Destroy a feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-	}
 	/* Destroy a potion in the pack */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -287,6 +265,7 @@ void do_cmd_quaff_potion(void)
 		floor_item_increase(0 - item, -1);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 }
 
@@ -307,6 +286,8 @@ void do_cmd_read_scroll(void)
 	object_type *o_ptr;
 
 	cptr q, s;
+
+	bool use_feat = FALSE;
 
 	/* Check some conditions */
 	if (p_ptr->blind)
@@ -334,17 +315,8 @@ void do_cmd_read_scroll(void)
 	s = "You have no scrolls to read.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -355,6 +327,8 @@ void do_cmd_read_scroll(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* Use feat */
+	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
 	/* Take a (partial) turn */
 	if ((variant_fast_floor) && (item < 0)) p_ptr->energy_use = 50;
@@ -394,20 +368,11 @@ void do_cmd_read_scroll(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (cancel) return;
 
-
-	/* Destroy the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-
-		return;
-	}
 	/* Destroy a scroll in the pack */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		inven_item_increase(item, -1);
 		inven_item_describe(item);
@@ -420,6 +385,7 @@ void do_cmd_read_scroll(void)
 		floor_item_increase(0 - item, -1);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 }
 
@@ -451,19 +417,10 @@ void do_cmd_use_staff(void)
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -592,19 +549,8 @@ void do_cmd_use_staff(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
-
 	/* Hack -- some uses are "free" */
 	if (cancel) return;
-
-	/* Destroy the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-
-		return;
-	}
-
-
 
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
@@ -727,19 +673,10 @@ void do_cmd_aim_wand(void)
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -871,14 +808,6 @@ void do_cmd_aim_wand(void)
 	/* Hack -- allow cancel */
 	if (cancel) return;
 
-	/* Destroy the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-
-		return;
-	}
-
 	/* XXX Hack -- new unstacking code */
 	o_ptr->stackc++;
 
@@ -1004,19 +933,10 @@ void do_cmd_zap_rod(void)
 	/* Get an item */
 	q = "Zap which rod? ";
 	s = "You have no rod to zap.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -1139,14 +1059,6 @@ void do_cmd_zap_rod(void)
 	{
 		/* Restore charge */
 		o_ptr->timeout = tmpval;
-
-		return;
-	}
-
-	/* Destroy the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 
 		return;
 	}
@@ -1515,13 +1427,15 @@ void do_cmd_apply_rune(void)
 
 	int rune;
 
+	bool use_feat = FALSE;
+
 	/* Restrict the choices */
 	item_tester_tval = TV_RUNESTONE;
 
 	/* Get an item */
 	q = "Apply which runestone? ";
 	s = "You have no runestones.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATU))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1534,6 +1448,9 @@ void do_cmd_apply_rune(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Use feat */
+	if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 
 	rune = o_ptr->sval;
 
@@ -1609,6 +1526,7 @@ void do_cmd_apply_rune(void)
 		floor_item_increase(0 - item, -1);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
 
 	/* Decrease the item (in the pack) */

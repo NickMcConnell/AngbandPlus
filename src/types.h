@@ -299,6 +299,7 @@ struct feature_type
 
 	s16b k_idx;    /* Object at this location */
 	s16b unseen;
+	s16b under;	/* Default feature under this feature */
 
 	byte spell;
 	byte power;

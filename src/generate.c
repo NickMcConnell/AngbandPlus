@@ -4560,7 +4560,8 @@ static void cave_gen(void)
 
 		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-		cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_XLOS);
+		cave_info[y][x] |= (CAVE_XLOF);
 	}
 
 	/* Special boundary walls -- Bottom */
@@ -4570,7 +4571,8 @@ static void cave_gen(void)
 
 		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-		cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_XLOS);
+		cave_info[y][x] |= (CAVE_XLOF);
 	}
 
 	/* Special boundary walls -- Left */
@@ -4580,7 +4582,8 @@ static void cave_gen(void)
 
 		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-		cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_XLOS);
+		cave_info[y][x] |= (CAVE_XLOF);
 	}
 
 	/* Special boundary walls -- Right */
@@ -4590,7 +4593,8 @@ static void cave_gen(void)
 
 		cave_feat[y][x] = FEAT_PERM_SOLID;
 
-		cave_info[y][x] |= (CAVE_WALL);
+		cave_info[y][x] |= (CAVE_XLOS);
+		cave_info[y][x] |= (CAVE_XLOF);
 	}
 
 
@@ -5189,6 +5193,9 @@ void generate_cave(void)
 			{
 				/* No flags */
 				cave_info[y][x] = 0;
+
+				/* No flags */
+				play_info[y][x] = 0;
 
 				/* No features */
 				cave_feat[y][x] = 0;

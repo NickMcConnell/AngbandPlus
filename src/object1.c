@@ -281,17 +281,6 @@ void flavor_init(void)
 	/* Hack -- Use the "complex" RNG */
 	Rand_quick = FALSE;
 
-	/* Analyze every object */
-	for (i = 1; i < z_info->k_max; i++)
-	{
-		object_kind *k_ptr = &k_info[i];
-
-		/* Skip "empty" objects */
-		if (!k_ptr->name) continue;
-
-		/* No flavor yields aware */
-		if (!k_ptr->flavor) k_ptr->aware = TRUE;
-	}
 }
 
 #ifdef ALLOW_BORG_GRAPHICS
@@ -2005,6 +1994,49 @@ sint scan_floor(int *items, int size, int y, int x, int mode)
 }
 
 
+/*
+ * Get a random object which is associated with the feature.
+ *
+ * Return the object index.
+ *
+ * If no object found, return -1.
+ *
+ */
+sint scan_feat(int y, int x)
+{
+	int this_o_idx, next_o_idx;
+
+	int num = 0;
+
+	int item = -1;
+
+	/* Sanity */
+	if (!in_bounds(y, x)) return (-1);
+
+	/* Scan all objects in the grid */
+	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Get the object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Get the next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Marked items only */
+		if (!(o_ptr->ident & (IDENT_STORE))) continue;
+
+		/* Enforce size limit */
+		if (rand_int(++num)) continue;
+
+		item = this_o_idx;
+	}
+
+	/* Result */
+	return (item);
+}
+
 
 /*
  * Choice window "shadow" of the "show_inven()" function
@@ -2832,7 +2864,6 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	int floor_list[MAX_FLOOR_STACK];
 	int floor_num;
 
-
 #ifdef ALLOW_REPEAT
 
 	/* Get the item index */
@@ -2929,7 +2960,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 		i_ptr = &object_type_body;
 
-		if (make_feat(i_ptr,cave_feat[p_ptr->py][p_ptr->px]) && item_tester_okay(i_ptr)) allow_feats = TRUE;
+		if ((make_feat(i_ptr,p_ptr->py,p_ptr->px)) && item_tester_okay(i_ptr)) allow_feats = TRUE;
 	}
 
 	/* Rescan the feature */
@@ -2940,7 +2971,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 		i_ptr = &object_type_body;
 
-		if (make_feat(i_ptr,cave_feat[p_ptr->py][p_ptr->px]) && item_tester_okay(i_ptr)) allow_feats = TRUE;
+		if ((make_feat(i_ptr,p_ptr->py,p_ptr->px)) && item_tester_okay(i_ptr)) allow_feats = TRUE;
 	}
 
 	/* Require at least one legal choice */
@@ -3470,17 +3501,22 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 					break;
 				}
 
-				/* Special index */
-				k = INVEN_TOTAL+1;
+				/* Hack -- pick previous feature - don't validate or allow */
+				k = scan_feat(p_ptr->py,p_ptr->px);
+
+				/* Paranoia */
+				if (k<0)
+				{
+					bell("Too many objects for feature!");
+					break;
+				}
 
 				/* Accept that choice */
-				(*cp) = k;
+				(*cp) = 0 - k;
 				item = TRUE;
 				done = TRUE;
 
 				break;
-
-
 
 			default:
 			{

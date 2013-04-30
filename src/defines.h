@@ -53,7 +53,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.4b"
+#define VERSION_STRING	"0.5.5"
 
 /*
  * Hack -- note use of new version name/string but old version
@@ -101,29 +101,30 @@
  * Number of grids in each panel (vertically)
  * Must be a multiple of BLOCK_HGT
  */
-#define PANEL_HGT	11
+#define PANEL_HGT	(use_trptile ? 3 : (use_dbltile ? 5 : 11))
 
 /*
  * Number of grids in each panel (horizontally)
  * Must be a multiple of BLOCK_WID
  */
-#define PANEL_WID	(use_bigtile ? 16 : 33)
+#define PANEL_WID ((use_trptile && use_bigtile) ?  5 : (use_trptile ? 11 : \
+		((use_dbltile && use_bigtile) ? 8 : ((use_dbltile || use_bigtile) ? 16 : 33))))
 
 #define ROW_MAP			1
-#define COL_MAP			13
-
+#define COL_MAP			(show_sidebar ? 13 : 0)
 
 /*
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	(Term->hgt - ROW_MAP - 1)
+#define SCREEN_HGT	((Term->hgt - ROW_MAP - 1 - (show_sidebar ? 0 : 1)) / (use_trptile ? 3 : (use_dbltile ? 2 : 1)))
 
 /*
  * Number of grids in each screen (horizontally)
  * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define SCREEN_WID	((Term->wid - COL_MAP - 1) / (use_bigtile ? 2 : 1))
+#define SCREEN_WID	((Term->wid - COL_MAP - 1) / ((use_trptile && use_bigtile) ?  6 : (use_trptile ? 3 : \
+			((use_dbltile && use_bigtile) ? 4 :((use_dbltile || use_bigtile) ? 2 : 1)))))
 
 
 /*
@@ -534,68 +535,68 @@
 #define ROW_TITLE		3
 #define COL_TITLE		0	/* <title> or <mode> */
 
-#define ROW_LEVEL		4
+#define ROW_LEVEL		(show_sidebar ? 4 : Term->hgt - 1)
 #define COL_LEVEL		0	/* "LEVEL xxxxxx" */
 
-#define ROW_EXP			5
-#define COL_EXP			0	/* "EXP xxxxxxxx" */
+#define ROW_EXP		(show_sidebar ? 5 : Term->hgt - 1)
+#define COL_EXP		(show_sidebar ? 0 : 7)	/* "EXP xxxxxxxx" */
 
-#define ROW_GOLD		6
-#define COL_GOLD		0	/* "AU xxxxxxxxx" */
+#define ROW_GOLD		(show_sidebar ? 6 : Term->hgt - 1)
+#define COL_GOLD		(show_sidebar ? 0 : 20)	/* "AU xxxxxxxxx" */
 
-#define ROW_STAT		8
+#define ROW_STAT		(show_sidebar ? 8 : Term->hgt - 2)
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_AC			15
-#define COL_AC			0	/* "Cur AC xxxxx" */
+#define ROW_AC		(show_sidebar ? 15 : Term->hgt - 1)
+#define COL_AC		(show_sidebar ? 0 : 33)	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		16
-#define COL_MAXHP		0	/* "Max HP xxxxx" */
+#define ROW_MAXHP		(show_sidebar ? 16 : Term->hgt - 1)
+#define COL_MAXHP		(show_sidebar ? 0 : 48)	/* "Max HP xxxxx" */
 
-#define ROW_CURHP		17
-#define COL_CURHP		0	/* "Cur HP xxxxx" */
+#define ROW_CURHP		(show_sidebar ? 17 : Term->hgt - 1)
+#define COL_CURHP		(show_sidebar ? 0 : 40)	/* "Cur HP xxxxx" */
 
-#define ROW_MAXSP		18
-#define COL_MAXSP		0	/* "Max SP xxxxx" */
+#define ROW_MAXSP		(show_sidebar ? 18 : Term->hgt - 1)
+#define COL_MAXSP		(show_sidebar ? 0 : 63)	/* "Max SP xxxxx" */
 
-#define ROW_CURSP		19
-#define COL_CURSP		0	/* "Cur SP xxxxx" */
+#define ROW_CURSP		(show_sidebar ? 19 : Term->hgt - 1)
+#define COL_CURSP		(show_sidebar ? 0 : 55)	/* "Cur SP xxxxx" */
 
 #define ROW_INFO		20
 #define COL_INFO		0	/* "xxxxxxxxxxxx" */
 
-#define ROW_CUT			21
-#define COL_CUT			0	/* <cut> */
+#define ROW_CUT		(show_sidebar ? 21 : Term->hgt -2)
+#define COL_CUT		(show_sidebar ? 0 : 18)	/* <cut> */
 
-#define ROW_STUN		22
-#define COL_STUN		0	/* <stun> */
+#define ROW_STUN		(show_sidebar ? 22 : Term->hgt -2)
+#define COL_STUN		(show_sidebar ? 0 : 22)	/* <stun> */
 
-#define ROW_HUNGRY		(Term->hgt - 1)
-#define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
+#define ROW_HUNGRY	(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_HUNGRY	(show_sidebar ? 0 : 26)	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND		(Term->hgt - 1)
-#define COL_BLIND		7	/* "Blind" */
+#define ROW_BLIND		(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_BLIND		(show_sidebar ? 7 : 30)	/* "Blind" */
 
-#define ROW_CONFUSED	(Term->hgt - 1)
-#define COL_CONFUSED	13	/* "Confused" */
+#define ROW_CONFUSED	(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_CONFUSED	(show_sidebar ? 13 : 34)	/* "Confused" */
 
-#define ROW_AFRAID		(Term->hgt - 1)
-#define COL_AFRAID		22	/* "Afraid" */
+#define ROW_AFRAID	(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_AFRAID	(show_sidebar ? 22 : 38)	/* "Afraid" */
 
-#define ROW_POISONED	(Term->hgt - 1)
-#define COL_POISONED	29	/* "Poisoned" */
+#define ROW_POISONED	(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_POISONED	(show_sidebar ? 29 : 42)	/* "Poisoned" */
 
-#define ROW_STATE		(Term->hgt - 1)
-#define COL_STATE		38	/* <state> */
+#define ROW_STATE		(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_STATE		(show_sidebar ? 38 : 67)	/* <state> */
 
-#define ROW_SPEED		(Term->hgt - 1)
-#define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
+#define ROW_SPEED		(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_SPEED		(show_sidebar ? 49 : 52)	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		(Term->hgt - 1)
-#define COL_STUDY		64	/* "Study" */
+#define ROW_STUDY		(show_sidebar ? Term->hgt - 1 : Term->hgt - 2)
+#define COL_STUDY		(show_sidebar ? 64 : 46)	/* "Study" */
 
-#define ROW_DEPTH		(Term->hgt - 1)
-#define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+#define ROW_DEPTH		Term->hgt - 1
+#define COL_DEPTH		(show_sidebar ? 70 : 72)	/* "Lev NNN" / "NNNN ft" */
 
 
 /*** General index values ***/
@@ -1093,7 +1094,7 @@
 #define FF3_DUST		0x00400000
 #define FF3_SLIME		0x00800000
 #define FF3_LIVING 		0x01000000
-#define FF3_XXX2        0x02000000
+#define FF3_FLAVOR        0x02000000
 #define FF3_INSTANT	0x04000000
 #define FF3_EXPLODE 	0x08000000
 #define FF3_TIMED       0x10000000
@@ -2327,14 +2328,36 @@
 /*
  * Special cave grid flags
  */
-#define CAVE_MARK		0x01 	/* memorized feature */
-#define CAVE_GLOW		0x02 	/* self-illuminating */
-#define CAVE_SAFE		0x04 	/* part of a vault */
-#define CAVE_ROOM		0x08 	/* part of a room */
-#define CAVE_SEEN		0x10 	/* seen flag */
-#define CAVE_VIEW		0x20 	/* view flag */
-#define CAVE_TEMP		0x40 	/* temp flag */
-#define CAVE_WALL		0x80 	/* wall flag */
+#define CAVE_GLOW		0x01	/* self-illuminating */
+#define CAVE_ROOM		0x02	/* part of a room */
+#define CAVE_DLIT		0x04	/* lit by daylight during daytime */
+#define CAVE_LITE		0x08	/* lit by "something" */
+#define CAVE_MLIT		0x10	/* lit by a monster (or player in multi-player versions) */
+#define CAVE_XLIT		0x20	/* lit by a magical effect */
+#define CAVE_XLOF		0x40	/* blocks line of fire */
+#define CAVE_XLOS		0x80	/* blocks line of sight */
+
+/*
+ * Special player grid flags
+ */
+#define PLAY_MARK		0x01 	/* memorized feature */ 
+#define PLAY_SAFE		0x02 	/* detected as safe */
+#define PLAY_TMP2		0x04 	/* temp2 flag */
+#define PLAY_LITE		0x08 	/* lit by the player */
+#define PLAY_SEEN		0x10 	/* seen flag */
+#define PLAY_TEMP		0x20 	/* temp flag */
+#define PLAY_VIEW		0x40 	/* view flag */
+#define PLAY_FIRE		0x80 	/* fire flag */
+
+
+/* We always set CAVE_LITE when a location is actually lit: CAVE_DLIT means a location is potentially liteable, and
+ * CAVE_XLIT means that a spell effect graphic is displayed - despite the name this does not necessarily lit the
+ * location. Any time anything unsets the CAVE_LITE location, all grids within radius 2 must be checked for either
+ * a glowing feature, or a monster carrying a light, and all players must be checked to see if the play_lite flag is set.
+ * Additionally it must be checked if it is daytime, if the dlit flag is set. This allows whole rooms to be lit during
+ * daytime, or just parts of rooms... during night only actual outdoor locations are lit (or nothing during new moon). */
+
+
 
 /*** Room flags ***/
 
@@ -2342,16 +2365,38 @@
 /*
  * Special room flags
  */
-#define ROOM_SEEN 0x01    /* room has been seen */
-#define ROOM_ICKY 0x02    /* room is anti-teleport */
-#define ROOM_BLOODY      0x04    /* room causes wounds/poison to become worse */
-#define ROOM_CURSED      0x08    /* room causes monsters to hit more frequently */
-#define ROOM_GLOOMY		0x10	/* room is never wholely lit by light */
-#define ROOM_PORTAL		0x20	/* room teleports you randomly */
-#define ROOM_SILENT		0x40	/* room is magically silent, stopping spells/songs */
-#define ROOM_STATIC      0x80    /* room causes rods/staffs/wands to fail */
-
-
+#define ROOM_SEEN 	0x00000001L    /* room has been seen */
+#define ROOM_HEARD	0x00000002L	   /* room has been heard */
+#define ROOM_ENTER	0x00000004L	   /* room has been entered */
+#define ROOM_QUEST	0x00000008L	   /* room is a quest */
+#define ROOM_LITE		0x00000010L	   /* room is lit */
+#define ROOM_DARK		0x00000020L	   /* room is dark */
+#define ROOM_SURFACE	0x00000040L	   /* room is on surface */
+#define ROOM_BOTTOM	0x00000080L	   /* room is bottom of dungeon */
+#define ROOM_DAYLITE	0x00000100L	   /* room is lit during daytime */ 
+#define ROOM_ICKY 	0x00000200L    /* room cannot be teleport target */
+#define ROOM_BLOODY	0x00000400L    /* room causes wounds/poison to become worse */
+#define ROOM_CURSED	0x00000800L    /* room causes items to not provide bonuses (except artifacts) */
+#define ROOM_GLOOMY	0x00001000L	/* room is never wholely lit by light */
+#define ROOM_PORTAL	0x00002000L	/* room teleports you randomly */
+#define ROOM_SILENT	0x00004000L	/* room is magically silent, stopping spells/songs */
+#define ROOM_STATIC	0x00008000L    /* room causes rods/staffs/wands to fail */
+#define ROOM_STATIS	0x00010000L	   /* room causes monsters to be in statis */
+#define ROOM_SEALED	0x00020000L    /* room causes features to be unalterable */
+#define ROOM_HIDDEN	0x00040000L	   /* room cannot be detected */
+#define ROOM_ANCHOR	0x00080000L	   /* room is anti-teleportation */
+#define ROOM_ECHOES	0x00100000L	   /* room is anti-stealth */
+#define ROOM_STENCH	0x00200000L	   /* room prevents monsters flow by smell */
+#define ROOM_NOISY	0x00400000L	   /* room prevents monsters flow by sound */
+#define ROOM_WINDY	0x00800000L	   /* room prevents missiles/thrown items */
+#define ROOM_GRAVE	0x01000000L	   /* room brings monsters back to life */
+#define ROOM_STORE	0x02000000L	   /* room prevents objects being taken */
+#define ROOM_DISPEL	0x04000000L	   /* room dispels enchantments */
+#define ROOM_RANDOM	0x08000000L	   /* room activates randomly for effect */
+#define ROOM_PUZZLE	0x10000000L	   /* room requires features contained destroyed */
+#define ROOM_LAIR		0x20000000L	   /* room requires monsters contained destroyed */
+#define ROOM_OBJECT	0x40000000L	   /* room requires objects contained destroyed */
+#define ROOM_TRAP		0x80000000L	   /* whole room is a trap */
 
 /*** Object flags ***/
 
@@ -2858,10 +2903,10 @@
 #define RF5_BO_POIS			0x00100000	/* Poison Bolt (unused) */
 #define RF5_BO_NETH			0x00200000	/* Nether Bolt */
 #define RF5_BO_WATE			0x00400000	/* Water Bolt */
-#define RF5_BO_MANA			0x00800000	/* Magic Missile */
+#define RF5_BO_MANA			0x00800000	/* Mana Bolt */
 #define RF5_BO_PLAS			0x01000000	/* Plasma Bolt */
 #define RF5_BO_ICEE			0x02000000	/* Ice Bolt */
-#define RF5_XXX5			0x04000000	/* XXX */
+#define RF5_MISSILE			0x04000000	/* Magic Missile */
 #define RF5_SCARE			0x08000000	/* Frighten Player */
 #define RF5_BLIND			0x10000000	/* Blind Player */
 #define RF5_CONF			0x20000000	/* Confuse Player */
@@ -3289,6 +3334,7 @@
 #define OPT_view_glowing_lite 84
 #define OPT_view_surface_lite 85
 #define OPT_variant_study_more   86
+#define OPT_show_sidebar	87
 /* xxx xxx */
 #define OPT_birth_point_based    (OPT_BIRTH+0)
 #define OPT_birth_auto_roller    (OPT_BIRTH+1)
@@ -3524,7 +3570,7 @@
 #define variant_drop_body op_ptr->opt[OPT_variant_drop_body]
 #define variant_save_feats op_ptr->opt[OPT_variant_save_feats]
 #define variant_study_more op_ptr->opt[OPT_variant_study_more]
-
+#define show_sidebar op_ptr->opt[OPT_show_sidebar]
 
 
 /*
@@ -3701,10 +3747,10 @@
  *
  * Line 1 -- forbid doors, rubble, seams, walls
  *
- * Note the use of the new "CAVE_WALL" flag.
+ * Note the use of the new "CAVE_XLOS" flag.
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)))
+	(!(cave_info[Y][X] & (CAVE_XLOS)))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid
@@ -3777,7 +3823,7 @@
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_has_los_bold(Y,X) \
-	((cave_info[Y][X] & (CAVE_VIEW)) != 0)
+	((play_info[Y][X] & (PLAY_VIEW)) != 0)
 
 
 /*
@@ -3786,7 +3832,7 @@
  * Note the use of comparison to zero to force a "boolean" result
  */
 #define player_can_see_bold(Y,X) \
-	((cave_info[Y][X] & (CAVE_SEEN)) != 0)
+	((play_info[Y][X] & (PLAY_SEEN)) != 0)
 
 
 
@@ -3958,7 +4004,7 @@ extern int PlayerUID;
 #define GRAPHICS_ORIGINAL       1
 #define GRAPHICS_ADAM_BOLT      2
 #define GRAPHICS_DAVID_GERVAIS  3
-
+#define GRAPHICS_DAVID_GERVAIS_ISO	4
 
 /*
  * List of commands that will be auto-repeated

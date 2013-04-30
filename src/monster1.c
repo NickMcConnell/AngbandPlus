@@ -299,7 +299,7 @@ static void describe_monster_spells(int r_idx, const monster_lore *l_ptr)
 	if (l_ptr->flags5 & RF5_BO_MANA)     vp[vn++] = "produce mana bolts";
 	if (l_ptr->flags5 & RF5_BO_PLAS)     vp[vn++] = "produce plasma bolts";
 	if (l_ptr->flags5 & RF5_BO_ICEE)     vp[vn++] = "produce ice bolts";
-	if (l_ptr->flags5 & RF5_XXX5)        vp[vn++] = "do something";
+	if (l_ptr->flags5 & RF5_MISSILE)     vp[vn++] = "produce magic missiles";
 	if (l_ptr->flags5 & RF5_SCARE)       vp[vn++] = "terrify";
 	if (l_ptr->flags5 & RF5_BLIND)       vp[vn++] = "blind";
 	if (l_ptr->flags5 & RF5_CONF)vp[vn++] = "confuse";
@@ -407,6 +407,7 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 	const monster_race *r_ptr = &r_info[r_idx];
 
 	bool sin = FALSE;
+	bool plu = TRUE;
 
 	int n;
 
@@ -414,6 +415,8 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 
 	int msex = 0;
 
+	int vn;
+	cptr vp[64];
 
 	/* Extract a gender (if applicable) */
 	if (r_ptr->flags1 & RF1_FEMALE) msex = 2;
@@ -433,6 +436,7 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 		{
 			text_out(" a");
 			sin = TRUE;
+			plu = FALSE;
 		}
 
 		/* Two drops */
@@ -451,51 +455,76 @@ static void describe_monster_drop(int r_idx, const monster_lore *l_ptr)
 		/* Great */
 		if (l_ptr->flags1 & RF1_DROP_GREAT)
 		{
-			p = " exceptional";
+			p = " exceptional ";
 		}
 
 		/* Good (no "n" needed) */
 		else if (l_ptr->flags1 & RF1_DROP_GOOD)
 		{
-			p = " good";
+			p = " good ";
 			sin = FALSE;
 		}
 
 		/* Okay */
 		else
 		{
-			p = NULL;
+			p = " ";
 		}
 
+		/* Collect special abilities. */
+		vn = 0;
+		if (l_ptr->flags7 & (RF7_DROP_CHEST)) vp[vn++] = "chest";
+		if (l_ptr->flags7 & (RF7_DROP_TOOL)) vp[vn++] = "tool";
+		if (l_ptr->flags7 & (RF7_DROP_LITE)) vp[vn++] = "lite";
+		if (l_ptr->flags7 & (RF7_DROP_WEAPON)) vp[vn++] = "weapon";
+		if (l_ptr->flags7 & (RF7_DROP_MISSILE)) vp[vn++] = "missile weapon";
+		if (l_ptr->flags7 & (RF7_DROP_ARMOR)) vp[vn++] = "armour";
+		if (l_ptr->flags7 & (RF7_DROP_CLOTHES)) vp[vn++] = "garment";
+		if (l_ptr->flags7 & (RF7_DROP_JEWELRY)) vp[vn++] = "adornment";
+		if (l_ptr->flags7 & (RF7_DROP_RSW)) vp[vn++] = "magical device";
+		if (l_ptr->flags7 & (RF7_DROP_WRITING)) vp[vn++] = "written item";
+		if (l_ptr->flags7 & (RF7_DROP_MUSIC)) vp[vn++] = "musical item";
+		if (l_ptr->flags7 & (RF7_DROP_POTION)) vp[vn++] = "potion";
+		if (l_ptr->flags7 & (RF7_DROP_FOOD)) vp[vn++] = "edible item";
+		if (l_ptr->flags7 & (RF7_DROP_JUNK)) vp[vn++] = "junk item";
 
 		/* Objects */
-		if (l_ptr->drop_item)
+		if (((!n) || (!vn))&& (l_ptr->drop_item))
 		{
 			/* Dump "object(s)" */
-			if (p) text_out(p);
-			if (get_food_type(r_ptr)) text_out(" mushroom");
-			else text_out(" object");
-			if (n != 1) text_out("s");
-
-			/* Conjunction replaces variety, if needed for "gold" below */
-			p = " or";
+			if (get_food_type(r_ptr)) { vp[0] = "mushroom"; vn = 1; }
+			else vp[vn++] = "object";
 		}
 
 		/* Treasures */
 		if (l_ptr->drop_gold)
 		{
-			/* Cancel prefix */
-			if (!p) sin = FALSE;
-
 			/* Dump "treasure(s)" */
-			if (p) text_out(p);
-			if (get_coin_type(r_ptr)) text_out(" precious metal");
-			text_out(" treasure");
-			if (n != 1) text_out("s");
+			if (get_coin_type(r_ptr)) vp[vn++] = "precious metal";
+			else vp[vn++] = "treasure";
 		}
 
-		/* End this sentence */
-		text_out(".  ");
+		/* Fix up singular */
+		if ((vn) && !(is_a_vowel(vp[0][0]))) sin = FALSE;
+
+		/* Describe special abilities. */
+		if (vn)
+		{
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) { if (sin) text_out("n"); text_out(p);  }
+				else if (n < vn-1) text_out(", ");
+				else text_out(" or ");
+
+				/* Dump */
+				text_out(format("%s%s", vp[n], (plu ? "s" : "")));
+			}
+
+			/* End */
+			text_out(".  ");
+		}
 	}
 }
 
@@ -629,7 +658,8 @@ static void describe_monster_attack(int r_idx, const monster_lore *l_ptr)
 			case GF_POIS: q = "poison"; break;
 			case GF_LITE: q = "blast with powerful light";break;
 			case GF_DARK: q = "blast with powerful darkness";break;
-			case GF_WATER: q="blast with water";break;			case GF_CONFUSION:      q = "confuse"; break;
+			case GF_WATER: q="blast with water";break;
+			case GF_CONFUSION:      q = "confuse"; break;
 			case GF_SOUND: q = "deafen";break;
 			case GF_SHARD: q = "blast with shards";break;
 			case GF_NEXUS: q = "blast with nexus";break;
@@ -1465,6 +1495,7 @@ static void cheat_monster_lore(int r_idx, monster_lore *l_ptr)
 	l_ptr->flags4 = r_ptr->flags4;
 	l_ptr->flags5 = r_ptr->flags5;
 	l_ptr->flags6 = r_ptr->flags6;
+	l_ptr->flags7 = r_ptr->flags7;
 }
 
 
@@ -1593,17 +1624,19 @@ static void roff_top(int r_idx)
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
+	if (!use_dbltile && !use_trptile)
+	{
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
 
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
-	Term_addstr(-1, TERM_WHITE, "'):");
-
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_WHITE, "/('");
+		Term_addch(a2, c2);
+		if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+		Term_addstr(-1, TERM_WHITE, "'):");
+	}
 }
 
 

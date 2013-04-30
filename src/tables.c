@@ -1320,7 +1320,13 @@ const cptr stat_names_reduced[6] =
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
 };
 
-
+/*
+ * Abbreviations of damaged stats -- no sidebar
+ */
+const cptr stat_names_reduced_short[6] =
+{
+	"Str", "Int", "Wis", "Dex", "Con", "Chr"
+};
 
 /*
  * Certain "screens" always use the main screen, including News, Birth,
@@ -1459,7 +1465,7 @@ const cptr option_text[OPT_MAX] =
 	"view_glowing_lite",			/* xxx */
 	"view_surface_lite",			/* OPT_view_surface_lite */
 	"variant_study_more",		   /* xxx */
-	NULL,						/* xxx */
+	"show_sidebar",						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -1722,8 +1728,8 @@ const cptr option_desc[OPT_MAX] =
 	"Save new features in save-file",			/* xxx */
 	"Use special colours for glowing lite (slow)",	/* OPT_view_glowing_lite */
 	"Use special colours for surface lite",		/* OPT_view_surface_lite */
-	"Learn more than 64 spells",										/* xxx */
-	NULL,										/* xxx */
+	"Learn more than 64 spells",				/* xxx */
+	"Display stats in main window",			/* OPT_show_sidebar */							/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -1987,7 +1993,7 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_glowing_lite */
 	FALSE,		/* OPT_view_surface_lite */
 	TRUE,	  /* OPT_variant_study_more */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_show_sidebar */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -2183,8 +2189,8 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_scroll_target,
 		OPT_stack_force_pvals,
 		OPT_stack_force_times,
-                OPT_easy_autos,
-                OPT_easy_search,
+		OPT_easy_autos,
+		OPT_easy_search,
 		255,
 		255
 	},
@@ -2267,6 +2273,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Display ***/
 
 	{
+		OPT_show_sidebar,
 		OPT_depth_in_feet,
 		OPT_show_labels,
 		OPT_show_weights,
@@ -2285,8 +2292,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
  		OPT_run_avoid_center,
 		OPT_show_piles,
 		OPT_room_names,
-		OPT_room_descriptions,
-		255
+		OPT_room_descriptions
 	},
 
 	/*** Birth ***/

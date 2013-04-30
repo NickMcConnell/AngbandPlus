@@ -1558,6 +1558,31 @@ u16b limit;
 		}
 	}
 
+	/* Load the dungeon data */
+	for (x = y = 0; y < DUNGEON_HGT; )
+	{
+		/* Grab RLE info */
+		rd_byte(&count);
+		rd_byte(&tmp8u);
+
+		/* Apply the RLE info */
+		for (i = count; i > 0; i--)
+		{
+			/* Extract "info" */
+			play_info[y][x] = tmp8u;
+
+			/* Advance/Wrap */
+			if (++x >= DUNGEON_WID)
+			{
+				/* Wrap */
+				x = 0;
+
+				/* Advance/Wrap */
+				if (++y >= DUNGEON_HGT) break;
+			}
+		}
+	}
+
 	/* Hack -- not fully dynamic */
 	dyna_full = FALSE;
 
@@ -1582,13 +1607,25 @@ u16b limit;
 			/* Check for los flag set*/
 			if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
 			{
-				cave_info[y][x] &= ~(CAVE_WALL);
+				cave_info[y][x] &= ~(CAVE_XLOS);
 			}
 
 			/* Handle wall grids */
 			else
 			{
-				cave_info[y][x] |= (CAVE_WALL);
+				cave_info[y][x] |= (CAVE_XLOS);
+			}
+
+			/* Check for los flag set*/
+			if (f_info[cave_feat[y][x]].flags1 & (FF1_PROJECT))
+			{
+				cave_info[y][x] &= ~(CAVE_XLOF);
+			}
+
+			/* Handle wall grids */
+			else
+			{
+				cave_info[y][x] |= (CAVE_XLOF);
 			}
 
 			/* Handle dynamic grids */

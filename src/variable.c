@@ -100,8 +100,9 @@ bool daytime;
 
 bool use_sound;		 /* The "sound" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
+bool use_trptile = FALSE;
+bool use_dbltile = FALSE;
 bool use_bigtile = FALSE;
-
 
 s16b signal_count;	      /* Hack -- Count interrupts */
 
@@ -386,6 +387,14 @@ bool dyna_full;
  * in the array via "grid" values (see the GRID() macros).
  */
 byte (*cave_info)[256];
+
+/*
+ * Array[DUNGEON_HGT][256] of player grid info flags (padded)
+ *
+ * This array is padded to a width of 256 to allow fast access to elements
+ * in the array via "grid" values (see the GRID() macros).
+ */
+byte (*play_info)[256];
 
 /*
  * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
@@ -920,7 +929,19 @@ int text_out_wrap = 0;
 int text_out_indent = 0;
 
 /*
+ * Hack -- Where to stop text output in number of lines. The function will
+ * write at most this many lines before aborting. Use the default
+ * value (for example the screen height) when 'text_out_wrap' is 0. Note
+ * that the starting y position in screen output will assume that already
+ * (y - 1) lines have been written (Similiar to text_out_indent).
+ */
+int text_out_lines = 0;
+
+/*
  * Hack -- function hook for text_out()
+ *
+ * Returns 0 if all characters in str have been output, or the next position
+ * in the string if not completely output.
  */
 void (*text_out_hook)(byte a, cptr str);
 

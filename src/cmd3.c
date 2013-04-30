@@ -152,6 +152,8 @@ void do_cmd_wield(void)
 	/* Hack -- Allow items to be swapped in/out of belt */
 	bool swap = FALSE;
 
+	bool get_feat = FALSE;
+
 	/* Hack -- Allow multiple rings to be wielded */
 	int amt=1;
 	int rings = 0;
@@ -164,17 +166,8 @@ void do_cmd_wield(void)
 	s = "You have nothing you can wear or wield.";
 	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -184,6 +177,9 @@ void do_cmd_wield(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Got from feature */
+	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
@@ -330,13 +326,8 @@ void do_cmd_wield(void)
 	/* preventing identification of the wielded one */
 	drop_may_flags(o_ptr);
 
-	/* Decrease the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
-	}
 	/* Decrease the item (from the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		inven_item_increase(item, -amt);
 		inven_item_optimize(item);
@@ -346,6 +337,7 @@ void do_cmd_wield(void)
 	{
 		floor_item_increase(0 - item, -amt);
 		floor_item_optimize(0 - item);
+		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 
 	/* Get the wield slot */
@@ -664,10 +656,12 @@ void do_cmd_destroy(void)
 
 	cptr q, s;
 
+	bool get_feat = FALSE;
+
 	/* Get an item */
 	q = "Destroy which item? ";
 	s = "You have nothing to destroy.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -680,6 +674,9 @@ void do_cmd_destroy(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Get feat */
+	if (o_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 
 	/* Get a quantity */
 	amt = get_quantity(NULL, o_ptr->number);
@@ -786,6 +783,7 @@ void do_cmd_destroy(void)
 		floor_item_increase(0 - item, -amt);
 		floor_item_describe(0 - item);
 		floor_item_optimize(0 - item);
+		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
 	}
 
 }
@@ -804,24 +802,13 @@ void do_cmd_observe(void)
 
 	cptr q, s;
 
-
 	/* Get an item */
 	q = "Examine which item? ";
 	s = "You have nothing to examine.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG))) return;
 
-
-	/* Get the feature */
-	if (item >= INVEN_TOTAL+1)
-	{
-		object_type object_type_body;
-
-		o_ptr = &object_type_body;
-
-		if (!make_feat(o_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
 	/* Get the item (in the pack) */
-	else if (item >= 0)
+	if (item >= 0)
 	{
 		o_ptr = &inventory[item];
 	}
@@ -831,6 +818,12 @@ void do_cmd_observe(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+	/* Hack - obviously interested enough in item */
+	if (o_ptr->ident & (IDENT_STORE)) o_ptr->marked = TRUE;
+
+	/* No longer 'stored' */
+	o_ptr->ident &= ~(IDENT_STORE);
 
 	/* Description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1177,13 +1170,12 @@ void do_cmd_refill(void)
 	object_type *j_ptr;
 
 	object_type object_type_body;
-	object_type feat_object_type_body;
 
 	cptr q, s;
 
-bool unstack = FALSE;
-
-
+	bool unstack = FALSE;
+	bool use_feat = FALSE;
+	bool get_feat = FALSE;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_empty_flask_or_lite;
@@ -1243,16 +1235,8 @@ bool unstack = FALSE;
 	/* Can't fuel self */
 	if (item == item2) return;
 
-	/* Get the feature */
-	if (item2 >= INVEN_TOTAL+1)
-	{
-		j_ptr = &feat_object_type_body;
-
-		if (!make_feat(j_ptr, cave_feat[p_ptr->py][p_ptr->px])) return;
-	}
-
 	/* Get the item (in the pack) */
-	else if (item2 >= 0)
+	if (item2 >= 0)
 	{
 		j_ptr = &inventory[item2];
 	}
@@ -1309,6 +1293,9 @@ bool unstack = FALSE;
 			o_ptr->pval = FUEL_LAMP;
 			msg_print("The lamp is full.");
 		}
+
+		/* Get feat */
+		if (j_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
 	}
 	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
 	{
@@ -1334,6 +1321,9 @@ bool unstack = FALSE;
 		{
 			msg_print("Your torch glows more brightly.");
 		}
+
+		/* Get feat */
+		if (j_ptr->ident & (IDENT_STORE)) get_feat = TRUE;
 	}
 	else
 	{
@@ -1346,6 +1336,12 @@ bool unstack = FALSE;
 		/* Reset stack counter */
 		o_ptr->stackc = 0;
 
+		/* Use feat */
+		if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
+
+		/* No longer 'stored' */
+		o_ptr->ident &= ~(IDENT_STORE);
+
 		/* Adjust the weight */
 		p_ptr->total_weight += o_ptr->weight;
 	}
@@ -1356,17 +1352,8 @@ bool unstack = FALSE;
 		item = inven_carry(o_ptr);
 	}
 
-	/* Decrease the feature */
-	if ((item2 >= INVEN_TOTAL+1) && (o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LITE_TORCH))
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
-	}
-	else if (item2 >= INVEN_TOTAL+1)
-	{
-		cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
-	}
 	/* Use fuel from a lantern */
-	else if ((j_ptr->tval == TV_LITE) && (j_ptr->sval == SV_LITE_LANTERN))
+	if ((j_ptr->tval == TV_LITE) && (j_ptr->sval == SV_LITE_LANTERN))
 	{
 		if (j_ptr->number > 1)
 		{
@@ -1384,6 +1371,9 @@ bool unstack = FALSE;
 
 			/* Reset the pval */
 			i_ptr->pval = 0;
+
+			/* No longer 'stored' */
+			i_ptr->ident &= ~(IDENT_STORE);
 
 			/* Unstack the used item */
 			j_ptr->number--;
@@ -1414,8 +1404,9 @@ bool unstack = FALSE;
 		floor_item_increase(0 - item2, -1);
 		floor_item_describe(0 - item2);
 		floor_item_optimize(0 - item2);
+		if (get_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_GET_FEAT);
+		if (use_feat && (scan_feat(p_ptr->py,p_ptr->px) < 0)) cave_alter_feat(p_ptr->py,p_ptr->px,FS_USE_FEAT);
 	}
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1765,6 +1756,8 @@ void ang_sort_swap_hook(vptr u, vptr v, int a, int b)
 
 	u16b holder;
 
+	(void)v;
+
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];
@@ -1808,16 +1801,19 @@ static void roff_top(int r_idx)
 	/* Dump the name */
 	Term_addstr(-1, TERM_WHITE, (r_name + r_ptr->name));
 
-	/* Append the "standard" attr/char info */
-	Term_addstr(-1, TERM_WHITE, " ('");
-	Term_addch(a1, c1);
-	Term_addstr(-1, TERM_WHITE, "')");
+	if (!use_dbltile && !use_trptile)
+	{
+		/* Append the "standard" attr/char info */
+		Term_addstr(-1, TERM_WHITE, " ('");
+		Term_addch(a1, c1);
+		Term_addstr(-1, TERM_WHITE, "')");
 
-	/* Append the "optional" attr/char info */
-	Term_addstr(-1, TERM_WHITE, "/('");
-	Term_addch(a2, c2);
-	if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
-	Term_addstr(-1, TERM_WHITE, "'):");
+		/* Append the "optional" attr/char info */
+		Term_addstr(-1, TERM_WHITE, "/('");
+		Term_addch(a2, c2);
+		if (use_bigtile && (a2 & 0x80)) Term_addch(255, -1);
+		Term_addstr(-1, TERM_WHITE, "'):");
+	}
 }
 
 

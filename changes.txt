@@ -1,3 +1,177 @@
+### Game Play ###
+
+- Vents now act as conduits for water, acid, steam, fire or gas through walls.
+Vents can also be climbed through, but block vision and ranged attacks.
+
+- Falling water, lava, and so on now only cause damage to adjacent terrain every
+second turn.
+
+- It should now be possible to create trapped areas as follows (where < is falling
+terrain and % is a vent):
+
+####.      #####.
+#<%%.   or #<%%%.
+####.      #####.
+
+This results in the the floor locations getting hit, on the left, every 3 turns,
+or on the right every 4 turns (an adjacent water fall will hit every 2 turns).
+
+- Cracked walls now can come in hidden, weaker versions that can be easily
+bashed or tunnelled through.
+
+### User Interface ###
+
+- Monster recall now reports what particular types of items are dropped by each
+monster.
+
+### Bug fixes ###
+
+- Prevented original graphic tiles from trying to use dark and lite tiles.
+
+- Added Triple tile mode, which is like Double tile mode, but intended for
+use with David Gervais' 54x54 graphics tiles (As 54 is not divisible by 4).
+
+- Improve scrolling when setting visuals.
+
+- Greatly improved isometric tile mode, so that it is now a playable option.
+In particular, all tiles are correctly drawn and redrawn after every refresh.
+However, many more monsters/objects etc. need to have the correct tiles
+assigned to them and there are still visual artefacts that need to be
+cleaned up.
+
+- Priest spell righteous fury was for mages, paladins, shamans and bards but
+not for priests.  Now it is for priests, paladins, shamans and bards.  (Fixed
+by kobayasi)
+
+- Enchant food was in a wrong slot in the prayer book of chants so one can
+learn it (randomly) but cannot cast it.  (Fixed by kobayasi)
+
+- The effect of experience was as same as self knowledge.  (Fixed by kobayasi)
+
+### Build / Platform ###
+
+- Makefile.std was reporting errors if the files it tries to clean are not
+there (Reported by Robert Ruehlmann).
+
+- Separated out cave flags that are specific to the cave (cave_info) and
+specific to the player (play_info) in preperation for implementing 4GAI
+projection algorithms. This has to be done differently from Sangband et al.
+as there can be terrain in Unangband that blocks line of sight but not 
+spells or arrows (eg smoke). At the moment, most of these new flags are
+not used. WARNING: AT THE MOMENT THIS BREAKS SAVE FILE COMPATIBILITY!!!!
+
+Unangband 0.5.5: "New Years Resolution"
+
+### Game Play ###
+
+- Much better handling of features which have corresponding objects 'stored'
+in them, such as fountains, water, and so on.
+
+- You can now destroy objects contained inside many features to change that
+feature automatically eg destroying a torch in a torch feature.
+
+- You can use the examine command on a feature that contain objects to create
+instances of that object without having to throw the objects, refuel from it
+or so on.
+
+- You can now create 'flavoured' features, which contain differing instances
+of the same object type, depending on the level at which the feature is
+located. This is currently unused, but is intended to support different
+types of fountains, trees, mineral veins and so on.
+
+### User Interface ###
+
+- Added 'show sidebar' option, which defaults to yes. Setting this to no moves
+information normally on the left hand side of the main display to a more compact
+format at the bottom of the window, making more space available for the map
+display.
+
+- Added experimental Double tile mode (Windows only), which is has tiles
+twice as wide and high as regular tiles. When used along with big tiles, results
+in tiles four times as wide and twice as high. Because the tiles have increased 
+height as well as width, double tiles are currently not used in several areas that
+support regular tiles. There are currently some visual artifacts.
+
+- Added support for transparency in David Gervais's 32x32 support for
+Windows users. This requires a (slightly altered) 32x32.bmp and a matching
+mask32.bmp file and is (a little) more correct than equivelent X11 masking.
+
+- Added experimental support for David Gervais's isometric tiles (Windows
+only). This is currently 'proof-of-concept' only and does not require SDL.
+However, it will result in many visual artifacts, and does not have many
+tiles correctly assigned. Advantages from Hajo's Iso-metric tile support
+include two differing iso-metric projections (Switched by toggling big tile
+mode on and off), scaleable tile sizes, and support for mixing isometric
+tiles and text (This is not possible on the main map though). Disadvantages
+include no support for dynamically recolouring of tiles, no support for
+lighting effects, incorrect draw order for tiles, incorrect masking of tiles
+in front and behind, and other visual artefacts that currently make this 
+(mostly) unusable. Do not attempt to assign tiles using the visual tile
+assigner at this stage, as the supplied 54x54.bmp and mask54.bmp file are
+only temporary and some poorly 'glued' together.
+
+- Fixed some visual artifacts caused by the assumption that graphics tile
+0 is a floor tile.
+
+- Can now use 'k' in knowledge menus to toggle auto-destruction of objects,
+'g' to toggle auto-pickup, 'i' to toggle auto-ignore, 's' to toggle auto-
+stack. Other unrecognised characters will set a similiar auto-inscription
+however these have no effect.
+
+- "Great" weapons and ammo now much more likely to have additional damage
+dice or sides. (From NPPAngband)
+
+- If you specify a different terrain for invisible traps, it is used to
+identify unsafe floors.
+
+### Bug fixes ###
+
+- Many low level spell casting monsters were casting mana bolt instead of
+magic missile.
+
+- Objects were incorrectly being initialised as aware, as per Angband. Now
+only become aware when you see the object for the first time.
+
+- Could not see some objects (eg corpses) in knowledge menus as they did
+not randomly appear in the dungeon. (Reported by topazg).
+
+- Delete the dump.prf file after generating a screen dump, to prevent this
+file becoming excessively large.
+
+- Fixed broken html dump code.
+
+- Non-ego weapons with improved damage dice or sides now sense as "great".
+
+- You could spike a door multiple times to break it (Reported by @nothere).
+
+- Doors did not appear jammed after first spiking them (Reported by @nothere).
+
+
+
+UnAngband 0.5.4c: "Competitive Fix"
+
+### Game Play ###
+
+- Snow, particularly deep snow, is riskier again.
+
+### User Interface ###
+
+- Improved user interface for selecting which location to travel to.
+
+### Bug fixes ###
+
+- The chance of tunnelling was out by a factor of 10 (Reported by Jeffrey
+Turner).
+
+- Piles of earth were removed, resulting in 'nothing' occuring in some rooms.
+(Reported by Anthony Holmes).
+
+- Occasionally on the far right of the map, the wrong panel would be displayed
+(Reported by Anthony Holmes).
+
+- Isengard should now be full of trees again.
+
+
 UnAngband 0.5.4b: "Survival of the Fittest"
 
 ### Game Play ###
@@ -15,13 +189,19 @@ t is the timeout of the stack and n is the number of rods recharging. This
 allows rods to be reused more quickly, and where the rod timeout is less than
 stack size, you can reuse a rod every turn.
 
+- You can notice hidden features at greater ranges, but features deeper in
+the dungeon are harder to notice (From Sangband).
+
+- Torches have a larger light radius when they are more fuelly fueled (From
+Sangband).
+
+- You now hold or stay after each step, so that you will use 100 energy per
+move unless you are disturbed.
+
 ### User Interface ###
 
 - Now supports specifying whether or not a feature supports advanced lighting
-options in the pref file. Just append :YES or :NO to the existing pref file
-entry in the graf-xxx.prf file. The default is 'NO' for any existing entry
-and 'YES' for any feature which does not have an entry (eg uses original
-ASCII graphics).
+options in the pref file.
 
 - Knowledge menu sub-items are sorted alphabetically. This could be changed 
 in the future to allow a selection of possible sort orders (Depth, kills etc).
@@ -31,6 +211,9 @@ of speed using a different graphics consistently from game to game. This also
 allows all the David Gervais known scroll graphics to be used when a scroll is
 found. Switch this option from TRUE (The Angband default) to FALSE to enable
 this.
+
+- Display problems due to Windows XP eliminated by not using the centred dot
+character.
 
 ### Bug fixes ###
 
@@ -297,7 +480,7 @@ terrain while on the surface.
 currently used, but if you copy them into your Zangband lib\edit directory
 (Backing up the current versions of the files), you can see an Unangband
 'version' of the Zangband wilderness, using Unangband's version of the terrain
-graphics. (Uses Zangband 2.8.1). This is for testing purposes and comments...
+graphics. (Uses Zangband 2.7.1). This is for testing purposes and comments...
 
 - Updated copyright notices in source.
 

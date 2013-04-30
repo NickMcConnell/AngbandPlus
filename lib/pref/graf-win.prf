@@ -15,6 +15,11 @@
 ?:[EQU $GRAF new]
 %:graf-new.prf
 
+# David Gervais' iso-tiles
+?:[EQU $GRAF davidiso]
+%:graf-iso.prf
+
 # David Gervais' tiles
 ?:[EQU $GRAF david]
 %:graf-dvg.prf
+

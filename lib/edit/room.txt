@@ -704,7 +704,7 @@ N:6:7:36:1
 A:dirt-filled
 B:
 D:covered with piles of dirt.  
-F:138
+F:527
 S:SEEN
 
 N:6:7:38:3

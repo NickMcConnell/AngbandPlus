@@ -1301,34 +1301,54 @@ static void do_cmd_wiz_query(void)
 
 	int y, x;
 
-	char cmd;
+	char cmd = '\0';
 
 	u16b mask = 0x00;
+	bool play_mask = FALSE;
 
-
-	/* Get a "debug command" */
-	if (!get_com("Debug Command Query: ", &cmd)) return;
-
-	/* Extract a flag */
-	switch (cmd)
+	while (!cmd)
 	{
-		case '0': mask = (1 << 0); break;
-		case '1': mask = (1 << 1); break;
-		case '2': mask = (1 << 2); break;
-		case '3': mask = (1 << 3); break;
-		case '4': mask = (1 << 4); break;
-		case '5': mask = (1 << 5); break;
-		case '6': mask = (1 << 6); break;
-		case '7': mask = (1 << 7); break;
 
-		case 'm': mask |= (CAVE_MARK); break;
-		case 'g': mask |= (CAVE_GLOW); break;
-		case 'r': mask |= (CAVE_ROOM); break;
-                case 'i': mask |= (CAVE_SAFE); break;
-		case 's': mask |= (CAVE_SEEN); break;
-		case 'v': mask |= (CAVE_VIEW); break;
-		case 't': mask |= (CAVE_TEMP); break;
-		case 'w': mask |= (CAVE_WALL); break;
+		/* Get a "debug command" */
+		if (!get_com(format("Debug Command Query (%s): ", play_mask ? "player" : "cave" ), &cmd)) return;
+
+		/* Extract a flag */
+		switch (cmd)
+		{
+			case '0': mask = (1 << 0); break;
+			case '1': mask = (1 << 1); break;
+			case '2': mask = (1 << 2); break;
+			case '3': mask = (1 << 3); break;
+			case '4': mask = (1 << 4); break;
+			case '5': mask = (1 << 5); break;
+			case '6': mask = (1 << 6); break;
+			case '7': mask = (1 << 7); break;
+		}
+
+		if (play_mask) switch (cmd)
+		{
+			case 'm': mask |= (PLAY_MARK); break;
+			case 'd': mask |= (PLAY_SAFE); break;
+      	      case 'p': mask |= (PLAY_TMP2); break;
+			case 'l': mask |= (PLAY_LITE); break;
+			case 's': mask |= (PLAY_SEEN); break;
+			case 't': mask |= (PLAY_TEMP); break;
+			case 'v': mask |= (PLAY_VIEW); break;
+			case 'f': mask |= (PLAY_FIRE); break;
+			case 'c': play_mask = FALSE; cmd = '\0'; break;
+		}
+		else switch (cmd)
+		{
+			case 'g': mask |= (CAVE_GLOW); break;
+			case 'r': mask |= (CAVE_ROOM); break;
+      	      case 'd': mask |= (CAVE_DLIT); break;
+			case 'l': mask |= (CAVE_LITE); break;
+			case 'm': mask |= (CAVE_MLIT); break;
+			case 'x': mask |= (CAVE_XLIT); break;
+			case 'f': mask |= (CAVE_XLOF); break;
+			case 's': mask |= (CAVE_XLOS); break;
+			case 'p': play_mask = TRUE; cmd = '\0'; break;
+		}
 	}
 
 	/* Scan map */
@@ -1341,10 +1361,11 @@ static void do_cmd_wiz_query(void)
 			if (!in_bounds_fully(y, x)) continue;
 
 			/* Given mask, show only those grids */
-			if (mask && !(cave_info[y][x] & mask)) continue;
+			if (mask && play_mask &&!(play_info[y][x] & mask)) continue;
+			else if (mask && !play_mask && !(cave_info[y][x] & mask)) continue;
 
 			/* Given no mask, show unknown grids */
-			if (!mask && (cave_info[y][x] & (CAVE_MARK))) continue;
+			if (!mask && (play_info[y][x] & (PLAY_MARK))) continue;
 
 			/* Color */
 			if (cave_floor_bold(y, x)) a = TERM_YELLOW;

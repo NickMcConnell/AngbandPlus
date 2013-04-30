@@ -1408,7 +1408,7 @@ N:120:Righteous Fury
 A:91:10:8
 A:92:5:8
 A:93:3:5
-C:1:19:20:80:200
+C:2:19:20:80:200
 C:5:33:30:80:125
 C:8:19:20:80:200
 C:9:33:30:80:125
@@ -1511,7 +1511,7 @@ F:DETECT_CURSE
 
 N:131:Enchant Food
 A:91:7:3
-A:91:2:19
+A:91:2:10
 C:2:19:30:75:150
 C:5:24:30:75:150
 C:8:19:30:75:150
@@ -2959,7 +2959,7 @@ D:You feel you know yourself a little better...
 
 N:317:Experience
 A:75:59:1
-F:SELF_KNOW
+F:INC_EXP
 D:You feel more experienced.
 
 # Additional Scroll Effects

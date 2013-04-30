@@ -1696,8 +1696,32 @@ void do_cmd_visuals(void)
 	char buf[1024];
 
 	const char *empty_symbol = "<< ? >>";
+	const char *empty_symbol2 = "\0";
+	const char *empty_symbol3 = "\0";
 
-	if (use_bigtile) empty_symbol = "<< ?? >>";
+	if (use_trptile && use_bigtile)
+	{
+		empty_symbol = "// ?????? \\\\";
+		empty_symbol2 = "   ??????   ";
+		empty_symbol3 = "\\\\ ?????? //";
+	}
+	else if (use_dbltile && use_bigtile)
+	{
+		empty_symbol = "// ???? \\\\";
+		empty_symbol2 = "\\\\ ???? //";
+	}
+	else if (use_trptile)
+	{
+		empty_symbol = "// ??? \\\\";
+		empty_symbol2 = "   ???   ";
+		empty_symbol3 = "\\\\ ??? //";
+	}
+	else if (use_dbltile)
+	{
+		empty_symbol = "// ?? \\\\";
+		empty_symbol2 = "\\\\ ?? //";
+	}
+	else if (use_bigtile) empty_symbol = "<< ?? >>";
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1999,6 +2023,8 @@ void do_cmd_visuals(void)
 				byte ca = (byte)(r_ptr->x_attr);
 				byte cc = (byte)(r_ptr->x_char);
 
+				int linec = (use_trptile ? 22: (use_dbltile ? 21 : 20));
+
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 					    format("Monster = %d, Name = %-40.40s",
@@ -2008,32 +2034,32 @@ void do_cmd_visuals(void)
 				Term_putstr(10, 19, -1, TERM_WHITE,
 					    format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol3);
+
 				Term_putch(43, 19, da, dc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
+					big_putch(43, 19, da, dc);
 				}
 
 				/* Label the Current values */
-				Term_putstr(10, 20, -1, TERM_WHITE,
+				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
-				Term_putch(43, 20, ca, cc);
+				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				Term_putch(43, linec, ca, cc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
+					big_putch(43, linec++, ca, cc);
 				}
+				if (use_trptile) linec++;
 
 				/* Prompt */
-				Term_putstr(0, 22, -1, TERM_WHITE,
+				Term_putstr(0, linec + 2, -1, TERM_WHITE,
 					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
@@ -2070,6 +2096,8 @@ void do_cmd_visuals(void)
 				byte ca = (byte)(k_ptr->x_attr);
 				byte cc = (byte)(k_ptr->x_char);
 
+				int linec = (use_trptile ? 22: (use_dbltile ? 21 : 20));
+
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 					    format("Object = %d, Name = %-40.40s",
@@ -2077,34 +2105,34 @@ void do_cmd_visuals(void)
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-					    format("Default attr/char = %3d / %3d", da, dc));
+					    format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol3);
+
 				Term_putch(43, 19, da, dc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
+					big_putch(43, 19, da, dc);
 				}
 
 				/* Label the Current values */
-				Term_putstr(10, 20, -1, TERM_WHITE,
+				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
-				Term_putch(43, 20, ca, cc);
+				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				Term_putch(43, linec, ca, cc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
+					big_putch(43, linec++, ca, cc);
 				}
+				if (use_trptile) linec++;
 
 				/* Prompt */
-				Term_putstr(0, 22, -1, TERM_WHITE,
+				Term_putstr(0, linec+2, -1, TERM_WHITE,
 					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
@@ -2141,6 +2169,8 @@ void do_cmd_visuals(void)
 				byte ca = (byte)(f_ptr->x_attr);
 				byte cc = (byte)(f_ptr->x_char);
 
+				int linec = (use_trptile ? 22: (use_dbltile ? 21 : 20));
+
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 					    format("Terrain = %d, Name = %-40.40s",
@@ -2148,34 +2178,34 @@ void do_cmd_visuals(void)
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-					    format("Default attr/char = %3d / %3d", da, dc));
+					    format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol3);
+
 				Term_putch(43, 19, da, dc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
+					big_putch(43, 19, da, dc);
 				}
 
 				/* Label the Current values */
-				Term_putstr(10, 20, -1, TERM_WHITE,
+				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
-				Term_putch(43, 20, ca, cc);
+				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				Term_putch(43, linec, ca, cc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
+					big_putch(43, linec++, ca, cc);
 				}
+				if (use_trptile) linec++;
 
 				/* Prompt */
-				Term_putstr(0, 22, -1, TERM_WHITE,
+				Term_putstr(0, linec+2, -1, TERM_WHITE,
 					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
@@ -2212,6 +2242,8 @@ void do_cmd_visuals(void)
 				byte ca = (byte)(x_ptr->x_attr);
 				byte cc = (byte)(x_ptr->x_char);
 
+				int linec = (use_trptile ? 22: (use_dbltile ? 21 : 20));
+
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
 					    format("Flavor = %d, Text = %-40.40s",
@@ -2219,35 +2251,34 @@ void do_cmd_visuals(void)
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-					    format("Default attr/char = %3d / %3d", da, dc));
+					    format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol2);
+				if (use_trptile) Term_putstr (40, 20, -1, TERM_WHITE, empty_symbol3);
+
 				Term_putch(43, 19, da, dc);
 
-
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (da & 0x80)
-						Term_putch(44, 19, 255, -1);
-					else
-						Term_putch(44, 19, 0, ' ');
+					big_putch(43, 19, da, dc);
 				}
 
 				/* Label the Current values */
-				Term_putstr(10, 20, -1, TERM_WHITE,
+				Term_putstr(10, linec, -1, TERM_WHITE,
 					    format("Current attr/char = %3u / %3u", ca, cc));
-				Term_putstr(40, 20, -1, TERM_WHITE, empty_symbol);
-				Term_putch(43, 20, ca, cc);
+				Term_putstr(40, linec, -1, TERM_WHITE, empty_symbol);
+				if (use_dbltile || use_trptile) Term_putstr (40, linec+1, -1, TERM_WHITE, empty_symbol2); 
+				if (use_trptile) Term_putstr (40, linec+2, -1, TERM_WHITE, empty_symbol3); 
+				Term_putch(43, linec, ca, cc);
 
-				if (use_bigtile)
+				if (use_bigtile || use_dbltile || use_trptile)
 				{
-					if (ca & 0x80)
-						Term_putch(44, 20, 255, -1);
-					else
-						Term_putch(44, 20, 0, ' ');
+					big_putch(43, linec++, ca, cc);
 				}
+				if (use_trptile) linec++;
 
 				/* Prompt */
-				Term_putstr(0, 22, -1, TERM_WHITE,
+				Term_putstr(0, linec+2, -1, TERM_WHITE,
 					    "Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
@@ -2914,17 +2945,17 @@ void do_cmd_save_screen_html(void)
 
 	FILE *fff;
 
-	char buf[1024];
+	char file_name[1024];
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.prf");
+	path_build(file_name, 1024, ANGBAND_DIR_USER, "dump.prf");
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 	/* Append to the file */
-	fff = my_fopen(buf, "w");
+	fff = my_fopen(file_name, "w");
 
 	/* Oops */
 	if (!fff) return;
@@ -2941,8 +2972,8 @@ void do_cmd_save_screen_html(void)
 		fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 
 		/* Dump the attr/char info */
-		fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-			(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+		fprintf(fff, "F:%d:0x%02X:0x%02X:%s\n\n", i,
+			(byte)(f_ptr->x_attr), (byte)(f_ptr->x_char), (f_ptr->flags2 & (FF2_ATTR_LITE) ? "YES" : "NO"));
 
 		/* Assume we will use the underlying values */
 		f_ptr->x_attr = f_ptr->d_attr;
@@ -3050,6 +3081,8 @@ void do_cmd_save_screen_html(void)
 	/* Refresh */
 	do_cmd_redraw();
 
+	/* Delete the file */
+	fd_kill(file_name);
 }
 
 
@@ -3140,8 +3173,8 @@ static cptr monster_group_char[] =
 	"I",
 	"j",
 	"K",
-	"M",
 	"L",
+	"M",
 	"$!?=.|~[]",
 	"m",
 	",",
@@ -3298,7 +3331,7 @@ static int collect_ego_items(int grp_cur, int object_idx[])
  */
 static int collect_objects(int grp_cur, int object_idx[], int mode)
 {
-	int i, j, k, object_cnt = 0;
+	int i, object_cnt = 0;
 
 	/* Get a list of x_char in this group */
 	byte group_tval = object_group_tval[grp_cur];
@@ -3312,13 +3345,8 @@ static int collect_objects(int grp_cur, int object_idx[], int mode)
 		/* Skip empty objects */
 		if (!k_ptr->name) continue;
 
-#if 0
-		/* Skip non-flavoured objects */
-		if (!k_ptr->flavor) continue;
-#endif
-		/* Skip items with no distribution (special artifacts) */
-		for (j = 0, k = 0; j < 4; j++) k += k_ptr->chance[j];
-		if (!(k))  continue; 
+		/* Skip special arts */
+                if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
 
 		/* Require objects ever seen*/
 		if (!(mode & 0x02) && !(cheat_lore) && !(k_ptr->aware) && !(k_ptr->flavor)) continue;
@@ -3804,10 +3832,7 @@ static void do_cmd_knowledge_artifacts(void)
 		display_artifact_list(max + 3, 6, browser_rows, object_idx, object_cur, object_top);
 
 		/* Prompt */
-		prt("<dir>, ENTER to recall, ESC", hgt, 0);
-
-		/* Prompt */
-		prt("<dir>, 'r' to recall, ESC", hgt - 1, 0);
+		prt("<dir>, ENTER to recall, ESC", hgt - 1, 0);
 
 		/* Mega Hack -- track this artifact race */
 		if (object_cnt) artifact_track(object_idx[object_cur]);
@@ -3843,8 +3868,6 @@ static void do_cmd_knowledge_artifacts(void)
 
 			case 'R':
 			case 'r':
-			case '\n':
-			case '\r':
 			{
 				/* Recall on screen */
 				desc_art_fake(object_idx[object_cur]);
@@ -3881,8 +3904,21 @@ static void display_visual_list(int col, int row, int height, int width, byte at
 		Term_erase(col, row + i, width);
 	}
 
+	/* Triple tile uses double height and width width */
+	if (use_trptile)
+	{
+		width /= (use_bigtile ? 6 : 3);
+		height /= 3;
+	}
+	/* Double tile uses double height and width width */
+	else if (use_dbltile)
+	{
+		width /= (use_bigtile ? 4 : 2);
+		height /= 2;
+	}
+
 	/* Bigtile mode uses double width */
-	if (use_bigtile) width /= 2;
+	else if (use_bigtile) width /= 2;
 
 	/* Display lines until done */
 	for (i = 0; i < height; i++)
@@ -3896,8 +3932,20 @@ static void display_visual_list(int col, int row, int height, int width, byte at
 			int y = row + i;
 			int ia, ic;
 
+			/* Triple tile mode uses double width and double height */
+			if (use_trptile)
+			{
+				y += 2 * i;
+				x += (use_bigtile ? 5 : 2) * j;
+			}
+			/* Double tile mode uses double width and double height */
+			else if (use_dbltile)
+			{
+				y += i;
+				x += (use_bigtile ? 3 : 1) * j;
+			}
 			/* Bigtile mode uses double width */
-			if (use_bigtile) x += j;
+			else if (use_bigtile) x += j;
 
 			ia = attr_top + i;
 			ic = char_left + j;
@@ -3908,14 +3956,10 @@ static void display_visual_list(int col, int row, int height, int width, byte at
 			/* Display symbol */
 			Term_putch(x, y, a, c);
 
-			if (use_bigtile)
+			if (use_bigtile || use_dbltile || use_trptile)
 			{
-				if (a & 0x80)
-					Term_putch(x + 1, y, 255, -1);
-				else
-					Term_putch(x + 1, y, TERM_WHITE, ' ');
+				big_putch(x, y, a, c);
 			}
-
 		}
 	}
 }
@@ -3932,8 +3976,20 @@ static void place_visual_list_cursor(int col, int row, byte a, byte c, byte attr
 	int x = col + j;
 	int y = row + i;
 
+	/* Triple tile mode uses double height and width */
+	if (use_trptile)
+	{
+		y += 2 * i;
+		x += (use_bigtile ? 5 : 2) * j;
+	}
+	/* Double tile mode uses double height and width */
+	else if (use_dbltile)
+	{
+		y += i;
+		x += (use_bigtile ? 3 : 1) * j;
+	}
 	/* Bigtile mode uses double width */
-	if (use_bigtile) x += j;
+	else if (use_bigtile) x += j;
 
 	/* Place the cursor */
 	Term_gotoxy(x, y);
@@ -3956,6 +4012,25 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 {
 	static byte attr_old = 0;
 	static char char_old = 0;
+
+	int frame_left = 10;
+	int frame_right = 10;
+	int frame_top = 4;
+	int frame_bottom = 4;
+
+	if (use_trptile) frame_left /= (use_bigtile ? 6 : 3);
+	else if (use_dbltile) frame_left /= (use_bigtile ? 4 : 2);
+	else if (use_bigtile) frame_left /= 2;
+
+	if (use_trptile) frame_right /= (use_bigtile ? 6 : 3);
+	else if (use_dbltile) frame_right /= (use_bigtile ? 4 : 2);
+	else if (use_bigtile) frame_right /= 2;
+
+	if (use_trptile) frame_top /= 3;
+	else if (use_dbltile) frame_top /= 2;
+
+	if (use_trptile) frame_bottom /= 3;
+	else if (use_dbltile) frame_bottom /= 2;
 
 	switch (ch)
 	{
@@ -3989,8 +4064,8 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 		{
 			*visual_list_ptr = TRUE;
 
-			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - 5);
-			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - 10);
+			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
+			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
 
 			attr_old = *cur_attr_ptr;
 			char_old = *cur_char_ptr;
@@ -4013,14 +4088,14 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 		{
 			/* Set the char */
 			*cur_attr_ptr = attr_idx;
-			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - 5);
+			*attr_top_ptr = (byte)MAX(0, (int)*cur_attr_ptr - frame_top);
 		}
 
 		if (char_idx)
 		{
 			/* Set the char */
 			*cur_char_ptr = char_idx;
-			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - 10);
+			*char_left_ptr = (char)MAX(-128, (int)*cur_char_ptr - frame_left);
 		}
 
 		return TRUE;
@@ -4028,13 +4103,19 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 	default:
 		if (*visual_list_ptr)
 		{
-			int eff_width;
+			int eff_width, eff_height;
 			int d = target_dir(ch);
 			byte a = *cur_attr_ptr;
 			char c = *cur_char_ptr;
 
-			if (use_bigtile) eff_width = width / 2;
+			if (use_trptile) eff_width = width / (use_bigtile ? 6 : 3);
+			else if (use_dbltile) eff_width = width / (use_bigtile ? 4 : 2);
+			else if (use_bigtile) eff_width = width / 2;
 			else eff_width = width;
+
+			if (use_trptile) eff_height = height / 3;
+			else if (use_dbltile) eff_height = height / 2;
+			else eff_height = height;
 					
 			/* Restrict direction */
 			if ((a == 0) && (ddy[d] < 0)) d = 0;
@@ -4051,10 +4132,10 @@ static bool visual_mode_command(char ch, bool *visual_list_ptr,
 
 
 			/* Move the frame */
-			if ((ddx[d] < 0) && *char_left_ptr > MAX(-128, (int)c - 10)) (*char_left_ptr)--;
-			if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(127, (int)c + 10)) (*char_left_ptr)++;
-			if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)a - 4)) (*attr_top_ptr)--;
-			if ((ddy[d] > 0) && *attr_top_ptr + height < MIN(255, (int)a + 4)) (*attr_top_ptr)++;
+			if ((ddx[d] < 0) && *char_left_ptr > MAX(-128, (int)c - frame_left)) (*char_left_ptr)--;
+			if ((ddx[d] > 0) && *char_left_ptr + eff_width < MIN(127, (int)c + frame_right)) (*char_left_ptr)++;
+			if ((ddy[d] < 0) && *attr_top_ptr > MAX(0, (int)a - frame_top)) (*attr_top_ptr)--;
+			if ((ddy[d] > 0) && *attr_top_ptr + eff_height < MIN(255, (int)a + frame_bottom)) (*attr_top_ptr)++;
 			return TRUE;
 		}
 				
@@ -4104,18 +4185,21 @@ static void display_monster_list(int col, int row, int per_page, int *mon_idx,
 			c_prt(attr, format("%d", r_idx), row + i, 60);
 		}
 
-		a = r_ptr->x_attr;
-		c = r_ptr->x_char;
-
-		/* Display symbol */
-		Term_putch(70, row + i, a, c);
-
-		if (use_bigtile)
+		if (!use_dbltile && !use_trptile)
 		{
-			if (a & 0x80)
-				Term_putch(71, row + i, 255, -1);
-			else
-				Term_putch(71, row + i, TERM_WHITE, ' ');
+			a = r_ptr->x_attr;
+			c = r_ptr->x_char;
+
+			/* Display symbol */
+			Term_putch(70, row + i, a, c);
+
+			if (use_bigtile)
+			{
+				if (a & 0x80)
+					Term_putch(71, row + i, 255, -1);
+				else
+					Term_putch(71, row + i, TERM_WHITE, ' ');
+			}
 		}
 
 		/* Display kills */
@@ -4418,6 +4502,64 @@ static void desc_ego_fake(int e_idx)
 }
 
 
+/*
+ * Create a copy of an existing quark, except if the quark has '=x' in it, 
+ * If an quark has '=x' in it remove it from the copied string, otherwise append it where 'x' is ch.
+ * Return the new quark location.
+ */
+static int auto_note_modify(int note, char ch)
+{
+	char tmp[80];
+
+	cptr s;
+
+	/* Paranoia */
+	if (!ch) return(note);
+
+	/* Null length string to start */
+	tmp[0] = '\0';
+
+	/* Inscription */
+	if (note)
+	{
+
+		/* Get the inscription */
+		s = quark_str(note);
+
+		/* Temporary copy */
+		my_strcpy(tmp,s,80);
+
+		/* Process inscription */
+		while (s)
+		{
+
+			/* Auto-pickup on "=g" */
+			if (s[1] == ch)
+			{
+
+				/* Truncate string */
+				tmp[strlen(tmp)-strlen(s)] = '\0';
+
+				/* Overwrite shorter string */
+				my_strcat(tmp,s+2,80);
+				
+				/* Create quark */
+				return(quark_add(tmp));
+			}
+
+			/* Find another '=' */
+			s = strchr(s + 1, '=');
+		}
+	}
+
+	/* Append note */
+	my_strcat(tmp,format("=%c",ch),80);
+
+	/* Create quark */
+	return(quark_add(tmp));
+}
+
+
 
 /*
  * Display known ego_items
@@ -4490,6 +4632,7 @@ static void do_cmd_knowledge_ego_items(void)
 			prt("Knowledge - ego items", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
+			prt("Inscribed", 4, 65);
 			prt("Sym", 4, 75);
 
 			for (i = 0; i < 78; i++)
@@ -4526,8 +4669,8 @@ static void do_cmd_knowledge_ego_items(void)
 		e_ptr = &e_info[object_idx[object_cur]];
 
 		/* Prompt */
-		prt(format("<dir>, 'r' to recall, '{', '}'%s, ESC",
-			(note_idx) ? ", 'i' to re-inscribe" : (e_ptr->note) ? ", 'i'" : ""), hgt - 1, 0);
+		prt(format("<dir>, 'r' to recall, '{', '}'%s, ESC, 'k', 'g', ...",
+			(note_idx) ? ", '\\' to re-inscribe" : (e_ptr->note) ? ", '\\', " : ""), hgt - 1, 0);
 
 		if (!column)
 		{
@@ -4626,8 +4769,7 @@ static void do_cmd_knowledge_ego_items(void)
 				break;
 			}
 
-			case 'I':
-			case 'i':
+			case '\\':
 			{
 				if (note_idx)
 				{
@@ -4664,8 +4806,16 @@ static void do_cmd_knowledge_ego_items(void)
 
 			default:
 			{
-				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				if (target_dir(ch))
+				{
+					/* Move the cursor */
+					browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				}
+				else
+				{
+					note_idx = auto_note_modify(e_ptr->note,ch);
+					e_ptr->note = note_idx;
+				}
 				break;
 			}
 		}
@@ -4735,15 +4885,20 @@ static void display_object_list(int col, int row, int per_page, int object_idx[]
 			c_prt(TERM_YELLOW,quark_str(k_ptr->note), row+i, 65);
 		}
 
-		/* Display symbol */
-		Term_putch(76, row + i, a, c);
-
-		if (use_bigtile)
+		/* Hack - don't use if double tile */
+		if (!use_dbltile && !use_trptile)
 		{
-			if (a & 0x80)
-				Term_putch(76 + 1, row + i, 255, -1);
-			else
-				Term_putch(76 + 1, row + i, 0, ' ');
+
+			/* Display symbol */
+			Term_putch(76, row + i, a, c);
+
+			if (use_bigtile)
+			{
+				if (a & 0x80)
+					Term_putch(76 + 1, row + i, 255, -1);
+				else
+					Term_putch(76 + 1, row + i, 0, ' ');
+			}
 		}
 	}
 
@@ -4877,6 +5032,7 @@ static void do_cmd_knowledge_objects(void)
 			prt("Knowledge - objects", 2, 0);
 			prt("Group", 4, 0);
 			prt("Name", 4, max + 3);
+			prt("Inscribed", 4, 65);
 			prt("Sym", 4, 75);
 
 			for (i = 0; i < 78; i++)
@@ -4935,10 +5091,10 @@ static void do_cmd_knowledge_objects(void)
 		if (object_cnt) object_kind_track(object_idx[object_cur]);
 
 		/* Prompt */
-		prt(format("<dir>, 'r' to recall%s%s, '{', '}'%s, ESC",
+		prt(format("<dir>, 'r' to recall%s%s, '{', '}'%s, ESC, 'k', 'g', ...",
 			(visual_list) ? ", ENTER to accept" : ", 'v' for visuals",
 			(attr_idx||char_idx) ? ", 'c', 'p' to paste" : ", 'c' to copy",
-			(note_idx) ? ", 'i' to re-inscribe" : (k_ptr->note) ? ", 'i'" : ""), hgt - 1, 0);
+			(note_idx) ? ", '\\' to re-inscribe" : (k_ptr->note) ? ", '\\'" : ""), hgt - 1, 0);
 
 		/* The "current" object changed */
 		if (object_old != object_idx[object_cur])
@@ -5060,8 +5216,7 @@ static void do_cmd_knowledge_objects(void)
 				break;
 			}
 
-			case 'I':
-			case 'i':
+			case '\\':
 			{
 				if (note_idx)
 				{
@@ -5098,8 +5253,17 @@ static void do_cmd_knowledge_objects(void)
 
 			default:
 			{
-				/* Move the cursor */
-				browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				if (target_dir(ch))
+				{
+					/* Move the cursor */
+					browser_cursor(ch, &column, &grp_cur, grp_cnt, &object_cur, object_cnt);
+				}
+				else
+				{
+					note_idx = auto_note_modify(k_ptr->note,ch);
+					k_ptr->note = note_idx;
+				}
+
 				break;
 			}
 
@@ -5266,69 +5430,71 @@ static void display_feature_list(int col, int row, int per_page, int *feat_idx,
 			c_prt(attr, format("%d", f_idx), row + i, 60);
 		}
 
-		/* Display symbol */
-		Term_putch(68, row + i, f_ptr->x_attr, f_ptr->x_char);
-
-		if (use_bigtile)
+		if (!use_dbltile && !use_trptile)
 		{
-			if ((f_ptr->x_attr) & 0x80)
-				Term_putch(68 + 1, row + i, 255, -1);
+			/* Display symbol */
+			Term_putch(68, row + i, f_ptr->x_attr, f_ptr->x_char);
+
+			if (use_bigtile)
+			{
+				if ((f_ptr->x_attr) & 0x80)
+					Term_putch(68 + 1, row + i, 255, -1);
+				else
+					Term_putch(68 + 1, row + i, 0, ' ');
+			}
+
+			/* Tile supports special lighting? */
+			if (!(f_ptr->flags2 & (FF2_ATTR_LITE)) ||
+				((f_ptr->x_attr) && (arg_graphics = GRAPHICS_DAVID_GERVAIS_ISO)))
+			{
+				prt("       ", row + i, col2);
+				continue;
+			}
+
+			Term_putch(col2, row + i, TERM_SLATE, '(');
+
+			Term_putch(col3, row + i, TERM_SLATE, '/');
+
+			if (use_bigtile)
+				Term_putch(col3 + 3, row + i, TERM_SLATE, ')');
 			else
-				Term_putch(68 + 1, row + i, 0, ' ');
-		}
+				Term_putch(col3 + 2, row + i, TERM_SLATE, ')');
 
-		/* Tile supports special lighting? */
-		if (!(f_ptr->flags2 & (FF2_ATTR_LITE)))
-		{
-			prt("       ", row + i, col2);
-			continue;
-		}
+			/* Mega-hack */
+			if (f_ptr->x_attr & 0x80)
+			{
+				/* Use a brightly lit tile */
+				if ((arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO))
+					Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char-1);
+				else
+					Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char+2);
 
-		Term_putch(col2, row + i, TERM_SLATE, '(');
+				/* Use a dark tile */
+				Term_putch(col3+1, row + i, f_ptr->x_attr, f_ptr->x_char+1);
 
-		Term_putch(col3, row + i, TERM_SLATE, '/');
-
-		if (use_bigtile)
-			Term_putch(col3 + 3, row + i, TERM_SLATE, ')');
-		else
-			Term_putch(col3 + 2, row + i, TERM_SLATE, ')');
-
-
-		/* Mega-hack */
-		if (f_ptr->x_attr & 0x80)
-		{
-			/* Use a brightly lit tile */
-			if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
-				Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char-1);
+			}
 			else
-				Term_putch(col2+1, row + i, f_ptr->x_attr, f_ptr->x_char+2);
+			{
+				/* Use "yellow" */
+				Term_putch(col2+1, row + i, lite_attr[f_ptr->x_attr], f_ptr->x_char);
 
-			/* Use a dark tile */
-			Term_putch(col3+1, row + i, f_ptr->x_attr, f_ptr->x_char+1);
+				/* Use "grey" */
+				Term_putch(col3+1, row + i, dark_attr[f_ptr->x_attr], f_ptr->x_char);
+			}
 
+			if (use_bigtile)
+			{
+				if ((f_ptr->x_attr) & 0x80)
+					Term_putch(col2 + 2, row + i, 255, -1);
+				else
+					Term_putch(col2 + 2, row + i, 0, ' ');
+
+				if ((f_ptr->x_attr) & 0x80)
+					Term_putch(col3 + 2, row + i, 255, -1);
+				else
+					Term_putch(col3 + 2, row + i, 0, ' ');
+			}
 		}
-		else
-		{
-			/* Use "yellow" */
-			Term_putch(col2+1, row + i, lite_attr[f_ptr->x_attr], f_ptr->x_char);
-
-			/* Use "grey" */
-			Term_putch(col3+1, row + i, dark_attr[f_ptr->x_attr], f_ptr->x_char);
-		}
-
-		if (use_bigtile)
-		{
-			if ((f_ptr->x_attr) & 0x80)
-				Term_putch(col2 + 2, row + i, 255, -1);
-			else
-				Term_putch(col2 + 2, row + i, 0, ' ');
-
-			if ((f_ptr->x_attr) & 0x80)
-				Term_putch(col3 + 2, row + i, 255, -1);
-			else
-				Term_putch(col3 + 2, row + i, 0, ' ');
-		}
-
 	}
 
 	/* Clear remaining lines */
@@ -5609,9 +5775,10 @@ void do_cmd_knowledge(void)
 		prt("(6) Display contents of your home", 9, 5);
 		prt("(7) Load a user pref file", 10, 5);
 		prt("(8) Dump auto-inscriptions", 11, 5);
+		prt("(9) Interact with visuals", 12, 5);
 
 		/* Prompt */
-		prt("Command: ", 13, 0);
+		prt("Command: ", 14, 0);
 
 		/* Prompt */
 		ch = inkey();
@@ -5701,7 +5868,15 @@ void do_cmd_knowledge(void)
    
 			/* Message */
 			msg_print("Appended auto-inscriptions.");
-		}						
+		}
+
+		/* Visuals */
+		else if (ch == '9')
+		{
+			/* Spawn */
+			do_cmd_visuals();
+		}
+		
 		/* Unknown option */
 		else
 		{

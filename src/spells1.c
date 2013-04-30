@@ -1558,17 +1558,17 @@ static bool temp_lite(int y, int x)
 	/* Grid is in line of sight */
 	if (player_has_los_bold(y, x))
 	{
-		if (!(cave_info[y][x] & (CAVE_SEEN))
+		if (!(play_info[y][x] & (PLAY_SEEN))
 		    && !(p_ptr->blind))
 		{
 			/* Temporarily seen */
-			cave_info[y][x] |= (CAVE_SEEN);
+			play_info[y][x] |= (PLAY_SEEN);
 
 			/* Remember? */
 			note_spot(y,x);
 
 			/* Temporarily seen */
-			cave_info[y][x] &= ~(CAVE_SEEN);
+			play_info[y][x] &= ~(PLAY_SEEN);
 
 			/* Light? */
 			lite_spot(y,x);
@@ -1994,7 +1994,7 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
 
 			/* Observe */
-			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
+			if (play_info[y][x] & (PLAY_MARK)) obvious = TRUE;
 
 			break;
 		}
@@ -2096,7 +2096,7 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 
 			}
 
-			if (!(cave_info[y][x] & (CAVE_WALL)))
+			if (!(cave_info[y][x] & (CAVE_XLOS)))
 				for (i = 0; i < 8; i++)
 			{
 				int yy = y + ddy_ddd[i];
@@ -2135,7 +2135,7 @@ bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if (cave_feat[y][x] <= FEAT_INVIS)
 			{
 				/* Forget */
-				cave_info[y][x] &= ~(CAVE_MARK);
+				play_info[y][x] &= ~(PLAY_MARK);
 			}
 
 			/* Grid is in line of sight */

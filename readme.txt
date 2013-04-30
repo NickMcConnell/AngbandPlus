@@ -3,7 +3,7 @@
              | |_| | ' \ / _ \| ' \/ _` | '_ \/ _` | ' \/ _` |
               \___/|_||_/_/ \_\_||_\__, |_.__/\__,_|_||_\__,_|
                                    |___/                      
-           The Unnamed Angband                  Version 0.5.4b
+           The Unnamed Angband                  Version 0.5.5
 
                    Earlier versions of Angband & Moria by:
       Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
@@ -21,10 +21,9 @@
 
 === General Info ===
 
-2003-March-31 - UnAngband 0.5.4: "It'll be Sangband Next"
-(Out the door release).
+2004-January-7 - UnAngband 0.5.5: "New Years Resolution".
 
-This is the README file for Unnamed Angband 0.5.4 for 31st March 2003.
+This is the README file for Unnamed Angband 0.5.5 for 31st March 2003.
 
 For a more recent list of changes, read changes.txt.
 

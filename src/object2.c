@@ -1193,14 +1193,6 @@ static s32b object_value_real(const object_type *o_ptr)
 	/* Analyze the item */
 	switch (o_ptr->tval)
 	{
-		/* Staffs */
-		case TV_STAFF:
-		{
-			/* Give credit for bonuses */
-			value += ((o_ptr->to_h + o_ptr->to_d) * 100L);
-
-		/* Fall through */
-		}
 		/* Wands/Staffs */
 		case TV_WAND:
 		{
@@ -1251,6 +1243,14 @@ static s32b object_value_real(const object_type *o_ptr)
 			break;
 		}
 
+		/* Staffs */
+		case TV_STAFF:
+		{
+			/* Pay extra for charges */
+			value += ((value / 20) * o_ptr->pval);
+
+		/* Fall through */
+		}
 		/* Bows/Weapons */
 		case TV_BOW:
 		case TV_DIGGING:
@@ -1268,6 +1268,12 @@ static s32b object_value_real(const object_type *o_ptr)
 			if ((o_ptr->dd > k_ptr->dd) && (o_ptr->ds == k_ptr->ds))
 			{
 				value += (o_ptr->dd - k_ptr->dd) * o_ptr->ds * 100L;
+			}
+
+			/* Hack -- Factor in extra damage sides */
+			if ((o_ptr->ds > k_ptr->ds) && (o_ptr->dd == k_ptr->dd))
+			{
+				value += (o_ptr->ds - k_ptr->ds) * o_ptr->dd * 100L;
 			}
 
 			/* Done */
@@ -2572,13 +2578,23 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			{
 				/* Hack -- Super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(15) == 0))
 				{
 					o_ptr->dd++;
 				}
 
-				/* Hack -- Lower the damage dice */
+				/* Hack -- Limit the damage dice to max of 9*/
 				if (o_ptr->dd > 9) o_ptr->dd = 9;
+
+				/* Hack -- Super-charge the damage sides */
+				while ((o_ptr->dd * o_ptr->ds > 0) &&
+				       (rand_int(15) == 0))
+				{
+					o_ptr->ds++;
+				}
+
+				/* Hack -- Limit the damage dice to max of 9*/
+				if (o_ptr->ds > 9) o_ptr->ds = 9;
 			}
 
 			break;
@@ -2592,15 +2608,15 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			/* Very good */
 			if (power > 1)
 			{
-				/* Hack -- super-charge the damage dice */
+				/* Hack -- super-charge the damage side */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(25) == 0))
 				{
-					o_ptr->dd++;
+					o_ptr->ds++;
 				}
 
-				/* Hack -- restrict the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+				/* Hack -- restrict the damage side */
+				if (o_ptr->ds > 9) o_ptr->ds = 9;
 			}
 
 			break;
@@ -3788,7 +3804,6 @@ static bool kind_is_race(int k_idx)
 
 		/* Lite/Fuel */
 		case TV_LITE:
-		case TV_FLASK:
 		{
 			if (r_ptr->flags2 & (RF2_HAS_LITE | RF2_NEED_LITE)) return (TRUE);
 			if (r_ptr->flags7 & (RF7_DROP_LITE)) return (TRUE);
@@ -3815,6 +3830,7 @@ static bool kind_is_race(int k_idx)
 		/* Diggers/Spikes */
 		case TV_DIGGING:
 		case TV_SPIKE:
+		case TV_FLASK:
 		{
 			if (r_ptr->flags7 & (RF7_DROP_TOOL)) return (TRUE);
 			return (FALSE);
@@ -4239,21 +4255,85 @@ bool make_skin(object_type *j_ptr, int m_idx)
 }
 
 
+
+static int feat_tval;
+
 /*
- * Make a feature item
- *
+ * Hack -- determine if a template matches feats_tval.
  */
-bool make_feat(object_type *j_ptr, int feat)
+static bool kind_is_feat_tval(int k_idx)
 {
-	feature_type *f_ptr = &f_info[feat];
 
-	int k_idx = f_ptr->k_idx;
+	object_kind *k_ptr = &k_info[k_idx];
 
-	/* Handle failure */
-	if (!k_idx) return (FALSE);
+	if (k_ptr->tval != feat_tval) return (FALSE);
+
+	return (TRUE);
+}
+
+
+/*
+ * Either get a copy of an existing feat item, or create a new one.
+ *
+ * If a new feat item is created, place on the floor in the specified location.
+ */
+bool make_feat(object_type *j_ptr, int y, int x)
+{
+	feature_type *f_ptr;
+
+	int k_idx;
+	int item;
+
+	/* Sanity */
+	if (!in_bounds(y, x)) return (0);
+
+	/* Get the feat */	
+	f_ptr = &f_info[cave_feat[y][x]];
+
+	/* Get the item */
+	k_idx = f_ptr->k_idx;
+
+	/* Get existing item */
+	item = scan_feat(y,x);
+
+	/* Are we done */
+	if (item >= 0)
+	{
+		object_copy(j_ptr,&o_list[item]);
+
+		return (TRUE);
+	}
+
+	/* Hack -- Pick random flavor, if flavored */
+	if (f_ptr->flags3 & (FF3_FLAVOR))
+	{
+		/* Set restriction */
+		feat_tval = k_info[k_idx].tval;
+
+		/* Activate restriction */
+		get_obj_num_hook = kind_is_feat_tval;
+
+		/* Prepare allocation table */
+		get_obj_num_prep();
+
+		/* Pick a random object */
+		k_idx = get_obj_num(object_level);
+
+		/* Clear restriction */
+		get_obj_num_hook = NULL;
+
+		/* Prepare allocation table */
+		get_obj_num_prep();
+
+		/* Failed? */
+		if (!k_idx) k_idx = f_ptr->k_idx;
+	}
 
 	/* Prepare the object */
 	object_prep(j_ptr, k_idx);
+
+	/* This is a 'store' item */
+	j_ptr->ident |= (IDENT_STORE);
 
 	/* Hack -- only apply magic to boring objects */
 	a_m_aux_4(j_ptr, object_level, 0);
@@ -4261,8 +4341,13 @@ bool make_feat(object_type *j_ptr, int feat)
 	/* Auto-inscribe if necessary */
 	if ((cheat_auto) || (object_aware_p(j_ptr))) j_ptr->note = k_info[k_idx].note;
 
-	return (TRUE);
+	/* Add to the floor */
+	if (floor_carry(y,x,j_ptr)) return (TRUE);
+
+	/* Failed */
+	return(FALSE);
 }
+
 
 /*
  * Let the floor carry an object
@@ -5844,6 +5929,9 @@ void floor_item_describe(int item)
 	object_type *o_ptr = &o_list[item];
 
 	char o_name[80];
+
+	/* Hack -- haven't seen item on floor */
+	if (!(o_ptr->marked)) return;
 
 	/* Get a description */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);

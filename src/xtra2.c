@@ -2206,6 +2206,7 @@ void monster_death(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
 
@@ -2375,6 +2376,8 @@ void monster_death(int m_idx)
 			/* Drop it in the dungeon */
 			if (make_chest(&chest)) feat_near(chest,y,x);
 
+			l_ptr->flags7 |= (RF7_DROP_CHEST);
+
 			continue;
 		}
 
@@ -2393,6 +2396,109 @@ void monster_death(int m_idx)
 		{
 			/* Make an object */
 			if (!make_object(i_ptr, good, great)) continue;
+
+			/* Hack -- ignore bodies */
+			switch (i_ptr->tval)
+			{
+				case TV_JUNK:
+				{
+					l_ptr->flags7 |= (RF7_DROP_JUNK);
+					break;
+				}
+
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_BOW:
+				{
+					l_ptr->flags7 |= (RF7_DROP_MISSILE);
+					break;
+				}
+
+				case TV_DIGGING:
+				case TV_SPIKE:
+				case TV_FLASK:
+				{
+					l_ptr->flags7 |= (RF7_DROP_TOOL);
+					break;
+				}
+
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				{
+					l_ptr->flags7 |= (RF7_DROP_WEAPON);
+					break;
+				}
+
+				case TV_INSTRUMENT:
+				case TV_SONG_BOOK:
+				{
+					l_ptr->flags7 |= (RF7_DROP_MUSIC);
+					break;
+				}
+
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_CLOAK:
+				{
+					l_ptr->flags7 |= (RF7_DROP_CLOTHES);
+					break;
+				}
+
+				case TV_HELM:
+				case TV_SHIELD:
+				case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				{
+					l_ptr->flags7 |= (RF7_DROP_ARMOR);
+					break;
+				}
+
+				case TV_CROWN:
+				case TV_AMULET:
+				case TV_RING:
+				{
+					l_ptr->flags7 |= (RF7_DROP_JEWELRY);
+					break;
+				}
+
+				case TV_LITE:
+				{
+					l_ptr->flags7 |= (RF7_DROP_LITE);
+					break;
+				}
+
+				case TV_ROD:
+				case TV_STAFF:
+				case TV_WAND:
+				{
+					l_ptr->flags7 |= (RF7_DROP_RSW);
+					break;
+				}
+
+				case TV_SCROLL:
+				case TV_MAP:
+				case TV_MAGIC_BOOK:
+				case TV_PRAYER_BOOK:
+				case TV_RUNESTONE:
+				{
+					l_ptr->flags7 |= (RF7_DROP_WRITING);
+					break;
+				}
+
+				case TV_POTION:
+				{
+					l_ptr->flags7 |= (RF7_DROP_POTION);
+					break;
+				}
+
+				case TV_FOOD:
+				{
+					l_ptr->flags7 |= (RF7_DROP_FOOD);
+					break;
+				}
+			}
 
 			/* Assume seen XXX XXX XXX */
 			dump_item++;
@@ -2780,7 +2886,9 @@ bool modify_panel(int wy, int wx)
 		if (wx > TOWN_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
 		else if (wx < 0) wx = 0;
 	}
-	else if (wx > DUNGEON_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
+	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
+
+	if (wx < 0) wx = 0;
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
@@ -3860,7 +3968,7 @@ static bool target_set_interactive_accept(int y, int x)
 	}
 
 	/* Interesting memorized features */
-	if ((cave_info[y][x] & (CAVE_MARK)) && (f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)))
+	if ((play_info[y][x] & (PLAY_MARK)) && (f_info[cave_feat[y][x]].flags1 & (FF1_NOTICE)))
 	{
 		return (TRUE);
 	}
@@ -4359,7 +4467,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		feat = f_info[cave_feat[y][x]].mimic;
 
 		/* Require knowledge about grid, or ability to see grid */
-		if (!(cave_info[y][x] & (CAVE_MARK)) && !player_can_see_bold(y,x))
+		if (!(play_info[y][x] & (PLAY_MARK)) && !player_can_see_bold(y,x))
 		{
 			/* Forget feature */
 			feat = FEAT_NONE;
@@ -4435,7 +4543,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Room description if needed */
 		/* We describe a room if we are looking at ourselves, or something in a room when we are
 		 * not in a room, or in a different room. */
-		if ((cave_info[y][x] & (CAVE_MARK)) &&
+		if ((play_info[y][x] & (PLAY_MARK)) &&
 			(cave_info[y][x] & (CAVE_ROOM)) &&
 			(room_info[dun_room[y/BLOCK_HGT][x/BLOCK_WID]].flags & (ROOM_SEEN)) &&
 			(room_names) &&

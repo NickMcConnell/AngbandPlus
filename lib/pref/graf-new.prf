@@ -314,8 +314,8 @@ F:0:0x80/0x80:NO
 # open floor
 F:1:0x80/0x81:YES
 
-# invisible trap (drawn as open floor)
-F:2:0x80/0x81:NO
+# invisible trap
+F:2:0x08:0x78:NO
 
 # glyph of warding
 F:3:0x8D/0x95:NO

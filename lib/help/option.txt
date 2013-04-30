@@ -392,6 +392,13 @@ Compress messages in savefiles    [compress_savefile]
 
 === Display options ===
 
+***** <show_sidebar>
+Show attributes in sidebar     [show_sidebar]
+    Display name, race, class, title, statistics, hit points, mana and some
+    status information in the sidebar. Setting this to no increases the area
+    available on the screen to display the map, and moves most of this
+    information to a more compact space at the bottom of the screen.
+
 ***** <depth_in_feet>
 Show dungeon level in feet    [depth_in_feet]
     Display dungeon depths in "feet" instead of "levels".

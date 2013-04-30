@@ -533,7 +533,7 @@ F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:MAGE | HAS_LITE | NEED_LITE | LOW_MANA_RUN
 S:1_IN_12
-S:BLINK | BLIND | CONF | BO_MANA | ADD_MANA
+S:BLINK | BLIND | CONF | MISSILE | ADD_MANA
 D:He is leaving behind a trail of dropped spell components.
 
 N:39:Yellow mushroom patch
@@ -907,7 +907,7 @@ F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:WARRIOR | MAGE | HAS_LITE | NEED_LITE
 S:1_IN_9
-S:SHOOT | BO_MANA
+S:SHOOT | MISSILE
 D:An agile hunter, ready and relaxed.
 
 N:70:Novice paladin
@@ -1003,7 +1003,7 @@ F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:MAGE | HAS_LITE | NEED_LITE
 S:1_IN_12
-S:BLINK | BLIND | CONF | BO_MANA
+S:BLINK | BLIND | CONF | MISSILE
 D:He is leaving behind a trail of dropped spell components.
 
 N:78:Green naga
@@ -1471,7 +1471,7 @@ F:FORCE_SLEEP | FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:WARRIOR | MAGE | HAS_LITE | NEED_LITE
 S:1_IN_9
-S:SHOOT | BO_MANA
+S:SHOOT | MISSILE
 D:An agile hunter, ready and relaxed.
 
 N:115:Giant salamander
@@ -1620,7 +1620,7 @@ F:OPEN_DOOR | BASH_DOOR
 F:EVIL | ORC | HURT_LITE
 F:PRIEST | MAGE
 S:1_IN_8
-S:BLINK | WOUND | BO_MANA | CURE
+S:BLINK | WOUND | MISSILE | CURE
 D:An orc dressed in skins who gestures wildly.
 
 N:127:Baby blue dragon
@@ -1765,7 +1765,7 @@ F:ONLY_ITEM | DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
 F:HAS_LITE
 S:1_IN_5
-S:BLIND | CONF | BO_MANA | DARKNESS | BA_POIS
+S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
 D:A elven figure, hurling spells at you.
 
 #Was Orfax, Son of Boldor
@@ -3768,7 +3768,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | DROP_90
 F:OPEN_DOOR | BASH_DOOR | REGENERATE
 F:EVIL | TROLL | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_5
-S:BLINK | SCARE | WOUND | BO_MANA | DARKNESS | CURE
+S:BLINK | SCARE | WOUND | MISSILE | DARKNESS | CURE
 D:A troll who is so bright he knows how to read.
 
 N:280:Wereworm
@@ -9147,7 +9147,7 @@ B:HIT:HURT:1d8
 F:DROP_60
 F:OPEN_DOOR | BASH_DOOR
 F:EVIL | IM_POIS | ORC | HURT_LITE
-S:1_IN_5 | BO_MANA | WOUND | HEAL | CONF
+S:1_IN_5 | MISSILE | WOUND | HEAL | CONF
 D:It is a goblin dressed in skins and gesturing wildly.
 
 N:605:Bat of Gorgoroth
@@ -12718,7 +12718,7 @@ F:DROP_60 | DROP_90 | CAN_FLY |
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
 F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | CAN_FLY
 S:1_IN_7 | 
-S:TPORT | SCARE | BLIND | BO_MANA | CONF
+S:TPORT | SCARE | BLIND | MISSILE | CONF
 D:A ghostly apparition that mumbles horribly.
 
 N:864:Commanding spirit
@@ -12970,7 +12970,7 @@ F:FORCE_SLEEP |
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_5 | 
-S:BO_MANA | SHOOT | BLIND
+S:MISSILE | SHOOT | BLIND
 D:A dwarven ranger with a three-foot beard, and sword and bow quick to hand.
 
 N:883:Dwarven priest
@@ -13841,7 +13841,7 @@ F:ONLY_ITEM | DROP_1D2 |
 F:OPEN_DOOR | BASH_DOOR | 
 F:IM_POIS | HAS_LITE | ARCHER
 S:1_IN_5 | 
-S:BLIND | BO_MANA | DARKNESS | SHOOT
+S:BLIND | MISSILE | DARKNESS | SHOOT
 D:An elven figure, with sword and bow quick to hand.
 
 N:959:Wood elf assassin
@@ -14495,7 +14495,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 |
 F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP | MAGE
 S:1_IN_5 | 
-S:BLINK | BLIND | CONF | BO_MANA 
+S:BLINK | BLIND | CONF | MISSILE 
 D:An orc who is so bright he knows how to cast spells.
 
 N:1000:Green orc
@@ -14759,7 +14759,7 @@ F:FORCE_SLEEP |
 F:DROP_60 | HAS_LITE | NEED_LITE |
 F:OPEN_DOOR | BASH_DOOR | PRIEST | MAGE
 S:1_IN_12 | 
-S:BLINK | BO_MANA | HEAL | S_ANIMAL | SCARE
+S:BLINK | MISSILE | HEAL | S_ANIMAL | SCARE
 D:He waves a magical talisman at you.
 
 N:1020:Novice shaman
@@ -14772,7 +14772,7 @@ F:FORCE_SLEEP |
 F:FRIENDS | DROP_60 | HAS_LITE | NEED_LITE | PRIEST | MAGE
 F:OPEN_DOOR | BASH_DOOR
 S:1_IN_12 | 
-S:BLINK | BO_MANA | HEAL | S_ANIMAL | SCARE
+S:BLINK | MISSILE | HEAL | S_ANIMAL | SCARE
 D:He waves a magical talisman at you.
 
 N:1021:Black bishop

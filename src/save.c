@@ -748,7 +748,12 @@ static void wr_randarts(void)
 /*
  * The cave grid flags that get saved in the savefile
  */
-#define IMPORTANT_FLAGS (CAVE_MARK | CAVE_GLOW | CAVE_SAFE | CAVE_ROOM)
+#define CAVE_IMPORTANT_FLAGS (CAVE_GLOW | CAVE_ROOM)
+
+/*
+ * The player grid flags that get saved in the savefile
+ */
+#define PLAY_IMPORTANT_FLAGS (PLAY_MARK | PLAY_SAFE)
 
 
 /*
@@ -792,7 +797,44 @@ static void wr_dungeon(void)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 			/* Extract the important cave_info flags */
-			tmp8u = (cave_info[y][x] & (IMPORTANT_FLAGS));
+			tmp8u = (cave_info[y][x] & (CAVE_IMPORTANT_FLAGS));
+
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract the important play_info flags */
+			tmp8u = (play_info[y][x] & (PLAY_IMPORTANT_FLAGS));
 
 			/* If the run is broken, or too full, flush it */
 			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
@@ -831,7 +873,7 @@ static void wr_dungeon(void)
 		for (x = 0; x < DUNGEON_WID; x++)
 		{
 
-			/* Extract the important cave_info flags */
+			/* Extract the important cave_feats */
 			tmp16u = cave_feat[y][x];
 
 			if ((!variant_save_feats) & (tmp16u == FEAT_ENTRANCE)) tmp16u = FEAT_MORE;

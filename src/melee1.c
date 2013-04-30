@@ -1429,7 +1429,7 @@ static bool run_test(void)
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+			if (!(play_info[row][col] & (PLAY_MARK)) ||
 			    (!(f_info[feat].flags1 & (FF1_WALL))) )
 			{
 				/* Looking to break right */
@@ -1467,7 +1467,7 @@ static bool run_test(void)
 
 			/* Unknown grid or non-wall */
 			/* Was: cave_floor_bold(row, col) */
-			if (!(cave_info[row][col] & (CAVE_MARK)) ||
+			if (!(play_info[row][col] & (PLAY_MARK)) ||
 			    (!(f_info[feat].flags1 & (FF1_WALL))))
 			{
 				/* Looking to break left */

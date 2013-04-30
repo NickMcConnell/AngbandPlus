@@ -57,6 +57,12 @@ int value_check_aux1(object_type *o_ptr)
 	/* Great "weapon" bonus */
 	if ((variant_great_id) && (o_ptr->to_h + o_ptr->to_d > 14)) return (INSCRIP_GREAT);
 
+	/* Great "weapon" dice */
+	if ((variant_great_id) && (o_ptr->dd > k_info[o_ptr->k_idx].dd)) return (INSCRIP_GREAT);
+
+	/* Great "weapon" sides */
+	if ((variant_great_id) && (o_ptr->ds > k_info[o_ptr->k_idx].ds)) return (INSCRIP_GREAT);
+
 	/* Very good "armor" bonus */
 	if ((variant_great_id) && (o_ptr->to_a > 4)) return (INSCRIP_VERY_GOOD);
 

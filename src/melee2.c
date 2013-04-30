@@ -5408,7 +5408,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 			if (p_ptr->vulnerability <= 4)
 			{
 				/* If we're in sight, find a hiding place */
-				if (cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_SEEN))
+				if (play_info[m_ptr->fy][m_ptr->fx] & (PLAY_SEEN))
 				{
 					/* Find a safe spot to lurk in */
 					if (get_move_retreat(m_ptr, ty, tx))
@@ -5472,7 +5472,7 @@ static bool get_move(monster_type *m_ptr, int *ty, int *tx, bool *fear,
 	if ((!*fear) && (r_ptr->flags2 & (RF2_SNEAKY)) && (m_ptr->cdis >= 3))
 	{
 		/* If we're in sight, find a hiding place */
-		if (cave_info[m_ptr->fy][m_ptr->fx] & (CAVE_SEEN))
+		if (play_info[m_ptr->fy][m_ptr->fx] & (PLAY_SEEN))
 		{
 			/* Find a safe spot to lurk in */
 			if (get_move_retreat(m_ptr, ty, tx))
@@ -6092,10 +6092,10 @@ static bool make_move(monster_type *m_ptr, int *ty, int *tx, bool fear, bool *ba
 				}
 
 				/* Monster can't be seen, and is not in a "seen" grid. */
-				if ((!m_ptr->ml) && (!(cave_info[oy][ox] & (CAVE_SEEN))))
+				if ((!m_ptr->ml) && (!(play_info[oy][ox] & (PLAY_SEEN))))
 				{
 					/* Do not enter a "seen" grid */
-					if (cave_info[ny][nx] & (CAVE_SEEN))
+					if (play_info[ny][nx] & (PLAY_SEEN))
 					{
 						moves_data[i].move_chance = 0;
 						continue;
@@ -6603,7 +6603,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		if (f_info[feat].flags1 & (FF1_GLYPH))
 		{
 			/* Describe observable breakage */
-			if (cave_info[ny][nx] & (CAVE_MARK))
+			if (play_info[ny][nx] & (PLAY_MARK))
 			{
 				msg_print("The rune of protection is broken!");
 			}
@@ -6642,7 +6642,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				else cave_alter_feat(ny, nx, FS_BASH);
 
 				/* Handle viewable doors */
-				if (cave_info[ny][nx] & (CAVE_SEEN)) 
+				if (play_info[ny][nx] & (PLAY_SEEN)) 
 				{
 					/* Always disturb */
 					disturb(0, 0);
@@ -6692,7 +6692,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					pick_trap(ny,nx);
 
 					/* Describe observable breakage */
-					if ((cave_info[ny][nx] & (CAVE_MARK)) && (m_ptr->ml))
+					if ((play_info[ny][nx] & (PLAY_MARK)) && (m_ptr->ml))
 					{
 						char m_name[80];
 
@@ -6705,7 +6705,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 				}
 
 				/* Describe observable breakage */
-				else if (cave_info[ny][nx] & (CAVE_MARK))
+				else if (play_info[ny][nx] & (PLAY_MARK))
 				{
 					char m_name[80];
 

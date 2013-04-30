@@ -188,6 +188,9 @@
 #define IDM_OPTIONS_GRAPHICS_OLD    401
 #define IDM_OPTIONS_GRAPHICS_ADAM   402
 #define IDM_OPTIONS_GRAPHICS_DAVID  403
+#define IDM_OPTIONS_GRAPHICS_DAVID_ISO  404
+#define IDM_OPTIONS_TRPTILE         407
+#define IDM_OPTIONS_DBLTILE         408
 #define IDM_OPTIONS_BIGTILE         409
 #define IDM_OPTIONS_SOUND           410
 #define IDM_OPTIONS_LOW_PRIORITY    420
@@ -407,7 +410,7 @@ struct _term_data
 	uint map_tile_wid;
 	uint map_tile_hgt;
 
-	bool map_active;
+	int grid_display;
 };
 
 
@@ -1028,6 +1031,14 @@ static void save_prefs(void)
 	sprintf(buf, "%d", arg_graphics);
 	WritePrivateProfileString("Angband", "Graphics", buf, ini_file);
 
+	/* Save the "use_trptile" flag */
+	strcpy(buf, use_trptile ? "1" : "0");
+	WritePrivateProfileString("Angband", "Trptile", buf, ini_file);
+
+	/* Save the "use_dbltile" flag */
+	strcpy(buf, use_dbltile ? "1" : "0");
+	WritePrivateProfileString("Angband", "Dbltile", buf, ini_file);
+
 	/* Save the "use_bigtile" flag */
 	strcpy(buf, use_bigtile ? "1" : "0");
 	WritePrivateProfileString("Angband", "Bigtile", buf, ini_file);
@@ -1097,6 +1108,12 @@ static void load_prefs(void)
 
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = GetPrivateProfileInt("Angband", "Graphics", GRAPHICS_NONE, ini_file);
+
+	/* Extract the "use_trptile" flag */
+	use_trptile = GetPrivateProfileInt("Angband", "Trptile", FALSE, ini_file);
+
+	/* Extract the "use_dbltile" flag */
+	use_dbltile = GetPrivateProfileInt("Angband", "Dbltile", FALSE, ini_file);
 
 	/* Extract the "use_bigtile" flag */
 	use_bigtile = GetPrivateProfileInt("Angband", "Bigtile", FALSE, ini_file);
@@ -1386,7 +1403,18 @@ static bool init_graphics(void)
 		int wid, hgt;
 		cptr name;
 
-		if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+		if (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
+		{
+			wid = 54;
+			hgt = 54;
+
+			name = "54x54.bmp";
+
+			ANGBAND_GRAF = "davidiso";
+
+			use_transparency = TRUE;
+		}
+		else if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
 		{
 			wid = 32;
 			hgt = 32;
@@ -1395,7 +1423,7 @@ static bool init_graphics(void)
 
 			ANGBAND_GRAF = "david";
 
-			use_transparency = FALSE;
+			use_transparency = TRUE;
 		}
 		else if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
@@ -1431,7 +1459,31 @@ static bool init_graphics(void)
 		infGraph.CellWidth = wid;
 		infGraph.CellHeight = hgt;
 
-		if (arg_graphics == GRAPHICS_ADAM_BOLT)
+		if (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
+		{
+			/* Access the mask file */
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask54.bmp");
+
+			/* Load the bitmap or quit */
+			if (!ReadDIB(data[0].w, buf, &infMask))
+			{
+				plog_fmt("Cannot read bitmap file '%s'", buf);
+				return (FALSE);
+			}
+		}
+		else if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+		{
+			/* Access the mask file */
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask32.bmp");
+
+			/* Load the bitmap or quit */
+			if (!ReadDIB(data[0].w, buf, &infMask))
+			{
+				plog_fmt("Cannot read bitmap file '%s'", buf);
+				return (FALSE);
+			}
+		}
+		else if (arg_graphics == GRAPHICS_ADAM_BOLT)
 		{
 			/* Access the mask file */
 			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_GRAF, "mask.bmp");
@@ -1679,7 +1731,7 @@ static void windows_map_aux(void);
  */
 static void term_data_redraw(term_data *td)
 {
-	if (td->map_active)
+	if (td->grid_display == 3)
 	{
 		/* Redraw the map */
 		windows_map_aux();
@@ -1865,6 +1917,16 @@ static errr Term_xtra_win_react(void)
 
 		/* Change setting */
 		use_graphics = arg_graphics;
+
+		/* Hack -- always redraw */
+		if (use_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
+		{
+			Term->always_draw = TRUE;
+		}
+		else
+		{
+			Term->always_draw = FALSE;
+		}
 
 		/* Reset visuals */
 #ifdef ANGBAND_2_8_1
@@ -2090,6 +2152,29 @@ static int Term_xtra_win_delay(int v)
 
 
 /*
+ * Notice grid display changing. Set grid_display to new value.
+ */
+static int Term_xtra_win_grids(int v)
+{
+	term_data *td = (term_data*)(Term->data);
+
+	td->grid_display = v;
+
+	if (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO)
+	{
+		Term->always_draw = TRUE;
+	}
+	else
+	{
+		Term->always_draw = FALSE;
+	}
+
+	/* Success */
+	return (0);
+}
+
+
+/*
  * Do a "special thing"
  */
 static errr Term_xtra_win(int n, int v)
@@ -2144,6 +2229,12 @@ static errr Term_xtra_win(int n, int v)
 		{
 			return (Term_xtra_win_delay(v));
 		}
+
+		/* Notice screen save / load */
+		case TERM_XTRA_GRIDS:
+		{
+			return (Term_xtra_win_grids(v));
+		}
 	}
 
 	/* Oops */
@@ -2166,7 +2257,7 @@ static errr Term_curs_win(int x, int y)
 
 	int tile_wid, tile_hgt;
 
-	if (td->map_active)
+	if (td->grid_display == 3)
 	{
 		tile_wid = td->map_tile_wid;
 		tile_hgt = td->map_tile_hgt;
@@ -2207,7 +2298,7 @@ static errr Term_bigcurs_win(int x, int y)
 
 	int tile_wid, tile_hgt;
 
-	if (td->map_active)
+	if (td->grid_display == 3)
 	{
 		/* Normal cursor in map window */
 		Term_curs_win(x, y);
@@ -2221,9 +2312,9 @@ static errr Term_bigcurs_win(int x, int y)
 
 	/* Frame the grid */
 	rc.left = x * tile_wid + td->size_ow1;
-	rc.right = rc.left + 2 * tile_wid;
+	rc.right = rc.left + ((use_trptile && use_bigtile) ? 6 : (use_trptile ? 3 : ((use_dbltile && use_bigtile) ? 4 : 2))) * tile_wid;
 	rc.top = y * tile_hgt + td->size_oh1;
-	rc.bottom = rc.top + tile_hgt;
+	rc.bottom = rc.top + (use_trptile ? 3 : (use_dbltile ? 2 : 1)) * tile_hgt;
 
 	/* Cursor is done as a yellow "box" */
 	hdc = GetDC(td->w);
@@ -2377,7 +2468,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 
 	int i;
 	int x1, y1, w1, h1;
-	int x2, y2, w2, h2, tw2;
+	int x2, y2, w2, h2, tw2, th2;
 	int x3, y3;
 
 	HDC hdcMask;
@@ -2397,27 +2488,69 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	h1 = infGraph.CellHeight;
 
 	/* Size of window cell */
-	if (td->map_active)
+	if (td->grid_display == 3)
 	{
 		w2 = td->map_tile_wid;
 		h2 = td->map_tile_hgt;
 		tw2 = w2;
+		th2 = h2;
 	}
 	else
 	{
 		w2 = td->tile_wid;
 		h2 = td->tile_hgt;
 
+		/* Triple tile mode */
+		if (use_trptile)
+			th2 = 3 * h2;
+		else if (use_dbltile)
+			th2 = 2 * h2;
+		else
+			th2 = h2;
+
+		/* Triple tile mode */
+		if (use_trptile)
+			tw2 = (use_bigtile ? 6 : 3) * w2;
+		else if (use_dbltile)
+			tw2 = (use_bigtile ? 4 : 2) * w2;
 		/* big tile mode */
-		if (use_bigtile)
+		else if (use_bigtile)
 			tw2 = 2 * w2;
 		else
 			tw2 = w2;
 	}
 
-	/* Location of window cell */
-	x2 = x * w2 + td->size_ow1;
-	y2 = y * h2 + td->size_oh1;
+	/* Hack -- isometric location */
+	/*
+	 * Note check on grid_display.
+       */
+	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display))
+	{
+		x = (x - COL_MAP);
+		y = (y - ROW_MAP);
+
+		if (use_trptile)
+		{
+			x /= (use_bigtile ? 6 : 3);
+			y /= 3;
+		}
+		else if (use_dbltile)
+		{
+			x /= (use_bigtile ? 4 : 2);
+			y /= 2;
+		}
+		else if (use_bigtile)
+			x /= 2;
+
+		x2 = (x - y) * tw2 / 2 + ((td->rows - ROW_MAP) * tw2 / (use_trptile ? 6 : (use_dbltile ? 4 : 2))) + w2 * (COL_MAP-1) + td->size_ow1;
+		y2 = (y + x) * th2 / 4 + h2 * ROW_MAP + td->size_ow2; 
+	}
+	else
+	{
+		/* Location of window cell */
+		x2 = x * w2 + td->size_ow1;
+		y2 = y * h2 + td->size_oh1;
+	}
 
 	/* Info */
 	hdc = GetDC(td->w);
@@ -2426,7 +2559,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
+	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
 	{
 		hdcMask = CreateCompatibleDC(hdc);
 		SelectObject(hdcMask, infMask.hBitmap);
@@ -2436,8 +2569,14 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		hdcMask = NULL;
 	}
 
+	/* Hack -- draw in reverse order to improve display of iso graphics */
+	x2 += w2 * (n-1);
+
 	/* Draw attr/char pairs */
+#if 0
 	for (i = 0; i < n; i++, x2 += w2)
+#endif
+	for (i = n-1; i >= 0; i--, x2 -= w2)
 	{
 		byte a = ap[i];
 		char c = cp[i];
@@ -2450,22 +2589,62 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 		x1 = col * w1;
 		y1 = row * h1;
 
-		if (arg_graphics == GRAPHICS_ADAM_BOLT)
+		if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
 		{
 			x3 = (tcp[i] & 0x7F) * w1;
 			y3 = (tap[i] & 0x7F) * h1;
 
 			/* Perfect size */
-			if ((w1 == tw2) && (h1 == h2))
+			if ((w1 == tw2) && (h1 == th2))
 			{
-				/* Copy the terrain picture from the bitmap to the window */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x3, y3, SRCCOPY);
+				if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
+				{
+					if (!(x))
+					{
+						/* Copy the terrain picture from the bitmap to the window */
+						BitBlt(hdc, x2, y2, tw2 / 2, th2, hdcSrc, x3, y3, SRCCOPY);
 
-				/* Mask out the tile */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcMask, x1, y1, SRCAND);
+						/* Mask out the terrain */
+						BitBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcMask, x3 + tw2 / 2, y3, SRCAND);
 
-				/* Draw the tile */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, SRCPAINT);
+						/* Draw the terrain */
+						BitBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcSrc, x3 + tw2 / 2, y3, SRCPAINT);
+					}
+					else if (!(y))
+					{
+						/* Copy the terrain picture from the bitmap to the window */
+						BitBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcSrc, x3 + tw2 / 2, y3, SRCCOPY);
+
+						/* Mask out the terrain */
+						BitBlt(hdc, x2, y2, tw2 / 2, th2, hdcMask, x3, y3, SRCAND);
+
+						/* Draw the terrain */
+						BitBlt(hdc, x2, y2, tw2 / 2, th2, hdcSrc, x3, y3, SRCPAINT);
+					}
+					else
+					{
+						/* Mask out the terrain */
+						BitBlt(hdc, x2, y2, tw2, th2, hdcMask, x3, y3, SRCAND);
+
+						/* Draw the terrain */
+						BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, SRCPAINT);
+					}
+				}
+				else
+				{
+					/* Copy the terrain picture from the bitmap to the window */
+					BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, SRCCOPY);
+				}
+
+				/* Only draw if terrain and overlay are different */
+				if ((x1 != x3) || (y1 != y3))
+				{
+					/* Mask out the tile */
+					BitBlt(hdc, x2, y2, tw2, th2, hdcMask, x1, y1, SRCAND);
+
+					/* Draw the tile */
+					BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, SRCPAINT);
+				}
 			}
 
 			/* Need to stretch */
@@ -2474,27 +2653,63 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 				/* Set the correct mode for stretching the tiles */
 				SetStretchBltMode(hdc, COLORONCOLOR);
 
-				/* Copy the terrain picture from the bitmap to the window */
-				StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x3, y3, w1, h1, SRCCOPY);
+				if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) && (td->grid_display) && ((x) || (y)))
+				{ 
+					if (!(x))
+					{
+						/* Copy the terrain picture from the bitmap to the window */
+						StretchBlt(hdc, x2, y2, tw2 / 2, th2, hdcSrc, x3, y3, w1 / 2, h1, SRCCOPY);
+
+						/* Mask out the terrain */
+						StretchBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcMask, x3 + tw2 / 2, y3, w1 / 2, h1, SRCAND);
+
+						/* Draw the terrain */
+						StretchBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcSrc, x3 + tw2 / 2, y3, w1 / 2, h1, SRCPAINT);
+					}
+					else if (!(y))
+					{
+						/* Copy the terrain picture from the bitmap to the window */
+						StretchBlt(hdc, x2 + tw2 / 2, y2, tw2 / 2, th2, hdcSrc, x3 + tw2 / 2, y3, w1 / 2, h1, SRCCOPY);
+
+						/* Mask out the terrain */
+						StretchBlt(hdc, x2, y2, tw2 / 2, th2, hdcMask, x3, y3, w1 / 2, h1, SRCAND);
+
+						/* Draw the terrain */
+						StretchBlt(hdc, x2, y2, tw2 / 2, th2, hdcSrc, x3, y3, w1 / 2, h1, SRCPAINT);
+					}
+					else
+					{
+						/* Mask out the terrain */
+						StretchBlt(hdc, x2, y2, tw2, th2, hdcMask, x3, y3, w1, h1, SRCAND);
+
+						/* Draw the terrain */
+						StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, w1, h1, SRCPAINT);
+					}
+				}
+				else
+				{
+					/* Copy the terrain picture from the bitmap to the window */
+					StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x3, y3, w1, h1, SRCCOPY);
+				}
 
 				/* Only draw if terrain and overlay are different */
 				if ((x1 != x3) || (y1 != y3))
 				{
 					/* Mask out the tile */
-					StretchBlt(hdc, x2, y2, tw2, h2, hdcMask, x1, y1, w1, h1, SRCAND);
+					StretchBlt(hdc, x2, y2, tw2, th2, hdcMask, x1, y1, w1, h1, SRCAND);
 
 					/* Draw the tile */
-					StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, w1, h1, SRCPAINT);
+					StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, w1, h1, SRCPAINT);
 				}
 			}
 		}
 		else
 		{
 			/* Perfect size */
-			if ((w1 == tw2) && (h1 == h2))
+			if ((w1 == tw2) && (h1 == th2))
 			{
 				/* Copy the picture from the bitmap to the window */
-				BitBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, SRCCOPY);
+				BitBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, SRCCOPY);
 			}
 
 			/* Need to stretch */
@@ -2504,7 +2719,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 				SetStretchBltMode(hdc, COLORONCOLOR);
 
 				/* Copy the picture from the bitmap to the window */
-				StretchBlt(hdc, x2, y2, tw2, h2, hdcSrc, x1, y1, w1, h1, SRCCOPY);
+				StretchBlt(hdc, x2, y2, tw2, th2, hdcSrc, x1, y1, w1, h1, SRCCOPY);
 			}
 		}
 	}
@@ -2513,7 +2728,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp, c
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-	if (arg_graphics == GRAPHICS_ADAM_BOLT)
+	if ((arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO) || (arg_graphics == GRAPHICS_DAVID_GERVAIS) || (arg_graphics == GRAPHICS_ADAM_BOLT))
 	{
 		/* Release */
 		SelectObject(hdcMask, hbmSrcOld);
@@ -2606,6 +2821,8 @@ static void windows_map(void)
 	term_data *td = &data[0];
 	char ch;
 
+	int old_display = td->grid_display;
+
 	/* Only in graphics mode since the fonts can't be scaled */
 	if (!use_graphics) return;
 
@@ -2615,7 +2832,7 @@ static void windows_map(void)
 	/* Clear screen */
 	Term_xtra_win_clear();
 
-	td->map_active = TRUE;
+	td->grid_display = 3;
 
 	/* Draw the map */
 	windows_map_aux();
@@ -2625,7 +2842,7 @@ static void windows_map(void)
 	Term_flush();
 
 	/* Switch off the map display */
-	td->map_active = FALSE;
+	td->grid_display = old_display;
 
 	/* Restore screen */
 	Term_xtra_win_clear();
@@ -2674,6 +2891,9 @@ static void term_data_link(term_data *td)
 	t->text_hook = Term_text_win;
 	t->pict_hook = Term_pict_win;
 
+	/* Notice when grid display changes */
+	t->notice_grid = TRUE;
+
 	/* Remember where we came from */
 	t->data = td;
 }
@@ -2711,6 +2931,7 @@ static void init_windows(void)
 	td->size_oh2 = 2;
 	td->pos_x = 30;
 	td->pos_y = 20;
+	td->grid_display = 1;
 
 	/* Sub windows */
 	for (i = 1; i < MAX_TERM_DATA; i++)
@@ -2728,8 +2949,8 @@ static void init_windows(void)
 		td->size_oh2 = 1;
 		td->pos_x = (7 - i) * 30;
 		td->pos_y = (7 - i) * 20;
+		td->grid_display = 0;
 	}
-
 
 	/* Load prefs */
 	load_prefs();
@@ -3055,6 +3276,12 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_TRPTILE,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_OPTIONS_DBLTILE,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_BIGTILE,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_OPTIONS_SOUND,
@@ -3080,7 +3307,13 @@ static void setup_menus(void)
 	              (arg_graphics == GRAPHICS_ADAM_BOLT ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID,
 	              (arg_graphics == GRAPHICS_DAVID_GERVAIS ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO,
+	              (arg_graphics == GRAPHICS_DAVID_GERVAIS_ISO ? MF_CHECKED : MF_UNCHECKED));
 
+	CheckMenuItem(hm, IDM_OPTIONS_TRPTILE,
+	              (use_trptile ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(hm, IDM_OPTIONS_DBLTILE,
+	              (use_dbltile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_BIGTILE,
 	              (use_bigtile ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(hm, IDM_OPTIONS_SOUND,
@@ -3101,6 +3334,9 @@ static void setup_menus(void)
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_OLD, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_ADAM, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID, MF_ENABLED);
+		EnableMenuItem(hm, IDM_OPTIONS_GRAPHICS_DAVID_ISO, MF_ENABLED);
+		EnableMenuItem(hm, IDM_OPTIONS_TRPTILE, MF_ENABLED);
+		EnableMenuItem(hm, IDM_OPTIONS_DBLTILE, MF_ENABLED);
 		EnableMenuItem(hm, IDM_OPTIONS_BIGTILE, MF_ENABLED);
 	}
 #endif /* USE_GRAPHICS */
@@ -3807,6 +4043,72 @@ static void process_menus(WORD wCmd)
 			break;
 		}
 
+		case IDM_OPTIONS_GRAPHICS_DAVID_ISO:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "arg_graphics" */
+			if (arg_graphics != GRAPHICS_DAVID_GERVAIS_ISO)
+			{
+				arg_graphics = GRAPHICS_DAVID_GERVAIS_ISO;
+
+				/* React to changes */
+				Term_xtra_win_react();
+
+				/* Hack -- Force redraw */
+				Term_key_push(KTRL('R'));
+			}
+
+			break;
+		}
+
+		case IDM_OPTIONS_TRPTILE:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "use_trptile" */
+			use_trptile = !use_trptile;
+
+			/* Cancel "use_dbltile" */
+			use_dbltile = FALSE;
+
+			/* Mega-Hack : Redraw screen */
+			Term_key_push(KTRL('R'));
+
+			break;
+		}
+
+		case IDM_OPTIONS_DBLTILE:
+		{
+			/* Paranoia */
+			if (!inkey_flag || !initialized)
+			{
+				plog("You may not do that right now.");
+				break;
+			}
+
+			/* Toggle "use_dbltile" */
+			use_dbltile = !use_dbltile;
+
+			/* Cancel "use_trptile" */
+			use_trptile = FALSE;
+
+			/* Mega-Hack : Redraw screen */
+			Term_key_push(KTRL('R'));
+
+			break;
+		}
+
 		case IDM_OPTIONS_BIGTILE:
 		{
 			/* Paranoia */
@@ -3977,7 +4279,7 @@ static void handle_wm_paint(HWND hWnd)
 
 	BeginPaint(hWnd, &ps);
 
-	if (td->map_active)
+	if (td->grid_display == 3)
 	{
 		/* Redraw the map */
 		/* ToDo: Only redraw the necessary parts */

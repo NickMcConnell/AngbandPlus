@@ -14,7 +14,7 @@
 F:1:1/-39:YES
 
 # invisible trap
-F:2:1/-39:NO
+F:2:8/-120:NO
 
 # glyph of warding
 F:3:11/-48:NO
