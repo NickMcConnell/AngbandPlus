@@ -35,7 +35,7 @@ bool do_cmd_test(int y, int x, int action)
 	if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 	{
 		disturb(1,0);
-/*		msg_print("This doesn't feel safe."); */
+		msg_print("This doesn't feel safe.");
 
 		if (!get_check("Are you sure you want to enter undetected territory?")) return (FALSE);
 
@@ -649,7 +649,7 @@ static void do_cmd_travel(void)
 	/* Get the top of the dungeon */
 	get_zone(&zone,p_ptr->dungeon,min_depth(p_ptr->dungeon));
 
-	if (p_ptr->depth == min_depth(p_ptr->dungeon))
+	if (level_flag & (LF1_SURFACE))
 	{
 		if (p_ptr->blind)
 		{
@@ -691,16 +691,56 @@ static void do_cmd_travel(void)
 			/* Display the list and get a selection */
 			if (get_list(print_routes, routes, num, "Routes", "Travel to where", ", L=locations, M=map", 1, 22, route_commands, &selection))
 			{
-			
-				if (count_routes(selection, p_ptr->dungeon) <= 0)
+				int found = 0;
+
+				if (!t_info[selection].visited)
+				{
+					char str[1000];
+
+					for (i = 1; i < z_info->t_max; i++) 
+					{
+						if (t_info[i].replace_ifvisited == selection)
+						{
+							if (found == 0) 
+							{
+								sprintf(str, "If you enter %s, you will never find %s", t_info[selection].name + t_name, t_info[i].name + t_name);
+								found = -1;
+							}
+							else if (found < 0)
+							{
+								found = i;
+							}
+							else
+							{
+								my_strcat(str, format(", %s", t_info[found].name + t_name), 1000);
+								found = i;
+							}
+						}
+					}
+					if (found > 0) 
+						my_strcat(str, format(" and %s again!", t_info[found].name + t_name), 1000);
+					else if (found < 0) 
+						my_strcat(str, " again!", 1000);
+					if (found != 0)
+						msg_print(str);
+				}
+
+				if (found == 0
+					&& count_routes(selection, p_ptr->dungeon) <= 0)
 				{
 					msg_print("As you set foot upon the path, you have the sudden feeling you might not be able to get back this way for a long while.");
-					
-					if (!get_check("Are you sure you want to travel? ")) 
-						/* Bail out */
-						return;
+					found = 1;
 				}
-			
+
+				if (found != 0 
+					&& !get_check("Are you sure you want to travel? ")) 
+					/* Bail out */
+					return;
+
+				/* Save the old dungeon in case something goes wrong */
+				if (autosave_backup)
+					do_cmd_save_bkp();
+
 				/* Will try to auto-eat? */
 				if (p_ptr->food < PY_FOOD_FULL)
 				{
@@ -710,7 +750,7 @@ static void do_cmd_travel(void)
 				/* Hack -- Consume most food not inscribed with !< */
 				while (p_ptr->food < PY_FOOD_FULL)
 				{
-					for (i = 0; i < INVEN_PACK; i++)
+					for (i = INVEN_PACK - 1; i >= 0; i--)
 					{
 						/* Eat the food */
 						if (auto_consume_okay(&inventory[i]))
@@ -723,7 +763,7 @@ static void do_cmd_travel(void)
 					}
 					
 					/* Escape out if no food */
-					if (i == INVEN_PACK) break;
+					if (i < 0) break;
 				}
 
 				if (easy_more) messages_easy(FALSE);
@@ -819,7 +859,7 @@ void do_cmd_go_up(void)
 	if (!(f_ptr->flags1 & (FF1_STAIRS)) || !(f_ptr->flags1 & (FF1_LESS)))
 	{
 		/* Travel if possible */
-		if (p_ptr->depth == min_depth(p_ptr->dungeon))
+		if (level_flag & (LF1_SURFACE))
 		{
 			do_cmd_travel();
 			return;
@@ -836,16 +876,25 @@ void do_cmd_go_up(void)
 		return;
 	}
 
+	/* Save the old dungeon in case something goes wrong */
+	if (autosave_backup)
+		do_cmd_save_bkp();
+
+	/* Hack -- take a turn */
+	p_ptr->energy_use = 100;
+
 	/* Hack -- travel through wilderness */
-	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && (t_ptr->zone[0].tower))
+	if (adult_campaign 
+		&& p_ptr->depth == max_depth(p_ptr->dungeon) 
+		&& level_flag & (LF1_TOWER))
 	{
-	  int guard;
-	  dungeon_zone *zone;
+		int guard;
+		dungeon_zone *zone;
 
-	  /* Get the zone */
-	  get_zone(&zone, p_ptr->dungeon, p_ptr->depth);
+		/* Get the zone */
+		get_zone(&zone, p_ptr->dungeon, p_ptr->depth);
 
-	  guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
+		guard = actual_guardian(zone->guard, p_ptr->dungeon, zone - t_info[p_ptr->dungeon].zone);
 
 		/* Check quests due to travelling - cancel if requested */
 		if (!check_travel_quest(t_ptr->quest_opens, min_depth(p_ptr->dungeon), TRUE)) return;
@@ -857,7 +906,7 @@ void do_cmd_go_up(void)
 			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the sinister guardian at %s. The way forth lies open before you.", str));
 	
 			/* Change the dungeon */
-			p_ptr->dungeon = t_ptr->quest_opens;
+			p_ptr->dungeon = actual_route(t_ptr->quest_opens);
 		}
 		else
 		{
@@ -865,13 +914,19 @@ void do_cmd_go_up(void)
 			message(MSG_STAIRS_DOWN,0,format("You have reached the top of %s and you climb down outside.", str));
 		}
 
+		/* Hack -- take a turn */
+		p_ptr->energy_use = 100;
+
+		/* Clear stairs */
+		p_ptr->create_stair = 0;
+
 		/* Set the new depth */
 		p_ptr->depth = min_depth(p_ptr->dungeon);
 	}
 	else
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (t_ptr->zone[0].tower)
+		if (level_flag & (LF1_TOWER))
 		{
 			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
 		}
@@ -880,17 +935,17 @@ void do_cmd_go_up(void)
 			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth - 1, TRUE)) return;
 		}
 
-		/* Hack -- take a turn */
-		p_ptr->energy_use = 100;
-
 		/* Success */
 		message(MSG_STAIRS_UP, 0, "You enter a maze of up staircases.");
+
+		/* Hack -- take a turn */
+		p_ptr->energy_use = 100;
 
 		/* Create a way back */
 		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_LESS);
 
 		/* Hack -- tower level increases depth */
-		if (t_ptr->zone[0].tower)
+		if (level_flag & (LF1_TOWER))
 		{
 			/* New depth */
 			p_ptr->depth++;
@@ -930,11 +985,17 @@ void do_cmd_go_down(void)
 		return;
 	}
 
+	/* Save the old dungeon in case something goes wrong */
+	if (autosave_backup)
+		do_cmd_save_bkp();
+
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Hack -- travel through wilderness */
-	if ((adult_campaign) && (p_ptr->depth == max_depth(p_ptr->dungeon)) && !(t_ptr->zone[0].tower))
+	if (adult_campaign 
+		&& p_ptr->depth == max_depth(p_ptr->dungeon) 
+		&& !(level_flag & (LF1_TOWER)))
 	{
 	  int guard;
 	  dungeon_zone *zone;
@@ -954,13 +1015,19 @@ void do_cmd_go_down(void)
 			message(MSG_STAIRS_DOWN,0,format("You have valiantly defeated the sinister guardian at %s. The way forth lies open before you.", str));
 	
 			/* Change the dungeon */
-			p_ptr->dungeon = t_ptr->quest_opens;
+			p_ptr->dungeon = actual_route(t_ptr->quest_opens);
 		}
 		else
 		{
 			/* Success */
 			message(MSG_STAIRS_DOWN,0,format("You have reached the bottom of %s and uncovered a secret shaft back up to the surface.", str));
 		}
+
+		/* Hack -- take a turn */
+		p_ptr->energy_use = 100;
+
+		/* Clear stairs */
+		p_ptr->create_stair = 0;
 		
 		/* Set the new depth */
 		p_ptr->depth = min_depth(p_ptr->dungeon);
@@ -968,7 +1035,7 @@ void do_cmd_go_down(void)
 	else
 	{
 		/* Check quests due to travelling - cancel if requested */
-		if (t_ptr->zone[0].tower)
+		if (level_flag & (LF1_TOWER))
 		{
 			if (!check_travel_quest(p_ptr->dungeon, p_ptr->depth + 1, TRUE)) return;
 		}
@@ -980,11 +1047,14 @@ void do_cmd_go_down(void)
 		/* Success */
 		message(MSG_STAIRS_DOWN, 0, "You enter a maze of down staircases.");
 
+		/* Hack -- take a turn */
+		p_ptr->energy_use = 100;
+
 		/* Create a way back */
 		p_ptr->create_stair = feat_state(cave_feat[py][px], FS_MORE);
 
 		/* Hack -- tower level decreases depth */
-		if (t_ptr->zone[0].tower)
+		if (level_flag & (LF1_TOWER))
 		{
 			/* New depth */
 			p_ptr->depth--;
@@ -3458,6 +3528,10 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 	else
 	{
 		int mul, div;
+
+		/* Compensating the lack of bow, add item bonuses twice; once here: */
+		bow_to_h = i_ptr->to_h;
+		bow_to_d = i_ptr->to_d;
 
 		ranged_skill = p_ptr->skill_tht;
 

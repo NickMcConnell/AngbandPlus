@@ -3753,6 +3753,10 @@ errr file_character(cptr name, bool full)
 
 	int day = bst(DAY, turn);
 
+	bool bags_listed[SV_BAG_MAX_BAGS];
+
+	(void)C_WIPE(bags_listed, SV_BAG_MAX_BAGS, bool);
+
 	/* Format time of the day */
 	strnfmt(buf2, 20, get_day(bst(YEAR, turn) + START_YEAR));
 
@@ -3832,22 +3836,17 @@ errr file_character(cptr name, bool full)
 		current_long_level_name(str);
 
 		/* Display location */
-		if (p_ptr->depth == min_depth(p_ptr->dungeon))
+		if (level_flag & (LF1_SURFACE))
 		{
 			text_out(format(" You are in %s.", str));
 		}
 		/* Display depth in feet */
 		else if (depth_in_feet)
 		{
-			dungeon_zone *zone=&t_info[0].zone[0];
-
-			/* Get the zone */
-			get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
-
 			text_out(format(" You are %d ft %s %s.",
-								 (p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
-								 zone->tower ? "high above" : "deep in",
-								 str));
+							(p_ptr->depth - min_depth(p_ptr->dungeon)) * 50 ,
+							level_flag & (LF1_TOWER) ? "high above" : "deep in",
+							str));
 		}
 		/* Display depth */
 		else
@@ -3957,7 +3956,7 @@ errr file_character(cptr name, bool full)
 			text_out(format("%c) %s\n", index_to_label(i), o_name));
 
 			/* Describe random object attributes */
-			identify_random_gen(&inventory[i]);
+/*			identify_random_gen(&inventory[i]); */
 		}
 
 		text_out("\n");
@@ -3979,14 +3978,14 @@ errr file_character(cptr name, bool full)
 			text_out(format("%c) %s\n", index_to_label(i), o_name));
 
 			/* Describe random object attributes */
-			identify_random_gen(&inventory[i]);
+/*			identify_random_gen(&inventory[i]);*/
 		}
 
 		text_out("\n");
 	}
 
 	/* Dump the inventory */
-	text_out("  [Character Inventory]\n\n");
+	text_out("  [Character inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		if (!inventory[i].k_idx) break;
@@ -3994,8 +3993,18 @@ errr file_character(cptr name, bool full)
 		object_desc(o_name, sizeof(o_name), &inventory[i], TRUE, 3);
 		text_out(format("%c) %s\n", index_to_label(i), o_name));
 
-		/* Describe random object attributes */
-		identify_random_gen(&inventory[i]);
+		if (inventory[i].tval == TV_BAG)
+		{
+			if (!bags_listed[inventory[i].sval])
+			{
+				/* List the bag contents only once */
+				identify_random_gen(&inventory[i]);
+				bags_listed[inventory[i].sval] = TRUE;
+			}
+		}
+		else
+			/* Describe random object attributes */
+			1;/*			identify_random_gen(&inventory[i]);*/
 	}
 
 	text_out("\n");
@@ -4004,7 +4013,7 @@ errr file_character(cptr name, bool full)
 	if (st_ptr->stock_num)
 	{
 		/* Header */
-		text_out("  [Home Inventory]\n\n");
+		text_out("  [Home inventory]\n\n");
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
@@ -4012,8 +4021,18 @@ errr file_character(cptr name, bool full)
 			object_desc(o_name, sizeof(o_name), &st_ptr->stock[i], TRUE, 3);
 			text_out(format("%c) %s\n", I2A(i), o_name));
 
-			/* Describe random object attributes */
-			identify_random_gen(&st_ptr->stock[i]);
+			if (st_ptr->stock[i].tval == TV_BAG)
+			{
+				if (!bags_listed[st_ptr->stock[i].sval])
+				{
+					/* List the bag contents only once */
+					identify_random_gen(&st_ptr->stock[i]);
+					bags_listed[st_ptr->stock[i].sval] = TRUE;
+				}
+			}
+			else
+				/* Describe random object attributes */
+				1;/*				identify_random_gen(&st_ptr->stock[i]);*/
 		}
 
 		/* Add an empty line */
@@ -4029,16 +4048,26 @@ errr file_character(cptr name, bool full)
 			continue;
 
 		/* Header */
-		text_out(format("  [%s Inventory]\n\n", u_name + st_ptr->name));
+		text_out(format("  [%s inventory]\n\n", u_name + st_ptr->name));
 
 		/* Dump all available items */
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
 			object_desc(o_name, sizeof(o_name), &st_ptr->stock[i], TRUE, 3);
 			text_out(format("%c) %s\n", I2A(i), o_name));
-
-			/* Describe random object attributes */
-			identify_random_gen(&st_ptr->stock[i]);
+			
+			if (st_ptr->stock[i].tval == TV_BAG)
+			{
+				if (!bags_listed[st_ptr->stock[i].sval])
+				{
+					/* List the bag contents only once */
+					identify_random_gen(&st_ptr->stock[i]);
+					bags_listed[st_ptr->stock[i].sval] = TRUE;
+				}
+			}
+			else
+				/* Describe random object attributes */
+				1;/*				identify_random_gen(&st_ptr->stock[i]);*/
 		}
 
 		/* Add an empty line */
@@ -5183,7 +5212,34 @@ void do_cmd_save_game(void)
 	my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
 }
 
+/*
+ * Autosave (less verbose and writes to .bkp)
+ */
+void do_cmd_save_bkp(void)
+{
+	/* Handle stuff */
+	handle_stuff();
 
+	/* The player is not dead */
+	my_strcpy(p_ptr->died_from, "(saved)", sizeof(p_ptr->died_from));
+
+	/* Forbid suspend */
+	signals_ignore_tstp();
+
+	/* Save the player */
+	if (!save_player_bkp(TRUE))
+	{
+		prt("Saving game... failed!", 0, 0);
+		/* Refresh */
+		Term_fresh();
+	}
+
+	/* Allow suspend again */
+	signals_handle_tstp();
+
+	/* Note that the player is not dead */
+	my_strcpy(p_ptr->died_from, "(alive and well)", sizeof(p_ptr->died_from));
+}
 
 /*
  * Hack -- Calculates the total number of points earned

@@ -3653,7 +3653,7 @@ void monster_death(int m_idx)
 		  msg_print("A magical staircase appears...");
 	
 		  /* Create stairs */
-		  if (t_info[p_ptr->dungeon].zone[0].tower)
+		  if (level_flag & (LF1_TOWER))
 			  cave_set_feat(y, x, FEAT_LESS);
 		  else
 			  cave_set_feat(y, x, FEAT_MORE);
@@ -4076,8 +4076,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 	/* Town or not in room */
 	if (!room)
 	{
-		if (p_ptr->depth == min_depth(p_ptr->dungeon) 
-			 || is_typical_town(p_ptr->dungeon, p_ptr->depth))
+		if (level_flag & (LF1_SURFACE))
 		{
 			current_long_level_name(name);
 
@@ -4550,8 +4549,7 @@ void describe_room(void)
 		/* Room has been heard */
 		if (room_descriptions) room_info[room].flags |= (ROOM_HEARD);
 	}
-	else if (is_typical_town(p_ptr->dungeon, p_ptr->depth)
-				|| p_ptr->depth == min_depth(p_ptr->dungeon))
+	else if (level_flag & (LF1_SURFACE))
 	{
 		msg_format("You have entered %s.",name);
 
@@ -7093,9 +7091,9 @@ bool confuse_dir(int *dp)
 
 int min_depth(int dungeon)
 {
-	town_type *t_ptr=&t_info[dungeon];
+	town_type dun = t_info[dungeon];
 
-	return (t_ptr->zone[0].level);
+	return (dun.zone[0].level);
 }
 
 int max_depth(int dungeon)
@@ -7122,7 +7120,10 @@ bool is_typical_town(int dungeon, int depth)
 	/* Get the zone */
 	get_zone(&zone, dungeon, depth);
 
-	return (!zone->fill && zone->level <= 10 && t_info[dungeon].store[3]);
+	return (level_flag & (LF1_SURFACE)
+			&& !zone->fill 
+			&& zone->level <= 10 
+			&& t_info[dungeon].store[3]);
 }
 
 int town_depth(int dungeon)

@@ -151,7 +151,7 @@ bool require_torch_lit(int y, int x)
 bool has_torch_lit(int y, int x)
 {
 	/* No monster, no torch lite */
-	if (!cave_m_idx[y][x]) return FALSE;
+	if (cave_m_idx[y][x] <= 0) return FALSE;
 	
 	/* Check monster lite */
 	if (check_monster_lite(cave_m_idx[y][x])) return TRUE;
@@ -709,6 +709,10 @@ s16b get_mon_num(int level)
 
 	alloc_entry *table = alloc_race_table;
 
+	int local_monster_level = MIN(99, MAX(0, monster_level));
+
+	level = MIN(99, MAX(0, level));
+
 	/*
 	 * Use the ecology model
 	 *
@@ -759,7 +763,7 @@ s16b get_mon_num(int level)
 			}
 			
 			/*
-			 * No "hurt" lite monsters not allowed in daytime
+			 * No "hurt" lite monsters allowed in daytime
 			 * 
 			 * We have to check this here because it it 'time-dependent'
 			 */
@@ -847,29 +851,35 @@ s16b get_mon_num(int level)
 		if (!check_level_flags_race(r_idx)) continue;
 
 		/* Allow monsters to be generated 'nearly' in-depth */
-		if (table[i].level < MIN(p_ptr->depth - 4, level - 3))
+		if (table[i].level < MIN(local_monster_level - 4, level - 3))
 		{
 			int miss_level = table[i].level;
 			int count = 0;
 			
-			/* Modify up for powerful monsters */
+			/* Modify up for leveled monsters */
 			if (r_ptr->flags9 & RF9_LEVEL_MASK) miss_level += 15;
 			
 			/* Allow a best effort choice in the event we can't find anything */
-			/* Hack -- have a soft boundary, so we don't always get the same monster very deep */
-			if ((closest_miss_level + 5 < miss_level) || ((closest_miss_level <= miss_level) && (!rand_int(++count)) ))
+			/* Hack -- have a soft boundary, so we don't always get 
+			   the same monster very deep */
+			if (closest_miss_level + 5 < miss_level
+				|| (closest_miss_level <= miss_level 
+					&& !rand_int(++count)))
 			{
 				closest_miss_r_idx = table[i].index;
-				if (closest_miss_level < miss_level) closest_miss_level = miss_level;
+				if (closest_miss_level < miss_level) 
+					closest_miss_level = miss_level;
 			}
 			
-			/* Ensure minimum depth for monsters, except those that have friends or level up */
-			if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
-				&& ((r_ptr->flags1 & (RF1_FRIENDS)) == 0) 
-				&& ((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)) continue;
+			/* Ensure minimum depth for monsters, 
+			   except those that have friends or level up */
+			if ((r_ptr->flags1 & RF1_FRIENDS) == 0 
+				&& (r_ptr->flags9 & RF9_LEVEL_MASK) == 0) 
+				continue;
 			
 			/* Ensure hard minimum depth for monsters */
-			if (table[i].level < MIN(p_ptr->depth - 19, level - 18)) continue;
+			if (table[i].level < MIN(local_monster_level - 19, level - 18)) 
+				continue;
 		}
 
 		/* Accept */
@@ -2201,19 +2211,18 @@ static void player_position()
 	int by = y/BLOCK_HGT;
 	int bx = x/BLOCK_WID;
 
-	bool outside;
-
 	feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+	/* Update view if moved outside/inside */
+	bool outside = (level_flag & (LF1_SURFACE))
+		&& (f_ptr->flags3 & (FF3_OUTSIDE));
 	
 	/* Room is perma-lit */
-	if (cave_info[y][x] & (CAVE_GLOW)) room_info[dun_room[by][bx]].flags |= (ROOM_SEEN);
+	if (cave_info[y][x] & (CAVE_GLOW)) 
+		room_info[dun_room[by][bx]].flags |= (ROOM_SEEN);
 	
 	/* Player has heard the room */
 	room_info[dun_room[by][bx]].flags |= (ROOM_HEARD);
-
-	/* Update view if moved outside/inside */
-	outside = (((level_flag & (LF1_SURFACE)) != 0) && 
-		(f_ptr->flags3 & (FF3_OUTSIDE)));
 
 	/* Changed inside/outside */
 	if (outside != p_ptr->outside)
@@ -2505,18 +2514,13 @@ void monster_swap(int y1, int x1, int y2, int x2)
 
 bool mon_resist_feat(int feat, int r_idx)
 {
-	feature_type *f_ptr;
 	monster_race *r_ptr;
+	feature_type *f_ptr = &f_info[feat];
 
-	bool surface = (p_ptr->depth == min_depth(p_ptr->dungeon));
+	bool daytime = level_flag & LF1_DAYLIGHT;
+	bool outside = (level_flag & (LF1_SURFACE))
+		&& (f_ptr->flags3 & (FF3_OUTSIDE));
 
-	bool daytime = ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2));
-
-	bool outside = ((f_info[feat].flags3 & (FF3_OUTSIDE)) ? TRUE : FALSE);
-
-	/* Get feature info */
-	f_ptr= &f_info[feat];
-	
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
 
@@ -2524,7 +2528,8 @@ bool mon_resist_feat(int feat, int r_idx)
 	r_ptr = &r_info[r_idx];
 
 	/* Always get burnt by daylight */
-	if ((surface && daytime && outside) && (r_ptr->flags3 & (RF3_HURT_LITE))) return (FALSE);
+	if ((daytime && outside) && (r_ptr->flags3 & (RF3_HURT_LITE))) 
+		return (FALSE);
 
 	/* Always risk traps if stupid */
 	if ((f_ptr->flags1 & (FF1_HIT_TRAP)) &&
@@ -2790,7 +2795,9 @@ int place_monster_here(int y, int x, int r_idx)
 			yi = ddy[d];
 			xi = ddx[d];
 
-			if ((f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) != 0) return(MM_CLIMB);
+			if (in_bounds(yi, xi) 
+				&& (f_info[cave_feat[yi][xi]].flags2 & (FF2_CAN_CLIMB)) != 0) 
+				return(MM_CLIMB);
 		}
 
 	}
@@ -2824,8 +2831,7 @@ int place_monster_here(int y, int x, int r_idx)
  */
 void monster_hide(int y, int x, int mmove, monster_type *m_ptr)
 {
-	/* Hack -- don't summon on surface */
-	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
+	bool surface = (level_flag & (LF1_SURFACE));
 	bool lite = (m_ptr->mflag & (MFLAG_LITE)) != 0;
 
 	/* Get the feature */
@@ -2986,8 +2992,15 @@ s16b monster_place(int y, int x, monster_type *n_ptr)
 		/* Clear flags */
 		m_ptr->mflag &= ~(MFLAG_OVER | MFLAG_HIDE);
 
+		/* Use the simple RNG to preserve seed from before save */
+		/* TODO: Perhaps eliminate the RNG roll altogether here */
+		/* Rand_quick = TRUE; */
+
 		/* Place as hidden as appropriate */
 		monster_hide(y, x, place_monster_here(y, x, m_ptr->r_idx), m_ptr);
+
+		/* Use the complex RNG again */
+		/* Rand_quick = FALSE; */
 
 		/* Update the monster */
 		update_mon(m_idx, TRUE);
@@ -3913,7 +3926,11 @@ static void place_monster_escort(int y, int x, int leader_idx, bool slp, u32b fl
 		}
 		
 		/* No luck -- boost */
-		if (!escort_idx) monster_level += 3;
+		if (!escort_idx) 
+			monster_level += 3;
+
+		if (monster_level > 110)
+			break;
 	}
 
 	monster_level = old_monster_level;
@@ -3988,26 +4005,21 @@ static bool summon_specific_okay(int r_idx)
 
 	bool okay = FALSE;
 
+	/* Hack -- try to minimise annoyance if monsters summon monsters */
+	if (summoner && summon_strict)
+	{
+		/* This prevents 'circular' chain summoning */	
+		if ((r_info[r_idx].flags4 & (RF4_SUMMON_MASK) ||
+			  r_info[r_idx].flags5 & (RF5_SUMMON_MASK) ||
+			  r_info[r_idx].flags6 & (RF6_SUMMON_MASK) ||
+			  r_info[r_idx].flags7 & (RF7_SUMMON_MASK))
+			 && r_info[summoner].level <= r_info[r_idx].level)
+			return (FALSE);
+	}
+
 	/* Hack -- no specific type specified */
 	if (!summon_specific_type) return (TRUE);
 	
-	/* Hack -- try to minimise chain summoning */
-	if (summoner)
-	{
-		/* Hack -- never summon itself */
-		if (summoner == r_idx) return (FALSE);
-
-		/* Hack -- do we strictly enforce lower level summons?
-		 * 
-		 * This prevents 'circular' chain summoning
-		 * 
-		 * Note that we relax this if the monster is capable of getting larger/more powerful etc.
-		 */	
-		if ((summon_strict) && (r_info[summoner].level <= r_info[r_idx].level)
-				&& (((r_info[summoner].flags9 & (RF9_LEVEL_MASK)) == 0) ||
-				(r_info[summoner].level + 15 <= r_info[r_idx].level))) return (FALSE);
-	}
-
 	/* Check our requirements */
 	switch (summon_specific_type)
 	{
@@ -5089,17 +5101,9 @@ bool summon_specific(int y1, int x1, int restrict_race, int lev, int type, bool 
 	/* Save the "summon" type */
 	summon_specific_type = type;
 
-	/* Don't summon strictly yet */
-	summon_strict = FALSE;
-
-	/* Hack -- prevent 'chain summoning' */
+	/* Prevent 'chain summoning' if the summoner is a monster */
 	if (restrict_race)
-	{
-		/* XXX Needed to allow the following test to be true */
-		summoner = 0;
-		
-		if (summon_specific_okay(restrict_race)) summon_strict = TRUE;
-	}
+		summon_strict = TRUE;
 
 	/* Restrict race as appropriate */
 	summoner = restrict_race;
@@ -5633,10 +5637,10 @@ void get_monster_ecology(int r_idx)
 	/* For first few monsters on a level, we force some related monsters to appear */
 	if (cave_ecology.num_races <= 7) hack_ecology = randint(7);
 
-	/* Pick a monster if one not specified; make it strong */
+	/* Pick a monster if one not specified */
 	if (!r_idx)
 	{
-		r_idx = get_mon_num(monster_level + 2);
+		r_idx = get_mon_num(monster_level);
 	}
 
 	/* Add the monster */
@@ -5707,6 +5711,10 @@ void get_monster_ecology(int r_idx)
 		r_idx = cave_ecology.race[i];
 		r_ptr = &r_info[r_idx];
 
+		/* Try slightly lower monster level */  	 	 
+		monster_level = MAX(1, MIN(monster_level - 3, 
+								   (monster_level + r_ptr->level) / 2 - 1));
+ 
 		/* Set summoner */
 		summoner = r_idx;
 		

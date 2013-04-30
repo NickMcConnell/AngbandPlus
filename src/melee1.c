@@ -2324,9 +2324,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	/* Some summons override cave ecology */
 	bool old_cave_ecology = cave_ecology.ready;
 
-	/* Hack -- don't summon on surface */
-	bool surface = p_ptr->depth == min_depth(p_ptr->dungeon);
-
 	/* Hack -- Confused monsters get a random target */
 	if ((who > SOURCE_MONSTER_START) && (target != who) && (m_list[who].confused) && (m_list[who].confused > rand_int(33)))
 	{
@@ -2496,7 +2493,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		monster_desc(m_poss, sizeof(m_poss), who, 0x22);
 
 		/* Extract the "see-able-ness" */
-		seen = (!blind && m_ptr->ml);
+		seen = !blind && m_ptr->ml;
 
 		/* Extract the monster level.  Must be at least 1. */
 		rlev = MAX(1, r_ptr->level);
@@ -2518,7 +2515,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		else if (attack >=  96) manacost = spell_info_RF4[attack- 96][COL_SPELL_MANA_COST];
 		else return (FALSE);		/* Spend the mana */
 
-		m_ptr->mana -= manacost;
+		m_ptr->mana -= MIN(manacost, m_ptr->mana);
 
 		/* Use ammunition */
 		ammo = find_monster_ammo(who, attack - 96, FALSE);
@@ -2552,7 +2549,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		else if (m_ptr->mflag & (MFLAG_SMART)) failrate /= 2;
 
 		/* Check for spell failure (breath/shot attacks never fail) */
-		if ((attack >= 128) && (rand_int(100) < failrate) && ((m_ptr->mflag != (MFLAG_ALLY)) == 0))
+		if (attack >= 128 
+			&& rand_int(100) < failrate 
+			&& !(m_ptr->mflag & MFLAG_ALLY))
 		{
 			/* Message */
 			msg_format("%^s tries to cast a spell, but fails.", m_name);
@@ -2560,8 +2559,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			return (TRUE);
 		}
 
-		/* Extract the monster's spell power.  Must be at least 1. */
-		spower = MAX(1, r_ptr->spell_power);
+		/* Extract the monster's spell power. */
+		spower = r_ptr->spell_power;
 
 		/* Monster has cast a spell */
 		m_ptr->mflag &= ~(MFLAG_CAST | MFLAG_SHOT | MFLAG_BREATH);
@@ -2572,10 +2571,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			/* Not "normal" target */
 			normal = FALSE;
-
-			/* Check "projectable" */
-			direct = ((projectable(m_ptr->fy, m_ptr->fx, y, x, 0)) != PROJECT_NO);
-
 		}
 		else if (target < 0)
 		{
@@ -2584,10 +2579,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			/* Assume "normal" target */
 			normal = TRUE;
-
-			/* Check "projectable" */
-			direct = ((projectable(m_ptr->fy, m_ptr->fx, y, x, 0)) != PROJECT_NO);
-
 		}
 		else
 		{
@@ -2595,10 +2586,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			/* Assume "normal" target */
 			normal = TRUE;
-
-			/* Check "projectable" */
-			direct = ((projectable(m_ptr->fy, m_ptr->fx, y, x, 0)) != PROJECT_NO);
 		}
+
+		/* Check "projectable" */
+		direct = ((projectable(m_ptr->fy, m_ptr->fx, y, x, 0)) != PROJECT_NO);
 
 		/* Attacking itself */
 		if (who == target)
@@ -2625,7 +2616,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	/*** Execute the ranged attack chosen. ***/
 	switch (attack)
 	{
-
 		/* RF4_BLOW_1 */
 		/* RF4_BLOW_2 */
 		/* RF4_BLOW_3 */
@@ -2682,42 +2672,36 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			/* Already displayed result */
 			result = NULL;
 
-			/* Only do if damage */
-			if (dam) switch (method)
-			{
+			/* For most, only do if damage */
+			if (dam || method == RBM_SHRIEK) 
+				switch (method)
+				{
 				case RBM_SPIT:	mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_GAZE:	msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_WAIL: msg_print(result);(void)project(who, what, 4, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
-				case RBM_HOWL: msg_print(result);(void)project(who, what, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
-				case RBM_SHRIEK: msg_print(result); (void)project(who, what, 6, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_ARC | PROJECT_HIDE, 20, 20); aggravate_monsters(who); break;
 				case RBM_SPORE:	mon_ball_minor_shot(who, what, y, x, effect, dam, 1, hit, result); break;
 				case RBM_LASH:  mon_beam(who, what, y, x, effect, dam, 2, result); break;
 				case RBM_BEG:	msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_INSULT: msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
+				case RBM_MOAN: msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_SING:  msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_TRAP:  msg_print(result);(void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_BOULDER: mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_AURA:	msg_print(result);(void)project(who, what, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_CLOUD, 0, 0);  break;
-				case RBM_AURA_MINOR:	msg_print(result);(void)project(who, what, 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_CLOUD, 0, 0);  break;
 				case RBM_SELF:	msg_print(result);(void)project(SOURCE_SELF, who, 0, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_DIRECT, 0, 0); break;
 				case RBM_ADJACENT: msg_print(result);(void)project(SOURCE_SELF, who, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
 				case RBM_HANDS: mon_beam(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_MISSILE: mon_bolt(who, what, y, x, effect, dam, result); break;
-				case RBM_BOLT_MINOR: mon_bolt(who, what, y, x, effect, dam, result); break;
 				case RBM_BOLT_10: (rand_int(100) < 10 ? mon_beam(who, what, y, x, effect, dam, 10, result) : mon_bolt(who, what, y, x, effect, dam, result)); break;
 				case RBM_BOLT: mon_bolt(who, what, y, x, effect, dam, result); break;
 				case RBM_BEAM: mon_beam(who, what, y, x, effect, dam, 10, result); break;
 				case RBM_BLAST: mon_ball(who, what, y, x, effect, dam, 0, TRUE, result); break;
 				case RBM_WALL: mon_beam(who, what, y, x, effect, dam, 12, result); break;
-				case RBM_BALL_MINOR: mon_ball_minor(who, what, y, x, effect, dam, 2, FALSE, result); break;
 				case RBM_BALL: mon_ball(who, what, y, x, effect, dam, 2, TRUE, result); break;
-				case RBM_BALL_II: mon_ball(who, what, y, x, effect, dam, 3, TRUE, result); break;
-				case RBM_BALL_III: mon_ball(who, what, y, x, effect, dam, 4, TRUE, result); break;
 				case RBM_CLOUD: mon_area(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_STORM: mon_area(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_BREATH: mon_arc(who, what, y, x, effect, MIN(dam, m_ptr->hp / d_side), 0, (powerful ? 40 : 20), result); break;
 				case RBM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_AREA, 0, 0);  break;
-				case RBM_AIM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_AREA, 0, 0);  break;
 				case RBM_LOS: (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
 				case RBM_LINE: mon_beam(who, what, y, x, effect, dam, 8, result); break;
 				case RBM_AIM: (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0);  break;
@@ -2728,10 +2712,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_LEVEL: (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT | PROJECT_WALL, 0, 0);  break;
 				case RBM_CROSS: mon_beam(who, what, y, x, effect, dam, 10, result); break;
 				case RBM_STRIKE: mon_ball(who, what, y, x, effect, dam, (rlev / 10) + 2, TRUE, result); break;
-				case RBM_EXPLODE: (void)project(SOURCE_SELF, who, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, damroll(5,8), GF_EXPLODE, FLG_MON_BALL, 0, 0); break;
+				case RBM_EXPLODE: (void)project(SOURCE_SELF, who, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL, 0, 0); break;
 				case RBM_ARROW: mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_XBOLT: mon_shot(who, what, y, x, effect, dam, hit, result); break;
-				case RBM_SPIKE: mon_shot(who, what, y, x, effect, dam, hit, result); break;
+				case RBM_DAGGER: mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_DART: mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_SHOT: mon_shot(who, what, y, x, effect, dam, hit, result); break;
 				case RBM_ARC_20: mon_arc(who, what, y, x, effect, dam, 0, (powerful ? 40 : 20), result); break;
@@ -2740,12 +2724,20 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				case RBM_ARC_50: mon_arc(who, what, y, x, effect, dam, 0, 50, result); break;
 				case RBM_ARC_60: mon_arc(who, what, y, x, effect, dam, 0, 60, result); break;
 				case RBM_FLASK:	mon_ball_minor_shot(who, what, y, x, effect, dam, 1, hit, result); break;
-				case RBM_8WAY: mon_8way(who, what, y, x, effect, dam, 2, result); break;
+				case RBM_TRAIL: mon_beam(who, what, y, x, effect, dam, 10, result); break;
+				case RBM_SHRIEK: msg_print(result); if (dam) (void)project(who, what, 6, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_ARC | PROJECT_HIDE, 20, 20); aggravate_monsters(who); break;
+				case RBM_BOLT_MINOR: mon_bolt(who, what, y, x, effect, dam, result); break;
+				case RBM_BALL_MINOR: mon_ball_minor(who, what, y, x, effect, dam, 2, FALSE, result); break;
+				case RBM_BALL_II: mon_ball(who, what, y, x, effect, dam, 3, TRUE, result); break;
+				case RBM_BALL_III: mon_ball(who, what, y, x, effect, dam, 4, TRUE, result); break;				case RBM_8WAY: mon_8way(who, what, y, x, effect, dam, 2, result); break;
+				case RBM_AURA_MINOR:	msg_print(result);(void)project(who, what, 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_CLOUD, 0, 0);  break;
 				case RBM_8WAY_II: mon_8way(who, what, y, x, effect, dam, 3, result); break;
 				case RBM_8WAY_III: mon_8way(who, what, y, x, effect, dam, 4, result); break;
 				case RBM_SWARM: for (k = 0; k < (rlev / 20) + 2; k++) mon_ball_minor(who, what, y, x, effect, dam, 2, TRUE, result); break;
-				case RBM_DAGGER: mon_shot(who, what, y, x, effect, dam, hit, result); break;
+				case RBM_SPIKE: mon_shot(who, what, y, x, effect, dam, hit, result); break;
+				case RBM_AIM_AREA: (void)project(who, what, (rlev / 10) + 1, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_AREA, 0, 0);  break;
 				case RBM_SCATTER: for (k = 0; k < (rlev / 10) + 3; k++) { scatter(&y, &x, m_ptr->fy, m_ptr->fx, 5, 0); (void)project(who, what, 0, m_ptr->fy, m_ptr->fx, y, x, dam, effect, FLG_MON_DIRECT, 0, 0); } break;
+				case RBM_HOWL: msg_print(result);(void)project(who, what, 2, m_ptr->fy, m_ptr->fx, m_ptr->fy, m_ptr->fx, dam, effect, FLG_MON_BALL | PROJECT_HIDE, 0, 0);  break;
 				default: mon_beam(who, what, y, x, effect, dam, 2, result); /* For all hurt huge attacks */
 			}
 
@@ -4033,8 +4025,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						else msg_format("%^s absorbs mana from the surrounding water.", m_name);
 	
 						/* Big boost to mana */
-						n_ptr->mana += (power / 5) + 1;
-						if (n_ptr->mana > s_ptr->mana) n_ptr->mana = s_ptr->mana;
+						n_ptr->mana = MIN(255, n_ptr->mana + power / 5 + 1);
+						if (n_ptr->mana > s_ptr->mana) 
+							n_ptr->mana = s_ptr->mana;
 	
 						/* Done */
 						break;
@@ -4056,8 +4049,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target > 0)
 			{
 				/* Increase current mana.  Do not exceed maximum. */
-				n_ptr->mana += (spower / 15) + 1;
-				if (n_ptr->mana > s_ptr->mana) n_ptr->mana = s_ptr->mana;
+				n_ptr->mana = MIN(255, n_ptr->mana + spower / 15 + 1);
+				if (n_ptr->mana > s_ptr->mana) 
+					n_ptr->mana = s_ptr->mana;
 			}
 			else if (target < 0)
 			{
@@ -4344,28 +4338,28 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			if (target > 0)
 			{
-				if ((known) || (direct)) disturb(1, 0);
+				direct = !blind && player_can_see_bold(m_ptr->fy,m_ptr->fx);
+				if (known) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
 				monster_desc(t_name, sizeof(t_name), target, 0x08);
 
+				/* Move monster (also updates "m_ptr->ml"). */
 				teleport_away(target, 10);
 
 				/*
 				 * If it comes into view from around a corner (unlikely)
 				 * give a message and learn about the casting
 				 */
-				if (!direct && m_ptr->ml)
+				if (!direct 
+					&& !blind && player_can_see_bold(m_ptr->fy, m_ptr->fx) 
+					&& m_ptr->ml)
 				{
-					/* Get the target name (using "A"/"An") again. */
-					monster_desc(t_name, sizeof(t_name), target, 0x08);
-										
-					seen = TRUE;
 					msg_format("%^s blinks into view.", t_nref);
 				}
 
 				/* Normal message */
-				else if (direct)
+				else if (known && !m_ptr->ml)
 				{
 					msg_format("%^s blinks away.", t_nref);
 				}
@@ -4375,6 +4369,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				{
 					msg_format("%^s blinks.", t_nref);
 				}
+
+				/* Add to the "see-able-ness" after teleport*/
+				seen = seen || (!blind && m_ptr->ml);
 			}
 			break;
 		}
@@ -4384,28 +4381,28 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			if (target > 0)
 			{
-				if ((known) || (direct)) disturb(1, 0);
+				direct = !blind && player_can_see_bold(m_ptr->fy,m_ptr->fx);
+				if (known) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
 				monster_desc(t_name, sizeof(t_name), target, 0x08);
 
+				/* Move monster (also updates "m_ptr->ml"). */
 				teleport_away(target, MAX_SIGHT * 2 + 5);
 
 				/*
 				 * If it comes into view from around a corner (unlikely)
 				 * give a message and learn about the casting
 				 */
-				if (!direct && m_ptr->ml)
+				if (!direct 
+					&& !blind && player_can_see_bold(m_ptr->fy, m_ptr->fx) 
+					&& m_ptr->ml)
 				{
-					/* Get the target name (using "A"/"An") again. */
-					monster_desc(t_name, sizeof(t_name), target, 0x08);
-
-					seen = TRUE;
 					msg_format("%^s teleports into view.", t_nref);
 				}
 
 				/* Normal message */
-				else if (direct)
+				else if (known && !m_ptr->ml)
 				{
 					msg_format("%^s teleports away.", t_nref);
 				}
@@ -4415,6 +4412,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				{
 					msg_format("%^s teleports.", t_nref);
 				}
+
+				/* Add to the "see-able-ness" after teleport*/
+				seen = seen || (!blind && m_ptr->ml);
 			}
 			break;
 		}
@@ -4462,11 +4462,15 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				int old_cdis = m_ptr->cdis;
 
+				direct = !blind && player_can_see_bold(m_ptr->fy,m_ptr->fx);
+
 				/* Move monster near player (also updates "m_ptr->ml"). */
 				teleport_towards(m_ptr->fy, m_ptr->fx, y, x);
 
-				/* Monster is now visible, but wasn't before. */
-				if ((!seen) && (m_ptr->ml))
+				/* Monster is now directly visible, but wasn't before. */
+				if (!direct
+					&& !blind && player_can_see_bold(m_ptr->fy, m_ptr->fx) 
+					&& m_ptr->ml)
 				{
 					/* Get the name (using "A"/"An") again. */
 					monster_desc(m_name, sizeof(m_name), who > SOURCE_MONSTER_START ? who : what, 0x08);
@@ -4476,16 +4480,18 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				}
 
 				/* Monster was visible before, but isn't now. */
-				else if ((seen) && (!m_ptr->ml))
+				else if (seen && !m_ptr->ml)
 				{
 					/* Message */
 					msg_format("%^s blinks away.", m_name);
 				}
 
 				/* Monster is visible both before and after. */
-				else if ((seen) && (m_ptr->ml))
+				else if (seen && m_ptr->ml)
 				{
-					if (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) < (old_cdis - 1))
+					if (player_can_see_bold(m_ptr->fy, m_ptr->fx)
+						&& (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px)
+							< (old_cdis - 1)))
 					{
 						msg_format("%^s blinks toward you.", m_name);
 					}
@@ -4494,10 +4500,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						msg_format("%^s blinks.", m_name);
 					}
 				}
-
-				/* Have we seen them at any point?  If so, we will learn about the spell. */
-				if (m_ptr->ml) seen = TRUE;
 			}
+
+			/* Add to the "see-able-ness" after teleport*/
+			seen = seen || (!blind && m_ptr->ml);
 
 			break;
 		}
@@ -5610,9 +5616,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_KIN */
 		case 192 + 0:
 		{
-			if (surface) break;
 			disturb(1, 0);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s cries out for help.", m_name);
@@ -5647,8 +5651,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5678,8 +5680,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5697,7 +5697,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_MONSTER */
 		case 192 + 3:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5720,7 +5719,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_MONSTERS */
 		case 192 + 4:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5745,8 +5743,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5768,8 +5764,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5789,7 +5783,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_PLANT */
 		case 192 + 7:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5812,7 +5805,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_INSECT */
 		case 192 + 8:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5835,7 +5827,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_ANIMALS */
 		case 192 + 9:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5883,7 +5874,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_HOUND */
 		case 192 + 10:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5906,7 +5896,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_SPIDER */
 		case 192 + 11:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5929,7 +5918,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_CLASS */
 		case 192 + 12:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5960,7 +5948,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_RACE */
 		case 192 + 13:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -5994,11 +5981,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_GROUP */
 		case 192 + 14:
 		{
-			if (surface) break;
 			disturb(1, 0);
-
 			summon_group_type = 0;
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if ((blind) && (known)) msg_format("%^s chants.", m_name);
@@ -6023,10 +6007,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		case 192 + 15:
 		{
 			int summon_type = SUMMON_FRIEND;
-
-			if (surface) break;
 			disturb(1, 0);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s calls out for help.", m_name);
@@ -6067,10 +6048,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		case 192 + 16:
 		{
 			int summon_type = SUMMON_FRIEND;
-
-			if (surface) break;
 			disturb(1, 0);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if (((blind) && (known)) && (target < 0)) msg_format("%^s calls out for help.", m_name);
@@ -6110,7 +6088,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_ORC */
 		case 192 + 17:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -6133,7 +6110,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_TROLL */
 		case 192 + 18:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -6156,7 +6132,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_GIANT */
 		case 192 + 19:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
@@ -6203,7 +6178,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_HI_DRAGON */
 		case 192 + 21:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_DRAGON);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
@@ -6228,10 +6202,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if ((blind) && (known)) result = format("%^s chants in a rumbling voice.", m_name);
@@ -6249,10 +6220,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			/* Override cave ecology */
 			cave_ecology.ready = FALSE;
-
-			if (surface) break;
 			disturb(1, 0);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if ((blind) && (known)) result = format("%^s chants in a clanking.", m_name);
@@ -6268,7 +6236,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_DEMON */
 		case 192 + 24:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			sound(MSG_SUM_DEMON);
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
@@ -6291,10 +6258,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_HI_DEMON */
 		case 192 + 25:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_DEMON);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if ((blind) && (known)) msg_format("%^s chants in an infernal voice.", m_name);
@@ -6388,10 +6353,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_UNDEAD */
 		case 192 + 29:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			sound(MSG_SUM_UNDEAD);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				if ((blind) && (known)) msg_format("%^s whispers.", m_name);
@@ -6409,10 +6372,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF7_S_HI_UNDEAD */
 		case 192 + 30:
 		{
-			if (surface) break;
 			disturb(1, 0);
 			sound(MSG_SUM_HI_UNDEAD);
-
 			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY) || (who == SOURCE_SELF))
 			{
 				summoner = m_list[who > SOURCE_MONSTER_START ? who : what].r_idx;
@@ -6494,7 +6455,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	}
 
 	/* Monster updates */
-	if (who > SOURCE_MONSTER_START)
+	if (who >= SOURCE_MONSTER_START)
 	{
 		/* Mark minimum desired range for recalculation */
 		m_ptr->min_range = 0;

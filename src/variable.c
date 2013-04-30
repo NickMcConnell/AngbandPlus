@@ -106,9 +106,6 @@ char summon_word_type[80];		/* Hack -- See summon_specific() */
 s32b turn;			      /* Current game turn */
 s32b old_turn;		      /* unused */
 
-bool surface;
-bool daytime;
-
 bool use_mouse;		 /* The "mouse" mode is enabled */
 bool use_trackmouse;	 /* The "trackmouse" mode is enabled */
 bool use_graphics;	      /* The "graphics" mode is enabled */
@@ -362,35 +359,35 @@ byte angband_color_table[256][4] =
  */
 color_type color_table[256] =
 {							/* full mono vga blind lighter darker highlight metallic*/
-	{ 'd', "Dark",         {  0,  0,  0,  TERM_DARK,	TERM_L_DARK,	TERM_DARK,	TERM_L_DARK, 	TERM_L_DARK}},
-	{ 'w', "White",        {  1,  1,  1,  TERM_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_L_BLUE,	TERM_YELLOW}},
-	{ 's', "Slate",        {  2,  1,  2,  TERM_SLATE,	TERM_L_WHITE,	TERM_L_DARK,TERM_L_WHITE,	TERM_L_WHITE}},
-	{ 'o', "Orange",       {  3,  1,  3,  TERM_L_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
-	{ 'r', "Red",          {  4,  1,  4,  TERM_SLATE,	TERM_L_RED,		TERM_SLATE,	TERM_L_RED,		TERM_L_RED}},
-	{ 'g', "Green",        {  5,  1,  5,  TERM_SLATE,	TERM_L_GREEN,	TERM_SLATE,	TERM_L_GREEN,	TERM_L_GREEN}},
-	{ 'b', "Blue",         {  6,  1,  6,  TERM_SLATE,	TERM_L_BLUE,	TERM_SLATE,	TERM_L_BLUE,	TERM_L_BLUE}},
-	{ 'u', "Umber",        {  7,  1,  7,  TERM_L_DARK,	TERM_L_UMBER,	TERM_L_DARK,TERM_L_UMBER,	TERM_L_UMBER}},
-	{ 'D', "Light Dark",   {  8,  1,  8,  TERM_L_DARK,	TERM_SLATE,		TERM_L_DARK,TERM_SLATE,		TERM_SLATE}},
-	{ 'W', "Light Slate",  {  9,  1,  9,  TERM_L_WHITE,	TERM_WHITE,		TERM_SLATE,	TERM_WHITE,		TERM_WHITE}},
-	{ 'P', "Light Purple", {  10, 1, 10,  TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
-	{ 'y', "Yellow",       {  11, 1, 11,  TERM_L_WHITE,	TERM_L_YELLOW,	TERM_L_WHITE,	TERM_WHITE,	TERM_WHITE}},
-	{ 'R', "Light Red",    {  12, 1, 12,  TERM_L_WHITE,	TERM_YELLOW,	TERM_RED,	TERM_YELLOW,	TERM_YELLOW}},
-	{ 'G', "Light Green",  {  13, 1, 13,  TERM_L_WHITE,	TERM_YELLOW,	TERM_GREEN,	TERM_YELLOW,	TERM_YELLOW}},
-	{ 'B', "Light Blue",   {  14, 1, 14,  TERM_L_WHITE,	TERM_YELLOW,	TERM_BLUE,	TERM_YELLOW,	TERM_YELLOW}},
-	{ 'U', "Light Umber",  {  15, 1, 15,  TERM_L_WHITE,	TERM_YELLOW,	TERM_UMBER,	TERM_YELLOW,	TERM_YELLOW}},
+	{ 'd', "Dark",         {  0,  0,  0,  TERM_DARK,	TERM_L_DARK,	TERM_DARK,	TERM_L_DARK, 	TERM_L_DARK, TERM_DARK}},
+	{ 'w', "White",        {  1,  1,  1,  TERM_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_L_BLUE,	TERM_YELLOW, TERM_WHITE}},
+	{ 's', "Slate",        {  2,  1,  2,  TERM_SLATE,	TERM_L_WHITE,	TERM_L_DARK,TERM_L_WHITE,	TERM_L_WHITE, TERM_SLATE}},
+	{ 'o', "Orange",       {  3,  1,  3,  TERM_L_WHITE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW, TERM_ORANGE}},
+	{ 'r', "Red",          {  4,  1,  4,  TERM_SLATE,	TERM_L_RED,		TERM_SLATE,	TERM_L_RED,		TERM_L_RED, TERM_RED}},
+	{ 'g', "Green",        {  5,  1,  5,  TERM_SLATE,	TERM_L_GREEN,	TERM_SLATE,	TERM_L_GREEN,	TERM_L_GREEN, TERM_GREEN}},
+	{ 'b', "Blue",         {  6,  1,  6,  TERM_SLATE,	TERM_L_BLUE,	TERM_SLATE,	TERM_L_BLUE,	TERM_L_BLUE, TERM_BLUE}},
+	{ 'u', "Umber",        {  7,  1,  7,  TERM_L_DARK,	TERM_L_UMBER,	TERM_L_DARK,TERM_L_UMBER,	TERM_L_UMBER, TERM_UMBER}},
+	{ 'D', "Light Dark",   {  8,  1,  8,  TERM_L_DARK,	TERM_SLATE,		TERM_L_DARK,TERM_SLATE,		TERM_SLATE, TERM_L_DARK}},
+	{ 'W', "Light Slate",  {  9,  1,  9,  TERM_L_WHITE,	TERM_WHITE,		TERM_SLATE,	TERM_WHITE,		TERM_WHITE, TERM_SLATE}},
+	{ 'P', "Light Purple", {  10, 1, 10,  TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW, TERM_L_PURPLE}},
+	{ 'y', "Yellow",       {  11, 1, 11,  TERM_L_WHITE,	TERM_L_YELLOW,	TERM_L_WHITE,	TERM_WHITE,	TERM_WHITE, TERM_YELLOW}},
+	{ 'R', "Light Red",    {  12, 1, 12,  TERM_L_WHITE,	TERM_YELLOW,	TERM_RED,	TERM_YELLOW,	TERM_YELLOW, TERM_L_RED}},
+	{ 'G', "Light Green",  {  13, 1, 13,  TERM_L_WHITE,	TERM_YELLOW,	TERM_GREEN,	TERM_YELLOW,	TERM_YELLOW, TERM_L_GREEN}},
+	{ 'B', "Light Blue",   {  14, 1, 14,  TERM_L_WHITE,	TERM_YELLOW,	TERM_BLUE,	TERM_YELLOW,	TERM_YELLOW, TERM_L_BLUE}},
+	{ 'U', "Light Umber",  {  15, 1, 15,  TERM_L_WHITE,	TERM_YELLOW,	TERM_UMBER,	TERM_YELLOW,	TERM_YELLOW, TERM_L_UMBER}},
 
-	{  'p', "Purple",	   {  16,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE}},
-	{  'v', "Violet",	   {  17,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE}},
-	{  't', "Teal",		   {  18,   1, 6, TERM_SLATE,	TERM_L_TEAL,	TERM_SLATE,	TERM_L_TEAL,	TERM_L_TEAL}},
-	{  'm', "Mud",		   {  19,   1, 5, TERM_SLATE,	TERM_MUSTARD,	TERM_SLATE,	TERM_MUSTARD,	TERM_MUSTARD}},
-	{  'Y', "Light Yellow",{  20,   1, 11,TERM_WHITE,	TERM_WHITE,		TERM_YELLOW,TERM_WHITE,		TERM_WHITE}},
-	{  'i', "Magenta-Pink",{  21,   1, 12,TERM_SLATE,	TERM_L_PINK,	TERM_RED,	TERM_L_PINK,	TERM_L_PINK}},
-	{  'T', "Light Teal",  {  22,   1, 14,TERM_L_WHITE,	TERM_YELLOW,	TERM_TEAL,	TERM_YELLOW,	TERM_YELLOW}},
-	{  'V', "Light Violet",{  23,   1, 10,TERM_L_WHITE,	TERM_YELLOW,	TERM_VIOLET,TERM_YELLOW,	TERM_YELLOW}},
-	{  'I', "Light Pink",  {  24,   1, 12,TERM_L_WHITE,	TERM_YELLOW,	TERM_MAGENTA,TERM_YELLOW,	TERM_YELLOW}},
-	{  'M', "Mustard",	   {  25,   1, 11,TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW}},
-	{  'z', "Blue Slate",  {  26,   1, 9, TERM_SLATE,	TERM_DEEP_L_BLUE,TERM_SLATE,TERM_DEEP_L_BLUE,	TERM_DEEP_L_BLUE}},
-	{  'Z', "Deep Light Blue",{ 27, 1, 14,TERM_L_WHITE,	TERM_L_BLUE,	TERM_BLUE_SLATE,TERM_L_BLUE,	TERM_L_BLUE}},
+	{  'p', "Purple",	   {  16,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE, TERM_PURPLE}},
+	{  'v', "Violet",	   {  17,   1, 10,TERM_SLATE,	TERM_L_PURPLE,	TERM_SLATE,	TERM_L_PURPLE,	TERM_L_PURPLE, TERM_VIOLET}},
+	{  't', "Teal",		   {  18,   1, 6, TERM_SLATE,	TERM_L_TEAL,	TERM_SLATE,	TERM_L_TEAL,	TERM_L_TEAL, TERM_TEAL}},
+	{  'm', "Mud",		   {  19,   1, 5, TERM_SLATE,	TERM_MUSTARD,	TERM_SLATE,	TERM_MUSTARD,	TERM_MUSTARD, TERM_MUD}},
+	{  'Y', "Light Yellow",{  20,   1, 11,TERM_WHITE,	TERM_WHITE,		TERM_YELLOW,TERM_WHITE,		TERM_WHITE, TERM_L_YELLOW}},
+	{  'i', "Magenta-Pink",{  21,   1, 12,TERM_SLATE,	TERM_L_PINK,	TERM_RED,	TERM_L_PINK,	TERM_L_PINK, TERM_MAGENTA}},
+	{  'T', "Light Teal",  {  22,   1, 14,TERM_L_WHITE,	TERM_YELLOW,	TERM_TEAL,	TERM_YELLOW,	TERM_YELLOW, TERM_L_TEAL}},
+	{  'V', "Light Violet",{  23,   1, 10,TERM_L_WHITE,	TERM_YELLOW,	TERM_VIOLET,TERM_YELLOW,	TERM_YELLOW, TERM_L_VIOLET}},
+	{  'I', "Light Pink",  {  24,   1, 12,TERM_L_WHITE,	TERM_YELLOW,	TERM_MAGENTA,TERM_YELLOW,	TERM_YELLOW, TERM_L_PINK}},
+	{  'M', "Mustard",	   {  25,   1, 11,TERM_SLATE,	TERM_YELLOW,	TERM_SLATE,	TERM_YELLOW,	TERM_YELLOW, TERM_MUSTARD}},
+	{  'z', "Blue Slate",  {  26,   1, 9, TERM_SLATE,	TERM_DEEP_L_BLUE,TERM_SLATE,TERM_DEEP_L_BLUE,	TERM_DEEP_L_BLUE, TERM_BLUE_SLATE}},
+	{  'Z', "Deep Light Blue",{ 27, 1, 14,TERM_L_WHITE,	TERM_L_BLUE,	TERM_BLUE_SLATE,TERM_L_BLUE,	TERM_L_BLUE, TERM_DEEP_L_BLUE}},
 			
 	/* Rest to be filled in when the game loads */
 };

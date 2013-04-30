@@ -1,0 +1,57 @@
+8
+
+dir
+2219
+http://cvs.berlios.de/svnroot/repos/unangband/trunk/unangband/src/osx/English.lproj
+http://cvs.berlios.de/svnroot/repos/unangband
+
+
+
+2007-03-11T10:07:44.000000Z
+1141
+pmac
+has-props
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+3ca42a8f-7b31-0410-a887-e817dd3e653f
+
+.cvsignore
+file
+
+
+
+
+2007-08-07T13:20:20.000000Z
+b97826cf1acf06d2e7462b33349e2321
+2007-02-12T20:23:28.000000Z
+1115
+pmac
+has-props
+
+InfoPlist.strings
+file
+
+
+
+
+2007-08-07T13:20:20.000000Z
+03a4a3b343e35e9066adbc5f5e6ef3ec
+2007-02-12T08:25:27.000000Z
+1109
+pmac
+has-props
+
+main.nib
+dir
+

@@ -1353,15 +1353,11 @@ static void desc_art_fake(int a_idx)
 	screen_save();
 
 	/* Describe */
-	Term_flush();
-	anykey();
-
 	screen_object(o_ptr);
 
-	/* Load the screen */
-	screen_load();
-
+	Term_flush();
 	(void)anykey();
+	screen_load();
 }
 
 static int a_cmp_tval(const void *a, const void *b)
@@ -1472,9 +1468,7 @@ static void desc_ego_fake(int oid)
 	}
 
 	Term_flush();
-
-	anykey();
-
+	(void)anykey();
 	screen_load();
 }
 
@@ -1635,10 +1629,9 @@ static void desc_obj_fake(int k_idx)
 	/* Describe */
 	screen_object(o_ptr);
 
-	/* Load the screen */
-	screen_load();
-
+	Term_flush();
 	(void)anykey();
+	screen_load();
 }
 
 static int o_cmp_tval(const void *a, const void *b)
@@ -1839,9 +1832,8 @@ static void screen_store_object(int oid)
 	/* Describe */
 	screen_object(o_ptr);
 
-	/* Load the screen */
+	Term_flush();
 	(void)anykey();
-
 	screen_load();
 }
 
@@ -1909,35 +1901,68 @@ int count_routes(int from, int to)
 
 static void describe_surface_dungeon(int dun) 
 {
-  int myd = p_ptr->dungeon;
-  int num;
+	int myd = p_ptr->dungeon;
+	int num;
 
-  if (dun == rp_ptr->home) {
-    text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+	if (dun == rp_ptr->home) 
+	{
+		text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+		
+		if (dun == myd)
+			text_out_c(TERM_SLATE, "  You were born right here.");
+		else
+			text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago.");
+	} 
+	else if (t_info[dun].visited)
+		text_out_c(TERM_WHITE, t_info[dun].text + t_text);
+	else
+		text_out_c(TERM_SLATE, "You've heard about this place and you can already spot it far away ahead.");
 
-    if (dun == myd)
-      text_out_c(TERM_SLATE, "  You were born right here.");
-    else
-      text_out_c(TERM_SLATE, "  This is where you were born, though it was quite long ago.");
-  } 
-  else if (t_info[dun].visited)
-    text_out_c(TERM_WHITE, t_info[dun].text + t_text);
-  else
-    text_out_c(TERM_SLATE, "You've heard about this place and you can already spot it far away ahead.");
+	/* routes from descibed dungeon to current dungeon */
+	num = count_routes(dun, myd);
 
-  /* routes from descibed dungeon to current dungeon */
-  num = count_routes(dun, myd);
-
-  if (num <= 0 && dun != myd)
-    /* no road back to current */
-    if (count_routes(myd, dun) > 0)
-      /* road forth, hence one way */
-      text_out_c(TERM_RED, format("  You know of no way back from %s to %s!", 
-				  t_info[dun].name + t_name, 
-				  t_info[myd].name + t_name));
+	if (num <= 0 && dun != myd)
+		/* no road back to current */
+		if (count_routes(myd, dun) > 0)
+			/* road forth, hence one way */
+			text_out_c(TERM_RED, format("  You know of no way back from %s to %s!", 
+										t_info[dun].name + t_name, 
+										t_info[myd].name + t_name));
 	  
-  if (!num)
-    text_out_c(TERM_SLATE, format("  You feel your old maps will not avail you %s.", dun == myd ? "here" : "there"));	  
+	if (!num)
+		text_out_c(TERM_SLATE, format("  You feel your old maps will not avail you %s.", dun == myd ? "here" : "there"));
+
+	if (!t_info[dun].visited)
+	{
+		char str[1000];
+		int i, found = 0;
+		for (i = 1; i < z_info->t_max; i++) 
+		{
+			if (t_info[i].replace_ifvisited == dun)
+			{
+				if (found == 0) 
+				{
+					sprintf(str, "  If you enter %s, you will never find %s", t_info[dun].name + t_name, t_info[i].name + t_name);
+					found = -1;
+				}
+				else if (found < 0)
+				{
+					found = i;
+				}
+				else
+				{
+					my_strcat(str, format(", %s", t_info[found].name + t_name), 1000);
+					found = i;
+				}
+			}
+		}
+		if (found > 0) 
+			my_strcat(str, format(" and %s again!", t_info[found].name + t_name), 1000);
+		else if (found < 0) 
+			my_strcat(str, " again!", 1000);
+		if (found != 0)
+			text_out_c(TERM_WHITE, str);
+	}
 }
 
 static void describe_zone_guardian(int dun, int zone) 
@@ -1998,10 +2023,10 @@ static void dungeon_lore(int oid) {
 	  if (my_zone == &t_info[dun].zone[zone])
 	    text_out_c(TERM_SLATE, "  This is where you stand right now.");
 	}
-	
-	/* Load the screen */
+
+	Term_flush();
+	(void)anykey();
 	screen_load();
-	anykey();
 }
 
 static void display_dungeon_zone(int col, int row, bool cursor, int oid)
@@ -2093,24 +2118,24 @@ static void do_cmd_knowledge_dungeons(void)
 
 	zones = C_ZNEW(z_info->t_max*MAX_DUNGEON_ZONES, int);
 
-	for(i = 1; i < z_info->t_max; i++) {
+	for (i = 1; i < z_info->t_max; i++) 
+	{
+		if (!t_info[i].visited 
+			&& !(i == rp_ptr->home)
+			&& !(count_routes(myd, i) > 0))
+			continue;
 
-	  if (!t_info[i].visited 
-	      && !(i == rp_ptr->home)
-	      && !(count_routes(myd, i) > 0))
-	    continue;
+		if (t_info[i].replace_ifvisited 
+			&& t_info[t_info[i].replace_ifvisited].visited)
+			continue;
 
-	  if (t_info[i].replace_ifvisited 
-	      && t_info[t_info[i].replace_ifvisited].visited)
-	    continue;
+		if (i < p_ptr->dungeon)
+			start_at++;
 
-	  if (i < p_ptr->dungeon)
-		  start_at++;
-
-	  for(j = 0; (j < 1 || t_info[i].zone[j].level != 0 )
-		&& j < MAX_DUNGEON_ZONES; j++)
+		for(j = 0; (j < 1 || t_info[i].zone[j].level != 0 )
+				&& j < MAX_DUNGEON_ZONES; j++)
 	    {
-	      zones[z_count++] = MAX_DUNGEON_ZONES*i + j;
+			zones[z_count++] = MAX_DUNGEON_ZONES*i + j;
 	    }
 	}
 
@@ -4939,7 +4964,7 @@ void do_cmd_feeling(void)
 	}
 
 	/* Wilderness is easy to escape, so make it harder by no level feeling */
-	if (p_ptr->depth == min_depth(p_ptr->dungeon)) 
+	if (level_flag & (LF1_SURFACE))
 	{
 		switch (p_ptr->dungeon % 3)
 		{
@@ -4950,12 +4975,12 @@ void do_cmd_feeling(void)
 		}
 		case 1:
 		{
-			msg_print("The future unfolds before you.");
+			msg_print("You feel the future unfolds before you.");
 			return;
 		}
 		case 2:
 		{
-			msg_print("Something is about to begin.");
+			msg_print("You feel something new is about to begin.");
 			return;
 		}
 		}

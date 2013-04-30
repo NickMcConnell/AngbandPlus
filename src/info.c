@@ -1352,11 +1352,20 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 		switch (method)
 		{
 			case RBM_HIT: p = "hits"; t = "one target"; break;
+
 			case RBM_SPIT: p = "spits"; t = "one target"; break;
+			case RBM_GAZE: p = "gazes"; t = "one target"; break;
+			case RBM_WAIL: p = "wails"; t = "one target"; break;
+			case RBM_SPORE: t = "one adjacent target"; break;
+			case RBM_LASH: t = "one adjacent target"; break;
+		case RBM_BEG: t = "one adjacent target"; break;
+		case RBM_INSULT: t = "one adjacent target"; break;
+		case RBM_MOAN: t = "one adjacent target"; break;
+		case RBM_SING: t = "one adjacent target"; break;
+		case RBM_TRAP: t = "one adjacent target"; break;
+		case RBM_BOULDER: t = "one adjacent target"; break;
 			case RBM_AURA: p = "surrounds you with an aura";  t = "your enemies"; rad = 2; break;
-			case RBM_AURA_MINOR: p = "surrounds you with an aura";  t = "your enemies"; rad = 1; break;
 			case RBM_SELF: t = "you"; break;
-			case RBM_EXPLODE: t = "you and all enemies adjacent to you"; break;
 			case RBM_ADJACENT: t = "all enemies adjacent to you"; break;
 			case RBM_HANDS: t = "a beam"; rng = 3; if ((level > 5) && (d2)) d1+= (level-1)/5;break;
 			case RBM_MISSILE: p = "creates a missile"; t = "your enemies"; if ((level > 5) && (d2)) d1+= (level-1)/5;break;
@@ -1366,26 +1375,24 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_BLAST: p = "creates an adjacent blast"; t = "your enemies"; d3 += level;break;
 			case RBM_WALL: p = "creates a wall"; t = "your enemies"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
 			case RBM_BALL: p = "creates a ball"; t = "your enemies"; rad = 2; break;
-			case RBM_BALL_II: p = "creates a ball"; t = "your enemies"; rad = 3; break;
-			case RBM_BALL_III: p = "creates a ball"; t = "your enemies"; rad = 4; break;
 			case RBM_CLOUD: p = "creates a cloud"; t = "your enemies"; rad = 2; d3 += level/2; break;
 			case RBM_STORM: p = "creates a storm"; t = "your enemies"; rad = 3; break;
 			case RBM_BREATH: p = "breathes";  t = "your enemies"; d3 = p_ptr->chp * d3 / 300; break;
 			case RBM_AREA: p = "surrounds you with magic"; rad = (level/10)+1; break;
-			case RBM_AIM_AREA: p = "affects an area"; rad = (level/10)+1; break;
 			case RBM_LOS: t = "all your enemies in line of sight"; break;
 			case RBM_LINE: t = "one direction"; break;
 			case RBM_AIM: t = "one target"; break;
-			case RBM_PANEL: t = "the current panel"; break;
-			case RBM_LEVEL: t = "the current level"; break;
 			case RBM_ORB: p = "creates an orb"; t = "your enemies"; rad = (level < 30 ? 2 : 3); d3 += level/2; break;
-			case RBM_CROSS: p = "surrounds you with a cross"; t = "your enemies"; break;
-			case RBM_STRIKE: p = "strikes"; t = "your enemy"; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
 			case RBM_STAR: p = "surrounds you with a star"; t = "your enemies"; break;
 			case RBM_SPHERE: p = "creates a sphere";  t = "your enemies";  rad = (level/10)+2; break;
+			case RBM_PANEL: t = "the current panel"; break;
+			case RBM_LEVEL: t = "the current level"; break;
+			case RBM_CROSS: p = "surrounds you with a cross"; t = "your enemies"; break;
+			case RBM_STRIKE: p = "strikes"; t = "your enemy"; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
+			case RBM_EXPLODE: t = "you and all enemies adjacent to you"; break;
 			case RBM_ARROW: p = "creates an arrow"; t="one target"; break;
 			case RBM_XBOLT: p = "creates a crossbow bolt"; t="one target"; break;
-			case RBM_SPIKE: p = "creates a spike"; t="one target"; break;
+			case RBM_DAGGER: p = "creates a dagger"; t="one target"; break;
 			case RBM_DART: p = "creates a dart"; t="one target"; break;
 			case RBM_SHOT: p = "creates a shot"; t="one target"; break;
 			case RBM_ARC_20: p = "creates an arc"; arc = 20; break;
@@ -1394,16 +1401,23 @@ static bool spell_desc_blows(const spell_type *s_ptr, const cptr intro, int leve
 			case RBM_ARC_50: p = "creates an arc"; arc = 50; break;
 			case RBM_ARC_60: p = "creates an arc"; arc = 60; break;
 			case RBM_FLASK: p = "creates a ball"; t = "your enemies"; rad = 1; break;
+		case RBM_TRAIL: t = "one adjacent target"; break;
+		case RBM_SHRIEK: t = "one adjacent target"; break;
 			case RBM_BOLT_MINOR: p = "creates a bolt"; t = "your enemies"; rng = 4; if ((level > 5) && (d2)) d1+= (level-1)/5; break;
 			case RBM_BALL_MINOR: p = "throws a ball"; t = "your enemies"; rad = 1; break;
+			case RBM_BALL_II: p = "creates a ball"; t = "your enemies"; rad = 3; break;
+			case RBM_BALL_III: p = "creates a ball"; t = "your enemies"; rad = 4; break;
+			case RBM_AURA_MINOR: p = "surrounds you with an aura";  t = "your enemies"; rad = 1; break;
 			case RBM_8WAY: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 2; break;
 			case RBM_8WAY_II: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 3; break;
 			case RBM_8WAY_III: p = "creates a beam in 8 directions"; t = "your enemies"; rad = 4; break;
 			case RBM_SWARM: p = "creates multiple balls"; t = "your enemies"; rad = 1; d3 += level / 2; break;
+			case RBM_SPIKE: p = "creates a spike"; t="one target"; break;
+			case RBM_AIM_AREA: p = "affects an area"; rad = (level/10)+1; break;
 			case RBM_SCATTER: p = "scatters magic around you"; t = "your enemies"; break;
-			default: t = "one adjacent target"; if ((level > 8) && (d2)) d1+= (level-5)/4;break;
+		case RBM_HOWL: t = "one adjacent target"; break;
+		default: t = "one adjacent target"; if ((level > 8) && (d2)) d1+= (level-5)/4;break; /* ? */
 		}
-
 
 		/* Default technique */
 		q = NULL;
@@ -5820,16 +5834,18 @@ s32b object_power(const object_type *o_ptr)
 	object_flags(o_ptr,&f1,&f2,&f3,&f4);
 
 	/* Lookup the item if not yet cached */
-	k_idx = lookup_kind(o_ptr->tval, o_ptr->sval);
+	k_idx = o_ptr->k_idx;
 
-	/* Get the object */
+	assert (k_idx = lookup_kind(o_ptr->tval, o_ptr->sval));
+
+	/* Get the object kind */
 	k_ptr = &k_info[k_idx];
 
 	/* Set the base kind flags */
-	kf1 = k_info[o_ptr->k_idx].flags1;
-	kf2 = k_info[o_ptr->k_idx].flags2;
-	kf3 = k_info[o_ptr->k_idx].flags3;
-	kf4 = k_info[o_ptr->k_idx].flags4;
+	kf1 = k_info[k_idx].flags1;
+	kf2 = k_info[k_idx].flags2;
+	kf3 = k_info[k_idx].flags3;
+	kf4 = k_info[k_idx].flags4;
 
 	/* Evaluate certain abilities based on type of object. */
 	switch (o_ptr->tval)
@@ -6229,7 +6245,7 @@ s32b object_power(const object_type *o_ptr)
 #endif
 			ADD_POWER("resist fire",	 3, TR2_RES_FIRE, 2, );
 			ADD_POWER("resist cold",	 1, TR2_RES_COLD, 2, );
-			ADD_POWER("resist water",	 3, TR2_RES_COLD, 4, );
+			ADD_POWER("resist water",	 3, TR4_RES_WATER, 4, );
 
 			/* Fall through */
 		}
@@ -6482,68 +6498,74 @@ s32b object_power(const object_type *o_ptr)
 			return(p);
 	}
 
-	/* Other abilities are evaluated independent of the object type. */
+	/* Other abilities are evaluated independent of the object type.
+		Note that there is no need to subtract k_ptr->pval from o_ptr->pval,
+		because we want to penalize non-standard pval, even just 1 higher,
+		especially if it's atop already high standard pval */
 	if (o_ptr->pval > 0)
 	{
-		if (f1 & TR1_STR)
+		if (f1 & TR1_STR && (!(kf1 & TR1_STR) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval; 
 		}
-		if (f1 & TR1_INT)
+		if (f1 & TR1_INT && (!(kf1 & TR1_INT) || o_ptr->pval > k_ptr->pval))
 		{
-			p += o_ptr->pval * o_ptr->pval;  /* Was 2 * o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval;
 		}
-		if (f1 & TR1_WIS)
+		if (f1 & TR1_WIS && (!(kf1 & TR1_WIS) || o_ptr->pval > k_ptr->pval))
 		{
-			p += o_ptr->pval * o_ptr->pval;  /* Was 2 * o_ptr->pval */
+			p += o_ptr->pval * o_ptr->pval;
 		}
-		if (f1 & TR1_DEX)
+		if (f1 & TR1_DEX && (!(kf1 & TR1_DEX) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 3 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval;
 		}
-		if (f1 & TR1_CON)
+		if (f1 & TR1_CON && (!(kf1 & TR1_CON) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 2 * o_ptr->pval * o_ptr->pval;  /* Was 4 * o_ptr->pval */
+			p += 2 * o_ptr->pval * o_ptr->pval; 
 		}
-		if (f1 & TR1_CHR)
+		if (f1 & TR1_CHR && (!(kf1 & TR1_CHR) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 1 + o_ptr->pval * o_ptr->pval / 2; /* Was o_ptr->pval */
+			p += 1 + o_ptr->pval * o_ptr->pval / 2;
 		}
-		if (f1 & TR1_SAVE)
+		if (f1 & TR1_SAVE && (!(kf1 & TR1_SAVE) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 1 + o_ptr->pval * o_ptr->pval / 2; /* Was o_ptr->pval */
+			p += 1 + o_ptr->pval * o_ptr->pval / 2;
 		}
-		if (f1 & TR1_DEVICE)
+		if (f1 & TR1_DEVICE && (!(kf1 & TR1_DEVICE) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 1 + o_ptr->pval * o_ptr->pval / 3; /* Was o_ptr->pval */
+			p += 1 + o_ptr->pval * o_ptr->pval / 3;
 		}
-		if (f1 & TR1_STEALTH)
+		if (f1 & TR1_STEALTH && (!(kf1 & TR1_STEALTH) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 1 + o_ptr->pval * o_ptr->pval / 2; /* Was o_ptr->pval */
+			p += 1 + o_ptr->pval * o_ptr->pval / 2;
 		}
-		if (f1 & TR1_TUNNEL)
-		{
-			p += 1 + o_ptr->pval * o_ptr->pval / 4; /* Was o_ptr->pval */
-		}
-		if (f1 & TR1_SEARCH)
+		if (f1 & TR1_TUNNEL && (!(kf1 & TR1_TUNNEL) || o_ptr->pval > k_ptr->pval))
 		{
 			p += 1 + o_ptr->pval * o_ptr->pval / 4; /* Can't get lower */
 		}
-		if (f3 & TR3_REGEN_HP)
+		if (f1 & TR1_SEARCH && (!(kf1 & TR1_SEARCH) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 3 * o_ptr->pval * o_ptr->pval; /* Was constant 3 */
+			p += o_ptr->pval > 5 + randint(15) ? 0 : o_ptr->pval; /* To make foo of Searching rare deeper down */
 		}
-		if (f3 & TR3_REGEN_MANA)
+		if (f3 & TR3_REGEN_HP && (!(kf3 & TR3_REGEN_HP) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 3 * o_ptr->pval * o_ptr->pval; /* Was constant 3 */
+			p += 3 * o_ptr->pval * o_ptr->pval;
 		}
-		if (f3 & TR3_LITE)
+		if (f3 & TR3_REGEN_MANA && (!(kf3 & TR3_REGEN_MANA) || o_ptr->pval > k_ptr->pval))
 		{
-			p += 2 ^ o_ptr->pval; /* Was constant 3 */
+			p += 2 * o_ptr->pval * o_ptr->pval;
+		}
+		if (f3 & TR3_LITE && (!(kf3 & TR3_LITE) || o_ptr->pval > k_ptr->pval))
+		{
+			p += o_ptr->pval * o_ptr->pval;
 		}
 	}
-
-	else if (o_ptr->pval < 0)	/* hack: don't give large negatives */
+	/* Hack: don't give large negatives.
+	   Also, don't penalize for pval less than k_ptr->pval,
+	   so that default pvals are no lowered to decrease power
+	   and we may end with the boring 0 pval */
+	else if (o_ptr->pval < 0)
 	{
 		if (f1 & TR1_STR) p += 4 * o_ptr->pval;
 		if (f1 & TR1_INT) p += 2 * o_ptr->pval;
@@ -6557,14 +6579,14 @@ s32b object_power(const object_type *o_ptr)
 		if (f1 & TR1_TUNNEL) p += o_ptr->pval;
 		if (f1 & TR1_SEARCH) p += o_ptr->pval;
 		if (f1 & TR1_INFRA) p += o_ptr->pval;
-		if (f3 & TR3_REGEN_HP) p -= 16;
-		if (f3 & TR3_REGEN_MANA) p -= 8;
+		if (f3 & TR3_REGEN_HP) p += 6 * o_ptr->pval;
+		if (f3 & TR3_REGEN_MANA) p += 4 * o_ptr->pval;
 		if (f3 & TR3_LITE) p += 3 * o_ptr->pval;
 	}
 
-	if (f1 & TR1_SPEED)
+	if (f1 & TR1_SPEED && (!(kf1 & TR1_SPEED) || o_ptr->pval > k_ptr->pval))
 	{
-		p += 7 * o_ptr->pval;
+		p += 3 * o_ptr->pval * o_ptr->pval;
 	}
 
 	ADD_POWER("sustain STR",	 5, TR2_SUST_STR, 2, sustains++);
@@ -6610,9 +6632,6 @@ s32b object_power(const object_type *o_ptr)
 	ADD_POWER("sense nature",	4, TR3_ESP_NATURE, 3,);
 	ADD_POWER("telepathy",	  18, TR3_TELEPATHY, 3,);
 	ADD_POWER("slow digestion",	 2, TR3_SLOW_DIGEST, 3,);
-
-	/* Digging moved to general section since it can be on anything now */
-	ADD_POWER("tunnelling",	 o_ptr->pval, TR1_TUNNEL, 1,);
 
 	ADD_POWER("resist acid",	 2, TR2_RES_ACID, 2, low_resists++);
 	ADD_POWER("resist elec",	 3, TR2_RES_ELEC, 2, low_resists++);

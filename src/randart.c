@@ -300,14 +300,6 @@ static byte *base_art_rarity;
 /* Global just for convenience. */
 static int randart_verbose = 0;
 
-/*ARD_RAND - Extra global variable.
- * Used to create random artifacts along side existing artifacts.
- *
- * a_max is the old z_info->a_max.
- */
-byte a_max;
-
-
 /*
  * Use W. Sheldon Simms' random name generator.
  */
@@ -348,7 +340,7 @@ static errr init_names(void)
 			continue;
 		}
 
-		if ((!adult_randarts) && (i<a_max))
+		if ((!adult_randarts) && (i<z_info->a_max_standard))
 		{
 			names[i-1] = string_make(a_name+a_info[i].name);
 
@@ -4843,11 +4835,10 @@ static errr scramble(void)
 	{
 		int a_idx;
 
-/* ARD_RAND - Note boundary condition. We only scramble the artifacts about the old
- * z_info->a_max if adult_randarts is not set.
- */
+		/* Note boundary condition. We only scramble the artifacts about the old
+			z_info->a_max if adult_randarts is not set. */
 		/* Generate all the artifacts. */
-		for (a_idx = (adult_randarts ? 1 : a_max) ; a_idx < z_info->a_max; a_idx++)
+		for (a_idx = (adult_randarts ? 1 : z_info->a_max_standard) ; a_idx < z_info->a_max; a_idx++)
 		{
 			scramble_artifact(a_idx);
 		}
@@ -4888,9 +4879,6 @@ errr do_randart(u32b randart_seed, bool full)
 	int i;
 	u32b j;
 
-	/* Hack -- already initialised full randarts */
-	if (z_info->a_max == 256) return (err);
-
 	/* Prepare to use the Angband "simple" RNG. */
 	Rand_value = randart_seed;
 	Rand_quick = TRUE;
@@ -4905,6 +4893,7 @@ errr do_randart(u32b randart_seed, bool full)
 		}
 
 		LOG_PRINT("===============================\n");
+		LOG_PRINT1("Seed is %d.\n", randart_seed);
 		LOG_PRINT1("Total monster power is %d.\n", tot_mon_power);
 
 
@@ -4920,59 +4909,23 @@ errr do_randart(u32b randart_seed, bool full)
 	{
 		int i;
 
-		artifact_type *a_info_new;
-
-		object_info *a_list_new;
-
-		int art_high_slot = 255;
-
-		/* Allocate the new artifact range */
-		a_info_new = C_ZNEW(256, artifact_type);
-
-		/* Allocate the new artifact lore range */
-		a_list_new = C_ZNEW(256, object_info);
+		int art_high_slot = z_info->a_max - 1;
 
 		/* Copy base artifacts to seed random powers */
-		for (i = ART_MIN_NORMAL; i < z_info->a_max;i++)
+		for (i = ART_MIN_NORMAL; i < z_info->a_max_standard;i++)
 		{
 			artifact_type *a_ptr = &a_info[i];
-			artifact_type *a2_ptr = &a_info_new[art_high_slot];
+			artifact_type *a2_ptr = &a_info[art_high_slot];
 
 			if (a_info[i].tval == 0) continue;
 			if (i == ART_POWER) continue;
 			if (i == ART_GROND) continue;
 			if (i == ART_MORGOTH) continue;
-			
+
 			COPY(a2_ptr,a_ptr,artifact_type);
-			art_high_slot--;
+			if (--art_high_slot < z_info->a_max_standard)
+				break;
 		}
-
-		/* Copy existing a_info array to a_info_new */
-		for (i = 0; i< z_info->a_max;i++)
-		{
-			artifact_type *a_ptr = &a_info[i];
-			artifact_type *a2_ptr = &a_info_new[i];
-	
-			COPY(a2_ptr,a_ptr,artifact_type);
-		}
-	
-		/* Free existing a_info array */
-		FREE(a_info);
-
-		/* Free existing a_list array */
-		FREE(a_list);		
-	
-		/* Set new a_info array to existing */
-		a_head.info_ptr = a_info = a_info_new;
-
-		/* Set new a_info array to existing */
-		a_list = a_list_new;
-
-		/* Temporarily store old number of artifacts */
-		a_max = z_info->a_max;
-
-		/* Update number of artifacts */
-		z_info->a_max = 256;
 
 		/* Allocate the "kinds" array */
 		kinds = C_ZNEW(z_info->a_max, s16b);
@@ -4996,15 +4949,17 @@ errr do_randart(u32b randart_seed, bool full)
 	/* Only do all the following if full randomization requested */
 	if (full)
 	{
-		/* Just for fun, look at the frequencies on the finished items */
-		/* Remove this prior to release */
-		store_base_power();
-		parse_frequencies();
-
-		/* Report artifact powers */
-		for (i = 0; i < z_info->a_max; i++)
+		if (randart_verbose)
 		{
-			LOG_PRINT2("Artifact %d power is now %d\n",i,a_info[i].power);
+			/* Just for fun, look at the frequencies on the finished items */
+			store_base_power();
+			parse_frequencies();
+
+			/* Report artifact powers */
+			for (i = 0; i < z_info->a_max; i++)
+			{
+				LOG_PRINT2("Artifact %d power is now %d\n",i,a_info[i].power);
+			}
 		}
 
 		/* Free the "kinds" array */

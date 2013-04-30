@@ -25,8 +25,11 @@ M:D:805
 # Maximum number of object kinds
 M:K:984
 
-# Maximum number of artifacts
-M:A:137
+# Maximum number of stadard artifacts
+M:a:137
+
+# Maximum number of all artifacts
+M:A:256
 
 # Maximum number of ego-item types
 M:E:128

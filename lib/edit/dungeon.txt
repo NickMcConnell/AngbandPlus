@@ -145,9 +145,7 @@ L:14:56:0:0:0:0:Elvenking's halls in
 L:25:0:1:155:0:0:the Storage Cellars under
 L:26:56:155:0:1082:0:the Great Hall under
 S:270:271:503:11:12:504:505:0
-D:Dark shapes scuttle in the shadows on the right side of the road through
-D: Mirkwood the Great.  Among odours of decay you sometimes imagine catching a sweet scent
-D: and among echoes of clicking and hissing you can sometimes faintly hear something like a captivating music.
+D: Dark shapes scuttle in the shadows, once on the right, once on the left side of the road through Mirkwood the Great.  Odours of decay assail your nostrils and you hear something clicking or hissing every now and then.  Occasionally, an errant breeze stirs the heavy air and then you imagine catching a subtle, sweet scent or a faint, captivating melody.
 
 N:6:Lake-town
 X:5:7:48:0
@@ -228,12 +226,12 @@ L:4:56:0:0:620:0:the dump outside
 S:8:9:10:11:12:13:268:775
 D:Life goes as usual in Bree.  Men and hobbits trade peacefully together,
 D: despite the strange men recently coming from the south.
-D:  Regrettably, some hobbits can't help feeling not so absolutely safe
-D: in the lowest outskirts of the town,
-D: where the southerners tend to hang around the sewer exit and,
-D: as some boys claim, even disappear in the main sewer tunnel occasionally.
-D:  If you, per chance, would like to investigate the town sewers,
-D: press '>' when standing on the entrance '>'.
+D:  Regrettably, hobbits from the outskirts of the town
+D: can't help feeling unsafe since the southerners
+D: started gathering by the sewer exit at the foot of the Bree-hill and,
+D: as some boys claim, even disappearing in the main sewer tunnel occasionally.
+D:  The well leading down to the town sewers is marked with '>'
+D: and can be descended by pressing '>' when standing over the grates.
 
 # Goes upwards
 # No guardian at the top, but worth exploring due to treasure at the top
@@ -389,7 +387,7 @@ D: maps will not let you find your way back.
 
 # Goes upwards
 
-N:23:Isengard, war-ready
+N:23:Isengard war-ready
 X:37:21:22:64
 Q:28:532
 Z:66:22
@@ -435,7 +433,7 @@ X:26:0:0:0
 Q:33:530
 L:53:56:141:141:530:11
 L:54:56:1:0:0:11
-L:65:56:1:0:597:11
+L:65:56:1:0:641:11
 
 # Goes upwards
 
@@ -503,7 +501,7 @@ L:66:56:218:216:0:20
 L:99:56:218:216:546:20
 D:You can choose to confront Sauron here, high in a tower lit by a flaming eye.
 
-N:35:Hobbiton, in ruins
+N:35:Hobbiton in ruins
 X:11:53:0:0
 Q:36:532
 Z:36:36
@@ -513,7 +511,7 @@ S:516:517:14:266:509:0:0:0
 D:Someone with a silver-tongue and guile-full words has brought fair Hobbiton to
 D: its knees in a whir of devilish industry and foul pollution.
 
-N:36:Hobbiton, rebuilt
+N:36:Hobbiton rebuilt
 X:70:0:0:0
 G:h
 L:0:0:407:153:0:0
@@ -522,7 +520,7 @@ D:One last challenge awaits, to visit Angband to defeat an ancient evil.  Or you
 D: can choose to sail from here into the West and let another take on the might of
 D: Morgoth.
 
-N:37:Fangorn, aflame
+N:37:Fangorn aflame
 X:23:48:0:0
 Q:62:249
 Z:62:62
@@ -725,9 +723,10 @@ N:54:Old Forest
 X:38:53:0:0
 R:PLANT
 Q:55:622
-L:6:0:420:153:622:0:a clearing in the
-L:7:56:420:420:0:0:the
-L:10:56:420:420:622:0:the
+L:6:420:420:153:0:0:Bonfire Glade in the
+L:7:420:420:153:0:0:a knoll in the
+L:8:420:420:153:0:0:Withywindle river in the
+L:10:0:420:153:622:0:a willow clearing in the
 S:0:0:0:0:0:0:0:0
 
 N:55:Bombadil's house
@@ -842,9 +841,9 @@ L:9:419:149:422:0:0
 N:65:Dunland in war rage
 X:2:14:0:0
 G:t
-Q:40:407
+Q:40:604
 L:22:419:149:422:0:0
-L:45:414:141:140:407:0
+L:45:414:141:140:604:0
 D:Dunland is brewing for war, rallied by dark emissaries, who so far laboured in secret.
 D:  Whence they came?  It does not matter to the men of Dunland, long years waiting for a chance at revenge.
 

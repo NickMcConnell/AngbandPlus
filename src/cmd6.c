@@ -159,6 +159,20 @@ void do_cmd_item(int command)
 	cancel = !(cmd_item_list[command].player_command)(item);
 }
 
+static bool kind_is_harmful_shroom(int k_idx)
+{
+	object_kind *k_ptr = &k_info[k_idx];
+	int i;
+
+	/* Find slot */
+	for (i = 0; i < INVEN_BAG_TOTAL; i++)
+	{
+		if (bag_holds[SV_BAG_HARMFUL_MUSHROOMS][i][0] == k_ptr->tval
+			&& bag_holds[SV_BAG_HARMFUL_MUSHROOMS][i][1] == k_ptr->sval) 
+			return TRUE;
+	}
+	return FALSE;
+}
 
 /*
  * Hook to determine if an object is edible
@@ -170,8 +184,10 @@ bool item_tester_hook_food_edible(const object_type *o_ptr)
 	{
 		/* Undead can't eat normal food */
 		case TV_FOOD:
-			/* Undead cannot eat food */
-			if (!(p_ptr->cur_flags4 & (TR4_UNDEAD))) return (TRUE);
+			/* Undead cannot eat food, except harmful mushrooms */
+			if (!(p_ptr->cur_flags4 & TR4_UNDEAD)
+				|| kind_is_harmful_shroom(o_ptr->k_idx)) 
+				return (TRUE);
 
 			break;
 

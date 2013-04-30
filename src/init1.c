@@ -1636,7 +1636,7 @@ errr parse_z_info(char *buf, header *head)
 		z_info->k_max = max;
 	}
 
-	/* Process 'A' for "Maximum a_info[] index" */
+	/* Process 'A' for "Maximum number of standard artifacts " */
 	else if (buf[2] == 'A')
 	{
 		int max;
@@ -1646,6 +1646,18 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->a_max = max;
+	}
+
+	/* Process 'a' for "Maximum a_info[] index" */
+	else if (buf[2] == 'a')
+	{
+		int max;
+
+		/* Scan for the value */
+		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
+
+		/* Save the value */
+		z_info->a_max_standard = max;
 	}
 
 	/* Process 'E' for "Maximum e_info[] index" */
@@ -4292,7 +4304,10 @@ errr parse_r_info(char *buf, header *head)
 		/* Save the values */
 		r_ptr->freq_innate = innate;
 		r_ptr->freq_spell = spell;
-		r_ptr->spell_power = power;
+		/* No more spellcasters with no spell power */
+		r_ptr->spell_power = MAX(1 + r_ptr->level / 10, power);
+		if (mana > 250) 
+			return (PARSE_ERROR_MISSING_RECORD_HEADER);
 		r_ptr->mana = mana;
 	}
 
@@ -5940,6 +5955,11 @@ static errr grab_one_town_race_flag(town_type *t_ptr, cptr what)
 	return (PARSE_ERROR_GENERIC);
 }
 
+static bool monster_not_unique(int monster_id)
+{
+	return monster_id && !(r_info[monster_id].name 
+								  && r_info[monster_id].flags1 & RF1_UNIQUE);
+}
 
 /*
  * Initialize the "t_info" array, by parsing an ascii "template" file
@@ -6053,7 +6073,11 @@ errr parse_t_info(char *buf, header *head)
 		if (!t_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (2 != sscanf(buf+2, "%d:%d", &quest_opens, &quest_monster)) return (PARSE_ERROR_GENERIC);
+		if (2 != sscanf(buf+2, "%d:%d", &quest_opens, &quest_monster)) 
+			return (PARSE_ERROR_GENERIC);
+
+		if (monster_not_unique(quest_monster))
+			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		t_ptr->quest_opens = quest_opens;
@@ -6071,6 +6095,9 @@ errr parse_t_info(char *buf, header *head)
 		/* Scan for the values */
 		if (2 != sscanf(buf+2, "%d:%d", &town_lockup_monster, &town_lockup_ifvisited)) return (PARSE_ERROR_GENERIC);
 
+		if (monster_not_unique(town_lockup_monster))
+			return (PARSE_ERROR_GENERIC);
+
 		/* Save the values */
 		t_ptr->town_lockup_monster = town_lockup_monster;
 		t_ptr->town_lockup_ifvisited = town_lockup_ifvisited;
@@ -6086,6 +6113,9 @@ errr parse_t_info(char *buf, header *head)
 
 		/* Scan for the values */
 		if (2 != sscanf(buf+2, "%d:%d", &replace_guardian, &guardian_ifvisited)) return (PARSE_ERROR_GENERIC);
+
+		if (monster_not_unique(replace_guardian))
+			return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		t_ptr->replace_guardian = replace_guardian;
@@ -6144,7 +6174,10 @@ errr parse_t_info(char *buf, header *head)
 		  if (!(name = add_name(head, s+1)))
 		    return (PARSE_ERROR_OUT_OF_MEMORY);
 		}
-		
+
+		if (monster_not_unique(guard))
+			return (PARSE_ERROR_GENERIC);
+
 		/* Save the values */
 		t_ptr->zone[zone].name = name;
 		t_ptr->zone[zone].level = level;
@@ -6204,8 +6237,6 @@ errr parse_t_info(char *buf, header *head)
 	/* Success */
 	return (0);
 }
-
-
 
 /*
  * Initialize the "u_info" array, by parsing an ascii "template" file
@@ -7153,7 +7184,7 @@ static long eval_max_dam(monster_race *r_ptr)
 	else hp = r_ptr->hdice * (r_ptr->hside + 1) / 2;
 
 	/* Extract the monster level, force 1 for town monsters */
-	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+	rlev = r_ptr->level ? r_ptr->level : 1;
 
 	for (x = 0; x < 4; x++)
 	{
@@ -7366,7 +7397,7 @@ static long eval_max_dam(monster_race *r_ptr)
 						}
 
 						/* Get damage */
-						this_dam = eval_blow_effect(which_gf, (this_dam * mult) / div_by, r_ptr->level);
+						this_dam = eval_blow_effect(which_gf, (this_dam * mult) / div_by, rlev);
 
 						/* Slight bonus for being powerful */
 						if (r_ptr->flags2 & (RF2_POWERFUL)) this_dam = this_dam * 8 / 7;
@@ -7382,25 +7413,25 @@ static long eval_max_dam(monster_race *r_ptr)
 					{
 						case 0:
 						{
-							this_dam = eval_blow_effect(spell_desire_RF4[i][6], r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_DAM_MULT], r_ptr->level);
+							this_dam = eval_blow_effect(spell_desire_RF4[i][6], r_ptr->spell_power * spell_info_RF4[i][COL_SPELL_DAM_MULT], rlev);
 							this_dam /=  MAX(1, spell_info_RF4[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 1:
 						{
-							this_dam = eval_blow_effect(spell_desire_RF5[i][6], r_ptr->spell_power * spell_info_RF5[i][COL_SPELL_DAM_MULT], r_ptr->level);
+							this_dam = eval_blow_effect(spell_desire_RF5[i][6], r_ptr->spell_power * spell_info_RF5[i][COL_SPELL_DAM_MULT], rlev);
 							this_dam /=  MAX(1, spell_info_RF5[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 2:
 						{
-							this_dam = eval_blow_effect(spell_desire_RF6[i][6], r_ptr->spell_power * spell_info_RF6[i][COL_SPELL_DAM_MULT], r_ptr->level);
+							this_dam = eval_blow_effect(spell_desire_RF6[i][6], r_ptr->spell_power * spell_info_RF6[i][COL_SPELL_DAM_MULT], rlev);
 							this_dam /=  MAX(1, spell_info_RF6[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
 						case 3:
 						{
-							this_dam = eval_blow_effect(spell_desire_RF7[i][6], r_ptr->spell_power * spell_info_RF7[i][COL_SPELL_DAM_MULT], r_ptr->level);
+							this_dam = eval_blow_effect(spell_desire_RF7[i][6], r_ptr->spell_power * spell_info_RF7[i][COL_SPELL_DAM_MULT], rlev);
 							this_dam /=  MAX(1, spell_info_RF7[i][COL_SPELL_DAM_DIV]);
 							break;
 						}
@@ -7408,7 +7439,7 @@ static long eval_max_dam(monster_race *r_ptr)
 					
 					real_dam = TRUE;
 					
-					/*Hack - handle Wound spell differently */
+					/* Hack - handle Wound spell differently */
 					if ((x == 2) && (i == 20))
 					{
 						if (r_ptr->spell_power > 75) this_dam = 225 + r_ptr->spell_power - 75;
@@ -7441,7 +7472,7 @@ static long eval_max_dam(monster_race *r_ptr)
 						else if (flag_counter == RF6_FORGET) this_dam = rlev / 3;
 						else if (flag_counter == RF6_DISPEL) this_dam = rlev;
 						else if (flag_counter == RF6_ILLUSION) this_dam = rlev;
-						else if (flag_counter == RF6_DRAIN_MANA) this_dam = rlev * 2;
+						else if (flag_counter == RF6_DRAIN_MANA) this_dam = 40 + r_ptr->spell_power; /* Especially dangerous at low levels */
 						else if (flag_counter == RF6_HUNGER) this_dam = rlev;
 						else if (flag_counter == RF6_PROBE) this_dam = rlev / 3;
 						else if (flag_counter == RF6_SCARE) this_dam = rlev;
@@ -7505,7 +7536,7 @@ static long eval_max_dam(monster_race *r_ptr)
 
 			}
 
-			/* Hack - record most damaging spell for diagnostics */
+			/* Hack - record most damaging attack */
 			if (threat_mod(this_dam, r_ptr, TRUE) > r_ptr->highest_threat)
 			{
 				r_ptr->highest_threat = threat_mod(this_dam, r_ptr, TRUE);
@@ -7550,12 +7581,15 @@ static long eval_max_dam(monster_race *r_ptr)
 				}
 #endif
 				/* Adjust frequency for ammo */
-				if (has_ammo * 5 < freq) freq = has_ammo * 5;
+				freq = MIN(freq, has_ammo * 5);
 
-				/* Adjust frequency for mana -- casters that can add mana and need to do so */
-				if ((r_ptr->flags6 & (RF6_ADD_MANA)) && (need_mana) && (freq > r_ptr->mana * 10 / need_mana))
+				/* Adjust frequency for mana -
+				   -- casters that can add mana and need to do so */
+				if ((r_ptr->flags6 & (RF6_ADD_MANA)) 
+					&& need_mana 
+					&& (freq > r_ptr->mana * 10 / need_mana))
 				{
-					freq = MIN(freq, (freq + r_ptr->mana * 10 / need_mana) / 2);
+					freq = (freq + r_ptr->mana * 10 / need_mana) / 2;
 				}
 
 				/* Adjust frequency for mana */
@@ -7578,7 +7612,8 @@ static long eval_max_dam(monster_race *r_ptr)
 			if (this_dam > spell_dam)
 			{
 				spell_dam = this_dam;
-				if (this_dam > 2 * spell_dam) r_ptr->best_spell = 96 + x * 32 + i;
+				if (this_dam > 2 * spell_dam_real) 
+					r_ptr->best_spell = 96 + x * 32 + i;
 			}
 
 			/* Better spell? */
@@ -7609,8 +7644,8 @@ static long eval_max_dam(monster_race *r_ptr)
 
 			/* Multiply average damage by 2 to simplify calculations */
 			atk_dam = eval_blow_effect(effect, 
-												d_dice * (d_side + 1), 
-												r_ptr->level);
+									   d_dice * (d_side + 1), 
+									   rlev);
 
 			switch (method)
 			{
@@ -7679,7 +7714,7 @@ static long eval_max_dam(monster_race *r_ptr)
 					}
 				}
 
-				/* Hack - record most damaging spell for diagnostics */
+				/* Hack - record most damaging attack */
 				if (threat_mod(atk_dam, r_ptr, TRUE) > r_ptr->highest_threat)
 				{
 					r_ptr->highest_threat = threat_mod(atk_dam, r_ptr, TRUE);
@@ -7689,54 +7724,70 @@ static long eval_max_dam(monster_race *r_ptr)
 				/* Some ranged blows can miss */
 				switch(method)
 				{
-					case RBM_SPIT:	mana = 0; must_hit = TRUE; break;
+					case RBM_SPIT:	mana = 0; range = 3; must_hit = TRUE; break;
 					case RBM_GAZE:	mana = 3; range = MIN(MAX_SIGHT, r_ptr->aaf);break;
 					case RBM_WAIL:  mana = 5; range = 4; break;
-					case RBM_SPORE:	mana = 0; range = 3; must_hit = TRUE; has_ammo = r_ptr->level; break;
+					case RBM_SPORE:	mana = 0; range = 3; must_hit = TRUE; has_ammo = rlev; break;
 					case RBM_LASH:  mana = 0; range = 3; break;
 					case RBM_BEG:	mana = 0; range = 4; break;
 					case RBM_INSULT: mana = 0; range = 4; break;
+					case RBM_MOAN: mana = 0; range = 2; break;
 					case RBM_SING:  mana = 0; range = 4; break;
 					case RBM_TRAP:  mana = 0; range = 1; break;
-					case RBM_BOULDER: mana = 0; range = 8; must_hit = TRUE; has_ammo = (r_ptr->level + 1) / 2; break;
+					case RBM_BOULDER: mana = 0; range = 8; must_hit = TRUE; has_ammo = (rlev + 1) / 2; break;
 					case RBM_AURA:	mana = 4; range = 2; break;
 					case RBM_SELF:	mana = 3; range = 0; break;
 					case RBM_ADJACENT: mana = 3; range = 1; break;
-					case RBM_HANDS: mana = 4; range = 3; break;
-					case RBM_MISSILE: mana = 2; range = MAX_SIGHT; break;
-					case RBM_BOLT_10: mana = 5; range = MAX_SIGHT; break;
-					case RBM_BOLT: mana = 4; range = MAX_SIGHT; break;
+					case RBM_HANDS: mana = 2; range = 3; break;
+					case RBM_MISSILE: mana = 2; range = MAX_RANGE; break;
+					case RBM_BOLT_10: mana = 5; range = MAX_RANGE; break;
+					case RBM_BOLT: mana = 4; range = MAX_RANGE; break;
 					case RBM_BEAM: mana = 6; range = 10; break;
-					case RBM_BLAST: mana = 3; range = 5; break;
-					case RBM_WALL: mana = 6; range = MAX_SIGHT; break;
-					case RBM_BALL: mana = 4; range = MAX_SIGHT; break;
-					case RBM_BALL_II: mana = 5; range = MAX_SIGHT; break;
-					case RBM_BALL_III: mana = 6; range = MAX_SIGHT; break;
-					case RBM_CLOUD: mana = 5; range = MAX_SIGHT; break;
-					case RBM_STORM: mana = 6; range = MAX_SIGHT; break;
+					case RBM_BLAST: mana = 3; range = 1; break;
+					case RBM_WALL: mana = 6; range = MAX_RANGE; break;
+					case RBM_BALL: mana = 4; range = MAX_RANGE; break;
+					case RBM_CLOUD: mana = 5; range = MAX_RANGE; break;
+					case RBM_STORM: mana = 6; range = MAX_RANGE; break;
 					case RBM_BREATH: mana = 0; range = 6; break;
-					case RBM_AREA: mana = 3; range = (r_ptr->level / 10) + 1; break;
-					case RBM_AIM_AREA: mana = 5; range = MAX_SIGHT; break;
+					case RBM_AREA: mana = 3; range = (rlev / 10) + 1; break;
 					case RBM_LOS: mana = 6; range = MAX_SIGHT; break;
-					case RBM_LINE: mana = 4; range = MAX_SIGHT; break;
+					case RBM_LINE: mana = 4; range = MAX_RANGE; break;
 					case RBM_AIM: mana = 4; range = MAX_SIGHT; break;
-					case RBM_ORB: mana = 5; range = MAX_SIGHT; break;
-					case RBM_STAR: mana = 5; range = MAX_SIGHT; break;
-					case RBM_SPHERE: mana = 6; range = MAX_SIGHT; break;
+					case RBM_ORB: mana = 5; range = MAX_RANGE; break;
+					case RBM_STAR: mana = 5; range = MAX_RANGE; break;
+					case RBM_SPHERE: mana = 6; range = MAX_RANGE; break;
 					case RBM_PANEL: mana = 6; range = MAX_SIGHT; break;
 					case RBM_LEVEL: mana = 8; range = 255; break;
-					case RBM_CROSS: mana = 4; range = MAX_SIGHT; break;
-					case RBM_STRIKE: mana = 5; range = MAX_SIGHT; break;
+					case RBM_CROSS: mana = 4; range = MAX_RANGE; break;
+					case RBM_STRIKE: mana = 5; range = MAX_RANGE; break;
 					case RBM_EXPLODE: mana = 0; range = 1; break;
-					case RBM_ARROW: mana = 0; range = 10; must_hit = TRUE; has_ammo = r_ptr->level; break;
-					case RBM_XBOLT: mana = 0; range = 12; must_hit = TRUE; has_ammo = r_ptr->level; break;
-					case RBM_SPIKE: mana = 0; range = 4; must_hit = TRUE; has_ammo = r_ptr->level; break;
-					case RBM_DART: mana = 0; range = 8; must_hit = TRUE; has_ammo = r_ptr->level; break;
-					case RBM_DAGGER: mana = 0; range = 6; must_hit = TRUE; has_ammo = r_ptr->level; break;
+					case RBM_ARROW: mana = 0; range = 10; must_hit = TRUE; has_ammo = rlev; break;
+					case RBM_XBOLT: mana = 0; range = 12; must_hit = TRUE; has_ammo = rlev; break;
+					case RBM_DAGGER: mana = 0; range = 6; must_hit = TRUE; has_ammo = rlev; break;
+					case RBM_DART: mana = 0; range = 6; must_hit = TRUE; has_ammo = rlev; break;
 					case RBM_SHOT: mana = 0; range = 8; must_hit = TRUE; break;
 					case RBM_ARC_20: mana = 6; range = 8; break;
 					case RBM_ARC_30: mana = 5; range = 6; break;
-					case RBM_FLASK:	mana = 0; range = 6; must_hit = TRUE; has_ammo = (r_ptr->level + 1) / 2; break;
+				   case RBM_ARC_40: mana = 5; range = 6; break;
+				   case RBM_ARC_50: mana = 6; range = 6; break;
+				   case RBM_ARC_60: mana = 6; range = 6; break;
+					case RBM_FLASK:	mana = 0; range = 6; must_hit = TRUE; has_ammo = (rlev + 1) / 2; break;
+				case RBM_TRAIL: mana = 1; range = 3; break;
+				case RBM_SHRIEK: mana = 1; range = MAX_SIGHT; break;
+				   case RBM_BOLT_MINOR: mana = 2; range = 4; break;
+			      case RBM_BALL_MINOR: mana = 3; range = MAX_RANGE; break;
+				  case RBM_BALL_II: mana = 5; range = MAX_RANGE; break;
+				   case RBM_BALL_III: mana = 6; range = MAX_RANGE; break;
+			      case RBM_AURA_MINOR:	mana = 3; range = 1; break;
+				   case RBM_8WAY: mana = 4; range = MAX_RANGE; break;
+				   case RBM_8WAY_II: mana = 5; range = MAX_RANGE; break;
+				   case RBM_8WAY_III: mana = 6; range = MAX_RANGE; break;
+				   case RBM_SWARM: mana = 6; range = MAX_RANGE; break;
+					case RBM_SPIKE: mana = 0; range = 4; must_hit = TRUE; has_ammo = rlev; break;
+					case RBM_AIM_AREA: mana = 5; range = MAX_SIGHT; break;
+				   case RBM_SCATTER:  mana = 4; range = MAX_SIGHT; break;
+				   case RBM_HOWL:  mana = 2; range = 2; break;
+				default: assert (FALSE);
 				}
 
 				/* Archers get more shots */
@@ -7772,12 +7823,15 @@ static long eval_max_dam(monster_race *r_ptr)
 				}
 #endif
 				/* Adjust frequency for ammo */
-				if (has_ammo * 5 < freq) freq = has_ammo * 5;
+				freq = MIN(freq, has_ammo * 5);
 
-				/* Adjust frequency for mana -- casters that can add mana and need to do so */
-				if ((r_ptr->flags6 & (RF6_ADD_MANA)) && (mana) && (freq > r_ptr->mana * 10 / mana))
+				/* Adjust frequency for mana 
+				   --- casters that can add mana and need to do so */
+				if ((r_ptr->flags6 & (RF6_ADD_MANA)) 
+					&& mana 
+					&& freq > r_ptr->mana * 10 / mana)
 				{
-					freq = MIN(freq, (freq + r_ptr->mana * 10 / mana) / 2);
+					freq = (freq + r_ptr->mana * 10 / mana) / 2;
 				}
 
 				/* Adjust frequency for mana */
@@ -7811,7 +7865,7 @@ static long eval_max_dam(monster_race *r_ptr)
 			}
 		}
 
-		/* Hack - record most damaging spell for diagnostics */
+		/* Hack - record most damaging attack */
 		if ((threat_mod(melee_dam, r_ptr, FALSE) > r_ptr->highest_threat) && (!(r_ptr->flags1 & (RF1_NEVER_MOVE)) || (r_ptr->flags2 & (RF2_MULTIPLY))))
 		{
 			r_ptr->highest_threat = threat_mod(melee_dam, r_ptr, FALSE);
@@ -8253,7 +8307,9 @@ errr eval_r_power(header *head)
 			if (lvl == 0) r_ptr->mexp = 0L;
 			else
 			{
-				/* Compute depths of non-unique monsters */
+				/* Compute depths and exp of non-unique monsters.
+				   Enable occasionally even for uniques and then manually
+				   repair for the 3 Trolls, Beorn, etc. */
 				if (!(r_ptr->flags1 & (RF1_UNIQUE)))
 				{
 					long mexp = (hp * dam) / 25;
@@ -8270,24 +8326,25 @@ errr eval_r_power(header *head)
 	
 					/* Set level */
 					r_ptr->level = lvl;
-				}
+
+					/* Hack -- for Ungoliant-like monsters */
+					if (hp > 10000) r_ptr->mexp = (hp / 25) * (dam / lvl);
+					else r_ptr->mexp = (hp * dam) / (lvl * 25);
 	
-				/* Hack -- for Ungoliant */
-				if (hp > 10000) r_ptr->mexp = (hp / 25) * (dam / lvl);
-				else r_ptr->mexp = (hp * dam) / (lvl * 25);
-	
-				/* Round to 2 significant figures */
-				if (r_ptr->mexp > 100)
-				{
-					if (r_ptr->mexp < 1000) { r_ptr->mexp = (r_ptr->mexp + 5) / 10; r_ptr->mexp *= 10; }
-					else if (r_ptr->mexp < 10000) { r_ptr->mexp = (r_ptr->mexp + 50) / 100; r_ptr->mexp *= 100; }
-					else if (r_ptr->mexp < 100000) { r_ptr->mexp = (r_ptr->mexp + 500) / 1000; r_ptr->mexp *= 1000; }
-					else if (r_ptr->mexp < 1000000) { r_ptr->mexp = (r_ptr->mexp + 5000) / 10000; r_ptr->mexp *= 10000; }
-					else if (r_ptr->mexp < 10000000) { r_ptr->mexp = (r_ptr->mexp + 50000) / 100000; r_ptr->mexp *= 100000; }
+					/* Round to 2 significant figures */
+					if (r_ptr->mexp > 100)
+					{
+						if (r_ptr->mexp < 1000) { r_ptr->mexp = (r_ptr->mexp + 5) / 10; r_ptr->mexp *= 10; }
+						else if (r_ptr->mexp < 10000) { r_ptr->mexp = (r_ptr->mexp + 50) / 100; r_ptr->mexp *= 100; }
+						else if (r_ptr->mexp < 100000) { r_ptr->mexp = (r_ptr->mexp + 500) / 1000; r_ptr->mexp *= 1000; }
+						else if (r_ptr->mexp < 1000000) { r_ptr->mexp = (r_ptr->mexp + 5000) / 10000; r_ptr->mexp *= 10000; }
+						else if (r_ptr->mexp < 10000000) { r_ptr->mexp = (r_ptr->mexp + 50000) / 100000; r_ptr->mexp *= 100000; }
+					}
 				}
 			}
 	
-			if ((lvl) && (r_ptr->mexp < 1L)) r_ptr->mexp = 1L;
+			if ((lvl) && (r_ptr->mexp < 1L)) 
+				r_ptr->mexp = 1L;
 #endif /* ALLOW_TEMPLATES_OUTPUT */
 
 			/*
@@ -9013,7 +9070,6 @@ errr emit_r_info_index(FILE *fp, header *head, int i)
 	/* Output 'G' for "Graphics" (one line only) */
 	fprintf(fp, "G:%c:%c\n",r_ptr->d_char,color_attr_to_char(r_ptr->d_attr));
 	
-	/* TODO: Enable this when we go to 256 colours to help reduce duplicate monster appearances */
 	/* Show other monsters with same appearance */
 	for (n = 1; n < z_info->r_max; n++)
 	{

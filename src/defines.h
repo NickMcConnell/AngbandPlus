@@ -67,8 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	7
-
+#define VERSION_EXTRA	9
 
 /*
  * Oldest version number that can still be imported
@@ -77,12 +76,6 @@
 #define OLD_VERSION_MINOR	6
 #define OLD_VERSION_PATCH	0
 #define OLD_VERSION_EXTRA	0
-
-
-/*
- * Version of random artifact code.
- */
-#define RANDART_VERSION	62
 
 
 /*
@@ -2568,7 +2561,7 @@
  * Special "sval" limit -- maximum number of bags
  */
 #define SV_BAG_MAX_BAGS		24
-
+#define SV_BAG_HARMFUL_MUSHROOMS 1
 
 /*
  * Special "sval" value -- unknown "sval"
@@ -4267,7 +4260,7 @@
  * Need special treatment in AI.
  */
 #define RF4_HARASS_MASK \
-        (RF4_SHRIEK)
+	(0L)
 
 #define RF5_HARASS_MASK \
  	(0L)
@@ -4367,14 +4360,14 @@
  * Annoying spells
  */
 #define RF4_ANNOY_MASK \
-	(RF4_SHRIEK)
+	(0L)
 
 #define RF5_ANNOY_MASK \
-	(RF5_DRAIN_MANA | RF5_SCARE | \
+	(RF5_SCARE | \
 	 RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_ANNOY_MASK \
-	(RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
+	(RF6_DRAIN_MANA | RF6_TELE_TO | RF6_DARKNESS | RF6_TRAPS | RF6_FORGET)
 
 #define RF7_ANNOY_MASK \
 	(0L)
@@ -4971,12 +4964,13 @@ extern int PlayerUID;
 #define ATTR_DARK		5	/* "Dark" color translation */
 #define ATTR_HIGH		6	/* "Highlight" color translation */
 #define ATTR_METAL		7	/* "Metallic" color translation */
+#define ATTR_MISC		8	/* "Miscellaneous" color translation - see misc_to_attr */
 
 /* Strongly consider the following for accessibility reasons */
-#define ATTR_COLOR_RG	8	/* Red/green colorblind users */
-#define ATTR_CONTRAST	9	/* High contrast colors */
+#define ATTR_COLOR_RG	9	/* Red/green colorblind users */
+#define ATTR_CONTRAST	10	/* High contrast colors */
 
-#define MAX_ATTR		8
+#define MAX_ATTR		9
 
 /*** Message constants ***/
 

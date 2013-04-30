@@ -3465,6 +3465,89 @@ void do_cmd_store(void)
 		}
 	}
 
+	/* Hack -- Check the "locked doors". Restricted or closed store. */
+	if (adult_no_stores ||
+		(store[store_index]->store_open >= turn))
+	{
+		msg_print("The doors are locked.");
+		return;
+	}
+
+	/* Hack -- Check the "locked doors". Restrict unusual shapes. */
+	if (p_ptr->pshape >= z_info->g_max)
+	{
+		cptr closed_reason;
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "You can't open the shop door in this form.";
+				break;
+			case 1:
+				closed_reason =	"A sign reads 'No animals allowed'.";
+				break;
+			case 2:
+				closed_reason =	"The shopkeeper chases you out with a broom.";
+				break;
+			default:
+				closed_reason = "The shopkeeper feeds you a scrap, picks you up and puts you gently down outside.";
+				break;
+		}
+		msg_print(closed_reason);
+		return;		
+	}
+
+	/* Doors locked if player has visited a location to release a unique and hasn't killed it */
+	if ((t_ptr->town_lockup_monster) && (r_info[t_ptr->town_lockup_monster].max_num > 0)
+		&& (!(t_ptr->town_lockup_ifvisited) || t_info[t_ptr->town_lockup_ifvisited].visited))
+	{
+		cptr closed_reason;
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "The shop front has been damaged by %s and boarded up.";
+				break;
+			case 1:
+				closed_reason =	"A sign reads 'Closed for business due to %s.'";
+				break;
+			case 2:
+				closed_reason =	"The shopkeeper yells from behind a barred door 'You bought %s upon us. Begone!'";
+				break;
+			default:
+				closed_reason = "'It's not safe here with %s about.' the shopkeeper whispers before closing the shutters.";
+				break;
+		}
+		
+		msg_format(closed_reason, r_name + r_info[t_ptr->town_lockup_monster].name);
+		return;
+	}
+
+	/* Doors locked if guardian about */
+	if ((actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num > 0))
+	{
+		cptr closed_reason;
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "A sign reads 'Trespassers not welcome. Signed %s.'";
+				break;
+			case 1:
+				closed_reason =	"The door is locked. %s must be about.";
+				break;
+			case 2:
+				closed_reason =	"A voice yells from behind a barred door 'Leave before I call for %s.'";
+				break;
+			default:
+				closed_reason = "'Come back when %s isn't around.' a voice whispers before closing the shutters.";
+				break;
+		}
+		
+		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].name);
+		return;
+	}
+	
 	/* Hack -- homes are special */
 	if (f_info[feat].d_char == '8')
 	{
@@ -3491,96 +3574,11 @@ void do_cmd_store(void)
 		}
 	}
 	
-	/* Hack -- Check the "locked doors". Restricted or closed store. */
-	if (adult_no_stores ||
-		(store[store_index]->store_open >= turn))
-	{
-		msg_print("The doors are locked.");
-		return;
-	}
-
-	/* Hack -- Check the "locked doors". Restrict unusual shapes. */
-	if (p_ptr->pshape >= z_info->g_max)
-	{
-		cptr closed_reason = 0; /* to silence a warning */
-		
-		switch(store_index % 4)
-		{
-			case 0:
-				closed_reason = "You can't open the shop door in this form.";
-				break;
-			case 1:
-				closed_reason =	"A sign reads 'No animals allowed'.";
-				break;
-			case 2:
-				closed_reason =	"The shopkeeper chases you out with a broom.";
-				break;
-			case 3:
-				closed_reason = "The shopkeeper feeds you a scrap, picks you up and puts you gently down outside.";
-				break;
-		}
-		msg_print(closed_reason);
-		return;		
-	}
-
-	/* Doors locked if player has visited a location to release a unique and hasn't killed it */
-	if ((t_ptr->town_lockup_monster) && (r_info[t_ptr->town_lockup_monster].max_num > 0)
-		&& (!(t_ptr->town_lockup_ifvisited) || t_info[t_ptr->town_lockup_ifvisited].visited))
-	{
-		cptr closed_reason = 0; /* to silence a warning */
-		
-		switch(store_index % 4)
-		{
-			case 0:
-				closed_reason = "The shop front has been damaged by %s and boarded up.";
-				break;
-			case 1:
-				closed_reason =	"A sign reads 'Closed for business due to %s.'";
-				break;
-			case 2:
-				closed_reason =	"The shopkeeper yells from behind a barred door 'You bought %s upon us. Begone!'";
-				break;
-			case 3:
-				closed_reason = "'It's not safe here with %s about.' the shopkeeper whispers before closing the shutters.";
-				break;
-		}
-		
-		msg_format(closed_reason, r_name + r_info[t_ptr->town_lockup_monster].name);
-		return;
-	}
-
-	/* Doors locked if guardian about */
-	if ((actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].cur_num > 0))
-	{
-		cptr closed_reason = 0; /* to silence a warning */
-		
-		switch(store_index % 4)
-		{
-			case 0:
-				closed_reason = "A sign reads 'Trespassers not welcome. Signed %s.'";
-				break;
-			case 1:
-				closed_reason =	"The door is locked. %s must be about.";
-				break;
-			case 2:
-				closed_reason =	"A voice yells from behind a barred door 'Leave before I call for %s.'";
-				break;
-			case 3:
-				closed_reason = "'Come back when %s isn't around.' a voice whispers before closing the shutters.";
-				break;
-		}
-		
-		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon, zone - t_ptr->zone)].name);
-		return;
-	}
-	
 	/* Forget the view */
 	forget_view();
 
-
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
-
 
 	/* No command argument */
 	p_ptr->command_arg = 0;

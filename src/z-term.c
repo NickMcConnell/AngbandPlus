@@ -1,15 +1,20 @@
-/* File: z-term.c */
-
 /*
+ * File: z-term.c
+ * Purpose: a generic, efficient, terminal window package
+ *
  * Copyright (c) 1997 Ben Harrison
  *
- * This software may be copied and distributed for educational, research,
- * and not for profit purposes provided that this copyright and statement
- * are included in all such copies.
+ * This work is free software; you can redistribute it and/or modify it
+ * under the terms of either:
+ *
+ * a) the GNU General Public License as published by the Free Software
+ *    Foundation, version 2, or
+ *
+ * b) the "Angband licence":
+ *    This software may be copied and distributed for educational, research,
+ *    and not for profit purposes provided that this copyright and statement
+ *    are included in all such copies.  Other copyrights may also apply.
  */
-
-/* Purpose: a generic, efficient, terminal window package -BEN- */
-
 #include "z-term.h"
 
 #include "z-virt.h"
@@ -317,16 +322,16 @@ static errr term_win_init(term_win *s, int w, int h)
 	int y;
 
 	/* Make the window access arrays */
-	s->a = C_ZNEW(h, byte*);
-	s->c = C_ZNEW(h, char*);
+	s->a = C_ZNEW(h, byte *);
+	s->c = C_ZNEW(h, char *);
 
 	/* Make the window content arrays */
 	s->va = C_ZNEW(h * w, byte);
 	s->vc = C_ZNEW(h * w, char);
 
 	/* Make the terrain access arrays */
-	s->ta = C_ZNEW(h, byte*);
-	s->tc = C_ZNEW(h, char*);
+	s->ta = C_ZNEW(h, byte *);
+	s->tc = C_ZNEW(h, char *);
 
 	/* Make the terrain content arrays */
 	s->vta = C_ZNEW(h * w, byte);
@@ -771,7 +776,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		if ((na & 0x80) && (nc & 0x80))
 		{
 			/* 2nd byte of bigtile */
-			if ((na == 255) && (nc == -1)) continue;
+			if ((na == 255) && (nc == (char) -1)) continue;
 
 			/* Flush */
 			if (fn)
@@ -1605,7 +1610,7 @@ errr Term_erase(int x, int y, int n)
 	scr_taa = Term->scr->ta[y];
 	scr_tcc = Term->scr->tc[y];
 
-	if ((n > 0) && (scr_cc[x] == -1) && (scr_aa[x] == 255))
+	if ((n > 0) && (scr_cc[x] == (char) -1) && (scr_aa[x] == 255))
 	{
 		x--;
 		n++;
@@ -1866,7 +1871,6 @@ errr Term_flush(void)
 }
 
 
-
 /*
  * Add a keypress to the "queue"
  */
@@ -1894,7 +1898,6 @@ errr Term_keypress(int k)
 	/* Problem */
 	return (1);
 }
-
 
 /*
  * Add a mouse event to the "queue"
@@ -2014,7 +2017,6 @@ errr Term_inkey(key_event *ke, bool wait, bool take)
 
 
 /*** Extra routines ***/
-
 
 /*
  * Save the "requested" screen into the "memorized" screen

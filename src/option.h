@@ -96,7 +96,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define OPT_view_unsafe_grids    101
 #define OPT_view_detect_grids    102
 #define OPT_show_tips            103
-#define OPT_easy_more  		      104
+#define OPT_easy_more  		     104
+#define OPT_autosave_backup      105
 
 #define OPT_birth_randarts          (OPT_BIRTH+1)
 #define OPT_birth_ironman           (OPT_BIRTH+3)
@@ -198,7 +199,8 @@ extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 #define view_unsafe_grids 	OPT(view_unsafe_grids)
 #define view_detect_grids 	OPT(view_detect_grids)
 #define show_tips         	OPT(show_tips)
-#define easy_more	         OPT(easy_more)
+#define easy_more	        OPT(easy_more)
+#define autosave_backup     OPT(autosave_backup)
 
 #define birth_randarts			OPT(birth_randarts)
 #define birth_ironman			OPT(birth_ironman)

@@ -1,3 +1,193 @@
+Unangband 0.6.2 Gold 2 "The Shinier" aka "Heeerrrreeesssss Bandy!"
+
+### Game Play ###
+
+* Various fixed and tweaks of dungeon generation
+
+* Corrected geography in Bree description
+
+* Moved the Old Man Willow's town to the bottom of the Old Forest to make it
+a little harder to get to the Goldberry gifts
+
+* Some more tweaks to undead food
+
+* Undead now can eat harmful shrooms
+
+* Only the first blow of charging works on huge monsters, to be consistent with UI
+that names only the first blow 'charging'
+
+* No charging happens if num_charge < 0 to be a little less annoying to casual small
+weapon users and a little bit more cruel to melee-only characters with great small
+weapons
+
+* A tweak to handgear damage, though still puny, so brands still useless for unarmed
+combat
+
+* Low-level staves no longer in {good} drops
+
+* An attempt to make foo of Searching less common deep down
+
+* Tunneling was counted twice in power
+
+* Rebalanced SPEED again
+
+* Yet another set of tweaks to summoning, this time to make it more common
+
+* Summoning tweaks, not as subtle as before, but simple and should be effective
+
+* Added crushing by a door to the list of things that do not kill you
+
+* Out of sight summons not possible, unless ball spells would be possible in the same
+situation
+
+* Removed non-unique guardians so that they can appear normally in the dungeon
+
+* Removed casting from runes --- lots of hacks cleaned up
+
+* Num_charges is now max of both weapons, not of the primary weapon; both in gold and trunk
+
+* Limited base ego bonuses by dice or base ac
+
+
+### User Interface ###
+
+* Got rid of commas in base dungeon names, since they looked wierd in dungeon knowledge
+descriptions
+
+* Implemented #14001 (FR: "entering makes x, y inaccessible" in dungeon knowledge)
+
+* Now automatically saves the game just before any player command that entails generating
+a new level(e.g. just before reading WOR); RNG behaves well, recreating the same dungeon
+level from the backup savefile
+
+* Disabled 'Cf' dump object descriptions, until they are rewritten, see dumps for how they
+are useless
+
+* Bags only show their contents only once in 'Cf' dumps
+
+* Made the blink and invisibility messages a bit less annoying
+
+- Sort the locations at the 'travel to where?' prompt in order, and fix up the starting home locations.
+
+- Reorder dungeon.txt.
+
+- Add View Visible Monsters command ('[') for people without term windows and tidy it up a bit.
+
+- Add item source tracking, from V/Ey with modifications.
+
+- Fix up depth_in_feet in a lot of places, remove 'Level 0' in town descriptions.
+
+* Updated the Mirkwood description, taking inspiration from the Anne version
+
+
+### Bug fixes ###
+
+* Fixed #13996 (do_cmd_save_bkp not reproducible when multihued breaks seed)
+
+* Fixed #13994 (monster_level should be bounded by 99), but it was not so dangerous, after all
+
+* Fixed #13995 (do_cmd_save_bkp sometimes does not save _before_ generation) that was
+caused e.g. by triggering do_cmd_save_bkp by displaying the travel menu
+
+* Fixed #13409 (Disturb detect problems) and some similar cases of easy_more breakage, others
+remain
+
+* Fixed #11333 (Item in grass destroyed by stair creation)
+
+* Made sure #13623 (Killing Faramir lets you get to the 19th level of Ithilien) stays closed
+(seems to be fixed before)
+
+* Fixed #13883 (No summoning on surface causes monsters to lose mana)
+
+* Increased the number of saved messages from 80 to 800 for debugging savefiles
+
+* Fixed the bug with artifact knowledge require 2 keypresses to show an artifact
+
+* Fix a bug that prevented !Lose Memories from draining EXP
+
+* !Lose Memories and objects draining CON now heal undead races (Men of Erech)
+
+* Reverted a hasty change to object.txt parsing; pval should default to 1 later on
+
+* Fixed a bug that monsters never failed to cast a spell; now they probably fail too often
+
+* Fixed a bug causing the character to never learn spells that the monster aimed at himself,
+e.g. animate objects spell
+
+* Repaired some spell descriptions
+
+* Fixed 13905 (vagrind output when shooting with coated things)
+
+* Probably fixed #13903 (Valgrind output from dungeon generation at Minas Tirith)
+
+* Fixed #13457 (Knowledge screen recall missing first character of each line)
+
+* Greyed out schools in birth books menu
+
+* Cleaned up and fixed monster spell power, etc.
+
+* Fixed a bug that made most player spell damage several times larger than intended
+
+* Fixed lack of effect of shrieker mushroom shrieks and possibly some of the lacking
+monster description words
+
+* Fixed thorgot's bug: 'After killing the death knight at dunland, the staircase brought
+me to regular Isengard (as opposed to war-ready or emptied)'
+
+* gold: fixed a bug that removed recycled guardians over time
+
+* Fixed #12307 (Wrong home shown in the knowledge screen)
+
+* A partial fix to #8412
+
+* Reverted to the old randart power calculation, with all the bugs, to preserve randart
+compatibility with gold1. The compatibility seems perfect and moreover in gold3 the
+calulcation can be fixed, because in gold2 randarts are finally saved so the changes will
+not break compatibility, unless somebody moves from gold1 straight to gold3
+
+* Finally removed the randart regeneration on load
+
+* Added missing charisma restoration to a service (#13871)
+
+* Bumped savefile version again to remove one of the invocations of do_randarts at load;
+fixed seed for old savefiles so that peoples' randart names don't change; the remaining
+invocation of do_randart means that randart power will still be out of sync if randart
+code changes
+
+* Repaired an old bug, which resulted in artifact names and powers taken from the same
+trivial seed, always, regardless of recreated randarts
+
+* The fix is a very ugly hack (#013873)
+
+* Bumped version number because of an improvmenet to randart porting
+
+* It seems randarts were stuck at a particular seed forever and at the same time artifact
+lore was wiped out every new game
+
+* No power to objects that have the pval stated in object.txt --- this makes the staves of
+summoning cheap instead of extra expensive
+
+* Fixes the bug where monsters cast balls through walls and also probably monsters fighting
+monsters that cast spells at others out of range, because they use their distance from the
+player not from the monster they fight
+
+* Init files now do not parse for non-unique guardians
+
+* Fixed comments in the nicely redone dungeon.txt
+
+* Fixed broken GF_CONF_WEAK
+
+- Fix WoR message in towers.
+
+- Fix for Bug #13692 Colours above 16 are broken on trunk.
+
+* Fixed (in gold and unstable) a memory corruption I introduced with the new shop owner code
+
+- Fixed character dump reporting all items having all base resistances
+
+### Build / Platform ###
+
+
 Unangband 0.6.2 Gold "As Is" aka "The Unwarranted Release"
 
 ### Game Play ###

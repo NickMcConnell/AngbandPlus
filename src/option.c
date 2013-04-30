@@ -84,7 +84,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_mana,
 		OPT_view_unsafe_grids,
 		OPT_view_detect_grids,
-		OPT_NONE,
+		OPT_autosave_backup,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -250,7 +250,7 @@ static option_entry options[OPT_MAX] =
 { "view_detect_grids",  "Mark where you have detected monsters",        TRUE }, /* 102 */
 { "show_tips",           "Show tips as you explore the dungeon",        TRUE }, /* 103 */
 { "easy_more",           "Minimise '-more-' prompts",                   TRUE }, /* 104 */
-{ NULL,                  NULL,                                          FALSE }, /* 105 */
+{ "autosave_backup",     "Create backup savefile before descending",   TRUE }, /* 105 */
 { NULL,                  NULL,                                          FALSE }, /* 106 */
 { NULL,                  NULL,                                          FALSE }, /* 107 */
 { NULL,                  NULL,                                          FALSE }, /* 108 */

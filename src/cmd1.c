@@ -2502,10 +2502,10 @@ static int weapon_slot(u32b melee_style, int blows, bool charging)
 	if (melee_style & (1L << WS_UNARMED))
 	{
 		/* Use feet while charging */
-		if (charging) slot = INVEN_FEET;
+		if (charging && blows == 1) slot = INVEN_FEET;
 
 		/* Alternate hands and feet */
-		else if (!(blows %2)) slot = INVEN_FEET;
+		else if (!(blows % 2)) slot = INVEN_FEET;
 
 		/* Use hands */
 		else slot = INVEN_HANDS;
@@ -2574,7 +2574,7 @@ void py_attack(int dir)
 	int y = p_ptr->py + ddy[dir];
 	int x = p_ptr->px + ddx[dir];	
 
-	int num = 0, k, bonus, chance;
+	int k, bonus, chance;
 
 	/* Style bonuses */
 	int style_hit = 0;
@@ -2620,8 +2620,11 @@ void py_attack(int dir)
 	}
 
 	/* If moving, you can charge in the direction */
-	if ((p_ptr->charging == dir) || (side_dirs[dir][1] == p_ptr->charging)
-		|| (side_dirs[dir][2] == p_ptr->charging)) charging = TRUE;
+	if (p_ptr->num_charge > 1
+		&& (p_ptr->charging == dir
+			|| side_dirs[dir][1] == p_ptr->charging
+			|| side_dirs[dir][2] == p_ptr->charging))
+		charging = TRUE;
 
 	/* Get the monster */
 	m_ptr = &m_list[cave_m_idx[y][x]];
@@ -2686,7 +2689,7 @@ void py_attack(int dir)
 		/* Charging decreases number of blows */
 		num_blows = (num_blows + 1) / 2;
 		
-		/* Ensure at least some blows */
+		/* Ensure at least one blow with each weapon */
 		if ((melee_style & (1L << WS_TWO_WEAPON)) && (num_blows > 0))
 		  num_blows = MAX(2, num_blows);
 	}
@@ -2703,13 +2706,10 @@ void py_attack(int dir)
 	}
 
 	/* Attack once for each legal blow */
-	while (num++ < num_blows)
+	while (blows++ < num_blows)
 	{
-		/* Deliver a blow */
-		blows++;
-
 		/* Get weapon slot */
-		slot = weapon_slot(melee_style,blows,charging && (blows == 1));
+		slot = weapon_slot(melee_style,blows,charging);
 
 		/* Weapon slot */
 		o_ptr = &inventory[slot];
@@ -2718,7 +2718,7 @@ void py_attack(int dir)
 		if (o_ptr->k_idx)
 		{
 			/* Get item first time it is used */
-			if ((blows <= 2) && ((blows <= 1)
+			if ((blows <= 2) && ((blows == 1)
 				|| (melee_style & ((1L << WS_UNARMED) | (1L << WS_TWO_WEAPON))) ))
 			{
 				k1[blows] = o_ptr->can_flags1;
@@ -2754,13 +2754,11 @@ void py_attack(int dir)
 			/* No need for message */
 		}
 		/* Test for huge monsters -- they resist non-charging attacks */
-		else if ((r_ptr->flags3 & (RF3_HUGE)) && (!charging) &&
-				
-				/* Modify chance to hit using the characters size */
-				(rand_int(adj_mag_mana[p_ptr->stat_ind[A_SIZ]]) < (20 + p_ptr->depth)) &&
-
-				/* Easy climb locations provide enough of a boost to attack from on high */
-				((f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_EASY_CLIMB)) == 0))
+		else if ((r_ptr->flags3 & (RF3_HUGE)) && !(charging && blows == 1)
+				 /* Modify chance to hit using the characters size */
+				 && rand_int(adj_mag_mana[p_ptr->stat_ind[A_SIZ]]) < (20 + p_ptr->depth)
+				 /* Easy climb locations provide enough of a boost to attack from on high */
+				 && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_EASY_CLIMB)) == 0)
 		{
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You cannot reach %s.", m_name);
@@ -2880,7 +2878,7 @@ void py_attack(int dir)
 			k += style_dam;
 
 			/* Adjust for charging - for first attack only */
-			if ((charging) && (blows == 1))
+			if (charging && blows == 1)
 			  k *= p_ptr->num_charge;
 
 			/* Monster armor reduces total damage */
@@ -2911,7 +2909,7 @@ void py_attack(int dir)
 				/* Message */
 				p = "You wound %s!";
 			}
-			else if ((charging) && (blows <= 1))
+			else if (charging && blows == 1)
 			{
 				/* Unarmed */
 				if (melee_style & (1L << WS_UNARMED)) p = "You flying kick %s!";
@@ -3267,7 +3265,7 @@ void move_player(int dir)
 		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-/*			msg_print("This doesn't feel safe."); */
+			msg_print("This doesn't feel safe."); 
 
 			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}
@@ -3332,7 +3330,7 @@ void move_player(int dir)
 		if (disturb_detect && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-/*			msg_print("This doesn't feel safe.");		*/
+			msg_print("This doesn't feel safe.");
 
 			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}
@@ -3365,7 +3363,7 @@ void move_player(int dir)
 		if ((disturb_detect) && (play_info[p_ptr->py][p_ptr->px] & (PLAY_SAFE)) && !(play_info[y][x] & (PLAY_SAFE)))
 		{
 			disturb(1,0);
-/*			msg_print("This doesn't feel safe.");		*/
+			msg_print("This doesn't feel safe.");
 
 			if (!get_check("Are you sure you want to enter undetected territory?")) return;
 		}

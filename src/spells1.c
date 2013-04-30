@@ -1183,26 +1183,29 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	char c;
 
 	/* No motion (*) */
-	if ((ny == y) && (nx == x)) base = 0x30;
+	if ((ny == y) && (nx == x)) base = 0x00;
 
 	/* Vertical (|) */
-	else if (nx == x) base = 0x40;
+	else if (nx == x) base = 0x20;
 
 	/* Horizontal (-) */
-	else if (ny == y) base = 0x50;
+	else if (ny == y) base = 0x40;
 
 	/* Diagonal (/) */
 	else if ((ny-y) == (x-nx)) base = 0x60;
 
 	/* Diagonal (\) */
-	else if ((ny-y) == (nx-x)) base = 0x70;
+	else if ((ny-y) == (nx-x)) base = 0x80;
 
 	/* Weird (*) */
-	else base = 0x30;
+	else base = 0x00;
 
 	/* Basic spell color */
 	k = spell_color(typ);
 
+	/* Reduce to allowed colour range for spell bolts/balls - see e.g. font-xxx.prf */
+	k = get_color(k, ATTR_MISC, 1);
+	
 	/* Obtain attr/char */
 	a = misc_to_attr[base+k];
 	c = misc_to_char[base+k];
@@ -1245,6 +1248,7 @@ void take_hit(int who, int what, int dam)
 	if (p_ptr->chp >= p_ptr->mhp / 2
 		 && dam >= p_ptr->chp
 	    && (who == SOURCE_FEATURE
+			  || who == SOURCE_ENTOMB
 			  || who == SOURCE_PLAYER_COATING
 			  || who == SOURCE_PLAYER_EAT_MONSTER
 			  || who == SOURCE_PLAYER_VAMP_DRAIN
@@ -7597,10 +7601,10 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 			/* Hack -- no chasm/trap doors/down stairs on quest/bottom levels */
 			if (is_quest(p_ptr->depth) 
-				 || (p_ptr->depth == max_depth(p_ptr->dungeon) 
-					  && !t_info[p_ptr->dungeon].zone[0].tower)
-				 || (p_ptr->depth == min_depth(p_ptr->dungeon) 
-					  && t_info[p_ptr->dungeon].zone[0].tower))
+				|| (p_ptr->depth == max_depth(p_ptr->dungeon) 
+					&& !(level_flag & (LF1_TOWER)))
+				|| (p_ptr->depth == min_depth(p_ptr->dungeon) 
+					&& level_flag & (LF1_TOWER)))
 			{
 				note = "falls into a chasm.";
 
@@ -9566,6 +9570,13 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		case GF_CONF_WEAK:
+		{
+			dam = 0;
+
+			/* Fall through */
+		}
+
 		/* Pure confusion */
 		case GF_CONFUSION:
 		{
@@ -10787,8 +10798,22 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 		case GF_LOSE_CON:
 		{
-			/* Take damage */
-			take_hit(who, what, dam);
+			/* Heal the player if undead, but affect CON */
+			if (p_ptr->cur_flags4 & (TR4_UNDEAD))
+			{
+				obvious = hp_player(dam);
+
+				/* Always notice */
+				if (obvious) player_can_flags(who, 0x0L,0x0L,0x0L,TR4_UNDEAD);
+
+				dam = 0;
+			}
+			else
+			{
+				/* Take damage */
+				take_hit(who, what, dam);
+				player_not_flags(who, 0x0L,0x0L,0x0L,TR4_UNDEAD);
+			}
 
 			/* Damage (stat) */
 			if ((drained = do_dec_stat(A_CON)))
@@ -10968,25 +10993,25 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 			/* Hack -- no chasm/trap doors on quest/bottom levels */
 			if (is_quest(p_ptr->depth)
-				 || (typ == GF_FALL_MORE 
-					  && ((p_ptr->depth == max_depth(p_ptr->dungeon) 
-							 && !t_info[p_ptr->dungeon].zone[0].tower)
-							|| (p_ptr->depth == min_depth(p_ptr->dungeon) 
-								 && t_info[p_ptr->dungeon].zone[0].tower)))
-				 || (typ == GF_FALL_LESS
-					  && ((p_ptr->depth == max_depth(p_ptr->dungeon) 
-							 && t_info[p_ptr->dungeon].zone[0].tower)
-							|| (p_ptr->depth == min_depth(p_ptr->dungeon) 
-								 && !t_info[p_ptr->dungeon].zone[0].tower))))
+				|| (typ == GF_FALL_MORE 
+					&& ((p_ptr->depth == max_depth(p_ptr->dungeon) 
+						 && !(level_flag & (LF1_TOWER)))
+						|| (p_ptr->depth == min_depth(p_ptr->dungeon) 
+							&& level_flag & (LF1_TOWER))))
+				|| (typ == GF_FALL_LESS
+					&& ((p_ptr->depth == max_depth(p_ptr->dungeon) 
+						 && level_flag & (LF1_TOWER))
+						|| (p_ptr->depth == min_depth(p_ptr->dungeon) 
+							&& !(level_flag & (LF1_TOWER))))))
 			{
 				/* Mark grid for later processing. */
 				cave_temp_mark(y, x, FALSE);
 			}
 			/* Hack -- tower level decreases depth */
 			else if ((typ == GF_FALL_MORE 
-						 && !t_info[p_ptr->dungeon].zone[0].tower)
-						|| (typ == GF_FALL_LESS 
-							 && t_info[p_ptr->dungeon].zone[0].tower))
+					  && !(level_flag & (LF1_TOWER)))
+					 || (typ == GF_FALL_LESS 
+						 && level_flag & (LF1_TOWER)))
 			{
 				/* New depth */
 				p_ptr->depth++;

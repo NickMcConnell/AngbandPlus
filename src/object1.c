@@ -4494,7 +4494,7 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 	s16b charges = 0;
 
 	/* Paranoia, probably done in object_prep */
-	(void)WIPE(i_ptr, object_type);
+	object_wipe(i_ptr);
 
 	/* Initially no item */
 	i_ptr->k_idx = 0;

@@ -152,6 +152,7 @@ struct maxima
 	u16b d_max;     /* Max size for "d_info[]" */
 	u16b f_max;     /* Max size for "f_info[]" */
 
+	u16b a_max_standard; /* Max size for standard artifacts */
 	u16b a_max;     /* Max size for "a_info[]" */
 	u16b e_max;     /* Max size for "e_info[]" */
 
@@ -1205,7 +1206,7 @@ struct player_race
 	u32b flags3;    /* Racial Flags, set 3 */
 	u32b flags4;    /* Racial Flags, set 4 */
 
-	s16b slots[END_EQUIPMENT - INVEN_WIELD];	/* Slot occupied by a shape 'object' */
+	s16b slots[END_EQUIPMENT - INVEN_WIELD + 1];	/* Slot occupied by a shape 'object' */
 };
 
 

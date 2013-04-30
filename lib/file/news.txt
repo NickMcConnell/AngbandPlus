@@ -8,7 +8,7 @@
                    Earlier versions of Angband & Moria by:
       Alex Cutler, Andy Astrand, Sean Marsh, Geoff Hill, Charles Teague,
              Charles Swiger, Ben Harrison, Robert Ruehlmann and others.
-              Unangband 0.6.2 by Andrew Doull and Mikolaj Konarski.
+              Unangband 0.6.2 by Andrew Doull, Mikolaj Konarski and others.
         UnAngband 0.5.4a by Andrew Doull, Mogami, and Andrew Sidwell.
                Other versions of UnAngband by Andrew Doull.
    This program incorporates code from other Angband variants: NPPAngband &

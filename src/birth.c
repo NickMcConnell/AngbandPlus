@@ -1608,10 +1608,10 @@ static bool get_player_book(void)
 		if ((birth_intermediate) && !(k_ptr->aware) && (max_good ? k_ptr->sval < SV_BOOK_MAX_GOOD : k_ptr->sval >= SV_BOOK_MIN_GOOD)) continue;
 		
 		/* Hack -- count one of non-dungeon books per school */
-		if ((max_good) && (k_ptr->sval >= SV_BOOK_MAX_GOOD) && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		if (max_good && k_ptr->sval >= SV_BOOK_MAX_GOOD && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
 
 		/* Hack -- count one of non-dungeon books per school */
-		if (!(max_good) && (k_ptr->sval < SV_BOOK_MIN_GOOD) && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+		if (!max_good && k_ptr->sval < SV_BOOK_MIN_GOOD && (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
 
 		/* Correct tval */
 		if (k_ptr->tval == tval)
@@ -1619,7 +1619,9 @@ static bool get_player_book(void)
 			/* Save the string. Note offset to skip 'of ' */
 			books[j].name = k_name + k_ptr->name + 3;
 			books[j].choice = k_ptr->sval;
-			books[j++].ghost = FALSE;
+			books[j++].ghost = 
+				(max_good && k_ptr->sval >= SV_BOOK_MAX_GOOD)
+				|| (!max_good && k_ptr->sval < SV_BOOK_MIN_GOOD);
 		}
 	}
 

@@ -785,7 +785,7 @@ static void process_world(void)
 	/*** Handle the "town" (stores and sunshine) ***/
 
 	/* While in town */
-	if (p_ptr->depth == min_depth(p_ptr->dungeon))
+	if (level_flag & (LF1_SURFACE))
 	{
 		/* Hack -- Daybreak/Nighfall in town */
 		if (!(turn % ((10L * TOWN_DAWN) / 2)))
@@ -1575,8 +1575,10 @@ static void process_world(void)
 	sense_inventory();
 
 	/* Show tips */
-	if  (!(p_ptr->command_rep) && ((p_ptr->searching && !(turn % 1000)) ||
-			(is_typical_town(p_ptr->dungeon, p_ptr->depth) && !(turn % 100))))
+	if  (!p_ptr->command_rep
+		 && ((p_ptr->searching && !(turn % 1000)) 
+			 || (is_typical_town(p_ptr->dungeon, p_ptr->depth) 
+				 && !(turn % 100))))
 	{
 		/* Show a tip */
 		show_tip();
@@ -1808,7 +1810,8 @@ static void process_world(void)
 			/* Determine the level */
 			if (p_ptr->depth > min_depth(p_ptr->dungeon))
 			{
-				msg_print("You feel yourself yanked upwards!");
+				msg_format("You feel yourself yanked %swards!", 
+					((level_flag & (LF1_TOWER)) ? "down" : "up"));
 
 				/* New depth */
 				p_ptr->depth = min_depth(p_ptr->dungeon);
@@ -1821,7 +1824,8 @@ static void process_world(void)
 			}
 			else
 			{
-				msg_print("You feel yourself yanked downwards!");
+				msg_format("You feel yourself yanked %swards!", 
+					((level_flag & (LF1_TOWER)) ? "up" : "down"));
 
 				/* New depth */
 				p_ptr->depth = t_info[p_ptr->dungeon].attained_depth;
@@ -3233,7 +3237,7 @@ static void dungeon(void)
 
 	/* Track maximum dungeon level; surface does not count */
 	if (p_ptr->max_depth < p_ptr->depth 
-		 && p_ptr->depth > min_depth(p_ptr->dungeon))
+		&& p_ptr->depth > min_depth(p_ptr->dungeon))
 	{
 		p_ptr->max_depth = p_ptr->depth;
 	}
@@ -3317,12 +3321,10 @@ static void dungeon(void)
 	if (p_ptr->is_dead) return;
 
 	/* Announce (or repeat) the feeling */
-	if (p_ptr->depth > min_depth(p_ptr->dungeon)) do_cmd_feeling();
+	if (p_ptr->depth > min_depth(p_ptr->dungeon)) 
+		do_cmd_feeling();
 
 	/*** Process this dungeon level ***/
-
-	/* Reset the monster generation level */
-	monster_level = p_ptr->depth;
 
 	/* Reset the object generation level */
 	object_level = p_ptr->depth;
@@ -3334,6 +3336,10 @@ static void dungeon(void)
 	while (TRUE)
 	{
 		int i;
+
+		/* Reset the monster generation level; make level feeling interesting */
+		monster_level = p_ptr->depth >= 4 ? p_ptr->depth + 2 : 
+			(p_ptr->depth >= 2 ? p_ptr->depth + 1 : p_ptr->depth);
 
 		/* Hack -- Compact the monster list occasionally */
 		if (m_cnt + 32 > z_info->m_max) compact_monsters(64);
@@ -3536,6 +3542,8 @@ static void process_some_user_pref_files(void)
  */
 void play_game(bool new_game)
 {
+	int i;
+
 	/* Hack -- Increase "icky" depth */
 	character_icky++;
 
@@ -3618,34 +3626,33 @@ void play_game(bool new_game)
 		seed_town = rand_int(0x10000000);
 
 		/* Hack -- seed for random artifacts */
-		if (adult_reseed_artifacts) seed_randart = rand_int(0x10000000);
+		if (adult_reseed_artifacts) 
+			seed_randart = rand_int(0x10000000);
 
 		/* Hack -- clear artifact memory */
-		if (adult_reseed_artifacts)
+		/* Needs to be done even with no adult_reseed_artifacts,
+		   because the state of adult_randarts may have changed either way */
+		for (i = 0;i<z_info->a_max;i++)
 		{
-			int i;
+			object_info *n_ptr = &a_list[i];
+				
+			n_ptr->can_flags1 = 0x0L;
+			n_ptr->can_flags2 = 0x0L;
+			n_ptr->can_flags3 = 0x0L;
+			n_ptr->can_flags4 = 0x0L;
 
-			for (i = 0;i<z_info->a_max;i++)
-			{
-				object_info *n_ptr = &a_list[i];
-
-				n_ptr->can_flags1 = 0x0L;
-				n_ptr->can_flags2 = 0x0L;
-				n_ptr->can_flags3 = 0x0L;
-				n_ptr->can_flags4 = 0x0L;
-
-				n_ptr->not_flags1 = 0x0L;
-				n_ptr->not_flags2 = 0x0L;
-				n_ptr->not_flags3 = 0x0L;
-				n_ptr->not_flags4 = 0x0L;
-			}
-
+			n_ptr->not_flags1 = 0x0L;
+			n_ptr->not_flags2 = 0x0L;
+			n_ptr->not_flags3 = 0x0L;
+			n_ptr->not_flags4 = 0x0L;
 		}
 
 		/* Roll up a new character */
 		player_birth();
 
-		/* Randomize the artifact names */
+		/* Generate random artifacts */
+		/* Needs to be done even with no adult_reseed_artifacts,
+		   because the state of adult_randarts may have changed either way */
 		do_randart(seed_randart, TRUE);
 
 		/* Hack -- enter the world */
@@ -3683,8 +3690,6 @@ void play_game(bool new_game)
 	/* Mark the fixed monsters as quests */
 	if (adult_campaign)
 	{
-		int i;
-
 		for (i = 0; i < z_info->t_max; i++)
 		{
 			int guard, ii;
@@ -3878,7 +3883,6 @@ void play_game(bool new_game)
 
 				/* Note cause of death XXX XXX XXX */
 				my_strcpy(p_ptr->died_from, "Cheating death", sizeof(p_ptr->died_from));
-
 				/* New depth */
 				p_ptr->depth = min_depth(p_ptr->dungeon);
 

@@ -123,6 +123,8 @@ u32b Rand_div(u32b m)
 {
 	u32b r, n;
 
+/*    if (!Rand_quick) fputs(".",stdout); */
+
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
 

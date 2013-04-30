@@ -473,7 +473,7 @@ void wipe_o_list(void)
 		}
 
 		/* Wipe the object */
-		(void)WIPE(o_ptr, object_type);
+		object_wipe(o_ptr);
 	}
 
 	/* Reset "o_max" */
@@ -2045,7 +2045,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	object_kind *k_ptr = &k_info[k_idx];
 
 	/* Clear the record */
-	(void)WIPE(o_ptr, object_type);
+	object_wipe(o_ptr);
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -2054,7 +2054,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 	o_ptr->tval = k_ptr->tval;
 	o_ptr->sval = k_ptr->sval;
 
-	/* Default "pval" or 1 if zero */
+	/* No more annoying objects with lots of flags, but 0 pval */
 	o_ptr->pval = k_ptr->pval ? k_ptr->pval : 1;
 
 	/* Default "charges" */
@@ -2218,7 +2218,12 @@ static void object_mention(object_type *o_ptr)
 	if (artifact_p(o_ptr))
 	{
 		/* Silly message */
-		msg_format("Artifact (%s)", o_name);
+		if (o_ptr->name1 < ART_MIN_NORMAL)
+			msg_format("Specialart (%s)", o_name);
+		else if (o_ptr->name1 < z_info->a_max_standard)
+			msg_format("Artifact (%s)", o_name);
+		else
+			msg_format("Randart (%s)", o_name);
 	}
 
 	/* Ego-item */
@@ -2472,9 +2477,6 @@ static bool make_magic_item(object_type *o_ptr, int lev, int power)
 	{
 		o_ptr->xtra1 = 16;
 		o_ptr->xtra2 = i;
-
-		/* Too shallow SPEED */
-		if (j == TR1_SPEED && p_ptr->depth < 40 + rand_int (20)) continue;
 
 		/* Skip non-weapons -- we have to do this because brands grant ignore flags XXX */
 		if ((j >= TR1_BRAND_ACID) && (o_ptr->tval != TV_DIGGING) && (o_ptr->tval != TV_HAFTED)
@@ -3255,10 +3257,12 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = randint(3) + m_bonus(5, level);
 
 					/* Super-charge the ring */
-					while (rand_int(100) < 33) o_ptr->pval++;
+					while (p_ptr->depth > 25 + rand_int (20) 
+							 && rand_int(100) < 33) 
+						o_ptr->pval++;
 
-					/* Cursed Ring; Hack: above DL30 sure */
-					if (power < 0 || p_ptr->depth < 30 + rand_int (20))
+					/* Cursed Ring */
+					if (power < 0)
 					{
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
@@ -4397,25 +4401,24 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			else o_ptr->ident |= (IDENT_BROKEN);
 		}
 
-		/* Hack --- too shallow SPEED item */
-		if (e_ptr->flags1 & (TR1_SPEED)
-			&& p_ptr->depth < 35 + rand_int (20))
-		  { 
-			o_ptr->ident |= (IDENT_BROKEN);
-			o_ptr->ident |= (IDENT_CURSED);
-		  }
-
 		/* Apply bonuses or penalties */
-		if (e_ptr->max_to_h > 0) o_ptr->to_h = randint(e_ptr->max_to_h);
+		if (e_ptr->max_to_h > 0) 
+			o_ptr->to_h = MAX(o_ptr->to_h, randint(e_ptr->max_to_h));
 		else if (e_ptr->max_to_h < 0) o_ptr->to_h -= randint(-e_ptr->max_to_h);
 		
-		if (e_ptr->max_to_d > 0) o_ptr->to_d = randint(e_ptr->max_to_d);
+		if (e_ptr->max_to_d > 0) 
+			o_ptr->to_d = MIN(MAX(o_ptr->to_d, randint(e_ptr->max_to_d)), 
+									(o_ptr->tval == TV_BOW 
+									 ? 15 : o_ptr->dd * o_ptr->ds + 5));
 		else if (e_ptr->max_to_d < 0) o_ptr->to_d -= randint(-e_ptr->max_to_d);
 
-		if (e_ptr->max_to_a > 0) o_ptr->to_a = randint(e_ptr->max_to_a);
+		if (e_ptr->max_to_a > 0) 
+			o_ptr->to_a = MIN(MAX(o_ptr->to_a, randint(e_ptr->max_to_a)),
+									o_ptr->ac + 5);
 		else if (e_ptr->max_to_a < 0) o_ptr->to_a -= randint(-e_ptr->max_to_a);
 
-		if (e_ptr->max_pval > 0) o_ptr->pval = randint(e_ptr->max_pval);
+		if (e_ptr->max_pval > 0) 
+			o_ptr->pval = MAX(1, MIN(o_ptr->pval, randint(e_ptr->max_pval)));
 		else if (e_ptr->max_pval < 0) o_ptr->pval -= randint(-e_ptr->max_pval);
 		
 		/* Hack -- ensure negatives for broken or cursed items */
@@ -4770,7 +4773,7 @@ static void name_drop(object_type *j_ptr)
 			else
 			{
 				/* Generate monster appropriate for level */
-				r_idx = get_mon_num(p_ptr->depth);
+				r_idx = get_mon_num(monster_level);
 			}
 
 			/* Apply flags */
@@ -4815,7 +4818,7 @@ static void name_drop(object_type *j_ptr)
 		get_mon_num_prep();
 
 		/* Generate monster appropriate for level */
-		r_idx = get_mon_num(p_ptr->depth);
+		r_idx = get_mon_num(monster_level);
 
 		/* Restore the old hook */
 		get_mon_num_hook = get_mon_old_hook;
@@ -4839,7 +4842,6 @@ static void name_drop(object_type *j_ptr)
  */
 static bool kind_is_shroom(int k_idx)
 {
-
 	object_kind *k_ptr = &k_info[k_idx];
 
 	if (k_ptr->tval != TV_FOOD) return (FALSE);
@@ -4847,7 +4849,6 @@ static bool kind_is_shroom(int k_idx)
 	if (k_ptr->sval >= SV_FOOD_MIN_FOOD) return (FALSE);
 
 	return (TRUE);
-
 }
 
 /*
@@ -4890,6 +4891,13 @@ static bool kind_is_good(int k_idx)
 		{
 			if (k_ptr->to_h < 0) return (FALSE);
 			if (k_ptr->to_d < 0) return (FALSE);
+
+			/* Special case for staves */
+			if (k_ptr->tval == TV_STAFF 
+				 && k_ptr->level < 25
+				 && k_ptr->level < object_level + 5)
+				return (FALSE);
+
 			return (TRUE);
 		}
 
@@ -6495,17 +6503,11 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			/* Skip illegal grids */
 			if (!in_bounds_fully(ty, tx)) continue;
 
-			/* Require line of fire */
-			if (!generic_los(y, x, ty, tx, CAVE_XLOF)) continue;
-
 			/* Require drop space */
 			if ((f_info[cave_feat[ty][tx]].flags1 & (FF1_DROP)) == 0) continue;
 
 			/* Requires terrain that won't destroy it */
 			if (hates_terrain(j_ptr, cave_feat[ty][tx])) continue;
-
-			/* Don't like hiding items space */
-			if ((f_info[cave_feat[ty][tx]].flags2 & (FF2_HIDE_ITEM)) && (rand_int(100)<80)) continue;
 
 			/* No objects */
 			k = 0;
@@ -6538,7 +6540,15 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 			if (k > MAX_FLOOR_STACK) continue;
 
 			/* Calculate score */
-			s = 1000 - (d + k * 5);
+			s = 10000 - (d + k * 5);
+
+			/* Don't like hiding items space */
+			if (f_info[cave_feat[ty][tx]].flags2 & (FF2_HIDE_ITEM))
+				s = s / 2;
+
+			/* Don't like lack of  line of fire */
+			if (!generic_los(y, x, ty, tx, CAVE_XLOF))
+				s = s / 4;
 
 			/* Skip bad values */
 			if (s < bs) continue;
@@ -7827,7 +7837,7 @@ void inven_item_optimize(int item)
 		}
 
 		/* Hack -- wipe hole */
-		(void)WIPE(&inventory[i], object_type);
+		object_wipe(&inventory[i]);
 
 		/* Recalculate runes */
 		p_ptr->update |= (PU_RUNES);

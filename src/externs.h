@@ -594,6 +594,7 @@ extern char *make_word(int min_len, int max_len);
 extern void get_name(void);
 extern void do_cmd_suicide(void);
 extern void do_cmd_save_game(void);
+extern void do_cmd_save_bkp(void);
 extern long total_points(void);
 extern void display_scores(int from, int to);
 extern errr predict_score(void);
@@ -851,6 +852,7 @@ extern bool quiver_carry(object_type *o_ptr, int o_idx);
 
 /* save.c */
 extern bool save_player(void);
+extern bool save_player_bkp(bool bkp);
 
 /* spells1.c */
 extern u32b player_smart_flags(u32b f1,u32b f2,u32b f3, u32b f4);

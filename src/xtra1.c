@@ -4006,10 +4006,6 @@ static void calc_bonuses(void)
 	else
 	  p_ptr->num_charge = 1;
 
-	/* Can get as low as 0 */
-	p_ptr->num_charge = MIN(p_ptr->num_charge, 
-				adj_charge_siz[p_ptr->stat_ind[A_SIZ]]);
-
 	/* Check if we wear an amulet or a ring */
 	if (inventory[INVEN_NECK].k_idx)
 	  p_ptr->cur_style |= (1L << WS_AMULET);
@@ -4085,12 +4081,23 @@ static void calc_bonuses(void)
 			case TV_SWORD:
 			case TV_STAFF:
 			{
-				if (!(p_ptr->cur_style & (1L << WS_UNARMED)))
+				if (!(p_ptr->cur_style & (1L << WS_UNARMED))) 
+				{
 					p_ptr->cur_style |= (1L << WS_TWO_WEAPON);
+
+					/* Charging multiplier, if larger than of the primary weapon */
+					if (o_ptr->weight >= 2 * cp_ptr->chg_weight
+						 &&  o_ptr->weight / cp_ptr->chg_weight > p_ptr->num_charge)
+						p_ptr->num_charge = o_ptr->weight / cp_ptr->chg_weight;
+				}
 				break;
 			}
 		}
 	}
+
+	/* Can get as low as 0 */
+	p_ptr->num_charge = MIN(p_ptr->num_charge, 
+									adj_charge_siz[p_ptr->stat_ind[A_SIZ]]);
 
 	/*** Handle style benefits ***/
 	for (i = 0;i< z_info->w_max;i++)

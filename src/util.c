@@ -1848,7 +1848,7 @@ key_event inkey_ex(void)
  */
 key_event anykey(void)
 {
-	key_event ke;
+	key_event ke = {0, 0, 0, 0};
 
 	/* Only accept a keypress or mouse click*/
 	do
@@ -3151,7 +3151,7 @@ void text_out_to_screen(byte a, cptr str)
 	if ((text_out_wrap > 0) && (text_out_wrap < wid))
 		wrap = text_out_wrap;
 	else
-		wrap = wid;
+		wrap = wid - 1;
 
 	/* Process the string */
 	for (s = str; *s; s++)
@@ -3214,8 +3214,9 @@ void text_out_to_screen(byte a, cptr str)
 			/* Clear line, move cursor */
 			Term_erase(x, y, 255);
 
-			/* Ident after the wrap */
-			Term_addch(av[n], ' ');
+			/* Indent after the wrap */
+			Term_addch(TERM_DARK, ' ');
+			x++;
 
 			/* Wrap the word (if any) */
 			for (i = n; i < wrap - 1; i++)
@@ -3668,8 +3669,11 @@ bool get_check(cptr prompt)
 	char buf[80];
 
 	/* Flush easy_more messages */
-	if (easy_more) messages_easy(FALSE);
-	
+	if (easy_more)
+	{
+		msg_print(NULL);
+		messages_easy(FALSE);
+	}
 	/* Paranoia XXX XXX XXX */
 	else message_flush();
 
@@ -3806,7 +3810,7 @@ void request_command(bool shopping)
 {
 	int i;
 
-	key_event ke;
+	key_event ke = {0, 0, 0, 0};
 
 	int mode;
 
@@ -4077,9 +4081,8 @@ void request_command(bool shopping)
 		}
 	}
 
-
 	/* Hack -- erase the message line. */
-	if ((ke.key != '\xff') || (ke.mousebutton)) prt("", 0, 0);
+	if (ke.key && (ke.key != '\xff' || ke.mousebutton)) prt("", 0, 0);
 
 	/* Hack again -- apply the modified key command */
 	p_ptr->command_cmd_ex.key = p_ptr->command_cmd;
