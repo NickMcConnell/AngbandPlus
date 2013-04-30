@@ -3815,7 +3815,10 @@ static void monster_action(int m_idx)
 				}
 				else if (do_move)
 				{
-					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over some bushes.", m_name);
+					if (m_ptr->ml)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over some bushes.", m_name);
+					}
 				}
 				break;
 			}
@@ -3951,7 +3954,10 @@ static void monster_action(int m_idx)
 				}
 				else if (do_move)
 				{
-					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over spikes.", m_name);
+					if (m_ptr->ml)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops over spikes.", m_name);
+					}
 				}
 				break;
 			}
@@ -4006,11 +4012,17 @@ static void monster_action(int m_idx)
 				}
 				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_TABLE) && (do_move))
 				{
-					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the table.", m_name);
+					if (m_ptr->ml)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the table.", m_name);
+					}
 				}
 				else if ((t_list[cave_t_idx[ny][nx]].w_idx == WG_PLATFORM) && (do_move))
 				{
-					message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the platform.", m_name);
+					if (m_ptr->ml)
+					{
+						message_format(MSG_MONSTER, m_ptr->r_idx, "%^s hops on the platform.", m_name);
+					}
 				}
 
 				break;
@@ -4260,11 +4272,17 @@ static void monster_action(int m_idx)
 									lore_learn(m_ptr, LRN_FLAG3, RF3_NO_SLEEP, FALSE);
 								}
 
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes, but %s resists!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes, but %s resists!", m_name);
+								}
 							}
 							else 
 							{
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes. %^s falls asleep!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Slumber flashes. %^s falls asleep!", m_name);
+								}
 								m_ptr->sleep = 500;
 							}
 
@@ -4287,7 +4305,10 @@ static void monster_action(int m_idx)
 									lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
 								}
 
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes, but %s resists!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes, but %s resists!", m_name);
+								}
 							}
 							else 
 							{
@@ -4299,7 +4320,10 @@ static void monster_action(int m_idx)
 								/* Set fear */
 								m_ptr->monfear = (tmp < 200) ? tmp : 200;
 
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes. %^s flees in terror!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Terror flashes. %^s flees in terror!", m_name);
+								}
 							}
 
 							break;
@@ -4315,7 +4339,10 @@ static void monster_action(int m_idx)
 						{
 							if ((!(success_chance > rand_int(100))) || (m_ptr->u_idx))
 							{
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes, but %s resists!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Change flashes, but %s resists!", m_name);
+								}
 							}
 							else
 							{
@@ -4352,20 +4379,29 @@ static void monster_action(int m_idx)
 						{
 							if (r_ptr->flags4 & (RF3_NO_CUT))
 							{
-								message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is immune!", m_name);
-								lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is immune!", m_name);
+									lore_learn(m_ptr, LRN_FLAG3, RF3_NO_CUT, FALSE);
+								}
 							}
 							else
 							{
 								/* Already bleeding */
 								if (m_ptr->bleeding)
 								{
-									message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding more strongly.", m_name);
+									if (m_ptr->ml)
+									{
+										message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding more strongly.", m_name);
+									}
 								}
 								/* Was not bleeding */
 								else
 								{
-									message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding.", m_name);
+									if (m_ptr->ml)
+									{
+										message_format(MSG_EFFECT, m_ptr->r_idx, "Rune of Blood flashes. %^s is bleeding.", m_name);
+									}
 								}
 
 								int cut = rand_int(50) + (1.5 * p_ptr->depth);
@@ -4386,14 +4422,20 @@ static void monster_action(int m_idx)
 						{
 							if ((!(success_chance > rand_int(100))) || (m_ptr->cursed))
 							{
-								message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Evil Eye flashes but %s resists!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_EFFECT, m_ptr->r_idx, "A Rune of Evil Eye flashes but %s resists!", m_name);
+								}
 							}
 							else 
 							{
 								/* Set fear */
 								m_ptr->cursed = 1;
 
-								message_format(MSG_FLEE, m_ptr->r_idx, "A Rune of Evil Eye flashes. %^s is cursed!", m_name);
+								if (m_ptr->ml)
+								{
+									message_format(MSG_FLEE, m_ptr->r_idx, "A Rune of Evil Eye flashes. %^s is cursed!", m_name);
+								}
 							}
 
 							break;

@@ -21,14 +21,6 @@ Generate hitpoints randomly [birth_random_hp] (default: yes)
     variation and a chance for higher hit points, but bear the risk of gaining
     fewer hit points as well.
 
-***** <birth_start_kit>
-Pre-Shop for some basic items [birth_start_kit] (default: no)
-    The character starts with a lantern, 5 oil flasks, a scroll of phase door,
-    a cloak, and a potion of cure light wounds. On the other hand he starts 
-    with 50 gold less than without this option and no torches. Using this 
-    option allows you to save the tedium of early shopping but gives you a poor
-    deal gold-wise.
-
 ***** <birth_retain_squelch>
 Retain squelch settings [birth_retain_squelch] (default: no)
     If this option is set, the new character will keep the squelch settings of

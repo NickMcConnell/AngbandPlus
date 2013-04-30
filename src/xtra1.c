@@ -468,7 +468,8 @@ static void prt_exp_bar(void)
 	byte attr = ((p_ptr->exp >= p_ptr->max_exp) ? TERM_L_GREEN : TERM_YELLOW);
 
 	/* Experience bar on the bottom of the screen */
-	len = Term->wid - 80;
+	/* len = Term->wid - 80; */
+	len = 6;
 
 	if (len > 1)
 	{
@@ -492,11 +493,11 @@ static void prt_exp_bar(void)
 		{
 			if (i <= exp_cur_pos)
 			{
-				c_put_str(attr, "*", ROW_EXP_BAR, COL_EXP_BAR + i);
+				c_put_str(attr, "+", ROW_EXP_BAR, COL_EXP_BAR + i);
 			}
 			else if (i <= exp_max_pos)
 			{
-				c_put_str(TERM_SLATE, "*", ROW_EXP_BAR, COL_EXP_BAR + i);
+				c_put_str(TERM_SLATE, "+", ROW_EXP_BAR, COL_EXP_BAR + i);
 			}
 			else
 			{
@@ -2308,6 +2309,94 @@ static void calc_bonuses(void)
 		if (rp_ptr->special) p_ptr->skill[i] += rsp_ptr[(p_ptr->max_lev) / 5]->r_skill[i];
 	}
 
+	/*** Analyse the player's shape (has to be done before extracting resistances) ***/
+	switch(p_ptr->shape)
+	{
+		case SHAPE_PERSON:
+		{
+			break;
+		}
+		case SHAPE_HARPY:
+		{
+			p_ptr->pspeed += 5;
+			p_ptr->stat_add[A_DEX] += 5;
+			p_ptr->stat_add[A_CHR] -= 5;
+			p_ptr->stat_add[A_WIS] -= 5;
+			p_ptr->flying = TRUE;
+			break;
+		}
+		case SHAPE_ANGEL:
+		{
+			p_ptr->pspeed += 2;
+			p_ptr->stat_add[A_DEX] += 2;
+			p_ptr->stat_add[A_WIS] += 5;
+			p_ptr->stat_add[A_CHR] += 5;
+			p_ptr->flying = TRUE;
+			break;
+		}
+		case SHAPE_APE:
+		{
+			p_ptr->stat_add[A_STR] += 5;
+			p_ptr->stat_add[A_CON] += 2;
+			p_ptr->stat_add[A_INT] -= 5;
+			p_ptr->stat_add[A_CHR] -= 2;
+			p_ptr->skill[SK_MOB] += 25;
+			break;
+		}
+		case SHAPE_NAGA:
+		{
+			p_ptr->pspeed -= 2;
+			p_ptr->stat_add[A_INT] += 5;
+			p_ptr->stat_add[A_STR] += 2;
+			p_ptr->skill[SK_STL] += 5;
+			p_ptr->skill[SK_MOB] -= 25;
+			break;
+		}
+		case SHAPE_STATUE:
+		{
+			p_ptr->pspeed -= 5;
+			p_ptr->stat_add[A_CON] += 5;
+			p_ptr->stat_add[A_CHR] += 2;
+			p_ptr->skill[SK_MOB] -= 25;
+			p_ptr->to_a += 25;
+			p_ptr->dis_to_a += 25;
+
+			/* Used later to increase all resistances */
+			statue_resist = 25;
+
+			break;
+		}
+		case SHAPE_FAUN:
+		{
+			p_ptr->stat_add[A_INT] -= 2;
+			p_ptr->stat_add[A_WIS] += 2;
+			p_ptr->stat_add[A_CON] += 2;
+			break;
+		}
+		case SHAPE_GOBLIN:
+		{
+			p_ptr->pspeed += 2;
+			p_ptr->stat_add[A_STR] -= 2;
+			p_ptr->stat_add[A_INT] -= 2;
+			p_ptr->stat_add[A_WIS] -= 2;
+			p_ptr->stat_add[A_DEX] += 2;
+			p_ptr->stat_add[A_CON] -= 2;
+			p_ptr->stat_add[A_CHR] -= 2;
+			break;
+		}
+		case SHAPE_GHOUL:
+		{
+			p_ptr->pspeed -= 1;
+			p_ptr->stat_add[A_STR] -= 1;
+			p_ptr->stat_add[A_INT] -= 1;
+			p_ptr->stat_add[A_WIS] -= 1;
+			p_ptr->stat_add[A_DEX] -= 1;
+			p_ptr->stat_add[A_CON] -= 1;
+			p_ptr->stat_add[A_CHR] -= 1;
+			break;
+		}
+	}
+
 	/* Extract resistances */
 	for (i = 0 ; i < RS_MAX ; i++)
 	{
@@ -2483,94 +2572,6 @@ static void calc_bonuses(void)
 	/* Make sure Reserves or Escapes aren't below 0 */
 	if (p_ptr->reserves < 0) p_ptr->reserves = 0;
 	if (p_ptr->escapes < 0) p_ptr->escapes = 0;
-
-	/*** Analyse the player's shape ***/
-	switch(p_ptr->shape)
-	{
-		case SHAPE_PERSON:
-		{
-			break;
-		}
-		case SHAPE_HARPY:
-		{
-			p_ptr->pspeed += 5;
-			p_ptr->stat_add[A_DEX] += 5;
-			p_ptr->stat_add[A_CHR] -= 5;
-			p_ptr->stat_add[A_WIS] -= 5;
-			p_ptr->flying = TRUE;
-			break;
-		}
-		case SHAPE_ANGEL:
-		{
-			p_ptr->pspeed += 2;
-			p_ptr->stat_add[A_DEX] += 2;
-			p_ptr->stat_add[A_WIS] += 5;
-			p_ptr->stat_add[A_CHR] += 5;
-			p_ptr->flying = TRUE;
-			break;
-		}
-		case SHAPE_APE:
-		{
-			p_ptr->stat_add[A_STR] += 5;
-			p_ptr->stat_add[A_CON] += 2;
-			p_ptr->stat_add[A_INT] -= 5;
-			p_ptr->stat_add[A_CHR] -= 2;
-			p_ptr->skill[SK_MOB] += 25;
-			break;
-		}
-		case SHAPE_NAGA:
-		{
-			p_ptr->pspeed -= 2;
-			p_ptr->stat_add[A_INT] += 5;
-			p_ptr->stat_add[A_STR] += 2;
-			p_ptr->skill[SK_STL] += 5;
-			p_ptr->skill[SK_MOB] -= 25;
-			break;
-		}
-		case SHAPE_STATUE:
-		{
-			p_ptr->pspeed -= 5;
-			p_ptr->stat_add[A_CON] += 5;
-			p_ptr->stat_add[A_CHR] += 2;
-			p_ptr->skill[SK_MOB] -= 25;
-			p_ptr->to_a += 25;
-			p_ptr->dis_to_a += 25;
-
-			/* Used later to increase all resistances */
-			statue_resist = 25;
-
-			break;
-		}
-		case SHAPE_FAUN:
-		{
-			p_ptr->stat_add[A_INT] -= 2;
-			p_ptr->stat_add[A_WIS] += 2;
-			p_ptr->stat_add[A_CON] += 2;
-			break;
-		}
-		case SHAPE_GOBLIN:
-		{
-			p_ptr->pspeed += 2;
-			p_ptr->stat_add[A_STR] -= 2;
-			p_ptr->stat_add[A_INT] -= 2;
-			p_ptr->stat_add[A_WIS] -= 2;
-			p_ptr->stat_add[A_DEX] += 2;
-			p_ptr->stat_add[A_CON] -= 2;
-			p_ptr->stat_add[A_CHR] -= 2;
-			break;
-		}
-		case SHAPE_GHOUL:
-		{
-			p_ptr->pspeed -= 1;
-			p_ptr->stat_add[A_STR] -= 1;
-			p_ptr->stat_add[A_INT] -= 1;
-			p_ptr->stat_add[A_WIS] -= 1;
-			p_ptr->stat_add[A_DEX] -= 1;
-			p_ptr->stat_add[A_CON] -= 1;
-			p_ptr->stat_add[A_CHR] -= 1;
-			break;
-		}
-	}
 
 	/*** Analyze the terrain square ***/
 

@@ -667,31 +667,31 @@
 #define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
 #define ROW_BLIND		(Term->hgt - 1)
-#define COL_BLIND		7	/* "Blind" */
+#define COL_BLIND		9	/* "Blind" */
 
 #define ROW_CONFUSED	(Term->hgt - 1)
-#define COL_CONFUSED	13	/* "Confused" */
+#define COL_CONFUSED	15	/* "Confused" */
 
 #define ROW_AFRAID		(Term->hgt - 1)
-#define COL_AFRAID		23	/* "Afraid" */
+#define COL_AFRAID		25	/* "Afraid" */
 
 #define ROW_POISONED	(Term->hgt - 1)
-#define COL_POISONED	30	/* "Poisoned" */
+#define COL_POISONED	32	/* "Poisoned" */
 
 #define ROW_STATE		(Term->hgt - 1)
-#define COL_STATE		39	/* <state> */
+#define COL_STATE		41	/* <state> */
 
 #define ROW_SPEED		(Term->hgt - 1)
-#define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
+#define COL_SPEED		51	/* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY		(Term->hgt - 1)
-#define COL_STUDY		59	/* "Study (NN)" */
+#define COL_STUDY		61	/* "Study (NN)" */
 
 #define ROW_DEPTH		(Term->hgt - 1)
-#define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+#define COL_DEPTH		72	/* "Lev NNN" / "NNNN ft" */
 
 #define ROW_EXP_BAR		(Term->hgt - 1)
-#define COL_EXP_BAR		78	/* "[***-]" */
+#define COL_EXP_BAR		0	/* "[***-]" */
 
 #define ROW_MAP			1
 #define COL_MAP			13

@@ -1068,6 +1068,10 @@ static void process_player(void)
 
 	/*** Check for interrupts ***/
 
+	/* Check if Flaming Hands or Claws of Winter is supposed to end now */
+	if ((p_ptr->flaming_hands == 1) && (!(p_ptr->flaming_hands_perm)))	(void)set_flaming_hands(p_ptr->flaming_hands - 1);
+	if ((p_ptr->icy_hands == 1) && (!(p_ptr->icy_hands_perm)))		(void)set_icy_hands(p_ptr->icy_hands - 1);
+
 	/* Complete resting */
 	if (p_ptr->resting < 0)
 	{

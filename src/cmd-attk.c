@@ -1423,10 +1423,10 @@ static void py_pickup(int pickup)
 			{
 				/* Message */
 				message_format(MSG_PICKUP, 0, "You find %ld gold pieces worth of %s. (You keep %ld gold.)",
-			           	(long)o_ptr->pval, o_name, o_ptr->pval / 3);
+			           	(long)o_ptr->pval, o_name, (o_ptr->pval +2) / 3);
 
 				/* Collect the gold */
-				p_ptr->au += o_ptr->pval / 3;
+				p_ptr->au += (o_ptr->pval +2) / 3;
 			}
 			else
 			{
@@ -1737,7 +1737,7 @@ void py_attack(int y, int x, bool show_monster_name)
 
 	/* Disturb the player */
 	disturb(0);
-	
+
 	/* Anger the monster */
 	m_ptr->calmed = 0;
 
@@ -1945,6 +1945,49 @@ void py_attack(int y, int x, bool show_monster_name)
 	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
 }
 
+
+/* Helper function for secondary attacks */
+static bool can_attack_monster(int y, int x)
+{
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+	/* You can attack if you can see the monster and it is not in a wall */
+	if (cave_floor_bold(y, x))
+	{
+		if (m_ptr->ml) return TRUE;
+	}
+
+	return FALSE;
+}
+
+/* Helper function for secondary attacks */
+static bool calmed_monster(int y, int x)
+{
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+	/* Return true if the monster is calmed */
+	if (cave_floor_bold(y, x))
+	{
+		if (m_ptr->calmed) return TRUE;
+	}
+
+	return FALSE;
+}
+
+/* Helper function for secondary attacks */
+static bool sleeping_monster(int y, int x)
+{
+	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
+
+	/* Return true if the monster is sleeping */
+	if (cave_floor_bold(y, x))
+	{
+		if (m_ptr->sleep) return TRUE;
+	}
+
+	return FALSE;
+}
+
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -2074,6 +2117,7 @@ static void move_player(int dir, int jumping)
 	int xx;
 	int yy;
 	bool remind = TRUE;
+
 	for (xx = p_ptr->px - 1; xx <= p_ptr->px + 1; xx++)
 	{
 		for (yy = p_ptr->py - 1; yy <= p_ptr->py + 1; yy++)
@@ -2086,17 +2130,83 @@ static void move_player(int dir, int jumping)
 	}
 
 	/* Attack two monsters next to you. */
+	int calmed_monsters = 0;
+	int sleeping_monsters = 0;
 	if (cave_m_idx[y][x] > 0)
 	{
-		/* Are we in a wild melee with multiple monsters? */
-		if (cave_m_idx[p_ptr->py + 1][p_ptr->px] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py][p_ptr->px + 1] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py - 1][p_ptr->px] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py][p_ptr->px - 1] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py + 1][p_ptr->px + 1] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py - 1][p_ptr->px - 1] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py + 1][p_ptr->px - 1] > 0) wild_melee ++;
-		if (cave_m_idx[p_ptr->py - 1][p_ptr->px + 1] > 0) wild_melee ++;
+		/* Are we in a wild melee with multiple monsters? Don't count unseen monsters or monster in walls.*/
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px] > 0)
+		{
+			if (can_attack_monster(p_ptr->py + 1, p_ptr->px))
+			{
+				if (calmed_monster(p_ptr->py + 1, p_ptr->px)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py + 1, p_ptr->px)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py][p_ptr->px + 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py, p_ptr->px + 1))
+			{
+				if (calmed_monster(p_ptr->py, p_ptr->px + 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py, p_ptr->px + 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px] > 0)
+		{
+			if (can_attack_monster(p_ptr->py - 1, p_ptr->px))
+			{
+				if (calmed_monster(p_ptr->py - 1, p_ptr->px)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py - 1, p_ptr->px)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py][p_ptr->px - 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py, p_ptr->px - 1))
+			{
+				if (calmed_monster(p_ptr->py, p_ptr->px - 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py, p_ptr->px - 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px + 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py + 1, p_ptr->px + 1))
+			{
+				if (calmed_monster(p_ptr->py + 1, p_ptr->px + 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py + 1, p_ptr->px + 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px - 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py - 1, p_ptr->px - 1))
+			{
+				if (calmed_monster(p_ptr->py - 1, p_ptr->px - 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py - 1, p_ptr->px - 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py + 1][p_ptr->px - 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py + 1, p_ptr->px - 1))
+			{
+				if (calmed_monster(p_ptr->py + 1, p_ptr->px - 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py + 1, p_ptr->px - 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
+		if (cave_m_idx[p_ptr->py - 1][p_ptr->px + 1] > 0)
+		{
+			if (can_attack_monster(p_ptr->py - 1, p_ptr->px + 1))
+			{
+				if (calmed_monster(p_ptr->py - 1, p_ptr->px + 1)) calmed_monsters ++;
+				else if (sleeping_monster(p_ptr->py - 1, p_ptr->px + 1)) sleeping_monsters ++;
+				else wild_melee++;
+			}
+		}
 
 		/* Attack the main enemy. First check whether lower ground hinders attacking */
 		if (((t_list[cave_t_idx[y][x]].w_idx == WG_TABLE)
@@ -2110,17 +2220,12 @@ static void move_player(int dir, int jumping)
 		}
 		else py_attack(y, x, FALSE);
 
-		bool extra_enemy = FALSE;
 		int extra_y = 0;
 		int extra_x = 0;
+		int attack_calmed = TRUE;
+		int attack_sleeping = TRUE;
 
-		if (wild_melee > 1)
-		{
-			/* message(MSG_GENERIC, 0, "You switch your opponent!"); */
-			extra_enemy = TRUE;
-		}
-
-		while (extra_enemy)
+		while (wild_melee + sleeping_monsters + calmed_monsters > 1)
 		{
 			extra_y = p_ptr->py + rand_int(3) - 1;
 			extra_x = p_ptr->px + rand_int(3) - 1;
@@ -2129,6 +2234,37 @@ static void move_player(int dir, int jumping)
 
 			if (cave_m_idx[extra_y][extra_x] > 0)
 			{
+				/* You can't second-attack unseen monsters or monsters in the wall. */
+				if (!can_attack_monster(extra_y, extra_x)) continue;
+
+				/* Ask confirmation to second-attack calmed or sleeping monsters;
+				if not, move on to the next possible monster if there is one. */
+				if (calmed_monster(extra_y, extra_x))
+				{
+
+					if (!attack_calmed) break;
+
+					if (!get_check("Attack a calmed monster? "))
+					{
+						attack_calmed = FALSE;
+						calmed_monsters = 0;
+						continue;
+					}
+				}
+				if (sleeping_monster(extra_y, extra_x))
+				{
+					if (!attack_sleeping) break;
+
+					if (!get_check("Attack a sleeping monster? "))
+					{
+						attack_sleeping = FALSE;
+						sleeping_monsters = 0;
+						continue;
+					}
+				}
+
+				/* Ask confirmation to attack calmed monsters with your second attack. */
+
 				/* First check whether lower ground hinders attacking */
 				if (((t_list[cave_t_idx[extra_y][extra_x]].w_idx == WG_TABLE)
 					|| (t_list[cave_t_idx[extra_y][extra_x]].w_idx == WG_PLATFORM)) && (!high_ground))
@@ -2141,7 +2277,7 @@ static void move_player(int dir, int jumping)
 				}
 				else py_attack(extra_y, extra_x, TRUE);
 
-				extra_enemy = FALSE;
+				wild_melee = 0;
 			}
 		}
 

@@ -84,6 +84,7 @@ You make Jumping skill checks to:
 - hop over bushes
 - dodge thrown weapons and missiles (but not magical bolts)
 - avoid theft
+- avoid some traps
 
 Most monsters have Jumping at 40%. Some monsters, like golems and orcs, are bad
 at jumping -- their score is 20%. If you aren't wearing a too heavy armor for

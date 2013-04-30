@@ -2024,7 +2024,7 @@ static bool build_overlapping(int type, int y1a, int x1a, int y2a, int x2a,
 						dun->monster[dun->cent_n] = dun->style[dun->cent_n];
 
 						generate_fill_tree(y1n, x1n, y2n, x2n, fountain, FALSE);
-						extra_monsters += 57;
+						extra_monsters += 60;
 					}
 					break;
 				}
@@ -2036,7 +2036,7 @@ static bool build_overlapping(int type, int y1a, int x1a, int y2a, int x2a,
 						dun->monster[dun->cent_n] = dun->style[dun->cent_n];
 
 						generate_fill_tree(y1s, x1s, y2s, x2s, fountain, FALSE);
-						extra_monsters += 57;
+						extra_monsters += 60;
 					}
 					break;
 				}
@@ -2048,7 +2048,7 @@ static bool build_overlapping(int type, int y1a, int x1a, int y2a, int x2a,
 						dun->monster[dun->cent_n] = dun->style[dun->cent_n];
 
 						generate_fill_tree(y1e, x1e, y2e, x2e, fountain, FALSE);
-						extra_monsters += 57;
+						extra_monsters += 60;
 					}
 					break;
 				}
@@ -2060,7 +2060,7 @@ static bool build_overlapping(int type, int y1a, int x1a, int y2a, int x2a,
 						dun->monster[dun->cent_n] = dun->style[dun->cent_n];
 
 						generate_fill_tree(y1w, x1w, y2w, x2w, fountain, FALSE);
-						extra_monsters += 57;
+						extra_monsters += 60;
 					}
 					break;
 				}
@@ -4757,7 +4757,7 @@ static void cave_gen(void)
 	if (k < 2) k = 2;
 
 	/* Reset generation variables */
-	mon_gen = 8 + randint(k/2) + randint(k/3) + rand_int(2);
+	mon_gen = 9 + randint(k/2) + randint(k/3) + rand_int(2);
 	obj_gen = Rand_normal(DUN_AMT_ROOM + rand_int(2), 3);
 
 	/* A small level */

@@ -4888,8 +4888,8 @@ void inven_drop(int item, int amt)
 			{
 				switch(randint(2))
 				{
-					case 1: circle_type = 2;
-					case 2: circle_type = 7;
+					case 1: circle_type = 2; break;
+					case 2: circle_type = 7; break;
 				}
 				break;
 			}
@@ -4897,8 +4897,8 @@ void inven_drop(int item, int amt)
 			{
 				switch(randint(2))
 				{
-					case 1: circle_type = 1;
-					case 2: circle_type = 3;
+					case 1: circle_type = 1; break;
+					case 2: circle_type = 3; break;
 				}
 				break;
 			}
@@ -4916,8 +4916,8 @@ void inven_drop(int item, int amt)
 			{
 				switch(randint(2))
 				{
-					case 1: circle_type = 3;
-					case 2: circle_type = 4;
+					case 1: circle_type = 3; break;
+					case 2: circle_type = 4; break;
 				}
 				break;
 			}
@@ -4950,8 +4950,8 @@ void inven_drop(int item, int amt)
 			{
 				switch(randint(2))
 				{
-					case 1: circle_type = 1;
-					case 2: circle_type = 2;
+					case 1: circle_type = 1; break;
+					case 2: circle_type = 2; break;
 				}
 				break;
 			}
@@ -4959,8 +4959,8 @@ void inven_drop(int item, int amt)
 			{
 				switch(randint(2))
 				{
-					case 1: circle_type = 5;
-					case 2: circle_type = 6;
+					case 1: circle_type = 5; break;
+					case 2: circle_type = 6; break;
 				}
 				break;
 			}
