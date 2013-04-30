@@ -1,942 +1,0 @@
-P6
-#CEATOR: HjM-Drops PPM-Saver v0.6
-512 320
-255
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU  UU qq   UU  88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq 88 qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU                  0,0   UU   ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88   UU  UU ªª   UU   UU UU  88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 88 qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ   UU    UU           UU ªª ªª    UU&    ("€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU 88 88  UU qq  UU    qq UU UU UU UU UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq 88 88 qq 88 88 qq qq qq qq qq qq qq qq qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ââ     ªª ªª  UU UU0,0 ªª("  UU@@A& UU ªª@@A UU          UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU 88 88  UU  UU  UU  UU UU 88 88 88 UU  88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 88 qq qq qq qq qq 88 88 qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU&        UU     ªª ÆÆ    ªª ÆÆ ªª ªª            UU UU&      &      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU  ªª UU UU 88 88  UU  ªª UU  88 88 UU UU UU UU UU  88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq 88 88 qq 88 88 qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU        UU UU     ªª ªª  ªª            UU UU         ªª      ÆÆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU  UU UU UU qq UU UU qq UU UU    88 88   88 88    UU UU qq UU UU UU  88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq 88  qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU    &C4, ªª  ÆÆ UU    ªª UU ââ UU UU       UU &    & UU UU  ÆÆ ÆÆ("   UU ªª  UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU 88 UU UU  qq UU UU  UU UU    UU   UU 88     UU  ªª UU UU  UU  UU UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq 88 88 qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     ªª UU UU UU qq 0,0        & ("    qq  ªª UU            & UU UU& ÆÆ   ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU 88 88 UU   UU  UU    ªª  88 88   88 88   ªª      ªª  88 88  UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq 88 88 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  ªª   UU    UU UU qq  UU  UU    & UU        ââ    ªª UU ââ UU    & ªª     UU       UU ªª UU UU UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU  UU ªª UU  UU UU 88      qq  88 88       88 88      UU 88 88 UU  UU   UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq 88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU &    ââ      qq ªª ªª ÆÆ UU& UU    &   UU  ªª ÆÆ    UU ÆÆ     UU      ªª  ââ     0,0 ªª      UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU 88  UU  ªª  UU  UU    88 88  ªª  88 88      ªª ÆÆ    88    88 88  UU   ªª  UU    88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq 88 88 qq 88 88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 qq qq qq qq qq qq qq qq qq 88 88 88  88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ   & UU      ÆÆ  ÆÆ    UU UU        ââ ªª UU ªª ªª ªª ÆÆ ÆÆ UU ªª UU@@A("  ªª ââ   UU ââ ªª ââ ªª UU          UU ªª UU ªª UU&€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 88 UU      ªª     88 88 88      ªª     ªª ÆÆ  88 88 88     ªª   UU  ªª UU    88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq 88 qq qq qq 88 88 qq 88 88 qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq 88 qq qq 88 88 88 88      88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ("    UU     UU  88   ("   &* UU0,0 UU  UU&  ªª&  ªª ªª       UU0,0         ââ ÆÆ     UU ªª ââ  &         & ªª ÆÆ    ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     UU  UU  UU 88  UU  ªª     88 88  88 88    ââ   ÆÆ   ÆÆ  88 88  88 88  ªª          88 88   88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq 88 88          88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       UU UU UU UU UU ÆÆ UU    ªª      ªª  UU0,0  UU    UU    UU  ªª     ªª ââ ÆÆ              ªª UU        ââ ââ ââ UU       UU       UU ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU     ªª   qq UU  88 88     88 88 ÆÆ   ÆÆ  88 88 ÆÆ      ââ 88 88 ÆÆ   ÆÆ  UU 88      qq  88 88       88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª    ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq 88          qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq UU qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª       ªª UU ªª ªª UUC4,         ªª UU UU   ªª&    UU       UU    UU ÆÆ ªª UU  ªª          ªª UU    UU¼¼O ªª      UU UU0,0&    UU  €€ˆ€€ˆ€€ˆ       ªª UU  UU     UU  88 88 88 88    ªª ÆÆ     UU 88   ÆÆ 88 88 ÆÆ   ÆÆ ªª  ÆÆ  ÆÆ 88 88   ªª 88 88  UU  ªª       88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª  ââ ââ ââ  ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88         88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq UU qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU           UU            & ââ 0,0 UU   ªª  ªª   §p< UU UU UU    UU   0,0    UU    UU*     UU    ªª ÆÆ UU    ªª         ªª  qq UU     ââ   C4, UU UU qq UU€€ˆ€€ˆ 88 88   ªª      UU UU     88 88 88 88  ÆÆ ªª ÆÆ   ªª ÆÆ  ÆÆ  88 88 88 ÆÆ     ªª  ÆÆ      88 88 88  UU       ªª     €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq 88 88 88 qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª  ââ ââ ââ  ªª    UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq 88       88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq  88  qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ÆÆ UU 88 88       &  UU UU          UU    &    UU 88& UU UU ªª     UU 88   UU  UU  ââ("0,0     UU         ªª      & ªª   ªª qq  UU UU& 88 88             ªª  UU  UU 88     88 88   ÆÆ  ÆÆ    88 88  88 88  ÆÆ ªª ÆÆ      ªª  88 88  88 88   UU ªª             €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU    ªª  ââ ââ    ââ ââ  ªª    UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq 88    88 qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq 88 qq 88 qq qq qq qq qq qq      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq  UU qq UU  UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU UU 88 UU  ÆÆ ÆÆ UU@@A  ªª  UU         &  UU    UU("  ââ  ªª UU UU ªª&@@A ÆÆ ââ ªª ªª    UU ÆÆ ªª  ªª           & ªª    ªª UU ªª UU UU UU       UU UU    88 88 88         ªª UU  UU 88 88 UU    ªª    88 88  ÆÆ   UU 88      88 88       ªª 88 88      88 88                 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq     ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU    ªª  ââ          ââ  ªª    UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq 88 88 88 qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88 qq qq        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq  UU qq qq qq UU qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆPPP     ªª UU  qq UU UU(" UU  UU ââ ÆÆ&      ªª  UU(" ªª UU     UU UU ªª       UU  ÆÆ UU ÆÆ ÆÆ        ªª ªª UU UU       UU ÆÆ ââ UU@@A UU   88 UU   & 88        ÆÆ           88 88      ªª       88  UU 88     ªª    ªª 88 88    UU 88  UU   UU ªª    88 88         ªª ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq         ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 88 88 qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU    ªª  ââ ââ          ââ ââ  ªª    UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88  qq  88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq UU         UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq UU  UU qq qq qq qq qq UU UU   qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆPPP ªª     UU ªª     UU   &       ªª ÆÆ  UU UU& UU ªª UU UU0,0 UU      ÆÆ           UU UU ââ UU  UU    UU ÆÆ       UU    ªª UU UU UU0,0("    UU UU UU  ªª UU   & ÆÆ   ÆÆ ââ         88 88  UU UU  qq  UU UU     ªª  88 88 88   ÆÆ  ªª    ªª    88 88 88  UU   UU UU ªª UU   UU UU    88        ªª ªª ªª  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq           ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq 88 qq qq qq qq qq 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq        UU UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU    ªª  ââ ââ          ââ ââ  ªª    UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ ªª ªª ªª ªª ªª ªª ªª ªª qq ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 88  88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq    UU       UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   qq qq qq qq qq   UU qq qq qq qq qq qq qq qq UU UU  qq  qq qq   UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU    UU ââ UU    UU        ªª         ÆÆ UU ªª  ªª ªª   ââ ÆÆ UU UU&     UU ââ UU ÆÆ     UU UU UU 88    &("    UU& UU  UU& UU ââ    UU        UU ªª  ÆÆ ÆÆ 88 ÆÆ 88 88 88     qq UU   UU   UU ªª 88 88    88 88          88 88 UU 88 88  UU   qq UU  UU UU       ªª  ÆÆ ªª   UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq             ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU    ªª  ââ ââ ââ          ââ ââ ââ  ªª    UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª qq ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq      UU      UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU  qq qq qq  UU UU qq qq qq qq qq qq qq qq qq qq qq UU UU UU   UU UU qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU  UU    ªª   UU   UU     UU   UU0,0           UU UU  UU     ªª ªª ÆÆ UU    UU    UU ââ ªª        UU ªª UU UU UU ÆÆ       UU    UU   88 UU UU  UU ªª UU&    UU     ÆÆ ââ 88 UU 88 88        UU UU UU  qq 88 88   UU     88 88      88 88 UU UU  UU UU 88 88 UU UU UU UU UU         88  ªª ªª    UU UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq               ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU    ªª  ââ ââ ââ ââ    ââ ââ ââ ââ  ªª    UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq            UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq 88   UU UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq UU 88  qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ UU         ªª UU& ªª  UU  UU ÆÆ UU  UU    ªª UU UU& UU& UU UU        ââ qq ªª        ââ UU UU&    ÆÆ ÆÆ UU UU  qq UU ªª UU     88 UU     UU    UU  ÆÆ ÆÆ   UU  UU  ªª ÆÆ 88 ÆÆ           UU ªª 88 88 UU UU UU UU UU  ªª     88 88  UU 88 UU  UU UU qq UU UU UU  88 88           ªª ªª  ªª  UU  UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq                 ªª ªª ªª qq qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq             UU   UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU    ªª  ââ ââ ââ ââ ââ    ââ ââ ââ ââ ââ  ªª    UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª qq ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq           UU  UU     €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq  UU qq UU   qq qq qq UU qq qq qq qq qq qq qq qq qq qq   UU UU UU  qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª  UU UU&        ªª       ªª ÆÆ UU qq ªª   ªª ªª ªª  &    UU UU    UU ââ ªª UU ("           UU0,0   & UU        UU ÆÆ  UU    UU ÆÆ UU  UU ªªC4, UU      UU qq  ÆÆ 88  ÆÆ ÆÆ ªª  88 88 88 88 UU UU UU  UU UU UU qq UU UU  UU ªª  88 88 88 UU  UU UU qq UU UU  UU ªª UU    88     ªª ªª   ªª UU UU UU  88  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq                    ªª qq ªª ªª qq qq ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq        UU          €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU    ªª  ââ ââ ââ ââ ââ    ââ ââ ââ ââ ââ  ªª    UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª qq ªª qq 88 ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq              88      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq UU qq qq qq UU UU   qq qq qq qq qq qq qq qq qq   UU UU UU qq qq qq UU  qq qq qq qq UU qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       UU ÆÆ UU     UU  UU    ªª UU  UU     UU UU ªª UU         UU UU ÆÆ UU    UU UU& UU0,0("& ââ ÆÆ ªª UU("& UU 88(" 88 UU      & UU UU ââ ÆÆ    UU UU  UU  &  ââ ÆÆ         UU    88 UU  ââ ÆÆ ÆÆ 88 88 88 88 88 88 UU UU UU qq UU UU  UU UU ªª 88 88    88 88  ªª  UU  UU qq       ªª ªª   UU     UU  88       ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq                     ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq 88 qq qq qq                 UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU UU    ªª  ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ  ªª    UU UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª qq 88 qq qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq                UU      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq UU qq qq UU qq  88 UU qq qq qq qq UU 88   qq qq qq qq   UU 88 UU qq qq qq qq qq qq qq UU  UU qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU& UU ªª ªª UU 88 ÆÆ ââ   UU&  UU   UU   & qq &       ÆÆ ªª    UU UU ÆÆ            (" UU   qq ªª ÆÆ    ªª             ªª  88 UU0,0    UU   UU qq   ÆÆ 88              UU UU  ÆÆ  ÆÆ ÆÆ 88 88 UU 88        UU UU UU UU UU 88 88  UU UU  UU   88 88  UU            ªª ªª  ªª   UU               ÆÆ  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq                       ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª qq qq qq qq qq qq 88 88 qq qq qq qq qq 88 qq qq qq qq qq qq             UU         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU UU UU UU    ªª  ââ ââ ââ ââ ââ ââ    ââ ââ ââ ââ ââ ââ  ªª    UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª qq ÆÆ ÆÆ ÆÆ qq qq qq ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq                 UU ªª UU UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq UU UU qq qq qq qq qq qq qq qq UU UU    UU UU UU qq qq qq qq qq qq qq qq qq UU qq UU  qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª        UU ÆÆ UU ªª  ªª      *& @@A    UU       UU         UU  ªª ªª UU  UU UU UU    UU    UUC4, UU ªª UU   ªª ÆÆ UU           ÆÆ UU    UU   & UU ââ 88 UU ÆÆ ÆÆ ÆÆ 88 ÆÆ       UU UU  UU  ÆÆ 88 ÆÆ   88 88 88    UU UU 88 88       qq   UU  88         ªª  ªª  qq  UU UU       ÆÆ  ªª  UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq                         ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq 88 qq qq 88 88 qq qq qq qq qq               UU     UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU    ªª ªª ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ââ ªª ªª    UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq ªª qq qq ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq UU                  UU ªª ªª ªª UU   €€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq  UU qq qq qq qq qq qq qq qq qq qq UU UU 88 qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq UU   qq         €€ˆ€€ˆ€€ˆ€€ˆ 88         UU qq ªª    ("&   & ªª              UU ªª UU UU ªª    UU  ("      UU UU0,0   qq    ªª  UU& 88 88 UU ÆÆ        UU  UU ªª‘ UU    UU 88 88 UU UU  ââ    ÆÆ ÆÆ ÆÆ     qq UU  ââ 88  ÆÆ ÆÆ   88       88    UU    ªª  UU               ÆÆ ÆÆ   ÆÆ UU UU UU     ªª ªª ÆÆ    ªª UU UU qq€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq qq qq                           ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª qq qq qq qq 88 88 88 qq qq qq qq qq                UU  UU   UU     €€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU    ªª ªª                ªª ªª    UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª ªª ªª qq ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq   UU                UU ªª ªª ªª ªª ªª ªª UU €€ˆ€€ˆ   UU qq qq qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq UU UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  88 UU UU qq UU UU UU UU UU UU UU 88  €€ˆ€€ˆ 88 UU UU              88 UU     88*        &       ªª UU UU UU ªª&   UU  UU         ªª       ªª       UU 88      88 UU  88    UU             UU UU ªª    UU*      UU ÆÆ 88 ÆÆ ÆÆ ªª ÆÆ ÆÆ         UU 88    UU  ªª ÆÆ ÆÆ 88  88 88 88 88  ªª   qq          ªª ªª  ªª UU     UU         ªª ªª  ââ ÆÆ   UU  €€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq                            ªª ªª ªª ªª ªª ªª ªª ªª qq qq ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq qq qq    UU            UU       UU    €€ˆ€€ˆ UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU    ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª    UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU€€ˆ€€ˆ   ªª qq ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq ªª ªª ªª ªª qq qq qq qq qq qq qq qq      UU              ªª ªª ªª ªª ªª ªª ªª 88 88  UU UU UU          qq    UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU UU qq qq qq qq qq qq qq qq qq qq qq UU UU UU  88 88     88 UU  UU ªª0,0   ÆÆ  UU UU ªª            UU ââ UU  UU UU UU  qq   88    UU ("               &(" UU UU ââ UU UU  &    ªª      88              88 88    UU   ÆÆ ÆÆ ââ 88               UU    ÆÆ ââ 88 UU 88 88                   88  ªª ªª  ªª UU UU               ªª ÆÆ  ªª   UU            qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq    ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq qq qq                               ªª qq ªª qq ªª qq ªª ªª qq ªª qq qq ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª qq qq qq qq 88 qq qq qq      UU          UU        UU       UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU                                                    UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ   ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq ªª ªª ªª ªª qq qq qq qq qq qq        UU            UU ªª ªª ªª ªª ªª 88 88€€ˆ€€ˆ€€ˆ€€ˆ  qq UU UU UU UU UU UU UU UU UU UU UU UU 88  qq qq qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ UU 88 88  88 ªª  ÆÆ       UU  ªª&  UU qq   & UU UU UU&* UU UU UU qq UU UU ªª UU&          UU & UU ÆÆ       UU ªª ÆÆ UU UU UU (" UU UU UU UU      €€ˆ€€ˆ€€ˆ€€ˆ 88 88 88 88 UU UU  ââ  ÆÆ 88 ÆÆ       UU UU UU qq ÆÆ ÆÆ    ÆÆ   88 88    88           ªª  ªª  ªª  UU UU       ÆÆ  ªª  qq UU UU UU    €€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq                           €€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq qq qq       UU      UU              €€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq ªª ªª ªª ªª qq qq qq qq         88 88 UU UU        UU ªª ªª ªª ªª 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq UU UU  qq qq  UU qq qq qq qq qq qq UU 88  qq qq qq qq qq qq qq qq qq qq qq qq  UU qq UU qq qq qq qq qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 88 88 UU ÆÆ 88 UU qq UU      UU        ªª ÆÆ     & ªª UU  UU  ÆÆ qq  ªª 88 UU UU    UU UU UU ªª ªª(" UU      UU  ÆÆ     ªª0,0C4,&€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 88 88 UU ÆÆ  ÆÆ 88  ÆÆ ÆÆ     qq UU  ÆÆ 88  ÆÆ ÆÆ    88     ªª ÆÆ   ªª UU UU UU     ªª ªª   ªª UU UU UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq 88 qq qq 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq                          €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq qq                          €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq 88 ªª qq ªª ªª ªª ªª ªª          UU UU 88   UU      UU ªª ªª ªª 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq UU qq qq qq qq qq  UU qq qq qq qq UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq UU  UU qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU UU UU@@A("  UU        UU UU UU UU     UU qq ÆÆ UU         UU    UU   UU UU  ªª  ÆÆ        88 ªª       UU       UU 88 88 88      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         UU    88 UU  ªª ÆÆ ÆÆ 88 88   UU ÆÆ 88   ªª ÆÆ ÆÆ  ÆÆ   ªª ªª   UU   UU         ªª ªª   qq  ªª UU        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq 88 qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                          €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88  ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª          UU                €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ªª ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq ªª ªª ªª ªª ªª ªª qq ÆÆ ªª ªª ªª      ªª UU  UU        UU UU  UU UU ªª 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq UU qq qq qq UU UU 88  qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq   UU qq qq qq qq qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ & UU     UU    ªª  UU UU UU&      UU  UU       UU& 88 88 UU       UU ÆÆ UU    UU UU   ("    UU UU   0,0 UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       88 88 88 UU ªª ÆÆ ÆÆ ÆÆ ÆÆ 88              UU ªª UU   ââ ÆÆ  ªª  ªª UU UU UU              ªª ÆÆ   ªª  UU         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq 88 qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   UU       UU             88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ÆÆ ªª     UU UU             UU 88 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq  UU qq qq qq qq qq UU UU    qq qq qq qq qq UU qq qq qq qq qq qq qq   UU 88   qq qq qq UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ("    88 88  UU & ªª     qq    (" UU    ªª UU    UU@@A UU 88 UU  UU    qq     UU &@@A ÆÆ("&  88 ÆÆ&      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88     UU   ÆÆ ªª ÆÆ 88 ÆÆ       UU UU  UU  ÆÆ   qq UU UU UU       ªª  ªª  qq   UU      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88   qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88  ªª ªª ªª qq qq qq ªª qq qq qq qq ªª ªª qq ªª qq ªª ªª ªª ªª    UU UU UU UU  UU UU UU  UU UU UU    UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU 88 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ÆÆ ÆÆ qq qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª  ªª UU               UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq UU qq qq qq qq qq qq qq qq UU UU UU   qq   UU qq qq qq   qq qq UU UU qq qq UU UU  qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 88  UU           UU UU&       ªª  qq UU ªª  88 UU    UU ªª UU UU 88     ªª ÆÆ    0,0         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     UU UU  ÆÆ 88  ÆÆ      UU UU  ÆÆ 88 UU UU UU     ªª ÆÆ   ªª UU UU UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   qq qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª  UU    UU              €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq UU UU                €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq UU 88 UU UU UU UU    UU UU UU qq qq qq qq qq qq qq UU  qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 88 UU     UU UU ÆÆ UU  ªª UU UU  ÆÆ     & ªª UU  qq ÆÆ¼¼O ªª UU     UU UU UU 88    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         UU ÆÆ 88 UU ªª ÆÆ ÆÆ ªª         qq ÆÆ  UU         ªª ªª ªª  UU  ªª qq        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª      UU            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   qq ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª              UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq 88 UU UU UU qq qq qq UU qq qq qq qq qq qq qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU   ââ("  UU  ªª  qqC4,       UU     UU&0,0 88 UU & UU      ÆÆ 88 UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       88 88    UU   ÆÆ ÆÆ ÆÆ 88 88 88  88         ªª ªª  ÆÆ ªª UU UU           €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª                €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª qq qq qq               88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq  UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU 88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª              €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                  qq* UU& UU UU ªª UU             &C4, UU ªª 88 & 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88    88 88 UU UU ªª ÆÆ  ÆÆ 88 ÆÆ  88   ªª  ªª  UU ªª UU UU      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª              €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ªª ªª      UU       88 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª            88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU        UU UU     UU ªª  qq UU    ªª  ªª 88       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 88 88 UU UU UU ÆÆ 88  ÆÆ ÆÆ ªª ªª   ªª UU qq UU    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq 88 qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88 qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU  ªª ªª ªª ªª ªª ªª qq ªª ªª ªª      UU UU     €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ªª ªª ªª ªª ªª ªª ªª ªª         88 UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq  UU  qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ&     88C4, ââ UU UU    UU 88* UU            UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         UU ââ 88 UU ÆÆ ªª   UU 88 ªª UU        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88  qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª ªª ªª          €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU ªª ªª ªª ªª qq ªª ªª ªª     UU   UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ªª ªª ªª ªª ªª ªª       88 UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq UU UU qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 UU @@A&  ªª UU ÆÆ&    UU&      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ           88 UU   UU UU qq           €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª ªª ªª        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU  ªª qq ªª ªª qq ªª     UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 UU UU UU UU UU UU UU UU UU UU UU   88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 ªª ªª ªª ªª      88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq qq qq qq UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88             UU0,0 88 88       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       UU  UU qq      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª ªª ªª      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU UU UU UU UU   qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª qq UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq UU qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU   ("  UU    88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ªª ªª UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU UU UU   qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq  qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88   qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq UU qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq UU qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq  UU  qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq  UU qq UU  UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq  UU qq qq qq UU qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq UU  UU qq qq qq qq qq UU UU   qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   qq qq qq qq qq   UU qq qq qq qq qq qq qq qq UU UU  qq  qq qq   UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU UU UU  qq qq qq  UU UU qq qq qq qq qq qq qq qq qq qq qq UU UU UU   UU UU qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq UU   UU UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq UU UU  qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq  UU qq UU   qq qq qq UU qq qq qq qq qq qq qq qq qq qq   UU UU UU  qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq UU qq qq qq UU UU   qq qq qq qq qq qq qq qq qq   UU UU UU qq qq qq UU  qq qq qq qq UU qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq UU qq qq UU qq  UU UU qq qq qq qq UU UU   qq qq qq qq   UU UU UU qq qq qq qq qq qq qq UU  UU qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq UU UU qq qq qq qq qq qq qq qq UU UU    UU UU UU qq qq qq qq qq qq qq qq qq UU qq UU  qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq  UU qq qq qq qq qq qq qq qq qq qq UU UU UU qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq UU   qq         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   UU qq qq qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq UU UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU UU UU qq UU UU UU UU UU UU UU UU  €€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ UU UU UU UU          qq    UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU UU qq qq qq qq qq qq qq qq qq qq qq UU UU UU UU-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ qq qq UU UU UU UU UU UU UU UU UU UU UU UU UU  qq qq qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq qq qq  UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq UU UU  qq qq  UU qq qq qq qq qq qq UU UU  qq qq qq qq qq qq qq qq qq qq qq qq  UU qq UU qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq UU qq qq qq qq qq  UU qq qq qq qq UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq UU  UU qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq UU qq qq qq UU UU UU  qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq   UU qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq  UU qq qq qq qq qq UU UU    qq qq qq qq qq UU qq qq qq qq qq qq qq   UU UU   qq qq qq UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq UU qq qq qq qq qq qq qq qq UU UU UU   qq   UU qq qq qq   qq qq UU UU qq qq UU UU  qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq qq qq qq qq qq qq qq qq qq qq UU UU UU UU UU UU    UU UU UU qq qq qq qq qq qq qq UU  qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq UU qq qq qq qq UU UU UU UU qq qq qq UU qq qq qq qq qq qq qq UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq UU qq qq qq qq qq qq qq qq qq UU qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq qq qq  UU  qq qq qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq qq qq qq UU UU UU qq qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq UU qq qq qq UU UU qq qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq UU qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘-v6-v6-v6-v6-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘-v6-v6-v6-v6   ‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ‘‘‘€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ PPP-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ          ªª ªª ªª ªª ªª ªª      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª ªª ªª ªª   ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª ªª ªª ªª             ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª      €€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ        €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª      €€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª      €€ˆ€€ˆ        ªª ªª ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª    ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ÆÆ ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ          ªª ªª  ªª         ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª                €€ˆ   €€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ÆÆ ÆÆ ÆÆ ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     ªª ªª ªª ªª ªª ªª ªª   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         ªª ªª                   €€ˆ                 €€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª               €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª ªª ªª ªª        ªª ªª            ªª ªª ªª    €€ˆ                €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                     €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª              €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ÆÆ ªª ªª ªª  ªª ªª      ªª ªª ªª ªª ªª ªª       ªª ªª     €€ˆ               €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ___   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ        ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ               €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª ªª ªª ªª      ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      ªª ªª    ªª ÆÆ ÆÆ ªª   ªª ªª ÆÆ ÆÆ ªª ªª  ªª ªª ªª ªª ªª     ªª ªª     €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆÿÿÿ€€ˆ       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ÿÿÿ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ¿·¯¿·¯   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ     ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ        ªª ªª ªª         ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                   ªª ªª ªª ªª        ªª ªª      ªª ªª ªª ÆÆ ªª ªª ªª    ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿ÿÿÿÿÿÿßßß ªª ªª ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿ÿÿÿÿÿÿßßß¿¿¿€€ˆ€€ˆ€€ˆ       ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ¿·¯¿·¯¿·¯___   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª   ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª       ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ        ªª ªª ªª ªª                       ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª    €€ˆ€€ˆ      ªª    €€ˆ               €€ˆ    ªª ÆÆ ªª ªª  ªª ªª ªª ÆÆ ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆßßß ÆÆ   ÆÆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ßßß ÆÆ             ÆÆ ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ¿·¯ØØØ¿·¯¿·¯      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª     ªª ªª ªª ªª ªª ªª    ªª ªª ªª ªª ªª ªª      ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª ªª     ªª ªª ªª ªª       ªª ªª    ªª ªª ªª ªª                     ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ            €€ˆ     ªª   €€ˆ€€ˆ€€ˆ     ªª          ªª ªª ªª       ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿ ªª ââ ÆÆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ¿¿¿ ªª ââ ââ ÆÆ ÆÆ ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      ¿·¯ØØØØØØ¿·¯¿·¯   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                 ªª ªª ªª                 ªª ªª             €€ˆ       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                €€ˆ       ªª ªª ªª ªª ªª ªª    ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª    €€ˆ€€ˆ    ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ            €€ˆ€€ˆ        ªª   €€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ÆÆ ÆÆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   ___¿·¯¿·¯¿·¯___      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª ªª ªª ªª        ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª ªª    €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ       ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ               €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ         €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ             €€ˆ€€ˆ      ªª ªª ªª ªª ªª ªª ªª ªª ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    ªª   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ   €€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                       €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ ÿ€ ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6ÿ€ ÿ€ -v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ            €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ               €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ                              €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ-v6-v6-v6-v6€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ ªª ªª ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU qq ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ ÆÆ ªª ªª ªª ªª ªª ªª ââ ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ÆÆ qq ªª qq ªª ÆÆ ÆÆ ªª UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ªª ÆÆ qq UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ÆÆ qq 88€€ˆ€€ˆ qq ªª€€ˆ€€ˆ 88 qq ââ ââ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ªª UU€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ªª ÆÆ ââ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ªª ªª ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª qq€€ˆ€€ˆ qq ªª ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ââ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ªª 88€€ˆ€€ˆ 88 ªª ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ ââ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ªª ââ ââ ªª UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ªª €€ˆ€€ˆ€€ˆ€€ˆ ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ââ ââ qq €€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ÆÆ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ââ ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ªª qq €€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ââ ââ ªª UU   €€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ÆÆ ââ ÆÆ qq €€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ââ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ ªª ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ââ ââ ÆÆ ªª UU qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU qq ªª ÆÆ ââ ÆÆ qq 88 UU ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ÆÆ ââ ââ ªª ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU qq ÆÆ ââ ÆÆ ªª UU UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ââ ââ ââ ÆÆ ªª UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ââ ªª UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ââ ââ ââ ÆÆ ªª UU 88 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ ªª ªª ªª ÆÆ ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ÆÆ ââ ââ ÆÆ ªª qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª  UU qq ªª ÆÆ ââ ÆÆ ªª qq   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ªª ªª ªª qq ÆÆ ÆÆ qq ªª ªª ªª ªª ªª ªª ªª ªª qq ÆÆ ÆÆ qq ªª qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 qq ÆÆ ââ ââ ââ ªª qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª 88€€ˆ    88 qq ªª ÆÆ ââ ÆÆ ªª UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ªª ÆÆ ÆÆ ªª ââ ÆÆ ªª ÆÆ ââ ââ ââ ââ ââ ââ ÆÆ ªª ââ ÆÆ qq ªª ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 qq ÆÆ ÆÆ ââ ââ ÆÆ qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª qq€€ˆ€€ˆ UU qq ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ââ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 UU UU UU qq ªª qq UU UU qq UU UU UU UU qq UU qq ÆÆ qq UU UU qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU ªª ªª ÆÆ ââ ââ ââ qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª qq€€ˆ€€ˆ qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ªª ªª ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ââ ââ ââ ªª UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU qq qq ªª ââ ÆÆ ÆÆ qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ qq€€ˆ€€ˆ qq ªª ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    UU qq ÆÆ ââ ââ ÆÆ qq UU   €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-
-
-
-
-   
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU UU  UU ªª ªª ÆÆ ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª 88€€ˆ€€ˆ 88 ªª ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ªª qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     UU ªª ÆÆ ââ ââ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ    UU qq ÆÆ ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 qq ªª ââ ââ ââ ªª UU €€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ââ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ââ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ââ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ââ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ    UU ªª ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 qq ÆÆ ââ ââ ÆÆ ÆÆ UU €€ˆ€€ˆ€€ˆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ââ ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ    qq ÆÆ ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     UU qq ÆÆ ââ ââ ÆÆ qq UU €€ˆ UU qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ªª ââ ââ ââ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ÆÆ ââ ââ ÆÆ qq UU 88 UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq qq ªª ÆÆ qq ªª ªª ªª ªª ªª ªª ªª ªª qq ªª ÆÆ qq ªª ªª ªª qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ÆÆ ââ ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 qq ªª ââ ââ ââ ªª qq UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  ªª ÆÆ ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  ªª ÆÆ ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ªª ªª ÆÆ ÆÆ qq ÆÆ ââ ââ ââ ââ ââ ââ ââ ªª ââ ÆÆ qq ÆÆ ÆÆ ªª ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ââ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 UU ªª ÆÆ ââ ââ ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 ªª ÆÆ ââ ââ ââ ªª UU UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  ªª ÆÆ ªª €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 UU qq ªª qq UU UU qq UU UU UU UU qq UU qq ªª qq UU UU qq 88 UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ââ ââ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq ÆÆ ââ ââ ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU ªª ÆÆ ââ ââ ÆÆ ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ªª ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ€€ˆ€€ˆ 88 ªª ªª UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ââ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 qq ªª ÆÆ ââ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU qq ªª ÆÆ ÆÆ ÆÆ ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ââ ââ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ââ ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ââ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ÆÆ ÆÆ ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ÆÆ UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 qq ªª ÆÆ ââ ââ ÆÆ qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 UU qq ªª ªª ââ ÆÆ ªª qq 88 88€€ˆ€€ˆ€€ˆ ªª ÆÆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ââ ââ ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ªª ââ ââ ÆÆ qq€€ˆ€€ˆ€€ˆ qq ªª€€ˆ€€ˆ qq ÆÆ ÆÆ UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ ªª qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU qq ªª ââ ââ ââ ÆÆ ªª qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ UU 88 UU UU ªª ªª ÆÆ ââ ÆÆ ÆÆ ªª qq qq qq ªª ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq ÆÆ ââ ââ ÆÆ qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ªª€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 UU qq ÆÆ ÆÆ ââ ââ ââ ÆÆ ÆÆ ÆÆ ââ ÆÆ UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  qq ÆÆ ªª UU€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ÆÆ qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU qq qq ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq qq ªª ªª ÆÆ ââ ÆÆ UU €€ˆ    88 88 qq qq ªª ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª ââ ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 88 UU UU qq ªª ªª qq UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU ÆÆ ââ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ 88 qq ÆÆ qq€€ˆ€€ˆ€€ˆ€€ˆ UU ªª ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ    88 UU UU qq ªª ªª ªª ÆÆ ÆÆ ÆÆ ÆÆ ÆÆ ªª ªª 88 €€ˆ€€ˆ€€ˆ€€ˆ     88 UU qq qq ªª ªª ªª qq UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU qq qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ââ qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª qq€€ˆ€€ˆ UU qq ªª qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      88 UU UU qq qq qq qq qq 88 88 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ     88 UU UU qq UU 88 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  88 UU €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ÆÆ UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ÆÆ ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª qq€€ˆ€€ˆ qq qq qq €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ      88 88 88  €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   88 88 €€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª ÆÆ 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq qq qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ  UU ªª ªª UU 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ ªª ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ qq ªª qq€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq UU€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ UU qq 88€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-
-
-   
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-
-
-
-
-   
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-
-
-
-
-
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ   
-
-
-
-
-   
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ
-
-
-
-€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ€€ˆ

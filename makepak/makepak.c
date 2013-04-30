@@ -65,7 +65,7 @@ struct imd {
                                  
 
 
-#define NUM_IMAGES   320
+#define NUM_IMAGES 520
 
 static struct imd images[NUM_IMAGES];
 
@@ -268,14 +268,19 @@ fwrite_int(int *p, FILE *f)
 void
 init_images()
 {                                                   
-    init_image_block("./images/000.ppm", 0);  
-    init_image_block("./images/040.ppm", 40);  
-    init_image_block("./images/080.ppm", 80);  
-    init_image_block("./images/120.ppm", 120);  
-    init_image_block("./images/160.ppm", 160);  
-    init_image_block("./images/200.ppm", 200);  
-    init_image_block("./images/240.ppm", 240);  
-    init_image_block("./images/280.ppm", 280);  
+    init_image_block("./images/000_ascii.ppm", 0);  
+    init_image_block("./images/040_ascii.ppm", 40);  
+    init_image_block("./images/080_ascii.ppm", 80);  
+    init_image_block("./images/120_ascii.ppm", 120);  
+    init_image_block("./images/160_mobs.ppm", 160);  
+    init_image_block("./images/200_items.ppm", 200);  
+    init_image_block("./images/240_walls.ppm", 240);  
+    init_image_block("./images/280_feats.ppm", 280);  
+    init_image_block("./images/320_mobs.ppm", 320);  
+    init_image_block("./images/360_mobs.ppm", 360);  
+    init_image_block("./images/400_items.ppm", 400);  
+    init_image_block("./images/440_items.ppm", 440);  
+    init_image_block("./images/480_feats.ppm", 480);  
 
 
     {
@@ -340,7 +345,7 @@ main(int argc, char *argv[])
 	IMG_SIZE = 64;
     }
 
-    puts("  \nIso-Makepak v1.02 by Hj. Malthaner  (c) 1998-2003\n");
+    puts("  \nIso-Makepak v1.03 by Hj. Malthaner  (c) 1998-2010\n");
     puts("  This program creates the 'daten.pak' file used");
     puts("  by Iso-Angband from a bundle of ppm images.");
     puts("  The images must be stored in a subfolder");

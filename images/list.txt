@@ -167,7 +167,8 @@ Nr. Description         Author
 319 Town outside tile      (Hajo)
 
 320 Line imp/small demon   (Hajo)
-321 Line fairy (glowing)   (Hajo)
+321 Line chicken           (Hajo)
+
 
 David:     David E. Gervais
 Hajo:      Hansjörg Malthaner

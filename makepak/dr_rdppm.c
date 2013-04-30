@@ -81,14 +81,14 @@ load_block(unsigned char *block, char *filename)
         fgets(dummy, 250,file);
         sscanf(dummy , "%d\n",&tiefe);
 
-	printf("Dateigeometrie ist : %dx%dx%d\n", breite, hoehe, tiefe);
+	printf("Image geometrie is : %dx%dx%d\n", breite, hoehe, tiefe);
 
         
 	read_ppm_body_plain(block, file, breite, hoehe);
 
 	return 1;
     } else {  
-	puts("Keine PPM (P6) Datei !");
+	puts("This is no PPM (P6) file!");
 
 	return 0;
     }
