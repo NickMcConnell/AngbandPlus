@@ -1298,6 +1298,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < z_info->t_max; i++)
 	{
 		wr_byte(t_info[i].max_depth);
+		wr_byte(t_info[i].visited);
 
 		/* Write the store indexes if alive */
 		if (!p_ptr->is_dead)

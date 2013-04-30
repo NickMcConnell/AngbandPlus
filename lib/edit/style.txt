@@ -9,6 +9,8 @@
 # everybody enjoys the benefit, regardless of style chosen or exercised.
 # This is caught by "w_info[i].styles==0" in the code).
 
+#!!!All below should be somehow moved to help files and removed from here!!!
+
 #NONE: No style. Limited benefits, but available regardless 
 #  of weapon wielded, etc.
 #UNARMED: Not wielding a weapon or shield.
@@ -22,7 +24,7 @@
 #  With two weapons, if players get more than one attack,
 #  2nd weapon gets every 2nd attack. Also, when charging,
 #  players with two equipped weapons always get two attacks, instead of one.
-#THROWN: Not firing with an item (or whilst using a musical instrument in bow slow).
+#THROWN: Throwing (not firing) an item.
 #SLING: Firing with a sling.
 #BOW: Firing with a bow.
 #XBOW: Firing with a crossbow.
@@ -47,10 +49,9 @@
 #XTRA_BLOW: Additional blow.
 #XTRA_SHOT: Additional shot. With "S:NONE" works for both launchers and thrown.
 #XTRA_MIGHT: Additional multiple on damage when fired/thrown.
-#CRITICAL: Additional critical damage against normal size humanoid 
-#  opponents only. With "S:NONE" works for melee, launchers and thrown.
+#CRITICAL: Additional critical damage. With "S:NONE" works for melee, launchers and thrown.
 #POWER: Gets bonus of 10 levels to effective spell level when computing damage, radius
-# etc and learn spells at 80% of the listed level requirement.
+# etc. and learn spells at 80% of the listed level requirement.
 #ICKY_HANDS: Gets spell casting penalty when wearing non-free action gloves.
 #  A Priest specializing in a single Magic Book
 #  will be penalized with ICKY_HANDS for all his prayers, too.
@@ -137,7 +138,7 @@ W:0:30
 B:RES_FEAR
 
 W:0:30
-S:UNARMED | NONE
+S:UNARMED | NONE | RING
 B:XTRA_BLOW
 
 W:0:30
@@ -180,7 +181,7 @@ S:RING | AMULET | WAND | STAFF | POTION | SCROLL
 B:ID
 
 W:1:1
-S:RING | AMULET | STAFF
+S:RING | AMULET | WAND | STAFF | POTION | SCROLL
 B:POWER
 
 W:1:1
@@ -194,7 +195,7 @@ W:2:1
 S:HAFTED
 B:BLESSED
 
-W:2:3
+W:2:1
 S:PRAYER_BOOK | INSTRUMENT
 B:POWER
 
@@ -262,12 +263,16 @@ S:PRAYER_BOOK
 B:ICKY_WIELD
 
 W:3:1
-S:POTION | SCROLL | AMULET | RING
+S:POTION | SCROLL | RING
 B:ID
 
-W:3:5
-S:POTION | SCROLL | AMULET | RING
+W:3:1
+S:POTION | SCROLL | RING
 B:POWER
+
+W:3:1
+S:NONE | RING
+B:HIT
 
 W:4:1
 B:ICKY_HANDS
@@ -303,7 +308,7 @@ B:XTRA_BLOW
 W:5:1
 B:XTRA_BLOW
 
-W:5:3
+W:5:1
 S:PRAYER_BOOK | INSTRUMENT
 B:POWER
 
@@ -341,6 +346,10 @@ B:CRITICAL
 W:6:1
 S:SCROLL | RING | POTION | AMULET
 B:ID
+
+W:6:1
+S:SCROLL | RING | POTION | AMULET
+B:POWER
 
 W:6:1
 S:BACKSTAB | ONE-HANDED | UNARMED | TWO-HANDED | TWO-WEAPON | SLAY_DEMON | SLAY_UNDEAD | THROWN | NONE
@@ -437,6 +446,18 @@ W:7:1
 S:BOW | SLING | XBOW | NONE
 B:XTRA_SHOT
 
+W:7:1
+S:AMULET
+B:ID
+
+W:7:1
+S:AMULET
+B:POWER
+
+W:7:5
+S:AMULET
+B:AC
+
 W:7:5
 S:BOW | SLING | XBOW
 B:HIT
@@ -490,6 +511,14 @@ W:8:1
 S:PRAYER_BOOK
 B:POWER
 
+W:8:1
+S:AMULET
+B:ID
+
+W:8:1
+S:AMULET
+B:POWER
+
 W:8:5
 S:UNARMED
 B:HIT
@@ -541,8 +570,16 @@ W:9:1
 S:SONG_BOOK
 B:POWER
 
-W:9:5
-S:THROWN | UNARMED
+W:9:1
+S:RING
+B:ID
+
+W:9:1
+S:RING
+B:POWER
+
+W:9:1
+S:THROWN | UNARMED | NONE | RING
 B:HIT
 
 W:9:5
@@ -593,7 +630,7 @@ W:10:1
 B:ICKY_HANDS
 
 W:10:1
-S:UNARMED | SWORD | HAFTED | POLEARM | NONE
+S:UNARMED | SWORD | HAFTED | POLEARM | NONE | RING
 B:XTRA_BLOW
 
 W:10:1
@@ -604,12 +641,20 @@ W:10:1
 S:THROWN
 B:HIT
 
+W:10:1
+S:RING | AMULET
+B:ID
+
+W:10:1
+S:RING | AMULET
+B:POWER
+
 W:10:5
 S:UNARMED
 B:DAM
 
 W:10:5
-S:UNARMED
+S:UNARMED | AMULET
 B:AC
 
 W:10:10
@@ -641,7 +686,7 @@ S:UNARMED | HAFTED | POLEARM | SWORD
 B:XTRA_BLOW
 
 W:10:30
-S:UNARMED | NONE
+S:UNARMED | NONE | RING
 B:XTRA_BLOW
 
 W:10:30

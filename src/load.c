@@ -693,7 +693,7 @@ static void rd_lore(int r_idx)
 static errr rd_store(int n)
 {
 	store_type *st_ptr;
-	int j;
+	int j,k;
 
 	byte own, num;
 
@@ -746,6 +746,26 @@ static errr rd_store(int n)
 
 		/* Copy basic store information to it */
 		COPY(st_ptr, &u_info[st_ptr->index], store_type);
+
+		/* Hack -- ensure that school books are stocked */
+		if (p_ptr->pschool)
+		{
+			for (k = 0; k < STORE_CHOICES; k++)
+			{
+				int tval = st_ptr->tval[k];
+				
+				/* Check books */
+				if (((tval == c_info[p_ptr->pclass].spell_book)
+					|| ((tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK))
+					|| ((tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK))
+					|| ((tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)))
+					&& (st_ptr->sval[k] >= SV_BOOK_MAX_GOOD))
+				{
+					/* Use school book instead */
+					st_ptr->sval[k] += p_ptr->pschool - SV_BOOK_MAX_GOOD;
+				}
+			}
+		}
 	}
 
 	/* Assume full stock */
@@ -2486,6 +2506,9 @@ static errr rd_savefile_new_aux(void)
 
 			/* Set the max_depth */
 			t_info[i].max_depth = tmp8u;
+			
+			/* Oops */
+			if (!older_than(0, 6, 2, 4)) rd_byte(&t_info[i].visited);
 
 			/* Read the store indexes */
 			if (!older_than(0, 6, 2, 0) && !p_ptr->is_dead)

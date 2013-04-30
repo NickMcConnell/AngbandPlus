@@ -1340,7 +1340,7 @@ static bool hates_acid(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-static bool hates_fire(object_type *o_ptr)
+bool hates_fire(object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -1372,6 +1372,9 @@ static bool hates_fire(object_type *o_ptr)
 
 		/* Flasks burn */
 		case TV_FLASK:
+			
+		/* Bodies get cooked */
+		case TV_BODY:
 		{
 			return (TRUE);
 		}
@@ -4047,6 +4050,8 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 	u32b if4=0;
 
 	char o_name[80];
+	
+	int make_meat = 0;
 
 	/* Prevent warning */
 	(void)who;
@@ -4185,11 +4190,22 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 				break;
 			}
 
+			/* Salt water -- salts meat */
+			case GF_SALT_WATER:
+			{
+				if (o_ptr->tval == TV_BODY)
+				{
+					do_kill = TRUE;
+					note_kill = (plural ? " salt!" : " salts!");
+					make_meat += o_ptr->weight;
+					break;
+				}				
+			}
+
 			/* Water -- books, lites, scrolls, food */
 			case GF_WATER:
 			case GF_BWATER:
 			case GF_WATER_WEAK:
-			case GF_SALT_WATER:
 			{
 				if (hates_water(o_ptr))
 				{
@@ -4588,6 +4604,13 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 			}			
 		}
 
+		/* Hack -- cook meat */
+		if ((o_ptr->tval == TV_BODY) && (who == SOURCE_FEATURE) && (note_kill) && (prefix(note_kill, " burn")))
+		{
+			note_kill = (plural ? " cook!" : " cooks!");
+			
+			make_meat += o_ptr->weight;
+		}
 
 		/* Attempt to destroy the object */
 		if (do_kill)
@@ -4728,6 +4751,34 @@ bool project_o(int who, int what, int y, int x, int dam, int typ)
 
 			continue;
 		}
+	}
+	
+	/* Make meat */
+	while (make_meat > 0)
+	{
+		/* Local object */
+		object_type object_type_body;
+	
+		/* Get local object */
+		object_type *i_ptr = &object_type_body;
+	
+		/* Wipe the new object */
+		object_wipe(i_ptr);
+	
+		/* Prepare the object */
+		object_prep(i_ptr, 981);
+		
+		/* Hack -- ensure we don't violate conservation of mass */
+		if (make_meat < i_ptr->weight) i_ptr->weight = make_meat;
+	
+		/* Drop it near the new location */
+		drop_near(i_ptr, -1, y, x);
+	
+		/* Redraw */
+		lite_spot(y, x);
+		
+		/* Reduce meat */
+		make_meat -= i_ptr->weight;
 	}
 
 	/* Return "Anything seen?" */
@@ -8767,6 +8818,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 
 				/* Prepare the object */
 				object_prep(o_ptr, what);
+				
+				/* Hack -- fake knowledge */
+				o_ptr->ident |= (IDENT_STORE);
 
 				/* Get the object name */
 				object_desc(killer, sizeof(killer), o_ptr, TRUE, 0); 
@@ -9284,7 +9338,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				else if ((p_ptr->cur_flags3 & (TR3_HOLD_LIFE)) != 0)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					lose_exp(100 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
 
 					/* Always notice */
 					if (!p_ptr->blessed) player_can_flags(who, 0x0L,0x0L,TR3_HOLD_LIFE,0x0L);
@@ -9292,7 +9346,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					lose_exp(100 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
 
 					/* Always notice */
 					player_not_flags(who, 0x0L,0x0L,TR3_HOLD_LIFE,0x0L);

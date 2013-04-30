@@ -20,7 +20,7 @@ M:F:950
 M:D:805
 
 # Maximum number of object kinds
-M:K:981
+M:K:982
 
 # Maximum number of artifacts
 M:A:137
@@ -32,7 +32,7 @@ M:E:128
 M:X:492
 
 # Maximum number of monster races (needs to be max + 2 for player ghost)
-M:R:1313
+M:R:1314
 
 # Maximum number of vaults
 M:V:51
@@ -56,7 +56,7 @@ M:H:350
 M:C:12
 
 # Maximum number of weapon style lines
-M:W:160
+M:W:164
 
 # Maximum number of spells
 M:S:597

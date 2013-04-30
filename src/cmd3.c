@@ -1828,15 +1828,22 @@ void do_cmd_light_and_douse(void)
 	cptr own_str = "";
 
 	cptr q, s;
+	
+	byte flags = USE_EQUIP | USE_FLOOR;
 
-
+	/* Check if using a torch */
+	if (item_tester_refill_torch(&inventory[INVEN_LITE])) flags |= (USE_FEATH);
+	
+	/* Check if wielding a known fire brand */
+	if (inventory[INVEN_WIELD].can_flags1 & (TR1_BRAND_FIRE)) flags |= (USE_FEATH);
+	
 	/* Restrict the choices */
 	item_tester_hook = item_tester_light_source;
 
 	/* Get an item (not in the backpack) */
 	q = "Light or douse which light source?";
 	s = "You have no light sources.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_FLOOR))) return;
+	if (!get_item(&item, q, s, flags)) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)

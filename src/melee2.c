@@ -207,8 +207,6 @@ void find_range(int m_idx)
 				
 				/* Ensure we don't push anyone else into this space */
 				m_ptr->mflag |= (MFLAG_PUSH);
-				
-				msg_print("backing");
 			}
 		}
 		/* Hack and back against player */
@@ -1739,7 +1737,7 @@ static int choose_ranged_attack(int m_idx, int *tar_y, int *tar_x, byte choose)
 	breath_maxhp = (m_ptr->maxhp > 2000 ? m_ptr->maxhp : 2000);
 
 	/* Cheat if requested. */
-	if ((smart_cheat) || (r_ptr->flags9 & (RF9_PLAYER_GHOST)))
+	if ((smart_cheat)/* || (r_ptr->flags9 & (RF9_PLAYER_GHOST)) */)
 	{
 		update_smart_cheat(m_idx);
 	}
@@ -5216,7 +5214,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					if (do_cut && do_stun)
 					{
 						/* Cancel cut */
-						if (m_idx % 2)
+						if ((m_idx % 11) < 4)
 						{
 							do_cut = FALSE;
 						}
@@ -5917,7 +5915,11 @@ static void process_monster(int m_idx)
 		}
 
 		/* Player has attacked the monster */
-		if ((m_ptr->mflag & (MFLAG_HIT_RANGE | MFLAG_HIT_BLOW)))
+		if (((m_ptr->mflag & (MFLAG_HIT_RANGE | MFLAG_HIT_BLOW)) != 0) &&
+		
+				/* Hack -- ensure monster cannot move before getting target */
+				((r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_NEVER_BLOW)) == 0) &&
+			!(m_ptr->petrify))
 		{
 			m_ptr->ty = p_ptr->py;
 			m_ptr->tx = p_ptr->px;
@@ -6843,13 +6845,15 @@ static void process_monster(int m_idx)
 		 * If the player is moving away from the monster, the distance
 		 * will exceed the best range and the target will be aborted.
 		 */
-		if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_IGNORE)) == 0) && (!must_use_target))
+		if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_IGNORE)) == 0) && (!must_use_target) &&
+				/* Hack - never move monsters never get a target */
+				((r_ptr->flags1 & (RF1_NEVER_MOVE)) == 0) && !(m_ptr->petrify))
 		{
 			/* Player has target set. */
 			if (p_ptr->target_set)
 			{
-				/* Player is targetting a monster. */
-				if (p_ptr->target_who > 0)
+				/* Player is targetting a monster and ally is allowed to attack. */
+				if ((p_ptr->target_who > 0) && ((r_ptr->flags1 & (RF1_NEVER_BLOW)) == 0))
 				{
 					monster_type *n_ptr = &m_list[p_ptr->target_who];
 					
@@ -6873,7 +6877,7 @@ static void process_monster(int m_idx)
 			}
 			
 			/* Follow the player.*/
-			else
+			else if (m_ptr->min_range > m_ptr->cdis)
 			{
 				m_ptr->ty = p_ptr->py;
 				m_ptr->tx = p_ptr->px;
@@ -6934,6 +6938,13 @@ static void process_monster(int m_idx)
 		/* Monster can try to wander into /anything/... */
 		ty = m_ptr->fy + ddy_ddd[dir];
 		tx = m_ptr->fx + ddx_ddd[dir];
+	}
+	
+	/* Allies try not to disturb the players rest */
+	else if ((m_ptr->mflag & (MFLAG_ALLY)) && !(m_ptr->ty) && !(m_ptr->tx) && (p_ptr->resting))
+	{
+		/* Don't move as this disturbs the player */
+		return;
 	}
 
 	/* Monster isn't confused, just moving semi-randomly, or monster is partially confused */

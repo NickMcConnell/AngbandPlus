@@ -854,6 +854,7 @@ extern void inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
+extern bool hates_fire(object_type *o_ptr);
 extern bool project_f(int who, int what, int y, int x, int dam, int typ);
 extern bool project_o(int who, int what, int y, int x, int dam, int typ);
 extern bool project_m(int who, int what, int y, int x, int dam, int typ);

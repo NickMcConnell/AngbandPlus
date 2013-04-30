@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	3
+#define VERSION_EXTRA	4
 
 
 /*
@@ -2563,7 +2563,7 @@
 #define RBM_EXPLODE	52
 #define RBM_ARROW	53
 #define RBM_XBOLT	54		/* Crossbow bolt */
-#define RBM_SPIKE	55
+#define RBM_DAGGER	55
 #define RBM_DART	56
 #define RBM_SHOT 	57
 #define RBM_ARC_20	58
@@ -2583,7 +2583,7 @@
 #define RBM_8WAY_II	72
 #define RBM_8WAY_III	73
 #define RBM_SWARM	74
-#define RBM_DAGGER	75
+#define RBM_SPIKE	75
 #define RBM_AIM_AREA	76
 #define RBM_SCATTER		77
 
@@ -2762,6 +2762,7 @@
 #define USE_FEATG		0x10	/* Allow features (gettable) */
 #define USE_QUIVER		0x20	/* Allow quiver items, forbid classic equipment */
 #define USE_SELF		0x40	/* Allow selection of player */
+#define USE_FEATH		0x80	/* Allow features (hurt by fire) */
 
 
 /*** Player flags ***/
@@ -3868,7 +3869,7 @@
 /*
  * Monster racial flags - extra flags from Sangband etc.
  */
-#define RF9_PLAYER_GHOST   0x00000001      /* Ghost of a former player */
+#define RF9_LEVEL_CLASS    0x00000001      /* Levels up class deeper in the dungeon */
 #define RF9_NEVER_MISS     0x00000002      /* Never miss when attacking */
 #define RF9_LEVEL_SPEED    0x00000004      /* Levels up speed deeper in the dungeon */
 #define RF9_EVASIVE        0x00000008      /* Evade melee blows / missiles / bolts */
@@ -3888,7 +3889,7 @@
 #define RF9_NO_SLOW        0x00020000      /* Cannot be slowed / paralyzed */
 #define RF9_RES_MAGIC      0x00040000      /* Resists magic */
 #define RF9_GOOD           0x00080000      /* Good - never summon evil / never summoned by evil */
-#define RF9_LEVEL_AGE      0x00100000      /* Levels up size deeper in the dungeon */
+#define RF9_LEVEL_AGE      0x00100000      /* ??? */
 #define RF9_DWARF          0x00200000      /* Hurt by slay dwarf */
 #define RF9_ELF            0x00400000      /* Hurt by slay elf */
 #define RF9_MAN            0x00800000      /* Hurt by slay man */
@@ -3935,6 +3936,14 @@
  */
 #define RF8_SKIN_MASK \
 	(RF8_HAS_FUR | RF8_HAS_FEATHER | RF8_HAS_SCALE)
+
+
+/*
+ * "level" flags - used for scaling up monsters to match dungeon level
+ */
+#define RF9_LEVEL_MASK \
+	(RF9_LEVEL_AGE | /* RF9_LEVEL_CLASS | */ RF9_LEVEL_POWER | RF9_LEVEL_SPEED | RF9_LEVEL_SIZE)
+
 
 
 /*
@@ -4327,12 +4336,13 @@
 
 #define MAX_WEAP_STYLES  32
 
-#define WS_WIELD_FLAGS  0x000001FF /* WS_UNARMED--WS_POLEARM + WS_NONE*/
-#define WS_LAUNCHER_FLAGS  0x00001C01 /* WS_SLING--WS_XBOW + WS_NONE*/
-#define WS_THROWN_FLAGS  0x00000201 /* WS_THROWN + WS_NONE*/
-#define WS_AWARE_FLAGS  0x00FC0001L /* These increase players awareness of objects as he increases level */
-#define WS_NON_WIELD_FLAGS  0xFF406F00L /* Its not possible to 'wield' any of these styles, so to compensate
-											they accrue the none benefits as well (for the moment) */
+#define WS_WIELD_FLAGS  0x003001FFL /* UNARMED--POLEARM + RING + AMULET + NONE*/
+#define WS_LAUNCHER_FLAGS  0x00301C01L /* SLING--XBOW + RING + AMULET + NONE*/
+#define WS_THROWN_FLAGS  0x00300201L /* THROWN + RING + AMULET + NONE*/
+#define WS_AWARE_FLAGS  0x00FC0001L /* These increase players awareness of objects as he increases level --- why NONE here??? */
+#define WS_NON_WIELD_FLAGS  0xFFCC2000L /* SLAY_ORC--SLAY_DEMON, STAFF, WAND, SCROLL, POTION, BACKSTAB
+					   Its not possible to 'wield' any of these styles, so to compensate
+					   they accrue the none benefits as well (for the moment) */
 
 
 /* Weapon style improvements */

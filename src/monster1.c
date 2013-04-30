@@ -1721,6 +1721,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 	if (l_ptr->flags9 & (RF9_LEVEL_SPEED)) vp[vn++] ="faster";
 	if (l_ptr->flags9 & (RF9_LEVEL_AGE)) vp[vn++] ="older";
 	if (l_ptr->flags9 & (RF9_LEVEL_POWER)) vp[vn++] ="more powerful";
+	if (l_ptr->flags9 & (RF9_LEVEL_CLASS)) vp[vn++] ="specialised";
 
 	/* Describe "improvements" */
 	if (vn)
@@ -2059,7 +2060,7 @@ void screen_monster_look(const int m_idx)
 	monster_race race;
 		
 	/* Scale monster */
-	if (((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER | RF9_LEVEL_AGE)) == 0)
+	if (((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)
 			&& monster_scale(&race, m_idx, p_ptr->depth))
 	{
 		/* Scaled the monster successfully */

@@ -2851,8 +2851,8 @@ static void msg_print_aux(u16b type, cptr msg)
 	/* Hack -- flush when requested or needed */
 	if ((message_column || easy_more) && (!msg || ((message_column + n) > (w - 8))))
 	{
-		bool hack_use_first_line = (easy_more && !must_more && !message_column && msg) ? TRUE : FALSE;
-		bool hack_flush = (easy_more && message_column && ((message_column + n) <= (w - 8)) && !must_more && !msg) ? TRUE : FALSE;
+		bool hack_use_first_line = (easy_more && !must_more && !message_column && msg && !use_trackmouse) ? TRUE : FALSE;
+		bool hack_flush = (easy_more && message_column && !use_trackmouse && ((message_column + n) <= (w - 8)) && !must_more && !msg) ? TRUE : FALSE;
 		
 		/* Handle easy_more */
 		if (easy_more && msg && !must_more)
@@ -2896,7 +2896,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Handle "auto_more"/"must_more"/"use_trackmouse" */
-	if (auto_more || must_more || use_trackmouse)
+	if (auto_more || must_more)
 	{
 		/* Force window update */
 		window_stuff();
@@ -2955,8 +2955,11 @@ static void msg_print_aux(u16b type, cptr msg)
 		t += split; n -= split;
 	}
 
+	/* Insert a space */
+	t[n] = ' ';
+
 	/* Display the tail of the message */
-	Term_putstr(message_column, 0, n, color, t);
+	Term_putstr(message_column, 0, n + 1, color, t);
 
 	/* Remember the message */
 	msg_flag = TRUE;

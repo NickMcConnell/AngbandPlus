@@ -180,7 +180,7 @@ W:440:48
 Y:440:48
 L:0:0:407:408:0:0
 L:1:56:0:0:0:0
-L:6:56:0:0:620:0
+L:4:56:0:0:620:0
 S:8:9:10:11:12:13:268:775
 
 N:12:Weathertop
@@ -282,13 +282,15 @@ R:ESCORT
 L:21:420:56:155:249:49
 L:50:420:56:155:249:49
 
-N:23:Isengard, darkened by the clouds of Saruman's machinations
+N:23:Darkened Isengard
 X:20:48:0:0
 Q:28:532
 L:21:420:141:141:514:31
 L:22:56:0:0:0:31
 L:50:56:0:0:532:31
-D:If you conquer Isengard, you open the easier path to Minas Tirith.
+D:If you conquer Isengard,
+D: darkened by the clouds of Saruman's machinations,
+D: you open the easier path to Minas Tirith.
 
 N:24:the Marshes of the Dead
 X:19:25:0:0
@@ -413,8 +415,8 @@ S:8:9:10:11:12:13:268:775
 
 N:38:Barrow-downs
 X:11:12:38:40
-L:7:420:420:56:0:0
-L:8:56:0:0:0:0
+L:4:420:420:56:0:0
+L:5:56:0:0:0:0
 L:20:56:0:0:1081:0
 
 N:39:Trollshaw Forest

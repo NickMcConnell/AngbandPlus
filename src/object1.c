@@ -3623,6 +3623,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	bool use_floor = ((mode & (USE_FLOOR)) ? TRUE : FALSE);
 	bool use_featg = ((mode & (USE_FEATG)) ? TRUE : FALSE);
 	bool use_featu = ((mode & (USE_FEATU)) ? TRUE : FALSE);
+	bool use_feath = ((mode & (USE_FEATH)) ? TRUE : FALSE);	
 	bool use_quiver = ((mode & (USE_QUIVER)) ? TRUE: FALSE);
 	bool use_self = ((mode & (USE_SELF)) ? TRUE: FALSE);
 
@@ -3745,6 +3746,24 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		i_ptr = &object_type_body;
 
 		if ((make_feat(i_ptr,p_ptr->py,p_ptr->px)) && item_tester_okay(i_ptr)) allow_feats = TRUE;
+	}
+	
+	/* Scan the feature -- this is a big hack.  We allow the feature to be set on fire. */
+	if ((use_feath) && (f_info[cave_feat[p_ptr->py][p_ptr->px]].flags2 & (FF2_HURT_FIRE))) allow_feats = TRUE;
+	
+	/* Scan the feature -- this is a big hack.  If we have burnable objects on the floor, we allow the feature to be set on fire. */	
+	if ((use_feath) && !(allow_feats))
+	{
+		int b1, b2;
+		
+		b1 = 0;
+		b2 = floor_num - 1;
+
+		/* Restrict floor indexes */
+		while ((b1 <= b2) && (!hates_fire(&o_list[floor_list[b1]]))) b1++;
+		while ((b1 <= b2) && (!hates_fire(&o_list[floor_list[b2]]))) b2--;
+		
+		if (b1 <= b2) allow_feats = TRUE;
 	}
 
 	/* Scan oneself */
@@ -4337,6 +4356,16 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 				if (!allow_feats)
 				{
 					bell("Cannot select feature!");
+					break;
+				}
+				
+				/* Mega-Hack -- we are setting the floor alight with a torch */
+				if (use_feath)
+				{
+					project_o(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
+					project_f(0, 0, p_ptr->py, p_ptr->px, 1, GF_FIRE);
+					
+					done = TRUE;
 					break;
 				}
 

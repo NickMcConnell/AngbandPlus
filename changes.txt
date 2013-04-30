@@ -373,6 +373,22 @@ gives them some grace e.g. preventing small chance of paralysis on the first blo
 - Different approach to applying disease effects. They now only hit you when you enter a level,
 unless a quick disease (which retains the old process).
 
+- Added ecologies based on monster name and dragon breaths.
+
+- If you have a torch or weapon with a known fire brand wielded, you can use this to light the terrain directly under you, using the | command.
+
+- Added 'dungeon chicken'.
+
+- Tweaked Bree so that it's doable in one go without WOR, made Bill Fenry and a pair of similar uniques bit weaker  (Mikolaj Konarski)
+
+- Give druids another spell at 3rd level. They didn't have enough of a choice otherwise.
+
+- Every dungeon guardian creates a stairwell at death.
+
+- Allow torches to be taken from walls.
+
+
+
 
 ### User Interface ###
 
@@ -436,7 +452,16 @@ race only. You can press 'a' to assault a location with any allied troops.
 
 - Prevent show_tips interrupting running and repeated actions.
 
-- Added ecologies based on monster name and dragon breaths.
+- Tweaked trick throws, etc. a little bit (Mikolaj Konarski)
+
+- Tips about spikes, cooking, body parts and magical bags added.
+
+- Added help files for when looking/targetting.
+
+- Always dump character file at death.
+
+- Update tips text to indicate importance of visiting the home in each town to
+ensure restocking of shops occurs.
 
 
 ### Bug fixes ###
@@ -704,6 +729,57 @@ or Lothlorien.
 
 - Fix bug #12291 ancient hex garbles display.
 
+- Fix problems with use_trackmouse causing messages to be lost.
+
+- Fixes to make sure doors have to be opened, not walked around.
+
+- Fix for Bug #8712 chaos is overly deadly for earlier levels.
+
+- Fix several secret door types that were also dropping objects when searched.
+
+- Corrected all problems with rings and amulets under 'C' and in combat. (Mikolaj Konarski)
+
+- Remove corrupted OS/X pngs.
+
+- Corrected style descriptions, fleshed out rings and amulets. (Mikolaj Konarski)
+
+- Corrected characters from old messages appearing beneath "You feel stronger. Etc." messages (Mikolaj Konarski)
+
+- Fixed 012322 Dungeon visited flags not reset at birth. (Mikolaj Konarski)
+
+- Fix bug where stairs would be generated under the player in the wildernes.
+
+- Ensure travel warning appears before travelling.
+
+- Fix bug with shops not restocking after starting the game and not visiting Bag End.
+
+- Description of the darkened Isengard was too long for travel UI (Mikolaj Konarski).
+
+- Ensure that player knows what killed him if the object is unidentified.
+
+- Forgot to include which dungeons were visited in save file, resulting in tips
+being displayed too often.
+
+- Hacky fix for player school books not restocking after reloading game.
+
+- Show which regions visited in character dump.
+
+- Fix fountains with objects in them disappearing once searched.
+
+- Fix a couple of instances where reflexive pronoun was used incorrectly.
+
+- We built a tunnel off to nowhere if we had difficulty placing the player but
+didn't bother trying to put the player at the end of it. Fixed.
+
+- Fix my favourite recurring bug: allied monsters can move even with NEVER_MOVE flag.
+
+- Allies attempt to minimise player disturbance while resting.
+
+- Fix missing UNDEAD flags and allow icky things to be animated... for a short space
+of time.
+
+- Remove some diagnostic code.
+
 
 ### Build / Platform ###
 
@@ -723,6 +799,9 @@ Windows compile.
 - Added debugging code for stacking.
 
 - Add spell tables spoiler.
+
+- Replace ralloc with mem_alloc in main-win.c (Thanks to Nick McConnell for the fix).
+
 
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down

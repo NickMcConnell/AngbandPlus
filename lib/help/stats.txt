@@ -143,9 +143,9 @@
                be achieved.  Well-balanced throwing weapons are preferable -
                such as daggers, spears and potions.  The effects of thrown
                weapons vary wildly - from exploding flasks, potions and spores
-               to trick throws that can be achieved by throwing a well-balanced
-               weapon from the wielded slot of your equipment.  This skill
-               increases with the level of the character.
+               to trick throws of well-balanced weapons from the main weapon 
+               equipment slot that take a whole turn but hit multiple targets.
+               This skill increases with the level of the character.
  
           Saving Throws
                A Saving Throw is the ability of a character to resist the

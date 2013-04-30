@@ -8486,6 +8486,9 @@ static bool build_type0(int room, int type)
 		/* Terminate index list */
 		room_info[room].section[0] = -1;
 	}
+	
+	/* Good spot for a player/stair */
+	add_stair(y0, x0);
 
 	return (TRUE);
 }

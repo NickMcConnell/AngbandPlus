@@ -849,7 +849,7 @@ s16b get_mon_num(int level)
 		/* Ensure minimum depth for monsters, except those that have friends or level up */
 		if ((table[i].level < MIN(p_ptr->depth - 4, level - 3))
 			&& ((r_ptr->flags1 & (RF1_FRIENDS)) == 0) 
-			&& ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) == 0)) continue;
+			&& ((r_ptr->flags9 & RF9_LEVEL_MASK) == 0)) continue;
 
 		/* Ensure hard minimum depth for monsters */
 		if (table[i].level < MIN(p_ptr->depth - 19, level - 18))
@@ -858,7 +858,7 @@ s16b get_mon_num(int level)
 			int count = 0;
 			
 			/* Modify up for powerful monsters */
-			if (r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER)) miss_level += 15;
+			if (r_ptr->flags9 & RF9_LEVEL_MASK) miss_level += 15;
 			
 			/* Allow a best effort choice in the event we can't find anything */
 			/* Hack -- have a soft boundary, so we don't always get the same monster very deep */
@@ -1242,7 +1242,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 		if (m_ptr->mflag & (MFLAG_LEADER)) level -= 5;
 		
 		/* Scale a monster */
-		if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER | RF9_LEVEL_AGE)) != 0) &&
+		if (((r_ptr->flags9 & RF9_LEVEL_MASK) != 0) &&
 			monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 		{
 			r_ptr = &monster_race_scaled;
@@ -1366,7 +1366,7 @@ void monster_desc(char *desc, size_t max, int m_idx, int mode)
 			if (prefix) my_strcat(desc, prefix, max);
 			if (infix) { my_strcat(desc, infix, max); my_strcat(desc, " ", max); }
 			my_strcat(desc, name, max);
-			if (suffix) my_strcat(desc, suffix, max);
+			if (suffix) { my_strcat(desc, " ", max); my_strcat(desc, suffix, max); }
 		}
 
 		/* It could be a normal, definite, monster */
@@ -3021,7 +3021,7 @@ int calc_monster_ac(int m_idx, bool ranged)
 	monster_race monster_race_scaled;
 
 	/* Scale a monster */
-	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+	if (((r_ptr->flags9 & RF9_LEVEL_MASK) != 0) &&
 		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 	{
 		r_ptr = &monster_race_scaled;
@@ -3071,7 +3071,7 @@ int calc_monster_hp(int m_idx)
 	monster_race monster_race_scaled;
 
 	/* Scale the monster */
-	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+	if (((r_ptr->flags9 & RF9_LEVEL_MASK) != 0) &&
 		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 	{
 		r_ptr = &monster_race_scaled;
@@ -3112,7 +3112,7 @@ byte calc_monster_speed(int m_idx)
 	monster_race monster_race_scaled;
 
 	/* Scale the monster */
-	if (((r_ptr->flags9 & (RF9_LEVEL_SIZE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER)) != 0) &&
+	if (((r_ptr->flags9 & RF9_LEVEL_MASK) != 0) &&
 		monster_scale(&monster_race_scaled, m_idx, p_ptr->depth))
 	{
 		r_ptr = &monster_race_scaled;

@@ -1329,6 +1329,9 @@ static void py_pickup_aux(int o_idx)
 
 	/* Get the object again */
 	o_ptr = &inventory[slot];
+	
+	/* No longer 'stored' */
+	o_ptr->ident &= ~(IDENT_STORE);
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -1355,6 +1358,8 @@ void py_pickup(int py, int px, int pickup)
 
 	char o_name[80];
 
+	bool gather = FALSE;
+
 #ifdef ALLOW_EASY_FLOOR
 
 	int last_o_idx = 0;
@@ -1364,21 +1369,55 @@ void py_pickup(int py, int px, int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
-	/* Are we allowed to pick up anything here? */
-	if (!(f_info[cave_feat[py][px]].flags1 & (FF1_DROP)) &&
-		(f_info[cave_feat[py][px]].flags1 & (FF1_MOVE))) return;
-
-	/* Scan the pile of objects */
-	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+	feature_type *f_ptr = &f_info[cave_feat[py][px]];
+	
+	/* Hack -- gather features from walls */
+	if (!(f_ptr->flags1 & (FF1_MOVE)) && !(f_ptr->flags3 & (FF3_EASY_CLIMB)) && (f_ptr->flags3 & (FF3_GET_FEAT)))
 	{
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
+		gather = TRUE;
+	}
 
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
+	/* Are we allowed to pick up anything here? */
+	if (!(f_ptr->flags1 & (FF1_DROP)) && (f_ptr->flags1 & (FF1_MOVE)) && !gather) return;
+	
+	/* Scan the pile of objects */
+	for (this_o_idx = cave_o_idx[py][px]; this_o_idx || gather; this_o_idx = next_o_idx)
+	{
+		bool gathered = FALSE;
+		
+		/* Gathering? */
+		if (gather)
+		{
+			object_type object_type_body;
+			
+			o_ptr = &object_type_body;
+			
+			/* Hack -- gather once only XXX */
+			/* Note that this occurs before make_feat or scan_feat below, as otherwise we end up looking at (nothing)s */
+			next_o_idx = cave_o_idx[py][px];
+			gather = FALSE;
+			gathered = TRUE;
 
-		/* Ignore 'store' items */
-		if (o_ptr->ident & (IDENT_STORE)) continue;
+			/* Get the feature */
+			if (!make_feat(o_ptr, py, px)) return;
+
+			/* Find the feature */
+			this_o_idx = scan_feat(py, px);
+			
+			/* And we have to be doubly paranoid */
+			if (this_o_idx == next_o_idx) next_o_idx = o_list[this_o_idx].next_o_idx;
+		}
+		else
+		{
+			/* Get the object */
+			o_ptr = &o_list[this_o_idx];
+
+			/* Get the next object */
+			next_o_idx = o_ptr->next_o_idx;
+
+			/* Ignore 'store' items */
+			if (o_ptr->ident & (IDENT_STORE)) continue;		
+		}
 
 		/* Mark the object */
 		if (!auto_pickup_ignore(o_ptr))
@@ -1430,6 +1469,9 @@ void py_pickup(int py, int px, int pickup)
 			/* Delete the gold */
 			delete_object_idx(this_o_idx);
 
+			/* Gathering? */
+			/*if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);*/
+
 			/* Check the next object */
 			continue;
 		}
@@ -1439,19 +1481,31 @@ void py_pickup(int py, int px, int pickup)
 		{
 			/* Destroy the object */
 			py_destroy_aux(this_o_idx);
+			
+			/* Gathering? */
+			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
 
 			/* Check the next object */
 			continue;
 		}
 
 		/* Test for quiver auto-pickup */
-		if (quiver_combine(o_ptr, this_o_idx)) continue;
+		if (quiver_combine(o_ptr, this_o_idx))
+		{
+			/* Gathering? */
+			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+
+			continue;
+		}
 
 		/* Test for auto-pickup */
 		if (auto_pickup_okay(o_ptr))
 		{
 			/* Pick up the object */
 			py_pickup_aux(this_o_idx);
+
+			/* Gathering? */
+			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
 
 			/* Check the next object */
 			continue;
@@ -1480,6 +1534,9 @@ void py_pickup(int py, int px, int pickup)
 
 					/* Count */
 					++can_pickup;
+					
+					/* Don't pickup */
+					gathered = FALSE;
 				}
 			}
 
@@ -1491,8 +1548,14 @@ void py_pickup(int py, int px, int pickup)
 
 				/* Count */
 				++not_pickup;
+				
+				/* Don't pickup */
+				gathered = FALSE;
 			}
 
+			/* Gathering? */
+			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
+			
 			/* Check the next object */
 			continue;
 		}
@@ -1527,6 +1590,9 @@ void py_pickup(int py, int px, int pickup)
 
 		/* Pick up the object */
 		py_pickup_aux(this_o_idx);
+		
+		/* Gathering? */
+		if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
 	}
 
 #ifdef ALLOW_EASY_FLOOR
@@ -1595,16 +1661,41 @@ void py_pickup(int py, int px, int pickup)
 
 			int item;
 
+			/* Hack for player */
+			int oy = p_ptr->py;
+			int ox = p_ptr->px;
+			
+			bool done = FALSE;
+			
+			/* Gathering? */
+			bool gathered = FALSE;
+
+			p_ptr->py = py;
+			p_ptr->px = px;
+			
 			/* Restrict the choices */
 			item_tester_hook = inven_carry_okay;
+			
 
 			/* Get an object*/
 			q = "Get which item? ";
 			s = NULL;
-			if (!get_item(&item, q, s, (USE_FLOOR | USE_FEATG))) break;
+			if (!get_item(&item, q, s, (USE_FLOOR | USE_FEATG))) done = TRUE;
+			
+			/* Fix player position */
+			p_ptr->py = oy;
+			p_ptr->px = ox;
 
+			if (done) break;
+			
+			/* Destroy the feature */
+			if (o_list[0-item].ident & (IDENT_STORE)) gathered = TRUE;
+			
 			/* Pick up the object */
 			py_pickup_aux(0 - item);
+			
+			/* Get the feature */
+			if (gathered && (scan_feat(py,px) < 0)) cave_alter_feat(py,px,FS_GET_FEAT);
 		}
 	}
 
@@ -2957,7 +3048,7 @@ void move_player(int dir, int jumping)
 	{
 		/* Get item from the destination */
 		py_pickup(y, x, TRUE);
-
+		
 		/* Disturb the player */
 		disturb(0, 0);
 	}

@@ -105,7 +105,7 @@ static bool item_tester_hook_food_edible(const object_type *o_ptr)
 			if ((p_ptr->cur_flags4 & (TR4_ORC | TR4_TROLL | TR4_GIANT)) && (p_ptr->food < PY_FOOD_ALERT)) return (TRUE);
 
 			/* Starving */
-			if (p_ptr->food < PY_FOOD_ALERT) return (TRUE);
+			if (p_ptr->food < PY_FOOD_FAINT) return (TRUE);
 
 			break;
 	}

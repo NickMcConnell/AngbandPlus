@@ -1873,8 +1873,11 @@ static void display_player_xtra_info(void)
 	dam = 0;
 	hit_real = p_ptr->to_h;
 
+	/* Check shooting styles only */
+	style = p_ptr->cur_style & WS_THROWN_FLAGS;
+
 	/* Get style benefits */
-	mon_style_benefits(NULL, WS_THROWN_FLAGS, &style_hit, &style_dam, &style_crit);
+	mon_style_benefits(NULL, style, &style_hit, &style_dam, &style_crit);
 	hit += style_hit;
 	dam += style_dam;
 	hit_real += style_hit;
@@ -3931,6 +3934,13 @@ errr file_character(cptr name, bool full)
 			/* Express in feet or level*/
 			if (depth_in_feet) text_out(format("%d foot depth in ", t_info[i].max_depth * 50));
 			else text_out(format("level %d of ",t_info[i].max_depth));
+
+			text_out(t_name + t_info[i].name);
+			text_out(".\n");
+		}
+		else if (t_info[i].visited)
+		{
+			text_out("You have visited ");
 
 			text_out(t_name + t_info[i].name);
 			text_out(".\n");
@@ -6163,6 +6173,12 @@ static void close_game_aux(void)
 	bool wants_to_quit = FALSE;
 	cptr p = "[(i)nformation, (m)essages, (f)ile dump, (v)iew scores, e(x)amine item, ESC]";
 
+	char ftmp[80];
+
+	errr err;
+
+
+	sprintf(ftmp, "%s.txt", op_ptr->base_name);
 
 	/* Handle retirement */
 	if (p_ptr->total_winner) kingly();
@@ -6172,6 +6188,28 @@ static void close_game_aux(void)
 	{
 		msg_print("death save failed!");
 		message_flush();
+	}
+
+	/* Easy more? */
+	if (easy_more) messages_easy(FALSE);
+	
+	/* Save screen */
+	screen_save();
+
+	/* Dump a character file */
+	err = file_character(ftmp, FALSE);
+
+	/* Load screen */
+	screen_load();
+
+	/* Check result */
+	if (err)
+	{
+		msg_print("Character dump failed!");
+	}
+	else
+	{
+		msg_print("Character dump successful.");
 	}
 
 	/* Get time of death */
@@ -6216,16 +6254,10 @@ static void close_game_aux(void)
 			case 'f':
 			case 'F':
 			{
-				char ftmp[80];
-
-				sprintf(ftmp, "%s.txt", op_ptr->base_name);
-
 				if (get_string("File name: ", ftmp, 80))
 				{
 					if (ftmp[0] && (ftmp[0] != ' '))
 					{
-						errr err;
-
 						/* Save screen */
 						screen_save();
 

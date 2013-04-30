@@ -1,9 +1,20 @@
+=== Your Home Town ===
+
+Once you are satisfied with your purchases, you should visit 'Bag End' to
+make this town your home.  Stores will only restock in your home town, so
+which ever town you want to shop in, you should visit the home location
+(shown by the '8' symbol) to reside there.  You'll also discover that the
+contents of your home will move with you, so that you can keep useful
+items in your home and be sure that they'll be available for you from
+place to place.  You may find other non-shop locations in various towns
+that you can store items in - be assured that these will be there for you
+upon your return.
+
 === Travelling through the Wilderness ===
 
-Once you are satisfied with your purchases, you can travel through the
-wilderness to a nearby dungeon in search of adventure.  Use the travel
-command ('<') when you are on the surface to be able to select a
-nearby locale to travel to.
+You can also travel through the wilderness to a nearby dungeon in search
+of adventure.  Use the travel command ('<') when you are on the surface
+to be able to select a nearby locale to travel to.
 
 You'll see dungeon entrances marked as '>'.  To enter a dungeon, stand
 on the entrance and use the climb down command ('>').  You can climb

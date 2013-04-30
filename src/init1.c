@@ -843,7 +843,7 @@ static cptr r_info_flags8[] =
  */
 static cptr r_info_flags9[] =
 {
-	"PLAYER_GHOST",
+	"LEVEL_CLASS",
 	"NEVER_MISS",
 	"LEVEL_SPEED",
 	"EVASIVE",
@@ -4160,7 +4160,8 @@ errr parse_r_info(char *buf, header *head)
 		}
 
 		/* Hack -- older monsters */
-		if ((r_ptr->flags9 & (RF9_LEVEL_POWER | RF9_LEVEL_SIZE)) && (strchr("eQCfBhtlpqnoOPTY", r_ptr->d_char)))
+		if ((r_ptr->flags9 & (RF9_LEVEL_POWER | RF9_LEVEL_SIZE)) && (strchr("eQCfBhtlpqnoOPTY", r_ptr->d_char)) &&
+				((r_ptr->flags3 & (RF3_NONLIVING)) == 0))
 		{
 			r_ptr->flags9 |= RF9_LEVEL_AGE;
 		}

@@ -75,7 +75,7 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 	u32b flag[4];
 
 	/* Paranoia */
-	if ((r_ptr->flags9 & (RF9_LEVEL_SPEED | RF9_LEVEL_SIZE | RF9_LEVEL_POWER | RF9_LEVEL_AGE)) == 0) return (FALSE);
+	if ((r_ptr->flags9 & (RF9_LEVEL_MASK)) == 0) return (FALSE);
 
 	/* Hack -- ensure distinct monster types */
 	depth = depth - ((depth - r_ptr->level) % 5);
@@ -118,6 +118,7 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 
 	/* Apply only one level flag */
 	if (n_ptr->flags9 & (RF9_LEVEL_AGE)) flag[n++] = RF9_LEVEL_AGE;
+	/* if (n_ptr->flags9 & (RF9_LEVEL_CLASS)) flag[n++] = RF9_LEVEL_CLASS;*/
 	if (n_ptr->flags9 & (RF9_LEVEL_SPEED)) flag[n++] = RF9_LEVEL_SPEED;
 	if (n_ptr->flags9 & (RF9_LEVEL_POWER)) flag[n++] = RF9_LEVEL_POWER;
 	if (n_ptr->flags9 & (RF9_LEVEL_SIZE)) flag[n++] = RF9_LEVEL_SIZE;
@@ -126,14 +127,251 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 	if (n > 1)
 	{
 		/* Clear all flags */
-		n_ptr->flags9 &= ~(RF9_LEVEL_AGE | RF9_LEVEL_SPEED | RF9_LEVEL_POWER | RF9_LEVEL_SIZE);
+		n_ptr->flags9 &= ~RF9_LEVEL_MASK;
 		
 		/* Add one back in based on m_idx */
 		n_ptr->flags9 |= flag[m_idx % n];
 	}
+	
+	/* Set level to depth */
+	n_ptr->level = depth;
+
+	/* Scale up for classes */
+	if (n_ptr->flags9 & (RF9_LEVEL_CLASS))
+	{
+		int fake_m_idx = m_idx / n;
+		bool add_ranged = FALSE;
+		n = 0;
+		
+		if (!(fake_m_idx % 2) && (r_ptr->level <= depth - (++n * 5)))
+		{
+			n_ptr->flags2 |= (RF2_ARMOR);
+
+			/* Increase effectiveness of some blows */
+			for (i = 0; i < 4; i++)
+			{
+				if (!n_ptr->blow[i].d_side)
+				{
+					/* Give warrior some random ranged attack */
+					n_ptr->blow[i].method = RBM_ARROW + (m_ptr->r_idx % 5);
+					n_ptr->blow[i].effect = i > 0 ? n_ptr->blow[0].effect : GF_HURT;
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), 1);
+					n_ptr->blow[i].d_side = d1 < 50 ? 5 : (d1 / 10);
+					
+					n_ptr->freq_innate = MAX(n_ptr->freq_innate, 25 + depth / 10);
+					add_ranged = TRUE;
+					
+					break;
+				}
+				else if ((n_ptr->blow[i].method >= RBM_ARROW) && (n_ptr->blow[i].method < RBM_ARROW + 5))
+				{
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), n_ptr->blow[i].d_dice);
+					n_ptr->blow[i].d_side = MAX(d1 < 50 ? 5 : (d1 / 10), n_ptr->blow[i].d_side);
+					break;
+				}
+				
+				if (n_ptr->blow[i].effect == GF_HURT)
+				{
+					if ((m_idx % 11) < 4) n_ptr->blow[i].effect = GF_BATTER;
+					else n_ptr->blow[i].effect = GF_WOUND;
+				}
+			}
+			
+			scale = scale * 4 / 5;
+		}
+		if (!(fake_m_idx % 3) && (r_ptr->level <= depth - (++n * 5)))
+		{
+			n_ptr->flags2 |= (RF2_PRIEST);
+			
+			/* Give priest some power */
+			n_ptr->mana = MAX(n_ptr->mana, d1 / 10);
+			n_ptr->spell_power = MAX(n_ptr->spell_power, depth / 4);
+			n_ptr->freq_spell = MAX(n_ptr->freq_spell, 25 + depth / 10);
+			
+			/* Give priest some basic spells */
+			if ((m_ptr->r_idx % 7) < (depth / 15)) n_ptr->flags6 |= (RF6_HEAL);
+			if ((m_ptr->r_idx % 9) < (depth / 12)) n_ptr->flags6 |= (RF6_CURE);
+			if ((m_ptr->r_idx % 11) < (depth / 10)) n_ptr->flags6 |= (RF6_BLESS);
+			if ((m_ptr->r_idx % 13) < (depth / 8)) n_ptr->flags6 |= (RF6_BLINK);
+			
+			/* Pick a 'priestly' attack spell */
+			switch(m_ptr->r_idx % 5)
+			{
+				case 0: n_ptr->flags6 |= (RF6_WOUND); break;
+				case 1: n_ptr->flags6 |= (RF6_CURSE); break;
+				case 2: n_ptr->flags5 |= (RF5_HOLY_ORB); break;
+				case 3: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
+				case 4: n_ptr->flags5 |= (RF5_BALL_LITE); break;
+			}
+			
+			/* And maybe another */
+			if (depth > 40) switch((m_ptr->r_idx * 7) % 5)
+			{
+				case 0: n_ptr->flags6 |= (RF6_WOUND); break;
+				case 1: n_ptr->flags6 |= (RF6_CURSE); break;
+				case 2: n_ptr->flags5 |= (RF5_HOLY_ORB); break;
+				case 3: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
+				case 4: n_ptr->flags5 |= (RF5_BALL_LITE); break;
+			}
+			
+			scale = scale * 2 / 3;
+		}
+		if (!(fake_m_idx % 5) && (r_ptr->level <= depth - (++n * 5)))
+		{
+			n_ptr->flags2 |= (RF2_MAGE);
+			
+			/* Give priest some power */
+			n_ptr->mana = MAX(n_ptr->mana, d1 / 12);
+			n_ptr->spell_power = MAX(n_ptr->spell_power, depth / 3);
+			n_ptr->freq_spell = MAX(n_ptr->freq_spell, 25 + depth / 10);
+			
+			/* Give mage some basic spells */
+			if (((m_ptr->r_idx * 11) % 7) < (depth / 15)) n_ptr->flags6 |= (RF6_BLINK);
+			if (((m_ptr->r_idx * 13) % 9) < (depth / 12)) n_ptr->flags6 |= (RF6_ADD_MANA);
+			if (((m_ptr->r_idx * 17) % 11) < (depth / 10)) n_ptr->flags6 |= (RF6_TPORT);
+			if (((m_ptr->r_idx * 19) % 13) < (depth / 8)) n_ptr->flags6 |= (RF6_SHIELD);
+			
+			/* Pick a 'magely' attack spell */
+			switch((m_ptr->r_idx * 13) % 12)
+			{
+				case 0: if ((n_ptr->flags6 & (RF6_DARKNESS)) && (depth > 20)) { n_ptr->flags5 |= (RF5_BALL_DARK); break; }
+				case 1: n_ptr->flags5 |= (RF5_BOLT_ACID); break;
+				case 2: if ((n_ptr->flags6 & (RF6_CONF)) && (depth > 30)) { n_ptr->flags5 |= (RF5_BALL_CONFU); break; }
+				case 3: n_ptr->flags5 |= (RF5_BOLT_COLD); break;
+				case 4: if ((n_ptr->flags6 & (RF6_ILLUSION)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_CHAOS); break; }
+				case 5: n_ptr->flags5 |= (RF5_BOLT_FIRE); break;
+				case 6: if ((n_ptr->flags6 & (RF6_HOLD)) && (depth > 40)) { n_ptr->flags5 |= (RF5_BOLT_NETHR); break; }
+				case 7: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
+				case 8: if ((n_ptr->flags3 & (RF3_EVIL)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_NETHR); break; }
+				case 9: n_ptr->flags5 |= (RF5_BOLT_POIS); break;
+				case 10: if ((n_ptr->flags6 & (RF6_SLOW)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_SOUND); break; }
+				case 11: n_ptr->flags5 |= (RF5_BOLT_MANA); break;
+			}
+			
+			/* And another one */
+			if (depth > 30) switch((m_ptr->r_idx * 17) % 12)
+			{
+				case 0: if ((n_ptr->flags5 & (RF5_BOLT_POIS))/* && (depth > 20) */) { n_ptr->flags5 |= (RF5_BALL_POIS); break; }
+				case 1: n_ptr->flags5 |= (RF5_BOLT_ACID); break;
+				case 2: if ((n_ptr->flags5 & (RF5_BOLT_ELEC))/* && (depth > 30) */) { n_ptr->flags5 |= (RF5_BALL_WIND); break; }
+				case 3: n_ptr->flags5 |= (RF5_BOLT_COLD); break;
+				case 4: if ((n_ptr->flags5 & (RF5_BOLT_ACID)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_ACID); break; }
+				case 5: n_ptr->flags5 |= (RF5_BOLT_FIRE); break;
+				case 6: if ((n_ptr->flags5 & (RF5_BOLT_FIRE)) && (depth > 40)) { n_ptr->flags5 |= (RF5_BALL_FIRE); break; }
+				case 7: n_ptr->flags5 |= (RF5_BOLT_ELEC); break;
+				case 8: if ((n_ptr->flags5 & (RF5_BOLT_COLD)) && (depth > 50)) { n_ptr->flags5 |= (RF5_BALL_COLD); break; }
+				case 9: n_ptr->flags5 |= (RF5_BOLT_POIS); break;
+				case 10: if ((n_ptr->flags5 & (RF5_BOLT_MANA)) && (depth > 60)) { n_ptr->flags5 |= (RF5_BALL_MANA); break; }
+				case 11: n_ptr->flags5 |= (RF5_BOLT_MANA); break;
+			}
+			
+			/* And maybe one more */
+			if (depth > 50) switch((m_ptr->r_idx * 19) % 15)
+			{
+				case 0: n_ptr->flags5 |= (RF5_BALL_LITE); break;
+				case 1: n_ptr->flags5 |= (RF5_BALL_DARK); break;
+				case 2: n_ptr->flags5 |= (RF5_BALL_CONFU); break;
+				case 3: n_ptr->flags5 |= (RF5_BALL_SOUND); break;
+				case 4: n_ptr->flags5 |= (RF5_BALL_SHARD); break;
+				case 5: n_ptr->flags5 |= (RF5_BALL_STORM); break;
+				case 6: n_ptr->flags5 |= (RF5_BALL_NETHR); break;
+				case 7: n_ptr->flags5 |= (RF5_BALL_WATER); break;
+				case 8: n_ptr->flags5 |= (RF5_BALL_CHAOS); break;
+				case 9: n_ptr->flags5 |= (RF5_BALL_ELEC); break;
+				case 10: n_ptr->flags5 |= (RF5_BOLT_PLAS); break;
+				case 11: n_ptr->flags5 |= (RF5_BOLT_ICE); break;
+				case 12: n_ptr->flags5 |= (RF5_BEAM_ELEC); break;
+				case 13: n_ptr->flags5 |= (RF5_BEAM_ICE); break;
+				case 14: n_ptr->flags5 |= (RF5_ARC_FORCE); break;
+			}
+
+			scale = scale / 2;
+		}
+		if (!(fake_m_idx % 7) && (r_ptr->level <= depth - (++n * 5)))
+		{
+			n_ptr->flags2 |= (RF2_SNEAKY);
+
+			/* Increase effectiveness of some blows */
+			for (i = 0; i < 4; i++)
+			{
+				if ((!n_ptr->blow[i].d_side) && (!add_ranged))
+				{
+					/* Give thief some random ranged attack */
+					n_ptr->blow[i].method = RBM_DAGGER + (m_ptr->r_idx % 3);
+					n_ptr->blow[i].effect = i > 0 ? n_ptr->blow[0].effect : GF_HURT;
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), 1);
+					n_ptr->blow[i].d_side = d1 < 50 ? 5 : (d1 / 10);
+					
+					n_ptr->freq_innate = MAX(n_ptr->freq_innate, 25 + depth / 10);
+					add_ranged = TRUE;
+				}
+				else if ((!n_ptr->blow[i].d_side) && (i * 15 < depth))
+				{
+					n_ptr->blow[i].method = RBM_TOUCH;
+					if (((m_idx + (i * 13)) % 11) < 4)
+					{
+						n_ptr->blow[i].effect = depth < 20 ? GF_EAT_GOLD : GF_EAT_ITEM;					
+					}
+					else n_ptr->blow[i].effect = GF_POIS;
+					
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), 1);
+					n_ptr->blow[i].d_side = d1 < 50 ? 5 : (d1 / 10);					
+				}
+				else if ((n_ptr->blow[i].method >= RBM_DAGGER) && (n_ptr->blow[i].method < RBM_DAGGER + 3))
+				{
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), n_ptr->blow[i].d_dice);
+					n_ptr->blow[i].d_side = MAX(d1 < 50 ? 5 : (d1 / 10), n_ptr->blow[i].d_side);
+				}
+			}
+			
+			/* Give thief some power */
+			n_ptr->mana = MAX(n_ptr->mana, d1 / 20);
+			n_ptr->spell_power = MAX(n_ptr->spell_power, depth / 6);
+			n_ptr->freq_spell = MAX(n_ptr->freq_spell, 25 + depth / 10);
+			
+			/* Give thief some basic spells */
+			if (((m_ptr->r_idx * 13) % 7) < (depth / 15)) n_ptr->flags6 |= (RF6_BLINK);
+			if (((m_ptr->r_idx * 17) % 9) < (depth / 12)) n_ptr->flags6 |= (RF6_TPORT);
+			if (((m_ptr->r_idx * 19) % 11) < (depth / 10)) n_ptr->flags6 |= (RF6_INVIS);
+			
+			scale = scale * 4 / 5;
+		}
+		
+		if ((!(fake_m_idx % 11) && (r_ptr->level <= depth - (++n * 5))) || (!n))
+		{
+			n_ptr->flags2 |= (RF2_ARCHER);
+			
+			/* Increase effectiveness of some blows */
+			for (i = 0; i < 4; i++)
+			{
+				if ((!n_ptr->blow[i].d_side) && ((i * 15 < depth) || !(add_ranged)))
+				{
+					/* Give thief some random ranged attack */
+					n_ptr->blow[i].method = RBM_ARROW + (m_ptr->r_idx % 2);
+					n_ptr->blow[i].effect = i > 0 ? n_ptr->blow[0].effect : GF_HURT;
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), 1);
+					n_ptr->blow[i].d_side = d1 < 50 ? 5 : (d1 / 10);
+					
+					n_ptr->freq_innate = MAX(n_ptr->freq_innate, 25 + depth / 10);
+					add_ranged = TRUE;
+				}
+				else if ((n_ptr->blow[i].method >= RBM_ARROW) && (n_ptr->blow[i].method < RBM_ARROW + 2))
+				{
+					n_ptr->blow[i].d_dice = MAX(d1 < 50 ? d1 / 5 : d1 / (d1 / 10), n_ptr->blow[i].d_dice);
+					n_ptr->blow[i].d_side = MAX(d1 < 50 ? 5 : (d1 / 10), n_ptr->blow[i].d_side);
+				}
+			}
+			
+			scale = scale * 4 / 5;
+		}
+	}
+	
+	/* Recheck scale */
+	if (scale < 100) return (TRUE);
 
 	/* Scale up for speed */
-	if ((n_ptr->flags9 & (RF9_LEVEL_SPEED)) != 0)
+	if (((n_ptr->flags9 & (RF9_LEVEL_SPEED)) != 0)
+		|| (((n_ptr->flags9 & (RF9_LEVEL_CLASS)) != 0) && (r_ptr->flags2 & (RF2_SNEAKY | RF2_ARCHER))))
 	{
 		/* We rely on speed giving us an overall scale improvement */
 		/* Note breeders are more dangerous on speed overall */
@@ -157,16 +395,14 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 		else if (n_ptr->mana && (boost > 10)) n_ptr->flags6 |= RF6_ADD_MANA;
 
 	}
-	/* Scale up for size */
-	else if ((n_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0)
-	{
-		/* Boost to huge first if required */
-		if (r_ptr->level >= depth + 20)
-		{
-			n_ptr->flags3 |= (RF3_HUGE);
-			scale = scale * 2 / 3;
-		}
+	
+	/* Recheck scale */
+	if (scale < 100) return (TRUE);
 
+	/* Scale up for size */
+	if (((n_ptr->flags9 & (RF9_LEVEL_SIZE)) != 0)
+		|| (((n_ptr->flags9 & (RF9_LEVEL_CLASS)) != 0) && (r_ptr->flags2 & (RF2_ARMOR))))
+	{
 		/* Boost attack damage partially */
 		if (scale > 133)
 			for (i = 0; i < 4; i++)
@@ -187,8 +423,12 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 		}
 	}
 
+	/* Recheck scale */
+	if (scale < 100) return (TRUE);
+
 	/* Scale up for power */
-	else if ((n_ptr->flags9 & (RF9_LEVEL_POWER)) != 0)
+	if (((n_ptr->flags9 & (RF9_LEVEL_POWER)) != 0)
+		|| (((n_ptr->flags9 & (RF9_LEVEL_CLASS)) != 0) && (r_ptr->flags2 & (RF2_MAGE))))
 	{
 		/* Boost speed first */
 		boost = scale / 400;
@@ -223,8 +463,11 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 		}
 	}
 
-	/* Scale up for age */
-	else if ((n_ptr->flags9 & (RF9_LEVEL_AGE)) != 0)
+	/* Recheck scale */
+	if (scale < 100) return (TRUE);
+
+	/* Scale up for age or not done */
+	if (scale > 100)
 	{
 		/* Boost armour class next */
 		boost = r_ptr->ac * scale / 200;
@@ -268,35 +511,15 @@ bool monster_scale(monster_race *n_ptr, int m_idx, int depth)
 		{
 			scale = (scale - 100) / 2 + 100; 
 			n_ptr->power = (r_ptr->power * scale) / 100;
+
+			/* Not done? */
+			if (scale > 100)
+			{
+				/* Boost hit points -- unlimited */
+				n_ptr->hside = n_ptr->hside * scale / 100;
+			}
 		}
 	}
-
-	
-	/* Not done? */
-	if (scale > 100)
-	{
-		/* Boost armour class next */
-		boost = r_ptr->ac * scale / 200;
-
-		/* Limit armour class improvement */
-		if (boost > 50 + n_ptr->ac / 3) boost = 50 + n_ptr->ac / 3;
-
-		/* Improve armour class */
-		n_ptr->ac += boost;
-
-		/* Reduce scale by actual scaled improvement in armour class */
-		scale = scale * r_ptr->ac / n_ptr->ac;
-
-		/* Not done? */
-		if (scale > 100)
-		{
-			/* Boost hit points -- unlimited */
-			n_ptr->hside = n_ptr->hside * scale / 100;
-		}
-	}
-
-	/* Set level to depth */
-	n_ptr->level = depth;
 
 	return (TRUE);
 }
@@ -3890,7 +4113,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					/* Message */
 					if (known)
 					{
-						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks very healthy!",  t_name);
+						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks very healthy!",  t_nref);
 						else msg_format("%^s sounds very healthy!", t_nref);
 					}
 				}
@@ -3901,7 +4124,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					/* Message */
 					if (known)
 					{
-						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks healthier.",  t_name);
+						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks healthier.",  t_nref);
 						else msg_format("%^s sounds healthier.", t_nref);
 					}
 				}

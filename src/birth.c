@@ -400,6 +400,7 @@ static void player_wipe(void)
 	for (i = 0; i < z_info->t_max; i++)
 	{
 		t_info[i].max_depth = 0;
+		t_info[i].visited = 0;
 	}
 
 	/* Start with no artifacts made yet */
@@ -575,6 +576,7 @@ static void player_outfit(void)
 				}
 
 				case TV_BOW:
+				case TV_INSTRUMENT:
 				{
 					switch (p_ptr->pstyle)
 					{
@@ -3050,6 +3052,10 @@ void player_birth(void)
 	/* Hack -- set the dungeon. */
 	if (adult_campaign) p_ptr->dungeon = 1;
 	else p_ptr->dungeon = z_info->t_max - 2;
+
+	/* Hack -- set the town. This is now required for shop restocking. */
+	if (adult_campaign) p_ptr->town = 1;
+	else p_ptr->town = z_info->t_max - 2;
 
 	/* Set last disturb */
 	p_ptr->last_disturb = turn;
