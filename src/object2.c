@@ -8671,6 +8671,9 @@ void inven_item_optimize(int item)
 	/* The item is in the pack */
 	if (item < INVEN_WIELD)
 	{
+		/* Hack - bags take up 2 slots. We calculate this here. */
+		if (o_ptr->tval == TV_BAG) p_ptr->pack_size_reduce_bags--;
+
 		/* One less item */
 		p_ptr->inven_cnt--;
 
@@ -8833,8 +8836,8 @@ bool inven_carry_okay(const object_type *o_ptr)
 {
 	int j;
 
-	/* Empty slot? */
-	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce) return (TRUE);
+	/* Empty slot? - note hack for bags taking up two slots */
+	if (p_ptr->inven_cnt < INVEN_PACK - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_study - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0)) return (TRUE);
 
 	/* Similar slot? */
 	for (j = 0; j < INVEN_PACK; j++)
@@ -8929,7 +8932,7 @@ s16b inven_carry(object_type *o_ptr)
 		 * Hack -- Force pack overflow if we reached the slots of the
 		 * inventory reserved for the quiver. -DG-
 		 */
-		if (j >= INVEN_PACK - p_ptr->pack_size_reduce)
+		if (j >= INVEN_PACK - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_study - p_ptr->pack_size_reduce_bags - (o_ptr->tval == TV_BAG ? 1 : 0))
 		{
 			/* Jump to INVEN_PACK to not mess up pack reordering */
 			j = INVEN_PACK;
@@ -8945,7 +8948,6 @@ s16b inven_carry(object_type *o_ptr)
 
 	/* Use that slot */
 	i = j;
-
 
 	/* Reorder the pack */
 	if (i < INVEN_PACK)
@@ -9078,6 +9080,9 @@ s16b inven_carry(object_type *o_ptr)
 
 	/* No longer marked */
 	j_ptr->ident &= ~(IDENT_MARKED);
+
+	/* Hack - bags take up 2 slots. We calculate this here. */
+	if (j_ptr->tval == TV_BAG) p_ptr->pack_size_reduce_bags++;
 
 	/* Increase the weight */
 	p_ptr->total_weight += (j_ptr->number * j_ptr->weight);
@@ -9570,6 +9575,19 @@ void combine_pack(void)
 				break;
 			}
 		}
+	}
+
+	/* Hack - bags take up 2 slots. We calculate this here. */
+	p_ptr->pack_size_reduce_bags = 0;
+
+	/* Hack - count the number of bags */
+	for (i = 0; i < INVEN_PACK; i++)
+	{
+		o_ptr = &inventory[i];
+
+		if (!o_ptr->k_idx) continue;
+
+		if (o_ptr->tval == TV_BAG) p_ptr->pack_size_reduce_bags++;
 	}
 
 	/* Message */
@@ -10358,7 +10376,7 @@ void find_quiver_size(void)
 	}
 
 	/* Every 99 missiles in the quiver takes up one backpack slot. */
-	p_ptr->pack_size_reduce = (ammo_num + 98) / 99;
+	p_ptr->pack_size_reduce_quiver = (ammo_num + 98) / 99;
 }
 
 

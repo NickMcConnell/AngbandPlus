@@ -2743,6 +2743,46 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (n_ptr->ml) msg_format("%^s is no longer blind.", t_nref);
 				}
 
+				/* Cancel image */
+				if (n_ptr->image)
+				{
+					/* Cancel image */
+					n_ptr->image = 0;
+
+					/* Message */
+					if (n_ptr->ml) msg_format("%^s is no longer hallucinating.", t_nref);
+				}
+
+				/* Cancel dazed */
+				if (n_ptr->dazed)
+				{
+					/* Cancel dazed */
+					n_ptr->dazed = 0;
+
+					/* Message */
+					if (n_ptr->ml) msg_format("%^s is no longer dazed.", t_nref);
+				}
+
+				/* Cancel amnesia */
+				if (n_ptr->amnesia)
+				{
+					/* Cancel dazed */
+					n_ptr->amnesia = 0;
+
+					/* Message */
+					if (n_ptr->ml) msg_format("%^s is no longer forgetful.", t_nref);
+				}
+
+				/* Cancel terror */
+				if (n_ptr->terror)
+				{
+					/* Cancel dazed */
+					n_ptr->terror = 0;
+
+					/* Message */
+					if (n_ptr->ml) msg_format("%^s is no longer terrified.", t_nref);
+				}
+
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == who) p_ptr->redraw |= (PR_HEALTH);
 			}

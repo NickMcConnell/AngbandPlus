@@ -3573,8 +3573,8 @@ void py_attack(int dir)
 	/* Hack -- wake up nearby allies */
 	if (was_asleep)
 	{
-		/* Cutting or stunning a monster shuts them up */
-		if ((m_ptr->cut < 20) && (m_ptr->stunned < 20)) tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
+		/* Cutting, stunning, poisoning or dazing  a monster shuts them up */
+		if ((m_ptr->cut < 20) && (m_ptr->stunned < 20)&& (m_ptr->poisoned < 20) && (m_ptr->dazed < 20)) tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
 	}
 
 	/* Hack -- delay fear messages */

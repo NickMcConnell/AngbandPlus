@@ -1701,6 +1701,8 @@ void improve_familiar(void)
 	int number_allowed = p_ptr->lev < 40 ? (p_ptr->lev / 2) : 20 + (p_ptr->lev - 40);
 	int i, j, num;
 	int base, slot, choice;
+	int blows_left = 4;
+	int last_blow_effect = FAMILIAR_BLOW + GF_HURT;
 
 	s16b table[FAMILIAR_CHOICES];
 
@@ -1711,6 +1713,10 @@ void improve_familiar(void)
 	/* Hack -- at level 10, the familiar gets a blow for free, and their third attribute */
 	if (p_ptr->lev >= FAMILIAR_FREE_BLOW) number_allowed += 2;
 	
+	/* Hack -- at levels 15 and 25, the familiar gets additional abilities */
+	if (p_ptr->lev >= 15) number_allowed++;
+	if (p_ptr->lev >= 25) number_allowed++;
+
 	/* Flush messages */
 	if (easy_more) messages_easy(FALSE);
 
@@ -1733,6 +1739,8 @@ void improve_familiar(void)
 		if (slot == FAMILIAR_FREE_BLOW / FAMILIAR_PICKS)
 		{
 			p_ptr->familiar_attr[FAMILIAR_FREE_BLOW / FAMILIAR_PICKS] = FAMILIAR_BLOW;
+			blows_left--;
+			last_blow_effect = FAMILIAR_BLOW + GF_HURT;
 			continue;
 		}
 		
@@ -1743,6 +1751,16 @@ void improve_familiar(void)
 			continue;
 		}
 		
+		/* Record last blow effect */
+		if (familiar_ability[slot].attr > FAMILIAR_BLOW) last_blow_effect = familiar_ability[slot].attr;
+
+		/* Count blows and clear last blow effect if we get an extra blow */
+		else if (familiar_ability[slot].attr == FAMILIAR_BLOW)
+		{
+			blows_left--;
+			last_blow_effect = FAMILIAR_BLOW + GF_HURT;
+		}
+
 		/* Find the location in the table */
 		base = (slot / FAMILIAR_PICKS) - 1;
 		
@@ -1768,14 +1786,33 @@ void improve_familiar(void)
 			/* Check to see if the player familiar already has this ability */
 			for (j = 0; j < slot; j++)
 			{
-				/* Not allowed to choose most normal abilities, or spikes */
+				/* Not allowed to choose most normal abilities, or spikes more than once */
 				if (((familiar_ability[i].attr < FAMILIAR_AC) || (familiar_ability[i].attr == FAMILIAR_SPIKE)) &&
 						(p_ptr->familiar_attr[j] == familiar_ability[i].attr)) okay = FALSE;
+
+				/* Notice if we have pre-requisite */
 				if (p_ptr->familiar_attr[j] == familiar_ability[i].preq) preq = TRUE;
+
+				/* Hack to allow other helpful spells to be cast on the player */
+				if (familiar_ability[i].preq == 181)
+				{
+					switch (p_ptr->familiar_attr[j])
+					{
+						case 184: /* Oppose elements */
+						case 183: /* Shield */
+						case 163: /* Cure */
+						case 162: /* Heal */
+						case 160: /* Haste */
+							preq = TRUE;
+					}
+				}
 			}
 
+			/* Can only choose blows 4 times */
+			if ((!blows_left) && (familiar_ability[i].attr == FAMILIAR_BLOW)) okay = FALSE;
+
 			/* Can't pick the same blow improvement twice in a row */
-			if ((slot) && (familiar_ability[i].attr > FAMILIAR_BLOW) && (p_ptr->familiar_attr[slot-1] == familiar_ability[i].attr)) okay = FALSE;
+			if ((slot) && (familiar_ability[i].attr == last_blow_effect)) okay = FALSE;
 			
 			/* Ability allowed */
 			if (okay && (preq || !familiar_ability[i].preq))

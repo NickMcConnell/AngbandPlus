@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	4
-#define VERSION_EXTRA	1
+#define VERSION_EXTRA	3
 
 /*
  * Oldest version number that can still be imported
@@ -518,6 +518,16 @@ enum
  * by the fact that the screen can only show 23 items plus a one-line prompt.
  */
 #define INVEN_PACK		23
+
+
+/*
+ * Maximum number of books the player can study from
+ *
+ * This is artificially limited so the player cannot consume more than half
+ * their inventory with study slots. The actual limit is INVEN_PACK.
+ */
+#define MAX_STUDY_BOOK	(INVEN_PACK / 2)
+
 
 
 /*
@@ -1079,6 +1089,18 @@ enum
 #define GF_CHARM_PLANT	153
 #define GF_TANGLE_WEAK	154
 #define GF_LITE_BODY	155
+#define GF_IMAGE_ACID		156
+#define GF_IMAGE_ELEC		157
+#define GF_IMAGE_FIRE		158
+#define GF_IMAGE_COLD		159
+#define GF_IMAGE_POIS		160
+#define GF_ILLUSION		161
+#define GF_VAMP_DRAIN_FAMILIAR	162
+#define GF_MANA_DRAIN_FAMILIAR	163
+#define GF_DRAIN_LIFE_PERC   164
+#define GF_DRAIN_BLOOD	165
+#define GF_DRAIN_BLOOD_FAMILIAR	166
+#define GF_VAMP_DRAIN_BLOOD	167
 
 
 
@@ -2641,7 +2663,7 @@ enum
 /*
  * Special "sval" limit -- maximum number of bags
  */
-#define SV_BAG_MAX_BAGS		24
+#define SV_BAG_MAX_BAGS		29
 #define SV_BAG_HARMFUL_MUSHROOMS 1
 
 /*
@@ -4546,18 +4568,36 @@ enum
 
 
 /*
- * Assist spells - monsters only cast these on self or allies
+ * Self targeted spells - monsters can only cast these on self
+ */
+#define RF4_SELF_TARGET_MASK \
+	(RF4_QUAKE)
+
+#define RF5_SELF_TARGET_MASK \
+	(0L)
+
+#define RF6_SELF_TARGET_MASK \
+        (RF6_ADD_MANA | \
+	RF6_BLINK | RF6_TPORT | RF6_INVIS | RF6_WRAITHFORM | \
+	RF6_BERSERK)
+
+#define RF7_SELF_TARGET_MASK \
+	(0L)
+
+
+/*
+ * Assist spells - monsters only cast these on self;
+ * priests may also cast these on allies
  */
 #define RF4_ASSIST_MASK \
-	(RF4_QUAKE)
+	(0L)
 
 #define RF5_ASSIST_MASK \
 	(0L)
 
 #define RF6_ASSIST_MASK \
-        (RF6_HEAL | RF6_ADD_MANA | RF6_TELE_SELF_TO | RF6_CURE | RF6_HASTE | \
-	RF6_BLINK | RF6_TPORT | RF6_TELE_TO | RF6_TRAPS | RF6_INVIS | RF6_WRAITHFORM | \
-	RF6_BLESS | RF6_BERSERK | RF6_SHIELD | RF6_OPPOSE_ELEM)
+        (RF6_HEAL | RF6_CURE | RF6_BLESS | RF6_TELE_SELF_TO | RF6_TELE_TO | RF6_SHIELD | \
+			RF6_HASTE | RF6_OPPOSE_ELEM)
 
 #define RF7_ASSIST_MASK \
 	(0L)
@@ -4568,16 +4608,16 @@ enum
  * Need special treatment in AI.
  */
 #define RF4_NO_PLAYER_MASK \
-        (RF4_ASSIST_MASK)
+        (RF4_ASSIST_MASK | RF4_SELF_TARGET_MASK)
 
 #define RF5_NO_PLAYER_MASK \
-        (RF5_ASSIST_MASK)
+        (RF5_ASSIST_MASK | RF5_SELF_TARGET_MASK)
 
 #define RF6_NO_PLAYER_MASK \
-        (RF6_ASSIST_MASK)
+        (RF6_ASSIST_MASK | RF6_SELF_TARGET_MASK)
 
 #define RF7_NO_PLAYER_MASK \
-        (RF7_ASSIST_MASK)
+        (RF7_ASSIST_MASK | RF7_SELF_TARGET_MASK)
 
 
 /*
@@ -4734,7 +4774,7 @@ enum
 /*
  * Maximum number of familiar abilities
  */
-#define MAX_FAMILIAR_ABILITIES 131
+#define MAX_FAMILIAR_ABILITIES 161
 
 /*
  * Choices at each 'level' of picks

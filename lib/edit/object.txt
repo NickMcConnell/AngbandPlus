@@ -97,7 +97,7 @@ W:10:500:1:50
 A:10/1
 P:0:0d0:0:0:0
 
-N:9:Weakness
+N:9:Intellectual Weakness
 G:,:w
 I:79:6:0
 W:10:500:1:0
@@ -125,14 +125,14 @@ W:20:500:1:1000
 A:20/8:30/4:35/1
 P:0:0d0:0:0:0
 
-N:13:Stupidity
+N:13:Healthy Stupidity
 G:,:w
 I:79:8:0
 W:15:500:1:0
 A:15/1
 P:0:0d0:0:0:0
 
-N:14:Naivety
+N:14:Charming Naivety
 G:,:w
 I:79:9:0
 W:15:500:1:0
@@ -146,7 +146,7 @@ W:5:500:1:0
 A:3/1:5/1
 P:0:0d0:0:0:0
 
-N:16:Sickness
+N:16:Strong Sickness
 G:,:w
 I:79:7:0
 W:10:500:1:0
@@ -5236,11 +5236,15 @@ A:45/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
 
+N:630:Probe Monster
+G:-:w
+I:66:39:0
+W:5:50:15:100
+A:5/1
+P:0:1d1:0:0:0
+Y:1:1
+
 ### New scrolls (13)
-
-### 630 - Unused ###
-
-#$# 630 - Unused ###
 
 N:631:Continual Light
 G:?:w
@@ -8249,4 +8253,77 @@ W:50:0:30:45000
 A:50/24
 P:0:1d7:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER |
+
+#More magic bags
+
+N:1008:Mixed Mushrooms
+G:&:o
+I:98:24:0
+W:20:0:100:350
+A:10/5
+P:0:0d0:0:0:0
+
+N:1009:Reagents
+G:&:o
+I:98:25:0
+W:30:0:100:600
+A:30/5
+P:0:0d0:0:0:0
+
+N:1010:Serums
+G:&:o
+I:98:26:0
+W:45:0:100:2400
+A:45/10
+P:0:0d0:0:0:0
+
+N:1011:Panaceas
+G:&:o
+I:98:27:0
+W:57:0:100:8000
+A:57/40
+P:0:0d0:0:0:0
+
+N:1012:Divination
+G:&:o
+I:98:28:0
+W:45:0:100:2400
+A:45/10
+P:0:0d0:0:0:0
+
+N:1013:Wise Fumbling
+G:,:w
+I:79:27:0
+W:15:500:1:0
+A:15/1
+P:0:0d0:0:0:0
+
+N:1014:Growing Clumsiness
+G:,:w
+I:79:28:0
+W:15:500:1:0
+A:15/1
+P:0:0d0:0:0:0
+
+N:1015:Agile Ugliness
+G:,:w
+I:79:29:0
+W:15:500:1:0
+A:15/1
+P:0:0d0:0:0:0
+
+N:1016:Dextrous Shrinking
+G:,:w
+I:79:30:0
+W:15:500:1:0
+A:15/1
+P:0:0d0:0:0:0
+
+N:1017:Death
+G:!:w
+I:75:85:0
+W:55:0:4:0
+A:55/2
+P:0:1d1:0:0:0
+F:THROWING |
 

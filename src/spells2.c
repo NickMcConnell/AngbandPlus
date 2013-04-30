@@ -8816,6 +8816,31 @@ void region_insert(u16b *gp, int grid_n, s16b *gd, s16b region)
 
 
 /*
+ * Iterate through the regions in a particular grid, applying a region_hook function to each region that
+ * occupies the grid.
+ */
+bool region_grid(int y, int x, bool region_iterator(int y, int x, s16b d, s16b region))
+{
+	s16b this_region_piece, next_region_piece = 0;
+	bool seen = FALSE;
+
+	for (this_region_piece = cave_region_piece[y][x]; this_region_piece; this_region_piece = next_region_piece)
+	{
+		/* Get the region piece */
+		region_piece_type *rp_ptr = &region_piece_list[this_region_piece];
+
+		/* Get the next object */
+		next_region_piece = rp_ptr->next_in_grid;
+
+		/* Iterate on region piece */
+		seen |= region_iterator(y, x, rp_ptr->d, rp_ptr->region);
+	}
+
+	return (seen);
+}
+
+
+/*
  * Iterate through a region, applying a region_hook function to each grid in the region
  */
 bool region_iterate(s16b region, bool region_iterator(int y, int x, s16b d, s16b region))

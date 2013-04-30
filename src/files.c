@@ -4003,7 +4003,7 @@ errr file_character(cptr name, bool full)
 	}
 
 	/* Dump the quiver */
-	if (p_ptr->pack_size_reduce)
+	if (p_ptr->pack_size_reduce_quiver)
 	{
 		text_out("  [Character Equipment -- Quiver]\n\n");
 

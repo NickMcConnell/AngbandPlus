@@ -1165,7 +1165,12 @@ struct monster_type
 	byte tim_invis;	/* Monster is temporarily invisible */
 	byte tim_passw;	/* Monster is temporarily passwall */
 	byte bless;	/* Monster is temporarily blessed */
-	byte berserk;	/* Monster is temporarily beserk */
+	byte berserk;	/* Monster is temporarily berserk */
+
+	byte image;	/* Monster is hallucinating */
+	byte dazed;	/* Monster is dazed */
+	byte amnesia;	/* Monster is forgetful */
+	byte terror;	/* Monster is terrified */
 
 	byte shield;	/* Monster is temporarily shielded */
 	byte oppose_elem; /* Monster is temporarily resistant to elements */
@@ -1786,6 +1791,8 @@ struct player_type
 
 	u32b disease;	/* Disease types */
 
+	s16b study_slot[MAX_STUDY_BOOK];	/* The inventory slots used to study books */
+
 	u32b spell_learned1;    /* Spell flags */
 	u32b spell_learned2;    /* Spell flags */
 	u32b spell_learned3;    /* Spell flags */
@@ -1832,8 +1839,12 @@ struct player_type
 
 	s16b inven_cnt; /* Number of items in inventory */
 	s16b equip_cnt; /* Number of items in equipment (except quiver) */
-	s16b pack_size_reduce;		/* Number of inventory slots used by
+	s16b pack_size_reduce_quiver;		/* Number of inventory slots used by
 					   the quiver */
+	s16b pack_size_reduce_bags;		/* Number of inventory slots used by
+					   the bags */
+	s16b pack_size_reduce_study;		/* Number of inventory slots used by
+					   study slots */
 
 
 	s16b target_set;/* Target flag */

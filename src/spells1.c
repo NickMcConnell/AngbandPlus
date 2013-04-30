@@ -338,6 +338,12 @@ void update_smart_racial(int m_idx)
 
 
 /*
+ * Hack to notice illusions
+ */
+int do_tell_illusion;
+int do_tell_illusion_count;
+
+/*
  * Teleport hook: Destination must be projectable from origin
  */
 bool teleport_project_hook(const int oy, const int ox, const int ny, const int nx)
@@ -1140,6 +1146,12 @@ byte spell_color(int type, int y, int x)
 		case GF_COLD:         return (cold_color());
 		case GF_POIS:         return (pois_color());
 
+		case GF_IMAGE_ACID:         return (acid_color());
+		case GF_IMAGE_ELEC:         return (elec_color());
+		case GF_IMAGE_FIRE:         return (fire_color());
+		case GF_IMAGE_COLD:         return (cold_color());
+		case GF_IMAGE_POIS:         return (pois_color());
+
 		case GF_DELAY_POISON: return (clear_color(y, x));
 		case GF_POISON_WEAK:  return (pois_color());
 		case GF_POISON_HALF:  return (pois_color());
@@ -1175,7 +1187,10 @@ byte spell_color(int type, int y, int x)
 		case GF_CHAOS:        return (chaos_color());
 		case GF_DISENCHANT:   return (TERM_VIOLET);
 		case GF_TIME:         return (TERM_L_BLUE);
+		case GF_GAIN_MANA:
+		case GF_GAIN_MANA_PERC:
 		case GF_MANA:         return (mana_color());
+		case GF_DRAIN_LIFE_PERC:
 		case GF_DRAIN_LIFE:   return (death_color());
 
 		case GF_METEOR:       return (meteor_color());
@@ -5867,6 +5882,21 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 	/* Heal amount (amount to petrify) */
 	int do_petrify = 0;
 
+	/* Image amount (amount to hallucinate for) */
+	int do_image = 0;
+
+	/* Amnesia amount (amount to amnesia for) */
+	int do_amnesia = 0;
+
+	/* Terror amount (amount to be terrified for) */
+	int do_terror = 0;
+
+	/* Daze amount (amount to be dazed for) */
+	int do_daze = 0;
+
+	/* Image damage - amount before reduction */
+	int image_dam = dam;
+
 	/* Destruction of inventory? */
 	inven_func do_inven_destroy = NULL;
 
@@ -6122,6 +6152,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Acid */
+		case GF_IMAGE_ACID:
 		case GF_ACID:
 		{
 			/* Hack -- halve acid damage in water */
@@ -6159,6 +6190,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Electricity */
+		case GF_IMAGE_ELEC:
 		case GF_ELEC:
 		{
 			/* Hack -- double electricy damage in water */
@@ -6187,6 +6219,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Fire damage */
+		case GF_IMAGE_FIRE:
 		case GF_FIRE:
 		{
 			/* Hack -- halve fire damage in water */
@@ -6215,6 +6248,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Cold */
+		case GF_IMAGE_COLD:
 		case GF_COLD:
 		{
 			/* Hack -- double cold damage in water */
@@ -6240,6 +6274,7 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 
 		/* Poison */
+		case GF_IMAGE_POIS:
 		case GF_POISON_HALF:
 		case GF_POISON_WEAK:
 		case GF_DELAY_POISON:
@@ -7022,20 +7057,74 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Drain life percentage */
+		case GF_DRAIN_LIFE_PERC:
+		{
+			/* Drain from maximum health */
+			dam = m_ptr->maxhp * dam / 100;
+
+			/* Hack to keep code simple */
+			typ = GF_DRAIN_LIFE;
+
+			/* Fall through */
+		}
+
 		/* Drain Life and Vampiric Drain */
 		case GF_DRAIN_LIFE:
 		case GF_VAMP_DRAIN:
+		case GF_VAMP_DRAIN_FAMILIAR:
+		case GF_DRAIN_BLOOD:
+		case GF_DRAIN_BLOOD_FAMILIAR:
+		case GF_VAMP_DRAIN_BLOOD:
 		{
 			if (seen) obvious = TRUE;
 
+			/* Draining blood -- instead effective against monsters who have blood */
+			if ((typ == GF_DRAIN_BLOOD) || (typ == GF_DRAIN_BLOOD_FAMILIAR) || (typ == GF_VAMP_DRAIN_BLOOD))
+			{
+				/* Does not have blood */
+				if ((r_ptr->flags8 & (RF8_HAS_BLOOD)) == 0)
+				{
+					/* Less damage and no side effects */
+					dam = (dam+2)/3;
+					break;
+				}
+
+				note = " is drained of blood.";
+
+				/* Drain monsters vampirically */
+				if (typ == GF_VAMP_DRAIN_BLOOD)
+				{
+					int new_maxhp;
+
+					m_ptr->mflag &= ~(MFLAG_STRONG | MFLAG_SMART | MFLAG_WISE | MFLAG_SKILLFUL | MFLAG_HEALTHY);
+					m_ptr->mflag |= (MFLAG_WEAK | MFLAG_STUPID | MFLAG_NAIVE | MFLAG_CLUMSY | MFLAG_SICK);
+
+					new_maxhp = calc_monster_hp(cave_m_idx[y][x]);
+
+					if (new_maxhp < m_ptr->maxhp)
+					{
+						/* Scale down hit points */
+						m_ptr->hp = m_ptr->hp * new_maxhp / m_ptr->maxhp;
+
+						/* To a minimum */
+						if (m_ptr->hp < 0) m_ptr->hp = 0;
+
+						/* Permanently reduce maximum hp */
+						m_ptr->maxhp = new_maxhp;
+					}
+				}
+			}
+
 			/* Hack -- heal undead */
-			if (r_ptr->flags3 & (RF3_UNDEAD))
+			else if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				do_heal = dam;
 				dam = 0;
 			}
 
-			else if (r_ptr->flags3 & (RF3_DEMON))
+			/* Elves, demons and maia are immortal */
+			else if (((r_ptr->flags3 & (RF3_DEMON)) != 0) || ((typ == GF_DRAIN_LIFE) && ((r_ptr->flags9 & (RF9_ELF)) != 0)))
 			{
 				if ((seen) && !(l_ptr->flags3 & (RF3_DEMON)))
 				{
@@ -7043,10 +7132,17 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
+				if ((seen) && !(l_ptr->flags9 & (RF9_ELF)))
+				{
+					note = " is unaffected.";
+					l_ptr->flags9 |= (RF9_ELF);
+				}
+
 				obvious = FALSE;
 				dam = 0;
 			}
 
+			/* Nonliving have no life to drain */
 			else if (r_ptr->flags3 & (RF3_NONLIVING))
 			{
 				if ((seen) && !(l_ptr->flags3 & (RF3_NONLIVING)))
@@ -7068,43 +7164,56 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			/* Do not allow wimpy monsters to yield much profit */
 			if (m_ptr->hp + 1 < dam) dam = m_ptr->hp + 1;
 
-			/* Character has cast the spell */
-			if (who <= SOURCE_PLAYER_START)
+			/* Character has cast the spell, or familiar has drained on their behalf */
+			if ((who < SOURCE_PLAYER_START) || ((who == SOURCE_PLAYER_ALLY) && ((typ == GF_VAMP_DRAIN_FAMILIAR) || (typ == GF_DRAIN_BLOOD_FAMILIAR))))
 			{
-				/* Spell is damaging, and has hit a warm-blooded creature. */
-				if (dam > 0)
+				/* Spell is damaging, and has hit a blood filled or living creature. */
+				if ((dam > 0) && (typ == GF_VAMP_DRAIN_FAMILIAR) && (p_ptr->chp < p_ptr->mhp))
 				{
 					/* msg_print("You suck in some life force."); */
 
 					/* Heal caster */
 					(void)hp_player(dam);
-
-					/* Feed caster -- protect against bloating */
-					if (p_ptr->food + dam * 8 < PY_FOOD_FULL)
-						(void)set_food(p_ptr->food + dam * 8);
-					else
-						(void)set_food(PY_FOOD_FULL);
 				}
 				/* Oops */
 				else if (do_heal)
 				{
 					take_hit(SOURCE_PLAYER_VAMP_DRAIN, m_ptr->r_idx, do_heal);
 				}
+
+				/* Feed the player */
+				if (dam > 0)
+				{
+					/* Feed caster -- protect against bloating */
+					if (p_ptr->food + dam * 8 < PY_FOOD_FULL)
+						(void)set_food(p_ptr->food + dam * 8);
+					else
+						(void)set_food(PY_FOOD_FULL);
+				}
 			}
-			else if (who > SOURCE_MONSTER_START)
+
+			/* Monster gets the benefit */
+			if ((who > SOURCE_MONSTER_START) || (who == SOURCE_PLAYER_ALLY))
 			{
 				if (dam > 0)
 				{
-					feed_monster(who);
+					/* Blood has additional healing properties */
+					if ((typ == GF_DRAIN_BLOOD) || (typ == GF_DRAIN_BLOOD_FAMILIAR) || (typ == GF_VAMP_DRAIN_BLOOD))
+					{
+						feed_monster(who > SOURCE_MONSTER_START ? who : what);
+					}
 
 					/* Heal */
-					m_ptr->hp += dam;
+					if ((typ == GF_VAMP_DRAIN) || (typ == GF_VAMP_DRAIN_FAMILIAR) || (typ == GF_VAMP_DRAIN_BLOOD))
+					{
+						m_ptr->hp += dam;
 
-					/* No overflow */
-					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+						/* No overflow */
+						if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
 
-					/* Redraw (later) if needed */
-					if (p_ptr->health_who == who) p_ptr->redraw |= (PR_HEALTH);
+						/* Redraw (later) if needed */
+						if (p_ptr->health_who == who) p_ptr->redraw |= (PR_HEALTH);
+					}
 				}
 			}
 			break;
@@ -7870,6 +7979,18 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 					l_ptr->flags4 |= (RF4_BRTH_FEAR);
 				}
 			}
+			/* Save against terror */
+			else if (monster_save(m_ptr, dam, &near))
+			{
+				if ((near) && (seen))
+				{
+					do_terror = 2;
+				}
+			}
+			else
+			{
+				do_terror = do_fear/2;
+			}
 			break;
 		}
 
@@ -8498,9 +8619,10 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			{
 				if ((near) && (seen))
 				{
-					note = " appears absent-minded.";
+					note = " appears momentarily absent-minded.";
 					m_ptr->ty = 0;
 					m_ptr->tx = 0;
+					m_ptr->mflag &= ~(MFLAG_HIT_BLOW | MFLAG_HIT_RANGE);
 				}
 				else
 				{
@@ -8513,10 +8635,8 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			/* Monster forgets stuff */
 			else
 			{
-				m_ptr->ty = 0;
-				m_ptr->tx = 0;
-				m_ptr->mflag &= ~(MFLAG_HIT_BLOW | MFLAG_HIT_RANGE | MFLAG_AGGR);
-				m_ptr->smart = 0L;
+				/* Temporary forgetting */
+				do_amnesia = dam;
 			}
 
 			/* No "real" damage */
@@ -8824,6 +8944,80 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 		}
 	}
 
+	/* Handle illusions */
+	if ((typ == GF_IMAGE_ACID) || (typ == GF_IMAGE_FIRE) || (typ == GF_IMAGE_ELEC) ||
+			(typ == GF_IMAGE_COLD) || (typ == GF_IMAGE_POIS))
+	{
+		/* Immune to illusions and don't care about them */
+		if (r_ptr->flags2 & (RF2_EMPTY_MIND | RF2_WEIRD_MIND))
+		{
+			dam = 0;
+			do_pois = 0;
+			was_asleep = FALSE;
+			note = " is unaffected by illusions.";
+			if ((r_ptr->flags2 & (RF2_EMPTY_MIND)) != 0) l_ptr->flags2 |= (RF2_EMPTY_MIND);
+			if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) != 0) l_ptr->flags2 |= (RF2_WEIRD_MIND);
+		}
+		/* Ignores illusions */
+		else if (!(m_ptr->csleep) && !(m_ptr->image)
+			&& (((m_ptr->mflag & (MFLAG_NAIVE)) == 0) ||
+					((m_ptr->mflag & (MFLAG_SMART)) != 0) ||
+					monster_save(m_ptr, dam / 30, &near)))
+		{
+			dam = 0;
+			do_pois = 0;
+			if ((who <= SOURCE_PLAYER_START) && ((m_ptr->mflag & (MFLAG_SMART)) == 0) && (!rand_int(++do_tell_illusion_count))) do_tell_illusion = cave_m_idx[y][x];
+			m_ptr->mflag |= (MFLAG_SMART);
+			note = " ignores the illusion.";
+		}
+		/* Notices inconsistent illusions */
+		else if (image_dam > dam)
+		{
+			dam = 0;
+			do_pois = 0;
+			if ((who <= SOURCE_PLAYER_START) && ((m_ptr->mflag & (MFLAG_SMART)) == 0) && (!rand_int(++do_tell_illusion_count))) do_tell_illusion = cave_m_idx[y][x];
+			m_ptr->mflag |= (MFLAG_SMART);
+			if (m_ptr->csleep)
+				note = " notices the illusion and wakes up.";
+			else
+				note = " notices the illusion.";
+			m_ptr->csleep = 0;
+		}
+		/* Partially apply damage */
+		else
+		{
+			dam /= damroll(2, (r_ptr->level / 10) + 1);
+			if (rand_int(100) < 50 + (m_ptr->monfear ? 50 : 0) - (m_ptr->image ? 50 : 0)) do_fear = image_dam * 100 / m_ptr->hp;
+			else do_image = image_dam * 100 / m_ptr->hp;
+
+			/* Powerful monsters can resist */
+			if (monster_save(m_ptr, dam / 30, &near))
+			{
+				if (near)
+				{
+					if (m_ptr->csleep)
+					{
+						note = " is disturbed by nightmares.";
+						do_sleep = m_ptr->csleep / 2;
+					}
+					/* Awake monsters notice illusion if they save */
+					else if (!m_ptr->image)
+					{
+						if ((who <= SOURCE_PLAYER_START) && ((m_ptr->mflag & (MFLAG_SMART)) == 0) && (!rand_int(++do_tell_illusion_count))) do_tell_illusion = cave_m_idx[y][x];
+						m_ptr->mflag |= (MFLAG_SMART);
+					}
+				}
+			}
+			else
+			{
+				do_sleep = m_ptr->csleep;
+				was_asleep = FALSE;
+			}
+		}
+
+		/* Illusions don't affect equipment */
+		do_inven_destroy = NULL;
+	}
 
 	/* Absolutely no effect */
 	if (skipped)
@@ -9165,6 +9359,20 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				tmp = do_conf;
 			}
 
+			/* Hack -- excess confusion causes hallucination or dazing */
+			/* If this occurs, we reduce the original confusion effect and
+			 * override the note so that the player notices */
+			if (tmp > 100)
+			{
+				/* Higher values translate into more dazed effect, but
+				 * greater reduction on total confusion */
+				int div = MIN((tmp - 95) / 5, 9);
+				if (rand_int(100) < 50 + (m_ptr->dazed ? 50 : 0) - (m_ptr->image ? 50 : 0)) do_daze += (tmp - 80) / (10 - div);
+				else do_image += (tmp - 80) / (10 - div);
+				tmp /= div;
+				note = NULL;
+			}
+
 			/* Apply confusion */
 			m_ptr->confused = tmp > 200 ? 200 : (byte)tmp;
 		}
@@ -9175,11 +9383,19 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			/* Increase fear */
 			tmp = m_ptr->monfear + do_fear;
 
-			/* Hack -- excess fear causes petrification */
+			/* Hack -- excess fear causes petrification, terror or dazing */
+			/* If this occurs, we reduce the original fear effect and
+			 * override the note so that the player notices */
 			if (tmp > 100)
 			{
-				do_petrify += tmp - 100;
-				tmp = 100;
+				/* Higher values translate into more dazed effect, but
+				 * greater reduction on total confusion */
+				int div = MIN((tmp - 95) / 5, 9);
+				if (rand_int(100) < 33 + (m_ptr->dazed ? 33 : 0) - (m_ptr->petrify ? 33 : 0) - (m_ptr->terror ? 33 : 0)) do_daze += (tmp - 80) / (10 - div);
+				else if (rand_int(100) < 50 + (m_ptr->terror ? 50 : 0) - (m_ptr->petrify ? 50 : 0)) do_terror += (tmp - 80) / (10 - div);
+				else do_petrify += (tmp - 80) / (10 - div);
+				tmp /= div;
+				note = NULL;
 			}
 
 			/* Set monster fear */
@@ -9212,6 +9428,112 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 			/* As we can't move, need to find new range */
 			find_range(cave_m_idx[y][x]);
+		}
+
+		/* Handle hallucination */
+		if (do_image > 1)
+		{
+			/* Obvious */
+			if (seen) obvious = TRUE;
+
+			/* Already partially hallucinating */
+			if (m_ptr->image)
+			{
+				if (!note) note = " looks more drugged.";
+				tmp = m_ptr->image + (do_image / (r_ptr->level / 10 + 1));
+			}
+
+			/* Was not confused */
+			else
+			{
+				if (!note) note = " looks drugged.";
+				tmp = do_image;
+			}
+
+			/* Apply confusion */
+			m_ptr->image = tmp > 200 ? 200 : (byte)tmp;
+
+			/* Hack - ensure monster attacks those around it */
+			m_ptr->mflag |= (MFLAG_IGNORE);
+		}
+
+		/* Handle dazed */
+		if (do_daze > 1)
+		{
+			/* Obvious */
+			if (seen) obvious = TRUE;
+
+			/* Already partially dazed */
+			if (m_ptr->dazed)
+			{
+				if (!note) note = " looks more dazed.";
+				tmp = m_ptr->dazed + (do_daze / (r_ptr->level / 10 + 1));
+			}
+
+			/* Was not dazed */
+			else
+			{
+				if (!note) note = " looks dazed.";
+				tmp = do_daze;
+			}
+
+			/* Apply daze */
+			m_ptr->dazed = tmp > 200 ? 200 : (byte)tmp;
+		}
+
+		/* Handle amnesia */
+		if (do_amnesia > 1)
+		{
+			/* Obvious */
+			if (seen) obvious = TRUE;
+
+			/* Already partially forgetful */
+			if (m_ptr->amnesia)
+			{
+				if (!note) note = " looks more forgetful.";
+				tmp = m_ptr->amnesia + (do_amnesia / (r_ptr->level / 10 + 1));
+			}
+
+			/* Was not forgetful */
+			else
+			{
+				if (!note) note = " looks forgetful.";
+				tmp = do_amnesia;
+			}
+
+			/* Apply daze */
+			m_ptr->amnesia = tmp > 200 ? 200 : (byte)tmp;
+
+			/* Forget stuff */
+			m_ptr->ty = 0;
+			m_ptr->tx = 0;
+			m_ptr->mflag &= ~(MFLAG_HIT_BLOW | MFLAG_HIT_RANGE | MFLAG_SMART);
+			m_ptr->mflag |= (MFLAG_IGNORE);
+			m_ptr->smart = 0L;
+		}
+
+		/* Handle terror */
+		if (do_terror > 1)
+		{
+			/* Obvious */
+			if (seen) obvious = TRUE;
+
+			/* Already partially terrified */
+			if (m_ptr->terror)
+			{
+				if (!note) note = " looks more terrified.";
+				tmp = m_ptr->terror + (do_terror / (r_ptr->level / 10 + 1));
+			}
+
+			/* Was not terrified */
+			else
+			{
+				if (!note) note = " looks terrified.";
+				tmp = do_terror;
+			}
+
+			/* Apply terror */
+			m_ptr->terror = tmp > 200 ? 200 : (byte)tmp;
 		}
 	}
 
@@ -9299,19 +9621,48 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 				(void)mon_inven_damage(cave_m_idx[y][x], do_inven_destroy, (dam / 15) + 1);
 		}
 
-		/* Hack -- wake up nearby allies */
-		if (was_asleep)
+		/* Assassination or murder attempt goes badly. */
+		if ((was_asleep) || (fear))
 		{
-			m_ptr->mflag |= (MFLAG_AGGR);
+			/* Rudely awoken */
+			if (was_asleep) m_ptr->mflag |= (MFLAG_AGGR);
 
-			(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
-		}
-		else if (fear)
-		{
-			(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has hurt me badly!");
+			/* Assassins prefer knives */
+			if (m_ptr->cut >= 25)
+			{
+				if (player_understands(monster_language(m_ptr->r_idx))) message_format(MSG_FLEE, m_ptr->r_idx,
+					       "%^s is bleeding too badly to make a noise!", m_name);
+			}
+			/* Or perhaps a cudgel */
+			else if (m_ptr->stunned >= 25)
+			{
+				if (player_understands(monster_language(m_ptr->r_idx))) message_format(MSG_FLEE, m_ptr->r_idx,
+					       "%^s is reeling from being stunned!", m_name);
+			}
+			/* And should poison where possible */
+			else if (m_ptr->poisoned >= 25)
+			{
+				if (player_understands(monster_language(m_ptr->r_idx))) message_format(MSG_FLEE, m_ptr->r_idx,
+					       "%^s is too poisoned for words!", m_name);
+			}
+			/* Or daze their foes */
+			else if (m_ptr->dazed >= 25)
+			{
+				if (player_understands(monster_language(m_ptr->r_idx))) message_format(MSG_FLEE, m_ptr->r_idx,
+					       "%^s is too dazed to talk!", m_name);
+			}
+			/* Was asleep */
+			else if (was_asleep)
+			{
+				(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has attacked me!");
+			}
+			/* Afraid */
+			else if (fear)
+			{
+				(void)tell_allies_not_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_TOWN), "& has hurt me badly!");
+			}
 		}
 	}
-
 
 	/* Verify this code XXX XXX XXX */
 
@@ -9443,6 +9794,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	/* Get diseases */
 	u32b old_disease = p_ptr->disease;
 
+	/* Hack -- internal effects don't damage inventory */
+	bool internal = (who == SOURCE_PLAYER_EAT) || (who == SOURCE_PLAYER_QUAFF) || (who == SOURCE_PLAYER_EAT_UNKNOWN) || (who == SOURCE_PLAYER_QUAFF_UNKNOWN);
+
 	/* No player here */
 	if (!(cave_m_idx[y][x] < 0)) return (FALSE);
 
@@ -9505,15 +9859,36 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	/* Analyze the damage */
 	switch (typ)
 	{
+
+		/* Illusory acid damage -- doesn't hurt inventory */
+		case GF_IMAGE_ACID:
+		{
+			/* Only do damage if asleep or hallucinating */
+			if (!(p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP])
+					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
+
+			/* Fall through */
+		}
+
 		/* Standard damage -- hurts inventory too */
 		case GF_ACID:
 		{
 			/* Hack -- halve acid damage in water */
 			if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
 
-			msg_print ("You are covered in acid!");
-			acid_dam(who, what, dam, TRUE);
+			msg_format ("You are %s acid!", internal ? "eaten from within by" : "covered in");
+			acid_dam(who, what, dam, (typ == GF_ACID) && !internal);
 			break;
+		}
+
+		/* Illusory fire damage -- doesn't hurt inventory */
+		case GF_IMAGE_FIRE:
+		{
+			/* Only do damage if asleep or hallucinating */
+			if (!(p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP])
+					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
+
+			/* Fall through */
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9522,9 +9897,19 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			/* Hack -- halve fire damage in water */
 			if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam /= 2;
 
-			msg_print ("You are enveloped in flames!");
-			fire_dam(who, what, dam, TRUE);
+			msg_format ("You are %s flames!", internal ? "burned from within by" : "enveloped in");
+			fire_dam(who, what, dam, (typ == GF_FIRE) && !internal);
 			break;
+		}
+
+		/* Illusory cold damage -- doesn't hurt inventory */
+		case GF_IMAGE_COLD:
+		{
+			/* Only do damage if asleep or hallucinating */
+			if (!(p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP])
+					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
+
+			/* Fall through */
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9533,9 +9918,19 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			/* Hack -- double cold damage in water */
 			if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
 
-			msg_print ("You are covered in frost!");
-			cold_dam(who, what, dam, TRUE);
+			msg_format ("You are %s frost!", internal ? "chilled from within by" : "covered in");
+			cold_dam(who, what, dam, (typ == GF_COLD) && !internal);
 			break;
+		}
+
+		/* Illusory electricity damage -- doesn't hurt inventory */
+		case GF_IMAGE_ELEC:
+		{
+			/* Only do damage if asleep or hallucinating */
+			if (!(p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP])
+					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
+
+			/* Fall through */
 		}
 
 		/* Standard damage -- hurts inventory too */
@@ -9545,9 +9940,19 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			/* Hack -- double electricy damage in water */
 			if (f_info[cave_feat[y][x]].flags2 & (FF2_WATER)) dam *= 2;
 
-			msg_print("You are struck by electricity!");
-			elec_dam(who, what, dam, TRUE);
+			msg_format ("You are %s electricity!", internal ? "shocked from within by" : "struck by");
+			elec_dam(who, what, dam, (typ == GF_ELEC) && !internal);
 			break;
+		}
+
+		/* Illusory poison damage */
+		case GF_IMAGE_POIS:
+		{
+			/* Only do damage if asleep or hallucinating */
+			if (!(p_ptr->timed[TMD_MSLEEP]) && !(p_ptr->timed[TMD_PSLEEP])
+					&& !(p_ptr->timed[TMD_IMAGE])) dam = 0;
+
+			/* Fall through */
 		}
 
 		/* Standard damage -- also poisons player */
@@ -11800,6 +12205,14 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Percentage drain life */
+		case GF_DRAIN_LIFE_PERC:
+		{
+			dam = p_ptr->mhp * dam / 100;
+
+			/* Fall through */
+		}
+
 		/* Heal the player if undead, else damage */
 		case GF_DRAIN_LIFE:
 		{
@@ -11823,23 +12236,41 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Injure the player. */
+		case GF_VAMP_DRAIN_BLOOD:
+		case GF_DRAIN_BLOOD:
+		case GF_DRAIN_BLOOD_FAMILIAR:
+
 		/* Injure the player unless undead. We assume monsters switch this off when required. */
 		case GF_VAMP_DRAIN:
+		case GF_VAMP_DRAIN_FAMILIAR:
 		{
-			if (!(p_ptr->cur_flags4 & (TR4_UNDEAD)))
+			/* Monster gets benefit of hp loss from player's reduced experience as well as damage */
+			int drain = p_ptr->chp;
+
+			if (((p_ptr->cur_flags4 & (TR4_UNDEAD)) == 0) || ((typ != GF_VAMP_DRAIN) && (typ != GF_VAMP_DRAIN_FAMILIAR)))
 			{
 				obvious = TRUE;
 				take_hit(who, what, dam);
 
 				/* Always notice */
-				player_not_flags(who, 0x0L,0x0L,0x0L,TR4_UNDEAD);
+				if (p_ptr->cur_flags4 & (TR4_UNDEAD)) player_not_flags(who, 0x0L,0x0L,0x0L,TR4_UNDEAD);
 
-				if (dam > 0)
+				/* Vampires also drain experience */
+				if (typ == GF_VAMP_DRAIN_BLOOD)
 				{
-					feed_monster(who);
+					/* Drain depends on level */
+					check_hold_life(who, 100 - p_ptr->depth, damroll(p_ptr->depth+1,6));
+				}
 
-					/* Heal */
-					m_ptr->hp += dam;
+				/* Assist the source monster */
+				if ((m_ptr) && (dam > 0))
+				{
+					/* Feed monster if draining blood */
+					if ((typ != GF_VAMP_DRAIN) && (typ != GF_VAMP_DRAIN_FAMILIAR)) feed_monster(who);
+
+					/* Heal if not just draining blood */
+					if ((typ != GF_DRAIN_BLOOD) && (typ != GF_DRAIN_BLOOD_FAMILIAR)) m_ptr->hp += drain - p_ptr->chp;
 
 					/* No overflow */
 					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
@@ -13025,6 +13456,10 @@ bool project_shape(u16b *grid, s16b *gd, int *grids, int grid_s, int rad, int rn
 	/* Make certain that the radius is not too large */
 	if (rad > MAX_RANGE) rad = MAX_RANGE;
 	if (rng > MAX_RANGE) rng = MAX_RANGE;
+
+	/* Hack - notice illusions */
+	do_tell_illusion = 0;
+	do_tell_illusion_count = 0;
 
 	/* Some projection types always PROJECT_WALL. */
 	if ((typ == GF_KILL_WALL) || (typ == GF_KILL_DOOR))
@@ -14339,6 +14774,14 @@ bool project_effect(int who, int what, u16b *grid, s16b *gd, int grids, int y0, 
 
 	/* Update stuff if needed */
 	if (p_ptr->update) update_stuff();
+
+	/* Hack - notice use of illusions */
+	if (do_tell_illusion)
+	{
+	 	monster_type *m_ptr = &m_list[do_tell_illusion];
+
+		tell_allies_mflag(m_ptr->fy, m_ptr->fx, (MFLAG_SMART), "& is attempting to use illusions.");
+	}
 
 	/* Return "something was noticed" */
 	return (notice);

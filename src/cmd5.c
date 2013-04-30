@@ -824,6 +824,7 @@ bool player_study(int item)
 	int tval;
 
 	int max_spells = PY_MAX_SPELLS;
+	int study_slot = MAX_STUDY_BOOK;
 
 	object_type object_type_body;
 
@@ -881,6 +882,28 @@ bool player_study(int item)
 			p="power";
 			r = "";
 			break;
+	}
+
+	/* Study from books */
+	if (o_ptr->tval != TV_STUDY)
+	{
+		/* Check if the item already using a study slot? */
+		for (i = 0; i < p_ptr->pack_size_reduce_study; i++)
+		{
+			/* Already studied this book */
+			if (o_ptr->k_idx == p_ptr->study_slot[i]) break;
+		}
+
+		/* No room for more book types */
+		if (i == MAX_STUDY_BOOK)
+		{
+			msg_format("You cannot study any more types of %ss.", p);
+
+			return (FALSE);
+		}
+
+		/* Slot to use */
+		study_slot = i;
 	}
 
 	/* Specialists naturally disdain other books */
@@ -1056,6 +1079,12 @@ bool player_study(int item)
 	/* Mention the result */
 	message_format(MSG_STUDY, 0, "You have learned the %s of %s.",
 	   p, s_name + s_ptr->name);
+
+	/* One less book available if we're studying from a new book */
+	if ((study_slot < MAX_STUDY_BOOK) && (study_slot == p_ptr->pack_size_reduce_study))
+	{
+		p_ptr->study_slot[p_ptr->pack_size_reduce_study++] = o_ptr->k_idx;
+	}
 
 	/* One less spell available */
 	p_ptr->new_spells--;

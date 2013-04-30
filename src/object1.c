@@ -2729,11 +2729,11 @@ void show_inven(void)
 	}
 
 	/*
-	 * Add notes about slots used by the quiver, if we have space, want
-	 * to show all slots, and have items in the quiver.
+	 * Add notes about slots used by the quiver or bags, if we have space, want
+	 * to show all slots, and have items in the quiver or bags.
 	 */
-	if ((p_ptr->pack_size_reduce) && (item_tester_full) &&
-		(j <= (INVEN_PACK - p_ptr->pack_size_reduce)))
+	if ((p_ptr->pack_size_reduce_quiver || p_ptr->pack_size_reduce_bags || p_ptr->pack_size_reduce_study) && (item_tester_full) &&
+		(j <= (INVEN_PACK - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_bags - p_ptr->pack_size_reduce_study)))
 	{
 		int ammo_num = 0, ammo_slot;
 
@@ -2751,15 +2751,17 @@ void show_inven(void)
 		}
 
 		/* Insert a blank dividing line, if we have the space. */
-		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce))
+		if (j <= ((INVEN_PACK - 1) - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_bags - p_ptr->pack_size_reduce_study))
 		{
 			j++;
 
 			prt("", j, col ? col - 2 : col);
 		}
 
-		for (i = 0; i < p_ptr->pack_size_reduce; i++)
+		for (i = 0; i < p_ptr->pack_size_reduce_quiver + p_ptr->pack_size_reduce_bags + p_ptr->pack_size_reduce_study; i++)
 		{
+			int attr;
+
 			/* Go to next line. */
 			j++;
 
@@ -2767,7 +2769,7 @@ void show_inven(void)
 
 			/* Determine index, print it out. */
 			sprintf(tmp_val, "%c)", index_to_label(INVEN_PACK -
-				p_ptr->pack_size_reduce + i));
+				p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_bags - p_ptr->pack_size_reduce_study + i));
 
 			put_str(tmp_val, j, col);
 
@@ -2775,7 +2777,7 @@ void show_inven(void)
 			if (i == 0)
 			{
 				ammo_slot = ammo_num -
-					99 * (p_ptr->pack_size_reduce - 1);
+					99 * (p_ptr->pack_size_reduce_quiver - 1);
 			}
 			else
 			{
@@ -2783,11 +2785,25 @@ void show_inven(void)
 			}
 
 			/* Hack -- use "(QUIVER)" as a description. */
-			strnfmt(o_name, sizeof(o_name),
-				"(QUIVER - %d missile%s)", ammo_slot,
-				(ammo_slot == 1) ? "": "s");
+			if (i < p_ptr->pack_size_reduce_quiver)
+			{
+				strnfmt(o_name, sizeof(o_name), "(QUIVER - %d missile%s)", ammo_slot, (ammo_slot == 1) ? "": "s");
+				attr = TERM_BLUE;
+			}
+			/* Hack -- use "(BAG CONTENTS)" as a description. */
+			else if (i < p_ptr->pack_size_reduce_quiver + p_ptr->pack_size_reduce_bags)
+			{
+				strnfmt(o_name, sizeof(o_name), "(BAG CONTENTS)");
+				attr = TERM_BLUE_SLATE;
+			}
+			/* Hack -- use "(STUDIED - Book name)" as a description. */
+			else
+			{
+				attr = TERM_DEEP_L_BLUE;
+				strnfmt(o_name, sizeof(o_name), "(STUDIED - %s)", k_name + k_info[p_ptr->study_slot[i - p_ptr->pack_size_reduce_quiver - p_ptr->pack_size_reduce_bags]].name + 3);
+			}
 
-			c_put_str(TERM_BLUE, o_name, j, col + 3);
+			c_put_str(attr, o_name, j, col + 3);
 		}
 	}
 
@@ -4978,6 +4994,9 @@ bool get_item_from_bag(int *cp, cptr pmt, cptr str, object_type *o_ptr)
 
 	/* Hack -- modify failure string */
 	my_strcpy(str_buf, str, sizeof(str_buf));
+
+	/* Hack -- remove trailing full stop */
+	if (str_buf[strlen(str_buf)-1] == '.') str_buf[strlen(str_buf)-1] = '\0';
 
 	/* Hack -- append */
 	my_strcat(str_buf, " inside the bag.", sizeof(str_buf));

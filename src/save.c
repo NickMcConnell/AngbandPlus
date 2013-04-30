@@ -313,6 +313,10 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->cut);
 	wr_byte(m_ptr->poisoned);
 	wr_byte(m_ptr->blind);
+	wr_byte(m_ptr->dazed);
+	wr_byte(m_ptr->image);
+	wr_byte(m_ptr->amnesia);
+	wr_byte(m_ptr->terror);
 	wr_byte(m_ptr->tim_invis);
 	wr_byte(m_ptr->tim_passw);
 	wr_byte(m_ptr->bless);
@@ -781,6 +785,13 @@ static void wr_extra(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		wr_s16b(p_ptr->player_hp[i]);
+	}
+
+	/* Write study data */
+	wr_s16b(p_ptr->pack_size_reduce_study);
+	for (i = 0; i <p_ptr->pack_size_reduce_study; i++)
+	{
+		wr_s16b(p_ptr->study_slot[i]);
 	}
 
 	/* Write spell data */

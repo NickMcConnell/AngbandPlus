@@ -1044,6 +1044,7 @@ extern void region_copy(region_type *r_ptr, const region_type *r_ptr2);
 extern void compact_regions(int size);
 extern void region_insert(u16b *gp, int grid_n, s16b *gd, s16b region);
 extern void region_delete(s16b region);
+extern bool region_grid(int y, int x, bool region_iterator(int y, int x, s16b d, s16b region));
 extern void region_refresh(s16b region);
 extern void region_highlight(s16b region);
 extern void region_update(s16b region);

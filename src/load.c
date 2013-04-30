@@ -585,6 +585,13 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->cut);
 	rd_byte(&m_ptr->poisoned);
 	rd_byte(&m_ptr->blind);
+	if (!older_than(0, 6, 4, 3))
+	{
+		rd_byte(&m_ptr->dazed);
+		rd_byte(&m_ptr->image);
+		rd_byte(&m_ptr->amnesia);
+		rd_byte(&m_ptr->terror);
+	}
 	rd_byte(&m_ptr->tim_invis);
 	rd_byte(&m_ptr->tim_passw);
 	rd_byte(&m_ptr->bless);
@@ -1412,6 +1419,17 @@ static errr rd_extra(void)
 		rd_s16b(&p_ptr->player_hp[i]);
 	}
 
+	/* Read study info */
+	if (!older_than(0, 6, 4, 3))
+	{
+		rd_s16b(&p_ptr->pack_size_reduce_study);
+
+		for (i = 0; i < p_ptr->pack_size_reduce_study; i++)
+		{
+			rd_s16b(&p_ptr->study_slot[i]);
+		}
+	}
+
 	/* Read spell info */
 	rd_u32b(&p_ptr->spell_learned1);
 	rd_u32b(&p_ptr->spell_learned2);
@@ -1594,6 +1612,9 @@ static errr rd_inventory(void)
 
 			/* Hack -- in inventory, player must be aware it exists */
 			if (!k_info[i_ptr->k_idx].flavor) k_info[i_ptr->k_idx].aware |= (AWARE_EXISTS);
+
+			/* Hack -- count bags */
+			if (i_ptr->tval == TV_BAG) p_ptr->pack_size_reduce_bags++;
 
 			/* Add the weight */
 			p_ptr->total_weight += (i_ptr->number * i_ptr->weight);
@@ -2270,6 +2291,254 @@ static errr rd_dungeon(void)
 }
 
 
+#define OLD_SV_BAG_MAX_BAGS		24
+
+
+const s16b old_bag_holds[OLD_SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL][2] =
+{
+	/* Bag of Poisons - holds dangerous potions */
+	{ {75, 4}, {75, 5}, {75, 7}, {75, 9},
+	  {75, 11}, {75, 13}, {75, 15}, {75, 16},
+	  {75, 17}, {75, 18}, {75, 19}, {75, 20},
+	  {75, 21}, {75, 22}, {75, 73},	{75, 74},
+	  {75, 76}, {75, 77}, {75, 78}, {75, 79},
+	  {75, 80}, {75, 81}, {0, 0} },
+	/* Bag of Harmful Mushrooms - holds harmful mushrooms */
+	{ {79, 0}, {79, 1}, {79, 2}, {79, 3},
+	  {79, 4}, {79, 5}, {79, 6}, {79, 7},
+	  {79, 8}, {79, 9}, {79, 10}, {79, 11},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Black Magics -- holds cursed scrolls */
+	{ {70, 0}, {70, 1}, {70, 2}, {70, 3},
+	  {70, 4}, {70, 7}, {70, 5}, {70, 69},
+	  {70, 74}, {70, 75}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of supplies -- torches, oil, spikes etc. Torches are handed specially. */
+	{ {77, 0}, {2, 2}, {77, 2}, {39, 0},
+	  {5, 0}, {2, 1}, {2, 3}, {2, 4},
+	  {14, 1}, {14, 2}, {14, 4}, {77, 7},
+	  {77, 8}, {77, 9}, {77, 10}, {77, 11},
+	  {77, 12}, {77, 13}, {77, 14}, {77, 15},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of provisions -- foods of various types */
+	{ {80, 30}, {80, 32}, {80, 33}, {80, 35}, {80, 36},
+	  {80, 37}, {80, 38}, {80, 39}, {80, 40},
+	  {80, 41}, {80, 42}, {75, 1}, {75, 2},
+	  {75, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}},
+	/* Bag of Antidotes - holds low powered curing potions */
+	{ {75, 26}, {75, 27}, {75, 31}, {75, 30},
+	  {75, 34}, {75, 35}, {75, 41}, {75, 47},
+	  {75, 60}, {75, 61}, {75, 62}, {75, 64},
+	  {75, 68}, {75, 71}, {75, 83}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Philtres - holds medium power potions */
+	{ {75, 23}, {75, 24}, {75, 25}, {75, 32},
+	  {75, 33}, {75, 35}, {75, 36}, {75, 48},
+	  {75, 49}, {75, 51}, {75, 52}, {75, 55},
+	  {75, 68}, {75, 69}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}  },
+	/* Bag of Elixirs - holds high power potions */
+	{ {75, 29}, {75, 37}, {75, 38}, {75, 39},
+	  {75, 40}, {75, 54}, {75, 56}, {75, 57},
+	  {75, 58}, {75, 59}, {75, 63}, {75, 65},
+	  {75, 66}, {75, 67}, {75, 72}, {75, 75},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Helpful Mushrooms - holds helpful mushrooms */
+	{ {79, 12}, {79, 13}, {79, 14}, {79, 15},
+	  {79, 16}, {79, 17}, {79, 18}, {79, 19},
+	  {79, 20}, {79, 21}, {79, 22}, {79, 23},
+	  {79, 24}, {79, 25}, {79, 26}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Scrying - holds identify / detect scrolls */
+	{ {70, 12}, {70, 19}, {70, 23}, {70, 25},
+	  {70, 26}, {70, 27}, {70, 28}, {70, 29},
+	  {70, 30}, {70, 31}, {70, 40}, {70, 43},
+	  {70, 48}, {70, 61}, {70, 65}, {70, 66},
+	  {70, 73}, {70, 77}, {70, 78}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Hedge Magics - holds less useful scrolls */
+	{ {70, 8}, {70, 9}, {70, 10}, {70, 11},
+	  {70, 22}, {70, 24}, {70, 32}, {70, 33},
+	  {70, 34}, {70, 35}, {70, 37}, {70, 39},
+	  {70, 59}, {70, 60}, {70, 62}, {70, 64},
+	  {70, 76}, {70, 79}, {70, 80}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Enchantments - holds enchantment scrolls */
+	{ {70, 14}, {70, 16}, {70, 17}, {70, 18},
+	  {70, 20}, {70, 21}, {70, 49}, {70, 50},
+	  {70, 51}, {70, 53}, {70, 54}, {70, 55},
+	  {70, 56}, {70, 57}, {70, 58}, {70, 67},
+	  {70, 68}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Eldritch Magics - holds powerful scrolls */
+	{ {70, 13}, {70, 15}, {70, 38}, {70, 41},
+	  {70, 42}, {70, 44}, {70, 45}, {70, 46},
+	  {70, 47}, {70, 63}, {70, 70}, {70, 71},
+	  {70, 72}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Lesser Runes - holds weaker runes */
+	{ {93, 1}, {93, 3}, {93, 5}, {93, 7},
+	  {93, 11}, {93, 12}, {93, 13}, {93, 14},
+	  {93, 15}, {93, 16}, {93, 19}, {93, 21},
+	  {93, 22}, {93, 25}, {93, 26}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Greater Runes - holds more powerful runes */
+	{ {93, 2}, {93, 4}, {93, 6}, {93, 8},
+	  {93, 9}, {93, 10}, {93, 17}, {93, 18},
+	  {93, 20}, {93, 23}, {93, 24}, {93, 27},
+	  {93, 28}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of Maps - holds maps */
+	{ {72, 25}, {72, 31}, {72, 41}, {72, 47},
+	  {72, 50}, {72, 56},  {72, 62}, {72, 64},
+	  {72, 65}, {72, 66}, {72, 68}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of bewitchments -- low power non-elemental wands */
+	{ {65, 0}, {65, 1}, {65, 2}, {65, 4},
+	  {65, 7}, {65, 8}, {65, 9}, {65, 10},
+	  {65, 11}, {65, 12}, {65, 13}, {65, 24},
+	  {65, 32}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of elements -- low power elemental wands */
+	{ {65, 5}, {65, 6}, {65, 14}, {65, 15},
+	  {65, 16}, {65, 17}, {65, 18}, {65, 19},
+	  {65, 20}, {65, 21}, {65, 22}, {65, 23},
+	  {65, 33}, {65, 34}, {65, 36}, {65, 38},
+	  {65, 39}, {65, 40}, {65, 42}, {65, 43},
+	  {65, 67}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of four winds -- medium power wands */
+	{ {65, 3}, {65, 26}, {65, 27}, {65, 28},
+	  {65, 29}, {65, 30}, {65, 34}, {65, 35},
+	  {65, 37}, {65, 41}, {65, 45}, {65, 46},
+	  {65, 47}, {65, 48}, {65, 49}, {65, 50},
+	  {65, 53}, {65, 54}, {65, 55}, {65, 69},
+	  {65, 70}, {65, 71}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* Bag of six demons -- high power wands */
+	{ {65, 25}, {65, 27}, {65, 28}, {65, 31},
+	  {65, 44}, {65, 51}, {65, 52}, {65, 56},
+	  {65, 57}, {65, 58}, {65, 59}, {65, 60},
+	  {65, 61}, {65, 62}, {65, 63}, {65, 64},
+	  {65, 65}, {65, 66}, {65, 67}, {65, 68},
+	  {0, 0}, {0, 0}, {0, 0} },
+	/* XXX XXX Hack -- Wand bags need two slots */
+	{ {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0}, {0, 0},
+	  {0, 0}, {0, 0}, {0, 0} }
+};
+
+/*
+ * Fix up the bags from old versions.
+ *
+ * We attempt to maintain save file compatibility with older
+ * versions of bags. This is an ugly hack on top of the general
+ * bag hack.
+ */
+static void fix_bags(bool drop)
+{
+	int i, j, k, l;
+
+	int old_bag_contents[OLD_SV_BAG_MAX_BAGS][INVEN_BAG_TOTAL];
+
+	/* If we ever stop storing an item type in a bag... */
+	(void)drop;
+
+	for (i = 0; i < OLD_SV_BAG_MAX_BAGS; i++)
+	{
+		for (j = 0; j < INVEN_BAG_TOTAL; j++)
+		{
+			old_bag_contents[i][j] = bag_contents[i][j];
+			bag_contents[i][j] = 0;
+		}
+	}
+
+#if 0
+	/* Discard 'really' old bag layout */
+	if (older_than(0, 6, 2, 0)) return;
+#endif
+
+	/* For each old bag slot, find the new location and populate it */
+	for (i = 0; i < OLD_SV_BAG_MAX_BAGS; i++)
+	{
+		for (j = 0; j < INVEN_BAG_TOTAL; j++)
+		{
+			/* Efficiency */
+			if ((old_bag_holds[i][j][0] == 0) &&
+					(old_bag_holds[i][j][1] == 0)) continue;
+
+			/* More efficiency */
+			if ((old_bag_holds[i][j][0] == bag_holds[i][j][0]) &&
+				(old_bag_holds[i][j][1] == bag_holds[i][j][1]))
+			{
+				bag_contents[i][j] += old_bag_contents[i][j];
+				continue;
+			}
+
+			/* Find the new slot */
+			for (k = 0; k < SV_BAG_MAX_BAGS; l++)
+			{
+				for (l = 0; l < INVEN_BAG_TOTAL; l++)
+				{
+					if ((old_bag_holds[i][j][0] == bag_holds[k][l][0]) &&
+						(old_bag_holds[i][j][1] == bag_holds[k][l][1]))
+					{
+						bag_contents[k][l] += old_bag_contents[i][j];
+
+						/* Hack - Break out of both loops */
+						k = SV_BAG_MAX_BAGS;
+						break;
+					}
+				}
+			}
+
+			/* Oops - haven't found a bag */
+			if (l == INVEN_BAG_TOTAL)
+			{
+				/* TODO: Create item and drop it under the player */
+			}
+		}
+	}
+}
+
 
 /*
  * Actually read the savefile
@@ -2687,12 +2956,16 @@ static errr rd_savefile_new_aux(void)
 			note("event that a root cause of the problem is found and a fix implemented in a later");
 			note("version of Unangband.");
 			note("Please note that recovery will involve generating a new dungeon level.");
+			if (older_than(0, 6, 3, 3)) note("You will also lose some contents of your magic bags.");
 			note("--------");
 			if(!get_check("Attempt a recovery? ")) return(-1);
 			if(!get_check("Have you made a backup of this save file? ")) return(-1);
 			if(!get_check("Are you sure you wish to continue (All dungeon data will be lost)? ")) return(-1);
 
 			p_ptr->leaving = TRUE;
+
+			/* Fix bags */
+			if (older_than(0, 6, 3, 3)) fix_bags(FALSE);
 
 			/* Don't bother reading the rest of the file */
 			return (0);
@@ -2702,6 +2975,8 @@ static errr rd_savefile_new_aux(void)
 		rd_ghost();
 	}
 
+	/* Fix bags */
+	if (older_than(0, 6, 3, 3)) fix_bags(FALSE);
 
 #ifdef VERIFY_CHECKSUMS
 

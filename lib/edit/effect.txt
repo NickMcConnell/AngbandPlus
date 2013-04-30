@@ -794,3 +794,64 @@ T:entangling
 N:155:LITE_BODY
 D:cause~::bodies and body parts:to glow:::
 T:corpse lighting
+
+N:156:IMAGE_ACID
+I:0
+D:dissolve~::weak-willed, sleeping or hallucinating monsters:without waking them up:::
+T:illusory acid
+
+N:157:IMAGE_ELEC
+I:10
+D:electrif|y|ies|::weak-willed, sleeping or hallucinating monsters:without waking them up:::
+T:illusory electricity
+
+N:158:IMAGE_FIRE
+I:10
+D:burn~::weak-willed, sleeping or hallucinating monsters:without waking them up:::
+T:illusory fire
+
+N:159:IMAGE_COLD
+I:10
+D:freeze~::weak-willed, sleeping or hallucinating monsters:without waking them up:::
+T:illusory cold
+
+N:160:IMAGE_POIS
+I:5
+D:poison~::weak-willed, sleeping or hallucinating monsters:without waking them up:::
+T:illusory poison
+
+N:161:ILLUSION
+I:5
+D:appear~ to be safe ground::all but the wary::::
+T:illusion
+
+N:162:VAMP_DRAIN_FAMILIAR
+I:20
+D:drain~:health from::and give~ it to you:::
+T:stealing health
+
+N:163:MANA_DRAIN_FAMILIAR
+I:20
+D:drain~:mana from::and give~ it to you::spell points:mana
+T:stealing mana
+
+N:164:DRAIN_LIFE_PERC
+I:20
+D:drain~:life from::::percent of hitpoints:% life
+T:life draining
+
+N:165:DRAIN_BLOOD
+I:20
+D:drain~:blood from:::::
+T:stealing blood
+
+N:166:DRAIN_BLOOD_FAMILIAR
+I:20
+D:drain~:blood from::and give~ it to you:::
+T:stealing health
+
+N:167:VAMP_DRAIN_BLOOD
+I:20
+D:drain~:blood from:::::
+T:stealing blood
+
