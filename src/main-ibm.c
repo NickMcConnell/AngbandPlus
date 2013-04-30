@@ -1348,7 +1348,7 @@ errr init_ibm(int argc, char **argv)
 #ifdef USE_VIRTUAL
 
 	/* Make the virtual screen */
-	C_MAKE(VirtualScreen, rows * cols * 2, byte);
+	VirtualScreen = C_ZNEW(rows * cols * 2, byte);
 
 #endif /* USE_VIRTUAL */
 

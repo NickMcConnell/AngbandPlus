@@ -1,0 +1,13 @@
+=== Travelling through the Wilderness ===
+
+Once you are satisfied with your purchases, you can travel through the
+wilderness to a nearby dungeon in search of adventure.  Use the travel
+command ('<') when you are on the surface to be able to select a
+nearby locale to travel to.
+
+You'll see dungeon entrances marked as '>'.  To enter a dungeon, stand
+on the entrance and use the climb down command ('>').  You can climb
+back up using the climb up command ('<') if you find a set of stairs up
+within the dungeon.  To save time, when you arrive at a town that has
+a dungeon in it, you'll start on the entrance.  In the wilderness though,
+you'll have to explore a little to find the dungeon entrance.

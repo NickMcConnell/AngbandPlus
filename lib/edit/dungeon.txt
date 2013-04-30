@@ -75,11 +75,15 @@ D:It feels like home...
 # Alternate starting dungeon.
 
 N:1:Hobbiton
-X:10:53:57:58
+X:10:57:0:0
+Q:58:111
 G:h
 L:0:0:411:153:0:0
 S:264:515:265:266:772:773:0:0
-D:Here your adventure begins.
+D:Here your adventure begins.  You can travel to Farmer Maggot's Farm or 
+D:the East Road from here - the easiest route by far is the East Road and 
+D:then to Bree.  Press < to travel from any town, or when near the edge of 
+D:the larger wilderness locations.
 
 N:2:Rivendell
 X:3:13:14:17
@@ -106,7 +110,7 @@ L:14:0:435:0:566:0
 S:269:0:0:0:0:0:0:0
 
 N:5:Mirkwood
-X:4:6:0:0
+X:4:6:52:0
 G:l
 R:CAN_CLIMB
 L:14:420:56:153:637:0
@@ -124,13 +128,13 @@ D:The locals eye you suspiciously, afraid of treasure-hunters
 D:who would disturb the Lonely Mountain at great risk to all.
 
 # We disturb Smaug while entering his lair...
-# Note Smaug is out of depth by 10 levels at bottom.
 
 N:7:the Lonely Mountain
-X:8:52:0:0
+X:8:52:41:48
 R:DRAGON
 G:B
 Q:9:475
+Z:47:9
 L:20:435:56:154:0:0
 L:21:56:0:0:0:0
 L:38:56:0:0:475:0
@@ -139,7 +143,7 @@ D: air... Smaug has taken flight. You desperately
 D: cower for cover on the open mountainside... he
 D: wheels once, twice over you and departs. In the
 D: distance, you see smoke start to rise as Lake-
-D: town burns.
+D:town burns.
 
 # With disasterous consequences.
 
@@ -159,19 +163,19 @@ S:509:516:517:11:12:13:506:508
 D:Visit the statue to collect a reward from the 
 D:grateful townsfolk.
 
-#The following levels are from the Fellowship of the Ring.
-
 N:10:Farmer Maggot's farm
-X:1:58:0:0
+X:1:0:0:0
 G:,
 R:ANIMAL
+Q:58:111
 L:2:0:435:0:4:0
 L:3:114:0:0:0:0
 L:6:114:0:0:111:0
 S:507:0:0:0:0:0:0:0
 
 N:11:Bree
-X:57:38:39:56
+X:38:39:56:0
+Q:35:546
 W:440:48
 Y:440:48
 L:0:0:407:408:0:0
@@ -194,7 +198,7 @@ L:5:420:154:126:0:0
 # It gets replaced by a gate after the Battle of Five Armies
 
 N:14:the mines of Moria
-X:2:0:0:0
+X:2:7:52:0
 Z:16:42
 L:6:49:397:56:0:0
 L:7:56:0:0:0:0
@@ -210,11 +214,11 @@ Q:19:1272
 L:20:451:56:148:473:0
 L:21:56:144:145:0:0
 L:50:56:144:145:1272:0
-D:Since Gandalf close the path created by the Goblins through the Misty Mountains,
+D:Since Gandalf closed the path created by the Goblins through the Misty Mountains,
 D: this has been the only route through.  In summer, it is passable.  Now, however,
 D: the storms of the mountain echo around you.  Turn back, while you can!
 
-N:16:the gates of Moria
+N:16:the west gates of Moria
 X:15:17:0:0
 L:21:49:397:56:0:0
 L:22:56:393:0:0:0
@@ -252,18 +256,22 @@ D: hillocks strewn with the toppled statues of kings and
 D: conquerors.
 
 N:20:Fangorn
-X:17:18:21:47
+X:17:21:48:0
+Q:18:483
 G:o
 R:PLANT
 L:20:420:420:420:634:0
 
 N:21:Edoras
-X:20:29:0:0
+X:20:0:0:0
 G:p
 R:WARRIOR
 W:514:23
 Z:22:23
-L:0:0:533:529:0:0
+Q:29:1311
+L:0:0:533:529:1310:49
+L:1:56:0:0:0:49
+L:22:56:0:0:1311:49
 S:271:516:517:519:504:511:509:508
 D:The slumbering city of Edoras.  King Theoden has gathered
 D: many warriors around him, but seeks less than wise council... 
@@ -275,7 +283,7 @@ L:21:420:56:155:249:49
 L:50:420:56:155:249:49
 
 N:23:Isengard, darkened by the clouds of Saruman's machinations
-X:20:0:0:0
+X:20:48:0:0
 Q:28:532
 L:21:420:141:141:514:31
 L:22:56:0:0:0:31
@@ -357,44 +365,53 @@ L:79:56:209:0:595:0
 
 N:33:Orodruin
 X:32:34:0:0
+Q:2:546
 R:BRTH_FIRE
 L:79:432:218:218:0:0
 L:80:56:218:218:0:0
 L:99:56:218:218:546:0
+D:You can choose to confront Sauron here, deep in the blasted bowels of this mountain.
 
 N:34:Barad-dur
-X:33:35:0:0
+X:33:0:0:0
+Q:2:546
 G:M
 R:EVIL
 L:65:409:218:216:541:20
 L:66:56:218:216:0:20
 L:99:56:218:216:546:20
+D:You can choose to confront Sauron here, high in a tower lit by a flaming eye.
 
-N:35:Hobbiton
-X:36:0:0:0
-G:h
-L:60:0:407:159:532:0
+N:35:Hobbiton, in ruins
+X:11:53:0:0
+Q:36:532
+Z:36:36
+G:g
+L:99:0:407:159:532:0
 S:516:517:14:266:509:0:0:0
+D:Someone with a silver-tongue and guile-ful words has brought fair Hobbiton to 
+D:its knees in a whir of devilish industry and foul pollution.
 
 N:36:Hobbiton, rebuilt
-X:36:0:0:0
+X:63:0:0:0
 G:h
 L:0:0:407:153:0:0
 S:264:515:265:266:772:773:774:0
+D:One last challenge awaits, to visit Angband to defeat an ancient evil.  Or you 
+D:can choose to sail from here into the West and let another take on the might of
+D:Morgoth.
 
-# The following are accessible from the first Hobbiton for consistency
+### 37 is now inaccessible and should be removed at some point ###
 
 N:37:Bree
-X:38:39:56:57
-W:440:48
-Y:440:48
+X:38:39:56:0
 L:0:0:407:408:0:0
 L:1:56:0:0:0:0
 L:6:56:0:0:620:0
 S:8:9:10:11:12:13:268:775
 
 N:38:Barrow-downs
-X:11:12:11:40
+X:11:12:38:40
 L:7:420:420:56:0:0
 L:8:56:0:0:0:0
 L:20:56:0:0:1081:0
@@ -405,24 +422,32 @@ L:4:420:420:155:343:0
 L:5:56:0:0:344:0
 L:6:56:0:0:345:0
 
-N:40:the Old Forest
-X:38:53:54:0
-Q:55:602
-R:ANIMAL
-L:6:420:420:153:0:0
+N:40:the east gates of Moria
+X:15:17:0:0
+Z:61:61
+L:40:49:397:56:0:0
+D:The door to Moria is closed from this direction, as Thorin has
+D: returned to Moria to claim his bequest with dragon-gold.  You
+D: may be able to find the door to Moria from the west, from
+D: Rivendell.  There is nothing here for you.
 
-# And the same dungeon accessible from the LOtR quest.
+### The east gates of Moria before they are closed ###
 
-N:41:Barrow-downs
-X:11:12:40:0
-L:7:420:420:56:0:0
-L:8:56:0:0:0:0
-L:20:56:0:0:1081:0
+N:41:the mines of Moria
+X:2:7:52:0
+Z:40:42
+L:6:49:397:56:0:0
+L:7:56:0:0:0:0
+L:24:56:0:0:262:0
+D:In older days, the gates to Moria were always open, and a meeting point for dwarves, men and
+D: elves.  The doors now stand ajar, but the mines behind them are home to only fouler things.
 
 N:42:the vaults of Erebor
-X:52:48:14:0
+X:52:41:48:0
 L:21:0:56:1:0:0
-L:40:0:56:0:0:0
+L:22:56:0:0:0:0
+L:40:56:0:0:0:0
+S:897:897:897:897:897:897:0:0
 D:The innermost vaults of the dwarven city of Erebor,
 D: ripped open by the casting down of the mountainside
 D: by Thorin, crushing many thousands of orcs and turning
@@ -432,7 +457,7 @@ D: spill from the vaults long hidden inside.
 # Alternate to bypass Moria etc. and reach Angband...
 
 N:43:the ruins of Angmar
-X:14:62:0:0
+X:2:62:0:0
 R:UNDEAD
 L:21:425:141:141:0:0
 L:22:56:141:0:0:0
@@ -442,7 +467,7 @@ L:81:56:0:0:0:0
 # Sunken dungeon.
 
 N:44:the sunken city of Numenor
-X:14:44:0:0
+X:2:44:0:0
 G:G
 R:CAN_SWIM
 L:21:403:400:49:0:0
@@ -450,7 +475,7 @@ L:22:399:56:0:0:0
 L:60:399:56:0:0:0
 
 N:45:the temple of Elemental Evil
-X:14:45:0:0
+X:2:45:0:0
 G:E
 R:PRIEST
 L:21:425:141:141:0:0
@@ -458,7 +483,7 @@ L:22:56:0:0:0:0
 L:60:56:0:0:0:0
 
 N:46:the Crystal Castle
-X:14:45:0:0
+X:2:45:0:0
 G:g
 R:MAGE
 L:21:56:144:145:0:0
@@ -466,21 +491,24 @@ L:22:148:145:0:0:0
 L:60:148:145:0:0:0
 
 N:47:the Battle of Five Armies
-X:52:48:14:0
-Z:42:235
+X:52:48:0:0
 G:C
 R:ESCORT
 Q:42:235
 Z:42:42
-L:20:420:56:153:235:0
+L:20:414:56:153:235:0
+D:Five great armies have gathered at the promise of Smaug's riches hidden in the
+D: Lonely Mountain. Meanwhile the mouth of Moria has opened and vomitted forth its hordes.
 
 N:48:Dol Guldur
-X:20:17:0:0
+X:52:7:20:17
 G:q
 R:EVIL
 L:40:420:56:420:474:44
 L:41:56:0:0:0:44
 L:65:56:0:0:645:44
+D:You have disturbed a terrible evil here... much has gone wrong with the land
+D: since its waking.
 
 N:49:Morannon
 X:25:50:0:0
@@ -503,24 +531,25 @@ R:EVIL
 L:80:407:218:208:511:0
 
 N:52:the Dale
-X:47:0:0:0
+X:5:6:40:48
 Y:475:7
 Q:42:475
 L:0:0:530:153:0:0
 S:509:516:517:11:12:13:268:508
-
-# Extend the LotR quests to give starters more
-# 'breathing space'.
+D:The Dale-landers are a hardy people, living as they do under the twin shadows
+D: of the Lonely Mountain and Dol Guldur.  Of the two, many treasure hunters risk
+D: the wrath of Smaug but only the most foolhardy seek anything at Dol Guldur.
 
 N:53:Buckland
-X:40:54:58:0
+X:38:54:0:0
+Q:35:546
 G:h
 R:ANIMAL
 L:0:0:420:408:0:0
 S:8:9:10:11:12:13:268:778
 
 N:54:a clearing in the Old Forest
-X:38:40:53:55
+X:38:53:0:0
 R:PLANT
 Q:55:622
 L:6:0:420:153:622:0
@@ -592,7 +621,7 @@ D: Moria, from the outside.  Your only choice is to press onwards.  And downward
 
 N:61:Khazad-Dum
 X:60:0:0:0
-Q:483:18
+Q:18:483
 L:31:1:141:0:483:0
 L:32:56:141:0:0:0
 L:49:56:141:0:0:0
@@ -603,6 +632,7 @@ D:Drums. Drums. Drums in the deep.
 
 N:62:Angband
 X:43:0:0:0
+Q:63:547
 L:0:0:407:0:0:0
 L:1:56:0:0:0:0
 L:100:56:0:0:547:0

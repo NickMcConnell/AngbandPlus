@@ -569,6 +569,7 @@ void do_cmd_browse_object(object_type *o_ptr)
 		{
 			int ii;
 			bool legible = FALSE;
+			bool specialist = FALSE;
 
 			spell_type *s_ptr;
 
@@ -607,18 +608,17 @@ void do_cmd_browse_object(object_type *o_ptr)
 			    }
 
 			/* Hack -- get casting information for specialists */
-			if (!legible)
+			/* TODO: perhaps use spell_match_style(spell) here? */
+			for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
 			{
-				for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
-				{
-					if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-						((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-						((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-					&& (s_info[spell].appears[ii].sval == p_ptr->psval))
-					{
-						legible = TRUE;
-					}
-				}
+			  if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
+			       ((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
+			       ((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
+			      && (s_info[spell].appears[ii].sval == p_ptr->psval))
+			    {
+			      legible = TRUE;
+			      specialist = TRUE;
+			    }
 			}
 
 			/* Spell is illegible */
@@ -681,21 +681,22 @@ void do_cmd_browse_object(object_type *o_ptr)
 					Term_erase(x, y, 255);
 				}
 
-				/* Display pre-requisites */
-				for (i = 0; i < MAX_SPELL_PREREQUISITES; i++)
-				{
-					/* Check if pre-requisite spells */
-					if (s_info[spell].preq[i])
-					{
-						if (!intro) text_out_c(TERM_VIOLET,"You must learn ");
-						else text_out_c(TERM_VIOLET, " or ");
+				/* Display pre-requisites, unless specialist */
+				if (!specialist)
+				  for (i = 0; i < MAX_SPELL_PREREQUISITES; i++)
+				  {
+				    /* Check if pre-requisite spells */
+				    if (s_info[spell].preq[i])
+				    {
+				      if (!intro) text_out_c(TERM_VIOLET,"You must learn ");
+				      else text_out_c(TERM_VIOLET, " or ");
 
-						intro = TRUE;
+				      intro = TRUE;
 
-						text_out_c(TERM_VIOLET, s_name + s_info[s_info[spell].preq[i]].name);
-					}
+				      text_out_c(TERM_VIOLET, s_name + s_info[s_info[spell].preq[i]].name);
+				    }
 
-				}
+				  }
 
 				/* Terminate if required */
 				if (intro) text_out_c(TERM_VIOLET, format(" before studying this %s.\n",p));
@@ -809,16 +810,16 @@ void do_cmd_browse(void)
 	put_str("(Browsing) Command: ", 0, 0);
 
 	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
+	p_ptr->command_new = inkey_ex();
 
 	/* Load screen */
 	screen_load();
 
 	/* Hack -- Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
+	if (p_ptr->command_new.key == ESCAPE)
 	{
 		/* Reset stuff */
-		p_ptr->command_new = 0;
+		p_ptr->command_new.key = 0;
 	}
 }
 

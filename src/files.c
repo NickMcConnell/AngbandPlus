@@ -4684,6 +4684,9 @@ bool queue_tip(cptr tip)
 	/* Path buffer */
 	char path[1024];
 
+	/* Check show tips option */
+	if (!show_tips) return (FALSE);
+	
 	/* Have no space for tips */
 	if (tips_end == tips_start - 1) return (FALSE);
 	
@@ -4714,21 +4717,34 @@ bool queue_tip(cptr tip)
  */
 void show_tip(void)
 {
+	/* Don't interrupt running with tips */
+	if (p_ptr->running) return;
+	
+	/* Don't interrupt repeating with tips */
+	if (p_ptr->command_rep) return;
+	
 	/* Have tips to show */
 	if (tips_start != tips_end)
 	{
 		cptr tip = quark_str(tips[tips_start++]);
-		
-		msg_print("You find a note.");
-		
-		/* Save screen */
-		screen_save();
 
-		/* Peruse the main help file */
-		(void)show_file(tip, NULL, 0, 0);
-
-		/* Load screen */
-		screen_load();
+#ifdef ALLOW_BORG
+		if (count_stop) { /* Do nothing */ } else
+#endif
+	
+		if (show_tips)
+		{
+			msg_print("You find a note.");
+			
+			/* Save screen */
+			screen_save();
+	
+			/* Peruse the main help file */
+			(void)show_file(tip, NULL, 0, 0);
+	
+			/* Load screen */
+			screen_load();
+		}
 		
 		/* Wrap the queue around if required */
 		if (tips_start >= TIPS_MAX) tips_start = 0;
@@ -5237,7 +5253,7 @@ static void death_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Aware and Known */
-		object_aware(o_ptr);
+		object_aware(o_ptr, FALSE);
 		object_known(o_ptr);
 
 		/* Fully known */
@@ -5253,7 +5269,7 @@ static void death_knowledge(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Aware and Known */
-		object_aware(o_ptr);
+		object_aware(o_ptr, TRUE);
 		object_known(o_ptr);
 
 		/* Fully known */
@@ -5411,6 +5427,9 @@ static void death_examine(void)
 		screen_object(o_ptr);
 
 		(void)anykey();
+		
+		/* Needed to handle bags */
+		notice_stuff();
 
 		/* Load the screen */
 		screen_load();

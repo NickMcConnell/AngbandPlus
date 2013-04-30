@@ -1,4 +1,3 @@
-/* File: store.c */
 
 /*
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -411,7 +410,7 @@ static int mass_roll(int num, int max)
  *
  * Standard percentage discounts include 10, 25, 50, 75, and 90.
  */
-static void mass_produce(object_type *o_ptr)
+static void mass_produce(object_type *o_ptr, bool allow_discount)
 {
 	int size = 1;
 
@@ -483,6 +482,7 @@ more frequent while expensive */
 		}
 	}
 
+	if (!allow_discount) return;
 
 	/* Pick a discount */
 	if (cost < 5)
@@ -882,7 +882,7 @@ static int home_carry(object_type *o_ptr, int store_index)
 		if (object_similar(j_ptr, o_ptr))
 		{
 			/* Save the new number of items */
-			object_absorb(j_ptr, o_ptr);
+			object_absorb(j_ptr, o_ptr, TRUE);
 
 			/* All done */
 			return (slot);
@@ -1289,15 +1289,9 @@ static void store_create(int store_index)
 			/* Reset depth */
 			p_ptr->depth = depth;
 			object_level = depth;
-
-			/* Hack -- set in store */
+			
+			/* Item belongs to the store */
 			i_ptr->ident |= (IDENT_STORE);
-
-			object_aware(i_ptr);
-			object_known(i_ptr);
-
-			/* Hack -- remove from store */
-			i_ptr->ident &= ~(IDENT_STORE);
 
 			/* Attempt to carry the (known) object */
 			(void)store_carry(i_ptr, store_index);
@@ -1318,7 +1312,6 @@ static void store_create(int store_index)
 
 			/* Handle failure */
 			if (!k_idx) continue;
-
 		}
 
 		/* Normal Store */
@@ -1358,7 +1351,7 @@ static void store_create(int store_index)
 		}
 
 		/* Item belongs to a store */
-		i_ptr->ident |= IDENT_STORE;
+		if (st_ptr->base != STORE_STORAGE) i_ptr->ident |= IDENT_STORE;
 
 		/* The object is "known" */
 		object_known(i_ptr);
@@ -1367,7 +1360,7 @@ static void store_create(int store_index)
 		if (object_value(i_ptr) <= 0) continue;
 
 		/* Mass produce and/or Apply discount */
-		mass_produce(i_ptr);
+		mass_produce(i_ptr, (st_ptr->base != STORE_STORAGE));
 
 		/* Attempt to carry the (known) object */
 		(void)store_carry(i_ptr, store_index);
@@ -1441,6 +1434,47 @@ static void updatebargain(s32b price, s32b minprice, int store_index)
 }
 
 
+/*
+ * Guesstimate a cost.
+ */
+static long guess_cost(int item, int store_index)
+{
+	store_type *st_ptr = store[store_index];
+	owner_type *ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
+
+	int x;
+	
+	/* Get the object */
+	object_type *o_ptr = &st_ptr->stock[item];
+
+	/* Display a "fixed" cost */
+	if (o_ptr->ident & (IDENT_FIXED))
+	{
+		/* Extract the "minimum" price */
+		x = price_item(o_ptr, ot_ptr->min_inflate, FALSE, store_index);
+	}
+
+	/* Display a "haggle" cost */
+	else if (adult_haggle)
+	{
+		/* Extrect the "maximum" price */
+		x = price_item(o_ptr, ot_ptr->max_inflate, FALSE, store_index);
+	}
+
+	/* Display a "taxed" cost */
+	else
+	{
+		/* Extract the "minimum" price */
+		x = price_item(o_ptr, ot_ptr->min_inflate, FALSE, store_index);
+
+		/* Hack -- Apply Sales Tax if needed */
+		if (!noneedtobargain(x, store_index)) x += x / 10;
+	}
+	
+	return (x);
+}
+
+
 
 /*
  * Redisplay a single store entry
@@ -1449,14 +1483,12 @@ static void display_entry(int item, int store_index)
 {
 	int y;
 	object_type *o_ptr;
-	s32b x;
 
 	char o_name[80];
 	char out_val[160];
 	int maxwid;
 
 	store_type *st_ptr = store[store_index];
-	owner_type *ot_ptr = &b_info[((st_ptr->base - STORE_MIN_BUY_SELL) * z_info->b_max) + st_ptr->owner];
 
 	/* Must be on current "page" to get displayed */
 	if (!((item >= store_top) && (item < store_top + store_size))) return;
@@ -1576,41 +1608,9 @@ static void display_entry(int item, int store_index)
 			queue_tip(format("ego%d.txt", o_ptr->name2));
 		}
 
-		/* Display a "fixed" cost */
-		if (o_ptr->ident & (IDENT_FIXED))
-		{
-			/* Extract the "minimum" price */
-			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE, store_index);
-
-			/* Actually draw the price (not fixed) */
-			sprintf(out_val, "%9ld F", (long)x);
-			put_str(out_val, y, 68);
-		}
-
-		/* Display a "haggle" cost */
-		else if (adult_haggle)
-		{
-			/* Extrect the "maximum" price */
-			x = price_item(o_ptr, ot_ptr->max_inflate, FALSE, store_index);
-
-			/* Actually draw the price (not fixed) */
-			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
-		}
-
-		/* Display a "taxed" cost */
-		else
-		{
-			/* Extract the "minimum" price */
-			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE, store_index);
-
-			/* Hack -- Apply Sales Tax if needed */
-			if (!noneedtobargain(x, store_index)) x += x / 10;
-
-			/* Actually draw the price (with tax) */
-			sprintf(out_val, "%9ld  ", (long)x);
-			put_str(out_val, y, 68);
-		}
+		/* Actually draw the price (not fixed) */
+		sprintf(out_val, "%9ld %d", guess_cost(item, store_index), o_ptr->ident & (IDENT_FIXED) ? 'F' : ' ');
+		put_str(out_val, y, 68);
 	}
 }
 
@@ -2514,9 +2514,26 @@ static void store_purchase(int store_index)
 
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
-
+	
+	/* Guess maximum items can afford */
+	n = p_ptr->au / guess_cost(item, store_index);
+	
+	/* Maybe able to haggle */
+	if (!n)
+	{
+		if (adult_haggle)
+		{
+			n = 1;
+		}
+		else
+		{
+			msg_print("You can't afford that item.");
+			return;
+		}
+	}
+	
 	/* Get a quantity */
-	amt = get_quantity(NULL, o_ptr->number);
+	amt = get_quantity(NULL, n > o_ptr->number ? o_ptr->number : n);
 
 	/* Allow user abort */
 	if (amt <= 0) return;
@@ -2620,7 +2637,7 @@ static void store_purchase(int store_index)
 				store_prt_gold();
 
 				/* Buying an object makes you aware of it */
-				object_aware(i_ptr);
+				object_aware(i_ptr, FALSE);
 
 				/* The object kind is not guessed */
 				k_info[i_ptr->k_idx].guess = 0;
@@ -2753,6 +2770,13 @@ static void store_purchase(int store_index)
 
 		/* The object no longer belongs to the store */
 		i_ptr->ident &= ~(IDENT_STORE);
+		
+		/* However, its now identified if we are a quest or store location */
+		if (st_ptr->base == STORE_QUEST_REWARD)
+		{
+			object_aware(i_ptr, TRUE);
+			object_known(i_ptr);
+		}
 
 		/* Give it to the player */
 		item_new = inven_carry(i_ptr);
@@ -2944,7 +2968,7 @@ static void store_sell(int store_index)
 			o_ptr->feeling = 0;
 
 			/* Identify original object */
-			object_aware(o_ptr);
+			object_aware(o_ptr, TRUE);
 			object_known(o_ptr);
 
 			/* Combine / Reorder the pack (later) */
@@ -3532,17 +3556,90 @@ void do_cmd_store(void)
 			store_maint(store_index);
 		}
 	}
-
-	/* Hack -- Check the "locked doors" */
+	
+	/* Hack -- Check the "locked doors". Restricted or closed store. */
 	if (adult_no_stores ||
-		(store[store_index]->store_open >= turn) ||
-		(p_ptr->pshape >= z_info->g_max) ||
-		((zone->guard) && (r_info[zone->guard].cur_num > 0)))
+		(store[store_index]->store_open >= turn))
 	{
 		msg_print("The doors are locked.");
 		return;
 	}
 
+	/* Hack -- Check the "locked doors". Restrict unusual shapes. */
+	if (p_ptr->pshape >= z_info->g_max)
+	{
+		cptr closed_reason = 0; /* to silence a warning */
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "You can't open the shop door in this form.";
+				break;
+			case 1:
+				closed_reason =	"A sign reads 'No animals allowed'.";
+				break;
+			case 2:
+				closed_reason =	"The shopkeeper chases you out with a broom.";
+				break;
+			case 3:
+				closed_reason = "The shopkeeper feeds you a scrap, picks you up and puts you gently down outside.";
+				break;
+		}
+		msg_print(closed_reason);
+		return;		
+	}
+
+	/* Doors locked if player has visited a location to release a unique and hasn't killed it */
+	if ((t_ptr->town_lockup_monster) && (r_info[t_ptr->town_lockup_monster].max_num > 0)
+		&& (!(t_ptr->town_lockup_ifvisited) || t_info[t_ptr->town_lockup_ifvisited].visited))
+	{
+		cptr closed_reason = 0; /* to silence a warning */
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "The shop front has been damaged by %s and boarded up.";
+				break;
+			case 1:
+				closed_reason =	"A sign reads 'Closed for business due to %s.'";
+				break;
+			case 2:
+				closed_reason =	"The shopkeeper yells from behind a barred door 'You bought %s upon us. Begone!'";
+				break;
+			case 3:
+				closed_reason = "'It's not safe here with %s about.' the shopkeeper whispers before closing the shutters.";
+				break;
+		}
+		
+		msg_format(closed_reason, r_name + r_info[t_ptr->town_lockup_monster].name);
+		return;
+	}
+
+	/* Doors locked if guardian about */
+	if ((actual_guardian(zone->guard, p_ptr->dungeon)) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num > 0))
+	{
+		cptr closed_reason = 0; /* to silence a warning */
+		
+		switch(store_index % 4)
+		{
+			case 0:
+				closed_reason = "A sign reads 'Trespassers not welcome. Signed %s.'";
+				break;
+			case 1:
+				closed_reason =	"The door is locked. %s must be about.";
+				break;
+			case 2:
+				closed_reason =	"A voice yells from behind a barred door 'Leave before I call for %s.'";
+				break;
+			case 3:
+				closed_reason = "'Come back when %s isn't around.' a voice whispers before closing the shutters.";
+				break;
+		}
+		
+		msg_format(closed_reason, r_name + r_info[actual_guardian(zone->guard, p_ptr->dungeon)].name);
+		return;
+	}
+	
 	/* Forget the view */
 	forget_view();
 
@@ -3558,7 +3655,7 @@ void do_cmd_store(void)
 	p_ptr->command_rep = 0;
 
 	/* No automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->command_new.key = 0;
 
 	/* Start at the beginning */
 	store_top = 0;
@@ -3710,7 +3807,7 @@ void do_cmd_store(void)
 
 
 	/* Hack -- Cancel automatic command */
-	p_ptr->command_new = 0;
+	p_ptr->command_new.key = 0;
 
 	/* Hack -- Cancel "see" mode */
 	p_ptr->command_see = FALSE;
@@ -3891,7 +3988,7 @@ int store_init(int feat)
 	}
 
 	/* Make a new store */
-	C_MAKE(st_ptr, 1, store_type);
+	st_ptr = C_ZNEW(1, store_type);
 
 	/* Copy basic store information to it */
 	COPY(st_ptr, &u_info[f_info[feat].power], store_type);
@@ -3920,7 +4017,7 @@ int store_init(int feat)
 	st_ptr->stock_size = STORE_INVEN_MAX;
 
 	/* Allocate the stock */
-	C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+	st_ptr->stock = C_ZNEW(st_ptr->stock_size, object_type);
 
 	/* Store index */
 	store_index = total_store_count++;

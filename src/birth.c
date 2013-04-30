@@ -347,12 +347,37 @@ static void get_money(void)
 
 
 /*
+ * Structure for quickstart information
+ */
+quickstart_type normal_quickstart;
+
+/*
  * Clear all the global "character" data
  */
 static void player_wipe(void)
 {
 	int i, j;
 
+	/* Copy player quickstart information */
+	if (character_quickstart)
+	{
+		/* Copy across the quickstart structure */
+		normal_quickstart.psex = p_ptr->psex;
+		normal_quickstart.prace = p_ptr->prace;
+		normal_quickstart.pclass = p_ptr->pclass;
+		normal_quickstart.pstyle = p_ptr->pstyle;
+		normal_quickstart.psval = p_ptr->psval;
+		normal_quickstart.pschool = p_ptr->pschool;
+		normal_quickstart.birth_au = p_ptr->birth_au;
+		
+		/* Copy across the stats */
+		for (i = 0; i < A_MAX; i++)
+		{
+			/* Set up the stats */
+			normal_quickstart.stat_birth[i] = p_ptr->stat_birth[i];
+		}		
+	}
+	
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
 
@@ -677,7 +702,7 @@ static void player_outfit(void)
 			  }
 			else
 			  {
-			    object_aware(i_ptr);
+			    object_aware(i_ptr, FALSE);
 			    object_known(i_ptr);
 			  }
 
@@ -740,7 +765,7 @@ static void player_outfit(void)
 					else
 					{
 						/* Combine */
-						object_absorb(o_ptr, i_ptr);
+						object_absorb(o_ptr, i_ptr, FALSE);
 					}
 
 					/* Increase the weight by hand */
@@ -900,8 +925,6 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 			Term_putstr(col, i + TABLE_ROW, wid, attr, buf);
 		}
 
-		if (done) return (choices[cur].choice);
-
 		/* Display auxiliary information if any is available. */
 		if (hook) hook(choices[cur]);
 
@@ -918,6 +941,8 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 
 			delay = 0;
 		}
+
+		if (done) return (choices[cur].choice);
 
 		ke = inkey_ex();
 
@@ -1133,9 +1158,9 @@ static void race_aux_hook(birth_menu r_str)
 	p_ptr->expfact = rp_ptr->r_exp;
 
 	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
-	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	Term_putstr(RACE_AUX2_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
 	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
-	Term_putstr(RACE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+	Term_putstr(RACE_AUX2_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 
 	/* Skills - scaled up to exaggerate differences */
 	xthn = rp_ptr->r_thn * 2 + 24;
@@ -1194,7 +1219,7 @@ static bool get_player_race()
 	int i, j = 0;
 	birth_menu *races;
 
-	C_MAKE(races, z_info->g_max, birth_menu);
+	races = C_ZNEW(z_info->g_max, birth_menu);
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
@@ -1290,8 +1315,11 @@ static void class_aux_hook(birth_menu c_str)
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
 	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
-	Term_putstr(CLASS_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
-	
+	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
+	Term_putstr(CLASS_AUX2_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
+
+
 	/* Skills */
 	xthn = rp_ptr->r_thn + cp_ptr->c_thn + cp_ptr->x_thn;
 	xthb = rp_ptr->r_thb + cp_ptr->c_thb + cp_ptr->x_thb;
@@ -1349,7 +1377,7 @@ static bool get_player_class(void)
 	int  i, k = 0;
 	birth_menu *classes;
 
-	C_MAKE(classes, z_info->c_max, birth_menu);
+	classes = C_ZNEW(z_info->c_max, birth_menu);
 
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_YELLOW,
@@ -1438,7 +1466,9 @@ static void style_aux_hook(birth_menu w_str)
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp + (style_idx ? 10 : 0);
 
 	sprintf(s, "Experience: %d%%  ", p_ptr->expfact);
-	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 1, -1, TERM_WHITE, s);
+	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 2, -1, TERM_WHITE, s);
+	sprintf(s, "Infravision: %d ft  ", rp_ptr->infra * 10);
+	Term_putstr(STYLE_AUX_COL, TABLE_ROW + A_MAX + 3, -1, TERM_WHITE, s);
 }
 
 
@@ -1574,7 +1604,7 @@ static bool get_player_book(void)
 	/* No books */
 	if (!bookc) return (FALSE);
 
-	C_MAKE(books, bookc, birth_menu);
+	books = C_ZNEW(bookc, birth_menu);
 
 	/* Analyse books */
 	for (i = 0;i<z_info->k_max;i++)
@@ -1707,7 +1737,7 @@ static bool get_player_school(void)
 
 	if (!schoolc) return (TRUE);
 
-	C_MAKE(schools, schoolc, birth_menu);
+	schools = C_ZNEW(schoolc, birth_menu);
 
 	/* Analyse books */
 	for (i = 0;i<z_info->k_max;i++)
@@ -2016,7 +2046,7 @@ static void player_birth_quickstart(quickstart_type *q_ptr)
 	p_ptr->pclass = q_ptr->pclass;
 	p_ptr->pstyle = q_ptr->pstyle;
 	p_ptr->psval = q_ptr->psval;
-	p_ptr->pschool = p_ptr->pschool;
+	p_ptr->pschool = q_ptr->pschool;
 	
 	/* Set up the class and race */
 	sp_ptr = &sex_info[p_ptr->psex];
@@ -2969,7 +2999,7 @@ void player_birth(void)
 	
 	/* Hack -- set the dungeon. */
 	if (adult_campaign) p_ptr->dungeon = 1;
-	else p_ptr->dungeon = 0;
+	else p_ptr->dungeon = z_info->t_max - 2;
 
 	/* Set last disturb */
 	p_ptr->last_disturb = turn;

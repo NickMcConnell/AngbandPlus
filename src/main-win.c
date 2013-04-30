@@ -994,6 +994,17 @@ static void term_getsize(term_data *td)
 
 		if (td->tile_wid < td->font_wid) td->tile_wid = td->font_wid;
 		if (td->tile_hgt < td->font_hgt) td->tile_hgt = td->font_hgt;
+		
+		/* Hack -- avoid erasing "leading" spaces */
+		if ((use_graphics) && (use_dbltile || use_trptile))
+		{
+			Term->never_lwipe = TRUE;
+		}
+		else
+		{
+			Term->never_lwipe = FALSE;			
+		}
+
 	}
 
 	/* Window sizes */
@@ -2071,6 +2082,16 @@ static errr Term_xtra_win_react(void)
 		else
 		{
 			Term->always_draw = FALSE;
+		}
+		
+		/* Hack -- avoid erasing "leading" spaces */
+		if (use_dbltile || use_trptile)
+		{
+			Term->never_lwipe = TRUE;
+		}
+		else
+		{
+			Term->never_lwipe = FALSE;			
 		}
 
 		if (use_graphics_nice)
@@ -4298,6 +4319,12 @@ static void process_menus(WORD wCmd)
 
 			/* Cancel "use_dbltile" */
 			use_dbltile = FALSE;
+			
+			/* Hack -- avoid erasing "leading" spaces */
+			if (use_graphics)
+			{
+				Term->never_lwipe = use_trptile;
+			}
 
 			/* Mega-Hack : Redraw screen */
 			Term_key_push(KTRL('R'));
@@ -4319,6 +4346,12 @@ static void process_menus(WORD wCmd)
 
 			/* Cancel "use_trptile" */
 			use_trptile = FALSE;
+
+			/* Hack -- avoid erasing "leading" spaces */
+			if (use_graphics)
+			{
+				Term->never_lwipe = use_dbltile;
+			}
 
 			/* Mega-Hack : Redraw screen */
 			Term_key_push(KTRL('R'));

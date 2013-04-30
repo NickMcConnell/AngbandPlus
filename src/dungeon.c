@@ -529,7 +529,7 @@ static void process_world(void)
 		/* Update the stores once a day (while in dungeon) */
 		if (!(turn % (10L * STORE_TURNS)))
 		{
-			int n;
+		  int n, i;
 
 			/* Message */
 			if (cheat_xtra) msg_print("Updating Shops...");
@@ -537,12 +537,21 @@ static void process_world(void)
 			/* Maintain each shop (except home, special locations) */
 			for (n = 0; n < total_store_count; n++)
 			{
-				/* Maintain */
-				store_maint(n);
+
+			  /* no restocking for alien towns */
+			  town_type *t_ptr = &t_info[p_ptr->town];
+			  for (i = 0; i < MAX_STORES; i++)
+			    {
+			      if (t_ptr->store_index[i] == n)
+				break;
+			    }
+			  if (i < MAX_STORES)
+			    /* Maintain */
+			    store_maint(n);
 			}
 
 			/* Sometimes, shuffle the shop-keepers */
-			if ((total_store_count) && (rand_int(STORE_SHUFFLE) == 0))
+			if ((total_store_count) && (rand_int(STORE_SHUFFLE) < 3))
 			{
 				/* Message */
 				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
@@ -550,8 +559,16 @@ static void process_world(void)
 				/* Pick a random shop (except home) */
 				n = randint(total_store_count - 1);
 
-				/* Shuffle it */
-				store_shuffle(n);
+			  /* no shuffling for alien towns */
+			  town_type *t_ptr = &t_info[p_ptr->town];
+			  for (i = 0; i < MAX_STORES; i++)
+			    {
+			      if (t_ptr->store_index[i] == n)
+				break;
+			    }
+			  if (i < MAX_STORES)
+			    /* Shuffle it */
+			    store_shuffle(n);
 			}
 
 			/* Message */
@@ -1691,6 +1708,29 @@ static void process_world(void)
 		teleport_player(40);
 	}
 
+	/* Delayed Word-of-Return */
+	if (p_ptr->word_return)
+	{
+		/* Count down towards return */
+		p_ptr->word_return--;
+
+		/* Activate the return */
+		if (!p_ptr->word_return)
+		{
+			/* Disturbing! */
+			disturb(0, 0);
+
+			msg_print("You feel yourself yanked sideways!");
+
+			/* Teleport the player back to their original location */
+			teleport_player_to(p_ptr->return_y, p_ptr->return_x);
+			
+			/* Clear the return coordinates */
+			p_ptr->return_y = 0;
+			p_ptr->return_x = 0;
+		}
+	}
+
 	/* Delayed Word-of-Recall */
 	if (p_ptr->word_recall)
 	{
@@ -1734,8 +1774,8 @@ static void process_world(void)
 				msg_print("A tension leaves the air around you...");
 			}
 		}
-	}
-
+	}	
+	
 	/* Update dynamic terrain */
 	update_dyna();
 
@@ -2525,13 +2565,14 @@ static void process_command(void)
 		{
 			int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
 			int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+			int room;
 
 			/* Hack -- we could try various things here like travelling or going up/down stairs */
 			if ((p_ptr->py == y) && (p_ptr->px == x) && (p_ptr->command_cmd_ex.mousebutton))
 			{
 				do_cmd_rest();
 			}
-			else if (p_ptr->command_cmd_ex.mousebutton == 1)
+			else if (p_ptr->command_cmd_ex.mousebutton == BUTTON_MOVE)
 			{
 				if (p_ptr->confused)
 				{
@@ -2542,16 +2583,14 @@ static void process_command(void)
 					do_cmd_pathfind(y, x);
 				}
 			}
-			else if (p_ptr->command_cmd_ex.mousebutton == 2)
+			else if (p_ptr->command_cmd_ex.mousebutton == BUTTON_AIM)
 			{
-				target_set_location(y, x);
+				target_set_location(y, x, 0);
 				msg_print("Target set.");
 			}
-			else
+			else if (use_trackmouse && (easy_more || auto_more))
 			{
-#if 0
-				target_set_interactive_aux(y, x, TARGET_PEEK, (use_mouse ? "*,left-click to move to, right-click to target" : "*"));
-#endif
+				target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 			}
 			break;
 		}
@@ -2828,7 +2867,7 @@ static void process_player(void)
 		overflow_pack();
 
 		/* Hack -- cancel "lurking browse mode" */
-		if (!p_ptr->command_new) p_ptr->command_see = FALSE;
+		if (!p_ptr->command_new.key) p_ptr->command_see = FALSE;
 
 
 		/* Assume free turn */
@@ -3101,14 +3140,14 @@ static void dungeon(void)
 
 	/* Reset the "command" vars */
 	p_ptr->command_cmd = 0;
-	p_ptr->command_new = 0;
+	p_ptr->command_new.key = 0;
 	p_ptr->command_rep = 0;
 	p_ptr->command_arg = 0;
 	p_ptr->command_dir = 0;
 
 
 	/* Cancel the target */
-	target_set_monster(0);
+	target_set_monster(0, 0);
 
 	/* Cancel the health bar */
 	health_track(0);
@@ -3604,13 +3643,49 @@ void play_game(bool new_game)
 
 		for (i = 0; i < z_info->t_max; i++)
 		{
-			int ii;
+			int guard, ii;
+			
+			guard = t_info[i].quest_monster;
 
-			for (ii = 0; ii < MAX_DUNGEON_ZONES;ii++)
+			/* Mark map quest monsters as 'unique guardians'. This allows
+			 * the map quests to be completed successfully.
+			 */
+			if (guard)
 			{
-				int guard = t_info[i].zone[ii].guard;
+				r_info[guard].flags1 |= (RF1_GUARDIAN | RF1_UNIQUE);
+				if (r_info[guard].max_num > 1) r_info[guard].max_num = 1;
+			}
+			
+			/* However, we must ensure that town lockup monsters are
+			 * unique to allow the town to be unlocked later.
+			 */
+			guard = t_info[i].town_lockup_monster;
+			if (guard)
+			{
+				r_info[guard].flags1 |= (RF1_UNIQUE);
+				if (r_info[guard].max_num > 1) r_info[guard].max_num = 1;
+			}
+			
+			for (ii = 0; ii < MAX_DUNGEON_ZONES; ii++)
+			{
+				/*
+				 * And we ensure dungeon mini-bosses are marked as
+				 * guardians, so that they do not appear elsewhere
+				 */
+				guard = t_info[i].zone[ii].guard;
+				if (guard)
+				{
+					r_info[guard].flags1 |= (RF1_GUARDIAN);
+				}
+			}
 
-				if (guard) r_info[guard].flags1 |= RF1_GUARDIAN;
+			/*
+			 * And this includes 'replacement' mini-bosses.
+			 */
+			guard = t_info[i].replace_guardian;
+			if (guard)
+			{
+				r_info[guard].flags1 |= (RF1_GUARDIAN);
 			}
 		}
 	}
@@ -3675,7 +3750,7 @@ void play_game(bool new_game)
 
 
 		/* Cancel the target */
-		target_set_monster(0);
+		target_set_monster(0, 0);
 
 		/* Cancel the health bar */
 		health_track(0);

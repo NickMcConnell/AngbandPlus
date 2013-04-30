@@ -1262,10 +1262,10 @@ errr macro_add(cptr pat, cptr act)
 errr macro_init(void)
 {
 	/* Macro patterns */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
+	macro__pat = C_ZNEW(MACRO_MAX, cptr);
 
 	/* Macro actions */
-	C_MAKE(macro__act, MACRO_MAX, cptr);
+	macro__act = C_ZNEW(MACRO_MAX, cptr);
 
 	/* Success */
 	return (0);
@@ -1878,6 +1878,12 @@ char inkey(void)
 
 
 /*
+ * We are delaying message display
+ */
+static bool must_more = FALSE;
+
+
+/*
  * Flush the screen, make a noise
  */
 void bell(cptr reason)
@@ -1886,7 +1892,7 @@ void bell(cptr reason)
 	Term_fresh();
 
 	/* Hack -- memorize the reason if possible */
-	if (character_generated && reason) message_add(reason, MSG_BELL);
+	if (character_generated && reason && !must_more) message_add(reason, MSG_BELL);
 
 	/* Make a bell noise (if allowed) */
 	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
@@ -1942,7 +1948,7 @@ static s16b quark__num = 1;
 /*
  * The array[QUARK_MAX] of pointers to the quarks
  */
-static cptr *quark__str;
+static char **quark__str;
 
 
 /*
@@ -1997,7 +2003,7 @@ cptr quark_str(s16b i)
 errr quarks_init(void)
 {
 	/* Quark variables */
-	C_MAKE(quark__str, QUARK_MAX, cptr);
+	quark__str = C_ZNEW(QUARK_MAX, cptr);
 
 	/* Success */
 	return (0);
@@ -2018,7 +2024,7 @@ errr quarks_free(void)
 	}
 
 	/* Free the list of "quarks" */
-	FREE((void*)quark__str);
+	FREE(quark__str);
 
 	/* Success */
 	return (0);
@@ -2085,6 +2091,14 @@ static u16b message__head;
  * The offset to the oldest used char (none yet)
  */
 static u16b message__tail;
+
+/*
+ * The next message to display for the easy_more code (none yet)
+ */
+static u16b message__easy;
+
+
+
 
 /*
  * The array[MESSAGE_MAX] of offsets, by index
@@ -2288,6 +2302,9 @@ void message_add(cptr str, u16b type)
 		/* Kill last message if needed */
 		if (message__next == message__last)
 		{
+			/* Update the 'message__easy', wrap if needed */
+			if ((message__last == message__easy) && (++message__last == MESSAGE_MAX)) message__easy = 0;
+			
 			/* Advance 'message__last', wrap if needed */
 			if (++message__last == MESSAGE_MAX) message__last = 0;
 		}
@@ -2308,6 +2325,8 @@ void message_add(cptr str, u16b type)
 	/* Kill messages, and wrap, if needed */
 	if (message__head + (n + 1) >= MESSAGE_BUF)
 	{
+		bool update_easy = FALSE;
+		
 		/* Kill all "dead" messages */
 		for (i = message__last; TRUE; i++)
 		{
@@ -2316,6 +2335,9 @@ void message_add(cptr str, u16b type)
 
 			/* Stop before the new message */
 			if (i == message__next) break;
+			
+			/* Update message__easy if required */
+			if (i == message__easy) update_easy = TRUE;
 
 			/* Get offset */
 			o = message__ptr[i];
@@ -2325,6 +2347,9 @@ void message_add(cptr str, u16b type)
 			{
 				/* Track oldest message */
 				message__last = i + 1;
+				
+				/* Update easy if required */
+				if (update_easy) message__easy = i + 1;
 			}
 		}
 
@@ -2341,6 +2366,8 @@ void message_add(cptr str, u16b type)
 	/* Kill messages, if needed */
 	if (message__head + (n + 1) > message__tail)
 	{
+		bool update_easy = FALSE;
+		
 		/* Advance to new "tail" location */
 		message__tail += (MESSAGE_BUF / 4);
 
@@ -2353,6 +2380,9 @@ void message_add(cptr str, u16b type)
 			/* Stop before the new message */
 			if (i == message__next) break;
 
+			/* Update message__easy if required */
+			if (i == message__easy) update_easy = TRUE;
+
 			/* Get offset */
 			o = message__ptr[i];
 
@@ -2361,6 +2391,9 @@ void message_add(cptr str, u16b type)
 			{
 				/* Track oldest message */
 				message__last = i + 1;
+				
+				/* Update easy if required */
+				if (update_easy) message__easy = i + 1;
 			}
 		}
 	}
@@ -2377,6 +2410,9 @@ void message_add(cptr str, u16b type)
 	/* Kill last message if needed */
 	if (message__next == message__last)
 	{
+		/* Update the 'message__easy', wrap if needed */
+		if ((message__last == message__easy) && (++message__last == MESSAGE_MAX)) message__easy = 0;
+		
 		/* Advance 'message__last', wrap if needed */
 		if (++message__last == MESSAGE_MAX) message__last = 0;
 	}
@@ -2401,21 +2437,245 @@ void message_add(cptr str, u16b type)
 
 
 /*
+ * This displays all the messages on the screen, trying to
+ * minimise the amount of times the -more- key has to be
+ * pressed, by using all the available screen space.
+ * 
+ * If command is set to true, we re-display the command
+ * prompt once this is done, and pass back the last key
+ * press as a command.
+ */
+void messages_easy(bool command)
+{
+	int y, x, w, h;
+	byte a = TERM_L_BLUE;
+	key_event ke;
+
+	char *t;
+	char buf[1024];
+	
+	/* Easy more option not selected. */
+	if (!easy_more)
+	{
+		message__easy = message__next;
+		
+		return;
+	}
+	
+	/* Nothing to display. */
+	else if (!must_more)
+	{
+		return;
+	}
+
+	/* Nothing to display. */
+	else if (message__easy == message__next)
+	{
+		return;
+	}
+	
+	/* Don't display if character is dead or not yet generated */
+	else if (!character_generated || p_ptr->is_dead)
+	{
+		return;
+	}
+	
+	/* Save the screen */
+	screen_save();
+	
+	/* Obtain the size */
+	(void)Term_get_size(&w, &h);
+
+	/* Display remaining messages on line 2 of the display onwards */
+	for (y = (msg_flag ? 0 : 1), x = 0 ; (message__easy != message__next); )
+	{
+		/* Get the "offset" for the message */
+		int o = message__ptr[message__easy];
+
+		/* Get the message text */
+		cptr msg = &message__buf[o];
+
+		/* Get the color */
+		byte color = message_type_color(message__type[message__easy]);
+
+		int n = strlen(msg);
+		
+		bool long_line = FALSE;
+		
+		if ((x) && (x + n) > (w - 8))
+		{
+			/* Go to next row if required */
+			x = 0;
+			y++;
+		}
+		
+		/* Improve legibility of long entries */		
+		if (n > (w - 2)) long_line = TRUE;
+		
+		/* Copy it */
+		strncpy(buf, msg, sizeof(buf));
+		buf[sizeof(buf)-1] = '\0';
+
+		/* Analyze the buffer */
+		t = buf;
+
+		/* Split message */
+		while (n > (w - 2))
+		{
+			char oops;
+
+			int check, split;
+
+			/* Default split */
+			split = (w - 2);
+
+			/* Find the "best" split point */
+			for (check = (w / 2); check < (w - 2); check++)
+			{
+				/* Found a valid split point */
+				if (t[check] == ' ') split = check;
+			}
+
+			/* Save the split character */
+			oops = t[split];
+
+			/* Split the message */
+			t[split] = '\0';
+
+			/* Display part of the message */
+			Term_putstr(x, y, split, color, t);
+			
+			/* Erase to end of line to improve legibility */
+			if (long_line)
+			{
+				/* Clear top line */
+				Term_erase(x + split, y, 255);			
+			}
+			else
+			{
+				/* Add a space for legibility */
+				Term_putstr(x + split, y, -1, TERM_WHITE, " ");
+			}
+			
+			/* Restore the split character */
+			t[split] = oops;
+
+			/* Prepare to recurse on the rest of "buf" */
+			t += split; n -= split;
+			
+			/* Reset column and line */
+			x = 0;
+			y++;
+		}
+
+		/* Display the tail of the message */
+		Term_putstr(x, y, n, color, t);
+
+		/* Add a space for legibility */
+		Term_putstr(x + n, y, -1, TERM_WHITE, " ");
+
+		/* Get next message */
+		message__easy = (message__easy + 1) % MESSAGE_MAX;
+
+		/* Get next position */
+		x += n + 1;
+		
+		/* Display more prompt if reached near end of page */
+		if ((y >= (h < 12 ? h - (show_sidebar ? 3 : 2) : (h > 23 ? (h / 2) - (show_sidebar ? 2 : 1) : 11 - (show_sidebar ? 3 : 2))))
+				/* Display more prompt if out of messages */
+				|| (message__easy == message__next))
+		{
+			/* Pause for response */
+			Term_putstr(0, y + 1, -1, a, message__easy == message__next ? "-end-" : "-more-");
+	
+			/* Get an acceptable keypress. */
+			while (1)
+			{
+				ke = inkey_ex();
+	
+				if ((ke.key == '\xff') && !(ke.mousebutton))
+				{
+					int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
+					int x = KEY_GRID_X(p_ptr->command_cmd_ex);
+					int room;
+
+					target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+					
+					continue;
+				}
+		#if 0
+				if ((p_ptr->chp < warning) && (ke.key != 'c')) { bell("Press c to continue."); continue; }
+		#endif
+				if (quick_messages) break;
+				if ((ke.key == ESCAPE) || (ke.key == ' ')) break;
+				if ((ke.key == '\n') || (ke.key == '\r')) break;
+				if ((ke.key == '\xff') && (ke.mousebutton == 1)) break;
+				bell("Illegal response to a 'more' prompt!");
+			}
+			
+			/* Refresh screen */
+			screen_load();
+			
+			/* Tried a command - avoid rest of messages */
+			if (ke.key != ' ') break;
+			
+			if (message__easy != message__next) screen_save();
+			
+			/* Start at top left hand side */
+			y = (use_trackmouse ? 1 : 0);
+			x = 0;
+		}
+	}
+	
+	/* Allow 1 line messages again */
+	must_more = FALSE;
+	
+	/* Clear the message flag */
+	msg_flag = FALSE;
+
+	/* Clear top line */
+	Term_erase(0, 0, 255);
+
+	/* Display command prompt */
+	if (command)
+	{
+		Term_putstr(0, 0, -1, TERM_WHITE, "Command:");
+		
+		/* Requeue command just pressed */
+		p_ptr->command_new = ke;
+		
+		/* Hack -- Process "Escape"/"Spacebar"/"Return" */
+		if ((p_ptr->command_new.key == ESCAPE) ||
+			(p_ptr->command_new.key == ' ') ||
+			(p_ptr->command_new.key == '\r') ||
+			(p_ptr->command_new.key == '\n'))
+		{
+			/* Reset stuff */
+			p_ptr->command_new.key = 0;
+		}
+	}
+}
+
+
+/*
  * Initialize the "message" package
  */
 errr messages_init(void)
 {
 	/* Message variables */
-	C_MAKE(message__ptr, MESSAGE_MAX, u16b);
-	C_MAKE(message__buf, MESSAGE_BUF, char);
-	C_MAKE(message__type, MESSAGE_MAX, u16b);
+	message__ptr = C_ZNEW(MESSAGE_MAX, u16b);
+	message__buf = C_ZNEW(MESSAGE_BUF, char);
+	message__type = C_ZNEW(MESSAGE_MAX, u16b);
 
 	/* Init the message colors to white */
-	(void)C_BSET(message__color, TERM_WHITE, MSG_MAX, byte);
+	memset(message__color,TERM_WHITE,MSG_MAX * sizeof(byte));
 
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
 
+	/* Hack -- No messages for easy_more */
+	message__easy = MESSAGE_BUF;
+	
 	/* Success */
 	return (0);
 }
@@ -2496,6 +2756,23 @@ static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 
+	/* Handle easy_more */
+	if (easy_more || use_trackmouse)
+	{
+		/* Display additional messages on the same screen */
+		if (!must_more)
+		{
+			/* Display messages from this point onwards */
+			message__easy = message__next;
+
+			/* Delay displaying remaining messages */
+			must_more = TRUE;
+		}
+
+		return;
+	}
+	
+	
 #if 0
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
 
@@ -2573,7 +2850,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 #ifdef ALLOW_BORG
 	/* Hack -- No messages for the borg */
-	if ((count_stop) && !(auto_more)) return;
+	if ((count_stop) && !(auto_more) && !(must_more)) return;
 #endif
 
 	/* Obtain the size */
@@ -2597,7 +2874,22 @@ static void msg_print_aux(u16b type, cptr msg)
 		/* Reset */
 		message_column = 0;
 	}
-
+	/* Hack -- get messages_easy to display the whole message */
+	else if ((easy_more) && (!must_more) && (n > (w - 8)))
+	{
+		/* Flush */
+		msg_flush(message_column);
+		
+		/* Hack -- use first line */
+		msg_flag = TRUE;
+	}
+	/* Hack -- blank message or zero length message implies we want interruption */
+	else if ((easy_more) && ((!msg) || !(strlen(msg))))
+	{
+		messages_easy(FALSE);
+		
+		return;
+	}
 
 	/* No message */
 	if (!msg) return;
@@ -2614,8 +2906,8 @@ static void msg_print_aux(u16b type, cptr msg)
 	p_ptr->window |= (PW_MESSAGE);
 
 
-	/* Handle "auto_more" */
-	if (auto_more)
+	/* Handle "auto_more"/"must_more"/"use_trackmouse" */
+	if (auto_more || must_more || use_trackmouse)
 	{
 		/* Force window update */
 		window_stuff();
@@ -2767,6 +3059,9 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
  */
 void message_flush(void)
 {
+	/* Hack -- no effect with easy_more */
+	if (easy_more) return;
+	
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;
 
@@ -3403,8 +3698,11 @@ bool get_check(cptr prompt)
 
 	char buf[80];
 
+	/* Flush easy_more messages */
+	if (easy_more) messages_easy(FALSE);
+	
 	/* Paranoia XXX XXX XXX */
-	message_flush();
+	else message_flush();
 
 	/* Hack -- Build a "useful" prompt */
 	strnfmt(buf, 78, "%.70s[y/n] ", prompt);
@@ -3545,7 +3843,6 @@ void request_command(bool shopping)
 
 	cptr act;
 
-
 	/* Roguelike */
 	if (rogue_like_commands)
 	{
@@ -3568,21 +3865,23 @@ void request_command(bool shopping)
 	/* No "direction" yet */
 	p_ptr->command_dir = 0;
 
+	/* Flush messages */
+	if (easy_more && must_more) messages_easy(TRUE);
 
 	/* Get command */
 	while (1)
 	{
 		/* Hack -- auto-commands */
-		if (p_ptr->command_new)
+		if (p_ptr->command_new.key)
 		{
 			/* Flush messages */
 			message_flush();
 
 			/* Use auto-command */
-			ke.key = (char)p_ptr->command_new;
+			ke = p_ptr->command_new;
 
 			/* Forget it */
-			p_ptr->command_new = 0;
+			p_ptr->command_new.key = 0;
 		}
 
 		/* Get a keypress in "command" mode */
@@ -4460,8 +4759,7 @@ bool is_valid_pf(int y, int x)
 		 && ( (f_info[feat].flags1 & (FF1_DISARM)) ||
 		 ( !(f_info[feat].flags1 & (FF1_MOVE)) &&
 		 !(f_info[feat].flags3 & (FF3_EASY_CLIMB)) && 
-		 ( (f_info[feat].flags1 & (FF1_BASH)) ||       
-		   (f_info[feat].flags1 & (FF1_OPEN)) ))))
+		 (f_info[feat].flags1 & (FF1_OPEN)))))
 	{
 		return (TRUE);
 	}
@@ -4706,6 +5004,9 @@ bool get_list(print_list_func print_list, const s16b *sn, int num, cptr p, cptr 
 	key_event ke;
 
 	char out_val[160];
+	
+	/* Clear messages */
+	if (easy_more) messages_easy(FALSE);
 
 	/* Nothing chosen yet */
 	flag = FALSE;
@@ -4823,7 +5124,7 @@ void grid_queue_create(grid_queue_type *q, size_t max_size)
 	q->max_size = max_size;
 
 	/* Allocate the grid storage */
-	C_MAKE(q->data, max_size, coord);
+	q->data = C_ZNEW(max_size, coord);
 
 	/* Initialize head and tail of the queue */
 	q->head = q->tail = 0;

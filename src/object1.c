@@ -979,6 +979,11 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 			}
 			else
 			{
+				if (o_ptr->tval == TV_STATUE)
+				{
+					 my_strcpy(mon_buf, format("%s %s", is_a_vowel(mon_buf[0]) ? "an" : "a", mon_buf), sizeof(mon_buf));
+				}
+
 				modstr = mon_buf;
 			}
 			break;
@@ -4611,8 +4616,9 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		/* Auto-inscribe */
 		if (!i_ptr->note) i_ptr->note = k_info[i_ptr->k_idx].note;
 
-		/* Apply obvious flags, e.g. for throwing items */
-		object_obvious_flags(i_ptr);
+		/* Apply obvious flags, e.g. for throwing items. XXX
+		 * This is, of course, *really dangerous* due to the calls in object_obvious_flags */
+		/* object_obvious_flags(i_ptr); */
 	}
 }
 

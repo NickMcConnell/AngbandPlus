@@ -455,6 +455,10 @@ static bool check_hit(int power, int level, int who, bool ranged)
 }
 
 
+
+
+
+
 /*
  * Hack -- possible "insult" messages
  */
@@ -525,9 +529,8 @@ void attack_desc(int who, int what, int target, int method, int damage, bool *do
 	/* Describe target */
 	if ((who == SOURCE_MONSTER_START) && (what > SOURCE_MONSTER_START))
 	{
-		/* Get the monster possessive ("his"/"her"/"its") */
-		monster_desc(t_name, sizeof(t_name), what, 0x22);
-		my_strcat(t_name, t_name[0] == 'i' ? "elf" : "self", sizeof(t_name));
+		/* Get the monster reflexive ("himself"/"herself"/"itself") */
+		monster_desc(t_name, sizeof(t_name), who, 0x23);
 	}
 	else if (target > 0)
 	{
@@ -917,6 +920,80 @@ static int attack_power(int effect)
 		/* Need to add extra flavours in here */
 	}
 	return power;
+}
+
+
+/*
+ * Determine if a monster attack against another monster succeeds.
+ * Always miss 5% of the time, Always hit 5% of the time.
+ * Otherwise, match monster power against monster armor.
+ */
+bool mon_check_hit(int m_idx, int method, int effect, int level, int who, bool ranged)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *n_ptr = &m_list[who];
+	monster_race *r_ptr = &r_info[n_ptr->r_idx];
+
+	int k, ac;
+	int power = attack_power(effect);
+	
+	/* Monster never misses */
+	if (r_ptr->flags9 & (RF9_NEVER_MISS)) return (TRUE);
+
+	/* Calculate the "attack quality".  Blind monsters are greatly hindered. Stunned monsters are hindered. */
+	power = (power + (n_ptr->blind ? level * 1 : (n_ptr->stunned ? level * 2 : level * 3)));
+
+	/* Apply monster stats */
+	if (n_ptr->mflag & (MFLAG_CLUMSY)) power -= 5;
+	else if (n_ptr->mflag & (MFLAG_SKILLFUL)) power += 5;
+
+	/* Apply temporary conditions */
+	if (n_ptr->bless) power += 10;
+	if (n_ptr->berserk) power += 24;
+
+	/* Blind monsters almost always miss at ranged combat */
+	if ((ranged) && (n_ptr->blind)) power /= 10;
+
+	/* Monsters can evade */
+	if (mon_evade(m_idx, 
+		(ranged ? 5 : 3) + (m_ptr->confused 
+				 || m_ptr->stunned ? 1 : 3),
+		9, "")) return (FALSE);
+
+	/* Huge monsters are hard to hit. */
+	if (r_info[m_ptr->r_idx].flags3 & (RF3_HUGE))
+	{
+		/* Easier for climbers, flyers and other huge monsters */
+		if (((n_ptr->mflag & (MFLAG_OVER)) == 0)
+				&& (r_ptr->flags3 & (RF3_HUGE)) &&
+				(rand_int(100) < (r_ptr->flags2 & (RF3_GIANT)) ? 35 : 70)) return (FALSE);
+	}
+
+	/* Hack -- make armoured monsters much more effective against monster arrows. */
+	if ((ranged) && (r_info[m_ptr->r_idx].flags2 & (RF2_ARMOR)))
+	{
+		/* XXX Tune this to make warriors useful against archers. */
+		if (rand_int(100) < 40) return (FALSE);
+	}
+
+	/* Percentile dice */
+	k = rand_int(100);
+
+	/* Hack -- Always miss or hit */
+	if (k < 10) return (k < 5);
+
+	/* Total armor */
+	ac = calc_monster_ac(m_idx, ranged);
+	
+	/* Power and Level compete against Armor */
+	if (power > 0)
+	{
+		/* Armour or blocking protects */
+		if (randint(power) > ((ac * 3) / 4)) return (TRUE);
+	}
+
+	/* Assume miss */
+	return (FALSE);
 }
 
 
@@ -1900,6 +1977,53 @@ void mon_blow_ranged(int who, int what, int x, int y, int method, int range, int
 }
 
 
+/*
+ * Monsters can concentrate light or conjure up darkness.
+ * 
+ * Also, druidic type monsters use water and trees to boost
+ * their recovery of hit points and mana.
+ *
+ * Return TRUE if the monster did anything.
+ * 
+ * Note we force 'destroy' to FALSE to keep druidic monsters
+ * more interesting. This means they don't destroy the
+ * resources that they concentrate - forcing the player to
+ * consider how to do so.
+ */
+static int mon_concentrate_power(int m_idx, int y, int x, int spower, bool use_los, bool destroy, bool concentrate_hook(const int y, const int x, const bool modify))
+{
+	int damage, radius, lit_grids;
+	
+	/* Radius of darkness-creation varies depending on spower */
+	radius = MIN(6, 3 + spower / 20);
+
+	/* Check to see how much we would gain (use a radius of 6) */
+	lit_grids = concentrate_power(m_idx, y, x, 6,
+		FALSE, use_los, concentrate_hook);
+
+	/* We have enough juice to make it worthwhile (make a hasty guess) */
+	if (lit_grids >= rand_range(40, 60))
+	{
+		/* Actually concentrate the light */
+		(void)concentrate_power(m_idx, y, x, radius,
+			destroy, use_los, concentrate_hook);
+
+		/* Calculate damage (60 grids => break-even point) */
+		damage = lit_grids * spower / 20;
+
+		/* Limit damage, but allow fairly high values */
+		if (damage > 9 * spower / 2) damage = 9 * spower / 2;
+
+		/* We did something */
+		return (damage);
+	}
+
+	/* We decided not to do anything */
+	return (0);
+}
+
+
+
 
 /*
  * Monster attempts to make a ranged (non-melee) attack.
@@ -1933,6 +2057,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 	char t_name[80];
 	char t_poss[80];
+	char t_nref[80]; /* Not reflexive if required */
 
 	cptr result = NULL;
 
@@ -2011,8 +2136,11 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		s_ptr = &r_info[n_ptr->r_idx];
 		k_ptr = &l_list[who];
 
+		/* Get the monster name (or "it") */
+		monster_desc(t_nref, sizeof(t_name), target, 0x00);
+
 		/* Get the monster reflexive ("himself"/"herself"/"itself") */
-		monster_desc(t_name, sizeof(t_name), who, 0x23);
+		monster_desc(t_name, sizeof(t_nref), who, 0x23);
 
 		/* Get the monster possessive ("his"/"her"/"its") */
 		monster_desc(t_poss, sizeof(t_poss), who, 0x22);
@@ -2027,6 +2155,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Get the monster name (or "it") */
 		monster_desc(t_name, sizeof(t_name), target, 0x00);
 
+		/* Get the monster name (or "it") */
+		monster_desc(t_nref, sizeof(t_nref), target, 0x00);
+
 		/* Get the monster possessive ("the goblin's") */
 		monster_desc(t_poss, sizeof(t_poss), target, 0x02);
 	}
@@ -2038,6 +2169,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		k_ptr = &l_list[0];
 
 		my_strcpy(t_name,"you", sizeof(t_name));
+		my_strcpy(t_nref,"you", sizeof(t_nref));
 		my_strcpy(t_poss,"your", sizeof(t_poss));
 	}
 	/* Describe target - target is an empty grid/feature */
@@ -2047,9 +2179,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		s_ptr = &r_info[0];
 		k_ptr = &l_list[0];
 
+		my_strcpy(t_name,f_name + f_info[cave_feat[y][x]].name, sizeof(t_name));
+		my_strcpy(t_nref,f_name + f_info[cave_feat[y][x]].name, sizeof(t_nref));
 		my_strcpy(t_poss,"the ", sizeof(t_poss));
-		my_strcat(t_name,f_name + f_info[cave_feat[y][x]].name, sizeof(t_name));
-		my_strcpy(t_poss,f_name + f_info[cave_feat[y][x]].name, sizeof(t_poss));
+		my_strcat(t_poss,f_name + f_info[cave_feat[y][x]].name, sizeof(t_poss));
 		my_strcat(t_poss,"'s",sizeof(t_poss));
 	}
 		
@@ -2065,15 +2198,15 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Feature is seen */
 		if (play_info[y][x] & (PLAY_SEEN))
 		{
-			my_strcpy(t_poss,"the ", sizeof(t_poss));
-			my_strcat(m_name,f_name + f_info[what].name, sizeof(t_name));
-			my_strcpy(m_poss,f_name + f_info[what].name, sizeof(t_poss));
-			my_strcat(t_poss,"'s",sizeof(t_poss));
+			my_strcat(m_name,f_name + f_info[what].name, sizeof(m_name));
+			my_strcpy(m_poss,"the ", sizeof(m_poss));
+			my_strcpy(m_poss,f_name + f_info[what].name, sizeof(m_poss));
+			my_strcat(m_poss,"'s",sizeof(t_poss));
 		}
 		else
 		{
-			my_strcpy(t_poss,"it", sizeof(t_poss));
-			my_strcpy(m_poss,"its", sizeof(t_poss));
+			my_strcpy(m_name,"it", sizeof(m_name));
+			my_strcpy(m_poss,"its", sizeof(m_poss));
 		}
 		
 		/* Hack -- Message text depends on feature description */
@@ -2172,7 +2305,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		else if (m_ptr->mflag & (MFLAG_SMART)) failrate /= 2;
 
 		/* Check for spell failure (breath/shot attacks never fail) */
-		if ((attack >= 128) && (rand_int(100) < failrate))
+		if ((attack >= 128) && (rand_int(100) < failrate) && ((m_ptr->mflag != (MFLAG_ALLY)) == 0))
 		{
 			/* Message */
 			msg_format("%^s tries to cast a spell, but fails.", m_name);
@@ -2212,9 +2345,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		else
 		{
 			known = (m_ptr->ml && player_can_see_bold(y,x));
-
-			/* Always known if target */
-			known = TRUE;
 
 			/* Assume "normal" target */
 			normal = TRUE;
@@ -2293,6 +2423,10 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target < 0)
 			{
 				hit = check_hit(attack_power(effect), rlev - m_ptr->cdis, who, TRUE);
+			}
+			else if (target > 0)
+			{
+				hit = mon_check_hit(target, method, effect, rlev - m_ptr->cdis, who, TRUE);
 			}
 
 			/* Get attack */
@@ -2975,6 +3109,28 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		case 128+5:
 		{
 			if (target < 0) disturb(1, 0);
+			
+			/* Sometimes try to concentrate light */
+			if ((rand_int(100) < 50) && ((who <= 0) || (generic_los(y, x, m_ptr->fy, m_ptr->fx, CAVE_XLOF))))
+			{
+				/* Check to see if doing so would be worthwhile */
+				int damage = mon_concentrate_power(who, y, x, spower, TRUE, FALSE, concentrate_light_hook);
+
+				/* We decided to concentrate light */
+				if (damage)
+				{
+					/* Message */
+					if (blind) result = format("%^s mumbles.", m_name);
+					else result = format("%^s concentrates light... and releases it.", m_name);
+
+					/* Fire bolt */
+					mon_bolt(who, what, y, x, GF_LITE, damage, result);
+
+					/* Done */
+					break;
+				}
+			}
+			
 			if (spower < 10)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
@@ -3001,6 +3157,28 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		case 128+6:
 		{
 			if (target < 0) disturb(1, 0);
+			
+			/* Sometimes try to concentrate light */
+			if ((rand_int(100) < 50) && ((who <= 0) || (generic_los(y, x, m_ptr->fy, m_ptr->fx, CAVE_XLOF))))
+			{
+				/* Check to see if doing so would be worthwhile */
+				int damage = mon_concentrate_power(who, y, x, spower, TRUE, TRUE, concentrate_light_hook);
+
+				/* We decided to concentrate light */
+				if (damage)
+				{
+					/* Message */
+					if (blind) result = format("%^s mumbles.", m_name);
+					else result = format("%^s conjures up darkness... and releases it.", m_name);
+
+					/* Fire bolt */
+					mon_bolt(who, what, y, x, GF_LITE, damage, result);
+
+					/* Done */
+					break;
+				}
+			}
+
 			if (spower < 20)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
@@ -3111,21 +3289,21 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s surrounded by a dust devil.", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s surrounded by a dust devil.", t_nref, target < 0 ? "are" : "is");
 				rad = 2;
 			}
 			else if (spower < 40)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s engulfed in a twister.", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s engulfed in a twister.", t_nref, target < 0 ? "are" : "is");
 				rad = 3;
 			}
 			else
 			{
 				if (blind) result = format("%^s chants powerfully.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s lost in a raging tornado!", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s lost in a raging tornado!", t_nref, target < 0 ? "are" : "is");
 				rad = 5;
 			}
 			mon_ball(who, what, y, x, GF_WIND, get_dam(spower, attack), rad, TRUE, result);
@@ -3141,21 +3319,21 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s surrounded by a little storm.", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s surrounded by a little storm.", t_nref, target < 0 ? "are" : "is");
 				rad = 2;
 			}
 			else if (spower < 40)
 			{
 				if (blind) result = format("%^s mumbles.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s engulfed in a whirlpool.", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s engulfed in a whirlpool.", t_nref, target < 0 ? "are" : "is");
 				rad = 3;
 			}
 			else
 			{
 				if (blind) result = format("%^s chants powerfully.", m_name);
 				else result = format("%^s gestures fluidly.", m_name);
-				msg_format("%^s %s lost in a raging tempest of wind and water!", t_name, target < 0 ? "are" : "is");
+				msg_format("%^s %s lost in a raging tempest of wind and water!", t_nref, target < 0 ? "are" : "is");
 				rad = 5;
 			}
 			mon_ball(who, what, y, x, GF_WATER, get_dam(spower, attack), rad, TRUE, result);
@@ -3591,6 +3769,34 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		{
 			if (target == 0) break;
 
+			/* Druids/shamans sometimes add mana from water */
+			if ((who > 0) && ((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_PRIEST)) != 0))
+			{
+				if (rand_int(100) < 50)
+				{
+					/* Check to see if doing so would be worthwhile */
+					int power = mon_concentrate_power(who, y, x, spower, FALSE, FALSE, concentrate_water_hook);
+	
+					/* We decided to concentrate light */
+					if (power)
+					{
+						/* Message */
+						if (blind) msg_format("%^s mumbles.", m_name);
+						else msg_format("%^s absorbs mana from the surrounding water.", m_name);
+	
+						/* Big boost to mana */
+						n_ptr->mana += (power / 5) + 1;
+						if (n_ptr->mana > s_ptr->mana) n_ptr->mana = s_ptr->mana;
+	
+						/* Done */
+						break;
+					}
+				}
+				
+				/* Benefit less from gaining mana any other way */
+				spower /= 2;
+			}
+			
 			if (known)
 			{
 				disturb(1,0);
@@ -3632,7 +3838,24 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 			if (target == 0) break;
 
-			if (known)
+			/* Druids/shamans sometimes add health from trees/plants */
+			if ((who > 0) && (target == who) && ((r_ptr->flags2 & (RF2_MAGE)) != 0) && ((r_ptr->flags2 & (RF2_PRIEST)) != 0) && (rand_int(100) < 50))
+			{
+				/* Check to see if doing so would be worthwhile */
+				int power = mon_concentrate_power(who, y, x, spower, FALSE, FALSE, concentrate_life_hook);
+
+				/* We decided to concentrate life */
+				if (power)
+				{
+					/* Message */
+					if (blind) msg_format("%^s mumbles.", m_name);
+					else msg_format("%^s absorbs life from the surrounding plants.", m_name);
+
+					/* Big boost to mana */
+					spower = MAX(spower, power);
+				}
+			}
+			else if (known)
 			{
 				disturb(1,0);
 
@@ -3645,7 +3868,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			{
 				/* We regain lost hitpoints (up to spower * 3) */
 				gain = MIN(n_ptr->maxhp - n_ptr->hp, spower * 3);
-
+	
 				/* We do not gain more than mana * 15 HPs at a time */
 				gain = MIN(gain, m_ptr->mana * 15);
 
@@ -3668,7 +3891,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (known)
 					{
 						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks very healthy!",  t_name);
-						else msg_format("%^s sounds very healthy!", t_name);
+						else msg_format("%^s sounds very healthy!", t_nref);
 					}
 				}
 
@@ -3679,10 +3902,9 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (known)
 					{
 						if ((!blind) && (n_ptr->ml)) msg_format("%^s looks healthier.",  t_name);
-						else msg_format("%^s sounds healthier.", t_name);
+						else msg_format("%^s sounds healthier.", t_nref);
 					}
 				}
-
 
 				/* Redraw (later) if needed */
 				if ((p_ptr->health_who == target) && (n_ptr->ml))
@@ -3696,7 +3918,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 					/* Message */
 					if (n_ptr->ml)
-						msg_format("%^s recovers %s courage.", t_name, t_poss);
+						msg_format("%^s recovers %s courage.", t_nref, t_poss);
 				}
 
 				/* Recalculate combat range later */
@@ -3742,7 +3964,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->stunned = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s is no longer stunned.", t_name);
+					if (n_ptr->ml) msg_format("%^s is no longer stunned.", t_nref);
 				}
 
 				/* Cancel fear */
@@ -3752,7 +3974,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->monfear = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s recovers %s courage.", t_name, t_poss);
+					if (n_ptr->ml) msg_format("%^s recovers %s courage.", t_nref, t_poss);
 				}
 
 				/* Cancel confusion */
@@ -3762,7 +3984,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->confused = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s is no longer confused.", t_name);
+					if (n_ptr->ml) msg_format("%^s is no longer confused.", t_nref);
 				}
 
 				/* Cancel cuts */
@@ -3772,7 +3994,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->cut = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s is no longer bleeding.", t_name);
+					if (n_ptr->ml) msg_format("%^s is no longer bleeding.", t_nref);
 				}
 
 				/* Cancel confusion */
@@ -3782,7 +4004,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->poisoned = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s is no longer poisoned.", t_name);
+					if (n_ptr->ml) msg_format("%^s is no longer poisoned.", t_nref);
 				}
 
 				/* Cancel blindness */
@@ -3792,7 +4014,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					n_ptr->blind = 0;
 
 					/* Message */
-					if (n_ptr->ml) msg_format("%^s is no longer blind.", t_name);
+					if (n_ptr->ml) msg_format("%^s is no longer blind.", t_nref);
 				}
 
 				/* Redraw (later) if needed */
@@ -3891,19 +4113,19 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					monster_desc(t_name, sizeof(t_name), target, 0x08);
 										
 					seen = TRUE;
-					msg_format("%^s blinks into view.", t_name);
+					msg_format("%^s blinks into view.", t_nref);
 				}
 
 				/* Normal message */
 				else if (direct)
 				{
-					msg_format("%^s blinks away.", t_name);
+					msg_format("%^s blinks away.", t_nref);
 				}
 
 				/* Telepathic message */
 				else if (known)
 				{
-					msg_format("%^s blinks.", t_name);
+					msg_format("%^s blinks.", t_nref);
 				}
 			}
 			break;
@@ -3931,19 +4153,19 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					monster_desc(t_name, sizeof(t_name), target, 0x08);
 
 					seen = TRUE;
-					msg_format("%^s teleports into view.", t_name);
+					msg_format("%^s teleports into view.", t_nref);
 				}
 
 				/* Normal message */
 				else if (direct)
 				{
-					msg_format("%^s teleports away.", t_name);
+					msg_format("%^s teleports away.", t_nref);
 				}
 
 				/* Telepathic message */
 				else if (known)
 				{
-					msg_format("%^s teleports.", t_name);
+					msg_format("%^s teleports.", t_nref);
 				}
 			}
 			break;
@@ -3977,7 +4199,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 
 					if (!n_ptr->ml)
 					{
-						msg_format("%^s disppears!", t_name);
+						msg_format("%^s disppears!", t_nref);
 					}
 				}
 			}
@@ -4109,13 +4331,18 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else if (rand_int(100) < p_ptr->skill_sav)
 				{
 					msg_print("You resist the effects!");
+					
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					teleport_player_level();
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,TR2_RES_NEXUS,0x0L,TR4_ANCHOR);
+					if (!player_not_flags(who, 0x0L,TR2_RES_NEXUS,0x0L,TR4_ANCHOR) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			break;
@@ -4139,7 +4366,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				/* Notify player */
 				if ((n_ptr->ml) && !(n_ptr->tim_passw))
 				{
-					msg_format("%^s becomes more insubstantial!", t_name);
+					msg_format("%^s becomes more insubstantial!", t_nref);
 				}
 
 				/* Add to the monster haste counter */
@@ -4213,14 +4440,16 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 			{
 				msg_print("You resist the effects!");
-			}
-			else if (who > SOURCE_MONSTER_START)
-			{
-				(void)set_amnesia(p_ptr->amnesia + rlev / 8 + 4 + rand_int(4));
+				
+				if (who > 0) update_smart_save(who, TRUE);
 			}
 			else
 			{
+				(void)set_amnesia(p_ptr->amnesia + rlev / 8 + 4 + rand_int(4));
+				
 				msg_print("Your memories fade.");
+
+				if (who > 0) update_smart_save(who, FALSE);
 			}
 			break;
 		}
@@ -4233,48 +4462,56 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (!direct) break;
 			if (target == 0) break;
 
-			if ((target < 0) && (p_ptr->csp) && !(p_ptr->stastis))
+			if ((target < 0) && !(p_ptr->stastis))
 			{
-				/* Disturb if legal */
-				disturb(1, 0);
-
-				/* Basic message */
-				msg_format("%^s draws psychic energy from you!", m_name);
-
-				/* Attack power */
-				r1 = (randint(spower) / 20) + 1;
-
-				/* Full drain */
-				if (r1 >= p_ptr->csp)
-				{
-					r1 = p_ptr->csp;
-					p_ptr->csp = 0;
-					p_ptr->csp_frac = 0;
+				if (p_ptr->csp)
+				{	
+					/* Disturb if legal */
+					disturb(1, 0);
+	
+					/* Basic message */
+					msg_format("%^s draws psychic energy from you!", m_name);
+	
+					/* Attack power */
+					r1 = (randint(spower) / 20) + 1;
+	
+					/* Full drain */
+					if (r1 >= p_ptr->csp)
+					{
+						r1 = p_ptr->csp;
+						p_ptr->csp = 0;
+						p_ptr->csp_frac = 0;
+					}
+	
+					/* Partial drain */
+					else
+					{
+						p_ptr->csp -= r1;
+					}
+	
+					/* Redraw mana */
+					p_ptr->redraw |= (PR_MANA);
+	
+					/* Window stuff */
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 				}
-
-				/* Partial drain */
-				else
-				{
-					p_ptr->csp -= r1;
-				}
-
-				/* Redraw mana */
-				p_ptr->redraw |= (PR_MANA);
-
-				/* Window stuff */
-				p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				else break;
 			}
-			else if ((target > 0) && (n_ptr->mana > 0))
+			else if (target > 0)
 			{
-				/* Basic message */
-				msg_format("%^s draws psychic energy from %s.", m_name, t_name);
-
-				r1 = (randint(spower) / 20) + 1;
-
-				/* Full drain */
-				r1 = MIN(r1, n_ptr->mana);
-				
-				n_ptr->mana -= r1;
+				if (n_ptr->mana > 0)
+				{
+					/* Basic message */
+					msg_format("%^s draws psychic energy from %s.", m_name, t_name);
+	
+					r1 = (randint(spower) / 20) + 1;
+	
+					/* Full drain */
+					r1 = MIN(r1, n_ptr->mana);
+					
+					n_ptr->mana -= r1;
+				}
+				else break;
 			}
 
 			/* Replenish monster mana */
@@ -4306,6 +4543,19 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (seen)
 				{
 					msg_format("%^s appears healthier.", m_name);
+				}
+			}
+			
+			/* Inform allies of new player mana */
+			if ((who > 0) && (target > 0))
+			{
+				if (p_ptr->csp)
+				{
+					update_smart_forget(who, SM_IMM_MANA);
+				}
+				else
+				{
+					update_smart_learn(who, SM_IMM_MANA);
 				}
 			}
 			break;
@@ -4357,6 +4607,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				if (rand_int(100) < p_ptr->skill_sav)
 				{
 					msg_print("You resist the effects!");
+					
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
@@ -4364,11 +4616,17 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if ((p_ptr->cur_flags2 & (TR2_RES_CONFU)) == 0)
 					{
 						(void)set_confused(p_ptr->confused + rand_int(4) + 4);
-						player_not_flags(who, 0x0L, TR2_RES_CONFU, 0x0L, 0x0L);
+						if (!player_not_flags(who, 0x0L, TR2_RES_CONFU, 0x0L, 0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
 					}
 					else
 					{
-						player_can_flags(who, 0x0L, TR2_RES_CONFU, 0x0L, 0x0L);
+						if (!player_can_flags(who, 0x0L, TR2_RES_CONFU, 0x0L, 0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
 					}
 					
 					/* Apply damage directly */
@@ -4428,13 +4686,18 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You refuse to be deceived.");
+
+					if (who > 0) update_smart_save(who, TRUE);				
 				}
 				else
 				{
 					(void)set_image(p_ptr->image + rand_int(4) + 4);
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,TR2_RES_CHAOS,0x0L,0x0L);
+					if (!player_not_flags(who, 0x0L,TR2_RES_CHAOS,0x0L,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -4491,6 +4754,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				{
 					msg_format("You resist the effects%c",
 					      (spower < 30 ?  '.' : '!'));
+
+					if (who > 0) update_smart_save(who, TRUE);				
 				}
 				else
 				{
@@ -4506,6 +4771,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 					if (k == 3) (void)set_cut(p_ptr->cut + 46 + damroll(4, 12));
 					if (k == 4) (void)set_cut(p_ptr->cut + 95 + damroll(8, 15));
 					if (k == 5) (void)set_cut(1200);
+					
+					if (who > 0) update_smart_save(who, FALSE);
 				}
 			}
 			else if (target > 0)
@@ -4574,7 +4841,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				/* Notify player */
 				if ((n_ptr->ml) && !(n_ptr->bless))
 				{
-					msg_format("%^s appears righteous!", t_name);
+					msg_format("%^s appears righteous!", t_nref);
 				}
 
 				/* Add to the monster bless counter */
@@ -4607,7 +4874,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				/* Notify player */
 				if ((n_ptr->ml) && !(n_ptr->berserk))
 				{
-					msg_format("%^s goes berserk!", t_name);
+					msg_format("%^s goes berserk!", t_nref);
 				}
 
 				/* Add to the monster haste counter */
@@ -4640,7 +4907,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				/* Notify player */
 				if ((n_ptr->ml) && !(n_ptr->shield))
 				{
-					msg_format("%^s becomes magically shielded.", t_name);
+					msg_format("%^s becomes magically shielded.", t_nref);
 				}
 
 				/* Add to the monster shield counter */
@@ -4673,7 +4940,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				/* Notify player */
 				if ((n_ptr->ml) && !(n_ptr->oppose_elem))
 				{
-					msg_format("%^s becomes temporarily resistant to the elements.", t_name);
+					msg_format("%^s becomes temporarily resistant to the elements.", t_nref);
 				}
 
 				/* Add to the monster haste counter */
@@ -4698,7 +4965,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (!direct) break;
 			if (target == 0) break;
 
-			if (blind) msg_format("%^s %s commanded to feel hungry.", t_name, target < 0 ? "are" : "is");
+			if (blind) msg_format("%^s %s commanded to feel hungry.", t_nref, target < 0 ? "are" : "is");
 			else msg_format("%^s gestures at %s, and commands that %s feel%s hungry.", m_name, t_name, t_name, target < 0 ? "" : "s");
 
 			if (target < 0)
@@ -4708,8 +4975,15 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 				{
 					/* Reduce food abruptly.  */
 					(void)set_food(p_ptr->food - (p_ptr->food/4));
+					
+					if (who > 0) update_smart_save(who, FALSE);
 				}
-				else msg_print ("You resist the effects!");
+				else
+				{
+					msg_print ("You resist the effects!");
+
+					if (who > 0) update_smart_save(who, TRUE);
+				}
 			}
 			else if ((target > 0) && ((r_info[n_ptr->r_idx].flags3 & (RF3_NONLIVING)) == 0))
 			{
@@ -4763,22 +5037,38 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						msg_format("%^s power overcomes your resistance.", m_poss);
 
 						(void)set_afraid(p_ptr->afraid + rand_int(4) + 1);
+						
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_FEAR,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
 					}
-					else msg_print("You refuse to be frightened.");
+					else
+					{
+						msg_print("You refuse to be frightened.");
 
-					/* Sometimes notice */
-					player_can_flags(who, 0x0L,TR2_RES_FEAR,0x0L,0x0L);
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_FEAR,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, TRUE);
+						}
+					}
 				}
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You refuse to be frightened.");
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					(void)set_afraid(p_ptr->afraid + rand_int(4) + 4);
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,TR2_RES_FEAR,0x0L,0x0L);
+					if (!player_not_flags(who, 0x0L,TR2_RES_FEAR,0x0L,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -4810,22 +5100,39 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						msg_format("%^s power overcomes your resistance.", m_poss);
 
 						(void)set_blind(p_ptr->blind + rand_int(6) + 1);
-					}
-					else msg_print("You are unaffected!");
 
-					/* Always notice */
-					player_can_flags(who, 0x0L,TR2_RES_BLIND,0x0L,0x0L);
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_BLIND,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
+					}
+					else
+					{
+						msg_print("You are unaffected!");
+	
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_BLIND,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, TRUE);
+						}
+					}
 				}
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You resist the effects!");
+					
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					(void)set_blind(p_ptr->blind + 12 + rlev / 4 + rand_int(4));
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,TR2_RES_BLIND,0x0L,0x0L);
+					if (!player_not_flags(who, 0x0L,TR2_RES_BLIND,0x0L,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -4859,22 +5166,38 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						msg_format("%^s power overcomes your resistance.", m_poss);
 
 						(void)set_confused(p_ptr->confused + rand_int(5) + 1);
-					}
-					else msg_print("You disbelieve the feeble spell.");
 
-					/* Sometimes notice */
-					player_can_flags(who, 0x0L,TR2_RES_CONFU,0x0L,0x0L);
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_CONFU,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
+					}
+					else
+					{
+						msg_print("You disbelieve the feeble spell.");
+	
+						/* Always notice */
+						if (!player_can_flags(who, 0x0L,TR2_RES_CONFU,0x0L,0x0L) && who)
+						{
+							update_smart_save(who, TRUE);
+						}
+					}
 				}
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You disbelieve the feeble spell.");
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					(void)set_confused(p_ptr->confused + rlev / 8 + 4 + rand_int(4));
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,TR2_RES_CONFU,0x0L,0x0L);
+					if (!player_can_flags(who, 0x0L,TR2_RES_CONFU,0x0L,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -4907,24 +5230,48 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						msg_format("%^s power overcomes your resistance.", m_poss);
 
 						(void)set_slow(p_ptr->slow + rand_int(3) + 1);
+
+						/* Player is temporarily resistant */
+						if (p_ptr->free_act)
+						{
+							update_smart_save(who, FALSE);
+						}
+						/* Always notice */
+						else if (!player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}
 					}
-					else msg_print("You are unaffected!");
-
-					/* Always notice */
-					if (!p_ptr->free_act) player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L);
-					else update_smart_learn(who, SM_FREE_ACT);
-
+					else
+					{
+						msg_print("You are unaffected!");
+						
+						/* Player is temporarily resistant */
+						if (p_ptr->free_act)
+						{
+							update_smart_save(who, TRUE);
+						}
+						/* Always notice */
+						else if (!player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+						{
+							update_smart_save(who, TRUE);
+						}
+					}
 				}
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You resist the effects!");
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					(void)set_slow(p_ptr->slow + rand_int(4) + 4 + rlev / 25);
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L);
+					if (!player_not_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -4958,24 +5305,47 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 						if (!p_ptr->slow) (void)set_slow(p_ptr->slow + rand_int(4) + 1);
 						else set_paralyzed(p_ptr->paralyzed + 1);
 
-						
+						/* Player is temporarily resistant */
+						if (p_ptr->free_act)
+						{
+							update_smart_save(who, FALSE);
+						}
+						/* Always notice */
+						else if (!player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+						{
+							update_smart_save(who, FALSE);
+						}						
 					}
-					else msg_print("You are unaffected!");
-
-					/* Always notice */
-					if (!p_ptr->free_act) player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L);
-					else update_smart_learn(who, SM_FREE_ACT);
+					else
+					{
+						msg_print("You are unaffected!");
+						
+						/* Player is temporarily resistant */
+						if (p_ptr->free_act)
+						{
+							update_smart_save(who, TRUE);
+						}
+						/* Always notice */
+						else if (!player_can_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+						{
+							update_smart_save(who, TRUE);
+						}
+					}
 				}
 				else if (rand_int(100) < (powerful ? p_ptr->skill_sav * 2 / 3 : p_ptr->skill_sav))
 				{
 					msg_print("You resist the effects!");
+					if (who > 0) update_smart_save(who, TRUE);
 				}
 				else
 				{
 					(void)set_paralyzed(p_ptr->paralyzed + rand_int(4) + 4);
 
 					/* Always notice */
-					player_not_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L);
+					if (!player_not_flags(who, 0x0L,0x0L,TR3_FREE_ACT,0x0L) && who)
+					{
+						update_smart_save(who, FALSE);
+					}
 				}
 			}
 			else if (target > 0)
@@ -5934,24 +6304,6 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 	/* Monster updates */
 	if (who > SOURCE_MONSTER_START)
 	{
-		/* Learn Player Resists */
-		if (attack < 128)
-		{
-			  update_smart_learn(who, spell_desire_RF4[attack-96][D_RES]);
-		}
-		else if (attack < 160)
-		{
-			  update_smart_learn(who, spell_desire_RF5[attack-128][D_RES]);
-		}
-		else if (attack < 192)
-		{
-			  update_smart_learn(who, spell_desire_RF6[attack-160][D_RES]);
-		}
-		else if (attack < 224)
-		{
-			  update_smart_learn(who, spell_desire_RF7[attack-192][D_RES]);
-		}
-
 		/* Mark minimum desired range for recalculation */
 		m_ptr->min_range = 0;
 
@@ -6033,8 +6385,12 @@ bool mon_evade(int m_idx, int chance, int out_of, cptr r)
 
 	cptr p;
 
-	int roll = rand_int(out_of);
+	int roll;
+	
+	if ((r_ptr->flags9 & (RF9_EVASIVE)) == 0) return (FALSE);
 
+	roll = rand_int(out_of);
+	
 	/* Get "the monster" or "it" */
 	monster_desc(m_name, sizeof(m_name), m_idx, 0x40);
 
@@ -6047,7 +6403,7 @@ bool mon_evade(int m_idx, int chance, int out_of, cptr r)
 	}
 
 	/* Hack -- evasive monsters may ignore trap */
-	if ((r_ptr->flags9 & (RF9_EVASIVE)) && (!m_ptr->berserk) && (!m_ptr->blind)
+	if ((!m_ptr->blind) && (!m_ptr->csleep)
 		&& (roll < chance))
 	{
 		if (m_ptr->ml)
@@ -6360,7 +6716,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 							k = damroll(o_ptr->dd, o_ptr->ds);
 							k *= mult;
 
-							k = tot_dam_aux(o_ptr, k, m_ptr);
+							k = tot_dam_aux(o_ptr, k, m_ptr, TRUE);
 
 							k += critical_shot(o_ptr->weight, o_ptr->to_h + j_ptr->to_h, k);
 							k += o_ptr->to_d + j_ptr->to_d;
@@ -6649,7 +7005,7 @@ void mon_hit_trap(int m_idx, int y, int x)
 
 					k = damroll(o_ptr->dd, o_ptr->ds);
 
-					k = tot_dam_aux(o_ptr, k, m_ptr);
+					k = tot_dam_aux(o_ptr, k, m_ptr, TRUE);
 
 					k += critical_norm(o_ptr->weight, 2 * o_ptr->to_h, k);
 					k += o_ptr->to_d;

@@ -118,6 +118,9 @@ struct key_event
  *
  *	- Flag "never_frosh"
  *	  Never call the "TERM_XTRA_FROSH" action
+ * 
+ *  - Flag "never_lwipe"
+ *    Never erase "leading" spaces. This causes problems with graphics.
  *
  *	- Value "attr_blank"
  *	  Use this "attr" value for "blank" grids
@@ -191,6 +194,7 @@ struct term
 	bool notice_grid;
 	bool never_bored;
 	bool never_frosh;
+	bool never_lwipe;
 
 	byte attr_blank;
 	char char_blank;

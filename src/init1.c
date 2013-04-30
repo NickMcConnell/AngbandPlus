@@ -404,6 +404,7 @@ static cptr r_info_blow_effect[] =
 	"RAGE",
 	"HEAL_PERC",
 	"GAIN_MANA_PERC",
+	"TANGLE",
 	NULL
 };
 
@@ -1446,7 +1447,7 @@ static cptr s_info_types[] =
 	"SET_OR_MAKE_RETURN",
 	"BLOOD_BOND",
 	"MINDS_EYE",
-	"REMOTE_SENSING",
+	"LIGHT_CHAMBERS",
 	NULL
 };
 
@@ -2398,50 +2399,46 @@ errr parse_d_info(char *buf, header *head)
 	/* Process 'F' for "Feature" (one line only) */
 	else if (buf[0] == 'F')
 	{
-		int feat, tunnel, solid;
+		int feat, theme[MAX_THEMES], k;
 
 		/* There better be a current d_ptr */
 		if (!d_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d", &feat, &tunnel, &solid)) return (1);
+		if (1 + MAX_THEMES != sscanf(buf+2, "%d:%d:%d:%d:%d", &feat, &theme[0], &theme[1], &theme[2], &theme[3])) return (1);
 
 		/* Save the values */
 		d_ptr->feat = feat;
-		d_ptr->tunnel = tunnel;
-		d_ptr->solid = solid;
+		
+		/* Set the themes */
+		for (k = 0; k < MAX_THEMES; k++)
+		{
+			d_ptr->theme[k] = theme[k];
+
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_ICE)) d_ptr->l_flag |= LF1_ICE;
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_WATER)) d_ptr->l_flag |= LF1_WATER;
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_LAVA)) d_ptr->l_flag |= LF1_LAVA;
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_ACID)) d_ptr->l_flag |= LF1_ACID;
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_OIL)) d_ptr->l_flag |= LF1_OIL;
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_CHASM)) d_ptr->l_flag |= LF1_CHASM;
+			if (f_info[d_ptr->theme[k]].flags3 & (FF3_LIVING)) d_ptr->l_flag |= LF1_LIVING;
+
+			if (f_info[d_ptr->theme[k]].flags2 & (FF2_ICE | FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_CHASM)) d_ptr->not_chance = 0;
+			if (f_info[d_ptr->theme[k]].flags3 & (FF3_LIVING)) d_ptr->not_chance = 0;		
+		}
 		
 		/* Hack -- ensure we have correct level flags */
 		if (f_info[d_ptr->feat].flags2 & (FF2_ICE)) d_ptr->l_flag |= LF1_ICE;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_ICE)) d_ptr->l_flag |= LF1_ICE;
-		if (f_info[d_ptr->solid].flags2 & (FF2_ICE)) d_ptr->l_flag |= LF1_ICE;
 		if (f_info[d_ptr->feat].flags2 & (FF2_WATER)) d_ptr->l_flag |= LF1_WATER;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_WATER)) d_ptr->l_flag |= LF1_WATER;
-		if (f_info[d_ptr->solid].flags2 & (FF2_WATER)) d_ptr->l_flag |= LF1_WATER;
 		if (f_info[d_ptr->feat].flags2 & (FF2_LAVA)) d_ptr->l_flag |= LF1_LAVA;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_LAVA)) d_ptr->l_flag |= LF1_LAVA;
-		if (f_info[d_ptr->solid].flags2 & (FF2_LAVA)) d_ptr->l_flag |= LF1_LAVA;
 		if (f_info[d_ptr->feat].flags2 & (FF2_ACID)) d_ptr->l_flag |= LF1_ACID;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_ACID)) d_ptr->l_flag |= LF1_ACID;
-		if (f_info[d_ptr->solid].flags2 & (FF2_ACID)) d_ptr->l_flag |= LF1_ACID;
 		if (f_info[d_ptr->feat].flags2 & (FF2_OIL)) d_ptr->l_flag |= LF1_OIL;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_OIL)) d_ptr->l_flag |= LF1_OIL;
-		if (f_info[d_ptr->solid].flags2 & (FF2_OIL)) d_ptr->l_flag |= LF1_OIL;
 		if (f_info[d_ptr->feat].flags2 & (FF2_CHASM)) d_ptr->l_flag |= LF1_CHASM;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_CHASM)) d_ptr->l_flag |= LF1_CHASM;
-		if (f_info[d_ptr->solid].flags2 & (FF2_CHASM)) d_ptr->l_flag |= LF1_CHASM;
 		if (f_info[d_ptr->feat].flags3 & (FF3_LIVING)) d_ptr->l_flag |= LF1_LIVING;
-		if (f_info[d_ptr->tunnel].flags3 & (FF3_LIVING)) d_ptr->l_flag |= LF1_LIVING;
-		if (f_info[d_ptr->solid].flags3 & (FF3_LIVING)) d_ptr->l_flag |= LF1_LIVING;
 	
 		/* Ensure that level flags must occur */
 		if (f_info[d_ptr->feat].flags2 & (FF2_ICE | FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_CHASM)) d_ptr->not_chance = 0;
-		if (f_info[d_ptr->tunnel].flags2 & (FF2_ICE | FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_CHASM)) d_ptr->not_chance = 0;
-		if (f_info[d_ptr->solid].flags2 & (FF2_ICE | FF2_WATER | FF2_LAVA | FF2_ACID | FF2_OIL | FF2_CHASM)) d_ptr->not_chance = 0;
 		if (f_info[d_ptr->feat].flags3 & (FF3_LIVING)) d_ptr->not_chance = 0;
-		if (f_info[d_ptr->tunnel].flags3 & (FF3_LIVING)) d_ptr->not_chance = 0;
-		if (f_info[d_ptr->solid].flags3 & (FF3_LIVING)) d_ptr->not_chance = 0;
-		
 	}
 
 	/* Process 'R' for "Race flag" (once only) */
@@ -3959,7 +3956,7 @@ errr parse_r_info(char *buf, header *head)
 		{
 			r_ptr->flags3 |= RF3_NONVOCAL;
 		}
-
+		
 		/* Canines and hounds and ring wraiths have super scent */
 		if ((strchr("CZ", r_ptr->d_char)) || ((r_ptr->d_char == 'W') && (r_ptr->flags1 & (RF1_UNIQUE))))
 		{
@@ -4160,6 +4157,12 @@ errr parse_r_info(char *buf, header *head)
 			r_ptr->flags3 |= RF3_NONLIVING;
 		}
 
+		/* Hack -- older monsters */
+		if ((r_ptr->flags9 & (RF9_LEVEL_POWER | RF9_LEVEL_SIZE)) && (strchr("eQCfBhtlpqnoOPTY", r_ptr->d_char)))
+		{
+			r_ptr->flags9 |= RF9_LEVEL_AGE;
+		}
+		
 		/* Catch fraudulent NEVER_BLOW monsters */
 		if (r_ptr->flags1 & RF1_NEVER_BLOW)
 		  for (i = 0; i < 4; i++) 
@@ -4332,12 +4335,26 @@ errr parse_p_info(char *buf, header *head)
 			return (PARSE_ERROR_OUT_OF_MEMORY);
 	}
 
+	/* Process 'D' for "Description" */
+	else if (buf[0] == 'D')
+	{
+		/* There better be a current pr_ptr */
+		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
+
+		/* Get the text */
+		s = buf+2;
+
+		/* Store the text */
+		if (!add_text(&pr_ptr->text, head, s))
+			return (PARSE_ERROR_OUT_OF_MEMORY);
+	}
+	
 	/* Process 'S' for "Stats" (one line only) */
 	else if (buf[0] == 'S')
 	{
 		int adj;
 
-		/* There better be a current pc_ptr */
+		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Start the string */
@@ -7702,7 +7719,7 @@ errr eval_r_power(header *head)
 
 
 	/* Allocate space for power */
-	C_MAKE(power, z_info->r_max, long);
+	power = C_ZNEW(z_info->r_max, long);
 
 
 for (iteration = 0; iteration < 3; iteration ++)

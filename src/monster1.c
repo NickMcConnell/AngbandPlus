@@ -777,7 +777,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 		/* Get the effect */
 		switch (effect)
 		{
-			case GF_NOTHING: q = "nothing"; break;
+			case GF_NOTHING: q = "no effect"; break;
 			case GF_STORM: p= "lash with wind, rain and lightning"; break;
 			case GF_WIND: p= "blast with wind"; break;
 			case GF_HELLFIRE: q="blast with hellfire";break;
@@ -911,6 +911,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 			case GF_SNUFF:		q = "snuff the life from"; break;
 			case GF_RAGE:		q = "enrage"; break;
 			case GF_MENTAL:		q = "blast with mental energy"; break;
+			case GF_TANGLE:		q = "entangle with nearby plants or water weeds"; break;
 		}
 
 
@@ -1718,6 +1719,7 @@ static void describe_monster_movement(const monster_race *r_ptr, const monster_l
 	/* Describe the improvements */
 	if (l_ptr->flags9 & (RF9_LEVEL_SIZE)) vp[vn++] ="larger";
 	if (l_ptr->flags9 & (RF9_LEVEL_SPEED)) vp[vn++] ="faster";
+	if (l_ptr->flags9 & (RF9_LEVEL_AGE)) vp[vn++] ="older";
 	if (l_ptr->flags9 & (RF9_LEVEL_POWER)) vp[vn++] ="more powerful";
 
 	/* Describe "improvements" */

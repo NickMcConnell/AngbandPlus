@@ -67,7 +67,7 @@
 #define VERSION_MAJOR	0
 #define VERSION_MINOR	6
 #define VERSION_PATCH	2
-#define VERSION_EXTRA	2
+#define VERSION_EXTRA	3
 
 
 /*
@@ -76,6 +76,7 @@
 #define OLD_VERSION_MAJOR	0
 #define OLD_VERSION_MINOR	6
 #define OLD_VERSION_PATCH	0
+#define OLD_VERSION_EXTRA	0
 
 
 /*
@@ -393,10 +394,13 @@
 #define ROOM_FRACTAL			13
 #define ROOM_LARGE_FRACTAL		14
 #define ROOM_HUGE_FRACTAL		15
-#define ROOM_LAKE				16
-#define ROOM_HUGE_LAKE			17
-#define ROOM_LAIR				18
-#define ROOM_TOWER       		19
+#define ROOM_LAIR				16
+#define ROOM_MAZE				17
+#define ROOM_LARGE_MAZE			18
+#define ROOM_HUGE_MAZE			19
+#define ROOM_LAKE				20
+#define ROOM_HUGE_LAKE			21
+#define ROOM_TOWER       		22
 
 
 
@@ -976,6 +980,8 @@
 #define GF_RAGE			137
 #define GF_HEAL_PERC	138
 #define GF_GAIN_MANA_PERC	139
+#define GF_TANGLE		140
+
 
 
 
@@ -1592,6 +1598,8 @@
 #define SPELL_SET_OR_MAKE_RETURN	43
 #define SPELL_BLOOD_BOND		44
 #define SPELL_MINDS_EYE			45
+#define SPELL_LIGHT_CHAMBERS	46
+
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
 
@@ -2702,18 +2710,25 @@
  *
  *	KILL: Target monsters
  *	LOOK: Describe grid fully
- *	XTRA: Currently unused flag
+ *	NEAR: Target monsters near the location
  *	GRID: Select from all grids
  *	PATH: Computer path instead of projection.
  *	PEEK: Describe without waiting for keypress.
- *
+ *  KIND: Target monsters of the same kind.
+ *  EASY: If target is killed/lost, find another.
+ *  LOST: Retargetting because killed/lost target.
  */
-#define TARGET_KILL		0x01
-#define TARGET_LOOK		0x02
-#define TARGET_XTRA		0x04
-#define TARGET_GRID		0x08
-#define TARGET_PATH		0x10
-#define TARGET_PEEK		0x20
+#define TARGET_KILL		0x0001
+#define TARGET_LOOK		0x0002
+#define TARGET_NEAR		0x0004
+#define TARGET_GRID		0x0008
+#define TARGET_PATH		0x0010
+#define TARGET_PEEK		0x0020
+#define TARGET_EASY		0x0040
+#define TARGET_LOST		0x0080
+#define TARGET_ALLY		0x0100
+
+
 
 
 /*
@@ -2922,7 +2937,7 @@
 #define LF1_CAVE	0x00080000L	/* Cave level */
 #define LF1_TOWN	0x00100000L	/* Town level */
 #define LF1_WILD	0x00200000L	/* Wilderness level */
-#define LF1_RUIN	0x00400000L	/* Chambers level */
+#define LF1_LABYRINTH	0x00400000L	/* Labyrinth level */
 #define LF1_FEATURE	0x00800000L	/* Chambers level */
 #define LF1_CHAMBERS	0x01000000L	/* Chambers level */
 #define LF1_DARK	0x02000000L	/* Dark room */
@@ -2937,7 +2952,7 @@
 #define LF1_THEME \
 	(LF1_DESTROYED | LF1_VAULT | LF1_DUNGEON | LF1_STRONGHOLD | \
 	LF1_CRYPT | LF1_LAIR | LF1_MINE | LF1_CAVE | LF1_WILD | \
-	LF1_SEWER | LF1_TOWER)
+	LF1_SEWER | LF1_LABYRINTH)
 
 /* Room generation flags */
 #define RG1_NORTH	0x00000001L	/* Place in north */
@@ -3139,38 +3154,38 @@
  *
  * Most of these map to the "TR2_xxx" flags.
  */
-#define SM_OPP_ACID		0x00000001
-#define SM_OPP_ELEC		0x00000002
-#define SM_OPP_FIRE		0x00000004
-#define SM_OPP_COLD		0x00000008
-#define SM_OPP_POIS		0x00000010
-#define SM_OPP_FEAR		0x00000020
-#define SM_SEE_INVIS		0x00000040
-#define SM_GOOD_SAVE		0x00000080
-#define SM_PERF_SAVE		0x00000100
-#define SM_FREE_ACT		0x00000200
-#define SM_IMM_POIS		0x00000400
-#define SM_IMM_MANA		0x00000800
-#define SM_IMM_ACID		0x00001000
-#define SM_IMM_ELEC		0x00002000
-#define SM_IMM_FIRE		0x00004000
-#define SM_IMM_COLD		0x00008000
-#define SM_RES_ACID		0x00010000
-#define SM_RES_ELEC		0x00020000
-#define SM_RES_FIRE		0x00040000
-#define SM_RES_COLD		0x00080000
-#define SM_RES_POIS		0x00100000
-#define SM_RES_FEAR		0x00200000
-#define SM_RES_LITE		0x00400000
-#define SM_RES_DARK		0x00800000
-#define SM_RES_BLIND		0x01000000
-#define SM_RES_CONFU		0x02000000
-#define SM_RES_SOUND		0x04000000
-#define SM_RES_SHARD		0x08000000
-#define SM_RES_NEXUS		0x10000000
-#define SM_RES_NETHR		0x20000000
-#define SM_RES_CHAOS		0x40000000
-#define SM_RES_DISEN		0x80000000
+#define SM_OPP_ACID		0x00000001L
+#define SM_OPP_ELEC		0x00000002L
+#define SM_OPP_FIRE		0x00000004L
+#define SM_OPP_COLD		0x00000008L
+#define SM_OPP_POIS		0x00000010L
+#define SM_OPP_FEAR		0x00000020L
+#define SM_SEE_INVIS	0x00000040L
+#define SM_GOOD_SAVE	0x00000080L
+#define SM_PERF_SAVE	0x00000100L
+#define SM_FREE_ACT		0x00000200L
+#define SM_IMM_POIS		0x00000400L
+#define SM_IMM_MANA		0x00000800L
+#define SM_IMM_ACID		0x00001000L
+#define SM_IMM_ELEC		0x00002000L
+#define SM_IMM_FIRE		0x00004000L
+#define SM_IMM_COLD		0x00008000L
+#define SM_RES_ACID		0x00010000L
+#define SM_RES_ELEC		0x00020000L
+#define SM_RES_FIRE		0x00040000L
+#define SM_RES_COLD		0x00080000L
+#define SM_RES_POIS		0x00100000L
+#define SM_RES_FEAR		0x00200000L
+#define SM_RES_LITE		0x00400000L
+#define SM_RES_DARK		0x00800000L
+#define SM_RES_BLIND	0x01000000L
+#define SM_RES_CONFU	0x02000000L
+#define SM_RES_SOUND	0x04000000L
+#define SM_RES_SHARD	0x08000000L
+#define SM_RES_NEXUS	0x10000000L
+#define SM_RES_NETHR	0x20000000L
+#define SM_RES_CHAOS	0x40000000L
+#define SM_RES_DISEN	0x80000000L
 
 
 /*
@@ -3962,8 +3977,11 @@
 /*
  *  Ecologies - used for monster placement
  */
-#define MIN_ECOLOGY_RACES	4	/* Minimum different races in ecology */
+#define MIN_ECOLOGY_RACES	8	/* Minimum different races in ecology */
 #define MAX_ECOLOGY_RACES	64	/* Maximum total races in ecology (including duplicates) */
+
+#define MAX_ECOLOGIES		(DUN_ROOMS + 1)	/* Maximum total ecologies */
+
 
 /*
  * Hack -- Bit masks to control what spells are considered
@@ -4431,7 +4449,7 @@
 #define OPT_toggle_xp	   73
 #define OPT_stack_force_charges			74
 #define OPT_stack_force_times		75
-/* xxx */
+#define OPT_easy_more      76
 #define OPT_room_descriptions			77
 #define OPT_room_names				78
 #define OPT_verify_mana			79
@@ -4574,7 +4592,7 @@
 #define toggle_xp op_ptr->opt[OPT_toggle_xp]
 #define stack_force_charges  op_ptr->opt[OPT_stack_force_charges]
 #define stack_force_times  op_ptr->opt[OPT_stack_force_times]
-/* xxx */
+#define easy_more   op_ptr->opt[OPT_easy_more]
 #define verify_mana      op_ptr->opt[OPT_verify_mana]
 #define room_descriptions    op_ptr->opt[OPT_room_descriptions]
 #define room_names      op_ptr->opt[OPT_room_names]
@@ -4828,6 +4846,16 @@
 	((int) ((p_ptr->wx) + ( ((K.mousex) - COL_MAP) / \
 		((use_trptile ? 3 : (use_dbltile ? 2 : 1)) * (use_bigtile ? 2 : 1)) )))
 
+/*
+ * Define which mouse buttons correspond to which actions
+ * 
+ * 1 is usually left-mouse button
+ * 2 is usually right-mouse button
+ */
+#define BUTTON_AIM		1
+#define BUTTON_MOVE		2
+
+
 
 /*
  * Determines if a map location is "meaningful"
@@ -4981,11 +5009,34 @@
  (f_info[cave_feat[Y][X]].flags1  & (FF1_PERMANENT))
 
 
+/*
+ * Get the index number of the room. Return 0 if not in a valid room.
+ * 
+ * This should only be used once all rooms are initialised.
+ */
+#define room_idx(Y,X) \
+ (((cave_info[Y][X] & (CAVE_ROOM)) != 0) ?\
+ 	((dun_room[Y/BLOCK_HGT][X/BLOCK_WID] < DUN_ROOMS) ? \
+	 (dun_room[Y/BLOCK_HGT][X/BLOCK_WID]) : \
+	 (0)) : (0))
+
+/*
+ * Get the index number of the room. Return 0 if not in a valid room.
+ * 
+ * This should only be used once all rooms are initialised.
+ */
+#define room_idx_ignore_valid(Y,X) \
+ ((dun_room[Y/BLOCK_HGT][X/BLOCK_WID] < DUN_ROOMS) ? \
+	 (dun_room[Y/BLOCK_HGT][X/BLOCK_WID]) : \
+	 (0))
 
 /*
  * Determine if a "room" grid has a flag
- *
- * Line 1 -- permanent flag
+ * 
+ * Note that we don't check for flags for room 0 (e.g. the dungeon)
+ * for various sanity reasons such as teleportation and so on.
+ * 
+ * This means dungeon room flags will never apply.
  */
 #define room_has_flag(Y,X,FLAG) \
  (((cave_info[Y][X] & (CAVE_ROOM)) != 0) &&\
@@ -5018,6 +5069,15 @@
  */
 #define player_can_fire_bold(Y,X) \
 	((play_info[Y][X] & (PLAY_FIRE)) != 0)
+
+
+/*
+ * This gives either the zone guard, or a replacement guardian, if one is defined.
+ */
+#define actual_guardian(ZONE_GUARD, DUNGEON) \
+	((ZONE_GUARD) && (t_info[(DUNGEON)].replace_guardian) && \
+		(t_info[t_info[(DUNGEON)].guardian_ifvisited].visited) ? \
+				t_info[(DUNGEON)].replace_guardian : (ZONE_GUARD))
 
 
 /*

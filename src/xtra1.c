@@ -745,6 +745,7 @@ static void prt_state(void)
 
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */
 	if (p_ptr->searching) my_strcpy(text, "Searching ", sizeof(text));
+	if (p_ptr->sneaking)  my_strcpy(text, "Sneaking  ", sizeof(text));
 	if (p_ptr->held_song) my_strcpy(text, "Singing   ", sizeof(text));
 	if (p_ptr->msleep)    my_strcpy(text, "Sleepy    ", sizeof(text));
 	if (p_ptr->psleep)    my_strcpy(text, "Drowsy    ", sizeof(text));
@@ -1960,10 +1961,7 @@ static void fix_feature(void)
  */
 static void fix_room_info(void)
 {
-
-	int by = p_ptr->py / BLOCK_HGT;
-	int bx = p_ptr->px / BLOCK_WID;
-	int room = dun_room[by][bx];
+	int room = room_idx(p_ptr->py, p_ptr->px);
 
 	int j;
 
@@ -2836,7 +2834,7 @@ static void calc_torch(void)
 			p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART,0x0L);
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_INSTA_ART,0x0L, FALSE);
 #endif
 
 		}
@@ -2850,7 +2848,7 @@ static void calc_torch(void)
 			p_ptr->cur_lite = 2;
 
 #ifdef ALLOW_OBJECT_INFO_MORE
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L);
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_LITE,0x0L, FALSE);
 #endif
 		}
 		else
@@ -3696,8 +3694,6 @@ static void calc_bonuses(void)
 			
 			/* Paranoia */
 			if (p_ptr->num_fire < 0) p_ptr->num_fire = 0;
-			
-			if (p_ptr->ammo_mult < 0) p_ptr->ammo_mult = 0;
 		}
 	}
 

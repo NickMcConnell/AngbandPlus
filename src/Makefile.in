@@ -158,7 +158,7 @@ EXTRA_unangband_SOURCES = \
   Makefile.dos Makefile.emx Makefile.gtk Makefile.ibm \
   Makefile.lcc Makefile.lsl Makefile.std Makefile.wat \
   Makefile.win \
-  angband.rc angband.ico readdib.c readdib.h \
+  angband.rc unangband.ico readdib.c readdib.h \
   maid-x11.c maid-x11.h
 
 subdir = src

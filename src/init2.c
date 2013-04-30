@@ -294,7 +294,7 @@ void create_user_dirs(void)
 	/* Create the directory */
 	mkdir(subdirpath, 0700);
 
-#ifdef USE_PRIVATE_PATHS
+#ifdef PRIVATE_USER_PATHS
 	/* Build the path to the scores sub-directory */
 	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
 
@@ -318,7 +318,7 @@ void create_user_dirs(void)
 
 	/* Create the directory */
 	mkdir(dirpath, 0700);
-#endif /* USE_PRIVATE_PATHS */
+#endif /* PRIVATE_USER_PATHS */
 }
 
 #endif /* PRIVATE_USER_PATH */
@@ -419,7 +419,7 @@ static errr init_info_raw(int fd, header *head)
 
 
 	/* Allocate the "*_info" array */
-	C_MAKE(head->info_ptr, head->info_size, char);
+	head->info_ptr = C_ZNEW(head->info_size, char);
 
 	/* Read the "*_info" array */
 	fd_read(fd, head->info_ptr, head->info_size);
@@ -427,7 +427,7 @@ static errr init_info_raw(int fd, header *head)
 	if (head->name_size)
 	{
 		/* Allocate the "*_name" array */
-		C_MAKE(head->name_ptr, head->name_size, char);
+		head->name_ptr = C_ZNEW(head->name_size, char);
 
 		/* Read the "*_name" array */
 		fd_read(fd, head->name_ptr, head->name_size);
@@ -436,7 +436,7 @@ static errr init_info_raw(int fd, header *head)
 	if (head->text_size)
 	{
 		/* Allocate the "*_text" array */
-		C_MAKE(head->text_ptr, head->text_size, char);
+		head->text_ptr = C_ZNEW(head->text_size, char);
 
 		/* Read the "*_text" array */
 		fd_read(fd, head->text_ptr, head->text_size);
@@ -552,13 +552,13 @@ static errr init_info(cptr filename, header *head)
 		/*** Make the fake arrays ***/
 
 		/* Allocate the "*_info" array */
-		C_MAKE(head->info_ptr, head->info_size, char);
+		head->info_ptr = C_ZNEW(head->info_size, char);
 
 		/* MegaHack -- make "fake" arrays */
 		if (z_info)
 		{
-			C_MAKE(head->name_ptr, z_info->fake_name_size, char);
-			C_MAKE(head->text_ptr, z_info->fake_text_size, char);
+			head->name_ptr = C_ZNEW(z_info->fake_name_size, char);
+			head->text_ptr = C_ZNEW(z_info->fake_text_size, char);
 		}
 
 
@@ -693,13 +693,13 @@ static errr init_info(cptr filename, header *head)
 		/*** Kill the fake arrays ***/
 
 		/* Free the "*_info" array */
-		KILL(head->info_ptr);
+		FREE(head->info_ptr);
 
 		/* MegaHack -- Free the "fake" arrays */
 		if (z_info)
 		{
-			KILL(head->name_ptr);
-			KILL(head->text_ptr);
+			FREE(head->name_ptr);
+			FREE(head->text_ptr);
 		}
 
 #endif /* ALLOW_TEMPLATES */
@@ -1379,7 +1379,7 @@ errr init_slays(void)
 	}
 
 	/* Allocate the "slay values" array - now used to compute magic item power */
-	C_MAKE(slays, SLAY_MAX, s32b);
+	slays = C_ZNEW(SLAY_MAX, s32b);
 
 	/* Clear values */
 	for (i = 0; i < SLAY_MAX; i++) slays[i] = 0L;
@@ -1416,20 +1416,20 @@ static errr init_other(void)
 	/*** Prepare grid arrays ***/
 
 	/* Array of grids */
-	C_MAKE(view_g, VIEW_MAX, u16b);
+	view_g = C_ZNEW(VIEW_MAX, u16b);
 
 	/* Array of grids */
-	C_MAKE(fire_g, VIEW_MAX, u16b);
+	fire_g = C_ZNEW(VIEW_MAX, u16b);
 
 	/* Array of grids */
-	C_MAKE(temp_g, TEMP_MAX, u16b);
+	temp_g = C_ZNEW(TEMP_MAX, u16b);
 
 	/* Hack -- use some memory twice */
 	temp_y = ((byte*)(temp_g)) + 0;
 	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
 
 	/* Array of grids */
-	C_MAKE(dyna_g, DYNA_MAX, u16b);
+	dyna_g = C_ZNEW(DYNA_MAX, u16b);
 
 	/*** Set the default modify_grids ***/
 	modify_grid_adjacent_hook = modify_grid_adjacent_view;
@@ -1440,23 +1440,23 @@ static errr init_other(void)
 	/*** Prepare dungeon arrays ***/
 
 	/* Padded into array */
-	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
+	cave_info = C_ZNEW(DUNGEON_HGT, byte_256);
 
 	/* Padded into array */
-	C_MAKE(play_info, DUNGEON_HGT, byte_256);
+	play_info = C_ZNEW(DUNGEON_HGT, byte_256);
 
 	/* Feature array */
-	C_MAKE(cave_feat, DUNGEON_HGT, s16b_wid);
+	cave_feat = C_ZNEW(DUNGEON_HGT, s16b_wid);
 
 	/* Entity arrays */
-	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
-	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
+	cave_o_idx = C_ZNEW(DUNGEON_HGT, s16b_wid);
+	cave_m_idx = C_ZNEW(DUNGEON_HGT, s16b_wid);
 
 #ifdef MONSTER_FLOW
 
 	/* Flow arrays */
-	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
-	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
+	cave_cost = C_ZNEW(DUNGEON_HGT, byte_wid);
+	cave_when = C_ZNEW(DUNGEON_HGT, byte_wid);
 
 #endif /* MONSTER_FLOW */
 
@@ -1469,36 +1469,36 @@ static errr init_other(void)
 	/*** Prepare entity arrays ***/
 
 	/* Objects */
-	C_MAKE(o_list, z_info->o_max, object_type);
+	o_list = C_ZNEW(z_info->o_max, object_type);
 
 	/* Monsters */
-	C_MAKE(m_list, z_info->m_max, monster_type);
+	m_list = C_ZNEW(z_info->m_max, monster_type);
 
 
 	/*** Prepare lore array ***/
 
 	/* Lore */
-	C_MAKE(l_list, z_info->r_max, monster_lore);
+	l_list = C_ZNEW(z_info->r_max, monster_lore);
 
 	/* Lore */
-	C_MAKE(a_list, z_info->a_max, object_info);
+	a_list = C_ZNEW(z_info->a_max, object_info);
 
 	/* Lore */
-	C_MAKE(e_list, z_info->e_max, object_lore);
+	e_list = C_ZNEW(z_info->e_max, object_lore);
 
 	/* Lore */
-	C_MAKE(x_list, z_info->x_max, object_info);
+	x_list = C_ZNEW(z_info->x_max, object_info);
 
 	/*** Prepare quest array ***/
 
 	/* Quests */
-	C_MAKE(q_list, MAX_Q_IDX, quest_type);
+	q_list = C_ZNEW(MAX_Q_IDX, quest_type);
 
 
 	/*** Prepare the inventory ***/
 
 	/* Allocate it */
-	C_MAKE(inventory, INVEN_TOTAL + 1, object_type);
+	inventory = C_ZNEW(INVEN_TOTAL + 1, object_type);
 
 
 	/*** Prepare the bags ***/
@@ -1536,7 +1536,7 @@ static errr init_other(void)
 	total_store_count = 0;
 
 	/*** Allocate space for the maximum number of stores */
-	C_MAKE(store, max_store_count, store_type_ptr);
+	store = C_ZNEW(max_store_count, store_type_ptr);
 
 	/*** Prepare the options ***/
 
@@ -1633,7 +1633,7 @@ static errr init_alloc(void)
 	/*** Initialize object allocation info ***/
 
 	/* Allocate the alloc_kind_table */
-	C_MAKE(alloc_kind_table, alloc_kind_size, alloc_entry);
+	alloc_kind_table = C_ZNEW(alloc_kind_size, alloc_entry);
 
 	/* Get the table entry */
 	table = alloc_kind_table;
@@ -1718,7 +1718,7 @@ static errr init_alloc(void)
 	/*** Initialize feature allocation info ***/
 
 	/* Allocate the alloc_feat_table */
-	C_MAKE(alloc_feat_table, alloc_feat_size, alloc_entry);
+	alloc_feat_table = C_ZNEW(alloc_feat_size, alloc_entry);
 
 	/* Get the table entry */
 	table = alloc_feat_table;
@@ -1800,7 +1800,7 @@ static errr init_alloc(void)
 	/*** Initialize monster allocation info ***/
 
 	/* Allocate the alloc_race_table */
-	C_MAKE(alloc_race_table, alloc_race_size, alloc_entry);
+	alloc_race_table = C_ZNEW(alloc_race_size, alloc_entry);
 
 	/* Get the table entry */
 	table = alloc_race_table;
@@ -1878,7 +1878,7 @@ static errr init_alloc(void)
 	/*** Initialize ego-item allocation info ***/
 
 	/* Allocate the alloc_ego_table */
-	C_MAKE(alloc_ego_table, alloc_ego_size, alloc_entry);
+	alloc_ego_table = C_ZNEW(alloc_ego_size, alloc_entry);
 
 	/* Get the table entry */
 	table = alloc_ego_table;
@@ -2209,7 +2209,7 @@ void init_angband(void)
 	(void)process_pref_file("pref.prf");
 
 	/* Done */
-	note("[Initialization complete]");
+	note("    [Initialization complete]");
 }
 
 void ang_atexit(void (*arg)(void) ){
@@ -2223,7 +2223,7 @@ void ang_atexit(void (*arg)(void) ){
 	exitlist *next;
 
 	if(arg != 0) {
-		C_MAKE(next, 1, exitlist);
+		next = C_ZNEW(1, exitlist);
 		next->func = arg;
 		next->next = list;
 		list = next;
@@ -2251,8 +2251,8 @@ void cleanup_angband(void)
 		string_free(macro__act[i]);
 	}
 
-	FREE((void*)macro__pat);
-	FREE((void*)macro__act);
+	FREE(macro__pat);
+	FREE(macro__act);
 
 	/* Free the keymaps */
 	for (i = 0; i < KEYMAP_MODES; ++i)

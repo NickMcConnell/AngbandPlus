@@ -238,7 +238,7 @@ void identify_pack(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Aware and Known */
-		object_aware(o_ptr);
+		object_aware(o_ptr, FALSE);
 		object_known(o_ptr);
 	}
 
@@ -319,7 +319,7 @@ static int remove_curse_aux(int all)
 		if (!all && (f3 & (TR3_HEAVY_CURSE)))
 		{
 			/* Learn about the object */
-			object_can_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE,0x0L);
+			object_can_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE,0x0L, FALSE);
 
 			continue;
 		}
@@ -328,16 +328,16 @@ static int remove_curse_aux(int all)
 		if (f3 & (TR3_PERMA_CURSE))
 		{
 			/* Learn about the object */
-			if (all) object_can_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE,0x0L);
+			if (all) object_can_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE,0x0L, FALSE);
 
 			continue;
 		}
 
 		/* Learn about the object */
-		if (!all) object_not_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE,0x0L);
+		if (!all) object_not_flags(o_ptr,0x0L,0x0L,TR3_HEAVY_CURSE,0x0L, FALSE);
 
 		/* Learn about the object */
-		object_not_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE,0x0L);
+		object_not_flags(o_ptr,0x0L,0x0L,TR3_PERMA_CURSE,0x0L, FALSE);
 
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
@@ -903,9 +903,9 @@ void self_knowledge_aux(bool spoil, bool random)
 
 			if (spoil)
 			{	
-				object_can_flags(o_ptr,t1,t2,t3,t4);
+				object_can_flags(o_ptr,t1,t2,t3,t4, FALSE);
 	
-				object_not_flags(o_ptr,TR1_WEAPON_FLAGS & ~(t1),TR2_WEAPON_FLAGS & ~(t2),TR3_WEAPON_FLAGS & ~(t3), TR4_WEAPON_FLAGS & ~(t4));
+				object_not_flags(o_ptr,TR1_WEAPON_FLAGS & ~(t1),TR2_WEAPON_FLAGS & ~(t2),TR3_WEAPON_FLAGS & ~(t3), TR4_WEAPON_FLAGS & ~(t4), FALSE);
 			}
 
 			text_out("\n");
@@ -1608,7 +1608,7 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		if (sense_type)
 		{
 			/* Get the inscription */
-			feel = sense_magic(o_ptr, sense_type, TRUE);
+			feel = sense_magic(o_ptr, sense_type, TRUE, TRUE);
 
 			/* Sense something */
 			if (!feel) continue;
@@ -1629,7 +1629,7 @@ static bool detect_objects_type(bool (*detect_item_hook)(const object_type *o_pt
 		object_type *o_ptr = &inventory[i];
 
 		/* Get the inscription */
-		feel = sense_magic(o_ptr, sense_type, TRUE);
+		feel = sense_magic(o_ptr, sense_type, TRUE, TRUE);
 
 		/* Sense something */
 		if (!feel) continue;
@@ -1963,6 +1963,205 @@ bool place_random_stairs(int y, int x, int feat)
 
 	return(TRUE);
 }
+
+
+/*
+ * Concentrate hook. Destination must be water. Change to earth if
+ * concentrated.
+ */
+bool concentrate_water_hook(const int y, const int x, const bool modify)
+{
+	feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+	/* Need 'running water' */
+	if (((f_ptr->flags2 & (FF2_WATER)) == 0)
+
+	/* Allow stagnant water */
+		&& !(suffix(f_name+f_ptr->name, "water"))) return (FALSE);
+
+	/* Not modifying yet */
+	if (!modify) return (TRUE);
+	
+	/* From lower water in spells1.c */
+	if (prefix(f_name+f_ptr->name,"stone bridge"))
+	{
+		/* Hack -- change bridges to prevent exploits */
+		cave_set_feat(y, x, FEAT_BRIDGE_CHASM);
+		
+		/* Notice any changes */
+		if (player_can_see_bold(y,x)) return (TRUE);
+	}
+
+	/* Turn into earth */
+	else
+	{
+		cave_set_feat(y,x,FEAT_EARTH);
+
+		/* Notice any changes */
+		if (player_can_see_bold(y,x)) return (TRUE);
+	}
+
+	/* Not changed, no need for update */
+	return (FALSE);
+}
+
+
+/*
+ * Concentrate hook. Destination must be living.
+ */
+bool concentrate_life_hook(const int y, const int x, const bool modify)
+{
+	feature_type *f_ptr = &f_info[cave_feat[y][x]];
+
+	/* Need 'running water' */
+	if ((f_ptr->flags3 & (FF3_LIVING)) == 0) return (FALSE);
+
+	/* Not modifying yet */
+	if (!modify) return (TRUE);
+	
+	/* Kill it */
+	cave_alter_feat(y,x,FS_LIVING);
+
+	/* Notice any changes */
+	if (player_can_see_bold(y,x)) return (TRUE);
+
+	/* Not changed, no need for update */
+	return (FALSE);
+}
+
+
+/*
+ * Concentrate hook. Destination must be light. Change to dark if
+ * concentrated.
+ */
+bool concentrate_light_hook(const int y, const int x, const bool modify)
+{
+	/* Need 'magical light' */
+	if ((cave_info[y][x] & (CAVE_GLOW)) == 0) return (FALSE);
+
+	/* Not modifying yet */
+	if (!modify) return (TRUE);
+
+	/* Darken the grid */
+	cave_info[y][x] &= ~(CAVE_GLOW);
+
+	/* Forget all grids that the player can see */
+	if (player_can_see_bold(y, x))
+	{
+		/* Forget the grid */
+		play_info[y][x] &= ~(PLAY_MARK);
+
+		/* Process affected monsters */
+		if (cave_m_idx[y][x] > 0)
+		{
+			/* Update the monster */
+			(void)update_mon(cave_m_idx[y][x], FALSE);
+		}
+
+		/* Redraw */
+		lite_spot(y, x);
+
+		return (TRUE);
+	}
+
+	/* Not changed, no need for update */
+	return (FALSE);
+}
+
+
+/*
+ * Concentrate power from surrounding grids, note how much we gained.
+ *
+ * Allow use by both the character and monsters.
+ *
+ * Adapted from Sangband implementation of concentrate_light.
+ * 
+ * TODO: Consider only altering the target terrain if the caster
+ * is 'evil'.
+ * 
+ * -DarkGod-, -LM-
+ */
+int concentrate_power(int who, int y0, int x0, int radius, bool for_real, bool use_los,
+		bool concentrate_hook(const int y, const int x, const bool modify))
+{
+	int power = 0;
+	int y, x, r;
+	
+	bool changes = FALSE;
+
+	/* Hack -- Flush any pending output */
+	handle_stuff();
+
+	/* Drain power inwards */
+	for (r = radius; r >= 0; r--)
+	{
+		/* Scan the grids in range */
+		for (y = y0 - r; y <= y0 + r; y++)
+		{
+			for (x = x0 - r; x <= x0 + r; x++)
+			{
+				/* Stay legal */
+				if (!in_bounds_fully(y, x)) continue;
+
+				/* Hack -- for power only. Must permit line of sight.
+				 * This prevents the lit walls of rooms getting drained from
+				 * the 'wrong side'. */
+				if (use_los && !player_has_los_bold(y, x)) continue;
+
+				/* Drain this distance only */
+				if (distance(y, x, y0, x0) != r) continue;
+
+				/* Must be in line of sight/fire */
+				if (!generic_los(y, x, y0, x0, use_los ? CAVE_XLOS : CAVE_XLOF)) continue;
+
+				/* Grid has power */
+				if (concentrate_hook(y, x, FALSE))
+				{
+					/* Count this grid */
+					power++;
+
+					/* We're doing this for real, boys */
+					if (for_real)
+					{
+						/* Apply the hook */
+						changes |= concentrate_hook(y, x, TRUE);
+					}
+				}
+			}
+		}
+		
+#if 0
+		/* Graphics */
+		if ((for_real) && (changes) && (op_ptr->delay_factor))
+		{
+			/* Screen refresh */
+			(void)Term_fresh();
+
+			/* Update the view (now) */
+			p_ptr->update |= (PU_UPDATE_VIEW);
+
+			handle_stuff();
+
+			/* Longish delay for character */
+			if (who <= SOURCE_PLAYER_START)
+				pause_for(50 + op_ptr->delay_factor * op_ptr->delay_factor);
+
+			/* Allow a brief one for monsters */
+			else if (op_ptr->delay_factor > 2)
+				pause_for(op_ptr->delay_factor);
+		}
+#endif
+
+	}
+
+	/* Update the view (later) */
+	if (for_real && changes) p_ptr->update |= (PU_UPDATE_VIEW);
+
+	/* Note how much power we concentrated */
+	return (power);
+}
+
+
 
 
 /*
@@ -2605,19 +2804,19 @@ bool brand_item(int brand, cptr act)
 
 		if (object_xtra_what[brand] == 1)
 		{
-    			object_can_flags(o_ptr,object_xtra_base[brand] << o_ptr->xtra2,0x0L,0x0L,0x0L);
+    			object_can_flags(o_ptr,object_xtra_base[brand] << o_ptr->xtra2,0x0L,0x0L,0x0L, item < 0);
 		}
 		else if (object_xtra_what[brand] == 2)
 		{
-	    		object_can_flags(o_ptr,0x0L,object_xtra_base[brand] << o_ptr->xtra2,0x0L,0x0L);
+	    		object_can_flags(o_ptr,0x0L,object_xtra_base[brand] << o_ptr->xtra2,0x0L,0x0L, item < 0);
 		}
 		else if (object_xtra_what[brand] == 3)
 		{
-    			object_can_flags(o_ptr,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2,0x0L);
+    			object_can_flags(o_ptr,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2,0x0L, item < 0);
 		}
 		else if (object_xtra_what[brand] == 4)
 		{
-    			object_can_flags(o_ptr,0x0L,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2);
+    			object_can_flags(o_ptr,0x0L,0x0L,0x0L,object_xtra_base[brand] << o_ptr->xtra2, item < 0);
 		}
 
 		/* Hack -- some items become marked with a brand feeling */
@@ -2706,7 +2905,7 @@ bool ident_spell(void)
 	}
 
 	/* Identify it fully */
-	object_aware(o_ptr);
+	object_aware(o_ptr, item < 0);
 	object_known(o_ptr);
 
 	/* Recalculate bonuses */
@@ -2789,7 +2988,7 @@ bool ident_spell_name(void)
 	}
 
 	/* Identify it fully */
-	object_aware(o_ptr);
+	object_aware(o_ptr, item < 0);
 	o_ptr->ident |= (IDENT_NAME);
 
 	/* Combine / Reorder the pack (later) */
@@ -2869,7 +3068,7 @@ bool ident_spell_bonus(void)
 	}
 
 	/* Identify it's bonuses */
-	object_bonus(o_ptr);
+	object_bonus(o_ptr, item < 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2951,7 +3150,7 @@ bool ident_spell_sense(void)
 	}
 
 	/* Identify it's bonuses */
-	o_ptr->feeling = sense_magic(o_ptr, cp_ptr->sense_type, TRUE);
+	o_ptr->feeling = sense_magic(o_ptr, cp_ptr->sense_type, TRUE, item < 0);
 
 	/* Sense non-wearable items */
 	if (!o_ptr->feeling)
@@ -3046,10 +3245,10 @@ bool ident_spell_magic(void)
 	}
 
 	/* Identify name if a magic item */
-	if (!o_ptr->name1 && !o_ptr->name2 && o_ptr->xtra1) object_aware(o_ptr);
+	if (!o_ptr->name1 && !o_ptr->name2 && o_ptr->xtra1) object_aware(o_ptr, item < 0);
 
 	/* Else identify one random flag -- if none left, get item name unless flavoured */
-	else if ((value_check_aux10(o_ptr, FALSE, FALSE)) && !(k_info[o_ptr->k_idx].flavor)) object_aware(o_ptr);
+	else if ((value_check_aux10(o_ptr, FALSE, FALSE, item < 0)) && !(k_info[o_ptr->k_idx].flavor)) object_aware(o_ptr, item < 0);
 
 	/* List object abilities */
 	else examine = TRUE;
@@ -3369,17 +3568,17 @@ bool ident_spell_rumor(void)
 		if (done)
 		{
 			/* Do we know absolutely everything? */
-			if (object_known_p(o_ptr)) object_mental(o_ptr);
+			if (object_known_p(o_ptr)) object_mental(o_ptr, item < 0);
 			else
 			{
-				object_aware(o_ptr);
+				object_aware(o_ptr, item < 0);
 				object_known(o_ptr);
 			}
 
 		}
 
 		/* Learn more about the item */
-		object_can_flags(o_ptr,f1,f2,f3,f4);
+		object_can_flags(o_ptr,f1,f2,f3,f4, item < 0);
 
 		/* Description */
 		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
@@ -3494,7 +3693,7 @@ bool ident_spell_tval(int tval)
 	}
 
 	/* Identify it fully */
-	object_aware(o_ptr);
+	object_aware(o_ptr, item < 0);
 	object_known(o_ptr);
 
 	/* Recalculate bonuses */
@@ -3579,9 +3778,9 @@ bool identify_fully(void)
 	}
 
 	/* Identify it fully */
-	object_aware(o_ptr);
+	object_aware(o_ptr, item < 0);
 	object_known(o_ptr);
-	object_mental(o_ptr);
+	object_mental(o_ptr, item < 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -3826,12 +4025,6 @@ bool recharge(int num)
 	/* Something was done */
 	return (TRUE);
 }
-
-
-
-
-
-
 
 
 /*
@@ -4306,7 +4499,7 @@ void entomb(int cy, int cx, byte invalid)
 			sn = 0;
 
 			/* Monster can move to escape the wall */
-			if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)))
+			if (!(r_ptr->flags1 & (RF1_NEVER_MOVE)) && !(m_ptr->petrify))
 			{
 				/* Look for safety */
 				for (i = 0; i < 8; i++)
@@ -5218,7 +5411,6 @@ static bool fire_blast(int who, int what, int typ, int dir, int dam)
 
 }
 
-
 /*
  * Hands is now a range 3 beam, similar to lightening spark from Sangband.
  * It does not affect the grid however.
@@ -5297,7 +5489,7 @@ static void wield_spell(int item, int k_idx, int time, int level, int r_idx)
 	/* Create the spell */
 	object_prep(i_ptr, k_idx);
 	i_ptr->timeout = time;
-	object_aware(i_ptr);
+	object_aware(i_ptr, item < 0);
 	object_known(i_ptr);
 	i_ptr->weight = 0;
 
@@ -5813,6 +6005,100 @@ static bool curse_weapon(void)
 	/* Notice */
 	return (TRUE);
 }
+
+
+/*
+ * Turn curses on equipped items into starbursts of nether.  -LM-
+ *
+ * Idea by Mikko Lehtinen.
+ * 
+ * Todo: Finish implementing this, once remaining Sangband projection types
+ * are implemented.
+ */
+static int thaumacurse(bool verbose, int power)
+{
+	int i, dam;
+	int curse_count = 0;
+	object_type *o_ptr;
+	bool notice = FALSE;
+	u32b f1, f2, f3, f4;
+	
+
+	/* Count curses */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+		
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* All cursed objects have TR3_LIGHT_CURSE.  Perma-cursed objects count double. */
+		if (f3 & (TR3_LIGHT_CURSE | TR3_HEAVY_CURSE)) curse_count++;
+		if (f3 & (TR3_PERMA_CURSE)) curse_count++;
+	}
+
+	/* There are no curses to use */
+	if (curse_count == 0)
+	{
+		if (verbose) msg_print("Your magic fails to find a focus ... and dissipates harmlessly.");
+
+		return (0);
+	}
+
+	/* Calculate damage for 1 cursed item (between about 61 and 139) (10x inflation) */
+	dam = power * 6;
+
+	/*
+	 * Increase damage for each curse found (10x inflation).
+	 * Diminishing effect for each, but damage can potentially be very high indeed.
+	 */
+	dam *= curse_count * 10; /* Was sqrt(curse_count * 100);*/
+
+	/* Deflate */
+	dam = dam /100;
+
+	/* Fire an explosion of nether */
+	/*notice = fire_star(who, what, 0, GF_NETHER, 0, dam, 3 + curse_count / 2);*/
+
+	/* Break light curses */
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Object isn't cursed -- ignore */
+		if (!cursed_p(o_ptr)) continue;
+
+		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+
+		/* Ignore heavy and permanent curses */
+		if (f3 & (TR3_HEAVY_CURSE | TR3_PERMA_CURSE)) continue;
+
+		/* Uncurse the object 1 time in 3 */
+		if (rand_int(100) < 33) uncurse_object(o_ptr);
+
+		/* Hack -- Assume felt */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Recalculate the bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+
+		/* Notice */
+		notice = TRUE;
+	}
+
+	/* Return "something was noticed" */
+	return (notice);
+}
+
+
 
 
 /*
@@ -7427,16 +7713,56 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 				}
 			}
 			
-			case SPELL_RELEASE_CURSE:
-			case SPELL_CONCENTRATE_LITE:
-			case SPELL_CONCENTRATE_LIFE:
-			case SPELL_CONCENTRATE_WATER:
+			case SPELL_LIGHT_CHAMBERS:
+			{
+				int x, y, i;
+
+				for (y = 0; y < DUNGEON_HGT; y++)
+				{
+					for (x = 0; x < DUNGEON_WID; x++)
+					{
+						/* Light all room grids, but not vaults or hidden rooms.
+						 * Note that light chambers _will_ light gloomy rooms. */
+						if ((cave_info[y][x] & (CAVE_ROOM)) && !(room_has_flag(y, x, (ROOM_ICKY | ROOM_HIDDEN))))
+						{
+							cave_info[y][x] |= (CAVE_GLOW);
+							
+							/* Light spills out of windows etc. */
+							if (f_info[cave_feat[y][x]].flags1 & (FF1_LOS))
+							{
+								for (i = 0; i < 8; i++)
+								{
+									cave_info[y + ddy_ddd[i]][x + ddx_ddd[i]] |= (CAVE_GLOW);								
+								}
+							}
+						}
+					}
+				}
+				break;
+			}
+
 			case SPELL_BLOOD_BOND:
 			{
 				msg_print("Oops. Spell not yet implemented.");
 				break;
 			}
-						
+			
+			case SPELL_RELEASE_CURSE:
+			{
+				thaumacurse(TRUE, 2 * level + level * level / 20);
+				break;
+			}
+			
+			case SPELL_SET_RETURN:
+			case SPELL_SET_OR_MAKE_RETURN:
+			case SPELL_CONCENTRATE_LITE:
+			case SPELL_CONCENTRATE_WATER:
+			case SPELL_CONCENTRATE_LIFE:
+			{
+				/* Implemented elsewhere */
+				break;
+			}
+			
 			default:
 			{
 				wield_spell(s_ptr->type,s_ptr->param,lasts, level, 0);
@@ -7452,49 +7778,96 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 }
 
 /*
- * We check the spell to see if we have to set a return point
+ * Some spell actions have to occur prior to processing the spell
+ * proper.
  * 
- * XXX We have to set return points before processing spell blows.
+ * We check the spell to see if we have to set a return point as
+ * we have to set return points before processing spell blows.
+ * 
+ * We also concentrate spells here, in order to hackily set
+ * the spell power for later processing in spell blows.
  */
-void process_spell_return(int spell)
+void process_spell_prepare(int who, int what, int spell, int level)
 {
-	if ((s_info[spell].type == SPELL_SET_RETURN) ||
-			(s_info[spell].type == SPELL_SET_OR_MAKE_RETURN))
+	spell_type *s_ptr = &s_info[spell];
+	
+	/* Many of these boost spell damage / power */
+	int power = 0;
+	
+	switch (s_info[spell].type)
 	{
-		spell_type *s_ptr = &s_info[spell];
-		
-		bool return_time = FALSE;
-		
-		/* Set the return location if required */
-		if (!(p_ptr->return_y) && !(p_ptr->return_x))
+		case SPELL_SET_RETURN:
+		case SPELL_SET_OR_MAKE_RETURN:		
 		{
-			/* Set return point */
-			p_ptr->return_y = p_ptr->py;
-			p_ptr->return_x = p_ptr->px;
+			bool return_time = FALSE;
 			
+			/* Set the return location if required */
+			if (!(p_ptr->return_y) && !(p_ptr->return_x))
+			{
+				/* Set return point */
+				p_ptr->return_y = p_ptr->py;
+				p_ptr->return_x = p_ptr->px;
+				
+				/* Set the return time */
+				if (s_ptr->type == SPELL_SET_RETURN) return_time = TRUE;
+			}
 			/* Set the return time */
-			if (s_ptr->type == SPELL_SET_RETURN) return_time = TRUE;
-		}
-		/* Set the return time */
-		else if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN)
-		{
-			/* Set the return time */
-			return_time = TRUE;
+			else if (s_ptr->type == SPELL_SET_OR_MAKE_RETURN)
+			{
+				/* Set the return time */
+				return_time = TRUE;
+			}
+			
+			/* Set return time */
+			if (return_time)
+			{
+				/* Roll out the duration */
+				if ((s_ptr->l_dice) && (s_ptr->l_side))
+				{
+					p_ptr->word_return = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
+				}
+				else
+				{
+					p_ptr->word_return = s_ptr->l_plus;
+				}
+			}
+			
+			break;
 		}
 		
-		/* Set return time */
-		if (return_time)
+		case SPELL_CONCENTRATE_LITE:
 		{
-			/* Roll out the duration */
-			if ((s_ptr->l_dice) && (s_ptr->l_side))
-			{
-				p_ptr->word_return = damroll(s_ptr->l_dice, s_ptr->l_side) + s_ptr->l_plus;
-			}
-			else
-			{
-				p_ptr->word_return = s_ptr->l_plus;
-			}
+			power = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+					5 + level / 10, TRUE, TRUE, concentrate_light_hook);
+			break;
 		}
+	
+		case SPELL_CONCENTRATE_LIFE:
+		{
+			power = s_ptr->l_plus = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+					5 + level / 10, TRUE, FALSE, concentrate_life_hook);
+			break;
+		}
+		
+		case SPELL_CONCENTRATE_WATER:
+		{
+			power = concentrate_power(who != 0 ? who : what, p_ptr->py, p_ptr->px,
+					5 + level / 10, TRUE, FALSE, concentrate_water_hook);
+			break;
+		}
+		
+		case SPELL_RELEASE_CURSE:
+		{
+			power =	thaumacurse(TRUE, level + (level * level / 20));
+			break;
+		}
+	}
+
+	/* Hack -- modify spell power */
+	if (power)
+	{
+		if (s_ptr->l_dice && !s_ptr->l_side) s_ptr->l_side = power;
+		else s_ptr->l_plus += power;
 	}
 }
 
@@ -7519,7 +7892,7 @@ bool process_spell_eaten(int who, int what, int spell, int level, bool *cancel)
 	}
 
 	/* Check for return flags */
-	process_spell_return(spell);
+	process_spell_prepare(who, what, spell, level);
 	
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -7625,7 +7998,7 @@ bool process_spell(int who, int what, int spell, int level, bool *cancel, bool *
 	}
 
 	/* Check for return flags */
-	process_spell_return(spell);	
+	process_spell_prepare(who, what, spell, level);	
 	
 	/* Note the order is important -- because of the impact of blinding a character on their subsequent
 		ability to see spell blows that affect themselves */
@@ -7661,7 +8034,7 @@ bool process_item_blow(int who, int what, object_type *o_ptr, int y, int x)
 	}
 
 	/* Check for return if player */
-	if (cave_m_idx[y][x] < 0) process_spell_return(power);
+	if (cave_m_idx[y][x] < 0) process_spell_prepare(who, what, power, 25);
 	
 	/* Has a power */
 	if (power > 0)

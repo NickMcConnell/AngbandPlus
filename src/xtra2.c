@@ -2557,6 +2557,11 @@ static void improve_stat(void)
 							msg_print("You must choose another attribute.");
 					}
 				}
+				else
+				{
+					/* Clear the attributes */
+					stat_gain_selected = 0;
+				}
 			}
 		}
 
@@ -3552,28 +3557,32 @@ void monster_death(int m_idx)
 	}
 
 	/* Dungeon guardian defeated - need some stairs except on surface */
-	if ((r_ptr->flags1 & (RF1_GUARDIAN)) && (p_ptr->depth != min_depth(p_ptr->dungeon)))
+	if (r_ptr->flags1 & (RF1_GUARDIAN))
 	{
-	  /* Stagger around */
-	  while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
-	    {
-	      int d = 1;
-
-	      /* Pick a location */
-	      scatter(&ny, &nx, y, x, d, 0);
-
-	      /* Stagger */
-	      y = ny; x = nx;
-	    }
-
-	  /* Explain the staircase */
-	  msg_print("A magical staircase appears...");
-
-	  /* Create stairs down */
-	  cave_set_feat(y, x, FEAT_MORE);
-
-	  /* Save any objects in that place */
-	  scatter_objects_under_feat(y, x);
+		/* Generate stairs if path is opened from this location */
+		if ((p_ptr->depth != min_depth(p_ptr->dungeon)) && (t_info[p_ptr->dungeon].quest_monster == m_ptr->r_idx))
+		{
+			/* Stagger around */
+			while (!cave_valid_bold(y, x) && !cave_clean_bold(y,x))
+		    {
+				int d = 1;
+	
+				/* Pick a location */
+				scatter(&ny, &nx, y, x, d, 0);
+	
+		    	/* Stagger */
+				y = ny; x = nx;
+		    }
+	
+		  /* Explain the staircase */
+		  msg_print("A magical staircase appears...");
+	
+		  /* Create stairs down */
+		  cave_set_feat(y, x, FEAT_MORE);
+	
+		  /* Save any objects in that place */
+		  scatter_objects_under_feat(y, x);
+		}
 	}
 
 
@@ -3985,8 +3994,8 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 
 	/* Initialize text */
 	my_strcpy(name, "", name_s);
-	if (text_always) my_strcpy(text_always, "", text_always_s);
-	if (text_visible) my_strcpy(text_visible, "", sizeof(text_visible));
+	if (text_always) my_strcpy(text_always,"", text_always_s);
+	if (text_visible) my_strcpy(text_visible,  cheat_xtra ? format("Room %d:", room) : "", text_visible_s);
 
 	/* Town or not in room */
 	if (!room)
@@ -4028,7 +4037,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 
 		case (ROOM_LAIR):
 		{
-			monster_race *r_ptr = &r_info[room_info[room].vault];
+			monster_race *r_ptr = &r_info[room_info[room].deepest_race];
 
 			my_strcpy(name, "the lair of ", name_s);
 			my_strcat(name, r_name + r_ptr->name, name_s);
@@ -4112,6 +4121,8 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			
 		i = 0;
 
+		if (cheat_xtra && text_always) my_strcat(text_visible, format ("%s (%ld)", r_name + r_info[room_info[room].deepest_race].name, room_info[room].ecology), text_visible_s);
+		
 		while ((room >= 0) && (i < ROOM_DESC_SECTIONS))
 		{
 			/* Get description */
@@ -4134,7 +4145,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 			{
 				/* Does the player understand the main language of the level? */
 				if ((last_buf) && (cave_ecology.ready) && (cave_ecology.num_races)
-					&& player_understands(monster_language(cave_ecology.deepest_race)))
+					&& player_understands(monster_language(room_info[room].deepest_race)))
 				{
 					/* Get the textual history */
 					my_strcat(last_buf, (d_text + d_info[j].text), last_buf_s);
@@ -4142,7 +4153,7 @@ static void get_room_desc(int room, char *name, int name_s, char *text_visible, 
 				else if (last_buf)
 				{
 					/* Fake it */
-					my_strcat(last_buf, "something you cannot understand.  ", last_buf_s);
+					my_strcat(last_buf, "nothing you can understand.  ", last_buf_s);
 
 					/* Clear last buf to skip remaining language lines */
 					last_buf = NULL;
@@ -4365,9 +4376,7 @@ void display_room_info(int room)
  */
 void describe_room(void)
 {
-	int by = p_ptr->py / BLOCK_HGT;
-	int bx = p_ptr->px / BLOCK_WID;
-	int room = dun_room[by][bx];
+	int room = room_idx(p_ptr->py, p_ptr->px);
 	char name[32];
 	char text_visible[1024];
 	char text_always[1024];
@@ -4392,15 +4401,16 @@ void describe_room(void)
 	{
 		if (room_names)
 		{
-			msg_format("You have entered %s %s.",
-				 (is_a_vowel(name[0]) ? "an" : "a"),name);
+			msg_format("You have entered %s%s.",
+				 (prefix(name, "the ") ? "" :
+				 (is_a_vowel(name[0]) ? "an " : "a ")),name);
 		}
 
 		if (!(room_descriptions) || (room_info[room].flags & (ROOM_ENTERED)))
 		{
 			/* Nothing more */
 		}
-		else if (strlen(text_visible) + strlen(text_always) > 80)
+		else if ((!easy_more) && (!auto_more) && (strlen(text_visible) + strlen(text_always) > 80))
 		{
 			message_flush();
 
@@ -4416,12 +4426,18 @@ void describe_room(void)
 			{
 				/* Message */
 				text_out(text_visible);
+				
+				/* Add it to the buffer */
+				message_add(text_visible, MSG_GENERIC);
 			}
 
 			if (strlen(text_always))
 			{
 				/* Message */
 				text_out(text_always);
+
+				/* Add it to the buffer */
+				message_add(text_always, MSG_GENERIC);
 			}
 
 			(void)anykey();
@@ -4431,15 +4447,15 @@ void describe_room(void)
 		}
 		else if (strlen(text_visible) && strlen(text_always))
 		{
-			msg_format("%s  %s", text_visible, text_always);
+			msg_format("%s %s", text_visible, text_always);
 		}
 		else if (strlen(text_visible))
 		{
-			msg_format("%s", text_visible);
+			msg_print(text_visible);
 		}
 		else if (strlen(text_always))
 		{
-			msg_format("%s", text_always);
+			msg_print(text_always);
 		}
 
 		/* Room has been entered */
@@ -4461,22 +4477,29 @@ void describe_room(void)
 
 		if (strlen(text_always))
 		{
-			message_flush();
-
-			screen_save();
-
-			/* Set text_out hook */
-			text_out_hook = text_out_to_screen;
-
-			text_out_c(TERM_L_BLUE, name);
-			text_out("\n");
-
-			/* Message */
-			text_out(text_always);
-
-			(void)anykey();
-
-			screen_load();
+			if (easy_more || auto_more)
+			{
+				msg_print(text_always);
+			}
+			else
+			{
+				message_flush();
+	
+				screen_save();
+	
+				/* Set text_out hook */
+				text_out_hook = text_out_to_screen;
+	
+				text_out_c(TERM_L_BLUE, name);
+				text_out("\n");
+	
+				/* Message */
+				text_out(text_always);
+	
+				(void)anykey();
+	
+				screen_load();
+			}
 		}
 	}
 
@@ -4874,7 +4897,7 @@ static void player_tell_allies_target(int y, int x, bool order)
 /*
  * Set the target to a monster (or nobody)
  */
-void target_set_monster(int m_idx)
+void target_set_monster(int m_idx, s16b flags)
 {
 	/* Acceptable target */
 	if ((m_idx > 0) && target_able(m_idx))
@@ -4882,7 +4905,7 @@ void target_set_monster(int m_idx)
 		monster_type *m_ptr = &m_list[m_idx];
 
 		/* Save target info */
-		p_ptr->target_set = TRUE;
+		p_ptr->target_set = flags | (TARGET_KILL);
 		p_ptr->target_who = m_idx;
 		p_ptr->target_row = m_ptr->fy;
 		p_ptr->target_col = m_ptr->fx;
@@ -4895,7 +4918,7 @@ void target_set_monster(int m_idx)
 	else
 	{
 		/* Reset target info */
-		p_ptr->target_set = FALSE;
+		p_ptr->target_set = 0;
 		p_ptr->target_who = 0;
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
@@ -4906,13 +4929,13 @@ void target_set_monster(int m_idx)
 /*
  * Set the target to a location
  */
-void target_set_location(int y, int x)
+void target_set_location(int y, int x, s16b flags)
 {
 	/* Legal target */
 	if (in_bounds_fully(y, x))
 	{
 		/* Save target info */
-		p_ptr->target_set = TRUE;
+		p_ptr->target_set = flags | (TARGET_GRID);
 		p_ptr->target_who = 0;
 		p_ptr->target_row = y;
 		p_ptr->target_col = x;
@@ -4925,7 +4948,7 @@ void target_set_location(int y, int x)
 	else
 	{
 		/* Reset target info */
-		p_ptr->target_set = FALSE;
+		p_ptr->target_set = 0;
 		p_ptr->target_who = 0;
 		p_ptr->target_row = 0;
 		p_ptr->target_col = 0;
@@ -5049,7 +5072,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 /*
  * Hack -- determine if a given location is "interesting"
  */
-static bool target_set_interactive_accept(int y, int x)
+static bool target_set_interactive_accept(int y, int x, int mode)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -5067,8 +5090,8 @@ static bool target_set_interactive_accept(int y, int x)
 	{
 		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
 
-		/* Visible monsters, except for allies */
-		if ((m_ptr->ml) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0) ) return (TRUE);
+		/* Visible monsters */
+		if (m_ptr->ml) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -5118,7 +5141,7 @@ static void target_set_interactive_prepare(int mode)
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
 
 			/* Require "interesting" contents */
-			if (!target_set_interactive_accept(y, x)) continue;
+			if (!target_set_interactive_accept(y, x, mode)) continue;
 
 			/* Special mode */
 			if (mode & (TARGET_KILL))
@@ -5128,6 +5151,29 @@ static void target_set_interactive_prepare(int mode)
 
 				/* Must be a targettable monster */
 				if (!target_able(cave_m_idx[y][x])) continue;
+				
+				/* Must not be an ally */
+				if (m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) continue;
+			}
+
+			/* Special mode */
+			if (mode & (TARGET_ALLY))
+			{
+				/* Must contain a monster */
+				if (!(cave_m_idx[y][x] > 0)) continue;
+
+				/* Must be an ally */
+				if ((m_list[cave_m_idx[y][x]].mflag & (MFLAG_ALLY)) == 0) continue;
+			}
+			
+			/* If matching race, must match race */
+			if (p_ptr->target_race)
+			{
+				/* Must contain a monster */
+				if (!(cave_m_idx[y][x] > 0)) continue;
+
+				/* Must match the monster */
+				if (m_list[cave_m_idx[y][x]].r_idx != p_ptr->target_race) continue;
 			}
 
 			/* Save the location */
@@ -5168,7 +5214,7 @@ static void target_set_interactive_prepare(int mode)
  *
  * This function must handle blindness/hallucination.
  */
-static key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr info)
+key_event target_set_interactive_aux(int y, int x, int *room, int mode, cptr info)
 {
 	s16b this_o_idx, next_o_idx = 0;
 
@@ -5270,7 +5316,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 						screen_monster_look(cave_m_idx[y][x]);
 
 						/* Hack -- Complete the prompt (again) */
-						Term_addstr(-1, TERM_WHITE, format("  [r,%s]", info));
+						Term_addstr(-1, TERM_WHITE, format("  [r,s,%s]", info));
 
 						/* Command */
 						query = inkey_ex();
@@ -5283,7 +5329,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 					else
 					{
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
+						sprintf(out_val, "%s%s%s%s (%s) [r,s,%s]",
 							s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
 						prt(out_val, 0, 0);
 
@@ -5294,6 +5340,19 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 						query = inkey_ex();
 					}
 
+					/* Select any monsters similar to this */
+					if (query.key == 's')
+					{
+						if (p_ptr->target_race)
+						{
+							p_ptr->target_race = 0;
+						}
+						else
+						{
+							p_ptr->target_race = m_list[cave_m_idx[y][x]].r_idx;
+						}
+					}
+					
 					/* Normal commands */
 					if (query.key != 'r') break;
 
@@ -5403,7 +5462,6 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 				}
 			}
 		}
-
 
 		/* Assume not floored */
 		floored = FALSE;
@@ -6066,7 +6124,7 @@ bool target_set_interactive(int mode)
 	int room = -1;
 
 	/* Cancel target */
-	target_set_monster(0);
+	target_set_monster(0, 0);
 
 
 	/* Cancel tracking */
@@ -6075,9 +6133,17 @@ bool target_set_interactive(int mode)
 
 	/* Prepare the "temp" array */
 	target_set_interactive_prepare(mode);
+	
+	/* Nothing in it. Clear race filter if set and try again. */
+	if (!temp_n && (p_ptr->target_race))
+	{
+		p_ptr->target_race = 0;
+		
+		target_set_interactive_prepare(mode);
+	}
 
 	/* If targetting monsters, display projectable grids */
-	if (mode == TARGET_KILL)
+	if (mode & (TARGET_KILL))
 	{
 		/* Set path */
 		target_path_n = 0;
@@ -6110,7 +6176,7 @@ bool target_set_interactive(int mode)
 			tx = x = temp_x[m];
 
 			/* Calculate the path */
-			if (mode == TARGET_KILL)
+			if (mode & (TARGET_KILL))
 			{
 				target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
@@ -6127,13 +6193,13 @@ bool target_set_interactive(int mode)
 			/* Allow target */
 			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
 			{
-				my_strcpy(info, "q,t,p,o,+,-,<dir>", sizeof (info));
+				my_strcpy(info, "q,t,p,o,a,g,+,-,.,?,<dir>", sizeof (info));
 			}
 
 			/* Dis-allow target */
 			else
 			{
-				my_strcpy(info, "q,p,o,+,-,<dir>", sizeof (info));
+				my_strcpy(info, "q,p,o,a,g,+,-,.,?,<dir>", sizeof (info));
 			}
 
 			/* Describe and Prompt */
@@ -6181,9 +6247,9 @@ bool target_set_interactive(int mode)
 				{
 					y = py;
 					x = px;
-
+					
 					/* Calculate the path */
-					if (mode == TARGET_KILL)
+					if (mode & (TARGET_KILL))
 					{
 						target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
@@ -6227,10 +6293,16 @@ bool target_set_interactive(int mode)
 						ty = y = KEY_GRID_Y(query);
 						tx = x = KEY_GRID_X(query);
 	
-						/* Set target if clicked */
-						if ((query.mousebutton) || (query.key == '!'))
+						/* Go to if clicked with BUTTON_MOVE */
+						if (query.mousebutton == BUTTON_MOVE)
 						{
-							target_set_location(y, x);
+							do_cmd_pathfind(y,x);
+							done = TRUE;
+						}
+						/* Set target if clicked. ! is mainly for macro use. */
+						else if ((query.mousebutton == BUTTON_AIM) || (query.key == '!'))
+						{
+							target_set_location(y, x, mode);
 							done = TRUE;
 						}
 						else
@@ -6238,7 +6310,7 @@ bool target_set_interactive(int mode)
 							flag = FALSE;
 	
 							/* Calculate the path */
-							if (mode == TARGET_KILL)
+							if (mode & (TARGET_KILL))
 							{
 								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 	
@@ -6266,6 +6338,22 @@ bool target_set_interactive(int mode)
 					break;
 				}
 
+				case '?':
+				{
+					screen_save();
+					(void)show_file("target.txt", NULL, 0, 0);
+					screen_load();
+					break;
+				}
+				
+				/* Get allies to attack anything near here */
+				case 'a':
+				{
+					target_set_location(y, x, mode | (TARGET_NEAR));
+					done = TRUE;
+					break;
+				}
+
 				case '.':
 				case 't':
 				case '5':
@@ -6276,13 +6364,29 @@ bool target_set_interactive(int mode)
 					if ((m_idx > 0) && target_able(m_idx))
 					{
 						health_track(m_idx);
-						target_set_monster(m_idx);
+						target_set_monster(m_idx, mode);
 						done = TRUE;
 					}
 					else
 					{
 						bell("Illegal target!");
 					}
+					break;
+				}
+				
+				/* Have set or changed race filter */
+				case 's':
+				{
+					/* Forget */
+					temp_n = 0;
+
+					/* Re-prepare targets */
+					target_set_interactive_prepare(mode);
+					
+					/* Start near the player again and fake movement */
+					m = 0;
+					d = 5;
+					
 					break;
 				}
 
@@ -6379,7 +6483,7 @@ bool target_set_interactive(int mode)
 					x = px;
 
 					/* Calculate the path */
-					if (mode == TARGET_KILL)
+					if (mode & (TARGET_KILL))
 					{
 						target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
@@ -6443,16 +6547,22 @@ bool target_set_interactive(int mode)
 						ty = y = KEY_GRID_Y(query);
 						tx = x = KEY_GRID_X(query);
 
-						/* Set target if clicked */
-						if ((query.mousebutton) || (query.key == '!'))
+						/* Go to if clicked with BUTTON_MOVE */
+						if (query.mousebutton == BUTTON_MOVE)
 						{
-							target_set_location(y, x);
+							do_cmd_pathfind(y,x);
+							done = TRUE;
+						}
+						/* Set target if clicked. ! is mainly for macro use. */
+						else if ((query.mousebutton == BUTTON_AIM) || (query.key == '!'))
+						{
+							target_set_location(y, x, mode);
 							done = TRUE;
 						}
 						else
 						{
 							/* Calculate the path */
-							if (mode == TARGET_KILL)
+							if (mode & (TARGET_KILL))
 							{
 								target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
@@ -6480,13 +6590,44 @@ bool target_set_interactive(int mode)
 					break;
 				}
 
+				case '?':
+				{
+					screen_save();
+					(void)show_file("target.txt", NULL, 0, 0);
+					screen_load();
+					break;
+				}
+				
+				case 'a':
+				{
+					target_set_location(y, x, mode | (TARGET_NEAR));
+					done = TRUE;
+					break;
+				}
+
 				case '.':
 				case 't':
 				case '5':
 				case '0':
 				{
-					target_set_location(y, x);
+					target_set_location(y, x, mode);
 					done = TRUE;
+					break;
+				}
+
+				/* Have set or changed race filter */
+				case 's':
+				{
+					/* Forget */
+					temp_n = 0;
+
+					/* Re-prepare targets */
+					target_set_interactive_prepare(mode);
+					
+					/* Start near the player again and fake movement */
+					m = 0;
+					d = 5;
+					
 					break;
 				}
 
@@ -6545,7 +6686,7 @@ bool target_set_interactive(int mode)
 				tx = x;
 
 				/* Calculate the path */
-				if (mode == TARGET_KILL)
+				if (mode & (TARGET_KILL))
 				{
 					target_path_n = project_path(target_path_g, MAX_SIGHT, py, px, &ty, &tx, 0);
 
@@ -6573,7 +6714,7 @@ bool target_set_interactive(int mode)
 	modify_grid_unseen_hook = modify_grid_unseen_view;
 	modify_grid_interesting_hook = modify_grid_interesting_view;
 
-	if (mode == TARGET_KILL)
+	if (mode & (TARGET_KILL))
 	{
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -6672,7 +6813,7 @@ bool get_aim_dir(int *dp)
 			{
 				if (ke.mousebutton)
 				{
-					target_set_location(KEY_GRID_Y(ke), KEY_GRID_X(ke));
+					target_set_location(KEY_GRID_Y(ke), KEY_GRID_X(ke), 0);
 					dir = 5;
 					break;
 				}
@@ -6903,6 +7044,7 @@ int max_depth(int dungeon)
 	return (zone->level);
 }
 
+
 int town_depth(int dungeon)
 {
 	town_type *t_ptr=&t_info[dungeon];
@@ -6925,9 +7067,6 @@ void get_zone(dungeon_zone **zone_handle, int dungeon, int depth)
 	town_type *t_ptr = &t_info[dungeon];
 	dungeon_zone *zone = &t_ptr->zone[0];
 	int i;
-
-	/* Hack -- handle towers */
-	if (depth < min_depth(dungeon)) depth = 2 * min_depth(dungeon) - depth;
 
 	/* Get the zone */	
 	for (i = 0;i<MAX_DUNGEON_ZONES;i++)

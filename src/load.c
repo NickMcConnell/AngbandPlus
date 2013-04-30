@@ -89,6 +89,9 @@ static void note(cptr msg)
 /*
  * This function determines if the version of the savefile
  * currently being read is older than version "x.y.z".
+ * 
+ * Warning: DO NOT attempt to check sf_extra, as this is
+ * used as an xor byte, as opposed to version control.
  */
 bool older_than(int x, int y, int z, int w)
 {
@@ -103,9 +106,11 @@ bool older_than(int x, int y, int z, int w)
 	/* Barely older, or barely more recent */
 	if (sf_patch < z) return (TRUE);
 	if (sf_patch > z) return (FALSE);
+
+	/* The maintainer is lazy and doesn't want to bump the version number in the edit files */
 	if (sf_extra < w) return (TRUE);
 	if (sf_extra > w) return (FALSE);
-
+	
 	/* Identical versions */
 	return (FALSE);
 }
@@ -127,7 +132,7 @@ static bool wearable_p(const object_type *o_ptr)
 		case TV_HAFTED:
 		case TV_POLEARM:
 		case TV_SWORD:
-                case TV_INSTRUMENT:
+		case TV_INSTRUMENT:
 		case TV_STAFF:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -585,10 +590,12 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->shield);
 	rd_byte(&m_ptr->oppose_elem);
 	rd_byte(&m_ptr->summoned);
+	if (!older_than(0, 6, 2, 3)) rd_byte(&m_ptr->petrify);
+	if (!older_than(0, 6, 2, 3)) rd_byte(&m_ptr->facing);
 
 	rd_u32b(&m_ptr->mflag);
 	rd_u32b(&m_ptr->smart);
-
+	
 	rd_byte(&m_ptr->min_range);
 	rd_byte(&m_ptr->best_range);
 	rd_byte(&m_ptr->ty);
@@ -723,7 +730,7 @@ static errr rd_store(int n)
 	}
 
 	/* Make a new store */
-	C_MAKE(st_ptr, 1, store_type);
+	st_ptr = C_ZNEW(1, store_type);
 
 	/* Copy basic information for older versions */
 	if (older_than(0, 6, 2, 0))
@@ -745,7 +752,7 @@ static errr rd_store(int n)
 	st_ptr->stock_size = STORE_INVEN_MAX;
 
 	/* Allocate the stock */
-	C_MAKE(st_ptr->stock, st_ptr->stock_size, object_type);
+	st_ptr->stock = C_ZNEW(st_ptr->stock_size, object_type);
 
 	/* Add it to the list of stores */
 	store[total_store_count++] = st_ptr;
@@ -1203,9 +1210,22 @@ static errr rd_extra(void)
 	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_inc_tim[i]);
 	for (i = 0; i < a_max; i++) rd_s16b(&p_ptr->stat_dec_tim[i]);
 
+	/* Initialise quickstart */
+	if (!older_than(0, 6, 2, 3))
+	{
+		character_quickstart = TRUE;
+
+		for (i = 0; i < a_max; i++)
+		{
+			rd_s16b(&p_ptr->stat_birth[i]);
+			if (!p_ptr->stat_birth[i]) character_quickstart = FALSE;
+		}
+	}
+
 	strip_bytes(24);	/* oops */
 
 	rd_s32b(&p_ptr->au);
+	if (!older_than(0, 6, 2, 3)) rd_s32b(&p_ptr->birth_au);
 
 	rd_s32b(&p_ptr->max_exp);
 	rd_s32b(&p_ptr->exp);
@@ -1304,8 +1324,8 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->charging);
 	rd_byte(&p_ptr->climbing);
 	rd_byte(&p_ptr->searching);
-	rd_byte(&tmp8u);	/* oops */
-	rd_byte(&tmp8u);	/* oops */
+	rd_byte(&p_ptr->sneaking);
+	rd_byte(&p_ptr->reserves);
 	rd_byte(&tmp8u);	/* oops */
 
 	rd_u32b(&p_ptr->disease);
@@ -1327,8 +1347,13 @@ static errr rd_extra(void)
 	/* Get held song */
 	rd_s16b(&p_ptr->held_song);
 
+	/* Returning */
+	rd_s16b(&p_ptr->word_return);
+	rd_s16b(&p_ptr->return_y);
+	rd_s16b(&p_ptr->return_x);
+
 	/* Future use */
-	strip_bytes(26);
+	strip_bytes(20);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1662,9 +1687,10 @@ u16b limit;
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
 	rd_s16b(&town);
-	rd_u16b(&tmp16u);
 
-
+	if (!older_than(0, 6, 2, 3)) rd_u32b(&level_flag);
+	else rd_u16b(&tmp16u);
+	
 	/* Ignore illegal dungeons */
 	if (town>=z_info->t_max)
 	{
@@ -1836,7 +1862,7 @@ u16b limit;
 	p_ptr->town = town;
 
 	/* Fix level flags */
-	init_level_flags();	
+	if (!level_flag) init_level_flags();	
 
 	/* Apply daylight */
 	if ((level_flag & (LF1_SURFACE)) != 0) town_illuminate((level_flag & (LF1_DAYLIGHT)) != 0);
@@ -1854,7 +1880,7 @@ u16b limit;
 	}
 
 	/* Place player in dungeon */
-	if (!player_place(py, px))
+	if (!player_place(py, px, FALSE))
 	{
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (-1);
@@ -1907,6 +1933,8 @@ u16b limit;
 		rd_s16b(&room_info[i].type);
 		rd_s16b(&room_info[i].vault);
 		rd_u32b(&room_info[i].flags);
+		if (!older_than(0, 6, 2, 3)) rd_s16b(&room_info[i].deepest_race);
+		if (!older_than(0, 6, 2, 3)) rd_u32b(&room_info[i].ecology);		
 
 		for (j = 0; j < ROOM_DESC_SECTIONS; j++)
 		{
@@ -1914,8 +1942,12 @@ u16b limit;
 
 			if (room_info[i].section[j] == -1) break;
 		}
+		
+		/* Discard room sections for any old version */
+		/* This is because the sections are so sensitive to re-ordering */
+		if (older_than(VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA)) room_info[i].section[0] = -1;
 	}
-
+	
 	/*** Objects ***/
 
 	/* Read the item count */
@@ -2059,28 +2091,34 @@ u16b limit;
 		m_ptr->hold_o_idx = i;
 	}
 
-
-	/*** Read the ecology ***/
+	/*** Read the ecology. ***/
 	if (!older_than(0, 6, 2, 0))
 	{
 		/* Read the ecology count */
 		rd_u16b(&limit);
 
+		if (!older_than(0, 6, 2, 3)) rd_byte(&cave_ecology.num_ecologies);
+		
+		/* Try to fix 'broken' save files */
+		if ((limit >= 1) && (older_than(0, 6, 2, 3))) limit--;
+		
 		/* Hack -- verify */
-		if (limit > MAX_ECOLOGY_RACES)
+		if (limit >= MAX_ECOLOGY_RACES)
 		{
 			note(format("Too many (%d) ecology entries!", limit));
 			return (-1);
 		}
 
 		/* Read the ecology */
-		for (i = 1; i < limit; i++)
+		for (i = 0; i < limit; i++)
 		{
 			rd_s16b(&(cave_ecology.race[i]));
+			if (!older_than(0, 6, 2, 3)) rd_u32b(&(cave_ecology.race_ecologies[i]));
 		}
 
 		/* Ecology ready? */
 		cave_ecology.ready = (limit > 0);
+		cave_ecology.num_races = (byte)limit;
 	}
 
 	/*** Success ***/
@@ -2112,8 +2150,8 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Mention the savefile version */
-	note(format("Loading a %d.%d.%d savefile...",
-	    sf_major, sf_minor, sf_patch));
+	note(format("Loading a %d.%d.%d.%d savefile...",
+	    sf_major, sf_minor, sf_patch, sf_extra));
 
 	/* Strip the version bytes */
 	strip_bytes(4);
@@ -2496,17 +2534,25 @@ static errr rd_savefile_new_aux(void)
 		if (rd_dungeon())
 		{
 			note("Error reading dungeon data");
-			return (-1);
+			note("--------");
+			note("It looks like there's a problem that I can attempt to recover from in your save file.");
+			note("However, I'd recommend that you make a backup of the save file first, in the unlikely");
+			note("event that a root cause of the problem is found and a fix implemented in a later");
+			note("version of Unangband.");
+			note("Please note that recovery will involve generating a new dungeon level.");			
+			note("--------");			
+			if(!get_check("Attempt a recovery? ")) return(-1);
+			if(!get_check("Have you made a backup of this save file? ")) return(-1);
+			if(!get_check("Are you sure you wish to continue (All dungeon data will be lost)? ")) return(-1);
+			
+			p_ptr->leaving = TRUE;
+			
+			/* Don't bother reading the rest of the file */
+			return (0);
 		}
 
 		/* Read the ghost info */
 		rd_ghost();
-	}
-
-	/* Get the stores */
-	if (older_than(0, 6, 2, 0))
-	{
-
 	}
 
 
@@ -2760,7 +2806,7 @@ bool load_player(void)
 		/* Clear screen */
 		Term_clear();
 
-		if (older_than(OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH, 0))
+		if (older_than(OLD_VERSION_MAJOR, OLD_VERSION_MINOR, OLD_VERSION_PATCH, OLD_VERSION_EXTRA))
 		{
 			err = -1;
 			what = "Savefile is too old";

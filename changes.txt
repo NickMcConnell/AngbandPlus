@@ -289,9 +289,78 @@ cannnot pay the debt from available mana, you'll pay it in blood instead.
 - Try to ensure monster drops 1 weapon, 1 body armour, 1 helmet etc. when calculating monster
 drops to provide a better as well as more realistic set of drops.
 
-- Added in differing religions for priests. Note that this only affects starting books and only
-Mandos should be selected at this stage - the other priest books are not well populated as of
-yet.
+- Implemented the remaining spells in the player spell lists. Add and update a few spells borrowed from Sangband.
+
+- Druidic monsters now regenerate mana from water and health from living terrain.
+
+- You get additional blows with your weapon while charging: one if you'd
+normally get three blows, two if you'd normally get five, and so on.
+Only the first blow gets the charging bonus, but all are effective
+against huge monsters.
+
+- Huge monsters can now be easily attacked if you are standing on
+rubble, trees, vents and other terrain that requires two turns to
+climb onto.
+
+- Allow player to select sneaking using the hash key. This currently only prevents
+his allies from attacking 'unaware' monsters.
+
+- Prevent allies eating too much while they fight.
+
+- Fix allies spying.
+
+- Fix monsters not fighting whilst hidden.
+
+- A large number of other fixes to the allied monster AI.
+
+- Archers now share ammunition between themselves to ensure that the majority of the
+group has ammunition.
+
+- At the Battle of Five Armies, you should now be accompanied by allied troops. This should
+make battlefield locations more interesting to fight in; a further revision will occur next
+version.
+
+- Invisible monsters now 'dance' around the player in melee to avoid being too easily
+guessable as to where they are.
+
+- Revert to old inaccessible Hobbiton layout. In general, you won't run into any high level
+uniques in towns, like you used to, until certain key conditions have been met. Similarly,
+there are very few dungeon uniques you are required to fight. Certain events have much
+more wide-ranging consequences - hopefully the room descriptions will provide enough of
+a warning.
+
+- Allow food / wands / staffs / rods and some rings to appear in piles.
+
+- Decrease the relative frequency of drops of items that appear in piles.
+
+- Allow crowns to appear in the dungeon with a much higher bonuses.
+
+- Armour appears in the dungeon with better bonuses.
+
+- Decrease overall frequency of wands.
+
+- Added 'sub-ecologies' which are collections of rooms which share a common part of the
+monster ecology.
+
+- Made slowdown at negative speeds smaller. As before, -10 to speed makes normal monsters
+twice as fast as you are, but no longer -7 does (Mikolaj Konarski).
+
+- Only restock and shuffle shops of the home town, to prevent shopping scumming
+ (Mikolaj Konarski).
+
+- Beefed up HAFTED a little bit for priests --- with free constant Bless it was too weak
+an advantage (Mikolaj Konarski).
+
+- Make Smeagol a more interesting opponent.
+
+- There's no point having monsters that cast invisible never be seen - they may as well just
+have INVISIBLE flag. Likewise for blessed etc.
+
+- Significant bug-fixes and improvements to the dungeon generation code to the point where
+its pretty much feature complete. "I've just played current V (Farm dungeon) and the dungeon
+generation is so much better after your recent work. Rooms, tunnels and even monsters are much
+more interesting and not just random, but with a nontrivial pattern that you start to grasp
+after several levels."
 
 
 ### User Interface ###
@@ -339,7 +408,16 @@ get the best in-game experience.
 
 - Reduce sensitivity in birth menus to mouse input.
 
+- Limit the player from specifying an amount greater than the number of items that they think
+they can purchase in a store (using the listed price).
 
+- Added 'easy_more' option to minimise the number of -more- prompts you have to go through.
+Please note this is initial work only and may need some testing / cause some messages to be lost.
+
+- Reverse mouse buttons. Left-button now aims, right button now clicks.
+
+- You can now press 's' while looking/targetting a monster to cycle between monsters of that
+race only. You can press 'a' to assault a location with any allied troops.
 
 
 ### Bug fixes ###
@@ -516,9 +594,24 @@ the fix).
 
 - Fix logic problem with polymorphing a monster on terrain.
 
-- Fix bug with wand of sparks having rift effect 50% of the time.
+- Fixed bug with weird identification issues with Tom Bombadil's house etc.
 
-- Fix bug with birth menus causing incorrect game choices much of the time.
+- Fix bug with monsters not appearing in towers.
+ 
+- Fix bug #12237 by requiring a guardian to be killed in order to visit the Paths of the Dead
+or Lothlorien.
+
+- Fix bug where you could wound monsters with NO_CUTS flag.
+
+- Fix bug where monsters could pick up money.
+
+- Fix bug on OS/X platform with user directories not being created.
+
+- Fix monsters not generating ammo using ADD_AMMO flag.
+
+- Fix long outstanding bugs where you would incorrectly guess flags on items you have.
+
+- Fix long outstanding bugs where monsters would talk about incorrect player resistances.
 
 
 ### Build / Platform ###
@@ -534,6 +627,7 @@ Windows compile.
 
 - Tidy up comments in a number of edit files (Mikolaj Konarski).
 
+- Move to latest Angband memory management routines.
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down
 Sinners"

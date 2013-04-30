@@ -1907,7 +1907,7 @@ static errr Term_wipe_mac(int x, int y, int n)
  * Draw several ("n") chars, with an attr, at a given location.
  */
 static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
-{
+{	
 	if(!focus.ctx) activate(focus.active);
 
 	/* Draw the string */
@@ -1972,7 +1972,7 @@ static void term_data_link(int i)
 	if (!td->mapped) return;
 
 	/* Allocate */
-	MAKE(td->t, term);
+	td->t = ZNEW(term);
 
 	/* Initialize the term */
 	term_init(td->t, td->cols, td->rows, td == &data[0] ? 100 : 1);
@@ -3759,11 +3759,6 @@ int main(void)
 	/* Default to saving a "text" file */
 	_ftype = 'TEXT';
 
-
-	/* Hook in some "z-virt.c" hooks */
-	rnfree_aux = NULL;
-	ralloc_aux = NULL;
-	rpanic_aux = hook_rpanic;
 
 	/* Hooks in some "z-util.c" hooks */
 	plog_aux = hook_plog;

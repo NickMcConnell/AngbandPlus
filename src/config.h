@@ -477,7 +477,7 @@
 /*
  * On multiuser installations, add the "uid" to savefile names
  */
-#if defined(SET_UID) && !defined(USE_PRIVATE_PATHS)
+#if defined(SET_UID) && !defined(PRIVATE_USER_PATHS)
 # define SAVEFILE_USE_UID
 #endif /* SET_UID */
 

@@ -366,6 +366,20 @@ void print_routes(const s16b *route, int num, int y, int x)
 
 
 /*
+ * This gives either the route, or a replacement route if one is defined.
+ */
+int actual_route(int town)
+{
+	while(t_info[t_info[town].replace_ifvisited].visited)
+	{
+		town = t_info[town].replace_with;
+	}
+	
+	return (town);
+}
+
+
+/*
  * Set routes
  *
  * Set up the possible routes from this location.
@@ -392,13 +406,16 @@ int set_routes(s16b *routes, int max_num, int from)
 		/* Add nearby route */
 		for (i = 0; i < MAX_NEARBY; i++)
 		{
-			if (t_ptr->nearby[i]) routes[num++] = t_ptr->nearby[i];
+			if (t_ptr->nearby[i])
+			{
+				routes[num++] = actual_route(t_ptr->nearby[i]);
+			}
 		}
 		
 		/* Add quest route if possible */
 		if ((t_ptr->quest_monster) && (!r_info[t_ptr->quest_monster].max_num) && (t_ptr->quest_opens))
 		{
-				routes[num++] = t_ptr->quest_opens;
+				routes[num++] = actual_route(t_ptr->quest_opens);
 		}
 	}
 
@@ -411,7 +428,7 @@ int set_routes(s16b *routes, int max_num, int from)
 			if ((inventory[i].k_idx) && (inventory[i].tval == TV_MAP))
 			{
 				/* Add map routes */
-				routes[num++] = inventory[i].sval;
+				routes[num++] = actual_route(inventory[i].sval);
 			}
 
 			/* Check for bags for maps */
@@ -424,7 +441,7 @@ int set_routes(s16b *routes, int max_num, int from)
 					if ((bag_holds[inventory[i].sval][ii][0] == TV_MAP) && (bag_contents[inventory[i].sval][ii]))
 					{
 						/* Add route */
-						routes[num++] = bag_holds[inventory[i].sval][ii][1];
+						routes[num++] = actual_route(bag_holds[inventory[i].sval][ii][1]);
 					}
 				}
 			}
@@ -448,22 +465,6 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* Add routes further away if visited, while in campaign mode */
 	if (adult_campaign) for (i = 0; i < num; i++)
 	{
-		/* Scan and repace routes that are 'overrun' */
-		for (ii = i; ii < num; ii++)
-		{
-			/* Check if this route is not replaced */
-			if (!(t_info[routes[ii]].replace_with)) continue;
-
-			/* Replace route */
-			if (t_info[t_info[routes[ii]].ifvisited].visited)
-			{
-				routes[ii] = t_info[routes[ii]].replace_with;
-				
-				/* Check new route as well */
-				ii--;
-			}
-		}
-		
 		/* Only add routes from visited locations */
 		if (!t_info[routes[i]].visited) continue;
 		
@@ -474,14 +475,14 @@ int set_routes(s16b *routes, int max_num, int from)
 			if (!(t_info[routes[i]].nearby[ii]) || (t_info[routes[i]].nearby[ii] == p_ptr->dungeon)) continue;
 			
 			/* Add the route */
-			routes[num++] = t_info[routes[i]].nearby[ii];
+			routes[num++] = actual_route(t_info[routes[i]].nearby[ii]);
 		}
 		
 		/* Add quest route if possible */
 		if ((num < max_num) &&
 				(t_info[routes[i]].quest_monster) && (!r_info[t_info[routes[i]].quest_monster].max_num) && (t_info[routes[i]].quest_opens))
 		{
-				routes[num++] = t_info[routes[i]].quest_opens;
+				routes[num++] = actual_route(t_info[routes[i]].quest_opens);
 		}
 
 		/* Scan and remove duplicate routes and routes looping back to start */
@@ -517,7 +518,6 @@ int set_routes(s16b *routes, int max_num, int from)
 	/* Return number of routes */
 	return(num);
 }
-
 
 
 /*
@@ -984,11 +984,30 @@ void do_cmd_toggle_search(void)
 		msg_print("You finish your song.");
 	}
 
-	/* Stop searching */
-	if (p_ptr->searching)
+	/* TODO: Stop searching, start sneaking */
+	else if (p_ptr->searching)
 	{
 		/* Clear the searching flag */
 		p_ptr->searching = FALSE;
+
+		/* Set the sneaking flag */
+		p_ptr->sneaking = TRUE;
+		
+		/* Recalculate bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Redraw the state */
+		p_ptr->redraw |= (PR_STATE);		
+	}
+
+	/* Stop searching */
+	else if (p_ptr->sneaking)
+	{
+		/* Clear the searching flag */
+		p_ptr->searching = FALSE;
+
+		/* Clear the sneaking flag */
+		p_ptr->sneaking = FALSE;
 
 		/* Clear the last disturb */
 		p_ptr->last_disturb = turn;
@@ -2262,13 +2281,14 @@ void do_cmd_alter(void)
 		more = do_cmd_bash_aux(y, x);
 	}
 #endif
+#if 0
 	/* Tunnel through walls */
 	else if (f_info[feat].flags1 & (FF1_TUNNEL))
 	{
 		/* Tunnel */
 		more = do_cmd_tunnel_aux(y, x);
 	}
-
+#endif
 #if 0
 
 	/* Close open doors */
@@ -2723,8 +2743,6 @@ static bool do_cmd_walk_test(int y, int x)
 
 		if (easy_alter)
 		{
-
-			if (f_info[feat].flags1 & (FF1_BASH)) return(TRUE);
 			if (f_info[feat].flags1 & (FF1_OPEN)) return(TRUE);
 		}
 
@@ -2991,7 +3009,7 @@ static void do_cmd_hold_or_stay(int pickup)
 		disturb(0, 0);
 
 		/* Hack -- enter store */
-		p_ptr->command_new = '_';
+		p_ptr->command_new.key = '_';
 
 		/* Free turn XXX XXX XXX */
 		p_ptr->energy_use = 0;
@@ -3690,7 +3708,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 					}
 
 					/* Apply special damage XXX XXX XXX */
-					tdam = tot_dam_aux(i_ptr, tdam, m_ptr);
+					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, item < 0);
 
 					/* The third piece of fire/throw dependent code */
 					if (fire)

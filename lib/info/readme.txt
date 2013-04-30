@@ -45,6 +45,8 @@ birthnn.txt    The player has just been born. These tips are shown every time in
 
 levelnn.txt    The player has reached level nn for the first time this game.
 
+dungeonaa.txt  The player has reached dungeon aa for the first time this game.
+
 depthaa-bb.txt The player has reached depth bb in dungeon aa for the first time this
                game.
 

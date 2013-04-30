@@ -3154,7 +3154,7 @@ errr vinfo_init(void)
 
 
 	/* Make hack */
-	MAKE(hack, vinfo_hack);
+	hack = ZNEW(vinfo_hack);
 
 
 	/* Analyze grids */
@@ -3382,8 +3382,8 @@ errr vinfo_init(void)
 	}
 
 
-	/* Kill hack */
-	KILL(hack);
+	/* Free hack */
+	FREE(hack);
 
 
 	/* Success */
@@ -4196,6 +4196,8 @@ void update_dyna(void)
    
 				/* Apply the blow */
 				project(SOURCE_FEATURE, feat, 2, y, x, y, x, dam, f_ptr->blow.effect, flg, 0, 0);
+				
+				alter = FS_ERUPT;
 			}
 		}
 
@@ -4210,6 +4212,8 @@ void update_dyna(void)
    
 				/* Apply the blow */
 				project(SOURCE_FEATURE, feat, 0, y, x, y, x, dam, f_ptr->blow.effect, flg, 0, 0);
+				
+				alter = FS_STRIKE;
 			}
 		}
 
@@ -4260,7 +4264,7 @@ void update_dyna(void)
 				}
 			}
 
-			alter = FS_ADJACENT;
+			if (!alter) alter = FS_ADJACENT;
 		}
 
 		/* Spread */
@@ -4300,7 +4304,7 @@ void update_dyna(void)
 				}
 			}
 
-			if (dir < 9)
+			if ((dir < 9) && (!alter))
 			{
 				alter = FS_SPREAD;
 			}
@@ -4983,7 +4987,7 @@ void town_illuminate(bool daytime)
 	}
 
 	/* Megahack --- darkness brings out the bad guys */
-	if ((!daytime) && (zone->guard) && (r_info[zone->guard].cur_num <= 0))
+	if ((!daytime) && actual_guardian(zone->guard, p_ptr->dungeon) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num <= 0))
 	{
 		int y, x;
 
@@ -4997,7 +5001,7 @@ void town_illuminate(bool daytime)
 		}
 
 		/* Place the questor */
-		place_monster_aux(y, x, zone->guard, TRUE, TRUE, 0L);
+		place_monster_aux(y, x, actual_guardian(zone->guard, p_ptr->dungeon), TRUE, TRUE, 0L);
 	}
 
 	/* Fully update the visuals */
@@ -5015,7 +5019,7 @@ void town_illuminate(bool daytime)
 /*
  * Hack -- Really change the feature
  */
-static void cave_set_feat_aux(int y, int x, int feat)
+void cave_set_feat_aux(int y, int x, int feat)
 {
 	/* Set if blocks los */
 	bool los = cave_floor_bold(y,x);
@@ -6637,9 +6641,13 @@ bool is_quest(int level)
 void init_level_flags(void)
 {
 	dungeon_zone *zone=&t_info[0].zone[0];
+	int guard;
 
 	/* Get the zone */
 	get_zone(&zone,p_ptr->dungeon,p_ptr->depth);
+
+	/* Get the guardian */
+	guard = actual_guardian(zone->guard, p_ptr->dungeon);
 
 	/* Set night and day level flag */
 	level_flag =  (p_ptr->depth == min_depth(p_ptr->dungeon)) ?
@@ -6648,7 +6656,7 @@ void init_level_flags(void)
 
 	/* Add 'common' level flags */
 	if (zone->tower) level_flag |= (LF1_TOWER);
-	if ((zone->guard) && (r_info[zone->guard].cur_num <= 0)) level_flag |= (LF1_GUARDIAN);
+	if (guard && (r_info[guard].max_num > 0)) level_flag |= (LF1_GUARDIAN);
 	if (is_quest(p_ptr->depth)) level_flag |= (LF1_QUEST);
 
 	/* Define town */
@@ -6715,9 +6723,12 @@ void init_level_flags(void)
 	if ((p_ptr->depth > 20) && (level_flag & (LF1_SURFACE))) level_flag |= (LF1_DESTROYED);
 
 	/* Hack -- All levels with escorts are 'battlefields' */
-	if (RF1_ESCORT & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
-	if (RF1_ESCORTS & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
-
+	if (t_info[p_ptr->dungeon].r_flag <= 32)
+	{
+		if (RF1_ESCORT & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
+		if (RF1_ESCORTS & (1L << (t_info[p_ptr->dungeon].r_flag-1))) level_flag |= (LF1_BATTLE);
+	}
+		
 	/* Surface battlefields don't have rooms, but do have paths across the level */
 	if (((level_flag & (LF1_SURFACE)) != 0) && ((level_flag & (LF1_BATTLE)) != 0)) level_flag &= ~(LF1_ROOMS);
 

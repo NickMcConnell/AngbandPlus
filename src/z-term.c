@@ -289,20 +289,20 @@ term *Term = NULL;
 static errr term_win_nuke(term_win *s)
 {
 	/* Free the window access arrays */
-	KILL(s->a);
-	KILL(s->c);
+	FREE(s->a);
+	FREE(s->c);
 
 	/* Free the window content arrays */
-	KILL(s->va);
-	KILL(s->vc);
+	FREE(s->va);
+	FREE(s->vc);
 
 	/* Free the terrain access arrays */
-	KILL(s->ta);
-	KILL(s->tc);
+	FREE(s->ta);
+	FREE(s->tc);
 
 	/* Free the terrain content arrays */
-	KILL(s->vta);
-	KILL(s->vtc);
+	FREE(s->vta);
+	FREE(s->vtc);
 
 	/* Success */
 	return (0);
@@ -317,20 +317,20 @@ static errr term_win_init(term_win *s, int w, int h)
 	int y;
 
 	/* Make the window access arrays */
-	C_MAKE(s->a, h, byte*);
-	C_MAKE(s->c, h, char*);
+	s->a = C_ZNEW(h, byte*);
+	s->c = C_ZNEW(h, char*);
 
 	/* Make the window content arrays */
-	C_MAKE(s->va, h * w, byte);
-	C_MAKE(s->vc, h * w, char);
+	s->va = C_ZNEW(h * w, byte);
+	s->vc = C_ZNEW(h * w, char);
 
 	/* Make the terrain access arrays */
-	C_MAKE(s->ta, h, byte*);
-	C_MAKE(s->tc, h, char*);
+	s->ta = C_ZNEW(h, byte*);
+	s->tc = C_ZNEW(h, char*);
 
 	/* Make the terrain content arrays */
-	C_MAKE(s->vta, h * w, byte);
-	C_MAKE(s->vtc, h * w, char);
+	s->vta = C_ZNEW(h * w, byte);
+	s->vtc = C_ZNEW(h * w, char);
 
 	/* Prepare the window access arrays */
 	for (y = 0; y < h; y++)
@@ -812,7 +812,7 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				}
 
 				/* Hack -- Erase "leading" spaces */
-				else
+				else if (!Term->never_lwipe)
 				{
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
@@ -935,7 +935,7 @@ static void Term_fresh_row_text(int y, int x1, int x2)
 				}
 
 				/* Hack -- Erase "leading" spaces */
-				else
+				else if (!Term->never_lwipe)
 				{
 					(void)((*Term->wipe_hook)(fx, y, fn));
 				}
@@ -2030,7 +2030,7 @@ errr Term_save(void)
 	if (!Term->mem)
 	{
 		/* Allocate window */
-		MAKE(Term->mem, term_win);
+		Term->mem = ZNEW(term_win);
 
 		/* Initialize window */
 		term_win_init(Term->mem, w, h);
@@ -2063,7 +2063,7 @@ errr Term_load(void)
 	if (!Term->mem)
 	{
 		/* Allocate window */
-		MAKE(Term->mem, term_win);
+		Term->mem = ZNEW(term_win);
 
 		/* Initialize window */
 		term_win_init(Term->mem, w, h);
@@ -2109,7 +2109,7 @@ errr Term_exchange(void)
 	if (!Term->tmp)
 	{
 		/* Allocate window */
-		MAKE(Term->tmp, term_win);
+		Term->tmp = ZNEW(term_win);
 
 		/* Initialize window */
 		term_win_init(Term->tmp, w, h);
@@ -2189,11 +2189,11 @@ errr Term_resize(int w, int h)
 	hold_tmp = Term->tmp;
 
 	/* Create new scanners */
-	C_MAKE(Term->x1, h, byte);
-	C_MAKE(Term->x2, h, byte);
+	Term->x1 = C_ZNEW(h, byte);
+	Term->x2 = C_ZNEW(h, byte);
 
 	/* Create new window */
-	MAKE(Term->old, term_win);
+	Term->old = ZNEW(term_win);
 
 	/* Initialize new window */
 	term_win_init(Term->old, w, h);
@@ -2202,7 +2202,7 @@ errr Term_resize(int w, int h)
 	term_win_copy(Term->old, hold_old, wid, hgt);
 
 	/* Create new window */
-	MAKE(Term->scr, term_win);
+	Term->scr = ZNEW(term_win);
 
 	/* Initialize new window */
 	term_win_init(Term->scr, w, h);
@@ -2214,7 +2214,7 @@ errr Term_resize(int w, int h)
 	if (hold_mem)
 	{
 		/* Create new window */
-		MAKE(Term->mem, term_win);
+		Term->mem = ZNEW(term_win);
 
 		/* Initialize new window */
 		term_win_init(Term->mem, w, h);
@@ -2227,7 +2227,7 @@ errr Term_resize(int w, int h)
 	if (hold_tmp)
 	{
 		/* Create new window */
-		MAKE(Term->tmp, term_win);
+		Term->tmp = ZNEW(term_win);
 
 		/* Initialize new window */
 		term_win_init(Term->tmp, w, h);
@@ -2379,13 +2379,13 @@ errr term_nuke(term *t)
 	term_win_nuke(t->old);
 
 	/* Kill "displayed" */
-	KILL(t->old);
+	FREE(t->old);
 
 	/* Nuke "requested" */
 	term_win_nuke(t->scr);
 
 	/* Kill "requested" */
-	KILL(t->scr);
+	FREE(t->scr);
 
 	/* If needed */
 	if (t->mem)
@@ -2394,7 +2394,7 @@ errr term_nuke(term *t)
 		term_win_nuke(t->mem);
 
 		/* Kill "memorized" */
-		KILL(t->mem);
+		FREE(t->mem);
 	}
 
 	/* If needed */
@@ -2404,15 +2404,15 @@ errr term_nuke(term *t)
 		term_win_nuke(t->tmp);
 
 		/* Kill "temporary" */
-		KILL(t->tmp);
+		FREE(t->tmp);
 	}
 
 	/* Free some arrays */
-	KILL(t->x1);
-	KILL(t->x2);
+	FREE(t->x1);
+	FREE(t->x2);
 
 	/* Free the input queue */
-	KILL(t->key_queue);
+	FREE(t->key_queue);
 
 	/* Success */
 	return (0);
@@ -2441,7 +2441,7 @@ errr term_init(term *t, int w, int h, int k)
 	t->key_size = k;
 
 	/* Allocate the input queue */
-	C_MAKE(t->key_queue, t->key_size, key_event);
+	t->key_queue = C_ZNEW(t->key_size, key_event);
 
 
 	/* Save the size */
@@ -2449,19 +2449,19 @@ errr term_init(term *t, int w, int h, int k)
 	t->hgt = h;
 
 	/* Allocate change arrays */
-	C_MAKE(t->x1, h, byte);
-	C_MAKE(t->x2, h, byte);
+	t->x1 = C_ZNEW(h, byte);
+	t->x2 = C_ZNEW(h, byte);
 
 
 	/* Allocate "displayed" */
-	MAKE(t->old, term_win);
+	t->old = ZNEW(term_win);
 
 	/* Initialize "displayed" */
 	term_win_init(t->old, w, h);
 
 
 	/* Allocate "requested" */
-	MAKE(t->scr, term_win);
+	t->scr = ZNEW(term_win);
 
 	/* Initialize "requested" */
 	term_win_init(t->scr, w, h);

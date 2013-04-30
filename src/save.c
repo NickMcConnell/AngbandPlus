@@ -269,6 +269,8 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->shield);
 	wr_byte(m_ptr->oppose_elem);
 	wr_byte(m_ptr->summoned);
+	wr_byte(m_ptr->petrify);
+	wr_byte(m_ptr->facing);	
 
 	wr_u32b(m_ptr->mflag);
 	wr_u32b(m_ptr->smart);
@@ -601,11 +603,13 @@ static void wr_extra(void)
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_inc_tim[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_dec_tim[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_birth[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
 	wr_u32b(p_ptr->au);
+	wr_u32b(p_ptr->birth_au);	
 
 	wr_u32b(p_ptr->max_exp);
 	wr_u32b(p_ptr->exp);
@@ -675,8 +679,8 @@ static void wr_extra(void)
 	wr_byte(p_ptr->charging);
 	wr_byte(p_ptr->climbing);
 	wr_byte(p_ptr->searching);
-	wr_byte(0);
-	wr_byte(0);
+	wr_byte(p_ptr->sneaking);
+	wr_byte(p_ptr->reserves);
 	wr_byte(0);
 
 	wr_u32b(p_ptr->disease);
@@ -690,11 +694,13 @@ static void wr_extra(void)
 	/* Held song */
 	wr_s16b(p_ptr->held_song);
 
+	/* Returning */
+	wr_s16b(p_ptr->word_return);
+	wr_s16b(p_ptr->return_y);
+	wr_s16b(p_ptr->return_x);
+	
 	/* Future use */
-	wr_s16b(0);
-
-	/* Future use */
-	for (i = 0; i < 6; i++) wr_u32b(0L);
+	for (i = 0; i < 5; i++) wr_u32b(0L);
 
 	/* Random artifact version */
 	wr_u32b(RANDART_VERSION);
@@ -836,16 +842,14 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(p_ptr->depth);
-	if (adult_campaign) wr_u16b(p_ptr->dungeon);
-	else wr_u16b(0);
+	wr_u16b(p_ptr->dungeon);
 	wr_u16b(p_ptr->py);
 	wr_u16b(p_ptr->px);
 	wr_u16b(DUNGEON_HGT);
 	wr_u16b(DUNGEON_WID);
-	if (adult_campaign) wr_u16b(p_ptr->town);
-	else wr_u16b(0);
-	wr_u16b(0);
-
+	wr_u16b(p_ptr->town);
+	wr_u32b(level_flag);
+	
 
 	/*** Simple "Run-Length-Encoding" of cave ***/
 
@@ -978,6 +982,8 @@ static void wr_dungeon(void)
 		wr_s16b(room_info[i].type);
 		wr_s16b(room_info[i].vault);
 		wr_u32b(room_info[i].flags);
+		wr_s16b(room_info[i].deepest_race);
+		wr_u32b(room_info[i].ecology);
 
 		for (j = 0; j < ROOM_DESC_SECTIONS; j++)
 		{
@@ -1030,18 +1036,23 @@ static void wr_dungeon(void)
 	{
 		/* Total races in ecology */
 		wr_u16b(cave_ecology.num_races);
+		
+		/* Total number of ecologies. This is only used in wizard2.c, but we may need it later */
+		wr_byte(cave_ecology.num_ecologies);
 
 		/* Dump the monsters */
-		for (i = 1; i < cave_ecology.num_races; i++)
+		for (i = 0; i < cave_ecology.num_races; i++)
 		{
 			/* Dump it */
 			wr_u16b(cave_ecology.race[i]);
+			wr_u32b(cave_ecology.race_ecologies[i]);
 		}
 	}
 	else
-	{
+	{	
 		/* Hack -- no ecology */
 		wr_u16b(0);
+		wr_byte(0);
 	}
 }
 

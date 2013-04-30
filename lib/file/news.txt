@@ -11,13 +11,14 @@
               Unangband 0.6.2 by Andrew Doull and Mikolaj Konarski.
         UnAngband 0.5.4a by Andrew Doull, Mogami, and Andrew Sidwell.
                Other versions of UnAngband by Andrew Doull.
-  This program incorporates code from other Angband variants: NPPAngband &
-   Sangband under the Angband license and Angband Open Source Initiative.
+   This program incorporates code from other Angband variants: NPPAngband &
+            Sangband. The UnAngband source code is released under 
+                 the traditional Angband license and GNU GPL.
 
+         Visit the UnAngband website at http://unangband.blogspot.com/
      Send comments, bug reports and patches to unangband@yahoogroups.com
-         Visit the UnAngband website at http://unangband.berlios.de/
      Read the Angband Usenet group at news:rec.games.roguelike.angband
 
-            To access the help system, use the '?' key in-game.
+             To access the help system, use the '?' key in-game.
 
 

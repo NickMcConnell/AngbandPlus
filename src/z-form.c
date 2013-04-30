@@ -583,7 +583,7 @@ char *vformat(cptr fmt, va_list vp)
 	if (!format_buf)
 	{
 		format_len = 1024;
-		C_MAKE(format_buf, format_len, char);
+		format_buf = C_ZNEW(format_len, char);
 	}
 
 	/* Null format yields last result */
@@ -601,9 +601,9 @@ char *vformat(cptr fmt, va_list vp)
 		if (len < format_len-1) break;
 
 		/* Grow the buffer */
-		KILL(format_buf);
+		FREE(format_buf);
 		format_len = format_len * 2;
-		C_MAKE(format_buf, format_len, char);
+		format_buf = C_ZNEW(format_len, char);
 	}
 
 	/* Return the new buffer */
@@ -612,7 +612,7 @@ char *vformat(cptr fmt, va_list vp)
 
 void vformat_kill(void)
 {
-	KILL(format_buf);
+	FREE(format_buf);
 }
 
 

@@ -208,7 +208,7 @@ void do_cmd_eat_food(void)
 			/* The player is now aware of the object */
 			if (ident && !object_aware_p(o_ptr))
 			{
-				object_aware(o_ptr);
+				object_aware(o_ptr, item < 0);
 				gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 			}
 
@@ -339,7 +339,7 @@ void do_cmd_quaff_potion(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
+		object_aware(o_ptr, item < 0);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -478,7 +478,7 @@ void do_cmd_read_scroll(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
+		object_aware(o_ptr, item < 0);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -685,7 +685,7 @@ void do_cmd_use_staff(void)
 	/* An identification was made */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
+		object_aware(o_ptr, item < 0);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -965,7 +965,7 @@ void do_cmd_aim_wand(void)
 	/* Apply identification */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
+		object_aware(o_ptr, item < 0);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -1235,7 +1235,7 @@ void do_cmd_zap_rod(void)
 	/* Successfully determined the object function */
 	if (ident && !object_aware_p(o_ptr))
 	{
-		object_aware(o_ptr);
+		object_aware(o_ptr, item < 0);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
 
@@ -1915,7 +1915,7 @@ void do_cmd_activate(void)
 		}
 
 		/* We know it activates */
-		object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE,0x0L);
+		object_can_flags(o_ptr,0x0L,0x0L,TR3_ACTIVATE,0x0L, item < 0);
 
 		/* Count activations */
 		if (a_ptr->activated < MAX_SHORT) a_ptr->activated++;
@@ -2509,7 +2509,7 @@ void do_cmd_apply_rune_or_coating(void)
 	}
 
 	/* Notice obvious flags again */
-	object_obvious_flags(j_ptr);
+	object_obvious_flags(j_ptr, item2 < 0);
 
 	/* Need to carry the new object? */
 	if (split)

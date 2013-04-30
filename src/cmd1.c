@@ -160,7 +160,7 @@ sint critical_norm(int weight, int plus, int dam)
  *
  * Acid damage is only (x2) against armoured opponents.
  */
-sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
+sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr, bool floor)
 {
 	int mult = 1;
 
@@ -191,7 +191,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L, floor);
 					if (r_ptr->flags3 & RF3_ANIMAL) l_ptr->flags3 |= (RF3_ANIMAL);
 					if (r_ptr->flags3 & RF3_PLANT) l_ptr->flags3 |= (RF3_PLANT);
 					if (r_ptr->flags3 & RF3_INSECT) l_ptr->flags3 |= (RF3_INSECT);
@@ -201,7 +201,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_ANIMAL | RF3_PLANT | RF3_INSECT)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_NATURAL,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Undead */
@@ -210,7 +210,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
@@ -218,7 +218,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((r_ptr->flags3 & (RF3_UNDEAD)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_UNDEAD,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Demon */
@@ -227,14 +227,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
 				if (mult < 3) mult = 3;
 			}
 			else if ((l_ptr->flags3 & (RF3_DEMON)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_DEMON,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Dragon */
@@ -243,7 +243,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
@@ -251,7 +251,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_DRAGON)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_DRAGON,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Orc */
@@ -260,7 +260,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_ORC);
 				}
 
@@ -268,7 +268,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_ORC)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_ORC,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Troll */
@@ -277,7 +277,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
@@ -285,7 +285,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_TROLL)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_TROLL,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Slay Giant */
@@ -294,7 +294,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
@@ -302,7 +302,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_GIANT)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_SLAY_GIANT,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Execute Dragon */
@@ -313,7 +313,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (rand_int(100)<tdam)
 					{
-						object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_DRAGON);
 				}
@@ -322,7 +322,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_DRAGON)) && (m_ptr->ml))
 			{
-				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L);
+				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_DRAGON,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Execute demon */
@@ -333,7 +333,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (rand_int(100)<tdam)
 					{
-						object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_DEMON);
 				}
@@ -342,7 +342,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_DEMON)) && (m_ptr->ml))
 			{
-				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L);
+				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_DEMON,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Execute undead */
@@ -353,7 +353,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (rand_int(100)<tdam)
 					{
-						object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L, floor);
 					}
 					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
@@ -362,7 +362,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_UNDEAD)) && (m_ptr->ml))
 			{
-				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L);
+				if (rand_int(100)<tdam*3) object_not_flags(o_ptr,TR1_KILL_UNDEAD,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand (Acid) */
@@ -373,7 +373,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
 						l_ptr->flags3 |= (RF3_IM_ACID);
 					}
 				}
@@ -381,14 +381,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
 
 					/* Armour partially protects the monster */
 					if (r_ptr->flags2 & (RF2_ARMOR))
 					{
 						if (m_ptr->ml)
 						{
-							object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L);
+							object_can_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
 							l_ptr->flags2 |= (RF2_ARMOR);
 						}
 
@@ -408,7 +408,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags3 & (RF3_IM_ACID)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_ACID,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand (Elec) */
@@ -419,7 +419,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L, floor);
 						l_ptr->flags3 |= (RF3_IM_ELEC);
 					}
 				}
@@ -427,7 +427,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L, floor);
 
 					/* Water increases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -441,7 +441,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags3 & (RF3_IM_ELEC)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_ELEC,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand (Fire) */
@@ -452,7 +452,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L, floor);
 						l_ptr->flags3 |= (RF3_IM_FIRE);
 					}
 				}
@@ -460,7 +460,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L, floor);
 
 					/* Water decreases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -474,7 +474,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags3 & (RF3_IM_FIRE)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_FIRE,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand (Cold) */
@@ -485,7 +485,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L, floor);
 						l_ptr->flags3 |= (RF3_IM_COLD);
 					}
 				}
@@ -493,7 +493,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L, floor);
 
 					/* Water increases damage */
 					if (f_info[cave_feat[m_ptr->fy][m_ptr->fx]].flags2 & (FF2_WATER))
@@ -507,7 +507,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags3 & (RF3_IM_COLD)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_COLD,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand (Poison) */
@@ -518,7 +518,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L);
+						object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L, floor);
 						l_ptr->flags3 |= (RF3_IM_POIS);
 					}
 				}
@@ -526,14 +526,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L, floor);
 
 					if (mult < 3) mult = 3;
 				}
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags3 & (RF3_IM_POIS)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_POIS,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand Holy */
@@ -542,7 +542,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,TR1_BRAND_HOLY,0x0L,0x0L,0x0L);
+					object_can_flags(o_ptr,TR1_BRAND_HOLY,0x0L,0x0L,0x0L, floor);
 					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
@@ -550,7 +550,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_EVIL)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,TR1_BRAND_HOLY,0x0L,0x0L,0x0L);
+				object_not_flags(o_ptr,TR1_BRAND_HOLY,0x0L,0x0L,0x0L, floor);
 			}
 
 			/* Brand lite */
@@ -559,7 +559,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE, floor);
 					l_ptr->flags3 |= (RF3_HURT_LITE);
 				}
 
@@ -567,7 +567,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags3 & (RF3_HURT_LITE)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_HURT_LITE, floor);
 			}
 
 			/* Brand (Dark) */
@@ -578,7 +578,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				{
 					if (m_ptr->ml)
 					{
-						object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK);
+						object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK, floor);
 						l_ptr->flags9 |= (RF9_RES_DARK);
 					}
 				}
@@ -586,14 +586,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK);
+					if ((rand_int(100)<tdam*3) && (m_ptr->ml)) object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK, floor);
 
 					if (mult < 3) mult = 3;
 				}
 			}
 			else if ((m_ptr->ml) && ((l_ptr->flags9 & (RF9_RES_DARK)) || (rand_int(100)<tdam*3)))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_BRAND_DARK, floor);
 			}
 
 			/* Slay man */
@@ -602,7 +602,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_MAN);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_MAN, floor);
 					l_ptr->flags9 |= (RF9_MAN);
 				}
 
@@ -610,7 +610,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags9 & (RF9_MAN)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_MAN);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_MAN, floor);
 			}
 
 			/* Slay elf - includes Maia */
@@ -619,7 +619,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_ELF);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_ELF, floor);
 					l_ptr->flags9 |= (RF9_ELF);
 				}
 
@@ -627,7 +627,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags9 & (RF9_ELF)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_ELF);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_ELF, floor);
 			}
 
 			/* Slay dwarf */
@@ -636,7 +636,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_DWARF);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_DWARF, floor);
 					l_ptr->flags9 |= (RF9_DWARF);
 				}
 
@@ -644,7 +644,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 			else if ((l_ptr->flags9 & (RF9_ELF)) && (m_ptr->ml))
 			{
-				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_DWARF);
+				object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_SLAY_DWARF, floor);
 			}
 
 			break;
@@ -666,6 +666,12 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, const monster_type *m_ptr)
 /*
  * Find a secret at the specified location and change it according to
  * the state.
+ * 
+ * TODO: Its very repetitive having to walk up a corridor and find
+ * every square is dusty. We should flow out from the initial secret
+ * and find all other nearby squares that have the same feature, and
+ * reveal the secrets on those as well. e.g. adjacent secret doors,
+ * dusty corridors, deep water and so on.
  */
 void find_secret(int y, int x)
 {
@@ -789,7 +795,7 @@ bool quiver_combine(object_type *o_ptr, int o_idx)
 		{
 
 			/* Absorb floor object. */
-			object_absorb(i_ptr, o_ptr);
+			object_absorb(i_ptr, o_ptr, FALSE);
 
 			/* Remember this slot */
 			j_ptr = i_ptr;
@@ -924,7 +930,7 @@ bool quiver_carry(object_type *o_ptr, int o_idx)
 		{
 
 			/* Absorb floor object. */
-			object_absorb(i_ptr, o_ptr);
+			object_absorb(i_ptr, o_ptr, FALSE);
 
 			/* Remember this slot */
 			j_ptr = i_ptr;
@@ -2457,18 +2463,23 @@ void py_attack(int dir)
 	/* Restrict blows if charging */
 	if (charging)
 	{
-		if (melee_style & (1L << WS_TWO_WEAPON)) 
-		  num_blows = MIN(2, num_blows);
-		else 
-		  num_blows = 1;
+		/* Charging decreases number of blows */
+		num_blows = (num_blows + 1) / 2;
+		
+		/* Ensure at least some blows */
+		if ((melee_style & (1L << WS_TWO_WEAPON)) && (num_blows > 0))
+		  num_blows = MAX(2, num_blows);
 	}
 	
 	/* Hack -- no blows */
 	if (num_blows <= 0)
 	{
-		msg_print("You lack the skill to attack.");
+/*		msg_print("You lack the skill to attack.");
 		
-		return;
+		return; */
+		
+		/* Always get one blow */
+		num_blows = 1;
 	}
 
 	/* Attack once for each legal blow */
@@ -2478,7 +2489,7 @@ void py_attack(int dir)
 		blows++;
 
 		/* Get weapon slot */
-		slot = weapon_slot(melee_style,blows,charging);
+		slot = weapon_slot(melee_style,blows,charging && (blows == 1));
 
 		/* Weapon slot */
 		o_ptr = &inventory[slot];
@@ -2518,7 +2529,10 @@ void py_attack(int dir)
 			/* No need for message */
 		}
 		/* Test for huge monsters -- they resist non-charging attacks */
-		else if ((r_ptr->flags3 & (RF3_HUGE)) && (!charging) && (rand_int(100) < 60))
+		else if ((r_ptr->flags3 & (RF3_HUGE)) && (!charging) && (rand_int(100) < 60) &&
+
+				/* Easy climb locations provide enough of a boost to attack from on high */
+				((f_info[cave_feat[p_ptr->py][p_ptr->px]].flags3 & (FF3_EASY_CLIMB)) == 0))
 		{
 			/* Message */
 			message_format(MSG_MISS, m_ptr->r_idx, "You cannot reach %s.", m_name);
@@ -2551,7 +2565,7 @@ void py_attack(int dir)
 			if (o_ptr->k_idx)
 			{
 				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
+				k = tot_dam_aux(o_ptr, k, m_ptr, FALSE);
 
 				switch (o_ptr->tval)
 				{
@@ -2616,8 +2630,8 @@ void py_attack(int dir)
 			/* Adjust for style */
 			k += style_dam;
 
-			/* Adjust for charging */
-			if (charging)
+			/* Adjust for charging - for first attack only */
+			if ((charging) && (blows == 1))
 			  k *= p_ptr->num_charge;
 
 			/* Monster armor reduces total damage */
@@ -2630,7 +2644,7 @@ void py_attack(int dir)
 			if (r_ptr->flags3 & (RF3_NO_STUN)) do_stun = 0;
 
 			/* Some monsters resist cuts */
-			if (r_ptr->flags9 & (RF9_NO_CUTS)) do_stun = 0;
+			if (r_ptr->flags9 & (RF9_NO_CUTS)) do_cuts = 0;
 
 			/* Hack --- backstab. Weapon of 10 lbs or less */
 			if (melee_style & (1L << WS_BACKSTAB))
@@ -2648,7 +2662,7 @@ void py_attack(int dir)
 				/* Message */
 				p = "You wound %s!";
 			}
-			else if (charging)
+			else if ((charging) && (blows <= 1))
 			{
 				/* Unarmed */
 				if (melee_style & (1L << WS_UNARMED)) p = "You flying kick %s!";
@@ -2739,12 +2753,12 @@ void py_attack(int dir)
 				{
 					hp_player(r_ptr->level);
 
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_HP);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_HP, FALSE);
 					l_ptr->flags8 |= (RF8_HAS_BLOOD);
 				}
 				else if (l_ptr->flags8 & (RF8_HAS_BLOOD))
 				{
-					object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_HP);
+					object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_HP, FALSE);
 				}
 
 				/* We've killed it - Drain mana from the corpse*/
@@ -2762,11 +2776,11 @@ void py_attack(int dir)
 						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 					}
 
-					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_MANA);
+					object_can_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_MANA, FALSE);
 				}
 				else if (r_ptr->mana > 0)
 				{
-					object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_MANA);
+					object_not_flags(o_ptr,0x0L,0x0L,0x0L,TR4_VAMP_MANA, FALSE);
 				}
 
 				/* Hack -- cancel wakeup call */
@@ -2965,8 +2979,7 @@ void move_player(int dir, int jumping)
 		 ( (f_ptr->flags1 & (FF1_DISARM)) ||
 		 ( !(f_ptr->flags1 & (FF1_MOVE)) &&
 		 !(f_ptr->flags3 & (FF3_EASY_CLIMB)) && 
-		 ( (f_ptr->flags1 & (FF1_BASH)) ||       
-		   (f_ptr->flags1 & (FF1_OPEN)) ))))
+		 (f_ptr->flags1 & (FF1_OPEN)))))
 	{
 		/* Not already repeating */
 		if (!p_ptr->command_rep)
@@ -3036,11 +3049,9 @@ void move_player(int dir, int jumping)
 				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
 					(is_a_vowel(name[0]) ? "an " : "a ")),name);
 
+			play_info[y][x] |= (PLAY_MARK);
 
-				play_info[y][x] |= (PLAY_MARK);
-
-				lite_spot(y, x);
-
+			lite_spot(y, x);
 		}
 
 		/* Mention known obstacles */
@@ -3056,6 +3067,14 @@ void move_player(int dir, int jumping)
 			msg_format("There is %s%s blocking your way.",
 				((f_ptr->flags2 & (FF2_FILLED)) ? "" :
 				(is_a_vowel(name[0]) ? "an " : "a ")),name);
+			
+			/* If the mimiced feature appears movable, reveal secret */
+			if (((((f_info[mimic].flags1 & (FF1_MOVE)) != 0) ||
+				((f_info[mimic].flags3 & (FF3_EASY_CLIMB)) != 0))
+				&& ((f_ptr->flags1 & (FF1_SECRET)) != 0)))
+			{
+				find_secret(y, x);
+			}
 		}
 	}
 
@@ -3123,6 +3142,7 @@ void move_player(int dir, int jumping)
 			{
 				int dy = n_ptr->fy - y;
 				int dx = n_ptr->fx - x;
+				int count = 0;
 				
 				n_ptr->ty = n_ptr->fy;
 				n_ptr->tx = n_ptr->fx;
@@ -3131,7 +3151,8 @@ void move_player(int dir, int jumping)
 				 * pushed. We do this with a walking stick approach to prevent us getting
 				 * invalid target locations like (0,0) */
 				while (in_bounds_fully(n_ptr->ty + dy, n_ptr->tx + dx)
-						&& cave_exist_mon(n_ptr->r_idx, n_ptr->ty + dy, n_ptr->tx + dx, TRUE))
+						&& cave_exist_mon(n_ptr->r_idx, n_ptr->ty + dy, n_ptr->tx + dx, TRUE)
+						&& (count++ < (MAX_SIGHT / 2)))
 				{
 					n_ptr->ty = n_ptr->ty + dy;
 					n_ptr->tx = n_ptr->tx + dx;
@@ -3211,13 +3232,16 @@ void move_player(int dir, int jumping)
 		py_pickup(y, x, jumping != always_pickup);
 
 		/* Handle "store doors" */
-		if (f_ptr->flags1 & (FF1_ENTER))
+		/* The running with pathfind check ensures we don't interrupt ourselves
+		 * if we accidentally walk on a shop due to route finding */
+		if ((f_ptr->flags1 & (FF1_ENTER))
+				&& (!(p_ptr->running_withpathfind) || (pf_result_index <= 0)))
 		{
 			/* Disturb */
 			disturb(0, 0);
 
 			/* Hack -- Enter store */
-			p_ptr->command_new = '_';
+			p_ptr->command_new.key = '_';
 
 			/* Free turn XXX XXX XXX */
 			p_ptr->energy_use = 0;

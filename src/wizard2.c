@@ -928,7 +928,7 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Apply obvious flags */
-	object_obvious_flags(i_ptr);
+	object_obvious_flags(i_ptr, TRUE);
 
 	/* Hack -- use repeat count to specify quantity */
 	if (p_ptr->command_arg) i_ptr->number = p_ptr->command_arg;
@@ -1149,7 +1149,7 @@ static void do_cmd_wiz_learn(void)
 			object_prep(i_ptr, i);
 
 			/* Awareness */
-			object_aware(i_ptr);
+			object_aware(i_ptr, TRUE);
 		}
 	}
 }
@@ -1500,7 +1500,7 @@ static void do_cmd_wiz_query(void)
 
 void do_cmd_wiz_ecology(void)
 {
-	int num, row, col;
+	int num, row, col, i;
 	
 	/* No ecology */
 	if (!cave_ecology.get_mon)
@@ -1513,21 +1513,27 @@ void do_cmd_wiz_ecology(void)
 	/* Save screen */
 	screen_save();
 	
-	/* Clear screen */
-	Term_clear();
-
 	/* Print all members of the ecology and their descriptions */
         for (num = 0; num < cave_ecology.num_races; num++)
 	{
 		row = 2 + (num % 26);
 		col = 30 * (num / 26);
 		prt(r_name + r_info[cave_ecology.race[num]].name, row, col);
+		
+		col += 20;
+		
+		for (i = 0; i <= cave_ecology.num_ecologies; i++)
+		{
+			if (cave_ecology.race_ecologies[num] & (1L << i))
+			{
+				prt(format("%d", i), row, col += 1);
+			}
+		}
 	}
 	
 	/* Total monsters */
-	msg_format("Ecology has %d races.", cave_ecology.num_races);
-	
-	/* Wait for a keypress */
+	msg_format("Ecology has %d races and %d sub-ecologies.", cave_ecology.num_races, cave_ecology.num_ecologies);
+
 	anykey();
 	
 	/* Screen_load */

@@ -487,8 +487,8 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 	if(g_funcs.gcomp)
 		qsort(obj_list, o_count, sizeof(*obj_list), g_funcs.gcomp);
 
-	C_MAKE(g_list, max_group+1, int);
-	C_MAKE(g_offset, max_group+1, int);
+	g_list = C_ZNEW(max_group+1, int);
+	g_offset = C_ZNEW(max_group+1, int);
 
 	for(i = 0; i < o_count; i++) {
 		if(prev_g != g_funcs.group(obj_list[i])) {
@@ -502,7 +502,7 @@ static void display_knowledge(const char *title, int *obj_list, int o_count,
 
 
 	/* The compact set of group names, in display order */
-	C_MAKE(g_names, grp_cnt, const char **);
+	g_names = C_ZNEW(grp_cnt, const char **);
 	for (i = 0; i < grp_cnt; i++) {
 		int len;
 		g_names[i] = g_funcs.name(g_list[i]);
@@ -1222,8 +1222,8 @@ static void do_cmd_knowledge_monsters(void)
 		}
 	}
 
-	C_MAKE(default_join, m_count, join_t);
-	C_MAKE(monsters, m_count, int);
+	default_join = C_ZNEW(m_count, join_t);
+	monsters = C_ZNEW(m_count, int);
 
 	m_count = 0;
 	for(i = 0; i < z_info->r_max; i++) {
@@ -1351,7 +1351,7 @@ static void do_cmd_knowledge_artifacts(void)
 	int a_count = 0;
 	int i, j;
 
-	C_MAKE(artifacts, z_info->a_max, int);
+	artifacts = C_ZNEW(z_info->a_max, int);
 	
 	/* Collect valid artifacts */
 	for(i = 0; i < z_info->a_max; i++) {
@@ -1462,8 +1462,8 @@ static void do_cmd_knowledge_ego_items(void)
 	int i, j;
 
 	/* HACK: currently no more than 3 tvals for one ego type */
-	C_MAKE(egoitems, z_info->e_max*3, int);
-	C_MAKE(default_join, z_info->e_max*3, join_t);
+	egoitems = C_ZNEW(z_info->e_max*3, int);
+	default_join = C_ZNEW(z_info->e_max*3, join_t);
 	for(i = 0; i < z_info->e_max; i++) {
 		if(e_info[i].aware || cheat_lore) {
 			for(j = 0; j < 3 && e_info[i].tval[j]; j++) {
@@ -1647,7 +1647,7 @@ static void do_cmd_knowledge_objects(void)
 	int o_count = 0;
 	int i;
 
-	C_MAKE(objects, z_info->k_max, int);
+	objects = C_ZNEW(z_info->k_max, int);
 
 	for(i = 0; i < z_info->k_max; i++) {
 		if(k_info[i].aware || k_info[i].flavor || cheat_lore) {
@@ -1753,7 +1753,7 @@ static void do_cmd_knowledge_features(void)
 	int *features;
 	int f_count = 0;
 	int i;
-	C_MAKE(features, z_info->f_max + 1, int);
+	features = C_ZNEW(z_info->f_max + 1, int);
 
 	for(i = 0; i < z_info->f_max; i++) {
 		if ((f_info[i].mimic != i) && (i != FEAT_INVIS)) continue;
@@ -1827,8 +1827,8 @@ static void do_cmd_knowledge_home(void)
 		store_count++;
 	}
 
-	C_MAKE(objects, (MAX_INVENTORY_HOME+1)*store_count, int);
-	C_MAKE(default_join, (MAX_INVENTORY_HOME+1)*store_count, join_t);
+	objects = C_ZNEW((MAX_INVENTORY_HOME+1)*store_count, int);
+	default_join = C_ZNEW((MAX_INVENTORY_HOME+1)*store_count, join_t);
 
 	for(i = 0; i < total_store_count; i++) {
 		/* Check for current home */
@@ -1906,7 +1906,7 @@ static void do_cmd_knowledge_dungeons(void)
 	member_funcs zone_f = {display_dungeon_zone, dungeon_lore, 0, 0, 0, 0};
 	group_funcs dun_f = {z_info->t_max, FALSE, town_name, 0, oiddiv4, 0};
 
-	C_MAKE(zones, z_info->t_max*MAX_DUNGEON_ZONES, int);
+	zones = C_ZNEW(z_info->t_max*MAX_DUNGEON_ZONES, int);
 
 	for(i = 0; i < z_info->t_max; i++) {
 		/* HACK: there should be a better way to determine visitation */
@@ -6164,7 +6164,7 @@ void do_cmd_menu(int menuID, const char *title)
 	if(!obj_group_order) {
 		int i, n = 0;
 		for(n = 0; object_group_tval[n]; n++)
-		C_MAKE(obj_group_order, TV_GEMS+1, int);
+		obj_group_order = C_ZNEW(TV_GEMS+1, int);
 		ang_atexit(cleanup_cmds);
 		for(i = 0; i <= TV_GEMS; i++) /* allow for missing values */
 			obj_group_order[i] = -1;

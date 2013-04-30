@@ -112,6 +112,8 @@
 
 # Monster group indexes
 
+# 1  Apprentices
+
 # 10 Mimic
 # 11 - 19 Elementals
 # 20 Golem
@@ -554,7 +556,7 @@ D:|He|She| is tripping over |his|her| priestly robes.
 N:38:Apprentice mage
 G:q:r
 I:110:4d4:20:6:5
-M:0:8:2:23
+M:0:8:1:23
 W:3:1:1:6
 B:HIT:HURT:1d4
 F:MALE | FEMALE
@@ -704,16 +706,18 @@ D: fistful of needles.
 
 N:52:Smeagol
 G:h:B
-I:130:20d20:20:12:5
+I:130:20d6:20:12:5
 W:9:2:0:50
+M:0:30:0:23
 B:TOUCH:EAT_GOLD:1d4
 F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:RAND_50 | RAND_25
 F:DROP_90 | DROP_GOOD | DROP_GREAT
-F:INVISIBLE | TAKE_ITEM | OPEN_DOOR
-F:EVIL
+F:TAKE_ITEM | OPEN_DOOR
+F:EVIL | EVASIVE
 F:SNEAKY | CAN_CLIMB
+S:INVIS
 D:Usually known as Gollum.  He's been sneaking, and he wants his 'precious.'
 
 N:53:Green ooze
@@ -1190,7 +1194,7 @@ B:SHOT:HURT:2d4
 F:MALE | FEMALE
 F:FRIENDS | DROP_60
 F:TAKE_ITEM | OPEN_DOOR
-F:EVIL | SMART
+F:EVIL | SMART | TAKE_ITEM
 F:SNEAKY
 D:A rather shifty individual.
 
@@ -1225,7 +1229,7 @@ M:20:0:0:0
 B:HIT:HURT:1d9
 B:ARROW:HURT:1d6
 F:DROP_60
-F:OPEN_DOOR
+F:OPEN_DOOR | TAKE_ITEM
 F:EVIL | ORC | HURT_LITE | ARCHER | DWARF | IM_POIS | LEVEL_POWER
 D:It is an ugly humanoid wielding a bow.
 
@@ -1396,7 +1400,7 @@ F:MALE | FEMALE
 F:FORCE_SLEEP
 F:DROP_90
 F:OPEN_DOOR | BASH_DOOR | LOW_MANA_RUN
-F:HAS_LITE | RES_LITE | ELF | LEVEL_POWER
+F:HAS_LITE | RES_LITE | ELF | LEVEL_POWER | TAKE_ITEM
 S:CONF | DARKNESS | HUNGER
 D:An elven figure.
 
@@ -1487,7 +1491,7 @@ B:HIT:HURT:1d7
 B:ARROW:HURT:1d6
 F:MALE | FEMALE
 F:FORCE_SLEEP | FRIENDS | DROP_60
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:WARRIOR | MAGE | HAS_LITE | NEED_LITE
 S:CURE | BLINK
 D:An agile hunter, ready and relaxed.
@@ -1521,7 +1525,7 @@ I:110:10d8:20:36:40
 W:7:1:0:26
 B:HIT:HURT:2d5
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR
-F:EVIL | ORC | UNDEAD
+F:EVIL | ORC | UNDEAD | RES_DARK
 F:IM_COLD | IM_POIS  | RES_EDGED | IM_ELEC
 F:NO_CONF | NO_SLEEP | NO_FEAR | RES_BLIND | LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER
 D:It is an animated orc skeleton.
@@ -1561,7 +1565,7 @@ B:HIT:HURT:1d13
 F:MALE | FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:|He|She| is a hardy well-weathered survivor.
 
 N:121:Bandit
@@ -1836,7 +1840,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS | SMART
+F:EVIL | ORC | RES_DARK| IM_POIS | SMART
 D:He is a cunning and devious orc.
 
 N:141:Giant white tick
@@ -2005,7 +2009,7 @@ B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:COLD_BLOOD | EMPTY_MIND | BASH_DOOR
-F:EVIL | ORC | UNDEAD
+F:EVIL | ORC | RES_DARK| UNDEAD
 F:IM_COLD | IM_POIS
 F:NO_CONF | NO_SLEEP | NO_FEAR | LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER
 D:It is a shambling orcish corpse leaving behind a trail of flesh.
@@ -2089,7 +2093,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:EVIL | ORC | RES_DARK| IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
 D:A leader of a band of raiding orcs.  Morgoth has charged him with the task
 D: of abducting Luthien from Doriath.
 
@@ -2348,8 +2352,8 @@ B:HIT:HURT:3d4
 B:ARROW:HURT:4d6
 F:MALE | FEMALE
 F:FRIENDS | DROP_60
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | HURT_LITE | LEVEL_POWER
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| HURT_LITE | LEVEL_POWER
 D:|He|She| is a large orc with powerful arms and deep black skin.
 
 N:179:Ochre jelly
@@ -2389,7 +2393,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_COLD | IM_POIS
+F:EVIL | ORC | RES_DARK| IM_COLD | IM_POIS
 D:A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of
 D: spiders.
 
@@ -2584,7 +2588,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE
 F:FRIENDS | DROP_60
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | NEED_LITE | MAN | LEVEL_POWER | SMART
+F:EVIL | ORC | RES_DARK| NEED_LITE | MAN | LEVEL_POWER | SMART
 D:|He|She| is a hideous deformed cross-breed with man and orc, combining ||wo|man's
 D: strength and cunning with orcish evil.  The traitorous wizard Saruman is
 D: generally believed to be responsible for this abomination.
@@ -2727,7 +2731,7 @@ B:HIT:HURT:3d5
 B:XBOLT:HURT:3d7
 F:MALE | FEMALE | ESCORT | DROP_90
 F:OPEN_DOOR | BASH_DOOR | WARRIOR
-F:EVIL | ORC | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
 D:An armoured orc with an air of authority.
 
 N:207:Gelatinous cube
@@ -3020,8 +3024,8 @@ B:HIT:HURT:3d5
 B:ARROW:HURT:3d6
 F:MALE | FEMALE
 F:FORCE_MAXHP | FRIENDS | DROP_60
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | LEVEL_POWER | SMART
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| LEVEL_POWER | SMART
 D:A cunning orc of power, as tall as a man, and stronger.  |He|She| fears
 D: little.
 
@@ -3038,7 +3042,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS | SMART
+F:EVIL | ORC | RES_DARK| IM_POIS | SMART
 D:He is an orc of power and great cunning, leader of a garrison at Cirith Ungol.
 
 N:228:Gorbag, the Orc Captain
@@ -3054,7 +3058,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS | SMART
+F:EVIL | ORC | RES_DARK| IM_POIS | SMART
 D:He is an orc of power and great cunning, leader of a garrison at Cirith Ungol.
 
 N:229:Shambling mound
@@ -3154,8 +3158,8 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| IM_POIS
 D:A large and powerful orc.  He is tall and
 D: fast, but fortunately blessed with orcish brains.
 
@@ -3312,7 +3316,7 @@ B:ARROW:HURT:15d6
 F:MALE | FEMALE
 F:FORCE_SLEEP
 F:ONLY_ITEM | DROP_2D2
-F:OPEN_DOOR | BASH_DOOR | MAGE | ARCHER
+F:OPEN_DOOR | BASH_DOOR | MAGE | ARCHER | TAKE_ITEM
 F:HAS_LITE | WARRIOR | ELF | RES_LITE | LEVEL_POWER
 S:HASTE | BLIND | CONF | DARKNESS | BOLT_FIRE | BOLT_COLD
 S:BOLT_COLD | ADD_MANA | TELE_SELF_TO | BALL_LITE
@@ -3345,7 +3349,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
+F:EVIL | ORC | RES_DARK| IM_POIS
 D:A large and powerful orc, captain of one of Saruman's orcish regiments.
 
 N:249:Ugluk, Half-Orc Captain of the White Hand
@@ -3361,7 +3365,7 @@ F:FORCE_MAXHP
 F:ESCORT
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | NEED_LITE | SMART
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | MAN
+F:EVIL | ORC | RES_DARK| IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | MAN
 D:A strong and cunning orc warrior, the commander of Saruman's orcish horde.
 
 N:250:Blue dragon bat
@@ -3460,7 +3464,7 @@ B:HIT:HURT:2d8
 B:HIT:HURT:2d8
 F:DROP_90
 F:EMPTY_MIND | COLD_BLOOD | OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | UNDEAD
+F:EVIL | ORC | RES_DARK| UNDEAD
 F:IM_COLD | IM_POIS
 F:NO_SLEEP | NO_FEAR | LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER
 D:It is an orcish figure covered in wrappings.
@@ -3543,8 +3547,8 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR
-F:EVIL | ORC | IM_POIS
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| IM_POIS
 D:He is also known as the King of Khazad-dum.
 
 N:263:Footpad
@@ -3559,7 +3563,7 @@ B:DART:POISON:20d4
 F:MALE | FEMALE
 F:DROP_2D2
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:EVIL | NEED_LITE
+F:EVIL | NEED_LITE | TAKE_ITEM
 F:SNEAKY | LEVEL_POWER | SMART
 S:TELE_SELF_TO | DARKNESS | TRAPS
 D:A cunning-eyed thief of wiley artifice and shifty speed.
@@ -5087,7 +5091,7 @@ B:DART:POISON:22d5
 F:MALE | FEMALE
 F:DROP_1D2
 F:OPEN_DOOR | BASH_DOOR
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | TAKE_ITEM
 F:WARRIOR | NEED_LITE | LEVEL_POWER
 D:A human warrior, moving with lightning speed.
 
@@ -6445,7 +6449,7 @@ F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD
 F:COLD_BLOOD
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | TAKE_ITEM
 F:HAS_AURA
 S:BLIND | HOLD | SCARE | WOUND | FORGET | ADD_MANA
 S:BOLT_ACID | BOLT_FIRE | BOLT_COLD | BOLT_NETHR
@@ -8572,7 +8576,7 @@ B:VOMIT:ACID:9d9
 B:SPIT:LOSE_CON:7d6
 B:DART:POISON:65d5
 F:FORCE_SLEEP | FORCE_MAXHP
-F:ONLY_ITEM | DROP_3D2 | DROP_GOOD
+F:ONLY_ITEM | DROP_3D2 | DROP_GOOD | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | POWERFUL
 F:EVIL | DEMON | RES_MAGIC | IM_POIS | IM_ACID | NO_CONF | NO_SLEEP | LEVEL_POWER | IM_ELEC
 S:BRTH_POIS | BRTH_ACID | S_DEMON | BLIND | CONF
@@ -9640,7 +9644,7 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | NEED_LITE | SMART
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | MAN
+F:EVIL | ORC | RES_DARK| IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | MAN
 D:A strong and cunning orc warrior, a commander of Saruman's orcish horde.
 
 #Need new stats. Using Ugluk. Probably much more poweful.
@@ -9658,7 +9662,7 @@ F:FORCE_MAXHP |
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | SMART
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | ORC | RES_DARK| IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A strong and cunning orc warrior, a commander of Sauron's orcish horde.
 
 #Need new stats. Using Khim.
@@ -9858,8 +9862,8 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | 
 F:ESCORT | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD
-F:OPEN_DOOR | BASH_DOOR | SMART
-F:EVIL | ORC | IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:OPEN_DOOR | BASH_DOOR | SMART | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A strong and cunning orc warrior, a commander of Saruman's orcish horde.
 
 N:645:the Sorcerer of Dol Goldur
@@ -12925,7 +12929,7 @@ M:14:0:0:0
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 B:ARROW:HURT:2d6
-F:MALE | FEMALE | SMART
+F:MALE | FEMALE | SMART | TAKE_ITEM
 F:DROP_60 | FORCE_SLEEP |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:An arrogant elf with an air of disdain. |He|She| appears to be looking for somewhere a little more
@@ -13722,7 +13726,7 @@ B:HIT:HURT:1d8
 B:ARROW:HURT:3d6
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | ARCHER
+F:OPEN_DOOR | BASH_DOOR | ARCHER | TAKE_ITEM
 F:EVIL | ORC | DWARF | IM_POIS | LEVEL_SIZE | LEVEL_POWER
 D:|He|She| is an ugly, green skinned humanoid armed with a bow.
 
@@ -13734,7 +13738,7 @@ M:15:0:0:0
 B:HIT:BLIND:2d5
 B:DAGGER:HURT:2d5
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | ARCHER
 F:EVIL | ORC | HURT_LITE | DWARF | IM_POIS | RES_DARK | LEVEL_SIZE | LEVEL_POWER
 D:|He|She| is an ugly, night blue skinned humanoid armed with a wicked looking knife.
@@ -13761,7 +13765,7 @@ B:HIT:HURT:1d5
 B:SHOT:HURT:1d5
 F:MALE | FEMALE | 
 F:FRIENDS | DROP_60
-F:OPEN_DOOR | BASH_DOOR
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:EVIL | ORC | DWARF | IM_POIS | LEVEL_SIZE | LEVEL_POWER
 D:|He|She| is an ugly, green skinned primative looking humanoid.
 
@@ -13898,7 +13902,7 @@ B:ARROW:HURT:3d6
 F:MALE | FEMALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
-F:OPEN_DOOR | BASH_DOOR | LEVEL_POWER
+F:OPEN_DOOR | BASH_DOOR | LEVEL_POWER | TAKE_ITEM
 F:IM_POIS | HAS_LITE | ARCHER | WARRIOR | MAGE | ELF
 S:BLIND | BOLT_MANA | CURE
 D:An elven figure, with sword and bow quick to hand.
@@ -13912,7 +13916,7 @@ B:HIT:POISON:8d4
 B:HIT:POISON:8d4
 B:HIT:LOSE_CON:2d4
 B:DART:POISON:16d4
-F:MALE | FEMALE |
+F:MALE | FEMALE | TAKE_ITEM
 F:DROP_90 | INVISIBLE | SNEAKY | RES_LITE | ELF
 F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP | LEVEL_POWER
 D:An elven assassin, so stealthy that |he|she| is almost impossible to see.
@@ -14495,7 +14499,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | SMART |
-F:EVIL | ORC | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
 D:A large orc who barks commands to |his|her| fellows.
 
 N:996:Orc chieftain||ess|
@@ -14509,7 +14513,7 @@ B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:MALE | FEMALE | ESCORT | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | SMART |
-F:EVIL | ORC | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
 S:S_ORC
 D:A heavily armoured orc with the mantle of leadership.
 
@@ -14524,7 +14528,7 @@ B:HIT:HURT:4d6
 B:HIT:HURT:4d6
 F:MALE | FEMALE | ESCORT | ESCORTS | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | WARRIOR | SMART |
-F:EVIL | ORC | IM_POIS | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| IM_POIS | RES_DARK | LEVEL_POWER
 S:S_ORC
 D:A heavily armoured orc ruler who dominates |his|her| kin with his powerful blows.
 
@@ -14538,7 +14542,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | PRIEST |
-F:EVIL | ORC | NO_CONF | NO_SLEEP | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| NO_CONF | NO_SLEEP | RES_DARK | LEVEL_POWER
 S:BLINK | SCARE | WOUND | CURE | BLESS
 D:An orc who is so bright |he|she| knows how to cast spells.
 
@@ -14552,7 +14556,7 @@ B:HIT:HURT:3d4
 F:MALE | FEMALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | MAGE |
-F:EVIL | ORC | HURT_LITE | NO_CONF | NO_SLEEP | MAGE | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| HURT_LITE | NO_CONF | NO_SLEEP | MAGE | RES_DARK | LEVEL_POWER
 S:BLINK | BLIND | CONF | BOLT_MANA
 D:An orc who is so bright |he|she| knows how to cast spells.
 
@@ -14565,9 +14569,9 @@ B:HIT:HURT:3d4
 B:HIT:HURT:3d4
 B:ARROW:HURT:3d6
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER
-F:EVIL | ORC | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:|He|She| is a large orc with powerful arms and oily green skin.
 
 N:1001:Night orc
@@ -14579,9 +14583,9 @@ B:HIT:HURT:3d4
 B:HIT:BLIND:3d6
 B:DART:BLIND:3d5
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER
-F:EVIL | ORC | HURT_LITE | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| HURT_LITE | LEVEL_POWER
 S:DARKNESS
 D:|He|She| is a large orc with powerful arms and night blue skin.
 
@@ -14595,8 +14599,8 @@ B:HIT:POISON:3d4
 B:ARROW:HURT:3d6
 F:MALE | FEMALE | CAN_CLIMB |
 F:FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER
-F:EVIL | ORC | LEVEL_POWER
+F:OPEN_DOOR | BASH_DOOR | RES_DARK | ARCHER | TAKE_ITEM
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:|He|She| is a large orc with powerful arms and brown barklike skin.
 
 N:1003:Mountain orc
@@ -14608,9 +14612,9 @@ B:CLAW:HURT:1d6
 B:CLAW:HURT:1d6
 B:SHOT:HURT:3d5
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM 
 F:OPEN_DOOR | BASH_DOOR | CAN_CLIMB | RES_DARK
-F:EVIL | ORC | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:An agile but primitive orc with large dangerous claws.
 
 N:1004:Forest orc
@@ -14622,9 +14626,9 @@ B:HIT:HURT:1d5
 B:BITE:HURT:1d4
 B:DART:HURT:2d5
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | RES_DARK
-F:EVIL | ORC | LEVEL_POWER | IM_POIS
+F:EVIL | ORC | RES_DARK| LEVEL_POWER | IM_POIS
 D:A primitive forest-dwelling orc.
 
 N:1005:River orc
@@ -14634,10 +14638,10 @@ W:11:3:0:25
 M:20:0:0:0
 B:HIT:HURT:1d8
 B:DART:HURT:3d4
-F:MALE | FEMALE | 
+F:MALE | FEMALE | TAKE_ITEM 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | CAN_SWIM | RES_DARK
-F:EVIL | ORC | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| LEVEL_POWER
 D:A river dwelling orc with a piratical bent.
 
 N:1006:Grey orc
@@ -14648,9 +14652,9 @@ M:15:15:0:20
 B:HIT:HURT:2d5
 B:DAGGER:HURT:2d5
 F:MALE | FEMALE | 
-F:FRIENDS | DROP_60 | 
+F:FRIENDS | DROP_60 | TAKE_ITEM
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | ORC | RES_DARK | LEVEL_POWER
+F:EVIL | ORC | RES_DARK| RES_DARK | LEVEL_POWER
 S:BLINK
 D:|He|She| is a vicious orc with a pale grey face.
 
@@ -14664,7 +14668,7 @@ B:HIT:BATTER:2d8
 B:ARROW:POISON:4d6
 F:RAND_25 | 
 F:FRIENDS | DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:EVIL | GIANT | ORC | LEVEL_POWER | LEVEL_SIZE
 S:BALL_POIS
 D:A massive orc-like figure with green skin and powerful arms.
@@ -14694,7 +14698,7 @@ B:ARROW:POISON:4d6
 F:RAND_25 | CAN_CLIMB |
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT | ORC | LEVEL_POWER | LEVEL_SIZE
+F:EVIL | GIANT | ORC | LEVEL_POWER | LEVEL_SIZE | TAKE_ITEM
 S:DARKNESS | S_SPIDER | BALL_POIS
 D:A massive orc-like figure with green skin and powerful arms.
 
@@ -15654,7 +15658,7 @@ F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | ARCHER
 F:IM_FIRE | IM_COLD | IM_POIS | RES_LITE | ELF
 F:HAS_LITE
-F:NO_CONF | NO_SLEEP
+F:NO_CONF | NO_SLEEP | TAKE_ITEM
 S:HASTE | BLIND | CONF | DARKNESS | BOLT_FIRE | BOLT_COLD
 S:S_ANIMAL | S_MONSTER | S_SPIDER
 D:A strong and unforgiving wood elf, he holds court in the deepest bowels of
@@ -15673,7 +15677,7 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:NEED_LITE | WARRIOR
+F:NEED_LITE | WARRIOR | TAKE_ITEM
 S:S_CLASS
 D:The once noble son of the steward of Gondor has been driven mad
 D: by his lust for the ring of Power.  He believes you have it.
@@ -15691,7 +15695,7 @@ F:UNIQUE | MALE
 F:FORCE_MAXHP
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
-F:NEED_LITE | WARRIOR
+F:NEED_LITE | WARRIOR | TAKE_ITEM
 S:S_CLASS
 D:The still-noble son of the steward of Gondor guards the depths of
 D: Ithilien against the Enemy. You are an intruder here.
@@ -17079,7 +17083,7 @@ M:33:33:8:35
 B:HIT:POISON:2d6
 B:HIT:WOUND:2d6
 B:DART:POISON:10d5
-F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | 
+F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:DROP_1D2 | EVIL | NO_SLEEP | SMART | LEVEL_POWER
 S:DARKNESS | BLIND
 D:A grey-clad figure, knives in hand, moving with speed.  |He|She| has you in |his|her| 
@@ -17128,7 +17132,7 @@ W:1:3:11:3
 B:ENGULF:BATTER:1d1
 F:EMPTY_MIND | BASH_DOOR | RAND_25 | RAND_50 | CAN_FLY | CHAR_MULTI | DROP_60 | ONLY_ITEM
 F:NO_FEAR | NO_CONF | NO_SLEEP | NO_CUTS | IM_POIS | RES_BLIND | LEVEL_SIZE | LEVEL_SPEED
-F:NONLIVING
+F:NONLIVING | NO_STUN
 D:A small cyclone that stirs up the musty dungeon air.
 
 # From Sangband
@@ -17187,11 +17191,11 @@ D:A little winged humanoid clothed surrounded by a glowing yellow lite.
 N:1187:Goblin dart-thrower
 G:k:g
 I:110:9d5:24:13:20:1
-W:7:3:20:12
+W:7:3:0:12
 M:20:0:0:0
 B:HIT:HURT:1d8
 B:DART:POISON:4d5
-F:FRIEND | OPEN_DOOR |
+F:FRIEND | OPEN_DOOR | TAKE_ITEM
 F:DROP_90 | EVIL | IM_POIS | ORC | DWARF | LEVEL_SIZE | LEVEL_POWER
 D:A shifty-looking ugly humanoid that throws poisoned darts.  Usually 
 D:found in small groups.
@@ -17201,11 +17205,11 @@ D:found in small groups.
 N:1188:Apprentice archer
 G:t:w
 I:110:5d5:20:8:20
-W:6:2:30:25
+W:6:2:1:25
 M:40:0:0:0
 B:HIT:HURT:1d5
 B:ARROW:HURT:2d6
-F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | FRIEND
+F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | FRIEND | TAKE_ITEM
 F:ONLY_GOLD | DROP_90 | SMART | ARCHER
 D:A nasty little |fellow|lass| with a bow and arrow.
 
@@ -17219,7 +17223,7 @@ M:40:0:0:0
 B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 B:ARROW:HURT:3d6
-F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | FRIENDS
+F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | FRIENDS | TAKE_ITEM
 F:ONLY_GOLD | DROP_90 | SMART | ARCHER
 D:A nasty little |fellow|lass| with a bow and arrow.
 
@@ -17275,7 +17279,7 @@ B:HIT:WOUND:6d5
 B:XBOLT:HURT:10d7
 F:MALE | FEMALE
 F:DROP_1D2
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL
 F:NEED_LITE | SMART | FRIEND | LEVEL_SIZE
 F:WARRIOR | NO_FEAR
 D:A scarred warrior who moves with confidence.
@@ -17302,7 +17306,7 @@ M:90:0:11:0
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 B:SHOT:HURT:14d5
-F:MALE | FEMALE | FRIEND | OPEN_DOOR | BASH_DOOR | 
+F:MALE | FEMALE | FRIEND | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:DROP_60 | SMART | ARCHER | LEVEL_POWER
 D:An skilled and experienced slinger whipping missiles at you with deadly
 D: accuracy.
@@ -17384,7 +17388,7 @@ M:90:0:15:0
 B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 B:ARROW:HURT:17d6
-F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | 
+F:MALE | FEMALE | FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | TAKE_ITEM
 F:DROP_1D2 | SMART | ARCHER | LEVEL_POWER
 D:A dangerous archer with a longbow and a quiver full of arrows.
 
@@ -17570,7 +17574,7 @@ B:HIT:HURT:2d12
 B:DART:POISON:34d5
 F:FEMALE | FORCE_SLEEP | WEIRD_MIND | 
 F:OPEN_DOOR | BASH_DOOR | DROP_1D2 | DROP_2D2 | 
-F:EVIL | IM_POIS | NO_CONF | NO_SLEEP | 
+F:EVIL | IM_POIS | NO_CONF | NO_SLEEP | TAKE_ITEM
 F:SMART | LEVEL_POWER
 S:BOLT_POIS | HASTE | DARKNESS | SCARE | BLIND | SLOW | INVIS
 D:She hunts you down patiently, ready with her poison-tipped blades.
@@ -18071,7 +18075,7 @@ D:It is a bloated human form decomposing and leaking foul water.
 N:1250:Goblin grenadier
 G:k:r
 I:110:12d5:24:13:20:1
-W:8:3:20:12
+W:8:3:0:12
 M:20:0:0:0
 B:HIT:HURT:1d8
 B:FLASK:EXPLODE:6d5
@@ -18486,7 +18490,7 @@ B:AURA:ANIM_OBJECT
 F:FEMALE
 F:FORCE_SLEEP | DROP_1D2
 F:SMART | OPEN_DOOR
-F:EVIL | NEED_LITE | ARCHER
+F:EVIL | NEED_LITE | ARCHER | TAKE_ITEM
 F:MAGE | LOW_MANA_RUN | LEVEL_POWER | HAS_AURA
 S:ADD_MANA | INVIS | BLINK | A_OBJECT | ADD_AMMO
 D:A spell caster surrounded by flying daggers.
@@ -18495,7 +18499,7 @@ N:1281:Zombified dog
 G:C:y
 I:110:8d6:32:18:15
 W:12:1:0:35
-M:0:30:0:20
+M:0:15:0:20
 B:BITE:HURT:1d5
 F:FRIENDS | 
 F:ANIMAL | EAT_BODY | LEVEL_SIZE
@@ -18690,7 +18694,7 @@ W:12:2:0:18
 M:14:0:0:0
 B:HIT:HURT:4d8
 B:SHOT:HURT:1d5
-F:BASH_DOOR | SMART | FRIEND | LEVEL_SIZE
+F:BASH_DOOR | SMART | FRIEND | LEVEL_SIZE | TAKE_ITEM
 F:UNDEAD | IM_POIS | IM_COLD | NONLIVING | NO_FEAR
 F:EMPTY_MIND | COLD_BLOOD | EVIL | NO_CONF | NO_SLEEP
 F:LEVEL_SIZE | LEVEL_SPEED | LEVEL_POWER
@@ -18900,7 +18904,61 @@ I:115:8d4:18:12:10
 W:7:1:24:20
 M:0:25:5:20
 F:OPEN_DOOR | DROP_60 | CAN_FLY | EVASIVE | NEVER_BLOW
-F:HAS_LITE | RES_DARK | LEVEL_SPEED | MUST_FLY | INVISIBLE
-S:DARKNESS | BLINK | ADD_MANA | BOLT_ELEC
-D:A little winged humanoid clothed surrounded by a glowing yellow lite.
+F:HAS_LITE | RES_DARK | LEVEL_SPEED | MUST_FLY
+S:DARKNESS | BLINK | ADD_MANA | BOLT_ELEC | INVIS
+D:A little winged humanoid clothed surrounded by shadow.
 
+N:1309:Uruk berserker
+G:o:o
+I:120:60d25:20:80:10
+W:58:2:0:2500
+M:25:25:12:60
+B:HIT:WOUND:6d6
+B:HIT:WOUND:6d6
+B:HIT:WOUND:6d6
+B:XBOLT:HURT:15d7
+F:MALE | FEMALE | FORCE_MAXHP
+F:ONLY_ITEM | DROP_90 | DROP_2D2
+F:BASH_DOOR | REGENERATE | EVIL | ORC | RES_DARK
+F:NO_CONF | NO_SLEEP | NO_FEAR
+F:WARRIOR | NEED_LITE | LEVEL_POWER
+S:HASTE | SCARE | BERSERK
+D:Even the strongest of normal orcs fears the Berserker - the one who
+D: can drive |him|her|self into such a terrible battle-frenzy that |he|she| can survive blows
+D: which should kill |him|her|, and still apparently feel no pain.  |He|She| tramples weaker
+D: creatures underfoot in |his|her| eagerness to get to |his|her| real enemy, and |his|her|
+D: battle-cry strikes terror into |his|her| foes.
+
+#Needs new stats. Using Farmer Maggot.
+
+N:1310:Hama, Doorwarden of the Golden Hall
+G:t:u
+I:110:35d10:40:10:3
+W:0:4:0:0
+M:20:0:0:10
+F:UNIQUE | MALE | 
+F:FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:OPEN_DOOR | BASH_DOOR | HAS_LITE | NEED_LITE |
+F:FORCE_DEPTH
+#D:A majordomo of Theoden and captain of the guard, he requests you put aside
+#D: your weapons before entering the Golden Hall.
+
+N:1311:King Theoden, possessed by Saruman
+G:t:y
+I:120:10d100:20:90:40
+W:33:5:0:1200
+M:20:10:0:40
+B:HIT:WOUND:5d5
+B:HIT:WOUND:5d5
+B:HIT:WOUND:5d5
+B:SPIT:POISON:5d6
+F:UNIQUE | MALE
+F:FORCE_MAXHP
+F:ONLY_ITEM | DROP_2D2 | DROP_GOOD
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+F:NEED_LITE | WARRIOR | TAKE_ITEM | POWERFUL
+S:S_CLASS | SLOW
+D:The noble king of the Riddermark, he has been poisoned by Saruman's words
+D: and appears unnaturally aged and weak. The grip on his sword is still strong
+D: however.

@@ -320,11 +320,11 @@ static errr init_names(void)
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
-	cptr *names;
+	char **names;
 
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
-	C_MAKE(names, z_info->a_max, cptr);
+	names = C_ZNEW(z_info->a_max, cptr);
 
 	for (i = 1 ; i < z_info->a_max; i++)
 	{
@@ -371,7 +371,7 @@ static errr init_names(void)
 		name_size += strlen(names[i-1]) + 1;
 	}
 
-	C_MAKE(a_base, name_size, char);
+	a_base = C_ZNEW(name_size, char);
 
 	a_next = a_base + 1;	/* skip first char */
 
@@ -386,7 +386,7 @@ static errr init_names(void)
 	}
 
 	/* Free the old names */
-	KILL(a_name);
+	FREE(a_name);
 
 	for (i = 1; i < z_info->a_max; i++)
 	{
@@ -394,7 +394,7 @@ static errr init_names(void)
 	}
 
 	/* Free the "names" array */
-	KILL(names);
+	FREE(names);
 
 	/* Store the names */
 	a_head.name_ptr = a_name = a_base;
@@ -4927,10 +4927,10 @@ errr do_randart(u32b randart_seed, bool full)
 		int art_high_slot = 255;
 
 		/* Allocate the new artifact range */
-		C_MAKE(a_info_new, 256, artifact_type);
+		a_info_new = C_ZNEW(256, artifact_type);
 
 		/* Allocate the new artifact lore range */
-		C_MAKE(a_list_new, 256, object_info);
+		a_list_new = C_ZNEW(256, object_info);
 
 		/* Copy base artifacts to seed random powers */
 		for (i = ART_MIN_NORMAL; i < z_info->a_max;i++)
@@ -4957,10 +4957,10 @@ errr do_randart(u32b randart_seed, bool full)
 		}
 	
 		/* Free existing a_info array */
-		KILL(a_info);
+		FREE(a_info);
 
 		/* Free existing a_list array */
-		KILL(a_list);		
+		FREE(a_list);		
 	
 		/* Set new a_info array to existing */
 		a_head.info_ptr = a_info = a_info_new;
@@ -4975,13 +4975,13 @@ errr do_randart(u32b randart_seed, bool full)
 		z_info->a_max = 256;
 
 		/* Allocate the "kinds" array */
-		C_MAKE(kinds, z_info->a_max, s16b);
+		kinds = C_ZNEW(z_info->a_max, s16b);
 
 		/* Allocate the various "original powers" arrays */
-		C_MAKE(base_power, z_info->a_max, s32b);
-		C_MAKE(base_item_level, z_info->a_max, byte);
-		C_MAKE(base_item_rarity, z_info->a_max, byte);
-		C_MAKE(base_art_rarity, z_info->a_max, byte);
+		base_power = C_ZNEW(z_info->a_max, s32b);
+		base_item_level = C_ZNEW(z_info->a_max, byte);
+		base_item_rarity = C_ZNEW(z_info->a_max, byte);
+		base_art_rarity = C_ZNEW(z_info->a_max, byte);
 
 		/* Store the original power ratings */
 		store_base_power();
@@ -5008,13 +5008,13 @@ errr do_randart(u32b randart_seed, bool full)
 		}
 
 		/* Free the "kinds" array */
-		KILL(kinds);
+		FREE(kinds);
 
 		/* Free the "original powers" arrays */
-		KILL(base_power);
-		KILL(base_item_level);
-		KILL(base_item_rarity);
-		KILL(base_art_rarity);
+		FREE(base_power);
+		FREE(base_item_level);
+		FREE(base_item_rarity);
+		FREE(base_art_rarity);
 
 	}
 

@@ -97,7 +97,7 @@ APPRES = $(APPCONT)/Resources
 # of 8x8.bmp for Vanilla.  Make sure setting dpi to 72, *not* preserving
 # the actual size of image.  When you have them ready, put them in the src
 # directory and "make install-tiles".
-ICONFILES = osx/Angband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+ICONFILES = osx/unangband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
 PLIST = osx/Angband.xml
 
 RFLAGS = -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON
@@ -138,6 +138,8 @@ install: $(EXE) $(ICONFILES) $(PLIST) $(LIBFILES)
 	# 'optionally' install sound and graphics tiles, if present
 	-cp ../lib/xtra/graf/*.png $(APPRES)/lib/xtra/graf
 	-cp ../lib/xtra/sound/*.wav $(APPRES)/lib/xtra/sound
+
+	-cp ../lib/xtra/sound/sound.cfg $(APPRES)/lib/xtra/sound
 
 	install -m 755 $(EXE) $(APPBIN)
 	install -m 644 $(ICONFILES) $(APPRES)

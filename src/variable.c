@@ -76,7 +76,6 @@ bool arg_force_roguelike;       /* Command arg -- Request roguelike keyset */
  */
 
 bool character_quickstart = FALSE;       /* The character has been loaded and a quickstart profile exists */
-quickstart_type normal_quickstart;		/* The quick save profile */
 
 bool character_generated;       /* The character exists */
 bool character_dungeon;	 /* The character has a dungeon */
@@ -214,12 +213,12 @@ s16b macro__num;
 /*
  * Array of macro patterns [MACRO_MAX]
  */
-cptr *macro__pat;
+char **macro__pat;
 
 /*
  * Array of macro actions [MACRO_MAX]
  */
-cptr *macro__act;
+char **macro__act;
 
 
 /*
@@ -699,7 +698,7 @@ s16b max_store_count;
 /*
  * The size of "store" (at most z_info->t_max * MAX_STORES)
  */
-s16b total_store_count;
+s16b total_store_count = 0;
 
 
 /*
@@ -793,7 +792,7 @@ char macro_buffer[1024];
 /*
  * Keymaps for each "mode" associated with each keypress.
  */
-cptr keymap_act[KEYMAP_MODES][256];
+char *keymap_act[KEYMAP_MODES][256];
 
 
 
@@ -975,86 +974,86 @@ char *q_text;
  * Hack -- The special Angband "System Suffix"
  * This variable is used to choose an appropriate "pref-xxx" file
  */
-cptr ANGBAND_SYS = "xxx";
+char *ANGBAND_SYS = "xxx";
 
 /*
  * Hack -- The special Angband "Graphics Suffix"
  * This variable is used to choose an appropriate "graf-xxx" file
  */
-cptr ANGBAND_GRAF = "old";
+char *ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
  * This variable is not actually used anywhere in the code
  */
-cptr ANGBAND_DIR;
+char *ANGBAND_DIR;
 
 /*
  * High score files (binary)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_APEX;
+char *ANGBAND_DIR_APEX;
 
 /*
  * Bone files for player ghosts (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_BONE;
+char *ANGBAND_DIR_BONE;
 
 /*
  * Binary image files for the "*_info" arrays (binary)
  * These files are not portable between platforms
  */
-cptr ANGBAND_DIR_DATA;
+char *ANGBAND_DIR_DATA;
 
 /*
  * Textual template files for the "*_info" arrays (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_EDIT;
+char *ANGBAND_DIR_EDIT;
 
 /*
  * Various extra files (ascii)
  * These files may be portable between platforms
  */
-cptr ANGBAND_DIR_FILE;
+char *ANGBAND_DIR_FILE;
 
 /*
  * Help files (normal) for the online help (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_HELP;
+char *ANGBAND_DIR_HELP;
 
 /*
  * Help files (spoilers) for the online help (ascii)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_INFO;
+char *ANGBAND_DIR_INFO;
 
 /*
  * Savefiles for current characters (binary)
  * These files are portable between platforms
  */
-cptr ANGBAND_DIR_SAVE;
+char *ANGBAND_DIR_SAVE;
 
 /*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_PREF;
+char *ANGBAND_DIR_PREF;
 
 
 /*
  * User "preference" files (ascii)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_USER;
+char *ANGBAND_DIR_USER;
 
 /*
  * Various extra files (binary)
  * These files are rarely portable between platforms
  */
-cptr ANGBAND_DIR_XTRA;
+char *ANGBAND_DIR_XTRA;
 
 
 /*

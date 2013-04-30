@@ -1756,8 +1756,8 @@ const byte extract_energy[200] =
 	/* S-50 */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* S-40 */     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
 	/* S-30 */     2,  2,  2,  2,  2,  2,  2,  3,  3,  3,
-	/* S-20 */     3,  3,  3,  3,  3,  4,  4,  4,  4,  4,
-	/* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
+	/* S-20 */     3,  3,  3,  4,  4,  4,  4,  5,  5,  5,
+	/* S-10 */     5,  6,  6,  7,  7,  8,  8,  9,  9,  9,
 	/* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
 	/* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
 	/* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
@@ -2030,7 +2030,7 @@ const cptr option_text[OPT_MAX] =
 	"toggle_xp",				/* OPT_toggle_xp */
 	"stack_force_charges",						/* xxx */
 	"stack_force_times",						/* xxx */
-	NULL,						/* xxx */
+	"easy_more",						/* xxx */
 	"room_descriptions",						/* xxx */
 	"room_names",						/* xxx */
 	"verify_mana",						/* xxx */
@@ -2294,7 +2294,7 @@ const cptr option_desc[OPT_MAX] =
 	"Reverse experience display",				/* OPT_toggle_xp */
 	"Merge charges when stacking",				/* OPT_stack_force_charges */
 	"Merge timeouts when stacking",			/* OPT_stack_force_timeouts */
-	NULL,							/* xxx */
+	"Minimise '-more-' prompts",		/* OPT_easy_more */
 	"Display room descriptions",				/* OPT_room_descriptions */
 	"Display room names",					/* OPT_room_names */
 	"Verify critical mana",					/* xxx */
@@ -2542,10 +2542,10 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_view_player_lite */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	TRUE,		/* OPT_view_yellow_lite */
-	TRUE,		/* OPT_view_bright_lite */
-	TRUE,		/* OPT_view_granite_lite */
-	TRUE,		/* OPT_view_special_lite */
+	FALSE,		/* OPT_view_yellow_lite */
+	FALSE,		/* OPT_view_bright_lite */
+	FALSE,		/* OPT_view_granite_lite */
+	FALSE,		/* OPT_view_special_lite */
 	FALSE,		/* OPT_easy_open */
 	FALSE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
@@ -2558,8 +2558,8 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_toggle_xp */
 	FALSE,	  /* OPT_stack_force_charges */
 	FALSE,	  /* OPT_stack_force_times */
-	FALSE,	   /* xxx */
-	FALSE,	   /* OPT_room_descriptions */
+	TRUE,	   /* OPT_easy_more */
+	TRUE,	   /* OPT_room_descriptions */
 	TRUE,	   /* OPT_room_names */
 	FALSE,	  /* OPT_verify_mana */
 	TRUE,		/* OPT_reseed_artifacts */
@@ -2788,10 +2788,10 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		OPT_easy_more,
 		OPT_auto_more,
 		OPT_verify_mana,
 		OPT_verify_safe,
-		255,
 		255,
 		255,
 		255
@@ -3347,6 +3347,9 @@ const cptr disease_name[33] =
  *
  * This range is considered a preference if d_range in spell_desire is > 0.
  * It is a hard limit if d_range = 0.
+ * 
+ * Note that _RF4 tables are non-constant due to updating the blow effects
+ * for each monster type.
  */
 
 /*{Mana_cost,dam_mult,dam_div,dam_var,best_range}*/
@@ -3448,7 +3451,7 @@ const byte spell_info_RF6[32][5]=
 	{4,     0,     0,     0,     0},        /* RF6_ILLUSION */
 	{4,     5,     2,     6,     6},        /* RF6_WOUND */
 	{2,     0,     0,     0,     0},        /* RF6_BLESS */
-	{3,     0,     0,     0,     0},        /* RF6_BESERK */
+	{3,     0,     0,     0,     0},        /* RF6_BERSERK */
 	{4,     0,     0,     0,     0},        /* RF6_SHIELD */
 	{3,     0,     0,     0,     0},        /* RF6_OPPOSE_ELEM */
 	{2,     0,     0,     0,     0},        /* RF6_HUNGER */
@@ -3618,7 +3621,7 @@ const byte spell_desire_RF6[32][8] =
 	{ 30,  0,   0,   0,	0,   0, GF_HALLU,  100}, /* RF6_ILLUSION*/
 	{ 40,  0,   0,   0,	0,   0, GF_HURT,  100}, /* RF6_WOUND	    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BLESS	    */
-	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BESERK    */
+	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BERSERK    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_SHIELD    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_OPPOSE_ELEM */
 	{ 25,  0,   0,   0,	0,   0,	GF_HUNGER,  100}, /* RF6_HUNGER    */

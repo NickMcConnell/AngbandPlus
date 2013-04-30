@@ -232,6 +232,11 @@ struct town_type
 
 };
 
+#define THEME_TUNNEL	0
+#define THEME_SOLID		1
+#define THEME_TRAP		2
+#define THEME_BRIDGE	3
+#define MAX_THEMES		4
 
 /*
  * Information about room descriptions
@@ -260,14 +265,17 @@ struct desc_type
 	u16b r_flag;    /* Restrict to levels with these monster types */
 
 	s16b feat;      /* Extra features of this type */
-	s16b solid;	/* Place solid walls of this type */
-	s16b tunnel;	/* Fill tunnels with floors of this type */
+	s16b theme[MAX_THEMES];	/* Theme parts of this room using these features */
 
 	byte tval;      /* Add objects of this tval */
 	byte min_sval;  /* And from this sval */
 	byte max_sval;  /*   ... to this sval */
 	byte r_char;    /* Add races of this char */
 };
+
+
+
+
 
 
 /*
@@ -279,13 +287,21 @@ struct room_info_type
 	s16b vault;				/* Vault chosen */
 	s16b section[ROOM_DESC_SECTIONS];	/* Array of room descriptions */
 
+	s16b deepest_race;	/* Deepest race in this ecology */
+	u32b ecology;	/* What ecologies appear in the room */
+	
 	u32b flags;		/* Room flags */
 
-	/* Decorations */
-	s16b	solid;		/* Feature to use as solid wall */
-	s16b	tunnel;		/* Feature to use as tunnel */
+	/* Decorations: TODO some of these could be discarded after dungeon generation*/
+	
+	s16b	theme[MAX_THEMES];	/* Features to use for placement around the room */
 	
 #if 0
+	s16b	solid;		/* Feature to use as solid wall */
+	s16b	tunnel;		/* Feature to use as tunnel */
+	s16b	trap;		/* Feature to use as trap */
+	s16b	bridge;		/* Feature to use as bridge over chasm */
+	
 	byte d_attr[5];    	/* Desired feature attribute (basic / inner / outer / solid) */
 	char d_char[5];    	/* Desired feature character (basic / inner / outer / solid) */
 
@@ -891,10 +907,12 @@ struct monster_type
 
 	byte shield;	/* Monster is temporarily shielded */
 	byte oppose_elem; /* Monster is temporarily resistant to elements */
+	byte petrify;	/* TODO: Monster is petrified / off-balance */
+	byte facing; /* TODO: Monster facing for huge monsters and 'stealth' mode */
 
 	byte ty;	/* Current target */
 	byte tx;
-
+	
 	u32b mflag;     /* Extra monster flags */
 	u32b smart;     /* Field for "smart_learn" */
 
@@ -1439,7 +1457,7 @@ struct player_type
 	s16b food;      /* Current nutrition */
 
 	s16b rest;      /* Current rest */
-	s16b water;     /* Current water */
+	s16b water;     /* TODO: Current water */
 
 	s16b held_song;     /* Currently held song */
 	byte sneaking; 		/* Currently sneaking */
@@ -1505,7 +1523,9 @@ struct player_type
 	s16b target_who;/* Target identity */
 	s16b target_row;/* Target location */
 	s16b target_col;/* Target location */
-
+	
+	s16b target_race;/* Target monsters of this race only */	
+	
 	s16b health_who;/* Health bar trackee */
 
 	s16b monster_race_idx;  /* Monster race trackee */
@@ -1533,7 +1553,7 @@ struct player_type
 	s16b command_see;       /* See "cmd1.c" */
 	s16b command_wrk;       /* See "cmd1.c" */
 
-	s16b command_new;       /* Hack -- command chaining XXX XXX */
+	key_event command_new;       /* Hack -- command chaining XXX XXX */
 
 	s16b new_spells;/* Number of spells available */
 
@@ -1756,11 +1776,15 @@ struct quiver_group_type
  */
 struct ecology_type
 {
-	s16b deepest_race;	/* Race that defines what the dungeon looks like */
 	s16b race[MAX_ECOLOGY_RACES];
+	u32b race_ecologies[MAX_ECOLOGY_RACES];	/* Which ecologies the race appears in */
+	s16b deepest_race[MAX_ECOLOGIES];
+	byte num_ecologies;	/* Number of ecologies */
 	byte num_races;
 	bool ready;		/* Are we forced to use this ecology? */
+	bool single_ecology;	/* Are we forced to use a single 'sub' ecology */
+	byte use_ecology;		/* Use this ecology when forced */
 	bool valid_hook;	/* Is at least one monster valid using current get_mon_hook */
-	bool get_mon[MAX_ECOLOGY_RACES];	/* Are we permitted to pick this race */	
+	bool get_mon[MAX_ECOLOGY_RACES];	/* Are we permitted to pick this race */
 };
 

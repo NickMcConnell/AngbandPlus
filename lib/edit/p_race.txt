@@ -21,6 +21,7 @@
 # F:racial flags
 # C:classes (numeric)
 # O:wield:bow:left_ring:right_ring:neck:lite:body:outer:arm:head:hands:feet
+# D:adjective
 
 # 'N' indicates the beginning of an entry. The serial number must
 # increase for each new race.
@@ -80,6 +81,7 @@ H:60:4:54:4
 W:120:100
 F:SUST_DEX | RES_LITE | ELF 
 C:0|1|3|4|6|7|8|9
+D:Wood-Elven
 
 #Sum = 1; good abilities; somewhat easy
 N:2:Hobbit
@@ -97,7 +99,7 @@ N:3:Shadow Fairy
 S:-6:3:4:2:-3:0:3:-6
 R:7:20:0:6:5:-3:10:-30:10
 X:140:6:1308
-I:29:200:100:62
+I:29:200:100:63
 H:80:8:73:8
 W:90:80
 F:ELF | DEMON | REGEN_MANA 
@@ -114,6 +116,7 @@ H:48:3:46:3
 W:150:120
 F:RES_BLIND | DWARF 
 C:0|2|5|7|9
+D:Dwarven
 
 #Sum = 6; high exp
 N:5:Dunadan
@@ -136,13 +139,14 @@ H:90:10:82:10
 W:190:180
 F:RES_LITE | SEE_INVIS | ELF 
 C:0|1|2|4|6|7|8|9
+D:High-Elven
 
 #Sum = 23; munchkin
 N:7:Maia
 S:2:3:3:2:4:4:2:3
 R:15:15:15:0:5:0:20:30:20
 X:100:3:0
-I:27:10000:5000:62
+I:27:10000:5000:63
 H:130:40:130:50
 W:300:280
 F:ELF | DEMON | ACTIVATE | REGEN_HP
@@ -197,6 +201,7 @@ H:72:6:66:4
 W:180:150
 F:MAN 
 C:0|1|2|3|4|5|6|7|8|9
+D:Dale-lander
 
 #Sum = 3; fast
 N:12:Man of Rohan
@@ -208,6 +213,7 @@ H:72:6:66:4
 W:180:150
 F:MAN 
 C:0|1|2|3|4|5|6|7|8|9
+D:Rohirrim
 
 #Sum = 0; noble
 N:13:Man of Gondor
@@ -219,6 +225,7 @@ H:72:6:66:4
 W:180:150
 F:MAN 
 C:0|1|2|3|4|5|6|7|8|9
+D:Gondorian
 
 #Sum = 0; fearless
 N:14:Man of Harad
@@ -230,6 +237,7 @@ H:72:6:66:4
 W:180:150
 F:MAN | RES_FEAR
 C:0|1|2|3|4|5|6|7|8|9
+D:Haradrim
 
 #Sum = -3; much higher without CHR; huge weight; throwing
 N:15:Forge Giant
@@ -295,7 +303,7 @@ C:0|2|3|4|6
 N:20:Vampire
 S:2:-2:0:0:2:-3:-2:1
 R:-3:-5:3:1:3:0:0:10:0
-X:140:3:298
+X:140:3:272
 I:48:14:9:26
 H:72:6:66:4
 W:180:150
@@ -334,6 +342,7 @@ H:66:1:62:1
 W:150:120
 F:RES_DARK | ORC  | HURT_LITE
 C:0|2|3|6|7
+D:Orcish
 
 #Sum = -4; much higher without CHR; bad abilities
 N:24:Half-Orc
@@ -345,6 +354,7 @@ H:66:1:62:1
 W:150:120
 F:RES_DARK | ORC | MAN
 C:0|2|3|6|7
+D:Half-Orcish
 
 # Has Stoneskin. Trolls are larger than Ents, smaller than Giants
 
