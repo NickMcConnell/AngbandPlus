@@ -1,3 +1,5 @@
+[This file is outdated (due to some intrigues of Morgoth servants, for sure).]
+
 === General Information ===
 
 Angband is basically a complex single player dungeon simulation.  A player

@@ -1,3 +1,5 @@
+[This file is outdated (due to some intrigues of Morgoth servants, for sure).]
+
 === Version Information ===
 
 This file was last updated for Angband 2.9.4.

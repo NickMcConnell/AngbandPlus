@@ -1181,8 +1181,11 @@ static errr rd_extra(void)
 	/* Player style */
 	rd_byte(&p_ptr->pstyle);
 
-	/* XXX Can be removed, most probably */
-	rd_byte(&p_ptr->hitdie);
+	/* Player school */
+	rd_byte(&p_ptr->pschool);
+	
+	/* XXX Hack -- should have saved this before */
+	if (p_ptr->pschool < SV_BOOK_MAX_GOOD) p_ptr->pschool = SV_BOOK_MAX_GOOD;
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->expfact);

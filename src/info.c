@@ -877,6 +877,45 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		}
 	}
 
+	/* Collect stat gain effects */
+	vn = 0;
+
+	if (s_ptr->flags3 & (SF3_INC_STR)) vp[vn++]="strength and size";
+	if (s_ptr->flags3 & (SF3_INC_INT)) vp[vn++]="intelligence";
+	if (s_ptr->flags3 & (SF3_INC_WIS)) vp[vn++]="wisdom";
+	if (s_ptr->flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity and agility";
+	if (s_ptr->flags3 & (SF3_INC_CON)) vp[vn++]="constitution";
+	if (s_ptr->flags3 & (SF3_INC_CHR)) vp[vn++]="charisma";
+	if (s_ptr->flags3 & (SF3_INC_EXP)) vp[vn++]="experience";
+
+	/* Describe stat effects */
+	if (vn)
+	{
+		if (!introduced)
+		{
+			/* Intro */
+			text_out(intro);
+
+			introduced = TRUE;
+
+		}
+		else
+		{
+			text_out(", and ");
+		}
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) text_out("increases your ");
+			else if (n < vn-1) text_out(", ");
+			else text_out(" and ");
+
+			/* Dump */
+			text_out(vp[n]);
+		}
+	}
 
 	/* Roll out the duration */
 	if (!detail)
@@ -980,46 +1019,6 @@ static bool spell_desc_flags(const spell_type *s_ptr, const cptr intro, int leve
 		{
 			/* Intro */
 			if (n == 0) text_out("partially cures you of ");
-			else if (n < vn-1) text_out(", ");
-			else text_out(" and ");
-
-			/* Dump */
-			text_out(vp[n]);
-		}
-	}
-
-	/* Collect stat gain effects */
-	vn = 0;
-
-	if (s_ptr->flags3 & (SF3_INC_STR)) vp[vn++]="strength and size";
-	if (s_ptr->flags3 & (SF3_INC_INT)) vp[vn++]="intelligence";
-	if (s_ptr->flags3 & (SF3_INC_WIS)) vp[vn++]="wisdom";
-	if (s_ptr->flags3 & (SF3_INC_DEX)) vp[vn++]="dexterity and agility";
-	if (s_ptr->flags3 & (SF3_INC_CON)) vp[vn++]="constitution";
-	if (s_ptr->flags3 & (SF3_INC_CHR)) vp[vn++]="charisma";
-	if (s_ptr->flags3 & (SF3_INC_EXP)) vp[vn++]="experience";
-
-	/* Describe stat effects */
-	if (vn)
-	{
-		if (!introduced)
-		{
-			/* Intro */
-			text_out(intro);
-
-			introduced = TRUE;
-
-		}
-		else
-		{
-			text_out(", and ");
-		}
-
-		/* Scan */
-		for (n = 0; n < vn; n++)
-		{
-			/* Intro */
-			if (n == 0) text_out("increases your ");
 			else if (n < vn-1) text_out(", ");
 			else text_out(" and ");
 

@@ -1,10 +1,10 @@
 === On Coating Sharp Weapons with Potions ===
 
-The various harmful potions you find can be by applying
-them to edged weapons using the apply command ('y' or '^G'
-in the roguelike command set).  Not every weapon can be
-so coated: in particular most magical weapons will
-repell the potion's coating.  The potion coating also
+The various harmful potions you find can be used 
+by applying them to edged weapons using the apply command 
+('y' or '^G' in the roguelike command set).  Not every 
+weapon can be so coated: in particular most magical weapons 
+will repell the potion's coating.  The potion coating also
 makes the weapon slightly harder to use, so there is
 a slight risk that you may cut yourself on the
 envenomed edge and therefore have the potion coating

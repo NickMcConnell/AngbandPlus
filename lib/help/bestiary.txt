@@ -233,9 +233,9 @@ Icky-things (i)
 Insects (I)
 	Giant insects and insect swarms threaten you with their painful stings
 	and bites. Be particularly wary of lice and other fast-breeding pests,
-	with can be individually defeated very easily, but which quickly fill the
-	dungeon with their swarms, and dragonflies, which use the breath
-	of dragons against you.
+	with can be individually defeated very easily, but which quickly 
+	fill the dungeon with their swarms, and dragonflies, which use 
+	the breath of dragons against you.
 
 
 XXX To be completed.

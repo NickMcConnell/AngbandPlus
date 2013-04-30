@@ -378,7 +378,7 @@ int set_routes(s16b *routes, int max_num, int from)
 	dungeon_zone *zone1 = &t_ptr->zone[0];
 	dungeon_zone *zone2 = &t_ptr->zone[0];
 
-	int i, ii, iii, num = 0;
+	int i, ii, num = 0;
 
 	/* Get the top of the dungeon */
 	get_zone(&zone1,from,min_depth(from));
@@ -442,6 +442,9 @@ int set_routes(s16b *routes, int max_num, int from)
 			routes[0] = z_info->t_max - 2;
 	}
 
+/* This next section removed because it may 'confuse' people too much
+ * e.g. routes add and disappear 'at random' */
+#if 0
 	/* Add routes further away if visited, while in campaign mode */
 	if (adult_campaign) for (i = 0; i < num; i++)
 	{
@@ -495,6 +498,7 @@ int set_routes(s16b *routes, int max_num, int from)
 			}
 		}
 	}
+#endif
 
 	/* One final scan and remove duplicate routes and routes looping back to start */
 	for (i = 0; i < num; i++)

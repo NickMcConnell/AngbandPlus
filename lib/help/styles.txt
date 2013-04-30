@@ -28,10 +28,11 @@
 ***** <One-handed>
         One-handed
                 The One-handed specialist is a flashy fighter, capable of
-                targetting their attacks with precision. When not using a shield,
-                a one-handed specialist gets additional to hit bonuses, improved
-                natural armour class and can cause additional critical damage
-                at higher levels.  One-handed weapons weigh up to 15 lbs in weight.
+                targetting their attacks with precision. When not using 
+		a shield, a one-handed specialist gets additional to hit 
+		bonuses, improved natural armour class and can cause 
+		additional critical damage at higher levels.  One-handed 
+		weapons weigh up to 15 lbs in weight.
                 The rate of progress of these abilities varies with each class.
 
 ***** <Two-handed>
@@ -50,10 +51,10 @@
                 opponents.  When wielding two weapons at a time, a Dual-wield
                 specialist can use the 2nd weapon to provide additional armour
                 class and at higher levels, attack with it in addition to their
-                primary weapon.  Weapons that can be dual wielded include include
-                any weapon under 20 lbs, as long as both weapons are identical
-                types, and any weapon may be paired with a secondary short-bladed
-                weapon including all swords weighing up to 10 lbs.
+                primary weapon.  Weapons that can be dual wielded include
+                any weapon under 15 lbs, as long as both weapons are identical
+                types, and any weapon under 20lb may be paired with a secondary 
+		throwing weapon.
                 The rate of progress of these abilities varies with each class.
 
 ***** <Shield & weapon>
@@ -86,16 +87,16 @@
 ***** <Slings>
         Slings
                 The sling specialist can sling a wide variety of shots and
-                thrown weapons in his sling to good effect.  With a sling equipped,
-                these weapons can be fired with increasing accuracy, rate of
-                fire and damage multiplier at higher levels.
+                thrown weapons in his sling to good effect.  With a sling 
+		equipped, these weapons can be fired with increasing accuracy,
+		rate of fire and damage multiplier at higher levels.
                 The rate of progress of these abilities varies with each class.
 
 ***** <Bows>
         Bows
                 The bow specialist prefers to pincushion his target with many
-                arrows.  With a bow equipped, arrows can be fired with increasing
-                accuracy and rate of fire at higher levels.
+                arrows.  With a bow equipped, arrows can be fired with 
+		increasing accuracy and rate of fire at higher levels.
                 The rate of progress of these abilities varies with each class.
 
 ***** <Cross-bows>
@@ -144,12 +145,13 @@
                 area only.
 
                 If the character would not normally have the ability to cast
-                spells, they instead gain a limited amount of mana and the ability
-                to learn and cast spells from a single magic book or school of
-                magic.  Specialised spell casters who could normally cast spells,
-                can instead cast spells from their specialised book or school of
-                magic at roughly twice the effective power of a non-specialised
-                mage, and learns them approximately 20% earlier.
+                spells, they instead gain a limited amount of mana 
+		and the ability to learn and cast spells from a single 
+		magic book or school of magic.  Specialised spell casters 
+		who could normally cast spells, can instead cast spells 
+		from their specialised book or school of magic at roughly 
+		twice the effective power of a non-specialised mage, 
+		and learns them approximately 20% earlier.
 
                 The rate of progress of these abilities varies with each class.
 

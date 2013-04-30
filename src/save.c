@@ -584,8 +584,9 @@ static void wr_extra(void)
 	wr_byte(p_ptr->psex);
 	wr_byte(p_ptr->pstyle);	/* Was oops */
 
-	/* XXX Can be removed, most probably */
-	wr_byte(p_ptr->hitdie);
+	/* School */
+	wr_byte(p_ptr->pschool);
+	
 
 	wr_byte(p_ptr->expfact);
 

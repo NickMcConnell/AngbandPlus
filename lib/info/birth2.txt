@@ -13,9 +13,10 @@ Creatures around you are usually represented by letters.  You can fight
 back at any creature that attacks you through a number of different means.
 Firstly, by walking into an enemy creature, you'll automatically swing at
 it with the weapon you are currently wielding.  You can use the equipment
-command ('e') to see what you are currently wielding and wearing.  You can
-also acquire items to throw, bows to shoot with and magical spells.  The
-online text provides more details on how to use these various abilities.
+command ('e') to see what you are currently wielding and wearing.  
+You can also acquire items to throw, bows to shoot with and magical spells 
+and devices.  The online text provides more details on how to use these 
+various abilities.
 
 Features around you are represented by various types of keyboard symbols.
 You can also find objects, which are usually represented by various types

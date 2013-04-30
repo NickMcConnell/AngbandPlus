@@ -2653,21 +2653,21 @@ N:330:of Cantrips
 G:?:R
 I:90:32:0
 W:5:0:30:25
-A:5/6
+A:5/7
 P:0:1d1:0:0:0
 
 N:331:of Conjuring
 G:?:R
 I:90:33:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:332:of Incantations
 G:?:R
 I:90:34:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 # Was Sorcery.
@@ -2676,33 +2676,37 @@ N:333:of Wizardry
 G:?:R
 I:90:35:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
-N:334:of Blessings
+#### Dedication to Mandos - Equivalent to Angband priests.
+
+N:334:of Castigation
 G:?:B
-I:91:0:0
+I:91:32:0
 W:5:0:30:25
 A:5/1
 P:0:1d1:0:0:0
 
-N:335:of Mantras
+N:335:of Inquisition
 G:?:B
-I:91:1:0
+I:91:33:0
 W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:336:of Chants
+N:336:of Exorcism
 G:?:B
-I:91:2:0
+I:91:34:0
 W:20:0:30:300
 A:20/1
 P:0:1d1:0:0:0
 
-N:337:of Exorcisms
+# Was Exorcisms.
+
+N:337:of Mandos
 G:?:B
-I:91:3:0
+I:91:35:0
 W:30:0:30:900
 A:30/1
 P:0:1d1:0:0:0
@@ -6525,21 +6529,21 @@ N:898:of Craft
 G:?:R
 I:90:53:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:899:of Art
 G:?:R
 I:90:54:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:900:of Science
 G:?:R
 I:90:55:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
 # Ranger books
@@ -6548,48 +6552,47 @@ N:901:of Bushcraft
 G:?:R
 I:90:57:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:902:of Warcraft
 G:?:R
 I:90:58:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:903:of Statecraft
 G:?:R
 I:90:59:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
 # Paladin books
 
-#N:904:of xxx
-#G:?:b
-#I:91:15:0
-#W:30:0:30:800
-#A:30/3
-#P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+#### Tulkas - Warlike.
 
-#N:905:of xxx
-#G:?:b
-#I:91:16:0
-#W:50:0:30:5000
-#A:50/2
+#N:904:of Standards
+#G:?:B
+#I:91:52:0
+#W:5:0:30:25
+#A:5/9
 #P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
-#N:906:of xxx
-#G:?:b
-#I:91:17:0
-#W:70:0:30:12500
-#A:70/2
+#N:905:of Monuments
+#G:?:B
+#I:91:53:0
+#W:10:0:30:100
+#A:10/9
 #P:0:1d1:0:0:0
-#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
+
+#N:906:of Crusades
+#G:?:B
+#I:91:54:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
 
 ### Some additional 'cloaks' ###
 
@@ -6718,28 +6721,28 @@ N:920:of Hedges
 G:?:R
 I:90:36:0
 W:5:0:30:25
-A:5/6
+A:5/7
 P:0:1d1:0:0:0
 
 N:921:of Animation
 G:?:R
 I:90:37:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:922:of Invectures
 G:?:R
 I:90:38:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:923:of Druidry
 G:?:R
 I:90:39:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
 N:924:of Negation
@@ -6762,7 +6765,7 @@ N:926:of Space
 G:?:r
 I:90:25:0
 W:80:0:30:30000
-A:80/6
+A:80/7
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
@@ -6772,28 +6775,28 @@ N:927:of Curses
 G:?:R
 I:90:40:0
 W:5:0:30:25
-A:5/6
+A:5/7
 P:0:1d1:0:0:0
 
 N:928:of Summoning
 G:?:R
 I:90:41:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:929:of Invocations
 G:?:R
 I:90:42:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:931:of Mastery
 G:?:R
 I:90:43:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
 N:932:of Annihilation
@@ -6816,7 +6819,7 @@ N:934:of the Void
 G:?:r
 I:90:28:0
 W:80:0:30:30000
-A:80/6
+A:80/7
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
@@ -6826,28 +6829,28 @@ N:935:of Glamours
 G:?:R
 I:90:44:0
 W:5:0:30:25
-A:5/6
+A:5/7
 P:0:1d1:0:0:0
 
 N:936:of Prestidigitation
 G:?:R
 I:90:45:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:937:of Illusions
 G:?:R
 I:90:46:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:938:of Sorcery
 G:?:R
 I:90:47:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
 
 N:939:of Immoliation
@@ -6870,7 +6873,7 @@ N:941:of Balance
 G:?:r
 I:90:31:0
 W:80:0:30:30000
-A:80/6
+A:80/7
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_WATER
 
@@ -6925,27 +6928,246 @@ N:947:of Fireworks
 G:?:R
 I:90:48:0
 W:5:0:30:25
-A:5/6
+A:5/7
 P:0:1d1:0:0:0
 
 N:948:of Evocation
 G:?:R
 I:90:49:0
 W:10:0:30:100
-A:10/6
+A:10/7
 P:0:1d1:0:0:0
 
 N:949:of Incendaries
 G:?:R
 I:90:50:0
 W:20:0:30:400
-A:20/6
+A:20/7
 P:0:1d1:0:0:0
 
 N:950:of Thuamaturgy
 G:?:R
 I:90:51:0
 W:30:0:30:800
-A:30/6
+A:30/7
 P:0:1d1:0:0:0
+
+#### Nessa - Speed. Shape changing. TODO
+
+#N:951:of Inspirations
+#G:?:B
+#I:91:60:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:952:of Supplications
+#G:?:B
+#I:91:61:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:953:of Raiments
+#G:?:B
+#I:91:62:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:954:of Nessa
+#G:?:B
+#I:91:63:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Vana - Summon Plants / Animals. Druidic like magic. TODO
+
+#N:955:of Sayings
+#G:?:B
+#I:91:44:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:956:of Prayers
+#G:?:B
+#I:91:45:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:957:of Canticles
+#G:?:B
+#I:91:46:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:958:of Vana
+#G:?:B
+#I:91:47:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Nienna. Vs undead / summon undead. TODO
+
+#N:959:of Offerings
+#G:?:B
+#I:91:48:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:960:of Sacrifices
+#G:?:B
+#I:91:49:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:961:of Matyrs
+#G:?:B
+#I:91:50:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:962:of Nienna
+#G:?:B
+#I:91:51:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+# Last book for Paladin. Was missed out earlier.
+
+#N:963:of Tulkas
+#G:?:B
+#I:91:55:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Ulmo. TODO
+
+#N:964:of Sanctity
+#G:?:B
+#I:91:56:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:965:of Fonts
+#G:?:B
+#I:91:57:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:966:of Cleansing
+#G:?:B
+#I:91:58:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:967:of Ulmo
+#G:?:B
+#I:91:59:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Varda. Light / divination. TODO
+
+#N:968:of Vows
+#G:?:B
+#I:91:40:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:969:of Rites
+#G:?:B
+#I:91:41:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:970:of Passages
+#G:?:B
+#I:91:42:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:971:of Varda
+#G:?:B
+#I:91:43:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Manwe. Air Magic. TODO
+
+#N:972:of Blessings
+#G:?:B
+#I:91:36:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:973:of Mantras
+#G:?:B
+#I:91:37:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:974:of Chants
+#G:?:B
+#I:91:38:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:975:of Manwe
+#G:?:B
+#I:91:39:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
+
+#### Melkor. TODO
+
+#N:976:of Oaths
+#G:?:B
+#I:91:64:0
+#W:5:0:30:25
+#A:5/9
+#P:0:1d1:0:0:0
+
+#N:977:of Rituals
+#G:?:B
+#I:91:65:0
+#W:10:0:30:100
+#A:10/9
+#P:0:1d1:0:0:0
+
+#N:978:of Pacts
+#G:?:B
+#I:91:66:0
+#W:20:0:30:300
+#A:20/9
+#P:0:1d1:0:0:0
+
+#N:979:of Melkor
+#G:?:B
+#I:91:67:0
+#W:30:0:30:900
+#A:30/9
+#P:0:1d1:0:0:0
 

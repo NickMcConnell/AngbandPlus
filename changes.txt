@@ -289,6 +289,10 @@ cannnot pay the debt from available mana, you'll pay it in blood instead.
 - Try to ensure monster drops 1 weapon, 1 body armour, 1 helmet etc. when calculating monster
 drops to provide a better as well as more realistic set of drops.
 
+- Added in differing religions for priests. Note that this only affects starting books and only
+Mandos should be selected at this stage - the other priest books are not well populated as of
+yet.
+
 
 ### User Interface ###
 
@@ -511,6 +515,10 @@ the fix).
 - Fix darkness so its useful as a spell.
 
 - Fix logic problem with polymorphing a monster on terrain.
+
+- Fix bug with wand of sparks having rift effect 50% of the time.
+
+- Fix bug with birth menus causing incorrect game choices much of the time.
 
 
 ### Build / Platform ###

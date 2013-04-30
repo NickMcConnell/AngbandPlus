@@ -11,10 +11,10 @@ who resides far below the surface.
 
 Note that Unangband is a very complex game, and it may be difficult to grasp
 everything at first, especially if you have never played a "roguelike" game
-before.  To assist you, you'll occasionally find notes like this around the
-dungeon that will explain various aspects of the game.  To get additional
-help and advice, you can press ? when the game is waiting for a command to
-browse through all of the "online help files".
+before.  To assist you, notes like this will occasionally appear around the
+dungeon, explaining various aspects of the game.  To get additional
+help and advice, you can press ? when the game is waiting for a command
+and browse through all of the "online help files".
 
 You can begin the game by pressing ESC to leave this screen, and using the
 movement keys to move around the town. Depending on the choice you made at

@@ -1,3 +1,5 @@
+[This file is outdated (due to some intrigues of Morgoth servants, for sure).]
+
 === General Info ===
 
 16-7-2001 UnAngband 0.4.0 "Mystery Release" aka "War against the Angels"
