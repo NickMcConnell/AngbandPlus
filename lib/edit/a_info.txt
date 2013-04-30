@@ -16,6 +16,60 @@
 # not be dropped when Morgoth is killed.  Note that they, like the "special"
 # artifacts, are never created "accidentally".
 
+### Other changes made by JLE...
+
+#   The Rings of Power are now really munchkinish. They're rare enough as 
+# things are, and at the moment it is not worth wearing any of them (except
+# perhaps the One itself) over a Ring of Speed (+15) unless you have Ringil 
+# or Cubragol. This should clearly not be the case, so I have given then 
+# each a few extra resists and slaying bonuses.
+#   By the way, the sustains have been shifted around a bit: Vilya, 
+# described as the "mightiest of the Three" in LotR, has sustains which 
+# relate to might - STR, DEX and CON. Nenya, described in "Unfinished 
+# Tales" as "chief of the Three", has sustains which relate to 
+# leadership - INT, WIS and CHR. Narya's sustains are STR, WIS, CON and 
+# CHR - all of which seem appropriate to Gandalf in my opinion.
+
+#   Some other artifacts have (small) speed bonuses or extra high resists.
+# And some weapons have extra attacks - notably, those which are primarily
+# killing machines and have no defensive capabilities (resistances or AC 
+# bonuses. A full list is as follows:
+
+#   Thalkettoth has speed (+3) now.
+#   The Massive Iron Crown has resist nether.
+#   Beruthiel's penalty is now only -5. So if your mage is *really* 
+# desperate for free action and see invisible... It is, however,
+# heavily cursed.
+#   Likewise, Gorlim's stat penalty is only -5. So if your warrior is 
+# *really* desperate for see invisible...
+#   The Crown of Gondor now has resist chaos, confusion and sound.
+#   Holcolleth has a speed bonus (+2).
+#   Colannon has resist nexus and a speed bonus. The idea being, it's 
+# an item which gives you freedom of movement but prevents others moving
+# you around.
+#   Luthien gives speed and stealth. Tuor gives dexterity.
+#   Thror, Maedhros and Angrist all give speed.
+#   Crisdurian gives extra attacks.
+#   Anduril is much better: its bonus is to strength and dexterity, and it 
+# sustains both stats. It also resists disenchantment - "the blade that is 
+# drawn from this sheath shall not be stained or broken even in defeat".
+#   Anguirel, originally the blade of Eol the Dark Elf, now gives resist 
+# dark and a +2 speed bonus as well. But it aggravates.
+#   Careth Asdriag and Sting both give speed bonuses as well as extra 
+# attacks (+1 and +2 respectively.) Sting has Slay Animal in memory of 
+# its deeds against spiders (Shelob and her foul offspring of Mirkwood.)
+#   Doomcaller's AC penalty is reduced. It still aggravates.
+#   The Glaive of Pain is now +30 to hit as well.
+#   The Spear of Orome now gives bonus to speed and slay animal - as 
+# befits a hunter god.
+#   The Axe of Durin gives a strength bonus and resists confusion.
+#   The Great Axe of Eonwe gives extra attacks and resists confusion.
+#   The Trident of Wrath gives extra attacks.
+#   Zarcuthra gives extra attacks, but its pval is reduced to 2 instead of 4.
+#   Grond now gives 2 extra blows and is (+25,+25). Should be the biggest 
+# hitter in the game.
+#   Thunderfist has a constitution bonus.
+#   The bows Belthronding and Bard have each +2 to speed.
 
 # Version stamp (required)
 
@@ -44,7 +98,6 @@ F:INSTA_ART
 
 
 # The Arkenstone of Thrain
-# Was +2 WIS/DEX
 
 N:3:of Thrain
 I:39:6:0
@@ -69,7 +122,7 @@ F:INSTA_ART
 N:5:of Ingwe
 I:40:11:3
 W:65:30:3:90000
-F:WIS | CHR | INFRA | HIDE_TYPE | 
+F:INT | WIS | CHR | INFRA | HIDE_TYPE | 
 F:SEE_INVIS | FREE_ACT | ACTIVATE | 
 F:RES_ACID | RES_COLD | RES_ELEC | 
 F:INSTA_ART
@@ -108,53 +161,60 @@ F:ACTIVATE |
 F:INSTA_ART
 
 
-# The Ring of Power (Narya)
+# The Ring of Power "Narya"
 
-N:10:of Power (Narya)
+N:10:of Power 'Narya'
 I:45:34:1
 W:70:30:2:100000
+P:0:0d0:6:6:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | SEE_INVIS | 
 F:SLOW_DIGEST | REGEN | 
-F:SUST_STR | SUST_DEX | IM_FIRE | RES_FIRE | 
+F:SUST_STR | SUST_CON | SUST_WIS | SUST_CHR | 
+F:IM_FIRE | RES_FIRE | RES_NETHR | 
 F:INSTA_ART
 
 
-# The Ring of Power (Nenya)
+# The Ring of Power "Nenya"
 
-N:11:of Power (Nenya)
+N:11:of Power 'Nenya'
 I:45:35:2
 W:80:40:2:200000
+P:0:0d0:8:8:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | 
-F:SUST_INT | SUST_WIS | IM_COLD | RES_COLD | 
+F:SUST_INT | SUST_WIS | SUST_CHR | 
+F:IM_COLD | RES_COLD | RES_BLIND | RES_CONFU | 
 F:INSTA_ART
 
 
-# The Ring of Power (Vilya)
+# The Ring of Power "Vilya"
 
-N:12:of Power (Vilya)
+N:12:of Power 'Vilya'
 I:45:36:3
 W:90:50:2:300000
+P:0:0d0:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
-F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | 
-F:IM_ELEC | RES_ELEC | 
+F:SUST_STR | SUST_DEX | SUST_CON | 
+F:IM_ELEC | RES_ELEC | RES_CONFU | RES_DISEN | 
 F:INSTA_ART
 
 
-# The Ring of Power (The One Ring)
+# The Ring of Power "The One Ring"
 
-N:13:of Power (The One Ring)
+N:13:of Power 'The One Ring'
 I:45:37:5
 W:100:100:2:5000000
+P:0:0d0:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:AGGRAVATE | DRAIN_EXP | SEE_INVIS | REGEN |
 F:IM_FIRE | IM_COLD | IM_ELEC | IM_ACID |
-F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID |
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_ACID | RES_POIS | 
+F:RES_CONFU | RES_BLIND | RES_NETHR | RES_DISEN | 
 F:SUST_STR | SUST_DEX | SUST_CON | 
 F:SUST_INT | SUST_WIS | SUST_CHR | 
 F:INSTA_ART
@@ -167,7 +227,6 @@ F:INSTA_ART
 
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
-# Was (-2) INT | WIS | STEALTH | HIDE_TYPE, (-3) to hit, 30 pounds (?)
 
 N:16:'Razorback'
 I:38:6:0
@@ -176,18 +235,17 @@ P:30:2d4:-4:0:25
 F:FREE_ACT | IM_ELEC | RES_ELEC | 
 F:RES_ACID | RES_FIRE | RES_COLD | 
 F:RES_POIS | RES_LITE | RES_DARK | 
-F:LITE | SEE_INVIS | AGGRAVATE | 
+F:LITE | SEE_INVIS | 
 F:ACTIVATE
 
 
 # The Power Dragon Scale Mail 'Bladeturner'
-# Was (-3) DEX | HIDE_TYPE, (-4) to hit, 50 pounds (?)
 
 N:17:'Bladeturner'
 I:38:30:0
-W:95:3:600:500000
+W:95:8:600:500000
 P:50:2d4:-8:0:35
-F:HOLD_LIFE | REGEN | 
+F:HOLD_LIFE | REGEN | FEATHER | SLOW_DIGEST | 
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_BLIND | RES_CONFU | RES_SOUND | 
 F:RES_SHARD | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_DISEN | 
@@ -205,7 +263,7 @@ W:75:9:420:300000
 P:40:2d4:-4:0:20
 F:CON | 
 F:HOLD_LIFE | SUST_CON | 
-F:RES_ACID | RES_COLD | RES_DARK | RES_NETHR | RES_NEXUS | RES_CHAOS | 
+F:RES_ACID | RES_COLD | RES_DARK | RES_NETHR | RES_NEXUS | RES_CHAOS | RES_CONFU | 
 F:ACTIVATE
 
 
@@ -290,7 +348,7 @@ N:28:'Thalkettoth'
 I:36:11:3
 W:20:3:60:25000
 P:11:1d1:-1:0:25
-F:DEX | HIDE_TYPE | 
+F:DEX | SPEED |  HIDE_TYPE | 
 F:RES_ACID | RES_SHARD
 
 
@@ -336,7 +394,7 @@ I:33:50:125
 W:100:1:20:10000000
 P:0:1d1:0:0:0
 F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | RES_NETHR | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | 
 F:LITE | SEE_INVIS | TELEPATHY | 
 F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
@@ -346,11 +404,11 @@ F:INSTA_ART
 # The Iron Crown of Beruthiel
 
 N:35:of Beruthiel
-I:33:10:-25
+I:33:10:-5
 W:40:12:20:0
 P:0:1d1:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:FREE_ACT | SEE_INVIS | TELEPATHY | LIGHT_CURSE
+F:FREE_ACT | SEE_INVIS | TELEPATHY | HEAVY_CURSE
 
 
 # The Hard Leather Cap of Thranduil
@@ -406,7 +464,7 @@ F:RES_BLIND | SEE_INVIS | ACTIVATE
 # The Iron Helm of Gorlim
 
 N:41:of Gorlim
-I:32:5:-25
+I:32:5:-5
 W:20:5:75:0
 P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | 
@@ -420,7 +478,8 @@ I:33:11:3
 W:40:40:30:100000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | HIDE_TYPE | 
-F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
+F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND |
+F:RES_CHAOS | RES_CONFU | RES_SOUND |  
 F:LITE | SEE_INVIS | REGEN | ACTIVATE
 
 
@@ -431,7 +490,7 @@ F:LITE | SEE_INVIS | REGEN | ACTIVATE
 
 N:44:'Colluin'
 I:35:1:0
-W:5:45:10:10000
+W:5:45:10:40000
 P:1:0d0:0:0:15
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
 
@@ -442,7 +501,7 @@ N:45:'Holcolleth'
 I:35:1:2
 W:5:45:10:13000
 P:1:0d0:0:0:4
-F:INT | WIS | STEALTH | HIDE_TYPE | 
+F:INT | WIS | STEALTH | SPEED | HIDE_TYPE | 
 F:RES_ACID | ACTIVATE
 
 
@@ -469,10 +528,10 @@ F:FREE_ACT | RES_ACID | SEE_INVIS
 
 N:48:'Colannon'
 I:35:1:3
-W:3:10:10:11000
+W:3:10:10:20000
 P:1:0d0:0:0:15
-F:STEALTH | 
-F:RES_ACID | ACTIVATE
+F:STEALTH | SPEED | RES_NEXUS | 
+F:ACTIVATE
 
 
 # The Shadow Cloak of Luthien
@@ -481,7 +540,7 @@ N:49:of Luthien
 I:35:6:2
 W:40:40:5:45000
 P:6:0d0:0:0:20
-F:INT | WIS | CHR | HIDE_TYPE | 
+F:INT | WIS | CHR | SPEED | STEALTH | HIDE_TYPE | 
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE
 
 
@@ -491,7 +550,7 @@ N:50:of Tuor
 I:35:6:4
 W:40:40:5:35000
 P:6:0d0:0:0:12
-F:STEALTH | 
+F:STEALTH | DEX | 
 F:FREE_ACT | IM_ACID | RES_ACID | SEE_INVIS
 
 
@@ -591,7 +650,7 @@ W:10:25:20:40000
 P:2:1d1:0:0:15
 F:DEX | HIDE_TYPE | 
 F:ACTIVATE | FREE_ACT | 
-F:RES_NETHR | RES_CHAOS | SUST_CON
+F:RES_NETHR | RES_CHAOS | RES_CONFU | SUST_CON
 
 
 # The Pair of Metal Shod Boots of Thror
@@ -600,7 +659,7 @@ N:62:of Thror
 I:30:6:3
 W:30:25:80:12000
 P:6:1d1:0:0:20
-F:STR | CON | HIDE_TYPE
+F:STR | CON | SPEED | HIDE_TYPE
 
 
 # Artifact 63 is unused
@@ -612,7 +671,7 @@ N:64:of Maedhros
 I:23:5:3
 W:15:30:30:20000
 P:0:2d5:12:15:0
-F:INT | DEX | HIDE_TYPE | 
+F:INT | DEX | SPEED | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS
 
 
@@ -622,7 +681,7 @@ N:65:'Angrist'
 I:23:4:4
 W:20:80:12:100000
 P:0:2d4:10:15:5
-F:DEX | HIDE_TYPE | 
+F:DEX | SPEED | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_DARK | SUST_DEX | 
 F:SHOW_MODS
 
@@ -741,10 +800,10 @@ F:KILL_DRAGON | SLAY_TROLL | FREE_ACT | SLOW_DIGEST | REGEN | SHOW_MODS
 # The Two-Handed Sword 'Zarcuthra'
 
 N:77:'Zarcuthra'
-I:23:25:4
+I:23:25:2
 W:30:180:250:200000
 P:0:4d6:19:21:0
-F:STR | CHR | INFRA | HIDE_TYPE | 
+F:STR | CHR | BLOWS | INFRA | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_FIRE | 
 F:SLAY_UNDEAD | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:RES_FIRE | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE | SHOW_MODS
@@ -774,10 +833,10 @@ F:SEE_INVIS | REGEN | SHOW_MODS
 # The Executioner's Sword 'Crisdurian'
 
 N:80:'Crisdurian'
-I:23:28:0
+I:23:28:2
 W:40:15:260:100000
 P:0:4d5:18:19:0
-F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
+F:BLOWS | SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT | 
 F:SLAY_ORC | SEE_INVIS | SHOW_MODS
 
 
@@ -806,12 +865,12 @@ F:ACTIVATE | SHOW_MODS
 # The Long Sword 'Anduril'
 
 N:83:'Anduril'
-I:23:17:4
+I:23:17:5
 W:20:40:130:80000
 P:0:2d5:10:15:5
-F:STR | HIDE_TYPE | 
-F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:STR | DEX | HIDE_TYPE | 
+F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | FREE_ACT | SEE_INVIS | 
+F:RES_FIRE | RES_DISEN | SUST_DEX | SUST_STR | ACTIVATE | SHOW_MODS
 
 
 # The Long Sword 'Anguirel'
@@ -820,9 +879,9 @@ N:84:'Anguirel'
 I:23:17:2
 W:20:30:130:40000
 P:0:2d5:8:12:0
-F:STR | CON | HIDE_TYPE | 
+F:STR | CON | SPEED | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_ELEC | SLAY_DEMON | FREE_ACT | RES_ELEC | 
-F:RES_LITE | LITE | SEE_INVIS | SHOW_MODS
+F:RES_LITE | RES_DARK | LITE | SEE_INVIS | SHOW_MODS | AGGRAVATE
 
 
 # The Long Sword 'Elvagil'
@@ -861,8 +920,8 @@ N:88:'Sting'
 I:23:8:2
 W:20:15:75:100000
 P:0:1d6:7:8:0
-F:STR | DEX | CON | BLOWS | 
-F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | 
+F:STR | DEX | CON | BLOWS | SPEED | 
+F:SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC | SLAY_ANIMAL | 
 F:FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 
 
@@ -888,12 +947,11 @@ F:SLAY_ANIMAL | SLOW_DIGEST | REGEN | SHOW_MODS
 
 
 # The Blade of Chaos 'Doomcaller'
-# Was (-5) CON | HIDE_TYPE, +0 armor
 
 N:91:'Doomcaller'
 I:23:30:0
 W:70:25:180:200000
-P:0:6d5:18:28:-50
+P:0:6d5:18:28:-20
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL | 
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:RES_CHAOS | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS
@@ -917,7 +975,7 @@ F:SLAY_DRAGON | TELEPATHY | SLOW_DIGEST | ACTIVATE | SHOW_MODS
 N:94:of Pain
 I:22:13:0
 W:30:25:190:50000
-P:0:9d6:0:30:0
+P:0:9d6:30:30:0
 F:SHOW_MODS
 
 
@@ -960,8 +1018,8 @@ N:98:of Orome
 I:22:2:4
 W:15:45:50:60000
 P:0:1d6:15:15:0
-F:INT | INFRA | HIDE_TYPE | 
-F:BRAND_FIRE | SLAY_GIANT | RES_FIRE | RES_LITE | 
+F:INT | SPEED | INFRA | HIDE_TYPE | 
+F:BRAND_FIRE | SLAY_ANIMAL | SLAY_GIANT | RES_FIRE | RES_LITE | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
 
 
@@ -991,9 +1049,9 @@ N:101:of Durin
 I:22:25:3
 W:30:90:230:150000
 P:0:4d4:10:20:15
-F:CON | HIDE_TYPE | 
+F:STR | CON | HIDE_TYPE | 
 F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
+F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CONFU | RES_CHAOS | SHOW_MODS
 
 
 # The Great Axe of Eonwe
@@ -1002,9 +1060,9 @@ N:102:of Eonwe
 I:22:25:2
 W:30:120:230:200000
 P:0:4d4:15:18:8
-F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE | 
+F:STR | INT | WIS | DEX | CON | CHR | BLOWS | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_COLD | SLAY_UNDEAD | 
-F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | 
+F:SLAY_ORC | FREE_ACT | IM_COLD | RES_COLD | RES_CONFU | 
 F:SEE_INVIS | ACTIVATE | 
 F:BLESSED | SHOW_MODS
 
@@ -1017,7 +1075,7 @@ W:30:15:170:90000
 P:0:3d8:8:11:5
 F:STR | CON | STEALTH | HIDE_TYPE | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | 
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | FEATHER | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_BLIND | RES_CONFU | FEATHER | 
 F:SEE_INVIS | REGEN | SHOW_MODS
 
 
@@ -1031,9 +1089,10 @@ F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
 
 
-# The Lochaber Axe 'Mundwine'
+# The Lochaber Axe of the Dwarves
+# (formerly "Mundwine")
 
-N:105:'Mundwine'
+N:105:of the Dwarves
 I:22:28:0
 W:30:8:250:30000
 P:0:3d8:12:17:0
@@ -1057,7 +1116,7 @@ N:107:of Wrath
 I:22:5:2
 W:15:35:300:90000
 P:0:3d8:16:18:0
-F:STR | DEX | HIDE_TYPE | 
+F:STR | DEX | BLOWS | HIDE_TYPE | 
 F:SLAY_EVIL | SLAY_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
 F:BLESSED | SHOW_MODS
 
@@ -1090,15 +1149,13 @@ F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS
 
 
 # The Mighty Hammer 'Grond'
-# Was 30 pounds (?), -10 to speed
-# The weight (100 pounds) of Grond yields about -4 to speed
 # Note that it takes 18/200 strength to wield Grond correctly
 
 N:111:'Grond'
-I:21:50:0
+I:21:50:2
 W:100:1:1000:500000
-P:0:9d9:5:25:10
-F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | 
+P:0:9d9:25:25:10
+F:BLOWS | KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
 F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
 
@@ -1120,7 +1177,7 @@ N:113:'Thunderfist'
 I:21:18:4
 W:45:38:300:160000
 P:0:3d6:5:18:0
-F:STR | HIDE_TYPE | 
+F:STR | CON | HIDE_TYPE | 
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC | 
 F:RES_ELEC | RES_FIRE | RES_DARK | SHOW_MODS
 
@@ -1195,7 +1252,8 @@ W:30:105:150:130000
 P:0:2d9:10:13:0
 F:INT | WIS | CHR | HIDE_TYPE | 
 F:SLAY_EVIL | BRAND_FIRE | SLAY_TROLL | SLAY_ORC | 
-F:HOLD_LIFE | RES_FIRE | RES_NETHR | SEE_INVIS | ACTIVATE | SHOW_MODS
+F:HOLD_LIFE | RES_FIRE | RES_CONFU | RES_NETHR | SEE_INVIS | 
+F:ACTIVATE | SHOW_MODS
 
 
 # The Mace of Disruption 'Deathwreaker'
@@ -1230,7 +1288,7 @@ N:124:'Belthronding'
 I:19:13:1
 W:40:20:40:35000
 P:0:0d0:20:22:0
-F:DEX | STEALTH | SHOTS | HIDE_TYPE | 
+F:DEX | STEALTH | SHOTS | SPEED | HIDE_TYPE | 
 F:RES_DISEN | SHOW_MODS
 
 
@@ -1240,7 +1298,7 @@ N:125:of Bard
 I:19:13:2
 W:30:20:40:20000
 P:0:0d0:17:19:0
-F:DEX | MIGHT | HIDE_TYPE | 
+F:DEX | MIGHT | SPEED | HIDE_TYPE | 
 F:FREE_ACT | SHOW_MODS
 
 

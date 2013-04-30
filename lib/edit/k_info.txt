@@ -1,6 +1,5 @@
 # File: k_info.txt
 
-
 # This file is used to initialize the "lib/raw/k_info.raw" file, which is
 # used to initialize the "object kind" information for the Angband game.
 
@@ -20,6 +19,22 @@
 
 # Note that object zero is used for the "stack" picture (unused).
 
+# Minor changes: Rings of Speed are now level 70 items, and the "special"
+# items with the INSTA_ART flag have had their level tweaked to match the 
+# a_info.txt file. Rings of Poison Resistance are now level 40 items. 
+# Power Dragon Scale Mail is slightly more common, now it's up to
+# half as common as Multi-Hued DSM - which is still pretty rare.
+
+#   Amulets of the Magi now give bonuses and sustains to int and wis. They are
+# also deeper and rarer...
+
+#   The completely useless Ring of Searching is replaced by a deeper and rarer
+# Ring of Sustaining (sustain all stats.)
+
+#   Rings and Amulets which add to one stat (only) now sustain that stat as 
+# well.
+
+#   Ring of Woe and Amulet of Doom are now HEAVY_CURSED!
 
 # Version stamp (required)
 
@@ -1008,44 +1023,44 @@ P:5:1d3:0:0:0
 N:132:Strength
 G:=:d
 I:45:24:0
-W:30:0:2:500
-A:30/1
-F:STR | HIDE_TYPE
+W:40:0:2:1000
+A:40/2
+F:STR | SUST_STR |  HIDE_TYPE
 
 N:133:Dexterity
 G:=:d
 I:45:26:0
-W:30:0:2:500
-A:30/1
-F:DEX | HIDE_TYPE
+W:40:0:2:1000
+A:40/2
+F:DEX | SUST_DEX | HIDE_TYPE
 
 N:134:Constitution
 G:=:d
 I:45:27:0
-W:30:0:2:500
-A:30/1
-F:CON | HIDE_TYPE
+W:40:0:2:1000
+A:40/2
+F:CON | SUST_CON | HIDE_TYPE
 
 N:135:Intelligence
 G:=:d
 I:45:25:0
-W:30:0:2:500
-A:30/1
-F:INT | HIDE_TYPE
+W:40:0:2:1000
+A:40/2
+F:INT | SUST_INT | HIDE_TYPE
 
 N:136:Speed
 G:=:d
 I:45:31:0
-W:80:0:2:100000
-A:80/1
+W:70:0:2:100000
+A:70/1
 F:SPEED | HIDE_TYPE
 
-N:137:Searching
+N:137:Sustaining
 G:=:d
 I:45:23:0
-W:5:0:2:250
-A:5/1
-F:SEARCH | HIDE_TYPE
+W:50:0:2:20000
+A:50/16
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR 
 
 N:138:Teleportation
 G:=:d
@@ -1082,11 +1097,11 @@ W:5:0:2:200
 A:5/1
 F:FEATHER | EASY_KNOW
 
-N:143:Poison Resistance
+N:143:Resist Poison
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/2
+W:40:0:2:16000
+A:40/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1127,12 +1142,12 @@ A:50/1
 P:0:0d0:0:0:15
 F:RES_COLD | IGNORE_COLD
 
-N:149:Woe
+N:149:WOE
 G:=:d
 I:45:0:-5
 W:50:0:2:0
 A:50/1
-F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
+F:LIGHT_CURSE | HEAVY_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
 N:150:Stupidity
 G:=:d
@@ -1227,22 +1242,22 @@ F:SHOW_MODS
 N:163:Wisdom
 G:":d
 I:40:6:0
-W:20:0:3:500
-A:20/1
-F:WIS | HIDE_TYPE
+W:40:0:3:1000
+A:40/2
+F:WIS | SUST_WIS | HIDE_TYPE
 
 N:164:Charisma
 G:":d
 I:40:7:0
-W:20:0:3:500
-A:20/1
-F:CHR | HIDE_TYPE
+W:40:0:3:1000
+A:40/2
+F:CHR | SUST_CHR | HIDE_TYPE
 
 N:165:Searching
 G:":d
 I:40:5:0
-W:30:0:3:600
-A:30/4
+W:20:0:3:600
+A:20/1
 F:SEARCH | HIDE_TYPE
 
 N:166:Teleportation
@@ -1279,9 +1294,8 @@ N:171:the Magi
 G:":d
 I:40:8:0
 W:50:0:3:30000
-A:50/4
-P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
+A:70/8
+F:FREE_ACT | SEE_INVIS | SEARCH | INT | SUST_INT | WIS | SUST_WIS | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:172:DOOM
@@ -1289,7 +1303,7 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 A:50/1
-F:LIGHT_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
+F:LIGHT_CURSE | HEAVY_CURSE | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 
 
 ##### Scrolls #####
@@ -1322,7 +1336,7 @@ N:177:*Identify*
 G:?:d
 I:70:13:0
 W:30:0:5:1000
-A:30/1
+A:30/1:50/1:80/1
 
 ## XXX 178 XXX ##
 
@@ -2875,26 +2889,26 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:405:Multi-Hued Dragon Scale Mail~
 G:[:v
 I:38:6:0
-W:100:0:200:150000
-A:100/16
+W:90:0:200:150000
+A:90/16
 P:30:2d4:-2:0:10
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:406:Shining Dragon Scale Mail~
+N:406:Pseudo Dragon Scale Mail~
 G:[:o
 I:38:10:0
 W:65:0:200:60000
 A:65/16
 P:30:2d4:-2:0:10
-F:RES_LITE | RES_DARK |
+F:RES_LITE | RES_DARK | RES_CONFU | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:407:Law Dragon Scale Mail~
 G:[:B
 I:38:12:0
 W:80:0:200:80000
-A:80/16
+A:75/16
 P:30:2d4:-2:0:10
 F:RES_SOUND | RES_SHARD |
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2938,11 +2952,12 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:412:Power Dragon Scale Mail~
 G:[:v
 I:38:30:0
-W:110:0:200:300000
-A:110/64
+W:100:0:200:300000
+A:100/32
 P:40:2d4:-3:0:15
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_NEXUS | RES_NETHR | RES_CHAOS | 
+F:RES_DISEN | RES_SOUND | RES_CONFU | RES_SHARD | RES_BLIND | 
 F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 413 XXX ##
@@ -3183,7 +3198,7 @@ F:INSTA_ART
 N:502:& Arkenstone~
 G:~:y
 I:39:6:0
-W:60:0:5:60000
+W:50:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
@@ -3201,7 +3216,7 @@ F:INSTA_ART
 N:504:& Amulet~
 G:":d
 I:40:11:0
-W:60:0:3:90000
+W:65:0:3:90000
 F:INSTA_ART
 
 # The Necklace of the Dwarves -- see artifact list
@@ -3226,38 +3241,42 @@ F:INSTA_ART
 N:507:& Ring~
 G:=:d
 I:45:33:0
-W:90:0:2:150000
+W:70:0:2:150000
 F:INSTA_ART
 
-# The Ring of Power (Narya) -- see artifact list
+# The Ring of Power "Narya" -- see artifact list
 
 N:508:& Ring~
 G:=:d
 I:45:34:0
-W:80:0:2:100000
+W:70:0:2:100000
+P:0:0d0:6:6:0
 F:INSTA_ART
 
-# The Ring of Power (Nenya) -- see artifact list
+# The Ring of Power "Nenya" -- see artifact list
 
 N:509:& Ring~
 G:=:d
 I:45:35:0
-W:90:0:2:200000
+W:80:0:2:200000
+P:0:0d0:8:8:0
 F:INSTA_ART
 
-# The Ring of Power (Vilya) -- see artifact list
+# The Ring of Power "Vilya" -- see artifact list
 
 N:510:& Ring~
 G:=:d
 I:45:36:0
-W:100:0:2:300000
+W:90:0:2:300000
+P:0:0d0:10:10:0
 F:INSTA_ART
 
-# The Ring of Power (The One Ring) -- see artifact list
+# The Ring of Power "The One Ring" -- see artifact list
 
 N:511:& Ring~
 G:=:y
 I:45:37:0
-W:110:0:2:5000000
+W:100:0:2:5000000
+P:0:0d0:15:15:0
 F:INSTA_ART
 
