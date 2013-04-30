@@ -1,5 +1,6 @@
-
-# Feature attr/char definitions
+#
+# Feature attr/char definitions for the iso view addon
+#
 
 # nothing
 F:0:0x81:0xA0:0:A
@@ -80,8 +81,9 @@ F:32:0x8F:0xAB:0:A
 # jammed door
 F:41:0x87:0xAB:0:A
 
-# pile of rubble
-F:49:0x81:0xBA:0:A
+# pile of rubble (rc)
+# F:49:0x81:0xBA:0:A
+F:49:0xC1:0x99:0:A
 
 # magma vein
 F:50:0x82:0xA5:0:A
@@ -223,7 +225,8 @@ F:136:0x81:0xBB:0:A
 
 # dusty trail (rc)
 # F:137:0x94:0xAE:0:A
-F:137:0x94:0x84:0:A
+# F:137:0x94:0x84:0:A
+F:137:0xD4:0x98:0:A
 
 # stone bridge (rc)
 # F:140:0x81:0xF8:0:A
@@ -257,7 +260,7 @@ F:151:0x86:0xBE:0:A
 
 # water (rc)
 #F:153:0x86:0xBB:0:A
-F:153:0xC6:0xBA:0:A
+F:153:0xC6:0xBD:0:A
 
 # deep water (rc)
 # F:155:0x86:0xBA:0:A
@@ -770,8 +773,9 @@ F:408:0xD4:0xB9:0:A
 # rock
 F:409:0x81:0xBB:0:A
 
-# pebbles
-F:410:0x82:0xAE:0:A
+# pebbles (rc)
+# F:410:0x82:0xAE:0:A
+F:410:0xC2:0x99:0:A
 
 # grass (rc)
 # F:411:0x8D:0xAE:0:A
@@ -1139,8 +1143,9 @@ F:559:0x89:0xAE:0:A
 # salty trail
 F:560:0x94:0xAE:0:A
 
-# pebbles in the shade
-F:561:0x82:0xAE:0:A
+# pebbles in the shade (rc)
+# F:561:0x82:0xAE:0:A
+F:561:0xC2:0x99:0:A
 
 # weak granite wall
 F:563:0x88:0xA5:0:A
@@ -1467,8 +1472,9 @@ F:729:0xA3:0xF0:0:A
 # shelf
 F:730:0x87:0xAA:0:A
 
-# painting on a granite wall
-F:732:0x98:0xAA:0:A
+# painting on a granite wall (rc)
+# F:732:0x98:0xAA:0:A
+F:732:0xD8:0xAA:0:A
 
 # lit fireplace
 F:734:0x83:0xAA:0:A
@@ -1488,8 +1494,9 @@ F:739:0x8F:0xAB:0:A
 # weapon rack
 F:740:0x82:0xAA:0:A
 
-# vine-covered granite wall
-F:742:0x8D:0xAA:0:A
+# vine-covered granite wall (rc)
+# F:742:0x8D:0xAA:0:A
+F:742:0xAD:0xF9:0:A
 
 # basin
 F:744:0x8E:0xAA:0:A
@@ -1500,8 +1507,9 @@ F:746:0x92:0xAA:0:A
 # coffers
 F:748:0x81:0xAA:0:A
 
-# writing on a granite wall
-F:750:0x89:0xAA:0:A
+# writing on a granite wall (rc)
+# F:750:0x89:0xAA:0:A
+F:750:0xC9:0xB7:0:A
 
 # closing lever on a granite wall
 F:752:0x87:0xAB:0:A
@@ -1512,8 +1520,9 @@ F:753:0x87:0xAB:0:A
 # blood-stained wall
 F:754:0x84:0xA3:0:A
 
-# slime-covered wall
-F:756:0x99:0xA3:0:A
+# slime-covered wall (rc)
+# F:756:0x99:0xA3:0:A
+F:756:0xD9:0x8B:0:A
 
 # a lit fireplace containing something
 F:758:0x8C:0xAA:0:A
@@ -1669,8 +1678,9 @@ F:815:0x96:0xB0:0:A
 # empty well
 F:816:0x96:0xBE:0:A
 
-# writing-covered floor
-F:817:0x83:0xAE:0:A
+# writing-covered floor (rc)
+# F:817:0x83:0xAE:0:A
+F:817:0xC3:0xBE:0:A
 
 # shrine
 F:818:0x85:0xB0:0:A
@@ -1681,22 +1691,26 @@ F:820:0x88:0xB0:0:A
 # empty cupboard
 F:827:0x8F:0xA7:0:A
 
-# web-covered granite wall
+# web-covered granite wall (rc)
 # F:829:0x83:0xA5:0:A
-F:829:0xC3:0x8B:0:A
+# F:829:0xC3:0x8B:0:A
+F:829:0xA1:0xF9:0:A
 
-# mossy granite wall
+# mossy granite wall (rc)
 # F:831:0x83:0xA5:0:A
-F:831:0xA3:0xF0:0:A
+# F:831:0xA3:0xF0:0:A
+F:831:0xA5:0xF9:0:A
 
 # scratched granite wall
 F:833:0x83:0xA5:0:A
 
-# roughly-hewn granite wall
-F:835:0x83:0xA5:0:A
+# roughly-hewn granite wall (rc)
+# F:835:0x83:0xA5:0:A
+F:835:0xA9:0xF9:0:A
 
-# roughly-hewn granite wall
-F:836:0x83:0xA5:0:A
+# roughly-hewn granite wall (rc)
+# F:836:0x83:0xA5:0:A
+F:836:0xA9:0xF9:0:A
 
 # wet granite wall
 F:837:0x83:0xA5:0:A
@@ -1750,7 +1764,8 @@ F:858:0x99:0xA7:0:A
 F:859:0x87:0xAB:0:A
 
 # painting on a granite wall
-F:860:0x98:0xAA:0:A
+# F:860:0x98:0xAA:0:A
+F:860:0xD8:0xAA:0:A
 
 # burning torch on a granite wall
 F:861:0x8B:0xAA:0:A
@@ -1830,11 +1845,13 @@ F:904:0x8B:0xB1:0:A
 # a weak granite wall containing something
 F:915:0x8C:0xAA:0:A
 
-# vine-covered weak granite wall
-F:919:0x8D:0xA5:0:A
+# vine-covered weak granite wall (rc)
+# F:919:0x8D:0xA5:0:A
+F:919:0xAD:0xF9:0:A
 
-# vine-covered granite wall
-F:920:0x83:0xA5:0:A
+# vine-covered granite wall (rc)
+# F:920:0x83:0xA5:0:A
+F:920:0xA3:0xF9:0:A
 
 # metal framework
 F:921:0x82:0xB0:0:A

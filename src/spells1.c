@@ -1216,6 +1216,8 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	/* Paranoia */
 	if (typ > z_info->effect_max) return (PICT(TERM_WHITE, '@'));
 
+#ifndef USE_ISOV
+	
 	/* No motion (*) */
 	if ((ny == y) && (nx == x))
 	{
@@ -1270,6 +1272,51 @@ u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 			effect_info[typ].char_horiz : '*';
 	}
 
+#else
+	/* No motion (*) */
+	if ((ny == y) && (nx == x))
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x9E;
+	}
+
+	/* Vertical (|) */
+	else if (nx == x)
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x94;
+	}
+
+	/* Horizontal (-) */
+	else if (ny == y)
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x95;
+	}
+
+	/* Diagonal (/) */
+	else if ((ny - y) == (x - nx))
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x96;
+	}
+
+	/* Diagonal (\) */
+	else if ((ny - y) == (nx - x))
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x97;
+	}
+
+	/* Weird (*) */
+	else
+	{
+		a = 0xA0 + spell_color(typ, ny, nx);
+		c = 0x9E;
+	}
+
+#endif	
+	
 	/* Create pict */
 	return (PICT(a, c));
 }

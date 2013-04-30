@@ -1418,8 +1418,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Display the region graphic */
 				else
 				{
-					a = region_info[r_ptr->type].x_attr;
-					c = region_info[r_ptr->type].x_char;
+					a = region_info[r_ptr->type].x_attr | 0x80;
+					c = region_info[r_ptr->type].x_char | 0x80;
 				}
 				break;
 			}
@@ -1620,7 +1620,6 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				/* Normal attr */
 				a = da;
 			}
-			printf("Monster 0x%x:0x%x  (desired: 0x%x:0x%x)\n", a, c, da, dc);
 		}		
 	}
 

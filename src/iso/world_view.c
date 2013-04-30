@@ -55,6 +55,7 @@ extern unsigned char **iso_ctp;
 const int OUTSIDE_TOWN = 319;
 const int SHADOW = 153;
 const int TOWN_FLOOR = 1;
+const int TOWN_BUILDINGS = 135;
 
 /** Which part of attr are the color bits? */
 const int COLOR_BITS = 0x1F;
@@ -431,6 +432,87 @@ static int calc_nc_text(const int c, const int a)
     return ((a & 0x60) << 2) + (c & 0x7F);
 }
 
+static int get_stack_size(const int x, const int y)
+{
+	int n = 1;
+	
+	if(is_valid_to_show(x, y))
+	{
+		/* UnAngband version */
+		const int this_m_idx = cave_m_idx[y][x];
+		
+		if(this_m_idx == 0) 
+		{
+			const int this_o_idx = cave_o_idx[y][x];
+
+			if(this_o_idx)
+			{
+				/* Get the object */
+				object_type *o_ptr = o_ptr = &o_list[this_o_idx];
+				n = o_ptr->number;
+			}
+		}
+	}
+	
+	return n;
+}
+
+
+static void display_object_stack_line(int xpos, int ypos,
+									  int tileno, int color,
+									  int count)
+{
+	const int vx = -3;
+	const int vy = 2;
+	const int hf = count/2;
+	
+	int i;
+	
+	for(i=0; i<count; i++)
+	{
+		const int n = i - hf;
+		const int x = xpos + n*vx;
+		const int y = ypos + n*vy;
+		
+		display_color_img(tileno, x, y, color, TRUE);
+	}
+}
+
+/* 
+ * Display item stacks in layers of 36 (6x6) tiles each 
+ */
+static void display_object_stack_grid(const int xpos, const int ypos,
+									  const int tileno, const int color,
+									  int count)
+{
+    const int layers = count / 36 + 1;
+    int layer;
+    
+    for(layer=0; layer < layers; layer++)
+    {
+        int count_in_layer = count > 36 ? 36 : count;
+    
+	    const int vx = 4;
+	    const int vy = 2;
+	    const int lines = count_in_layer / 6 + 1;
+	    const int hf = lines / 2;
+	
+	    int i;
+	
+	    for(i=0; i<lines; i++)
+	    {
+		    const int n = i - hf;
+		    const int x = xpos + n*vx + layer;
+		    const int y = ypos + n*vy - layer;
+		
+		    display_object_stack_line(x, y, tileno, color,
+                                      count_in_layer > 6 ? 6 : count_in_layer);		
+		
+		    count -= 6;
+            count_in_layer -= 6;
+	    }
+    }
+}
 
 static void paint_9_part_wall(const int set_base, const int bits, 
                                 const int xpos, const int ypos,
@@ -494,7 +576,7 @@ static void display_walls(int xpos, int ypos, int x, int y, int feat_nc, int col
             // ASCII need a floor
             display_color_img(4, xpos, ypos, color, TRUE);
         }
- 
+	
         // printf("%x\n", color);        
         display_color_img(feat_nc, xpos, ypos, color, TRUE);
     }   
@@ -504,23 +586,32 @@ static void display_town(int xpos, int ypos, int x, int y, int feat_nc, int ta)
 {
     if(is_town_wall(x, y)) 
     {
-      const int bits = check_wall(x, y);   
-      display_color_img(TOWN_FLOOR, xpos, ypos, ta & COLOR_BITS, TRUE);    
-      paint_9_part_wall(267, bits, xpos, ypos, ta & COLOR_BITS);
-      paint_9_part_wall(267, bits, xpos, ypos-18, ta & COLOR_BITS);
+		const int bits = check_wall(x, y);   
+		display_color_img(TOWN_FLOOR, xpos, ypos, ta & COLOR_BITS, TRUE);    
+		paint_9_part_wall(267, bits, xpos, ypos, ta & COLOR_BITS);
+		paint_9_part_wall(267, bits, xpos, ypos-18, ta & COLOR_BITS);
     }
     else if(is_location_outside_town(x, y)) 
     {
-      const int img = calc_town_outside(x, y);
-      display_color_img(img, xpos, ypos, ta & COLOR_BITS, TRUE);    
+		const int img = calc_town_outside(x, y);
+		display_color_img(img, xpos, ypos, ta & COLOR_BITS, TRUE);    
     }
-    else if(feat_nc == 0x04) {
-      /* special town floors */
-      display_color_img(TOWN_FLOOR, xpos, ypos, ta & COLOR_BITS, TRUE);    
+    else if(feat_nc == 0x04) 
+	{
+		/* special town floors */
+		display_color_img(TOWN_FLOOR, xpos, ypos, ta & COLOR_BITS, TRUE);    
     }
-    else {
-      // display_color_img(feat_nc, xpos, ypos, ta & COLOR_BITS, TRUE);    
-        display_walls(xpos, ypos, x, y, feat_nc, ta & COLOR_BITS);    
+    else 
+	{
+		
+		if(feat_nc == 240 || feat_nc == 249 || feat_nc == 267)
+		{
+			display_color_img(TOWN_BUILDINGS, xpos, ypos, ta & COLOR_BITS, TRUE); 
+		}
+		else
+		{
+			display_walls(xpos, ypos, x, y, feat_nc, ta & COLOR_BITS);    
+		}
     }
 }    
 
@@ -531,99 +622,107 @@ static void display_town(int xpos, int ypos, int x, int y, int feat_nc, int ta)
  */
 void display_things(int x, int y, int xpos, int ypos)
 {
-  const int grid = get_grid();
-  int feat_nc = -1;
-  int obj_nc;	
+	const int grid = get_grid();
+	int feat_nc = -1;
+	int obj_nc;	
 
-  /* relative to view position */
-  int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
-  int yoff = y - p_ptr->py + (SCREEN_HGT/2+1);
+	/* relative to view position */
+	int xoff = x - p_ptr->px + (SCREEN_WID/2+13);
+	int yoff = y - p_ptr->py + (SCREEN_HGT/2+1);
 
-  byte a=0x80, ta=0x80;
-  char c=0xA0, tc=0xA0;
+	byte a=0x80, ta=0x80;
+	char c=0xA0, tc=0xA0;
 
-  /* try to use output of the term package */
-  if(xoff >= 13 && yoff >= 1 && xoff < 79 && yoff < 23) {
-    /* floor, walls */
+	/* try to use output of the term package */
+	if(xoff >= 13 && yoff >= 1 && xoff < 79 && yoff < 22) {
+		/* floor, walls */
     
-    c = iso_cp[yoff][xoff];
-    a = iso_ap[yoff][xoff];
+		c = iso_cp[yoff][xoff];
+		a = iso_ap[yoff][xoff];
     
-    /* object/monster */
-    tc = iso_ctp[yoff][xoff];
-    ta = iso_atp[yoff][xoff];
+		/* object/monster */
+		tc = iso_ctp[yoff][xoff];
+		ta = iso_atp[yoff][xoff];
 
-  } else {
-    /* outside 80x24 view, try to read map */
+	} else {
+		/* outside 80x24 view, try to read map */
 
-    if(is_valid_to_show(x,y)) {
-      
-      if(cave_info) {
-      	map_info(y, x, &a, &c, &ta, &tc);
-      }      
-    } 
-  }
+		if(is_valid_to_show(x,y)) 
+		{      
+			if(cave_info) 
+			{
+				map_info(y, x, &a, &c, &ta, &tc);
+			}      
+		} 
+	}
 
-  /* Text mode code */
+	/* Text mode code */
 
-  feat_nc = calc_nc_text(tc, ta);
-  obj_nc = calc_nc_text(c, a);
+	feat_nc = calc_nc_text(tc, ta);
+	obj_nc = calc_nc_text(c, a);
   
-  /* Hajo: if we are in town, we adjust display */
-  if(is_player_in_town())
-  {
-      display_town(xpos, ypos, x, y, feat_nc, ta);
-  }	  
-  else if(feat_nc == 0x27) 
-  {
-    /* open doors */   
-    display_color_img(138+door_direction(x,y), xpos, ypos, ta & COLOR_BITS, TRUE);
-  } 
-  else if(feat_nc == 0x2B) 
-  {
-    /* closed doors */
-    display_color_img(136+door_direction(x,y), xpos, ypos, ta & COLOR_BITS, TRUE);
-  } 
-  else {
-    display_walls(xpos, ypos, x, y, feat_nc, ta & COLOR_BITS);    
-  }  
+	/* Hajo: if we are in town, we adjust display */
+	if(is_player_in_town())
+	{
+		display_town(xpos, ypos, x, y, feat_nc, ta);
+	}	  
+	else if(feat_nc == 0x27) 
+	{
+		/* open doors */   
+		display_color_img(138+door_direction(x,y), xpos, ypos, ta & COLOR_BITS, TRUE);
+	} 
+	else if(feat_nc == 0x2B) 
+	{
+		/* closed doors */
+		display_color_img(136+door_direction(x,y), xpos, ypos, ta & COLOR_BITS, TRUE);
+	} 
+	else 
+	{
+		display_walls(xpos, ypos, x, y, feat_nc, ta & COLOR_BITS);    
+	}  
 
 
-  /* Hajo: display a complete grid if the user wants to */
-  if(grid == 2) {
-    display_color_img(155, xpos, ypos, ta & COLOR_BITS, TRUE);
-  }
+	/* Hajo: display a complete grid if the user wants to */
+	if(grid == 2) 
+	{
+		display_color_img(155, xpos, ypos, ta & COLOR_BITS, TRUE);
+	}
 
 
-  if(feat_nc != obj_nc) {
-
-    /* Hajo: display a grid below items/monsters if the user wants to */
-    if(grid == 1) {
-      display_color_img(152, xpos, ypos, ta & COLOR_BITS, TRUE);
-    }
-
-    /* Hajo: display a shadow below items/monsters if the user wants to */
-    if(shadow) {
-      display_color_img(SHADOW, xpos, ypos, ta & COLOR_BITS, TRUE);
-    }
-
-    /* Hajo: colored item/monster */
-    display_color_img(obj_nc, xpos, ypos, a & COLOR_BITS, TRUE);
-  }
-
-  /* draw a cursor ? */
-  if(xoff == high_x && 
-     yoff == high_y &&
-     high_x >= 13 &&
-     high_y >= 1 &&
-     high_x < 79 &&
-     high_y < 23) 
-  {
-    display_color_img(159, xpos, ypos, 1, TRUE);
+	if(feat_nc != obj_nc) 
+	{
+		const int count = get_stack_size(x, y);
 	  
-    /* undraw cursor */
-    highlite_spot(-1,-1);
-  }
+		/* Hajo: display a grid below items/monsters if the user wants to */
+		if(grid == 1) 
+		{
+			display_color_img(152, xpos, ypos, ta & COLOR_BITS, TRUE);
+		}
+
+		/* Hajo: display a shadow below items/monsters if the user wants to */
+		if(shadow) 
+		{
+			display_color_img(SHADOW, xpos, ypos, ta & COLOR_BITS, TRUE);
+		}
+
+		/* Hajo: colored item/monster */
+		// display_color_img(obj_nc, xpos, ypos, a & COLOR_BITS, TRUE);
+		display_object_stack_grid(xpos, ypos, obj_nc, a & COLOR_BITS, count);
+	}
+
+	/* draw a cursor ? */
+	if(xoff == high_x && 
+       yoff == high_y &&
+	   high_x >= 13 &&
+       high_y >= 1 &&
+       high_x < 79 &&
+       high_y < 23) 
+    {
+		display_color_img(159, xpos, ypos, 1, TRUE);
+	  
+		/* undraw cursor */
+		highlite_spot(-1,-1);
+	}
 
 
 
