@@ -724,7 +724,7 @@ static void describe_monster_attack(const monster_race *r_ptr, const monster_lor
 		}
 
 		/* Describe the blow */
-		describe_blow(method, effect, 0, d1 * d2, NULL, buf, detail, FALSE, FALSE, TRUE, 1);
+		describe_blow(method, effect, 0, d1 * d2, NULL, buf, 0x20 | (detail ? 0 : 0x10), 1);
 
 		/* Count the attacks as printed */
 		r++;

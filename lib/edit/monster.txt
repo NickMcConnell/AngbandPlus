@@ -6749,7 +6749,7 @@ G:T:s
 #$ Metallics available:dwsorgbuWPyRGBUpvtmYiTVIMZ
 #$ Colors available:duGpmYiIM
 I:110:116:20:40:50
-W:4:6:0:100
+W:5:6:0:100
 C:13:6:0:44:140
 M:15:0:4:0
 B:HIT:BATTER:3d7
@@ -6776,7 +6776,7 @@ G:T:s
 #$ Metallics available:dwsorgbuWPyRGBUpvtmYiTVIMZ
 #$ Colors available:duGpmYiIM
 I:110:116:20:40:50
-W:4:6:0:100
+W:5:6:0:100
 C:13:6:0:44:140
 M:15:0:4:0
 B:HIT:BATTER:3d7
@@ -6803,7 +6803,7 @@ G:T:s
 #$ Metallics available:dwsorgbuWPyRGBUpvtmYiTVIMZ
 #$ Colors available:duGpmYiIM
 I:110:116:20:40:50
-W:4:6:0:100
+W:5:6:0:100
 C:13:6:0:44:140
 M:15:0:4:0
 B:HIT:BATTER:3d7
@@ -13229,7 +13229,7 @@ G:t:b
 #$ Metallics available:dwsrguWPRGBUtmMZ
 #$ Colors available:d
 I:115:60:13:2:10
-W:5:3:0:47
+W:4:3:0:47
 C:10:3:0:24:49
 M:20:0:1:0
 B:HIT:HURT:1d7
@@ -13255,7 +13255,7 @@ G:h:p
 #$ Metallics available:dwsrgbuDWPRGBpvtmYiTVIMzZ
 #$ Colors available:dgtz
 I:120:48:16:8:10
-W:5:3:0:52
+W:4:3:0:52
 C:10:3:0:23:47
 M:0:0:1:0
 B:HIT:HURT:1d6

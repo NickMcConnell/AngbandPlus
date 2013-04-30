@@ -5334,10 +5334,12 @@ void cave_set_feat_aux(const int y, const int x, int feat)
 				}
 
 				/* Disturb on "move" */
-				if (m_ptr->ml &&
+				if ((m_ptr->ml &&
 				    (disturb_move ||
 				     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 				      disturb_near)))
+				      	&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+
 				{
 					/* Disturb */
 					disturb(0, 0);

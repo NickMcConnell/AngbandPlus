@@ -90,7 +90,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_detect_grids,
 		OPT_view_fogged_grids,
 		OPT_autosave_backup,
-		OPT_NONE
+		OPT_ally_messages
 	},
 
 	/* Birth/Difficulty */
@@ -259,7 +259,7 @@ static option_entry options[OPT_MAX] =
 { "auto_monlist",        "Always show visible monsters/objects",		FALSE }, /* 106 */
 { "easy_monlist",        "Spacebar toggles visible monsters/objects",   FALSE }, /* 107 */
 { "view_fogged_grids",   "Show fog of war for unexplored areas",        TRUE }, /* 108 */
-{ NULL,                  NULL,                                          FALSE }, /* 109 */
+{ "ally_messages",       "Show detailed combat messages for allies",    FALSE }, /* 109 */
 { NULL,                  NULL,                                          FALSE }, /* 110 */
 { NULL,                  NULL,                                          FALSE }, /* 111 */
 { NULL,                  NULL,                                          FALSE }, /* 112 */

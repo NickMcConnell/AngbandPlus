@@ -3528,3 +3528,8 @@ void do_cmd_monlist(void)
 	}
 }
 
+/* Centers the map on the player */
+void do_cmd_center_map(void)
+{
+	center_panel();
+}

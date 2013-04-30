@@ -170,7 +170,7 @@ bool do_cmd_item(int command)
 		return (FALSE);
 	}
 
-	/* Check some conditions - no wind */
+	/* Check some conditions - need spells */
 	if (cmd_item_list[command].conditions & (CONDITION_NEED_SPELLS))
 	{
 		/* Cannot learn more spells */
@@ -2809,3 +2809,247 @@ bool player_apply_rune_or_coating2(int item2)
 	return (TRUE);
 }
 
+
+/*
+ * Print a list of commands that can be applied to an object.
+ */
+void print_handles(const s16b *sn, int num, int y, int x)
+{
+	int i;
+
+	char out_val[60];
+
+	byte line_attr;
+
+	/* Title the list */
+	prt("", y, x);
+	put_str("Command", y, x + 5);
+
+	/* Dump the familiar abilities */
+	for (i = 0; i < num; i++)
+	{
+		line_attr = TERM_WHITE;
+
+		/* Dump the route --(-- */
+		sprintf(out_val, "  %c) %s",
+			I2A(i), cmd_item_list[sn[i]].item_command);
+		c_prt(line_attr, out_val, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+
+}
+
+
+/*
+ * Other commands functions.
+ */
+bool handle_commands(char choice, const s16b *sn, int i, bool *redraw)
+{
+	(void)sn;
+	(void)i;
+
+	switch (choice)
+	{
+		case '?':
+		{
+			/* Save the screen */
+			if (!(*redraw)) screen_save();
+
+			/* Show stats help */
+			(void)show_file("cmddesc.txt", NULL, 0, 0);
+
+			/* Load the screen */
+			screen_load();
+
+			break;
+		}
+
+		default:
+		{
+			return (FALSE);
+		}
+	}
+	return (TRUE);
+}
+
+
+/*
+ * Handle an item (choose a command appropriate to the item)
+ */
+bool player_handle(int item)
+{
+	int i, j, num = 0;
+	int choice;
+	s16b table[MAX_COMMANDS];
+
+	object_type *o_ptr;
+	bool use_feat = FALSE;
+
+	/* Get the gold */
+	if (item == INVEN_GOLD)
+	{
+		/* Do nothing */
+		o_ptr = NULL;
+	}
+	
+	/* Get the item (in the pack) */
+	else if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+		
+		/* Use feat */
+		if (o_ptr->ident & (IDENT_STORE)) use_feat = TRUE;
+	}
+
+	/* Add appropriate commands */
+	for (i = 0; i < MAX_COMMANDS; i++)
+	{
+		bool timed;
+		
+		timed = FALSE;
+
+		/* Item not allowed with the handle command */
+		if ((cmd_item_list[i].use_from & (USE_HANDLE)) == 0) continue;
+		
+		/* Avoid testing gold */
+		if (item != INVEN_GOLD)
+		{
+			/* Item tester not allowed? */
+			if ((cmd_item_list[i].item_tester_hook) && (!(cmd_item_list[i].item_tester_hook)(o_ptr))) continue;
+	
+			/* Item tval not allowed */
+			if ((cmd_item_list[i].item_tester_tval) && (cmd_item_list[i].item_tester_tval != o_ptr->tval)) continue;
+		}
+		
+		/* Item is from the player */
+		if (item >= 0)
+		{
+			/* In the inventory */
+			if (item <= INVEN_PACK)
+			{
+				if ((cmd_item_list[i].use_from & (USE_INVEN)) == 0) continue;
+			}
+			/* In the equipment */
+			else if (item < END_EQUIPMENT)
+			{
+				if (!(o_ptr->k_idx) && ((cmd_item_list[i].use_from & (USE_SKIN)) == 0)) continue;
+				if ((cmd_item_list[i].use_from & (USE_EQUIP)) == 0) continue;
+			}
+			/* In the quiver */
+			else if (item < END_QUIVER)
+			{
+				if ((cmd_item_list[i].use_from & (USE_QUIVER)) == 0) continue;
+			}
+			/* Is the player? */
+			else if (item == INVEN_SELF)
+			{
+				if ((cmd_item_list[i].use_from & (USE_SELF)) == 0) continue;
+			}
+			/* Is gold? */
+			else if (item == INVEN_GOLD)
+			{
+				if ((cmd_item_list[i].use_from & (USE_GOLD)) == 0) continue;
+			}
+		}
+		/* Item is on the ground or carried by a monster */
+		else
+		{
+			/* Using a feature */
+			if (use_feat)
+			{
+				if ((cmd_item_list[i].use_from & (USE_FEATU | USE_FEATG)) == 0) continue;
+			}
+			/* Using an object from the floor */
+			else if (!o_ptr->held_m_idx)
+			{
+				if ((cmd_item_list[i].use_from & (USE_FLOOR)) == 0) continue;
+			}
+			/* Using an object carried by a monster */
+			else
+			{
+				monster_type *m_ptr = &m_list[o_ptr->held_m_idx];
+				
+				if ((m_ptr->cdis > 1) && ((cmd_item_list[i].use_from & (USE_RANGE)) == 0)) continue;
+				if (!(cave_project_bold(m_ptr->fy, m_ptr->fx)) && ((cmd_item_list[i].use_from & (USE_KNOWN)) == 0)) continue;
+				if ((((m_ptr->mflag & (MFLAG_ALLY)) == 0) || ((m_ptr->mflag & (MFLAG_TOWN)) != 0)) && ((cmd_item_list[i].use_from & (USE_TARGET)) == 0)) continue;
+				if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((cmd_item_list[i].use_from & (USE_ALLY)) == 0)) continue;
+			}
+		}
+		
+		/* Paranoia - skip itself */
+		if (cmd_item_list[i].player_command == player_handle) continue;
+
+		/* Check timed effects */
+		if (cmd_item_list[i].timed_conditions)
+		{
+			for (j = 0; j < 32; j++)
+			{
+				/* Check whether the player has the timed condition */
+				if (((cmd_item_list[i].timed_conditions & (1L << j)) != 0)
+						&& (p_ptr->timed[i] > 0))
+				{
+					timed = TRUE;
+					break;
+				}
+			}
+		}
+		
+		/* Timed restriction prevents using this command */
+		if (timed) continue;
+		
+		/* Check other conditions */
+		
+		/* Check some conditions - need skill to fire bow */
+		if ((cmd_item_list[i].conditions & (CONDITION_SKILL_FIRE)) && (p_ptr->num_fire <= 0)) continue;
+
+		/* Check some conditions - need skill to fire bow */
+		if ((cmd_item_list[i].conditions & (CONDITION_SKILL_THROW)) && (p_ptr->num_throw <= 0)) continue;
+
+		/* Check for charged weapon */
+		if ((cmd_item_list[i].conditions & (CONDITION_GUN_CHARGED)) &&
+				(inventory[INVEN_BOW].sval/10 == 3) && (inventory[INVEN_BOW].charges <= 0)) continue;
+
+		/* Cannot cast spells if illiterate */
+		if ((cmd_item_list[i].conditions & (CONDITION_LITERATE)) && ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL))
+			&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK)) continue;
+
+		/* Check some conditions - need lite */
+		if ((cmd_item_list[i].conditions & (CONDITION_LITE)) && (no_lite())) continue;
+
+		/* Check some conditions - no wind */
+		if ((cmd_item_list[i].conditions & (CONDITION_NO_WIND)) && ((p_ptr->cur_flags4 & (TR4_WINDY)
+					|| room_has_flag(p_ptr->py, p_ptr->px, ROOM_WINDY)))) continue;
+
+		/* Check some conditions - no wind */
+		if ((cmd_item_list[i].conditions & (CONDITION_NEED_SPELLS)) && !(p_ptr->new_spells)) continue;
+		
+		/* Check some conditions - must match shooting function */
+		if ((cmd_item_list[i].conditions & (CONDITION_SHOOTING)) && (i != p_ptr->fire_command)) continue;
+		
+		/* Accepted */
+		table[num++] = i;
+	}
+	
+	/* Get a choice */
+	if (get_list(print_handles, table, num, "Command", "Choose which command", ", ?=help", 1, 36, handle_commands, &choice))
+	{
+		/* Call the 'proper' command */
+		if ((cmd_item_list[choice].player_command)(item))
+		{
+			/* Hack - apply conditions */
+			if (cmd_item_list[choice].conditions & (CONDITION_NO_SNEAKING)) p_ptr->not_sneaking = TRUE;
+			
+			return (TRUE);
+		}
+	}
+	
+	return (FALSE);
+}

@@ -1,3 +1,82 @@
+Unangband 0.6.4 pre-release 4
+
+### Game Play ###
+
+- Add three additional druid spells including a pre-requisite spell
+for 3rd book druidic cold spells.
+
+- Ent's Song and Ent's Seeds now ranged.
+
+- Add two additional druid spells.
+
+- As the Stone troll uniques are tougher than Ted Sandyman, Bill Ferny
+and Lotho, swap the relative depths of the two sets of uniques.
+
+- Improve running algorithm to ignore terrain the player starts near.
+The only outstanding item is for the player to be able to follow the
+walls of wide corridors more easily.
+
+### User Interface ###
+
+- Add option 'ally_messages' for people who want detailled combat
+messages for allies.
+
+- Hitting 'x' while targetting allows you to target your allies.
+
+- Add ^L command (X in roguelike keyset) to center the screen on the
+player (From Angband 3.1.2).
+
+- Add 'h'andle command ('%' in roguelike keyset) which allows you to
+choose an item, then specify which command you use with that item.
+This will support the inscribing the item with %x where you automatic-
+ally choose command 'x' if you handle the item, but that component has
+not been implemented yet. There's also quite a bit that can be done on
+the menu display side of things. This will at some point support
+commands that an item can be the transitive component for e.g. you'll
+be able to choose a torch to fuel the one you have equipped, as
+opposed to at the moment you have to choose the equipped torch, then
+the torch you wish to fuel it with.
+
+- Significantly improve the quality of object and spell descriptions.
+
+- Improve region descriptions.
+
+- For some reason the single space indentation following a line
+return in text_out_to_screen was being added to the previous line. I've
+removed this for the moment.
+
+- Prevent allies movement disturbing the player.
+
+- You now notice the language skills imparted by equipment and race.
+
+- You now notice when examining an object or shape, which objects
+or shapes prevent various flags from taking effect.
+
+- Shape change spells now provide a description of what the shape
+change does to you.
+
+
+### Bug fixes ###
+
+- Fix various issues with allies not attacking enemies, particularly
+if they were some distance from the player, or immobile.
+
+- Fix for projections ending up targetting the caster if a monster was
+in the way.
+
+- Fix misplaced return in game statistics output.
+
+- Fix crash when checking for fumble with zero or negative chance to
+hit (Thanks to Pete Mack).
+
+- Fix for loading familiar fix. Had accidentally put this outside the
+loop (Thanks to SaThaRiel).
+
+- Fix help file reference.
+
+### Build / Platform ###
+
+
 Unangband 0.6.4 pre-release 2 & 3
 
 ### Game Play ###

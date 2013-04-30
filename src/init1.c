@@ -1291,7 +1291,7 @@ static cptr s_info_types[] =
 	"SUMMON_GROUP_IDX",
 	"CREATE_KIND",
 	"RAISE_RACE",
-	"XXX2",
+	"AIM_SUMMON",
 	"CURE_DISEASE",
 	"PFIX_CONF",
 	"PFIX_POIS",

@@ -6,8 +6,10 @@
  ?             Show this file
 
  o             Change to 'grid' mode [1]
+ x             Allow targetting of allies
  p             Advance to the player; change to 'grid' mode [1]
  ., 5, 0, t    Target the current monster [2]
+ @             Target as above, but allows the player to be a target
  r             Recall details of this monster (toggle on/off)
 
  g             Go to the grid current targetted [3]

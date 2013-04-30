@@ -1222,8 +1222,9 @@ bool choose_to_attack_monster(const monster_type *m_ptr, const monster_type *n_p
 	if (((m_ptr->mflag & (MFLAG_ALLY)) != 0) && ((n_ptr->mflag & (MFLAG_TOWN)) != 0)) return (FALSE);
 	if (((n_ptr->mflag & (MFLAG_ALLY)) != 0) && ((m_ptr->mflag & (MFLAG_TOWN)) != 0)) return (FALSE);
 	
-	/* Allies and townsfolk don't attack harmless monsters */
-	if (((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) != 0) && (r_info[n_ptr->r_idx].blow[0].effect == GF_NOTHING)) return (FALSE);
+	/* Allies and townsfolk don't attack harmless monsters in towns*/
+	if (((m_ptr->mflag & (MFLAG_ALLY | MFLAG_TOWN)) != 0) && (level_flag & (LF1_TOWN))
+			&& (r_info[n_ptr->r_idx].blow[0].effect == GF_NOTHING)) return (FALSE);
 
 	/* Otherwise attack */
 	return (TRUE);
@@ -3028,8 +3029,6 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 	*ty = m_ptr->fy;
 	*tx = m_ptr->fx;
 
-
-
 	/*
 	 * Monsters that cannot move will attack the character if he is
 	 * adjacent.
@@ -3084,7 +3083,7 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 			*fear = FALSE;
 
 			/* Prefer player */
-			if (m_ptr->cdis <= 1)
+			if ((choose_to_attack_player(m_ptr)) && (m_ptr->cdis <= 1))
 			{
 				/* Kill. */
 				*ty = py;
@@ -3093,8 +3092,8 @@ static bool get_move(int m_idx, int *ty, int *tx, bool *fear,
 			else
 			{
 				/* Kill. */
-				*ty = m_ptr->fy + ddy_ddd[i];
-				*tx = m_ptr->fx + ddx_ddd[i];
+				*ty = m_ptr->fy + ddy_ddd[d];
+				*tx = m_ptr->fx + ddx_ddd[d];
 			}
 			return (TRUE);
 		}
@@ -4816,8 +4815,9 @@ static bool bash_from_under(int m_idx, int y, int x, bool *bash)
 				((f_ptr->flags2 & (FF2_FILLED))?"":"the "),
 				f_name+f_ptr->name);
 
-			if (disturb_move || ((m_ptr->mflag & (MFLAG_VIEW)) &&
+			if ((disturb_move || ((m_ptr->mflag & (MFLAG_VIEW)) &&
 		      		disturb_near))
+		      		&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 			{
 				/* Disturb */
 				disturb(0, 0);
@@ -4859,8 +4859,9 @@ static bool crash_from_above(int m_idx, int y, int x)
 
 			msg_format("%^s crashes through the ceiling.",m_name);
 
-			if (disturb_move || ((m_ptr->mflag & (MFLAG_VIEW)) &&
+			if ((disturb_move || ((m_ptr->mflag & (MFLAG_VIEW)) &&
 		      		disturb_near))
+	      		&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 			{
 				/* Disturb */
 				disturb(0, 0);
@@ -4999,10 +5000,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 			}
 
 			/* Disturb on "move" */
-			if (m_ptr->ml &&
+			if ((m_ptr->ml &&
 			    (disturb_move ||
 			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 			      disturb_near)))
+			      && ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 			{
 				/* Disturb */
 				disturb(0, 0);
@@ -5332,14 +5334,26 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 			monster_type *n_ptr = &m_list[cave_m_idx[ny][nx]];
 
 			int ap_cnt;
+			char m_name[80];
+			bool hit = FALSE;
 
 			do_move = FALSE;
 
 			/* Target ignores player and retaliates */
 			if (m_ptr->mflag & (MFLAG_ALLY)) n_ptr->mflag |= (MFLAG_IGNORE);
 
+			/* Get the monster name (or "it") */
+			monster_desc(m_name, sizeof(m_name), m_idx, 0x200);
+
+			/* Notice if afraid */
+			if (m_ptr->monfear)
+			{
+				/* Describe the attack */
+				if (ally_messages) msg_format("%^s is afraid.", m_name);
+			}
+			
 			/* Attack if not afraid */
-			if (!(m_ptr->monfear))
+			else
 			{
 				/* Scan through all four blows */
 				for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -5365,9 +5379,17 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					int what = m_ptr->mflag & (MFLAG_ALLY) ? m_idx : ap_cnt;
 
 					int ac = calc_monster_ac(cave_m_idx[ny][nx], FALSE);
-
+					
+					int result;
+					
 					/* Hack -- no more attacks */
-					if (!method) break;
+					if (!method)
+					{
+						/* Describe the attack */
+						if ((!hit) && (ally_messages)) msg_format("%^s misses.", m_name);
+						
+						break;
+					}
 
 					/* Hack -- ignore ineffective attacks */
 					if (!effect) continue;
@@ -5398,7 +5420,7 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 					}
 
 					/* Debugging - display attacks */
-					attack_desc(atk_desc, cave_m_idx[ny][nx], method, effect, damage, flg, 80);
+					result = attack_desc(atk_desc, cave_m_idx[ny][nx], method, effect, damage, flg, 80);
 
 					/* Hack -- use cut or stun for resistance only */
 					if (do_cut && do_stun)
@@ -5439,6 +5461,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 						if (((r_ptr->flags9 & (RF9_RES_MAGIC)) != 0) && (rand_int(100) < 60)) continue;
 					}
 
+					/* Describe the attack */
+					if ((result >= 0) && (ally_messages)) msg_format("%^s %s", m_name, atk_desc);
+					
+					if (result >= 0) hit = TRUE;
+
 					/* Notice we made an attack. This prevents others pushing into our position
 					 * and allows fronts to form in combat in large groups */
 					if (m_ptr->mflag & (MFLAG_ALLY)) m_ptr->mflag |= (MFLAG_PUSH);
@@ -5452,6 +5479,8 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		/* Never move if petrified or never move monster */
 		else if ((r_ptr->flags1 & (RF1_NEVER_MOVE)) || (m_ptr->petrify))
 		{
+			
+			msg_format("failed to move %d, %d", ny - m_ptr->fy, nx - m_ptr->fx);
 			do_move = FALSE;
 		}
 
@@ -5657,10 +5686,11 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		}
 
 		/* Possible disturb */
-		if (m_ptr->ml &&
+		if ((m_ptr->ml &&
 		    (disturb_move ||
 		     ((m_ptr->mflag & (MFLAG_VIEW)) &&
 		      disturb_near)))
+		      && ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -5722,14 +5752,16 @@ static void process_move(int m_idx, int ty, int tx, bool bash)
 		}
 
 		/* Player will always be disturbed if a monster is adjacent */
-		if (m_ptr->cdis == 1)
+		if ((m_ptr->cdis == 1)
+      		&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 		{
 			disturb(1, 0);
 		}
 
 		/* Possible disturb */
-		else if (m_ptr->ml && (disturb_move ||
+		else if ((m_ptr->ml && (disturb_move ||
 			(m_ptr->mflag & (MFLAG_VIEW) && disturb_near)))
+			&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 		{
 			/* Disturb */
 			disturb(0, 0);
@@ -6086,7 +6118,7 @@ static void process_monster(int m_idx)
 		else if ((m_ptr->ty) && (m_ptr->tx)) m_ptr->mflag |= (MFLAG_ACTV);
 
 		/* Monster will get a target */
-		else if (m_ptr->mflag & (MFLAG_TOWN)) m_ptr->mflag |= (MFLAG_ACTV);
+		else if (m_ptr->mflag & (MFLAG_TOWN | MFLAG_ALLY | MFLAG_IGNORE)) m_ptr->mflag |= (MFLAG_ACTV);
 
 		/* The monster is catching too much of a whiff to ignore */
 		else if (cave_when[m_ptr->fy][m_ptr->fx])
@@ -6408,8 +6440,9 @@ static void process_monster(int m_idx)
 				}
 
 				/* Disturb on "move" */
-				if (m_ptr->ml && (disturb_move ||
+				if ((m_ptr->ml && (disturb_move ||
 					((m_ptr->mflag & (MFLAG_VIEW)) && disturb_near)))
+						&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
 				{
 					/* Disturb */
 					disturb(0, 0);
@@ -6825,10 +6858,8 @@ static void process_monster(int m_idx)
 		bool need_lite = ((r_ptr->flags2 & (RF2_NEED_LITE)) == 0);
 		bool sneaking = (p_ptr->sneaking) || (m_ptr->cdis > MAX_SIGHT);
 
-		/* Note: We have to prevent never move monsters from acquiring targets or they will move */
-		bool can_target = ((r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_NEVER_BLOW)) == 0)
-			&& !(m_ptr->petrify)
-			&& (aggressive || !(m_ptr->monfear));
+		/* Note: We have to prevent never move monsters from acquiring non-adjacent targets or they will move */
+		bool can_target = (aggressive || !(m_ptr->monfear));
 
 		/* This allows smart monsters and the player's familiar to report enemy positions to the player */
 		bool spying = ally && (((r_ptr->flags2 & (RF2_SMART)) != 0) || (m_ptr->r_idx == FAMILIAR_IDX));
@@ -6869,7 +6900,7 @@ static void process_monster(int m_idx)
 		}
 
 		/* Spies report their own position */
-		if (spying && !(m_ptr->ml))
+		if (spying && (!(m_ptr->ml) || (p_ptr->timed[TMD_BLIND])))
 		{
 			/* Optimize -- Repair flags */
 			repair_mflag_mark = repair_mflag_show = TRUE;
@@ -6881,9 +6912,8 @@ static void process_monster(int m_idx)
 			update_mon(m_idx, FALSE);
 		}
 
-		/* We check monsters either if we are spying on them or can move to attack them */
-		if (can_target || spying)
-			for (i = m_max - 1; i >= 1; i--)
+		/* Check all the other monsters */
+		for (i = m_max - 1; i >= 1; i--)
 		{
 			bool see_target = FALSE;
 			bool los_target = FALSE;
@@ -7022,7 +7052,7 @@ static void process_monster(int m_idx)
 			if (sneaking)
 			{
 				/* Target is asleep - ignore */
-				if (m_ptr->csleep) continue;
+				if (n_ptr->csleep) continue;
 
 				/* Target not aggressive */
 				if ((n_ptr->mflag & (MFLAG_AGGR)) == 0)
@@ -7050,8 +7080,11 @@ static void process_monster(int m_idx)
 				}
 			}
 
+			/* Never move can only target adjacent monsters. Note we must use real distance here */
+			/*if ((((r_ptr->flags1 & (RF1_NEVER_MOVE)) != 0) || (m_ptr->petrify)) && (distance(m_ptr->fy, m_ptr->fx, n_ptr->fy, n_ptr->fx) > 1)) continue;*/
+			
 			/* Can't attack the target */
-			if (!(can_target))
+			if (!(can_target) || ((r_ptr->flags1 & (RF1_NEVER_BLOW)) != 0))
 			{
 				/* Target set already */
 				if (m_ptr->ty) continue;
@@ -7312,13 +7345,6 @@ static void process_monster(int m_idx)
 		/* Monster can try to wander into /anything/... */
 		ty = m_ptr->fy + ddy_ddd[dir];
 		tx = m_ptr->fx + ddx_ddd[dir];
-	}
-
-	/* Allies try not to disturb the players rest */
-	else if ((!choose_to_attack_player(m_ptr)) && !(m_ptr->ty) && !(m_ptr->tx) && (p_ptr->resting))
-	{
-		/* Don't move as this disturbs the player */
-		return;
 	}
 
 	/* Monster isn't confused, just moving semi-randomly, or monster is partially confused */

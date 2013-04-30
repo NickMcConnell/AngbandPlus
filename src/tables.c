@@ -3167,134 +3167,155 @@ const cptr cause_of_death[-SOURCE_PLAYER_END][SOURCE_MESSAGES] =
  */
 const do_cmd_item_type cmd_item_list[MAX_COMMANDS] =
 {
-	{ NULL, '\0', " which ? ", "You have nothing to .",
+	{ NULL, '\0', "nothing", " which ? ", "You have nothing to .",
 			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATU), 0L, 0L, 0, NULL},
 
-	{ player_eat_food, 'E', "Eat which item? ", "You have nothing to eat.",
-			item_tester_hook_food_edible, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY), 0L, 0L, 0, NULL},
+	{ player_eat_food, 'E', "Eat", "Eat which item? ", "You have nothing to eat.",
+			item_tester_hook_food_edible, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_quaff_potion, 'q', "Quaff which potion? ", "You have nothing to quaff.",
-			NULL, TV_POTION, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY), 0L, 0L, 0, NULL},
+	{ player_quaff_potion, 'q', "Quaff", "Quaff which potion? ", "You have nothing to quaff.",
+			NULL, TV_POTION, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_read_scroll, 'r', "Read which scroll? ", "You have no scrolls to read.",
-			NULL, TV_SCROLL, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY), (CONDITION_LITE | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND), 0, NULL},
+	{ player_read_scroll, 'r', "Read", "Read which scroll? ", "You have no scrolls to read.",
+			NULL, TV_SCROLL, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY | USE_HANDLE), (CONDITION_LITE | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND), 0, NULL},
 
-	{ player_use_staff, 'u', "Use which staff? ", "You have no staffs to use.",
-			NULL, TV_STAFF, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_use_staff, 'u', "Use", "Use which staff? ", "You have no staffs to use.",
+			NULL, TV_STAFF, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_HANDLE), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_aim_wand, 'u', "Aim which wand? ", "You have no wands to aim.",
-			NULL, TV_WAND, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_aim_wand, 'u', "Aim", "Aim which wand? ", "You have no wands to aim.",
+			NULL, TV_WAND, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY | USE_HANDLE), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_zap_rod, 'z', "Zap which rod? ", "You have no rods to zap.",
-			item_tester_hook_rod_charged, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_zap_rod, 'z', "Zap", "Zap which rod? ", "You have no rods to zap.",
+			item_tester_hook_rod_charged, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_HANDLE), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_assemble, 'Y', "Assemble which item? ", "You have no items to assemble.",
-			item_tester_hook_assemble, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY), 0L, 0L, COMMAND_ITEM_ASSEMBLY, NULL},
+	{ player_assemble, 'Y', "Assemble", "Assemble which item? ", "You have no items to assemble.",
+			item_tester_hook_assemble, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_HANDLE), 0L, 0L, COMMAND_ITEM_ASSEMBLY, NULL},
 
-	{ player_assembly, 'Y', "Assemble with which item? ", "You have no items to assemble it with.",
+	{ player_assembly, 'Y', "Assemble with", "Assemble with which item? ", "You have no items to assemble it with.",
 			item_tester_hook_assembly, 0, (USE_INVEN | USE_FLOOR | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_activate, 'A', "Activate which item? ", "You have no items you know how to activate.",
+	{ player_activate, 'A', "Activate", "Activate which item? ", "You have no items you know how to activate.",
 			item_tester_hook_activate, 0, (USE_EQUIP | USE_SELF), (CONDITION_NO_SNEAKING), 0L, 0, NULL},
 
-	{ player_apply_rune_or_coating, 'y', "Apply which runestone, mushroom, flask or potion? ", "You have no runestones, mushrooms, flasks or potions.",
-			item_tester_hook_apply, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY), 0L, 0L, 0, cmd_tester_rune_or_coating},
+	{ player_apply_rune_or_coating, 'y', "Apply", "Apply which runestone, mushroom, flask or potion? ", "You have no runestones, mushrooms, flasks or potions.",
+			item_tester_hook_apply, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_BAGC | USE_ALLY | USE_HANDLE), 0L, 0L, 0, cmd_tester_rune_or_coating},
 
-	{ player_apply_rune_or_coating2, 'y', "Apply rune to which item? ", "You have nothing to apply runes to.",
+	{ player_apply_rune_or_coating2, 'Y', "Apply to", "Apply rune to which item? ", "You have nothing to apply runes to.",
 			NULL, 0, (USE_INVEN | USE_EQUIP | USE_FLOOR | USE_SKIN | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_apply_rune_or_coating2, 'y', "Coat which item? ", "You have nothing which will hold a coating.",
+	{ player_apply_rune_or_coating2, 'y', "Coat", "Coat which item? ", "You have nothing which will hold a coating.",
 			item_tester_hook_coating, 0, (USE_INVEN  | USE_EQUIP | USE_FLOOR | USE_SKIN | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_wield, 'w', "Wear/Wield which item? ", "You have nothing you can wear or wield.",
-			item_tester_hook_wear, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0L, 0, NULL},
+	{ player_wield, 'w', "Wear or wield", "Wear/Wield which item? ", "You have nothing you can wear or wield.",
+			item_tester_hook_wear, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_HANDLE), 0L, 0L, 0, NULL},
+#if 0
+	{ player_wield, 'W', "Wield", "Wield which item? ", "You have nothing you can wield.",
+			item_tester_hook_wear /*_wield*/, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_wield /*_offhand*/, 'o', "Wear/Wield which item into your off-hand? ", "You have nothing you can wear or wield in your off-hand.",
+	{ player_wield, 'w', "Wear", "Wear which item? ", "You have nothing you can wear.",
+			item_tester_hook_wear /*_wear*/, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_HANDLE), 0L, 0L, 0, NULL},
+#endif
+	{ player_wield /*_offhand*/, 'o', "Wield into off-hand", "Wield which item into your off-hand? ", "You have nothing you can wear or wield in your off-hand.",
 			item_tester_hook_wear /*_offhand */, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG), 0L, 0L, 0, NULL},
 
-	{ player_wield /*_quiver*/, 'p', "Put which item into your quiver? ", "You have nothing you can put in your quiver.",
+	{ player_wield /*_quiver*/, 'p', "Put into quiver", "Put which item into your quiver? ", "You have nothing you can put in your quiver.",
 			item_tester_hook_wear /*_quiver*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATG | USE_BAGC), 0L, 0L, 0, NULL},
 
-	{ player_takeoff, 't', "Take off which item? ", "You are not wearing anything to take off.",
-			item_tester_hook_removable, 0, (USE_EQUIP | USE_ALLY | USE_RANGE), 0L, 0L, 0, NULL},
+	{ player_takeoff, 't', "Take off", "Take off which item? ", "You are not wearing anything to take off.",
+			item_tester_hook_removable, 0, (USE_EQUIP | USE_ALLY | USE_RANGE | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_drop, 'd', "Drop which item? ", "You have nothing to drop.",
-			item_tester_hook_droppable, 0, (USE_EQUIP | USE_INVEN | USE_BAGC | USE_BAGS | USE_ALLY | USE_RANGE /*| USE_GOLD */), 0L, 0L, 0, NULL},
+	{ player_drop, 'd', "Drop", "Drop which item? ", "You have nothing to drop.",
+			item_tester_hook_droppable, 0, (USE_EQUIP | USE_INVEN | USE_BAGC | USE_BAGS | USE_ALLY | USE_RANGE /*| USE_GOLD */ | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_destroy, 'k', "Destroy which item? ", "You have nothing to destroy.",
-			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS | USE_ALLY | USE_RANGE), 0L, 0L, 0, NULL},
+	{ player_destroy, 'k', "Destroy", "Destroy which item? ", "You have nothing to destroy.",
+			NULL, 0, (USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS | USE_ALLY | USE_RANGE | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_observe, 'x', "Examine which item? ", "You have nothing to examine.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS | USE_ALLY | USE_TARGET | USE_RANGE | USE_KNOWN), 0L, 0L, 0, NULL},
+	{ player_observe, 'x', "Examine", "Examine which item? ", "You have nothing to examine.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_BAGS | USE_ALLY | USE_TARGET | USE_RANGE | USE_KNOWN | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_uninscribe, '}', "Un-inscribe which item? ", "You have nothing to un-inscribe.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_ALLY), 0L, 0L, 0, NULL},
+	{ player_uninscribe, '}', "Un-inscribe", "Un-inscribe which item? ", "You have nothing to un-inscribe.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_inscribe, '{', "Inscribe which item? ", "You have nothing to inscribe.",
-			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_ALLY), 0L, 0L, 0, NULL},
+	{ player_inscribe, '{', "Inscribe", "Inscribe which item? ", "You have nothing to inscribe.",
+			NULL, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_refill, 'F', "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
+	{ player_refill, 'F', "Fill or fuel", "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
+			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY | USE_HANDLE), 0L, 0L, 0, cmd_tester_fill_or_fuel},
+#if 0
+	{ player_refill, 'F', "Fill", "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
 			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY), 0L, 0L, 0, cmd_tester_fill_or_fuel},
 
-	{ player_refill2, '!', "Fill it from where? ", "You have nothing to fill it with.",
+	{ player_refill, 'F', "Fuel", "Fill/Fuel which item? ", "You have nothing to fill or fuel.",
+			item_tester_empty_flask_or_lite, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY), 0L, 0L, 0, cmd_tester_fill_or_fuel},
+#endif
+	{ player_refill2, '!', "Fill from", "Fill it from where? ", "You have nothing to fill it with.",
 			item_tester_refill_flask, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_FEATU | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_refill2, '~', "Refuel with which torch? ", "You have no torches.",
+	{ player_refill2, '~', "Refuel", "Refuel with which torch? ", "You have no torches.",
 			item_tester_refill_torch, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_refill2, '`', "Refill with which source of oil? ", "You have no sources of oil.",
+	{ player_refill2, '`', "Refill lantern", "Refill with which source of oil? ", "You have no sources of oil.",
 			item_tester_refill_lantern, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_refill2, '`', "Refill with which gunpowder? ", "You have no gunpowder.",
+	{ player_refill2, '`', "Refill firearm", "Refill with which gunpowder? ", "You have no gunpowder.",
 			item_tester_refill_firearm, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_BAGC | USE_ALLY), 0L, 0L, 0, NULL},
 
-	{ player_light_and_douse, '|', "Light/Douse which light source? ", "You have nothing to light or douse.",
-			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH), 0L, 0L, 0, NULL},
+	{ player_light_and_douse, '|', "Light or douse", "Light/Douse which light source? ", "You have nothing to light or douse.",
+			item_tester_light_source, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH | USE_HANDLE), 0L, 0L, 0, NULL},
+#if 0
+	{ player_light_and_douse, 'l', "Light", "Light which light source? ", "You have nothing to light or douse.",
+			item_tester_light_source /*light*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_set_magic_trap, 'S', "Set trap with which item? ", "You have nothing which can be used in a trap.",
-			item_tester_hook_magic_trap, 0, (USE_INVEN | USE_FLOOR | USE_ALLY), 0L, 0L, 0, NULL},
+	{ player_light_and_douse, 'D', "Douse", "Douse which light source? ", "You have nothing to light or douse.",
+			item_tester_light_source /*douse*/, 0, (USE_EQUIP | USE_FLOOR | USE_FEATH | USE_HANDLE), 0L, 0L, 0, NULL},
+#endif
+	{ player_set_magic_trap, 'S', "Set trap", "Set trap with which item? ", "You have nothing which can be used in a trap.",
+			item_tester_hook_magic_trap, 0, (USE_INVEN | USE_FLOOR | USE_ALLY | USE_HANDLE), 0L, 0L, 0, NULL},
 
-	{ player_throw, 't', "Throw which item? ", "You have nothing to throw.",
-			item_tester_hook_throwable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC),
+	{ player_throw, 't', "Throw", "Throw which item? ", "You have nothing to throw.",
+			item_tester_hook_throwable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_BAGC | USE_HANDLE),
 			(CONDITION_NO_WIND | CONDITION_SKILL_THROW | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_fire, 'f', "Sling which item? ", "You have nothing to sling around.",
-			item_tester_hook_slingable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
-			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_fire, 'f', "Sling", "Sling which item? ", "You have nothing to sling around.",
+			item_tester_hook_slingable, 0, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_HANDLE),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING | CONDITION_SHOOTING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_fire, 'f', "Fire which arrow? ", "You have no arrows to fire.",
-			0, TV_ARROW, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
-			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_fire, 'f', "Fire", "Fire which arrow? ", "You have no arrows to fire.",
+			0, TV_ARROW, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_HANDLE),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING | CONDITION_SHOOTING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_fire, 'f', "Fire which bolt? ", "You have no bolts to fire.",
-			0, TV_BOLT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
-			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_fire, 'f', "Fire", "Fire which bolt? ", "You have no bolts to fire.",
+			0, TV_BOLT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_HANDLE),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_NO_SNEAKING | CONDITION_SHOOTING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_fire, 'f', "Fire which shot? ", "You have no shots to fire.",
-			0, TV_SHOT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG),
-			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_GUN_CHARGED | CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
+	{ player_fire, 'f', "Fire", "Fire which shot? ", "You have no shots to fire.",
+			0, TV_SHOT, (USE_EQUIP | USE_INVEN | USE_FLOOR | USE_FEATG | USE_HANDLE),
+			(CONDITION_NO_WIND | CONDITION_SKILL_FIRE | CONDITION_GUN_CHARGED | CONDITION_NO_SNEAKING | CONDITION_SHOOTING), TMD_CONDITION(TMD_BERSERK), 0, NULL},
 
-	{ player_cast, 'm', "Use which book? ", "You have nothing you have studied.",
-			inven_cast_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY),
+	{ player_cast, 'm', "Cast spell", "Use which book? ", "You have nothing you have studied.",
+			inven_cast_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_HANDLE),
 			(CONDITION_LITE | CONDITION_LITERATE | CONDITION_HOLD_SONG | CONDITION_NO_SNEAKING),
 			TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND) | TMD_CONDITION(TMD_AMNESIA), 0, NULL},
 
-	{ player_study, 'G', "Study which book? ", "You have no books that you can read.",
-			inven_study_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY),
+	{ player_study, 'G', "Study", "Study which book? ", "You have no books that you can read.",
+			inven_study_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_HANDLE),
 			(CONDITION_LITE | CONDITION_LITERATE | CONDITION_NEED_SPELLS),
 			TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_BLIND) | TMD_CONDITION(TMD_AMNESIA), 0, NULL},
 
-	{ player_browse, 'b', "Browse which book? ", "You have no books that you can browse.",
-			inven_book_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_TARGET | USE_RANGE | USE_KNOWN), (CONDITION_LITERATE), 0L, 0, NULL},
+	{ player_browse, 'b', "Browse", "Browse which book? ", "You have no books that you can browse.",
+			inven_book_okay, 0, (USE_INVEN | USE_FLOOR | USE_FEATU | USE_ALLY | USE_TARGET | USE_RANGE | USE_KNOWN | USE_HANDLE), (CONDITION_LITERATE), 0L, 0, NULL},
 			
-	{ player_offer, 'O', "Offer which item? ", "You are not carrying anything to offer.",
-			item_tester_hook_droppable, 0, (USE_INVEN | USE_BAGC | USE_BAGS | USE_GOLD), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), COMMAND_ITEM_TRADE, NULL},
+	{ player_offer, 'O', "Offer", "Offer which item? ", "You are not carrying anything to offer.",
+			item_tester_hook_droppable, 0, (USE_INVEN | USE_BAGC | USE_BAGS | USE_GOLD | USE_HANDLE), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), COMMAND_ITEM_TRADE, NULL},
 
-	{ player_trade, 'T', "Trade for which item? ", "You see nothing to trade.",
-			item_tester_hook_tradeable, 0, (USE_TARGET | USE_RANGE | USE_GOLD), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), 0, NULL},
+	{ player_trade, 'T', "Trade", "Trade for which item? ", "You see nothing to trade.",
+			item_tester_hook_tradeable, 0, (USE_TARGET | USE_RANGE | USE_GOLD | USE_HANDLE), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), 0, NULL},
 
-	{ player_steal, 's', "Steal which item? ", "You see nothing to steal.",
-			NULL, 0, (USE_TARGET | USE_GOLD), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), 0, NULL}
+	{ player_steal, 's', "Steal", "Steal which item? ", "You see nothing to steal.",
+			NULL, 0, (USE_TARGET | USE_GOLD), (CONDITION_NO_SNEAKING), TMD_CONDITION(TMD_BERSERK) | TMD_CONDITION(TMD_CONFUSED), 0, NULL},
+
+	{ player_handle, 'h', "Handle", "Handle which item? ", "You see nothing to handle.",
+			NULL, 0, (0xFFFFFFFFL) & ~(USE_HANDLE | USE_FEATH | USE_SKIN | USE_QUIVER), 0, 0, 0, NULL}
 };
 
 

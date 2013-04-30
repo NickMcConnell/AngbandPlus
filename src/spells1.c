@@ -8573,7 +8573,9 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 
 		/* Entangle monsters in nearby plants (Use "dam" as "power") */
+		/* If monster entangled, it starts to take damage, unless entangling is weak */
 		case GF_TANGLE:
+		case GF_TANGLE_WEAK:
 		{
 			/* Must be next to plants/water */
 			if (!teleport_nature_hook(y, x, y, x)) break;
@@ -8589,17 +8591,33 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 			else if ((r_ptr->flags3 & (RF3_HUGE)) || (r_ptr->flags9 & (RF9_IM_EDGED))) do_petrify /= 5;
 			else if ((r_ptr->flags3 & (RF3_GIANT)) || (r_ptr->flags9 & (RF9_RES_BLUNT | RF9_RES_EDGED))) do_petrify /= 3;
 
+			/* No real damage */
+			dam = 0;
+			
 			if (do_petrify <= 1)
 			{
-				note = " breaks free of the plants.";
+				note = " breaks free of the plants.";	
+			}
+			else if ((m_ptr->petrify > 100) && (typ == GF_TANGLE))
+			{
+				note = " is being strangled.";
+				
+				/* Apply some petrification as damage */
+				dam = (do_petrify + 3) / 4;
+				do_petrify = (do_petrify + 1) / 2;
+				
+				/* Non-living need less air */
+				if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
+				    (r_ptr->flags2 & (RF2_STUPID)))
+				{
+					note = " is being crushed.";
+					dam /= 2;
+				}
 			}
 			else
 			{
 				note = " is entangled.";
 			}
-
-			/* No real damage */
-			dam = 0;
 
 			break;
 		}
@@ -14314,7 +14332,19 @@ bool project_method(int who, int what, int method, int effect, int damage, int l
 	if (region)
 	{
 		region_type *r_ptr = &region_list[region];
+		region_info_type *ri_ptr = &region_info[r_ptr->type];
 		int i;
+		
+		/* Hack -- inverse without a sub-projection. Reverse immediately */
+		if ((r_ptr->flags1 & (RE1_INVERSE)) && !(ri_ptr->method))
+		{
+			r_ptr->y1 = y1 = y0;
+			r_ptr->x1 = x1 = x0;
+			r_ptr->y0 = y0 = y;
+			r_ptr->x0 = x0 = x;
+			y = y1;
+			x = x1;
+		}
 
 		/* Overwriting features */
 		if (r_ptr->effect == GF_FEATURE)

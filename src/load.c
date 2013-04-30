@@ -1215,12 +1215,12 @@ static errr rd_extra(void)
 		for (i = 0; i < MAX_FAMILIAR_GAINS; i++)
 		{
 			rd_u16b(&(p_ptr->familiar_attr[i]));
-		}
-
-		/* Only bothering with this as it affects the current competition */
-		if ((older_than(0, 6, 4, 0)) && (p_ptr->familiar_attr[i] >= FAMILIAR_SHOT))
-		{
-			p_ptr->familiar_attr[i]++;
+			
+			/* Only bothering with this as it affects the current competition */
+			if ((older_than(0, 6, 4, 0)) && (p_ptr->familiar_attr[i] >= FAMILIAR_SHOT))
+			{
+				p_ptr->familiar_attr[i]++;
+			}
 		}
 	}
 

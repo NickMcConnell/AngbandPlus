@@ -2271,6 +2271,13 @@ static void process_command(void)
 
 		/*** Inventory Commands ***/
 
+		/* Handle something - this is the generic do anything to an object command */
+		case 'h':
+		{
+			do_cmd_item(COMMAND_ITEM_HANDLE);
+			break;
+		}
+		
 		/* Wear/wield equipment */
 		case 'w':
 		{
@@ -2608,6 +2615,13 @@ static void process_command(void)
 		case 'L':
 		{
 			do_cmd_locate();
+			break;
+		}
+
+		/* Center map on player */
+		case KTRL('L'):
+		{
+			do_cmd_center_map();
 			break;
 		}
 

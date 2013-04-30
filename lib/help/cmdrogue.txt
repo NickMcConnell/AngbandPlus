@@ -23,14 +23,14 @@
  u  (walk - north east)                  U  (run - north east)
  v  Throw an item                        V  Version info
  w  Wear/wield equipment                 W  Locate player on map (Where)
- x  Look around                          X  (unused)
+ x  Look around                          X  Center the screen on player
  y  (walk - north west)                  Y  (run - north west)
  z  Aim a wand (Zap)                     Z  Use a staff (Zap)
  !  Interact with system                ^A  (special - debug command)
  @  (unused)                            ^B  (alter - south west)
  #  Toggle search mode                  ^C  (special - break)
  $  Display current quests              ^D  Destroy item
- %  (unused)                            ^E  Toggle choice window
+ %  Handle an item                      ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
  &  (unused)                            ^G  Engrave a rune
  *  Target monster or location          ^H  (alter - west)

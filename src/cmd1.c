@@ -3139,7 +3139,7 @@ void py_attack(int dir)
 		if (p_ptr->blocking) bonus += 20;
 
 		chance = (p_ptr->skills[SKILL_TO_HIT_MELEE] + (bonus * BTH_PLUS_ADJ));
-
+		
 		/* Test for hit */
 		if (!test_hit_norm(chance, calc_monster_ac(cave_m_idx[y][x], FALSE), m_ptr->ml))
 		{
@@ -3171,7 +3171,7 @@ void py_attack(int dir)
 			/* Test for fumble */
 			if (((p_ptr->heavy_wield)
 				  || (o_ptr->k_idx && o_ptr->ident & (IDENT_CURSED)))
-				 && (!rand_int(chance)))
+				 && (!rand_int(chance > 1 ? chance : 2)))
 			{
 				/* Hack -- use the player for the attack */
 				my_strcpy(m_name, "yourself", sizeof(m_name));
@@ -3490,7 +3490,7 @@ void py_attack(int dir)
 			else if (o_ptr->k_idx && coated_p(o_ptr))
 			{
 				/* Sometimes coating affects source player */
-				if (!rand_int(chance))
+				if (!rand_int(chance > 1 ? chance : 2))
 				{
 					y = p_ptr->py;
 					x = p_ptr->px;
@@ -4383,6 +4383,23 @@ static void run_init(int dir)
 	/* Save the feature */
 	p_ptr->run_cur_feat = f_info[cave_feat[py][px]].mimic;
 
+	/* Save adjacent features */
+	for (i = 0; i < 9; i++)
+	{
+		int y = py + ddy_ddd[i];
+		int x = px + ddx_ddd[i];
+		
+		/* Add feats we would otherwise notice */
+		if ((f_info[f_info[cave_feat[y][x]].mimic].flags1 & (FF1_NOTICE)) != 0)
+		{
+			p_ptr->run_ignore_feat[i] = f_info[cave_feat[y][x]].mimic;
+		}
+		else
+		{
+			p_ptr->run_ignore_feat[i] = 0;
+		}
+	}
+	
 	/* Assume running straight */
 	p_ptr->run_old_dir = dir;
 
@@ -4553,25 +4570,35 @@ static bool run_test(void)
 		/* Check memorized grids */
 		if (play_info[row][col] & (PLAY_MARK))
 		{
-			bool notice = TRUE;
+			bool notice;
+			
+			feature_type *f_ptr = &f_info[feat];
 
 			/* Notice feature? */
-			notice = ((f_info[feat].flags1 & (FF1_NOTICE)) !=0);
+			notice = ((f_ptr->flags1 & (FF1_NOTICE)) !=0);
 
-			if ((notice) && (f_info[feat].flags1 & (FF1_MOVE)))
+			/* Ignore stuff we can move over */
+			if ((notice) && ((f_ptr->flags1 & (FF1_MOVE))
+					|| (f_ptr->flags3 & (FF3_EASY_CLIMB))))
 			{
 				/* Ignore unusual floors; don't run if you want to inspect them */
-				if (f_info[feat].flags1 & (FF1_FLOOR))
+				if (f_ptr->flags1 & (FF1_FLOOR))
 					notice = FALSE;
 
 				/* Ignore whatever we're standing on */
 				if (feat == p_ptr->run_cur_feat) notice = FALSE;
+			}
+			
+			/* Ignore stuff around us, except when stepping on it */
+			if ((notice) && (i))
+			{
+				int j;
 
-				/* Ignore whatever was to our left */
-				if ((i < 0) && (feat == p_ptr->run_left_feat)) notice = FALSE;
-
-				/* Ignore whatever was to our right */
-				if ((i > 0) && (feat == p_ptr->run_right_feat)) notice = FALSE;
+				/* Ignore whatever was around us to start */
+				for (j = 0; j < 9; j++)
+				{
+					if (p_ptr->run_ignore_feat[j] == feat) notice = FALSE;
+				}
 			}
 
 			/* Interesting feature */
@@ -4794,6 +4821,11 @@ static bool run_test(void)
  */
 void run_step(int dir)
 {
+	/* Save the feature. We do this to allow a player to start
+	 * running on 'unusual terrain, step off it and continue to
+	 * run, but not step back on it again. */
+	p_ptr->run_cur_feat = f_info[cave_feat[p_ptr->py][p_ptr->px]].mimic;
+	
 	/* Start run */
 	if (dir)
 	{

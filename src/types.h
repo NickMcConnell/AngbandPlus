@@ -1852,8 +1852,7 @@ struct player_type
 	s16b run_cur_dir;       /* Direction we are running */
 	s16b run_old_dir;       /* Direction we came from */
 	s16b run_cur_feat;		/* Feature we started running on */
-	s16b run_left_feat;		/* Feature to our left when we started */
-	s16b run_right_feat;	/* Feature to our right when we started */
+	s16b run_ignore_feat[9];/* Features we would normally notice which we choose to ignore */
 	bool running_withpathfind;      /* Are we using the pathfinder ? */
 	bool run_open_area;     /* Looking for an open area */
 	bool run_break_right;   /* Looking for a break (right) */
@@ -2118,13 +2117,14 @@ struct do_cmd_item_type
 	bool (*player_command)(int item);	/* The function to use as the command */
 	char cmd_char;						/* The 'internal' keypress the command corresponds to */
 
+	const char *item_command;			/* The name of the command */
 	const char *item_query;				/* The string to display when asking for which item */
 	const char *item_not_found;			/* The string to display if no valid items are found */
 
 	bool (*item_tester_hook)(const object_type*);	/* The item tester function */
 	int item_tester_tval;				/* The item tester tval */
 
-	u16b use_from;						/* Where item can be used from */
+	u32b use_from;						/* Where item can be used from */
 	u32b conditions;					/* Restrictions on what state the player must be in */
 	u32b timed_conditions;				/* Restrictions on what timed effects the player may not have */
 

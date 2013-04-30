@@ -2954,7 +2954,9 @@ void update_mon(int m_idx, bool full)
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
 
 			/* Disturb on visibility change */
-			if (disturb_move) disturb(1, 0);
+			if ((disturb_move)
+	      		&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+	      		disturb(1, 0);
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;
@@ -2977,7 +2979,9 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Disturb on visibility change */
-			if (disturb_move) disturb (1, 0);
+			if ((disturb_move)
+		      		&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0))
+				disturb (1, 0);
 
 			/* Window stuff */
 			p_ptr->window |= PW_MONLIST;

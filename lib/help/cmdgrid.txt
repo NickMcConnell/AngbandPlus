@@ -9,8 +9,10 @@
  ?             Show this file
 
  m             Change to 'look'/'kill' mode [1]
+ x             Allow targetting of allies in 'kill' mode
  p             Advance to the players position
  ., 5, 0, t    Target the current grid/monster [2]
+ @             Target as above, but allows the player to be a target
  r             Recall details of this 'interesting thing' (toggle on/off)
 
  g             Go to the grid currently targetted [3] 

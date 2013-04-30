@@ -17,7 +17,7 @@ V:0.6.4
 M:m:229
 
 # Maximum number of effect types
-M:e:154
+M:e:155
 
 # Maximum number of feature types
 M:F:996
@@ -68,7 +68,7 @@ M:C:13
 M:W:180
 
 # Maximum number of spells
-M:S:625
+M:S:628
 
 # Maximum number of runes
 M:Y:30
@@ -80,7 +80,7 @@ M:B:8
 M:Q:8
 
 # Maximum number of region info
-M:i:47
+M:i:50
 
 # Maximum number of region pieces
 M:p:2048

@@ -225,6 +225,14 @@ C:1:$
 A:^T
 C:1:'
 
+# Center screen on player
+A:^L
+C:1:X
+
+# Handle an item
+A:h
+C:1:%
+
 # Message colors
 %:message.prf
 

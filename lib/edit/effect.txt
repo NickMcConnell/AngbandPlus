@@ -718,8 +718,8 @@ T:gaining mana
 
 N:140:TANGLE
 I:10
-D:entangle~:::with nearby plants or waterweeds::power:pow
-T:entangling
+D:entangle~, then strangle~:::with nearby plants or waterweeds::power, then damage:pow
+T:entangling, then strangling
 
 N:141:POISON_WATER
 I:10
@@ -785,4 +785,9 @@ N:153:CHARM_PLANT
 I:0
 D:charm~::plants:::power:pow
 T:charming plants
+
+N:154:TANGLE_WEAK
+I:10
+D:entangle~:::with nearby plants or waterweeds::power:pow
+T:entangling
 

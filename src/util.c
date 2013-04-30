@@ -3211,7 +3211,7 @@ void text_out_to_screen(byte a, cptr str)
 			Term_erase(x, y, 255);
 
 			/* Indent after the wrap */
-			Term_addch(TERM_DARK, ' ');
+/*			Term_addch(TERM_DARK, ' ');*/
 			x++;
 
 			/* Wrap the word (if any) */

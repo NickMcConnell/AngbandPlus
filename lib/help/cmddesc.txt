@@ -21,6 +21,15 @@ commands.
         
 --- Inventory Commands ---
 
+Handle an item (h) or Handle an item (%)
+        Use this command to choose any item and then choose the permitted
+        commands that can be performed with this item.  Each command you
+        can choose is described in more detail below.
+        If the item is inscribed with a inscription % followed by a letter,
+        the 'internal' command for that letter will be the command chosen.
+        This usually corresponds to the original key set command, but not
+        necessarily.
+
 Inventory list (i)
         Displays a list of objects being carried but not equipped.  You
         can carry up to 23 different items, not counting those in your
@@ -820,6 +829,9 @@ Redraw Screen (^R)
         redraws all of the windows.  It is normally only necessary in
         abnormal situations, such as after changing the visual attr/char
         mappings, or enabling "graphics" mode.
+
+Center the screen on player (^L)
+        This comman centers the display on the player.
 
 Load screen dump (left-paren)
         This command loads a "snap-shot" of the current screen from the file

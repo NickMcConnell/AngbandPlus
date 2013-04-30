@@ -2436,8 +2436,8 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* RF4_AURA */
 		case 96+7:
 		{
-			/* The target is attacked by a ball attack */
-			mon_blow_ranged(who, attack, y, x, RBM_AURA, 2, FLG_MON_CLOUD);
+			/* The target (self) is attacked by a ball attack */
+			mon_blow_ranged(who, attack, m_ptr->fy, m_ptr->fx, RBM_AURA, 2, FLG_MON_CLOUD);
 
 			break;
 		}
@@ -2820,7 +2820,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target > 0)
 			{
 				direct = !blind && player_can_see_bold(m_ptr->fy,m_ptr->fx);
-				if (known) disturb(1, 0);
+				if ((known) && ((m_ptr->mflag & (MFLAG_ALLY)) == 0)) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
 				monster_desc(t_name, sizeof(t_name), target, 0x08);
@@ -2863,7 +2863,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target > 0)
 			{
 				direct = !blind && player_can_see_bold(m_ptr->fy,m_ptr->fx);
-				if (known) disturb(1, 0);
+				if ((known)	&& ((m_ptr->mflag & (MFLAG_ALLY)) == 0)) disturb(1, 0);
 
 				/* Get the target name (using "A"/"An") again. */
 				monster_desc(t_name, sizeof(t_name), target, 0x08);

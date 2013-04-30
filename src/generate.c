@@ -7527,7 +7527,7 @@ static bool build_chambers(int y1, int x1, int y2, int x2, int monsters_left, bo
 	return (TRUE);
 }
 
-
+#if 0
 /*
  * This builds a simple building in a monster town.
  */
@@ -7639,8 +7639,6 @@ static bool build_simple_building(int by, int bx, int floor, int wall)
 }
 
 
-
-#if 0
 /*
  * Build a monster town.
  * 

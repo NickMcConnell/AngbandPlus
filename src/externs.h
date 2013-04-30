@@ -535,6 +535,7 @@ extern void do_cmd_query_symbol(void);
 extern bool ang_sort_comp_hook(vptr u, vptr v, int a, int b);
 extern void ang_sort_swap_hook(vptr u, vptr v, int a, int b);
 extern void do_cmd_monlist(void);
+extern void do_cmd_center_map(void);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);
@@ -598,6 +599,7 @@ extern bool player_assemble(int item);
 extern bool player_activate(int item);
 extern bool player_apply_rune_or_coating(int item);
 extern bool player_apply_rune_or_coating2(int item);
+extern bool player_handle(int item);
 
 /* dungeon.c */
 extern void ensure_quest(void);
@@ -659,6 +661,7 @@ extern bool list_object_flags(u32b f1, u32b f2, u32b f3, u32b f4, int pval, int 
 extern void list_object(const object_type *o_ptr, int mode);
 extern void screen_object(object_type *o_ptr);
 extern void screen_self_object(object_type *o_ptr, int slot);
+extern void describe_shape(int shape, bool random);
 extern void print_powers(const s16b *book, int num, int y, int x, int level);
 extern void print_spells(const s16b *book, int num, int y, int x);
 extern bool make_fake_artifact(object_type *o_ptr, byte name1);
@@ -679,12 +682,13 @@ extern int bow_multiplier(int sval);
 extern s32b slay_power(u32b s_index);
 extern u32b slay_index(const u32b f1, const u32b f2, const u32b f3, const u32b f4);
 extern s32b object_power(const object_type *o_ptr);
-extern void describe_blow(int method, int effect, int level, int feat, const char *intro, const char *damage, bool detail, bool skip_method, bool skip_method_more, bool attack, int num);
+extern void describe_blow(int method, int effect, int level, int feat, const char *intro, const char *damage, u16b details, int num);
 extern void describe_feature(int f_idx);
 extern void feature_roff_top(int f_idx);
 extern void screen_feature_roff(int f_idx);
 extern void display_feature_roff(int f_idx);
-extern void describe_region_basic(region_type *r_ptr, const char *create, const char *damage, const char *lasts);
+extern void describe_region_basic(region_type *r_ptr, const char *intro);
+extern void describe_region_attacks(region_type *r_ptr, const char *intro, const char *damage, const char *lasts);
 extern void describe_region(region_type *r_ptr);
 extern void region_top(const region_type *r_ptr);
 extern void screen_region(region_type *r_ptr);
@@ -1193,6 +1197,7 @@ extern bool modify_panel(int wy, int wx);
 extern bool adjust_panel(int y, int x);
 extern bool change_panel(int dir);
 extern void verify_panel(void);
+extern void center_panel(void);
 extern void display_room_info(int room);
 extern void describe_room(void);
 extern cptr look_mon_desc(int m_idx);
@@ -1208,6 +1213,7 @@ extern key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 extern bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc, byte diameter_of_source);
 extern bool get_aim_dir(int *dp, int mode, int range, int radius, u32b flg, byte arc, byte diameter_of_source);
 extern int get_monster_by_aim(int mode);
+extern bool get_grid_by_aim(int mode, int *ty, int *tx);
 extern int get_angle_to_dir(int angle);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);

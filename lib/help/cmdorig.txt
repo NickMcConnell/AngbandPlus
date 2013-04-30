@@ -7,7 +7,7 @@
  e  Equipment list                       E  Eat some food
  f  Fire an item                         F  Fill lantern/torch/flask/etc.
  g  Get objects on floor                 G  Gain new spells/prayers
- h  (unused)                             H  (unused)
+ h  Handle an item                       H  (unused)
  i  Inventory list                       I  Inspect an item
  j  Jam a door/Set a trap                J  (unused)
  k  Destroy an item                      K  (unused)
@@ -37,7 +37,7 @@
  (  Load screen dump                    ^I  (special - tab)
  )  Dump reloadable screen dump         ^J  (special - linefeed)
  {  Inscribe an object                  ^K  (unused)
- }  Uninscribe an object                ^L  (unused)
+ }  Uninscribe an object                ^L  Center the screen on player
  [  Display visible monster list        ^M  (special - return)
  ]  Dump html screen dump               ^N  (unused)
  -  (unused)                            ^O  (unused)

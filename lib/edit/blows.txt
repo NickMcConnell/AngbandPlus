@@ -242,7 +242,7 @@ N:25:TRAP
 T:0-9999:trap~ &
 F:MISS | KILL | PLAY | MAGIC | HIDE | JUMP |
 F:MELEE | RANGED |
-D:trap~:@ target#
+D::@ target#
 
 N:26:BOULDER
 T:0-9999:throw~ a boulder at &
@@ -263,7 +263,7 @@ N:28:SELF
 T:0-9999:concentrate~ on &
 W:3:0:0
 F:GRID | ITEM | KILL | PLAY | SELF | HIDE |
-D:concentrate~ on:&
+D::&
 
 N:29:ADJACENT
 T:0-9999:surround & with *
@@ -447,9 +447,9 @@ T:0-9999:create~ a cross of *
 W:4:0:0
 R:3
 M:20
-F:4WAY | KILL | PLAY |
+F:4WAY | KILL | PLAY | GRID | ITEM | MAGIC |
 F:RANGED | DIR_STOP |
-D:surround~ & with @ cross#:$ enemies
+D:create~ @ cross#:$ enemies
 
 N:51:STRIKE
 T:0-9999:strike~ at & with *

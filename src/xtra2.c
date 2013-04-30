@@ -3892,6 +3892,34 @@ void verify_panel(void)
 	modify_panel(wy, wx);
 }
 
+/*
+ * This centers the panel on the player
+ */
+void center_panel(void)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int wy = p_ptr->wy;
+	int wx = p_ptr->wx;
+
+
+	/* Scroll screen vertically when off-center */
+	if (py != wy + SCREEN_HGT / 2)
+	{
+		wy = py - SCREEN_HGT / 2;
+	}
+
+	/* Scroll screen horizontally when off-center */
+	if (px != wx + SCREEN_WID / 2)
+	{
+		wx = px - SCREEN_WID / 2;
+	}
+
+	/* Scroll if needed */
+	modify_panel(wy, wx);
+}
+
 
 /*
  * Monster health description
@@ -5663,13 +5691,13 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 			/* Allow target */
 			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
 			{
-				my_strcpy(info, "q,t,p,o,a,g,+,-,.,?,<dir>", sizeof (info));
+				my_strcpy(info, "q,t,a,p,o,x,g,+,-,.,@,?,<dir>", sizeof (info));
 			}
 
 			/* Dis-allow target */
 			else
 			{
-				my_strcpy(info, "q,p,o,a,g,+,-,.,?,<dir>", sizeof (info));
+				my_strcpy(info, "q,a,p,o,x,g,+,-,.,@,?,<dir>", sizeof (info));
 			}
 
 			/* Describe and Prompt */
@@ -5832,6 +5860,28 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 					done = TRUE;
 					break;
 				}
+				
+				/* Toggle targetting of allies in kill mode */
+				case 'x':
+				{
+					if (mode & (TARGET_KILL))
+					{
+						if (mode & (TARGET_ALLY)) mode &= ~(TARGET_ALLY);
+						else mode |= (TARGET_ALLY);
+						
+						/* Forget */
+						temp_n = 0;
+
+						/* Re-prepare targets */
+						target_set_interactive_prepare(mode);
+
+						/* Start near the player again and fake movement */
+						m = 0;
+						d = 5;
+					}
+					
+					break;
+				}
 
 				case '.':
 				case 't':
@@ -5928,7 +5978,7 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 		else
 		{
 			/* Default prompt */
-			my_strcpy(info, "q,t,p,m,+,-,<dir>", sizeof (info));
+			my_strcpy(info, "q,t,a,p,m,+,-,@,?,<dir>", sizeof (info));
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
 			query = target_set_interactive_aux(y, x, &room, mode | TARGET_LOOK, info);
@@ -6083,6 +6133,28 @@ bool target_set_interactive(int mode, int range, int radius, u32b flg, byte arc,
 				{
 					target_set_location(y, x, mode | (TARGET_NEAR));
 					done = TRUE;
+					break;
+				}
+
+				/* Toggle targetting of allies in kill mode */
+				case 'x':
+				{
+					if (mode & (TARGET_KILL))
+					{
+						if (mode & (TARGET_ALLY)) mode &= ~(TARGET_ALLY);
+						else mode |= (TARGET_ALLY);
+						
+						/* Forget */
+						temp_n = 0;
+
+						/* Re-prepare targets */
+						target_set_interactive_prepare(mode);
+
+						/* Start near the player again and fake movement */
+						m = 0;
+						d = 5;
+					}
+					
 					break;
 				}
 
@@ -6415,6 +6487,9 @@ int get_monster_by_aim(int mode)
 			ty += ddy[dir];
 			tx += ddx[dir];
 			
+			/* Require projection */
+			if (!cave_project_bold(ty, tx)) break;
+			
 			/* No moster */
 			if (cave_m_idx[ty][tx] <= 0) continue;
 			
@@ -6427,20 +6502,84 @@ int get_monster_by_aim(int mode)
 			/* Not enemy if only accepting allies */
 			if (((m_list[cave_m_idx[ty][tx]].mflag & (MFLAG_ALLY | MFLAG_TOWN)) == 0) && ((mode & (MFLAG_ALLY)) == 0)) continue;
 			
-			/* Require projection */
-			if (!cave_project_bold(ty, tx)) break;
+			break;
 		}
 	}
 	
 	/* Not in bounds */
 	if (!in_bounds(ty, tx)) return (FALSE);
 
+	/* Require projection */
+	if (!cave_project_bold(ty, tx)) return(FALSE);
+	
 	/* Monster has to be visible and known */
 	if ((cave_m_idx[ty][tx] > 0) && (m_list[cave_m_idx[ty][tx]].ml)) return (cave_m_idx[ty][tx]);
 	
 	return (0);
 }
 
+
+/*
+ * Lets the player select a known grid by aiming.
+ */
+bool get_grid_by_aim(int mode, int *ty, int *tx)
+{
+	int dir;
+	
+	/* Get direction */
+	if (!get_aim_dir(&dir, mode, MAX_SIGHT, 0, 0, 0, 0))
+	{
+		return (FALSE);
+	}
+
+	/* Check for "target request" */
+	if (dir == 5 && target_okay())
+	{
+		*tx = p_ptr->target_col;
+		*ty = p_ptr->target_row;
+	}
+	else
+	{
+		*ty = p_ptr->py;
+		*tx = p_ptr->px;
+		
+		while (in_bounds(*ty, *tx))
+		{
+			/* Predict the "target" location */
+			int y = *ty + ddy[dir];
+			int x = *tx + ddx[dir];
+			
+			/* Require projection */
+			if (!cave_project_bold(y, x)) break;
+			
+			/* Advance */
+			*ty = y;
+			*tx = x;
+			
+			/* No moster */
+			if (cave_m_idx[*ty][*tx] <= 0) continue;
+			
+			/* Not known */
+			if (m_list[cave_m_idx[*ty][*tx]].ml) continue;
+			
+			/* Not allied if only accepting enemies */
+			if (((m_list[cave_m_idx[*ty][*tx]].mflag & (MFLAG_ALLY)) != 0) && ((mode & (MFLAG_ALLY)) == 0)) continue;
+			
+			/* Not enemy if only accepting allies */
+			if (((m_list[cave_m_idx[*ty][*tx]].mflag & (MFLAG_ALLY | MFLAG_TOWN)) == 0) && ((mode & (MFLAG_ALLY)) == 0)) continue;
+			
+			break;
+		}
+	}
+	
+	/* Not in bounds */
+	if (!in_bounds(*ty, *tx)) return (FALSE);
+
+	/* Require projection */
+	if (!cave_project_bold(*ty, *tx)) return(FALSE);
+	
+	return (TRUE);
+}
 
 
 /*
