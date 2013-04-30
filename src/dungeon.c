@@ -66,8 +66,7 @@ int value_check_aux1(const object_type *o_ptr)
 
 	/* Great to_d bonus */
 	if (o_ptr->to_d >
-	    (k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds < 4 ?
-	     9 : k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
+	    MAX(7, k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
 	  return (INSCRIP_GREAT);
 
 	/* Great "weapon" dice */

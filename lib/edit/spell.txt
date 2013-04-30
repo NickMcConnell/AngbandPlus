@@ -116,6 +116,7 @@ A:90:26:5
 A:90:29:5
 A:92:0:7
 A:93:21:14
+A:97:7:9
 C:1:1:2:26:4
 C:3:9:3:60:1
 C:4:9:3:60:1
@@ -3137,7 +3138,7 @@ C:8:20:36:95:100
 C:9:20:36:95:100
 C:10:20:36:95:115
 F:CURE_STR
-S:CURE_DISEASE:0
+S:CURE_DISEASE:3
 
 N:271:Restore Constition and Charisma
 A:75:46:1
@@ -3222,7 +3223,7 @@ B:SELF:LOSE_ALL:10d10+0
 S:CURE_DISEASE:27
 D:Your nerves and muscles feel weak and lifeless.
 
-N:290:Weakness and Smallness
+N:290:Weakness
 A:75:16:1
 B:SELF:LOSE_STR
 
@@ -4812,7 +4813,7 @@ A:97:38:1:1
 S:REVERT_SHAPE:0
 
 N:478:Change into Goat
-A:97:24:1
+A:97:7:1
 S:CHANGE_SHAPE:29
 
 N:479:Change into Bear
@@ -4820,40 +4821,40 @@ A:97:18:1
 S:CHANGE_SHAPE:30
 
 N:480:Change into Mouse
-A:97:24:2
+A:97:7:2
 S:CHANGE_SHAPE:31
 
 N:481:Change into Hound
-A:97:24:3
+A:97:7:3
 S:CHANGE_SHAPE:32
 
 N:482:Change into Cheetah
-A:97:24:4
+A:97:7:4
 S:CHANGE_SHAPE:33
 
 N:483:Change into Lion
-A:97:24:5
+A:97:7:5
 S:CHANGE_SHAPE:34
 
 N:484:Change into Dragon
 S:CHANGE_SHAPE:35
 
 N:485:Change into Wolf
-A:97:27:1
-A:97:28:1
+A:97:19:1
+A:97:20:1
 S:CHANGE_SHAPE:36
 
 N:486:Change into Bat
-A:97:24:6
-A:97:28:2
+A:97:7:6
+A:97:20:2
 S:CHANGE_SHAPE:37
 
 N:487:Change into Serpent
-A:97:24:7
+A:97:7:7
 S:CHANGE_SHAPE:38
 
 N:488:Change into Cat
-A:97:24:8
+A:97:7:8
 S:CHANGE_SHAPE:39
 
 N:489:End Shapechange

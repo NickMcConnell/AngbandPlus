@@ -590,68 +590,41 @@ void teleport_towards(int oy, int ox, int ny, int nx)
 }
 
 
-void create_down_teleport_level(void)
-{
-  message(MSG_TPLEVEL, 0, "The floor beneath you collapses.");
-
-  /* Create feature leading down */
-  cave_set_feat(p_ptr->py, p_ptr->px, CRUMBLING_FLOOR);
-}
-
-
-void create_up_teleport_level(void)
-{
-  message(MSG_TPLEVEL, 0, "Rubble falls down from the ceiling.");
-
-  /* Create feature leading up */
-  cave_set_feat(p_ptr->py, p_ptr->px, TREMBLING_RUBBLE);
-}
-
-
 /*
  * Creates terrain that will move the player one level up or down 
  * (random when legal)
- *
- * Note hacks because we now support towers as well as dungeons.
  */
 void teleport_player_level(void)
 {
-  if (adult_ironman)
-    {
-      msg_print("Nothing happens.");
-      return;
-    }
+	/* No effect */
+	if (adult_ironman)
+	{
+		msg_print("Nothing happens.");
+		return;
+	}
 
-  if (!max_depth(p_ptr->dungeon))
-    {
-      msg_print("Nothing happens.");
-      return;
-    }
-  else if (p_ptr->depth == min_depth(p_ptr->dungeon))
-    {
-      create_down_teleport_level();
-    }
-  else if (is_quest(p_ptr->depth) 
-	   || (p_ptr->depth >= max_depth(p_ptr->dungeon)))
-    {
-      /* Hack -- tower level increases depth */
-      if (t_info[p_ptr->dungeon].zone[0].tower)
+	/* Try downstairs */
+	if (rand_int(100) < 50)
 	{
-	  create_down_teleport_level();
+		/* Crack open the floor */
+		place_random_stairs(p_ptr->py, p_ptr->px, FEAT_CRUMBLING_FLOOR);
 	}
-      else
+	else
 	{
-	  create_up_teleport_level();
+		/* Crack open the ceiling */
+		place_random_stairs(p_ptr->py, p_ptr->px, FEAT_TREMBLING_RUBBLE);
 	}
-    }
-  else if (rand_int(100) < 50)
-    {
-      create_up_teleport_level();
-    }
-  else
-    {
-      create_down_teleport_level();
-    }
+
+	/* Message depends on actual terrain */
+	switch (cave_feat[p_ptr->py][p_ptr->px])
+	{
+		case FEAT_CRUMBLING_FLOOR:
+			message(MSG_TPLEVEL, 0, "The floor beneath you collapses.");
+			break;
+		case FEAT_TREMBLING_RUBBLE:
+			message(MSG_TPLEVEL, 0, "Rubble falls down from the ceiling.");
+			break;
+	}
 }
 
 

@@ -3513,7 +3513,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 		      tx = x + 99 * ddx[dir];
 		    }
 
-		  /* Disable auto-target for the rest of trick shots */
+		  /* Disable auto-target for the rest of trick throws */
 		  use_old_target = FALSE;
 		}	  
 	    }
@@ -3907,7 +3907,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
   use_old_target = use_old_target_backup;
 
   /* Chance of breakage; trick throws always risky */
-  j = ((ammo_can_break || trick_throw) ? breakage_chance(i_ptr) : 0);
+  j = (ammo_can_break || trick_throw) ? breakage_chance(i_ptr) : 0;
 
   /* The fourth and last piece of code dependent on fire/throw */
   if (fire)
@@ -4022,7 +4022,7 @@ void do_cmd_fire_or_throw_selected(int item, bool fire)
 	}
     }
   else
-    /* Not a successful trick shot; just drop near the last monster/wall */
+    /* Not a successful trick throw; just drop near the last monster/wall */
     {
       /* Sometimes use lower stack object --- FIXME: clarify comment, search and replace similar comments */
       if (!object_charges_p(o_ptr) && rand_int(o_ptr->number) < o_ptr->stackc)

@@ -130,7 +130,7 @@ I:80:15:0
 W:10:500:1:50
 A:10/1
 
-N:9:Weakness and Smallness
+N:9:Weakness
 G:,:w
 I:80:6:0
 W:10:500:1:0
@@ -1173,7 +1173,7 @@ A:15/1
 F:FREE_ACT
 Y:7:1
 
-N:145:Weakness and Smallness
+N:145:Weakness
 G:=:w
 I:45:2:-5
 W:5:0:2:0
@@ -1769,7 +1769,7 @@ A:20/1:50/1
 P:0:1d1:0:0:0
 F:THROWING
 
-N:226:Weakness and Smallness
+N:226:Weakness
 G:!:w
 I:75:16:0
 W:3:0:4:0

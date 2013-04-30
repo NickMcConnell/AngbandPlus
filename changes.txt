@@ -178,6 +178,12 @@ be set to a high timeout value instead.
 races have the ability to shape change into other shapes (e.g. Beorning, Vampire, Werewolf,
 Maia). Added support for innate racial activations.
 
+- Teleport level attacks now affect the terrain under you, which either drops you a level
+or launches you up a level. This gives you a chance to evade the attack by moving.
+
+- Activating spell objects or innate abilities now tires you out.
+
+
 ### User Interface ###
 
 - The high score table now records character styles and dungeon location killed in.
@@ -197,6 +203,7 @@ pepebe).
 learn about the spell, even if you didn't see them cast it.
 
 - You can now gather items from wall terrain by walking into them (Requested by ekolis).
+
 
 ### Bug fixes ###
 
@@ -255,7 +262,9 @@ correctly.
 - Fixed bug causing crashes when attempting to travel with maps in the inventory.
 
 - Fixed bug where gain mana effects would report as causing damage instead (Reported by 
-Martin Dann).
+manchu).
+
+- Fix the return of the shrine exploit (Reported by Matthias Rudolf).
 
 ### Build / Platform ###
 

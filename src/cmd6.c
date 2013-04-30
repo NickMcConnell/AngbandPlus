@@ -1679,10 +1679,10 @@ static bool item_tester_hook_activate(const object_type *o_ptr)
 	object_flags(o_ptr, &f1, &f2, &f3, &f4);
 
 	/* Hack -- for spells that can activate. They are always 'charging', so would never activate otherwise. */
-	if ((o_ptr->tval == TV_SPELL) && (f3 & (TR3_ACTIVATE))) return (TRUE);
+	if ((o_ptr->tval == TV_SPELL) && (p_ptr->rest < PY_REST_FAINT)) return (FALSE);
 
 	/* Check the recharge */
-	if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
+	else if ((o_ptr->timeout) && ((!o_ptr->stackc) || (o_ptr->stackc >= o_ptr->number))) return (FALSE);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
@@ -1754,7 +1754,7 @@ void do_cmd_activate(void)
 	/* Get an item */
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP | USE_SELF))) return;
+	if (!get_item(&item, q, s, (USE_EQUIP | (p_ptr->rest < PY_REST_FAINT ? 0 : USE_SELF)))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -1899,6 +1899,7 @@ void do_cmd_activate(void)
 		{
 			o_ptr->timeout = a_ptr->time + (byte)randint(a_ptr->randtime);
 		}
+		/* Set the recharge time */
 		else
 		{
 			o_ptr->timeout = a_ptr->time;
@@ -1935,8 +1936,18 @@ void do_cmd_activate(void)
 		/* Used the object */
 		if (k_info[o_ptr->k_idx].used < MAX_SHORT) k_info[o_ptr->k_idx].used++;
 
+		/* Tire the player */
+		if ((item == INVEN_SELF) || (o_ptr->tval == TV_SPELL))
+		{
+			/* Tire out the player */
+			p_ptr->rest -= PY_REST_FAINT;
+
+			/* Redraw stuff */
+			p_ptr->redraw |= (PR_STATE);
+		}
+
 		/* Time object out */
-		if (o_ptr->charges) o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
+		else if (o_ptr->charges) o_ptr->timeout = rand_int(o_ptr->charges)+o_ptr->charges;
 
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP);

@@ -1298,8 +1298,7 @@ int value_check_aux3(const object_type *o_ptr)
 
 	/* Great to_d bonus */
 	if (o_ptr->to_d >
-	    (k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds < 4 ?
-	     9 : k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
+	    MAX(7, k_info[o_ptr->k_idx].dd * k_info[o_ptr->k_idx].ds))
 	  return (INSCRIP_GREAT);
 
 	/* Great "weapon" dice */
@@ -1382,7 +1381,11 @@ int value_check_aux4(const object_type *o_ptr)
 
 	/* Known to be unusual */
 	if (o_ptr->feeling == INSCRIP_UNUSUAL) return (INSCRIP_MAGICAL);
-	if (o_ptr->feeling == INSCRIP_UNCURSED) return(INSCRIP_AVERAGE);
+
+	/* FIXME: I've added the to_* check because it was wrong without it */
+	if (o_ptr->to_h + o_ptr->to_d <= 0 
+	    && o_ptr->feeling == INSCRIP_UNCURSED)
+	  return(INSCRIP_AVERAGE);
 
 	/* Default to uncursed */
 	return (INSCRIP_UNCURSED);
@@ -2042,6 +2045,16 @@ bool place_random_stairs(int y, int x, int feat)
 		return (FALSE);
 	}
 
+	/* Fixed stairs */
+	else if (feat)
+	{
+		/* Hack -- restrict stairs */
+		if ((f_info[feat].flags1 &(FF1_LESS)) && !(level_flag & (LF1_LESS))) feat = feat_state(feat, FS_MORE);
+		else if ((f_info[feat].flags1 &(FF1_MORE)) && !(level_flag & (LF1_MORE))) feat = feat_state(feat, FS_LESS);
+
+		cave_set_feat(y, x, feat);
+	}
+
 	/* Cannot go down, must go up */
 	else if (!(level_flag & (LF1_MORE)))
 	{
@@ -2052,12 +2065,6 @@ bool place_random_stairs(int y, int x, int feat)
 	else if (!(level_flag & (LF1_LESS)))
 	{
 		place_down_stairs(y, x);
-	}
-
-	/* Fixed stairs */
-	else if (feat)
-	{
-		cave_set_feat(y, x, feat);
 	}
 
 	/* Random stairs -- bias towards direction player is heading */

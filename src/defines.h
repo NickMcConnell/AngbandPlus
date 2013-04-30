@@ -1171,9 +1171,9 @@
 #define FEAT_GEYSER 711
 #define FEAT_WATER_SPOUT 714
 #define FEAT_ERUPTING_LAVA 722
-#define CRUMBLING_FLOOR 873
-#define TREMBLING_RUBBLE 874
-#define PULSING_RUBBLE 875
+#define FEAT_CRUMBLING_FLOOR 873
+#define FEAT_TREMBLING_RUBBLE 874
+#define FEAT_PULSING_RUBBLE 875
 
 /*Feature flags - should be used instead of feature indexes unless generating.*/
 

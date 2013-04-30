@@ -1887,6 +1887,16 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 							/* Hack - fix outer walls if placing inside a room */
 							if ((f_info[cave_feat[y][x]].flags1 & (FF1_OUTER)) && !(outer)) cave_alter_feat(y, x, FS_INNER);
 						}
+
+						/* Pick one choice for object on feature */
+						if (((flag & (RG1_HAS_GOLD | RG1_HAS_ITEM)) != 0) && (rand_int(++choice) == 0))
+						{
+							y_alloc = y;
+							x_alloc = x;
+						}
+
+						/* Otherwise don't place objects and features */
+						continue;
 					}
 
 					/* Require "clean" floor space */
@@ -1905,6 +1915,16 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 					}
 				}
 			}
+		}
+
+		/* Scatter objects around feature if both placed */
+		if ((feat) && ((flag & (RG1_HAS_GOLD | RG1_HAS_ITEM)) != 0))
+		{
+			feat = 0;
+			flag |= (RG1_SCATTER);
+
+			/* Paranoia */
+			if (!choice) continue;
 		}
 
 		/* Hack -- if we don't have enough the first time, scatter instead */
@@ -5952,7 +5972,12 @@ static void build_tunnel(int row1, int col1, int row2, int col2)
 		x = dun->wall[i].x;
 
 		/* Convert to doorway if an outer wall */
-		if ((f_info[cave_feat[y][x]].flags1 & (FF1_OUTER)) != 0) cave_alter_feat(y, x, FS_DOOR);
+		if ((f_info[cave_feat[y][x]].flags1 & (FF1_OUTER)) != 0)
+		{
+
+			msg_print("!");
+			cave_alter_feat(y, x, FS_DOOR);
+		}
 
 		/* Convert to floor grid */
 		else cave_set_feat(y, x, FEAT_FLOOR);

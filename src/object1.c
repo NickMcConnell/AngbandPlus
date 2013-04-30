@@ -2349,6 +2349,8 @@ bool item_tester_okay(const object_type *o_ptr)
  *
  *   0x01 -- Verify item tester
  *   0x02 -- Marked items only
+ *   0x04 -- Stored items only
+ *   0x08 -- Disallow 'stored' items
  */
 sint scan_floor(int *items, int size, int y, int x, int mode)
 {
@@ -2375,6 +2377,12 @@ sint scan_floor(int *items, int size, int y, int x, int mode)
 
 		/* Marked items only */
 		if ((mode & 0x02) && ((o_ptr->ident & (IDENT_MARKED)) == 0)) continue;
+
+		/* Stored items only */
+		if ((mode & 0x04) && ((o_ptr->ident & (IDENT_STORE)) == 0)) continue;
+
+		/* Disallow 'stored' items */
+		if ((mode & 0x08) && ((o_ptr->ident & (IDENT_STORE)) != 0)) continue;
 
 		/* Accept this item */
 		items[num++] = this_o_idx;
@@ -3660,7 +3668,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	if (e1 <= e2) allow_equip = TRUE;
 
 	/* Scan all objects in the grid */
-	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x00);
+	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x08);
 
 	/* Full floor */
 	f1 = 0;

@@ -733,8 +733,10 @@ static void prt_state(void)
 	/* Nothing interesting */
 	else
 	  {
-	    /*strcpy(text, "          "); */
-	    *text = 0;
+	    if (show_sidebar)
+	      strcpy(text, "          ");
+	    else
+	      *text = 0;
 	  }
 
 	/* Hack -- handle some other stuff here. Don't change attr, so we inherit it from above. */

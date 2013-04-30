@@ -5352,7 +5352,7 @@ static key_event target_set_interactive_aux(int y, int x, int *room, int mode, c
 			int floor_num;
 
 			/* Scan for floor objects */
-			floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, y, x, 0x02);
+			floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, y, x, 0x02 | 0x08);
 
 			/* Actual pile */
 			if (floor_num > 1)

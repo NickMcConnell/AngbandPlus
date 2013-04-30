@@ -14,7 +14,7 @@
 V:0.6.2
 
 # Maximum number of feature types
-M:F:876
+M:F:877
 
 # Maximum number of room description lines
 M:D:800
