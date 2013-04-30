@@ -957,8 +957,10 @@ static int get_player_choice(birth_menu *choices, int num, int col, int wid,
 		}
 		if (ke.key == '*')
 		{
+			int count = 0;
+			
 			/* Select a legal choice at random */
-			while (TRUE)
+			while (count++ < 100)
 			{
 				cur = rand_int(num);
 				if (!choices[cur].ghost) break;
@@ -1545,7 +1547,7 @@ static bool get_player_book(void)
 	int     i, j = 0;
 	birth_menu *books;
 
-	/* Hack -- until we set up schools for prayer books and song books,
+	/* Hack -- until we set up schools for song books,
 	 * we use this to determine whether we check sval < SV_BOOK_MAX_GOOD
 	 * or sval >= SV_BOOK_MIN_GOOD */
 	bool max_good = FALSE;
@@ -1743,16 +1745,56 @@ static bool get_player_school(void)
 	for (i = 0;i<z_info->k_max;i++)
 	{
 		k_ptr = &k_info[i];
-
+		
 		/* Hack -- count one of non-dungeon books per school */
 		if ((k_ptr->sval < SV_BOOK_MAX_GOOD) || (k_ptr->sval % SV_BOOK_SCHOOL != SV_BOOK_SCHOOL - 1)) continue;
+
+		/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
+		if (p_ptr->psval >= SV_BOOK_MAX_GOOD)
+		{
+			/* Sval hackery */
+			if (k_ptr->sval - (k_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) continue;
+		}
 
 		if (k_ptr->tval == tval)		
 		{
 			/* Save the string. Note offset to skip 'of ' */
 			schools[k].name = k_name + k_ptr->name + 3;
 			schools[k].choice = k_ptr->sval - SV_BOOK_SCHOOL + 1;
-			schools[k++].ghost = FALSE;
+			schools[k].ghost = FALSE;
+			
+			/* Mega-hack for ghosting starting mages/rangers/artisans */
+			switch (p_ptr->pclass)
+			{
+				case 1: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval >= SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
+				case 3: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
+				case 4: if ((tval == TV_MAGIC_BOOK) && (k_ptr->sval < SV_BOOK_MAX_GOOD + 20)) schools[k].ghost = TRUE; break;
+				default:
+				{
+					/* Gifted or chosen mage */
+					s16b book[26];
+					int num;
+					object_type *o_ptr;
+					object_type object_type_body;
+					
+					/* Get the object */
+					o_ptr = &object_type_body;
+					
+					/* Check if there are valid spells in the 'first' book */
+					object_prep(o_ptr, lookup_kind(tval, k_ptr->sval - 3));
+					
+					fill_book(o_ptr, book, &num);
+					schools[k].ghost = TRUE;
+					
+					for (j=0; j < num; j++)
+					{
+						if (spell_legible(book[j])) schools[k].ghost = FALSE;
+					}
+					break;
+				}
+			}
+			
+			k++;
 		}
 	}
 
@@ -2962,7 +3004,15 @@ void player_birth(void)
 	message_add("====================", MSG_GENERIC);
 	message_add("  ", MSG_GENERIC);
 	message_add(" ", MSG_GENERIC);
-
+	
+	/* Hack - don't display above for easy_more */
+	if (easy_more)
+	{
+		/* Arcane weirdness */
+		msg_print(" ");
+		message_flush();
+	}
+	
 	/* Initialise birth tips */
 	if (adult_beginner)
 	{

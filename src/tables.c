@@ -213,6 +213,8 @@ const byte adj_mag_study_max[] =
 
 /*
  * Stat Table -- one (or 4 for mages) less than the amount of mana at level 50
+ * 
+ * Now also used for 'reach' with size.
  */
 const s16b adj_mag_mana[] =
 {
@@ -3599,7 +3601,7 @@ const byte spell_desire_RF6[32][8] =
 {
 /*     d_base	  d_hurt    d_esc	 d_res				    */
 /*	     d_summ	d_mana	  d_tact	   d_range		    */
-	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_HASTE	    */
+	{ 50,  0,   0,   0,	5,   5,	   0	  ,  100}, /* RF6_HASTE	    */
 	{ 15,  0,   0,  25,	0,   0,	   0  ,  100}, /* RF6_ADD_MANA  */
 	{ 10,  0,   30,  0,	0,   0,	   0	  ,  100}, /* RF6_HEAL	    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURE	    */
@@ -3613,7 +3615,7 @@ const byte spell_desire_RF6[32][8] =
 	{ 50,   0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_WRAITHFORM*/
 	{ 20,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_DARKNESS  */
 	{ 25,  0,   0,   0,	5,   0,	   0	  ,  100}, /* RF6_TRAPS	    */
-	{ 25,  0,   0,   0,	5,   0, 0  ,  100}, /* RF6_FORGET    */
+	{ 45,  0,   0,   0,	0,   0, 0  ,  100}, /* RF6_FORGET    */
 	{ 25,  0,   0,   15,	0,   0, GF_LOSE_MANA,  100}, /* RF6_DRAIN_MANA*/
 	{ 45,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_CURSE	    */
 	{ 45,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_DISPEL   */
@@ -3621,7 +3623,7 @@ const byte spell_desire_RF6[32][8] =
 	{ 30,  0,   0,   0,	0,   0, GF_HALLU,  100}, /* RF6_ILLUSION*/
 	{ 40,  0,   0,   0,	0,   0, GF_HURT,  100}, /* RF6_WOUND	    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BLESS	    */
-	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_BERSERK    */
+	{ 35,  0,   0,   10,	0,   0,	   0	  ,  100}, /* RF6_BERSERK    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_SHIELD    */
 	{ 50,  0,   0,   0,	0,   0,	   0	  ,  100}, /* RF6_OPPOSE_ELEM */
 	{ 25,  0,   0,   0,	0,   0,	GF_HUNGER,  100}, /* RF6_HUNGER    */
@@ -3751,22 +3753,22 @@ const cptr vocalize[MAX_LANGUAGES] =
 	"croaks", 	/* 'F' */
 	"says",
 	"roars",
-	"says",
+	"chirps",
 	"hisses",
 	"clicks", 	/* 'K' */
 	"whispers",
 	"says",
 	"whispers",
-	"says",
-	"says", 	/* 'P' */
-	"roars",
+	"barks",
+	"thunders", /* 'P' */
+	"grunts",
 	"hisses",
 	"says",
 	"roars",
 	"utters", 	/* 'U' */
 	"whispers",
 	"whispers",
-	"grunts",
+	"clacks",
 	"hoots",
 	"howls", 	/* 'Z' */
 	"releases", 	/* 'a' */
@@ -3774,7 +3776,7 @@ const cptr vocalize[MAX_LANGUAGES] =
 	"clicks",
 	"roars",
 	"blinks",
-	"chirps", 	/* 'f' */
+	"growls", 	/* 'f' */
 	"beeps",
 	"says",
 	"squelches",

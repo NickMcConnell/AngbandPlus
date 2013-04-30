@@ -2250,7 +2250,7 @@ static bool generate_starburst_room(int y1, int x1, int y2, int x2,
 /*
  * Generate helper -- draw a rectangle with a feature using a series of 'pattern' flags.
  */
-static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, u32b exclude, int dy, int dx, int scale)
+static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, u32b exclude, int dy, int dx, int scale, int scatter)
 {
 	int y, x, i, k;
 
@@ -2467,7 +2467,7 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 	}
 	
 	/* Scatter several about if requested */
-	for (k = 0; k < ( ((flag & (RG1_SCATTER | RG1_TRAIL)) != 0) && ((flag & (RG1_ALLOC)) == 0) ? NUM_SCATTER : 1); k++)
+	for (k = 0; k < ( ((flag & (RG1_SCATTER | RG1_TRAIL)) != 0) && ((flag & (RG1_ALLOC)) == 0) ? scatter : 1); k++)
 	{
 		/* Pick location */
 		choice = 0;
@@ -2649,7 +2649,7 @@ static void generate_patt(int y1, int x1, int y2, int x2, s16b feat, u32b flag, 
 		}
 
 		/* Hack -- if we don't have enough the first time, scatter instead */
-		if (((flag & (RG1_RANDOM)) != 0) && (choice < NUM_SCATTER))
+		if (((flag & (RG1_RANDOM)) != 0) && (choice < scatter))
 		{
 			flag &= ~(RG1_RANDOM);
 			flag |= (RG1_SCATTER);
@@ -3861,7 +3861,7 @@ static void check_windows_x(int x1, int x2, int y)
  * Get the room description, and place stuff accordingly.
  */
 static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int x2a,
-	int y1b, int x1b, int y2b, int x2b, bool light, int spacing, int scale, bool pillars)
+	int y1b, int x1b, int y2b, int x2b, bool light, int spacing, int scale, int scatter, bool pillars)
 {
 	int j = 0;
 	int l = 1;
@@ -3989,6 +3989,8 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 			int dy = ((place_flag & (RG1_ROWS)) != 0) ? 1 + spacing : 1;
 			int dx = ((place_flag & (RG1_COLS)) != 0) ? 1 + spacing : 1;
 			int outer = ((place_flag & (RG1_OUTER)) == 0) ? 1 : 0;
+			
+			int placements = 1;
 
 			/* Place in centre of room */
 			if ((place_flag & (RG1_CENTRE)) != 0)
@@ -4037,7 +4039,24 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 					place_flag_temp |= (RG1_INNER);
 				}
 
-				generate_patt(y1c, x1c, y2c, x2c, place_feat, place_flag_temp, exclude, dy, dx, scale);
+				/* Count other placements. This reduces the number of items found in the room */
+				if ((place_flag & (RG1_WEST)) != 0) placements++;
+				if ((place_flag & (RG1_EAST)) != 0) placements++;
+				if ((place_flag & (RG1_NORTH)) != 0) placements++;
+				if ((place_flag & (RG1_SOUTH)) != 0) placements++;				
+				
+				generate_patt(y1c, x1c, y2c, x2c, place_feat, place_flag_temp, exclude, dy, dx, scale, (scatter + placements - 1) / placements);
+			}
+			
+			/* Hack -- we've already counted for centre */
+			else
+			{
+				placements--;
+				
+				if ((place_flag & (RG1_WEST)) != 0) placements++;
+				if ((place_flag & (RG1_EAST)) != 0) placements++;
+				if ((place_flag & (RG1_NORTH)) != 0) placements++;
+				if ((place_flag & (RG1_SOUTH)) != 0) placements++;				
 			}
 
 			/* Place in west of room */
@@ -4053,7 +4072,7 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 
 				/* Ensure some space */
 				if (x2w <= x2w) x2w = x1w + 1;
-				generate_patt(y1w, x1w, y2w, x2w, place_feat, place_flag, exclude, dy, dx, scale);
+				generate_patt(y1w, x1w, y2w, x2w, place_feat, place_flag, exclude, dy, dx, scale, (scatter + placements - 1) / placements);
 			}
 
 			/* Place in east of room */
@@ -4071,7 +4090,7 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 				if (x1e >= x2e) x1e = x2e - 1;
 
 					/* Draw from east to west */
-					generate_patt(y1e, x2e, y2e, x1e, place_feat, place_flag, exclude, dy, -dx, scale);
+					generate_patt(y1e, x2e, y2e, x1e, place_feat, place_flag, exclude, dy, -dx, scale, (scatter + placements - 1) / placements);
 			}
 
 			/* Place in north of room */
@@ -4088,7 +4107,7 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 				/* Ensure some space */
 				if (y2n <= y1n) y2n = y1n + 1;
 
-				generate_patt(y1n, x1n, y2n, x2n, place_feat, place_flag, exclude, dy, dx, scale);
+				generate_patt(y1n, x1n, y2n, x2n, place_feat, place_flag, exclude, dy, dx, scale, (scatter + placements - 1) / placements);
 			}
 
 			/* Place in south of room */
@@ -4106,7 +4125,7 @@ static bool build_overlapping(int room, int type, int y1a, int x1a, int y2a, int
 				if (y1s >= y2s) y1s = y2s - 1;
 
 				/* Draw from south to north */
-				generate_patt(y2s, x1s, y1s, x2s, place_feat, place_flag, exclude, -dy, dx, scale);
+				generate_patt(y2s, x1s, y1s, x2s, place_feat, place_flag, exclude, -dy, dx, scale, (scatter + placements - 1) / placements);
 			}
 		}
 
@@ -8538,7 +8557,7 @@ static bool build_type123(int room, int type)
 	x2b = x0 + x2b + 1;
 
 	/* Build an overlapping room with the above shape */
-	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, pillars)) return (FALSE);
+	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, NUM_SCATTER, pillars)) return (FALSE);
 
 	return (TRUE);
 }
@@ -8610,7 +8629,7 @@ static bool build_type45(int room, int type)
 	x2b = x0 + x2b + 1;
 
 	/* Build an overlapping room with the above shape */
-	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, pillars)) return (FALSE);
+	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, 1, NUM_SCATTER + 3, pillars)) return (FALSE);
 
 	return (TRUE);
 }
@@ -8691,7 +8710,7 @@ static bool build_type6(int room, int type)
 	x2b = x0 + x2b + 1;
 
 	/* Build an overlapping room with the above shape */
-	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, scale, pillars)) return (FALSE);
+	if (!build_overlapping(room, type, y1a, x1a, y2a, x2a, y1b, x1b, y2b, x2b, light, spacing, scale, NUM_SCATTER + 8, pillars)) return (FALSE);
 
 	return (TRUE);
 }
@@ -11816,4 +11835,7 @@ void generate_cave(void)
 		/* Set new maximum depth */
 		t_info[p_ptr->dungeon].max_depth = p_ptr->depth - min_depth(p_ptr->dungeon);
 	}
+	
+	/* Hit by the plague */
+	if (p_ptr->disease) suffer_disease();
 }

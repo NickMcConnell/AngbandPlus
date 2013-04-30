@@ -27,8 +27,6 @@ TODO: Stores should preferentially stock items that the player actually buys.
 
 TODO: Commands from menus.
 
-TODO: SHIELD blocks magic missiles completely.
-
 TODO: Free action, see invis, res blind etc. appear deeper in the dungeon then at present. 
 
 TODO: Improve self-knowledge so that it tells you what the impact of an effect is: You are blind,

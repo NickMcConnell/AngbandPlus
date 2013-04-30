@@ -36,7 +36,7 @@
  */
 int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 {
-	int i,ii;
+	int i;
 
 	int num = 0;
 
@@ -274,20 +274,13 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 			/* Get the spell */
 			s_ptr = &s_info[spell];
 
-			/* Get the default spell cast information */
-			sc_ptr=&(s_ptr->cast[0]);
-
 			if (cast)
 			{
-			  /* Get the spell details; warriors (class 0) have no spells */
-			  if (p_ptr->pclass)
-			    for (ii=0;ii<MAX_SPELL_CASTERS;ii++)
-			      {
-				if (s_ptr->cast[ii].class == p_ptr->pclass)
-				  {
-				    sc_ptr=&(s_ptr->cast[ii]);
-				  }
-			      }
+				/* Get the casting details */
+				sc_ptr = spell_cast_details(spell);
+				
+				/* Paranoia */
+				if (!sc_ptr) return (FALSE);
 
 				/* Prompt */
 				strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
@@ -336,80 +329,42 @@ int get_spell(int *sn, cptr prompt, object_type *o_ptr, bool known)
 }
 
 
-/* Note this routine is simple, but horribly inefficient due 
-   to the (1st iteration) design of the data structures */
+/*
+ * Is the book okay to select?
+ * 
+ * This requires that the player has spells in it that
+ * they can 'read'.
+ */
 bool inven_book_okay(const object_type *o_ptr)
 {
-	int i,ii,iii;
-
-	spell_type *s_ptr;
-
 	if ((o_ptr->tval != TV_MAGIC_BOOK) &&
   	  (o_ptr->tval != TV_PRAYER_BOOK) &&
   	  (o_ptr->tval != TV_RUNESTONE) &&
   	  (o_ptr->tval != TV_SONG_BOOK) &&
 	  (o_ptr->tval != TV_STUDY)) return (0);
 
-	
 	/* Study notes */
 	if (o_ptr->tval == TV_STUDY)
 	{
-		s_ptr = &s_info[o_ptr->pval];
-
-		/* Warriors (class 0) have no spells */
-		if (p_ptr->pclass)
-		  for (i = 0; i < MAX_SPELL_CASTERS; i++)
-		    {
-		      if (s_ptr->cast[i].class == p_ptr->pclass) 
-			return (1);
-		    }
-
-		for (i = 0; i < MAX_SPELL_APPEARS; i++)
-		{
-			if ((((s_info[o_ptr->pval].appears[i].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-				((s_info[o_ptr->pval].appears[i].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-				((s_info[o_ptr->pval].appears[i].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			 && (s_info[o_ptr->pval].appears[i].sval == p_ptr->psval))
-			{
-				return(1);
-			}
-		}
+		return (spell_legible(o_ptr->pval));
 	}
 
 	/* Book / runestone */
-	else for (i=0;i<z_info->s_max;i++)
+	else
 	{
-		s_ptr=&s_info[i];
-
-		for (ii=0;ii<MAX_SPELL_APPEARS;ii++)
+		s16b book[26];
+		int num;
+		int i;
+		
+		fill_book(o_ptr, book, &num);
+		
+		for (i=0; i < num; i++)
 		{
-			if ((s_ptr->appears[ii].tval == o_ptr->tval) &&
-			    (s_ptr->appears[ii].sval == o_ptr->sval))
-			{
-			  /* Warriors (class 0) have no spells */
-			  if (p_ptr->pclass)
-			    for (iii = 0; iii<MAX_SPELL_CASTERS; iii++)
-			      {
-				if (s_ptr->cast[iii].class == p_ptr->pclass) 
-				  return(1);
-			      }
-
-				for (iii = 0; iii < MAX_SPELL_APPEARS; iii++)
-				{
-					if ((((s_info[i].appears[iii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-						((s_info[i].appears[iii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-						((s_info[i].appears[iii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-					 && (s_info[i].appears[iii].sval == p_ptr->psval))
-					{
-						return(1);
-					}
-				}
-			}
+			if (spell_legible(book[i])) return (TRUE);
 		}
 	}			
 
-	return (0);
-
+	return (FALSE);
 }
 
 
@@ -567,13 +522,9 @@ void do_cmd_browse_object(object_type *o_ptr)
 
 		if ((i >= 0) && (i < num))
 		{
-			int ii;
-			bool legible = FALSE;
-			bool specialist = FALSE;
-
 			spell_type *s_ptr;
-
-			spell_cast *sc_ptr;
+			
+			bool disdain = FALSE;
 
 			/* Save the spell index */
 			spell = book[i];
@@ -593,43 +544,31 @@ void do_cmd_browse_object(object_type *o_ptr)
 			/* Get the spell */
 			s_ptr = &s_info[spell];
 
-			/* Get the spell cost */
-			sc_ptr=&(s_ptr->cast[0]);
-
-			/* Get our casting information; warriors (class 0) have no spells */
-			if (p_ptr->pclass)
-			  for (ii = 0; ii < MAX_SPELL_CASTERS; ii++)
-			    {
-			      if (s_ptr->cast[ii].class == p_ptr->pclass)
-				{
-				  legible = TRUE;
-				  sc_ptr=&(s_ptr->cast[ii]);
-				}
-			    }
-
-			/* Hack -- get casting information for specialists */
-			/* TODO: perhaps use spell_match_style(spell) here? */
-			for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
+			/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
+			if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (o_ptr->sval >= SV_BOOK_MAX_GOOD))
 			{
-			  if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-			       ((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-			       ((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			      && (s_info[spell].appears[ii].sval == p_ptr->psval))
-			    {
-			      legible = TRUE;
-			      specialist = TRUE;
-			    }
+				/* Sval hackery */
+				if (o_ptr->sval - (o_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) disdain = TRUE;
 			}
-
+			
 			/* Spell is illegible */
-			if (!legible)
+			if (disdain || !spell_legible(spell))
 			{
 				msg_format("You cannot read that %s.",p);
-
+				if (disdain)
+				{
+					switch(o_ptr->sval % 4)
+					{
+						case 0: msg_print("It shows a lack of grasp of simple theory."); break;
+						case 1: msg_print("It could never work due to harmonic instability."); break;
+						case 2: msg_print("It's the deranged scribblings from a lunatic asylum."); break;
+						case 3: msg_print("The book snaps itself shut and jumps from your fingers."); break;
+					}
+				}
+				
 				/* Build a prompt (accept all spells) */
 				strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
 					p, I2A(0), I2A(num - 1), p);
-
 			}
 			else
 			{
@@ -682,7 +621,7 @@ void do_cmd_browse_object(object_type *o_ptr)
 				}
 
 				/* Display pre-requisites, unless specialist */
-				if (!specialist)
+				if (!spell_match_style(spell))
 				  for (i = 0; i < MAX_SPELL_PREREQUISITES; i++)
 				  {
 				    /* Check if pre-requisite spells */
@@ -849,6 +788,7 @@ void do_cmd_study(void)
 	object_type object_type_body;
 
 	bool study_item = FALSE;
+	bool disdain = FALSE;
 
 	/* Cannot cast spells if illiterate */
 	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
@@ -1012,6 +952,32 @@ void do_cmd_study(void)
 		}
 	}
 
+	/* 'School' specialists cannot learn spells from basic 'school' books other than their school */
+	if ((p_ptr->psval >= SV_BOOK_MAX_GOOD) && (o_ptr->sval >= SV_BOOK_MAX_GOOD))
+	{
+		/* Sval hackery */
+		if (o_ptr->sval - (o_ptr->sval % SV_BOOK_SCHOOL) + SV_BOOK_SCHOOL - 1 != p_ptr->psval) disdain = TRUE;
+	}
+	
+	/* Spell is illegible */
+	if (disdain)
+	{
+		msg_format("You cannot study that %s.",p);
+
+		switch(o_ptr->sval % 4)
+		{
+			case 0: msg_print("You lack the grasp of simple theory."); break;
+			case 1: msg_print("You can't master it due to harmonic instability."); break;
+			case 2: msg_print(format("Your %ss resemble deranged scribblings from a lunatic asylum.", p)); break;
+			case 3: msg_print("The book burns red hot in your hands!"); break;
+		}
+		
+		msg_print("You pass out from the strain!");
+	
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint(o_ptr->sval % 4 + 1));
+	}
+	
 	/* Prayer book -- Learn a random prayer */
 	if (o_ptr->tval == TV_PRAYER_BOOK)
 	{
@@ -1230,17 +1196,10 @@ bool do_cmd_cast_aux(int spell, int plev, cptr p, cptr t)
 	s_ptr = &s_info[spell];
 
 	/* Get the cost */
-	sc_ptr=&(s_ptr->cast[0]);
-
-	/* Get the spell details; warriors (class 0) have no spells */
-	if (p_ptr->pclass)
-	  for (i = 0; i < MAX_SPELL_CASTERS; i++)
-	    {
-	      if (s_ptr->cast[i].class == p_ptr->pclass)
-		{
-		  sc_ptr=&(s_ptr->cast[i]);
-		}
-	    }
+	sc_ptr = spell_cast_details(spell);
+	
+	/* Paranoia */
+	if (!sc_ptr) return (FALSE);
 
 	/* Verify "dangerous" spells */
 	if (sc_ptr->mana > p_ptr->csp)

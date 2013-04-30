@@ -2597,9 +2597,9 @@ void messages_easy(bool command)
 				{
 					int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
 					int x = KEY_GRID_X(p_ptr->command_cmd_ex);
-					int room;
+					int room = dun_room[p_ptr->py/BLOCK_HGT][p_ptr->px/BLOCK_WID];
 
-					target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
+					if (in_bounds_fully(y, x)) target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 					
 					continue;
 				}
@@ -2757,21 +2757,7 @@ static void msg_flush(int x)
 	byte a = TERM_L_BLUE;
 
 	/* Handle easy_more */
-	if (easy_more || use_trackmouse)
-	{
-		/* Display additional messages on the same screen */
-		if (!must_more)
-		{
-			/* Display messages from this point onwards */
-			message__easy = message__next;
-
-			/* Delay displaying remaining messages */
-			must_more = TRUE;
-		}
-
-		return;
-	}
-	
+	if (easy_more) return;	
 	
 #if 0
 	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
@@ -2863,32 +2849,35 @@ static void msg_print_aux(u16b type, cptr msg)
 	n = (msg ? strlen(msg) : 0);
 
 	/* Hack -- flush when requested or needed */
-	if (message_column && (!msg || ((message_column + n) > (w - 8))))
+	if ((message_column || easy_more) && (!msg || ((message_column + n) > (w - 8))))
 	{
+		bool hack_use_first_line = (easy_more && !must_more && !message_column && msg) ? TRUE : FALSE;
+		bool hack_flush = (easy_more && message_column && ((message_column + n) <= (w - 8)) && !must_more && !msg) ? TRUE : FALSE;
+		
+		/* Handle easy_more */
+		if (easy_more && msg && !must_more)
+		{
+			/* Display messages from this point onwards */
+			message__easy = message__next;
+
+			/* Delay displaying remaining messages */
+			must_more = TRUE;
+		}
+		
+		/* Hack -- allow single line '-more-' */
+		if (hack_flush) easy_more = FALSE;
+		
 		/* Flush */
 		msg_flush(message_column);
 
+		/* Hack -- allow single line '-more-' */
+		if (hack_flush) easy_more = TRUE;
+
 		/* Forget it */
-		msg_flag = FALSE;
+		msg_flag = hack_use_first_line;
 
 		/* Reset */
 		message_column = 0;
-	}
-	/* Hack -- get messages_easy to display the whole message */
-	else if ((easy_more) && (!must_more) && (n > (w - 8)))
-	{
-		/* Flush */
-		msg_flush(message_column);
-		
-		/* Hack -- use first line */
-		msg_flag = TRUE;
-	}
-	/* Hack -- blank message or zero length message implies we want interruption */
-	else if ((easy_more) && ((!msg) || !(strlen(msg))))
-	{
-		messages_easy(FALSE);
-		
-		return;
 	}
 
 	/* No message */
@@ -3056,12 +3045,13 @@ void message_format(u16b message_type, s16b extra, cptr fmt, ...)
 
 /*
  * Print the queued messages.
+ * 
+ * Note we'd like to call messages_easy here but can't
+ * because this causes an infinite loop between here,
+ * messages_easy and screen_save.
  */
 void message_flush(void)
 {
-	/* Hack -- no effect with easy_more */
-	if (easy_more) return;
-	
 	/* Hack -- Reset */
 	if (!msg_flag) message_column = 0;
 

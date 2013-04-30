@@ -105,10 +105,11 @@ O:16:1:2
 O:17:1:2
 O:18:1:2
 
-#Service of Restoration
+#Services of Restoration & Healing
 N:4:Temple
 X:6
 O:99:10:0
+O:99:25:0
 O:21:2:1
 O:21:3:1
 O:21:5:2
@@ -242,10 +243,12 @@ O:80:38:1
 O:80:40:1
 O:80:41:1
 
-#Service of Satisfy Hunger
+#Service of Satisfy Hunger, Rest until Dusk/Dawn
 N:15:Festhall
 X:3
 O:99:1:0
+O:99:26:0
+O:99:52:0
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -380,6 +383,8 @@ X:0
 
 N:23:Barracks
 X:3
+O:99:26:0
+O:99:52:0
 O:80:35:4
 O:80:32:1
 O:80:33:2
@@ -638,13 +643,15 @@ O:39:1:1
 O:70:8:3
 O:70:77:2
 
-#Service of Satisfy Hunger
+#Service of Satisfy Hunger, Rest until dusk/dawn
 N:35:Inn of the Green Dragon
 X:3
 O:91:32:3
 O:91:33:2
 O:91:34:2
-O:99:35:0
+O:99:1:0
+O:99:26:0
+O:99:52:0
 O:92:0:3
 O:92:1:2
 O:92:0:1
@@ -700,6 +707,9 @@ O:20:4:2
 #Service of Satisfy Hunger
 N:45:an Inn on the East Road
 X:3
+O:99:1:0
+O:99:26:0
+O:99:52:0
 O:35:1:1
 O:30:1:1
 O:80:35:2

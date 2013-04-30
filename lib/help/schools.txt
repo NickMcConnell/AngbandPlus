@@ -39,12 +39,12 @@
            open, and takes a while to prepare his magic, which means he can
            be overwhelmed before his magic can be used. 
 
-           Novice Druis start with the book of Hedges.
+           Novice Druids start with the book of Hedges.
 
 ***** <Mastery>
         Mastery
           The school of Mastery contains some useful low-level magics, but at
-          higher levels is eavily reliant on the ability to summon and control
+          higher levels is heavily reliant on the ability to summon and control
           minions for the great part of both offense and defense.  This is
           a double-edged sword: while the minions are more than capable of
           providing the Master protection and dealing out damage, he has a

@@ -1531,7 +1531,7 @@ static void display_entry(int item, int store_index)
 			if (!object_aware_p(o_ptr))
 			{
 				/* Display tips */
-				object_aware_tips(o_ptr);
+				object_aware_tips(o_ptr->k_idx);
 			}
 			
 			/* Make object aware - short routine */
@@ -1595,7 +1595,7 @@ static void display_entry(int item, int store_index)
 		/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 		if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
 		{
-			object_aware_tips(o_ptr);
+			object_aware_tips(o_ptr->k_idx);
 
 			k_info[o_ptr->k_idx].aware = TRUE;
 		}
@@ -1609,7 +1609,7 @@ static void display_entry(int item, int store_index)
 		}
 
 		/* Actually draw the price (not fixed) */
-		sprintf(out_val, "%9ld %d", guess_cost(item, store_index), o_ptr->ident & (IDENT_FIXED) ? 'F' : ' ');
+		sprintf(out_val, "%9ld %c", guess_cost(item, store_index), o_ptr->ident & (IDENT_FIXED) ? 'F' : ' ');
 		put_str(out_val, y, 68);
 	}
 }
@@ -2467,7 +2467,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price, cptr selling, char labe
  */
 static void store_purchase(int store_index)
 {
-	int n;
+	int n = 99;
 	int amt, choice;
 	int item, item_new;
 
@@ -2515,20 +2515,24 @@ static void store_purchase(int store_index)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 	
-	/* Guess maximum items can afford */
-	n = p_ptr->au / guess_cost(item, store_index);
-	
-	/* Maybe able to haggle */
-	if (!n)
+	/* Try to restrict quantity based on what the player can afford */
+	if (st_ptr->base >= STORE_MIN_BUY_SELL)
 	{
-		if (adult_haggle)
+		/* Guess maximum items can afford */
+		n = p_ptr->au / guess_cost(item, store_index);
+		
+		/* Maybe able to haggle */
+		if (!n)
 		{
-			n = 1;
-		}
-		else
-		{
-			msg_print("You can't afford that item.");
-			return;
+			if (adult_haggle)
+			{
+				n = 1;
+			}
+			else
+			{
+				msg_print("You can't afford that item.");
+				return;
+			}
 		}
 	}
 	
@@ -2548,10 +2552,25 @@ static void store_purchase(int store_index)
 	i_ptr->number = amt;
 
 	/* Hack -- require room in pack */
-	if ((i_ptr->tval != TV_SERVICE) && (!inven_carry_okay(i_ptr)))
+	if (i_ptr->tval != TV_SERVICE)
 	{
-		msg_print("You cannot carry that many items.");
-		return;
+		bool hack_ident_store = (i_ptr->ident & (IDENT_STORE)) != 0;
+		bool can_carry;
+		
+		/* Hack -- manipulate store flag */
+		if (hack_ident_store) i_ptr->ident &= ~(IDENT_STORE);
+		
+		can_carry = inven_carry_okay(i_ptr);
+
+		/* Hack -- manipulate store flag */
+		if (hack_ident_store) i_ptr->ident |= (IDENT_STORE);
+		
+		if (!can_carry)
+		{
+			msg_print("You cannot carry that many items.");
+			
+			return;
+		}
 	}
 
 	/* Attempt to buy it */
@@ -2685,8 +2704,11 @@ static void store_purchase(int store_index)
 				store_item_increase(item, -amt, store_index);
 				store_item_optimize(item, store_index);
 
-				/* Store is empty */
-				if (st_ptr->stock_num == 0)
+				/* Store is empty. */
+				/* Note that if the last item is a service, then
+				 * all items in store are services. This simplifies things
+				 * a lot */
+				if ((st_ptr->stock_num == 0) || (st_ptr->stock[st_ptr->stock_num - 1].tval == TV_SERVICE))
 				{
 					int i;
 

@@ -776,7 +776,7 @@ static void prt_state(void)
 	}
 
 	/* Display the info (or blanks) */
-	if (text)
+	if (*text)
 	  c_put_str(attr, text, ROW_STATE, COL_STATE);
 }
 
@@ -1051,6 +1051,43 @@ void object_actual_track(const object_type *j_ptr)
 #ifdef USE_CLASS_PRETTY_NAMES
 
 
+const char *mage_sval_name[SV_BOOK_MAX_GOOD] =
+{
+		"Enchanter",
+		"Loremaster",
+		"Healer",
+		"Artificer",
+		"Sufferer",
+		"Houdini",
+		"Archmage",
+		"Warlock",
+		"War Mage",
+		"Pyromancer",
+		"Acid Mage",
+		"Cyromancer",
+		"Storm Mage",
+		"Alchemist",
+		"Necromancer",
+		"Beastmaster",
+		"Psychic",
+		"Celestial Mage",
+		"Geomancer",
+		"Aeromancer",
+		"Hydromancer",
+		"Runesmith",
+		"Shapechanger",
+		"Negater",
+		"Naturalist",
+		"Astromancer",
+		"Demonologist",
+		"Death Mage",
+		"Void Mage",
+		"Immoliator",
+		"Gambler",
+		"Balancer"
+};
+
+
 /*
  * Hack plus -- defines 'pretty' names for various class + style combinations.
  * Absolutely cosmetic.
@@ -1062,7 +1099,7 @@ void object_actual_track(const object_type *j_ptr)
  *
  * We guarantee long names are distinct and try to make short names distinct.
  */
-void lookup_prettyname(cptr name, size_t name_s, int class, int style, int sval, bool long_name, bool short_name)
+void lookup_prettyname(char *name, size_t name_s, int class, int style, int sval, bool long_name, bool short_name)
 {
 	char temp[60];
 
@@ -1164,7 +1201,7 @@ void lookup_prettyname(cptr name, size_t name_s, int class, int style, int sval,
 			if (style == WS_POTION) my_strcpy(temp,"Herbalist", sizeof(temp));
 			if (style == WS_SCROLL) my_strcpy(temp,"Sage", sizeof(temp));
 			if (style == WS_WAND) my_strcpy(temp,"Magician", sizeof(temp));
-			if (style == WS_STAFF) my_strcpy(temp,"Wizard", sizeof(temp));
+			if (style == WS_STAFF) my_strcpy(temp,"Conjuror", sizeof(temp));
 			if (style == WS_AMULET) my_strcpy(temp,"Witch", sizeof(temp));
 			if (style == WS_RING) my_strcpy(temp,"Ringwielder", sizeof(temp));
 			if ((style == WS_MAGIC_BOOK) && (sval >= 0))
@@ -1176,25 +1213,16 @@ void lookup_prettyname(cptr name, size_t name_s, int class, int style, int sval,
 					my_strcpy(temp,"Mage ", sizeof(temp));
 					my_strcat(temp,k_name+k_ptr->name, sizeof(temp));
 				}
-				if (sval == 1) my_strcpy(temp,"Conjuror", sizeof(temp));
-				if (sval == 2) my_strcpy(temp,"Invoker", sizeof(temp));
-				if (sval == 3) my_strcpy(temp,"Sorcerer", sizeof(temp));
-				if (sval == 6) my_strcpy(temp,"Archmage", sizeof(temp));
-				if (sval == 7) my_strcpy(temp,"Warlock", sizeof(temp));
-				if (sval == 8) my_strcpy(temp,"War mage", sizeof(temp));
-				if (sval == 22) my_strcpy(temp,"Enchanter", sizeof(temp));
-				if (sval == 24) my_strcpy(temp,"Healer", sizeof(temp));
-				if (sval == 21) my_strcpy(temp,"Runesmith", sizeof(temp));
-				if (sval == 18) my_strcpy(temp,"Geomancer", sizeof(temp));
-				if (sval == 20) my_strcpy(temp,"Hydromancer", sizeof(temp));
-				if (sval == 9) my_strcpy(temp,"Pyromancer", sizeof(temp));
-				if (sval == 11) my_strcpy(temp,"Cyromancer", sizeof(temp));
-				if (sval == 13) my_strcpy(temp,"Alchemist", sizeof(temp));
-				if (sval == 14) my_strcpy(temp,"Necromancer", sizeof(temp));
-				if (sval == 25) my_strcpy(temp,"Artificer", sizeof(temp));
-				if (sval == 23) my_strcpy(temp,"Sage", sizeof(temp));
-				if (sval == 15) my_strcpy(temp,"Beastmaster", sizeof(temp));
-				if (sval == 16) my_strcpy(temp,"Illusionist", sizeof(temp));
+
+				if (sval < SV_BOOK_MAX_GOOD) my_strcpy(temp, mage_sval_name[sval], sizeof(temp));
+				
+				else if ((sval >= 32) && (sval < 36)) my_strcpy(temp,"Wizard", sizeof(temp));
+				else if ((sval >= 36) && (sval < 39)) my_strcpy(temp,"Druid", sizeof(temp));
+				else if ((sval >= 40) && (sval < 44)) my_strcpy(temp,"Master", sizeof(temp));
+				else if ((sval >= 45) && (sval < 48)) my_strcpy(temp,"Sorceror", sizeof(temp));
+				else if ((sval >= 48) && (sval < 52)) my_strcpy(temp,"Thuamaturgist", sizeof(temp));
+				else if ((sval >= 52) && (sval < 56)) my_strcpy(temp,"Scientist", sizeof(temp));
+				else if ((sval >= 56) && (sval < 60)) my_strcpy(temp,"Statesman", sizeof(temp));
 
 			}
 			if ((style == WS_PRAYER_BOOK) && (sval >= 0))
@@ -3894,24 +3922,24 @@ static void calc_bonuses(void)
 			/* Set shooting preference styles */
 			switch(o_ptr->sval)
 			{
-			case SV_SLING:
-			{
-				p_ptr->cur_style |= (1L << WS_SLING);
-				break;
-			}
-			case SV_SHORT_BOW:
-			case SV_LONG_BOW:
-			{
-				p_ptr->cur_style |= (1L << WS_BOW);
-				break;
-			}
-			case SV_HAND_XBOW:
-			case SV_LIGHT_XBOW:
-			case SV_HEAVY_XBOW:
-			{
-				p_ptr->cur_style |= (1L << WS_XBOW);
-				break;
-			}
+				case SV_SLING:
+				{
+					p_ptr->cur_style |= (1L << WS_SLING);
+					break;
+				}
+				case SV_SHORT_BOW:
+				case SV_LONG_BOW:
+				{
+					p_ptr->cur_style |= (1L << WS_BOW);
+					break;
+				}
+				case SV_HAND_XBOW:
+				case SV_LIGHT_XBOW:
+				case SV_HEAVY_XBOW:
+				{
+					p_ptr->cur_style |= (1L << WS_XBOW);
+					break;
+				}
 			}
 		}
 	}
@@ -3935,6 +3963,8 @@ static void calc_bonuses(void)
 			{
 				if (!(p_ptr->cur_style & (1L << WS_UNARMED)))
 					p_ptr->cur_style |= (1L << WS_WEAPON_SHIELD);
+				/* Not one-handed or two-handed */
+				p_ptr->cur_style &= ~(WS_ONE_HANDED | WS_TWO_HANDED);
 				break;
 			}
 			case TV_HAFTED:
@@ -3957,8 +3987,14 @@ static void calc_bonuses(void)
 		if (w_info[i].level > p_ptr->lev) continue;
 
 		/* Check for styles */
-		if (w_info[i].styles==0 
-		    || w_info[i].styles & p_ptr->cur_style & (1L << p_ptr->pstyle))
+		/* Match either if the line has no styles specified */
+		if ((w_info[i].styles == 0) ||
+				/* Or the line matches the characters style, computed above */
+				(w_info[i].styles & (p_ptr->cur_style & (1L << p_ptr->pstyle))) ||
+				/* Or if the character does not have a melee/missile/thrown style,
+				 * match the none style instead */
+				((w_info[i].styles == (1L << WS_NONE)) &&
+						(((1L << p_ptr->pstyle) & (WS_NON_WIELD_FLAGS)) != 0)))				
 		{
 			switch (w_info[i].benefit)
 			{
@@ -4010,7 +4046,6 @@ static void calc_bonuses(void)
 					break;
 			 }
 		}
-
 	}
 
 	/* Don't like our weapon */

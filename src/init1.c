@@ -1448,6 +1448,8 @@ static cptr s_info_types[] =
 	"BLOOD_BOND",
 	"MINDS_EYE",
 	"LIGHT_CHAMBERS",
+	"REST_UNTIL_DUSK",
+	"REST_UNTIL_DAWN",	
 	NULL
 };
 

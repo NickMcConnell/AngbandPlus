@@ -429,6 +429,290 @@ bool dun_level_mon(int r_idx)
 
 
 /*
+ * Suffer from a disease.
+ * 
+ * This now occurs whilst changing levels, and while in dungeon for
+ * quick diseases only.
+ */
+void suffer_disease(void)
+{
+	u32b old_disease = p_ptr->disease;
+
+	/* Get hit by disease */
+	if (p_ptr->disease & ((1 << DISEASE_BLOWS) - 1))
+	{
+		int i, n, effect = 0;
+
+		msg_print("You feel an illness eat away at you.");
+
+		disturb(0,0);
+
+		n = 0;
+
+		/* Select one of the possible effects that the player can suffer */
+		for (i = 1; i < (1 << DISEASE_BLOWS); i <<=1)
+		{
+			if (!(p_ptr->disease & i)) continue;
+		
+			if (!rand_int(++n)) effect = i;
+		}
+
+		switch (effect)
+		{
+			case DISEASE_LOSE_STR:
+			{
+				dec_stat(A_STR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_INT:
+			{
+				dec_stat(A_INT, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_WIS:
+			{
+				dec_stat(A_WIS, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_DEX:
+			{
+				dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				/* An exception --- disease does not glue DEX and AGI.
+				   See DISEASE_SLOW below, however. */
+				break;
+			}
+
+			case DISEASE_LOSE_CON:
+			{
+				dec_stat(A_CON, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				break;
+			}
+
+			case DISEASE_LOSE_CHR:
+			{
+				dec_stat(A_CHR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
+				break;
+			}
+
+			case DISEASE_HUNGER:
+			{
+				msg_print("You vomit up your food!");
+				(void)set_food(PY_FOOD_STARVE - 1);
+				disturb(0, 0);
+				break;
+			}
+
+			case DISEASE_THIRST:
+			{
+				(void)set_food(p_ptr->food - randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_CUT:
+			{
+				(void)set_cut(p_ptr->cut + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_STUN:
+			{
+				(void)set_stun(p_ptr->stun + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
+				break;
+			}
+
+			case DISEASE_POISON:
+			{
+				(void)set_poisoned(p_ptr->poisoned + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_BLIND:
+			{
+				(void)set_blind(p_ptr->blind + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
+				break;
+			}
+
+			case DISEASE_FEAR:
+			{
+				(void)set_afraid(p_ptr->afraid + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_CONFUSE:
+			{
+				(void)set_confused(p_ptr->confused + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+				break;
+			}
+
+			case DISEASE_HALLUC:
+			{
+				(void)set_image(p_ptr->image + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_AMNESIA:
+			{
+				(void)set_amnesia(p_ptr->amnesia + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_CURSE:
+			{
+				(void)set_cursed(p_ptr->cursed + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				break;
+			}
+
+			case DISEASE_SLOW:
+			{
+				(void)set_slow(p_ptr->slow + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
+				/* Also slightly reduce agility. */
+				dec_stat(A_AGI, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
+				break;
+			}
+
+			case DISEASE_DISPEL:
+			{
+				/* Powerful diseases also drain mana */
+				if (p_ptr->msp && (p_ptr->disease & (DISEASE_POWER)))
+				{
+					p_ptr->csp -= randint(30);
+					if (p_ptr->csp < 0) p_ptr->csp = 0;
+
+					/* Update mana */
+					p_ptr->update |= (PU_MANA);				
+
+					/* Redraw */
+					p_ptr->redraw |= (PR_MANA);
+
+					/* Window stuff */
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				}
+
+				(void)project_p(SOURCE_DISEASE, effect, p_ptr->py, p_ptr->px, 0, GF_DISPEL);
+				break;
+			}
+
+			case DISEASE_SLEEP:
+			{
+				(void)set_msleep(p_ptr->msleep + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
+				break;
+			}
+
+			case DISEASE_PETRIFY:
+			{
+				(void)set_petrify(p_ptr->petrify + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+				break;
+			}
+
+			case DISEASE_PARALYZE:
+			{
+				(void)set_paralyzed(p_ptr->paralyzed + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+				disturb(0,0);
+				break;
+			}
+
+			case DISEASE_STASTIS:
+			{
+				(void)set_stastis(p_ptr->stastis + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
+				disturb(0,0);
+				break;
+			}
+		}
+
+		/* The player is going to suffer further */
+		if ((p_ptr->disease & (DISEASE_QUICK)) && !(rand_int(3)))
+		{
+			/* Breakfast time... */
+			msg_print("Something pushes through your skin.");
+			msg_print("Its... hatching...");
+
+			/* How many eggs? */
+			n = randint(p_ptr->depth / 5) + 1;
+
+			/* A nasty chest wound */
+			take_hit(damroll(n, 8),"the birth of a parasite");
+		
+			/* Set parasite race */
+			summon_race_type = parasite_hack[effect];
+
+			/* Drop lots of parasites */
+			for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 99, SUMMON_FRIEND, FALSE, 0L);
+
+			/* Aggravate if not light */
+			if (!(p_ptr->disease & (DISEASE_LIGHT))) aggravate_monsters(-1);
+
+			/* Paralyze if heavy */
+			if (p_ptr->disease & (DISEASE_HEAVY)) (void)set_paralyzed(p_ptr->paralyzed + randint(3) + 1);
+
+			/* Not a pleasant cure but nonetheless */
+			p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
+		}
+
+		/* Mutate plague */
+		if ((p_ptr->disease & (DISEASE_DISEASE)) && !(rand_int(3)))
+		{
+			if ((n < 3) && (p_ptr->disease & (DISEASE_HEAVY)))
+				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+			else if (n < 3)
+				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+		
+			if (n > 1) p_ptr->disease &= ~(1 << rand_int(DISEASE_TYPES));
+			if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
+		}
+	}
+	
+	/* All diseases mutate to get blows if they have no effect currently*/
+	else if ((!rand_int(3)) && ((p_ptr->disease & ((1 << DISEASE_TYPES_HEAVY) -1 )) == 0))
+	{
+		if (p_ptr->disease & (DISEASE_HEAVY))
+		{
+			p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+		}
+		else
+		{
+			p_ptr->disease |= (1 << rand_int(DISEASE_BLOWS));
+		}
+		if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
+	}
+
+	/* Worsen black breath */
+	if ((p_ptr->disease & (1 << DISEASE_SPECIAL)) && !(rand_int(10)))
+	{
+		if (p_ptr->disease & (DISEASE_HEAVY))
+			p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
+		else
+			p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
+	}
+
+	/* The player is on the mend */
+	if ((p_ptr->disease & (DISEASE_LIGHT)) && !(rand_int(6)))
+	{
+		msg_print("The illness has subsided.");
+		p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
+
+		p_ptr->redraw |= (PR_DISEASE);
+		
+		if (disturb_state) disturb(0, 0);
+	}
+
+	/* Diseases? */
+	else if (old_disease != p_ptr->disease)
+	{
+		char output[1024];
+
+		disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
+
+		msg_print(output);
+
+		p_ptr->redraw |= (PR_DISEASE);
+	}
+}
+
+
+/*
  * Handle certain things once every 10 game turns
  */
 static void process_world(void)
@@ -822,10 +1106,7 @@ static void process_world(void)
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->stun) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
-
-	/* If disease has no other effect, prevent regeneration */
-	if ((p_ptr->disease) && !(p_ptr->disease & (DISEASE_DRAIN_HP))) regen_amount = 0;
-
+	if (p_ptr->disease & (DISEASE_DRAIN_HP)) regen_amount = 0;
 	if ((p_ptr->cur_flags3 & (TR3_DRAIN_HP)) != 0) regen_amount = 0;
 	if (room_has_flag(p_ptr->py, p_ptr->px, ROOM_BLOODY)) regen_amount = 0;
 
@@ -1376,281 +1657,9 @@ static void process_world(void)
 	}
 
 	/*** Handle disease ***/
-	if ((p_ptr->disease) && (rand_int(300) < ((p_ptr->disease & (DISEASE_QUICK | DISEASE_LIGHT)) ? 3 : 1)))
+	if ((p_ptr->disease) && (p_ptr->disease & (DISEASE_QUICK)) && !(rand_int(100)))
 	{
-		u32b old_disease = p_ptr->disease;
-
-		/* Get hit by disease */
-		if (p_ptr->disease & ((1 << DISEASE_BLOWS) - 1))
-		{
-			int i, n, effect = 0;
-
-			msg_print("You feel an illness eat away at you.");
-
-			disturb(0,0);
-
-			n = 1;
-
-			/* Select one of the possible effects that the player can suffer */
-			for (i = 1; i < (1 << DISEASE_BLOWS); i <<=1)
-			{
-				if (!(p_ptr->disease & i)) continue;
-			
-				if (!rand_int(n++)) effect = i;
-			}
-
-			switch (effect)
-			{
-				case DISEASE_LOSE_STR:
-				{
-					dec_stat(A_STR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					break;
-				}
-
-				case DISEASE_LOSE_INT:
-				{
-					dec_stat(A_INT, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					break;
-				}
-
-				case DISEASE_LOSE_WIS:
-				{
-					dec_stat(A_WIS, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					break;
-				}
-
-				case DISEASE_LOSE_DEX:
-				{
-					dec_stat(A_DEX, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					/* An exception --- disease does not glue DEX and AGI.
-					   See DISEASE_SLOW below, however. */
-					break;
-				}
-
-				case DISEASE_LOSE_CON:
-				{
-					dec_stat(A_CON, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					break;
-				}
-
-				case DISEASE_LOSE_CHR:
-				{
-					dec_stat(A_CHR, p_ptr->disease & (DISEASE_POWER) ? randint(6) : 1, 0);
-					break;
-				}
-
-				case DISEASE_HUNGER:
-				{
-					msg_print("You vomit up your food!");
-					(void)set_food(PY_FOOD_STARVE - 1);
-					disturb(0, 0);
-					break;
-				}
-
-				case DISEASE_THIRST:
-				{
-					(void)set_food(p_ptr->food - randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_CUT:
-				{
-					(void)set_cut(p_ptr->cut + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_STUN:
-				{
-					(void)set_stun(p_ptr->stun + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
-					break;
-				}
-
-				case DISEASE_POISON:
-				{
-					(void)set_poisoned(p_ptr->poisoned + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_BLIND:
-				{
-					(void)set_blind(p_ptr->blind + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
-					break;
-				}
-
-				case DISEASE_FEAR:
-				{
-					(void)set_afraid(p_ptr->afraid + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_CONFUSE:
-				{
-					(void)set_confused(p_ptr->confused + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
-					break;
-				}
-
-				case DISEASE_HALLUC:
-				{
-					(void)set_image(p_ptr->image + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_AMNESIA:
-				{
-					(void)set_amnesia(p_ptr->amnesia + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_CURSE:
-				{
-					(void)set_cursed(p_ptr->cursed + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					break;
-				}
-
-				case DISEASE_SLOW:
-				{
-					(void)set_slow(p_ptr->slow + randint(p_ptr->disease & (DISEASE_POWER) ? 100 : 30) + 10);
-					/* Also slightly reduce agility. */
-					dec_stat(A_AGI, p_ptr->disease & (DISEASE_POWER) ? randint(3) : 1, 0);
-					break;
-				}
-
-				case DISEASE_DISPEL:
-				{
-					/* Powerful diseases also drain mana */
-					if (p_ptr->msp && (p_ptr->disease & (DISEASE_POWER)))
-					{
-						p_ptr->csp -= randint(30);
-						if (p_ptr->csp < 0) p_ptr->csp = 0;
-
-						/* Update mana */
-						p_ptr->update |= (PU_MANA);				
-
-						/* Redraw */
-						p_ptr->redraw |= (PR_MANA);
-
-						/* Window stuff */
-						p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-					}
-
-					(void)project_p(SOURCE_DISEASE, effect, p_ptr->py, p_ptr->px, 0, GF_DISPEL);
-					break;
-				}
-
-				case DISEASE_SLEEP:
-				{
-					(void)set_msleep(p_ptr->msleep + randint(p_ptr->disease & (DISEASE_POWER) ? 40 : 10) + 2);
-					break;
-				}
-
-				case DISEASE_PETRIFY:
-				{
-					(void)set_petrify(p_ptr->petrify + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
-					break;
-				}
-
-				case DISEASE_PARALYZE:
-				{
-					(void)set_paralyzed(p_ptr->paralyzed + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
-					disturb(0,0);
-					break;
-				}
-
-				case DISEASE_STASTIS:
-				{
-					(void)set_stastis(p_ptr->stastis + randint(p_ptr->disease & (DISEASE_POWER) ? 10 : 3) + 1);
-					disturb(0,0);
-					break;
-				}
-			}
-
-			/* The player is going to suffer further */
-			if ((p_ptr->disease & (DISEASE_QUICK)) && !(rand_int(3)))
-			{
-				/* Breakfast time... */
-				msg_print("Something pushes through your skin.");
-				msg_print("Its... hatching...");
-
-				/* How many eggs? */
-				n = randint(p_ptr->depth / 5) + 1;
-
-				/* A nasty chest wound */
-				take_hit(damroll(n, 8),"the birth of a parasite");
-			
-				/* Set parasite race */
-				summon_race_type = parasite_hack[effect];
-
-				/* Drop lots of parasites */
-				for (i = 0; i < n; i++) (void)summon_specific(p_ptr->py, p_ptr->py, 99, SUMMON_FRIEND, FALSE, 0L);
-
-				/* Aggravate if not light */
-				if (!(p_ptr->disease & (DISEASE_LIGHT))) aggravate_monsters(-1);
-
-				/* Paralyze if heavy */
-				if (p_ptr->disease & (DISEASE_HEAVY)) (void)set_paralyzed(p_ptr->paralyzed + randint(3) + 1);
-
-				/* Not a pleasant cure but nonetheless */
-				p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
-			}
-
-			/* Mutate plague */
-			if ((p_ptr->disease & (DISEASE_DISEASE)) && !(rand_int(3)))
-			{
-				if ((n < 3) && (p_ptr->disease & (DISEASE_HEAVY)))
-					p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-				else if (n < 3)
-					p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
-			
-				if (n > 1) p_ptr->disease &= ~(1 << rand_int(DISEASE_TYPES));
-				if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
-			}
-		}
-		
-		/* All diseases mutate to get blows if they have no effect currently*/
-		else if ((!rand_int(3)) && ((p_ptr->disease & ((1 << DISEASE_TYPES_HEAVY) -1 )) == 0))
-		{
-			if (p_ptr->disease & (DISEASE_HEAVY))
-			{
-				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-			}
-			else
-			{
-				p_ptr->disease |= (1 << rand_int(DISEASE_BLOWS));
-			}
-			if (!rand_int(20)) p_ptr->disease |= (DISEASE_LIGHT);
-		}
-
-		/* Worsen black breath */
-		if ((p_ptr->disease & (1 << DISEASE_SPECIAL)) && !(rand_int(10)))
-		{
-			if (p_ptr->disease & (DISEASE_HEAVY))
-				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES_HEAVY));
-			else
-				p_ptr->disease |= (1 << rand_int(DISEASE_TYPES));
-		}
-
-		/* The player is on the mend */
-		if ((p_ptr->disease & (DISEASE_LIGHT)) && !(rand_int(6)))
-		{
-			msg_print("The illness has subsided.");
-			p_ptr->disease &= (DISEASE_HEAVY | DISEASE_PERMANENT);
-
-			p_ptr->redraw |= (PR_DISEASE);
-			
-			if (disturb_state) disturb(0, 0);
-		}
-
-		/* Diseases? */
-		else if (old_disease != p_ptr->disease)
-		{
-			char output[1024];
-
-			disease_desc(output, sizeof(output), old_disease, p_ptr->disease);
-
-			msg_print(output);
-
-			p_ptr->redraw |= (PR_DISEASE);
-		}
+		suffer_disease();
 	}
 
 
@@ -1674,7 +1683,7 @@ static void process_world(void)
 			object_flags(o_ptr, &f1, &f2, &f3, &f4);
 			
 			/* Pick item */
-			if (((f3 & (TR3_UNCONTROLLED)) == 0) && (cursed_p(o_ptr)) && !(rand_int(k++)))
+			if (((f3 & (TR3_UNCONTROLLED)) != 0) && (cursed_p(o_ptr)) && !(rand_int(k++)))
 			{
 				j = i;
 			}
@@ -1958,8 +1967,6 @@ static void process_command(void)
 		/* Ignore */
 		case ESCAPE:
 		case ' ':
-		case '\n':
-		case '\r':
 		{
 			break;
 		}
@@ -2378,6 +2385,13 @@ static void process_command(void)
 		/*** Help and Such ***/
 
 		/* Help */
+		case '\r':
+		case '\n':
+		{
+			do_cmd_quick_help();
+			break;
+		}
+		
 		case '?':
 		{
 			do_cmd_help();
@@ -2566,6 +2580,9 @@ static void process_command(void)
 			int y = KEY_GRID_Y(p_ptr->command_cmd_ex);
 			int x = KEY_GRID_X(p_ptr->command_cmd_ex);
 			int room;
+			
+			/* Paranoia */
+			if (!in_bounds_fully(y, x)) break;
 
 			/* Hack -- we could try various things here like travelling or going up/down stairs */
 			if ((p_ptr->py == y) && (p_ptr->px == x) && (p_ptr->command_cmd_ex.mousebutton))
@@ -2589,7 +2606,7 @@ static void process_command(void)
 				msg_print("Target set.");
 			}
 			else if (use_trackmouse && (easy_more || auto_more))
-			{
+			{				
 				target_set_interactive_aux(y, x, &room, TARGET_PEEK, (use_mouse ? "*,left-click to target, right-click to go to" : "*"));
 			}
 			break;
@@ -2598,7 +2615,7 @@ static void process_command(void)
 		/* Hack -- Unknown command */
 		default:
 		{
-			prt("Type '?' for help.", 0, 0);
+			prt("Type '?' or press ENTER for help.", 0, 0);
 			break;
 		}
 	}

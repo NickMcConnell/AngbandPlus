@@ -837,18 +837,20 @@ void object_bonus(object_type *o_ptr, bool floor)
 	}
 }
 
+
 /*
  * Ensure tips are displayed as objects become either weakly or strongly aware
  */
-void object_aware_tips(object_type *o_ptr)
+void object_aware_tips(int kind)
 {
 	int i, count = 0;
+	int tval = k_info[kind].tval;
 
 	/* Check all objects */
 	for (i = 0; i < z_info->k_max; i++)
 	{
 		/* Skip non-matching tvals */
-		if (k_info[i].tval != o_ptr->tval) continue;
+		if (k_info[i].tval != tval) continue;
 		
 		/* Count number of objects aware */
 		if (k_info[i].aware) count++;
@@ -858,17 +860,17 @@ void object_aware_tips(object_type *o_ptr)
 	if (!count)
 	{
 		/* Show tval based tip */
-		queue_tip(format("tval%d.txt", o_ptr->tval));
+		queue_tip(format("tval%d.txt", tval));
 	}
 	/* Show tval tips if no objects of this type known */
 	else
 	{
 		/* Show tval based tip */
-		queue_tip(format("tval%d-%d.txt", o_ptr->tval, count));
+		queue_tip(format("tval%d-%d.txt", tval, count));
 	}
 
 	/* Show tip for kind of object */
-	queue_tip(format("kind%d.txt", o_ptr->k_idx));
+	queue_tip(format("kind%d.txt", kind));
 }
 
 /*
@@ -885,7 +887,7 @@ void object_aware(object_type *o_ptr, bool floor)
 	/* Add a tip if we're not aware */
 	if (!object_aware_p(o_ptr))
 	{
-		object_aware_tips(o_ptr);
+		object_aware_tips(o_ptr->k_idx);
 	}
 	
 	/* Get the flags */
@@ -920,6 +922,20 @@ void object_aware(object_type *o_ptr, bool floor)
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
 
+	/* Hack -- fully aware of the coating effects */
+	if (o_ptr->xtra1 >= OBJECT_XTRA_MIN_COATS)
+	{
+		int coating = lookup_kind(o_ptr->xtra1, o_ptr->xtra2);
+
+		/* Queue tips */
+		if (!k_info[coating].aware) object_aware_tips(coating);
+
+		/* Make coating aware */
+		k_info[coating].aware = TRUE;
+		
+		k_info[coating].tried = FALSE;
+	}
+	
 	/* Identify the name */
 	o_ptr->ident |= (IDENT_NAME);
 
@@ -1018,9 +1034,6 @@ void object_tried(object_type *o_ptr)
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Don't mark it if aware */
-	if (k_ptr->aware) return;
-
-	/* Don't mark it if guessed */
 	if (k_ptr->aware) return;
 
 	/* Mark it as tried */
@@ -1675,23 +1688,7 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			if (o_ptr->to_a != j_ptr->to_a) return (FALSE);
 			if (o_ptr->pval != j_ptr->pval) return (FALSE);
 
-			/* Require similar "charges" code */
-			if (o_ptr->charges != j_ptr->charges)
-			{
-				/* Check for sign difference */
-				if ((o_ptr->charges > 0)&&(j_ptr->charges <= 0)) return (0);
-				if ((o_ptr->charges < 0)&&(j_ptr->charges >= 0)) return (0);
-				if ((o_ptr->charges == 0)&&(j_ptr->charges != 0)) return (0);
-
-				/* Line 1 -- no force charge stacking option */
-				/* Line 2 -- 1st charges is not 1 less than 2nd charges, or 1st charges is a charges stack */
-				/* Line 3 -- 1st charges is not 1 greater than 2nd charges, or 2nd charges is a charges stack */
-				/* Line 4 -- an item has auto_stack */
-				if ((!stack_force_charges)
-					&& ((o_ptr->charges != j_ptr->charges-1) || (o_ptr->stackc))
-					&& ((o_ptr->charges != j_ptr->charges+1) || (j_ptr->stackc))
-					&& !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
-			}
+			/* XXX Just merge coating "charges" */
 
 			/* Require identical "artifact" names */
 			if (o_ptr->name1 != j_ptr->name1) return (FALSE);
@@ -1738,20 +1735,48 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	if (((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) ||
 	    ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) ||
 	    ((o_ptr->ident & (IDENT_BREAKS)) != (j_ptr->ident & (IDENT_BREAKS))) ||
+	    ((o_ptr->ident & (IDENT_FORGED)) != (j_ptr->ident & (IDENT_FORGED))) ||
 	    ((o_ptr->ident & (IDENT_STORE)) != (j_ptr->ident & (IDENT_STORE))))
 	{
+		/* Debugging code for stacking problems */
+		if (cheat_xtra)
+		{
+			if ((o_ptr->ident & (IDENT_CURSED)) != (j_ptr->ident & (IDENT_CURSED))) msg_print("Ident cursed not matching");
+			if ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) msg_print("Ident broken not matching");
+			if ((o_ptr->ident & (IDENT_BREAKS)) != (j_ptr->ident & (IDENT_BREAKS))) msg_print("Ident breaks not matching");
+			if ((o_ptr->ident & (IDENT_STORE)) != (j_ptr->ident & (IDENT_STORE))) msg_print("Ident store not matching");
+			if ((o_ptr->ident & (IDENT_FORGED)) != (j_ptr->ident & (IDENT_FORGED))) msg_print("Ident forged not matching");
+		}
+		
 		return (0);
 	}
 
-	/* Hack -- Require identical "xtra1" and "xtra2" status */
-	if ((o_ptr->xtra1 != j_ptr->xtra1) || (o_ptr->xtra2 != j_ptr->xtra2)) return (0);
+	/* Hack -- Require identical "xtra1" status */
+	if (o_ptr->xtra1 != j_ptr->xtra1)
+	{
+		if (cheat_xtra) msg_format("xtra1 %d does not match xtra1 %d", o_ptr->xtra1, j_ptr->xtra1);
+		return (0);
+	}
 
-	/* Hack -- Require identical "name3" */
-	if (o_ptr->name3 != j_ptr->name3) return(0);
+	/* Hack -- Require identical "xtra2" status */
+	if (o_ptr->xtra2 != j_ptr->xtra2)
+	{
+		if (cheat_xtra) msg_format("xtra2 %d does not match xtra2 %d", o_ptr->xtra2, j_ptr->xtra2);
+		return (0);
+	}
+
+	/* Hack -- Require identical "xtra2" status */
+	if (o_ptr->name3 != j_ptr->name3)
+	{
+		if (cheat_xtra) msg_format("name3 %d does not match name3 %d", o_ptr->name3, j_ptr->name3);
+		return (0);
+	}
 
 	/* Hack -- Require compatible inscriptions */
 	if (o_ptr->note != j_ptr->note)
 	{
+		if (cheat_xtra) msg_format("note %d does not match note %d", o_ptr->note, j_ptr->note);
+		
 		/* Normally require matching inscriptions */
 		if (!stack_force_notes && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr)) ) return (0);
 
@@ -1762,6 +1787,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	/* Hack -- Require compatible "discount" fields */
 	if (o_ptr->discount != j_ptr->discount)
 	{
+		if (cheat_xtra) msg_format("discount %d does not match discount %d", o_ptr->discount, j_ptr->discount);
+		
 		/* Normally require matching discounts */
 		if (!stack_force_costs && !(auto_stack_okay(o_ptr) && auto_stack_okay(j_ptr))) return (0);
 	}
@@ -1769,6 +1796,8 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	/* Hack -- Require compatible "feeling" fields */
 	if (o_ptr->feeling != j_ptr->feeling)
 	{
+		if (cheat_xtra) msg_format("feeling %d does not match feeling %d", o_ptr->feeling, j_ptr->feeling);
+
 		/* Both are (different) special inscriptions */
 		if ((o_ptr->feeling) && (j_ptr->feeling))
 		{
@@ -2087,7 +2116,20 @@ void object_prep(object_type *o_ptr, int k_idx)
 	if (k_ptr->flags3 & (TR3_HEAVY_CURSE | TR3_PERMA_CURSE))  o_ptr->ident |= (IDENT_CURSED);
 	else if (k_ptr->flags3 & (TR3_LIGHT_CURSE))
 	{
-		if (rand_int(100) < 30) o_ptr->ident |= (IDENT_CURSED);
+		/* Some 'easily noticeable' attributes always result in cursing an item.
+		 * See do_cmd_wield(). */
+		if (k_ptr->flags1 & (TR1_BLOWS | TR1_SHOTS | TR1_SPEED | TR1_STR |
+				TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR))
+		{
+			o_ptr->ident |= (IDENT_CURSED);
+		}
+#ifndef ALLOW_OBJECT_INFO_MORE
+		else if ((k_ptr->flags1 & (TR1_INFRA)) || (k_ptr->flags3 & (TR3_LITE | TR3_TELEPATHY | TR3_SEE_INVIS)))
+		{
+			o_ptr->ident |= (IDENT_CURSED);			
+		}
+#endif
+		else if (rand_int(100) < 30) o_ptr->ident |= (IDENT_CURSED);
 		else o_ptr->ident |= (IDENT_BROKEN);
 	}
 	
@@ -3245,15 +3287,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
@@ -3273,15 +3306,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed Ring; Hack: above DL30 sure */
 					if (power < 0 || p_ptr->depth < 30 + rand_int (20))
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 
@@ -3306,15 +3330,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
@@ -3336,15 +3351,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_WEAKNESS:
 				case SV_RING_STUPIDITY:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					if ((power < -1) || (rand_int(100) < 30))
-					{
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-					}
-
 					/* Penalize */
 					o_ptr->pval = 0 - (1 + m_bonus(5, level));
 
@@ -3354,15 +3360,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* WOE, Stupidity */
 				case SV_RING_WOE:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					if ((power < -1) || (rand_int(100) < 30))
-					{
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-					}
-
 					/* Penalize */
 					o_ptr->to_a = 0 - (5 + m_bonus(10, level));
 					o_ptr->pval = 0 - (1 + m_bonus(5, level));
@@ -3380,15 +3377,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse bonus */
 						o_ptr->to_d = 0 - (o_ptr->to_d);
 					}
@@ -3405,15 +3393,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse tohit */
 						o_ptr->to_h = 0 - (o_ptr->to_h);
 					}
@@ -3430,15 +3409,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-						
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse toac */
 						o_ptr->to_a = 0 - (o_ptr->to_a);
 					}
@@ -3456,15 +3426,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse bonuses */
 						o_ptr->to_h = 0 - (o_ptr->to_h);
 						o_ptr->to_d = 0 - (o_ptr->to_d);
@@ -3492,15 +3453,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
@@ -3516,15 +3468,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse bonuses */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
@@ -3541,15 +3484,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
@@ -3618,15 +3552,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (p_ptr->depth < 20 + rand_int (30))
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 
@@ -3645,12 +3570,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of Doom -- always cursed */
 				case SV_AMULET_DOOM:
 				{
-					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
-
-					/* Cursed */
-					o_ptr->ident |= (IDENT_CURSED);
-
 					/* Penalize */
 					o_ptr->pval = 0 - (randint(5) + m_bonus(5, level));
 					o_ptr->to_a = 0 - (randint(5) + m_bonus(5, level));
@@ -3666,15 +3585,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					/* Cursed */
 					if (power < 0)
 					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						if ((power < -1) || (rand_int(100) < 30))
-						{
-							/* Cursed */
-							o_ptr->ident |= (IDENT_CURSED);
-						}
-
 						/* Reverse pval */
 						o_ptr->pval = 0 - (o_ptr->pval);
 
@@ -3692,6 +3602,36 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 			}
 
 			break;
+		}
+	}
+
+	/* Check if has negatives */
+	if ((o_ptr->to_h < 0) || (o_ptr->to_d < 0) || (o_ptr->to_a < 0) || (o_ptr->pval < 0))
+	{
+		if ((power < -1) || (rand_int(100) < 30))
+		{
+			/* Cursed */
+			o_ptr->ident |= (IDENT_CURSED);
+		}
+		else if (power < 0)
+		{
+			/* Some 'easily noticeable' attributes always result in cursing an item.
+			 * See do_cmd_wield(). */
+			if (k_info[o_ptr->k_idx].flags1 & (TR1_BLOWS | TR1_SHOTS | TR1_SPEED | TR1_STR |
+					TR1_INT | TR1_WIS | TR1_DEX | TR1_CON | TR1_CHR))
+			{
+				o_ptr->ident |= (IDENT_CURSED);
+			}
+		#ifndef ALLOW_OBJECT_INFO_MORE
+			else if ((k_info[o_ptr->k_idx].flags1 & (TR1_INFRA)) || (k_ptr->flags3 & (TR3_LITE | TR3_TELEPATHY | TR3_SEE_INVIS)))
+			{
+				o_ptr->ident |= (IDENT_CURSED);			
+			}
+		#endif
+			else
+			{
+				o_ptr->ident |= (IDENT_BROKEN);
+			}
 		}
 	}
 }
@@ -9052,6 +8992,69 @@ void fill_book(const object_type *o_ptr, s16b *book, int *num)
 	ang_sort(book, &why, *num);
 }
 
+
+/*
+ * Returns the spell casting details that the caster
+ * uses. This may later be modified.
+ */
+spell_cast *spell_cast_details(int spell)
+{
+	/* Get spell details */
+	spell_type *s_ptr = &s_info[spell];
+	
+	/* Spell cast details to return */
+	spell_cast *sc_ptr = NULL;
+	
+	/* Get our casting information */
+	if (p_ptr->pclass)
+	{
+		int i;
+		
+		for (i = 0;i < MAX_SPELL_CASTERS; i++)
+		{
+			if (s_ptr->cast[i].class == p_ptr->pclass)
+			{
+				sc_ptr=&(s_ptr->cast[i]);
+			}
+		}
+	}
+	
+	/* Hack -- if the character doesn't have the ability to cast a spell,
+	 * choose the first one if they are a specialist */
+	if (spell_match_style(spell)) sc_ptr = &(s_ptr->cast[0]);
+	
+	return (sc_ptr);
+}
+
+
+/*
+ * Spell could be learnt by the player.
+ * 
+ * This differs from spell_read_okay, in that the spell could appear
+ * in another book that the player is allowed to use.
+ */
+bool spell_legible(int spell)
+{
+	int i;
+	spell_type *s_ptr = &s_info[spell];
+	
+	/* Warriors (class 0) have no spells naturally, but may have as a part of being gifted or chosen below. */
+	if (p_ptr->pclass)
+	{
+		for (i = 0; i < MAX_SPELL_CASTERS; i++)
+		{
+			/* Class is allowed to cast the spell */
+			if (s_ptr->cast[i].class == p_ptr->pclass) return (TRUE);
+	    }
+	}
+
+	/* Gifted and chosen spell casters can read all spells from the book they have specialised in */
+	if (spell_match_style(spell)) return (TRUE);
+
+	return (FALSE);
+}
+
+
 /*
  * Returns level for a spell
  */
@@ -9061,47 +9064,31 @@ s16b spell_level(int spell)
 
 	s16b level;
 
-	spell_type *s_ptr;
+	spell_type *s_ptr = &s_info[spell];
 
-	spell_cast *sc_ptr = NULL;
+	spell_cast *sc_ptr = spell_cast_details(spell);
 
-	bool legible = FALSE;
-	bool fix_level = FALSE;
-
-	/* Paranoia -- must be literate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-			return (100);
-
-	/* Get the spell */
-	s_ptr = &s_info[spell];
-
-	/* Get our casting information; warriors (class 0) have no spells */
-	if (p_ptr->pclass)
-	  for (i = 0;i < MAX_SPELL_CASTERS; i++)
-	    {
-	      if (s_ptr->cast[i].class == p_ptr->pclass)
-		{
-		  legible = TRUE;
-		  sc_ptr=&(s_ptr->cast[i]);
-		}
-	    }
-
-	/* Hack -- get casting information for specialists */
-	if ((!legible) && (spell_match_style(spell)))
-	{
-		/* Can read spell */
-		legible = TRUE;
-
-		/* Get the first spell caster's casting info */
-		sc_ptr=&(s_ptr->cast[0]);
-			
-		/* And remember to fix it later */
-		fix_level = TRUE;
-	}
+	bool fix_level = TRUE;
 
 	/* Illegible */
-	if (!legible) return (100);
+	if (!spell_legible(spell)) return (100);
+	
+	/* Check we have casting details */
+	if (!sc_ptr) return (100);
+
+	/* Hack -- check if we can 'naturally' cast it,
+	 * as opposed to relying on speciality. */
+	if (p_ptr->pclass)
+	{
+		for (i = 0;i < MAX_SPELL_CASTERS; i++)
+		{
+			if (s_ptr->cast[i].class == p_ptr->pclass)
+			{
+				/* Use the native casting level */
+				fix_level = FALSE;
+			}
+		}
+	}
 
 	/* Get the level */
 	level = sc_ptr->level;
@@ -9144,6 +9131,9 @@ s16b spell_level(int spell)
 }
 
 
+/*
+ * Get the spell power
+ */
 s16b spell_power(int spell)
 {
 	int i;
@@ -9224,47 +9214,13 @@ s16b spell_chance(int spell)
 {
 	int chance, minfail;
 
-	spell_type *s_ptr;
-
-	spell_cast *sc_ptr = NULL;
-
-	bool legible = FALSE;
-
-	int i;
-
-	/* Paranoia -- must be literate */
-	if ((c_info[p_ptr->pclass].spell_first > PY_MAX_LEVEL)
-		&& (p_ptr->pstyle != WS_MAGIC_BOOK) && (p_ptr->pstyle != WS_PRAYER_BOOK) && (p_ptr->pstyle != WS_SONG_BOOK))
-			return (100);
-
-	/* Get the spell */
-	s_ptr = &s_info[spell];
-
-	/* Get our casting information; warriors (class 0) have no spells */
-	if (p_ptr->pclass)
-	  for (i = 0; i < MAX_SPELL_CASTERS; i++)
-	    {
-	      if (s_ptr->cast[i].class == p_ptr->pclass)
-		{
-		  legible = TRUE;
-		  sc_ptr=&(s_ptr->cast[i]);
-		}
-	    }
-
-	/* Hack -- get casting information for specialists */
-	if ((!legible) && (spell_match_style(spell)))
-	{
-		/* Can read it */
-		legible = TRUE;
-		
-		/* Get the first spell caster's casting info */
-		sc_ptr=&(s_ptr->cast[0]);
-		
-		/* And remember to fix it later */
-	}
+	spell_cast *sc_ptr = spell_cast_details(spell);
 
 	/* Illegible */
-	if (!legible) return (100);
+	if (!spell_legible(spell)) return (100);
+	
+	/* Check we have casting details */
+	if (!sc_ptr) return (100);
 
 	/* Extract the base spell failure rate */
 	chance = sc_ptr->fail;
@@ -9312,6 +9268,8 @@ s16b spell_chance(int spell)
 
 
 
+
+
 /*
  * Determine if a spell is "okay" for the player to cast or study
  * The spell must be legible, not forgotten, and also, to cast,
@@ -9323,35 +9281,16 @@ bool spell_okay(int spell, bool known)
 
 	int i;
 
-	bool legible = FALSE;
-	bool specialist = FALSE;
-
 	/* Get the spell */
 	s_ptr = &s_info[spell];
 
-	/* Get our casting information; warriors (class 0) have no spells */
-	if (p_ptr->pclass)
-	  for (i = 0; i < MAX_SPELL_CASTERS; i++)
-	    {
-	      if (s_ptr->cast[i].class == p_ptr->pclass)
-		{
-		  legible = TRUE;
-		}
-	}
-
-	/* Hack -- get casting information for specialists */
-	if (spell_match_style(spell))
-	{
-		legible = TRUE;
-		specialist = TRUE;
-	}
-
 	/* Spell is illegible */
-	if (!legible) return (FALSE);
+	if (!spell_legible(spell)) return (FALSE);
 
 	/* Spell is illegal */
 	if (spell_level(spell) > p_ptr->lev) return (FALSE);
 
+	/* Get the spell from the spells the player has learnt */
 	for (i=0;i<PY_MAX_SPELLS;i++)
 	{
 		if (p_ptr->spell_order[i] == spell) break;
@@ -9368,7 +9307,7 @@ bool spell_okay(int spell, bool known)
 			bool preq = FALSE;
 
 			/* Check prerequisites, unless specialist */
-			if (!specialist)
+			if (!spell_match_style(spell))
 			  for (n = 0; n < MAX_SPELL_PREREQUISITES; n++)
 			  {
 				if (s_info[spell].preq[n])
@@ -9411,6 +9350,7 @@ bool spell_okay(int spell, bool known)
 	/* Okay to study, not to cast */
 	return (!known);
 }
+
 
 /*
  * Returns in tag_num the numeric value of the inscription tag associated with

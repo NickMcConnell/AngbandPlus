@@ -4166,6 +4166,13 @@ static void string_lower(char *buf)
  * use of perfect seeking.  XXX XXX XXX
  *
  * Allow the user to "save" the current file.  XXX XXX XXX
+ * 
+ * If mode is set to 1, the file is shown but ignores the menu
+ * structure, and only has 3 commands: space advances a
+ * screenful, enter exits, and any other key exits and pushes
+ * the key_press back as a command.  This is used to show
+ * the commands for the user if they press the enter key.
+ * 
  */
 bool show_file(cptr name, cptr what, int line, int mode)
 {
@@ -4223,6 +4230,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 	int wid, hgt;
 
+	/* Show messages first */
+	if (easy_more) messages_easy(FALSE);
 
 	/* Wipe finder */
 	my_strcpy(finder, "", sizeof(finder));
@@ -4495,6 +4504,19 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		/* Get a keypress */
 		ke = anykey();
 
+		/* Process 'quick mode' commands */
+		if (mode == 1)
+		{
+			/* Also break on ENTER */
+			if ((ke.key == ESCAPE) || (ke.key == '\r') || (ke.key == '\n')) break;
+			
+			else if (ke.key != ' ')
+			{
+				p_ptr->command_new = ke;
+				break;
+			}
+		}
+		
 		/* Return to last screen */
 		if (ke.key == '?') break;
 
@@ -4654,6 +4676,22 @@ void do_cmd_help(void)
 
 
 /*
+ * Show either the roguelike or original command set.
+ */
+void do_cmd_quick_help(void)
+{
+	/* Save screen */
+	screen_save();
+
+	/* Peruse the main help file */
+	(void)show_file(rogue_like_commands ? "cmdrogue.txt" : "cmdorig.txt", NULL, 0, 1);
+
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
  * Queue up tips to be shown.
  * 
  * Tips are bits of context sensitive help that
@@ -4735,6 +4773,7 @@ void show_tip(void)
 		if (show_tips)
 		{
 			msg_print("You find a note.");
+			msg_print(NULL);
 			
 			/* Save screen */
 			screen_save();

@@ -7514,7 +7514,11 @@ bool project_m(int who, int what, int y, int x, int dam, int typ)
 
 			if (new_maxhp < m_ptr->maxhp)
 			{
-				note = " appears sicklier.";
+				if (seen)
+				{
+					note = " appears sicklier.";
+					obvious = TRUE;
+				}
 
 				/* Scale down hit points */
 				m_ptr->hp = m_ptr->hp * new_maxhp / m_ptr->maxhp;
@@ -8672,6 +8676,9 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 	}
 	else
 	{
+		/* Start with empty string */
+		killer[0] = '\0';
+		
 		/* Add object what caused the fatal wound */
 		if (who <= SOURCE_PLAYER_START)
 		{
@@ -8702,7 +8709,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				feature_type *f_ptr = &f_info[what];
 				
 				/* Get the feature name */
-				my_strcpy(killer, format("%s %s", is_a_vowel((f_name + f_ptr->name)[0]) ? "an" : "a", f_name + f_ptr->name), sizeof(killer));
+				my_strcat(killer, format("%s %s", is_a_vowel((f_name + f_ptr->name)[0]) ? "an" : "a", f_name + f_ptr->name), sizeof(killer));
 				
 				break;
 			}
@@ -8714,7 +8721,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				spell_type *s_ptr = &s_info[what];
 				
 				/* Get the spell name */
-				my_strcpy(killer, format("%s %s", is_a_vowel((s_name + s_ptr->name)[0]) ? "an" : "a", s_name + s_ptr->name), sizeof(killer));
+				my_strcat(killer, format("%s %s", is_a_vowel((s_name + s_ptr->name)[0]) ? "an" : "a", s_name + s_ptr->name), sizeof(killer));
 				
 				break;
 			}
@@ -8722,7 +8729,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 			case SOURCE_DISEASE:
 			{
 				/* Get the feature name */
-				my_strcpy(killer, disease_name[what], sizeof(killer));
+				my_strcat(killer, disease_name[what], sizeof(killer));
 				
 				break;
 			}
@@ -8745,7 +8752,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 				monster_race *r_ptr = &r_info[what];
 				
 				/* Get the feature name */
-				my_strcpy(killer, format("%s %s", is_a_vowel((r_name + r_ptr->name)[0]) ? "an" : "a", r_name + r_ptr->name), sizeof(killer));
+				my_strcat(killer, format("%s %s", is_a_vowel((r_name + r_ptr->name)[0]) ? "an" : "a", r_name + r_ptr->name), sizeof(killer));
 				
 				break;
 			}			
@@ -8771,7 +8778,7 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Add a message of destruction */
 		if (who > SOURCE_PLAYER_START)
 		{
-			my_strcpy(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
+			my_strcat(killer, cause_of_death[-who][rand_int(4)], sizeof(killer));
 		}
 	}
 
@@ -8875,6 +8882,8 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 		/* Standard damage -- also disease player */
 		case GF_DISEASE:
 		{
+			u32b old_disease = p_ptr->disease;
+			
 			if (fuzzy) msg_print("You are hit by disease!");
 
 			/* Disease resistance */
@@ -8962,16 +8971,13 @@ bool project_p(int who, int what, int y, int x, int dam, int typ)
 						p_ptr->disease |= (DISEASE_LIGHT);
 					}
 				}
-				/* Very light disease - stops recovery of hp for limited time */
-				else
-				{
-					if (!p_ptr->disease)
-						p_ptr->disease |= (DISEASE_LIGHT);
-				}
 			}
 
 			/* Apply damage */
 			take_hit(dam, killer);
+			
+			/* Suffer the disease */
+			if ((old_disease == p_ptr->disease) && (!p_ptr->is_dead)) suffer_disease();
 
 			break;
 		}

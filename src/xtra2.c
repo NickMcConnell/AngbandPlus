@@ -2507,6 +2507,9 @@ static void improve_stat(void)
 	if (count_stop) return;
 #endif
 
+	/* Flush messages */
+	if (easy_more) messages_easy(FALSE);
+	
 	/* Check which stats can still be improved */
 	for (i = 0; i < A_MAX; i++)
 	{

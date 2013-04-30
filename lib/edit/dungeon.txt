@@ -249,7 +249,7 @@ N:19:Parth Galen
 X:20:24:0:0
 Q:18:483
 L:20:420:155:56:0:0
-L:31:56:0:0:0:0
+L:21:56:0:0:0:0
 L:50:56:0:0:0:0
 D:The ruins of a more ancient race lies here: the glens and
 D: hillocks strewn with the toppled statues of kings and
@@ -306,7 +306,7 @@ L:21:0:1:155:1084:0
 S:512:520:521:522:0:0:0:0
 
 N:26:Minas Morgul
-X:25:31:0:0
+X:25:0:0:0
 R:UNDEAD
 L:53:407:56:397:492:46
 L:54:56:0:397:0:46
@@ -315,7 +315,8 @@ L:85:56:0:0:535:46
 #Note that we need a map to travel from Minas Morgol to Cirith Ungol now.
 
 N:27:Cirith Ungol
-X:26:31:0:0
+X:26:0:0:0
+Q:33:530
 L:53:56:141:141:530:11
 L:54:56:1:0:0:11
 L:65:56:1:0:597:11
@@ -352,7 +353,7 @@ L:56:435:411:420:535:0
 N:31:the white tree of Minas Tirith
 X:28:0:0:0
 R:ANIMAL
-L:0:0:410:56:0:46
+L:0:0:410:56:0:0
 S:777:0:0:0:0:0:0:0
 D:A white tree has found root here.  Claim your reward which
 D:lies beneath the tree.

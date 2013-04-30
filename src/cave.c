@@ -1293,7 +1293,7 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 		}
 
 		/* Special lighting effects */
-		else if ((view_special_lite) && (f_ptr->flags3 & (FF3_ATTR_LITE)))
+		else if ((view_special_lite) && (view_granite_lite) && (f_ptr->flags3 & (FF3_ATTR_LITE)))
 		{
 			/* Modify lighting */
 			(*modify_grid_boring_hook)(&a, &c, y, x, cinfo, pinfo);
@@ -1954,7 +1954,7 @@ void note_spot(int y, int x)
 			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 			if ((!k_ptr->flavor) && !(k_ptr->aware))
 			{
-				object_aware_tips(o_ptr);
+				object_aware_tips(o_ptr->k_idx);
 
 				k_ptr->aware = TRUE;
 			}
@@ -4950,13 +4950,30 @@ void town_illuminate(bool daytime)
 	dungeon_hgt = (!(zone->fill)) ? TOWN_HGT : DUNGEON_HGT;
 	dungeon_wid = (!(zone->fill)) ? TOWN_WID : DUNGEON_WID;
 
-	/* Apply light or darkness */
+	/* Darken at night */
 	for (y = 0; y < dungeon_hgt; y++)
 	{
 		for (x = 0; x < dungeon_wid; x++)
 		{
 			/* Light outside and adjacent indoors */
-			if ((daytime) && (f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)))
+			if ((!daytime) || ((f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)) == 0))
+			{
+				/* Darken the grid */
+				cave_info[y][x] &= ~(CAVE_DLIT);
+			}
+		}
+	}
+	
+	/* Apply light during day */
+	if (daytime) for (y = 0; y < dungeon_hgt; y++)
+	{
+		for (x = 0; x < dungeon_wid; x++)
+		{
+			/* Location is outside */
+			if (((f_info[cave_feat[y][x]].flags3 & (FF3_OUTSIDE)) != 0)
+
+				/* or light rooms lit by daylight */
+				|| ((room_has_flag(y, x, ROOM_DAYLITE)) != 0))
 			{
 				/* Illuminate the grid */
 				cave_info[y][x] |= (CAVE_DLIT);
@@ -4967,32 +4984,33 @@ void town_illuminate(bool daytime)
 					int xx = x + ddx_ddd[i];
 
 					/* Ignore annoying locations */
-					if (!in_bounds_fully(yy, xx)) continue;
+					if (!in_bounds(yy, xx)) continue;
 
 					/* Illuminate the grid */
 					cave_info[yy][xx] |= (CAVE_DLIT);
 				}
 			}
-
-			/* Darken */
-			else
-			{
-				/* Darken the grid */
-				cave_info[y][x] &= ~(CAVE_DLIT);
-			}
-
-			/* Reveal it */
-			lite_spot(y,x);
 		}
 	}
-
+	
+	/* XXX WARNING:
+	 * 
+	 * Town_illuminate is called once whilst loading a character.
+	 * 
+	 * The following will cause a monster to be generated before loading
+	 * the monsters, and cause the save file to fail to load.
+	 *
+	 * Therefore we need to ensure that the character is loaded first.
+	 * 
+	 */
+	
 	/* Megahack --- darkness brings out the bad guys */
-	if ((!daytime) && actual_guardian(zone->guard, p_ptr->dungeon) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num <= 0))
+	if ((character_loaded) && (!daytime) && actual_guardian(zone->guard, p_ptr->dungeon) && (r_info[actual_guardian(zone->guard, p_ptr->dungeon)].cur_num <= 0))
 	{
-		int y, x;
+		int y, x, count = 0;
 
 		/* Pick a location */
-		while (1)
+		while (++count < 1000)
 		{
 			y = rand_int(dungeon_hgt);
 			x = rand_int(dungeon_wid);
@@ -6696,7 +6714,7 @@ void init_level_flags(void)
 	}
 	/* Others */
 	else
-	{
+	{		
 		/* Surface -- must go down */
 		if (p_ptr->depth == min_depth(p_ptr->dungeon))
 		{

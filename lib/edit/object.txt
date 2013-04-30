@@ -5659,17 +5659,15 @@ G:?:v
 I:99:24:0
 W:20:0:0:250
 
-#Unused
-#N:774:Restore Wisdom
-#G:?:v
-#I:99:25:0
-#W:20:0:0:250
+N:774:Healing
+G:?:v
+I:99:25:0
+W:20:0:0:250
 
-#Unused
-#N:775:Restore Charisma
-#G:?:v
-#I:99:26:0
-#W:20:0:0:250
+N:775:Rest until Dusk
+G:?:v
+I:99:26:0
+W:20:0:0:25
 
 N:776:Read Magic
 G:?:v
@@ -7170,4 +7168,9 @@ P:0:1d1:0:0:0
 #W:30:0:30:900
 #A:30/9
 #P:0:1d1:0:0:0
+
+N:980:Rest until Dawn
+G:?:v
+I:99:52:0
+W:20:0:0:25
 

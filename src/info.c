@@ -3829,8 +3829,6 @@ void print_spells(const s16b *sn, int num, int y, int x)
 {
 	int i, ii, spell, level;
 
-	bool legible;
-
 	cptr comment;
 
 	char info[80];
@@ -3865,39 +3863,11 @@ void print_spells(const s16b *sn, int num, int y, int x)
 		/* Get the spell info */
 		s_ptr = &s_info[spell];
 
-		legible = FALSE;
-
 		/* Get the spell details; warriors (class 0) have no spells */
-		if (p_ptr->pclass)
-		  for (ii = 0; ii < MAX_SPELL_CASTERS; ii++)
-		    {
-		      if (s_ptr->cast[ii].class == p_ptr->pclass)
-			{
-			  legible = TRUE;
-			  sc_ptr=&(s_ptr->cast[ii]);
-			}
-		    }
-
-		/* Hack -- get casting information for specialists */
-		if (!legible)
-		{
-			for (ii = 0; ii < MAX_SPELL_APPEARS; ii++)
-			{
-				if ((((s_info[spell].appears[ii].tval == TV_SONG_BOOK) && (p_ptr->pstyle == WS_SONG_BOOK)) ||
-					((s_info[spell].appears[ii].tval == TV_MAGIC_BOOK) && (p_ptr->pstyle == WS_MAGIC_BOOK)) ||
-					((s_info[spell].appears[ii].tval == TV_PRAYER_BOOK) && (p_ptr->pstyle == WS_PRAYER_BOOK)))
-			&& ((s_info[spell].appears[i].sval == p_ptr->psval) || ((p_ptr->psval >= SV_BOOK_MAX_GOOD) &&
-				((s_info[spell].appears[i].sval / SV_BOOK_SCHOOL) * SV_BOOK_SCHOOL + SV_BOOK_SCHOOL - 1 == p_ptr->psval))))
-				{
-				  legible = TRUE;
-				  /* Get the first spell caster's casting info */
-				  sc_ptr=&(s_ptr->cast[0]);
-				}
-			}
-		}
+		sc_ptr = spell_cast_details(spell);
 
 		/* Skip illegible spells */
-		if (!legible)
+		if ((!spell_legible(spell)) || !(sc_ptr))
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), s_name+s_info[0].name);
 			c_prt(TERM_L_DARK, out_val, y + i + 1, x);
@@ -4133,17 +4103,36 @@ void object_guess_name(object_type *o_ptr)
 	byte guess1=0;
 	byte guess2=0;
 	byte guess3=0;
-
+	
+	u32b f1 = o_ptr->can_flags1;
+	u32b f2 = o_ptr->can_flags2;
+	u32b f3 = o_ptr->can_flags3;
+	u32b f4 = o_ptr->can_flags4;
+	
 	/* Do not guess identified items */
 	if (object_named_p(o_ptr)) return;
 
+	/* Remove flags on aware objects */
+	if (k_info[o_ptr->k_idx].aware)
+	{
+		f1 &= ~(k_info[o_ptr->k_idx].flags1);
+		f2 &= ~(k_info[o_ptr->k_idx].flags2);
+		f3 &= ~(k_info[o_ptr->k_idx].flags3);
+		f4 &= ~(k_info[o_ptr->k_idx].flags4);
+	}
+
+	/* Hack -- remove throwing flag */
+	f3 &= ~(TR3_THROWING);
+
+	/* No properties beyond base kind */
+	if (!f1 && !f2 && !f3 && !f4) return;
+
 	/* Check the ego item list */
 	/* Hack -- exclude artifacts and potions */
-	if (o_ptr->tval != TV_POTION
-	    && !(o_ptr->feeling == INSCRIP_SPECIAL) &&
-	       !(o_ptr->feeling == INSCRIP_ARTIFACT) &&
-	       !(o_ptr->feeling == INSCRIP_TERRIBLE) &&
-	       !(o_ptr->feeling == INSCRIP_UNBREAKABLE))
+	if ((o_ptr->feeling != INSCRIP_SPECIAL) &&
+	       (o_ptr->feeling != INSCRIP_ARTIFACT) &&
+	       (o_ptr->feeling != INSCRIP_TERRIBLE) &&
+	       (o_ptr->feeling != INSCRIP_UNBREAKABLE))
 	for (i = 1; i < z_info->e_max; i++)
 	{
 		ego_item_type *e_ptr = &e_info[i];
@@ -4178,10 +4167,10 @@ void object_guess_name(object_type *o_ptr)
 		if (o_ptr->not_flags4 & n_ptr->can_flags4) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->can_flags1 & n_ptr->not_flags1) continue;
-		if (o_ptr->can_flags2 & n_ptr->not_flags2) continue;
-		if (o_ptr->can_flags3 & n_ptr->not_flags3) continue;
-		if (o_ptr->can_flags4 & n_ptr->not_flags4) continue;
+		if (f1 & n_ptr->not_flags1) continue;
+		if (f2 & n_ptr->not_flags2) continue;
+		if (f3 & n_ptr->not_flags3) continue;
+		if (f4 & n_ptr->not_flags4) continue;
 
 		/* Reset score */
 		score = 0;
@@ -4191,12 +4180,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-				if ((o_ptr->can_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
+				if ((f1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (e_ptr->flags1 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
+				if ((f1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4206,12 +4195,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-				if ((o_ptr->can_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
+				if ((f2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (e_ptr->flags2 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
+				if ((f2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4224,12 +4213,12 @@ void object_guess_name(object_type *o_ptr)
 
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-				if ((o_ptr->can_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
+				if ((f3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (e_ptr->flags3 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
+				if ((f3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4239,12 +4228,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if ((cheat_lore) || !(e_ptr->xtra))
 			{
-				if ((o_ptr->can_flags4 & (1L<<ii)) && (e_ptr->flags4 & (1L<<ii))) score +=3;
+				if ((f4 & (1L<<ii)) && (e_ptr->flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (e_ptr->flags4 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=3;
+				if ((f4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4296,10 +4285,10 @@ void object_guess_name(object_type *o_ptr)
 		if (o_ptr->not_flags4 & k_ptr->flags4) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->can_flags1 & ~(k_ptr->flags1)) continue;
-		if (o_ptr->can_flags2 & ~(k_ptr->flags2)) continue;
-		if (o_ptr->can_flags3 & ~(k_ptr->flags3)) continue;
-		if (o_ptr->can_flags4 & ~(k_ptr->flags4)) continue;
+		if (f1 & ~(k_ptr->flags1)) continue;
+		if (f2 & ~(k_ptr->flags2)) continue;
+		if (f3 & ~(k_ptr->flags3)) continue;
+		if (f4 & ~(k_ptr->flags4)) continue;
 
 		/* Reset score */
 		score = 0;
@@ -4307,14 +4296,14 @@ void object_guess_name(object_type *o_ptr)
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((o_ptr->can_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=3;
+			if ((f1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=3;
 			if ((o_ptr->may_flags1 & (1L<<ii)) && (k_ptr->flags1 & (1L<<ii))) score +=1;
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((o_ptr->can_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=3;
+			if ((f2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=3;
 			if ((o_ptr->may_flags2 & (1L<<ii)) && (k_ptr->flags2 & (1L<<ii))) score +=1;
 		}
 
@@ -4324,14 +4313,14 @@ void object_guess_name(object_type *o_ptr)
 			/* Hack -- don't match on curse flags */
 			if ((1L << ii) >= TR3_LIGHT_CURSE) continue;
 
-			if ((o_ptr->can_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=3;
+			if ((f3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=3;
 			if ((o_ptr->may_flags3 & (1L<<ii)) && (k_ptr->flags3 & (1L<<ii))) score +=1;
 		}
 
 		/* Award points on matching powers: 3 for have, 1 for may */
 		for (ii=0;ii<32;ii++)
 		{
-			if ((o_ptr->can_flags4 & (1L<<ii)) && (k_ptr->flags4 & (1L<<ii))) score +=3;
+			if ((f4 & (1L<<ii)) && (k_ptr->flags4 & (1L<<ii))) score +=3;
 			if ((o_ptr->may_flags4 & (1L<<ii)) && (k_ptr->flags4 & (1L<<ii))) score +=1;
 		}
 
@@ -4354,11 +4343,11 @@ void object_guess_name(object_type *o_ptr)
 
 	/* Check the artifact list */
 	/* Hack -- exclude ego items */
-	if (!(o_ptr->feeling == INSCRIP_EXCELLENT) &&
-	       !(o_ptr->feeling == INSCRIP_SUPERB) &&
-	       !(o_ptr->feeling == INSCRIP_HIGH_EGO_ITEM) &&
-	       !(o_ptr->feeling == INSCRIP_EGO_ITEM) &&
-	       !(o_ptr->feeling == INSCRIP_WORTHLESS))
+	if ((o_ptr->feeling != INSCRIP_EXCELLENT) &&
+	       (o_ptr->feeling != INSCRIP_SUPERB) &&
+	       (o_ptr->feeling != INSCRIP_HIGH_EGO_ITEM) &&
+	       (o_ptr->feeling != INSCRIP_EGO_ITEM) &&
+	       (o_ptr->feeling != INSCRIP_WORTHLESS))
 		for (i = 1; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
@@ -4383,10 +4372,10 @@ void object_guess_name(object_type *o_ptr)
 		if (o_ptr->not_flags4 & n_ptr->can_flags4) continue;
 
 		/* Must not have excepted powers */
-		if (o_ptr->can_flags1 & n_ptr->not_flags1) continue;
-		if (o_ptr->can_flags2 & n_ptr->not_flags2) continue;
-		if (o_ptr->can_flags3 & n_ptr->not_flags3) continue;
-		if (o_ptr->can_flags4 & n_ptr->not_flags4) continue;
+		if (f1 & n_ptr->not_flags1) continue;
+		if (f2 & n_ptr->not_flags2) continue;
+		if (f3 & n_ptr->not_flags3) continue;
+		if (f4 & n_ptr->not_flags4) continue;
 
 		/* Reset score */
 		score = 0;
@@ -4396,12 +4385,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-				if ((o_ptr->can_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
+				if ((f1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (a_ptr->flags1 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
+				if ((f1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags1 & (1L<<ii)) && (n_ptr->can_flags1 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4411,12 +4400,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-				if ((o_ptr->can_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
+				if ((f2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (a_ptr->flags2 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
+				if ((f2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags2 & (1L<<ii)) && (n_ptr->can_flags2 & (1L<<ii))) score +=1;
 			}					      
 		}
@@ -4426,12 +4415,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-				if ((o_ptr->can_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
+				if ((f3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (a_ptr->flags3 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
+				if ((f3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags3 & (1L<<ii)) && (n_ptr->can_flags3 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4441,12 +4430,12 @@ void object_guess_name(object_type *o_ptr)
 		{
 			if (cheat_lore)
 			{
-				if ((o_ptr->can_flags4 & (1L<<ii)) && (a_ptr->flags4 & (1L<<ii))) score +=3;
+				if ((f4 & (1L<<ii)) && (a_ptr->flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (a_ptr->flags4 & (1L<<ii))) score +=1;
 			}
 			else
 			{
-				if ((o_ptr->can_flags4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=3;
+				if ((f4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=3;
 				if ((o_ptr->may_flags4 & (1L<<ii)) && (n_ptr->can_flags4 & (1L<<ii))) score +=1;
 			}
 		}
@@ -4526,6 +4515,7 @@ void object_guess_name(object_type *o_ptr)
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);	
 	}
 }
+
 
 /*
  * Object does have flags.

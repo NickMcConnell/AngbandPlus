@@ -2198,7 +2198,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 		/* Feature is seen */
 		if (play_info[y][x] & (PLAY_SEEN))
 		{
-			my_strcat(m_name,f_name + f_info[what].name, sizeof(m_name));
+			my_strcpy(m_name,f_name + f_info[what].name, sizeof(m_name));
 			my_strcpy(m_poss,"the ", sizeof(m_poss));
 			my_strcpy(m_poss,f_name + f_info[what].name, sizeof(m_poss));
 			my_strcat(m_poss,"'s",sizeof(t_poss));
@@ -3752,7 +3752,7 @@ bool make_attack_ranged(int who, int attack, int y, int x)
 			if (target > 0)
 			{
 				/* Add to the monster haste counter */
-				set_monster_haste(target, n_ptr->hasted + rlev + rand_int(rlev), m_ptr->ml);
+				set_monster_haste(target, n_ptr->hasted + rlev + rand_int(rlev), n_ptr->ml);
 			}
 			else if (target < 0)
 			{

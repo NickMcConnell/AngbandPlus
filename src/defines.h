@@ -835,6 +835,12 @@
 #define SUMMON_HI_UNDEAD  31
 #define SUMMON_WRAITH     32
 #define RAISE_HI_UNIQUE   33
+#define SUMMON_COLOUR   34
+#define SUMMON_PREFIX   35
+#define SUMMON_SUFFIX   36		/* Not used. Use SUMMON_ALL_BUT_PREFIX */
+#define SUMMON_ALL_BUT_PREFIX   37
+#define SUMMON_INFIX_WYRM_OF   38
+#define SUMMON_DRAGON_BREATH   39
 
 
 /*
@@ -1599,6 +1605,8 @@
 #define SPELL_BLOOD_BOND		44
 #define SPELL_MINDS_EYE			45
 #define SPELL_LIGHT_CHAMBERS	46
+#define SPELL_REST_UNTIL_DUSK	47
+#define SPELL_REST_UNTIL_DAWN	48
 
 
 /*** Important artifact indexes (see "lib/edit/artifact.txt") ***/
@@ -4322,7 +4330,10 @@
 #define WS_WIELD_FLAGS  0x000001FF /* WS_UNARMED--WS_POLEARM + WS_NONE*/
 #define WS_LAUNCHER_FLAGS  0x00001C01 /* WS_SLING--WS_XBOW + WS_NONE*/
 #define WS_THROWN_FLAGS  0x00000201 /* WS_THROWN + WS_NONE*/
-#define WS_AWARE_FLAGS  0x00FC0001 /* ? */
+#define WS_AWARE_FLAGS  0x00FC0001L /* These increase players awareness of objects as he increases level */
+#define WS_NON_WIELD_FLAGS  0xFF406F00L /* Its not possible to 'wield' any of these styles, so to compensate
+											they accrue the none benefits as well (for the moment) */
+
 
 /* Weapon style improvements */
 #define WB_NONE   0

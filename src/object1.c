@@ -1260,8 +1260,7 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 		}
 
 		/* Grab any magic name */
-		else if (o_ptr->tval != TV_POTION
-			 && o_ptr->feeling < INSCRIP_MIN_HIDDEN)
+		else if (o_ptr->feeling < INSCRIP_MIN_HIDDEN)
 		{
 			int i;
 			int x1, x2; /* Fake xtra flags */
@@ -1281,6 +1280,9 @@ void object_desc(char *buf, size_t max, const object_type *o_ptr, int pref, int 
 				f4 &= ~(k_info[o_ptr->k_idx].flags4);
 			}
 
+			/* Hack -- remove throwing flag */
+			f3 &= ~(TR3_THROWING);
+			
 			x1 = 0;
 			x2 = 0;
 
@@ -4619,7 +4621,16 @@ void fake_bag_item(object_type *i_ptr, int sval, int slot)
 		/* Apply obvious flags, e.g. for throwing items. XXX
 		 * This is, of course, *really dangerous* due to the calls in object_obvious_flags */
 		/* object_obvious_flags(i_ptr); */
+		
+		/* Hack -- instead apply kind flags */
+		i_ptr->can_flags1 = k_info[i_ptr->k_idx].flags1;
+		i_ptr->can_flags2 = k_info[i_ptr->k_idx].flags2;
+		i_ptr->can_flags3 = k_info[i_ptr->k_idx].flags3;
+		i_ptr->can_flags4 = k_info[i_ptr->k_idx].flags4;		
 	}
+	
+	/* Hack - Always allow throwable from bags */
+	if (k_info[i_ptr->k_idx].flags3 & (TR3_THROWING)) i_ptr->can_flags3 |= (TR3_THROWING);
 }
 
 

@@ -316,9 +316,7 @@ static bool check_travel_quest(int dungeon, int level, bool confirm)
  */
 void print_routes(const s16b *route, int num, int y, int x)
 {
-	int i, ii, town;
-
-	cptr distance = "via map";
+	int i, town;
 
 	char out_val[160];
 
@@ -330,7 +328,6 @@ void print_routes(const s16b *route, int num, int y, int x)
 	/* Title the list */
 	prt("", y, x);
 	put_str("Location", y, x + 5);
-	put_str(" Distance", y, x + 35);
 	put_str(" Level", y, x + 45);
 
 	/* Dump the routes */
@@ -340,12 +337,6 @@ void print_routes(const s16b *route, int num, int y, int x)
 
 		/* Get the town index */
 		town = route[i];
-
-		/* Get route */
-		for (ii = 0; ii < MAX_NEARBY; ii++)
-		{
-			if (t_info[p_ptr->dungeon].nearby[ii] == town) distance = "nearby";
-		}
 		
 		/* Get the destination info */
 		t_ptr = &t_info[town];
@@ -355,7 +346,7 @@ void print_routes(const s16b *route, int num, int y, int x)
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s %-10s%2d%3s ",
-			I2A(i), t_name + t_ptr->name,distance,zone->level,max_depth(town) > min_depth(town) ? format("-%-2d",max_depth(town)) : "");
+			I2A(i), t_name + t_ptr->name,"",zone->level,max_depth(town) > min_depth(town) ? format("-%-2d",max_depth(town)) : "");
 		c_prt(line_attr, out_val, y + i + 1, x);
 	}
 
@@ -548,9 +539,12 @@ static void do_cmd_travel(void)
 		/* Need to be full to travel for trip */
 		if (p_ptr->food < PY_FOOD_FULL)
 		{
-			msg_print("You'll need a full stomach for the road ahead.");
+			msg_print("You'll want a full stomach for the road ahead.");
+			msg_print("Hint: Try the 'E' (shift-E) command to eat something.");
+			msg_print(NULL);
 		}
-		else if (p_ptr->blind)
+		
+		if (p_ptr->blind)
 		{
 			msg_print("You can't read any maps.");
 		}

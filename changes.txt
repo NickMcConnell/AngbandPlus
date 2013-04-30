@@ -307,12 +307,6 @@ his allies from attacking 'unaware' monsters.
 
 - Prevent allies eating too much while they fight.
 
-- Fix allies spying.
-
-- Fix monsters not fighting whilst hidden.
-
-- A large number of other fixes to the allied monster AI.
-
 - Archers now share ammunition between themselves to ensure that the majority of the
 group has ammunition.
 
@@ -361,6 +355,23 @@ its pretty much feature complete. "I've just played current V (Farm dungeon) and
 generation is so much better after your recent work. Rooms, tunnels and even monsters are much
 more interesting and not just random, but with a nontrivial pattern that you start to grasp
 after several levels."
+
+- You can now use the run command to 'step' into an adjacent monster, instead of attacking
+it.
+
+- Vampires/inns allow rest until dusk/dawn.
+
+- Service of Healing now available at the temple.
+
+- You no longer have to be full to travel.
+
+- The player only suffers a monster disease if the monster disease state isn't upgraded. This
+gives them some grace e.g. preventing small chance of paralysis on the first blow.
+
+- Disease monsters now afflict you with the disease effects straight away.
+
+- Different approach to applying disease effects. They now only hit you when you enter a level,
+unless a quick disease (which retains the old process).
 
 
 ### User Interface ###
@@ -418,6 +429,14 @@ Please note this is initial work only and may need some testing / cause some mes
 
 - You can now press 's' while looking/targetting a monster to cycle between monsters of that
 race only. You can press 'a' to assault a location with any allied troops.
+
+- Added display of command listing by pressing Enter key.
+
+- Grey out gifted and chosen school choices where no spell available in the first spellbook.
+
+- Prevent show_tips interrupting running and repeated actions.
+
+- Added ecologies based on monster name and dragon breaths.
 
 
 ### Bug fixes ###
@@ -590,6 +609,12 @@ Rudolf).
 - Fixed bug with Throwing flag no longer being obvious (Thanks to Mikolaj Konarski for
 the fix).
 
+- Fix allies spying.
+
+- Fix monsters not fighting whilst hidden.
+
+- A large number of other fixes to the allied monster AI.
+
 - Fix darkness so its useful as a spell.
 
 - Fix logic problem with polymorphing a monster on terrain.
@@ -613,6 +638,72 @@ or Lothlorien.
 
 - Fix long outstanding bugs where monsters would talk about incorrect player resistances.
 
+- Fix up some animal speech sayings.
+
+- Tweak berserk so that it is cast in low mana situations.
+
+- Make trees resistant to blunt weapons.
+
+- Fix possible crash bug with diseases.
+
+- Fix outstanding part of Bug #10219 Coating related issues: identifying a coated arrow removes the inscription (but not the effect).
+
+- Fix part of Bug #10219 Coating related issues: mushroom of Sickness coating on an arrow did not get identified even though the pink jelly was reported as "appears sicklier". The jelly is no longer harmed by the coating after that.
+
+- Ensure any item with immediately noticeable negatives is cursed.
+
+- Fix for Bug #12215 Everything is "nearby" in the wilderness
+
+- Fixed bug preventing cursed rings of Teleportation from working correctly.
+
+- Fix for Bug #10266 Golden Crowns always {of Might?}.
+
+- Allow potions etc to be thrown from magical bags.
+
+- Fix bug Bug #12228 No death cause.
+
+- Fix Parth Galen.
+
+- Try to display messages before improving stats.
+
+- Fixes to easy_more messaging.
+
+- Fix for Bug #12229 Rooms types have wildly different loot amounts.
+
+- Fix bug Bug #12283 view_granite_lite option not turning off.
+
+- Fix for Bug #10197 Some things about new dungeon object.
+
+- Fix for Bug #8420 Warriors of *slaying only get 5 blows.
+
+- Fix for one-handed/two-handed warriors still qualifying for none style when wielding a shield.
+
+- Fix for Bug #10284 stack_force_notes doesn't work with full inventory in stores.
+
+- Fix for Bug #10230 Shop services prevent shop buyout.
+
+- Fix for bug #11910 Outer walls in town not lit.
+
+- Possible fix for Bug #12238 Trees change colour after reload.
+
+- Fixes for Bug #12279 Level weirdness from out of sequence maps.
+
+- Fix for Bug #12278 Rewards not available if worth more than current gold.
+
+- Fix for Bug #12277: Windows mouse tracking crashes outside town.
+
+- Fix for after each price the string " 32" was printed (Thanks to Peter Wiersig for the patch).
+
+- Fix Bug #11909 - Random choice not selectable if all choices are greyed out.
+
+- Added prerequisites for Frost Bolt II and III.
+
+- Fix for #12234 cannot parse savefile.
+
+- Fix moving to stores with mouse.
+
+- Fix bug #12291 ancient hex garbles display.
+
 
 ### Build / Platform ###
 
@@ -628,6 +719,11 @@ Windows compile.
 - Tidy up comments in a number of edit files (Mikolaj Konarski).
 
 - Move to latest Angband memory management routines.
+
+- Added debugging code for stacking.
+
+- Add spell tables spoiler.
+
 
 Unangband 0.6.1 "It's all in the reflexes." aka "Hell of the Upside-down
 Sinners"

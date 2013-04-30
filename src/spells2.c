@@ -1227,7 +1227,7 @@ bool detect_objects_normal(void)
 			/* XXX XXX - Mark objects as "seen" (doesn't belong in this function) */
 			if ((!k_info[o_ptr->k_idx].flavor) && !(k_info[o_ptr->k_idx].aware))
 			{
-				object_aware_tips(o_ptr);
+				object_aware_tips(o_ptr->k_idx);
 
 				k_info[o_ptr->k_idx].aware = TRUE;
 			}
@@ -1921,7 +1921,7 @@ bool place_random_stairs(int y, int x, int feat)
 	if (!cave_clean_bold(y, x)) return (FALSE);
 
 	/* No dungeon, no stairs */
-	if (!(level_flag & (LF1_LESS | LF1_MORE)))
+	if ((level_flag & (LF1_LESS | LF1_MORE)) == 0)
 	{
 		return (FALSE);
 	}
@@ -1930,20 +1930,20 @@ bool place_random_stairs(int y, int x, int feat)
 	else if (feat)
 	{
 		/* Hack -- restrict stairs */
-		if ((f_info[feat].flags1 &(FF1_LESS)) && !(level_flag & (LF1_LESS))) feat = feat_state(feat, FS_MORE);
-		else if ((f_info[feat].flags1 &(FF1_MORE)) && !(level_flag & (LF1_MORE))) feat = feat_state(feat, FS_LESS);
+		if (((f_info[feat].flags1 & (FF1_LESS)) != 0) && ((level_flag & (LF1_LESS)) == 0)) feat = feat_state(feat, FS_MORE);
+		else if (((f_info[feat].flags1 & (FF1_MORE)) != 0) && ((level_flag & (LF1_MORE)) == 0)) feat = feat_state(feat, FS_LESS);
 
 		cave_set_feat(y, x, feat);
 	}
 
 	/* Cannot go down, must go up */
-	else if (!(level_flag & (LF1_MORE)))
+	else if ((level_flag & (LF1_MORE)) == 0)
 	{
 		place_up_stairs(y, x);
 	}
 
 	/* Cannot go up, must go down */
-	else if (!(level_flag & (LF1_LESS)))
+	else if ((level_flag & (LF1_LESS)) == 0)
 	{
 		place_down_stairs(y, x);
 	}
@@ -7760,6 +7760,54 @@ bool process_spell_types(int who, int spell, int level, bool *cancel)
 			case SPELL_CONCENTRATE_LIFE:
 			{
 				/* Implemented elsewhere */
+				break;
+			}
+			
+			case SPELL_REST_UNTIL_DUSK:
+			case SPELL_REST_UNTIL_DAWN:
+			{
+				feature_type *f_ptr = &f_info[cave_feat[p_ptr->py][p_ptr->px]];
+				
+				/* Hack -- only on the surface for the moment */
+				if ((level_flag & (LF1_SURFACE | LF1_TOWN)) == 0)
+				{
+					msg_print("You cannot tell what time of day or night it is.");
+					break;
+				}
+				
+				/* Hack -- Vampires must be able to hide in the soil */
+				if (((f_ptr->flags1 & (FF1_ENTER)) == 0) && ((f_ptr->flags2 & (FF2_CAN_DIG)) == 0))
+				{
+					msg_print("You cannot rest here.");
+					break;
+				}
+				
+				/* Hack -- Set time to one turn before sun down / sunrise */
+				turn += ((10L * TOWN_DAWN) / 2) - (turn % (10L * TOWN_DAWN)) - 1 +
+					((level_flag & (LF1_DAYLIGHT)) == (spell == SPELL_REST_UNTIL_DUSK)) ?
+						(10L * TOWN_DAWN) / 2 : 0;
+
+				/* XXX Set food, etc */
+
+				/* Inform the player */
+				if (spell == SPELL_REST_UNTIL_DUSK) msg_print("You sleep during the day.");
+				
+				/* Heroes don't sleep easy */
+				else
+				{	switch(p_ptr->lev / 10)
+					{
+						case 0: msg_print("You awake refreshed and invigorated."); break;
+						case 1: msg_print("You toss and turn during the night."); break;
+						case 2: msg_print("Your sleep is disturbed by strange dreams."); break;
+						case 3: msg_print("You awake with a scream of half-remembered nightmares on your lips."); break;
+						case 4: msg_print("You dream of a lidless eye searching unendingly for you, and awake burning with a cold sweat."); break;
+						case 5: msg_print("You dream of black mountain crowned with lightning, raging with everlasting anger."); break;
+					}
+				}
+
+				/* Hack -- regenerate level */
+				p_ptr->leaving = TRUE;
+				
 				break;
 			}
 			

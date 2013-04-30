@@ -121,14 +121,6 @@
 #define IGNORE_UNUSED_FUNCTIONS
 
 
-
-/* Hack: Allocate a wiped thing of type T, assign to pointer P */  	 
-#define MAKE(P,T) \ 	 
-        ((P)=ZNEW(T))
-
-
-
-
 /*
  * Notes on Colors:
  *

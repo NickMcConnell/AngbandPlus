@@ -114,22 +114,24 @@ static const grouper group_item[] =
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
 	{ TV_SONG_BOOK,	"Books (Bard)" },
-	{ TV_RUNESTONE,	"Books (Shaman)" },
+	{ TV_RUNESTONE,	"Runestones" },
 
 	  { TV_BAG,       "Bags" },
 	  { TV_SERVICE,       "Services" },
-	{ TV_SPIKE,		"Various" },
+	  { TV_MAP,       "Maps" },
+		{ TV_STATUE,    "Art" },
+	  
+	{ TV_SPIKE,		"Tools" },
 	{ TV_ROPE,		  NULL },
 	{ TV_LITE,		  NULL },
 	{ TV_FLASK,		  NULL },
-	{ TV_JUNK,		  NULL },
+	
+	{ TV_JUNK,		  "Junk" },
 	{ TV_HOLD,      NULL },
 	{ TV_BONE,    NULL },
 	{ TV_SKIN,    NULL },
-	{ TV_STATUE,    NULL },
 	{ TV_BODY,      NULL },
 	{ TV_ASSEMBLY,      NULL },
-	  { TV_MAP,       NULL },
 
 	{ 0, "" }
 };
@@ -1631,6 +1633,373 @@ static void spoil_slay_table(cptr fname)
 }
 
 
+
+/*
+ * Hack - fake class
+ */
+static void spoil_fake_class(char *buf, size_t buf_s, int c, int t, int s)
+{
+	/* Hack - get specialist if requested */
+	if (!c)
+	{
+		switch (t)
+		{
+			case TV_MAGIC_BOOK: p_ptr->pclass = 1; p_ptr->pstyle = WS_MAGIC_BOOK; break;
+			case TV_PRAYER_BOOK: p_ptr->pclass = 2; p_ptr->pstyle = WS_MAGIC_BOOK; break;
+			case TV_SONG_BOOK: p_ptr->pclass = 9; p_ptr->pstyle = WS_MAGIC_BOOK; break;
+		}
+		
+		p_ptr->psval = s;
+	}
+	/* Hack - get a real class */ 
+	else
+	{
+		p_ptr->pclass = c;
+		p_ptr->pstyle = 0;
+	}
+
+	/* Get other details */
+	cp_ptr = &c_info[p_ptr->pclass];
+	
+	/* Get the class name */
+	lookup_prettyname(buf, buf_s, p_ptr->pclass, p_ptr->pstyle, p_ptr->psval, FALSE, TRUE);
+}
+
+
+
+/*
+ * Create a spoiler file for items
+ */
+static void spoil_magic_info(cptr fname)
+{
+	int old_pclass = p_ptr->pclass;
+	int old_pstyle = p_ptr->pstyle;
+	int old_psval = p_ptr->psval;
+	player_class *old_cp_ptr = cp_ptr;
+	int old_cur_runes = p_ptr->cur_runes;
+	
+	int t, s, i, j, k, l;
+
+	s16b book[26];
+	
+	char name[32];
+	char desc[80];
+	s16b casters[32];
+
+	int casters_n;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Open the file */
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	/* Dump to the spoiler file */
+	text_out_hook = text_out_to_file;
+	text_out_file = fff;
+
+	/* Header */
+	fprintf(fff, "Spoiler File -- Spell Casting (%s)\n\n\n", VERSION_STRING);
+
+	/* Hack -- mess with runestones */
+	p_ptr->cur_runes = 0;
+	
+	/* Check relevent tvals */
+	for (t = TV_MAGIC_BOOK; t < TV_RUNESTONE; t++)
+	{
+		switch (t)
+		{
+			case TV_MAGIC_BOOK:	spoiler_underline("Magic Books", '='); break;
+			case TV_PRAYER_BOOK:	spoiler_underline("Prayer Books", '='); break;
+			case TV_SONG_BOOK:	spoiler_underline("Song Books", '='); break;
+			case TV_RUNESTONE:	spoiler_underline("Runestones", '='); break;		
+		}
+		
+		fprintf(fff, "\n");
+
+		/* Cycle through all the books */
+		for (s = 0; s < 99; s++)
+		{
+			int k_idx, num;
+			object_type *o_ptr;
+			object_type object_type_body;
+			spell_type *s_ptr;
+			
+			int len;
+			
+			o_ptr = &object_type_body;
+			
+			/* Hack -- jump around to display basic prayer/magic books first */
+			if (t < TV_SONG_BOOK)
+			{
+				if (s == 0) s = SV_BOOK_MAX_GOOD;
+				else if (s == 98) s = 0;
+				else if (s == SV_BOOK_MAX_GOOD) s = 99;
+			}
+
+			/* Get kind */
+			k_idx = lookup_kind(t, s);
+			
+			/* Nothing found */
+			if (!k_idx) continue;
+			
+			/* Hack -- mess with runes, to allow all spells to be displayed */
+			if (t == TV_RUNESTONE)
+			{
+				if (p_ptr->cur_runes == (0x0000FFFFL)) p_ptr->cur_runes = (0xFFFF0000L);
+				else p_ptr->cur_runes = (0x0000FFFFL);
+			}
+
+			/* Prepare the book */
+			object_prep(o_ptr, k_idx);
+			
+			/* Description (too brief) */
+			object_desc_spoil(desc, sizeof(desc), o_ptr, FALSE, 0);
+			
+			/* Get length of book name */
+			len = strlen(desc);
+			
+			/* Fill the book with spells */
+			fill_book(o_ptr,book,&num);
+			
+			/* No casters cast from this yet -- except specialist */
+			casters_n = (t == TV_RUNESTONE ? 0 : 1);
+			
+			/* Hack -- null caster for specialist */
+			if (casters_n) casters[0] = 0;
+			
+			/* Collect some spell information */
+			for (i = 0; i < num; i++)
+			{
+				/* Get spell */
+				s_ptr = &s_info[book[i]];
+				
+				/* Check length of spell name */
+				l = strlen(s_name + s_ptr->name);
+				
+				if (l > len) len = l;
+				
+				/* Get the casters for the spell */
+				for (j = 0; j < MAX_SPELL_CASTERS; j++)
+				{
+					bool done = FALSE;
+					
+					/* Not cast by anyone */
+					if (!s_ptr->cast[j].class) continue;
+					
+					for (k = (TV_RUNESTONE ? 0 : 1); k < casters_n; k++)
+					{
+						/* Already have it */
+						if (casters[k] == s_ptr->cast[j].class) done = TRUE;
+					}
+					
+					/* Add additional caster */
+					if (!done) casters[casters_n++] = s_ptr->cast[j].class;
+				}
+			}
+			
+			/* Display the spell casters, 3 per row */
+			for (i = 0; i < casters_n; i += 3)
+			{
+				/* Line 1                 Warrior Mage  Priest   Mage*/
+				
+				/* Display header */
+				spoiler_out_n_chars(len + 2, ' ');
+
+				/* Get caster details */
+				for (j = 0; (i+j < casters_n) && (j < 3); j++)
+				{
+					/* Fake the class */
+					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
+					
+					/* Get the length of the class name */
+					l = strlen(name);
+						
+					fprintf(fff, "-%s-", name);
+					
+					/* Extend space */
+					if (l < 12) spoiler_out_n_chars(12 - l, '-');
+
+					/* End of line */
+					if ((i+j == casters_n - 1) || (j == 2))
+					{
+						fprintf(fff, "\n");
+					}
+					else
+					{
+						fprintf(fff, "   ");
+					}
+				}
+				
+				/* Line 2  Magic Book of Spells   Lvl Mana Fail   Lvl Mana Fail   Lvl Mana Fail  */
+				
+				/* Display book name */
+				fprintf(fff, "%s", desc);
+
+				/* Go to next column */
+				if (strlen(desc) < len + 2) spoiler_out_n_chars(len + 2 - strlen(desc), ' ');
+
+				/* Get caster details */
+				for (j = 0; (i + j < casters_n) && (j < 3); j++)
+				{
+					int l;
+					
+					/* Fake the class */
+					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
+					
+					/* Get the length of the class name */
+					l = strlen(name);
+						
+					fprintf(fff, "Lvl Mana Fail ");
+					
+					/* Extend space */
+					if (l >= 12) spoiler_out_n_chars(l - 11, ' ');
+
+					/* End of line */
+					if ((i+j == casters_n - 1) || (j == 2))
+					{
+						fprintf(fff, "\n");
+					}
+					else
+					{
+						fprintf(fff, "   ");
+					}
+				}
+				
+				/* Line 3 ------------------- --- ---- ---- --- ---- ---- --- ---- ---- */
+
+				/* Display header */
+				spoiler_out_n_chars(len, '-');
+				
+				/* Gap */
+				fprintf(fff, "  ");
+				
+				/* Get caster details */
+				for (j = 0; (i+j < casters_n) && (j < 3); j++)
+				{
+					int l;
+					
+					/* Fake the class */
+					spoil_fake_class(name, sizeof(name),casters[i+j], t, s);
+					
+					/* Get the length of the class name */
+					l = strlen(name);
+						
+					fprintf(fff, "--- ---- ---- ");
+					
+					/* Extend space */
+					if (l >= 12) spoiler_out_n_chars(l - 11, ' ');
+
+					/* End of line */
+					if ((i+j == casters_n - 1) || (j == 2))
+					{
+						fprintf(fff, "\n");
+					}
+					else
+					{
+						fprintf(fff, "   ");
+					}
+				}				
+				
+				/* Display spells - 1 per line */
+				for (j = 0; j < num; j++)
+				{
+					s_ptr = &s_info[book[j]];
+					
+					/* Display spell name */
+					fprintf(fff, "%s", s_name + s_ptr->name);
+
+					/* Go to next column */
+					if (strlen(s_name + s_ptr->name) < len + 2) spoiler_out_n_chars(len + 2 - strlen(s_name + s_ptr->name), ' ');
+					
+					/* Get caster details */
+					for (k = 0; (i+k < casters_n) && (k < 3); k++)
+					{
+						/* Fake the class */
+						spoil_fake_class(name, sizeof(name),casters[i+k], t, s);
+						
+						/* Display casting details */
+						for (l = 0; l < MAX_SPELL_CASTERS; l++)
+						{
+							if (s_ptr->cast[l].class == p_ptr->pclass) break;
+						}
+						
+						if (l < MAX_SPELL_CASTERS)
+						{
+							/* Display spell details */
+							fprintf(fff, "%3d %4d %3d%% ", spell_level(book[j]), s_ptr->cast[l].mana, s_ptr->cast[l].fail);
+						}
+						else
+						{
+							/* Display spell details */
+							fprintf(fff, "xxx xxxx xxxx ");
+						}
+						
+						/* End of line */
+						if ((i+k == casters_n - 1) || (k == 2))
+						{
+							fprintf(fff, "\n");
+						}
+						else
+						{
+							/* Get the length of the class name */
+							l = strlen(name);
+								
+							/* Extend space */
+							if (l >= 11) spoiler_out_n_chars(l - 11, ' ');
+							
+							fprintf(fff, "   ");
+						}
+					}
+				}
+				
+				fprintf(fff, "\n\n");				
+			}
+			
+
+			/* Hack -- mess with runes, to allow all spells to be displayed */
+			if (t == TV_RUNESTONE)
+			{
+				if (p_ptr->cur_runes == (0x0000FFFFL)) s--;
+			}
+		}
+
+		fprintf(fff, "\n\n");
+	}
+    
+	/* Restore class information */
+	p_ptr->pclass = old_pclass;
+	p_ptr->pstyle = old_pstyle;
+	p_ptr->psval = old_psval;
+	cp_ptr = old_cp_ptr;
+	p_ptr->cur_runes = old_cur_runes;
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
+
+
+
+
 /*
  * Create Spoiler files
  */
@@ -1662,6 +2031,8 @@ void do_cmd_spoilers(void)
                 prt("(7) Full Terrain Info (ter-info.spo)", 11, 5);
                 prt("(8) Brief Ego Item Info (ego-desc.spo)", 12, 5);
                 prt("(9) Slay Table (slay-tbl.spo)", 13, 5);
+                prt("(0) Spell Casting (mag-info.spo)", 14, 5);
+                
 
 		/* Prompt */
 		prt("Command: ", 16, 0);
@@ -1727,6 +2098,12 @@ void do_cmd_spoilers(void)
                 else if (ch == '9')
 		{
 			spoil_slay_table("slay-tbl.spo");
+		}
+
+		/* Option (9) */
+                else if (ch == '0')
+		{
+			spoil_magic_info("mag-info.spo");
 		}
 
 		/* Oops */
